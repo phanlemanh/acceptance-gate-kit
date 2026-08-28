@@ -562,8 +562,37 @@ const invokedAt = typeof args.invokedAt === 'string' ? args.invokedAt : ''
 // — chảy vào TỪNG dòng run-log làm anchor cho carry round fix; vắng args → không field.
 const invokedSha = typeof args.invokedSha === 'string' && args.invokedSha ? args.invokedSha : ''
 const evalRunIds = {}
+const suiteRunIds = {}
 const runLogLines = []
+/** Lệnh suite KHÔNG gắn eval nào (`byCmd.set(cmd, [])`), nên vòng dưới — vốn lặp theo
+ *  `m.evals` — không chạy lần nào cho chúng và KHÔNG sinh dòng run-log. Nhưng bản chấm
+ *  VẪN khai chúng ở mục «Lệnh suite regression-guard», và vì `evalRunIds` không có mục
+ *  nào cho suite nên agent tổng hợp phải TỰ ĐẶT run_id — đúng thứ câu dặn ở prompt cấm.
+ *  `recheck-evidence.cjs` đòi MỌI run_id trong bản chấm phải có mặt trong run-log ⇒ mọi
+ *  vòng có mục suite đều đỏ L2 PROVENANCE, và chỉ lộ ra SAU khi Cổng 2 ký (chốt
+ *  human_signoff `continue` trước khối recheck). Đo thật: media-library vòng 11.
+ *  Tên suy từ CHÍNH lệnh nên id ổn định qua các vòng, không phụ thuộc thứ tự mảng
+ *  `suiteCommands` — đổi thứ tự khai mà id đổi theo thì carry/đối chiếu vòng sau lệch. */
+const tenSuite = (cmd) => {
+  const sach = String(cmd).replace(/^cd\s+\S+\s*&&\s*/, '').replace(/^.*;\s*/, '')
+  const hit = sach.match(/pnpm\s+run\s+[\w:.-]+|pnpm\s+[\w:.-]+|npm\s+run\s+[\w:.-]+|yarn\s+[\w:.-]+/g) || []
+  const ten = hit.map(x => x.replace(/^(pnpm|npm|yarn)\s+(run\s+)?/, '')).join('_')
+  return (ten || sach).replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'suite'
+}
 for (const m of machine) {
+  if (!(m.evals || []).length) {
+    const ten = tenSuite(m.cmd)
+    const rid = (m.runId && String(m.runId).trim()) || `minted-${args.slug}-SUITE-${ten}-r${args.round}`
+    m.runId = rid
+    suiteRunIds[m.cmd] = rid
+    runLogLines.push(JSON.stringify({
+      ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round,
+      evalId: `SUITE-${ten}`, run_id: rid,
+      exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
+      ...(m.cannotRun ? { cannot_run: true } : {}),
+    }))
+    continue
+  }
   for (const evalId of (m.evals || [])) {
     const rid = (m.runId && String(m.runId).trim()) || `minted-${args.slug}-${evalId}-r${args.round}`
     evalRunIds[evalId] = rid
@@ -882,7 +911,7 @@ const carriedForReport = carriedEvals.map(c => {
 })
 const report = await agentT(
   `Soan NOI DUNG evidence report cho feature "${args.slug}" round ${args.round} — TRA VE trong field "report", KHONG ghi file nao ca (main loop se append run-log roi MOI ghi evidence-report.md — hook doi chieu run_id trong report voi log nen thu tu do la bat buoc). Noi dung thay tron round cu; lich su round nam trong section Iterations.\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\n${triageFailed ? `TRIAGE HONG — buoc phan loai pham vi KHONG chay duoc round nay, nen may KHONG biet finding nao trong hop dong va KHONG tu sua gi. Ghi CA HAI dau vet sau, khong duoc bo mot cai nao:\n(1) frontmatter THEM DUNG dong "triage_failed: true" (dat ngay duoi dong verdict);\n(2) than bai, NGAY DUOI dong tieu de "# Evidence Report: ...", mot dong canh bao BAT DAU bang "⚠ phân loại phạm vi KHÔNG chạy được" roi noi ro: khong loi nao duoc may tu sua, danh sach day du nam trong review-findings.md, nguoi xem lai toan bo truoc khi ky.\nTUYET DOI KHONG them section "##" moi cho viec nay va KHONG viet lai verdict.\n` : ''}failed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua VA field "observed:" = observed tu ket qua (template schema v2 — hook CHAN report PASS co screenshot: ma thieu observed: thuc chat >=20 ky tu; neu ket qua ui THIEU observed → TU MO tung frame evidence da luu bang Read va viet observed truoc khi ghi report, KHONG bia)): ${JSON.stringify(machineForReportB)}\nNETWORK TRUTH (advisory — schema v2 GIU NGUYEN, hook KHONG kiem field nay): moi block eval ui-check ghi them field "network_observed:" = chep NGUYEN VAN field networkObserved tu ket qua ui o tren; ket qua ui KHONG co field nay → ghi "n-a (driver)". TUYET DOI KHONG tu suy ra "clean". Vocab chu duy nhat: clean | no-app-traffic | third-party-only | app-fail | n-a (driver) | n-a (tool-error) | unscoped | unscoped-partial — CAM ghi so status/exit tho hay chu 'verdict: FAIL' vao report (bay L1 CONSISTENCY; so tho nam trong evidence/E{id}-network.txt).
-run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}${carriedForReport.length ? `
+run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}\nrun_id cua TUNG LENH SUITE (muc «Lenh suite regression-guard») — cung luat, key la cmd: ${JSON.stringify(suiteRunIds)}${carriedForReport.length ? `
 EVAL CARRY-FORWARD (P1 — delta staleness khong cham paths cua cac eval nay, round nay KHONG chay lai): moi item van la MOT block eval PASS trong bang + Evidence, ghi run_id va verified_at NGUYEN VAN tu payload (id da nam trong run-log tu round goc), exit_code: 0, verifier = field ref, THEM dong "carried_from_round: <N>" va ghi chu 1 dong "carry-forward tu round <N> — delta khong cham paths cua eval". TUYET DOI KHONG ghi screenshot:/observed: cho block carried (frame goc xem round <N> trong Iterations): ${JSON.stringify(carriedForReport)}` : ''}
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.
 Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. ${runBaseline ? 'Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)".' : `BASELINE ROUND NAY KHONG DO LAI (P2 — evals.yaml khong doi tu lan baseline cuoi${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? `, round ${carriedAnalyst.fromRound}` : ''}): mo dau section Analyst bang dong "carried tu round ${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : 'truoc'} — baseline khong do lai round nay"; field "baseline:" cua tung block eval ghi "n-a" (round nay khong do).`} Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.

@@ -79,10 +79,20 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   const { result, calls } = await runWorkflow(WF, baseArgs(), responder());
   check('W03 verdict PASS', result.verdict === 'PASS', result.verdict);
   check('W03 machine dedupe: 2 machine agents (1 eval-cmd + 1 suite)', byLabel(calls, 'machine:').length === 2, String(byLabel(calls, 'machine:').length));
-  check('W03 runLog: 1 line per eval', result.runLog.length === 2, String(result.runLog.length));
+  check('W03 runLog: 1 dong moi eval + 1 moi lenh suite', result.runLog.length === 3, String(result.runLog.length));
   const lines = result.runLog.map(l => JSON.parse(l));
   check('W03 run_id minted deterministically per eval', lines[0].run_id === 'minted-demo-E1-r1' && lines[1].run_id === 'minted-demo-E2-r1');
   check('W03 ts from args.invokedAt', lines.every(l => l.ts === '2026-07-02T10:00:00Z'));
+  // Lenh suite KHONG gan eval nao. Truoc ban va no khong co dong run-log nao, nen agent
+  // tong hop phai tu dat run_id va recheck-evidence do L2 PROVENANCE NGAY SAU khi Cong 2
+  // ky (chot human_signoff `continue` truoc khoi recheck nen no an cho toi luc do).
+  const suiteLine = lines.find(l => String(l.evalId).startsWith('SUITE-'));
+  check('W03 lenh suite CO dong run-log', !!suiteLine, JSON.stringify(lines.map(l => l.evalId)));
+  check('W03 suite: ten suy tu lenh, id duc deterministic',
+    suiteLine && suiteLine.evalId === 'SUITE-build' && suiteLine.run_id === 'minted-demo-SUITE-build-r1',
+    suiteLine && `${suiteLine.evalId} / ${suiteLine.run_id}`);
+  check('W03 suite: dong mang exit + cmd that',
+    suiteLine && suiteLine.exit_code === 0 && suiteLine.cmd === 'npm run build');
   // Từ đợt 8: KHÔNG còn agent scribe — agent "chép sẵn dòng audit" trông y hệt
   // ngụy tạo hồ sơ và bị safety layer chặn lặp lại dù nội dung do JS tính từ kết
   // quả thật. Main loop tự append result.runLog (SKILL bước "Mọi verdict").
@@ -91,6 +101,8 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   const synth = byLabel(calls, 'synthesize:report')[0];
   check('W03 synthesize gets verified_commit literal', synth.prompt.includes(`"verified_commit: ${VC}"`));
   check('W03 synthesize gets the evalRunIds map, not minting rights', synth.prompt.includes('minted-demo-E1-r1') && synth.prompt.includes('KHONG tu mint'));
+  check('W03 synthesize cung nhan id cua lenh suite (log va report phai khop)',
+    synth.prompt.includes('minted-demo-SUITE-build-r1'));
   check('W03 result.report la NOI DUNG (main loop ghi file)', result.report === '# Evidence demo (noi dung day du)');
   check('W03 result.findings la NOI DUNG', result.findings === '# Findings demo');
 }
@@ -103,7 +115,10 @@ console.log('W04 failing eval -> REJECT with failed ids');
   check('W04 verdict REJECT', result.verdict === 'REJECT');
   check('W04 failedEvals E1+E2 (shared cmd)', JSON.stringify(result.failedEvals) === JSON.stringify(['E1', 'E2']));
   const lines = result.runLog.map(l => JSON.parse(l));
-  check('W04 run-log records real exit + verifier runId', lines.every(l => l.exit_code === 1 && l.run_id === 'run-777'));
+  const evalLines = lines.filter(l => !String(l.evalId).startsWith('SUITE-'));
+  check('W04 run-log records real exit + verifier runId', evalLines.every(l => l.exit_code === 1 && l.run_id === 'run-777'));
+  check('W04 dong suite giu exit RIENG cua no, khong an theo eval hong',
+    lines.some(l => String(l.evalId).startsWith('SUITE-') && l.exit_code === 0));
 }
 
 console.log('W05 cannotRun + dead agent -> BLOCKED, never PASS');
@@ -226,7 +241,7 @@ console.log('W12 run-log: main loop append la duong DUY NHAT (khong con scribe)'
   const { result, logs } = await runWorkflow(WF, baseArgs(), responder());
   check('W12 flag set khi co dong can ghi', result.runLogWriteFailed === true);
   check('W12 log nhac main loop tu append', logs.some(l => /TU append/.test(l)));
-  check('W12 runLog mang du dong cho main loop', result.runLog.length === 2, String(result.runLog.length));
+  check('W12 runLog mang du dong cho main loop', result.runLog.length === 3, String(result.runLog.length));
 }
 
 console.log('W13 ui-check merges into machine lane + run-log');
