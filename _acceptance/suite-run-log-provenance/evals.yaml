@@ -1,0 +1,75 @@
+# Evals — suite-run-log-provenance
+#
+# Hai tầng, cố ý:
+#   · Lưới THƯỜNG TRỰC = ca trong tests/workflows/acceptance-verify.test.mjs —
+#     fixture do code dựng mỗi lần chạy, chạy mọi vòng qua executors.test.workflows.
+#   · Răng HỒ SƠ = _acceptance/suite-run-log-provenance/rang.sh — ghim ĐÚNG dòng
+#     ca trong stdout (bài học P194: suite xanh cả trên bản trước vá thì mã thoát
+#     của trọn suite không phân biệt được gì) và giữ chiều đỏ. Cố ý KHÔNG vào
+#     suite vĩnh viễn: nó dựng bản sao gỡ-vá, neo mốc bản-trước-vá.
+#
+# MEASURE-BIRTH: mỗi chân có cặp hai-chiều trên CÙNG fixture — bản lành xanh
+# TRƯỚC, bản đã tiêm đỏ với thông điệp ghim. Chiều đỏ nào chỉ dựa vào "exit khác
+# 0" là chân chết (fixture hỏng, cp lỗi, exit 127 đều cho cùng màu).
+
+# MA TRẬN ĐẾM ĐƯỢC (hợp đồng của bộ đo — số assert = số ô, răng tự đỏ nếu lệch):
+#   Trục A · 6 ô hình dạng lệnh → E5 ghim tên mong đợi cho cả sáu:
+#     A1 script gói `npm run build` → build · A2 `pnpm itest:ci` → itest_ci
+#     A3 lệnh trần `bash tests/hooks/run-tests.sh` → bash_tests_hooks_run_tests_sh
+#     A4 tiền tố `cd apps/web && pnpm build` → build (đụng A1 ⇒ phải phân biệt bằng hậu tố)
+#     A5 lệnh ghép `pnpm build && pnpm typecheck` → build_typecheck
+#     A6 trùng lệnh của một eval → KHÔNG sinh dòng SUITE (E7)
+#   Trục A′ · 3 biến thể va chạm → E3: tiền tố thư mục · khác cờ · trùng 40 ký tự đầu
+#   Trục B · 3 ô kết quả → E4: exit 0 · exit ≠ 0 · cannotRun
+#   Trục C · 2 ô vòng → E5 chân round: round 1 vs round 2 cùng lệnh
+#   Trục D · dây 4 nút → E6 round-trip chạy chính evaluateEvidence (extractRunIds + loadRunLogIds)
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.srlp_rang_suite_case
+    expected: "chạy trọn suite workflows rồi ghim ĐÚNG NĂM dòng ca của lớp này trong stdout — 'W03 lenh suite CO dong run-log', 'W03 suite: ten suy tu lenh, id duc deterministic', 'W03 suite: dong mang exit + cmd that', 'W03 runLog: 1 dong moi eval + 1 moi lenh suite', 'W03 synthesize cung nhan id cua lenh suite (log va report phai khop)' — mỗi dòng thiếu là đỏ ghim TÊN dòng đó, không phép HOẶC. Đối chứng dương cùng lượt: suite phải kết 'Results: <n> passed, 0 failed'. Chiều đỏ: bản sao xoá khối sinh dòng suite → chính các dòng ca trên biến mất và răng đỏ ghim 'thieu dong ca: <ten>' (chân này gọi lại chân hai-chieu để chứng, không chép công thức)."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/suite-run-log-provenance/rang.sh]
+  - id: E2
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.srlp_rang_hai_chieu
+    expected: "cặp hai-chiều trên CÙNG bản sao do code dựng trong lần chạy (git archive HEAD trọn cây — KHÔNG chép danh sách thư mục tay: bài học P150, bản base thiếu skills/ đỏ vì HẠ TẦNG chứ không vì vật): (a) bản nguyên vẹn → suite workflows exit 0, ghim 'PASS: ban sao lanh -> exit 0'; (b) bản đã GỠ khối sinh dòng suite trong acceptance-verify.js → suite exit ≠ 0 VÀ stdout nêu tên ca 'lenh suite CO dong run-log', ghim 'PASS: go va -> do dung ca'. Lệnh tiêm phải CHỨNG MINH đã đổi được nội dung (cmp trước/sau khác nhau); không đổi → đỏ ghim 'tiem khong doi noi dung' (bài học: phép HOẶC trong assert là chỗ trốn). Đường dẫn bản sao suy từ vị trí răng ($(dirname $0)), KHÔNG hardcode ROOT. Đối chứng độc lập cho lời khai 'trước vá thì thiếu dòng': rút acceptance-verify.js ở mốc BASE-SRLP (e0222f7f) vào bản sao → cùng ca đỏ."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/suite-run-log-provenance/rang.sh]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.srlp_rang_va_cham_ten
+    expected: "lớp false-green THỨ HAI, ma trận BA biến thể va chạm trên cùng khuôn fixture code-sinh (số assert = số ô): (a) tiền tố thư mục — 'cd apps/web && pnpm build' vs 'cd apps/api && pnpm build'; (b) khác cờ — 'pnpm test:unit --project a' vs '--project b'; (c) lệnh trần trùng 40 ký tự đầu sau vệ sinh — hai đường dẫn dài khác nhau ở ký tự thứ 41+. MỖI biến thể: hai dòng sổ mang HAI run_id KHÁC nhau và mỗi run_id trỏ đúng cmd của nó, ghim 'PASS: va cham [<biến thể>] -> hai ma'. CHIỀU ĐỎ do CODE SINH trong chính lần chạy (KHÔNG neo mốc git — mốc bản-chưa-chống-va-chạm chỉ sống trên commit nhánh, amend/rebase là chết): bản sao trọn cây (git archive HEAD), GỠ đoạn chống va chạm trong acceptance-verify.js, cmp chứng minh tiêm đổi được nội dung (không đổi → đỏ ghim 'tiem khong doi noi dung'), rồi đòi ĐỎ đúng ca của lớp bị gỡ. BA bản tiêm riêng, mỗi lớp phòng thủ một bản (tên · bộ đếm object-trần · mã). Bản lành phải XANH trước khi tin bản tiêm là đỏ. GIỚI HẠN ĐÃ KHAI: phép so chiều đỏ chạy trên MỘT trong ba biến thể va chạm; hai biến thể còn lại chỉ có chiều dương. Đường dẫn bản sao suy từ vị trí răng ($(dirname $0)), KHÔNG hardcode ROOT."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/suite-run-log-provenance/rang.sh]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.srlp_rang_ket_qua_rieng
+    expected: "ma trận 3 ca trên cùng khuôn fixture code-sinh, mỗi ca ghim riêng: (a) eval hỏng exit 1 + suite xanh → dòng suite có exit_code 0, ghim 'PASS: suite giu exit rieng'; (b) suite exit ≠ 0 → dòng suite mang đúng số đó, ghim 'PASS: suite do -> exit that'; (c) suite cannotRun → exit_code null VÀ cannot_run true, ghim 'PASS: cannotRun -> null + co'. Ca (c) là chỗ dễ trốn nhất: ghi 0 cho lệnh chưa từng chạy là false-green đúng nghĩa. GIỚI HẠN ĐÃ KHAI (mục «Giới hạn đã khai» của hợp đồng): chân này CHỈ có chiều dương — chưa có bản tiêm chứng minh nó đỏ được."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/suite-run-log-provenance/rang.sh]
+  - id: E5
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.srlp_rang_thu_tu
+    expected: "ba chân, mỗi chân ghim riêng. (1) THỨ TỰ: cùng bộ lệnh suite khai theo HAI thứ tự khác nhau, cùng round → tập (cmd → run_id) BẰNG NHAU, ghim 'PASS: doi thu tu -> ma khong doi'; chiều đỏ cùng fixture: bản tiêm đúc mã theo chỉ số mảng ('SUITE-0/1/2') → phép so ĐỎ ghim 'DO: ma doi theo thu tu'. (2) TÊN — ma trận SÁU ô trục A, mỗi ô một assert với tên mong đợi ghim NGUYÊN VĂN: 'npm run build'→build · 'pnpm itest:ci'→itest_ci · 'bash tests/hooks/run-tests.sh'→bash_tests_hooks_run_tests_sh · 'cd apps/web && pnpm build'→build · 'pnpm build && pnpm typecheck'→build_typecheck · ô A6 (trùng lệnh eval) do E7 giữ; sai ô nào đỏ ghim TÊN ô đó, và răng đếm số assert = 5 ở đây + 1 ở E7, lệch là đỏ ghim số đếm. (3) VÒNG: cùng một lệnh suite chạy ở round 1 rồi round 2 trên cùng fixture → HAI run_id khác nhau, ghim 'PASS: doi round -> doi ma'; chiều đỏ: bản tiêm bỏ hậu tố round → ĐỎ ghim 'DO: hai vong dung chung mot ma'."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/suite-run-log-provenance/rang.sh]
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.srlp_rang_day_khep
+    expected: "DÂY KHÉP writer→reader, đo bằng chính bộ ĐỌC của kho chứ không bằng fixture viết tay đúng khuôn bên đọc: fixture code-sinh gọi workflow lấy runLog THẬT, dựng bản chấm mang các mã đó theo đúng khuôn khối eval của template, rồi require('lib/evidence-core.cjs') và chạy evaluateEvidence(bản chấm, {fileDir}) — ĐÚNG hàm mà ổ cắm cưỡng chế + bộ kiểm lại cùng gọi (bên trong: extractRunIds + loadRunLogIds) — assert runLogFailure === null, tức QUAN HỆ bao hàm, ghim 'PASS: ma trong ban cham deu co trong so'. CHIỀU ĐỎ cùng fixture: xoá ĐÚNG dòng sổ của lệnh suite → phép so phải ĐỎ và nêu ĐÍCH DANH mã thiếu, ghim 'DO: thieu ma <id> trong so'; và ca thứ hai: bản chấm ghi evalId ('SUITE-build') thay vì run_id → cũng ĐỎ, ghim 'DO: ban cham ghi evalId thay vi run_id' (đây đúng kịch bản mà đề bài đúng vẫn có thể sinh bản chấm sai). Chân thứ hai — MỘT bản luật: đề bài gửi máy soạn bản chấm chứa ĐÚNG MỘT khối luật cấm tự đặt mã, đo bằng ĐẾM điểm neo của khối, khác 1 → đỏ ghim số đếm ('DO: <n> khoi luat mint'); phủ định 'không thêm đoạn cạnh tranh' chỉ chứng được ở dạng đếm này, phần còn lại đã chuyển sang assert trên ĐẦU RA ở trên. Đường dẫn suy từ vị trí răng, không hardcode ROOT."
+    paths: [feature-loop/workflows/acceptance-verify.js, lib/evidence-core.cjs, tests/workflows/acceptance-verify.test.mjs, _acceptance/suite-run-log-provenance/rang.sh]
+  - id: E7
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.srlp_rang_khong_hoi_quy
+    expected: "không hồi quy hai chiều: (a) lệnh suite TRÙNG đúng cmd của một eval → chỉ MỘT dòng mang evalId của eval, KHÔNG có dòng SUITE- nào cho lệnh đó, ghim 'PASS: trung lenh -> khong sinh dong SUITE'; (b) hình dạng dòng eval giữ nguyên so với bản trước vá — so TRỌN tập khoá của dòng eval giữa bản hiện tại và bản rút ở mốc BASE-SRLP, hai bản chạy CÙNG một fixture code-sinh (writer↔writer, không liệt cứng danh sách khoá — fixture không truyền invokedSha nên bộ khoá đúng là ts,round,evalId,run_id,exit_code,cmd), lệch khoá nào đỏ in cả hai tập, ghim 'PASS: dong eval khong doi hinh dang'. GIỚI HẠN ĐÃ KHAI: chưa có bản tiêm thêm-một-khoá cho chiều đỏ của phép so này. Đường dẫn suy từ vị trí răng, KHÔNG hardcode ROOT."
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs, _acceptance/suite-run-log-provenance/rang.sh]
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.srlp_rang_bo_doc
+    expected: "hai bộ đọc × hai lớp = BỐN lớp phòng thủ, mỗi lớp một ca CÔ LẬP (bài học mutant-phai-co-ca-co-lap-lop: fixture mang cả hai lớp thì gỡ một lớp vẫn xanh nhờ lớp kia). Fixture do code sinh trong lần chạy, hai hình dạng: (nohead) khối lệnh suite KHÔNG có tiêu đề đứng trước — chỉ lớp «khối không-phải-eval» che; (head) sau tiêu đề là dòng không-bullet — chỉ lớp «tiêu đề» che. ĐỐI CHỨNG DƯƠNG: trang bằng chứng không in mã ngoài khối (FX-SUITE-001 / FX-GHICHU-001), và thẻ Cổng 2 vẫn giữ cờ CẢNH BÁO «CHƯA đủ trường» vì eval trong fixture cố ý thiếu mã chạy. CHIỀU ĐỎ: bốn bản tiêm trên bản sao trọn cây, mỗi bản xoá ĐÚNG một nhánh theo nhãn LOP-DOC — trang phải để lộ mã sai chủ, thẻ phải MẤT cờ cảnh báo (cờ hoá xanh bằng mã mượn của lệnh chạy chung). Mỗi bản tiêm kèm cmp chứng minh đổi được nội dung. Hai bộ đọc quan sát bằng HAI thứ khác nhau (trang in mã · thẻ in cờ) — đo mã trên thẻ là đo nhầm vật vì thẻ không bao giờ in mã."
+    paths: [scripts/evidence-page.js, scripts/gate-card.js, tests/scripts/run-tests.sh, _acceptance/suite-run-log-provenance/rang.sh]

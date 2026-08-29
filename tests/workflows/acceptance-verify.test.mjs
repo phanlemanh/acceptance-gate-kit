@@ -79,10 +79,20 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   const { result, calls } = await runWorkflow(WF, baseArgs(), responder());
   check('W03 verdict PASS', result.verdict === 'PASS', result.verdict);
   check('W03 machine dedupe: 2 machine agents (1 eval-cmd + 1 suite)', byLabel(calls, 'machine:').length === 2, String(byLabel(calls, 'machine:').length));
-  check('W03 runLog: 1 line per eval', result.runLog.length === 2, String(result.runLog.length));
+  check('W03 runLog: 1 dong moi eval + 1 moi lenh suite', result.runLog.length === 3, String(result.runLog.length));
   const lines = result.runLog.map(l => JSON.parse(l));
   check('W03 run_id minted deterministically per eval', lines[0].run_id === 'minted-demo-E1-r1' && lines[1].run_id === 'minted-demo-E2-r1');
   check('W03 ts from args.invokedAt', lines.every(l => l.ts === '2026-07-02T10:00:00Z'));
+  // Lenh suite KHONG gan eval nao. Truoc ban va no khong co dong run-log nao, nen agent
+  // tong hop phai tu dat run_id va recheck-evidence do L2 PROVENANCE NGAY SAU khi Cong 2
+  // ky (chot human_signoff `continue` truoc khoi recheck nen no an cho toi luc do).
+  const suiteLine = lines.find(l => String(l.evalId).startsWith('SUITE-'));
+  check('W03 lenh suite CO dong run-log', !!suiteLine, JSON.stringify(lines.map(l => l.evalId)));
+  check('W03 suite: ten suy tu lenh, id duc deterministic',
+    suiteLine && suiteLine.evalId === 'SUITE-build' && suiteLine.run_id === 'minted-demo-SUITE-build-r1',
+    suiteLine && `${suiteLine.evalId} / ${suiteLine.run_id}`);
+  check('W03 suite: dong mang exit + cmd that',
+    suiteLine && suiteLine.exit_code === 0 && suiteLine.cmd === 'npm run build');
   // Từ đợt 8: KHÔNG còn agent scribe — agent "chép sẵn dòng audit" trông y hệt
   // ngụy tạo hồ sơ và bị safety layer chặn lặp lại dù nội dung do JS tính từ kết
   // quả thật. Main loop tự append result.runLog (SKILL bước "Mọi verdict").
@@ -91,6 +101,8 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   const synth = byLabel(calls, 'synthesize:report')[0];
   check('W03 synthesize gets verified_commit literal', synth.prompt.includes(`"verified_commit: ${VC}"`));
   check('W03 synthesize gets the evalRunIds map, not minting rights', synth.prompt.includes('minted-demo-E1-r1') && synth.prompt.includes('KHONG tu mint'));
+  check('W03 synthesize cung nhan id cua lenh suite (log va report phai khop)',
+    synth.prompt.includes('minted-demo-SUITE-build-r1'));
   check('W03 result.report la NOI DUNG (main loop ghi file)', result.report === '# Evidence demo (noi dung day du)');
   check('W03 result.findings la NOI DUNG', result.findings === '# Findings demo');
 }
@@ -103,7 +115,10 @@ console.log('W04 failing eval -> REJECT with failed ids');
   check('W04 verdict REJECT', result.verdict === 'REJECT');
   check('W04 failedEvals E1+E2 (shared cmd)', JSON.stringify(result.failedEvals) === JSON.stringify(['E1', 'E2']));
   const lines = result.runLog.map(l => JSON.parse(l));
-  check('W04 run-log records real exit + verifier runId', lines.every(l => l.exit_code === 1 && l.run_id === 'run-777'));
+  const evalLines = lines.filter(l => !String(l.evalId).startsWith('SUITE-'));
+  check('W04 run-log records real exit + verifier runId', evalLines.every(l => l.exit_code === 1 && l.run_id === 'run-777'));
+  check('W04 dong suite giu exit RIENG cua no, khong an theo eval hong',
+    lines.some(l => String(l.evalId).startsWith('SUITE-') && l.exit_code === 0));
 }
 
 console.log('W05 cannotRun + dead agent -> BLOCKED, never PASS');
@@ -226,7 +241,7 @@ console.log('W12 run-log: main loop append la duong DUY NHAT (khong con scribe)'
   const { result, logs } = await runWorkflow(WF, baseArgs(), responder());
   check('W12 flag set khi co dong can ghi', result.runLogWriteFailed === true);
   check('W12 log nhac main loop tu append', logs.some(l => /TU append/.test(l)));
-  check('W12 runLog mang du dong cho main loop', result.runLog.length === 2, String(result.runLog.length));
+  check('W12 runLog mang du dong cho main loop', result.runLog.length === 3, String(result.runLog.length));
 }
 
 console.log('W13 ui-check merges into machine lane + run-log');
@@ -1657,6 +1672,242 @@ console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
   check('W27 doi chung: baseline exit 1 that -> red',
     rR.result.nonDiscriminating.length === 0 && synthR.includes('"baseline":"red"'),
     (synthR.match(/"baseline":"[a-z-]*"/) || [])[0]);
+}
+
+console.log('W28 va cham ten suite: hai lenh KHAC nhau khong duoc dung chung mot ma');
+{
+  // Ba bien the va cham cua bo duc ten (ma tran tron ven — so assert = so o):
+  //   a) tien to thu muc:  cd apps/web && pnpm build   vs  cd apps/api && pnpm build
+  //   b) khac co:          pnpm test:unit --project a  vs  ... --project b
+  //   c) trung 40 ky tu dau sau ve sinh (nhanh cat chuoi cua bo duc ten)
+  // Cung mot ma cho hai lenh = mot lenh DO co the nap sau lenh XANH ma bo doi
+  // chieu van xanh — cung lop false-green voi loi goc.
+  const BIEN_THE = [
+    { ten: 'tien to thu muc', a: 'cd apps/web && pnpm build', b: 'cd apps/api && pnpm build' },
+    { ten: 'khac co', a: 'pnpm test:unit --project a', b: 'pnpm test:unit --project b' },
+    { ten: 'trung 40 ky tu dau', a: 'bash tests/integration/regression/run-tests-alpha.sh', b: 'bash tests/integration/regression/run-tests-beta.sh' },
+  ];
+  for (const bt of BIEN_THE) {
+    const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [bt.a, bt.b] }), responder());
+    const suite = result.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+    const idA = (suite.find(l => l.cmd === bt.a) || {}).run_id;
+    const idB = (suite.find(l => l.cmd === bt.b) || {}).run_id;
+    check(`W28 [${bt.ten}] hai lenh -> hai ma`,
+      suite.length === 2 && !!idA && !!idB && idA !== idB,
+      `${idA} / ${idB}`);
+    // Hai lop phong thu doc lap: ten (evalId) va ma (run_id). Moi lop mot assert
+    // rieng, khong thi go mot lop van xanh nho lop kia va chieu do chet am tham.
+    const tenA = (suite.find(l => l.cmd === bt.a) || {}).evalId;
+    const tenB = (suite.find(l => l.cmd === bt.b) || {}).evalId;
+    // TIEN DE truoc KET LUAN: "hai ma khac nhau" khong chung minh gi neu hai lenh
+    // von KHONG va cham. Hau to bam chi duoc gan khi ten tho trung nhau, nen su
+    // CO MAT cua hau to o CA HAI + cung goc ten = bang chung va cham that su xay ra.
+    const goc = x => String(x).replace(/__[0-9a-f]{6}$/, '');
+    check(`W28 [${bt.ten}] TIEN DE: hai lenh that su trung ten tho`,
+      !!tenA && !!tenB && goc(tenA) === goc(tenB) && /__[0-9a-f]{6}$/.test(tenA) && /__[0-9a-f]{6}$/.test(tenB),
+      `${tenA} / ${tenB}`);
+    check(`W28 [${bt.ten}] hai lenh -> hai evalId`, !!tenA && !!tenB && tenA !== tenB, `${tenA} / ${tenB}`);
+  }
+  // Doi chung duong: khong va cham thi ten GIU NGUYEN (khong hau to), ca W03 cu con song.
+  const { result: rk } = await runWorkflow(WF, baseArgs({ suiteCommands: ['npm run build', 'pnpm itest:ci'] }), responder());
+  const sk = rk.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+  check('W28 doi chung: khong va cham -> ten khong doi',
+    sk.some(l => l.evalId === 'SUITE-build') && sk.some(l => l.evalId === 'SUITE-itest_ci'),
+    JSON.stringify(sk.map(l => l.evalId)));
+}
+
+console.log('W29 vong: cung mot lenh suite o hai round phai cho hai ma');
+{
+  const idOf = async (round) => {
+    const { result } = await runWorkflow(WF, baseArgs({ round }), responder());
+    const l = result.runLog.map(x => JSON.parse(x)).find(x => String(x.evalId).startsWith('SUITE-'));
+    return l && l.run_id;
+  };
+  const r1 = await idOf(1), r2 = await idOf(2);
+  // Ma khong mang hau to vong thi ban cham vong sau tro ve duoc luot chay vong
+  // truoc — mat dung thu so chay sinh ra de bao dam.
+  check('W29 doi round -> doi ma', !!r1 && !!r2 && r1 !== r2, `${r1} / ${r2}`);
+}
+
+console.log('W30 ma tran ten: nam hinh dang lenh, ten ghim nguyen van');
+{
+  const MONG_DOI = [
+    ['npm run build', 'SUITE-build'],
+    ['pnpm itest:ci', 'SUITE-itest_ci'],
+    ['bash tests/hooks/run-tests.sh', 'SUITE-bash_tests_hooks_run_tests_sh'],
+    ['cd apps/web && pnpm build', 'SUITE-build'],
+    ['pnpm build && pnpm typecheck', 'SUITE-build_typecheck'],
+  ];
+  for (const [cmd, ten] of MONG_DOI) {
+    const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [cmd] }), responder());
+    const l = result.runLog.map(x => JSON.parse(x)).find(x => String(x.evalId).startsWith('SUITE-'));
+    check(`W30 ten suy tu lenh: ${cmd}`, l && l.evalId === ten, l && l.evalId);
+  }
+  check('W30 so assert = so o trong ma tran truc A (5 o o day + 1 o gop lenh o W32)', MONG_DOI.length === 5, String(MONG_DOI.length));
+}
+
+console.log('W31 dong suite mang ket qua RIENG: exit that + cannotRun');
+{
+  const { result: rDo } = await runWorkflow(WF, baseArgs(), responder({
+    'machine:npm run build': { exitCode: 3, outputTail: 'build failed', runId: '', cannotRun: false },
+  }));
+  const lDo = rDo.runLog.map(x => JSON.parse(x)).find(x => String(x.evalId).startsWith('SUITE-'));
+  check('W31 suite do -> exit that', lDo && lDo.exit_code === 3, lDo && String(lDo.exit_code));
+  const { result: rKhong } = await runWorkflow(WF, baseArgs(), responder({
+    'machine:npm run build': { exitCode: 1, outputTail: '', runId: '', cannotRun: true, reason: 'thieu env' },
+  }));
+  const lK = rKhong.runLog.map(x => JSON.parse(x)).find(x => String(x.evalId).startsWith('SUITE-'));
+  // Ghi 0 cho lenh chua tung chay la false-green dung nghia.
+  check('W31 cannotRun -> exit_code null + co cannot_run',
+    lK && lK.exit_code === null && lK.cannot_run === true,
+    lK && `${lK.exit_code} / ${lK.cannot_run}`);
+}
+
+console.log('W32 gop lenh: suite trung dung cmd cua mot eval -> khong sinh dong SUITE');
+{
+  const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: ['pnpm test'] }), responder());
+  const lines = result.runLog.map(x => JSON.parse(x));
+  check('W32 trung lenh -> khong sinh dong SUITE', lines.every(l => !String(l.evalId).startsWith('SUITE-')), JSON.stringify(lines.map(l => l.evalId)));
+  check('W32 so dong = so eval', lines.length === 2, String(lines.length));
+}
+
+console.log('W33 day khep: so -> ban cham -> BO DOC that cua kho (evidence-core)');
+{
+  // Day cua loi goc di qua BON nut: dong so · de bai · ban cham · bo doi chieu.
+  // Ca nay chay TRON day bang chinh ham ma hook + recheck dung (evaluateEvidence,
+  // ben trong goi extractRunIds + loadRunLogIds) — khong dung fixture viet tay
+  // dung khuon ben DOC, vi do la kieu do tu chung minh chinh no.
+  const { createRequire } = await import('node:module');
+  const fs = await import('node:fs');
+  const os = await import('node:os');
+  const require_ = createRequire(import.meta.url);
+  const core = require_(path.join(HERE, '..', '..', 'lib', 'evidence-core.cjs'));
+
+  const { result, calls } = await runWorkflow(WF, baseArgs(), responder());
+  const lines = result.runLog.map(l => JSON.parse(l));
+  const suite = lines.find(l => String(l.evalId).startsWith('SUITE-'));
+
+  // Khoi eval: khuon cua ban mau. Khoi LENH SUITE: rut TU MARKER trong chinh
+  // ban mau ma agent soan bao cao duoc dan doc (SUITE-BLOCK-TEMPLATE) — khong
+  // tu go khuon ben DOC, vi lam the la do lai chinh cai minh vua viet
+  // (nep OOC-ITEM-TEMPLATE + P55: seam LLM-viet -> may-doc dat MOT cho co marker).
+  const { blockFromTemplate, fillTemplate } = await import('../fixtures/from-template.mjs');
+  const EVID_TPL = path.join(HERE, '..', '..', 'skills', 'acceptance', 'references', 'evidence-report-template.md');
+  const suiteKhuon = blockFromTemplate(EVID_TPL, 'SUITE-BLOCK-TEMPLATE');
+  check('W33 khuon suite trong ban mau CO dong run_id (round-trip writer<->reader)',
+    /^\s+run_id:\s*\{run_id\}/m.test(suiteKhuon), JSON.stringify(suiteKhuon));
+
+  const khoiEval = (id, runId) => `- eval: ${id}\n  run_id: ${runId}\n  exit_code: 0\n  verifier: config:executors.test.api\n  verified_at: 2026-07-02T10:00:00Z\n`;
+  const khoiSuite = (cmd, runId) => fillTemplate(suiteKhuon, { cmd, run_id: runId, ISO8601: '2026-07-02T10:00:00Z' });
+  const banCham = (opts = {}) =>
+    `---\nschema_version: 2\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\n---\n\n# Evidence Report: demo\n\n## Evidence\n\n` +
+    lines.filter(l => !String(l.evalId).startsWith('SUITE-')).map(l => khoiEval(l.evalId, l.run_id)).join('\n') +
+    `\n### Lệnh suite (hồi quy)\n\n` +
+    khoiSuite(suite.cmd, opts.maSuite === undefined ? suite.run_id : opts.maSuite);
+
+  const viet = (dir, ls) => { fs.writeFileSync(path.join(dir, 'run-log.jsonl'), ls.map(l => JSON.stringify(l)).join('\n') + '\n'); return dir; };
+  const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'srlp-'));
+
+  // (1) DOI CHUNG DUONG truoc: so day du + ban cham dung ma -> khong loi provenance.
+  const dLanh = viet(tmp(), lines);
+  const rLanh = core.evaluateEvidence(banCham(), { fileDir: dLanh });
+  check('W33 ma trong ban cham deu co trong so', rLanh.runLogFailure === null, String(rLanh.runLogFailure));
+
+  // (2) CHIEU DO a: bo DUNG dong suite khoi so -> phai do va NEU DICH DANH ma thieu.
+  const dThieu = viet(tmp(), lines.filter(l => l !== suite));
+  const rThieu = core.evaluateEvidence(banCham(), { fileDir: dThieu });
+  check('W33 chieu do: thieu dong suite -> do, neu dich danh ma',
+    !!rThieu.runLogFailure && rThieu.runLogFailure.includes(suite.run_id),
+    String(rThieu.runLogFailure));
+
+  // (3) CHIEU DO b: ban cham ghi evalId thay vi run_id — de bai dung van co the
+  // sinh ban cham sai kieu nay, va do dung la ca da no o media-library vong 11.
+  const rNhamId = core.evaluateEvidence(banCham({ maSuite: suite.evalId }), { fileDir: dLanh });
+  check('W33 chieu do: ban cham ghi evalId thay vi run_id -> do',
+    !!rNhamId.runLogFailure && rNhamId.runLogFailure.includes(suite.evalId),
+    String(rNhamId.runLogFailure));
+
+  // (4) MOT ban luat: de bai chua DUNG MOT khoi luat cam tu dat ma. Hai khoi
+  // canh tranh thi may soan theo khoi de dai hon va ma bia quay lai.
+  const synth = byLabel(calls, 'synthesize:report')[0].prompt;
+  const demKhoi = (synth.match(/TUYET DOI KHONG tu mint/g) || []).length;
+  check('W33 de bai chua dung MOT khoi luat mint', demKhoi === 1, String(demKhoi));
+  check('W33 de bai mang ma suite that', synth.includes(suite.run_id), suite.run_id);
+  // Seam LLM-viet -> may-doc dat MOT cho: de bai phai tro DUNG cai marker ma
+  // fixture cua ca nay rut khuon ra. Doi ten marker o mot ben => ca nay do.
+  check('W33 de bai tro dung khuon SUITE-BLOCK-TEMPLATE cua ban mau',
+    synth.includes('SUITE-BLOCK-TEMPLATE'), 'prompt khong nhac marker');
+}
+
+console.log('W34 thu tu khai KHONG duoc doi ma (menh de dau cua AC-2)');
+{
+  const BO = ['npm run build', 'pnpm itest:ci', 'bash tests/hooks/run-tests.sh'];
+  const mapCua = async (cmds) => {
+    const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: cmds }), responder());
+    const m = {};
+    for (const l of result.runLog.map(x => JSON.parse(x))) if (String(l.evalId).startsWith('SUITE-')) m[l.cmd] = l.run_id;
+    return m;
+  };
+  const xuoi = await mapCua(BO);
+  const nguoc = await mapCua([...BO].reverse());
+  // Bo lenh KHONG va cham la ca DE: ten suy tu tung lenh nen thu tu khong the
+  // anh huong. Cho ma phu thuoc CA TAP (hau to bam chi bat khi co trung ten) moi
+  // la cho bat bien nay co the gay — do o day.
+  const VC = ['cd apps/web && pnpm build', 'cd apps/api && pnpm build', 'npm run build'];
+  const vcXuoi = await mapCua(VC);
+  const vcNguoc = await mapCua([...VC].reverse());
+  const chuan = m => JSON.stringify(Object.keys(m).sort().map(k => [k, m[k]]));
+  check('W34 TIEN DE: bo lenh nay that su va cham (hau to bam duoc gan)',
+    Object.values(vcXuoi).every(v => /__[0-9a-f]{6}-r\d+$/.test(v)), JSON.stringify(vcXuoi));
+  check('W34 doi thu tu tren bo CO va cham -> ma khong doi',
+    chuan(vcXuoi) === chuan(vcNguoc), JSON.stringify([vcXuoi, vcNguoc]));
+  // Ma duc theo CHI SO mang thi doi thu tu khai la doi ma, va doi chieu vong sau lech.
+  check('W34 doi thu tu -> ma khong doi',
+    JSON.stringify(Object.keys(xuoi).sort().map(k => [k, xuoi[k]])) === JSON.stringify(Object.keys(nguoc).sort().map(k => [k, nguoc[k]])),
+    JSON.stringify([xuoi, nguoc]));
+  check('W34 du ba lenh deu co ma', Object.keys(xuoi).length === 3, String(Object.keys(xuoi).length));
+}
+
+console.log('W35 verifier tu khai runId: luoi chong va cham phai VAN chay');
+{
+  // Prompt may dan verifier "run_id neu stdout co in" → agent CO THE tra cung mot
+  // runId cho hai lenh khac nhau. Truoc ban va, nhanh nay bo qua toan bo luoi
+  // chong va cham: run_id — truong DUY NHAT ma lib/evidence-core.cjs doc — bi trung.
+  const A = 'cd apps/web && pnpm build', B = 'cd apps/api && pnpm build';
+  const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder({
+    'machine:cd apps/': (call) => ({ exitCode: call.label.includes('api') ? 1 : 0, outputTail: 'x', runId: 'harness-42', cannotRun: false }),
+  }));
+  const suite = result.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+  const idA = (suite.find(l => l.cmd === A) || {}).run_id;
+  const idB = (suite.find(l => l.cmd === B) || {}).run_id;
+  check('W35 hai lenh -> hai run_id KE CA khi verifier khai trung', !!idA && !!idB && idA !== idB, `${idA} / ${idB}`);
+  check('W35 giu lai ma that cua verifier lam goc', String(idA).startsWith('harness-42') && String(idB).startsWith('harness-42'), `${idA} / ${idB}`);
+  // doi chung duong: verifier khai ma KHAC nhau -> giu nguyen van, khong hau to
+  const { result: r2 } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder({
+    'machine:cd apps/web': { exitCode: 0, outputTail: 'x', runId: 'rid-web', cannotRun: false },
+    'machine:cd apps/api': { exitCode: 0, outputTail: 'x', runId: 'rid-api', cannotRun: false },
+  }));
+  const s2 = r2.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+  check('W35 doi chung: ma verifier khac nhau -> giu nguyen van',
+    s2.some(l => l.run_id === 'rid-web') && s2.some(l => l.run_id === 'rid-api'),
+    JSON.stringify(s2.map(l => l.run_id)));
+}
+
+console.log('W36 bo dem va cham khong duoc dung object tran (khoa prototype)');
+{
+  // `{}` co san constructor/toString ke thua, nen bo dem doc ra HAM thay vi undefined
+  // va phep so > 1 false mai mai — luoi tat im lang dung lop no sinh ra de va.
+  const A = 'npm run constructor', B = 'cd x && npm run constructor';
+  const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder());
+  const suite = result.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+  // Assert phai nam TREN TRUC ma bo dem TEN dieu khien — tuc `evalId`. Do o truc
+  // `run_id` la do nham vat: lop thu hai (`demRidSuite`) khoa theo chuoi minted
+  // nen khong bao gio dung khoa prototype va luon cuu duoc run_id — pha dung vat
+  // ma phep do van xanh (S4-r2 chung minh bang mutant).
+  const tenIds = suite.map(l => l.evalId);
+  check('W36 ten trung la khoa prototype van duoc hau to', new Set(tenIds).size === 2, JSON.stringify(tenIds));
+  const rIds = suite.map(l => l.run_id);
+  check('W36 lop thu hai van giu hai ma khac nhau', new Set(rIds).size === 2, JSON.stringify(rIds));
 }
 
 summary('acceptance-verify');
