@@ -172,6 +172,11 @@ executors:
     tnk_rang_suite_case: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan suite-case
     tnk_rang_taste_gate: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan taste-gate
     tnk_rang_quet_vung_ngoai: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan quet-vung-ngoai
+    # Vật của hồ sơ cham-dung-cay-dung-cho-dung — răng cho script sinh-args S4
+    # + điều khoản SKILL. Fixture CODE-SINH mỗi lần chạy, đường dẫn suy từ vị
+    # trí script. Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ trên.
+    cdc_args_du_truong: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan args-du-truong
+    cdc_ref_hong_keu_to: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan ref-hong
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
