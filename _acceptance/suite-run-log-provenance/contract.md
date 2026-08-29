@@ -79,7 +79,7 @@ Source input: prompt (PR #117) + đo thật media-library vòng 11.
   thời điểm của lệnh chạy chung vào tiêu chí ĐỨNG TRƯỚC nó.) Given một bản chấm
   có khối lệnh suite, When trang bằng chứng và card Cổng 2 dựng bản trình cho
   người ký, Then không trường nào của khối đó xuất hiện như của một tiêu chí —
-  trang không in mã ngoài khối, và cờ «bằng chứng máy đầy đủ» của thẻ không được
+  trang không in mã ngoài khối, và cờ «bằng chứng máy đầy đủ» của card không được
   xanh nhờ mã của lệnh chạy chung; And mỗi bộ đọc có HAI lớp đóng khối (gặp tiêu
   đề · gặp khối không-phải-eval) và MỖI lớp có ca cô lập — fixture chỉ còn một
   lớp che, gỡ đúng lớp đó thì phép đo phải đỏ (bốn lớp, bốn bản tiêm).
