@@ -53,6 +53,12 @@ Ca đo viết trước được ngay, không cần chờ bật.
 nó làm thước chính là tái lập đúng bệnh «phép đo không phân biệt được bắt-đúng-lỗi
 với chưa-bao-giờ-chạy». Xương sống phải là grader tất định; `llm` chỉ làm lớp phụ.
 
+**Độ tin của mục này:** tính năng ở trạng thái early access **không có trang tài
+liệu công khai** — trạng thái «chưa bật» đã kiểm thẳng trên máy, nhưng chi tiết
+bên trong (6 loại grader, cơ chế cô lập, cờ) đến từ tham chiếu nội bộ của trợ lý
+tra cứu, chưa đối chiếu được với tài liệu. Khi org được bật, việc đầu tiên là
+`claude plugin eval --help` để xác nhận lại trước khi viết ca đo theo khuôn trên.
+
 ### ② Một job CI chạy được SKILL của kit và trả về kết quả máy đọc
 
 Hai đường chính thức, cả hai đều dùng được vì kit đã là plugin marketplace:
