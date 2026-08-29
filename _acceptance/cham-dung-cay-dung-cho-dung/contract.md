@@ -5,7 +5,7 @@ slug: cham-dung-cay-dung-cho-dung
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -74,6 +74,11 @@ Ngưỡng khai ở opportunity.md → truy thành tiêu chí:
 - KHÔNG bắt verifier đối chiếu vân tay môi trường đầy đủ (realpath/env fingerprint do bên đọc kiểm) — dạng đầy đủ của nấc 1, để dành khi số 5-vòng-kế cho thấy cần.
 
 ## Notes
+- **Hạn chế đã biết (Cổng Bằng chứng 29/08, owner xếp ngăn):**
+  - Thẻ Cổng 2 còn chép tay danh sách ba ngăn phân loại — thêm ngăn mới vào nguồn chung thì thẻ in «Máy chưa đề xuất hướng nào» cho ngăn đó (Ngoài-3).
+  - Bộ đọc dòng tổng kết bỏ qua im lặng dòng hỏng-JSON-giữa-chừng khi đếm (Ngoài-6).
+  - Sáu phép đo tự khai chưa chứng minh trọn lời hứa của chúng: phép tính mốc so sánh (Ngoài-7) · chống rò đường dẫn giữa hai làn (Ngoài-8) · một-nguồn ba ngăn chưa đi qua đường xử lý thật (Ngoài-9) · đếm nơi-sinh-dòng chỉ đếm số lượng tối thiểu (Ngoài-10) · ca mang-kết-quả-cũ dùng dữ liệu soạn tay (Ngoài-11) · phép kiểm tài-liệu-hết-công-thức-cũ có thể luôn đạt (Ngoài-12).
+  - Chi tiết từng mục ở `review-findings.md` mục «Ngoài hợp đồng»; hai lỗi thật (dò nhánh chính · mã 127 ở làn đối chứng) KHÔNG nằm đây — chúng mở ô riêng: `nhanh-chinh-khong-ten-main` · `baseline-127-tin-hieu-phan-biet`.
 
 - Hạng T2: mọi file dự kiến đụng (`feature-loop/scripts/`, `feature-loop/workflows/acceptance-verify.js`, `feature-loop/skills/feature-loop/SKILL.md`, `scripts/gate-card.js`, `tests/**`) ngoài `t1_skip_globs` và ngoài `t3_paths`.
 - Ghim chỗ đứng đặt ở tầng LANE (quyết định thiết kế 2 của design doc): nướng `cd <repoRoot>` vào chuỗi lệnh trong args sẽ phá lane baseline chạy worktree — AC-7 là chốt giữ điều đó.
