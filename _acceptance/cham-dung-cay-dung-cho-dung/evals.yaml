@@ -1,0 +1,207 @@
+schema_version: 1
+feature_slug: cham-dung-cay-dung-cho-dung
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.cdc_args_du_truong
+    expected: >
+      MA TRẬN TOÀN PHẦN viết trước, 15 vế = 15 assert trên fixture hồ sơ
+      CODE-SINH trong chính lần chạy: (1) slug (2) round (3) riskTier đọc từ
+      contract (4) evals đã resolve (5) mỗi eval giữ `ref` gốc (6)
+      suiteCommands từ suite_keys (7) diffBase — đo bằng QUAN HỆ: fixture
+      repo git thật có nhánh chính + nhánh feature, giá trị phải BẰNG
+      `git merge-base` chạy độc lập, và một ca HEAD ≠ merge-base chứng nó
+      không lấy HEAD (8) repoRoot (9) personasPath (10) templatePath (11)
+      toolKillRule so NỘI DUNG với file nguồn, không chỉ có-mặt (12)
+      contractPath (13) invokedAt (14) invokedSha = rev-parse HEAD của
+      fixture (15) không chuỗi lệnh nào chứa `cd ` nướng sẵn. Số assert phải
+      bằng 15 — thiếu vế nào khai vế đó. Chiều đỏ cùng fixture, hai đại
+      diện hai lớp: xoá suite_keys → exit ≠ 0 ghim tên phần thiếu, không
+      sinh tệp; mutant làm diffBase = HEAD → assert (7) đỏ ghim «diffBase
+      không phải merge-base».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs"]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.cdc_ref_hong_keu_to
+    expected: >
+      Fixture code-sinh có eval trỏ `config:executors.script.khong_ton_tai`
+      → exit ≠ 0, thông điệp ghim ĐÚNG chuỗi ref hỏng, stat tệp args phải
+      vắng. Đối chứng dương: cùng fixture sửa ref về key thật → exit 0, tệp
+      sinh ra. Hai chiều cùng một fixture, chỉ đổi một dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs"]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.cdc_round_tu_dem
+    expected: >
+      Fixture có evidence-report với `## Iterations` 2 round (code-sinh) →
+      args mang round 3; xoá evidence-report → round 1. Chiều đỏ: section
+      Iterations bị đổi tên → script KHÔNG đoán, thoát khác 0 ghim thông điệp
+      không-đếm-được-round (chống mint trùng run_id).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs"]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.cdc_carry_da_goi
+    expected: >
+      Round ≥2 với --carry-anchor trên fixture có run-log round trước → args
+      chứa carriedEvals đúng kết quả carry-plan.mjs, evalsHash có mặt,
+      inputsHash gắn cho judgment eval. Chiều đỏ cùng fixture: round ≥2 mà
+      KHÔNG truyền --carry-anchor lẫn --no-carry → exit ≠ 0 ghim thông điệp
+      đòi khai tường minh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/scripts/carry-plan.mjs"]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.cdc_loi_khai_pham_vi
+    expected: >
+      Hai vế, mỗi vế có chiều đỏ RIÊNG. Vế tệp: args có generated_at +
+      generated_sha khớp `git rev-parse HEAD` của fixture repo; chiều đỏ:
+      commit thêm vào fixture rồi so → hai sha phải LỆCH và bộ so phải BÁO
+      lệch (phép so sống, không hằng-đúng). Vế SKILL: rút TRỌN khối marker
+      sinh-lại-khi-HEAD-khác và assert NỘI DUNG khối chứa cả `generated_sha`
+      LẪN hành-động-sinh-lại (không chỉ marker có mặt); chiều đỏ riêng:
+      mutant đảo/rỗng ruột khối trong bản sao SKILL → case đỏ ghim thông
+      điệp của vế SKILL.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/skills/feature-loop/SKILL.md"]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Case mới trong suite workflows (harness vm-realm, không sinh agent):
+      dựng prompt lane verifier máy + UI từ acceptance-verify.js với args mẫu
+      → chuỗi lệnh giao agent khớp GUARD rút từ nguồn (khối INFRA-EXIT-CODES:
+      `cd "<repoRoot>" || exit 97` + ` && <cmd>`), đường dẫn có nháy; case
+      RÚT khuôn guard từ nguồn thay vì gõ chuỗi. Chiều đỏ mutant: gỡ phần wrap
+      trong bản sao → case phải ĐỎ ghim tên case (P194: ghim đúng dòng case
+      trong stdout, không tin mã thoát trọn suite).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Case mới: prompt lane baseline giữ chỗ đứng worktree bằng CÙNG guard
+      (`cd "$WT" || exit 97`), và guard của repoRoot KHÔNG xuất hiện trong lệnh
+      baseline. Chiều đỏ mutant: nướng cd repoRoot vào cmd trong args mẫu →
+      case đỏ ghim «baseline mất phân biệt» — chốt giữ quyết định ghim-theo-lane.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Case mới: mô phỏng một eval agent trả null trong harness → runLog kết
+      quả có dòng kind vang-mat mang evalId + round, và verdict lượt KHÔNG
+      thuộc {PASS, PENDING-JUDGMENT} sạch. Đối chứng dương cùng harness: đủ
+      kết quả → không dòng vang-mat nào và verdict như cũ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Round-trip HAI ca, số phải LỆCH được: ca sạch — mọi eval trả kết quả →
+      một dòng round-tally với expected = returned, blocked = 0; ca lệch —
+      cùng harness, 1 agent trả null → dòng tally phải mang expected >
+      returned và blocked ≥ 1, các số KHỚP phép đếm độc lập từ danh sách đã
+      lên lịch (chống writer hardcode returned = expected). Reader dùng cho
+      ngưỡng 5-vòng-kế rút lại đúng số từ CHÍNH dòng vừa sinh — writer và
+      reader cùng lần chạy. Chiều đỏ: sửa bộ đếm trong bản sao → đỏ ghim tên
+      khoá lệch; xoá một khoá khỏi dòng → reader đỏ ghim tên khoá thiếu.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Case mới suite plugins: schema triage nhận proposal wont-fix (fixture
+      finding code-sinh) và gate-card render lựa chọn có tên cho nó; đường
+      đọc-cũ: fixture ĐỜI CŨ không có wont-fix → thẻ render như hiện hành,
+      exit 0, không cờ đỏ. Chiều đỏ mutant: gỡ nhánh render wont-fix trong
+      bản sao → case đỏ ghim chuỗi rút từ nguồn thẻ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "scripts/gate-card.js", "tests/plugins/**"]
+
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Case tương thích: chạy harness với args đời 2.4.0 (không trường mới) —
+      GIỚI HẠN ĐÃ KHAI: fixture này dựng-theo-hợp-đồng-args-đã-ghi
+      (acceptance-verify.js:13-48), không có writer thật đời cũ để
+      round-trip vì đời đó args soạn tay. Verdict routing + dedupe +
+      scope-triage cho kết quả như suite hiện hành; mọi case cũ của suite
+      workflows vẫn xanh nguyên trạng trong cùng lượt chạy. Chiều đỏ: bật
+      một đường bắt buộc trường mới trong bản sao → case đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      S4-r2 ĐỔI KHUÔN: tín hiệu chỗ-đứng-hỏng là MÃ THOÁT, không phải chữ.
+      Ma trận 3 ô viết trước trong harness: (a) exit 97 (guard `|| exit 97` báo
+      không vào được chỗ đứng) → BLOCKED + dòng nguyên nhân máy-đọc; (b) exit
+      127 → BLOCKED + dòng nguyên nhân; (c) exit 1 thường → FAIL sản phẩm như
+      cũ. THÊM ca chống-nuốt: lệnh exit 1 mà output CÓ chuỗi «cd: … No such
+      file or directory» vẫn phải là REJECT (bản dò-chữ cũ nuốt nó thành
+      BLOCKED). Và nguồn không còn bộ dò chuỗi nào; bảng mã ở MỘT khối marker;
+      ba lane dùng chung một guard. Chiều đỏ mutant: gỡ nhánh phân loại trong
+      bản sao → ca (a)/(b) đỏ ghim tên ca.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
+
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.cdc_skill_khong_fallback
+    expected: >
+      Hai vế trên SKILL feature-loop: (a) khối marker điều-khoản-DỪNG có mặt
+      và NỘI DUNG khối chứa cả hành-động-dừng lẫn cấm-fallback-soạn-tay;
+      (b) khối công thức 14-gạch soạn-tay cũ VẮNG (ghim bằng chuỗi mồi đại
+      diện của khối cũ, rút từ bản trước sửa). Chiều đỏ: chèn lại đoạn
+      soạn-tay vào bản sao SKILL → vế (b) đỏ ghim thông điệp; rỗng ruột khối
+      điều khoản → vế (a) đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/skills/feature-loop/SKILL.md"]
+
+  - id: E14
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.cdc_truong_theo_ben_doc
+    expected: >
+      S4-r1: bên VIẾT (s4-args) rút danh sách trường từ bảng của bên ĐỌC
+      (marker EVAL-REQUIRED-FIELDS trong acceptance-verify.js), không gõ tay.
+      Fixture code-sinh thêm eval ui-check có `steps` → args giữ trọn steps.
+      Chiều đỏ 1: ui-check thiếu steps → exit ≠ 0 ghim tên trường, không sinh
+      tệp (fail-closed, không đẩy lượt BLOCKED chắc chắn xuống workflow).
+      Chiều đỏ 2 (một-nguồn): đổi bảng bên ĐỌC trong bản sao cây → bên VIẾT
+      phải đỏ ngay và ghim tên trường mới; nếu vẫn xanh thì hai bên còn trôi
+      được, đúng lớp lỗi vòng này đóng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/workflows/acceptance-verify.js"]

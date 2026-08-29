@@ -702,6 +702,10 @@ if (ooc.findings.length) {
   ooc.findings.forEach((f, fi) => {
     const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
       : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
+      // ngăn thứ ba (hồ sơ cham-dung-cay-dung-cho-dung, AC-10): lỗi thật nhưng
+      // không đáng sửa — máy khuyên chấp nhận có ghi vết; file đời cũ không có
+      // giá trị này rơi xuống nhánh mặc định như trước (đường đọc-cũ).
+      : f.proposal === 'wont-fix' ? 'Máy đề xuất: không sửa — chấp nhận và ghi vết, không mở việc nào.'
       : 'Máy chưa đề xuất hướng nào.';
     // In câu ngôn ngữ sản phẩm do bước triage viết. Thiếu nó thì nói thẳng là
     // thiếu — TUYỆT ĐỐI không rơi về title kỹ thuật của reviewer, vì đó là thứ
