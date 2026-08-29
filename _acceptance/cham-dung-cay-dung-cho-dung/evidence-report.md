@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4d1de325c5fe445e9c23ee3bb850dd0940a75bdb
+verified_commit: e4bc88fa6e5b73af814427ba600723a7a164f7c6
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -227,3 +227,7 @@ none — every multi-run eval is uniform
 Round 1: E13 (AC-13, SKILL feature-loop cấm fallback soạn-tay) chạy và PASS — không có diff chạm path của nó ở các round sau nên carry-forward.
 Round 2: chạy đủ E1–E5, E10, E14 cùng ba suite regression (scripts, hooks, product-map) — tất cả PASS; nhưng `bash tests/workflows/run-tests.sh` (mang E6, E7, E8, E9, E11, E12) — agent bị skip/chết, không trả kết quả nào → round dừng ở BLOCKED, chưa quay lại implementation vì đây là lỗi hạ tầng verify, không phải code đỏ.
 Round 3: chạy lại `bash tests/workflows/run-tests.sh` (E6, E7, E8, E9, E11, E12) sau BLOCKED ở round 2 — 44 tests passed; toàn bộ E1–E12, E14 xanh, E13 carry-forward từ round 1 — verdict PASS.
+
+### Re-pin lần 1 — 2026-08-29, do gộp main (PR #117 đổi engine dùng chung: acceptance-verify.js, suite, config)
+run_id: repin-cdc-k7x2qm
+sha: e4bc88fa6e5b73af814427ba600723a7a164f7c6 · suites: 5 lệnh exit 0
