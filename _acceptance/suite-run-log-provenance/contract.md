@@ -147,12 +147,25 @@ vòng. Người ký ở Cổng Bằng chứng đọc danh sách này TRƯỚC kh
    `va-cham-ten` (E3) có chiều đỏ cho cả ba lớp phòng thủ nhưng chỉ chạy phép so
    trên MỘT trong ba biến thể va chạm; hai biến thể còn lại chỉ có chiều dương.
 2. **Danh sách vật-được-đo viết tay.** Lưới «cây làm việc lệch HEAD» trong răng
-   canh đúng ba file liệt trong biến `VAT_DO`. Thêm vật mới mà quên cập nhật danh
-   sách thì lưới đó không canh nó — cùng hình dạng với bài học P150.
+   chỉ canh những file được liệt tay trong biến `VAT_DO` (danh sách đã nở theo
+   phạm vi; cố ý KHÔNG ghi số ở đây vì con số tự lỗi thời — đọc thẳng biến đó).
+   Thêm vật mới mà quên cập nhật danh sách thì lưới không canh nó — cùng hình
+   dạng với bài học P150.
 3. **Hai bản trình chưa hiển thị khối lệnh suite.** Bản vá ở trang bằng chứng
    và card Cổng 2 mới chỉ thôi gán trường của lệnh chạy chung cho một tiêu chí
    (AC-7); chúng chưa render các khối đó thành mục riêng. Kết quả lệnh chạy
    chung vẫn đọc được trong `evidence-report.md`.
+
+4. **Không gì bắt bản chấm phải THẬT SỰ mang khối lệnh suite.** Bộ đối chiếu chỉ
+   kiểm một chiều — mọi mã trong bản chấm phải có trong sổ. Chiều ngược lại (sổ
+   có dòng lệnh suite mà bản chấm không khai khối nào) KHÔNG có lưới nào: máy
+   soạn bỏ hẳn mục đó thì mọi cổng vẫn xanh và người ký không thấy dấu vết lệnh
+   canh hồi quy. Bản vá này đặt khuôn + dặn dò; phần cưỡng chế còn thiếu.
+5. **Dòng sổ của lệnh suite chưa có phép so tập-khoá toàn phần.** Dòng của tiêu
+   chí thì có (chân `khong-hoi-quy` so trọn bộ khoá writer↔writer), dòng lệnh
+   suite chỉ có các assert điểm cho từng trường. Đo thật ở vòng 5: xoá `round:`
+   khỏi riêng dòng lệnh suite mà cả bộ kiểm vẫn xanh 389/389. Chưa bộ đọc nào
+   của engine lọc sổ theo `round`, nên đây là lỗ ĐO chứ chưa chảy máu.
 
 Mốc bất biến: `BASE-SRLP = e0222f7f53740b6bd603b218fe9da2b8f8e65e19` — commit
 CHA của bản vá, tức cây trước-vá còn nguyên lỗi. Chiều đỏ chính là **gỡ vá

@@ -1670,7 +1670,7 @@ mk_rep "$EPR/_acceptance/gcnohead" gcnohead <<'REP'
 REP
 GCN="$(node "$GC" --root "$EPR" --slug gcnohead 2>/dev/null)"
 hasout GCS1 "CHƯA đủ trường" "$GCN"
-nothas GCS1b "gc-SUITE-build-001" "$GCN"
+nothas GCS1b "bằng chứng máy đầy đủ" "$GCN"   # thẻ KHÔNG BAO GIỜ in mã → soi mã là assert chết; soi CỜ mới sống
 
 mk_rep "$EPR/_acceptance/gchead" gchead <<'REP'
 - eval: E1

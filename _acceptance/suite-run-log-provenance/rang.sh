@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Răng hồ sơ suite-run-log-provenance — bảy chân.
+# Răng hồ sơ suite-run-log-provenance — tám chân.
 #
 # Vì sao không tin mã thoát của trọn suite: suite XANH cả trên bản trước vá ở
 # những ca khác, nên "exit 0" không phân biệt được "bắt đúng lỗi" với "chưa bao
