@@ -342,48 +342,7 @@ PYX
   else bad "chiều đỏ: bản tiêm cũng đỏ — ca không phân biệt được hai bản"; fi
   done_chan ;;
 
-remote-hoi-khong-duoc)
-  # AC-9 (S4-r5): cùng lớp mốc-sai-lặng-lẽ với AC-8, vào bằng cửa MẠNG.
-  build_repo phat-trien
-  gfix branch master HEAD~1        # tên quen còn sống làm mồi
-  gfix remote add origin "https://192.0.2.1/nope.git"
-  rm -f "$TMP/args.json"
-  if node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/rk.txt" 2>&1; then
-    BR="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).branch||'VANG')" 2>/dev/null || echo VANG)"
-    bad "ĐOÁN BỪA khi remote không hỏi được: nhận «$BR», mốc so sánh sai lặng lẽ"
-  else
-    N9="$(grep -o "KHÔNG hỏi được nó[^\`\$]*" "$S4ARGS" | head -1 | cut -c1-20)"
-    if grep -qF "$N9" "$TMP/rk.txt" && grep -q -- "--diff-base" "$TMP/rk.txt" && ! grep -q "giải bằng fallback" "$TMP/rk.txt"; then
-      ok "có origin mà hỏi không được → kêu to đúng loại, KHÔNG rơi về đoán tên quen"
-    else bad "đỏ nhưng sai thông điệp: $(grep -m1 . "$TMP/rk.txt")"; fi
-    [ ! -f "$TMP/args.json" ] && ok "không sinh tệp args (fail-closed)" || bad "vẫn sinh tệp args"
-  fi
-  # đối chứng dương CÙNG fixture: gỡ remote → dò tên quen chạy lại bình thường
-  gfix remote remove origin
-  rm -f "$TMP/args.json"
-  if node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/rk2.txt" 2>&1; then
-    SRC="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).source||'VANG')")"
-    [ "$SRC" = "fallback" ] && ok "đối chứng dương: gỡ remote → dò tên quen, nguồn = fallback" || bad "đối chứng dương: nguồn sai ($SRC)"
-  else bad "đối chứng dương hỏng: $(grep -m1 . "$TMP/rk2.txt")"; fi
-  # chiều đỏ: bản sao bỏ bước phân biệt «có origin» → phải đoán bừa (bản trước r5)
-  MUT7="$TMP/mut7"; snapshot_tree "$MUT7" || done_chan
-  python3 - "$MUT7/feature-loop/scripts/s4-args.mjs" <<'PYX'
-import sys, re
-p=sys.argv[1]; s=open(p,encoding='utf-8').read()
-a=s.index("  if (originUrl && out === null) {")
-b=s.index("  const m = out && out.match", a)
-assert a < b, "mutant khong tac dung"
-open(p,'w',encoding='utf-8').write(s[:a]+s[b:])
-PYX
-  gfix remote add origin "https://192.0.2.1/nope.git"
-  rm -f "$TMP/args.json"
-  if node "$MUT7/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m7.txt" 2>&1; then
-    BRM="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).branch||'VANG')")"
-    [ "$BRM" = "master" ] && ok "chiều đỏ: bản bỏ bước phân biệt ĐOÁN BỪA sang «master» (ca phân biệt được)" \
-      || bad "chiều đỏ: bản tiêm ra nhánh lạ «$BRM»"
-  else bad "chiều đỏ: bản tiêm cũng đỏ — ca không phân biệt được hai bản"; fi
-  done_chan ;;
 
 *)
-  echo "rang.sh --chan <master-khong-remote|nhanh-la-cau-huong-dan|remote-tra-loi|doc-bat-buoc-van-dong|ci-single-branch|khong-doan-sang-ten-khac|remote-hoi-khong-duoc>"; exit 2 ;;
+  echo "rang.sh --chan <master-khong-remote|nhanh-la-cau-huong-dan|remote-tra-loi|doc-bat-buoc-van-dong|ci-single-branch|khong-doan-sang-ten-khac>"; exit 2 ;;
 esac

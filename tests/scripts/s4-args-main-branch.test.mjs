@@ -100,18 +100,17 @@ console.log('SA3 ref local vắng nhưng origin/<tên> còn → giải qua ref r
   ok0(r.code === 0 && got === want, 'SA3 giải qua origin/<tên>, mốc BẰNG merge-base độc lập', `code=${r.code} got=${got} want=${want}`);
 }
 
-console.log('SA4 có origin nhưng KHÔNG hỏi được → fail-closed, không đoán (S4-r5)');
+console.log('SA4 GHI NHẬN hạn chế đã khai: có origin mà hỏi không được → hiện VẪN dò tên quen');
 {
+  // Vòng nhanh-chinh-khong-ten-main thu phạm vi ở S4-r5 (owner quyết): lớp này
+  // chuyển sang ô khuon-rang-dung-chung. Ca dưới đây KHÔNG đòi hành vi đã rút —
+  // nó ghi lại hành vi THẬT hôm nay để lần sửa sau có mốc so, và giữ cho lối
+  // thoát --diff-base luôn sống (thứ mà bản vá r5 đã lỡ bịt).
   const repo = buildRepo('phat-trien');
-  git(repo, 'branch', 'master', 'HEAD~1');           // tên quen còn sống làm mồi
+  git(repo, 'branch', 'master', 'HEAD~1');
   git(repo, 'remote', 'add', 'origin', 'https://192.0.2.1/nope.git');
-  const t0 = Date.now();
-  const r = runArgs(repo);
-  const secs = (Date.now() - t0) / 1000;
-  ok0(r.code !== 0 && /KHÔNG hỏi được nó/.test(r.text) && !r.wrote,
-    'SA4 remote không với được → kêu to, không sinh tệp', `code=${r.code} text=${r.text.slice(0, 80)}`);
-  ok0(!/giải bằng fallback/.test(r.text), 'SA4 KHÔNG rơi về đoán tên quen');
-  ok0(secs < 40, 'SA4 về trong trần thời gian, không treo', `${secs.toFixed(1)}s`);
+  const r = runArgs(repo, ['--diff-base', 'master']);
+  ok0(r.code === 0 && r.wrote, 'SA4 lối thoát --diff-base VẪN SỐNG khi remote không hỏi được', `code=${r.code}`);
 }
 
 function ok0(cond, msg, detail) { cond ? ok(msg) : bad(msg, detail); }

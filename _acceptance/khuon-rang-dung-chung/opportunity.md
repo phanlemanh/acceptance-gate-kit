@@ -51,6 +51,15 @@ khác (dựng bản base từ `origin/main`) đỏ theo, trông như lỗi của
 chạy. Khuôn chung phải có cửa chặn: lệnh trên fixture chỉ chạy khi đường dẫn
 không rỗng và trỏ đúng một repo git, không thì TỪ CHỐI và tính là đỏ.
 
+Một lớp SẢN PHẨM chuyển sang đây sau khi vòng `nhanh-chinh-khong-ten-main` thu
+phạm vi ở S4-r5 (owner quyết): «repo CÓ remote nhưng KHÔNG hỏi được nó» hiện
+vẫn rơi về dò bốn tên quen và có thể nhận nhầm nhánh → mốc so sánh sai lặng lẽ.
+Ba lần chạm vùng dò đó đều đẻ lỗ mới ở chỗ khác (r1/r2 → hồi quy; r4 → đóng;
+r5 → bịt mất lối thoát `--diff-base` mà chính thông điệp lỗi chỉ ra), nên lời
+giải phải đến cùng khuôn chung chứ không phải thêm một nhánh nữa. Kèm ghi chú:
+phép bóc tên nhánh đọc chữ tiếng Anh trong đầu ra của git nên máy đặt ngôn ngữ
+khác có thể trượt.
+
 Tám mục gộp vào đây từ Cổng Bằng chứng của `nhanh-chinh-khong-ten-main`
 (owner xếp ngăn 29/08) — tất cả đều là *chất lượng phép đo*, không phải mã
 sản phẩm: ca ghim hằng đếm theo mốc (danh sách tên dự phòng) ×2 · ca kiểm

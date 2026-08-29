@@ -217,16 +217,7 @@ let mainBranch = null;
 let mainBranchSource = 'none';
 let remoteDeclared = null;
 {
-  // «Có origin» hỏi bằng phép đọc THUẦN CỤC BỘ (không chạm mạng). Nếu không tách
-  // hai câu hỏi này, mọi kiểu hỏng của lệnh hỏi remote — mạng chặn, xác thực
-  // hỏng, hết trần thời gian — đều trả về cùng một giá trị rỗng, không phân biệt
-  // được với «repo không có remote», và vòng dò lại đoán bừa: đúng lớp
-  // mốc-so-sánh-sai-lặng-lẽ mà S4-r4 vừa đóng, chỉ vào bằng cửa khác (S4-r5).
-  const originUrl = gitTry('config', '--get', 'remote.origin.url');
   const out = gitTry('remote', 'show', 'origin');
-  if (originUrl && out === null) {
-    die(`repo có remote «origin» nhưng KHÔNG hỏi được nó (mạng chặn, xác thực hỏng, hoặc quá ${REMOTE_TIMEOUT_MS / 1000}s) — KHÔNG đoán nhánh chính; truyền --diff-base <ref>`);
-  }
   const m = out && out.match(/HEAD branch:\s*(\S+)/);
   // Tên remote khai chỉ dùng được khi nó GIẢI ĐƯỢC ở cây này. Checkout
   // single-branch/shallow (mặc định của nhiều bộ CI) chỉ có ref nhánh feature:
