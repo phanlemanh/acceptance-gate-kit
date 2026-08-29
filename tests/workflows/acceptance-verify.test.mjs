@@ -85,8 +85,9 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   check('W03 runLog: 2 eval + 1 suite + 1 tally', result.runLog.length === 4
     && all03.filter(l => l.kind === 'round-tally').length === 1
     && all03.filter(l => String(l.evalId || '').startsWith('SUITE-')).length === 1, String(result.runLog.length));
-  const lines = all03.filter(l => !l.kind && !String(l.evalId || '').startsWith('SUITE-'));
-  check('W03 run_id minted deterministically per eval', lines[0].run_id === 'minted-demo-E1-r1' && lines[1].run_id === 'minted-demo-E2-r1');
+  const lines = all03; // hợp đồng của các assert #117 phía dưới: TOÀN BỘ dòng
+  const evalLines03 = all03.filter(l => !l.kind && !String(l.evalId || '').startsWith('SUITE-'));
+  check('W03 run_id minted deterministically per eval', evalLines03[0].run_id === 'minted-demo-E1-r1' && evalLines03[1].run_id === 'minted-demo-E2-r1');
   check('W03 ts from args.invokedAt', lines.every(l => l.ts === '2026-07-02T10:00:00Z'));
   // Lenh suite KHONG gan eval nao. Truoc ban va no khong co dong run-log nao, nen agent
   // tong hop phai tu dat run_id va recheck-evidence do L2 PROVENANCE NGAY SAU khi Cong 2
@@ -246,11 +247,7 @@ console.log('W12 run-log: main loop append la duong DUY NHAT (khong con scribe)'
   const { result, logs } = await runWorkflow(WF, baseArgs(), responder());
   check('W12 flag set khi co dong can ghi', result.runLogWriteFailed === true);
   check('W12 log nhac main loop tu append', logs.some(l => /TU append/.test(l)));
-<<<<<<< HEAD
-  check('W12 runLog mang du dong cho main loop (2 eval + 1 tally)', result.runLog.length === 3, String(result.runLog.length));
-=======
-  check('W12 runLog mang du dong cho main loop', result.runLog.length === 3, String(result.runLog.length));
->>>>>>> origin/main
+  check('W12 runLog mang du dong cho main loop (2 eval + 1 suite + 1 tally)', result.runLog.length === 4, String(result.runLog.length));
 }
 
 console.log('W13 ui-check merges into machine lane + run-log');
@@ -1781,7 +1778,7 @@ console.log('W32 gop lenh: suite trung dung cmd cua mot eval -> khong sinh dong 
   const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: ['pnpm test'] }), responder());
   const lines = result.runLog.map(x => JSON.parse(x));
   check('W32 trung lenh -> khong sinh dong SUITE', lines.every(l => !String(l.evalId).startsWith('SUITE-')), JSON.stringify(lines.map(l => l.evalId)));
-  check('W32 so dong = so eval', lines.length === 2, String(lines.length));
+  check('W32 so dong = so eval (+ 1 tally cua AC-9)', lines.filter(l => !l.kind).length === 2 && lines.filter(l => l.kind === 'round-tally').length === 1, String(lines.length));
 }
 
 console.log('W33 day khep: so -> ban cham -> BO DOC that cua kho (evidence-core)');
@@ -1814,7 +1811,7 @@ console.log('W33 day khep: so -> ban cham -> BO DOC that cua kho (evidence-core)
   const khoiSuite = (cmd, runId) => fillTemplate(suiteKhuon, { cmd, run_id: runId, ISO8601: '2026-07-02T10:00:00Z' });
   const banCham = (opts = {}) =>
     `---\nschema_version: 2\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\n---\n\n# Evidence Report: demo\n\n## Evidence\n\n` +
-    lines.filter(l => !String(l.evalId).startsWith('SUITE-')).map(l => khoiEval(l.evalId, l.run_id)).join('\n') +
+    lines.filter(l => !l.kind && !String(l.evalId).startsWith('SUITE-')).map(l => khoiEval(l.evalId, l.run_id)).join('\n') +
     `\n### Lệnh suite (hồi quy)\n\n` +
     khoiSuite(suite.cmd, opts.maSuite === undefined ? suite.run_id : opts.maSuite);
 
