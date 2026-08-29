@@ -1598,6 +1598,18 @@ printf -- '---\nschema_version: 1\nfeature_slug: epsec\nverdict: PENDING-JUDGMEN
 SEC="$(node "$EP" --root "$EPR" --slug epsec 2>/dev/null)"
 nothas EP09 "evil.test" "$(cat "$SEC" 2>/dev/null)"
 
+echo "EPS1 khoi LENH SUITE khong duoc de len run_id/verified_at cua eval CUOI"
+# Khuôn SUITE-BLOCK-TEMPLATE mở đầu bằng `- cmd:` chứ không phải `- eval:`. Bộ đọc
+# nào chỉ reset khối ở `- eval:` sẽ nhét run_id/exit_code/verified_at của LỆNH SUITE
+# vào eval cuối — trang ký hiển thị mã chạy sai chủ mà không cổng nào đỏ.
+dsu="$EPR/_acceptance/epsuite"; mkdir -p "$dsu"
+printf -- '---\nfeature: EP suite\nslug: epsuite\nrisk_tier: T2\n---\n## Criteria\n- AC-1: Given x, Then z.\n' > "$dsu/contract.md"
+printf -- '---\nschema_version: 2\nfeature_slug: epsuite\nverdict: PENDING-JUDGMENT\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n- eval: E1\n  run_id: epsuite-E1-001\n  exit_code: 0\n  verifier: scripts/v.sh\n  verified_at: 2026-06-20\n\n### Lenh suite (hoi quy)\n\n- cmd: npm run build\n  run_id: epsuite-SUITE-build-001\n  exit_code: 0\n  verified_at: 2026-06-21\n' > "$dsu/evidence-report.md"
+SUP="$(node "$EP" --root "$EPR" --slug epsuite 2>/dev/null)"
+hasout EPS1 "epsuite-E1-001" "$(cat "$SUP" 2>/dev/null)"
+nothas EPS1b "epsuite-SUITE-build-001" "$(cat "$SUP" 2>/dev/null)"
+nothas EPS1c "2026-06-21" "$(cat "$SUP" 2>/dev/null)"
+
 echo "EP10 '### nhóm phụ' trong ## Criteria -> text của AC phía sau vẫn lên evidence page"
 dsub="$EPR/_acceptance/epsub"; mkdir -p "$dsub"
 printf -- '---\nfeature: EP sub\nslug: epsub\nrisk_tier: T3\n---\n## Criteria\n- AC-1: Given x, Then z.\n### Nhóm phụ — thanh toán\n- AC-2: Given gio hang, Then charged via API.\n' > "$dsub/contract.md"

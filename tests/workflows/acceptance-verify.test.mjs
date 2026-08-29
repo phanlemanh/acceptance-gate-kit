@@ -1882,8 +1882,14 @@ console.log('W36 bo dem va cham khong duoc dung object tran (khoa prototype)');
   const A = 'npm run constructor', B = 'cd x && npm run constructor';
   const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder());
   const suite = result.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
-  const ids = suite.map(l => l.run_id);
-  check('W36 ten trung la khoa prototype van duoc hau to', new Set(ids).size === 2, JSON.stringify(ids));
+  // Assert phai nam TREN TRUC ma bo dem TEN dieu khien — tuc `evalId`. Do o truc
+  // `run_id` la do nham vat: lop thu hai (`demRidSuite`) khoa theo chuoi minted
+  // nen khong bao gio dung khoa prototype va luon cuu duoc run_id — pha dung vat
+  // ma phep do van xanh (S4-r2 chung minh bang mutant).
+  const tenIds = suite.map(l => l.evalId);
+  check('W36 ten trung la khoa prototype van duoc hau to', new Set(tenIds).size === 2, JSON.stringify(tenIds));
+  const rIds = suite.map(l => l.run_id);
+  check('W36 lop thu hai van giu hai ma khac nhau', new Set(rIds).size === 2, JSON.stringify(rIds));
 }
 
 summary('acceptance-verify');

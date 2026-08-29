@@ -131,6 +131,9 @@ case "$CHAN" in
     tiem_roi_doi_do "$TMP/vc-ten" \
       's/tenDuyNhat(m.cmd)/tenSuite(m.cmd)/g' \
       "W28 [tien to thu muc] hai lenh -> hai evalId" "go lop ten duy nhat"
+    tiem_roi_doi_do "$TMP/vc-dem" \
+      's/const demTenSuite = Object.create(null)/const demTenSuite = {}/' \
+      "W36 ten trung la khoa prototype van duoc hau to" "bo dem dung object tran"
     tiem_roi_doi_do "$TMP/vc-ma" \
       's/demRidSuite\[r0\] > 1/false/' \
       "W35 hai lenh -> hai run_id KE CA khi verifier khai trung" "go lop ma duy nhat"

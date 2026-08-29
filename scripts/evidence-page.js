@@ -78,8 +78,15 @@ const evid = {};
   let cur = null, capKey = null, capIndent = -1, cap = [];
   const flush = () => { if (cur && capKey) cur[capKey] = dedent(cap); capKey = null; capIndent = -1; cap = []; };
   for (const raw of section(report, 'Evidence')) {
+    // Heading con (vd `### Lệnh suite (hồi quy)`) và khối KHÔNG-phải-eval (khuôn
+    // SUITE-BLOCK-TEMPLATE mở đầu bằng `- cmd:`) đều ĐÓNG khối đang mở. Thiếu hai
+    // nhánh này thì run_id/exit_code/verified_at của lệnh suite chảy vào eval CUỐI
+    // và trang ký hiển thị mã chạy sai chủ — im lặng, không cổng nào đỏ.
+    // gate-card.js và acceptance-gold.mjs đã có nhánh heading; đây là bộ đọc cuối.
+    if (/^#{1,6}\s/.test(raw)) { flush(); cur = null; continue; }
     const em = raw.match(/^-\s+eval:\s*(\S+)/);
     if (em) { flush(); cur = {}; evid[em[1]] = cur; continue; }
+    if (/^-\s+\w+\s*:/.test(raw)) { flush(); cur = null; continue; }
     if (!cur) continue;
     if (capKey) {
       const ind = raw.match(/^(\s*)/)[1].length;
