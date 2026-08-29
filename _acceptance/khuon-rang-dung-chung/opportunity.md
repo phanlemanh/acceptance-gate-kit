@@ -44,6 +44,13 @@ Nợ đã khai kèm theo (từ vòng `nhanh-chinh-khong-ten-main`, thu phạm vi
 trần thời gian cho lệnh hỏi remote và luật «vùng dò chỉ gọi hàm dò» hiện KHÔNG
 có phép đo sống — hai ca đó thuộc đúng lớp này nên chờ khuôn chung.
 
+Hình dạng thứ năm, đo được 29/08 ngay trong phiên: bộ răng chạy lệnh git với
+biến đường dẫn RỖNG, mà lệnh git khi thiếu đường dẫn lại dùng thư mục hiện tại
+— tức KHO THẬT. Hậu quả thật: mất remote `origin` của chính kit, và một ca đo
+khác (dựng bản base từ `origin/main`) đỏ theo, trông như lỗi của vòng đang
+chạy. Khuôn chung phải có cửa chặn: lệnh trên fixture chỉ chạy khi đường dẫn
+không rỗng và trỏ đúng một repo git, không thì TỪ CHỐI và tính là đỏ.
+
 Tám mục gộp vào đây từ Cổng Bằng chứng của `nhanh-chinh-khong-ten-main`
 (owner xếp ngăn 29/08) — tất cả đều là *chất lượng phép đo*, không phải mã
 sản phẩm: ca ghim hằng đếm theo mốc (danh sách tên dự phòng) ×2 · ca kiểm

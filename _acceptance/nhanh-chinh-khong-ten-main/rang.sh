@@ -79,6 +79,14 @@ snapshot_tree() {
     bad "bản sao chưa tiêm đã đỏ — mọi chiều đỏ từ nó vô nghĩa: $(tail -1 "$TMP/snap.txt")"; return 1
   fi
 }
+# CỬA CHẶN: git trên fixture KHÔNG được chạy với đường rỗng. `git -C ""` chạy
+# trong thư mục hiện tại — tức REPO THẬT — nên một biến rỗng biến lệnh dựng
+# fixture thành lệnh sửa kho đang làm việc (sự cố 29/08: mất remote origin).
+gfix() {
+  [ -n "${REPO:-}" ] || { bad "gfix: REPO rỗng — TỪ CHỐI chạy git (sẽ đụng repo thật)"; return 1; }
+  [ -d "${REPO}/.git" ] || { bad "gfix: REPO không phải repo git: ${REPO}"; return 1; }
+  git -C "$REPO" "$@"
+}
 run_args() { node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/out.txt" 2>&1; }
 
 CHAN="${2:-}"
@@ -98,8 +106,8 @@ master-khong-remote)
   for b in "${TENS[@]}"; do
     build_repo "$b"; rm -f "$TMP/args.json"
     if run_args; then
-      MB="$(git -C "$REPO" merge-base "$b" HEAD)"
-      HD="$(git -C "$REPO" rev-parse HEAD)"
+      MB="$(gfix merge-base "$b" HEAD)"
+      HD="$(gfix rev-parse HEAD)"
       GOT="$(node -e "process.stdout.write(require('$TMP/args.json').diffBase)")"
       [ "$GOT" = "$MB" ] && [ "$GOT" != "$HD" ] \
         && ok "nhánh '$b': mốc so sánh BẰNG merge-base độc lập và khác HEAD" \
@@ -138,7 +146,7 @@ nhanh-la-cau-huong-dan)
     else bad "thông điệp sai loại: $(tail -2 "$TMP/out.txt" | tr '\n' ' ')"; fi
   fi
   # đối chứng dương: cùng fixture đổi tên nhánh về master → xanh
-  git -C "$REPO" branch -m phat-trien master
+  gfix branch -m phat-trien master
   rm -f "$TMP/args.json"
   run_args && ok "đối chứng dương: đổi tên về master → sinh args" || bad "đối chứng dương hỏng: $(tail -1 "$TMP/out.txt")"
   done_chan ;;
@@ -148,13 +156,13 @@ remote-tra-loi)
   # đường duy nhất trước đây không phép đo nào chạm.
   build_repo master
   BARE="$TMP/bare.git"; git init -q --bare -b phat-trien "$BARE"
-  git -C "$REPO" branch -f phat-trien master
-  git -C "$REPO" remote add origin "$BARE"
-  git -C "$REPO" push -q origin phat-trien master feat/x
-  git -C "$REPO" remote set-head origin phat-trien
+  gfix branch -f phat-trien master
+  gfix remote add origin "$BARE"
+  gfix push -q origin phat-trien master feat/x
+  gfix remote set-head origin phat-trien
   rm -f "$TMP/args.json"
   if run_args; then
-    MB="$(git -C "$REPO" merge-base phat-trien HEAD)"
+    MB="$(gfix merge-base phat-trien HEAD)"
     GOT="$(node -e "process.stdout.write(require('$TMP/args.json').diffBase)")"
     [ "$GOT" = "$MB" ] && ok "remote khai nhánh NGOÀI 4 tên quen → vẫn giải đúng mốc" \
       || bad "mốc lệch khi giải qua remote (got=$GOT want=$MB)"
@@ -173,11 +181,15 @@ remote-tra-loi)
   python3 - "$MUT2/feature-loop/scripts/s4-args.mjs" <<'PYX'
 import sys
 p=sys.argv[1]; s=open(p,encoding='utf-8').read()
-m=s.replace("const out = gitTry('remote', 'show', 'origin');","const out = null;")
+# Phá bước BÓC TÊN (không phá lệnh gọi): sau S4-r5, gán out=null bị bước
+# phân biệt «có origin mà hỏi không được» bắt trước và cho thông điệp KHÁC.
+# Muốn chứng «mất đường remote → rơi về dò tên quen» thì phải để lệnh gọi
+# thành công mà regex không khớp.
+m=s.replace("out.match(/HEAD branch:\\s*(\\S+)/)","out.match(/KHONG_BAO_GIO_KHOP/)")
 assert m!=s, "mutant khong tac dung"
 open(p,'w',encoding='utf-8').write(m)
 PYX
-  git -C "$REPO" branch -D master >/dev/null 2>&1
+  gfix branch -D master >/dev/null 2>&1
   rm -f "$TMP/args.json"
   if node "$MUT2/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m2.txt" 2>&1; then
     bad "chiều đỏ hỏng: phá bước đọc remote mà vẫn giải được nhánh chính"
@@ -212,8 +224,8 @@ ci-single-branch)
   # thẳng vào phép đọc bắt buộc là chết với đúng thông điệp AC-2 gọi là sai loại.
   build_repo master
   BARE2="$TMP/bare2.git"; git init -q --bare -b master "$BARE2"
-  git -C "$REPO" remote add origin "$BARE2"
-  git -C "$REPO" push -q origin master feat/x
+  gfix remote add origin "$BARE2"
+  gfix push -q origin master feat/x
   CI="$TMP/ci-clone"
   git clone -q --single-branch --branch feat/x "$BARE2" "$CI"
   cp -R "$REPO/_acceptance" "$CI/_acceptance"
@@ -281,15 +293,15 @@ khong-doan-sang-ten-khac)
   # bản r1/r2 trả lời sai êm ru — đây là ca giữ cho nó không quay lại.
   build_repo master
   BARE3="$TMP/bare3.git"; git init -q --bare -b main "$BARE3"
-  git -C "$REPO" branch -f main master
-  git -C "$REPO" remote add origin "$BARE3"
-  git -C "$REPO" push -q origin main master feat/x
-  git -C "$REPO" remote set-head origin main
+  gfix branch -f main master
+  gfix remote add origin "$BARE3"
+  gfix push -q origin main master feat/x
+  gfix remote set-head origin main
   # remote vẫn khai 'main', nhưng cả ref local lẫn origin/main đều bị xoá —
   # 'master' còn sống, đúng cái bẫy để máy nhận bừa
-  git -C "$REPO" branch -D main -q
-  git -C "$REPO" update-ref -d refs/remotes/origin/main
-  git -C "$REPO" remote show origin 2>/dev/null | grep -q "HEAD branch: main" \
+  gfix branch -D main -q
+  gfix update-ref -d refs/remotes/origin/main
+  gfix remote show origin 2>/dev/null | grep -q "HEAD branch: main" \
     && ok "fixture đúng bẫy: remote khai «main», ref main vắng, «master» còn sống" \
     || bad "fixture không dựng được bẫy"
   rm -f "$TMP/args.json"
@@ -305,7 +317,7 @@ khong-doan-sang-ten-khac)
     [ ! -f "$TMP/args.json" ] && ok "không sinh tệp args (fail-closed)" || bad "vẫn sinh tệp args dù không giải được nhánh"
   fi
   # đối chứng dương CÙNG fixture: trả ref main về → giải được, sinh args
-  git -C "$REPO" branch main master
+  gfix branch main master
   rm -f "$TMP/args.json"
   if node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/kd2.txt" 2>&1; then
     SRC2="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).source||'VANG')")"
@@ -321,7 +333,7 @@ old="if (!mainBranch && !remoteDeclared) {"
 assert old in s, "mutant khong tac dung"
 open(p,'w',encoding='utf-8').write(s.replace(old,"if (!mainBranch) {"))
 PYX
-  git -C "$REPO" branch -D main -q
+  gfix branch -D main -q
   rm -f "$TMP/args.json"
   if node "$MUT6/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m6.txt" 2>&1; then
     BRM="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).branch||'VANG')")"
@@ -333,8 +345,8 @@ PYX
 remote-hoi-khong-duoc)
   # AC-9 (S4-r5): cùng lớp mốc-sai-lặng-lẽ với AC-8, vào bằng cửa MẠNG.
   build_repo phat-trien
-  git -C "$REPO" branch master HEAD~1        # tên quen còn sống làm mồi
-  git -C "$REPO" remote add origin "https://192.0.2.1/nope.git"
+  gfix branch master HEAD~1        # tên quen còn sống làm mồi
+  gfix remote add origin "https://192.0.2.1/nope.git"
   rm -f "$TMP/args.json"
   if node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/rk.txt" 2>&1; then
     BR="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).branch||'VANG')" 2>/dev/null || echo VANG)"
@@ -347,7 +359,7 @@ remote-hoi-khong-duoc)
     [ ! -f "$TMP/args.json" ] && ok "không sinh tệp args (fail-closed)" || bad "vẫn sinh tệp args"
   fi
   # đối chứng dương CÙNG fixture: gỡ remote → dò tên quen chạy lại bình thường
-  git -C "$REPO" remote remove origin
+  gfix remote remove origin
   rm -f "$TMP/args.json"
   if node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/rk2.txt" 2>&1; then
     SRC="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).source||'VANG')")"
@@ -363,7 +375,7 @@ b=s.index("  const m = out && out.match", a)
 assert a < b, "mutant khong tac dung"
 open(p,'w',encoding='utf-8').write(s[:a]+s[b:])
 PYX
-  git -C "$REPO" remote add origin "https://192.0.2.1/nope.git"
+  gfix remote add origin "https://192.0.2.1/nope.git"
   rm -f "$TMP/args.json"
   if node "$MUT7/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m7.txt" 2>&1; then
     BRM="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).branch||'VANG')")"
