@@ -579,9 +579,33 @@ const tenSuite = (cmd) => {
   const ten = hit.map(x => x.replace(/^(pnpm|npm|yarn)\s+(run\s+)?/, '')).join('_')
   return (ten || sach).replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'suite'
 }
+/** Hai lệnh KHÁC nhau rút về CÙNG một tên là chuyện thường ở kho nhiều gói
+ *  (`cd apps/web && pnpm build` và `cd apps/api && pnpm build` đều ra `build`;
+ *  `pnpm test:unit --project a|b` đều ra `test_unit`; hai lệnh trần trùng 40 ký
+ *  tự đầu cũng thế). Dùng chung một mã thì sổ chạy hết phân biệt được lượt nào
+ *  là lượt nào: một lệnh ĐỎ có thể nấp sau một lệnh XANH mà bộ đối chiếu vẫn
+ *  xanh — cùng lớp false-green với chính lỗi khối này sinh ra để vá.
+ *  Hậu tố băm suy từ CHÍNH chuỗi lệnh (không phải chỉ số mảng) nên đổi thứ tự
+ *  khai `suiteCommands` không đổi mã; và chỉ gắn cho lệnh THẬT SỰ trùng tên nên
+ *  mã của lệnh không va chạm giữ nguyên hình dạng cũ. */
+const bamSuite = (s) => {
+  let h = 0x811c9dc5
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0 }
+  return h.toString(16).padStart(8, '0').slice(0, 6)
+}
+const demTenSuite = {}
+for (const m of machine) {
+  if ((m.evals || []).length) continue
+  const t = tenSuite(m.cmd)
+  demTenSuite[t] = (demTenSuite[t] || 0) + 1
+}
+const tenDuyNhat = (cmd) => {
+  const t = tenSuite(cmd)
+  return demTenSuite[t] > 1 ? `${t}__${bamSuite(cmd)}` : t
+}
 for (const m of machine) {
   if (!(m.evals || []).length) {
-    const ten = tenSuite(m.cmd)
+    const ten = tenDuyNhat(m.cmd)
     const rid = (m.runId && String(m.runId).trim()) || `minted-${args.slug}-SUITE-${ten}-r${args.round}`
     m.runId = rid
     suiteRunIds[m.cmd] = rid
