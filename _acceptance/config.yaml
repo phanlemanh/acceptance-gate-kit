@@ -170,6 +170,12 @@ risk_tiers:
     # để ngoài danh sách này thì mỗi lần ghi một quyết định-không-làm lại làm
     # evidence stale và tốn một vòng S4.
     - ".out-of-scope/**"
+    # Ca đo skill cho `claude plugin eval` (30/08). T1 vì đang TRƠ: harness
+    # early access chưa bật cho org, không đường code/CI nào của kit đọc
+    # evals/. ĐIỀU KIỆN THU HỒI: ngày plugin eval được bật và evals/ cắm vào
+    # CI làm răng, dòng này phải GỠ trong cùng PR cắm — lúc đó ca đo LÀ hành
+    # vi của thước, hết là văn xuôi.
+    - "evals/**"
     # Bản đồ sản phẩm — view máy sinh, cùng vai với mirror (ADR 0007). Không
     # miễn trừ thì chính commit chữ ký Cổng 2 (nó kèm bản đồ vừa vẽ lại) tự làm
     # bằng chứng stale và chặn merge, thành vòng không thoát. An toàn vì
