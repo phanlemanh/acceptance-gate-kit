@@ -107,8 +107,12 @@ riêng, đụng vào là mở phạm vi sang lớp khác.
   (`scripts/pre-merge-check.sh` dừng sớm khi chữ ký còn trống, chưa chạy tới
   khối đối chiếu). Lớp khác (thứ tự cổng), và chạm lõi cưỡng chế → hạng T3 với
   vòng duyệt riêng. Entry `descope` trong sổ quyết định.
-- **Đổi khuôn bản chấm** để có mục riêng cho lệnh suite — bản chấm hiện tại
-  khai được rồi; đổi khuôn kéo theo cả ổ cắm cưỡng chế, bản mẫu và mọi hồ sơ cũ.
+- ~~**Đổi khuôn bản chấm**~~ — **PHẠM VI ĐÃ MỞ ở vòng sửa S4-r1** (quyết định
+  `d-20260829T030933Z-2201`): lượt soi chứng minh bản mẫu KHÔNG có khuôn nào cho
+  lệnh suite, nên máy soạn tự chế mục và mã chạy không có chỗ đứng — đúng gốc của
+  lỗi ở kho tiêu thụ. Đã thêm khối `SUITE-BLOCK-TEMPLATE` vào bản mẫu (nằm NGOÀI
+  vùng chép) và đề bài trỏ vào đó. Vẫn NGOÀI phạm vi: đổi các mục đã có của bản
+  mẫu, và bắt hồ sơ cũ migrate — hồ sơ không có khối này vẫn hợp lệ.
 - Sửa `media-library` hay bất kỳ kho tiêu thụ nào — kit chỉ là bộ máy, không
   chứa việc của kho tiêu thụ.
 
@@ -118,6 +122,24 @@ Lưới thường trực: `tests/workflows/acceptance-verify.test.mjs` (fixture 
 dựng mỗi lần chạy, harness vm-realm, không sinh agent). Răng hồ sơ
 `_acceptance/suite-run-log-provenance/rang.sh` ghim đúng dòng ca và giữ chiều
 đỏ; cố ý KHÔNG vào suite vĩnh viễn — nó neo mốc bản-trước-vá.
+
+## Giới hạn đã khai (owner chọn đường «ship với giới hạn» sau khi luật dừng-vá bật)
+
+Hai vòng chấm liên tiếp sinh lỗi CÙNG LỚP «thước không gắn vào vật». Owner chốt
+giữ mã đã chứng, sửa hai lỗi cứng, và khai phần còn lại ra đây thay vì đuổi thêm
+vòng. Người ký ở Cổng Bằng chứng đọc danh sách này TRƯỚC khi ký:
+
+1. **Chiều đỏ chưa phủ đều.** Chân `ket-qua-rieng` (E4) và `khong-hoi-quy` (E7)
+   hiện chỉ có chiều DƯƠNG — chưa có bản tiêm chứng minh chúng đỏ được. Chân
+   `va-cham-ten` (E3) có chiều đỏ cho cả ba lớp phòng thủ nhưng chỉ chạy phép so
+   trên MỘT trong ba biến thể va chạm; hai biến thể còn lại chỉ có chiều dương.
+2. **Danh sách vật-được-đo viết tay.** Lưới «cây làm việc lệch HEAD» trong răng
+   canh đúng ba file liệt trong biến `VAT_DO`. Thêm vật mới mà quên cập nhật danh
+   sách thì lưới đó không canh nó — cùng hình dạng với bài học P150.
+3. **Trang bằng chứng chưa hiển thị khối lệnh suite.** Bản vá ở
+   `scripts/evidence-page.js` mới chỉ thôi gán mã của lệnh suite cho eval cuối;
+   nó chưa render các khối đó thành mục riêng trên trang. Kết quả lệnh suite vẫn
+   đọc được trong `evidence-report.md`.
 
 Mốc bất biến: `BASE-SRLP = e0222f7f53740b6bd603b218fe9da2b8f8e65e19` — commit
 CHA của bản vá, tức cây trước-vá còn nguyên lỗi. Chiều đỏ chính là **gỡ vá
