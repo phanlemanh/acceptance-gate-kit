@@ -6,11 +6,11 @@ owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-08-29-suite-run-log-provenance-design.md
-status: verified
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
-veto_opened_at: 2026-08-29T02:10:00Z
+veto_opened_at: 2026-08-29T06:05:00Z   # mở lại sau khi nâng phạm vi (AC-7)
 ---
 
 # Acceptance contract — lệnh suite phải để lại dấu vết
@@ -73,6 +73,17 @@ Source input: prompt (PR #117) + đo thật media-library vòng 11.
   dạng mọi dòng eval (mã, `sha`, `ts`, `exit_code`, `cmd`) giữ nguyên như bản
   trước vá.
 
+- **AC-7 — không bộ đọc nào gán trường của lệnh chạy chung cho một tiêu chí.**
+  (Phạm vi NÂNG ở vòng sửa S4-r3, owner chốt: khuôn khối lệnh suite mở đầu bằng
+  `- cmd:` nên mọi bộ đọc chỉ mở khối ở `- eval:` đều nhét mã chạy / mã thoát /
+  thời điểm của lệnh chạy chung vào tiêu chí ĐỨNG TRƯỚC nó.) Given một bản chấm
+  có khối lệnh suite, When trang bằng chứng và card Cổng 2 dựng bản trình cho
+  người ký, Then không trường nào của khối đó xuất hiện như của một tiêu chí —
+  trang không in mã ngoài khối, và cờ «bằng chứng máy đầy đủ» của thẻ không được
+  xanh nhờ mã của lệnh chạy chung; And mỗi bộ đọc có HAI lớp đóng khối (gặp tiêu
+  đề · gặp khối không-phải-eval) và MỖI lớp có ca cô lập — fixture chỉ còn một
+  lớp che, gỡ đúng lớp đó thì phép đo phải đỏ (bốn lớp, bốn bản tiêm).
+
 ## Coverage
 
 Quét bằng `morphological-scan`, bốn trục. Thước CE là chính các bộ ĐỌC sổ trong
@@ -95,7 +106,9 @@ kho: `lib/evidence-core.cjs` (đối chiếu mã trong bản chấm với sổ),
   AC-2; suite LUÔN chạy lại, không mang sang) · lượt re-pin (dòng `kind:repin`,
   luật riêng — không đụng). [thước CE: luật carry-forward P1 + luật re-pin]
 - Trục D — nơi mã phải khớp: dòng sổ · đề bài của máy soạn bản chấm · bản chấm ·
-  bộ đối chiếu. Cả bốn nút nằm trong AC-5, đo bằng chính bộ đọc của kho.
+  bộ đối chiếu (AC-5) · và HAI bản trình cho người ký — trang bằng chứng và thẻ
+  Cổng 2 (AC-7, thêm ở vòng sửa S4-r3). Nút cuối là chỗ lượt soi bắt được lỗi
+  thật: mã đúng trong sổ vẫn có thể hiện sai chủ trên trang người đọc.
   [thước CE: `evaluateEvidence` → `extractRunIds` + `loadRunLogIds`]
 
 Ô cắt (ghi vết, không làm): trục C ô «lượt re-pin» — luật riêng đã có răng
@@ -136,10 +149,10 @@ vòng. Người ký ở Cổng Bằng chứng đọc danh sách này TRƯỚC kh
 2. **Danh sách vật-được-đo viết tay.** Lưới «cây làm việc lệch HEAD» trong răng
    canh đúng ba file liệt trong biến `VAT_DO`. Thêm vật mới mà quên cập nhật danh
    sách thì lưới đó không canh nó — cùng hình dạng với bài học P150.
-3. **Trang bằng chứng chưa hiển thị khối lệnh suite.** Bản vá ở
-   `scripts/evidence-page.js` mới chỉ thôi gán mã của lệnh suite cho eval cuối;
-   nó chưa render các khối đó thành mục riêng trên trang. Kết quả lệnh suite vẫn
-   đọc được trong `evidence-report.md`.
+3. **Hai bản trình chưa hiển thị khối lệnh suite.** Bản vá ở trang bằng chứng
+   và card Cổng 2 mới chỉ thôi gán trường của lệnh chạy chung cho một tiêu chí
+   (AC-7); chúng chưa render các khối đó thành mục riêng. Kết quả lệnh chạy
+   chung vẫn đọc được trong `evidence-report.md`.
 
 Mốc bất biến: `BASE-SRLP = e0222f7f53740b6bd603b218fe9da2b8f8e65e19` — commit
 CHA của bản vá, tức cây trước-vá còn nguyên lỗi. Chiều đỏ chính là **gỡ vá

@@ -168,6 +168,7 @@ executors:
     srlp_rang_thu_tu: bash _acceptance/suite-run-log-provenance/rang.sh --chan thu-tu
     srlp_rang_day_khep: bash _acceptance/suite-run-log-provenance/rang.sh --chan day-khep
     srlp_rang_khong_hoi_quy: bash _acceptance/suite-run-log-provenance/rang.sh --chan khong-hoi-quy
+    srlp_rang_bo_doc: bash _acceptance/suite-run-log-provenance/rang.sh --chan bo-doc
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
