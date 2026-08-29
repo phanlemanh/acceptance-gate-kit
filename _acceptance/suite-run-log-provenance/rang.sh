@@ -122,21 +122,18 @@ case "$CHAN" in
       "W35 giu lai ma that cua verifier lam goc" \
       "W35 doi chung: ma verifier khac nhau -> giu nguyen van" \
       "W36 ten trung la khoa prototype van duoc hau to"
-    # chiều đỏ: gỡ ĐOẠN chống va chạm trong bản sao (không neo mốc git — mốc
-    # bản-chưa-chống-va-chạm chỉ sống trên commit nhánh, amend là chết)
-    ban_sao "$TMP/vc"
-    f="$TMP/vc/feature-loop/workflows/acceptance-verify.js"
-    cp "$f" "$f.truoc"
-    sed -i.bak 's/const ten = tenDuyNhat(m.cmd)/const ten = tenSuite(m.cmd)/' "$f"
-    if cmp -s "$f" "$f.truoc"; then ghim "tiem doi duoc noi dung" 1 "sed khong doi dong nao"; else ghim "tiem doi duoc noi dung" 0; fi
-    chay "$TMP/vc" "$TMP/vc.out"
+    # CHIỀU ĐỎ — HAI lớp phòng thủ độc lập, mỗi lớp một bản tiêm riêng. Gỡ một
+    # lớp mà phép đo vẫn xanh nhờ lớp kia thì chiều đỏ chết âm thầm, nên không
+    # gộp hai lớp vào một bản tiêm.
     for bt in "tien to thu muc" "khac co" "trung 40 ky tu dau"; do
-      if grep -qF "FAIL: W28 [$bt] hai lenh -> hai ma" "$TMP/vc.out"; then
-        ghim "chieu do [$bt]: hai lenh dung chung mot ma" 0
-      else
-        ghim "chieu do [$bt]: hai lenh dung chung mot ma" 1 "go chong va cham ma phep do van xanh — thuoc khong can"
-      fi
+      : # ba biến thể được ghim ở khối trên; chiều đỏ dưới đây chạy một lần cho cả ba
     done
+    tiem_roi_doi_do "$TMP/vc-ten" \
+      's/tenDuyNhat(m.cmd)/tenSuite(m.cmd)/g' \
+      "W28 [tien to thu muc] hai lenh -> hai evalId" "go lop ten duy nhat"
+    tiem_roi_doi_do "$TMP/vc-ma" \
+      's/demRidSuite\[r0\] > 1/false/' \
+      "W35 hai lenh -> hai run_id KE CA khi verifier khai trung" "go lop ma duy nhat"
     ;;
 
   ket-qua-rieng)

@@ -1695,6 +1695,11 @@ console.log('W28 va cham ten suite: hai lenh KHAC nhau khong duoc dung chung mot
     check(`W28 [${bt.ten}] hai lenh -> hai ma`,
       suite.length === 2 && !!idA && !!idB && idA !== idB,
       `${idA} / ${idB}`);
+    // Hai lop phong thu doc lap: ten (evalId) va ma (run_id). Moi lop mot assert
+    // rieng, khong thi go mot lop van xanh nho lop kia va chieu do chet am tham.
+    const tenA = (suite.find(l => l.cmd === bt.a) || {}).evalId;
+    const tenB = (suite.find(l => l.cmd === bt.b) || {}).evalId;
+    check(`W28 [${bt.ten}] hai lenh -> hai evalId`, !!tenA && !!tenB && tenA !== tenB, `${tenA} / ${tenB}`);
   }
   // Doi chung duong: khong va cham thi ten GIU NGUYEN (khong hau to), ca W03 cu con song.
   const { result: rk } = await runWorkflow(WF, baseArgs({ suiteCommands: ['npm run build', 'pnpm itest:ci'] }), responder());
