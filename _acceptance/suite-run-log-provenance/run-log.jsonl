@@ -73,3 +73,4 @@
 {"ts":"2026-08-29T08:00:42Z","sha":"cd154257ed8a2f23db890a9af55aa36a77c97f81","round":5,"evalId":"SUITE-bash_tests_workflows_run_tests_sh","run_id":"minted-suite-run-log-provenance-SUITE-bash_tests_workflows_run_tests_sh-r5","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
 {"ts":"2026-08-29T08:00:42Z","sha":"cd154257ed8a2f23db890a9af55aa36a77c97f81","round":5,"evalId":"SUITE-node_scripts_product_map_mjs_root_check","run_id":"minted-suite-run-log-provenance-SUITE-node_scripts_product_map_mjs_root_check-r5","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}
 {"ts":"2026-08-29T08:00:42Z","sha":"cd154257ed8a2f23db890a9af55aa36a77c97f81","round":5,"kind":"baseline","evals_hash":"eaf7962b3ed00a7104918e76729c81eec915a84ac8a95320117170c953a6e8a6","non_discriminating":[]}
+{"ts":"2026-08-29T09:25:44Z","kind":"repin","run_id":"repin-suite-run-log-provenance-20260829T092544Z","sha":"60f9d6cd4be9928ba7477f093c329e5a3ad30757","suites_exit":[0,0,0,0,0]}

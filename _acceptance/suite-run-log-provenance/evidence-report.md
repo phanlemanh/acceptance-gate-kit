@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cd154257ed8a2f23db890a9af55aa36a77c97f81
+verified_commit: 60f9d6cd4be9928ba7477f093c329e5a3ad30757
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -188,3 +188,7 @@ none — every multi-run eval is uniform
 Round 3: E1–E7 (script) + 5 lệnh suite hồi quy đều PASS trên bản sao trọn cây (git archive HEAD) — verdict PASS, nhưng E8/AC-7 (bộ đọc trang bằng chứng + gate-card) chưa từng chạy và hai mục Known limits/Ngoài hợp đồng để trống dù dữ liệu đã có — evidence hoá ra stale.
 Round 4: E1–E8 (script, nay đã có E8) + 5 lệnh suite hồi quy đều exit 0 trên bản sao trọn cây, nhưng rà soát phát hiện 3 lỗi đo lường TRONG HỢP ĐỒNG (AC-7 assertion âm-tính-một-mình ở chân bo-doc/thẻ Cổng 2, AC-2 hậu tố băm không có ca đo trên bộ lệnh va chạm, AC-3 assert quan hệ ở biến thể 40-ký-tự hạ thành so-khác-nhau) — verdict REJECT, quay lại sửa phép đo trước khi tin cờ xanh.
 Round 5: E1–E8 (script) + 5 lệnh suite hồi quy đều PASS trên bản sao trọn cây; ba lỗi đo lường của round 4 (AC-7, AC-2, AC-3) đã sửa và cả 8 chân đều red-trên-baseline — verdict PASS. Rà soát ngoài hợp đồng còn 5 finding (fixture viết tay thay vì round-trip từ SUITE-BLOCK-TEMPLATE ở hai ca EPS/GCS và rang.sh, một bộ đọc thứ ba (acceptance-gold.mjs) chưa cùng mức phòng thủ, tenSuite hụt biến thể `yarn run x`, `cmp -s` không phân biệt rc=1/rc=2 trong rang.sh) — không AC nào thất bại, để Cổng 2 người đọc.
+
+### Re-pin lần 1 — 2026-08-29, do main gộp hai PR chạm chính hai file hồ sơ này đo (`scripts/gate-card.js`, `tests/scripts/run-tests.sh`)
+run_id: repin-suite-run-log-provenance-20260829T092544Z
+sha: 60f9d6cd4be9928ba7477f093c329e5a3ad30757 · suites: 5 lệnh exit 0
