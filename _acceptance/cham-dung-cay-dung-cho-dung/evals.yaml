@@ -83,9 +83,11 @@ evals:
     expected: >
       Case mới trong suite workflows (harness vm-realm, không sinh agent):
       dựng prompt lane verifier máy + UI từ acceptance-verify.js với args mẫu
-      → chuỗi lệnh giao agent khớp `cd <repoRoot> && <cmd>`; chiều đỏ mutant:
-      gỡ phần wrap trong bản sao → case phải ĐỎ ghim tên case (P194: ghim
-      đúng dòng case trong stdout, không tin mã thoát trọn suite).
+      → chuỗi lệnh giao agent khớp GUARD rút từ nguồn (khối INFRA-EXIT-CODES:
+      `cd "<repoRoot>" || exit 97` + ` && <cmd>`), đường dẫn có nháy; case
+      RÚT khuôn guard từ nguồn thay vì gõ chuỗi. Chiều đỏ mutant: gỡ phần wrap
+      trong bản sao → case phải ĐỎ ghim tên case (P194: ghim đúng dòng case
+      trong stdout, không tin mã thoát trọn suite).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
 
@@ -94,10 +96,10 @@ evals:
     executor: test
     cmd: config:executors.test.workflows
     expected: >
-      Case mới: prompt lane baseline giữ chỗ đứng worktree (`cd "$WT"`), và
-      chuỗi `cd <repoRoot>` KHÔNG xuất hiện trong lệnh baseline. Chiều đỏ
-      mutant: nướng cd repoRoot vào cmd trong args mẫu → case đỏ ghim
-      «baseline mất phân biệt» — chốt giữ quyết định thiết kế ghim-theo-lane.
+      Case mới: prompt lane baseline giữ chỗ đứng worktree bằng CÙNG guard
+      (`cd "$WT" || exit 97`), và guard của repoRoot KHÔNG xuất hiện trong lệnh
+      baseline. Chiều đỏ mutant: nướng cd repoRoot vào cmd trong args mẫu →
+      case đỏ ghim «baseline mất phân biệt» — chốt giữ quyết định ghim-theo-lane.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
 
@@ -162,12 +164,15 @@ evals:
     executor: test
     cmd: config:executors.test.workflows
     expected: >
-      Ma trận 3 ô viết trước trong harness: (a) kết quả lệnh có dấu hiệu
-      cd-thất-bại → nhánh BLOCKED + dòng nguyên nhân máy-đọc; (b) exit 127 →
-      nhánh BLOCKED + dòng nguyên nhân; (c) exit 1 thường → FAIL sản phẩm
-      như cũ (đối chứng phân-loại-không-nuốt-lỗi-thật). Chiều đỏ mutant: gỡ
-      nhánh phân loại trong bản sao → ca (a)/(b) đỏ ghim tên ca — REJECT giả
-      từ hạ tầng là đúng hiện tượng hồ sơ này đi dập.
+      S4-r2 ĐỔI KHUÔN: tín hiệu chỗ-đứng-hỏng là MÃ THOÁT, không phải chữ.
+      Ma trận 3 ô viết trước trong harness: (a) exit 97 (guard `|| exit 97` báo
+      không vào được chỗ đứng) → BLOCKED + dòng nguyên nhân máy-đọc; (b) exit
+      127 → BLOCKED + dòng nguyên nhân; (c) exit 1 thường → FAIL sản phẩm như
+      cũ. THÊM ca chống-nuốt: lệnh exit 1 mà output CÓ chuỗi «cd: … No such
+      file or directory» vẫn phải là REJECT (bản dò-chữ cũ nuốt nó thành
+      BLOCKED). Và nguồn không còn bộ dò chuỗi nào; bảng mã ở MỘT khối marker;
+      ba lane dùng chung một guard. Chiều đỏ mutant: gỡ nhánh phân loại trong
+      bản sao → ca (a)/(b) đỏ ghim tên ca.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/**"]
 
