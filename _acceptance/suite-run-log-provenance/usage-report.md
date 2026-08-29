@@ -73,3 +73,41 @@
 - **claude-sonnet-5**: 11 agent · 107 calls · out 120,646 · in 214 · cache_read 8,002,358 · cache_create 787,408
 - **claude-haiku-4-5-20251001**: 12 agent · 36 calls · out 13,311 · in 312 · cache_read 1,352,416 · cache_create 323,988
 
+### S4 round 3 — wf_96353082-089 (29 agent, 184,262 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:measurement | claude-opus-5 | 23 | 28,939 | 46 | 2,435,399 | 458 |
+| review:conventions | claude-opus-5 | 37 | 25,933 | 74 | 5,122,713 | 680 |
+| review:bugs | claude-opus-5 | 34 | 24,195 | 68 | 3,993,390 | 395 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 9 | 10,967 | 18 | 632,847 | 161 |
+| triage | claude-sonnet-5 | 2 | 10,434 | 4 | 67,365 | 108 |
+| refute:gate-card.js | claude-sonnet-5 | 20 | 10,205 | 40 | 1,663,049 | 185 |
+| refute:run-tests.sh | claude-sonnet-5 | 12 | 10,178 | 24 | 853,725 | 129 |
+| refute:rang.sh | claude-sonnet-5 | 18 | 10,076 | 36 | 1,274,485 | 143 |
+| refute:run-tests.sh | claude-sonnet-5 | 11 | 8,576 | 22 | 729,771 | 115 |
+| refute:gate-card.js | claude-sonnet-5 | 19 | 8,079 | 38 | 1,405,599 | 131 |
+| refute:rang.sh | claude-sonnet-5 | 7 | 7,906 | 14 | 456,444 | 114 |
+| refute:evidence-page.js | claude-sonnet-5 | 17 | 5,402 | 34 | 1,189,155 | 545 |
+| refute:rang.sh | claude-sonnet-5 | 8 | 3,584 | 16 | 502,527 | 66 |
+| refute:rang.sh | claude-sonnet-5 | 7 | 3,258 | 14 | 441,533 | 48 |
+| baseline:diffBase | claude-sonnet-5 | 6 | 2,735 | 12 | 332,912 | 52 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 1,707 | 50 | 241,445 | 216 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,374 | 42 | 230,433 | 330 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,361 | 18 | 65,989 | 20 |
+| machine:bash _acceptance/suite-run-log-provenanc | claude-haiku-4-5-20251001 | 2 | 1,199 | 18 | 66,005 | 20 |
+| machine:bash _acceptance/suite-run-log-provenanc | claude-haiku-4-5-20251001 | 3 | 1,104 | 26 | 111,578 | 23 |
+| machine:bash _acceptance/suite-run-log-provenanc | claude-haiku-4-5-20251001 | 2 | 1,086 | 18 | 66,004 | 17 |
+| machine:bash _acceptance/suite-run-log-provenanc | claude-haiku-4-5-20251001 | 2 | 961 | 18 | 66,007 | 20 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 943 | 26 | 112,209 | 19 |
+| machine:bash _acceptance/suite-run-log-provenanc | claude-haiku-4-5-20251001 | 2 | 857 | 18 | 66,009 | 16 |
+| machine:bash _acceptance/suite-run-log-provenanc | claude-haiku-4-5-20251001 | 2 | 836 | 18 | 66,009 | 16 |
+| machine:bash _acceptance/suite-run-log-provenanc | claude-haiku-4-5-20251001 | 2 | 809 | 18 | 66,005 | 17 |
+| capture:provenance | claude-sonnet-5 | 2 | 740 | 4 | 60,776 | 11 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 676 | 18 | 65,996 | 10 |
+| synthesize:report | claude-sonnet-5 | 2 | 142 | 4 | 77,472 | 181 |
+
+- **claude-opus-5**: 3 agent · 94 calls · out 79,067 · in 188 · cache_read 11,551,502 · cache_create 440,130
+- **claude-sonnet-5**: 14 agent · 140 calls · out 92,282 · in 280 · cache_read 9,687,660 · cache_create 869,471
+- **claude-haiku-4-5-20251001**: 12 agent · 33 calls · out 12,913 · in 288 · cache_read 1,223,689 · cache_create 341,032
+
