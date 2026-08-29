@@ -44,6 +44,14 @@ Nợ đã khai kèm theo (từ vòng `nhanh-chinh-khong-ten-main`, thu phạm vi
 trần thời gian cho lệnh hỏi remote và luật «vùng dò chỉ gọi hàm dò» hiện KHÔNG
 có phép đo sống — hai ca đó thuộc đúng lớp này nên chờ khuôn chung.
 
+Tám mục gộp vào đây từ Cổng Bằng chứng của `nhanh-chinh-khong-ten-main`
+(owner xếp ngăn 29/08) — tất cả đều là *chất lượng phép đo*, không phải mã
+sản phẩm: ca ghim hằng đếm theo mốc (danh sách tên dự phòng) ×2 · ca kiểm
+thông điệp không kiểm phần hướng dẫn khắc phục · ca có điều kiện chấp nhận kép
+mà một nhánh chỉ đúng khi lỗi cũ quay lại · ca không xác nhận thông điệp nêu
+đúng tên phần hỏng · ca dùng tên cố định thay vì đối chiếu thực tế · và hai mục
+về dòng khai nguồn/vết lỗi thô lọt vào lần chạy thành công.
+
 ## Ngưỡng chết / ngưỡng UAT
 
 - Câu hỏi phép đo trả lời: …

@@ -36,6 +36,7 @@ hiện gốc ở Cổng Bằng chứng PR #123 (Ngoài-1/Ngoài-4).
 - AC-6: Given repo CÓ remote trả lời được và remote khai nhánh chính NGOÀI bốn tên dự phòng (vd `phat-trien`), When chạy `s4-args.mjs` không truyền `--diff-base`, Then script giải đúng tên đó và `diffBase` BẰNG `git merge-base phat-trien HEAD` độc lập; và script ghi lại NGUỒN giải được tên nhánh (`remote` hay `fallback`) VÀO ĐẦU RA (trường `mainBranchInfo` của tệp args, và một dòng khai trên đầu ra lỗi chuẩn) để phép đo đọc được từ vật được giao chứ không đo lại fixture — hai đường cho cùng kết quả trên repo tên `main` nên không có trường này thì không đo được.
 
 - AC-8: Given remote KHAI một tên nhánh chính mà cây hiện tại không giải được (cả `<tên>` lẫn `origin/<tên>` đều vắng) trong khi một tên khác trong danh sách dự phòng vẫn sống, When chạy `s4-args.mjs` không truyền `--diff-base`, Then script KHÔNG được nhận tên khác đó: nó thoát khác 0, nêu ĐÚNG tên remote đã khai và chỉ lối `--diff-base`, không sinh tệp — mốc so sánh sai lặng lẽ nguy hiểm hơn một lỗi kêu to.
+- AC-9: Given repo CÓ khai remote `origin` nhưng KHÔNG hỏi được nó (mạng chặn, xác thực hỏng, hoặc quá trần thời gian) trong khi một tên dự phòng vẫn sống, When chạy `s4-args.mjs` không truyền `--diff-base`, Then script KHÔNG rơi về đoán tên quen: thoát khác 0 với thông điệp nêu rõ «có remote nhưng không hỏi được» + chỉ lối `--diff-base`, không sinh tệp — «hỏi thất bại» phải phân biệt được với «không có remote».
 
 ## Coverage
 
@@ -44,7 +45,7 @@ Quét theo hai trục rời rạc; tích hai trục đủ vì hành vi chỉ ph�
 
 - Trục nguồn biết tên nhánh chính: remote trả lời (AC-6) | remote khai tên mà ref cục bộ vắng — hình dạng CI (AC-7) | không remote + tên thuộc bốn tên quen (AC-1 — chạy THẬT cả bốn, danh sách rút từ marker `MAIN-BRANCH-CANDIDATES`) | không remote + tên lạ (AC-2). Ô «remote treo» KHÔNG có tiêu chí trong vòng này — xem giới hạn đã khai ở Notes. [thước CE: bốn nhánh mà đoạn mã dò thật sự phân biệt được, đọc từ khối marker `PROBE-REGION` trong `s4-args.mjs`]
 - Trục vai của lệnh git: đọc bắt buộc (AC-3) | dò (AC-1, AC-2, AC-6, AC-7, AC-8).
-- Trục «remote khai gì»: không khai → được dò tên quen (AC-1, AC-2) | khai và giải được (AC-6, AC-7 ô 2) | khai mà KHÔNG giải được → cấm đoán (AC-8). [thước CE: ba nhánh mà khối dò phân biệt bằng biến `remoteDeclared`] [thước CE: hai vai do chính hợp đồng exit-code của script khai ở đầu file]
+- Trục «remote khai gì»: KHÔNG có origin → được dò tên quen (AC-1, AC-2) | có origin, hỏi được, giải được (AC-6, AC-7 ô 2) | có origin, hỏi được, KHÔNG giải được → cấm đoán (AC-8) | có origin, KHÔNG hỏi được → cấm đoán (AC-9). [thước CE: ba nhánh mà khối dò phân biệt bằng biến `remoteDeclared`] [thước CE: hai vai do chính hợp đồng exit-code của script khai ở đầu file]
 
 ## Đường đo
 
@@ -52,7 +53,7 @@ Ngưỡng khai ở opportunity.md → truy thành tiêu chí:
 
 - «Fixture nhánh `master`, không remote: sinh trọn args với mốc so sánh đúng, không cần khai tay» — AC-1 (mốc đo bằng QUAN HỆ với `git merge-base` chạy độc lập, không so chuỗi cứng).
 - «Ca nhánh lạ: câu có hướng dẫn, không phải vết đổ» — AC-2.
-- Đường remote (phổ biến nhất ở repo tiêu thụ) có phép đo riêng — AC-6; hình dạng cây của bộ CI — AC-7; cấm-đoán-sang-tên-khác — AC-8 (hồi quy do chính vòng này đẻ ra ở r1/r2, đóng ở r4).
+- Đường remote (phổ biến nhất ở repo tiêu thụ) có phép đo riêng — AC-6; hình dạng cây của bộ CI — AC-7; cấm-đoán-sang-tên-khác — AC-8 (hồi quy r1/r2, đóng ở r4) và AC-9 (cùng lớp, vào bằng cửa mạng-hỏng, đóng ở r5 theo quyết định owner).
 - «Cửa chết: phải hạ lời khai trong SKILL cho khớp mã» — chặn bởi AC-1 + AC-2 (lời khai SKILL đúng trở lại nhờ vật, không nhờ sửa chữ).
 
 ## Out of scope
@@ -78,6 +79,15 @@ Ngưỡng khai ở opportunity.md → truy thành tiêu chí:
     chặn hồi quy cho hình dạng này.
   - Cả hai đi vào ô `khuon-rang-dung-chung` (mở cùng lượt) — lời giải đúng tầng
     là khuôn răng dùng chung, không phải thêm ca cho riêng hồ sơ này.
+
+- **Hạn chế đã biết (owner xếp ngăn tại Cổng Bằng chứng, 29/08):**
+  - Bản hướng dẫn của vòng lặp còn mô tả cách dò cũ («dò remote → dự phòng bốn
+    tên»); sau S4-r4/r5, remote đã khai tên hoặc hỏi-không-được thì máy KHÔNG rơi
+    về bốn tên nữa. Câu đó nằm ngoài mọi khối marker nên không phép đo nào bắt —
+    người đọc hướng dẫn có thể chờ một hành vi không còn.
+  - Khi người dùng tự truyền `--diff-base`, dòng khai nguồn vẫn in «nhánh chính
+    «null» giải bằng none» và ghi cùng giá trị đó vào tệp args, dù mốc so sánh
+    đến từ cờ chứ không từ phép dò. Không sai kết quả, nhưng lời khai gây hiểu lầm.
 
 - Hạng T2: `feature-loop/scripts/s4-args.mjs` và `tests/**` ngoài `t1_skip_globs`, ngoài `t3_paths`.
 - Fixture phải do code sinh trong chính lần chạy và đường dẫn suy từ vị trí script (luật fixture của kit); ca so mốc phải là QUAN HỆ với `git merge-base`, không hằng chuỗi.

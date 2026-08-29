@@ -191,6 +191,7 @@ executors:
     nckt_remote_tra_loi: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-tra-loi
     nckt_ci_single_branch: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan ci-single-branch
     nckt_khong_doan_sang_ten_khac: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan khong-doan-sang-ten-khac
+    nckt_remote_hoi_khong_duoc: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-hoi-khong-duoc
     # Vật của hồ sơ suite-run-log-provenance — răng hồ sơ cho lớp «lệnh suite
     # không để lại dấu vết». Chiều đỏ dựng bằng bản sao TRỌN CÂY (git archive
     # HEAD) do code sinh trong chính lần chạy, KHÔNG neo mốc di động. Cố ý

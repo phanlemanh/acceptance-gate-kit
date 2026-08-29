@@ -88,3 +88,34 @@ evals:
       chứng ca phân biệt được hai bản chứ không xanh vì chưa từng chạy.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.nckt_remote_hoi_khong_duoc
+    expected: >
+      S4-r5 (owner xếp ngăn «sửa ngay»): cùng lớp mốc-sai-lặng-lẽ với AC-8 nhưng
+      vào bằng cửa MẠNG. Fixture code-sinh: nhánh chính `phat-trien`, một tên
+      quen (`master`) còn sống làm mồi, remote trỏ địa chỉ không định tuyến →
+      exit ≠ 0, thông điệp nêu «có remote nhưng không hỏi được» + chỉ lối
+      `--diff-base`, KHÔNG sinh tệp, và KHÔNG có chuỗi «giải bằng fallback».
+      Đối chứng dương cùng fixture: gỡ remote → dò tên quen chạy lại bình thường.
+      Chiều đỏ: bản sao cây làm việc bỏ bước phân biệt «có origin» → đoán bừa
+      sang `master`, exit 0 (bản trước r5).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E10
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      LƯỚI THƯỜNG TRỰC (ADR 0011 — thứ phải đúng sau merge không được chỉ nằm
+      trong răng hồ sơ): `tests/scripts/s4-args-main-branch.test.mjs` chạy trong
+      bộ kiểm thường trực, fixture code-sinh, 4 nhóm ca — dò được nhánh không
+      tên main · cấm đoán khi remote khai tên không giải được (kèm đối chứng
+      dương) · giải qua `origin/<tên>` ở hình dạng CI · cấm đoán khi có origin mà
+      hỏi không được. Bộ chạy `tests/scripts/run-tests.sh` tự quét mọi
+      `*.test.mjs` nên ca này không thể bị bỏ quên khi wire.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-main-branch.test.mjs"]
