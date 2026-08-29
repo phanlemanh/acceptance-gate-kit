@@ -83,10 +83,10 @@ const evid = {};
     // nhánh này thì run_id/exit_code/verified_at của lệnh suite chảy vào eval CUỐI
     // và trang ký hiển thị mã chạy sai chủ — im lặng, không cổng nào đỏ.
     // gate-card.js và acceptance-gold.mjs đã có nhánh heading; đây là bộ đọc cuối.
-    if (/^#{1,6}\s/.test(raw)) { flush(); cur = null; continue; }
+    if (/^#{1,6}\s/.test(raw)) { flush(); cur = null; continue; } // LOP-DOC: heading
     const em = raw.match(/^-\s+eval:\s*(\S+)/);
     if (em) { flush(); cur = {}; evid[em[1]] = cur; continue; }
-    if (/^-\s+\w+\s*:/.test(raw)) { flush(); cur = null; continue; }
+    if (/^-\s+\w+\s*:/.test(raw)) { flush(); cur = null; continue; } // LOP-DOC: bullet
     if (!cur) continue;
     if (capKey) {
       const ind = raw.match(/^(\s*)/)[1].length;

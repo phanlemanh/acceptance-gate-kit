@@ -503,8 +503,14 @@ for (const l of report.split('\n')) { const m = l.match(/^\|\s*(E\w+)\s*\|\s*([^
 const FIELDS = ['run_id', 'exit_code', 'baseline', 'verifier', 'verified_at', 'judged_by', 'verdict', 'rationale', 'human_override', 'screenshot', 'pass_rate', 'reason'];
 const evid = {};
 { let cur = null; let skip = -1; for (const raw of report.split('\n')) {
-    if (/^#{1,6}\s/.test(raw)) { cur = null; skip = -1; continue; }
+    if (/^#{1,6}\s/.test(raw)) { cur = null; skip = -1; continue; } // LOP-DOC: heading
     const em = raw.match(/^-\s+eval:\s*(\S+)/); if (em) { cur = em[1]; evid[cur] = {}; skip = -1; continue; }
+    // Khối KHÔNG-phải-eval ở cột 0 (khuôn SUITE-BLOCK-TEMPLATE mở đầu bằng `- cmd:`)
+    // ĐÓNG khối đang mở. Thiếu nhánh này thì run_id/exit_code/verified_at của lệnh
+    // chạy chung chảy vào eval CUỐI và cờ «bằng chứng máy đầy đủ» xanh nhờ mã của
+    // lệnh suite — false-green ngay tại khoảnh khắc người bấm ký. Bullet thụt lề
+    // (mục của required_evidence) KHÔNG khớp vì mẫu này neo cột 0.
+    if (/^-\s+\w+\s*:/.test(raw)) { cur = null; skip = -1; continue; } // LOP-DOC: bullet
     if (!cur) continue;
     if (skip >= 0) { if (raw.trim() === '') continue; if (raw.match(/^(\s*)/)[1].length > skip) continue; skip = -1; }
     // judge-required-evidence: gom list items dưới `required_evidence:` (dòng "- …"

@@ -26,7 +26,7 @@ chay() { # chay <thu muc> <file out>
   ( cd "$1" && node tests/workflows/acceptance-verify.test.mjs ) > "$2" 2>&1
 }
 
-VAT_DO="feature-loop/workflows/acceptance-verify.js tests/workflows/acceptance-verify.test.mjs skills/acceptance/references/evidence-report-template.md"
+VAT_DO="feature-loop/workflows/acceptance-verify.js tests/workflows/acceptance-verify.test.mjs skills/acceptance/references/evidence-report-template.md scripts/evidence-page.js scripts/gate-card.js tests/scripts/run-tests.sh"
 ban_sao() { # ban_sao <dich> — trọn cây tại HEAD
   # Bản sao dựng từ HEAD, nên cây làm việc còn thay đổi CHƯA COMMIT ở vật được
   # đo thì phép đo đang chấm một bản KHÁC bản đang sửa — im lặng là false-green.
@@ -231,6 +231,63 @@ JS
     else
       ghim "dong eval khong doi hinh dang" 1 "head=[$k_head] base=[$k_base]"
     fi
+    ;;
+
+  bo-doc)
+    # Hai bộ đọc khối bằng chứng (trang bằng chứng · thẻ Cổng 2) đều phải ĐÓNG khối
+    # khi gặp heading hoặc khi gặp khối không-phải-eval. Mỗi bộ đọc HAI nhánh, nên
+    # có BỐN lớp phòng thủ — và mỗi lớp phải có ca CÔ LẬP: fixture chỉ còn một lớp
+    # che, gỡ đúng lớp đó là phải sai chủ. Fixture nào mang cả hai lớp thì gỡ một
+    # lớp vẫn xanh nhờ lớp kia, và chiều đỏ chết âm thầm (S4-r3 bắt đúng lỗi này).
+    dung_fixture() { # dung_fixture <goc cay> — sinh hai hồ sơ fixture bằng code
+      local R="$1"
+      mkdir -p "$R/_acceptance/fx-nohead" "$R/_acceptance/fx-head"
+      printf -- '---\nfeature: fx\nslug: fx-nohead\nrisk_tier: T2\n---\n## Criteria\n- AC-1: Given x, Then z.\n' > "$R/_acceptance/fx-nohead/contract.md"
+      printf -- '---\nschema_version: 2\nfeature_slug: fx-nohead\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n- eval: E1\n  exit_code: 0\n  verifier: config:executors.test.api\n  verified_at: 2026-06-20\n\n- cmd: npm run build\n  run_id: FX-SUITE-001\n  exit_code: 0\n  verified_at: 2026-06-21\n' > "$R/_acceptance/fx-nohead/evidence-report.md"
+      cp "$R/_acceptance/fx-nohead/contract.md" "$R/_acceptance/fx-head/contract.md"
+      sed -i.bak 's/fx-nohead/fx-head/' "$R/_acceptance/fx-head/contract.md"
+      printf -- '---\nschema_version: 2\nfeature_slug: fx-head\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n- eval: E1\n  exit_code: 0\n  verifier: config:executors.test.api\n  verified_at: 2026-06-20\n\n### Ghi chu ngoai khoi\n  run_id: FX-GHICHU-001\n' > "$R/_acceptance/fx-head/evidence-report.md"
+    }
+    # đối chứng dương: cây hiện tại phải gán ĐÚNG chủ ở cả bốn ô
+    dung_fixture "$ROOT"
+    for bo in evidence-page gate-card; do
+      for fx in fx-nohead fx-head; do
+        out="$( cd "$ROOT" && node "scripts/$bo.js" --root . --slug "$fx" 2>/dev/null )"
+        [ "$bo" = "evidence-page" ] && out="$(cat "$out" 2>/dev/null)"
+        ma="FX-SUITE-001"; [ "$fx" = "fx-head" ] && ma="FX-GHICHU-001"
+        if printf '%s' "$out" | grep -qF "$ma"; then
+          ghim "[$bo/$fx] khong de ma ngoai khoi len eval" 1 "thay $ma trong dau ra"
+        else
+          ghim "[$bo/$fx] khong de ma ngoai khoi len eval" 0
+        fi
+      done
+    done
+    rm -rf "$ROOT/_acceptance/fx-nohead" "$ROOT/_acceptance/fx-head"
+    # CHIỀU ĐỎ: bốn bản tiêm, mỗi lớp một bản, mỗi bản chỉ gỡ ĐÚNG một nhánh
+    tiem_bo_doc() { # tiem_bo_doc <thu muc> <file script> <sed expr> <slug fixture> <ma phai lo>
+      local dir="$1" f="$2" expr="$3" fx="$4" ma="$5"
+      ban_sao "$dir"; dung_fixture "$dir"
+      cp "$dir/scripts/$f" "$dir/scripts/$f.truoc"
+      sed -i.bak "$expr" "$dir/scripts/$f"
+      if cmp -s "$dir/scripts/$f" "$dir/scripts/$f.truoc"; then
+        ghim "tiem [$f/$fx] doi duoc noi dung" 1 "sed khong doi dong nao"; return
+      fi
+      ghim "tiem [$f/$fx] doi duoc noi dung" 0
+      local out; out="$( cd "$dir" && node "scripts/$f" --root . --slug "$fx" 2>/dev/null )"
+      [ "${f%.js}" = "evidence-page" ] && out="$(cat "$out" 2>/dev/null)"
+      if printf '%s' "$out" | grep -qF "$ma"; then
+        ghim "chieu do [$f/$fx]: go nhanh -> ma sai chu lo ra" 0
+      else
+        ghim "chieu do [$f/$fx]: go nhanh -> ma sai chu lo ra" 1 "go nhanh ma phep do van xanh — thuoc khong can"
+      fi
+    }
+    # Mỗi nhánh mang nhãn `LOP-DOC:` để bản tiêm gọi ĐÍCH DANH lớp nó gỡ — không
+    # phải khớp regex mong manh (BSD sed không hiểu \s, và khớp hụt thì chiều đỏ
+    # chết âm thầm y như lớp lỗi hồ sơ này đang đóng).
+    tiem_bo_doc "$TMP/bd1" evidence-page.js '/LOP-DOC: bullet/d'  fx-nohead FX-SUITE-001
+    tiem_bo_doc "$TMP/bd2" evidence-page.js '/LOP-DOC: heading/d' fx-head   FX-GHICHU-001
+    tiem_bo_doc "$TMP/bd3" gate-card.js     '/LOP-DOC: bullet/d'  fx-nohead FX-SUITE-001
+    tiem_bo_doc "$TMP/bd4" gate-card.js     '/LOP-DOC: heading/d' fx-head   FX-GHICHU-001
     ;;
 
   *) echo "chan khong biet: $CHAN"; exit 2 ;;

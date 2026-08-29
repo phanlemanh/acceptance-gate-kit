@@ -1610,6 +1610,80 @@ hasout EPS1 "epsuite-E1-001" "$(cat "$SUP" 2>/dev/null)"
 nothas EPS1b "epsuite-SUITE-build-001" "$(cat "$SUP" 2>/dev/null)"
 nothas EPS1c "2026-06-21" "$(cat "$SUP" 2>/dev/null)"
 
+echo "EPS2/EPS3 hai nhanh reset phai co ca CO LAP — moi nhanh mot ca (mutant-phai-co-ca-co-lap-lop)"
+# EPS1 (tren) mang CA heading LAN bullet nen mot nhanh bat ky du lam no xanh —
+# xoa nhanh kia van khong ai biet. Hai ca duoi tach doi: moi ca chi con MOT lop
+# phong thu, nen go dung lop do la ca do.
+#   EPS2: khoi suite KHONG co heading  -> co lap nhanh bullet `- cmd:`
+#   EPS3: sau heading la dong khong-bullet -> co lap nhanh heading
+mk_rep() { # mk_rep <dir> <slug> <than bao cao sau ## Evidence>
+  mkdir -p "$1"
+  printf -- '---\nfeature: %s\nslug: %s\nrisk_tier: T2\n---\n## Criteria\n- AC-1: Given x, Then z.\n' "$2" "$2" > "$1/contract.md"
+  { printf -- '---\nschema_version: 2\nfeature_slug: %s\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n' "$2"; cat; } > "$1/evidence-report.md"
+}
+mk_rep "$EPR/_acceptance/epnohead" epnohead <<'REP'
+- eval: E1
+  run_id: nohead-E1-001
+  exit_code: 0
+  verifier: scripts/v.sh
+  verified_at: 2026-06-20
+
+- cmd: npm run build
+  run_id: nohead-SUITE-build-001
+  exit_code: 0
+  verified_at: 2026-06-21
+REP
+NOH="$(node "$EP" --root "$EPR" --slug epnohead 2>/dev/null)"
+hasout EPS2 "nohead-E1-001" "$(cat "$NOH" 2>/dev/null)"
+nothas EPS2b "nohead-SUITE-build-001" "$(cat "$NOH" 2>/dev/null)"
+
+mk_rep "$EPR/_acceptance/ephead" ephead <<'REP'
+- eval: E1
+  run_id: head-E1-001
+  exit_code: 0
+  verifier: scripts/v.sh
+  verified_at: 2026-06-20
+
+### Ghi chu ngoai khoi
+  run_id: head-GHICHU-001
+  verified_at: 2026-06-22
+REP
+HEA="$(node "$EP" --root "$EPR" --slug ephead 2>/dev/null)"
+hasout EPS3 "head-E1-001" "$(cat "$HEA" 2>/dev/null)"
+nothas EPS3b "head-GHICHU-001" "$(cat "$HEA" 2>/dev/null)"
+
+echo "GCS1/GCS2 the Cong 2 (gate-card.js) — cung hai nhanh, cung hai ca co lap"
+GC="$HERE/../../scripts/gate-card.js"
+# Co «bang chung may day du» duoc tinh tu run_id/exit_code/verifier CUA EVAL.
+# Eval duoi KHONG co run_id, nen co phai la CANH BAO; neu khoi lenh suite de len
+# thi co hoa XANH bang ma cua lenh chay chung — false-green dung luc bam ky.
+mk_rep "$EPR/_acceptance/gcnohead" gcnohead <<'REP'
+- eval: E1
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-06-20
+
+- cmd: npm run build
+  run_id: gc-SUITE-build-001
+  exit_code: 0
+  verified_at: 2026-06-21
+REP
+GCN="$(node "$GC" --root "$EPR" --slug gcnohead 2>/dev/null)"
+hasout GCS1 "CHƯA đủ trường" "$GCN"
+nothas GCS1b "gc-SUITE-build-001" "$GCN"
+
+mk_rep "$EPR/_acceptance/gchead" gchead <<'REP'
+- eval: E1
+  exit_code: 0
+  verifier: config:executors.test.api
+  verified_at: 2026-06-20
+
+### Ghi chu ngoai khoi
+  run_id: gc-GHICHU-001
+REP
+GCH="$(node "$GC" --root "$EPR" --slug gchead 2>/dev/null)"
+hasout GCS2 "CHƯA đủ trường" "$GCH"
+
 echo "EP10 '### nhóm phụ' trong ## Criteria -> text của AC phía sau vẫn lên evidence page"
 dsub="$EPR/_acceptance/epsub"; mkdir -p "$dsub"
 printf -- '---\nfeature: EP sub\nslug: epsub\nrisk_tier: T3\n---\n## Criteria\n- AC-1: Given x, Then z.\n### Nhóm phụ — thanh toán\n- AC-2: Given gio hang, Then charged via API.\n' > "$dsub/contract.md"
