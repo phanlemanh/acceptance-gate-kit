@@ -26,7 +26,14 @@ chay() { # chay <thu muc> <file out>
   ( cd "$1" && node tests/workflows/acceptance-verify.test.mjs ) > "$2" 2>&1
 }
 
+VAT_DO="feature-loop/workflows/acceptance-verify.js tests/workflows/acceptance-verify.test.mjs skills/acceptance/references/evidence-report-template.md"
 ban_sao() { # ban_sao <dich> — trọn cây tại HEAD
+  # Bản sao dựng từ HEAD, nên cây làm việc còn thay đổi CHƯA COMMIT ở vật được
+  # đo thì phép đo đang chấm một bản KHÁC bản đang sửa — im lặng là false-green.
+  # Kêu ngay, đừng để người đọc tưởng chiều đỏ đã chạy trên mã của họ.
+  if ! ( cd "$ROOT" && git diff --quiet HEAD -- $VAT_DO ); then
+    ghim "cay lam viec khop HEAD" 1 "con thay doi CHUA COMMIT o vat duoc do — ban sao (git archive HEAD) se cham ban khac; commit roi chay lai"
+  fi
   mkdir -p "$1"
   ( cd "$ROOT" && git archive HEAD ) | tar -x -C "$1"
 }
@@ -48,6 +55,27 @@ ghim_cac_dong() {
   for ca in "$@"; do
     if co_dong "$out" "$ca"; then ghim "$nhan: $ca" 0; else ghim "$nhan: $ca" 1 "thieu dong ca"; fi
   done
+}
+
+# tiem_roi_doi_do <thu muc> <sed expr> <ten ca phai do> <nhan ban tiem>
+# Bản sao TRỌN CÂY + cmp chứng minh tiêm đổi được nội dung + đòi ĐÚNG ca đó đỏ.
+tiem_roi_doi_do() {
+  local dir="$1" expr="$2" ca="$3" nhan="$4"
+  ban_sao "$dir"
+  local f="$dir/feature-loop/workflows/acceptance-verify.js"
+  cp "$f" "$f.truoc"
+  sed -i.bak "$expr" "$f"
+  if cmp -s "$f" "$f.truoc"; then
+    ghim "tiem [$nhan] doi duoc noi dung" 1 "sed khong doi dong nao"
+    return
+  fi
+  ghim "tiem [$nhan] doi duoc noi dung" 0
+  chay "$dir" "$dir.out"
+  if grep -qF "FAIL: $ca" "$dir.out"; then
+    ghim "chieu do [$nhan]: $ca" 0
+  else
+    ghim "chieu do [$nhan]: $ca" 1 "tiem xong ma phep do van xanh — thuoc khong can"
+  fi
 }
 
 case "$CHAN" in
@@ -89,7 +117,11 @@ case "$CHAN" in
       "W28 [tien to thu muc] hai lenh -> hai ma" \
       "W28 [khac co] hai lenh -> hai ma" \
       "W28 [trung 40 ky tu dau] hai lenh -> hai ma" \
-      "W28 doi chung: khong va cham -> ten khong doi"
+      "W28 doi chung: khong va cham -> ten khong doi" \
+      "W35 hai lenh -> hai run_id KE CA khi verifier khai trung" \
+      "W35 giu lai ma that cua verifier lam goc" \
+      "W35 doi chung: ma verifier khac nhau -> giu nguyen van" \
+      "W36 ten trung la khoa prototype van duoc hau to"
     # chiều đỏ: gỡ ĐOẠN chống va chạm trong bản sao (không neo mốc git — mốc
     # bản-chưa-chống-va-chạm chỉ sống trên commit nhánh, amend là chết)
     ban_sao "$TMP/vc"
@@ -124,7 +156,19 @@ case "$CHAN" in
       "W30 ten suy tu lenh: bash tests/hooks/run-tests.sh" \
       "W30 ten suy tu lenh: cd apps/web && pnpm build" \
       "W30 ten suy tu lenh: pnpm build && pnpm typecheck" \
-      "W30 so assert = so o trong ma tran truc A (5 o o day + 1 o gop lenh o W32)"
+      "W30 so assert = so o trong ma tran truc A (5 o o day + 1 o gop lenh o W32)" \
+      "W34 doi thu tu -> ma khong doi" \
+      "W34 du ba lenh deu co ma"
+    # CHIỀU ĐỎ — hai bản tiêm do code sinh trong chính lần chạy, mỗi bản phải
+    # làm ĐỎ đúng ca của mệnh đề nó phá. Không có hai bản này thì «thứ tự» và
+    # «vòng» chỉ có chiều dương: xanh không phân biệt được vật lành với thước
+    # chưa bao giờ chạy.
+    tiem_roi_doi_do "$TMP/tt-thutu" \
+      's/SUITE-${tenDuyNhat(m.cmd)}-r${args.round}/SUITE-${machine.indexOf(m)}-r${args.round}/' \
+      "W34 doi thu tu -> ma khong doi" "ma duc theo chi so mang"
+    tiem_roi_doi_do "$TMP/tt-vong" \
+      's/-SUITE-${tenDuyNhat(m.cmd)}-r${args.round}/-SUITE-${tenDuyNhat(m.cmd)}/' \
+      "W29 doi round -> doi ma" "bo hau to vong"
     ;;
 
   day-khep)
@@ -134,7 +178,9 @@ case "$CHAN" in
       "W33 chieu do: thieu dong suite -> do, neu dich danh ma" \
       "W33 chieu do: ban cham ghi evalId thay vi run_id -> do" \
       "W33 de bai chua dung MOT khoi luat mint" \
-      "W33 de bai mang ma suite that"
+      "W33 de bai mang ma suite that" \
+      "W33 khuon suite trong ban mau CO dong run_id (round-trip writer<->reader)" \
+      "W33 de bai tro dung khuon SUITE-BLOCK-TEMPLATE cua ban mau"
     ;;
 
   khong-hoi-quy)

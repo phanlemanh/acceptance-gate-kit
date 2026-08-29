@@ -1775,12 +1775,23 @@ console.log('W33 day khep: so -> ban cham -> BO DOC that cua kho (evidence-core)
   const lines = result.runLog.map(l => JSON.parse(l));
   const suite = lines.find(l => String(l.evalId).startsWith('SUITE-'));
 
-  // Ban cham dung khuon khoi eval cua ban mau, mang DUNG cac ma tu so.
+  // Khoi eval: khuon cua ban mau. Khoi LENH SUITE: rut TU MARKER trong chinh
+  // ban mau ma agent soan bao cao duoc dan doc (SUITE-BLOCK-TEMPLATE) — khong
+  // tu go khuon ben DOC, vi lam the la do lai chinh cai minh vua viet
+  // (nep OOC-ITEM-TEMPLATE + P55: seam LLM-viet -> may-doc dat MOT cho co marker).
+  const { blockFromTemplate, fillTemplate } = await import('../fixtures/from-template.mjs');
+  const EVID_TPL = path.join(HERE, '..', '..', 'skills', 'acceptance', 'references', 'evidence-report-template.md');
+  const suiteKhuon = blockFromTemplate(EVID_TPL, 'SUITE-BLOCK-TEMPLATE');
+  check('W33 khuon suite trong ban mau CO dong run_id (round-trip writer<->reader)',
+    /^\s+run_id:\s*\{run_id\}/m.test(suiteKhuon), JSON.stringify(suiteKhuon));
+
   const khoiEval = (id, runId) => `- eval: ${id}\n  run_id: ${runId}\n  exit_code: 0\n  verifier: config:executors.test.api\n  verified_at: 2026-07-02T10:00:00Z\n`;
+  const khoiSuite = (cmd, runId) => fillTemplate(suiteKhuon, { cmd, run_id: runId, ISO8601: '2026-07-02T10:00:00Z' });
   const banCham = (opts = {}) =>
-    `---\nschema_version: 1\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\n---\n\n# Evidence Report: demo\n\n## Evidence\n\n` +
-    lines.filter(l => !String(l.evalId).startsWith('SUITE-')).map(l => khoiEval(l.evalId, l.run_id)).join('\n') + '\n' +
-    khoiEval(suite.evalId, opts.maSuite === undefined ? suite.run_id : opts.maSuite);
+    `---\nschema_version: 2\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\n---\n\n# Evidence Report: demo\n\n## Evidence\n\n` +
+    lines.filter(l => !String(l.evalId).startsWith('SUITE-')).map(l => khoiEval(l.evalId, l.run_id)).join('\n') +
+    `\n### Lệnh suite (hồi quy)\n\n` +
+    khoiSuite(suite.cmd, opts.maSuite === undefined ? suite.run_id : opts.maSuite);
 
   const viet = (dir, ls) => { fs.writeFileSync(path.join(dir, 'run-log.jsonl'), ls.map(l => JSON.stringify(l)).join('\n') + '\n'); return dir; };
   const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'srlp-'));
@@ -1810,6 +1821,64 @@ console.log('W33 day khep: so -> ban cham -> BO DOC that cua kho (evidence-core)
   const demKhoi = (synth.match(/TUYET DOI KHONG tu mint/g) || []).length;
   check('W33 de bai chua dung MOT khoi luat mint', demKhoi === 1, String(demKhoi));
   check('W33 de bai mang ma suite that', synth.includes(suite.run_id), suite.run_id);
+  // Seam LLM-viet -> may-doc dat MOT cho: de bai phai tro DUNG cai marker ma
+  // fixture cua ca nay rut khuon ra. Doi ten marker o mot ben => ca nay do.
+  check('W33 de bai tro dung khuon SUITE-BLOCK-TEMPLATE cua ban mau',
+    synth.includes('SUITE-BLOCK-TEMPLATE'), 'prompt khong nhac marker');
+}
+
+console.log('W34 thu tu khai KHONG duoc doi ma (menh de dau cua AC-2)');
+{
+  const BO = ['npm run build', 'pnpm itest:ci', 'bash tests/hooks/run-tests.sh'];
+  const mapCua = async (cmds) => {
+    const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: cmds }), responder());
+    const m = {};
+    for (const l of result.runLog.map(x => JSON.parse(x))) if (String(l.evalId).startsWith('SUITE-')) m[l.cmd] = l.run_id;
+    return m;
+  };
+  const xuoi = await mapCua(BO);
+  const nguoc = await mapCua([...BO].reverse());
+  // Ma duc theo CHI SO mang thi doi thu tu khai la doi ma, va doi chieu vong sau lech.
+  check('W34 doi thu tu -> ma khong doi',
+    JSON.stringify(Object.keys(xuoi).sort().map(k => [k, xuoi[k]])) === JSON.stringify(Object.keys(nguoc).sort().map(k => [k, nguoc[k]])),
+    JSON.stringify([xuoi, nguoc]));
+  check('W34 du ba lenh deu co ma', Object.keys(xuoi).length === 3, String(Object.keys(xuoi).length));
+}
+
+console.log('W35 verifier tu khai runId: luoi chong va cham phai VAN chay');
+{
+  // Prompt may dan verifier "run_id neu stdout co in" → agent CO THE tra cung mot
+  // runId cho hai lenh khac nhau. Truoc ban va, nhanh nay bo qua toan bo luoi
+  // chong va cham: run_id — truong DUY NHAT ma lib/evidence-core.cjs doc — bi trung.
+  const A = 'cd apps/web && pnpm build', B = 'cd apps/api && pnpm build';
+  const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder({
+    'machine:cd apps/': (call) => ({ exitCode: call.label.includes('api') ? 1 : 0, outputTail: 'x', runId: 'harness-42', cannotRun: false }),
+  }));
+  const suite = result.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+  const idA = (suite.find(l => l.cmd === A) || {}).run_id;
+  const idB = (suite.find(l => l.cmd === B) || {}).run_id;
+  check('W35 hai lenh -> hai run_id KE CA khi verifier khai trung', !!idA && !!idB && idA !== idB, `${idA} / ${idB}`);
+  check('W35 giu lai ma that cua verifier lam goc', String(idA).startsWith('harness-42') && String(idB).startsWith('harness-42'), `${idA} / ${idB}`);
+  // doi chung duong: verifier khai ma KHAC nhau -> giu nguyen van, khong hau to
+  const { result: r2 } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder({
+    'machine:cd apps/web': { exitCode: 0, outputTail: 'x', runId: 'rid-web', cannotRun: false },
+    'machine:cd apps/api': { exitCode: 0, outputTail: 'x', runId: 'rid-api', cannotRun: false },
+  }));
+  const s2 = r2.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+  check('W35 doi chung: ma verifier khac nhau -> giu nguyen van',
+    s2.some(l => l.run_id === 'rid-web') && s2.some(l => l.run_id === 'rid-api'),
+    JSON.stringify(s2.map(l => l.run_id)));
+}
+
+console.log('W36 bo dem va cham khong duoc dung object tran (khoa prototype)');
+{
+  // `{}` co san constructor/toString ke thua, nen bo dem doc ra HAM thay vi undefined
+  // va phep so > 1 false mai mai — luoi tat im lang dung lop no sinh ra de va.
+  const A = 'npm run constructor', B = 'cd x && npm run constructor';
+  const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder());
+  const suite = result.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+  const ids = suite.map(l => l.run_id);
+  check('W36 ten trung la khoa prototype van duoc hau to', new Set(ids).size === 2, JSON.stringify(ids));
 }
 
 summary('acceptance-verify');

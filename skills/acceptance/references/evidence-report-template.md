@@ -172,6 +172,20 @@ Khối evidence cho eval ui-check có ảnh chụp (đặt trong `## Evidence`, 
     multimodal Read. >= 20 substantive chars; placeholders do not count.}}
   network_observed: {{clean|no-app-traffic|third-party-only|app-fail|n-a (driver)|n-a (tool-error)|unscoped|unscoped-partial}}   # words only — raw statuses live in evidence/E3-network.txt
 
+Khối cho một LỆNH SUITE (hồi quy) — lệnh chạy mỗi vòng nhưng không gắn AC nào.
+Đặt dưới `## Evidence`, sau các khối eval, trong mục `### Lệnh suite (hồi quy)`.
+Dòng `run_id` là BẮT BUỘC và phải chép NGUYÊN VĂN từ bản đồ mã mà workflow truyền
+xuống: bộ đối chiếu (`lib/evidence-core.cjs`) quét MỌI dòng `run_id` trong báo cáo
+và đòi từng mã có mặt trong `run-log.jsonl`. Khối vắng `run_id` thì lệnh suite
+không có dấu vết; khối mang mã TỰ ĐẶT thì cổng đỏ `L2 PROVENANCE` ngay sau chữ ký.
+
+<!-- <<<SUITE-BLOCK-TEMPLATE -->
+- cmd: {cmd}
+  run_id: {run_id}
+  exit_code: 0
+  verified_at: {ISO8601}
+<!-- SUITE-BLOCK-TEMPLATE>>> -->
+
 # Example shows the PENDING-JUDGMENT state; under an overall PASS verdict
 # this UNCERTAIN-without-override combination is hook-blocked.
 <!-- <<<JUDGMENT-BLOCK-TEMPLATE -->
