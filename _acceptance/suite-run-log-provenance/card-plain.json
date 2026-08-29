@@ -1,14 +1,16 @@
 {
-  "feature_plain": "Mỗi lượt kiểm tự động nay để lại dấu vết cho CẢ những lệnh chạy chung của kho — trước đây chúng chạy mà không có gì chứng minh, nên hồ sơ bị bác ngay sau khi người ký xong.",
-  "scope_plain": "Chưa đụng tới thứ tự kiểm ở cổng trước khi gộp (chỗ khiến lỗi chỉ lộ ra sau chữ ký) — việc đó nặng hơn và đi vòng duyệt riêng. Trong lúc làm có mở thêm một phần phạm vi: bản mẫu báo cáo nay có sẵn khuôn cho lệnh chạy chung, vì thiếu khuôn chính là gốc của lỗi.",
+  "feature_plain": "Mỗi lượt kiểm tự động nay để lại dấu vết cho CẢ những lệnh chạy chung của kho — trước đây chúng chạy mà không có gì chứng minh, nên hồ sơ bị bác ngay sau khi người ký xong. Kèm theo: hai bản trình mà anh đọc để ký không còn gán nhầm dấu vết của lệnh chạy chung cho một tiêu chí.",
+  "scope_plain": "Chưa đụng tới thứ tự kiểm ở cổng trước khi gộp — chỗ khiến lỗi chỉ lộ ra sau chữ ký; việc đó nặng hơn và đi vòng duyệt riêng. Phạm vi có mở hai lần trong lúc làm: bản mẫu báo cáo nay có sẵn khuôn cho lệnh chạy chung, và hai bản trình được vá cùng lượt.",
   "decisions_plain": [
     { "id": "d-20260829T014735Z-1101", "p": "Chọn cách để lệnh chạy chung tự sinh dấu vết như mọi lệnh khác — đổi lại có thêm một chỗ sinh mã phải giữ ổn định qua các lượt." },
     { "id": "d-20260829T014735Z-1102", "p": "KHÔNG làm phần khiến lỗi chỉ lộ sau chữ ký — đổi lại lớp đó còn nguyên, phải mở một việc riêng." },
     { "id": "d-20260829T014735Z-1103", "p": "Đóng luôn lỗ hai lệnh khác nhau nhận cùng một mã trong cùng lượt — đổi lại phạm vi rộng hơn bản vá gốc." },
     { "id": "d-20260829T014735Z-1104", "p": "KHÔNG chạy phiên thẩm mỹ — việc này không chạm màn hình nào của người dùng." },
-    { "id": "d-20260829T030933Z-2201", "p": "Vá ba lỗi mà lượt soi chỉ ra, và đặt khuôn cho lệnh chạy chung vào bản mẫu báo cáo — đổi lại bản mẫu dài thêm một khối, hồ sơ cũ vẫn hợp lệ." },
+    { "id": "d-20260829T030933Z-2201", "p": "Vá ba lỗi lượt soi chỉ ra và đặt khuôn cho lệnh chạy chung vào bản mẫu báo cáo — đổi lại bản mẫu dài thêm một khối, hồ sơ cũ vẫn hợp lệ." },
     { "id": "d-20260829T030933Z-2202", "p": "Bắt phép đo phải kêu khi cây làm việc còn thay đổi chưa lưu — đổi lại phải lưu thay đổi trước khi chạy đo." },
-    { "id": "d-20260829T050243Z-3301", "p": "Dừng lại thay vì vá tiếp khi hai lượt liền sinh lỗi cùng loại — đổi lại hồ sơ nằm chờ người quyết hướng đi." }
+    { "id": "d-20260829T033718Z-3301", "p": "Dừng thay vì vá tiếp khi hai lượt liền sinh lỗi cùng loại — đổi lại hồ sơ nằm chờ anh quyết hướng đi." },
+    { "id": "d-20260829T062652Z-4401", "p": "Anh chốt sửa ngay lỗi gán nhầm trên bản trình ký thay vì ghi hạn chế — đổi lại vượt trần số vòng và hợp đồng mọc thêm một tiêu chí." },
+    { "id": "d-20260829T072049Z-5501", "p": "Dừng lần hai khi lỗi cùng loại còn tái phát, rồi theo giao ước: vá năm món nhỏ, chạy đúng một vòng cuối, phần còn lại khai thành giới hạn." }
   ],
-  "analyst_plain": "Không có phép đo nào xanh ở cả bản mới lẫn bản cũ — nghĩa là mọi phép đo đều thật sự phân biệt được thay đổi này."
+  "analyst_plain": "Không có phép đo nào xanh ở cả bản mới lẫn bản cũ — mọi phép đo đều thật sự phân biệt được thay đổi này."
 }
