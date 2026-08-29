@@ -1,111 +1,81 @@
 ## Trong hợp đồng
 
-### round-tally: bên VIẾT sinh round:null, bên ĐỌC fail-closed đòi number — một lượt BLOCKED sớm làm hỏng vĩnh viễn bộ đọc của cả hồ sơ
-- file: `feature-loop/workflows/acceptance-verify.js:61`
-- severity: high
-- AC: AC-9
-- source: conventions
-
-`tallyLine()` ghi `round: (args && typeof args.round === 'number') ? args.round : null`, còn `round-tally-read.mjs:25` khai `REQUIRED = [['round','number'], …]` và exit 2 cho CẢ FILE khi gặp dòng sai kiểu, với đúng thông điệp «writer và reader đã trôi khỏi nhau, không đoán».
-
-Kịch bản: args truyền vào là chuỗi JSON hỏng → `args = null` (dòng 54-56) → `blockedEarly()` → dòng tally có `round: null`. SKILL.md bước «Mọi verdict» (dòng 228) bắt main loop LUÔN append `result.runLog` vào `_acceptance/<slug>/run-log.jsonl`, kể cả BLOCKED. Run-log là append-only, nên từ lượt đó trở đi mọi lần chạy `round-tally-read.mjs --run-log <ws>/run-log.jsonl` đều exit 2 — phép đếm 5-vòng-kế mà AC-9 dựng ra để khỏi khảo cổ tự tắt, đúng với hồ sơ đã cháy vì hạ tầng.
-
-Đã dựng lại được: ghi một dòng `{"ts":"","round":null,"kind":"round-tally","verdict":"BLOCKED","expected":0,"returned":0,"blocked":1}` → reader exit 2, ghim khoá "round".
-
-Đây đúng hình dạng (3) trong CLAUDE.md («bên VIẾT và bên ĐỌC của một artifact trôi khỏi nhau vì mọi test tự dựng fixture đúng khuôn bên đọc»): RS2 round-trip qua reader THẬT chỉ chạy trên ca có `round: 1`; RS4 (RS4a dùng `args = {}`, cũng cho round null) chỉ đếm số dòng tally, không cho qua reader. Chiều đỏ của cặp writer/reader chưa phủ chính đường mà `blockedEarly` mới mở.
-
-Rationale: AC-9 đòi round-tally của MỌI verdict kể cả BLOCKED sớm phải round-trip qua chính bộ đọc; ở đây dòng do writer sinh cho ca BLOCKED sớm bị chính reader từ chối (exit 2), đúng thất bại AC-9 mô tả.
-
-### normInfra nhận diện hạ tầng bằng cách dò chuỗi trong output tự do — lỗi sản phẩm có in chữ «cd: … No such file or directory» bị nuốt thành BLOCKED
-- file: `feature-loop/workflows/acceptance-verify.js:560`
-- severity: medium
-- AC: AC-12
-- source: conventions
-
-`CD_FAIL_RE` quét `r.outputTail` (~10 dòng cuối stdout của lệnh). Chú thích ngay trên khẳng định «exit 1 thường KHÔNG bị đụng: phân loại không được nuốt lỗi thật» — nhưng mã KHÔNG giữ được lời hứa đó: bất kỳ lệnh fail nào mà đuôi output có chuỗi khớp đều bị đổi sang `cannotRun: true` bất kể exit code.
-
-Ca cụ thể trên chính kho này: `tests/workflows/round-signal.test.mjs` RS3a/RS5 in `reason` chứa nguyên văn «Dau vet: sh: line 0: cd: /repo: No such file or directory» khi ca ĐỎ. Nếu suite `node tests/workflows/round-signal.test.mjs` fail thật ở ca đó, exit ≠ 0 và đuôi output mang chuỗi khớp → normInfra biến một REJECT thật thành BLOCKED «hạ tầng chấm», và người đi khắc phục hạ tầng cho một lỗi sản phẩm.
-
-Đây là lớp «đo từ vựng thay vì quan hệ» / blacklist trên không gian mở: tín hiệu chỗ-đứng-hỏng cần đến từ trường có cấu trúc (ví dụ verifier khai riêng bước cd fail, hoặc wrapper trả mã thoát dành riêng), không từ việc dò chữ trong văn bản do lệnh được chấm tự in ra.
-
-Rationale: AC-12 cam kết rõ 'lệnh thoát 1 thường vẫn là FAIL sản phẩm — phân loại không nuốt lỗi thật'; finding cho thấy một lỗi sản phẩm thật (exit 1) có thể bị phân loại nhầm thành hạ tầng chỉ vì trùng chữ trong output, đúng thất bại AC-12 nêu.
-
-### Early-BLOCKED round-tally line writes round:null, which its own reader rejects with exit 2 — poisoning run-log.jsonl permanently
-- file: `feature-loop/workflows/acceptance-verify.js:61`
-- severity: high
-- AC: AC-9
-- source: bugs
-
-tallyLine() emits `round: (args && typeof args.round === 'number') ? args.round : null`. On the `!args` / malformed-args early return (blockedEarly at line 69) `args` is null or lacks a numeric round, so the emitted line is `{"ts":"","round":null,"kind":"round-tally","verdict":"BLOCKED","expected":0,"returned":0,"blocked":1}` (verified by running runWorkflow(WF, {}, …)). The paired reader feature-loop/scripts/round-tally-read.mjs:25 declares REQUIRED = [['round','number'], …] and, on any tally line failing that type check, prints the drift message and process.exit(2) for the ENTIRE read, not just that line (verified: exit=2). SKILL.md:228 instructs the main loop to append `result.runLog` on every verdict, and run-log.jsonl is append-only, so a single such round makes round-tally-read.mjs fail-closed forever for that workspace — every later well-formed tally becomes unreadable too. The 5-round threshold counter that AC-9 exists to feed goes dark precisely on the infra-broken rounds it needs to count. Test coverage misses it: RS4a only asserts the line exists; only RS2 round-trips through the real reader, and only on the healthy path where args.round is a number. Fix: emit a number (fall back to 0 or -1) or make `round` optional/nullable in the reader's REQUIRED table — one side must move, currently the writer emits a shape the reader is guaranteed to reject.
-
-Rationale: Cùng hiện tượng với finding round-tally tiếng Việt ở trên: AC-9 đòi dòng tally của MỌI verdict (kể cả BLOCKED sớm) phải đọc lại được bằng chính bộ đọc, nhưng ở đây bộ đọc từ chối dòng do writer sinh.
-
-### CD_FAIL_RE does not match zsh's cd error format, so AC-12 infra classification is dead on the shell the verifier agents actually run
-- file: `feature-loop/workflows/acceptance-verify.js:560`
-- severity: high
-- AC: AC-12
-- source: bugs
-
-CD_FAIL_RE = `/(?:^|[\s:])cd:\s+(?:line \d+:\s*)?(?:can'?t cd to\b|\S.*?(?:No such file or directory|Not a directory|Permission denied))/i` requires whitespace right after `cd:` AND a non-space token between `cd:` and the error phrase. zsh emits neither: it prints `(eval):cd:1: no such file or directory: /path` (reason first, no space after `cd:`). Verified live in this environment — `cd /nope-xyz-123 && echo hi` returns `(eval):cd:1: no such file or directory: /nope-xyz-123`, and CD_FAIL_RE.test() on that string is false; `zsh -c 'cd /nope-xyz && echo hi'` → `zsh:cd:1: no such file or directory: /nope-xyz` → also false; the zsh permission form `cd: permission denied: /root` → false. Only the bash/dash forms match. The code comment explicitly claims to cover the «bash/zsh» family, and the whole change (lanes now hand agents `cd <repoRoot> && <cmd>` and `cd "$WT" && <cmd>`) depends on this detection. Since a failed `cd` in an `&&` chain exits 1, not 127, the sibling `r.exitCode === 127` branch does not catch it either — a dropped worktree or wrong repoRoot under zsh still yields the fake REJECT that AC-12 was written to prevent, burning a round. Tests RS3a and RS5 pass only because their fixtures are hand-written `sh:`/`bash:` strings rather than output produced by a real shell in the run.
-
-Rationale: AC-12 hứa lệnh hỏng vì bước cd thất bại phải đi nhánh BLOCKED hạ tầng; trên shell zsh — shell mà agent thực sự chạy — biểu thức nhận diện không bao giờ khớp, nên nhánh cd-fail của AC-12 không hoạt động, đúng thất bại AC nêu.
+Không có finding nào trong hợp đồng ở vòng này.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Lane baseline có cd nhưng không qua normInfra: cd hỏng trong worktree bị đọc thành «eval CÓ phân biệt»**
-  Người dùng thấy gì: Khi hạ tầng dựng bản so sánh (worktree) hỏng, hệ thống có thể báo nhầm rằng bản cũ chạy khác bản mới, khiến người đọc báo cáo tưởng phép so sánh đã diễn ra trong khi nó chưa từng chạy thật.
-  file: `feature-loop/workflows/acceptance-verify.js:634`
-  severity: medium
+- **s4-args.mjs: vòng dò nhánh chính main/master/develop/trunk là mã chết — hụt nhánh đầu là exit 2 ngay**
+  Người dùng thấy gì: Nếu chạy chấm điểm trên một nhánh chính không có tên 'main' (ví dụ 'master') và không có mạng để kiểm tra remote, bước chuẩn bị dữ liệu chấm sẽ dừng lại với lỗi ngay lập tức thay vì tự thử các tên nhánh khác như đã hứa, buộc người dùng phải tự khai nhánh bằng tay.
+  file: `feature-loop/scripts/s4-args.mjs`
+  severity: high
   Đề xuất: new-contract
 
-- **s4-args.mjs: mọi lệnh git đều không bọc — ref hỏng cho exit 1 kèm stack trace, phá hợp đồng exit-code script tự khai**
-  Người dùng thấy gì: Nếu người vận hành gõ sai một tham số tham chiếu tới lịch sử commit, công cụ sinh dữ liệu chấm điểm có thể dừng với một thông báo lỗi kỹ thuật khó hiểu thay vì nói rõ tham số nào sai, làm mất thời gian dò lỗi.
-  file: `feature-loop/scripts/s4-args.mjs:190`
+- **normInfra nuốt tín hiệu phân biệt của lane baseline: exit 127 «script feature chưa tồn tại ở commit gốc» thành n-a thay vì red**
+  Người dùng thấy gì: Khi tính năng mới thêm hẳn một lệnh hoặc script chưa tồn tại ở phiên bản cũ (tình huống rất phổ biến), báo cáo bằng chứng có thể ghi nhầm thành 'không đo được' thay vì 'sai trên bản cũ' — làm mất loại bằng chứng so sánh trước/sau đáng tin nhất để người ký duyệt dựa vào.
+  file: `feature-loop/workflows/acceptance-verify.js`
+  severity: high
+  Đề xuất: new-contract
+
+- **Enum ba ngăn OOC vẫn có nguồn thứ hai: nhánh render của thẻ Cổng 2 gõ tay danh sách, không neo vào khối marker**
+  Người dùng thấy gì: Nếu sau này có người thêm một lựa chọn phân loại mới cho nhóm việc ngoài hợp đồng, thẻ quyết định ở Cổng 2 có thể hiển thị nhầm dòng 'Máy chưa đề xuất hướng nào' cho lựa chọn đó thay vì tên thật, vì thẻ đang chép tay danh sách thay vì lấy từ nguồn chung.
+  file: `scripts/gate-card.js`
   severity: medium
   Đề xuất: known-limits
 
-- **Chuỗi cd ghim vào prompt verifier không đặt trong nháy — repoRoot có khoảng trắng thì lệnh vỡ**
-  Người dùng thấy gì: Nếu đường dẫn tới dự án chứa khoảng trắng, lệnh gửi cho máy chấm điểm có thể chạy sai vị trí, khiến kết quả chấm không còn đáng tin mà không có cảnh báo nào báo trước.
-  file: `feature-loop/workflows/acceptance-verify.js:479`
+- **Fallback nhánh chính trong s4-args.mjs là mã chết — `git()` gọi `die()`/`process.exit`, `catch` không bao giờ chạy**
+  Người dùng thấy gì: Nếu chạy chấm điểm trên một nhánh chính không có tên 'main' và không có mạng để kiểm tra remote, bước chuẩn bị dữ liệu chấm sẽ dừng lại với lỗi ngay lập tức thay vì tự thử các tên nhánh khác như đã hứa, buộc người dùng phải tự khai nhánh bằng tay.
+  file: `feature-loop/scripts/s4-args.mjs`
+  severity: high
+  Đề xuất: new-contract
+
+- **Lane baseline: exit 127 bị phân loại thành hạ tầng → mất tín hiệu «eval CÓ phân biệt» (red → n-a)**
+  Người dùng thấy gì: Khi tính năng mới thêm hẳn một lệnh hoặc script chưa tồn tại ở phiên bản cũ, báo cáo bằng chứng có thể ghi nhầm thành 'không đo được' thay vì 'sai trên bản cũ' — làm mất loại bằng chứng so sánh trước/sau đáng tin nhất để người ký duyệt dựa vào.
+  file: `feature-loop/workflows/acceptance-verify.js`
+  severity: medium
+  Đề xuất: new-contract
+
+- **round-tally-read.mjs: dòng tally hỏng JSON bị bỏ im lặng với exit 0 — đúng thứ file này hứa không để xảy ra**
+  Người dùng thấy gì: Nếu một dòng ghi nhận kết quả vòng chấm bị lỗi giữa chừng (ví dụ tiến trình bị dừng đột ngột), hệ thống đếm số vòng có thể âm thầm bỏ qua dòng đó mà không báo lỗi, khiến số liệu tổng kết bị thiếu trong khi vẫn trông như đang chạy bình thường.
+  file: `feature-loop/scripts/round-tally-read.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4 — assertion không thể đỏ: «chiều đỏ vế tệp» không đo vật nào**
-  Người dùng thấy gì: Phép kiểm dùng để xác nhận tính năng phát hiện dữ liệu đã cũ hoạt động thật ra không có khả năng phát hiện lỗi — nếu tính năng đó âm thầm hỏng, sẽ không có cảnh báo nào xuất hiện.
-  file: `_acceptance/cham-dung-cay-dung-cho-dung/rang.sh:219`
+- **Assertion âm-tính-một-mình: chiều đỏ của vế 7 kết luận từ «exit khác 0», và cái chết là HẠ TẦNG chứ không phải đột biến**
+  Người dùng thấy gì: Phép kiểm tra tự động cho việc tính đúng 'điểm mốc so sánh' của bước chuẩn bị dữ liệu chấm hiện chưa thực sự chứng minh được điều đó — nếu logic này bị hỏng trong tương lai, bộ kiểm tra vẫn có thể báo 'đạt' một cách nhầm lẫn.
+  file: `_acceptance/cham-dung-cay-dung-cho-dung/rang.sh`
   severity: high
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **Hình dạng 4 — chiều đỏ tự thoả: chèn đúng chuỗi rồi grep chính chuỗi đó**
-  Người dùng thấy gì: Phép kiểm nhằm đảm bảo hướng dẫn không dạy cách làm tắt thủ công thực ra không kiểm tra được điều đó — nếu hướng dẫn vô tình dạy lại cách làm tắt bằng câu chữ khác, lỗi sẽ không bị phát hiện.
-  file: `_acceptance/cham-dung-cay-dung-cho-dung/rang.sh:248`
+- **Assert «chuỗi có mặt» thay cho QUAN HỆ: mutant LP4 không làm ĐỎ assert nào của LP3 — nó chỉ tự kiểm chính phép tiêm**
+  Người dùng thấy gì: Phép kiểm tra chống rò rỉ đường dẫn thư mục giữa hai luồng chấm điểm hiện chưa thực sự bắt được lỗi rò rỉ nếu nó xảy ra theo một cách viết mã hơi khác — một dạng lỗi này có thể lọt qua trong tương lai mà không ai phát hiện.
+  file: `tests/workflows/lane-pin.test.mjs`
   severity: high
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **Hình dạng 4 — mutant không bao giờ được chạy; assert lại chính chuỗi vừa xoá**
-  Người dùng thấy gì: Phép kiểm nhằm đảm bảo khi xoá một lựa chọn khỏi hệ thống thì mọi nơi liên quan đều mất lựa chọn đó thực ra không thử tình huống này trên hệ thống thật — nếu tính năng hỏng, phép kiểm vẫn báo đạt.
-  file: `tests/workflows/round-signal.test.mjs:170`
+- **Assert «chuỗi có mặt» thay cho QUAN HỆ: chiều đỏ RS6 là hằng-đúng — nguồn đột biến không bao giờ được chạy**
+  Người dùng thấy gì: Phép kiểm tra đảm bảo 'danh sách lựa chọn phân loại chỉ có một nguồn duy nhất' hiện chưa thực sự chạy qua đường xử lý thật của hệ thống, nên nếu sau này có ai chép tay lại danh sách này ở một nơi khác, phép kiểm tra sẽ không phát hiện ra.
+  file: `tests/workflows/round-signal.test.mjs`
   severity: high
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **Hình dạng 1 — đo văn bản NGUỒN thay vì ĐẦU RA (prompt sinh ra)**
-  Người dùng thấy gì: Phép kiểm đảm bảo ba nơi dùng chung một danh sách lựa chọn chỉ soi mã nguồn chứ chưa xác nhận nội dung thực tế gửi tới các bên dùng có đồng nhất hay không — nếu chúng lệch nhau lúc chạy thật, sẽ không bị phát hiện.
-  file: `tests/workflows/round-signal.test.mjs:158`
+- **Tuyên quét LỚP nhưng chỉ có điểm-case: RS2 tự xưng «TOÀN PHẦN / MỌI đường» nhưng chốt bằng ngưỡng sàn `sites >= 2` và một danh sách gõ tay**
+  Người dùng thấy gì: Phép kiểm tra 'mọi nơi sinh ra dòng ghi nhận kết quả vòng chấm đều được kiểm tra' hiện chỉ đếm đủ số lượng tối thiểu, nên nếu sau này có ai thêm một nơi sinh dòng mới, phép kiểm tra có thể không phát hiện ra nơi đó chưa được kiểm chứng.
+  file: `tests/workflows/round-signal.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 4 — nhận exit≠0 bất kỳ làm bằng chứng phân biệt, không ghim thông điệp**
-  Người dùng thấy gì: Phép kiểm coi bất kỳ lỗi nào cũng là bằng chứng tính năng hoạt động đúng, kể cả khi lỗi đó chỉ do trục trặc không liên quan — có thể khiến người quyết định tin nhầm tính năng đã được kiểm chứng khi thực ra chưa được thử đúng cách.
-  file: `_acceptance/cham-dung-cay-dung-cho-dung/rang.sh:131`
+- **Fixture VIẾT TAY đúng khuôn bên đọc: run-log của ca carry được printf theo bộ lọc của carry-plan, không round-trip từ writer thật**
+  Người dùng thấy gì: Bài kiểm tra chức năng 'mang kết quả cũ sang vòng chấm mới' hiện dùng dữ liệu mẫu tự soạn tay thay vì dữ liệu do chính hệ thống sinh ra, nên nếu định dạng dữ liệu thật thay đổi sau này, chức năng có thể âm thầm ngừng hoạt động mà bài kiểm tra vẫn báo đạt.
+  file: `_acceptance/cham-dung-cay-dung-cho-dung/rang.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 3 — phép HOẶC làm mất quan hệ agent↔lệnh của chính nó**
-  Người dùng thấy gì: Phép kiểm không phân biệt được việc mỗi máy chấm chạy đúng lệnh của chính mình hay tất cả vô tình chạy nhầm cùng một lệnh — một lỗi ghép nhầm lệnh giữa các máy chấm có thể lọt qua mà không bị phát hiện.
-  file: `tests/workflows/lane-pin.test.mjs:51`
+- **Assertion âm-tính-một-mình: chiều đỏ (b) của skill-khong-fallback chèn đúng chuỗi mình sắp grep**
+  Người dùng thấy gì: Phép kiểm tra đảm bảo tài liệu hướng dẫn không còn công thức soạn tay cũ hiện chưa thực sự chứng minh được điều đó một cách chắc chắn, vì cách kiểm tra có thể luôn báo đạt bất kể nội dung thực tế thay đổi ra sao.
+  file: `_acceptance/cham-dung-cay-dung-cho-dung/rang.sh`
   severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 3/13 lỗi rơi vào file không bộ đo nào phủ (_acceptance/cham-dung-cay-dung-cho-dung/rang.sh) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 4/12 lỗi rơi vào file không bộ đo nào phủ (feature-loop/scripts/round-tally-read.mjs, _acceptance/cham-dung-cay-dung-cho-dung/rang.sh) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
