@@ -61,6 +61,47 @@ const evalsT = read(path.join(dir, 'evals.yaml'));
 const report = read(path.join(dir, 'evidence-report.md'));
 const probeT = read(path.join(dir, 'gap-probe.md'));
 
+// ---- chốt «không có hồ sơ thì không vẽ thẻ» -------------------------------
+// Lỗ đã đo 2026-08-30: slug không tồn tại → exit 0 + 4201 byte thẻ Cổng 1 đầy
+// đủ, tiêu đề là chính chuỗi người vừa gõ nhầm, khối việc-của-người vẫn hỏi
+// «duyệt hay sửa». Người được mời ký trên hư không — false-green ở tầng trình
+// bày. Chốt đặt TRƯỚC mọi nhánh đường ra (--extract lẫn render, Cổng 1 lẫn
+// Cổng 2) nên một chỗ che hết; vá riêng ở thân lệnh thì ba đường gọi còn lại
+// vẫn sinh thẻ ma.
+// Câu chữ ở đây là MẶT MÁY theo chính bản luật ngôn ngữ mặt người (nó liệt
+// «thông điệp lỗi của script» vào cột KHÔNG ÁP, nơi tên chính xác là bắt
+// buộc). Tiếng sản phẩm sống ở thân lệnh commands/acceptance-card.md, nơi
+// bước tiền đề thuật lại ca này cho người.
+// <<<NO-DOSSIER-GUARD  — MỘT nguồn của ba thông điệp; thân lệnh chép nguyên
+// văn và phép đo RÚT từ đây (không gõ literal), nên đổi chữ ở đây mà quên
+// thân lệnh là ĐỎ ngay, không trôi âm thầm.
+const MSG_NO_WORKSPACE = 'gate-card: xưởng chưa mở';
+const MSG_NO_DOSSIER   = 'gate-card: không có hồ sơ';
+const MSG_NO_CONTRACT  = 'gate-card: hồ sơ chưa có contract.md';
+// NO-DOSSIER-GUARD>>>
+// <<<NO-DOSSIER-GUARD-BLOCK
+if (!contract.trim()) {
+  const acc = path.join(root, '_acceptance');
+  let real = [];
+  try {
+    real = fs.readdirSync(acc, { withFileTypes: true })
+      .filter(e => e.isDirectory() && fs.existsSync(path.join(acc, e.name, 'contract.md')))
+      .map(e => e.name).sort();
+  } catch (_) { /* xưởng không đọc được → danh sách rỗng, nhánh dưới vẫn nói đúng ca */ }
+  if (!fs.existsSync(path.join(acc, 'config.yaml'))) {
+    process.stderr.write(MSG_NO_WORKSPACE + ' — không thấy _acceptance/config.yaml dưới "' + root + '". Chạy acceptance-init cho kho này trước.\n');
+  } else if (!fs.existsSync(dir)) {
+    process.stderr.write(MSG_NO_DOSSIER + ' «' + slug + '» — _acceptance/' + slug + '/ không tồn tại.\n' +
+      (real.length ? '  Hồ sơ có thật trong xưởng: ' + real.join(', ') + '\n'
+                   : '  Xưởng chưa có hồ sơ nào.\n'));
+  } else {
+    process.stderr.write(MSG_NO_CONTRACT + ' «' + slug + '» — _acceptance/' + slug + '/ có mặt nhưng chưa đọc được contract.md, chưa có gì để trình.\n' +
+      (real.length ? '  Hồ sơ đủ bản hợp đồng trong xưởng: ' + real.join(', ') + '\n' : ''));
+  }
+  process.exit(2);
+}
+// NO-DOSSIER-GUARD-BLOCK>>>
+
 // ---- glossary delta (Đợt 2) ----------------------------------------------
 // The Gate-1 human approves SCOPE and, alongside it, the LANGUAGE the scope is
 // written in: which domain terms this feature adds or sharpens in the repo's

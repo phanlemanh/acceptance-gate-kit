@@ -42,11 +42,15 @@ assertion không sống»): cả hai chuỗi mà ca 3 khẳng định VẮNG đ�
 khẳng định CÓ MẶT trên cùng khuôn thẻ — ca 1 xanh chứng minh chuỗi ghim là
 thật, ca 3 mới có nghĩa.
 
-**Ca 3 dự kiến ĐỎ ngay hôm nay — cố ý.** Đã kiểm 30/08: `gate-card.js` với
-slug không tồn tại exit 0 và vẽ trọn một thẻ Cổng 1 (kèm khối «👉 VIỆC CỦA
-ANH» hỏi duyệt), và `commands/acceptance-card.md` không có chốt kiểm hồ sơ
-tồn tại. Ca này ghim hành vi ĐÚNG; nó đỏ là phát hiện lỗ, không phải ca hỏng.
-Lỗ này có hạt giống riêng — đừng vá trong thư mục evals.
+**Ca 3 từng dự kiến ĐỎ — lỗ ĐÃ VÁ.** Khi ba ca này được viết (30/08),
+`gate-card.js` với slug không tồn tại exit 0 và vẽ trọn một thẻ Cổng 1 (kèm
+khối «👉 VIỆC CỦA ANH» hỏi duyệt), và `commands/acceptance-card.md` không có
+chốt kiểm hồ sơ tồn tại — ca này ghim hành vi ĐÚNG nên nó đỏ là phát hiện lỗ,
+không phải ca hỏng. Lỗ đó đã đóng bằng hồ sơ `khong-ve-the-ma`: bộ dựng nay
+thoát khác 0 và không in byte thẻ nào, thân lệnh có bước tiền đề. **Ca 3
+không đổi một chữ nào trong lần vá đó** — sửa ca đo cho khớp vật là hạ thước
+cho vừa vật. Ca vẫn chưa chạy được vì `claude plugin eval` chưa bật cho org;
+khi bật, đây là ca dự kiến XANH.
 
 ## Luật viết ca mới
 

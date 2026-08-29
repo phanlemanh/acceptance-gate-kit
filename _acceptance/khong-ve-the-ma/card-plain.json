@@ -1,0 +1,5 @@
+{
+  "feature_plain": "Gõ nhầm tên một hồ sơ thì bộ thẻ nói thẳng là không có hồ sơ đó và chỉ ra những tên có thật, thay vì vẽ một thẻ trông như thật rồi mời anh ký.",
+  "scope_plain": "Chỉ chốt đúng chỗ đang thủng: bộ dựng thẻ và lệnh trình thẻ. Ba chỗ anh em đã kiểm là không cùng lỗ nên để nguyên; bộ ca đo viết sẵn cho lỗi này cũng giữ nguyên từng chữ.",
+  "analyst_plain": "Vòng này không chạy nhánh đối chiếu trên bản gốc, nên không có eval nào được xếp loại «xanh ở cả hai đầu»."
+}
