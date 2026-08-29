@@ -10,9 +10,9 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>1 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>60 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>7 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>8 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
 ```
 
@@ -46,7 +46,6 @@ flowchart TD
 
 ## Đang làm
 
-- Nhánh chính không tên main — phép dò phải dò được, không chết ở tên đầu (`nhanh-chinh-khong-ten-main`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
 - Phát hành kit 2.1.0 — gom hai hồ sơ TRỪ 16/08 (tin mời cổng thôi form · cổng chặn nhầm chỗ) + luật hình về một mốc, và đưa skill diagram-design vào marketplace như plugin thứ ba (vendor có pin, skin sống trong repo tiêu thụ) — để repo tiêu thụ nhận luật mới có chủ đích trước khi đợt 3 đo M1/M2 (`release-2-1-0`)
 
@@ -57,6 +56,7 @@ flowchart TD
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
 - Lệnh in ra phải bấm được — một nguồn tên lệnh (bảng COMMAND-NAMES, bảng ⊆ vật thật, điểm bàn giao ⊆ bảng) + TRỪ ba cờ nhiễu trên thẻ + bốn sửa đúng từ finding B/C (`lenh-in-ra-phai-bam-duoc`)
+- Nhánh chính không tên main — phép dò phải dò được, không chết ở tên đầu (`nhanh-chinh-khong-ten-main`)
 - Ra có tên ở Vòng LÀM và TRAO — trạng thái «máy đã thông» cho làn V; Cổng Đáng ký qua /approve một lượt một PR; Cổng Giá trị có lối «không đo được» + archived/timebox có bộ đọc (`ra-co-ten-lam-va-trao`)
 - «/start» là bảng điều khiển của owner, không phải bộ định tuyến — hiện hết ý đang cân nhắc, nêu tên việc máy vừa làm và thứ còn veto được, và mọi bộ đọc nói cùng một chữ (`start-bang-dieu-khien`)
 

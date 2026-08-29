@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 41e12d53401f5539cce68e0621f6b8df42d76857
-human_signoff:
+human_signoff: Manh Phan 2026-08-29
 ---
 
 # Evidence Report: nhanh-chinh-khong-ten-main
@@ -142,6 +142,15 @@ human_signoff:
   đến từ cờ chứ không từ phép dò. Không sai kết quả, nhưng lời khai gây hiểu lầm.
 
 ## Ngoài hợp đồng
+
+Owner xếp ngăn tại Cổng Bằng chứng 29/08: TẤT CẢ mục ngoài hợp đồng của lượt
+này gộp vào ô `khuon-rang-dung-chung`. Bốn mục nặng nhất mà hội đồng nêu (hồ sơ
+gắn nhãn sai · kết quả kiểm trên cây cũ · còn hàng cho tiêu chí đã rút · hai mục
+để trống) là ảnh chụp bản báo cáo TRƯỚC lượt 6 và đã hết ở bản này: verdict PASS,
+`verified_commit` neo đúng cây giao, bảng chỉ còn bảy phép đo hiện hành, mục hạn
+chế đã đầy. Các mục còn lại trùng bốn hạn chế đã khai ở trên, cộng vài tự phê về
+chất lượng phép đo — cùng họ với những gì ô kia đã nhận.
+
 
 ## Analyst
 

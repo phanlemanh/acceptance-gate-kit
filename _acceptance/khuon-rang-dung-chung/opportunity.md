@@ -68,6 +68,14 @@ mà một nhánh chỉ đúng khi lỗi cũ quay lại · ca không xác nhận 
 đúng tên phần hỏng · ca dùng tên cố định thay vì đối chiếu thực tế · và hai mục
 về dòng khai nguồn/vết lỗi thô lọt vào lần chạy thành công.
 
+Cổng Bằng chứng của `nhanh-chinh-khong-ten-main` (29/08, owner ký) gộp TRỌN
+danh sách ngoài-hợp-đồng của lượt cuối vào ô này: bốn hạn chế sản phẩm đã khai
+(remote hỏi-không-được vẫn đoán nhầm · phép bóc tên phụ thuộc ngôn ngữ máy chạy
+· hướng dẫn mô tả hành vi cũ · dòng khai nguồn in «null» khi tự truyền mốc) và
+các mục tự phê về chất lượng phép đo. Tổng cộng ô này nay giữ: 5 hình dạng
+tự-dối của bộ răng · 1 lỗ luật mang-kết-quả-sang bỏ qua bộ răng · 4 hạn chế sản
+phẩm nêu trên · ~10 mục chất-lượng-phép-đo.
+
 ## Ngưỡng chết / ngưỡng UAT
 
 - Câu hỏi phép đo trả lời: …
