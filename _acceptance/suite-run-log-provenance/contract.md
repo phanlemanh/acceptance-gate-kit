@@ -73,8 +73,8 @@ Source input: prompt (PR #117) + đo thật media-library vòng 11.
   dạng mọi dòng eval (mã, `sha`, `ts`, `exit_code`, `cmd`) giữ nguyên như bản
   trước vá.
 
-- **AC-7 — không bộ đọc nào gán trường của lệnh chạy chung cho một tiêu chí.**
-  (Phạm vi NÂNG ở vòng sửa S4-r3, owner chốt: khuôn khối lệnh suite mở đầu bằng
+- **AC-7 — không bộ đọc nào gán trường của lệnh chạy chung cho một tiêu chí.** Phạm
+  vi NÂNG ở vòng sửa S4-r3, owner chốt. (Khuôn khối lệnh suite mở đầu bằng
   `- cmd:` nên mọi bộ đọc chỉ mở khối ở `- eval:` đều nhét mã chạy / mã thoát /
   thời điểm của lệnh chạy chung vào tiêu chí ĐỨNG TRƯỚC nó.) Given một bản chấm
   có khối lệnh suite, When trang bằng chứng và card Cổng 2 dựng bản trình cho
