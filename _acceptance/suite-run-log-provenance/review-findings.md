@@ -1,48 +1,45 @@
 ## Trong hợp đồng
 
-- **Tuyên quét LỚP nhưng chỉ có điểm-case: dòng run-log của LỆNH SUITE không có phép so tập-khoá nào — bỏ `round` vẫn xanh 389/389**
-  file: `tests/workflows/acceptance-verify.test.mjs:90`
-  severity: low
-  AC: AC-1
-  detail: Dòng run-log của EVAL có phép so hình dạng TOÀN PHẦN: chân `khong-hoi-quy` trong _acceptance/suite-run-log-provenance/rang.sh (dòng 197–233) chạy cùng một fixture qua hai writer rồi so `Object.keys(l).sort()`, và eval E7 khai đích danh bộ khoá `ts,round,evalId,run_id,exit_code,cmd`. Dòng SUITE — thành viên MỚI của cùng lớp «dòng run-log» — không có phép so tương ứng: fixture của khoa.mjs khai `suiteCommands: []` (rang.sh dòng 205) nên nó không bao giờ nhìn thấy dòng SUITE, và phía test chỉ có các assert điểm cho từng trường rời (W03 `suiteLine.evalId`/`run_id` dòng 91–95, W03 `lines.every(l => l.ts === ...)` dòng 87, DV6 `lines.every(l => l.sha === SHA)` dòng 1347, W31 `exit_code`/`cannot_run`, W03 `cmd`). Trường `round` rơi khỏi mọi assert.
-
-    Đo được, không suy diễn: tôi dựng bản sao `git archive HEAD`, xoá đúng `round: args.round,` khỏi khối push dòng SUITE (feature-loop/workflows/acceptance-verify.js:632, chỉ dòng SUITE — dòng eval ở 643 giữ nguyên) rồi chạy lại suite: `Results: 389 passed, 0 failed`. Cả tám chân răng cũng xanh, vì chúng chỉ grep các tên ca đó trong stdout. Phá đúng vật mà phép đo không đỏ = lớp phòng thủ chưa sống.
-
-    Hiện tại chưa có bộ đọc engine nào lọc run-log theo `round` (lib/evidence-core.cjs `loadRunLogIds` không đọc trường này), nên đây là lỗ đo chứ chưa phải false-green đang chảy máu — nhưng nó đúng hình dạng 5: lớp «dòng run-log» được tuyên bằng một ma trận khoá toàn phần cho một nhánh và chỉ bằng điểm-case cho nhánh còn lại. Vá rẻ: cho khoa.mjs khai một `suiteCommands` rồi so tập khoá của CẢ hai loại dòng (số assert = số loại dòng), thay vì chỉ `result.runLog[0]`.
-  rationale: AC-1 đòi dòng sổ của lệnh suite mang «ts/round như mọi dòng khác»; finding chứng minh bằng phép tiêm thật rằng không phép đo nào (kể cả tám chân răng) đỏ khi trường round bị xoá khỏi dòng SUITE, tức yêu cầu này của AC-1 hiện không được lưới nào canh.
+(không có)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Giới hạn đã khai trong hợp đồng nói sai số vật được canh ("ba file" vs sáu) — người ký đọc lời khai lệch**
-  Người dùng thấy gì: Phần liệt kê giới hạn mà người ký đọc trước khi duyệt đang ghi sai số lượng tệp thật đang được canh, có thể khiến người ký hiểu nhầm phạm vi bảo vệ hẹp hơn thực tế.
-  file: `_acceptance/suite-run-log-provenance/contract.md:150`
+- **Seam LLM-viết→máy-đọc: hai bộ đọc mới chỉ có fixture VIẾT TAY, không round-trip từ marker SUITE-BLOCK-TEMPLATE**
+  Người dùng thấy gì: Nếu sau này ai đó đổi cách trình bày phần kết quả của lệnh kiểm tra tổng thể trong bản chấm, các bài tự kiểm liên quan có thể không phát hiện ra vì chúng dùng dữ liệu mẫu tự đánh máy theo hình dạng cũ thay vì lấy từ đúng khuôn đang dùng — rủi ro là lỗi gán nhầm kết quả có thể quay lại mà không ai được cảnh báo.
+  file: `tests/scripts/run-tests.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Không phép đo nào bắt bản chấm phải THẬT SỰ mang khối lệnh suite — seam LLM-viết→máy-đọc chỉ được canh một chiều**
-  Người dùng thấy gì: Nếu máy soạn bản chấm bỏ hẳn phần ghi lệnh canh hồi quy, hệ thống vẫn có thể báo xanh và cho ký duyệt mà người đọc không thấy dấu vết lệnh đó từng chạy.
-  file: `feature-loop/workflows/acceptance-verify.js:957`
+- **Quét lớp hụt một bộ đọc: scripts/acceptance-gold.mjs không nhận nhánh đóng-khối, và lời khai «đây là bộ đọc cuối» không có phép đo nào giữ**
+  Người dùng thấy gì: Có một nơi khác trong hệ thống đọc cùng loại dữ liệu nhưng chưa được trang bị cách phòng lỗi giống hai nơi kia; hiện tại nó chưa hiển thị sai vì nó không dùng tới phần dữ liệu liên quan, nhưng nếu sau này có người thêm dữ liệu mới vào đó thì nơi này có thể hiển thị nhầm kết quả của lệnh kiểm tra tổng thể thành kết quả của một tiêu chí, mà không có cảnh báo nào.
+  file: `scripts/evidence-page.js`
+  severity: low
+  Đề xuất: known-limits
+
+- **tenSuite bỏ mất tên script của `yarn run <script>` — mọi lệnh yarn đều đúc tên `SUITE-run`**
+  Người dùng thấy gì: Với một cách viết lệnh bằng yarn cụ thể (dạng có thêm chữ 'run'), tên hiển thị trong sổ theo dõi bị rút gọn sai thành chữ 'run' thay vì tên thật của lệnh. Hai lệnh khác nhau vẫn không bị lẫn kết quả với nhau, chỉ là người đọc sổ khó nhận ra lệnh nào ứng với dòng nào.
+  file: `feature-loop/workflows/acceptance-verify.js`
+  severity: low
+  Đề xuất: known-limits
+
+- **`cmp -s` trả 2 (không so được) bị đọc thành «tiêm đổi được nội dung» — chân bảo vệ mù với ca CHƯA-BAO-GIỜ-CHẠY**
+  Người dùng thấy gì: Đây là lỗi trong công cụ tự kiểm nội bộ dùng để thử nghiệm, không phải trong tính năng đưa tới người dùng: ở một tình huống hiếm khi bước dựng bản sao để thử lỗi bị hỏng hoàn toàn, công cụ có thể báo nhầm là 'đã thử lỗi thành công' dù chưa thử được gì. Bước kiểm kế tiếp vẫn phát hiện ra vấn đề nên kết luận cuối cùng không sai, chỉ là dấu vết kiểm tra ở bước này không đáng tin.
+  file: `_acceptance/suite-run-log-provenance/rang.sh`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 2 — fixture khối LỆNH SUITE viết tay đúng khuôn bên ĐỌC, không round-trip từ SUITE-BLOCK-TEMPLATE**
+  Người dùng thấy gì: Nếu sau này bản mẫu báo cáo về phần kết quả của lệnh kiểm tra tổng thể bị thay đổi hình dạng, một số bài tự kiểm sẽ không nhận ra vì chúng vẫn tự dựng lại dữ liệu mẫu theo hình dạng cũ thay vì theo đúng bản mẫu hiện hành — nguy cơ lỗi gán nhầm kết quả quay lại mà không bị phát hiện.
+  file: `tests/scripts/run-tests.sh`
   severity: medium
-  Đề xuất: new-contract
-
-- **Chú thích đầu răng nói "bảy chân" trong khi script có tám**
-  Người dùng thấy gì: Ghi chú mô tả tệp kiểm tra nói ít bước hơn số thật đang chạy, có thể khiến người đọc sau này đánh giá nhầm phạm vi đang được canh gác.
-  file: `_acceptance/suite-run-log-provenance/rang.sh:2`
-  severity: low
   Đề xuất: known-limits
 
-- **Thông điệp ghim trong evals.yaml lệch một chữ với thông điệp răng thật in ra**
-  Người dùng thấy gì: Tài liệu mô tả phép kiểm ghi sai một chữ trong thông điệp mong đợi, khiến người đối chiếu kết quả bằng tài liệu đó có thể xác nhận nhầm.
-  file: `_acceptance/suite-run-log-provenance/evals.yaml:38`
-  severity: low
+- **Họ hàng hình dạng 6 — lưới chống-trôi của ban_sao dùng DANH SÁCH FILE TAY, nên chiều đỏ chấm cây HEAD chứ không cây đang sửa**
+  Người dùng thấy gì: Đây là hạn chế đã được biết trước và owner đã chấp nhận khi ký: công cụ tự kiểm nội bộ chỉ theo dõi một danh sách tệp liên quan được liệt kê sẵn bằng tay. Nếu sau này có thêm tệp mới mà quên bổ sung vào danh sách, công cụ sẽ không phát hiện thay đổi chưa lưu ở tệp đó — đây là hạn chế của quy trình tự kiểm nội bộ, không phải lỗi của tính năng gửi tới người dùng.
+  file: `_acceptance/suite-run-log-provenance/rang.sh`
+  severity: medium
   Đề xuất: known-limits
 
-- **GCS1b is a dead assertion — gate-card.js never prints run_id values, so it passes whether or not the fix is present**
-  Người dùng thấy gì: Một phép kiểm tự động trong bộ kiểm luôn báo đạt bất kể sửa đúng hay sai nên không còn tác dụng canh gác, nhưng một phép kiểm khác đứng cạnh vẫn đang canh đúng chỗ đó nên chưa có lỗ hổng thật sự lọt ra ngoài.
-  file: `tests/scripts/run-tests.sh:1673`
-  severity: low
-  Đề xuất: known-limits
-
-⚠ Cụm ngoài vùng phủ: 2/6 lỗi rơi vào file không bộ đo nào phủ (_acceptance/suite-run-log-provenance/contract.md, _acceptance/suite-run-log-provenance/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
