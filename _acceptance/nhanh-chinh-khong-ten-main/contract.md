@@ -5,9 +5,11 @@ slug: nhanh-chinh-khong-ten-main
 owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
-status: draft
+status: implemented
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-08-29T15:10:00Z
 ---
 
 # Acceptance Contract: nhanh-chinh-khong-ten-main
