@@ -111,7 +111,6 @@ ck('13-invokedAt-ISO', /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(a.invokedAt
 ck('14-invokedSha', a.invokedSha===HEAD);
 const cmds=[...a.evals.map(e=>e.cmd||''),...a.suiteCommands];
 ck('15-khong-cd-nuong-san', cmds.every(c=>!/^cd /.test(String(c))));
-console.log('  (inputs judgment abs: '+(a.evals.find(e=>e.id==='E2').inputs||[]).join(',')+')');
 if(a.evals.find(e=>e.id==='E2').inputs.every(p=>p.startsWith('/'))) {console.log('  PASS: ve-phu inputs-abs');pass++;} else {console.log('  FAIL: ve-phu inputs-abs');fail++;}
 process.exitCode = fail?1:0;
 console.log(`  ma tran: ${pass} pass, ${fail} fail`);
@@ -144,6 +143,94 @@ ref-hong)
   if run_s4args && [ -f "$TMP/args.json" ]; then ok "đối chứng dương: ref thật → exit 0, tệp sinh ra"; else bad "đối chứng dương hỏng: $(tail -2 "$TMP/out.txt")"; fi
   done_chan ;;
 
+round-tu-dem)
+  build_fixture
+  cat > "$REPO/_acceptance/demo/evidence-report.md" <<'MD'
+---
+verdict: REJECT
+---
+# Evidence Report: demo
+
+## Iterations
+
+- Round 1: REJECT — 2 eval đỏ.
+- Round 2: REJECT — 1 eval đỏ.
+MD
+  if run_s4args --no-carry && node -e "process.exit(require('$TMP/args.json').round===3?0:1)"; then ok "Iterations 2 round → round 3"; else bad "round không ra 3: $(tail -2 "$TMP/out.txt")"; fi
+  rm "$REPO/_acceptance/demo/evidence-report.md"
+  if run_s4args && node -e "process.exit(require('$TMP/args.json').round===1?0:1)"; then ok "không evidence-report → round 1"; else bad "round không ra 1"; fi
+  cat > "$REPO/_acceptance/demo/evidence-report.md" <<'MD'
+---
+verdict: REJECT
+---
+## Lich su vong
+
+- Round 1: REJECT.
+MD
+  if run_s4args; then bad "section Iterations vắng mà vẫn exit 0 (đoán round)"; else
+    grep -q "không đếm được round" "$TMP/out.txt" && ok "chiều đỏ: section lạ → kêu to, không đoán" || bad "thông điệp không ghim: $(tail -2 "$TMP/out.txt")"
+  fi
+  done_chan ;;
+
+carry-da-goi)
+  build_fixture
+  ANCHOR="$(git -C "$REPO" rev-parse HEAD)"
+  # round 1 đã chạy: run-log có dòng E1 xanh tại ANCHOR (dòng eval thật KHÔNG mang
+  # field kind — carry-plan lọc `!l.kind`); sau đó cây đổi ở x2.txt, không chạm paths E1
+  RID="minted-demo-E1-r1"
+  printf '%s\n' "{\"ts\":\"2026-08-29T00:00:00Z\",\"sha\":\"$ANCHOR\",\"round\":1,\"evalId\":\"E1\",\"run_id\":\"$RID\",\"exit_code\":0,\"cmd\":\"echo demo-script\"}" > "$REPO/_acceptance/demo/run-log.jsonl"
+  printf '%s\n' "{\"ts\":\"2026-08-29T00:00:01Z\",\"sha\":\"$ANCHOR\",\"round\":1,\"kind\":\"baseline\",\"evals_hash\":\"KHAC\",\"non_discriminating\":[]}" >> "$REPO/_acceptance/demo/run-log.jsonl"
+  cat > "$REPO/_acceptance/demo/evidence-report.md" <<'MD'
+---
+verdict: REJECT
+---
+## Iterations
+
+- Round 1: REJECT.
+MD
+  echo y > "$REPO/x2.txt" && git -C "$REPO" add -A && git -C "$REPO" commit -qm r1-fix
+  if run_s4args --carry-anchor "$ANCHOR"; then
+    node - "$TMP/args.json" "$RID" <<'NODE'
+const [f,RID]=process.argv.slice(2);
+const a=require(f); let fail=0;
+const ck=(n,c)=>{ if(c){console.log('  PASS: '+n);} else {console.log('  FAIL: '+n);fail++;} };
+ck('carriedEvals có E1 giữ run_id', Array.isArray(a.carriedEvals) && a.carriedEvals.some(c=>c.id==='E1'&&c.runId===RID));
+ck('evalsHash có mặt (P2)', typeof a.evalsHash==='string' && a.evalsHash.length===64);
+ck('runBaseline true khi hash khác', a.runBaseline===true);
+ck('judgment E2 mang inputsHash (P3)', a.evals.some(e=>e.id==='E2'&&typeof e.inputsHash==='string'&&e.inputsHash.length===64));
+process.exitCode=fail?1:0;
+NODE
+    [ $? -eq 0 ] && ok "carry tự gọi: carried + P2 + P3 đủ" || bad "carry thiếu mảnh (xem trên)"
+  else bad "round 2 có anchor mà exit ≠ 0: $(tail -3 "$TMP/out.txt")"; fi
+  # chiều đỏ: round ≥2 không khai gì → exit ≠ 0 ghim thông điệp
+  if run_s4args; then bad "round ≥2 thiếu khai carry mà vẫn exit 0"; else
+    grep -q "carry-anchor" "$TMP/out.txt" && ok "chiều đỏ: thiếu khai carry → kêu to" || bad "thông điệp không ghim --carry-anchor: $(tail -2 "$TMP/out.txt")"
+  fi
+  done_chan ;;
+
+loi-khai)
+  build_fixture
+  run_s4args || { bad "không sinh được args: $(tail -3 "$TMP/out.txt")"; done_chan; }
+  H1="$(git -C "$REPO" rev-parse HEAD)"
+  node -e "const a=require('$TMP/args.json'); process.exit(a.generated_sha==='$H1' && /^\d{4}-\d{2}-\d{2}T/.test(a.generated_at)?0:1)" \
+    && ok "tệp args mang generated_at + generated_sha khớp HEAD" || bad "lời khai phạm vi thiếu/lệch"
+  echo z > "$REPO/z.txt" && git -C "$REPO" add -A && git -C "$REPO" commit -qm drift
+  H2="$(git -C "$REPO" rev-parse HEAD)"
+  if [ "$H1" != "$H2" ] && ! node -e "const a=require('$TMP/args.json'); process.exit(a.generated_sha==='$H2'?0:1)"; then
+    ok "chiều đỏ vế tệp: cây đổi → bộ so BÁO lệch (phép so sống)"
+  else bad "bộ so không phát hiện cây đổi"; fi
+  SKILL_MD="$KIT/feature-loop/skills/feature-loop/SKILL.md"
+  BLOCK="$(sed -n '/<<<S4-ARGS-FRESHNESS/,/S4-ARGS-FRESHNESS>>>/p' "$SKILL_MD")"
+  if [ -n "$BLOCK" ] && echo "$BLOCK" | grep -q "generated_sha" && echo "$BLOCK" | grep -q -e "SINH LẠI" -e "sinh lại"; then
+    ok "vế SKILL: khối S4-ARGS-FRESHNESS chứa generated_sha + hành-động-sinh-lại"
+  else bad "vế SKILL: khối S4-ARGS-FRESHNESS thiếu/rỗng ruột"; fi
+  # chiều đỏ vế SKILL: rỗng ruột khối trong BẢN SAO → phép kiểm phải đỏ
+  CP="$TMP/skill-copy.md"
+  sed '/<<<S4-ARGS-FRESHNESS/,/S4-ARGS-FRESHNESS>>>/{/<<<S4-ARGS-FRESHNESS/!{/S4-ARGS-FRESHNESS>>>/!d;};}' "$SKILL_MD" > "$CP"
+  B2="$(sed -n '/<<<S4-ARGS-FRESHNESS/,/S4-ARGS-FRESHNESS>>>/p' "$CP")"
+  if echo "$B2" | grep -q "generated_sha"; then bad "mutant rỗng-ruột không có tác dụng — chiều đỏ vế SKILL chết"; else ok "chiều đỏ vế SKILL: bản sao rỗng ruột → phép kiểm đỏ được"; fi
+  done_chan ;;
+
 *)
-  echo "rang.sh --chan <args-du-truong|ref-hong>"; exit 2 ;;
+  echo "rang.sh --chan <args-du-truong|ref-hong|round-tu-dem|carry-da-goi|loi-khai>"; exit 2 ;;
 esac

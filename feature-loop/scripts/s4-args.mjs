@@ -16,6 +16,7 @@
 // lane baseline chạy worktree — xem design doc 2026-08-29, quyết định 2).
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
@@ -178,7 +179,59 @@ else {
   }
 }
 
+// ── carry-forward: bước GỌI nằm trong máy, không còn là bước tay ───────────
+// round ≥2 phải KHAI đường carry tường minh — «quên» không phải trạng thái lặng.
+const sha256 = s => createHash('sha256').update(s).digest('hex');
+const runLogPath = path.join(ws, 'run-log.jsonl');
+const runLogLines = fs.existsSync(runLogPath)
+  ? fs.readFileSync(runLogPath, 'utf8').split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean)
+  : [];
+let carriedEvals;
+if (round >= 2 && !flags['carry-anchor'] && !flags['no-carry']) {
+  die(`round ${round} (≥2) phải khai tường minh: --carry-anchor <sha dòng round trước> (tính carry P1) hoặc --no-carry (full re-run) — «quên carry» đốt round là lớp lỗi có đo`);
+}
+if (flags['carry-anchor']) {
+  const anchor = git('rev-parse', flags['carry-anchor']);
+  const deltaFiles = git('diff', '--name-only', `${anchor}..HEAD`).split('\n').filter(f => f && !f.startsWith('_acceptance/'));
+  const cpArgs = ['--run-log', runLogPath, '--evals', path.join(ws, 'evals.yaml'), '--contract', contractPath, '--round', String(round)];
+  cpArgs.push(...(deltaFiles.length ? ['--delta-files', deltaFiles.join(',')] : ['--no-delta']));
+  try {
+    const out = execFileSync(process.execPath, [path.join(HERE, 'carry-plan.mjs'), ...cpArgs], { encoding: 'utf8' });
+    const plan = JSON.parse(out);
+    if (Array.isArray(plan.carriedEvals) && plan.carriedEvals.length) carriedEvals = plan.carriedEvals;
+  } catch (e) {
+    const code = e && typeof e.status === 'number' ? e.status : null;
+    if (code === 3) console.error('s4-args: carry-plan exit 3 — run-log cũ chưa có sha, full re-run (mặc định an toàn)');
+    else die(`carry-plan.mjs lỗi (exit ${code}): ${String(e.stderr || e.message || '').split('\n')[0]}`);
+  }
+}
+// P2 (mọi round): baseline-once theo evalsHash
+const evalsHash = sha256(evalsText);
+const lastBaseline = [...runLogLines].reverse().find(l => l.kind === 'baseline');
+let runBaseline; let carriedAnalyst;
+if (lastBaseline && lastBaseline.evals_hash === evalsHash) {
+  runBaseline = false;
+  carriedAnalyst = { fromRound: lastBaseline.carried_from_round ?? lastBaseline.round, nonDiscriminating: lastBaseline.non_discriminating || [] };
+} else runBaseline = true;
+// P3 (round ≥2): panel memo theo inputsHash — file input thiếu → hash mới, judge fresh
+let carriedPanels;
+if (round >= 2) {
+  for (const e of evals) {
+    if (e.executor !== 'judgment') continue;
+    let blob = String(e.question || '');
+    let readable = true;
+    for (const p of e.inputs || []) { try { blob += fs.readFileSync(p, 'utf8'); } catch { readable = false; } }
+    const ih = readable ? sha256(blob) : sha256(blob + ':inputs-missing:' + invokedAt);
+    const lastPanel = [...runLogLines].reverse().find(l => l.kind === 'panel' && l.evalId === e.id);
+    if (readable && lastPanel && lastPanel.inputs_hash === ih) {
+      (carriedPanels = carriedPanels || []).push({ evalId: e.id, proposal: lastPanel.proposal, votes: lastPanel.votes, fromRound: lastPanel.carried_from_round ?? lastPanel.round, inputsHash: ih });
+    } else e.inputsHash = ih;
+  }
+}
+
 const args = {
+  generated_at: invokedAt,
+  generated_sha: invokedSha,
   slug: flags.slug,
   round,
   riskTier,
@@ -192,6 +245,11 @@ const args = {
   contractPath,
   invokedAt,
   invokedSha,
+  evalsHash,
+  runBaseline,
+  ...(carriedAnalyst ? { carriedAnalyst } : {}),
+  ...(carriedEvals ? { carriedEvals } : {}),
+  ...(carriedPanels ? { carriedPanels } : {}),
   ...(models ? { models } : {}),
 };
 
