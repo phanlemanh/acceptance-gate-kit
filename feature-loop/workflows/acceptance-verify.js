@@ -55,11 +55,20 @@ if (typeof args === 'string') {
 // AC-9: dòng tổng kết lượt phải có ở MỌI verdict — kể cả các đường BLOCKED trả
 // về sớm. Chính những lượt này (args hỏng, thiếu luật, evals khai thiếu) là lớp
 // mà ngưỡng «5 vòng kế» cần đếm; để chúng không dòng nào là đúng chỗ mù cần bịt.
-const tallyLine = (verdict, blockedCount) => JSON.stringify({
+// <<<ROUND-TALLY-SCHEMA
+// Khuôn dòng tổng kết lượt — NGUỒN DUY NHẤT cho cả bên VIẾT (dưới đây) lẫn bên
+// ĐỌC (round-tally-read.mjs rút chính khối này). `round` nhận number HOẶC null:
+// null là SỰ THẬT có nghĩa «lượt hỏng trước khi biết được round», không phải dữ
+// liệu lỗi — bản trước cho writer sinh null trong khi reader đòi number, nên một
+// lượt hỏng-sớm làm câm bộ đọc của cả hồ sơ (S4-r2, lớp bên-viết-bên-đọc-trôi).
+// {"round": number|null, "verdict": string, "expected": number,
+//  "returned": number, "blocked": number, "kind": "round-tally"}
+// ROUND-TALLY-SCHEMA>>>
+const tallyLine = (verdict, blockedCount, expected = 0, returned = 0) => JSON.stringify({
   ts: (args && typeof args.invokedAt === 'string') ? args.invokedAt : '',
   ...(args && typeof args.invokedSha === 'string' && args.invokedSha ? { sha: args.invokedSha } : {}),
   round: (args && typeof args.round === 'number') ? args.round : null,
-  kind: 'round-tally', verdict, expected: 0, returned: 0, blocked: blockedCount,
+  kind: 'round-tally', verdict, expected, returned, blocked: blockedCount,
 })
 const blockedEarly = (cmd, reason) => ({
   verdict: 'BLOCKED', blocked: [{ cmd, reason }], failedEvals: [], failedCommands: [], panels: [],
@@ -461,6 +470,21 @@ const MEASUREMENT_SHAPES = [
 ]
 
 // Review finders: repo có skill review riêng → dùng; không → review theo conventions chung
+// S4-r2 ĐỔI KHUÔN: tín hiệu chỗ-đứng-hỏng phải là CẤU TRÚC, không phải chữ.
+// Bản trước dò thông điệp `cd:` trong outputTail — đo TỪ VỰNG trên không gian
+// mở: thiếu họ thông điệp của zsh/dash thì lọt, mà một lệnh sản phẩm lỡ in đúng
+// chuỗi đó thì bị nuốt thành BLOCKED. Nay lệnh tự khai bằng MÃ THOÁT dành riêng:
+// wrapper là `cd "<root>" || exit 97`, nên 97 = không vào được chỗ đứng, bất kể
+// shell nào và bất kể lệnh in gì. 127 giữ nguyên (mã POSIX chuẩn cho
+// command-not-found, cũng là mã chứ không phải chữ).
+// <<<INFRA-EXIT-CODES
+const INFRA_EXITS = {
+  97: 'khong vao duoc cho dung (cd that bai: worktree bi don? repoRoot sai?) — HA TANG CHAM, khong phai san pham do',
+  127: 'lenh/script khong ton tai o cho dung (command not found) — HA TANG CHAM, khong phai san pham do',
+}
+const CD_GUARD = (dir) => `cd ${dir} || exit 97`
+// INFRA-EXIT-CODES>>>
+
 const REVIEWERS = [
   args.reviewSkillPath
     ? { key: 'invariants', prompt: `Trong repo ${args.repoRoot}: doc ${args.reviewSkillPath} va lam DUNG quy trinh cua skill do tren diff ${args.diffBase}...HEAD. Tra ve danh sach violation lam findings (title=ten check/rule, detail=vi pham gi o dau). Khong tu fix.` }
@@ -474,7 +498,7 @@ const REVIEWERS = [
 const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
   () => parallel(distinctCmds.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () =>
     agentT(
-      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong tin cwd hien tai cua ban):\n\n  cd ${args.repoRoot} && ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
+      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n  ${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
       { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
     ).then(r => r && { ...r, cmd, runIndex: __i + 1 })
   ))),
@@ -482,7 +506,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
   // ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file
   () => parallel(uiEvals.map(e => () =>
     agentT(
-      `Ban la verifier UI doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Repo: ${args.repoRoot} — MOI lenh shell ban chay trong steps phai o dang \`cd ${args.repoRoot} && <lenh>\`: cho dung dat trong CHINH lenh, khong tin cwd hien tai (thu muc trung ten o noi khac la moi nhu).\n` +
+      `Ban la verifier UI doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Repo: ${args.repoRoot} — MOI lenh shell ban chay trong steps phai o dang \`${CD_GUARD(`"${args.repoRoot}"`)} && <lenh>\`: cho dung dat trong CHINH lenh (giu nguyen ve || exit 97), khong tin cwd hien tai (thu muc trung ten o noi khac la moi nhu).\n` +
       `Eval ${e.id} (criterion ${e.criterion}) — lam DUNG cac steps sau, theo thu tu:\n` +
       `${(e.steps || []).map((s, i) => `${i + 1}. ${s}`).join('\n')}\n` +
       `Expected: ${e.expected}\n\n` +
@@ -531,7 +555,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
 Lam trong repo ${args.repoRoot} NHUNG TUYET DOI KHONG git checkout/switch/stash o cwd chinh — verifier HEAD dang chay song song o do. Dung worktree CO LAP:
 1) WT="$(mktemp -d)/agk-baseline" ; git -C ${args.repoRoot} worktree add "$WT" ${args.diffBase}
 2) De lenh chay duoc: ln -s ${args.repoRoot}/node_modules "$WT/node_modules" ; cp ${args.repoRoot}/.env.local "$WT/" 2>/dev/null (neu co). Service/DB local (vd Supabase) dung chung voi HEAD.
-3) Chay TUNG lenh sau o dang \`cd "$WT" && <lenh>\` — cho dung la WORKTREE, dat trong chinh lenh (TUYET DOI khong cd ve ${args.repoRoot}: chay nham cay lam viec la baseline mat phan biet): ${baselineCmds.join(' , ')}
+3) Chay TUNG lenh sau o dang \`${CD_GUARD('"$WT"')} && <lenh>\` — cho dung la WORKTREE, dat trong chinh lenh, giu nguyen ve || exit 97 (TUYET DOI khong cd ve ${args.repoRoot}: chay nham cay lam viec la baseline mat phan biet): ${baselineCmds.join(' , ')}
 4) Don dep BAT BUOC: git -C ${args.repoRoot} worktree remove --force "$WT".
 Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong chay tot tren baseline": (a) lenh/script CUA FEATURE chua ton tai o commit goc (npm "missing script", file-not-found cho chinh script eval) = eval MOI, dung ra phai FAIL tren code cu → ghi baselineExit = exit that (khac 0) va cannotRun=FALSE (day la tin hieu "phan biet", KHONG phai cannotRun); (b) moi truong/ha tang that bai khong lien quan feature (service/DB local chua chay, thieu env ma lenh can, worktree add fail) = cannotRun=TRUE. Baseline la tin hieu PHU, TUYET DOI KHONG bia exit.\n${TOOL_KILL_RULE}`,
         { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, ...modelOpt('baseline') }
@@ -554,16 +578,10 @@ const normKill = r => (r && r.killedByTool === true)
 // Đẩy sang cannotRun → nhánh BLOCKED-toward-human, khỏi đốt round bằng REJECT giả.
 // exit 1 thường KHÔNG bị đụng: phân loại không được nuốt lỗi thật. Các hình dạng
 // hạ tầng KHÁC hai dấu hiệu này là giới-hạn-đã-khai của contract (đi FAIL như cũ).
-// Hai họ thông điệp: bash/zsh («cd: …: No such file or directory») và
-// dash/BusyBox sh («cd: can't cd to /path»). Thiếu vế thứ hai thì cd hỏng ở
-// shell POSIX vẫn rơi vào nhánh FAIL sản phẩm — đúng REJECT giả cần chặn.
-const CD_FAIL_RE = /(?:^|[\s:])cd:\s+(?:line \d+:\s*)?(?:can'?t cd to\b|\S.*?(?:No such file or directory|Not a directory|Permission denied))/i
 const normInfra = r => {
   if (!r || r.cannotRun || r.exitCode === 0) return r
-  const tail = String(r.outputTail || '')
-  if (CD_FAIL_RE.test(tail)) return { ...r, cannotRun: true, reason: `buoc cd cua lenh wrap that bai — cho dung khong ton tai/khong vao duoc (worktree bi don? repoRoot sai?): HA TANG CHAM, khong phai san pham do. Dau vet: ${tail.split('\n').filter(Boolean).slice(-1)[0] || ''}` }
-  if (r.exitCode === 127) return { ...r, cannotRun: true, reason: 'exit 127 — lenh/script khong ton tai o cho dung (command not found): HA TANG CHAM, khong phai san pham do' }
-  return r
+  const why = INFRA_EXITS[r.exitCode]
+  return why ? { ...r, cannotRun: true, reason: `exit ${r.exitCode} — ${why}` } : r
 }
 
 // ---- variance-N: gộp các lần chạy của 1 lệnh → 1 entry/lệnh với pass-rate ----
@@ -631,7 +649,13 @@ for (const c of carriedEvals) {
 }
 
 // ---- A/B baseline: map kết quả đối chứng theo cmd; status = green | red | n-a ----
-const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || []).map(normKill).map(b => [b.cmd, b]))
+// Lane baseline nay CUNG mang cd guard, nen phai qua CUNG bo phan loai: cd hong
+// trong worktree ma doc thanh baselineExit != 0 se bao «eval CO phan biet» cho
+// mot cay khong ton tai — bang chung tu doi (S4-r2).
+const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
+  .map(normKill)
+  .map(b => normInfra({ ...b, exitCode: b.baselineExit }))
+  .map(b => [b.cmd, b]))
 const baselineStatus = (cmd) => {
   const b = baselineByCmd.get(cmd)
   if (!b || b.cannotRun) return 'n-a'
@@ -902,12 +926,11 @@ else verdict = 'PASS'
 // expected đếm từ lịch đã lên (distinct cmds × runs + ui evals), returned đếm từ
 // kết quả THẬT trả về — hai nguồn độc lập, writer không hardcode được returned=expected.
 {
+  // CÙNG một bên viết với đường hỏng-sớm (tallyLine) — hai bản dựng dòng là hai
+  // khuôn sẽ trôi khỏi nhau; đây là chỗ lớp đó từng nổ.
   const expected = distinctCmds.reduce((n, c) => n + (cmdRuns.get(c) || 1), 0) + uiEvals.length
   const returned = (machineRaw || []).filter(Boolean).length + (uiRaw || []).filter(Boolean).length
-  runLogLines.push(JSON.stringify({
-    ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'round-tally',
-    verdict, expected, returned, blocked: blocked.length,
-  }))
+  runLogLines.push(tallyLine(verdict, blocked.length, expected, returned))
 }
 
 log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds.join(', ') : ''}${blocked.length ? ' — blocked: ' + blocked.length + ' lenh' : ''}${varianceCmds.length ? ' — variance: ' + varianceCmds.length : ''} — findings xac nhan: ${confirmedFindings.length}${triaged.length ? ` (trong hop dong: ${rejectFindings.length}, ngoai: ${triaged.filter(f => !f.inContract && !f.unclassified).length}${triageFailed ? ', TRIAGE HONG' : ''})` : ''}`)

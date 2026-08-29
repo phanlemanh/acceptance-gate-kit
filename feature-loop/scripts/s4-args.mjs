@@ -187,7 +187,13 @@ const models = (() => {
 // ── contract / git facts ───────────────────────────────────────────────────
 const riskTier = frontmatterField(contractText, 'risk_tier');
 if (!riskTier) die('contract.md thiếu risk_tier trong frontmatter');
-const git = (...a) => execFileSync('git', ['-C', root, ...a], { encoding: 'utf8' }).trim();
+// Mọi lệnh git đi qua MỘT cửa fail-closed: ref hỏng phải cho exit 2 kèm tên
+// phần hỏng như mọi nguồn khác, không phải stack trace Node + exit 1 (mã không
+// nằm trong bảng script tự khai, và SKILL bắt trình NGUYÊN VĂN cho người) — S4-r2.
+const git = (...a) => {
+  try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8' }).trim(); }
+  catch (e) { return die(`lệnh git thất bại: git ${a.join(' ')} — ${String((e && e.stderr) || (e && e.message) || '').split('\n')[0].trim() || 'không rõ nguyên nhân'}`); }
+};
 let mainBranch = null;
 try { const m = execFileSync('git', ['-C', root, 'remote', 'show', 'origin'], { encoding: 'utf8' }).match(/HEAD branch:\s*(\S+)/); if (m) mainBranch = m[1]; } catch { /* không có remote — thử tên quen */ }
 if (!mainBranch) for (const b of ['main', 'master', 'develop', 'trunk']) { try { git('rev-parse', '--verify', '--quiet', b); mainBranch = b; break; } catch { /* thử tên kế */ } }

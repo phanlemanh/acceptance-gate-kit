@@ -8,9 +8,18 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { runWorkflow, check, summary } from './harness.mjs';
 
+
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WF = path.join(HERE, '..', '..', 'feature-loop', 'workflows', 'acceptance-verify.js');
 const VC = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2';
+
+// Khuôn guard RÚT từ nguồn (khối INFRA-EXIT-CODES của acceptance-verify.js) —
+// không gõ tay chuỗi: S4-r2 đổi `cd X &&` thành `cd "X" || exit 97 &&`, và ba
+// case dưới đây đỏ vì thước ghim chuỗi cũ chứ không vì hành vi.
+const WF_SRC = readFileSync(WF, 'utf8');
+const GUARD_TPL = (WF_SRC.match(/const CD_GUARD = \(dir\) => `([^`]+)`/) || [])[1] || '';
+const guardFor = dir => GUARD_TPL.replace('${dir}', dir);
 
 const baseArgs = (over = {}) => ({
   slug: 'demo',
@@ -48,8 +57,10 @@ console.log('LP1 lane verifier may: lenh giao agent da ghim cd <repoRoot> &&');
   const { calls } = await runWorkflow(WF, baseArgs(), responder());
   const machine = byLabel(calls, 'machine:');
   check('LP1 co lane may', machine.length >= 2, String(machine.length));
-  check('LP1 moi prompt may chua "cd /repo && <cmd>"',
-    machine.every(c => /cd \/repo && (pnpm test|npm run build)/.test(c.prompt)),
+  const guardRepo = guardFor('"/repo"');
+  check('LP1 guard rut duoc tu nguon', guardRepo.includes('/repo') && /exit 97/.test(guardRepo), guardRepo);
+  check('LP1 moi prompt may chua guard + lenh',
+    machine.every(c => c.prompt.includes(`${guardRepo} && `) && /(pnpm test|npm run build)/.test(c.prompt)),
     machine.map(c => c.label).join(','));
   check('LP1 khong con dang chi-ke "Trong repo /repo, chay dung lenh"',
     machine.every(c => !/Trong repo \/repo, chay dung lenh/.test(c.prompt)));
@@ -60,7 +71,7 @@ console.log('LP2 lane UI: chi dan dat cho dung trong chinh lenh, khong con cau k
   const { calls } = await runWorkflow(WF, baseArgs(), responder());
   const ui = byLabel(calls, 'ui:');
   check('LP2 co lane UI', ui.length === 1, String(ui.length));
-  check('LP2 prompt UI chua "cd /repo &&"', ui.every(c => /cd \/repo && /.test(c.prompt)));
+  check('LP2 prompt UI chua guard cua repoRoot', ui.every(c => c.prompt.includes(`${guardFor('"/repo"')} && `)));
   check('LP2 het cau "(cwd cua ban)"', ui.every(c => !/\(cwd cua ban\)/.test(c.prompt)));
 }
 
@@ -69,8 +80,8 @@ console.log('LP3 lane baseline: giu cho dung worktree, khong ro cd repoRoot vao 
   const { calls } = await runWorkflow(WF, baseArgs(), responder());
   const bl = byLabel(calls, 'baseline:');
   check('LP3 co lane baseline', bl.length === 1, String(bl.length));
-  check('LP3 baseline ghim cd "$WT" &&', bl.every(c => /cd "\$WT" &&/.test(c.prompt)));
-  check('LP3 lenh baseline KHONG mang cd /repo', bl.every(c => !/cd \/repo && /.test(c.prompt)));
+  check('LP3 baseline ghim guard cua worktree', bl.every(c => c.prompt.includes(`${guardFor('"$WT"')} && `)));
+  check('LP3 lenh baseline KHONG mang guard cua repoRoot', bl.every(c => !c.prompt.includes(guardFor('"/repo"'))));
 }
 
 console.log('LP4 chieu do (mutant AC-7): nuong cd repoRoot vao lenh baseline -> phai bi phat hien');
@@ -85,7 +96,7 @@ console.log('LP4 chieu do (mutant AC-7): nuong cd repoRoot vao lenh baseline -> 
   else {
     const { calls } = await runWorkflow(WF, baseArgs(), responder(), mut);
     const bl = byLabel(calls, 'baseline:');
-    const leaked = bl.some(c => /cd \/repo && /.test(c.prompt));
+    const leaked = bl.some(c => /cd \/repo/.test(c.prompt));
     check('LP4 mutant bi bat: baseline mat phan biet (cd /repo lot vao lenh baseline)', leaked === true);
   }
 }
