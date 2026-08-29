@@ -6,9 +6,9 @@ owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-08-29-suite-run-log-provenance-design.md
-status: verified
-approved_by:
-approved_at:
+status: signed-off
+approved_by: Manh Phan
+approved_at: 2026-08-29
 veto_state: mo
 veto_opened_at: 2026-08-29T06:05:00Z   # mở lại sau khi nâng phạm vi (AC-7)
 ---
