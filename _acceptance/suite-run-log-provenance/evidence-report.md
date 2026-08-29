@@ -142,7 +142,38 @@ human_signoff:
 
 ## Known limits
 
+Năm giới hạn owner đã chốt khai ra thay vì đuổi thêm vòng (nguyên văn ở mục
+«Giới hạn đã khai» của contract.md):
+
+- Chiều đỏ chưa phủ đều: chân va-chạm chạy phép so đỏ trên MỘT trong ba biến
+  thể; hai chân ket-qua-rieng và khong-hoi-quy chỉ có chiều dương.
+- Danh sách vật-được-đo trong răng viết tay; thêm vật mới mà quên cập nhật thì
+  lưới chống-trôi không canh nó.
+- Trang bằng chứng và card Cổng 2 mới chỉ thôi gán trường của lệnh chạy chung
+  cho một tiêu chí; chúng chưa render các khối đó thành mục riêng.
+- Không lưới nào bắt bản chấm phải THẬT SỰ mang khối lệnh chạy chung: bộ đối
+  chiếu chỉ kiểm chiều bản-chấm → sổ, không kiểm chiều ngược lại.
+- Dòng sổ của lệnh chạy chung chưa có phép so tập-khoá toàn phần như dòng tiêu
+  chí; lượt soi đo thật: bỏ trường vòng khỏi riêng dòng đó thì bộ kiểm vẫn xanh.
+
 ## Ngoài hợp đồng
+
+Sáu việc lượt soi xác nhận, đều nằm ngoài phạm vi đã duyệt — người ký quyết
+từng mục (ghi hạn chế · mở hợp đồng mới · nâng phạm vi sửa ngay). Chi tiết đầy
+đủ trong review-findings.md:
+
+- Bảng tách tên bỏ sót dạng `yarn run <script>`, nên trong kho dùng yarn mọi
+  dòng lệnh chạy chung đều mang cùng một tên gốc. Máy đề nghị: mở hợp đồng mới.
+- Fixture của hai bản trình gõ tay theo khuôn bên đọc thay vì rút từ khuôn có
+  nhãn trong bản mẫu — sửa khuôn ở bản mẫu thì ca đo vẫn xanh (hai finding cùng
+  lớp). Máy đề nghị: mở hợp đồng mới.
+- Bộ đọc thứ ba của cùng khối bằng chứng chưa nhận nhánh đóng khối; hôm nay vô
+  hại vì nó không đọc trường nào của khối đó, nhưng đó là ngẫu nhiên chứ không
+  phải bất biến. Máy đề nghị: ghi hạn chế.
+- Phép so nội dung trong răng gộp «khác nhau» với «không so được» vào cùng một
+  nhánh, nên ca chưa-bao-giờ-chạy đọc thành đã-tiêm-được. Máy đề nghị: ghi hạn chế.
+- Lưới chống-trôi của bản sao dùng danh sách file viết tay (cùng gốc với giới
+  hạn đã khai số 2). Máy đề nghị: ghi hạn chế.
 
 ## Analyst
 
