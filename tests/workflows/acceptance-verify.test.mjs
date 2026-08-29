@@ -82,7 +82,10 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   // Bản gộp hai hồ sơ 29/08: mỗi eval một dòng (cham-dung-cay) + mỗi lệnh suite
   // một dòng SUITE-* (suite-run-log-provenance) + đúng MỘT dòng round-tally.
   const all03 = result.runLog.map(l => JSON.parse(l));
-  check('W03 runLog: 2 eval + 1 suite + 1 tally', result.runLog.length === 4
+  // GIỮ NGUYÊN tên ca — răng suite-case của hồ sơ srlp (đã ký) ghim đúng chuỗi
+  // này; đổi tên là phá round-trip của hồ sơ người khác. Khẳng định nói sự thật
+  // GỘP: mỗi eval một dòng + mỗi lệnh suite một dòng + một dòng round-tally.
+  check('W03 runLog: 1 dong moi eval + 1 moi lenh suite (+ 1 tally AC-9)', result.runLog.length === 4
     && all03.filter(l => l.kind === 'round-tally').length === 1
     && all03.filter(l => String(l.evalId || '').startsWith('SUITE-')).length === 1, String(result.runLog.length));
   const lines = all03; // hợp đồng của các assert #117 phía dưới: TOÀN BỘ dòng
