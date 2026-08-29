@@ -156,6 +156,18 @@ executors:
     tnk_rang_suite_case: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan suite-case
     tnk_rang_taste_gate: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan taste-gate
     tnk_rang_quet_vung_ngoai: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan quet-vung-ngoai
+    # Vật của hồ sơ suite-run-log-provenance — răng hồ sơ cho lớp «lệnh suite
+    # không để lại dấu vết». Chiều đỏ dựng bằng bản sao TRỌN CÂY (git archive
+    # HEAD) do code sinh trong chính lần chạy, KHÔNG neo mốc di động. Cố ý
+    # không vào suite vĩnh viễn: lưới thường trực là các ca trong
+    # tests/workflows/acceptance-verify.test.mjs.
+    srlp_rang_suite_case: bash _acceptance/suite-run-log-provenance/rang.sh --chan suite-case
+    srlp_rang_hai_chieu: bash _acceptance/suite-run-log-provenance/rang.sh --chan hai-chieu
+    srlp_rang_va_cham_ten: bash _acceptance/suite-run-log-provenance/rang.sh --chan va-cham-ten
+    srlp_rang_ket_qua_rieng: bash _acceptance/suite-run-log-provenance/rang.sh --chan ket-qua-rieng
+    srlp_rang_thu_tu: bash _acceptance/suite-run-log-provenance/rang.sh --chan thu-tu
+    srlp_rang_day_khep: bash _acceptance/suite-run-log-provenance/rang.sh --chan day-khep
+    srlp_rang_khong_hoi_quy: bash _acceptance/suite-run-log-provenance/rang.sh --chan khong-hoi-quy
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
