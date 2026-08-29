@@ -1138,6 +1138,54 @@ echo "G01-06 Gate 1 (no evidence-report -> auto gate 1)"
 G1="$(node "$GCARD" --root "$T/gcard" --slug gfeat 2>/dev/null)"
 hasout G01 "Hệ thống SẼ làm" "$G1"
 hasout G02 "Sẽ KHÔNG làm" "$G1"
+
+# GM01-06 — chốt «không có hồ sơ thì không vẽ thẻ» (hồ sơ khong-ve-the-ma).
+# Lỗ đã đo 2026-08-30: slug không tồn tại → exit 0 + thẻ Cổng 1 đầy đủ, người
+# được mời ký trên hư không. Ba thông điệp RÚT TỪ NGUỒN gate-card.js (không gõ
+# literal): đổi chữ ở bên viết mà case vẫn xanh là thước đã chết.
+echo "GM01-06 chốt hồ sơ-không-tồn-tại (không vẽ thẻ ma)"
+gmpick() { sed -n "s/^const $1[[:space:]]*=[[:space:]]*'\(.*\)';.*/\1/p" "$GCARD" | head -1; }
+GM_WS="$(gmpick MSG_NO_WORKSPACE)"; GM_DIR="$(gmpick MSG_NO_DOSSIER)"; GM_CT="$(gmpick MSG_NO_CONTRACT)"
+if [ -z "$GM_WS" ] || [ -z "$GM_DIR" ] || [ -z "$GM_CT" ]; then
+  echo "  FAIL: GM00 (gate-card.js không khai đủ ba hằng MSG_NO_* — case không có gì để ghim)"; FAIL_COUNT=$((FAIL_COUNT+1))
+fi
+GMR="$T/gm"; mkdir -p "$GMR/_acceptance"; printf 'schema_version: 1\n' > "$GMR/_acceptance/config.yaml"
+mkdir -p "$GMR/_acceptance/gm-that"
+cp "$GC/contract.md" "$GMR/_acceptance/gm-that/contract.md"
+mkdir -p "$GMR/_acceptance/gm-rong"
+mkdir -p "$GMR/_acceptance/gm-bc"; printf -- '---\nslug: gm-bc\nverdict: PASS\n---\n# bc\n' > "$GMR/_acceptance/gm-bc/evidence-report.md"
+
+GM_OUT="$(node "$GCARD" --root "$GMR" --slug gm-khong-co 2>"$T/gm1.err")"; GM_RC=$?
+check GM01 2 $GM_RC
+hasout "GM01-msg" "$GM_DIR" "$(cat "$T/gm1.err")"
+hasout "GM01-liet" "gm-that" "$(cat "$T/gm1.err")"
+if [ -n "$GM_OUT" ]; then echo "  FAIL: GM01-stdout (in ${#GM_OUT} byte thẻ cho hồ sơ không tồn tại)"; FAIL_COUNT=$((FAIL_COUNT+1)); else echo "  PASS: GM01-stdout"; PASS_COUNT=$((PASS_COUNT+1)); fi
+
+GM_OUT="$(node "$GCARD" --root "$GMR" --slug gm-rong 2>"$T/gm2.err")"; GM_RC=$?
+check GM02 2 $GM_RC
+hasout "GM02-msg" "$GM_CT" "$(cat "$T/gm2.err")"
+nothas "GM02-phanbiet" "$GM_DIR" "$(cat "$T/gm2.err")"
+
+GM_OUT="$(node "$GCARD" --root "$T/gm-tran" --slug bat-ky 2>"$T/gm3.err")"; GM_RC=$?
+check GM03 2 $GM_RC
+hasout "GM03-msg" "$GM_WS" "$(cat "$T/gm3.err")"
+
+GM_OUT="$(node "$GCARD" --root "$GMR" --slug gm-bc 2>"$T/gm4.err")"; GM_RC=$?
+check GM04 2 $GM_RC
+GM_OUT="$(node "$GCARD" --root "$GMR" --slug gm-bc --gate 2 2>>"$T/gm4.err")"; GM_RC=$?
+check GM04-gate2 2 $GM_RC
+hasout "GM04-msg" "$GM_CT" "$(cat "$T/gm4.err")"
+
+GM_OUT="$(node "$GCARD" --root "$GMR" --slug gm-khong-co --extract 2>"$T/gm5.err")"; GM_RC=$?
+check GM05 2 $GM_RC
+if [ -n "$GM_OUT" ]; then echo "  FAIL: GM05-stdout (--extract in ${#GM_OUT} byte JSON cho hồ sơ ma)"; FAIL_COUNT=$((FAIL_COUNT+1)); else echo "  PASS: GM05-stdout"; PASS_COUNT=$((PASS_COUNT+1)); fi
+
+# ĐỐI CHỨNG DƯƠNG — hồ sơ đủ vẫn dựng thẻ như cũ. Không có case này thì năm case
+# trên không phân biệt được "bắt đúng lỗi" với "gate-card chưa bao giờ chạy".
+GM_OUT="$(node "$GCARD" --root "$GMR" --slug gm-that 2>/dev/null)"; GM_RC=$?
+check GM06 0 $GM_RC
+hasout "GM06-selam" "Hệ thống SẼ làm" "$GM_OUT"
+hasout "GM06-khonglam" "Sẽ KHÔNG làm" "$GM_OUT"
 hasout G03 "duyệt tiêu chí" "$G1"
 hasout G04 "có ngưỡng/biên" "$G1"
 hasout G05 "cần MẮT bạn" "$G1"

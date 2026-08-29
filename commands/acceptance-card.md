@@ -22,7 +22,38 @@ Steps:
    feature-loop's `scripts/resolve-plugin.mjs --plugin acceptance-gate --require
    scripts/gate-card.js`; still nothing → tell the user to install/update the plugin.
 
-2. **Extract** the bits to translate (gate auto-detected: `evidence-report.md`
+2. **Chốt tiền đề — hồ sơ có thật không.** CHẠY TRƯỚC MỌI BƯỚC RENDER:
+   `node <gate-card.js> --root . --slug <slug> --extract`. Mã thoát khác 0 nghĩa
+   là không có gì để trình — bộ dựng đã từ chối, và bước tiếp theo KHÔNG phải là
+   dựng thẻ. Đây là lỗ đã đo 2026-08-30: trước bản vá, một tên hồ sơ gõ nhầm vẫn
+   ra một thẻ Cổng Phạm vi đầy đủ, tiêu đề là chính chuỗi gõ nhầm, và người được
+   mời ký trên hư không.
+
+   Bốn mệnh đề bắt buộc của bước này (danh sách ĐÓNG, máy đọc được):
+
+   <!-- <<<CARD-PRECHECK-RULES
+   chay-chot-truoc-khi-render
+   khong-render
+   khong-ghi-card-html
+   thuat-lai-tieng-san-pham
+   CARD-PRECHECK-RULES>>> -->
+
+   Mã thoát khác 0 → **DỪNG**: không chạy bước dựng thẻ, không ghi tệp thẻ, không
+   bịa một thẻ rỗng thay thế. Thuật lại cho người theo bản luật ngôn ngữ mặt người
+   (nạp nó NGAY như bước 4 chỉ dẫn — ca từ chối cũng là chữ cho người đọc, cũng
+   phải qua luật): nói bằng tiếng sản phẩm chuyện gì đã xảy ra và việc kế là gì,
+   KHÔNG dán nguyên thông điệp máy vào mặt người — trừ đúng một chỗ: danh sách tên
+   hồ sơ có thật thì chép nguyên văn, vì tên hồ sơ là tên riêng, dịch là làm hỏng.
+
+   Ba ca từ chối, ba lời thuật RIÊNG — mỗi dòng một ca, tuyệt đối không gộp thành
+   một câu chung «không dựng được thẻ»: người phải phân biệt được mình đang ở ca nào
+   thì mới biết việc kế:
+
+   - `gate-card: xưởng chưa mở` → kho này chưa từng mở sổ nghiệm thu, nên chưa có hồ sơ nào để trình; việc kế là mở sổ cho kho rồi quay lại.
+   - `gate-card: không có hồ sơ` → tên vừa gõ không có trong sổ; đọc lại nguyên văn danh sách tên có thật mà chốt vừa in, để người nhận ra mình nhầm tên nào.
+   - `gate-card: hồ sơ chưa có contract.md` → hồ sơ có trong sổ nhưng chưa chốt bộ tiêu chí, nên chưa có gì để duyệt; việc kế là chạy bước chuẩn hoá yêu cầu cho hồ sơ đó.
+
+3. **Extract** the bits to translate (gate auto-detected: `evidence-report.md`
    present → Gate 2, else Gate 1):
    `node <gate-card.js> --root . --slug <slug> --extract`
 
@@ -31,7 +62,7 @@ Steps:
    chốt ở feature này" (term mới/sửa). Đây là lối gọi DUY NHẤT khiến gate-card
    đụng git; thiếu cờ thì thẻ chỉ ghi chú info, không im lặng bỏ qua.
 
-3. **Nạp luật TRƯỚC khi viết:** đọc `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
+4. **Nạp luật TRƯỚC khi viết:** đọc `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/human-facing-language.md`
    (sáu luật N1–N6, hai phép thử, khuôn trình bày) TRƯỚC khi viết bất kỳ câu nào
    sẽ hiện cho người. Mỗi lần render là một lần đọc — luật không sống trong trí
    nhớ. Biến gốc-plugin không có thì giải như bước 1.
@@ -81,7 +112,7 @@ Steps:
      rationale, KHÔNG phải scope-truth — không dịch thành cam kết mới.
    Write it to `_acceptance/<slug>/card-plain.json`.
 
-4. **Render** + present:
+5. **Render** + present:
    `node <gate-card.js> --root . --slug <slug> --plain _acceptance/<slug>/card-plain.json`
    Prepend `<!doctype html><meta charset="utf-8"><body style="margin:0;padding:24px">`
    and save to `_acceptance/<slug>/card.html`; tell the user to open it (or show the
@@ -90,7 +121,7 @@ Steps:
    dòng):
    Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút.
 
-5. **(Gate 2 only — `evidence-report.md` present) Full evidence page + AUTO-OPEN.**
+6. **(Gate 2 only — `evidence-report.md` present) Full evidence page + AUTO-OPEN.**
    The card is intentionally link-only; the human SEES the real artifacts here. Run
    the sibling script (same `scripts/` dir as gate-card.js):
    `node "$(dirname <gate-card.js>)/evidence-page.js" --root . --slug <slug>`
@@ -101,7 +132,7 @@ Steps:
    manually: macOS `open <path>`, Linux `xdg-open <path>`, Windows/WSL `start <path>`
    (the script prints the absolute path on stdout). Gate 1 has no evidence page → skip.
 
-6. The card NEVER decides. The human's click flows into the REAL gate: Gate 1 →
+7. The card NEVER decides. The human's click flows into the REAL gate: Gate 1 →
    contract `approved_by`; Gate 2 → `human_signoff` / per-item `human_override`.
    The verdict, hook enforcement, and machine evidence are unchanged.
    **Thẻ không ghi gì, nên phải NÓI RA lệnh ghi** — in đúng một dòng dưới thẻ:
@@ -109,7 +140,7 @@ Steps:
    bằng `/acceptance-gate:signoff <slug>`. Người đọc thẻ xong mà không biết gõ
    gì tiếp là điểm bàn giao bị bỏ trống.
 
-7. **Người duyệt có quyền TRẢ LẠI thẻ.** Thẻ vi phạm luật ngôn ngữ mặt người thì
+8. **Người duyệt có quyền TRẢ LẠI thẻ.** Thẻ vi phạm luật ngôn ngữ mặt người thì
    người duyệt trả lại tại cổng, không duyệt cho xong rồi góp ý sau. Trả lại là
    lỗ của bộ công cụ chứ không phải lỗi của người viết: ghi vào
    `_acceptance/<slug>/decisions.jsonl` một entry `revisit` có `decision` mở đầu

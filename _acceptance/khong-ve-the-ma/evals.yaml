@@ -1,0 +1,132 @@
+schema_version: 1
+feature_slug: khong-ve-the-ma
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.kvtm_vang_thu_muc
+    expected: >
+      Thư mục hồ sơ vắng → bộ dựng thoát khác 0 và stdout RỖNG (0 byte thẻ).
+      Đối chứng dương chạy TRƯỚC trong cùng lượt: hồ sơ đủ (fixture code-sinh)
+      phải thoát 0 và stdout có thẻ — bản nguyên vẹn xanh rồi mới tin bản
+      thiếu-hồ-sơ là đỏ. Đỏ ghim đúng chuỗi thông điệp rút từ hằng trong
+      scripts/gate-card.js, không gõ literal.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.kvtm_liet_ho_so_that
+    expected: >
+      Thông điệp từ chối chứa ĐÚNG tên hồ sơ vừa gõ VÀ tên các hồ sơ có thật
+      trong xưởng. Đối chứng dương: xưởng dựng 2 hồ sơ thật có tên biết trước,
+      cả hai tên phải xuất hiện. Chiều đỏ: dựng lại xưởng chỉ 1 hồ sơ → tên
+      hồ sơ kia PHẢI biến mất khỏi thông điệp (chứng danh sách đọc từ hệ thống
+      tệp thật, không phải chuỗi cứng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.kvtm_thieu_hop_dong
+    expected: >
+      MA TRẬN TOÀN PHẦN viết trước, 6 ô = 3 fixture code-sinh (thư mục rỗng ·
+      chỉ evidence-report.md · chỉ evals.yaml) × 2 lượt gọi (tự đoán cổng ·
+      `--gate 2` tường minh). Cả 6 ô: thoát khác 0, stdout rỗng, ghim chuỗi
+      thiếu-hợp-đồng rút từ hằng, và ghim chuỗi ca vắng-thư-mục KHÔNG có mặt
+      (hai ca phân biệt được). Ô «chỉ evidence-report.md» là ô quan trọng
+      nhất: nó đi đường đoán-cổng khác hẳn, và nếu chốt đặt sau bước đoán cổng
+      thì đúng ô này vẽ trọn thẻ Cổng 2 trong khi 5 ô kia vẫn xanh. Đối chứng
+      dương hai lượt: thêm contract.md vào chính thư mục đó → thoát 0 có thẻ;
+      contract.md + evidence-report.md → thẻ Cổng 2 thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.kvtm_chua_mo_xuong
+    expected: >
+      Gốc không có _acceptance/config.yaml → thông điệp «xưởng chưa mở», khác
+      cả AC-1 lẫn AC-3 (ghim chuỗi của mình, ghim vắng mặt hai chuỗi kia).
+      Đối chứng dương: thêm config.yaml vào cùng gốc → thông điệp đổi sang ca
+      vắng-thư-mục, chứng nhánh này do config.yaml quyết định.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.kvtm_extract
+    expected: >
+      `--extract` trên cả ba ca từ chối → cùng mã thoát và cùng thông điệp như
+      đường render, stdout RỖNG (không JSON). Đối chứng dương: `--extract` trên
+      hồ sơ đủ vẫn in JSON hợp lệ có khoá `gate` (parse được bằng JSON.parse),
+      chứng chốt không giết đường extract hợp lệ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.kvtm_doi_chung_duong
+    expected: >
+      ĐỐI CHỨNG DƯƠNG của cả hồ sơ, tách riêng để đọc được một mình: hồ sơ đủ
+      (fixture code-sinh trong chính lần chạy) → thoát 0, thẻ chứa «Hệ thống SẼ
+      làm» và «Sẽ KHÔNG làm». Răng của chính phép đo: chạy lại trên một BẢN SAO
+      gate-card.js đã tiêm bỏ khối chốt — bản sao phải cho ca AC-1 màu XANH
+      (tức phép đo phân biệt được có-chốt / không-chốt, không phải luôn xanh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.kvtm_than_lenh
+    expected: >
+      Hai phép đo, không chỉ sự-có-mặt. (1) Bốn mệnh đề máy-đọc trong khối
+      marker CARD-PRECHECK-RULES; mỗi mệnh đề MỘT mutant riêng gỡ đúng dòng đó
+      → đỏ đích danh. (2) QUAN HỆ THỨ TỰ: số dòng của khối tiền đề phải nhỏ
+      hơn MỌI dòng ra lệnh render và MỌI dòng ghi card.html trong cùng thân
+      lệnh; mutant hoán vị dời trọn khối tiền đề xuống cuối file → phải ĐỎ
+      (chứng phép đo bắt được thứ tự, không chỉ bắt chuỗi). Giới hạn đã khai:
+      tầng này đo VĂN BẢN thân lệnh, không đo một lượt chạy thật — đo đầu ra
+      thật là việc của ca đo skill, hiện trơ vì harness chưa bật.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.kvtm_round_trip
+    expected: >
+      Ghim CẶP, không ghim TẬP. Ba chuỗi RÚT từ khối marker trong
+      scripts/gate-card.js (không gõ literal) phải ghép một-đối-một với ba lời
+      thuật RIÊNG trong commands/acceptance-card.md: mỗi chuỗi nằm CÙNG DÒNG
+      với lời thuật của nó, và đẳng thức số lượng — số dòng thuật đúng bằng số
+      hằng rút được (thừa cũng đỏ, không chỉ thiếu), nên dán cả ba hằng vào
+      một khối chú thích chung KHÔNG qua được lưới. Ba mutant riêng: đổi từng
+      chuỗi một ở bên viết → mỗi mutant chỉ được làm đỏ đúng cặp của nó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.kvtm_suite_case
+    expected: >
+      Lưới THƯỜNG TRỰC có thật, ghim theo DANH SÁCH TÊN chứ không theo số đếm
+      trần. Sáu case khai tường minh ngay tại đây — GM01 vắng-thư-mục · GM02
+      thiếu-hợp-đồng · GM03 chưa-mở-xưởng · GM04 chỉ-có-bằng-chứng · GM05
+      extract-bị-chặn · GM06 đối-chứng-dương-hồ-sơ-đủ. Assert BẰNG NHAU HAI
+      CHIỀU giữa danh sách này và các dòng case đọc từ stdout bộ kiểm: thiếu
+      một tên là đỏ, thừa một tên cũng đỏ (thừa = danh sách khai đã lỗi thời).
+      Không tin mã thoát của trọn suite — suite xanh cả trên origin/main.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.kvtm_suite_tong
+    expected: >
+      Không phá case nào đang có — đo bằng SỐ, không bằng mã thoát. Dựng bản
+      base bằng `git archive origin/main` TRỌN thư mục (scripts lib tests, không
+      chép danh sách file tay), chạy bộ kiểm ở cả hai đầu trong chính lượt này,
+      đọc dòng tổng `Results: <n> passed, <m> failed`: đầu mới phải có
+      m = 0 và n ≥ n_base + 6 (sáu case mới). n tụt so với base là ĐỎ kể cả khi
+      mã thoát vẫn 0 — đó đúng là ca một tệp case ngưng nạp mà runner vẫn xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
