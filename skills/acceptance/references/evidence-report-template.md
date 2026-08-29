@@ -34,7 +34,8 @@ reserved (parsed as a verifier and will fail authenticity). `run_id` must be
 at least 4 chars; if the verifier prints none, mint `<slug>-<eval>-<date>`.
 Run-log reconciliation: when `_acceptance/{slug}/run-log.jsonl` exists (the
 verify machinery appends one machine-computed JSON line per machine/ui eval,
-at run time), every `run_id` in a PASS report must appear in that log — the
+plus one per suite command that carries no eval — `evalId: SUITE-<name>`, at
+run time), every `run_id` in a PASS report must appear in that log — the
 hook and the CI re-check both block ids that were never logged. Copy run_ids
 from the actual runs; never invent them. A report without a sibling log
 (older flow) is tolerated; pre-merge NOTEs it.
@@ -171,6 +172,20 @@ Khối evidence cho eval ui-check có ảnh chụp (đặt trong `## Evidence`, 
     against the eval's expected — written AFTER opening each frame with a
     multimodal Read. >= 20 substantive chars; placeholders do not count.}}
   network_observed: {{clean|no-app-traffic|third-party-only|app-fail|n-a (driver)|n-a (tool-error)|unscoped|unscoped-partial}}   # words only — raw statuses live in evidence/E3-network.txt
+
+Khối cho một LỆNH SUITE (hồi quy) — lệnh chạy mỗi vòng nhưng không gắn AC nào.
+Đặt dưới `## Evidence`, sau các khối eval, trong mục `### Lệnh suite (hồi quy)`.
+Dòng `run_id` là BẮT BUỘC và phải chép NGUYÊN VĂN từ bản đồ mã mà workflow truyền
+xuống: bộ đối chiếu (`lib/evidence-core.cjs`) quét MỌI dòng `run_id` trong báo cáo
+và đòi từng mã có mặt trong `run-log.jsonl`. Khối vắng `run_id` thì lệnh suite
+không có dấu vết; khối mang mã TỰ ĐẶT thì cổng đỏ `L2 PROVENANCE` ngay sau chữ ký.
+
+<!-- <<<SUITE-BLOCK-TEMPLATE -->
+- cmd: {cmd}
+  run_id: {run_id}
+  exit_code: 0
+  verified_at: {ISO8601}
+<!-- SUITE-BLOCK-TEMPLATE>>> -->
 
 # Example shows the PENDING-JUDGMENT state; under an overall PASS verdict
 # this UNCERTAIN-without-override combination is hook-blocked.
