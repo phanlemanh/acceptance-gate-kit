@@ -180,7 +180,7 @@ const TRIAGE_SCHEMA = {
           acRef: { type: 'string', description: 'id AC bi cham (vd AC-3) khi inContract=true; chuoi rong khi false' },
           rationale: { type: 'string', description: '1 cau: vi sao trong/ngoai hop dong' },
           plain: { type: 'string', description: 'CHI khi inContract=false: 1-2 cau NGON NGU SAN PHAM mo ta hau qua cho nguoi dung — day la chu THE Cong 2 in ra cho nguoi quyet doc. Cam ten ham, duong dan file, ma thoat, thuat ngu regex/schema. Chuoi rong khi inContract=true' },
-          proposal: { type: 'string', enum: ['known-limits', 'new-contract', ''], description: 'CHI khi inContract=false: de xuat cho nguoi o Gate 2; chuoi rong khi inContract=true' },
+          proposal: { type: 'string', enum: ['known-limits', 'new-contract', 'wont-fix', ''], description: 'CHI khi inContract=false: de xuat cho nguoi o Gate 2 — known-limits (ghi han che roi ship) | new-contract (dang mot feature rieng) | wont-fix (loi that nhung khong dang sua: chap nhan va ghi vet, khong mo viec nao); chuoi rong khi inContract=true' },
         },
         required: ['title', 'file', 'inContract', 'acRef', 'rationale', 'proposal', 'plain'],
       },
@@ -662,7 +662,7 @@ if (toTriage.length === 0) {
     `Findings: ${JSON.stringify(toTriage.map(f => ({ title: f.title, file: f.file, line: f.line, severity: f.severity, detail: f.detail })))}\n\n` +
     `Luat phan loai:\n` +
     `- inContract=true CHI khi chi duoc DICH DANH mot AC ma finding nay lam that bai → acRef = id AC do (vd "AC-3"), proposal = "".\n` +
-    `- inContract=false khi finding that nhung khong AC nao phu → acRef = "", proposal = "known-limits" (ghi han che da biet, ship nhu hien tai) hoac "new-contract" (dang mot feature rieng).\n` +
+    `- inContract=false khi finding that nhung khong AC nao phu → acRef = "", proposal = "known-limits" (ghi han che da biet, ship nhu hien tai) hoac "new-contract" (dang mot feature rieng) hoac "wont-fix" (loi that nhung chi phi sua vuot xa hau qua / hanh vi chap nhan duoc — khuyen chap nhan va ghi vet, khong mo viec nao).\n` +
     `- KHONG suy dien AC "gan giong". Khong chac chan → inContract=false: sua ngoai hop dong la viec cua NGUOI o Gate 2, khong phai cua may.\n` +
     `- inContract=false: BAT BUOC viet them plain = 1-2 cau NGON NGU SAN PHAM ke hau qua cho NGUOI DUNG (vd "Bam Cap nhat co the lam mat tien ich dang cai"). Day la chu DUY NHAT the Cong 2 in ra cho nguoi quyet doc — title ky thuat KHONG bao gio den duoc mat ho. Cam ten ham, duong dan file, ma thoat, tu ngu regex/schema.\n` +
     `- KHONG doc code repo, KHONG de xuat cach sua. Chi phan loai pham vi.\n` +

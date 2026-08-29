@@ -10703,6 +10703,97 @@ for _lm in $_lm_ids; do
     env LM_CASES="$_lm" node "$ROOT/tests/plugins/lan-may-classifier.test.mjs"
 done
 
+# ── P201: ngăn «không-sửa» có tên — schema + thẻ Cổng 2 + đường đọc-cũ ──────
+# (E10 hồ sơ cham-dung-cay-dung-cho-dung, AC-10). Fixture code-sinh; chuỗi đề
+# xuất RÚT từ nguồn gate-card.js, không gõ literal; mutant gỡ nhánh render trên
+# BẢN SAO cây trọn (scripts + lib) rồi đo bằng chính phép đo thật.
+echo "P201 ngan khong-sua: schema wont-fix + the Cong 2 render + duong doc-cu (E10)"
+P201OK=1
+# (a) schema + prompt cua workflow nhan gia tri wont-fix
+grep -q "'known-limits', 'new-contract', 'wont-fix'" "$ROOT/feature-loop/workflows/acceptance-verify.js" \
+  || { echo "     enum proposal thieu wont-fix trong acceptance-verify.js"; P201OK=0; }
+grep -q 'hoac "wont-fix"' "$ROOT/feature-loop/workflows/acceptance-verify.js" \
+  || { echo "     prompt triage khong day duong wont-fix"; P201OK=0; }
+# (b) fixture code-sinh co finding proposal wont-fix → the render loi khuyen co ten
+P201WS="$(mktemp -d)"
+mkdir -p "$P201WS/_acceptance/demo"
+cat > "$P201WS/_acceptance/demo/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: Cập nhật tiện ích an toàn
+slug: demo
+risk_tier: T2
+status: verified
+---
+
+## Criteria
+
+- AC-1: Given x, When y, Then z.
+EOF
+cat > "$P201WS/_acceptance/demo/evidence-report.md" <<'EOF'
+---
+slug: demo
+round: 1
+verdict: PASS
+enforcement_mode: strict
+bypass_used: false
+---
+
+## Results
+
+- eval: E1
+  run_id: r1234
+  exit_code: 0
+  verifier: config:executors.test.unit
+  verified_at: 2026-08-29T00:00:00Z
+EOF
+cat > "$P201WS/_acceptance/demo/review-findings.md" <<'EOF'
+# Review Findings: demo (round 1)
+
+## Ngoài hợp đồng — người quyết ở Gate 2
+
+- **legacy banner overlaps footer by 2px on 320px viewport**
+  Người dùng thấy gì: Trên màn hình rất hẹp, dải thông báo cũ chờm nhẹ lên chân trang; nội dung vẫn đọc và bấm được bình thường.
+  file: `src/banner.ts:12`
+  severity: low
+  Đề xuất: wont-fix
+EOF
+# chuoi loi khuyen RUT tu nguon gate-card.js (nhanh wont-fix), khong go literal
+P201REC="$(node -e '
+const src = require("fs").readFileSync(process.argv[1], "utf8");
+const m = src.match(/proposal === .wont-fix. \? .([^\x27]+)./);
+if (!m) { console.error("gate-card.js khong co nhanh wont-fix"); process.exit(1); }
+process.stdout.write(m[1]);
+' "$ROOT/scripts/gate-card.js")" || P201OK=0
+P201OUT="$(node "$ROOT/scripts/gate-card.js" --root "$P201WS" --slug demo 2>&1)" || { echo "     gate-card exit khac 0 tren fixture wont-fix"; P201OK=0; }
+printf '%s' "$P201OUT" | grep -qF "$P201REC" \
+  || { echo "     the KHONG in loi khuyen wont-fix (chuoi rut tu nguon): $P201REC"; P201OK=0; }
+printf '%s' "$P201OUT" | grep -qF "Ngoài hợp đồng — bạn quyết" \
+  || { echo "     khoi Ngoai-hop-dong bien mat khi co wont-fix"; P201OK=0; }
+# (c) duong doc-cu: file DOI CU (chi known-limits/new-contract) → render nhu cu, khong loi khuyen wont-fix
+P201WS2="$(mktemp -d)"
+cp -R "$P201WS/_acceptance" "$P201WS2/_acceptance"
+sed -i.bak 's/Đề xuất: wont-fix/Đề xuất: known-limits/' "$P201WS2/_acceptance/demo/review-findings.md" && rm -f "$P201WS2/_acceptance/demo/review-findings.md.bak"
+P201OUT2="$(node "$ROOT/scripts/gate-card.js" --root "$P201WS2" --slug demo 2>&1)" || { echo "     duong doc-cu: exit khac 0"; P201OK=0; }
+printf '%s' "$P201OUT2" | grep -qF "Ngoài hợp đồng — bạn quyết" || { echo "     duong doc-cu: khoi bien mat"; P201OK=0; }
+printf '%s' "$P201OUT2" | grep -qF "$P201REC" && { echo "     duong doc-cu: loi khuyen wont-fix in nham cho file cu"; P201OK=0; }
+# (d) chieu do — mutant go nhanh render wont-fix tren BAN SAO cay tron
+P201MUT="$(mktemp -d)"
+cp -R "$ROOT/scripts" "$P201MUT/scripts"; cp -R "$ROOT/lib" "$P201MUT/lib"
+python3 - "$P201MUT/scripts/gate-card.js" <<'PYX' || P201OK=0
+import sys
+p = sys.argv[1]
+src = open(p, encoding="utf-8").read()
+mut = "\n".join(l for l in src.splitlines() if "wont-fix" not in l)
+assert mut != src, "mutant khong tac dung — gate-card.js chua co nhanh wont-fix?"
+open(p, "w", encoding="utf-8").write(mut)
+print("MUTANT: da go nhanh wont-fix khoi ban sao gate-card.js")
+PYX
+P201MOUT="$(node "$P201MUT/scripts/gate-card.js" --root "$P201WS" --slug demo 2>&1)"; P201MST=$?
+[ "$P201MST" -eq 0 ] || { echo "     PHEP DO MU: mutant khong chay duoc (exit $P201MST)"; P201OK=0; }
+if printf '%s' "$P201MOUT" | grep -qF "$P201REC"; then echo "     mutant van in loi khuyen wont-fix — phep do chet"; P201OK=0; fi
+if [ "$P201OK" -eq 1 ]; then pass "P201 ngan khong-sua co ten + duong doc-cu + mutant"; else fail "P201 ngan khong-sua co ten + duong doc-cu + mutant"; fi
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"
