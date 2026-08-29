@@ -6,7 +6,7 @@ owner: manh@mstar.vn
 risk_tier: T2
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-08-29-suite-run-log-provenance-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
