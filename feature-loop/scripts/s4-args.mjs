@@ -73,11 +73,37 @@ const require_ = createRequire(import.meta.url);
 const { resolveConfigKey, frontmatterField } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
 const { parseEvals } = require_(path.join(agRoot, 'lib', 'eval-yaml.js'));
 
+// ── Bảng trường bắt buộc: RÚT TỪ CHÍNH BÊN ĐỌC, không gõ tay ──────────────
+// Bên viết (script này) và bên đọc (acceptance-verify.js) từng trôi khỏi nhau:
+// danh sách field gõ tay ở đây thiếu `steps`, nên hồ sơ có eval ui-check sinh
+// ra args mà workflow chắc chắn BLOCK — script vẫn exit 0 (S4-r1, AC-1). Nay
+// đọc khối marker EVAL-REQUIRED-FIELDS của workflow làm nguồn DUY NHẤT.
+const wfPath = path.join(HERE, '..', 'workflows', 'acceptance-verify.js');
+const EVAL_REQUIRED = (() => {
+  let src; try { src = fs.readFileSync(wfPath, 'utf8'); } catch { return die(`không đọc được ${wfPath} để rút bảng trường bắt buộc`); }
+  const lines = src.split('\n');
+  const a = lines.findIndex(l => l.includes('<<<EVAL-REQUIRED-FIELDS'));
+  const b = lines.findIndex(l => l.includes('EVAL-REQUIRED-FIELDS>>>'));
+  if (a === -1 || b === -1 || b <= a) die(`không rút được khối marker EVAL-REQUIRED-FIELDS trong ${wfPath} — bên đọc đổi khuôn, KHÔNG đoán`);
+  const out = {};
+  for (const l of lines.slice(a + 1, b)) {
+    const m = l.match(/^\s*'([\w-]+)':\s*\{\s*str:\s*\[([^\]]*)\],\s*arr:\s*\[([^\]]*)\]/);
+    if (!m) continue;
+    const pick = s => s.split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(Boolean);
+    out[m[1]] = { str: pick(m[2]), arr: pick(m[3]) };
+  }
+  if (!Object.keys(out).length) die(`khối EVAL-REQUIRED-FIELDS rỗng trong ${wfPath}`);
+  return out;
+})();
+const uniq = a => [...new Set(a)];
+const REQ_STR = uniq(Object.values(EVAL_REQUIRED).flatMap(v => v.str)).filter(k => k !== 'id');
+const REQ_ARR = uniq(Object.values(EVAL_REQUIRED).flatMap(v => v.arr));
+
 // ── evals: scalar qua parser dùng chung + list fields quét cục bộ ──────────
-const evals = parseEvals(evalsText, ['criterion', 'executor', 'cmd', 'expected', 'runs', 'question']);
+const evals = parseEvals(evalsText, uniq([...REQ_STR, 'executor', 'expected', 'runs']));
 if (!evals.length) die('evals.yaml không có eval nào (hoặc không parse được)');
-{ // list fields: inputs / paths / evidence_required — inline [..] hoặc block "- item"
-  const LIST_KEYS = ['inputs', 'paths', 'evidence_required'];
+{ // list fields: bắt buộc theo bảng bên đọc + field vận hành — inline [..] hoặc block "- item"
+  const LIST_KEYS = uniq([...REQ_ARR, 'inputs', 'paths', 'evidence_required']);
   let cur = null; let pendingList = null;
   const parseInline = s => s.replace(/^\[|\]$/g, '').split(',').map(x => x.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
   for (const raw of evalsText.split('\n')) {
@@ -112,6 +138,15 @@ for (const e of evals) {
   }
   if (e.executor === 'judgment' && Array.isArray(e.inputs)) e.inputs = e.inputs.map(p => path.isAbsolute(p) ? p : path.resolve(ws, p));
   for (const k of Object.keys(e)) if (e[k] === '' || e[k] == null) delete e[k];
+}
+// Fail-CLOSED theo ĐÚNG bảng của bên đọc: sinh tệp thiếu trường bắt buộc là
+// đẩy một lượt BLOCKED chắc chắn xuống workflow, trong khi SKILL cấm soạn tay
+// — tức ngõ cụt đốt round. Thà exit 2 có tên ngay ở đây.
+for (const e of evals) {
+  const need = EVAL_REQUIRED[e.executor];
+  if (!need) die(`eval ${e.id}: executor "${e.executor || '(vắng)'}" không có trong bảng EVAL-REQUIRED-FIELDS của workflow (${Object.keys(EVAL_REQUIRED).join(' | ')})`);
+  for (const k of need.str) if (typeof e[k] !== 'string' || !e[k].trim()) die(`eval ${e.id} (${e.executor}): thiếu trường bắt buộc "${k}" — workflow sẽ BLOCKED, không sinh tệp`);
+  for (const k of need.arr) if (!Array.isArray(e[k]) || !e[k].length || e[k].some(x => typeof x !== 'string' || !x.trim())) die(`eval ${e.id} (${e.executor}): thiếu/hỏng trường mảng bắt buộc "${k}" — workflow sẽ BLOCKED, không sinh tệp`);
 }
 
 // ── suiteCommands từ feature_loop.suite_keys (list reader cục bộ) ──────────

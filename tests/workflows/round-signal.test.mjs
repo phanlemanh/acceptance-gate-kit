@@ -117,4 +117,61 @@ console.log('RS3 ha-tang-hong: ma tran 3 o — cd-fail | exit 127 | exit 1 thuon
   }
 }
 
-summary('round-signal (cham-dung-cay-dung-cho-dung AC-8/AC-9/AC-12)');
+console.log('RS4 round-tally co o MOI duong BLOCKED early-return (AC-9, S4-r1)');
+{
+  // (a) args sai kieu
+  const { result: ra } = await runWorkflow(WF, {}, responder());
+  const ta = (ra.runLog || []).map(l => JSON.parse(l)).filter(l => l.kind === 'round-tally');
+  check('RS4a args sai -> BLOCKED van co 1 dong tally', ra.verdict === 'BLOCKED' && ta.length === 1 && ta[0].verdict === 'BLOCKED', JSON.stringify(ta));
+  // (b) thieu toolKillRule (marker)
+  const { result: rb } = await runWorkflow(WF, baseArgs({ toolKillRule: '' }), responder());
+  const tb = (rb.runLog || []).map(l => JSON.parse(l)).filter(l => l.kind === 'round-tally');
+  check('RS4b thieu toolKillRule -> BLOCKED van co 1 dong tally', rb.verdict === 'BLOCKED' && tb.length === 1, JSON.stringify(tb));
+  // (c) khong co gi de verify
+  const { result: rc } = await runWorkflow(WF, baseArgs({ evals: [], suiteCommands: [] }), responder());
+  const tc = (rc.runLog || []).map(l => JSON.parse(l)).filter(l => l.kind === 'round-tally');
+  check('RS4c khong co gi de verify -> BLOCKED van co 1 dong tally', rc.verdict === 'BLOCKED' && tc.length === 1, JSON.stringify(tc));
+  // (d) evals khai thieu field bat buoc
+  const { result: rd } = await runWorkflow(WF, baseArgs({ evals: [{ id: 'EU', criterion: 'AC-1', executor: 'ui-check', expected: 'x' }] }), responder());
+  const td = (rd.runLog || []).map(l => JSON.parse(l)).filter(l => l.kind === 'round-tally');
+  check('RS4d evals khai thieu -> BLOCKED van co 1 dong tally', rd.verdict === 'BLOCKED' && td.length === 1, JSON.stringify(td));
+  // chieu do: bo runLog khoi blockedEarly -> ca 4 o mat vet
+  const src = readFileSync(WF, 'utf8');
+  const mut = src.replace(/runLog: \[tallyLine\('BLOCKED', 1\)\], runLogWriteFailed: true,/, '');
+  if (mut === src) check('RS4 mutant ap dung duoc', false, 'khong tim thay site runLog cua blockedEarly');
+  else {
+    const { result: rm } = await runWorkflow(WF, {}, responder(), mut);
+    check('RS4 chieu do: go runLog khoi blockedEarly -> luot BLOCKED mat vet (test phan biet duoc)', !(rm.runLog || []).length);
+  }
+}
+
+console.log('RS5 CD_FAIL_RE phu ca hai ho thong diep shell (AC-12, S4-r1)');
+{
+  const dashFail = { exitCode: 2, outputTail: "sh: cd: can't cd to /repo", runId: '', cannotRun: false };
+  const { result } = await runWorkflow(WF, baseArgs(), responder({ 'machine:pnpm test': dashFail }));
+  check('RS5 dash "can\'t cd to" -> BLOCKED, khong phai REJECT', result.verdict === 'BLOCKED' && result.failedEvals.length === 0, result.verdict);
+  const bashFail = { exitCode: 1, outputTail: 'sh: line 0: cd: /repo: No such file or directory', runId: '', cannotRun: false };
+  const { result: r2 } = await runWorkflow(WF, baseArgs(), responder({ 'machine:pnpm test': bashFail }));
+  check('RS5 bash van BLOCKED (khong ha thuoc ve cu)', r2.verdict === 'BLOCKED');
+}
+
+console.log('RS6 ba ngan OOC dung MOT nguon cho schema + prompt triage + prompt synthesize (AC-10, S4-r1)');
+{
+  const src = readFileSync(WF, 'utf8');
+  const block = src.split('// <<<OOC-PROPOSAL-VALUES')[1]?.split('// OOC-PROPOSAL-VALUES>>>')[0] || '';
+  const values = [...block.matchAll(/\['([\w-]+)',/g)].map(m => m[1]);
+  check('RS6 khoi marker khai du 3 ngan', values.length === 3 && values.includes('wont-fix'), JSON.stringify(values));
+  // khong ben nao duoc go tay danh sach ngan: chi hang moi duoc liet ke gia tri
+  const outside = src.replace(block, '');
+  const hardcoded = [...outside.matchAll(/'known-limits'\s*,\s*'new-contract'/g)].length;
+  check('RS6 khong con danh sach ngan go tay ngoai khoi marker', hardcoded === 0, String(hardcoded));
+  // chieu do: xoa mot ngan khoi NGUON -> ca ba ben deu mat gia tri do
+  const mut = src.replace(/\s*\['wont-fix'[^\]]*\],?\n/, '\n');
+  if (mut === src) check('RS6 mutant ap dung duoc', false, 'khong xoa duoc dong wont-fix trong nguon');
+  else {
+    const mBlock = mut.split('// <<<OOC-PROPOSAL-VALUES')[1]?.split('// OOC-PROPOSAL-VALUES>>>')[0] || '';
+    check('RS6 chieu do: xoa ngan khoi nguon -> khoi marker mat gia tri (mot nguon that su)', !mBlock.includes('wont-fix'));
+  }
+}
+
+summary('round-signal (cham-dung-cay-dung-cho-dung AC-8/AC-9/AC-10/AC-12)');

@@ -254,6 +254,55 @@ skill-khong-fallback)
   if echo "$B2" | grep -q "DỪNG"; then bad "chiều đỏ (a) chết — mutant rỗng ruột không tác dụng"; else ok "chiều đỏ (a): bản sao rỗng ruột → vế (a) đỏ được"; fi
   done_chan ;;
 
+truong-theo-ben-doc)
+  # S4-r1 AC-1: bên VIẾT (s4-args) phải rút danh sách trường từ bảng của bên ĐỌC
+  # (marker EVAL-REQUIRED-FIELDS trong acceptance-verify.js), không gõ tay.
+  build_fixture
+  # thêm một eval ui-check CÓ steps (block list) vào fixture — đúng thứ bản cũ đánh rơi
+  cat >> "$REPO/_acceptance/demo/evals.yaml" <<'YAML'
+  - id: E3
+    criterion: AC-1
+    executor: ui-check
+    expected: marker co mat tren trang
+    steps:
+      - mo trang /
+      - curl kiem marker
+YAML
+  git -C "$REPO" add -A && git -C "$REPO" commit -qm "them ui-check"
+  if run_s4args; then
+    node -e "
+const a=require('$TMP/args.json');
+const e=a.evals.find(x=>x.id==='E3');
+if(!e){console.error('E3 vang khoi args');process.exit(1)}
+if(!Array.isArray(e.steps)||e.steps.length!==2){console.error('steps khong duoc rut: '+JSON.stringify(e));process.exit(1)}
+" && ok "eval ui-check giữ trọn steps (rút theo bảng bên đọc)" || bad "steps bị đánh rơi khỏi args"
+  else bad "fixture có ui-check mà s4-args exit ≠ 0: $(tail -2 "$TMP/out.txt")"; fi
+  # chiều đỏ 1: eval ui-check THIẾU steps → fail-closed, không sinh tệp
+  sed -i.bak '/^    steps:$/,/curl kiem marker/d' "$REPO/_acceptance/demo/evals.yaml"
+  rm -f "$TMP/args.json"
+  if run_s4args; then bad "ui-check thiếu steps mà vẫn exit 0 (workflow sẽ BLOCKED — ngõ cụt đốt round)"; else
+    grep -q "steps" "$TMP/out.txt" && [ ! -f "$TMP/args.json" ] && ok "chiều đỏ: thiếu steps → kêu to đúng tên trường, không sinh tệp" || bad "thông điệp không ghim tên trường: $(tail -2 "$TMP/out.txt")"
+  fi
+  mv "$REPO/_acceptance/demo/evals.yaml.bak" "$REPO/_acceptance/demo/evals.yaml"
+  # chiều đỏ 2 (một-nguồn): đổi bảng bên ĐỌC trong bản sao → bên VIẾT phải đổi theo
+  MUTWF="$TMP/mut-wf"
+  mkdir -p "$MUTWF/feature-loop/workflows" "$MUTWF/feature-loop/scripts"
+  cp "$KIT/feature-loop/workflows/acceptance-verify.js" "$MUTWF/feature-loop/workflows/"
+  cp "$KIT/feature-loop/scripts/s4-args.mjs" "$KIT/feature-loop/scripts/carry-plan.mjs" "$KIT/feature-loop/scripts/resolve-plugin.mjs" "$MUTWF/feature-loop/scripts/"
+  python3 - "$MUTWF/feature-loop/workflows/acceptance-verify.js" <<'PYX'
+import sys
+p=sys.argv[1]; s=open(p,encoding='utf-8').read()
+m=s.replace("'script': { str: ['id', 'criterion', 'cmd'], arr: [] },","'script': { str: ['id', 'criterion', 'cmd', 'khoa_bat_buoc_moi'], arr: [] },")
+assert m!=s, "mutant khong tac dung"
+open(p,'w',encoding='utf-8').write(m)
+PYX
+  if node "$MUTWF/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --out "$TMP/args-mut.json" >"$TMP/mut.txt" 2>&1; then
+    bad "bên VIẾT không đổi theo bảng bên ĐỌC — hai bên vẫn trôi được"
+  else
+    grep -q "khoa_bat_buoc_moi" "$TMP/mut.txt" && ok "chiều đỏ một-nguồn: đổi bảng bên ĐỌC → bên VIẾT đỏ ngay, ghim tên trường mới" || bad "bên VIẾT đỏ nhưng không vì trường mới: $(tail -2 "$TMP/mut.txt")"
+  fi
+  done_chan ;;
+
 *)
-  echo "rang.sh --chan <args-du-truong|ref-hong|round-tu-dem|carry-da-goi|loi-khai|skill-khong-fallback>"; exit 2 ;;
+  echo "rang.sh --chan <args-du-truong|ref-hong|round-tu-dem|carry-da-goi|loi-khai|skill-khong-fallback|truong-theo-ben-doc>"; exit 2 ;;
 esac

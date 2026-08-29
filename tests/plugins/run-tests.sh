@@ -10709,11 +10709,27 @@ done
 # BẢN SAO cây trọn (scripts + lib) rồi đo bằng chính phép đo thật.
 echo "P201 ngan khong-sua: schema wont-fix + the Cong 2 render + duong doc-cu (E10)"
 P201OK=1
-# (a) schema + prompt cua workflow nhan gia tri wont-fix
-grep -q "'known-limits', 'new-contract', 'wont-fix'" "$ROOT/feature-loop/workflows/acceptance-verify.js" \
-  || { echo "     enum proposal thieu wont-fix trong acceptance-verify.js"; P201OK=0; }
-grep -q 'hoac "wont-fix"' "$ROOT/feature-loop/workflows/acceptance-verify.js" \
-  || { echo "     prompt triage khong day duong wont-fix"; P201OK=0; }
+# (a) NGUON mot-cho cua ba ngan: neo vao KHOI MARKER, khong vao chuoi literal
+# (S4-r1: ban cu grep "'known-limits', 'new-contract', 'wont-fix'" nen khi ba ben
+# doc duoc gom ve mot hang, case do vi HINH DANG MA chu khong vi hanh vi —
+# dung lop «thuoc ghim vao thu se doi»).
+python3 - "$ROOT/feature-loop/workflows/acceptance-verify.js" <<'PYX' || P201OK=0
+import re, sys
+src = open(sys.argv[1], encoding="utf-8").read()
+m = re.search(r"// <<<OOC-PROPOSAL-VALUES([\s\S]*?)// OOC-PROPOSAL-VALUES>>>", src)
+if not m: print("     khong co khoi marker OOC-PROPOSAL-VALUES"); sys.exit(1)
+vals = re.findall(r"\['([\w-]+)',", m.group(1))
+errs = []
+if "wont-fix" not in vals: errs.append("nguon thieu ngan wont-fix: " + repr(vals))
+if len(vals) != 3: errs.append("nguon phai khai du 3 ngan, thay: " + repr(vals))
+# ba ben doc phai DUNG hang, khong go tay danh sach rieng
+outside = src.replace(m.group(1), "")
+if re.search(r"'known-limits'\s*,\s*'new-contract'", outside): errs.append("con danh sach ngan go tay ngoai khoi marker")
+for need in ("enum: [...OOC_ENUM", "proposal = ${OOC_GLOSS}", "gia tri hop le: ${OOC_GLOSS}"):
+    if need not in src: errs.append("ben doc khong dung hang: thieu " + need)
+for e in errs: print("     " + e)
+sys.exit(1 if errs else 0)
+PYX
 # (b) fixture code-sinh co finding proposal wont-fix → the render loi khuyen co ten
 P201WS="$(mktemp -d)"
 mkdir -p "$P201WS/_acceptance/demo"

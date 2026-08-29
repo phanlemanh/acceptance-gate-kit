@@ -1129,7 +1129,11 @@ console.log('W-G6b doi chung dot bien: ban TRUOC guard tra PASS tren cung bo arg
   const src = readFileSync(WF, 'utf8');
   // Sinh ban TRUOC-GUARD bang CODE trong chinh lan chay: go tu bang marker den
   // het khoi return BLOCKED. KHONG chep tay ban cu.
-  const stripped = src.replace(/\/\/ <<<EVAL-REQUIRED-FIELDS[\s\S]*?reviewIncomplete: \[\],\n\s*\}\n\}\n/, '');
+  // Neo vào MARKER + câu lệnh return của guard, KHÔNG vào hình dạng object trả
+  // về: bản cũ ghim chuỗi `reviewIncomplete: [],\n}\n}` nên khi guard đổi sang
+  // dùng blockedEarly() (S4-r1, AC-9) thì regex hết khớp và case đỏ vì HÌNH
+  // DẠNG MÃ chứ không vì hành vi — đúng lớp «thước ghim vào thứ sẽ đổi».
+  const stripped = src.replace(/\/\/ <<<EVAL-REQUIRED-FIELDS[\s\S]*?return blockedEarly\('\(evals\)'[\s\S]*?\n\}\n/, '');
   check('W-G6b buoc go guard THUC SU doi file', stripped.length < src.length - 800, `delta=${src.length - stripped.length}`);
   const preWF = path.join(mkdtempSync(path.join(os.tmpdir(), 'av-preguard-')), 'acceptance-verify.js');
   writeFileSync(preWF, stripped);

@@ -184,3 +184,19 @@ evals:
       điều khoản → vế (a) đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/skills/feature-loop/SKILL.md"]
+
+  - id: E14
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.cdc_truong_theo_ben_doc
+    expected: >
+      S4-r1: bên VIẾT (s4-args) rút danh sách trường từ bảng của bên ĐỌC
+      (marker EVAL-REQUIRED-FIELDS trong acceptance-verify.js), không gõ tay.
+      Fixture code-sinh thêm eval ui-check có `steps` → args giữ trọn steps.
+      Chiều đỏ 1: ui-check thiếu steps → exit ≠ 0 ghim tên trường, không sinh
+      tệp (fail-closed, không đẩy lượt BLOCKED chắc chắn xuống workflow).
+      Chiều đỏ 2 (một-nguồn): đổi bảng bên ĐỌC trong bản sao cây → bên VIẾT
+      phải đỏ ngay và ghim tên trường mới; nếu vẫn xanh thì hai bên còn trôi
+      được, đúng lớp lỗi vòng này đóng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/workflows/acceptance-verify.js"]
