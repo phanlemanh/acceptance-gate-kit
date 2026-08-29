@@ -522,9 +522,25 @@ const normKill = r => (r && r.killedByTool === true)
   ? { ...r, cannotRun: true, reason: (typeof r.reason === 'string' && r.reason.trim()) ? r.reason : TOOL_KILL_REASON }
   : r
 
+// AC-12 (cham-dung-cay-dung-cho-dung): hạ tầng hỏng phải TỰ XƯNG. Hai dấu hiệu
+// máy-nhận-diện-được — bước `cd` của lệnh wrap thất bại (chỗ đứng không tồn tại:
+// worktree bị dọn, repoRoot sai) và exit 127 (không tìm thấy lệnh/script) — là
+// ERROR của hạ tầng chấm, KHÔNG phải FAILURE của sản phẩm (nếp JUnit error≠failure).
+// Đẩy sang cannotRun → nhánh BLOCKED-toward-human, khỏi đốt round bằng REJECT giả.
+// exit 1 thường KHÔNG bị đụng: phân loại không được nuốt lỗi thật. Các hình dạng
+// hạ tầng KHÁC hai dấu hiệu này là giới-hạn-đã-khai của contract (đi FAIL như cũ).
+const CD_FAIL_RE = /(?:^|[\s:])cd:\s+(?:line \d+:\s*)?\S.*?(?:No such file or directory|Not a directory|Permission denied)/i
+const normInfra = r => {
+  if (!r || r.cannotRun || r.exitCode === 0) return r
+  const tail = String(r.outputTail || '')
+  if (CD_FAIL_RE.test(tail)) return { ...r, cannotRun: true, reason: `buoc cd cua lenh wrap that bai — cho dung khong ton tai/khong vao duoc (worktree bi don? repoRoot sai?): HA TANG CHAM, khong phai san pham do. Dau vet: ${tail.split('\n').filter(Boolean).slice(-1)[0] || ''}` }
+  if (r.exitCode === 127) return { ...r, cannotRun: true, reason: 'exit 127 — lenh/script khong ton tai o cho dung (command not found): HA TANG CHAM, khong phai san pham do' }
+  return r
+}
+
 // ---- variance-N: gộp các lần chạy của 1 lệnh → 1 entry/lệnh với pass-rate ----
 const runsByCmd = new Map()
-for (const r of (machineRaw || []).filter(Boolean).map(normKill)) {
+for (const r of (machineRaw || []).filter(Boolean).map(normKill).map(normInfra)) {
   if (!runsByCmd.has(r.cmd)) runsByCmd.set(r.cmd, [])
   runsByCmd.get(r.cmd).push(r)
 }
@@ -551,7 +567,7 @@ for (const cmd of distinctCmds) {
   machine.push({ cmd, evals: byCmd.get(cmd), runs: ran.length, passes, variance, cannotRun: false, reason: rep.reason, exitCode, runId: rep.runId, outputTail: rep.outputTail })
 }
 // ui-check hợp nhất vào machine-style (luôn 1 lần): cmd ui-check:<evalId> — routing blocked/failed dùng chung
-machine.push(...(uiRaw || []).filter(Boolean).map(normKill).map(r => ({ ...r, runs: 1, passes: !r.cannotRun && r.exitCode === 0 ? 1 : 0, variance: false })))
+machine.push(...(uiRaw || []).filter(Boolean).map(normKill).map(normInfra).map(r => ({ ...r, runs: 1, passes: !r.cannotRun && r.exitCode === 0 ? 1 : 0, variance: false })))
 
 // ---- run-log: run_id per eval do JS THUẦN quyết (verifier có runId thật → dùng; rỗng → mint
 // deterministic) + build NGUYÊN VĂN từng dòng JSONL. Synthesize CHỈ chép map này — hết quyền
@@ -812,12 +828,20 @@ if (typeof args.evalsHash === 'string' && args.evalsHash) {
 const blocked = machine.filter(m => m.cannotRun)
   .map(m => ({ cmd: m.cmd, reason: m.reason || 'cannotRun khong co reason' }))
 {
+  // AC-8 (cham-dung-cay-dung-cho-dung): vắng mặt là TÍN HIỆU — agent chết không
+  // được tàng hình. Mỗi eval mất kết quả để lại một dòng `kind: vang-mat` trong
+  // run-log (trước đây: 0 dòng, phiên khảo cổ phải đoán từ sự thiếu vắng).
+  const vangMat = (evalId, reason) => runLogLines.push(JSON.stringify({
+    ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId, kind: 'vang-mat', reason,
+  }))
   const ran = new Set(machine.map(m => m.cmd))
   for (const cmd of distinctCmds.filter(c => !ran.has(c))) {
     blocked.push({ cmd, reason: 'agent bi skip/chet — khong co ket qua, khong duoc tinh la pass' })
+    for (const evalId of (byCmd.get(cmd) || [])) vangMat(evalId, 'agent bi skip/chet — khong co ket qua nao tra ve cho lenh: ' + cmd)
   }
   for (const e of uiEvals.filter(e => !ran.has(`ui-check:${e.id}`))) {
     blocked.push({ cmd: `ui-check:${e.id}`, reason: 'ui-check agent bi skip/chet — khong co ket qua, khong duoc tinh la pass' })
+    vangMat(e.id, 'ui-check agent bi skip/chet — khong co ket qua')
   }
 }
 const failed = machine.filter(m => !m.cannotRun && m.exitCode !== 0)
@@ -844,6 +868,19 @@ else if (triageHighInContract.length) verdict = 'REJECT'
 else if (triageFailed) verdict = 'PENDING-JUDGMENT'
 else if (varianceCmds.length || (judgmentEvals.length && (args.riskTier === 'T3' || panels.some(p => p.proposal !== 'PASS')))) verdict = 'PENDING-JUDGMENT'
 else verdict = 'PASS'
+
+// AC-9 (cham-dung-cay-dung-cho-dung): mỗi lượt đúng MỘT dòng tổng kết máy-đọc-được
+// — vật đo cho ngưỡng 5-vòng-kế (đếm lượt cháy vì hạ tầng mà không phải khảo cổ).
+// expected đếm từ lịch đã lên (distinct cmds × runs + ui evals), returned đếm từ
+// kết quả THẬT trả về — hai nguồn độc lập, writer không hardcode được returned=expected.
+{
+  const expected = distinctCmds.reduce((n, c) => n + (cmdRuns.get(c) || 1), 0) + uiEvals.length
+  const returned = (machineRaw || []).filter(Boolean).length + (uiRaw || []).filter(Boolean).length
+  runLogLines.push(JSON.stringify({
+    ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'round-tally',
+    verdict, expected, returned, blocked: blocked.length,
+  }))
+}
 
 log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds.join(', ') : ''}${blocked.length ? ' — blocked: ' + blocked.length + ' lenh' : ''}${varianceCmds.length ? ' — variance: ' + varianceCmds.length : ''} — findings xac nhan: ${confirmedFindings.length}${triaged.length ? ` (trong hop dong: ${rejectFindings.length}, ngoai: ${triaged.filter(f => !f.inContract && !f.unclassified).length}${triageFailed ? ', TRIAGE HONG' : ''})` : ''}`)
 

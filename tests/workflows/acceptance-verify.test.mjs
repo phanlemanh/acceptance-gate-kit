@@ -79,8 +79,10 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   const { result, calls } = await runWorkflow(WF, baseArgs(), responder());
   check('W03 verdict PASS', result.verdict === 'PASS', result.verdict);
   check('W03 machine dedupe: 2 machine agents (1 eval-cmd + 1 suite)', byLabel(calls, 'machine:').length === 2, String(byLabel(calls, 'machine:').length));
-  check('W03 runLog: 1 line per eval', result.runLog.length === 2, String(result.runLog.length));
-  const lines = result.runLog.map(l => JSON.parse(l));
+  // AC-9 cham-dung-cay-dung-cho-dung: runLog = 1 dòng/eval + đúng 1 dòng round-tally
+  const all03 = result.runLog.map(l => JSON.parse(l));
+  check('W03 runLog: 1 line per eval + 1 tally', result.runLog.length === 3 && all03.filter(l => l.kind === 'round-tally').length === 1, String(result.runLog.length));
+  const lines = all03.filter(l => !l.kind);
   check('W03 run_id minted deterministically per eval', lines[0].run_id === 'minted-demo-E1-r1' && lines[1].run_id === 'minted-demo-E2-r1');
   check('W03 ts from args.invokedAt', lines.every(l => l.ts === '2026-07-02T10:00:00Z'));
   // Từ đợt 8: KHÔNG còn agent scribe — agent "chép sẵn dòng audit" trông y hệt
@@ -102,8 +104,8 @@ console.log('W04 failing eval -> REJECT with failed ids');
   }));
   check('W04 verdict REJECT', result.verdict === 'REJECT');
   check('W04 failedEvals E1+E2 (shared cmd)', JSON.stringify(result.failedEvals) === JSON.stringify(['E1', 'E2']));
-  const lines = result.runLog.map(l => JSON.parse(l));
-  check('W04 run-log records real exit + verifier runId', lines.every(l => l.exit_code === 1 && l.run_id === 'run-777'));
+  const lines = result.runLog.map(l => JSON.parse(l)).filter(l => !l.kind); // dòng eval; tally có case riêng (round-signal)
+  check('W04 run-log records real exit + verifier runId', lines.length === 2 && lines.every(l => l.exit_code === 1 && l.run_id === 'run-777'));
 }
 
 console.log('W05 cannotRun + dead agent -> BLOCKED, never PASS');
@@ -226,7 +228,7 @@ console.log('W12 run-log: main loop append la duong DUY NHAT (khong con scribe)'
   const { result, logs } = await runWorkflow(WF, baseArgs(), responder());
   check('W12 flag set khi co dong can ghi', result.runLogWriteFailed === true);
   check('W12 log nhac main loop tu append', logs.some(l => /TU append/.test(l)));
-  check('W12 runLog mang du dong cho main loop', result.runLog.length === 2, String(result.runLog.length));
+  check('W12 runLog mang du dong cho main loop (2 eval + 1 tally)', result.runLog.length === 3, String(result.runLog.length));
 }
 
 console.log('W13 ui-check merges into machine lane + run-log');
