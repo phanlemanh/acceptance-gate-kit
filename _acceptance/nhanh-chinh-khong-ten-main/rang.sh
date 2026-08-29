@@ -269,6 +269,61 @@ PYX
   fi
   done_chan ;;
 
+khong-doan-sang-ten-khac)
+  # AC-8 (S4-r4): hồi quy do chính vòng này đẻ ra. Remote KHAI một tên mà cây
+  # không giải được ⇒ KHÔNG được lặng lẽ nhận tên khác. Bản trước S4-r1 chết to;
+  # bản r1/r2 trả lời sai êm ru — đây là ca giữ cho nó không quay lại.
+  build_repo master
+  BARE3="$TMP/bare3.git"; git init -q --bare -b main "$BARE3"
+  git -C "$REPO" branch -f main master
+  git -C "$REPO" remote add origin "$BARE3"
+  git -C "$REPO" push -q origin main master feat/x
+  git -C "$REPO" remote set-head origin main
+  # remote vẫn khai 'main', nhưng cả ref local lẫn origin/main đều bị xoá —
+  # 'master' còn sống, đúng cái bẫy để máy nhận bừa
+  git -C "$REPO" branch -D main -q
+  git -C "$REPO" update-ref -d refs/remotes/origin/main
+  git -C "$REPO" remote show origin 2>/dev/null | grep -q "HEAD branch: main" \
+    && ok "fixture đúng bẫy: remote khai «main», ref main vắng, «master» còn sống" \
+    || bad "fixture không dựng được bẫy"
+  rm -f "$TMP/args.json"
+  if node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/kd.txt" 2>&1; then
+    SRC="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).source||'VANG')" 2>/dev/null || echo VANG)"
+    BR="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).branch||'VANG')" 2>/dev/null || echo VANG)"
+    bad "ĐOÁN BỪA: sinh args với nhánh «$BR» (nguồn $SRC) trong khi remote khai «main» — mốc so sánh sai lặng lẽ"
+  else
+    if grep -q "remote khai nhánh chính" "$TMP/kd.txt" && grep -q "main" "$TMP/kd.txt" \
+       && grep -q -- "--diff-base" "$TMP/kd.txt" && ! grep -q "usage:" "$TMP/kd.txt"; then
+      ok "KHÔNG đoán sang tên khác: nêu đúng tên remote khai + chỉ lối --diff-base"
+    else bad "đỏ nhưng sai thông điệp: $(grep -m1 . "$TMP/kd.txt")"; fi
+    [ ! -f "$TMP/args.json" ] && ok "không sinh tệp args (fail-closed)" || bad "vẫn sinh tệp args dù không giải được nhánh"
+  fi
+  # đối chứng dương CÙNG fixture: trả ref main về → giải được, sinh args
+  git -C "$REPO" branch main master
+  rm -f "$TMP/args.json"
+  if node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/kd2.txt" 2>&1; then
+    SRC2="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).source||'VANG')")"
+    [ "$SRC2" = "remote" ] && ok "đối chứng dương: trả ref main về → giải bằng remote, sinh args" \
+      || bad "đối chứng dương: nguồn sai ($SRC2)"
+  else bad "đối chứng dương hỏng: $(grep -m1 . "$TMP/kd2.txt")"; fi
+  # chiều đỏ: bản sao cho vòng dò chạy VÔ ĐIỀU KIỆN (bản r1/r2) → phải đoán bừa
+  MUT6="$TMP/mut6"; snapshot_tree "$MUT6" || done_chan
+  python3 - "$MUT6/feature-loop/scripts/s4-args.mjs" <<'PYX'
+import sys
+p=sys.argv[1]; s=open(p,encoding='utf-8').read()
+old="if (!mainBranch && !remoteDeclared) {"
+assert old in s, "mutant khong tac dung"
+open(p,'w',encoding='utf-8').write(s.replace(old,"if (!mainBranch) {"))
+PYX
+  git -C "$REPO" branch -D main -q
+  rm -f "$TMP/args.json"
+  if node "$MUT6/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m6.txt" 2>&1; then
+    BRM="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).branch||'VANG')")"
+    [ "$BRM" = "master" ] && ok "chiều đỏ: bản cho vòng dò chạy vô điều kiện ĐOÁN BỪA sang «master» (ca phân biệt được)" \
+      || bad "chiều đỏ: bản tiêm ra nhánh lạ «$BRM»"
+  else bad "chiều đỏ: bản tiêm cũng đỏ — ca không phân biệt được hai bản"; fi
+  done_chan ;;
+
 *)
-  echo "rang.sh --chan <master-khong-remote|nhanh-la-cau-huong-dan|remote-tra-loi|doc-bat-buoc-van-dong|ci-single-branch>"; exit 2 ;;
+  echo "rang.sh --chan <master-khong-remote|nhanh-la-cau-huong-dan|remote-tra-loi|doc-bat-buoc-van-dong|ci-single-branch|khong-doan-sang-ten-khac>"; exit 2 ;;
 esac

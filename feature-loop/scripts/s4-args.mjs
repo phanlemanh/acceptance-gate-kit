@@ -215,6 +215,7 @@ const MAIN_BRANCH_CANDIDATES = ['main', 'master', 'develop', 'trunk'];
 // phép đo neo vào chính hai marker này, không vào hình dạng mã quanh nó.
 let mainBranch = null;
 let mainBranchSource = 'none';
+let remoteDeclared = null;
 {
   const out = gitTry('remote', 'show', 'origin');
   const m = out && out.match(/HEAD branch:\s*(\S+)/);
@@ -223,12 +224,17 @@ let mainBranchSource = 'none';
   // `refs/heads/main` vắng dù remote vẫn khai «HEAD branch: main». Đưa thẳng tên
   // đó vào phép đọc bắt buộc là chết với ĐÚNG thông điệp mà AC-2 gọi là sai loại.
   if (m && m[1] !== '(unknown)') {
+    remoteDeclared = m[1];
     for (const cand of [m[1], `origin/${m[1]}`]) {
       if (gitTry('rev-parse', '--verify', '--quiet', cand) !== null) { mainBranch = cand; mainBranchSource = 'remote'; break; }
     }
   }
 }
-if (!mainBranch) {
+// Vòng dò tên quen chỉ chạy khi remote KHÔNG khai gì. Remote đã khai một tên mà
+// tên đó không giải được ⇒ nhận bừa tên khác là đổi một tiếng kêu to thành một
+// câu trả lời SAI êm ru: mốc so sánh lấy từ nhánh không liên quan, exit 0, và cả
+// lượt chấm chạy trên diff sai. Hồi quy do chính S4-r1/r2 đẻ ra, đóng ở S4-r4.
+if (!mainBranch && !remoteDeclared) {
   for (const b of MAIN_BRANCH_CANDIDATES) {
     if (gitTry('rev-parse', '--verify', '--quiet', b) !== null) { mainBranch = b; mainBranchSource = 'fallback'; break; }
   }
@@ -237,7 +243,8 @@ if (!mainBranch) {
 let diffBase;
 if (flags['diff-base']) diffBase = git('rev-parse', flags['diff-base']);
 else if (mainBranch) diffBase = git('merge-base', mainBranch, 'HEAD');
-else die('không nhận diện được nhánh chính (không remote, không main/master/develop/trunk) — truyền --diff-base <ref>');
+else if (remoteDeclared) die(`remote khai nhánh chính «${remoteDeclared}» nhưng cây này không giải được ref đó (thử cả «origin/${remoteDeclared}») — KHÔNG đoán sang tên khác; truyền --diff-base <ref>`);
+else die(`không nhận diện được nhánh chính (không remote, không ${MAIN_BRANCH_CANDIDATES.join('/')}) — truyền --diff-base <ref>`);
 const invokedSha = git('rev-parse', 'HEAD');
 // Nguồn giải được tên nhánh chính — vật để phép đo phân biệt đường remote với
 // đường dò tên quen (không có nó, hai đường cho cùng kết quả nên không đo được).

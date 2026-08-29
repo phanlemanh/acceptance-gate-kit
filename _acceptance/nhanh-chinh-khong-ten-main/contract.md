@@ -35,13 +35,16 @@ hiện gốc ở Cổng Bằng chứng PR #123 (Ngoài-1/Ngoài-4).
 - AC-7: Given cây có hình dạng của bộ CI — clone `--single-branch`, ref cục bộ của nhánh chính VẮNG dù remote vẫn khai tên nó, When chạy `s4-args.mjs` không truyền `--diff-base`, Then: (ô 1) nếu KHÔNG ref nào của nhánh chính giải được (cả `<tên>` lẫn `origin/<tên>`) → câu CÓ HƯỚNG DẪN, KHÔNG phải «lệnh git thất bại»; (ô 2) nếu `origin/<tên>` còn → giải qua ref đó, mốc BẰNG `git merge-base origin/<tên> HEAD` độc lập.
 - AC-6: Given repo CÓ remote trả lời được và remote khai nhánh chính NGOÀI bốn tên dự phòng (vd `phat-trien`), When chạy `s4-args.mjs` không truyền `--diff-base`, Then script giải đúng tên đó và `diffBase` BẰNG `git merge-base phat-trien HEAD` độc lập; và script ghi lại NGUỒN giải được tên nhánh (`remote` hay `fallback`) VÀO ĐẦU RA (trường `mainBranchInfo` của tệp args, và một dòng khai trên đầu ra lỗi chuẩn) để phép đo đọc được từ vật được giao chứ không đo lại fixture — hai đường cho cùng kết quả trên repo tên `main` nên không có trường này thì không đo được.
 
+- AC-8: Given remote KHAI một tên nhánh chính mà cây hiện tại không giải được (cả `<tên>` lẫn `origin/<tên>` đều vắng) trong khi một tên khác trong danh sách dự phòng vẫn sống, When chạy `s4-args.mjs` không truyền `--diff-base`, Then script KHÔNG được nhận tên khác đó: nó thoát khác 0, nêu ĐÚNG tên remote đã khai và chỉ lối `--diff-base`, không sinh tệp — mốc so sánh sai lặng lẽ nguy hiểm hơn một lỗi kêu to.
+
 ## Coverage
 
 Quét theo hai trục rời rạc; tích hai trục đủ vì hành vi chỉ phân nhánh theo
 (nguồn biết tên nhánh) × (vai của lệnh git).
 
 - Trục nguồn biết tên nhánh chính: remote trả lời (AC-6) | remote khai tên mà ref cục bộ vắng — hình dạng CI (AC-7) | không remote + tên thuộc bốn tên quen (AC-1 — chạy THẬT cả bốn, danh sách rút từ marker `MAIN-BRANCH-CANDIDATES`) | không remote + tên lạ (AC-2). Ô «remote treo» KHÔNG có tiêu chí trong vòng này — xem giới hạn đã khai ở Notes. [thước CE: bốn nhánh mà đoạn mã dò thật sự phân biệt được, đọc từ khối marker `PROBE-REGION` trong `s4-args.mjs`]
-- Trục vai của lệnh git: đọc bắt buộc (AC-3) | dò (AC-1, AC-2, AC-6, AC-7). [thước CE: hai vai do chính hợp đồng exit-code của script khai ở đầu file]
+- Trục vai của lệnh git: đọc bắt buộc (AC-3) | dò (AC-1, AC-2, AC-6, AC-7, AC-8).
+- Trục «remote khai gì»: không khai → được dò tên quen (AC-1, AC-2) | khai và giải được (AC-6, AC-7 ô 2) | khai mà KHÔNG giải được → cấm đoán (AC-8). [thước CE: ba nhánh mà khối dò phân biệt bằng biến `remoteDeclared`] [thước CE: hai vai do chính hợp đồng exit-code của script khai ở đầu file]
 
 ## Đường đo
 
@@ -49,7 +52,7 @@ Ngưỡng khai ở opportunity.md → truy thành tiêu chí:
 
 - «Fixture nhánh `master`, không remote: sinh trọn args với mốc so sánh đúng, không cần khai tay» — AC-1 (mốc đo bằng QUAN HỆ với `git merge-base` chạy độc lập, không so chuỗi cứng).
 - «Ca nhánh lạ: câu có hướng dẫn, không phải vết đổ» — AC-2.
-- Đường remote (phổ biến nhất ở repo tiêu thụ) có phép đo riêng — AC-6; hình dạng cây của bộ CI — AC-7.
+- Đường remote (phổ biến nhất ở repo tiêu thụ) có phép đo riêng — AC-6; hình dạng cây của bộ CI — AC-7; cấm-đoán-sang-tên-khác — AC-8 (hồi quy do chính vòng này đẻ ra ở r1/r2, đóng ở r4).
 - «Cửa chết: phải hạ lời khai trong SKILL cho khớp mã» — chặn bởi AC-1 + AC-2 (lời khai SKILL đúng trở lại nhờ vật, không nhờ sửa chữ).
 
 ## Out of scope

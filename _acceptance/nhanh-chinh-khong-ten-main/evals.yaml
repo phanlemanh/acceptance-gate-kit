@@ -71,3 +71,18 @@ evals:
       (chạy xanh khi chưa tiêm) trước khi tin màu đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.nckt_khong_doan_sang_ten_khac
+    expected: >
+      HỒI QUY do chính vòng này đẻ ra (r1/r2), máy tự tái lập ở r3. Fixture
+      code-sinh dựng đúng bẫy: remote khai «main», cả `main` lẫn `origin/main`
+      bị xoá, `master` còn sống. Bản đúng: exit ≠ 0, thông điệp nêu ĐÚNG tên
+      remote khai + chỉ lối `--diff-base`, KHÔNG sinh tệp. Đối chứng dương cùng
+      fixture: trả ref `main` về → exit 0, nguồn = remote. Chiều đỏ: bản sao cho
+      vòng dò chạy VÔ ĐIỀU KIỆN (đúng bản r1/r2) → phải ĐOÁN BỪA sang «master»,
+      chứng ca phân biệt được hai bản chứ không xanh vì chưa từng chạy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
