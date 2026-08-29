@@ -17,7 +17,7 @@ evals:
       Chiều đỏ: bản sao CÂY LÀM VIỆC (trọn thư mục) cắt danh sách còn một tên →
       nhánh master phải rơi về câu đòi --diff-base.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-    paths: ["feature-loop/scripts/s4-args.mjs"]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
 
   - id: E2
     criterion: AC-2
@@ -29,7 +29,7 @@ evals:
       KHÔNG có vết đổ tiến trình (`node:internal`). Đối chứng dương cùng fixture:
       đổi tên nhánh về `master` → exit 0, sinh tệp.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-    paths: ["feature-loop/scripts/s4-args.mjs"]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
 
   - id: E3
     criterion: AC-3
@@ -40,7 +40,7 @@ evals:
       hỏng, tệp args vắng (stat). Đối chứng dương: `--diff-base master` → exit 0,
       tệp sinh. Chốt giữ cửa fail-closed khỏi bị nới khi sửa phép dò.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-    paths: ["feature-loop/scripts/s4-args.mjs"]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
 
   - id: E6
     criterion: AC-6
@@ -54,7 +54,7 @@ evals:
       phá bước bóc kết quả remote → phải rơi về đường dò tên và KHÔNG giải được
       (vì tên chính ngoài danh sách), tức đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-    paths: ["feature-loop/scripts/s4-args.mjs"]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
 
   - id: E7
     criterion: AC-7
@@ -70,4 +70,4 @@ evals:
       ô 2 chết đúng thông điệp sai-loại. Bản sao có ĐỐI CHỨNG DƯƠNG của chính nó
       (chạy xanh khi chưa tiêm) trước khi tin màu đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-    paths: ["feature-loop/scripts/s4-args.mjs"]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
