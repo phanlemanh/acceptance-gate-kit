@@ -121,13 +121,13 @@ case "$CHAN" in
       "W35 hai lenh -> hai run_id KE CA khi verifier khai trung" \
       "W35 giu lai ma that cua verifier lam goc" \
       "W35 doi chung: ma verifier khac nhau -> giu nguyen van" \
-      "W36 ten trung la khoa prototype van duoc hau to"
+      "W36 ten trung la khoa prototype van duoc hau to" \
+      "W28 [tien to thu muc] hai lenh -> hai evalId" \
+      "W28 [khac co] hai lenh -> hai evalId" \
+      "W28 [trung 40 ky tu dau] hai lenh -> hai evalId"
     # CHIỀU ĐỎ — HAI lớp phòng thủ độc lập, mỗi lớp một bản tiêm riêng. Gỡ một
     # lớp mà phép đo vẫn xanh nhờ lớp kia thì chiều đỏ chết âm thầm, nên không
     # gộp hai lớp vào một bản tiêm.
-    for bt in "tien to thu muc" "khac co" "trung 40 ky tu dau"; do
-      : # ba biến thể được ghim ở khối trên; chiều đỏ dưới đây chạy một lần cho cả ba
-    done
     tiem_roi_doi_do "$TMP/vc-ten" \
       's/tenDuyNhat(m.cmd)/tenSuite(m.cmd)/g' \
       "W28 [tien to thu muc] hai lenh -> hai evalId" "go lop ten duy nhat"
