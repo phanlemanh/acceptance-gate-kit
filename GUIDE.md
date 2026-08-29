@@ -838,6 +838,45 @@ Hook chặn nghĩa là **bằng chứng thiếu, không phải chữ sai**. Sử
 verifier thật, điền số thật. REJECT trung thực luôn hợp lệ và không bao giờ bị chặn;
 mọi cách "sửa lời cho lọt" đều để lại dấu vết ở lớp sau (re-check, provenance, run-log).
 
+### 6.5 Lượt soi ngoài-hợp-đồng — `/code-review ultra` tại Cổng 2 (tuỳ chọn)
+
+Lưới của kit chỉ đo **cái đã khai**: một bug không nằm trong AC nào — race,
+lỗ bảo mật, ca biên chưa ai nghĩ ra để khai — thì mọi eval vẫn xanh và hai cổng
+vẫn qua. `/code-review ultra` của Claude Code (đội agent trên cloud tìm bug +
+bước verify lọc tố-oan) không biết hợp đồng của bạn, và chính vì thế nó phủ
+đúng lớp mù đó. Ràng buộc cứng: **người bấm mới chạy** (máy không được tự gọi)
+và **tính phí theo lượt** — nên nó là bảo hiểm mua lẻ, không phải một tầng lưới
+thường trực.
+
+**Nhịp bấm** — dính vào phiên ký Cổng 2 để không tốn thêm thời gian chờ hay
+lần gọi người nào:
+
+1. S4 PASS, máy báo chờ ký → việc **đầu tiên** của phiên ký là bấm
+   `/code-review ultra` trên nhánh.
+2. Trong lúc nó chạy trên cloud (~5–10 phút, terminal vẫn rảnh), đọc thẻ quyết
+   định / trang evidence như thường.
+3. Finding về trước lúc ký → ký hoặc veto **một lần**. Finding đỏ thật → veto;
+   vòng lặp tự xử đúng nghi thức (sửa → evidence stale → vòng verify mới).
+
+**Đừng** bấm sau khi đã ký: finding lúc đó ép sửa code sau verify, evidence hoá
+stale và chữ ký vừa ký thành vô hiệu. Cũng đừng bấm giữa lúc S4 còn lặp — soi
+bản nháp là đốt một lượt phí lên code sắp đổi.
+
+**Khi nào đáng bấm** — phép thử một câu, hỏi ngay trước khi mở phiên ký:
+
+> Nếu vòng này có một bug KHÔNG nằm trong AC nào lọt qua, đảo nó sau merge có
+> đắt hơn một lượt soi (phí một lượt + ~10 phút) không?
+
+- **Đắt → bấm**: PR chạm `t3_paths` (bug thành false-green im lặng trên mọi
+  repo dùng kit); chiến dịch phát hành; code chạm tiền / dữ liệu người dùng /
+  bảo mật; diff rộng hơn hẳn phần AC phủ.
+- **Rẻ → thôi**: vòng T1/T2 thường (lưới eval + reviewer S4 là đủ);
+  docs/config/bản đồ máy vẽ (không có lớp bug-ngoài-hợp-đồng để tìm).
+
+Mục này là khuyến nghị vận hành, **không có răng máy** — không hook/CI nào
+chặn theo nó; finding của lượt soi là chất liệu cho người quyết tại cổng,
+không thay được evidence của eval.
+
 ## 7. Tra cứu enforcement — hook và CI chặn gì
 
 ```mermaid
