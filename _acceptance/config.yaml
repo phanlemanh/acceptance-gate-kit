@@ -182,6 +182,15 @@ executors:
     cdc_loi_khai_pham_vi: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan loi-khai
     cdc_skill_khong_fallback: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan skill-khong-fallback
     cdc_truong_theo_ben_doc: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan truong-theo-ben-doc
+    # Vật của hồ sơ nhanh-chinh-khong-ten-main — mỗi chân dựng repo git thật
+    # trong chính lần chạy; bản sao để tiêm đột biến chụp CÂY LÀM VIỆC (trọn
+    # thư mục), không dựng từ HEAD. Cùng nếp không-vào-suite-vĩnh-viễn.
+    nckt_master_khong_remote: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan master-khong-remote
+    nckt_nhanh_la_cau_huong_dan: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan nhanh-la-cau-huong-dan
+    nckt_doc_bat_buoc_van_dong: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan doc-bat-buoc-van-dong
+    nckt_hai_vai_hai_ham: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan hai-vai-hai-ham
+    nckt_remote_co_tran: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-co-tran
+    nckt_remote_tra_loi: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-tra-loi
     # Vật của hồ sơ suite-run-log-provenance — răng hồ sơ cho lớp «lệnh suite
     # không để lại dấu vết». Chiều đỏ dựng bằng bản sao TRỌN CÂY (git archive
     # HEAD) do code sinh trong chính lần chạy, KHÔNG neo mốc di động. Cố ý

@@ -187,6 +187,10 @@ const models = (() => {
 // ── contract / git facts ───────────────────────────────────────────────────
 const riskTier = frontmatterField(contractText, 'risk_tier');
 if (!riskTier) die('contract.md thiếu risk_tier trong frontmatter');
+// Trần thời gian cho lệnh git CÓ MẠNG (hỏi remote chạy mỗi lần sinh args):
+// remote sau tường lửa bị nuốt gói sẽ treo, và bước chuẩn bị args treo theo cho
+// tới khi công cụ giết — đúng lớp REJECT-giả. 10 giây đủ cho remote lành.
+const REMOTE_TIMEOUT_MS = 10_000;
 // Mọi lệnh git đi qua MỘT cửa fail-closed: ref hỏng phải cho exit 2 kèm tên
 // phần hỏng như mọi nguồn khác, không phải stack trace Node + exit 1 (mã không
 // nằm trong bảng script tự khai, và SKILL bắt trình NGUYÊN VĂN cho người) — S4-r2.
@@ -194,14 +198,42 @@ const git = (...a) => {
   try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8' }).trim(); }
   catch (e) { return die(`lệnh git thất bại: git ${a.join(' ')} — ${String((e && e.stderr) || (e && e.message) || '').split('\n')[0].trim() || 'không rõ nguyên nhân'}`); }
 };
+// HAI VAI của một lệnh git, hai hàm có tên riêng. `git()` ở trên là ĐỌC BẮT
+// BUỘC: hỏng thì die() → thoát tiến trình. `gitTry()` dưới đây là phép DÒ:
+// hỏng là chuyện bình thường, trả null và đi tiếp. Trộn hai vai chính là lỗi
+// đã nổ: vòng dò gọi `git()` trong try/catch, mà thoát-tiến-trình KHÔNG ném,
+// nên catch là mã chết và danh sách tên chỉ còn hiệu lực cho tên đầu.
+const gitTry = (...a) => {
+  try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', timeout: REMOTE_TIMEOUT_MS }).trim(); }
+  catch { return null; }
+};
+// <<<MAIN-BRANCH-CANDIDATES
+const MAIN_BRANCH_CANDIDATES = ['main', 'master', 'develop', 'trunk'];
+// MAIN-BRANCH-CANDIDATES>>>
+// <<<PROBE-REGION
+// Vùng DÒ tên nhánh chính. Mọi lời gọi git trong vùng này PHẢI là gitTry —
+// phép đo neo vào chính hai marker này, không vào hình dạng mã quanh nó.
 let mainBranch = null;
-try { const m = execFileSync('git', ['-C', root, 'remote', 'show', 'origin'], { encoding: 'utf8' }).match(/HEAD branch:\s*(\S+)/); if (m) mainBranch = m[1]; } catch { /* không có remote — thử tên quen */ }
-if (!mainBranch) for (const b of ['main', 'master', 'develop', 'trunk']) { try { git('rev-parse', '--verify', '--quiet', b); mainBranch = b; break; } catch { /* thử tên kế */ } }
+let mainBranchSource = 'none';
+{
+  const out = gitTry('remote', 'show', 'origin');
+  const m = out && out.match(/HEAD branch:\s*(\S+)/);
+  if (m && m[1] !== '(unknown)') { mainBranch = m[1]; mainBranchSource = 'remote'; }
+}
+if (!mainBranch) {
+  for (const b of MAIN_BRANCH_CANDIDATES) {
+    if (gitTry('rev-parse', '--verify', '--quiet', b) !== null) { mainBranch = b; mainBranchSource = 'fallback'; break; }
+  }
+}
+// PROBE-REGION>>>
 let diffBase;
 if (flags['diff-base']) diffBase = git('rev-parse', flags['diff-base']);
 else if (mainBranch) diffBase = git('merge-base', mainBranch, 'HEAD');
 else die('không nhận diện được nhánh chính (không remote, không main/master/develop/trunk) — truyền --diff-base <ref>');
 const invokedSha = git('rev-parse', 'HEAD');
+// Nguồn giải được tên nhánh chính — vật để phép đo phân biệt đường remote với
+// đường dò tên quen (không có nó, hai đường cho cùng kết quả nên không đo được).
+const mainBranchInfo = { branch: mainBranch, source: mainBranchSource };
 const invokedAt = new Date().toISOString().slice(0, 19) + 'Z';
 
 // ── round: đếm từ ## Iterations của evidence-report.md — KHÔNG đoán ────────
