@@ -250,17 +250,25 @@ JS
     }
     # đối chứng dương: cây hiện tại phải gán ĐÚNG chủ ở cả bốn ô
     dung_fixture "$ROOT"
-    for bo in evidence-page gate-card; do
-      for fx in fx-nohead fx-head; do
-        out="$( cd "$ROOT" && node "scripts/$bo.js" --root . --slug "$fx" 2>/dev/null )"
-        [ "$bo" = "evidence-page" ] && out="$(cat "$out" 2>/dev/null)"
-        ma="FX-SUITE-001"; [ "$fx" = "fx-head" ] && ma="FX-GHICHU-001"
-        if printf '%s' "$out" | grep -qF "$ma"; then
-          ghim "[$bo/$fx] khong de ma ngoai khoi len eval" 1 "thay $ma trong dau ra"
-        else
-          ghim "[$bo/$fx] khong de ma ngoai khoi len eval" 0
-        fi
-      done
+    # Hai bộ đọc nói bằng hai thứ khác nhau: TRANG bằng chứng in thẳng mã chạy,
+    # còn THẺ chỉ in một CỜ («bằng chứng máy đầy đủ» / «CHƯA đủ trường»). Đo mã
+    # trên thẻ là đo nhầm vật — thẻ không bao giờ in mã, nên phép đo luôn xanh.
+    # Eval trong fixture CỐ Ý thiếu run_id: cờ đúng phải là CẢNH BÁO; cờ hoá xanh
+    # nghĩa là nó vừa mượn mã của lệnh chạy chung.
+    for fx in fx-nohead fx-head; do
+      ma="FX-SUITE-001"; [ "$fx" = "fx-head" ] && ma="FX-GHICHU-001"
+      trang="$( cd "$ROOT" && node scripts/evidence-page.js --root . --slug "$fx" 2>/dev/null )"
+      if cat "$trang" 2>/dev/null | grep -qF "$ma"; then
+        ghim "[trang bang chung/$fx] khong de ma ngoai khoi len eval" 1 "thay $ma trong dau ra"
+      else
+        ghim "[trang bang chung/$fx] khong de ma ngoai khoi len eval" 0
+      fi
+      the="$( cd "$ROOT" && node scripts/gate-card.js --root . --slug "$fx" 2>/dev/null )"
+      if printf '%s' "$the" | grep -qF "CHƯA đủ trường"; then
+        ghim "[the Cong 2/$fx] co van la CANH BAO, khong muon ma lenh chay chung" 0
+      else
+        ghim "[the Cong 2/$fx] co van la CANH BAO, khong muon ma lenh chay chung" 1 "co da hoa xanh"
+      fi
     done
     rm -rf "$ROOT/_acceptance/fx-nohead" "$ROOT/_acceptance/fx-head"
     # CHIỀU ĐỎ: bốn bản tiêm, mỗi lớp một bản, mỗi bản chỉ gỡ ĐÚNG một nhánh
@@ -274,11 +282,18 @@ JS
       fi
       ghim "tiem [$f/$fx] doi duoc noi dung" 0
       local out; out="$( cd "$dir" && node "scripts/$f" --root . --slug "$fx" 2>/dev/null )"
-      [ "${f%.js}" = "evidence-page" ] && out="$(cat "$out" 2>/dev/null)"
-      if printf '%s' "$out" | grep -qF "$ma"; then
-        ghim "chieu do [$f/$fx]: go nhanh -> ma sai chu lo ra" 0
+      local thay=1
+      if [ "${f%.js}" = "evidence-page" ]; then
+        # trang in thẳng mã → gỡ nhánh thì mã ngoài khối lộ ra
+        cat "$out" 2>/dev/null | grep -qF "$ma" && thay=0
       else
-        ghim "chieu do [$f/$fx]: go nhanh -> ma sai chu lo ra" 1 "go nhanh ma phep do van xanh — thuoc khong can"
+        # thẻ chỉ in cờ → gỡ nhánh thì cờ cảnh báo BIẾN MẤT (hoá xanh nhờ mã mượn)
+        printf '%s' "$out" | grep -qF "CHƯA đủ trường" || thay=0
+      fi
+      if [ "$thay" = "0" ]; then
+        ghim "chieu do [$f/$fx]: go nhanh -> sai chu lo ra" 0
+      else
+        ghim "chieu do [$f/$fx]: go nhanh -> sai chu lo ra" 1 "go nhanh ma phep do van xanh — thuoc khong can"
       fi
     }
     # Mỗi nhánh mang nhãn `LOP-DOC:` để bản tiêm gọi ĐÍCH DANH lớp nó gỡ — không
