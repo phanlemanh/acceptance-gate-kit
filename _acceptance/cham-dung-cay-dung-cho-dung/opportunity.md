@@ -3,10 +3,10 @@ schema_version: 1
 slug: cham-dung-cay-dung-cho-dung
 feature: Chấm đúng cây, đúng chỗ đứng — lượt chấm phải tự chứng minh chỗ đứng trước khi verdict được tính
 owner: manh@mstar.vn
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-29T07:57:00Z    # ISO UTC — theo phát ngôn ký trong hội thoại 29/08 (máy điền mốc, ±5 phút)
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -45,15 +45,15 @@ kèm-cặp-hai-chiều của kit.
 
 - Câu hỏi phép đo trả lời: sau khi ship, lượt chấm còn bị đốt vì máy đứng nhầm
   chỗ hoặc nhận nhầm args không — và khi hạ tầng hỏng, nó có tự xưng tên không?
-- Kết quả nào là SỐNG: [đề xuất] trong 5 vòng S4 kế trên repo kit sau khi ship:
+- Kết quả nào là SỐNG: trong 5 vòng S4 kế trên repo kit sau khi ship:
   0 lượt hỏng vì hình dạng cwd/args; mọi lượt hỏng hạ tầng (nếu có) đều mang
   nhãn CHƯA-CHẤM-ĐƯỢC kèm một dòng nguyên nhân máy-đọc-được, không đổ thành
   đỏ/xanh sản phẩm.
-- Kết quả nào là CHẾT: [đề xuất] ≥2 lượt trong 5 vòng kế vẫn cháy vì lớp
+- Kết quả nào là CHẾT: ≥2 lượt trong 5 vòng kế vẫn cháy vì lớp
   hạ-tầng-chấm — kể cả hình dạng MỚI của cùng lớp. Khi đó KHÔNG vá thêm hình
   dạng: mở nấc «chấm thế-giới-bất-biến» (hồ sơ riêng, nấc thang đã khai trước
   ở findings §5).
-- Timebox: [đề xuất] ship trước 2026-09-15; quá timebox → park, ghi sổ.
+- Timebox: ship trước 2026-09-15; quá timebox → park, ghi sổ.
 
 ## Nguồn ngoài & phạm vi kế thừa
 
@@ -64,8 +64,10 @@ tra (chỉ đọc), không phải vật liệu kế thừa.
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
-- **Ngưỡng chốt cùng lúc ký:** gỡ tiền tố `[đề xuất]` ở section Ngưỡng là chốt.
+- **decision = build** Căn cứ: owner ký trong hội thoại 29/08, sau phiên điều
+  tra ba mũi (findings 2026-08-29) — «gỡ [đề xuất] giữ nguyên số».
+- **Ngưỡng chốt cùng lúc ký:** đã gỡ tiền tố, giữ nguyên số ở section Ngưỡng
+  (5-vòng-kế · CHƯA-CHẤM-ĐƯỢC tự xưng · leo nấc khi ≥2 lượt · timebox 15/09).
 
 ## Out of scope từ khám phá
 

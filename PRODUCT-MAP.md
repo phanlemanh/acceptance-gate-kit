@@ -5,8 +5,8 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>16 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>chưa có"]
+  A["Đang cân nhắc cơ hội<br/>15 việc"] --> GD{"Cổng Đáng"}
+  GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>1 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
@@ -24,7 +24,6 @@ flowchart TD
 ## Đang cân nhắc cơ hội
 
 - Ba chỗ tích luỹ không có đường ra — khoá config · dòng file kiểm · con số suite (`ba-cho-tich-luy-khong-duong-ra`)
-- Chấm đúng cây, đúng chỗ đứng — lượt chấm phải tự chứng minh chỗ đứng trước khi verdict được tính (`cham-dung-cay-dung-cho-dung`)
 - Bậc 3 của lái-thử cho bề mặt AGENT — bản tham chiếu `vlm-assert` chỉ phục vụ frame UI, ván agent không có con mắt thứ hai (`con-mat-thu-hai-lai-thu`)
 - Cổng Đáng có cửa — thẻ cổng thứ ba + ký một lượt bằng lệnh duyệt sẵn có (`cong-dang-co-cua`)
 - Dọn tồn kho PR — danh sách PR mở phải nói đúng việc đang chạy, không phải kho hàng cũ (`don-ton-kho-pr`)
@@ -39,6 +38,10 @@ flowchart TD
 - T1 tuyên-kèm-căn-cứ — máy tuyên T1 với bảng căn cứ, không dừng hỏi (`t1-tuyen-kem-can-cu`)
 - Thẻ Cổng Phạm vi phải nói đúng «hệ thống sẽ làm gì» — hôm nay nó xếp tiêu chí bằng cách dò chữ «không» trong vế Then, nên hồ sơ càng viết đúng luật khai-chiều-đỏ càng bị đọc thành «hệ thống không làm gì» (`the-xep-nham-o-se-lam`)
 - Dòng bậc-3 của lái-thử khai `vlm-assert` là "đã ship" trong khi nó là bản tham chiếu phải nhận nuôi (`vlm-assert-khai-nhan-nuoi`)
+
+## Sắp mở vòng
+
+- Chấm đúng cây, đúng chỗ đứng — lượt chấm phải tự chứng minh chỗ đứng trước khi verdict được tính (`cham-dung-cay-dung-cho-dung`)
 
 ## Đang làm
 
