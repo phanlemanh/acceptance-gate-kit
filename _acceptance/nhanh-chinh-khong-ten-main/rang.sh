@@ -60,7 +60,19 @@ YAML
 # đỏ vì HẠ TẦNG chứ không vì vật. Lấy TRỌN thư mục, không liệt file lẻ.
 snapshot_tree() {
   local dest="$1"; mkdir -p "$dest"
-  tar -C "$KIT" -cf - feature-loop lib skills 2>/dev/null | tar -x -C "$dest"
+  # Chép TRỌN cây làm việc trừ rác nặng — không liệt danh sách thư mục tay:
+  # vật được đo mai này require thêm thứ ngoài danh sách thì mọi chiều đỏ hỏng
+  # theo chiều XANH GIẢ (lớp P150). Lỗi tar KHÔNG được nuốt.
+  ( cd "$KIT" && tar -cf - --exclude=.git --exclude=node_modules . ) | ( cd "$dest" && tar -xf - ) || { echo "  DO: snapshot_tree: chép cây thất bại"; return 1; }
+  [ -f "$dest/feature-loop/scripts/s4-args.mjs" ] || { echo "  DO: snapshot_tree: bản sao thiếu vật được đo"; return 1; }
+  # ĐỐI CHỨNG DƯƠNG TRÊN CHÍNH BẢN SAO: bản chưa tiêm phải XANH trước khi tin
+  # bất kỳ màu đỏ nào từ nó.
+  build_repo master
+  if node "$dest/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$dest" --no-carry --out "$TMP/snap-check.json" >"$TMP/snap.txt" 2>&1; then
+    ok "bản sao chưa tiêm chạy XANH (đối chứng dương của bản sao)"
+  else
+    bad "bản sao chưa tiêm đã đỏ — mọi chiều đỏ từ nó vô nghĩa: $(tail -1 "$TMP/snap.txt")"; return 1
+  fi
 }
 run_args() { node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/out.txt" 2>&1; }
 
@@ -141,15 +153,13 @@ remote-tra-loi)
       || bad "mốc lệch khi giải qua remote (got=$GOT want=$MB)"
   else bad "remote trả lời mà s4-args vẫn hỏng: $(tail -1 "$TMP/out.txt")"; fi
   # phân biệt NGUỒN: fixture này phải là 'remote', fixture không remote là 'fallback'
-  SRC_R="$(node -e "
-const {execFileSync}=require('child_process');
-const s=execFileSync('node',['-e','1'],{encoding:'utf8'});" 2>/dev/null; \
-    node --input-type=module -e "
-import {execFileSync} from 'node:child_process';
-const out=execFileSync('git',['-C','$REPO','remote','show','origin'],{encoding:'utf8'});
-process.stdout.write(/HEAD branch:\s*(\S+)/.exec(out)[1]);")"
-  [ "$SRC_R" = "phat-trien" ] && ok "nguồn remote thật sự khai tên ngoài danh sách (phat-trien)" \
-    || bad "fixture remote không khai đúng tên: $SRC_R"
+  # Đo ĐẦU RA của vật được giao (args.json), KHÔNG đo lại fixture: đo fixture thì
+  # assert xanh y hệt dù trường nguồn có tồn tại hay không.
+  SRC_R="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).source||'VANG')" 2>/dev/null || echo VANG)"
+  BR_R="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).branch||'VANG')" 2>/dev/null || echo VANG)"
+  [ "$SRC_R" = "remote" ] && ok "đầu ra khai nguồn = remote (phân biệt được hai đường)" \
+    || bad "đầu ra không khai nguồn remote (được: $SRC_R) — vế AC-6 không có vật"
+  case "$BR_R" in *phat-trien) ok "đầu ra khai đúng nhánh ngoài bốn tên quen: $BR_R" ;; *) bad "đầu ra khai nhánh sai: $BR_R" ;; esac
   # chiều đỏ: phá bước bóc kết quả remote trong bản sao trọn cây → phải rơi về
   # fallback và KHÔNG giải được (nhánh chính không thuộc 4 tên quen)
   MUT2="$TMP/mut2"; snapshot_tree "$MUT2"
@@ -164,7 +174,14 @@ PYX
   rm -f "$TMP/args.json"
   if node "$MUT2/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m2.txt" 2>&1; then
     bad "chiều đỏ hỏng: phá bước đọc remote mà vẫn giải được nhánh chính"
-  else ok "chiều đỏ: phá bước đọc remote → mất đường remote, đòi --diff-base"; fi
+  else
+    # GHIM THÔNG ĐIỆP: kết luận từ mã thoát trần thì bản tiêm chưa từng dựng
+    # (tar hỏng, tiêm nổ, exit 3 usage) cũng thành xanh — «assertion âm tính một
+    # mình». Chuỗi ghim rút từ chính nguồn.
+    grep -qF "$(grep -o "không nhận diện được nhánh chính[^\`']*" "$S4ARGS" | head -1 | cut -c1-40)" "$TMP/m2.txt" \
+      && ok "chiều đỏ: phá bước đọc remote → rơi đúng câu đòi --diff-base (ghim thông điệp)" \
+      || bad "chiều đỏ đỏ nhưng SAI lý do: $(tail -2 "$TMP/m2.txt" | tr '\n' ' ')"
+  fi
   done_chan ;;
 
 doc-bat-buoc-van-dong)
@@ -225,6 +242,69 @@ remote-co-tran)
     || bad "remote treo làm hỏng lượt sinh args: $(tail -1 "$TMP/out.txt")"
   done_chan ;;
 
+ci-single-branch)
+  # AC-7 (S4-r1): hình dạng repo của CI — clone single-branch/shallow. Remote VẪN
+  # khai «HEAD branch: <tên>» nhưng ref cục bộ của tên đó KHÔNG tồn tại; đưa
+  # thẳng vào phép đọc bắt buộc là chết với đúng thông điệp AC-2 gọi là sai loại.
+  build_repo master
+  BARE2="$TMP/bare2.git"; git init -q --bare -b master "$BARE2"
+  git -C "$REPO" remote add origin "$BARE2"
+  git -C "$REPO" push -q origin master feat/x
+  CI="$TMP/ci-clone"
+  git clone -q --single-branch --branch feat/x "$BARE2" "$CI"
+  cp -R "$REPO/_acceptance" "$CI/_acceptance"
+  # ref cục bộ 'master' phải THỰC SỰ vắng thì ca mới có nghĩa
+  git -C "$CI" rev-parse --verify --quiet master >/dev/null 2>&1 \
+    && bad "fixture sai: clone single-branch vẫn có ref master cục bộ" \
+    || ok "fixture đúng hình dạng CI: ref 'master' cục bộ VẮNG, remote vẫn khai nó"
+  # Ô 1 — clone single-branch: KHÔNG ref nào của nhánh chính (cả local lẫn
+  # origin/*). Hành vi ĐÚNG là câu có hướng dẫn, KHÔNG phải «lệnh git thất bại».
+  rm -f "$TMP/args.json"
+  if node "$S4ARGS" --slug demo --root "$CI" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/ci.txt" 2>&1; then
+    bad "ô 1: không ref nhánh chính nào mà vẫn sinh args — đoán bừa mốc so sánh"
+  else
+    if grep -qF "$(grep -o "không nhận diện được nhánh chính[^\`']*" "$S4ARGS" | head -1 | cut -c1-40)" "$TMP/ci.txt" \
+       && ! grep -q "lệnh git thất bại" "$TMP/ci.txt"; then
+      ok "ô 1 (single-branch, không ref nhánh chính): câu có hướng dẫn, KHÔNG thông điệp sai loại"
+    else bad "ô 1: sai loại thông điệp — $(grep -m1 . "$TMP/ci.txt")"; fi
+  fi
+  # Ô 2 — hình dạng CI phổ biến hơn: ref local vắng nhưng `origin/<tên>` CÓ.
+  CI2="$TMP/ci-clone2"; git clone -q "$BARE2" "$CI2"
+  cp -R "$REPO/_acceptance" "$CI2/_acceptance"
+  git -C "$CI2" checkout -q feat/x
+  git -C "$CI2" branch -D master >/dev/null 2>&1
+  git -C "$CI2" rev-parse --verify --quiet master >/dev/null 2>&1 && bad "ô 2: ref local master lẽ ra phải vắng" \
+    || ok "ô 2 đúng hình dạng: ref local 'master' vắng, 'origin/master' còn"
+  rm -f "$TMP/args.json"
+  if node "$S4ARGS" --slug demo --root "$CI2" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/ci2.txt" 2>&1; then
+    MB="$(git -C "$CI2" merge-base origin/master HEAD)"
+    GOT="$(node -e "process.stdout.write(require('$TMP/args.json').diffBase)")"
+    SRC="$(node -e "const a=require('$TMP/args.json'); process.stdout.write(((a.mainBranchInfo)||{}).source||'VANG')")"
+    [ "$GOT" = "$MB" ] && ok "ô 2: giải qua origin/<tên>, mốc BẰNG merge-base độc lập" || bad "ô 2 mốc lệch (got=$GOT want=$MB)"
+    [ "$SRC" = "remote" ] && ok "ô 2: đầu ra khai nguồn = remote" || bad "ô 2 nguồn khai sai: $SRC"
+  else bad "ô 2 vẫn chết dù có origin/master: $(grep -m1 . "$TMP/ci2.txt")"; fi
+  # chiều đỏ: bỏ bước kiểm-tồn-tại trong bản sao → phải chết ĐÚNG thông điệp cũ
+  MUT5="$TMP/mut5"; snapshot_tree "$MUT5" || done_chan
+  python3 - "$MUT5/feature-loop/scripts/s4-args.mjs" <<'PYX'
+import sys
+p=sys.argv[1]; s=open(p,encoding='utf-8').read()
+old="""    for (const cand of [m[1], `origin/${m[1]}`]) {
+      if (gitTry('rev-parse', '--verify', '--quiet', cand) !== null) { mainBranch = cand; mainBranchSource = 'remote'; break; }
+    }"""
+new="""    mainBranch = m[1]; mainBranchSource = 'remote';"""
+assert old in s, "mutant khong tac dung"
+open(p,'w',encoding='utf-8').write(s.replace(old,new))
+PYX
+  rm -f "$TMP/args.json"
+  if node "$MUT5/feature-loop/scripts/s4-args.mjs" --slug demo --root "$CI2" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m5.txt" 2>&1; then
+    bad "chiều đỏ hỏng: bỏ bước kiểm-tồn-tại mà clone single-branch vẫn chạy được"
+  else
+    grep -q "lệnh git thất bại" "$TMP/m5.txt" \
+      && ok "chiều đỏ: bỏ kiểm-tồn-tại → chết đúng thông điệp sai-loại mà AC-2 cấm" \
+      || bad "chiều đỏ đỏ nhưng sai lý do: $(grep -m1 . "$TMP/m5.txt")"
+  fi
+  done_chan ;;
+
 *)
-  echo "rang.sh --chan <master-khong-remote|nhanh-la-cau-huong-dan|remote-tra-loi|doc-bat-buoc-van-dong|hai-vai-hai-ham|remote-co-tran>"; exit 2 ;;
+  echo "rang.sh --chan <master-khong-remote|nhanh-la-cau-huong-dan|remote-tra-loi|doc-bat-buoc-van-dong|hai-vai-hai-ham|remote-co-tran|ci-single-branch>"; exit 2 ;;
 esac

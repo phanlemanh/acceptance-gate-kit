@@ -218,7 +218,15 @@ let mainBranchSource = 'none';
 {
   const out = gitTry('remote', 'show', 'origin');
   const m = out && out.match(/HEAD branch:\s*(\S+)/);
-  if (m && m[1] !== '(unknown)') { mainBranch = m[1]; mainBranchSource = 'remote'; }
+  // Tên remote khai chỉ dùng được khi nó GIẢI ĐƯỢC ở cây này. Checkout
+  // single-branch/shallow (mặc định của nhiều bộ CI) chỉ có ref nhánh feature:
+  // `refs/heads/main` vắng dù remote vẫn khai «HEAD branch: main». Đưa thẳng tên
+  // đó vào phép đọc bắt buộc là chết với ĐÚNG thông điệp mà AC-2 gọi là sai loại.
+  if (m && m[1] !== '(unknown)') {
+    for (const cand of [m[1], `origin/${m[1]}`]) {
+      if (gitTry('rev-parse', '--verify', '--quiet', cand) !== null) { mainBranch = cand; mainBranchSource = 'remote'; break; }
+    }
+  }
 }
 if (!mainBranch) {
   for (const b of MAIN_BRANCH_CANDIDATES) {
@@ -233,7 +241,11 @@ else die('không nhận diện được nhánh chính (không remote, không mai
 const invokedSha = git('rev-parse', 'HEAD');
 // Nguồn giải được tên nhánh chính — vật để phép đo phân biệt đường remote với
 // đường dò tên quen (không có nó, hai đường cho cùng kết quả nên không đo được).
+// Nguồn giải được tên nhánh đi VÀO ĐẦU RA (args + một dòng khai trên stderr):
+// biến chỉ gán rồi chết là lời hứa không có vật, và phép đo bám vào nó sẽ phải
+// đo fixture thay vì đo đầu ra. Trường optional — bên đọc đời cũ bỏ qua.
 const mainBranchInfo = { branch: mainBranch, source: mainBranchSource };
+console.error(`s4-args: nhánh chính «${mainBranch}» giải bằng ${mainBranchSource}`);
 const invokedAt = new Date().toISOString().slice(0, 19) + 'Z';
 
 // ── round: đếm từ ## Iterations của evidence-report.md — KHÔNG đoán ────────
@@ -305,6 +317,7 @@ if (round >= 2) {
 const args = {
   generated_at: invokedAt,
   generated_sha: invokedSha,
+  mainBranchInfo,
   slug: flags.slug,
   round,
   riskTier,

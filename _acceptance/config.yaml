@@ -191,6 +191,7 @@ executors:
     nckt_hai_vai_hai_ham: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan hai-vai-hai-ham
     nckt_remote_co_tran: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-co-tran
     nckt_remote_tra_loi: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-tra-loi
+    nckt_ci_single_branch: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan ci-single-branch
     # Vật của hồ sơ suite-run-log-provenance — răng hồ sơ cho lớp «lệnh suite
     # không để lại dấu vết». Chiều đỏ dựng bằng bản sao TRỌN CÂY (git archive
     # HEAD) do code sinh trong chính lần chạy, KHÔNG neo mốc di động. Cố ý

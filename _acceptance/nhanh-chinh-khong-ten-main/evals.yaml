@@ -80,3 +80,19 @@ evals:
       (vì tên chính ngoài danh sách), tức đỏ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/scripts/s4-args.mjs"]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.nckt_ci_single_branch
+    expected: >
+      S4-r1 — lỗi sản phẩm hội đồng tái lập được: tên nhánh remote khai không
+      được kiểm tồn tại cục bộ nên clone single-branch chết bằng ĐÚNG thông điệp
+      AC-2 gọi là sai loại. Hai ô: (1) clone `--single-branch`, không ref nào của
+      nhánh chính → câu có hướng dẫn, KHÔNG «lệnh git thất bại»; (2) ref local
+      vắng nhưng `origin/<tên>` còn → giải qua ref đó, mốc BẰNG merge-base độc
+      lập, đầu ra khai nguồn = remote. Chiều đỏ: bản sao bỏ bước kiểm-tồn-tại →
+      ô 2 chết đúng thông điệp sai-loại. Bản sao có ĐỐI CHỨNG DƯƠNG của chính nó
+      (chạy xanh khi chưa tiêm) trước khi tin màu đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs"]
