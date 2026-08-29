@@ -250,27 +250,40 @@ JS
     }
     # đối chứng dương: cây hiện tại phải gán ĐÚNG chủ ở cả bốn ô
     dung_fixture "$ROOT"
-    # Hai bộ đọc nói bằng hai thứ khác nhau: TRANG bằng chứng in thẳng mã chạy,
-    # còn THẺ chỉ in một CỜ («bằng chứng máy đầy đủ» / «CHƯA đủ trường»). Đo mã
-    # trên thẻ là đo nhầm vật — thẻ không bao giờ in mã, nên phép đo luôn xanh.
-    # Eval trong fixture CỐ Ý thiếu run_id: cờ đúng phải là CẢNH BÁO; cờ hoá xanh
-    # nghĩa là nó vừa mượn mã của lệnh chạy chung.
+    # Hai bộ đọc nói bằng hai thứ khác nhau: TRANG in thẳng mã chạy, còn THẺ chỉ
+    # in một CỜ. Đo mã trên thẻ là đo nhầm vật.
+    # Fixture dựng trong THƯ MỤC TẠM, không vào cây thật: hồ sơ giả nằm lại trong
+    # `_acceptance/` là hồ sơ MA — mọi bộ đọc hồ sơ xưởng đếm nó như việc thật.
+    # Và mỗi kết luận VẮNG MẶT phải đi kèm một khẳng định CÓ MẶT trên CÙNG đầu ra:
+    # bản trình sập, in ra rỗng, thì "không thấy mã lạ" cũng đúng — assert âm tính
+    # một mình là assert không sống.
+    dung_fixture "$TMP/fix"
     for fx in fx-nohead fx-head; do
       ma="FX-SUITE-001"; [ "$fx" = "fx-head" ] && ma="FX-GHICHU-001"
-      trang="$( cd "$ROOT" && node scripts/evidence-page.js --root . --slug "$fx" 2>/dev/null )"
-      if cat "$trang" 2>/dev/null | grep -qF "$ma"; then
+      trang="$( node "$ROOT/scripts/evidence-page.js" --root "$TMP/fix" --slug "$fx" 2>/dev/null )"
+      noi_dung="$(cat "$trang" 2>/dev/null)"
+      if printf '%s' "$noi_dung" | grep -qF "config:executors.test.api"; then
+        ghim "[trang bang chung/$fx] trang co dung ra va mang noi dung cua eval" 0
+      else
+        ghim "[trang bang chung/$fx] trang co dung ra va mang noi dung cua eval" 1 "trang rong hoac khong chay duoc — moi ket luan vang mat deu vo nghia"
+      fi
+      if printf '%s' "$noi_dung" | grep -qF "$ma"; then
         ghim "[trang bang chung/$fx] khong de ma ngoai khoi len eval" 1 "thay $ma trong dau ra"
       else
         ghim "[trang bang chung/$fx] khong de ma ngoai khoi len eval" 0
       fi
-      the="$( cd "$ROOT" && node scripts/gate-card.js --root . --slug "$fx" 2>/dev/null )"
+      the="$( node "$ROOT/scripts/gate-card.js" --root "$TMP/fix" --slug "$fx" 2>/dev/null )"
+      if printf '%s' "$the" | grep -qF "VIỆC CỦA ANH"; then
+        ghim "[the Cong 2/$fx] the co dung ra" 0
+      else
+        ghim "[the Cong 2/$fx] the co dung ra" 1 "the rong hoac khong chay duoc"
+      fi
       if printf '%s' "$the" | grep -qF "CHƯA đủ trường"; then
         ghim "[the Cong 2/$fx] co van la CANH BAO, khong muon ma lenh chay chung" 0
       else
         ghim "[the Cong 2/$fx] co van la CANH BAO, khong muon ma lenh chay chung" 1 "co da hoa xanh"
       fi
     done
-    rm -rf "$ROOT/_acceptance/fx-nohead" "$ROOT/_acceptance/fx-head"
     # CHIỀU ĐỎ: bốn bản tiêm, mỗi lớp một bản, mỗi bản chỉ gỡ ĐÚNG một nhánh
     tiem_bo_doc() { # tiem_bo_doc <thu muc> <file script> <sed expr> <slug fixture> <ma phai lo>
       local dir="$1" f="$2" expr="$3" fx="$4" ma="$5"
@@ -284,11 +297,13 @@ JS
       local out; out="$( cd "$dir" && node "scripts/$f" --root . --slug "$fx" 2>/dev/null )"
       local thay=1
       if [ "${f%.js}" = "evidence-page" ]; then
-        # trang in thẳng mã → gỡ nhánh thì mã ngoài khối lộ ra
+        # trang in thẳng mã → gỡ nhánh thì mã ngoài khối lộ ra (khẳng định CÓ MẶT)
         cat "$out" 2>/dev/null | grep -qF "$ma" && thay=0
       else
-        # thẻ chỉ in cờ → gỡ nhánh thì cờ cảnh báo BIẾN MẤT (hoá xanh nhờ mã mượn)
-        printf '%s' "$out" | grep -qF "CHƯA đủ trường" || thay=0
+        # thẻ chỉ in cờ → gỡ nhánh thì cờ phải HOÁ XANH. Khẳng định CÓ MẶT chữ
+        # xanh, KHÔNG kết luận từ việc chữ cảnh báo vắng mặt: thẻ sập in ra rỗng
+        # thì chữ cảnh báo cũng vắng, và phép đo sẽ xanh nhờ một lỗi khác.
+        printf '%s' "$out" | grep -qF "bằng chứng máy đầy đủ" && thay=0
       fi
       if [ "$thay" = "0" ]; then
         ghim "chieu do [$f/$fx]: go nhanh -> sai chu lo ra" 0

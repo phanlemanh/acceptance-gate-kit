@@ -1699,6 +1699,13 @@ console.log('W28 va cham ten suite: hai lenh KHAC nhau khong duoc dung chung mot
     // rieng, khong thi go mot lop van xanh nho lop kia va chieu do chet am tham.
     const tenA = (suite.find(l => l.cmd === bt.a) || {}).evalId;
     const tenB = (suite.find(l => l.cmd === bt.b) || {}).evalId;
+    // TIEN DE truoc KET LUAN: "hai ma khac nhau" khong chung minh gi neu hai lenh
+    // von KHONG va cham. Hau to bam chi duoc gan khi ten tho trung nhau, nen su
+    // CO MAT cua hau to o CA HAI + cung goc ten = bang chung va cham that su xay ra.
+    const goc = x => String(x).replace(/__[0-9a-f]{6}$/, '');
+    check(`W28 [${bt.ten}] TIEN DE: hai lenh that su trung ten tho`,
+      !!tenA && !!tenB && goc(tenA) === goc(tenB) && /__[0-9a-f]{6}$/.test(tenA) && /__[0-9a-f]{6}$/.test(tenB),
+      `${tenA} / ${tenB}`);
     check(`W28 [${bt.ten}] hai lenh -> hai evalId`, !!tenA && !!tenB && tenA !== tenB, `${tenA} / ${tenB}`);
   }
   // Doi chung duong: khong va cham thi ten GIU NGUYEN (khong hau to), ca W03 cu con song.
@@ -1843,6 +1850,17 @@ console.log('W34 thu tu khai KHONG duoc doi ma (menh de dau cua AC-2)');
   };
   const xuoi = await mapCua(BO);
   const nguoc = await mapCua([...BO].reverse());
+  // Bo lenh KHONG va cham la ca DE: ten suy tu tung lenh nen thu tu khong the
+  // anh huong. Cho ma phu thuoc CA TAP (hau to bam chi bat khi co trung ten) moi
+  // la cho bat bien nay co the gay — do o day.
+  const VC = ['cd apps/web && pnpm build', 'cd apps/api && pnpm build', 'npm run build'];
+  const vcXuoi = await mapCua(VC);
+  const vcNguoc = await mapCua([...VC].reverse());
+  const chuan = m => JSON.stringify(Object.keys(m).sort().map(k => [k, m[k]]));
+  check('W34 TIEN DE: bo lenh nay that su va cham (hau to bam duoc gan)',
+    Object.values(vcXuoi).every(v => /__[0-9a-f]{6}-r\d+$/.test(v)), JSON.stringify(vcXuoi));
+  check('W34 doi thu tu tren bo CO va cham -> ma khong doi',
+    chuan(vcXuoi) === chuan(vcNguoc), JSON.stringify([vcXuoi, vcNguoc]));
   // Ma duc theo CHI SO mang thi doi thu tu khai la doi ma, va doi chieu vong sau lech.
   check('W34 doi thu tu -> ma khong doi',
     JSON.stringify(Object.keys(xuoi).sort().map(k => [k, xuoi[k]])) === JSON.stringify(Object.keys(nguoc).sort().map(k => [k, nguoc[k]])),

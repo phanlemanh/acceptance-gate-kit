@@ -34,7 +34,8 @@ reserved (parsed as a verifier and will fail authenticity). `run_id` must be
 at least 4 chars; if the verifier prints none, mint `<slug>-<eval>-<date>`.
 Run-log reconciliation: when `_acceptance/{slug}/run-log.jsonl` exists (the
 verify machinery appends one machine-computed JSON line per machine/ui eval,
-at run time), every `run_id` in a PASS report must appear in that log — the
+plus one per suite command that carries no eval — `evalId: SUITE-<name>`, at
+run time), every `run_id` in a PASS report must appear in that log — the
 hook and the CI re-check both block ids that were never logged. Copy run_ids
 from the actual runs; never invent them. A report without a sibling log
 (older flow) is tolerated; pre-merge NOTEs it.
