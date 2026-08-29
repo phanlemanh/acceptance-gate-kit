@@ -33,6 +33,13 @@ chung mà mọi hồ sơ gọi, trong đó fixture cô lập theo thiết kế, 
 hạ tầng tính là đỏ, và **bản tiêm phải chứng minh nó khác bản gốc trên CÙNG
 fixture** (giống nhau ⇒ đỏ) thay vì tin vào mã thoát.
 
+Lỗ luật thứ tư, phát hiện 29/08 khi sinh args vòng 3: cơ chế mang-kết-quả-sang
+loại TRỌN `_acceptance/**` khỏi danh sách file đổi — đúng cho hồ sơ (bản hợp
+đồng, bằng chứng) nhưng SAI cho bộ răng, vì `rang.sh` là mã thực thi sống trong
+chính thư mục đó. Hệ quả: sửa bộ đo mà máy tưởng không có gì đổi, mang kết quả
+cũ sang và bằng chứng đứng tên một bộ đo đã khác. Vòng
+`nhanh-chinh-khong-ten-main` né bằng cách khai `--no-carry` tường minh.
+
 Nợ đã khai kèm theo (từ vòng `nhanh-chinh-khong-ten-main`, thu phạm vi S4-r2):
 trần thời gian cho lệnh hỏi remote và luật «vùng dò chỉ gọi hàm dò» hiện KHÔNG
 có phép đo sống — hai ca đó thuộc đúng lớp này nên chờ khuôn chung.
