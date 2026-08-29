@@ -106,7 +106,7 @@ kho: `lib/evidence-core.cjs` (đối chiếu mã trong bản chấm với sổ),
   AC-2; suite LUÔN chạy lại, không mang sang) · lượt re-pin (dòng `kind:repin`,
   luật riêng — không đụng). [thước CE: luật carry-forward P1 + luật re-pin]
 - Trục D — nơi mã phải khớp: dòng sổ · đề bài của máy soạn bản chấm · bản chấm ·
-  bộ đối chiếu (AC-5) · và HAI bản trình cho người ký — trang bằng chứng và thẻ
+  bộ đối chiếu (AC-5) · và HAI bản trình cho người ký — trang bằng chứng và card
   Cổng 2 (AC-7, thêm ở vòng sửa S4-r3). Nút cuối là chỗ lượt soi bắt được lỗi
   thật: mã đúng trong sổ vẫn có thể hiện sai chủ trên trang người đọc.
   [thước CE: `evaluateEvidence` → `extractRunIds` + `loadRunLogIds`]
