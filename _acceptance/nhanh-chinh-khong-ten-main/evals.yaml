@@ -1,0 +1,106 @@
+schema_version: 1
+feature_slug: nhanh-chinh-khong-ten-main
+# Ma trận mutant: mỗi eval khai số vế ↔ số chiều đỏ. E1 4 vế + 1 mutant danh
+# sách · E2 3 vế + 1 đối chứng dương · E3 2 vế · E6 3 vế + 1 mutant · E7 hai ô + 1 mutant.
+# AC-4/AC-5 đã RÚT khỏi vòng (thu phạm vi S4-r2) — xem Notes của contract.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.nckt_master_khong_remote
+    expected: >
+      THAM SỐ HOÁ trên danh sách tên RÚT từ marker MAIN-BRANCH-CANDIDATES của
+      chính s4-args.mjs (round-trip writer→reader; assert độ dài = 4, khác thì
+      đỏ). Với MỖI tên: fixture code-sinh repo git thật nhánh chính tên đó,
+      không remote, có nhánh feature cắt ra → exit 0 và diffBase BẰNG
+      `git merge-base <tên> HEAD` chạy độc lập, đồng thời KHÁC `rev-parse HEAD`.
+      Chiều đỏ: bản sao CÂY LÀM VIỆC (trọn thư mục) cắt danh sách còn một tên →
+      nhánh master phải rơi về câu đòi --diff-base.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.nckt_nhanh_la_cau_huong_dan
+    expected: >
+      Fixture nhánh `phat-trien`, không remote → exit ≠ 0; thông điệp chứa câu
+      hướng dẫn RÚT từ nguồn (không gõ literal), KHÔNG chứa «lệnh git thất bại»,
+      KHÔNG có vết đổ tiến trình (`node:internal`). Đối chứng dương cùng fixture:
+      đổi tên nhánh về `master` → exit 0, sinh tệp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.nckt_doc_bat_buoc_van_dong
+    expected: >
+      `--diff-base khong-ton-tai-ref` → exit ĐÚNG 2, thông điệp nêu tên phần
+      hỏng, tệp args vắng (stat). Đối chứng dương: `--diff-base master` → exit 0,
+      tệp sinh. Chốt giữ cửa fail-closed khỏi bị nới khi sửa phép dò.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.nckt_remote_tra_loi
+    expected: >
+      Đường remote — đường phổ biến nhất ở repo tiêu thụ. Fixture code-sinh: bare
+      repo local làm remote thật, `origin/HEAD` trỏ tên NGOÀI bốn tên quen
+      (`phat-trien`) → exit 0 và diffBase BẰNG `git merge-base phat-trien HEAD`
+      độc lập; kiểm fixture thật sự khai tên đó. Chiều đỏ: bản sao cây làm việc
+      phá bước bóc kết quả remote → phải rơi về đường dò tên và KHÔNG giải được
+      (vì tên chính ngoài danh sách), tức đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.nckt_ci_single_branch
+    expected: >
+      S4-r1 — lỗi sản phẩm hội đồng tái lập được: tên nhánh remote khai không
+      được kiểm tồn tại cục bộ nên clone single-branch chết bằng ĐÚNG thông điệp
+      AC-2 gọi là sai loại. Hai ô: (1) clone `--single-branch`, không ref nào của
+      nhánh chính → câu có hướng dẫn (sau S4-r4 là câu nêu đích danh tên remote
+      khai) + chỉ lối `--diff-base`, KHÔNG «lệnh git thất bại» và không vết đổ;
+      (2) ref local
+      vắng nhưng `origin/<tên>` còn → giải qua ref đó, mốc BẰNG merge-base độc
+      lập, đầu ra khai nguồn = remote. Chiều đỏ: bản sao bỏ bước kiểm-tồn-tại →
+      ô 2 chết đúng thông điệp sai-loại. Bản sao có ĐỐI CHỨNG DƯƠNG của chính nó
+      (chạy xanh khi chưa tiêm) trước khi tin màu đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.nckt_khong_doan_sang_ten_khac
+    expected: >
+      HỒI QUY do chính vòng này đẻ ra (r1/r2), máy tự tái lập ở r3. Fixture
+      code-sinh dựng đúng bẫy: remote khai «main», cả `main` lẫn `origin/main`
+      bị xoá, `master` còn sống. Bản đúng: exit ≠ 0, thông điệp nêu ĐÚNG tên
+      remote khai + chỉ lối `--diff-base`, KHÔNG sinh tệp. Đối chứng dương cùng
+      fixture: trả ref `main` về → exit 0, nguồn = remote. Chiều đỏ: bản sao cho
+      vòng dò chạy VÔ ĐIỀU KIỆN (đúng bản r1/r2) → phải ĐOÁN BỪA sang «master»,
+      chứng ca phân biệt được hai bản chứ không xanh vì chưa từng chạy.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh"]
+
+  - id: E10
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      LƯỚI THƯỜNG TRỰC (ADR 0011 — thứ phải đúng sau merge không được chỉ nằm
+      trong răng hồ sơ): `tests/scripts/s4-args-main-branch.test.mjs` chạy trong
+      bộ kiểm thường trực, fixture code-sinh, 4 nhóm ca — dò được nhánh không
+      tên main · cấm đoán khi remote khai tên không giải được (kèm đối chứng
+      dương) · giải qua `origin/<tên>` ở hình dạng CI · và (sau khi thu phạm vi
+      S4-r5) ca canh LỐI THOÁT `--diff-base` luôn sống khi remote không hỏi
+      được — chính thứ bản vá r5 đã lỡ bịt. Bộ chạy `tests/scripts/run-tests.sh`
+      tự quét mọi `*.test.mjs` nên ca này không thể bị bỏ quên khi wire.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-main-branch.test.mjs"]
