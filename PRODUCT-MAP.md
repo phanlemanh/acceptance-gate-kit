@@ -6,7 +6,7 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>15 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>chưa có"]
+  GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>chưa có"]
   GD --> DB["Đã bác từ khám phá<br/>1 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
@@ -38,6 +38,10 @@ flowchart TD
 - T1 tuyên-kèm-căn-cứ — máy tuyên T1 với bảng căn cứ, không dừng hỏi (`t1-tuyen-kem-can-cu`)
 - Thẻ Cổng Phạm vi phải nói đúng «hệ thống sẽ làm gì» — hôm nay nó xếp tiêu chí bằng cách dò chữ «không» trong vế Then, nên hồ sơ càng viết đúng luật khai-chiều-đỏ càng bị đọc thành «hệ thống không làm gì» (`the-xep-nham-o-se-lam`)
 - Dòng bậc-3 của lái-thử khai `vlm-assert` là "đã ship" trong khi nó là bản tham chiếu phải nhận nuôi (`vlm-assert-khai-nhan-nuoi`)
+
+## Sắp mở vòng
+
+- Chấm đúng cây, đúng chỗ đứng — lượt chấm phải tự chứng minh chỗ đứng trước khi verdict được tính (`cham-dung-cay-dung-cho-dung`)
 
 ## Đang làm
 
