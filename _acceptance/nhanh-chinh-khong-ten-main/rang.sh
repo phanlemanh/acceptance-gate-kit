@@ -227,9 +227,15 @@ ci-single-branch)
   if node "$S4ARGS" --slug demo --root "$CI" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/ci.txt" 2>&1; then
     bad "ô 1: không ref nhánh chính nào mà vẫn sinh args — đoán bừa mốc so sánh"
   else
-    if grep -qF "$(grep -o "không nhận diện được nhánh chính[^\`']*" "$S4ARGS" | head -1 | cut -c1-40)" "$TMP/ci.txt" \
-       && ! grep -q "lệnh git thất bại" "$TMP/ci.txt"; then
-      ok "ô 1 (single-branch, không ref nhánh chính): câu có hướng dẫn, KHÔNG thông điệp sai loại"
+    # Sau S4-r4, remote CÓ khai tên nên câu đúng là câu «remote khai … không giải
+    # được … --diff-base» (nêu đích danh tên remote khai — tốt hơn câu chung).
+    # Cả hai câu đều rút từ nguồn; điều cấm vẫn là thông điệp SAI LOẠI.
+    N_REMOTE="$(grep -o "remote khai nhánh chính[^\`\$]*" "$S4ARGS" | head -1 | cut -c1-28)"
+    N_CHUNG="$(grep -o "không nhận diện được nhánh chính[^\`']*" "$S4ARGS" | head -1 | cut -c1-40)"
+    if { grep -qF "$N_REMOTE" "$TMP/ci.txt" || grep -qF "$N_CHUNG" "$TMP/ci.txt"; } \
+       && grep -q -- "--diff-base" "$TMP/ci.txt" \
+       && ! grep -q "lệnh git thất bại" "$TMP/ci.txt" && ! grep -q "node:internal" "$TMP/ci.txt"; then
+      ok "ô 1 (single-branch, không ref nhánh chính): câu có hướng dẫn + chỉ lối --diff-base, KHÔNG thông điệp sai loại"
     else bad "ô 1: sai loại thông điệp — $(grep -m1 . "$TMP/ci.txt")"; fi
   fi
   # Ô 2 — hình dạng CI phổ biến hơn: ref local vắng nhưng `origin/<tên>` CÓ.
