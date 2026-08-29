@@ -98,8 +98,9 @@ evals:
       trong răng hồ sơ): `tests/scripts/s4-args-main-branch.test.mjs` chạy trong
       bộ kiểm thường trực, fixture code-sinh, 4 nhóm ca — dò được nhánh không
       tên main · cấm đoán khi remote khai tên không giải được (kèm đối chứng
-      dương) · giải qua `origin/<tên>` ở hình dạng CI · cấm đoán khi có origin mà
-      hỏi không được. Bộ chạy `tests/scripts/run-tests.sh` tự quét mọi
-      `*.test.mjs` nên ca này không thể bị bỏ quên khi wire.
+      dương) · giải qua `origin/<tên>` ở hình dạng CI · và (sau khi thu phạm vi
+      S4-r5) ca canh LỐI THOÁT `--diff-base` luôn sống khi remote không hỏi
+      được — chính thứ bản vá r5 đã lỡ bịt. Bộ chạy `tests/scripts/run-tests.sh`
+      tự quét mọi `*.test.mjs` nên ca này không thể bị bỏ quên khi wire.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-main-branch.test.mjs"]
