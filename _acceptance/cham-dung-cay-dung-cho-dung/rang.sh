@@ -231,6 +231,29 @@ loi-khai)
   if echo "$B2" | grep -q "generated_sha"; then bad "mutant rỗng-ruột không có tác dụng — chiều đỏ vế SKILL chết"; else ok "chiều đỏ vế SKILL: bản sao rỗng ruột → phép kiểm đỏ được"; fi
   done_chan ;;
 
+skill-khong-fallback)
+  SKILL_MD="$KIT/feature-loop/skills/feature-loop/SKILL.md"
+  # vế (a): khối điều khoản DỪNG có mặt và NỘI DUNG chứa cả hành-động-dừng lẫn cấm-fallback
+  BLOCK="$(sed -n '/<<<S4-ARGS-CLAUSE/,/S4-ARGS-CLAUSE>>>/p' "$SKILL_MD")"
+  if [ -n "$BLOCK" ] && echo "$BLOCK" | grep -q "DỪNG" && echo "$BLOCK" | grep -q "soạn args bằng tay"; then
+    ok "vế (a): khối S4-ARGS-CLAUSE đủ hành-động-dừng + cấm-fallback"
+  else bad "vế (a): khối S4-ARGS-CLAUSE thiếu/rỗng ruột"; fi
+  # vế (b): khối 14-gạch soạn-tay cũ đã VẮNG — hai chuỗi mồi đại diện của bản cũ
+  M1="đi theo dotted path"; M2="shasum -a 256"
+  if grep -qF "$M1" "$SKILL_MD" || grep -qF "$M2" "$SKILL_MD"; then
+    bad "vế (b): SKILL còn dấu vết công thức soạn-tay (mồi: $M1 / $M2)"
+  else ok "vế (b): công thức soạn-tay cũ đã vắng khỏi SKILL"; fi
+  # chiều đỏ (b): chèn lại một dòng soạn-tay vào BẢN SAO → phép kiểm phải đỏ
+  CP="$TMP/skill-copy.md"
+  { cat "$SKILL_MD"; printf '\n   - Resolve mỗi `cmd: config:a.b.c` → đọc config.yaml, đi theo dotted path.\n'; } > "$CP"
+  if grep -qF "$M1" "$CP"; then ok "chiều đỏ (b): bản sao chèn lại soạn-tay → phép kiểm đỏ được"; else bad "chiều đỏ (b) chết — mồi không bắt được dòng chèn"; fi
+  # chiều đỏ (a): rỗng ruột khối trong bản sao → vế (a) phải đỏ
+  CP2="$TMP/skill-copy2.md"
+  sed '/<<<S4-ARGS-CLAUSE/,/S4-ARGS-CLAUSE>>>/{/<<<S4-ARGS-CLAUSE/!{/S4-ARGS-CLAUSE>>>/!d;};}' "$SKILL_MD" > "$CP2"
+  B2="$(sed -n '/<<<S4-ARGS-CLAUSE/,/S4-ARGS-CLAUSE>>>/p' "$CP2")"
+  if echo "$B2" | grep -q "DỪNG"; then bad "chiều đỏ (a) chết — mutant rỗng ruột không tác dụng"; else ok "chiều đỏ (a): bản sao rỗng ruột → vế (a) đỏ được"; fi
+  done_chan ;;
+
 *)
-  echo "rang.sh --chan <args-du-truong|ref-hong|round-tu-dem|carry-da-goi|loi-khai>"; exit 2 ;;
+  echo "rang.sh --chan <args-du-truong|ref-hong|round-tu-dem|carry-da-goi|loi-khai|skill-khong-fallback>"; exit 2 ;;
 esac

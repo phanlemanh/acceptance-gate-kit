@@ -180,6 +180,7 @@ executors:
     cdc_round_tu_dem: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan round-tu-dem
     cdc_carry_da_goi: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan carry-da-goi
     cdc_loi_khai_pham_vi: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan loi-khai
+    cdc_skill_khong_fallback: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan skill-khong-fallback
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
