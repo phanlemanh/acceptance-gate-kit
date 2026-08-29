@@ -1759,4 +1759,57 @@ console.log('W32 gop lenh: suite trung dung cmd cua mot eval -> khong sinh dong 
   check('W32 so dong = so eval', lines.length === 2, String(lines.length));
 }
 
+console.log('W33 day khep: so -> ban cham -> BO DOC that cua kho (evidence-core)');
+{
+  // Day cua loi goc di qua BON nut: dong so · de bai · ban cham · bo doi chieu.
+  // Ca nay chay TRON day bang chinh ham ma hook + recheck dung (evaluateEvidence,
+  // ben trong goi extractRunIds + loadRunLogIds) — khong dung fixture viet tay
+  // dung khuon ben DOC, vi do la kieu do tu chung minh chinh no.
+  const { createRequire } = await import('node:module');
+  const fs = await import('node:fs');
+  const os = await import('node:os');
+  const require_ = createRequire(import.meta.url);
+  const core = require_(path.join(HERE, '..', '..', 'lib', 'evidence-core.cjs'));
+
+  const { result, calls } = await runWorkflow(WF, baseArgs(), responder());
+  const lines = result.runLog.map(l => JSON.parse(l));
+  const suite = lines.find(l => String(l.evalId).startsWith('SUITE-'));
+
+  // Ban cham dung khuon khoi eval cua ban mau, mang DUNG cac ma tu so.
+  const khoiEval = (id, runId) => `- eval: ${id}\n  run_id: ${runId}\n  exit_code: 0\n  verifier: config:executors.test.api\n  verified_at: 2026-07-02T10:00:00Z\n`;
+  const banCham = (opts = {}) =>
+    `---\nschema_version: 1\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\n---\n\n# Evidence Report: demo\n\n## Evidence\n\n` +
+    lines.filter(l => !String(l.evalId).startsWith('SUITE-')).map(l => khoiEval(l.evalId, l.run_id)).join('\n') + '\n' +
+    khoiEval(suite.evalId, opts.maSuite === undefined ? suite.run_id : opts.maSuite);
+
+  const viet = (dir, ls) => { fs.writeFileSync(path.join(dir, 'run-log.jsonl'), ls.map(l => JSON.stringify(l)).join('\n') + '\n'); return dir; };
+  const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'srlp-'));
+
+  // (1) DOI CHUNG DUONG truoc: so day du + ban cham dung ma -> khong loi provenance.
+  const dLanh = viet(tmp(), lines);
+  const rLanh = core.evaluateEvidence(banCham(), { fileDir: dLanh });
+  check('W33 ma trong ban cham deu co trong so', rLanh.runLogFailure === null, String(rLanh.runLogFailure));
+
+  // (2) CHIEU DO a: bo DUNG dong suite khoi so -> phai do va NEU DICH DANH ma thieu.
+  const dThieu = viet(tmp(), lines.filter(l => l !== suite));
+  const rThieu = core.evaluateEvidence(banCham(), { fileDir: dThieu });
+  check('W33 chieu do: thieu dong suite -> do, neu dich danh ma',
+    !!rThieu.runLogFailure && rThieu.runLogFailure.includes(suite.run_id),
+    String(rThieu.runLogFailure));
+
+  // (3) CHIEU DO b: ban cham ghi evalId thay vi run_id — de bai dung van co the
+  // sinh ban cham sai kieu nay, va do dung la ca da no o media-library vong 11.
+  const rNhamId = core.evaluateEvidence(banCham({ maSuite: suite.evalId }), { fileDir: dLanh });
+  check('W33 chieu do: ban cham ghi evalId thay vi run_id -> do',
+    !!rNhamId.runLogFailure && rNhamId.runLogFailure.includes(suite.evalId),
+    String(rNhamId.runLogFailure));
+
+  // (4) MOT ban luat: de bai chua DUNG MOT khoi luat cam tu dat ma. Hai khoi
+  // canh tranh thi may soan theo khoi de dai hon va ma bia quay lai.
+  const synth = byLabel(calls, 'synthesize:report')[0].prompt;
+  const demKhoi = (synth.match(/TUYET DOI KHONG tu mint/g) || []).length;
+  check('W33 de bai chua dung MOT khoi luat mint', demKhoi === 1, String(demKhoi));
+  check('W33 de bai mang ma suite that', synth.includes(suite.run_id), suite.run_id);
+}
+
 summary('acceptance-verify');

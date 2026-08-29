@@ -22,7 +22,7 @@
 #   Trục A′ · 3 biến thể va chạm → E3: tiền tố thư mục · khác cờ · trùng 40 ký tự đầu
 #   Trục B · 3 ô kết quả → E4: exit 0 · exit ≠ 0 · cannotRun
 #   Trục C · 2 ô vòng → E5 chân round: round 1 vs round 2 cùng lệnh
-#   Trục D · dây 4 nút → E6 round-trip chạy chính extractEvalBlockRunIds + loadRunLogIds
+#   Trục D · dây 4 nút → E6 round-trip chạy chính evaluateEvidence (extractRunIds + loadRunLogIds)
 
 evals:
   - id: E1
@@ -59,7 +59,7 @@ evals:
     criterion: AC-5
     executor: script
     cmd: config:executors.script.srlp_rang_day_khep
-    expected: "DÂY KHÉP writer→reader, đo bằng chính bộ ĐỌC của kho chứ không bằng fixture viết tay đúng khuôn bên đọc: fixture code-sinh gọi workflow lấy runLog THẬT, dựng bản chấm mang các mã đó theo đúng khuôn khối eval của template, rồi require('lib/evidence-core.cjs') và chạy extractEvalBlockRunIds(bản chấm) ⊆ loadRunLogIds(thư mục sổ) — assert QUAN HỆ bao hàm, ghim 'PASS: ma trong ban cham deu co trong so'. CHIỀU ĐỎ cùng fixture: xoá ĐÚNG dòng sổ của lệnh suite → phép so phải ĐỎ và nêu ĐÍCH DANH mã thiếu, ghim 'DO: thieu ma <id> trong so'; và ca thứ hai: bản chấm ghi evalId ('SUITE-build') thay vì run_id → cũng ĐỎ, ghim 'DO: ban cham ghi evalId thay vi run_id' (đây đúng kịch bản mà đề bài đúng vẫn có thể sinh bản chấm sai). Chân thứ hai — MỘT bản luật: đề bài gửi máy soạn bản chấm chứa ĐÚNG MỘT khối luật cấm tự đặt mã, đo bằng ĐẾM điểm neo của khối, khác 1 → đỏ ghim số đếm ('DO: <n> khoi luat mint'); phủ định 'không thêm đoạn cạnh tranh' chỉ chứng được ở dạng đếm này, phần còn lại đã chuyển sang assert trên ĐẦU RA ở trên. Đường dẫn suy từ vị trí răng, không hardcode ROOT."
+    expected: "DÂY KHÉP writer→reader, đo bằng chính bộ ĐỌC của kho chứ không bằng fixture viết tay đúng khuôn bên đọc: fixture code-sinh gọi workflow lấy runLog THẬT, dựng bản chấm mang các mã đó theo đúng khuôn khối eval của template, rồi require('lib/evidence-core.cjs') và chạy evaluateEvidence(bản chấm, {fileDir}) — ĐÚNG hàm mà ổ cắm cưỡng chế + bộ kiểm lại cùng gọi (bên trong: extractRunIds + loadRunLogIds) — assert runLogFailure === null, tức QUAN HỆ bao hàm, ghim 'PASS: ma trong ban cham deu co trong so'. CHIỀU ĐỎ cùng fixture: xoá ĐÚNG dòng sổ của lệnh suite → phép so phải ĐỎ và nêu ĐÍCH DANH mã thiếu, ghim 'DO: thieu ma <id> trong so'; và ca thứ hai: bản chấm ghi evalId ('SUITE-build') thay vì run_id → cũng ĐỎ, ghim 'DO: ban cham ghi evalId thay vi run_id' (đây đúng kịch bản mà đề bài đúng vẫn có thể sinh bản chấm sai). Chân thứ hai — MỘT bản luật: đề bài gửi máy soạn bản chấm chứa ĐÚNG MỘT khối luật cấm tự đặt mã, đo bằng ĐẾM điểm neo của khối, khác 1 → đỏ ghim số đếm ('DO: <n> khoi luat mint'); phủ định 'không thêm đoạn cạnh tranh' chỉ chứng được ở dạng đếm này, phần còn lại đã chuyển sang assert trên ĐẦU RA ở trên. Đường dẫn suy từ vị trí răng, không hardcode ROOT."
     paths: [feature-loop/workflows/acceptance-verify.js, lib/evidence-core.cjs, tests/workflows/acceptance-verify.test.mjs, _acceptance/suite-run-log-provenance/rang.sh]
   - id: E7
     criterion: AC-6

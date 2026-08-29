@@ -60,10 +60,10 @@ Source input: prompt (PR #117) + đo thật media-library vòng 11.
   `cannot_run: true` — không được ghi 0.
 - **AC-5 — dây khép từ sổ tới bộ đối chiếu, đo bằng chính bộ ĐỌC.** Given một
   vòng có lệnh suite, When bản chấm được soạn từ kết quả vòng đó, Then tập mã mà
-  bộ trích thật của kho rút từ bản chấm (`extractEvalBlockRunIds` trong
-  `lib/evidence-core.cjs`) phải NẰM TRỌN trong tập mã mà bộ đọc sổ thật rút từ
-  `run-log.jsonl` (`loadRunLogIds`) — quan hệ bao hàm chạy qua đúng hai hàm mà
-  cổng dùng, không phải phép có-mặt-chuỗi; And Given đề bài gửi máy soạn bản
+  chính bộ đọc của kho rút từ bản chấm phải NẰM TRỌN trong tập mã rút từ
+  `run-log.jsonl` — đo bằng `evaluateEvidence` của `lib/evidence-core.cjs`, đúng
+  hàm mà ổ cắm cưỡng chế và bộ kiểm lại cùng gọi (bên trong nó là `extractRunIds`
+  + `loadRunLogIds`), chứ không phải phép có-mặt-chuỗi; And Given đề bài gửi máy soạn bản
   chấm, Then nó chứa ĐÚNG MỘT khối luật cấm tự đặt mã (đếm điểm neo của khối,
   khác 1 là hỏng) — hai khối cạnh tranh thì máy soạn theo khối dễ dãi hơn và mã
   bịa quay lại.
@@ -96,7 +96,7 @@ kho: `lib/evidence-core.cjs` (đối chiếu mã trong bản chấm với sổ),
   luật riêng — không đụng). [thước CE: luật carry-forward P1 + luật re-pin]
 - Trục D — nơi mã phải khớp: dòng sổ · đề bài của máy soạn bản chấm · bản chấm ·
   bộ đối chiếu. Cả bốn nút nằm trong AC-5, đo bằng chính bộ đọc của kho.
-  [thước CE: `extractEvalBlockRunIds` + `loadRunLogIds`]
+  [thước CE: `evaluateEvidence` → `extractRunIds` + `loadRunLogIds`]
 
 Ô cắt (ghi vết, không làm): trục C ô «lượt re-pin» — luật riêng đã có răng
 riêng, đụng vào là mở phạm vi sang lớp khác.
