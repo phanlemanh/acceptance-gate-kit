@@ -1,0 +1,45 @@
+---
+schema_version: 1
+slug: khuon-rang-dung-chung
+feature: Khuôn răng dùng chung — bộ đo của hồ sơ không được tự dối theo cùng ba hình dạng
+owner: manh@mstar.vn
+stage: discovery              # discovery | decided | archived
+decision:         # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by:
+decided_at:     # ISO UTC
+prototype:
+  base_commit:
+  disposition:
+---
+
+## Vấn đề & ai gặp
+
+Người trả giá là chính vòng lặp: mỗi hồ sơ tự viết bộ răng bằng bash, và cùng
+ba hình dạng tự-dối tái phát ở hồ sơ này sang hồ sơ khác — đo được trong MỘT
+phiên duy nhất (29/08), luật dừng-vá bật HAI lần vì đúng lớp này:
+
+1. **Chiều đỏ kết luận từ mã thoát trần** — bản tiêm chưa từng dựng (chép cây
+   hỏng, bước tiêm nổ, dùng sai cờ) cũng cho cùng màu với «bắt đúng lỗi».
+   (`cham-dung-cay-dung-cho-dung` r1 · `nhanh-chinh-khong-ten-main` r1)
+2. **Chiều đỏ mất lực nhân quả vì fixture bị thay ngầm** — hàm dựng repo đặt
+   biến dùng chung, hàm chụp cây gọi lại nó, nên bản tiêm chạy trên fixture
+   khác; bản nguyên vẹn cũng cho cùng kết quả. (`nhanh-chinh-khong-ten-main` r2)
+3. **Hạ tầng hỏng cho cùng màu với đạt** — đường hỏng chỉ in chữ, không tăng bộ
+   đếm, nên chân báo «passed» dù chiều đỏ chưa từng chạy. (r2)
+
+Ba hình dạng đều là *cách viết phép đo*, không phải mã sản phẩm — nên vá theo
+từng hồ sơ là đuổi theo hình dạng. Lời giải đúng tầng: một khuôn răng dùng
+chung mà mọi hồ sơ gọi, trong đó fixture cô lập theo thiết kế, mọi đường hỏng
+hạ tầng tính là đỏ, và **bản tiêm phải chứng minh nó khác bản gốc trên CÙNG
+fixture** (giống nhau ⇒ đỏ) thay vì tin vào mã thoát.
+
+Nợ đã khai kèm theo (từ vòng `nhanh-chinh-khong-ten-main`, thu phạm vi S4-r2):
+trần thời gian cho lệnh hỏi remote và luật «vùng dò chỉ gọi hàm dò» hiện KHÔNG
+có phép đo sống — hai ca đó thuộc đúng lớp này nên chờ khuôn chung.
+
+## Ngưỡng chết / ngưỡng UAT
+
+- Câu hỏi phép đo trả lời: …
+- Kết quả nào là SỐNG: …
+- Kết quả nào là CHẾT: …
+- Timebox: …

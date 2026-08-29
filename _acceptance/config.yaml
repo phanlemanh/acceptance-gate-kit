@@ -188,8 +188,6 @@ executors:
     nckt_master_khong_remote: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan master-khong-remote
     nckt_nhanh_la_cau_huong_dan: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan nhanh-la-cau-huong-dan
     nckt_doc_bat_buoc_van_dong: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan doc-bat-buoc-van-dong
-    nckt_hai_vai_hai_ham: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan hai-vai-hai-ham
-    nckt_remote_co_tran: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-co-tran
     nckt_remote_tra_loi: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-tra-loi
     nckt_ci_single_branch: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan ci-single-branch
     # Vật của hồ sơ suite-run-log-provenance — răng hồ sơ cho lớp «lệnh suite

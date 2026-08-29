@@ -1,8 +1,8 @@
 schema_version: 1
 feature_slug: nhanh-chinh-khong-ten-main
 # Ma trận mutant: mỗi eval khai số vế ↔ số chiều đỏ. E1 4 vế + 1 mutant danh
-# sách · E2 3 vế + 1 đối chứng dương · E3 2 vế · E4 3 vế + 2 mutant · E5 2 vế
-# (đo QUAN HỆ thời gian, không grep) · E6 3 vế + 1 mutant.
+# sách · E2 3 vế + 1 đối chứng dương · E3 2 vế · E6 3 vế + 1 mutant · E7 hai ô + 1 mutant.
+# AC-4/AC-5 đã RÚT khỏi vòng (thu phạm vi S4-r2) — xem Notes của contract.
 evals:
   - id: E1
     criterion: AC-1
@@ -39,31 +39,6 @@ evals:
       `--diff-base khong-ton-tai-ref` → exit ĐÚNG 2, thông điệp nêu tên phần
       hỏng, tệp args vắng (stat). Đối chứng dương: `--diff-base master` → exit 0,
       tệp sinh. Chốt giữ cửa fail-closed khỏi bị nới khi sửa phép dò.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-    paths: ["feature-loop/scripts/s4-args.mjs"]
-
-  - id: E4
-    criterion: AC-4
-    executor: script
-    cmd: config:executors.script.nckt_hai_vai_hai_ham
-    expected: >
-      Neo vào MARKER `PROBE-REGION` (không vào hình dạng mã): (a) tìm được vùng
-      — KHÔNG tìm thấy là ĐỎ, không xanh rỗng; (b) đếm lời gọi trong vùng ≥ 2 và
-      in số ra; (c) mọi lời gọi là hàm dò, vùng KHÔNG còn lời gọi cửa fail-closed.
-      Hai chiều đỏ trên bản sao cây làm việc: gỡ marker → đỏ vì không tìm thấy
-      vùng; khôi phục lời gọi cũ trong vùng → đỏ vì sai vai.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-    paths: ["feature-loop/scripts/s4-args.mjs"]
-
-  - id: E5
-    criterion: AC-5
-    executor: script
-    cmd: config:executors.script.nckt_remote_co_tran
-    expected: >
-      Đo QUAN HỆ THỜI GIAN THẬT, không grep hình dạng tham số: fixture có remote
-      TREO thật (`git://192.0.2.1/...`, IP không định tuyến) → đồng hồ tường của
-      lượt sinh args < trần rút từ nguồn + biên, VÀ exit 0 (rơi đúng đường dò tên
-      quen). Trần đọc từ nguồn để biên tính theo nó, không hằng cứng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/scripts/s4-args.mjs"]
 

@@ -60,15 +60,20 @@ YAML
 # đỏ vì HẠ TẦNG chứ không vì vật. Lấy TRỌN thư mục, không liệt file lẻ.
 snapshot_tree() {
   local dest="$1"; mkdir -p "$dest"
-  # Chép TRỌN cây làm việc trừ rác nặng — không liệt danh sách thư mục tay:
-  # vật được đo mai này require thêm thứ ngoài danh sách thì mọi chiều đỏ hỏng
-  # theo chiều XANH GIẢ (lớp P150). Lỗi tar KHÔNG được nuốt.
-  ( cd "$KIT" && tar -cf - --exclude=.git --exclude=node_modules . ) | ( cd "$dest" && tar -xf - ) || { echo "  DO: snapshot_tree: chép cây thất bại"; return 1; }
-  [ -f "$dest/feature-loop/scripts/s4-args.mjs" ] || { echo "  DO: snapshot_tree: bản sao thiếu vật được đo"; return 1; }
-  # ĐỐI CHỨNG DƯƠNG TRÊN CHÍNH BẢN SAO: bản chưa tiêm phải XANH trước khi tin
-  # bất kỳ màu đỏ nào từ nó.
+  # Chép TRỌN cây làm việc trừ rác nặng — không liệt danh sách thư mục tay.
+  # Mọi đường hỏng gọi `bad` (tăng bộ đếm): in chữ trần thì hạ-tầng-hỏng cho
+  # CÙNG MÀU với đạt — đúng lớp mà S4-r2 bắt được.
+  ( cd "$KIT" && tar -cf - --exclude=.git --exclude=node_modules . ) | ( cd "$dest" && tar -xf - ) \
+    || { bad "snapshot_tree: chép cây thất bại"; return 1; }
+  [ -f "$dest/feature-loop/scripts/s4-args.mjs" ] || { bad "snapshot_tree: bản sao thiếu vật được đo"; return 1; }
+  # Đối chứng dương TRÊN CHÍNH BẢN SAO, dùng repo RIÊNG với biến CỤC BỘ: bản cũ
+  # gọi build_repo nên ghi đè biến REPO dùng chung và bản tiêm chạy nhầm fixture
+  # — chiều đỏ mất lực nhân quả mà vẫn xanh (S4-r2, AC-6).
+  local save_repo="${REPO:-}"
   build_repo master
-  if node "$dest/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$dest" --no-carry --out "$TMP/snap-check.json" >"$TMP/snap.txt" 2>&1; then
+  local check_repo="$REPO"
+  REPO="$save_repo"   # trả fixture đang đo về nguyên trạng
+  if node "$dest/feature-loop/scripts/s4-args.mjs" --slug demo --root "$check_repo" --ag-root "$dest" --no-carry --out "$TMP/snap-check.json" >"$TMP/snap.txt" 2>&1; then
     ok "bản sao chưa tiêm chạy XANH (đối chứng dương của bản sao)"
   else
     bad "bản sao chưa tiêm đã đỏ — mọi chiều đỏ từ nó vô nghĩa: $(tail -1 "$TMP/snap.txt")"; return 1
@@ -114,8 +119,10 @@ PYX
   if node "$MUT/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m.txt" 2>&1; then
     bad "chiều đỏ hỏng: cắt danh sách còn 1 tên mà nhánh master vẫn sinh được args"
   else
-    grep -q "diff-base" "$TMP/m.txt" && ok "chiều đỏ: cắt danh sách → nhánh master rơi đúng câu có hướng dẫn" \
-      || bad "chiều đỏ đỏ nhưng sai thông điệp: $(tail -1 "$TMP/m.txt")"
+    NEEDLE1="$(grep -o "không nhận diện được nhánh chính[^\`']*" "$S4ARGS" | head -1 | cut -c1-40)"
+    if grep -qF "$NEEDLE1" "$TMP/m.txt" && ! grep -q "usage:" "$TMP/m.txt" && ! grep -q "cờ không nhận diện" "$TMP/m.txt"; then
+      ok "chiều đỏ: cắt danh sách → nhánh master rơi đúng câu có hướng dẫn (ghim đủ, loại lỗi dùng sai cờ)"
+    else bad "chiều đỏ đỏ nhưng sai thông điệp: $(tail -1 "$TMP/m.txt")"; fi
   fi
   done_chan ;;
 
@@ -197,50 +204,7 @@ doc-bat-buoc-van-dong)
     && [ -f "$TMP/args.json" ] && ok "đối chứng dương: --diff-base master → sinh tệp" || bad "đối chứng dương hỏng"
   done_chan ;;
 
-hai-vai-hai-ham)
-  # AC-4: neo vào MARKER vùng dò, không vào hình dạng mã quanh nó.
-  REG="$(sed -n '/<<<PROBE-REGION/,/PROBE-REGION>>>/p' "$S4ARGS")"
-  [ -n "$REG" ] && ok "tìm được vùng dò theo marker PROBE-REGION" || { bad "KHÔNG tìm thấy marker vùng dò — đỏ, không xanh rỗng"; done_chan; }
-  N="$(echo "$REG" | grep -c "gitTry(")"
-  [ "$N" -ge 2 ] && ok "vùng dò có $N lời gọi, tất cả qua hàm dò" || bad "vùng dò chỉ có $N lời gọi hàm dò (cần ≥2)"
-  echo "$REG" | grep -qE "(^|[^a-zA-Z])git\(" && bad "vùng dò còn gọi cửa fail-closed — hình dạng mã chết quay lại" \
-    || ok "vùng dò KHÔNG còn lời gọi cửa fail-closed"
-  # chiều đỏ 1: gỡ marker → phải đỏ vì không tìm thấy vùng
-  MUT3="$TMP/mut3"; snapshot_tree "$MUT3"
-  sed -i.bak 's/<<<PROBE-REGION/vung-do-cu/' "$MUT3/feature-loop/scripts/s4-args.mjs"
-  R2="$(sed -n '/<<<PROBE-REGION/,/PROBE-REGION>>>/p' "$MUT3/feature-loop/scripts/s4-args.mjs")"
-  [ -z "$R2" ] && ok "chiều đỏ: gỡ marker → bộ dò vùng trả rỗng (ca sẽ đỏ, không xanh rỗng)" || bad "gỡ marker mà vẫn tìm được vùng"
-  # chiều đỏ 2: khôi phục lời gọi cũ trong vùng → phải bắt được
-  MUT4="$TMP/mut4"; snapshot_tree "$MUT4"
-  python3 - "$MUT4/feature-loop/scripts/s4-args.mjs" <<'PYX'
-import sys
-p=sys.argv[1]; s=open(p,encoding='utf-8').read()
-m=s.replace("if (gitTry('rev-parse', '--verify', '--quiet', b) !== null)","if (git('rev-parse', '--verify', '--quiet', b) !== null)")
-assert m!=s
-open(p,'w',encoding='utf-8').write(m)
-PYX
-  R3="$(sed -n '/<<<PROBE-REGION/,/PROBE-REGION>>>/p' "$MUT4/feature-loop/scripts/s4-args.mjs")"
-  echo "$R3" | grep -qE "(^|[^a-zA-Z])git\(" && ok "chiều đỏ: khôi phục lời gọi cũ → phép đo bắt được" \
-    || bad "khôi phục lời gọi cũ mà phép đo không bắt được"
-  done_chan ;;
 
-remote-co-tran)
-  # AC-5: đo QUAN HỆ THỜI GIAN thật, không grep hình dạng tham số.
-  TRAN="$(grep -o 'REMOTE_TIMEOUT_MS = [0-9_]*' "$S4ARGS" | head -1 | grep -o '[0-9][0-9_]*' | tr -d '_')"
-  [ -n "$TRAN" ] && [ "$TRAN" -gt 0 ] && ok "trần thời gian khai trong nguồn: ${TRAN}ms" || bad "không rút được trần thời gian dương"
-  build_repo master
-  # remote TREO thật: IP không định tuyến (RFC5737 TEST-NET-1), giao thức git
-  git -C "$REPO" remote add origin "git://192.0.2.1/khong-ton-tai.git"
-  rm -f "$TMP/args.json"
-  T0=$(date +%s)
-  run_args; RC=$?
-  T1=$(date +%s); DT=$((T1-T0))
-  BIEN=$(( TRAN/1000 + 20 ))
-  [ $DT -lt $BIEN ] && ok "remote treo: bước chuẩn bị args về sau ${DT}s (< ${BIEN}s) — không treo theo" \
-    || bad "treo theo remote: ${DT}s ≥ ${BIEN}s"
-  [ $RC -eq 0 ] && ok "remote treo → rơi đúng đường dò tên quen, vẫn sinh args" \
-    || bad "remote treo làm hỏng lượt sinh args: $(tail -1 "$TMP/out.txt")"
-  done_chan ;;
 
 ci-single-branch)
   # AC-7 (S4-r1): hình dạng repo của CI — clone single-branch/shallow. Remote VẪN
@@ -306,5 +270,5 @@ PYX
   done_chan ;;
 
 *)
-  echo "rang.sh --chan <master-khong-remote|nhanh-la-cau-huong-dan|remote-tra-loi|doc-bat-buoc-van-dong|hai-vai-hai-ham|remote-co-tran|ci-single-branch>"; exit 2 ;;
+  echo "rang.sh --chan <master-khong-remote|nhanh-la-cau-huong-dan|remote-tra-loi|doc-bat-buoc-van-dong|ci-single-branch>"; exit 2 ;;
 esac
