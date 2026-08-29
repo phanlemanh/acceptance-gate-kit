@@ -249,7 +249,6 @@ JS
       printf -- '---\nschema_version: 2\nfeature_slug: fx-head\nverdict: PASS\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff:\n---\n| Eval | Criterion | Executor | Verdict |\n|--|--|--|--|\n| E1 | AC-1 | script | PASS |\n\n## Evidence\n- eval: E1\n  exit_code: 0\n  verifier: config:executors.test.api\n  verified_at: 2026-06-20\n\n### Ghi chu ngoai khoi\n  run_id: FX-GHICHU-001\n' > "$R/_acceptance/fx-head/evidence-report.md"
     }
     # đối chứng dương: cây hiện tại phải gán ĐÚNG chủ ở cả bốn ô
-    dung_fixture "$ROOT"
     # Hai bộ đọc nói bằng hai thứ khác nhau: TRANG in thẳng mã chạy, còn THẺ chỉ
     # in một CỜ. Đo mã trên thẻ là đo nhầm vật.
     # Fixture dựng trong THƯ MỤC TẠM, không vào cây thật: hồ sơ giả nằm lại trong
