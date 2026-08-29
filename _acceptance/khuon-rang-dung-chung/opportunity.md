@@ -3,10 +3,10 @@ schema_version: 1
 slug: khuon-rang-dung-chung
 feature: Khuôn răng dùng chung — bộ đo của hồ sơ không được tự dối theo cùng ba hình dạng
 owner: manh@mstar.vn
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-30T00:05:00Z    # ISO UTC — theo phát ngôn ký trong hội thoại 30/08 (máy điền mốc, ±5 phút)
 prototype:
   base_commit:
   disposition:
@@ -76,9 +76,58 @@ các mục tự phê về chất lượng phép đo. Tổng cộng ô này nay g
 tự-dối của bộ răng · 1 lỗ luật mang-kết-quả-sang bỏ qua bộ răng · 4 hạn chế sản
 phẩm nêu trên · ~10 mục chất-lượng-phép-đo.
 
+## Quy mô đo được (29/08)
+
+`43` bộ răng, `10.160` dòng bash trong `_acceptance/*/`. Đây là bề mặt mà lớp
+lỗi trên đang trải — và là lý do phải THU PHẠM VI: sửa hết 43 bộ là vòng khổng
+lồ, còn viết thêm lời khuyên thì chính phiên này vừa chứng minh là vô hiệu (ba
+hình dạng đầu đều tái phát ở hồ sơ SAU khi đã ghi sổ).
+
+## Phạm vi đề xuất cho vòng đầu (chỉ TRỪ, không CỘNG)
+
+**LÀM** — một thư viện dùng chung + ba chốt CỨNG, áp cho bộ răng MỚI:
+
+1. **Bản tiêm phải chứng minh nó khác bản gốc trên CÙNG fixture.** Khuôn chạy
+   cả hai bản rồi so; kết quả giống nhau ⇒ ĐỎ («ca không phân biệt được»), thay
+   vì tin vào mã thoát của riêng bản tiêm.
+2. **Mọi đường hỏng hạ tầng tính là đỏ.** Không có đường nào chỉ in chữ rồi đi
+   tiếp; chép cây hỏng, bước tiêm nổ, bản sao thiếu vật — đều tăng bộ đếm.
+3. **Cửa chặn đường rỗng.** Lệnh trên fixture chỉ chạy khi đường dẫn không rỗng
+   và trỏ đúng một repo git; không thì TỪ CHỐI và tính là đỏ.
+
+**KHÔNG LÀM trong vòng này** (khai rõ để khỏi trôi):
+
+- Không migrate 43 bộ răng cũ. Chúng chạy được; ép sửa hàng loạt là giờ-kit đắt
+  mà lợi ích chỉ đến khi có hồ sơ mới đụng cùng lớp.
+- Không đóng bốn hạn chế SẢN PHẨM của `s4-args.mjs` đã gom vào đây (remote
+  hỏi-không-được · phụ thuộc ngôn ngữ máy chạy · hướng dẫn mô tả hành vi cũ ·
+  dòng khai nguồn in «null»). Chúng là mã sản phẩm, không phải khuôn đo — nếu
+  làm thì mở ô riêng sau khi khuôn có rồi, vì lúc đó mới có chỗ viết ca đo tử tế.
+- Không sửa ~10 mục chất-lượng-phép-đo từng cái một; phần lớn tự khỏi khi bộ
+  răng mới dùng khuôn chung.
+
+**Gộp vì rẻ và cùng đường:** lỗ luật mang-kết-quả-sang bỏ qua bộ răng (loại trọn
+thư mục hồ sơ khỏi danh sách file đổi nên sửa bộ đo mà máy tưởng không đổi).
+
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …
+- Câu hỏi phép đo trả lời: một bộ răng viết theo khuôn chung có còn
+  «xanh khi chưa từng chạy» được nữa không?
+- Kết quả nào là SỐNG: trên chính khuôn: ba chốt đều có ca chứng minh
+  chúng ĐỎ đúng lúc (bản tiêm giống bản gốc → đỏ · chép cây hỏng → đỏ · đường
+  rỗng → đỏ), mỗi ca kèm đối chứng dương; VÀ ít nhất một bộ răng thật được viết
+  lại theo khuôn chạy xanh mà vẫn giữ nguyên khả năng bắt lỗi cũ của nó.
+- Kết quả nào là CHẾT: khuôn không chặn được cả ba hình dạng bằng
+  MÁY mà phải quay lại dặn dò bằng lời trong tài liệu — vì đó chính là thứ đã
+  chứng minh vô hiệu trong phiên 29/08.
+- Timebox: ship trước 2026-09-08; quá timebox → park, ghi sổ.
+
+## Cổng 0
+
+- **decision = build** Căn cứ: owner ký trong hội thoại 30/08 — «ký cổng đáng,
+  giữ nguyên số», sau khi chọn làm ô này TRƯỚC chặng 2 vì mọi vòng sau còn phải
+  trả giá cho đúng lớp lỗi mà nó đóng. Bằng chứng nền: phiên 29/08 bật luật
+  dừng-vá BA lần, cả ba đều vì cách viết phép đo chứ không phải mã sản phẩm.
+- **Ngưỡng chốt cùng lúc ký:** đã gỡ tiền tố, giữ nguyên số ở section Ngưỡng
+  (ba chốt có ca chứng minh đỏ đúng lúc · một bộ răng thật viết lại theo khuôn ·
+  cửa chết là phải quay về dặn-bằng-lời · timebox 08/09).
