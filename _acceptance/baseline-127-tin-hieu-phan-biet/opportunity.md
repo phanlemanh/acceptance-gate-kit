@@ -3,10 +3,10 @@ schema_version: 1
 slug: baseline-127-tin-hieu-phan-biet
 feature: Mã 127 ở làn đối chứng là tín hiệu phân biệt, không phải hạ tầng hỏng
 owner: manh@mstar.vn
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-29T14:20:00Z    # ISO UTC — theo phát ngôn ký trong hội thoại 29/08 (máy điền mốc, ±5 phút)
 prototype:
   base_commit:
   disposition:
@@ -27,7 +27,12 @@ mở hợp đồng mới.
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …
+- Câu hỏi phép đo trả lời: khi tính năng thêm lệnh/script chưa có ở bản cũ, báo cáo bằng chứng ghi «đỏ trên bản cũ» (có phân biệt) hay ghi nhầm «không đo được»?
+- Kết quả nào là SỐNG: trên harness: làn đối chứng trả mã 127 cho lệnh vắng ở bản cũ → báo cáo ghi «đỏ»; CÙNG lượt đó, mã 127 ở làn chấm chính vẫn là hạ-tầng-hỏng (giữ nguyên chốt đã ký) — hai làn đọc cùng một mã theo đúng nghĩa của làn mình, có ca đo cho cả hai chiều.
+- Kết quả nào là CHẾT: chỉ đạt được bằng cách bỏ phân loại 127 khỏi CẢ hai làn (mất chốt chống REJECT-giả vừa ký), hoặc phải bắt người khai tay từng lệnh nào là «lệnh mới».
+- Timebox: ship trước 2026-09-05; quá timebox → park, ghi sổ.
+
+## Cổng 0
+
+- **decision = build** Căn cứ: owner ký trong hội thoại 29/08 — «ký cả hai, giữ nguyên số»; hai ô sinh từ Cổng Bằng chứng #123, là điều kiện tiên quyết đã khai cho phát hành 2.5.0.
+- **Ngưỡng chốt cùng lúc ký:** đã gỡ tiền tố, giữ nguyên số ở section Ngưỡng.

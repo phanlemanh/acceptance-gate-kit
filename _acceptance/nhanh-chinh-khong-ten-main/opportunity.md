@@ -3,10 +3,10 @@ schema_version: 1
 slug: nhanh-chinh-khong-ten-main
 feature: Bước chuẩn bị dữ liệu chấm phải dò được nhánh chính không tên main
 owner: manh@mstar.vn
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-08-29T14:20:00Z    # ISO UTC — theo phát ngôn ký trong hội thoại 29/08 (máy điền mốc, ±5 phút)
 prototype:
   base_commit:
   disposition:
@@ -26,7 +26,12 @@ Owner xếp ngăn: mở hợp đồng mới.
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …
+- Câu hỏi phép đo trả lời: repo tiêu thụ có nhánh chính không tên `main` (và không với được remote) có tự chấm được không, hay vẫn phải khai nhánh bằng tay?
+- Kết quả nào là SỐNG: trên fixture repo dựng nhánh `master`, không remote: bước chuẩn bị dữ liệu chấm sinh trọn args với mốc so sánh ĐÚNG (bằng phép tính merge-base độc lập), không cần cờ khai tay; và ca nhánh chính không thuộc bốn tên biết trước thì thông điệp là câu có hướng dẫn («truyền --diff-base»), không phải vết đổ của tiến trình.
+- Kết quả nào là CHẾT: vẫn phải khai nhánh bằng tay cho ca `master`, hoặc lời khai trong SKILL phải hạ xuống cho khớp mã (tức nhận thua bằng cách sửa lời hứa).
+- Timebox: ship trước 2026-09-05; quá timebox → park, ghi sổ.
+
+## Cổng 0
+
+- **decision = build** Căn cứ: owner ký trong hội thoại 29/08 — «ký cả hai, giữ nguyên số»; hai ô sinh từ Cổng Bằng chứng #123, là điều kiện tiên quyết đã khai cho phát hành 2.5.0.
+- **Ngưỡng chốt cùng lúc ký:** đã gỡ tiền tố, giữ nguyên số ở section Ngưỡng.
