@@ -12,6 +12,21 @@
   phải gọi người trên mỗi kết quả ship. **Giờ-kit là chi phí.** Cổng mà câu trả
   lời hợp lý duy nhất là «ừ» là **trạm thu phí, không phải điểm quyết định**.
 
+  **Khung bổ sung (owner duyệt 30/08, rút từ first-principles phiên 29–30/08):**
+  nguyên tử của mọi tái diễn là *một trí tưởng tượng viết cả VẬT lẫn THƯỚC lẫn
+  LỜI* trên một *nền không tin được*. Vì thế:
+  - **Dạng nghiệm đúng tầng** cho mọi lớp lỗi lặp: *biến bất biến từ đầu-người
+    sang vật-máy-giữ* (marker một-nguồn writer/reader cùng rút · phép vi phân
+    bản-tiêm-phải-khác-bản-gốc · dòng tự xưng của hạ tầng). Chỗ không biến được
+    → khai giới hạn kèm MỘT ngưỡng đang đếm — cấm dặn-bằng-lời làm nghiệm.
+  - **Neo ngoài của việc-kit:** giá trị chỉ chạm người dùng ở BẢN PHÁT HÀNH tới
+    repo tiêu thụ. Meta-work (kit sửa thước của kit) không có neo ngoài nên đệ
+    quy được — mặc định ĐÓNG BĂNG: phát hiện mới vào sổ/ô, vòng mới chỉ mở sau
+    mốc phát hành gần nhất hoặc khi owner gọi tên.
+  - **Ranh giới không phải cổng thì máy TỰ ĐI TIẾP** — bảng cổng trong SKILL là
+    vét cạn; chờ lệnh ngoài bảng đó là máy tự chèn lượt gọi người (finding
+    26/07, tái phạm 30/08).
+
   Bản neo: [docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md](docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
   · nền: [2026-08-09](docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md)
   · [2026-08-10](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).

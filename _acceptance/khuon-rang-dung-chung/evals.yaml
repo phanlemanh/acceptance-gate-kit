@@ -1,0 +1,103 @@
+schema_version: 1
+feature_slug: khuon-rang-dung-chung
+# Ma trận: E1..E4 = bốn chốt, mỗi ca hai chiều cùng fixture, sống ở LƯỚI THƯỜNG
+# TRỰC (ADR 0011 — khuôn phải đúng sau merge). E5 = tích hợp trên bộ răng thật.
+# E6 = một-nguồn API. E7 = engine mang-sang.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      MA TRẬN TOÀN PHẦN viết trước, đủ BA hình hỏng móng của AC-1: (1) chép
+      cây vào đích không ghi được · (2) vật-check trỏ file không tồn tại ·
+      (3) BƯỚC TIÊM NỔ (kr_tiem_batdau trên file không tồn tại) — mỗi ô:
+      done_chan phải FAILED, exit ≠ 0. Đối chứng dương: móng lành → passed.
+      Chiều đỏ của thước là SWEEP code-sinh: mutate TỪNG call-site `bad` trong
+      các đường hỏng của thư viện thành in-chữ-trần (liệt call-site bằng grep
+      từ chính nguồn, không danh sách tay) → với MỖI mutant, ít nhất một ô
+      trên phải chuyển thành «passed oan» và ca phải bắt được.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/rang-khuon.sh", "tests/scripts/rang-khuon.test.mjs"]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Ca hai chiều cùng fixture: kr_tiem_batdau/xong quanh một phép sửa THẬT →
+      đi tiếp; quanh một phép sửa KHÔNG khớp (file không đổi) → đỏ với thông
+      điệp chứa «mutant không tác dụng». Số phải LỆCH được: bộ đếm FAIL tăng
+      đúng 1 ở ca sau, 0 ở ca trước.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/rang-khuon.sh", "tests/scripts/rang-khuon.test.mjs"]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Phép vi phân trên fixture code-sinh: (a) hai bản CHO KẾT QUẢ KHÁC nhau →
+      kr_vi_phan cho đi tiếp, FAIL không tăng; (b) bản tiêm là NO-OP hành vi
+      (đổi comment) → cùng lệnh cho kết quả giống nhau → kr_vi_phan đỏ «ca
+      không phân biệt được hai bản». Đây là ca giết hình dạng 1+2 của
+      opportunity bằng máy, không phán xét.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/rang-khuon.sh", "tests/scripts/rang-khuon.test.mjs"]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      kr_git với đường RỖNG → từ chối + đỏ, và lệnh KHÔNG chạy (kiểm bằng quan
+      hệ: kho thật không đổi — vd một ref canh trước/sau y nguyên); với đường
+      trỏ thư mục không phải repo → từ chối + đỏ; với repo fixture lành → chạy
+      bình thường. Ba ô, ô nào cũng có assert.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/rang-khuon.sh", "tests/scripts/rang-khuon.test.mjs"]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.krdc_tich_hop
+    expected: >
+      Bộ răng thật nhanh-chinh-khong-ten-main/rang.sh ĐÃ VIẾT LẠI theo khuôn:
+      chạy trọn 6 chân → tất cả passed. Vế «chiều đỏ còn nguyên lực» đo bằng
+      TẬP ĐÓNG: rút danh sách ca chiều-đỏ CŨ từ mốc bất biến BASE-KRDC
+      (`git show 5cd3bc68:.../rang.sh`, đếm các dòng ok "chiều đỏ..."), rồi
+      assert MỌI ca trong danh sách đó có dòng PASS tương ứng ở đầu ra bản
+      mới — số lệch → đỏ, không đo chuỗi-có-mặt mơ hồ. Chống viết-lại-nửa-vời
+      bằng ĐẢO MẶC ĐỊNH (nối E6): mọi lời gọi hàm móng trong rang.sh mới phải
+      THUỘC danh sách rút từ khối RANG-KHUON-API; ca RED: thêm một hàm đếm
+      cục bộ lạ vào bản sao → phải đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/rang-khuon.sh", "_acceptance/nhanh-chinh-khong-ten-main/rang.sh", "_acceptance/khuon-rang-dung-chung/rang.sh"]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Round-trip một-nguồn: danh sách hàm rút từ khối marker RANG-KHUON-API của
+      chính thư viện; mọi hàm trong danh sách phải được định nghĩa thật (grep
+      định nghĩa), và bộ răng viết lại chỉ gọi hàm móng thuộc danh sách đó.
+      Chiều đỏ: xoá một hàm khỏi khối marker trong bản sao → ca đỏ vì danh
+      sách và định nghĩa lệch nhau.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/rang-khuon.sh", "tests/scripts/rang-khuon.test.mjs"]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.krdc_carry_ma_thuc_thi
+    expected: >
+      ĐẢO MẶC ĐỊNH trong thư mục hồ sơ: chỉ LOẠI đuôi giấy đã biết, mọi đuôi
+      khác GIỮ. Fixture code-sinh có run-log round trước + BA commit: chạm
+      `rang.sh`, chạm `helper.cjs` (đuôi thứ ba — chứng đảo-mặc-định, không
+      danh-sách-trắng), chỉ chạm `contract.md`. Với --carry-anchor: (a) delta
+      chạm rang.sh → KHÔNG carry eval khai paths chạm nó; (b) delta chạm
+      helper.cjs → KHÔNG carry; (c) delta chỉ giấy → carry như cũ. Chiều đỏ:
+      bản sao khôi phục phép loại trọn `_acceptance/**` → ô (a) carry oan, đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "_acceptance/khuon-rang-dung-chung/rang.sh"]
