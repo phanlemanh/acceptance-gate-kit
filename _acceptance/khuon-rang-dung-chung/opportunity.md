@@ -4,9 +4,9 @@ slug: khuon-rang-dung-chung
 feature: Khuôn răng dùng chung — bộ đo của hồ sơ không được tự dối theo cùng ba hình dạng
 owner: manh@mstar.vn
 stage: decided              # discovery | decided | archived
-decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
+decision: park         # build | iterate | park | kill — người ký Cổng 0 điền
 decided_by: Manh Phan
-decided_at: 2026-08-30T00:05:00Z    # ISO UTC — theo phát ngôn ký trong hội thoại 30/08 (máy điền mốc, ±5 phút)
+decided_at: 2026-08-30T04:10:00Z    # ISO UTC — owner đổi build→park 30/08 sau dừng-vá S4-r2, quyết «cắt đuôi giữ lõi» (máy điền mốc, ±5 phút)
 prototype:
   base_commit:
   disposition:
@@ -131,3 +131,18 @@ thư mục hồ sơ khỏi danh sách file đổi nên sửa bộ đo mà máy t
 - **Ngưỡng chốt cùng lúc ký:** đã gỡ tiền tố, giữ nguyên số ở section Ngưỡng
   (ba chốt có ca chứng minh đỏ đúng lúc · một bộ răng thật viết lại theo khuôn ·
   cửa chết là phải quay về dặn-bằng-lời · timebox 08/09).
+
+## Park 30/08 — «cắt đuôi, giữ lõi»
+
+Owner quyết trong hội thoại 30/08, sau khi luật dừng-vá bật ở S4-r2: hai vòng
+S4 liên tiếp cùng trả về ba lớp lỗi cũ ở chỗ mới trong CHÍNH bộ đo của hồ sơ
+này — bằng chứng thực nghiệm cho tiên đề «cùng một trí tưởng tượng viết cả vật
+lẫn thước»: cơ khí hoá thêm một tầng chỉ đẩy lỗi xuống tầng dưới, mã-đo không
+hội tụ về 0 phát hiện.
+
+- **Kho:** nhánh `feat/khuon-rang-dung-chung` (đã push), dừng tại hồ sơ S4-r2
+  REJECT. Thư viện + lưới thường trực + bộ răng viết lại đều xanh cục bộ —
+  không merge vì phần mang-kết-quả-sang còn lỗ đã soi ra.
+- **Giới hạn thay thế (khai theo khung 30/08):** bộ đo được máy kiểm MỘT tầng;
+  tầng sâu hơn là giới-hạn-đã-khai — xem mục Giới hạn chiều rộng trong
+  CLAUDE.md, kèm ngưỡng mở lại đang đếm.
