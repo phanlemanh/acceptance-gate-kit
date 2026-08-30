@@ -105,6 +105,18 @@ human_signoff:
 
 ## Known limits
 
+- verified_at do bộ tổng-hợp BỊA số tròn tương-lai HAI lần (r1: 09:00Z, r2: 10:15Z)
+  — cả hai lần được đối chiếu về ts của run-log máy sinh trước khi commit; lớp
+  lỗi ghi sổ, chưa có lưới máy chặn ở tầng workflow (đếm theo ngưỡng mở lại
+  của luật Giới hạn CHIỀU RỘNG).
+- gap-probe do CHÍNH phiên làm hồ sơ chạy, không phải phiên tươi độc lập —
+  cùng giới hạn đã khai ở mốc 2-4-0.
+- Bảng «Ba dòng số North Star»: ba hồ sơ trước cơ chế tally đếm bằng sổ tay,
+  độ chính xác «trong ngày»; nguồn đếm ghi trong từng ô.
+- Nội dung văn-cho-người của mô tả v2.5.0 chỉ được máy đo ở mức có-mục và câu
+  khai cặp (AC-6); phần còn lại người duyệt đọc trong diff — riêng câu
+  kiểm-bằng-nội-dung đã kiểm tay khớp thật (MSG_NO_DOSSIER, e883f466).
+
 ## Ngoài hợp đồng
 
 ## Analyst
