@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e4bc88fa6e5b73af814427ba600723a7a164f7c6
+verified_commit: 4861d9fd6a292f3e2f4ab146b259ec4e4ef299ee
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -231,3 +231,9 @@ Round 3: chạy lại `bash tests/workflows/run-tests.sh` (E6, E7, E8, E9, E11, 
 ### Re-pin lần 1 — 2026-08-29, do gộp main (PR #117 đổi engine dùng chung: acceptance-verify.js, suite, config)
 run_id: repin-cdc-k7x2qm
 sha: e4bc88fa6e5b73af814427ba600723a7a164f7c6 · suites: 5 lệnh exit 0
+
+## Re-pin
+
+### Re-pin lần 2 — 2026-08-30, chiến dịch mốc 2.5.0 (§7.1, một làn máy nhiều chữ ký)
+run_id: repin-250-lane1
+sha: 4861d9fd6a292f3e2f4ab146b259ec4e4ef299ee · suites: 5 lệnh exit 0 · pin cũ: e4bc88fa6e5b

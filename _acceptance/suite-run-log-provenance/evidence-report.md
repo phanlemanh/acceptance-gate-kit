@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 60f9d6cd4be9928ba7477f093c329e5a3ad30757
+verified_commit: 4861d9fd6a292f3e2f4ab146b259ec4e4ef299ee
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -192,3 +192,9 @@ Round 5: E1–E8 (script) + 5 lệnh suite hồi quy đều PASS trên bản sao
 ### Re-pin lần 1 — 2026-08-29, do main gộp hai PR chạm chính hai file hồ sơ này đo (`scripts/gate-card.js`, `tests/scripts/run-tests.sh`)
 run_id: repin-suite-run-log-provenance-20260829T092544Z
 sha: 60f9d6cd4be9928ba7477f093c329e5a3ad30757 · suites: 5 lệnh exit 0
+
+## Re-pin
+
+### Re-pin lần 2 — 2026-08-30, chiến dịch mốc 2.5.0 (§7.1, một làn máy nhiều chữ ký)
+run_id: repin-250-lane1
+sha: 4861d9fd6a292f3e2f4ab146b259ec4e4ef299ee · suites: 5 lệnh exit 0 · pin cũ: 60f9d6cd4be9
