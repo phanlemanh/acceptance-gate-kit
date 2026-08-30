@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# Răng hồ sơ nhanh-chinh-khong-ten-main. Mỗi chân dựng fixture CODE-SINH trong
-# CHÍNH lần chạy (repo git thật), đường dẫn suy từ vị trí script, và mang theo
-# đối chứng dương + chiều đỏ của riêng nó. Cố ý không vào bộ kiểm thường trực:
-# các ca này dựng repo git tạm, chậm và không phải lưới hồi quy.
+# Răng hồ sơ nhanh-chinh-khong-ten-main — VIẾT LẠI theo KHUÔN RĂNG DÙNG CHUNG
+# (scripts/rang-khuon.sh, hồ sơ khuon-rang-dung-chung 30/08): móng (bộ đếm,
+# chụp cây, cửa đường rỗng, tiêm-phải-tác-dụng, vi phân) nạp từ khuôn, không
+# tự chế. Hành vi và thông điệp từng chân GIỮ NGUYÊN so với mốc BASE-KRDC.
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KIT="$(cd "$HERE/../.." && pwd)"
 S4ARGS="$KIT/feature-loop/scripts/s4-args.mjs"
-PASS=0; FAIL=0
-ok()  { echo "  PASS: $1"; PASS=$((PASS+1)); }
-bad() { echo "  DO: $1"; FAIL=$((FAIL+1)); }
-done_chan() { echo "Results: chan ${CHAN} $( [ $FAIL -eq 0 ] && echo passed || echo FAILED )"; [ $FAIL -eq 0 ] || exit 1; exit 0; }
+source "$KIT/scripts/rang-khuon.sh"
 
-TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
+CHAN="${2:-}"
+[ "${1:-}" = "--chan" ] || { echo "usage: rang.sh --chan <ten>"; exit 2; }
+kr_init "$CHAN"
+TMP="$KR_TMP"
 
 # Dựng repo fixture: $1 = tên nhánh chính. Trả đường dẫn qua biến REPO.
 build_repo() {
@@ -50,50 +50,35 @@ evals:
 YAML
   echo base > "$d/f.txt"
   git -C "$d" add -A >/dev/null; git -C "$d" commit -qm base
-  # nhánh feature cắt từ nhánh chính → mốc so sánh KHÁC HEAD
   git -C "$d" checkout -q -b feat/x; echo more >> "$d/f.txt"
   git -C "$d" add -A >/dev/null; git -C "$d" commit -qm work
   REPO="$d"
 }
-# Bản sao để tiêm đột biến phải chụp CÂY ĐANG LÀM VIỆC, không phải HEAD: mã vừa
-# sửa chưa commit thì bản dựng từ HEAD thiếu nó và mọi mutant "không tác dụng" —
-# đỏ vì HẠ TẦNG chứ không vì vật. Lấy TRỌN thư mục, không liệt file lẻ.
+# Móng từ khuôn, giữ tên gọi quen của bộ răng này:
+gfix() { kr_git "${REPO:-}" "$@"; }
 snapshot_tree() {
-  local dest="$1"; mkdir -p "$dest"
-  # Chép TRỌN cây làm việc trừ rác nặng — không liệt danh sách thư mục tay.
-  # Mọi đường hỏng gọi `bad` (tăng bộ đếm): in chữ trần thì hạ-tầng-hỏng cho
-  # CÙNG MÀU với đạt — đúng lớp mà S4-r2 bắt được.
-  ( cd "$KIT" && tar -cf - --exclude=.git --exclude=node_modules . ) | ( cd "$dest" && tar -xf - ) \
-    || { bad "snapshot_tree: chép cây thất bại"; return 1; }
-  [ -f "$dest/feature-loop/scripts/s4-args.mjs" ] || { bad "snapshot_tree: bản sao thiếu vật được đo"; return 1; }
-  # Đối chứng dương TRÊN CHÍNH BẢN SAO, dùng repo RIÊNG với biến CỤC BỘ: bản cũ
-  # gọi build_repo nên ghi đè biến REPO dùng chung và bản tiêm chạy nhầm fixture
-  # — chiều đỏ mất lực nhân quả mà vẫn xanh (S4-r2, AC-6).
+  kr_snapshot "$1" "feature-loop/scripts/s4-args.mjs" || return 1
+  # Đối chứng dương TRÊN CHÍNH BẢN SAO, repo riêng, không đụng fixture đang đo
   local save_repo="${REPO:-}"
   build_repo master
   local check_repo="$REPO"
-  REPO="$save_repo"   # trả fixture đang đo về nguyên trạng
-  if node "$dest/feature-loop/scripts/s4-args.mjs" --slug demo --root "$check_repo" --ag-root "$dest" --no-carry --out "$TMP/snap-check.json" >"$TMP/snap.txt" 2>&1; then
+  REPO="$save_repo"
+  if node "$1/feature-loop/scripts/s4-args.mjs" --slug demo --root "$check_repo" --ag-root "$1" --no-carry --out "$TMP/snap-check.json" >"$TMP/snap.txt" 2>&1; then
     ok "bản sao chưa tiêm chạy XANH (đối chứng dương của bản sao)"
   else
     bad "bản sao chưa tiêm đã đỏ — mọi chiều đỏ từ nó vô nghĩa: $(tail -1 "$TMP/snap.txt")"; return 1
   fi
 }
-# CỬA CHẶN: git trên fixture KHÔNG được chạy với đường rỗng. `git -C ""` chạy
-# trong thư mục hiện tại — tức REPO THẬT — nên một biến rỗng biến lệnh dựng
-# fixture thành lệnh sửa kho đang làm việc (sự cố 29/08: mất remote origin).
-gfix() {
-  [ -n "${REPO:-}" ] || { bad "gfix: REPO rỗng — TỪ CHỐI chạy git (sẽ đụng repo thật)"; return 1; }
-  [ -d "${REPO}/.git" ] || { bad "gfix: REPO không phải repo git: ${REPO}"; return 1; }
-  git -C "$REPO" "$@"
+# Chạy CÙNG lệnh trên bản gốc và bản tiêm, ghi log chuẩn cho kr_vi_phan.
+chay_log() { # $1=script $2=log ; dùng $REPO hiện tại
+  rm -f "$TMP/args.json"
+  if node "$1" --slug demo --root "$REPO" --ag-root "$(dirname "$(dirname "$(dirname "$1")")")" --no-carry --out "$TMP/args.json" >"$TMP/.o" 2>&1
+  then echo "exit:0" > "$2"; else echo "exit:$?" > "$2"; fi
+  tail -3 "$TMP/.o" >> "$2"
 }
 run_args() { node "$S4ARGS" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/out.txt" 2>&1; }
 
-CHAN="${2:-}"
-[ "${1:-}" = "--chan" ] || { echo "usage: rang.sh --chan <ten>"; exit 2; }
-
 case "$CHAN" in
-
 master-khong-remote)
   # AC-1: bốn tên dự phòng đều phải được thử THẬT — tham số hoá trên danh sách
   # RÚT từ marker MAIN-BRANCH-CANDIDATES của chính script (không gõ literal).
@@ -116,13 +101,15 @@ master-khong-remote)
   done
   # Chiều đỏ: cắt danh sách còn MỘT tên trong bản sao trọn cây → ba tên kia phải chết
   MUT="$TMP/mut"; snapshot_tree "$MUT"
-  python3 - "$MUT/feature-loop/scripts/s4-args.mjs" <<'PYX'
+  kr_tiem_batdau "$MUT/feature-loop/scripts/s4-args.mjs"
+python3 - "$MUT/feature-loop/scripts/s4-args.mjs" <<'PYX'
 import sys
 p=sys.argv[1]; s=open(p,encoding='utf-8').read()
 m=s.replace("const MAIN_BRANCH_CANDIDATES = ['main', 'master', 'develop', 'trunk'];","const MAIN_BRANCH_CANDIDATES = ['main'];")
 assert m!=s, "mutant khong tac dung"
 open(p,'w',encoding='utf-8').write(m)
 PYX
+  kr_tiem_xong "$MUT/feature-loop/scripts/s4-args.mjs" || true
   build_repo master; rm -f "$TMP/args.json"
   if node "$MUT/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m.txt" 2>&1; then
     bad "chiều đỏ hỏng: cắt danh sách còn 1 tên mà nhánh master vẫn sinh được args"
@@ -178,7 +165,8 @@ remote-tra-loi)
   # chiều đỏ: phá bước bóc kết quả remote trong bản sao trọn cây → phải rơi về
   # fallback và KHÔNG giải được (nhánh chính không thuộc 4 tên quen)
   MUT2="$TMP/mut2"; snapshot_tree "$MUT2"
-  python3 - "$MUT2/feature-loop/scripts/s4-args.mjs" <<'PYX'
+  kr_tiem_batdau "$MUT2/feature-loop/scripts/s4-args.mjs"
+python3 - "$MUT2/feature-loop/scripts/s4-args.mjs" <<'PYX'
 import sys
 p=sys.argv[1]; s=open(p,encoding='utf-8').read()
 # Phá bước BÓC TÊN (không phá lệnh gọi): sau S4-r5, gán out=null bị bước
@@ -189,7 +177,12 @@ m=s.replace("out.match(/HEAD branch:\\s*(\\S+)/)","out.match(/KHONG_BAO_GIO_KHOP
 assert m!=s, "mutant khong tac dung"
 open(p,'w',encoding='utf-8').write(m)
 PYX
+  kr_tiem_xong "$MUT2/feature-loop/scripts/s4-args.mjs" || true
   gfix branch -D master >/dev/null 2>&1
+  # VI PHÂN (khuôn): bản gốc và bản tiêm phải cho kết quả KHÁC nhau trên CÙNG fixture
+  chay_log "$S4ARGS" "$TMP/vg.log"
+  chay_log "$MUT2/feature-loop/scripts/s4-args.mjs" "$TMP/vt.log"
+  kr_vi_phan "$TMP/vg.log" "$TMP/vt.log" && ok "vi phân: bản tiêm KHÁC bản gốc trên cùng fixture" || true
   rm -f "$TMP/args.json"
   if node "$MUT2/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m2.txt" 2>&1; then
     bad "chiều đỏ hỏng: phá bước đọc remote mà vẫn giải được nhánh chính"
@@ -267,7 +260,8 @@ ci-single-branch)
   else bad "ô 2 vẫn chết dù có origin/master: $(grep -m1 . "$TMP/ci2.txt")"; fi
   # chiều đỏ: bỏ bước kiểm-tồn-tại trong bản sao → phải chết ĐÚNG thông điệp cũ
   MUT5="$TMP/mut5"; snapshot_tree "$MUT5" || done_chan
-  python3 - "$MUT5/feature-loop/scripts/s4-args.mjs" <<'PYX'
+  kr_tiem_batdau "$MUT5/feature-loop/scripts/s4-args.mjs"
+python3 - "$MUT5/feature-loop/scripts/s4-args.mjs" <<'PYX'
 import sys
 p=sys.argv[1]; s=open(p,encoding='utf-8').read()
 old="""    for (const cand of [m[1], `origin/${m[1]}`]) {
@@ -277,6 +271,7 @@ new="""    mainBranch = m[1]; mainBranchSource = 'remote';"""
 assert old in s, "mutant khong tac dung"
 open(p,'w',encoding='utf-8').write(s.replace(old,new))
 PYX
+  kr_tiem_xong "$MUT5/feature-loop/scripts/s4-args.mjs" || true
   rm -f "$TMP/args.json"
   if node "$MUT5/feature-loop/scripts/s4-args.mjs" --slug demo --root "$CI2" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m5.txt" 2>&1; then
     bad "chiều đỏ hỏng: bỏ bước kiểm-tồn-tại mà clone single-branch vẫn chạy được"
@@ -326,13 +321,15 @@ khong-doan-sang-ten-khac)
   else bad "đối chứng dương hỏng: $(grep -m1 . "$TMP/kd2.txt")"; fi
   # chiều đỏ: bản sao cho vòng dò chạy VÔ ĐIỀU KIỆN (bản r1/r2) → phải đoán bừa
   MUT6="$TMP/mut6"; snapshot_tree "$MUT6" || done_chan
-  python3 - "$MUT6/feature-loop/scripts/s4-args.mjs" <<'PYX'
+  kr_tiem_batdau "$MUT6/feature-loop/scripts/s4-args.mjs"
+python3 - "$MUT6/feature-loop/scripts/s4-args.mjs" <<'PYX'
 import sys
 p=sys.argv[1]; s=open(p,encoding='utf-8').read()
 old="if (!mainBranch && !remoteDeclared) {"
 assert old in s, "mutant khong tac dung"
 open(p,'w',encoding='utf-8').write(s.replace(old,"if (!mainBranch) {"))
 PYX
+  kr_tiem_xong "$MUT6/feature-loop/scripts/s4-args.mjs" || true
   gfix branch -D main -q
   rm -f "$TMP/args.json"
   if node "$MUT6/feature-loop/scripts/s4-args.mjs" --slug demo --root "$REPO" --ag-root "$KIT" --no-carry --out "$TMP/args.json" >"$TMP/m6.txt" 2>&1; then

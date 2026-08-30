@@ -191,6 +191,10 @@ executors:
     nckt_remote_tra_loi: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan remote-tra-loi
     nckt_ci_single_branch: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan ci-single-branch
     nckt_khong_doan_sang_ten_khac: bash _acceptance/nhanh-chinh-khong-ten-main/rang.sh --chan khong-doan-sang-ten-khac
+    # Vật của hồ sơ khuon-rang-dung-chung — răng dùng CHÍNH khuôn nó giao.
+    # Lưới thường trực là tests/scripts/rang-khuon.test.mjs (ADR 0011).
+    krdc_tich_hop: bash _acceptance/khuon-rang-dung-chung/rang.sh --chan tich-hop
+    krdc_carry_ma_thuc_thi: bash _acceptance/khuon-rang-dung-chung/rang.sh --chan carry-ma-thuc-thi
     # Vật của hồ sơ suite-run-log-provenance — răng hồ sơ cho lớp «lệnh suite
     # không để lại dấu vết». Chiều đỏ dựng bằng bản sao TRỌN CÂY (git archive
     # HEAD) do code sinh trong chính lần chạy, KHÔNG neo mốc di động. Cố ý

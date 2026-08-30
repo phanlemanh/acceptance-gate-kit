@@ -284,7 +284,17 @@ if (round >= 2 && !flags['carry-anchor'] && !flags['no-carry']) {
 }
 if (flags['carry-anchor']) {
   const anchor = git('rev-parse', flags['carry-anchor']);
-  const deltaFiles = git('diff', '--name-only', `${anchor}..HEAD`).split('\n').filter(f => f && !f.startsWith('_acceptance/'));
+  // ĐẢO MẶC ĐỊNH trong thư mục hồ sơ (S4 khuon-rang-dung-chung, AC-7): bản cũ
+  // loại TRỌN `_acceptance/**` nên sửa BỘ ĐO (rang.sh, helper .cjs — mã thực
+  // thi sống trong thư mục hồ sơ) mà máy tưởng không có gì đổi → mang kết quả
+  // cũ sang, bằng chứng đứng tên một bộ đo đã khác. Nay chỉ LOẠI các đuôi GIẤY
+  // đã biết; đuôi lạ được GIỮ — không đoán về phía carry.
+  // <<<CARRY-PAPER-EXTS
+  const PAPER_EXTS = ['.md', '.jsonl', '.yaml', '.json', '.html', '.png', '.txt'];
+  // CARRY-PAPER-EXTS>>>
+  const laGiay = (f) => PAPER_EXTS.some(ext => f.endsWith(ext));
+  const deltaFiles = git('diff', '--name-only', `${anchor}..HEAD`).split('\n')
+    .filter(f => f && !(f.startsWith('_acceptance/') && laGiay(f)));
   const cpArgs = ['--run-log', runLogPath, '--evals', path.join(ws, 'evals.yaml'), '--contract', contractPath, '--round', String(round)];
   cpArgs.push(...(deltaFiles.length ? ['--delta-files', deltaFiles.join(',')] : ['--no-delta']));
   try {
