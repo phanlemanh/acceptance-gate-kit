@@ -12,6 +12,36 @@
   phải gọi người trên mỗi kết quả ship. **Giờ-kit là chi phí.** Cổng mà câu trả
   lời hợp lý duy nhất là «ừ» là **trạm thu phí, không phải điểm quyết định**.
 
+  **Khung bổ sung (owner duyệt 30/08, rút từ first-principles phiên 29–30/08):**
+  nguyên tử của mọi tái diễn là *một trí tưởng tượng viết cả VẬT lẫn THƯỚC lẫn
+  LỜI* trên một *nền không tin được*. Vì thế:
+  - **Dạng nghiệm đúng tầng** cho mọi lớp lỗi lặp: *biến bất biến từ đầu-người
+    sang vật-máy-giữ* (marker một-nguồn writer/reader cùng rút · phép vi phân
+    bản-tiêm-phải-khác-bản-gốc · dòng tự xưng của hạ tầng). Chỗ không biến được
+    → khai giới hạn kèm MỘT ngưỡng đang đếm — cấm dặn-bằng-lời làm nghiệm.
+  - **Neo ngoài của việc-kit:** giá trị chỉ chạm người dùng ở BẢN PHÁT HÀNH tới
+    repo tiêu thụ. Meta-work (kit sửa thước của kit) không có neo ngoài nên đệ
+    quy được — mặc định ĐÓNG BĂNG: phát hiện mới vào sổ/ô, vòng mới chỉ mở sau
+    mốc phát hành gần nhất hoặc khi owner gọi tên.
+  - **Ranh giới không phải cổng thì máy TỰ ĐI TIẾP** — bảng cổng trong SKILL là
+    vét cạn; chờ lệnh ngoài bảng đó là máy tự chèn lượt gọi người (finding
+    26/07, tái phạm 30/08).
+  - **Giới hạn CHIỀU RỘNG (owner quyết 30/08, «cắt đuôi giữ lõi»).** Kit từng
+    chỉ có phanh chiều sâu (dừng-vá · trần 3 vòng · timebox) mà mọi phanh đều
+    xả vào sổ hạng mục không trần → 5 vòng meta liên tiếp sau 2.4.0, 0 giá trị
+    chạm người dùng. Luật:
+    (a) **Bộ đo được máy kiểm MỘT tầng** — lưới thường trực là trần; KHÔNG mở
+    vòng đo-thước-của-thước. Ngưỡng mở lại (đang đếm): ≥2 lượt chấm sai do
+    phép-đo-tự-dối trên vòng SẢN PHẨM giữa hai release. Bằng chứng thực nghiệm
+    của trần: ô khuon-rang-dung-chung park 30/08 — hai vòng S4 liên tiếp, bộ
+    máy vi-phân mắc đúng lớp nó đi bắt (mã-đo không hội tụ về 0 phát hiện).
+    (b) **Giữa hai release tối đa MỘT vòng meta**, chỉ khi owner gọi tên.
+    (c) **Mỗi mốc phát hành đếm tay 3 dòng số** vào hồ sơ release: thời gian
+    làm-xong→quyết-được mỗi vòng · số lần gọi người/vòng · số vòng bị
+    hạ-tầng-kit đốt lượt chấm. Ngưỡng CẮT KIT khai trước: tới mốc 2.6.0, nếu
+    ≥2/5 vòng sản phẩm kế bị hạ-tầng-kit đốt, hoặc trung bình >3 lần gọi
+    người/vòng → mở phiên quyết cắt kit — cắt bằng số, không bằng cảm giác.
+
   Bản neo: [docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md](docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
   · nền: [2026-08-09](docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md)
   · [2026-08-10](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).

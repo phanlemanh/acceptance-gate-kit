@@ -4,9 +4,9 @@ slug: baseline-127-tin-hieu-phan-biet
 feature: Mã 127 ở làn đối chứng là tín hiệu phân biệt, không phải hạ tầng hỏng
 owner: manh@mstar.vn
 stage: decided              # discovery | decided | archived
-decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
+decision: park         # build | iterate | park | kill — người ký Cổng 0 điền
 decided_by: Manh Phan
-decided_at: 2026-08-29T14:20:00Z    # ISO UTC — theo phát ngôn ký trong hội thoại 29/08 (máy điền mốc, ±5 phút)
+decided_at: 2026-08-30T04:10:00Z    # ISO UTC — owner đổi build→park 30/08, quyết «cắt đuôi giữ lõi» (máy điền mốc, ±5 phút)
 prototype:
   base_commit:
   disposition:
