@@ -9,7 +9,7 @@ evals:
     cmd: config:executors.test.plugins
     expected: >
       Suite in «PASS: P200 …» và «P200 OK (so doc tu manifest …; 5/5 dot bien chay that …)»;
-      các dòng vế: «hai plugin cung so: 2.5.0» và ba dòng «hop semver» x.
+      các dòng vế: «hai plugin cung so: 2.5.0» và ba dòng «hop semver» (2.5.0 · 2.5.0 · 2.7.0).
       Chiều đỏ sống trong chính P200 (5 đột biến + đối chứng dương bản sao nguyên vẹn) — không
       có bước chạy tay nào trong eval này.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
