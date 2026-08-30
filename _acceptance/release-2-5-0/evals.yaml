@@ -1,0 +1,63 @@
+# evals — release-2-5-0
+# Không có bộ răng riêng (nếp từ 2.2.0/2.3.0, luật dừng-vá): thứ cần canh ở mọi lần cắt số là
+# ca vĩnh viễn P200 — mọi số đọc TỪ manifest, 5 đột biến + đối chứng dương, MỘT lối thoát.
+# P200 in MỖI vế một dòng có tên nên mỗi eval ghim dòng của chính nó. «Số đã đổi» đọc trong diff.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Suite in «PASS: P200 …» và «P200 OK (so doc tu manifest …; 5/5 dot bien chay that …)»;
+      các dòng vế: «hai plugin cung so: 2.5.0» và ba dòng «hop semver» x.
+      Chiều đỏ sống trong chính P200 (5 đột biến + đối chứng dương bản sao nguyên vẹn) — không
+      có bước chạy tay nào trong eval này.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Dòng vế «P200 VE: GUIDE khop so DOC TU manifest» — câu «Khớp phiên bản» dựng từ ba số
+      đọc trong manifest rồi so; đột biến GUIDE giữ số cũ → đỏ ghim nguyên câu dẫn xuất (trong P200).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH (cùng lượt chạy với E1/E2/E6, không tốn lượt)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3e
+    criterion: AC-3
+    executor: script
+    cmd: node scripts/product-map.mjs --check
+    expected: "exit 0 — PRODUCT-MAP.md khớp hồ sơ xưởng (bản đồ vẽ lại cùng commit mở hồ sơ)"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Hai dòng vế «mo ta acceptance-gate co muc v2.5.0» và «muc v2.5.0 cua feature-loop TU khai cap»;
+      hai chiều đỏ trong P200: xoá mục của số hiện tại → «khong co muc v…»; dời câu khai cặp sang
+      mục lịch sử → «cau khai cap nam ngoai muc nay». Các vế người-dùng-nhận-gì là văn cho người,
+      đọc trực tiếp trong diff manifest — Known limits.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
