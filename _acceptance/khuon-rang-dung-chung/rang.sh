@@ -99,11 +99,15 @@ assert m!=s
 open(p,'w',encoding='utf-8').write(m)
 PYX
   kr_tiem_xong "$MUT/feature-loop/scripts/s4-args.mjs"
-  A="$(git -C "$D" log --format=%H | sed -n '3p')"  # anchor trước commit chạm rang.sh... lấy anchor = commit 'log'
   A="$(git -C "$D" log --format='%H %s' | awk '$2=="log"{print $1}')"
-  chay "$MUT/feature-loop/scripts/s4-args.mjs"
-  [ "$(carried)" != "0" ] && ok "chiều đỏ: bản khôi-phục-loại-trọn CARRY OAN eval dù bộ đo đã đổi (ca phân biệt được)" \
-    || bad "chiều đỏ hỏng: bản tiêm cũng không carry — không phân biệt được hai bản"
+  # Bản tiêm PHẢI CHẠY ĐƯỢC rồi mới được đọc kết quả — mutant nổ (a.json vắng,
+  # carried in rỗng) mà vẫn kết luận «bắt được» là đúng lớp âm-tính-một-mình.
+  if chay "$MUT/feature-loop/scripts/s4-args.mjs" && [ -f "$TMP/a.json" ]; then
+    [ "$(carried)" != "0" ] && ok "chiều đỏ: bản khôi-phục-loại-trọn CARRY OAN eval dù bộ đo đã đổi (ca phân biệt được)" \
+      || bad "chiều đỏ hỏng: bản tiêm cũng không carry — không phân biệt được hai bản"
+  else
+    bad "chiều đỏ hỏng: bản tiêm KHÔNG CHẠY ĐƯỢC (hạ tầng nổ ≠ bắt lỗi): $(tail -1 "$TMP/co.txt" 2>/dev/null)"
+  fi
   done_chan ;;
 
 *)

@@ -16,12 +16,14 @@ const bad = (m, d) => { console.log(`  FAIL: ${m}${d ? ` (${String(d).slice(0, 1
 const chk = (c, m, d) => (c ? ok(m) : bad(m, d));
 const TMP = mkdtempSync(path.join(tmpdir(), 'khuon-'));
 
-// Chạy một "chân" bash dùng khuôn; trả {code, out}.
-function runChan(body, khuonPath = KHUON) {
+// Chạy một "chân" bash dùng khuôn; trả {code, out}. cwd cho phép GIAM một
+// payload phá-hoại vào repo fixture: nếu cửa đường-rỗng hỏng, `git -C ""`
+// đánh vào cwd — phải là fixture, không bao giờ là kho thật.
+function runChan(body, khuonPath = KHUON, cwd = undefined) {
   const f = path.join(TMP, `chan-${Math.random().toString(36).slice(2)}.sh`);
   writeFileSync(f, `#!/usr/bin/env bash\nset -uo pipefail\nsource "${khuonPath}"\nkr_init thu\n${body}\ndone_chan\n`);
   chmodSync(f, 0o755);
-  try { return { code: 0, out: execFileSync('bash', [f], { encoding: 'utf8', env: { ...process.env, KR_KIT_OVERRIDE: KIT } }) }; }
+  try { return { code: 0, out: execFileSync('bash', [f], { encoding: 'utf8', cwd, env: { ...process.env, KR_KIT_OVERRIDE: KIT } }) }; }
   catch (e) { return { code: e.status, out: `${e.stdout || ''}${e.stderr || ''}` }; }
 }
 
@@ -30,7 +32,7 @@ console.log('KR1 (AC-1) ma trận BA hình hỏng móng — mỗi hình phải F
   // (1) chép cây vào đích không ghi được
   const roDir = path.join(TMP, 'ro'); mkdirSync(roDir); chmodSync(roDir, 0o555);
   const r1 = runChan(`kr_snapshot "${roDir}/x" "scripts/rang-khuon.sh" || true`);
-  chk(r1.code !== 0 && /FAILED/.test(r1.out), 'KR1.1 chép cây thất bại → chân FAILED', r1.out);
+  chk(r1.code !== 0 && /không tạo được đích/.test(r1.out) && /FAILED/.test(r1.out), 'KR1.1 chép cây thất bại → chân FAILED, ghim đúng thông điệp hình (1)', r1.out);
   chmodSync(roDir, 0o755);
   // (2) bản sao thiếu vật được kiểm
   const r2 = runChan(`kr_snapshot "${TMP}/snap2" "duong/khong/ton/tai.xyz" || true`);
@@ -47,12 +49,18 @@ console.log('KR1 (AC-1) ma trận BA hình hỏng móng — mỗi hình phải F
 console.log('KR1s (AC-1) SWEEP: mutate TỪNG call-site `bad` trong đường hỏng thành in-chữ-trần');
 {
   const src = readFileSync(KHUON, 'utf8');
-  // liệt call-site bằng grep từ nguồn — không danh sách tay
-  const sites = [...src.matchAll(/\{ bad "([^"]+)";/g)].map(m => m[1]);
-  chk(sites.length >= 8, `KR1s liệt được ${sites.length} call-site bad từ nguồn (≥8)`, String(sites.length));
+  // liệt call-site theo NGỮ NGHĨA lời-gọi (mọi `bad "..."` ngoài dòng comment),
+  // không theo hình dạng `{ bad` — dạng cú pháp đã làm sót đúng call-site
+  // của chốt vi-phân (finding S4-r1).
+  const sites = src.split('\n')
+    .filter((l) => !/^\s*#/.test(l))
+    .flatMap((l) => [...l.matchAll(/\bbad "([^"]+)"/g)].map((m) => m[1]));
+  const demDocLap = Number(execFileSync('bash', ['-c', `grep -v '^[[:space:]]*#' "${KHUON}" | grep -o 'bad "' | wc -l`], { encoding: 'utf8' }).trim());
+  chk(sites.length >= 8 && sites.length === demDocLap, `KR1s liệt được ${sites.length} call-site bad, khớp phép đếm độc lập`, `${sites.length} vs grep ${demDocLap}`);
+  chk(sites.some((s) => s.includes('KHÔNG phân biệt được')), 'KR1s call-site của chốt vi-phân CÓ MẶT trong danh sách sweep');
   let caught = 0;
   for (const msg of sites) {
-    const mut = src.replace(`{ bad "${msg}";`, `{ echo "  DO: ${msg}";`);
+    const mut = src.replace(`bad "${msg}"`, `echo "  DO: ${msg}"`);
     if (mut === src) { bad(`KR1s mutant không áp được cho: ${msg}`); continue; }
     const mf = path.join(TMP, `khuon-mut-${caught}-${Math.random().toString(36).slice(2)}.sh`);
     writeFileSync(mf, mut);
@@ -104,8 +112,14 @@ console.log('KR3 (AC-3) vi phân — giống ⇒ đỏ, khác ⇒ đi tiếp');
 console.log('KR4 (AC-4) cửa đường rỗng — kho thật không bị đụng');
 {
   const truoc = execFileSync('git', ['-C', KIT, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-  const rRong = runChan('kr_git "" remote remove origin || true');
-  chk(rRong.code !== 0 && /đường dẫn RỖNG/.test(rRong.out), 'KR4.1 đường rỗng → từ chối + đỏ', rRong.out);
+  // Payload phá-hoại GIAM trong fixture có origin riêng: cửa hỏng thì fixture
+  // mất origin (đỏ ở KR4.1b), kho thật không bao giờ trong tầm đạn.
+  const fxg = path.join(TMP, 'fxg'); execFileSync('git', ['init', '-q', fxg]);
+  execFileSync('git', ['-C', fxg, 'remote', 'add', 'origin', 'https://example.invalid/x.git']);
+  const rRong = runChan('kr_git "" remote remove origin || true', KHUON, fxg);
+  chk(rRong.code !== 0 && /đường dẫn RỖNG/.test(rRong.out), 'KR4.1 đường rỗng → từ chối + đỏ (payload giam trong fixture)', rRong.out);
+  const fxRemote = execFileSync('git', ['-C', fxg, 'remote'], { encoding: 'utf8' }).trim();
+  chk(fxRemote.includes('origin'), 'KR4.1b lệnh KHÔNG chạy thật: origin của fixture còn nguyên', fxRemote);
   const rKhongRepo = runChan(`kr_git "${TMP}" status || true`);
   chk(rKhongRepo.code !== 0 && /không phải repo git/.test(rKhongRepo.out), 'KR4.2 không phải repo → từ chối + đỏ', rKhongRepo.out);
   const sau = execFileSync('git', ['-C', KIT, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
@@ -120,18 +134,22 @@ console.log('KR4 (AC-4) cửa đường rỗng — kho thật không bị đụn
 console.log('KR6 (AC-6) round-trip RANG-KHUON-API — danh sách và định nghĩa khớp nhau');
 {
   const src = readFileSync(KHUON, 'utf8');
-  const m = src.match(/<<<RANG-KHUON-API([\s\S]*?)RANG-KHUON-API>>>/);
-  chk(!!m, 'KR6.1 tìm được khối marker');
-  const api = m ? m[1].replace(/#/g, ' ').trim().split(/\s+/) : [];
-  chk(api.length >= 8, `KR6.2 danh sách rút được ${api.length} hàm (≥8)`, api.join(','));
-  const thieu = api.filter(fn => !new RegExp(`^${fn}\\(\\)`, 'm').test(src));
-  chk(thieu.length === 0, 'KR6.3 mọi hàm trong danh sách đều có định nghĩa thật', thieu.join(','));
-  // chiều đỏ: xoá một hàm khỏi danh sách trong bản sao → lệch phải bị bắt
+  // MỘT bộ đọc cho cả lưới thường trực lẫn chiều đỏ — chiều đỏ phải làm đỏ
+  // đúng assert đang canh, không chép công thức riêng (finding S4-r1).
+  const docLech = (s) => {
+    const mm = s.match(/<<<RANG-KHUON-API([\s\S]*?)RANG-KHUON-API>>>/);
+    const ds = mm ? mm[1].replace(/#/g, ' ').trim().split(/\s+/).filter(Boolean) : [];
+    const dn = [...s.matchAll(/^([a-z][a-z_]*)\(\)/gm)].map((x) => x[1]);
+    return { ds, thieu: ds.filter((fn) => !dn.includes(fn)), thua: dn.filter((fn) => fn.startsWith('kr_') && !ds.includes(fn)) };
+  };
+  const that = docLech(src);
+  chk(that.ds.length >= 8, `KR6.2 danh sách rút được ${that.ds.length} hàm (≥8)`, that.ds.join(','));
+  chk(that.thieu.length === 0, 'KR6.3 mọi hàm kr_* trong danh sách đều có định nghĩa thật', that.thieu.join(','));
+  chk(that.thua.length === 0, 'KR6.3b đảo mặc định: mọi định nghĩa kr_* đều PHẢI có trong danh sách', that.thua.join(','));
+  // chiều đỏ: xoá một hàm khỏi danh sách trong bản sao → CHÍNH bộ đọc trên đỏ
   const mutSrc = src.replace('kr_vi_phan\n', '\n');
-  const lech = (mutSrc.match(/<<<RANG-KHUON-API([\s\S]*?)RANG-KHUON-API>>>/)[1].replace(/#/g, ' ').trim().split(/\s+/))
-    .filter(fn => !new RegExp(`^${fn}\\(\\)`, 'm').test(mutSrc));
-  const dinhNghiaKhongTrongDS = /^kr_vi_phan\(\)/m.test(mutSrc) && !mutSrc.match(/<<<RANG-KHUON-API([\s\S]*?)RANG-KHUON-API>>>/)[1].includes('kr_vi_phan');
-  chk(dinhNghiaKhongTrongDS || lech.length > 0, 'KR6.4 chiều đỏ: xoá hàm khỏi danh sách → lệch danh-sách↔định-nghĩa bắt được');
+  chk(mutSrc !== src && !docLech(mutSrc).ds.includes('kr_vi_phan'), 'KR6.4a mutation áp được: danh sách bản sao mất kr_vi_phan');
+  chk(docLech(mutSrc).thua.includes('kr_vi_phan'), 'KR6.4 chiều đỏ: xoá hàm khỏi danh sách → bộ đọc KR6.3b báo lệch');
 }
 
 rmSync(TMP, { recursive: true, force: true });

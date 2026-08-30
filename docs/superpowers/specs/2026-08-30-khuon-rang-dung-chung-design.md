@@ -39,7 +39,10 @@ không cần phán xét, nên thoát khỏi trí tưởng tượng chung.
 
 Viết lại `_acceptance/nhanh-chinh-khong-ten-main/rang.sh` (bộ răng tươi nhất,
 6 chân) theo khuôn: các hàm guard nội bộ của nó (snapshot/gfix) trở thành lời
-gọi thư viện, mọi mutant đi qua `kr_tiem_*` + `kr_vi_phan`. Sáu chân phải xanh
+gọi thư viện, mọi mutant đi qua `kr_tiem_*`; chân remote-tra-loi trình diễn
+trọn phép vi phân `kr_vi_phan` (các mutant còn lại giữ assert ghim thông điệp
++ đối chứng dương sẵn có — vi phân là sàn cho ca MỚI, không ép hồi tố từng
+mutant cũ). Sáu chân phải xanh
 như cũ VÀ mutant cũ vẫn bị bắt — «giữ nguyên khả năng bắt lỗi» là quan hệ đo
 được, không phải lời hứa.
 
