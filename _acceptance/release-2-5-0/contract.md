@@ -5,7 +5,7 @@ slug: release-2-5-0
 owner: manh@mstar.vn
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + workspace hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: implemented
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
