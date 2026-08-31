@@ -44,13 +44,26 @@ chạm cây nguồn** — phiên này không sinh PR nào; kết quả sống �
   dùng lại với 0 token** — trọn đợt đầu (5 lệnh máy + 6 lượt hội đồng + 3 làn
   tìm-lỗi + baseline). 15 lượt còn lại chạy sống. Tổng **1,27M so với 2,4M ≈
   tiết kiệm 47%**.
-- Chi phí phép đo: ~1,27M token máy con. Không rẻ — khai để lần sau cân trước.
+- **Nấc C — CA CHÍNH, đo bổ sung cùng phiên:** phiên con bị **giết cứng**
+  (`kill -9`) giữa vòng chạy, rồi mở lại bằng `--resume` và gọi lại vòng chấm →
+  lượt đã xong trước khi giết **dùng lại với 0 token** (`cached: true`), hai
+  lượt còn lại chạy sống, kết quả cuối đủ. **Không cần chép sổ.**
+- Chi phí phép đo: ~1,27M token máy con cho nấc A+B, ~80k cho nấc C. Không rẻ —
+  khai để lần sau cân trước.
 
 ## Điều học được
 
+- **Ca chính KHÔNG phải lỗ hổng — harness tự phủ.** Sập/đóng máy giữa vòng chấm
+  rồi mở lại phiên cũ: phần đã xong dùng lại với 0 token, tự động. Nghi thức
+  chép sổ chỉ còn cần cho ca hiếm (mất mã phiên, hoặc cố ý nối từ phiên mới
+  tinh) — mà ca đó luôn có đường mở-lại-phiên-cũ tốt hơn.
 - **Cách ghi nhớ của bộ điều phối là THUẦN FILE.** Nó khoá theo nội dung
-  (prompt + tuỳ chọn) và đọc sổ nhật ký nằm cạnh phiên. Hệ quả thực dụng:
-  ca mất phiên có đường cứu bằng **một lệnh chép sổ**, không cần kit xây gì.
+  (prompt + tuỳ chọn) và đọc sổ nhật ký nằm cạnh phiên — nên nối được hay không
+  chỉ phụ thuộc sổ có nằm đúng thư mục phiên hay không.
+- **⭐ Đo hành vi hạ tầng KHÔNG cần người:** dựng một **phiên con** không tương
+  tác (`claude -p --session-id <uuid>`), cho nó chạy vật cần đo, rồi giết hoặc
+  mở lại tuỳ ca. Trước phiên này, mọi ca «cần giết phiên» đều bị xếp là
+  việc-của-người và treo vô hạn. Đây là công cụ dùng lại được.
 - **Dùng lại không bao giờ trọn vẹn.** Đợt đầu ăn sạch, các chặng sau lệch khoá
   (nguyên nhân chưa xác định — cùng hình dạng với lần đo trong-phiên 04/08:
   126k so với 1,4M, cũng không phải 0). Kỳ vọng đúng khi dùng: cứu được nửa đắt
@@ -86,12 +99,19 @@ một vòng SẢN PHẨM (không tính phép đo), trên máy bất kỳ. Chỗ 
    đủ hình dạng để qua mắt người đọc nhanh.
 3. **Bộ phân loại chặn lệnh gộp hai lượt** (lớp đã biết, chập chờn theo
    request) — tách tuần tự thì qua. Không ảnh hưởng phép đo.
+4. **Xếp nhầm một phép đo thành «việc của người» rồi treo nó.** Tôi kết luận
+   máy không đo được ca chính vì «máy không tự giết phiên mình», dựng gói cho
+   người chạy tay, và ghi nó vào sổ như một khoản treo. Sự thật: chỉ cần một
+   phiên con không tương tác — giết phiên CON thì phiên đang nói chuyện không
+   hề hấn. Bài học đúng lớp *ranh-giới-không-phải-cổng thì máy tự đi tiếp*:
+   trước khi khai «cần người», phải hỏi **cái gì đúng là chỉ người làm được** —
+   ở đây không có gì cả.
 
 ## Đang đếm / còn treo
 
-- **Phép đo tay chưa chạy** (ưu tiên thấp, cần người vì máy không tự giết phiên
-  mình): ca chính «kill cửa sổ → mở lại phiên cũ → nối». Dự đoán từ nấc B: ăn
-  tự nhiên, không cần chép. Nghi thức dựng lại nằm trong trí nhớ.
+- ~~Phép đo tay chưa chạy~~ → **ĐÃ CHẠY cùng phiên (nấc C), giả thiết «cần
+  người» SAI.** Máy tự đo được bằng phiên con. Ca chính tự phủ → hạt giống
+  `journal-sống-qua-session` **đóng**, không mở vòng nào.
 - **Giới hạn đã khai:** 15 lượt sau đợt đầu không dùng lại được — chưa biết vì
   sao (nghi khoá có muối theo thứ tự gọi). Không chặn việc gì.
 - Ngưỡng viết vào GUIDE (ở trên) — đang đếm ở mức 0.
