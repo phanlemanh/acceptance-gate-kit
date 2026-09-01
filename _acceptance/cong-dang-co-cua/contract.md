@@ -28,154 +28,78 @@ commit `eb4c8b20`) · design doc
 
 ## Criteria
 
-- AC-1: Given một xưởng dựng BẰNG CODE trong chính lần chạy, chứa mỗi trạng thái
-  DỰNG ĐƯỢC-TRONG-XƯỞNG của bảng lát cắt §3 design doc một ô (ô 3–10; ô 1 và ô 2
-  là thuộc tính của GỐC CÂY chứ không của một ô, nên do AC-6 phủ), When chạy
-  `scripts/start-scan.mjs` rồi `scripts/gate-card.js` trên CÙNG cây đó, Then gọi
-  A = tập slug bộ quét xếp `gate: "dang"` và B = tập slug bộ dựng vẽ ra thẻ Cổng
-  Đáng, ta có **A ⊆ B** (một chiều — mọi ô được gửi tới cổng đều vẽ được; hiệu
-  `A \ B` phải RỖNG và in ra bằng TÊN SLUG khi không rỗng), **và** phần dôi hợp
-  lệ `B \ A` bằng ĐÚNG tập ô đã dựng ở nấc ngưỡng chưa chốt — không nhiều hơn,
-  không ít hơn. Đẳng thức hai chiều là SAI theo thiết kế (bất biến B2, §2 design
-  doc): bộ dựng cố ý vẽ cho ô «đang cân nhắc» mà bộ quét không xếp vào cổng.
-- AC-2: Given bốn ô code-sinh phủ TOÀN PHẦN bốn nấc ngưỡng mà
-  `lib/nguong-o-co-hoi.cjs` phân biệt (chưa chốt · `[đề xuất]` · đã chốt · khai
-  «Không đo được — »), mỗi ô có `opportunity.md`, `decision` rỗng,
-  `stage: discovery`, When chạy bộ dựng thẻ trên từng ô, Then cả bốn đều vẽ ra
-  thẻ Cổng Đáng chứ KHÔNG lời từ chối nào, và mỗi nấc cho đúng bộ ba của nó:
-  cờ đỏ ngưỡng chỉ hiện ở nấc **chưa chốt**; dấu «máy đề xuất» hiện trên chính
-  dòng ngưỡng chỉ ở nấc **`[đề xuất]`**; nấc **khai «Không đo được — »** hiện
-  như một lối khai hợp lệ và KHÔNG bị cắm cờ đỏ. Nấc rút từ lib, không gõ tay.
-- AC-3: Given cây có cả chốt «không có hồ sơ thì không vẽ thẻ» lẫn làn Cổng
-  Đáng, When gọi bộ dựng thẻ cho một ô đang chờ Cổng Đáng, Then thẻ vẽ ra được —
-  tức nhánh nhận cổng chạy TRƯỚC chốt, không bị chốt nuốt.
-- AC-4: Given một ô có `opportunity.md` mà `decision` là `park` hoặc `kill`,
-  hoặc `stage: archived`, When gọi bộ dựng thẻ, Then nó thoát khác 0 với lời
-  thuật nói ý đã đóng, và lời thuật đó KHÔNG chứa câu mời đi viết hợp đồng.
-- AC-5: Given một ô có `opportunity.md` mang field điều hướng ngoài từ vựng
-  (`stage` hoặc `decision`), When gọi bộ dựng thẻ, Then nó thoát khác 0 nêu TÊN
-  field hỏng, và KHÔNG nhận nhầm ô đó thành thẻ Cổng Đáng.
-- AC-6: Given ba trạng thái cũ — không có xưởng · không có thư mục hồ sơ · thư
-  mục hồ sơ không chứa cả hợp đồng lẫn ô cơ hội, When gọi bộ dựng thẻ, Then ba
-  lời thuật cũ giữ NGUYÊN VĂN và vẫn phân biệt được nhau từng đôi một.
-- AC-7: Given khối marker khai các hằng thông điệp từ chối trong
-  `scripts/gate-card.js`, When đọc bước tiền đề của `commands/acceptance-card.md`,
-  Then số lời thuật riêng trong bước đó BẰNG số hằng rút được từ khối marker, và
-  mỗi hằng ghép đúng MỘT lời thuật — không hằng nào thiếu lời thuật, không lời
-  thuật nào không rút được từ một hằng.
-- AC-8: Given một ô đang chờ Cổng Đáng, When render thẻ, Then thẻ in đúng bốn
-  lối ra `làm` · `lặp` · `xếp lại` · `dừng` và một dòng nói đảo ngược được.
-- AC-9: Given một ô đang chờ Cổng Đáng có `decision` rỗng, When render thẻ và
-  khi chạy `--extract`, Then không đầu ra nào chứa một giá trị `decision` được
-  điền sẵn, và `opportunity.md` trên đĩa KHÔNG bị sửa — thẻ là lớp trình bày,
-  nó không ghi gì. (judgment)
-- AC-10: Given bốn nhãn lối ra của Cổng Đáng, When rút chúng từ bên VẼ
-  (`scripts/gate-card.js`) và từ bên GHI (`commands/approve.md` +
-  `skills/acceptance/references/human-facing-language.md`), Then ba nơi cho cùng
-  một danh sách theo cùng thứ tự — đổi nhãn ở bên vẽ mà quên bên ghi làm phép đo
-  ĐỎ.
-- AC-11: Given nghi thức vào phiên gặp một ô `gate: "dang"`, When đọc bước bàn
-  giao của `commands/start.md`, Then nó trỏ tới thẻ RỒI tới lệnh ký, và tên lệnh
-  ký rút được từ chính thân lệnh duyệt — không phải một chuỗi gõ tay ở hai nơi.
-- AC-12: Given ô có ngưỡng còn để trống và không khai «Không đo được — », When
-  thân lệnh duyệt mô tả chế độ Cổng Đáng, Then nó khai răng chiều đỏ chặn lối
-  `làm`/`lặp` ở trạng thái đó, và điều kiện chặn đó rút được bằng máy (nằm trên
-  dòng riêng trong một khối marker), không chỉ nằm trong văn xuôi.
-- AC-13: Given bảng ánh xạ bốn lối ra → bốn giá trị máy của chế độ Cổng Đáng,
-  When rút bảng đó bằng máy từ `commands/approve.md`, Then nó ĐỦ BỐN HÀNG, và
-  tập bốn giá trị máy bằng ĐÚNG tập giá trị hợp lệ của khoá `decision` khai ở
-  `NAV_RULES['opportunity.md']` trong `lib/workspace-record.cjs` — rút từ lib,
-  không gõ tay. Thiếu một hàng, hoặc một giá trị nằm ngoài từ vựng của lib, thì
-  phép đo ĐỎ và nêu đúng tên hàng/giá trị đó.
+> **PHẠM VI ĐÃ THU 2026-09-01** tại điều khoản dừng-vá (hai vòng chấm liên tiếp
+> sinh lỗi CÙNG LỚP). Owner quyết «thu phạm vi». Làn thẻ Cổng Đáng, chế độ ký,
+> ngữ pháp `g0` và bộ răng 13 chân TRẢ VỀ Ô — lấy lại bằng cây ghim
+> `528caaa81f70971b0a827a31457c49a1b1cd53d1`, xem
+> `discovery/LAY-VE-LAN-THE.md`. Mười ba tiêu chí của bản duyệt 01/09 đi cùng
+> chúng; ba tiêu chí dưới đây là phần CÒN LẠI, độc lập với làn thẻ.
+>
+> Đây KHÔNG phải một cổng duyệt mới: quyết định thu phạm vi là phát ngôn của
+> owner trong phiên 01/09, ghi ở `decisions.jsonl`. Hỏi lại chính câu owner vừa
+> trả lời là trạm thu phí.
+
+- AC-A: Given một ô cơ hội đã đóng — `decision` là `park` hoặc `kill`, hoặc
+  `stage: archived` — When gọi bộ dựng thẻ, Then nó thoát khác 0 với lời thuật
+  nói **ý đã đóng**, và lời thuật đó KHÔNG chứa câu mời đi viết hợp đồng. Trước
+  bản này, gõ tên một ý đã dừng thì kit trả lời «việc kế là chạy bước chuẩn hoá
+  yêu cầu» — tức mời người hồi sinh một ý đã chết.
+- AC-B: Given một ô cơ hội mang field điều hướng ngoài từ vựng (`stage` hoặc
+  `decision`), When gọi bộ dựng thẻ, Then nó thoát khác 0 nêu **TÊN field hỏng**,
+  chứ không gọi nhầm thành «chưa có hợp đồng». Máy quét vào phiên đã nêu tên
+  những hồ sơ này ở mục hỏng; bộ dựng thẻ nay nói cùng một điều.
+- AC-C: Given khối marker khai các hằng thông điệp từ chối trong
+  `scripts/gate-card.js`, When đọc bước tiền đề của `commands/acceptance-card.md`
+  VÀ chân `round-trip` của bộ răng hồ sơ `khong-ve-the-ma`, Then cả hai bên rút
+  SỐ CA từ khối marker chứ không ghim hằng số — thêm một ca ở bên viết mà quên
+  bên đo thì phép đo ĐỎ vì vật, không đỏ vì chính nó.
 
 ## Coverage
 
-Quét bằng skill `morphological-scan`, bốn trục — chi tiết + bảng lát cắt 10 ô ở
-§3 design doc.
+Phạm vi thu về ba tiêu chí, phủ bằng **lưới thường trực** — đúng luật Giới hạn
+CHIỀU RỘNG (a): lưới thường trực là trần, không dựng thêm tầng đo.
 
-- Trục A — vật neo trên đĩa: không xưởng | không thư mục | thư mục rỗng | chỉ ô
-  cơ hội | chỉ hợp đồng | cả hai [thước CE: `ANCHOR_FILES` trong
-  `lib/workspace-record.cjs` + khối `NO-DOSSIER-GUARD-BLOCK` hiện hành]
-- Trục B — nấc ô cơ hội: `discovery`+rỗng | `decided`+`build|iterate` |
-  `decided`+`park|kill` | `archived` | field hỏng [thước CE: enum
-  `NAV_RULES['opportunity.md']`]
-- Trục C — nấc ngưỡng: chưa chốt | `[đề xuất]` | đã chốt | «Không đo được — »
-  [thước CE: `thresholdState` trong `lib/nguong-o-co-hoi.cjs`]
-- Trục D — vật vòng làm: không / có `evidence-report.md` [thước CE: nhánh tự
-  nhận cổng hiện hành + ca GM04 của lưới thường trực]
-- Phủ AC theo ô của bảng lát cắt: ô 1–3 → AC-6 (ô 1 và ô 2 là thuộc tính của
-  gốc cây, không dựng được bên trong một xưởng — AC-1 cố ý không nhận) · ô 4 →
-  AC-1, AC-3, AC-8 · ô 5 → AC-2 · ô 6 → cố ý giữ nguyên (Out of scope) · ô 7 →
-  AC-4 · ô 8 → AC-5 · ô 9–10 → AC-1 (đối chứng dương: hai làn cũ không đổi
-  hành vi).
-- Phủ AC theo trục C (bốn nấc ngưỡng), trục dễ sót nhất vì ba nấc trông giống
-  nhau trên mặt thẻ: chưa chốt → AC-2 + AC-12 · `[đề xuất]` → AC-2 (dấu «máy
-  đề xuất» phải hiện trên chính dòng ngưỡng) · đã chốt → AC-2 · khai «Không đo
-  được — » → AC-2 (phải ký được, KHÔNG bị cắm cờ đỏ — đây là lối kit tự dạy cho
-  vòng không có người dùng cuối, chặn nó là chặn đúng thứ mình khuyên).
-- Phủ hành vi ghi của chế độ ký: AC-13 (bảng ánh xạ đủ bốn hàng, từ vựng rút từ
-  `lib/workspace-record.cjs`). Hành vi ghi CUỐI CÙNG chỉ đo được ở vòng dùng
-  thật — khai ở Đường đo, không giấu.
-- Chân ngành [NGÀNH: Rust `match` vét cạn · OCaml cảnh báo khớp thiếu]: lớp
-  «bộ điều phối trên kiểu tổng phải toàn phần» — nhánh đáy gán nhãn của trạng
-  thái khác chính là lỗi hôm nay.
+- AC-A → ca `GD01`, `GD02` trong `tests/scripts/run-tests.sh` (hai lời thuật rút
+  từ nguồn, kèm assert âm-tính phân biệt với hằng thiếu-hợp-đồng).
+- AC-B → ca `GD03` (ghim tên field trong thông điệp).
+- AC-C → chân `round-trip` của `_acceptance/khong-ve-the-ma/rang.sh` (17 assert,
+  chiều đỏ: ghim lại hằng số 3 → đỏ) + ca `GD04`, `GD05`.
+- Sửa **theo LỚP**: cùng lượt gỡ luôn chỗ ghim cứng «2 cặp kia» trong chính chân
+  đó — hai chỗ cùng hình dạng, không vá một chỗ rồi để chỗ kia.
 
 ## Đường đo
 
-Ngưỡng đã chốt ở Cổng Đáng ngày 01/09. Bốn thước, mỗi thước một dòng. Chữ dùng
-có phân biệt: **bảo đảm bởi** = có phép đo chạy trên ĐẦU RA thật; **phủ hai dấu
-hiệu** = đo được điều kiện cần, còn hành vi cuối chỉ đo được ở vòng dùng thật.
+Ngưỡng chốt ở Cổng Đáng 01/09 đo **làn thẻ và nghi thức ký** — cả hai đã trả về
+ô, nên **không thước nào của ô cơ hội được vòng này trả lời**. Khai thẳng thay vì
+đổi thước cho vừa phần còn lại:
 
-- Thước: số lượt gọi người để ký MỘT ô ở Cổng Đáng · số từ: đếm tay ở hồ sơ vòng
-  kế đi qua cổng này (dòng số North Star «số lần gọi người/vòng») · **phủ hai
-  dấu hiệu:** AC-11 (chỉ MỘT đường bàn giao, không rẽ hai) + AC-13 (bảng ánh xạ
-  đủ bốn hàng, nên không lối ra nào rơi ra ngoài rồi phải hỏi lượt hai) ·
-  **giới hạn đã khai:** số lượt THẬT chỉ đo được khi ô kế tiếp đi qua cổng — đó
-  là ngưỡng UAT của hồ sơ này, không phải tiêu chí của vòng này.
-- Thước: một PR cho một lần ký · số từ: đếm PR của vòng kế đi qua cổng ·
-  **không đo được trong vòng này** — nó là thuộc tính của phiên ký, không của
-  vật. Đo ở phiên nghiệm thu, cùng thước trên.
-- Thước: thẻ in đúng bốn lối ra sống · số từ: đầu ra thật của bộ dựng thẻ ·
-  **bảo đảm bởi:** AC-8 (bốn nhãn, đúng thứ tự) + AC-13 (bốn nhãn ấy ánh xạ
-  được sang bốn giá trị máy — in ra mà không ghi được thì không phải lối sống).
-- Thước: số chữ của người bị máy viết trước = 0 · số từ: đầu ra thật của bộ dựng
-  thẻ và trạng thái `decision` trên đĩa sau khi render · **bảo đảm bởi:** AC-9.
+- Thước «số lượt gọi người để ký một ô ở Cổng Đáng» · **chưa đo được** — nghi
+  thức ký chưa dựng. Ô cơ hội giữ nguyên ngưỡng, chờ vòng sau.
+- Thước «thẻ in đúng bốn lối ra sống» · **chưa đo được** — làn thẻ đã trả về ô.
+- Thước «0 chữ của người bị máy viết trước» · **chưa đo được** cùng lý do.
 
 ## Out of scope
 
-- Lệnh thứ bảy đứng tên Cổng Đáng — ô cơ hội đã loại từ 26/08; hiến pháp kit là
-  «chỉ TRỪ, không CỘNG», và chế độ trên lệnh duyệt sẵn có đủ vai.
-- Đổi khuôn `opportunity.md` — khuôn đã có bốn lối ra và hai tiền tố máy đọc.
-- Làm dịu câu chữ ca «hồ sơ chưa có contract.md» cho ô ĐÃ ký mà hợp đồng chưa
-  sinh (ô 6 của bảng lát cắt): việc-kế hiện hành đã ĐÚNG (hợp đồng sinh ở S1),
-  chỉ nhiễu vì liệt kê tên hồ sơ. Chờ có người vấp thật.
-- Lớp dịch tiếng-sản-phẩm (`card-plain.json`) cho thẻ Cổng Đáng — nội dung ô cơ
-  hội vốn do người viết bằng tiếng sản phẩm; thêm lớp phủ là dựng nguồn thứ hai
-  cho cùng một câu.
-- Sửa hợp đồng đã ký của hồ sơ `khong-ve-the-ma`.
-- Tự động hoá phần người chọn lối ra — máy trình bốn lối, người chọn.
+- Làn thẻ Cổng Đáng, chế độ ký trên lệnh duyệt, ngữ pháp `g0`, bộ răng 13 chân —
+  trả về ô ở điều khoản dừng-vá.
+- Sửa chất lượng bộ răng viết-tay-theo-hồ-sơ: owner quyết KHÔNG mở rộng hợp đồng
+  để đo mã đo (luật Giới hạn CHIỀU RỘNG (a)); lớp đó thuộc ô
+  `khuon-rang-dung-chung`, đang park.
+- Lệnh thứ bảy cho Cổng Đáng.
+- Sửa hợp đồng đã ký của hồ sơ `khong-ve-the-ma` — chỉ sửa bên ĐO của nó.
 
 ## Notes
 
-- **Con trỏ «thay thế»:** ca đo `AC-8 dang thuc` của bộ răng
-  `_acceptance/khong-ve-the-ma/rang.sh --chan round-trip` ghim số lời thuật
-  bằng hằng số `3`. AC-7 của hợp đồng NÀY thay thế nó bằng đẳng thức
-  rút-từ-marker (số lời thuật = số hằng khai ở bên viết). Hợp đồng đã ký của
-  `khong-ve-the-ma` KHÔNG sửa; bộ răng cũ không nằm trong
-  `feature_loop.suite_keys` nên không làm lưới thường trực đỏ.
-- Lưới thường trực GM01–GM06 trong `tests/scripts/run-tests.sh` giữ nguyên hành
-  vi: fixture `gm-rong` là thư mục RỖNG (không có `opportunity.md`) nên vẫn rơi
-  đúng ô 3 của bảng lát cắt.
-- Lấy phần đã cắt về bằng CÂY `de27babc1f8136b83ea08f8694fe744a4ecee557`
-  (`git archive`), KHÔNG bằng `discovery/phan-cong-dang.patch` — bản vá đã mục
-  2/4 khối (xem `discovery/LAY-VE.md`, bài học P150).
-- Chốt thẻ-ma (`184a3646`) ra đời SAU cây ghim và chạy ở đầu file: nhánh nhận
-  Cổng Đáng phải nằm TRƯỚC nó, nếu không làn mới là mã chết mà mọi phép đo bề
-  mặt vẫn xanh. AC-3 canh đúng điều này.
-- ADR 0002 (khoá model-invocation của sáu thao tác cổng người) áp nguyên cho chế
-  độ Cổng Đáng của `/approve` — máy không tự gọi lệnh ký.
-- **Cờ vàng W6 đã biết, không định sửa:** bộ soi từ vựng báo chữ «thẻ» nằm
-  trong `_Avoid_` của mục *Contract* trong `CONTEXT.md`. Ở hồ sơ này chữ đó
-  mang nghĩa **thẻ cổng** (mục *Mặt người*), và nó là chính VẬT vòng này dựng —
-  né chữ sẽ làm hợp đồng khó đọc hơn chứ không đúng hơn. Cờ để nguyên cho người
-  thấy tại Cổng Phạm vi.
+- **LỖ CÒN MỞ, khai thẳng:** ô đang chờ Cổng Đáng VẪN nhận lời thuật «hồ sơ chưa
+  có contract.md» với việc-kế sai hướng. Đó là DEFECT 1 của báo cáo 01/09 và
+  vòng này KHÔNG đóng nó. Ca `GD05` ghim đúng trạng thái đó để lỗ không vô hình.
+  Bốn ô ở kho kit còn kẹt: `lan-may-thong-duong-ghi`,
+  `phep-kiem-sach-do-theo-vung`, `hinh-o-moi-cong-dung-cho-nguoi`,
+  `the-xep-nham-o-se-lam`.
+- **Phần CHƯA được chấm bằng phiên sạch:** bản thu phạm vi (gỡ làn) và bản vá
+  lớp cho chân `round-trip` viết SAU vòng chấm r2. Bằng chứng cho chúng là bốn
+  suite + chiều đỏ chạy tay, không phải một vòng S4 mới. Người ký cần biết điều
+  này trước khi ký.
+- Hai vòng chấm r1/r2 nằm ở `evidence-report.md` (bản r2) và
+  `review-findings.md`; bản r1 lấy ở commit `d90af7d2`.
+- Cờ vàng W6 «thẻ» giữ nguyên như bản duyệt 01/09.

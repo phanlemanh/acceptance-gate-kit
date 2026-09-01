@@ -49,13 +49,6 @@ const plainPath = opt('--plain');
 const EXTRACT = a.includes('--extract');
 const glossaryBase = opt('--glossary-base'); // opt-in: the ONLY path that shells out to git
 let gate = opt('--gate');
-// Cổng Đáng CHỈ do chốt dưới tự nhận, KHÔNG nhận từ cờ người dùng. Biến này
-// tách «máy phát hiện» khỏi «người ép»: trước bản vá S4-r1, làn Cổng Đáng khoá
-// theo chính `gate`, mà `gate` đọc từ `--gate` TRƯỚC khi chốt chạy — nên một
-// `--gate 0` tường minh xuyên qua cả chốt lẫn làn và vẽ thẻ ma cho hồ sơ ĐÃ QUA
-// Cổng Phạm vi (mời người ký lại một cổng đã đi qua) lẫn hồ sơ RỖNG. Đúng lớp
-// lỗi hồ sơ khong-ve-the-ma (#121) đã ký để dẹp.
-let congDang = false;
 if (!slug) { process.stderr.write('gate-card: --slug required\n'); process.exit(2); }
 // slug must be a single safe path segment — no traversal / separators
 if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(slug)) { process.stderr.write('gate-card: invalid --slug (expect one name, got "' + slug + '")\n'); process.exit(2); }
@@ -87,10 +80,6 @@ const MSG_NO_DOSSIER   = 'gate-card: không có hồ sơ';
 const MSG_NO_CONTRACT  = 'gate-card: hồ sơ chưa có contract.md';
 const MSG_O_DA_DONG    = 'gate-card: ý đã đóng';
 const MSG_HO_SO_HONG   = 'gate-card: hồ sơ hỏng';
-// Bốn lối ra của Cổng Đáng — MỘT NGUỒN. commands/approve.md (bảng ánh xạ),
-// skills/acceptance/references/human-facing-language.md (ô g0) và mọi phép đo
-// RÚT từ dòng này, không gõ literal; đổi ở đây mà quên bên kia là ĐỎ ngay.
-const LOI_RA_G0 = ['làm', 'lặp', 'xếp lại', 'dừng'];
 // NO-DOSSIER-GUARD>>>
 // <<<NO-DOSSIER-GUARD-BLOCK
 if (!contract.trim()) {
@@ -143,18 +132,18 @@ if (!contract.trim()) {
       process.stderr.write(MSG_O_DA_DONG + ' «' + slug + '» — ý này đã đóng hồ sơ, không có gì để ký. Mở lại là một quyết định riêng, không phải bước kế.\n');
       process.exit(2);
     }
-    if (st0 !== 'decided' || !dec0) {
-      // Ô còn mở → LÀN THẺ CỔNG ĐÁNG. Gán ở ĐÂY, bên trong chốt, vì chốt chạy ở
-      // đầu file: đặt nhánh nhận cổng ở đoạn tự nhận cổng phía dưới thì chốt
-      // chặn trước và làn mới thành mã chết trong khi mọi phép đo bề mặt vẫn xanh.
-      congDang = true;
-    } else if (dec0 === 'park' || dec0 === 'kill') {
+    // Ô CÒN MỞ (chờ Cổng Đáng) rơi xuống lời thuật thiếu-hợp-đồng như cũ — làn
+    // thẻ Cổng Đáng đã THU VỀ Ô ở điều khoản dừng-vá 01/09 (xem
+    // discovery/LAY-VE-LAN-THE.md của hồ sơ cong-dang-co-cua). Đây là GIỚI HẠN
+    // ĐÃ KHAI, không phải chỗ quên: người mở một ô đang chờ Cổng Đáng vẫn nhận
+    // câu chỉ sai bước kế. Mở lại là quyết định riêng của owner.
+    if (st0 === 'decided' && (dec0 === 'park' || dec0 === 'kill')) {
       process.stderr.write(MSG_O_DA_DONG + ' «' + slug + '» — ý này đã ' + (dec0 === 'park' ? 'xếp lại' : 'dừng') +
         ', không có gì để ký. Mở lại là một quyết định riêng, không phải bước kế.\n');
       process.exit(2);
     }
   }
-  if (!congDang) {
+  {
     process.stderr.write(MSG_NO_CONTRACT + ' «' + slug + '» — _acceptance/' + slug + '/ có mặt nhưng chưa đọc được contract.md, chưa có gì để trình.\n' +
       (real.length ? '  Hồ sơ đủ bản hợp đồng trong xưởng: ' + real.join(', ') + '\n' : ''));
     process.exit(2);
@@ -317,79 +306,6 @@ const STYLE = `<style>
 .gc .bn{border-color:#cfcdc4;color:#3f3e39}.gc .yes{background:#E1F5EE;border-color:#5DCAA5;color:#085041;font-weight:600}.gc .no{border-color:#F0997B;color:#993C1D}
 </style>`;
 const pl = plain || {};
-
-// ================= GATE 0 — Cổng Đáng =================
-// Cổng thứ ba, lần đầu có mặt người. Nhận cổng đã xảy ra Ở TRÊN, bên trong khối
-// chốt — xem ghi chú ở đó; đặt phép nhận ở đây thì chốt chặn trước và cả làn này
-// thành mã chết trong khi mọi phép đo bề mặt vẫn xanh.
-// Thẻ trình đề bài + ngưỡng (đề xuất của máy hiện RÕ là đề xuất) + bốn lối ra
-// sống. Máy KHÔNG điền `decision` và thẻ KHÔNG ghi gì lên đĩa: chữ ký là phát
-// ngôn của người (ADR 0002).
-// `--gate 0` do người gõ KHÔNG mở được làn này: làn khoá theo `congDang`, thứ
-// chỉ chốt phía trên đặt. Cờ ép mà hồ sơ không đủ điều kiện thì nói thẳng và
-// dừng, KHÔNG rơi im lặng xuống làn khác rồi in một thẻ rỗng.
-if (gate === '0' && !congDang) {
-  process.stderr.write('gate-card: --gate 0 không dùng được ở đây — Cổng Đáng do máy tự nhận (hồ sơ chưa có contract.md, có opportunity.md, chưa chọn lối ra). Bỏ cờ và chạy lại.\n');
-  process.exit(2);
-}
-if (congDang) {
-  const opp = read(path.join(dir, 'opportunity.md'));
-  const ofm = frontmatter(opp);
-  const OPP_TPL = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
-  const tpl = read(OPP_TPL);
-  const NG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
-  let nguong, KHONG_DO, DE_XUAT;
-  try {
-    ({ khongDo: KHONG_DO, deXuat: DE_XUAT } = NG.prefixes(tpl));
-    nguong = NG.thresholdState(opp, tpl);
-  } catch (e) {
-    // Fail-closed: khuôn mất khối marker thì chết to kèm tên file, KHÔNG im lặng
-    // tắt răng rồi vẽ một thẻ trông như bình thường.
-    process.stderr.write('gate-card: ' + e.message + ' — ' + OPP_TPL + '\n'); process.exit(2);
-  }
-  const lines0 = section(opp, NG.UAT_THRESHOLD_HEADING).map(l => l.trim()).filter(l => l && !/^>/.test(l));
-  const flags0 = [];
-  if (nguong === 'chua-chot') flags0.push(['fred',
-    'Ngưỡng còn trống và chưa khai «không đo được» — ký «' + LOI_RA_G0[0] + '» lúc này là ký trên một cái thước trang trí. ' +
-    'Điền ngưỡng vào ô, hoặc khai một dòng «' + KHONG_DO + ' <lý do>».']);
-  if (EXTRACT) {
-    process.stdout.write(JSON.stringify({
-      gate: 0,
-      feature: clean(ofm.feature) || slug,
-      cong_dang: {
-        nguong,
-        loi_ra: LOI_RA_G0,
-        nguong_lines: lines0.map(l => l.replace(/^[-*]\s+/, '')),
-        de_xuat_lines: lines0.filter(l => l.includes(DE_XUAT)).map(l => l.replace(/^[-*]\s+/, '')),
-        flags: flags0.map(f => f[1]),
-      },
-    }, null, 2));
-    process.exit(0);
-  }
-  const P0 = [STYLE, '<div class="gc"><div class="card"><div class="h"><div>' +
-    '<div class="ft">' + esc(stripMd(clean(ofm.feature) || slug)) + '</div>' +
-    '<div class="sub">Cổng Đáng — việc này có đáng làm không?</div></div>' +
-    '<span class="chip amber">quyết có làm không</span></div>'];
-  const blk0 = (lab, arr) => { if (arr.length) P0.push('<div class="lab">' + lab + '</div><div class="grp gnot">' + arr.map(t => '<p class="li">' + esc(stripMd(t)) + '</p>').join('') + '</div>'); };
-  blk0('Vấn đề &amp; ai gặp', section(opp, 'Vấn đề & ai gặp').filter(l => l.trim() && !/^>/.test(l)));
-  blk0('Giả định sinh tử (ba đầu)', section(opp, 'Giả định chốt sinh tử').filter(l => /^\|\s*\d/.test(l)).slice(0, 3).map(l => (l.split('|')[2] || '').trim()));
-  P0.push('<div class="lab">Ngưỡng</div><div class="grp gnot">' + (lines0.length
-    ? lines0.map(l => '<p class="li">' + esc(stripMd(l.replace(/^[-*]\s+/, ''))) +
-        (l.includes(DE_XUAT) ? ' <span class="chip amber">máy đề xuất — anh sửa hoặc nhận</span>' : '') +
-        (NG.isKhongDoLine(l, KHONG_DO) ? ' <span class="chip gray">khai không đo được</span>' : '') + '</p>').join('')
-    : '<p class="li">chưa có</p>') + '</div>');
-  for (const [k, t] of flags0) P0.push('<div class="flag ' + k + '">' + esc(t) + '</div>');
-  // MỘT DÒNG VẬT LÝ, cố ý — nếp chung của file: phép đo chiều đỏ (P185) tiêm
-  // bằng cách XOÁ mọi dòng chứa nhãn này, nên trải câu qua nhiều dòng làm bản
-  // tiêm gãy cú pháp và phép đo tự khai là MÙ thay vì bắt được lỗi.
-  P0.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Chọn một lối ra</b> — làm gì: đọc đề bài và ngưỡng ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «${esc(LOI_RA_G0.join('» hoặc «'))}». Muốn sửa ngưỡng thì sửa trong ô trước khi trả lời — vẫn một lượt.</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «lối ra: ___»</p></div>`);
-  P0.push('<div class="foot"><span class="rev">↻ Đảo ngược dễ: «' + LOI_RA_G0[2] + '» và «' + LOI_RA_G0[3] +
-    '» không đóng cửa ý — mở lại khi có căn cứ mới.</span><div class="btns">' +
-    LOI_RA_G0.map(l => '<button class="b ' + (l === LOI_RA_G0[0] ? 'yes' : 'bn') + '">' + esc(l) + '</button>').join('') +
-    '</div></div></div></div>');
-  process.stdout.write(P0.join('\n'));
-  process.exit(0);
-}
 
 // ================= GATE 1 =================
 if (gate === '1') {

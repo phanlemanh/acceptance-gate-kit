@@ -171,9 +171,7 @@ worktree/nhánh đọc từ git của `<path>`.
 
 4. **MỘT câu hỏi chọn bằng chữ cái/số dòng** — không hỏi câu thứ hai. Người
    chọn xong → bàn giao sang nghi thức đích:
-   - Chọn một cổng → `/acceptance-gate:acceptance-card <slug>`; riêng cổng `dang`
-     → thẻ Cổng Đáng rồi ký bằng `/acceptance-gate:approve <slug> <lối>` (bốn lối:
-     làm · lặp · xếp lại · dừng) — một lượt, một PR; riêng cổng `gia-tri` → skill
+   - Chọn một cổng → `/acceptance-gate:acceptance-card <slug>`; riêng cổng `gia-tri` → skill
      `/acceptance-gate:uat-session <slug>` (phiên nghiệm thu có nghi thức riêng, không phải thẻ).
    - Chọn một vòng dở → `/feature-loop:feature-loop <slug>` — NHƯNG nếu `git.dirty` là
      `true` hoặc phiên đang đứng cây chung với vòng khác: nhắc mở worktree/

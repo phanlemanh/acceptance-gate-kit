@@ -1194,77 +1194,50 @@ check GM06 0 $GM_RC
 hasout "GM06-selam" "Hệ thống SẼ làm" "$GM_OUT"
 hasout "GM06-khonglam" "Sẽ KHÔNG làm" "$GM_OUT"
 
-# GD01-08 — làn thẻ Cổng Đáng + hai lời thuật từ chối mới (hồ sơ cong-dang-co-cua).
-# Bộ răng của hồ sơ chết theo hồ sơ khi merge; khối này là thứ CÒN LẠI canh hồi
-# quy. Hai hằng mới RÚT TỪ NGUỒN như ba hằng cũ — đổi chữ ở bên viết mà case vẫn
-# xanh là thước đã chết.
-echo "GD01-08 làn thẻ Cổng Đáng + ca ý-đã-đóng / hồ-sơ-hỏng"
+# GD01-05 — hai lời thuật từ chối MỚI («ý đã đóng» · «hồ sơ hỏng») của hồ sơ
+# cong-dang-co-cua. Làn thẻ Cổng Đáng đã THU VỀ Ô ở điều khoản dừng-vá 01/09 —
+# các ca của làn (thẻ, bốn lối ra, ma trận nấc ngưỡng) đi cùng nó; những gì còn
+# lại ở đây là hai lời thuật độc lập với làn, cộng HAI ca ghim GIỚI HẠN ĐÃ KHAI.
+# Hai hằng mới RÚT TỪ NGUỒN như ba hằng cũ.
+echo "GD01-05 hai lời thuật từ chối mới + giới hạn đã khai"
 GD_DONG="$(gmpick MSG_O_DA_DONG)"; GD_HONG="$(gmpick MSG_HO_SO_HONG)"
 if [ -z "$GD_DONG" ] || [ -z "$GD_HONG" ]; then
   echo "  FAIL: GD00 (gate-card.js không khai đủ hai hằng MSG_O_DA_DONG/MSG_HO_SO_HONG — case không có gì để ghim)"; FAIL_COUNT=$((FAIL_COUNT+1))
 fi
 GDR="$T/gd"; mkdir -p "$GDR/_acceptance"; printf 'schema_version: 1\n' > "$GDR/_acceptance/config.yaml"
-gdopp() { # gdopp <slug> <stage> <decision> <than nguong>
-  mkdir -p "$GDR/_acceptance/$1"
-  { printf -- '---\nschema_version: 1\nslug: %s\nfeature: Viec %s\nstage: %s\ndecision: %s\n---\n\n## Vấn đề & ai gặp\n\nNguoi van hanh mat mot luot.\n\n## Ngưỡng chết / ngưỡng UAT\n\n' "$1" "$1" "$2" "$3"
-    printf '%s\n' "$4"; } > "$GDR/_acceptance/$1/opportunity.md"
-}
-GD_CHOT='- Câu hỏi phép đo trả lời: Con va cham khong?
-- Kết quả nào là SỐNG: Bon tuan sach.
-- Kết quả nào là CHẾT: Con va cham.
-- Timebox: Bon gio.'
-GD_TRONG='- Câu hỏi phép đo trả lời: …
-- Kết quả nào là SỐNG: …
-- Kết quả nào là CHẾT: …
-- Timebox: …'
-gdopp gd-chot   discovery ''      "$GD_CHOT"
-gdopp gd-trong  discovery ''      "$GD_TRONG"
-gdopp gd-khongdo discovery ''     '- Không đo được — vong nay khong co nguoi dung cuoi.'
-gdopp gd-kill   decided   'kill'  "$GD_CHOT"
-gdopp gd-arch   archived  ''      "$GD_CHOT"
-gdopp gd-hong   linh-tinh ''      "$GD_CHOT"
-gdopp gd-daky   decided   'build' "$GD_CHOT"
+gdopp() { mkdir -p "$GDR/_acceptance/$1"
+  printf -- '---\nschema_version: 1\nslug: %s\nstage: %s\ndecision: %s\n---\n\n## Vấn đề & ai gặp\n\nNguoi van hanh mat mot luot.\n' "$1" "$2" "$3" > "$GDR/_acceptance/$1/opportunity.md"; }
+gdopp gd-kill  decided   'kill'
+gdopp gd-arch  archived  ''
+gdopp gd-hong  linh-tinh ''
+gdopp gd-daky  decided   'build'
+gdopp gd-cho   discovery ''
 
-GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-chot 2>/dev/null)"; GD_RC=$?
-check GD01 0 $GD_RC
-hasout "GD01-nhan" "Cổng Đáng — việc này có đáng làm không?" "$GD_OUT"
-hasout "GD01-lam"     ">làm</button>"     "$GD_OUT"
-hasout "GD01-lap"     ">lặp</button>"     "$GD_OUT"
-hasout "GD01-xeplai"  ">xếp lại</button>" "$GD_OUT"
-hasout "GD01-dung"    ">dừng</button>"    "$GD_OUT"
-nothas "GD01-khong-co-do" 'class="flag fred"' "$GD_OUT"
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-kill 2>"$T/gd1.err")"; GD_RC=$?
+check GD01 2 $GD_RC
+hasout "GD01-msg" "$GD_DONG" "$(cat "$T/gd1.err")"
+nothas "GD01-phanbiet" "$GM_CT" "$(cat "$T/gd1.err")"
 
-GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-trong 2>/dev/null)"; GD_RC=$?
-check GD02 0 $GD_RC
-hasout "GD02-co-do" 'class="flag fred"' "$GD_OUT"
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-arch 2>"$T/gd2.err")"; GD_RC=$?
+check GD02 2 $GD_RC
+hasout "GD02-msg" "$GD_DONG" "$(cat "$T/gd2.err")"
 
-# Nấc «Không đo được» là lối kit TỰ DẠY cho vòng không có người dùng cuối —
-# cắm cờ đỏ ở đây là chặn đúng thứ mình khuyên, và ô không ký được bằng đường nào.
-GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-khongdo 2>/dev/null)"; GD_RC=$?
-check GD03 0 $GD_RC
-nothas "GD03-khong-co-do" 'class="flag fred"' "$GD_OUT"
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-hong 2>"$T/gd3.err")"; GD_RC=$?
+check GD03 2 $GD_RC
+hasout "GD03-msg" "$GD_HONG" "$(cat "$T/gd3.err")"
+hasout "GD03-ten-field" "stage" "$(cat "$T/gd3.err")"
 
-GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-kill 2>"$T/gd4.err")"; GD_RC=$?
+# GD04-05 ghim GIỚI HẠN ĐÃ KHAI, không ghim một hành vi mong muốn: ô đã ký và ô
+# đang CHỜ Cổng Đáng đều rơi về lời thuật thiếu-hợp-đồng. Với ô đã ký thì việc-kế
+# in ra ĐÚNG (hợp đồng sinh ở S1); với ô đang chờ thì SAI — đó là lỗ còn mở, thu
+# về ô cùng làn thẻ. Ca này để lỗ đó không vô hình.
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-daky 2>"$T/gd4.err")"; GD_RC=$?
 check GD04 2 $GD_RC
-hasout "GD04-msg" "$GD_DONG" "$(cat "$T/gd4.err")"
-nothas "GD04-phanbiet" "$GM_CT" "$(cat "$T/gd4.err")"
+hasout "GD04-msg" "$GM_CT" "$(cat "$T/gd4.err")"
 
-GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-arch 2>"$T/gd5.err")"; GD_RC=$?
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-cho 2>"$T/gd5.err")"; GD_RC=$?
 check GD05 2 $GD_RC
-hasout "GD05-msg" "$GD_DONG" "$(cat "$T/gd5.err")"
-
-GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-hong 2>"$T/gd6.err")"; GD_RC=$?
-check GD06 2 $GD_RC
-hasout "GD06-msg" "$GD_HONG" "$(cat "$T/gd6.err")"
-hasout "GD06-ten-field" "stage" "$(cat "$T/gd6.err")"
-
-# Ô ĐÃ KÝ mà hợp đồng chưa sinh vẫn đi lối cũ — CỐ Ý (việc-kế «chuẩn hoá yêu
-# cầu» = S1, đúng cho ô này). Xem Out of scope của hợp đồng cong-dang-co-cua.
-GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-daky 2>"$T/gd7.err")"; GD_RC=$?
-check GD07 2 $GD_RC
-hasout "GD07-msg" "$GM_CT" "$(cat "$T/gd7.err")"
-
-hasout GD08 '"gate": 0' "$(node "$GCARD" --root "$GDR" --slug gd-chot --extract 2>/dev/null)"
+hasout "GD05-gioi-han-da-khai" "$GM_CT" "$(cat "$T/gd5.err")"
 
 hasout G03 "duyệt tiêu chí" "$G1"
 hasout G04 "có ngưỡng/biên" "$G1"

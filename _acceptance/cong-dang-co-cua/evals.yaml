@@ -1,267 +1,52 @@
 schema_version: 1
 feature_slug: cong-dang-co-cua
+# PHẠM VI ĐÃ THU 01/09 — 14 eval của làn thẻ Cổng Đáng trả về ô cùng làn (cây
+# ghim 528caaa8, xem discovery/LAY-VE-LAN-THE.md). Ba eval dưới đây đo phần CÒN
+# LẠI, và cả ba neo vào LƯỚI THƯỜNG TRỰC — đúng luật Giới hạn CHIỀU RỘNG (a):
+# lưới thường trực là trần, không dựng thêm tầng đo.
 evals:
-  - id: E1
-    criterion: AC-1
+  - id: EA
+    criterion: AC-A
     executor: script
-    cmd: config:executors.script.cdcc_hai_bo_doc_dang_thuc
-    paths: [scripts/gate-card.js, scripts/start-scan.mjs, lib/workspace-record.cjs, lib/nguong-o-co-hoi.cjs]
+    cmd: config:executors.script.cdcc_loi_thuat
+    paths: [scripts/gate-card.js, commands/acceptance-card.md, tests/scripts/run-tests.sh]
     expected: >
-      QUAN HỆ GIỮA HAI BỘ ĐỌC, một chiều + phần dôi có thước. KHÔNG phải đẳng
-      thức hai chiều — bất biến B2 (§2 design) khai bộ dựng CỐ Ý vẽ dôi.
-      XƯỞNG: dựng BẰNG CODE trong chính lần chạy, ĐÍCH DANH TÁM ô — ô 3 thư mục
-      rỗng · ô 4 chờ Cổng Đáng ngưỡng đã chốt · ô 5 chờ Cổng Đáng ngưỡng chưa
-      chốt · ô 6 đã ký build · ô 7a park · ô 7b archived · ô 8 field hỏng ·
-      ô 9 có hợp đồng · ô 10 hợp đồng + evidence-report. Ô 1 và ô 2 của bảng lát
-      cắt KHÔNG dựng được bên trong một xưởng (chúng là thuộc tính của GỐC CÂY)
-      — do E6 phủ; ghi rõ ở đây để «số phần tử viết trước» không bị lặng lẽ đổi
-      thành «số ô dựng được» ở lúc thi công.
-      CHỐT SỐ PHẦN TỬ TRƯỚC KHI CHẠY: đếm số thư mục ô thực sinh ra phải BẰNG
-      đúng danh sách đích danh trên (9 thư mục cho 8 ô, ô 7 có hai biến thể);
-      lệch là đỏ vì hạ tầng, báo đúng tên ô thiếu, KHÔNG chạy tiếp.
-      A = tập slug start-scan.mjs xếp gate "dang". B = tập slug gate-card.js
-      thoát 0 và thân thẻ mang nhãn Cổng Đáng.
-      Hai khẳng định: (1) A \ B RỖNG — in ra bằng TÊN SLUG khi không rỗng, không
-      in một chữ FAIL; (2) B \ A BẰNG ĐÚNG tập ô đã dựng ở nấc ngưỡng chưa chốt
-      (ô 5) — phần dôi cũng có thước, không im lặng.
-      ĐỐI CHỨNG DƯƠNG chạy TRƯỚC: trên cây nguyên vẹn, (1) rỗng và (2) khớp.
-      CHIỀU ĐỎ hai lượt trên bản sao TRỌN CÂY (git archive HEAD): (a) tiêm bỏ
-      nhánh nhận Cổng Đáng → A\B phải KHÔNG rỗng, ghim đúng tên slug rơi ra;
-      (b) tiêm cho bộ dựng từ chối ô 5 → khẳng định (2) phải ĐỎ (chứng phần dôi
-      thật sự được canh, không phải một câu văn).
-      Mỗi lệnh tiêm phải chứng minh nó đổi được ít nhất một dòng (so byte
-      trước/sau); không đổi được thì báo hỏng hạ tầng, không báo xanh.
+      Hai hằng thông điệp mới RÚT TỪ khối marker (không gõ literal), rồi ghim
+      ĐÚNG TÁM DÒNG CA trong đầu ra lưới thường trực — không tin mã thoát của
+      trọn suite (P194: suite xanh ở cả hai đầu thì exit không phân biệt được).
+      Ca phủ cả AC-A (ý đã đóng: kill + archived, kèm assert âm-tính phân biệt
+      với hằng thiếu-hợp-đồng) lẫn AC-B (hồ sơ hỏng: nêu tên field).
+      ĐỐI CHỨNG cho CHÍNH PHÉP GREP, cả hai chiều: một ca chắc chắn CÓ (GM06)
+      phải tìm thấy, một chuỗi chắc chắn KHÔNG có phải không tìm thấy. Thiếu
+      cặp này thì tám dòng trên xanh cả khi tệp đầu ra rỗng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
-  - id: E2
-    criterion: AC-2
+  - id: EB
+    criterion: AC-A
     executor: script
-    cmd: config:executors.script.cdcc_nguong_chua_chot_van_ve
-    paths: [scripts/gate-card.js, lib/nguong-o-co-hoi.cjs, skills/acceptance/references/opportunity-template.md]
+    cmd: config:executors.script.cdcc_gioi_han
+    paths: [scripts/gate-card.js, tests/scripts/run-tests.sh]
     expected: >
-      MA TRẬN TOÀN PHẦN trên trục ngưỡng: 4 nấc × 3 khẳng định = 12 assert,
-      viết trước. Bốn nấc RÚT TỪ lib/nguong-o-co-hoi.cjs (thresholdState +
-      prefixes), KHÔNG gõ literal — thêm một nấc ở lib mà quên ở đây thì chân
-      này phải đỏ vì đếm lệch, không lặng lẽ bỏ sót nấc mới.
-      Bốn ô code-sinh, cùng khung (decision rỗng, stage discovery), khác nhau
-      ĐÚNG ở thân section ngưỡng: (n1) mọi bullet còn «…» · (n2) mọi bullet mang
-      tiền tố đề-xuất · (n3) đã chốt, không tiền tố · (n4) một dòng khai
-      «Không đo được — <lý do>».
-      Ba khẳng định cho MỌI nấc: (a) thoát 0 và stdout có thẻ Cổng Đáng — không
-      nấc nào bị trả về lời từ chối; (b) cờ đỏ ngưỡng CHỈ hiện ở n1, vắng ở
-      n2/n3/n4; (c) dấu «máy đề xuất» CHỈ hiện ở n2 và phải nằm trên CHÍNH dòng
-      ngưỡng (đo quan hệ dòng, không đo chuỗi có mặt đâu đó trong thẻ).
-      n4 là ô quan trọng nhất và là ô hôm nay chưa ai đo: kit tự dạy lối khai
-      «Không đo được» cho vòng không có người dùng cuối, nên nếu thẻ vẫn cắm cờ
-      đỏ ở nấc đó thì kit chặn đúng thứ mình khuyên và ô không ký được bằng
-      đường nào.
-      CHIỀU ĐỎ: bản sao cho cờ đỏ in vô điều kiện → (b) phải đỏ ở n2/n3/n4;
-      bản sao gỡ dấu «máy đề xuất» → (c) đỏ ở n2. Mỗi lệnh tiêm chứng minh đổi
-      được ít nhất một dòng.
+      GHIM GIỚI HẠN ĐÃ KHAI, không ghim hành vi mong muốn. Ô đang chờ Cổng Đáng
+      VẪN nhận lời thuật thiếu-hợp-đồng với việc-kế sai hướng — đó là lỗ còn mở
+      (DEFECT 1 của báo cáo 01/09), thu về ô cùng làn thẻ. Chân này ghim bốn
+      dòng ca của lưới RỒI chạy thật: ô chờ Cổng Đáng thoát 2 và stdout RỖNG
+      (không còn thẻ ma), và cờ ép `--gate 0` cũng không vẽ được gì vì làn đã
+      trả về ô. Ca tồn tại để lỗ KHÔNG VÔ HÌNH với người đọc hồ sơ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
-  - id: E3
-    criterion: AC-3
+  - id: EC
+    criterion: AC-C
     executor: script
-    cmd: config:executors.script.cdcc_lan_truoc_chot
-    paths: [scripts/gate-card.js]
+    cmd: config:executors.script.cdcc_dang_thuc_lop
+    paths: [scripts/gate-card.js, _acceptance/khong-ve-the-ma/rang.sh]
     expected: >
-      THỨ TỰ, không phải sự có mặt. Đọc vị trí dòng của khối nhận-Cổng-Đáng và
-      của khối NO-DOSSIER-GUARD-BLOCK trong scripts/gate-card.js; khẳng định
-      khối nhận cổng nằm TRƯỚC khối chốt. Rồi chạy thật: ô chờ Cổng Đáng →
-      thoát 0 có thẻ.
-      MUTANT HOÁN VỊ (đây là phần bắt lỗi thật): bản sao trọn cây, dời khối
-      nhận-Cổng-Đáng xuống SAU khối chốt → cùng lệnh phải ĐỎ với đúng chuỗi
-      thông điệp của chốt. Hoán vị mà phép đo vẫn xanh nghĩa là phép đo không
-      đo được thứ tự — báo hỏng phép đo, không báo đạt.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E4
-    criterion: AC-4
-    executor: script
-    cmd: config:executors.script.cdcc_o_da_dong
-    paths: [scripts/gate-card.js, commands/acceptance-card.md]
-    expected: >
-      MA TRẬN TOÀN PHẦN viết trước, 3 ô = decision park · decision kill ·
-      stage archived. Mỗi ô: thoát khác 0 · stdout rỗng · thông điệp ghim hằng
-      «ý đã đóng» RÚT TỪ khối marker trong gate-card.js · và ghim VẮNG MẶT chuỗi
-      hằng thiếu-hợp-đồng (chứng hai ca phân biệt được, không phải cùng nhánh).
-      Thêm một assert âm-tính có nội dung: thông điệp KHÔNG chứa cụm mời viết
-      hợp đồng — cụm này rút từ chính thân lệnh acceptance-card.md, không gõ tay.
-      ĐỐI CHỨNG DƯƠNG: cùng fixture đổi decision về rỗng → thoát 0 có thẻ Cổng
-      Đáng. Không có ô này thì ba ô trên xanh cả khi gate-card không chạy.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E5
-    criterion: AC-5
-    executor: script
-    cmd: config:executors.script.cdcc_ho_so_hong
-    paths: [scripts/gate-card.js, lib/workspace-record.cjs]
-    expected: >
-      MA TRẬN TOÀN PHẦN, 4 ô = stage ngoài từ vựng · decision ngoài từ vựng ·
-      stage thiếu hẳn · frontmatter hỏng. Mỗi ô: thoát khác 0 · stdout rỗng ·
-      thông điệp NÊU TÊN field hỏng (ghim đúng chuỗi tên field) · và ghim VẮNG
-      MẶT nhãn thẻ Cổng Đáng (chứng không nhận nhầm thành gate 0).
-      Từ vựng hợp lệ RÚT TỪ NAV_RULES trong lib/workspace-record.cjs — thêm giá
-      trị hợp lệ mới ở lib mà quên bên vẽ thì phép đo phải đỏ.
-      ĐỐI CHỨNG DƯƠNG: sửa field về giá trị trong từ vựng → thoát 0 có thẻ.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E6
-    criterion: AC-6
-    executor: script
-    cmd: config:executors.script.cdcc_ba_ca_cu_khong_doi
-    paths: [scripts/gate-card.js, commands/acceptance-card.md]
-    expected: >
-      HỒI QUY. Ba fixture code-sinh: gốc không có _acceptance/config.yaml · có
-      xưởng nhưng không có thư mục hồ sơ · thư mục hồ sơ RỖNG (không hợp đồng,
-      không ô cơ hội). Mỗi ca: thoát khác 0 · ghim đúng hằng của MÌNH · ghim
-      VẮNG MẶT hai hằng kia (phân biệt từng đôi một, 3 ca × 2 = 6 assert âm).
-      Ba hằng rút từ khối marker, không gõ literal.
-      ĐỐI CHỨNG DƯƠNG: hồ sơ đủ hợp đồng → thoát 0 có thẻ Cổng Phạm vi; hồ sơ đủ
-      hợp đồng + evidence-report → thẻ Cổng Bằng chứng. Hai làn cũ phải chứng
-      minh còn sống, nếu không thì «ba ca cũ không đổi» chỉ nói được rằng cả bộ
-      dựng đã chết.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E7
-    criterion: AC-7
-    executor: script
-    cmd: config:executors.script.cdcc_dang_thuc_ca_tu_choi
-    paths: [scripts/gate-card.js, commands/acceptance-card.md]
-    expected: >
-      ĐẲNG THỨC RÚT-TỪ-BÊN-VIẾT, thay ca ghim hằng số 3 của bộ răng
-      khong-ve-the-ma (con trỏ «thay thế», xem Notes hợp đồng). N = số hằng
-      MSG_* khai trong khối marker của gate-card.js, ĐẾM ĐƯỢC chứ không viết
-      sẵn. M = số lời thuật riêng trong bước tiền đề của commands/acceptance-card.md.
-      Khẳng định N == M, và mỗi hằng ghép đúng MỘT lời thuật (thừa cũng đỏ).
-      CHIỀU ĐỎ ba lượt trên bản sao: (a) thêm một hằng ở bên viết mà không thêm
-      lời thuật → đỏ; (b) thêm một lời thuật không rút được từ hằng nào → đỏ;
-      (c) đổi chữ một hằng ở bên viết → đúng cặp đó đỏ, các cặp kia còn nguyên.
-      Mỗi lệnh tiêm phải chứng minh nó đổi được ít nhất một dòng.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E8
-    criterion: AC-8
-    executor: script
-    cmd: config:executors.script.cdcc_bon_loi_ra_song
-    paths: [scripts/gate-card.js]
-    expected: >
-      Thẻ Cổng Đáng render từ ô code-sinh: đúng bốn lối ra, đúng thứ tự
-      làm · lặp · xếp lại · dừng, và một dòng nói đảo ngược được. Số assert =
-      4 lối + 1 dòng đảo = 5, viết trước.
-      CHIỀU ĐỎ: bản sao bỏ một lối ra khỏi danh sách nguồn → phép đo đỏ nêu
-      đúng tên lối bị thiếu (không chỉ «số lối sai»).
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E9
-    criterion: AC-9
-    executor: script
-    cmd: config:executors.script.cdcc_may_khong_viet_ho
-    paths: [scripts/gate-card.js]
-    expected: >
-      Hai khẳng định ÂM TÍNH, nên mỗi cái phải có đối chứng dương của riêng nó —
-      không có thì cả hai xanh cả khi lệnh chưa bao giờ chạm vật.
-      CHỨNG LỆNH ĐÃ THẬT SỰ CHẠY (làm TRƯỚC hai khẳng định): cả lượt render lẫn
-      lượt --extract phải thoát 0 VÀ đầu ra chứa mẩu nội dung bắt buộc của mình
-      (render: nhãn cổng; --extract: khoá JSON của làn Cổng Đáng). Gõ sai cờ,
-      thoát 127, hay in rỗng đều phải ĐỎ ở đây — nếu không thì «băm không đổi»
-      và «không chứa decision» đều đúng một cách vô nghĩa.
-      (1) Băm SHA-256 của opportunity.md không đổi sau render và sau --extract.
-      Đối chứng dương: ghi thêm một byte vào chính file đó rồi so lại → phép so
-      băm PHẢI đỏ (chứng phép so phân biệt được, và lệnh tiêm đổi được thật).
-      (2) Đầu ra render và đầu ra --extract đều KHÔNG chứa một giá trị decision
-      đã điền: quét bốn giá trị enum rút từ lib/workspace-record.cjs ở vị trí
-      một câu trả lời, và quét chuỗi «decision:» kèm giá trị khác rỗng.
-      Đối chứng dương cho (2): fixture riêng có decision điền sẵn → phép quét
-      PHẢI bắt được nó.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E10
-    criterion: AC-9
-    executor: judgment
-    question: >
-      Thẻ Cổng Đáng dưới đây có viết hộ phần việc của người không? Cụ thể: nó có
-      viết sẵn một lựa chọn, một verdict, một câu căn cứ, hay một chữ ký nào mà
-      lẽ ra người mới được nói ra không? Máy được phép ĐỀ XUẤT ngưỡng nếu dấu
-      «máy đề xuất» hiện rõ trên chính dòng đó. Trả lời PASS nếu mọi chữ của
-      người còn để trống, FAIL kèm trích nguyên văn câu vi phạm.
-    inputs: [evidence/the-cong-dang.html, opportunity.md]
-    expected: >
-      Panel đọc thẻ THẬT do lần chạy này render (không phải mô tả thẻ). Mọi ô
-      thuộc người còn trống; đề xuất của máy mang dấu hiển thị.
-    evidence_required: [run_id, verifier, verified_at, rationale]
-
-  - id: E11
-    criterion: AC-10
-    executor: script
-    cmd: config:executors.script.cdcc_mot_nguon_bon_loi_ra
-    paths: [scripts/gate-card.js, commands/approve.md, skills/acceptance/references/human-facing-language.md]
-    expected: >
-      MỘT NGUỒN, ba bên cùng rút. Rút danh sách bốn lối ra từ bên VẼ
-      (gate-card.js) và từ hai bên GHI (approve.md · human-facing-language.md);
-      khẳng định ba danh sách BẰNG NHAU theo cùng thứ tự.
-      CHIỀU ĐỎ ba lượt, mỗi lượt tiêm một bên: đổi nhãn ở bên vẽ → đỏ; đổi ở
-      approve.md → đỏ; đổi ở bản luật ngôn ngữ → đỏ. Ba lượt riêng để một bên
-      hỏng không che hai bên kia. Lệnh tiêm phải chứng minh đổi được một dòng.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E12
-    criterion: AC-11
-    executor: script
-    cmd: config:executors.script.cdcc_ban_giao_start
-    paths: [commands/start.md, commands/approve.md]
-    expected: >
-      Bước bàn giao của commands/start.md cho cổng «dang»: nêu thẻ TRƯỚC, lệnh
-      ký SAU (đo thứ tự dòng, không chỉ sự có mặt); tên lệnh ký rút được và
-      khớp tên thật của thân lệnh duyệt.
-      CHIỀU ĐỎ: bản sao đổi tên lệnh ký trong start.md thành một tên không tồn
-      tại → đỏ; đảo thứ tự hai vế → đỏ.
-      ĐỐI CHỨNG DƯƠNG: lối bàn giao của cổng «gia-tri» (đã sống từ trước) vẫn
-      rút được — chứng phép đo đọc đúng thân lệnh chứ không luôn đỏ/luôn xanh.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E13
-    criterion: AC-12
-    executor: script
-    cmd: config:executors.script.cdcc_rang_chieu_do_cua_ky
-    paths: [commands/approve.md]
-    expected: >
-      Điều kiện chặn của chế độ Cổng Đáng phải MÁY ĐỌC ĐƯỢC: nằm trên dòng
-      riêng trong một khối marker của commands/approve.md, không chỉ trong văn
-      xuôi. Khẳng định: khối marker có mặt; mỗi mệnh đề chặn (ngưỡng-chưa-chốt
-      chặn làm/lặp · nguồn-ngoài-chưa-phân-loại chặn làm/lặp · xếp-lại/dừng
-      không cần ngưỡng) nằm trên một dòng riêng rút được.
-      CHIỀU ĐỎ từng mệnh đề: bản sao gỡ ĐÚNG một dòng → đúng mệnh đề đó đỏ, hai
-      mệnh đề kia còn nguyên. Gỡ dòng mà vẫn thấy nghĩa là mệnh đề không nằm
-      trên dòng riêng — báo hỏng phép đo.
-      GIỚI HẠN KHAI THẲNG: đây là phép đo HÌNH DẠNG của một thân lệnh (chỉ dẫn
-      cho mô hình), không phải phép đo HÀNH VI lúc ký. Hành vi ký thật chỉ đo
-      được ở ô kế tiếp đi qua cổng — đó là ngưỡng UAT của hồ sơ này, không phải
-      tiêu chí của vòng này. Phần đo được của hành vi ghi nằm ở E14.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
-  - id: E14
-    criterion: AC-13
-    executor: script
-    cmd: config:executors.script.cdcc_anh_xa_du_bon_hang
-    paths: [commands/approve.md, lib/workspace-record.cjs, scripts/gate-card.js]
-    expected: >
-      ĐỦ HÀNG, không phải CÓ MẶT. Đây là chỗ bịt lỗ mà bốn eval kia không thấy:
-      thẻ in đủ bốn nhãn và ba văn bản liệt đủ bốn nhãn thì E8/E11/E12/E13 xanh
-      hết, nhưng nếu bảng ánh xạ chỉ dẫn được HAI giá trị máy thì người ký
-      «xếp lại» vẫn không ghi được và phải hỏi lượt hai — đúng định nghĩa «Kết
-      quả CHẾT» của ô cơ hội.
-      Rút bảng ánh xạ (nhãn người → giá trị máy) từ khối marker trong
-      commands/approve.md. Khẳng định: (a) đúng BỐN hàng, không thừa không
-      thiếu; (b) tập bốn giá trị máy BẰNG tập giá trị hợp lệ của khoá `decision`
-      rút từ NAV_RULES trong lib/workspace-record.cjs — so TẬP, rút từ lib,
-      không gõ literal; (c) tập bốn nhãn người BẰNG tập bốn lối ra bên vẽ
-      (gate-card.js), tức cùng danh sách E11 đã canh.
-      CHIỀU ĐỎ ba lượt, mỗi lượt tiêm một chỗ trên bản sao trọn cây: gỡ một
-      hàng khỏi bảng → đỏ nêu ĐÚNG tên hàng thiếu; đổi một giá trị máy thành
-      chuỗi ngoài từ vựng của lib → đỏ nêu đúng giá trị lạ; thêm một giá trị
-      hợp lệ mới vào lib mà không thêm hàng → đỏ (chứng phép đo đọc lib thật,
-      không chép sẵn bốn chuỗi).
-      Mỗi lệnh tiêm chứng minh nó đổi được ít nhất một dòng.
+      Chân `round-trip` của hồ sơ ĐÃ KÝ `khong-ve-the-ma` phải RÚT số ca từ
+      khối marker chứ không ghim hằng số 3 — nó đã ĐỎ (10 pass, 1 fail) khi bên
+      viết lên 5 hằng, tức đỏ vì CHÍNH NÓ chứ không vì vật. Sửa theo LỚP: gỡ cả
+      hai chỗ ghim cứng (số hằng, và «2 cặp kia»). Chân này chạy nó thật, ghim
+      mã thoát 0 VÀ dòng tổng kết «0 fail».
+      CHIỀU ĐỎ: bản sao TRỌN CÂY (git archive HEAD) ghim lại hằng số 3 → phải
+      ĐỎ; lệnh tiêm chứng minh đổi được nội dung bằng so BĂM. Hợp đồng đã ký
+      của hồ sơ kia KHÔNG bị đụng — chỉ sửa bên ĐO.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
