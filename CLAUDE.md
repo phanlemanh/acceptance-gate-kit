@@ -26,6 +26,25 @@
   - **Ranh giới không phải cổng thì máy TỰ ĐI TIẾP** — bảng cổng trong SKILL là
     vét cạn; chờ lệnh ngoài bảng đó là máy tự chèn lượt gọi người (finding
     26/07, tái phạm 30/08).
+  - **Lời mời cổng chỉ chứa ĐIỀU-CHỈ-NGƯỜI-BIẾT (owner quyết 01/09).** Owner
+    tự quan sát: ở phạm vi/tiêu chí «tôi thường chỉ gật vì nó vượt nhận
+    thức» — chữ ký kiểu đó là tin-suông khoác áo thẩm định. Máy phân loại
+    từng mục theo NGUỒN CĂN CỨ trước khi mời: căn cứ là mục-tiêu+quy-tắc đã
+    khai → máy đi tiếp, ghi sổ, cửa veto · chỉ một lối ra sống → trạm thu
+    phí, máy đi tiếp báo một dòng · căn cứ vượt nhận thức người nhưng quyết
+    hiệu quả kit (phạm vi đủ? thước đo thật?) → ĐỐI KHÁNG MÁY thay mắt người,
+    người đọc PHÁN QUYẾT đối kháng kèm số + chiều đỏ, không đọc vật · chưa đủ
+    định hướng để quyết được → CHƯA ĐƯỢC HỎI, máy phải dựng căn cứ + hệ quả
+    từng lối trước · căn cứ chỉ người có (đánh-đổi giá trị, khẩu vị rủi ro,
+    khó-đảo) → câu hỏi thật, khuôn 1-phút + 1-khuyến-nghị + 1-chạm. Phép thử
+    từng mục: «người trả lời khác khuyến nghị thì dựa vào điều gì máy không
+    có?» — không có → không phải câu hỏi cho người. Chữ ký từ đây xác nhận
+    HAI thứ tách bạch: quy-trình-đối-kháng-đã-hội-tụ trên phần vượt-nhận-thức,
+    và các đánh-đổi chỉ-người-biết. Hệ quả: cổng không còn mục
+    chỉ-người-biết nào và không khó-đảo = làn V — làn V không phải ngoại lệ,
+    nó là ca-rỗng của luật này. Lưới cho phân loại sai: mọi thứ máy tự quyết
+    đều có sổ + đường đảo + hiện ở khối «CHƯA duyệt» của Cổng Bằng chứng, và
+    khó-đảo LUÔN là câu hỏi cho người bất kể phân loại.
   - **Giới hạn CHIỀU RỘNG (owner quyết 30/08, «cắt đuôi giữ lõi»).** Kit từng
     chỉ có phanh chiều sâu (dừng-vá · trần 3 vòng · timebox) mà mọi phanh đều
     xả vào sổ hạng mục không trần → 5 vòng meta liên tiếp sau 2.4.0, 0 giá trị
