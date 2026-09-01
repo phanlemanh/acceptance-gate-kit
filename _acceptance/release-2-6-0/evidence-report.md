@@ -8,7 +8,7 @@ verified_by: implementing session (rà soát đối kháng do phiên tươi đ�
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 6c44ac24208d11602fa06e43d35138d22f257c05
-human_signoff:
+human_signoff: Manh Phan 2026-09-01 — ký mốc phát hành 2.6.0 với 7 known-limits đã khai và 2 mục ngoài hợp đồng cùng chọn ghi Known limits; đồng ý phạm vi đã cắt; phê cả 5 quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: release-2-6-0

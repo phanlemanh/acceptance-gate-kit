@@ -5,7 +5,7 @@ slug: release-2-6-0
 owner: manh.phan@onemount.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + workspace hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: implemented
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-09-01T11:26:27Z
 veto_state: mo
@@ -140,3 +140,26 @@ hội thoại**, không có bộ đếm máy — cùng giới hạn đã khai �
 - Ghim lại các hồ sơ đã ký đang hoá cũ — §7.1: chiến dịch ghim lại là việc SAU khi mốc merge.
 - Cài bản mới lên repo tiêu thụ và kiểm tay máy thứ hai — việc sau khi mốc này merge.
 - Đóng bộ đếm «lần gọi người» bằng máy — giới hạn đã khai hai mốc liên tiếp, thuộc ô riêng.
+
+## Notes
+
+Known limits — người ký định đoạt tại Cổng Bằng chứng 2026-09-01, hai mục
+ngoài hợp đồng đều chọn **ghi Known limits** thay vì mở hợp đồng mới hay nâng
+phạm vi:
+
+- **Ngoài-1 · Bất biến «MỘT nguồn của NĂM thông điệp» không nằm trong lưới
+  thường trực.** `scripts/gate-card.js:75-79` hứa rằng đổi chữ ở khối hằng mà
+  quên thân lệnh là ĐỎ ngay. Bất biến đó CÓ THẬT nhưng chỉ được canh bởi
+  `_acceptance/khong-ve-the-ma/rang.sh --chan round-trip` — răng của một hồ sơ
+  ĐÃ KÝ, không thuộc bốn suite. Đo thật ở vòng chấm: đột biến hằng
+  `MSG_O_DA_DONG` làm `rang.sh` đỏ 6 fail trong khi cả bốn suite vẫn exit 0.
+  Hệ quả chấp nhận: một PR sau này chạm hai file đó mà không chạm hồ sơ
+  `khong-ve-the-ma` sẽ thấy lưới xanh trong khi hai bên đã trôi khỏi nhau.
+  Chỗ lớp này thuộc về là ô `khuon-rang-dung-chung` (park 30/08).
+- **Ngoài-2 · Sổ chạy chưa commit tại cây vòng 1.** Trạng thái kho lúc chấm
+  r1; đã đóng ở r2 khi mọi thứ được commit trước khi chạy lại. Không còn hiệu
+  lực trên cây được ký.
+
+Bảy known-limits của gói bằng chứng đọc ở `evidence-report.md` mục cùng tên —
+trong đó ba mục tự tố phiên thi công (bằng chứng không do phiên sạch tạo · con
+số 34/27 không tái lập được · năm dòng sổ mang dấu thời gian không thật).
