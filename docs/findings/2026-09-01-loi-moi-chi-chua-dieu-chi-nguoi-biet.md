@@ -89,9 +89,14 @@ TRỪ và đổi-vai, không cổng mới, không tầng thước mới.
 
 ## Hình (tầng 2, owner gọi tên nâng cấp này là «2.7»)
 
-Bốn hình ở `docs/plans/assets/v27-0*.html` — chiếu của file này + hai findings
-cùng ngày + luật (c), không phải nguồn: **v27-01** bộ định tuyến năm loại
-quyết định, một đường tới người · **v27-02** trước/sau nhịp gọi người của một
-vòng (6 lượt đo thật → 3 lượt·3 chạm; mốc phát hành → 1) · **v27-03** thẻ cổng
-đổi vai — chữ ký đổi nghĩa · **v27-04** số cạnh mục tiêu (thang so-ngưỡng,
-tiền lệ 2.5.0 chứng minh mục tiêu đạt được).
+Bốn hình trong `docs/plans/assets/` — chiếu của file này + hai findings cùng
+ngày + luật (c), không phải nguồn (tên ghi ĐẦY ĐỦ, không glob — phép kiểm
+mồ-côi quét theo tên file, con trỏ glob làm hình thành mồ côi giả):
+
+- `v27-01-dinh-tuyen-dieu-chi-nguoi-biet.html` — bộ định tuyến năm loại quyết
+  định, một đường tới người.
+- `v27-02-truoc-sau-mot-vong.html` — trước/sau nhịp gọi người của một vòng
+  (6 lượt đo thật → 3 lượt·3 chạm; mốc phát hành → 1).
+- `v27-03-the-cong-doi-vai.html` — thẻ cổng đổi vai, chữ ký đổi nghĩa.
+- `v27-04-so-canh-muc-tieu.html` — số cạnh mục tiêu (thang so-ngưỡng, tiền lệ
+  2.5.0 chứng minh mục tiêu đạt được).
