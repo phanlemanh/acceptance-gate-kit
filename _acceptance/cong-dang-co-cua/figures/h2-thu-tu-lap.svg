@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1120 624" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif">
+<defs>
+<style><![CDATA[
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap');
+svg{--paper:#f5f5f5;--paper2:#ececec;--white:#ffffff;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;--rule:rgba(45,49,66,0.12);--rule2:#bfc0c0;--accent:#eb6c36;--accent-text:#ba4513;--accent-tint:rgba(235,108,54,0.08);--fill-soft:rgba(45,49,66,0.05);--fill-faint:rgba(45,49,66,0.03);}
+@media (prefers-color-scheme: dark){svg{--paper:#2d3142;--paper2:#393e53;--white:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,0.12);--rule2:rgba(191,192,192,0.25);--accent:#f08a59;--accent-text:#f19162;--accent-tint:rgba(240,138,89,0.10);--fill-soft:rgba(245,245,245,0.06);--fill-faint:rgba(245,245,245,0.04);}}
+]]></style>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/></marker>
+<marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--ink)"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/></marker>
+</defs>
+
+<rect width="100%" height="100%" fill="var(--paper)"/>
+
+<!-- ============ trục thời gian ============ -->
+<text x="32" y="48" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">VÌ SAO BẪY TỒN TẠI</text>
+
+<path d="M200,76 V68 Q200,60 208,60 H592 Q600,60 600,68 V76" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+<rect x="272" y="36" width="256" height="16" rx="2" fill="var(--paper)"/>
+<text x="400" y="48" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÂY GHIM CÓ TRƯỚC CHỐT — BẪY Ở ĐÂY</text>
+
+<line x1="64" y1="104" x2="1056" y2="104" stroke="var(--rule2)" stroke-width="1"/>
+<circle cx="200" cy="104" r="5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.2"/>
+<circle cx="600" cy="104" r="5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.2"/>
+<circle cx="944" cy="104" r="5" fill="var(--ink)"/>
+
+<text x="200" y="92" fill="var(--ink)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">24/08</text>
+<text x="600" y="92" fill="var(--ink)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">29/08</text>
+<text x="944" y="92" fill="var(--ink)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">01/09</text>
+
+<text x="200" y="128" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cây ghim de27babc — bốn mảnh đã qua đo,</text>
+<text x="200" y="144" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">bị cắt khỏi vòng trước vì phạm vi</text>
+<text x="600" y="128" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">chốt thẻ-ma 184a3646 — nằm ở ĐẦU</text>
+<text x="600" y="144" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gate-card.js, chạy trước đoạn tự nhận cổng</text>
+<text x="944" y="128" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">vòng này lắp lại —</text>
+<text x="944" y="144" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">hai vết là MỘT vòng</text>
+
+<line x1="32" y1="176" x2="1088" y2="176" stroke="var(--rule)" stroke-width="0.8"/>
+
+<!-- ============ ba bước nối tiếp ============ -->
+<text x="32" y="212" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">BA BƯỚC NỐI TIẾP — ĐƯỜNG ĐƯỢC CHỌN</text>
+
+<line x1="336" y1="272" x2="416" y2="272" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<line x1="696" y1="272" x2="776" y2="272" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+
+<path d="M200,316 V416" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+<rect x="208" y="358" width="96" height="16" rx="2" fill="var(--paper)"/>
+<text x="212" y="370" fill="var(--soft)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">NHÁNH HỎNG</text>
+
+<path d="M560,316 V416" fill="none" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+<rect x="568" y="358" width="160" height="16" rx="2" fill="var(--paper)"/>
+<text x="572" y="370" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">NHÁNH HỎNG — BẪY THẬT</text>
+
+<path d="M920,316 V416" fill="none" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<rect x="928" y="358" width="80" height="16" rx="2" fill="var(--paper)"/>
+<text x="932" y="370" fill="var(--soft)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">CHIỀU ĐỎ</text>
+
+<!-- bước 1 -->
+<rect x="64" y="228" width="272" height="88" rx="6" fill="var(--paper)"/>
+<rect x="64" y="228" width="272" height="88" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="76" y="240" width="60" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="106" y="251" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BƯỚC 1</text>
+<text x="76" y="280" fill="var(--ink)" font-size="14" font-weight="600">Lấy về</text>
+<text x="76" y="298" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">lấy trọn thư mục từ cây ghim de27babc</text>
+<text x="76" y="310" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">bằng git archive — không chép danh sách tay</text>
+
+<!-- bước 2 -->
+<rect x="424" y="228" width="272" height="88" rx="6" fill="var(--paper)"/>
+<rect x="424" y="228" width="272" height="88" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="436" y="240" width="60" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="466" y="251" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BƯỚC 2</text>
+<text x="436" y="280" fill="var(--ink)" font-size="14" font-weight="600">Lắp</text>
+<text x="436" y="298" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">nhánh nhận Cổng Đáng đặt TRƯỚC chốt</text>
+<text x="436" y="310" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">thẻ-ma trong gate-card.js · AC-3</text>
+
+<!-- bước 3 -->
+<rect x="784" y="228" width="272" height="88" rx="6" fill="var(--paper)"/>
+<rect x="784" y="228" width="272" height="88" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="796" y="240" width="60" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="826" y="251" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BƯỚC 3</text>
+<text x="796" y="280" fill="var(--ink)" font-size="14" font-weight="600">Đo</text>
+<text x="796" y="298" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">mutant hoán vị: dời khối xuống SAU chốt</text>
+<text x="796" y="310" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">thì phép đo phải ĐỎ</text>
+
+<!-- ============ nhánh hỏng / chiều đỏ ============ -->
+<text x="32" y="404" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">NHÁNH ĐÃ LOẠI</text>
+
+<rect x="64" y="420" width="272" height="88" rx="6" fill="var(--paper)"/>
+<rect x="64" y="420" width="272" height="88" rx="6" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="76" y="452" fill="var(--ink)" font-size="12" font-weight="600">Lấy về bằng bản vá</text>
+<text x="76" y="472" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">phan-cong-dang.patch đã mục 2/4 khối</text>
+<text x="76" y="488" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">bản base thiếu file → đỏ vì hạ tầng,</text>
+<text x="76" y="500" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">không phải vì vật được đo</text>
+
+<rect x="424" y="420" width="272" height="88" rx="6" fill="var(--paper)"/>
+<rect x="424" y="420" width="272" height="88" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="4,3"/>
+<text x="436" y="452" fill="var(--ink)" font-size="12" font-weight="600">Đặt nhánh SAU chốt</text>
+<text x="436" y="472" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">chốt chặn trước → làn Cổng Đáng thành</text>
+<text x="436" y="488" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">MÃ CHẾT, mà mọi phép đo bề mặt</text>
+<text x="436" y="500" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">vẫn XANH</text>
+
+<rect x="784" y="420" width="272" height="88" rx="6" fill="var(--paper)"/>
+<rect x="784" y="420" width="272" height="88" rx="6" fill="var(--fill-soft)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="796" y="452" fill="var(--ink)" font-size="12" font-weight="600">Chiều đỏ của AC-3</text>
+<text x="796" y="472" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">đối chứng dương: bản nguyên vẹn phải</text>
+<text x="796" y="488" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">XANH trước khi tin bản bị tiêm là ĐỎ</text>
+<text x="796" y="500" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">gọi chính gate-card.js của cây đang kiểm</text>
+
+<!-- annotation -->
+<text x="64" y="548" fill="var(--accent-text)" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">Cây ghim ra đời trước chốt năm ngày — nên thứ tự lắp là điều kiện sống của làn mới, không phải một chi tiết dọn dẹp.</text>
+
+<!-- legend -->
+<line x1="32" y1="576" x2="1088" y2="576" stroke="var(--rule)" stroke-width="0.8"/>
+<text x="32" y="596" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="112" y1="592" x2="144" y2="592" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<text x="152" y="596" fill="var(--muted)" font-size="9">đường được chọn</text>
+<line x1="288" y1="592" x2="320" y2="592" stroke="var(--muted)" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+<text x="328" y="596" fill="var(--muted)" font-size="9">nhánh đã loại</text>
+<line x1="448" y1="592" x2="480" y2="592" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+<text x="488" y="596" fill="var(--muted)" font-size="9">bẫy thứ tự — hỏng mà mọi phép đo bề mặt vẫn xanh</text>
+<line x1="820" y1="592" x2="852" y2="592" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<text x="860" y="596" fill="var(--muted)" font-size="9">chiều đỏ canh AC-3</text>
+</svg>

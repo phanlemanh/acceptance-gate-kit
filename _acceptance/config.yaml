@@ -204,6 +204,26 @@ executors:
     srlp_rang_day_khep: bash _acceptance/suite-run-log-provenance/rang.sh --chan day-khep
     srlp_rang_khong_hoi_quy: bash _acceptance/suite-run-log-provenance/rang.sh --chan khong-hoi-quy
     srlp_rang_bo_doc: bash _acceptance/suite-run-log-provenance/rang.sh --chan bo-doc
+    # Vật của hồ sơ cong-dang-co-cua — răng cho làn thẻ Cổng Đáng + chốt biết
+    # phân biệt. Mỗi chân dựng XƯỞNG bằng code trong chính lần chạy, chạy CHÍNH
+    # gate-card.js/start-scan.mjs của cây đang kiểm, và mang đối chứng dương
+    # riêng. Bản sao để tiêm chụp TRỌN cây (git archive HEAD), không chép danh
+    # sách file tay (P150). Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng
+    # hồ sơ trên — lưới thường trực là ca GM01–GM06 + ca mới trong
+    # tests/scripts/run-tests.sh.
+    cdcc_hai_bo_doc_dang_thuc: bash _acceptance/cong-dang-co-cua/rang.sh --chan hai-bo-doc
+    cdcc_nguong_chua_chot_van_ve: bash _acceptance/cong-dang-co-cua/rang.sh --chan nguong-chua-chot
+    cdcc_lan_truoc_chot: bash _acceptance/cong-dang-co-cua/rang.sh --chan lan-truoc-chot
+    cdcc_o_da_dong: bash _acceptance/cong-dang-co-cua/rang.sh --chan o-da-dong
+    cdcc_ho_so_hong: bash _acceptance/cong-dang-co-cua/rang.sh --chan ho-so-hong
+    cdcc_ba_ca_cu_khong_doi: bash _acceptance/cong-dang-co-cua/rang.sh --chan ba-ca-cu
+    cdcc_dang_thuc_ca_tu_choi: bash _acceptance/cong-dang-co-cua/rang.sh --chan dang-thuc-ca
+    cdcc_bon_loi_ra_song: bash _acceptance/cong-dang-co-cua/rang.sh --chan bon-loi-ra
+    cdcc_may_khong_viet_ho: bash _acceptance/cong-dang-co-cua/rang.sh --chan khong-viet-ho
+    cdcc_mot_nguon_bon_loi_ra: bash _acceptance/cong-dang-co-cua/rang.sh --chan mot-nguon
+    cdcc_ban_giao_start: bash _acceptance/cong-dang-co-cua/rang.sh --chan ban-giao
+    cdcc_rang_chieu_do_cua_ky: bash _acceptance/cong-dang-co-cua/rang.sh --chan rang-ky
+    cdcc_anh_xa_du_bon_hang: bash _acceptance/cong-dang-co-cua/rang.sh --chan anh-xa-du-hang
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
