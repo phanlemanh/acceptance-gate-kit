@@ -34,7 +34,7 @@
 | `commands/start.md` | bàn giao cổng `dang` | T5 |
 | `commands/approve.md` | chế độ ký + bảng ánh xạ bốn lối ra | T6 |
 | `skills/acceptance/references/human-facing-language.md` | ô `g0` của ngữ pháp câu gộp | T7 |
-| `_acceptance/cong-dang-co-cua/rang.sh` | bộ răng 12 chân (mới) | T8 |
+| `_acceptance/cong-dang-co-cua/rang.sh` | bộ răng 13 chân (mới) | T8 |
 | `tests/scripts/run-tests.sh` | ca lưới thường trực | T9 |
 
 ---
