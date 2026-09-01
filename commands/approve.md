@@ -137,6 +137,67 @@ Steps:
 7. **"Not now" / rejected** → the contract stays `draft`; capture the reason in
    chat; write nothing to gate fields.
 
+## Chế độ Cổng Đáng (hồ sơ chưa có hợp đồng)
+
+Cổng thứ ba dùng CHÍNH lệnh này, không có lệnh thứ bảy — hiến pháp kit là chỉ
+TRỪ, không CỘNG, và khoá model-invocation của ADR 0002 đã phủ lệnh duyệt này.
+
+**Nhận ra chế độ:** `contract.md` VẮNG ∧ `opportunity.md` có ∧ `decision` rỗng ∧
+`stage ≠ archived`. Thẻ: `/acceptance-gate:acceptance-card <slug>` tự nhận Cổng
+Đáng và in bốn lối ra.
+
+**Câu gộp:** `làm|lặp|xếp lại|dừng [; giữ proto|lưu proto] [; không đo được: <lý do>] [: <tên> [<ngày>]]`
+
+**Bảng ánh xạ — bốn lối ra, bốn giá trị máy.** Danh sách ĐÓNG, máy rút được; tập
+giá trị máy phải bằng ĐÚNG từ vựng `decision` khai ở `NAV_RULES` trong
+`lib/workspace-record.cjs`, và tập nhãn phải bằng `LOI_RA_G0` bên vẽ
+(`scripts/gate-card.js`). In ra một lối mà không ghi được nó thì lối đó không
+sống, và người phải quay lại hỏi lượt thứ hai:
+
+<!-- <<<G0-ANH-XA
+làm -> build
+lặp -> iterate
+xếp lại -> park
+dừng -> kill
+G0-ANH-XA>>> -->
+
+Hỏi `giữ proto`/`lưu proto` CHỈ khi `prototype.base_commit` có giá trị.
+
+**Răng chiều đỏ — chặn TRƯỚC khi ghi.** Ba mệnh đề, mỗi mệnh đề một dòng máy
+đọc được:
+
+<!-- <<<G0-RANG-CHAN
+nguong-chua-chot-chan-lam-va-lap
+nguon-ngoai-chua-phan-loai-chan-lam-va-lap
+xep-lai-va-dung-khong-can-nguong
+G0-RANG-CHAN>>> -->
+
+- `làm`/`lặp` mà ô ngưỡng còn `…` — riêng `[đề xuất]` là trạng thái BÌNH THƯỜNG
+  lúc ký (bước 1 dưới gỡ tiền tố, KHÔNG từ chối) — **và** không có dòng
+  «Không đo được — » trong file lẫn trong câu gộp → **TỪ CHỐI**, in đúng câu cờ
+  đỏ của thẻ. Ngưỡng chốt CÙNG LÚC ký là điều kiện của khuôn, không phải lời khuyên.
+- `làm`/`lặp` mà bảng «Nguồn ngoài & phạm vi kế thừa» còn hàng **chưa phân loại**
+  → **TỪ CHỐI** (không phân loại = chưa đủ điều kiện ký).
+- `xếp lại`/`dừng` KHÔNG cần ngưỡng — hai lối đó đóng ý, không mở việc.
+
+**Rồi ghi, MỘT lượt:**
+
+1. **Gỡ tiền tố `[đề xuất]`** khỏi mọi bullet ngưỡng: ký là nhận. Câu gộp có
+   «không đo được: …» → ghi một dòng `Không đo được — <lý do>` thay các bullet.
+2. **Ghi ô cơ hội:** `stage: decided`, `decision` (theo bảng ánh xạ),
+   `decided_by`, `decided_at` (ISO, ngày lệnh chạy — danh tính theo bậc thang
+   khai MỘT LẦN ở đầu file này), `prototype.disposition` khi có hỏi. `dừng` →
+   `stage: archived`.
+3. **Append sổ quyết định** `_acceptance/<slug>/decisions.jsonl`:
+   `{"id":"d-<UTC>-<rand>","type":"gate0","at":"<ISO>","by":"<tên>","decision":"<lối> — <tên ý>"}`.
+4. **Vẽ lại bản đồ** nếu repo đã bật (`node <plugin>/scripts/product-map.mjs --root <repo>`),
+   rồi commit MỘT lượt: ô cơ hội + sổ + bản đồ. Một lượt gọi người, một PR.
+5. **In bước kế:** `build`/`iterate` → «`/feature-loop:feature-loop <slug>`» ·
+   `park` → «đã xếp lại, không ai phải làm gì» · `kill` → «đã đóng có hồ sơ».
+
+Máy KHÔNG điền sẵn lối ra, KHÔNG viết hộ căn cứ: máy trình đề bài + ngưỡng (đề
+xuất hiện rõ là đề xuất) và bốn lối ra sống; chọn là phát ngôn của người.
+
 Never:
 - approve from silence, a timeout, or your own judgment;
 - offer gate-skipping here — `gate1_skipped: true` stays a chat-explicit,
