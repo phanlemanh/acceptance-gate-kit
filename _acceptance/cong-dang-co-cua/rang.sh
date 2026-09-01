@@ -148,7 +148,7 @@ hai-bo-doc)
                              || ghim "B \\ A dung nhu khai" 1 "cho 'o5-chua-chot', thay: $(printf '%s' "$BA" | tr '\n' ' ')"
   # CHIỀU ĐỎ (a): gỡ phép gán gate='0' → A\B phải khác rỗng
   MA="$TMP/ma"; ban_sao "$MA" || exit 1
-  if tiem "go-gan-gate0" "$MA/scripts/gate-card.js" "s/if \(\!dec0\) gate = '0';/\/\* GO \*\//"; then
+  if tiem "go-gan-gate0" "$MA/scripts/gate-card.js" "s/congDang = true;/\/\* GO \*\//"; then
     B2="$(tap_ve "$MA" "$W")"
     AB2="$(comm -23 <(printf '%s\n' "$A") <(printf '%s\n' "$B2") | grep -v '^$')"
     [ -n "$AB2" ] && ghim "chieu do (a): go gan gate0 -> A \\ B khac rong, neu ten slug: $(printf '%s' "$AB2" | tr '\n' ' ')" 0 \
@@ -156,7 +156,7 @@ hai-bo-doc)
   fi
   # CHIỀU ĐỎ (b): bắt bộ dựng từ chối luôn ô ngưỡng chưa chốt → B\A phải sai
   MB="$TMP/mb"; ban_sao "$MB" || exit 1
-  if tiem "tu-choi-o5" "$MB/scripts/gate-card.js" "s/if \(\!dec0\) gate = '0';/if \(\!dec0 \&\& require\(path.join\(__dirname,'..','lib','nguong-o-co-hoi.cjs'\)\).thresholdState\(opp0, read\(path.join\(__dirname,'..','skills','acceptance','references','opportunity-template.md'\)\)\) \!== 'chua-chot'\) gate = '0';/"; then
+  if tiem "tu-choi-o5" "$MB/scripts/gate-card.js" "s/congDang = true;/congDang = require\(path.join\(__dirname,'..','lib','nguong-o-co-hoi.cjs'\)\).thresholdState\(opp0, read\(path.join\(__dirname,'..','skills','acceptance','references','opportunity-template.md'\)\)\) \!== 'chua-chot';/"; then
     B3="$(tap_ve "$MB" "$W")"
     BA3="$(comm -13 <(printf '%s\n' "$A") <(printf '%s\n' "$B3") | grep -v '^$')"
     [ "$BA3" != "o5-chua-chot" ] && ghim "chieu do (b): bo dung tu choi o5 -> khang dinh phan doi DO" 0 \
@@ -225,9 +225,9 @@ nguong-chua-chot)
 # ──────────────────────────────────────────────── lan-truoc-chot (E3 / AC-3)
 lan-truoc-chot)
   # THỨ TỰ, không phải sự có mặt.
-  L_LAN=$(grep -n "^if (gate === '0') {" "$GC" | head -1 | cut -d: -f1)
+  L_LAN=$(grep -n "^if (congDang) {" "$GC" | head -1 | cut -d: -f1)
   L_CHOT=$(grep -n "NO-DOSSIER-GUARD-BLOCK>>>" "$GC" | head -1 | cut -d: -f1)
-  L_GAN=$(grep -n "if (!dec0) gate = '0';" "$GC" | head -1 | cut -d: -f1)
+  L_GAN=$(grep -n "congDang = true;" "$GC" | head -1 | cut -d: -f1)
   if [ -z "$L_LAN" ] || [ -z "$L_CHOT" ] || [ -z "$L_GAN" ]; then
     ghim "doc duoc vi tri ba moc" 1 "lan=$L_LAN chot=$L_CHOT gan=$L_GAN"
   else
@@ -449,26 +449,41 @@ mot-nguon)
       const fs=require("fs"), p=process.argv[1];
       const ve=JSON.parse("["+fs.readFileSync(p+"/scripts/gate-card.js","utf8").match(/const LOI_RA_G0 = \[(.*?)\]/s)[1].replace(/'"'"'/g,"\"")+"]");
       const ax=fs.readFileSync(p+"/commands/approve.md","utf8").match(/<<<G0-ANH-XA\n([\s\S]*?)\nG0-ANH-XA>>>/)[1].trim().split("\n").map(l=>l.split("->")[0].trim());
-      const np=fs.readFileSync(p+"/skills/acceptance/references/human-facing-language.md","utf8")
-        .match(/<<<GATE-ONESHOT-SLOTS -->\n([\s\S]*?)\n<!-- GATE-ONESHOT-SLOTS>>>/)[1]
+      // Bên NGỮ PHÁP giữ HAI thứ khác nhau, đọc đúng chỗ mỗi thứ:
+      //  - khối ô: NHÃN chỗ trống (`g0 lối ra`) — không phải giá trị;
+      //  - dòng câu gộp: bốn GIÁ TRỊ người gõ.
+      // Bản trước đọc bốn giá trị trong khối ô nên khi khối được sửa về đúng
+      // khuôn (nhãn, không giá trị) thì chân này đỏ oan.
+      const hfl=fs.readFileSync(p+"/skills/acceptance/references/human-facing-language.md","utf8");
+      const slots=hfl.match(/<<<GATE-ONESHOT-SLOTS -->\n([\s\S]*?)\n<!-- GATE-ONESHOT-SLOTS>>>/)[1]
         .split("\n").filter(l=>l.startsWith("g0 ")).map(l=>l.slice(3));
-      console.log([ve.join(","), ax.join(","), ve.filter(x=>np.includes(x)).join(",")].join("|"));
+      // Lấy ĐÚNG bốn mã đầu sau cụm «câu gộp là MỘT lối ra —»; các vế tuỳ chọn
+      // (giữ proto / không đo được) nằm sau và KHÔNG thuộc danh sách lối ra.
+      const cg=hfl.match(/c\u00e2u g\u1ed9p l\u00e0 M\u1ed8T l\u1ed1i ra \u2014 ([\s\S]{0,200})/);
+      const gia = cg ? [...cg[1].matchAll(/`([^`]+)`/g)].map(m=>m[1]).slice(0,4) : [];
+      console.log([ve.join(","), ax.join(","), gia.join(","), slots.join(",")].join("|"));
     ' "$1"
   }
-  R0="$(ba_ben "$ROOT")"; VE="${R0%%|*}"; rest="${R0#*|}"; AX="${rest%%|*}"; NP="${rest##*|}"
-  echo "   ben ve: $VE"; echo "   anh xa: $AX"; echo "   ngu phap (giao): $NP"
+  R0="$(ba_ben "$ROOT")"
+  VE="$(printf '%s' "$R0" | cut -d'|' -f1)"; AX="$(printf '%s' "$R0" | cut -d'|' -f2)"
+  GIA="$(printf '%s' "$R0" | cut -d'|' -f3)"; SLOT="$(printf '%s' "$R0" | cut -d'|' -f4)"
+  echo "   ben ve      : $VE"; echo "   bang anh xa : $AX"
+  echo "   cau gop     : $GIA"; echo "   nhan o trong: $SLOT"
   [ "$VE" = "$AX" ] && ghim "ben VE == bang anh xa (dung thu tu)" 0 || ghim "ben ve == anh xa" 1 "'$VE' vs '$AX'"
-  [ "$VE" = "$NP" ] && ghim "ben VE == ngu phap cau gop" 0 || ghim "ben ve == ngu phap" 1 "'$VE' vs '$NP'"
+  [ "$VE" = "$GIA" ] && ghim "ben VE == bon gia tri o dong cau gop" 0 || ghim "ben ve == cau gop" 1 "'$VE' vs '$GIA'"
+  case ",$SLOT," in *",lối ra,"*) ghim "khoi o khai NHAN cho trong «loi ra» (khong liet gia tri)" 0;;
+    *) ghim "khoi o khai nhan «loi ra»" 1 "thay: '$SLOT'";; esac
   # BA LƯỢT TIÊM RIÊNG — mot ben hong khong che hai ben kia
   i=0
   for spec in "ve:scripts/gate-card.js:s/'xếp lại'/'xep-lai-BIA'/" \
               "anh-xa:commands/approve.md:s/^xếp lại -> park/xep-lai-BIA -> park/m" \
-              "ngu-phap:skills/acceptance/references/human-facing-language.md:s/^g0 xếp lại/g0 xep-lai-BIA/m"; do
+              "ngu-phap:skills/acceptance/references/human-facing-language.md:s/\`xếp lại\` · \`dừng\`/\`xep-lai-BIA\` · \`dừng\`/"; do
     i=$((i+1)); nhan="${spec%%:*}"; r="${spec#*:}"; f="${r%%:*}"; cmd="${r#*:}"
     MD="$TMP/m$i"; ban_sao "$MD" || exit 1
     if tiem "$nhan" "$MD/$f" "$cmd"; then
       RR="$(ba_ben "$MD" 2>/dev/null)" || RR="LOI"
-      v="${RR%%|*}"; rr="${RR#*|}"; a="${rr%%|*}"; n="${rr##*|}"
+      v="$(printf '%s' "$RR" | cut -d'|' -f1)"; a="$(printf '%s' "$RR" | cut -d'|' -f2)"
+      n="$(printf '%s' "$RR" | cut -d'|' -f3)"
       if [ "$RR" = "LOI" ] || [ "$v" != "$a" ] || [ "$v" != "$n" ]; then
         ghim "chieu do [$nhan]: doi mot ben -> ba ben lech, phep do DO" 0
       else ghim "chieu do [$nhan]" 1 "doi $f ma ba ben van khop — phep do khong doc ben do"; fi
