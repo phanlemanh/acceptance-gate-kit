@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: cong-dang-co-cua
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
-reason: bằng chứng máy vòng 3 do CHÍNH PHIÊN THI CÔNG chạy, chưa qua phiên sạch — máy KHÔNG tự kết luận PASS
+reason: người ký NÂNG PENDING-JUDGMENT → PASS ngày 2026-09-01 với năm hạn chế đã khai; máy không tự kết luận (bằng chứng vòng 3 do chính phiên thi công chạy)
 verified_by: implementing session (KHÔNG phải fresh-context subagent — xem Known limits #4)
 enforcement_mode: strict
 bypass_used: false
 verified_commit: b480dbb85d2c5663859ac960bc17513fd9117f4f
-human_signoff:
+human_signoff: Manh Phan 2026-09-01 — ký với giới hạn đã khai (Known limits #1–#5)
 ---
 
 # Evidence Report: cong-dang-co-cua
@@ -18,8 +18,13 @@ VI** (ba tiêu chí AC-A/AC-B/AC-C). Hai vòng chấm bằng phiên sạch trư�
 (r1, r2) chấm bản hợp đồng **13 tiêu chí** đã bị cắt, và cả hai trả REJECT; hồ
 sơ của chúng còn nguyên ở `review-findings.md` và ở commit `d90af7d2` (r1) /
 `528caaa8` (r2). Vòng 3 KHÔNG phải một lần chấm sạch — nó là lần chạy lại của
-chính phiên thi công. Vì thế `verdict` là `PENDING-JUDGMENT`, không phải `PASS`:
+chính phiên thi công. Vì thế **máy khai `PENDING-JUDGMENT`, không tự khai `PASS`**:
 máy không đủ tư cách tự kết luận về mã chính nó vừa viết.
+
+**Người ký đã nâng `PENDING-JUDGMENT` → `PASS` ngày 2026-09-01**, có ý thức về
+cả năm hạn chế dưới đây — đặc biệt #1 (lỗ gốc chưa đóng) và #4 (bằng chứng vòng
+3 không do phiên sạch tạo). Chữ ký nhận trách nhiệm cho đúng phần đó; nó KHÔNG
+biến bằng chứng thành thứ nó không phải.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -108,8 +113,8 @@ máy không đủ tư cách tự kết luận về mã chính nó vừa viết.
 4. **Bằng chứng vòng 3 KHÔNG do phiên sạch tạo.** Bản thu phạm vi (gỡ làn thẻ)
    và bản vá lớp cho chân `round-trip` viết SAU vòng chấm r2, nên chưa bộ chấm
    độc lập nào đọc chúng. Ba eval + bốn suite ở trên do chính phiên thi công
-   chạy. Đây là lý do `verdict` là `PENDING-JUDGMENT`; nâng lên `PASS` là quyết
-   định của người ký, không phải kết luận của máy.
+   chạy. Đây là lý do máy khai `PENDING-JUDGMENT`; `PASS` trong frontmatter là
+   NÂNG của người ký ngày 2026-09-01, không phải kết luận của máy.
 5. **Mười hai mục «đề xuất known-limits» của r1 và các mục của r2** đã vào sổ
    vòng-đời `docs/research/known-limits-ledger.tsv` với `status: song` (đang
    mở). Phần lớn thuộc làn thẻ đã trả về ô — đọc
