@@ -37,10 +37,23 @@
     máy vi-phân mắc đúng lớp nó đi bắt (mã-đo không hội tụ về 0 phát hiện).
     (b) **Giữa hai release tối đa MỘT vòng meta**, chỉ khi owner gọi tên.
     (c) **Mỗi mốc phát hành đếm tay 3 dòng số** vào hồ sơ release: thời gian
-    làm-xong→quyết-được mỗi vòng · số lần gọi người/vòng · số vòng bị
-    hạ-tầng-kit đốt lượt chấm. Ngưỡng CẮT KIT khai trước: tới mốc 2.6.0, nếu
-    ≥2/5 vòng sản phẩm kế bị hạ-tầng-kit đốt, hoặc trung bình >3 lần gọi
-    người/vòng → mở phiên quyết cắt kit — cắt bằng số, không bằng cảm giác.
+    làm-xong→quyết-được mỗi vòng · số lần gọi người/vòng — TÁCH
+    trong-thiết-kế / ngoài-thiết-kế, kèm số CHẠM mỗi lần · số vòng bị
+    hạ-tầng-kit đốt lượt chấm. **ÁN CẮT KIT ĐÃ BỎ** (owner quyết 01/09 sau
+    khi hai vòng dữ liệu định vị chỗ rò ở LỚP LỜI MỜI chứ không ở răng —
+    docs/findings/2026-09-01-audit-loi-moi-cong-nang-hinh-thuc.md). Răng
+    thay thế, để số đếm không hoá hình thức: **MỤC TIÊU ≤3 lượt gọi
+    người/vòng** — 3 không phải KPI tuỳ hứng, nó = đúng số cổng người trong
+    thiết kế (Đáng · Phạm vi · Bằng chứng); mốc phát hành ≤1 (làn V ở Cổng
+    Phạm vi, tiền lệ 2.5.0); tức mục tiêu thật là **0 lượt ngoài thiết kế**.
+    Và **≤1 chạm/lượt**: máy soạn sẵn trọn gói khuyến nghị + căn cứ đọc
+    trong một phút, người chỉ phát ngôn quyết định — cái người gõ là Ý MUỐN
+    (một chạm, một chữ), không phải cú pháp; máy chịu trách nhiệm dịch ý
+    muốn thành trường hồ sơ. Mỗi mốc phát hành PHẢI gọi tên ít nhất MỘT chỗ
+    cắt cho cửa sổ kế, hoặc tuyên bố đã-tối-ưu kèm số — số đếm không dẫn tới
+    một nhát cắt có tên là đo-hình-thức, đúng bệnh luật này sinh ra để chặn.
+    Hai chốt không mục tiêu số nào ghi đè: việc chạm KHÓ-ĐẢO luôn thắng
+    (không được né gọi người vì KPI), và chữ quyết vẫn của người (ADR 0002).
 
   Bản neo: [docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md](docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
   · nền: [2026-08-09](docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md)
