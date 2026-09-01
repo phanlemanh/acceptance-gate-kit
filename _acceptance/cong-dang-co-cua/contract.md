@@ -5,7 +5,7 @@ slug: cong-dang-co-cua
 owner: phanlemanh@gmail.com
 risk_tier: T2      # T2 (chuẩn) | T3 (auth/dữ liệu/API phá vỡ)
 surfaces: [cli]    # api | cli | sdk | ui | mobile — ngăn cách bằng dấu phẩy
-status: approved   # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Manh Phan
 approved_at: 2026-09-01T02:42:37Z
 ---
