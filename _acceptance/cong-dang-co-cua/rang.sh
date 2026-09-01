@@ -66,8 +66,13 @@ tiem() { # tiem <nhan> <file> <lenh perl>
 # là thuộc tính của GỐC CÂY, không dựng được BÊN TRONG một xưởng — chúng do chân
 # `ba-ca-cu` phủ. Ghi rõ ở đây để «số phần tử viết trước» không bị lặng lẽ đổi
 # thành «số ô dựng được» lúc thi công.
-O_LIST="o3-trong o4-cho-dang o5-chua-chot o6-da-ky o7a-park o7b-archived o8-hong o9-hop-dong o10-bang-chung"
-O_DEM=9
+# Ba ô «lệch nhánh» thêm sau S4-r1: bản đầu chỉ dựng `decided`+`build`, nên
+# KHÔNG bắt được ca bộ quét và bộ dựng thẻ bất đồng — hồ sơ `stage: discovery`
+# kèm `decision` khác rỗng (ghi frontmatter dở dang) được bộ quét gọi «chờ chữ
+# ký» trong khi thẻ nói «ý đã đóng» hoặc từ chối. Xưởng không có ô đó thì phép
+# đo tuyên canh quan hệ hai bộ đọc mà chưa bao giờ chạm chỗ chúng lệch.
+O_LIST="o3-trong o4-cho-dang o5-chua-chot o6-da-ky o7a-park o7b-archived o8-hong o9-hop-dong o10-bang-chung o11-disc-park o12-disc-build o13-disc-kill"
+O_DEM=12
 NG_CHOT='- Câu hỏi phép đo trả lời: Còn va chạm không?
 - Kết quả nào là SỐNG: Bốn tuần sạch.
 - Kết quả nào là CHẾT: Còn va chạm.
@@ -96,6 +101,9 @@ xuong() { # xuong <goc>
   opp "$W/_acceptance/o7a-park"     decided   'park'  "$NG_CHOT"
   opp "$W/_acceptance/o7b-archived" archived  ''      "$NG_CHOT"
   opp "$W/_acceptance/o8-hong"      linh-tinh ''      "$NG_CHOT"
+  opp "$W/_acceptance/o11-disc-park"  discovery 'park'     "$NG_CHOT"
+  opp "$W/_acceptance/o12-disc-build" discovery 'build'    "$NG_CHOT"
+  opp "$W/_acceptance/o13-disc-kill"  discovery 'kill'     "$NG_CHOT"
   hop_dong "$W/_acceptance/o9-hop-dong"    approved
   hop_dong "$W/_acceptance/o10-bang-chung" verified
   printf -- '---\nschema_version: 1\nfeature_slug: o10-bang-chung\nverdict: PASS\n---\n\n# bc\n' \
@@ -165,6 +173,22 @@ nguong-chua-chot)
   DX="$(node -e 'const NG=require(process.argv[1]);const fs=require("fs");console.log(NG.prefixes(fs.readFileSync(process.argv[2],"utf8")).deXuat)' \
         "$ROOT/lib/nguong-o-co-hoi.cjs" "$ROOT/skills/acceptance/references/opportunity-template.md")"
   [ -n "$KD" ] && [ -n "$DX" ] || { ghim "rut hai tien to tu lib" 1 "khong rut duoc"; exit 1; }
+  # TẬP NẤC RÚT TỪ LIB, không viết cứng bốn tên. Thêm một nấc trong
+  # thresholdState mà quên dựng ô cho nó thì chân này phải ĐỎ vì đếm lệch —
+  # lỗ S4-r1: bản đầu tuyên «quét LỚP» nhưng số phần tử là hằng gõ tay.
+  NAC_LIB="$(node -e '
+    const fs=require("fs"); const src=fs.readFileSync(process.argv[1],"utf8");
+    const body=src.slice(src.indexOf("function thresholdState"));
+    const end=body.indexOf("\nmodule.exports");
+    const seg=end>0?body.slice(0,end):body;
+    const s=new Set(); for(const m of seg.matchAll(/return\s+"([a-z-]+)"|return\s+'"'"'([a-z-]+)'"'"'/g)) s.add(m[1]||m[2]);
+    for(const m of seg.matchAll(/\?\s*'"'"'([a-z-]+)'"'"'\s*:\s*'"'"'([a-z-]+)'"'"'/g)){ s.add(m[1]); s.add(m[2]); }
+    console.log([...s].sort().join(" "));
+  ' "$ROOT/lib/nguong-o-co-hoi.cjs")"
+  SO_NAC=$(printf '%s' "$NAC_LIB" | wc -w | tr -d ' ')
+  echo "   nac rut tu lib: $NAC_LIB (so nac = $SO_NAC)"
+  [ "$SO_NAC" = "4" ] && ghim "so nac rut tu lib == so o xuong dung (4)" 0 \
+    || ghim "so nac rut tu lib" 1 "lib co $SO_NAC nac ($NAC_LIB) nhung chan nay chi dung 4 o — them nac ma quen dung o"
   mkdir -p "$W/_acceptance/n1" "$W/_acceptance/n2" "$W/_acceptance/n3" "$W/_acceptance/n4"
   opp "$W/_acceptance/n1" discovery '' "$NG_TRONG"
   opp "$W/_acceptance/n2" discovery '' "$(printf -- '- Câu hỏi phép đo trả lời: %s Con va cham khong?\n- Kết quả nào là SỐNG: %s Bon tuan sach.\n- Kết quả nào là CHẾT: %s Con va cham.\n- Timebox: %s Bon gio.' "$DX" "$DX" "$DX" "$DX")"
@@ -215,12 +239,26 @@ lan-truoc-chot)
                                     || ghim "doi chung duong" 1 "cay hien tai khong ve duoc the"
   # MUTANT HOÁN VỊ: gỡ phép gán khỏi chốt → ô rơi xuống lời từ chối
   MA="$TMP/ma"; ban_sao "$MA" || exit 1
-  if tiem "hoan-vi-go-gan" "$MA/scripts/gate-card.js" "s/if \(\!dec0\) gate = '0';/\/\* GO \*\//"; then
+  if tiem "hoan-vi-go-gan" "$MA/scripts/gate-card.js" "s/congDang = true;/\/\* GO \*\//"; then
     E="$(node "$MA/scripts/gate-card.js" --root "$W" --slug o4-cho-dang 2>&1 >/dev/null)"; rc=$?
     if [ "$rc" != "0" ] && printf '%s' "$E" | grep -qF "$M_CT"; then
       ghim "mutant hoan vi: chot chan truoc -> DO dung thong diep chot" 0
     else ghim "mutant hoan vi" 1 "go phep gan ma van ve duoc the (exit=$rc) — phep do khong do duoc THU TU"; fi
   fi
+  # CỜ ÉP KHÔNG MỞ ĐƯỢC LÀN — lỗ S4-r1: `--gate` đọc từ dòng lệnh TRƯỚC khi chốt
+  # chạy, nên `--gate 0` xuyên qua cả chốt lẫn làn và vẽ thẻ ma. Bốn ô, mỗi ô
+  # khẳng định thoát khác 0 VÀ stdout rỗng.
+  mkdir -p "$W/_acceptance/o-ep"   # thư mục rỗng, không hợp đồng không ô cơ hội
+  DEM=0
+  for s in o9-hop-dong o10-bang-chung o3-trong o-ep; do
+    O="$(node "$GC" --root "$W" --slug "$s" --gate 0 2>/dev/null)"; rc=$?
+    if [ "$rc" != "0" ] && [ -z "$O" ]; then ghim "[--gate 0 tren $s] tu choi, stdout RONG" 0; DEM=$((DEM+1))
+    else ghim "[--gate 0 tren $s]" 1 "exit=$rc, ${#O} byte the ma"; fi
+  done
+  [ "$DEM" = "4" ] && ghim "so assert co-ep = so phan tu (4)" 0 || ghim "dang thuc co-ep" 1 "dem duoc $DEM/4"
+  # ĐỐI CHỨNG DƯƠNG: ô ĐỦ điều kiện thì `--gate 0` vẫn ra thẻ (cờ không phá lối đúng)
+  the_duoc "$ROOT" "$W" o4-cho-dang && ghim "doi chung duong: o du dieu kien van ve duoc the" 0 \
+                                    || ghim "doi chung duong co-ep" 1 "o hop le cung khong ve duoc"
   ;;
 
 # ───────────────────────────────────────────────────── o-da-dong (E4 / AC-4)

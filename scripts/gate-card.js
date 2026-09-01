@@ -49,6 +49,13 @@ const plainPath = opt('--plain');
 const EXTRACT = a.includes('--extract');
 const glossaryBase = opt('--glossary-base'); // opt-in: the ONLY path that shells out to git
 let gate = opt('--gate');
+// Cổng Đáng CHỈ do chốt dưới tự nhận, KHÔNG nhận từ cờ người dùng. Biến này
+// tách «máy phát hiện» khỏi «người ép»: trước bản vá S4-r1, làn Cổng Đáng khoá
+// theo chính `gate`, mà `gate` đọc từ `--gate` TRƯỚC khi chốt chạy — nên một
+// `--gate 0` tường minh xuyên qua cả chốt lẫn làn và vẽ thẻ ma cho hồ sơ ĐÃ QUA
+// Cổng Phạm vi (mời người ký lại một cổng đã đi qua) lẫn hồ sơ RỖNG. Đúng lớp
+// lỗi hồ sơ khong-ve-the-ma (#121) đã ký để dẹp.
+let congDang = false;
 if (!slug) { process.stderr.write('gate-card: --slug required\n'); process.exit(2); }
 // slug must be a single safe path segment — no traversal / separators
 if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(slug)) { process.stderr.write('gate-card: invalid --slug (expect one name, got "' + slug + '")\n'); process.exit(2); }
@@ -126,18 +133,28 @@ if (!contract.trim()) {
     // `clean` của file này khai bằng `const` phía DƯỚI chốt nên gọi lên là vùng
     // chết — bẫy chỉ lộ khi chạy thật, không lộ khi đọc mã.
     const { stage: st0, decision: dec0 } = wr.navValues({ 'opportunity.md': opp0 });
-    if (st0 === 'archived' || dec0 === 'park' || dec0 === 'kill') {
-      process.stderr.write(MSG_O_DA_DONG + ' «' + slug + '» — ý này đã ' +
-        (dec0 === 'park' ? 'xếp lại' : dec0 === 'kill' ? 'dừng' : 'đóng hồ sơ') +
+    // THỨ TỰ NHÁNH BÁM SÁT scripts/start-scan.mjs — bộ quét quyết định GỬI AI tới
+    // thẻ, bộ dựng quyết định VẼ ĐƯỢC CHO AI; hai bên lệch một nhánh là sinh đúng
+    // con trỏ chết vòng này đi dẹp. Vấp thật ở S4-r1: bản trước khoá làn theo
+    // MỖI `decision` rỗng, trong khi bộ quét khoá theo `stage !== 'decided' ||
+    // !decision`. Hồ sơ `stage: discovery` + `decision: park` (ghi frontmatter
+    // dở dang) khi đó được bộ quét gọi «chờ chữ ký» còn thẻ nói «ý đã đóng».
+    if (st0 === 'archived') {
+      process.stderr.write(MSG_O_DA_DONG + ' «' + slug + '» — ý này đã đóng hồ sơ, không có gì để ký. Mở lại là một quyết định riêng, không phải bước kế.\n');
+      process.exit(2);
+    }
+    if (st0 !== 'decided' || !dec0) {
+      // Ô còn mở → LÀN THẺ CỔNG ĐÁNG. Gán ở ĐÂY, bên trong chốt, vì chốt chạy ở
+      // đầu file: đặt nhánh nhận cổng ở đoạn tự nhận cổng phía dưới thì chốt
+      // chặn trước và làn mới thành mã chết trong khi mọi phép đo bề mặt vẫn xanh.
+      congDang = true;
+    } else if (dec0 === 'park' || dec0 === 'kill') {
+      process.stderr.write(MSG_O_DA_DONG + ' «' + slug + '» — ý này đã ' + (dec0 === 'park' ? 'xếp lại' : 'dừng') +
         ', không có gì để ký. Mở lại là một quyết định riêng, không phải bước kế.\n');
       process.exit(2);
     }
-    // Ô còn mở → LÀN THẺ CỔNG ĐÁNG. Gán ở ĐÂY, bên trong chốt, vì chốt chạy ở
-    // đầu file: đặt nhánh nhận cổng ở đoạn tự nhận cổng phía dưới thì chốt
-    // chặn trước và làn mới thành mã chết trong khi mọi phép đo bề mặt vẫn xanh.
-    if (!dec0) gate = '0';
   }
-  if (gate !== '0') {
+  if (!congDang) {
     process.stderr.write(MSG_NO_CONTRACT + ' «' + slug + '» — _acceptance/' + slug + '/ có mặt nhưng chưa đọc được contract.md, chưa có gì để trình.\n' +
       (real.length ? '  Hồ sơ đủ bản hợp đồng trong xưởng: ' + real.join(', ') + '\n' : ''));
     process.exit(2);
@@ -308,7 +325,14 @@ const pl = plain || {};
 // Thẻ trình đề bài + ngưỡng (đề xuất của máy hiện RÕ là đề xuất) + bốn lối ra
 // sống. Máy KHÔNG điền `decision` và thẻ KHÔNG ghi gì lên đĩa: chữ ký là phát
 // ngôn của người (ADR 0002).
-if (gate === '0') {
+// `--gate 0` do người gõ KHÔNG mở được làn này: làn khoá theo `congDang`, thứ
+// chỉ chốt phía trên đặt. Cờ ép mà hồ sơ không đủ điều kiện thì nói thẳng và
+// dừng, KHÔNG rơi im lặng xuống làn khác rồi in một thẻ rỗng.
+if (gate === '0' && !congDang) {
+  process.stderr.write('gate-card: --gate 0 không dùng được ở đây — Cổng Đáng do máy tự nhận (hồ sơ chưa có contract.md, có opportunity.md, chưa chọn lối ra). Bỏ cờ và chạy lại.\n');
+  process.exit(2);
+}
+if (congDang) {
   const opp = read(path.join(dir, 'opportunity.md'));
   const ofm = frontmatter(opp);
   const OPP_TPL = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');

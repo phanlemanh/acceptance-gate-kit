@@ -257,14 +257,11 @@ trước, hỏi mở là đường cùng:
   dòng «Trả lời mẫu».
 <!-- GATE-ONESHOT-GRAMMAR>>> -->
 
-Danh sách nhãn chỗ trống máy-đọc — cột một là cổng (`g1`/`g2`) hoặc `extra`
+Danh sách nhãn chỗ trống máy-đọc — cột một là cổng (`g0`/`g1`/`g2`) hoặc `extra`
 (nhãn ngoài-thẻ: thân lệnh dạy, thẻ không render nên round-trip không đòi):
 
 <!-- <<<GATE-ONESHOT-SLOTS -->
-g0 làm
-g0 lặp
-g0 xếp lại
-g0 dừng
+g0 lối ra
 g0 giữ proto
 g0 không đo được
 g1 duyệt hay sửa
