@@ -172,13 +172,13 @@ Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt 
   Người dùng thấy gì: một PR sau này sửa lời thuật trong bộ dựng thẻ mà quên sửa thân lệnh sẽ thấy toàn bộ bộ kiểm xanh, trong khi hai chỗ đã nói khác nhau — đúng thứ bất biến này hứa sẽ bắt.
   file: `scripts/gate-card.js:75-79`
   severity: medium
-  Đề xuất: ghi Known limits
+  Đề xuất: known-limits
 
 - **Sổ chạy chưa commit tại cây r1**
   Người dùng thấy gì: không có — trạng thái kho lúc chấm vòng 1, đã đóng ở vòng 2 khi mọi thứ được commit trước khi chạy lại.
   file: `_acceptance/release-2-6-0/run-log.jsonl`
   severity: low
-  Đề xuất: ghi Known limits
+  Đề xuất: known-limits
 
 ### Chi tiết đo được (văn xuôi, ngoài khuôn máy-đọc)
 
