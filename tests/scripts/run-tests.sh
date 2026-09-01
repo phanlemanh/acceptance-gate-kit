@@ -4110,11 +4110,17 @@ nothas "ARM13-mut" "verdict=REJECT đã có" "$ARM_MUT_OUT"
 rm -f "$ARM_MUT" "$ARM_MUT.bak"
 
 # ── SELF01-02: bộ đo tự canh mình — hàm trợ giúp phải khai TRƯỚC lượt gọi ────
-# Vì sao có ca này: tới 2026-09-01, `nothas` khai ở cuối file trong khi lượt gọi
-# đầu tiên nằm ~160 dòng phía trên. Bash in «nothas: command not found» ra stderr
-# rồi đi tiếp, nên BỐN assert âm-tính không bao giờ chạy mà suite vẫn in
-# "0 failed" — một trong bốn thuộc hồ sơ đã ký. Assert chưa từng chạy không phân
-# biệt được với assert đạt. Ca này biến bất biến đó từ lời-dặn thành vật máy giữ.
+# Vì sao có ca này: tới 2026-09-01, `nothas` khai ở dòng 1254 trong khi lượt gọi
+# đầu tiên nằm ở dòng 1167 — 87 dòng phía trên. Bash in «nothas: command not
+# found» ra stderr rồi đi tiếp, nên assert âm-tính đó không bao giờ chạy mà suite
+# vẫn in "0 failed". Assert chưa từng chạy không phân biệt được với assert đạt.
+# Ca này biến bất biến đó từ lời-dặn thành vật máy giữ.
+#
+# ĐÍNH CHÍNH 2026-09-01 (bắt ở phản biện context sạch của mốc 2.6.0): bản đầu của
+# bình luận này ghi «BỐN assert» và «~160 dòng». Chạy chính bộ quét dưới lên cây
+# 2.5.0 (bb73217d) cho ĐÚNG MỘT hàm lệch và ĐÚNG MỘT assert im lặng. Ba cái còn
+# lại thuộc làn 13 chân đã TRẢ VỀ Ô, không có trong cây được ship. Đừng dựng lại
+# con số bốn — nó đếm một cây khác với cây đang chạy ca này.
 echo "SELF01-02 bộ đo tự canh: hàm trợ giúp khai trước lượt gọi"
 # Quét CHÍNH file đang chạy ("$0"), KHÔNG phải một đường dẫn suy ra. Bản đầu
 # viết "$HERE/run-tests.sh" nên bản sao đem đi tiêm ở chỗ khác không bao giờ bị

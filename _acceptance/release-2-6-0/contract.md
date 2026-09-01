@@ -49,13 +49,19 @@ Cửa sổ đếm: `bb73217d` (2.5.0) → `313962e0`. **Một vòng.**
 
 | Hồ sơ | Loại | Vòng chấm | Lượt gọi người | Hạ-tầng-kit đốt lượt | Làm-xong → quyết-được |
 |---|---|---|---|---|---|
-| `cong-dang-co-cua` (#133) | **meta** | 3 (r1 REJECT · r2 REJECT · r3 PENDING-JUDGMENT→PASS) | **5** | 1 | 10:39 implemented → 14:50 ký = **4h11** (bản thu phạm vi: 13:16 → 14:50 = 1h34) |
+| `cong-dang-co-cua` (#133) | **meta** | 3 (r1 REJECT · r2 REJECT · r3 PENDING-JUDGMENT→PASS) | **6** (findings 01/09 ghi 5 — chốt lúc 13:20, thiếu chữ ký 14:50) | 1 | 10:39 implemented → 14:50 ký = **4h11** (bản thu phạm vi: 13:16 → 14:50 = 1h34) |
 
-- **Số lần gọi người / vòng: 5** — ký Cổng Đáng · duyệt Cổng Phạm vi · cho chạy
-  S4 · gật phạm vi + vòng 2 · quyết dừng-vá.
-- **Tỉ lệ meta: 1/1 = 100%.** Cửa sổ này KHÔNG có vòng sản phẩm nào.
+- **Số lần gọi người / vòng: ≥6.** Con số **5** ghi trong findings 01/09 được
+  chốt lúc 13:20, tức TRƯỚC vòng chấm thứ ba và TRƯỚC chữ ký Cổng Bằng chứng lúc
+  14:50 mà chính bảng trên có ghi. Đếm lại theo vết: ký Cổng Đáng · duyệt Cổng
+  Phạm vi · cho chạy S4 · gật phạm vi + vòng 2 · quyết dừng-vá · ký Cổng Bằng
+  chứng = **6**. Sai số này lệch về phía CÓ LỢI cho kit, nên ghi lại đúng ở đây
+  thay vì chép số cũ.
+- **Tỉ lệ meta của vòng KIT: 1/1 = 100%** — cửa sổ này không có vòng kit nào là
+  vòng sản phẩm.
 - **Lượt bị hạ tầng kit đốt: 1** — vòng ở kho tiêu thụ `crm` ngày 01/09, chính
-  là thứ mở ra phiên này.
+  là thứ mở ra phiên này. Vòng đó LÀ một vòng sản phẩm (làm ở kho tiêu thụ, giá
+  trị chạm người dùng), nên nó đi vào mẫu số của vế thứ nhất dưới đây.
 
 ### Đọc ngưỡng CẮT KIT tại mốc này
 
@@ -65,12 +71,19 @@ kit.*
 
 | Vế | Đọc được gì | Kết luận |
 |---|---|---|
-| ≥2/5 **vòng sản phẩm** bị hạ tầng đốt | Cửa sổ 2.5.0→2.6.0 có **0 vòng sản phẩm** | **CHƯA ĐỌC ĐƯỢC** — mẫu số rỗng, không phải «đạt» |
-| trung bình >3 lần gọi người/vòng | Vòng duy nhất đo được: **5** | **VƯỢT** |
+| ≥2/5 **vòng sản phẩm** bị hạ tầng đốt | Cửa sổ quan sát được **1** vòng sản phẩm (vòng `crm` 01/09) và **1/1 bị đốt**. Chưa đủ 5 vòng để mẫu số đầy, nhưng KHÔNG phải mẫu số rỗng | **CHƯA ĐỦ MẪU** — tỉ lệ hiện tại 100%, cỡ mẫu 1/5 |
+| trung bình >3 lần gọi người/vòng | Vòng đo được: **6** | **VƯỢT** — gấp đôi ngưỡng |
 
-Vế thứ hai vượt, nhưng vượt trên **n = 1** và trên một vòng **meta** — loại vòng
-ngưỡng không nhắm tới. Đây là dữ kiện đưa lên, KHÔNG phải một phán quyết: phiên
-quyết cắt kit là phiên của owner, mở theo lịch của owner. Ba điều đi kèm, đã
+**Vế thứ hai VƯỢT, không kèm miễn trừ.** Bản đầu của mục này viết thêm «vượt
+trên một vòng meta — loại vòng ngưỡng không nhắm tới»; câu đó bị CẮT ở phản biện
+context sạch 01/09, vì đọc lại nguyên văn luật 30/08 thì định ngữ «vòng sản
+phẩm» chỉ gắn vào vế THỨ NHẤT. Vế thứ hai không có định ngữ nào. Thêm một miễn
+trừ sau khi đã thấy con số là hạ thước cho vừa vật — đúng lớp lỗi kit đang đi
+bắt.
+
+Điều còn đúng để owner cân: cỡ mẫu là **n = 1**, và luật khai hậu quả là *mở
+phiên quyết cắt kit* — một PHIÊN, không phải một hành động tự động. Lịch của
+phiên đó là của owner. Ba điều đi kèm, đã
 chứng trong hồ sơ 01/09 và không phụ thuộc cỡ mẫu:
 
 1. **34 phát hiện qua hai vòng chấm, 0 do phép đo máy bắt** (27 lượt eval xanh
@@ -103,7 +116,7 @@ hội thoại**, không có bộ đếm máy — cùng giới hạn đã khai �
 - Đổi bất kỳ dòng mã cổng nào (`skills/ lib/ hooks/ scripts/ feature-loop/skills/`) — mốc phát hành KHÔNG dựng răng (§7.1; bài học ba mốc 2.0.0/2.1.0/2.2.0).
 - **Dựng răng riêng cho mốc.** Canh bằng ca VĨNH VIỄN P200 (mọi số đọc từ manifest, 5 đột biến + đối chứng dương) — cùng nếp 2.3.0→2.5.0.
 - Nâng số `diagram-design` — không đổi kể từ mốc trước.
-- **Mở phiên quyết cắt kit.** Mốc này chỉ ĐẶT SỐ CẠNH NGƯỠNG. Phiên quyết là phát ngôn của owner, mở theo lịch của owner; hỏi lại ở đây là trạm thu phí.
+- **CHẠY phiên quyết cắt kit.** Mốc này chỉ đặt số cạnh ngưỡng và trình kết quả đọc. Nhưng vế «>3 lần gọi người/vòng» đã **VƯỢT** không kèm miễn trừ, và luật 30/08 gắn hậu quả «mở phiên quyết cắt kit» vào chính vế đó — nên câu hỏi *có mở phiên hay không* KHÔNG được đóng ở đây: nó là quyết định trình owner ngay tại Cổng Phạm vi này. Cái nằm ngoài phạm vi là bản thân PHIÊN đó (một buổi riêng, có nghị trình riêng), không phải quyết định mở nó.
 - **Lấy lại làn thẻ Cổng Đáng đã trả về ô.** Chặn bởi chính quyết định thu phạm vi 01/09; lấy lại là một vòng riêng, cây ghim `528caaa8` còn nguyên.
 - Ghim lại các hồ sơ đã ký đang hoá cũ — §7.1: chiến dịch ghim lại là việc SAU khi mốc merge.
 - Cài bản mới lên repo tiêu thụ và kiểm tay máy thứ hai — việc sau khi mốc này merge.
