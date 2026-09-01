@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.5.0 · feature-loop 2.5.0 · diagram-design 2.7.0.
+> Khớp phiên bản: acceptance-gate 2.6.0 · feature-loop 2.6.0 · diagram-design 2.7.0.
 
 ## Mục lục
 

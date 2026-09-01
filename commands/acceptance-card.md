@@ -47,8 +47,17 @@ Steps:
 
    NĂM ca từ chối, NĂM lời thuật RIÊNG — mỗi dòng một ca, tuyệt đối không gộp thành
    một câu chung «không dựng được thẻ»: người phải phân biệt được mình đang ở ca nào
-   thì mới biết việc kế. (Ô đang chờ Cổng Đáng KHÔNG nằm trong danh sách này: nó ra
-   THẺ, không ra lời từ chối.)
+   thì mới biết việc kế.
+
+   GIỚI HẠN ĐÃ KHAI, đọc trước khi tin danh sách này là đủ: ô đang **chờ** Cổng
+   Đáng — đã có ô cơ hội, chưa có hợp đồng, chưa ai quyết — rơi vào ca thứ ba
+   («hồ sơ chưa có contract.md»), tức người mở một ý đang chờ quyết vẫn nhận câu
+   chỉ SAI bước kế: nó mời đi chuẩn hoá yêu cầu trong khi việc thật là chờ người
+   quyết có làm hay không. Làn thẻ riêng cho ca này đã dựng rồi TRẢ VỀ Ô ngày
+   2026-09-01 tại điều khoản dừng-vá (cây ghim `528caaa8`, xem
+   `_acceptance/cong-dang-co-cua/discovery/LAY-VE-LAN-THE.md`). Lấy lại là một
+   quyết định riêng. ĐỪNG viết ở đây rằng ca đó ra thẻ — bản 01/09 từng viết thế
+   và nó nói ngược hành vi đang ship.
 
    - `gate-card: xưởng chưa mở` → kho này chưa từng mở sổ nghiệm thu, nên chưa có hồ sơ nào để trình; việc kế là mở sổ cho kho rồi quay lại.
    - `gate-card: không có hồ sơ` → tên vừa gõ không có trong sổ; đọc lại nguyên văn danh sách tên có thật mà chốt vừa in, để người nhận ra mình nhầm tên nào.

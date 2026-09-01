@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2.7 · Bộ định tuyến quyết định</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75;
+      --color-soft: #636b80; --color-rule: rgba(45,49,66,0.12); --color-accent: #eb6c36;
+      --font-sans: 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400;
+      letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+    .sub { font-size: 0.9rem; color: var(--color-muted); max-width: 68ch; margin-bottom: 1.5rem; line-height: 1.5; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    footer { margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid var(--color-rule);
+      font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em; color: var(--color-soft); }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flow · nâng cấp 2.7 · luật «lời mời cổng chỉ chứa điều-chỉ-người-biết»</p>
+    <h1>Năm loại quyết định, một đường tới người</h1>
+    <p class="sub">Trước 2.7, mọi mục trên thẻ cổng đều rơi vào tay người. Từ 2.7, từng mục đi qua <strong>một phép thử</strong> — chỉ mục mà người biết điều-máy-không-có mới thành câu hỏi. Bốn loại còn lại máy gánh, có sổ và đường đảo.</p>
+
+    <svg viewBox="0 0 1200 656" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- băng NGƯỜI (nền nhạt — cùng ngữ pháp H1 của mốc 2.6.0) -->
+      <rect x="928" y="252" width="248" height="200" rx="6" fill="#ececec"/>
+      <text x="936" y="244" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.18em">NGƯỜI</text>
+      <text x="48" y="244" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">MÁY GÁNH</text>
+
+      <!-- ══ ARROWS trước ══ -->
+      <line x1="600" y1="84" x2="600" y2="116" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+
+      <!-- fan 5 nhánh từ đáy bộ thử (đáy y=196) -->
+      <path d="M 493 196 V 208 Q 493 216 485 216 H 156 Q 148 216 148 224 V 272" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M 547 196 V 236 Q 547 244 539 244 H 380 Q 372 244 372 252 V 272" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M 600 196 V 272" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M 653 196 V 236 Q 653 244 661 244 H 812 Q 820 244 820 252 V 272" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M 707 196 V 208 Q 707 216 715 216 H 1044 Q 1052 216 1052 224 V 272" fill="none" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+
+      <!-- KHÓ-ĐẢO: đường bảo hiểm đi thẳng tới người, không qua phép thử -->
+      <path d="M 64 480 H 1044 Q 1052 480 1052 472 V 400" fill="none" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+      <rect x="404" y="458" width="392" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="600" y="469" fill="#eb6c36" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÓ-ĐẢO — ĐI THẲNG TỚI NGƯỜI, BẤT KỂ PHÂN LOẠI</text>
+
+      <!-- ══ NODES ══ -->
+      <!-- vào -->
+      <rect x="488" y="40" width="224" height="44" rx="20" fill="#f5f5f5"/>
+      <rect x="488" y="40" width="224" height="44" rx="20" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <text x="600" y="66" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Mọi mục quyết định trên thẻ</text>
+
+      <!-- phép thử -->
+      <rect x="440" y="116" width="320" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="440" y="116" width="320" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="600" y="140" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Phép thử định tuyến</text>
+      <text x="600" y="160" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">«người trả lời khác khuyến nghị</text>
+      <text x="600" y="176" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">thì dựa vào điều gì máy không có?»</text>
+
+      <!-- 4 đích máy -->
+      <rect x="48" y="272" width="200" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="48" y="272" width="200" height="128" rx="6" fill="#ececec" stroke="#4f5d75" stroke-width="1"/>
+      <text x="148" y="296" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Quy tắc đã phủ</text>
+      <text x="148" y="316" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">máy đi tiếp — ghi sổ,</text>
+      <text x="148" y="331" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">cửa veto mở</text>
+      <text x="148" y="384" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">khối «CHƯA duyệt» Cổng 2</text>
+
+      <rect x="272" y="272" width="200" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="272" y="272" width="200" height="128" rx="6" fill="#ececec" stroke="#4f5d75" stroke-width="1"/>
+      <text x="372" y="296" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chỉ một lối ra sống</text>
+      <text x="372" y="316" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">không phải quyết định —</text>
+      <text x="372" y="331" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">máy đi, báo một dòng</text>
+      <text x="372" y="384" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">trạm thu phí = 0 lượt</text>
+
+      <rect x="496" y="272" width="200" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="496" y="272" width="200" height="128" rx="6" fill="#ececec" stroke="#2d3142" stroke-width="1"/>
+      <text x="596" y="296" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Vượt nhận thức người</text>
+      <text x="596" y="316" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">đối kháng máy thay mắt —</text>
+      <text x="596" y="331" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">người đọc phán quyết</text>
+      <text x="596" y="346" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">kèm số, không đọc vật</text>
+      <text x="596" y="384" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gap-probe · review · chiều đỏ</text>
+
+      <rect x="720" y="272" width="200" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="720" y="272" width="200" height="128" rx="6" fill="#ececec" stroke="#4f5d75" stroke-width="1"/>
+      <text x="820" y="296" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chưa có định hướng</text>
+      <text x="820" y="316" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">CHƯA được hỏi — máy dựng</text>
+      <text x="820" y="331" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">căn cứ + hệ quả từng lối</text>
+      <text x="820" y="384" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">luật khuyến-nghị-trước</text>
+
+      <!-- đích NGƯỜI -->
+      <rect x="952" y="272" width="200" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="952" y="272" width="200" height="128" rx="6" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="1052" y="296" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chỉ người biết</text>
+      <text x="1052" y="316" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">đánh-đổi giá trị ·</text>
+      <text x="1052" y="331" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">khẩu vị rủi ro · khó-đảo</text>
+      <text x="1052" y="352" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">CÂU HỎI THẬT</text>
+      <text x="1052" y="384" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">1 phút · 1 khuyến nghị · 1 chạm</text>
+
+      <!-- hệ quả làn V -->
+      <text x="600" y="528" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', serif" font-style="italic" text-anchor="middle">Cổng không còn mục «chỉ người biết» và không khó-đảo  ⇒  làn V: máy đi trước, cửa veto mở.</text>
+      <text x="600" y="548" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">làn V không phải ngoại lệ — nó là ca-rỗng của luật này (giải thích vì sao mốc 2.5.0 đi làn V là đúng)</text>
+
+      <!-- ══ LEGEND ══ -->
+      <line x1="24" y1="588" x2="1176" y2="588" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="24" y="608" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <rect x="120" y="600" width="16" height="10" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="1"/>
+      <text x="144" y="608" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">máy gánh — có sổ, có đường đảo</text>
+      <rect x="392" y="600" width="16" height="10" rx="2" fill="#ffffff" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="416" y="608" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">chạm người — duy nhất một đường</text>
+      <line x1="680" y1="605" x2="712" y2="605" stroke="#eb6c36" stroke-width="1.2" stroke-dasharray="5,4"/>
+      <text x="720" y="608" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">bảo hiểm khó-đảo — không KPI nào ghi đè</text>
+    </svg>
+
+    <footer>NGUỒN: CLAUDE.md (Khung bổ sung, bullet lời-mời-cổng 01/09) · docs/findings/2026-09-01-loi-moi-chi-chua-dieu-chi-nguoi-biet.md — hình là chiếu của nguồn chữ</footer>
+  </div>
+</body>
+</html>
