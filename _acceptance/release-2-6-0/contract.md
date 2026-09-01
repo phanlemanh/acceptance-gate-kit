@@ -45,6 +45,11 @@ Source input: `git log bb73217d..313962e0` · ba dòng số của vòng 01/09 �
 
 ## Ba dòng số North Star của mốc (luật (c), lần đếm thứ hai)
 
+> Hai hình đi kèm mục này: `figures/h1-noi-goi-nguoi-2-6-0.html` (bốn cổng người
+> của 2.6.0 + hai đường đi tiếp ở T2) · `figures/h2-sau-luot-goi-nguoi.html`
+> (sáu lượt gọi người của vòng 01/09 trên trục thời gian thật). Cách đọc ở
+> `figures/index.md`. Hình là chiếu của mục này, không phải nguồn.
+
 Cửa sổ đếm: `bb73217d` (2.5.0) → `313962e0`. **Một vòng.**
 
 | Hồ sơ | Loại | Vòng chấm | Lượt gọi người | Hạ-tầng-kit đốt lượt | Làm-xong → quyết-được |

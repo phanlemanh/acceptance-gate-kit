@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sáu lượt gọi người — vòng 01/09</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-paper-2: #ececec;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-soft:    #636b80;
+      --color-rule:    rgba(45,49,66,0.12);
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--color-muted); margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400; letter-spacing: -0.02em; line-height: 1.15;
+      color: var(--color-ink); margin-bottom: 0.5rem;
+    }
+    .sub {
+      font-size: 0.9rem; color: var(--color-muted);
+      max-width: 66ch; margin-bottom: 1.5rem; line-height: 1.5;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+    footer {
+      margin-top: 1.5rem; padding-top: 0.75rem;
+      border-top: 1px solid var(--color-rule);
+      font-family: var(--font-mono); font-size: 0.62rem;
+      letter-spacing: 0.06em; color: var(--color-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Timeline · vòng cong-dang-co-cua · 2026-09-01</p>
+    <h1>Sáu lượt gọi người trong một vòng</h1>
+    <p class="sub">Ngưỡng owner khai 30/08 là <strong>3 lượt mỗi vòng</strong>. Vòng này dùng <strong>6</strong> — gấp đôi. Khoảng cách giữa các chấm vẽ đúng theo thời gian thật, không dàn đều.</p>
+
+    <svg viewBox="0 0 1200 440" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ngưỡng: ba lượt đầu nằm trong hạn, từ lượt thứ tư là vượt -->
+      <rect x="364" y="96" width="796" height="248" rx="6" fill="#ececec" opacity="0.55"/>
+      <text x="1152" y="116" fill="#eb6c36" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.14em">VÙNG VƯỢT NGƯỠNG</text>
+      <text x="1152" y="130" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">từ lượt thứ tư trở đi</text>
+
+      <!-- trục thời gian -->
+      <line x1="96" y1="220" x2="1072" y2="220" stroke="#4f5d75" stroke-width="1"/>
+      <text x="96" y="248" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">09:09</text>
+      <text x="1072" y="248" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">14:50</text>
+
+      <!-- ── 1 · 09:09 · TRÊN ── -->
+      <line x1="96" y1="214" x2="96" y2="172" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="96" y="164" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Ký Cổng Đáng</text>
+      <text x="96" y="148" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">09:09 · cổng thiết kế</text>
+      <circle cx="96" cy="220" r="4" fill="#2d3142"/>
+
+      <!-- ── 2 · 09:42 · DƯỚI ── -->
+      <line x1="188" y1="226" x2="188" y2="276" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="188" y="292" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Duyệt Cổng Phạm vi</text>
+      <text x="188" y="308" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">09:42 · cổng thiết kế</text>
+      <circle cx="188" cy="220" r="4" fill="#2d3142"/>
+
+      <!-- ── 3 · ≈10:40 · TRÊN · MÁY TỰ CHÈN (điểm nhấn) ── -->
+      <line x1="348" y1="212" x2="348" y2="172" stroke="#eb6c36" stroke-width="1"/>
+      <text x="348" y="164" fill="#eb6c36" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cho chạy vòng chấm</text>
+      <text x="348" y="148" fill="#eb6c36" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">≈10:40 · MÁY TỰ CHÈN</text>
+      <circle cx="348" cy="220" r="6" fill="#eb6c36"/>
+
+      <!-- ── 4 · 11:34 · DƯỚI ── -->
+      <line x1="496" y1="226" x2="496" y2="276" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="496" y="292" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Rút phạm vi vòng 1</text>
+      <text x="496" y="308" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">11:34 · dừng-lỗi</text>
+      <circle cx="496" cy="220" r="4" fill="#4f5d75"/>
+
+      <!-- ── 5 · 13:16 · TRÊN ── -->
+      <line x1="780" y1="214" x2="780" y2="172" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="780" y="164" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Quyết dừng-vá</text>
+      <text x="780" y="148" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">13:16 · dừng-lỗi</text>
+      <circle cx="780" cy="220" r="4" fill="#4f5d75"/>
+
+      <!-- ── 6 · 14:50 · DƯỚI ── -->
+      <line x1="1040" y1="226" x2="1040" y2="276" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+      <text x="1160" y="292" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="end">Ký Cổng Bằng chứng</text>
+      <text x="1160" y="308" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">14:50 · cổng thiết kế</text>
+      <text x="1160" y="324" fill="#eb6c36" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">bản findings 01/09 đếm sót lượt này</text>
+      <circle cx="1040" cy="220" r="4" fill="#2d3142"/>
+
+      <!-- ══ LEGEND ══ -->
+      <line x1="24" y1="380" x2="1176" y2="380" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="24" y="400" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <circle cx="128" cy="396" r="4" fill="#2d3142"/>
+      <text x="144" y="400" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">cổng người có trong thiết kế — 3 lượt</text>
+
+      <circle cx="440" cy="396" r="4" fill="#4f5d75"/>
+      <text x="456" y="400" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">dừng-lỗi có tên trong luật — 2 lượt</text>
+
+      <circle cx="756" cy="396" r="6" fill="#eb6c36"/>
+      <text x="776" y="400" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">máy tự chèn — chính luật của kit cấm hỏi ở ranh giới này — 1 lượt</text>
+    </svg>
+
+    <footer>NGUỒN: docs/findings/2026-09-01-ba-dong-so-vong-cong-dang.md · _acceptance/cong-dang-co-cua/decisions.jsonl · git log 01/09 — commit f73a4ea5 · giờ địa phương +07 · hình là chiếu của nguồn chữ</footer>
+  </div>
+</body>
+</html>
