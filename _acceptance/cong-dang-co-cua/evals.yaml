@@ -1,0 +1,52 @@
+schema_version: 1
+feature_slug: cong-dang-co-cua
+# PHẠM VI ĐÃ THU 01/09 — 14 eval của làn thẻ Cổng Đáng trả về ô cùng làn (cây
+# ghim 528caaa8, xem discovery/LAY-VE-LAN-THE.md). Ba eval dưới đây đo phần CÒN
+# LẠI, và cả ba neo vào LƯỚI THƯỜNG TRỰC — đúng luật Giới hạn CHIỀU RỘNG (a):
+# lưới thường trực là trần, không dựng thêm tầng đo.
+evals:
+  - id: EA
+    criterion: AC-A
+    executor: script
+    cmd: config:executors.script.cdcc_loi_thuat
+    paths: [scripts/gate-card.js, commands/acceptance-card.md, tests/scripts/run-tests.sh]
+    expected: >
+      Hai hằng thông điệp mới RÚT TỪ khối marker (không gõ literal), rồi ghim
+      ĐÚNG TÁM DÒNG CA trong đầu ra lưới thường trực — không tin mã thoát của
+      trọn suite (P194: suite xanh ở cả hai đầu thì exit không phân biệt được).
+      Ca phủ cả AC-A (ý đã đóng: kill + archived, kèm assert âm-tính phân biệt
+      với hằng thiếu-hợp-đồng) lẫn AC-B (hồ sơ hỏng: nêu tên field).
+      ĐỐI CHỨNG cho CHÍNH PHÉP GREP, cả hai chiều: một ca chắc chắn CÓ (GM06)
+      phải tìm thấy, một chuỗi chắc chắn KHÔNG có phải không tìm thấy. Thiếu
+      cặp này thì tám dòng trên xanh cả khi tệp đầu ra rỗng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: EB
+    criterion: AC-A
+    executor: script
+    cmd: config:executors.script.cdcc_gioi_han
+    paths: [scripts/gate-card.js, tests/scripts/run-tests.sh]
+    expected: >
+      GHIM GIỚI HẠN ĐÃ KHAI, không ghim hành vi mong muốn. Ô đang chờ Cổng Đáng
+      VẪN nhận lời thuật thiếu-hợp-đồng với việc-kế sai hướng — đó là lỗ còn mở
+      (DEFECT 1 của báo cáo 01/09), thu về ô cùng làn thẻ. Chân này ghim bốn
+      dòng ca của lưới RỒI chạy thật: ô chờ Cổng Đáng thoát 2 và stdout RỖNG
+      (không còn thẻ ma), và cờ ép `--gate 0` cũng không vẽ được gì vì làn đã
+      trả về ô. Ca tồn tại để lỗ KHÔNG VÔ HÌNH với người đọc hồ sơ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: EC
+    criterion: AC-C
+    executor: script
+    cmd: config:executors.script.cdcc_dang_thuc_lop
+    paths: [scripts/gate-card.js, _acceptance/khong-ve-the-ma/rang.sh]
+    expected: >
+      Chân `round-trip` của hồ sơ ĐÃ KÝ `khong-ve-the-ma` phải RÚT số ca từ
+      khối marker chứ không ghim hằng số 3 — nó đã ĐỎ (10 pass, 1 fail) khi bên
+      viết lên 5 hằng, tức đỏ vì CHÍNH NÓ chứ không vì vật. Sửa theo LỚP: gỡ cả
+      hai chỗ ghim cứng (số hằng, và «2 cặp kia»). Chân này chạy nó thật, ghim
+      mã thoát 0 VÀ dòng tổng kết «0 fail».
+      CHIỀU ĐỎ: bản sao TRỌN CÂY (git archive HEAD) ghim lại hằng số 3 → phải
+      ĐỎ; lệnh tiêm chứng minh đổi được nội dung bằng so BĂM. Hợp đồng đã ký
+      của hồ sơ kia KHÔNG bị đụng — chỉ sửa bên ĐO.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

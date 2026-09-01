@@ -72,12 +72,14 @@ const probeT = read(path.join(dir, 'gap-probe.md'));
 // «thông điệp lỗi của script» vào cột KHÔNG ÁP, nơi tên chính xác là bắt
 // buộc). Tiếng sản phẩm sống ở thân lệnh commands/acceptance-card.md, nơi
 // bước tiền đề thuật lại ca này cho người.
-// <<<NO-DOSSIER-GUARD  — MỘT nguồn của ba thông điệp; thân lệnh chép nguyên
+// <<<NO-DOSSIER-GUARD  — MỘT nguồn của NĂM thông điệp; thân lệnh chép nguyên
 // văn và phép đo RÚT từ đây (không gõ literal), nên đổi chữ ở đây mà quên
 // thân lệnh là ĐỎ ngay, không trôi âm thầm.
 const MSG_NO_WORKSPACE = 'gate-card: xưởng chưa mở';
 const MSG_NO_DOSSIER   = 'gate-card: không có hồ sơ';
 const MSG_NO_CONTRACT  = 'gate-card: hồ sơ chưa có contract.md';
+const MSG_O_DA_DONG    = 'gate-card: ý đã đóng';
+const MSG_HO_SO_HONG   = 'gate-card: hồ sơ hỏng';
 // NO-DOSSIER-GUARD>>>
 // <<<NO-DOSSIER-GUARD-BLOCK
 if (!contract.trim()) {
@@ -88,17 +90,64 @@ if (!contract.trim()) {
       .filter(e => e.isDirectory() && fs.existsSync(path.join(acc, e.name, 'contract.md')))
       .map(e => e.name).sort();
   } catch (_) { /* xưởng không đọc được → danh sách rỗng, nhánh dưới vẫn nói đúng ca */ }
+  const opp0 = read(path.join(dir, 'opportunity.md'));
   if (!fs.existsSync(path.join(acc, 'config.yaml'))) {
     process.stderr.write(MSG_NO_WORKSPACE + ' — không thấy _acceptance/config.yaml dưới "' + root + '". Chạy acceptance-init cho kho này trước.\n');
-  } else if (!fs.existsSync(dir)) {
+    process.exit(2);
+  }
+  if (!fs.existsSync(dir)) {
     process.stderr.write(MSG_NO_DOSSIER + ' «' + slug + '» — _acceptance/' + slug + '/ không tồn tại.\n' +
       (real.length ? '  Hồ sơ có thật trong xưởng: ' + real.join(', ') + '\n'
                    : '  Xưởng chưa có hồ sơ nào.\n'));
-  } else {
+    process.exit(2);
+  }
+  // Hồ sơ CÓ ô cơ hội → ba ngả: hỏng · đã đóng · còn mở (còn mở thì đây là
+  // CỔNG ĐÁNG, không phải một ca từ chối). Trước bản này cả ba rơi chung vào
+  // nhánh đáy mang nhãn «chưa có contract.md»: nói sai nguyên nhân, và với ô
+  // đã đóng thì còn mời người đi viết hợp đồng cho một ý đã dừng.
+  // Từ vựng điều hướng HỎI LIB dùng chung — không chép bảng enum thứ hai:
+  // máy quét vào phiên và bộ dựng thẻ phải cho CÙNG kết luận trên cùng hồ sơ,
+  // và chính chỗ hai bên bất đồng là con trỏ chết vòng này đi dẹp.
+  if (opp0.trim()) {
+    const wr = require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
+    const fp = wr.fieldProblem('opportunity.md', opp0, 'stage')
+            || wr.fieldProblem('opportunity.md', opp0, 'decision');
+    if (fp) {
+      process.stderr.write(MSG_HO_SO_HONG + ' «' + slug + '» — ' + fp.reason + '.\n' +
+        '  Sửa đúng chỗ vừa nêu rồi chạy lại; máy quét vào phiên cũng đang xếp hồ sơ này vào mục hỏng.\n');
+      process.exit(2);
+    }
+    // Giá trị lấy qua CHÍNH bộ đọc của lib (đã chuẩn hoá chữ thường), không tự
+    // lau chuỗi ở đây: hai bên đọc cùng hồ sơ phải ra cùng giá trị, và helper
+    // `clean` của file này khai bằng `const` phía DƯỚI chốt nên gọi lên là vùng
+    // chết — bẫy chỉ lộ khi chạy thật, không lộ khi đọc mã.
+    const { stage: st0, decision: dec0 } = wr.navValues({ 'opportunity.md': opp0 });
+    // THỨ TỰ NHÁNH BÁM SÁT scripts/start-scan.mjs — bộ quét quyết định GỬI AI tới
+    // thẻ, bộ dựng quyết định VẼ ĐƯỢC CHO AI; hai bên lệch một nhánh là sinh đúng
+    // con trỏ chết vòng này đi dẹp. Vấp thật ở S4-r1: bản trước khoá làn theo
+    // MỖI `decision` rỗng, trong khi bộ quét khoá theo `stage !== 'decided' ||
+    // !decision`. Hồ sơ `stage: discovery` + `decision: park` (ghi frontmatter
+    // dở dang) khi đó được bộ quét gọi «chờ chữ ký» còn thẻ nói «ý đã đóng».
+    if (st0 === 'archived') {
+      process.stderr.write(MSG_O_DA_DONG + ' «' + slug + '» — ý này đã đóng hồ sơ, không có gì để ký. Mở lại là một quyết định riêng, không phải bước kế.\n');
+      process.exit(2);
+    }
+    // Ô CÒN MỞ (chờ Cổng Đáng) rơi xuống lời thuật thiếu-hợp-đồng như cũ — làn
+    // thẻ Cổng Đáng đã THU VỀ Ô ở điều khoản dừng-vá 01/09 (xem
+    // discovery/LAY-VE-LAN-THE.md của hồ sơ cong-dang-co-cua). Đây là GIỚI HẠN
+    // ĐÃ KHAI, không phải chỗ quên: người mở một ô đang chờ Cổng Đáng vẫn nhận
+    // câu chỉ sai bước kế. Mở lại là quyết định riêng của owner.
+    if (st0 === 'decided' && (dec0 === 'park' || dec0 === 'kill')) {
+      process.stderr.write(MSG_O_DA_DONG + ' «' + slug + '» — ý này đã ' + (dec0 === 'park' ? 'xếp lại' : 'dừng') +
+        ', không có gì để ký. Mở lại là một quyết định riêng, không phải bước kế.\n');
+      process.exit(2);
+    }
+  }
+  {
     process.stderr.write(MSG_NO_CONTRACT + ' «' + slug + '» — _acceptance/' + slug + '/ có mặt nhưng chưa đọc được contract.md, chưa có gì để trình.\n' +
       (real.length ? '  Hồ sơ đủ bản hợp đồng trong xưởng: ' + real.join(', ') + '\n' : ''));
+    process.exit(2);
   }
-  process.exit(2);
 }
 // NO-DOSSIER-GUARD-BLOCK>>>
 

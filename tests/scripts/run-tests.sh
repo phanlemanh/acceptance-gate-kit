@@ -1101,6 +1101,13 @@ echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"
 ROOT_REAL_GC="$(cd "$HERE/../.." && pwd)"
 hasout() { case "$3" in *"$2"*) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1));; *) echo "  FAIL: $1 (missing: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; esac; }
+# `nothas` PHẢI khai cạnh `hasout`, TRƯỚC mọi lượt gọi. Trước bản này nó khai ở
+# tận cuối file (dưới khối gap-probe) trong khi lượt gọi đầu tiên nằm ~160 dòng
+# phía trên: bash in «nothas: command not found» ra stderr rồi đi tiếp, nên BỐN
+# assert âm-tính KHÔNG BAO GIỜ CHẠY mà suite vẫn in "0 failed" — trong đó có
+# GM02-phanbiet của hồ sơ khong-ve-the-ma (đã ký). Assert chưa từng chạy không
+# phân biệt được với assert đạt; đó đúng là lớp lỗi kit tồn tại để chặn.
+nothas() { case "$3" in *"$2"*) echo "  FAIL: $1 (should NOT contain: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1));; esac; }
 
 GC="$T/gcard/_acceptance/gfeat"; mkdir -p "$GC"
 cat > "$GC/contract.md" <<'EOF'
@@ -1186,6 +1193,52 @@ GM_OUT="$(node "$GCARD" --root "$GMR" --slug gm-that 2>/dev/null)"; GM_RC=$?
 check GM06 0 $GM_RC
 hasout "GM06-selam" "Hệ thống SẼ làm" "$GM_OUT"
 hasout "GM06-khonglam" "Sẽ KHÔNG làm" "$GM_OUT"
+
+# GD01-05 — hai lời thuật từ chối MỚI («ý đã đóng» · «hồ sơ hỏng») của hồ sơ
+# cong-dang-co-cua. Làn thẻ Cổng Đáng đã THU VỀ Ô ở điều khoản dừng-vá 01/09 —
+# các ca của làn (thẻ, bốn lối ra, ma trận nấc ngưỡng) đi cùng nó; những gì còn
+# lại ở đây là hai lời thuật độc lập với làn, cộng HAI ca ghim GIỚI HẠN ĐÃ KHAI.
+# Hai hằng mới RÚT TỪ NGUỒN như ba hằng cũ.
+echo "GD01-05 hai lời thuật từ chối mới + giới hạn đã khai"
+GD_DONG="$(gmpick MSG_O_DA_DONG)"; GD_HONG="$(gmpick MSG_HO_SO_HONG)"
+if [ -z "$GD_DONG" ] || [ -z "$GD_HONG" ]; then
+  echo "  FAIL: GD00 (gate-card.js không khai đủ hai hằng MSG_O_DA_DONG/MSG_HO_SO_HONG — case không có gì để ghim)"; FAIL_COUNT=$((FAIL_COUNT+1))
+fi
+GDR="$T/gd"; mkdir -p "$GDR/_acceptance"; printf 'schema_version: 1\n' > "$GDR/_acceptance/config.yaml"
+gdopp() { mkdir -p "$GDR/_acceptance/$1"
+  printf -- '---\nschema_version: 1\nslug: %s\nstage: %s\ndecision: %s\n---\n\n## Vấn đề & ai gặp\n\nNguoi van hanh mat mot luot.\n' "$1" "$2" "$3" > "$GDR/_acceptance/$1/opportunity.md"; }
+gdopp gd-kill  decided   'kill'
+gdopp gd-arch  archived  ''
+gdopp gd-hong  linh-tinh ''
+gdopp gd-daky  decided   'build'
+gdopp gd-cho   discovery ''
+
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-kill 2>"$T/gd1.err")"; GD_RC=$?
+check GD01 2 $GD_RC
+hasout "GD01-msg" "$GD_DONG" "$(cat "$T/gd1.err")"
+nothas "GD01-phanbiet" "$GM_CT" "$(cat "$T/gd1.err")"
+
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-arch 2>"$T/gd2.err")"; GD_RC=$?
+check GD02 2 $GD_RC
+hasout "GD02-msg" "$GD_DONG" "$(cat "$T/gd2.err")"
+
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-hong 2>"$T/gd3.err")"; GD_RC=$?
+check GD03 2 $GD_RC
+hasout "GD03-msg" "$GD_HONG" "$(cat "$T/gd3.err")"
+hasout "GD03-ten-field" "stage" "$(cat "$T/gd3.err")"
+
+# GD04-05 ghim GIỚI HẠN ĐÃ KHAI, không ghim một hành vi mong muốn: ô đã ký và ô
+# đang CHỜ Cổng Đáng đều rơi về lời thuật thiếu-hợp-đồng. Với ô đã ký thì việc-kế
+# in ra ĐÚNG (hợp đồng sinh ở S1); với ô đang chờ thì SAI — đó là lỗ còn mở, thu
+# về ô cùng làn thẻ. Ca này để lỗ đó không vô hình.
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-daky 2>"$T/gd4.err")"; GD_RC=$?
+check GD04 2 $GD_RC
+hasout "GD04-msg" "$GM_CT" "$(cat "$T/gd4.err")"
+
+GD_OUT="$(node "$GCARD" --root "$GDR" --slug gd-cho 2>"$T/gd5.err")"; GD_RC=$?
+check GD05 2 $GD_RC
+hasout "GD05-gioi-han-da-khai" "$GM_CT" "$(cat "$T/gd5.err")"
+
 hasout G03 "duyệt tiêu chí" "$G1"
 hasout G04 "có ngưỡng/biên" "$G1"
 hasout G05 "cần MẮT bạn" "$G1"
@@ -1251,8 +1304,6 @@ hasout GC4 '"coverage_missing": false' "$(node "$GCARD" --root "$T/gcov" --slug 
 # được với số dòng PASS thật. Không phải false-green (FAIL vẫn đếm và suite
 # vẫn exit 1), nhưng một con số không đáng tin thì không dùng để kiểm chứng
 # được việc gì cả.
-nothas() { case "$3" in *"$2"*) echo "  FAIL: $1 (should NOT contain: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1));; esac; }
-
 echo "GP1-8 Gate 1 gap-probe (S1#7 — phản biện context sạch)"
 GPD="$T/gprobe/_acceptance/pfeat"; mkdir -p "$GPD"
 printf -- '---\nschema_version: 1\nfeature: Probe demo\nslug: pfeat\nrisk_tier: T2\nstatus: draft\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n## Out of scope\n- x — hoãn.\n## Coverage\n- Trục X: a1 [thước CE: spec]\n' > "$GPD/contract.md"
@@ -4057,6 +4108,47 @@ if [ "$ARM_MUT_OUT_OK" = "$ARM_MUT_OUT" ]; then echo "  FAIL: ARM13 (mutant khô
 hasout "ARM13-ctrl" "verdict=REJECT đã có" "$ARM_MUT_OUT_OK"
 nothas "ARM13-mut" "verdict=REJECT đã có" "$ARM_MUT_OUT"
 rm -f "$ARM_MUT" "$ARM_MUT.bak"
+
+# ── SELF01-02: bộ đo tự canh mình — hàm trợ giúp phải khai TRƯỚC lượt gọi ────
+# Vì sao có ca này: tới 2026-09-01, `nothas` khai ở cuối file trong khi lượt gọi
+# đầu tiên nằm ~160 dòng phía trên. Bash in «nothas: command not found» ra stderr
+# rồi đi tiếp, nên BỐN assert âm-tính không bao giờ chạy mà suite vẫn in
+# "0 failed" — một trong bốn thuộc hồ sơ đã ký. Assert chưa từng chạy không phân
+# biệt được với assert đạt. Ca này biến bất biến đó từ lời-dặn thành vật máy giữ.
+echo "SELF01-02 bộ đo tự canh: hàm trợ giúp khai trước lượt gọi"
+# Quét CHÍNH file đang chạy ("$0"), KHÔNG phải một đường dẫn suy ra. Bản đầu
+# viết "$HERE/run-tests.sh" nên bản sao đem đi tiêm ở chỗ khác không bao giờ bị
+# soi — phép đo tự dối đúng lớp nó vừa đi bắt. Bắt tại trận 01/09.
+SELF_ME="$0"
+SELF_BAD="$(node -e '
+  const fs=require("fs"); const L=fs.readFileSync(process.argv[1],"utf8").split("\n");
+  const def={}, use={};
+  L.forEach((l,i)=>{ const m=l.match(/^([a-z_][a-z0-9_]*)\(\)\s*\{/); if(m && !(m[1] in def)) def[m[1]]=i+1; });
+  L.forEach((l,i)=>{ for(const f of Object.keys(def)){
+    if(new RegExp("(^|[;&|(]|\\$\\()\\s*"+f+"\\s").test(l) && !/^\s*#/.test(l) && !new RegExp("^"+f+"\\(\\)").test(l)){
+      if(!(f in use)) use[f]=i+1; } } });
+  const bad=Object.keys(def).filter(f=>use[f] && use[f] < def[f]).map(f=>f+" (khai dong "+def[f]+", goi dong "+use[f]+")");
+  process.stdout.write(bad.join("; "));
+' "$SELF_ME")"
+if [ -z "$SELF_BAD" ]; then echo "  PASS: SELF01"; PASS_COUNT=$((PASS_COUNT+1));
+else echo "  FAIL: SELF01 (ham khai SAU luot goi -> assert im lang khong chay: $SELF_BAD)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+# Đối chứng dương: phép quét trên phải BẮT ĐƯỢC khi lỗi thật sự có. Không có ca
+# này thì SELF01 xanh cả khi nó chưa bao giờ tìm thấy gì.
+SELF_MUT="$T/self-mut.sh"
+{ echo 'goi_som "x"'; echo 'goi_som() { :; }'; } > "$SELF_MUT"
+SELF_CTRL="$(node -e '
+  const fs=require("fs"); const L=fs.readFileSync(process.argv[1],"utf8").split("\n");
+  const def={}, use={};
+  L.forEach((l,i)=>{ const m=l.match(/^([a-z_][a-z0-9_]*)\(\)\s*\{/); if(m && !(m[1] in def)) def[m[1]]=i+1; });
+  L.forEach((l,i)=>{ for(const f of Object.keys(def)){
+    if(new RegExp("(^|[;&|(]|\\$\\()\\s*"+f+"\\s").test(l) && !/^\s*#/.test(l) && !new RegExp("^"+f+"\\(\\)").test(l)){
+      if(!(f in use)) use[f]=i+1; } } });
+  const bad=Object.keys(def).filter(f=>use[f] && use[f] < def[f]);
+  process.stdout.write(bad.join(";"));
+' "$SELF_MUT")"
+if [ -n "$SELF_CTRL" ]; then echo "  PASS: SELF02 (doi chung duong: phep quet bat duoc loi khi no CO that)"; PASS_COUNT=$((PASS_COUNT+1));
+else echo "  FAIL: SELF02 (phep quet KHONG bat duoc file co loi ro rang -> SELF01 vo nghia)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+rm -f "$SELF_MUT"
 
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"

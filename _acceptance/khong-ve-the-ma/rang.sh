@@ -270,22 +270,29 @@ round-trip)
   dem_cap() { # <chuoi> -> so dong thuat CUA BUOC TIEN DE co chua chuoi
     printf '%s\n' "$THUAT" | grep -c -- "$1"
   }
+  # SO HANG RUT TU BEN VIET, khong ghim hang so. Ban truoc ghim cung 3; ngay
+  # 01/09 ben viet len 5 hang (them «y da dong» + «ho so hong») va chan nay do
+  # vi CHINH NO, khong vi vat. Dung lop «thuoc ghim vao thu SE DOI» — sua theo
+  # LOP: dem hang tu khoi marker, dung dem bang tay.
+  HANG="$(sed -n "s/^const \(MSG_[A-Z_]*\)[[:space:]]*=[[:space:]]*'.*';.*/\1/p" "$GC")"
+  SOHANG="$(printf '%s\n' "$HANG" | grep -c .)"
   TONG=0
-  for pair in "MSG_NO_WORKSPACE:$MSG_WS" "MSG_NO_DOSSIER:$MSG_DIR" "MSG_NO_CONTRACT:$MSG_CT"; do
-    n="${pair%%:*}"; v="${pair#*:}"
+  for n in $HANG; do
+    v="$(pick "$n" "$GC")"
+    if [ -z "$v" ]; then bad "AC-8 rut hang $n" "khong rut duoc gia tri"; continue; fi
     c="$(dem_cap "$v")"
     if [ "$c" = "1" ]; then ok "AC-8 «$v» ghep dung MOT loi thuat rieng (rut tu $n)"; TONG=$((TONG+1))
     elif [ "$c" = "0" ]; then bad "AC-8 $n" "khong co dong thuat nao chua «$v» — hai ben da troi khoi nhau"
     else bad "AC-8 $n" "co $c dong thuat chua «$v» — cap khong con mot-doi-mot"; fi
   done
   SODONG="$(printf '%s\n' "$THUAT" | grep -c .)"
-  if [ "$SODONG" = "3" ]; then ok "AC-8 dang thuc: 3 dong thuat = 3 hang rut duoc"
-  else bad "AC-8 dang thuc so luong" "than lenh co $SODONG dong thuat, hang rut duoc 3 — thua hay thieu deu la troi"
+  if [ "$SODONG" = "$SOHANG" ]; then ok "AC-8 dang thuc: $SODONG dong thuat = $SOHANG hang rut duoc"
+  else bad "AC-8 dang thuc so luong" "than lenh co $SODONG dong thuat, hang rut duoc $SOHANG — thua hay thieu deu la troi"
   fi
-  [ "$TONG" = "3" ] && ok "AC-8 du 3 cap (so assert = so phan tu)" || bad "AC-8 so cap" "chi ghep duoc $TONG/3 cap"
+  [ "$TONG" = "$SOHANG" ] && ok "AC-8 du $SOHANG cap (so assert = so phan tu)" || bad "AC-8 so cap" "chi ghep duoc $TONG/$SOHANG cap"
   # BA MUTANT RIENG: doi TUNG chuoi mot o ben VIET -> moi mutant chi duoc lam do
   # dung cap cua no; hai cap kia phai con nguyen.
-  for n in MSG_NO_WORKSPACE MSG_NO_DOSSIER MSG_NO_CONTRACT; do
+  for n in $HANG; do
     MD="$(NEW_T)"; cp "$GC" "$MD/gate-card.js"
     perl -0pi -e "s/(const $n\s*=\s*')[^']*/\${1}gate-card: CHUOI-BIA-$n/s" "$MD/gate-card.js"
     v2="$(pick "$n" "$MD/gate-card.js")"
@@ -294,13 +301,15 @@ round-trip)
     elif [ "$(dem_cap "$v2")" != "0" ]; then bad "AC-8 rang [$n]" "than lenh chua ca chuoi BIA — phep do khong phan biet duoc"
     else
       ok "AC-8 mutant [$n]: doi chu ben viet -> cap do dung cho"
-      # hai cap kia phai CON NGUYEN (mutant khong lam do lan)
-      con=0
-      for other in "$MSG_WS" "$MSG_DIR" "$MSG_CT"; do
-        [ "$other" = "$v1" ] && continue
-        [ "$(dem_cap "$other")" = "1" ] && con=$((con+1))
+      # CAC CAP KIA phai CON NGUYEN (mutant khong lam do lan). So cap ky vong
+      # SUY TU BEN VIET (SOHANG-1), khong ghim 2 — cung lop «thuoc ghim vao thu
+      # SE DOI» voi dang thuc o tren.
+      con=0; KY_VONG=$((SOHANG-1))
+      for on in $HANG; do
+        [ "$on" = "$n" ] && continue
+        [ "$(dem_cap "$(pick "$on" "$GC")")" = "1" ] && con=$((con+1))
       done
-      [ "$con" = "2" ] && ok "AC-8 mutant [$n] khong lam do lan hai cap kia" || bad "AC-8 mutant [$n] lam do lan" "chi con $con/2 cap kia nguyen"
+      [ "$con" = "$KY_VONG" ] && ok "AC-8 mutant [$n] khong lam do lan $KY_VONG cap kia" || bad "AC-8 mutant [$n] lam do lan" "chi con $con/$KY_VONG cap kia nguyen"
     fi
   done
   ;;

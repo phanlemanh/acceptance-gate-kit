@@ -45,13 +45,16 @@ Steps:
    KHÔNG dán nguyên thông điệp máy vào mặt người — trừ đúng một chỗ: danh sách tên
    hồ sơ có thật thì chép nguyên văn, vì tên hồ sơ là tên riêng, dịch là làm hỏng.
 
-   Ba ca từ chối, ba lời thuật RIÊNG — mỗi dòng một ca, tuyệt đối không gộp thành
+   NĂM ca từ chối, NĂM lời thuật RIÊNG — mỗi dòng một ca, tuyệt đối không gộp thành
    một câu chung «không dựng được thẻ»: người phải phân biệt được mình đang ở ca nào
-   thì mới biết việc kế:
+   thì mới biết việc kế. (Ô đang chờ Cổng Đáng KHÔNG nằm trong danh sách này: nó ra
+   THẺ, không ra lời từ chối.)
 
    - `gate-card: xưởng chưa mở` → kho này chưa từng mở sổ nghiệm thu, nên chưa có hồ sơ nào để trình; việc kế là mở sổ cho kho rồi quay lại.
    - `gate-card: không có hồ sơ` → tên vừa gõ không có trong sổ; đọc lại nguyên văn danh sách tên có thật mà chốt vừa in, để người nhận ra mình nhầm tên nào.
    - `gate-card: hồ sơ chưa có contract.md` → hồ sơ có trong sổ nhưng chưa chốt bộ tiêu chí, nên chưa có gì để duyệt; việc kế là chạy bước chuẩn hoá yêu cầu cho hồ sơ đó.
+   - `gate-card: ý đã đóng` → ý này đã được xếp lại hoặc đã dừng, nên không có gì để ký và không ai phải làm gì tiếp; mở lại nó là một quyết định riêng, không phải bước kế.
+   - `gate-card: hồ sơ hỏng` → hồ sơ của việc này ghi sai một chỗ nên máy không đọc được nó đang ở nấc nào; việc kế là sửa đúng chỗ máy vừa gọi tên rồi quay lại.
 
 3. **Extract** the bits to translate (gate auto-detected: `evidence-report.md`
    present → Gate 2, else Gate 1):

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Một trạng thái, một lối ra — Cổng Đáng có cửa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-rule: rgba(45,49,66,0.12);
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --color-paper: #2d3142; --color-ink: #f5f5f5; --color-muted: #bfc0c0; --color-rule: rgba(245,245,245,0.12); }
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1280px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 1000px; display: block; }
+    .footer { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid var(--color-rule); font-family: var(--font-mono); font-size: 0.62rem; color: var(--color-muted); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Hình 1 · bảng quyết định · hồ sơ cong-dang-co-cua</p>
+    <h1>Một trạng thái, một lối ra — và bốn ô hôm nay đang chảy nhầm cửa</h1>
+<svg viewBox="0 0 1200 784" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif">
+<defs>
+<style><![CDATA[
+svg{--paper:#f5f5f5;--paper2:#ececec;--white:#ffffff;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;--rule:rgba(45,49,66,0.12);--rule2:#bfc0c0;--accent:#eb6c36;--accent-text:#ba4513;--accent-tint:rgba(235,108,54,0.08);--fill-soft:rgba(45,49,66,0.05);--fill-faint:rgba(45,49,66,0.03);}
+@media (prefers-color-scheme: dark){svg{--paper:#2d3142;--paper2:#393e53;--white:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,0.12);--rule2:rgba(191,192,192,0.25);--accent:#f08a59;--accent-text:#f19162;--accent-tint:rgba(240,138,89,0.10);--fill-soft:rgba(245,245,245,0.06);--fill-faint:rgba(245,245,245,0.04);}}
+]]></style>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/></marker>
+<marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--ink)"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/></marker>
+</defs>
+
+<rect width="100%" height="100%" fill="var(--paper)"/>
+
+<!-- column headers -->
+<text x="56" y="48" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TRẠNG THÁI XƯỞNG — MƯỜI Ô CỦA BẢNG LÁT CẮT</text>
+<text x="576" y="48" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TỪ CHỐI — MỖI CA MỘT LỜI THUẬT RIÊNG</text>
+<text x="904" y="48" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">THẺ CỔNG</text>
+<line x1="20" y1="56" x2="1180" y2="56" stroke="var(--rule)" stroke-width="0.8"/>
+
+<!-- ============ rails (drawn before boxes) ============ -->
+<line x1="452" y1="96"  x2="568" y2="96"  stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="452" y1="156" x2="568" y2="156" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="452" y1="216" x2="568" y2="216" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="452" y1="288" x2="568" y2="288" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="452" y1="348" x2="896" y2="348" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<line x1="452" y1="408" x2="896" y2="408" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<line x1="452" y1="468" x2="568" y2="468" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<line x1="452" y1="528" x2="568" y2="528" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<line x1="452" y1="588" x2="896" y2="588" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="452" y1="648" x2="896" y2="648" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+
+<!-- rail labels -->
+<rect x="660" y="324" width="80" height="16" rx="2" fill="var(--paper)"/>
+<text x="700" y="336" fill="var(--soft)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">LÀN MỚI</text>
+<rect x="632" y="384" width="136" height="16" rx="2" fill="var(--paper)"/>
+<text x="700" y="396" fill="var(--soft)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">LÀN MỚI + CỜ ĐỎ</text>
+
+<!-- ============ đường hôm nay — con trỏ chết ============ -->
+<line x1="56" y1="348" x2="20" y2="348" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5,4"/>
+<line x1="56" y1="408" x2="20" y2="408" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5,4"/>
+<line x1="56" y1="468" x2="20" y2="468" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5,4"/>
+<line x1="56" y1="528" x2="20" y2="528" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5,4"/>
+<path d="M20,528 V260 Q20,252 28,252 H568" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+<circle cx="20" cy="348" r="2.5" fill="var(--accent)"/>
+<circle cx="20" cy="408" r="2.5" fill="var(--accent)"/>
+<circle cx="20" cy="468" r="2.5" fill="var(--accent)"/>
+<rect x="456" y="228" width="116" height="16" rx="2" fill="var(--paper)"/>
+<text x="514" y="240" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CON TRỎ CHẾT</text>
+
+<!-- ============ cột trái — trạng thái xưởng ============ -->
+<!-- ô 1 -->
+<rect x="56" y="72" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="72" width="396" height="48" rx="6" fill="var(--white)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="68" y="88" width="28" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="82" y="99" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">1</text>
+<text x="108" y="94" fill="var(--ink)" font-size="12" font-weight="600">Chưa mở xưởng nghiệm thu</text>
+<text x="108" y="110" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">không có _acceptance/config.yaml</text>
+<!-- ô 2 -->
+<rect x="56" y="132" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="132" width="396" height="48" rx="6" fill="var(--white)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="68" y="148" width="28" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="82" y="159" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">2</text>
+<text x="108" y="154" fill="var(--ink)" font-size="12" font-weight="600">Không có thư mục hồ sơ</text>
+<text x="108" y="170" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">tên hồ sơ được gõ không tồn tại</text>
+<!-- ô 3 -->
+<rect x="56" y="192" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="192" width="396" height="48" rx="6" fill="var(--white)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="68" y="208" width="28" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="82" y="219" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">3</text>
+<text x="108" y="214" fill="var(--ink)" font-size="12" font-weight="600">Thư mục hồ sơ rỗng</text>
+<text x="108" y="230" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">không hợp đồng, không ô cơ hội</text>
+<!-- ô 6 -->
+<rect x="56" y="264" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="264" width="396" height="48" rx="6" fill="var(--white)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="68" y="280" width="28" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="82" y="291" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">6</text>
+<text x="108" y="286" fill="var(--ink)" font-size="12" font-weight="600">Ý đã ký «làm» hoặc «lặp», hợp đồng chưa sinh</text>
+<text x="108" y="302" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">opportunity.md có · contract.md chưa có</text>
+<!-- ô 4 — con trỏ chết -->
+<rect x="56" y="324" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="324" width="396" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<rect x="68" y="340" width="28" height="16" rx="4" fill="none" stroke="var(--accent)" stroke-width="0.8"/>
+<text x="82" y="351" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">4</text>
+<text x="108" y="346" fill="var(--ink)" font-size="12" font-weight="600">Ý đang cân nhắc — ngưỡng đã chốt hoặc [đề xuất]</text>
+<text x="108" y="362" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">opportunity.md · chưa chọn lối ra nào</text>
+<!-- ô 5 — con trỏ chết -->
+<rect x="56" y="384" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="384" width="396" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<rect x="68" y="400" width="28" height="16" rx="4" fill="none" stroke="var(--accent)" stroke-width="0.8"/>
+<text x="82" y="411" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">5</text>
+<text x="108" y="406" fill="var(--ink)" font-size="12" font-weight="600">Ý đang cân nhắc — ngưỡng còn để trống</text>
+<text x="108" y="422" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">opportunity.md · chưa chốt ngưỡng</text>
+<!-- ô 7 — con trỏ chết -->
+<rect x="56" y="444" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="444" width="396" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<rect x="68" y="460" width="28" height="16" rx="4" fill="none" stroke="var(--accent)" stroke-width="0.8"/>
+<text x="82" y="471" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">7</text>
+<text x="108" y="466" fill="var(--ink)" font-size="12" font-weight="600">Ý đã xếp lại, đã dừng, hoặc đã lưu kho</text>
+<text x="108" y="482" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">opportunity.md · xếp lại | dừng | lưu kho</text>
+<!-- ô 8 — con trỏ chết -->
+<rect x="56" y="504" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="504" width="396" height="48" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<rect x="68" y="520" width="28" height="16" rx="4" fill="none" stroke="var(--accent)" stroke-width="0.8"/>
+<text x="82" y="531" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">8</text>
+<text x="108" y="526" fill="var(--ink)" font-size="12" font-weight="600">Ô cơ hội có field điều hướng ngoài từ vựng</text>
+<text x="108" y="542" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">stage hoặc decision mang giá trị lạ</text>
+<!-- ô 9 -->
+<rect x="56" y="564" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="564" width="396" height="48" rx="6" fill="var(--white)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="68" y="580" width="28" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="82" y="591" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">9</text>
+<text x="108" y="586" fill="var(--ink)" font-size="12" font-weight="600">Có hợp đồng, chưa có bằng chứng</text>
+<text x="108" y="602" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">contract.md có · evidence-report.md chưa có</text>
+<!-- ô 10 -->
+<rect x="56" y="624" width="396" height="48" rx="6" fill="var(--paper)"/>
+<rect x="56" y="624" width="396" height="48" rx="6" fill="var(--white)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="64" y="640" width="36" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="82" y="651" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">10</text>
+<text x="108" y="646" fill="var(--ink)" font-size="12" font-weight="600">Có hợp đồng và đã có bằng chứng</text>
+<text x="108" y="662" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">contract.md + evidence-report.md</text>
+
+<!-- ============ lane A — từ chối ============ -->
+<rect x="576" y="72" width="296" height="48" rx="6" fill="var(--paper)"/>
+<rect x="576" y="72" width="296" height="48" rx="6" fill="var(--fill-soft)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="804" y="88" width="56" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="832" y="99" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">GIỮ</text>
+<text x="588" y="94" fill="var(--ink)" font-size="12" font-weight="600">«xưởng chưa mở»</text>
+<text x="588" y="110" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">giữ nguyên văn · AC-6</text>
+
+<rect x="576" y="132" width="296" height="48" rx="6" fill="var(--paper)"/>
+<rect x="576" y="132" width="296" height="48" rx="6" fill="var(--fill-soft)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="804" y="148" width="56" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="832" y="159" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">GIỮ</text>
+<text x="588" y="154" fill="var(--ink)" font-size="12" font-weight="600">«không có hồ sơ»</text>
+<text x="588" y="170" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">liệt tên hồ sơ có thật · AC-6</text>
+
+<rect x="576" y="192" width="296" height="120" rx="6" fill="var(--paper)"/>
+<rect x="576" y="192" width="296" height="120" rx="6" fill="var(--fill-soft)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="804" y="208" width="56" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="832" y="219" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">GIỮ</text>
+<text x="588" y="226" fill="var(--ink)" font-size="12" font-weight="600">«hồ sơ chưa có contract.md»</text>
+<text x="588" y="246" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">việc kế: chạy bước chuẩn hoá yêu cầu</text>
+<text x="588" y="266" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">ĐÚNG cho ô 6 — hợp đồng sinh sau Cổng Đáng</text>
+<text x="588" y="286" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">giữ nguyên văn · AC-6</text>
+
+<rect x="576" y="444" width="296" height="48" rx="6" fill="var(--paper)"/>
+<rect x="576" y="444" width="296" height="48" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="804" y="460" width="56" height="16" rx="4" fill="var(--ink)"/>
+<text x="832" y="471" fill="var(--paper)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">MỚI</text>
+<text x="588" y="466" fill="var(--ink)" font-size="12" font-weight="600">«ý đã đóng»</text>
+<text x="588" y="482" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">không mời đi viết hợp đồng · AC-4</text>
+
+<rect x="576" y="504" width="296" height="48" rx="6" fill="var(--paper)"/>
+<rect x="576" y="504" width="296" height="48" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="804" y="520" width="56" height="16" rx="4" fill="var(--ink)"/>
+<text x="832" y="531" fill="var(--paper)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">MỚI</text>
+<text x="588" y="526" fill="var(--ink)" font-size="12" font-weight="600">«hồ sơ hỏng»</text>
+<text x="588" y="542" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">nêu TÊN field ngoài từ vựng · AC-5</text>
+
+<!-- ============ lane B — thẻ cổng ============ -->
+<rect x="904" y="324" width="264" height="108" rx="6" fill="var(--paper)"/>
+<rect x="904" y="324" width="264" height="108" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="1100" y="340" width="56" height="16" rx="4" fill="var(--ink)"/>
+<text x="1128" y="351" fill="var(--paper)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">MỚI</text>
+<text x="916" y="358" fill="var(--ink)" font-size="12" font-weight="600">Thẻ Cổng Đáng</text>
+<text x="916" y="378" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">đề bài · ba giả định · ngưỡng · bốn lối ra</text>
+<text x="916" y="398" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">ngưỡng chưa chốt → thêm cờ đỏ · AC-2</text>
+<text x="916" y="418" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">bộ quét xếp «đáng» ⇒ thẻ vẽ được · AC-1</text>
+
+<rect x="904" y="564" width="264" height="48" rx="6" fill="var(--paper)"/>
+<rect x="904" y="564" width="264" height="48" rx="6" fill="var(--fill-soft)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="1100" y="580" width="56" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="1128" y="591" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">GIỮ</text>
+<text x="916" y="586" fill="var(--ink)" font-size="12" font-weight="600">Thẻ Cổng Phạm vi</text>
+<text x="916" y="602" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">đối chứng dương · AC-1</text>
+
+<rect x="904" y="624" width="264" height="48" rx="6" fill="var(--paper)"/>
+<rect x="904" y="624" width="264" height="48" rx="6" fill="var(--fill-soft)" stroke="var(--muted)" stroke-width="1"/>
+<rect x="1100" y="640" width="56" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="1128" y="651" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">GIỮ</text>
+<text x="916" y="646" fill="var(--ink)" font-size="12" font-weight="600">Thẻ Cổng Bằng chứng</text>
+<text x="916" y="662" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">đối chứng dương · AC-1</text>
+
+<!-- annotation -->
+<text x="56" y="708" fill="var(--accent-text)" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">Bốn ô 4 · 5 · 7 · 8 hôm nay chảy hết vào một lời thuật duy nhất — nó nói sai nguyên nhân, rồi mời người đi viết hợp đồng ngược thứ tự.</text>
+
+<!-- legend -->
+<line x1="32" y1="732" x2="1168" y2="732" stroke="var(--rule)" stroke-width="0.8"/>
+<text x="32" y="752" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<line x1="112" y1="748" x2="144" y2="748" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<text x="152" y="752" fill="var(--muted)" font-size="9">lối ra giữ nguyên</text>
+<line x1="296" y1="748" x2="328" y2="748" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<text x="336" y="752" fill="var(--muted)" font-size="9">lối ra mới dựng vòng này</text>
+<line x1="536" y1="748" x2="568" y2="748" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+<text x="576" y="752" fill="var(--muted)" font-size="9">đường hôm nay — con trỏ chết</text>
+<rect x="784" y="740" width="36" height="16" rx="4" fill="var(--ink)"/>
+<text x="828" y="752" fill="var(--muted)" font-size="9">lời thuật / làn mới</text>
+<rect x="960" y="740" width="36" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="1004" y="752" fill="var(--muted)" font-size="9">hành vi giữ nguyên</text>
+</svg>
+    <div class="footer">
+      <span>Hình tầng 2 · chiếu của bảng lát cắt §3 trong docs/superpowers/specs/2026-09-01-cong-dang-co-cua-design.md · AC-1 · AC-2 · AC-4 · AC-5 · AC-6 trong contract.md</span>
+      <span>hồ sơ cong-dang-co-cua · vẽ 01/09/2026</span>
+    </div>
+  </div>
+</body>
+</html>

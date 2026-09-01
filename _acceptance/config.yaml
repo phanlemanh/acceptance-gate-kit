@@ -101,6 +101,13 @@ executors:
     kvtm_round_trip: bash _acceptance/khong-ve-the-ma/rang.sh --chan round-trip
     kvtm_suite_case: bash _acceptance/khong-ve-the-ma/rang.sh --chan suite-case
     kvtm_suite_tong: bash _acceptance/khong-ve-the-ma/rang.sh --chan suite-tong
+    # Vật của hồ sơ cong-dang-co-cua — BA chân cho phạm vi đã thu (bản 13 chân
+    # của làn thẻ trả về ô cùng làn, xem discovery/LAY-VE-LAN-THE.md). Mỗi chân
+    # ghim ĐÚNG DÒNG CA trong lưới thường trực + chạy thật, không tin mã thoát
+    # của trọn suite. Cùng nếp không-vào-suite-vĩnh-viễn.
+    cdcc_loi_thuat: bash _acceptance/cong-dang-co-cua/rang.sh --chan loi-thuat
+    cdcc_gioi_han: bash _acceptance/cong-dang-co-cua/rang.sh --chan gioi-han
+    cdcc_dang_thuc_lop: bash _acceptance/cong-dang-co-cua/rang.sh --chan dang-thuc-lop
     product_map: "node scripts/product-map.mjs --root . --check"
     cat_khoi_rang_khuon: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan khuon
     cat_khoi_rang_clause: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan clause

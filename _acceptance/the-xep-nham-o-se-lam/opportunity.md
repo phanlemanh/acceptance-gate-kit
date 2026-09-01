@@ -82,6 +82,15 @@ phân biệt được hai cột vì chúng dùng chung từ vựng. Và cùng c�
 3. **Repo tiêu thụ.** Cùng bộ đọc, cùng luật, chưa ai đo — nhưng hợp đồng ở đó cũng đi
    qua `MEASURE-BIRTH-CLAUSE`.
 
+**Ca tái phát 2026-09-01 (đếm thêm một):** thẻ Cổng Phạm vi của hồ sơ
+`cong-dang-co-cua` xếp **5/13 tiêu chí** sang khối phủ định — AC-3, AC-6, AC-7,
+AC-9, AC-12 — trong khi cả năm đều là việc hệ thống SẼ làm. Cả năm rơi vào khối
+sai vì đúng lý do ô này nêu: vế Then của chúng khai chiều đỏ («bản sao gỡ dòng →
+đỏ», «KHÔNG nhận nhầm thành thẻ Cổng Đáng», «không đầu ra nào chứa…»). Lớp phủ
+`card-plain.json` KHÔNG chữa được: khuôn khoá chỉ cho đổi CHỮ theo từng mã, việc
+xếp mã vào khối nào do bộ dựng quyết. Nên lượt trình 01/09 lại phải giải thích
+bằng lời ngoài thẻ — đúng hệ quả (2) ở trên, nay có hai ca có tên.
+
 ## Giả định chốt sinh tử
 
 | # | Giả định | Nếu sai thì | Phép thử rẻ nhất | Trạng thái |

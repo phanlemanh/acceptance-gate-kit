@@ -1,0 +1,49 @@
+{
+  "feature_plain": "Cổng «có đáng làm không» có cửa riêng: người mở một việc đang chờ quyết sẽ thấy một thẻ đọc trong một phút — đề bài, ngưỡng, bốn lối ra — thay vì một lời từ chối bảo họ đi làm ngược thứ tự.",
+
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ đảm bảo mọi việc mà bảng vào phiên nói «chờ chữ ký» đều mở ra được thẻ — không việc nào bị gửi tới một cửa đóng." },
+    { "id": "AC-2", "p": "Sẽ mở thẻ cho cả bốn kiểu ngưỡng, kể cả kiểu «không đo được» mà kit tự khuyên dùng cho việc không có người dùng cuối." },
+    { "id": "AC-3", "p": "Sẽ đặt cửa mới đúng chỗ trên đường đi, để nó không bị chốt an toàn cũ chặn mất." },
+    { "id": "AC-4", "p": "Sẽ nói thẳng «ý này đã đóng» khi người gõ tên một việc đã dừng, thay vì mời họ mở lại nó." },
+    { "id": "AC-5", "p": "Sẽ gọi tên chỗ hỏng khi hồ sơ của một việc ghi sai, thay vì im lặng đối xử như việc đang chờ quyết." },
+    { "id": "AC-6", "p": "Sẽ giữ nguyên ba lời từ chối cũ, và giữ chúng phân biệt được với nhau." },
+    { "id": "AC-7", "p": "Sẽ giữ lời máy nói và lời người đọc luôn khớp số ca — thêm một ca ở một bên mà quên bên kia thì kiểm thử đỏ." },
+    { "id": "AC-8", "p": "Sẽ cho người bốn lối ra thật trên thẻ — làm, lặp, xếp lại, dừng — kèm câu nói rõ chúng đảo ngược được." },
+    { "id": "AC-9", "p": "Sẽ không viết hộ một chữ nào của người, và mở thẻ ra xem không làm thay đổi hồ sơ." },
+    { "id": "AC-10", "p": "Sẽ giữ bốn lối ra ấy giống nhau ở cả nơi vẽ lẫn nơi ghi — đổi một chỗ mà quên chỗ khác thì kiểm thử đỏ." },
+    { "id": "AC-11", "p": "Sẽ dẫn người từ bảng vào phiên tới thẻ rồi tới lệnh ký, theo đúng thứ tự đó, bằng một đường duy nhất." },
+    { "id": "AC-12", "p": "Sẽ chặn ký «làm» khi ngưỡng còn trống mà chưa ai khai «không đo được» — ký lúc đó là ký trên một cái thước trang trí." },
+    { "id": "AC-13", "p": "Sẽ đảm bảo cả bốn lối ra đều GHI được, không chỉ hiện được — lối in ra mà máy không ghi nổi thì người phải quay lại hỏi lượt hai." }
+  ],
+
+  "wont_do": [],
+
+  "scope_plain": "Không thêm lệnh mới cho cổng này; không đổi khuôn hồ sơ cơ hội; không làm dịu câu chữ cho trường hợp việc đã ký mà tiêu chí chưa viết, vì câu hiện tại chỉ đúng chỗ; không dựng thêm một lớp dịch chữ cho thẻ.",
+
+  "coverage_plain": [
+    { "i": 0, "p": "Trục «hồ sơ của một việc đang có những gì» — sáu mức, từ chưa mở sổ tới có đủ cả tiêu chí lẫn bằng chứng. Đủ khi mỗi mức đi ra đúng một lối." },
+    { "i": 1, "p": "Trục «việc đang ở nấc nào» — đang cân nhắc, đã quyết làm, đã xếp lại hay dừng, đã đóng hồ sơ, hoặc ghi sai. Đủ khi lấy đúng danh sách nấc mà phần lõi đang dùng, không tự chế." },
+    { "i": 2, "p": "Trục «ngưỡng đã tới đâu» — còn trống, máy mới đề xuất, người đã chốt, hoặc khai không đo được. Đây là trục dễ sót nhất vì ba nấc trông giống nhau trên mặt thẻ." },
+    { "i": 3, "p": "Trục «đã có bằng chứng chưa» — hai mức, để hai cửa cũ chắc chắn không đổi hành vi." },
+    { "i": 4, "p": "Bản đồ mười trạng thái sang tiêu chí: mỗi trạng thái có tên một tiêu chí canh nó; hai trạng thái thuộc về gốc cây chứ không thuộc một việc nên được canh ở chỗ khác, ghi rõ để khỏi tưởng là sót." },
+    { "i": 5, "p": "Bản đồ bốn nấc ngưỡng sang tiêu chí — kể cả nấc «không đo được», nấc mà hôm nay chưa ai đo." },
+    { "i": 6, "p": "Phần ghi của lệnh ký: canh được bảng bốn lối ra là đủ bốn hàng. Còn hành vi ký cuối cùng chỉ đo được ở việc kế tiếp đi qua cổng — khai thẳng, không giấu." },
+    { "i": 7, "p": "Đối chiếu ngoài: lớp bài toán này là «bộ điều phối phải xử hết mọi trạng thái», chuẩn đối chiếu là cách các ngôn ngữ có kiểm tra vét cạn bắt lỗi thiếu nhánh. Đúng lỗi hôm nay: một trạng thái rơi vào nhánh mặc định mang nhãn của trạng thái khác." }
+  ],
+
+  "gap_probe_plain": [
+    { "i": 0, "p": "Bản thiết kế hứa «đảm bảo» cho việc ký chỉ cần một lượt gọi người, nhưng không phép đo nào chạm tới phần GHI của lệnh ký. Hệ quả thật: thẻ in đủ bốn lối ra, mọi kiểm thử xanh, mà máy chỉ ghi nổi hai lối — người chọn «xếp lại» sẽ phải quay lại hỏi lượt thứ hai, đúng thứ vòng này sinh ra để dẹp. Đã sửa: thêm một tiêu chí và một phép đo bắt bảng bốn lối ra phải đủ hàng, đối chiếu với danh sách gốc; và viết lại các dòng thước để phân biệt rõ «đã có phép đo» với «chỉ đo được ở việc kế tiếp»." },
+    { "i": 1, "p": "Ngưỡng có bốn nấc nhưng chỉ hai nấc được đo. Hệ quả thật: người làm đúng thứ kit dạy — khai «không đo được» cho việc không có người dùng cuối — vẫn bị thẻ cắm cờ đỏ và lệnh ký chặn, tức là việc đó không ký được bằng đường nào, trong khi mọi kiểm thử vẫn xanh. Đã sửa: phép đo phủ cả bốn nấc, mỗi nấc kiểm ba điều." },
+    { "i": 2, "p": "Tiêu chí gốc phát biểu «hai bên bằng nhau» trong khi bản thiết kế cố ý cho một bên rộng hơn. Hệ quả thật: người thi công đọc câu đó rồi bắt thẻ từ chối đúng nhóm việc mà thẻ nên phục vụ. Đã sửa: viết lại thành một chiều, và cho phần rộng hơn một cái thước riêng thay vì để nó trôi." },
+    { "i": 3, "p": "Phép đo hứa dựng mười trạng thái, nhưng hai trong số đó thuộc về gốc cây chứ không dựng được bên trong một việc. Hệ quả thật: chạy lên chỉ có tám, phép đo đỏ vì chính nó sai chứ không vì sản phẩm sai — đốt một lượt chấm. Đã sửa: liệt đích danh những gì dựng được và đếm trước khi chạy." },
+    { "i": 4, "p": "Phép đo khẳng định «hồ sơ không bị sửa» và «máy không viết hộ chữ nào», nhưng không có gì chứng minh lệnh đã thật sự chạy. Hệ quả thật: gõ sai một tham số thì lệnh không chạy, hồ sơ dĩ nhiên không đổi, đầu ra rỗng dĩ nhiên không chứa gì — cả hai khẳng định xanh mà chưa bao giờ chạm vật. Đã sửa: bắt lệnh chứng minh nó chạy và có đầu ra trước, rồi mới tin hai khẳng định kia." }
+  ],
+
+  "decisions_plain": [
+    { "id": "d-4021", "p": "Đã chọn lấy phần đã cắt về từ bản cây được ghim mốc, không từ mảnh vá rời — đổi lại phải lắp lại thứ tự cho khớp chốt an toàn ra đời sau, vì mảnh vá đã hỏng một nửa." },
+    { "id": "d-4022", "p": "KHÔNG làm dịu câu chữ cho trường hợp việc đã ký mà tiêu chí chưa viết — đổi lại người gõ tên việc vừa ký vẫn nhận một danh sách dài như thể gõ nhầm, nhưng câu chỉ việc kế thì đúng nên chưa đáng sửa." },
+    { "id": "d-4023", "p": "KHÔNG dựng thêm lớp dịch chữ cho thẻ mới — đổi lại thẻ hiện nguyên văn hồ sơ, viết dở thì đọc dở; chấp nhận vì nội dung đó vốn do người viết bằng tiếng sản phẩm." },
+    { "id": "d-4024", "p": "Đã chọn lời từ chối mới là dành cho việc ĐÃ ĐÓNG, không phải cho việc đang chờ quyết như đề bài đoán ban đầu — vì việc đang chờ quyết nay có thẻ nên không cần lời từ chối nào; đổi lại điều này lệch với cách đề bài phát biểu, nên phải nêu thẳng ở cổng." }
+  ]
+}
