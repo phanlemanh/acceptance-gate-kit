@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 184a36464fc13b2af0786995890942cd64f481d1
+verified_commit: a4f31465e820cc7d514e24c6f423827a125712dc
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -212,3 +212,16 @@ trỏ vào một cây KHÔNG chứa mã được nghiệm thu; bằng chứng kh
 Round 2: chạy lại trọn 10 eval trên cây đã commit (184a3646, cây làm việc sạch
 ngoài `_acceptance/`) sau khi `rang.sh` đổi sang tệp tạm riêng cho mỗi lượt chạy;
 10/10 đạt, bằng chứng nay neo đúng cây. Đây là sửa NEO, không phải sửa mã.
+
+### Re-pin lần 1 — 2026-09-01, do vòng cong-dang-co-cua sửa bên ĐO của hồ sơ này
+run_id: repin-2026-09-01-cdcc
+sha: a4f31465e820cc7d514e24c6f423827a125712dc · suites: 4 lệnh exit 0
+
+Nguyên nhân: chân `round-trip` ghim CỨNG số 3 nên đỏ khi bên viết lên 5 hằng —
+đỏ vì CHÍNH NÓ, không vì vật. Vòng `cong-dang-co-cua` sửa theo LỚP (rút số hằng
+từ khối marker, và gỡ luôn chỗ ghim cứng «2 cặp kia»); chân nay 17 pass / 0 fail
+và ghim lại hằng số 3 trên bản sao thì ĐỎ. **Hợp đồng đã ký và chữ ký người của
+hồ sơ này KHÔNG bị đụng — chỉ mốc `verified_commit` được ghim lại.**
+
+Giới hạn đã khai: lane do CHÍNH PHIÊN THI CÔNG chạy, không phải agent tươi —
+cùng loại hạn chế với Known limits #4 của hồ sơ `cong-dang-co-cua`.
