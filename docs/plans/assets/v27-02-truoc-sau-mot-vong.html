@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2.7 · Trước và sau một vòng</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75;
+      --color-soft: #636b80; --color-rule: rgba(45,49,66,0.12); --color-accent: #eb6c36;
+      --font-sans: 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400;
+      letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+    .sub { font-size: 0.9rem; color: var(--color-muted); max-width: 66ch; margin-bottom: 1.5rem; line-height: 1.5; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    footer { margin-top: 1.5rem; padding-top: 0.75rem; border-top: 1px solid var(--color-rule);
+      font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em; color: var(--color-soft); }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Timeline · nâng cấp 2.7 · nhịp gọi người của một vòng</p>
+    <h1>Cùng một vòng, trước và sau 2.7</h1>
+    <p class="sub">Dải trên là số <strong>đo thật</strong> của vòng gần nhất. Dải giữa là vòng chuẩn theo luật 2.7: người chỉ gặp đúng ba cổng thiết kế, mỗi cổng một chạm. Dải dưới là mốc phát hành — một chấm duy nhất.</p>
+
+    <svg viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ══ DẢI TRƯỚC ══ -->
+      <text x="48" y="72" fill="#4f5d75" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.14em">TRƯỚC — VÒNG CONG-DANG-CO-CUA, ĐO THẬT 01/09</text>
+      <text x="1152" y="72" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">6 lượt · nhiều chạm/lượt · ≥2 lượt máy đốt hoặc tự chèn</text>
+      <line x1="96" y1="140" x2="1104" y2="140" stroke="#4f5d75" stroke-width="1"/>
+      <!-- 6 chấm -->
+      <circle cx="96" cy="140" r="4" fill="#2d3142"/>
+      <text x="96" y="116" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">Ký Cổng Đáng</text>
+      <circle cx="288" cy="140" r="4" fill="#2d3142"/>
+      <text x="288" y="168" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">Duyệt Phạm vi</text>
+      <circle cx="480" cy="140" r="6" fill="#eb6c36"/>
+      <text x="480" y="116" fill="#eb6c36" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">«cho chạy S4» — máy tự chèn</text>
+      <circle cx="672" cy="140" r="4" fill="#4f5d75"/>
+      <text x="672" y="168" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">Gật thu phạm vi</text>
+      <circle cx="864" cy="140" r="4" fill="#4f5d75"/>
+      <text x="864" y="116" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">Quyết dừng-vá</text>
+      <circle cx="1104" cy="140" r="4" fill="#2d3142"/>
+      <text x="1104" y="168" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif" text-anchor="end">Ký Cổng Bằng chứng</text>
+
+      <!-- ══ DẢI SAU ══ -->
+      <text x="48" y="256" fill="#4f5d75" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.14em">SAU — VÒNG CHUẨN THEO LUẬT 2.7</text>
+      <text x="1152" y="256" fill="#eb6c36" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">3 lượt · 3 chạm · 0 ngoài thiết kế</text>
+      <line x1="96" y1="324" x2="1104" y2="324" stroke="#4f5d75" stroke-width="1"/>
+      <!-- 3 chấm -->
+      <circle cx="96" cy="324" r="4" fill="#2d3142"/>
+      <text x="96" y="300" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif">Cổng Đáng</text>
+      <text x="96" y="352" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">1 chạm</text>
+      <circle cx="600" cy="324" r="4" fill="#2d3142"/>
+      <text x="600" y="300" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Cổng Phạm vi — chỉ đánh-đổi thật</text>
+      <text x="600" y="352" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">1 chạm</text>
+      <circle cx="1104" cy="324" r="4" fill="#2d3142"/>
+      <text x="1104" y="300" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="end">Cổng Bằng chứng — câu gộp bấm được</text>
+      <text x="1104" y="352" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">1 chạm</text>
+      <!-- ghi chú giữa các chấm: máy + đối kháng làm việc -->
+      <rect x="216" y="378" width="264" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="348" y="388" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">giữa các cổng: máy + đối kháng máy —</text>
+      <rect x="216" y="392" width="264" height="14" rx="2" fill="#f5f5f5"/>
+      <text x="348" y="402" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">quyết-có-đường-đảo đi veto-default, ghi sổ</text>
+
+      <!-- ══ DẢI MỐC PHÁT HÀNH ══ -->
+      <text x="48" y="452" fill="#4f5d75" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.14em">MỐC PHÁT HÀNH — LÀN V (TIỀN LỆ 2.5.0)</text>
+      <text x="1152" y="452" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.06em">1 lượt · 1 chạm</text>
+      <line x1="96" y1="492" x2="1104" y2="492" stroke="#4f5d75" stroke-width="1"/>
+      <text x="96" y="516" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">Cổng Phạm vi: máy đi trước, cửa veto mở — không chấm nào</text>
+      <circle cx="1104" cy="492" r="4" fill="#2d3142"/>
+      <text x="1104" y="478" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist', sans-serif" text-anchor="end">Ký Cổng Bằng chứng</text>
+    </svg>
+
+    <footer>NGUỒN: docs/findings/2026-09-01-audit-loi-moi-cong-nang-hinh-thuc.md (bảng 5 lượt + số vòng cong-dang) · CLAUDE.md luật (c) mới — khoảng cách chấm dải TRƯỚC theo thứ tự thật, không theo giờ; giờ thật xem hình h2 của hồ sơ release-2-6-0</footer>
+  </div>
+</body>
+</html>

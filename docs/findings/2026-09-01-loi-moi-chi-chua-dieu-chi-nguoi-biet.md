@@ -86,3 +86,12 @@ Trace ba nguyên tố: nguyên tố 3 (khoảnh khắc quyết thật — ngư�
 loại-5) · nguyên tố 2 (bằng chứng không tự dối — loại-3 chuyển từ chữ-ký-suông
 sang đối-kháng-kèm-số). Người hưởng cụ thể: owner tại hai cổng ký. Toàn bộ là
 TRỪ và đổi-vai, không cổng mới, không tầng thước mới.
+
+## Hình (tầng 2, owner gọi tên nâng cấp này là «2.7»)
+
+Bốn hình ở `docs/plans/assets/v27-0*.html` — chiếu của file này + hai findings
+cùng ngày + luật (c), không phải nguồn: **v27-01** bộ định tuyến năm loại
+quyết định, một đường tới người · **v27-02** trước/sau nhịp gọi người của một
+vòng (6 lượt đo thật → 3 lượt·3 chạm; mốc phát hành → 1) · **v27-03** thẻ cổng
+đổi vai — chữ ký đổi nghĩa · **v27-04** số cạnh mục tiêu (thang so-ngưỡng,
+tiền lệ 2.5.0 chứng minh mục tiêu đạt được).
