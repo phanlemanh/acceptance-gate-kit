@@ -72,12 +72,18 @@ const probeT = read(path.join(dir, 'gap-probe.md'));
 // «thông điệp lỗi của script» vào cột KHÔNG ÁP, nơi tên chính xác là bắt
 // buộc). Tiếng sản phẩm sống ở thân lệnh commands/acceptance-card.md, nơi
 // bước tiền đề thuật lại ca này cho người.
-// <<<NO-DOSSIER-GUARD  — MỘT nguồn của ba thông điệp; thân lệnh chép nguyên
+// <<<NO-DOSSIER-GUARD  — MỘT nguồn của NĂM thông điệp; thân lệnh chép nguyên
 // văn và phép đo RÚT từ đây (không gõ literal), nên đổi chữ ở đây mà quên
 // thân lệnh là ĐỎ ngay, không trôi âm thầm.
 const MSG_NO_WORKSPACE = 'gate-card: xưởng chưa mở';
 const MSG_NO_DOSSIER   = 'gate-card: không có hồ sơ';
 const MSG_NO_CONTRACT  = 'gate-card: hồ sơ chưa có contract.md';
+const MSG_O_DA_DONG    = 'gate-card: ý đã đóng';
+const MSG_HO_SO_HONG   = 'gate-card: hồ sơ hỏng';
+// Bốn lối ra của Cổng Đáng — MỘT NGUỒN. commands/approve.md (bảng ánh xạ),
+// skills/acceptance/references/human-facing-language.md (ô g0) và mọi phép đo
+// RÚT từ dòng này, không gõ literal; đổi ở đây mà quên bên kia là ĐỎ ngay.
+const LOI_RA_G0 = ['làm', 'lặp', 'xếp lại', 'dừng'];
 // NO-DOSSIER-GUARD>>>
 // <<<NO-DOSSIER-GUARD-BLOCK
 if (!contract.trim()) {
@@ -88,17 +94,54 @@ if (!contract.trim()) {
       .filter(e => e.isDirectory() && fs.existsSync(path.join(acc, e.name, 'contract.md')))
       .map(e => e.name).sort();
   } catch (_) { /* xưởng không đọc được → danh sách rỗng, nhánh dưới vẫn nói đúng ca */ }
+  const opp0 = read(path.join(dir, 'opportunity.md'));
   if (!fs.existsSync(path.join(acc, 'config.yaml'))) {
     process.stderr.write(MSG_NO_WORKSPACE + ' — không thấy _acceptance/config.yaml dưới "' + root + '". Chạy acceptance-init cho kho này trước.\n');
-  } else if (!fs.existsSync(dir)) {
+    process.exit(2);
+  }
+  if (!fs.existsSync(dir)) {
     process.stderr.write(MSG_NO_DOSSIER + ' «' + slug + '» — _acceptance/' + slug + '/ không tồn tại.\n' +
       (real.length ? '  Hồ sơ có thật trong xưởng: ' + real.join(', ') + '\n'
                    : '  Xưởng chưa có hồ sơ nào.\n'));
-  } else {
+    process.exit(2);
+  }
+  // Hồ sơ CÓ ô cơ hội → ba ngả: hỏng · đã đóng · còn mở (còn mở thì đây là
+  // CỔNG ĐÁNG, không phải một ca từ chối). Trước bản này cả ba rơi chung vào
+  // nhánh đáy mang nhãn «chưa có contract.md»: nói sai nguyên nhân, và với ô
+  // đã đóng thì còn mời người đi viết hợp đồng cho một ý đã dừng.
+  // Từ vựng điều hướng HỎI LIB dùng chung — không chép bảng enum thứ hai:
+  // máy quét vào phiên và bộ dựng thẻ phải cho CÙNG kết luận trên cùng hồ sơ,
+  // và chính chỗ hai bên bất đồng là con trỏ chết vòng này đi dẹp.
+  if (opp0.trim()) {
+    const wr = require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
+    const fp = wr.fieldProblem('opportunity.md', opp0, 'stage')
+            || wr.fieldProblem('opportunity.md', opp0, 'decision');
+    if (fp) {
+      process.stderr.write(MSG_HO_SO_HONG + ' «' + slug + '» — ' + fp.reason + '.\n' +
+        '  Sửa đúng chỗ vừa nêu rồi chạy lại; máy quét vào phiên cũng đang xếp hồ sơ này vào mục hỏng.\n');
+      process.exit(2);
+    }
+    // Giá trị lấy qua CHÍNH bộ đọc của lib (đã chuẩn hoá chữ thường), không tự
+    // lau chuỗi ở đây: hai bên đọc cùng hồ sơ phải ra cùng giá trị, và helper
+    // `clean` của file này khai bằng `const` phía DƯỚI chốt nên gọi lên là vùng
+    // chết — bẫy chỉ lộ khi chạy thật, không lộ khi đọc mã.
+    const { stage: st0, decision: dec0 } = wr.navValues({ 'opportunity.md': opp0 });
+    if (st0 === 'archived' || dec0 === 'park' || dec0 === 'kill') {
+      process.stderr.write(MSG_O_DA_DONG + ' «' + slug + '» — ý này đã ' +
+        (dec0 === 'park' ? 'xếp lại' : dec0 === 'kill' ? 'dừng' : 'đóng hồ sơ') +
+        ', không có gì để ký. Mở lại là một quyết định riêng, không phải bước kế.\n');
+      process.exit(2);
+    }
+    // Ô còn mở → LÀN THẺ CỔNG ĐÁNG. Gán ở ĐÂY, bên trong chốt, vì chốt chạy ở
+    // đầu file: đặt nhánh nhận cổng ở đoạn tự nhận cổng phía dưới thì chốt
+    // chặn trước và làn mới thành mã chết trong khi mọi phép đo bề mặt vẫn xanh.
+    if (!dec0) gate = '0';
+  }
+  if (gate !== '0') {
     process.stderr.write(MSG_NO_CONTRACT + ' «' + slug + '» — _acceptance/' + slug + '/ có mặt nhưng chưa đọc được contract.md, chưa có gì để trình.\n' +
       (real.length ? '  Hồ sơ đủ bản hợp đồng trong xưởng: ' + real.join(', ') + '\n' : ''));
+    process.exit(2);
   }
-  process.exit(2);
 }
 // NO-DOSSIER-GUARD-BLOCK>>>
 
@@ -257,6 +300,72 @@ const STYLE = `<style>
 .gc .bn{border-color:#cfcdc4;color:#3f3e39}.gc .yes{background:#E1F5EE;border-color:#5DCAA5;color:#085041;font-weight:600}.gc .no{border-color:#F0997B;color:#993C1D}
 </style>`;
 const pl = plain || {};
+
+// ================= GATE 0 — Cổng Đáng =================
+// Cổng thứ ba, lần đầu có mặt người. Nhận cổng đã xảy ra Ở TRÊN, bên trong khối
+// chốt — xem ghi chú ở đó; đặt phép nhận ở đây thì chốt chặn trước và cả làn này
+// thành mã chết trong khi mọi phép đo bề mặt vẫn xanh.
+// Thẻ trình đề bài + ngưỡng (đề xuất của máy hiện RÕ là đề xuất) + bốn lối ra
+// sống. Máy KHÔNG điền `decision` và thẻ KHÔNG ghi gì lên đĩa: chữ ký là phát
+// ngôn của người (ADR 0002).
+if (gate === '0') {
+  const opp = read(path.join(dir, 'opportunity.md'));
+  const ofm = frontmatter(opp);
+  const OPP_TPL = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
+  const tpl = read(OPP_TPL);
+  const NG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+  let nguong, KHONG_DO, DE_XUAT;
+  try {
+    ({ khongDo: KHONG_DO, deXuat: DE_XUAT } = NG.prefixes(tpl));
+    nguong = NG.thresholdState(opp, tpl);
+  } catch (e) {
+    // Fail-closed: khuôn mất khối marker thì chết to kèm tên file, KHÔNG im lặng
+    // tắt răng rồi vẽ một thẻ trông như bình thường.
+    process.stderr.write('gate-card: ' + e.message + ' — ' + OPP_TPL + '\n'); process.exit(2);
+  }
+  const lines0 = section(opp, NG.UAT_THRESHOLD_HEADING).map(l => l.trim()).filter(l => l && !/^>/.test(l));
+  const flags0 = [];
+  if (nguong === 'chua-chot') flags0.push(['fred',
+    'Ngưỡng còn trống và chưa khai «không đo được» — ký «' + LOI_RA_G0[0] + '» lúc này là ký trên một cái thước trang trí. ' +
+    'Điền ngưỡng vào ô, hoặc khai một dòng «' + KHONG_DO + ' <lý do>».']);
+  if (EXTRACT) {
+    process.stdout.write(JSON.stringify({
+      gate: 0,
+      feature: clean(ofm.feature) || slug,
+      cong_dang: {
+        nguong,
+        loi_ra: LOI_RA_G0,
+        nguong_lines: lines0.map(l => l.replace(/^[-*]\s+/, '')),
+        de_xuat_lines: lines0.filter(l => l.includes(DE_XUAT)).map(l => l.replace(/^[-*]\s+/, '')),
+        flags: flags0.map(f => f[1]),
+      },
+    }, null, 2));
+    process.exit(0);
+  }
+  const P0 = [STYLE, '<div class="gc"><div class="card"><div class="h"><div>' +
+    '<div class="ft">' + esc(stripMd(clean(ofm.feature) || slug)) + '</div>' +
+    '<div class="sub">Cổng Đáng — việc này có đáng làm không?</div></div>' +
+    '<span class="chip amber">quyết có làm không</span></div>'];
+  const blk0 = (lab, arr) => { if (arr.length) P0.push('<div class="lab">' + lab + '</div><div class="grp gnot">' + arr.map(t => '<p class="li">' + esc(stripMd(t)) + '</p>').join('') + '</div>'); };
+  blk0('Vấn đề &amp; ai gặp', section(opp, 'Vấn đề & ai gặp').filter(l => l.trim() && !/^>/.test(l)));
+  blk0('Giả định sinh tử (ba đầu)', section(opp, 'Giả định chốt sinh tử').filter(l => /^\|\s*\d/.test(l)).slice(0, 3).map(l => (l.split('|')[2] || '').trim()));
+  P0.push('<div class="lab">Ngưỡng</div><div class="grp gnot">' + (lines0.length
+    ? lines0.map(l => '<p class="li">' + esc(stripMd(l.replace(/^[-*]\s+/, ''))) +
+        (l.includes(DE_XUAT) ? ' <span class="chip amber">máy đề xuất — anh sửa hoặc nhận</span>' : '') +
+        (NG.isKhongDoLine(l, KHONG_DO) ? ' <span class="chip gray">khai không đo được</span>' : '') + '</p>').join('')
+    : '<p class="li">chưa có</p>') + '</div>');
+  for (const [k, t] of flags0) P0.push('<div class="flag ' + k + '">' + esc(t) + '</div>');
+  // MỘT DÒNG VẬT LÝ, cố ý — nếp chung của file: phép đo chiều đỏ (P185) tiêm
+  // bằng cách XOÁ mọi dòng chứa nhãn này, nên trải câu qua nhiều dòng làm bản
+  // tiêm gãy cú pháp và phép đo tự khai là MÙ thay vì bắt được lỗi.
+  P0.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Chọn một lối ra</b> — làm gì: đọc đề bài và ngưỡng ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «${esc(LOI_RA_G0.join('» hoặc «'))}». Muốn sửa ngưỡng thì sửa trong ô trước khi trả lời — vẫn một lượt.</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «lối ra: ___»</p></div>`);
+  P0.push('<div class="foot"><span class="rev">↻ Đảo ngược dễ: «' + LOI_RA_G0[2] + '» và «' + LOI_RA_G0[3] +
+    '» không đóng cửa ý — mở lại khi có căn cứ mới.</span><div class="btns">' +
+    LOI_RA_G0.map(l => '<button class="b ' + (l === LOI_RA_G0[0] ? 'yes' : 'bn') + '">' + esc(l) + '</button>').join('') +
+    '</div></div></div></div>');
+  process.stdout.write(P0.join('\n'));
+  process.exit(0);
+}
 
 // ================= GATE 1 =================
 if (gate === '1') {
