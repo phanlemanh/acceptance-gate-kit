@@ -1,0 +1,8 @@
+{"ts":"2026-09-01T11:28:09Z","sha":"c5689fb6b9a462e600e31122c212d0956ad0f00e","round":1,"evalId":"E3","run_id":"release-2-6-0-E3-r1","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-01T11:29:35Z","sha":"c5689fb6b9a462e600e31122c212d0956ad0f00e","round":1,"evalId":"E3b","run_id":"release-2-6-0-E3b-r1","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-09-01T11:29:37Z","sha":"c5689fb6b9a462e600e31122c212d0956ad0f00e","round":1,"evalId":"E3d","run_id":"release-2-6-0-E3d-r1","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-09-01T11:29:38Z","sha":"c5689fb6b9a462e600e31122c212d0956ad0f00e","round":1,"evalId":"E3e","run_id":"release-2-6-0-E3e-r1","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}
+{"ts":"2026-09-01T11:29:47Z","sha":"c5689fb6b9a462e600e31122c212d0956ad0f00e","round":1,"evalId":"E1","run_id":"release-2-6-0-E1-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-09-01T11:29:47Z","sha":"c5689fb6b9a462e600e31122c212d0956ad0f00e","round":1,"evalId":"E2","run_id":"release-2-6-0-E2-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-09-01T11:29:47Z","sha":"c5689fb6b9a462e600e31122c212d0956ad0f00e","round":1,"evalId":"E3c","run_id":"release-2-6-0-E3c-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-09-01T11:29:47Z","sha":"c5689fb6b9a462e600e31122c212d0956ad0f00e","round":1,"evalId":"E6","run_id":"release-2-6-0-E6-r1","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}

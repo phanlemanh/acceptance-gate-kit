@@ -1102,11 +1102,14 @@ GCARD="$HERE/../../scripts/gate-card.js"
 ROOT_REAL_GC="$(cd "$HERE/../.." && pwd)"
 hasout() { case "$3" in *"$2"*) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1));; *) echo "  FAIL: $1 (missing: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; esac; }
 # `nothas` PHẢI khai cạnh `hasout`, TRƯỚC mọi lượt gọi. Trước bản này nó khai ở
-# tận cuối file (dưới khối gap-probe) trong khi lượt gọi đầu tiên nằm ~160 dòng
-# phía trên: bash in «nothas: command not found» ra stderr rồi đi tiếp, nên BỐN
-# assert âm-tính KHÔNG BAO GIỜ CHẠY mà suite vẫn in "0 failed" — trong đó có
-# GM02-phanbiet của hồ sơ khong-ve-the-ma (đã ký). Assert chưa từng chạy không
-# phân biệt được với assert đạt; đó đúng là lớp lỗi kit tồn tại để chặn.
+# dòng 1254 trong khi lượt gọi đầu tiên nằm ở dòng 1167 — 87 dòng phía trên:
+# bash in «nothas: command not found» ra stderr rồi đi tiếp, nên MỘT assert
+# âm-tính KHÔNG BAO GIỜ CHẠY mà suite vẫn in "0 failed" — đó là GM02-phanbiet
+# của hồ sơ khong-ve-the-ma (đã ký). Assert chưa từng chạy không phân biệt được
+# với assert đạt; đó đúng là lớp lỗi kit tồn tại để chặn.
+# ĐÍNH CHÍNH 01/09: bản đầu của bình luận này ghi «BỐN assert» và «~160 dòng».
+# Cả hai sai — xem khối SELF01-02 cuối file để biết cách đếm lại. Ba assert kia
+# thuộc làn 13 chân đã TRẢ VỀ Ô, không có trong cây được ship.
 nothas() { case "$3" in *"$2"*) echo "  FAIL: $1 (should NOT contain: $2)"; FAIL_COUNT=$((FAIL_COUNT+1));; *) echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1));; esac; }
 
 GC="$T/gcard/_acceptance/gfeat"; mkdir -p "$GC"

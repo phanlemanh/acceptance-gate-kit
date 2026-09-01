@@ -24,15 +24,25 @@ một vòng **meta**, không phải vòng sản phẩm:
   (ghim `528caaa8`, xem `_acceptance/cong-dang-co-cua/discovery/LAY-VE-LAN-THE.md`),
   ba tiêu chí còn lại ở lại vì tự đứng được.
 
-Toàn bộ diff chạm engine của mốc này là **ba file**: `scripts/gate-card.js`,
-`commands/acceptance-card.md`, `tests/scripts/run-tests.sh`. Không đổi schema,
-không cần migrate, không đụng `t3_paths`.
+Diff của mốc, ngoài `_acceptance/` và `docs/`, là **bảy file** — đếm lại ở vòng
+chấm 1 sau khi bản đầu ghi nhầm «ba»:
+
+- **Hai file hành vi người dùng gặp:** `scripts/gate-card.js` ·
+  `commands/acceptance-card.md`.
+- **Một file lưới trong nhà:** `tests/scripts/run-tests.sh` (repo tiêu thụ
+  không chạy suite của kit — đây KHÔNG phải giá trị chạm người dùng).
+- **Bốn file của chính việc cắt số:** hai manifest · `GUIDE.md` ·
+  `PRODUCT-MAP.md` (bản đồ máy sinh).
+
+Không đổi schema, không cần migrate, không đụng `t3_paths`.
 
 Vì sao cắt số cho một mốc mỏng như vậy — **hai** lý do, và lý do thứ hai mới là
 lý do chính:
 
-1. Neo ngoài duy nhất của kit là bản phát hành tới repo tiêu thụ. Ba thứ trong
-   mốc này đều là thứ người dùng gặp bằng tay, không phải việc-trong-nhà.
+1. Neo ngoài duy nhất của kit là bản phát hành tới repo tiêu thụ. **Hai** thứ
+   trong mốc này là thứ người dùng gặp bằng tay (hai lời thuật từ chối mới của
+   bộ dựng thẻ); phần lưới thường trực là việc-trong-nhà và mục v2.6.0 của
+   manifest nay nói thẳng như vậy thay vì xếp nó vào cột người-dùng-nhận-gì.
 2. **2.6.0 là mốc owner đã khai trước làm chỗ đọc NGƯỠNG CẮT KIT** (CLAUDE.md,
    luật Giới hạn CHIỀU RỘNG (c), quyết 30/08). Ngưỡng đó chỉ đọc được nếu số
    nằm trong hồ sơ phát hành. Cắt mốc ở đây là cách duy nhất để lời hứa 30/08
@@ -91,8 +101,12 @@ phiên quyết cắt kit* — một PHIÊN, không phải một hành động t�
 phiên đó là của owner. Ba điều đi kèm, đã
 chứng trong hồ sơ 01/09 và không phụ thuộc cỡ mẫu:
 
-1. **34 phát hiện qua hai vòng chấm, 0 do phép đo máy bắt** (27 lượt eval xanh
-   trọn ở cả hai vòng). Giá trị đến từ rà soát đối kháng.
+1. **34 phát hiện qua hai vòng chấm, 0 do phép đo máy bắt** — số do findings
+   01/09 khai (kèm «27 lượt eval xanh trọn»), chép nguyên chứ KHÔNG đếm lại ở
+   mốc này; vòng chấm 1 của mốc thử đếm lại từ `run-log.jsonl` của vòng đó ra
+   24 dòng, tức ba cách đếm cho ba số — **giới hạn đã khai**, đừng dùng con số
+   27 như thể nó tái lập được. Điều KHÔNG phụ thuộc cách đếm: giá trị đến từ rà
+   soát đối kháng, không từ phép đo máy.
 2. **Cụm lỗi lớn nhất nằm trong MÃ ĐO, không trong sản phẩm** — r1 11/18, r2
    8/16 rơi vào `rang.sh` và `run-tests.sh`; cờ `coverageCluster` bật cả hai vòng.
 3. **Lớp lỗi tái phát qua hai vòng liên tiếp** nên khuôn sai chứ không phải chi
