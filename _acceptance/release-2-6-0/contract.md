@@ -5,9 +5,9 @@ slug: release-2-6-0
 owner: manh.phan@onemount.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + workspace hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-09-01T11:26:27Z
 veto_state: mo
 veto_opened_at: 2026-09-01T09:30:00Z
 ---
