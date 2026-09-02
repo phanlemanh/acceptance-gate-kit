@@ -69,6 +69,20 @@ Steps:
    present → Gate 2, else Gate 1):
    `node <gate-card.js> --root . --slug <slug> --extract`
 
+   Từ 2.7, JSON còn ba khoá thẻ tự tính — ĐỌC chúng, đừng soạn lại bằng tay:
+   - `one_shot` — trọn dòng lệnh cho người: tên lệnh plugin đầy đủ, mọi ô đã có
+     khuyến nghị máy đã điền sẵn, `___` chỉ ở ô người phải tự chấm và ở chữ
+     quyết. `null` nghĩa là thẻ này KHÔNG ký được (REJECT/BLOCKED) — đừng mời ký.
+   - `routing` — `hoi` là các mục người phải quyết, `bao` là các mục máy đã đi
+     tiếp và chỉ báo lại. Khối «VIỆC CỦA ANH» chỉ được chứa mục trong `hoi`.
+   - `roi_bac` (Cổng 1) — đối kháng máy không chạy được (gap-probe vắng khi repo
+     khai `required`, file hỏng, verdict lạ, probe-failed). Bật thì thẻ KHÔNG
+     điền sẵn gì và lời mời phải nói thẳng: phần vượt-nhận-thức rơi về người,
+     chữ ký ở đây không có nghĩa «đối kháng đã hội tụ».
+
+   Thuật lại cho người: in `one_shot` NGUYÊN VĂN để họ dán lại và sửa ô nào họ
+   nghĩ khác — đừng diễn đạt lại thành câu khác, người sẽ gõ tay và mất một lượt.
+
    Gate 1 + repo có `CONTEXT.md` → thêm `--glossary-base <merge-base với nhánh
    chính>` (vd `$(git merge-base HEAD origin/main)`) để thẻ trình khối "Từ vựng
    chốt ở feature này" (term mới/sửa). Đây là lối gọi DUY NHẤT khiến gate-card
@@ -131,7 +145,7 @@ Steps:
    fragment inline if a visual tool is available). Thẻ đã liệt sẵn việc-của-người;
    TIN NHẮN trình thẻ theo điều khoản single-source (chép nguyên văn, một
    dòng):
-   Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút.
+   Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, kèm ĐÚNG MỘT dòng lệnh máy đã điền sẵn mọi ô có khuyến nghị — người chỉ gõ chữ quyết định hoặc sửa ô mình nghĩ khác, rồi máy nói mình làm gì tiếp; máy không viết sẵn CHỮ QUYẾT của người và không hỏi phút.
 
 6. **(Gate 2 only — `evidence-report.md` present) Full evidence page + AUTO-OPEN.**
    The card is intentionally link-only; the human SEES the real artifacts here. Run

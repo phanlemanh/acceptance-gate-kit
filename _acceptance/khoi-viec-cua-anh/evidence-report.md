@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 62685a6bb0f4790af23ad6879e57d089c4fe2d72
+verified_commit: 873db3de27c591b2ae2b8bdff847d0b7ba39dcfc
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -157,3 +157,7 @@ sha: 26b7fa5711af3df54925ac0038956c948f6e1225 · suites: 4 lệnh exit 0
 ### Re-pin lần 5 — 2026-08-18, do gộp main (PR #62) vào nhánh hồ sơ — engine đổi sau lần chấm, ca kiểm đổi số P197→P198
 run_id: repin-20260818-mnvt-2
 sha: 62685a6bb0f4790af23ad6879e57d089c4fe2d72 · suites: 4 lệnh exit 0
+
+### Re-pin lần 6 — 2026-09-02, do vòng loi-moi-cong-may-sinh đổi renderer thẻ — hai thẻ bằng chứng (p185/p186) sinh lại theo P190, kéo hồ sơ vào diff PR
+run_id: repin-20260902-lmcms-1
+sha: 873db3de27c591b2ae2b8bdff847d0b7ba39dcfc · suites: 4 lệnh exit 0 (scripts 795/0 · hooks 60/0 · plugins all-pass · workflows all-pass; workflows chạy trên 65c64222 — cùng cây scripts/lib với 873db3de27c591b2ae2b8bdff847d0b7ba39dcfc, chỉ khác _acceptance/)

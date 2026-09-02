@@ -130,17 +130,19 @@ BỎ khuôn, không thay khuôn (hồ sơ cat-khoi-viec-cua-anh-tren-tin). Câu 
 đây là bản gốc DUY NHẤT của điều khoản mời-cổng; các bên chép nguyên văn:
 
 <!-- <<<GATE-INVITE-CLAUSE -->
-Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút.
+Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, kèm ĐÚNG MỘT dòng lệnh máy đã điền sẵn mọi ô có khuyến nghị — người chỉ gõ chữ quyết định hoặc sửa ô mình nghĩ khác, rồi máy nói mình làm gì tiếp; máy không viết sẵn CHỮ QUYẾT của người và không hỏi phút.
 <!-- GATE-INVITE-CLAUSE>>> -->
 
 Ba luật âm đi kèm — không tốn một chữ nào trong tin, chỉ cấm:
 
-- **Máy không viết sẵn câu trả lời của người.** Máy được nêu ngả mình khuyên
-  kèm căn cứ; máy KHÔNG BAO GIỜ soạn hộ lời chấp thuận, verdict hay chữ ký
-  («đồng ý hết; Ký») để người dán lại — kit khoá không cho máy GỌI thao tác
-  cổng (ADR 0002), viết sẵn câu trả lời của người là vòng qua chính khoá đó (ca
-  thật: thẻ Cổng 2 vòng 2 chip ② từng in sẵn «E9 Đạt» cho mục máy vừa khai
-  «chưa chắc»).
+- **Máy không viết sẵn CHỮ QUYẾT của người.** Máy ĐƯỢC và PHẢI điền sẵn mọi ô
+  đã có khuyến nghị máy (đề xuất cho mục ngoài hợp đồng, «đồng ý cắt», «phê
+  hết») — đó là nhận thức máy gánh, luật (c) CLAUDE.md, owner quyết 01/09. Máy
+  KHÔNG BAO GIỜ soạn hộ lời chấp thuận, chữ ký, hay verdict cho mục người phải
+  tự chấm: những chỗ đó luôn để trống. Kit khoá không cho máy GỌI thao tác cổng
+  (ADR 0002); ranh nằm ở AI PHÁT NGÔN CUỐI, không ở việc ô có được điền sẵn hay
+  không (ca thật vẫn cấm: thẻ Cổng 2 vòng 2 chip ② từng in sẵn «E9 Đạt» cho mục
+  máy vừa khai «chưa chắc» — đó là điền verdict).
 - **Máy không hỏi phút.** Kit thôi đo phút người (hồ sơ cat-hinh-thuc); vế
   «phút» người quen tay gõ thì bỏ qua lặng.
 - **Tin chỉ-báo không hỏi.** Tin không có việc cho người thì kết bằng một câu
@@ -190,8 +192,9 @@ Luật đi kèm — hai nguyên tắc gốc (owner 11/08): MÁY GÁNH NHẬN TH�
 GIỮ QUYẾT ĐỊNH — người chỉ khai điều chỉ người biết; máy khuyến nghị
 trước, hỏi mở là đường cùng:
 
-- Câu gộp là câu NGƯỜI gõ — máy chỉ dạy khuôn có chỗ trống,
-  không bao giờ điền sẵn lựa chọn, verdict hay chữ ký thay người
+- Câu gộp là câu NGƯỜI gõ — máy dựng sẵn dòng lệnh và điền mọi ô đã có khuyến
+  nghị, nhưng không bao giờ điền sẵn verdict hay chữ ký thay người, và ô người
+  phải tự chấm thì để trống
   (cùng bất biến với luật âm mời-cổng ở trên, cùng gốc ADR 0002).
 - Vắng câu gộp → lệnh hỏi từng bước như cũ (các câu hỏi còn lại đều là câu
   hỏi QUYẾT ĐỊNH); không trường ghi nào đổi tên, không trường nào thêm bắt
@@ -225,9 +228,10 @@ trước, hỏi mở là đường cùng:
     tên) → đây là ca đường-cùng hợp lệ: HỎI tên, đúng một câu — nhưng vẫn
     theo luật khuyến-nghị-trước: có danh sách thì LIỆT nó ra để người chọn
     một chạm, chỉ hỏi trắng khi không còn ứng viên nào.
-  Suy xong HIỂN THỊ LẠI theo khuôn
-  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC
-  khi ghi — khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã bắn: câu
+<!-- <<<IDENTITY-ECHO-RULE -->
+Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đúng một tên VÀ bằng `git config user.name`) → GHI THẲNG rồi hiển thị lại «với danh tính: <tên> <ngày> (từ <nguồn suy>)», KHÔNG chờ xác nhận: hai nguồn đã đồng ý thì lượt chờ đó không thêm bảo đảm nào, chỉ thêm một chạm — và người vẫn sửa được bằng một câu ngay sau đó. Mọi ca khác (một nguồn trống · hai nguồn lệch · danh sách nhiều tên) thì HIỂN THỊ LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+<!-- IDENTITY-ECHO-RULE>>> -->
+  Ở cả hai ca, khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã bắn: câu
   anh gõ / cờ `--as` / `git config` / `signoff.approvers`), vì hiển thị
   tên mà giấu xuất xứ là sai-tên-âm-thầm trên máy dùng chung. Mọi trả lời
   MANG NGHĨA KHẲNG ĐỊNH đều là xác nhận, dài hay ngắn, kể cả tin nhắn

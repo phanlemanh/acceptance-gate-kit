@@ -44,8 +44,9 @@ dạy — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRAMMAR`. Người c
   người tự gõ (khi đó in thành một dòng riêng); không chặn ghi, không đẻ
   thêm lượt hỏi; **CẠN** (mọi nấc trống, hoặc chỉ còn danh sách nhiều
   tên) → hỏi tên đúng một câu, có danh sách thì LIỆT ra để người chọn một
-  chạm. Suy xong HIỂN THỊ LẠI
-  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+<!-- <<<IDENTITY-ECHO-RULE -->
+Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đúng một tên VÀ bằng `git config user.name`) → GHI THẲNG rồi hiển thị lại «với danh tính: <tên> <ngày> (từ <nguồn suy>)», KHÔNG chờ xác nhận: hai nguồn đã đồng ý thì lượt chờ đó không thêm bảo đảm nào, chỉ thêm một chạm — và người vẫn sửa được bằng một câu ngay sau đó. Mọi ca khác (một nguồn trống · hai nguồn lệch · danh sách nhiều tên) thì HIỂN THỊ LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+<!-- IDENTITY-ECHO-RULE>>> -->
   Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính (sửa
   được cả tên lẫn ngày ở cùng dòng đó). Người tự khai phần nào thì phần đó ghi thẳng; phần máy suy vẫn hiện

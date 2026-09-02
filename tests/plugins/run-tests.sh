@@ -5825,8 +5825,11 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     #   (4) nhan "Ngoài-<n> · " truoc finding ngoai hop dong -> P186
     #   (5) go loi hua " · ~5 phut" o phu de CA HAI cong (ho so cat-hinh-thuc,
     #       14/08) -> P185/P186 (assert the KHONG con hua phut + mutant chen lai)
+    #   (6) khoi "PHAN QUYET DOI KHANG" + dong "Dong lenh da dien san" tren THE
+    #       (ho so loi-moi-cong-may-sinh, 02/09) -> luoi tests/scripts/
+    #       gate-card-lmcms.test.mjs ca LM07-LM12 (noi dung + chieu do)
     # Khi base vuot qua chip (2), cac phep loc thanh no-op vo hai.
-    norm() { grep -v "VIỆC CỦA ANH" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
+    norm() { grep -v "VIỆC CỦA ANH" | grep -v "PHÁN QUYẾT ĐỐI KHÁNG" | grep -v "Phản biện context sạch:" | grep -v "Rà soát đối kháng:" | grep -v "Dòng lệnh đã điền sẵn" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
     A_CMP=$(printf "%s" "$A" | norm)
     B_CMP=$(printf "%s" "$B" | norm)
     [ "$A_CMP" = "$B_CMP" ] || { echo "report cu render KHAC ban base (ngoai 3 thay doi da khai) — duong doc-cu vo"; exit 1; }
@@ -8902,12 +8905,22 @@ items.forEach((it, k) => {
 });
 const mau = seg.match(/<p class="li">Trả lời mẫu[^<]*<\/p>/);
 if (!mau) die("mau khong phai MOT dong text tron");
-for (const need of ["E9", "Ngoài-1", "Treo", "ký hay trả"]) if (!mau[0].includes(need)) die("mau gop thieu muc: " + need);
+// AC-3 (hồ sơ loi-moi-cong-may-sinh): dòng MẪU chỉ còn ô người tự quyết;
+// «cắt/hoãn» và «Treo» chuyển sang DÒNG LỆNH máy sinh đã điền sẵn — nên
+// kiểm chúng ở đúng dòng mang chúng, không nới lỏng phép kiểm nào.
+for (const need of ["E9", "Ngoài-1", "ký hay trả"]) if (!mau[0].includes(need)) die("mau gop thieu muc: " + need);
+const cmdLine = seg.match(/Dòng lệnh[^<]*<b>([^<]*)<\/b>/);
+if (!cmdLine) die("khoi VIEC-CUA-ANH thieu dong lenh may sinh");
+for (const need of ["cắt/hoãn: đồng ý cắt", "Treo: phê hết"]) if (!cmdLine[1].includes(need)) die("dong lenh thieu o da dien san: " + need);
 // BAT BIEN (S4-r2): mau la KHUON DANG. May KHONG dien san verdict/dong-y thay
 // nguoi — ban round-2 tung in «Ngoài-1 ghi Known limits; E9 Đạt; …; Ký», tuc
 // viet san cau TRA LOI cua nguoi tai cong, vong qua chinh khoa ADR 0002.
 const slots = (mau[0].match(/___/g) || []).length;
-if (slots < 5) die("mau thieu cho trong: chi co " + slots + " (moi muc phai co mot ___)");
+// AC-3 hồ sơ loi-moi-cong-may-sinh: cắt/hoãn và Treo nay là DÒNG BÁO (máy đã
+// điền theo khuyến nghị trong dòng lệnh), nên chúng KHÔNG còn ô trống ở dòng
+// mẫu. Còn đúng ba ô người tự quyết: Ngoài-1 · E9 · ký hay trả.
+if (slots !== 3) die("mau sai so cho trong: " + slots + " (mong 3 = Ngoai-1 + ma eval + chu quyet; cat/hoan va Treo la dong bao)");
+if (!/Dòng lệnh[^<]*<b>[^<]*cắt\/hoãn: đồng ý cắt[^<]*Treo: phê hết/.test(html)) die("dong lenh may sinh KHONG dien san cat\/hoan + Treo");
 for (const banned of ["Đạt", "ghi Known limits", "mở hợp đồng mới", "đồng ý cắt", "phê hết", "; Ký»"])
   if (mau[0].includes(banned)) die("mau DIEN SAN lua chon thay nguoi: \"" + banned + "\" — vi pham bat bien cam-dien-san");
 // QUAN HE (S4-r1): moi ma khoi 👉 tro toi phai HIEN trong chinh khoi duoc tro —
@@ -9490,7 +9503,18 @@ for (const c of cards) {
   const html = fs.readFileSync(c, "utf8");
   const m = html.match(/Trả lời mẫu \(một dòng, điền vào chỗ trống\): «([^»]*)»/);
   if (!m) die("the khong co dong Tra-loi-mau: " + c);
-  const labels = m[1].split(";").map(s => s.trim()).map(s => s.replace(/:\s*___\s*$/, "")).filter(Boolean);
+  // Từ 2.7 nhãn của một cổng nằm ở HAI dòng: dòng mẫu (chỉ ô người tự quyết) và
+  // dòng lệnh máy sinh (đủ mọi ô, ô có khuyến nghị đã điền). Round-trip đo HỢP
+  // của hai dòng: mọi nhãn hiện ra phải có trong SLOTS, và mọi dòng SLOTS phải
+  // được ít nhất một fixture render. Chỉ đọc dòng mẫu là bỏ sót các nhãn nay
+  // thành dòng-báo (cắt/hoãn · Treo) — hồ sơ loi-moi-cong-may-sinh AC-3.
+  const mCmd = html.match(/Dòng lệnh[^<]*<b>([^<]*)<\/b>/);
+  const cmdBody = mCmd ? mCmd[1].replace(/^\/\S+\s+\S+\s*/, "") : "";
+  // Dòng lệnh Cổng 1 chỉ mang CHỮ QUYẾT trần («… <slug> duyệt»), không có cặp
+  // «nhãn: giá trị» — nên chỉ nhận phần có dấu hai chấm; nhãn của cổng đó đã
+  // nằm trọn ở dòng mẫu.
+  const parts = m[1].split(";").concat(cmdBody ? cmdBody.split(";") : []);
+  const labels = [...new Set(parts.map(s => s.trim()).filter(s => s.includes(":")).map(s => s.replace(/:.*$/, "").trim()).filter(Boolean))];
   for (const lb of labels) {
     if (fixed.some(r => r.label === lb)) seen.fixed.add(lb);
     else if (hasNgoai && /^Ngoài-\d+$/.test(lb)) seen.ngoai++;
