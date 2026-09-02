@@ -43,8 +43,9 @@
 
 **Files:**
 - Modify: `skills/acceptance/references/human-facing-language.md` (dòng 133 khối `GATE-INVITE-CLAUSE`; dòng 138–141 luật âm)
-- Modify: 4 site chép clause theo manifest `GATE-INVITE-SITES` trong cùng file luật (`commands/acceptance-card.md`, `skills/acceptance/SKILL.md`, `feature-loop/skills/feature-loop/SKILL.md`, + site thứ tư manifest liệt)
-- Modify: `tests/plugins/run-tests.sh` — P186 (`slots < 5` → đẳng thức mới), P186b/P187 giữ, P185 giữ
+- Modify: MỌI site chép clause theo manifest `GATE-INVITE-SITES` trong cùng file luật — đọc manifest ở Step 1, KHÔNG tin con số «4»: rà soát đếm được 3 file / 5 bản chép
+- Modify: `tests/plugins/run-tests.sh` — P185 (ghim `trả lời dạng:` + `___` ở Cổng 1 → đổi sang ghim dòng one_shot), P186 (`slots < 5` → đẳng thức mới; BỎ cấm «đồng ý cắt»/«phê hết»), P186b, P191 (neo GRAMMAR), P192 (round-trip khuôn «điền vào chỗ trống» → bóc được ô đã điền) — rà soát đối kháng Gate 1.5 liệt đích danh; P190 (so byte 3 thẻ check-in) chạy lại và tái sinh 3 thẻ cùng lượt nếu đỏ
+- Modify: `skills/acceptance/references/human-facing-language.md` dòng 194 khối GATE-ONESHOT-GRAMMAR («không bao giờ điền sẵn lựa chọn, verdict hay chữ ký thay người» → «không bao giờ điền sẵn VERDICT hay CHỮ KÝ thay người; lựa chọn đã có khuyến nghị máy thì điền sẵn») — nếu không, luật tự cãi giữa hai khối
 - Test: `tests/plugins/run-tests.sh` (P185–P188)
 
 **Interfaces:**
@@ -319,21 +320,22 @@ git commit -m "gate-card: cờ vàng OOC sai khuôn + token đề xuất lạ in
 - Test: `tests/scripts/gate-card-lmcms.test.mjs`
 
 **Interfaces:**
-- Produces: `const HEAD_NEG_RE = /^\s*(KHÔNG\b|không\b|chặn\b|từ chối|refuse|reject)/i;` — CHỈ dùng cho will/wont; `NEG_RE` cũ giữ nguyên cho `covGaps`.
+- Produces: `HEAD_NEG_RE` CHỈ dùng cho will/wont; `NEG_RE` cũ giữ nguyên cho `covGaps`. Hình dạng regex theo lựa chọn của owner tại Gate 1.5 (đo trên 566 AC thật của xưởng, 02/09): **mệnh-đề-đầu** (khuyến nghị) `/^[^,;.]{0,60}?\b(KHÔNG|không được|không|chặn|từ chối|refuse|reject|VIOLATION|thoát khác 0)\b/i` → cột KHÔNG-làm 251→109, giữ đủ các ca chặn thật («thoát khác 0 và KHÔNG sinh tệp», «VIOLATION»), 8 AC của hai bản phát hành đều về SẼ-làm; **head-only** `/^\s*(KHÔNG\b|không\b|chặn\b|từ chối|refuse|reject)/i` → 251→17, mất ~100 ca chặn thật vì Then tiếng Việt mở đầu bằng chủ ngữ. Chọn mệnh-đề-đầu thì AC-7 đổi vế «MỞ ĐẦU bằng từ chối/chặn» → «mệnh đề đầu của vế Then mang từ chối/chặn» (entry `fix` + chữ owner một chạm tại Gate 1.5).
 
 - [ ] **Step 1: Ca đỏ (round-trip từ hồ sơ đã ký + ma trận đầu vế)**
 
 ```js
 // --- Task 4: D6 ---
 import { execFileSync } from 'node:child_process';
-const gitShow = p => execFileSync('git', ['-C', ROOT, 'show', `main:${p}`], { encoding: 'utf8' });
+const PIN = '69e095e3'; // commit ký Cổng 2 của release-2-6-0 — mốc BẤT BIẾN (không neo main: CI checkout PR có thể vắng main)
+const gitShow = p => execFileSync('git', ['-C', ROOT, 'show', `${PIN}:${p}`], { encoding: 'utf8' });
 for (const slug of ['release-2-5-0', 'release-2-6-0']) check(`LM04 ${slug}: AC co «không» giua ve nam cot SE lam`, () => {
   const r = mkWs(slug, { 'contract.md': gitShow(`_acceptance/${slug}/contract.md`).replace(/^status: .*$/m, 'status: draft').replace(/^approved_by: .*$/m, 'approved_by:'), 'evals.yaml': gitShow(`_acceptance/${slug}/evals.yaml`) });
   const j = extract(r, slug, ['--gate', '1']);
   const ids = j.will_do.map(x => x.id);
   for (const id of ['AC-1', 'AC-2', 'AC-6']) if (!ids.includes(id)) die(id + ' roi vao KHONG lam: ' + JSON.stringify(j.wont_do.map(x => x.id)));
 });
-const MATRIX = [['KHÔNG ghi đè hồ sơ đã ký', 'wont'], ['không sinh file mới', 'wont'], ['ghi hồ sơ, không hỏi lại', 'will']];
+const MATRIX = [['KHÔNG ghi đè hồ sơ đã ký', 'wont'], ['không sinh file mới', 'wont'], ['script thoát khác 0 và KHÔNG sinh tệp', 'wont'], ['ghi hồ sơ, không hỏi lại', 'will'], ['nó khớp ba số (một nguồn, không so hằng)', 'will']];
 MATRIX.forEach(([then, side], i) => check(`LM05.${i + 1} dau ve «${then.slice(0, 12)}» -> ${side}`, () => {
   const r = mkWs('m', { 'contract.md': `---\nschema_version: 1\nfeature: F\nslug: m\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then ${then}.\n\n## Out of scope\n\n- x.\n`, 'evals.yaml': EVALS });
   const j = extract(r, 'm', ['--gate', '1']);
@@ -349,7 +351,7 @@ MATRIX.forEach(([then, side], i) => check(`LM05.${i + 1} dau ve «${then.slice(0
 // Phân cột SẼ/KHÔNG-làm theo ĐẦU vế Then (loi-moi-cong-may-sinh D6): một chữ
 // «không» giữa câu («không so hằng», «không đổi kể từ mốc trước») không biến
 // cả tiêu chí thành việc máy KHÔNG làm — 2.5.0 và 2.6.0 từng bị xếp nhầm cả ba AC.
-const HEAD_NEG_RE = /^\s*(KHÔNG\b|không\b|chặn\b|từ chối|refuse|reject)/i;
+const HEAD_NEG_RE = /^[^,;.]{0,60}?\b(KHÔNG|không được|không|chặn|từ chối|refuse|reject|VIOLATION|thoát khác 0)\b/i; // mệnh-đề-đầu (owner chọn Gate 1.5); head-only: /^\s*(KHÔNG\b|không\b|chặn\b|từ chối|refuse|reject)/i
 ```
 
 và đổi hai dòng: `const willDo = acs.filter(x => !x.judgment && !HEAD_NEG_RE.test(thenOf(x.gwt)));` / `const wontDo = acs.filter(x => !x.judgment && HEAD_NEG_RE.test(thenOf(x.gwt)));` (giữ `NEG_RE` cho `covGaps`).
@@ -375,9 +377,9 @@ và đổi hai dòng: `const willDo = acs.filter(x => !x.judgment && !HEAD_NEG_R
 // --- Task 5: D3 ---
 const G1 = (probe) => { const f = { 'contract.md': `---\nschema_version: 1\nfeature: F\nslug: g\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Coverage\n\n- trục A [thước CE: x].\n\n## Out of scope\n\n- x.\n`, 'evals.yaml': EVALS, 'decisions.jsonl': '' }; if (probe !== null) f['gap-probe.md'] = probe; return f; };
 const PROBE = v => `---\nslug: g\nat: 2026-09-01T00:00:00Z\nverdict: ${v}\np0: 0\np1: 0\np2: 0\n---\n\n## Findings\n\n| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |\n|---|---|---|---|---|---|\n`;
-const ROI = [['findings', PROBE('findings'), false], ['probe-failed', PROBE('probe-failed'), true], ['vang-khi-required', null, true], ['file-hong-token-la', 'verdict: maybe\nkhong co frontmatter', true]];
+const ROI = [['findings', PROBE('findings'), false], ['probe-failed', PROBE('probe-failed'), true], ['vang-khi-required', null, true], ['file-hong-token-la', 'verdict: maybe\nkhong co frontmatter', true], ['vang-khi-advisory', null, false]];
 for (const [n, probe, expect] of ROI) check(`LM06 roi bac [${n}] = ${expect}`, () => {
-  const r = mkWs('g', G1(probe)); const j = extract(r, 'g', ['--gate', '1']); const out = card(r, 'g', ['--gate', '1']).stdout;
+  const r = mkWs('g', G1(probe)); if (n === 'vang-khi-advisory') writeFileSync(path.join(r, '_acceptance', 'config.yaml'), 'schema_version: 1\ngap_probe: advisory\n'); const j = extract(r, 'g', ['--gate', '1']); const out = card(r, 'g', ['--gate', '1']).stdout;
   if (!!(j.roi_bac && j.roi_bac.on) !== expect) die('extract roi_bac=' + JSON.stringify(j.roi_bac));
   if (out.includes(pick('MSG_ROI_BAC')) !== expect) die('HTML khoi roi-bac ' + (expect ? 'thieu' : 'thua'));
 });
@@ -393,7 +395,11 @@ for (const [n, probe, expect] of ROI) check(`LM06 roi bac [${n}] = ${expect}`, (
   // chạy». Mọi trạng thái khác — vắng (không descope), file hỏng, token lạ,
   // probe-failed — đều rơi bậc: phần vượt-nhận-thức trả về người, thẻ không
   // điền sẵn gì, và chữ ký không được nói «đối kháng đã hội tụ».
-  const roiBacReason = !gpPresent ? (gpDescope ? '' : 'vang')
+  // Mode đọc từ config (khoá vắng = advisory — cùng mặc định với pre-merge-check.sh):
+  // vắng gap-probe chỉ rơi bậc khi repo khai `required`; repo advisory/off không bị
+  // đỏ oan mọi thẻ (crm, media-library, floorplanstudio đều advisory — rà soát 02/09).
+  const gpMode = (function () { const m = /^\s*gap_probe:\s*([a-z]+)/m.exec(read(path.join(root, '_acceptance', 'config.yaml'))); return m ? m[1] : 'advisory'; })();
+  const roiBacReason = !gpPresent ? (gpDescope || gpMode !== 'required' ? '' : 'vang')
     : !gpVerdictKnown ? 'khong-doc-duoc' : gpVerdict === 'probe-failed' ? 'probe-failed' : '';
   const roiBac = !!roiBacReason;
 ```
@@ -414,7 +420,8 @@ Thêm vào JSON `--extract` Cổng 1 khoá `roi_bac: { on: roiBac, reason: roiBa
 
 **Interfaces:**
 - Produces: `const ONE_SHOT_CMD_APPROVE = '/acceptance-gate:approve';` · `const ONE_SHOT_CMD_SIGNOFF = '/acceptance-gate:signoff';` (khuôn gmpick) · hàm `oneShotG1(slug, blocked, roiBac)` và `oneShotG2(slug, ctx)` trả chuỗi · extract `one_shot` (cả hai cổng) · extract Cổng 2 `routing: { hoi: [...nhãn], bao: [...nhãn] }` · khối HTML «PHÁN QUYẾT ĐỐI KHÁNG».
-- Bảng định tuyến đặt giữa marker `<<<ROUTING-TABLE … ROUTING-TABLE>>>` dưới dạng hằng đối tượng, hàng mặc định `'*': 'hoi'`.
+- Bảng định tuyến đặt giữa marker `<<<ROUTING-TABLE … ROUTING-TABLE>>>` dưới dạng hằng đối tượng, hàng mặc định `'*': 'hoi'`; `route(kind)` PHẢI được gọi với `kind` suy từ dữ liệu (không literal) để hàng `*` sống — test LM10 tiêm mục kind lạ qua fixture và đo ĐẦU RA (ô hỏi tăng 1), không grep mã nguồn.
+- **Từ vựng đề xuất MỘT NGUỒN** (rủi ro #1 Gate 1.5): one_shot in chữ NGƯỜI mà `signoff.md` đang dạy — `Ngoài-N: ghi Known limits` / `mở hợp đồng mới` / `nâng phạm vi sửa ngay` — ánh xạ từ token máy qua bảng `OOC_GLOSS_NGUOI = { 'known-limits': 'ghi Known limits', 'new-contract': 'mở hợp đồng mới', 'wont-fix': 'chấp nhận, không sửa' }` đặt cạnh `PROPOSALS` trong `lib/out-of-contract.js`; thân lệnh `signoff.md` học thêm nhãn thứ ba «chấp nhận, không sửa» ↔ `wont-fix` (răng ONESHOT-BODY canh nhãn g2 — cập nhật GATE-ONESHOT-SLOTS cùng lượt).
 
 - [ ] **Step 1: Ma trận đỏ**
 
@@ -433,7 +440,7 @@ check('LM08 one_shot Cong 1 roi bac -> khong dien san', () => {
 check('LM09 one_shot Cong 2 du bon nhom o, tap ___ = loai-5-khong-khuyen-nghi + chu quyet', () => {
   const f = G2(REVIEW2); f['decisions.jsonl'] = LEDGER; f['gap-probe.md'] = PROBE('findings');
   const r = mkWs('s', f); const j = extract(r, 's');
-  const want = `${pick('ONE_SHOT_CMD_SIGNOFF')} s Ngoài-1: known-limits; Ngoài-2: ___; cắt/hoãn: đồng ý cắt; Treo: phê hết; ký hay trả: ___`;
+  const want = `${pick('ONE_SHOT_CMD_SIGNOFF')} s Ngoài-1: ghi Known limits; Ngoài-2: ___; cắt/hoãn: đồng ý cắt; Treo: phê hết; ký hay trả: ___`;
   if (j.one_shot !== want) die('\n got: ' + j.one_shot + '\nwant: ' + want);
   const html = card(r, 's').stdout; if (!html.includes(j.one_shot)) die('HTML khong chua dung chuoi one_shot (hai nguon)');
 });
@@ -442,13 +449,21 @@ check('LM10 routing: o hoi == loai-5; scope + Treo la dong bao; muc ngoai bang -
   const r = mkWs('s', f); const j = extract(r, 's');
   if (JSON.stringify(j.routing.hoi) !== JSON.stringify(['Ngoài-1', 'Ngoài-2', 'ký hay trả'])) die('hoi=' + JSON.stringify(j.routing.hoi));
   if (!j.routing.bao.includes('cắt/hoãn') || !j.routing.bao.includes('Treo')) die('bao=' + JSON.stringify(j.routing.bao));
-  // chieu do ngoai-bang: tiem mot muc khong co trong bang -> phai HOI
-  const src = readFileSync(GC, 'utf8'); if (!/'\*':\s*'hoi'/.test(src)) die('ROUTING-TABLE thieu hang mac dinh * -> hoi');
+  // chieu do 1: them 1 muc loai-5 (judgment UNCERTAIN) -> o hoi tang dung 1 (dang thuc so)
+  const f2 = G2(REVIEW2); f2['decisions.jsonl'] = LEDGER; f2['gap-probe.md'] = PROBE('findings');
+  f2['evals.yaml'] = EVALS + `  - id: E9\n    criterion: AC-1\n    executor: judgment\n    expected: mat nguoi\n`;
+  f2['evidence-report.md'] = REPORT_PASS.replace('| E1 | AC-1 | test | PASS |', '| E1 | AC-1 | test | PASS |\n| E9 | AC-1 | judgment | UNCERTAIN |').replace('verdict: PASS', 'verdict: PENDING-JUDGMENT');
+  const j2 = extract(mkWs('s2', f2), 's2'); if (j2.routing.hoi.length !== j.routing.hoi.length + 1) die('them 1 loai-5 nhung o hoi tang ' + (j2.routing.hoi.length - j.routing.hoi.length));
+  // chieu do 2 (ngoai bang): fixture co khoi provisional voi type la -> route() nhan kind khong co trong bang -> phai roi ve HOI
+  const f3 = G2(REVIEW2); f3['decisions.jsonl'] = LEDGER + `{"id":"d-9","type":"loai-la","stage":"S4-r1","at":"2026-09-01T02:00:00Z","decision":"gi do","impact":"x"}\n`; f3['gap-probe.md'] = PROBE('findings');
+  const j3 = extract(mkWs('s3', f3), 's3'); if (!j3.routing.hoi.some(x => /Treo|loai-la|d-9/.test(x))) die('muc ngoai bang khong roi ve HOI: ' + JSON.stringify(j3.routing));
 });
 check('LM11 khoi PHAN QUYET DOI KHANG mang verdict + p0/p1/p2', () => {
   const f = G2(REVIEW2); f['gap-probe.md'] = PROBE('findings').replace('p1: 0', 'p1: 2');
   const r = mkWs('s', f); const html = card(r, 's').stdout;
-  if (!html.includes(pick('LBL_DOI_KHANG'))) die('thieu khoi'); if (!/findings[^<]*P1[^<]*2/.test(html) && !html.includes('p1: 2') && !html.includes('2 P1')) die('khong in so p1');
+  if (!html.includes(pick('LBL_DOI_KHANG'))) die('thieu khoi');
+  const txt = html.replace(/<[^>]+>/g, ' ');   // bóc tag rồi mới so — «<b>findings</b> · P0 0 · P1 2» (phép HOẶC trong assert là chỗ trốn, ghim MỘT dạng)
+  if (!/findings\s+·\s+P0 0\s+·\s+P1 2\s+·\s+P2 0/.test(txt)) die('khong in dung so: ' + txt.slice(txt.indexOf('findings'), txt.indexOf('findings') + 60));
 });
 ```
 
@@ -474,7 +489,8 @@ const route = kind => ROUTING[kind] || ROUTING['*'];
 Cổng 1 — thay khối `P.push(\`<div class="lab">👉 VIỆC CỦA ANH</div>…\`)` bằng:
 
 ```js
-  const blocked = flags.some(([c]) => c === 'fred');
+  // Nguồn cờ đỏ THẬT của Cổng 1 (rà soát Gate 1.5): rangHong · mienDoCoNguoiDung · blindSpot (đỏ nhưng nằm ngoài mảng flags) — dupIds chỉ vàng, KHÔNG chặn. Tính TRƯỚC extract.
+  const blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot;
   const oneShot = `${ONE_SHOT_CMD_APPROVE} ${slug} ${roiBac || blocked ? '___' : 'duyệt'}`;
   P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc khối PHÁN QUYẾT ĐỐI KHÁNG và các cờ chú ý; ở đâu: gõ dòng dưới trong phiên đang trình thẻ; sửa chữ cuối thành «sửa: …» nếu trả lại.</p><p class="li">Trả lời mẫu (một dòng, ${roiBac || blocked ? 'chưa điền sẵn — thẻ đang có cờ đỏ' : 'đã điền sẵn khuyến nghị'}): «${esc(oneShot)}»</p></div>`);
 ```
@@ -497,7 +513,7 @@ Cổng 2 — trong khối `ymItems`, xây thêm `oneParts` song song với `ymSl
 
 ```js
   const oneParts = [];
-  ooc.findings.forEach((f, fi) => { const lbl = 'Ngoài-' + (fi + 1); oneParts.push(`${lbl}: ${f.proposal || '___'}`); });
+  ooc.findings.forEach((f, fi) => { const lbl = 'Ngoài-' + (fi + 1); oneParts.push(`${lbl}: ${f.proposal ? outOfContract.OOC_GLOSS_NGUOI[f.proposal] : '___'}`); });
   for (const d of decisions) oneParts.push(`${d.id}: ___`);
   if (oos.length) oneParts.push('cắt/hoãn: đồng ý cắt');
   if (decsProvisional.length) oneParts.push('Treo: phê hết');
@@ -507,7 +523,7 @@ Cổng 2 — trong khối `ymItems`, xây thêm `oneParts` song song với `ymSl
   const routingBao = [...(oos.length && route('scope') === 'bao' ? ['cắt/hoãn'] : []), ...(decsProvisional.length && route('treo') === 'bao' ? ['Treo'] : [])];
 ```
 
-Thay dòng «Trả lời mẫu» cuối khối bằng `<p class="li">Trả lời mẫu (một dòng, đã điền sẵn khuyến nghị — sửa ô nào anh nghĩ khác): «${esc(oneShot)}»</p>`; các mục scope/Treo trong `ymItems` đổi chữ «trả lời dạng» thành «máy đã điền «đồng ý cắt»/«phê hết» — chỉ sửa nếu anh không đồng ý». Extract Cổng 2 thêm `one_shot: oneShot, routing: { hoi: routingHoi, bao: routingBao }` — muốn vậy phải tính `oneShot`/routing TRƯỚC dòng `if (EXTRACT)` (dời khối tính lên ngay sau `const ooc = …`, để phần render dùng lại).
+Thay dòng «Trả lời mẫu» cuối khối bằng `<p class="li">Trả lời mẫu (một dòng, đã điền sẵn khuyến nghị — sửa ô nào anh nghĩ khác): «${esc(oneShot)}»</p>`; các mục scope/Treo trong `ymItems` đổi chữ «trả lời dạng» thành «máy đã điền «đồng ý cắt»/«phê hết» — chỉ sửa nếu anh không đồng ý». Extract Cổng 2 thêm `one_shot: oneShot, routing: { hoi: routingHoi, bao: routingBao }` — thứ tự biến THẬT (rà soát Gate 1.5): `MAY_DI_TIEP` tính ở ~dòng 716, SAU `--extract` (639) và SAU nhánh thoát non-approvable (647). Nên: (a) dời cả khối tính `MAY_DI_TIEP` (quét trạng thái) lên TRƯỚC `if (EXTRACT)`, (b) chỉ dựng `oneShot` khi `approvable`, còn không thì `one_shot: null` (thẻ REJECT/BLOCKED không có câu gộp — đúng khối «không cần làm gì»), (c) hồi quy: chạy lại toàn bộ ca thẻ Cổng 2 trong tests/scripts + tests/plugins sau khi dời.
 
 - [ ] **Step 4: Chạy xanh** — LM07…LM11 PASS; `bash tests/scripts/run-tests.sh | tail -2`; **`bash tests/plugins/run-tests.sh 2>&1 | grep -E "P185|P186|P187"`** → P186 nay PASS với đẳng thức Task 1 (fixture: sửa số mong đợi nếu fixture khác 2, ghi comment).
 
@@ -558,16 +574,16 @@ wc -l _acceptance/loi-moi-cong-may-sinh/sweep-baseline.txt
 
 (Extract Cổng 2 phải xuất `suspect_empty` + `proposal_raw` trong `out_of_contract` — thêm hai trường ở Task 6 nếu chưa.)
 
-- [ ] **Step 2: ĐỊNH ĐOẠT từng dòng** — mở file, sau mỗi dòng thêm cột thứ ba `that-sai-khuon` (kèm 1 câu bằng chứng: dòng nào của file sai khuôn) hoặc `co-oan`. Bất kỳ `co-oan` nào ⇒ quay lại Task 2/3/5 sửa ngưỡng/mẫu, chạy lại Step 1. Chỉ commit baseline khi 0 dòng `co-oan`.
+- [ ] **Step 2: ĐỊNH ĐOẠT từng dòng** — mở file, sau mỗi dòng thêm cột thứ ba `that-sai-khuon` (kèm 1 câu bằng chứng: dòng nào của file sai khuôn) hoặc `co-oan`. Rà soát 02/09 ĐÃ đo trước trên cây hiện tại: 2/3 hit `suspect_empty` là lời khai rỗng hợp lệ («Ngoài hợp đồng: không có — …» mở đầu bằng «(» hoặc «không có»), 8/14 token lạ là token hợp lệ kèm chú thích («known-limits — vì…»). Nên trước Step 1 PHẢI: (a) `OOC_INTRO_RE` mở rộng thành nhận cả lời khai rỗng (`/^(Các lỗi dưới đây là thật|\(?\s*không có\b|n-a\b)/`), (b) token so khớp TIỀN TỐ (`v.split(/\s*[—(:]/)[0].trim()`) và giữ đuôi ở `proposal_raw`. Sau đó mới đếm. Bất kỳ `co-oan` còn lại ⇒ quay lại Task 2/3/5, chạy lại Step 1. Chỉ commit baseline khi 0 dòng `co-oan`; baseline ghi CẢ loại cờ theo slug (`slug\tloại`) để cờ oan MỚI trên hồ sơ đã có tên vẫn lệch baseline.
 
 - [ ] **Step 3: Ca LM12 giữ baseline**
 
 ```js
 // --- Task 8: E11 ---
 check('LM12 quet xuong: tap ho so bat co == baseline da dinh doat', () => {
-  const base = readFileSync(path.join(ROOT, '_acceptance', 'loi-moi-cong-may-sinh', 'sweep-baseline.txt'), 'utf8').split('\n').filter(Boolean).map(l => l.split('\t')[0]).sort();
+  const base = readFileSync(path.join(ROOT, '_acceptance', 'loi-moi-cong-may-sinh', 'sweep-baseline.txt'), 'utf8').split('\n').filter(Boolean).map(l => l.split('\t').slice(0, 2).join('\t')).sort();   // slug + loại cờ, không chỉ slug
   const acc = path.join(ROOT, '_acceptance'); const got = [];
-  for (const s of readdirSync(acc)) { if (!existsSync(path.join(acc, s, 'contract.md'))) continue; const r = spawnSync('node', [GC, '--root', ROOT, '--slug', s, '--extract'], { encoding: 'utf8' }); if (r.status !== 0) continue; const j = JSON.parse(r.stdout); const o = j.out_of_contract || {}; if (o.suspect_empty || (o.findings || []).some(x => x.proposal_raw && !x.proposal) || (j.roi_bac && j.roi_bac.on)) got.push(s); }
+  for (const s of readdirSync(acc)) { if (!existsSync(path.join(acc, s, 'contract.md'))) continue; const r = spawnSync('node', [GC, '--root', ROOT, '--slug', s, '--extract'], { encoding: 'utf8' }); if (r.status !== 0) continue; const j = JSON.parse(r.stdout); const o = j.out_of_contract || {}; const fl = []; if (o.suspect_empty) fl.push('suspect_empty'); for (const x of (o.findings || [])) if (x.proposal_raw && !x.proposal) fl.push('token-la:' + x.proposal_raw); if (j.roi_bac && j.roi_bac.on) fl.push('roi-bac:' + j.roi_bac.reason); if (fl.length) got.push(s + '\t' + fl.join(',')); }
   got.sort(); if (JSON.stringify(got) !== JSON.stringify(base)) die('lech baseline\n got: ' + got.join(',') + '\nbase: ' + base.join(','));
 });
 ```
