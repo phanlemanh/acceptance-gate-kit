@@ -150,5 +150,36 @@ MATRIX.forEach(([then, side], i) => check(`LM05.${i + 1} «${then.slice(0, 22)}�
   if (got !== side) die(`xep ${got} (then: ${then})`);
 }));
 
+// ── Task 5: luật rơi bậc (AC-4) — ĐẢO CHIỀU MẶC ĐỊNH ──
+// Mọi trạng thái NGOÀI {đọc được ∧ verdict thuộc tập khai} đều rơi bậc, TRỪ ca
+// vắng-mặt ở repo khai advisory/off (mặc định của pre-merge-check.sh là
+// advisory — repo tiêu thụ crm/media-library/floorplanstudio đều advisory, đỏ
+// oan ở đó thì mọi thẻ Cổng 1 của họ mất câu gộp).
+const G1 = probe => {
+  const f = {
+    'contract.md': `---\nschema_version: 1\nfeature: F\nslug: g\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Coverage\n\n- trục A [thước CE: x].\n\n## Out of scope\n\n- x.\n`,
+    'evals.yaml': EVALS,
+    'decisions.jsonl': '',
+  };
+  if (probe !== null) f['gap-probe.md'] = probe;
+  return f;
+};
+const PROBE = v => `---\nslug: g\nat: 2026-09-01T00:00:00Z\nverdict: ${v}\np0: 0\np1: 0\np2: 0\n---\n\n## Findings\n\n| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |\n|---|---|---|---|---|---|\n`;
+const ROI = [
+  ['findings', PROBE('findings'), 'required', false],
+  ['probe-failed', PROBE('probe-failed'), 'required', true],
+  ['vang-khi-required', null, 'required', true],
+  ['file-hong-frontmatter-vo', 'verdict: maybe\nkhong co frontmatter', 'required', true],
+  ['token-la', PROBE('co-le'), 'required', true],
+  ['vang-khi-advisory', null, 'advisory', false],
+];
+for (const [n, probe, mode, expect] of ROI) check(`LM06 roi bac [${n}/${mode}] = ${expect}`, () => {
+  const r = mkWs('g', G1(probe), `schema_version: 1\ngap_probe: ${mode}\n`);
+  const j = extract(r, 'g', ['--gate', '1']);
+  const out = spawnSync('node', [GC, '--root', r, '--slug', 'g', '--gate', '1'], { encoding: 'utf8' }).stdout;
+  if (!!(j.roi_bac && j.roi_bac.on) !== expect) die('extract roi_bac=' + JSON.stringify(j.roi_bac));
+  if (out.includes(pick('MSG_ROI_BAC')) !== expect) die('HTML khoi roi-bac ' + (expect ? 'THIEU' : 'THUA'));
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-lmcms)`);
 process.exit(failed ? 1 : 0);
