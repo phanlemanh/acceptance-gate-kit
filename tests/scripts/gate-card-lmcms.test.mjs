@@ -109,5 +109,46 @@ check('LM03b doi chung duong: khong co truong De xuat -> van la «chua de xuat»
   if (out.includes(pick('MSG_PROPOSAL_LA'))) die('co token-la oan khi khong co truong');
 });
 
+// ── Task 4: cột SẼ/KHÔNG dò MỆNH ĐỀ ĐẦU của vế Then (AC-7) ──
+// Fixture RÚT ROUND-TRIP từ hợp đồng ĐÃ KÝ của hai bản phát hành — không viết
+// tay AC. Neo SHA BẤT BIẾN (không `main`: CI checkout PR có thể vắng main →
+// đỏ vì hạ tầng chứ không vì vật, lớp P150).
+const PIN = '69e095e3';
+const gitShow = p => spawnSync('git', ['-C', ROOT, 'show', `${PIN}:${p}`], { encoding: 'utf8' });
+const extract = (root, slug, extra = []) => JSON.parse(spawnSync('node', [GC, '--root', root, '--slug', slug, '--extract', ...extra], { encoding: 'utf8' }).stdout);
+
+for (const slug of ['release-2-5-0', 'release-2-6-0']) check(`LM04 ${slug}: AC co «không» GIUA ve nam cot SE lam`, () => {
+  const c = gitShow(`_acceptance/${slug}/contract.md`);
+  const e = gitShow(`_acceptance/${slug}/evals.yaml`);
+  if (c.status !== 0 || e.status !== 0) die('khong doc duoc hop dong tai ' + PIN + ' — neo hong, khong phai vat hong');
+  const r = mkWs(slug, {
+    'contract.md': c.stdout.replace(/^status: .*$/m, 'status: draft').replace(/^approved_by: .*$/m, 'approved_by:'),
+    'evals.yaml': e.stdout,
+  });
+  const j = extract(r, slug, ['--gate', '1']);
+  const ids = j.will_do.map(x => x.id);
+  for (const id of ['AC-1', 'AC-2', 'AC-6']) {
+    if (!ids.includes(id)) die(id + ' roi vao cot KHONG lam: ' + JSON.stringify(j.wont_do.map(x => x.id)));
+  }
+});
+
+// Ma trận đầu-vế: số assert = số phần tử (5 ô), phủ cả hai chiều.
+const MATRIX = [
+  ['KHÔNG ghi đè hồ sơ đã ký', 'wont'],
+  ['không sinh file mới', 'wont'],
+  ['script thoát khác 0 và KHÔNG sinh tệp args nào', 'wont'],
+  ['ghi hồ sơ, không hỏi lại', 'will'],
+  ['nó khớp ba số đọc từ manifest (một nguồn, không so hằng)', 'will'],
+];
+MATRIX.forEach(([then, side], i) => check(`LM05.${i + 1} «${then.slice(0, 22)}…» -> ${side}`, () => {
+  const r = mkWs('m', {
+    'contract.md': `---\nschema_version: 1\nfeature: F\nslug: m\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then ${then}.\n\n## Out of scope\n\n- x.\n`,
+    'evals.yaml': EVALS,
+  });
+  const j = extract(r, 'm', ['--gate', '1']);
+  const got = j.wont_do.length ? 'wont' : 'will';
+  if (got !== side) die(`xep ${got} (then: ${then})`);
+}));
+
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-lmcms)`);
 process.exit(failed ? 1 : 0);

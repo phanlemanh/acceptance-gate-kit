@@ -246,6 +246,20 @@ const NEG_RE = /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|t
 const THRESHOLD_RE = /[≥≤]|[<>]=?|ngưỡng|nguong|threshold|\bbiên\b|\bbien\b|\b\d+\b|reach|at least|at most|exceed|tối thiểu|toi thieu|tối đa|toi da|\bdưới\b|\btrên\b/i;
 // classify will/wont on the Then-clause only — reduces false "Sẽ KHÔNG" from an incidental "không" in Given/When.
 const thenOf = g => { const m = String(g).split(/\bThen\b|\bthì\b/i); return m.length > 1 ? m[m.length - 1] : String(g); };
+// Phân cột SẼ/KHÔNG-làm theo MỆNH ĐỀ ĐẦU của vế Then (hồ sơ loi-moi-cong-may-sinh
+// D6; owner chọn tại Gate 1.5 ngày 02/09 trên số đo 566 AC thật của xưởng:
+// NEG_RE cũ 251 · mệnh-đề-đầu 109 · head-only 17).
+//   · NEG_RE cũ dò cả câu → một chữ «không» tiện thể («không so hằng», «không
+//     đổi kể từ mốc trước») biến cả tiêu chí thành việc máy KHÔNG làm; cả 3 AC
+//     của release-2-5-0 lẫn 2-6-0 đều bị xếp nhầm như thế.
+//   · Head-only (chỉ dò ĐẦU vế) thì ngược lại: Then tiếng Việt hay mở bằng chủ
+//     ngữ («script thoát khác 0 và KHÔNG sinh tệp») nên ~100 ca chặn THẬT biến
+//     khỏi cột — đảo quá tay.
+// Luật giữ: phủ định phải nằm TRƯỚC dấu phẩy/chấm phẩy đầu tiên. Đây là luật VỊ
+// TRÍ, không phải danh sách đen mẫu-gây-nhầm (blacklist trên không gian mở).
+// NEG_RE cũ Ở LẠI, chỉ dùng cho covGaps (ca «dưới ngưỡng → KHÔNG xảy ra») —
+// hai việc khác nhau, đừng gộp regex cho gọn rồi tái phát lỗi cột.
+const HEAD_NEG_RE = /^[^,;.]{0,60}?\b(KHÔNG|không được|không|chặn|từ chối|refuse|reject|VIOLATION|thoát khác 0)\b/i;
 
 const cfm = frontmatter(contract);
 const feature = cfm.feature || cfm.slug || slug;
@@ -320,8 +334,8 @@ if (gate === '1') {
   const blindSpot = acBlindSpot(contract, acs.map(x => x.id));
   const evalList = parseEvals(evalsT, ['criterion', 'expected'], unquote);
   const evalsFor = id => evalList.filter(e => e.criterion === id);
-  const willDo = acs.filter(x => !x.judgment && !NEG_RE.test(thenOf(x.gwt)));
-  const wontDo = acs.filter(x => !x.judgment && NEG_RE.test(thenOf(x.gwt)));
+  const willDo = acs.filter(x => !x.judgment && !HEAD_NEG_RE.test(thenOf(x.gwt)));
+  const wontDo = acs.filter(x => !x.judgment && HEAD_NEG_RE.test(thenOf(x.gwt)));
   const judgmentACs = acs.filter(x => x.judgment);
   const covGaps = acs.filter(x => !x.judgment && THRESHOLD_RE.test(x.gwt) && !evalsFor(x.id).some(e => NEG_RE.test(e.expected))).map(x => x.id);
   // CT-S coverage section — presentation only: render what the contract claims, flag absence/unverified
