@@ -8,7 +8,7 @@ verified_by: implementing session (đối kháng vòng 1–3 do ba phiên tươi
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 873db3de27c591b2ae2b8bdff847d0b7ba39dcfc
-human_signoff:
+human_signoff: Manh Phan 2026-09-02
 ---
 
 # Evidence Report: loi-moi-cong-may-sinh

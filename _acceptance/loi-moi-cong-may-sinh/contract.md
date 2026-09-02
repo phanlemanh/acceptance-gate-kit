@@ -5,7 +5,7 @@ slug: loi-moi-cong-may-sinh
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/out-of-contract.js (t3_paths) — lõi cưỡng chế đọc hồ sơ
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-09-02-loi-moi-cong-may-sinh-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-02T00:58:38Z
@@ -48,3 +48,11 @@ approve/signoff theo nếp một-nguồn). Ô nguồn:
 - Bộ phân loại ngữ nghĩa — ánh xạ loại theo nguồn dữ liệu cấu trúc (bảng đóng trong design), không NLP.
 - Lấy lại làn thẻ Cổng Đáng (cây ghim `528caaa8` giữ nguyên ở ô).
 - Nhịp đóng-cửa-veto theo mốc (N2 rà soát) — nếp mốc phát hành, không phải mã thẻ; và bộ đếm chạm bằng máy — ô riêng.
+
+## Notes
+
+- Cổng 2 (Manh Phan 2026-09-02) — ký với giới hạn ở trần ba vòng chấm, không vòng soi 4; chín Known limits trong `evidence-report.md`.
+- known-limits (Ngoài-2): dựng thẻ cho một hồ sơ ký được vẫn kéo theo một lượt quét trọn kho (~0,55 s) — `scripts/gate-card.js`.
+- known-limits (Ngoài-3): bản quét cờ vàng (LM13) vẫn bỏ qua im lặng hồ sơ làm bộ dựng thẻ sập; bản quét định tuyến (LM20) đã đỏ khi sập — `tests/scripts/gate-card-lmcms.test.mjs`.
+- known-limits (Ngoài-4): LM19 bám cụm «Trả lời mẫu» đầu tiên trên thẻ; chỉ chạy trên hồ sơ dựng sẵn — `tests/scripts/gate-card-lmcms.test.mjs`.
+- new-contract (Ngoài-1, Ngoài-5): nâng bản ghi mốc định tuyến thành luật chung cho mọi bản ghi mốc của kit · khối Ngưỡng của thẻ lột markdown + thẻ tự render khối /goal sau duyệt — ghi sổ, mở khi owner gọi tên (luật Giới hạn CHIỀU RỘNG).
