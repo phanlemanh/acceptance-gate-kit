@@ -224,7 +224,12 @@ check('LM09 one_shot Cong 2: o co khuyen nghi DIEN SAN, o loai-5 va chu quyet de
   const want = `${pick('ONE_SHOT_CMD_SIGNOFF')} s Ngoài-1: ghi Known limits; Ngoài-2: ___; cắt/hoãn: đồng ý cắt; Treo: phê hết; ký hay trả: ___`;
   if (j.one_shot !== want) die('\n got: ' + j.one_shot + '\nwant: ' + want);
   const html = spawnSync('node', [GC, '--root', r, '--slug', 's'], { encoding: 'utf8' }).stdout;
-  if (!html.includes(j.one_shot)) die('HTML khong chua dung chuoi one_shot — hai nguon');
+  // ĐẲNG THỨC như LM15 (Cổng 1): S4-r3 M10 thêm đuôi vào one_shot Cổng 2 mà
+  // `includes` vẫn xanh — cùng lớp vòng 2 đã vá ở Cổng 1, bản sao cách 80 dòng
+  // không được quét. Rút đúng dòng lệnh trên thẻ rồi so từng ký tự.
+  const m = html.match(/Dòng lệnh[^<]*<b>([^<]*)<\/b>/);
+  if (!m) die('the Cong 2 khong in dong lenh may sinh');
+  if (m[1] !== j.one_shot) die(`HTML Cong 2 lech --extract\n  html: ${m[1]}\n  ext : ${j.one_shot}`);
 });
 check('LM10 routing: o HOI == loai-5; cat/hoan + Treo la dong BAO', () => {
   const r = mkWs('s', G2FULL());
@@ -290,6 +295,31 @@ check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
   }
 });
 
+// ── S4-r3 chẩn đoán gốc: 100% hồi quy định tuyến hai vòng lộ ở XƯỞNG THẬT, 0% ở
+// fixture — vì không phép đo nào canh «mỗi hồ sơ mời người trả lời bao nhiêu
+// ô». Baseline này là bản ghi mốc ĐỊNH TUYẾN, cùng hình dạng sweep-baseline.txt.
+check('LM20 quet xuong: routing (hoi|bao) tung ho so == routing-baseline da dinh doat', () => {
+  const base = readFileSync(path.join(ROOT, '_acceptance', 'loi-moi-cong-may-sinh', 'routing-baseline.txt'), 'utf8')
+    .split('\n').filter(l => l.trim() && !l.startsWith('#')).sort();
+  const acc = path.join(ROOT, '_acceptance');
+  const got = [], crashed = [];
+  for (const slug of readdirSync(acc)) {
+    if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
+    const r = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
+    let j; try { j = JSON.parse(r.stdout); } catch { j = null; }
+    // Hồ sơ làm bộ dựng thẻ sập KHÔNG được bỏ qua im lặng (Ngoài-hợp-đồng r1/r2/r3).
+    if (r.status !== 0 || !j) { crashed.push(slug); continue; }
+    const rt = j.routing || { hoi: [], bao: [] };
+    got.push(slug + '\thoi=' + (rt.hoi || []).join('|') + '\tbao=' + (rt.bao || []).join('|'));
+  }
+  if (crashed.length) die('bo dung the SAP tren ho so that: ' + crashed.join(', '));
+  got.sort();
+  if (JSON.stringify(got) !== JSON.stringify(base)) {
+    const gs = new Set(got), bs = new Set(base);
+    die('lech routing-baseline\n  +got : ' + got.filter(x => !bs.has(x)).join('\n         ') + '\n  -base: ' + base.filter(x => !gs.has(x)).join('\n         '));
+  }
+});
+
 // ── S4-r1: ba nhánh trước đây KHÔNG có răng (đột biến của phiên soi đều XANH) ──
 check('LM14 hang ONE-SHOT-CMD nam TRONG marker (xoa marker -> do)', () => {
   const a = pickIn('ONE-SHOT-CMD', 'ONE_SHOT_CMD_APPROVE');
@@ -339,25 +369,31 @@ check('LM17 dieu khoan AC-8 co mat o NGUON va CA HAI ban chep', () => {
     if (m2[1].trim() !== rule) die('ban chep TROI khoi nguon (khong khop tung ky tu): ' + p);
   }
 });
-check('LM18 luat THUOC TINH: Treo thieu loi-quyet/duoc-mat -> O HOI', () => {
-  // Khuôn MỚI (owner «đổi khuôn» 02/09): không hỏi mục thuộc LOẠI nào, hỏi nó
-  // CÓ ĐỦ THUỘC TÍNH để máy đi tiếp không — có lời quyết + có vế được-gì/mất-gì
-  // = đã ghi sổ, có đường đảo. Thiếu vế nào thì rơi về NGƯỜI.
-  const f = G2FULL();
-  f['decisions.jsonl'] = LEDGER + '{"id":"d-9","type":"fix","stage":"S4-r1","at":"2026-09-01T02:00:00Z","decision":"co loi quyet","impact":""}\n';
-  const j = extract(mkWs('s3', f), 's3');
-  if (!j.routing.hoi.includes('Treo')) die('Treo thieu ve duoc-mat ma KHONG ve O HOI: ' + JSON.stringify(j.routing));
-  const base = extract(mkWs('s4', G2FULL()), 's4');
-  if (!base.routing.bao.includes('Treo')) die('doi chung duong: Treo ghi du lai khong phai dong bao');
-});
-check('LM18b khuon moi KHONG con allowlist: loai entry LA nhung ghi DU -> van la dong bao', () => {
-  // Chính ca hồi quy mà khuôn cũ gây ra: xưởng dùng 11 loại entry, bảng liệt 4,
-  // nên `release-2-2-0` và `ra-co-ten-lam-va-trao` bị đổi Treo sang ô hỏi —
-  // TĂNG số ô hỏi, ngược chiều Đường đo của hợp đồng (S4-r2 đo bằng vi phân).
-  const f = G2FULL();
-  f['decisions.jsonl'] = LEDGER + '{"id":"d-9","type":"gate2","stage":"S4-r1","at":"2026-09-01T02:00:00Z","decision":"loai la nhung ghi du","impact":"tiet kiem x · rui ro y"}\n';
-  const j = extract(mkWs('s5', f), 's5');
-  if (!j.routing.bao.includes('Treo')) die('loai LA nhung ghi DU van bi keo ve O HOI — allowlist chua chet: ' + JSON.stringify(j.routing));
+check('LM18 Treo LUON la dong bao — moi phuong ngu so quyet dinh cua xuong, khong suy tu hinh dang entry', () => {
+  // Truy nguyên 02/09: Treo = máy đã quyết + ghi sổ + cửa veto mở → loại-1 →
+  // dòng báo (D2, AC-3, entry sổ 3002). Hai vòng S4 cháy vì thêm một bộ phân
+  // loại theo entry mà hợp đồng không đòi (r2 theo `type`, r3 theo hình dạng).
+  // Bốn phương ngữ dưới đây là bốn hình dạng THẬT trong xưởng đã làm ba hồ sơ
+  // mọc ô hỏi; thêm bất kỳ suy diễn nào theo entry thì ít nhất một ca đỏ.
+  const dialects = {
+    'chi-loi-quyet-impact-rong':      '{"id":"d-9","type":"fix","stage":"S4-r1","at":"2026-09-01T02:00:00Z","decision":"co loi quyet","impact":""}',
+    'loai-la-ngoai-thiet-ke':         '{"id":"d-9","type":"gate2","stage":"S4-r1","at":"2026-09-01T02:00:00Z","decision":"loai la","impact":"x"}',
+    'chu-ky-nguoi-trong-decision':    '{"id":"d-9","type":"approach","stage":"gate2","decision":"Cổng 2 — ĐỒNG Ý CẮT. Phạm vi giao là…","decided_by":"Manh Phan","decided_at":"2026-08-22T00:00:00Z"}',
+    'phuong-ngu-what-why-khong-decision': '{"ts":"2026-08-30T00:00:00Z","type":"descope","by":"agent","what":"bo coverage-scan","why":"moc phat hanh khong co ho so co hoi"}',
+    'serves-mang-rong':               '{"id":"d-9","type":"descope","stage":"S2","at":"2026-09-01T02:00:00Z","decision":"bo duong-do","serves":[]}',
+  };
+  let i = 0;
+  for (const [name, line] of Object.entries(dialects)) {
+    const f = G2FULL(); f['decisions.jsonl'] = LEDGER + line + '\n';
+    const j = extract(mkWs('s3' + (i++), f), 's3' + (i - 1));
+    if (!j.routing.bao.includes('Treo') || j.routing.hoi.includes('Treo')) die(name + ': Treo bi keo ve O HOI — co suy dien theo entry: ' + JSON.stringify(j.routing));
+    if (!/Treo: phê hết/.test(j.one_shot)) die(name + ': one_shot khong dien san «Treo: phê hết»: ' + j.one_shot);
+  }
+  // Đối chứng dương của chính phép đo: không có Treo thì nhãn không xuất hiện ở đâu cả.
+  const f0 = G2FULL(); f0['decisions.jsonl'] = LEDGER;
+  const j0 = extract(mkWs('s3z', f0), 's3z');
+  const hasTreo = j0.decisions_provisional && j0.decisions_provisional.length;
+  if (!hasTreo && (j0.routing.bao.includes('Treo') || /Treo:/.test(j0.one_shot))) die('khong co Treo ma van in nhan Treo');
 });
 check('LM18c the CHUA-KY-DUOC: routing RONG, khop voi «khong can lam gi» tren HTML', () => {
   const f = G2FULL();

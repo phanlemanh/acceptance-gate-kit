@@ -25,7 +25,7 @@ const item = (title, proposal) => TPL
   .replace('{file}', 'a.js').replace('{severity}', 'medium').replace('{proposal}', proposal);
 const doc = body => `# Review\n\n## Ngoài hợp đồng\n\nCác lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.\n\n${body}\n\n## Known limits\n`;
 
-// MA TRẬN viết trước — số assert = số phần tử (7 ô).
+// MA TRẬN viết trước — số assert = số phần tử (8 ô).
 const M = [
   ['dung-khuon-token-hop-le', doc(item('A', 'known-limits')),
     r => r.findings.length === 1 && r.findings[0].proposal === 'known-limits' && r.suspect_empty === false],
@@ -41,6 +41,11 @@ const M = [
     r => r.findings[0].proposal === 'known-limits' && /vì chi phí/.test(r.findings[0].proposal_raw)],
   ['ba-token-hop-le', doc(item('D', 'new-contract') + '\n' + item('E', 'wont-fix')),
     r => r.findings.map(f => f.proposal).join(',') === 'new-contract,wont-fix'],
+  // Vế THỨ HAI của tín hiệu sai-khuôn (dòng thân thụt lề «khoá: giá trị»):
+  // mục viết KHÔNG có dấu đậm nào nhưng có dòng thân đúng khuôn → vẫn là «đã
+  // thử viết mục» → cờ. S4-r2 và S4-r3 đều gỡ vế này mà lưới xanh (M6).
+  ['sai-khuon-KHONG-dam-nhung-co-dong-than-NGO', doc('- Tieu de mat dau dam\n  file: a.js\n  severity: low\n  Đề xuất: known-limits'),
+    r => r.findings.length === 0 && r.suspect_empty === true],
 ];
 for (const [n, text, ok] of M) check(n, () => { const r = ooc.parse(text); if (!ok(r)) die(JSON.stringify(r)); });
 

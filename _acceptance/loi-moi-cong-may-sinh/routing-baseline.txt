@@ -1,0 +1,89 @@
+# Baseline ĐỊNH TUYẾN quét TRỌN xưởng — mỗi hồ sơ có contract.md: nhãn nào là Ô
+# HỎI (người quyết), nhãn nào là DÒNG BÁO (máy đã điền). Sinh 2026-09-02 ở S4
+# vòng 3 sau phép TRỪ bộ phân loại Treo, bằng chính `gate-card.js --extract`.
+#
+# Vì sao có file này: hai vòng S4 liên tiếp (r2, r3) hồi quy định tuyến đều lộ
+# ở xưởng thật (2 rồi 3 hồ sơ mọc ô hỏi) và KHÔNG lộ ở fixture nào — không có
+# phép đo canh «mỗi hồ sơ mời người trả lời bao nhiêu ô». Đây là bản ghi mốc
+# cho con số ấy, cùng hình dạng sweep-baseline.txt. Ca LM20 giữ nó.
+#
+# Khuôn: <slug>\thoi=<nhãn|nhãn>\tbao=<nhãn|nhãn>. Hồ sơ không ký được (REJECT/
+# BLOCKED) có cả hai rỗng — chủ đích LM18c. Đổi dòng nào phải đi kèm lý do
+# trong sổ quyết định của vòng đổi nó.
+#
+# ĐỐI CHIẾU với cây trước vòng (d859a830): cột Treo trùng 100% — 0 hồ sơ Treo
+# đổi nhóm; khác duy nhất là chính loi-moi-cong-may-sinh (đang REJECT → rỗng).
+bai-hoc-do-luong-vao-engine	hoi=ký hay trả	bao=cắt/hoãn|Treo
+card-text-fidelity	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
+cat-hinh-thuc	hoi=ký hay trả	bao=cắt/hoãn
+cat-khoi-viec-cua-anh-tren-tin	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
+cham-dung-cay-dung-cho-dung	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|ký hay trả	bao=cắt/hoãn|Treo
+claim-scan-parser-hardening	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
+codex-script-packaging	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
+cong-chan-nham-cho	hoi=ký hay trả	bao=cắt/hoãn|Treo
+cong-dang-co-cua	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
+consumer-copy-cjs	hoi=ký hay trả	bao=cắt/hoãn
+context-ladder	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
+cross-feature-claim-index	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
+dac-ta-ux-vat-hoa-cau-truc	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
+delta-verify-repin	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
+design-pass-nac-khong-dong-bo	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
+design-pass-skill	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
+discovery-brainstorm-socket	hoi=ký hay trả	bao=cắt/hoãn|Treo
+docs-first-run-audit	hoi=ký hay trả	bao=cắt/hoãn|Treo
+doi-hanh-vi-cong-nguoi	hoi=ký hay trả	bao=cắt/hoãn|Treo
+duong-do-trong-dinh-nghia-xong	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
+findings-section-boundary	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
+gap-probe-presence-hook	hoi=ký hay trả	bao=cắt/hoãn|Treo
+gate-card-ac-visibility	hoi=ký hay trả	bao=cắt/hoãn
+gold-output-measure	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|ký hay trả	bao=cắt/hoãn|Treo
+het-gio-khong-phai-truot	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
+hinh-tai-cong-1	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
+hinh-theo-mat-phang	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
+judge-required-evidence	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|Ngoài-14|Ngoài-15|Ngoài-16|Ngoài-17|Ngoài-18|Ngoài-19|ký hay trả	bao=cắt/hoãn|Treo
+judgment-question-guard	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
+khoi-viec-cua-anh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
+khong-ve-the-ma	hoi=ký hay trả	bao=cắt/hoãn
+lan-may-song-qua-bo-phan-loai	hoi=ký hay trả	bao=cắt/hoãn|Treo
+lan-v-khong-phai-cho-ky	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
+lenh-in-ra-phai-bam-duoc	hoi=ký hay trả	bao=cắt/hoãn|Treo
+lenh-tran-tai-lieu-dau-tay	hoi=ký hay trả	bao=cắt/hoãn|Treo
+loi-moi-cong-may-sinh	hoi=	bao=
+luu-kho-codex-va-nghi-le-design	hoi=ký hay trả	bao=cắt/hoãn
+matrix-measure-law	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
+may-ganh-nguoi-quyet	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
+measure-birth-certificate	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
+measure-teeth-cleanup	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
+moi-noi-vong-trao	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
+mot-luot-go-cong-nguoi	hoi=ký hay trả	bao=cắt/hoãn|Treo
+ngon-ngu-mat-nguoi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
+nhanh-chinh-khong-ten-main	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|ký hay trả	bao=cắt/hoãn|Treo
+pha3-goi-luoi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|ký hay trả	bao=cắt/hoãn|Treo
+premerge-rules-ledger	hoi=ký hay trả	bao=cắt/hoãn|Treo
+premerge-unjudged-pass	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
+product-map-uat-session	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
+ra-co-ten-lam-va-trao	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
+rang-phep-do-viec-cua-anh	hoi=ký hay trả	bao=cắt/hoãn|Treo
+release-2-0-0	hoi=veto hay để yên	bao=cắt/hoãn
+release-2-1-0	hoi=veto hay để yên	bao=cắt/hoãn|Treo
+release-2-2-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
+release-2-3-0	hoi=ký hay trả	bao=cắt/hoãn|Treo
+release-2-4-0	hoi=ký hay trả	bao=cắt/hoãn|Treo
+release-2-5-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
+release-2-6-0	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
+repo-khai-plugin	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
+s4-scope-triage	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
+siet-rang-cau-ve-hinh	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
+stale-theo-diff-pr	hoi=ký hay trả	bao=cắt/hoãn
+start-bang-dieu-khien	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|Ngoài-14|Ngoài-15|Ngoài-16|ký hay trả	bao=cắt/hoãn|Treo
+start-command	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
+start-scan-hardening	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
+status-chua-arm-cong	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
+stop-patching-law	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
+suite-run-log-provenance	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
+t1-escape-event-scope	hoi=ký hay trả	bao=cắt/hoãn|Treo
+thuoc-nhan-de-khoi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
+tool-kill-duong-doc-lap	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
+vao-co-o-ra-co-ten	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
+veto-co-dau-vet	hoi=ký hay trả	bao=cắt/hoãn
+workspace-reader-unification	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo

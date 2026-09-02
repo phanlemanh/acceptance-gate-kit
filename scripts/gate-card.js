@@ -95,31 +95,24 @@ const ONE_SHOT_CMD_APPROVE = '/acceptance-gate:approve';
 const ONE_SHOT_CMD_SIGNOFF = '/acceptance-gate:signoff';
 // ONE-SHOT-CMD>>>
 const LBL_DOI_KHANG = 'PHÁN QUYẾT ĐỐI KHÁNG — máy thay mắt người ở phần vượt nhận thức';
-// <<<ROUTING-RULE — ĐỔI KHUÔN (owner quyết 02/09 sau khi dừng-vá nổ ở S4-r2).
-// Bản trước LIỆT KÊ loại mục ('ngoai' · 'treo' · bốn loại entry sổ…) rồi để
-// hàng '*' hứng phần còn lại. Đó là allowlist trên KHÔNG GIAN MỞ — sổ quyết
-// định của xưởng đang dùng 11 loại, nên bốn loại được liệt làm hai hồ sơ thật
-// đổi nhóm Treo từ dòng-báo sang ô-hỏi. Sửa một allowlist bằng một allowlist
-// khác là đúng lớp lỗi vòng 1 vừa bắt.
-//
-// Khuôn mới KHÔNG hỏi «mục thuộc loại nào» mà hỏi «mục CÓ ĐỦ THUỘC TÍNH để máy
-// đi tiếp không»: máy chỉ được tự quyết khi quyết định ĐÃ ĐƯỢC GHI (có lời
-// quyết + có vế được-gì/mất-gì) — tức có sổ để đọc lại và có đường đảo. Thiếu
-// bất kỳ vế nào ⇒ rơi về NGƯỜI. Không danh sách, nên không có gì để trôi khi
-// schema mọc loại mới.
-// Khoá SỔ SÁCH — khung của một entry, không phải nội dung quyết định. Danh sách
-// này KHÔNG phải allowlist trên không gian mở: nó là bộ xương metadata do chính
-// schema ledger định, ổn định qua các đời; còn `type` mới là trường mở (xưởng
-// đang dùng 11 giá trị) và luật này KHÔNG hỏi tới nó.
-const LEDGER_META_KEYS = ['id', 'type', 'stage', 'at', 'by', 'gate', 'revisit', 'supersedes', 'decision', 'decided_by', 'decided_at'];
-// «Máy được tự đi tiếp» ⇔ quyết định ĐÃ ĐƯỢC GHI: có lời quyết, VÀ có ít nhất
-// một trường văn ngoài khung sổ sách mang căn cứ/hệ quả. Hỏi HÌNH DẠNG chứ
-// không hỏi TÊN TRƯỜNG: xưởng thật có hai phương ngữ (`impact` · `why`+
-// `evidence`), và một phương ngữ đời sau vẫn đọc được mà không phải sửa gì.
-const daGhiQuyetDinh = e => {
-  if (!e || !String(e.decision || '').trim()) return false;
-  return Object.keys(e).some(k => !LEDGER_META_KEYS.includes(k) && String(e[k] || '').trim());
-};
+// <<<ROUTING-RULE — mục Treo (quyết định máy ghi sau Cổng 1) LUÔN là DÒNG BÁO.
+// Truy nguyên 02/09 (owner hỏi «chữ ký là hình thức?»): Treo sinh ở 1.11.0
+// (sổ quyết định Pareto — máy quyết giữa vòng, ghi sổ, người veto sau) và đợt
+// 2 «veto có dấu vết» (15/08) chốt nó là máy-đi-trước-cửa-veto-mở. Theo luật
+// lời-mời (CLAUDE.md 01/09) đó là loại-1: căn cứ = mục tiêu + quy tắc đã khai
+// → máy đi tiếp, ghi sổ, cửa veto. Hỏi «phê hết?» là trạm thu phí; thẻ vẫn
+// liệt từng Treo-<n> để người veto đích danh bằng cách sửa ô đã điền.
+// Ngoại lệ duy nhất theo thiết kế là KHÓ-ĐẢO — danh sách ĐÓNG do owner đặt
+// (KHO-DAO-V trong SKILL: ship ra người dùng thật · xoá dữ liệu · cam kết ra
+// ngoài repo), KHÔNG suy từ hình dạng entry. Sổ chưa có tín hiệu máy-đọc cho
+// khó-đảo (entry sổ d-…-3002), nên ở đây KHÔNG có nhánh tách.
+// LỊCH SỬ CHÁY (giữ để không lặp): S4-r2 định tuyến theo `e.type` (trường mở,
+// xưởng 11 giá trị) → 2 hồ sơ thật mọc ô hỏi; S4-r3 «đổi khuôn» sang hỏi
+// hình dạng entry (có lời quyết + trường căn cứ ngoài 11 khoá sổ) → 3 hồ sơ,
+// trong đó chữ ký người ở ra-co-ten-lam-va-trao bị hỏi lại. Cả hai là bộ
+// phân loại trên không gian mở mà hợp đồng không đòi. Nhánh nào thêm vào đây
+// phải đỏ ở LM18 (mọi phương ngữ sổ đều phải ra dòng báo) và lệch
+// routing-baseline.txt (quét trọn xưởng).
 // ROUTING-RULE>>>
 // <<<NO-DOSSIER-GUARD-BLOCK
 if (!contract.trim()) {
@@ -806,14 +799,8 @@ for (const d of decisions) { oneParts.push(`${d.id}: ___`); routingHoi.push(d.id
 // Phạm vi đã được người duyệt Ở CỔNG 1 rồi — nhắc lại là trạm thu phí; máy
 // điền sẵn và báo, người sửa ô đó nếu đổi ý.
 if (oos.length) { oneParts.push('cắt/hoãn: đồng ý cắt'); routingBao.push('cắt/hoãn'); }
-if (decsProvisional.length) {
-  // Một Treo CHƯA ghi đủ quyết định thì máy không có gì để tự phê hộ → cả nhóm
-  // về Ô HỎI. Đảo chiều mặc định: nuốt một quyết định của người là chiều CẤM,
-  // hỏi thừa chỉ tốn một dòng.
-  const treoHoi = decsProvisional.some(e => !daGhiQuyetDinh(e));
-  oneParts.push(treoHoi ? 'Treo: ___' : 'Treo: phê hết');
-  (treoHoi ? routingHoi : routingBao).push('Treo');
-}
+// Treo: máy đã quyết + ghi sổ + cửa veto mở → dòng báo, điền sẵn (ROUTING-RULE).
+if (decsProvisional.length) { oneParts.push('Treo: phê hết'); routingBao.push('Treo'); }
 { const lbl = MAY_DI_TIEP ? 'veto hay để yên' : 'ký hay trả';
   oneParts.push(`${lbl}: ___`); routingHoi.push(lbl); }   // chữ quyết luôn của người
 // Thẻ KHÔNG-ký-được (REJECT/BLOCKED) không có câu gộp: mời ký ở đó là mời trên
@@ -983,10 +970,8 @@ P.push(`</details>`);
   // nghị), không phải ô hỏi — nên chúng KHÔNG vào ymSlots. Trước bản này khối
   // «VIỆC CỦA ANH» dựng độc lập với bảng định tuyến, nên thẻ in hai dòng trả
   // lời đá nhau: dòng mẫu 5 ô trống ngay trên dòng lệnh có 3 (S4-r1).
-  if (oos.length && routingBao.includes('cắt/hoãn')) ymItems.push(`<b>Phần cắt/hoãn — máy đã điền «đồng ý cắt»</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «cắt/hoãn» trong dòng lệnh thành «kéo vào: nêu mục» nếu anh không đồng ý.`);
-  else if (oos.length) { ymItems.push(`<b>Xác nhận phần cắt/hoãn</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «đồng ý cắt» hoặc «kéo vào: nêu mục».`); ymSlots.push('cắt/hoãn: ___'); }
-  if (decsProvisional.length && routingBao.includes('Treo')) ymItems.push(`<b>${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length}) — máy đã điền «phê hết»</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «Treo» trong dòng lệnh thành «không phê: Treo-số» nếu có mục anh không phê.`);
-  else if (decsProvisional.length) { ymItems.push(`<b>Phê ${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length})</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «phê hết» hoặc «không phê: Treo-số».`); ymSlots.push('Treo: ___'); }
+  if (oos.length) ymItems.push(`<b>Phần cắt/hoãn — máy đã điền «đồng ý cắt»</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «cắt/hoãn» trong dòng lệnh thành «kéo vào: nêu mục» nếu anh không đồng ý.`);
+  if (decsProvisional.length) ymItems.push(`<b>${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length}) — máy đã điền «phê hết»</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «Treo» trong dòng lệnh thành «không phê: Treo-số» nếu có mục anh không phê.`);
   // Hồ sơ máy ĐÃ đi tiếp hợp lệ thì việc-của-người KHÔNG phải ký, mà là veto nếu
   // muốn. Bỏ sót chỗ này là thẻ nói «máy đã đi tiếp» ở đầu rồi vẫn bảo «Ký hay
   // trả» ở cuối — mâu thuẫn ngay trong chính thẻ, và đúng thứ AC-8 cấm.
