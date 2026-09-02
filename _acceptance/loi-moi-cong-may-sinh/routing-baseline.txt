@@ -11,6 +11,11 @@
 # BLOCKED) có cả hai rỗng — chủ đích LM18c. Đổi dòng nào phải đi kèm lý do
 # trong sổ quyết định của vòng đổi nó.
 #
+# CẬP NHẬT 02/09 sau chữ ký Cổng 2: dòng loi-moi-cong-may-sinh đổi từ rỗng
+# (REJECT) sang hoi=Ngoài-1..5|ký hay trả · bao=cắt/hoãn|Treo (PASS, đã ký).
+# CI PR #136 bắt đúng thuế này — tôi ký rồi không chạy lại suite. Lý do đổi:
+# chính chữ ký, không phải renderer.
+#
 # ĐỐI CHIẾU với cây trước vòng (d859a830): cột Treo trùng 100% — 0 hồ sơ Treo
 # đổi nhóm; khác duy nhất là chính loi-moi-cong-may-sinh (đang REJECT → rỗng).
 bai-hoc-do-luong-vao-engine	hoi=ký hay trả	bao=cắt/hoãn|Treo
@@ -48,7 +53,7 @@ lan-may-song-qua-bo-phan-loai	hoi=ký hay trả	bao=cắt/hoãn|Treo
 lan-v-khong-phai-cho-ky	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
 lenh-in-ra-phai-bam-duoc	hoi=ký hay trả	bao=cắt/hoãn|Treo
 lenh-tran-tai-lieu-dau-tay	hoi=ký hay trả	bao=cắt/hoãn|Treo
-loi-moi-cong-may-sinh	hoi=	bao=
+loi-moi-cong-may-sinh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
 luu-kho-codex-va-nghi-le-design	hoi=ký hay trả	bao=cắt/hoãn
 matrix-measure-law	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
 may-ganh-nguoi-quyet	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
