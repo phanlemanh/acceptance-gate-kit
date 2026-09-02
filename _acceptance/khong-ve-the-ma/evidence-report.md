@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a4f31465e820cc7d514e24c6f423827a125712dc
+verified_commit: 93da8752ca0e504fcd92391ee43c6897ef7fb314
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -225,3 +225,22 @@ hồ sơ này KHÔNG bị đụng — chỉ mốc `verified_commit` được ghi
 
 Giới hạn đã khai: lane do CHÍNH PHIÊN THI CÔNG chạy, không phải agent tươi —
 cùng loại hạn chế với Known limits #4 của hồ sơ `cong-dang-co-cua`.
+
+## Re-pin
+
+### Re-pin lần 2 — 2026-09-01, chiến dịch mốc 2.6.0 (§7.1)
+
+Đường khai của hồ sơ (`commands/acceptance-card.md` · `tests/scripts/run-tests.sh`)
+bị cửa sổ phát hành chạm sau pin (thân lệnh viết lại lời khai giới hạn quanh
+khối năm-lời-thuật; run-tests.sh nhận hai đính chính bình luận — chữ, không đổi
+hành vi đo).
+run_id: repin-260-lane2
+sha: 93da8752ca0e504fcd92391ee43c6897ef7fb314 · rang.sh **9/10 chân exit 0** ·
+pin cũ: a4f31465 · chữ ký người giữ nguyên.
+
+Chân `suite-tong` đỏ — **chết theo thiết kế sau merge, không phải vật hỏng**:
+nó lấy `origin/main` làm đối chứng và đòi cây hiện tại nhiều hơn base ≥6 ca;
+hồ sơ đã nằm trong main nên hai đầu bằng nhau, phép đo tự hết đường sống —
+đúng lớp «răng hồ sơ neo mốc di động chết theo hồ sơ khi merge» mà chú thích
+config.yaml khai trước cho cả họ răng này. Lưới thường trực thay vai
+(`kvtm_suite_case` ghim đúng dòng ca trong suite) chạy XANH trên cùng sha.
