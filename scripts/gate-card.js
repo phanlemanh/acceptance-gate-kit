@@ -87,7 +87,21 @@ const MSG_HO_SO_HONG   = 'gate-card: hồ sơ hỏng';
 const MSG_OOC_SUSPECT = 'mục «Ngoài hợp đồng» có chữ nhưng máy không đọc ra finding nào — sai khuôn OOC-ITEM-TEMPLATE, khối đang bị GIẤU khỏi thẻ; soi review-findings.md trước khi ký';
 const MSG_PROPOSAL_LA = 'đề xuất không đọc được';
 const MSG_ROI_BAC = 'Đối kháng máy KHÔNG chạy được — phần vượt-nhận-thức RƠI VỀ ANH: thẻ này không điền sẵn ô nào, và chữ ký ở đây KHÔNG có nghĩa «đối kháng đã hội tụ». Anh tự đọc vật, hoặc chạy lại bước phản biện context sạch rồi dựng thẻ lại.';
-// LMCMS-MSG>>>
+
+// <<<ONE-SHOT-CMD — MỘT nguồn của tên lệnh thẻ in ra. Luật «lệnh in ra phải
+// bấm được» (chip D #93+#98) từ đây do MÁY giữ, không do trí nhớ phiên: vòng
+// 2.6.0 in tên lệnh THIẾU tiền tố plugin và owner bấm hụt một lượt.
+const ONE_SHOT_CMD_APPROVE = '/acceptance-gate:approve';
+const ONE_SHOT_CMD_SIGNOFF = '/acceptance-gate:signoff';
+// ONE-SHOT-CMD>>>
+const LBL_DOI_KHANG = 'PHÁN QUYẾT ĐỐI KHÁNG — máy thay mắt người ở phần vượt nhận thức';
+// <<<ROUTING-TABLE — mục thẻ → 'hoi' (ô người quyết, loại-5) | 'bao' (máy đã
+// đi tiếp, dòng báo + cửa veto). Không gian mục là MỞ, nên hàng '*' là MẶC
+// ĐỊNH và đoán về phía HỎI: nuốt một quyết định của người là chiều CẤM, còn
+// hỏi thừa chỉ tốn một dòng (đảo-chiều-mặc-định, gap-probe Gate 1.5 P1).
+const ROUTING = { ngoai: 'hoi', judgment: 'hoi', ky: 'hoi', scope: 'bao', treo: 'bao', '*': 'hoi' };
+// ROUTING-TABLE>>>
+const route = kind => ROUTING[kind] || ROUTING['*'];// LMCMS-MSG>>>
 // <<<NO-DOSSIER-GUARD-BLOCK
 if (!contract.trim()) {
   const acc = path.join(root, '_acceptance');
@@ -386,6 +400,7 @@ if (gate === '1') {
     : gpVerdict === 'probe-failed' ? 'probe-failed' : '';
   const roiBac = !!roiBacReason;
 
+
   // ---- trục ngữ cảnh (design-pass.md — khối chỉ hiện khi phiên S1-D đã chạy) ----
   // Nhãn tiếng người + chuỗi descope là CHUỖI PIN của P135-P138; đổi phải đổi test.
   // Bảng tra KHÔNG prototype: object literal làm `TABLE[key]` trúng mọi khoá kế thừa
@@ -526,7 +541,15 @@ if (gate === '1') {
   // Lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối. Hợp đồng khai mặt
   // ui/mobile mà ô cơ hội lại khai không đo được ⇒ đang trốn Cổng Giá trị.
   const mienDoCoNguoiDung = mienDo && NG1.coNguoiDungCuoi(clean(cfm.surfaces));
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
+
+  // Câu gộp MÁY SINH cho Cổng 1 — đặt SAU mọi nguồn cờ đỏ và TRƯỚC --extract
+  // (thứ tự khai có thật: blindSpot 349 · roiBac 401 · rangHong/mienDo ~549).
+  // Ô duy nhất của cổng này là CHỮ QUYẾT: thẻ sạch → điền sẵn «duyệt»; có cờ
+  // đỏ hoặc rơi bậc → để trống, vì mời ký trên thẻ đang đỏ đúng là thứ audit
+  // 01/09 gọi tên «mời khi chưa ký-được-ngay». dupIds chỉ VÀNG, không chặn.
+  const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot;
+  const oneShotG1 = `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, routing: { hoi: ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
@@ -610,7 +633,7 @@ if (gate === '1') {
   // không tag chen giữa — P185 canh). Khuôn này sống CHỈ trên thẻ; tin nhắn
   // mời cổng KHÔNG dùng nó (hồ sơ cat-khoi-viec-cua-anh-tren-tin, 16/08 —
   // điều khoản GATE-INVITE-CLAUSE trong human-facing-language.md).
-  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p></div>`);
+  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p></div><div class="mach">Dòng lệnh ${(roiBac || g1Blocked) ? 'CHƯA điền sẵn được — thẻ đang có cờ đỏ, đọc cờ trước' : 'đã điền sẵn khuyến nghị'}: <b>${esc(oneShotG1)}</b></div>`);
   P.push(`<div class="foot"><span class="rev">↻ Sửa 1 dòng tiêu chí GIỜ rẻ hơn 10× phát hiện sai sau khi code.</span><div class="btns"><button class="b no">Sửa lại</button><button class="b yes">Duyệt, cho code</button></div></div>
 </div></div>`);
   process.stdout.write(P.join('\n'));
@@ -678,32 +701,11 @@ const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = 
 // script render, để không thể quên hay điền sai.
 const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
 
-if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster }, decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
-
-const featurePlain = pl.feature_plain || feature;
-const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
-const scopePlain = pl.scope_plain || oos.map(stripMd).join(' · ');
-const P = [STYLE];
-
-// --- non-approvable: REJECT / BLOCKED / unknown — no signoff affordance, no green reassurance ---
-if (!approvable) {
-  const ch = verdict === 'REJECT' ? { t: 'có eval fail — trả lại code', c: 'coral' } : verdict === 'BLOCKED' ? { t: 'không chạy được — chưa thể ký', c: 'coral' } : { t: 'verdict không xác định — không ký', c: 'gray' };
-  const failed = machineRows.filter(r => r.verdict !== 'PASS').map(r => r.id + (critText[r.crit] ? ' (' + r.crit + ')' : ''));
-  const notes = [];
-  if (verdict === 'REJECT') notes.push(['fred', (failed.length ? 'Eval chưa đạt: ' + esc(failed.join(', ')) + ' — ' : '') + 'quay lại sửa code, chưa ký.']);
-  else if (verdict === 'BLOCKED') notes.push(['fred', 'Không chạy được' + (reason ? ': ' + esc(stripMd(reason)) : '') + ' — sửa môi trường rồi chạy lại, chưa ký.']);
-  else notes.push(['fred', 'Verdict "' + esc(verdict || '—') + '" không phải PASS/PENDING-JUDGMENT — không ký ở thẻ này.']);
-  P.push(`<div class="gc"><div class="card">
-<div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ${tier === 'T3' ? 'tier T3 · ' : ''}CHƯA ký được</div></div><span class="chip ${ch.c}">${esc(ch.t)}</span></div>
-<div class="lab">Vì sao chưa ký được</div>${notes.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}
-<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gnot"><p class="li">không cần làm gì — ${verdict === 'REJECT' ? 'máy đang quay lại sửa code rồi tự chấm vòng mới' : verdict === 'BLOCKED' ? 'máy đang khắc phục nguyên nhân kẹt rồi chạy lại vòng chấm' : 'máy phải chạy lại vòng chấm để có kết luận đọc được'}; thẻ này chỉ báo trạng thái. Khi máy cần bạn quyết, nó hỏi bằng tin nhắn riêng.</p></div>
-<div class="foot"><span class="rev">↻ Trả lại → quay về code; trạng thái này không có nút ký.</span><div class="btns"><button class="b no">Quay về code</button></div></div>
-</div></div>`);
-  process.stdout.write(P.join('\n'));
-  process.exit(0);
-}
-
-// --- approvable: PASS / PENDING-JUDGMENT ---
+// DỜI LÊN TRƯỚC --extract (hồ sơ loi-moi-cong-may-sinh, Task 6): câu gộp của
+// Cổng 2 cần biết hồ sơ có đi làn V không (nhãn cuối là «veto hay để yên» hay
+// «ký hay trả»), mà MAY_DI_TIEP trước đây tính SAU cả --extract lẫn nhánh thoát
+// non-approvable — extract sẽ khai một nhãn khác thẻ. Khối giữ NGUYÊN VĂN, chỉ
+// đổi vị trí (rà soát Gate 1.5, rủi ro #5).
 // Trạng thái làn V HỎI đúng bộ phân ô, KHÔNG dựng lại sáu điều kiện xanh-sạch ở
 // đây: đó sẽ là bản dựng THỨ BA của lớp lỗi lan-v-khong-phai-cho-ky đã trả giá
 // (bash trong lưới trước-merge, JS trong khong-can-nguoi). Thẻ tiêu thụ CHÍNH
@@ -763,6 +765,56 @@ const MAY_DI_TIEP = !scanBroken && scanState != null && (MAY_THONG
 // ca S4-r5 dựng lại được trên repo chưa dựng cổng: exit 1, 0 byte, người nhận màn hình trắng.
 const CHU_MAY_THONG = { nhan: 'đã giao — máy thông (chưa đọc được trạng thái)', viecKe: 'người: veto lúc nào cũng được, cửa không có hạn' };
 const chuMDT = () => (scanState == null ? CHU_MAY_THONG : trangThai.chu(scanState));
+
+// ── CÂU GỘP MÁY SINH + BẢNG ĐỊNH TUYẾN cho Cổng 2 (loi-moi-cong-may-sinh D1/D2)
+// Ô nào ĐÃ CÓ khuyến nghị máy thì điền sẵn — đó là nhận thức máy gánh (luật (c)
+// CLAUDE.md, owner 01/09). Ô người phải tự chấm và CHỮ QUYẾT luôn để trống:
+// ranh ADR 0002 nằm ở AI PHÁT NGÔN CUỐI, không ở việc ô có được điền hay không.
+// Đề xuất in bằng CHỮ NGƯỜI (OOC_GLOSS_NGUOI) chứ không token máy — thân lệnh
+// signoff dạy đúng những chữ đó, nên dòng này dán lại là chạy được (rà soát
+// Gate 1.5 rủi ro #1: in token máy thì owner dán vào vẫn tốn thêm một lượt).
+const oneParts = [], routingHoi = [], routingBao = [];
+ooc.findings.forEach((f, fi) => {
+  const lbl = 'Ngoài-' + (fi + 1);
+  const g = f.proposal ? outOfContract.OOC_GLOSS_NGUOI[f.proposal] : '';
+  oneParts.push(`${lbl}: ${g || '___'}`);
+  (route('ngoai') === 'hoi' ? routingHoi : routingBao).push(lbl);
+});
+for (const d of decisions) { oneParts.push(`${d.id}: ___`); (route('judgment') === 'hoi' ? routingHoi : routingBao).push(d.id); }
+if (oos.length) { oneParts.push('cắt/hoãn: đồng ý cắt'); (route('scope') === 'hoi' ? routingHoi : routingBao).push('cắt/hoãn'); }
+if (decsProvisional.length) { oneParts.push('Treo: phê hết'); (route('treo') === 'hoi' ? routingHoi : routingBao).push('Treo'); }
+{ const lbl = MAY_DI_TIEP ? 'veto hay để yên' : 'ký hay trả';
+  oneParts.push(`${lbl}: ___`); (route('ky') === 'hoi' ? routingHoi : routingBao).push(lbl); }
+// Thẻ KHÔNG-ký-được (REJECT/BLOCKED) không có câu gộp: mời ký ở đó là mời trên
+// một thẻ đang đỏ — đúng thứ audit 01/09 gọi tên.
+const oneShotG2 = approvable ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
+
+if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster }, decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
+
+const featurePlain = pl.feature_plain || feature;
+const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
+const scopePlain = pl.scope_plain || oos.map(stripMd).join(' · ');
+const P = [STYLE];
+
+// --- non-approvable: REJECT / BLOCKED / unknown — no signoff affordance, no green reassurance ---
+if (!approvable) {
+  const ch = verdict === 'REJECT' ? { t: 'có eval fail — trả lại code', c: 'coral' } : verdict === 'BLOCKED' ? { t: 'không chạy được — chưa thể ký', c: 'coral' } : { t: 'verdict không xác định — không ký', c: 'gray' };
+  const failed = machineRows.filter(r => r.verdict !== 'PASS').map(r => r.id + (critText[r.crit] ? ' (' + r.crit + ')' : ''));
+  const notes = [];
+  if (verdict === 'REJECT') notes.push(['fred', (failed.length ? 'Eval chưa đạt: ' + esc(failed.join(', ')) + ' — ' : '') + 'quay lại sửa code, chưa ký.']);
+  else if (verdict === 'BLOCKED') notes.push(['fred', 'Không chạy được' + (reason ? ': ' + esc(stripMd(reason)) : '') + ' — sửa môi trường rồi chạy lại, chưa ký.']);
+  else notes.push(['fred', 'Verdict "' + esc(verdict || '—') + '" không phải PASS/PENDING-JUDGMENT — không ký ở thẻ này.']);
+  P.push(`<div class="gc"><div class="card">
+<div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ${tier === 'T3' ? 'tier T3 · ' : ''}CHƯA ký được</div></div><span class="chip ${ch.c}">${esc(ch.t)}</span></div>
+<div class="lab">Vì sao chưa ký được</div>${notes.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}
+<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gnot"><p class="li">không cần làm gì — ${verdict === 'REJECT' ? 'máy đang quay lại sửa code rồi tự chấm vòng mới' : verdict === 'BLOCKED' ? 'máy đang khắc phục nguyên nhân kẹt rồi chạy lại vòng chấm' : 'máy phải chạy lại vòng chấm để có kết luận đọc được'}; thẻ này chỉ báo trạng thái. Khi máy cần bạn quyết, nó hỏi bằng tin nhắn riêng.</p></div>
+<div class="foot"><span class="rev">↻ Trả lại → quay về code; trạng thái này không có nút ký.</span><div class="btns"><button class="b no">Quay về code</button></div></div>
+</div></div>`);
+  process.stdout.write(P.join('\n'));
+  process.exit(0);
+}
+
+// --- approvable: PASS / PENDING-JUDGMENT ---
 const chip = MAY_DI_TIEP
   ? { t: chuMDT().nhan, c: 'gray' }
   : (verdict === 'PASS' ? { t: 'máy đã xong — ký nhanh', c: 'teal' } : { t: 'cần bạn quyết', c: 'amber' });
@@ -786,6 +838,19 @@ P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-b
 // loại được biến mất khỏi chỗ người quyết dù chúng vẫn nằm trong file.
 if (ooc.unclassified) {
   P.push(`<div class="lab">Phân loại phạm vi chưa đầy đủ</div><div class="flag fwarn">⚠ Bước phân loại phạm vi không chạy trọn — máy không tự sửa lỗi nào trong vòng này. Xem đủ danh sách trong review-findings.md trước khi ký.</div>`);
+}
+{ // ── PHÁN QUYẾT ĐỐI KHÁNG: phần vượt-nhận-thức trình bằng SỐ, không bằng vật.
+  // Người ký đọc «đối kháng tìm được bao nhiêu, xử lý ra sao», không đọc từng
+  // finding — đó là loại-3 của luật lời-mời (CLAUDE.md, owner 01/09).
+  const gpT2 = read(path.join(dir, 'gap-probe.md'));
+  const gpF2 = frontmatter(gpT2);
+  const gpRows2 = section(gpT2, 'Findings').filter(l => /^\s*\|/.test(l) && !/^\s*\|\s*(Sev\b|:?-+)/i.test(l));
+  const gpFixed = gpRows2.filter(l => /\|\s*fixed:/i.test(l)).length;
+  const v3 = clean(gpF2.verdict).toLowerCase() || 'không đọc được';
+  const n = k => clean(gpF2[k]) || '0';
+  P.push(`<div class="lab">${esc(LBL_DOI_KHANG)}</div><div class="grp gnot">`
+    + `<p class="li">Phản biện context sạch: <b>${esc(v3)}</b> · P0 ${esc(n('p0'))} · P1 ${esc(n('p1'))} · P2 ${esc(n('p2'))} · đã sửa ${gpFixed}/${gpRows2.length}</p>`
+    + `<p class="li">Rà soát đối kháng: ${ooc.findings.length} mục ngoài hợp đồng${ooc.suspect_empty ? ' (⚠ khối nghi sai khuôn)' : ''} · ${decisions.length} mục cần mắt người</p></div>`);
 }
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
 if (ooc.findings.length) {
@@ -890,7 +955,7 @@ P.push(`</details>`);
     ymItems.push(`<b>Ký hay trả</b> — làm gì: sau khi trả lời các mục trên, chốt hồ sơ; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «Ký» hoặc «Trả lại: nêu lý do».`);
     ymSlots.push('ký hay trả: ___');
   }
-  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «${esc(ymSlots.join('; '))}»</p></div>`);
+  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «${esc(ymSlots.join('; '))}»</p></div>${oneShotG2 ? `<div class="mach">Dòng lệnh đã điền sẵn khuyến nghị — sửa ô nào anh nghĩ khác: <b>${esc(oneShotG2)}</b></div>` : ''}`);
 }
 P.push(MAY_DI_TIEP
   ? `<div class="foot"><span class="rev">↻ ${esc(chuMDT().viecKe)}</span><div class="btns"><button class="b no">Veto</button></div></div>

@@ -181,5 +181,72 @@ for (const [n, probe, mode, expect] of ROI) check(`LM06 roi bac [${n}/${mode}] =
   if (out.includes(pick('MSG_ROI_BAC')) !== expect) die('HTML khoi roi-bac ' + (expect ? 'THIEU' : 'THUA'));
 });
 
+// ── Task 6: câu gộp máy-sinh + bảng định tuyến + khối đối kháng (AC-1..AC-3) ──
+const LEDGER = [
+  '{"id":"d-1","type":"descope","stage":"S1","at":"2026-09-01T00:00:00Z","decision":"bo X","impact":"y"}',
+  '{"id":"d-2","type":"seal","gate":1,"at":"2026-09-01T00:30:00Z"}',
+  '{"id":"d-3","type":"fix","stage":"S4-r1","at":"2026-09-01T01:00:00Z","decision":"sua Z","impact":"w"}',
+  '',
+].join('\n');
+// Ngoài-1 CÓ khuyến nghị (điền sẵn) · Ngoài-2 KHÔNG (để trống — người tự quyết)
+const REVIEW2 = OOC(ITEM('known-limits') + '\n' + '- **Bat bien Y**\n  Người dùng thấy gì: nguoi thay Y\n  file: `b.js`\n  severity: low\n');
+const G2FULL = () => { const f = G2(REVIEW2); f['decisions.jsonl'] = LEDGER; f['gap-probe.md'] = PROBE('findings').replace('p1: 0', 'p1: 2'); return f; };
+
+check('LM07 one_shot Cong 1 sach -> dien san chu quyet', () => {
+  const r = mkWs('g', G1(PROBE('findings')));
+  const j = extract(r, 'g', ['--gate', '1']);
+  const want = `${pick('ONE_SHOT_CMD_APPROVE')} g duyệt`;
+  if (j.one_shot !== want) die('\n got: ' + j.one_shot + '\nwant: ' + want);
+});
+check('LM08 one_shot Cong 1 khi ROI BAC -> KHONG dien san', () => {
+  const r = mkWs('g', G1(null));   // vang + required
+  const j = extract(r, 'g', ['--gate', '1']);
+  const want = `${pick('ONE_SHOT_CMD_APPROVE')} g ___`;
+  if (j.one_shot !== want) die('\n got: ' + j.one_shot + '\nwant: ' + want);
+});
+check('LM09 one_shot Cong 2: o co khuyen nghi DIEN SAN, o loai-5 va chu quyet de trong', () => {
+  const r = mkWs('s', G2FULL());
+  const j = extract(r, 's');
+  const want = `${pick('ONE_SHOT_CMD_SIGNOFF')} s Ngoài-1: ghi Known limits; Ngoài-2: ___; cắt/hoãn: đồng ý cắt; Treo: phê hết; ký hay trả: ___`;
+  if (j.one_shot !== want) die('\n got: ' + j.one_shot + '\nwant: ' + want);
+  const html = spawnSync('node', [GC, '--root', r, '--slug', 's'], { encoding: 'utf8' }).stdout;
+  if (!html.includes(j.one_shot)) die('HTML khong chua dung chuoi one_shot — hai nguon');
+});
+check('LM10 routing: o HOI == loai-5; cat/hoan + Treo la dong BAO', () => {
+  const r = mkWs('s', G2FULL());
+  const j = extract(r, 's');
+  if (JSON.stringify(j.routing.hoi) !== JSON.stringify(['Ngoài-1', 'Ngoài-2', 'ký hay trả'])) die('hoi=' + JSON.stringify(j.routing.hoi));
+  if (!j.routing.bao.includes('cắt/hoãn') || !j.routing.bao.includes('Treo')) die('bao=' + JSON.stringify(j.routing.bao));
+});
+check('LM10b chieu do: them MOT muc loai-5 -> o HOI tang dung 1 (dang thuc so)', () => {
+  const base = extract(mkWs('s', G2FULL()), 's');
+  const f = G2FULL();
+  f['contract.md'] = f['contract.md'].replace('risk_tier: T2', 'risk_tier: T3');
+  f['evals.yaml'] = EVALS + '  - id: E9\n    criterion: AC-1\n    executor: judgment\n    expected: mat nguoi\n';
+  f['evidence-report.md'] = REPORT_PASS
+    .replace('| E1 | AC-1 | test | PASS |', '| E1 | AC-1 | test | PASS |\n| E9 | AC-1 | judgment | PASS |')
+    .replace('verdict: PASS', 'verdict: PENDING-JUDGMENT');
+  const j2 = extract(mkWs('s2', f), 's2');
+  if (j2.routing.hoi.length !== base.routing.hoi.length + 1) {
+    die(`them 1 loai-5 nhung o hoi ${base.routing.hoi.length} -> ${j2.routing.hoi.length}`);
+  }
+});
+check('LM11 khoi PHAN QUYET DOI KHANG mang verdict + p0/p1/p2', () => {
+  const r = mkWs('s', G2FULL());
+  const html = spawnSync('node', [GC, '--root', r, '--slug', 's'], { encoding: 'utf8' }).stdout;
+  if (!html.includes(pick('LBL_DOI_KHANG'))) die('thieu khoi doi khang');
+  const txt = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');   // boc tag roi moi so — ghim MOT dang
+  if (!/findings · P0 0 · P1 2 · P2 0/.test(txt)) {
+    const i = txt.indexOf('findings');
+    die('khong in dung so: ' + (i < 0 ? '(khong thay «findings»)' : txt.slice(i, i + 70)));
+  }
+});
+check('LM12 the KHONG-ky-duoc (REJECT) -> one_shot = null, khong moi ky', () => {
+  const f = G2FULL();
+  f['evidence-report.md'] = REPORT_PASS.replace('verdict: PASS', 'verdict: REJECT').replace('| E1 | AC-1 | test | PASS |', '| E1 | AC-1 | test | FAIL |');
+  const j = extract(mkWs('s', f), 's');
+  if (j.one_shot !== null) die('the khong ky duoc van co one_shot: ' + j.one_shot);
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-lmcms)`);
 process.exit(failed ? 1 : 0);

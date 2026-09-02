@@ -5825,8 +5825,11 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     #   (4) nhan "Ngoài-<n> · " truoc finding ngoai hop dong -> P186
     #   (5) go loi hua " · ~5 phut" o phu de CA HAI cong (ho so cat-hinh-thuc,
     #       14/08) -> P185/P186 (assert the KHONG con hua phut + mutant chen lai)
+    #   (6) khoi "PHAN QUYET DOI KHANG" + dong "Dong lenh da dien san" tren THE
+    #       (ho so loi-moi-cong-may-sinh, 02/09) -> luoi tests/scripts/
+    #       gate-card-lmcms.test.mjs ca LM07-LM12 (noi dung + chieu do)
     # Khi base vuot qua chip (2), cac phep loc thanh no-op vo hai.
-    norm() { grep -v "VIỆC CỦA ANH" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
+    norm() { grep -v "VIỆC CỦA ANH" | grep -v "PHÁN QUYẾT ĐỐI KHÁNG" | grep -v "Phản biện context sạch:" | grep -v "Rà soát đối kháng:" | grep -v "Dòng lệnh đã điền sẵn" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
     A_CMP=$(printf "%s" "$A" | norm)
     B_CMP=$(printf "%s" "$B" | norm)
     [ "$A_CMP" = "$B_CMP" ] || { echo "report cu render KHAC ban base (ngoai 3 thay doi da khai) — duong doc-cu vo"; exit 1; }
