@@ -99,9 +99,18 @@ const LBL_DOI_KHANG = 'PHÁN QUYẾT ĐỐI KHÁNG — máy thay mắt người 
 // đi tiếp, dòng báo + cửa veto). Không gian mục là MỞ, nên hàng '*' là MẶC
 // ĐỊNH và đoán về phía HỎI: nuốt một quyết định của người là chiều CẤM, còn
 // hỏi thừa chỉ tốn một dòng (đảo-chiều-mặc-định, gap-probe Gate 1.5 P1).
-const ROUTING = { ngoai: 'hoi', judgment: 'hoi', ky: 'hoi', scope: 'bao', treo: 'bao', '*': 'hoi' };
+// Bảng KHÔNG prototype: object literal làm `ROUTING['constructor']` trả giá trị
+// kế thừa (truthy, khác 'hoi') → mục lạ rơi về 'bao', đúng chiều CẤM. Cùng lớp
+// đã gọi tên cho các bảng tra khác trong file này.
+const ROUTING = Object.assign(Object.create(null), {
+  ngoai: 'hoi', judgment: 'hoi', ky: 'hoi', scope: 'bao',
+  // Loại entry sổ quyết định — khoá lấy TỪ DỮ LIỆU (`e.type`), nên loại lạ
+  // (schema đời sau, người gõ tay) rơi vào hàng '*' và hàng đó SỐNG.
+  descope: 'bao', approach: 'bao', fix: 'bao', revisit: 'bao',
+  '*': 'hoi',
+});
 // ROUTING-TABLE>>>
-const route = kind => ROUTING[kind] || ROUTING['*'];// LMCMS-MSG>>>
+const route = kind => (Object.prototype.hasOwnProperty.call(ROUTING, kind) ? ROUTING[kind] : ROUTING['*']);// LMCMS-MSG>>>
 // <<<NO-DOSSIER-GUARD-BLOCK
 if (!contract.trim()) {
   const acc = path.join(root, '_acceptance');
@@ -716,7 +725,10 @@ const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
 // tuyên sạch (fail-visible, không fail-quiet).
 const trangThai = require('./trang-thai-ho-so.cjs');
 let scanState = null, scanErr = null, scanBroken = null;
-try {
+// Chỉ quét khi thẻ CÓ THỂ ký: nhánh REJECT/BLOCKED không đọc MAY_DI_TIEP, mà
+// start-scan là lượt chạy tiến trình con đắt nhất của bộ dựng (S4-r1 đo:
+// --extract 0,03s → 0,45s sau khi khối bị dời lên trước extract).
+if (approvable) try {
   const r = require('child_process').spawnSync(process.execPath,
     [path.join(__dirname, 'start-scan.mjs'), '--root', root],
     { encoding: 'utf8', timeout: 20000, maxBuffer: 64 * 1024 * 1024 });
@@ -782,14 +794,20 @@ ooc.findings.forEach((f, fi) => {
 });
 for (const d of decisions) { oneParts.push(`${d.id}: ___`); (route('judgment') === 'hoi' ? routingHoi : routingBao).push(d.id); }
 if (oos.length) { oneParts.push('cắt/hoãn: đồng ý cắt'); (route('scope') === 'hoi' ? routingHoi : routingBao).push('cắt/hoãn'); }
-if (decsProvisional.length) { oneParts.push('Treo: phê hết'); (route('treo') === 'hoi' ? routingHoi : routingBao).push('Treo'); }
+if (decsProvisional.length) {
+  // Mỗi Treo định tuyến theo LOẠI THẬT của nó; một loại lạ kéo cả nhóm về Ô HỎI
+  // (đảo chiều mặc định: nuốt quyết định là chiều cấm, hỏi thừa chỉ tốn một dòng).
+  const treoHoi = decsProvisional.some(e => route(clean(e.type)) === 'hoi');
+  oneParts.push(treoHoi ? 'Treo: ___' : 'Treo: phê hết');
+  (treoHoi ? routingHoi : routingBao).push('Treo');
+}
 { const lbl = MAY_DI_TIEP ? 'veto hay để yên' : 'ký hay trả';
   oneParts.push(`${lbl}: ___`); (route('ky') === 'hoi' ? routingHoi : routingBao).push(lbl); }
 // Thẻ KHÔNG-ký-được (REJECT/BLOCKED) không có câu gộp: mời ký ở đó là mời trên
 // một thẻ đang đỏ — đúng thứ audit 01/09 gọi tên.
 const oneShotG2 = approvable ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
 
-if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster }, decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
+if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -943,8 +961,14 @@ P.push(`</details>`);
     ymItems.push(`<b>Chấm ${esc(d.id)} (câu hỏi cần mắt người)</b> — làm gì: đọc câu hỏi mở đầu bằng "${esc(d.id)}" ở khối "Việc chỉ mình bạn quyết được"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${esc(d.id)} Đạt» hoặc «${esc(d.id)} Chưa đạt vì nêu lý do».`);
     ymSlots.push(d.id + ': ___');
   }
-  if (oos.length) { ymItems.push(`<b>Xác nhận phần cắt/hoãn</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «đồng ý cắt» hoặc «kéo vào: nêu mục».`); ymSlots.push('cắt/hoãn: ___'); }
-  if (decsProvisional.length) { ymItems.push(`<b>Phê ${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length})</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «phê hết» hoặc «không phê: Treo-số».`); ymSlots.push('Treo: ___'); }
+  // AC-3: mục xác-nhận-cắt/hoãn và Treo là DÒNG BÁO (máy đã điền theo khuyến
+  // nghị), không phải ô hỏi — nên chúng KHÔNG vào ymSlots. Trước bản này khối
+  // «VIỆC CỦA ANH» dựng độc lập với bảng định tuyến, nên thẻ in hai dòng trả
+  // lời đá nhau: dòng mẫu 5 ô trống ngay trên dòng lệnh có 3 (S4-r1).
+  if (oos.length && routingBao.includes('cắt/hoãn')) ymItems.push(`<b>Phần cắt/hoãn — máy đã điền «đồng ý cắt»</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «cắt/hoãn» trong dòng lệnh thành «kéo vào: nêu mục» nếu anh không đồng ý.`);
+  else if (oos.length) { ymItems.push(`<b>Xác nhận phần cắt/hoãn</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «đồng ý cắt» hoặc «kéo vào: nêu mục».`); ymSlots.push('cắt/hoãn: ___'); }
+  if (decsProvisional.length && routingBao.includes('Treo')) ymItems.push(`<b>${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length}) — máy đã điền «phê hết»</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «Treo» trong dòng lệnh thành «không phê: Treo-số» nếu có mục anh không phê.`);
+  else if (decsProvisional.length) { ymItems.push(`<b>Phê ${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length})</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «phê hết» hoặc «không phê: Treo-số».`); ymSlots.push('Treo: ___'); }
   // Hồ sơ máy ĐÃ đi tiếp hợp lệ thì việc-của-người KHÔNG phải ký, mà là veto nếu
   // muốn. Bỏ sót chỗ này là thẻ nói «máy đã đi tiếp» ở đầu rồi vẫn bảo «Ký hay
   // trả» ở cuối — mâu thuẫn ngay trong chính thẻ, và đúng thứ AC-8 cấm.

@@ -7,11 +7,25 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, exist
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
 const GC = path.join(ROOT, 'scripts', 'gate-card.js');
 const SRC = readFileSync(GC, 'utf8');
+// Rút hằng QUA MARKER, không phải qua regex tên hằng: AC-1 khai «rút từ hằng có
+// marker ONE-SHOT-CMD», nên xoá marker phải làm ca ĐỎ. Bản đầu chỉ dò
+// `^const <TÊN> =` nên marker là trang trí (S4-r1 M7 xoá marker vẫn XANH).
+const blockOf = marker => {
+  const m = SRC.match(new RegExp(`<<<${marker}[^\\n]*\\n([\\s\\S]*?)\\n// ${marker}>>>`));
+  if (!m) throw new Error('gate-card.js thieu khoi marker ' + marker);
+  return m[1];
+};
+const pickIn = (marker, name) => {
+  const m = blockOf(marker).match(new RegExp(`^const ${name}\\s*=\\s*'([^']*)';`, 'm'));
+  if (!m) throw new Error(`hang ${name} khong nam trong khoi marker ${marker}`);
+  return m[1];
+};
 const pick = name => {
   const m = SRC.match(new RegExp(`^const ${name}\\s*=\\s*'([^']*)';`, 'm'));
   if (!m) throw new Error('gate-card.js khong khai hang ' + name);
@@ -273,6 +287,62 @@ check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
   got.sort();
   if (JSON.stringify(got) !== JSON.stringify(base)) {
     die('lech baseline\n  got: ' + JSON.stringify(got) + '\n base: ' + JSON.stringify(base));
+  }
+});
+
+// ── S4-r1: ba nhánh trước đây KHÔNG có răng (đột biến của phiên soi đều XANH) ──
+check('LM14 hang ONE-SHOT-CMD nam TRONG marker (xoa marker -> do)', () => {
+  const a = pickIn('ONE-SHOT-CMD', 'ONE_SHOT_CMD_APPROVE');
+  const b = pickIn('ONE-SHOT-CMD', 'ONE_SHOT_CMD_SIGNOFF');
+  if (!a.startsWith('/acceptance-gate:') || !b.startsWith('/acceptance-gate:')) die(`ten lenh thieu tien to plugin: ${a} · ${b}`);
+});
+check('LM15 round-trip HTML<->extract cho CONG 1 (khong chi Cong 2)', () => {
+  const r = mkWs('g', G1(PROBE('findings')));
+  const j = extract(r, 'g', ['--gate', '1']);
+  const html = spawnSync('node', [GC, '--root', r, '--slug', 'g', '--gate', '1'], { encoding: 'utf8' }).stdout;
+  if (!html.includes(j.one_shot)) die('HTML Cong 1 khong chua dung chuoi one_shot cua --extract — hai nguon');
+});
+check('LM16 the Cong 1 co CO DO -> KHONG dien san (nhanh g1Blocked co rang)', () => {
+  // Cờ đỏ dùng ở đây: «khai KHÔNG ĐO ĐƯỢC nhưng hợp đồng có mặt người dùng» —
+  // lối không-đo-được chỉ dành cho vòng không có người dùng cuối. Tiền tố rút
+  // từ chính khuôn ô cơ hội, không gõ literal.
+  const NG1 = createRequire(import.meta.url)(path.join(ROOT, 'lib', 'nguong-o-co-hoi.cjs'));
+  const kd = NG1.prefixes(readFileSync(path.join(ROOT, 'skills/acceptance/references/opportunity-template.md'), 'utf8')).khongDo;
+  const f = G1(PROBE('findings'));
+  f['contract.md'] = f['contract.md'].replace('surfaces: [cli]', 'surfaces: [ui]');
+  f['opportunity.md'] = `---\nschema_version: 1\nslug: g\nstage: decided\ndecision: build\n---\n\n## ${NG1.UAT_THRESHOLD_HEADING}\n\n- ${kd} vòng này không có người dùng cuối.\n`;
+  const j = extract(mkWs('g', f), 'g', ['--gate', '1']);
+  if (!j.one_shot.endsWith('___')) die('the co diem mu van dien san: ' + j.one_shot);
+  const clean0 = extract(mkWs('g2', G1(PROBE('findings'))), 'g2', ['--gate', '1']);   // sạch: surfaces cli, không ô cơ hội
+  if (!clean0.one_shot.endsWith('duyệt')) die('doi chung duong: the sach lai KHONG dien san: ' + clean0.one_shot);
+});
+check('LM17 dieu khoan AC-8 co mat o NGUON va CA HAI ban chep', () => {
+  const NEO = 'hai nguồn';
+  const sites = ['skills/acceptance/references/human-facing-language.md', 'commands/approve.md', 'commands/signoff.md'];
+  for (const p of sites) {
+    const t = readFileSync(path.join(ROOT, p), 'utf8');
+    if (!/hai nguồn[\s\S]{0,120}khớp tuyệt đối/i.test(t)) die('thieu dieu khoan hai-nguon-khop-tuyet-doi: ' + p);
+    if (!/ghi thẳng/.test(t)) die('thieu ve «ghi thang»: ' + p);
+  }
+  void NEO;
+});
+check('LM18 ROUTING: hang mac dinh SONG (loai entry la -> Treo thanh O HOI)', () => {
+  const f = G2FULL();
+  f['decisions.jsonl'] = LEDGER + '{"id":"d-9","type":"loai-la-chua-khai","stage":"S4-r1","at":"2026-09-01T02:00:00Z","decision":"gi do","impact":"x"}\n';
+  const j = extract(mkWs('s3', f), 's3');
+  if (!j.routing.hoi.includes('Treo')) die('loai entry LA khong keo Treo ve O HOI: ' + JSON.stringify(j.routing));
+  const base = extract(mkWs('s4', G2FULL()), 's4');
+  if (!base.routing.bao.includes('Treo')) die('doi chung duong: loai quen thuoc lai khong phai dong bao');
+});
+check('LM19 khoi VIEC-CUA-ANH tren THE dung dung bo o hoi cua routing', () => {
+  const r = mkWs('s', G2FULL());
+  const j = extract(r, 's');
+  const html = spawnSync('node', [GC, '--root', r, '--slug', 's'], { encoding: 'utf8' }).stdout;
+  const m = html.match(/Trả lời mẫu[^«]*«([^»]*)»/);
+  if (!m) die('the khong co dong Tra loi mau');
+  const labels = m[1].split(';').map(x => x.split(':')[0].trim()).filter(Boolean);
+  if (JSON.stringify(labels) !== JSON.stringify(j.routing.hoi)) {
+    die('dong mau tren THE lech routing.hoi\n  the: ' + JSON.stringify(labels) + '\n  ext: ' + JSON.stringify(j.routing.hoi));
   }
 });
 

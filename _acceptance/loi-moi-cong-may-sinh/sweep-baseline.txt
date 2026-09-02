@@ -1,17 +1,24 @@
-# Baseline quét TRỌN xưởng — giả định sinh tử 3 của ô: cờ vàng fail-quiet
-# không được đỏ oan trên hồ sơ cũ. Đếm ngày 2026-09-02 trên 74 hồ sơ có
-# contract.md; mỗi dòng ĐÃ ĐỊNH ĐOẠT bằng cách đọc chính review-findings.md.
+# Baseline quét TRỌN xưởng — giả định sinh tử 3: cờ vàng fail-quiet không được
+# đỏ oan trên hồ sơ cũ. Đếm lại ở S4 vòng 1 (2026-09-02) sau khi rà soát đối
+# kháng bắt được MỘT CỜ OAN THẬT ở bản đầu.
 #
 # Khuôn: <slug>\t<loại cờ>\t<định đoạt>
-# Loại cờ ghi theo LOẠI, không theo chuỗi thô: một cờ MỚI trên hồ sơ đã có tên
-# vẫn lệch baseline (rủi ro #6 của rà soát Gate 1.5).
+# Ghi theo LOẠI cờ, không theo chuỗi thô: một cờ MỚI trên hồ sơ đã có tên vẫn
+# lệch baseline.
 #
-# KẾT QUẢ: 3 hồ sơ bật cờ, 3/3 THẬT SAI KHUÔN, 0 cờ oan.
-# Cả ba đều để trường «Đề xuất» chứa VĂN XUÔI thay vì một trong ba token
-# (known-limits · new-contract · wont-fix). Trước bản này thông tin đó bị nuốt
-# im lặng thành «Máy chưa đề xuất hướng nào» — tức bước triage ĐÃ nêu hướng mà
-# người quyết không bao giờ đọc được. Ba hồ sơ ĐÃ KÝ nên KHÔNG kéo vào diff
-# (luật hồ-sơ-đã-ký-không-kéo-vào-diff); cờ hiện đúng khi ai đó dựng lại thẻ.
+# LỊCH SỬ: bản đầu (trước S4-r1) liệt 3 dòng và tự khai «0 cờ oan» — SAI.
+#   · `lan-may-song-qua-bo-phan-loai` bị gọi oan: mục khai rỗng «(rỗng — mọi
+#     phát hiện ngoài hợp đồng đã đóng ở các vòng sau…)» trúng cờ vì bản đầu
+#     dùng ALLOWLIST câu-rỗng («không có» · «n-a») + sàn 40 ký tự. Allowlist
+#     trên không gian mở: xưởng có ≥3 cách viết rỗng, hai cách thoát nhờ sàn
+#     chứ không nhờ luật. Nay đo TÍN HIỆU DƯƠNG («**» = đã thử viết mục theo
+#     khuôn) → hồ sơ này sạch, không còn trong baseline.
+#   · `lenh-in-ra-phai-bam-duoc` bị SÓT: bản đầu không xuất `suspect_empty`
+#     qua --extract nên phép quét mù nửa. Nay có tên, và là sai khuôn THẬT.
+#
+# KẾT QUẢ: 4 hồ sơ bật cờ, 4/4 THẬT SAI KHUÔN, 0 cờ oan.
+# Bốn hồ sơ ĐÃ KÝ nên KHÔNG kéo vào diff; cờ hiện đúng khi ai đó dựng lại thẻ.
 duong-do-trong-dinh-nghia-xong	token-la	that-sai-khuon: «Đề xuất: bỏ «metric» khỏi _Avoid_…» là câu văn mô tả cách sửa, không phải token
+lenh-in-ra-phai-bam-duoc	suspect_empty	that-sai-khuon: dòng tiêu đề «- **…owner chép** (QUICKSTART 11 · …)» có đuôi SAU «**» nên khuôn tiêu đề không khớp, cả mục thành 0 finding
 may-ganh-nguoi-quyet	token-la	that-sai-khuon: «Đề xuất: nâng phạm vi sửa ngay» là chữ NGƯỜI (nhãn nút trên thẻ), không phải token máy
 vao-co-o-ra-co-ten	token-la	that-sai-khuon: «Đề xuất: một gạch đầu dòng ở bước 4…» là câu văn mô tả bản vá, không phải token
