@@ -1,0 +1,110 @@
+# evals — loi-moi-cong-may-sinh
+# Mọi hành vi mới vào LƯỚI THƯỜNG TRỰC tests/scripts (fixture code-sinh trong
+# chính lần chạy, chuỗi thông điệp RÚT từ marker chứ không gõ literal, mỗi
+# assertion âm tính kèm đối chứng dương). Không dựng răng hồ sơ neo mốc di động
+# (bài học suite-tong chết-theo-merge, ghi ở repin 01/09).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Case «one_shot ma trận CỔNG» (gap-probe P0): MA TRẬN 4 ô viết trước, số assert = số ô —
+      {Cổng 1 sạch → một ô «duyệt» · Cổng 1 có cờ chặn → «sửa: ___» · Cổng 2 đủ bốn nhóm ô
+      (Ngoài-N điền đề xuất + cắt/hoãn + Treo + «ký hay trả: ___») · Cổng 2 có ≥2 mục loại-5
+      → tập «___» bằng ĐÚNG tập loại-5 ∪ chữ quyết, đẳng thức tập}. Mỗi ô: one_shot mở đầu
+      bằng hằng rút từ marker ONE-SHOT-CMD (round-trip, không literal). Chiều đỏ: xoá hằng
+      trong bản sao → «one_shot mất nguồn lệnh».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Case «round-trip HTML↔extract»: chuỗi one_shot trong HTML == chuỗi trong --extract
+      trên cùng hồ sơ; đột biến làm hai bên lệch một ký tự → đỏ ghim «one_shot hai nguồn».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Case «ô hỏi = loại-5»: fixture có gap-probe findings + scope + Treo thường + 1 mục
+      Ngoài; assert khối PHÁN QUYẾT ĐỐI KHÁNG mang verdict/p0/p1/p2, và ĐẾM ô hỏi == số
+      mục loại-5 (mục scope/Treo thành dòng báo). Chiều đỏ 1: thêm 1 mục loại-5 → đếm tăng
+      đúng 1 (đẳng thức số). Chiều đỏ 2 (gap-probe P1, ngoài-bảng): tiêm một mục KHÔNG khớp
+      hàng nào của bảng ánh xạ → phải thành Ô HỎI (hàng mặc định loại-5), không thành dòng báo.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Case «rơi bậc»: MA TRẬN 4 ô viết trước, số assert = số ô (gap-probe P1) — {verdict
+      findings → KHÔNG rơi bậc (đối chứng dương) · verdict probe-failed → rơi bậc · file vắng
+      trong repo gap_probe required → rơi bậc · file CÓ MẶT nhưng frontmatter vỡ / verdict
+      token lạ → rơi bậc}. Mỗi ô rơi-bậc ghim chuỗi rút từ marker VÀ one_shot không điền sẵn.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Case «OOC rỗng-ngờ»: review-findings văn xuôi (0 finding parse) → suspect_empty + cờ
+      vàng gọi tên OOC-ITEM-TEMPLATE; đối chứng dương: mục đúng khuôn (rút từ chính template
+      trong acceptance-verify.js) → 0 cờ. Vết thật vòng 2.6.0 ghi trong comment case.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Case «token lạ»: proposal «ghi Known limits» (chuỗi người-viết thật đã dẫm 01/09) →
+      in «đề xuất không đọc được: 'ghi Known limits'» + ba token hợp lệ; ba token hợp lệ →
+      render như hiện hành (ma trận 4 phần tử, số assert = số phần tử).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Case «SẼ/KHÔNG theo đầu vế»: fixture RÚT ROUND-TRIP từ contract đã ký release-2-5-0
+      và release-2-6-0 (git show, không viết tay) → AC-1/AC-2/AC-6 của chúng nằm cột SẼ làm;
+      cộng MA TRẬN đầu-vế (gap-probe P2): {Then mở đầu «KHÔNG» hoa → KHÔNG làm · «không» thường
+      + động từ (không kèm «được») → KHÔNG làm · «không» ở GIỮA vế → SẼ làm}. Chiều đỏ: đảo
+      classifier về substring trong bản sao → case đỏ gọi tên ca xếp nhầm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Răng đồng bộ nguồn-bản-chép hiện hành mở rộng: khối GATE-ONESHOT-GRAMMAR ở
+      human-facing-language.md chứa điều khoản «hai nguồn khớp → ghi thẳng + hiển thị lại»,
+      và hai bản chép approve.md/signoff.md không trôi khỏi nguồn. Hành vi hội thoại =
+      lời luật, không harness test — Known limits của AC-8.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Case «quét xưởng không cờ oan» (gap-probe P1, giả định sinh tử 3 của ô): chạy bộ dựng
+      thẻ lên TRỌN _acceptance/* của repo kit tại thời điểm chạy, gom danh sách hồ sơ phát
+      sinh cờ vàng MỚI (suspect_empty · token lạ) — danh sách phải được ĐỊNH ĐOẠT từng dòng
+      trong evidence: mỗi hồ sơ bật cờ hoặc là thật-sai-khuôn (chỉ được điểm danh kèm bằng
+      chứng parse) hoặc là CỜ OAN → eval đỏ. Không ngưỡng «0 tuyệt đối» bịa sẵn — số đếm
+      khai trong evidence, người đọc tại Cổng 2.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH — đổi bố cục thẻ không chạm luật hook nào (lưới hồi quy)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E10
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH — thân lệnh acceptance-card + luật mặt người không trôi (lưới hồi quy)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
