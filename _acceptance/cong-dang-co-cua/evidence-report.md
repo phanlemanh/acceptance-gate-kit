@@ -7,7 +7,7 @@ reason: người ký NÂNG PENDING-JUDGMENT → PASS ngày 2026-09-01 với năm
 verified_by: implementing session (KHÔNG phải fresh-context subagent — xem Known limits #4)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b480dbb85d2c5663859ac960bc17513fd9117f4f
+verified_commit: 93da8752ca0e504fcd92391ee43c6897ef7fb314
 human_signoff: Manh Phan 2026-09-01 — ký với giới hạn đã khai (Known limits #1–#5)
 ---
 
@@ -152,3 +152,15 @@ Cổng Đáng, chế độ ký, ngữ pháp `g0`, bộ răng 13 chân **trả v�
 `528caaa8`). Hợp đồng viết lại còn ba tiêu chí; ba phép đo mới neo vào lưới
 thường trực. Bốn suite + bản đồ xanh. Không phải một lần chấm sạch — xem Known
 limits #4.
+
+## Re-pin
+
+### Re-pin lần 1 — 2026-09-01, chiến dịch mốc 2.6.0 (§7.1)
+
+Đường khai của hồ sơ (`commands/acceptance-card.md` · `tests/scripts/run-tests.sh`)
+bị cửa sổ phát hành chạm sau pin (sửa lời khai giới hạn + đính chính bình luận —
+đều là chữ, không đổi hành vi đo).
+run_id: repin-260-lane1
+sha: 93da8752ca0e504fcd92391ee43c6897ef7fb314 · rang.sh 3/3 chân exit 0
+(loi-thuat · gioi-han · dang-thuc-lop) · suite scripts + gate CI xanh trên cùng
+sha · pin cũ: b480dbb8 · chữ ký người giữ nguyên.
