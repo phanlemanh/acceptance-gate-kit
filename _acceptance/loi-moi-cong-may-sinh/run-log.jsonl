@@ -31,3 +31,14 @@
 {"ts":"2026-09-02T13:39:39Z","sha":"2bda9c94268a99c73d8f1e2b43ff90446e4a47e0","round":3,"evalId":"E11","run_id":"lmcms-E11-r3","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
 {"ts":"2026-09-02T13:39:39Z","sha":"2bda9c94268a99c73d8f1e2b43ff90446e4a47e0","round":3,"evalId":"E8","run_id":"lmcms-E8-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-09-02T13:39:39Z","sha":"2bda9c94268a99c73d8f1e2b43ff90446e4a47e0","round":3,"evalId":"E10","run_id":"lmcms-E10-r3","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E1","run_id":"lmcms-E1-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E2","run_id":"lmcms-E2-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E3","run_id":"lmcms-E3-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E4","run_id":"lmcms-E4-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E5","run_id":"lmcms-E5-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E6","run_id":"lmcms-E6-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E7","run_id":"lmcms-E7-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E11","run_id":"lmcms-E11-r4","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E9","run_id":"lmcms-E9-r4","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E8","run_id":"lmcms-E8-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-09-02T15:16:01Z","sha":"873db3de27c591b2ae2b8bdff847d0b7ba39dcfc","round":4,"evalId":"E10","run_id":"lmcms-E10-r4","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
