@@ -228,14 +228,9 @@ trước, hỏi mở là đường cùng:
     tên) → đây là ca đường-cùng hợp lệ: HỎI tên, đúng một câu — nhưng vẫn
     theo luật khuyến-nghị-trước: có danh sách thì LIỆT nó ra để người chọn
     một chạm, chỉ hỏi trắng khi không còn ứng viên nào.
-  Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đúng một
-  tên VÀ bằng `git config user.name`) → GHI THẲNG rồi hiển thị lại «với danh
-  tính: <tên> <ngày> (từ <nguồn suy>)», KHÔNG chờ xác nhận: hai nguồn đã đồng
-  ý thì lượt chờ đó không thêm bảo đảm nào, chỉ thêm một chạm — và người vẫn
-  sửa được bằng một câu ngay sau đó. Mọi ca khác (một nguồn trống · hai nguồn
-  lệch · danh sách nhiều tên) thì HIỂN THỊ LẠI theo khuôn
-  «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC
-  khi ghi — khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã bắn: câu
+<!-- <<<IDENTITY-ECHO-RULE -->
+Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đúng một tên VÀ bằng `git config user.name`) → GHI THẲNG rồi hiển thị lại «với danh tính: <tên> <ngày> (từ <nguồn suy>)», KHÔNG chờ xác nhận: hai nguồn đã đồng ý thì lượt chờ đó không thêm bảo đảm nào, chỉ thêm một chạm — và người vẫn sửa được bằng một câu ngay sau đó. Mọi ca khác (một nguồn trống · hai nguồn lệch · danh sách nhiều tên) thì HIỂN THỊ LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+<!-- IDENTITY-ECHO-RULE>>> --> — khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã bắn: câu
   anh gõ / cờ `--as` / `git config` / `signoff.approvers`), vì hiển thị
   tên mà giấu xuất xứ là sai-tên-âm-thầm trên máy dùng chung. Mọi trả lời
   MANG NGHĨA KHẲNG ĐỊNH đều là xác nhận, dài hay ngắn, kể cả tin nhắn

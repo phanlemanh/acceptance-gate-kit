@@ -95,22 +95,32 @@ const ONE_SHOT_CMD_APPROVE = '/acceptance-gate:approve';
 const ONE_SHOT_CMD_SIGNOFF = '/acceptance-gate:signoff';
 // ONE-SHOT-CMD>>>
 const LBL_DOI_KHANG = 'PHÁN QUYẾT ĐỐI KHÁNG — máy thay mắt người ở phần vượt nhận thức';
-// <<<ROUTING-TABLE — mục thẻ → 'hoi' (ô người quyết, loại-5) | 'bao' (máy đã
-// đi tiếp, dòng báo + cửa veto). Không gian mục là MỞ, nên hàng '*' là MẶC
-// ĐỊNH và đoán về phía HỎI: nuốt một quyết định của người là chiều CẤM, còn
-// hỏi thừa chỉ tốn một dòng (đảo-chiều-mặc-định, gap-probe Gate 1.5 P1).
-// Bảng KHÔNG prototype: object literal làm `ROUTING['constructor']` trả giá trị
-// kế thừa (truthy, khác 'hoi') → mục lạ rơi về 'bao', đúng chiều CẤM. Cùng lớp
-// đã gọi tên cho các bảng tra khác trong file này.
-const ROUTING = Object.assign(Object.create(null), {
-  ngoai: 'hoi', judgment: 'hoi', ky: 'hoi', scope: 'bao',
-  // Loại entry sổ quyết định — khoá lấy TỪ DỮ LIỆU (`e.type`), nên loại lạ
-  // (schema đời sau, người gõ tay) rơi vào hàng '*' và hàng đó SỐNG.
-  descope: 'bao', approach: 'bao', fix: 'bao', revisit: 'bao',
-  '*': 'hoi',
-});
-// ROUTING-TABLE>>>
-const route = kind => (Object.prototype.hasOwnProperty.call(ROUTING, kind) ? ROUTING[kind] : ROUTING['*']);// LMCMS-MSG>>>
+// <<<ROUTING-RULE — ĐỔI KHUÔN (owner quyết 02/09 sau khi dừng-vá nổ ở S4-r2).
+// Bản trước LIỆT KÊ loại mục ('ngoai' · 'treo' · bốn loại entry sổ…) rồi để
+// hàng '*' hứng phần còn lại. Đó là allowlist trên KHÔNG GIAN MỞ — sổ quyết
+// định của xưởng đang dùng 11 loại, nên bốn loại được liệt làm hai hồ sơ thật
+// đổi nhóm Treo từ dòng-báo sang ô-hỏi. Sửa một allowlist bằng một allowlist
+// khác là đúng lớp lỗi vòng 1 vừa bắt.
+//
+// Khuôn mới KHÔNG hỏi «mục thuộc loại nào» mà hỏi «mục CÓ ĐỦ THUỘC TÍNH để máy
+// đi tiếp không»: máy chỉ được tự quyết khi quyết định ĐÃ ĐƯỢC GHI (có lời
+// quyết + có vế được-gì/mất-gì) — tức có sổ để đọc lại và có đường đảo. Thiếu
+// bất kỳ vế nào ⇒ rơi về NGƯỜI. Không danh sách, nên không có gì để trôi khi
+// schema mọc loại mới.
+// Khoá SỔ SÁCH — khung của một entry, không phải nội dung quyết định. Danh sách
+// này KHÔNG phải allowlist trên không gian mở: nó là bộ xương metadata do chính
+// schema ledger định, ổn định qua các đời; còn `type` mới là trường mở (xưởng
+// đang dùng 11 giá trị) và luật này KHÔNG hỏi tới nó.
+const LEDGER_META_KEYS = ['id', 'type', 'stage', 'at', 'by', 'gate', 'revisit', 'supersedes', 'decision', 'decided_by', 'decided_at'];
+// «Máy được tự đi tiếp» ⇔ quyết định ĐÃ ĐƯỢC GHI: có lời quyết, VÀ có ít nhất
+// một trường văn ngoài khung sổ sách mang căn cứ/hệ quả. Hỏi HÌNH DẠNG chứ
+// không hỏi TÊN TRƯỜNG: xưởng thật có hai phương ngữ (`impact` · `why`+
+// `evidence`), và một phương ngữ đời sau vẫn đọc được mà không phải sửa gì.
+const daGhiQuyetDinh = e => {
+  if (!e || !String(e.decision || '').trim()) return false;
+  return Object.keys(e).some(k => !LEDGER_META_KEYS.includes(k) && String(e[k] || '').trim());
+};
+// ROUTING-RULE>>>
 // <<<NO-DOSSIER-GUARD-BLOCK
 if (!contract.trim()) {
   const acc = path.join(root, '_acceptance');
@@ -790,22 +800,30 @@ ooc.findings.forEach((f, fi) => {
   const lbl = 'Ngoài-' + (fi + 1);
   const g = f.proposal ? outOfContract.OOC_GLOSS_NGUOI[f.proposal] : '';
   oneParts.push(`${lbl}: ${g || '___'}`);
-  (route('ngoai') === 'hoi' ? routingHoi : routingBao).push(lbl);
+  routingHoi.push(lbl);   // mục ngoài hợp đồng LUÔN là của người: ba lối ra đều sống
 });
-for (const d of decisions) { oneParts.push(`${d.id}: ___`); (route('judgment') === 'hoi' ? routingHoi : routingBao).push(d.id); }
-if (oos.length) { oneParts.push('cắt/hoãn: đồng ý cắt'); (route('scope') === 'hoi' ? routingHoi : routingBao).push('cắt/hoãn'); }
+for (const d of decisions) { oneParts.push(`${d.id}: ___`); routingHoi.push(d.id); }   // câu hỏi cần mắt người
+// Phạm vi đã được người duyệt Ở CỔNG 1 rồi — nhắc lại là trạm thu phí; máy
+// điền sẵn và báo, người sửa ô đó nếu đổi ý.
+if (oos.length) { oneParts.push('cắt/hoãn: đồng ý cắt'); routingBao.push('cắt/hoãn'); }
 if (decsProvisional.length) {
-  // Mỗi Treo định tuyến theo LOẠI THẬT của nó; một loại lạ kéo cả nhóm về Ô HỎI
-  // (đảo chiều mặc định: nuốt quyết định là chiều cấm, hỏi thừa chỉ tốn một dòng).
-  const treoHoi = decsProvisional.some(e => route(clean(e.type)) === 'hoi');
+  // Một Treo CHƯA ghi đủ quyết định thì máy không có gì để tự phê hộ → cả nhóm
+  // về Ô HỎI. Đảo chiều mặc định: nuốt một quyết định của người là chiều CẤM,
+  // hỏi thừa chỉ tốn một dòng.
+  const treoHoi = decsProvisional.some(e => !daGhiQuyetDinh(e));
   oneParts.push(treoHoi ? 'Treo: ___' : 'Treo: phê hết');
   (treoHoi ? routingHoi : routingBao).push('Treo');
 }
 { const lbl = MAY_DI_TIEP ? 'veto hay để yên' : 'ký hay trả';
-  oneParts.push(`${lbl}: ___`); (route('ky') === 'hoi' ? routingHoi : routingBao).push(lbl); }
+  oneParts.push(`${lbl}: ___`); routingHoi.push(lbl); }   // chữ quyết luôn của người
 // Thẻ KHÔNG-ký-được (REJECT/BLOCKED) không có câu gộp: mời ký ở đó là mời trên
 // một thẻ đang đỏ — đúng thứ audit 01/09 gọi tên.
+// Thẻ KHÔNG-ký-được (REJECT/BLOCKED): HTML in «không cần làm gì», nên routing
+// cũng phải RỖNG. Bản trước để routing khai 6 ô hỏi trong khi mặt người nói
+// không có việc — hai mặt đọc của CÙNG một thẻ khai khác nhau về số việc của
+// người, đúng lớp hai-nguồn-cho-một-luật (S4-r2).
 const oneShotG2 = approvable ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
+if (!approvable) { routingHoi.length = 0; routingBao.length = 0; }
 
 if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
 
