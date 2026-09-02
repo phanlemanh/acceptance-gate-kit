@@ -8,7 +8,7 @@ verified_by: implementing session (gap-probe context sạch do phiên tươi đ�
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 175999b964b34bb3812bf9b6c16fcf8669c77d26
-human_signoff:
+human_signoff: Manh Phan 2026-09-03 — ký mốc phát hành 2.7.0 với 7 known-limits đã khai; Ngoài-1 mở hợp đồng mới; đồng ý phạm vi đã cắt; phê cả 5 quyết định ghi sau Cổng Phạm vi; trần T3 đọc theo nguyên tắc, = 4
 ---
 
 # Evidence Report: release-2-7-0
