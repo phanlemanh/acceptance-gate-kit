@@ -57,10 +57,14 @@ wont-fix} → giữ nguyên chuỗi thô, thẻ in cờ vàng «đề xuất kh�
 chưa đề xuất hướng nào».
 
 **D6 · Cột SẼ/KHÔNG hết dò chữ 'không' giữa câu.** Thay `NEG_RE.test(thenOf)`
-(substring) bằng phép dò ĐẦU vế Then: chỉ xếp «sẽ KHÔNG làm» khi Then mở đầu
-bằng từ chối/chặn (`^\s*(KHÔNG\b|không\b|chặn\b|từ chối|refuse|reject)` —
-`không\b` chữ thường đầu vế TÍNH là từ chối, kể cả không kèm «được»; gap-probe
-P2);
+(substring) bằng phép dò MỆNH ĐỀ ĐẦU của vế Then — owner chọn tại Gate 1.5
+(02/09) trên số đo 566 AC thật: head-only cho 17 (mất ~100 ca chặn thật vì Then
+tiếng Việt mở đầu bằng chủ ngữ), mệnh-đề-đầu cho 109, NEG cũ 251. Luật: chỉ
+xếp «sẽ KHÔNG làm» khi phủ định/từ chối nằm TRƯỚC dấu phẩy/chấm phẩy đầu tiên
+của vế Then (`^[^,;.]{0,60}?\b(KHÔNG|không được|không|chặn|từ chối|refuse|reject|VIOLATION|thoát khác 0)\b`)
+— «không» sau dấu phẩy («…, không so hằng») là tiện thể, giữ cột SẼ làm;
+`không\b` chữ thường trong mệnh đề đầu TÍNH là từ chối (gap-probe P2). Đây là
+luật VỊ TRÍ, không phải danh sách đen mẫu gây nhầm;
 fixture đo là CHÍNH contract của release-2-5-0/2-6-0 (round-trip từ hồ sơ
 thật, nơi AC-1/AC-2/AC-6 từng bị xếp nhầm).
 
