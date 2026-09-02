@@ -7,7 +7,7 @@ reason: 11/11 eval máy XANH trên cây cuối 873db3de. Bảy finding TRONG h�
 verified_by: implementing session (đối kháng vòng 1–3 do ba phiên tươi độc lập; KHÔNG có phiên soi độc lập trên cây cuối — Known limits #1)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 873db3de27c591b2ae2b8bdff847d0b7ba39dcfc
+verified_commit: 175999b964b34bb3812bf9b6c16fcf8669c77d26
 human_signoff: Manh Phan 2026-09-02
 ---
 
@@ -233,3 +233,7 @@ Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt 
    (đúng trần) · ngoài thiết kế ≥6, phần lớn do hạ tầng phiên dừng và một lần
    máy khai «đang chạy» sai — không phải do vật; ghi để ba-dòng-số mốc 2.7.0
    không bỏ sót.
+
+### Re-pin lần 1 — 2026-09-03, do mốc 2.7.0 đổi manifest + bản ghi mốc định tuyến (sống trong hồ sơ này) thêm dòng hồ sơ mốc
+run_id: repin-20260903-r270-1
+sha: 175999b964b34bb3812bf9b6c16fcf8669c77d26 · suites: 4 lệnh exit 0 (scripts 795/0 · hooks 60/0 · plugins all-pass · workflows all-pass) + product-map --check khớp
