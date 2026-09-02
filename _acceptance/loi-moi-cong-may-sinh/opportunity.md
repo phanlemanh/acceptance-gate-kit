@@ -62,8 +62,8 @@ khớp tuyệt đối → bỏ lượt Enter-xác-nhận.
 Khai tại đây, đo ở vòng ĐẦU TIÊN chạy dưới thẻ mới (mọi số đọc từ ba-dòng-số
 của mốc phát hành kế — luật (c)):
 
-- **Lượt gọi người/vòng ≤ 3** (mốc phát hành ≤ 1) và **0 lượt ngoài thiết kế**.
-- **Chạm/lượt = 1** — người gửi nguyên câu gộp hoặc một chữ.
+- Lượt gọi người/vòng ≤ 3 (mốc phát hành ≤ 1) và 0 lượt ngoài thiết kế.
+- Chạm/lượt = 1 — người gửi nguyên câu gộp hoặc một chữ.
 - Ngưỡng chết: nếu vòng đầu dưới thẻ mới vẫn phát sinh lượt máy-tự-chèn hoặc
   lời mời chưa-ký-được-ngay → vá chưa trúng lớp, dừng-vá theo điều khoản.
 

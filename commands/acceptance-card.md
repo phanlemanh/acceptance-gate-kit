@@ -131,7 +131,7 @@ Steps:
    fragment inline if a visual tool is available). Thẻ đã liệt sẵn việc-của-người;
    TIN NHẮN trình thẻ theo điều khoản single-source (chép nguyên văn, một
    dòng):
-   Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, người trả lời một chữ là đủ, rồi nói máy làm gì tiếp; không khuôn, không ô trống, không mã bắt buộc — máy không viết sẵn câu trả lời của người và không hỏi phút.
+   Mời cổng như đồng nghiệp hỏi: một câu hỏi đóng, nói ngả máy khuyên và vì sao, kèm ĐÚNG MỘT dòng lệnh máy đã điền sẵn mọi ô có khuyến nghị — người chỉ gõ chữ quyết định hoặc sửa ô mình nghĩ khác, rồi máy nói mình làm gì tiếp; máy không viết sẵn CHỮ QUYẾT của người và không hỏi phút.
 
 6. **(Gate 2 only — `evidence-report.md` present) Full evidence page + AUTO-OPEN.**
    The card is intentionally link-only; the human SEES the real artifacts here. Run
