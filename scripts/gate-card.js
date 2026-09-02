@@ -81,6 +81,12 @@ const MSG_NO_CONTRACT  = 'gate-card: hồ sơ chưa có contract.md';
 const MSG_O_DA_DONG    = 'gate-card: ý đã đóng';
 const MSG_HO_SO_HONG   = 'gate-card: hồ sơ hỏng';
 // NO-DOSSIER-GUARD>>>
+// <<<LMCMS-MSG — hồ sơ loi-moi-cong-may-sinh (2.7): hai đường FAIL-QUIET của
+// thẻ nay kêu to. Chuỗi khai ở đây là MỘT nguồn; lưới thường trực rút từ đây
+// (khuôn gmpick), không gõ literal — đổi chữ mà quên test là đỏ ngay.
+const MSG_OOC_SUSPECT = 'mục «Ngoài hợp đồng» có chữ nhưng máy không đọc ra finding nào — sai khuôn OOC-ITEM-TEMPLATE, khối đang bị GIẤU khỏi thẻ; soi review-findings.md trước khi ký';
+const MSG_PROPOSAL_LA = 'đề xuất không đọc được';
+// LMCMS-MSG>>>
 // <<<NO-DOSSIER-GUARD-BLOCK
 if (!contract.trim()) {
   const acc = path.join(root, '_acceptance');
@@ -745,6 +751,7 @@ P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-b
 if (ooc.unclassified) {
   P.push(`<div class="lab">Phân loại phạm vi chưa đầy đủ</div><div class="flag fwarn">⚠ Bước phân loại phạm vi không chạy trọn — máy không tự sửa lỗi nào trong vòng này. Xem đủ danh sách trong review-findings.md trước khi ký.</div>`);
 }
+if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   P.push(`<div class="flag fwarn">Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.</div>`);
@@ -755,6 +762,10 @@ if (ooc.findings.length) {
       // không đáng sửa — máy khuyên chấp nhận có ghi vết; file đời cũ không có
       // giá trị này rơi xuống nhánh mặc định như trước (đường đọc-cũ).
       : f.proposal === 'wont-fix' ? 'Máy đề xuất: không sửa — chấp nhận và ghi vết, không mở việc nào.'
+      // Token ngoài danh sách KHÔNG được nuốt thành «chưa đề xuất»: bước triage
+      // ĐÃ nêu hướng, chỉ viết sai khuôn máy-đọc. Nói sai thành «chưa có» là
+      // giấu một đề xuất có thật khỏi người quyết (vết 01/09: «ghi Known limits»).
+      : f.proposal_raw ? `${MSG_PROPOSAL_LA}: «${f.proposal_raw}» — dùng một trong: ${outOfContract.PROPOSALS.join(' · ')}`
       : 'Máy chưa đề xuất hướng nào.';
     // In câu ngôn ngữ sản phẩm do bước triage viết. Thiếu nó thì nói thẳng là
     // thiếu — TUYỆT ĐỐI không rơi về title kỹ thuật của reviewer, vì đó là thứ
