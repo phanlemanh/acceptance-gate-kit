@@ -55,7 +55,10 @@ chỉ khai QUYẾT ĐỊNH; danh tính và ngày là điều máy biết:
   tên) → hỏi tên đúng một câu, có danh sách thì LIỆT ra để người chọn một
   chạm. Vắng ngày → ngày
   lệnh chạy; suy xong HIỂN THỊ
-  LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+  LẠI: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đúng một tên VÀ
+  bằng `git config user.name`) → ghi thẳng rồi hiển thị lại «với danh tính:
+  <tên> <ngày> (từ <nguồn suy>)», không chờ; mọi ca khác thì «với danh tính:
+  <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
   Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính
   (sửa được cả tên lẫn ngày ở cùng dòng đó); người tự khai phần nào thì phần đó ghi

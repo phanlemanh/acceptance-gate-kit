@@ -3,7 +3,7 @@
 // Fixture CODE-SINH trong chính lần chạy; mọi chuỗi ghim RÚT từ hằng của
 // scripts/gate-card.js (khuôn gmpick) — không gõ literal ở phía test.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -246,6 +246,34 @@ check('LM12 the KHONG-ky-duoc (REJECT) -> one_shot = null, khong moi ky', () => 
   f['evidence-report.md'] = REPORT_PASS.replace('verdict: PASS', 'verdict: REJECT').replace('| E1 | AC-1 | test | PASS |', '| E1 | AC-1 | test | FAIL |');
   const j = extract(mkWs('s', f), 's');
   if (j.one_shot !== null) die('the khong ky duoc van co one_shot: ' + j.one_shot);
+});
+
+// ── Task 8: quét TRỌN xưởng — cờ oan không được xanh lén (E11) ──
+// Baseline đã ĐỊNH ĐOẠT từng dòng (sweep-baseline.txt). Ca này giữ nó: một cờ
+// vàng MỚI ở bất kỳ hồ sơ nào — kể cả hồ sơ đã có tên trong baseline — đều
+// lệch, vì baseline ghi cả LOẠI cờ chứ không chỉ slug.
+check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
+  const base = readFileSync(path.join(ROOT, '_acceptance', 'loi-moi-cong-may-sinh', 'sweep-baseline.txt'), 'utf8')
+    .split('\n').filter(l => l.trim() && !l.startsWith('#'))
+    .map(l => l.split('\t').slice(0, 2).join('\t')).sort();
+  const acc = path.join(ROOT, '_acceptance');
+  const got = [];
+  for (const slug of readdirSync(acc)) {
+    if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
+    const r = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
+    if (r.status !== 0) continue;
+    let j; try { j = JSON.parse(r.stdout); } catch { continue; }
+    const o = j.out_of_contract || {};
+    const kinds = new Set();
+    if (o.suspect_empty) kinds.add('suspect_empty');
+    for (const x of (o.findings || [])) if (x.proposal_raw && !x.proposal) kinds.add('token-la');
+    if (j.roi_bac && j.roi_bac.on) kinds.add('roi-bac');
+    for (const k of kinds) got.push(slug + '\t' + k);
+  }
+  got.sort();
+  if (JSON.stringify(got) !== JSON.stringify(base)) {
+    die('lech baseline\n  got: ' + JSON.stringify(got) + '\n base: ' + JSON.stringify(base));
+  }
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-lmcms)`);

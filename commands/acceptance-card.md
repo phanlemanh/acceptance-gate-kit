@@ -69,6 +69,20 @@ Steps:
    present → Gate 2, else Gate 1):
    `node <gate-card.js> --root . --slug <slug> --extract`
 
+   Từ 2.7, JSON còn ba khoá thẻ tự tính — ĐỌC chúng, đừng soạn lại bằng tay:
+   - `one_shot` — trọn dòng lệnh cho người: tên lệnh plugin đầy đủ, mọi ô đã có
+     khuyến nghị máy đã điền sẵn, `___` chỉ ở ô người phải tự chấm và ở chữ
+     quyết. `null` nghĩa là thẻ này KHÔNG ký được (REJECT/BLOCKED) — đừng mời ký.
+   - `routing` — `hoi` là các mục người phải quyết, `bao` là các mục máy đã đi
+     tiếp và chỉ báo lại. Khối «VIỆC CỦA ANH» chỉ được chứa mục trong `hoi`.
+   - `roi_bac` (Cổng 1) — đối kháng máy không chạy được (gap-probe vắng khi repo
+     khai `required`, file hỏng, verdict lạ, probe-failed). Bật thì thẻ KHÔNG
+     điền sẵn gì và lời mời phải nói thẳng: phần vượt-nhận-thức rơi về người,
+     chữ ký ở đây không có nghĩa «đối kháng đã hội tụ».
+
+   Thuật lại cho người: in `one_shot` NGUYÊN VĂN để họ dán lại và sửa ô nào họ
+   nghĩ khác — đừng diễn đạt lại thành câu khác, người sẽ gõ tay và mất một lượt.
+
    Gate 1 + repo có `CONTEXT.md` → thêm `--glossary-base <merge-base với nhánh
    chính>` (vd `$(git merge-base HEAD origin/main)`) để thẻ trình khối "Từ vựng
    chốt ở feature này" (term mới/sửa). Đây là lối gọi DUY NHẤT khiến gate-card
