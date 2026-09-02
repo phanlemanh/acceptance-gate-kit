@@ -5,7 +5,7 @@ slug: loi-moi-cong-may-sinh
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/out-of-contract.js (t3_paths) — lõi cưỡng chế đọc hồ sơ
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: docs/superpowers/specs/2026-09-02-loi-moi-cong-may-sinh-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-02T00:58:38Z
