@@ -9,7 +9,7 @@ status: approved
 approved_by:
 approved_at:
 veto_state: mo
-veto_opened_at: 2026-09-02T16:45:00Z
+veto_opened_at: 2026-09-02T16:30:00Z
 ---
 
 # Acceptance Contract: release-2-7-0
@@ -24,7 +24,7 @@ ký** — vòng meta duy nhất của cửa sổ, owner gọi tên 01/09:
 
 Diff của mốc, ngoài `_acceptance/` và `docs/`, là **mười hai file**:
 
-- **Sáu file hành vi người dùng gặp:** `scripts/gate-card.js` (207 dòng) ·
+- **Sáu file hành vi người dùng gặp:** `scripts/gate-card.js` (+173/−34 dòng, file 853→992) ·
   `lib/out-of-contract.js` · `commands/acceptance-card.md` ·
   `commands/approve.md` · `commands/signoff.md` ·
   `skills/acceptance/references/human-facing-language.md`.
@@ -42,11 +42,16 @@ Không đổi schema, không cần migrate. `lib/out-of-contract.js` nằm trong
 Người dùng kit nhận gì (đọc trong diff manifest, mục v2.7.0):
 
 1. Thẻ Cổng 1/2 in **một dòng lệnh đã điền sẵn** mọi ô có khuyến nghị máy;
-   chỉ chừa ô chỉ-người-biết và chữ quyết. Điểm dữ liệu thật: Radar 2.6.0 ký
-   Cổng 2 hôm 02/09 tốn 2 chạm (4 ô, 2 nghi thức) — dưới 2.7.0 còn 2 ô, cả
-   hai là câu hỏi thật.
-2. Khối **PHÁN QUYẾT ĐỐI KHÁNG** thay mắt người ở phần vượt nhận thức; luật rơi
-   bậc: đối kháng không chạy được → thẻ khai thẳng, không điền sẵn.
+   chỉ chừa ô chỉ-người-biết và chữ quyết. Điểm dữ liệu QUAN SÁT (không phải
+   phép đo của repo này — khai từ ảnh chụp hội thoại, sổ #136 entry 7004):
+   Radar 2.6.0 ký Cổng 2 cùng ngày 02/09 tốn 2 chạm (4 ô, 2 nghi thức); dưới
+   luật định tuyến 2.7.0 hai ô nghi thức được điền sẵn, còn 2 ô thật — suy từ
+   luật, chưa render trên hồ sơ Radar.
+2. Khối **PHÁN QUYẾT ĐỐI KHÁNG** trên thẻ Cổng 2 thay mắt người ở phần vượt nhận
+   thức. Luật rơi bậc (đối kháng không chạy được → thẻ khai thẳng, KHÔNG điền
+   sẵn) chỉ có ở **thẻ Cổng 1** (AC-4 của #136); thẻ Cổng 2 vẫn điền sẵn
+   cắt/hoãn + Treo dù gap-probe vắng hay hỏng — gap-probe mốc này bắt (P0),
+   ghi Known limits, là ô cho vòng sau, không sửa ở mốc phát hành.
 3. Ba đường fail-quiet đóng: khối ngoài-hợp-đồng sai khuôn → cờ vàng thay vì
    biến mất trước lúc ký; token đề xuất lạ → cờ; cột SẼ/KHÔNG hết xếp nhầm vì
    chữ «không» giữa câu.
@@ -65,14 +70,20 @@ phẩm quan sát được ở kho tiêu thụ trong cùng cửa sổ: Radar
 
 | Hồ sơ | Loại | Vòng chấm | Lượt gọi người | Hạ-tầng-kit đốt lượt | Làm-xong → quyết-được |
 |---|---|---|---|---|---|
-| `loi-moi-cong-may-sinh` (#136) | **meta**, T3 | 3 chấm + 1 đo lại (r1 REJECT · r2 REJECT dừng-vá · r3 REJECT dừng-vá · r4 PASS với giới hạn) | **trong thiết kế 4** (Cổng Đáng · Cổng Phạm vi · Gate 1.5 · Cổng Bằng chứng — đúng số cổng T3) · **ngoài thiết kế ≥7** (2 lần dừng-vá trình người · ≥4 lần phiên dừng phải nhắc «tiếp tục/resume» · 1 lần máy khai «đang chạy» sai) | 1 | 11:52 implemented → 23:16 ký = **11h24**; trên cây cuối 22:08 → 23:16 = **1h08** |
-| Radar `dong-ho-chi-nhan-ngay-co-that` | sản phẩm, kho tiêu thụ | 8 (dừng-vá nổ ba lần, ship với giới hạn) | Cổng 2: **1 lượt, 2 chạm** (4 ô, 2 nghi thức — chính lớp mốc này cắt) | chưa đếm tay trọn vòng | chưa đếm |
+| `loi-moi-cong-may-sinh` (#136) | **meta**, T3 | 3 chấm + 1 đo lại (r1 REJECT · r2 REJECT dừng-vá · r3 REJECT dừng-vá · r4 PASS với giới hạn) | **trong thiết kế 4** (Cổng Đáng · Cổng Phạm vi · Gate 1.5 · Cổng Bằng chứng) · **ngoài thiết kế ≥6 có vết** (2 lần dừng-vá trình người · 2 lần phiên dừng owner phải nhắc «tiếp tục» · 1 lần rớt mạng «resume» · 1 lần máy khai «đang chạy» sai — findings 02/09 trích owner bắt «hai lần») | 1 | 11:52 implemented → 23:16 ký = **11h24**; trên cây cuối 22:08 → 23:16 = **1h08** |
+| Radar `dong-ho-chi-nhan-ngay-co-that` | sản phẩm, kho tiêu thụ | 8 vòng chấm, dừng-vá nổ ba lần, ship với giới hạn — **đọc từ sổ quyết định của Radar, ngoài repo này** | Cổng 2: **1 lượt, 2 chạm** (4 ô, 2 nghi thức — khai từ ảnh chụp, không phải phép đo) | chưa đếm tay trọn vòng | chưa đếm |
 
-- **Số lần gọi người / vòng kit: ≥11**, trong đó **4** đúng thiết kế T3 và
-  **≥7** ngoài thiết kế. Mục tiêu luật (c) là ≤3 và **0 ngoài thiết kế** — mốc
-  này TRƯỢT mục tiêu, và trượt ở **hạ tầng phiên**, không ở vật: hai lần dừng-vá
-  là phanh có thiết kế nhưng vẫn là lượt gọi; năm lần còn lại là phiên tự dừng
-  giữa S4 mà không dùng `/goal` (owner chẩn 02/09, sổ
+- **Số lần gọi người / vòng kit: ≥10**, trong đó **4** ở cổng thiết kế và
+  **≥6** ngoài thiết kế (evidence-report #136 đã ký đếm 3/≥6 — thiếu chữ ký
+  Cổng 2 vì viết trước lúc ký; số ở đây là lần đếm sau, có chữ ký). Mục tiêu
+  luật (c): ≤3 lượt/vòng, 0 ngoài thiết kế. Mốc này **TRƯỢT ở CẢ HAI vế**:
+  ngoài thiết kế ≥6 thay vì 0; và ngay cả 0 ngoài thiết kế thì T3 vẫn 4 > 3, vì
+  T3 có Gate 1.5 mà luật (c) liệt ba cổng (Đáng · Phạm vi · Bằng chứng) không có
+  nó. Hai cách đọc, KHÔNG chọn hộ owner: (a) đọc nguyên văn — T3 trượt cấu
+  trúc, mọi vòng T3 đều ≥4; (b) đọc theo nguyên tắc «3 = số cổng người trong
+  thiết kế» — T3 có 4 cổng nên trần T3 là 4. Câu hỏi cho owner ở Cổng Bằng
+  chứng mốc này. Phần trượt do **hạ tầng phiên** (≥4 lượt) là thật bất kể cách
+  đọc: phiên tự dừng giữa S4 mà không dùng `/goal` (owner chẩn 02/09, sổ
   `docs/findings/2026-09-02-may-khai-dang-chay-va-bo-goal.md`).
 - **Chạm / lượt: 1** ở cả bốn cổng thiết kế (Cổng 2: một câu gộp chép nguyên).
 - **Vòng bị hạ-tầng-kit đốt lượt chấm: 1/1** — chính vòng này (phiên dừng ×4,
@@ -83,7 +94,7 @@ phẩm quan sát được ở kho tiêu thụ trong cùng cửa sổ: Radar
 
 ### Chỗ cắt gọi tên cho cửa sổ kế (luật (c) bắt buộc)
 
-**Lượt ngoài thiết kế do phiên dừng giữa S2→S4.** Số: ≥5/vòng ở mốc này, 0 là
+**Lượt ngoài thiết kế do phiên dừng giữa S2→S4.** Số: ≥4/vòng có vết ở mốc này, 0 là
 mục tiêu. Cách cắt đã có tên trong kit: `/goal` + GOAL-TEMPLATE là cơ chế duy
 nhất làm S2→S4 chạy không cần người; nó phải là bước **máy tự làm** khi vào S2,
 không phải thứ người nhắc sau khi thấy phiên dừng. Đây không phải vòng meta mới:
@@ -117,3 +128,10 @@ bằng máy» còn ở Out of scope của #136.
 - **Đếm tay trọn ba dòng số cho vòng Radar** — kho tiêu thụ, vết hội thoại không nằm trong repo này; ghi điểm dữ liệu quan sát được, để mốc kế đếm.
 - Ghim lại các hồ sơ đã ký đang hoá cũ — §7.1: chiến dịch ghim lại là việc SAU khi mốc merge.
 - Hai mục «mở hợp đồng mới» của #136 (Ngoài-1 · Ngoài-5) và hạt giống «Bất biến sản phẩm» — chờ owner gọi tên, luật Giới hạn CHIỀU RỘNG.
+
+## Notes
+
+- Known limits: AC-1 ghim literal `2.7.0` — cố ý, số của một mốc là hằng của mốc đó; P200 vẫn đọc từ manifest (P2 lặp từ 2.6.0, không phải lỗi).
+- Known limits: thẻ Cổng 2 KHÔNG có luật rơi bậc — gap-probe vắng/hỏng vẫn điền sẵn cắt/hoãn + Treo (gap-probe mốc này P0; phạm vi AC-4 của #136 chỉ là Cổng 1). Ô cho vòng sau, không sửa ở mốc phát hành.
+- Known limits: bản ghi mốc định tuyến (`routing-baseline.txt`) và cờ vàng (`sweep-baseline.txt`) sống TRONG hồ sơ đã ký `loi-moi-cong-may-sinh`, nên mỗi hồ sơ mới hoặc đổi trạng thái kéo hồ sơ đó vào diff → phải ghim lại. Mốc này trả thuế đó hai lần; chỗ đúng là `tests/scripts/fixtures/`, gộp vào Ngoài-1 của #136 khi mở.
+- Timestamp sổ quyết định S1 ghi tay `16:30:00Z`, trước commit mở hồ sơ (gap-probe bắt bản đầu ghi 16:45Z sau commit 16:34Z — lớp lặp từ 2.5.0/2.6.0).
