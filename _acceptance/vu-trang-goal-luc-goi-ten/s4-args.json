@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-03T06:17:49Z",
-  "generated_sha": "62b69819dc4c829010105ebd8dffab465f3511fd",
+  "generated_at": "2026-09-03T08:45:08Z",
+  "generated_sha": "094c9eadc22a439bb8ef92c88648d4e3f9da6065",
   "mainBranchInfo": {
     "branch": "main",
     "source": "remote"
   },
   "slug": "vu-trang-goal-luc-goi-ten",
-  "round": 2,
+  "round": 3,
   "riskTier": "T2",
   "evals": [
     {
@@ -28,7 +28,7 @@
       "id": "E2",
       "criterion": "AC-2",
       "cmd": "bash tests/scripts/run-tests.sh",
-      "expected": "Ca «GL01 goal_line == khuon rut qua marker (moi <slug> thay, mot dong, 0 <slug> sot)» PASS; test rút\nkhuôn từ marker GOAL-TEMPLATE của gate-card.js, thay <slug> bằng phép thay độc lập, không gõ literal.",
+      "expected": "Dòng PASS đích danh trong stdout suite scripts: «PASS: GL01 goal_line == khuon rut qua marker (moi <slug> thay, mot dong, 0 <slug> sot)»\nvà «PASS: GL00 khuon trong gate-card.js: 6 dong, co dung 2 <slug>, bat dau bang /goal»; kỳ vọng dựng từ khối SKILL (nguồn khác), không gõ literal.",
       "executor": "test",
       "evidence_required": [
         "run_id",
@@ -43,7 +43,7 @@
       "id": "E3",
       "criterion": "AC-3",
       "cmd": "bash tests/scripts/run-tests.sh",
-      "expected": "Ca «GL02 .mach.goal <b> == goal_line (dang thuc, ngay sau .mach)», «GL03 the do van in goal_line» và\n«GL04 Cong 2 KHONG co goal_line lan .mach.goal» PASS; đột biến nối đuôi vào dòng HTML → GL02 đỏ.",
+      "expected": "Ba dòng PASS đích danh trong stdout suite scripts: «PASS: GL02 HTML Cong 1: .mach.goal KE NGAY SAU .mach cua one_shot, <b> == goal_line (dang thuc)»,\n«PASS: GL03 the DO (roi bac: gap_probe required, vang file) VAN co goal_line + .mach.goal», «PASS: GL03b the DO (g1Blocked»,\n«PASS: GL04 the Cong 2: KHONG co goal_line, KHONG co .mach.goal (doi chung chieu nguoc)»; đột biến nối đuôi vào dòng HTML → GL02 đỏ (trong chính ca).",
       "executor": "test",
       "evidence_required": [
         "run_id",
@@ -58,7 +58,7 @@
       "id": "E4",
       "criterion": "AC-4",
       "cmd": "bash tests/plugins/run-tests.sh",
-      "expected": "\"Ca P-mới «S1 moi cau xin duyet thiet ke kem GOAL-TEMPLATE · S1#5 khong phai cong · S1#7 gap-probe dong bo · Gate 1 giu buoc in · S2#3 GATE 1.5 kem /goal» PASS (grep neo chữ, đo chỉ dẫn).\"",
+      "expected": "Dòng PASS đích danh trong stdout suite plugins: «PASS: P85b GOAL-ARM: S1 moi cau xin duyet kem GOAL-TEMPLATE · S1#5 khong phai cong · S1#7 dong bo · Gate 1 giu · GATE 1.5 kem /goal · bat bien dung goi ten bao-roi-ngung · GUIDE ba thoi diem (do chi dan)»\nvà các dòng vế «P85b VE: S1#1 moi cau xin duyet kem khoi», «P85b VE: S1#5 dong goal KHONG phai mot cong», «P85b VE: S1#7 gap-probe DONG BO», «P85b VE: Gate 1 giu lenh in», «P85b VE: GATE 1.5 kem /goal» (grep neo chữ theo MỤC — đo chỉ dẫn, khai thẳng).",
       "executor": "test",
       "evidence_required": [
         "run_id",
@@ -73,7 +73,7 @@
       "id": "E5",
       "criterion": "AC-5",
       "cmd": "bash tests/plugins/run-tests.sh",
-      "expected": "\"Ca P-mới «GUIDE /goal: ba thoi diem + lan V T2 khong cham UI + brainstorm khong hoi → chua phu; 0 cau ‹hai ban› con sot o SKILL/GUIDE/P85» PASS; P85 các vế khuôn không đổi vẫn PASS.\"",
+      "expected": "Dòng vế đích danh trong stdout suite plugins: «P85b VE: GUIDE: ba thoi diem», «P85b VE: GUIDE: lan V T2 khong cham UI», «P85b VE: GUIDE: brainstorm khong hoi -> chua phu»,\n«P85b VE: GUIDE: ba ban P85», «P85b VE: GUIDE «Khi nao» dem du (1)(2)(3), khong (4)»; và «PASS: P85 GOAL-TEMPLATE 3 ban (SKILL · GUIDE · gate-card) khop sau strip, 6 dong, lenh in noi voi khoi» — khuôn không đổi chữ.",
       "executor": "test",
       "evidence_required": [
         "run_id",
@@ -88,7 +88,7 @@
       "id": "E6",
       "criterion": "AC-6",
       "cmd": "bash tests/plugins/run-tests.sh",
-      "expected": "\"Ca P-mới «bat bien dung goi ten ca tien-trinh-nen-bao-xong» PASS (grep neo chữ).\"",
+      "expected": "Dòng vế đích danh trong stdout suite plugins: «P85b VE: bat bien dung: tien trinh nen bao xong -> di tiep cung luot» và\n«P85b VE: bat bien dung: bao-roi-ngung la dung ngoai thiet ke» (grep neo chữ trong khối bất biến — đo chỉ dẫn).",
       "executor": "test",
       "evidence_required": [
         "run_id",
@@ -141,34 +141,8 @@
   "templatePath": "/Users/manhphan/dev/acceptance-gate-kit/skills/acceptance/references/evidence-report-template.md",
   "toolKillRule": "# TOOL-KILL-RULE — lệnh bị công cụ ngắt KHÔNG phải lệnh fail\n\n**Nguồn duy nhất** của luật «hết giờ không phải trượt» cho MỌI đường chạy lệnh\nkiểm của kit. Hai đường tiêu thụ, cùng đọc khối marker dưới đây, không chép tay:\n\n- **Vòng lặp tính năng** (plugin feature-loop): skill `feature-loop` đọc file này\n  (resolve qua `resolve-plugin.mjs --require skills/acceptance/references/tool-kill-rule.md`)\n  và truyền NGUYÊN VĂN vào `args.toolKillRule` của workflow\n  `acceptance-verify.js`; workflow rút khối marker và nội suy vào prompt của mọi\n  agent chạy lệnh (machine · ui-check · baseline). Thiếu args hoặc không rút\n  được marker → workflow trả BLOCKED có tên, không chạy không luật.\n- **Đường VERIFY độc lập** (skill `acceptance` Phase 3): phiên điều phối chép khối\n  marker VERBATIM vào prompt của phiên tươi VERIFY, cùng nếp «Network truth».\n\nVì sao có luật: verifier chạy lệnh qua Bash tool có trần thời gian mặc định\n(~120 s) NGẮN hơn nhiều suite; lệnh bị công cụ giết trả exit code CỦA CÔNG CỤ,\nkhông phải của lệnh (vấp thật release-2-2-0 S4 r5: suite 108 s đơn lẻ, dưới tải\nbị giết ở 118 s → REJECT giả 4 eval). Nhận diện là việc AGENT (nó thấy tool\nresult thật); phần máy chỉ phòng thủ trên field cấu trúc `killedByTool` —\nKHÔNG grep nội dung output trong engine (chuỗi tổng kết là của suite từng repo).\n\n<!-- <<<TOOL-KILL-RULE -->\nTRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason \"bi cong cu giet o <so giay> giay\" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.\n<!-- TOOL-KILL-RULE>>> -->\n\n## Hồ sơ cho lượt bị ngắt (đường độc lập)\n\nPhiên tươi VERIFY gặp lệnh bị công cụ ngắt thì:\n\n- dòng run-log của eval đó: `\"exit_code\": null, \"killed_by_tool\": true` (không\n  ghi mã thoát của công cụ như mã thoát của lệnh);\n- verdict báo cáo `BLOCKED`, `reason: bi cong cu giet o <so giay> giay — <eval ids>`\n  (kèm dấu hiệu: timeout tool / output cắt trước dòng tổng kết); `failed_evals`\n  rỗng — người đọc hồ sơ thấy đây là sự cố hạ tầng, chữa bằng chạy lại với trần\n  công cụ đủ dài, không phải sửa sản phẩm.\n",
   "contractPath": "/Users/manhphan/dev/acceptance-gate-kit/_acceptance/vu-trang-goal-luc-goi-ten/contract.md",
-  "invokedAt": "2026-09-03T06:17:49Z",
-  "invokedSha": "62b69819dc4c829010105ebd8dffab465f3511fd",
-  "evalsHash": "43fa29841a90e40847b9d589fa8a53a68fdc461bbc0a340ebaefabd1ea80300f",
-  "runBaseline": false,
-  "carriedAnalyst": {
-    "fromRound": 1,
-    "nonDiscriminating": [
-      {
-        "cmd": "bash tests/plugins/run-tests.sh",
-        "evals": [
-          "E1",
-          "E4",
-          "E5",
-          "E6"
-        ]
-      },
-      {
-        "cmd": "bash tests/hooks/run-tests.sh",
-        "evals": [
-          "E7"
-        ]
-      },
-      {
-        "cmd": "bash tests/workflows/run-tests.sh",
-        "evals": [
-          "E8"
-        ]
-      }
-    ]
-  }
+  "invokedAt": "2026-09-03T08:45:08Z",
+  "invokedSha": "094c9eadc22a439bb8ef92c88648d4e3f9da6065",
+  "evalsHash": "23c24ced452c8a0b97a5123b6fa3d6e3aa274eb99df7f86f9c19cb1dbf41e643",
+  "runBaseline": true
 }
