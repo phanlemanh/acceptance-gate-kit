@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 93da8752ca0e504fcd92391ee43c6897ef7fb314
+verified_commit: 9f76d6d329bf6e7476e11cd88f2bd327b46d8c58
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -244,3 +244,19 @@ hồ sơ đã nằm trong main nên hai đầu bằng nhau, phép đo tự hết
 đúng lớp «răng hồ sơ neo mốc di động chết theo hồ sơ khi merge» mà chú thích
 config.yaml khai trước cho cả họ răng này. Lưới thường trực thay vai
 (`kvtm_suite_case` ghim đúng dòng ca trong suite) chạy XANH trên cùng sha.
+
+### Re-pin lần 3 — 2026-09-03, chiến dịch mốc 2.7.0 (§7.1)
+
+Đường khai của hồ sơ (`scripts/gate-card.js` · `commands/acceptance-card.md`)
+bị cửa sổ phát hành chạm sau pin (#136 thêm câu gộp, bảng định tuyến, khối đối
+kháng, ba hằng thông điệp). **Răng bắt trôi thật:** chân `round-trip` đỏ 13/26
+trên `f265b475` — ba hằng `MSG_OOC_SUSPECT` · `MSG_PROPOSAL_LA` · `MSG_ROI_BAC` có
+ở bên viết mà thân lệnh không có dòng thuật; bốn suite vẫn xanh (bất biến này
+nằm ngoài suite — 2.6.0 đã khai Known limits). Sửa ở `9f76d6d3`: ba dòng thuật
+riêng trong bước tiền đề. Chạy lại trọn 10 chân trên cây sửa.
+run_id: repin-270-lane-kvtm
+sha: 9f76d6d329bf6e7476e11cd88f2bd327b46d8c58 · rang.sh **9/10 chân exit 0** · pin cũ: 93da8752 · chữ ký người giữ nguyên.
+
+Chân `suite-tong` đỏ — chết theo thiết kế sau merge (như lần 2): neo `origin/main`
+làm đối chứng, đòi cây hiện tại ≥ base+6 ca (base 792 · cây 795). Lưới thường
+trực `kvtm_suite_case` thay vai, XANH trên cùng sha.

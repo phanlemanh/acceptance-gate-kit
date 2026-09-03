@@ -65,6 +65,14 @@ Steps:
    - `gate-card: ý đã đóng` → ý này đã được xếp lại hoặc đã dừng, nên không có gì để ký và không ai phải làm gì tiếp; mở lại nó là một quyết định riêng, không phải bước kế.
    - `gate-card: hồ sơ hỏng` → hồ sơ của việc này ghi sai một chỗ nên máy không đọc được nó đang ở nấc nào; việc kế là sửa đúng chỗ máy vừa gọi tên rồi quay lại.
 
+   Từ 2.7 thẻ còn BA thông điệp KHÔNG phải ca từ chối — mã thoát 0, thẻ vẫn dựng —
+   nhưng cũng là chữ máy phát ra mà người phải hiểu đang ở ca nào; mỗi thông điệp
+   một lời thuật riêng, cùng nếp «mỗi hằng bên viết một dòng bên đọc» (răng
+   `khong-ve-the-ma` đếm hằng từ `gate-card.js`, thiếu dòng nào là đỏ):
+   - `mục «Ngoài hợp đồng» có chữ nhưng máy không đọc ra finding nào — sai khuôn OOC-ITEM-TEMPLATE, khối đang bị GIẤU khỏi thẻ; soi review-findings.md trước khi ký` → cờ vàng trên thẻ Cổng 2: có mục ngoài hợp đồng viết sai khuôn nên thẻ không in được mục nào, tức người sắp ký mà không thấy nó; việc kế là sửa `review-findings.md` theo khuôn OOC-ITEM-TEMPLATE rồi dựng thẻ lại — đừng ký khi khối còn bị giấu.
+   - `đề xuất không đọc được` → cờ vàng trên một mục Ngoài-<số>: phiên soi ghi đề xuất bằng chữ người thay vì một trong ba token máy đọc; thẻ in nguyên văn chữ đó kèm ba token hợp lệ, ô ấy trong dòng lệnh để trống — người chọn một trong ba ở câu gộp, máy KHÔNG đoán thay.
+   - `Đối kháng máy KHÔNG chạy được — phần vượt-nhận-thức RƠI VỀ ANH: thẻ này không điền sẵn ô nào, và chữ ký ở đây KHÔNG có nghĩa «đối kháng đã hội tụ». Anh tự đọc vật, hoặc chạy lại bước phản biện context sạch rồi dựng thẻ lại.` → khối rơi bậc trên thẻ Cổng 1: gap-probe vắng khi repo khai `required`, hỏng, hay verdict lạ, nên phần lẽ ra máy soi thay mắt người nay rơi về người; dòng lệnh không điền sẵn gì, và người ký lúc này là ký trên vật tự đọc — nói rõ điều đó, đừng mời ký như thẻ thường; việc kế rẻ nhất là chạy lại phản biện context sạch rồi dựng thẻ lại.
+
 3. **Extract** the bits to translate (gate auto-detected: `evidence-report.md`
    present → Gate 2, else Gate 1):
    `node <gate-card.js> --root . --slug <slug> --extract`
