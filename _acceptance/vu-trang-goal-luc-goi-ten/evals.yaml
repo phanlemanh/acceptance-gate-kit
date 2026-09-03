@@ -1,0 +1,58 @@
+# evals — vu-trang-goal-luc-goi-ten
+# Fixture code-sinh, khuôn rút qua marker, đối chứng dương + đột biến trong chính ca.
+# Trục B (AC-4..AC-6) đo VĂN CHỈ DẪN — khai thẳng là đo chỉ dẫn, đầu ra đo ở ba dòng số mốc 2.8.0.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      P85 nới ba bản: «PASS: P85 GOAL-TEMPLATE …» và ba dòng vế «P85 VE: <file> khop»; đột biến trong
+      chính ca đổi một ký tự lần lượt ở SKILL / GUIDE / gate-card.js → mỗi lần đỏ ghim đích danh bản lệch.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Ca «GL01 goal_line == khuon rut qua marker (slug thay, mot dong)» PASS; test rút khuôn từ marker
+      GOAL-TEMPLATE của gate-card.js, không gõ literal.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Ca «GL02 HTML Cong 1 == goal_line (dang thuc)», «GL03 the do van in goal_line» và «GL04 Cong 2 KHONG co goal_line»
+      PASS; đột biến nối đuôi vào dòng HTML → GL02 đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "Ca P-mới «S0 in GOAL-TEMPLATE truoc S1 · Gate 1 giu buoc in · Gate 1.5 co buoc in» PASS (grep neo chữ, đo chỉ dẫn)."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "Ca P-mới «GUIDE /goal: ba thoi diem + lan V» PASS; P85 các vế khuôn không đổi vẫn PASS."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "Ca P-mới «bat bien dung goi ten ca tien-trinh-nen-bao-xong» PASS (grep neo chữ)."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH (không chạm hook — đối chứng không hồi quy)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH (không chạm workflow — đối chứng không hồi quy)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]

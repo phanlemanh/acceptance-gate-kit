@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Máy chạy tới cổng người — nơi vòng dừng, trước và sau</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-soft:    #636b80;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 0.5rem;
+    }
+    .sub {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--color-soft);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .colophon {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(45,49,66,0.12);
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--color-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Timeline · Trước / sau · hình là chiếu của chữ, không phải nguồn</p>
+    <h1>Máy chạy tới cổng người — nơi vòng dừng, trước và sau</h1>
+    <p class="sub">Trục ngang là THỨ TỰ GIAI ĐOẠN của một vòng T3, không phải thời gian đồng hồ (vòng #136: 11h24 từ làm-xong tới ký). Hai tầng dùng chung trục để so vị trí từng điểm dừng.</p>
+
+    <svg viewBox="0 0 1200 720" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif">
+      <defs>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Thước giai đoạn (dùng chung hai tầng) ===== -->
+      <g font-family="'Geist Mono', monospace" font-size="9" fill="#636b80" text-anchor="middle" letter-spacing="0.08em">
+        <text x="80"   y="96">S0 · LÀM</text>
+        <text x="184"  y="96">S1</text>
+        <text x="288"  y="96">CỔNG PHẠM VI</text>
+        <text x="392"  y="96">S2</text>
+        <text x="496"  y="96">GATE 1.5</text>
+        <text x="600"  y="96">S3</text>
+        <text x="704"  y="96">S4 · r1</text>
+        <text x="808"  y="96">r2</text>
+        <text x="912"  y="96">r3</text>
+        <text x="1016" y="96">r4</text>
+        <text x="1120" y="96">CỔNG BẰNG CHỨNG</text>
+      </g>
+      <g stroke="rgba(45,49,66,0.10)" stroke-width="1">
+        <line x1="80"   y1="104" x2="80"   y2="612"/>
+        <line x1="184"  y1="104" x2="184"  y2="612"/>
+        <line x1="288"  y1="104" x2="288"  y2="612"/>
+        <line x1="392"  y1="104" x2="392"  y2="612"/>
+        <line x1="496"  y1="104" x2="496"  y2="612"/>
+        <line x1="600"  y1="104" x2="600"  y2="612"/>
+        <line x1="704"  y1="104" x2="704"  y2="612"/>
+        <line x1="808"  y1="104" x2="808"  y2="612"/>
+        <line x1="912"  y1="104" x2="912"  y2="612"/>
+        <line x1="1016" y1="104" x2="1016" y2="612"/>
+        <line x1="1120" y1="104" x2="1120" y2="612"/>
+      </g>
+
+      <!-- ===================== TẦNG 1 · TRƯỚC ===================== -->
+      <text x="80" y="132" fill="#2d3142" font-size="12" font-weight="600">TRƯỚC — vòng #136 (đo thật, T3)</text>
+      <text x="1120" y="132" fill="#2d3142" font-size="12" font-weight="600" text-anchor="end">≥10 lượt gọi người = 4 thiết kế + ≥6 ngoài</text>
+
+      <!-- baseline -->
+      <line x1="80" y1="200" x2="1120" y2="200" stroke="rgba(79,93,117,0.45)" stroke-width="1"/>
+
+      <!-- giai đoạn không dừng: chấm nhỏ -->
+      <g fill="#636b80">
+        <circle cx="184"  cy="200" r="2"/>
+        <circle cx="392"  cy="200" r="2"/>
+        <circle cx="704"  cy="200" r="2"/>
+        <circle cx="1016" cy="200" r="2"/>
+      </g>
+
+      <!-- drops (vẽ trước chấm) -->
+      <g stroke="rgba(45,49,66,0.30)" stroke-width="1">
+        <line x1="80"   y1="206" x2="80"   y2="224"/>
+        <line x1="288"  y1="176" x2="288"  y2="194"/>
+        <line x1="496"  y1="176" x2="496"  y2="194"/>
+        <line x1="640"  y1="206" x2="640"  y2="224"/>
+        <line x1="720"  y1="176" x2="720"  y2="194"/>
+        <line x1="760"  y1="206" x2="760"  y2="248"/>
+        <line x1="808"  y1="152" x2="808"  y2="194"/>
+        <line x1="860"  y1="206" x2="860"  y2="248"/>
+        <line x1="912"  y1="176" x2="912"  y2="194"/>
+        <line x1="960"  y1="206" x2="960"  y2="248"/>
+        <line x1="1120" y1="176" x2="1120" y2="194"/>
+      </g>
+
+      <!-- cổng thiết kế: đậm -->
+      <g fill="#2d3142">
+        <circle cx="80"   cy="200" r="6"/>
+        <circle cx="288"  cy="200" r="6"/>
+        <circle cx="496"  cy="200" r="6"/>
+        <circle cx="1120" cy="200" r="6"/>
+      </g>
+      <!-- phanh có thiết kế (dừng-vá): nửa đậm -->
+      <g fill="#f5f5f5" stroke="#2d3142" stroke-width="1.4">
+        <circle cx="808" cy="200" r="6"/>
+        <circle cx="912" cy="200" r="6"/>
+      </g>
+      <!-- dừng ngoài thiết kế: rỗng, nét đứt -->
+      <g fill="#f5f5f5" stroke="#636b80" stroke-width="1.2" stroke-dasharray="2,2">
+        <circle cx="640" cy="200" r="5"/>
+        <circle cx="720" cy="200" r="5"/>
+        <circle cx="760" cy="200" r="5"/>
+        <circle cx="860" cy="200" r="5"/>
+        <circle cx="960" cy="200" r="5"/>
+      </g>
+
+      <!-- nhãn tầng TRƯỚC -->
+      <g font-size="9" fill="#2d3142" text-anchor="middle">
+        <text x="80"   y="236">Cổng Đáng · «làm»</text>
+        <text x="288"  y="172" font-weight="600">Cổng Phạm vi</text>
+        <text x="496"  y="172" font-weight="600">Gate 1.5</text>
+        <text x="1120" y="172" font-weight="600">Cổng Bằng chứng</text>
+        <text x="808"  y="148">dừng-vá r2</text>
+        <text x="912"  y="172">dừng-vá r3</text>
+      </g>
+      <g font-size="9" fill="#4f5d75" text-anchor="middle">
+        <text x="640" y="236">Task dừng: agent xong, máy báo rồi ngừng</text>
+        <text x="720" y="172">máy khai «đang chạy» sai</text>
+        <text x="760" y="260">tiếp tục sau agent</text>
+        <text x="860" y="260">rớt mạng · resume</text>
+        <text x="960" y="260">tiếp tục sau agent</text>
+      </g>
+
+      <!-- tiêu điểm 1: ngoặc gom các lượt ngoài thiết kế -->
+      <path d="M 640 276 L 640 284 L 960 284 L 960 276" fill="none" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="800" y="300" fill="#ba4513" font-size="9" font-weight="600" text-anchor="middle">≥6 lượt ngoài thiết kế (2 là phanh dừng-vá) · /goal CHƯA bật — luật «luôn in /goal» là dặn-bằng-lời, đã trượt</text>
+
+      <!-- ===================== TẦNG 2 · SAU ===================== -->
+      <line x1="80" y1="328" x2="1120" y2="328" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="80" y="356" fill="#2d3142" font-size="12" font-weight="600">SAU — đề xuất ba lớp</text>
+      <text x="1120" y="356" fill="#2d3142" font-size="12" font-weight="600" text-anchor="end">mục tiêu 4 thiết kế (trần T3 = 4) + 0 ngoài</text>
+
+      <!-- baseline -->
+      <line x1="80" y1="432" x2="1120" y2="432" stroke="rgba(79,93,117,0.45)" stroke-width="1"/>
+
+      <!-- chấm nhỏ giai đoạn không dừng -->
+      <g fill="#636b80">
+        <circle cx="184"  cy="432" r="2"/>
+        <circle cx="392"  cy="432" r="2"/>
+        <circle cx="600"  cy="432" r="2"/>
+        <circle cx="704"  cy="432" r="2"/>
+        <circle cx="1016" cy="432" r="2"/>
+      </g>
+
+      <!-- drops -->
+      <g stroke="rgba(45,49,66,0.30)" stroke-width="1">
+        <line x1="80"   y1="408" x2="80"   y2="426"/>
+        <line x1="288"  y1="408" x2="288"  y2="426"/>
+        <line x1="496"  y1="408" x2="496"  y2="426"/>
+        <line x1="1120" y1="408" x2="1120" y2="426"/>
+        <line x1="808"  y1="384" x2="808"  y2="426"/>
+        <line x1="912"  y1="384" x2="912"  y2="426"/>
+      </g>
+      <line x1="860" y1="438" x2="860" y2="456" stroke="rgba(45,49,66,0.30)" stroke-width="1" opacity="0.5"/>
+
+      <!-- mũi tên vũ trang /goal (tiêu điểm 2) — vẽ trước chấm -->
+      <g stroke="#eb6c36" stroke-width="1.4" fill="none" marker-end="url(#arrow-accent)">
+        <line x1="80"  y1="520" x2="80"  y2="444"/>
+        <line x1="288" y1="520" x2="288" y2="444"/>
+      </g>
+
+      <!-- cổng thiết kế -->
+      <g fill="#2d3142">
+        <circle cx="80"   cy="432" r="6"/>
+        <circle cx="288"  cy="432" r="6"/>
+        <circle cx="496"  cy="432" r="6"/>
+        <circle cx="1120" cy="432" r="6"/>
+      </g>
+      <!-- dừng-vá nếu nổ -->
+      <g fill="#f5f5f5" stroke="#2d3142" stroke-width="1.4">
+        <circle cx="808" cy="432" r="6"/>
+        <circle cx="912" cy="432" r="6"/>
+      </g>
+      <!-- rớt mạng: không đỡ được -->
+      <circle cx="860" cy="432" r="5" fill="#f5f5f5" stroke="#636b80" stroke-width="1.2" stroke-dasharray="2,2" opacity="0.5"/>
+
+      <!-- nhãn tầng SAU -->
+      <g font-size="9" fill="#2d3142" text-anchor="middle">
+        <text x="80"   y="404" font-weight="600">Cổng Đáng · «làm»</text>
+        <text x="288"  y="404" font-weight="600">Cổng Phạm vi</text>
+        <text x="496"  y="404" font-weight="600">Gate 1.5</text>
+        <text x="1120" y="404" font-weight="600">Cổng Bằng chứng</text>
+        <text x="860"  y="380">dừng-vá r2 / r3 — chỉ nếu nổ</text>
+      </g>
+      <text x="860" y="468" fill="#636b80" font-size="9" text-anchor="middle" opacity="0.7">rớt mạng — không đỡ được, khai giới hạn</text>
+
+      <!-- nhãn mũi tên vũ trang -->
+      <g font-size="9" fill="#ba4513" font-weight="600">
+        <text x="88"  y="500">① vũ trang lúc «làm», TRƯỚC khi S1 chạy</text>
+        <text x="296" y="500">② vũ trang khi duyệt Cổng Phạm vi — cùng lượt, 1 chạm</text>
+      </g>
+
+      <!-- ===== Ba lớp ===== -->
+      <g font-family="'Geist Mono', monospace" font-size="8" fill="#636b80" letter-spacing="0.10em">
+        <text x="24" y="488">L0</text>
+        <text x="24" y="532">L1</text>
+        <text x="24" y="592">L2</text>
+      </g>
+
+      <!-- L0: workflow sẵn có -->
+      <rect x="600" y="476" width="104" height="16" rx="2" fill="#2d3142"/>
+      <text x="652" y="487" fill="#f5f5f5" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">S3 · 1 lượt điều phối</text>
+      <rect x="704" y="476" width="312" height="16" rx="2" fill="#4f5d75"/>
+      <text x="860" y="487" fill="#f5f5f5" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">S4 chấm · 1 lượt/đợt · không chỗ ngừng</text>
+      <text x="1112" y="487" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="end">L0 · đi qua workflow sẵn có</text>
+
+      <!-- L1: /goal -->
+      <rect x="80" y="520" width="208" height="16" rx="2" fill="rgba(235,108,54,0.10)" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="184" y="531" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">goal → tới cổng người</text>
+      <rect x="288" y="520" width="832" height="16" rx="2" fill="rgba(235,108,54,0.10)" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="704" y="531" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">goal → verified, hoặc cổng người kế · «đang chờ người» = hoàn thành · trần 15 lượt</text>
+      <!-- nhánh làn V -->
+      <line x1="80" y1="552" x2="1112" y2="552" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <text x="88" y="566" fill="#4f5d75" font-size="9">làn V (T2 xanh-sạch): không có cổng ở giữa → vũ trang ① một lần là đủ</text>
+
+      <!-- L2: hook Stop, nét đứt -->
+      <rect x="80" y="580" width="1040" height="16" rx="2" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4"/>
+      <text x="600" y="591" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">L2 · hook Stop do plugin giữ — CHỈ mở nếu mốc 2.8.0 còn đếm thấy dừng khi goal đã bật · fail-open · trần lượt · nhường người</text>
+
+      <!-- ===== Chú giải ===== -->
+      <line x1="30" y1="644" x2="1170" y2="644" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="30" y="664" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <circle cx="140" cy="660" r="6" fill="#2d3142"/>
+      <text x="152" y="664" fill="#2d3142" font-size="9">cổng thiết kế — người quyết thật</text>
+      <circle cx="360" cy="660" r="6" fill="#f5f5f5" stroke="#2d3142" stroke-width="1.4"/>
+      <text x="372" y="664" fill="#2d3142" font-size="9">phanh có thiết kế (dừng-vá) — vẫn là một lượt gọi</text>
+      <circle cx="640" cy="660" r="5" fill="#f5f5f5" stroke="#636b80" stroke-width="1.2" stroke-dasharray="2,2"/>
+      <text x="652" y="664" fill="#2d3142" font-size="9">dừng ngoài thiết kế — máy ngừng nói giữa việc máy</text>
+      <circle cx="920" cy="660" r="5" fill="#f5f5f5" stroke="#636b80" stroke-width="1.2" stroke-dasharray="2,2" opacity="0.5"/>
+      <text x="932" y="664" fill="#2d3142" font-size="9" opacity="0.7">không đỡ được — khai giới hạn</text>
+      <text x="30" y="696" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace">Nguồn chữ: đề xuất ba lớp (03/09) · số đo: _acceptance/release-2-7-0/contract.md § Ba dòng số · trục = thứ tự giai đoạn, không phải đồng hồ</text>
+    </svg>
+
+    <p class="colophon">v28-01 · phác cho hạt giống «vũ trang /goal lúc gọi tên» · chưa là hồ sơ · diagram-design 2.7.0 · skin default-confirmed</p>
+  </div>
+</body>
+</html>
