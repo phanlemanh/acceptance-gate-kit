@@ -7,7 +7,7 @@ reason: người ký NÂNG PENDING-JUDGMENT → PASS ngày 2026-09-01 với năm
 verified_by: implementing session (KHÔNG phải fresh-context subagent — xem Known limits #4)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9f76d6d329bf6e7476e11cd88f2bd327b46d8c58
+verified_commit: cd94d0048760da55e89ecdcae12463186b5fec10
 human_signoff: Manh Phan 2026-09-01 — ký với giới hạn đã khai (Known limits #1–#5)
 ---
 
@@ -173,3 +173,13 @@ sha · pin cũ: b480dbb8 · chữ ký người giữ nguyên.
 gốc (ba hằng thông điệp mới chưa có lời thuật), sửa ở `9f76d6d3`.
 run_id: repin-270-lane-cdcc
 sha: 9f76d6d329bf6e7476e11cd88f2bd327b46d8c58 · rang.sh **3/3 chân exit 0** · pin cũ: 93da8752 · chữ ký người giữ nguyên.
+
+### Re-pin lần 3 — 2026-09-03, chiến dịch mốc 2.8.0 (§7.1)
+
+Đường khai bị cửa sổ chạm sau pin `9f76d6d3`: `scripts/gate-card.js` (hằng
+`GOAL_TEMPLATE`, `goal_line`, dòng HTML mới trên thẻ Cổng 1) và
+`commands/acceptance-card.md`. Chạy lại **ba chân, 3/3 exit 0**
+(`loi-thuat` · `dang-thuc-lop` · `gioi-han`) — trong đó `dang-thuc-lop` gọi
+chân `round-trip` của hồ sơ `khong-ve-the-ma` kèm chiều đỏ, cũng xanh.
+run_id: repin-20260903-r280-cdcc
+sha: cd94d0048760da55e89ecdcae12463186b5fec10 · pin cũ: 9f76d6d3 · chữ ký người giữ nguyên · bốn suite + product-map --check exit 0 trên cùng cây.
