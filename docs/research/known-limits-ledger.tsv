@@ -253,3 +253,10 @@ vu-trang-goal-luc-goi-ten#18	vu-trang-goal-luc-goi-ten	medium	khac	trung		vu-tra
 vu-trang-goal-luc-goi-ten#19	vu-trang-goal-luc-goi-ten	low	chuoi-thay-quan-he	song			P85b ve ben DOC chi grep cau trong file chi dan (do chi dan) — khai Known limits, khong co thuoc hanh vi phien
 vu-trang-goal-luc-goi-ten#20	vu-trang-goal-luc-goi-ten	low	mut-khong-qua-chan-that	chet	GL02 ghim gia tri mong doi (S4-r3)		dot bien GL02 chi assert khac, khong ghim gia tri
 vu-trang-goal-luc-goi-ten#21	vu-trang-goal-luc-goi-ten	low	khac	chet	thu pham vi + doi khuon nho — owner 03/09 (so d-20260903T100500Z-5001)		fixture run-log viet tay dung khuon ben doc — thuoc AC-7 bo
+vu-trang-goal-luc-goi-ten#22	vu-trang-goal-luc-goi-ten	low	do-thuoc	song			GL01 dung ky vong bang DUNG cong thuc thay cua ben viet (chi doi nguon khuon SKILL) — AC-2 cam; loi chung trong cong thuc gop dong khong bao gio do. Tai xuat tu r3; owner quyet o Cong 2 (S4-r4, trong hop dong)
+vu-trang-goal-luc-goi-ten#23	vu-trang-goal-luc-goi-ten	medium	khac	chet	ghim lai kvca lan 7 tai d9911565 (repin-20260903-vtg-1, dung suite Workflow r4)		the p185 cua khoi-viec-cua-anh sinh lai ma chua ghim lai — pre-merge VIOLATION stale (S4-r4)
+vu-trang-goal-luc-goi-ten#24	vu-trang-goal-luc-goi-ten	medium	doc-drift	song			ho so DA KY loi-moi-cong-may-sinh tro toi routing/sweep-baseline nhu vat cua minh nhung hai file da doi sang tests/scripts/fixtures/ — thieu con tro thay the (S4-r4)
+vu-trang-goal-luc-goi-ten#25	vu-trang-goal-luc-goi-ten	low	doc-drift	song			contract Context con ghi «diem in S0» trong khi thiet ke bac S0, AC-4/SKILL dat o S1#1 (S4-r4)
+vu-trang-goal-luc-goi-ten#26	vu-trang-goal-luc-goi-ten	medium	fail-open	song			LM13/LM20: bo loc settled dung TRUOC rang bat sap — ho so dang mo lam gate-card.js sap bi bo qua im lang (S4-r4)
+vu-trang-goal-luc-goi-ten#27	vu-trang-goal-luc-goi-ten	low	fail-open	song			P85b vong kiem vi tri bo qua im lang ve khong co trong VI_TRI (15 ve / 13 khoa); so 9+4 go tay (S4-r4)
+vu-trang-goal-luc-goi-ten#28	vu-trang-goal-luc-goi-ten	low	fail-open	song			settled() try/catch -> false + continue im lang; khong co ca doi chung rieng cho predicate (S4-r4)
