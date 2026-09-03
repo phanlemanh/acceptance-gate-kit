@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d991156578e0439b5639b6d556504e482bf64a70
+verified_commit: e8f6caa9e09eba9895caf9b02383f91f042bd063
 human_signoff: Manh Phan 2026-09-03 — ký với giới hạn: 1 mục trong hợp đồng (GL01) ghi Known limits; Ngoài-1/2/3/5/6 ghi Known limits, Ngoài-4 mở hợp đồng mới; đồng ý phạm vi đã cắt (kể cả thu phạm vi AC-7); phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -147,3 +147,7 @@ none — every multi-run eval is uniform (không eval nào có runs > 1 vòng n�
 Round 2: tất cả tám eval E1–E8 xanh trên `bash tests/plugins/run-tests.sh`, `bash tests/scripts/run-tests.sh`, `bash tests/hooks/run-tests.sh`, `bash tests/workflows/run-tests.sh`; lệnh suite `node scripts/product-map.mjs --root . --check` cũng xanh. Bước phân loại phạm vi (scope-triage) KHÔNG chạy được nên máy không tự sửa phát hiện nào — verdict PENDING-JUDGMENT, danh sách đầy đủ chờ người quyết ở `review-findings.md`.
 Round 3: `bash tests/plugins/run-tests.sh` (E1,E4,E5,E6), `bash tests/hooks/run-tests.sh` (E7), `bash tests/workflows/run-tests.sh` (E8) và `node scripts/product-map.mjs --root . --check` đều xanh; `bash tests/scripts/run-tests.sh` (verifier của E2, E3) không đạt — các dòng PASS đích danh mà E2 chờ (GL01, GL00) và E3 chờ (GL02, GL03, GL03b, GL04) không xuất hiện trong đuôi stdout thu được. Verdict REJECT, failed_evals: E2, E3 — vòng thứ ba (trần lặp của S4), escalate cho người quyết thay vì tự động quay lại S3 lần nữa.
 Round 4 (vòng này): tất cả tám eval E1–E8 xanh trên cả bốn lệnh suite (`bash tests/plugins/run-tests.sh`, `bash tests/scripts/run-tests.sh`, `bash tests/hooks/run-tests.sh`, `bash tests/workflows/run-tests.sh`) và `node scripts/product-map.mjs --root . --check`; E2, E3 (không đạt ở round 3) nay xanh sau vòng sửa tiếp theo escalation của round 3. Verdict PASS. Rà soát vòng này phát hiện thêm một lớp lỗi mới ở bộ lọc LM13/LM20 (fail-open, bỏ qua im lặng hồ sơ đang mở khi bộ dựng thẻ sập) — không nằm trong hợp đồng, ghi ở `review-findings.md` cho người quyết ở Gate 2.
+
+### Re-pin lần 1 — 2026-09-03, sau chữ ký: ghim dòng định tuyến của chính hồ sơ này vào routing-baseline (CI LM20 đỏ ngay sau 28533e99)
+run_id: repin-20260903-vtg-self-1
+sha: e8f6caa9e09eba9895caf9b02383f91f042bd063 · suites: 4 lệnh exit 0 (scripts 796/0 · hooks 60/0 · plugins all-pass · workflows all-pass) + product-map --check khớp · pin cũ: d9911565 · chữ ký người giữ nguyên (sổ 7001, sổ cái #29).
