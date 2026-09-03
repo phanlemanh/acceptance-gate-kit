@@ -1,0 +1,68 @@
+# evals — vu-trang-goal-luc-goi-ten
+# Fixture code-sinh, khuôn rút qua marker, đối chứng dương + đột biến trong chính ca.
+# Trục B (AC-4..AC-6) đo VĂN CHỈ DẪN — khai thẳng là đo chỉ dẫn, đầu ra đo ở ba dòng số mốc 2.8.0.
+# AC-7 KHÔNG có eval: run-log chỉ tồn tại sau khi Workflow S4 append → eval trước đó là fail-open
+# (gap-probe vòng 2). Đo bằng script run-log-minted.mjs chạy lúc trình Cổng 2, đầu ra dán vào gói.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      P85 nới ba bản: «PASS: P85 GOAL-TEMPLATE …» và ba dòng vế «P85 VE: <file> khop (6 dong)» — so sau strip,
+      nghĩa P85 hiện hành; đột biến trong chính ca đổi một ký tự lần lượt ở SKILL / GUIDE / gate-card.js →
+      mỗi lần đỏ ghim đích danh bản lệch với hai bản còn lại.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Dòng PASS đích danh trong stdout suite scripts: «PASS: GL01 goal_line == khuon rut qua marker (moi <slug> thay, mot dong, 0 <slug> sot)»
+      và «PASS: GL00 khuon trong gate-card.js: 6 dong, co dung 2 <slug>, bat dau bang /goal»; kỳ vọng dựng từ khối SKILL (nguồn khác), không gõ literal.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Ba dòng PASS đích danh trong stdout suite scripts: «PASS: GL02 HTML Cong 1: .mach.goal KE NGAY SAU .mach cua one_shot, <b> == goal_line (dang thuc)»,
+      «PASS: GL03 the DO (roi bac: gap_probe required, vang file) VAN co goal_line + .mach.goal», «PASS: GL03b the DO (g1Blocked»,
+      «PASS: GL04 the Cong 2: KHONG co goal_line, KHONG co .mach.goal (doi chung chieu nguoc)»; đột biến nối đuôi vào dòng HTML → GL02 đỏ (trong chính ca).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Dòng PASS đích danh trong stdout suite plugins: «PASS: P85b GOAL-ARM: S1 moi cau xin duyet kem GOAL-TEMPLATE · S1#5 khong phai cong · S1#7 dong bo · Gate 1 giu · GATE 1.5 kem /goal · bat bien dung goi ten bao-roi-ngung · GUIDE ba thoi diem (do chi dan)»
+      và các dòng vế «P85b VE: S1#1 moi cau xin duyet kem khoi», «P85b VE: S1#5 dong goal KHONG phai mot cong», «P85b VE: S1#7 gap-probe DONG BO», «P85b VE: Gate 1 giu lenh in», «P85b VE: GATE 1.5 kem /goal» (grep neo chữ theo MỤC — đo chỉ dẫn, khai thẳng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Dòng vế đích danh trong stdout suite plugins: «P85b VE: GUIDE: ba thoi diem», «P85b VE: GUIDE: lan V T2 khong cham UI», «P85b VE: GUIDE: brainstorm khong hoi -> chua phu»,
+      «P85b VE: GUIDE: ba ban P85», «P85b VE: GUIDE «Khi nao» dem du (1)(2)(3), khong (4)»; và «PASS: P85 GOAL-TEMPLATE 3 ban (SKILL · GUIDE · gate-card) khop sau strip, 6 dong, lenh in noi voi khoi» — khuôn không đổi chữ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Dòng vế đích danh trong stdout suite plugins: «P85b VE: bat bien dung: tien trinh nen bao xong -> di tiep cung luot» và
+      «P85b VE: bat bien dung: bao-roi-ngung la dung ngoai thiet ke» (grep neo chữ trong khối bất biến — đo chỉ dẫn).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH (không chạm hook — đối chứng không hồi quy)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH (không chạm workflow — đối chứng không hồi quy)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]

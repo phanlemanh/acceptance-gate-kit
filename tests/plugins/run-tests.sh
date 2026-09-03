@@ -1379,11 +1379,13 @@ for rel, needle in PINS.items():
     assert needle not in text.replace(needle, "", 1), f"{rel}: dot bien khong hieu luc"
 PY
 
-# ── P85: GOAL-TEMPLATE — SKILL la nguon runtime, GUIDE la ban nguoi doc ──────
+# ── P85: GOAL-TEMPLATE — SKILL la nguon runtime, GUIDE ban nguoi doc, gate-card ban the ──
 # B4 (retro V1): package feature-loop KHONG ship GUIDE nen "in theo GUIDE" chet
-# o runtime — template nay nhung thang vao SKILL. P85 giu 2 ban khop tung ky tu
-# (duong truoc, dot bien sau) va noi LENH IN voi khoi (gap-probe F1).
-run "P85 GOAL-TEMPLATE nhung trong SKILL, khop GUIDE, lenh in noi voi khoi" \
+# o runtime — template nay nhung thang vao SKILL. Tu vu-trang-goal-luc-goi-ten (03/09)
+# co ban chep thu BA: hang GOAL_TEMPLATE trong scripts/gate-card.js (the Cong 1 in dong
+# goal). P85 giu 3 ban khop sau strip + dung 6 dong (duong truoc, dot bien BA CHIEU sau,
+# moi chieu goi ten dung ban lech) va noi LENH IN voi khoi (gap-probe F1).
+run "P85 GOAL-TEMPLATE 3 ban (SKILL · GUIDE · gate-card) khop sau strip, 6 dong, lenh in noi voi khoi" \
   python3 - "$ROOT" <<'PY'
 import re, sys
 from pathlib import Path
@@ -1395,11 +1397,29 @@ def block(rel, text):
     m = RX.search(text)
     assert m, f"{rel}: KHONG rut duoc khoi GOAL-TEMPLATE qua marker"
     return m.group(1).strip()
+card_p = "scripts/gate-card.js"
+RXJS = re.compile(r"// <<<GOAL-TEMPLATE[^\n]*\n(?:// [^\n]*\n)*const GOAL_TEMPLATE = `([\s\S]*?)`;\n// GOAL-TEMPLATE>>>")
+def block_js(rel, text):
+    m = RXJS.search(text)
+    assert m, f"{rel}: KHONG rut duoc hang GOAL_TEMPLATE qua marker"
+    return m.group(1).strip()
 skill_t = (root / skill_p).read_text(encoding="utf-8")
 guide_t = (root / guide_p).read_text(encoding="utf-8")
-sb, gb = block(skill_p, skill_t), block(guide_p, guide_t)
-# Doi chung DUONG: hai ban nguyen ven phai khop truoc khi tin phep so.
-assert sb == gb, f"GOAL-TEMPLATE lech giua {skill_p} va {guide_p} — dong bo lai 2 khoi marker"
+card_t = (root / card_p).read_text(encoding="utf-8")
+sb, gb, cb = block(skill_p, skill_t), block(guide_p, guide_t), block_js(card_p, card_t)
+# Doi chung DUONG: ba ban nguyen ven phai khop truoc khi tin phep so — so DOI MOT de goi ten ban lech.
+def lech(a_name, a, b_name, b, c_name, c):
+    if a == b == c: return None
+    if a == b: return c_name
+    if a == c: return b_name
+    if b == c: return a_name
+    return "ca ba khac nhau"
+bad = lech(skill_p, sb, guide_p, gb, card_p, cb)
+assert bad is None, f"GOAL-TEMPLATE lech: ban {bad} khac hai ban con lai — dong bo lai 3 khoi marker"
+for rel, b in ((skill_p, sb), (guide_p, gb), (card_p, cb)):
+    n = len(b.split("\n"))
+    assert n == 6, f"{rel}: khoi GOAL-TEMPLATE {n} dong, phai dung 6"
+    print(f"     P85 VE: {rel} khop (6 dong)")
 # Tinh chat noi dung template.
 assert sb.startswith("/goal "), "template phai bat dau bang /goal "
 assert "verified" in sb, "template phai neo dieu kien verified"
@@ -1408,10 +1428,91 @@ assert "signed-off" not in sb, "template KHONG duoc nham dich signed-off"
 # Lenh in phai NOI voi khoi — khong chi khoi ton tai (gap-probe F1).
 assert "IN NGUYÊN VĂN khối GOAL-TEMPLATE" in skill_t, "GATE 1 thieu lenh in-mac-dinh tham chieu dich danh khoi marker"
 assert "template mục /goal trong GUIDE, điền sẵn slug" not in skill_t, "SKILL van tro template sang GUIDE — goc benh B4 chua cat"
-# Doi chung AM: dot bien khoi trong ban sao (bo nho) -> phep so phai DO.
-mutated = skill_t.replace("sau 15 turns", "sau 16 turns", 1)
-assert mutated != skill_t, "dot bien khong tac dung — chuoi neo da doi"
-assert block(skill_p, mutated) != gb, f"dot bien khoi trong {skill_p} ma van khop {guide_p} — phep so GOAL-TEMPLATE da chet"
+# Doi chung AM, BA CHIEU: dot bien MOT ky tu GIUA dong o tung ban (bo nho) -> phep so phai DO
+# va goi ten DUNG ban lech (khong chi "khac nhau").
+for rel, text, getter in ((skill_p, skill_t, block), (guide_p, guide_t, block), (card_p, card_t, block_js)):
+    mutated = text.replace("sau 15 turns", "sau 16 turns", 1)
+    assert mutated != text, f"{rel}: dot bien khong tac dung — chuoi neo da doi"
+    mb = getter(rel, mutated)
+    trio = {skill_p: sb, guide_p: gb, card_p: cb}; trio[rel] = mb
+    who = lech(skill_p, trio[skill_p], guide_p, trio[guide_p], card_p, trio[card_p])
+    assert who == rel, f"dot bien o {rel} nhung phep so goi ten {who!r} — chieu do sai dia chi"
+    print(f"     P85 MUTANT: doi 1 ky tu o {rel} -> goi ten dung ban lech")
+PY
+
+# ── P85b: GOAL-ARM — diem vu trang /goal o moi luot nguoi dung truoc doan may ──
+# Ho so vu-trang-goal-luc-goi-ten (03/09). DO CHI DAN, khong do dau ra (khai thang —
+# lop findings 02/09): moi ve mot grep neo chu tren SKILL/GUIDE; dot bien xoa mot
+# ve trong ban sao (bo nho) -> phai do DICH DANH ve do. Dau ra that do o ba dong so.
+run "P85b GOAL-ARM: S1 moi cau xin duyet kem GOAL-TEMPLATE · S1#5 khong phai cong · S1#7 dong bo · Gate 1 giu · GATE 1.5 kem /goal · bat bien dung goi ten bao-roi-ngung · GUIDE ba thoi diem (do chi dan)" \
+  python3 - "$ROOT" <<'PY'
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+skill = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text(encoding="utf-8")
+guide = (root / "GUIDE.md").read_text(encoding="utf-8")
+card = (root / "commands/acceptance-card.md").read_text(encoding="utf-8")
+# (ten ve, van ban, chuoi neo) — chuoi neo la CAU, khong phai tu khoa roi.
+VE = [
+  ("S1#1 moi cau xin duyet kem khoi", "skill", "Mỗi câu XIN DUYỆT thiết kế** của brainstorm"),
+  ("S1#1 tro dich danh GOAL-TEMPLATE", "skill", "in kèm khối `GOAL-TEMPLATE`"),
+  ("S1#1 ca brainstorm khong hoi -> chua phu", "skill", "Brainstorm không hỏi gì thì không có lượt để vũ trang"),
+  ("S1#5 dong goal KHONG phai mot cong", "skill", "KHÔNG phải một cổng — nó đi cùng câu trả lời"),
+  ("S1#7 gap-probe DONG BO", "skill", "dispatch ĐỒNG BỘ (chờ trong lượt, KHÔNG nền)"),
+  ("Gate 1 giu lenh in", "skill", "IN NGUYÊN VĂN khối GOAL-TEMPLATE"),
+  ("GATE 1.5 kem /goal", "skill", "chờ duyệt — kèm dòng `/goal` (khối GOAL-TEMPLATE"),
+  ("bat bien dung: tien trinh nen bao xong -> di tiep cung luot", "skill", "Tiến trình nền (agent, Workflow) báo xong giữa một đoạn máy → đi tiếp trong CÙNG lượt"),
+  ("bat bien dung: bao-roi-ngung la dung ngoai thiet ke", "skill", "«báo cáo rồi ngừng nói» là một lần dừng ngoài thiết kế"),
+  ("GUIDE: ba thoi diem", "guide", "**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:**"),
+  ("GUIDE: lan V T2 khong cham UI", "guide", "**Làn V T2 không chạm UI:**"),
+  ("GUIDE: brainstorm khong hoi -> chua phu", "guide", "**Brainstorm không hỏi gì**"),
+  ("GUIDE: ba ban P85", "guide", "ba bản được test P85 giữ khớp"),
+  ("acceptance-card.md ben DOC: khoa goal_line + IN NGUYEN VAN", "card", "- `goal_line` (Cổng 1, từ 2.8)"),
+  ("acceptance-card.md ben DOC: cau dan sau khi tra loi", "card", "sau khi trả lời (duyệt hay sửa), dán dòng này để"),
+]
+TXT = {"skill": skill, "guide": guide, "card": card}
+for name, which, needle in VE:
+    assert needle in TXT[which], f"THIEU ve [{name}]: khong thay «{needle}»"
+    print(f"     P85b VE: {name}")
+# Khong con cau «hai ban» quanh khuon goal (SKILL chu thich, GUIDE, tieu de P85).
+assert "hai bản được test giữ khớp" not in skill, "SKILL con cau «hai ban» — ban chep thu ba chua duoc khai"
+assert "hai bản được test P85 giữ khớp" not in guide, "GUIDE con cau «hai ban»"
+# Tieu de P85 (dong `run "P85 ...`, KHONG phai chuoi nam trong chinh P85b — S4-r1: assert cu la tautology).
+me = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
+import re as _re
+assert _re.search(r'^run "P85 GOAL-TEMPLATE 3 ban', me, _re.M), "dong run cua P85 chua noi 3 ban"
+# Vi tri: ve phai nam TRONG muc co ten (AC-4 hua vi tri), khong phai o bat ky dau trong file.
+def sec(text, start, end):
+    a = text.index(start); b = text.index(end, a) if end else len(text)
+    return text[a:b]
+S1 = sec(skill, "## S1 — DESIGN", "## GATE 1"); GATE1 = sec(skill, "## GATE 1", "## S2"); S2 = sec(skill, "## S2", "## S3")
+BB = skill[:skill.index("## State machine")]
+GOALSEC = sec(guide, "## Chạy không-người-trông đoạn máy với /goal", "\n## ")
+VI_TRI = {"S1#1 moi cau xin duyet kem khoi": S1, "S1#1 tro dich danh GOAL-TEMPLATE": S1, "S1#1 ca brainstorm khong hoi -> chua phu": S1,
+          "S1#5 dong goal KHONG phai mot cong": S1, "S1#7 gap-probe DONG BO": S1, "Gate 1 giu lenh in": GATE1, "GATE 1.5 kem /goal": S2,
+          "bat bien dung: tien trinh nen bao xong -> di tiep cung luot": BB, "bat bien dung: bao-roi-ngung la dung ngoai thiet ke": BB,
+          "GUIDE: ba thoi diem": GOALSEC, "GUIDE: lan V T2 khong cham UI": GOALSEC, "GUIDE: brainstorm khong hoi -> chua phu": GOALSEC, "GUIDE: ba ban P85": GOALSEC}
+for name, which, needle in VE:
+    if name in VI_TRI:
+        assert needle in VI_TRI[name], f"ve [{name}] khong nam trong muc dung cho — chi thay o noi khac"
+# Quan he DEM: GUIDE «Khi nao» phai NEU DU ba thoi diem (1)(2)(3), khong chi mang nhan «ba».
+khi_nao = sec(guide, "**Khi nào — ba thời điểm", "**Làn V T2 không chạm UI:**")
+for k in ("(1)", "(2)", "(3)"):
+    assert k in khi_nao, f"GUIDE «Khi nao» thieu moc {k} — nhan noi ba ma khong du ba"
+assert "(4)" not in khi_nao, "GUIDE «Khi nao» co (4) — nhan noi ba ma co bon"
+print("     P85b VE: GUIDE «Khi nao» dem du (1)(2)(3), khong (4); 9 ve SKILL + 4 ve GUIDE nam dung muc")
+# Doi chung DUONG cho hai assert VANG chuoi «hai ban»: chen lai vao ban sao -> phep kiem phai bat.
+def con_hai_ban(sk, gd): return ("hai bản được test giữ khớp" in sk) or ("hai bản được test P85 giữ khớp" in gd)
+assert not con_hai_ban(skill, guide), "con cau «hai ban» — ban chep thu ba chua duoc khai"
+assert con_hai_ban(skill + "\nhai bản được test giữ khớp", guide), "phep kiem «hai ban» KHONG bat khi chen lai — assert vang-chuoi chet"
+assert con_hai_ban(skill, guide + "\nhai bản được test P85 giữ khớp"), "phep kiem «hai ban» KHONG bat o GUIDE khi chen lai"
+# Dot bien: xoa TUNG ve trong ban sao -> dung ve do phai do (dich danh), cac ve khac con nguyen.
+for name, which, needle in VE:
+    mutated = TXT[which].replace(needle, "", 1)
+    assert mutated != TXT[which], f"dot bien [{name}] khong tac dung"
+    hit = [n for n, w, nd in VE if w == which and nd not in mutated]
+    assert hit == [name], f"dot bien [{name}] lam do {hit!r} — phep do khong dich danh"
+print(f"     P85b MUTANT: {len(VE)}/{len(VE)} ve, xoa ve nao do ve do")
 PY
 
 # ── P86: S1 bat nap skill chuan-plugin/DS cua repo tieu thu ─────────────────

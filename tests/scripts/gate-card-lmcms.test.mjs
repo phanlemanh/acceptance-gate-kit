@@ -11,8 +11,7 @@ import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
-const GC = path.join(ROOT, 'scripts', 'gate-card.js');
-const SRC = readFileSync(GC, 'utf8');
+import { ROOT as FX_ROOT, GC, SRC, mkWs, card, extract, CONTRACT_G2, EVALS, REPORT_PASS, G2, ITEM, OOC, G1, PROBE, LEDGER, REVIEW2, G2FULL } from './gate-fixture.mjs';
 // Rút hằng QUA MARKER, không phải qua regex tên hằng: AC-1 khai «rút từ hằng có
 // marker ONE-SHOT-CMD», nên xoá marker phải làm ca ĐỎ. Bản đầu chỉ dò
 // `^const <TÊN> =` nên marker là trang trí (S4-r1 M7 xoá marker vẫn XANH).
@@ -35,67 +34,7 @@ let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const die = m => { throw new Error(m); };
 
-function mkWs(slug, files, cfg) {
-  const root = mkdtempSync(path.join(tmpdir(), 'lmcms-'));
-  mkdirSync(path.join(root, '_acceptance', slug), { recursive: true });
-  writeFileSync(path.join(root, '_acceptance', 'config.yaml'), cfg || 'schema_version: 1\ngap_probe: required\n');
-  for (const [f, t] of Object.entries(files)) writeFileSync(path.join(root, '_acceptance', slug, f), t);
-  return root;
-}
-const card = (root, slug, extra = []) => spawnSync('node', [GC, '--root', root, '--slug', slug, ...extra], { encoding: 'utf8' });
 
-const CONTRACT_G2 = `---
-schema_version: 1
-feature: F
-slug: s
-risk_tier: T2
-surfaces: [cli]
-status: verified
-approved_by: A
-approved_at: 2026-09-01T00:00:00Z
----
-
-## Criteria
-
-- AC-1: Given a, When b, Then c.
-
-## Out of scope
-
-- bỏ X.
-`;
-const EVALS = `evals:
-  - id: E1
-    criterion: AC-1
-    executor: test
-    cmd: config:executors.test.scripts
-    expected: xanh
-`;
-const REPORT_PASS = `---
-schema_version: 2
-feature_slug: s
-verdict: PASS
-failed_evals: []
-verified_commit: 0000000
-human_signoff:
----
-
-# E
-
-| Eval | Criterion | Executor | Verdict |
-|---|---|---|---|
-| E1 | AC-1 | test | PASS |
-
-## Evidence
-
-- eval: E1
-  run_id: r1abc
-  exit_code: 0
-  verifier: config:executors.test.scripts
-  verified_at: 2026-09-01T00:00:00Z
-`;
-const G2 = review => ({ 'contract.md': CONTRACT_G2, 'evals.yaml': EVALS, 'evidence-report.md': REPORT_PASS, 'review-findings.md': review });
-const ITEM = p => `- **Bat bien X**\n  Người dùng thấy gì: nguoi thay X\n  file: \`a.js\`\n  severity: medium\n  Đề xuất: ${p}\n`;
-const OOC = body => `# Review\n\n## Ngoài hợp đồng\n\nCác lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.\n\n${body}\n`;
 
 // ── Task 3: cờ vàng cho hai đường fail-quiet (AC-5, AC-6) ──
 check('LM01 OOC van xuoi -> co vang suspect (chuoi rut tu hang)', () => {
@@ -129,7 +68,6 @@ check('LM03b doi chung duong: khong co truong De xuat -> van la «chua de xuat»
 // đỏ vì hạ tầng chứ không vì vật, lớp P150).
 const PIN = '69e095e3';
 const gitShow = p => spawnSync('git', ['-C', ROOT, 'show', `${PIN}:${p}`], { encoding: 'utf8' });
-const extract = (root, slug, extra = []) => JSON.parse(spawnSync('node', [GC, '--root', root, '--slug', slug, '--extract', ...extra], { encoding: 'utf8' }).stdout);
 
 for (const slug of ['release-2-5-0', 'release-2-6-0']) check(`LM04 ${slug}: AC co «không» GIUA ve nam cot SE lam`, () => {
   const c = gitShow(`_acceptance/${slug}/contract.md`);
@@ -169,16 +107,7 @@ MATRIX.forEach(([then, side], i) => check(`LM05.${i + 1} «${then.slice(0, 22)}�
 // vắng-mặt ở repo khai advisory/off (mặc định của pre-merge-check.sh là
 // advisory — repo tiêu thụ crm/media-library/floorplanstudio đều advisory, đỏ
 // oan ở đó thì mọi thẻ Cổng 1 của họ mất câu gộp).
-const G1 = probe => {
-  const f = {
-    'contract.md': `---\nschema_version: 1\nfeature: F\nslug: g\nrisk_tier: T2\nsurfaces: [cli]\nstatus: draft\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Coverage\n\n- trục A [thước CE: x].\n\n## Out of scope\n\n- x.\n`,
-    'evals.yaml': EVALS,
-    'decisions.jsonl': '',
-  };
-  if (probe !== null) f['gap-probe.md'] = probe;
-  return f;
-};
-const PROBE = v => `---\nslug: g\nat: 2026-09-01T00:00:00Z\nverdict: ${v}\np0: 0\np1: 0\np2: 0\n---\n\n## Findings\n\n| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |\n|---|---|---|---|---|---|\n`;
+
 const ROI = [
   ['findings', PROBE('findings'), 'required', false],
   ['probe-failed', PROBE('probe-failed'), 'required', true],
@@ -196,15 +125,6 @@ for (const [n, probe, mode, expect] of ROI) check(`LM06 roi bac [${n}/${mode}] =
 });
 
 // ── Task 6: câu gộp máy-sinh + bảng định tuyến + khối đối kháng (AC-1..AC-3) ──
-const LEDGER = [
-  '{"id":"d-1","type":"descope","stage":"S1","at":"2026-09-01T00:00:00Z","decision":"bo X","impact":"y"}',
-  '{"id":"d-2","type":"seal","gate":1,"at":"2026-09-01T00:30:00Z"}',
-  '{"id":"d-3","type":"fix","stage":"S4-r1","at":"2026-09-01T01:00:00Z","decision":"sua Z","impact":"w"}',
-  '',
-].join('\n');
-// Ngoài-1 CÓ khuyến nghị (điền sẵn) · Ngoài-2 KHÔNG (để trống — người tự quyết)
-const REVIEW2 = OOC(ITEM('known-limits') + '\n' + '- **Bat bien Y**\n  Người dùng thấy gì: nguoi thay Y\n  file: `b.js`\n  severity: low\n');
-const G2FULL = () => { const f = G2(REVIEW2); f['decisions.jsonl'] = LEDGER; f['gap-probe.md'] = PROBE('findings').replace('p1: 0', 'p1: 2'); return f; };
 
 check('LM07 one_shot Cong 1 sach -> dien san chu quyet', () => {
   const r = mkWs('g', G1(PROBE('findings')));
@@ -268,17 +188,27 @@ check('LM12 the KHONG-ky-duoc (REJECT) -> one_shot = null, khong moi ky', () => 
 });
 
 // ── Task 8: quét TRỌN xưởng — cờ oan không được xanh lén (E11) ──
+// KHUÔN (owner quyết 03/09, hồ sơ vu-trang-goal-luc-goi-ten sau ba lần tái phạm): hai bản ghi mốc
+// quét kho chỉ ghim hồ sơ ĐÃ CHỐT — có chữ ký người trong evidence-report. Hồ sơ đang mở đổi trạng
+// thái hợp lệ (draft→implemented→BLOCKED→PENDING→…) nên routing/cờ của nó đổi theo; ghim nó là
+// ghim thứ SẼ ĐỔI (lớp «thước ghim vào thứ sẽ đổi»). Hồ sơ đang mở được phủ bằng fixture code-sinh.
+// Hai file mốc sống ở tests/scripts/fixtures/ (không trong hồ sơ đã ký → hết thuế ghim lại).
+const FIX = path.join(ROOT, 'tests', 'scripts', 'fixtures');
+// «Đã chốt» đọc từ CHỮ KÝ NGƯỜI trong evidence-report (human_signoff khác rỗng) — không đọc bảng chữ status
+// (bộ đọc status là tập đóng do hồ sơ ra-co-ten-lam-va-trao canh; RT13 không cho mọc bộ đọc lạ).
+const settled = slug => { try { const m = readFileSync(path.join(ROOT, '_acceptance', slug, 'evidence-report.md'), 'utf8').match(/^human_signoff:[ \t]*(\S.*)$/m)   /* [ \t]* — KHÔNG \s*: \s nuốt xuống dòng, chữ ký rỗng khớp dòng kế */; return !!m && m[1].trim().length > 0; } catch { return false; } };
 // Baseline đã ĐỊNH ĐOẠT từng dòng (sweep-baseline.txt). Ca này giữ nó: một cờ
 // vàng MỚI ở bất kỳ hồ sơ nào — kể cả hồ sơ đã có tên trong baseline — đều
 // lệch, vì baseline ghi cả LOẠI cờ chứ không chỉ slug.
 check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
-  const base = readFileSync(path.join(ROOT, '_acceptance', 'loi-moi-cong-may-sinh', 'sweep-baseline.txt'), 'utf8')
+  const base = readFileSync(path.join(FIX, 'sweep-baseline.txt'), 'utf8')
     .split('\n').filter(l => l.trim() && !l.startsWith('#'))
     .map(l => l.split('\t').slice(0, 2).join('\t')).sort();
   const acc = path.join(ROOT, '_acceptance');
   const got = [];
   for (const slug of readdirSync(acc)) {
     if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
+    if (!settled(slug)) continue;   // hồ sơ đang mở: không ghim (khuôn 03/09)
     const r = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
     if (r.status !== 0) continue;
     let j; try { j = JSON.parse(r.stdout); } catch { continue; }
@@ -299,12 +229,13 @@ check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
 // fixture — vì không phép đo nào canh «mỗi hồ sơ mời người trả lời bao nhiêu
 // ô». Baseline này là bản ghi mốc ĐỊNH TUYẾN, cùng hình dạng sweep-baseline.txt.
 check('LM20 quet xuong: routing (hoi|bao) tung ho so == routing-baseline da dinh doat', () => {
-  const base = readFileSync(path.join(ROOT, '_acceptance', 'loi-moi-cong-may-sinh', 'routing-baseline.txt'), 'utf8')
+  const base = readFileSync(path.join(FIX, 'routing-baseline.txt'), 'utf8')
     .split('\n').filter(l => l.trim() && !l.startsWith('#')).sort();
   const acc = path.join(ROOT, '_acceptance');
   const got = [], crashed = [];
   for (const slug of readdirSync(acc)) {
     if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
+    if (!settled(slug)) continue;   // hồ sơ đang mở: không ghim (khuôn 03/09)
     const r = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
     let j; try { j = JSON.parse(r.stdout); } catch { j = null; }
     // Hồ sơ làm bộ dựng thẻ sập KHÔNG được bỏ qua im lặng (Ngoài-hợp-đồng r1/r2/r3).

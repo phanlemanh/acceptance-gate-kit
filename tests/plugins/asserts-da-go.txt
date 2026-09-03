@@ -177,3 +177,12 @@ for needle in ["baseline_minutes", "time_human_minutes", "gate1_skipped", "Read-
 # bằng thước chặt hơn, không phải hạ thước.
 assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m3), \
 assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m4), \
+#
+# ── Đợt khai 2026-09-03 — hồ sơ vu-trang-goal-luc-goi-ten (P85 nới 2 bản → 3 bản) ──
+# Ba assert dưới đây là bản HAI-BẢN của P85 (SKILL == GUIDE, đột biến một chiều).
+# Chúng biến mất khỏi cây vì được THAY bằng bản chặt hơn trong cùng ca: so ĐÔI MỘT
+# ba bản (SKILL · GUIDE · gate-card.js) + đếm 6 dòng + đột biến BA CHIỀU gọi tên
+# đúng bản lệch. Không phải hạ thước — thước rộng hơn và gọi tên chính xác hơn.
+assert sb == gb, f"GOAL-TEMPLATE lech giua {skill_p} va {guide_p} — dong bo lai 2 khoi marker"
+assert mutated != skill_t, "dot bien khong tac dung — chuoi neo da doi"
+assert block(skill_p, mutated) != gb, f"dot bien khoi trong {skill_p} ma van khop {guide_p} — phep so GOAL-TEMPLATE da chet"

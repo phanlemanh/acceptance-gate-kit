@@ -77,12 +77,19 @@ Steps:
    present → Gate 2, else Gate 1):
    `node <gate-card.js> --root . --slug <slug> --extract`
 
-   Từ 2.7, JSON còn ba khoá thẻ tự tính — ĐỌC chúng, đừng soạn lại bằng tay:
+   Từ 2.7, JSON còn ba khoá thẻ tự tính — ĐỌC chúng, đừng soạn lại bằng tay (2.8 thêm khoá thứ tư, `goal_line`, đứng ngay sau `one_shot` trong JSON — liệt kê dưới đây theo thứ tự đọc):
    - `one_shot` — trọn dòng lệnh cho người: tên lệnh plugin đầy đủ, mọi ô đã có
      khuyến nghị máy đã điền sẵn, `___` chỉ ở ô người phải tự chấm và ở chữ
      quyết. `null` nghĩa là thẻ này KHÔNG ký được (REJECT/BLOCKED) — đừng mời ký.
    - `routing` — `hoi` là các mục người phải quyết, `bao` là các mục máy đã đi
      tiếp và chỉ báo lại. Khối «VIỆC CỦA ANH» chỉ được chứa mục trong `hoi`.
+   - `goal_line` (Cổng 1, từ 2.8) — dòng `/goal` đã điền slug, rút từ bản chép
+     thứ ba của khuôn GOAL-TEMPLATE trong `gate-card.js` (P85 giữ ba bản khớp). Đây
+     là điểm vũ trang thứ hai của «máy chạy tới cổng người» (hồ sơ
+     vu-trang-goal-luc-goi-ten): IN NGUYÊN VĂN ngay dưới dòng lệnh duyệt trong
+     tin mời cổng, một câu dẫn «sau khi trả lời (duyệt hay sửa), dán dòng này để
+     đoạn máy chạy tới cổng kế» — không soạn lại, không bỏ, không đổi slug. Khoá
+     này KHÔNG có ở Cổng 2 (thẻ Cổng 2 không in goal).
    - `roi_bac` (Cổng 1) — đối kháng máy không chạy được (gap-probe vắng khi repo
      khai `required`, file hỏng, verdict lạ, probe-failed). Bật thì thẻ KHÔNG
      điền sẵn gì và lời mời phải nói thẳng: phần vượt-nhận-thức rơi về người,

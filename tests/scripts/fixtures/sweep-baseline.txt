@@ -18,6 +18,8 @@
 #
 # KẾT QUẢ: 4 hồ sơ bật cờ, 4/4 THẬT SAI KHUÔN, 0 cờ oan.
 # Bốn hồ sơ ĐÃ KÝ nên KHÔNG kéo vào diff; cờ hiện đúng khi ai đó dựng lại thẻ.
+# KHUÔN 03/09 (vu-trang-goal-luc-goi-ten): chỉ ghim hồ sơ ĐÃ CHỐT (có chữ ký người trong evidence-report);
+# hồ sơ đang mở đổi trạng thái hợp lệ nên không ghim. File dời từ hồ sơ loi-moi-cong-may-sinh ra đây.
 duong-do-trong-dinh-nghia-xong	token-la	that-sai-khuon: «Đề xuất: bỏ «metric» khỏi _Avoid_…» là câu văn mô tả cách sửa, không phải token
 lenh-in-ra-phai-bam-duoc	suspect_empty	that-sai-khuon: dòng tiêu đề «- **…owner chép** (QUICKSTART 11 · …)» có đuôi SAU «**» nên khuôn tiêu đề không khớp, cả mục thành 0 finding
 may-ganh-nguoi-quyet	token-la	that-sai-khuon: «Đề xuất: nâng phạm vi sửa ngay» là chữ NGƯỜI (nhãn nút trên thẻ), không phải token máy
