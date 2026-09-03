@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d991156578e0439b5639b6d556504e482bf64a70
+verified_commit: e8f6caa9e09eba9895caf9b02383f91f042bd063
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -165,3 +165,7 @@ sha: 873db3de27c591b2ae2b8bdff847d0b7ba39dcfc · suites: 4 lệnh exit 0 (script
 ### Re-pin lần 7 — 2026-09-03, do vòng vu-trang-goal-luc-goi-ten đổi renderer thẻ Cổng 1 (thêm dòng goal) — thẻ bằng chứng p185 sinh lại theo P190, kéo hồ sơ vào diff PR
 run_id: repin-20260903-vtg-1
 sha: d991156578e0439b5639b6d556504e482bf64a70 · suites: 4 lệnh exit 0 do Workflow S4 round 4 của vu-trang-goal-luc-goi-ten chạy trên cùng sha (scripts 797/0 · hooks 60/0 · plugins all-pass · workflows all-pass; run_id gốc `minted-vu-trang-goal-luc-goi-ten-*-r4`) · pin cũ: 873db3de · chữ ký người giữ nguyên.
+
+### Re-pin lần 8 — 2026-09-03, dây chuyền: routing-baseline (tests/scripts/fixtures/) thêm dòng hồ sơ vừa ký vu-trang-goal-luc-goi-ten sau lần ghim 7
+run_id: repin-20260903-vtg-2
+sha: e8f6caa9e09eba9895caf9b02383f91f042bd063 · suites: 4 lệnh exit 0 (scripts 796/0 · hooks 60/0 · plugins all-pass · workflows all-pass) + product-map --check khớp · pin cũ: d9911565 · chữ ký người giữ nguyên.
