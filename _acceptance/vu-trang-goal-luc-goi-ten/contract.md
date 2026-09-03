@@ -5,7 +5,7 @@ slug: vu-trang-goal-luc-goi-ten
 owner: manh.phan@onemount.com
 risk_tier: T2               # chạm scripts/gate-card.js · feature-loop SKILL · GUIDE · tests — không dính t3_paths
 surfaces: [cli]
-status: implemented
+status: signed-off
 design_doc: docs/superpowers/specs/2026-09-03-vu-trang-goal-luc-goi-ten-design.md
 approved_by:
 approved_at:
@@ -61,3 +61,10 @@ hoặc file ca mới. Ô nguồn: `_acceptance/vu-trang-goal-luc-goi-ten/opportu
 - S4-r1 (Workflow, BLOCKED vì suite scripts bị công cụ cắt): 13 phát hiện, 12 đóng trong lượt + 1 khai trên; sổ cái thêm 9 dòng (7 `chet`, 1 `trung`, 1 `song`). Lỗi nếp tái phạm: chạy suite TRƯỚC khi lật `status` — bản ghi mốc định tuyến lỗi thời ngay tại HEAD.
 - S4-r2 (PENDING, triage hỏng, 8 phát hiện đóng trong lượt) · S4-r3 (REJECT E2/E3: bản ghi mốc lỗi thời LẦN BA + 9 phát hiện về thước AC-7) → dừng-vá + trần 3 vòng → owner chọn **thu phạm vi + đổi khuôn nhỏ** (sổ 5001): bỏ AC-7 + thước; hai bản ghi mốc LM13/LM20 chỉ ghim hồ sơ ĐÃ CHỐT và dời ra `tests/scripts/fixtures/` (hết thuế ghim lại hồ sơ đã ký — đóng luôn Known limits «bản ghi mốc trong hồ sơ đã ký» của mốc 2.7.0); một vòng đo lại, không sửa thêm.
 - Known limits (thu phạm vi): routing và cờ vàng của hồ sơ ĐANG MỞ chỉ được phủ bằng fixture code-sinh (LM10/LM18/LM01–LM06), không bằng kho thật; nếp «S4 qua Workflow» không có thước máy.
+- known-limits (Trong hợp đồng, S4-r4): GL01 dựng kỳ vọng bằng đúng công thức thay của bên viết, chỉ đổi nguồn khuôn — lỗi chung ở phép gộp dòng không đỏ; kẹp bởi P85 (ba bản sau strip, 6 dòng) · GL00 (đếm 2 chỗ thay) · GL02 (đẳng thức HTML) — `tests/scripts/gate-card-goal.test.mjs`.
+- known-limits (Ngoài-1): thẻ p185 của khoi-viec-cua-anh sinh lại kéo hồ sơ đã ký vào diff — đã ghim lại lần 7 tại d9911565 trước khi trình cổng; ghi nhận.
+- known-limits (Ngoài-2): hồ sơ đã ký loi-moi-cong-may-sinh còn trỏ tới `routing-baseline.txt`/`sweep-baseline.txt` như vật của mình; hai file nay ở `tests/scripts/fixtures/` — con trỏ thay thế ghi ở chiến dịch ghim lại mốc 2.8.0.
+- known-limits (Ngoài-3): dòng Context ở trên còn chữ «điểm in S0»; nguồn đúng là AC-4 và SKILL S1#1 — hợp đồng ký nguyên văn.
+- mở hợp đồng mới (Ngoài-4, gom Ngoài-5/6): họ fail-open trong phép đo — LM13/LM20 lọc «đã chốt» trước răng bắt sập · P85b vòng kiểm vị trí bỏ qua vế ngoài VI_TRI · settled() nuốt lỗi đọc — ô cửa sổ 2.8→2.9, sổ cái #26–#28.
+- known-limits (Ngoài-5): P85b số «9+4» gõ tay, vế không có trong VI_TRI không được kiểm vị trí — `tests/plugins/run-tests.sh`.
+- known-limits (Ngoài-6): settled() try/catch → false rồi bỏ qua im lặng; không ca đối chứng riêng — `tests/scripts/gate-card-lmcms.test.mjs`.

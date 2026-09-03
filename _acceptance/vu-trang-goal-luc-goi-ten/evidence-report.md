@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: d991156578e0439b5639b6d556504e482bf64a70
-human_signoff:
+human_signoff: Manh Phan 2026-09-03 — ký với giới hạn: 1 mục trong hợp đồng (GL01) ghi Known limits; Ngoài-1/2/3/5/6 ghi Known limits, Ngoài-4 mở hợp đồng mới; đồng ý phạm vi đã cắt (kể cả thu phạm vi AC-7); phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: vu-trang-goal-luc-goi-ten
@@ -121,6 +121,14 @@ human_signoff:
   verified_at: 2026-09-03T10:15:22Z
 
 ## Known limits
+
+1. **GL01 chép công thức thay của bên viết** (trong hợp đồng, AC-2; mức thấp, tái xuất r3) — kỳ vọng chỉ đổi nguồn khuôn (SKILL thay hằng), lỗi chung ở phép gộp dòng không bao giờ đỏ. Kẹp bởi P85 (ba bản sau strip + 6 dòng), GL00 (đếm 2 chỗ thay), GL02 (đẳng thức HTML). Owner ký với giới hạn ở trần vòng.
+2. **Hồ sơ đã ký lmcms còn trỏ tới hai bản ghi mốc đã dời** sang `tests/scripts/fixtures/` — con trỏ thay thế ghi ở chiến dịch ghim lại 2.8.0.
+3. **Context hợp đồng còn chữ «S0»** — nguồn đúng là AC-4/SKILL S1#1; ký nguyên văn.
+4. **Họ fail-open trong phép đo** (Ngoài-4/5/6): LM13/LM20 lọc «đã chốt» trước răng bắt sập · P85b bỏ qua vế ngoài VI_TRI · settled() nuốt lỗi đọc — ô mới cửa sổ 2.8→2.9.
+5. **AC-4/5/6 đo chỉ dẫn, không đo hành vi phiên** — như đã khai từ Cổng 1; đầu ra đo ở ba dòng số mốc 2.8.0.
+6. **Brainstorm không hỏi gì → chưa phủ** (chính vòng này) — như đã khai.
+7. **Nếp «S4 qua Workflow» không có thước máy** sau thu phạm vi AC-7 — đọc bằng mắt trên `usage-report.md` (4 mục, 4 vòng) và run_id `minted-…-r1..r4`.
 
 ## Ngoài hợp đồng
 
