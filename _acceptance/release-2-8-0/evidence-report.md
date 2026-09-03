@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 52556444fd78e53e6dcf17e98949500b01aceb46
+verified_commit: 6b0f7465c577073d21c125a8a569326251724c61
 human_signoff: Manh Phan 2026-09-03 — ký phát hành 2.8.0 với 6 known-limits đã khai; Ngoài-1/2/4/5/6 ghi Known limits, Ngoài-3 mở hợp đồng mới; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -180,3 +180,8 @@ Round 2: PRODUCT-MAP.md được vẽ lại khớp hồ sơ xưởng tại commi
 (E1, E2, E3c, E6), suite scripts (E3), suite hooks (E3b), suite workflows (E3d) và
 `node scripts/product-map.mjs --check` (E3e) đều exit 0; lệnh hồi quy `--root . --check`
 cũng exit 0. Verdict: PASS.
+
+### Re-pin lần 1 — 2026-09-03, thuế một-dòng-mỗi-chữ-ký: dòng định tuyến của chính hồ sơ này (trong `tests/scripts/fixtures/`) ghim cùng commit chữ ký nên hồ sơ tự hoá cũ
+run_id: repin-20260903-rel280-1
+sha: 6b0f7465c577073d21c125a8a569326251724c61 · suites: 4 lệnh exit 0 chạy trên đúng nội dung cây này TRƯỚC khi commit (scripts 796/0 · hooks 60/0 · plugins all-pass · workflows all-pass) + product-map --check khớp · pin cũ: 52556444 · chữ ký người giữ nguyên.
+Vòng khép kín có thật: hồ sơ chỉ vào tập «đã chốt» SAU khi ký, nên dòng ghim chỉ thêm được lúc ký — và thêm là hoá cũ. Cùng họ với sổ cái `vu-trang-goal-luc-goi-ten#29`; thuộc ô đã mở ở Ngoài-3.

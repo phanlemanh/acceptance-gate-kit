@@ -267,3 +267,4 @@ release-2-8-0#3	release-2-8-0	high	fail-open	song			hai muc Known limits/Ngoai h
 release-2-8-0#4	release-2-8-0	medium	khac	chet	gop tay 9→6 truoc khi dung the (S4-r2)		review-findings vong 2 co 3 cap trung Viet/Anh; goc o buoc dedupe cua workflow
 release-2-8-0#5	release-2-8-0	low	do-thuoc	song			E3e viet thang lenh thay vi khoa config — tai phat lan 3 (S4-r2)
 release-2-8-0#6	release-2-8-0	high	do-thuoc	song			E1/E2/E3c/E6 cham bang ma thoat TRON suite plugins, khong ghim dong ve P200 nhu expected hua (S4-r2)
+release-2-8-0#7	release-2-8-0	medium	khac	song			vong khep kin: dong dinh tuyen chi ghim duoc SAU khi ky, ma them dong do (trong tests/) lam chinh ho so hoa cu -> buoc ghim lai bat buoc moi chu ky. Cung ho voi vu-trang-goal-luc-goi-ten#29; thuoc o mo o Ngoai-3 (S4-r2 post-sign)
