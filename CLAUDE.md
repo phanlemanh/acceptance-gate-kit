@@ -63,8 +63,11 @@
     docs/findings/2026-09-01-audit-loi-moi-cong-nang-hinh-thuc.md). Răng
     thay thế, để số đếm không hoá hình thức: **MỤC TIÊU ≤3 lượt gọi
     người/vòng** — 3 không phải KPI tuỳ hứng, nó = đúng số cổng người trong
-    thiết kế (Đáng · Phạm vi · Bằng chứng); mốc phát hành ≤1 (làn V ở Cổng
-    Phạm vi, tiền lệ 2.5.0); tức mục tiêu thật là **0 lượt ngoài thiết kế**.
+    thiết kế (Đáng · Phạm vi · Bằng chứng); **vòng T3 có thêm Gate 1.5 theo
+    thiết kế nên trần T3 = 4** (owner đọc luật ở dòng ký mốc 2.7.0, 03/09 —
+    đọc theo nguyên tắc «= số cổng thiết kế», không phải nới); mốc phát hành
+    ≤1 (làn V ở Cổng Phạm vi, tiền lệ 2.5.0); tức mục tiêu thật là **0 lượt
+    ngoài thiết kế**.
     Và **≤1 chạm/lượt**: máy soạn sẵn trọn gói khuyến nghị + căn cứ đọc
     trong một phút, người chỉ phát ngôn quyết định — cái người gõ là Ý MUỐN
     (một chạm, một chữ), không phải cú pháp; máy chịu trách nhiệm dịch ý
