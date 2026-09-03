@@ -41,11 +41,15 @@ duyệt): vẫn in — thẻ là vật; ai mở thẻ sau vẫn thấy — nhưn
 S1 (P0) bác bản đầu «in ở S0»: S0#2/#3 có câu xác nhận T1 và slug, S1#1 là
 brainstorm hỏi-đáp — đều là lượt chờ người, và khuôn goal cố ý coi «chờ input
 người» là hoàn thành, nên goal vũ trang ở S0 kết ngay ở câu hỏi đầu tiên. Ba
-điểm đúng, đều là lượt người đã có sẵn: (a) **câu xác nhận thiết kế cuối
-brainstorm** — SKILL S1: khi brainstorm chốt, câu hỏi xác nhận cuối kèm dòng
-`/goal` («chốt thiết kế? — nếu đúng, dán luôn dòng này cùng câu trả lời»); đây
-là lượt người cuối trước đoạn máy S1-đuôi (artifact + gap-probe) → Cổng 1, và
-với làn V T2 là lượt người CUỐI của cả vòng; (b) **Cổng 1** giữ bước in, nay là
+điểm đúng, đều là lượt người đã có sẵn: (a) **mỗi câu xin duyệt thiết kế của
+brainstorm** — skill brainstorming (bản đang cài) có câu «xin duyệt — dừng chờ
+đồng ý» với hình dạng biết trước, nhưng có thể nhiều câu và không biết trước câu
+nào cuối (gap-probe vòng 2), nên SKILL S1 dặn: mọi câu xin duyệt thiết kế in kèm
+dòng `/goal` («nếu đồng ý, dán luôn dòng này cùng câu trả lời»), và S1#5 nói rõ
+dòng in kèm đó KHÔNG phải một cổng (không đụng luật «gộp thành MỘT Gate 1»);
+đây là lượt người trước đoạn máy S1-đuôi → Cổng 1, và với làn V T2 không chạm
+UI là lượt người CUỐI của cả vòng. Ca brainstorm không hỏi gì (như chính vòng
+này) không có lượt để vũ trang — khai chưa phủ; (b) **Cổng 1** giữ bước in, nay là
 vật thẻ (D2) — vòng không làn V phải vũ trang lại vì goal đã kết ở cổng; (c)
 **Gate 1.5** — không có mục riêng, là mệnh đề trong S2#3 «T3: GATE 1.5 — trình
 tóm tắt plan … chờ duyệt»: thêm vế «kèm dòng /goal» vào chính mệnh đề đó (lớp

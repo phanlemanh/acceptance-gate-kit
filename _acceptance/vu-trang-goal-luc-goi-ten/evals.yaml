@@ -1,6 +1,8 @@
 # evals — vu-trang-goal-luc-goi-ten
 # Fixture code-sinh, khuôn rút qua marker, đối chứng dương + đột biến trong chính ca.
 # Trục B (AC-4..AC-6) đo VĂN CHỈ DẪN — khai thẳng là đo chỉ dẫn, đầu ra đo ở ba dòng số mốc 2.8.0.
+# AC-7 KHÔNG có eval: run-log chỉ tồn tại sau khi Workflow S4 append → eval trước đó là fail-open
+# (gap-probe vòng 2). Đo bằng script run-log-minted.mjs chạy lúc trình Cổng 2, đầu ra dán vào gói.
 evals:
   - id: E1
     criterion: AC-1
@@ -31,27 +33,19 @@ evals:
     criterion: AC-4
     executor: test
     cmd: config:executors.test.plugins
-    expected: "Ca P-mới «S1 cau xac nhan thiet ke cuoi brainstorm kem GOAL-TEMPLATE · S1#7 gap-probe dong bo · Gate 1 giu buoc in · S2#3 GATE 1.5 kem /goal» PASS (grep neo chữ, đo chỉ dẫn)."
+    expected: "Ca P-mới «S1 moi cau xin duyet thiet ke kem GOAL-TEMPLATE · S1#5 khong phai cong · S1#7 gap-probe dong bo · Gate 1 giu buoc in · S2#3 GATE 1.5 kem /goal» PASS (grep neo chữ, đo chỉ dẫn)."
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
     executor: test
     cmd: config:executors.test.plugins
-    expected: "Ca P-mới «GUIDE /goal: ba thoi diem + lan V lan duy nhat; 0 cau ‹hai ban› con sot o SKILL/GUIDE/P85» PASS; P85 các vế khuôn không đổi vẫn PASS."
+    expected: "Ca P-mới «GUIDE /goal: ba thoi diem + lan V T2 khong cham UI + brainstorm khong hoi → chua phu; 0 cau ‹hai ban› con sot o SKILL/GUIDE/P85» PASS; P85 các vế khuôn không đổi vẫn PASS."
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
     executor: test
     cmd: config:executors.test.plugins
     expected: "Ca P-mới «bat bien dung goi ten ca tien-trinh-nen-bao-xong» PASS (grep neo chữ)."
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E9
-    criterion: AC-7
-    executor: script
-    cmd: node tests/scripts/run-log-minted.mjs --slug vu-trang-goal-luc-goi-ten --root .
-    expected: >
-      Mọi dòng run-log của vòng chấm cuối có run_id khớp /^minted-vu-trang-goal-luc-goi-ten-E\w+-r\d+$/ và cùng ts —
-      vết Workflow đúc. Vòng chấm ĐẦU chưa có run-log → script in «chua co run-log» và exit 0 (đo từ vòng 2).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-1

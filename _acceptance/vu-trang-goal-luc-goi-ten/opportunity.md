@@ -1,7 +1,7 @@
 ---
 schema_version: 1
 slug: vu-trang-goal-luc-goi-ten
-feature: Vũ trang /goal ở mọi lượt người đứng trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in dời về lúc «làm» · Cổng 1 · Gate 1.5
+feature: Vũ trang /goal ở mọi lượt người đứng ngay trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in = mỗi câu xin duyệt thiết kế của brainstorm · Cổng 1 · Gate 1.5
 owner: manh.phan@onemount.com
 stage: decided              # discovery | decided | archived
 decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
@@ -41,18 +41,21 @@ của lời đề xuất 03/09, không phải nguồn).
 2. **Điểm in dời về mọi lượt người đứng NGAY TRƯỚC một đoạn máy.** Gap-probe
    S1 (P0) bác điểm «lúc làm»: S0 có câu xác nhận T1/slug và S1#1 là brainstorm
    hỏi-đáp — toàn lượt chờ người, goal vũ trang ở đó kết ngay ở câu hỏi đầu vì
-   khuôn cố ý coi «chờ input người» là hoàn thành. Ba điểm đúng: **câu xác nhận
-   thiết kế cuối brainstorm** (lượt người cuối trước đoạn máy S1-đuôi → Cổng 1;
-   với làn V T2 là lượt người CUỐI của cả vòng), **Cổng Phạm vi** (khi duyệt —
-   vật thẻ in ra), **Gate 1.5** (T3 — mệnh đề S2#3, chỉ lớp lời). Sửa chữ skill
-   + GUIDE; khuôn goal không đổi chữ.
+   khuôn cố ý coi «chờ input người» là hoàn thành. Ba điểm đúng: **mỗi câu xin
+   duyệt thiết kế của brainstorm** (skill brainstorm có câu «xin duyệt — dừng
+   chờ đồng ý» có hình dạng biết trước, nhưng nhiều câu và không biết câu nào
+   cuối — nên in kèm mọi câu; với làn V T2 không chạm UI đó là lượt người CUỐI
+   của cả vòng), **Cổng Phạm vi** (khi duyệt — vật thẻ in ra), **Gate 1.5** (T3
+   — mệnh đề S2#3, chỉ lớp lời). Kèm D5: phản biện context sạch S1 chạy đồng
+   bộ để đuôi S1 hết chỗ ngừng. Sửa chữ skill + GUIDE; khuôn goal không đổi.
 3. **Nếp, không đổi luật:** S4 đi qua Workflow `acceptance-verify` như luật S3
    đã ghi («KHÔNG tự chạy eval trong main loop») — vòng #136 làm trái. Vòng này
    tự đi đúng đường đó, kể cả khi kit tự host.
 
 KHÔNG làm: hook `Stop` do plugin giữ (lớp 2 — chỉ mở nếu mốc 2.8.0 còn đếm thấy
 dừng khi goal đã bật) · làn thẻ Cổng Đáng (ô riêng, cây ghim `528caaa8`) · răng
-đo hành vi phiên (không có harness; đo bằng ba dòng số).
+đo hành vi phiên (không có harness; đo bằng ba dòng số) · ca brainstorm không
+hỏi gì (không có lượt người để vũ trang trước Cổng 1 — chưa phủ, đo ở ba dòng số).
 
 ## Giả định chốt sinh tử
 
