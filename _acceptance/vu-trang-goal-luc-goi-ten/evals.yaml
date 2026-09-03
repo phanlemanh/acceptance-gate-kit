@@ -18,34 +18,41 @@ evals:
     executor: test
     cmd: config:executors.test.scripts
     expected: >
-      Ca «GL01 goal_line == khuon rut qua marker (moi <slug> thay, mot dong, 0 <slug> sot)» PASS; test rút
-      khuôn từ marker GOAL-TEMPLATE của gate-card.js, thay <slug> bằng phép thay độc lập, không gõ literal.
+      Dòng PASS đích danh trong stdout suite scripts: «PASS: GL01 goal_line == khuon rut qua marker (moi <slug> thay, mot dong, 0 <slug> sot)»
+      và «PASS: GL00 khuon trong gate-card.js: 6 dong, co dung 2 <slug>, bat dau bang /goal»; kỳ vọng dựng từ khối SKILL (nguồn khác), không gõ literal.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
     executor: test
     cmd: config:executors.test.scripts
     expected: >
-      Ca «GL02 .mach.goal <b> == goal_line (dang thuc, ngay sau .mach)», «GL03 the do van in goal_line» và
-      «GL04 Cong 2 KHONG co goal_line lan .mach.goal» PASS; đột biến nối đuôi vào dòng HTML → GL02 đỏ.
+      Ba dòng PASS đích danh trong stdout suite scripts: «PASS: GL02 HTML Cong 1: .mach.goal KE NGAY SAU .mach cua one_shot, <b> == goal_line (dang thuc)»,
+      «PASS: GL03 the DO (roi bac: gap_probe required, vang file) VAN co goal_line + .mach.goal», «PASS: GL03b the DO (g1Blocked»,
+      «PASS: GL04 the Cong 2: KHONG co goal_line, KHONG co .mach.goal (doi chung chieu nguoc)»; đột biến nối đuôi vào dòng HTML → GL02 đỏ (trong chính ca).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
     executor: test
     cmd: config:executors.test.plugins
-    expected: "Ca P-mới «S1 moi cau xin duyet thiet ke kem GOAL-TEMPLATE · S1#5 khong phai cong · S1#7 gap-probe dong bo · Gate 1 giu buoc in · S2#3 GATE 1.5 kem /goal» PASS (grep neo chữ, đo chỉ dẫn)."
+    expected: >
+      Dòng PASS đích danh trong stdout suite plugins: «PASS: P85b GOAL-ARM: S1 moi cau xin duyet kem GOAL-TEMPLATE · S1#5 khong phai cong · S1#7 dong bo · Gate 1 giu · GATE 1.5 kem /goal · bat bien dung goi ten bao-roi-ngung · GUIDE ba thoi diem (do chi dan)»
+      và các dòng vế «P85b VE: S1#1 moi cau xin duyet kem khoi», «P85b VE: S1#5 dong goal KHONG phai mot cong», «P85b VE: S1#7 gap-probe DONG BO», «P85b VE: Gate 1 giu lenh in», «P85b VE: GATE 1.5 kem /goal» (grep neo chữ theo MỤC — đo chỉ dẫn, khai thẳng).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
     executor: test
     cmd: config:executors.test.plugins
-    expected: "Ca P-mới «GUIDE /goal: ba thoi diem + lan V T2 khong cham UI + brainstorm khong hoi → chua phu; 0 cau ‹hai ban› con sot o SKILL/GUIDE/P85» PASS; P85 các vế khuôn không đổi vẫn PASS."
+    expected: >
+      Dòng vế đích danh trong stdout suite plugins: «P85b VE: GUIDE: ba thoi diem», «P85b VE: GUIDE: lan V T2 khong cham UI», «P85b VE: GUIDE: brainstorm khong hoi -> chua phu»,
+      «P85b VE: GUIDE: ba ban P85», «P85b VE: GUIDE «Khi nao» dem du (1)(2)(3), khong (4)»; và «PASS: P85 GOAL-TEMPLATE 3 ban (SKILL · GUIDE · gate-card) khop sau strip, 6 dong, lenh in noi voi khoi» — khuôn không đổi chữ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
     executor: test
     cmd: config:executors.test.plugins
-    expected: "Ca P-mới «bat bien dung goi ten ca tien-trinh-nen-bao-xong» PASS (grep neo chữ)."
+    expected: >
+      Dòng vế đích danh trong stdout suite plugins: «P85b VE: bat bien dung: tien trinh nen bao xong -> di tiep cung luot» và
+      «P85b VE: bat bien dung: bao-roi-ngung la dung ngoai thiet ke» (grep neo chữ trong khối bất biến — đo chỉ dẫn).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-1

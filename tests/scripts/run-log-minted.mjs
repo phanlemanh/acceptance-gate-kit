@@ -3,18 +3,20 @@
 // CUỐI khớp HỢP ĐỒNG CỦA BÊN VIẾT (feature-loop/workflows/acceptance-verify.js), không
 // khớp một hình dạng chuỗi tự đoán. Bên viết có HAI nhánh run_id (S4-r1 bắt):
 //   · verifier nhặt được run_id thật từ stdout → dùng nguyên;
-//   · rỗng → đúc `minted-<slug>-<evalId>-r<n>` hoặc `minted-<slug>-SUITE-<khoá>-r<n>`.
-// Và mỗi LẦN GỌI workflow một ts (`invokedAt`) — vòng chạy lại cùng round có nhiều ts.
-// Nên vết máy-giữ đọc được từ run-log là: mọi dòng eval có run_id KHÁC RỖNG (đúc hoặc
-// verifier khai), mọi dòng cùng round cùng `sha`, và tập id đọc qua CHÍNH bộ đọc
-// dùng chung lib/eval-yaml.js (không mọc bản parser thứ ba). Vết mạnh hơn nằm ở
-// usage-report.md do wf-usage.mjs sinh từ transcript workflow — script kiểm nó có mục
-// «S4 round <k>» (--usage). Chạy LÚC TRÌNH CỔNG 2, sau khi main loop append run-log;
-// KHÔNG là eval (eval chạy trước khi run-log tồn tại → fail-open; gap-probe vòng 2).
+//   · rỗng → đúc `minted-<slug>-<evalId>-r<n>` hoặc `minted-<slug>-SUITE-<khoá>-r<n>`;
+// và ghi dòng `{evalId, kind:'vang-mat'}` KHÔNG run_id cho eval mà agent chết/skip (S4-r2
+// bắt: bộ lọc `!r.kind` từng làm eval vắng mặt tàng hình). Mỗi LẦN GỌI workflow một ts.
+// Vết máy-giữ đọc được: MỌI id trong evals.yaml có ĐÚNG MỘT dòng eval ở vòng cuối, run_id
+// khác rỗng (vang-mat = rỗng → đỏ), evalId thuộc tập id đọc qua CHÍNH lib/eval-yaml.js,
+// cùng round cùng sha (khi bên viết ghi sha), dòng hỏng JSON = đỏ (script cổng, không báo
+// cáo). Vết mạnh hơn: usage-report.md do wf-usage.mjs sinh từ transcript — --usage đòi đúng
+// heading bên viết in (`### <title> — <wf_run> (<n> agent, …)`), không phải chuỗi ở đâu đó.
+// Chạy LÚC TRÌNH CỔNG 2, sau khi main loop append run-log; KHÔNG là eval.
 //
-// Thoát 1 + thông điệp ghim: «chua co run-log — AC-7 CHUA do» · «run_id rong: <evalId>» ·
-// «run_id doi id ngoai evals.yaml: <id>» · «sha lech trong mot vong» · «usage-report thieu muc S4».
-// Thoát 0: «AC-7 OK: <n> dong, vong r<k>, <t> lan goi (ts), sha <7>».
+// Thoát 1 + thông điệp ghim: «chua co run-log — AC-7 CHUA do» · «dong run-log hong JSON: <n>» ·
+// «thieu dong eval: <id>» · «run_id rong: <evalId>» · «run_id doi id ngoai evals.yaml: <id>» ·
+// «hai dong cho mot eval: <id>» · «sha lech trong mot vong» · «usage-report thieu muc S4 round k
+// do wf-usage sinh». Thoát 0: «AC-7 OK: <n> dong, vong r<k>, <t> lan goi (ts), sha <7>».
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -27,7 +29,6 @@ const ws = path.join(root, '_acceptance', slug);
 const logP = path.join(ws, 'run-log.jsonl');
 if (!existsSync(logP)) { console.log(`chua co run-log — AC-7 CHUA do (${path.relative(root, logP)})`); process.exit(1); }
 
-// Tập id qua CHÍNH bộ đọc dùng chung — thân block `expected: >` không được quét key.
 const require = createRequire(import.meta.url);
 const { parseEvals } = require(path.join(root, 'lib', 'eval-yaml.js'));
 const evP = path.join(ws, 'evals.yaml');
@@ -35,26 +36,37 @@ const ids = existsSync(evP) ? parseEvals(readFileSync(evP, 'utf8'), []).map(e =>
 if (!ids.length) { console.log('evals.yaml khong co id nao — AC-7 CHUA do'); process.exit(1); }
 
 const lines = readFileSync(logP, 'utf8').split(/\r?\n/).filter(l => l.trim());
-const rows = []; for (const l of lines) { try { rows.push(JSON.parse(l)); } catch { /* dòng hỏng đếm ở dưới */ } }
-const broken = lines.length - rows.length;
-const evalRows = rows.filter(r => r.evalId && !r.kind);
+const rows = []; let broken = 0;
+for (const l of lines) { try { rows.push(JSON.parse(l)); } catch { broken++; } }
+// Dòng hỏng = vết không đọc được → đỏ (script cổng, không phải báo cáo).
+if (broken) { console.log(`dong run-log hong JSON: ${broken} — vet khong doc duoc, AC-7 CHUA do`); process.exit(1); }
+// Dòng eval = có evalId và (không kind, hoặc kind 'vang-mat' của bên viết). Dòng memo (baseline/panel/round-tally) bỏ.
+const isEval = r => r.evalId && (!r.kind || r.kind === 'vang-mat');
+const evalRows = rows.filter(isEval);
 if (!evalRows.length) { console.log('run-log khong co dong eval nao — AC-7 CHUA do'); process.exit(1); }
 const lastRound = Math.max(...evalRows.map(r => Number(r.round) || 0));
 const last = evalRows.filter(r => (Number(r.round) || 0) === lastRound);
-// (1) run_id khác rỗng ở mọi dòng.
+// (0) MỌI id của evals.yaml có ĐÚNG MỘT dòng ở vòng cuối — vắng là đỏ, trùng là đỏ (đối chiếu ngược tập id).
+const byId = new Map(); for (const r of last) { const k = String(r.evalId); byId.set(k, (byId.get(k) || 0) + 1); }
+const missing = ids.filter(id => !byId.has(id));
+if (missing.length) { console.log(`thieu dong eval: ${missing.join(', ')} (vong r${lastRound})`); process.exit(1); }
+const dup = ids.filter(id => byId.get(id) > 1);
+if (dup.length) { console.log(`hai dong cho mot eval: ${dup.join(', ')} (vong r${lastRound})`); process.exit(1); }
+// (1) run_id khác rỗng — dòng vang-mat của bên viết KHÔNG có run_id → chính là ca này.
 const empty = last.filter(r => !String(r.run_id || '').trim());
-if (empty.length) { console.log(`run_id rong: ${empty.map(r => r.evalId).join(', ')} (vong r${lastRound})`); process.exit(1); }
-// (2) dòng eval (không phải SUITE) phải trỏ id có trong evals.yaml — đọc từ evalId, không đoán từ chuỗi run_id.
+if (empty.length) { console.log(`run_id rong: ${empty.map(r => r.evalId + (r.kind ? ` (${r.kind})` : '')).join(', ')} (vong r${lastRound})`); process.exit(1); }
+// (2) dòng eval (không phải SUITE) phải trỏ id có trong evals.yaml.
 const la = last.filter(r => !String(r.evalId).startsWith('SUITE-') && !ids.includes(String(r.evalId)));
 if (la.length) { console.log(`run_id doi id ngoai evals.yaml: ${la.map(r => r.evalId + '→' + r.run_id).join(', ')}`); process.exit(1); }
-// (3) cùng round cùng sha (bên viết ghi invokedSha cho mọi dòng của một lần gọi; vòng chạy lại cùng round vẫn cùng cây).
+// (3) cùng round cùng sha — chỉ khi bên viết có ghi sha (invokedSha vắng → không có gì để so, nói rõ).
 const shas = new Set(last.map(r => r.sha).filter(Boolean));
 if (shas.size > 1) { console.log(`sha lech trong mot vong: r${lastRound} co ${shas.size} sha — cung round phai cung cay`); process.exit(1); }
 const tsN = new Set(last.map(r => r.ts)).size;
-// (4) --usage: vết transcript của workflow — usage-report.md có mục S4 round k.
+// (4) --usage: heading do wf-usage.mjs in — `### <title> — <wf_run> (<n> agent, …)` với title chứa «S4 round k».
 if (has('--usage')) {
   const uP = path.join(ws, 'usage-report.md');
   const u = existsSync(uP) ? readFileSync(uP, 'utf8') : '';
-  if (!new RegExp(`S4 round ${lastRound}\\b`).test(u)) { console.log(`usage-report thieu muc S4 round ${lastRound} — khong co vet transcript workflow`); process.exit(1); }
+  const RXU = new RegExp(`^### [^\\n]*\\bS4 round ${lastRound}\\b[^\\n]* — wf_[0-9a-f-]+ \\(\\d+ agent, `, 'm');
+  if (!RXU.test(u)) { console.log(`usage-report thieu muc S4 round ${lastRound} do wf-usage sinh (heading «### … — wf_… (n agent, …)») — khong co vet transcript workflow`); process.exit(1); }
 }
-console.log(`AC-7 OK: ${last.length} dong, vong r${lastRound}, ${tsN} lan goi (ts), sha ${[...shas][0] ? String([...shas][0]).slice(0, 7) : '(khong)'}${broken ? ` (bo qua ${broken} dong hong)` : ''}`);
+console.log(`AC-7 OK: ${last.length} dong, vong r${lastRound}, ${tsN} lan goi (ts), sha ${shas.size ? String([...shas][0]).slice(0, 7) : '(ben viet khong ghi)'}`);

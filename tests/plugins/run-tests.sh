@@ -1451,6 +1451,7 @@ from pathlib import Path
 root = Path(sys.argv[1])
 skill = (root / "feature-loop/skills/feature-loop/SKILL.md").read_text(encoding="utf-8")
 guide = (root / "GUIDE.md").read_text(encoding="utf-8")
+card = (root / "commands/acceptance-card.md").read_text(encoding="utf-8")
 # (ten ve, van ban, chuoi neo) — chuoi neo la CAU, khong phai tu khoa roi.
 VE = [
   ("S1#1 moi cau xin duyet kem khoi", "skill", "Mỗi câu XIN DUYỆT thiết kế** của brainstorm"),
@@ -1466,8 +1467,10 @@ VE = [
   ("GUIDE: lan V T2 khong cham UI", "guide", "**Làn V T2 không chạm UI:**"),
   ("GUIDE: brainstorm khong hoi -> chua phu", "guide", "**Brainstorm không hỏi gì**"),
   ("GUIDE: ba ban P85", "guide", "ba bản được test P85 giữ khớp"),
+  ("acceptance-card.md ben DOC: khoa goal_line + IN NGUYEN VAN", "card", "- `goal_line` (Cổng 1, từ 2.8)"),
+  ("acceptance-card.md ben DOC: cau dan sau khi tra loi", "card", "sau khi trả lời (duyệt hay sửa), dán dòng này để"),
 ]
-TXT = {"skill": skill, "guide": guide}
+TXT = {"skill": skill, "guide": guide, "card": card}
 for name, which, needle in VE:
     assert needle in TXT[which], f"THIEU ve [{name}]: khong thay «{needle}»"
     print(f"     P85b VE: {name}")
@@ -1484,9 +1487,11 @@ def sec(text, start, end):
     return text[a:b]
 S1 = sec(skill, "## S1 — DESIGN", "## GATE 1"); GATE1 = sec(skill, "## GATE 1", "## S2"); S2 = sec(skill, "## S2", "## S3")
 BB = skill[:skill.index("## State machine")]
+GOALSEC = sec(guide, "## Chạy không-người-trông đoạn máy với /goal", "\n## ")
 VI_TRI = {"S1#1 moi cau xin duyet kem khoi": S1, "S1#1 tro dich danh GOAL-TEMPLATE": S1, "S1#1 ca brainstorm khong hoi -> chua phu": S1,
           "S1#5 dong goal KHONG phai mot cong": S1, "S1#7 gap-probe DONG BO": S1, "Gate 1 giu lenh in": GATE1, "GATE 1.5 kem /goal": S2,
-          "bat bien dung: tien trinh nen bao xong -> di tiep cung luot": BB, "bat bien dung: bao-roi-ngung la dung ngoai thiet ke": BB}
+          "bat bien dung: tien trinh nen bao xong -> di tiep cung luot": BB, "bat bien dung: bao-roi-ngung la dung ngoai thiet ke": BB,
+          "GUIDE: ba thoi diem": GOALSEC, "GUIDE: lan V T2 khong cham UI": GOALSEC, "GUIDE: brainstorm khong hoi -> chua phu": GOALSEC, "GUIDE: ba ban P85": GOALSEC}
 for name, which, needle in VE:
     if name in VI_TRI:
         assert needle in VI_TRI[name], f"ve [{name}] khong nam trong muc dung cho — chi thay o noi khac"
@@ -1495,7 +1500,7 @@ khi_nao = sec(guide, "**Khi nào — ba thời điểm", "**Làn V T2 không ch�
 for k in ("(1)", "(2)", "(3)"):
     assert k in khi_nao, f"GUIDE «Khi nao» thieu moc {k} — nhan noi ba ma khong du ba"
 assert "(4)" not in khi_nao, "GUIDE «Khi nao» co (4) — nhan noi ba ma co bon"
-print("     P85b VE: GUIDE «Khi nao» dem du (1)(2)(3), khong (4); 9 ve SKILL nam dung muc")
+print("     P85b VE: GUIDE «Khi nao» dem du (1)(2)(3), khong (4); 9 ve SKILL + 4 ve GUIDE nam dung muc")
 # Doi chung DUONG cho hai assert VANG chuoi «hai ban»: chen lai vao ban sao -> phep kiem phai bat.
 def con_hai_ban(sk, gd): return ("hai bản được test giữ khớp" in sk) or ("hai bản được test P85 giữ khớp" in gd)
 assert not con_hai_ban(skill, guide), "con cau «hai ban» — ban chep thu ba chua duoc khai"
