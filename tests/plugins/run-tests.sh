@@ -1474,8 +1474,33 @@ for name, which, needle in VE:
 # Khong con cau «hai ban» quanh khuon goal (SKILL chu thich, GUIDE, tieu de P85).
 assert "hai bản được test giữ khớp" not in skill, "SKILL con cau «hai ban» — ban chep thu ba chua duoc khai"
 assert "hai bản được test P85 giữ khớp" not in guide, "GUIDE con cau «hai ban»"
+# Tieu de P85 (dong `run "P85 ...`, KHONG phai chuoi nam trong chinh P85b — S4-r1: assert cu la tautology).
 me = (root / "tests/plugins/run-tests.sh").read_text(encoding="utf-8")
-assert "P85 GOAL-TEMPLATE 3 ban" in me, "tieu de P85 chua noi 3 ban"
+import re as _re
+assert _re.search(r'^run "P85 GOAL-TEMPLATE 3 ban', me, _re.M), "dong run cua P85 chua noi 3 ban"
+# Vi tri: ve phai nam TRONG muc co ten (AC-4 hua vi tri), khong phai o bat ky dau trong file.
+def sec(text, start, end):
+    a = text.index(start); b = text.index(end, a) if end else len(text)
+    return text[a:b]
+S1 = sec(skill, "## S1 — DESIGN", "## GATE 1"); GATE1 = sec(skill, "## GATE 1", "## S2"); S2 = sec(skill, "## S2", "## S3")
+BB = skill[:skill.index("## State machine")]
+VI_TRI = {"S1#1 moi cau xin duyet kem khoi": S1, "S1#1 tro dich danh GOAL-TEMPLATE": S1, "S1#1 ca brainstorm khong hoi -> chua phu": S1,
+          "S1#5 dong goal KHONG phai mot cong": S1, "S1#7 gap-probe DONG BO": S1, "Gate 1 giu lenh in": GATE1, "GATE 1.5 kem /goal": S2,
+          "bat bien dung: tien trinh nen bao xong -> di tiep cung luot": BB, "bat bien dung: bao-roi-ngung la dung ngoai thiet ke": BB}
+for name, which, needle in VE:
+    if name in VI_TRI:
+        assert needle in VI_TRI[name], f"ve [{name}] khong nam trong muc dung cho — chi thay o noi khac"
+# Quan he DEM: GUIDE «Khi nao» phai NEU DU ba thoi diem (1)(2)(3), khong chi mang nhan «ba».
+khi_nao = sec(guide, "**Khi nào — ba thời điểm", "**Làn V T2 không chạm UI:**")
+for k in ("(1)", "(2)", "(3)"):
+    assert k in khi_nao, f"GUIDE «Khi nao» thieu moc {k} — nhan noi ba ma khong du ba"
+assert "(4)" not in khi_nao, "GUIDE «Khi nao» co (4) — nhan noi ba ma co bon"
+print("     P85b VE: GUIDE «Khi nao» dem du (1)(2)(3), khong (4); 9 ve SKILL nam dung muc")
+# Doi chung DUONG cho hai assert VANG chuoi «hai ban»: chen lai vao ban sao -> phep kiem phai bat.
+def con_hai_ban(sk, gd): return ("hai bản được test giữ khớp" in sk) or ("hai bản được test P85 giữ khớp" in gd)
+assert not con_hai_ban(skill, guide), "con cau «hai ban» — ban chep thu ba chua duoc khai"
+assert con_hai_ban(skill + "\nhai bản được test giữ khớp", guide), "phep kiem «hai ban» KHONG bat khi chen lai — assert vang-chuoi chet"
+assert con_hai_ban(skill, guide + "\nhai bản được test P85 giữ khớp"), "phep kiem «hai ban» KHONG bat o GUIDE khi chen lai"
 # Dot bien: xoa TUNG ve trong ban sao -> dung ve do phai do (dich danh), cac ve khac con nguyen.
 for name, which, needle in VE:
     mutated = TXT[which].replace(needle, "", 1)
