@@ -300,7 +300,7 @@ bằng eval `ui-check`/`design-gate`. Lý do + đường lấy lại:
 harness: sau mỗi turn một checker nhỏ đọc transcript, điều kiện chưa thỏa thì tự nổ
 turn mới. Dùng đúng cách với feature-loop:
 
-**Khi nào:** ngay sau khi bạn duyệt Gate 1, trước khi rời máy.
+**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:** (1) mỗi câu **xin duyệt thiết kế** của brainstorm — dán cùng câu trả lời; (2) khi **duyệt Cổng Phạm vi** — thẻ Cổng 1 in sẵn dòng goal ngay dưới dòng lệnh duyệt; (3) khi **duyệt Gate 1.5** (T3). Vì sao nhiều lần: khuôn goal cố ý coi «máy đang chờ người» là hoàn thành, nên goal kết ở mỗi cổng và đoạn máy sau cổng cần vũ trang lại. **Làn V T2 không chạm UI:** không có cổng ở giữa, lần dán ở brainstorm là lần duy nhất. **Brainstorm không hỏi gì** (đề bài đã đủ, máy đi thẳng tới artifact) → không có lượt để vũ trang trước Cổng 1 — ca chưa phủ, đo ở ba dòng số mốc kế.
 
 **Combo rời-máy trọn bộ (phiên đang chạy model đắt cho phần thiết kế):** duyệt Gate 1 →
 `/model opus` + `/effort high` (alias `opus` tự trỏ bản opus mới nhất — KHÔNG ghim model ID
@@ -309,7 +309,7 @@ S3 tuần tự + điều phối S4 chạy model phiên; CLI chưa có `/effort` 
 định auto) → dán `/goal` theo template dưới → rời máy. Các vai agent-hóa được đã
 ghim qua `feature_loop.models` (xem mục "Model theo giai đoạn" ngay dưới).
 
-**Template (điền slug của bạn, dán thành 1 dòng — xuống dòng dưới đây chỉ để dễ đọc; bản runtime nằm ngay trong SKILL feature-loop mục Gate 1, hai bản được test P85 giữ khớp):**
+**Template (điền slug của bạn, dán thành 1 dòng — xuống dòng dưới đây chỉ để dễ đọc; bản runtime nằm ngay trong SKILL feature-loop mục Gate 1, bản thứ ba là hằng trong `scripts/gate-card.js` cho thẻ Cổng 1; ba bản được test P85 giữ khớp — so sau strip, 6 dòng):**
 
 <!-- <<<GOAL-TEMPLATE -->
 ```

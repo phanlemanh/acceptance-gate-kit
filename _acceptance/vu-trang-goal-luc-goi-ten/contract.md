@@ -5,7 +5,7 @@ slug: vu-trang-goal-luc-goi-ten
 owner: manh.phan@onemount.com
 risk_tier: T2               # chạm scripts/gate-card.js · feature-loop SKILL · GUIDE · tests — không dính t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-09-03-vu-trang-goal-luc-goi-ten-design.md
 approved_by:
 approved_at:
