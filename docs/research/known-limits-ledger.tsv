@@ -241,3 +241,15 @@ vu-trang-goal-luc-goi-ten#6	vu-trang-goal-luc-goi-ten	medium	chuoi-thay-quan-he	
 vu-trang-goal-luc-goi-ten#7	vu-trang-goal-luc-goi-ten	low	khac	chet	S4-r1 fix trong luot (so d-20260903T055800Z-4001)		hai assert vang-chuoi «hai ban» dung mot minh — them doi chung duong (chen lai -> phep kiem bat)
 vu-trang-goal-luc-goi-ten#8	vu-trang-goal-luc-goi-ten	low	chuoi-thay-quan-he	chet	S4-r1 fix trong luot (so d-20260903T055800Z-4001)		P85b neo tren toan file — neo theo MUC (S1 · GATE 1 · S2 · bat bien dung)
 vu-trang-goal-luc-goi-ten#9	vu-trang-goal-luc-goi-ten	low	khac	chet	S4-r1 fix trong luot (so d-20260903T055800Z-4001)		GL03 chi co diem-case roi bac — them GL03b g1Blocked (cong thuc LM16)
+vu-trang-goal-luc-goi-ten#10	vu-trang-goal-luc-goi-ten	high	khac	chet	thu pham vi + doi khuon nho — owner 03/09 (so d-20260903T100500Z-5001)		LM20 lech lan BA: ban ghi moc ghim ho so DANG MO — doi khuon: chi ghim ho so da chot, doi ra tests/scripts/fixtures/
+vu-trang-goal-luc-goi-ten#11	vu-trang-goal-luc-goi-ten	medium	khac	chet	thu pham vi + doi khuon nho — owner 03/09 (so d-20260903T100500Z-5001)		run-log-minted nap lib tu --root — thuoc AC-7 bo khoi hop dong (thu pham vi)
+vu-trang-goal-luc-goi-ten#12	vu-trang-goal-luc-goi-ten	medium	khac	chet	thu pham vi + doi khuon nho — owner 03/09 (so d-20260903T100500Z-5001)		ca --usage duong doc file that thay vi round-trip; regex hex chat hon ben viet — thuoc AC-7 bo
+vu-trang-goal-luc-goi-ten#13	vu-trang-goal-luc-goi-ten	medium	khac	chet	thu pham vi + doi khuon nho — owner 03/09 (so d-20260903T100500Z-5001)		doi chieu nguoc tap id do oan voi eval judgment — thuoc AC-7 bo
+vu-trang-goal-luc-goi-ten#14	vu-trang-goal-luc-goi-ten	low	khac	chet	entry descope 5002 ghi bu		thieu entry descope «bo dac-ta-UX» theo SKILL S1#4
+vu-trang-goal-luc-goi-ten#15	vu-trang-goal-luc-goi-ten	low	khac	chet	sua chu commands/acceptance-card.md (S4-r3)		cau «o cuoi danh sach» sai vi tri goal_line
+vu-trang-goal-luc-goi-ten#16	vu-trang-goal-luc-goi-ten	high	khac	trung		vu-trang-goal-luc-goi-ten#10	suite scripts do tai HEAD vi LM20 — cung goc #10
+vu-trang-goal-luc-goi-ten#17	vu-trang-goal-luc-goi-ten	medium	khac	chet	thu pham vi + doi khuon nho — owner 03/09 (so d-20260903T100500Z-5001)		luat hai-dong-mot-eval mau thuan nhieu-ts — thuoc AC-7 bo
+vu-trang-goal-luc-goi-ten#18	vu-trang-goal-luc-goi-ten	medium	khac	trung		vu-trang-goal-luc-goi-ten#12	hinh dang 2 ca --usage — cung goc #12
+vu-trang-goal-luc-goi-ten#19	vu-trang-goal-luc-goi-ten	low	chuoi-thay-quan-he	song			P85b ve ben DOC chi grep cau trong file chi dan (do chi dan) — khai Known limits, khong co thuoc hanh vi phien
+vu-trang-goal-luc-goi-ten#20	vu-trang-goal-luc-goi-ten	low	mut-khong-qua-chan-that	chet	GL02 ghim gia tri mong doi (S4-r3)		dot bien GL02 chi assert khac, khong ghim gia tri
+vu-trang-goal-luc-goi-ten#21	vu-trang-goal-luc-goi-ten	low	khac	chet	thu pham vi + doi khuon nho — owner 03/09 (so d-20260903T100500Z-5001)		fixture run-log viet tay dung khuon ben doc — thuoc AC-7 bo

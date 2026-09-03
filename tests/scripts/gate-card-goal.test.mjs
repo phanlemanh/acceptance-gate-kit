@@ -83,6 +83,7 @@ check('GL02 HTML Cong 1: .mach.goal KE NGAY SAU .mach cua one_shot, <b> == goal_
   writeFileSync(mg, mut);
   const html2 = run(mg, r, 'g', ['--gate', '1']).stdout;
   const got2 = goalAfterMach(html2, j.one_shot);
+  if (got2 !== j.goal_line + ' XXLECH') die('dot bien khong ra dung gia tri mong doi (goal_line + " XXLECH"): ' + got2);
   if (got2 === j.goal_line) die('dot bien noi duoi ma phep so van xanh — dang thuc chet');
 });
 check('GL03 the DO (roi bac: gap_probe required, vang file) VAN co goal_line + .mach.goal', () => {

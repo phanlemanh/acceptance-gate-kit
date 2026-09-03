@@ -18,6 +18,8 @@
 #
 # ĐỐI CHIẾU với cây trước vòng (d859a830): cột Treo trùng 100% — 0 hồ sơ Treo
 # đổi nhóm; khác duy nhất là chính loi-moi-cong-may-sinh (đang REJECT → rỗng).
+# KHUÔN 03/09 (vu-trang-goal-luc-goi-ten): chỉ ghim hồ sơ ĐÃ CHỐT (có chữ ký người trong evidence-report);
+# hồ sơ đang mở đổi trạng thái hợp lệ nên không ghim. File sống ở tests/scripts/fixtures/, không trong hồ sơ đã ký.
 bai-hoc-do-luong-vao-engine	hoi=ký hay trả	bao=cắt/hoãn|Treo
 card-text-fidelity	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
 cat-hinh-thuc	hoi=ký hay trả	bao=cắt/hoãn
@@ -69,8 +71,6 @@ premerge-unjudged-pass	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao
 product-map-uat-session	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
 ra-co-ten-lam-va-trao	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
 rang-phep-do-viec-cua-anh	hoi=ký hay trả	bao=cắt/hoãn|Treo
-release-2-0-0	hoi=veto hay để yên	bao=cắt/hoãn
-release-2-1-0	hoi=veto hay để yên	bao=cắt/hoãn|Treo
 release-2-2-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
 release-2-3-0	hoi=ký hay trả	bao=cắt/hoãn|Treo
 release-2-4-0	hoi=ký hay trả	bao=cắt/hoãn|Treo
@@ -92,5 +92,4 @@ thuoc-nhan-de-khoi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngo
 tool-kill-duong-doc-lap	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 vao-co-o-ra-co-ten	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
 veto-co-dau-vet	hoi=ký hay trả	bao=cắt/hoãn
-vu-trang-goal-luc-goi-ten	hoi=	bao=
 workspace-reader-unification	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo

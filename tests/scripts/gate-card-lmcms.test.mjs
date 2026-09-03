@@ -188,17 +188,27 @@ check('LM12 the KHONG-ky-duoc (REJECT) -> one_shot = null, khong moi ky', () => 
 });
 
 // ── Task 8: quét TRỌN xưởng — cờ oan không được xanh lén (E11) ──
+// KHUÔN (owner quyết 03/09, hồ sơ vu-trang-goal-luc-goi-ten sau ba lần tái phạm): hai bản ghi mốc
+// quét kho chỉ ghim hồ sơ ĐÃ CHỐT — có chữ ký người trong evidence-report. Hồ sơ đang mở đổi trạng
+// thái hợp lệ (draft→implemented→BLOCKED→PENDING→…) nên routing/cờ của nó đổi theo; ghim nó là
+// ghim thứ SẼ ĐỔI (lớp «thước ghim vào thứ sẽ đổi»). Hồ sơ đang mở được phủ bằng fixture code-sinh.
+// Hai file mốc sống ở tests/scripts/fixtures/ (không trong hồ sơ đã ký → hết thuế ghim lại).
+const FIX = path.join(ROOT, 'tests', 'scripts', 'fixtures');
+// «Đã chốt» đọc từ CHỮ KÝ NGƯỜI trong evidence-report (human_signoff khác rỗng) — không đọc bảng chữ status
+// (bộ đọc status là tập đóng do hồ sơ ra-co-ten-lam-va-trao canh; RT13 không cho mọc bộ đọc lạ).
+const settled = slug => { try { const m = readFileSync(path.join(ROOT, '_acceptance', slug, 'evidence-report.md'), 'utf8').match(/^human_signoff:[ \t]*(\S.*)$/m)   /* [ \t]* — KHÔNG \s*: \s nuốt xuống dòng, chữ ký rỗng khớp dòng kế */; return !!m && m[1].trim().length > 0; } catch { return false; } };
 // Baseline đã ĐỊNH ĐOẠT từng dòng (sweep-baseline.txt). Ca này giữ nó: một cờ
 // vàng MỚI ở bất kỳ hồ sơ nào — kể cả hồ sơ đã có tên trong baseline — đều
 // lệch, vì baseline ghi cả LOẠI cờ chứ không chỉ slug.
 check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
-  const base = readFileSync(path.join(ROOT, '_acceptance', 'loi-moi-cong-may-sinh', 'sweep-baseline.txt'), 'utf8')
+  const base = readFileSync(path.join(FIX, 'sweep-baseline.txt'), 'utf8')
     .split('\n').filter(l => l.trim() && !l.startsWith('#'))
     .map(l => l.split('\t').slice(0, 2).join('\t')).sort();
   const acc = path.join(ROOT, '_acceptance');
   const got = [];
   for (const slug of readdirSync(acc)) {
     if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
+    if (!settled(slug)) continue;   // hồ sơ đang mở: không ghim (khuôn 03/09)
     const r = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
     if (r.status !== 0) continue;
     let j; try { j = JSON.parse(r.stdout); } catch { continue; }
@@ -219,12 +229,13 @@ check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
 // fixture — vì không phép đo nào canh «mỗi hồ sơ mời người trả lời bao nhiêu
 // ô». Baseline này là bản ghi mốc ĐỊNH TUYẾN, cùng hình dạng sweep-baseline.txt.
 check('LM20 quet xuong: routing (hoi|bao) tung ho so == routing-baseline da dinh doat', () => {
-  const base = readFileSync(path.join(ROOT, '_acceptance', 'loi-moi-cong-may-sinh', 'routing-baseline.txt'), 'utf8')
+  const base = readFileSync(path.join(FIX, 'routing-baseline.txt'), 'utf8')
     .split('\n').filter(l => l.trim() && !l.startsWith('#')).sort();
   const acc = path.join(ROOT, '_acceptance');
   const got = [], crashed = [];
   for (const slug of readdirSync(acc)) {
     if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
+    if (!settled(slug)) continue;   // hồ sơ đang mở: không ghim (khuôn 03/09)
     const r = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
     let j; try { j = JSON.parse(r.stdout); } catch { j = null; }
     // Hồ sơ làm bộ dựng thẻ sập KHÔNG được bỏ qua im lặng (Ngoài-hợp-đồng r1/r2/r3).
