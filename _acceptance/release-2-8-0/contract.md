@@ -5,7 +5,7 @@ slug: release-2-8-0
 owner: manh.phan@onemount.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + workspace hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: draft
+status: implemented
 design_doc:
 approved_by:
 approved_at:
@@ -17,7 +17,7 @@ veto_opened_at: 2026-09-03T13:09:38Z
 
 ## Context
 
-Kể từ mốc 2.7.0 (`f265b475`, 03/09 00:xx UTC) tới `30ae6850` (03/09 13:xx UTC),
+Kể từ mốc 2.7.0 (`f265b475`, 02/09 21:41 UTC) tới `30ae6850` (03/09 13:04 UTC),
 **đúng MỘT vòng đã ký** — vòng meta duy nhất của cửa sổ, owner «gọi tên» 03/09:
 
 - `vu-trang-goal-luc-goi-ten` (#140, 03/09, T2) — ký với giới hạn sau thu phạm vi
@@ -53,14 +53,17 @@ Không đổi schema, không cần migrate. Không file nào trong `t3_paths`; v
 
 Người dùng kit nhận gì (đọc trong diff manifest, mục v2.8.0):
 
-1. Thẻ Cổng 1 in **khối /goal sáu dòng đã thay slug** ngay dưới dòng lệnh duyệt
-   điền sẵn — câu trả lời một chạm ở Cổng 1 đồng thời vũ trang máy chạy tới cổng
-   kế trong cùng lượt. Thẻ đỏ (rơi bậc / g1Blocked) vẫn in; thẻ Cổng 2 không in.
+1. Thẻ Cổng 1 in **lệnh /goal thành MỘT dòng** (khuôn sáu dòng gộp lại, đã thay
+   slug) ngay dưới dòng lệnh duyệt điền sẵn, và thẻ dặn dán dòng đó CÙNG câu trả
+   lời — duyệt Cổng 1 đồng thời vũ trang máy chạy tới cổng kế trong cùng lượt.
+   Dán là thứ thứ hai phải gõ; thẻ cho sẵn chữ, còn nó có thành một chạm hay
+   không thì ba dòng số mốc kế đo, không phải mốc này. Thẻ đỏ (rơi bậc /
+   g1Blocked) vẫn in; thẻ Cổng 2 không in.
 2. Skill feature-loop in khối đó ở **mỗi câu xin duyệt thiết kế** của brainstorm,
    Cổng 1 và Gate 1.5; bất biến dừng gọi tên «tiến trình nền báo xong → đi tiếp
    cùng lượt; báo-rồi-ngừng là dừng ngoài thiết kế».
-3. Khuôn GOAL-TEMPLATE **ba bản chép byte-bằng** giữ bởi P85, ba chiều đỏ gọi tên
-   bản lệch.
+3. Khuôn GOAL-TEMPLATE **ba bản chép**, P85 giữ bằng nhau từng ký tự sau khi cắt
+   hai đầu, ba chiều đỏ mỗi chiều gọi tên bản lệch.
 4. Bản ghi mốc định tuyến/cờ vàng **dời ra `tests/scripts/fixtures/`** và chỉ ghim
    hồ sơ đã chốt — hết thuế ghim lại hồ sơ đã ký mỗi khi hồ sơ khác đổi trạng
    thái; thuế còn lại là MỘT dòng mỗi chữ ký mới (mốc này trả một lần: CI đỏ
@@ -74,20 +77,27 @@ nếp phát hành `_acceptance/release-2-7-0/` · owner phát ngôn «merge» r�
 ## Ba dòng số North Star của mốc (luật (c), lần đếm thứ tư)
 
 Cửa sổ đếm: `f265b475` (2.7.0) → `30ae6850`. **Một vòng kit, meta, T2.** Vòng
-sản phẩm quan sát được ở kho tiêu thụ trong cùng cửa sổ, chạy dưới kit 2.7.0
-(cài 03/09 sáng): Radar `luoi-phai-thuc-su-do` (T2, ký 03/09 15:37 giờ VN).
+sản phẩm quan sát được ở kho tiêu thụ trong cùng cửa sổ: Radar
+`luoi-phai-thuc-su-do` (T2, ký 03/09 15:37 giờ VN). Cache plugin của Radar ở
+2.7.0 và lượt cài xong sáng 03/09, trước khi vòng mở 12:13 — **suy từ mốc cài,
+không có vết trong hồ sơ Radar**, nên không dùng vòng này làm phép đo cho thẻ 2.7.
 
 | Hồ sơ | Loại | Vòng chấm | Lượt gọi người (vết) | Hạ-tầng-kit đốt lượt | Làm-xong → quyết-được |
 |---|---|---|---|---|---|
-| `vu-trang-goal-luc-goi-ten` (#140) | **meta**, T2 | 4 (r1 BLOCKED công cụ cắt suite · r2 PENDING triage hỏng, chết vì hạn mức phiên · r3 REJECT lớp bản ghi mốc · r4 PASS sau thu phạm vi) | **trong thiết kế 3** (Cổng Đáng «gọi tên» `de9a4b78` · dừng-vá ở trần → «Thu phạm vi + đổi khuôn nhỏ» sổ 5001 · Cổng Bằng chứng `28533e99`; Cổng Phạm vi làn V `2cc7c140` = 0) · **ngoài thiết kế 2 có vết** (owner gõ «Try again» hai lần: một lượt máy bị cắt giữa chừng, một lần Workflow r2 chết vì hạn mức phiên — vết hội thoại, không trong repo) | 2 (r1 · r2) | S3 xong `d96fd3ff` 11:30 → ký 19:38 = **8h08**; trên cây cuối `d9911565` 17:56 → 19:38 = **1h42** (giờ VN) |
-| Radar `luoi-phai-thuc-su-do` | sản phẩm, kho tiêu thụ, T2 | 2 (r1 REJECT lưới-meta · r2 PASS) — đọc từ `run-log.jsonl` của Radar | Cổng 1 ký `80cf61b` 12:20 · Cổng 2 ký `65d2847` 15:37 với 10 mục Ngoài định đoạt cùng phút (dấu hiệu câu gộp một lượt) — **2 trong thiết kế có vết**; ngoài thiết kế **chưa đếm** (vết hội thoại ngoài repo này) | chưa đếm | S3 xong `88f5b9c` 13:15 → ký 15:37 = **2h22** |
+| `vu-trang-goal-luc-goi-ten` (#140) | **meta**, T2 | 4 (r1 BLOCKED công cụ cắt suite · r2 PENDING triage hỏng, chết vì hạn mức phiên · r3 REJECT lớp bản ghi mốc · r4 PASS sau thu phạm vi) | **cổng luật (c): 2** (Cổng Đáng «gọi tên» `de9a4b78` · Cổng Bằng chứng `28533e99`; Cổng Phạm vi làn V `2cc7c140` = 0) · **lượt có thiết kế nhưng ngoài ba cổng: 1** (dừng-vá ở trần → «Thu phạm vi + đổi khuôn nhỏ», sổ 5001 — STOP-PATCHING-CLAUSE bắt trình người, luật (c) không đếm nó) · **hạ tầng phiên: 2** (owner gõ «Try again» hai lần: một lượt máy bị cắt giữa chừng, một lần Workflow r2 chết vì hạn mức phiên — vết hội thoại, không trong repo) · giao hàng «merge» 1, không đếm (nếp 2.7.0) | 2 (r1 · r2) | S3 xong `d96fd3ff` 11:30 → ký 19:38 = **8h08**; trên cây cuối `d9911565` 17:56 → 19:38 = **1h42** (giờ VN) |
+| Radar `luoi-phai-thuc-su-do` | sản phẩm, kho tiêu thụ, T2 | 2 (r1 REJECT lưới-meta · r2 PASS) — đọc từ `run-log.jsonl` của Radar | Cổng 1 ký `80cf61b` 12:20 · Cổng 2 ký `65d2847` 15:37 với 10 mục Ngoài ghi liên tiếp mỗi phút một mục (23:00Z→23:09Z — máy ghi một lượt, không phải người quyết mười lượt) — **2 trong thiết kế có vết**; ngoài thiết kế **chưa đếm** (vết hội thoại ngoài repo này) | chưa đếm | S3 xong `88f5b9c` 13:15 → ký 15:37 = **2h22** |
 
-- **Số lần gọi người / vòng kit: 3 trong thiết kế = đúng trần T2 (luật (c)),
-  2 ngoài thiết kế.** Cả hai lượt ngoài thiết kế là **hạ tầng phiên**: lượt máy
-  bị cắt và hạn mức phiên — không lượt nào do máy tự dừng «báo rồi ngừng» (mục
-  tiêu vòng #140 nhắm vào). Mục tiêu «0 ngoài thiết kế» chưa đạt; phần còn lại
-  không thuộc /goal (goal không cứu được phiên chết).
-- **Chạm / lượt: 1** ở cả ba lượt thiết kế (Cổng 2: một câu gộp chép nguyên).
+- **Số lần gọi người / vòng kit: 2 ở cổng luật (c) (trần T2 là 3 — DƯỚI trần),
+  cộng 1 lượt dừng-vá có thiết kế và 2 lượt hạ tầng phiên; tổng 5 lượt owner.**
+  Không xếp lượt dừng-vá vào «trong thiết kế» cho vừa trần: luật (c) định nghĩa
+  3 = đúng ba cổng (Đáng · Phạm vi · Bằng chứng), còn dừng-vá là lượt do
+  STOP-PATCHING-CLAUSE sinh ra — có thiết kế nhưng không nằm trong ba cổng ấy.
+  Hai lượt hạ tầng phiên (lượt máy bị cắt · hạn mức phiên) đều KHÔNG phải máy tự
+  dừng «báo rồi ngừng» — đúng thứ vòng #140 nhắm; mục tiêu «0 ngoài thiết kế»
+  vẫn chưa đạt, và phần chưa đạt nằm ngoài tầm /goal (goal không cứu phiên chết).
+- **Chạm / lượt: 1** ở cả ba lượt có thiết kế (Cổng 2: một câu gộp chép nguyên).
+  Chưa đo: dán dòng /goal ở Cổng 1 là thứ thứ hai phải gõ trong cùng lượt — vòng
+  này không có lượt Cổng 1 nào để đo (đi làn V), nên số đó thuộc mốc kế.
 - **Vòng bị hạ-tầng-kit đốt lượt chấm: 2/4** — r1 (công cụ cắt suite, đúng
   TOOL-KILL-RULE → BLOCKED) và r2 (hạn mức phiên; resume được). Cả hai không
   phải lỗi vật.
@@ -144,3 +154,4 @@ vòng Radar không đếm được từ repo này.
 - Known limits: AC-1 ghim literal `2.8.0` — cố ý, số của một mốc là hằng của mốc đó; P200 vẫn đọc từ manifest (nếp từ 2.6.0).
 - Known limits: chữ ký mốc này sẽ kéo một dòng bản ghi mốc định tuyến (LM20 chỉ ghim hồ sơ đã chốt) — thêm TRƯỚC khi commit chữ ký, cùng commit, để không lặp CI đỏ của #140.
 - Known limits: hai quan sát Radar (mục Ngoài hợp đồng rỗng · at sau commit) là đọc từ commit/sổ của kho tiêu thụ, không phải phép đo của repo này.
+- Known limits: mốc này KHÔNG có phiên phản biện context sạch độc lập — bộ phân loại an toàn của harness quá tải suốt lượt dựng hồ sơ nên không gọi được phiên tươi (cùng giới hạn #1 của 2.7.0, lần này do hạ tầng). Bù lại: phiên thi công tự soi sáu lớp lỗi tái phát và tự sửa sáu chỗ (bảng ở `gap-probe.md`), và S4 chạy qua Workflow `acceptance-verify` — có agent soi + agent phản bác độc lập trên cùng cây, thứ 2.7.0 không có.
