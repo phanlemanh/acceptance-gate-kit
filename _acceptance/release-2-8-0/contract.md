@@ -5,7 +5,7 @@ slug: release-2-8-0
 owner: manh.phan@onemount.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + workspace hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: implemented
+status: signed-off
 design_doc:
 approved_by:
 approved_at:
@@ -155,3 +155,9 @@ vòng Radar không đếm được từ repo này.
 - Known limits: chữ ký mốc này sẽ kéo một dòng bản ghi mốc định tuyến (LM20 chỉ ghim hồ sơ đã chốt) — thêm TRƯỚC khi commit chữ ký, cùng commit, để không lặp CI đỏ của #140.
 - Known limits: hai quan sát Radar (mục Ngoài hợp đồng rỗng · at sau commit) là đọc từ commit/sổ của kho tiêu thụ, không phải phép đo của repo này.
 - Known limits: mốc này KHÔNG có phiên phản biện context sạch độc lập — bộ phân loại an toàn của harness quá tải suốt lượt dựng hồ sơ nên không gọi được phiên tươi (cùng giới hạn #1 của 2.7.0, lần này do hạ tầng). Bù lại: phiên thi công tự soi sáu lớp lỗi tái phát và tự sửa sáu chỗ (bảng ở `gap-probe.md`), và S4 chạy qua Workflow `acceptance-verify` — có agent soi + agent phản bác độc lập trên cùng cây, thứ 2.7.0 không có.
+- known-limits (Ngoài-1): `verified_at` của báo cáo vòng 1 là số tròn đứng sai thứ tự so với run-log và commit — tái phát lần 4; vòng 2 sạch.
+- known-limits (Ngoài-2): trường `output` của bốn eval đỏ vòng 1 chứa lời thuật máy viết, không có thông điệp đỏ thật.
+- mở hợp đồng mới (Ngoài-3, gom Ngoài-4): hai mục rỗng của báo cáo làm bộ đọc xanh-sạch bỏ qua lượt mời ký, trong khi thẻ đọc `review-findings.md` — hai bộ đọc lệch; kèm bước dedupe của workflow. Ô cửa sổ 2.8→2.9, gom với ô Ngoài-4 của #140.
+- known-limits (Ngoài-4): review-findings vòng 2 ra ba cặp trùng Việt/Anh, gộp tay còn sáu trước khi dựng thẻ.
+- known-limits (Ngoài-5): E3e viết thẳng lệnh thay vì khoá config — tái phát lần 3.
+- known-limits (Ngoài-6): bốn eval chấm bằng mã thoát trọn suite plugins thay vì dòng vế P200 đích danh.
