@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9f76d6d329bf6e7476e11cd88f2bd327b46d8c58
+verified_commit: cd94d0048760da55e89ecdcae12463186b5fec10
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -260,3 +260,18 @@ sha: 9f76d6d329bf6e7476e11cd88f2bd327b46d8c58 · rang.sh **9/10 chân exit 0** �
 Chân `suite-tong` đỏ — chết theo thiết kế sau merge (như lần 2): neo `origin/main`
 làm đối chứng, đòi cây hiện tại ≥ base+6 ca (base 792 · cây 795). Lưới thường
 trực `kvtm_suite_case` thay vai, XANH trên cùng sha.
+
+### Re-pin lần 4 — 2026-09-03, chiến dịch mốc 2.8.0 (§7.1)
+
+Đường khai bị cửa sổ chạm sau pin `9f76d6d3`: `scripts/gate-card.js` (khối
+`GOAL_TEMPLATE` + `goal_line` + dòng HTML mới trên thẻ Cổng 1) và
+`commands/acceptance-card.md` (khoá thứ tư `goal_line` + câu dẫn). Chạy lại
+TRỌN mười chân trên cây mốc: **9/10 exit 0**.
+run_id: repin-20260903-r280-kvtm
+sha: cd94d0048760da55e89ecdcae12463186b5fec10 · pin cũ: 9f76d6d3 · chữ ký người giữ nguyên · bốn suite + product-map --check exit 0 trên cùng cây.
+
+Chân `suite-tong` đỏ — **chết theo thiết kế sau merge**, đúng như lần 2 và lần 3
+đã khai: nó neo `origin/main` làm đối chứng và đòi cây hiện tại ≥ base+6 ca; sáu
+ca của chính hồ sơ này nay đã nằm trong main nên điều kiện không bao giờ đạt lại
+(base 793 · cây 796 · đòi ≥ 799). Lưới thường trực thay vai (`kvtm_suite_case`,
+chân `suite-case`) XANH trên cùng sha.

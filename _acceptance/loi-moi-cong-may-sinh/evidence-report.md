@@ -7,7 +7,7 @@ reason: 11/11 eval máy XANH trên cây cuối 873db3de. Bảy finding TRONG h�
 verified_by: implementing session (đối kháng vòng 1–3 do ba phiên tươi độc lập; KHÔNG có phiên soi độc lập trên cây cuối — Known limits #1)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 175999b964b34bb3812bf9b6c16fcf8669c77d26
+verified_commit: cd94d0048760da55e89ecdcae12463186b5fec10
 human_signoff: Manh Phan 2026-09-02
 ---
 
@@ -237,3 +237,22 @@ Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt 
 ### Re-pin lần 1 — 2026-09-03, do mốc 2.7.0 đổi manifest + bản ghi mốc định tuyến (sống trong hồ sơ này) thêm dòng hồ sơ mốc
 run_id: repin-20260903-r270-1
 sha: 175999b964b34bb3812bf9b6c16fcf8669c77d26 · suites: 4 lệnh exit 0 (scripts 795/0 · hooks 60/0 · plugins all-pass · workflows all-pass) + product-map --check khớp
+
+### Con trỏ thay thế — 2026-09-03: hai bản ghi mốc của hồ sơ này đã DỜI CHỖ
+
+Hồ sơ này (và `review-findings.md`, sổ `7002`/`9001`) trỏ tới
+`routing-baseline.txt` và `sweep-baseline.txt` như vật sống TRONG thư mục hồ sơ.
+Từ `d9911565` (vòng `vu-trang-goal-luc-goi-ten`, owner quyết «thu phạm vi + đổi
+khuôn nhỏ», sổ `d-20260903T100500Z-5001`) hai file đã dời sang
+**`tests/scripts/fixtures/routing-baseline.txt`** và
+**`tests/scripts/fixtures/sweep-baseline.txt`**, và ca LM13/LM20 chỉ còn ghim hồ
+sơ ĐÃ CHỐT (có `human_signoff`). Lời khai cũ ở trên giữ nguyên văn — đây là con
+trỏ, không phải bản sửa hồ sơ đã ký (Ngoài-2 của #140, owner chốt «ghi Known
+limits»; ghi tại chiến dịch ghim lại mốc 2.8.0 theo §7.1).
+
+### Re-pin lần 2 — 2026-09-03, chiến dịch mốc 2.8.0 (§7.1)
+
+Đường khai bị cửa sổ chạm sau pin `175999b9`: `scripts/gate-card.js` ·
+`commands/acceptance-card.md` · hai bản ghi mốc nói trên (dời chỗ + đổi khuôn).
+run_id: repin-20260903-r280-lmcms
+sha: cd94d0048760da55e89ecdcae12463186b5fec10 · pin cũ: 175999b9 · chữ ký người giữ nguyên · bốn suite + product-map --check exit 0 trên cùng cây; LM13/LM20 xanh với khuôn mới.
