@@ -93,3 +93,6 @@ tool-kill-duong-doc-lap	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 vao-co-o-ra-co-ten	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
 veto-co-dau-vet	hoi=ký hay trả	bao=cắt/hoãn
 workspace-reader-unification	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
+# CẬP NHẬT 03/09 sau chữ ký Cổng 2 của vu-trang-goal-luc-goi-ten: hồ sơ vào tập
+# «đã chốt» (có human_signoff) nên ghim lần đầu — 6 ô Ngoài + «ký hay trả».
+vu-trang-goal-luc-goi-ten	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
