@@ -261,3 +261,9 @@ vu-trang-goal-luc-goi-ten#26	vu-trang-goal-luc-goi-ten	medium	fail-open	song			L
 vu-trang-goal-luc-goi-ten#27	vu-trang-goal-luc-goi-ten	low	fail-open	song			P85b vong kiem vi tri bo qua im lang ve khong co trong VI_TRI (15 ve / 13 khoa); so 9+4 go tay (S4-r4)
 vu-trang-goal-luc-goi-ten#28	vu-trang-goal-luc-goi-ten	low	fail-open	song			settled() try/catch -> false + continue im lang; khong co ca doi chung rieng cho predicate (S4-r4)
 vu-trang-goal-luc-goi-ten#29	vu-trang-goal-luc-goi-ten	medium	snapshot-nguon-song	chet	ghim dong routing luc ky + ghim lai ho so (post-sign, cung PR)		LM20 do o CI ngay sau chu ky: khuon «chi ghim ho so da chot» doi thue tu moi-lan-doi-trang-thai sang moi-lan-ky — ky mot ho so = them mot dong baseline + ghim lai chinh no; lenh signoff chua co buoc nay (S4-r4 post-sign)
+release-2-8-0#1	release-2-8-0	high	khac	song			verified_at bia so tron o bao cao vong 1, dung SAU run-log va commit — tai phat lan 4 (S4-r2)
+release-2-8-0#2	release-2-8-0	high	khac	song			truong output cua 4 eval do vong 1 chua loi thuat may viet, khong co thong diep do (S4-r2)
+release-2-8-0#3	release-2-8-0	high	fail-open	song			hai muc Known limits/Ngoai hop dong rong ⇒ may tu tuyen xanh-sach, bo qua luot moi ky; the doc file khac va van in du muc — dien truoc khi trinh cong nen bay khong no o luot ky nay (S4-r2)
+release-2-8-0#4	release-2-8-0	medium	khac	chet	gop tay 9→6 truoc khi dung the (S4-r2)		review-findings vong 2 co 3 cap trung Viet/Anh; goc o buoc dedupe cua workflow
+release-2-8-0#5	release-2-8-0	low	do-thuoc	song			E3e viet thang lenh thay vi khoa config — tai phat lan 3 (S4-r2)
+release-2-8-0#6	release-2-8-0	high	do-thuoc	song			E1/E2/E3c/E6 cham bang ma thoat TRON suite plugins, khong ghim dong ve P200 nhu expected hua (S4-r2)
