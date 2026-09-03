@@ -13,30 +13,47 @@ vũ trang và vũ trang sai chỗ; biến dòng `/goal` thành **vật thẻ in 
 ## Bốn quyết định thiết kế
 
 **D1 · Bản chép thứ ba của khuôn goal trong `gate-card.js`.** Hằng
-`GOAL_TEMPLATE` trong marker `<<<GOAL-TEMPLATE … GOAL-TEMPLATE>>>` (cùng tên
-marker SKILL/GUIDE đang dùng), nội dung khớp **từng byte** với hai bản kia
-(khối 6 dòng). Vì sao chép chứ không đọc: `gate-card.js` thuộc plugin
+`GOAL_TEMPLATE` là template literal nhiều dòng trong marker `<<<GOAL-TEMPLATE …
+GOAL-TEMPLATE>>>` (cùng tên marker SKILL/GUIDE đang dùng). Nghĩa đo được của
+«khớp»: nội dung giữa hai dấu `` ` `` của hằng, sau `strip()`, bằng đúng khối
+giữa rào ``` của SKILL và của GUIDE sau `strip()` — chính nghĩa P85 đang dùng
+(bằng-nhau-sau-strip), đồng thời ghim **6 dòng** ở cả ba (gap-probe S1 P1: chữ
+«từng byte» không có nghĩa cho bản JS). Vì sao chép chứ không đọc: `gate-card.js` thuộc plugin
 acceptance-gate, khuôn sống ở plugin feature-loop + GUIDE gốc kit — đọc chéo
 plugin lúc chạy là đường dẫn giòn; kit đã có nếp «một nguồn + N bản chép so
 từng byte» (IDENTITY-ECHO-RULE, GATE-INVITE-CLAUSE). Răng: P85 nới từ 2 sang 3
 bản; đột biến đổi một ký tự ở bất kỳ bản nào → đỏ ghim đích danh bản lệch.
 
 **D2 · Thẻ Cổng 1 in `goal_line`.** `--extract` Cổng 1 thêm khoá `goal_line`
-= khuôn gộp thành MỘT dòng (xuống dòng → khoảng trắng), `<slug>` thay bằng slug
-thật; HTML in nó trong khối «VIỆC CỦA ANH» ngay dưới dòng lệnh duyệt, kèm một
-câu: «Sau khi duyệt, dán dòng này để đoạn máy chạy tới cổng kế». Round-trip:
-dòng trên HTML == `goal_line` của extract (đẳng thức, không phép chứa — bài
-học M10 vòng 2.7). In ở MỌI thẻ Cổng 1, kể cả thẻ đang có cờ đỏ: goal phục vụ
-đoạn máy *sau* khi người trả lời, bất kể câu trả lời là «duyệt» hay «sửa».
+= khuôn gộp thành MỘT dòng (xuống dòng → một khoảng trắng), **mọi** lần xuất
+hiện của `<slug>` (khuôn có hai) thay bằng slug thật — `replaceAll`, và test
+dựng kỳ vọng bằng phép thay ĐỘC LẬP (đếm số `<slug>` còn sót = 0), không chép
+`.replace` của bên viết. HTML in nó trong khối «VIỆC CỦA ANH» trong một phần tử
+có mỏ neo riêng `<div class="mach goal">` đặt ngay sau `<div class="mach">` của
+dòng lệnh duyệt, kèm câu «Sau khi trả lời (duyệt hay sửa), dán dòng này để đoạn
+máy chạy tới cổng kế». Round-trip: `<b>` trong `.mach.goal` == `goal_line` của
+extract (đẳng thức, không phép chứa — bài học M10 vòng 2.7). In ở MỌI thẻ Cổng
+1, kể cả thẻ đang có cờ đỏ. Thẻ Cổng 1 của hồ sơ làn V (máy đi trước, không ai
+duyệt): vẫn in — thẻ là vật; ai mở thẻ sau vẫn thấy — nhưng người KHÔNG ngồi
+đó, nên với làn V điểm vũ trang thật là D3(a), không phải thẻ này.
 
-**D3 · Điểm in dời về mọi lượt người đứng trước đoạn máy.** SKILL feature-loop:
-(a) S0 thêm bước «in khối GOAL-TEMPLATE ngay, TRƯỚC khi S1 chạy» — S1 có phản
-biện context sạch là tiến trình nền, chính ca gây dừng; (b) Gate 1 giữ nguyên
-bước in (vũ trang LẠI — khuôn goal cố ý coi «chờ input người» là hoàn thành nên
-goal kết ở Cổng 1, vòng không làn V phải bật lại); (c) Gate 1.5 (T3) thêm bước
-in. GUIDE mục `/goal`: «Khi nào» đổi từ «ngay sau khi duyệt Gate 1» thành ba
-thời điểm + câu «làn V T2 không có cổng giữa nên lần đầu là đủ». Khuôn goal
-KHÔNG đổi chữ (P85 giữ nguyên các vế đã ghim).
+**D3 · Điểm in dời về mọi lượt người đứng NGAY TRƯỚC một đoạn máy.** Gap-probe
+S1 (P0) bác bản đầu «in ở S0»: S0#2/#3 có câu xác nhận T1 và slug, S1#1 là
+brainstorm hỏi-đáp — đều là lượt chờ người, và khuôn goal cố ý coi «chờ input
+người» là hoàn thành, nên goal vũ trang ở S0 kết ngay ở câu hỏi đầu tiên. Ba
+điểm đúng, đều là lượt người đã có sẵn: (a) **câu xác nhận thiết kế cuối
+brainstorm** — SKILL S1: khi brainstorm chốt, câu hỏi xác nhận cuối kèm dòng
+`/goal` («chốt thiết kế? — nếu đúng, dán luôn dòng này cùng câu trả lời»); đây
+là lượt người cuối trước đoạn máy S1-đuôi (artifact + gap-probe) → Cổng 1, và
+với làn V T2 là lượt người CUỐI của cả vòng; (b) **Cổng 1** giữ bước in, nay là
+vật thẻ (D2) — vòng không làn V phải vũ trang lại vì goal đã kết ở cổng; (c)
+**Gate 1.5** — không có mục riêng, là mệnh đề trong S2#3 «T3: GATE 1.5 — trình
+tóm tắt plan … chờ duyệt»: thêm vế «kèm dòng /goal» vào chính mệnh đề đó (lớp
+lời, không thẻ). GUIDE mục `/goal`: «Khi nào» đổi từ «ngay sau khi duyệt Gate
+1» thành ba thời điểm + câu «làn V T2: lượt cuối brainstorm là lần duy nhất».
+Khuôn goal KHÔNG đổi chữ (P85 giữ nguyên các vế đã ghim). Máy không biết trước
+câu hỏi nào là cuối — nên điểm (a) là dặn cho câu XÁC NHẬN (câu có hình dạng
+biết trước), không phải cho mọi câu hỏi.
 
 **D4 · Bất biến dừng gọi tên ca «tiến trình nền báo xong».** Thêm một vế vào
 câu bất biến đầu SKILL: khi tiến trình nền (agent, Workflow) báo xong ở giữa
@@ -44,7 +61,18 @@ một đoạn máy → đi tiếp trong cùng lượt; «báo cáo rồi ngừng
 dừng ngoài thiết kế, đếm vào ba dòng số. Đây là dặn-bằng-lời — khai thẳng là
 lớp 1, và là lý do D1/D2 tồn tại (vật đỡ chỗ lời trượt).
 
+**D5 · Đuôi S1 hết chỗ để ngừng: gap-probe chạy ĐỒNG BỘ.** SKILL S1#7 nay
+dispatch phản biện context sạch ở chế độ chờ-trong-lượt (không nền): máy đợi
+kết quả rồi đi tiếp render thẻ Cổng 1 trong cùng lượt. Với làn V T2, từ câu xác
+nhận thiết kế tới Cổng 1 không còn lượt trở về nào để máy «báo rồi ngừng»; goal
+(a) chỉ còn phải đỡ S2→S4, nơi Workflow S3/S4 mỗi đợt trả về đúng một lần.
+Đề xuất của gap-probe S1; là TRỪ một chỗ ngừng, không thêm cơ chế.
+
 ## Ngoài phạm vi
+
+- `g1Blocked` của thẻ Cổng 1 không nhìn P0 của gap-probe (thẻ vẫn điền sẵn
+  «duyệt» khi còn P0 chưa định đoạt, trái điều kiện làn V của SKILL) — gap-probe
+  S1 quan sát ngoài phạm vi; ô riêng, trình Cổng 2 như mục ngoài hợp đồng.
 
 - Hook `Stop` do plugin giữ (lớp 2) — mở chỉ khi mốc 2.8.0 còn đếm thấy dừng
   khi goal đã bật. Ghi ngưỡng, không dựng trước.
