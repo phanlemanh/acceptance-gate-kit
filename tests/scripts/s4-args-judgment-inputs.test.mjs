@@ -61,9 +61,17 @@ function runArgs(repo) {
   }
 }
 const inputsOf = (r) => JSON.parse(readFileSync(r.out, 'utf8')).evals.find(e => e.id === 'E2').inputs;
+// `--only <nhóm>`: răng hồ sơ chạy từng nhóm riêng trên cây thật và trên bản sao
+// đã tiêm đột biến. 0 nhóm khớp là lỗi có tên — không có màu xanh rỗng.
+const ONLY = (() => { const i = process.argv.indexOf('--only'); return i >= 0 ? process.argv[i + 1] : null; })();
+let groupsRun = 0;
+function group(name, title, fn) {
+  if (ONLY && ONLY !== name) return;
+  groupsRun += 1; console.log(`${name} ${title}`); fn();
+}
+const goiY = (text) => [...text.matchAll(/«([^»]+)»/g)].map(m => m[1]);
 
-console.log('JI1 inputs theo GỐC KHO, file có thật → giữ, giải thành abs path từ gốc kho (không phải từ thư mục hồ sơ)');
-{
+group('JI1', 'inputs theo GỐC KHO, file có thật → giữ, giải thành abs path từ gốc kho (không phải từ thư mục hồ sơ)', () => {
   const repo = buildRepo(['src/a.ts', 'CONTEXT.md']);
   const r = runArgs(repo);
   const root = realpathSync(repo);
@@ -72,36 +80,38 @@ console.log('JI1 inputs theo GỐC KHO, file có thật → giữ, giải thành
   ok0(r.code === 0 && r.wrote, 'JI1 exit 0, sinh tệp', `code=${r.code} wrote=${r.wrote} ${r.text.split('\n').slice(-2).join(' | ')}`);
   ok0(JSON.stringify(got) === JSON.stringify(want), 'JI1 inputs = abs path tính từ gốc kho', `got=${JSON.stringify(got)} want=${JSON.stringify(want)}`);
   ok0(!!got && got.every(p => existsSync(p)), 'JI1 mọi input trong args tồn tại trên đĩa', JSON.stringify(got));
-}
+});
 
-console.log('JI2 input KHÔNG tồn tại trên đĩa → exit 2 gọi tên file + eval, KHÔNG sinh tệp; đối chứng dương cùng fixture');
-{
+group('JI2', 'input KHÔNG tồn tại trên đĩa → exit 2 gọi tên file + eval, KHÔNG sinh tệp; đối chứng dương cùng fixture', () => {
   const repo = buildRepo(['src/a.ts', 'src/khong-co.ts']);
   const r = runArgs(repo);
   ok0(r.code === 2, 'JI2 exit 2', `code=${r.code}`);
-  ok0(/src\/khong-co\.ts/.test(r.text) && /E2/.test(r.text) && /không tồn tại/.test(r.text), 'JI2 thông điệp nêu tên file thiếu + eval id', r.text.trim().split('\n').pop());
+  ok0(/không tồn tại trên đĩa: src\/khong-co\.ts \(/.test(r.text) && /eval E2 /.test(r.text), 'JI2 thông điệp nêu đường dẫn NGUYÊN VĂN (có ranh giới) + eval id', r.text.trim().split('\n').pop());
   ok0(!r.wrote, 'JI2 KHÔNG sinh tệp args', `wrote=${r.wrote}`);
   writeFileSync(path.join(repo, 'src', 'khong-co.ts'), 'export {};\n');
   const r2 = runArgs(repo);
   ok0(r2.code === 0 && r2.wrote, 'JI2 đối chứng dương: tạo file → sinh args', `code=${r2.code} ${r2.text.trim().split('\n').pop()}`);
-}
+});
 
-console.log('JI3 đường dẫn kiểu cũ theo thư mục hồ sơ (../../x, contract.md) → exit 2 và gợi ý đúng dạng gốc kho');
-{
+group('JI3', 'đường dẫn kiểu cũ theo thư mục hồ sơ (../../x, contract.md) → exit 2 và gợi ý đúng dạng gốc kho', () => {
   const repo = buildRepo(['../../src/a.ts', 'contract.md']);
+  const root = realpathSync(repo); const ws = path.join(root, '_acceptance', 'demo');
   const r = runArgs(repo);
   ok0(r.code === 2 && !r.wrote, 'JI3 exit 2, không sinh tệp', `code=${r.code} wrote=${r.wrote}`);
-  ok0(/\.\.\/\.\.\/src\/a\.ts/.test(r.text) && /«src\/a\.ts»/.test(r.text), 'JI3 gợi ý viết lại «src/a.ts» cho ../../src/a.ts', r.text.trim().split('\n').pop());
+  const want1 = path.relative(root, path.resolve(ws, '../../src/a.ts'));
+  const g1 = goiY(r.text);
+  ok0(/\.\.\/\.\.\/src\/a\.ts/.test(r.text) && g1.length === 1 && g1[0] === want1 && want1 === 'src/a.ts', 'JI3 gợi ý viết lại «src/a.ts» cho ../../src/a.ts (BẰNG path.relative)', `got=${JSON.stringify(g1)} want=${want1}`);
   writeEvals(repo, ['contract.md']);
   const r3 = runArgs(repo);
-  ok0(r3.code === 2 && /«_acceptance\/demo\/contract\.md»/.test(r3.text), 'JI3 gợi ý viết lại «_acceptance/demo/contract.md» cho contract.md', r3.text.trim().split('\n').pop());
-  writeEvals(repo, ['src/a.ts', '_acceptance/demo/contract.md']);
+  const want3 = path.relative(root, path.resolve(ws, 'contract.md'));
+  const g3 = goiY(r3.text);
+  ok0(r3.code === 2 && g3.length === 1 && g3[0] === want3 && want3 === '_acceptance/demo/contract.md', 'JI3 gợi ý viết lại «_acceptance/demo/contract.md» cho contract.md (BẰNG path.relative)', `got=${JSON.stringify(g3)} want=${want3}`);
+  writeEvals(repo, [...g1, ...g3]);
   const r4 = runArgs(repo);
-  ok0(r4.code === 0 && r4.wrote, 'JI3 đối chứng dương: viết lại theo gốc kho → sinh args', `code=${r4.code}`);
-}
+  ok0(g1.length + g3.length === 2 && r4.code === 0 && r4.wrote, 'JI3 đối chứng dương ROUND-TRIP: viết lại bằng đúng chuỗi rút từ stderr → sinh args', `code=${r4.code} inputs=${JSON.stringify([...g1, ...g3])}`);
+});
 
-console.log('JI4 abs path: có thật → giữ nguyên; không có → exit 2 có tên');
-{
+group('JI4', 'abs path: có thật → giữ nguyên; không có → exit 2 có tên', () => {
   const repo = buildRepo(['src/a.ts']);
   const absOk = path.join(realpathSync(repo), 'CONTEXT.md');
   writeEvals(repo, [absOk]);
@@ -111,7 +121,8 @@ console.log('JI4 abs path: có thật → giữ nguyên; không có → exit 2 c
   writeEvals(repo, [absBad]);
   const r2 = runArgs(repo);
   ok0(r2.code === 2 && !r2.wrote && r2.text.includes(absBad), 'JI4 abs path không có → exit 2 nêu tên, không sinh tệp', `code=${r2.code} wrote=${r2.wrote}`);
-}
+});
 
+if (ONLY && groupsRun === 0) { console.log(`  FAIL: --only ${ONLY} không khớp nhóm nào (JI1|JI2|JI3|JI4)`); fail += 1; }
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

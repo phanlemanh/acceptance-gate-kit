@@ -84,7 +84,7 @@ evals:
     expected: >
       Trên cây thật: mốc = git merge-base với nhánh chính (main, rơi về origin/main);
       diff acceptance-verify.js so mốc RỖNG; tập file đổi lọc ngoài tests/** docs/**
-      skills/** feature-loop/skills/** _acceptance/** .github/** BẰNG đúng {feature-loop/scripts/s4-args.mjs}
+      skills/** feature-loop/skills/** _acceptance/** .github/** PRODUCT-MAP.md BẰNG đúng {feature-loop/scripts/s4-args.mjs}
       (so tập, in tập thật khi lệch). Chiều đỏ trên clone tạm của chính kho (cùng
       hàm kiểm): commit thêm một dòng vào acceptance-verify.js → hàm kiểm phải đỏ với
       thông điệp ghim "lane hội đồng đã đổi". Bộ workflows xanh mỗi vòng qua
