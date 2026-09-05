@@ -211,6 +211,14 @@ executors:
     srlp_rang_day_khep: bash _acceptance/suite-run-log-provenance/rang.sh --chan day-khep
     srlp_rang_khong_hoi_quy: bash _acceptance/suite-run-log-provenance/rang.sh --chan khong-hoi-quy
     srlp_rang_bo_doc: bash _acceptance/suite-run-log-provenance/rang.sh --chan bo-doc
+    itgk_goc_kho_giu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan goc-kho-giu
+    itgk_thieu_exit_2: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan thieu-exit-2
+    itgk_duong_cu_goi_y: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan duong-cu-goi-y
+    itgk_abs_hai_chieu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan abs-hai-chieu
+    itgk_lane_doc_khong_doi: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi
+    itgk_tai_lieu_khong_con_duong_cu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan tai-lieu-khong-con-duong-cu
+    itgk_bang_chung_cung_ho_so: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan bang-chung-cung-ho-so
+    itgk_thu_muc_khong_phai_file: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan thu-muc-khong-phai-file
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
