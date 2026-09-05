@@ -19,16 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-THIRD-PARTY COMPONENTS
-
-This repository vendors two third-party trees. They keep their own licences,
-which govern those trees and are NOT superseded by the MIT licence above:
-
-  vendor/impeccable/          Apache License 2.0 — Paul Bakaus
-                              (see vendor/impeccable/LICENSE and NOTICE)
-  diagram-design/skills/      MIT — Cathryn Lavery
-    diagram-design/           (see that directory's LICENSE and
-                              THIRD_PARTY_LICENSES.md)

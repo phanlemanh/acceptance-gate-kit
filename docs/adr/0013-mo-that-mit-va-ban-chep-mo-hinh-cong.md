@@ -13,8 +13,9 @@ nhưng khai "all rights reserved" và vẫn TRỪ README. **Owner chọn B**: ng
 ngoài đội được dùng kit, nên README có người hưởng thật và thôi là ứng viên cắt.
 Giấy phép chọn **MIT** — tiền lệ nằm ngay trong kho, `vendor/impeccable`
 (Apache-2.0) và `diagram-design` (MIT) đều permissive, nên kit nhất quán với
-thứ nó vendor; hai cây vendor giữ giấy phép riêng, nêu đích danh trong mục
-THIRD-PARTY của `LICENSE`.
+thứ nó vendor; hai cây vendor giữ giấy phép riêng, nêu đích danh trong `NOTICE` ở gốc — `LICENSE`
+giữ **thuần** văn bản MIT vì bộ dò của GitHub trả `NOASSERTION` cho mọi file có
+chữ thêm, tức phần công bố quan trọng nhất của lối B sẽ không hiện ra.
 
 Cái giá của B phải trả ngay, nếu không B chỉ là lời hứa: **thêm một mặt phải
 giữ đồng bộ** — đúng thứ luật một-nguồn cấm. Và mẹo đã dùng cho lệnh cài
