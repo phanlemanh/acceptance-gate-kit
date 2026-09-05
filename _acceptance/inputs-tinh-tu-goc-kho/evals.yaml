@@ -1,0 +1,107 @@
+schema_version: 1
+feature_slug: inputs-tinh-tu-goc-kho
+# E1–E4: mỗi chân chạy MỘT nhóm của lưới thường trực trên cây thật (đối chứng
+# dương) rồi trên bản sao trọn cây đã tiêm đột biến (chiều đỏ: exit ≠ 0 VÀ dòng
+# FAIL có tên ca). Ba đột biến (phép thay thế nguyên văn khai trong design doc):
+# goc-cu = giải từ thư mục hồ sơ như mã cũ; fail-open = bỏ kiểm tồn tại;
+# goi-y-sai = gợi ý in đường tuyệt đối thay vì path.relative. E5 judgment khai
+# inputs theo gốc kho — dogfood. E6/E7 chiều đỏ trên clone/bản sao tạm.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.itgk_goc_kho_giu
+    expected: >
+      Cây thật: nhóm JI1 xanh — inputs trong args BẰNG path.join(realpath(root), p)
+      theo thứ tự, mọi phần tử tồn tại. Chiều đỏ: bản sao trọn cây tiêm đột biến
+      goc-cu (giải từ _acceptance/<slug>/) → JI1 phải in dòng
+      "FAIL: JI1 inputs = abs path tính từ gốc kho" và exit ≠ 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.itgk_thieu_exit_2
+    expected: >
+      Cây thật: nhóm JI2 xanh — exit 2, thông điệp có id eval + đường dẫn nguyên
+      văn + «không tồn tại», tệp args vắng; đối chứng dương cùng fixture tạo file
+      → exit 0. Chiều đỏ: đột biến fail-open (bỏ existsSync) → JI2 phải in
+      "FAIL: JI2 exit 2" và exit ≠ 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.itgk_duong_cu_goi_y
+    expected: >
+      Cây thật: nhóm JI3 xanh — ../../src/a.ts → thông điệp chứa token «src/a.ts»
+      trọn vẹn; contract.md → «_acceptance/demo/contract.md»; đối chứng dương
+      ROUND-TRIP: rút chuỗi giữa «…» từ stderr THẬT rồi viết lại evals.yaml bằng
+      đúng chuỗi đó → exit 0 (không gõ tay). Hai chiều đỏ: đột biến goc-cu (mã cũ
+      giải được đường cũ nên exit 0) → "FAIL: JI3 exit 2, không sinh tệp";
+      đột biến goi-y-sai (gợi ý in đường tuyệt đối) → "FAIL: JI3 gợi ý viết lại
+      «src/a.ts»" — mỗi chiều exit ≠ 0 VÀ có dòng FAIL ghim.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.itgk_abs_hai_chieu
+    expected: >
+      Cây thật: nhóm JI4 xanh — abs có thật giữ nguyên văn; abs vắng → exit 2 nêu
+      đúng đường dẫn, không sinh tệp. Chiều đỏ: đột biến fail-open → JI4 phải in
+      "FAIL: JI4 abs path không có → exit 2 nêu tên, không sinh tệp" và exit ≠ 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
+
+  - id: E5
+    criterion: AC-5
+    executor: judgment
+    question: >
+      Đọc ba nơi khai luật cho người viết evals (mẫu eval-executors.md, mục 3b ở
+      EVAL-GEN + vế VERIFY của SKILL acceptance, câu mô tả bước chuẩn bị args của
+      SKILL feature-loop) cùng hợp đồng. Cả ba có nói MỘT gốc (gốc kho hoặc tuyệt
+      đối) cho inputs giống paths không? Mẫu còn ví dụ nào theo thư mục hồ sơ
+      (contract.md trần, evidence/... trần trong inputs) không? Có nói hệ quả khi
+      input vắng (dừng, exit 2, nêu tên) không? Còn chỗ nào mô tả hành vi cũ
+      («inputs judgment → abs path» trần) không? PASS chỉ khi cả bốn câu đúng
+      chiều; nêu đúng dòng khi FAIL.
+    inputs:
+      - skills/acceptance/references/eval-executors.md
+      - skills/acceptance/SKILL.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - _acceptance/inputs-tinh-tu-goc-kho/contract.md
+    expected: PASS với trích dẫn dòng cụ thể cho từng nơi; FAIL nêu đúng đoạn còn lệch
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.itgk_lane_doc_khong_doi
+    expected: >
+      Trên cây thật: mốc = git merge-base với nhánh chính (main, rơi về origin/main);
+      diff acceptance-verify.js so mốc RỖNG; tập file đổi lọc ngoài tests/** docs/**
+      skills/** feature-loop/skills/** _acceptance/** .github/** BẰNG đúng {feature-loop/scripts/s4-args.mjs}
+      (so tập, in tập thật khi lệch). Chiều đỏ trên clone tạm của chính kho (cùng
+      hàm kiểm): commit thêm một dòng vào acceptance-verify.js → hàm kiểm phải đỏ với
+      thông điệp ghim "lane hội đồng đã đổi". Bộ workflows xanh mỗi vòng qua
+      suite_keys là đối chứng dương, không phải thước chính.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "feature-loop/scripts/s4-args.mjs", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
+
+  - id: E7
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.itgk_tai_lieu_khong_con_duong_cu
+    expected: >
+      Grep âm tính trên ba file tài liệu: trong khối inputs: (dòng `inputs:` và các
+      dòng `- …`/`[…]` ngay sau) không còn phần tử bắt đầu bằng contract.md,
+      evidence/, ../ ; và không còn chuỗi «`inputs` judgment → abs path ·» trần.
+      Thông điệp khi bắt: tên file + số dòng. Đối chứng dương cùng lượt: chép ba
+      file sang thư mục tạm, tiêm một dòng `- contract.md` dưới một khối inputs: →
+      hàm quét phải bắt đúng file + dòng vừa tiêm; tiêm chuỗi «→ abs path ·» → bắt.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["skills/acceptance/references/eval-executors.md", "skills/acceptance/SKILL.md", "feature-loop/skills/feature-loop/SKILL.md", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
