@@ -14,5 +14,5 @@
     "quality-gate",
     "ai-code-review"
   ],
-  "license": "Proprietary"
+  "license": "MIT"
 }

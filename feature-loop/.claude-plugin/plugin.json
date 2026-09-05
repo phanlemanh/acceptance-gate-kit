@@ -14,5 +14,5 @@
     "workflow",
     "quality-gate"
   ],
-  "license": "Proprietary"
+  "license": "MIT"
 }

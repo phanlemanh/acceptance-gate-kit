@@ -1,18 +1,40 @@
 # Acceptance-Gate Kit
 
 Evidence-backed acceptance gate for AI-generated features. Replaces hours of
-hand-testing with machine evidence, and puts the human at two high-leverage
-decision points instead of inside the loop.
+hand-testing with machine evidence, and puts the human at the edge of the loop
+— at the few moments only a human can decide — instead of inside it.
+
+## The four human gates
+
+This table is a **copy**. The single source is
+[GUIDE §0 «Bốn cổng người»](GUIDE.md#bốn-cổng-người--nguồn-chuẩn-của-mô-hình-cổng);
+CI test **P86** fails if a copy drifts, and names which copy drifted. Change the
+model there, then sync — never edit one copy alone.
+
+<!-- <<<GATE-MODEL-EN -->
+| Gate | The question only a human can answer | The human appears when |
+|---|---|---|
+| **Worth Gate** | Is this worth building at all? | Always — an opportunity opens a round |
+| **Scope Gate** | Are the criteria complete and correct? | T2 is **not** clear to proceed (open P0 gap-probe findings · vague nouns · uncleared coverage cluster · tier T3). A clear T2: the machine locks scope, leaves the veto open, and proceeds |
+| **Evidence Gate** | Did we build what we promised? | Evidence is **not** green-clean (one of six conditions missing) **or** the work is HARD TO REVERSE. A green-clean T2 takes **lane V** — `status: machine-cleared`, no signature |
+| **Value Gate** | Did the shipped thing actually matter? | After shipping, for work born from an opportunity with a declared threshold |
+
+**Human-turn budget:** target **≤3 turns per round** (= exactly the number of human gates in the design) · **T3 ceiling 4** (adds Gate 1.5, plan approval) · **≤1 turn for a release milestone** · **≤1 keystroke per turn**. The real target is **0 turns outside the design**.
+<!-- GATE-MODEL-EN>>> -->
+
+**Not every round stops four times.** When a T2 round is clear to proceed the
+machine locks scope and clears evidence on its own, reports one line, and
+**leaves the veto open** — you can overrule at any point. That is lane V.
 
 ## How it works
 
 ```
 input (prompt/ticket/PRD)
   → Phase 1 NORMALIZE  → contract.md          ┐
-  → Phase 2 EVAL-GEN   → evals.yaml           ├─ Gate 1: human approves (5-10 min)
-  → implementation (normal agent coding flow) │
-  → Phase 3 VERIFY     → evidence-report.md   ├─ Gate 2: human signs off (5-10 min)
-       fresh-context subagent runs every eval ┘
+  → Phase 2 EVAL-GEN   → evals.yaml           ├─ Scope Gate: approve, or the
+  → implementation (normal agent coding flow) │  machine locks it, veto open
+  → Phase 3 VERIFY     → evidence-report.md   ├─ Evidence Gate: sign off, or
+       fresh-context subagent runs every eval ┘  lane V (green-clean T2)
 ```
 
 In the full feature-loop, S1 additionally ends with a **clean-context
@@ -35,10 +57,10 @@ Enforcement is deterministic, not aspirational:
   features without a signed PASS evidence report, without a recorded Gate-1
   approval, with STALE evidence (non-gate files changed after the report's
   `verified_commit`), or — via the committed-evidence re-check — with run_ids
-  that were never machine-logged in `run-log.jsonl`. With
-  the Gate-2 signature is a DECISION the human speaks and the machine records
-  (attribution lives on the forge — whoever approves / merges the PR); the grid
-  prints one line naming a signature that first appears in the PR diff.
+  that were never machine-logged in `run-log.jsonl`. The Gate-2 signature is a
+  DECISION the human speaks and the machine records (attribution lives on the
+  forge — whoever approves / merges the PR); the grid prints one line naming a
+  signature that first appears in the PR diff.
 
 > **Thành viên mới: đọc [QUICKSTART.md](QUICKSTART.md) (tiếng Việt, 5 phút) — cài 2 lệnh là dùng được.**
 > **Bản đầy đủ — kiến trúc, cài đặt, vận hành, tra cứu enforcement: [GUIDE.md](GUIDE.md).**
@@ -218,7 +240,7 @@ Ba điểm khác một repo tiêu thụ bình thường, mỗi điểm là một
   repo đã 1.21.0). feature-loop S4 resolve bằng
   `node feature-loop/scripts/resolve-plugin.mjs --plugin acceptance-gate --root .`
 - **`*.md` KHÔNG nằm trong `t1_skip_globs`.** Mặc định sinh sẵn coi mọi markdown
-  là tài liệu; ở đây 23 file `SKILL.md`/command LÀ hành vi thật. Chỉ docs được
+  là tài liệu; ở đây mọi `SKILL.md` và mọi file trong `commands/` LÀ hành vi thật. Chỉ docs được
   liệt đích danh mới bỏ qua cổng — nếu không, sửa hành vi của cổng lại lọt cổng.
 - **`t3_paths` là lõi cưỡng chế** (`hooks/`, `lib/`, `pre-merge-check.sh`,
   `recheck-evidence.cjs`): bug ở đây thành false-green im lặng trên MỌI repo dùng kit.
@@ -256,10 +278,10 @@ Success bar for the pilot: zero business-logic defects slipping past the gate,
 and acceptance that is *possible at all* rather than *faster* — before the kit
 it mostly did not happen.
 
-## Known limitations (v1)
+## Known limitations
 
-Deliberate scope cuts — each is backed by the pre-merge check + human signoff
-downstream, and revisited after the pilot:
+Deliberate scope cuts — each is backed by the pre-merge check + the human gates
+downstream, and revisited at each release:
 
 - **`gap_probe` defaults to `advisory`**: out of the box (key absent) a PR whose
   slug lacks `gap-probe.md` merges with a NOTE, not a block. The merge-boundary
