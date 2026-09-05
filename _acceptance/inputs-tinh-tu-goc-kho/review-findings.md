@@ -1,31 +1,49 @@
 ## Trong hợp đồng
 
-- **Assertion âm-tính-một-mình — vế «tập file mã đổi = {s4-args.mjs}» của check_lane không có đối chứng dương**
-  file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:78`
-  severity: medium
-  AC: AC-6
-  detail: E6 hứa hai vế: (a) acceptance-verify.js diff rỗng, (b) tập file đổi sau khi lọc `grep -vE '^(tests/|docs/|skills/|feature-loop/skills/|_acceptance/|\.github/|PRODUCT-MAP\.md$)'` BẰNG đúng {feature-loop/scripts/s4-args.mjs}. Chiều đỏ trên clone (dòng 139–140) chỉ tiêm vào acceptance-verify.js, và vì check_lane `return 1` ngay ở vế (a) nên vế (b) không bao giờ được chạy trong chiều đỏ. Vế (b) là một khẳng định âm tính («không có file mã nào khác đổi») chỉ được đo trên cây thật: nếu bộ lọc `grep -vE` quá rộng (vd một mẫu khớp nhầm cả `feature-loop/scripts/…` hay `lib/…`), `changed` vẫn rút về đúng một phần tử và chân vẫn xanh. Không có mũi tiêm nào (thêm một file ngoài tập trắng, vd `lib/x.mjs`, vào clone) chứng minh bộ lọc BẮT được file lạ, cũng không ghim thông điệp «tập file mã đổi ≠» cho vế này.
+(không có finding nào map được vào AC)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **New glossary term «dossier» introduced in engine docs without a CONTEXT.md entry; established English term is «workspace»**
-  Người dùng thấy gì: Tài liệu dùng một từ mới chưa được định nghĩa ở nơi tra cứu chung, người đọc sau có thể hiểu nhầm khái niệm.
-  file: `skills/acceptance/SKILL.md`
+- **Lưới thường trực mới không dọn thư mục tạm — khác nếp file anh em cùng thư mục**
+  Người dùng thấy gì: Mỗi lần chạy nhóm kiểm tra để lại một thư mục tạm không được dọn dẹp, khiến ổ đĩa máy chạy kiểm tra tích tụ rác theo thời gian.
+  file: `tests/scripts/s4-args-judgment-inputs.test.mjs:26`
   severity: low
   Đề xuất: known-limits
 
-- **New permanent test never removes its tmpdir, unlike its sibling**
-  Người dùng thấy gì: Mỗi lần chạy kiểm thử để lại một thư mục tạm không bị xoá, tích luỹ dần và có thể làm đầy ổ đĩa máy chạy theo thời gian.
-  file: `tests/scripts/s4-args-judgment-inputs.test.mjs`
+- **Từ mới «dossier» cho `_acceptance/{slug}/` không có mục trong CONTEXT.md; cùng file đang dùng «workspace»**
+  Người dùng thấy gì: Tài liệu hướng dẫn dùng hai tên khác nhau cho cùng một khái niệm, có thể khiến người viết eval mới hiểu nhầm.
+  file: `skills/acceptance/SKILL.md:127`
   severity: low
   Đề xuất: known-limits
 
-- **existsSync cho thư mục đi lọt — input trỏ vào thư mục vẫn sinh args, hội đồng nhận đường không đọc được**
-  Người dùng thấy gì: Nếu ai khai nhầm một thư mục thay vì tên file làm input, hệ thống vẫn chạy tiếp và báo thành công thay vì báo lỗi, khiến hội đồng chấm âm thầm nhận dữ liệu không đọc được.
-  file: `feature-loop/scripts/s4-args.mjs`
-  severity: low
+- **Judgment inputs that ui-check produces in the same round can never pass s4-args — the documented canonical example now exits 2 on round 1**
+  Người dùng thấy gì: Khi hội đồng cần chấm một ảnh chụp màn hình vừa được tạo trong cùng vòng kiểm tra, bước chuẩn bị sẽ báo lỗi ngay và toàn bộ vòng kiểm tra dừng lại, không chấm được.
+  file: `feature-loop/scripts/s4-args.mjs:139`
+  severity: high
   Đề xuất: new-contract
+
+- **`existsSync` accepts a directory, so a directory in `inputs` still produces an args file the judge cannot read**
+  Người dùng thấy gì: Nếu người viết eval trỏ input vào một thư mục thay vì một file, hệ thống vẫn chấp nhận và tạo hồ sơ chấm, nhưng hội đồng sẽ không đọc được nội dung khi chấm.
+  file: `feature-loop/scripts/s4-args.mjs:139`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 5 — E7 tuyên quét LỚP (3 tiền tố × 2 cú pháp) nhưng đối chứng dương chỉ một ô, và ô KHÔNG phải cú pháp mà tài liệu thật đang dùng**
+  Người dùng thấy gì: Phép kiểm tra bảo vệ quy tắc viết `inputs` mới chỉ chắc chắn bắt được một trong nhiều cách viết sai; cách viết mà tài liệu thật đang dùng chưa được xác nhận là được bắt lỗi đúng.
+  file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:152`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 5 — ô «kiểu cũ mà không có ở đâu» được contract giao cho JI2 nhưng JI2 chưa từng cấp đường dẫn kiểu cũ; vế «không gợi ý» không có assert**
+  Người dùng thấy gì: Một trong các trường hợp đường dẫn cũ hiếm gặp chưa có phép kiểm tra xác nhận thông điệp báo lỗi đúng như cam kết.
+  file: `tests/scripts/s4-args-judgment-inputs.test.mjs:86`
+  severity: low
+  Đề xuất: known-limits
+
+## Chưa adversarial-verify (refuter chết)
+
+(không có)
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
