@@ -1,7 +1,7 @@
 # delta-verify-repin — thiết kế (vòng 1 chương trình 80/20)
 
 *2026-08-05 · **T3** (chạm `scripts/pre-merge-check.sh` + `scripts/recheck-evidence.js`)
-· Nguồn: [chương trình 80/20](../plans/2026-08-05-nang-cap-8020-graph-loop.md)
+· Nguồn: [chương trình 80/20](../../plans/2026-08-05-nang-cap-8020-graph-loop.md)
 mục O1 + R1. Ràng buộc bất di dịch: KHÔNG hạ một chuẩn bằng chứng nào.*
 
 ## Bài toán

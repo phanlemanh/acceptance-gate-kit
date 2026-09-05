@@ -8,7 +8,7 @@ schema_version: 1
 #    feature-loop S4: resolve bằng
 #    `node feature-loop/scripts/resolve-plugin.mjs --plugin acceptance-gate --root .`
 # 2. `*.md` KHÔNG phải T1 ở repo này. Sản phẩm của kit phần lớn LÀ markdown
-#    (23 file SKILL.md/command là hành vi thật, không phải tài liệu). Chỉ
+#    (mọi SKILL.md và mọi file commands/ là hành vi thật, không phải tài liệu). Chỉ
 #    những file docs được liệt tên đích danh mới bỏ qua cổng.
 # 3. KHÔNG có làn design/dev_server/capture: kit không có web UI.
 enforcement: strict
@@ -229,6 +229,16 @@ risk_tiers:
     - "CHANGELOG.md"
     - "CONTEXT.md"
     - "CLAUDE.md"
+    # Giấy phép + công bố vendor (05/09, lối B — ADR 0013). Văn xuôi pháp lý
+    # thuần: KHÔNG code path nào đọc hai file này, nên chúng không phải hành vi
+    # của cổng. QUYẾT ĐỊNH cấp phép thì ngược lại — khó-đảo, và nó đã đi qua
+    # cổng người rồi (owner quyết 05/09, ghi ADR 0013); hai file dưới chỉ là
+    # BẢN CHIẾU của quyết định đó. Liệt ĐÍCH DANH, không glob: `*.md` hay
+    # `NOTICE*` sẽ nuốt cả NOTICE của cây vendor — mà tree-hash trong đó LÀ
+    # răng (P196). ĐIỀU KIỆN THU HỒI: ngày có script/CI đọc LICENSE hoặc NOTICE
+    # làm dữ liệu, hai dòng này phải GỠ trong cùng PR cắm.
+    - "LICENSE"
+    - "NOTICE"
     # Hồ sơ đề xuất đã TỪ CHỐI (CLAUDE.md). Văn xuôi thuần, không có hành vi —
     # để ngoài danh sách này thì mỗi lần ghi một quyết định-không-làm lại làm
     # evidence stale và tốn một vòng S4.
