@@ -10935,6 +10935,102 @@ P201MOUT="$(node "$P201MUT/scripts/gate-card.js" --root "$P201WS" --slug demo 2>
 if printf '%s' "$P201MOUT" | grep -qF "$P201REC"; then echo "     mutant van in loi khuyen wont-fix — phep do chet"; P201OK=0; fi
 if [ "$P201OK" -eq 1 ]; then pass "P201 ngan khong-sua co ten + duong doc-cu + mutant"; else fail "P201 ngan khong-sua co ten + duong doc-cu + mutant"; fi
 
+# ── P86: GATE-MODEL — GUIDE la NGUON, README (EN) va QUICKSTART (VI) la ban chep ──
+# Audit tai lieu 05/09: mo hinh cong duoc chep BA lan va da troi ra BA huong
+# (bon cong: 0 lan o README, 0 lan o QUICKSTART). Luat mot-nguon da duoc ap o
+# tang LENH (ca hai file tro ve GUIDE §5.1) nhung chua o tang MO HINH — khong
+# co marker nao de writer va reader cung rut ra. Case nay bien bat bien do tu
+# dau-nguoi sang vat-may-giu, theo dung nep P85 (GOAL-TEMPLATE): doi chung
+# DUONG truoc, roi dot bien TUNG ban, moi chieu do phai GOI TEN dung ban lech.
+# Ban chep VI (GUIDE + QUICKSTART) so BYTE-EQUAL. Ban EN khac ngon ngu nen so
+# theo CAU TRUC: day nhan cong phai khop cot `en` cua khoi nguon, dung thu tu.
+run "P86 GATE-MODEL: nguon tsv · 2 ban VI byte-equal · ban EN khop cot en · ngan sach 3/4/1 · dot bien goi ten dung ban" \
+  python3 - "$ROOT" <<'PY'
+import re, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+
+SRC_P, VI_P, EN_P = "GUIDE.md", "QUICKSTART.md", "README.md"
+RX_SRC = re.compile(r"<!-- <<<GATE-MODEL -->\n```tsv\n([\s\S]*?)```\n<!-- GATE-MODEL>>> -->")
+RX_VI  = re.compile(r"<!-- <<<GATE-MODEL-VI -->\n([\s\S]*?)<!-- GATE-MODEL-VI>>> -->")
+RX_EN  = re.compile(r"<!-- <<<GATE-MODEL-EN -->\n([\s\S]*?)<!-- GATE-MODEL-EN>>> -->")
+
+def grab(rx, rel, text, what):
+    m = rx.search(text)
+    assert m, f"{rel}: KHONG rut duoc khoi {what} qua marker"
+    return m.group(1).strip()
+
+def cols(tsv):
+    rows = [r.split("\t") for r in tsv.strip().split("\n")]
+    head, body = rows[0], rows[1:]
+    assert head == ["id", "vi", "en"], f"khoi nguon phai co dung header id/vi/en, dang: {head}"
+    for r in body:
+        assert len(r) == 3, f"dong nguon khong du 3 cot: {r!r}"
+    return [r[0] for r in body], [r[1] for r in body], [r[2] for r in body]
+
+def nhan(bang):
+    """Rut cot dau moi dong du lieu cua bang markdown -> day nhan cong."""
+    out = []
+    for line in bang.split("\n"):
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        c0 = line.strip("|").split("|")[0].strip()
+        if set(c0) <= set("-: ") or not c0:
+            continue
+        out.append(c0.replace("**", "").strip())
+    return out[1:]          # bo dong tieu de
+
+src_t = (root / SRC_P).read_text(encoding="utf-8")
+vi_g  = grab(RX_VI, SRC_P, src_t, "GATE-MODEL-VI")
+vi_q  = grab(RX_VI, VI_P, (root / VI_P).read_text(encoding="utf-8"), "GATE-MODEL-VI")
+en_r  = grab(RX_EN, EN_P, (root / EN_P).read_text(encoding="utf-8"), "GATE-MODEL-EN")
+ids, vis, ens = cols(grab(RX_SRC, SRC_P, src_t, "GATE-MODEL"))
+
+# --- doi chung DUONG: cay nguyen ven phai XANH truoc khi tin bat ky phep so nao ---
+def kiem(vi_g, vi_q, en_r, vis, ens):
+    """Tra ve dong do DAU TIEN (co goi ten ban lech), hoac None neu sach."""
+    if vi_g != vi_q:
+        return f"ban chep VI lech: {VI_P} khac nguon {SRC_P} — dong bo lai khoi GATE-MODEL-VI"
+    if nhan(vi_g) != vis:
+        return f"ban VI ({SRC_P}+{VI_P}) lech cot `vi` cua khoi nguon: {nhan(vi_g)} != {vis}"
+    if nhan(en_r) != ens:
+        return f"ban chep EN ({EN_P}) lech cot `en` cua khoi nguon: {nhan(en_r)} != {ens}"
+    for ten, khoi in ((f"{SRC_P}/{VI_P} (VI)", vi_g), (f"{EN_P} (EN)", en_r)):
+        for so, y in (("3", "so cong nguoi"), ("4", "tran T3"), ("1", "moc phat hanh")):
+            if so not in khoi:
+                return f"{ten}: khoi thieu con so ngan sach {so} ({y})"
+    return None
+
+assert len(ids) == 4, f"mo hinh phai co dung 4 cong, dang {len(ids)}: {ids}"
+loi = kiem(vi_g, vi_q, en_r, vis, ens)
+assert loi is None, f"cay NGUYEN VEN da do — khong tin duoc phep so: {loi}"
+print(f"     P86 VE: 4 cong {ids} · VI byte-equal ({SRC_P} == {VI_P}) · EN khop cot en")
+
+# --- doi chung AM: dot bien TUNG ban (bo nho) -> phai do va GOI TEN dung ban ---
+mut = [
+    ("ban VI o QUICKSTART", lambda: kiem(vi_g, vi_q.replace("Cổng Đáng", "Cổng Đang", 1), en_r, vis, ens), VI_P),
+    ("ban VI o GUIDE",      lambda: kiem(vi_g.replace("Cổng Giá trị", "Cổng Gia tri", 1), vi_q, en_r, vis, ens), VI_P),
+    ("ban EN o README",     lambda: kiem(vi_g, vi_q, en_r.replace("Worth Gate", "Worthy Gate", 1), vis, ens), EN_P),
+    ("them cong o nguon",   lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"]), SRC_P),
+    ("mat ngan sach T3",    lambda: kiem(vi_g.replace("T3 trần 4", "T3 trần bốn", 1), vi_q.replace("T3 trần 4", "T3 trần bốn", 1), en_r, vis, ens), None),
+]
+for ten, f, phai_neu in mut:
+    d = f()
+    assert d is not None, f"dot bien «{ten}» KHONG do — phep so GATE-MODEL da chet"
+    if phai_neu:
+        assert phai_neu in d, f"dot bien «{ten}» do nhung khong goi ten {phai_neu}: {d}"
+    print(f"     P86 MUTANT: {ten} -> do dung cho")
+
+# Lenh phai NOI voi khoi: hai ban chep deu phai tu khai la BAN CHEP + tro ve nguon.
+q_t = (root / VI_P).read_text(encoding="utf-8")
+r_t = (root / EN_P).read_text(encoding="utf-8")
+assert "bản chép" in q_t and "bốn-cổng-người" in q_t, f"{VI_P}: khong tu khai la ban chep / khong tro ve nguon"
+assert "copy" in r_t and "bốn-cổng-người" in r_t, f"{EN_P}: khong tu khai la ban chep / khong tro ve nguon"
+assert "P86" in r_t, f"{EN_P}: khong goi ten rang giu no khop"
+print("     P86 VE: hai ban chep deu tu khai + tro dich danh ve nguon")
+PY
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

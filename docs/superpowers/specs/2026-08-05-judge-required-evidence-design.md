@@ -2,7 +2,7 @@
 
 *2026-08-05 · **T2** (chạm acceptance-verify.js, judge-personas,
 evidence-report-template, gate-card.js, acceptance-report, SKILL 2 harness —
-không file nào trong t3_paths) · Nguồn: [chương trình 80/20](../plans/2026-08-05-nang-cap-8020-graph-loop.md)
+không file nào trong t3_paths) · Nguồn: [chương trình 80/20](../../plans/2026-08-05-nang-cap-8020-graph-loop.md)
 mục O3 + O4. Baseline B5: verdict UNCERTAIN/FAIL hiện là TRẦN — 0% kèm
 danh-sách-bằng-chứng-thiếu, round fix sau judgment-FAIL phải đoán. Baseline
 B6: gold set 0 điểm — mọi lần người lật/chuẩn y verdict máy tại Cổng 2 đang

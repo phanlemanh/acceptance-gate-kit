@@ -8,7 +8,7 @@ schema_version: 1
 #    feature-loop S4: resolve bằng
 #    `node feature-loop/scripts/resolve-plugin.mjs --plugin acceptance-gate --root .`
 # 2. `*.md` KHÔNG phải T1 ở repo này. Sản phẩm của kit phần lớn LÀ markdown
-#    (23 file SKILL.md/command là hành vi thật, không phải tài liệu). Chỉ
+#    (mọi SKILL.md và mọi file commands/ là hành vi thật, không phải tài liệu). Chỉ
 #    những file docs được liệt tên đích danh mới bỏ qua cổng.
 # 3. KHÔNG có làn design/dev_server/capture: kit không có web UI.
 enforcement: strict

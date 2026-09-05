@@ -1,6 +1,6 @@
 # feature-loop
 
-Vòng lặp chuẩn phát triển 1 tính năng từ ý tưởng đến PR, điều phối **acceptance-gate** + **superpowers** + **Workflow orchestration** thành một loop với đúng 2 điểm dừng human.
+Vòng lặp chuẩn phát triển 1 tính năng từ ý tưởng đến PR, điều phối **acceptance-gate** + **superpowers** + **Workflow orchestration** thành một loop mà người chỉ xuất hiện ở **bốn cổng** (xem [GUIDE §0](../GUIDE.md#bốn-cổng-người--nguồn-chuẩn-của-mô-hình-cổng)) — và chỉ khi cổng đó thật sự cần người: T2 đủ điều kiện thì máy chốt phạm vi và thông bằng chứng (**làn V**), báo một dòng, cửa veto vẫn mở.
 
 ```
 /feature-loop <mô tả tính năng | slug để resume>
@@ -17,7 +17,7 @@ Vòng lặp chuẩn phát triển 1 tính năng từ ý tưởng đến PR, đi�
 └─ S5 SHIP        finishing-a-development-branch → PR
 ```
 
-Ở cả 2 cổng, feature-loop **mặc định render thẻ quyết định** (`/acceptance-card <slug>`) — trình việc-chỉ-người-quyết bằng ngôn ngữ sản phẩm + luôn kèm đảo-ngược; gói text đầy đủ vẫn đính kèm để soi sâu. Thẻ chỉ trình bày, KHÔNG quyết — verdict/hook/evidence vẫn là nguồn-sự-thật.
+Ở mọi cổng dừng-chờ-người, feature-loop **mặc định render thẻ quyết định** (`/acceptance-card <slug>`) — trình việc-chỉ-người-quyết bằng ngôn ngữ sản phẩm + luôn kèm đảo-ngược; gói text đầy đủ vẫn đính kèm để soi sâu. Thẻ chỉ trình bày, KHÔNG quyết — verdict/hook/evidence vẫn là nguồn-sự-thật.
 
 Trạng thái loop sống trong frontmatter `status` của `_acceptance/<slug>/contract.md` (lifecycle của acceptance-gate) — resume được giữa các session, kể cả round verify (đọc từ section Iterations của evidence-report).
 
