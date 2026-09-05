@@ -138,7 +138,12 @@ case "$CHAN" in
     git -C "$CL" config user.email t@t.t; git -C "$CL" config user.name T
     printf '\n// dong tiem thu\n' >> "$CL/$REL_WF"; git -C "$CL" commit -qam "tiem" 
     R2="$(check_lane "$CL")"; RC2=$?
-    if [ $RC2 -ne 0 ] && printf '%s' "$R2" | grep -q "lane hội đồng đã đổi"; then ok "chiều đỏ: clone có commit chạm acceptance-verify.js → đỏ với dòng ghim"; else bad "chiều đỏ KHÔNG đỏ đúng cách (rc=$RC2): $R2"; fi
+    if [ $RC2 -ne 0 ] && printf '%s' "$R2" | grep -q "lane hội đồng đã đổi"; then ok "chiều đỏ 1: clone có commit chạm acceptance-verify.js → đỏ với dòng ghim"; else bad "chiều đỏ 1 KHÔNG đỏ đúng cách (rc=$RC2): $R2"; fi
+    CL2="$TMP/clone2"; git clone -q "$KIT" "$CL2" 2>/dev/null || { bad "clone tạm 2 thất bại"; done_chan; }
+    git -C "$CL2" config user.email t@t.t; git -C "$CL2" config user.name T
+    printf 'export const la = 1;\n' > "$CL2/lib/tiem-file-la.mjs"; git -C "$CL2" add lib/tiem-file-la.mjs; git -C "$CL2" commit -qm "tiem file la"
+    R3="$(check_lane "$CL2")"; RC3=$?
+    if [ $RC3 -ne 0 ] && printf '%s' "$R3" | grep -qF "tập file mã đổi ≠ {$REL_S4}" && printf '%s' "$R3" | grep -qF "lib/tiem-file-la.mjs"; then ok "chiều đỏ 2: clone có commit thêm file mã lạ lib/tiem-file-la.mjs → đỏ với dòng ghim nêu tên file"; else bad "chiều đỏ 2 KHÔNG đỏ đúng cách (rc=$RC3): $R3"; fi
     done_chan ;;
   tai-lieu-khong-con-duong-cu)
     R="$(scan_docs "$KIT")"; RC=$?

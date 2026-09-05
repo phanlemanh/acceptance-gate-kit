@@ -3,7 +3,7 @@
 Design: `docs/superpowers/specs/2026-09-05-inputs-tinh-tu-goc-kho-design.md` ·
 Hợp đồng: `_acceptance/inputs-tinh-tu-goc-kho/contract.md`.
 
-| Người dùng thấy gì khác | Đụng đâu | Phục vụ tiêu chí |
+| Người dùng thấy gì | Đụng đâu | Phục vụ tiêu chí |
 |---|---|---|
 | Hội đồng đọc đúng file đã khai; input vắng thì dừng có tên thay vì phán trên file rỗng | `feature-loop/scripts/s4-args.mjs` | AC-1…AC-4 (một gốc, vắng kêu to) |
 | Người viết evals đọc một luật ở cả ba nơi | `eval-executors.md`, hai `SKILL.md` | AC-5 (tài liệu một gốc) |

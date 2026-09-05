@@ -85,10 +85,13 @@ evals:
       Trên cây thật: mốc = git merge-base với nhánh chính (main, rơi về origin/main);
       diff acceptance-verify.js so mốc RỖNG; tập file đổi lọc ngoài tests/** docs/**
       skills/** feature-loop/skills/** _acceptance/** .github/** PRODUCT-MAP.md BẰNG đúng {feature-loop/scripts/s4-args.mjs}
-      (so tập, in tập thật khi lệch). Chiều đỏ trên clone tạm của chính kho (cùng
-      hàm kiểm): commit thêm một dòng vào acceptance-verify.js → hàm kiểm phải đỏ với
-      thông điệp ghim "lane hội đồng đã đổi". Bộ workflows xanh mỗi vòng qua
-      suite_keys là đối chứng dương, không phải thước chính.
+      (so tập, in tập thật khi lệch). HAI chiều đỏ trên clone tạm của chính kho
+      (cùng hàm kiểm), một cho mỗi vế: (1) commit thêm một dòng vào
+      acceptance-verify.js → đỏ với thông điệp ghim "lane hội đồng đã đổi";
+      (2) commit thêm một file mã lạ lib/tiem-file-la.mjs, KHÔNG chạm
+      acceptance-verify.js → đỏ với thông điệp ghim "tập file mã đổi ≠ {…}" nêu
+      tên file lạ — chứng minh bộ lọc bắt được file ngoài tập trắng. Bộ workflows
+      xanh mỗi vòng qua suite_keys là đối chứng dương, không phải thước chính.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/workflows/acceptance-verify.js", "feature-loop/scripts/s4-args.mjs", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
 
