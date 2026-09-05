@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 631461e7d120355123862c6930b27157856c8900
+verified_commit: 9b3d6f64aa4ec39e076e9a867293cda5698b362d
 human_signoff: Manh Phan 2026-09-05
 ---
 
@@ -167,3 +167,7 @@ none — không có eval nhiều lần chạy trong vòng này (mọi eval đề
 
 Round 1: REJECT toàn vòng trên nhóm JI1–JI4, JI6 (chiều đỏ chưa đủ bén) — khai bảy nợ có tên, trả lại implementation.
 Round 2: JI1–JI4, JI6, E5, E6, E7 xanh toàn bộ (round-tally PASS) nhưng chưa mở đường cho E8 (miễn trừ bằng chứng cùng hồ sơ) và E9 (chặn thư mục) — hai nợ cùng lớp còn treo, ghi lại để trả ở vòng ba.
+
+### Re-pin lần 1 — 2026-09-05, do main tiến ba PR (#143–#145) sau lúc chấm, không file nào chạm paths của eval
+run_id: repin-inputs-tinh-tu-goc-kho-9b3d6f64-1
+sha: 9b3d6f64aa4ec39e076e9a867293cda5698b362d · suites: 5 lệnh exit 0
