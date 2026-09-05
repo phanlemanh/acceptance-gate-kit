@@ -5,7 +5,7 @@ slug: inputs-tinh-tu-goc-kho
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -71,4 +71,10 @@ Quét theo tích hai trục rời rạc; tích đủ vì hàm giải chỉ phân
   - Chân grep tài liệu (E7) tuyên quét 3 tiền tố × 2 cú pháp nhưng chỉ chứng minh chiều đỏ cho 1 ô (dạng khối, tiền tố `contract.md`); nhánh inline, chính là dạng tài liệu thật đang dùng, chưa có đối chứng dương (Ngoài-5).
   - Ô «đường cũ mà không có ở đâu cả» chỉ được lấp bằng lời trong Coverage; lưới không có ca cấp đường kiểu cũ vắng cả hai nơi và assert thông điệp không mang gợi ý (Ngoài-6).
 - Phạm vi mở lại sau Cổng Bằng chứng vòng 2 theo quyết định owner: AC-7 và AC-8 thêm vào, cùng hàm `resolveJudgmentInput`; các AC cũ giữ nguyên.
+- **Known limits (owner xếp ngăn tại Cổng Bằng chứng vòng 3, 2026-09-05):**
+  - Tài liệu skill acceptance nói input vắng bị chặn ở bước sinh args; bước đó chỉ có trong vòng feature-loop, đường `/acceptance` trần không có bước này nên phiên chấm phải tự kiểm tồn tại trước khi phái hội đồng (Ngoài-1).
+  - Chân grep «tài liệu không còn đường cũ» chỉ sống trong răng hồ sơ, không nằm trong `tests/**`; sau merge không lưới thường trực nào canh ví dụ cũ quay lại (Ngoài-2, trái ADR 0011 — sửa rẻ ở chiến dịch ghim lại kế).
+  - Lời chú khối P3 trong `s4-args.mjs` còn tả ca «thư mục» đã bị chặn sớm hơn; ca thật rơi vào nhánh đó nay là bằng chứng miễn trừ chưa có ở vòng ≥2, và panel đó không carry được (Ngoài-3).
+  - Miễn trừ bằng chứng của chính hồ sơ chỉ áp cho đường TƯƠNG ĐỐI `_acceptance/<slug>/evidence/…`; viết cùng tệp bằng đường tuyệt đối thì vẫn bị chặn có tên (Ngoài-4 — sửa rẻ ở chiến dịch ghim lại kế).
+  - Chân grep tài liệu (E7) mới chứng minh chiều đỏ cho một ô (dạng khối, `contract.md`); nhánh inline và hai tiền tố còn lại chưa có đối chứng dương (Ngoài-5, cùng lớp với mục đã khai ở vòng 2).
 - Bản sửa mã và lưới thường trực đã nằm ở commit 4279ba42 trên nhánh, viết đỏ trước (9/13 đỏ trên mã cũ). Vòng này dựng hồ sơ + răng để cổng pre-merge của kit cho merge; không mở rộng phạm vi.
