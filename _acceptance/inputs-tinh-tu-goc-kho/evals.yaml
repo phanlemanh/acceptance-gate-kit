@@ -108,3 +108,31 @@ evals:
       hàm quét phải bắt đúng file + dòng vừa tiêm; tiêm chuỗi «→ abs path ·» → bắt.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["skills/acceptance/references/eval-executors.md", "skills/acceptance/SKILL.md", "feature-loop/skills/feature-loop/SKILL.md", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
+
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.itgk_bang_chung_cung_ho_so
+    expected: >
+      Cây thật: nhóm JI5 xanh — `_acceptance/demo/evidence/E3-step3.png` chưa có →
+      exit 0, sinh tệp, inputs = abs từ gốc kho, stderr có ĐÚNG MỘT dòng khai input
+      chưa có; `_acceptance/khac/evidence/x.png` (hồ sơ khác) vắng → exit 2; file
+      evidence CÓ thật → không có dòng khai. Hai chiều đỏ trên bản sao: đột biến
+      bo-mien-tru (tắt nhánh miễn trừ) → "FAIL: JI5 bằng chứng cùng hồ sơ chưa có →
+      vẫn sinh args"; đột biến mien-tru-rong (miễn mọi evidence/) → "FAIL: JI5
+      evidence của hồ sơ KHÁC vắng → exit 2". Mỗi chiều exit ≠ 0 VÀ dòng FAIL ghim.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
+
+  - id: E9
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.itgk_thu_muc_khong_phai_file
+    expected: >
+      Cây thật: nhóm JI6 xanh — input trỏ thư mục `src` → exit 2, thông điệp có
+      eval id + «src» nguyên văn + «là thư mục, không phải file», không sinh tệp;
+      đối chứng dương cùng fixture trỏ `src/a.ts` → exit 0. Chiều đỏ: đột biến
+      thu-muc-lot (nhận mọi đường tồn tại, kể cả thư mục) → "FAIL: JI6 thư mục →
+      exit 2" và exit ≠ 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]

@@ -217,6 +217,8 @@ executors:
     itgk_abs_hai_chieu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan abs-hai-chieu
     itgk_lane_doc_khong_doi: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi
     itgk_tai_lieu_khong_con_duong_cu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan tai-lieu-khong-con-duong-cu
+    itgk_bang_chung_cung_ho_so: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan bang-chung-cung-ho-so
+    itgk_thu_muc_khong_phai_file: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan thu-muc-khong-phai-file
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

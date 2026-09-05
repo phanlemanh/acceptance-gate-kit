@@ -125,9 +125,13 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    (e.g. `cmd: config:executors.test.api`) — never hardcoded.
 3b. `inputs` on a `judgment` eval and `paths` on any eval are written from the
    repo root (or absolute) — never from `_acceptance/{slug}/`. A dossier file is
-   `_acceptance/{slug}/contract.md`. Declare only files that exist by verify
-   time: the S4 args step resolves them and stops (exit 2, file named) on a
-   missing one instead of handing the judge an empty file.
+   `_acceptance/{slug}/contract.md`. Declare only files that exist when S4
+   args are generated: the args step resolves them and stops (exit 2, file
+   named) on a missing one or a directory instead of handing the judge an
+   empty file. The one exception is `_acceptance/{slug}/evidence/**` of the
+   same dossier, which a ui-check of the same round may produce — it is
+   resolved with a notice, and a judge that still finds it missing returns
+   UNCERTAIN.
 4. Coverage check — three rules:
    (a) every AC-n appears in ≥1 eval's `criterion` field. Print the mapping
        table (criterion → eval ids → executor).

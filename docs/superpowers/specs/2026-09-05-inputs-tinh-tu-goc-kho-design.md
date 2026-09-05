@@ -61,8 +61,11 @@ hơn, chỉ còn «có mà không đọc được» đi đường hash mới).
   | Tên | Dòng trước (nguyên văn) | Dòng sau | Chân dùng |
   |---|---|---|---|
   | `goc-cu` | `const abs = path.isAbsolute(p) ? p : path.resolve(root, p);` | `const abs = path.isAbsolute(p) ? p : path.resolve(ws, p);` | E1, E3 |
-  | `fail-open` | `if (fs.existsSync(abs)) return abs;` | `return abs;` | E2, E4 |
+  | `fail-open` | `if (st && st.isFile()) return abs;` | `return abs;` | E2, E4 |
   | `goi-y-sai` | `viết lại thành «${path.relative(root, legacy)}»` | `viết lại thành «${legacy}»` | E3 |
+  | `thu-muc-lot` | `if (st && st.isFile()) return abs;` | `if (st) return abs;` | E9 |
+  | `bo-mien-tru` | `if (!path.isAbsolute(p) && norm.startsWith(EVIDENCE_PREFIX)) {` | `if (false) {` | E8 |
+  | `mien-tru-rong` | `if (!path.isAbsolute(p) && norm.startsWith(EVIDENCE_PREFIX)) {` | `if (!path.isAbsolute(p) && norm.includes('/evidence/')) {` | E8 |
 
   Đối chứng dương của AC-3 là ROUND-TRIP: rút chuỗi giữa «…» từ stderr thật
   rồi viết lại evals.yaml bằng đúng chuỗi đó, không gõ tay.
@@ -73,6 +76,18 @@ hơn, chỉ còn «có mà không đọc được» đi đường hash mới).
   khai theo gốc kho — chính hồ sơ này dogfood luật mới) + chân grep âm tính
   trong khối `inputs:` của ba file, đối chứng dương tiêm một dòng
   `- contract.md` vào bản sao (E7).
+
+## Mở lại sau Cổng Bằng chứng vòng 2 (owner quyết 2026-09-05)
+
+Review vòng 2 chỉ ra fail-closed chặn nhầm một mẫu có sẵn: hội đồng chấm ảnh
+do ui-check chụp trong CÙNG vòng — ảnh chưa tồn tại lúc sinh args nên script
+chết ở bước đó, mẫu trong `eval-executors.md` (E4 đọc `evidence/E3-step3.png`)
+không còn đi được. Owner chọn nâng phạm vi: **AC-7** — đường tương đối có tiền
+tố `_acceptance/<slug>/evidence/` của CHÍNH hồ sơ đang chấm được phép chưa tồn
+tại: vẫn giải thành đường tuyệt đối, một dòng khai trên stderr, vắng lúc chấm
+thì hội đồng trả UNCERTAIN theo luật sẵn có. Hồ sơ khác vắng vẫn chết như AC-2.
+Cùng lượt, **AC-8** — đường tồn tại nhưng là thư mục → exit 2 «là thư mục,
+không phải file» (`statSync(...).isFile()` thay `existsSync`).
 
 ## Nợ khai trước
 

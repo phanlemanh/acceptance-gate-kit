@@ -134,9 +134,23 @@ if (!evals.length) die('evals.yaml không có eval nào (hoặc không parse đ�
 // input trỏ vào file không có, hội đồng đọc file rỗng (crm, 05/09). Input vắng
 // trên đĩa là lỗi hồ sơ → exit 2 gọi tên, KHÔNG sinh tệp; nếu file lại có ở
 // đường cũ (theo hồ sơ) thì nói luôn cách viết lại — máy suy được thì máy điền.
+// Ngoại lệ duy nhất: bằng chứng của CHÍNH hồ sơ đang chấm (`_acceptance/<slug>/
+// evidence/…`) do ui-check sinh TRONG lúc chấm nên chưa có lúc sinh args — vẫn
+// giải thành đường tuyệt đối, khai một dòng; vắng lúc chấm thì hội đồng trả
+// UNCERTAIN theo luật sẵn có. Hồ sơ khác không sinh gì trong vòng này: vắng là
+// lỗi thật. Đường tồn tại mà là thư mục cũng là lỗi thật — hội đồng không đọc
+// được thư mục, và khối P3 sẽ băm lại mỗi vòng mà không ai biết vì sao.
+const EVIDENCE_PREFIX = path.posix.join('_acceptance', flags.slug, 'evidence') + '/';
 function resolveJudgmentInput(e, p) {
   const abs = path.isAbsolute(p) ? p : path.resolve(root, p);
-  if (fs.existsSync(abs)) return abs;
+  const st = fs.statSync(abs, { throwIfNoEntry: false });
+  if (st && st.isFile()) return abs;
+  if (st) return die(`eval ${e.id} (judgment): input là thư mục, không phải file: ${p} (${abs}) — hội đồng không đọc được thư mục, KHÔNG sinh tệp`);
+  const norm = path.posix.normalize(p.split(path.sep).join('/'));
+  if (!path.isAbsolute(p) && norm.startsWith(EVIDENCE_PREFIX)) {
+    console.error(`s4-args: eval ${e.id}: input ${p} chưa có — nằm trong evidence/ của chính hồ sơ, được phép sinh trong lúc chấm; vắng lúc chấm thì hội đồng trả UNCERTAIN`);
+    return abs;
+  }
   const legacy = path.isAbsolute(p) ? null : path.resolve(ws, p);
   const hint = legacy && fs.existsSync(legacy)
     ? ` — file này CÓ ở ${legacy}: inputs tính từ GỐC KHO như paths, viết lại thành «${path.relative(root, legacy)}»`

@@ -63,8 +63,12 @@ parser requires 2-space indentation.
 absolute path. Never write them relative to `_acceptance/{slug}/` — a dossier
 file is `_acceptance/{slug}/contract.md`, a source file is `apps/app/lib/x.ts`.
 The S4 args step resolves every input to an absolute path and refuses to
-generate args (exit 2, file named) when one is missing on disk; a judge that
-reads an empty file grades nothing.
+generate args (exit 2, file named) when one is missing on disk or is a
+directory; a judge that reads an empty file grades nothing. One exception:
+`_acceptance/{slug}/evidence/**` of the dossier being verified may not exist
+yet, because a ui-check of the same round produces it (E4 above reads E3's
+frame) — it is resolved anyway with one notice line, and a judge that still
+finds it missing returns UNCERTAIN.
 
 Optional `runs: N` (int > 1) on a `test`/`script` eval marks it **stochastic** —
 its command crosses `ctx.providers.invoke` (an LLM generator) so the output is a

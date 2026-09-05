@@ -5,11 +5,11 @@ slug: inputs-tinh-tu-goc-kho
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
-veto_opened_at: 2026-09-05T01:54:26Z
+veto_opened_at: 2026-09-05T06:20:59Z
 design_doc: docs/superpowers/specs/2026-09-05-inputs-tinh-tu-goc-kho-design.md
 ---
 
@@ -35,6 +35,8 @@ theo nếp «lỗi kit đi chip riêng».
 - AC-3: Given một phần tử `inputs` viết theo thư mục hồ sơ kiểu cũ (`../../src/a.ts`, `contract.md`) mà file CÓ ở vị trí tính từ thư mục hồ sơ, When chạy script, Then exit 2, không sinh tệp, và thông điệp chứa dạng viết lại theo gốc kho đặt trong «…» BẰNG `path.relative(root, <vị trí cũ>)` (vd «src/a.ts», «_acceptance/<slug>/contract.md»); đối chứng dương cùng fixture: viết lại theo gợi ý → exit 0, sinh tệp.
 - AC-4: Given một phần tử `inputs` là đường dẫn tuyệt đối, When chạy script, Then file có thật → giữ NGUYÊN VĂN trong tệp args; file không có → exit 2 nêu đúng đường dẫn đó, không sinh tệp.
 - AC-5 (judgment): Given ba nơi khai luật cho bên viết evals — mẫu trong `skills/acceptance/references/eval-executors.md`, bước EVAL-GEN và VERIFY của `skills/acceptance/SKILL.md`, câu mô tả bước chuẩn bị args trong `feature-loop/skills/feature-loop/SKILL.md` — When một người viết evals mới đọc chúng, Then cả ba nói MỘT gốc (gốc kho hoặc tuyệt đối) cho `inputs` giống `paths`, mẫu không còn ví dụ nào theo thư mục hồ sơ, và có nói hệ quả khi input vắng (dừng, exit 2, nêu tên); không chỗ nào còn mô tả hành vi cũ («→ abs path» trần, `contract.md` trần trong `inputs`).
+- AC-7: Given một phần tử `inputs` tương đối có tiền tố `_acceptance/<slug>/evidence/` của CHÍNH hồ sơ đang chấm (bằng chứng do ui-check sinh trong lúc chấm), When file đó CHƯA tồn tại lúc sinh args, Then script KHÔNG dừng: phần tử vẫn giải thành `<realpath(root)>/<đường dẫn>`, tệp args sinh ra, và đầu ra lỗi chuẩn có ĐÚNG MỘT dòng khai tên input chưa có; cùng tiền tố nhưng của hồ sơ KHÁC (`_acceptance/<slug-khác>/evidence/…`) mà vắng → vẫn exit 2 như AC-2. Vắng lúc chấm thì hội đồng trả UNCERTAIN theo luật sẵn có của lane, không đổi lane.
+- AC-8: Given một phần tử `inputs` trỏ tới đường dẫn TỒN TẠI nhưng là thư mục (không phải file thường), When chạy script, Then exit 2, thông điệp nêu id eval, đường dẫn nguyên văn và vế «là thư mục, không phải file», tệp args KHÔNG được sinh; đối chứng dương cùng fixture: trỏ tới một file trong thư mục đó → exit 0.
 - AC-6: Given nhánh này so với mốc gộp với nhánh chính (`git merge-base`), When liệt kê file đổi, Then `feature-loop/workflows/acceptance-verify.js` có diff RỖNG (lane hội đồng không đổi nghĩa: bảng `EVAL-REQUIRED-FIELDS`, nhánh UNCERTAIN, `inputsHash` giữ nguyên vì file giữ nguyên) và tập file mã đổi ngoài `tests/**`, `docs/**`, `skills/**`, `feature-loop/skills/**`, `_acceptance/**`, `.github/**`, `PRODUCT-MAP.md` (bản đồ máy vẽ lại khi thêm hồ sơ) BẰNG đúng tập một phần tử {`feature-loop/scripts/s4-args.mjs`}; bộ kiểm lớp thuần của workflow xanh là đối chứng dương, không phải thước chính. Mỗi vế có chiều đỏ riêng trên clone tạm: chạm `acceptance-verify.js` → đỏ vế một; thêm một file mã lạ ngoài tập trắng → đỏ vế hai nêu tên file.
 
 ## Coverage
@@ -43,7 +45,7 @@ Quét theo tích hai trục rời rạc; tích đủ vì hàm giải chỉ phân
 (kiểu đường dẫn) × (tồn tại trên đĩa). Trục thứ ba là nơi luật sống.
 
 - Trục kiểu đường dẫn khai: gốc kho (AC-1, AC-2) | tuyệt đối (AC-4) | kiểu cũ theo thư mục hồ sơ (AC-3). [thước CE: ba nhánh mà hàm `resolveJudgmentInput` phân biệt — `isAbsolute` · tồn tại ở gốc kho · tồn tại ở đường cũ]
-- Trục tồn tại trên đĩa: có (AC-1, AC-3, AC-4 ô 1) | không (AC-2, AC-4 ô 2). Ô «kiểu cũ mà không có ở đâu cả» rơi về AC-2 (cùng thông điệp, không gợi ý) — thước là chính chân AC-2. [thước CE: hai vế `existsSync` trong hàm]
+- Trục tồn tại trên đĩa: là file (AC-1, AC-3, AC-4 ô 1) | là thư mục (AC-8) | không có (AC-2, AC-4 ô 2) | không có nhưng là bằng chứng của chính hồ sơ, được sinh trong lúc chấm (AC-7). Ô «kiểu cũ mà không có ở đâu cả» rơi về AC-2 (cùng thông điệp, không gợi ý) — thước là chính chân AC-2. [thước CE: bốn nhánh của `statSync` + tiền tố evidence trong hàm]
 - Trục nơi luật sống: mã (AC-1…AC-4) | ba nơi khai cho bên viết (AC-5 — hội đồng phán nội dung, chân grep âm tính canh ví dụ sót) | bên đọc args (AC-6 — không đổi, đo bằng diff). [thước CE: ba file tài liệu có tên trong AC-5 + một file bên đọc có tên trong AC-6]
 
 Ô «đường tuyệt đối trỏ ra ngoài kho» không phân biệt với ô tuyệt đối thường
@@ -63,4 +65,10 @@ Quét theo tích hai trục rời rạc; tích đủ vì hàm giải chỉ phân
 - Fixture do code sinh trong chính lần chạy, đường dẫn suy từ vị trí script; ca so đường dẫn là QUAN HỆ (`path.join(realpath(root), p)`, `path.relative`), không hằng chuỗi. Bản sao để tiêm đột biến chụp TRỌN cây làm việc; mỗi đột biến là MỘT phép thay thế nguyên văn khai trong design doc, chân đo assert mũi tiêm trúng (`cmp` khác) và mutant chạy được (`node --check`) trước khi chấm; chiều đỏ giữ đủ hai vế: exit ≠ 0 VÀ dòng FAIL có tên ca.
 - Giới hạn đã khai: đường tuyệt đối trỏ ra ngoài kho vẫn được nhận nếu file có thật — script không chặn, hội đồng đọc được thứ ngoài kho. Không phải mục tiêu vòng này.
 - Giới hạn đã khai: ô «kiểu cũ mà không có ở đâu» chỉ báo vắng, không gợi ý — máy không có gì để suy.
+- **Known limits (owner xếp ngăn tại Cổng Bằng chứng vòng 2, 2026-09-05):**
+  - Lưới thường trực `tests/scripts/s4-args-judgment-inputs.test.mjs` không dọn thư mục tạm sau khi chạy; mỗi lần chạy để lại vài kho git con trong thư mục tạm của máy (Ngoài-1).
+  - Hai câu tiếng Anh trong `skills/acceptance/SKILL.md` và `eval-executors.md` dùng từ «dossier» cho `_acceptance/{slug}/` trong khi chỗ khác dùng «workspace»; CONTEXT.md chưa có mục cho từ này (Ngoài-2).
+  - Chân grep tài liệu (E7) tuyên quét 3 tiền tố × 2 cú pháp nhưng chỉ chứng minh chiều đỏ cho 1 ô (dạng khối, tiền tố `contract.md`); nhánh inline, chính là dạng tài liệu thật đang dùng, chưa có đối chứng dương (Ngoài-5).
+  - Ô «đường cũ mà không có ở đâu cả» chỉ được lấp bằng lời trong Coverage; lưới không có ca cấp đường kiểu cũ vắng cả hai nơi và assert thông điệp không mang gợi ý (Ngoài-6).
+- Phạm vi mở lại sau Cổng Bằng chứng vòng 2 theo quyết định owner: AC-7 và AC-8 thêm vào, cùng hàm `resolveJudgmentInput`; các AC cũ giữ nguyên.
 - Bản sửa mã và lưới thường trực đã nằm ở commit 4279ba42 trên nhánh, viết đỏ trước (9/13 đỏ trên mã cũ). Vòng này dựng hồ sơ + răng để cổng pre-merge của kit cho merge; không mở rộng phạm vi.

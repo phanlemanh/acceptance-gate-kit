@@ -11,7 +11,7 @@
 // → exit 2 gọi tên file, KHÔNG sinh tệp — đúng nếp fail-closed của các trường
 // khác trong cùng script. Fixture do CODE SINH trong chính lần chạy.
 import { fileURLToPath } from 'node:url';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync, mkdirSync, existsSync, readFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -52,13 +52,9 @@ function writeEvals(d, inputs) {
 }
 function runArgs(repo) {
   const out = path.join(TMP, `args-${Math.random().toString(36).slice(2)}.json`);
-  try {
-    const stdout = execFileSync(process.execPath, [S4ARGS, '--slug', 'demo', '--root', repo, '--ag-root', KIT, '--no-carry', '--out', out],
-      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-    return { code: 0, text: stdout, out, wrote: existsSync(out) };
-  } catch (e) {
-    return { code: e.status, text: `${e.stdout || ''}${e.stderr || ''}`, out, wrote: existsSync(out) };
-  }
+  const r = spawnSync(process.execPath, [S4ARGS, '--slug', 'demo', '--root', repo, '--ag-root', KIT, '--no-carry', '--out', out],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  return { code: r.status, text: `${r.stdout || ''}${r.stderr || ''}`, out, wrote: existsSync(out) };
 }
 const inputsOf = (r) => JSON.parse(readFileSync(r.out, 'utf8')).evals.find(e => e.id === 'E2').inputs;
 // `--only <nhóm>`: răng hồ sơ chạy từng nhóm riêng trên cây thật và trên bản sao
@@ -123,6 +119,35 @@ group('JI4', 'abs path: có thật → giữ nguyên; không có → exit 2 có 
   ok0(r2.code === 2 && !r2.wrote && r2.text.includes(absBad), 'JI4 abs path không có → exit 2 nêu tên, không sinh tệp', `code=${r2.code} wrote=${r2.wrote}`);
 });
 
-if (ONLY && groupsRun === 0) { console.log(`  FAIL: --only ${ONLY} không khớp nhóm nào (JI1|JI2|JI3|JI4)`); fail += 1; }
+group('JI5', 'bằng chứng của CHÍNH hồ sơ (_acceptance/<slug>/evidence/…) chưa có → vẫn sinh args + một dòng khai; hồ sơ khác vắng → exit 2', () => {
+  const repo = buildRepo(['src/a.ts', '_acceptance/demo/evidence/E3-step3.png']);
+  const root = realpathSync(repo);
+  const r = runArgs(repo);
+  const want = [path.join(root, 'src', 'a.ts'), path.join(root, '_acceptance', 'demo', 'evidence', 'E3-step3.png')];
+  const got = r.wrote ? inputsOf(r) : null;
+  const khai = (r.text.match(/^s4-args: eval E2: input _acceptance\/demo\/evidence\/E3-step3\.png chưa có/mg) || []).length;
+  ok0(r.code === 0 && r.wrote && JSON.stringify(got) === JSON.stringify(want), 'JI5 bằng chứng cùng hồ sơ chưa có → vẫn sinh args, abs từ gốc kho', `code=${r.code} got=${JSON.stringify(got)} | ${r.text.trim().split('\n').pop()}`);
+  ok0(khai === 1, 'JI5 stderr có ĐÚNG MỘT dòng khai input chưa có', `đếm=${khai}`);
+  writeEvals(repo, ['_acceptance/khac/evidence/x.png']);
+  const r2 = runArgs(repo);
+  ok0(r2.code === 2 && !r2.wrote && /không tồn tại trên đĩa: _acceptance\/khac\/evidence\/x\.png \(/.test(r2.text), 'JI5 evidence của hồ sơ KHÁC vắng → exit 2, không sinh tệp', `code=${r2.code} ${r2.text.trim().split('\n').pop()}`);
+  mkdirSync(path.join(repo, '_acceptance', 'demo', 'evidence'), { recursive: true });
+  writeFileSync(path.join(repo, '_acceptance', 'demo', 'evidence', 'E3-step3.png'), 'png');
+  writeEvals(repo, ['_acceptance/demo/evidence/E3-step3.png']);
+  const r3 = runArgs(repo);
+  ok0(r3.code === 0 && r3.wrote && !/chưa có/.test(r3.text), 'JI5 đối chứng dương: file evidence CÓ thật → sinh args, không dòng khai', `code=${r3.code}`);
+});
+
+group('JI6', 'input trỏ THƯ MỤC → exit 2 «là thư mục, không phải file»; trỏ file trong đó → exit 0', () => {
+  const repo = buildRepo(['src']);
+  const r = runArgs(repo);
+  ok0(r.code === 2 && !r.wrote, 'JI6 thư mục → exit 2, không sinh tệp', `code=${r.code} wrote=${r.wrote}`);
+  ok0(/eval E2 /.test(r.text) && /là thư mục, không phải file: src \(/.test(r.text), 'JI6 thông điệp nêu eval + đường dẫn nguyên văn + «là thư mục, không phải file»', r.text.trim().split('\n').pop());
+  writeEvals(repo, ['src/a.ts']);
+  const r2 = runArgs(repo);
+  ok0(r2.code === 0 && r2.wrote, 'JI6 đối chứng dương: trỏ file trong thư mục → sinh args', `code=${r2.code}`);
+});
+
+if (ONLY && groupsRun === 0) { console.log(`  FAIL: --only ${ONLY} không khớp nhóm nào (JI1|JI2|JI3|JI4|JI5|JI6)`); fail += 1; }
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

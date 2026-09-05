@@ -48,8 +48,14 @@ PY
 }
 MUT_GOC_CU_B='const abs = path.isAbsolute(p) ? p : path.resolve(root, p);'
 MUT_GOC_CU_A='const abs = path.isAbsolute(p) ? p : path.resolve(ws, p);'
-MUT_FAIL_OPEN_B='if (fs.existsSync(abs)) return abs;'
+MUT_FAIL_OPEN_B='if (st && st.isFile()) return abs;'
 MUT_FAIL_OPEN_A='return abs;'
+MUT_THU_MUC_LOT_B='if (st && st.isFile()) return abs;'
+MUT_THU_MUC_LOT_A='if (st) return abs;'
+MUT_BO_MIEN_TRU_B='if (!path.isAbsolute(p) && norm.startsWith(EVIDENCE_PREFIX)) {'
+MUT_BO_MIEN_TRU_A='if (false) {'
+MUT_MIEN_TRU_RONG_B='if (!path.isAbsolute(p) && norm.startsWith(EVIDENCE_PREFIX)) {'
+MUT_MIEN_TRU_RONG_A="if (!path.isAbsolute(p) && norm.includes('/evidence/')) {"
 MUT_GOI_Y_SAI_B='viết lại thành «${path.relative(root, legacy)}»'
 MUT_GOI_Y_SAI_A='viết lại thành «${legacy}»'
 
@@ -130,6 +136,15 @@ case "$CHAN" in
   abs-hai-chieu)
     xanh_that JI4
     do_mutant JI4 fail-open "$MUT_FAIL_OPEN_B" "$MUT_FAIL_OPEN_A" "FAIL: JI4 abs path không có → exit 2 nêu tên, không sinh tệp"
+    done_chan ;;
+  bang-chung-cung-ho-so)
+    xanh_that JI5
+    do_mutant JI5 bo-mien-tru "$MUT_BO_MIEN_TRU_B" "$MUT_BO_MIEN_TRU_A" "FAIL: JI5 bằng chứng cùng hồ sơ chưa có → vẫn sinh args"
+    do_mutant JI5 mien-tru-rong "$MUT_MIEN_TRU_RONG_B" "$MUT_MIEN_TRU_RONG_A" "FAIL: JI5 evidence của hồ sơ KHÁC vắng → exit 2"
+    done_chan ;;
+  thu-muc-khong-phai-file)
+    xanh_that JI6
+    do_mutant JI6 thu-muc-lot "$MUT_THU_MUC_LOT_B" "$MUT_THU_MUC_LOT_A" "FAIL: JI6 thư mục → exit 2"
     done_chan ;;
   lane-doc-khong-doi)
     R="$(check_lane "$KIT")"; RC=$?; echo "  $R"
