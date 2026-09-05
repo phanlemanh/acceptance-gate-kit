@@ -277,3 +277,49 @@ Lối B rút README khỏi diện cắt (nó có người hưởng rồi). Nhát
 **`plugin.json.description`**, theo đúng phân tích trên: không cắt độ dài, mà
 **cắt vai trò kép** của nó (vừa là mô tả plugin vừa là changelog vừa là mốc neo
 của ba bộ răng). Một vật ba vai là một vật sẽ trôi.
+
+## Đuôi 05/09 — hai thứ chỉ lộ ra khi kiểm bằng máy, không bằng mắt
+
+**(1) `LICENSE` viết xong mà GitHub không thấy.** Sau khi merge #144, phép đo
+thật không nằm trong cây mà ở phía GitHub:
+
+```
+gh api repos/phanlemanh/acceptance-gate-kit --jq .license.spdx_id
+→ NOASSERTION
+```
+
+Bộ dò của GitHub chỉ nhận `LICENSE` khớp gần-nguyên-văn một giấy phép đã biết;
+mục THIRD-PARTY nối thêm sau dấu `---` làm nó bỏ nhận diện. Tức công bố quan
+trọng NHẤT của lối B — «repo này dùng được» — **không hiện ở đúng chỗ người
+ngoài đọc**. Răng ship rồi mà hiệu lực 0: đúng lớp lỗi kit tồn tại để chặn, lần
+này ở mặt-người của chính kit. Sửa ở #145: `LICENSE` thuần MIT, phần vendor
+sang `NOTICE` ở gốc (cùng nếp `vendor/impeccable/NOTICE`), README thêm mục
+Licence — lối B khai README là cửa cho người ngoài mà cửa đó chưa hề nói tới
+giấy phép.
+
+Bài học đúng dạng của repo này: **phép đo phải nằm ở nơi lời hứa được tiêu
+thụ.** «Có file LICENSE» là đo cây; thứ đáng đo là `spdx_id` mà bên kia đọc ra.
+
+**(2) #144 lọt cổng bằng đúng lỗ đã khai.** #144 chạm `LICENSE`,
+`.claude-plugin/plugin.json`, `feature-loop/.claude-plugin/plugin.json` — **không
+file nào trong `t1_skip_globs`** — nên lẽ ra răng T1-escape phải đòi hồ sơ. Nó
+không đòi, vì cùng PR có sửa một dòng chú thích trong `_acceptance/config.yaml`,
+và backstop tính «có kèm artifact» là *bất kỳ* thay đổi nào dưới `_acceptance/`.
+Đó chính là giới hạn README đã khai từ đầu: **backstop không có ánh xạ
+path→slug**.
+
+Khai thẳng: đây không phải suy đoán mà là **vấp thật, do chính đợt này gây ra**
+— và nó chỉ lộ khi #145 (chạm `LICENSE` + `NOTICE`, không chạm `_acceptance/`)
+bị chặn đúng như thiết kế. Một PR bị chặn đã chứng minh răng còn sống; PR trước
+đó qua được đã chứng minh lỗ còn đó. Cả hai là cùng một phép đo.
+
+Cách xử ở #145 theo đúng hai lối mà chính thông điệp lỗi đưa ra: **khai T1 cho
+đúng thứ là T1**. `LICENSE`/`NOTICE` là văn xuôi pháp lý, không code path nào
+đọc — liệt **đích danh** (không glob, vì `NOTICE*` sẽ nuốt NOTICE của cây vendor
+mà tree-hash trong đó LÀ răng P196), kèm điều kiện thu hồi. QUYẾT ĐỊNH cấp phép
+thì ngược lại — khó-đảo, và nó đã qua cổng người rồi (ADR 0013); hai file chỉ là
+bản chiếu.
+
+**Còn nợ, ghi vào ô cơ hội:** hai manifest `plugin.json` trong #144 vẫn là
+non-T1 đi qua backstop nhờ lỗ trên. Ô «neo backstop vào ánh xạ path→slug» đã
+nằm trong known-limits của README từ v1; đợt này thêm một biên lai cho nó.

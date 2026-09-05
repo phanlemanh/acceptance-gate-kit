@@ -221,6 +221,16 @@ risk_tiers:
     - "CHANGELOG.md"
     - "CONTEXT.md"
     - "CLAUDE.md"
+    # Giấy phép + công bố vendor (05/09, lối B — ADR 0013). Văn xuôi pháp lý
+    # thuần: KHÔNG code path nào đọc hai file này, nên chúng không phải hành vi
+    # của cổng. QUYẾT ĐỊNH cấp phép thì ngược lại — khó-đảo, và nó đã đi qua
+    # cổng người rồi (owner quyết 05/09, ghi ADR 0013); hai file dưới chỉ là
+    # BẢN CHIẾU của quyết định đó. Liệt ĐÍCH DANH, không glob: `*.md` hay
+    # `NOTICE*` sẽ nuốt cả NOTICE của cây vendor — mà tree-hash trong đó LÀ
+    # răng (P196). ĐIỀU KIỆN THU HỒI: ngày có script/CI đọc LICENSE hoặc NOTICE
+    # làm dữ liệu, hai dòng này phải GỠ trong cùng PR cắm.
+    - "LICENSE"
+    - "NOTICE"
     # Hồ sơ đề xuất đã TỪ CHỐI (CLAUDE.md). Văn xuôi thuần, không có hành vi —
     # để ngoài danh sách này thì mỗi lần ghi một quyết định-không-làm lại làm
     # evidence stale và tốn một vòng S4.
