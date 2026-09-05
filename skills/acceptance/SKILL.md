@@ -123,6 +123,11 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    the skip). Strategic "on-brand / not generic" goes to a `judgment` eval.
 3. Repo-specific commands MUST be `config:` references
    (e.g. `cmd: config:executors.test.api`) — never hardcoded.
+3b. `inputs` on a `judgment` eval and `paths` on any eval are written from the
+   repo root (or absolute) — never from `_acceptance/{slug}/`. A dossier file is
+   `_acceptance/{slug}/contract.md`. Declare only files that exist by verify
+   time: the S4 args step resolves them and stops (exit 2, file named) on a
+   missing one instead of handing the judge an empty file.
 4. Coverage check — three rules:
    (a) every AC-n appears in ≥1 eval's `criterion` field. Print the mapping
        table (criterion → eval ids → executor).
@@ -247,7 +252,8 @@ Entry: implementation complete, contract `status: implemented`.
    - `judgment`: dispatch the judge per `references/judge-personas.md`
      (separate fresh subagent when available, or three separated grader passes
      with hidden implementer reasoning). The verdict is scoped on resolved
-     inputs; blind: no diff, no implementer reasoning. If the verify context
+     inputs (repo-root paths made absolute; a missing input stops args
+     generation with exit 2); blind: no diff, no implementer reasoning. If the verify context
      cannot spawn nested agents, it returns judgment evals unscored; the
      ORCHESTRATOR dispatches each judge per references/judge-personas.md and
      merges verdicts into the report. Never let the implementation pass judge
