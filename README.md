@@ -353,3 +353,10 @@ downstream, and revisited at each release:
   release it; re-run the round or descope/rewrite the eval, recording why.
 
 Design spec: `docs/specs/2026-06-10-acceptance-gate-kit-design.md`
+
+## Licence
+
+MIT — see [LICENSE](LICENSE). Two vendored trees keep their own licences
+(`vendor/impeccable/` Apache-2.0, `diagram-design/skills/diagram-design/` MIT);
+[NOTICE](NOTICE) names both. See [ADR 0013](docs/adr/0013-mo-that-mit-va-ban-chep-mo-hinh-cong.md)
+for why the repo is open and what that costs.
