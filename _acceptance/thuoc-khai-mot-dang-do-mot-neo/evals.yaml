@@ -72,7 +72,7 @@ evals:
     cmd: config:executors.script.tkm_p86
     paths: ["tests/plugins/run-tests.sh", "GUIDE.md", "QUICKSTART.md", "README.md"]
     expected: >-
-      exit 0; SÁU dòng `P86 MUTANT` ngân sách in kèm THÔNG ĐIỆP ĐỎ THẬT sau dấu hai chấm — ba ca sửa
+      exit 0; TÁM dòng `P86 MUTANT` ngân sách in kèm THÔNG ĐIỆP ĐỎ THẬT sau dấu hai chấm — ba ca sửa
       bản VI (`GUIDE.md/QUICKSTART.md (VI): …`) và ba ca `EN:` sửa CHỈ bản EN (`README.md (EN): …`),
       vì `kiem` duyệt VI trước rồi dừng nên ca chạm VI che mất nhánh EN. Ba ca VI:
       `ngan sach luot 3->9 -> do dung cho: … ngan sach luot 9 != so cong 4 - 1` ·

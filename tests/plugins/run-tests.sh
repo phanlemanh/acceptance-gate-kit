@@ -10944,7 +10944,7 @@ if [ "$P201OK" -eq 1 ]; then pass "P201 ngan khong-sua co ten + duong doc-cu + m
 # DUONG truoc, roi dot bien TUNG ban, moi chieu do phai GOI TEN dung ban lech.
 # Ban chep VI (GUIDE + QUICKSTART) so BYTE-EQUAL. Ban EN khac ngon ngu nen so
 # theo CAU TRUC: day nhan cong phai khop cot `en` cua khoi nguon, dung thu tu.
-run "P86 GATE-MODEL: nguon tsv · 2 ban VI byte-equal · ban EN khop cot en · ngan sach doc-tu-dong va so QUAN HE · 12 dot bien (co ca chi-EN) goi ten dung ban, moi mui tiem deu kiem trung" \
+run "P86 GATE-MODEL: nguon tsv · 2 ban VI byte-equal · ban EN khop cot en · ngan sach doc-tu-dong va so QUAN HE · 14 dot bien (co ca chi-EN, ca 3 ve deu co chieu do) goi ten dung ban, moi mui tiem deu kiem trung" \
   python3 - "$ROOT" <<'PY'
 import re, sys
 from pathlib import Path
@@ -11095,6 +11095,13 @@ mut = [
     ("EN: ngan sach luot 3->9", lambda: kiem(vi_g, vi_q, tiem(en_r, "≤3 turns per round", "≤9 turns per round", "EN-luot"), vis, ens), "README.md (EN): ngan sach luot 9 != so cong 4 - 1"),
     ("EN: tran T3 4->5",        lambda: kiem(vi_g, vi_q, tiem(en_r, "T3 ceiling 4", "T3 ceiling 5", "EN-T3"), vis, ens), "README.md (EN): tran T3 5 != so luot 3 + 1"),
     ("EN: xoa ve moc phat hanh", lambda: kiem(vi_g, vi_q, tiem(en_r, " · **≤1 turn for a release milestone**", "", "EN-ship"), vis, ens), "README.md (EN): khong doc duoc ve ngan sach «moc phat hanh»"),
+    # Hai ca doi GIA TRI ve moc phat hanh. Bon ca «xoa ve» o tren bi bat som hon
+    # mot buoc ngay trong ngan_sach() (bieu thuc trich khong khop), nen KHONG ca
+    # nao cham toi phep so `ship != 1` — xoa han nhanh ay ma suite van xanh 12/12
+    # (hoi dong S4 vong 5 do duoc, va da tai hien 06/09). Hai ca duoi dua GIA TRI
+    # sai vao, la chieu do DUY NHAT cua ve thu ba.
+    ("moc phat hanh 1->2", lambda: kiem(tiem(vi_g, "**mốc phát hành ≤1**", "**mốc phát hành ≤2**", "ship2@GUIDE"), tiem(vi_q, "**mốc phát hành ≤1**", "**mốc phát hành ≤2**", "ship2@QUICKSTART"), en_r, vis, ens), "moc phat hanh 2 != 1"),
+    ("EN: moc phat hanh 1->2", lambda: kiem(vi_g, vi_q, tiem(en_r, "**≤1 turn for a release milestone**", "**≤2 turn for a release milestone**", "EN-ship2"), vis, ens), "README.md (EN): moc phat hanh 2 != 1"),
 ]
 for ten, f, phai_neu in mut:
     d = f()

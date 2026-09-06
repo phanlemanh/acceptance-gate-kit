@@ -1,117 +1,83 @@
-# Review Findings: thuoc-khai-mot-dang-do-mot-neo (round 4)
+# Review Findings: thuoc-khai-mot-dang-do-mot-neo (round 5)
 
 ## Trong hợp đồng
 
-_Không có finding nào được máy phân loại vào mục này — bước triage phạm vi round này KHÔNG chạy được (xem mục "Chưa phân loại" bên dưới)._
+### AC-5 vẫn khai `ONLY_BLOCK=P86` — đúng selector xanh-im-lặng mà commit cuối đã bỏ
+- file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md:41`
+- severity: medium
+- AC: AC-5
+- source: bugs
+
+Vế When của AC-5 viết `ONLY_BLOCK=P86 bash tests/plugins/run-tests.sh`. Khoá config `tkm_p86` thì đã dùng `ONLY_BLOCK="P86 GATE-MODEL"` (và chú thích trong `_acceptance/config.yaml` giải thích đúng lý do). Tiêu chí mà người ký đọc ở Cổng 2 vẫn mô tả phép đo hỏng.
+
+Tái hiện trên bản sao, đổi tiêu đề khối `P86 GATE-MODEL` → `P87 GATE-MODEL`:
+- `ONLY_BLOCK=P86` → exit 0, 0 dòng `P86 MUTANT`, `Results: all plugin tests passed`
+- `ONLY_BLOCK="P86 GATE-MODEL"` → exit 1, `khong khop khoi nao — go sai ten?`
+
+Chốt `only_matched` không cứu được vì khối `P86 S1 doc feature_loop.ui_standards_skill` (dòng 1521) cũng chứa chuỗi `P86`.
+
+**Rationale:** AC-5 ghi thẳng lệnh When bằng selector cũ (ONLY_BLOCK=P86) trong khi cấu hình thật đã đổi sang 'P86 GATE-MODEL'; văn bản tiêu chí không khớp điều đã cài, tức AC-5 thất bại đúng như viết.
+
+**Failure scenario:** Người đọc AC-5 chạy đúng lệnh trong hợp đồng sau khi khối GATE-MODEL bị đổi tên: nhận exit 0 và kết luận AC-5 PASS, trong khi không một dòng MUTANT nào chạy.
+
+### Fixture VIẾT TAY đúng khuôn bên đọc — đột biến «thêm cổng» không round-trip qua nguồn tsv
+- file: `tests/plugins/run-tests.sh:11091`
+- severity: medium
+- AC: AC-7
+- source: measurement
+
+AC-7 và E7 khai: «đột biến thêm cổng thứ năm vào CẢ ba bản (nguồn tsv + VI + EN) mà giữ ≤3 → ĐỎ với ghim `ngan sach luot 3 != so cong 5 - 1`; ba bản vẫn khớp nhau nên chỉ phép so QUAN HỆ bắt được ca này». Code không làm thế. Dòng 11091 (và dòng 11083 của ca cũ `them cong o nguon`) không đụng một ký tự nào của khối tsv trong GUIDE.md; nó chuyền thẳng hai DANH SÁCH ĐÃ PHÂN TÍCH bịa tay `vis + ["Cổng Thứ Năm"]` / `ens + ["Fifth Gate"]` vào `kiem`. Hàm đọc nguồn thật — `cols()` — không hề chạy lại trên tài liệu 5 cổng, và chốt `assert len(ids) == 4` ở dòng 11058 (đọc `ids` NGOÀI hàm, không bị đột biến chạm) bị đi vòng qua. Chỉ hai bản chép VI/EN là được tiêm chữ thật qua `tiem()` rồi đọc lại bằng `nhan()`; vế nguồn là fixture khuôn-sẵn.
+
+Đo thật (bản sao cây tại scratch, 06/09): thêm dòng `G-THU5\tCổng Thứ Năm\tFifth Gate` vào khối tsv của GUIDE.md + dòng bảng tương ứng vào GUIDE/QUICKSTART/README, giữ nguyên `≤3 lượt/vòng` — P86 KHÔNG in `ngan sach luot 3 != so cong 5 - 1` mà chết ở `AssertionError: mo hinh phai co dung 4 cong, dang 5: ['G-DANG','G-PHAMVI','G-BANGCHUNG','G-GIATRI','G-THU5']`. Nghĩa là kịch bản AC-7 mô tả không bao giờ đi tới phép so QUAN HỆ trên vật thật; chuỗi ghim đã khai chỉ xuất hiện được trên đường fixture. Hệ quả đo lường: phép so quan hệ `luot != len(vis) - 1` chưa từng được chứng minh chạy end-to-end từ văn bản nguồn qua `cols()`; và câu «chỉ phép so QUAN HỆ bắt được ca này» sai — chốt đếm cổng bắt trước.
+
+Cùng gốc, khai thừa ở E8: «MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần» — ca `them cong o nguon` (11083) không tiêm chữ nào nên không thể đi qua chân ấy.
+
+**Rationale:** AC-7 đòi đột biến 'thêm cổng thứ năm vào CẢ ba bản (nguồn tsv + VI + EN)' phải tới được phép so QUAN HỆ với chuỗi ghim cụ thể; đo thật cho thấy khi sửa đúng cả ba bản kể cả nguồn tsv, chương trình chết ở một assertion đếm cổng chứ không bao giờ tới được phép so ấy — đúng AC-7 thất bại như viết.
+
+**Failure scenario:** Ai đó refactor mở rộng ngân sách nhưng không sửa `cols()`/assert-đếm-cổng: đội ngũ sẽ tin rằng phép so QUAN HỆ đang canh giữ tính đồng bộ ba bản khi thêm cổng thật, trong khi thực tế nó chưa từng chạy tới.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **evidence-report.md không được đánh số lại sau khi descope — bảng eval→criterion lệch một bậc, khai PASS cho tiêu chí đang BLOCKED**
-  Người dùng thấy gì: The evidence report used to review this fix may show a check as passed when the underlying item is actually still blocked, which could lead someone to approve work that isn't really finished.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md`
+- **Sáu ô đo ghim dòng đầu ra mà cỗ máy verify KHÔNG THỂ ghi lại — evidence của chúng giống hệt nhau và không chứa chuỗi đã ghim**
+  Người dùng thấy gì: Kết quả kiểm tra tự động có thể báo 'đạt' cho nhiều tiêu chí dù bằng chứng ghi lại không thực sự cho thấy điều đó đã được đo, khiến người duyệt dễ tin nhầm là tính năng đã được kiểm chứng đầy đủ.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml`
   severity: high
   Đề xuất: new-contract
 
-- **Dòng bổ chính tạo TRÙNG mã AC-6 trong contract của hồ sơ đã ký — thẻ Cổng 1 bật cờ vàng và văn bản tiêu chí AC-6 bị ghi đè**
-  Người dùng thấy gì: A clarifying note added to a different, already-approved feature's requirements accidentally reused an existing requirement's label, which erased that requirement's original wording and now shows a warning on that feature's approval record.
+- **Dòng bổ chính vào hồ sơ ĐÃ KÝ cố ý vô hình với bộ đọc hợp đồng — thẻ vẫn in phương pháp đã chết, không cờ vàng; và nó thêm một cảnh báo lint mới**
+  Người dùng thấy gì: Trang hồ sơ đã ký trước đó vẫn hiển thị nội dung tiêu chí cũ trên các màn hình tự động, có thể khiến người xem sau này tưởng nhầm phương pháp đo cũ vẫn còn hiệu lực.
   file: `_acceptance/inputs-tinh-tu-goc-kho/contract.md`
-  severity: high
-  Đề xuất: new-contract
-
-- **Coverage và Notes của contract mới vẫn viện dẫn tiêu chí đã xoá và phép quét tĩnh đã gỡ**
-  Người dùng thấy gì: The written explanation of what this fix's tests cover still mentions checks that were already removed, which could mislead someone reading it later about what is actually being verified.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md`
   severity: medium
   Đề xuất: known-limits
 
-- **Dòng bổ chính chèn vào evals.yaml của hồ sơ đã ký mô tả sai chính phương pháp hiện hành**
-  Người dùng thấy gì: A clarifying note added to a different, already-approved feature's test file describes a testing method that isn't actually used anymore, which could confuse someone checking how that feature was verified.
-  file: `_acceptance/inputs-tinh-tu-goc-kho/evals.yaml`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Header và tham chiếu chéo trong evals.yaml của hồ sơ mới còn theo đánh số cũ**
-  Người dùng thấy gì: The introductory notes in this fix's test file still describe an outdated count and grouping of checks, which could confuse anyone later trying to match checks to requirements.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml`
-  severity: medium
-  Đề xuất: known-limits
-
-- **AC-6 và expected của E8 tuyên «MỌI đột biến đi qua tiem()» nhưng nhánh them_cong dùng .replace() trần**
-  Người dùng thấy gì: The requirement text claims every simulated mistake is checked the exact same rigorous way, but one particular case actually uses a looser check — the test still correctly flags problems when they happen, but the written promise is broader than what's really enforced.
-  file: `tests/plugins/run-tests.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hai đột biến VI của P86 sinh THÔNG ĐIỆP GIỐNG HỆT nhau — không phân biệt được bản chép nào lệch**
-  Người dùng thấy gì: When two different kinds of copy-paste mistakes happen in the Vietnamese documentation, the tool reports the exact same error message for both, so a reader can't tell which mistake actually occurred. This is a pre-existing gap, not something this fix touched on purpose.
-  file: `tests/plugins/run-tests.sh`
-  severity: low
-  Đề xuất: wont-fix
-
-- **tkm_p86 selector khớp HAI khối — khối GATE-MODEL bị bỏ qua vẫn cho exit 0 (xanh im lặng)**
-  Người dùng thấy gì: The safety net meant to catch budget and copy-paste mistakes in the docs could, if a test block's name changes later on, silently stop running its checks without any warning. Nothing is broken today, but the safety net has a hidden gap that a future edit could quietly open.
-  file: `_acceptance/config.yaml`
-  severity: high
-  Đề xuất: new-contract
-
-- **Khối Coverage của contract mới chỉ được đánh số lại một nửa — hai tham chiếu chết còn sống**
-  Người dùng thấy gì: The written explanation of what this fix's tests cover still mentions checks and requirement numbers that no longer exist, which could mislead someone reading it later about what is actually being verified.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **evidence-report.md của hồ sơ mới không được đánh số lại theo contract/evals — ghi bằng chứng của phép đo đã bị gỡ**
-  Người dùng thấy gì: The evidence report used to review this fix still shows results from checks that were already removed, mapped against the wrong requirement numbers, which could mislead whoever reads it before approving.
+- **evidence-report.md chứng nhận một cây không còn tồn tại: `verified_commit` là commit TRƯỚC bản vá selector, tức E5–E7 PASS được sinh dưới đúng lỗi mà cùng commit ấy đi sửa**
+  Người dùng thấy gì: Kết quả 'đạt' cho các mục kiểm tra ngân sách có thể đã được đo trên một phiên bản mã cũ hơn bản sắp ký, nên chưa chắc phản ánh đúng trạng thái hiện tại ngay trước khi duyệt.
   file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **Chú thích đầu evals.yaml khai sai số tiêu chí và sai nhóm ô chạy P86**
-  Người dùng thấy gì: The introductory notes in this fix's test file still state an outdated number of requirements and an incorrect grouping of checks, which could confuse anyone later trying to match checks to requirements.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml`
+- **gap-probe.md ghi «fixed» cho hai thứ không có trong cây — mô tả sai chính bản cài hiện hành**
+  Người dùng thấy gì: Một ghi chú nội bộ mô tả sai những gì thực sự đã được sửa, có thể gây hiểu nhầm cho người đọc lại lịch sử xử lý sau này.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/gap-probe.md`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 3 — assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ: hai đột biến bản VI ghim CÙNG một chuỗi, không phân biệt được bản nào lệch**
-  Người dùng thấy gì: When two different kinds of copy-paste mistakes happen in the Vietnamese documentation, the tool reports the exact same error message for both, so a reader can't tell which mistake actually occurred. This is a pre-existing gap, not something this fix touched on purpose.
+- **Quan hệ `ship != 1` không có chiều đỏ — xoá hẳn nhánh vẫn xanh 12/12 đột biến**
+  Người dùng thấy gì: Nếu sau này ai đó vô tình làm sai điều kiện 'chỉ được có đúng một mốc phát hành', bộ kiểm tra hiện tại có thể không phát hiện ra lỗi đó.
   file: `tests/plugins/run-tests.sh`
-  severity: medium
-  Đề xuất: wont-fix
+  severity: high
+  Đề xuất: new-contract
 
-## Chưa phân loại (triage-failed)
-
-phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ.
-
-- **Nhánh đột biến `them_cong` không đi qua `tiem()` — hợp đồng và E8 khai «MỌI đột biến» là sai**
-  file: `tests/plugins/run-tests.sh:11021`
-  severity: medium
-  source: bugs
-  detail: `tiem()` (dòng 11059) là chân chứng minh mũi tiêm trúng: `assert text.count(a) == 1` rồi `assert ra != text`. 11/12 đột biến đi qua nó. Nhưng nhánh `them_cong=True` trong `kiem()` (dòng 11021–11026) tiêm ba dòng bảng bằng `.replace(..., 1)` TRẦN:
-
-      vi_g = vi_g.replace("\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", 1)
-      vi_q = vi_q.replace(…)
-      en_r = en_r.replace("\n\n**Human-turn budget", …, 1)
-
-    không đếm số lần khớp, không so trước/sau. Đây chính là đường đi của đột biến `"them cong nhung giu ngan sach"` (dòng 11084) — ca DUY NHẤT chứng minh phép so QUAN HỆ ở AC-7.
-
-    Hai văn bản sống khai ngược lại: contract.md:42 (AC-6) «Và MỌI đột biến phải đi qua chân «mũi tiêm có trúng»: chuỗi đích xuất hiện đúng một lần và văn bản sau khác trước»; evals.yaml:107 (E8 expected) «và MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần rồi so văn bản trước/sau». Hội đồng vòng 3 đã nêu (review-findings.md §5, severity low) nhưng commit thu phạm vi 271590d0 không sửa mã, không sửa lời khai, và cũng không ghi vào known-limits-ledger.tsv.
-
-    failure_scenario: Ai đó đổi câu dẫn dòng ngân sách trong GUIDE/QUICKSTART/README (ví dụ bỏ dòng trống trước `**Ngân sách`). Ba `.replace` trượt, hàng bảng cổng-thứ-năm không được chèn. Ca vẫn FAIL nhưng vì lệch ghim ở nhánh khác, nên thông điệp đỏ chỉ sai chỗ; và lời khai «MỌI đột biến đi qua tiem()» trong contract/E8 vẫn là khẳng định không có thật, không phép đo nào của kho bắt được.
-
-- **Hình dạng 5 — tuyên bất biến toàn lớp «MỌI đột biến đi qua chân tiem()» nhưng nhánh `them_cong` tiêm bằng `.replace` trần, không đếm mũi tiêm**
-  file: `tests/plugins/run-tests.sh:11021`
-  severity: low
-  source: measurement
-  detail: AC-6 của `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md` và `expected` của ô E8 trong `evals.yaml` cùng tuyên một bất biến toàn lớp: «MỌI đột biến phải đi qua chân «mũi tiêm có trúng»» / «MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần rồi so văn bản trước/sau».
-
-    Trong mã, `tiem()` (dòng 11059–11071: `assert text.count(a) == 1` rồi `assert ra != text`) phủ 10/11 mũi tiêm. Nhánh `them_cong=True` bên trong `kiem` (dòng 11021–11026) tiêm ba dòng bảng bằng `.replace(..., 1)` TRẦN, không đếm số lần khớp, không so văn bản trước/sau. Đột biến `"them cong nhung giu ngan sach"` (dòng 11084) — chính ca DUY NHẤT chứng minh phép so QUAN HỆ của AC-7 — chạy qua nhánh này. Lớp tuyên có 11 phần tử, chân kiểm chỉ phủ 10.
-
-    Chiều KHÔNG đỏ (ghi để không thổi phồng): nếu ba `.replace` này trượt thì `nhan(vi_g)` lệch `vis` và `kiem` trả «lech cot `vi`», không chứa chuỗi ghim, nên `assert phai_neu in d` vẫn FAIL — đây là lời khai quá tay, chưa phải đường xanh-im-lặng.
+- **SỰ CỐ PHIÊN: tôi đã `git checkout --` xoá mất bản s4-args.json round 5 chưa commit của một phiên song song**
+  Người dùng thấy gì: Một tệp dữ liệu chuẩn bị cho vòng kiểm tra thứ 5 bị mất do thao tác nhầm, cần được tạo lại trước khi vòng ký duyệt tiếp theo có thể diễn ra.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/s4-args.json`
+  severity: high
+  Đề xuất: new-contract
 
 ## Chưa adversarial-verify (refuter chết)
 
-_Không có finding nào bị đánh dấu unverified=true trong round này._
+Không có run này.
 
-⚠ Cụm ngoài vùng phủ: 8/14 lỗi rơi vào file không bộ đo nào phủ (_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md, _acceptance/inputs-tinh-tu-goc-kho/contract.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md, _acceptance/inputs-tinh-tu-goc-kho/evals.yaml, _acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 6/8 lỗi rơi vào file không bộ đo nào phủ (_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml, _acceptance/inputs-tinh-tu-goc-kho/contract.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/gap-probe.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/s4-args.json) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
