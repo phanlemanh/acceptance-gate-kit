@@ -26,10 +26,10 @@ evals:
     cmd: config:executors.script.itgk_lane_doc_khong_doi
     paths: ["_acceptance/inputs-tinh-tu-goc-kho/rang.sh", "feature-loop/workflows/acceptance-verify.js"]
     expected: >-
-      exit 0; dòng `vế lane (sống)` báo PASS trên cây thật — `acceptance-verify.js` tại HEAD giống
-      hệt bản tại mốc ký `9b3d6f64`; VÀ dòng `chiều đỏ 1` báo PASS — clone sửa file ấy làm phép
-      kiểm ĐỎ với ghim `lane hội đồng đã đổi`. Chiều đỏ này đo trên CÂY HIỆN TẠI, không đo lịch sử:
-      sửa lane hôm nay là đỏ hôm nay.
+      exit 0; dòng `vế lane (sống)` báo PASS trên cây thật — `acceptance-verify.js` trên CÂY LÀM VIỆC
+      giống bản tại mốc ký `9b3d6f64` (so cây, không so HEAD: sửa chưa commit cũng bị bắt); VÀ dòng
+      `chiều đỏ 1` báo PASS — clone sửa file ấy làm phép kiểm ĐỎ với ghim `lane hội đồng đã đổi`.
+      Đã phá thử tay 06/09: thêm một dòng vào workflow trong cây làm việc → nhóm FAILED (5 pass, 2 do).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
