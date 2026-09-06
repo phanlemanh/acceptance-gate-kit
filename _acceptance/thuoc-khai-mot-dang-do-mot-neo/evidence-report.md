@@ -8,7 +8,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 19abfcd7cc2352d7d6a8a6c4d1acba852a1ba7f4
+verified_commit: 6d478c80fad5b9a1b75770a2691bc9064016ef57
 human_signoff: Manh Phan 2026-09-06
 ---
 
@@ -224,3 +224,9 @@ Round 4: bước triage phân loại phạm vi KHÔNG chạy được — mọi 
 Round 5: cả 10 eval máy + 4 lệnh suite đều PASS trên commit 40e87b2a (đã vá selector `ONLY_BLOCK="P86 GATE-MODEL"` cho E5–E7); scope-triage chạy xong, review-findings.md ghi 2 finding trong-hợp-đồng (AC-5, AC-7) và 6 finding ngoài-hợp-đồng (kể cả một sự cố phiên làm mất bản s4-args.json round 5 chưa commit) — verdict PASS, không mục nào chờ người.
 Round 6: E8 (`bash tests/plugins/run-tests.sh`) đỏ trên commit f454bfac — mutant mới `moc phat hanh 1->2` bắt được ghim phía VI thiếu tiền tố bản chép; REJECT, quay lại implementation, vá tại 19abfcd7 (thêm tiền tố `GUIDE.md/QUICKSTART.md (VI):`).
 Round 7: cả 10 eval máy + 4 lệnh suite đều PASS trên commit 19abfcd7, nhưng bước phân loại phạm vi (scope-triage) không chạy hết — một finding (`assert len(ids) == 4` chặn trước phép so QUAN HỆ mới) không được máy xếp trong/ngoài hợp đồng; verdict PENDING-JUDGMENT, triage_failed: true, toàn bộ danh sách nằm ở review-findings.md cho người xem lại trước khi ký.
+
+### Re-pin lần 1 — 06/09/2026, do ghi mốc định tuyến cho hồ sơ vừa ký (LM20 đòi) — tệp fixture nằm NGOÀI `_acceptance/` nên làm bằng chứng của cả hai hồ sơ hoá ôi
+run_id: repin-sau-chu-ky-6d478c80-1
+sha: 6d478c80fad5b9a1b75770a2691bc9064016ef57 · suites: 4 lệnh exit 0
+
+Verdict, chữ ký và mọi kết quả đã ký KHÔNG đổi; chỉ mốc pin dời tới cây đang giao.

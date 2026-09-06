@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 19abfcd7cc2352d7d6a8a6c4d1acba852a1ba7f4
+verified_commit: 6d478c80fad5b9a1b75770a2691bc9064016ef57
 human_signoff: Manh Phan 2026-09-05
 ---
 
@@ -186,3 +186,9 @@ Vòng vá `thuoc-khai-mot-dang-do-mot-neo` đổi phương pháp của nhóm `la
 BỔ CHÍNH dưới AC-6) và đụng `tests/plugins/run-tests.sh`, nên bằng chứng đã ký hoá ôi và cổng
 pre-merge chặn nhánh với `evidence is stale`. Lane máy chạy lại bốn suite tại HEAD, cả bốn exit 0;
 verdict, chữ ký và các kết quả đã ký KHÔNG đổi — chỉ mốc pin dời tới cây đang giao.
+
+### Re-pin lần 3 — 06/09/2026, do ghi mốc định tuyến cho hồ sơ vừa ký (LM20 đòi) — tệp fixture nằm NGOÀI `_acceptance/` nên làm bằng chứng của cả hai hồ sơ hoá ôi
+run_id: repin-sau-chu-ky-6d478c80-1
+sha: 6d478c80fad5b9a1b75770a2691bc9064016ef57 · suites: 4 lệnh exit 0
+
+Verdict, chữ ký và mọi kết quả đã ký KHÔNG đổi; chỉ mốc pin dời tới cây đang giao.
