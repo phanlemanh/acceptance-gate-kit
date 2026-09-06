@@ -106,16 +106,27 @@ lane_song() {
   echo "OK: vế lane (sống) — $REL_WF trên cây giống bản tại mốc ký $MOC_KY"; return 0
 }
 
-# ĐỐI CHỨNG ÂM có tên cho phép so «hai lượt một kết quả»: đây là bản CŨ, lấy mốc
-# bằng `git merge-base` — tức đúng thứ bệnh vòng 06/09 vá. Nó tồn tại CHỈ để phép
-# so hai-lượt chứng minh mình phân biệt được: bản thật cho hai cây một kết quả,
-# bản này cho hai kết quả khác nhau. Không lối nào của răng gọi nó ngoài ca ấy.
-lane_theo_mergebase() {
-  local repo="$1" base changed
-  base="$(git -C "$repo" merge-base main HEAD 2>/dev/null || git -C "$repo" merge-base origin/main HEAD 2>/dev/null)"
-  [ -n "$base" ] || { echo "DO: không tìm được mốc gộp"; return 1; }
-  changed="$(git -C "$repo" diff --name-only "$base"..HEAD | grep -vE '^(tests/|docs/|skills/|feature-loop/skills/|_acceptance/|\.github/|PRODUCT-MAP\.md$)' | sort | tr '\n' ' ' | sed 's/ $//')"
-  echo "MB: mốc=$base tập={$changed}"; return 0
+# ── Độc lập HEAD, đo bằng phép QUÉT TĨNH trên chính thân hai hàm ──
+# Vì sao không đo bằng cách chạy hai lượt trên hai cây: `lane_song` và `tap_file`
+# chỉ đọc hai hằng mốc cộng cây làm việc, nên chúng độc lập HEAD *theo cấu trúc* —
+# hai lượt bằng nhau là tất yếu, không phải tính chất đo được, và mọi «đối chứng
+# âm» dựng quanh nó lại là hằng đúng (S4 vòng 1 và 2 đều REJECT đúng chỗ này).
+# Tính chất cấu trúc thì đo bằng phép quét cấu trúc: thân hai hàm KHÔNG được nhắc
+# tới điểm neo động nào. Chiều đỏ rẻ và thật — thêm `HEAD` vào là đỏ ngay.
+NEO_DONG='HEAD|merge-base|rev-parse|@\{|ORIG_HEAD|FETCH_HEAD'
+than_ham() { # in thân hàm $2 trong file $1 — chỉ MÃ, bỏ dòng chú thích thuần
+  # Bỏ chú thích là bắt buộc: chính chú thích của các hàm này NÓI về HEAD (đó là
+  # điều chúng khai không dùng), nên quét cả văn xuôi thì phép đo tự cắn mình.
+  awk -v f="$2" 'BEGIN{inf=0} $0 ~ "^"f"\\(\\) \\{" {inf=1} inf{print} inf && /^\}$/{exit}' "$1" | grep -vE '^[[:space:]]*#'
+}
+quet_neo_dong() { # $1 file răng; in vi phạm, rc 1 nếu có
+  local f="$1" ham hit rc=0
+  for ham in lane_song tap_file co_moc; do
+    hit="$(than_ham "$f" "$ham" | grep -nE "$NEO_DONG" || true)"
+    if [ -n "$hit" ]; then echo "DO: thân $ham nhắc điểm neo ĐỘNG — phép đo hết độc lập HEAD: $(printf '%s' "$hit" | tr '\n' ' ')"; rc=1; fi
+  done
+  [ $rc -eq 0 ] && echo "OK: thân lane_song · tap_file · co_moc không nhắc điểm neo động nào ($NEO_DONG)"
+  return $rc
 }
 
 # Vế HAI — CHỨNG-MỘT-LẦN về đợt đã giao: trong khoảng cố định, tập file mã đổi
@@ -240,19 +251,16 @@ case "$CHAN" in
     RD="$(lane_song "$CLD")"; RCD=$?
     if [ $RCD -ne 0 ] && printf '%s' "$RD" | grep -q "lane hội đồng đã đổi"; then ok "chiều đỏ 1b: clone sửa acceptance-verify.js mà CHƯA commit → vế lane ĐỎ (phân biệt so-cây với so-HEAD)"; else bad "chiều đỏ 1b KHÔNG đỏ đúng cách (rc=$RCD): $RD — phép đo đang so HEAD chứ không so cây"; fi
 
-    # ── hai lượt một kết quả: cùng phép đo, hai cây khác nhau, một đầu ra ──
-    # Đây là phép đo QUAN HỆ «kết quả không đổi theo HEAD», nên nó phải chứng minh
-    # mình phân biệt được: cùng cặp cây, bản CŨ phụ thuộc merge-base phải cho HAI
-    # kết quả khác nhau. So cả mã thoát, không chỉ chuỗi — hai lượt cùng ĐỎ giống
-    # nhau vẫn là lệch với lời hứa (đối chứng dương ở trên mới là chỗ bắt đỏ).
-    CL2="$TMP/clone-detached"; git clone -q "$KIT" "$CL2" 2>/dev/null || { bad "clone tạm 2 thất bại"; done_chan; }
-    git -C "$CL2" checkout -q --detach "$MOC_KY" 2>/dev/null || { bad "clone 2: không checkout được mốc ký"; done_chan; }
-    L1="$(lane_song "$KIT"; echo "rc=$?"; tap_file "$KIT" "$MOC_GOP" "$MOC_KY"; echo "rc=$?")"
-    L2="$(lane_song "$CL2"; echo "rc=$?"; tap_file "$CL2" "$MOC_GOP" "$MOC_KY"; echo "rc=$?")"
-    M1="$(lane_theo_mergebase "$KIT")"; M2="$(lane_theo_mergebase "$CL2")"
-    if [ "$L1" != "$L2" ]; then bad "hai lượt lệch — phép đo còn phụ thuộc HEAD: [$L1] ≠ [$L2]"
-    elif [ "$M1" = "$M2" ]; then bad "phép so hai-lượt KHÔNG có răng: bản cũ theo merge-base cũng cho hai lượt giống nhau ([$M1]) — cặp cây này không phân biệt được gì"
-    else ok "hai lượt một kết quả: bản đang giao cho ĐÚNG một đầu ra trên hai cây (kèm mã thoát), trong khi bản cũ theo merge-base cho HAI kết quả khác nhau ($M1 ≠ $M2)"; fi
+    # ── độc lập HEAD, đo bằng phép quét TĨNH (đối chứng hai chiều) ──
+    RQ="$(quet_neo_dong "$HERE/rang.sh")"; RCQ=$?
+    if [ $RCQ -eq 0 ]; then ok "độc lập HEAD (quét tĩnh): $RQ"; else bad "độc lập HEAD: $RQ"; fi
+    # chiều đỏ của chính phép quét: bản sao răng có một điểm neo động trong thân hàm
+    BS="$TMP/rang-neo-dong.sh"; sed 's|git -C "$repo" diff --quiet "$MOC_KY" -- "$REL_WF"|git -C "$repo" diff --quiet "$MOC_KY"..HEAD -- "$REL_WF"|' "$HERE/rang.sh" > "$BS"
+    if cmp -s "$HERE/rang.sh" "$BS"; then bad "chiều đỏ 4: mũi tiêm KHÔNG trúng — bản sao giống hệt bản thật"
+    else
+      RQ2="$(quet_neo_dong "$BS")"; RCQ2=$?
+      if [ $RCQ2 -ne 0 ] && printf '%s' "$RQ2" | grep -q "thân lane_song nhắc điểm neo ĐỘNG"; then ok "chiều đỏ 4: bản sao đưa HEAD vào thân lane_song → phép quét ĐỎ nêu đúng tên hàm"; else bad "chiều đỏ 4 KHÔNG đỏ đúng cách (rc=$RCQ2): $RQ2"; fi
+    fi
     done_chan ;;
   tai-lieu-khong-con-duong-cu)
     R="$(scan_docs "$KIT")"; RC=$?
