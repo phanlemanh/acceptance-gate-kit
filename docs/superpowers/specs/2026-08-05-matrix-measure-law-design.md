@@ -1,7 +1,7 @@
 # matrix-measure-law — thiết kế (vòng 2 chương trình 80/20)
 
 *2026-08-05 · **T2** (chạm SKILL feature-loop + acceptance-verify.js + tests —
-không file nào trong t3_paths) · Nguồn: [chương trình 80/20](../plans/2026-08-05-nang-cap-8020-graph-loop.md)
+không file nào trong t3_paths) · Nguồn: [chương trình 80/20](../../plans/2026-08-05-nang-cap-8020-graph-loop.md)
 mục O2. Bài toán: baseline B4 — ≥13 round S4 trong 5 tuần bị đốt bởi LỚP lỗi
 đo-lường (điểm-case thay ma trận, đo từ-vựng, thước không gắn vật), lần nào
 cũng do NGƯỜI/REVIEW phát hiện muộn ở S4 thay vì bị luật chặn từ S1.*

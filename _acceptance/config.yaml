@@ -8,7 +8,7 @@ schema_version: 1
 #    feature-loop S4: resolve bằng
 #    `node feature-loop/scripts/resolve-plugin.mjs --plugin acceptance-gate --root .`
 # 2. `*.md` KHÔNG phải T1 ở repo này. Sản phẩm của kit phần lớn LÀ markdown
-#    (23 file SKILL.md/command là hành vi thật, không phải tài liệu). Chỉ
+#    (mọi SKILL.md và mọi file commands/ là hành vi thật, không phải tài liệu). Chỉ
 #    những file docs được liệt tên đích danh mới bỏ qua cổng.
 # 3. KHÔNG có làn design/dev_server/capture: kit không có web UI.
 enforcement: strict
@@ -211,6 +211,14 @@ executors:
     srlp_rang_day_khep: bash _acceptance/suite-run-log-provenance/rang.sh --chan day-khep
     srlp_rang_khong_hoi_quy: bash _acceptance/suite-run-log-provenance/rang.sh --chan khong-hoi-quy
     srlp_rang_bo_doc: bash _acceptance/suite-run-log-provenance/rang.sh --chan bo-doc
+    itgk_goc_kho_giu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan goc-kho-giu
+    itgk_thieu_exit_2: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan thieu-exit-2
+    itgk_duong_cu_goi_y: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan duong-cu-goi-y
+    itgk_abs_hai_chieu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan abs-hai-chieu
+    itgk_lane_doc_khong_doi: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi
+    itgk_tai_lieu_khong_con_duong_cu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan tai-lieu-khong-con-duong-cu
+    itgk_bang_chung_cung_ho_so: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan bang-chung-cung-ho-so
+    itgk_thu_muc_khong_phai_file: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan thu-muc-khong-phai-file
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
@@ -221,6 +229,16 @@ risk_tiers:
     - "CHANGELOG.md"
     - "CONTEXT.md"
     - "CLAUDE.md"
+    # Giấy phép + công bố vendor (05/09, lối B — ADR 0013). Văn xuôi pháp lý
+    # thuần: KHÔNG code path nào đọc hai file này, nên chúng không phải hành vi
+    # của cổng. QUYẾT ĐỊNH cấp phép thì ngược lại — khó-đảo, và nó đã đi qua
+    # cổng người rồi (owner quyết 05/09, ghi ADR 0013); hai file dưới chỉ là
+    # BẢN CHIẾU của quyết định đó. Liệt ĐÍCH DANH, không glob: `*.md` hay
+    # `NOTICE*` sẽ nuốt cả NOTICE của cây vendor — mà tree-hash trong đó LÀ
+    # răng (P196). ĐIỀU KIỆN THU HỒI: ngày có script/CI đọc LICENSE hoặc NOTICE
+    # làm dữ liệu, hai dòng này phải GỠ trong cùng PR cắm.
+    - "LICENSE"
+    - "NOTICE"
     # Hồ sơ đề xuất đã TỪ CHỐI (CLAUDE.md). Văn xuôi thuần, không có hành vi —
     # để ngoài danh sách này thì mỗi lần ghi một quyết định-không-làm lại làm
     # evidence stale và tốn một vòng S4.
