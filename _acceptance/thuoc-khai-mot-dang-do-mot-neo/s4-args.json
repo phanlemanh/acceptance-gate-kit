@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-09-06T08:05:01Z",
- "generated_sha": "d99c1a28ec1ab0f2363e6af8bd44b82e8a7897dd",
+ "generated_at": "2026-09-06T08:06:02Z",
+ "generated_sha": "56fe1a4bca3c17a251ab9d2bc5194c1ded51326d",
  "mainBranchInfo": {
   "branch": "main",
   "source": "remote"
@@ -31,7 +31,7 @@
    "id": "E2",
    "criterion": "AC-2",
    "cmd": "bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi",
-   "expected": "exit 0; dòng `vế lane (sống)` báo PASS trên cây thật — `acceptance-verify.js` tại HEAD giống\nhệt bản tại mốc ký `9b3d6f64`; VÀ dòng `chiều đỏ 1` báo PASS — clone sửa file ấy làm phép\nkiểm ĐỎ với ghim `lane hội đồng đã đổi`. Chiều đỏ này đo trên CÂY HIỆN TẠI, không đo lịch sử:\nsửa lane hôm nay là đỏ hôm nay.",
+   "expected": "exit 0; dòng `vế lane (sống)` báo PASS trên cây thật — `acceptance-verify.js` trên CÂY LÀM VIỆC\ngiống bản tại mốc ký `9b3d6f64` (so cây, không so HEAD: sửa chưa commit cũng bị bắt); VÀ dòng\n`chiều đỏ 1` báo PASS — clone sửa file ấy làm phép kiểm ĐỎ với ghim `lane hội đồng đã đổi`.\nĐã phá thử tay 06/09: thêm một dòng vào workflow trong cây làm việc → nhóm FAILED (5 pass, 2 do).",
    "executor": "script",
    "paths": [
     "_acceptance/inputs-tinh-tu-goc-kho/rang.sh",
@@ -232,8 +232,8 @@
  "templatePath": "/Users/manh-macmini/dev/acceptance-gate-kit/skills/acceptance/references/evidence-report-template.md",
  "toolKillRule": "# TOOL-KILL-RULE — lệnh bị công cụ ngắt KHÔNG phải lệnh fail\n\n**Nguồn duy nhất** của luật «hết giờ không phải trượt» cho MỌI đường chạy lệnh\nkiểm của kit. Hai đường tiêu thụ, cùng đọc khối marker dưới đây, không chép tay:\n\n- **Vòng lặp tính năng** (plugin feature-loop): skill `feature-loop` đọc file này\n  (resolve qua `resolve-plugin.mjs --require skills/acceptance/references/tool-kill-rule.md`)\n  và truyền NGUYÊN VĂN vào `args.toolKillRule` của workflow\n  `acceptance-verify.js`; workflow rút khối marker và nội suy vào prompt của mọi\n  agent chạy lệnh (machine · ui-check · baseline). Thiếu args hoặc không rút\n  được marker → workflow trả BLOCKED có tên, không chạy không luật.\n- **Đường VERIFY độc lập** (skill `acceptance` Phase 3): phiên điều phối chép khối\n  marker VERBATIM vào prompt của phiên tươi VERIFY, cùng nếp «Network truth».\n\nVì sao có luật: verifier chạy lệnh qua Bash tool có trần thời gian mặc định\n(~120 s) NGẮN hơn nhiều suite; lệnh bị công cụ giết trả exit code CỦA CÔNG CỤ,\nkhông phải của lệnh (vấp thật release-2-2-0 S4 r5: suite 108 s đơn lẻ, dưới tải\nbị giết ở 118 s → REJECT giả 4 eval). Nhận diện là việc AGENT (nó thấy tool\nresult thật); phần máy chỉ phòng thủ trên field cấu trúc `killedByTool` —\nKHÔNG grep nội dung output trong engine (chuỗi tổng kết là của suite từng repo).\n\n<!-- <<<TOOL-KILL-RULE -->\nTRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason \"bi cong cu giet o <so giay> giay\" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.\n<!-- TOOL-KILL-RULE>>> -->\n\n## Hồ sơ cho lượt bị ngắt (đường độc lập)\n\nPhiên tươi VERIFY gặp lệnh bị công cụ ngắt thì:\n\n- dòng run-log của eval đó: `\"exit_code\": null, \"killed_by_tool\": true` (không\n  ghi mã thoát của công cụ như mã thoát của lệnh);\n- verdict báo cáo `BLOCKED`, `reason: bi cong cu giet o <so giay> giay — <eval ids>`\n  (kèm dấu hiệu: timeout tool / output cắt trước dòng tổng kết); `failed_evals`\n  rỗng — người đọc hồ sơ thấy đây là sự cố hạ tầng, chữa bằng chạy lại với trần\n  công cụ đủ dài, không phải sửa sản phẩm.\n",
  "contractPath": "/Users/manh-macmini/dev/acceptance-gate-kit/_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md",
- "invokedAt": "2026-09-06T08:05:01Z",
- "invokedSha": "d99c1a28ec1ab0f2363e6af8bd44b82e8a7897dd",
- "evalsHash": "609555c1d360fc0fdca4dda0ff0f8973a15e29dc6da4b54b5b05aa56c1033093",
+ "invokedAt": "2026-09-06T08:06:02Z",
+ "invokedSha": "56fe1a4bca3c17a251ab9d2bc5194c1ded51326d",
+ "evalsHash": "1cb14a3091562eb40be191b3131a36dc750002416cfdc7df4b6638a724f279df",
  "runBaseline": false
 }
