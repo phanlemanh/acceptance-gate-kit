@@ -5,7 +5,7 @@ slug: thuoc-khai-mot-dang-do-mot-neo
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -112,3 +112,20 @@ gian là ma trận hai chiều đã liệt hết ở đây (entry d-20260906T064
   CI phải chạy `fetch-depth: 0` mới xanh; đã kiểm workflow hiện tại trước khi chốt.
 - Sau khi vá, P86 đỏ cả khi đổi CÁCH VIẾT dòng ngân sách mà giữ nguyên số. Đúng ý: dòng ấy là
   hợp đồng văn bản giữa ba bản chép, không phải văn xuôi tự do.
+
+### Known limits — chốt tại Cổng 2 (06/09/2026)
+
+Sáu mục dưới đây là định đoạt của người ký cho khối «Ngoài hợp đồng»; hai mục còn lại đi đường
+«mở hợp đồng mới» (xem sổ quyết định `d-20260906T130100Z-sg2` và `d-20260906T130300Z-sg4`).
+
+- **Bằng chứng từng pin một cây cũ** (Ngoài-1) — đã đóng bằng vòng verify lại pin đúng HEAD.
+- **Nhánh tự chặn merge vì hồ sơ đã ký hoá ôi** (Ngoài-3) — đã gỡ bằng nghi thức re-pin
+  một-lượt-lane; mọi vòng sau sửa răng của một hồ sơ đã ký đều gặp lại ca này.
+- **`tkm_bay_chan` chép cứng danh sách bảy nhóm** (Ngoài-6) — thêm một nhóm vào `rang.sh` thì
+  khoá vẫn xanh với bảy trên tám; ai sửa `rang.sh` phải sửa cả khoá.
+- **P86 phân biệt bản trôi chỉ ở cột nhãn** (Ngoài-7) — trôi ở dòng ngân sách vẫn đỏ nhưng gọi
+  nhầm tên file.
+- **Fixture đột biến «thêm cổng» viết tay** (Ngoài-8) — đã ghi ở khối giới hạn phía trên.
+- **Hằng `MOC_KY` là bẫy có tên** (Ngoài-5, chấp nhận không sửa) — PR đầu tiên chạm
+  `acceptance-verify.js` sẽ làm răng đỏ oan cho tới khi có người dời mốc kèm lý do.
+- **Chuỗi ghim là tên bản chép, chưa phải lớp lỗi** (Ngoài-9, chấp nhận không sửa).
