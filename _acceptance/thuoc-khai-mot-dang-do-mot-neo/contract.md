@@ -34,14 +34,14 @@ Source input: docs/superpowers/specs/2026-09-06-thuoc-khai-mot-dang-do-mot-neo-d
 
 ## Criteria
 
-- AC-1: Given cây bất kỳ có đủ lịch sử, When chạy `bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi` (qua khoá `itgk_lane_doc_khong_doi`, chính khoá đang đỏ), Then nhóm XANH và in ba mốc đã neo; và nhóm tự chạy LẦN HAI trong một clone `detached` ở commit khác rồi so hai đầu ra GIỐNG NHAU từng byte — hai lượt một kết quả là cách bắt đường phụ thuộc HEAD còn sót.
-- AC-2: Given `feature-loop/workflows/acceptance-verify.js` trên CÂY LÀM VIỆC (không chỉ tại HEAD — sửa chưa commit cũng phải bị bắt), When so với bản tại mốc đã ký `9b3d6f64`, Then GIỐNG HỆT; và Given một clone đã sửa file ấy, Then ĐỎ với thông điệp ghim `lane hội đồng đã đổi`. Đây là vế SỐNG: nó đỏ trên cây thật ngay khi ai đó sửa lane hội đồng, không phải chứng-một-lần.
+- AC-1: Given cây bất kỳ có đủ lịch sử, When chạy `bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi` (qua khoá `itgk_lane_doc_khong_doi`, chính khoá đang đỏ), Then nhóm XANH và in HAI mốc đã neo NGUYÊN VĂN (đủ 40 ký tự, không rút gọn); và nhóm tự chạy LẦN HAI trong một clone `detached` ở commit khác rồi so hai đầu ra (KÈM mã thoát) GIỐNG NHAU từng byte; và cùng cặp cây ấy, bản CŨ lấy mốc bằng `git merge-base` phải cho HAI kết quả KHÁC nhau — không có đối chứng âm ấy thì phép so chỉ là hai chuỗi hằng, không phải quan hệ «kết quả không đổi theo HEAD».
+- AC-2: Given `feature-loop/workflows/acceptance-verify.js` trên CÂY LÀM VIỆC (không chỉ tại HEAD — sửa chưa commit cũng phải bị bắt), When so với bản tại mốc đã ký `9b3d6f64`, Then GIỐNG HỆT; và Given một clone đã sửa file ấy — CẢ HAI phần tử của lớp: một ca đã commit và một ca CHƯA commit — Then mỗi ca ĐỎ với thông điệp ghim `lane hội đồng đã đổi`. Ca chưa-commit là chỗ duy nhất phân biệt phép so-cây với phép so-HEAD. Đây là vế SỐNG: nó đỏ trên cây thật ngay khi ai đó sửa lane hội đồng, không phải chứng-một-lần.
 - AC-3: Given khoảng đã giao `1765b550..9b3d6f64`, When liệt kê file mã đổi (loại `tests/**`, `docs/**`, `skills/**`, `feature-loop/skills/**`, `_acceptance/**`, `.github/**`, `PRODUCT-MAP.md`), Then tập ấy BẰNG đúng `{feature-loop/scripts/s4-args.mjs}`. Vế này là **chứng-một-lần**: với đối số thật nó cho câu trả lời HẰNG, chỉ còn hai kết cục xanh hoặc mốc-mất — điều đó được khai thẳng ở đây thay vì giấu sau một ô xanh.
 - AC-4: Given một KHO GIẢ dựng tại chỗ có khoảng `base..tip` chứa thêm `lib/tiem-file-la.mjs` ngoài `s4-args.mjs`, When gọi hàm kiểm vế-tập-file qua ĐÚNG chữ ký mà lời gọi thật dùng, Then ĐỎ với `tập file mã đổi ≠ {…}` nêu đích danh file lạ — chiều đỏ của vế hằng phải đi qua đúng đối số production, không đi vòng qua HEAD của clone.
 - AC-5: Given một kho KHÔNG có mốc đã neo (lịch sử cắt hoặc viết lại), When nhóm chạy, Then ĐỎ và gọi tên sha thiếu — tuyệt đối không rơi về xanh im lặng.
 - AC-6: Given cây lành, When chạy `ONLY_BLOCK=P86 bash tests/plugins/run-tests.sh`, Then P86 XANH và in ba con số ngân sách TRÍCH ĐƯỢC từ đúng vế của dòng ngân sách cho cả bản VI lẫn bản EN — số in ra đến từ biến, không từ chữ hằng trong câu.
-- AC-7: Given ba đột biến, mỗi cái sửa đúng MỘT vế ngân sách trên cả hai bản chép (`≤3 lượt/vòng` → `≤9` · `T3 trần 4` → `T3 trần 5` · xoá hẳn vế `mốc phát hành ≤1`), When P86 chạy, Then mỗi ca ĐỎ, gọi tên vế hỏng, và NÊU CON SỐ THẬT đã trích (ca một in `9`); ca xoá vế đỏ vì THIẾU vế, không vì lệch bản chép.
-- AC-8: Given một đột biến thêm cổng thứ năm vào CẢ ba bản (nguồn tsv + VI + EN) mà giữ nguyên `≤3`, When P86 chạy, Then ĐỎ vì quan hệ `số lượt ≠ số cổng − 1`. Ba bản vẫn khớp nhau nên mọi phép so bản-chép đều xanh: chỉ phép so QUAN HỆ bắt được ca này.
+- AC-7: Given ba đột biến, mỗi cái sửa đúng MỘT vế ngân sách trên cả hai bản chép (`≤3 lượt/vòng` → `≤9` · `T3 trần 4` → `T3 trần 5` · xoá hẳn vế `mốc phát hành ≤1`), When P86 chạy, Then mỗi ca ĐỎ với CHUỖI GHIM khai trước chứa con số máy trích (ca một ghim `ngan sach luot 9 != so cong 4 - 1`), và thông điệp ấy được IN RA trong bằng chứng; ca xoá vế đỏ vì THIẾU vế, không vì lệch bản chép. Đột biến nào không khai chuỗi ghim là FAIL — assert âm tính trần bị cấm.
+- AC-8: Given một đột biến thêm cổng thứ năm vào CẢ ba bản (nguồn tsv + VI + EN) mà giữ nguyên `≤3`, When P86 chạy, Then ĐỎ với chuỗi ghim `ngan sach luot 3 != so cong 5 - 1` in ra trong bằng chứng. Ba bản vẫn khớp nhau nên mọi phép so bản-chép đều xanh: chỉ phép so QUAN HỆ bắt được ca này.
 - AC-9: Given cả hai vật đã vá, When chạy bốn suite của kho và `product-map.mjs --root . --check`, Then tất cả xanh; và P86 vẫn in đủ NĂM dòng đột biến CŨ — vá thước không được nuốt chiều đỏ đã có.
 - AC-10: Given `check_lane` đổi chữ ký, When chạy bảy nhóm còn lại của `rang.sh`, Then mỗi nhóm vẫn `passed`, không nhóm nào `FAILED`.
 
@@ -71,7 +71,7 @@ gian là ma trận hai chiều đã liệt hết ở đây (entry d-20260906T064
 
 ## Notes
 
-- Hằng mốc là hai sha viết trong răng: clone nông (`--depth`) không có chúng → AC-4 đỏ có tên.
+- Hằng mốc là HAI sha viết trong răng: clone nông (`--depth`) không có chúng → AC-4 đỏ có tên.
   CI phải chạy `fetch-depth: 0` mới xanh; đã kiểm workflow hiện tại trước khi chốt.
 - Sau khi vá, P86 đỏ cả khi đổi CÁCH VIẾT dòng ngân sách mà giữ nguyên số. Đúng ý: dòng ấy là
   hợp đồng văn bản giữa ba bản chép, không phải văn xuôi tự do.

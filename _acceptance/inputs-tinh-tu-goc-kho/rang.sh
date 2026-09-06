@@ -80,7 +80,7 @@ do_mutant() {
 # Vá 06/09/2026 bởi hồ sơ thuoc-khai-mot-dang-do-mot-neo. Bản cũ lấy mốc bằng
 # `git merge-base main HEAD`, tức đo HÌNH DẠNG NHÁNH của tác giả: đúng trên nhánh
 # viết ra nó, đỏ vĩnh viễn với mọi người đi sau (trên `main` sạch: 0 pass, 3 do).
-# Ba mốc dưới đây là hằng có chủ ý — đổi lane hợp pháp về sau thì phải dời mốc kèm
+# HAI mốc dưới đây là hằng có chủ ý — đổi lane hợp pháp về sau thì phải dời mốc kèm
 # lý do, như tree-hash của NOTICE ở P196.
 MOC_KY="9b3d6f64aa4ec39e076e9a867293cda5698b362d"   # verified_commit đã ký của hồ sơ này
 MOC_GOP="1765b5504b52bb5cb3f8f22ca5deaf58d8347799"  # cha^1 của merge commit 5c15e065
@@ -101,9 +101,21 @@ lane_song() {
   r="$(co_moc "$repo" "$MOC_KY")" || { echo "$r"; return 1; }
   # So CÂY LÀM VIỆC (không nêu HEAD) — sửa chưa commit cũng phải bị bắt.
   if ! git -C "$repo" diff --quiet "$MOC_KY" -- "$REL_WF"; then
-    echo "DO: lane hội đồng đã đổi: $REL_WF trên cây khác bản tại mốc ký ${MOC_KY:0:8}"; return 1
+    echo "DO: lane hội đồng đã đổi: $REL_WF trên cây khác bản tại mốc ký $MOC_KY"; return 1
   fi
-  echo "OK: vế lane (sống) — $REL_WF trên cây giống bản tại mốc ký ${MOC_KY:0:8}"; return 0
+  echo "OK: vế lane (sống) — $REL_WF trên cây giống bản tại mốc ký $MOC_KY"; return 0
+}
+
+# ĐỐI CHỨNG ÂM có tên cho phép so «hai lượt một kết quả»: đây là bản CŨ, lấy mốc
+# bằng `git merge-base` — tức đúng thứ bệnh vòng 06/09 vá. Nó tồn tại CHỈ để phép
+# so hai-lượt chứng minh mình phân biệt được: bản thật cho hai cây một kết quả,
+# bản này cho hai kết quả khác nhau. Không lối nào của răng gọi nó ngoài ca ấy.
+lane_theo_mergebase() {
+  local repo="$1" base changed
+  base="$(git -C "$repo" merge-base main HEAD 2>/dev/null || git -C "$repo" merge-base origin/main HEAD 2>/dev/null)"
+  [ -n "$base" ] || { echo "DO: không tìm được mốc gộp"; return 1; }
+  changed="$(git -C "$repo" diff --name-only "$base"..HEAD | grep -vE '^(tests/|docs/|skills/|feature-loop/skills/|_acceptance/|\.github/|PRODUCT-MAP\.md$)' | sort | tr '\n' ' ' | sed 's/ $//')"
+  echo "MB: mốc=$base tập={$changed}"; return 0
 }
 
 # Vế HAI — CHỨNG-MỘT-LẦN về đợt đã giao: trong khoảng cố định, tập file mã đổi
@@ -115,7 +127,7 @@ tap_file() {
   r="$(co_moc "$repo" "$base" "$tip")" || { echo "$r"; return 1; }
   changed="$(git -C "$repo" diff --name-only "$base".."$tip" | grep -vE '^(tests/|docs/|skills/|feature-loop/skills/|_acceptance/|\.github/|PRODUCT-MAP\.md$)' | sort | tr '\n' ' ' | sed 's/ $//')"
   if [ "$changed" != "$REL_S4" ]; then echo "DO: tập file mã đổi ≠ {$REL_S4}: {$changed}"; return 1; fi
-  echo "OK: vế tập-file (chứng-một-lần) — trong ${base:0:8}..${tip:0:8} tập file mã đổi = {$REL_S4}"; return 0
+  echo "OK: vế tập-file (chứng-một-lần) — trong $base..$tip tập file mã đổi = {$REL_S4}"; return 0
 }
 
 # ── AC-5: khối inputs: không còn phần tử theo thư mục hồ sơ; không còn câu cũ ──
@@ -220,13 +232,27 @@ case "$CHAN" in
     R6="$(tap_file "$NOM" "$MOC_GOP" "$MOC_KY")"; RC6=$?
     if [ $RC5 -ne 0 ] && [ $RC6 -ne 0 ] && printf '%s' "$R5" | grep -qF "mốc đã neo không có trong kho: $MOC_KY" && printf '%s' "$R6" | grep -q "mốc đã neo không có trong kho"; then ok "chiều đỏ 3: kho thiếu mốc → CẢ HAI vế đỏ và gọi tên sha thiếu"; else bad "chiều đỏ 3 KHÔNG đỏ đúng cách (rc=$RC5/$RC6): $R5 | $R6"; fi
 
+    # ── chiều đỏ 1b (phần tử còn lại của lớp AC-2): sửa CHƯA COMMIT ──
+    # AC-2 tuyên lớp {đã commit, chưa commit}; chiều đỏ 1 chỉ phủ phần tử đầu, nên
+    # một mình nó không phân biệt được `diff MOC_KY -- FILE` với `diff MOC_KY..HEAD -- FILE`.
+    CLD="$TMP/clone-dirty"; git clone -q "$KIT" "$CLD" 2>/dev/null || { bad "clone tạm dirty thất bại"; done_chan; }
+    printf '\n// dong tiem chua commit\n' >> "$CLD/$REL_WF"
+    RD="$(lane_song "$CLD")"; RCD=$?
+    if [ $RCD -ne 0 ] && printf '%s' "$RD" | grep -q "lane hội đồng đã đổi"; then ok "chiều đỏ 1b: clone sửa acceptance-verify.js mà CHƯA commit → vế lane ĐỎ (phân biệt so-cây với so-HEAD)"; else bad "chiều đỏ 1b KHÔNG đỏ đúng cách (rc=$RCD): $RD — phép đo đang so HEAD chứ không so cây"; fi
+
     # ── hai lượt một kết quả: cùng phép đo, hai cây khác nhau, một đầu ra ──
-    # Bắt đường phụ thuộc HEAD còn sót — thứ một lượt trên một cây không thấy được.
+    # Đây là phép đo QUAN HỆ «kết quả không đổi theo HEAD», nên nó phải chứng minh
+    # mình phân biệt được: cùng cặp cây, bản CŨ phụ thuộc merge-base phải cho HAI
+    # kết quả khác nhau. So cả mã thoát, không chỉ chuỗi — hai lượt cùng ĐỎ giống
+    # nhau vẫn là lệch với lời hứa (đối chứng dương ở trên mới là chỗ bắt đỏ).
     CL2="$TMP/clone-detached"; git clone -q "$KIT" "$CL2" 2>/dev/null || { bad "clone tạm 2 thất bại"; done_chan; }
     git -C "$CL2" checkout -q --detach "$MOC_KY" 2>/dev/null || { bad "clone 2: không checkout được mốc ký"; done_chan; }
-    L1="$(lane_song "$KIT"; tap_file "$KIT" "$MOC_GOP" "$MOC_KY")"
-    L2="$(lane_song "$CL2"; tap_file "$CL2" "$MOC_GOP" "$MOC_KY")"
-    if [ "$L1" = "$L2" ]; then ok "hai lượt một kết quả: cây hiện tại và clone detached ở ${MOC_KY:0:8} cho đầu ra GIỐNG NHAU từng byte"; else bad "hai lượt lệch — phép đo còn phụ thuộc HEAD: [$L1] ≠ [$L2]"; fi
+    L1="$(lane_song "$KIT"; echo "rc=$?"; tap_file "$KIT" "$MOC_GOP" "$MOC_KY"; echo "rc=$?")"
+    L2="$(lane_song "$CL2"; echo "rc=$?"; tap_file "$CL2" "$MOC_GOP" "$MOC_KY"; echo "rc=$?")"
+    M1="$(lane_theo_mergebase "$KIT")"; M2="$(lane_theo_mergebase "$CL2")"
+    if [ "$L1" != "$L2" ]; then bad "hai lượt lệch — phép đo còn phụ thuộc HEAD: [$L1] ≠ [$L2]"
+    elif [ "$M1" = "$M2" ]; then bad "phép so hai-lượt KHÔNG có răng: bản cũ theo merge-base cũng cho hai lượt giống nhau ([$M1]) — cặp cây này không phân biệt được gì"
+    else ok "hai lượt một kết quả: bản đang giao cho ĐÚNG một đầu ra trên hai cây (kèm mã thoát), trong khi bản cũ theo merge-base cho HAI kết quả khác nhau ($M1 ≠ $M2)"; fi
     done_chan ;;
   tai-lieu-khong-con-duong-cu)
     R="$(scan_docs "$KIT")"; RC=$?

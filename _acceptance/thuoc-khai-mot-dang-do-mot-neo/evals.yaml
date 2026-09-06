@@ -14,10 +14,10 @@ evals:
     cmd: config:executors.script.itgk_lane_doc_khong_doi
     paths: ["_acceptance/inputs-tinh-tu-goc-kho/rang.sh"]
     expected: >-
-      exit 0; `Results: chan lane-doc-khong-doi passed`; dòng đối chứng dương in ba mốc đã neo
-      nguyên văn; và một dòng `hai lượt một kết quả` báo PASS — nhóm tự chạy lần hai trong clone
-      `detached` ở commit KHÁC rồi so hai đầu ra giống nhau từng byte. Hai lượt khác nhau → nhóm
-      FAIL với `hai lượt lệch`. Đo trước khi vá: cùng lệnh này cho `0 pass, 3 do` trên `main` sạch.
+      exit 0; `Results: chan lane-doc-khong-doi passed` (8 pass); hai dòng OK in HAI mốc đã neo
+      NGUYÊN VĂN đủ 40 ký tự; và dòng `hai lượt một kết quả` báo PASS, câu của nó nêu CẢ đối chứng
+      âm — bản cũ theo `merge-base` cho hai mốc KHÁC nhau trên cùng cặp cây. Thiếu đối chứng âm ấy
+      thì nhóm FAIL với `phép so hai-lượt KHÔNG có răng`. Đo trước khi vá: `0 pass, 3 do` trên `main` sạch.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E2
@@ -28,8 +28,9 @@ evals:
     expected: >-
       exit 0; dòng `vế lane (sống)` báo PASS trên cây thật — `acceptance-verify.js` trên CÂY LÀM VIỆC
       giống bản tại mốc ký `9b3d6f64` (so cây, không so HEAD: sửa chưa commit cũng bị bắt); VÀ dòng
-      `chiều đỏ 1` báo PASS — clone sửa file ấy làm phép kiểm ĐỎ với ghim `lane hội đồng đã đổi`.
-      Đã phá thử tay 06/09: thêm một dòng vào workflow trong cây làm việc → nhóm FAILED (5 pass, 2 do).
+      HAI dòng `chiều đỏ 1` và `chiều đỏ 1b` cùng báo PASS — clone sửa file ấy ĐÃ COMMIT, và clone sửa
+      mà CHƯA commit, cả hai làm phép kiểm ĐỎ với ghim `lane hội đồng đã đổi`. Ca 1b là chỗ duy nhất
+      phân biệt so-cây với so-HEAD: đổi phép đo về `MOC_KY..HEAD` thì 1b đỏ (đã phá thử, nhóm 7 pass 1 do).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E3
@@ -83,10 +84,12 @@ evals:
     cmd: config:executors.script.tkm_p86
     paths: ["tests/plugins/run-tests.sh", "GUIDE.md", "QUICKSTART.md", "README.md"]
     expected: >-
-      exit 0; ba dòng `P86 MUTANT` mới đỏ đúng chỗ: `ngan sach luot 3->9` · `tran T3 4->5` ·
-      `xoa ve moc phat hanh`. Dòng đỏ của ca một phải NÊU SỐ THẬT đã trích — chứa `9` — chứng minh
-      con số là dữ liệu chứ không phải chữ trong câu; ca ba đỏ vì THIẾU vế (`khong doc duoc ve`),
-      không vì lệch bản chép. Đo trước khi vá: hai trong ba ca này XANH (đổi 3→9 và xoá vế đều lọt).
+      exit 0; ba dòng `P86 MUTANT` mới in kèm THÔNG ĐIỆP ĐỎ THẬT sau dấu hai chấm:
+      `ngan sach luot 3->9 -> do dung cho: … ngan sach luot 9 != so cong 4 - 1` ·
+      `tran T3 4->5 -> … tran T3 5 != so luot 3 + 1` ·
+      `xoa ve moc phat hanh -> … khong doc duoc ve ngan sach «moc phat hanh»`.
+      Con số 9 đến từ `ngan_sach()` trích được, không từ nhãn ca: đổi thông điệp thành chuỗi hằng
+      thì suite FAIL với `thieu ghim` (đã phá thử 06/09). Đo trước khi vá: hai trong ba ca này XANH.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E8
@@ -95,9 +98,9 @@ evals:
     cmd: config:executors.script.tkm_p86
     paths: ["tests/plugins/run-tests.sh", "GUIDE.md", "QUICKSTART.md", "README.md"]
     expected: >-
-      exit 0; dòng `P86 MUTANT: them cong nhung giu ngan sach -> do dung cho` — thêm cổng thứ năm
-      vào CẢ ba bản mà giữ `≤3` phải ĐỎ vì quan hệ `so luot != so cong - 1`, và dòng đỏ nêu cả hai
-      số thật. Ba bản vẫn khớp nhau nên mọi phép so bản-chép đều xanh: chỉ phép so QUAN HỆ bắt được.
+      exit 0; dòng `P86 MUTANT: them cong nhung giu ngan sach -> do dung cho:` in tiếp thông điệp
+      `ngan sach luot 3 != so cong 5 - 1` — cả hai số đều là số máy trích. Ba bản vẫn khớp nhau nên
+      mọi phép so bản-chép đều xanh: chỉ phép so QUAN HỆ bắt được ca này.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E9
@@ -107,7 +110,8 @@ evals:
     paths: ["tests/plugins/run-tests.sh"]
     expected: >-
       exit 0; `Results: all plugin tests passed`; trong đó P86 in đủ NĂM dòng `P86 MUTANT` CŨ
-      (bản VI ở QUICKSTART, bản VI ở GUIDE, bản EN ở README, thêm cổng ở nguồn, mất ngân sách T3).
+      (bản VI ở QUICKSTART, bản VI ở GUIDE, bản EN ở README, thêm cổng ở nguồn, mất ngân sách T3), và MỌI
+      dòng MUTANT đều in thông điệp đỏ thật sau `do dung cho:` — không ca nào assert âm tính trần.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E10

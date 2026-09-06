@@ -11060,22 +11060,24 @@ mut = [
     ("ban VI o QUICKSTART", lambda: kiem(vi_g, vi_q.replace("Cổng Đáng", "Cổng Đang", 1), en_r, vis, ens), VI_P),
     ("ban VI o GUIDE",      lambda: kiem(vi_g.replace("Cổng Giá trị", "Cổng Gia tri", 1), vi_q, en_r, vis, ens), VI_P),
     ("ban EN o README",     lambda: kiem(vi_g, vi_q, en_r.replace("Worth Gate", "Worthy Gate", 1), vis, ens), EN_P),
-    ("them cong o nguon",   lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"]), SRC_P),
-    ("mat ngan sach T3",    lambda: kiem(vi_g.replace("T3 trần 4", "T3 trần bốn", 1), vi_q.replace("T3 trần 4", "T3 trần bốn", 1), en_r, vis, ens), None),
+    ("them cong o nguon",   lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"]), "lech cot `vi` cua khoi nguon"),
+    ("mat ngan sach T3",    lambda: kiem(vi_g.replace("T3 trần 4", "T3 trần bốn", 1), vi_q.replace("T3 trần 4", "T3 trần bốn", 1), en_r, vis, ens), "khong doc duoc ve ngan sach «tran T3»"),
     # --- bon dot bien MOI (ho so thuoc-khai-mot-dang-do-mot-neo, 06/09) ---
     # Ba cai dau doi DUNG MOT ve ngan sach tren CA HAI ban chep; cai thu tu doi
     # bang cong ma giu ngan sach. Truoc khi va, hai trong ba cai dau van XANH.
-    ("ngan sach luot 3->9", lambda: kiem(vi_g.replace("≤3 lượt/vòng", "≤9 lượt/vòng", 1), vi_q.replace("≤3 lượt/vòng", "≤9 lượt/vòng", 1), en_r.replace("≤3 turns per round", "≤9 turns per round", 1), vis, ens), None),
-    ("tran T3 4->5",        lambda: kiem(vi_g.replace("T3 trần 4", "T3 trần 5", 1), vi_q.replace("T3 trần 4", "T3 trần 5", 1), en_r.replace("T3 ceiling 4", "T3 ceiling 5", 1), vis, ens), None),
-    ("xoa ve moc phat hanh", lambda: kiem(vi_g.replace(" · **mốc phát hành ≤1**", "", 1), vi_q.replace(" · **mốc phát hành ≤1**", "", 1), en_r, vis, ens), None),
-    ("them cong nhung giu ngan sach", lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"], them_cong=True), None),
+    ("ngan sach luot 3->9", lambda: kiem(vi_g.replace("≤3 lượt/vòng", "≤9 lượt/vòng", 1), vi_q.replace("≤3 lượt/vòng", "≤9 lượt/vòng", 1), en_r.replace("≤3 turns per round", "≤9 turns per round", 1), vis, ens), "ngan sach luot 9 != so cong 4 - 1"),
+    ("tran T3 4->5",        lambda: kiem(vi_g.replace("T3 trần 4", "T3 trần 5", 1), vi_q.replace("T3 trần 4", "T3 trần 5", 1), en_r.replace("T3 ceiling 4", "T3 ceiling 5", 1), vis, ens), "tran T3 5 != so luot 3 + 1"),
+    ("xoa ve moc phat hanh", lambda: kiem(vi_g.replace(" · **mốc phát hành ≤1**", "", 1), vi_q.replace(" · **mốc phát hành ≤1**", "", 1), en_r, vis, ens), "khong doc duoc ve ngan sach «moc phat hanh»"),
+    ("them cong nhung giu ngan sach", lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"], them_cong=True), "ngan sach luot 3 != so cong 5 - 1"),
 ]
 for ten, f, phai_neu in mut:
     d = f()
     assert d is not None, f"dot bien «{ten}» KHONG do — phep so GATE-MODEL da chet"
-    if phai_neu:
-        assert phai_neu in d, f"dot bien «{ten}» do nhung khong goi ten {phai_neu}: {d}"
-    print(f"     P86 MUTANT: {ten} -> do dung cho")
+    assert phai_neu, f"dot bien «{ten}» khong khai chuoi ghim — assert am tinh tran bi cam"
+    assert phai_neu in d, f"dot bien «{ten}» do nhung thieu ghim «{phai_neu}»: {d}"
+    # IN chinh thong diep do: con so trong bang chung phai la so may trich duoc,
+    # khong phai chu trong nhan ca (hoi dong S4 vong 1 bat dung cho nay).
+    print(f"     P86 MUTANT: {ten} -> do dung cho: {d}")
 
 # Lenh phai NOI voi khoi: hai ban chep deu phai tu khai la BAN CHEP + tro ve nguon.
 q_t = (root / VI_P).read_text(encoding="utf-8")
