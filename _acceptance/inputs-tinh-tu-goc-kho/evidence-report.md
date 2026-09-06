@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9b3d6f64aa4ec39e076e9a867293cda5698b362d
+verified_commit: 19abfcd7cc2352d7d6a8a6c4d1acba852a1ba7f4
 human_signoff: Manh Phan 2026-09-05
 ---
 
@@ -177,3 +177,12 @@ Round 2: JI1–JI4, JI6, E5, E6, E7 xanh toàn bộ (round-tally PASS) nhưng ch
 ### Re-pin lần 1 — 2026-09-05, do main tiến ba PR (#143–#145) sau lúc chấm, không file nào chạm paths của eval
 run_id: repin-inputs-tinh-tu-goc-kho-9b3d6f64-1
 sha: 9b3d6f64aa4ec39e076e9a867293cda5698b362d · suites: 5 lệnh exit 0
+
+### Re-pin lần 2 — 06/09/2026, do hồ sơ thuoc-khai-mot-dang-do-mot-neo sửa `rang.sh` của chính hồ sơ này
+run_id: repin-inputs-tinh-tu-goc-kho-19abfcd7-1
+sha: 19abfcd7cc2352d7d6a8a6c4d1acba852a1ba7f4 · suites: 4 lệnh exit 0
+
+Vòng vá `thuoc-khai-mot-dang-do-mot-neo` đổi phương pháp của nhóm `lane-doc-khong-doi` (xem dòng
+BỔ CHÍNH dưới AC-6) và đụng `tests/plugins/run-tests.sh`, nên bằng chứng đã ký hoá ôi và cổng
+pre-merge chặn nhánh với `evidence is stale`. Lane máy chạy lại bốn suite tại HEAD, cả bốn exit 0;
+verdict, chữ ký và các kết quả đã ký KHÔNG đổi — chỉ mốc pin dời tới cây đang giao.

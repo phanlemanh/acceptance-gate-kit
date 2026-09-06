@@ -1,83 +1,86 @@
-# Review Findings: thuoc-khai-mot-dang-do-mot-neo (round 5)
+# Review Findings: thuoc-khai-mot-dang-do-mot-neo (round 7)
 
 ## Trong hợp đồng
 
-### AC-5 vẫn khai `ONLY_BLOCK=P86` — đúng selector xanh-im-lặng mà commit cuối đã bỏ
-- file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md:41`
-- severity: medium
-- AC: AC-5
-- source: bugs
-
-Vế When của AC-5 viết `ONLY_BLOCK=P86 bash tests/plugins/run-tests.sh`. Khoá config `tkm_p86` thì đã dùng `ONLY_BLOCK="P86 GATE-MODEL"` (và chú thích trong `_acceptance/config.yaml` giải thích đúng lý do). Tiêu chí mà người ký đọc ở Cổng 2 vẫn mô tả phép đo hỏng.
-
-Tái hiện trên bản sao, đổi tiêu đề khối `P86 GATE-MODEL` → `P87 GATE-MODEL`:
-- `ONLY_BLOCK=P86` → exit 0, 0 dòng `P86 MUTANT`, `Results: all plugin tests passed`
-- `ONLY_BLOCK="P86 GATE-MODEL"` → exit 1, `khong khop khoi nao — go sai ten?`
-
-Chốt `only_matched` không cứu được vì khối `P86 S1 doc feature_loop.ui_standards_skill` (dòng 1521) cũng chứa chuỗi `P86`.
-
-**Rationale:** AC-5 ghi thẳng lệnh When bằng selector cũ (ONLY_BLOCK=P86) trong khi cấu hình thật đã đổi sang 'P86 GATE-MODEL'; văn bản tiêu chí không khớp điều đã cài, tức AC-5 thất bại đúng như viết.
-
-**Failure scenario:** Người đọc AC-5 chạy đúng lệnh trong hợp đồng sau khi khối GATE-MODEL bị đổi tên: nhận exit 0 và kết luận AC-5 PASS, trong khi không một dòng MUTANT nào chạy.
-
-### Fixture VIẾT TAY đúng khuôn bên đọc — đột biến «thêm cổng» không round-trip qua nguồn tsv
-- file: `tests/plugins/run-tests.sh:11091`
-- severity: medium
-- AC: AC-7
-- source: measurement
-
-AC-7 và E7 khai: «đột biến thêm cổng thứ năm vào CẢ ba bản (nguồn tsv + VI + EN) mà giữ ≤3 → ĐỎ với ghim `ngan sach luot 3 != so cong 5 - 1`; ba bản vẫn khớp nhau nên chỉ phép so QUAN HỆ bắt được ca này». Code không làm thế. Dòng 11091 (và dòng 11083 của ca cũ `them cong o nguon`) không đụng một ký tự nào của khối tsv trong GUIDE.md; nó chuyền thẳng hai DANH SÁCH ĐÃ PHÂN TÍCH bịa tay `vis + ["Cổng Thứ Năm"]` / `ens + ["Fifth Gate"]` vào `kiem`. Hàm đọc nguồn thật — `cols()` — không hề chạy lại trên tài liệu 5 cổng, và chốt `assert len(ids) == 4` ở dòng 11058 (đọc `ids` NGOÀI hàm, không bị đột biến chạm) bị đi vòng qua. Chỉ hai bản chép VI/EN là được tiêm chữ thật qua `tiem()` rồi đọc lại bằng `nhan()`; vế nguồn là fixture khuôn-sẵn.
-
-Đo thật (bản sao cây tại scratch, 06/09): thêm dòng `G-THU5\tCổng Thứ Năm\tFifth Gate` vào khối tsv của GUIDE.md + dòng bảng tương ứng vào GUIDE/QUICKSTART/README, giữ nguyên `≤3 lượt/vòng` — P86 KHÔNG in `ngan sach luot 3 != so cong 5 - 1` mà chết ở `AssertionError: mo hinh phai co dung 4 cong, dang 5: ['G-DANG','G-PHAMVI','G-BANGCHUNG','G-GIATRI','G-THU5']`. Nghĩa là kịch bản AC-7 mô tả không bao giờ đi tới phép so QUAN HỆ trên vật thật; chuỗi ghim đã khai chỉ xuất hiện được trên đường fixture. Hệ quả đo lường: phép so quan hệ `luot != len(vis) - 1` chưa từng được chứng minh chạy end-to-end từ văn bản nguồn qua `cols()`; và câu «chỉ phép so QUAN HỆ bắt được ca này» sai — chốt đếm cổng bắt trước.
-
-Cùng gốc, khai thừa ở E8: «MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần» — ca `them cong o nguon` (11083) không tiêm chữ nào nên không thể đi qua chân ấy.
-
-**Rationale:** AC-7 đòi đột biến 'thêm cổng thứ năm vào CẢ ba bản (nguồn tsv + VI + EN)' phải tới được phép so QUAN HỆ với chuỗi ghim cụ thể; đo thật cho thấy khi sửa đúng cả ba bản kể cả nguồn tsv, chương trình chết ở một assertion đếm cổng chứ không bao giờ tới được phép so ấy — đúng AC-7 thất bại như viết.
-
-**Failure scenario:** Ai đó refactor mở rộng ngân sách nhưng không sửa `cols()`/assert-đếm-cổng: đội ngũ sẽ tin rằng phép so QUAN HỆ đang canh giữ tính đồng bộ ba bản khi thêm cổng thật, trong khi thực tế nó chưa từng chạy tới.
+(rỗng — không có finding nào được máy ánh xạ vào một AC cụ thể trong vòng này; bước phân loại phạm vi thất bại một phần, xem mục "Chưa phân loại" bên dưới.)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Sáu ô đo ghim dòng đầu ra mà cỗ máy verify KHÔNG THỂ ghi lại — evidence của chúng giống hệt nhau và không chứa chuỗi đã ghim**
-  Người dùng thấy gì: Kết quả kiểm tra tự động có thể báo 'đạt' cho nhiều tiêu chí dù bằng chứng ghi lại không thực sự cho thấy điều đó đã được đo, khiến người duyệt dễ tin nhầm là tính năng đã được kiểm chứng đầy đủ.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml`
+- **evidence-report chứng nhận một cây không còn tồn tại (verified_commit lùi 2 commit, output ghi 12 đột biến trong khi mã chạy 14)**
+  Người dùng thấy gì: Báo cáo bằng chứng đính kèm để trình duyệt có thể phản ánh một phiên bản mã cũ hơn thực tế đang được gộp, khiến người ký duyệt dựa trên số liệu đã lỗi thời.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md`
+  severity: high
+  Đề xuất: known-limits
+
+- **«Known limits» và «Ngoài hợp đồng» để RỖNG dù hợp đồng khai 3 giới hạn có tên và review-findings ghi 6 mục ngoài hợp đồng (3 HIGH) — đúng hai mục làm cổng bỏ mời ký**
+  Người dùng thấy gì: Báo cáo bằng chứng bỏ trống mục giới hạn đã biết và mục ngoài phạm vi dù có nhiều rủi ro nghiêm trọng đã ghi nhận, khiến người duyệt không thấy các cảnh báo quan trọng trước khi ký.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md`
   severity: high
   Đề xuất: new-contract
 
-- **Dòng bổ chính vào hồ sơ ĐÃ KÝ cố ý vô hình với bộ đọc hợp đồng — thẻ vẫn in phương pháp đã chết, không cờ vàng; và nó thêm một cảnh báo lint mới**
-  Người dùng thấy gì: Trang hồ sơ đã ký trước đó vẫn hiển thị nội dung tiêu chí cũ trên các màn hình tự động, có thể khiến người xem sau này tưởng nhầm phương pháp đo cũ vẫn còn hiệu lực.
-  file: `_acceptance/inputs-tinh-tu-goc-kho/contract.md`
-  severity: medium
+- **Nhánh tự chặn merge của mình: VIOLATION staleness của inputs-tinh-tu-goc-kho, thiếu bước re-pin riêng làn**
+  Người dùng thấy gì: Việc gộp bản vá này vào nhánh chính có thể bị hệ thống kiểm tra tự động chặn lại vì một tính năng khác đã ký duyệt trước đó bị đánh dấu lỗi thời, cần thêm một bước xác nhận riêng trước khi hợp nhất.
+  file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh`
+  severity: high
   Đề xuất: known-limits
 
-- **evidence-report.md chứng nhận một cây không còn tồn tại: `verified_commit` là commit TRƯỚC bản vá selector, tức E5–E7 PASS được sinh dưới đúng lỗi mà cùng commit ấy đi sửa**
-  Người dùng thấy gì: Kết quả 'đạt' cho các mục kiểm tra ngân sách có thể đã được đo trên một phiên bản mã cũ hơn bản sắp ký, nên chưa chắc phản ánh đúng trạng thái hiện tại ngay trước khi duyệt.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md`
+- **s4-args.json đã commit lệch với evals.yaml tại HEAD; bản sinh lại bị bỏ chưa commit trong cây làm việc**
+  Người dùng thấy gì: Tệp cấu hình đi kèm bằng chứng đã lưu không khớp với bộ tiêu chí kiểm thử hiện hành, nên hồ sơ minh chứng có thể không phản ánh đúng những gì thực sự được kiểm.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/s4-args.json`
   severity: medium
-  Đề xuất: known-limits
+  Đề xuất: new-contract
 
-- **gap-probe.md ghi «fixed» cho hai thứ không có trong cây — mô tả sai chính bản cài hiện hành**
-  Người dùng thấy gì: Một ghi chú nội bộ mô tả sai những gì thực sự đã được sửa, có thể gây hiểu nhầm cho người đọc lại lịch sử xử lý sau này.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/gap-probe.md`
+- **Hằng MOC_KY biến itgk_lane_doc_khong_doi thành bẫy vĩnh viễn, ngược nếp «cố ý KHÔNG vào suite vĩnh viễn» của các răng cùng loại**
+  Người dùng thấy gì: Thước đo này sẽ tự báo lỗi mỗi khi có thay đổi hợp lệ trong tương lai chạm vào một tệp dùng chung, buộc người sau phải cập nhật mốc thủ công — đây là đánh đổi được chủ đích chấp nhận khi thiết kế.
+  file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh`
+  severity: medium
+  Đề xuất: wont-fix
+
+- **tkm_bay_chan chép cứng danh sách 7 chan lần thứ hai — sẽ trôi âm thầm khi rang.sh thêm/đổi tên chan**
+  Người dùng thấy gì: Danh sách nhóm kiểm tra được chép tay ở hai nơi khác nhau có thể lệch nhau theo thời gian, khiến một số trường hợp không còn được kiểm tra mà không ai nhận ra.
+  file: `_acceptance/config.yaml`
   severity: low
   Đề xuất: known-limits
 
-- **Quan hệ `ship != 1` không có chiều đỏ — xoá hẳn nhánh vẫn xanh 12/12 đột biến**
-  Người dùng thấy gì: Nếu sau này ai đó vô tình làm sai điều kiện 'chỉ được có đúng một mốc phát hành', bộ kiểm tra hiện tại có thể không phát hiện ra lỗi đó.
+- **P86: phân biệt bản trôi chỉ hoạt động ở cột nhãn — trôi ở dòng ngân sách bị gán nhầm cho QUICKSTART.md**
+  Người dùng thấy gì: Khi thông báo lỗi chỉ ra sai tài liệu bị lệch (luôn nêu tên một tệp cố định dù tệp khác mới là nguồn gây lỗi thật), người sửa có thể mất thời gian tìm nhầm chỗ.
   file: `tests/plugins/run-tests.sh`
-  severity: high
-  Đề xuất: new-contract
+  severity: medium
+  Đề xuất: known-limits
 
-- **SỰ CỐ PHIÊN: tôi đã `git checkout --` xoá mất bản s4-args.json round 5 chưa commit của một phiên song song**
-  Người dùng thấy gì: Một tệp dữ liệu chuẩn bị cho vòng kiểm tra thứ 5 bị mất do thao tác nhầm, cần được tạo lại trước khi vòng ký duyệt tiếp theo có thể diễn ra.
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/s4-args.json`
-  severity: high
-  Đề xuất: new-contract
+- **Fixture viết tay đúng khuôn bên đọc — hai đột biến «thêm cổng» không round-trip qua khối nguồn tsv**
+  Người dùng thấy gì: Hai bài kiểm cho tình huống thêm cổng mới không thực sự chèn văn bản vào tài liệu gốc để thử đường đọc thật, nên nếu khuôn tài liệu đổi, lỗi tương ứng có thể lọt qua mà không bị phát hiện — hạn chế này đã được ghi nhận công khai.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
+  Đề xuất: known-limits
 
-## Chưa adversarial-verify (refuter chết)
+- **Chuỗi ghim chỉ là tên file, không ghim lớp lỗi mà đột biến phải chứng minh**
+  Người dùng thấy gì: Một trong các bài kiểm sẵn có chỉ xác nhận thông báo lỗi có nhắc tên tệp mà không xác nhận đúng loại lỗi, nên trong một số tình huống hiếm nó có thể được coi là đạt dù thực ra đã bắt nhầm loại lỗi.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
+  Đề xuất: wont-fix
 
-Không có run này.
+## Chưa phân loại (triage-failed)
 
-⚠ Cụm ngoài vùng phủ: 6/8 lỗi rơi vào file không bộ đo nào phủ (_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml, _acceptance/inputs-tinh-tu-goc-kho/contract.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/gap-probe.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/s4-args.json) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ.
+
+### P86: phép so QUAN HỆ `luot != len(vis) - 1` không thể chạy từ tài liệu thật — `assert len(ids) == 4` bắn trước
+- file: `tests/plugins/run-tests.sh:11050`
+- severity: medium
+- source: bugs
+
+Phép so quan hệ mới ở 11050 (`if luot != len(vis) - 1`) chỉ đỏ được khi `vis` có độ dài khác 4. Nhưng `vis` sinh từ `cols()` trên khối tsv thật, và ngay ở 11058 có `assert len(ids) == 4, "mo hinh phai co dung 4 cong"` — chốt này đọc `ids` NGOÀI hàm `kiem` và chạy trước mọi đột biến. Nghĩa là với vật thật, `len(vis)` luôn bằng 4 và nhánh 11050 không bao giờ đi tới trạng thái đỏ.
+
+Đã tái hiện: sao GUIDE.md/QUICKSTART.md/README.md ra thư mục tạm, thêm dòng `G-THU5\tCổng Thứ Năm\tFifth Gate` vào khối tsv của GUIDE.md VÀ thêm dòng bảng tương ứng vào cả ba bản render, GIỮ NGUYÊN `≤3 lượt/vòng`, rồi chạy đúng thân python của khối P86 với ROOT trỏ vào thư mục đó:
+
+  AssertionError: mo hinh phai co dung 4 cong, dang 5: ['G-DANG', 'G-PHAMVI', 'G-BANGCHUNG', 'G-GIATRI', 'G-THU5']
+
+Chương trình chết ở 11058, KHÔNG in `ngan sach luot 3 != so cong 5 - 1`.
+
+Đột biến duy nhất «chứng minh» nhánh này — `them cong nhung giu ngan sach` ở 11091 — không tiêm một ký tự nào vào khối tsv; nó chuyền thẳng hai danh sách bịa tay `vis + ["Cổng Thứ Năm"]` / `ens + ["Fifth Gate"]` vào `kiem`, tức đi vòng qua `cols()` lẫn chốt đếm cổng. Hệ quả: chuỗi ghim `ngan sach luot 3 != so cong 5 - 1` chỉ xuất hiện được trên đường fixture, và phép so quan hệ chưa từng được chứng minh chạy end-to-end từ văn bản nguồn.
+
+Gợi ý: bỏ hằng 4 trong `assert len(ids) == 4` (hoặc chuyển nó thành `len(ids) >= 2`) và cho đột biến «thêm cổng» tiêm chữ thật vào khối tsv qua `tiem()` như các ca khác.
+
+⚠ Cụm ngoài vùng phủ: 3/10 lỗi rơi vào file không bộ đo nào phủ (_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/s4-args.json) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
