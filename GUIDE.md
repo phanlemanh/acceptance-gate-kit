@@ -43,12 +43,47 @@ nào, chấp nhận hay không), máy làm toàn bộ phần giữa và *không 
 nhờ enforcement tất định (hook lúc ghi file + CI lúc merge). Niềm tin vào code
 AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chiếu được.
 
+### Bốn cổng người — NGUỒN CHUẨN của mô hình cổng
+
+> Đây là **nguồn duy nhất** trả lời «kit có mấy cổng, cổng nào cần người».
+> `README.md` (EN) và `QUICKSTART.md` (VI) mang **bản chép** của bảng dưới,
+> giữ khớp bằng răng **P86** — sửa mô hình cổng thì sửa **ở đây** rồi đồng bộ
+> hai bản kia; sửa lẻ một bản là CI đỏ, kèm dòng gọi tên đúng bản lệch.
+> Khối `tsv` là bản máy đọc (tên cổng hai thứ tiếng); bảng người đọc ngay dưới
+> nó là bản chiếu.
+
+<!-- <<<GATE-MODEL -->
+```tsv
+id	vi	en
+G-DANG	Cổng Đáng	Worth Gate
+G-PHAMVI	Cổng Phạm vi	Scope Gate
+G-BANGCHUNG	Cổng Bằng chứng	Evidence Gate
+G-GIATRI	Cổng Giá trị	Value Gate
+```
+<!-- GATE-MODEL>>> -->
+
+<!-- <<<GATE-MODEL-VI -->
+| Cổng | Câu hỏi chỉ người trả lời được | Người phải xuất hiện khi |
+|---|---|---|
+| **Cổng Đáng** | Việc này có đáng làm không? | Luôn — một ô cơ hội mở vòng |
+| **Cổng Phạm vi** | Bộ tiêu chí đã đủ và đúng chưa? | T2 **chưa** đủ điều kiện đi tiếp (gap-probe còn P0 · danh từ mờ · coverage chưa gạch · hạng T3). T2 đủ điều kiện: máy chốt phạm vi, để cửa veto mở, đi tiếp |
+| **Cổng Bằng chứng** | Đã làm đúng thứ đã hứa chưa? | Bằng chứng **chưa** xanh-sạch (thiếu một trong sáu điều kiện) **hoặc** việc chạm KHÓ-ĐẢO. T2 xanh-sạch đi **làn V** — `status: machine-cleared`, không cần chữ ký |
+| **Cổng Giá trị** | Thứ đã giao có ăn thua không? | Sau khi ship, cho việc sinh từ một ô cơ hội có ngưỡng đã khai |
+
+**Ngân sách lượt gọi người:** mục tiêu **≤3 lượt/vòng** (= đúng số cổng người trong thiết kế) · vòng **T3 trần 4** (thêm Gate 1.5 duyệt plan) · **mốc phát hành ≤1** · **≤1 chạm/lượt**. Mục tiêu thật là **0 lượt ngoài thiết kế**.
+<!-- GATE-MODEL-VI>>> -->
+
+Cổng chỉ tồn tại ở chỗ **chỉ người trả lời được**: có **đánh-đổi** hoặc
+**khó-đảo**, và luôn có ≥2 lối ra sống. Cổng mà câu trả lời hợp lý duy nhất là
+«ừ» là **trạm thu phí, không phải điểm quyết định** — máy đi tiếp, ghi sổ, để
+cửa veto mở.
+
 ### Mục tiêu (đo được — không đo được thì không phải mục tiêu)
 
 | # | Mục tiêu | Thước đo |
 |---|---|---|
 | 1 | **0** defect nghiệp vụ lọt qua gate | Đếm defect phát hiện sau signoff |
-| 2 | Đúng **2 điểm dừng người** (T3: +1 duyệt plan) | Vòng đời chuẩn — mọi tính năng T2/T3 |
+| 2 | **≤3** lượt gọi người/vòng (T3 trần **4** · mốc phát hành **≤1** · **≤1** chạm/lượt) | Đếm tay 3 dòng số mỗi mốc phát hành — tách trong-thiết-kế / ngoài-thiết-kế |
 | 3 | **100%** verdict PASS có bằng chứng máy đối chiếu được | `run_id` khớp `run-log.jsonl`, `exit_code 0`, verifier thật, SHA thật |
 | 4 | **1** chuẩn gate cho mọi thành viên | `lib/evidence-core.cjs` dùng chung + kỷ luật update plugin |
 
@@ -56,7 +91,7 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 
 | Ai | Được gì |
 |---|---|
-| **Người duyệt** | 1–2 giờ click tay → đọc 2 card quyết định; máy đẩy lên đúng những item nó *không dám chắc* (UNCERTAIN) thay vì giấu chúng |
+| **Người duyệt** | 1–2 giờ click tay → đọc thẻ quyết định trong một phút; máy đẩy lên đúng những item nó *không dám chắc* (UNCERTAIN) thay vì giấu chúng |
 | **Cả đội** | Một chuẩn nghiệm thu đếm được thay vì khẩu vị từng người; audit trail đầy đủ (`approved_by`, `human_signoff`, `bypass_used`) — ai duyệt gì, khi nào, có né gate không |
 | **AI agent** | Tiêu chí chốt *trước* khi code (sửa 1 dòng ở Cổng 1 rẻ hơn 10 lần sửa sau); mỗi vòng verify nhận phản hồi tất định (file:line, exit code) thay vì nhận xét mơ hồ |
 | **Sản phẩm** | Defect bị chặn ở điểm rẻ nhất; sàn chất lượng UI được ép bằng máy (contrast, layout, coverage AC) chứ không bằng lời dặn |
@@ -77,12 +112,13 @@ AI không đến từ "AI ngoan" — nó đến từ bằng chứng đối chi�
 ```mermaid
 flowchart TB
   IN["Ý tưởng / ticket / PRD"] --> S1["Máy: contract + evals + coverage"]
-  S1 --> G1{"🚪 CỔNG 1 — người DUYỆT TIÊU CHÍ"}
+  S1 --> G1{"🚪 CỔNG PHẠM VI — duyệt tiêu chí<br/>(T2 đủ điều kiện: máy chốt, cửa veto mở)"}
   G1 --> CODE["Máy: plan + code<br/>(agent thường hoặc feature-loop)"]
   CODE --> V["Máy: verify mỗi vòng<br/>evals + design gates + AI-judge + review"]
   V -- "REJECT → tự sửa (≤ 3 vòng)" --> CODE
-  V -- "PASS + evidence" --> G2{"🚪 CỔNG 2 — người kiểm UNCERTAIN + KÝ"}
-  G2 --> CI2["CI pre-merge<br/>chặn report chưa ký / evidence giả / cũ"]
+  V -- "PASS + evidence, T2 xanh-sạch,<br/>không khó-đảo → LÀN V" --> CI2["CI pre-merge<br/>chặn report chưa ký / evidence giả / cũ"]
+  V -- "còn UNCERTAIN / bypass / khó-đảo" --> G2{"🚪 CỔNG BẰNG CHỨNG — người kiểm + KÝ"}
+  G2 --> CI2
   CI2 --> MERGE["Merge"]
   HK["Hook write-time<br/>chặn PASS không bằng chứng"] -. giám sát .-> V
   HK -. giám sát .-> G2
@@ -91,9 +127,9 @@ flowchart TB
 ### Bài kiểm tra chống lạc hướng — 3 câu hỏi trước mỗi đợt nâng cấp
 
 1. **Nó phục vụ mục tiêu số mấy ở trên?** Không chỉ ra được số → không làm.
-2. **Nó có thêm điểm dừng người thứ 3 không?** Có → sai hướng (trừ Gate 1.5
-   của T3 đã định nghĩa). Kit tăng giá trị bằng cách làm 2 điểm dừng *tốt
-   hơn*, không phải *nhiều hơn*.
+2. **Nó có thêm một lượt gọi người ngoài bảng bốn cổng không?** Có → sai
+   hướng (trừ Gate 1.5 của T3 đã định nghĩa). Kit tăng giá trị bằng cách làm
+   các cổng đã có *tốt hơn* và *ít lượt hơn*, không phải *nhiều cổng hơn*.
 3. **Enforcement mới có tất định không** — đếm được, chặn được bằng máy? Chỉ
    là lời khuyên trong văn bản → chưa xong việc (*"a rule you cannot verify
    is decoration"*).
@@ -105,8 +141,9 @@ tin lời AI tự khai "done". Kit thay thế cả hai bằng một hợp đồn
 
 - **Máy chứng minh** — mỗi tiêu chí nghiệm thu có eval chạy được; PASS bắt buộc kèm
   bằng chứng máy (`run_id`, `exit_code: 0`, verifier thật, commit đã verify).
-- **Người quyết** — đúng **2 điểm dừng**: Cổng 1 duyệt *tiêu chí* trước khi code,
-  Cổng 2 ký *bằng chứng* sau khi verify. Mỗi cổng đúng một lượt đọc rồi quyết.
+- **Người quyết** — ở **bốn cổng** (§0), và chỉ khi cổng đó thật sự cần người:
+  T2 đủ điều kiện đi tiếp thì máy chốt phạm vi và thông bằng chứng, để cửa veto
+  mở. Mỗi lượt đúng một phút đọc rồi quyết, **≤1 chạm**.
 - **Enforcement tất định** — không dựa "AI ngoan": hook chặn ngay lúc ghi file,
   CI chặn lại lúc merge. Nói dối phải thắng được cả hai lớp máy.
 
@@ -116,7 +153,7 @@ Ba nguyên tắc không thương lượng:
 |---|---|
 | **Doer ≠ grader** | Agent viết code không bao giờ tự chấm; verify luôn là agent context sạch |
 | **Evidence over assertion** | REJECT/BLOCKED trung thực luôn hợp lệ; PASS không bằng chứng thì không tồn tại |
-| **2 cổng người duy nhất** | Không bắt người kiểm lại thứ máy đã chứng minh |
+| **Cổng chỉ ở chỗ cần người** | Không bắt người kiểm lại thứ máy đã chứng minh; cổng mà lối ra duy nhất là «ừ» thì máy đi tiếp |
 
 ## 2. Kiến trúc tổng thể
 
@@ -175,7 +212,7 @@ gate không). Vì vậy CI là lớp enforce chung, không phụ thuộc phiên 
 
 ## 3. Vòng đời một tính năng
 
-> 🖼 Hình tầng 2: [Vào cửa nào, dày bao nhiêu](docs/reference/figures/vao-cua-nao-day-bao-nhieu.html) · [Vòng LÀM S0→S5](docs/reference/figures/vong-lam-s0-s5.html) · [Trạng thái hồ sơ](docs/reference/figures/trang-thai-ho-so.html). Lưu ý: sơ đồ mermaid bên dưới vẽ Cổng 2 luôn ký — từ 2.0.0 làn V cho T2 xanh-sạch đi tiếp không ký; hình tầng 2 phản ánh luật hiện hành, khối mermaid chờ một PR chữ riêng.
+> 🖼 Hình tầng 2: [Vào cửa nào, dày bao nhiêu](docs/reference/figures/vao-cua-nao-day-bao-nhieu.html) · [Vòng LÀM S0→S5](docs/reference/figures/vong-lam-s0-s5.html) · [Trạng thái hồ sơ](docs/reference/figures/trang-thai-ho-so.html) — thứ tự đọc cả bộ ở [index](docs/reference/figures/index.md). Hình là chiếu của chữ dưới đây, không phải nguồn.
 
 Nguồn sự thật duy nhất là frontmatter **`status`** trong `_acceptance/<slug>/contract.md`.
 Mọi resume (`/feature-loop:feature-loop <slug>`) đọc status và vào đúng chỗ.
@@ -183,13 +220,15 @@ Mọi resume (`/feature-loop:feature-loop <slug>`) đọc status và vào đúng
 ```mermaid
 flowchart LR
   START(("💡 ý tưởng")) --> S1["<b>S1 DESIGN</b><br/>brainstorm → design-doc<br/>+ contract (status: draft)<br/>+ evals.yaml"]
-  S1 --> G1{"🚪 <b>CỔNG 1</b><br/>người duyệt tiêu chí"}
-  G1 -->|"status: approved<br/>+ approved_by"| S2["<b>S2 PLAN</b><br/>task list + verify per-task"]
+  S1 --> G1{"🚪 <b>CỔNG PHẠM VI</b> (Cổng 1)<br/>người duyệt tiêu chí —<br/>hoặc máy chốt, để cửa veto mở"}
+  G1 -->|"status: approved (+ approved_by)<br/>· hoặc T2 đủ điều kiện:<br/>veto_state: mo, approved_by RỖNG"| S2["<b>S2 PLAN</b><br/>task list + verify per-task"]
   S2 -->|"T3: 🚪 Cổng 1.5 duyệt plan"| S3["<b>S3 EXECUTE</b><br/>code; task độc lập →<br/>song song, mỗi task 1 worktree"]
   S3 -->|"status: implemented"| S4["<b>S4 VERIFY</b><br/>workflow đa-agent<br/>(xem mục 4)"]
   S4 -->|"REJECT — tự sửa,<br/>tối đa 3 vòng"| S3
-  S4 -->|"PASS / PENDING-JUDGMENT<br/>status: verified<br/>+ COMMIT evidence máy-viết"| G2{"🚪 <b>CỔNG 2</b><br/>người kiểm UNCERTAIN<br/>+ ký signoff"}
-  G2 -->|"human_signoff (COMMIT RIÊNG)<br/>status: signed-off"| S5["<b>S5 SHIP</b><br/>tạo PR"]
+  S4 -->|"PASS / PENDING-JUDGMENT<br/>status: verified<br/>+ COMMIT evidence máy-viết"| V{"máy tự xét:<br/>T2 xanh-sạch<br/>và KHÔNG khó-đảo?"}
+  V -->|"CÓ — <b>làn V</b><br/>status: machine-cleared<br/>máy báo 1 dòng, cửa veto mở"| S5["<b>S5 SHIP</b><br/>tạo PR"]
+  V -->|"KHÔNG"| G2{"🚪 <b>CỔNG BẰNG CHỨNG</b><br/>người kiểm UNCERTAIN<br/>+ ký signoff"}
+  G2 -->|"human_signoff (COMMIT RIÊNG)<br/>status: signed-off"| S5
   S5 --> CI["CI pre-merge-check<br/>chốt chặn độc lập"]
   CI --> DONE(("✅ merge"))
 ```
@@ -208,8 +247,9 @@ flowchart LR
 | `draft` | S1 (máy) | Cổng 1 — trình lại gói duyệt |
 | `approved` | Cổng 1 (người duyệt → máy ghi `approved_by`) | S2 PLAN (T3: Cổng 1.5 nếu plan chưa duyệt) |
 | `implemented` | S3 — hành động CUỐI của agent code | S4 VERIFY |
-| `verified` | S4 (sau verdict PASS/PENDING-JUDGMENT) | Cổng 2 — **sau guard staleness** (mục 7) |
-| `signed-off` | Cổng 2 (người ký) | S5 SHIP |
+| `verified` | S4 (sau verdict PASS/PENDING-JUDGMENT) | Cổng Bằng chứng — **sau guard staleness** (mục 7) |
+| `machine-cleared` | S4 — **làn V**: T2 xanh-sạch (đủ sáu điều kiện) và KHÔNG khó-đảo; máy tự đặt, báo một dòng, cửa veto vẫn mở | S5 SHIP — không qua chữ ký |
+| `signed-off` | Cổng Bằng chứng (người ký) | S5 SHIP |
 
 **Risk tier** quyết định độ dày của gate — xác định ở S0 từ path dự kiến, đối chiếu
 lại bằng diff thật ở S4:
@@ -1064,8 +1104,10 @@ không có bằng chứng là một ô FAIL, không phải "chắc ổn":
 | **C. Code** | Review bởi context sạch (doer ≠ grader)? File <800 dòng, function tập trung, không secret/debug sót? | Báo cáo reviewer độc lập + grep |
 | **D. Kiểm chứng** | Mỗi behavior mới có test? TDD có RED thật trước GREEN? 6 suite xanh? | Output 6 suite, log RED |
 | **E. Nhất quán** | Version khớp 3 tầng (manifest × pin test × docs)? | `git status` rỗng |
-| **F. Giới hạn** | Giới hạn v1 và rủi ro đã ghi thành văn (spec/report), không im lặng? | Trỏ tới mục known-limits | Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE,
-  chỉ enforce cứng khi artifact có field mới.
+| **F. Giới hạn** | Giới hạn và rủi ro đã ghi thành văn (spec/report), không im lặng? | Trỏ tới mục known-limits |
+
+Backward-tolerant là mặc định: luật mới trên artifact cũ ra NOTE, chỉ enforce
+cứng khi artifact có field mới.
 
 
 ## 11. Làn máy và bộ phân loại an toàn

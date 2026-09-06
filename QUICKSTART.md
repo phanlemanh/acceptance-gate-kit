@@ -4,15 +4,34 @@
 > Đọc [GUIDE.md](GUIDE.md).
 
 Gate nghiệm thu cho code do AI viết. Thay vì bạn click tay 1-2 giờ kiểm tra
-một tính năng, máy tự chạy bộ evals và nộp **evidence report**; bạn chỉ làm
-2 việc:
+một tính năng, máy tự chạy bộ evals và nộp **evidence report**; bạn chỉ xuất
+hiện ở những chỗ **chỉ người trả lời được**:
 
 ```
 yêu cầu (prompt/ticket/PRD)
-  → máy viết contract + evals     ── 🚪 CỔNG 1: bạn DUYỆT TIÊU CHÍ (5-10p)
+  → ô cơ hội                      ── 🚪 CỔNG ĐÁNG: việc này có đáng làm không
+  → máy viết contract + evals     ── 🚪 CỔNG PHẠM VI: tiêu chí đủ và đúng chưa
   → AI code như bình thường
-  → máy verify + evidence report  ── 🚪 CỔNG 2: bạn KÝ NGHIỆM THU (5-10p)
+  → máy verify + evidence report  ── 🚪 CỔNG BẰNG CHỨNG: đã làm đúng thứ đã hứa chưa
+  → ship                          ── 🚪 CỔNG GIÁ TRỊ: thứ đã giao có ăn thua không
 ```
+
+**Không phải vòng nào cũng dừng đủ bốn lần.** T2 đủ điều kiện đi tiếp thì máy
+tự chốt phạm vi và tự thông bằng chứng, chỉ báo một dòng và **để cửa veto mở** —
+bạn phủ quyết lúc nào cũng được. Bảng dưới là bản chép của
+[GUIDE §0 «Bốn cổng người»](GUIDE.md#bốn-cổng-người--nguồn-chuẩn-của-mô-hình-cổng)
+— nguồn nằm ở đó, đừng sửa lẻ ở đây:
+
+<!-- <<<GATE-MODEL-VI -->
+| Cổng | Câu hỏi chỉ người trả lời được | Người phải xuất hiện khi |
+|---|---|---|
+| **Cổng Đáng** | Việc này có đáng làm không? | Luôn — một ô cơ hội mở vòng |
+| **Cổng Phạm vi** | Bộ tiêu chí đã đủ và đúng chưa? | T2 **chưa** đủ điều kiện đi tiếp (gap-probe còn P0 · danh từ mờ · coverage chưa gạch · hạng T3). T2 đủ điều kiện: máy chốt phạm vi, để cửa veto mở, đi tiếp |
+| **Cổng Bằng chứng** | Đã làm đúng thứ đã hứa chưa? | Bằng chứng **chưa** xanh-sạch (thiếu một trong sáu điều kiện) **hoặc** việc chạm KHÓ-ĐẢO. T2 xanh-sạch đi **làn V** — `status: machine-cleared`, không cần chữ ký |
+| **Cổng Giá trị** | Thứ đã giao có ăn thua không? | Sau khi ship, cho việc sinh từ một ô cơ hội có ngưỡng đã khai |
+
+**Ngân sách lượt gọi người:** mục tiêu **≤3 lượt/vòng** (= đúng số cổng người trong thiết kế) · vòng **T3 trần 4** (thêm Gate 1.5 duyệt plan) · **mốc phát hành ≤1** · **≤1 chạm/lượt**. Mục tiêu thật là **0 lượt ngoài thiết kế**.
+<!-- GATE-MODEL-VI>>> -->
 
 Verdict PASS không có bằng chứng máy (run_id, exit_code, verifier) sẽ bị
 **hook chặn ngay lúc ghi file** — AI không thể tự khai "done". CI chặn merge
@@ -32,7 +51,7 @@ lệnh nào: bản sao thứ hai là bản sao sẽ trôi.
 
 Tối thiểu (chỉ gate, không vòng lặp): cài marketplace + `acceptance-gate` là đủ.
 
-> Cần quyền đọc repo GitHub `phanlemanh/acceptance-gate-kit` (hỏi Mạnh nếu chưa có).
+> Repo `phanlemanh/acceptance-gate-kit` là **public** — không cần xin quyền đọc.
 > Sau khi cài, mở phiên Claude Code mới để runtime nạp plugin.
 
 ## Cập nhật plugin (quan trọng với cả đội)

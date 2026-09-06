@@ -1,0 +1,18 @@
+Acceptance-Gate Kit
+Copyright (c) 2026 Manh Phan
+
+Mã của kit phát hành dưới giấy phép MIT — xem ./LICENSE.
+
+THIRD-PARTY COMPONENTS
+
+This repository vendors two third-party trees. They keep their own licences,
+which govern those trees and are NOT superseded by the MIT licence above:
+
+  vendor/impeccable/          Apache License 2.0 — Paul Bakaus
+                              (see vendor/impeccable/LICENSE and NOTICE)
+  diagram-design/skills/      MIT — Cathryn Lavery
+    diagram-design/           (see that directory's LICENSE and
+                              THIRD_PARTY_LICENSES.md)
+
+Giấy phép của hai cây trên **không** bị MIT ở gốc thay thế: mỗi cây giữ file
+LICENSE/NOTICE riêng trong thư mục của nó, và đó là bản có hiệu lực cho cây đó.
