@@ -1,109 +1,86 @@
 ## Trong hợp đồng
 
-- **Bốn đột biến mới của P86 chỉ assert «khác None», không ghim thông điệp — con số «9» trong output là chữ hằng trong nhãn ca, không phải số máy trích**
-  file: `tests/plugins/run-tests.sh:11075`
-  severity: high
-  AC: AC-7
-  CLAUDE.md nêu bất biến: mọi case kết luận từ «exit khác 0» PHẢI có (a) đối chứng dương VÀ (b) ghim ĐÚNG THÔNG ĐIỆP mong đợi, không chỉ mã thoát. Bốn đột biến mới (`ngan sach luot 3->9`, `tran T3 4->5`, `xoa ve moc phat hanh`, `them cong nhung giu ngan sach`) đều truyền `phai_neu = None`, nên vòng lặp chỉ chạy `assert d is not None` rồi `print(f"P86 MUTANT: {ten} -> do dung cho")` — biến `d` (thông điệp lỗi có chứa số đã trích) KHÔNG BAO GIỜ được in ra và không bị assert.
+**«hai lượt một kết quả»: đối chứng âm là hằng đúng — nhánh «KHÔNG có răng» là mã chết, và câu PASS khai sai về bản cũ**
+- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:252`
+- severity: high
+- AC: AC-1
 
-  Hệ quả cụ thể, và nó chạm thẳng vào AC-7/E7: E7 khai «Dòng đỏ của ca một phải NÊU SỐ THẬT đã trích — chứa `9` — chứng minh con số là dữ liệu chứ không phải chữ trong câu». Chạy thật, dòng duy nhất chứa `9` là `P86 MUTANT: ngan sach luot 3->9 -> do dung cho` — chuỗi `3->9` là NHÃN hardcode của ca đột biến ở dòng 11068, không phải giá trị `ngan_sach()` đọc được. Người/judge đọc bằng chứng sẽ xác nhận đúng câu E7 hứa trong khi vật không hề tạo ra bằng chứng ấy.
+AC-1 và decision tkm16 yêu cầu: cùng cặp cây, bản CŨ theo `git merge-base` phải cho HAI kết quả KHÁC nhau — nếu không, phép so hai-lượt chỉ là hai chuỗi hằng. Bản cài đặt không đo điều đó.
 
-  Kịch bản fail: sửa thông điệp ở dòng 11073 từ `f"{ten}: ngan sach luot {luot} != so cong {len(vis)} - 1"` thành hằng `f"{ten}: ngan sach sai"` (hoặc để một vế đỏ vì lệch bản chép thay vì vì ngân sách) — P86 vẫn XANH, vẫn in đủ 9 dòng MUTANT, E7 vẫn được chấm PASS, trong khi lời hứa «số là dữ liệu» đã chết. Cùng lớp lỗi, phép so QUAN HỆ có thể đỏ vì lý do khác vế bị đột biến mà không ca nào phân biệt được.
+`lane_theo_mergebase()` (rang.sh:113-120) KHÔNG trả phán quyết của bản cũ; nó in `MB: mốc=<sha> tập={<changed>}`. Chuỗi ấy nhúng merge-base SHA, mà `$KIT` (HEAD trên nhánh) và `$CL2` (detached ở `$MOC_KY`) theo định nghĩa có merge-base khác nhau. Nên `M1 != M2` LUÔN đúng, nhánh `elif [ "$M1" = "$M2" ] → bad "phép so hai-lượt KHÔNG có răng"` (rang.sh:253) là mã chết: không cặp cây nào của ca này làm nó nổ.
 
-  Cách đóng đúng lớp (không vá riêng ca một): cho mỗi đột biến mới một chuỗi ghim (mở rộng `phai_neu` thành mẫu thông điệp, không chỉ tên file), assert `phai_neu in d`, và in `d` ra thay vì chỉ in `ten` — để con số trích được thật sự xuất hiện trong bằng chứng. Lưu ý hai đột biến CŨ (`mat ngan sach T3`) cũng đang `None` nên nên quét cả khối, đúng nếp «sửa theo LỚP» của CLAUDE.md.
-  (source: conventions)
+Đo thật (chạy lại nguyên văn `check_lane` bản cũ trên đúng cặp cây ca này dựng):
+  TREE1 ($KIT):  "DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}"  rc=1
+  TREE2 ($CL2):  "DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}"  rc=1
+  → OLD MEASURE: IDENTICAL VERDICT ON BOTH TREES (giống cả thông điệp lẫn mã thoát).
+Vậy câu PASS ở rang.sh:255 — «bản cũ theo merge-base cho HAI kết quả khác nhau» — sai ở mức phán quyết; nó chỉ đúng với một chuỗi thông tin phụ.
 
-- **«Ba mốc đã neo» khai ở comment, AC-1 và E1 — thực tế chỉ có HAI hằng mốc**
-  file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:83`
-  severity: medium
-  AC: AC-1
-  Dòng 83 viết «Ba mốc dưới đây là hằng có chủ ý» nhưng ngay dưới chỉ có HAI phép gán: `MOC_KY` (dòng 85) và `MOC_GOP` (dòng 86). Contract AC-1 nói «Then nhóm XANH và in ba mốc đã neo», và E1 `expected` nói «dòng đối chứng dương in ba mốc đã neo nguyên văn».
+Hệ quả kép: vế `L1 = L2` cũng vô hiệu, vì `lane_song`/`tap_file` chỉ đọc hai hằng `$MOC_KY`/`$MOC_GOP` và cây làm việc — chúng độc lập HEAD *theo cấu trúc*, nên hai lượt bằng nhau là tất yếu, không phải tính chất đo được. Toàn bộ ca «hai lượt một kết quả» quay lại đúng hình dạng «so hai chuỗi hằng» mà S4 vòng 1 REJECT (review-findings «Hình dạng 3») và tkm16 tuyên đã đóng. Đây là vi phạm trực tiếp CLAUDE.md «Assertion âm-tính-một-mình là assertion không sống» ở tầng guard-của-guard, và đúng lớp bệnh hồ sơ này mở ra để chữa (thước tự khai một đằng đo một nẻo).
 
-  Chạy thật, output in `9b3d6f64` (vế lane), rồi `1765b550..9b3d6f64` (vế tập-file) — hai SHA phân biệt, một cái xuất hiện hai lần. Không ô nào assert số lượng mốc, nên sai lệch này đi qua cổng im lặng.
+Để có răng thật, đối chứng âm phải so PHÁN QUYẾT (thông điệp + mã thoát) của chính hàm cũ, và cặp cây phải được chọn sao cho bản cũ thực sự cho hai phán quyết khác nhau (ví dụ một cây có commit chạm `s4-args.mjs` sau merge-base) — không phải so chuỗi có nhúng sha.
 
-  Kịch bản fail: người duyệt Cổng Bằng chứng đọc E1 rồi đếm SHA trong output, thấy ba lần xuất hiện, kết luận «đủ ba mốc» — nhưng nếu về sau ai đó thêm/bớt một hằng mốc (ví dụ tách `MOC_NGON` riêng như câu chữ đang gợi ý), cả comment, AC-1 lẫn E1 vẫn khai đúng «ba» mà không phép đo nào phản ứng. Đây chính là hình dạng «tự khai một đằng» ở tầng văn bản mà hồ sơ này tồn tại để cắt. Sửa: thống nhất về «hai mốc» ở cả ba chỗ, hoặc nếu chủ ý là ba thì thiếu một hằng.
-  (source: conventions)
+---
 
-- **P86 mutant loop discards the red message — AC-7/AC-8's "prints the extracted number" is never emitted, and the only `9` in the output is the hardcoded mutant label**
-  file: `tests/plugins/run-tests.sh:11078`
-  severity: high
-  AC: AC-7
-  The mutant loop computes the red message into `d` but prints a constant:
+**Đối chứng âm của ô «hai lượt một kết quả» là tautology — nhánh guard không bao giờ chạy được**
+- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:252`
+- severity: high
+- AC: AC-1
 
-      d = f()
-      assert d is not None, ...
-      if phai_neu:
-          assert phai_neu in d, ...
-      print(f"     P86 MUTANT: {ten} -> do dung cho")
+AC-1 đòi thẳng: bản cũ lấy mốc bằng `git merge-base` phải cho HAI KẾT QUẢ KHÁC nhau trên cùng cặp cây, nếu không thì phép so chỉ là hai chuỗi hằng. Cài đặt không đo được điều đó.
 
-  All four NEW mutants pass `phai_neu=None`, so the `assert phai_neu in d` branch never runs for them, and `d` is never printed. Actual observed output:
+`lane_theo_mergebase()` (dòng 113-121) không còn là bản cũ: nó bỏ hẳn bước `git diff --quiet base..HEAD -- REL_WF` và bỏ luôn verdict (`return 0` vô điều kiện), chỉ `echo "MB: mốc=$base tập={$changed}"`. Chuỗi so sánh vì thế NHÚNG chính $base. CL2 được `checkout --detach $MOC_KY` theo thiết kế nên base của nó luôn khác base của KIT ⇒ `M1 != M2` đúng theo cấu trúc, với mọi trạng thái kho. Nhánh `elif [ "$M1" = "$M2" ]` ở dòng 254 là mã chết.
 
-      P86 MUTANT: ngan sach luot 3->9 -> do dung cho
-      P86 MUTANT: tran T3 4->5 -> do dung cho
-      P86 MUTANT: xoa ve moc phat hanh -> do dung cho
-      P86 MUTANT: them cong nhung giu ngan sach -> do dung cho
+Đo thật trên cây hôm nay: tái dựng đúng `check_lane` cũ rồi chạy trên cùng cặp cây (KIT ở HEAD và clone detached ở $MOC_KY) cho kết quả GIỐNG NHAU từng byte, kể cả mã thoát:
+  OLD on KIT : DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}  rc=1
+  OLD on CL2 : DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}  rc=1
+Tức là điều kiện AC-1 đòi (bản cũ phân biệt được hai cây) THỰC TẾ SAI, nhưng ô vẫn PASS và còn in ra câu khẳng định ngược: «trong khi bản cũ theo merge-base cho HAI kết quả khác nhau».
 
-  But the contract requires (contract.md AC-7) "mỗi ca ĐỎ, gọi tên vế hỏng, và NÊU CON SỐ THẬT đã trích (ca một in `9`)" and AC-8 "dòng đỏ nêu cả hai số thật"; evals.yaml E7 states the red line "phải NÊU SỐ THẬT đã trích — chứa `9` — chứng minh con số là dữ liệu chứ không phải chữ trong câu", and E8 expects the printed line to carry both real numbers.
+Để có răng thật, `lane_theo_mergebase` phải trả về đúng verdict của bản cũ (gồm cả bước diff REL_WF + `return 1` khi lệch) và phép so phải so verdict + mã thoát, không so chuỗi có nhúng sha mốc.
 
-  Neither is observable. The messages exist internally (re-ran the extracted block printing `d`: `ngan sach luot 9 != so cong 4 - 1`, `them cong ...: ngan sach luot 3 != so cong 5 - 1`) but are thrown away. A verifier grepping the E7 expected string finds `9` only inside the hardcoded mutant NAME `"ngan sach luot 3->9"` — i.e. the check would be satisfied by literal text in the test source, which is exactly the "number is prose, not data" failure mode this round was opened to close. Likewise nothing asserts the message "gọi tên vế hỏng": the four new mutants would still report `do dung cho` if `ngan_sach()` regressed to always returning its error string for the wrong clause, or named the wrong copy.
+---
 
-  Fix: print `d` (or pass a `phai_neu`-style substring per new mutant, e.g. `"ngan sach luot 9 !="`, `"tran T3 5 !="`, `"«moc phat hanh»"`, `"!= so cong 5 - 1"`) so the emitted evidence actually contains the extracted values.
-  (source: bugs)
+**Hình dạng 2 — «đối chứng âm» là bản VIẾT TAY khác phép đo cũ: M1≠M2 chỉ vì in kèm sha mốc, không vì kết quả khác**
+- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:113`
+- severity: high
+- AC: AC-1
 
-- **E1 expects the positive control to print "ba mốc đã neo nguyên văn" but only two anchors exist and both print abbreviated to 8 chars**
-  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml:17`
-  severity: medium
-  AC: AC-1
-  E1's expected string is "`Results: chan lane-doc-khong-doi passed`; dòng đối chứng dương in ba mốc đã neo nguyên văn". The implementation defines only two anchored constants (rang.sh:85 `MOC_KY`, rang.sh:86 `MOC_GOP`) — the third SHA in the file (`5c15e065`) appears only inside a comment and is never checked — and contract.md Notes itself says "Hằng mốc là **hai** sha viết trong răng". rang.sh:83's own comment is also wrong: "Ba mốc dưới đây là hằng có chủ ý" followed by two definitions.
+`lane_theo_mergebase()` (rang.sh:113-119) được khai trong comment là «đây là bản CŨ, lấy mốc bằng git merge-base — tức đúng thứ bệnh vòng 06/09 vá», và răng ở dòng 254 dùng nó làm điều kiện có-răng: `elif [ "$M1" = "$M2" ]; then bad "phép so hai-lượt KHÔNG có răng"`. Nhưng nó KHÔNG phải phép đo cũ: `check_lane` cũ trả PHÁN QUYẾT (rc≠0 + dòng «DO: lane hội đồng đã đổi» / «DO: tập file mã đổi ≠ {...}»), còn bản này bỏ hẳn cả hai phép so, luôn `return 0`, và `echo "MB: mốc=$base tập={$changed}"`. Tôi chạy lại NGUYÊN VĂN `check_lane` cũ (bản trước 5aa7221a) trên đúng cặp cây mà răng dùng ($KIT và clone detached tại MOC_KY): cả hai lượt trả BYTE-GIỐNG NHAU — `DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}`. Nghĩa là với cặp cây này, phép đo cũ THẬT cho HAI lượt một kết quả, tức đối chứng âm đúng ra phải FAIL (`bản cũ ... cũng cho hai lượt giống nhau`). Ô PASS chỉ có được nhờ dòng `echo` mới in kèm `mốc=$base` — 5aa7221a vs 9b3d6f64 — một chuỗi khác nhau vì HEAD khác nhau, chứ không phải vì phán quyết khác nhau (`tập={}` giống hệt ở cả hai lượt, xem output thật ở dòng PASS cuối). Lời hứa AC-1 «bản CŨ lấy mốc bằng merge-base phải cho HAI kết quả KHÁC nhau» vì thế không được đo bằng kết quả nào cả.
 
-  And nothing is printed "nguyên văn": the two OK lines emit truncated forms via `${MOC_KY:0:8}` / `${base:0:8}..${tip:0:8}`. Observed output:
+---
 
-      OK: vế lane (sống) — feature-loop/workflows/acceptance-verify.js trên cây giống bản tại mốc ký 9b3d6f64
-      OK: vế tập-file (chứng-một-lần) — trong 1765b550..9b3d6f64 tập file mã đổi = {feature-loop/scripts/s4-args.mjs}
+**Hình dạng 3 — «hai lượt một kết quả» so hai chuỗi HOÀN TOÀN là hằng của script, trong khi lời hứa là quan hệ «kết quả không đổi theo HEAD»**
+- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:250`
+- severity: high
+- AC: AC-1
 
-  A verifier matching E1's expected literally (three anchors, verbatim SHAs) cannot pass on real output; the only way E1 goes green is by not actually being matched. Either print the full SHAs and say "hai mốc", or reword E1 and the rang.sh:83 comment to two abbreviated anchors.
-  (source: bugs)
-
-- **"hai lượt một kết quả" compares only stdout and discards both exit codes — two identical failures report PASS**
-  file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:229`
-  severity: low
-  AC: AC-1
-      L1="$(lane_song "$KIT"; tap_file "$KIT" "$MOC_GOP" "$MOC_KY")"
-      L2="$(lane_song "$CL2"; tap_file "$CL2" "$MOC_GOP" "$MOC_KY")"
-      if [ "$L1" = "$L2" ]; then ok "hai lượt một kết quả: ... GIỐNG NHAU từng byte"; else bad ...
-
-  The return codes of all four calls are dropped; only the captured text is compared. `$CL2` is a clone of `$KIT`, so both runs share an object store: if the anchored SHAs are missing (rewritten history, shallow clone), both sides emit the identical `DO: mốc đã neo không có trong kho: …` and this check prints PASS while claiming the measurement succeeded on two trees. Same for any other symmetric failure. It is currently shadowed by the direct assertions earlier in the chan (so the chan still exits non-zero), but the PASS line itself is misleading evidence for AC-1. Require both halves to also succeed, e.g. capture rc for each and gate on `rc==0 && "$L1" = "$L2"`.
-  (source: bugs)
-
-- **Hình dạng 3 — «hai lượt một kết quả» so hai chuỗi HẰNG trong khi lời hứa là quan hệ (phép đo độc lập HEAD)**
-  file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:229`
-  severity: high
-  AC: AC-1
-  L1 (dòng 227) và L2 (228) là stdout của `lane_song` + `tap_file`. Nhìn hai hàm: dòng OK của `lane_song` in `$REL_WF` + `${MOC_KY:0:8}`; dòng OK của `tap_file` in `${base:0:8}..${tip:0:8}` + `$REL_S4` — TOÀN BỘ là hằng của script, không một byte nào lấy từ nội dung kho đang đo. Nên `[ "$L1" = "$L2" ]` ở dòng 229 chỉ có thể lệch khi một vế ĐỎ, mà vế đỏ ấy đã bị hai assert ở dòng 182–185 bắt trước rồi. AC-1 và E1 khai đây là «cách bắt đường phụ thuộc HEAD còn sót»; đó là một QUAN HỆ (kết quả không đổi theo HEAD), không phải hai chuỗi bằng nhau. Đã chứng minh trên clone: đổi `lane_song` sang bản phụ thuộc HEAD (`git diff --quiet "$MOC_KY"..HEAD -- "$REL_WF"`) — đúng thứ ô này tuyên bắt — nhóm vẫn `Results: chan lane-doc-khong-doi passed (7 pass, 0 do)` và chính dòng «hai lượt một kết quả» vẫn PASS.
-  (source: measurement)
-
-- **Hình dạng 4 — bốn đột biến P86 mới assert âm tính trần, không ghim thông điệp; bằng chứng «có số 9» đến từ tên ca hardcode**
-  file: `tests/plugins/run-tests.sh:11073`
-  severity: high
-  AC: AC-7
-  Bốn ca mới (11068–11071: `ngan sach luot 3->9`, `tran T3 4->5`, `xoa ve moc phat hanh`, `them cong nhung giu ngan sach`) đều truyền `phai_neu=None`. Vòng lặp 11073–11077 khi đó chỉ chạy `assert d is not None` — đỏ vì BẤT KỲ lý do gì cũng đạt — và bỏ qua nhánh `if phai_neu:` (11076), tức không ghim một mảnh nào của thông điệp đỏ. Dòng in ra ở 11078 là chuỗi đóng hộp `P86 MUTANT: {ten} -> do dung cho`; nội dung `d` không bao giờ được in hay assert. Hệ quả: AC-7/E7 đòi «dòng đỏ phải NÊU CON SỐ THẬT đã trích (ca một in `9`)» và AC-8/E8 đòi «dòng đỏ nêu cả hai số thật» — cả hai không có phép đo nào. Con số `9` mà người đọc bằng chứng thấy trong output nằm trong TÊN CA hardcode `"ngan sach luot 3->9"`, không phải giá trị máy trích. Kiểm chứng: chạy lại khối P86 với `print(d)` cho thấy thông điệp thật đúng như hợp đồng mong, nhưng khối như đang giao vẫn xanh nếu thông điệp ấy đổi thành bất cứ chuỗi nào khác.
-  (source: measurement)
-
-- **Hình dạng 5 — AC-2 tuyên lớp «kể cả sửa chưa commit», chiều đỏ 1 chỉ có điểm-case đã commit**
-  file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:190`
-  severity: high
-  AC: AC-2
-  AC-2 và E2 khai rõ vế lane so CÂY LÀM VIỆC «không so HEAD: sửa chưa commit cũng bị bắt» — một lớp hai phần tử {đã commit, chưa commit}. Chiều đỏ duy nhất dựng cho vế này (dòng 190) tiêm rồi `git -C "$CL" commit -qam "tiem"`, tức chỉ đo phần tử «đã commit»; không có ca nào để thay đổi ở trạng thái dirty. Vì vậy assert ở 192 không phân biệt được `git diff "$MOC_KY" -- "$REL_WF"` (bản đang giao) với `git diff "$MOC_KY"..HEAD -- "$REL_WF"` (bản phụ thuộc HEAD): thay bằng bản sau, dòng «chiều đỏ 1» vẫn PASS (đã chạy thử trên clone). Bằng chứng cho phần tử còn lại được E2 dẫn bằng lời — «Đã phá thử tay 06/09 … nhóm FAILED (5 pass, 2 do)» — tức nằm ngoài lưới, không tái lập được khi chạy lại ô.
-  (source: measurement)
+Dòng 250-253 dựng `L1`/`L2` từ `lane_song` + `tap_file` rồi assert `[ "$L1" != "$L2" ] → bad`. Khi cả hai lượt xanh, đầu ra không chứa MỘT mẩu dữ liệu nào đọc từ kho: `lane_song` in «OK: vế lane (sống) — $REL_WF trên cây giống bản tại mốc ký $MOC_KY» và `tap_file` in «OK: ... trong $base..$tip tập file mã đổi = {$REL_S4}» — REL_WF, REL_S4, MOC_KY, MOC_GOP đều là hằng khai ở đầu script, còn base/tip là hằng truyền vào (dòng 250-251 truyền MOC_GOP/MOC_KY chứ không truyền HEAD). Đầu ra thật (chạy 06/09) xác nhận: hai dòng OK không có ký tự nào phụ thuộc cây. Vậy `L1 = L2` là hai chuỗi hằng bằng nhau theo cấu tạo, không thể đỏ vì lý do được nêu. Cụ thể: nếu `lane_song` được viết theo `git diff MOC_KY..HEAD -- $REL_WF` (đúng thứ HEAD-phụ-thuộc mà ô này tuyên bắt), cả $KIT lẫn clone detached tại MOC_KY vẫn XANH (acceptance-verify.js không đổi trong khoảng MOC_KY..HEAD), L1 vẫn bằng L2, ô vẫn PASS. Chỗ duy nhất phân biệt so-cây với so-HEAD là chiều đỏ 1b (dòng 238-241), không phải ô này.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **AC-6 của hồ sơ ĐÃ KÝ `inputs-tinh-tu-goc-kho` giờ mô tả một phương pháp không còn tồn tại (`git merge-base`, «chiều đỏ trên clone tạm» cho cả hai vế)**
-  Người dùng thấy gì: Tài liệu mô tả cách đo của một tính năng cũ đã không còn khớp với cách hệ thống thực sự kiểm tra thay đổi mã nguồn nữa; ai đọc lại tài liệu đó sau này có thể hiểu nhầm cách phép kiểm tra hoạt động.
-  file: `_acceptance/inputs-tinh-tu-goc-kho/contract.md`
+- **9 đột biến P86 không kiểm mũi tiêm có trúng; hai ca đột biến bản EN có thể hoá no-op im lặng và nhánh quan hệ EN không có chiều đỏ nào**
+  Người dùng thấy gì: Nếu sau này ai đó viết lại câu ngân sách trong tài liệu tiếng Anh theo cách khác, phần kiểm tra tự động có thể âm thầm không còn phát hiện lỗi ở bản tiếng Anh nữa, dù báo cáo vẫn hiện thành công.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
+  Đề xuất: new-contract
+
+- **E6 của hồ sơ ĐÃ KÝ inputs-tinh-tu-goc-kho vẫn mô tả `git merge-base` — expected và executor trôi khỏi nhau**
+  Người dùng thấy gì: Mô tả trong hồ sơ đã ký trước đó không còn khớp với cách hệ thống thực sự kiểm tra, nên người đọc lại tài liệu này sau này có thể hiểu nhầm cách nó hoạt động.
+  file: `_acceptance/inputs-tinh-tu-goc-kho/evals.yaml`
   severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 2/9 lỗi rơi vào file không bộ đo nào phủ (_acceptance/inputs-tinh-tu-goc-kho/contract.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+- **Vế ngân sách bản EN của P86 không có chiều đỏ nào — xoá hẳn phép kiểm mà suite vẫn xanh**
+  Người dùng thấy gì: Nếu phần kiểm tra ngân sách dành cho bản tiếng Anh của tài liệu bị xoá nhầm, hệ thống vẫn báo mọi thứ ổn thay vì cảnh báo cho người dùng biết có lỗi.
+  file: `tests/plugins/run-tests.sh`
+  severity: high
+  Đề xuất: new-contract
+
+- **Hình dạng 5 — P86 tuyên lớp {3 vế ngân sách} × {2 bản chép} nhưng mọi đột biến chỉ đáp xuống bản VI; nửa EN của phép so quan hệ không có chiều đỏ nào**
+  Người dùng thấy gì: Một nửa phép kiểm tra ngân sách — phần dành riêng cho tài liệu tiếng Anh — có thể bị hỏng hoặc gỡ bỏ mà không ai nhận ra, vì không có cảnh báo nào bật lên khi điều đó xảy ra.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
+  Đề xuất: new-contract
+
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
