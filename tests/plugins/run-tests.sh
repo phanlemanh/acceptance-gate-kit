@@ -10944,7 +10944,7 @@ if [ "$P201OK" -eq 1 ]; then pass "P201 ngan khong-sua co ten + duong doc-cu + m
 # DUONG truoc, roi dot bien TUNG ban, moi chieu do phai GOI TEN dung ban lech.
 # Ban chep VI (GUIDE + QUICKSTART) so BYTE-EQUAL. Ban EN khac ngon ngu nen so
 # theo CAU TRUC: day nhan cong phai khop cot `en` cua khoi nguon, dung thu tu.
-run "P86 GATE-MODEL: nguon tsv · 2 ban VI byte-equal · ban EN khop cot en · ngan sach 3/4/1 · dot bien goi ten dung ban" \
+run "P86 GATE-MODEL: nguon tsv · 2 ban VI byte-equal · ban EN khop cot en · ngan sach doc-tu-dong va so QUAN HE · 9 dot bien goi ten dung ban" \
   python3 - "$ROOT" <<'PY'
 import re, sys
 from pathlib import Path
@@ -10987,25 +10987,73 @@ vi_q  = grab(RX_VI, VI_P, (root / VI_P).read_text(encoding="utf-8"), "GATE-MODEL
 en_r  = grab(RX_EN, EN_P, (root / EN_P).read_text(encoding="utf-8"), "GATE-MODEL-EN")
 ids, vis, ens = cols(grab(RX_SRC, SRC_P, src_t, "GATE-MODEL"))
 
+# Ba ve cua dong ngan sach, moi ngon ngu mot bo bieu thuc BAM NGU CANH.
+# Ban cu hoi `if so not in khoi` tren TOAN khoi: chu so "3" luon co trong «T3» va
+# "1" luon co trong «Gate 1.5», nen hai ve ay khong the do (do tay 06/09: doi
+# «\u22643 luot/vong» thanh «\u22649» va xoa han ve «moc phat hanh» deu van PASS).
+VE_NGAN_SACH = {
+    "vi": [("so luot moi vong", r"\u2264(\d+)\s*l\u01b0\u1ee3t/v\u00f2ng"),
+           ("tran T3",          r"T3\s+tr\u1ea7n\s+(\d+)"),
+           ("moc phat hanh",    r"m\u1ed1c ph\u00e1t h\u00e0nh\s*\u2264(\d+)")],
+    "en": [("so luot moi vong", r"\u2264(\d+)\s*turns per round"),
+           ("tran T3",          r"T3 ceiling\s+(\d+)"),
+           ("moc phat hanh",    r"\u2264(\d+)\s*turn for a release milestone")],
+}
+
+def ngan_sach(khoi, lang):
+    """Tra (luot, t3, ship) doc tu dung ve, hoac chuoi loi neu thieu ve."""
+    ra = []
+    for ten_ve, rx in VE_NGAN_SACH[lang]:
+        m = re.search(rx, khoi)
+        if not m:
+            return f"khong doc duoc ve ngan sach «{ten_ve}» ({lang})"
+        ra.append(int(m.group(1)))
+    return tuple(ra)
+
 # --- doi chung DUONG: cay nguyen ven phai XANH truoc khi tin bat ky phep so nao ---
-def kiem(vi_g, vi_q, en_r, vis, ens):
-    """Tra ve dong do DAU TIEN (co goi ten ban lech), hoac None neu sach."""
+def kiem(vi_g, vi_q, en_r, vis, ens, them_cong=False):
+    """Tra ve dong do DAU TIEN (co goi ten ban lech), hoac None neu sach.
+
+    them_cong=True: dot bien them cong thu nam vao CA ba ban (nguon da duoc goi
+    them qua vis/ens; hai ban chep them mot dong bang o day) MA GIU nguyen dong
+    ngan sach — moi phep so ban-chep van xanh, chi phep so QUAN HE bat duoc.
+    """
+    if them_cong:
+        dong = "| **Cổng Thứ Năm** | Câu hỏi thứ năm? | Không bao giờ |"
+        dong_en = "| **Fifth Gate** | A fifth question? | Never |"
+        vi_g = vi_g.replace("\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", 1)
+        vi_q = vi_q.replace("\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", 1)
+        en_r = en_r.replace("\n\n**Human-turn budget", "\n" + dong_en + "\n\n**Human-turn budget", 1)
     if vi_g != vi_q:
         return f"ban chep VI lech: {VI_P} khac nguon {SRC_P} — dong bo lai khoi GATE-MODEL-VI"
     if nhan(vi_g) != vis:
         return f"ban VI ({SRC_P}+{VI_P}) lech cot `vi` cua khoi nguon: {nhan(vi_g)} != {vis}"
     if nhan(en_r) != ens:
         return f"ban chep EN ({EN_P}) lech cot `en` cua khoi nguon: {nhan(en_r)} != {ens}"
-    for ten, khoi in ((f"{SRC_P}/{VI_P} (VI)", vi_g), (f"{EN_P} (EN)", en_r)):
-        for so, y in (("3", "so cong nguoi"), ("4", "tran T3"), ("1", "moc phat hanh")):
-            if so not in khoi:
-                return f"{ten}: khoi thieu con so ngan sach {so} ({y})"
+    for ten, khoi, lang in ((f"{SRC_P}/{VI_P} (VI)", vi_g, "vi"), (f"{EN_P} (EN)", en_r, "en")):
+        d = ngan_sach(khoi, lang)
+        if isinstance(d, str):
+            return f"{ten}: {d}"
+        luot, t3, ship = d
+        # QUAN HE, khong phai chu so co mat: so luot = so cong trong mot vong
+        # (bang nguon co 4 cong, Cong Gia tri nam SAU ship) · tran T3 them Gate 1.5
+        # · moc phat hanh la 1. Moi dong do NEU SO THAT da trich.
+        # Dem cong theo BAN DANG KIEM (vis da assert bang nhan(vi_g) o tren), khong
+        # theo bien `ids` ngoai — neu khong, dot bien them cong se khong the do.
+        if luot != len(vis) - 1:
+            return f"{ten}: ngan sach luot {luot} != so cong {len(vis)} - 1"
+        if t3 != luot + 1:
+            return f"{ten}: tran T3 {t3} != so luot {luot} + 1"
+        if ship != 1:
+            return f"{ten}: moc phat hanh {ship} != 1"
     return None
 
 assert len(ids) == 4, f"mo hinh phai co dung 4 cong, dang {len(ids)}: {ids}"
 loi = kiem(vi_g, vi_q, en_r, vis, ens)
 assert loi is None, f"cay NGUYEN VEN da do — khong tin duoc phep so: {loi}"
 print(f"     P86 VE: 4 cong {ids} · VI byte-equal ({SRC_P} == {VI_P}) · EN khop cot en")
+_bvi, _ben = ngan_sach(vi_g, "vi"), ngan_sach(en_r, "en")
+print("     P86 VE: ngan sach doc duoc VI %d/%d/%d · EN %d/%d/%d" % (_bvi + _ben))
 
 # --- doi chung AM: dot bien TUNG ban (bo nho) -> phai do va GOI TEN dung ban ---
 mut = [
@@ -11014,6 +11062,13 @@ mut = [
     ("ban EN o README",     lambda: kiem(vi_g, vi_q, en_r.replace("Worth Gate", "Worthy Gate", 1), vis, ens), EN_P),
     ("them cong o nguon",   lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"]), SRC_P),
     ("mat ngan sach T3",    lambda: kiem(vi_g.replace("T3 trần 4", "T3 trần bốn", 1), vi_q.replace("T3 trần 4", "T3 trần bốn", 1), en_r, vis, ens), None),
+    # --- bon dot bien MOI (ho so thuoc-khai-mot-dang-do-mot-neo, 06/09) ---
+    # Ba cai dau doi DUNG MOT ve ngan sach tren CA HAI ban chep; cai thu tu doi
+    # bang cong ma giu ngan sach. Truoc khi va, hai trong ba cai dau van XANH.
+    ("ngan sach luot 3->9", lambda: kiem(vi_g.replace("≤3 lượt/vòng", "≤9 lượt/vòng", 1), vi_q.replace("≤3 lượt/vòng", "≤9 lượt/vòng", 1), en_r.replace("≤3 turns per round", "≤9 turns per round", 1), vis, ens), None),
+    ("tran T3 4->5",        lambda: kiem(vi_g.replace("T3 trần 4", "T3 trần 5", 1), vi_q.replace("T3 trần 4", "T3 trần 5", 1), en_r.replace("T3 ceiling 4", "T3 ceiling 5", 1), vis, ens), None),
+    ("xoa ve moc phat hanh", lambda: kiem(vi_g.replace(" · **mốc phát hành ≤1**", "", 1), vi_q.replace(" · **mốc phát hành ≤1**", "", 1), en_r, vis, ens), None),
+    ("them cong nhung giu ngan sach", lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"], them_cong=True), None),
 ]
 for ten, f, phai_neu in mut:
     d = f()
