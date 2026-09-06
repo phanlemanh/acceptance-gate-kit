@@ -328,11 +328,18 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       }
       const { decision, verdict } = navValues(texts);
       // verdict RỖNG = phiên đã dựng nhưng CHƯA ký → rơi xuống ô chờ-Cổng-Giá-trị
-      if (verdict) { done.push(g(UAT_KEY[verdict], { slug, state: UAT_STATE[verdict], at: ngayXong(dir, cPath) })); continue; }
-      // Cờ CẮT NGANG mọi ô: quá hạn tự khai · lối «không đo được» dùng sai chỗ.
+      // Cờ CẮT NGANG mọi ô: quá hạn tự khai · lối «không đo được» dùng sai chỗ. Tính TRƯỚC
+      // lối phán quyết giá trị: một việc đã nghiệm thu mà timebox tự khai đã qua vẫn là thứ
+      // thẻ «Vừa xong» được dạy in (co-qua-timebox-nhom-da-xong, RT13 đỏ theo ngày 06/09).
+      // After a value-gate verdict the opportunity is no longer CONSUMED for routing
+      // (usesOpportunity → false), but the timebox flag still belongs to the record: read
+      // the text for the flag only, and let a read error stay silent here — an unused
+      // file's error must not decide the slug's bucket (doctrine of the lazy read).
+      const oFlagTxt = oTxt ?? (() => { const r = read(oPath); return r.err ? null : r.t; })();
       const flags = [];
-      if (oTxt && quaTimebox(oTxt)) flags.push('qua-timebox');
+      if (oFlagTxt && quaTimebox(oFlagTxt)) flags.push('qua-timebox');
       if (mienDoCoNguoiDung(cTxt, oTxt)) flags.push('mien-do-co-nguoi-dung');
+      if (verdict) { done.push(g(UAT_KEY[verdict], { slug, state: UAT_STATE[verdict], at: ngayXong(dir, cPath), flags })); continue; }
       if (decision === 'build' || decision === 'iterate') {
         // Ô ngưỡng quyết lối ra: đã chốt → cổng · khai không đo được → đóng · còn trống
         // → vẫn cổng NHƯNG mang cờ và hai lối có tên (hết chỗ treo vô hạn).
@@ -413,8 +420,11 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   const { stage, decision } = navValues(texts);
   // `archived` = đã đóng có hồ sơ. Trước đây không ai VIẾT nó và hai bộ đọc hiểu thành
   // «chưa quyết», nên ý đã dừng vẫn hiện ra như đang chờ người (audit 22/08, A8).
-  if (stage === 'archived') { done.push(g('da-dong-ho-so', { slug, state: decision || 'archived', at: ngayXong(dir, oPath) })); continue; }
+  // The flag is one predicate of the lib and cuts across EVERY bucket, the closed ones
+  // included: an idea parked past its own timebox is exactly what the start card's
+  // «Vừa xong» block is taught to print (co-qua-timebox-nhom-da-xong).
   const oFlags = quaTimebox(oRead.t) ? ['qua-timebox'] : [];
+  if (stage === 'archived') { done.push(g('da-dong-ho-so', { slug, state: decision || 'archived', at: ngayXong(dir, oPath), flags: oFlags })); continue; }
   if (stage !== 'decided' || !decision) {
     // Chưa có ngưỡng thì chưa có gì để ký: xếp «đang cân nhắc», không phải cổng.
     if (thresholdFilled(oRead.t)) gates.push(g('cho-cong-dang', { slug, gate: 'dang', since: since(oPath, fmOrNull(oRead.t, 'decided_at')), tier: null, flags: oFlags }));
@@ -429,7 +439,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     }
   }
   else if (decision === 'build' || decision === 'iterate') inProgress.push(g('sap-mo-vong', { slug, status: 'opportunity-decided', nextStep: 'S1', tier: null, flags: oFlags }));
-  else done.push(g(decision === 'park' ? 'xep-lai' : 'da-bac', { slug, state: decision, at: ngayXong(dir, oPath) }));
+  else done.push(g(decision === 'park' ? 'xep-lai' : 'da-bac', { slug, state: decision, at: ngayXong(dir, oPath), flags: oFlags }));
 }
 // Mốc RỖNG = nghi thức thật chưa sinh mốc, KHÔNG phải «chờ lâu nhất». Chuỗi rỗng
 // sort lên đầu khiến Cổng Giá trị luôn mở đầu thẻ bất kể tuổi — thẻ in một thứ tự

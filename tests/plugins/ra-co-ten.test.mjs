@@ -992,9 +992,13 @@ if (want('RT13')) {
   // bản chép của vòng trước lệch đúng MỘT NGÀY và hẹn suite tự đỏ 30/08/2026 (S4-r4).
   const tplTxt = readFileSync(OPP_TPL, 'utf8');
   const all = ['gates', 'inProgress', 'done', 'considering'].flatMap(grp => (jNew.groups[grp] || []).map(x => ({ grp, ...x })));
+  // Hồ sơ THẬT đang quá hạn: in tên vào câu PASS để «không có dòng thiếu» không phải là
+  // «không có gì để so» (gap-probe co-qua-timebox-nhom-da-xong P2).
+  const quaThat = [];
   for (const x of all) {
     const op = path.join(ROOT, '_acceptance', x.slug, 'opportunity.md');
     const oTxt = existsSync(op) ? readFileSync(op, 'utf8') : null;
+    if (oTxt && NG.quaTimebox(oTxt)) quaThat.push(x.slug);
     // Nhóm «đang cân nhắc» NAY CŨNG mang cờ `qua-timebox` (S4-r10 [2]: ý quá hạn mà bullet
     // khác còn trống rơi đúng vào đây). Bản cũ đòi cờ RỖNG — một giá trị CỐ ĐỊNH, và nó đã
     // cãi nhau với chính writer lẫn với E13; nó chỉ còn xanh vì hôm nay không hồ sơ nào ở ô
@@ -1120,8 +1124,64 @@ if (want('RT13')) {
       if (!thieu.includes(KHAC[0][0])) errs.push(`chiều đỏ (ii): xoá dòng khối «${KHAC[0][0]}» mà phép so vẫn im`);
     }
   }
+  // (iii-b) Ma trận fixture KHÔNG phụ thuộc ngày + ba mutant (hồ sơ co-qua-timebox-nhom-da-xong).
+  // (iii) chỉ đỏ khi cây thật có hồ sơ quá hạn — 06/09/2026 mới có lần đầu (baseline-127 park,
+  // «ship trước 2026-09-05»), tức ba lối đẩy vào «đã xong» thiếu cờ suốt từ khi có cờ mà phép đo
+  // xanh-không-chạy. Ở đây: 6 ô {park/bác · archived · phán quyết} × {quá hạn · chưa hạn} cộng
+  // kill, timebox quá khứ ghim cứng, timebox tương lai sinh lúc chạy; phép soi KHOÁ Ô trước rồi
+  // mới soi cờ (fixture rơi nhầm ô không được xanh nhờ cờ của ô khác); mỗi lối một mutant.
+  const QUA = '2026-01-01';
+  const sau = new Date(); sau.setUTCDate(sau.getUTCDate() + 2); const CHUA = sau.toISOString().slice(0, 10);
+  const KYb = { status: 'signed-off', tier: 'T2', approvedBy: 'Fx' };
+  const uatRelease = slug => `---\nschema_version: 1\nslug: ${slug}\nfeature: ${slug} — fixture\nowner: fx@example.com\nstage: held\nverdict: release\ndecided_by: Fx\ndecided_at: 2026-08-25T00:00:00Z\n---\n\n## Phiên\n\nfixture\n`;
+  const dungMaTran = root => {
+    mkWs(root, 'pk-qua', { opportunity: { decision: 'park', timebox: QUA } });
+    mkWs(root, 'pk-chua', { opportunity: { decision: 'park', timebox: CHUA } });
+    mkWs(root, 'kl-qua', { opportunity: { decision: 'kill', timebox: QUA } });
+    mkWs(root, 'ar-qua', { opportunity: { stage: 'archived', decision: 'park', timebox: QUA } });
+    mkWs(root, 'ar-chua', { opportunity: { stage: 'archived', decision: 'park', timebox: CHUA } });
+    for (const [s, tb] of [['rl-qua', QUA], ['rl-chua', CHUA]]) {
+      mkWs(root, s, { contract: KYb, evidence: { signoff: 'Fx 2026-08-23' }, opportunity: { nguong: 'chot', timebox: tb } });
+      W(root, `_acceptance/${s}/uat-session.md`, uatRelease(s));
+    }
+  };
+  const MA_TRAN = [['pk-qua', 'xep-lai', true], ['pk-chua', 'xep-lai', false], ['kl-qua', 'da-bac', true],
+    ['ar-qua', 'da-dong-ho-so', true], ['ar-chua', 'da-dong-ho-so', false],
+    ['rl-qua', 'da-nghiem-thu-release', true], ['rl-chua', 'da-nghiem-thu-release', false]];
+  const soi = j => MA_TRAN.flatMap(([s, key, exp]) => {
+    const x = findSlug(j, s);
+    if (!x) return [`${s}: không thấy`];
+    if (x.grp !== 'done' || x.stateKey !== key) return [`${s}: ô ${x.grp}/${x.stateKey} thay vì done/${key}`];
+    return (x.flags || []).includes('qua-timebox') === exp ? [] : [`${s}: cờ qua-timebox ${exp ? 'thiếu' : 'thừa'}`];
+  });
+  // Mỗi mutant gỡ `flags` khỏi ĐÚNG MỘT lối; phép soi phải nêu đúng slug quá hạn của lối ấy.
+  const MUTANT = [
+    ['pk-qua', "state: decision, at: ngayXong(dir, oPath), flags: oFlags }));", "state: decision, at: ngayXong(dir, oPath) }));"],
+    ['ar-qua', "state: decision || 'archived', at: ngayXong(dir, oPath), flags: oFlags }));", "state: decision || 'archived', at: ngayXong(dir, oPath) }));"],
+    ['rl-qua', "state: UAT_STATE[verdict], at: ngayXong(dir, cPath), flags }));", "state: UAT_STATE[verdict], at: ngayXong(dir, cPath) }));"],
+  ];
+  const batDuoc = [];
+  withRepo(root => {
+    dungMaTran(root);
+    const e = soi(scan(root));
+    if (e.length) errs.push(`(iii-b) ${e.join(' · ')}`);
+    const src = readFileSync(SCAN, 'utf8');
+    for (const [slug, fragment, thay] of MUTANT) {
+      if (src.split(fragment).length !== 2) { errs.push(`mutant ${slug}: mỏ neo «${fragment}» không đúng một lần trong bộ quét`); continue; }
+      const m = tmp('rt13-mutant-');
+      for (const d of ['scripts', 'lib', 'skills/acceptance/references']) cpSync(path.join(ROOT, d), path.join(m, d), { recursive: true });
+      writeFileSync(path.join(m, 'scripts', 'start-scan.mjs'), src.replace(fragment, thay));
+      let eMut;
+      try { eMut = soi(scan(root, path.join(m, 'scripts', 'start-scan.mjs'))); }
+      catch (err) { errs.push(`mutant ${slug}: bản sao không chạy được: ${String(err.message).slice(0, 120)}`); rmSync(m, { recursive: true, force: true }); continue; }
+      rmSync(m, { recursive: true, force: true });
+      if (eMut.some(l => l.startsWith(`${slug}: cờ qua-timebox thiếu`))) batDuoc.push(slug);
+      else errs.push(`mutant KHÔNG bị bắt: gỡ flags ở lối ${slug} mà phép soi im (${eMut.join(' · ') || 'không lỗi'})`);
+    }
+  });
+
   if (errs.length) fail('RT13', errs.join(' · '));
-  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so`);
+  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so · iii: ${quaThat.length} hồ sơ quá hạn trên cây thật (${quaThat.join(', ') || 'không'}) · iii-b: 7 fixture — park quá hạn ✓ · park chưa hạn ✗ · kill quá hạn ✓ · archived quá hạn ✓ · archived chưa hạn ✗ · release quá hạn ✓ · release chưa hạn ✗ · mutant ×3 bắt: ${batDuoc.join(' · ')}`);
 }
 
 // ── RT14 — hồ sơ THẬT thoát Cổng Giá trị bằng lối có tên, có vết ────────────
