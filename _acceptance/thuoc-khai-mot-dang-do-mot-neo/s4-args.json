@@ -1,12 +1,12 @@
 {
- "generated_at": "2026-09-06T10:32:19Z",
- "generated_sha": "271590d0e52efe4335fc20c91f8036110dbeffde",
+ "generated_at": "2026-09-06T12:01:36Z",
+ "generated_sha": "f454bfac285f40e7f0314edbcf7b00b84bc765de",
  "mainBranchInfo": {
   "branch": "main",
   "source": "remote"
  },
  "slug": "thuoc-khai-mot-dang-do-mot-neo",
- "round": 4,
+ "round": 6,
  "riskTier": "T2",
  "evals": [
   {
@@ -85,7 +85,7 @@
   {
    "id": "E5",
    "criterion": "AC-5",
-   "cmd": "ONLY_BLOCK=P86 bash tests/plugins/run-tests.sh",
+   "cmd": "ONLY_BLOCK=\"P86 GATE-MODEL\" bash tests/plugins/run-tests.sh",
    "expected": "exit 0; `PASS: P86` và dòng `P86 VE: ngan sach doc duoc` in ba con số cho TỪNG bản\n(`VI 3/4/1` · `EN 3/4/1`). Số đến từ biểu thức trích trên đúng vế; vế nào không khớp biểu\nthức → đỏ nêu tên vế và tên bản.",
    "executor": "script",
    "paths": [
@@ -106,8 +106,8 @@
   {
    "id": "E6",
    "criterion": "AC-6",
-   "cmd": "ONLY_BLOCK=P86 bash tests/plugins/run-tests.sh",
-   "expected": "exit 0; SÁU dòng `P86 MUTANT` ngân sách in kèm THÔNG ĐIỆP ĐỎ THẬT sau dấu hai chấm — ba ca sửa\nbản VI (`GUIDE.md/QUICKSTART.md (VI): …`) và ba ca `EN:` sửa CHỈ bản EN (`README.md (EN): …`),\nvì `kiem` duyệt VI trước rồi dừng nên ca chạm VI che mất nhánh EN. Ba ca VI:\n`ngan sach luot 3->9 -> do dung cho: … ngan sach luot 9 != so cong 4 - 1` ·\n`tran T3 4->5 -> … tran T3 5 != so luot 3 + 1` ·\n`xoa ve moc phat hanh -> … khong doc duoc ve ngan sach «moc phat hanh»`.\nBa ca EN cho `README.md (EN): ngan sach luot 9 != so cong 4 - 1` và hai dòng tương ứng.\nCon số 9 đến từ `ngan_sach()` trích được, không từ nhãn ca. Ba phá thử 06/09: đổi thông điệp\nthành chuỗi hằng → FAIL `thieu ghim`; xoá nhánh quan hệ của bản EN → FAIL `EN: ngan sach luot\n3->9 KHONG do`; đổi chuỗi đích của một mũi tiêm → FAIL `mui tiem «EN-luot» KHONG trung`.",
+   "cmd": "ONLY_BLOCK=\"P86 GATE-MODEL\" bash tests/plugins/run-tests.sh",
+   "expected": "exit 0; TÁM dòng `P86 MUTANT` ngân sách in kèm THÔNG ĐIỆP ĐỎ THẬT sau dấu hai chấm — ba ca sửa\nbản VI (`GUIDE.md/QUICKSTART.md (VI): …`) và ba ca `EN:` sửa CHỈ bản EN (`README.md (EN): …`),\nvì `kiem` duyệt VI trước rồi dừng nên ca chạm VI che mất nhánh EN. Ba ca VI:\n`ngan sach luot 3->9 -> do dung cho: … ngan sach luot 9 != so cong 4 - 1` ·\n`tran T3 4->5 -> … tran T3 5 != so luot 3 + 1` ·\n`xoa ve moc phat hanh -> … khong doc duoc ve ngan sach «moc phat hanh»`.\nBa ca EN cho `README.md (EN): ngan sach luot 9 != so cong 4 - 1` và hai dòng tương ứng.\nCon số 9 đến từ `ngan_sach()` trích được, không từ nhãn ca. Ba phá thử 06/09: đổi thông điệp\nthành chuỗi hằng → FAIL `thieu ghim`; xoá nhánh quan hệ của bản EN → FAIL `EN: ngan sach luot\n3->9 KHONG do`; đổi chuỗi đích của một mũi tiêm → FAIL `mui tiem «EN-luot» KHONG trung`.",
    "executor": "script",
    "paths": [
     "tests/plugins/run-tests.sh",
@@ -127,7 +127,7 @@
   {
    "id": "E7",
    "criterion": "AC-7",
-   "cmd": "ONLY_BLOCK=P86 bash tests/plugins/run-tests.sh",
+   "cmd": "ONLY_BLOCK=\"P86 GATE-MODEL\" bash tests/plugins/run-tests.sh",
    "expected": "exit 0; dòng `P86 MUTANT: them cong nhung giu ngan sach -> do dung cho:` in tiếp thông điệp\n`ngan sach luot 3 != so cong 5 - 1` — cả hai số đều là số máy trích. Ba bản vẫn khớp nhau nên\nmọi phép so bản-chép đều xanh: chỉ phép so QUAN HỆ bắt được ca này.",
    "executor": "script",
    "paths": [
@@ -214,8 +214,8 @@
  "templatePath": "/Users/manh-macmini/dev/acceptance-gate-kit/skills/acceptance/references/evidence-report-template.md",
  "toolKillRule": "# TOOL-KILL-RULE — lệnh bị công cụ ngắt KHÔNG phải lệnh fail\n\n**Nguồn duy nhất** của luật «hết giờ không phải trượt» cho MỌI đường chạy lệnh\nkiểm của kit. Hai đường tiêu thụ, cùng đọc khối marker dưới đây, không chép tay:\n\n- **Vòng lặp tính năng** (plugin feature-loop): skill `feature-loop` đọc file này\n  (resolve qua `resolve-plugin.mjs --require skills/acceptance/references/tool-kill-rule.md`)\n  và truyền NGUYÊN VĂN vào `args.toolKillRule` của workflow\n  `acceptance-verify.js`; workflow rút khối marker và nội suy vào prompt của mọi\n  agent chạy lệnh (machine · ui-check · baseline). Thiếu args hoặc không rút\n  được marker → workflow trả BLOCKED có tên, không chạy không luật.\n- **Đường VERIFY độc lập** (skill `acceptance` Phase 3): phiên điều phối chép khối\n  marker VERBATIM vào prompt của phiên tươi VERIFY, cùng nếp «Network truth».\n\nVì sao có luật: verifier chạy lệnh qua Bash tool có trần thời gian mặc định\n(~120 s) NGẮN hơn nhiều suite; lệnh bị công cụ giết trả exit code CỦA CÔNG CỤ,\nkhông phải của lệnh (vấp thật release-2-2-0 S4 r5: suite 108 s đơn lẻ, dưới tải\nbị giết ở 118 s → REJECT giả 4 eval). Nhận diện là việc AGENT (nó thấy tool\nresult thật); phần máy chỉ phòng thủ trên field cấu trúc `killedByTool` —\nKHÔNG grep nội dung output trong engine (chuỗi tổng kết là của suite từng repo).\n\n<!-- <<<TOOL-KILL-RULE -->\nTRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason \"bi cong cu giet o <so giay> giay\" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.\n<!-- TOOL-KILL-RULE>>> -->\n\n## Hồ sơ cho lượt bị ngắt (đường độc lập)\n\nPhiên tươi VERIFY gặp lệnh bị công cụ ngắt thì:\n\n- dòng run-log của eval đó: `\"exit_code\": null, \"killed_by_tool\": true` (không\n  ghi mã thoát của công cụ như mã thoát của lệnh);\n- verdict báo cáo `BLOCKED`, `reason: bi cong cu giet o <so giay> giay — <eval ids>`\n  (kèm dấu hiệu: timeout tool / output cắt trước dòng tổng kết); `failed_evals`\n  rỗng — người đọc hồ sơ thấy đây là sự cố hạ tầng, chữa bằng chạy lại với trần\n  công cụ đủ dài, không phải sửa sản phẩm.\n",
  "contractPath": "/Users/manh-macmini/dev/acceptance-gate-kit/_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md",
- "invokedAt": "2026-09-06T10:32:19Z",
- "invokedSha": "271590d0e52efe4335fc20c91f8036110dbeffde",
- "evalsHash": "6c713a53f2f0bcfd9b16194064f53760902e114cd89fce5c593490e20a40a6f7",
+ "invokedAt": "2026-09-06T12:01:36Z",
+ "invokedSha": "f454bfac285f40e7f0314edbcf7b00b84bc765de",
+ "evalsHash": "85faa3be55b9026e43907e9c76fe9d67abfdc87e3b5dbdddbc68a25dbe47045d",
  "runBaseline": false
 }

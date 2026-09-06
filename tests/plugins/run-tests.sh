@@ -11085,10 +11085,10 @@ mut = [
     # --- bon dot bien MOI (ho so thuoc-khai-mot-dang-do-mot-neo, 06/09) ---
     # Ba cai dau doi DUNG MOT ve ngan sach tren CA HAI ban chep; cai thu tu doi
     # bang cong ma giu ngan sach. Truoc khi va, hai trong ba cai dau van XANH.
-    ("ngan sach luot 3->9", lambda: kiem(tiem(vi_g, "≤3 lượt/vòng", "≤9 lượt/vòng", "luot@GUIDE"), tiem(vi_q, "≤3 lượt/vòng", "≤9 lượt/vòng", "luot@QUICKSTART"), tiem(en_r, "≤3 turns per round", "≤9 turns per round", "luot@README"), vis, ens), "ngan sach luot 9 != so cong 4 - 1"),
-    ("tran T3 4->5",        lambda: kiem(tiem(vi_g, "T3 trần 4", "T3 trần 5", "T3@GUIDE"), tiem(vi_q, "T3 trần 4", "T3 trần 5", "T3@QUICKSTART"), tiem(en_r, "T3 ceiling 4", "T3 ceiling 5", "T3@README"), vis, ens), "tran T3 5 != so luot 3 + 1"),
+    ("ngan sach luot 3->9", lambda: kiem(tiem(vi_g, "≤3 lượt/vòng", "≤9 lượt/vòng", "luot@GUIDE"), tiem(vi_q, "≤3 lượt/vòng", "≤9 lượt/vòng", "luot@QUICKSTART"), tiem(en_r, "≤3 turns per round", "≤9 turns per round", "luot@README"), vis, ens), "GUIDE.md/QUICKSTART.md (VI): ngan sach luot 9 != so cong 4 - 1"),
+    ("tran T3 4->5",        lambda: kiem(tiem(vi_g, "T3 trần 4", "T3 trần 5", "T3@GUIDE"), tiem(vi_q, "T3 trần 4", "T3 trần 5", "T3@QUICKSTART"), tiem(en_r, "T3 ceiling 4", "T3 ceiling 5", "T3@README"), vis, ens), "GUIDE.md/QUICKSTART.md (VI): tran T3 5 != so luot 3 + 1"),
     ("xoa ve moc phat hanh", lambda: kiem(tiem(vi_g, " · **mốc phát hành ≤1**", "", "ship@GUIDE"), tiem(vi_q, " · **mốc phát hành ≤1**", "", "ship@QUICKSTART"), en_r, vis, ens), "khong doc duoc ve ngan sach «moc phat hanh»"),
-    ("them cong nhung giu ngan sach", lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"], them_cong=True), "ngan sach luot 3 != so cong 5 - 1"),
+    ("them cong nhung giu ngan sach", lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"], them_cong=True), "GUIDE.md/QUICKSTART.md (VI): ngan sach luot 3 != so cong 5 - 1"),
     # --- ba dot bien CHI cham ban EN (S4 vong 2: nua EN khong co chieu do nao) ---
     # `kiem` duyet VI truoc va return o dong do dau tien, nen moi ca cham VI deu
     # che mat nhanh EN. Ba ca duoi giu VI nguyen ven, chi sua README.
@@ -11100,7 +11100,7 @@ mut = [
     # nao cham toi phep so `ship != 1` — xoa han nhanh ay ma suite van xanh 12/12
     # (hoi dong S4 vong 5 do duoc, va da tai hien 06/09). Hai ca duoi dua GIA TRI
     # sai vao, la chieu do DUY NHAT cua ve thu ba.
-    ("moc phat hanh 1->2", lambda: kiem(tiem(vi_g, "**mốc phát hành ≤1**", "**mốc phát hành ≤2**", "ship2@GUIDE"), tiem(vi_q, "**mốc phát hành ≤1**", "**mốc phát hành ≤2**", "ship2@QUICKSTART"), en_r, vis, ens), "moc phat hanh 2 != 1"),
+    ("moc phat hanh 1->2", lambda: kiem(tiem(vi_g, "**mốc phát hành ≤1**", "**mốc phát hành ≤2**", "ship2@GUIDE"), tiem(vi_q, "**mốc phát hành ≤1**", "**mốc phát hành ≤2**", "ship2@QUICKSTART"), en_r, vis, ens), "GUIDE.md/QUICKSTART.md (VI): moc phat hanh 2 != 1"),
     ("EN: moc phat hanh 1->2", lambda: kiem(vi_g, vi_q, tiem(en_r, "**≤1 turn for a release milestone**", "**≤2 turn for a release milestone**", "EN-ship2"), vis, ens), "README.md (EN): moc phat hanh 2 != 1"),
 ]
 for ten, f, phai_neu in mut:

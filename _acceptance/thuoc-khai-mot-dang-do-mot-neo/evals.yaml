@@ -18,7 +18,7 @@ evals:
       giống bản tại mốc ký `9b3d6f64` (so cây, không so HEAD: sửa chưa commit cũng bị bắt); VÀ dòng
       HAI dòng `chiều đỏ 1` và `chiều đỏ 1b` cùng báo PASS — clone sửa file ấy ĐÃ COMMIT, và clone sửa
       mà CHƯA commit, cả hai làm phép kiểm ĐỎ với ghim `lane hội đồng đã đổi`. Ca 1b là chỗ duy nhất
-      phân biệt so-cây với so-HEAD: đổi phép đo về `MOC_KY..HEAD` thì 1b đỏ (đã phá thử, nhóm 7 pass 1 do).
+      phân biệt so-cây với so-HEAD: đổi phép đo về `MOC_KY..HEAD` thì 1b đỏ (đã phá thử, nhóm 6 pass 1 do).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E2
