@@ -1,86 +1,90 @@
 ## Trong hợp đồng
 
-**«hai lượt một kết quả»: đối chứng âm là hằng đúng — nhánh «KHÔNG có răng» là mã chết, và câu PASS khai sai về bản cũ**
-- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:252`
-- severity: high
+### 1. Phép quét tĩnh `quet_neo_dong` XANH khi trích được 0 dòng — đúng lớp «assertion âm-tính-một-mình» mà CLAUDE.md cấm
+- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:117`
+- severity: **high**
 - AC: AC-1
+- source: conventions
 
-AC-1 và decision tkm16 yêu cầu: cùng cặp cây, bản CŨ theo `git merge-base` phải cho HAI kết quả KHÁC nhau — nếu không, phép so hai-lượt chỉ là hai chuỗi hằng. Bản cài đặt không đo điều đó.
+`than_ham()` chỉ vào thân hàm khi dòng định nghĩa khớp CHÍNH XÁC `^<ten>\(\) \{`. Nếu không khớp, awk in RỖNG, `grep -nE "$NEO_DONG"` không thấy gì, `hit` rỗng, và `quet_neo_dong` in `OK: ... không nhắc điểm neo động nào` với rc=0 — tức phép đo báo xanh mà chưa hề đọc dòng mã nào. Đã phá thử tại chỗ: đổi `lane_song() {` thành `lane_song ()\n{` VÀ tiêm `"$MOC_KY"..HEAD` vào thân → `than_ham` trả 0 dòng, `quet_neo_dong` vẫn in OK, rc=0. Chiều đỏ 4 hiện có (sed chèn HEAD) không phân biệt được ca này vì nó giữ nguyên định dạng header. Đây chính là lớp lỗi CLAUDE.md gọi tên: «fixture hỏng, bước tiêm thất bại — tất cả đều cho cùng một màu xanh», và là hình dạng (1) của «Thước phải gắn vào vật được giao». Nghiệm đúng tầng: assert `than_ham` trả về SỐ DÒNG > 0 cho từng hàm trong `for ham in lane_song tap_file co_moc` (line 124) trước khi kết luận sạch, và đỏ gọi tên hàm không tìm thấy.
 
-`lane_theo_mergebase()` (rang.sh:113-120) KHÔNG trả phán quyết của bản cũ; nó in `MB: mốc=<sha> tập={<changed>}`. Chuỗi ấy nhúng merge-base SHA, mà `$KIT` (HEAD trên nhánh) và `$CL2` (detached ở `$MOC_KY`) theo định nghĩa có merge-base khác nhau. Nên `M1 != M2` LUÔN đúng, nhánh `elif [ "$M1" = "$M2" ] → bad "phép so hai-lượt KHÔNG có răng"` (rang.sh:253) là mã chết: không cặp cây nào của ca này làm nó nổ.
-
-Đo thật (chạy lại nguyên văn `check_lane` bản cũ trên đúng cặp cây ca này dựng):
-  TREE1 ($KIT):  "DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}"  rc=1
-  TREE2 ($CL2):  "DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}"  rc=1
-  → OLD MEASURE: IDENTICAL VERDICT ON BOTH TREES (giống cả thông điệp lẫn mã thoát).
-Vậy câu PASS ở rang.sh:255 — «bản cũ theo merge-base cho HAI kết quả khác nhau» — sai ở mức phán quyết; nó chỉ đúng với một chuỗi thông tin phụ.
-
-Hệ quả kép: vế `L1 = L2` cũng vô hiệu, vì `lane_song`/`tap_file` chỉ đọc hai hằng `$MOC_KY`/`$MOC_GOP` và cây làm việc — chúng độc lập HEAD *theo cấu trúc*, nên hai lượt bằng nhau là tất yếu, không phải tính chất đo được. Toàn bộ ca «hai lượt một kết quả» quay lại đúng hình dạng «so hai chuỗi hằng» mà S4 vòng 1 REJECT (review-findings «Hình dạng 3») và tkm16 tuyên đã đóng. Đây là vi phạm trực tiếp CLAUDE.md «Assertion âm-tính-một-mình là assertion không sống» ở tầng guard-của-guard, và đúng lớp bệnh hồ sơ này mở ra để chữa (thước tự khai một đằng đo một nẻo).
-
-Để có răng thật, đối chứng âm phải so PHÁN QUYẾT (thông điệp + mã thoát) của chính hàm cũ, và cặp cây phải được chọn sao cho bản cũ thực sự cho hai phán quyết khác nhau (ví dụ một cây có commit chạm `s4-args.mjs` sau merge-base) — không phải so chuỗi có nhúng sha.
-
----
-
-**Đối chứng âm của ô «hai lượt một kết quả» là tautology — nhánh guard không bao giờ chạy được**
-- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:252`
-- severity: high
+### 2. quet_neo_dong xanh im lặng khi than_ham không rút được thân hàm (guard vô hiệu, không ai biết)
+- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:125`
+- severity: **high**
 - AC: AC-1
+- source: bugs
 
-AC-1 đòi thẳng: bản cũ lấy mốc bằng `git merge-base` phải cho HAI KẾT QUẢ KHÁC nhau trên cùng cặp cây, nếu không thì phép so chỉ là hai chuỗi hằng. Cài đặt không đo được điều đó.
+`than_ham` rút thân hàm bằng awk với mẫu cứng `^<tên>\(\) \{`. Nếu không khớp, awk in ra RỖNG, `hit` rỗng, và `quet_neo_dong` kết luận `OK: thân lane_song · tap_file · co_moc không nhắc điểm neo động nào` rồi return 0. Không có chỗ nào assert rằng thân hàm thực sự được rút ra (ví dụ: kiểm số dòng > 0, hoặc kiểm hàm tồn tại). Đây là fallback ẩn: phép đo không tìm thấy gì bị coi là phép đo sạch.
 
-`lane_theo_mergebase()` (dòng 113-121) không còn là bản cũ: nó bỏ hẳn bước `git diff --quiet base..HEAD -- REL_WF` và bỏ luôn verdict (`return 0` vô điều kiện), chỉ `echo "MB: mốc=$base tập={$changed}"`. Chuỗi so sánh vì thế NHÚNG chính $base. CL2 được `checkout --detach $MOC_KY` theo thiết kế nên base của nó luôn khác base của KIT ⇒ `M1 != M2` đúng theo cấu trúc, với mọi trạng thái kho. Nhánh `elif [ "$M1" = "$M2" ]` ở dòng 254 là mã chết.
+Đã chứng minh bằng thực nghiệm (chạy đúng thân hai hàm trích từ rang.sh):
 
-Đo thật trên cây hôm nay: tái dựng đúng `check_lane` cũ rồi chạy trên cùng cặp cây (KIT ở HEAD và clone detached ở $MOC_KY) cho kết quả GIỐNG NHAU từng byte, kể cả mã thoát:
-  OLD on KIT : DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}  rc=1
-  OLD on CL2 : DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}  rc=1
-Tức là điều kiện AC-1 đòi (bản cũ phân biệt được hai cây) THỰC TẾ SAI, nhưng ô vẫn PASS và còn in ra câu khẳng định ngược: «trong khi bản cũ theo merge-base cho HAI kết quả khác nhau».
+1) Đổi tên hàm — `sed 's/^lane_song() {/lane_live() {/'` trên rang.sh CỘNG chèn `..HEAD` vào thân hàm đó → `quet_neo_dong` in `OK: sach`, rc=0. Nghĩa là một lần đổi tên hàm (kèm cập nhật mọi lời gọi, hoàn toàn hợp lệ về mặt chạy) làm cả tính chất «độc lập HEAD» hết được canh mà không ai đỏ.
 
-Để có răng thật, `lane_theo_mergebase` phải trả về đúng verdict của bản cũ (gồm cả bước diff REL_WF + `return 1` khi lệch) và phép so phải so verdict + mã thoát, không so chuỗi có nhúng sha mốc.
+2) Đổi kiểu ngoặc — file chứa:
+```
+lane_song()
+{
+  git rev-parse HEAD
+}
+```
+→ `than_ham` trả rỗng cho CẢ BA hàm (`lane_song`, `tap_file`, `co_moc` đều `[]`), `quet_neo_dong` vẫn in `OK: sach`, rc=0, dù thân hàm có nguyên `git rev-parse HEAD`.
 
----
+Hệ quả: đây là phép đo DUY NHẤT thực thi tính chất mà AC-1/E1 khai (`độc lập HEAD`), và nó tự tắt trong im lặng. Đúng lớp lỗi «ô đo chạy 0 ca vẫn xanh». Cách sửa: `quet_neo_dong` phải fail-closed khi `than_ham` trả rỗng — ví dụ `[ -n "$(than_ham "$f" "$ham")" ] || { echo "DO: không rút được thân $ham — phép quét vô hiệu"; rc=1; }` trước khi grep.
 
-**Hình dạng 2 — «đối chứng âm» là bản VIẾT TAY khác phép đo cũ: M1≠M2 chỉ vì in kèm sha mốc, không vì kết quả khác**
-- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:113`
-- severity: high
+### 3. cmp -s xác nhận «mũi tiêm trúng» ở chiều đỏ 4 không bao giờ đỏ được — dòng sed tự đột biến chính nó
+- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:259`
+- severity: **medium**
 - AC: AC-1
+- source: bugs
 
-`lane_theo_mergebase()` (rang.sh:113-119) được khai trong comment là «đây là bản CŨ, lấy mốc bằng git merge-base — tức đúng thứ bệnh vòng 06/09 vá», và răng ở dòng 254 dùng nó làm điều kiện có-răng: `elif [ "$M1" = "$M2" ]; then bad "phép so hai-lượt KHÔNG có răng"`. Nhưng nó KHÔNG phải phép đo cũ: `check_lane` cũ trả PHÁN QUYẾT (rc≠0 + dòng «DO: lane hội đồng đã đổi» / «DO: tập file mã đổi ≠ {...}»), còn bản này bỏ hẳn cả hai phép so, luôn `return 0`, và `echo "MB: mốc=$base tập={$changed}"`. Tôi chạy lại NGUYÊN VĂN `check_lane` cũ (bản trước 5aa7221a) trên đúng cặp cây mà răng dùng ($KIT và clone detached tại MOC_KY): cả hai lượt trả BYTE-GIỐNG NHAU — `DO: tap file ma doi != {feature-loop/scripts/s4-args.mjs}: {}`. Nghĩa là với cặp cây này, phép đo cũ THẬT cho HAI lượt một kết quả, tức đối chứng âm đúng ra phải FAIL (`bản cũ ... cũng cho hai lượt giống nhau`). Ô PASS chỉ có được nhờ dòng `echo` mới in kèm `mốc=$base` — 5aa7221a vs 9b3d6f64 — một chuỗi khác nhau vì HEAD khác nhau, chứ không phải vì phán quyết khác nhau (`tập={}` giống hệt ở cả hai lượt, xem output thật ở dòng PASS cuối). Lời hứa AC-1 «bản CŨ lấy mốc bằng merge-base phải cho HAI kết quả KHÁC nhau» vì thế không được đo bằng kết quả nào cả.
+Dòng 258 dựng bản sao đột biến:
+```
+BS="$TMP/rang-neo-dong.sh"; sed 's|git -C "$repo" diff --quiet "$MOC_KY" -- "$REL_WF"|git -C "$repo" diff --quiet "$MOC_KY"..HEAD -- "$REL_WF"|' "$HERE/rang.sh" > "$BS"
+```
+Chính dòng lệnh sed này CHỨA chuỗi tìm kiếm nguyên văn, nên sed cũng thay thế trên chính nó. Kiểm chứng bằng `diff` giữa rang.sh và bản sao: có ĐÚNG HAI dòng đổi — dòng 103 (thân `lane_song`, mũi tiêm mong muốn) và dòng 258 (dòng sed tự đổi).
 
----
+Do đó `cmp -s "$HERE/rang.sh" "$BS"` luôn báo KHÁC NHAU bất kể mũi tiêm có trúng thân `lane_song` hay không, và nhánh `bad "chiều đỏ 4: mũi tiêm KHÔNG trúng — bản sao giống hệt bản thật"` là mã chết không thể chạm tới.
 
-**Hình dạng 3 — «hai lượt một kết quả» so hai chuỗi HOÀN TOÀN là hằng của script, trong khi lời hứa là quan hệ «kết quả không đổi theo HEAD»**
-- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:250`
-- severity: high
+Kịch bản cụ thể: nếu về sau `lane_song` được viết lại (ví dụ tách lệnh git ra biến, hay đổi thứ tự tham số) sao cho dòng 103 không còn khớp mẫu sed, thì mũi tiêm CHỈ còn trúng dòng 258 — `cmp` vẫn khác, guard im, và ca chiều đỏ 4 đi tiếp bằng một bản sao không hề có đột biến trong thân hàm.
+
+Điều này quan trọng vì `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml` ô E1 khai `cmp -s` là chân chịu lực: «... gọi đúng tên hàm, sau khi `cmp -s` xác nhận mũi tiêm trúng». Lời khai đó hiện không có thật. (Giảm nhẹ: khi mũi tiêm trượt thì `quet_neo_dong "$BS"` trả rc=0 và nhánh else vẫn `bad`, nên kết cục là đỏ chứ không xanh giả — nhưng thông điệp sẽ chỉ sai chỗ, và guard được viết ra để phân biệt đúng hai ca đó thì vô dụng.) Cách sửa: dựng mẫu sed từ biến/heredoc để dòng lệnh không chứa chuỗi đích, hoặc đổi guard thành đếm số dòng khác nhau và đòi mũi tiêm nằm trong khoảng dòng của `lane_song`.
+
+### 4. Hình dạng 4 — assertion âm-tính-một-mình: quét tĩnh XANH khi đọc được 0 dòng (không có chân chứng minh đã thật sự đọc thân hàm)
+- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:125`
+- severity: **high**
 - AC: AC-1
+- source: measurement
 
-Dòng 250-253 dựng `L1`/`L2` từ `lane_song` + `tap_file` rồi assert `[ "$L1" != "$L2" ] → bad`. Khi cả hai lượt xanh, đầu ra không chứa MỘT mẩu dữ liệu nào đọc từ kho: `lane_song` in «OK: vế lane (sống) — $REL_WF trên cây giống bản tại mốc ký $MOC_KY» và `tap_file` in «OK: ... trong $base..$tip tập file mã đổi = {$REL_S4}» — REL_WF, REL_S4, MOC_KY, MOC_GOP đều là hằng khai ở đầu script, còn base/tip là hằng truyền vào (dòng 250-251 truyền MOC_GOP/MOC_KY chứ không truyền HEAD). Đầu ra thật (chạy 06/09) xác nhận: hai dòng OK không có ký tự nào phụ thuộc cây. Vậy `L1 = L2` là hai chuỗi hằng bằng nhau theo cấu tạo, không thể đỏ vì lý do được nêu. Cụ thể: nếu `lane_song` được viết theo `git diff MOC_KY..HEAD -- $REL_WF` (đúng thứ HEAD-phụ-thuộc mà ô này tuyên bắt), cả $KIT lẫn clone detached tại MOC_KY vẫn XANH (acceptance-verify.js không đổi trong khoảng MOC_KY..HEAD), L1 vẫn bằng L2, ô vẫn PASS. Chỗ duy nhất phân biệt so-cây với so-HEAD là chiều đỏ 1b (dòng 238-241), không phải ô này.
+`quet_neo_dong` (dòng 122–130) chỉ có MỘT loại khẳng định: `grep -nE "$NEO_DONG"` trên đầu ra của `than_ham` KHÔNG khớp gì. Không đâu assert rằng `than_ham` đã trả về dòng nào. `than_ham` (dòng 117–121) tìm thân hàm bằng awk `$0 ~ "^"f"\\(\\) \\{"` — mẫu neo tuyệt đối vào chuỗi `<tên>() {` ở đầu dòng; tên hàm đổi, hay chỉ cần một khoảng trắng (`lane_song () {`), là awk in ra 0 dòng, grep không khớp, `rc=0`, và hàm in ra dòng KHẲNG ĐỊNH `OK: thân lane_song · tap_file · co_moc không nhắc điểm neo động nào`. Đã đo tay 06/09 trên cây này: lấy bản sao rang.sh, (a) tiêm ĐÚNG đột biến mà chiều đỏ 4 dùng — đổi `git diff --quiet "$MOC_KY" -- "$REL_WF"` thành `"$MOC_KY"..HEAD`, tức phép đo mất hẳn tính độc-lập-HEAD mà AC-1 hứa — và (b) đổi ba tiêu đề hàm thành `lane_song () {` / `tap_file () {` / `co_moc () {`; chạy `quet_neo_dong` trên bản đó → in `OK: … không nhắc điểm neo động nào`, rc=0. `chiều đỏ 4` (dòng 258–262) không bịt được lỗ này: nó chỉ chứng minh phép quét đỏ khi tiêu đề hàm CÒN NGUYÊN, tức là đối chứng dương cho ca «tìm thấy thân», không phải cho ca «không tìm thấy thân». Đây là phép đo DUY NHẤT của AC-1, nên khi nó rơi về xanh-đọc-0-dòng thì tiêu chí trở thành vô hình.
+
+### 5. Hình dạng 5 — tuyên «MỌI đột biến» nhưng chân kiểm mũi-tiêm chỉ phủ điểm-case: nhánh `them_cong` không đi qua `tiem()`
+- file: `tests/plugins/run-tests.sh:11021`
+- severity: **low**
+- AC: AC-7
+- source: measurement
+
+AC-7 của contract và `expected` của E9 (`_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml`) tuyên một bất biến toàn lớp: «MỌI đột biến phải đi qua chân «mũi tiêm có trúng»» / «MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần rồi so văn bản trước/sau». Trong mã, `tiem()` (dòng 11059–11071, đếm `text.count(a) == 1` rồi assert `ra != text`) được dùng cho 10 đột biến, nhưng nhánh `them_cong=True` bên trong `kiem` (dòng 11021–11026) tiêm ba dòng bảng bằng `.replace(..., 1)` TRẦN — `vi_g.replace("\n\n**Ngân sách", …)`, `vi_q.replace(…)`, `en_r.replace("\n\n**Human-turn budget", …)` — không đếm số lần khớp, không so văn bản trước/sau. Đột biến `"them cong nhung giu ngan sach"` (dòng 11084), tức chính ca duy nhất chứng minh phép so QUAN HỆ ở AC-8, chạy qua nhánh này. Cả `expected` của E9 lẫn `cmd` của nó (`config:executors.test.plugins`, chỉ chạy suite) đều không có khẳng định nào kiểm được tính chất «mọi đột biến» ấy — nó là tính chất của MÃ, không xuất hiện trong đầu ra mà ô đo đọc. (Ghi rõ chiều không-đỏ: nếu ba mũi `.replace` này trượt, ca vẫn FAIL vì lệch ghim, nên đây là lời khai quá tay chứ chưa phải đường xanh-im-lặng.)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **9 đột biến P86 không kiểm mũi tiêm có trúng; hai ca đột biến bản EN có thể hoá no-op im lặng và nhánh quan hệ EN không có chiều đỏ nào**
-  Người dùng thấy gì: Nếu sau này ai đó viết lại câu ngân sách trong tài liệu tiếng Anh theo cách khác, phần kiểm tra tự động có thể âm thầm không còn phát hiện lỗi ở bản tiếng Anh nữa, dù báo cáo vẫn hiện thành công.
-  file: `tests/plugins/run-tests.sh`
-  severity: medium
-  Đề xuất: new-contract
-
-- **E6 của hồ sơ ĐÃ KÝ inputs-tinh-tu-goc-kho vẫn mô tả `git merge-base` — expected và executor trôi khỏi nhau**
-  Người dùng thấy gì: Mô tả trong hồ sơ đã ký trước đó không còn khớp với cách hệ thống thực sự kiểm tra, nên người đọc lại tài liệu này sau này có thể hiểu nhầm cách nó hoạt động.
-  file: `_acceptance/inputs-tinh-tu-goc-kho/evals.yaml`
+- **Hồ sơ ĐÃ KÝ `inputs-tinh-tu-goc-kho`: contract/evals được bổ chính nhưng khối bằng chứng E6 giữ nguyên đầu ra không còn sinh được**
+  Người dùng thấy gì: Một tài liệu bằng chứng đã được duyệt trước đó cho một tính năng liên quan vẫn mô tả cách đo cũ, không còn khớp với cách tính năng đó thực sự được kiểm tra hiện nay — người đọc lại tài liệu này sau này có thể hiểu sai đã kiểm tra bằng phương pháp nào.
+  file: `_acceptance/inputs-tinh-tu-goc-kho/evidence-report.md`
   severity: medium
   Đề xuất: known-limits
 
-- **Vế ngân sách bản EN của P86 không có chiều đỏ nào — xoá hẳn phép kiểm mà suite vẫn xanh**
-  Người dùng thấy gì: Nếu phần kiểm tra ngân sách dành cho bản tiếng Anh của tài liệu bị xoá nhầm, hệ thống vẫn báo mọi thứ ổn thay vì cảnh báo cho người dùng biết có lỗi.
-  file: `tests/plugins/run-tests.sh`
-  severity: high
-  Đề xuất: new-contract
+- **«Out of scope» của hợp đồng mới tự mâu thuẫn với chính diff, và hai tham chiếu chết còn trong tiêu chí sống**
+  Người dùng thấy gì: Bản mô tả phạm vi công việc có một dòng loại trừ mâu thuẫn với chính các thay đổi đã thực hiện, và còn nhắc tới hai phần việc đã không còn tồn tại — người đọc tài liệu này sau này có thể hiểu sai phạm vi thật sự đã được làm.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md`
+  severity: medium
+  Đề xuất: known-limits
 
-- **Hình dạng 5 — P86 tuyên lớp {3 vế ngân sách} × {2 bản chép} nhưng mọi đột biến chỉ đáp xuống bản VI; nửa EN của phép so quan hệ không có chiều đỏ nào**
-  Người dùng thấy gì: Một nửa phép kiểm tra ngân sách — phần dành riêng cho tài liệu tiếng Anh — có thể bị hỏng hoặc gỡ bỏ mà không ai nhận ra, vì không có cảnh báo nào bật lên khi điều đó xảy ra.
+- **Hình dạng 3 — assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ (đột biến ↔ bản chép bị gọi tên)**
+  Người dùng thấy gì: Khi hai bản sao nội dung tiếng Việt bị sửa sai ở hai chỗ khác nhau, thông báo cảnh báo hiện ra giống hệt nhau, nên người đọc không biết chính xác bản nào bị sai và có thể mất thêm thời gian tìm ra chỗ cần sửa.
   file: `tests/plugins/run-tests.sh`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+⚠ Cụm ngoài vùng phủ: 2/8 lỗi rơi vào file không bộ đo nào phủ (_acceptance/inputs-tinh-tu-goc-kho/evidence-report.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.

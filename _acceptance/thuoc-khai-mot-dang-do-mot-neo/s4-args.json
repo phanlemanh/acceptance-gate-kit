@@ -1,19 +1,19 @@
 {
- "generated_at": "2026-09-06T08:44:34Z",
- "generated_sha": "66e6d95827e27deab3fbba90f32232ac09fd6174",
+ "generated_at": "2026-09-06T09:36:42Z",
+ "generated_sha": "e6e42b219cfb4f94313b66aa0b2cb79eac81413a",
  "mainBranchInfo": {
   "branch": "main",
   "source": "remote"
  },
  "slug": "thuoc-khai-mot-dang-do-mot-neo",
- "round": 2,
+ "round": 3,
  "riskTier": "T2",
  "evals": [
   {
    "id": "E1",
    "criterion": "AC-1",
    "cmd": "bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi",
-   "expected": "exit 0; `Results: chan lane-doc-khong-doi passed` (8 pass); hai dòng OK in HAI mốc đã neo\nNGUYÊN VĂN đủ 40 ký tự; và dòng `hai lượt một kết quả` báo PASS, câu của nó nêu CẢ đối chứng\nâm — bản cũ theo `merge-base` cho hai mốc KHÁC nhau trên cùng cặp cây. Thiếu đối chứng âm ấy\nthì nhóm FAIL với `phép so hai-lượt KHÔNG có răng`. Đo trước khi vá: `0 pass, 3 do` trên `main` sạch.",
+   "expected": "exit 0; `Results: chan lane-doc-khong-doi passed` (9 pass); dòng `độc lập HEAD (quét tĩnh)`\nbáo PASS liệt kê ba hàm được quét và danh sách điểm neo động; VÀ dòng `chiều đỏ 4` báo PASS —\nbản sao răng có `HEAD` chèn vào thân `lane_song` làm phép quét ĐỎ và gọi đúng tên hàm, sau khi\n`cmp -s` xác nhận mũi tiêm trúng. Phép quét đọc MÃ, bỏ chú thích thuần. Đã phá thử 06/09:\nbản quét cả chú thích thì tự cắn mình (nhóm FAILED 8 pass 1 do).",
    "executor": "script",
    "paths": [
     "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"
@@ -125,7 +125,7 @@
    "id": "E7",
    "criterion": "AC-7",
    "cmd": "ONLY_BLOCK=P86 bash tests/plugins/run-tests.sh",
-   "expected": "exit 0; ba dòng `P86 MUTANT` mới in kèm THÔNG ĐIỆP ĐỎ THẬT sau dấu hai chấm:\n`ngan sach luot 3->9 -> do dung cho: … ngan sach luot 9 != so cong 4 - 1` ·\n`tran T3 4->5 -> … tran T3 5 != so luot 3 + 1` ·\n`xoa ve moc phat hanh -> … khong doc duoc ve ngan sach «moc phat hanh»`.\nCon số 9 đến từ `ngan_sach()` trích được, không từ nhãn ca: đổi thông điệp thành chuỗi hằng\nthì suite FAIL với `thieu ghim` (đã phá thử 06/09). Đo trước khi vá: hai trong ba ca này XANH.",
+   "expected": "exit 0; SÁU dòng `P86 MUTANT` ngân sách in kèm THÔNG ĐIỆP ĐỎ THẬT sau dấu hai chấm — ba ca sửa\nbản VI (`GUIDE.md/QUICKSTART.md (VI): …`) và ba ca `EN:` sửa CHỈ bản EN (`README.md (EN): …`),\nvì `kiem` duyệt VI trước rồi dừng nên ca chạm VI che mất nhánh EN. Ba ca VI:\n`ngan sach luot 3->9 -> do dung cho: … ngan sach luot 9 != so cong 4 - 1` ·\n`tran T3 4->5 -> … tran T3 5 != so luot 3 + 1` ·\n`xoa ve moc phat hanh -> … khong doc duoc ve ngan sach «moc phat hanh»`.\nBa ca EN cho `README.md (EN): ngan sach luot 9 != so cong 4 - 1` và hai dòng tương ứng.\nCon số 9 đến từ `ngan_sach()` trích được, không từ nhãn ca. Ba phá thử 06/09: đổi thông điệp\nthành chuỗi hằng → FAIL `thieu ghim`; xoá nhánh quan hệ của bản EN → FAIL `EN: ngan sach luot\n3->9 KHONG do`; đổi chuỗi đích của một mũi tiêm → FAIL `mui tiem «EN-luot» KHONG trung`.",
    "executor": "script",
    "paths": [
     "tests/plugins/run-tests.sh",
@@ -167,7 +167,7 @@
    "id": "E9",
    "criterion": "AC-9",
    "cmd": "bash tests/plugins/run-tests.sh",
-   "expected": "exit 0; `Results: all plugin tests passed`; trong đó P86 in đủ NĂM dòng `P86 MUTANT` CŨ\n(bản VI ở QUICKSTART, bản VI ở GUIDE, bản EN ở README, thêm cổng ở nguồn, mất ngân sách T3), và MỌI\ndòng MUTANT đều in thông điệp đỏ thật sau `do dung cho:` — không ca nào assert âm tính trần.",
+   "expected": "exit 0; `Results: all plugin tests passed`; trong đó P86 in đủ NĂM dòng `P86 MUTANT` CŨ\n(bản VI ở QUICKSTART, bản VI ở GUIDE, bản EN ở README, thêm cổng ở nguồn, mất ngân sách T3), và MỌI\ndòng MUTANT đều in thông điệp đỏ thật sau `do dung cho:` — không ca nào assert âm tính trần —\nvà MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần rồi so văn bản trước/sau.",
    "executor": "test",
    "paths": [
     "tests/plugins/run-tests.sh"
@@ -232,8 +232,8 @@
  "templatePath": "/Users/manh-macmini/dev/acceptance-gate-kit/skills/acceptance/references/evidence-report-template.md",
  "toolKillRule": "# TOOL-KILL-RULE — lệnh bị công cụ ngắt KHÔNG phải lệnh fail\n\n**Nguồn duy nhất** của luật «hết giờ không phải trượt» cho MỌI đường chạy lệnh\nkiểm của kit. Hai đường tiêu thụ, cùng đọc khối marker dưới đây, không chép tay:\n\n- **Vòng lặp tính năng** (plugin feature-loop): skill `feature-loop` đọc file này\n  (resolve qua `resolve-plugin.mjs --require skills/acceptance/references/tool-kill-rule.md`)\n  và truyền NGUYÊN VĂN vào `args.toolKillRule` của workflow\n  `acceptance-verify.js`; workflow rút khối marker và nội suy vào prompt của mọi\n  agent chạy lệnh (machine · ui-check · baseline). Thiếu args hoặc không rút\n  được marker → workflow trả BLOCKED có tên, không chạy không luật.\n- **Đường VERIFY độc lập** (skill `acceptance` Phase 3): phiên điều phối chép khối\n  marker VERBATIM vào prompt của phiên tươi VERIFY, cùng nếp «Network truth».\n\nVì sao có luật: verifier chạy lệnh qua Bash tool có trần thời gian mặc định\n(~120 s) NGẮN hơn nhiều suite; lệnh bị công cụ giết trả exit code CỦA CÔNG CỤ,\nkhông phải của lệnh (vấp thật release-2-2-0 S4 r5: suite 108 s đơn lẻ, dưới tải\nbị giết ở 118 s → REJECT giả 4 eval). Nhận diện là việc AGENT (nó thấy tool\nresult thật); phần máy chỉ phòng thủ trên field cấu trúc `killedByTool` —\nKHÔNG grep nội dung output trong engine (chuỗi tổng kết là của suite từng repo).\n\n<!-- <<<TOOL-KILL-RULE -->\nTRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason \"bi cong cu giet o <so giay> giay\" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.\n<!-- TOOL-KILL-RULE>>> -->\n\n## Hồ sơ cho lượt bị ngắt (đường độc lập)\n\nPhiên tươi VERIFY gặp lệnh bị công cụ ngắt thì:\n\n- dòng run-log của eval đó: `\"exit_code\": null, \"killed_by_tool\": true` (không\n  ghi mã thoát của công cụ như mã thoát của lệnh);\n- verdict báo cáo `BLOCKED`, `reason: bi cong cu giet o <so giay> giay — <eval ids>`\n  (kèm dấu hiệu: timeout tool / output cắt trước dòng tổng kết); `failed_evals`\n  rỗng — người đọc hồ sơ thấy đây là sự cố hạ tầng, chữa bằng chạy lại với trần\n  công cụ đủ dài, không phải sửa sản phẩm.\n",
  "contractPath": "/Users/manh-macmini/dev/acceptance-gate-kit/_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md",
- "invokedAt": "2026-09-06T08:44:34Z",
- "invokedSha": "66e6d95827e27deab3fbba90f32232ac09fd6174",
- "evalsHash": "b4a2da8797db30078443cd3b1cf556b9233272d1395fd83910cda95e083f3a42",
+ "invokedAt": "2026-09-06T09:36:42Z",
+ "invokedSha": "e6e42b219cfb4f94313b66aa0b2cb79eac81413a",
+ "evalsHash": "acd0ab9adf2915f91c264e1b29ce58ec2028b36e5e6ebaa13314d325bebf0293",
  "runBaseline": false
 }
