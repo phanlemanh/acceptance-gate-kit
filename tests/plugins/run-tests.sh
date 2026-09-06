@@ -10944,7 +10944,7 @@ if [ "$P201OK" -eq 1 ]; then pass "P201 ngan khong-sua co ten + duong doc-cu + m
 # DUONG truoc, roi dot bien TUNG ban, moi chieu do phai GOI TEN dung ban lech.
 # Ban chep VI (GUIDE + QUICKSTART) so BYTE-EQUAL. Ban EN khac ngon ngu nen so
 # theo CAU TRUC: day nhan cong phai khop cot `en` cua khoi nguon, dung thu tu.
-run "P86 GATE-MODEL: nguon tsv · 2 ban VI byte-equal · ban EN khop cot en · ngan sach 3/4/1 · dot bien goi ten dung ban" \
+run "P86 GATE-MODEL: nguon tsv · 2 ban VI byte-equal · ban EN khop cot en · ngan sach doc-tu-dong va so QUAN HE · 14 dot bien (co ca chi-EN, ca 3 ve deu co chieu do) goi ten dung ban, moi mui tiem deu kiem trung" \
   python3 - "$ROOT" <<'PY'
 import re, sys
 from pathlib import Path
@@ -10987,40 +10987,130 @@ vi_q  = grab(RX_VI, VI_P, (root / VI_P).read_text(encoding="utf-8"), "GATE-MODEL
 en_r  = grab(RX_EN, EN_P, (root / EN_P).read_text(encoding="utf-8"), "GATE-MODEL-EN")
 ids, vis, ens = cols(grab(RX_SRC, SRC_P, src_t, "GATE-MODEL"))
 
+# Ba ve cua dong ngan sach, moi ngon ngu mot bo bieu thuc BAM NGU CANH.
+# Ban cu hoi `if so not in khoi` tren TOAN khoi: chu so "3" luon co trong «T3» va
+# "1" luon co trong «Gate 1.5», nen hai ve ay khong the do (do tay 06/09: doi
+# «\u22643 luot/vong» thanh «\u22649» va xoa han ve «moc phat hanh» deu van PASS).
+VE_NGAN_SACH = {
+    "vi": [("so luot moi vong", r"\u2264(\d+)\s*l\u01b0\u1ee3t/v\u00f2ng"),
+           ("tran T3",          r"T3\s+tr\u1ea7n\s+(\d+)"),
+           ("moc phat hanh",    r"m\u1ed1c ph\u00e1t h\u00e0nh\s*\u2264(\d+)")],
+    "en": [("so luot moi vong", r"\u2264(\d+)\s*turns per round"),
+           ("tran T3",          r"T3 ceiling\s+(\d+)"),
+           ("moc phat hanh",    r"\u2264(\d+)\s*turn for a release milestone")],
+}
+
+def ngan_sach(khoi, lang):
+    """Tra (luot, t3, ship) doc tu dung ve, hoac chuoi loi neu thieu ve."""
+    ra = []
+    for ten_ve, rx in VE_NGAN_SACH[lang]:
+        m = re.search(rx, khoi)
+        if not m:
+            return f"khong doc duoc ve ngan sach «{ten_ve}» ({lang})"
+        ra.append(int(m.group(1)))
+    return tuple(ra)
+
 # --- doi chung DUONG: cay nguyen ven phai XANH truoc khi tin bat ky phep so nao ---
-def kiem(vi_g, vi_q, en_r, vis, ens):
-    """Tra ve dong do DAU TIEN (co goi ten ban lech), hoac None neu sach."""
+def kiem(vi_g, vi_q, en_r, vis, ens, them_cong=False):
+    """Tra ve dong do DAU TIEN (co goi ten ban lech), hoac None neu sach.
+
+    them_cong=True: dot bien them cong thu nam vao CA ba ban (nguon da duoc goi
+    them qua vis/ens; hai ban chep them mot dong bang o day) MA GIU nguyen dong
+    ngan sach — moi phep so ban-chep van xanh, chi phep so QUAN HE bat duoc.
+    """
+    if them_cong:
+        dong = "| **Cổng Thứ Năm** | Câu hỏi thứ năm? | Không bao giờ |"
+        dong_en = "| **Fifth Gate** | A fifth question? | Never |"
+        vi_g = tiem(vi_g, "\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", "themcong@GUIDE")
+        vi_q = tiem(vi_q, "\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", "themcong@QUICKSTART")
+        en_r = tiem(en_r, "\n\n**Human-turn budget", "\n" + dong_en + "\n\n**Human-turn budget", "themcong@README")
     if vi_g != vi_q:
+        # Neu chi noi «hai ban VI lech» thi hai dot bien (sua GUIDE / sua QUICKSTART)
+        # in ra CUNG mot cau, khong ai biet ban nao troi. So tung ban voi cot nguon
+        # truoc de goi dich danh (S4 vong 4, muc «thong diep giong het nhau»).
+        if nhan(vi_g) != vis:
+            return f"ban chep VI lech o {SRC_P}: cot `vi` cua khoi trong {SRC_P} khac khoi nguon"
+        if nhan(vi_q) != vis:
+            return f"ban chep VI lech o {VI_P}: cot `vi` cua khoi trong {VI_P} khac khoi nguon"
         return f"ban chep VI lech: {VI_P} khac nguon {SRC_P} — dong bo lai khoi GATE-MODEL-VI"
     if nhan(vi_g) != vis:
         return f"ban VI ({SRC_P}+{VI_P}) lech cot `vi` cua khoi nguon: {nhan(vi_g)} != {vis}"
     if nhan(en_r) != ens:
         return f"ban chep EN ({EN_P}) lech cot `en` cua khoi nguon: {nhan(en_r)} != {ens}"
-    for ten, khoi in ((f"{SRC_P}/{VI_P} (VI)", vi_g), (f"{EN_P} (EN)", en_r)):
-        for so, y in (("3", "so cong nguoi"), ("4", "tran T3"), ("1", "moc phat hanh")):
-            if so not in khoi:
-                return f"{ten}: khoi thieu con so ngan sach {so} ({y})"
+    for ten, khoi, lang in ((f"{SRC_P}/{VI_P} (VI)", vi_g, "vi"), (f"{EN_P} (EN)", en_r, "en")):
+        d = ngan_sach(khoi, lang)
+        if isinstance(d, str):
+            return f"{ten}: {d}"
+        luot, t3, ship = d
+        # QUAN HE, khong phai chu so co mat: so luot = so cong trong mot vong
+        # (bang nguon co 4 cong, Cong Gia tri nam SAU ship) · tran T3 them Gate 1.5
+        # · moc phat hanh la 1. Moi dong do NEU SO THAT da trich.
+        # Dem cong theo BAN DANG KIEM (vis da assert bang nhan(vi_g) o tren), khong
+        # theo bien `ids` ngoai — neu khong, dot bien them cong se khong the do.
+        if luot != len(vis) - 1:
+            return f"{ten}: ngan sach luot {luot} != so cong {len(vis)} - 1"
+        if t3 != luot + 1:
+            return f"{ten}: tran T3 {t3} != so luot {luot} + 1"
+        if ship != 1:
+            return f"{ten}: moc phat hanh {ship} != 1"
     return None
 
 assert len(ids) == 4, f"mo hinh phai co dung 4 cong, dang {len(ids)}: {ids}"
 loi = kiem(vi_g, vi_q, en_r, vis, ens)
 assert loi is None, f"cay NGUYEN VEN da do — khong tin duoc phep so: {loi}"
 print(f"     P86 VE: 4 cong {ids} · VI byte-equal ({SRC_P} == {VI_P}) · EN khop cot en")
+_bvi, _ben = ngan_sach(vi_g, "vi"), ngan_sach(en_r, "en")
+print("     P86 VE: ngan sach doc duoc VI %d/%d/%d · EN %d/%d/%d" % (_bvi + _ben))
 
 # --- doi chung AM: dot bien TUNG ban (bo nho) -> phai do va GOI TEN dung ban ---
+def tiem(text, a, b, nhan):
+    """Thay a->b DUNG MOT LAN va chung minh mui tiem trung.
+
+    Khong dem thi mot `.replace` truot (ban chep dien dat lai cau chu) se cho
+    van ban Y NGUYEN, dot bien hoa no-op, va suite van xanh — dung lop «buoc
+    tiem that bai cung cho cung mot mau xanh». Dem truoc, so sau.
+    """
+    n = text.count(a)
+    assert n == 1, f"mui tiem «{nhan}» KHONG trung: chuoi dich xuat hien {n} lan (can dung 1)"
+    ra = text.replace(a, b, 1)
+    assert ra != text, f"mui tiem «{nhan}» khong doi duoc van ban"
+    return ra
+
 mut = [
-    ("ban VI o QUICKSTART", lambda: kiem(vi_g, vi_q.replace("Cổng Đáng", "Cổng Đang", 1), en_r, vis, ens), VI_P),
-    ("ban VI o GUIDE",      lambda: kiem(vi_g.replace("Cổng Giá trị", "Cổng Gia tri", 1), vi_q, en_r, vis, ens), VI_P),
-    ("ban EN o README",     lambda: kiem(vi_g, vi_q, en_r.replace("Worth Gate", "Worthy Gate", 1), vis, ens), EN_P),
-    ("them cong o nguon",   lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"]), SRC_P),
-    ("mat ngan sach T3",    lambda: kiem(vi_g.replace("T3 trần 4", "T3 trần bốn", 1), vi_q.replace("T3 trần 4", "T3 trần bốn", 1), en_r, vis, ens), None),
+    ("ban VI o QUICKSTART", lambda: kiem(vi_g, tiem(vi_q, "Cổng Đáng", "Cổng Đang", "VI@QUICKSTART"), en_r, vis, ens), f"ban chep VI lech o {VI_P}"),
+    ("ban VI o GUIDE",      lambda: kiem(tiem(vi_g, "Cổng Giá trị", "Cổng Gia tri", "VI@GUIDE"), vi_q, en_r, vis, ens), f"ban chep VI lech o {SRC_P}"),
+    ("ban EN o README",     lambda: kiem(vi_g, vi_q, tiem(en_r, "Worth Gate", "Worthy Gate", "EN@README"), vis, ens), EN_P),
+    ("them cong o nguon",   lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"]), "lech cot `vi` cua khoi nguon"),
+    ("mat ngan sach T3",    lambda: kiem(tiem(vi_g, "T3 trần 4", "T3 trần bốn", "matT3@GUIDE"), tiem(vi_q, "T3 trần 4", "T3 trần bốn", "matT3@QUICKSTART"), en_r, vis, ens), "khong doc duoc ve ngan sach «tran T3»"),
+    # --- bon dot bien MOI (ho so thuoc-khai-mot-dang-do-mot-neo, 06/09) ---
+    # Ba cai dau doi DUNG MOT ve ngan sach tren CA HAI ban chep; cai thu tu doi
+    # bang cong ma giu ngan sach. Truoc khi va, hai trong ba cai dau van XANH.
+    ("ngan sach luot 3->9", lambda: kiem(tiem(vi_g, "≤3 lượt/vòng", "≤9 lượt/vòng", "luot@GUIDE"), tiem(vi_q, "≤3 lượt/vòng", "≤9 lượt/vòng", "luot@QUICKSTART"), tiem(en_r, "≤3 turns per round", "≤9 turns per round", "luot@README"), vis, ens), "GUIDE.md/QUICKSTART.md (VI): ngan sach luot 9 != so cong 4 - 1"),
+    ("tran T3 4->5",        lambda: kiem(tiem(vi_g, "T3 trần 4", "T3 trần 5", "T3@GUIDE"), tiem(vi_q, "T3 trần 4", "T3 trần 5", "T3@QUICKSTART"), tiem(en_r, "T3 ceiling 4", "T3 ceiling 5", "T3@README"), vis, ens), "GUIDE.md/QUICKSTART.md (VI): tran T3 5 != so luot 3 + 1"),
+    ("xoa ve moc phat hanh", lambda: kiem(tiem(vi_g, " · **mốc phát hành ≤1**", "", "ship@GUIDE"), tiem(vi_q, " · **mốc phát hành ≤1**", "", "ship@QUICKSTART"), en_r, vis, ens), "khong doc duoc ve ngan sach «moc phat hanh»"),
+    ("them cong nhung giu ngan sach", lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"], them_cong=True), "GUIDE.md/QUICKSTART.md (VI): ngan sach luot 3 != so cong 5 - 1"),
+    # --- ba dot bien CHI cham ban EN (S4 vong 2: nua EN khong co chieu do nao) ---
+    # `kiem` duyet VI truoc va return o dong do dau tien, nen moi ca cham VI deu
+    # che mat nhanh EN. Ba ca duoi giu VI nguyen ven, chi sua README.
+    ("EN: ngan sach luot 3->9", lambda: kiem(vi_g, vi_q, tiem(en_r, "≤3 turns per round", "≤9 turns per round", "EN-luot"), vis, ens), "README.md (EN): ngan sach luot 9 != so cong 4 - 1"),
+    ("EN: tran T3 4->5",        lambda: kiem(vi_g, vi_q, tiem(en_r, "T3 ceiling 4", "T3 ceiling 5", "EN-T3"), vis, ens), "README.md (EN): tran T3 5 != so luot 3 + 1"),
+    ("EN: xoa ve moc phat hanh", lambda: kiem(vi_g, vi_q, tiem(en_r, " · **≤1 turn for a release milestone**", "", "EN-ship"), vis, ens), "README.md (EN): khong doc duoc ve ngan sach «moc phat hanh»"),
+    # Hai ca doi GIA TRI ve moc phat hanh. Bon ca «xoa ve» o tren bi bat som hon
+    # mot buoc ngay trong ngan_sach() (bieu thuc trich khong khop), nen KHONG ca
+    # nao cham toi phep so `ship != 1` — xoa han nhanh ay ma suite van xanh 12/12
+    # (hoi dong S4 vong 5 do duoc, va da tai hien 06/09). Hai ca duoi dua GIA TRI
+    # sai vao, la chieu do DUY NHAT cua ve thu ba.
+    ("moc phat hanh 1->2", lambda: kiem(tiem(vi_g, "**mốc phát hành ≤1**", "**mốc phát hành ≤2**", "ship2@GUIDE"), tiem(vi_q, "**mốc phát hành ≤1**", "**mốc phát hành ≤2**", "ship2@QUICKSTART"), en_r, vis, ens), "GUIDE.md/QUICKSTART.md (VI): moc phat hanh 2 != 1"),
+    ("EN: moc phat hanh 1->2", lambda: kiem(vi_g, vi_q, tiem(en_r, "**≤1 turn for a release milestone**", "**≤2 turn for a release milestone**", "EN-ship2"), vis, ens), "README.md (EN): moc phat hanh 2 != 1"),
 ]
 for ten, f, phai_neu in mut:
     d = f()
     assert d is not None, f"dot bien «{ten}» KHONG do — phep so GATE-MODEL da chet"
-    if phai_neu:
-        assert phai_neu in d, f"dot bien «{ten}» do nhung khong goi ten {phai_neu}: {d}"
-    print(f"     P86 MUTANT: {ten} -> do dung cho")
+    assert phai_neu, f"dot bien «{ten}» khong khai chuoi ghim — assert am tinh tran bi cam"
+    assert phai_neu in d, f"dot bien «{ten}» do nhung thieu ghim «{phai_neu}»: {d}"
+    # IN chinh thong diep do: con so trong bang chung phai la so may trich duoc,
+    # khong phai chu trong nhan ca (hoi dong S4 vong 1 bat dung cho nay).
+    print(f"     P86 MUTANT: {ten} -> do dung cho: {d}")
 
 # Lenh phai NOI voi khoi: hai ban chep deu phai tu khai la BAN CHEP + tro ve nguon.
 q_t = (root / VI_P).read_text(encoding="utf-8")

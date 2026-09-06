@@ -38,6 +38,12 @@ theo nếp «lỗi kit đi chip riêng».
 - AC-7: Given một phần tử `inputs` tương đối có tiền tố `_acceptance/<slug>/evidence/` của CHÍNH hồ sơ đang chấm (bằng chứng do ui-check sinh trong lúc chấm), When file đó CHƯA tồn tại lúc sinh args, Then script KHÔNG dừng: phần tử vẫn giải thành `<realpath(root)>/<đường dẫn>`, tệp args sinh ra, và đầu ra lỗi chuẩn có ĐÚNG MỘT dòng khai tên input chưa có; cùng tiền tố nhưng của hồ sơ KHÁC (`_acceptance/<slug-khác>/evidence/…`) mà vắng → vẫn exit 2 như AC-2. Vắng lúc chấm thì hội đồng trả UNCERTAIN theo luật sẵn có của lane, không đổi lane.
 - AC-8: Given một phần tử `inputs` trỏ tới đường dẫn TỒN TẠI nhưng là thư mục (không phải file thường), When chạy script, Then exit 2, thông điệp nêu id eval, đường dẫn nguyên văn và vế «là thư mục, không phải file», tệp args KHÔNG được sinh; đối chứng dương cùng fixture: trỏ tới một file trong thư mục đó → exit 0.
 - AC-6: Given nhánh này so với mốc gộp với nhánh chính (`git merge-base`), When liệt kê file đổi, Then `feature-loop/workflows/acceptance-verify.js` có diff RỖNG (lane hội đồng không đổi nghĩa: bảng `EVAL-REQUIRED-FIELDS`, nhánh UNCERTAIN, `inputsHash` giữ nguyên vì file giữ nguyên) và tập file mã đổi ngoài `tests/**`, `docs/**`, `skills/**`, `feature-loop/skills/**`, `_acceptance/**`, `.github/**`, `PRODUCT-MAP.md` (bản đồ máy vẽ lại khi thêm hồ sơ) BẰNG đúng tập một phần tử {`feature-loop/scripts/s4-args.mjs`}; bộ kiểm lớp thuần của workflow xanh là đối chứng dương, không phải thước chính. Mỗi vế có chiều đỏ riêng trên clone tạm: chạm `acceptance-verify.js` → đỏ vế một; thêm một file mã lạ ngoài tập trắng → đỏ vế hai nêu tên file.
+  > BỔ CHÍNH 06/09/2026 (hồ sơ `thuoc-khai-mot-dang-do-mot-neo`): phương pháp của tiêu chí
+  > trên đã đổi — `git merge-base` và `check_lane` không còn tồn tại; vế lane nay so bản tại mốc
+  > ký trên cây làm việc, vế tập-file neo khoảng đã giao, chiều đỏ vế hai chạy trên KHO GIẢ, và
+  > nhóm chạy 7 ca. Verdict, chữ ký và mốc pin của hồ sơ này KHÔNG đổi; văn bản tiêu chí giữ
+  > nguyên để đọc lịch sử. Dòng này cố ý KHÔNG mang mã tiêu chí — nhân bản mã sẽ làm bộ đọc
+  > hợp đồng ghi đè văn bản tiêu chí thật và bật cờ vàng trên thẻ (đo 06/09, S4 vòng 4).
 
 ## Coverage
 

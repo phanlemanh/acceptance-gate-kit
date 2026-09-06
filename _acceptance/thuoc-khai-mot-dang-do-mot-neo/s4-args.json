@@ -1,0 +1,221 @@
+{
+ "generated_at": "2026-09-06T12:48:18Z",
+ "generated_sha": "19abfcd7cc2352d7d6a8a6c4d1acba852a1ba7f4",
+ "mainBranchInfo": {
+  "branch": "main",
+  "source": "remote"
+ },
+ "slug": "thuoc-khai-mot-dang-do-mot-neo",
+ "round": 6,
+ "riskTier": "T2",
+ "evals": [
+  {
+   "id": "E1",
+   "criterion": "AC-1",
+   "cmd": "bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi",
+   "expected": "exit 0; dòng `vế lane (sống)` báo PASS trên cây thật — `acceptance-verify.js` trên CÂY LÀM VIỆC\ngiống bản tại mốc ký `9b3d6f64` (so cây, không so HEAD: sửa chưa commit cũng bị bắt); VÀ dòng\nHAI dòng `chiều đỏ 1` và `chiều đỏ 1b` cùng báo PASS — clone sửa file ấy ĐÃ COMMIT, và clone sửa\nmà CHƯA commit, cả hai làm phép kiểm ĐỎ với ghim `lane hội đồng đã đổi`. Ca 1b là chỗ duy nhất\nphân biệt so-cây với so-HEAD: đổi phép đo về `MOC_KY..HEAD` thì 1b đỏ (đã phá thử, nhóm 6 pass 1 do).",
+   "executor": "script",
+   "paths": [
+    "_acceptance/inputs-tinh-tu-goc-kho/rang.sh",
+    "feature-loop/workflows/acceptance-verify.js"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.itgk_lane_doc_khong_doi"
+  },
+  {
+   "id": "E2",
+   "criterion": "AC-2",
+   "cmd": "bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi",
+   "expected": "exit 0; dòng `vế tập-file (chứng-một-lần)` báo PASS và in tập thật đọc từ khoảng đã giao\n`1765b550..9b3d6f64`, đúng bằng `{feature-loop/scripts/s4-args.mjs}`. Ô này khai rõ vế hai là\nHẰNG với đối số thật; chiều đỏ của nó nằm ở E4, không nằm ở đây.",
+   "executor": "script",
+   "paths": [
+    "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.itgk_lane_doc_khong_doi"
+  },
+  {
+   "id": "E3",
+   "criterion": "AC-3",
+   "cmd": "bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi",
+   "expected": "exit 0; dòng `chiều đỏ 2` báo PASS — một KHO GIẢ dựng tại chỗ (`git init`, hai commit) có\nkhoảng `base..tip` chứa `lib/tiem-file-la.mjs` ngoài `s4-args.mjs`; gọi hàm vế-tập-file qua\nĐÚNG chữ ký mà lời gọi thật dùng (repo, base, tip đều là hằng của kho giả) phải ĐỎ với\n`tập file mã đổi ≠ {…}` nêu đích danh file lạ. Đỏ đi vòng qua HEAD của clone → không tính.",
+   "executor": "script",
+   "paths": [
+    "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.itgk_lane_doc_khong_doi"
+  },
+  {
+   "id": "E4",
+   "criterion": "AC-4",
+   "cmd": "bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan lane-doc-khong-doi",
+   "expected": "exit 0; dòng `chiều đỏ 3` báo PASS — chạy trên một kho KHÔNG có mốc đã neo thì ĐỎ và gọi tên\nsha thiếu (`mốc đã neo không có trong kho`). Bản thiếu-mốc mà XANH thì nhóm FAIL: đó đúng là\nđường xanh-im-lặng vòng này tồn tại để đóng.",
+   "executor": "script",
+   "paths": [
+    "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.itgk_lane_doc_khong_doi"
+  },
+  {
+   "id": "E5",
+   "criterion": "AC-5",
+   "cmd": "ONLY_BLOCK=\"P86 GATE-MODEL\" bash tests/plugins/run-tests.sh",
+   "expected": "exit 0; `PASS: P86` và dòng `P86 VE: ngan sach doc duoc` in ba con số cho TỪNG bản\n(`VI 3/4/1` · `EN 3/4/1`). Số đến từ biểu thức trích trên đúng vế; vế nào không khớp biểu\nthức → đỏ nêu tên vế và tên bản.",
+   "executor": "script",
+   "paths": [
+    "tests/plugins/run-tests.sh",
+    "GUIDE.md",
+    "QUICKSTART.md",
+    "README.md"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.tkm_p86"
+  },
+  {
+   "id": "E6",
+   "criterion": "AC-6",
+   "cmd": "ONLY_BLOCK=\"P86 GATE-MODEL\" bash tests/plugins/run-tests.sh",
+   "expected": "exit 0; TÁM dòng `P86 MUTANT` ngân sách in kèm THÔNG ĐIỆP ĐỎ THẬT sau dấu hai chấm — ba ca sửa\nbản VI (`GUIDE.md/QUICKSTART.md (VI): …`) và ba ca `EN:` sửa CHỈ bản EN (`README.md (EN): …`),\nvì `kiem` duyệt VI trước rồi dừng nên ca chạm VI che mất nhánh EN. Ba ca VI:\n`ngan sach luot 3->9 -> do dung cho: … ngan sach luot 9 != so cong 4 - 1` ·\n`tran T3 4->5 -> … tran T3 5 != so luot 3 + 1` ·\n`xoa ve moc phat hanh -> … khong doc duoc ve ngan sach «moc phat hanh»`.\nBa ca EN cho `README.md (EN): ngan sach luot 9 != so cong 4 - 1` và hai dòng tương ứng.\nCon số 9 đến từ `ngan_sach()` trích được, không từ nhãn ca. Ba phá thử 06/09: đổi thông điệp\nthành chuỗi hằng → FAIL `thieu ghim`; xoá nhánh quan hệ của bản EN → FAIL `EN: ngan sach luot\n3->9 KHONG do`; đổi chuỗi đích của một mũi tiêm → FAIL `mui tiem «EN-luot» KHONG trung`.",
+   "executor": "script",
+   "paths": [
+    "tests/plugins/run-tests.sh",
+    "GUIDE.md",
+    "QUICKSTART.md",
+    "README.md"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.tkm_p86"
+  },
+  {
+   "id": "E7",
+   "criterion": "AC-7",
+   "cmd": "ONLY_BLOCK=\"P86 GATE-MODEL\" bash tests/plugins/run-tests.sh",
+   "expected": "exit 0; dòng `P86 MUTANT: them cong nhung giu ngan sach -> do dung cho:` in tiếp thông điệp\n`ngan sach luot 3 != so cong 5 - 1` — cả hai số đều là số máy trích. Ba bản vẫn khớp nhau nên\nmọi phép so bản-chép đều xanh: chỉ phép so QUAN HỆ bắt được ca này.",
+   "executor": "script",
+   "paths": [
+    "tests/plugins/run-tests.sh",
+    "GUIDE.md",
+    "QUICKSTART.md",
+    "README.md"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.tkm_p86"
+  },
+  {
+   "id": "E8",
+   "criterion": "AC-8",
+   "cmd": "bash tests/plugins/run-tests.sh",
+   "expected": "exit 0; `Results: all plugin tests passed`; trong đó P86 in đủ NĂM dòng `P86 MUTANT` CŨ\n(bản VI ở QUICKSTART, bản VI ở GUIDE, bản EN ở README, thêm cổng ở nguồn, mất ngân sách T3), và MỌI\ndòng MUTANT đều in thông điệp đỏ thật sau `do dung cho:` — không ca nào assert âm tính trần —\nvà MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần rồi so văn bản trước/sau.",
+   "executor": "test",
+   "paths": [
+    "tests/plugins/run-tests.sh"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.test.plugins"
+  },
+  {
+   "id": "E9",
+   "criterion": "AC-8",
+   "cmd": "bash tests/scripts/run-tests.sh && bash tests/hooks/run-tests.sh && bash tests/workflows/run-tests.sh && node scripts/product-map.mjs --root . --check",
+   "expected": "exit 0; ba suite còn lại của kho (`scripts` · `hooks` · `workflows`) mỗi cái kết `0 failed`,\nrồi `product-map.mjs --root . --check` in `PRODUCT-MAP.md khớp hồ sơ xưởng.` — thêm một thư\nmục hồ sơ và ba khoá config là đúng loại thay đổi làm cổng đếm của kho đỏ.",
+   "executor": "script",
+   "paths": [
+    "_acceptance/config.yaml",
+    "PRODUCT-MAP.md"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.tkm_suite_con_lai"
+  },
+  {
+   "id": "E10",
+   "criterion": "AC-9",
+   "cmd": "for c in goc-kho-giu thieu-exit-2 duong-cu-goi-y abs-hai-chieu tai-lieu-khong-con-duong-cu bang-chung-cung-ho-so thu-muc-khong-phai-file; do bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan \"$c\" || exit 1; done",
+   "expected": "exit 0; bảy nhóm còn lại của `rang.sh` (`goc-kho-giu` · `thieu-exit-2` · `duong-cu-goi-y` ·\n`abs-hai-chieu` · `tai-lieu-khong-con-duong-cu` · `bang-chung-cung-ho-so` ·\n`thu-muc-khong-phai-file`) mỗi nhóm in `Results: chan <tên> passed`, không nhóm nào `FAILED`.",
+   "executor": "script",
+   "paths": [
+    "_acceptance/inputs-tinh-tu-goc-kho/rang.sh"
+   ],
+   "evidence_required": [
+    "run_id",
+    "exit_code",
+    "verifier",
+    "verified_at",
+    "output"
+   ],
+   "ref": "config:executors.script.tkm_bay_chan"
+  }
+ ],
+ "suiteCommands": [
+  "bash tests/scripts/run-tests.sh",
+  "bash tests/hooks/run-tests.sh",
+  "bash tests/plugins/run-tests.sh",
+  "bash tests/workflows/run-tests.sh",
+  "node scripts/product-map.mjs --root . --check"
+ ],
+ "diffBase": "5aa7221ae496653c51f4d385749729a0c5f74472",
+ "repoRoot": "/Users/manh-macmini/dev/acceptance-gate-kit",
+ "personasPath": "/Users/manh-macmini/dev/acceptance-gate-kit/skills/acceptance/references/judge-personas.md",
+ "templatePath": "/Users/manh-macmini/dev/acceptance-gate-kit/skills/acceptance/references/evidence-report-template.md",
+ "toolKillRule": "# TOOL-KILL-RULE — lệnh bị công cụ ngắt KHÔNG phải lệnh fail\n\n**Nguồn duy nhất** của luật «hết giờ không phải trượt» cho MỌI đường chạy lệnh\nkiểm của kit. Hai đường tiêu thụ, cùng đọc khối marker dưới đây, không chép tay:\n\n- **Vòng lặp tính năng** (plugin feature-loop): skill `feature-loop` đọc file này\n  (resolve qua `resolve-plugin.mjs --require skills/acceptance/references/tool-kill-rule.md`)\n  và truyền NGUYÊN VĂN vào `args.toolKillRule` của workflow\n  `acceptance-verify.js`; workflow rút khối marker và nội suy vào prompt của mọi\n  agent chạy lệnh (machine · ui-check · baseline). Thiếu args hoặc không rút\n  được marker → workflow trả BLOCKED có tên, không chạy không luật.\n- **Đường VERIFY độc lập** (skill `acceptance` Phase 3): phiên điều phối chép khối\n  marker VERBATIM vào prompt của phiên tươi VERIFY, cùng nếp «Network truth».\n\nVì sao có luật: verifier chạy lệnh qua Bash tool có trần thời gian mặc định\n(~120 s) NGẮN hơn nhiều suite; lệnh bị công cụ giết trả exit code CỦA CÔNG CỤ,\nkhông phải của lệnh (vấp thật release-2-2-0 S4 r5: suite 108 s đơn lẻ, dưới tải\nbị giết ở 118 s → REJECT giả 4 eval). Nhận diện là việc AGENT (nó thấy tool\nresult thật); phần máy chỉ phòng thủ trên field cấu trúc `killedByTool` —\nKHÔNG grep nội dung output trong engine (chuỗi tổng kết là của suite từng repo).\n\n<!-- <<<TOOL-KILL-RULE -->\nTRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason \"bi cong cu giet o <so giay> giay\" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.\n<!-- TOOL-KILL-RULE>>> -->\n\n## Hồ sơ cho lượt bị ngắt (đường độc lập)\n\nPhiên tươi VERIFY gặp lệnh bị công cụ ngắt thì:\n\n- dòng run-log của eval đó: `\"exit_code\": null, \"killed_by_tool\": true` (không\n  ghi mã thoát của công cụ như mã thoát của lệnh);\n- verdict báo cáo `BLOCKED`, `reason: bi cong cu giet o <so giay> giay — <eval ids>`\n  (kèm dấu hiệu: timeout tool / output cắt trước dòng tổng kết); `failed_evals`\n  rỗng — người đọc hồ sơ thấy đây là sự cố hạ tầng, chữa bằng chạy lại với trần\n  công cụ đủ dài, không phải sửa sản phẩm.\n",
+ "contractPath": "/Users/manh-macmini/dev/acceptance-gate-kit/_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md",
+ "invokedAt": "2026-09-06T12:48:18Z",
+ "invokedSha": "19abfcd7cc2352d7d6a8a6c4d1acba852a1ba7f4",
+ "evalsHash": "0752547980bda923298d147a16ade090aee1bf42ae16dae2fa596d76b863d1b0",
+ "runBaseline": false
+}
