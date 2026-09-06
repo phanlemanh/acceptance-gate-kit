@@ -39,7 +39,7 @@ Source input: docs/superpowers/specs/2026-09-06-thuoc-khai-mot-dang-do-mot-neo-d
 - AC-3: Given một KHO GIẢ dựng tại chỗ có khoảng `base..tip` chứa thêm `lib/tiem-file-la.mjs` ngoài `s4-args.mjs`, When gọi hàm kiểm vế-tập-file qua ĐÚNG chữ ký mà lời gọi thật dùng, Then ĐỎ với `tập file mã đổi ≠ {…}` nêu đích danh file lạ — chiều đỏ của vế hằng phải đi qua đúng đối số production, không đi vòng qua HEAD của clone.
 - AC-4: Given một kho KHÔNG có mốc đã neo (lịch sử cắt hoặc viết lại), When nhóm chạy, Then ĐỎ và gọi tên sha thiếu — tuyệt đối không rơi về xanh im lặng.
 - AC-5: Given cây lành, When chạy `ONLY_BLOCK=P86 bash tests/plugins/run-tests.sh`, Then P86 XANH và in ba con số ngân sách TRÍCH ĐƯỢC từ đúng vế của dòng ngân sách cho cả bản VI lẫn bản EN — số in ra đến từ biến, không từ chữ hằng trong câu.
-- AC-6: Given SÁU đột biến — ba cái sửa đúng một vế ngân sách trên bản VI, ba cái sửa đúng vế ấy CHỈ trên bản EN (bản VI để nguyên, vì `kiem` duyệt VI trước rồi dừng ở dòng đỏ đầu tiên nên mọi ca chạm VI đều che mất nhánh EN) (`≤3 lượt/vòng` → `≤9` · `T3 trần 4` → `T3 trần 5` · xoá hẳn vế `mốc phát hành ≤1`), When P86 chạy, Then mỗi ca ĐỎ với CHUỖI GHIM khai trước chứa con số máy trích (ca một ghim `ngan sach luot 9 != so cong 4 - 1`), và thông điệp ấy được IN RA trong bằng chứng; ca xoá vế đỏ vì THIẾU vế, không vì lệch bản chép. Đột biến nào không khai chuỗi ghim là FAIL — assert âm tính trần bị cấm. Và MỌI đột biến phải đi qua chân «mũi tiêm có trúng»: chuỗi đích xuất hiện đúng một lần và văn bản sau khác trước, nếu không thì một mũi tiêm trượt cũng cho đúng một màu xanh.
+- AC-6: Given SÁU đột biến — ba cái sửa đúng một vế ngân sách trên bản VI, ba cái sửa đúng vế ấy CHỈ trên bản EN (bản VI để nguyên, vì `kiem` duyệt VI trước rồi dừng ở dòng đỏ đầu tiên nên mọi ca chạm VI đều che mất nhánh EN) (`≤3 lượt/vòng` → `≤9` · `T3 trần 4` → `T3 trần 5` · xoá hẳn vế `mốc phát hành ≤1`), When P86 chạy, Then mỗi ca ĐỎ với CHUỖI GHIM khai trước chứa con số máy trích (ca một ghim `ngan sach luot 9 != so cong 4 - 1`), và thông điệp ấy được IN RA trong bằng chứng; ca xoá vế đỏ vì THIẾU vế, không vì lệch bản chép. Đột biến nào không khai chuỗi ghim là FAIL — assert âm tính trần bị cấm. Và MỌI đột biến — kể cả ba lần chèn dòng bảng của nhánh thêm-cổng — phải đi qua chân «mũi tiêm có trúng»: chuỗi đích xuất hiện đúng một lần và văn bản sau khác trước, nếu không thì một mũi tiêm trượt cũng cho đúng một màu xanh.
 - AC-7: Given một đột biến thêm cổng thứ năm vào CẢ ba bản (nguồn tsv + VI + EN) mà giữ nguyên `≤3`, When P86 chạy, Then ĐỎ với chuỗi ghim `ngan sach luot 3 != so cong 5 - 1` in ra trong bằng chứng. Ba bản vẫn khớp nhau nên mọi phép so bản-chép đều xanh: chỉ phép so QUAN HỆ bắt được ca này.
 - AC-8: Given cả hai vật đã vá, When chạy bốn suite của kho và `product-map.mjs --root . --check`, Then tất cả xanh; và P86 vẫn in đủ NĂM dòng đột biến CŨ — vá thước không được nuốt chiều đỏ đã có.
 - AC-9: Given `check_lane` đã được thay bằng `lane_song` + `tap_file` + `co_moc`, When chạy bảy nhóm còn lại của `rang.sh`, Then mỗi nhóm vẫn `passed`, không nhóm nào `FAILED`.
@@ -49,7 +49,7 @@ Source input: docs/superpowers/specs/2026-09-06-thuoc-khai-mot-dang-do-mot-neo-d
 Ma trận đóng: {vật A · vật B} × {xanh trên vật lành · đỏ khi phá TỪNG vế · thông điệp ghim
 gọi đúng tên vật hỏng · độc lập cây-và-ngày}. Vật A phủ ở AC-1..AC-4: vế lane SỐNG có chiều
 đỏ trên cây thật (AC-1), vế tập-file là HẰNG nên chiều đỏ của nó phải đi qua kho giả với đúng
-chữ ký production (AC-3), cộng ô fail-closed khi mốc mất (AC-5) và ô hai-lượt-một-kết-quả cho
+chữ ký production (AC-3), cộng ô fail-closed khi mốc mất (AC-4) và ô hai-lượt-một-kết-quả cho
 trục độc-lập-cây (AC-1, đo bằng quét TĨNH — xem Notes). Vật B phủ ở AC-5..AC-7 (xanh có số thật · ba vế × chiều đỏ có số ·
 quan hệ với bảng nguồn). AC-8 và AC-9 là hai ô không-hồi-quy. Bỏ coverage-scan bằng máy — không
 gian là ma trận hai chiều đã liệt hết ở đây (entry d-20260906T064500Z-tkm1).
@@ -88,7 +88,8 @@ gian là ma trận hai chiều đã liệt hết ở đây (entry d-20260906T064
   `tap_file` chỉ đọc hai hằng mốc cộng cây làm việc nên độc lập HEAD **theo cấu trúc** —
   hai lượt bằng nhau là tất yếu, không phải tính chất đo được, và mọi đối chứng âm dựng
   quanh nó lại là hằng đúng. S4 vòng 1 và vòng 2 đều REJECT đúng chỗ này; owner chọn đổi
-  khuôn. Tính chất cấu trúc nay đo bằng phép quét cấu trúc, có chiều đỏ rẻ và thật.
+  khuôn. Tầng quét cấu trúc dựng ở vòng 3 để thay nó cũng mang đúng bệnh ấy (xanh khi trích được 0
+  dòng thân hàm), nên vòng 4 owner quyết gỡ hẳn — xem khối NỢ CÓ TÊN ở trên.
 
 - Hằng mốc là HAI sha viết trong răng: clone nông (`--depth`) không có chúng → AC-4 đỏ có tên.
   CI phải chạy `fetch-depth: 0` mới xanh; đã kiểm workflow hiện tại trước khi chốt.

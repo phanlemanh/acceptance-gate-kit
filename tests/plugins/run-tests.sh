@@ -11021,10 +11021,17 @@ def kiem(vi_g, vi_q, en_r, vis, ens, them_cong=False):
     if them_cong:
         dong = "| **Cổng Thứ Năm** | Câu hỏi thứ năm? | Không bao giờ |"
         dong_en = "| **Fifth Gate** | A fifth question? | Never |"
-        vi_g = vi_g.replace("\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", 1)
-        vi_q = vi_q.replace("\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", 1)
-        en_r = en_r.replace("\n\n**Human-turn budget", "\n" + dong_en + "\n\n**Human-turn budget", 1)
+        vi_g = tiem(vi_g, "\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", "themcong@GUIDE")
+        vi_q = tiem(vi_q, "\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", "themcong@QUICKSTART")
+        en_r = tiem(en_r, "\n\n**Human-turn budget", "\n" + dong_en + "\n\n**Human-turn budget", "themcong@README")
     if vi_g != vi_q:
+        # Neu chi noi «hai ban VI lech» thi hai dot bien (sua GUIDE / sua QUICKSTART)
+        # in ra CUNG mot cau, khong ai biet ban nao troi. So tung ban voi cot nguon
+        # truoc de goi dich danh (S4 vong 4, muc «thong diep giong het nhau»).
+        if nhan(vi_g) != vis:
+            return f"ban chep VI lech o {SRC_P}: cot `vi` cua khoi trong {SRC_P} khac khoi nguon"
+        if nhan(vi_q) != vis:
+            return f"ban chep VI lech o {VI_P}: cot `vi` cua khoi trong {VI_P} khac khoi nguon"
         return f"ban chep VI lech: {VI_P} khac nguon {SRC_P} — dong bo lai khoi GATE-MODEL-VI"
     if nhan(vi_g) != vis:
         return f"ban VI ({SRC_P}+{VI_P}) lech cot `vi` cua khoi nguon: {nhan(vi_g)} != {vis}"
@@ -11070,8 +11077,8 @@ def tiem(text, a, b, nhan):
     return ra
 
 mut = [
-    ("ban VI o QUICKSTART", lambda: kiem(vi_g, tiem(vi_q, "Cổng Đáng", "Cổng Đang", "VI@QUICKSTART"), en_r, vis, ens), VI_P),
-    ("ban VI o GUIDE",      lambda: kiem(tiem(vi_g, "Cổng Giá trị", "Cổng Gia tri", "VI@GUIDE"), vi_q, en_r, vis, ens), VI_P),
+    ("ban VI o QUICKSTART", lambda: kiem(vi_g, tiem(vi_q, "Cổng Đáng", "Cổng Đang", "VI@QUICKSTART"), en_r, vis, ens), f"ban chep VI lech o {VI_P}"),
+    ("ban VI o GUIDE",      lambda: kiem(tiem(vi_g, "Cổng Giá trị", "Cổng Gia tri", "VI@GUIDE"), vi_q, en_r, vis, ens), f"ban chep VI lech o {SRC_P}"),
     ("ban EN o README",     lambda: kiem(vi_g, vi_q, tiem(en_r, "Worth Gate", "Worthy Gate", "EN@README"), vis, ens), EN_P),
     ("them cong o nguon",   lambda: kiem(vi_g, vi_q, en_r, vis + ["Cổng Thứ Năm"], ens + ["Fifth Gate"]), "lech cot `vi` cua khoi nguon"),
     ("mat ngan sach T3",    lambda: kiem(tiem(vi_g, "T3 trần 4", "T3 trần bốn", "matT3@GUIDE"), tiem(vi_q, "T3 trần 4", "T3 trần bốn", "matT3@QUICKSTART"), en_r, vis, ens), "khong doc duoc ve ngan sach «tran T3»"),

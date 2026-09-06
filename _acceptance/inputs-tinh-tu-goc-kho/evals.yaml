@@ -84,8 +84,8 @@ evals:
     expected: >
       AMENDMENT 06/09/2026 (hồ sơ thuoc-khai-mot-dang-do-mot-neo): khoá giữ nguyên tên nhưng
       phương pháp đã đổi — vế lane so bản tại mốc ký 9b3d6f64 trên CÂY LÀM VIỆC, vế tập-file neo
-      khoảng 1765b550..9b3d6f64, chiều đỏ vế hai chạy trên KHO GIẢ, cộng phép quét tĩnh chống neo
-      động. Mô tả gốc dưới đây giữ để đọc lịch sử, KHÔNG còn là lời khai của phép đo hiện hành.
+      khoảng 1765b550..9b3d6f64, chiều đỏ vế hai chạy trên KHO GIẢ, và nhóm chạy 7 ca (thêm ca
+      sửa-chưa-commit và ca mốc-mất). Mô tả gốc dưới đây giữ để đọc lịch sử, KHÔNG còn là lời khai của phép đo hiện hành.
       Trên cây thật: mốc = git merge-base với nhánh chính (main, rơi về origin/main);
       diff acceptance-verify.js so mốc RỖNG; tập file đổi lọc ngoài tests/** docs/**
       skills/** feature-loop/skills/** _acceptance/** .github/** PRODUCT-MAP.md BẰNG đúng {feature-loop/scripts/s4-args.mjs}

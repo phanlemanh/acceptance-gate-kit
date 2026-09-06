@@ -1,10 +1,10 @@
 schema_version: 1
 feature_slug: thuoc-khai-mot-dang-do-mot-neo
 
-# T2, mười tiêu chí, không judgment.
+# T2, chín tiêu chí, mười ô đo, không judgment.
 # E1–E4 cùng chạy nhóm `lane-doc-khong-doi` qua CHÍNH khoá đang đỏ `itgk_lane_doc_khong_doi`
 # (không sinh khoá song song — gap-probe P0: khoá mới viết đúng sẽ che lỗi tầng giải chuỗi của
-# khoá cũ). E6–E8 cùng chạy P86. Workflow dedupe lệnh; mỗi ô ghim một ca khác nhau.
+# khoá cũ). E5–E7 cùng chạy P86. Workflow dedupe lệnh; mỗi ô ghim một ca khác nhau.
 # Con số trong chuỗi ghim là số MÁY TRÍCH rồi in ra, không phải chữ hằng.
 
 evals:

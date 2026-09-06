@@ -1,90 +1,117 @@
+# Review Findings: thuoc-khai-mot-dang-do-mot-neo (round 4)
+
 ## Trong hợp đồng
 
-### 1. Phép quét tĩnh `quet_neo_dong` XANH khi trích được 0 dòng — đúng lớp «assertion âm-tính-một-mình» mà CLAUDE.md cấm
-- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:117`
-- severity: **high**
-- AC: AC-1
-- source: conventions
-
-`than_ham()` chỉ vào thân hàm khi dòng định nghĩa khớp CHÍNH XÁC `^<ten>\(\) \{`. Nếu không khớp, awk in RỖNG, `grep -nE "$NEO_DONG"` không thấy gì, `hit` rỗng, và `quet_neo_dong` in `OK: ... không nhắc điểm neo động nào` với rc=0 — tức phép đo báo xanh mà chưa hề đọc dòng mã nào. Đã phá thử tại chỗ: đổi `lane_song() {` thành `lane_song ()\n{` VÀ tiêm `"$MOC_KY"..HEAD` vào thân → `than_ham` trả 0 dòng, `quet_neo_dong` vẫn in OK, rc=0. Chiều đỏ 4 hiện có (sed chèn HEAD) không phân biệt được ca này vì nó giữ nguyên định dạng header. Đây chính là lớp lỗi CLAUDE.md gọi tên: «fixture hỏng, bước tiêm thất bại — tất cả đều cho cùng một màu xanh», và là hình dạng (1) của «Thước phải gắn vào vật được giao». Nghiệm đúng tầng: assert `than_ham` trả về SỐ DÒNG > 0 cho từng hàm trong `for ham in lane_song tap_file co_moc` (line 124) trước khi kết luận sạch, và đỏ gọi tên hàm không tìm thấy.
-
-### 2. quet_neo_dong xanh im lặng khi than_ham không rút được thân hàm (guard vô hiệu, không ai biết)
-- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:125`
-- severity: **high**
-- AC: AC-1
-- source: bugs
-
-`than_ham` rút thân hàm bằng awk với mẫu cứng `^<tên>\(\) \{`. Nếu không khớp, awk in ra RỖNG, `hit` rỗng, và `quet_neo_dong` kết luận `OK: thân lane_song · tap_file · co_moc không nhắc điểm neo động nào` rồi return 0. Không có chỗ nào assert rằng thân hàm thực sự được rút ra (ví dụ: kiểm số dòng > 0, hoặc kiểm hàm tồn tại). Đây là fallback ẩn: phép đo không tìm thấy gì bị coi là phép đo sạch.
-
-Đã chứng minh bằng thực nghiệm (chạy đúng thân hai hàm trích từ rang.sh):
-
-1) Đổi tên hàm — `sed 's/^lane_song() {/lane_live() {/'` trên rang.sh CỘNG chèn `..HEAD` vào thân hàm đó → `quet_neo_dong` in `OK: sach`, rc=0. Nghĩa là một lần đổi tên hàm (kèm cập nhật mọi lời gọi, hoàn toàn hợp lệ về mặt chạy) làm cả tính chất «độc lập HEAD» hết được canh mà không ai đỏ.
-
-2) Đổi kiểu ngoặc — file chứa:
-```
-lane_song()
-{
-  git rev-parse HEAD
-}
-```
-→ `than_ham` trả rỗng cho CẢ BA hàm (`lane_song`, `tap_file`, `co_moc` đều `[]`), `quet_neo_dong` vẫn in `OK: sach`, rc=0, dù thân hàm có nguyên `git rev-parse HEAD`.
-
-Hệ quả: đây là phép đo DUY NHẤT thực thi tính chất mà AC-1/E1 khai (`độc lập HEAD`), và nó tự tắt trong im lặng. Đúng lớp lỗi «ô đo chạy 0 ca vẫn xanh». Cách sửa: `quet_neo_dong` phải fail-closed khi `than_ham` trả rỗng — ví dụ `[ -n "$(than_ham "$f" "$ham")" ] || { echo "DO: không rút được thân $ham — phép quét vô hiệu"; rc=1; }` trước khi grep.
-
-### 3. cmp -s xác nhận «mũi tiêm trúng» ở chiều đỏ 4 không bao giờ đỏ được — dòng sed tự đột biến chính nó
-- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:259`
-- severity: **medium**
-- AC: AC-1
-- source: bugs
-
-Dòng 258 dựng bản sao đột biến:
-```
-BS="$TMP/rang-neo-dong.sh"; sed 's|git -C "$repo" diff --quiet "$MOC_KY" -- "$REL_WF"|git -C "$repo" diff --quiet "$MOC_KY"..HEAD -- "$REL_WF"|' "$HERE/rang.sh" > "$BS"
-```
-Chính dòng lệnh sed này CHỨA chuỗi tìm kiếm nguyên văn, nên sed cũng thay thế trên chính nó. Kiểm chứng bằng `diff` giữa rang.sh và bản sao: có ĐÚNG HAI dòng đổi — dòng 103 (thân `lane_song`, mũi tiêm mong muốn) và dòng 258 (dòng sed tự đổi).
-
-Do đó `cmp -s "$HERE/rang.sh" "$BS"` luôn báo KHÁC NHAU bất kể mũi tiêm có trúng thân `lane_song` hay không, và nhánh `bad "chiều đỏ 4: mũi tiêm KHÔNG trúng — bản sao giống hệt bản thật"` là mã chết không thể chạm tới.
-
-Kịch bản cụ thể: nếu về sau `lane_song` được viết lại (ví dụ tách lệnh git ra biến, hay đổi thứ tự tham số) sao cho dòng 103 không còn khớp mẫu sed, thì mũi tiêm CHỈ còn trúng dòng 258 — `cmp` vẫn khác, guard im, và ca chiều đỏ 4 đi tiếp bằng một bản sao không hề có đột biến trong thân hàm.
-
-Điều này quan trọng vì `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml` ô E1 khai `cmp -s` là chân chịu lực: «... gọi đúng tên hàm, sau khi `cmp -s` xác nhận mũi tiêm trúng». Lời khai đó hiện không có thật. (Giảm nhẹ: khi mũi tiêm trượt thì `quet_neo_dong "$BS"` trả rc=0 và nhánh else vẫn `bad`, nên kết cục là đỏ chứ không xanh giả — nhưng thông điệp sẽ chỉ sai chỗ, và guard được viết ra để phân biệt đúng hai ca đó thì vô dụng.) Cách sửa: dựng mẫu sed từ biến/heredoc để dòng lệnh không chứa chuỗi đích, hoặc đổi guard thành đếm số dòng khác nhau và đòi mũi tiêm nằm trong khoảng dòng của `lane_song`.
-
-### 4. Hình dạng 4 — assertion âm-tính-một-mình: quét tĩnh XANH khi đọc được 0 dòng (không có chân chứng minh đã thật sự đọc thân hàm)
-- file: `_acceptance/inputs-tinh-tu-goc-kho/rang.sh:125`
-- severity: **high**
-- AC: AC-1
-- source: measurement
-
-`quet_neo_dong` (dòng 122–130) chỉ có MỘT loại khẳng định: `grep -nE "$NEO_DONG"` trên đầu ra của `than_ham` KHÔNG khớp gì. Không đâu assert rằng `than_ham` đã trả về dòng nào. `than_ham` (dòng 117–121) tìm thân hàm bằng awk `$0 ~ "^"f"\\(\\) \\{"` — mẫu neo tuyệt đối vào chuỗi `<tên>() {` ở đầu dòng; tên hàm đổi, hay chỉ cần một khoảng trắng (`lane_song () {`), là awk in ra 0 dòng, grep không khớp, `rc=0`, và hàm in ra dòng KHẲNG ĐỊNH `OK: thân lane_song · tap_file · co_moc không nhắc điểm neo động nào`. Đã đo tay 06/09 trên cây này: lấy bản sao rang.sh, (a) tiêm ĐÚNG đột biến mà chiều đỏ 4 dùng — đổi `git diff --quiet "$MOC_KY" -- "$REL_WF"` thành `"$MOC_KY"..HEAD`, tức phép đo mất hẳn tính độc-lập-HEAD mà AC-1 hứa — và (b) đổi ba tiêu đề hàm thành `lane_song () {` / `tap_file () {` / `co_moc () {`; chạy `quet_neo_dong` trên bản đó → in `OK: … không nhắc điểm neo động nào`, rc=0. `chiều đỏ 4` (dòng 258–262) không bịt được lỗ này: nó chỉ chứng minh phép quét đỏ khi tiêu đề hàm CÒN NGUYÊN, tức là đối chứng dương cho ca «tìm thấy thân», không phải cho ca «không tìm thấy thân». Đây là phép đo DUY NHẤT của AC-1, nên khi nó rơi về xanh-đọc-0-dòng thì tiêu chí trở thành vô hình.
-
-### 5. Hình dạng 5 — tuyên «MỌI đột biến» nhưng chân kiểm mũi-tiêm chỉ phủ điểm-case: nhánh `them_cong` không đi qua `tiem()`
-- file: `tests/plugins/run-tests.sh:11021`
-- severity: **low**
-- AC: AC-7
-- source: measurement
-
-AC-7 của contract và `expected` của E9 (`_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml`) tuyên một bất biến toàn lớp: «MỌI đột biến phải đi qua chân «mũi tiêm có trúng»» / «MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần rồi so văn bản trước/sau». Trong mã, `tiem()` (dòng 11059–11071, đếm `text.count(a) == 1` rồi assert `ra != text`) được dùng cho 10 đột biến, nhưng nhánh `them_cong=True` bên trong `kiem` (dòng 11021–11026) tiêm ba dòng bảng bằng `.replace(..., 1)` TRẦN — `vi_g.replace("\n\n**Ngân sách", …)`, `vi_q.replace(…)`, `en_r.replace("\n\n**Human-turn budget", …)` — không đếm số lần khớp, không so văn bản trước/sau. Đột biến `"them cong nhung giu ngan sach"` (dòng 11084), tức chính ca duy nhất chứng minh phép so QUAN HỆ ở AC-8, chạy qua nhánh này. Cả `expected` của E9 lẫn `cmd` của nó (`config:executors.test.plugins`, chỉ chạy suite) đều không có khẳng định nào kiểm được tính chất «mọi đột biến» ấy — nó là tính chất của MÃ, không xuất hiện trong đầu ra mà ô đo đọc. (Ghi rõ chiều không-đỏ: nếu ba mũi `.replace` này trượt, ca vẫn FAIL vì lệch ghim, nên đây là lời khai quá tay chứ chưa phải đường xanh-im-lặng.)
+_Không có finding nào được máy phân loại vào mục này — bước triage phạm vi round này KHÔNG chạy được (xem mục "Chưa phân loại" bên dưới)._
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Hồ sơ ĐÃ KÝ `inputs-tinh-tu-goc-kho`: contract/evals được bổ chính nhưng khối bằng chứng E6 giữ nguyên đầu ra không còn sinh được**
-  Người dùng thấy gì: Một tài liệu bằng chứng đã được duyệt trước đó cho một tính năng liên quan vẫn mô tả cách đo cũ, không còn khớp với cách tính năng đó thực sự được kiểm tra hiện nay — người đọc lại tài liệu này sau này có thể hiểu sai đã kiểm tra bằng phương pháp nào.
-  file: `_acceptance/inputs-tinh-tu-goc-kho/evidence-report.md`
-  severity: medium
-  Đề xuất: known-limits
+- **evidence-report.md không được đánh số lại sau khi descope — bảng eval→criterion lệch một bậc, khai PASS cho tiêu chí đang BLOCKED**
+  Người dùng thấy gì: The evidence report used to review this fix may show a check as passed when the underlying item is actually still blocked, which could lead someone to approve work that isn't really finished.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md`
+  severity: high
+  Đề xuất: new-contract
 
-- **«Out of scope» của hợp đồng mới tự mâu thuẫn với chính diff, và hai tham chiếu chết còn trong tiêu chí sống**
-  Người dùng thấy gì: Bản mô tả phạm vi công việc có một dòng loại trừ mâu thuẫn với chính các thay đổi đã thực hiện, và còn nhắc tới hai phần việc đã không còn tồn tại — người đọc tài liệu này sau này có thể hiểu sai phạm vi thật sự đã được làm.
+- **Dòng bổ chính tạo TRÙNG mã AC-6 trong contract của hồ sơ đã ký — thẻ Cổng 1 bật cờ vàng và văn bản tiêu chí AC-6 bị ghi đè**
+  Người dùng thấy gì: A clarifying note added to a different, already-approved feature's requirements accidentally reused an existing requirement's label, which erased that requirement's original wording and now shows a warning on that feature's approval record.
+  file: `_acceptance/inputs-tinh-tu-goc-kho/contract.md`
+  severity: high
+  Đề xuất: new-contract
+
+- **Coverage và Notes của contract mới vẫn viện dẫn tiêu chí đã xoá và phép quét tĩnh đã gỡ**
+  Người dùng thấy gì: The written explanation of what this fix's tests cover still mentions checks that were already removed, which could mislead someone reading it later about what is actually being verified.
   file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 3 — assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ (đột biến ↔ bản chép bị gọi tên)**
-  Người dùng thấy gì: Khi hai bản sao nội dung tiếng Việt bị sửa sai ở hai chỗ khác nhau, thông báo cảnh báo hiện ra giống hệt nhau, nên người đọc không biết chính xác bản nào bị sai và có thể mất thêm thời gian tìm ra chỗ cần sửa.
+- **Dòng bổ chính chèn vào evals.yaml của hồ sơ đã ký mô tả sai chính phương pháp hiện hành**
+  Người dùng thấy gì: A clarifying note added to a different, already-approved feature's test file describes a testing method that isn't actually used anymore, which could confuse someone checking how that feature was verified.
+  file: `_acceptance/inputs-tinh-tu-goc-kho/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Header và tham chiếu chéo trong evals.yaml của hồ sơ mới còn theo đánh số cũ**
+  Người dùng thấy gì: The introductory notes in this fix's test file still describe an outdated count and grouping of checks, which could confuse anyone later trying to match checks to requirements.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **AC-6 và expected của E8 tuyên «MỌI đột biến đi qua tiem()» nhưng nhánh them_cong dùng .replace() trần**
+  Người dùng thấy gì: The requirement text claims every simulated mistake is checked the exact same rigorous way, but one particular case actually uses a looser check — the test still correctly flags problems when they happen, but the written promise is broader than what's really enforced.
   file: `tests/plugins/run-tests.sh`
   severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 2/8 lỗi rơi vào file không bộ đo nào phủ (_acceptance/inputs-tinh-tu-goc-kho/evidence-report.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+- **Hai đột biến VI của P86 sinh THÔNG ĐIỆP GIỐNG HỆT nhau — không phân biệt được bản chép nào lệch**
+  Người dùng thấy gì: When two different kinds of copy-paste mistakes happen in the Vietnamese documentation, the tool reports the exact same error message for both, so a reader can't tell which mistake actually occurred. This is a pre-existing gap, not something this fix touched on purpose.
+  file: `tests/plugins/run-tests.sh`
+  severity: low
+  Đề xuất: wont-fix
+
+- **tkm_p86 selector khớp HAI khối — khối GATE-MODEL bị bỏ qua vẫn cho exit 0 (xanh im lặng)**
+  Người dùng thấy gì: The safety net meant to catch budget and copy-paste mistakes in the docs could, if a test block's name changes later on, silently stop running its checks without any warning. Nothing is broken today, but the safety net has a hidden gap that a future edit could quietly open.
+  file: `_acceptance/config.yaml`
+  severity: high
+  Đề xuất: new-contract
+
+- **Khối Coverage của contract mới chỉ được đánh số lại một nửa — hai tham chiếu chết còn sống**
+  Người dùng thấy gì: The written explanation of what this fix's tests cover still mentions checks and requirement numbers that no longer exist, which could mislead someone reading it later about what is actually being verified.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **evidence-report.md của hồ sơ mới không được đánh số lại theo contract/evals — ghi bằng chứng của phép đo đã bị gỡ**
+  Người dùng thấy gì: The evidence report used to review this fix still shows results from checks that were already removed, mapped against the wrong requirement numbers, which could mislead whoever reads it before approving.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md`
+  severity: medium
+  Đề xuất: new-contract
+
+- **Chú thích đầu evals.yaml khai sai số tiêu chí và sai nhóm ô chạy P86**
+  Người dùng thấy gì: The introductory notes in this fix's test file still state an outdated number of requirements and an incorrect grouping of checks, which could confuse anyone later trying to match checks to requirements.
+  file: `_acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 3 — assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ: hai đột biến bản VI ghim CÙNG một chuỗi, không phân biệt được bản nào lệch**
+  Người dùng thấy gì: When two different kinds of copy-paste mistakes happen in the Vietnamese documentation, the tool reports the exact same error message for both, so a reader can't tell which mistake actually occurred. This is a pre-existing gap, not something this fix touched on purpose.
+  file: `tests/plugins/run-tests.sh`
+  severity: medium
+  Đề xuất: wont-fix
+
+## Chưa phân loại (triage-failed)
+
+phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ.
+
+- **Nhánh đột biến `them_cong` không đi qua `tiem()` — hợp đồng và E8 khai «MỌI đột biến» là sai**
+  file: `tests/plugins/run-tests.sh:11021`
+  severity: medium
+  source: bugs
+  detail: `tiem()` (dòng 11059) là chân chứng minh mũi tiêm trúng: `assert text.count(a) == 1` rồi `assert ra != text`. 11/12 đột biến đi qua nó. Nhưng nhánh `them_cong=True` trong `kiem()` (dòng 11021–11026) tiêm ba dòng bảng bằng `.replace(..., 1)` TRẦN:
+
+      vi_g = vi_g.replace("\n\n**Ngân sách", "\n" + dong + "\n\n**Ngân sách", 1)
+      vi_q = vi_q.replace(…)
+      en_r = en_r.replace("\n\n**Human-turn budget", …, 1)
+
+    không đếm số lần khớp, không so trước/sau. Đây chính là đường đi của đột biến `"them cong nhung giu ngan sach"` (dòng 11084) — ca DUY NHẤT chứng minh phép so QUAN HỆ ở AC-7.
+
+    Hai văn bản sống khai ngược lại: contract.md:42 (AC-6) «Và MỌI đột biến phải đi qua chân «mũi tiêm có trúng»: chuỗi đích xuất hiện đúng một lần và văn bản sau khác trước»; evals.yaml:107 (E8 expected) «và MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần rồi so văn bản trước/sau». Hội đồng vòng 3 đã nêu (review-findings.md §5, severity low) nhưng commit thu phạm vi 271590d0 không sửa mã, không sửa lời khai, và cũng không ghi vào known-limits-ledger.tsv.
+
+    failure_scenario: Ai đó đổi câu dẫn dòng ngân sách trong GUIDE/QUICKSTART/README (ví dụ bỏ dòng trống trước `**Ngân sách`). Ba `.replace` trượt, hàng bảng cổng-thứ-năm không được chèn. Ca vẫn FAIL nhưng vì lệch ghim ở nhánh khác, nên thông điệp đỏ chỉ sai chỗ; và lời khai «MỌI đột biến đi qua tiem()» trong contract/E8 vẫn là khẳng định không có thật, không phép đo nào của kho bắt được.
+
+- **Hình dạng 5 — tuyên bất biến toàn lớp «MỌI đột biến đi qua chân tiem()» nhưng nhánh `them_cong` tiêm bằng `.replace` trần, không đếm mũi tiêm**
+  file: `tests/plugins/run-tests.sh:11021`
+  severity: low
+  source: measurement
+  detail: AC-6 của `_acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md` và `expected` của ô E8 trong `evals.yaml` cùng tuyên một bất biến toàn lớp: «MỌI đột biến phải đi qua chân «mũi tiêm có trúng»» / «MỌI đột biến đi qua chân `tiem()` đếm chuỗi đích đúng một lần rồi so văn bản trước/sau».
+
+    Trong mã, `tiem()` (dòng 11059–11071: `assert text.count(a) == 1` rồi `assert ra != text`) phủ 10/11 mũi tiêm. Nhánh `them_cong=True` bên trong `kiem` (dòng 11021–11026) tiêm ba dòng bảng bằng `.replace(..., 1)` TRẦN, không đếm số lần khớp, không so văn bản trước/sau. Đột biến `"them cong nhung giu ngan sach"` (dòng 11084) — chính ca DUY NHẤT chứng minh phép so QUAN HỆ của AC-7 — chạy qua nhánh này. Lớp tuyên có 11 phần tử, chân kiểm chỉ phủ 10.
+
+    Chiều KHÔNG đỏ (ghi để không thổi phồng): nếu ba `.replace` này trượt thì `nhan(vi_g)` lệch `vis` và `kiem` trả «lech cot `vi`», không chứa chuỗi ghim, nên `assert phai_neu in d` vẫn FAIL — đây là lời khai quá tay, chưa phải đường xanh-im-lặng.
+
+## Chưa adversarial-verify (refuter chết)
+
+_Không có finding nào bị đánh dấu unverified=true trong round này._
+
+⚠ Cụm ngoài vùng phủ: 8/14 lỗi rơi vào file không bộ đo nào phủ (_acceptance/thuoc-khai-mot-dang-do-mot-neo/evidence-report.md, _acceptance/inputs-tinh-tu-goc-kho/contract.md, _acceptance/thuoc-khai-mot-dang-do-mot-neo/contract.md, _acceptance/inputs-tinh-tu-goc-kho/evals.yaml, _acceptance/thuoc-khai-mot-dang-do-mot-neo/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
