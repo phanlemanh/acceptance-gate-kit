@@ -5,7 +5,7 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>16 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>17 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>2 việc"]
   GD --> DB["Đã bác từ khám phá<br/>1 việc"]
