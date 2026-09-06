@@ -96,6 +96,9 @@ executors:
     kvtm_thieu_hop_dong: bash _acceptance/khong-ve-the-ma/rang.sh --chan thieu-hop-dong
     kvtm_chua_mo_xuong: bash _acceptance/khong-ve-the-ma/rang.sh --chan chua-mo-xuong
     kvtm_extract: bash _acceptance/khong-ve-the-ma/rang.sh --chan extract
+    # --- co-qua-timebox-nhom-da-xong (06/09) --- RT13 chay rieng + bat bien o + changelog
+    cqt_rt13: "RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs"
+    cqt_o_khong_doi: "RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs && node scripts/product-map.mjs --root . --check && test -z \"$(git status --porcelain PRODUCT-MAP.md)\""
     kvtm_doi_chung_duong: bash _acceptance/khong-ve-the-ma/rang.sh --chan doi-chung-duong
     kvtm_than_lenh: bash _acceptance/khong-ve-the-ma/rang.sh --chan than-lenh
     kvtm_round_trip: bash _acceptance/khong-ve-the-ma/rang.sh --chan round-trip
