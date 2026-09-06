@@ -1,0 +1,28 @@
+{
+ "feature_plain": "Thẻ đầu phiên nay gắn cờ «quá hạn tự khai» cho cả những việc đã xếp lại, đã đóng hay đã có phán quyết giá trị, thay vì chỉ cho việc đang chờ; CI của kit hết đỏ theo ngày và có phép đo không phụ thuộc ngày để lỗi này không lặp.",
+ "decisions": [],
+ "scope_plain": "Không đổi cách tính hạn, không thêm cờ mới, không đổi thẻ hay bản đồ, không sửa hồ sơ baseline-127 để «hết đỏ».",
+ "analyst_plain": "",
+ "decisions_plain": [
+  {
+   "id": "d-20260906T040500Z-cqt1",
+   "p": "KHÔNG quét độ phủ bằng ma trận — không gian chỉ có ba lối và hai chiều, đã liệt hết trong tiêu chí."
+  },
+  {
+   "id": "d-20260906T040600Z-cqt2",
+   "p": "KHÔNG có đường đo riêng — vòng vá lỗi, không có cơ hội và ngưỡng."
+  },
+  {
+   "id": "d-20260906T040700Z-cqt3",
+   "p": "KHÔNG có đặc tả UX — không có màn hình."
+  },
+  {
+   "id": "d-20260906T040800Z-cqt4",
+   "p": "Đã chọn vá cả ba lối đẩy vào «đã xong» thay vì chỉ dòng đang đỏ — đổi lại hai lối kia hết đỏ theo ngày trong tương lai."
+  },
+  {
+   "id": "d-20260906T040900Z-cqt5",
+   "p": "Đã chọn mở rộng phép đo RT13 sẵn có (bảy fixture, ba mutant) thay vì mở phép đo mới — đổi lại hồ sơ ra-co-ten chạy lại ô đo khi re-pin."
+  }
+ ]
+}
