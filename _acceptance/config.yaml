@@ -219,6 +219,9 @@ executors:
     itgk_tai_lieu_khong_con_duong_cu: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan tai-lieu-khong-con-duong-cu
     itgk_bang_chung_cung_ho_so: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan bang-chung-cung-ho-so
     itgk_thu_muc_khong_phai_file: bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan thu-muc-khong-phai-file
+    # --- co-qua-timebox-nhom-da-xong (06/09) --- RT13 chay rieng + bat bien o (khoi rieng, cuoi executors.script)
+    cqt_rt13: "RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs"
+    cqt_o_khong_doi: 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs && node scripts/product-map.mjs --root . --check && test -z "$(git status --porcelain PRODUCT-MAP.md)"'
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
