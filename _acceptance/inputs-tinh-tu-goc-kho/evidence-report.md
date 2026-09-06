@@ -90,6 +90,12 @@ human_signoff: Manh Phan 2026-09-05
     PASS: chiều đỏ 1: clone có commit chạm acceptance-verify.js → đỏ với dòng ghim
     PASS: chiều đỏ 2: clone có commit thêm file mã lạ lib/tiem-file-la.mjs → đỏ với dòng ghim nêu tên file
     Results: chan lane-doc-khong-doi passed (3 pass, 0 do)
+    [AMENDMENT 06/09/2026 — hồ sơ thuoc-khai-mot-dang-do-mot-neo] Đầu ra trên đây là của
+    phương pháp CŨ tại mốc ký 9b3d6f64 và KHÔNG còn sinh lại được: nhóm nay chạy 7 ca
+    (vế lane so bản tại mốc ký trên cây làm việc · vế tập-file neo khoảng đã giao ·
+    chiều đỏ 2 dựng KHO GIẢ chứ không clone · thêm ca sửa-chưa-commit và ca mốc-mất).
+    Verdict, chữ ký và mốc pin của hồ sơ này KHÔNG đổi; dòng này chỉ chặn việc đọc
+    đầu ra cũ như thể nó là lời khai của phép đo hiện hành.
 
 - eval: E7
   run_id: minted-inputs-tinh-tu-goc-kho-E7-r3
