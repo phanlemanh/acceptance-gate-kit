@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e61649b53fd30dff65f01f8d888042fa9ba78c1f
+verified_commit: 65b30d19a0fc2339cfd41f87d9906455cfbe6296
 human_signoff: Manh Phan 2026-09-07 — ký phát hành 2.9.0 với 8 known-limits đã khai; Ngoài-1 mở hợp đồng mới (ô cửa sổ kế), Ngoài-2 ghi Known limits; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -173,3 +173,7 @@ none — không có eval nào trong vòng này chạy nhiều lần (runs>1), n�
 ## Iterations
 
 Round 1: E1, E2, E3, E3b, E3c, E3d, E3e, E6 tất cả PASS ngay từ vòng đầu — không có vòng nào bị trả về implementation.
+
+### Re-pin lần 1 — 2026-09-07, do gộp fix(re-pin) 0b5c5b37 từ main (bộ máy đổi sau pin) và khai gạch RT13 kéo ra-co-ten vào diff PR — làn eval theo luật mới ADR 0014
+run_id: repin-20260907T161058Z-40516
+sha: 65b30d19a0fc2339cfd41f87d9906455cfbe6296 · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
