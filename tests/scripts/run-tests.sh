@@ -2089,6 +2089,31 @@ R="$T/gl07c"; mk_glob_pr_repo "$R" 'other/y.js'
 out="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check HS07-control 0 $?
 nothas HS07-control-not3 "T3 paths (t3_paths) changed" "$out"
 
+echo "HS08 mutant gỡ biến thể BỎ: nguồn bản sao = cây đang kiểm, control XANH, đột biến xác nhận, rồi ĐỎ"
+MUTD="$T/gl08-tool"; rm -rf "$MUTD"; mkdir -p "$MUTD"
+cp -R "$HERE/../../scripts" "$MUTD/scripts"
+cp -R "$HERE/../../lib" "$MUTD/lib"
+# Nguồn bản sao suy từ vị trí run-tests ($HERE), KHÔNG hardcode ROOT: so byte với
+# script đang kiểm trước khi đột biến (gap-probe P2, hình dạng hardcode-ROOT).
+if cmp -s "$MUTD/scripts/pre-merge-check.sh" "$CHECK"; then echo "  PASS: HS08-src"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: HS08-src (bản sao khác scripts/pre-merge-check.sh của cây đang kiểm)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+R="$T/gl01"   # dùng lại fixture HS01 — control phải cùng kết cục với bản thật
+outc="$(env -u PRE_MERGE_BASE bash "$MUTD/scripts/pre-merge-check.sh" "$R" 2>&1)"; check HS08-control 0 $?
+nothas HS08-control-nostale "evidence is stale" "$outc"
+same HS08-marker-before 1 "$(grep -c '# GLOB-DOUBLESTAR-ZERO-DIRS$' "$MUTD/scripts/pre-merge-check.sh")"
+sed '/# GLOB-DOUBLESTAR-ZERO-DIRS$/d' "$MUTD/scripts/pre-merge-check.sh" > "$MUTD/scripts/pre-merge-check.mut" \
+  && mv "$MUTD/scripts/pre-merge-check.mut" "$MUTD/scripts/pre-merge-check.sh"
+same HS08-mut-applied 0 "$(grep -c '# GLOB-DOUBLESTAR-ZERO-DIRS$' "$MUTD/scripts/pre-merge-check.sh")"
+outm="$(env -u PRE_MERGE_BASE bash "$MUTD/scripts/pre-merge-check.sh" "$R" 2>&1)"; check HS08-mutant 1 $?
+case "$outm" in *"VIOLATION [feat-gl]: evidence is stale"*"AGENTS.md"*) echo "  PASS: HS08-mutant-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS08-mutant-msg (mutant gỡ biến thể BỎ mà AGENTS.md không stale — ca không phân biệt được)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "HS09 GUIDE §8 hàng t1_skip_globs nêu đủ 3 mệnh đề ngữ nghĩa glob"
+gl09_row="$(grep -m1 '^| `risk_tiers.t1_skip_globs`' "$HERE/../../GUIDE.md")"
+gl09_miss=""
+case "$gl09_row" in *'`**/`'*'không-hoặc-nhiều thư mục'*|*'`**/`'*'không hoặc nhiều thư mục'*) : ;; *) gl09_miss="$gl09_miss [1:**/ = không-hoặc-nhiều thư mục]" ;; esac
+case "$gl09_row" in *'`*` vượt `/`'*|*'`*` không dừng ở `/`'*) : ;; *) gl09_miss="$gl09_miss [2:* vượt /]" ;; esac
+case "$gl09_row" in *'AGENTS.md'*) : ;; *) gl09_miss="$gl09_miss [3:ví dụ AGENTS.md]" ;; esac
+if [ -z "$gl09_miss" ]; then echo "  PASS: HS09"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: HS09 (hàng t1_skip_globs thiếu$gl09_miss)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+
 echo ""
 echo "--- recheck theo diff PR (1.41.0: phạm vi theo slug_in_diff + cờ --recheck-all) ---"
 # Fixture CODE-SINH tái hiện đúng ca đã cắn: một đợt đã merge gỡ một khoá

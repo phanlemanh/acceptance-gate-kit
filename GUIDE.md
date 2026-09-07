@@ -667,7 +667,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 | `gap_probe` | Luật phản biện context sạch ở pre-merge check: `required` (chặn) / `advisory` (NOTE) / `off` (im) | `advisory` — bỏ qua vẫn thấy được, nhưng không chặn merge của repo chưa quen |
 | `executors.test.*` `executors.script.*` | Lệnh thật của repo; evals chỉ tham chiếu `config:executors...` | — |
 | `executors.design.*` | Design gate (wire tay — xem §5.2) | design eval bị skip |
-| `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md). Từ 1.31.0 `/acceptance-gate:acceptance-init` phát sẵn `PRODUCT-MAP.md` — bản đồ là view máy sinh lại ở mỗi lần đóng cổng, không phải thứ để nghiệm thu | `PRODUCT-MAP.md` |
+| `risk_tiers.t1_skip_globs` | Glob an toàn bỏ qua gate (docs, *.md). Cú pháp là mẫu `case` của shell: `*` vượt `/` (nên `*.md` bắt markdown ở mọi tầng); từ 2.9.0 `**/` là không-hoặc-nhiều thư mục như gitignore (nên `**/*.md` bắt cả `AGENTS.md` ở gốc kho). Từ 1.31.0 `/acceptance-gate:acceptance-init` phát sẵn `PRODUCT-MAP.md` — bản đồ là view máy sinh lại ở mỗi lần đóng cổng, không phải thứ để nghiệm thu | `PRODUCT-MAP.md` |
 | `risk_tiers.t3_paths` | Path critical → T3 | không gì bị nâng T3 |
 | `signoff.required_for` | Tier nào bắt buộc ký trước merge | `[T2, T3]` |
 | `signoff.approvers` | Danh sách người được ký — **thông tin, KHÔNG được cổng cưỡng chế** (1.24.0: bốn bản vá cố đọc khoá này từ YAML bằng công cụ text của shell đều hỏng theo một hình dạng hợp lệ mới, nên cả lớp bị gỡ). Chữ ký vẫn bị kiểm bằng chốt rỗng + lưới giữ-chỗ | — |
