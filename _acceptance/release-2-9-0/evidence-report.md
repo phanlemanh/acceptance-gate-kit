@@ -111,7 +111,46 @@ human_signoff:
 
 ## Known limits
 
+1. **AC-1 ghim literal `2.9.0`** — cố ý, số của một mốc là hằng của mốc đó; P200 vẫn đọc
+   từ manifest (nếp từ 2.6.0).
+2. **E1/E2/E6 giữ hai dòng cuối của ca P200** («P200 OK … 5/5 dot bien …» + «PASS: P200 …»)
+   qua khoá `p200_cat_so` — hồ sơ phân biệt được «P200 xanh, 5/5 đột biến chạy» với «suite
+   xanh» (đóng Ngoài-6 của 2.8.0) nhưng KHÔNG chứa bảy dòng vế `P200 VE:`; từng vế do P200
+   canh trong nhà. Cỗ máy chấm chỉ giữ vài dòng cuối mỗi lệnh (giới hạn có tên của #151).
+3. **`verified_at: 2026-09-07T10:00:00Z` là số tròn đứng TRƯỚC run-log (`10:55:58Z`) và
+   commit `687f7150`** — lớp «verified_at bịa số tròn» tái phát lần 5 (Ngoài-1 của 2.8.0,
+   lần 4). Không sửa tay bằng chứng máy viết; mốc thật của lượt chấm là `ts` trong
+   `run-log.jsonl`. Ứng viên phép đo cho cửa sổ kế: so `verified_at` với `ts` run-log.
+4. **Không lệnh nào phân biệt được HEAD với base** (Analyst: 6/6 lệnh xanh cả hai phía) —
+   đúng bản chất mốc phát hành: không vật hành vi mới, chiều đỏ sống trong P200 (5 đột biến
+   + đối chứng dương), không phải dấu hiệu eval hỏng.
+5. **Chữ ký mốc này kéo một dòng bản ghi mốc định tuyến** (`tests/scripts/fixtures/`, LM20
+   chỉ ghim hồ sơ đã chốt) → bằng chứng hoá cũ ngay tại commit chữ ký → ghim lại MỘT lượt
+   lane máy TRƯỚC khi push. #146/#151 push trước khi ghim → 3 CI đỏ hậu-chữ-ký; mốc này đặt
+   mục tiêu 0.
+6. **Gap-probe phiên tươi được phép đối chiếu cây thật** (git, manifest, ba hồ sơ nguồn) —
+   khác luật «critic phán artifact, không audit code» của vòng tính năng, vì hồ sơ mốc là
+   hồ sơ VỀ một diff đã tồn tại; khai ở `gap-probe.md`.
+7. **Ba dòng số đếm tay từ vết** (commit + sổ + `gh run list`); lượt hạ tầng phiên không
+   đếm được từ repo này; số «dán /goal thành một chạm» trượt lần thứ hai vì không vòng nào
+   có lượt Cổng 1.
+8. **Hai mục ngoài hợp đồng dưới đây đã đóng bằng chữ của chính hồ sơ TRƯỚC khi trình thẻ**
+   (sổ 8009) — cây được pin (`verified_commit`) không đổi: chỉ `_acceptance/` và file T1
+   (`CLAUDE.md`, `docs/`, `PRODUCT-MAP.md`) đổi sau lượt chấm.
+
 ## Ngoài hợp đồng
+
+Hai mục, chi tiết + lời cho người đọc ở `review-findings.md`; thẻ Cổng 2 in hai ô
+Ngoài-1..Ngoài-2:
+
+1. Dòng `feature:` của hợp đồng chứa ` #149`/` #151` — reader duy nhất của kit cắt phần sau
+   ` #` làm YAML comment, tên hồ sơ hiện cụt trên bản đồ và thẻ (medium). **Đã đóng trước
+   khi trình:** viết lại thành «PR 146 · 149 · 151», bản đồ vẽ lại. Lớp: bên VIẾT và bên
+   ĐỌC trôi khỏi nhau — ứng viên răng cho cửa sổ kế (lint frontmatter có ` #`), ghi sổ.
+2. Cửa sổ đếm của hợp đồng thiếu #154 (luật nới vào `CLAUDE.md`, lên main sau khi mở hồ sơ)
+   và Out of scope vẫn liệt việc đó là «không đi cùng mốc» (low). **Đã đóng trước khi
+   trình:** gộp `origin/main` (chỉ hai file T1), cửa sổ neo lại `cd94d004 → 0226edde` (13 PR,
+   10 không phải vòng, 19 file), bullet Out of scope gỡ vì owner đã tự quyết.
 
 ## Analyst
 

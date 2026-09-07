@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Phát hành kit 2.9.0 — đóng số cho ba vòng sửa của cửa sổ 2.8→2.9 (#146 inputs-tinh-tu-goc-kho · #149 co-qua-timebox-nhom-da-xong · #151 thuoc-khai-mot-dang-do-mot-neo), bộ audit 05/09 + giấy phép MIT, và bộ tài liệu playbook 07/09 — để repo tiêu thụ nhận bộ máy theo mốc có chủ đích
+feature: Phát hành kit 2.9.0 — đóng số cho ba vòng sửa của cửa sổ 2.8→2.9 (PR 146 inputs-tinh-tu-goc-kho · 149 co-qua-timebox-nhom-da-xong · 151 thuoc-khai-mot-dang-do-mot-neo), bộ audit 05/09 + giấy phép MIT, và bộ tài liệu playbook 07/09 — để repo tiêu thụ nhận bộ máy theo mốc có chủ đích
 slug: release-2-9-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + một khoá config workspace + hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
@@ -17,8 +17,9 @@ veto_opened_at: 2026-09-07T10:43:47Z
 
 ## Context
 
-Kể từ mốc 2.8.0 (`cd94d004`, 03/09 22:31 UTC) tới `7a29276b` (07/09 09:31 UTC),
-**mười hai PR** gộp vào `main` (`git log --merges cd94d004..HEAD` = 12 dòng). Ba trong số đó là **vòng sửa** — cả ba đều T2:
+Kể từ mốc 2.8.0 (`cd94d004`, 03/09 22:31 UTC) tới `0226edde` (07/09 17:41 UTC),
+**mười ba PR** gộp vào `main` (`git log --merges --grep='Merge pull request' cd94d004..0226edde` = 13;
+`--merges` trần đếm 17 vì có bốn lượt gộp nhánh nội bộ). Ba trong số đó là **vòng sửa** — cả ba đều T2:
 
 - `inputs-tinh-tu-goc-kho` (#146, 05/09) — ca thật từ kho crm: `s4-args.mjs` giải
   `inputs` của eval judgment theo thư mục hồ sơ trong khi skill viết theo gốc kho,
@@ -32,13 +33,15 @@ Kể từ mốc 2.8.0 (`cd94d004`, 03/09 22:31 UTC) tới `7a29276b` (07/09 09:3
   Bảy vòng chấm, dừng-vá ở vòng 2, hết trần ở vòng 3, owner **thu phạm vi**;
   ký với ba nợ có tên.
 
-Chín PR còn lại không phải vòng: #142 chiến dịch ghim lại mốc 2.8.0 · #143 ô
+Mười PR còn lại không phải vòng: #142 chiến dịch ghim lại mốc 2.8.0 · #143 ô
 Cổng Đáng `vong-la-mot-ket-qua` (ký build 04/09) · #144 audit tài liệu 05/09 +
 ADR 0013 · #145 LICENSE thuần MIT + NOTICE · #147 chip sổ vấp crm · #148 hạt
 giống «việc kế theo plan» · #150 vẽ lại bản đồ · #152 bộ tài liệu playbook 07/09
-(bốn hạt giống + bốn ô discovery) · #153 handoff đổi máy.
+(bốn hạt giống + bốn ô discovery) · #153 handoff đổi máy · #154 luật nới 07/09
+«vế không CỘNG tạm ngưng» vào `CLAUDE.md` (owner tự quyết câu hỏi treo của handoff §6,
+cùng ngày; có ngày + ba vế không đổi + điều kiện thu hồi).
 
-Diff của mốc, ngoài `_acceptance/`, `docs/` và bản đồ, là **mười tám file** (cặp +/− đọc từ `git diff --numstat cd94d004..HEAD`):
+Diff của mốc, ngoài `_acceptance/`, `docs/` và bản đồ, là **mười chín file** (cặp +/− đọc từ `git diff --numstat cd94d004..0226edde`):
 
 - **Ba file hành vi máy chạy:** `feature-loop/scripts/s4-args.mjs` (+31/−2:
   `resolveJudgmentInput` — inputs tính từ gốc kho, vắng hoặc là thư mục → exit 2
@@ -50,6 +53,7 @@ Diff của mốc, ngoài `_acceptance/`, `docs/` và bản đồ, là **mười 
   `skills/acceptance/references/eval-executors.md` (ví dụ + đoạn luật một gốc).
 - **Hai manifest:** `license` Proprietary → MIT (#145); mốc này bump `version`
   và thêm mục `v2.9.0`.
+- **Một file luật:** `CLAUDE.md` (+15/−0: luật nới 07/09 — #154).
 - **Sáu file văn bản:** `GUIDE.md` (§0 «Bốn cổng người» thành nguồn có marker
   `GATE-MODEL`; ngân sách lượt gọi người; §7.1 gỡ câu chết) · `README.md` (bản
   chép EN + mục Licence) · `QUICKSTART.md` (bản chép VI; repo public) ·
@@ -82,14 +86,14 @@ Người dùng kit nhận gì (đọc trong diff manifest, mục v2.9.0):
 4. **Mở thật dưới MIT** — LICENSE thuần MIT, hai cây vendor khai ở NOTICE (ADR
    0013), repo public, hai manifest `license: MIT`.
 
-Source input: `git log cd94d004..7a29276b` · ba hồ sơ vòng sửa (`decisions.jsonl`
+Source input: `git log cd94d004..0226edde` · ba hồ sơ vòng sửa (`decisions.jsonl`
 + `run-log.jsonl` + evidence-report) · `gh run list` ba nhánh · nếp phát hành
 `_acceptance/release-2-8-0/` · handoff 07/09 §4.1 (owner gật thứ tự: «phát hành
 2.9.0 làn V» là việc số 1).
 
 ## Ba dòng số North Star của mốc (luật (c), lần đếm thứ năm)
 
-Cửa sổ đếm: `cd94d004` (2.8.0) → `7a29276b`. **Ba vòng kit, cả ba meta, T2** —
+Cửa sổ đếm: `cd94d004` (2.8.0) → `0226edde`. **Ba vòng kit, cả ba meta, T2** —
 **vượt trần một-vòng-meta của luật (b)**; đó là lý do việc kế duy nhất còn đúng
 luật là gom về mốc, không mở ô nào nữa trước mốc. Không vòng sản phẩm nào ở kho
 tiêu thụ được quan sát trong cửa sổ này từ repo này.
@@ -174,7 +178,6 @@ do hạ tầng phiên không đếm được từ repo này.
 - Đếm lượt hạ tầng phiên (owner gõ «Try again») — vết hội thoại không nằm trong repo này.
 - Ghim lại các hồ sơ đã ký đang hoá cũ vì cửa sổ này — §7.1: chiến dịch ghim lại là việc SAU khi mốc merge.
 - Mở ô «Đường lùi phải sống» — chờ owner gọi tên sau mốc (luật Giới hạn CHIỀU RỘNG (b)); mốc này chỉ GỌI TÊN.
-- Đưa luật nới 07/09 («có thể CỘNG») vào `CLAUDE.md` — sửa hiến pháp, câu hỏi cho người (handoff 07/09 §6), không đi cùng mốc.
 
 ## Notes
 
