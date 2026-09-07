@@ -132,4 +132,35 @@ if (want('LNT3')) {
   if (failures === before) pass(id, 'thẻ Cổng Phạm vi: cờ + extract ui_observed sáu nhánh + seam + token lạ');
 }
 
+// ─── LNT4 — thẻ Cổng Bằng chứng: present đọc trên BÁO CÁO (gap-probe F1) ──────
+if (want('LNT4')) {
+  const id = 'LNT4'; const L = require(LIB); const before = failures;
+  const gcSrc = readFileSync(GATE_CARD, 'utf8');
+  const pick = (re, w) => { const m = gcSrc.match(re); if (!m) throw new Error('gate-card.js không khai ' + w); return m[1]; };
+  const NONE = pick(/UI_OBS_G2_NONE = '([^']+)'/, 'UI_OBS_G2_NONE');
+  const report = blocks => `---\nschema_version: 2\nfeature_slug: x\nverdict: PASS\nverified_commit: ${'a'.repeat(40)}\nenforcement_mode: enforced\nbypass_used: false\n---\n\n# Evidence Report: x\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | PASS |\n\n## Evidence\n\n${blocks}\n## Known limits\n\n(none)\n\n## Ngoài hợp đồng\n\n(none)\n`;
+  const blkPass = (e, shot) => `- eval: ${e}\n  run_id: x-${e}-001\n  exit_code: 0\n  verifier: scripts/x.sh\n  verified_at: 2026-09-08T00:00:00Z\n${shot ? `  screenshot: evidence/${e}-step1.png\n  observed: |\n    frame shows the hero fully rendered as expected\n` : ''}`;
+  const blkFail = e => `- eval: ${e}\n  run_id: x-${e}-001\n  exit_code: 4\n  verifier: scripts/x.sh\n  verified_at: 2026-09-08T00:00:00Z\n`;
+  const ws = (surfaces, evalsBody, blocks, ledger) => { const r = tmp();
+    W(r, '_acceptance/x/contract.md', contractOf(surfaces, 'verified').replace('approved_by:', 'approved_by: Manh').replace('approved_at:', 'approved_at: 2026-09-01T00:00:00Z'));
+    W(r, '_acceptance/x/evals.yaml', 'evals:\n' + evalsBody); W(r, '_acceptance/x/evidence-report.md', report(blocks)); W(r, '_acceptance/x/run-log.jsonl', '');
+    if (ledger) W(r, '_acceptance/x/decisions.jsonl', ledger); return r; };
+  const EV = EV_T + '  - id: E10\n    criterion: AC-1\n    executor: ui-check\n    layer: ui-observed\n    expected: "frame"\n';
+  let r = ws('ui', EV, blkPass('E1') + blkFail('E10')); let x = extract(r);
+  eq(id, x.gate, 2, 'nhận Cổng Bằng chứng');
+  eq(id, x.ui_observed, { applicable: true, present: false, declared: 1, passed: 0, descoped: null }, '(a) khai mà không đạt');
+  { const h = html(r); if (!h.includes(NONE) || !h.includes('E10')) fail(id, '(a) HTML thiếu cờ KHÔNG có + id E10'); }
+  r = ws('ui', EV, blkPass('E1') + blkPass('E10', true)); x = extract(r);
+  eq(id, x.ui_observed.present, true, '(b) đạt'); eq(id, x.ui_observed.passed, 1, '(b) passed');
+  { const h = html(r); if (h.includes(NONE) || !/1 eval ui-check đạt/.test(h)) fail(id, '(b) phải nêu 1 eval đạt, không cờ KHÔNG có'); }
+  r = ws('ui', EV_T, blkPass('E1')); x = extract(r); eq(id, x.ui_observed.declared, 0, '(c) declared 0'); if (!html(r).includes(NONE)) fail(id, '(c) thiếu cờ');
+  const seal = '{"id":"d-1","type":"seal","gate":1,"at":"2026-09-01T00:00:00Z"}\n';
+  const ds = `{"id":"d-2","type":"descope","stage":"S4-r1","at":"2026-09-02T00:00:00Z","decision":"${L.UI_OBSERVED_DESCOPE}hạ tầng chụp hỏng","impact":"không frame"}\n`;
+  r = ws('ui', EV, blkPass('E1') + blkFail('E10'), seal + ds); x = extract(r);
+  if (!(x.decisions_provisional || []).some(d => d.id === 'd-2')) fail(id, '(d) descope sau seal phải ở khối CHƯA duyệt');
+  eq(id, x.ui_observed.descoped, 'd-2', '(d) descoped'); if (!html(r).includes('d-2')) fail(id, '(d) cờ nêu id');
+  r = ws('cli', EV_T, blkPass('E1')); x = extract(r); eq(id, x.ui_observed.applicable, false, '(e) cli'); if (html(r).includes('lớp nhìn-thấy')) fail(id, '(e) cli mà có cụm lớp nhìn-thấy');
+  if (failures === before) pass(id, 'thẻ Cổng Bằng chứng: present đọc trên báo cáo, descope sau seal ở CHƯA duyệt, cli im');
+}
+
 process.exit(failures ? 1 : 0);
