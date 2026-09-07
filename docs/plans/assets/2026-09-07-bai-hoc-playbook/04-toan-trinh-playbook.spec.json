@@ -1,0 +1,35 @@
+{
+ "title": "Toàn trình playbook: sáu bước, sáu vật, ai duyệt, cái gì kích hoạt",
+ "eyebrow": "Process · The AI-Native SDLC playbook · 07/09/2026",
+ "subtitle": "Mỗi bước để lại một vật trong git; bước sau đọc vật đó. Người chỉ đứng ở ba chỗ. Bước 6 tự viết ý định mới và vòng quay lại cột 1.",
+ "colophon": "Nguồn chữ: docs/findings/2026-09-07-toan-trinh-playbook-vs-kit.md §1 · playbook dòng 63–93, 148–151, 218–223, 268–299, 540–553, 694–720, 937–981 · main 5c15e065 · diagram-design 2.7.0 · skin default-confirmed",
+ "lanes": [
+  {"name": ["NGƯỜI", "KHỞI XƯỚNG"], "key": "NKX"},
+  {"name": ["CHỦ", "SẢN PHẨM"], "key": "CSP"},
+  {"name": ["KỸ SƯ", "+ MÁY"], "key": "KSM"},
+  {"name": ["ĐƯỜNG ỐNG", "KHÔNG NGƯỜI"], "key": "ĐÔ"}
+ ],
+ "steps": [
+  {"number": "1", "label": "Ý định"},
+  {"number": "2", "label": "Đặc tả"},
+  {"number": "3", "label": "Kế hoạch"},
+  {"number": "4", "label": "Tự kiểm"},
+  {"number": "5", "label": "Phát hành", "focal": true},
+  {"number": "6", "label": "Vận hành"}
+ ],
+ "nodes": [
+  {"lane": "NKX", "step": 0, "title": "intent.md", "sub": "chủ SP duyệt = merge", "tool": "merge → mở bước 2"},
+  {"lane": "CSP", "step": 1, "title": "spec.md", "sub": "luật nạp lúc viết", "tool": "duyệt → mở plan mode"},
+  {"lane": "KSM", "step": 2, "title": "plan.md → diff + test", "sub": "kỹ sư sửa plan trước", "tool": "auto mode khi lưới đủ"},
+  {"lane": "KSM", "step": 3, "title": "đầu ra test/build/ảnh", "sub": "dán vào «xong»", "tool": "eval khi cấu hình đổi"},
+  {"lane": "ĐÔ", "step": 4, "title": "PR + phát hiện review", "sub": "người: ý định + rủi ro", "tool": "hook: cổng sản xuất", "focal": true},
+  {"lane": "ĐÔ", "step": 5, "title": "băng vượt → chẩn đoán", "sub": "phát hiện tất định", "tool": "máy viết intent.md mới"}
+ ],
+ "arrows": [
+  {"from": {"lane": "NKX", "step": 0}, "to": {"lane": "CSP", "step": 1}, "style": "normal"},
+  {"from": {"lane": "CSP", "step": 1}, "to": {"lane": "KSM", "step": 2}, "style": "normal"},
+  {"from": {"lane": "KSM", "step": 2}, "to": {"lane": "KSM", "step": 3}, "style": "normal"},
+  {"from": {"lane": "KSM", "step": 3}, "to": {"lane": "ĐÔ", "step": 4}, "style": "focal-in"},
+  {"from": {"lane": "ĐÔ", "step": 4}, "to": {"lane": "ĐÔ", "step": 5}, "style": "focal-out"}
+ ]
+}
