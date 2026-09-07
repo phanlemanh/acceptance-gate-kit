@@ -8,7 +8,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6d478c80fad5b9a1b75770a2691bc9064016ef57
+verified_commit: d5ba4e7187fbe896f1fcccf6ff608108d15a6662
 human_signoff: Manh Phan 2026-09-06
 ---
 
@@ -230,3 +230,7 @@ run_id: repin-sau-chu-ky-6d478c80-1
 sha: 6d478c80fad5b9a1b75770a2691bc9064016ef57 · suites: 4 lệnh exit 0
 
 Verdict, chữ ký và mọi kết quả đã ký KHÔNG đổi; chỉ mốc pin dời tới cây đang giao.
+
+### Re-pin lần 2 — 2026-09-07, do chiến dịch ghim lại mốc 2.9.0 (§7.1): bốn hồ sơ pin-tươi trong cửa sổ có đường khai bị diff cd94d004..d5ba4e71 chạm — một làn eval theo ADR 0014
+run_id: repin-20260907T211331Z-70593
+sha: d5ba4e7187fbe896f1fcccf6ff608108d15a6662 · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0

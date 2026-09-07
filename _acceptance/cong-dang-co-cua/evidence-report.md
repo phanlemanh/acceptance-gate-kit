@@ -7,7 +7,7 @@ reason: người ký NÂNG PENDING-JUDGMENT → PASS ngày 2026-09-01 với năm
 verified_by: implementing session (KHÔNG phải fresh-context subagent — xem Known limits #4)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cd94d0048760da55e89ecdcae12463186b5fec10
+verified_commit: d5ba4e7187fbe896f1fcccf6ff608108d15a6662
 human_signoff: Manh Phan 2026-09-01 — ký với giới hạn đã khai (Known limits #1–#5)
 ---
 
@@ -183,3 +183,7 @@ sha: 9f76d6d329bf6e7476e11cd88f2bd327b46d8c58 · rang.sh **3/3 chân exit 0** ·
 chân `round-trip` của hồ sơ `khong-ve-the-ma` kèm chiều đỏ, cũng xanh.
 run_id: repin-20260903-r280-cdcc
 sha: cd94d0048760da55e89ecdcae12463186b5fec10 · pin cũ: 9f76d6d3 · chữ ký người giữ nguyên · bốn suite + product-map --check exit 0 trên cùng cây.
+
+### Re-pin lần 4 — 2026-09-07, do chiến dịch ghim lại mốc 2.9.0 (§7.1): bốn hồ sơ pin-tươi trong cửa sổ có đường khai bị diff cd94d004..d5ba4e71 chạm — một làn eval theo ADR 0014
+run_id: repin-20260907T211331Z-70593
+sha: d5ba4e7187fbe896f1fcccf6ff608108d15a6662 · suites: 5 lệnh exit 0 · evals: 3 eval máy exit 0
