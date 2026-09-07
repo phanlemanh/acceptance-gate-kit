@@ -5,7 +5,7 @@ slug: release-2-9-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + một khoá config workspace + hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: draft
+status: implemented
 design_doc:
 approved_by:
 approved_at:
@@ -17,8 +17,8 @@ veto_opened_at: 2026-09-07T10:43:47Z
 
 ## Context
 
-Kể từ mốc 2.8.0 (`cd94d004`, 03/09 23:38 UTC) tới `7a29276b` (07/09 09:31 UTC),
-**mười một PR** gộp vào `main`. Ba trong số đó là **vòng sửa** — cả ba đều T2:
+Kể từ mốc 2.8.0 (`cd94d004`, 03/09 22:31 UTC) tới `7a29276b` (07/09 09:31 UTC),
+**mười hai PR** gộp vào `main` (`git log --merges cd94d004..HEAD` = 12 dòng). Ba trong số đó là **vòng sửa** — cả ba đều T2:
 
 - `inputs-tinh-tu-goc-kho` (#146, 05/09) — ca thật từ kho crm: `s4-args.mjs` giải
   `inputs` của eval judgment theo thư mục hồ sơ trong khi skill viết theo gốc kho,
@@ -32,18 +32,18 @@ Kể từ mốc 2.8.0 (`cd94d004`, 03/09 23:38 UTC) tới `7a29276b` (07/09 09:3
   Bảy vòng chấm, dừng-vá ở vòng 2, hết trần ở vòng 3, owner **thu phạm vi**;
   ký với ba nợ có tên.
 
-Tám PR còn lại không phải vòng: #142 chiến dịch ghim lại mốc 2.8.0 · #143 ô
+Chín PR còn lại không phải vòng: #142 chiến dịch ghim lại mốc 2.8.0 · #143 ô
 Cổng Đáng `vong-la-mot-ket-qua` (ký build 04/09) · #144 audit tài liệu 05/09 +
 ADR 0013 · #145 LICENSE thuần MIT + NOTICE · #147 chip sổ vấp crm · #148 hạt
 giống «việc kế theo plan» · #150 vẽ lại bản đồ · #152 bộ tài liệu playbook 07/09
 (bốn hạt giống + bốn ô discovery) · #153 handoff đổi máy.
 
-Diff của mốc, ngoài `_acceptance/`, `docs/` và bản đồ, là **mười tám file**:
+Diff của mốc, ngoài `_acceptance/`, `docs/` và bản đồ, là **mười tám file** (cặp +/− đọc từ `git diff --numstat cd94d004..HEAD`):
 
-- **Ba file hành vi máy chạy:** `feature-loop/scripts/s4-args.mjs` (+33/−4:
+- **Ba file hành vi máy chạy:** `feature-loop/scripts/s4-args.mjs` (+31/−2:
   `resolveJudgmentInput` — inputs tính từ gốc kho, vắng hoặc là thư mục → exit 2
   gọi tên, miễn trừ có khai cho `evidence/**` của chính hồ sơ) ·
-  `scripts/start-scan.mjs` (+20/−9: cờ `qua-timebox` tính TRƯỚC lối phán quyết
+  `scripts/start-scan.mjs` (+15/−5: cờ `qua-timebox` tính TRƯỚC lối phán quyết
   giá trị và gắn vào cả ba lối «đã xong») · `feature-loop/skills/feature-loop/SKILL.md`
   (một câu ở khoản S4 args: luật gốc-kho).
 - **Hai file skill bên đọc:** `skills/acceptance/SKILL.md` (luật 3b) ·

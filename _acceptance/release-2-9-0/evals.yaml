@@ -14,7 +14,8 @@ evals:
       xuat · muc mo ta cua chinh so do (5 dot bien, mot loi thoat)». Các vế «hai plugin cung so:
       2.9.0» và ba dòng «hop semver» (2.9.0 · 2.9.0 · 2.7.0) do P200 canh trong nhà; chiều đỏ sống
       trong chính P200 (5 đột biến + đối chứng dương bản sao nguyên vẹn) — không có bước chạy tay.
-      Bằng chứng chỉ giữ ba dòng cuối nên các dòng «P200 VE:» không lọt vào output — Known limits.
+      Bằng chứng chỉ giữ ba dòng cuối (dòng vế cuối «P200 VE: muc v2.9.0 cua feature-loop TU khai cap» ·
+      «P200 OK …» · «PASS: P200 …») nên bảy dòng vế không đủ trong output — Known limits.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
