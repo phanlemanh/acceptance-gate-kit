@@ -34,3 +34,16 @@ tiêu thụ phải vendor thêm `lib/eval-yaml.cjs` (danh sách chép của
 mỗi lần hợp nhất» được trả lời bằng chính sách đã có: giữa hai bản phát hành,
 hồ sơ cũ hoá cũ là chấp nhận được; chiến dịch phát hành kế ghim lại **bằng làn
 eval** là lúc mọi hồ sơ được chạy lại thật — không mở nhịp mỗi-merge.
+
+**Sửa 2026-09-08 (owner: «Bỏ mốc `REPIN_EVALS_SINCE` đi, cần xử ngược luôn cho
+đúng»).** Mốc ngày bị bỏ cùng nhánh sử liệu: làn chống lưng `verified_commit` mà
+không có `evals_exit` là VIOLATION dù ghi khi nào. Lý do owner thắng lý do ADR
+gốc: làn suite-only *chưa bao giờ* chứng được pin, nên «sử liệu» chỉ là tên khác
+của một pin chưa chứng; và chính ngày đầu tiên mốc đã xử ngược một làn hợp lệ
+theo nghi thức cũ (sổ 8015 của `release-2-9-0`) — một hằng thời gian đặt trong
+phiên làm việc không thể đúng với giờ luật lên `main`. Giá nhận: 49 hồ sơ đã ký
+của kit đỏ ở recheck (3 hồ sơ khác vẫn đỏ vì `mirror_sync`), đặt tên hai chiều ở
+`SUITE_ONLY_LANE_DEBT` trong `tests/scripts/mirror-sync-grandfather.mjs` — cùng
+khuôn ADR 0010, nhưng lần này danh sách dài vì nợ thật dài, không phải để khỏi
+nghĩ; mỗi hồ sơ ghim lại bằng làn eval là một tên phải rút. Repo tiêu thụ: hồ sơ
+ghim bằng làn cũ đỏ khi PR chạm nó; cách sửa duy nhất là làn eval, không cờ nới.

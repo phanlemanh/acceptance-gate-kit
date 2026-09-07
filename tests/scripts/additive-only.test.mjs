@@ -168,6 +168,12 @@ const ALLOWED_REMOVALS = [
   `  done <<CHANGED`,
   `$changed`,
   `CHANGED`,
+  // ADR 0014 sửa 08/09/2026 (owner bỏ mốc REPIN_EVALS_SINCE, xử ngược): hai
+  // dòng COMMENT của luật làn-eval nói về «sử liệu/NOTE» nay sai — sửa chữ,
+  // không đụng điều kiện nào (luật CHẶT HƠN vì lib hết nhánh sử liệu).
+  `    # INIT-CI-COPY-LIST. Làn trước mốc REPIN_EVALS_SINCE là sử liệu suite-only:`,
+  `    # NOTE, không chặn. Thiếu node/lib → khai NOT ENFORCED, không im lặng.`,
+  `      // label; history lanes (before REPIN_EVALS_SINCE) only NOTE there.`,
 ];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };

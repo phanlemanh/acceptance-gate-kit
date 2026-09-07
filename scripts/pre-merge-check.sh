@@ -596,6 +596,7 @@ fi
 # không chứa chữ "skipped" (guard fail-closed của gate.yml grep chuỗi đó cho
 # răng T1-escape, dòng này không được lẫn vào).
 RECHECK_SKIPPED=0
+EVAL_LANE_SKIPPED=0   # luật làn-eval: số hồ sơ ngoài diff PR không được soi (cùng phạm vi với recheck)
 if [ "$RECHECK_MODE" != off ] && [ "$RECHECK_ALL" -eq 0 ] && [ "$DIFF_READY" -eq 0 ]; then
   echo "NOTE: recheck scope — no PR diff scope; the committed-evidence re-check runs on ALL slugs (pass --base <ref> to scope it, or --recheck-all to force the full sweep)"
 fi
@@ -1129,9 +1130,16 @@ REPINIDS
     # xanh (crm-onehub 07/09). MỘT nguồn luật: checkRepinEvals trong
     # lib/evidence-core.cjs (bên đọc thứ hai là recheck-evidence.cjs); nó liệt
     # kê eval máy qua lib/eval-yaml.cjs, nên cả hai phải được chép theo
-    # INIT-CI-COPY-LIST. Làn trước mốc REPIN_EVALS_SINCE là sử liệu suite-only:
-    # NOTE, không chặn. Thiếu node/lib → khai NOT ENFORCED, không im lặng.
+    # INIT-CI-COPY-LIST. KHÔNG mốc ngày (owner 08/09/2026): làn suite-only đời
+    # nào cũng là VIOLATION. Sử liệu CHỈ theo PHẠM VI DIFF — hồ sơ ngoài diff PR
+    # không bị soi (cùng guard RECHECK-DIFF-SCOPE, cùng hàm slug_in_diff; cờ
+    # --recheck-all quét toàn bộ), vì một luật soi mọi hồ sơ ở mọi lượt CI biến
+    # nợ cũ thành cái chặn mọi PR (ô cong-chan-theo-ho-so-khong-theo-diff).
+    # Thiếu node/lib → khai NOT ENFORCED, không im lặng.
     if [ -n "$vc" ]; then
+      if [ "$RECHECK_ALL" -eq 0 ] && [ "$DIFF_READY" -eq 1 ] && ! slug_in_diff "$slug"; then # EVAL-LANE-DIFF-SCOPE-GUARD
+        EVAL_LANE_SKIPPED=$((EVAL_LANE_SKIPPED+1))
+      else
       if command -v node >/dev/null 2>&1 && [ -f "$HERE/../lib/evidence-core.cjs" ]; then
         repin_evals_out="$(REPIN_IDS="$repin_ids" node -e '
           const fs = require("fs");
@@ -1162,6 +1170,7 @@ REPINIDS
       else
         echo "NOTE [$slug]: eval-lane rule NOT ENFORCED — node or lib/evidence-core.cjs unavailable; a suite-only re-pin lane is not caught here"
       fi
+      fi # đóng EVAL-LANE-DIFF-SCOPE-GUARD
     fi
     if [ -n "$repin_bad" ]; then violations=$((violations+1)); continue; fi
   fi
@@ -1235,6 +1244,9 @@ done
 # Cắt im lặng đọc y hệt "đã phủ hết" — nên số hồ sơ KHÔNG được re-check phải in
 # ra. Chỉ in khi có cắt thật: lần chạy không cắt gì thì thêm một dòng hằng là
 # rác, và một dòng rác lặp lại là dòng người đọc học cách bỏ qua.
+if [ "$EVAL_LANE_SKIPPED" -gt 0 ]; then
+  echo "NOTE: eval-lane scope — $EVAL_LANE_SKIPPED slug ngoài diff PR không được soi làn ghim lại (sử liệu theo phạm vi diff; dùng --recheck-all để quét toàn bộ)"
+fi
 if [ "$RECHECK_SKIPPED" -gt 0 ]; then
   echo "NOTE: recheck scope — $RECHECK_SKIPPED slug ngoài diff PR không được re-check (sử liệu; dùng --recheck-all để quét toàn bộ)"
 fi
