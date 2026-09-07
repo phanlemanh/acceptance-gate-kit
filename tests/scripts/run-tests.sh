@@ -246,6 +246,58 @@ mk_xl "$P/pm06" feat-xl6 '- AC-1: Given app, When submit order, Then order saved
 outPM6="$(bash "$CHECK" "$P/pm06" 2>&1)"; check PM06 1 $?
 case "$outPM6" in *"chưa arm cổng"*) echo "  PASS: PM06-arm"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM06-arm (expected VIOLATION chưa arm cổng)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 case "$outPM6" in *cross-layer*) echo "  FAIL: PM06-silent (pairing rule ran on draft)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM06-silent"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+# ─── PM-LNT — NOTE lớp bằng chứng nhìn-thấy (hồ sơ lop-bang-chung-nhin-thay) ─────
+# Fixture theo nếp mk_xl (không git, không --base → DIFF_READY=0 → luật chạy fail-safe trên
+# mọi slug, đúng như staleness). surfaces tham số + approved_at cố định để NOTE ghim ngày.
+mk_lnt_repo() { # <root> <surfaces> <evals-body|""> [ledger-line]
+  local d="$1/_acceptance/feat-lnt"; mkdir -p "$d"
+  printf -- '---\nschema_version: 1\nfeature: feat-lnt\nslug: feat-lnt\nrisk_tier: T2\nsurfaces: [%s]\nstatus: implemented\napproved_by: Manh Phan\napproved_at: 2026-09-01T00:00:00Z\n---\n## Criteria\n- AC-1: Given app, When open, Then hero visible.\n## Out of scope\n## Notes\nMobile backend target: staging — QA backend.\n' "$2" > "$d/contract.md"
+  if [ -n "$3" ]; then printf -- 'evals:\n%s\n' "$3" > "$d/evals.yaml"; fi
+  if [ -n "${4:-}" ]; then printf '%s\n' "$4" > "$d/decisions.jsonl"; fi
+  local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
+  printf -- '---\nschema_version: 1\nfeature_slug: feat-lnt\nverdict: PASS\nhuman_signoff: Manh 2026-09-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-lnt-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-09-02\n' "$v" > "$d/evidence-report.md"; :; }
+LNT_DESCOPE_PM="$(node -e "process.stdout.write(require('$HERE/../../lib/lop-nhin-thay.cjs').UI_OBSERVED_DESCOPE)")"
+LNT_EV_T='  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "green"'
+LNT_EV_U='  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    layer: ui-observed
+    expected: "frame"'
+pmok() { echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1)); }
+pmko() { echo "  FAIL: $1"; FAIL_COUNT=$((FAIL_COUNT+1)); }
+has_scan() { case "$1" in *"rules ran="*) return 0 ;; *) return 1 ;; esac; }
+mk_lnt_repo "$P/lnt-a" ui "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-a" 2>&1)"; r=$?
+echo "PM-LNT-a [ui] không ui-check -> NOTE mặt người nhìn + ngưỡng + approved_at, exit 0"; check PM-LNT-a 0 $r
+case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*"không eval ui-check"*"2026-09-01"*"2 hợp đồng"*) pmok PM-LNT-a-msg ;; *) pmko PM-LNT-a-msg ;; esac
+mk_lnt_repo "$P/lnt-b" ui "$LNT_EV_T" "{\"id\":\"d-77\",\"type\":\"descope\",\"decision\":\"${LNT_DESCOPE_PM}hỏng chụp\"}"; o="$(bash "$CHECK" "$P/lnt-b" 2>&1)"
+echo "PM-LNT-b descope có tên -> NOTE nêu id"; case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*d-77*) pmok PM-LNT-b ;; *) pmko PM-LNT-b ;; esac
+mk_lnt_repo "$P/lnt-c" ui "$LNT_EV_U"; o="$(bash "$CHECK" "$P/lnt-c" 2>&1)"
+echo "PM-LNT-c có ui-check -> không NOTE lớp nhìn-thấy (+ rules ran=)"; case "$o" in *"mặt người nhìn"*|*"lớp nhìn-thấy"*) pmko "PM-LNT-c (NOTE oan)" ;; *) if has_scan "$o"; then pmok PM-LNT-c; else pmko "PM-LNT-c (thiếu dấu hiệu quét)"; fi ;; esac
+mk_lnt_repo "$P/lnt-d" "api, mobile" "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-d" 2>&1)"
+echo "PM-LNT-d [api, mobile] -> không NOTE (+ quét)"; case "$o" in *"mặt người nhìn"*) pmko "PM-LNT-d (NOTE oan)" ;; *) if has_scan "$o"; then pmok PM-LNT-d; else pmko "PM-LNT-d (quét)"; fi ;; esac
+mk_lnt_repo "$P/lnt-e" web "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-e" 2>&1)"
+echo "PM-LNT-e [web] alias -> NOTE"; case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*) pmok PM-LNT-e ;; *) pmko PM-LNT-e ;; esac
+mk_lnt_repo "$P/lnt-f" ui ""; o="$(bash "$CHECK" "$P/lnt-f" 2>&1)"
+echo "PM-LNT-f không evals.yaml -> không NOTE lớp nhìn-thấy (+ quét)"; case "$o" in *"mặt người nhìn"*) pmko "PM-LNT-f (NOTE oan)" ;; *) if has_scan "$o"; then pmok PM-LNT-f; else pmko "PM-LNT-f (quét)"; fi ;; esac
+# (g) bản sao kit thiếu lib → NOTE «không kiểm được», exit 0
+G="$T/lnt-g-kit"; mkdir -p "$G/scripts" "$G/lib"; cp "$HERE/../../scripts/pre-merge-check.sh" "$G/scripts/"; cp "$HERE"/../../lib/* "$G/lib/" 2>/dev/null; rm -f "$G/lib/lop-nhin-thay.cjs"
+mk_lnt_repo "$P/lnt-g" ui "$LNT_EV_T"; o="$(bash "$G/scripts/pre-merge-check.sh" "$P/lnt-g" 2>&1)"; r=$?
+echo "PM-LNT-g lib thiếu -> NOTE không kiểm được, exit 0"; check PM-LNT-g 0 $r
+case "$o" in *"NOTE [feat-lnt]"*"không kiểm được"*) pmok PM-LNT-g-msg ;; *) pmko PM-LNT-g-msg ;; esac
+mk_lnt_repo "$P/lnt-h" ui "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-h" --recheck-all 2>&1)"
+echo "PM-LNT-h --recheck-all -> NOTE như (a)"; case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*"2026-09-01"*) pmok PM-LNT-h ;; *) pmko PM-LNT-h ;; esac
+mk_lnt_repo "$P/lnt-i" ui "$LNT_EV_T" '{"id":"d-78","type":"descope","decision":"bỏ ui-observed: hỏng"}'; o="$(bash "$CHECK" "$P/lnt-i" 2>&1)"
+echo "PM-LNT-i tiền tố dấu hai chấm -> NOTE như (a), không id"; case "$o" in *d-78*) pmko "PM-LNT-i (nhận nhầm id)" ;; *"NOTE [feat-lnt]"*"mặt người nhìn"*"không eval ui-check nào"*) pmok PM-LNT-i ;; *) pmko PM-LNT-i ;; esac
+# DV5 — diff chỉ thêm dòng so main (repo git của kit; ngoài git → bỏ qua có tiếng)
+echo "PM-LNT-dv5 pre-merge-check.sh so main chỉ THÊM dòng"
+if git -C "$HERE/../.." rev-parse --verify main >/dev/null 2>&1; then
+  dv="$(git -C "$HERE/../.." diff main -- scripts/pre-merge-check.sh | grep -E '^-' | grep -vE '^---' || true)"
+  if [ -z "$dv" ]; then pmok PM-LNT-dv5; else pmko "PM-LNT-dv5 (có dòng bị xoá/sửa)"; fi
+else echo "  NOTE: PM-LNT-dv5 bỏ qua — không có nhánh main để so"; fi
+
 echo "PM07 eval block mở bằng criterion (không phải id) + comment trên criterion -> vẫn paired, clean"
 mk_xl "$P/pm07" feat-xl7 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - criterion: AC-1  # main flow
     id: E2
