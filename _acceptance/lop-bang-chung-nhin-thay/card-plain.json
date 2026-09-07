@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Mỗi việc có màn hình người dùng nhìn sẽ phải để lại ít nhất một ảnh chụp thật ở Cổng Bằng chứng, thay vì chỉ có tên các ca kiểm mã; thiếu ảnh thì máy kêu ở ba chỗ nhưng chưa chặn, và có đường bỏ có tên.",
+  "will_do": [
+    {"id":"AC-1","p":"Sẽ có một nguồn duy nhất trả lời «hợp đồng này có màn hình người nhìn không» (ui, web, web-ui là có; mobile, api, cli là không), và nguồn đó khớp đúng danh sách surface ghi trong khuôn hợp đồng."},
+    {"id":"AC-2","p":"Sẽ có cảnh báo mới W8 khi hợp đồng có màn hình mà không eval nào nhìn màn hình, khi nhãn «nhìn-thấy» gắn nhầm lên ca kiểm mã, và khi surface ghi chữ lạ; kho hiện tại (toàn cli/docs) không bị kêu oan."},
+    {"id":"AC-4","p":"Sẽ hiện ở Cổng Bằng chứng dòng «ảnh chụp: KHÔNG có» khi eval nhìn màn hình chỉ được khai mà không đạt trong báo cáo (đúng ca đã xảy ra ở oneflow), và dòng «có N eval đạt» khi có thật."},
+    {"id":"AC-6","p":"Sẽ ghi luật này vào cả bảy văn bản nghi thức (hai SKILL, luật ghép cặp, từ điển, khuôn hợp đồng, hướng dẫn cài) để máy sinh eval và người duyệt đọc cùng một chữ."}
+  ],
+  "wont_do": [
+    {"id":"AC-3","p":"Sẽ KHÔNG cho hợp đồng có màn hình đi qua Cổng Phạm vi im lặng: thiếu eval nhìn màn hình thì cờ vàng, đã ghi bỏ có tên thì dòng thông tin nêu lý do."},
+    {"id":"AC-5","p":"Chặn nhẹ trước khi merge: chỉ in một dòng NOTE nêu ngưỡng và ngày duyệt của hồ sơ, chưa chặn merge; máy đọc được thì mới chấm, thiếu thư viện thì nói «không kiểm được»."}
+  ],
+  "scope_plain": "chưa chặn merge (chờ đếm đủ 2 hợp đồng ký không ảnh trong một mốc), chưa bắt từng tiêu chí phải có ảnh, không đưa ảnh bản mẫu trước duyệt lên Cổng Bằng chứng, kit không tự chụp, không sửa hồ sơ cũ",
+  "decisions_plain": [
+    {"id":"d-20260907T214357Z-20122","p":"Máy coi «có eval nhìn màn hình» là bằng chứng đã đủ (lưới ghi sẵn có đã bắt phải có ảnh và mắt đọc), nhãn ui-observed chỉ để đọc — đổi lại: hồ sơ cũ không bị kêu oan khi ghim lại."},
+    {"id":"d-20260907T214358Z-20122","p":"Mỗi hợp đồng cần ít nhất một ảnh, không bắt từng tiêu chí — đổi lại: rẻ (một agent, một máy chủ dev), sẽ siết nếu một ảnh tỏ ra không đủ."},
+    {"id":"d-20260907T214359Z-20122","p":"Trước merge chỉ in ghi chú, chưa chặn, kèm ngưỡng đếm — đổi lại: không thêm vòng bị chặn vì máy chụp hỏng."},
+    {"id":"d-20260907T214400Z-20122","p":"KHÔNG đưa ảnh bản mẫu vẽ trước duyệt lên Cổng Bằng chứng — đổi lại: người ký không bị ảnh đẹp của bản mẫu đánh lừa là sản phẩm đã chạy."},
+    {"id":"d-20260907T214401Z-20122","p":"KHÔNG viết đặc tả trải nghiệm — việc này không có màn hình mới, chỉ có luật và thư viện."}
+  ],
+  "coverage_plain": [
+    {"i":0,"p":"Mười vật mới (nguồn surface, luật S2, cảnh báo W8, cờ hai cổng, ghi chú trước merge, câu hỏi phản biện, bí danh web→ui, đường bỏ có tên, gợi ý công cụ chụp) — mỗi vật có ít nhất một tiêu chí, đủ là sáu mục anh đã duyệt sáng nay."},
+    {"i":1,"p":"Mười chỗ đang đọc luật ghép cặp cũ (backend-effect) đều phải đọc được luật gương mới — đủ là danh sách file tìm bằng máy, mỗi file có ca hoặc có lý do gạch."},
+    {"i":2,"p":"Mỗi phép đo có chiều xanh, chiều đỏ ghim thông điệp, ca hồ sơ cũ, ca cô lập (mobile, api, web, nhãn lạc chỗ) và ca khớp chuỗi giữa thư viện và khuôn — đủ theo luật khai sinh phép đo của kit và mô hình tầng kiểm thử ISTQB."},
+    {"i":3,"p":"Bốn chỗ cố ý không chạm: lưới ghi (đã có răng ảnh), bước chạy S4, trang bằng chứng, thư mục hooks — mỗi chỗ một lý do."}
+  ],
+  "gap_probe_plain": [
+    {"i":0,"p":"Thiếu: Cổng Bằng chứng từng chỉ đọc bản khai, nên eval nhìn màn hình «khai rồi bỏ» vẫn hiện như có ảnh — đúng ca oneflow. Đã sửa: tiêu chí AC-4 nay đọc kết quả trong báo cáo, khai mà không đạt thì cờ «KHÔNG có»."},
+    {"i":1,"p":"Thiếu: các ca «không thấy cảnh báo» chưa chứng máy có thật sự đọc hồ sơ. Đã sửa: mỗi ca như vậy ghim thêm một dấu hiệu máy đã quét cùng lần chạy."},
+    {"i":2,"p":"Thiếu: chưa chứng ba bộ đọc dùng chung một bảng bí danh thay vì chép riêng. Đã sửa: thêm ca đột biến — bỏ «web» khỏi bảng thì cả ba bộ đọc phải cùng đổi kết quả."},
+    {"i":3,"p":"Thiếu: đường bỏ có tên chưa được đo ở cảnh báo W8 và ở bước trước merge với chuỗi viết sai. Đã sửa: thêm ba ca ở W8 và một ca ở trước merge, chuỗi rút từ thư viện."},
+    {"i":4,"p":"Thiếu: ngưỡng «2 hợp đồng/mốc» chưa có cách đếm sống, hồ sơ cũ bị kéo vào diff sẽ đếm lặp. Đã sửa: ghi chú in kèm ngày duyệt, chạy cả ở chế độ quét toàn bộ, quy tắc đếm ghi vào thiết kế."}
+  ]
+}

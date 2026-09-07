@@ -5,9 +5,9 @@ slug: lop-bang-chung-nhin-thay
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/** (lib/lop-nhin-thay.cjs mới + lib/nguong-o-co-hoi.cjs) + scripts/pre-merge-check.sh
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-09-07T22:00:36Z
 design_doc: docs/superpowers/specs/2026-09-08-lop-bang-chung-nhin-thay-design.md
 ---
 
