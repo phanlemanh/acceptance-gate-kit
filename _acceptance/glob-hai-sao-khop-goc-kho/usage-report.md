@@ -51,3 +51,27 @@
 - **claude-fable-5-1**: 3 agent · 28 calls · out 13,538 · in 806 · cache_read 2,256,300 · cache_create 249,493
 - **claude-haiku-4-5-20251001**: 5 agent · 21 calls · out 2,439 · in 178 · cache_read 938,380 · cache_create 219,274
 
+### S4 round 3 — wf_47be1da5-c0a (15 agent, 38,803 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| triage | claude-sonnet-5 | 2 | 10,151 | 4 | 74,506 | 126 |
+| refute:evidence-report.md | claude-sonnet-5 | 16 | 6,982 | 32 | 1,454,226 | 528 |
+| synthesize:report | claude-sonnet-5 | 3 | 4,695 | 6 | 174,337 | 145 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 14 | 3,097 | 28 | 1,172,120 | 220 |
+| review:bugs | claude-fable-5-1 | 15 | 3,062 | 450 | 1,314,609 | 428 |
+| refute:run-tests.sh | claude-sonnet-5 | 14 | 3,056 | 28 | 1,134,743 | 136 |
+| review:conventions | claude-fable-5-1 | 13 | 2,055 | 386 | 1,126,817 | 436 |
+| refute:evidence-report.md | claude-sonnet-5 | 14 | 1,879 | 28 | 1,153,248 | 150 |
+| review:measurement | claude-fable-5-1 | 8 | 1,301 | 226 | 607,454 | 173 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 901 | 18 | 80,169 | 16 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 557 | 34 | 190,790 | 418 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 377 | 18 | 80,176 | 15 |
+| machine:bash tests/plugins/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 368 | 26 | 83,465 | 368 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 3 | 315 | 26 | 135,156 | 19 |
+| capture:provenance | claude-sonnet-5 | 2 | 7 | 4 | 70,898 | 10 |
+
+- **claude-sonnet-5**: 7 agent · 65 calls · out 29,867 · in 130 · cache_read 5,234,078 · cache_create 570,221
+- **claude-fable-5-1**: 3 agent · 36 calls · out 6,418 · in 1,062 · cache_read 3,048,880 · cache_create 254,404
+- **claude-haiku-4-5-20251001**: 5 agent · 14 calls · out 2,518 · in 122 · cache_read 569,756 · cache_create 205,494
+

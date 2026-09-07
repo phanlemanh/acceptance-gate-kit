@@ -1,37 +1,26 @@
 ## Trong hợp đồng
 
-- **Hình dạng 3 (assert chuỗi có mặt, lời hứa là QUAN HỆ): HS09 mệnh đề (3) chỉ đòi chữ `AGENTS.md`, không ghim ví dụ «`**/*.md` bắt `AGENTS.md`»**
-  file: `tests/scripts/run-tests.sh:2120`
-  severity: low
-  AC: AC-9
-  AC-9 hứa hàng GUIDE §8 «có ví dụ `**/*.md` bắt `AGENTS.md`» — một quan hệ glob→file. Assert (3) ở dòng 2120 là `case "$gl09_row" in *'AGENTS.md'*)`: chỉ đòi chuỗi `AGENTS.md` xuất hiện đâu đó trong hàng. Chuỗi `**/*.md` không được kiểm ở assert nào (assert (1) chỉ đòi `**/` đứng cạnh «không-hoặc-nhiều thư mục»). Hàng viết «`AGENTS.md` KHÔNG được bắt», hay xoá `**/*.md` khỏi ví dụ, vẫn xanh. Xác nhận bằng chạy riêng khối HS (28/28 PASS) — ca xanh nhưng không phân biệt được hai hàng tài liệu trái nghĩa nhau. Đã có trong review-findings.md mục «Chưa phân loại»; chưa sửa ở HEAD. Ghim tối thiểu: đòi `**/*.md` rồi `AGENTS.md` theo thứ tự trên cùng hàng.
+- **Hình dạng 3 — HS10 assert «không có chuỗi stale» trong khi lời hứa E10/AC-10 là QUAN HỆ «bộ sinh biến thể chỉ tách tại `**/`, không tại `**`»: phép đo không thể đỏ cho lớp nó tuyên canh**
+  file: `tests/scripts/run-tests.sh:2066`
+  severity: medium
+  AC: AC-10
+  Chi tiết: Khối HS10 (dòng 2066–2074) và E10 trong `_acceptance/glob-hai-sao-khop-goc-kho/evals.yaml` khai đây là ca đóng gap-probe P1: «Chứng minh bộ sinh biến thể chỉ tách tại `**/`, không tại `**`». Nhưng assert thực tế chỉ là `check HS10 0` + `nothas HS10-nostale "evidence is stale"` cho fixture `docs/**` + `CHANGELOG.md`, và đối chứng đỏ `docs2/a.md`. Hai điểm thấy rõ trong `scripts/pre-merge-check.sh` khiến assert này không đo được lời hứa: (a) `match_globs` thử glob GỐC trước (`case "$1" in $g) return 0`) rồi mới cộng biến thể — bộ khớp là OR thuần cộng, nên `docs/**` khớp `docs/a.md` bất kể `glob_variants` sinh gì; (b) guard `case "$g" in *'**/'*)` khiến `docs/**` không bao giờ đi qua `glob_variants` — fixture HS10 không hề chạm vật nó tuyên đo. Đã tiêm thử đúng mutant gap-probe P1 mô tả (đổi guard + split sang `**`, bản sao suy từ cây đang kiểm): HS10, HS10-nostale, HS10-red, HS10-red-msg đều PASS 4/4; chỉ HS01/HS05 đỏ. Tức lớp «tách nhầm tại `**`» đang được HS01/HS05 bắt như tác dụng phụ, còn dòng bằng chứng E10 «PASS: HS10» là xanh không phân biệt được với «chưa bao giờ gọi bộ sinh». Đúng nếp «thước phải gắn vào vật được giao»: muốn đo quan hệ đó phải gọi thẳng `glob_variants` với `docs/**` và ghim tập biến thể sinh ra (round-trip từ writer), hoặc dựng mutant tách-tại-`**` như HS08 và đòi HS10 đỏ.
+  Căn cứ: AC-10 tự khai cơ chế "đi qua bộ sinh biến thể nguyên vẹn" và finding chứng minh bằng đột biến có chủ đích rằng bài đo hiện tại không phân biệt được đúng/sai của đúng cơ chế đó, tức bằng chứng chưa chứng minh được điều AC-10 tuyên bố.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Evidence report trong diff neo vào commit trước bản sửa fixture — chưa phủ HEAD**
-  Người dùng thấy gì: Báo cáo bằng chứng đang trình để ký duyệt được đo ở một thời điểm trước khi bản sửa cuối cùng được áp vào, nên chưa chắc phản ánh đúng trạng thái hiện tại — nên chạy đo lại trước khi coi đây là căn cứ ký.
+- **Evidence report ở HEAD neo vào commit TRƯỚC bản sửa HS09 — bằng chứng chưa phủ cây đang trình ký, và cổng đang che nó**
+  Người dùng thấy gì: Hồ sơ đang chờ ký ghi kết quả đạt dựa trên một phiên bản cũ hơn phiên bản mới nhất sắp được duyệt, nên người ký có thể tin nhầm rằng phần vừa sửa đã được kiểm tra lại trong khi thực ra chưa.
   file: `_acceptance/glob-hai-sao-khop-goc-kho/evidence-report.md`
-  severity: low
+  severity: medium
   Đề xuất: known-limits
 
-- **Kit có hai bộ khớp glob với hai ngữ nghĩa `*` khác nhau — GUIDE chỉ khai một**
-  Người dùng thấy gì: Tài liệu hướng dẫn hiện chỉ giải thích một trong hai cách so khớp mẫu đường dẫn mà công cụ dùng ở hai chỗ khác nhau; người đọc có thể hiểu nhầm quy tắc chỗ này áp cho chỗ kia, dù việc đó không ảnh hưởng gì tới tính năng đang ký lần này.
-  file: `feature-loop/workflows/acceptance-verify.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **Evidence report pinned to pre-fix commit; recorded E10 PASS came from a run whose HS10 injection silently failed**
-  Người dùng thấy gì: Kết quả 'đạt' đang ghi trong hồ sơ cho một trong mười phép thử không thực sự chạy đúng kịch bản của nó ở lần đo trước đó; cần đo lại trước khi dùng làm căn cứ ký duyệt, dù bản thân tính năng không có lỗi được xác nhận.
+- **Bằng chứng ghim 765a647c nhưng phép đo HS09 đổi ở c8fc1a32 — stale bị che vì luật «Gate 2 pending» continue trước luật staleness**
+  Người dùng thấy gì: Dấu đạt hiển thị trên hồ sơ dựa trên một lần kiểm tra đã cũ; phần vừa sửa chưa được đo lại, nên dấu xanh đó có thể không phản ánh đúng trạng thái hiện tại tại thời điểm ai đó bấm ký.
   file: `_acceptance/glob-hai-sao-khop-goc-kho/evidence-report.md`
-  severity: low
+  severity: medium
   Đề xuất: known-limits
 
-- **Ghim «stdout có PASS: HSxx» trong evals không hiện trong bằng chứng — output chỉ giữ 3 dòng cuối, và tiền tố «PASS: HS01» khớp cả «PASS: HS01-nostale»**
-  Người dùng thấy gì: Cách ghim kết quả từng phép thử con trong hồ sơ đo hiện chưa đủ chặt để phân biệt một phép thử với các biến thể tên gần giống của nó, nhưng vì cả bộ vẫn báo lỗi khi có bất kỳ phép thử nào trượt, hậu quả thực tế cho người dùng hiện chưa xảy ra.
-  file: `_acceptance/glob-hai-sao-khop-goc-kho/evals.yaml`
-  severity: low
-  Đề xuất: wont-fix
-
-⚠ Cụm ngoài vùng phủ: 4/5 lỗi rơi vào file không bộ đo nào phủ (_acceptance/glob-hai-sao-khop-goc-kho/evidence-report.md, feature-loop/workflows/acceptance-verify.js, _acceptance/glob-hai-sao-khop-goc-kho/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 2/3 lỗi rơi vào file không bộ đo nào phủ (_acceptance/glob-hai-sao-khop-goc-kho/evidence-report.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.

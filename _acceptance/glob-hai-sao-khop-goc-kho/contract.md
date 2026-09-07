@@ -5,7 +5,7 @@ slug: glob-hai-sao-khop-goc-kho
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: docs/superpowers/specs/2026-09-08-glob-hai-sao-khop-goc-kho-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-08
