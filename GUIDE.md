@@ -993,7 +993,10 @@ flowchart LR
 Mỗi lần một thay đổi **chạm engine** vào nhánh chính, mọi hồ sơ đã ký trước đó
 hoá cũ — đó là ĐẶC TÍNH của luật staleness, không phải lỗi. Cái phải quản là
 **nhịp trả giá**, vì nó nhân thẳng theo số vòng chạy đồng thời: N vòng × mỗi
-lần merge = N−1 hồ sơ phải ghim lại, mỗi lần một lượt gọi người.
+lần merge = N−1 hồ sơ phải ghim lại. Từ 16/08 ghim lại là **làn máy-một-mình**
+(nghi thức re-pin trong `feature-loop/skills/feature-loop/SKILL.md`: một lượt
+làn, N chữ ký) — không tốn lượt gọi người, nhưng vẫn tốn lượt chấm và thời
+gian CI cho mỗi hồ sơ.
 
 Chính sách (owner duyệt trong charter 07/08, mục 1d):
 
