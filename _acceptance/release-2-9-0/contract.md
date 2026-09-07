@@ -3,7 +3,7 @@ schema_version: 1
 feature: Phát hành kit 2.9.0 — đóng số cho ba vòng sửa của cửa sổ 2.8→2.9 (PR 146 inputs-tinh-tu-goc-kho · 149 co-qua-timebox-nhom-da-xong · 151 thuoc-khai-mot-dang-do-mot-neo), bộ audit 05/09 + giấy phép MIT, và bộ tài liệu playbook 07/09 — để repo tiêu thụ nhận bộ máy theo mốc có chủ đích
 slug: release-2-9-0
 owner: phanlemanh@gmail.com
-risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + một khoá config workspace + hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
+risk_tier: T2               # vật của PR: 2 manifest + dòng khớp-phiên-bản GUIDE + một khoá config workspace + hồ sơ + bản đồ — không dính t3_paths. CỬA SỔ thì có: commit 0b5c5b37 đẩy thẳng lên main chạm t3_paths ngoài mọi vòng (xem Context)
 surfaces: [cli]
 status: signed-off
 design_doc:
@@ -41,7 +41,18 @@ giống «việc kế theo plan» · #150 vẽ lại bản đồ · #152 bộ t�
 «vế không CỘNG tạm ngưng» vào `CLAUDE.md` (owner tự quyết câu hỏi treo của handoff §6,
 cùng ngày; có ngày + ba vế không đổi + điều kiện thu hồi).
 
-Diff của mốc, ngoài `_acceptance/`, `docs/` và bản đồ, là **mười chín file** (cặp +/− đọc từ `git diff --numstat cd94d004..0226edde`):
+**Ngoài PR, năm commit đẩy thẳng lên `main` không qua PR** (06–07/09, `c6aec41b..b9a26bb3`,
+lên trong lúc PR #155 đang chạy CI): ba chip sổ vấp từ kho crm-onehub (+ hai ô discovery
+`cong-chan-theo-ho-so-khong-theo-diff` · `de-xuat-tieng-viet-khong-doc-duoc`), một lần vẽ
+lại bản đồ, và **`0b5c5b37` — thay đổi BỘ MÁY ở đường T3** (`lib/evidence-core.cjs`,
+`scripts/pre-merge-check.sh`, `scripts/recheck-evidence.cjs`): làn ghim lại phải chạy lại
+eval máy của chính hồ sơ (ADR 0014). Không hồ sơ nghiệm thu, không cổng người; bằng chứng
+là các ca RE0–RE8 · LN0–LN6 · DV12 đi cùng commit và «6 suite xanh» theo lời commit.
+GUIDE §7 và §7.1 trên `main` tự gọi thay đổi này là «2.9.0», và repo tiêu thụ cài từ
+`main`, nên mốc này GOM nó (sổ 8013) — giá: gộp lại, ghim lại lần 2 bằng chính làn eval
+mới, chữ mốc sửa sau chữ ký, và người ký lần 2.
+
+Diff của mốc, ngoài `_acceptance/`, `docs/` và bản đồ, là **ba mươi tư file** (19 của mười ba PR + 18 của commit đẩy thẳng, 3 trùng; cặp +/− đọc từ `git diff --numstat cd94d004..HEAD`):
 
 - **Ba file hành vi máy chạy:** `feature-loop/scripts/s4-args.mjs` (+31/−2:
   `resolveJudgmentInput` — inputs tính từ gốc kho, vắng hoặc là thư mục → exit 2
@@ -59,13 +70,15 @@ Diff của mốc, ngoài `_acceptance/`, `docs/` và bản đồ, là **mười 
   chép EN + mục Licence) · `QUICKSTART.md` (bản chép VI; repo public) ·
   `feature-loop/README.md` (bốn cổng thay «2 điểm dừng») · `LICENSE` · `NOTICE`.
 - **Một hồ sơ bác:** `.out-of-scope/doi-chieu-playbook-ai-native.md`.
+- **Thay đổi bộ máy ngoài cổng (`0b5c5b37`):** `lib/evidence-core.cjs` (+118/−0: `checkRepinEvals` + hằng `REPIN_EVALS_SINCE`) · `lib/eval-yaml.cjs` (mới, +59/−0) + `lib/eval-yaml.js` thành shim (+5/−58) · `scripts/pre-merge-check.sh` (+41/−0: luật làn-eval) · `scripts/recheck-evidence.cjs` (+14/−0) · `feature-loop/scripts/repin-lane.mjs` (mới, +170/−0) · `feature-loop/scripts/s4-args.mjs` thêm `resolveConfigList` dùng chung · `feature-loop/skills/feature-loop/SKILL.md` (nghi thức re-pin gọi script) · `commands/acceptance-init.md` (danh sách chép CI tám file) · `CONTEXT.md` (machine-lane) · `scripts/gate-card.js` (+2/−2) · `scripts/eval-coverage-lint.js` (+3/−3) · năm file kiểm thử (`repin-evals` mới · `repin-lane` mới · `repin-fixture` · `repin-roundtrip` · `workflows/skill-claims`).
 - **Bốn file lưới trong nhà:** `tests/plugins/run-tests.sh` (+186: P86 GATE-MODEL
   so quan hệ, 14 đột biến) · `tests/plugins/ra-co-ten.test.mjs` (RT13: 7 fixture
   + 3 mutant) · `tests/scripts/s4-args-judgment-inputs.test.mjs` (mới) ·
   `tests/scripts/fixtures/routing-baseline.txt` (+5: hai dòng chữ ký #146/#151).
 
-Không đổi schema, không cần migrate. Không file nào trong `t3_paths`; cả ba vòng
-đi T2. Mốc này thêm MỘT khoá config workspace (`executors.script.p200_cat_so`) để
+Không đổi schema của hồ sơ; dòng `kind:repin` có thêm khoá `evals_exit` với đường đọc-cũ theo
+MỐC (dòng không có khoá, ghi trước 07/09 12:00Z là sử liệu). Ba vòng đều T2 và không chạm
+`t3_paths`; commit đẩy thẳng `0b5c5b37` thì chạm — ngoài mọi vòng. Mốc này thêm MỘT khoá config workspace (`executors.script.p200_cat_so`) để
 eval của hồ sơ mốc ghim đúng ca P200 thay vì mã thoát trọn suite — khoá vĩnh
 viễn, không phải răng riêng (Ngoài-6 của 2.8.0).
 
@@ -85,6 +98,11 @@ Người dùng kit nhận gì (đọc trong diff manifest, mục v2.9.0):
    sách mốc phát hành so QUAN HỆ với bảng nguồn, không hỏi chữ số có mặt).
 4. **Mở thật dưới MIT** — LICENSE thuần MIT, hai cây vendor khai ở NOTICE (ADR
    0013), repo public, hai manifest `license: MIT`.
+5. **Ghim lại không còn là lời dặn.** Làn ghim lại là một script chạy `suite_keys`
+   VÀ mọi eval máy của chính hồ sơ tại HEAD, tự ghi `evals_exit`; hai bộ đọc từ chối
+   làn chống lưng pin mà không chạy lại eval. Repo tiêu thụ phải vendor thêm
+   `lib/eval-yaml.cjs` (danh sách chép CI nay tám file). Đời cũ: dòng repin không
+   `evals_exit` trước mốc là sử liệu, NOTE không chặn.
 
 Source input: `git log cd94d004..0226edde` · ba hồ sơ vòng sửa (`decisions.jsonl`
 + `run-log.jsonl` + evidence-report) · `gh run list` ba nhánh · nếp phát hành
@@ -119,6 +137,10 @@ tiêu thụ được quan sát trong cửa sổ này từ repo này.
 - **Vòng bị hạ-tầng-kit đốt lượt chấm: 4/13** — #146 r1 (suite `cannot_run`),
   #149 r1 (xanh giả vì args chỉnh ngoài đường máy), #151 r3 (agent chết) và r6 (nhiễu agent sửa
   cây). Không lượt nào là lỗi vật.
+- **Thay đổi T3 vào `main` ngoài cổng: 1** (`0b5c5b37`) — 0 vòng chấm, 0 lượt gọi người
+  có vết; chi phí đổ vào mốc: gộp lại, ghim lại lần 2, chữ mốc sửa sau khi ký, và **một
+  lượt ký thứ hai** — tức mốc phát hành ≤1 lượt gọi người TRƯỢT (2), nguyên nhân ngoài
+  thiết kế: bộ máy đẩy thẳng lên `main` giữa lúc mốc đang ở biên merge.
 - **CI đỏ hậu-chữ-ký: 3** (số mà 2.8.0 gọi tên với mục tiêu 0) — #146 commit
   chữ ký `54cec058` đỏ, xanh lại ở ghim lại `760a8704`; #151 commit chữ ký
   `206e0d63` đỏ, commit dòng định tuyến `6d478c80` đỏ, xanh lại ở ghim lại
@@ -171,7 +193,7 @@ do hạ tầng phiên không đếm được từ repo này.
 
 ## Out of scope
 
-- Đổi bất kỳ dòng mã cổng nào (`skills/ lib/ hooks/ scripts/ feature-loop/skills/`) — mốc phát hành KHÔNG dựng răng (§7.1; bài học ba mốc 2.0.0/2.1.0/2.2.0).
+- Đổi bất kỳ dòng mã cổng nào (`skills/ lib/ hooks/ scripts/ feature-loop/skills/`) BỞI CHÍNH MỐC — mốc phát hành KHÔNG dựng răng (§7.1; bài học ba mốc 2.0.0/2.1.0/2.2.0). Commit `0b5c5b37` đổi mã cổng là việc của cửa sổ, không của mốc: mốc chỉ GOM và khai.
 - **Dựng răng riêng cho mốc.** Canh bằng ca VĨNH VIỄN P200 (mọi số đọc từ manifest, 5 đột biến + đối chứng dương) — cùng nếp 2.3.0→2.8.0. Khoá `p200_cat_so` chỉ KHOANH ca đó, không thêm phép đo.
 - Nâng số `diagram-design` — không đổi kể từ mốc trước.
 - **Chữ ký Cổng Phạm vi.** Mốc phát hành T2 đi làn V (tiền lệ 2.5.0→2.8.0). Người xuất hiện MỘT lần, ở Cổng Bằng chứng.
@@ -185,5 +207,7 @@ do hạ tầng phiên không đếm được từ repo này.
 - Known limits: chữ ký mốc này sẽ kéo một dòng bản ghi mốc định tuyến (LM20 chỉ ghim hồ sơ đã chốt) — thêm TRƯỚC khi commit chữ ký, cùng commit. Hai vòng #146/#151 của cửa sổ này đã KHÔNG làm thế và trả 3 CI đỏ; mốc này là lần thử thứ hai của lời dặn 2.8.0.
 - Known limits: E1/E2/E6 ghim dòng «P200 OK (… 5/5 dot bien …)» và «PASS: P200 …» của chính ca (khoá `p200_cat_so` lọc dòng có chữ P200, mã thoát của suite qua `pipefail`) nhưng bằng chứng KHÔNG chứa đủ bảy dòng vế `P200 VE:` — cỗ máy verify chỉ giữ ba dòng cuối mỗi lệnh (giới hạn có tên của #151). Hồ sơ phân biệt được «P200 xanh, 5/5 đột biến chạy» với «suite xanh»; từng vế vẫn do P200 canh trong nhà.
 - Known limits: ba dòng số đếm tay từ commit + sổ + `gh run list`; lượt hạ tầng phiên không đếm được.
-- mở hợp đồng mới (Ngoài-1): dòng `feature:` có ` #` bị bộ đọc frontmatter cắt làm ghi chú — tên hồ sơ cụt trên bản đồ và thẻ mà `product-map --check` vẫn xanh (bên viết và bên đọc dùng chung bộ cắt). Đã sửa chữ ở mốc này; lớp lỗi «bên VIẾT và bên ĐỌC trôi khỏi nhau» tách thành ô cơ hội `frontmatter-thang-mot-ky-hieu` cho cửa sổ kế (lint frontmatter có ` #`, hoặc bộ đọc chỉ cắt ghi chú ở khoá đã khai).
+- mở hợp đồng mới (Ngoài-1): dòng `feature:` có ` #` bị bộ đọc frontmatter cắt làm ghi chú — tên hồ sơ cụt trên bản đồ và trên lời mời cổng mà `product-map --check` vẫn xanh (bên viết và bên đọc dùng chung bộ cắt). Đã sửa chữ ở mốc này; lớp lỗi «bên VIẾT và bên ĐỌC trôi khỏi nhau» tách thành ô cơ hội `frontmatter-thang-mot-ky-hieu` cho cửa sổ kế (lint frontmatter có ` #`, hoặc bộ đọc chỉ cắt ghi chú ở khoá đã khai).
 - known-limits (Ngoài-2): cửa sổ đếm neo lại `cd94d004 → 0226edde` sau khi gộp #154; mọi số trong Context là số tại thời điểm ký — PR gộp vào `main` sau mốc thuộc cửa sổ kế.
+- known-limits (gộp lần 2): thay đổi T3 `0b5c5b37` (làn ghim lại chạy lại eval, ADR 0014) vào `main` bằng đẩy thẳng, không hồ sơ nghiệm thu, không cổng người — bằng chứng duy nhất là ca RE/LN/DV đi cùng commit và làn ghim lại lần 2 của mốc chạy chính luật mới. Mốc gom nó vì GUIDE trên `main` gọi tên «2.9.0» và repo tiêu thụ cài từ `main`; đây là lượt ngoài thiết kế của mốc (ký lần 2).
+- known-limits (gộp lần 2): làn ghim lại lần 1 (`repin-20260907-rel290-1`, suite-only, ts sau mốc 12:00Z) KHÔNG đạt luật mới — bị thay bằng làn eval lần 2; dòng cũ giữ nguyên làm sử liệu.
