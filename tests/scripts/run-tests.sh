@@ -722,12 +722,19 @@ surfaces: [api, ui]
 - AC-1: Given user taps pay, When order submits, Then confirmation screen shows.
 ## Out of scope
 EOF
+# surfaces có ui → W8 (lop-bang-chung-nhin-thay) đòi ≥1 ui-check theo hợp đồng; thêm E2 để
+# fixture này vẫn SẠCH và ca L16 tiếp tục đo đúng một điều: W5 im khi không có mobile.
 cat > "$M/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
     executor: test
     expected: "exit 0; flow green"
+  - id: E2
+    criterion: AC-1
+    executor: ui-check
+    layer: ui-observed
+    expected: "frame shows confirmation"
 EOF
 
 echo "L14 surfaces include mobile, no backend-target line -> warn (W5)"
@@ -755,6 +762,11 @@ evals:
     criterion: AC-1
     executor: test
     expected: "exit 0"
+  - id: E2
+    criterion: AC-1
+    executor: ui-check
+    layer: ui-observed
+    expected: "frame shows confirmation"
 EOF
 
 # Fixture O: mobile surface + dòng backend target có khoảng trắng đôi -> W5 im lặng
@@ -1097,6 +1109,56 @@ outL35b="$(node "$LINT" "$T/lintU" 2>&1)"; check L35b 1 $?
 case "$outL35b" in *"W1 AC-1"*) echo "  PASS: L35b-w1"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L35b-w1 (gỡ đối chứng mà W1 vẫn im — từ vựng mới nuốt luôn ca thật)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""
+# ─── W8 — lớp bằng chứng nhìn-thấy (hồ sơ lop-bang-chung-nhin-thay, L40–L52) ─────────
+# Fixture code-sinh: mk_lnt <dir> <surfaces> <evals-body> [ledger-line]; contract luôn kèm AC-2
+# ngưỡng KHÔNG có eval âm để W1 nổ = DẤU HIỆU QUÉT dương cho các ca vắng W8 (gap-probe F2).
+# Dòng cảnh báo có dạng "[slug] W8 …" — ca khớp "] W8 " để chú giải cuối ("W8 = …") không tính.
+mk_lnt() { local d="$1/_acceptance/feat-lnt"; mkdir -p "$d"
+  printf -- '---\nrisk_tier: T2\nstatus: approved\nsurfaces: [%s]\n---\n## Criteria\n- AC-1: Given user, When opens page, Then hero visible.\n- AC-2: Given user, When ≥3 opens trong 48h, Then fire hot.\n## Out of scope\n' "$2" > "$d/contract.md"
+  printf -- 'evals:\n%s\n  - id: E9\n    criterion: AC-2\n    executor: test\n    expected: "fires hot"\n' "$3" > "$d/evals.yaml"
+  if [ -n "${4:-}" ]; then printf '%s\n' "$4" > "$d/decisions.jsonl"; fi; :; }
+LNT_DESCOPE="$(node -e "process.stdout.write(require('$HERE/../../lib/lop-nhin-thay.cjs').UI_OBSERVED_DESCOPE)")"
+EV_TEST='  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "hero rendered (vitest)"'
+EV_UI='  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    layer: ui-observed
+    expected: "frame shows hero"'
+w8() { node "$LINT" "$1" 2>&1; }
+ok() { echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1)); }
+ko() { echo "  FAIL: $1"; FAIL_COUNT=$((FAIL_COUNT+1)); }
+# vắng-W8 + dấu hiệu quét W1: hàm chung
+no_w8() { local n="$1" dir="$2" o; o="$(w8 "$dir")"; case "$o" in *"] W8 "*) ko "$n (W8 bắn oan)" ;; *"] W1 "*) ok "$n" ;; *) ko "$n (thiếu dấu hiệu quét W1)" ;; esac; }
+mk_lnt "$T/l40" ui "$EV_TEST"; o="$(w8 "$T/l40")"; r=$?
+echo "L40 [ui] không ui-check -> W8 + chú giải, exit 1"; check L40 1 $r
+case "$o" in *"[feat-lnt] W8 "*"không có eval"*"W8 ="*) ok L40-msg ;; *) ko L40-msg ;; esac
+mk_lnt "$T/l41" ui "$EV_UI"; echo "L41 [ui] có ui-check + layer ui-observed -> không W8 (+W1 quét)"; no_w8 L41 "$T/l41"
+mk_lnt "$T/l42" web "$EV_TEST"; echo "L42 [web] alias -> W8"; o="$(w8 "$T/l42")"; case "$o" in *"[feat-lnt] W8 "*) ok L42 ;; *) ko L42 ;; esac
+mk_lnt "$T/l42b" web-ui "$EV_TEST"; echo "L42b [web-ui] alias -> W8"; o="$(w8 "$T/l42b")"; case "$o" in *"[feat-lnt] W8 "*) ok L42b ;; *) ko L42b ;; esac
+mk_lnt "$T/l43" mobile "$EV_TEST"; echo "L43 [mobile] -> không W8 (+W1 quét)"; no_w8 L43 "$T/l43"
+mk_lnt "$T/l44" "api, cli" "$EV_TEST"; echo "L44 [api, cli] -> không W8 (+W1)"; no_w8 L44 "$T/l44"
+mk_lnt "$T/l45" ui "$EV_UI
+  - id: E2
+    criterion: AC-1
+    executor: test
+    layer: ui-observed
+    expected: \"dom ok\""; echo "L45 layer ui-observed trên test -> W8 lạc chỗ + id"; o="$(w8 "$T/l45")"; case "$o" in *"[feat-lnt] W8 E2"*"lạc chỗ"*) ok L45 ;; *) ko L45 ;; esac
+mk_lnt "$T/l46" ui '  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    expected: "frame shows hero"'; echo "L46 ui-check không layer (đọc-cũ) -> không W8"; no_w8 L46 "$T/l46"
+mk_lnt "$T/l47" "ui, kiosk" "$EV_UI"; echo "L47 token lạ kiosk -> W8 nêu token"; o="$(w8 "$T/l47")"; case "$o" in *"[feat-lnt] W8 "*kiosk*) ok L47 ;; *) ko L47 ;; esac
+echo "L48 cây thật của kit -> 0 dòng W8 + có dấu hiệu quét"; o="$(node "$LINT" "$HERE/../.." 2>&1)"; case "$o" in *"] W8 "*) ko "L48 (W8 trên cây thật)" ;; *"no coverage gaps"*|*"] W1 "*|*"] W3 "*|*"] W6 "*|*"] W7 "*) ok L48 ;; *) ko "L48 (không dấu hiệu quét)" ;; esac
+mk_lnt "$T/l49" ui "$EV_TEST" "{\"id\":\"d-1\",\"type\":\"descope\",\"decision\":\"${LNT_DESCOPE}hạ tầng chụp hỏng\"}"; echo "L49 descope đúng tiền tố -> không W8 nghĩa vụ"; no_w8 L49 "$T/l49"
+mk_lnt "$T/l50" ui "$EV_TEST" '{"id":"d-1","type":"descope","decision":"bỏ ui-observed: hỏng"}'; echo "L50 tiền tố dấu hai chấm -> W8"; o="$(w8 "$T/l50")"; case "$o" in *"[feat-lnt] W8 "*) ok L50 ;; *) ko L50 ;; esac
+echo "L51 --files (không sổ) -> W8"; o="$(node "$LINT" --files "$T/l49/_acceptance/feat-lnt/contract.md" "$T/l49/_acceptance/feat-lnt/evals.yaml" 2>&1)"; case "$o" in *"] W8 "*) ok L51 ;; *) ko L51 ;; esac
+# chiều đỏ của LỚP dấu-hiệu-quét: fixture ghi sai đường (file thay vì thư mục) → no_w8 phải ĐỎ
+mkdir -p "$T/l52/_acceptance"; printf 'x' > "$T/l52/_acceptance/feat-lnt"
+o="$(w8 "$T/l52")"; case "$o" in *"] W1 "*) ko "L52 (fixture sai đường mà vẫn có dấu hiệu quét)" ;; *) ok "L52 (lớp dấu-hiệu-quét phân biệt được fixture hỏng)" ;; esac
+
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"
 ROOT_REAL_GC="$(cd "$HERE/../.." && pwd)"

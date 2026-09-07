@@ -25,6 +25,12 @@
  *       under `_Avoid_` — the requirement is being written in vocabulary the
  *       team already ruled out, so the eval will faithfully test the wrong
  *       reading. Silent in repos with no CONTEXT.md (opt-in by construction).
+ *   W8  a contract whose `surfaces:` include a human-visible UI (ui; aliases
+ *       web/web-ui; NOT mobile) but evals.yaml carries NO `executor: ui-check`
+ *       eval — code-layer evidence for a surface a human looks at (the mirror of
+ *       W4). Also fires for `layer: ui-observed` on a non-ui-check executor (a
+ *       misplaced label) and for surface tokens outside the enum. Silent when
+ *       decisions.jsonl carries a named descope (prefix from lib/lop-nhin-thay.cjs).
  *   W7  a line that LOOKS like a criterion but did not parse — every warning
  *       above runs on the AC set this file managed to read, so a dropped line
  *       silently deletes its own coverage check. W7 is the arm that makes the
@@ -64,6 +70,12 @@ try { evalYaml = require(path.join(__dirname, '..', 'lib', 'eval-yaml.cjs')); } 
 // Thiếu lib thì quay về khuôn cũ (advisory, fail-open) — hẹp nhưng không lint sai.
 let acLine = null;
 try { acLine = require(path.join(__dirname, '..', 'lib', 'ac-line.cjs')); } catch (_) {}
+
+// Vị từ «mặt người nhìn» + alias surfaces + tiền tố descope dùng chung với gate-card.js
+// và pre-merge-check.sh (lib/lop-nhin-thay.cjs) — W8 là gương của W4, một nguồn cho bốn
+// bộ đọc. Thiếu lib thì W8 không bao giờ nổ (advisory, fail-open); các W khác không đổi.
+let lnt = null;
+try { lnt = require(path.join(__dirname, '..', 'lib', 'lop-nhin-thay.cjs')); } catch (_) {}
 
 // ─── Detectors (intentionally generous; advisory) ───────────────────────────
 
@@ -155,7 +167,7 @@ function parseEvals(evalsText) {
 
 // ─── Lint one feature ────────────────────────────────────────────────────────
 
-function lintFeature(slug, contractText, evalsText, glossary) {
+function lintFeature(slug, contractText, evalsText, glossary, ledgerText) {
   const warns = [];
   const acs = parseACs(contractText);
   const evals = parseEvals(evalsText);
@@ -208,6 +220,24 @@ function lintFeature(slug, contractText, evalsText, glossary) {
     warns.push(`[${slug}] W5 surfaces include mobile but the contract has no "Mobile backend target:" line (## Notes) — declare local|staging|mock so the Gate-1 human can eyeball the V4 risk.`);
   }
 
+  // W8 — lớp bằng chứng nhìn-thấy (gương của W4): hợp đồng có MẶT NGƯỜI NHÌN phải có
+  // ≥1 eval executor: ui-check — nghĩa vụ THEO HỢP ĐỒNG, không theo AC. Neo máy là
+  // executor (hook đã giữ frame + observed trên mọi block ui-check); `layer: ui-observed`
+  // chỉ là nhãn khai, đặt trên executor khác là lạc chỗ. Vị từ, alias và tiền tố descope
+  // RÚT từ lib/lop-nhin-thay.cjs — một nguồn với thẻ và pre-merge. Có entry descope đúng
+  // tiền tố trong decisions.jsonl thì nghĩa vụ im (bỏ có tên, thẻ đã hiện); --files không
+  // có sổ nên vẫn nổ.
+  if (lnt) {
+    const surf = surfacesLine.replace(/^surfaces:\s*/i, '');
+    const la = lnt.tokenLa(surf);
+    if (la.length) warns.push(`[${slug}] W8 surfaces carry token(s) outside the enum: ${la.join(', ')} — canonical values are ${lnt.SURFACE_ENUM.join(' | ')} (aliases web, web-ui → ui); restate so every reader classifies the surface the same way.`);
+    const lac = lnt.nhanLacCho(evals);
+    if (lac.length) warns.push(`[${slug}] W8 ${lac.join(', ')} declare(s) layer: ui-observed on a non-ui-check executor — nhãn lạc chỗ: chỉ executor ui-check mới sinh frame + observed; bỏ nhãn hoặc đổi executor.`);
+    if (lnt.laMatNguoiNhin(surf) && !lnt.coUiObserved(evals) && !lnt.descopeId(ledgerText)) {
+      warns.push(`[${slug}] W8 surfaces include a human-visible UI (${surf}) but evals.yaml không có eval executor: ui-check — bằng chứng lớp mã thay lớp nhìn-thấy; thêm ≥1 ui-check (layer: ui-observed) theo hợp đồng, hoặc ghi entry descope "${lnt.UI_OBSERVED_DESCOPE}<lý do>".`);
+    }
+  }
+
   // W6 — vocabulary drift (advisory): the contract states the requirement using
   // a word this repo's CONTEXT.md has ruled out. Machine-checkable only because
   // `_Avoid_` makes the glossary a rule rather than a reference; `_Allow_`
@@ -253,7 +283,7 @@ function run(argv) {
     if (c == null || e == null) { console.log('eval-coverage-lint: contract/evals file unreadable — skipping (advisory)'); return 0; }
     // --files mode has no repo root to resolve CONTEXT.md against → W6 is out
     // of scope there (the other warnings are file-local and still apply).
-    warns.push(...lintFeature('files', c, e, null));
+    warns.push(...lintFeature('files', c, e, null, null));
   } else {
     const acc = path.join(root, '_acceptance');
     let dirs;
@@ -265,14 +295,14 @@ function run(argv) {
       const c = readSafe(path.join(acc, slug, 'contract.md'));
       const e = readSafe(path.join(acc, slug, 'evals.yaml'));
       if (c == null || e == null) continue; // pre-eval-gen feature → nothing to lint
-      warns.push(...lintFeature(slug, c, e, glossary));
+      warns.push(...lintFeature(slug, c, e, glossary, readSafe(path.join(acc, slug, 'decisions.jsonl'))));
     }
   }
 
   if (!warns.length) { console.log('eval-coverage-lint: no coverage gaps detected.'); return 0; }
   console.log(`eval-coverage-lint: ${warns.length} coverage warning(s) — ADVISORY, review at Gate 1 (not auto-blocking):\n`);
   for (const w of warns) console.log('  ' + w);
-  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_; W7 = a criterion-shaped line did not parse, so every warning above ran on an incomplete AC set — fix the contract line first, then re-read this output.');
+  console.log('\nW1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo\'s CONTEXT.md ruled out under _Avoid_; W7 = a criterion-shaped line did not parse, so every warning above ran on an incomplete AC set — fix the contract line first, then re-read this output; W8 = a human-visible surface (ui/web/web-ui) needs ≥1 executor: ui-check eval per contract (label layer: ui-observed), or a named descope "bỏ ui-observed — …".');
   return 1;
 }
 
