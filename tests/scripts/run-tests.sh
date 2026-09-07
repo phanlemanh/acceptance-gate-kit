@@ -2018,15 +2018,21 @@ mk_glob_repo() { # <root> <t1-globs newline-separated> <files-to-touch space-sep
   git -C "$(dirname "$R")" init -q "$(basename "$R")"
   { printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n'; printf '%s\n' "$globs" | sed 's/^/    - "/; s/$/"/'; } > "$R/_acceptance/config.yaml"
   printf 'code v1\n' > "$R/src/app.js"; printf '# agents\n' > "$R/AGENTS.md"; printf '# x\n' > "$R/AGENTS.mdx"
-  printf '# d\n' > "$R/docs/d.md"; printf '# r\n' > "$R/apps/app/README.md"; printf '# b\n' > "$R/a/b.md"; printf '# b\n' > "$R/a/x/b.md"
+  printf '# d\n' > "$R/docs/d.md"; printf '# a\n' > "$R/docs/a.md"; printf '# r\n' > "$R/apps/app/README.md"; printf '# b\n' > "$R/a/b.md"; printf '# b\n' > "$R/a/x/b.md"
   printf '# c\n' > "$R/CHANGELOG.md"; printf '# d2\n' > "$R/docs2/a.md"; printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
   printf -- '---\nschema_version: 1\nfeature: feat-gl\nslug: feat-gl\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n' > "$R/_acceptance/feat-gl/contract.md"
   git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c1
   vc="$(git -C "$R" rev-parse HEAD)"
   printf -- '---\nschema_version: 1\nfeature_slug: feat-gl\nverdict: PASS\nverified_commit: %s\nhuman_signoff: Manh 2026-08-01\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-gl-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-01\n' "$vc" > "$R/_acceptance/feat-gl/evidence-report.md"
   git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c2
-  for f in $files; do printf 'changed\n' >> "$R/$f"; done
+  # Bước tiêm PHẢI tự chứng minh (S4-r1 review: docs/x/ chưa tồn tại → `>>`
+  # đổ lỗi ra stderr, suite không set -e, HS10 xanh rỗng). Tạo thư mục cha, và
+  # sau commit c3 đối chứng TỪNG file đổi có mặt trong diff — thiếu là FAIL có tên.
+  for f in $files; do mkdir -p "$(dirname "$R/$f")"; printf 'changed\n' >> "$R/$f"; done
   git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c3
+  for f in $files; do
+    if git -C "$R" diff --name-only HEAD~1 HEAD | grep -qx "$f"; then :; else echo "  FAIL: fixture $(basename "$R") — $f không nằm trong diff c3 (bước tiêm hỏng)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+  done
 }
 gl_run() { env -u PRE_MERGE_BASE bash "$CHECK" "$1" 2>&1; }
 
@@ -2062,7 +2068,7 @@ nothas HS06-nostale "evidence is stale" "$out"
 
 echo "HS10 \`docs/**\` + CHANGELOG.md (không mẫu nào có \`**/\`) -> sạch; docs2/a.md -> stale"
 R="$T/gl10"; mk_glob_repo "$R" 'docs/**
-CHANGELOG.md' 'docs/d.md docs/x/y.md CHANGELOG.md'
+CHANGELOG.md' 'docs/a.md docs/x/y.md CHANGELOG.md'
 out="$(gl_run "$R")"; check HS10 0 $?
 nothas HS10-nostale "evidence is stale" "$out"
 R="$T/gl10r"; mk_glob_repo "$R" 'docs/**
