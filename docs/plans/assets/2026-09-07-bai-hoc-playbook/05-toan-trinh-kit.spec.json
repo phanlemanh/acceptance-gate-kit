@@ -1,0 +1,159 @@
+{
+ "title": "Toàn trình kit đặt cạnh: cùng sáu cột, người phải ngồi ở hai đầu",
+ "eyebrow": "Process · Acceptance Gate Kit 2.8.0 · 07/09/2026",
+ "subtitle": "Kit có đủ sáu vật và mạnh hơn ở giữa (thước có chiều đỏ, phản biện sạch). Hai ô đỏ nhạt là hai đầu vòng: chỉ mở được khi owner ngồi trong phiên, và đầu cuối đo một lần rồi thôi.",
+ "colophon": "Nguồn chữ: docs/findings/2026-09-07-toan-trinh-playbook-vs-kit.md §2 · feature-loop/skills/feature-loop/SKILL.md · commands/start.md · skills/uat-session/SKILL.md · scripts/pre-merge-check.sh · main 5c15e065 · diagram-design 2.7.0 · skin default-confirmed",
+ "color_legend": "chỉ chạy khi owner ngồi trong phiên — không có đường vào/ra không người",
+ "lanes": [
+  {
+   "name": [
+    "OWNER"
+   ],
+   "key": "OWN"
+  },
+  {
+   "name": [
+    "MÁY"
+   ],
+   "key": "MÁY"
+  },
+  {
+   "name": [
+    "LƯỚI",
+    "CI + HOOK"
+   ],
+   "key": "LƯỚI"
+  }
+ ],
+ "steps": [
+  {
+   "number": "1",
+   "label": "Cổng Đáng"
+  },
+  {
+   "number": "2",
+   "label": "Phạm vi"
+  },
+  {
+   "number": "3",
+   "label": "Kế hoạch"
+  },
+  {
+   "number": "4",
+   "label": "Chấm"
+  },
+  {
+   "number": "5",
+   "label": "Bằng chứng",
+   "focal": true
+  },
+  {
+   "number": "6",
+   "label": "Giá trị"
+  }
+ ],
+ "nodes": [
+  {
+   "lane": "OWN",
+   "step": 0,
+   "title": "opportunity.md",
+   "sub": "ý + ngưỡng chết / UAT",
+   "tool": "ký tay trong phiên",
+   "color": "#b85450"
+  },
+  {
+   "lane": "MÁY",
+   "step": 1,
+   "title": "hợp đồng + thước",
+   "sub": "phản biện sạch, cờ vàng",
+   "tool": "làn V nếu hết mục người"
+  },
+  {
+   "lane": "MÁY",
+   "step": 2,
+   "title": "plan.md → code",
+   "sub": "lệch plan → sổ quyết định",
+   "tool": "Gate 1.5 chỉ ở T3"
+  },
+  {
+   "lane": "MÁY",
+   "step": 3,
+   "title": "evidence-report",
+   "sub": "eval 4 loại + hội đồng",
+   "tool": "xanh phải từng chạy đỏ"
+  },
+  {
+   "lane": "LƯỚI",
+   "step": 4,
+   "title": "chữ ký + chốt merge",
+   "sub": "răng canh hồ sơ đã ký",
+   "tool": "ghim lại theo mốc",
+   "focal": true
+  },
+  {
+   "lane": "OWN",
+   "step": 5,
+   "title": "uat-session.md",
+   "sub": "số cạnh ngưỡng đã khai",
+   "tool": "đo MỘT lần → 3 lối ra",
+   "color": "#b85450"
+  }
+ ],
+ "arrows": [
+  {
+   "from": {
+    "lane": "OWN",
+    "step": 0
+   },
+   "to": {
+    "lane": "MÁY",
+    "step": 1
+   },
+   "style": "normal"
+  },
+  {
+   "from": {
+    "lane": "MÁY",
+    "step": 1
+   },
+   "to": {
+    "lane": "MÁY",
+    "step": 2
+   },
+   "style": "normal"
+  },
+  {
+   "from": {
+    "lane": "MÁY",
+    "step": 2
+   },
+   "to": {
+    "lane": "MÁY",
+    "step": 3
+   },
+   "style": "normal"
+  },
+  {
+   "from": {
+    "lane": "MÁY",
+    "step": 3
+   },
+   "to": {
+    "lane": "LƯỚI",
+    "step": 4
+   },
+   "style": "focal-in"
+  },
+  {
+   "from": {
+    "lane": "LƯỚI",
+    "step": 4
+   },
+   "to": {
+    "lane": "OWN",
+    "step": 5
+   },
+   "style": "focal-out"
+  }
+ ]
+}

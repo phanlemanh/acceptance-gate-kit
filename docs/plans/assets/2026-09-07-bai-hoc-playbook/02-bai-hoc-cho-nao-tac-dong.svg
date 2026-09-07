@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg">
+      <defs><style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2d3142"/></marker>
+        <marker id="arrow-ink-start" markerWidth="8" markerHeight="6" refX="1" refY="3" orient="auto"><polygon points="8 0, 0 3, 8 6" fill="#2d3142"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- axes: cross at (500,300) -->
+      <line x1="120" y1="300" x2="880" y2="300" stroke="#2d3142" stroke-width="1" marker-start="url(#arrow-ink-start)" marker-end="url(#arrow-ink)"/>
+      <line x1="500" y1="540" x2="500" y2="60" stroke="#2d3142" stroke-width="1" marker-start="url(#arrow-ink-start)" marker-end="url(#arrow-ink)"/>
+      <text x="500" y="44" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.18em">LỚN</text>
+      <text x="500" y="564" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.18em">NHỎ</text>
+      <text x="104" y="304" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.18em">MỚI</text>
+      <text x="896" y="304" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.18em">SẴN</text>
+
+      <!-- quadrant corner tags -->
+      <text x="516" y="80" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">MỞ Ô NGAY</text>
+      <text x="484" y="80" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.14em">HẠT GIỐNG MỚI · LUẬT CỘNG 07/09</text>
+      <text x="516" y="532" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">ĐỂ TRONG Ô ĐÃ CÓ</text>
+      <text x="484" y="532" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end" letter-spacing="0.14em">DỌN KHI TIỆN</text>
+
+      <!-- items · right half = đã có chỗ -->
+      <circle cx="760" cy="120" r="5" fill="#eb6c36"/>
+      <text x="772" y="124" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Nối lối veto</text>
+      <circle cx="600" cy="140" r="4" fill="#2d3142"/>
+      <text x="612" y="144" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Kiểm hồi quy luật lái máy</text>
+      <text x="612" y="158" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">evals/ đã viết · đang đóng băng</text>
+      <circle cx="680" cy="196" r="4" fill="#2d3142"/>
+      <text x="692" y="200" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">«Không đo được» ≠ «sạch»</text>
+      <circle cx="640" cy="272" r="4" fill="#2d3142"/>
+      <text x="652" y="276" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Cổng kế hoạch có ca-rỗng</text>
+      <circle cx="700" cy="400" r="4" fill="#2d3142"/>
+      <text x="712" y="404" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Số phải rút từ vết</text>
+      <circle cx="800" cy="460" r="4" fill="#2d3142"/>
+      <text x="812" y="464" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Trạm thu phí T1</text>
+
+      <!-- items · left half = chưa có chỗ -->
+      <circle cx="280" cy="128" r="4" fill="#2d3142"/>
+      <text x="292" y="132" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Ghi đời model lên bằng chứng</text>
+      <circle cx="240" cy="232" r="4" fill="#2d3142"/>
+      <text x="252" y="236" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Cấm sửa thước lúc chữa mã</text>
+      <circle cx="420" cy="220" r="4" fill="#2d3142"/>
+      <text x="408" y="224" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif" text-anchor="end">Ca đo nhạt theo đời model</text>
+      <circle cx="400" cy="352" r="4" fill="#2d3142"/>
+      <text x="388" y="356" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif" text-anchor="end">Sổ bác finding của hội đồng</text>
+      <circle cx="200" cy="440" r="4" fill="#2d3142"/>
+      <text x="212" y="444" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Hiến pháp kit dài 5 trang</text>
+      <circle cx="300" cy="500" r="4" fill="#2d3142"/>
+      <text x="312" y="504" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Một câu chết trong GUIDE</text>
+
+      <!-- legend -->
+      <line x1="30" y1="596" x2="970" y2="596" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="30" y="616" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <circle cx="124" cy="612" r="5" fill="#eb6c36"/>
+      <text x="136" y="616" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">làm trước — hai lăng kính đối kháng cùng chỉ vào một dòng</text>
+      <circle cx="504" cy="612" r="4" fill="#2d3142"/>
+      <text x="516" y="616" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">bài học còn lõi sau đối kháng</text>
+      <text x="30" y="640" fill="#636b80" font-size="10" font-family="'Geist', sans-serif">Vị trí ngang là phán đoán: «sẵn» = đã có ô, hạt giống, giới hạn-đã-khai hoặc nhát cắt gọi tên trong hồ sơ phát hành.</text>
+    </svg>
