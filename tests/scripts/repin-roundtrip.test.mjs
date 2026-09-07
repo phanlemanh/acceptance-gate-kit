@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
-import { mkRepinFixture, SHA_A } from './repin-fixture.mjs';
+import { mkRepinFixture, SHA_A, TS_NEW, evalsYamlWith } from './repin-fixture.mjs';
 import { execFileSync as ex2 } from 'node:child_process';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -37,17 +37,20 @@ function template() {
 const fill = (s, v) => s
   .replaceAll('<ISO>', v.iso).replaceAll('<id>', v.id).replaceAll('<40-hex>', v.sha)
   .replaceAll('[0,0,0,0]', JSON.stringify(v.suites))
+  .replaceAll('{"<E>":0}', JSON.stringify(v.evals || {})).replaceAll('<m>', String(Object.keys(v.evals || {}).length))
   .replaceAll('<N>', '1').replaceAll('<ngày>', '2026-08-05')
   .replaceAll('<lý do 1 dòng>', 'round-trip test').replaceAll('<k>', String(v.suites.length));
 
-function buildFromTemplate(mutateLine) {
+// Khuôn từ 07/09/2026 luôn mang evals_exit (writer là script), nên fixture
+// mặc định có evals.yaml với E1 và điền {E1:0}; vOverride/fx cho ca khác.
+function buildFromTemplate(mutateLine, vOverride = {}, fx = {}) {
   const t = template();
-  const v = { iso: '2026-08-05T00:00:00Z', id: 'repin-rt-1', sha: SHA_A, suites: [0, 0, 0, 0] };
+  const v = { iso: '2026-08-05T00:00:00Z', id: 'repin-rt-1', sha: SHA_A, suites: [0, 0, 0, 0], evals: { E1: 0 }, ...vOverride };
   let line = fill(t.jsonlLine, v);
   if (mutateLine) line = mutateLine(line);
   const section = t.sectionLines.map(l => fill(l, v)).join('\n');
   // dựng workspace bằng helper rồi THAY dòng repin + section bằng bản sinh-từ-khuôn
-  const f = mkRepinFixture({ runId: v.id, sectionBody: '__PLACEHOLDER__' });
+  const f = mkRepinFixture({ runId: v.id, sectionBody: '__PLACEHOLDER__', evalsYaml: evalsYamlWith(['E1']), ...fx });
   const logPath = path.join(f.dir, 'run-log.jsonl');
   const log = readFileSync(logPath, 'utf8').split('\n').filter(l => l && !l.includes('"kind":"repin"'));
   log.push(line);
@@ -96,10 +99,10 @@ check('DV12pm đột biến khuôn (suites_exit → suites) → pre-merge cũng 
 
 check('DV12b biến thể writer hợp lý: dòng trống sau heading — cả hai reader vẫn đọc được (fix S4-r1 fail-open)', () => {
   const t = template();
-  const v = { iso: '2026-08-05T00:00:00Z', id: 'repin-rt-1', sha: SHA_A, suites: [0, 0, 0, 0] };
+  const v = { iso: '2026-08-05T00:00:00Z', id: 'repin-rt-1', sha: SHA_A, suites: [0, 0, 0, 0], evals: { E1: 0 } };
   const line = fill(t.jsonlLine, v);
   const section = t.sectionLines.map(l => fill(l, v)).join('\n').replace('\n', '\n\n'); // chèn dòng trống sau heading
-  const f = mkRepinFixture({ runId: v.id, sectionBody: '__PLACEHOLDER__' });
+  const f = mkRepinFixture({ runId: v.id, sectionBody: '__PLACEHOLDER__', evalsYaml: evalsYamlWith(['E1']) });
   const logPath = path.join(f.dir, 'run-log.jsonl');
   const log = readFileSync(logPath, 'utf8').split('\n').filter(l => l && !l.includes('"kind":"repin"'));
   log.push(line);
@@ -107,6 +110,21 @@ check('DV12b biến thể writer hợp lý: dòng trống sau heading — cả h
   writeFileSync(f.report, readFileSync(f.report, 'utf8').replace(/### Re-pin lần 1[^\n]*\n__PLACEHOLDER__/, section));
   assert.equal(run(f.report).code, 0, 'recheck đỏ oan trên dòng trống');
   assert.equal(runPm(f.root).code, 0, 'pre-merge đỏ oan trên dòng trống');
+});
+
+// ── Đời mới (repin-chay-lai-eval): khuôn có evals_exit — round-trip qua CẢ HAI reader ──
+check('DV12e đời mới: khuôn điền evals_exit {E1:0} + evals.yaml có E1 → recheck + pre-merge clean', () => {
+  const f = buildFromTemplate(null, { iso: TS_NEW, evals: { E1: 0 } }, { evalsYaml: evalsYamlWith(['E1']) });
+  const r = run(f.report); assert.equal(r.code, 0, `khuôn đời mới không qua reader: ${r.err}`);
+  const p = runPm(f.root); assert.equal(p.code, 0, `khuôn đời mới không qua pre-merge: ${p.out}`);
+  assert.doesNotMatch(p.out, /suite-only/, 'khuôn đời mới bị xếp nhầm vào sử liệu');
+});
+check('DV12em đột biến khuôn đời mới (evals_exit → evals) → CẢ HAI reader ĐỎ đích danh (writer/reader không được trôi ở khoá mới)', () => {
+  const f = buildFromTemplate(l => l.replace('"evals_exit"', '"evals"'), { iso: TS_NEW, evals: { E1: 0 } }, { evalsYaml: evalsYamlWith(['E1']) });
+  const r = run(f.report); assert.equal(r.code, 1, 'reader nhận khoá lạ như đủ bộ');
+  assert.match(r.err, /REPIN x re-pin lane "repin-rt-1" \(ts 2026-09-09T00:00:00Z\) backs verified_commit a{40} but recorded no evals_exit/);
+  const p = runPm(f.root); assert.equal(p.code, 1);
+  assert.match(p.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-rt-1" .*recorded no evals_exit/);
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);

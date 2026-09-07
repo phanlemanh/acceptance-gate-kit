@@ -135,7 +135,7 @@ Omit the `capture` block if the repo has no UI evidence need.
 
 4. Write `_acceptance/README.md` (3 lines): what this folder is, link to the
    acceptance skill, "artifacts are per-feature in subfolders".
-5. Suggest copying the CI gate from the plugin into the repo — ALL SEVEN files,
+5. Suggest copying the CI gate from the plugin into the repo — ALL EIGHT files,
    keeping the `scripts/` + `lib/` layout (pre-merge finds the re-check next to
    itself, and the `.cjs` files `require` their siblings under `../lib`). The
    kit ships these as `.cjs` ON PURPOSE: in a consumer repo declaring
@@ -151,6 +151,7 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/lib/workspace-record.cjs` → `lib/` (shared config-list reader; missing → weaker sed fallback)
    - `${CLAUDE_PLUGIN_ROOT}/lib/ac-line.cjs` → `lib/` (criterion-line parser for the cross-layer teeth; missing → wider awk fallback, possible spurious blocks)
    - `${CLAUDE_PLUGIN_ROOT}/lib/md-section.cjs` → `lib/` (section boundary `require`d by ac-line)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/eval-yaml.cjs` → `lib/` (evals.yaml parser the re-pin eval-lane rule uses to list machine evals; missing → that rule fails closed on every new-form lane)
    <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence
    re-check layer (it degrades to a NOTE) and mutes the gap-probe rule.

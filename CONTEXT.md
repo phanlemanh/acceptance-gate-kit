@@ -323,8 +323,10 @@ _Avoid_: "id chạy" trơ (không phân biệt được với id việc).
 **machine-lane**:
 Làn chạy trọn bộ phép kiểm bằng máy, không người can thiệp giữa chừng — đơn vị
 của nghi thức ghim lại bằng chứng (một làn, nhiều chữ ký). Khác "suite" (tập
-lệnh) — làn là một LƯỢT chạy tập đó.
-_Avoid_: "lane" trơ.
+lệnh) — làn là một LƯỢT chạy tập đó. Từ 07/09/2026 làn ghim lại gồm `suite_keys`
+**và** eval máy (`test`/`script`) của từng hồ sơ được ghim, chạy bằng
+`repin-lane.mjs` và ghi `evals_exit` — làn chỉ chứng suite là làn đời cũ.
+_Avoid_: "lane" trơ; "làn suite" cho làn ghim lại đời mới.
 
 **fixture**:
 Hồ sơ/dữ liệu dựng sẵn để phép đo chạy trên đó, KHÔNG phải hồ sơ thật của sản

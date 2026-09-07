@@ -50,7 +50,7 @@ try { glossaryLib = require(path.join(__dirname, '..', 'lib', 'context-glossary.
 // eval-gen viết `expected: >`, regex một-dòng cũ bắt ">" nên W1/W3 bắn giả).
 // Thiếu lib thì skip TO TIẾNG (advisory, fail-open) chứ không lint sai.
 let evalYaml = null;
-try { evalYaml = require(path.join(__dirname, '..', 'lib', 'eval-yaml.js')); } catch (_) {}
+try { evalYaml = require(path.join(__dirname, '..', 'lib', 'eval-yaml.cjs')); } catch (_) {}
 
 // Parser dòng criterion dùng chung với gate-card.js (lib/ac-line.cjs) — MỘT nơi
 // quyết định "thế nào là một dòng criterion". Bản regex inline trước đây ở file
@@ -145,7 +145,7 @@ function outOfScopeBullets(contractText) {
     .filter(l => /^\s*[-*]\s+\S/.test(l)).length;
 }
 
-// Delegated to lib/eval-yaml.js (shared with gate-card.js): block-scalar aware,
+// Delegated to lib/eval-yaml.cjs (shared with gate-card.js): block-scalar aware,
 // and body lines are never key-scanned. executor is parsed-but-unused by W4 ON
 // PURPOSE: the wave-2 hook (schema v3 evaluateNetwork) keys pairing enforcement
 // off executor+layer — keep it as the machine-readable anchor, do not "clean it up".
@@ -245,7 +245,7 @@ function run(argv) {
     else root = argv[i];
   }
 
-  if (!evalYaml) { console.log('eval-coverage-lint: lib/eval-yaml.js missing (package incomplete) — skipping (advisory, fail-open)'); return 0; }
+  if (!evalYaml) { console.log('eval-coverage-lint: lib/eval-yaml.cjs missing (package incomplete) — skipping (advisory, fail-open)'); return 0; }
 
   const warns = [];
   if (filesMode) {
