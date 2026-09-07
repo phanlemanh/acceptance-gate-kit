@@ -173,8 +173,3 @@ none — không có eval nào trong vòng này chạy nhiều lần (runs>1), n�
 ## Iterations
 
 Round 1: E1, E2, E3, E3b, E3c, E3d, E3e, E6 tất cả PASS ngay từ vòng đầu — không có vòng nào bị trả về implementation.
-
-### Re-pin lần 1 — 2026-09-07, thuế một-dòng-mỗi-chữ-ký: dòng định tuyến của chính hồ sơ này (trong `tests/scripts/fixtures/`) ghim cùng commit chữ ký nên hồ sơ tự hoá cũ
-run_id: repin-20260907-rel290-1
-sha: e61649b53fd30dff65f01f8d888042fa9ba78c1f · suites: 5 lệnh exit 0 chạy bởi một agent tươi trên đúng nội dung cây này (14:45→14:58Z: scripts 797/0 · hooks 60/0 · plugins all-pass · workflows 44/0 · product-map --check khớp) · pin cũ: a36ee245 · chữ ký người giữ nguyên.
-Khác #146/#151: ghim lại TRƯỚC khi push, nên commit chữ ký không bao giờ chạy CI ở trạng thái hoá cũ — mục tiêu 0 CI đỏ hậu-chữ-ký của mốc này. Vòng khép kín vẫn còn (cùng họ `release-2-8-0#7`), thuộc ô «Đường lùi phải sống» đã gọi tên.
