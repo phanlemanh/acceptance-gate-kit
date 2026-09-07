@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 77727323a1943685ad4150da5d3e1efffe4ce4e1
+verified_commit: 65b30d19a0fc2339cfd41f87d9906455cfbe6296
 human_signoff: Manh 2026-08-25
 ---
 
@@ -262,3 +262,7 @@ Round 14: E1–E6, E9–E16, E18 đều PASS trên verified_commit bd7fa7cd; m�
 ### Re-pin lần 2 — 2026-08-26, do nhánh design-pass-nac chạm mã sau mốc ghim cũ — ghim lại bằng MỘT lượt làn máy xanh trọn
 run_id: repin-20260826T073920Z-dpnkdb
 sha: 77727323a1943685ad4150da5d3e1efffe4ce4e1 · suites: 5 lệnh exit 0
+
+### Re-pin lần 3 — 2026-09-07, do gộp fix(re-pin) 0b5c5b37 từ main (bộ máy đổi sau pin) và khai gạch RT13 kéo ra-co-ten vào diff PR — làn eval theo luật mới ADR 0014
+run_id: repin-20260907T161058Z-40516
+sha: 65b30d19a0fc2339cfd41f87d9906455cfbe6296 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0

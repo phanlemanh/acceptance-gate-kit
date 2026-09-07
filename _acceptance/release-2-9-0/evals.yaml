@@ -1,0 +1,68 @@
+# evals — release-2-9-0
+# Không có bộ răng riêng (nếp từ 2.2.0→2.8.0, luật dừng-vá): thứ cần canh ở mọi lần cắt số là
+# ca vĩnh viễn P200 — mọi số đọc TỪ manifest, 5 đột biến + đối chứng dương, MỘT lối thoát.
+# Khác 2.8.0 (Ngoài-6): E1/E2/E6 chạy P200 qua khoá `p200_cat_so` (ONLY_BLOCK=P200) nên dòng
+# ghim là «PASS: P200 …» của CHÍNH ca, không phải mã thoát trọn suite plugins. Ba eval dùng
+# chung một lệnh → workflow chạy lệnh đó MỘT lần. «Số đã đổi» đọc trong diff.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.p200_cat_so
+    expected: >
+      Exit 0 và đầu ra có dòng «PASS: P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan
+      xuat · muc mo ta cua chinh so do (5 dot bien, mot loi thoat)». Các vế «hai plugin cung so:
+      2.9.0» và ba dòng «hop semver» (2.9.0 · 2.9.0 · 2.7.0) do P200 canh trong nhà; chiều đỏ sống
+      trong chính P200 (5 đột biến + đối chứng dương bản sao nguyên vẹn) — không có bước chạy tay.
+      Bằng chứng chỉ giữ ba dòng cuối (dòng vế cuối «P200 VE: muc v2.9.0 cua feature-loop TU khai cap» ·
+      «P200 OK …» · «PASS: P200 …») nên bảy dòng vế không đủ trong output — Known limits.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.p200_cat_so
+    expected: >
+      Cùng lệnh với E1, cùng dòng «PASS: P200 …». Vế «GUIDE khop so DOC TU manifest» — câu «Khớp
+      phiên bản» dựng từ ba số đọc trong manifest rồi so; đột biến GUIDE giữ số cũ → đỏ ghim nguyên
+      câu dẫn xuất (trong P200).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH (trọn suite — E1/E2/E6 đã khoanh riêng ca P200)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3e
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 — PRODUCT-MAP.md khớp hồ sơ xưởng (bản đồ vẽ lại cùng commit mở hồ sơ). Khoá config thay vì lệnh viết thẳng — đóng Ngoài-5 của 2.8.0 (tái phát lần 3)."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.p200_cat_so
+    expected: >
+      Cùng lệnh với E1, cùng dòng «PASS: P200 …». Hai vế «mo ta acceptance-gate co muc v2.9.0» và
+      «muc v2.9.0 cua feature-loop TU khai cap»; hai chiều đỏ trong P200: xoá mục của số hiện tại →
+      «khong co muc v…»; dời câu khai cặp sang mục lịch sử → «cau khai cap nam ngoai muc nay». Các vế
+      người-dùng-nhận-gì là văn cho người, đọc trực tiếp trong diff manifest — Known limits.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
