@@ -41,6 +41,8 @@ const REPIN_CLAUSES = [
   [/`verified_commit` == `sha`/, 'DV1c2: verified_commit == sha'],
   [/exit ≠ 0 → DỪNG: KHÔNG append dòng repin, KHÔNG sửa evidence[^\n]*lane MỚI/, 'DV1d: lane fail → không ký mù, lane mới'],
   [/round fix có carry → danh sách eval carried \(P1\) phải nằm RÕ trong báo cáo user và gói Cổng 2/, 'DV10: carry round fix minh bạch'],
+  // repin-chay-lai-eval (07/09/2026): làn không chỉ chứng suite — phải chạy lại eval MÁY của từng slug
+  [/VÀ mọi eval `test`\/`script` trong `evals\.yaml` của TỪNG slug/, 'DV1f: làn chạy lại eval máy của từng slug'],
 ];
 for (const [re, name] of REPIN_CLAUSES) check(`DV1/10 SKILL có mệnh đề: ${name}`, () => assert.match(SKILL, re));
 check('DV1e cặp marker REPIN-TEMPLATE bao đúng khuôn (dòng jsonl + section)', () => {
@@ -48,6 +50,7 @@ check('DV1e cặp marker REPIN-TEMPLATE bao đúng khuôn (dòng jsonl + section
   assert.ok(m, 'thiếu cặp marker REPIN-TEMPLATE');
   assert.match(m[1], /"kind":"repin"/, 'khuôn giữa marker thiếu kind:repin');
   assert.match(m[1], /"suites_exit"/, 'khuôn giữa marker thiếu suites_exit');
+  assert.match(m[1], /"evals_exit"/, 'khuôn giữa marker thiếu evals_exit (làn phải ghi kết quả eval máy)');
   assert.match(m[1], /### Re-pin lần <N>/, 'khuôn giữa marker thiếu khuôn section');
   assert.match(m[1], /run_id: <id>/, 'khuôn section thiếu dòng run_id:');
 });

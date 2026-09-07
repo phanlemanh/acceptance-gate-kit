@@ -974,6 +974,7 @@ flowchart LR
 | Chữ ký là chuỗi giữ-chỗ (không nêu tên người) | Chữ ký sinh cùng commit với thân báo cáo — từ 2.1 KHÔNG còn là vi phạm (ADR 0012) |
 | Evidence STALE — file ngoài `_acceptance/` + ngoài `t1_skip_globs` đổi sau `verified_commit` | |
 | `recheck: strict` + evidence đã commit rớt luật L1/L2/L3 | |
+| Làn re-pin chống lưng `verified_commit` **không chạy lại eval máy của hồ sơ** — dòng `kind:repin` thiếu `evals_exit`, thiếu eval `test`/`script` nào của `evals.yaml`, có eval ≠ 0, hoặc hồ sơ không có `evals.yaml` (2.9.0, xem §7.1) | Dòng repin đời cũ (không `evals_exit`, ghi trước 07/09/2026 12:00Z) — làn suite-only: NOTE «suite-only», ghim lại bằng làn eval ở chiến dịch kế |
 | Backstop T1 (`--base`): đổi `t3_paths`/file non-T1 mà PR không có `_acceptance/` | |
 | config.yaml có tab / indent lẻ | |
 
@@ -1016,6 +1017,33 @@ Chính sách (owner duyệt trong charter 07/08, mục 1d):
 Máy đã có sẵn hai đường rẻ để chiến dịch không phình: ghim lại **theo diff**
 (chỉ làn nào thật sự bị diff chạm mới phải chạy lại) và **một làn máy — nhiều
 chữ ký** (đo một lần, ký gộp).
+
+**Làn ghim lại phải chạy lại eval của CHÍNH hồ sơ (2.9.0).** Trước 07/09/2026
+làn re-pin chỉ chạy bốn lệnh suite của kho; dòng `kind:repin` chỉ mang
+`suites_exit`, không gì buộc chạy lại `evals.yaml` của hồ sơ được ghim. Ca thật
+(kho `crm-onehub`, sổ vấp 07/09): một hồ sơ đã ký mất tiền đề sau lần hợp nhất
+88 commit vẫn ghim lại xanh và đi thẳng nhánh chính, CI xanh suốt — luật
+lệch-cây chỉ so `verified_commit` với cây, còn cái pin thì làn dời được. Nay làn
+là **một script**, không phải lời dặn: `feature-loop/scripts/repin-lane.mjs`
+chạy `feature_loop.suite_keys` **và mọi eval `test`/`script` của từng hồ sơ**
+tại HEAD (lệnh trùng chạy một lần), đỏ thì exit 1 và không ghi gì, xanh thì tự
+ghi dòng repin có `evals_exit` + section Re-pin rồi tự kiểm bằng
+`recheck-evidence.cjs`. Bên đọc (recheck + pre-merge, MỘT nguồn luật
+`checkRepinEvals` trong `lib/evidence-core.cjs`; repo tiêu thụ vendor thêm
+`lib/eval-yaml.cjs` theo danh sách chép của `acceptance-init`) đòi đúng vật đó
+trên làn chống lưng `verified_commit`. **Nhịp KHÔNG đổi**: vẫn một chiến dịch
+mỗi bản phát hành — cái đổi là *một lượt làn* nay chứng cả eval của hồ sơ, không
+chỉ suite của kho; «ghim lại theo diff» vẫn là đường rẻ hợp lệ, nhưng nó đi
+vòng S4 delta (carry P1 theo `paths`), không đi re-pin. **Đường đọc-cũ:** ~530
+lượt cite trong chính kho kit và mọi dòng repin ở repo tiêu thụ trước mốc đều
+không có `evals_exit` — chúng là sử liệu suite-only, pre-merge in NOTE
+«suite-only», không chặn; chiến dịch phát hành kế ghim lại bằng làn eval là lúc
+chúng hết nợ. Dòng đã có `evals_exit` thì luôn được chấm bất kể ngày; dòng
+không có ts thì không được coi là sử liệu. **Giới hạn khai, một ngưỡng đang
+đếm:** eval `ui-check`/`judgment` không chạy được trong làn máy nên re-pin
+KHÔNG chứng lại chúng — hồ sơ mà diff chạm đúng phần `ui-check` đo phải đi
+vòng S4 delta; ngưỡng mở vòng kế: **≥1 hồi quy UI lọt qua một lượt re-pin**
+giữa hai bản phát hành. Lý do và các lối bị loại: ADR 0014.
 
 ## 8. Tinh chỉnh cho repo của đội
 

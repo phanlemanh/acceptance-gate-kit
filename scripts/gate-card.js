@@ -36,10 +36,10 @@ const evidenceCore = require('../lib/evidence-core.cjs');
 // Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.cjs
 // (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).
 const { section } = require('../lib/md-section.cjs');
-// Parser evals.yaml dùng chung với eval-coverage-lint (lib/eval-yaml.js) — hiểu
+// Parser evals.yaml dùng chung với eval-coverage-lint (lib/eval-yaml.cjs) — hiểu
 // block scalar: khuôn eval-gen viết `expected: >`, regex một-dòng cũ bắt được
 // ">" nên NEG_RE luôn false → covGaps bắn cảnh báo giả cho MỌI AC có số.
-const { parseEvals } = require('../lib/eval-yaml.js');
+const { parseEvals } = require('../lib/eval-yaml.cjs');
 
 const a = process.argv.slice(2);
 const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
