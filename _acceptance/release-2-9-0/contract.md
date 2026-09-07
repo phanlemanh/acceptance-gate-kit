@@ -5,7 +5,7 @@ slug: release-2-9-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + một khoá config workspace + hồ sơ + bản đồ — không dính t3_paths, không đổi mã cổng
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc:
 approved_by:
 approved_at:
@@ -185,3 +185,5 @@ do hạ tầng phiên không đếm được từ repo này.
 - Known limits: chữ ký mốc này sẽ kéo một dòng bản ghi mốc định tuyến (LM20 chỉ ghim hồ sơ đã chốt) — thêm TRƯỚC khi commit chữ ký, cùng commit. Hai vòng #146/#151 của cửa sổ này đã KHÔNG làm thế và trả 3 CI đỏ; mốc này là lần thử thứ hai của lời dặn 2.8.0.
 - Known limits: E1/E2/E6 ghim dòng «P200 OK (… 5/5 dot bien …)» và «PASS: P200 …» của chính ca (khoá `p200_cat_so` lọc dòng có chữ P200, mã thoát của suite qua `pipefail`) nhưng bằng chứng KHÔNG chứa đủ bảy dòng vế `P200 VE:` — cỗ máy verify chỉ giữ ba dòng cuối mỗi lệnh (giới hạn có tên của #151). Hồ sơ phân biệt được «P200 xanh, 5/5 đột biến chạy» với «suite xanh»; từng vế vẫn do P200 canh trong nhà.
 - Known limits: ba dòng số đếm tay từ commit + sổ + `gh run list`; lượt hạ tầng phiên không đếm được.
+- mở hợp đồng mới (Ngoài-1): dòng `feature:` có ` #` bị bộ đọc frontmatter cắt làm ghi chú — tên hồ sơ cụt trên bản đồ và thẻ mà `product-map --check` vẫn xanh (bên viết và bên đọc dùng chung bộ cắt). Đã sửa chữ ở mốc này; lớp lỗi «bên VIẾT và bên ĐỌC trôi khỏi nhau» tách thành ô cơ hội `frontmatter-thang-mot-ky-hieu` cho cửa sổ kế (lint frontmatter có ` #`, hoặc bộ đọc chỉ cắt ghi chú ở khoá đã khai).
+- known-limits (Ngoài-2): cửa sổ đếm neo lại `cd94d004 → 0226edde` sau khi gộp #154; mọi số trong Context là số tại thời điểm ký — PR gộp vào `main` sau mốc thuộc cửa sổ kế.
