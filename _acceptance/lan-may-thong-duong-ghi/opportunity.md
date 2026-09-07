@@ -3,10 +3,10 @@ schema_version: 1
 slug: lan-may-thong-duong-ghi
 feature: Bật đường ghi cho ô kết «máy đã thông» của làn V
 owner: phanlemanh@gmail.com
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: archived            # gộp vào ô duong-lui-phai-song (Cổng Đáng ký build 08/09/2026)
+decision: kill              # không mở riêng — nội dung sống tiếp trong _acceptance/duong-lui-phai-song/ (gộp, không mất)
+decided_by: Manh Phan
+decided_at: 2026-09-07T21:40:00Z   # «Thực hiện hết» 08/09 04:40 giờ VN — gộp hai ô lẻ vào một ô, máy ghi hộ
 prototype:
   base_commit:
   disposition:
