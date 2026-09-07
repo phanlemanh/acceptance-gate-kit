@@ -50,9 +50,17 @@ làm lý do bác duy nhất. Vẫn bắt trace + người hưởng + ảnh hư�
 Ô nào mở dưới luật này thì **ghi rõ trong hồ sơ** («mở dưới luật nới 07/09») —
 bốn hạt giống ở mục 4.2 đã ghi sẵn.
 
-**⚠ Đang treo:** luật này chưa được viết vào `CLAUDE.md`, tức người đọc hiến pháp
-vẫn thấy bản chưa nới. Đây đúng lớp lỗi mà `docs/reference/DIAGRAM-RULE.md` §6 đã
-gọi tên: *luật sống trong trí nhớ thì không đi theo máy*. Xem mục 6.
+**✅ ĐÃ VÀO `CLAUDE.md` (owner đồng ý 07/09, cùng phiên bàn giao).** Luật nới giờ
+sống trong hiến pháp ngay dưới dòng «Chỉ TRỪ, không CỘNG», kèm ngày · ba vế
+không đổi · **điều kiện thu hồi** (owner gọi tên, hoặc lượt gọi người/vòng vượt
+trần ở hai mốc phát hành liên tiếp, đọc từ ba dòng số của luật (c) — không dựng
+phép đo mới). Mục này giữ lại làm **bối cảnh** (`CLAUDE.md` trỏ ngược về đây):
+nguyên văn owner, vì sao owner nới, và cách áp.
+
+Lý do phải làm ngay trong phiên bàn giao: `docs/reference/DIAGRAM-RULE.md` §6
+đã phán đúng lớp lỗi này — *luật cất ở trí nhớ thì không tới được máy khác,
+người khác, hay một bản clone mới; nó tự vi phạm chính nó*. Luật này mới **một
+ngày tuổi** và đã suýt mất khi đổi máy.
 
 ### 1.2 Nếp «hạt giống phải có ô» — đã có VẬT canh, không cần chép luật
 
@@ -109,7 +117,7 @@ không sửa tay).
 
 | Món | Giá trị |
 |---|---|
-| Nhánh | `main`, sạch, `HEAD` = `origin/main` = `6aa6bb0a` |
+| Nhánh | `main`, sạch. Hồ sơ này soạn tại `6aa6bb0a`; nó lên main ở **#153** (`7a29276b`), rồi **#154** thêm luật nới vào `CLAUDE.md` (mục 1.1). Trạng thái mới nhất: `git log --oneline -3` |
 | Phiên bản | acceptance-gate **2.8.0** · feature-loop **2.8.0** · diagram-design 2.7.0 (`GUIDE.md:5` khớp) |
 | CI mốc gần nhất | PR #152 xanh cả hai check: `gate` 37s · `tests` 7m25s |
 | Bảo vệ nhánh `main` | **PR bắt buộc** (0 review), checks bắt buộc `gate` + `tests`, không strict, không linear → merge bằng **merge commit**, KHÔNG squash (squash giết chữ ký Cổng 2) |
@@ -219,24 +227,19 @@ Cả hai ghi trong `_acceptance/release-2-8-0/contract.md`:
 
 ---
 
-## 6. Việc còn treo — cần owner, không phải máy
+## 6. Việc còn treo — không có
 
-**Một câu hỏi duy nhất:** luật nới 07/09 (mục 1.1) nên **vào `CLAUDE.md`** thành
-một dòng có ngày và điều kiện thu hồi, hay để nguyên trong hồ sơ bàn giao này?
+Câu hỏi duy nhất của hồ sơ này (luật nới 07/09 có vào `CLAUDE.md` không) **owner
+đã trả lời «đồng ý» ngay trong phiên bàn giao** → đã viết vào hiến pháp, xem mục
+1.1. Giá đã trả: `CLAUDE.md` **178 → 193 dòng** (playbook khuyên dưới một trang;
+file này đã là **giới hạn đã khai** từ audit 05/09, không phát sinh mới).
 
-- **Máy khuyên: vào `CLAUDE.md`.** Căn cứ: `DIAGRAM-RULE.md` §6 của chính repo đã
-  phán lớp lỗi này — *luật cất ở trí nhớ thì không tới được máy khác, người khác,
-  hay một bản clone mới; nó tự vi phạm chính nó*. Phiên bàn giao này là bằng
-  chứng thực nghiệm: luật mới **một ngày tuổi** đã suýt mất khi đổi máy.
-- **Giá:** `CLAUDE.md` dài thêm ~6 dòng (playbook khuyên giữ dưới một trang; file
-  hiện 178 dòng ≈ 5 trang — đã là giới hạn đã khai).
-- **Vì sao máy không tự làm:** đây là sửa hiến pháp, thuộc lớp khó-đảo → chữ quyết
-  của người (ADR 0002 · nguyên tố 3).
-
-Các thứ **không** cần quyết bây giờ: bốn hạt giống đã có ngưỡng đếm, tự vào hàng
-khi ngưỡng chạm; ba ô discovery mới của #147/#148 (`viec-ke-theo-plan` ·
+Không có gì khác chờ owner. Bốn hạt giống đều có ngưỡng đếm nên tự vào hàng khi
+ngưỡng chạm; ba ô discovery mới của #147/#148 (`viec-ke-theo-plan` ·
 `the-cong-2-giau-loi-trong-hop-dong` · `danh-sach-chep-ci-thieu-product-map`)
 nằm trong 21 ô chờ Cổng Đáng như mọi ô khác.
+
+**Phiên nhận vào việc luôn ở mục 4.1** — dựng hồ sơ mốc 2.9.0.
 
 ---
 
