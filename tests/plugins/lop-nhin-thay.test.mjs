@@ -100,9 +100,36 @@ if (want('LNT1')) {
   eq(id, uoG.applicable, true, 'lành: gate-card [web] applicable');
   const lintM = spawnSync('node', [path.join(m, 'scripts', 'eval-coverage-lint.js'), ws], { encoding: 'utf8' });
   const lintG = spawnSync('node', [LINT, ws], { encoding: 'utf8' });
-  if (/W8/.test(lintM.stdout)) fail(id, 'mutant: lint vẫn W8 cho [web]');
-  if (!/W8/.test(lintG.stdout)) fail(id, 'lành: lint không W8 cho [web]');
+  // Dòng NGHĨA VỤ (không phải dòng token-lạ: mutant bỏ alias thì `web` thành token lạ, W8-token nổ hợp lệ)
+  const OBLIG = /\] W8 surfaces include a human-visible UI/;
+  if (OBLIG.test(lintM.stdout)) fail(id, 'mutant: lint vẫn đòi ui-check cho [web]');
+  if (!OBLIG.test(lintG.stdout)) fail(id, 'lành: lint không đòi ui-check cho [web]');
   if (failures === before) pass(id, 'lib một nguồn: vị từ 8 giá trị, alias, round-trip khuôn, mutant ba bộ đọc');
+}
+
+// ─── LNT3 — thẻ Cổng Phạm vi: cờ + extract ui_observed ───────────────────────
+if (want('LNT3')) {
+  const id = 'LNT3'; const L = require(LIB); const before = failures;
+  const gcSrc = readFileSync(GATE_CARD, 'utf8');
+  const pick = (re, w) => { const m = gcSrc.match(re); if (!m) throw new Error('gate-card.js không khai ' + w); return m[1]; };
+  const WARN = pick(/UI_OBS_FLAG_WARN = '([^']+)'/, 'UI_OBS_FLAG_WARN');
+  const INFO = pick(/UI_OBS_FLAG_INFO = '([^']+)'/, 'UI_OBS_FLAG_INFO');
+  const ws = (surfaces, evalsBody, ledger) => { const r = tmp(); W(r, '_acceptance/x/contract.md', contractOf(surfaces)); W(r, '_acceptance/x/evals.yaml', 'evals:\n' + evalsBody); if (ledger) W(r, '_acceptance/x/decisions.jsonl', ledger); return r; };
+  const X = r => extract(r).ui_observed;
+  let r = ws('ui', EV_T);
+  eq(id, X(r), { applicable: true, present: false, declared: 0, descoped: null, token_la: [] }, '(a) extract');
+  if (!html(r).includes(WARN)) fail(id, '(a) HTML thiếu cờ fwarn ' + WARN);
+  r = ws('ui', EV_T, `{"id":"d-9","type":"descope","decision":"${L.UI_OBSERVED_DESCOPE}hỏng chụp"}\n`);
+  eq(id, X(r).descoped, 'd-9', '(b) descoped');
+  { const h = html(r); if (!h.includes(INFO) || !h.includes('d-9') || h.includes(WARN)) fail(id, '(b) cờ finfo nêu id, không còn fwarn'); }
+  r = ws('ui', EV_U); eq(id, X(r).present, true, '(c) present'); if (html(r).includes(WARN)) fail(id, '(c) có ui-check mà vẫn cờ');
+  r = ws('api', EV_T); eq(id, X(r).applicable, false, '(d) api'); if (html(r).includes(WARN)) fail(id, '(d) api mà cờ');
+  r = ws('mobile', EV_T); eq(id, X(r).applicable, false, '(e) mobile');
+  r = ws('web', EV_T); eq(id, X(r).applicable, true, '(f) web alias');
+  r = ws('ui', EV_T, '{"id":"d-9","type":"descope","decision":"bỏ ui-observed: hỏng"}\n');
+  eq(id, X(r).descoped, null, 'seam dấu hai chấm'); if (!html(r).includes(WARN)) fail(id, 'seam: vẫn phải fwarn');
+  r = ws('ui, kiosk', EV_U); eq(id, X(r).token_la, ['kiosk'], 'token lạ'); if (!/kiosk/.test(html(r))) fail(id, 'token lạ phải lên cờ');
+  if (failures === before) pass(id, 'thẻ Cổng Phạm vi: cờ + extract ui_observed sáu nhánh + seam + token lạ');
 }
 
 process.exit(failures ? 1 : 0);
