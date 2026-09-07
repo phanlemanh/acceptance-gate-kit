@@ -23,7 +23,7 @@
 
 ---
 
-### Task 1: `glob_variants` + `match_globs` thử mọi biến thể — ca GL01–GL07, GL10
+### Task 1: `glob_variants` + `match_globs` thử mọi biến thể — ca HS01–HS07, HS10
 
 **Files:**
 - Modify: `scripts/pre-merge-check.sh` (hàm `match_globs`, hiện ở khoảng dòng 467–476)
@@ -40,7 +40,7 @@ Chèn trước dòng `echo "--- recheck theo diff PR …"`:
 
 ```bash
 echo ""
-echo "--- glob-hai-sao-khop-goc-kho: \`**/\` là không-hoặc-nhiều thư mục (GL01–GL10) ---"
+echo "--- glob-hai-sao-khop-goc-kho: \`**/\` là không-hoặc-nhiều thư mục (HS01–HS10) ---"
 # Fixture code-sinh: repo git, config t1 tuỳ ca, hồ sơ feat-gl signed-off ghim
 # HEAD, rồi MỘT commit đổi các file nêu tên. Mọi đường dẫn suy từ $T/$CHECK.
 mk_glob_repo() { # <root> <t1-globs newline-separated> <files-to-touch space-separated>
@@ -61,47 +61,47 @@ mk_glob_repo() { # <root> <t1-globs newline-separated> <files-to-touch space-sep
 }
 gl_run() { env -u PRE_MERGE_BASE bash "$CHECK" "$1" 2>&1; }
 
-echo "GL01 \`**/*.md\` + AGENTS.md ở gốc đổi sau verify -> sạch (ca CRM 07/09)"
+echo "HS01 \`**/*.md\` + AGENTS.md ở gốc đổi sau verify -> sạch (ca CRM 07/09)"
 R="$T/gl01"; mk_glob_repo "$R" '**/*.md' 'AGENTS.md'
-out="$(gl_run "$R")"; check GL01 0 $?
-nothas GL01-nostale "evidence is stale" "$out"
+out="$(gl_run "$R")"; check HS01 0 $?
+nothas HS01-nostale "evidence is stale" "$out"
 
-echo "GL02 \`**/*.md\` + docs/d.md + apps/app/README.md -> sạch (không hồi quy)"
+echo "HS02 \`**/*.md\` + docs/d.md + apps/app/README.md -> sạch (không hồi quy)"
 R="$T/gl02"; mk_glob_repo "$R" '**/*.md' 'docs/d.md apps/app/README.md'
-out="$(gl_run "$R")"; check GL02 0 $?
-nothas GL02-nostale "evidence is stale" "$out"
+out="$(gl_run "$R")"; check HS02 0 $?
+nothas HS02-nostale "evidence is stale" "$out"
 
-echo "GL03 \`**/*.md\` + src/app.js -> stale đích danh (đối chứng đỏ: thước còn răng)"
+echo "HS03 \`**/*.md\` + src/app.js -> stale đích danh (đối chứng đỏ: thước còn răng)"
 R="$T/gl03"; mk_glob_repo "$R" '**/*.md' 'src/app.js'
-out="$(gl_run "$R")"; check GL03 1 $?
-case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"src/app.js"*) echo "  PASS: GL03-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: GL03-msg (expected stale VIOLATION kèm src/app.js)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+out="$(gl_run "$R")"; check HS03 1 $?
+case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"src/app.js"*) echo "  PASS: HS03-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS03-msg (expected stale VIOLATION kèm src/app.js)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
-echo "GL04 \`**/*.md\` + AGENTS.mdx -> stale (không nới đuôi)"
+echo "HS04 \`**/*.md\` + AGENTS.mdx -> stale (không nới đuôi)"
 R="$T/gl04"; mk_glob_repo "$R" '**/*.md' 'AGENTS.mdx'
-out="$(gl_run "$R")"; check GL04 1 $?
-case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"AGENTS.mdx"*) echo "  PASS: GL04-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: GL04-msg (expected stale VIOLATION kèm AGENTS.mdx)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+out="$(gl_run "$R")"; check HS04 1 $?
+case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"AGENTS.mdx"*) echo "  PASS: HS04-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS04-msg (expected stale VIOLATION kèm AGENTS.mdx)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
-echo "GL05 \`a/**/b.md\` + a/b.md + a/x/b.md -> sạch (\`**/\` giữa mẫu)"
+echo "HS05 \`a/**/b.md\` + a/b.md + a/x/b.md -> sạch (\`**/\` giữa mẫu)"
 R="$T/gl05"; mk_glob_repo "$R" 'a/**/b.md' 'a/b.md a/x/b.md'
-out="$(gl_run "$R")"; check GL05 0 $?
-nothas GL05-nostale "evidence is stale" "$out"
+out="$(gl_run "$R")"; check HS05 0 $?
+nothas HS05-nostale "evidence is stale" "$out"
 
-echo "GL06 \`*.md\` + AGENTS.md + docs/d.md -> sạch (\`*\` vẫn vượt /)"
+echo "HS06 \`*.md\` + AGENTS.md + docs/d.md -> sạch (\`*\` vẫn vượt /)"
 R="$T/gl06"; mk_glob_repo "$R" '*.md' 'AGENTS.md docs/d.md'
-out="$(gl_run "$R")"; check GL06 0 $?
-nothas GL06-nostale "evidence is stale" "$out"
+out="$(gl_run "$R")"; check HS06 0 $?
+nothas HS06-nostale "evidence is stale" "$out"
 
-echo "GL10 \`docs/**\` + CHANGELOG.md (không mẫu nào có \`**/\`) -> sạch; docs2/a.md -> stale"
+echo "HS10 \`docs/**\` + CHANGELOG.md (không mẫu nào có \`**/\`) -> sạch; docs2/a.md -> stale"
 R="$T/gl10"; mk_glob_repo "$R" 'docs/**
 CHANGELOG.md' 'docs/d.md docs/x/y.md CHANGELOG.md'
-out="$(gl_run "$R")"; check GL10 0 $?
-nothas GL10-nostale "evidence is stale" "$out"
+out="$(gl_run "$R")"; check HS10 0 $?
+nothas HS10-nostale "evidence is stale" "$out"
 R="$T/gl10r"; mk_glob_repo "$R" 'docs/**
 CHANGELOG.md' 'docs2/a.md'
-out="$(gl_run "$R")"; check GL10-red 1 $?
-case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"docs2/a.md"*) echo "  PASS: GL10-red-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: GL10-red-msg (expected stale VIOLATION kèm docs2/a.md)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+out="$(gl_run "$R")"; check HS10-red 1 $?
+case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"docs2/a.md"*) echo "  PASS: HS10-red-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS10-red-msg (expected stale VIOLATION kèm docs2/a.md)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
-echo "GL07 t3_paths \`**/auth/**\` + \`**/Dockerfile\`, t1 \`*\`: PR đổi auth/x.js + Dockerfile gốc -> T3 VIOLATION; chỉ other/y.js -> sạch"
+echo "HS07 t3_paths \`**/auth/**\` + \`**/Dockerfile\`, t1 \`*\`: PR đổi auth/x.js + Dockerfile gốc -> T3 VIOLATION; chỉ other/y.js -> sạch"
 mk_glob_pr_repo() { # <root> <files-to-touch space-separated> — nhánh basepoint rồi PR không kèm _acceptance/
   local R="$1" files="$2" f
   rm -rf "$R"; mkdir -p "$R/auth" "$R/other" "$R/_acceptance"
@@ -114,17 +114,17 @@ mk_glob_pr_repo() { # <root> <files-to-touch space-separated> — nhánh basepoi
   git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
 }
 R="$T/gl07"; mk_glob_pr_repo "$R" 'auth/x.js Dockerfile'
-out="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check GL07 1 $?
-case "$out" in *"T3 paths (t3_paths) changed"*"auth/x.js"*"Dockerfile"*|*"T3 paths (t3_paths) changed"*"Dockerfile"*"auth/x.js"*) echo "  PASS: GL07-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: GL07-msg (expected T3 VIOLATION kèm auth/x.js và Dockerfile)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+out="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check HS07 1 $?
+case "$out" in *"T3 paths (t3_paths) changed"*"auth/x.js"*"Dockerfile"*|*"T3 paths (t3_paths) changed"*"Dockerfile"*"auth/x.js"*) echo "  PASS: HS07-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS07-msg (expected T3 VIOLATION kèm auth/x.js và Dockerfile)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 R="$T/gl07c"; mk_glob_pr_repo "$R" 'other/y.js'
-out="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check GL07-control 0 $?
-nothas GL07-control-not3 "T3 paths (t3_paths) changed" "$out"
+out="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check HS07-control 0 $?
+nothas HS07-control-not3 "T3 paths (t3_paths) changed" "$out"
 ```
 
 - [ ] **Step 2: Chạy suite, xác nhận đỏ đúng chỗ**
 
 Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "PASS: GL|FAIL: GL|^Results:"`
-Expected: FAIL ở `GL01`, `GL01-nostale`, `GL05`, `GL05-nostale`, `GL07`, `GL07-msg`; PASS ở GL02, GL03*, GL04*, GL06*, GL10*, GL07-control* (hành vi cũ). Nếu GL03/GL04/GL10-red không PASS trước khi sửa code → fixture hỏng, sửa fixture trước.
+Expected: FAIL ở `HS01`, `HS01-nostale`, `HS05`, `HS05-nostale`, `HS07`, `HS07-msg`; PASS ở HS02, HS03*, HS04*, HS06*, HS10*, HS07-control* (hành vi cũ). Nếu HS03/HS04/HS10-red không PASS trước khi sửa code → fixture hỏng, sửa fixture trước.
 
 - [ ] **Step 3: Thêm `glob_variants`, sửa `match_globs`**
 
@@ -175,87 +175,87 @@ Expected: mọi dòng GL là PASS; `Results: … 0 failed`. Chạy thêm `bash t
 
 ```bash
 git add scripts/pre-merge-check.sh tests/scripts/run-tests.sh
-git commit -m "feat(pre-merge): \`**/\` là không-hoặc-nhiều thư mục trong match_globs — GL01–GL07, GL10 (glob-hai-sao-khop-goc-kho)"
+git commit -m "feat(pre-merge): \`**/\` là không-hoặc-nhiều thư mục trong match_globs — HS01–HS07, HS10 (glob-hai-sao-khop-goc-kho)"
 ```
 
 ---
 
-### Task 2: Chiều đỏ của phép nới — mutant gỡ marker (GL08, 4 dòng PASS)
+### Task 2: Chiều đỏ của phép nới — mutant gỡ marker (HS08, 4 dòng PASS)
 
 **Files:**
-- Test: `tests/scripts/run-tests.sh` — chèn ngay SAU khối GL07 của Task 1
+- Test: `tests/scripts/run-tests.sh` — chèn ngay SAU khối HS07 của Task 1
 
 **Interfaces:**
 - Consumes: `mk_glob_repo` (Task 1), marker `# GLOB-DOUBLESTAR-ZERO-DIRS` (Task 1), `$HERE`.
-- Produces: bốn dòng `PASS: GL08-src`, `PASS: GL08-control`, `PASS: GL08-mut-applied`, `PASS: GL08-mutant`.
+- Produces: bốn dòng `PASS: HS08-src`, `PASS: HS08-control`, `PASS: HS08-mut-applied`, `PASS: HS08-mutant`.
 - Phục vụ: E8 (AC-8). `independent: false`.
 
 - [ ] **Step 1: Viết ca mutant**
 
 ```bash
-echo "GL08 mutant gỡ biến thể BỎ: nguồn bản sao = cây đang kiểm, control XANH, đột biến xác nhận, rồi ĐỎ"
+echo "HS08 mutant gỡ biến thể BỎ: nguồn bản sao = cây đang kiểm, control XANH, đột biến xác nhận, rồi ĐỎ"
 MUTD="$T/gl08-tool"; rm -rf "$MUTD"; mkdir -p "$MUTD"
 cp -R "$HERE/../../scripts" "$MUTD/scripts"
 cp -R "$HERE/../../lib" "$MUTD/lib"
 # Nguồn bản sao suy từ vị trí run-tests ($HERE), KHÔNG hardcode ROOT: so byte với
 # script đang kiểm trước khi đột biến (gap-probe P2, hình dạng hardcode-ROOT).
-if cmp -s "$MUTD/scripts/pre-merge-check.sh" "$CHECK"; then echo "  PASS: GL08-src"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: GL08-src (bản sao khác scripts/pre-merge-check.sh của cây đang kiểm)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
-R="$T/gl01"   # dùng lại fixture GL01 — control phải cùng kết cục với bản thật
-outc="$(env -u PRE_MERGE_BASE bash "$MUTD/scripts/pre-merge-check.sh" "$R" 2>&1)"; check GL08-control 0 $?
-nothas GL08-control-nostale "evidence is stale" "$outc"
-same GL08-marker-before 1 "$(grep -c '# GLOB-DOUBLESTAR-ZERO-DIRS$' "$MUTD/scripts/pre-merge-check.sh")"
+if cmp -s "$MUTD/scripts/pre-merge-check.sh" "$CHECK"; then echo "  PASS: HS08-src"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: HS08-src (bản sao khác scripts/pre-merge-check.sh của cây đang kiểm)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+R="$T/gl01"   # dùng lại fixture HS01 — control phải cùng kết cục với bản thật
+outc="$(env -u PRE_MERGE_BASE bash "$MUTD/scripts/pre-merge-check.sh" "$R" 2>&1)"; check HS08-control 0 $?
+nothas HS08-control-nostale "evidence is stale" "$outc"
+same HS08-marker-before 1 "$(grep -c '# GLOB-DOUBLESTAR-ZERO-DIRS$' "$MUTD/scripts/pre-merge-check.sh")"
 sed '/# GLOB-DOUBLESTAR-ZERO-DIRS$/d' "$MUTD/scripts/pre-merge-check.sh" > "$MUTD/scripts/pre-merge-check.mut" \
   && mv "$MUTD/scripts/pre-merge-check.mut" "$MUTD/scripts/pre-merge-check.sh"
-same GL08-mut-applied 0 "$(grep -c '# GLOB-DOUBLESTAR-ZERO-DIRS$' "$MUTD/scripts/pre-merge-check.sh")"
-outm="$(env -u PRE_MERGE_BASE bash "$MUTD/scripts/pre-merge-check.sh" "$R" 2>&1)"; check GL08-mutant 1 $?
-case "$outm" in *"VIOLATION [feat-gl]: evidence is stale"*"AGENTS.md"*) echo "  PASS: GL08-mutant-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: GL08-mutant-msg (mutant gỡ biến thể BỎ mà AGENTS.md không stale — ca không phân biệt được)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+same HS08-mut-applied 0 "$(grep -c '# GLOB-DOUBLESTAR-ZERO-DIRS$' "$MUTD/scripts/pre-merge-check.sh")"
+outm="$(env -u PRE_MERGE_BASE bash "$MUTD/scripts/pre-merge-check.sh" "$R" 2>&1)"; check HS08-mutant 1 $?
+case "$outm" in *"VIOLATION [feat-gl]: evidence is stale"*"AGENTS.md"*) echo "  PASS: HS08-mutant-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS08-mutant-msg (mutant gỡ biến thể BỎ mà AGENTS.md không stale — ca không phân biệt được)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 ```
 
 - [ ] **Step 2: Chạy suite, xác nhận bốn dòng PASS**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GL08|^Results:"`
-Expected: `PASS: GL08-src`, `GL08-control`, `GL08-control-nostale`, `GL08-marker-before`, `GL08-mut-applied`, `GL08-mutant`, `GL08-mutant-msg`; `0 failed`.
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "HS08|^Results:"`
+Expected: `PASS: HS08-src`, `HS08-control`, `HS08-control-nostale`, `HS08-marker-before`, `HS08-mut-applied`, `HS08-mutant`, `HS08-mutant-msg`; `0 failed`.
 
 - [ ] **Step 3: Tự phá thử một lần (measure-birth mục 2, không commit)**
 
-Tạm đổi trong `scripts/pre-merge-check.sh` dòng `glob_variants "$1$pre" "$post"          # GLOB-DOUBLESTAR-ZERO-DIRS` thành `: # GLOB-DOUBLESTAR-ZERO-DIRS` (bỏ biến thể BỎ nhưng giữ marker) → chạy suite: GL01 phải ĐỎ và GL08-control phải ĐỎ (bản sao chép cây hỏng). Hoàn nguyên bằng `git checkout scripts/pre-merge-check.sh`. Ghi kết quả một dòng vào message commit.
+Tạm đổi trong `scripts/pre-merge-check.sh` dòng `glob_variants "$1$pre" "$post"          # GLOB-DOUBLESTAR-ZERO-DIRS` thành `: # GLOB-DOUBLESTAR-ZERO-DIRS` (bỏ biến thể BỎ nhưng giữ marker) → chạy suite: HS01 phải ĐỎ và HS08-control phải ĐỎ (bản sao chép cây hỏng). Hoàn nguyên bằng `git checkout scripts/pre-merge-check.sh`. Ghi kết quả một dòng vào message commit.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add tests/scripts/run-tests.sh
-git commit -m "test(pre-merge): GL08 mutant gỡ GLOB-DOUBLESTAR-ZERO-DIRS — control xanh, đột biến đỏ kèm AGENTS.md"
+git commit -m "test(pre-merge): HS08 mutant gỡ GLOB-DOUBLESTAR-ZERO-DIRS — control xanh, đột biến đỏ kèm AGENTS.md"
 ```
 
 ---
 
-### Task 3: GUIDE §8 nói rõ ngữ nghĩa glob — GL09 (3 mệnh đề)
+### Task 3: GUIDE §8 nói rõ ngữ nghĩa glob — HS09 (3 mệnh đề)
 
 **Files:**
 - Modify: `GUIDE.md` — hàng `| \`risk_tiers.t1_skip_globs\` |` trong bảng config (khoảng dòng 670)
-- Test: `tests/scripts/run-tests.sh` — chèn ngay SAU khối GL08
+- Test: `tests/scripts/run-tests.sh` — chèn ngay SAU khối HS08
 
 **Interfaces:**
 - Consumes: `$HERE`.
-- Produces: `PASS: GL09` (một dòng, ba assert gộp — thiếu mệnh đề nào FAIL nêu tên mệnh đề đó).
+- Produces: `PASS: HS09` (một dòng, ba assert gộp — thiếu mệnh đề nào FAIL nêu tên mệnh đề đó).
 - Phục vụ: E9 (AC-9). `independent: false`.
 
 - [ ] **Step 1: Viết ca đọc GUIDE**
 
 ```bash
-echo "GL09 GUIDE §8 hàng t1_skip_globs nêu đủ 3 mệnh đề ngữ nghĩa glob"
+echo "HS09 GUIDE §8 hàng t1_skip_globs nêu đủ 3 mệnh đề ngữ nghĩa glob"
 gl09_row="$(grep -m1 '^| `risk_tiers.t1_skip_globs`' "$HERE/../../GUIDE.md")"
 gl09_miss=""
 case "$gl09_row" in *'`**/`'*'không-hoặc-nhiều thư mục'*|*'`**/`'*'không hoặc nhiều thư mục'*) : ;; *) gl09_miss="$gl09_miss [1:**/ = không-hoặc-nhiều thư mục]" ;; esac
 case "$gl09_row" in *'`*` vượt `/`'*|*'`*` không dừng ở `/`'*) : ;; *) gl09_miss="$gl09_miss [2:* vượt /]" ;; esac
 case "$gl09_row" in *'AGENTS.md'*) : ;; *) gl09_miss="$gl09_miss [3:ví dụ AGENTS.md]" ;; esac
-if [ -z "$gl09_miss" ]; then echo "  PASS: GL09"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: GL09 (hàng t1_skip_globs thiếu$gl09_miss)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
+if [ -z "$gl09_miss" ]; then echo "  PASS: HS09"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: HS09 (hàng t1_skip_globs thiếu$gl09_miss)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
 ```
 
-- [ ] **Step 2: Chạy suite — GL09 phải ĐỎ nêu đủ ba mệnh đề thiếu**
+- [ ] **Step 2: Chạy suite — HS09 phải ĐỎ nêu đủ ba mệnh đề thiếu**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep GL09`
-Expected: `FAIL: GL09 (hàng t1_skip_globs thiếu [1:…] [2:…] [3:…])`.
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep HS09`
+Expected: `FAIL: HS09 (hàng t1_skip_globs thiếu [1:…] [2:…] [3:…])`.
 
 - [ ] **Step 3: Sửa hàng GUIDE**
 
@@ -265,16 +265,16 @@ Thay ô «Ý nghĩa» của hàng thành:
 Glob an toàn bỏ qua gate (docs, *.md). Cú pháp là mẫu `case` của shell: `*` vượt `/` (nên `*.md` bắt markdown ở mọi tầng); từ 2.9.0 `**/` là không-hoặc-nhiều thư mục như gitignore (nên `**/*.md` bắt cả `AGENTS.md` ở gốc kho). Từ 1.31.0 `/acceptance-gate:acceptance-init` phát sẵn `PRODUCT-MAP.md` — bản đồ là view máy sinh lại ở mỗi lần đóng cổng, không phải thứ để nghiệm thu
 ```
 
-- [ ] **Step 4: Chạy suite — GL09 PASS; ba suite khác không đổi màu**
+- [ ] **Step 4: Chạy suite — HS09 PASS; ba suite khác không đổi màu**
 
-Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "GL09|^Results:"`; rồi `bash tests/plugins/run-tests.sh | tail -3` (P-case canh GUIDE/README có thể đọc hàng này — nếu đỏ, đọc thông điệp ca đó trước khi sửa).
-Expected: `PASS: GL09`; `0 failed`.
+Run: `bash tests/scripts/run-tests.sh 2>&1 | grep -E "HS09|^Results:"`; rồi `bash tests/plugins/run-tests.sh | tail -3` (P-case canh GUIDE/README có thể đọc hàng này — nếu đỏ, đọc thông điệp ca đó trước khi sửa).
+Expected: `PASS: HS09`; `0 failed`.
 
 - [ ] **Step 5: Commit + set contract implemented**
 
 ```bash
 git add GUIDE.md tests/scripts/run-tests.sh
-git commit -m "docs(guide): ngữ nghĩa glob của t1_skip_globs/t3_paths — \`*\` vượt /, \`**/\` không-hoặc-nhiều thư mục — GL09"
+git commit -m "docs(guide): ngữ nghĩa glob của t1_skip_globs/t3_paths — \`*\` vượt /, \`**/\` không-hoặc-nhiều thư mục — HS09"
 ```
 Sau đó đổi `status: approved` → `status: implemented` trong `_acceptance/glob-hai-sao-khop-goc-kho/contract.md`, commit riêng `chore(acceptance): glob-hai-sao-khop-goc-kho implemented`.
 
@@ -282,6 +282,6 @@ Sau đó đổi `status: approved` → `status: implemented` trong `_acceptance/
 
 ## Self-review
 
-- Spec coverage: Quyết định (Task 1) · Cơ chế + marker (Task 1) · Kế hoạch đo GL01–GL10 (Task 1–3) · chiều đỏ mutant (Task 2) · Tài liệu (Task 3). Ngoài phạm vi: không task nào chạm thông điệp VIOLATION hay config consumer.
+- Spec coverage: Quyết định (Task 1) · Cơ chế + marker (Task 1) · Kế hoạch đo HS01–HS10 (Task 1–3) · chiều đỏ mutant (Task 2) · Tài liệu (Task 3). Ngoài phạm vi: không task nào chạm thông điệp VIOLATION hay config consumer.
 - Placeholder: không TBD/TODO; mọi bước code có mã.
 - Tên nhất quán: `glob_variants`, `match_globs`, `mk_glob_repo`, `mk_glob_pr_repo`, marker `GLOB-DOUBLESTAR-ZERO-DIRS`, slug fixture `feat-gl`.

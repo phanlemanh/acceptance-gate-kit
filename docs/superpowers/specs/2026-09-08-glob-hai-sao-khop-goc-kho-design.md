@@ -70,9 +70,9 @@ consumer dùng). Never: minimatch đầy đủ (lý do ở Quyết định) · a
 ## Kế hoạch đo (measure-birth: cặp hai chiều cùng fixture)
 
 Fixture code-sinh `mk_glob_repo <root> <glob-list> <file-đổi>` trong
-`tests/scripts/run-tests.sh` (cùng khuôn `mk_git_repo`), ca GL01–GL10; chi
-tiết chiều đỏ ở `evals.yaml`. Đối chứng đỏ thường trực: GL03 (`src/app.js`
-vẫn stale) và GL08 (mutant gỡ marker → ca CRM đỏ lại).
+`tests/scripts/run-tests.sh` (cùng khuôn `mk_git_repo`), ca HS01–HS10; chi
+tiết chiều đỏ ở `evals.yaml`. Đối chứng đỏ thường trực: HS03 (`src/app.js`
+vẫn stale) và HS08 (mutant gỡ marker → ca CRM đỏ lại).
 
 ## Ngoài phạm vi
 

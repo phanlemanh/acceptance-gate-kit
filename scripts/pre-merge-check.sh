@@ -464,11 +464,39 @@ t1_escape_not_enforced() {
   echo "NOTE: rủi ro khi tắt — nếu một thay đổi chạm code quan trọng lọt vào lần chạy này, nó sẽ KHÔNG bị chặn vì thiếu hồ sơ nghiệm thu. Các luật khác vẫn chạy đủ (phản biện context sạch, chữ ký người, bằng chứng hết hạn). Muốn bật lại: bỏ cờ --no-t1-escape."
 }
 
+# ── `**/` là KHÔNG-hoặc-nhiều thư mục (glob-hai-sao-khop-goc-kho, 2.9.0) ──────
+# `case` của bash đòi `**/` phải có ít nhất một `/`, nên `**/*.md` bỏ sót
+# AGENTS.md ở gốc kho (CRM 07/09: 4 hồ sơ stale/ngày vì commit thuần tài liệu).
+# Sinh mọi biến thể của glob với từng đoạn `**/` được GIỮ hoặc BỎ — chỉ tách tại
+# chuỗi ba ký tự `**/`, KHÔNG tại `**` (docs/** phải đi qua nguyên vẹn, HS10).
+# `*` vẫn vượt `/` như trước — lời khai `*.md`/`docs/**` ở mọi consumer không
+# đổi nghĩa. Biến thể rỗng (glob chỉ là `**/`) bị bộ khớp bỏ qua, không khớp-mọi-thứ.
+glob_variants() { # <đã-xử-lý> <phần-còn-lại> — in mỗi biến thể một dòng
+  case "$2" in
+    *'**/'*)
+      local pre="${2%%\*\*/*}" post="${2#*\*\*/}"
+      glob_variants "$1$pre" "$post"          # GLOB-DOUBLESTAR-ZERO-DIRS
+      glob_variants "$1$pre**/" "$post"
+      ;;
+    *) printf '%s\n' "$1$2" ;;
+  esac
+}
 match_globs() { # <path> <newline-separated globs> — 0 iff any glob matches
   while IFS= read -r g; do
     [ -n "$g" ] || continue
     # unquoted $g on purpose: case PATTERN matching (globs never fs-expand here)
     case "$1" in $g) return 0 ;; esac
+    # Glob có `**/` → thử thêm mọi biến thể giữ/bỏ từng đoạn (glob_variants ở
+    # trên). Thuần CỘNG: dòng khớp cũ vẫn chạy trước, không đổi nghĩa glob nào
+    # không chứa `**/` (HS10) — và DV5 (chỉ-thêm) giữ được nguyên vẹn.
+    case "$g" in *'**/'*)
+      while IFS= read -r v; do
+        [ -n "$v" ] || continue
+        case "$1" in $v) return 0 ;; esac
+      done <<VARIANTS
+$(glob_variants "" "$g")
+VARIANTS
+    ;; esac
   done <<GLOBS
 $2
 GLOBS

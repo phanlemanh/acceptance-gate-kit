@@ -2009,6 +2009,87 @@ out12b="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; chec
 case "$out12b" in *"VIOLATION [feat-old-a]"*"is a phantom"*|*"is a phantom"*"feat-old-a"*) echo "  PASS: VC12-touched-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: VC12-touched-msg (expected phantom VIOLATION đích danh feat-old-a khi hồ sơ vào diff)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""
+echo "--- glob-hai-sao-khop-goc-kho: \`**/\` là không-hoặc-nhiều thư mục (HS01–HS10) ---"
+# Fixture code-sinh: repo git, config t1 tuỳ ca, hồ sơ feat-gl signed-off ghim
+# HEAD, rồi MỘT commit đổi các file nêu tên. Mọi đường dẫn suy từ $T/$CHECK.
+mk_glob_repo() { # <root> <t1-globs newline-separated> <files-to-touch space-separated>
+  local R="$1" globs="$2" files="$3" f vc
+  rm -rf "$R"; mkdir -p "$R/src" "$R/docs" "$R/a/x" "$R/apps/app" "$R/docs2" "$R/_acceptance/feat-gl"
+  git -C "$(dirname "$R")" init -q "$(basename "$R")"
+  { printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n'; printf '%s\n' "$globs" | sed 's/^/    - "/; s/$/"/'; } > "$R/_acceptance/config.yaml"
+  printf 'code v1\n' > "$R/src/app.js"; printf '# agents\n' > "$R/AGENTS.md"; printf '# x\n' > "$R/AGENTS.mdx"
+  printf '# d\n' > "$R/docs/d.md"; printf '# r\n' > "$R/apps/app/README.md"; printf '# b\n' > "$R/a/b.md"; printf '# b\n' > "$R/a/x/b.md"
+  printf '# c\n' > "$R/CHANGELOG.md"; printf '# d2\n' > "$R/docs2/a.md"; printf '#!/bin/sh\nexit 0\n' > "$R/verify.sh"
+  printf -- '---\nschema_version: 1\nfeature: feat-gl\nslug: feat-gl\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\napproved_at: 2026-06-10\n---\n' > "$R/_acceptance/feat-gl/contract.md"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c1
+  vc="$(git -C "$R" rev-parse HEAD)"
+  printf -- '---\nschema_version: 1\nfeature_slug: feat-gl\nverdict: PASS\nverified_commit: %s\nhuman_signoff: Manh 2026-08-01\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-gl-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-01\n' "$vc" > "$R/_acceptance/feat-gl/evidence-report.md"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c2
+  for f in $files; do printf 'changed\n' >> "$R/$f"; done
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm c3
+}
+gl_run() { env -u PRE_MERGE_BASE bash "$CHECK" "$1" 2>&1; }
+
+echo "HS01 \`**/*.md\` + AGENTS.md ở gốc đổi sau verify -> sạch (ca CRM 07/09)"
+R="$T/gl01"; mk_glob_repo "$R" '**/*.md' 'AGENTS.md'
+out="$(gl_run "$R")"; check HS01 0 $?
+nothas HS01-nostale "evidence is stale" "$out"
+
+echo "HS02 \`**/*.md\` + docs/d.md + apps/app/README.md -> sạch (không hồi quy)"
+R="$T/gl02"; mk_glob_repo "$R" '**/*.md' 'docs/d.md apps/app/README.md'
+out="$(gl_run "$R")"; check HS02 0 $?
+nothas HS02-nostale "evidence is stale" "$out"
+
+echo "HS03 \`**/*.md\` + src/app.js -> stale đích danh (đối chứng đỏ: thước còn răng)"
+R="$T/gl03"; mk_glob_repo "$R" '**/*.md' 'src/app.js'
+out="$(gl_run "$R")"; check HS03 1 $?
+case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"src/app.js"*) echo "  PASS: HS03-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS03-msg (expected stale VIOLATION kèm src/app.js)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "HS04 \`**/*.md\` + AGENTS.mdx -> stale (không nới đuôi)"
+R="$T/gl04"; mk_glob_repo "$R" '**/*.md' 'AGENTS.mdx'
+out="$(gl_run "$R")"; check HS04 1 $?
+case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"AGENTS.mdx"*) echo "  PASS: HS04-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS04-msg (expected stale VIOLATION kèm AGENTS.mdx)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "HS05 \`a/**/b.md\` + a/b.md + a/x/b.md -> sạch (\`**/\` giữa mẫu)"
+R="$T/gl05"; mk_glob_repo "$R" 'a/**/b.md' 'a/b.md a/x/b.md'
+out="$(gl_run "$R")"; check HS05 0 $?
+nothas HS05-nostale "evidence is stale" "$out"
+
+echo "HS06 \`*.md\` + AGENTS.md + docs/d.md -> sạch (\`*\` vẫn vượt /)"
+R="$T/gl06"; mk_glob_repo "$R" '*.md' 'AGENTS.md docs/d.md'
+out="$(gl_run "$R")"; check HS06 0 $?
+nothas HS06-nostale "evidence is stale" "$out"
+
+echo "HS10 \`docs/**\` + CHANGELOG.md (không mẫu nào có \`**/\`) -> sạch; docs2/a.md -> stale"
+R="$T/gl10"; mk_glob_repo "$R" 'docs/**
+CHANGELOG.md' 'docs/d.md docs/x/y.md CHANGELOG.md'
+out="$(gl_run "$R")"; check HS10 0 $?
+nothas HS10-nostale "evidence is stale" "$out"
+R="$T/gl10r"; mk_glob_repo "$R" 'docs/**
+CHANGELOG.md' 'docs2/a.md'
+out="$(gl_run "$R")"; check HS10-red 1 $?
+case "$out" in *"VIOLATION [feat-gl]: evidence is stale"*"docs2/a.md"*) echo "  PASS: HS10-red-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS10-red-msg (expected stale VIOLATION kèm docs2/a.md)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+
+echo "HS07 t3_paths \`**/auth/**\` + \`**/Dockerfile\`, t1 \`*\`: PR đổi auth/x.js + Dockerfile gốc -> T3 VIOLATION; chỉ other/y.js -> sạch"
+mk_glob_pr_repo() { # <root> <files-to-touch space-separated> — nhánh basepoint rồi PR không kèm _acceptance/
+  local R="$1" files="$2" f
+  rm -rf "$R"; mkdir -p "$R/auth" "$R/other" "$R/_acceptance"
+  git -C "$(dirname "$R")" init -q "$(basename "$R")"
+  printf 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "*"\n  t3_paths:\n    - "**/auth/**"\n    - "**/Dockerfile"\n' > "$R/_acceptance/config.yaml"
+  printf 'a\n' > "$R/auth/x.js"; printf 'o\n' > "$R/other/y.js"; printf 'FROM x\n' > "$R/Dockerfile"
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm base
+  git -C "$R" branch basepoint
+  for f in $files; do printf 'changed\n' >> "$R/$f"; done
+  git -C "$R" add -A >/dev/null && git $GIT_ID -C "$R" commit -qm pr
+}
+R="$T/gl07"; mk_glob_pr_repo "$R" 'auth/x.js Dockerfile'
+out="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check HS07 1 $?
+case "$out" in *"T3 paths (t3_paths) changed"*"auth/x.js"*"Dockerfile"*|*"T3 paths (t3_paths) changed"*"Dockerfile"*"auth/x.js"*) echo "  PASS: HS07-msg"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: HS07-msg (expected T3 VIOLATION kèm auth/x.js và Dockerfile)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
+R="$T/gl07c"; mk_glob_pr_repo "$R" 'other/y.js'
+out="$(env -u PRE_MERGE_BASE bash "$CHECK" "$R" --base basepoint 2>&1)"; check HS07-control 0 $?
+nothas HS07-control-not3 "T3 paths (t3_paths) changed" "$out"
+
+echo ""
 echo "--- recheck theo diff PR (1.41.0: phạm vi theo slug_in_diff + cờ --recheck-all) ---"
 # Fixture CODE-SINH tái hiện đúng ca đã cắn: một đợt đã merge gỡ một khoá
 # `executors.script.*` khỏi config, và MỌI hồ sơ đã ký có eval trỏ khoá đó lập
