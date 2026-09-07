@@ -1,0 +1,106 @@
+{
+ "feature_plain": "Chủ kho khai «mọi markdown là tài liệu» thì cổng hiểu đúng như vậy, kể cả file hướng dẫn nằm ở gốc kho — sửa tài liệu không còn làm hồ sơ đã ký hoá cũ.",
+ "will_do": [
+  {
+   "id": "AC-1",
+   "p": "Sẽ coi lời khai «mọi markdown» phủ cả file ở gốc kho: sửa AGENTS.md sau khi ký không làm hồ sơ đó hoá cũ."
+  },
+  {
+   "id": "AC-2",
+   "p": "Sẽ giữ nguyên hành vi đang đúng: markdown trong thư mục con vẫn là tài liệu như trước."
+  },
+  {
+   "id": "AC-5",
+   "p": "Sẽ hiểu đoạn «bất kỳ thư mục nào» ở giữa một mẫu cũng có thể là không thư mục nào."
+  },
+  {
+   "id": "AC-6",
+   "p": "Sẽ không đổi nghĩa mẫu «*.md» mà mọi kho đang khai: nó vẫn bắt markdown ở mọi tầng."
+  },
+  {
+   "id": "AC-9",
+   "p": "Sẽ nói rõ trong hướng dẫn cách cổng đọc mẫu, kể cả một điểm cổng đọc khác gitignore, để chủ kho khai đúng ý mình."
+  }
+ ],
+ "wont_do": [
+  {
+   "id": "AC-3",
+   "p": "Chặn như cũ: mã sản phẩm đổi sau khi ký vẫn làm hồ sơ hoá cũ — phép nới không làm mất răng."
+  },
+  {
+   "id": "AC-4",
+   "p": "Chặn file cùng tên nhưng khác đuôi: phép nới chỉ áp cho phần thư mục, không nới phần đuôi file."
+  },
+  {
+   "id": "AC-7",
+   "p": "Chặn theo chiều bảo vệ: đường bảo vệ hạng cao khai bằng mẫu «bất kỳ thư mục nào» nay bắt cả file ở gốc kho."
+  },
+  {
+   "id": "AC-8",
+   "p": "Chặn được chứng minh bằng chiều đỏ: gỡ đúng dòng nới ra thì ca sửa tài liệu ở gốc kho phải đỏ lại."
+  },
+  {
+   "id": "AC-10",
+   "p": "Chặn hồi quy cho mẫu không có đoạn «bất kỳ thư mục nào»: các mẫu đó đi qua nguyên vẹn, thư mục khác tên vẫn bị coi là mã."
+  }
+ ],
+ "coverage_plain": [
+  {
+   "i": 0,
+   "p": "Trục hình dạng mẫu khai: đã đối chiếu mọi mẫu đang có ở kho này, kho CRM và mẫu phát sẵn khi khởi tạo, cộng chuẩn gitignore và minimatch."
+  },
+  {
+   "i": 1,
+   "p": "Trục hình dạng đường dẫn: gốc kho, một cấp, nhiều cấp, và cùng tên khác đuôi làm chiều đỏ — lấy từ đúng dạng git liệt kê file đổi."
+  },
+  {
+   "i": 2,
+   "p": "Trục nơi cổng dùng bộ khớp: ba chỗ, đếm được bằng cách tìm tên hàm trong file cổng."
+  },
+  {
+   "i": 3,
+   "p": "Mười tổ hợp đáng đo thành mười tiêu chí AC-1 đến AC-10; bỏ có tên hai tổ hợp (ký tự đặc biệt chưa ai khai; chuyển hẳn sang minimatch vì đổi nghĩa lời khai đang sống)."
+  }
+ ],
+ "gap_probe_plain": [
+  {
+   "i": 0,
+   "p": "Thiếu ca cho mẫu KHÔNG có đoạn «bất kỳ thư mục nào» (như docs/**) — nếu máy tách nhầm chỗ, mọi kho dùng mẫu mặc định lại hoá cũ mỗi commit tài liệu. Đã thêm tiêu chí AC-10 và ca đo kèm chiều đỏ."
+  },
+  {
+   "i": 1,
+   "p": "Ca đọc hướng dẫn chỉ kiểm hai trong ba điều phải nói; thiếu điểm cổng đọc khác gitignore. Đã sửa ca đo đủ ba điều."
+  },
+  {
+   "i": 2,
+   "p": "Ca mutant chưa chứng bản sao được dựng từ đúng cây đang kiểm. Đã thêm dòng so bản sao với cây thật trước khi đột biến."
+  },
+  {
+   "i": 3,
+   "p": "Nhãn tổ hợp «file gốc kho ở đường bảo vệ hạng cao» ghi có ca nhưng ca chỉ đo file một cấp. Đã thêm file Dockerfile ở gốc vào ca AC-7."
+  }
+ ],
+ "scope_plain": "Không đổi lời cảnh báo hoá cũ để gợi glob; không chạm cấu hình kho nào khác; không thêm nghĩa cho ký tự đặc biệt; không đổi nghĩa dấu sao đơn.",
+ "decisions_plain": [
+  {
+   "id": "d-20260907T203915Z-24167",
+   "p": "Chọn CỘNG một nghĩa cho đoạn «bất kỳ thư mục nào» thay vì đổi toàn bộ sang chuẩn minimatch — đổi lại dấu sao đơn vẫn xuyên thư mục, khác gitignore ở đúng một điểm và phải ghi vào hướng dẫn."
+  },
+  {
+   "id": "d-20260907T203915Z-12398",
+   "p": "Chọn đặt ca đo vào bộ kiểm thường trực của file cổng, không dựng bộ răng riêng — đổi lại mỗi ca chỉ nhận ra qua dòng đạt đích danh trong đầu ra của cả bộ."
+  },
+  {
+   "id": "d-20260907T203915Z-27627",
+   "p": "KHÔNG làm bước xem thử giao diện — việc này không có giao diện người dùng."
+  },
+  {
+   "id": "d-20260907T203915Z-13373",
+   "p": "KHÔNG viết đặc tả trải nghiệm — không có mặt người dùng nào đổi."
+  },
+  {
+   "id": "d-20260907T203915Z-30657",
+   "p": "KHÔNG đổi lời cảnh báo hoá cũ để gợi cách sửa mẫu — mở lại nếu kho thứ hai vấp cùng chỗ."
+  }
+ ]
+}

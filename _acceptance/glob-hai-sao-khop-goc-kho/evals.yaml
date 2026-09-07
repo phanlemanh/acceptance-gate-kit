@@ -1,0 +1,135 @@
+schema_version: 1
+feature_slug: glob-hai-sao-khop-goc-kho
+# Không eval judgment: sửa-một-hành-vi cơ học trong file engine, mọi khẳng định
+# máy-chấm-được (tiền lệ stale-theo-diff-pr). Ca GL01–GL09 thêm vào
+# tests/scripts/run-tests.sh (khối VC, khuôn mk_git_repo code-sinh); mỗi eval
+# ghim ĐÍCH DANH dòng PASS của ca trong stdout suite, không chỉ exit 0.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL01" — fixture git code-sinh (mk_glob_repo):
+      config `**/*.md`, hồ sơ signed-off ghim HEAD, rồi commit đổi AGENTS.md ở
+      gốc → pre-merge exit 0, stdout KHÔNG chứa "evidence is stale". Chiều đỏ
+      cùng fixture là GL08 (mutant) và GL03 (file mã).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL02" — cùng khuôn fixture, file đổi là
+      docs/d.md và apps/app/README.md → exit 0, không dòng stale (không hồi
+      quy hành vi `**/` với đường dẫn có thư mục).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL03" — cùng khuôn, file đổi src/app.js →
+      pre-merge exit 1, stdout có "VIOLATION [feat-gl]: evidence is stale" và
+      dòng "src/app.js" (ghim thông điệp, không chỉ mã thoát). Đây là đối
+      chứng đỏ thường trực của phép nới.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL04" — cùng khuôn, file đổi AGENTS.mdx ở gốc →
+      exit 1, VIOLATION stale kèm "AGENTS.mdx": biến thể bỏ `**/` vẫn là
+      `*.md`, không nuốt đuôi khác.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL05" — config `a/**/b.md`, file đổi a/b.md →
+      exit 0, không dòng stale. Đối chứng cùng ca: a/x/b.md cũng sạch (biến
+      thể giữ vẫn sống).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL06" — config `*.md`, file đổi AGENTS.md và
+      docs/d.md → exit 0, không dòng stale: `*` vẫn vượt `/`, không hồi quy
+      lời khai đang sống ở consumer.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL07" — fixture có nhánh base; config
+      `t3_paths: ["**/auth/**", "**/Dockerfile"]`, `t1_skip_globs: ["*"]`; PR
+      đổi auth/x.js VÀ Dockerfile (gốc kho) không kèm _acceptance/ → chạy
+      `--base` → exit 1, stdout có "T3 paths (t3_paths) changed" và CẢ HAI
+      dòng "auth/x.js", "Dockerfile" (ô gốc-không-`/` tại nơi gọi T3 — gap-probe
+      P2). Chiều đối chứng trong cùng ca: PR chỉ đổi other/y.js → clean (T1
+      `*` nuốt), chứng minh chính `**/` quyết định nhánh T3.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có BỐN dòng: "PASS: GL08-src" (nguồn bản sao suy từ vị
+      trí run-tests — `cmp` pre-merge-check.sh trong bản sao với
+      scripts/pre-merge-check.sh của cây đang kiểm TRƯỚC khi đột biến, bằng
+      nhau — gap-probe P2 hình dạng hardcode-ROOT), "PASS: GL08-control" (bản
+      sao trọn scripts/+lib/ chạy fixture GL01 → exit 0, không stale),
+      "PASS: GL08-mut-applied" (đếm dòng marker GLOB-DOUBLESTAR-ZERO-DIRS sau
+      sed = 0, trước = 1) và "PASS: GL08-mutant" (bản đột biến → exit 1,
+      VIOLATION stale kèm AGENTS.md). Bốn dòng đều phải có — thiếu một là ca
+      không phân biệt được «nới đúng» với «chưa chạy» hay «đo sai cây».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
+
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL09" — ca đọc GUIDE.md, lấy đúng hàng bảng
+      bắt đầu `| \`risk_tiers.t1_skip_globs\`` và đòi hàng đó chứa cả BA
+      mệnh đề của AC-9 (3 assert = 3 mệnh đề, gap-probe P2): (1) chữ `**/`
+      cùng cụm «không-hoặc-nhiều thư mục» (hoặc «không hoặc nhiều»); (2) chữ
+      `*` đứng riêng (không phải `**`) đi cùng «vượt `/`»; (3) ví dụ
+      `AGENTS.md`. Vật đo là dòng tài liệu — ca này đo tài liệu vì tài liệu
+      LÀ vật được giao của AC-9.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["GUIDE.md", "tests/scripts/run-tests.sh"]
+
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      exit 0; stdout có "PASS: GL10" — config `["docs/**", "CHANGELOG.md"]`
+      (không mẫu nào chứa `**/`), file đổi docs/a.md, docs/x/y.md,
+      CHANGELOG.md → exit 0, không dòng stale; đối chứng đỏ cùng ca: đổi
+      docs2/a.md → exit 1, VIOLATION stale kèm "docs2/a.md". Chứng minh bộ
+      sinh biến thể chỉ tách tại `**/`, không tại `**` (gap-probe P1 —
+      `docs/**/` sẽ không khớp docs/a.md).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "tests/scripts/run-tests.sh"]
