@@ -23,7 +23,7 @@
 
 | Loại | Số | Ghi chú |
 |---|---|---|
-| Ô cơ hội `discovery` (chờ Cổng Đáng) | **17** | 5 liên quan trực tiếp tới hai đợt này: `lan-may-thong-duong-ghi` · `lan-v-thoat-kiem-stale` · `phep-kiem-sach-do-theo-vung` · `t1-tuyen-kem-can-cu` · `hinh-o-moi-cong-dung-cho-nguoi`. Ba ô mới 06/09 (#147–#148): `viec-ke-theo-plan` (hạt giống «việc kế theo plan» — kit **đọc** ý định phía plan của repo, không giữ; là ranh giới của H1 lát A) · `the-cong-2-giau-loi-trong-hop-dong` · `danh-sach-chep-ci-thieu-product-map` (hai ca thật từ kho crm) |
+| Ô cơ hội `discovery` (chờ Cổng Đáng) | **17 → 21** | bốn ô mới của PR này là bốn hạt giống ở §2 (luật «vào có ô» — ca VC8 đòi mỗi hạt giống một ô, không có thì CI đỏ). 5 liên quan trực tiếp tới hai đợt này: `lan-may-thong-duong-ghi` · `lan-v-thoat-kiem-stale` · `phep-kiem-sach-do-theo-vung` · `t1-tuyen-kem-can-cu` · `hinh-o-moi-cong-dung-cho-nguoi`. Ba ô mới 06/09 (#147–#148): `viec-ke-theo-plan` (hạt giống «việc kế theo plan» — kit **đọc** ý định phía plan của repo, không giữ; là ranh giới của H1 lát A) · `the-cong-2-giau-loi-trong-hop-dong` · `danh-sach-chep-ci-thieu-product-map` (hai ca thật từ kho crm) |
 | Ô **đã ký build, chưa xây** | **1** | `vong-la-mot-ket-qua` (04/09, timebox ≤2 ngày, media-library chờ 5 vòng A–E) |
 | Nhát cắt **gọi tên** của mốc 2.8.0 cho cửa sổ này | 1 | **Ngoài-4** «họ fail-open trong phép đo + hậu-chữ-ký» — chưa làm; cửa sổ này đã tiêu **ba vòng sửa**: #146 (`inputs-tinh-tu-goc-kho`) · #149 (`co-qua-timebox-nhom-da-xong`) · #151 (`thuoc-khai-mot-dang-do-mot-neo`, dừng ở trần 3 vòng, thu phạm vi) — vượt trần một-vòng-meta của luật (b) |
 | Hạt giống owner đã gật mà **chưa ghi file** | 1 → **0** | «Bất biến sản phẩm» (gật 02/09) — **ghi hôm nay**: [2026-09-02-hat-giong-bat-bien-san-pham.md](../plans/2026-09-02-hat-giong-bat-bien-san-pham.md) |
@@ -132,7 +132,7 @@ ket-qua` không tốn gì ngoài răng của luật (c) — nhát cắt gọi t�
 | # | Việc | Loại | Trạng thái |
 |---|---|---|---|
 | a | Ghi hạt giống Bất biến sản phẩm (nợ 02/09) | T1 docs | **xong 07/09** |
-| b | Ghi 3 hạt giống H1 · H2 · H3 | T1 docs | **xong 07/09** |
+| b | Ghi 3 hạt giống H1 · H2 · H3 + bốn ô discovery `_acceptance/<slug>/opportunity.md` (luật VC8: hạt giống nào cũng có ô; trạng thái sống ở ô, hạt giống chỉ trỏ) | T1 docs + hồ sơ xưởng | **xong 07/09** |
 | c | Gỡ câu chết GUIDE §7.1 «mỗi lần một lượt gọi người» → nói đúng làn ghim-lại máy-một-mình (16/08) | T1 docs | **xong 07/09** (một dòng) |
 | d | Đếm thử 3 số lát B bằng tay ở hồ sơ phát hành 2.9.0 (n = 1) — chưa vào luật | nghi thức phát hành | chờ mốc 2.9.0 |
 | e | ADR nháp «làn V và tách-nhiệm-vụ: đặt ở lưới ngoài phiên, không ở người» — owner ký | docs, quyết của người | chờ owner gọi |
@@ -149,6 +149,7 @@ Mọi thứ khác ở mục 1 hàng SỔ: không việc.
 2. **Kit mạnh hơn playbook ở giữa vòng** (chiều đỏ, phản biện sạch, sổ quyết
    định) — giữ; **yếu hơn ở hai đầu và ở thời gian** (đời model, luật lái máy
    không hồi quy).
-3. **Hàng đợi kit đã đầy** (17 discovery + 1 build + 1 nhát cắt nợ). Đề xuất
+3. **Hàng đợi kit đã đầy** (17 discovery + 1 build + 1 nhát cắt nợ, chưa kể
+   bốn ô discovery mà chính PR này thêm cho bốn hạt giống). Đề xuất
    hôm nay **không thêm ô nào mới** trong cửa sổ này; nó xếp một ô kế thừa nợ,
    ghi bốn hạt giống có ngưỡng, và gộp hai ô discovery đang lẻ vào đúng họ.

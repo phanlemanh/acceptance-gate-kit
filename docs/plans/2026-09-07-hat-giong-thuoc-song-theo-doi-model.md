@@ -1,6 +1,6 @@
 # Hạt giống — Thước sống theo đời model
 
-**Ngày:** 2026-09-07 · **Trạng thái:** hạt giống, chờ owner gọi tên · **Hạng dự
+**Ngày:** 2026-09-07 · **Trạng thái:** sống ở `_acceptance/thuoc-song-theo-doi-model/opportunity.md` · **Hạng dự
 kiến:** T2 (một trường ghi + một cờ vàng + một lý do ghim lại + một hình dạng
 thứ 7 trong danh sách đã có; đổi schema **có đường đọc-cũ**). **Mở dưới luật
 cộng 07/09.**

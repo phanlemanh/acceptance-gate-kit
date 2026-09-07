@@ -1,6 +1,6 @@
 # Hạt giống — Luật lái máy đổi thì phải được kiểm hồi quy như code
 
-**Ngày:** 2026-09-07 · **Trạng thái:** hạt giống, chờ owner gọi tên · **Hạng dự
+**Ngày:** 2026-09-07 · **Trạng thái:** sống ở `_acceptance/luat-lai-may-duoc-hoi-quy/opportunity.md` · **Hạng dự
 kiến:** T2–T3 (một job CI + một hook + một ADR; chạm `hooks/` và `.github/`).
 **Mở dưới luật cộng 07/09** — đây là món CỘNG, trước 07/09 chỉ được ghi sổ.
 

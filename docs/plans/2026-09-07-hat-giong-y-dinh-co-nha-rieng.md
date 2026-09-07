@@ -1,6 +1,6 @@
 # Hạt giống — Ý định có nhà riêng: cửa vào và cửa ra không cần người ngồi phiên
 
-**Ngày:** 2026-09-07 · **Trạng thái:** hạt giống, chờ owner gọi tên · **Hạng dự
+**Ngày:** 2026-09-07 · **Trạng thái:** sống ở `_acceptance/y-dinh-co-nha-rieng/opportunity.md` · **Hạng dự
 kiến:** T2 theo lát (ba lát, mỗi lát một vòng; lát nào cũng không thêm cổng người,
 không lệnh thứ bảy — ADR 0002). **Mở dưới luật cộng 07/09.**
 

@@ -2,7 +2,7 @@
 
 **Ngày gật:** 2026-09-02 (owner, một chạm, sau bốn tin trao đổi) · **Ngày ghi
 file:** 2026-09-07 — ghi sau khi vòng `loi-moi-cong-may-sinh` gộp về `main`
-(#136, 02/09), đúng điều kiện owner đặt. **Trạng thái:** hạt giống, chưa mở ô.
+(#136, 02/09), đúng điều kiện owner đặt. **Trạng thái:** sống ở `_acceptance/bat-bien-san-pham/opportunity.md`.
 **Hạng dự kiến:** T2 (một khuôn + một ổ cắm + một dòng đọc ở S1 + một cờ; không
 chạm hồ sơ đã ký; máy KHÔNG sửa file bất biến).
 
