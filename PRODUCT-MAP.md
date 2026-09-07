@@ -5,7 +5,7 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>21 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>23 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>2 việc"]
   GD --> DB["Đã bác từ khám phá<br/>1 việc"]
@@ -26,7 +26,9 @@ flowchart TD
 - Ba chỗ tích luỹ không có đường ra — khoá config · dòng file kiểm · con số suite (`ba-cho-tich-luy-khong-duong-ra`)
 - Bất biến sản phẩm — PRODUCT-INVARIANTS.md ở gốc repo tiêu thụ, luật sản phẩm nạp lúc viết đặc tả, thứ khó-đảo tự nổi lên thẻ như mục người (`bat-bien-san-pham`)
 - Bậc 3 của lái-thử cho bề mặt AGENT — bản tham chiếu `vlm-assert` chỉ phục vụ frame UI, ván agent không có con mắt thứ hai (`con-mat-thu-hai-lai-thu`)
+- Chốt chặn trước-merge chấm MỌI hồ sơ đã arm cổng, kể cả hồ sơ PR không chạm — một vòng dở làm kẹt mọi PR khác của kho (`cong-chan-theo-ho-so-khong-theo-diff`)
 - Danh sách chép CI của acceptance-init dặn repo tiêu thụ chạy product-map --check nhưng không chép product-map lẫn đồ nó kéo theo — CI của consumer đỏ ngay khi kit dùng khuôn ô cơ hội (`danh-sach-chep-ci-thieu-product-map`)
+- Thẻ Cổng 2 in nút bằng tiếng Việt nhưng chỉ đọc được từ khoá tiếng Anh trong «Đề xuất:» — người viết đúng chữ trên nút thì thẻ báo không đọc được (`de-xuat-tieng-viet-khong-doc-duoc`)
 - Dọn tồn kho PR — danh sách PR mở phải nói đúng việc đang chạy, không phải kho hàng cũ (`don-ton-kho-pr`)
 - Nghi thức hình áp cho MỌI cổng dừng-chờ-người — không riêng Cổng Phạm vi; mở nguồn kê sang vật của vòng nghiệm thu và điểm dừng-vá (`hinh-o-moi-cong-dung-cho-nguoi`)
 - Hỏi-theo-mặt-phẳng — câu hỏi là thứ người bấm được, không phải khuôn chữ (`hoi-theo-mat-phang`)
