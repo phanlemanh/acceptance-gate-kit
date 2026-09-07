@@ -118,7 +118,10 @@ Omit the `capture` block if the repo has no UI evidence need.
     puppeteer-core` (drives an EXISTING Chrome — no heavy download) and add
     `"ui:capture": "node scripts/ui-capture.mjs"` to package.json, then set
     `capture.ui: "npm run ui:capture"`. The script + dependency live in the REPO,
-    NOT in the plugin — the kit stays zero-dependency.
+    NOT in the plugin — the kit stays zero-dependency. Cheaper when the machine
+    already has `@playwright/cli` (`npm i -g @playwright/cli`): `capture.ui` can be
+    a 3-line repo script `playwright-cli open "$1" && playwright-cli screenshot
+    --filename "$2" && playwright-cli close` — still owned by the repo.
 
 3c. **(optional) Scaffold the external-VLM second opinion.** If the user wants a
     cross-model check on saved UI frames (a different model family re-reads the

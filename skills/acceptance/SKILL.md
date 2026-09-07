@@ -121,6 +121,18 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    `references/design-ui-check.md` (authoritative P0). Skip only when no surface
    renders UI, or when `executors.design` is absent from config.yaml (then note
    the skip). Strategic "on-brand / not generic" goes to a `judgment` eval.
+2c. **Lớp bằng chứng nhìn-thấy (`layer: ui-observed`, mặt người nhìn — mặc định bật).**
+   Nếu `surfaces` của contract có `ui` (alias `web`, `web-ui`; KHÔNG tính `mobile`),
+   evals.yaml PHẢI có ≥1 eval `executor: ui-check` — tính theo hợp đồng, không theo
+   AC — và eval đó khai `layer: ui-observed`. Bằng chứng lớp mã (`test` vitest/DOM,
+   `script` axe-core/design-gate) vẫn hợp lệ cho tiêu chí của nó, nhưng KHÔNG trả
+   nghĩa vụ này: nghĩa vụ là frame + `observed:` mà hook giữ trên mọi block ui-check.
+   Nhãn `layer: ui-observed` trên executor khác ui-check là lạc chỗ (lint W8). Bỏ
+   nghĩa vụ (không dev server, hạ tầng chụp hỏng) PHẢI là entry `descope` bắt đầu
+   đúng chuỗi `bỏ ui-observed — <lý do>` — thẻ Cổng 1 hiện dòng thông tin, ghi sau
+   seal thì thẻ Cổng 2 hiện ở khối «CHƯA duyệt»; không có đường bỏ im lặng. Răng:
+   lint W8 · cờ vàng thẻ Cổng 1 · NOTE pre-merge (chưa chặn; ngưỡng siết: 2 hợp
+   đồng ký không frame trong một mốc phát hành).
 3. Repo-specific commands MUST be `config:` references
    (e.g. `cmd: config:executors.test.api`) — never hardcoded.
 3b. `inputs` on a `judgment` eval and `paths` on any eval are written from the

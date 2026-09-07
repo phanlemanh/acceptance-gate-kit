@@ -163,4 +163,44 @@ if (want('LNT4')) {
   if (failures === before) pass(id, 'thẻ Cổng Bằng chứng: present đọc trên báo cáo, descope sau seal ở CHƯA duyệt, cli im');
 }
 
+// ─── LNT6 — bảy văn bản nghi thức chép luật; gỡ từng mệnh đề → đỏ đúng tên ─────
+if (want('LNT6')) {
+  const id = 'LNT6'; const L = require(LIB); const before = failures;
+  const F = {
+    acc: path.join(ROOT, 'skills', 'acceptance', 'SKILL.md'),
+    fl: path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'),
+    ex: path.join(ROOT, 'skills', 'acceptance', 'references', 'eval-executors.md'),
+    ctx: path.join(ROOT, 'CONTEXT.md'),
+    init: path.join(ROOT, 'commands', 'acceptance-init.md'),
+  };
+  // Cắt phạm vi: từ startRe tới heading kế (endRe) — không tới EOF; phạm vi > 60% file = cắt hỏng
+  const cut = (text, startRe, endRe) => { const s = text.search(startRe); if (s < 0) return ''; const rest = text.slice(s); const e = rest.slice(1).search(endRe); const out = e < 0 ? rest : rest.slice(0, e + 1); if (out.length > text.length * 0.6) throw new Error('phạm vi cắt quá rộng'); return out; };
+  const clauses = [
+    ['i-acc-2c', 'acc', t => { const p2 = cut(t, /^## Phase 2/m, /^## Phase 3/m); return /layer: ui-observed/.test(p2) && /theo hợp đồng/.test(p2) && p2.includes(L.UI_OBSERVED_DESCOPE); }],
+    ['ii-fl-evals', 'fl', t => { const s1 = cut(t, /^## S1 — DESIGN/m, /^## GATE 1/m); return /≥1 eval `ui-check`/.test(s1) && /mặt người nhìn mà không eval `ui-check`/.test(s1); }],
+    ['iii-ex-section', 'ex', t => /^## Pairing mechanics — `layer: ui-observed`/m.test(t) && cut(t, /^## Pairing mechanics — `layer: ui-observed`/m, /^## /m).includes('ui-observed')],
+    ['iv-ctx-terms', 'ctx', t => cut(t, /^\*\*Layer\*\*:/m, /^\*\*[^*]+\*\*:/m).includes('ui-observed') && cut(t, /^\*\*Surface\*\*:/m, /^\*\*[^*]+\*\*:/m).includes('`web`')],
+    ['vi-init-playwright', 'init', t => cut(t, /^3b\./m, /^3c\./m).includes('@playwright/cli')],
+    ['vii-descope-roundtrip', 'fl', (t, all) => t.includes(L.UI_OBSERVED_DESCOPE) && all.acc.includes(L.UI_OBSERVED_DESCOPE)],
+  ];
+  const texts = Object.fromEntries(Object.entries(F).map(([k, p]) => [k, readFileSync(p, 'utf8')]));
+  const run = all => clauses.filter(([, k, fn]) => !fn(all[k], all)).map(([n]) => n);
+  eq(id, run(texts), [], 'bản lành: mọi mệnh đề đọc được');
+  const mutants = [
+    ['i-acc-2c', 'acc', t => t.split('layer: ui-observed').join('layer: xx')],
+    ['ii-fl-evals', 'fl', t => t.split('≥1 eval `ui-check`').join('≥1 eval')],
+    ['iii-ex-section', 'ex', t => t.replace(/^## Pairing mechanics — `layer: ui-observed`.*$/m, '## Gỡ')],
+    ['iv-ctx-terms', 'ctx', t => t.split('ui-observed').join('xx')],
+    ['vi-init-playwright', 'init', t => t.split('@playwright/cli').join('xx')],
+    ['vii-descope-roundtrip', 'acc', t => t.split(L.UI_OBSERVED_DESCOPE).join('bỏ ui-observed: ')],
+  ];
+  for (const [name, k, mut] of mutants) {
+    const copy = { ...texts, [k]: mut(texts[k]) };
+    if (copy[k] === texts[k]) { fail(id, `mutant ${name} không tiêm được (chuỗi đích không có?)`); continue; }
+    const red = run(copy);
+    if (!red.includes(name)) fail(id, `mutant ${name} không làm reader đỏ đúng mệnh đề (đỏ: ${red.join(',') || 'không'})`);
+  }
+  if (failures === before) pass(id, 'bảy văn bản nghi thức chép luật; gỡ từng mệnh đề → đỏ đúng tên');
+}
+
 process.exit(failures ? 1 : 0);
