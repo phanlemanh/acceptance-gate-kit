@@ -108,7 +108,6 @@ ba lỗ phép đo còn lại ghi thành giới hạn đã biết.
 Khối máy-đọc cho AC-13(ii) — mỗi dòng `slug stateKey-cũ stateKey-mới`; thêm khác biệt là sửa khối này cùng lượt. Cờ KHÔNG khai ở đây: cờ đo bằng quan hệ ở AC-13(iii), vì danh sách cờ đổi theo ngày chạy (lớp «thước ghim vào thứ sẽ đổi»). Kiểm 23/08: 0 hồ sơ `stage: archived`, 5 hồ sơ có timebox ngày thật và cả 5 còn hạn.
 <!-- <<<KHAC-BIET-DOC-CU
 duong-do-trong-dinh-nghia-xong cho-cong-gia-tri da-giao-khong-do
-frontmatter-thang-mot-ky-hieu y-can-nhac cho-cong-dang
 KHAC-BIET-DOC-CU>>> -->
 
 Khối máy-đọc cho AC-18 — file NGOÀI lib được phép mang chuỗi luật ngưỡng, mỗi dòng `đường-dẫn lý-do`; thêm bản chép mới là quyết định người, khai ở đây cùng lượt:

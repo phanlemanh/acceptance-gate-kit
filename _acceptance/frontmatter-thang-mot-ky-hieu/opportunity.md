@@ -37,13 +37,19 @@ vào vật được giao», hình dạng 3).
 
 ## Ngưỡng chết / ngưỡng UAT
 
-Không đo được — vòng nội bộ bộ công cụ, không có người dùng cuối; thước thành
-công là chiều đỏ tự chứng: một hợp đồng có ` #` trong `feature:` phải hoặc bị
-lint gọi tên (đường TRỪ: cấm ký hiệu ở khoá mặt người), hoặc đọc ra nguyên văn
-(đường sửa bộ đọc: chỉ cắt ghi chú ở khoá đã khai) — và bản đồ vẽ từ nó phải
-khớp chữ người viết. Timebox nếu build: ≤ 1 ngày.
+> Khai TẠI Cổng Đáng (khuôn D1b). Máy đề xuất ở mục Cổng 0 bên dưới: vòng nội bộ bộ công cụ,
+> không có người dùng cuối — người ký chốt bằng một dòng «Không đo được — …» thay bốn bullet.
+
+- Câu hỏi phép đo trả lời: …
+- Kết quả nào là SỐNG: …
+- Kết quả nào là CHẾT: …
+- Timebox: …
 
 ## Cổng 0
 
-Chưa ký — chờ owner quyết build/park. Mở từ Ngoài-1 của hồ sơ mốc
+Chưa ký — chờ owner quyết build/park. Đề xuất của máy cho mục ngưỡng khi ký: «Không đo
+được — vòng nội bộ bộ công cụ, không có người dùng cuối; thước thành công là chiều đỏ tự
+chứng: một hợp đồng có ` #` trong `feature:` phải bị lint gọi tên (đường TRỪ) hoặc đọc ra
+nguyên văn (sửa bộ đọc: chỉ cắt ghi chú ở khoá đã khai), và bản đồ vẽ từ nó phải khớp chữ
+người viết. Timebox nếu build: ≤ 1 ngày.» Mở từ Ngoài-1 của hồ sơ mốc
 `release-2-9-0` (người ký chốt «mở hợp đồng mới», 07/09/2026), dưới luật vào-có-ô.
