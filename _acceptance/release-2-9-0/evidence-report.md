@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 65b30d19a0fc2339cfd41f87d9906455cfbe6296
-human_signoff: Manh Phan 2026-09-07 — ký phát hành 2.9.0 với 8 known-limits đã khai; Ngoài-1 mở hợp đồng mới (ô cửa sổ kế), Ngoài-2 ghi Known limits; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
+human_signoff: Manh Phan 2026-09-07 — ký phát hành 2.9.0 với 8 known-limits đã khai; Ngoài-1 mở hợp đồng mới (ô cửa sổ kế), Ngoài-2 ghi Known limits; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi · ký lần 2 2026-09-07 sau khi mốc gom fix(re-pin) 0b5c5b37 (ADR 0014) từ main: chữ mốc + manifest vế (5) + 3 known-limits gộp lần 2, ghim lại bằng làn eval
 ---
 
 # Evidence Report: release-2-9-0
