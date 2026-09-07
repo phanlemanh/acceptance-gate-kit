@@ -2117,7 +2117,7 @@ gl09_row="$(grep -m1 '^| `risk_tiers.t1_skip_globs`' "$HERE/../../GUIDE.md")"
 gl09_miss=""
 case "$gl09_row" in *'`**/`'*'không-hoặc-nhiều thư mục'*|*'`**/`'*'không hoặc nhiều thư mục'*) : ;; *) gl09_miss="$gl09_miss [1:**/ = không-hoặc-nhiều thư mục]" ;; esac
 case "$gl09_row" in *'`*` vượt `/`'*|*'`*` không dừng ở `/`'*) : ;; *) gl09_miss="$gl09_miss [2:* vượt /]" ;; esac
-case "$gl09_row" in *'AGENTS.md'*) : ;; *) gl09_miss="$gl09_miss [3:ví dụ AGENTS.md]" ;; esac
+case "$gl09_row" in *'`**/*.md`'*'`AGENTS.md`'*) : ;; *) gl09_miss="$gl09_miss [3:ví dụ **/*.md bắt AGENTS.md — cần cả hai, đúng thứ tự]" ;; esac
 if [ -z "$gl09_miss" ]; then echo "  PASS: HS09"; PASS_COUNT=$((PASS_COUNT+1)); else echo "  FAIL: HS09 (hàng t1_skip_globs thiếu$gl09_miss)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
 
 echo ""
