@@ -249,9 +249,25 @@ case "$outPM6" in *cross-layer*) echo "  FAIL: PM06-silent (pairing rule ran on 
 # ─── PM-LNT — NOTE lớp bằng chứng nhìn-thấy (hồ sơ lop-bang-chung-nhin-thay) ─────
 # Fixture theo nếp mk_xl (không git, không --base → DIFF_READY=0 → luật chạy fail-safe trên
 # mọi slug, đúng như staleness). surfaces tham số + approved_at cố định để NOTE ghim ngày.
+# Contract RÚT TỪ KHUÔN (CONTRACT-FRONTMATTER-TEMPLATE qua tests/fixtures/from-template.mjs) —
+# không printf frontmatter tay theo khuôn bên đọc (gap-probe S4-r1 #12, hình dạng 2).
+lnt_contract() { # <surfaces> <status> <body>  → stdout
+  node --input-type=module -e "
+import { pathToFileURL } from 'node:url';
+const [, mod, tpl, surfaces, status, body] = process.argv;
+const { fileFromTemplate } = await import(pathToFileURL(mod).href);
+process.stdout.write(fileFromTemplate(tpl, 'CONTRACT-FRONTMATTER-TEMPLATE', { feature: 'feat-lnt', slug: 'feat-lnt', owner: 'o@x', risk_tier: 'T2', surfaces, status }, body));
+" -- "$HERE/../fixtures/from-template.mjs" "$HERE/../../skills/acceptance/references/contract-template.md" "$1" "$2" "$3"
+}
 mk_lnt_repo() { # <root> <surfaces> <evals-body|""> [ledger-line]
   local d="$1/_acceptance/feat-lnt"; mkdir -p "$d"
-  printf -- '---\nschema_version: 1\nfeature: feat-lnt\nslug: feat-lnt\nrisk_tier: T2\nsurfaces: [%s]\nstatus: implemented\napproved_by: Manh Phan\napproved_at: 2026-09-01T00:00:00Z\n---\n## Criteria\n- AC-1: Given app, When open, Then hero visible.\n## Out of scope\n## Notes\nMobile backend target: staging — QA backend.\n' "$2" > "$d/contract.md"
+  # frontmatter từ khuôn; approved_by/approved_at điền vào đúng KHOÁ của khuôn (sed theo khoá, không viết lại dòng)
+  lnt_contract "$2" implemented '## Criteria
+- AC-1: Given app, When open, Then hero visible.
+## Out of scope
+## Notes
+Mobile backend target: staging — QA backend.
+' | sed -e 's/^approved_by:.*$/approved_by: Manh Phan/' -e 's/^approved_at:.*$/approved_at: 2026-09-01T00:00:00Z/' > "$d/contract.md"
   if [ -n "$3" ]; then printf -- 'evals:\n%s\n' "$3" > "$d/evals.yaml"; fi
   if [ -n "${4:-}" ]; then printf '%s\n' "$4" > "$d/decisions.jsonl"; fi
   local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
@@ -1166,7 +1182,11 @@ echo ""
 # ngưỡng KHÔNG có eval âm để W1 nổ = DẤU HIỆU QUÉT dương cho các ca vắng W8 (gap-probe F2).
 # Dòng cảnh báo có dạng "[slug] W8 …" — ca khớp "] W8 " để chú giải cuối ("W8 = …") không tính.
 mk_lnt() { local d="$1/_acceptance/feat-lnt"; mkdir -p "$d"
-  printf -- '---\nrisk_tier: T2\nstatus: approved\nsurfaces: [%s]\n---\n## Criteria\n- AC-1: Given user, When opens page, Then hero visible.\n- AC-2: Given user, When ≥3 opens trong 48h, Then fire hot.\n## Out of scope\n' "$2" > "$d/contract.md"
+  lnt_contract "$2" approved '## Criteria
+- AC-1: Given user, When opens page, Then hero visible.
+- AC-2: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+' > "$d/contract.md"
   printf -- 'evals:\n%s\n  - id: E9\n    criterion: AC-2\n    executor: test\n    expected: "fires hot"\n' "$3" > "$d/evals.yaml"
   if [ -n "${4:-}" ]; then printf '%s\n' "$4" > "$d/decisions.jsonl"; fi; :; }
 LNT_DESCOPE="$(node -e "process.stdout.write(require('$HERE/../../lib/lop-nhin-thay.cjs').UI_OBSERVED_DESCOPE)")"

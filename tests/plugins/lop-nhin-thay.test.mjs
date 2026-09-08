@@ -138,28 +138,58 @@ if (want('LNT4')) {
   const gcSrc = readFileSync(GATE_CARD, 'utf8');
   const pick = (re, w) => { const m = gcSrc.match(re); if (!m) throw new Error('gate-card.js không khai ' + w); return m[1]; };
   const NONE = pick(/UI_OBS_G2_NONE = '([^']+)'/, 'UI_OBS_G2_NONE');
-  const report = blocks => `---\nschema_version: 2\nfeature_slug: x\nverdict: PASS\nverified_commit: ${'a'.repeat(40)}\nenforcement_mode: enforced\nbypass_used: false\n---\n\n# Evidence Report: x\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | PASS |\n\n## Evidence\n\n${blocks}\n## Known limits\n\n(none)\n\n## Ngoài hợp đồng\n\n(none)\n`;
-  const blkPass = (e, shot) => `- eval: ${e}\n  run_id: x-${e}-001\n  exit_code: 0\n  verifier: scripts/x.sh\n  verified_at: 2026-09-08T00:00:00Z\n${shot ? `  screenshot: evidence/${e}-step1.png\n  observed: |\n    frame shows the hero fully rendered as expected\n` : ''}`;
-  const blkFail = e => `- eval: ${e}\n  run_id: x-${e}-001\n  exit_code: 4\n  verifier: scripts/x.sh\n  verified_at: 2026-09-08T00:00:00Z\n`;
+  // Báo cáo dựng từ VÙNG CHÉP của khuôn bên viết (sau mốc ---8<---), điền theo KHOÁ như
+  // evidenceText() của ca ra-co-ten; khối ui-check rút từ marker UI-CHECK-BLOCK-TEMPLATE —
+  // fixture không tự chép khuôn bên đọc (gap-probe S4-r1 #11, hình dạng 2).
+  const EVID_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'evidence-report-template.md');
+  const blockOf = (txt, marker) => { const m = txt.match(new RegExp(`<!-- <<<${marker} -->\\n([\\s\\S]*?)<!-- ${marker}>>> -->`)); if (!m) throw new Error('khuôn thiếu khối ' + marker); return m[1]; };
+  const uiBlock = (evalId, { pass }) => {
+    let b = blockOf(readFileSync(EVID_TPL, 'utf8'), 'UI-CHECK-BLOCK-TEMPLATE').replace(/E3/g, evalId);
+    b = b.replace(/^(\s+run_id:).*$/m, `$1 x-${evalId}-001`).replace(/^(\s+verified_at:).*$/m, '$1 2026-09-08T00:00:00Z')
+      .replace(/^(\s+observed: \|)\n[\s\S]*?(?=\n\s+network_observed:)/m, '$1\n    frame shows the hero fully rendered as expected')
+      .replace(/^(\s+network_observed:).*$/m, '$1 n-a (driver)');
+    if (!pass) b = b.replace(/^(\s+exit_code:).*$/m, '$1 4').split('\n').filter(l => !/^\s+(screenshot|observed|network_observed):/.test(l) && !/^\s{4}frame shows/.test(l)).join('\n');
+    const left = b.match(/\{\{[^}]*\}\}/g); if (left) throw new Error('uiBlock: placeholder chưa điền: ' + left.join(' · '));
+    return b.endsWith('\n') ? b : b + '\n';
+  };
+  const report = (extraBlocks) => {
+    const tpl = readFileSync(EVID_TPL, 'utf8');
+    let t = tpl.slice(tpl.indexOf('---8<---') + '---8<---'.length).replace(/^\s*/, '');
+    t = t.replace(/\{\{slug\}\}/g, 'x').replace(/^verdict: .*$/m, 'verdict: PASS').replace(/^enforcement_mode: .*$/m, 'enforcement_mode: strict')
+      .replace(/^bypass_used: .*$/m, 'bypass_used: false').replace(/^verified_commit: .*$/m, `verified_commit: ${'a'.repeat(40)}`).replace(/^human_signoff:.*$/m, 'human_signoff:');
+    const rowVals = ['E1', 'AC-1', 'test', 'PASS']; let ri = 0;
+    t = t.replace(/^\|.*\{\{.*\|$/m, line => line.replace(/\{\{[^}]*\}\}/g, () => rowVals[ri++] ?? '…'));
+    t = t.replace(/^(- eval:).*\{\{[^}]*\}\}.*$/m, '$1 E1').replace(/^(\s+run_id:).*\{\{[^}]*\}\}.*$/m, '$1 x-E1-001')
+      .replace(/^(\s+verifier:).*\{\{[^}]*\}\}.*$/m, '$1 scripts/x.sh').replace(/^(\s+verified_at:).*\{\{[^}]*\}\}.*$/m, '$1 2026-09-08T00:00:00Z')
+      .replace(/^(\s+)\{\{last 5-10[^}]*\}\}.*$/m, '$1ok')
+      .replace(/\{\{eval ids green-on-both[^}]*\}\}/, 'none — every feature eval is red on baseline (discriminates)')
+      .replace(/\{\{eval ids with mixed pass_rate[^}]*\}\}/, 'none — every multi-run eval is uniform')
+      .replace(/\{\{One line per verify round[\s\S]*?\}\}/, 'Round 1: ok');
+    const left = t.match(/\{\{[^}]*\}\}/g); if (left) throw new Error('report: placeholder chưa điền: ' + left.slice(0, 3).join(' · '));
+    // khối ui-check chèn ngay trước hai mục xanh-sạch (sau khối E1) — đúng chỗ khuôn dạy
+    const iKL = t.indexOf('\n## Known limits'); if (iKL < 0) throw new Error('vùng chép thiếu ## Known limits');
+    const before = t.slice(0, iKL).replace(/\s*$/, '\n'); const after = t.slice(iKL);
+    return before + (extraBlocks ? '\n' + extraBlocks : '') + after;
+  };
   const ws = (surfaces, evalsBody, blocks, ledger) => { const r = tmp();
     W(r, '_acceptance/x/contract.md', contractOf(surfaces, 'verified').replace('approved_by:', 'approved_by: Manh').replace('approved_at:', 'approved_at: 2026-09-01T00:00:00Z'));
     W(r, '_acceptance/x/evals.yaml', 'evals:\n' + evalsBody); W(r, '_acceptance/x/evidence-report.md', report(blocks)); W(r, '_acceptance/x/run-log.jsonl', '');
     if (ledger) W(r, '_acceptance/x/decisions.jsonl', ledger); return r; };
   const EV = EV_T + '  - id: E10\n    criterion: AC-1\n    executor: ui-check\n    layer: ui-observed\n    expected: "frame"\n';
-  let r = ws('ui', EV, blkPass('E1') + blkFail('E10')); let x = extract(r);
+  let r = ws('ui', EV, uiBlock('E10', { pass: false })); let x = extract(r);
   eq(id, x.gate, 2, 'nhận Cổng Bằng chứng');
   eq(id, x.ui_observed, { applicable: true, present: false, declared: 1, passed: 0, descoped: null }, '(a) khai mà không đạt');
   { const h = html(r); if (!h.includes(NONE) || !h.includes('E10')) fail(id, '(a) HTML thiếu cờ KHÔNG có + id E10'); }
-  r = ws('ui', EV, blkPass('E1') + blkPass('E10', true)); x = extract(r);
+  r = ws('ui', EV, uiBlock('E10', { pass: true })); x = extract(r);
   eq(id, x.ui_observed.present, true, '(b) đạt'); eq(id, x.ui_observed.passed, 1, '(b) passed');
   { const h = html(r); if (h.includes(NONE) || !/1 eval ui-check đạt/.test(h)) fail(id, '(b) phải nêu 1 eval đạt, không cờ KHÔNG có'); }
-  r = ws('ui', EV_T, blkPass('E1')); x = extract(r); eq(id, x.ui_observed.declared, 0, '(c) declared 0'); if (!html(r).includes(NONE)) fail(id, '(c) thiếu cờ');
+  r = ws('ui', EV_T, ''); x = extract(r); eq(id, x.ui_observed.declared, 0, '(c) declared 0'); if (!html(r).includes(NONE)) fail(id, '(c) thiếu cờ');
   const seal = '{"id":"d-1","type":"seal","gate":1,"at":"2026-09-01T00:00:00Z"}\n';
   const ds = `{"id":"d-2","type":"descope","stage":"S4-r1","at":"2026-09-02T00:00:00Z","decision":"${L.UI_OBSERVED_DESCOPE}hạ tầng chụp hỏng","impact":"không frame"}\n`;
-  r = ws('ui', EV, blkPass('E1') + blkFail('E10'), seal + ds); x = extract(r);
+  r = ws('ui', EV, uiBlock('E10', { pass: false }), seal + ds); x = extract(r);
   if (!(x.decisions_provisional || []).some(d => d.id === 'd-2')) fail(id, '(d) descope sau seal phải ở khối CHƯA duyệt');
   eq(id, x.ui_observed.descoped, 'd-2', '(d) descoped'); if (!html(r).includes('d-2')) fail(id, '(d) cờ nêu id');
-  r = ws('cli', EV_T, blkPass('E1')); x = extract(r); eq(id, x.ui_observed.applicable, false, '(e) cli'); if (html(r).includes('lớp nhìn-thấy')) fail(id, '(e) cli mà có cụm lớp nhìn-thấy');
+  r = ws('cli', EV_T, ''); x = extract(r); eq(id, x.ui_observed.applicable, false, '(e) cli'); if (html(r).includes('lớp nhìn-thấy')) fail(id, '(e) cli mà có cụm lớp nhìn-thấy');
   if (failures === before) pass(id, 'thẻ Cổng Bằng chứng: present đọc trên báo cáo, descope sau seal ở CHƯA duyệt, cli im');
 }
 
