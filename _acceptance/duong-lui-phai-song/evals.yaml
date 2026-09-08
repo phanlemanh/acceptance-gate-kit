@@ -22,13 +22,15 @@ evals:
     cmd: config:executors.script.dlps_lan_v_stale
     paths: [scripts/pre-merge-check.sh, _acceptance/duong-lui-phai-song/rang.sh]
     expected: >
-      Kho git tạm, ma trận 5 ô khai trước: (1) hồ sơ làn V xanh-sạch (verified, veto_state mo, chữ ký rỗng) pin
-      tại commit A, commit B đổi một file mã ngoài T1, pre-merge --base A → «VIOLATION [x]: làn V — evidence is
-      stale (code changed after verify, verified_commit <A>)»; (2) commit B chỉ đổi docs/ → NOTE xanh-sạch, 0
-      violation (đối chứng dương); (3) verified_commit = SHA hợp lệ về hình thức nhưng không có trong repo (clone
-      đầy đủ) → VIOLATION pin-ma cùng họ P184, KHÔNG NOTE xanh-sạch; (4) verified_commit rỗng → NOTE «report has
-      no verified_commit», không NOTE xanh-sạch; (5) hồ sơ ngoài diff → im lặng. Chiều đỏ: bản sao gỡ khối mới →
-      ô (1) stale mà vẫn NOTE xanh-sạch. Số assert = 5.
+      Kho git tạm, ma trận 8 ô khai trước (đổi khuôn: làn V đi CÙNG chuỗi kiểm với hồ sơ có chữ ký): (1) hồ sơ
+      làn V xanh-sạch pin tại commit A, commit C đổi file mã ngoài T1, pre-merge --base A → «VIOLATION [x]:
+      evidence is stale — code changed after verify (verified_commit <A>)» cùng câu với hồ sơ có chữ ký, không
+      OK làn V; (2) chỉ đổi docs/ → NOTE xanh-sạch + «OK [x]: PASS — làn V, máy đi tiếp không chữ ký», 0
+      VIOLATION (đối chứng dương); (3) verified_commit là SHA không có trong repo → VIOLATION pin-ma P184; (4)
+      verified_commit rỗng → NOTE «report has no verified_commit»; (5) hồ sơ ngoài diff (--base B) → không stale,
+      OK làn V; (6) không --base mà cây đổi → VIOLATION stale (kiểm-tất, không tắt im); (7) làn suite-only chống
+      lưng pin → VIOLATION «recorded no evals_exit»; (8) run_id lạ → VIOLATION «committed evidence fails re-check
+      (recheck: strict)». Chiều đỏ: bản sao trả lại `continue` sau NOTE xanh-sạch → ô (1) và (7) đều 0 VIOLATION.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -73,10 +75,10 @@ evals:
     paths: [commands/signoff.md, scripts/pre-merge-check.sh, lib/evidence-core.cjs, _acceptance/duong-lui-phai-song/rang.sh]
     expected: >
       Ma trận 4 ô khai trước: status ∈ {verified, machine-cleared} × Cổng 1 ∈ {approved_by có, làn V mo}; mỗi ô
-      ghi veto_state: da-veto rồi tự kiểm bằng evaluateContractWrite(new, old) của lib/evidence-core.cjs → 0
-      failure ở CẢ 4 ô (đối chứng dương của chiều đỏ: ô machine-cleared × mo phải ĐỎ trên bản base git archive
-      origin/main lib — «Gate 1 approval not recorded» — trước khi xanh trên cây vá); sau ghi, vetoGateState đọc
-      da-veto, entry type:veto có lý do nguyên văn, pre-merge in «VIOLATION [x]: veto_state=da-veto chưa xử».
+      ghi veto_state: da-veto (bản cũ đang mo ở ô làn V) rồi tự kiểm bằng evaluateContractWrite(new, old) của
+      lib/evidence-core.cjs → 0 failure ở CẢ 4 ô; đối chứng dương của chiều đỏ: ô machine-cleared × mo phải ĐỎ
+      «Gate 1 approval not recorded» trên bản base git archive SHA CỐ ĐỊNH bafe2aad scripts lib (mốc cắt nhánh,
+      không phải ref trôi origin/main); sau ghi, pre-merge in «VIOLATION [x]: veto_state=da-veto chưa xử».
       Chiều đỏ thứ hai: xử ngược da-veto→mo KHÔNG entry → «mà KHÔNG có entry sổ quyết định»; có entry → NOTE «veto đã xử».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
@@ -95,10 +97,12 @@ evals:
     cmd: config:executors.script.dlps_ket_ghi
     paths: [scripts/khong-can-nguoi.mjs, lib/evidence-core.cjs, _acceptance/duong-lui-phai-song/rang.sh]
     expected: >
-      Ma trận fixture {verified sạch T2 · thiếu Known limits · có UNCERTAIN · T3 · status draft}: chỉ ô đầu
-      ghi status: machine-cleared (diff đúng một dòng, md5 phần còn lại không đổi), exit 0; bốn ô kia exit 2
-      nêu điều kiện trượt đầu tiên và file không đổi byte; --check không ghi ở ô đầu. Chiều đỏ: mutant bỏ
-      evaluateContractWrite → ô T3 ghi được → chân đỏ «ghi machine-cleared cho T3».
+      Ma trận fixture {verified sạch T2 · thiếu Known limits · có UNCERTAIN · T3 · status draft · thiếu cờ ·
+      status có comment đuôi · báo cáo đã có human_signoff}: ô đầu ghi status: machine-cleared (diff đúng một
+      dòng), exit 0, --check không đổi byte; các ô từ chối exit 2 nêu điều kiện trượt đầu tiên (thiếu cờ exit 3),
+      không ghi; comment đuôi giữ nguyên khi ghi; báo cáo có chữ ký → exit 2 «lưới ghi từ chối: chữ ký người
+      trên hồ sơ máy-thông» (cùng luật thứ hai của hook). Chiều đỏ hai tầng: gỡ cổng why → T3 vẫn bị lưới ghi từ
+      chối; gỡ cả hai → T3 bị ghi «ghi machine-cleared cho T3».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
@@ -126,8 +130,10 @@ evals:
     paths: [scripts/pre-merge-check.sh]
     expected: >
       Chạy pre-merge-check --base origin/main --recheck-all trên cây đã vá và trên bản base (git archive
-      origin/main scripts lib) đối với cùng _acceptance/: số dòng VIOLATION của cây vá ≤ bản base + số VIOLATION
-      mới có tên thuộc họ vòng này (làn V stale · re-check KHÔNG CHẠY ĐƯỢC) = 0 trên cây thật. In hai số.
+      origin/main scripts lib) đối với cùng _acceptance/: số dòng VIOLATION NGOÀI họ nợ làn suite-only («recorded
+      no evals_exit») của cây vá ≤ bản base; mọi dòng tăng thêm phải là dòng nợ đó của slug có tên trong
+      SUITE_ONLY_LANE_DEBT (tests/scripts/mirror-sync-grandfather.mjs); «re-check KHÔNG CHẠY ĐƯỢC» = 0 trên cây
+      thật. In hai cặp số. Đối chứng dương của phép đếm: fixture làn V stale → đếm ≥ 1.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-12

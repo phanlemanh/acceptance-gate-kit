@@ -108,7 +108,7 @@ if (_isMain) {
   const mode = argv.includes('--write') ? 'write' : argv.includes('--check') ? 'check' : null;
   const root = get('--root'), slug = get('--slug');
   if (!mode || !root || !slug) { console.error('khong-can-nguoi: dùng --write|--check --root <repo> --slug <slug>'); process.exit(3); }
-  const { evaluateContractWrite } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+  const { evaluateContractWrite, machineClearedSignoffConflict } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
   const cp = path.join(root, '_acceptance', slug, 'contract.md'), ep = path.join(root, '_acceptance', slug, 'evidence-report.md');
   let contract, evidence;
   try { contract = fs.readFileSync(cp, 'utf8'); } catch { console.error(`khong-can-nguoi: không đọc được ${cp}`); process.exit(3); }
@@ -126,6 +126,11 @@ if (_isMain) {
   if (next === contract) { console.error('chưa đủ: không tìm được dòng status: verified'); process.exit(2); }
   const r = evaluateContractWrite(next, contract);
   if (r.anyFailure) { console.error(`lưới ghi từ chối: ${r.failures.join(' | ')}`); process.exit(2); }
+  // Luật THỨ HAI của hook ghi-lúc-viết (hooks/acceptance-evidence-gate.js): chữ ký người trên hồ sơ
+  // máy-thông là hai sự thật cãi nhau — CLI ghi thẳng đĩa không qua hook nên phải hỏi cùng luật
+  // (S4-r1/r3 finding: ca ký bị ngắt giữa chừng rồi resume vào hàng verified).
+  const conflict = machineClearedSignoffConflict(next, evidence);
+  if (conflict) { console.error(`lưới ghi từ chối: ${conflict}`); process.exit(2); }
   if (mode === 'write') fs.writeFileSync(cp, next);
   console.log(`${mode === 'write' ? 'machine-cleared' : 'sẽ machine-cleared'}: ${slug}`);
 }

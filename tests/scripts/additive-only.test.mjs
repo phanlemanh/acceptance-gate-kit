@@ -18,6 +18,10 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
+  // duong-lui-phai-song ĐỔI KHUÔN (owner 08/09/2026, sau ba vòng S4 cùng bắt lớp fail-open):
+  // dòng `continue` sau NOTE xanh-sạch của làn V bị GỠ — hồ sơ máy-đi-trước rơi xuống cùng
+  // chuỗi kiểm với hồ sơ có chữ ký (DLPS-LAN-V-MOT-DUONG). Gỡ là luật CHẶT HƠN, không nới.
+  `      continue`,
   // duong-lui-phai-song AC-3: ranh tiêu đề xanh-sạch về #{2,6} cùng section() — h1
   // «Known limits» có nội dung từng được bash coi là «có tiêu đề» rồi section()
   // trả rỗng → sạch-giả; hai dòng dưới là đúng hai dòng ranh cũ, thay bằng #{2,6}.

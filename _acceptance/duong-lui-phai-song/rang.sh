@@ -99,14 +99,14 @@ PY
     if [ "$CHAN" = ky-lan-song ]; then
       # đối chứng dương: eval xanh → làn xanh → commit chữ ký có mặt
       mk_repo '{"contract":{"status":"verified"}}'
-      sed -i '' 's/^human_signoff:.*/human_signoff: t 2026-09-08/' "$FX_ROOT/_acceptance/fx/evidence-report.md"
+      sed -i.bak 's/^human_signoff:.*/human_signoff: t 2026-09-08/' "$FX_ROOT/_acceptance/fx/evidence-report.md" && rm -f "$FX_ROOT/_acceptance/fx/evidence-report.md".bak
       (cd "$FX_ROOT" && eval "$RUN7B") > "$TMP/lane1.out" 2>&1; rc=$?
       if [ $rc -eq 0 ] && ! grep -q '"kind":"repin"' "$FX_ROOT/_acceptance/fx/run-log.jsonl"; then ok "7b làn xanh, KHÔNG ghi pin (chỉ đo)"; else bad "7b: rc=$rc hoặc đã ghi pin — $(tail -3 "$TMP/lane1.out" | tr '\n' ' ')"; fi
       if [ $rc -eq 0 ]; then (cd "$FX_ROOT" && git -c user.email=t@t -c user.name=t add -A && git -c user.email=t@t -c user.name=t commit -q -m "Gate 2 signoff: fx — t"); fi
       if [ "$(git -C "$FX_ROOT" log --oneline | grep -c 'Gate 2 signoff')" = 1 ]; then ok "7c: commit chữ ký có mặt sau làn xanh"; else bad "7c: không có commit chữ ký"; fi
       # chiều đỏ: eval đỏ → làn đỏ → KHÔNG commit
       mk_repo '{"contract":{"status":"verified"},"verifyExit":1}'
-      sed -i '' 's/^human_signoff:.*/human_signoff: t 2026-09-08/' "$FX_ROOT/_acceptance/fx/evidence-report.md"
+      sed -i.bak 's/^human_signoff:.*/human_signoff: t 2026-09-08/' "$FX_ROOT/_acceptance/fx/evidence-report.md" && rm -f "$FX_ROOT/_acceptance/fx/evidence-report.md".bak
       (cd "$FX_ROOT" && eval "$RUN7B") > "$TMP/lane2.out" 2>&1; rc=$?
       if [ $rc -ne 0 ] && grep -q 'LÀN ĐỎ' "$TMP/lane2.out"; then ok "7b làn đỏ: exit $rc, in «LÀN ĐỎ» nguyên văn"; else bad "7b làn đỏ mà rc=$rc / không in LÀN ĐỎ"; fi
       if [ $rc -eq 0 ]; then (cd "$FX_ROOT" && git add -A && git commit -q -m "Gate 2 signoff: fx — t"); fi
@@ -114,7 +114,7 @@ PY
     else
       # E5: commit chữ ký chạm file ngoài T1 → stale → ghim lại bằng dòng 8b → lưới sạch → READY
       mk_repo '{"contract":{"status":"verified"},"repinLine":true}'
-      sed -i '' 's/^human_signoff:.*/human_signoff: t 2026-09-08/' "$FX_ROOT/_acceptance/fx/evidence-report.md"
+      sed -i.bak 's/^human_signoff:.*/human_signoff: t 2026-09-08/' "$FX_ROOT/_acceptance/fx/evidence-report.md" && rm -f "$FX_ROOT/_acceptance/fx/evidence-report.md".bak
       echo v2 > "$FX_ROOT/src.txt"
       (cd "$FX_ROOT" && git -c user.email=t@t -c user.name=t add -A && git -c user.email=t@t -c user.name=t commit -q -m "Gate 2 signoff: fx — t")
       pmc "$FX_ROOT" --base "$FX_A"
@@ -127,7 +127,7 @@ PY
       if [ "$VIOL" = 0 ]; then ok "lưới lại sau ghim: 0 VIOLATION → READY"; else bad "lưới lại vẫn đỏ: $(printf '%s\n' "$OUT" | grep '^VIOLATION' | head -2)"; fi
       # chiều đỏ: bỏ bước ghim lại → lưới vẫn stale, không READY
       mk_repo '{"contract":{"status":"verified"},"repinLine":true}'
-      sed -i '' 's/^human_signoff:.*/human_signoff: t 2026-09-08/' "$FX_ROOT/_acceptance/fx/evidence-report.md"
+      sed -i.bak 's/^human_signoff:.*/human_signoff: t 2026-09-08/' "$FX_ROOT/_acceptance/fx/evidence-report.md" && rm -f "$FX_ROOT/_acceptance/fx/evidence-report.md".bak
       echo v2 > "$FX_ROOT/src.txt"
       (cd "$FX_ROOT" && git -c user.email=t@t -c user.name=t add -A && git -c user.email=t@t -c user.name=t commit -q -m "Gate 2 signoff: fx — t")
       pmc "$FX_ROOT" --base "$FX_A"
@@ -167,34 +167,51 @@ PY
     if [ "$VIOL" = 0 ] && has "$OUT" "NOTE [fx]: evidence re-check not vendored"; then ok "chiều đỏ: gỡ dòng mới → strict lại câm (chỉ NOTE) — phép đo bám đúng dòng"; else bad "chiều đỏ KHÔNG chạy: bản sao gỡ dòng mà vẫn VIOLATION ($VIOL)"; fi
     ;;
   lan-v-stale)
-    # E2: làn V (không chữ ký, xanh-sạch) vẫn bị kiểm hoá cũ — 5 ô + chiều đỏ gỡ khối DLPS-LAN-V-STALE.
+    # E2 (đổi khuôn): làn V rơi xuống CÙNG chuỗi kiểm với hồ sơ có chữ ký — 8 ô + chiều đỏ «trả lại continue».
     fxgit() { git -C "$FX_ROOT" -c user.email=t@t -c user.name=t -c commit.gpgsign=false "$@"; }
-    STALE_MSG='VIOLATION [fx]: làn V — evidence is stale (code changed after verify, verified_commit '
-    # (1) commit C đổi src.txt + sổ → VIOLATION làn V stale nêu vc=A
+    STALE_MSG='VIOLATION [fx]: evidence is stale — code changed after verify (verified_commit '
+    LANV_OK='OK [fx]: PASS — làn V, máy đi tiếp không chữ ký'
+    # (1) commit C đổi src.txt + sổ → VIOLATION stale CÙNG câu với hồ sơ có chữ ký, nêu vc=A; không OK làn V
     mk_repo '{}'; echo v2 > "$FX_ROOT/src.txt"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code"
     pmc "$FX_ROOT" --base "$FX_A"
-    if has "$OUT" "$STALE_MSG$FX_A" && [ "$VIOL" = 1 ] && ! has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "(1) làn V + cây đổi ngoài T1 → VIOLATION làn V stale, không xanh-sạch"; else bad "(1) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
-    # (2) commit C chỉ đổi docs (T1) + sổ → xanh-sạch, 0 VIOLATION
+    if has "$OUT" "$STALE_MSG$FX_A" && [ "$VIOL" = 1 ] && ! has "$OUT" "$LANV_OK"; then ok "(1) làn V + cây đổi ngoài T1 → VIOLATION stale (cùng câu với hồ sơ có chữ ký), không OK làn V"; else bad "(1) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (2) chỉ đổi docs (T1) + sổ → xanh-sạch, đi trọn chuỗi, OK làn V, 0 VIOLATION
     mk_repo '{}'; echo more >> "$FX_ROOT/docs/README.md"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: docs"
     pmc "$FX_ROOT" --base "$FX_A"
-    if has "$OUT" "NOTE [fx]: xanh-sạch" && [ "$VIOL" = 0 ]; then ok "(2) chỉ đổi T1 → vẫn xanh-sạch, 0 VIOLATION (đối chứng dương)"; else bad "(2) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
-    # (3) pin ma
+    if has "$OUT" "NOTE [fx]: xanh-sạch" && has "$OUT" "$LANV_OK" && [ "$VIOL" = 0 ]; then ok "(2) chỉ đổi T1 → xanh-sạch, qua trọn chuỗi, OK làn V (đối chứng dương)"; else bad "(2) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -4 | tr '\n' ' ')"; fi
+    # (3) pin ma → VIOLATION P184 (cùng khối với hồ sơ có chữ ký)
     mk_repo '{"vc":"b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3"}'; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: so"
     pmc "$FX_ROOT" --base "$FX_A"
-    if has "$OUT" "VIOLATION [fx]: verified_commit b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3 does not exist in this repo — the pin is a phantom" && [ "$VIOL" = 1 ]; then ok "(3) pin ma trên làn V → VIOLATION cùng họ P184"; else bad "(3) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
-    # (4) không có verified_commit
+    if has "$OUT" "VIOLATION [fx]: verified_commit b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3 does not exist in this repo — the pin is a phantom" && [ "$VIOL" = 1 ] && ! has "$OUT" "$LANV_OK"; then ok "(3) pin ma trên làn V → VIOLATION P184, không OK làn V"; else bad "(3) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (4) vắng verified_commit → NOTE đường đọc-cũ như hồ sơ có chữ ký (không chặn, không im)
     mk_repo '{"vc":""}'; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: so"
     pmc "$FX_ROOT" --base "$FX_A"
-    if has "$OUT" "NOTE [fx]: report has no verified_commit" && ! has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "(4) vắng pin → NOTE, KHÔNG xanh-sạch"; else bad "(4) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
-    # (5) code đổi nhưng hồ sơ NGOÀI diff PR (base = B) → không soi stale, không dòng stale [fx]
+    if has "$OUT" "NOTE [fx]: report has no verified_commit"; then ok "(4) vắng pin → NOTE đường đọc-cũ (cùng câu với hồ sơ có chữ ký)"; else bad "(4) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (5) code đổi nhưng hồ sơ NGOÀI diff PR (base = B) → stale-theo-diff-pr giữ nguyên: không stale, OK làn V
     mk_repo '{}'; echo v2 > "$FX_ROOT/src.txt"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code only"
     pmc "$FX_ROOT" --base "$FX_B"
-    if ! has "$OUT" "evidence is stale" && has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "(5) hồ sơ ngoài diff PR → không soi stale (stale-theo-diff-pr giữ nguyên)"; else bad "(5) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
-    # chiều đỏ: bản sao gỡ khối → ô (1) thành xanh-sạch
-    copy_tree; inject lan-v-stale scripts/pre-merge-check.sh '      if [ "$DIFF_READY" -eq 1 ] && slug_in_diff "$slug"; then # DLPS-LAN-V-STALE' '      if false; then # DLPS-LAN-V-STALE'
-    mk_repo "{\"vendorFrom\":\"$COPY\"}"; echo v2 > "$FX_ROOT/src.txt"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code"
+    if ! has "$OUT" "evidence is stale" && has "$OUT" "$LANV_OK"; then ok "(5) hồ sơ ngoài diff PR → không soi stale, OK làn V (stale-theo-diff-pr giữ nguyên)"; else bad "(5) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (6) KHÔNG --base (DIFF_READY=0) + cây đổi → kiểm-tất, VIOLATION stale (đúng doctrine STALE-DIFF-SCOPE-GUARD)
+    mk_repo '{}'; echo v2 > "$FX_ROOT/src.txt"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code"
+    pmc "$FX_ROOT"
+    if has "$OUT" "$STALE_MSG$FX_A" && ! has "$OUT" "$LANV_OK"; then ok "(6) không --base → làn V vẫn bị kiểm-tất: VIOLATION stale (không tắt im)"; else bad "(6) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (7) làn suite-only chống lưng pin (không evals_exit) trên hồ sơ làn V → luật làn eval cắn
+    mk_repo '{"repinSuiteOnly":true}'; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: so"
     pmc "$FX_ROOT" --base "$FX_A"
-    if has "$OUT" "NOTE [fx]: xanh-sạch" && [ "$VIOL" = 0 ]; then ok "chiều đỏ: gỡ khối DLPS-LAN-V-STALE → làn V lại thoát stale (phép đo bám đúng khối)"; else bad "chiều đỏ KHÔNG chạy: gỡ khối mà vẫn VIOLATION ($VIOL)"; fi
+    if has "$OUT" "VIOLATION [fx]: re-pin lane \"repin-fx-1\"" && has "$OUT" "recorded no evals_exit" && ! has "$OUT" "$LANV_OK"; then ok "(7) làn V + làn suite-only chống lưng pin → luật làn eval cắn (soi MỌI hồ sơ)"; else bad "(7) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -4 | tr '\n' ' ')"; fi
+    # (8) run_id báo cáo không có trong run-log → soi lại strict cắn trên hồ sơ làn V
+    mk_repo '{"runId":"fx-E1-999"}'; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: so"
+    pmc "$FX_ROOT" --base "$FX_A"
+    if has "$OUT" "VIOLATION [fx]: committed evidence fails re-check (recheck: strict)" && ! has "$OUT" "$LANV_OK"; then ok "(8) làn V + run_id lạ → soi lại strict cắn (recheck không còn bị continue chặn)"; else bad "(8) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -4 | tr '\n' ' ')"; fi
+    # chiều đỏ: bản sao TRẢ LẠI `continue` sau NOTE xanh-sạch → ô (1),(7),(8) đều xanh giả
+    copy_tree; inject lan-v-continue scripts/pre-merge-check.sh '      LAN_V=1
+    fi' '      continue
+    fi'
+    mk_repo "{\"vendorFrom\":\"$COPY\"}"; echo v2 > "$FX_ROOT/src.txt"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code"
+    pmc "$FX_ROOT" --base "$FX_A"; R1=$VIOL
+    mk_repo "{\"vendorFrom\":\"$COPY\",\"repinSuiteOnly\":true}"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: so"
+    pmc "$FX_ROOT" --base "$FX_A"; R7=$VIOL
+    if [ "$R1" = 0 ] && [ "$R7" = 0 ]; then ok "chiều đỏ: trả lại continue → làn V lại thoát stale lẫn làn eval (0 VIOLATION cả hai) — phép đo bám đúng dòng"; else bad "chiều đỏ KHÔNG chạy: trả lại continue mà vẫn VIOLATION ($R1/$R7)"; fi
     ;;
   h1-rong)
     # E3: h1 «Known limits» có nội dung → bash và mjs cùng nói VẮNG (ranh #{2,6}); chiều đỏ đưa #{1,6} lại → bash sạch-giả.
@@ -221,7 +238,9 @@ PY
   veto-ghi)
     # E6: ma trận 4 ô {verified, machine-cleared} × {approved_by, mo}: ghi da-veto (có vết) không bị lưới ghi chặn;
     # đối chứng base (origin/main): ô machine-cleared×mo phải đỏ «Gate 1 approval not recorded». Rồi veto-trace ở pre-merge.
-    copy_tree origin/main; BASE_LIB="$COPY/lib/evidence-core.cjs"
+    # Bản base NEO SHA CỐ ĐỊNH (mốc cắt nhánh, lib chưa có vetoRecorded) — không phải ref trôi origin/main:
+    # sau khi merge, origin/main mang lib mới và đối chứng «P0 tái hiện» sẽ đỏ vĩnh viễn (S4-r2/r3 finding).
+    copy_tree bafe2aaddd3568fecb126dbfcb3903eff3e26803; BASE_LIB="$COPY/lib/evidence-core.cjs"
     OPENED='2026-09-01T00:00:00Z'
     veto_eval() { # $1 lib · $2 status · $3 approved_by ('' = làn V mo) → in số failure + failures
       node -e '
@@ -245,11 +264,11 @@ PY
     done; done
     # pre-merge veto-trace: da-veto chưa xử → VIOLATION; lật ngược không sổ → VIOLATION; có sổ → NOTE đã xử
     fxgit() { git -C "$FX_ROOT" -c user.email=t@t -c user.name=t -c commit.gpgsign=false "$@"; }
-    mk_repo '{}'; sed -i '' 's/^veto_state: mo$/veto_state: da-veto/' "$FX_ROOT/_acceptance/fx/contract.md"
+    mk_repo '{}'; sed -i.bak 's/^veto_state: mo$/veto_state: da-veto/' "$FX_ROOT/_acceptance/fx/contract.md" && rm -f "$FX_ROOT/_acceptance/fx/contract.md".bak
     fxgit add -A >/dev/null; fxgit commit -q -m "C: veto"; C="$(fxgit rev-parse HEAD)"
     pmc "$FX_ROOT" --base "$FX_A"
     if has "$OUT" "VIOLATION [fx]: veto_state=da-veto chưa xử"; then ok "pre-merge: da-veto chưa xử → VIOLATION (hồ sơ không merge được ở trạng thái veto)"; else bad "pre-merge không báo da-veto chưa xử: $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
-    sed -i '' 's/^veto_state: da-veto$/veto_state: mo/' "$FX_ROOT/_acceptance/fx/contract.md"; fxgit add -A >/dev/null; fxgit commit -q -m "D: lat nguoc khong so"
+    sed -i.bak 's/^veto_state: da-veto$/veto_state: mo/' "$FX_ROOT/_acceptance/fx/contract.md" && rm -f "$FX_ROOT/_acceptance/fx/contract.md".bak; fxgit add -A >/dev/null; fxgit commit -q -m "D: lat nguoc khong so"
     pmc "$FX_ROOT" --base "$C"
     if has "$OUT" "mà KHÔNG có entry sổ quyết định"; then ok "chiều đỏ: lật da-veto→mo KHÔNG entry sổ → VIOLATION (veto người không bốc hơi)"; else bad "lật ngược không sổ mà không đỏ: $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
     printf '%s\n' '{"id":"d-v1","type":"veto","stage":"gate2","at":"2026-09-08T00:00:00Z","decision":"xử: về draft làm lại phạm vi","decided_by":"t"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"
@@ -288,13 +307,16 @@ PY
     if [ $KRC -eq 0 ] && [ "$KOUT" = "sẽ machine-cleared: fx" ] && [ "$H1" = "$H2" ]; then ok "(1b) --check: exit 0, không đổi byte"; else bad "(1b) rc=$KRC out=«$KOUT» md5 $H1→$H2"; fi
     mk_repo '{"sections":"## Known limits\n- còn một lỗ\n\n## Ngoài hợp đồng\n"}'; H1="$(md5f "$FX_ROOT/_acceptance/fx/contract.md")"; kcn "$FX_ROOT" --write; H2="$(md5f "$FX_ROOT/_acceptance/fx/contract.md")"
     if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: mục «Known limits» có nội dung" ] && [ "$H1" = "$H2" ]; then ok "(2) Known limits có nội dung → exit 2 nêu đúng điều kiện, không ghi"; else bad "(2) rc=$KRC out=«$KOUT»"; fi
-    mk_repo '{}'; sed -i '' 's/| PASS |$/| UNCERTAIN |/' "$FX_ROOT/_acceptance/fx/evidence-report.md"; kcn "$FX_ROOT" --write
+    mk_repo '{}'; sed -i.bak 's/| PASS |$/| UNCERTAIN |/' "$FX_ROOT/_acceptance/fx/evidence-report.md" && rm -f "$FX_ROOT/_acceptance/fx/evidence-report.md".bak; kcn "$FX_ROOT" --write
     if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: có mục UNCERTAIN" ]; then ok "(3) mục UNCERTAIN → exit 2"; else bad "(3) rc=$KRC out=«$KOUT»"; fi
     mk_repo '{"contract":{"risk_tier":"T3","approved_by":"t","veto_state":""}}'; kcn "$FX_ROOT" --write
     if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: hạng T3 (chỉ T2)" ] && ! grep -q machine-cleared "$FX_ROOT/_acceptance/fx/contract.md"; then ok "(4) hạng T3 → exit 2, không ghi"; else bad "(4) rc=$KRC out=«$KOUT»"; fi
     mk_repo '{"contract":{"status":"draft"}}'; kcn "$FX_ROOT" --write
     if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: status draft (chỉ verified)" ]; then ok "(5) status draft → exit 2"; else bad "(5) rc=$KRC out=«$KOUT»"; fi
     kcn "$FX_ROOT" --nope; [ $KRC -eq 3 ] && ok "(6) thiếu cờ → exit 3" || bad "(6) thiếu cờ mà rc=$KRC"
+    # (8) báo cáo ĐÃ có chữ ký người → cùng luật thứ hai của hook: từ chối, không ghi (chữ ký trên hồ sơ máy-thông)
+    mk_repo '{"signoff":"t 2026-09-08"}'; H1="$(md5f "$FX_ROOT/_acceptance/fx/contract.md")"; kcn "$FX_ROOT" --write; H2="$(md5f "$FX_ROOT/_acceptance/fx/contract.md")"
+    if [ $KRC -eq 2 ] && has "$KOUT" "lưới ghi từ chối: chữ ký người trên hồ sơ máy-thông" && [ "$H1" = "$H2" ]; then ok "(8) báo cáo có chữ ký người → exit 2 cùng câu với hook, không ghi"; else bad "(8) rc=$KRC out=«$KOUT»"; fi
     # (7) dòng status mang comment đuôi đúng khuôn contract-template của kit → vẫn ghi, GIỮ comment (S4-r2)
     CMT='            # draft | approved | implemented | verified | signed-off | machine-cleared'
     mk_repo '{}'; python3 -c 'import sys; p=sys.argv[1]; c=sys.argv[2]; s=open(p,encoding="utf8").read(); assert s.count("\nstatus: verified\n")==1; open(p,"w",encoding="utf8").write(s.replace("\nstatus: verified\n","\nstatus: verified"+c+"\n"))' "$FX_ROOT/_acceptance/fx/contract.md" "$CMT"
@@ -309,21 +331,34 @@ PY
     if [ $KRC -eq 0 ] && grep -q '^status: machine-cleared$' "$FX_ROOT/_acceptance/fx/contract.md"; then ok "chiều đỏ M2: gỡ cả hai tầng → T3 bị ghi machine-cleared (ghi machine-cleared cho T3) — phép đo ô (4) đỏ đúng chỗ"; else bad "M2 KHÔNG chạy: rc=$KRC out=«$KOUT»"; fi
     ;;
   su-lieu)
-    # E11: trên CÂY THẬT của kit, bản mới không tăng số VIOLATION so với bản gốc origin/main (cùng cây, cùng cờ);
-    # hai luật mới (làn V stale · recheck câm) không cắn hồ sơ nào của kit. Đối chứng dương của phép đếm trên fixture stale.
+    # E11 (đổi khuôn): trên CÂY THẬT, bản mới không tăng VIOLATION so với bản gốc origin/main NGOÀI họ nợ có tên
+    # (làn suite-only — SUITE_ONLY_LANE_DEBT trong tests/scripts/mirror-sync-grandfather.mjs, sổ nợ hai chiều của kit);
+    # mọi dòng tăng phải là dòng nợ đó của một slug trong sổ (làn V nay cũng bị luật làn eval soi → nợ lộ ra, không phải lỗi mới).
     mkdir -p "$TMP/base"; git -C "$KIT" archive origin/main scripts lib | tar -x -C "$TMP/base"
     OUT_NEW="$(bash "$KIT/scripts/pre-merge-check.sh" "$KIT" --base origin/main --recheck-all 2>&1)"; RC_NEW=$?
     OUT_BASE="$(bash "$TMP/base/scripts/pre-merge-check.sh" "$KIT" --base origin/main --recheck-all 2>&1)"; RC_BASE=$?
-    N_NEW="$(printf '%s\n' "$OUT_NEW" | grep -c '^VIOLATION' || true)"; N_BASE="$(printf '%s\n' "$OUT_BASE" | grep -c '^VIOLATION' || true)"
-    echo "  [su-lieu] VIOLATION trên cây thật: bản mới=$N_NEW (exit $RC_NEW) · bản gốc origin/main=$N_BASE (exit $RC_BASE)"
-    if [ "$N_NEW" -le "$N_BASE" ]; then ok "bản mới không tăng VIOLATION so với bản gốc ($N_NEW ≤ $N_BASE)"; else bad "bản mới TĂNG VIOLATION: $N_NEW > $N_BASE — $(printf '%s\n' "$OUT_NEW" | grep '^VIOLATION' | head -3 | cut -c1-160 | tr '\n' ' ')"; fi
-    N_LV="$(printf '%s\n' "$OUT_NEW" | grep -c 'làn V — evidence is stale' || true)"; N_RC="$(printf '%s\n' "$OUT_NEW" | grep -c 're-check KHÔNG CHẠY ĐƯỢC' || true)"
-    if [ "$N_LV" = 0 ] && [ "$N_RC" = 0 ]; then ok "hai luật mới không cắn hồ sơ nào của kit (làn V stale=0 · recheck câm=0)"; else bad "luật mới cắn cây thật: làn V stale=$N_LV · recheck câm=$N_RC"; fi
-    # đối chứng dương của phép đếm: fixture stale làn V → cùng lệnh đếm cho ≥1
+    NEEDLE='recorded no evals_exit'
+    printf '%s\n' "$OUT_NEW" | grep '^VIOLATION' | sed 's/ (verified_commit [0-9a-f]*)//' | sort > "$TMP/v-new"
+    printf '%s\n' "$OUT_BASE" | grep '^VIOLATION' | sed 's/ (verified_commit [0-9a-f]*)//' | sort > "$TMP/v-base"
+    N_NEW="$(wc -l < "$TMP/v-new" | tr -d ' ')"; N_BASE="$(wc -l < "$TMP/v-base" | tr -d ' ')"
+    N_NEW_X="$(grep -vc -- "$NEEDLE" "$TMP/v-new" || true)"; N_BASE_X="$(grep -vc -- "$NEEDLE" "$TMP/v-base" || true)"
+    echo "  [su-lieu] VIOLATION trên cây thật: bản mới=$N_NEW (ngoài nợ làn suite-only: $N_NEW_X) · bản gốc origin/main=$N_BASE (ngoài nợ: $N_BASE_X)"
+    if [ "$N_NEW_X" -le "$N_BASE_X" ]; then ok "ngoài họ nợ có tên: bản mới không tăng VIOLATION ($N_NEW_X ≤ $N_BASE_X)"; else bad "bản mới TĂNG VIOLATION ngoài họ nợ: $N_NEW_X > $N_BASE_X — $(comm -23 "$TMP/v-new" "$TMP/v-base" | grep -v -- "$NEEDLE" | head -3 | cut -c1-160 | tr '\n' ' ')"; fi
+    DEBT="$(cd "$KIT" && node -e 'import(process.argv[1]).then(m=>process.stdout.write(m.SUITE_ONLY_LANE_DEBT.join("\n")))' "$KIT/tests/scripts/mirror-sync-grandfather.mjs")"
+    EXTRA="$(comm -23 "$TMP/v-new" "$TMP/v-base")"; N_EXTRA="$(printf '%s' "$EXTRA" | grep -c . || true)"; BAD_EXTRA=""
+    while IFS= read -r l; do [ -n "$l" ] || continue; sl="$(printf '%s' "$l" | sed -n 's/^VIOLATION \[\([^]]*\)\].*/\1/p')"
+      if ! printf '%s' "$l" | grep -qF -- "$NEEDLE" || ! printf '%s\n' "$DEBT" | grep -qx -- "$sl"; then BAD_EXTRA="$BAD_EXTRA | $(printf '%s' "$l" | cut -c1-120)"; fi
+    done <<EOF_X
+$EXTRA
+EOF_X
+    if [ -z "$BAD_EXTRA" ]; then ok "mọi dòng tăng ($N_EXTRA) đều là nợ làn suite-only của slug có tên trong SUITE_ONLY_LANE_DEBT: $(printf '%s\n' "$EXTRA" | sed -n 's/^VIOLATION \[\([^]]*\)\].*/\1/p' | tr '\n' ' ')"; else bad "dòng tăng NGOÀI sổ nợ:$BAD_EXTRA"; fi
+    N_RC="$(printf '%s\n' "$OUT_NEW" | grep -c 're-check KHÔNG CHẠY ĐƯỢC' || true)"
+    if [ "$N_RC" = 0 ]; then ok "luật soi-lại-câm không cắn hồ sơ nào của kit (recheck câm=0)"; else bad "luật mới cắn cây thật: recheck câm=$N_RC"; fi
+    # đối chứng dương của phép đếm: fixture làn V stale → cùng lệnh đếm cho ≥1 (câu chung với hồ sơ có chữ ký)
     fxgit() { git -C "$FX_ROOT" -c user.email=t@t -c user.name=t -c commit.gpgsign=false "$@"; }
     mk_repo '{}'; echo v2 > "$FX_ROOT/src.txt"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code"
-    pmc "$FX_ROOT" --base "$FX_A"; N_FX="$(printf '%s\n' "$OUT" | grep -c 'làn V — evidence is stale' || true)"
-    if [ "$N_FX" -ge 1 ] && [ "$VIOL" -ge 1 ]; then ok "đối chứng dương của phép đếm: fixture stale làn V → đếm được $N_FX (VIOLATION=$VIOL)"; else bad "phép đếm mù: fixture stale mà đếm 0"; fi
+    pmc "$FX_ROOT" --base "$FX_A"; N_FX="$(printf '%s\n' "$OUT" | grep -c 'evidence is stale' || true)"
+    if [ "$N_FX" -ge 1 ] && [ "$VIOL" -ge 1 ]; then ok "đối chứng dương của phép đếm: fixture làn V stale → đếm được $N_FX (VIOLATION=$VIOL)"; else bad "phép đếm mù: fixture stale mà đếm 0"; fi
     ;;
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;
 esac

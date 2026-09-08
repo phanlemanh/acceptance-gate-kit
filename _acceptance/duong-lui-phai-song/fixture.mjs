@@ -67,9 +67,16 @@ export function mkRepo(opts = {}) {
   git('init', '-q'); git('add', '-A'); git('commit', '-q', '-m', 'A: fixture');
   const A = git('rev-parse', 'HEAD');
   const vc = opts.vc === undefined ? A : opts.vc;
-  writeFileSync(path.join(dir, 'evidence-report.md'), evidenceText({ vc, signoff: opts.signoff || '', sections: opts.sections, verdict: opts.verdict }));
+  // runId: run_id mà báo cáo cite (mặc định trùng run-log; khác đi = mũi «run_id lạ» cho soi lại)
+  // repinSuiteOnly: dòng repin KHÔNG evals_exit + section ### Re-pin cite nó (mũi làn suite-only)
+  // section Re-pin đặt TRƯỚC hai mục rỗng: section() đọc tới heading kế, nối sau «Ngoài hợp đồng» là làm mục đó có nội dung
+  const secs = opts.sections === undefined ? '## Known limits\n\n## Ngoài hợp đồng\n' : opts.sections;
+  const repinSec = opts.repinSuiteOnly ? `### Re-pin lần 1 — 2026-09-08, do fixture\nrun_id: repin-fx-1\nsha: ${vc} · suites: 1 lệnh exit 0\n\n` : '';
+  const ev = evidenceText({ vc, signoff: opts.signoff || '', sections: repinSec + secs, verdict: opts.verdict, runId: opts.runId || 'fx-E1-001' });
+  writeFileSync(path.join(dir, 'evidence-report.md'), ev);
   const lines = [JSON.stringify({ ts: '2026-09-08T00:00:00Z', round: 1, evalId: 'E1', run_id: 'fx-E1-001', exit_code: 0, cmd: 'bash ./verify.sh' })];
   if (opts.repinLine) lines.push(JSON.stringify({ ts: '2026-09-08T00:00:01Z', kind: 'repin', run_id: 'repin-fx-1', sha: vc, suites_exit: [0], evals_exit: { E1: 0 } }));
+  if (opts.repinSuiteOnly) lines.push(JSON.stringify({ ts: '2026-09-08T00:00:01Z', kind: 'repin', run_id: 'repin-fx-1', sha: vc, suites_exit: [0] }));
   writeFileSync(path.join(dir, 'run-log.jsonl'), lines.join('\n') + '\n');
   let B = A;
   if (opts.commitEvidence !== false) { git('add', '-A'); git('commit', '-q', '-m', 'B: evidence'); B = git('rev-parse', 'HEAD'); }
