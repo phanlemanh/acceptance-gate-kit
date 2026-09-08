@@ -143,3 +143,61 @@ lượt gọi người đúng thiết kế: đánh-đổi chỉ người biết.
 
 **Nếu chỉ làm một việc:** chia phiên (chỗ 1). Nó không cần sửa luật, không cần owner gọi
 tên, và cắt phần lớn nhất của hoá đơn.
+
+## 8. Các repo khác có gặp cùng chuyện không — quét toàn máy 08/09
+
+Câu hỏi của owner: «làm sao biết repo khác khi chạy kit có gặp các ca này, và mẫu nào lặp
+lại?». Kit để lại vết ở từng hồ sơ (`## Iterations`, run-log `repin`, sổ `fix` theo round,
+gap-probe, review-findings) và ở bản ghi phiên. Quét cả hai, khử trùng theo remote git.
+
+**Hồ sơ trong repo** (repo gốc, không tính worktree):
+
+| Repo | Hồ sơ | TB round | ≥5 round | Ghim lại | `fix` S4 | gap-probe P0/P1/P2 | Finding «Hình dạng» | Finding từ vựng |
+|---|---:|---:|---:|---:|---:|---|---:|---:|
+| artifact-platform | 192 | 2,94 | 11 (tới 10 round) | 3 | 125 | 13/44/20 | 18 | 0 |
+| acceptance-gate-kit | 55 | 3,31 | 4 | 277 | 141 | 48/156/89 | 37 | 10 |
+| oneflow | 40 | 2,10 | 2 | 112 | 77 | 41/82/21 | 24 | 0 |
+| crm | 27 | 3,00 | 3 (tới 9) | 34 | 33 | 33/58/9 | 21 | 1 |
+| media-library | 13 | 4,86 | 2 (8 và 11 round) | 0 | 8 | 2/21/9 | 4 | 0 |
+| map | 14 | 2,00 | 0 | 46 | 24 | 13/15/2 | 0 | 0 |
+| policy-graph-hub | 7 | 1,60 | 0 | 10 | 26 | 11/14/5 | 18 | 0 |
+
+**Bản ghi phiên** (mọi phiên đã lưu trên máy, tính cả agent):
+
+| Repo | Phiên | Tổng token | Output | Cache-read |
+|---|---:|---:|---:|---:|
+| oneflow | 47 | 22,5 tỉ | 63,0M | 95% |
+| acceptance-gate-kit | 39 | 5,9 tỉ | 22,9M | 94% |
+| aes | 14 | 3,5 tỉ | 14,8M | 96% |
+| map | 8 | 3,4 tỉ | 9,2M | 96% |
+| artifact-platform | 13 | 3,4 tỉ | 9,6M | 96% |
+| floorplanstudio | 14 | 3,0 tỉ | 12,8M | 95% |
+| policy-graph-hub | 4 | 2,8 tỉ | 9,5M | 94% |
+
+Hạn mức phiên đâm vào workflow/agent: **110 lần** trên máy (kit 87, oneflow 14), dồn vào
+các giờ 04h, 10h, 13h, 14h, 23h; mốc reset hay gặp 13:30 (55 lần), 22:00 (51), 08:30 (27).
+Workflow sập kiểu `prov.enforcement_mode` null: **24 lần** trên máy. Người gõ «Try
+again»: 10 lần.
+
+Lint từ vựng chạy sống hôm nay: kit 127 dòng W6 (`thẻ`×27, `hook`×20, `engine`×17,
+`test`×13); artifact-platform 36 (một chữ `cửa`); crm 17; oneflow/map/PGH 0 vì không có
+`CONTEXT.md`. Nhánh token-lạ của W8 vừa ship hôm nay: artifact-platform **140** dòng
+(`media-library`, `pipeline`, `db`, `video-plugin`…), oneflow 15, crm 4 — trong khi nhánh
+nghĩa vụ thật chỉ 16 / 2 / 9. Tức tôi vừa ship thêm một máy bắt-từ đúng lớp mục 7.
+
+**Năm mẫu lặp ở mọi repo, không riêng vòng này**
+
+1. Nhiều round S4 là chuẩn, không phải ngoại lệ: trung bình 2–3,3 round; hồ sơ 5–11 round có ở
+   ba repo; sổ `fix` theo round: 125 (AP), 141 (kit), 77 (oneflow).
+2. Finding lớp phép-đo («Hình dạng») xuất hiện ở mọi repo có làn rà soát: kit 37, oneflow 24,
+   crm 21, AP 18, PGH 18 → bước tự-soi phép đo ở S3 (mục 7, chỗ 2) có neo ngoài kit.
+3. Cache-read 94–98% ở MỌI repo: phiên dài một mạch là thói quen chung, không phải sự cố hôm
+   nay. oneflow 22,5 tỉ token cho 63 triệu chữ sinh ra.
+4. Hạn mức phiên và cú sập null là hệ thống: 110 lần và 24 lần, không phải hai lần hôm nay.
+5. Lint từ vựng kêu ở quy mô không ai xử: 127 dòng trên chính kit. Luật mà bị bỏ qua hàng
+   loạt là luật đang đo sai chỗ, và W8-token vừa thêm cùng lớp.
+
+**Kit chưa có công cụ nào tổng hợp các số này.** `claim-scan.mjs` gom bài học xuyên hồ sơ
+cho S1; `wf-usage.mjs` đo token từng round nhưng chỉ 45 hồ sơ có `usage-report.md`; kế
+hoạch `loop-health.sh` (audit 28/07) chưa bao giờ dựng. Hai script ad-hoc của phiên này
+(`sweep.mjs`, `tokproj.mjs`) là bản nháp của nó.
