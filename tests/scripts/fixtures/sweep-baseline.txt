@@ -22,5 +22,4 @@
 # hồ sơ đang mở đổi trạng thái hợp lệ nên không ghim. File dời từ hồ sơ loi-moi-cong-may-sinh ra đây.
 duong-do-trong-dinh-nghia-xong	token-la	that-sai-khuon: «Đề xuất: bỏ «metric» khỏi _Avoid_…» là câu văn mô tả cách sửa, không phải token
 lenh-in-ra-phai-bam-duoc	suspect_empty	that-sai-khuon: dòng tiêu đề «- **…owner chép** (QUICKSTART 11 · …)» có đuôi SAU «**» nên khuôn tiêu đề không khớp, cả mục thành 0 finding
-may-ganh-nguoi-quyet	token-la	that-sai-khuon: «Đề xuất: nâng phạm vi sửa ngay» là chữ NGƯỜI (nhãn nút trên thẻ), không phải token máy
 vao-co-o-ra-co-ten	token-la	that-sai-khuon: «Đề xuất: một gạch đầu dòng ở bước 4…» là câu văn mô tả bản vá, không phải token

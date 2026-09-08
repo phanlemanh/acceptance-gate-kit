@@ -242,7 +242,7 @@ const row = (sev, tag) => ({ sev, artifact: 'evals', gap: `gap-${tag}`, fail: `f
 {
   const repoRoot = path.join(HERE, '..', '..');
   const t0 = Date.now();
-  const r = run(['--root', repoRoot, '--slug', 'cross-feature-claim-index', '--json']);
+  const r = run(['--root', repoRoot, '--slug', 'cong-dang-co-cua', '--json']); // cross-feature-claim-index lưu kho 08/09 (ADR 0015)
   const dt = Date.now() - t0;
   check('CS9 corpus thật: exit 0, 1..10 claim, có id d-… và id #F, <5s', () => {
     assert.equal(r.code, 0);

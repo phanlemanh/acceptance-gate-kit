@@ -128,6 +128,7 @@ tests/scripts/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/additive-only.test.mjs ca-đo-tính-chỉ-thêm-không-rẽ-theo-status
 .claude-plugin/plugin.json chuỗi-nằm-trong-mô-tả-gói-không-rẽ-nhánh
 tests/plugins/asserts-da-go.txt sổ-ca-đã-gỡ-văn-bản-lịch-sử-không-chạy
+tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/contract.md artifact-đông-lạnh-của-hồ-sơ-lưu-kho-ADR-0015-làm-fixture-P146-P147-không-phải-bộ-đọc
 tests/scripts/repin-lane.test.mjs ca-của-làn-ghim-lại-bằng-eval-trên-kho-git-code-sinh-không-rẽ-theo-status-của-hồ-sơ-này
 BO-DOC-KHAI-GACH>>> -->
 

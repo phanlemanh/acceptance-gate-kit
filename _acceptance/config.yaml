@@ -54,9 +54,6 @@ executors:
     # KHÔNG vào suite vĩnh viễn (PR tương lai đổi bên-viết hợp lệ sẽ đỏ oan).
     # Cùng nếp E7 no-vat-that-drift.sh của chip ②b.
     no_oneshot_drift: "bash _acceptance/mot-luot-go-cong-nguoi/no-ben-viet-drift.sh"
-    # Vật của hồ sơ chip ③b — cùng nếp: base tường minh origin/main, không
-    # vào suite vĩnh viễn.
-    no_vat_cam_drift_3b: "bash _acceptance/may-ganh-nguoi-quyet/no-vat-cam-drift.sh"
     # Vật của hồ sơ doi-hanh-vi-cong-nguoi (1c) — răng lớp MÁY, neo đối chứng
     # dương vào MỐC BẤT BIẾN `BASE-1C` đọc từ contract (không origin/main: sau
     # khi hồ sơ này merge thì needle về 0 ở cả hai đầu và phép đo tự chết).
@@ -82,25 +79,6 @@ executors:
     rang_release_docs: "bash _acceptance/release-2-0-0/rang-release.sh --chan docs"
     rang_release_lan_v: "bash _acceptance/release-2-0-0/rang-release.sh --chan lan-v"
     rang_release_diff: "bash _acceptance/release-2-0-0/rang-release.sh --chan diff-allowlist"
-    # Răng của P194: ghim ĐÚNG dòng của case trong stdout thay vì tin mã thoát
-    # của trọn suite (suite xanh cả trên origin/main → không phân biệt được).
-    p194_rang: "bash _acceptance/may-ganh-nguoi-quyet/p194-rang.sh"
-    # Vật của hồ sơ khong-ve-the-ma — răng cho chốt «không có hồ sơ thì không
-    # vẽ thẻ». Mỗi chân dựng fixture CODE-SINH trong chính lần chạy và mang
-    # theo đối chứng dương của riêng nó; chuỗi thông điệp RÚT từ marker trong
-    # scripts/gate-card.js, không gõ literal. CỐ Ý không vào suite vĩnh viễn:
-    # lưới thường trực là các case trong tests/scripts/run-tests.sh (chân
-    # kvtm_suite_case ghim đúng những dòng đó).
-    kvtm_vang_thu_muc: bash _acceptance/khong-ve-the-ma/rang.sh --chan vang-thu-muc
-    kvtm_liet_ho_so_that: bash _acceptance/khong-ve-the-ma/rang.sh --chan liet-ho-so-that
-    kvtm_thieu_hop_dong: bash _acceptance/khong-ve-the-ma/rang.sh --chan thieu-hop-dong
-    kvtm_chua_mo_xuong: bash _acceptance/khong-ve-the-ma/rang.sh --chan chua-mo-xuong
-    kvtm_extract: bash _acceptance/khong-ve-the-ma/rang.sh --chan extract
-    kvtm_doi_chung_duong: bash _acceptance/khong-ve-the-ma/rang.sh --chan doi-chung-duong
-    kvtm_than_lenh: bash _acceptance/khong-ve-the-ma/rang.sh --chan than-lenh
-    kvtm_round_trip: bash _acceptance/khong-ve-the-ma/rang.sh --chan round-trip
-    kvtm_suite_case: bash _acceptance/khong-ve-the-ma/rang.sh --chan suite-case
-    kvtm_suite_tong: bash _acceptance/khong-ve-the-ma/rang.sh --chan suite-tong
     # Vật của hồ sơ cong-dang-co-cua — BA chân cho phạm vi đã thu (bản 13 chân
     # của làn thẻ trả về ô cùng làn, xem discovery/LAY-VE-LAN-THE.md). Mỗi chân
     # ghim ĐÚNG DÒNG CA trong lưới thường trực + chạy thật, không tin mã thoát
@@ -120,34 +98,9 @@ executors:
     cat_khoi_rang_clause: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan clause
     cat_khoi_rang_oneshot: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan oneshot
     cat_khoi_so_ca: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan so-ca
-    ccnc_rang_lan_v: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan lan-v
-    ccnc_rang_lan_v_do: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan lan-v-do
-    ccnc_rang_provenance: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan provenance
-    ccnc_rang_giu_cho: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan giu-cho
-    ccnc_rang_nghi_le: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan nghi-le
-    ccnc_rang_clause: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan clause
-    ccnc_so_ca: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan so-ca
-    ccnc_rang_chieu_ghi: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan chieu-ghi
-    ccnc_rang_adr: bash _acceptance/cong-chan-nham-cho/ccnc-rang.sh --chan adr
-    rang_release21_manifest: bash _acceptance/release-2-1-0/rang-release.sh --chan manifest
-    rang_release21_docs: bash _acceptance/release-2-1-0/rang-release.sh --chan docs
-    rang_release21_lan_v: bash _acceptance/release-2-1-0/rang-release.sh --chan lan-v
-    rang_release21_diff: bash _acceptance/release-2-1-0/rang-release.sh --chan diff-allowlist
-    # Vật của hồ sơ moi-noi-vong-trao — răng hồ sơ, không vào suite vĩnh viễn
-    # (P197 thẻ ngưỡng đã vào suite plugins). Mỗi chân kèm chiều đỏ cùng lượt.
-    rang_mnvt_the_nguong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan the-nguong
-    rang_mnvt_khuon: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan khuon
-    rang_mnvt_uat_needle: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan uat-needle
-    rang_mnvt_s5_needle: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan s5-needle
-    rang_mnvt_spec: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan spec
-    rang_mnvt_hinh: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hinh
-    rang_mnvt_hoi_dong: bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan hoi-dong
     rang_hinh_cong1: bash _acceptance/hinh-tai-cong-1/rang.sh
     rang_siet_rang: bash _acceptance/siet-rang-cau-ve-hinh/rang.sh
     rang_arm_guide: bash _acceptance/status-chua-arm-cong/rang.sh
-    # Vật của hồ sơ het-gio-khong-phai-truot — răng ghim mã thoát + dòng tổng
-    # kết + 18 dòng ca. Cùng nếp không-vào-suite-vĩnh-viễn.
-    rang_hgkpt: bash _acceptance/het-gio-khong-phai-truot/rang.sh
     # Vật của hồ sơ tool-kill-duong-doc-lap — răng một-nguồn luật tool-kill (mỗi chân
     # kèm chiều đỏ cùng lượt). Cùng nếp không-vào-suite-vĩnh-viễn.
     rang_tkddl_nguon: bash _acceptance/tool-kill-duong-doc-lap/rang.sh --chan nguon
@@ -186,16 +139,6 @@ executors:
     tnk_rang_suite_case: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan suite-case
     tnk_rang_taste_gate: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan taste-gate
     tnk_rang_quet_vung_ngoai: bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan quet-vung-ngoai
-    # Vật của hồ sơ cham-dung-cay-dung-cho-dung — răng cho script sinh-args S4
-    # + điều khoản SKILL. Fixture CODE-SINH mỗi lần chạy, đường dẫn suy từ vị
-    # trí script. Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ trên.
-    cdc_args_du_truong: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan args-du-truong
-    cdc_ref_hong_keu_to: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan ref-hong
-    cdc_round_tu_dem: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan round-tu-dem
-    cdc_carry_da_goi: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan carry-da-goi
-    cdc_loi_khai_pham_vi: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan loi-khai
-    cdc_skill_khong_fallback: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan skill-khong-fallback
-    cdc_truong_theo_ben_doc: bash _acceptance/cham-dung-cay-dung-cho-dung/rang.sh --chan truong-theo-ben-doc
     # Vật của hồ sơ nhanh-chinh-khong-ten-main — mỗi chân dựng repo git thật
     # trong chính lần chạy; bản sao để tiêm đột biến chụp CÂY LÀM VIỆC (trọn
     # thư mục), không dựng từ HEAD. Cùng nếp không-vào-suite-vĩnh-viễn.

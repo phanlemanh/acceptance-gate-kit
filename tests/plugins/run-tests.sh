@@ -1007,7 +1007,7 @@ for f in "$ROOT"/_acceptance/*/contract.md; do
   fi
 done
 # doi chung duong: ban sao doi heading -> phai bi bat
-P63TMP="$(mktemp -d)"; sed 's/^## Criteria$/## Acceptance criteria/' "$ROOT/_acceptance/gate-card-ac-visibility/contract.md" > "$P63TMP/c.md"
+P63TMP="$(mktemp -d)"; sed 's/^## Criteria$/## Acceptance criteria/' "$ROOT/_acceptance/cong-dang-co-cua/contract.md" > "$P63TMP/c.md"
 if grep -qE '^#{2,6}[[:space:]]+Criteria([[:space:]]|$)' "$P63TMP/c.md"; then
   fail "P70 doi chung duong HONG: ban sao doi heading van lot qua phep kiem"
 elif [ "$P63BAD" -ne 0 ]; then
@@ -5413,15 +5413,15 @@ root = Path(sys.argv[1])
 # mot-dong, khong thay ca am trong block scalar — cung lop bug parser gate-card,
 # chip sua rieng). Luat: canh bao cua context-ladder ⊆ {W3}; lint sua xong
 # (exit 0, khong W3) case nay VAN xanh — khong ghim bao gia thanh yeu cau.
-r = subprocess.run(["node", str(root / "scripts/eval-coverage-lint.js"), str(root), "--slug", "context-ladder"],
+r = subprocess.run(["node", str(root / "scripts/eval-coverage-lint.js"), str(root), "--slug", "stop-patching-law"],  # context-ladder lưu kho 08/09 (ADR 0015) — hồ sơ sống, lint sạch, có Coverage
                    capture_output=True, text=True)
-warns = [l for l in r.stdout.splitlines() if l.strip().startswith("[context-ladder]")]
+warns = [l for l in r.stdout.splitlines() if l.strip().startswith("[stop-patching-law]")]
 bad = [l for l in warns if " W3 " not in l]
 assert bad == [], f"canh bao NGOAI W3 cho context-ladder: {bad}"
 # DOI CHUNG DUONG (che do --files; W6 tat trong mode nay theo thiet ke — dong 214
 # cua lint): tiem AC nguong KHONG co eval am -> W1 phai no dung ten AC.
-ct = (root / "_acceptance/context-ladder/contract.md").read_text(encoding="utf-8")
-ev = (root / "_acceptance/context-ladder/evals.yaml").read_text(encoding="utf-8")
+ct = (root / "_acceptance/stop-patching-law/contract.md").read_text(encoding="utf-8")
+ev = (root / "_acceptance/stop-patching-law/evals.yaml").read_text(encoding="utf-8")
 d = Path(tempfile.mkdtemp())
 (d / "contract.md").write_text(ct.replace("## Coverage", "- AC-99: Given x, When đạt ngưỡng 5, Then y.\n\n## Coverage", 1), encoding="utf-8")
 (d / "evals.yaml").write_text(ev + "  - id: E99\n    criterion: AC-99\n    executor: script\n    cmd: config:executors.script.product_map\n    expected: chay xong la dat\n", encoding="utf-8")
@@ -5700,7 +5700,8 @@ P146OK=1
 P146WS="$(mktemp -d)"
 mkdir -p "$P146WS/_acceptance/demo"
 for f in contract.md gap-probe.md decisions.jsonl evals.yaml; do
-  cp "$ROOT/_acceptance/delta-verify-repin/$f" "$P146WS/_acceptance/demo/$f" \
+  # hồ sơ delta-verify-repin lưu kho 08/09 (ADR 0015): artifact chép nguyên văn vào tests/plugins/fixtures/
+  cp "$ROOT/tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/$f" "$P146WS/_acceptance/demo/$f" \
     || { echo "     fixture hong: khong cp duoc $f tu workspace that"; P146OK=0; }
 done
 # đối chứng dương cho chính fixture: bản gốc PHẢI chứa bullet wrap đang kiểm
@@ -5735,7 +5736,7 @@ P147OK=1
 P147WS="$(mktemp -d)"
 mkdir -p "$P147WS/_acceptance/demo"
 for f in contract.md gap-probe.md decisions.jsonl evals.yaml; do
-  cp "$ROOT/_acceptance/delta-verify-repin/$f" "$P147WS/_acceptance/demo/$f" \
+  cp "$ROOT/tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/$f" "$P147WS/_acceptance/demo/$f" \
     || { echo "     fixture hong: khong cp duoc $f"; P147OK=0; }
 done
 # khuôn key: writer doc là NGUỒN, reader phải đọc đúng tập đó (hai chiều — trôi là đỏ)

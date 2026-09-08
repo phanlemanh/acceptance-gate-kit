@@ -24,15 +24,11 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
-// 21 hồ sơ đã ký, đo tại chỗ 2026-08-13 — KHÔNG chép tay từ log.
+// 21 hồ sơ đã ký, đo tại chỗ 2026-08-13 — KHÔNG chép tay từ log. 08/09/2026:
+// 18 trong 21 LƯU KHO (ADR 0015, tag truoc-luu-kho-no-lan-2026-09-08) vì
+// cùng là nợ làn suite-only mà làn eval không chạy được — còn 3.
 export const MIRROR_SYNC_GRANDFATHER = [
-  'claim-scan-parser-hardening', 'consumer-copy-cjs', 'context-ladder',
-  'cross-feature-claim-index', 'delta-verify-repin', 'design-pass-skill',
-  'discovery-brainstorm-socket', 'docs-first-run-audit', 'findings-section-boundary',
-  'gate-card-ac-visibility', 'hinh-theo-mat-phang', 'judgment-question-guard',
-  'may-ganh-nguoi-quyet', 'mot-luot-go-cong-nguoi', 'ngon-ngu-mat-nguoi',
-  'pha3-goi-luoi', 'product-map-uat-session', 'rang-phep-do-viec-cua-anh',
-  'stale-theo-diff-pr', 'start-command', 'start-scan-hardening',
+  'consumer-copy-cjs', 'mot-luot-go-cong-nguoi', 'rang-phep-do-viec-cua-anh',
 ];
 
 const DEAD_KEY = 'executors.script.mirror_sync';
@@ -50,14 +46,6 @@ const DEAD_KEY = 'executors.script.mirror_sync';
 // trước khi tới lớp verifier, nên một hồ sơ nằm trong CẢ hai danh sách chỉ lộ
 // lý do suite-only cho tới khi được ghim lại — lúc đó lý do mirror_sync lộ lại.
 export const SUITE_ONLY_LANE_DEBT = [
-  'cham-dung-cay-dung-cho-dung', 'claim-scan-parser-hardening', 'cong-chan-nham-cho',
-  'context-ladder', 'cross-feature-claim-index', 'delta-verify-repin',
-  'design-pass-skill', 'discovery-brainstorm-socket', 'docs-first-run-audit',
-  'findings-section-boundary', 'gate-card-ac-visibility', 'het-gio-khong-phai-truot',
-  'hinh-theo-mat-phang', 'judgment-question-guard', 'khong-ve-the-ma',
-  'may-ganh-nguoi-quyet', 'moi-noi-vong-trao', 'ngon-ngu-mat-nguoi',
-  'pha3-goi-luoi', 'product-map-uat-session', 'release-2-1-0',
-  'stale-theo-diff-pr', 'start-command', 'start-scan-hardening',
 ];
 const SUITE_ONLY_NEEDLE = 'recorded no evals_exit';
 
