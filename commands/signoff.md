@@ -139,16 +139,42 @@ Steps:
    after `human_signoff` is written; the map is machine-generated from records
    this gate just changed, so it belongs in the signature commit below.
 
-7. **Ghi và commit — một lượt. THỨ TỰ GHI CÓ RĂNG.** Hồ sơ đang
-   `machine-cleared` (máy đã thông, làn V) thì **ghi contract `status:
-   signed-off` TRƯỚC, rồi mới ghi `evidence-report.md`** — chữ ký nằm trên một
-   hồ sơ còn tự khai «không có chữ ký người» là hai sự thật cãi nhau, nên cổng
-   ghi chặn đúng lượt đó. Hồ sơ `verified`/`implemented` thì thứ tự nào cũng
-   qua. Sau khi người phát ngôn, ghi các dòng thuộc
-   về người trong `evidence-report.md` (`human_signoff`, `human_override`, the
-   verdict upgrade, `bypass_ack`) + contract `status: signed-off`, và
-   `PRODUCT-MAP.md` ONLY if step 6 actually regenerated it. Rồi commit MỘT
-   lượt — không tách, không đòi người tự gõ git. Print the exact sequence:
+7. **Ghi và commit — một lượt, làn máy chạy TRƯỚC chữ ký. THỨ TỰ CÓ RĂNG.**
+
+   **7a — ghi trường người.** Hồ sơ đang `machine-cleared` (máy đã thông, làn
+   V) thì **ghi contract `status:
+   signed-off` TRƯỚC, rồi mới ghi `evidence-report.md`** — chữ ký nằm trên
+   một hồ sơ còn tự khai «không có chữ ký người» là hai sự thật cãi nhau, nên
+   cổng ghi chặn đúng lượt đó. Hồ sơ `verified`/`implemented` thì thứ tự nào
+   cũng qua. Sau khi người phát ngôn, ghi các dòng thuộc về người trong
+   `evidence-report.md` (`human_signoff`, `human_override`, the verdict
+   upgrade, `bypass_ack`) + contract `status: signed-off`, và `PRODUCT-MAP.md`
+   ONLY if step 6 actually regenerated it.
+
+   **7b — làn máy TRƯỚC chữ ký, KHÔNG ghi.** Chữ ký không được vào lịch sử
+   trên một cây đỏ (hồ sơ duong-lui-phai-song: hai mốc liên tiếp trả 5 CI đỏ
+   hậu-chữ-ký vì commit trước, soi sau). Dòng lệnh và luật đỏ nằm trong khối
+   dưới — bản gốc DUY NHẤT, `skills/acceptance/SKILL.md` chép nguyên văn; răng
+   của hồ sơ RÚT dòng lệnh từ khối này để chạy, nên đổi cờ ở đây là đổi phép đo.
+
+   <!-- <<<SIGNOFF-LANE-CLAUSE -->
+   Làn trước chữ ký — chạy làn máy của CHÍNH hồ sơ trên cây làm việc, chỉ ĐO không ghim:
+   ```bash
+   node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --allow-dirty
+   ```
+   Làn đỏ (exit ≠ 0) → KHÔNG commit chữ ký, in nguyên văn dòng đỏ, dừng lệnh — người sửa vật rồi gọi lại. Làn xanh → commit (7c). Sau commit, lưới trước-merge báo `evidence is stale` cho CHÍNH slug (commit chữ ký chạm file ngoài T1) → ghim lại trong CÙNG lượt rồi chạy lưới lại, TRƯỚC khi báo READY:
+   ```bash
+   node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --reason "hoá cũ do chính commit chữ ký" --write
+   ```
+   <!-- SIGNOFF-LANE-CLAUSE>>> -->
+
+   `<feature-loop>` = gốc gói feature-loop giải qua `resolve-plugin.mjs`
+   (kho tự host kit thêm `--ag-root .`); vắng gói → chạy từng eval
+   `test`/`script` của `evals.yaml` + suite trong `feature_loop.suite_keys`,
+   cùng luật đỏ. `--allow-dirty` không kèm `--write`: chỉ ĐO, không ghim.
+
+   **7c — commit chữ ký cùng mọi file làn đòi**, MỘT lượt — không tách, không
+   đòi người tự gõ git. Print the exact sequence:
 
    ```bash
    git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md
@@ -157,7 +183,9 @@ Steps:
 
    Repo opted in (step 6 regenerated the map) → append ` PRODUCT-MAP.md` to that
    `git add`. Repo NOT opted in → leave it out: the file does not exist there and
-   naming it makes `git add` fail with a pathspec error mid-signature.
+   naming it makes `git add` fail with a pathspec error mid-signature. Kho có bản
+   ghi mốc mà làn 7b đòi (vd bản ghi định tuyến của kho kit) → thêm file đó vào
+   cùng `git add`.
 
    Câu dưới đây là bản gốc DUY NHẤT của điều khoản ai-sở-hữu-chữ-ký.
    `skills/acceptance/SKILL.md` chép nguyên văn, không tự diễn đạt.
@@ -165,11 +193,15 @@ Steps:
    <!-- <<<SIGNATURE-OWNER-CLAUSE -->
    Chữ ký là QUYẾT ĐỊNH của người: người phát ngôn «Ký» hay «Trả lại», máy ghi hộ vào hồ sơ rồi commit như mọi commit khác — máy KHÔNG BAO GIỜ tự phát ngôn Ký (ADR 0002). Ai chịu trách nhiệm thì đọc ở forge: người approve / bấm merge PR, không phải ở lịch sử commit.
    <!-- SIGNATURE-OWNER-CLAUSE>>> -->
-8. **Re-check merge readiness.** If the repo ships `scripts/pre-merge-check.sh`
-   run `bash scripts/pre-merge-check.sh . --slug <slug>` (add
-   `--base origin/<default-branch>` when known); otherwise run the installed
-   plugin's copy. Where write-time hooks are not active, also run
-   `recheck-evidence.cjs`. Report READY TO MERGE or the exact violations.
+8. **Re-check merge readiness — và ghim lại nếu chính chữ ký làm hoá cũ.** If
+   the repo ships `scripts/pre-merge-check.sh` run `bash scripts/pre-merge-check.sh
+   . --slug <slug>` (add `--base origin/<default-branch>` when known); otherwise
+   run the installed plugin's copy. Where write-time hooks are not active, also
+   run `recheck-evidence.cjs`. Kết quả có `VIOLATION [<slug>]: evidence is stale`
+   → chạy dòng lệnh ghim lại (`--write`) trong khối `SIGNOFF-LANE-CLAUSE` ở
+   bước 7b, commit `repin(<slug>): ghim lại sau chữ ký` (run-log +
+   evidence-report), rồi chạy lại pre-merge. Report READY TO MERGE CHỈ khi 0
+   violation; còn violation khác → in nguyên văn.
 
 9. **Bước kế — in ra, đừng để người tự đoán.** Sau khi báo READY TO MERGE, in
    đúng một dòng: «Đã ký bằng chứng. Bước kế: bàn giao (S5) — mở PR theo quy

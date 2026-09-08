@@ -341,6 +341,19 @@ Entry: implementation complete, contract `status: implemented`.
    <!-- SIGNATURE-OWNER-CLAUSE>>> -->
 
    (Bản gốc ở `commands/signoff.md` bước 7; khối trên là bản chép nguyên văn.)
+
+   <!-- <<<SIGNOFF-LANE-CLAUSE -->
+   Làn trước chữ ký — chạy làn máy của CHÍNH hồ sơ trên cây làm việc, chỉ ĐO không ghim:
+   ```bash
+   node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --allow-dirty
+   ```
+   Làn đỏ (exit ≠ 0) → KHÔNG commit chữ ký, in nguyên văn dòng đỏ, dừng lệnh — người sửa vật rồi gọi lại. Làn xanh → commit (7c). Sau commit, lưới trước-merge báo `evidence is stale` cho CHÍNH slug (commit chữ ký chạm file ngoài T1) → ghim lại trong CÙNG lượt rồi chạy lưới lại, TRƯỚC khi báo READY:
+   ```bash
+   node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --reason "hoá cũ do chính commit chữ ký" --write
+   ```
+   <!-- SIGNOFF-LANE-CLAUSE>>> -->
+
+   (Bản gốc ở `commands/signoff.md` bước 7b — làn máy chạy TRƯỚC chữ ký, ghim lại cùng lượt khi chính chữ ký làm hoá cũ; khối trên là bản chép nguyên văn, hồ sơ duong-lui-phai-song.)
    Then set contract `status: signed-off`. Where
    write-time hooks are not active, run
    `scripts/recheck-evidence.cjs` or `scripts/pre-merge-check.sh` before calling
