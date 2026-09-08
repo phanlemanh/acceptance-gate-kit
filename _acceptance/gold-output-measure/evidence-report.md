@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
+verified_commit: 096005c8572396fdf5e9477cfd2c2763a84d5640
 human_signoff: Manh Phan 2026-08-05
 ---
 
@@ -248,3 +248,7 @@ sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
 ### Re-pin lần 16 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
 run_id: repin-20260908T035246Z-95429
 sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0
+
+### Re-pin lần 17 — 2026-09-08, do ghim lại riêng sau khi sinh lại gold-stdout (lưu kho 27 hồ sơ, ADR 0015)
+run_id: repin-20260908T085636Z-44378
+sha: 096005c8572396fdf5e9477cfd2c2763a84d5640 · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0

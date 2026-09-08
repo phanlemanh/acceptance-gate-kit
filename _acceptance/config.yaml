@@ -50,10 +50,6 @@ executors:
     # Vật của hồ sơ cat-hinh-thuc — răng đo sự VẮNG MẶT của một luật hành xử,
     # đối chứng dương neo vào `origin/main`. Cùng nếp không-vào-suite-vĩnh-viễn.
     cat_hinh_thuc_rang: "bash _acceptance/cat-hinh-thuc/cat-hinh-thuc-rang.sh"
-    # Vật của MỘT hồ sơ (chip ③), so với base tường minh origin/main — cố ý
-    # KHÔNG vào suite vĩnh viễn (PR tương lai đổi bên-viết hợp lệ sẽ đỏ oan).
-    # Cùng nếp E7 no-vat-that-drift.sh của chip ②b.
-    no_oneshot_drift: "bash _acceptance/mot-luot-go-cong-nguoi/no-ben-viet-drift.sh"
     # Vật của hồ sơ doi-hanh-vi-cong-nguoi (1c) — răng lớp MÁY, neo đối chứng
     # dương vào MỐC BẤT BIẾN `BASE-1C` đọc từ contract (không origin/main: sau
     # khi hồ sơ này merge thì needle về 0 ở cả hai đầu và phép đo tự chết).

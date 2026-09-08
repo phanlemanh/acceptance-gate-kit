@@ -51,3 +51,12 @@ sách 3 tên vĩnh viễn (rút tên hai chiều mỗi lần trạng thái đổ
 Phép đo hai chiều đã có sẵn cho mọi lối: `tests/scripts/core-untouched.test.mjs`
 (JR11b, qua `assertCorpus`) đỏ nếu tên khai mà hồ sơ hết đỏ, và đỏ nếu hồ sơ đỏ
 mà không có tên.
+
+## Kết (08/09/2026)
+
+Owner phát ngôn trong phiên: «Lưu kho 3 hồ sơ mirror_sync luôn, rút tên» — tức
+chọn lối 1 của câu 1, không hồi sinh khoá (câu 2). Đã thi hành cùng ngày: ba thư
+mục rời corpus, giữ trọn ở mốc `truoc-luu-kho-mirror-sync-2026-09-08`;
+`MIRROR_SYNC_GRANDFATHER` về rỗng (tệp giữ lại làm răng «corpus sạch tuyệt đối»);
+`--recheck-all` trên kit về **0 vi phạm**. Ô này chỉ còn chờ chữ Cổng Đáng của
+owner để đóng trên bản đồ — máy không tự điền `decision`.

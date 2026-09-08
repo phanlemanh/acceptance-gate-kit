@@ -26,7 +26,6 @@ cat-hinh-thuc	hoi=ký hay trả	bao=cắt/hoãn
 cat-khoi-viec-cua-anh-tren-tin	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
 codex-script-packaging	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
 cong-dang-co-cua	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
-consumer-copy-cjs	hoi=ký hay trả	bao=cắt/hoãn
 dac-ta-ux-vat-hoa-cau-truc	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
 design-pass-nac-khong-dong-bo	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
 doi-hanh-vi-cong-nguoi	hoi=ký hay trả	bao=cắt/hoãn|Treo
@@ -45,12 +44,10 @@ luu-kho-codex-va-nghi-le-design	hoi=ký hay trả	bao=cắt/hoãn
 matrix-measure-law	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
 measure-birth-certificate	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 measure-teeth-cleanup	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
-mot-luot-go-cong-nguoi	hoi=ký hay trả	bao=cắt/hoãn|Treo
 nhanh-chinh-khong-ten-main	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|ký hay trả	bao=cắt/hoãn|Treo
 premerge-rules-ledger	hoi=ký hay trả	bao=cắt/hoãn|Treo
 premerge-unjudged-pass	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
 ra-co-ten-lam-va-trao	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
-rang-phep-do-viec-cua-anh	hoi=ký hay trả	bao=cắt/hoãn|Treo
 release-2-2-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
 release-2-3-0	hoi=ký hay trả	bao=cắt/hoãn|Treo
 release-2-4-0	hoi=ký hay trả	bao=cắt/hoãn|Treo
