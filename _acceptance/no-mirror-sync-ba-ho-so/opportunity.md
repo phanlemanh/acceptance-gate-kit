@@ -4,9 +4,9 @@ slug: no-mirror-sync-ba-ho-so
 feature: Ba hồ sơ đã ký còn nợ khoá `executors.script.mirror_sync` đã gỡ — nợ cuối cùng của corpus sau ADR 0014/0015, chờ một lối ra có tên
 owner: phanlemanh@gmail.com
 stage: discovery
-decision:
-decided_by:
-decided_at:
+decision: kill
+decided_by: Manh Phan
+decided_at: 2026-09-08T09:08:13Z
 ---
 
 ## Vấn đề & ai gặp
@@ -58,5 +58,5 @@ Owner phát ngôn trong phiên: «Lưu kho 3 hồ sơ mirror_sync luôn, rút t�
 chọn lối 1 của câu 1, không hồi sinh khoá (câu 2). Đã thi hành cùng ngày: ba thư
 mục rời corpus, giữ trọn ở mốc `truoc-luu-kho-mirror-sync-2026-09-08`;
 `MIRROR_SYNC_GRANDFATHER` về rỗng (tệp giữ lại làm răng «corpus sạch tuyệt đối»);
-`--recheck-all` trên kit về **0 vi phạm**. Ô này chỉ còn chờ chữ Cổng Đáng của
-owner để đóng trên bản đồ — máy không tự điền `decision`.
+`--recheck-all` trên kit về **0 vi phạm**. Owner phát ngôn «Điền decision» (2026-09-08): `kill` — không mở vòng, việc đã giải
+bằng lưu kho; máy ghi hộ đúng ý muốn ấy.
