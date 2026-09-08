@@ -270,6 +270,33 @@ PY
     ERR="$(node "$TMP/check-rt.js" "$TMP/law-mut.md" E9 "$TMP/card-g1.html" "$TMP/card-g2.html" "$TMP/card-g2v.html" 2>&1)"; rc=$?
     if [ $rc -ne 0 ] && has "$ERR" 'nhan khong khop SLOTS: veto hay để yên'; then ok "chiều đỏ: gỡ dòng SLOTS → checker đỏ đích danh «veto hay để yên»"; else bad "chiều đỏ KHÔNG chạy: rc=$rc $ERR"; fi
     ;;
+  ket-ghi)
+    # E8: đường ghi ô kết — --write ghi đúng một dòng status; --check không đổi byte; 4 ô từ chối exit 2; chiều đỏ hai tầng.
+    KCN="$KIT/scripts/khong-can-nguoi.mjs"
+    kcn() { local r="$1"; shift; KOUT="$(node "$KCN" "$@" --root "$r" --slug fx 2>&1)"; KRC=$?; }
+    md5f() { md5 -q "$1" 2>/dev/null || md5sum "$1" | cut -d' ' -f1; }
+    mk_repo '{}'; cp "$FX_ROOT/_acceptance/fx/contract.md" "$TMP/c-before.md"; kcn "$FX_ROOT" --write
+    D="$(diff "$TMP/c-before.md" "$FX_ROOT/_acceptance/fx/contract.md" | grep -c '^[<>]')"
+    if [ $KRC -eq 0 ] && [ "$KOUT" = "machine-cleared: fx" ] && grep -q '^status: machine-cleared$' "$FX_ROOT/_acceptance/fx/contract.md" && [ "$D" = 2 ]; then ok "(1) --write: exit 0, in «machine-cleared: fx», diff đúng một dòng status"; else bad "(1) rc=$KRC out=«$KOUT» diff=$D"; fi
+    mk_repo '{}'; H1="$(md5f "$FX_ROOT/_acceptance/fx/contract.md")"; kcn "$FX_ROOT" --check; H2="$(md5f "$FX_ROOT/_acceptance/fx/contract.md")"
+    if [ $KRC -eq 0 ] && [ "$KOUT" = "sẽ machine-cleared: fx" ] && [ "$H1" = "$H2" ]; then ok "(1b) --check: exit 0, không đổi byte"; else bad "(1b) rc=$KRC out=«$KOUT» md5 $H1→$H2"; fi
+    mk_repo '{"sections":"## Known limits\n- còn một lỗ\n\n## Ngoài hợp đồng\n"}'; H1="$(md5f "$FX_ROOT/_acceptance/fx/contract.md")"; kcn "$FX_ROOT" --write; H2="$(md5f "$FX_ROOT/_acceptance/fx/contract.md")"
+    if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: mục «Known limits» có nội dung" ] && [ "$H1" = "$H2" ]; then ok "(2) Known limits có nội dung → exit 2 nêu đúng điều kiện, không ghi"; else bad "(2) rc=$KRC out=«$KOUT»"; fi
+    mk_repo '{}'; sed -i '' 's/| PASS |$/| UNCERTAIN |/' "$FX_ROOT/_acceptance/fx/evidence-report.md"; kcn "$FX_ROOT" --write
+    if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: có mục UNCERTAIN" ]; then ok "(3) mục UNCERTAIN → exit 2"; else bad "(3) rc=$KRC out=«$KOUT»"; fi
+    mk_repo '{"contract":{"risk_tier":"T3","approved_by":"t","veto_state":""}}'; kcn "$FX_ROOT" --write
+    if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: hạng T3 (chỉ T2)" ] && ! grep -q machine-cleared "$FX_ROOT/_acceptance/fx/contract.md"; then ok "(4) hạng T3 → exit 2, không ghi"; else bad "(4) rc=$KRC out=«$KOUT»"; fi
+    mk_repo '{"contract":{"status":"draft"}}'; kcn "$FX_ROOT" --write
+    if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: status draft (chỉ verified)" ]; then ok "(5) status draft → exit 2"; else bad "(5) rc=$KRC out=«$KOUT»"; fi
+    kcn "$FX_ROOT" --nope; [ $KRC -eq 3 ] && ok "(6) thiếu cờ → exit 3" || bad "(6) thiếu cờ mà rc=$KRC"
+    # chiều đỏ hai tầng: M1 gỡ cổng «why» → T3 vẫn bị lưới ghi từ chối (tự kiểm sống); M2 gỡ cả hai → T3 bị ghi → phép đo ô (4) đỏ
+    copy_tree; inject ket-ghi-m1 scripts/khong-can-nguoi.mjs "  if (why) { console.error(\`chưa đủ: \${why}\`); process.exit(2); }" "  if (false) { console.error(\`chưa đủ: \${why}\`); process.exit(2); }"
+    mk_repo '{"contract":{"risk_tier":"T3","approved_by":"t","veto_state":""}}'; KOUT="$(node "$COPY/scripts/khong-can-nguoi.mjs" --write --root "$FX_ROOT" --slug fx 2>&1)"; KRC=$?
+    if [ $KRC -eq 2 ] && has "$KOUT" "lưới ghi từ chối:" && has "$KOUT" "T2-ONLY" && ! grep -q machine-cleared "$FX_ROOT/_acceptance/fx/contract.md"; then ok "chiều đỏ M1: gỡ cổng why → T3 vẫn bị lưới ghi (evaluateContractWrite) từ chối — tự kiểm sống"; else bad "M1: rc=$KRC out=«$KOUT»"; fi
+    inject ket-ghi-m2 scripts/khong-can-nguoi.mjs "  if (r.anyFailure) { console.error(\`lưới ghi từ chối:" "  if (false) { console.error(\`lưới ghi từ chối:"
+    mk_repo '{"contract":{"risk_tier":"T3","approved_by":"t","veto_state":""}}'; KOUT="$(node "$COPY/scripts/khong-can-nguoi.mjs" --write --root "$FX_ROOT" --slug fx 2>&1)"; KRC=$?
+    if [ $KRC -eq 0 ] && grep -q '^status: machine-cleared$' "$FX_ROOT/_acceptance/fx/contract.md"; then ok "chiều đỏ M2: gỡ cả hai tầng → T3 bị ghi machine-cleared (ghi machine-cleared cho T3) — phép đo ô (4) đỏ đúng chỗ"; else bad "M2 KHÔNG chạy: rc=$KRC out=«$KOUT»"; fi
+    ;;
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;
 esac
 done_chan

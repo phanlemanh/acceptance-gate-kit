@@ -21,8 +21,8 @@ Nguồn sự thật duy nhất: frontmatter `status` trong `_acceptance/<slug>/c
 | `draft` | Gate 1 (trình lại gói duyệt; CT-S: THIẾU `gap-probe.md` ∧ ledger không có entry `descope` decision bắt đầu `"bỏ gap-probe"` → cờ vàng trên thẻ + hỏi user 1 câu có chạy bổ sung S1#7 không — KHÔNG tự chạy, KHÔNG chặn; workspace cũ trước 1.14.0 đi đường này) |
 | `approved` | S2 PLAN; plan của slug đã tồn tại → S3 tiếp tục task chưa xong (T3: plan chưa duyệt → Gate 1.5 trước) |
 | `implemented` | S4 VERIFY |
-| `verified` | Xanh-sạch đủ SÁU điều kiện ∧ không chạm KHÓ-ĐẢO → commit phần máy viết, báo một dòng, đi tiếp S5 (KHÔNG mời ký). Thiếu một điều kiện, hoặc chạm khó-đảo → Gate 2 (trình gói evidence) |
-| `machine-cleared` | S5 SHIP — máy đã thông, không có chữ ký người; cửa veto theo `veto_state`. Người ký sau vẫn được: `/acceptance-gate:signoff` đổi sang `signed-off` cùng lượt ghi chữ ký. **ĐƯỜNG GHI CHƯA BẬT (giới hạn đã khai):** mọi bên đọc xử lý được trạng thái này, nhưng KHÔNG bước nào của vòng được tự đặt nó — xem `_acceptance/lan-may-thong-duong-ghi/` |
+| `verified` | Xanh-sạch đủ SÁU điều kiện ∧ không chạm KHÓ-ĐẢO → chạy `node <acceptance-gate>/scripts/khong-can-nguoi.mjs --write --root . --slug <slug>` (exit 2 = còn cần người → Gate 2), vẽ lại bản đồ, commit phần máy viết (contract nay `machine-cleared`), báo một dòng, đi tiếp S5 (KHÔNG mời ký). Thiếu một điều kiện, hoặc chạm khó-đảo → Gate 2 (trình gói evidence) |
+| `machine-cleared` | S5 SHIP — máy đã thông, không có chữ ký người; cửa veto theo `veto_state`. Người ký sau vẫn được: `/acceptance-gate:signoff` đổi sang `signed-off` cùng lượt ghi chữ ký. Đường ghi: bước ở hàng `verified` (duong-lui-phai-song) |
 | `signed-off` | S5 SHIP |
 
 Resume: `/feature-loop:feature-loop <slug>` → đọc status, vào đúng hàng trong bảng. Luôn nói rõ cho user đang ở stage nào trước khi làm. Có `decisions.jsonl` → đọc (parse từng dòng, dòng hỏng bỏ qua + báo số lượng), tóm tắt "đã chốt: <id — decision>" cho user và KHÔNG lật lại các quyết định đó trừ khi đi nghi thức `supersedes` + human phê ở gate kế; file vắng → bỏ qua, không nhắc gì.
