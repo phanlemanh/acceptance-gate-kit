@@ -145,7 +145,11 @@ PY
       local j; j="$(printf '%s' "$FXJ" | python3 -c "import sys,json; d=json.load(sys.stdin); d['recheck']='$mode'; f='$from'; (f and d.__setitem__('vendorFrom', f)); o='$tiem'; (o and d.__setitem__('omit', [o])); print(json.dumps(d))")"
       mk_repo "$j"
       if [ "$ten" = "node-vang" ]; then
-        OUT="$(cd "$FX_ROOT" && env PATH=/usr/bin:/bin bash scripts/pre-merge-check.sh . --base "$FX_A" 2>&1)"; VIOL="$(printf '%s\n' "$OUT" | grep -c '^VIOLATION' || true)"
+        # PATH riêng KHÔNG có node, dựng từ mọi lệnh của PATH thật trừ node/nodejs — rồi TỰ KIỂM
+        # «node thật sự vắng» trước khi tin kết quả (S4-r1: PATH=/usr/bin:/bin chỉ đúng trên máy tác giả).
+        NONODE="$TMP/nonode"; if [ ! -d "$NONODE" ]; then mkdir -p "$NONODE"; IFS=: ; for dd in $PATH; do for b in "$dd"/*; do n="$(basename "$b")"; case "$n" in node|nodejs) continue ;; esac; [ -x "$b" ] && [ ! -e "$NONODE/$n" ] && ln -s "$b" "$NONODE/$n"; done; done; unset IFS; fi
+        if env PATH="$NONODE" command -v node >/dev/null 2>&1 || ! env PATH="$NONODE" command -v bash >/dev/null 2>&1; then bad "mũi node-vang KHÔNG trúng: node vẫn thấy được (hoặc bash mất) dưới PATH=$NONODE"; fi
+        OUT="$(cd "$FX_ROOT" && env PATH="$NONODE" bash scripts/pre-merge-check.sh . --base "$FX_A" 2>&1)"; VIOL="$(printf '%s\n' "$OUT" | grep -c '^VIOLATION' || true)"
       else pmc "$FX_ROOT" --base "$FX_A"; fi
     }
     for m in "recheck-vang|scripts/recheck-evidence.cjs|recheck-evidence.cjs vắng" "node-vang||node vắng" "exit-2|lib/evidence-core.cjs|exit 2"; do
