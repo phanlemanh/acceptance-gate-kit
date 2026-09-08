@@ -856,15 +856,20 @@ if (want('RT6')) {
     ['uat-§0 điều kiện vào', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), /`status: signed-off` hoặc `machine-cleared`/, 1],
     ['uat-§0 ba ca ngưỡng', 'skills/uat-session/SKILL.md', t => cut(t, /^## 0\. Điều kiện vào/m, /^## 1\./m), new RegExp(reEsc(KHONG_DO) + ' '), null],
     ['fl bảng có hàng mới', FL, t => cut(t, /^\| status hiện tại/m, /^\n## /m), /^\| `machine-cleared` \|.*S5/m, 1],
-    ['fl hàng machine-cleared khai đường ghi chưa bật', FL, t => cut(t, /^\| `machine-cleared` \|/m, /\n/), /ĐƯỜNG GHI CHƯA BẬT \(giới hạn đã khai\)/, 1],
-    ['acceptance SKILL khai đường ghi chưa bật', 'skills/acceptance/SKILL.md', t => cut(t, /^4b\. \*\*Cổng Bằng chứng xanh-sạch/m, /^5\./m), /máy KHÔNG được tự đặt\n   trạng thái đó/, 1],
+    // duong-lui-phai-song AC-8/AC-9: đường ghi ĐÃ BẬT, một cửa — hàng verified gọi CLI tự kiểm,
+    // hàng machine-cleared trỏ về đó; cấm đặt tay vẫn giữ (quetGhi bên dưới).
+    ['fl hàng verified gọi đường ghi ô kết', FL, t => cut(t, /^\| `verified` \|/m, /\n/), /khong-can-nguoi\.mjs --write --root \. --slug <slug>/, 1],
+    ['fl hàng machine-cleared trỏ đường ghi ở hàng verified', FL, t => cut(t, /^\| `machine-cleared` \|/m, /\n/), /Đường ghi: bước ở hàng `verified`/, 1],
+    ['acceptance SKILL 4b khai đường ghi một cửa qua CLI tự kiểm', 'skills/acceptance/SKILL.md', t => cut(t, /^4b\. \*\*Cổng Bằng chứng xanh-sạch/m, /^5\./m), /khong-can-nguoi\.mjs --write\n   --root \. --slug <slug>/, 1],
+    ['acceptance SKILL 4b vẫn cấm sửa tay dòng status', 'skills/acceptance/SKILL.md', t => cut(t, /^4b\. \*\*Cổng Bằng chứng xanh-sạch/m, /^5\./m), /Máy KHÔNG tự sửa tay dòng `status`/, 1],
     ['CONTEXT term', 'CONTEXT.md', t => cut(t, /^\*\*Máy đã thông\*\*/m, /^\*\*|^### /m), /_Avoid_: gọi hồ sơ máy-thông là «đã ký»/, 1],
     ['acceptance-status hai trạng thái', 'commands/acceptance-status.md', t => t, /`machine-cleared` là máy đã thông/, 1, 'ca-file'],
     ['acceptance-report tách hai số', 'commands/acceptance-report.md', t => t, /`machine-cleared` \(máy đã thông, không chữ ký\)/, 1, 'ca-file'],
   ]);
   // CONTEXT phải có TERM, không chỉ nhắc chuỗi
   if (!/\*\*Máy đã thông\*\* \(`machine-cleared`\)/.test(readRepo('CONTEXT.md'))) errs.push('CONTEXT.md chưa có term «Máy đã thông»');
-  // Đường ghi CHƯA BẬT: không văn bản nghi thức nào được dạy máy tự đặt trạng thái này.
+  // Đường ghi MỘT CỬA (duong-lui-phai-song): không văn bản nghi thức nào được dạy máy tự ĐẶT TAY
+  // trạng thái này — cửa duy nhất là khong-can-nguoi.mjs --write (tự kiểm lưới ghi).
   // GIỚI HẠN CỦA CHÍNH CA NÀY: needle bắt HÌNH DẠNG câu lệnh («set/đặt/ghi … status:
   // machine-cleared»), không bắt mọi cách diễn đạt — nó canh việc bật lại đường ghi bằng
   // đúng câu đã gỡ, không thay được người đọc. Khai ở «Known limits» của hồ sơ.
@@ -876,7 +881,7 @@ if (want('RT6')) {
   // phép quét đọc đúng file và nêu đúng tên — S4-r8 [6]).
   const quetGhi = root => VAN_BAN_NGHI_THUC
     .filter(f => existsSync(path.join(root, f)) && RE_GHI.test(readFileSync(path.join(root, f), 'utf8')));
-  for (const f of quetGhi(ROOT)) errs.push(`${f}: dạy máy TỰ ĐẶT machine-cleared — đường ghi chưa bật (xem _acceptance/lan-may-thong-duong-ghi/)`);
+  for (const f of quetGhi(ROOT)) errs.push(`${f}: dạy máy TỰ ĐẶT TAY machine-cleared — cửa ghi duy nhất là khong-can-nguoi.mjs --write (duong-lui-phai-song AC-8)`);
   // Chiều đỏ: dựng cây tạm chứa SÁU văn bản thật, tiêm đúng câu vừa gỡ vào MỘT file, rồi
   // chạy CHÍNH phép quét trên cây đó — phải nêu đúng tên file ấy và KHÔNG nêu năm file kia.
   {
@@ -897,7 +902,7 @@ if (want('RT6')) {
     } finally { rmSync(c6, { recursive: true, force: true }); }
   }
   if (errs.length) fail('RT6', errs.join(' · '));
-  else pass('RT6', 'văn bản nghi thức biết ĐỌC machine-cleared và khai đường GHI chưa bật; gỡ từng mệnh đề → bộ đọc đỏ; tiêm lại câu ghi → đỏ nêu tên file');
+  else pass('RT6', 'văn bản nghi thức biết ĐỌC machine-cleared và khai đường GHI một cửa (CLI tự kiểm); gỡ từng mệnh đề → bộ đọc đỏ; tiêm câu đặt tay → đỏ nêu tên file');
 }
 
 // ── RT10 — hai tiền tố: MỘT chỗ khai, năm nơi đọc lại ───────────────────────

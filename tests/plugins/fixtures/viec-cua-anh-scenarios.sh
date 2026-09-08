@@ -8,7 +8,7 @@
 # của bất biến "thước phải gắn vào vật được giao" (S4-r2).
 #
 # Dùng: source file này rồi gọi  vca_scenario <tên> <thư mục workspace>
-# Tên kịch bản: gate1-draft · gate1-approved · gate2-4loai · gate2-pass-thuan-may
+# Tên kịch bản: gate1-draft · gate1-approved · gate2-4loai · gate2-pass-thuan-may · gate2-may-di-tiep
 #               · gate2-reject · gate2-blocked · gate2-weird
 # Mỗi lần gọi ghi đè trọn `<ws>/_acceptance/fx/` nên các kịch bản không rò sang nhau.
 
@@ -85,6 +85,59 @@ EOF
   severity: P1
   proposal: known-limits
   Người dùng thấy gì: Lỗi hiếm khi tên file có dấu hỏi
+EOF
+      ;;
+    gate2-may-di-tiep)
+      # Hồ sơ MÁY-ĐI-TRƯỚC: làn V mở (veto_state mo có vết), không chữ ký, xanh-sạch
+      # → thẻ Cổng 2 in «veto hay để yên» thay «ký hay trả» (duong-lui-phai-song AC-7).
+      # Thẻ HỎI bộ quét để biết máy đã đi tiếp; bộ quét đòi _acceptance/config.yaml
+      # (vắng → {"config": false} và thẻ rơi về «ký hay trả»), nên kịch bản này ghi
+      # một config tối thiểu — các kịch bản khác không cần vì thẻ ký không hỏi bộ quét.
+      [ -f "$ws/_acceptance/config.yaml" ] || printf 'schema_version: 1\nenforcement: strict\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n  t3_paths:\n    - "lib/**"\nsignoff:\n  required_for: [T2, T3]\n  approvers: ["t"]\n' > "$ws/_acceptance/config.yaml"
+      cat > "$d/contract.md" <<'EOF'
+---
+schema_version: 1
+feature: fx demo
+slug: fx
+risk_tier: T2
+status: verified
+approved_by:
+approved_at:
+veto_state: mo
+veto_opened_at: 2026-09-01T00:00:00Z
+---
+
+## Criteria
+
+- AC-1: Given a, When b, Then c.
+
+## Out of scope
+
+- Hoãn x.
+EOF
+      cat > "$d/evidence-report.md" <<'EOF'
+---
+verdict: PASS
+bypass_used: false
+enforcement_mode: strict
+human_signoff:
+---
+
+## Per-eval
+
+| Eval | Criterion | Executor | Verdict |
+|---|---|---|---|
+| E1 | AC-1 | script | PASS |
+
+## Evidence
+
+- eval: E1
+  run_id: fx-E1-001
+  exit_code: 0
+
+## Known limits
+
+## Ngoài hợp đồng
 EOF
       ;;
     gate2-pass-thuan-may)

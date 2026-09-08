@@ -183,7 +183,11 @@ Câu gộp theo lệnh:
 - `/acceptance-gate:signoff [<slug>] <câu gộp>` — chuỗi `nhãn: giá trị` phân cách bằng `;`,
   đúng các nhãn dòng «Trả lời mẫu» của thẻ Cổng 2 («Ngoài-<số>» ·
   «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký[: <tên> [<ngày>]][, phút
-  <số>]` (chỗ trống «ký hay trả») hoặc `Trả lại: <lý do>`.
+  <số>]` (chỗ trống «ký hay trả») hoặc `Trả lại: <lý do>`. Hồ sơ máy-đi-trước
+  (lời mời cổng in «veto hay để yên» thay «ký hay trả»): câu gộp là
+  `veto: <lý do>` hoặc `để yên` — veto ghi `veto_state: da-veto` + entry sổ
+  `type: veto` mang lý do nguyên văn + commit `Veto: <slug> — <tên>`, máy dừng
+  ngay; «để yên» không ghi gì.
 - `/acceptance-gate:start [<slug>]` — chọn-trước bằng slug: slug nằm trong nhóm nào của lần
   quét thì bàn giao thẳng theo lối nhóm đó và hiển thị lại nhóm đã khớp;
   không thấy slug trong nhóm nào → trình thẻ như cũ.
@@ -267,6 +271,7 @@ g2 <mã eval>
 g2 cắt/hoãn
 g2 Treo
 g2 ký hay trả
+g2 veto hay để yên
 extra tên
 extra phút
 <!-- GATE-ONESHOT-SLOTS>>> -->

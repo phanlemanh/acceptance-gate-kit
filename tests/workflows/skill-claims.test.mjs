@@ -60,6 +60,22 @@ for (const [re, name] of REPIN_CLAUSES) check(`DV1m mutant xoá mệnh đề →
   const mutated = SKILL.replace(hit[0], '');
   assert.ok(!re.test(mutated), 'detector không phân biệt được bản bị xoá');
 });
+// DLPS (duong-lui-phai-song AC-9): hàng `verified` gọi đường ghi ô kết; hàng
+// `machine-cleared` không còn khai «đường ghi chưa bật». Mutant per-clause (khuôn DV1).
+const DLPS_CLAUSES = [
+  [/khong-can-nguoi\.mjs --write --root \. --slug <slug>/, 'DLPS1: hàng verified gọi đường ghi ô kết'],
+  [/exit 2 = còn cần người → Gate 2/, 'DLPS2: exit 2 rẽ về Gate 2'],
+];
+for (const [re, name] of DLPS_CLAUSES) check(`DLPS SKILL có mệnh đề: ${name}`, () => assert.match(SKILL, re));
+check('DLPS: hàng machine-cleared không còn giới hạn đường ghi', () => {
+  assert.doesNotMatch(SKILL, /ĐƯỜNG GHI CHƯA BẬT/);
+  assert.match(SKILL, /\| `machine-cleared` \|[^\n]*Đường ghi: bước ở hàng `verified`/);
+});
+for (const [re, name] of DLPS_CLAUSES) check(`DLPSm mutant xoá → đỏ: ${name}`, () => {
+  const hit = SKILL.match(re);
+  assert.ok(hit, `mệnh đề "${name}" không tồn tại để mutate`);
+  assert.ok(!re.test(SKILL.replace(hit[0], '')), 'detector không phân biệt được bản bị xoá');
+});
 // MM1/MM2 (matrix-measure-law): 4 câu đối chiếu lớp-đo-lường trong ý (4) của
 // prompt gap-probe, mutant per-clause (khuôn DV1).
 const MEASURE_CLAUSES_VI = [
