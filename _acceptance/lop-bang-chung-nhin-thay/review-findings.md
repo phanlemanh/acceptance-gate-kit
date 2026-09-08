@@ -1,72 +1,76 @@
 ## Trong hợp đồng
 
-- **Hình dạng 3 — assert «có dòng W8» trong khi lời hứa là QUAN HỆ alias web→ui→nghĩa vụ ui-check (L42/L42b)**
-  file: `tests/scripts/run-tests.sh:1211`
-  severity: high
-  AC: AC-2
-  L42 và L42b (dòng 1211–1212) chỉ khớp `*"[feat-lnt] W8 "*` — bất kỳ dòng W8 nào. W8 có BA nhánh trong eval-coverage-lint.js (token-lạ · nhãn lạc chỗ · nghĩa vụ ui-check). Khi alias `web` bị gỡ khỏi SURFACE_ALIAS thì `web` thành token lạ, nhánh token-lạ nổ và L42 vẫn XANH dù đúng cái nó hứa đo (alias web → ui → đòi ui-check) đã chết. Đã kiểm thực nghiệm trên bản sao lib bỏ `web: 'ui'`: lint in dòng `W8 surfaces carry token(s) outside the enum: web`, mẫu L42 vẫn PASS. Chính test.mjs LNT1 dòng 103–104 đã nhận ra bẫy này và ghim dòng NGHĨA VỤ (`\] W8 surfaces include a human-visible UI`) — run-tests.sh không làm thế. evals.yaml E2 hứa «(c) [web]/[web-ui] → như (a)» tức phải ghim cụm «không có eval» — L42/L42b không ghim. So sánh: L50 (dòng 1228) và L51 (1229) cùng mẫu `*W8*` nhưng fixture `ui` không có token lạ nên chỉ nhánh nghĩa vụ nổ được — hai ca đó không mắc; chỉ hai ca alias mắc. Rationale: AC-2(c) yêu cầu rõ với surfaces [web]/[web-ui] phải xử lý «như (a)» tức có đúng cụm thông điệp «không có eval ui-check»; hai case này chỉ khớp bất kỳ dòng W8 nào nên không thực sự xác minh đúng nghĩa vụ mà AC-2(c) hứa, để lọt một hình dạng lỗi làm sai chính quan hệ alias mà AC yêu cầu.
-
-- **Hình dạng 5 — lời hứa hai điều kiện (exit_code ≠ 0 HOẶC thiếu screenshot) nhưng chỉ có một điểm-case gộp cả hai (LNT4 a)**
-  file: `tests/plugins/lop-nhin-thay.test.mjs:151`
+- **Hình dạng 4 — assertion âm-tính-một-mình trên bản sao mutant: lint(bản sao) không có dấu hiệu đã chạy**
+  file: `tests/plugins/lop-nhin-thay.test.mjs:105`
   severity: medium
-  AC: AC-4
-  AC-4(a) và evals.yaml E4 hứa ui-check KHÔNG đạt khi «exit_code ≠ 0 hoặc không có screenshot:» — lớp có 2 phần tử độc lập. `uiBlock(..., {pass:false})` (dòng 151) làm CẢ HAI cùng lúc: đặt exit_code 4 VÀ xoá dòng screenshot/observed. Không có ca «exit 0 nhưng thiếu screenshot» hay «có screenshot nhưng exit ≠ 0». Hệ quả đo được: mutant gate-card.js đổi `=== '0' && !!(e.screenshot…)` thành `|| ` (uiPassed, dòng ~736) → LNT4 vẫn PASS (đã chạy trên bản sao: `PASS: [LNT4]`, exit 0). Số assert (1 ca âm) < số phần tử lớp (2) — thiếu ma trận toàn phần viết trước. Rationale: AC-4(a) đặc tả rõ ràng hai điều kiện độc lập (không đạt vì verdict/exit khác 0 HOẶC vì thiếu ảnh chụp) nhưng test chỉ có một ca gộp cả hai cùng lúc, nên nhánh 'exit 0 nhưng thiếu ảnh chụp' và nhánh 'có ảnh nhưng exit khác 0' của chính AC-4(a) chưa được xác minh riêng.
+  AC: AC-1
+  detail: Dòng 101 chạy `eval-coverage-lint.js` của BẢN SAO đã tiêm mutant (bỏ alias web); dòng 105 chỉ assert `if (OBLIG.test(lintM.stdout)) fail(...)` — tức chỉ đòi dòng W8-nghĩa-vụ VẮNG. Không kiểm `lintM.status`, không ghim dòng nào phải CÓ trên bản sao. Nếu bản sao không chạy được (thiếu file, require lỗi, đường dẫn sai) thì stdout rỗng → assert xanh y hệt ca 'mutant đúng'. Đối chứng dương ở dòng 106 (`lintG`) chạy trên cây LÀNH, không chứng minh bản sao mutant từng chạy. Trong khi đó ca bash tương đương L42m (tests/scripts/run-tests.sh) đã làm đúng: đòi nhánh token-lạ `W8 surfaces carry token…web` PHẢI nổ trên mutant, còn không thì đỏ «bản sao không chạy?». Bản JS của cùng phép đo thiếu đúng cái răng đó — mutant bỏ alias tất yếu biến `web` thành token lạ, nên dòng `W8 surfaces carry token(s)…web` là dấu hiệu quét sẵn có mà ca chưa ghim. So sánh: assert gate-card mutant ngay trên (dòng 103) lại ĐÚNG — `uoM={}` khi status≠0 làm `eq(undefined,false)` đỏ.
+  source: measurement
+  rationale: AC-1 đặt tên tường minh yêu cầu gap-probe F3 phải có đủ 6 assert đáng tin qua 3 bộ đọc × 2 chiều; assert chiều lint-trên-bản-sao ở đây thiếu đối chứng dương nên không thật sự chứng minh chiều đó, vi phạm đúng con số 6 mà AC-1 yêu cầu.
+
+- **Hình dạng 3 — LNT6 (iv)(vi) assert chuỗi có mặt trong khi AC-6 hứa QUAN HỆ (web→ui; playwright làm capture.ui)**
+  file: `tests/plugins/lop-nhin-thay.test.mjs:221`
+  severity: low
+  AC: AC-6
+  detail: AC-6 (vi): «acceptance-init.md 3b nhắc `@playwright/cli` LÀM LỆNH `capture.ui`»; dòng 221 chỉ `cut(...3b...3c...).includes('@playwright/cli')` — không chạm `capture.ui`. Mutant đổi đoạn 3b thành «cheaper when the machine has @playwright/cli» mà xoá vế `capture.ui can be …` vẫn xanh. AC-6 (iv): «term Surface nhắc ALIAS `web` → `ui`»; dòng 220 chỉ `.includes('`web`')` — mutant xoá `→ \`ui\`` (mất quan hệ alias) vẫn xanh; mutant dòng 231 chỉ gỡ `ui-observed` (vế Layer), không có mutant cho vế Surface nên chiều đỏ của (iv)-Surface chưa từng chạy. Cùng lớp với (ii) — ở đó ca lại ghim đúng cụm quan hệ «≥1 eval `ui-check`», nên đây là hai mệnh đề lệch khuôn so với anh em của nó.
+  source: measurement
+  rationale: AC-6(iv) và (vi) hứa cụ thể một mối quan hệ (alias web→ui; playwright làm lệnh capture.ui), nhưng assert trong test chỉ kiểm chuỗi con có mặt và bỏ sót đúng phần quan hệ mà AC-6 yêu cầu — mutant xoá phần quan hệ vẫn qua được.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Docs and lib comment assert a hook tooth that does not exist (frame required on every ui-check block)**
-  Người dùng thấy gì: Tài liệu nội bộ nói rằng một bước tự động đã bắt buộc phải có ảnh chụp màn hình cho mọi kiểm tra giao diện, nhưng thực tế bước đó chưa làm việc này — người đọc tài liệu có thể yên tâm nhầm rằng đã được bảo vệ sẵn.
-  file: `skills/acceptance/references/eval-executors.md`
+- **PM-LNT-dv5 bakes a one-off feature constraint (DV5 "only add lines") into the permanent scripts suite, anchored to the `main` branch**
+  Người dùng thấy gì: Bài kiểm tra tự động có thể báo lỗi sai cho những thay đổi hợp lệ trong tương lai đối với tệp kiểm tra trước khi gộp mã, kể cả khi thay đổi đó không liên quan đến tính năng đang xét.
+  file: `tests/scripts/run-tests.sh`
+  severity: high
+  Đề xuất: known-limits
+
+- **Three shipped texts claim the write-time hook forces `screenshot:` on every ui-check block; the hook only checks `observed:` when a `screenshot:` is already present**
+  Người dùng thấy gì: Tài liệu hướng dẫn nói hệ thống luôn bắt buộc có ảnh chụp màn hình cho mọi mục kiểm tra giao diện, nhưng thực tế một mục thiếu ảnh chụp vẫn có thể lọt qua bước duyệt sớm và chỉ bị phát hiện ở bước duyệt cuối cùng.
+  file: `lib/lop-nhin-thay.cjs`
   severity: medium
   Đề xuất: known-limits
 
-- **PM-LNT-dv5 measures git branch state against local `main`, not the delivered artifact**
-  Người dùng thấy gì: Một phép kiểm tra nội bộ so sánh với nhánh chính hiện tại của máy phát triển; sau khi gộp vào nhánh chính hoặc ở một số môi trường kiểm tra khác, phép kiểm này có thể không còn phát hiện đúng vấn đề — nhưng đây là cách đo được chấp nhận có chủ đích, không ảnh hưởng người dùng cuối.
+- **`LNT_AVAILABLE` is exported from nguong-o-co-hoi.cjs but no reader uses it**
+  Người dùng thấy gì: Có một cờ trạng thái nội bộ được tạo ra nhưng hiện chưa nơi nào dùng tới — không ảnh hưởng người dùng, chỉ là mã dư thừa.
+  file: `lib/nguong-o-co-hoi.cjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **PM-LNT-dv5 encodes a one-PR invariant as a permanent suite check (fails locally on any future edit of pre-merge-check.sh, silently skips in CI)**
+  Người dùng thấy gì: Bài kiểm tra này chỉ thật sự có tác dụng trên máy cá nhân của người viết mã; trên hệ thống kiểm tra tự động chung nó âm thầm bỏ qua mà không báo, nên lớp bảo vệ không đáng tin như tưởng về lâu dài.
   file: `tests/scripts/run-tests.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **New human-facing script messages use CONTEXT.md `_Avoid_` terms (màn hình, bare ledger)**
-  Người dùng thấy gì: Một vài dòng thông báo mới trong công cụ dùng từ ngữ chưa đúng chuẩn thuật ngữ nội bộ đã quy định, có thể hơi khó hiểu cho người đọc báo cáo nhưng không ảnh hưởng tới kết quả hay quyết định của họ.
-  file: `scripts/gate-card.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **PM-LNT-dv5 is a permanent ratchet: any future deletion in pre-merge-check.sh fails the suite**
-  Người dùng thấy gì: Một phép kiểm tra nội bộ so sánh với nhánh chính có thể tự động báo lỗi trong các thay đổi hợp lệ ở tương lai không liên quan tới tính năng này — đây là cách đo có chủ đích trong thiết kế hiện tại, không phải sự cố ảnh hưởng người dùng ngay bây giờ.
-  file: `tests/scripts/run-tests.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Gate-1 card ignores a named ui-observed descope when evals.yaml is absent**
-  Người dùng thấy gì: Trong một tình huống hiếm — khi hồ sơ tính năng chưa có danh sách kiểm tra cụ thể — hệ thống có thể vẫn hiện cảnh báo thiếu bằng chứng hình ảnh dù người phụ trách đã khai rõ lý do bỏ qua, khiến người duyệt thấy một cảnh báo không cần thiết.
-  file: `scripts/gate-card.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **pre-merge NOTE lane swallows lib errors and mislabels them as «thiếu node hoặc lib»**
-  Người dùng thấy gì: Trong một tình huống hiếm khi công cụ kiểm tra nội bộ gặp trục trặc kỹ thuật khác (không phải do thiếu tệp), thông báo hiển thị vẫn ghi là 'thiếu tệp', khiến người vận hành khó tìm đúng nguyên nhân thật — nhưng đây không phải lỗi chặn việc bàn giao.
+- **pre-merge NOTE lane reports a classify runtime failure as «thiếu node hoặc lib» (error swallowed, wrong cause named)**
+  Người dùng thấy gì: Khi việc phân loại bị lỗi vì một nguyên nhân khác không phải thiếu tệp thư viện, thông báo hiển thị vẫn nói là thiếu thư viện, khiến người vận hành có thể đi sửa nhầm chỗ.
   file: `scripts/pre-merge-check.sh`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 6 (biến thể) — phép đo so với nhánh `main` của checkout tác giả, tự im lặng khi không có/đã merge (LNT1 chiều-đỏ-có-sẵn)**
-  Người dùng thấy gì: Một phần kiểm tra tự động dựa vào trạng thái nhánh chính hiện có trên máy người viết mã; trong vài tình huống hiếm (không có nhánh chính cục bộ, hoặc thay đổi đã được gộp), phần kiểm này có thể lặng lẽ bỏ qua — nhưng đây là cách đo hợp đồng đã chấp nhận, không ảnh hưởng người dùng cuối.
+- **Comment-stripping in lop-nhin-thay.cjs requires whitespace before `#`, unlike the other frontmatter readers it is meant to unify**
+  Người dùng thấy gì: Nếu ai đó viết chú thích dán liền ngay sau giá trị mà không có khoảng trắng (cách viết hiếm gặp), các bộ phận khác nhau của hệ thống có thể phân loại khác nhau xem tính năng có cần bằng chứng hình ảnh hay không.
+  file: `lib/lop-nhin-thay.cjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 4 — `html()` nuốt mã thoát; ba assert HTML chỉ có chiều «không chứa» xanh giả khi render crash**
+  Người dùng thấy gì: Nếu công cụ hiển thị kết quả bị lỗi ngầm khi dựng trang, một số bài kiểm tra tự động vẫn có thể báo 'qua' dù thực chất chưa kiểm tra được gì — rủi ro là lỗi thật bị bỏ sót mà không ai hay biết.
   file: `tests/plugins/lop-nhin-thay.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 6 (biến thể) — PM-LNT-dv5 đo `git diff main` của checkout tác giả, xanh rỗng sau merge và bỏ qua có tiếng ở checkout thiếu `main`**
-  Người dùng thấy gì: Một phép kiểm tra nội bộ so sánh với nhánh chính có thể trở nên vô nghĩa sau khi thay đổi được gộp, hoặc lặng lẽ bỏ qua ở môi trường kiểm tra thiếu nhánh chính cục bộ — đây là cách đo có chủ đích của thiết kế hiện tại, không phải sự cố ảnh hưởng người dùng.
-  file: `tests/scripts/run-tests.sh`
-  severity: medium
+- **Hình dạng 6 — «chiều đỏ có sẵn» đo nhánh `main` của checkout tác giả; tự biến mất im lặng sau merge**
+  Người dùng thấy gì: Một bước kiểm tra phụ trợ (không phải bước kiểm chính) sẽ tự động ngừng có tác dụng ngay sau khi mã này được gộp, nhưng lớp bảo vệ chính của tính năng vẫn còn nguyên.
+  file: `tests/plugins/lop-nhin-thay.test.mjs`
+  severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 5 — evals.yaml E6 tuyên «bảy mệnh đề (i)–(vii), 7 bản sao» nhưng reader LNT6 chỉ có 6 mệnh đề / 6 mutant**
-  Người dùng thấy gì: Một tệp mô tả kỹ thuật nội bộ ghi nhầm số lượng mục kiểm tra (nói bảy nhưng thực tế sáu), một sai sót nhỏ trong tài liệu không ảnh hưởng tới việc kiểm tra thực tế hay tới người dùng.
-  file: `_acceptance/lop-bang-chung-nhin-thay/evals.yaml`
+- **Hình dạng 6 — PM-LNT-dv5 `git diff main` đo trạng thái nhánh, trở thành trống-tất-yếu sau merge**
+  Người dùng thấy gì: Bài kiểm tra chỉ có tác dụng đúng trong đúng thời điểm hiện tại; ngay sau khi gộp mã lần này, phép kiểm sẽ luôn báo 'qua' một cách vô nghĩa mà không còn thật sự kiểm tra gì nữa.
+  file: `tests/scripts/run-tests.sh`
   severity: low
   Đề xuất: known-limits
 
