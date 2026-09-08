@@ -5,9 +5,9 @@ slug: gom-duc-ket-2-10-0
 owner: phanlemanh@gmail.com
 risk_tier: T3               # K4 chạm lib/evidence-core.cjs + lib/eval-yaml.cjs + scripts/pre-merge-check.sh (t3_paths)
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-09-08T15:20:00Z
 design_doc: docs/superpowers/specs/2026-09-08-gom-duc-ket-2-10-0-design.md
 ---
 
