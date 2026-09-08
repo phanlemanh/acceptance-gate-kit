@@ -1154,8 +1154,11 @@ REPINIDS
     # xanh (crm-onehub 07/09). MỘT nguồn luật: checkRepinEvals trong
     # lib/evidence-core.cjs (bên đọc thứ hai là recheck-evidence.cjs); nó liệt
     # kê eval máy qua lib/eval-yaml.cjs, nên cả hai phải được chép theo
-    # INIT-CI-COPY-LIST. Làn trước mốc REPIN_EVALS_SINCE là sử liệu suite-only:
-    # NOTE, không chặn. Thiếu node/lib → khai NOT ENFORCED, không im lặng.
+    # INIT-CI-COPY-LIST. KHÔNG mốc ngày, KHÔNG phạm vi diff (owner 08/09/2026,
+    # hai lần): làn suite-only đời nào, hồ sơ nào trong kho, cũng là VIOLATION ở
+    # MỌI lượt chạy — pin chưa chứng không được nằm im chỉ vì PR không chạm nó;
+    # cách sửa duy nhất là ghim lại bằng làn eval. Thiếu node/lib → khai NOT
+    # ENFORCED, không im lặng.
     if [ -n "$vc" ]; then
       if command -v node >/dev/null 2>&1 && [ -f "$HERE/../lib/evidence-core.cjs" ]; then
         repin_evals_out="$(REPIN_IDS="$repin_ids" node -e '

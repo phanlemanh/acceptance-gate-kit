@@ -974,7 +974,7 @@ flowchart LR
 | Chữ ký là chuỗi giữ-chỗ (không nêu tên người) | Chữ ký sinh cùng commit với thân báo cáo — từ 2.1 KHÔNG còn là vi phạm (ADR 0012) |
 | Evidence STALE — file ngoài `_acceptance/` + ngoài `t1_skip_globs` đổi sau `verified_commit` | |
 | `recheck: strict` + evidence đã commit rớt luật L1/L2/L3 | |
-| Làn re-pin chống lưng `verified_commit` **không chạy lại eval máy của hồ sơ** — dòng `kind:repin` thiếu `evals_exit`, thiếu eval `test`/`script` nào của `evals.yaml`, có eval ≠ 0, hoặc hồ sơ không có `evals.yaml` (2.9.0, xem §7.1) | Dòng repin đời cũ (không `evals_exit`, ghi trước 07/09/2026 12:00Z) — làn suite-only: NOTE «suite-only», ghim lại bằng làn eval ở chiến dịch kế |
+| Làn re-pin chống lưng `verified_commit` **không chạy lại eval máy của hồ sơ** — dòng `kind:repin` thiếu `evals_exit` (kể cả dòng đời cũ, không mốc ngày), thiếu eval `test`/`script` nào của `evals.yaml`, có eval ≠ 0, hoặc hồ sơ không có `evals.yaml` — soi MỌI hồ sơ trong kho, không thu theo diff PR (2.9.0, xem §7.1) | |
 | Backstop T1 (`--base`): đổi `t3_paths`/file non-T1 mà PR không có `_acceptance/` | |
 | config.yaml có tab / indent lẻ | |
 
@@ -1034,12 +1034,20 @@ ghi dòng repin có `evals_exit` + section Re-pin rồi tự kiểm bằng
 trên làn chống lưng `verified_commit`. **Nhịp KHÔNG đổi**: vẫn một chiến dịch
 mỗi bản phát hành — cái đổi là *một lượt làn* nay chứng cả eval của hồ sơ, không
 chỉ suite của kho; «ghim lại theo diff» vẫn là đường rẻ hợp lệ, nhưng nó đi
-vòng S4 delta (carry P1 theo `paths`), không đi re-pin. **Đường đọc-cũ:** ~530
-lượt cite trong chính kho kit và mọi dòng repin ở repo tiêu thụ trước mốc đều
-không có `evals_exit` — chúng là sử liệu suite-only, pre-merge in NOTE
-«suite-only», không chặn; chiến dịch phát hành kế ghim lại bằng làn eval là lúc
-chúng hết nợ. Dòng đã có `evals_exit` thì luôn được chấm bất kể ngày; dòng
-không có ts thì không được coi là sử liệu. **Giới hạn khai, một ngưỡng đang
+vòng S4 delta (carry P1 theo `paths`), không đi re-pin. **Không có đường
+đọc-cũ (owner quyết 08/09/2026, bỏ mốc `REPIN_EVALS_SINCE` đặt hôm trước):** làn
+suite-only chưa bao giờ chứng được pin, nên hồ sơ ghim bằng nó là **nợ thật** —
+recheck đỏ dù dòng ghi khi nào. Với chính kho kit, 49 hồ sơ đã ký đang mang nợ
+này (đo 08/09), đặt tên trong `tests/scripts/mirror-sync-grandfather.mjs`
+(`SUITE_ONLY_LANE_DEBT`, hai chiều, một lý do — cùng khuôn ADR 0010) để răng
+corpus phân biệt nợ-có-tên với lỗi mới; `pre-merge-check.sh --recheck-all` trên
+kit đỏ đúng 49 hồ sơ ấy cho tới khi chiến dịch phát hành ghim lại bằng làn eval,
+mỗi hồ sơ ghim xong là một tên phải rút. **Không phạm vi diff** (owner quyết
+08/09, lần hai): luật soi MỌI hồ sơ trong kho ở MỌI lượt pre-merge, khác luật
+recheck/staleness vốn thu theo diff PR (ADR 0010) — pin chưa chứng không được
+nằm im chỉ vì PR không chạm nó. Hệ quả nhận: pre-merge của chính kit đỏ 49 vi
+phạm cho tới khi chiến dịch ghim lại xong; repo tiêu thụ đỏ mọi PR kể từ mốc nhận
+luật cho tới khi ghim lại mọi hồ sơ đã ký bằng làn eval — không có cờ nới. **Giới hạn khai, một ngưỡng đang
 đếm:** eval `ui-check`/`judgment` không chạy được trong làn máy nên re-pin
 KHÔNG chứng lại chúng — hồ sơ mà diff chạm đúng phần `ui-check` đo phải đi
 vòng S4 delta; ngưỡng mở vòng kế: **≥1 hồi quy UI lọt qua một lượt re-pin**
