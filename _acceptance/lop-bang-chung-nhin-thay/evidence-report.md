@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: afeba0cf3247d3900acccc2d47108e6fba27675c
+verified_commit: 4e8c441770102db93f2abbb206688766b3083ae1
 human_signoff: Phan Le Manh 2026-09-08
 ---
 
@@ -134,3 +134,7 @@ sha: dbe8615daabb6ac29ee7f37ab1260a6c6a7b378c · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 2 — 2026-09-08, do merge vào main sau khi upstream đổi lib/scripts (chiến dịch re-pin 25 hồ sơ, lưu kho 24) — ghim lại riêng làn máy tại HEAD đã gộp
 run_id: repin-20260908T085550Z-82092
 sha: afeba0cf3247d3900acccc2d47108e6fba27675c · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0
+
+### Re-pin lần 3 — 2026-09-08, do gộp origin/main 4d246339 (upstream chạm tests/ fixture) trước khi mở PR — ghim lại riêng làn máy tại HEAD đã gộp
+run_id: repin-20260908T092256Z-17819
+sha: 4e8c441770102db93f2abbb206688766b3083ae1 · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0
