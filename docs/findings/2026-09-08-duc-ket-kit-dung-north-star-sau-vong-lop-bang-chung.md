@@ -104,9 +104,72 @@ rằng vòng đó là **đo-thước-của-thước** đúng nghĩa luật (a) C
 lint), được mở vì owner đã ký tên, không vì ngưỡng nổ. Việc còn lại của C: cài bản kit mới ở
 oneflow (ca gốc của W8) để ngưỡng đếm bắt đầu có số.
 
+### D. Hình thức đã đo: dòng «với danh tính … — Enter xác nhận» (owner chỉ ra 08/09 tối)
+
+**Sự việc.** Ở cả hai cổng của vòng này máy hỏi «với danh tính: Phan Le Manh 2026-09-08
+(từ git config user.name) — Enter xác nhận». Cổng Phạm vi owner gõ «Manh Phan» (sửa);
+Cổng Bằng chứng máy *biết* điều đó («anh đã sửa thành tên này khi duyệt Cổng Phạm vi»)
+mà vẫn đề xuất lại «Phan Le Manh» và hỏi lại; owner gõ «xác nhận». Kết quả: một hồ sơ,
+một người, hai tên (`approved_by: Manh Phan`, chữ ký `Phan Le Manh`). Câu trả lời ở cổng
+trước không đổi hành vi máy ở cổng sau — tức câu hỏi không có hệ quả, là hình thức theo
+đúng nghĩa.
+
+**Luật đang có** (`human-facing-language.md`, khối `IDENTITY-ECHO-RULE`, chép byte-đúng
+vào `approve.md`/`signoff.md`, LM17 giữ): bậc thang `--as` → `git config user.name` →
+`signoff.approvers` (một tên); hai nguồn **khớp tuyệt đối** → ghi thẳng, không chờ (nhát cắt
+01/09 mục 5); **mọi ca khác** (lệch · trống · nhiều tên) → hiện «— Enter xác nhận» và CHỜ
+trước khi ghi; kèm CẢNH BÁO khi tên không có trong `approvers`.
+
+**Số đo trên máy (08/09):**
+
+| Số | Giá trị |
+|---|---|
+| Repo có `config.yaml` | 22, tất cả `git config user.name` = «Phan Le Manh» |
+| Repo mà `approvers` khớp tuyệt đối | 6 (aes, artifact-platform-design, floorplanstudio, policy-graph-hub ×2, realestate) |
+| Repo lệch → lượt chờ bắn ở **mọi** cổng | **16** («Manh Phan» kit/crm · «Manh»/«memto» artifact-platform ×6 · «Manh» oneflow/horizon · «manh» map/media-library · «Mạnh Phan» floorplan · «manh-macmini» media-crawler) |
+| Cách viết tên cùng một người trong hồ sơ đã ký | ≥12 («Manh» 1 850 dòng · «Manh Phan» 124 · «Phan Le Manh» 82 · «Mạnh» · «manh» · kèm email…) |
+| Hồ sơ có tên Cổng 1 ≠ tên Cổng 2 (khử trùng theo repo) | ≈99 (artifact-platform 53/188 · map 14/14 · media-library 11/12 · kit 9/33 · oneflow 6/36 · PGH 4 · crm 1 · floorplanstudio 1) |
+| Lần máy hỏi «Enter xác nhận» trong bản ghi phiên (từ 18/08) | 8: **5 xác nhận suông · 2 sửa** (cả hai đổi thành «Manh Phan» — đúng giá trị đã nằm sẵn trong `approvers`) · 1 khác |
+| Bộ đọc nào cưỡng chế tên | **không có**: pre-merge chỉ chặn giữ-chỗ (`PENDING`, `<name>`…); không script nào đọc `approvers` (từ 1.24.0, bốn bản vá YAML hỏng → gỡ cả lớp) |
+
+Tức 8/8 lần hỏi, người không đưa cho máy điều gì máy chưa có; và tên ghi vào không bị
+cổng nào đọc lại ngoài chính mắt người.
+
+**Rà theo north star.** Phép thử luật 01/09: *người trả lời khác khuyến nghị thì dựa vào
+điều gì máy không có?* — cách viết tên chính mình: không có gì (máy có `approvers`, có
+`approved_by` của chính hồ sơ, có git). → loại 2, **một lối ra sống = trạm thu phí**. Nó
+còn là cả một *lượt* (không phải một chạm trong lượt), nên vi phạm cả «≤1 chạm/lượt» lẫn
+«0 lượt ngoài thiết kế»: 2 lượt/hồ sơ trên 16/22 repo, mãi mãi cho tới khi ai đó sửa 16
+file config. Lý do chính khối luật đưa ra cho ca khớp («hai nguồn đã đồng ý thì lượt chờ
+đó không thêm bảo đảm nào») đúng y hệt cho ca lệch: hai *cách viết* khớp hay lệch không nói
+gì về *ai đang gõ*; xuất xứ thật là tác giả commit ghi chữ ký (nghi thức ghi-và-commit-một-
+lượt), còn ai cũng bấm Enter được. CẢNH BÁO «tên không có trong approvers» bắn 100% trên 16
+repo — cảnh báo luôn bắn là cảnh báo không ai đọc, cùng lớp chữ-đối-chiếu-danh-sách của §9.
+Rà hết các chỗ lệnh cổng còn hỏi: chỉ chỗ này cùng hình dạng «máy suy được mà vẫn chờ»
+(khuyến-nghị-trước cho câu người gõ mơ hồ là ca khác — đó là *quyết định* người vừa gõ, đọc
+sai thì ghi sai hồ sơ ký); S5 hỏi menu đã là B6.
+
+**Đề xuất — toàn TRỪ, T2** (chạm `skills/acceptance/references/human-facing-language.md` +
+hai bản chép trong `commands/` + hai neo test P191/`GATE_NEEDLES` đang ghim chuỗi «Enter
+xác nhận»; không dính `t3_paths`):
+
+| # | Việc | Cắt gì | Nguyên tố | Người hưởng |
+|---|---|---|---|---|
+| D1 | **Bỏ lượt chờ ở mọi ca.** Suy xong → ghi thẳng → một dòng «với danh tính: <tên> <ngày> (từ <nguồn>)». Người sửa bằng một câu bất kỳ lúc nào sau đó (đường đảo: một trường, một câu). Chỉ **CẠN** (không nguồn nào) mới hỏi — đó là điều chỉ người biết | 2 lượt/hồ sơ trên 16/22 repo; ca này là 2/11 lượt ngoài thiết kế của vòng | 3 + đảo rẻ | người ký ở mọi repo |
+| D2 | **Bỏ CẢNH BÁO lệch `approvers`.** Dòng nguồn suy đã đủ cho người khác trên máy chung thấy tên không phải mình và sửa; `approvers` giữ vai nấc cuối khi git trống | một dòng nhiễu ở mọi cổng của 16 repo | TRỪ | người đọc thẻ |
+| D3 | **Nhớ trong hồ sơ**: tên người đã tự sửa ở cổng trước của cùng hồ sơ đứng trên `git config` khi người gõ vẫn là cùng tác giả git (máy so tác giả commit của cổng trước, không hỏi, không config) | hồ sơ hai-tên (≈99 trên máy) không sinh thêm | 2 (hồ sơ không tự mâu thuẫn) | người đọc hồ sơ sau này |
+| D4 | Không chiến dịch: 16 config và ≈99 hồ sơ đã ký giữ nguyên (đừng chạm hồ sơ đã ký); A7 (`--as`/đồng bộ tên) chỉ là nếp tạm tới khi D1 ship | 0 việc | — | — |
+
+Neo test thay thế: hai neo đang ghim *sự có mặt* của chuỗi «Enter xác nhận» → đổi thành cặp
+dương/âm theo luật assertion-âm-tính: khối `IDENTITY-ECHO-RULE` PHẢI có «ghi thẳng» và
+KHÔNG được có nhánh chờ cho ca lệch; bản sao tiêm nhánh chờ vào phải ĐỎ đích danh.
+
+Chỗ đặt: đây là meta (kit sửa cổng của kit) — chờ owner gọi tên. Rẻ nhất là đi cùng vòng
+T2 nợ (C) thêm một AC docs+tests, vì cùng hạng, cùng loại file.
+
 ## 4. Thứ tự làm
 
-1. **Chỗ đo A** = vòng T2 nợ (C) chạy với nếp A, đo theo bảng mốc cùng hạng ở §3-A. Nhưng
+1. **Chỗ đo A** = vòng T2 nợ (C) chạy với nếp A (kèm D1–D3 nếu owner gọi tên — cùng hạng T2, docs+tests), đo theo bảng mốc cùng hạng ở §3-A. Nhưng
    vòng nợ là vòng meta, nên mốc thật hơn là **vòng sản phẩm kế ở repo tiêu thụ** (oneflow sau
    khi cài) — nếp A là nếp máy, áp ở đâu cũng được; ghi ba dòng số của cả hai.
 2. Có số rồi mới mở **một** vòng meta B. Nếu A không cắt được (round vẫn >1, lượt gọi người
