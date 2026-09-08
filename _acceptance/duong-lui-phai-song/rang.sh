@@ -295,6 +295,11 @@ PY
     mk_repo '{"contract":{"status":"draft"}}'; kcn "$FX_ROOT" --write
     if [ $KRC -eq 2 ] && [ "$KOUT" = "chưa đủ: status draft (chỉ verified)" ]; then ok "(5) status draft → exit 2"; else bad "(5) rc=$KRC out=«$KOUT»"; fi
     kcn "$FX_ROOT" --nope; [ $KRC -eq 3 ] && ok "(6) thiếu cờ → exit 3" || bad "(6) thiếu cờ mà rc=$KRC"
+    # (7) dòng status mang comment đuôi đúng khuôn contract-template của kit → vẫn ghi, GIỮ comment (S4-r2)
+    CMT='            # draft | approved | implemented | verified | signed-off | machine-cleared'
+    mk_repo '{}'; python3 -c 'import sys; p=sys.argv[1]; c=sys.argv[2]; s=open(p,encoding="utf8").read(); assert s.count("\nstatus: verified\n")==1; open(p,"w",encoding="utf8").write(s.replace("\nstatus: verified\n","\nstatus: verified"+c+"\n"))' "$FX_ROOT/_acceptance/fx/contract.md" "$CMT"
+    kcn "$FX_ROOT" --write
+    if [ $KRC -eq 0 ] && grep -qF "status: machine-cleared$CMT" "$FX_ROOT/_acceptance/fx/contract.md"; then ok "(7) status có comment đuôi (khuôn hợp đồng kit) → vẫn ghi, comment giữ nguyên"; else bad "(7) comment đuôi: rc=$KRC out=«$KOUT» — $(grep '^status:' "$FX_ROOT/_acceptance/fx/contract.md")"; fi
     # chiều đỏ hai tầng: M1 gỡ cổng «why» → T3 vẫn bị lưới ghi từ chối (tự kiểm sống); M2 gỡ cả hai → T3 bị ghi → phép đo ô (4) đỏ
     copy_tree; inject ket-ghi-m1 scripts/khong-can-nguoi.mjs "  if (why) { console.error(\`chưa đủ: \${why}\`); process.exit(2); }" "  if (false) { console.error(\`chưa đủ: \${why}\`); process.exit(2); }"
     mk_repo '{"contract":{"risk_tier":"T3","approved_by":"t","veto_state":""}}'; KOUT="$(node "$COPY/scripts/khong-can-nguoi.mjs" --write --root "$FX_ROOT" --slug fx 2>&1)"; KRC=$?

@@ -119,7 +119,10 @@ if (_isMain) {
     : tier !== 'T2' ? `hạng ${tier || '(rỗng)'} (chỉ T2)`
     : (khongCanNguoi(contract, evidence) == null ? (xanhSach(contract, evidence).why || 'còn cần người') : '');
   if (why) { console.error(`chưa đủ: ${why}`); process.exit(2); }
-  const next = contract.replace(/^status:[ \t]*verified[ \t]*$/m, 'status: machine-cleared');
+  // Dòng status của khuôn hợp đồng mang comment đuôi (`status: verified   # draft | approved | …`) —
+  // giữ nguyên phần comment, chỉ thay giá trị (S4-r2 finding: regex đòi hết dòng làm cửa ghi
+  // duy nhất thất bại với lý do sai trên mọi hợp đồng sinh từ khuôn).
+  const next = contract.replace(/^(status:[ \t]*)verified([ \t]*(?:#.*)?)$/m, '$1machine-cleared$2');
   if (next === contract) { console.error('chưa đủ: không tìm được dòng status: verified'); process.exit(2); }
   const r = evaluateContractWrite(next, contract);
   if (r.anyFailure) { console.error(`lưới ghi từ chối: ${r.failures.join(' | ')}`); process.exit(2); }
