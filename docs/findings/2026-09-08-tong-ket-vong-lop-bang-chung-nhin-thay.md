@@ -201,3 +201,41 @@ nghĩa vụ thật chỉ 16 / 2 / 9. Tức tôi vừa ship thêm một máy bắ
 cho S1; `wf-usage.mjs` đo token từng round nhưng chỉ 45 hồ sơ có `usage-report.md`; kế
 hoạch `loop-health.sh` (audit 28/07) chưa bao giờ dựng. Hai script ad-hoc của phiên này
 (`sweep.mjs`, `tokproj.mjs`) là bản nháp của nó.
+
+## 9. Thước đo có đang đo sai mục đích không — soi lại bằng vật giao
+
+Câu hỏi của owner: «có việc nào không làm bàn giao tốt hơn, tin cậy hơn, mà tốn thời gian,
+và nguyên nhân là chính thước đo và kiểm tra — tức đo sai mục đích?». Phép thử: mỗi cơ chế
+kiểm, hỏi nó có đổi **vật giao cho người dùng** (mã, luật, chữ họ đọc) hay chỉ đổi **cái
+thước** (test, fixture, bằng chứng).
+
+**Ba bằng chứng «sai mục đích»**
+
+1. **Sáu eval máy không đo tính năng.** `## Analyst` của báo cáo ghi: E1–E6 «pass trên cả
+   HEAD và baseline — harness xác nhận chạy được nhưng chưa phân biệt được». `cmd` của cả
+   sáu eval là *cả suite* (4 × plugins, 2 × scripts), nên mỗi round trả 8–14 phút cho một
+   phép đo xanh ở cả hai cây; thứ duy nhất phân biệt được là verifier tìm dòng
+   `PASS: [LNT…]` trong stdout. Suite chạy cỡ 10 lần trong vòng (S3, ba round S4, ba làn
+   ghim lại, hai lần trên cây gộp) ≈ 2 giờ máy cho cùng một thông tin.
+2. **Hai trong ba lượt vá chỉ sửa thước.** Vá round 1 đổi fixture (test); vá round 2 đổi
+   assert (test); chỉ lượt chỉ-TRỪ mới đổi vật giao (bốn câu luật sai + gỡ một test). Nguyên
+   nhân cấu trúc: hợp đồng viết AC dưới dạng *mô tả ca kiểm* («chạy lint… stdout có…»),
+   nên «trong hợp đồng» ≡ «về cái thước». Luật triage đẩy finding trong hợp đồng vào vòng
+   vá, finding ngoài hợp đồng ra Known limits → **vòng lặp tối ưu cái thước, còn bốn lỗi hành
+   vi thật của sản phẩm** (thẻ bỏ qua descope khi thiếu evals · NOTE nêu sai nguyên nhân ·
+   descope không `id` bị coi là vắng · regex chú thích lệch) **đi thẳng ra Known limits, không
+   ai sửa**. 36 finding, 6 trong hợp đồng — cả 6 về độ chặt phép đo.
+3. **Ba lần ghim lại vì `tests/` đổi ở upstream**: 51 phút làn máy, 0 thông tin về vật (mã
+   không đổi). Luật stale đo «cây đổi», không đo «rủi ro đổi».
+
+**Cái gì đã tăng tin cậy thật** — đều là kiểm **lời-khai-đối-chiếu-thực-tại**: gap-probe F1
+(Cổng Bằng chứng đọc báo cáo, không đọc bản khai — đổi hành vi thẻ), rà soát bắt câu «hook
+đã bắt screenshot» sai so với mã, mutant `&&`→`||` ở `uiPassed`, hội đồng bác round 4.
+Cái gì tốn giờ mà không đổi vật — đều là kiểm **chữ-đối-chiếu-danh-sách** hoặc
+**cây-đối-chiếu-sha**: W6, W8-token, LM20 baseline, stale theo cây, suite làm eval.
+
+**Luật rút ra, một câu:** thước đúng mục đích khi nó so *điều đã hứa* với *điều máy làm*;
+thước sai mục đích khi nó so *chữ* với *danh sách* hoặc *cây* với *sha*. Ba việc cụ thể:
+viết AC theo hành vi công cụ, không theo ca kiểm (để lỗi hành vi rơi vào «trong hợp đồng»);
+`cmd` của eval là ca của tính năng (`LNT_CASES=… node …`), suite chỉ ở `suite_keys`; stale
+thu theo `paths:`.
