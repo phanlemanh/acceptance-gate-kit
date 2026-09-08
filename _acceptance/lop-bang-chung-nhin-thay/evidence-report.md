@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: dbe8615daabb6ac29ee7f37ab1260a6c6a7b378c
+verified_commit: afeba0cf3247d3900acccc2d47108e6fba27675c
 human_signoff: Phan Le Manh 2026-09-08
 ---
 
@@ -130,3 +130,7 @@ Round 3: E1–E6 và cả ba lệnh suite hồi quy vẫn PASS/exit 0 (baseline 
 ### Re-pin lần 1 — 2026-09-08, do council 08/09: lượt sửa chỉ-TRỪ sau S4-r3 (đính chính răng hook, gỡ PM-LNT-dv5) — ghim lại bằng làn máy, không round 4
 run_id: repin-20260908T080159Z-84972
 sha: dbe8615daabb6ac29ee7f37ab1260a6c6a7b378c · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0
+
+### Re-pin lần 2 — 2026-09-08, do merge vào main sau khi upstream đổi lib/scripts (chiến dịch re-pin 25 hồ sơ, lưu kho 24) — ghim lại riêng làn máy tại HEAD đã gộp
+run_id: repin-20260908T085550Z-82092
+sha: afeba0cf3247d3900acccc2d47108e6fba27675c · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0
