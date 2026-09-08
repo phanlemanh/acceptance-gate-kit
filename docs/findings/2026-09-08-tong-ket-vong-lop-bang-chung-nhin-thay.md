@@ -1,0 +1,121 @@
+# Tổng kết vòng `lop-bang-chung-nhin-thay` — số đo thật, 08/09/2026
+
+Vòng đầy đủ từ phát hiện lỗ tới merge (PR #158, `8caa9998`). Mọi con số dưới đây
+**đo từ bản ghi phiên**, không ước lượng: token rút từ trường `usage` của từng lượt
+gọi model trong `~/.claude/projects/<repo>/<phiên>.jsonl` và các bản ghi phiên phụ;
+thời gian rút từ `git log`; lượt gọi người đếm từ chính bản ghi phiên.
+
+## 1. Vật đã giao
+
+Luật gương của `(cross-layer)`: hợp đồng có **mặt người nhìn** (`ui`; alias `web`,
+`web-ui`; không tính `mobile`) phải có ≥1 eval `ui-check` khai `layer: ui-observed`.
+Bằng chứng lớp mã (vitest/DOM, axe-core) không trả nghĩa vụ này.
+
+| Vật | Nơi |
+|---|---|
+| Một nguồn cho «mặt người nhìn» + alias + tiền tố descope + CLI `classify` | `lib/lop-nhin-thay.cjs` (mới) |
+| Cảnh báo W8: nghĩa vụ · nhãn lạc chỗ · token surface lạ | `scripts/eval-coverage-lint.js` |
+| Cờ Cổng Phạm vi + `--extract ui_observed`; Cổng Bằng chứng đọc **báo cáo** | `scripts/gate-card.js` |
+| NOTE trước merge kèm `approved_at` + ngưỡng đếm (chưa chặn) | `scripts/pre-merge-check.sh` |
+| Luật ở bảy văn bản nghi thức + marker `UI-CHECK-BLOCK-TEMPLATE` | SKILL/references/CONTEXT |
+
+32 file, +2 520 / −21 dòng; riêng mã và luật: 16 file, +669 / −20. Ca đo mới: 391 dòng.
+Hợp đồng 6 AC / 6 eval; sổ quyết định 16 entry; run-log 42 dòng.
+
+## 2. Token — 578 triệu, và 93% là đọc lại
+
+| Nơi tiêu thụ | Lượt gọi model | Tổng token | Tỉ lệ |
+|---|---:|---:|---:|
+| Phiên chính (điều phối, viết mã, dựng thẻ) | 624 | 356 221 480 | 61,6% |
+| S4 vòng 1 (`wf_3bdd6980-42f`, gồm một lần sập + resume) | 940 | 92 921 695 | 16,1% |
+| S4 vòng 3 (`wf_a58a085a-cf4`, gồm một lần sập + resume) | 783 | 76 498 806 | 13,2% |
+| S4 vòng 2 (`wf_ac8ebe0c-496`) | 433 | 43 865 936 | 7,6% |
+| Agent lẻ (gap-probe · hình · hội đồng ×3 · ba làn ghim lại) | 83 | 8 586 712 | 1,5% |
+| **Tổng** | **2 863** | **578 094 629** | |
+
+Cấu phần của tổng đó:
+
+| Loại token | Số lượng | Tỉ lệ |
+|---|---:|---:|
+| Đọc lại từ cache (`cache_read`) | 539 375 191 | 93,30% |
+| Ghi cache (`cache_creation`) | 37 128 089 | 6,42% |
+| **Sinh ra** (`output`) | **1 556 061** | **0,27%** |
+| Nhập tươi (`input`) | 35 288 | 0,006% |
+
+**Token KHÔNG phải đọc lại — phần thật sự mới: 38 719 438** (input + output + ghi cache).
+
+Theo model:
+
+| Model | Lượt | Tổng token |
+|---|---:|---:|
+| Fable 5.1 (phiên chính + judge/refute) | 1 137 | 412 333 980 |
+| Sonnet 5 (verifier, review, agent lẻ) | 1 469 | 143 014 903 |
+| Haiku 4.5 (lệnh máy) | 231 | 15 496 076 |
+| Opus 5 (hội đồng bốn giọng) | 14 | 7 249 670 |
+
+Phần thuộc riêng vòng này ở phiên chính (cắt tại lúc mở nhánh): **338 908 486** token
+trên 509 lượt gọi — tức 17,3 triệu token *trước* vòng là của phần điều tra nguyên nhân.
+
+**Chỗ tiền đi:** ngữ cảnh trung bình mỗi lượt gọi ở phiên chính là **571 483** token,
+đỉnh **942 417** lúc 16:41. Một phiên duy nhất kéo gần 13 tiếng thì mỗi lượt gọi phải
+đọc lại toàn bộ hội thoại; 327 triệu token cache-read ở phiên chính là cái giá của
+việc không chia phiên, không phải của việc làm nhiều.
+
+## 3. Thời gian
+
+| Mốc | Giờ VN | sha |
+|---|---|---|
+| Ba artifact S1 | 04:54 | `507e1911` |
+| Cổng Phạm vi ký | 05:03 | `3ee9f1f2` |
+| Kế hoạch (Gate 1.5) | 05:10 | `28597a6b` |
+| Code xong → `implemented` | 06:32 | `6e44514d` |
+| S4 vòng 1 PASS | 09:35 | `20f9bacb` |
+| S4 vòng 2 REJECT | 10:22 | `ef6a521f` |
+| S4 vòng 3 PASS | 13:52 | `05162d41` |
+| Lượt sửa chỉ-TRỪ (sau hội đồng) | 14:44 | `dbe8615d` |
+| **Chữ ký Cổng Bằng chứng** | **15:15** | `cd0fa488` |
+| Merge PR #158 | 16:41 | `8caa9998` |
+
+- **Làm-xong → quyết-được: 8 giờ 43 phút** (06:32 → 15:15).
+- Tổng vòng: 11 giờ 47 phút.
+- Trong đó **≈4,5 giờ chờ hạn mức phiên** (hai lần, reset 08:30 và 13:30) — 38% thời gian
+  vòng là máy đứng im vì hạ tầng, không phải vì việc.
+
+## 4. Lượt gọi người — 15, trần T3 là 4
+
+Đếm từ bản ghi phiên, bỏ khối skill và lệnh `/model`:
+
+| Loại | Số | Chi tiết |
+|---|---:|---|
+| Cổng thiết kế | 3 | Cổng Phạm vi · Gate 1.5 (dán `/goal`) · Cổng Bằng chứng |
+| Dừng theo luật | 1 | STOP-PATCHING nổ ở vòng 3 → hội đồng, người chọn đường |
+| Chạm danh tính | 2 | «Manh Phan», «xác nhận» — hai nguồn tên lệch nhau |
+| Hạ tầng | 2 | «Try again» ×2 sau khi workflow sập vì hạn mức phiên |
+| Bàn giao S5 | 2 | chọn merge · bấm merge PR |
+| Người tự kiểm / giục | 5 | «Kiểm tra các agent», «Phân tích và đề xuất lại», «tiếp tục», «Kiểm tra và đề xuất», «Đồng ý gật tiếp tục» |
+
+**Vòng bị hạ tầng đốt lượt chấm: 5** — hai lần workflow sập ở bước cuối
+(`prov.enforcement_mode` null khi agent xuất-xứ chết vì hạn mức), ba lần phải ghim lại
+vì phiên khác đẩy thẳng `main` chạm `tests/`.
+
+## 5. Ba nhát cắt gọi tên cho cửa sổ kế
+
+Luật (c) của CLAUDE.md đòi mỗi mốc phát hành nêu ít nhất một chỗ cắt. Ba chỗ, xếp theo
+số đo ở trên:
+
+1. **Chia phiên theo giai đoạn.** 327 triệu token cache-read của phiên chính đến từ một
+   phiên 13 tiếng. S1, S3, điều phối S4 và các cổng có thể là bốn phiên; mỗi lần cắt bỏ
+   phần hội thoại không còn cần đọc lại. Đây là nhát cắt lớn nhất và không đụng luật nào.
+2. **Phòng thủ null ở `acceptance-verify.js`.** Agent xuất-xứ chết → `prov` null →
+   `TypeError` giết cả vòng thay vì trả BLOCKED có tên. Đốt 2 vòng hôm nay. Ô đã ghi
+   trong sổ quyết định (`type: revisit`, S4-r1).
+3. **Luật stale đang tính cả `tests/`.** Mỗi lần nhánh chính đổi một fixture là hồ sơ
+   đã ký hoá stale và phải ghim lại — ba lần trong một ngày. Mỗi eval đã khai `paths:`;
+   dùng chính nó để thu phạm vi stale là việc meta, chờ owner gọi tên.
+
+## 6. Nợ đã khai (không phải cắt, là giới hạn có tên)
+
+Bảy mục trong Known limits của hợp đồng, kèm ngưỡng đang đếm: hai lỗi độ chặt phép đo
+(mutant lint chưa ghim dấu hiệu bản sao đã chạy · LNT6 đo chuỗi thay quan hệ) và năm mục
+nhỏ. Ngưỡng: lần đầu một hồ sơ có mặt người nhìn ở repo tiêu thụ ship không frame mà cả
+ba răng đều im → mở hợp đồng T2 docs+tests. Hạn: trước mốc 2.10.0.
