@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 89b3afde22c493e2b212b0261ec5b70d3eafc1bb
+verified_commit: e00898a6cf88beec1884495aeb42c6ae04908423
 human_signoff: Manh Phan 2026-09-08
 ---
 
@@ -184,3 +184,7 @@ Round 3: sửa mệnh đề 3 của HS09 (tests/scripts/run-tests.sh — nhận 
 ### Re-pin lần 1 — 2026-09-08, do gộp main sau mốc 2.9.0 + sửa mốc GUIDE — cây ký đổi, ghim lại bằng làn eval (ADR 0014)
 run_id: repin-20260908T014915Z-22925
 sha: 89b3afde22c493e2b212b0261ec5b70d3eafc1bb · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0
+
+### Re-pin lần 2 — 2026-09-08, do ghim lại tại HEAD sau gộp origin/main 59f4a9f1 (#156/#158/#159 đổi pre-merge-check.sh, gate-card.js) — PR #157
+run_id: repin-20260908T143359Z-53494
+sha: e00898a6cf88beec1884495aeb42c6ae04908423 · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0
