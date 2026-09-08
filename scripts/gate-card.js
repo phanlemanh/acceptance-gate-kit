@@ -922,7 +922,14 @@ if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   P.push(`<div class="flag fwarn">Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.</div>`);
-  ooc.findings.forEach((f, fi) => {
+  // K7 (AC-9d): mục TÁC HẠI HÀNH VI lên trước — người quyết đọc lỗi của vật giao trước lỗi
+  // của thước. Sắp ổn định: trong cùng nhóm giữ thứ tự S4 viết; file đời cũ (không mục nào
+  // khai harm) giữ NGUYÊN thứ tự viết vì mọi khoá bằng nhau (đường đọc-cũ).
+  const harmRank = h => (h === 'behavior' ? 0 : h === 'measure' ? 1 : 2);
+  const oocSorted = ooc.findings.map((f, i) => ({ f, i }))
+    .sort((a, b) => (harmRank(a.f.harm) - harmRank(b.f.harm)) || (a.i - b.i))
+    .map(x => x.f);
+  oocSorted.forEach((f, fi) => {
     const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
       : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
       // ngăn thứ ba (hồ sơ cham-dung-cay-dung-cho-dung, AC-10): lỗi thật nhưng

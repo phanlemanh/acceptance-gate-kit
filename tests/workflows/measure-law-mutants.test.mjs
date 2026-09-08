@@ -41,8 +41,13 @@ console.log('MM6 finder cũ nguyên vẹn từng chữ — pin neo git show ' + 
   };
   for (const key of ['invariants', 'conventions', 'bugs']) {
     const old = grab(pre, key), cur = grab(SRC, key);
-    check(`MM6 prompt '${key}' hiện tại == bản trước từng chữ`, old !== null && cur !== null && old === cur,
-      old === null ? 'không rút được prompt từ bản trước' : (cur === null ? 'không rút được prompt hiện tại' : 'prompt đã bị sửa — AC-6 vỡ'));
+    // NỚI CÓ TÊN (gom-duc-ket-2-10-0, AC-10): phần thân cũ phải còn NGUYÊN VĂN, nhưng
+    // được phép THÊM một tiền tố phạm vi (làn conventions chỉ chấm file chữ đã đổi so
+    // round trước). Luật gốc «bằng tuyệt đối» sinh ra để chặn sửa LÉN nội dung cũ khi
+    // thêm lane thứ tư — endsWith vẫn bắt đúng điều đó: đổi một chữ trong thân cũ là đỏ.
+    check(`MM6 prompt '${key}' giữ NGUYÊN VĂN phần cũ (chỉ được thêm tiền tố)`,
+      old !== null && cur !== null && cur.endsWith(old),
+      old === null ? 'không rút được prompt từ bản trước' : (cur === null ? 'không rút được prompt hiện tại' : `thân cũ đã bị sửa — AC-6 vỡ; hiện tại: ${String(cur).slice(0, 80)}`));
   }
   // Đo QUAN HỆ thật (fix S4-r1): đếm MỌI phần tử trong block mảng REVIEWERS,
   // không đếm 3 tên key đã biết — thêm reviewer thứ 4 key lạ phải làm đỏ.

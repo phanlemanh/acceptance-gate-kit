@@ -1942,4 +1942,53 @@ console.log('W37 provenance chet -> BLOCKED co ten, khong nem');
   check('W37 doi chung duong verdict khong BLOCKED', ok.result.verdict !== 'BLOCKED', String(ok.result.verdict));
 }
 
+// W38 — K7: triage theo TÁC HẠI. Máy tính inPaths + gán acRef (tập criterion khớp);
+// agent chỉ phán harm. Lỗi HÀNH VI trong paths của hồ sơ vào vòng vá thay vì trôi ra
+// Known limits (đo: 4 lỗi hành vi thật ra Known limits trong một vòng, 6 lỗi thước ăn 2 round).
+console.log('W38 triage theo tac hai: behavior + inPaths -> inContract, acRef la TAP');
+{
+  const evals = [
+    { id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['src/a.js'] },
+    { id: 'E2', criterion: 'AC-2', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['src/a.js'] },
+    { id: 'E3', criterion: 'AC-3', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['src/c.js'] },
+  ];
+  const findings = [
+    { title: 'F-behavior-in', file: 'src/a.js', line: 1, severity: 'medium', detail: 'd1' },
+    { title: 'F-behavior-out', file: 'src/z.js', line: 2, severity: 'medium', detail: 'd2' },
+    { title: 'F-measure-in', file: 'src/a.js', line: 3, severity: 'medium', detail: 'd3' },
+    { title: 'F-no-harm', file: 'src/a.js', line: 4, severity: 'low', detail: 'd4' },
+  ];
+  const harmOf = { 'F-behavior-in': 'behavior', 'F-behavior-out': 'behavior', 'F-measure-in': 'measure' };
+  const r = await runWorkflow(WF, baseArgs({ evals, contractPath: '/repo/_acceptance/demo/contract.md' }), responder({
+    'review:': (c) => (c.label === 'review:bugs' ? { findings } : { findings: [] }),
+    'refute:': { refuted: false, reason: 'that' },
+    triage: { contractUnreadable: false, triaged: findings.map(f => ({
+      title: f.title, file: f.file, inContract: false, acRef: '', rationale: 'r', proposal: 'known-limits', plain: 'p',
+      ...(harmOf[f.title] ? { harm: harmOf[f.title] } : {}),
+    })) },
+  }));
+  const by = t => (r.result.triaged || []).find(x => x.title === t) || {};
+  check('W38 behavior + inPaths -> inContract', by('F-behavior-in').inContract === true, JSON.stringify(by('F-behavior-in')));
+  check('W38 acRef la TAP criterion khop', by('F-behavior-in').acRef === 'AC-1, AC-2', String(by('F-behavior-in').acRef));
+  check('W38 behavior ngoai paths giu nguyen', by('F-behavior-out').inContract === false, JSON.stringify(by('F-behavior-out')));
+  check('W38 measure trong paths giu nguyen', by('F-measure-in').inContract === false, JSON.stringify(by('F-measure-in')));
+  check('W38 thieu harm -> luat cu, khong unclassified', by('F-no-harm').inContract === false && by('F-no-harm').unclassified !== true, JSON.stringify(by('F-no-harm')));
+  const tri = r.calls.find(c => c.label === 'triage');
+  check('W38 prompt triage day harm', !!tri && /harm/.test(tri.prompt), tri ? 'khong co chu harm' : 'khong goi triage');
+  const syn = r.calls.find(c => c.label === 'synthesize:report');
+  check('W38 khuon OOC co dong Tac hai', !!syn && /Tác hại: \{harm\}/.test(syn.prompt), syn ? 'khuon thieu dong' : 'khong goi synthesize');
+}
+
+// W39 — K8: làn conventions chỉ chấm file CHỮ đổi so round trước khi có deltaFiles.
+console.log('W39 lan conventions gioi han theo deltaFiles');
+{
+  const withDelta = await runWorkflow(WF, baseArgs({ deltaFiles: ['docs/a.md', 'src/b.js'] }), responder());
+  const p1 = (withDelta.calls.find(c => c.label === 'review:conventions') || {}).prompt || '';
+  check('W39 prompt neu gioi han file chu', /chỉ chấm file CHỮ/i.test(p1) || /chi cham file CHU/i.test(p1), p1.slice(0, 120));
+  check('W39 prompt liet dung file chu', p1.includes('docs/a.md') && !p1.includes('src/b.js'), p1.slice(0, 200));
+  const noDelta = await runWorkflow(WF, baseArgs(), responder());
+  const p2 = (noDelta.calls.find(c => c.label === 'review:conventions') || {}).prompt || '';
+  check('W39 khong deltaFiles -> nhu cu', !/chỉ chấm file CHỮ/i.test(p2) && /main\.\.\.HEAD/.test(p2), p2.slice(0, 120));
+}
+
 summary('acceptance-verify');

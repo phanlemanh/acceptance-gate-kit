@@ -296,12 +296,17 @@ const runLogLines = fs.existsSync(runLogPath)
   ? fs.readFileSync(runLogPath, 'utf8').split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean)
   : [];
 let carriedEvals;
+let deltaForArgs;
 if (round >= 2 && !flags['carry-anchor'] && !flags['no-carry']) {
   die(`round ${round} (≥2) phải khai tường minh: --carry-anchor <sha dòng round trước> (tính carry P1) hoặc --no-carry (full re-run) — «quên carry» đốt round là lớp lỗi có đo`);
 }
 if (flags['carry-anchor']) {
   const anchor = git('rev-parse', flags['carry-anchor']);
   const deltaFiles = git('diff', '--name-only', `${anchor}..HEAD`).split('\n').filter(f => f && !f.startsWith('_acceptance/'));
+  // K8 (gom-duc-ket-2-10-0, AC-10): danh sách này cũng là thứ làn review «conventions» cần —
+  // file CHỮ không đổi so round trước thì không phải chấm lại (13/34 finding của một vòng là
+  // góp ý về chữ lặp lại mỗi round). Cùng MỘT nguồn với carry-forward P1, không tính lần hai.
+  deltaForArgs = deltaFiles;
   const cpArgs = ['--run-log', runLogPath, '--evals', path.join(ws, 'evals.yaml'), '--contract', contractPath, '--round', String(round)];
   cpArgs.push(...(deltaFiles.length ? ['--delta-files', deltaFiles.join(',')] : ['--no-delta']));
   try {
@@ -359,6 +364,7 @@ const args = {
   runBaseline,
   ...(carriedAnalyst ? { carriedAnalyst } : {}),
   ...(carriedEvals ? { carriedEvals } : {}),
+  ...(deltaForArgs && deltaForArgs.length ? { deltaFiles: deltaForArgs } : {}),
   ...(carriedPanels ? { carriedPanels } : {}),
   ...(models ? { models } : {}),
 };
