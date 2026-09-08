@@ -133,8 +133,8 @@ if (want('LV1')) {
 // ─── LV2 — V-mở nhưng CHƯA SẠCH ⇒ vẫn là cổng (lỗ vòng một) ──────────────────
 if (want('LV2')) {
   const errs = [];
-  // kl-h1-co: h1 «Known limits» có nội dung — KHÔNG đưa vào LV5 (bash đang fail-open ở đúng chỗ này, sổ #9);
-  // máy quét phải an toàn hơn: coi là chưa sạch.
+  // kl-h1-co: h1 «Known limits» có nội dung — bash và máy quét cùng nói «VẮNG» (ranh #{2,6},
+  // duong-lui-phai-song AC-3); ca này nay CÓ trong LV5.
   for (const sach of ['bypass', 'uncertain', 'kl-co', 'nhd-co', 'kl-vang', 'nhd-vang', 'enf-off', 'kl-h1-co']) {
     withRepo(root => {
       mkWorkspace(root, 'lv2', { ...V_SACH, sach });
@@ -273,8 +273,9 @@ if (want('LV5')) {
     ['nguoi-kl-co',       { ...NGUOI_SACH, sach: 'kl-co' }],
     ['khong-ai-duyet',    { ...NGUOI_SACH, approvedBy: '' }],
     ['da-veto-sach',      { ...NGUOI_SACH, veto: 'da-veto', opened: '2026-08-21T09:00:00Z' }],
+    ['V-kl-h1-co',        { ...V_SACH, sach: 'kl-h1-co' }],
   ];
-  const SO_MAT_CAT = 21;  // khai trước — bớt phần tử là đỏ, không xanh im lặng
+  const SO_MAT_CAT = 22;  // khai trước — bớt phần tử là đỏ, không xanh im lặng
   if (MAT_CAT.length !== SO_MAT_CAT) { fail('LV5', `MAT_CAT co ${MAT_CAT.length} phan tu, khai truoc ${SO_MAT_CAT}`); }
   const errs = []; let n = 0; let doiChung = false;
   for (const [ten, o] of MAT_CAT) {

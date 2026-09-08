@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 65b30d19a0fc2339cfd41f87d9906455cfbe6296
+verified_commit: 53fe0b5c101b633989c18147b3e9f32f55254ef3
 human_signoff: Manh 2026-08-25
 ---
 
@@ -266,3 +266,11 @@ sha: 77727323a1943685ad4150da5d3e1efffe4ce4e1 · suites: 5 lệnh exit 0
 ### Re-pin lần 3 — 2026-09-07, do gộp fix(re-pin) 0b5c5b37 từ main (bộ máy đổi sau pin) và khai gạch RT13 kéo ra-co-ten vào diff PR — làn eval theo luật mới ADR 0014
 run_id: repin-20260907T161058Z-40516
 sha: 65b30d19a0fc2339cfd41f87d9906455cfbe6296 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0
+
+### Re-pin lần 4 — 2026-09-08, do hoá cũ do chính commit chữ ký
+run_id: repin-20260908T093906Z-54103
+sha: 127f535f4eacf0c0fc3795cdbffcf3ea2416f770 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0
+
+### Re-pin lần 5 — 2026-09-08, do hoá cũ do gộp origin/main sau chữ ký
+run_id: repin-20260908T101651Z-37138
+sha: 53fe0b5c101b633989c18147b3e9f32f55254ef3 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0

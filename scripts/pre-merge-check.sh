@@ -365,8 +365,8 @@ xanh_sach_check() { # <report path>
       const fs=require("fs");
       const t=fs.readFileSync(process.argv[2],"utf8");
       const h=process.argv[3];
-      const has=t.split("\n").some(l=>/^#{1,6}\s+/.test(l)
-      && l.replace(/^#{1,6}\s+/,"").trim().toLowerCase()===h.toLowerCase());
+      const has=t.split("\n").some(l=>/^#{2,6}\s+/.test(l)
+      && l.replace(/^#{2,6}\s+/,"").trim().toLowerCase()===h.toLowerCase());
       if(!has){process.stdout.write("__VANG__");process.exit(0);}
       process.stdout.write(section(t,h).join("\n").trim()?"__CO__":"");
     ' "$ROOT/lib/md-section.cjs" "$report" "$_sec" 2>/dev/null || printf '__LOI__')"
@@ -943,6 +943,7 @@ XLACS
   # while its provenance reads empty (would otherwise let a bypassed PASS slip).
   verdict="$(front_field "$report" verdict)"
   signoff="$(front_field "$report" human_signoff)"
+  LAN_V=0 # DLPS-LAN-V-MOT-DUONG: 1 khi hồ sơ làn V xanh-sạch đi tiếp KHÔNG chữ ký (đổi khuôn, owner 08/09)
   # ── machine-cleared × chữ ký người = hai sự thật cãi nhau (hồ sơ ra-co-ten, AC-15) ──
   # Ký thì status phải sang signed-off; để chữ ký nằm trên hồ sơ máy-thông là mọi bên đọc
   # nói hai chuyện về cùng một hồ sơ.
@@ -985,11 +986,20 @@ XLACS
       # Đường xanh-sạch KHÔNG có chữ ký để kiểm tiếp — các chốt dưới (giữ-chỗ,
       # provenance commit chữ ký) đều nói về một chuỗi không tồn tại ở đây.
       echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · Ngoài hợp đồng rỗng · hạng T2). Cửa veto vẫn mở."
-      continue
+      # DLPS-LAN-V-MOT-DUONG (duong-lui-phai-song, đổi khuôn — owner 08/09/2026): KHÔNG `continue`.
+      # Làn V rơi xuống CÙNG chuỗi kiểm với hồ sơ có chữ ký — hoá cũ · pin ma · re-pin
+      # provenance · làn eval · soi lại — đúng chữ «soi MỌI hồ sơ ở MỌI lượt» (ADR 0014).
+      # Ba vòng S4 của hồ sơ này đều bắt cùng lớp fail-open ở chính chỗ `continue` cũ: hồ sơ
+      # máy-đi-trước là loại KHÔNG có người đọc lại, nên không được là loại duy nhất thoát lưới.
+      # Các chốt chỉ nói về chữ ký (giữ-chỗ · chiều ghi chữ ký) tự bỏ qua vì $signoff rỗng /
+      # LAN_V=1; dòng OK ở cuối gọi đúng tên làn.
+      LAN_V=1
     fi
+    if [ "$LAN_V" != 1 ]; then
     echo "NOTE [$slug]: không đủ điều kiện xanh-sạch để đi tiếp không ký — $clean_why"
     echo "VIOLATION [$slug]: verdict PASS but human_signoff is empty (Gate 2 pending)"
     violations=$((violations+1)); continue
+    fi
   fi
   # THỨ TỰ CÓ RĂNG: chốt rỗng ngay trên chạy TRƯỚC. Gộp hai chốt cho gọn sẽ làm
   # chuỗi rỗng không khớp mẫu lưới-đen nào rồi rơi ra `clean` — hồi quy fail-open
@@ -1040,6 +1050,7 @@ XLACS
   # Phạm vi: CHỈ hồ sơ nằm trong diff PR — dùng ĐÚNG hàm slug_in_diff mà luật
   # staleness/gap-probe dùng. Không thu phạm vi thì mọi hồ sơ sử liệu đều in
   # một dòng mỗi lần chạy (đo thật: 20+ dòng), đúng lớp loãng-tín-hiệu.
+  if [ "$LAN_V" != 1 ]; then # DLPS-LAN-V-MOT-DUONG: làn V không có chữ ký → không có chiều ghi để nói
   if [ -n "$BASE" ] && slug_in_diff "$slug" && command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
     rel_report="$(cd "$ROOT" 2>/dev/null && git ls-files --full-name -- "${report#"$ROOT"/}" 2>/dev/null | head -1)"
     [ -n "$rel_report" ] || rel_report="${report#"$ROOT"/}"
@@ -1050,6 +1061,7 @@ XLACS
       echo "NOTE [$slug]: chữ ký mới trong diff — $signoff — provenance ở forge: người bấm merge xác nhận đây là quyết định của người"
     fi
   fi
+  fi # đóng guard DLPS-LAN-V-MOT-DUONG
   # Stale-evidence check: the PASS certifies the tree at verified_commit. Any
   # non-gate file changed since then (committed or working tree) means the code
   # being merged is NOT the code that was verified — re-verify, don't ride old
@@ -1258,12 +1270,18 @@ NETIDS
         printf '%s\n' "$recheck_out" | sed 's/^/    /'
         if [ "$RECHECK_MODE" = strict ]; then violations=$((violations+1)); continue; fi
       elif [ "$rc" -ne 0 ]; then
+        if [ "$RECHECK_MODE" = strict ]; then echo "VIOLATION [$slug]: evidence re-check KHÔNG CHẠY ĐƯỢC (exit $rc) — recheck: strict coi cổng câm là cổng hỏng; sửa: vendor lib/ cạnh scripts/, đọc được evidence-report.md"; violations=$((violations+1)); continue; fi
         echo "NOTE [$slug]: evidence re-check unavailable (exit $rc) — ${recheck_out:-skipped}"
       fi
     else
+      if [ "$RECHECK_MODE" = strict ]; then
+        if [ ! -f "$RECHECK" ]; then rc_duong="recheck-evidence.cjs vắng"; else rc_duong="node vắng"; fi
+        echo "VIOLATION [$slug]: evidence re-check KHÔNG CHẠY ĐƯỢC ($rc_duong) — recheck: strict coi cổng câm là cổng hỏng; vendor scripts/recheck-evidence.cjs + lib/ và cài node"; violations=$((violations+1)); continue
+      fi
       echo "NOTE [$slug]: evidence re-check not vendored (recheck-evidence.cjs/node missing) — committed-evidence bar NOT enforced"
     fi
   fi
+  if [ "$LAN_V" = 1 ]; then echo "OK [$slug]: $verdict — làn V, máy đi tiếp không chữ ký (đã qua cùng chuỗi kiểm: hoá cũ · pin · làn eval · soi lại)"; continue; fi
   echo "OK [$slug]: $verdict, signed off by $signoff"
 done
 

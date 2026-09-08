@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1120 544" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif">
+<defs><style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style></defs>
+<defs>
+<style><![CDATA[
+svg{--paper:#f5f5f5;--paper2:#ececec;--white:#ffffff;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;--rule:rgba(45,49,66,0.12);--rule2:#bfc0c0;--accent:#eb6c36;--accent-text:#ba4513;--accent-tint:rgba(235,108,54,0.08);--fill-soft:rgba(45,49,66,0.05);--fill-faint:rgba(45,49,66,0.03);}
+@media (prefers-color-scheme: dark){svg{--paper:#2d3142;--paper2:#393e53;--white:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,0.12);--rule2:rgba(191,192,192,0.25);--accent:#f08a59;--accent-text:#f19162;--accent-tint:rgba(240,138,89,0.10);--fill-soft:rgba(245,245,245,0.06);--fill-faint:rgba(245,245,245,0.04);}}
+]]></style>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/></marker>
+<marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--ink)"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/></marker>
+</defs>
+
+<rect width="100%" height="100%" fill="var(--paper)"/>
+<text x="40" y="40" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CỬA 3 · SOI LẠI KHÔNG CHẠY ĐƯỢC · AC-1</text>
+<text x="600" y="40" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CỬA 4 · LÀN V BỊ KIỂM HOÁ CŨ · AC-2, AC-3</text>
+<line x1="560" y1="24" x2="560" y2="512" stroke="var(--rule)" stroke-width="0.8"/>
+<rect x="232" y="80" width="136" height="256" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1"/>
+<text x="40" y="112" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.08em">KHÔNG CHẠY ĐƯỢC VÌ</text>
+<text x="300" y="112" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">RECHECK: STRICT</text>
+<text x="452" y="112" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">RECHECK: WARN</text>
+<rect x="40" y="136" width="176" height="56" rx="6" fill="var(--white)" stroke="var(--rule2)" stroke-width="1"/>
+<text x="52" y="160" fill="var(--ink)" font-size="11" font-weight="600">Bộ soi lại không có mặt</text>
+<text x="52" y="178" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">recheck-evidence.cjs vắng</text>
+<text x="300" y="160" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">VIOLATION</text>
+<text x="300" y="178" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gọi tên đường này</text>
+<rect x="384" y="136" width="136" height="56" rx="6" fill="var(--fill-faint)" stroke="var(--rule2)" stroke-width="1"/>
+<text x="452" y="160" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">NOTE</text>
+<text x="452" y="178" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">như cũ</text>
+<rect x="40" y="200" width="176" height="56" rx="6" fill="var(--white)" stroke="var(--rule2)" stroke-width="1"/>
+<text x="52" y="224" fill="var(--ink)" font-size="11" font-weight="600">Không có node để chạy</text>
+<text x="52" y="242" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">node vắng</text>
+<text x="300" y="224" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">VIOLATION</text>
+<text x="300" y="242" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gọi tên đường này</text>
+<rect x="384" y="200" width="136" height="56" rx="6" fill="var(--fill-faint)" stroke="var(--rule2)" stroke-width="1"/>
+<text x="452" y="224" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">NOTE</text>
+<text x="452" y="242" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">như cũ</text>
+<rect x="40" y="264" width="176" height="56" rx="6" fill="var(--white)" stroke="var(--rule2)" stroke-width="1"/>
+<text x="52" y="288" fill="var(--ink)" font-size="11" font-weight="600">Soi lại thoát mã 2</text>
+<text x="52" y="306" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">lib vắng · đọc file lỗi</text>
+<text x="300" y="288" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">VIOLATION</text>
+<text x="300" y="306" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">gọi tên đường này</text>
+<rect x="384" y="264" width="136" height="56" rx="6" fill="var(--fill-faint)" stroke="var(--rule2)" stroke-width="1"/>
+<text x="452" y="288" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">NOTE</text>
+<text x="452" y="306" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">như cũ</text>
+<!-- Cửa 4 · nhánh rẽ cho hồ sơ làn V trong diff PR · ma trận 5 ô của §3(d) -->
+<rect x="600" y="56" width="216" height="64" rx="6" fill="var(--paper)"/>
+<rect x="600" y="56" width="216" height="64" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="612" y="64" width="44" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="634" y="75" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">LÀN V</text>
+<text x="612" y="100" fill="var(--ink)" font-size="11" font-weight="600">Hồ sơ xanh-sạch trong diff PR</text>
+<text x="612" y="113" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">slug_in_diff · verified_commit</text>
+<polygon points="708,136 808,172 708,208 608,172" fill="var(--paper)"/>
+<polygon points="708,136 808,172 708,208 608,172" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="708" y="170" fill="var(--ink)" font-size="10" font-weight="600" text-anchor="middle">Ghim đã kiểm giải được?</text>
+<text x="708" y="184" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">verified_commit</text>
+<polygon points="708,260 808,296 708,332 608,296" fill="var(--paper)"/>
+<polygon points="708,260 808,296 708,332 608,296" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="708" y="294" fill="var(--ink)" font-size="10" font-weight="600" text-anchor="middle">Có file mã đổi sau ghim?</text>
+<text x="708" y="308" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">stale_files không rỗng</text>
+<rect x="880" y="84" width="200" height="64" rx="6" fill="var(--paper)"/>
+<rect x="880" y="84" width="200" height="64" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="892" y="104" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">VIOLATION · PIN MA · Ô 3</text>
+<text x="892" y="122" fill="var(--ink)" font-size="11" font-weight="600">SHA không có trong repo</text>
+<text x="892" y="138" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">clone đầy đủ · cùng họ P184</text>
+<rect x="880" y="176" width="200" height="64" rx="6" fill="var(--paper)"/>
+<rect x="880" y="176" width="200" height="64" rx="6" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="892" y="196" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">NOTE · KHÔNG XANH-SẠCH · Ô 4</text>
+<text x="892" y="214" fill="var(--ink)" font-size="11" font-weight="600">Chưa ghi ghim đã kiểm</text>
+<text x="892" y="230" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">report has no verified_commit</text>
+<rect x="880" y="264" width="200" height="64" rx="6" fill="var(--paper)"/>
+<rect x="880" y="264" width="200" height="64" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="892" y="284" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">VIOLATION · HOÁ CŨ · Ô 1</text>
+<text x="892" y="302" fill="var(--ink)" font-size="11" font-weight="600">Làn V — evidence is stale</text>
+<text x="892" y="318" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">code changed after verify</text>
+<rect x="608" y="368" width="200" height="64" rx="6" fill="var(--paper)"/>
+<rect x="608" y="368" width="200" height="64" rx="6" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="620" y="388" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">NOTE · XANH-SẠCH · Ô 2</text>
+<text x="620" y="406" fill="var(--ink)" font-size="11" font-weight="600">Xanh-sạch, đi tiếp</text>
+<text x="620" y="422" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">NOTE như cũ</text>
+<rect x="832" y="376" width="224" height="40" rx="6" fill="none" stroke="var(--rule2)" stroke-width="0.8" stroke-dasharray="2,3"/>
+<text x="844" y="392" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">NGOÀI DIFF PR · IM LẶNG · Ô 5</text>
+<text x="844" y="406" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">stale-theo-diff-pr giữ nguyên</text>
+<line x1="708" y1="120" x2="708" y2="132" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<line x1="708" y1="208" x2="708" y2="256" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<path d="M808,172 H848 V116 H876" fill="none" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<path d="M848,172 V208 H876" fill="none" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<line x1="808" y1="296" x2="876" y2="296" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<line x1="708" y1="332" x2="708" y2="364" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<rect x="716" y="224" width="20" height="14" rx="2" fill="var(--paper)"/>
+<text x="720" y="234" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">CÓ</text>
+<rect x="812" y="152" width="32" height="14" rx="2" fill="var(--paper)"/>
+<text x="816" y="162" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">KHÔNG</text>
+<rect x="804" y="136" width="40" height="14" rx="2" fill="var(--paper)"/>
+<text x="808" y="146" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">SHA LẠ</text>
+<rect x="812" y="184" width="32" height="14" rx="2" fill="var(--paper)"/>
+<text x="816" y="194" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">RỖNG</text>
+<rect x="816" y="276" width="20" height="14" rx="2" fill="var(--paper)"/>
+<text x="820" y="286" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">CÓ</text>
+<rect x="716" y="340" width="32" height="14" rx="2" fill="var(--paper)"/>
+<text x="720" y="350" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.06em">KHÔNG</text>
+<text x="40" y="464" fill="var(--accent-text)" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">Hôm nay strict cũng chỉ in NOTE khi soi lại không chạy được;</text>
+<text x="40" y="484" fill="var(--accent-text)" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">sau vòng: strict coi cổng câm là cổng hỏng.</text>
+<text x="600" y="464" fill="var(--accent-text)" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">Kèm (d′): ranh tiêu đề của bộ đọc xanh-sạch về #{2,6} —</text>
+<text x="600" y="484" fill="var(--accent-text)" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">mục viết bằng h1 không còn đọc thành rỗng (AC-3).</text>
+<line x1="32" y1="508" x2="1088" y2="508" stroke="var(--rule)" stroke-width="0.8"/>
+<text x="32" y="528" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="112" y="516" width="32" height="16" rx="4" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="152" y="528" fill="var(--muted)" font-size="9">VIOLATION — chặn merge</text>
+<rect x="308" y="516" width="32" height="16" rx="4" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="348" y="528" fill="var(--muted)" font-size="9">NOTE — đi tiếp như cũ</text>
+<line x1="500" y1="524" x2="532" y2="524" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<text x="540" y="528" fill="var(--muted)" font-size="9">đường lưới đi</text>
+</svg>

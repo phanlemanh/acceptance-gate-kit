@@ -3,10 +3,10 @@ schema_version: 1
 slug: lan-v-thoat-kiem-stale
 feature: Làn máy thoát phép kiểm bằng-chứng-cũ ở cổng trước-merge
 owner: manh@mstar.vn
-stage: discovery            # discovery | decided | archived
-decision:              # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: archived            # gộp vào ô duong-lui-phai-song (Cổng Đáng ký build 08/09/2026)
+decision: kill              # không mở riêng — nội dung sống tiếp trong _acceptance/duong-lui-phai-song/ (gộp, không mất)
+decided_by: Manh Phan
+decided_at: 2026-09-07T21:40:00Z   # «Thực hiện hết» 08/09 04:40 giờ VN — gộp hai ô lẻ vào một ô, máy ghi hộ
 prototype:
   base_commit:
   disposition:
