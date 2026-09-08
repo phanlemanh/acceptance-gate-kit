@@ -5,7 +5,7 @@ slug: glob-hai-sao-khop-goc-kho
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-09-08-glob-hai-sao-khop-goc-kho-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-08
@@ -60,3 +60,5 @@ Quét bằng morphological-scan, preset ma trận ca đo (chi tiết ở design 
 
 - Không eval `judgment`: mọi khẳng định máy chấm được (tiền lệ stale-theo-diff-pr, cùng file lõi cưỡng chế).
 - Răng vào suite vĩnh viễn `tests/scripts/run-tests.sh` (khối VC), không `rang.sh` riêng — luật của `pre-merge-check.sh` sống ở đó (VC01–VC12).
+- Known limits (Cổng 2, Manh Phan 2026-09-08): (Ngoài-1, Ngoài-2) hai finding review vòng 3 nói bằng chứng ghim commit trước bản sửa HS09 — đúng ở thời điểm review đọc file giữa vòng; vòng 3 đã ghim lại `verified_commit` = `c8fc1a32` (HEAD lúc ký), không còn lệch cây-đo/cây-ký.
+- Known limits (Cổng 2, AC-10): thước đo hành vi (mẫu không chứa `**/` như `docs/**` vẫn là tài liệu, thư mục khác tên vẫn là mã, có đối chứng đỏ), KHÔNG đo cơ chế «đi qua bộ sinh biến thể» — thiết kế thuần cộng khiến mẫu đó không bao giờ chạm bộ sinh nên không thể sai theo đường ấy. Muốn ghim cơ chế: vòng mới gọi thẳng `glob_variants` và ghim tập biến thể. Dừng-vá ở trần 3 vòng, cùng lớp với vòng 2.

@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>2 việc"]
   GD --> DB["Đã bác từ khám phá<br/>1 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>4 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>66 việc"]
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>67 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>11 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
 ```
@@ -52,7 +52,6 @@ flowchart TD
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
-- Bộ khớp glob của cổng hiểu `**/` là không-hoặc-nhiều thư mục — `**/*.md` bắt cả markdown ở gốc kho (`glob-hai-sao-khop-goc-kho`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
 - Phát hành kit 2.1.0 — gom hai hồ sơ TRỪ 16/08 (tin mời cổng thôi form · cổng chặn nhầm chỗ) + luật hình về một mốc, và đưa skill diagram-design vào marketplace như plugin thứ ba (vendor có pin, skin sống trong repo tiêu thụ) — để repo tiêu thụ nhận luật mới có chủ đích trước khi đợt 3 đo M1/M2 (`release-2-1-0`)
 
@@ -91,6 +90,7 @@ flowchart TD
 - luật ranh giới section PER-SECTION đặt một chỗ có marker trong lib/md-section.js; gate-card + evidence-page hết bản sao, claim-scan ghim bằng round-trip (`findings-section-boundary`)
 - Pre-merge enforce gap-probe presence (merge-boundary, thay cho hook write-time) (`gap-probe-presence-hook`)
 - Card Cổng 1 phải hiện ĐỦ criterion contract khai — hoặc kêu to khi không đọc được (`gate-card-ac-visibility`)
+- Bộ khớp glob của cổng hiểu `**/` là không-hoặc-nhiều thư mục — `**/*.md` bắt cả markdown ở gốc kho (`glob-hai-sao-khop-goc-kho`)
 - sổ vàng in cho người được máy đo thật đầu-ra (render round-trip, ma trận đồng thuận toàn phần) + từ điển biệt ngữ lời ký để lớp giám khảo ngôn-ngữ có đường PASS sạch (`gold-output-measure`)
 - Verifier bị công cụ giết ≠ suite fail — luật timeout trong prompt 3 lane, field killedByTool, routing ép về BLOCKED thay vì REJECT giả (`het-gio-khong-phai-truot`)
 - Hình tại Cổng 1 — máy tự kê điểm quyết định, đếm ngưỡng N5, giao vẽ, nhìn, đính cùng thẻ; người không phải gõ thêm lượt để có hình (`hinh-tai-cong-1`)
