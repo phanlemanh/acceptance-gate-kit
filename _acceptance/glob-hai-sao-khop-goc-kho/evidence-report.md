@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c8fc1a32cea7e25fdd3740b605acef6c290d9710
+verified_commit: 89b3afde22c493e2b212b0261ec5b70d3eafc1bb
 human_signoff: Manh Phan 2026-09-08
 ---
 
@@ -180,3 +180,7 @@ none — every multi-run eval is uniform
 Round 1: PENDING-JUDGMENT (triage_failed) — verified_commit 36faacd7 không phủ HEAD; fixture mk_glob_repo tạo `printf >> docs/x/y.md` thất bại âm thầm (thiếu `mkdir -p docs/x/`) nên PASS ghi cho E10/HS10 chưa từng chạm đúng file — kết quả không đáng tin. Quay lại implementation.
 Round 2: sửa mk_glob_repo (mkdir -p thư mục cha + đối chứng diff theo từng file) tại commit 765a647c; toàn bộ E1–E10 và bốn lệnh suite hồi quy đều xanh trên HEAD; verdict PASS.
 Round 3: sửa mệnh đề 3 của HS09 (tests/scripts/run-tests.sh — nhận diện AGENTS.md dưới `**/*.md`) tại commit c8fc1a32; re-run toàn bộ E1–E10 và bốn lệnh suite hồi quy trên HEAD c8fc1a32, tất cả xanh (825 passed, 0 failed); verified_commit ghim lại đúng c8fc1a32; verdict PASS.
+
+### Re-pin lần 1 — 2026-09-08, do gộp main sau mốc 2.9.0 + sửa mốc GUIDE — cây ký đổi, ghim lại bằng làn eval (ADR 0014)
+run_id: repin-20260908T014915Z-22925
+sha: 89b3afde22c493e2b212b0261ec5b70d3eafc1bb · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0
