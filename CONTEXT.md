@@ -16,11 +16,13 @@ Bản chuẩn hoá yêu cầu của một feature (`_acceptance/<slug>/contract.
 frontmatter lifecycle + `## Criteria`. Nguồn sự thật của phạm vi; card chỉ là
 lớp trình bày.
 _Avoid_: spec, PRD (đó là *input* của Phase 1), thẻ.
+_Allow_: thẻ
 
 **Criterion (AC)**:
 Một mục Given/When/Then trong `## Criteria`, định danh `AC-n` — đơn vị mà eval
 phải phủ.
 _Avoid_: requirement, user story, test (criterion là *điều phải đúng*, không
+_Allow_: test
 phải cách chứng minh).
 
 **Dấu**:
@@ -28,6 +30,7 @@ Hậu tố trong ngoặc mà contract gắn vào một criterion để ĐỔI C�
 `(judgment)` (cần người phán) và `(cross-layer)` (đòi eval `layer:
 backend-effect`). Chốt 2026-07-30 vì repo chưa có từ cho khái niệm này.
 _Avoid_: thẻ, tag
+_Allow_: tag, thẻ
 
 **Nhãn**:
 Phần mô tả tự do trong ngoặc giữa id và nội dung criterion — `- AC-1 (biên
@@ -38,10 +41,12 @@ cho người đọc; parser nuốt nó vào `gwt`.
 Một entry trong `evals.yaml` sinh evidence cho ≥1 criterion, chạy bởi đúng một
 executor.
 _Avoid_: test case (chỉ đúng khi executor là `test`), check.
+_Allow_: check
 
 **Executor**:
 Một trong 4 loại máy chạy eval: `test` / `script` / `ui-check` / `judgment`.
 _Avoid_: runner, engine.
+_Allow_: engine
 
 **Driver**:
 Công cụ điều khiển surface bên trong `ui-check` (browser, mobile simulator).
@@ -65,6 +70,7 @@ của MỘT repo" (họ hàng với thước-gắn-vào-checkout-tác-giả). Hi
 `feature_loop.ui_standards_skill` · `design_pass.host_embed` ·
 `discovery.brainstorm_skill`.
 _Avoid_: hook, plugin point, "khoá config" trơ (không nói lên luật vắng-thì-
+_Allow_: hook
 fallback), extension point.
 
 **Cảnh ngữ-cảnh**:

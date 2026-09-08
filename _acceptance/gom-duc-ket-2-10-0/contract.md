@@ -60,6 +60,8 @@ for changes]` cho làm-xong→quyết-được).
 ## Notes
 
 - K7/K8 mở dưới luật nới 07/09 (CỘNG có trace: nguyên tố 2, người hưởng người dùng cuối / owner ở round). Bằng chứng chỉ ở kit (4 lỗi hành vi thật ra Known limits; 13/34 finding chữ lặp). **Ngưỡng đang đếm ở repo tiêu thụ:** hai mốc phát hành liên tiếp không có hồ sơ tiêu thụ nào có finding `harm: behavior` trong paths → xét gỡ K7; hai mốc không có round ≥2 nào ở tiêu thụ → xét gỡ K8.
+- Số đo K3 (chứng-một-lần 09/09, `rang.sh --chan cay-that --dev-root /Users/manh-macmini/dev`): W8-token 0 ở cả bốn cây (trước: kit 0 · artifact-platform 140 · oneflow 15 · crm 4); W8 nghĩa vụ giữ nguyên 16 / 2 / 9 đúng như đếm tay; W6 kit 127 → 15, artifact-platform 36 → 18, crm 17 → 5. Mười lăm dòng W6 còn lại của kit là từ có nghĩa để kêu (`spec`, `log`, `result`, `tool`, `UI`, `tracking`…), không phải từ đa nghĩa.
+- Chạy `rang.sh` từ worktree thì thư mục cha không chứa cây tiêu thụ → in `SKIP <tên>: vắng` và bất biến chỉ áp cho cây có mặt; số ba cây tiêu thụ lấy bằng `--dev-root` khi đo tay (đã ghi ở gạch trên).
 - K4 fail-safe: thiếu node/lib → luật cũ (chặt hơn), có NOTE. Không có đường fail-open.
 - Known limit K4 (gap-probe P1): `paths` là khai báo TĨNH, không bắc cầu qua `require`/`import` — hồ sơ khai thiếu file được require có thể tươi-giả. Chữa bằng câu dặn ở Staleness guard (AC-6f). **Ngưỡng đang đếm:** ≥1 hồ sơ bị phát hiện tươi-giả ở một round S4 hoặc ở thẻ Cổng Bằng chứng mốc kế → mở vòng mở rộng `staleScope` một tầng require.
 - Chứng-một-lần (gap-probe P1 ×2): số đo cây tiêu thụ (E5b) và số đếm tay (E8b) đều neo ở sha/tập cố định hoặc chỉ IN — eval thường trực chỉ giữ bất biến máy-với-máy; kết quả ghi ở bằng chứng và hồ sơ mốc 2.10.0.
