@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37
+verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-07 — ký (a) known-limits: fixture hành vi thiếu provenance máy-kiểm (trong hợp đồng) + 6 mục ngoài hợp đồng
 ---
@@ -207,3 +207,7 @@ sha: 8e1f240e2b3914467502a4ba0dfacc72d85b77b3 · suites: 5 lệnh exit 0
 ### Re-pin lần 17 — 2026-08-14, do vòng về đích của 1a: lint LOP-PHUT vào thân ca P30, trả neo tuong-thich-cu về P194, MUTANT-PHUT qua chân thật, sửa start.md/README/plugin.json
 run_id: repin-stop-patching-law-ve-dich-20260814T073711Z
 sha: 5a9dce68ffc77b1faf2c2af419e2e9ed8e053e37 · suites: 5 lệnh exit 0
+
+### Re-pin lần 18 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
+run_id: repin-20260908T035246Z-95429
+sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0

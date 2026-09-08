@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4861d9fd6a292f3e2f4ab146b259ec4e4ef299ee
+verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -198,3 +198,7 @@ sha: 60f9d6cd4be9928ba7477f093c329e5a3ad30757 · suites: 5 lệnh exit 0
 ### Re-pin lần 2 — 2026-08-30, chiến dịch mốc 2.5.0 (§7.1, một làn máy nhiều chữ ký)
 run_id: repin-250-lane1
 sha: 4861d9fd6a292f3e2f4ab146b259ec4e4ef299ee · suites: 5 lệnh exit 0 · pin cũ: 60f9d6cd4be9
+
+### Re-pin lần 3 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
+run_id: repin-20260908T035246Z-95429
+sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0

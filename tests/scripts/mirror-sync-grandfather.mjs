@@ -40,28 +40,24 @@ const DEAD_KEY = 'executors.script.mirror_sync';
 // ── Nợ thứ hai, cùng khuôn (ADR 0014, sửa 08/09/2026 — owner bỏ mốc, xử ngược):
 // làn ghim lại suite-only (dòng kind:repin không có evals_exit) chưa bao giờ
 // chứng được pin. 49 hồ sơ đã ký, đo tại chỗ 2026-09-08 bằng chính recheck —
-// KHÔNG chép tay. Rút tên khi hồ sơ được ghim lại bằng làn eval (chiến dịch
-// phát hành); hai chiều như danh sách trên. Ghi chú: recheck dừng ở lớp re-pin
+// KHÔNG chép tay; 25 tên rút cùng ngày sau chiến dịch ghim lại bằng làn eval
+// (run_id repin-20260908T035246Z-95429 trong run-log từng hồ sơ). Còn 24:
+// 6 hồ sơ eval đỏ thật trên cây hiện tại (cham-dung-cay-dung-cho-dung,
+// cong-chan-nham-cho, het-gio-khong-phai-truot, khong-ve-the-ma,
+// moi-noi-vong-trao, release-2-1-0) + 18 hồ sơ eval trỏ khoá mirror_sync đã
+// gỡ (làn không chạy được) — owner quyết riêng. Rút tên khi hồ sơ được ghim
+// lại; hai chiều như danh sách trên. Ghi chú: recheck dừng ở lớp re-pin
 // trước khi tới lớp verifier, nên một hồ sơ nằm trong CẢ hai danh sách chỉ lộ
 // lý do suite-only cho tới khi được ghim lại — lúc đó lý do mirror_sync lộ lại.
 export const SUITE_ONLY_LANE_DEBT = [
-  'card-text-fidelity', 'cham-dung-cay-dung-cho-dung', 'claim-scan-parser-hardening',
-  'codex-script-packaging', 'cong-chan-nham-cho', 'context-ladder',
-  'cross-feature-claim-index', 'delta-verify-repin', 'design-pass-skill',
-  'discovery-brainstorm-socket', 'docs-first-run-audit', 'duong-do-trong-dinh-nghia-xong',
-  'findings-section-boundary', 'gap-probe-presence-hook', 'gate-card-ac-visibility',
-  'gold-output-measure', 'het-gio-khong-phai-truot', 'hinh-tai-cong-1',
-  'hinh-theo-mat-phang', 'judge-required-evidence', 'judgment-question-guard',
-  'khoi-viec-cua-anh', 'khong-ve-the-ma', 'lan-may-song-qua-bo-phan-loai',
-  'loi-moi-cong-may-sinh', 'matrix-measure-law', 'may-ganh-nguoi-quyet',
-  'measure-birth-certificate', 'measure-teeth-cleanup', 'moi-noi-vong-trao',
-  'ngon-ngu-mat-nguoi', 'pha3-goi-luoi', 'premerge-rules-ledger',
-  'premerge-unjudged-pass', 'product-map-uat-session', 'release-2-1-0',
-  'release-2-8-0', 'repo-khai-plugin', 's4-scope-triage',
-  'siet-rang-cau-ve-hinh', 'stale-theo-diff-pr', 'start-command',
-  'start-scan-hardening', 'status-chua-arm-cong', 'stop-patching-law',
-  'suite-run-log-provenance', 't1-escape-event-scope', 'vu-trang-goal-luc-goi-ten',
-  'workspace-reader-unification',
+  'cham-dung-cay-dung-cho-dung', 'claim-scan-parser-hardening', 'cong-chan-nham-cho',
+  'context-ladder', 'cross-feature-claim-index', 'delta-verify-repin',
+  'design-pass-skill', 'discovery-brainstorm-socket', 'docs-first-run-audit',
+  'findings-section-boundary', 'gate-card-ac-visibility', 'het-gio-khong-phai-truot',
+  'hinh-theo-mat-phang', 'judgment-question-guard', 'khong-ve-the-ma',
+  'may-ganh-nguoi-quyet', 'moi-noi-vong-trao', 'ngon-ngu-mat-nguoi',
+  'pha3-goi-luoi', 'product-map-uat-session', 'release-2-1-0',
+  'stale-theo-diff-pr', 'start-command', 'start-scan-hardening',
 ];
 const SUITE_ONLY_NEEDLE = 'recorded no evals_exit';
 

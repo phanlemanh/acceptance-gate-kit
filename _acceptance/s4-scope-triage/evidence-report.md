@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict   # the `enforcement` value from _acceptance/config.yaml (default strict). CI pre-merge BLOCKS off; warn only warns.
 bypass_used: false              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
-verified_commit: 1e852ac0edad60f71083666f0ab3c83da023ad56
+verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -603,3 +603,7 @@ sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
 ### Re-pin lần 27 — 2026-08-11, do hồ sơ của vòng này vào diff PR chip ② (bằng chứng code-sinh của chính nó được sinh lại từ cây mới)
 run_id: repin-chip2-merge-20260810T233824Z
 sha: 1e852ac0edad60f71083666f0ab3c83da023ad56 · suites: 6 lệnh exit 0
+
+### Re-pin lần 38 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
+run_id: repin-20260908T035246Z-95429
+sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0
