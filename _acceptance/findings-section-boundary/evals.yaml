@@ -109,16 +109,6 @@ evals:
       lib/md-section.js (hoặc được khai Out of scope có tên trong design), và
       không call-site nào tự chế luật riêng bằng regex/tham số cứng?
 
-  - id: E11
-    criterion: AC-11
-    executor: script
-    expected: "sync --check exit 0 — mirror đồng bộ sau khi thêm lib/md-section.js + sửa 2 script"
-    cmd: config:executors.script.mirror_sync
-    paths: ["lib/**", "scripts/**", "plugins/**", "codex/**"]
-    notes: >
-      lib/ nằm trong danh sách rsync của sync-plugin-packages.sh — file mới
-      phải xuất hiện trong plugins/acceptance-gate/lib/.
-
   - id: E12
     criterion: AC-12
     executor: test
@@ -150,3 +140,9 @@ evals:
       Fix gap-probe P1-2 (cite [gap-probe-presence-hook#F1]): sync --check chỉ
       đo drift; require('../lib/md-section.js') hỏng trong mirror vẫn để mọi
       eval cây-nguồn xanh. Khẳng định DƯƠNG trên bản mirror.
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.

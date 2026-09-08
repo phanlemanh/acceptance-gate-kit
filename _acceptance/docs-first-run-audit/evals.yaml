@@ -57,14 +57,6 @@ evals:
     cmd: config:executors.test.workflows
     expected: suite workflows xanh nguyên trạng ("all workflow tests passed").
     paths: [feature-loop/]
-  - id: E8
-    criterion: AC-5
-    executor: script
-    cmd: config:executors.script.mirror_sync
-    expected: >
-      "plugins/ mirror in sync." — doc sửa (README/QUICKSTART) và skill Codex
-      (design-init) đã được sync vào mirror cùng lượt commit.
-    paths: [plugins/]
   - id: E9
     criterion: AC-5
     executor: script
@@ -73,3 +65,9 @@ evals:
       "PRODUCT-MAP.md khớp hồ sơ xưởng." — bản đồ vẽ lại sau khi thêm workspace
       này khớp hồ sơ.
     paths: [PRODUCT-MAP.md]
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.

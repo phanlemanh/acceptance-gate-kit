@@ -168,12 +168,9 @@ evals:
       Ghim tính CHÍNH DANH của fixture cho hội đồng E10. Không có nó thì một
       prompt lý tưởng chép tay vào file cũng cho E10 xanh trong khi prompt
       THẬT vẫn để ngỏ đường tự cứu — hình dạng (2) trong 4 hình dạng đã dẫm.
-
-  - id: E13
-    criterion: AC-12
-    executor: script
-    expected: "plugins/ mirror khớp nguồn sau khi sửa feature-loop/workflows/"
-    cmd: config:executors.script.mirror_sync
-    paths: ["feature-loop/**", "plugins/**"]
-    notes: >
-      P30 chống trôi mirror — bắt buộc vì diff chạm feature-loop/workflows/.
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.

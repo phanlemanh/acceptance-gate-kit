@@ -137,16 +137,6 @@ evals:
       repin từng slug, cite run_id, verified_commit=sha), đủ thông điệp lỗi,
       và có đường lùi khi lane fail (không re-pin, không ký mù)?
 
-  - id: E14
-    criterion: AC-11
-    executor: script
-    expected: "sync --check exit 0 sau bump + mirror — thuần đóng gói, KHÔNG tô xanh AC-14 (bằng chứng dogfood thu tại Cổng 2, xem E16)"
-    cmd: config:executors.script.mirror_sync
-    paths: ["feature-loop/**", "scripts/**", "plugins/**", "codex/**"]
-    notes: >
-      Fix gap-probe P2-2: eval sync tách khỏi AC-14 — treo về AC-11 (hồi
-      quy/đóng gói); AC-14 nhận E16 judgment, người đo tại Cổng 2.
-
   - id: E15
     criterion: AC-16
     executor: test
@@ -170,3 +160,9 @@ evals:
       trả UNCERTAIN và xác nhận gói Cổng 2 có khai rõ cách người đếm bằng
       chứng (N dòng kind:repin cùng run_id + 1 agent-lane trong usage-report)
       — TUYỆT ĐỐI không tô xanh AC-14 trước khi sự kiện xảy ra.
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.

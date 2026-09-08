@@ -78,16 +78,6 @@ evals:
       có tên trong design (verdict hợp lệ ≠ findings; dedupe trong cùng
       slug)? Còn nhánh drop nào ngoài hai loại đó không?
 
-  - id: E8
-    criterion: AC-8
-    executor: script
-    expected: "sync --check exit 0 sau bump 1.18.1 + description v1.18; suite plugins xanh với literal đã re-pin"
-    cmd: config:executors.script.mirror_sync
-    paths: ["feature-loop/**", "plugins/**", "codex/**", "tests/plugins/**"]
-    notes: >
-      Đóng gói: bump patch cả 2 manifest, re-pin 3 literal, description trả
-      known-limit v1.18 của vòng trước.
-
   - id: E9
     criterion: AC-8
     executor: test
@@ -98,3 +88,9 @@ evals:
       Case PH8: đọc 2 plugin.json, assert description khớp /v1\.18 adds/;
       mutation: description bị cắt chuỗi → assert đỏ. (Fix gap-probe P1-2 —
       finding cite [cross-feature-claim-index#F1]: hứa mà không eval tiêm.)
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.

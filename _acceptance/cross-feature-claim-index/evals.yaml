@@ -147,13 +147,9 @@ evals:
       (poison marker do code sinh) → output scan KHÔNG chứa marker; đối
       chứng dương: cùng marker đặt trong decisions.jsonl thì CÓ mặt.
       Chứng minh scanner thật sự không đọc nguồn V2.
-
-  - id: E12
-    criterion: AC-12
-    executor: script
-    expected: "sync --check exit 0 — mirror không drift sau khi thêm script + sửa SKILL"
-    cmd: config:executors.script.mirror_sync
-    paths: ["feature-loop/**", "plugins/**", "codex/**"]
-    notes: >
-      Mirror in sync sau khi thêm script + sửa SKILL (P30 độc lập vẫn chạy
-      trong suite plugins; ref này để round verify hiện lỗi sync sớm).
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.

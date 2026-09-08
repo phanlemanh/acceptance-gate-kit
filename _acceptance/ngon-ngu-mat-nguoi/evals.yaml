@@ -167,21 +167,6 @@ evals:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
 
-  - id: E15
-    criterion: AC-14
-    executor: script
-    cmd: config:executors.script.mirror_sync
-    expected: "exit 0 — mirror plugins/ khớp nguồn sau sync (đối chứng âm đã có sẵn ở P41: tiêm drift → --check exit 1)"
-    paths:
-      - skills/**
-      - codex/**
-      - plugins/**
-      - lib/**
-      - hooks/**
-      - vendor/**
-      - scripts/**
-      - feature-loop/**
-
   - id: E16
     criterion: AC-15
     executor: judgment
@@ -208,3 +193,9 @@ evals:
       chín file đã soi và cho kết luận đạt/không đạt RIÊNG cho từng file; với
       mỗi câu không qua được, trích câu đó kèm bản viết lại đề xuất.
     expected: "Judge liệt kê đủ 9 tên file đã soi và phán riêng từng file; văn mặt-người qua được Xoá-tên-máy, câu không qua được phải nêu đích danh kèm đề xuất viết lại. 3 lượt chạy để lộ variance."
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.

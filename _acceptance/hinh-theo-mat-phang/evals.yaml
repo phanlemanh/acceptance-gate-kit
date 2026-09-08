@@ -92,17 +92,6 @@ evals:
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
 
-  - id: E9
-    criterion: AC-9
-    executor: script
-    cmd: config:executors.script.mirror_sync
-    expected: "exit 0 — mirror plugins/ khớp nguồn sau sync (đối chứng âm có sẵn ở P41)"
-    paths:
-      - skills/**
-      - codex/**
-      - plugins/**
-      - feature-loop/**
-
   - id: E10
     criterion: AC-10
     executor: test
@@ -121,3 +110,9 @@ evals:
       - CONTEXT.md
       - skills/acceptance/references/human-facing-language.md
       - tests/plugins/run-tests.sh
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.

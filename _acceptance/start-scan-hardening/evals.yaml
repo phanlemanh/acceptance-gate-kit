@@ -59,15 +59,6 @@ evals:
       Toàn suite plugins xanh (P98/P99/P100 + chân dương P101 không đổi hành
       vi); marker START-SCAN-KEYS hai harness không đổi (P99 chính là phép đo).
     paths: [scripts/start-scan.mjs, commands/start.md, codex/acceptance-gate/skills/start/SKILL.md, tests/plugins/run-tests.sh]
-  - id: E6
-    criterion: AC-5
-    executor: script
-    cmd: config:executors.script.mirror_sync
-    expected: exit 0 — mirror khớp nguồn sau sync (đối chứng âm sẵn ở P41).
-    paths: ["scripts/**", "plugins/**", "tests/**"]
-  # S4-r2: thước AC-2 cũ hỏi "giá trị lạ có bị gọi tên không" mà KHÔNG ai ghim
-  # TỪ VỰNG ẤY LẤY TỪ ĐÂU — nên reader bỏ sót BLOCKED mà mọi eval vẫn xanh
-  # (thoái lui do chính vòng này gây). E10 nối hai đầu writer↔reader.
   - id: E10
     criterion: AC-2
     executor: test
@@ -99,3 +90,9 @@ evals:
     cmd: config:executors.test.workflows
     expected: exit 0 — suite workflows xanh sau thay đổi.
     paths: ["feature-loop/workflows/**", "tests/workflows/**"]
+  # Eval mirror (`config:executors.script.mirror_sync`) ĐÃ GỠ 2026-09-08: khoá
+  # `mirror_sync` chết cùng bản sao `plugins/` khi mirror được lưu kho (ADR 0008 +
+  # ADR 0009, Cổng 1 duyệt 12/08). Con trỏ tới một executor không còn định nghĩa
+  # làm mọi làn ghim lại đỏ vì HẠ TẦNG chứ không vì vật (luật làn eval, ADR 0014).
+  # Hợp đồng KHÔNG sửa: tiêu chí mirror của nó nay không có phép đo — cờ vàng
+  # advisory trên thẻ, đúng trạng thái thật của một vật đã lưu kho.
