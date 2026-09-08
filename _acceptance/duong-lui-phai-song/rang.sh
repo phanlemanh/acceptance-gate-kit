@@ -262,6 +262,19 @@ PY
         if [ "$nb" = 0 ]; then ok "lib base · $lab: cũng QUA (ô không đổi hành vi)"; else bad "lib base · $lab: $nb failure"; fi
       fi
     done; done
+    # ô thứ 5 (Ngoài-3, owner nâng phạm vi): hồ sơ ĐÃ da-veto ghi lại (thêm ghi chú) → vẫn qua trên lib mới, đỏ trên lib base
+    R="$(node -e '
+      const core=require(process.argv[1]); const op=process.argv[2];
+      const fm=["---","schema_version: 1","feature: fx","slug: fx","risk_tier: T2","surfaces: [cli]","status: machine-cleared","approved_by: ","approved_at:","veto_state: da-veto",`veto_opened_at: ${op}`,"---","","# fx","","## Criteria","","- AC-1: x.",""].join("\n");
+      const r=core.evaluateContractWrite(fm+"\n## Notes\n\n- ghi chú sau veto\n", fm); process.stdout.write(r.failures.length+"\n"+r.failures.join("\n"));
+    ' "$KIT/lib/evidence-core.cjs" "$OPENED")"; n="${R%%$'\n'*}"
+    RB="$(node -e '
+      const core=require(process.argv[1]); const op=process.argv[2];
+      const fm=["---","schema_version: 1","feature: fx","slug: fx","risk_tier: T2","surfaces: [cli]","status: machine-cleared","approved_by: ","approved_at:","veto_state: da-veto",`veto_opened_at: ${op}`,"---","","# fx","","## Criteria","","- AC-1: x.",""].join("\n");
+      const r=core.evaluateContractWrite(fm+"\n## Notes\n\n- ghi chú sau veto\n", fm); process.stdout.write(r.failures.length+"\n"+r.failures.join("\n"));
+    ' "$BASE_LIB" "$OPENED")"; nb="${RB%%$'\n'*}"
+    if [ "$n" = 0 ]; then ok "lib mới · machine-cleared×da-veto ghi lại (thêm ghi chú): QUA — hồ sơ đang veto vẫn sửa được"; else bad "lib mới · da-veto→da-veto: $n failure — $(printf '%s' "$R" | tail -1 | cut -c1-120)"; fi
+    if [ "$nb" != 0 ] && has "$RB" "Gate 1 approval not recorded"; then ok "lib base · da-veto→da-veto: đỏ «Gate 1 approval not recorded» (chiều đỏ của luật cũ — Ngoài-3 tái hiện)"; else bad "lib base · da-veto→da-veto: không tái hiện ($nb)"; fi
     # pre-merge veto-trace: da-veto chưa xử → VIOLATION; lật ngược không sổ → VIOLATION; có sổ → NOTE đã xử
     fxgit() { git -C "$FX_ROOT" -c user.email=t@t -c user.name=t -c commit.gpgsign=false "$@"; }
     mk_repo '{}'; sed -i.bak 's/^veto_state: mo$/veto_state: da-veto/' "$FX_ROOT/_acceptance/fx/contract.md" && rm -f "$FX_ROOT/_acceptance/fx/contract.md".bak
@@ -334,15 +347,18 @@ PY
     # E11 (đổi khuôn): trên CÂY THẬT, bản mới không tăng VIOLATION so với bản gốc origin/main NGOÀI họ nợ có tên
     # (làn suite-only — SUITE_ONLY_LANE_DEBT trong tests/scripts/mirror-sync-grandfather.mjs, sổ nợ hai chiều của kit);
     # mọi dòng tăng phải là dòng nợ đó của một slug trong sổ (làn V nay cũng bị luật làn eval soi → nợ lộ ra, không phải lỗi mới).
-    mkdir -p "$TMP/base"; git -C "$KIT" archive origin/main scripts lib | tar -x -C "$TMP/base"
-    OUT_NEW="$(bash "$KIT/scripts/pre-merge-check.sh" "$KIT" --base origin/main --recheck-all 2>&1)"; RC_NEW=$?
-    OUT_BASE="$(bash "$TMP/base/scripts/pre-merge-check.sh" "$KIT" --base origin/main --recheck-all 2>&1)"; RC_BASE=$?
+    # Bản base NEO SHA CỐ ĐỊNH = merge-base của nhánh với main (cây NGAY TRƯỚC PR này), không phải ref trôi
+    # origin/main: sau merge, origin/main == bản mới và phép so hoá rỗng (Ngoài-4, owner nâng phạm vi 08/09).
+    BASE_SHA=7d12ffad4010829598ded702b80a2ff8d12eb189
+    mkdir -p "$TMP/base"; git -C "$KIT" archive "$BASE_SHA" scripts lib | tar -x -C "$TMP/base"
+    OUT_NEW="$(bash "$KIT/scripts/pre-merge-check.sh" "$KIT" --base "$BASE_SHA" --recheck-all 2>&1)"; RC_NEW=$?
+    OUT_BASE="$(bash "$TMP/base/scripts/pre-merge-check.sh" "$KIT" --base "$BASE_SHA" --recheck-all 2>&1)"; RC_BASE=$?
     NEEDLE='recorded no evals_exit'
     printf '%s\n' "$OUT_NEW" | grep '^VIOLATION' | sed 's/ (verified_commit [0-9a-f]*)//' | sort > "$TMP/v-new"
     printf '%s\n' "$OUT_BASE" | grep '^VIOLATION' | sed 's/ (verified_commit [0-9a-f]*)//' | sort > "$TMP/v-base"
     N_NEW="$(wc -l < "$TMP/v-new" | tr -d ' ')"; N_BASE="$(wc -l < "$TMP/v-base" | tr -d ' ')"
     N_NEW_X="$(grep -vc -- "$NEEDLE" "$TMP/v-new" || true)"; N_BASE_X="$(grep -vc -- "$NEEDLE" "$TMP/v-base" || true)"
-    echo "  [su-lieu] VIOLATION trên cây thật: bản mới=$N_NEW (ngoài nợ làn suite-only: $N_NEW_X) · bản gốc origin/main=$N_BASE (ngoài nợ: $N_BASE_X)"
+    echo "  [su-lieu] VIOLATION trên cây thật (base $BASE_SHA): bản mới=$N_NEW (ngoài nợ làn suite-only: $N_NEW_X) · bản gốc=$N_BASE (ngoài nợ: $N_BASE_X)"
     if [ "$N_NEW_X" -le "$N_BASE_X" ]; then ok "ngoài họ nợ có tên: bản mới không tăng VIOLATION ($N_NEW_X ≤ $N_BASE_X)"; else bad "bản mới TĂNG VIOLATION ngoài họ nợ: $N_NEW_X > $N_BASE_X — $(comm -23 "$TMP/v-new" "$TMP/v-base" | grep -v -- "$NEEDLE" | head -3 | cut -c1-160 | tr '\n' ' ')"; fi
     DEBT="$(cd "$KIT" && node -e 'import(process.argv[1]).then(m=>process.stdout.write(m.SUITE_ONLY_LANE_DEBT.join("\n")))' "$KIT/tests/scripts/mirror-sync-grandfather.mjs")"
     EXTRA="$(comm -23 "$TMP/v-new" "$TMP/v-base")"; N_EXTRA="$(printf '%s' "$EXTRA" | grep -c . || true)"; BAD_EXTRA=""

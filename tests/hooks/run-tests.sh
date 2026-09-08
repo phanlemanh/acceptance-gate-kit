@@ -684,6 +684,12 @@ printf -- '---\nschema_version: 1\nrisk_tier: T2\nstatus: verified\napproved_by:
 payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
 veto_opened_at: 2026-08-14T10:00:00Z
 ' | sed 's/^status: approved$/status: signed-off/')" | node "$HOOK" >/dev/null 2>"$V_ERR"; check_msg V12 2 $? "$V_ERR" "Gate 1 approval not recorded"
+echo "V13 machine-cleared × da-veto → da-veto (ghi lại hồ sơ đang veto, approved_by rỗng) -> allow (Cổng 1 đã có phát ngôn veto, không phải chưa duyệt)"
+printf -- '---\nschema_version: 1\nrisk_tier: T2\nstatus: machine-cleared\napproved_by:\napproved_at:\nveto_state: da-veto\nveto_opened_at: 2026-08-14T10:00:00Z\n---\n' > "$V_DIR/contract.md"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
+veto_opened_at: 2026-08-14T10:00:00Z
+' | sed 's/^status: approved$/status: machine-cleared/')
+- ghi chú thêm sau veto" | node "$HOOK" >/dev/null; check V13 0 $?
 rm -f "$V_DIR/contract.md" "$V_ERR"
 
 echo ""
