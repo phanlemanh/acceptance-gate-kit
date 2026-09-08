@@ -34,9 +34,11 @@ descope không tên.
 ## 2. Quyết định thiết kế
 
 **D1 — Neo máy là `executor: ui-check`; `layer: ui-observed` là nhãn khai.**
-Hook `acceptance-evidence-gate.js` (schema v2) đã chặn mọi block ui-check
-thiếu `screenshot:`/`observed:` — tức executor ui-check ĐÃ là bất biến
-«có frame + có mắt đọc». Nghĩa vụ W8 được trả bởi ∃ eval `executor: ui-check`;
+ĐÍNH CHÍNH (S4-r3, finding Ngoài-2): hook write-time KHÔNG đòi screenshot trên
+block ui-check — `evaluateObserved` chỉ kiểm `observed:` khi block đã có
+`screenshot:`. Vì thế bất biến «có frame + có mắt đọc» KHÔNG do hook giữ; răng của
+frame là thẻ Cổng Bằng chứng đọc báo cáo (D1 vế Cổng Bằng chứng bên dưới). Ở tầng
+bản khai (lint W8 · thẻ Cổng 1 · NOTE) neo máy vẫn là executor. Nghĩa vụ W8 được trả bởi ∃ eval `executor: ui-check`;
 nhãn `layer: ui-observed` do S2 viết để luật ghép cặp đọc đối xứng với
 `backend-effect` và để gap-probe/judge nhận ra lớp. Nhãn lạc chỗ (`layer:
 ui-observed` trên executor ≠ ui-check) là W8 riêng (gương của lưới

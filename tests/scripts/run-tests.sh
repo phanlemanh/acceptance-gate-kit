@@ -307,12 +307,8 @@ mk_lnt_repo "$P/lnt-h" ui "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-h" --recheck-a
 echo "PM-LNT-h --recheck-all -> NOTE như (a)"; case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*"2026-09-01"*) pmok PM-LNT-h ;; *) pmko PM-LNT-h ;; esac
 mk_lnt_repo "$P/lnt-i" ui "$LNT_EV_T" '{"id":"d-78","type":"descope","decision":"bỏ ui-observed: hỏng"}'; o="$(bash "$CHECK" "$P/lnt-i" 2>&1)"
 echo "PM-LNT-i tiền tố dấu hai chấm -> NOTE như (a), không id"; case "$o" in *d-78*) pmko "PM-LNT-i (nhận nhầm id)" ;; *"NOTE [feat-lnt]"*"mặt người nhìn"*"không eval ui-check nào"*) pmok PM-LNT-i ;; *) pmko PM-LNT-i ;; esac
-# DV5 — diff chỉ thêm dòng so main (repo git của kit; ngoài git → bỏ qua có tiếng)
-echo "PM-LNT-dv5 pre-merge-check.sh so main chỉ THÊM dòng"
-if git -C "$HERE/../.." rev-parse --verify main >/dev/null 2>&1; then
-  dv="$(git -C "$HERE/../.." diff main -- scripts/pre-merge-check.sh | grep -E '^-' | grep -vE '^---' || true)"
-  if [ -z "$dv" ]; then pmok PM-LNT-dv5; else pmko "PM-LNT-dv5 (có dòng bị xoá/sửa)"; fi
-else echo "  NOTE: PM-LNT-dv5 bỏ qua — không có nhánh main để so"; fi
+# (PM-LNT-dv5 — ca «diff so main chỉ thêm dòng» đã GỠ sau S4-r3 theo council 08/09: nó đo trạng thái
+# nhánh, không đo vật; DV5 đã được chứng ở ba round trong evidence-report của hồ sơ.)
 
 echo "PM07 eval block mở bằng criterion (không phải id) + comment trên criterion -> vẫn paired, clean"
 mk_xl "$P/pm07" feat-xl7 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - criterion: AC-1  # main flow

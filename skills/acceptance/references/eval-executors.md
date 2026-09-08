@@ -153,8 +153,11 @@ web UI (`ui`; aliases `web`, `web-ui`; NOT `mobile`), evals.yaml MUST carry
 eval declares `layer: ui-observed`. Code-layer evidence (`test` component/DOM,
 `script` axe-core/design-gate) stays valid for its own criterion but never
 discharges this obligation: the obligation is a saved frame + an `observed:`
-line, which the write-time hook already enforces on every ui-check block. The
-machine anchor is the executor; the label is for readers and for the vacuous
+line in the ui-check block of the report. The tooth for the FRAME is the Gate-2
+card (it reads `exit_code: 0` + `screenshot:` on the report block); the write-time
+hook only checks `observed:` once a `screenshot:` is present and does NOT require
+a screenshot on ui-check blocks by itself. At the declaration tier (lint W8,
+Gate-1 card, pre-merge NOTE) the machine anchor is the executor; the label is for readers and for the vacuous
 guard (`layer: ui-observed` on a non-ui-check executor is lint W8). Opting out
 must be a named ledger entry whose decision starts with `bỏ ui-observed — `.
 Teeth: lint W8 · Gate-1 card flag · Gate-2 card reads the REPORT (a declared

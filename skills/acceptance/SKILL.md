@@ -126,7 +126,10 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    evals.yaml PHẢI có ≥1 eval `executor: ui-check` — tính theo hợp đồng, không theo
    AC — và eval đó khai `layer: ui-observed`. Bằng chứng lớp mã (`test` vitest/DOM,
    `script` axe-core/design-gate) vẫn hợp lệ cho tiêu chí của nó, nhưng KHÔNG trả
-   nghĩa vụ này: nghĩa vụ là frame + `observed:` mà hook giữ trên mọi block ui-check.
+   nghĩa vụ này: nghĩa vụ là frame + `observed:` trong block ui-check của báo cáo —
+   răng của frame là THẺ Cổng Bằng chứng (đọc `exit_code: 0` + `screenshot:` trên
+   báo cáo); hook write-time chỉ kiểm `observed:` khi block đã có `screenshot:`, KHÔNG
+   tự đòi screenshot — đừng dựa vào hook cho vế này.
    Nhãn `layer: ui-observed` trên executor khác ui-check là lạc chỗ (lint W8). Bỏ
    nghĩa vụ (không dev server, hạ tầng chụp hỏng) PHẢI là entry `descope` bắt đầu
    đúng chuỗi `bỏ ui-observed — <lý do>` — thẻ Cổng 1 hiện dòng thông tin, ghi sau

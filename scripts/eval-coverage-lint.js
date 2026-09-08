@@ -221,8 +221,9 @@ function lintFeature(slug, contractText, evalsText, glossary, ledgerText) {
   }
 
   // W8 — lớp bằng chứng nhìn-thấy (gương của W4): hợp đồng có MẶT NGƯỜI NHÌN phải có
-  // ≥1 eval executor: ui-check — nghĩa vụ THEO HỢP ĐỒNG, không theo AC. Neo máy là
-  // executor (hook đã giữ frame + observed trên mọi block ui-check); `layer: ui-observed`
+  // ≥1 eval executor: ui-check — nghĩa vụ THEO HỢP ĐỒNG, không theo AC. Ở tầng bản khai
+  // neo máy là executor; frame thật được thẻ Cổng Bằng chứng đọc trên báo cáo (hook write-time
+  // không đòi screenshot trên block ui-check, chỉ kiểm observed khi đã có screenshot); `layer: ui-observed`
   // chỉ là nhãn khai, đặt trên executor khác là lạc chỗ. Vị từ, alias và tiền tố descope
   // RÚT từ lib/lop-nhin-thay.cjs — một nguồn với thẻ và pre-merge. Có entry descope đúng
   // tiền tố trong decisions.jsonl thì nghĩa vụ im (bỏ có tên, thẻ đã hiện); --files không
