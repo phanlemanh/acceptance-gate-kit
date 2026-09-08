@@ -134,6 +134,34 @@ PY
       if has "$OUT" "VIOLATION [fx]: evidence is stale" && [ "$VIOL" -ge 1 ]; then ok "chiều đỏ: không ghim lại → vẫn stale, không READY"; else bad "chiều đỏ KHÔNG chạy: bỏ ghim lại mà lưới sạch"; fi
     fi
     ;;
+  recheck-vang)
+    # E1: recheck strict — soi lại KHÔNG CHẠY ĐƯỢC là VIOLATION gọi tên đường; warn chỉ NOTE; chiều đỏ gỡ dòng mới.
+    FXJ='{"signoff":"t 2026-09-08","contract":{"status":"signed-off","approved_by":"t","veto_state":""}}'
+    MSG='evidence re-check KHÔNG CHẠY ĐƯỢC'
+    mk_repo "$FXJ"; pmc "$FX_ROOT" --base "$FX_A"
+    if [ "$VIOL" = 0 ] && has "$OUT" "OK [fx]:"; then ok "đối chứng dương: fixture nguyên strict → 0 VIOLATION, OK [fx]"; else bad "đối chứng dương đỏ: $(printf '%s\n' "$OUT" | grep -E '^(VIOLATION|NOTE) \[fx\]' | head -3 | tr '\n' ' ')"; fi
+    mui() { # $1 tên · $2 file KHÔNG vendor (rỗng = đủ) · $3 chuỗi tên đường · $4 chế độ · $5 vendorFrom (rỗng = KIT)
+      local ten="$1" tiem="$2" duong="$3" mode="$4" from="${5:-}"
+      local j; j="$(printf '%s' "$FXJ" | python3 -c "import sys,json; d=json.load(sys.stdin); d['recheck']='$mode'; f='$from'; (f and d.__setitem__('vendorFrom', f)); o='$tiem'; (o and d.__setitem__('omit', [o])); print(json.dumps(d))")"
+      mk_repo "$j"
+      if [ "$ten" = "node-vang" ]; then
+        OUT="$(cd "$FX_ROOT" && env PATH=/usr/bin:/bin bash scripts/pre-merge-check.sh . --base "$FX_A" 2>&1)"; VIOL="$(printf '%s\n' "$OUT" | grep -c '^VIOLATION' || true)"
+      else pmc "$FX_ROOT" --base "$FX_A"; fi
+    }
+    for m in "recheck-vang|scripts/recheck-evidence.cjs|recheck-evidence.cjs vắng" "node-vang||node vắng" "exit-2|lib/evidence-core.cjs|exit 2"; do
+      ten="${m%%|*}"; r="${m#*|}"; tiem="${r%%|*}"; duong="${r#*|}"
+      mui "$ten" "$tiem" "$duong" strict
+      if has "$OUT" "VIOLATION [fx]: $MSG ($duong)" && [ "$VIOL" = 1 ]; then ok "strict · $ten: VIOLATION gọi tên đường «$duong», violations=1"; else bad "strict · $ten: VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+      mui "$ten" "$tiem" "$duong" warn
+      if ! has "$OUT" "VIOLATION [fx]" && [ "$VIOL" = 0 ] && has "$OUT" "NOTE [fx]: evidence re-check"; then ok "warn · $ten: chỉ NOTE, 0 VIOLATION"; else bad "warn · $ten: VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    done
+    # chiều đỏ của phép đo: gỡ đúng dòng mới (đường vắng file) khỏi bản sao → mũi (1) phải hết VIOLATION
+    copy_tree; inject recheck-vang scripts/pre-merge-check.sh '      if [ "$RECHECK_MODE" = strict ]; then
+        if [ ! -f "$RECHECK" ]; then rc_duong="recheck-evidence.cjs vắng"; else rc_duong="node vắng"; fi' '      if false; then
+        if [ ! -f "$RECHECK" ]; then rc_duong="recheck-evidence.cjs vắng"; else rc_duong="node vắng"; fi'
+    mui recheck-vang "scripts/recheck-evidence.cjs" "recheck-evidence.cjs vắng" strict "$COPY"
+    if [ "$VIOL" = 0 ] && has "$OUT" "NOTE [fx]: evidence re-check not vendored"; then ok "chiều đỏ: gỡ dòng mới → strict lại câm (chỉ NOTE) — phép đo bám đúng dòng"; else bad "chiều đỏ KHÔNG chạy: bản sao gỡ dòng mà vẫn VIOLATION ($VIOL)"; fi
+    ;;
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;
 esac
 done_chan

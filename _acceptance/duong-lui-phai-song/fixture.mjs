@@ -34,7 +34,7 @@ export function contractText(c, slug) {
 
 // opts: { slug, vendorFrom, recheck, contract:{status,risk_tier,approved_by,veto_state,veto_opened_at},
 //         vc (undefined = commit A; '' = rỗng; sha = nguyên văn), signoff, sections, verdict,
-//         repinLine (bool), commitEvidence (default true), verifyExit (default 0) }
+//         repinLine (bool), commitEvidence (default true), verifyExit (default 0), omit: [rel] (không vendor) }
 export function mkRepo(opts = {}) {
   const slug = opts.slug || 'fx';
   const root = mkdtempSync(path.join(tmpdir(), 'dlps-'));
@@ -42,9 +42,10 @@ export function mkRepo(opts = {}) {
     { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
   const from = opts.vendorFrom || KIT;
   mkdirSync(path.join(root, 'scripts'), { recursive: true });
-  for (const rel of ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs']) cpSync(path.join(from, rel), path.join(root, rel));
+  const omit = opts.omit || []; // rel path KHÔNG vendor — mũi tiêm nằm trong lịch sử từ commit A, cây không bẩn
+  for (const rel of ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs']) if (!omit.includes(rel)) cpSync(path.join(from, rel), path.join(root, rel));
   mkdirSync(path.join(root, 'lib'), { recursive: true });
-  for (const f of LIBS) cpSync(path.join(from, 'lib', f), path.join(root, 'lib', f));
+  for (const f of LIBS) if (!omit.includes(`lib/${f}`)) cpSync(path.join(from, 'lib', f), path.join(root, 'lib', f));
   mkdirSync(path.join(root, 'docs'), { recursive: true });
   writeFileSync(path.join(root, 'docs', 'README.md'), 'docs\n');
   writeFileSync(path.join(root, 'verify.sh'), `#!/bin/sh\nexit ${opts.verifyExit || 0}\n`);

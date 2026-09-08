@@ -1223,9 +1223,14 @@ NETIDS
         printf '%s\n' "$recheck_out" | sed 's/^/    /'
         if [ "$RECHECK_MODE" = strict ]; then violations=$((violations+1)); continue; fi
       elif [ "$rc" -ne 0 ]; then
+        if [ "$RECHECK_MODE" = strict ]; then echo "VIOLATION [$slug]: evidence re-check KHÔNG CHẠY ĐƯỢC (exit $rc) — recheck: strict coi cổng câm là cổng hỏng; sửa: vendor lib/ cạnh scripts/, đọc được evidence-report.md"; violations=$((violations+1)); continue; fi
         echo "NOTE [$slug]: evidence re-check unavailable (exit $rc) — ${recheck_out:-skipped}"
       fi
     else
+      if [ "$RECHECK_MODE" = strict ]; then
+        if [ ! -f "$RECHECK" ]; then rc_duong="recheck-evidence.cjs vắng"; else rc_duong="node vắng"; fi
+        echo "VIOLATION [$slug]: evidence re-check KHÔNG CHẠY ĐƯỢC ($rc_duong) — recheck: strict coi cổng câm là cổng hỏng; vendor scripts/recheck-evidence.cjs + lib/ và cài node"; violations=$((violations+1)); continue
+      fi
       echo "NOTE [$slug]: evidence re-check not vendored (recheck-evidence.cjs/node missing) — committed-evidence bar NOT enforced"
     fi
   fi
