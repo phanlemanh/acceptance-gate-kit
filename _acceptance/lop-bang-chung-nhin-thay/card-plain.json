@@ -4,17 +4,57 @@
   "analyst_plain": "Sáu phép kiểm đều chạy qua hai bộ suite chung của kit, nên trên cây cũ chúng cũng xanh; điều chứng minh tính năng là các dòng PASS có tên LNT và L4x/PM-LNT chỉ xuất hiện trên cây mới, không phải mã thoát của suite.",
   "decisions": [],
   "decisions_plain": [
-    {"id":"d-20260907T214357Z-20122","p":"Máy coi «có eval nhìn màn hình» là bằng chứng đã đủ, nhãn ui-observed chỉ để đọc — đổi lại: hồ sơ cũ không bị kêu oan khi ghim lại."},
-    {"id":"d-20260907T214358Z-20122","p":"Mỗi hợp đồng cần ít nhất một ảnh, không bắt từng tiêu chí — đổi lại: rẻ, sẽ siết nếu một ảnh tỏ ra không đủ."},
-    {"id":"d-20260907T214359Z-20122","p":"Trước merge chỉ in ghi chú, chưa chặn, kèm ngưỡng đếm — đổi lại: không thêm vòng bị chặn vì máy chụp hỏng."},
-    {"id":"d-20260907T214400Z-20122","p":"KHÔNG đưa ảnh bản mẫu vẽ trước duyệt lên Cổng Bằng chứng — đổi lại: người ký không bị ảnh bản mẫu đánh lừa là sản phẩm đã chạy."},
-    {"id":"d-20260907T214401Z-20122","p":"KHÔNG viết đặc tả trải nghiệm — việc này không có màn hình mới."},
-    {"id":"d-20260907T221040Z-27851","p":"Bước trước merge hỏi thư viện bằng một lệnh in một dòng, không viết luật song song bằng awk — đổi lại: máy thiếu node thì chỉ in «không kiểm được», không chặn."},
-    {"id":"d-20260907T221539Z-30822","p":"Kế hoạch bảy bước được duyệt bằng cách anh dán dòng mục tiêu cùng câu trả lời."},
-    {"id":"d-20260908T020308Z-4753","p":"Vòng chấm 1 bị chặn vì hạn mức phiên và một agent chạy suite dài chết; máy chạy tiếp cùng vòng thay vì tung lại cả bầy."},
-    {"id":"d-20260908T020309Z-4753","p":"Ghi lại một lỗ của bộ máy chấm: khi agent lấy xuất xứ chết, cả vòng sập thay vì báo BLOCKED có tên — sửa ở vòng riêng."},
-    {"id":"d-20260908T025824Z-19081","p":"Vá vòng 1: hai fixture từng viết tay nay rút từ khuôn bên viết, khuôn có thêm một mốc cho khối ui-check."},
-    {"id":"d-20260908T033851Z-1761","p":"Vá vòng 2: các ca cảnh báo khớp đúng nhánh nghĩa vụ thay vì «có cảnh báo là được», ca Cổng Bằng chứng tách ba trường hợp không đạt."},
-    {"id":"d-20260908T065247Z-9338","p":"Vòng 3 xanh 6/6 nhưng còn hai lỗi trong hợp đồng chưa vá, một lỗi cùng lớp với vòng 2 — máy dừng theo luật, không tự vá vòng bốn; anh chọn: đổi cách đo, thu phạm vi, hay ship kèm giới hạn đã biết."}
+    {
+      "id": "d-20260907T214357Z-20122",
+      "p": "Máy coi «có eval nhìn màn hình» là bằng chứng đã đủ, nhãn ui-observed chỉ để đọc — đổi lại: hồ sơ cũ không bị kêu oan khi ghim lại."
+    },
+    {
+      "id": "d-20260907T214358Z-20122",
+      "p": "Mỗi hợp đồng cần ít nhất một ảnh, không bắt từng tiêu chí — đổi lại: rẻ, sẽ siết nếu một ảnh tỏ ra không đủ."
+    },
+    {
+      "id": "d-20260907T214359Z-20122",
+      "p": "Trước merge chỉ in ghi chú, chưa chặn, kèm ngưỡng đếm — đổi lại: không thêm vòng bị chặn vì máy chụp hỏng."
+    },
+    {
+      "id": "d-20260907T214400Z-20122",
+      "p": "KHÔNG đưa ảnh bản mẫu vẽ trước duyệt lên Cổng Bằng chứng — đổi lại: người ký không bị ảnh bản mẫu đánh lừa là sản phẩm đã chạy."
+    },
+    {
+      "id": "d-20260907T214401Z-20122",
+      "p": "KHÔNG viết đặc tả trải nghiệm — việc này không có màn hình mới."
+    },
+    {
+      "id": "d-20260907T221040Z-27851",
+      "p": "Bước trước merge hỏi thư viện bằng một lệnh in một dòng, không viết luật song song bằng awk — đổi lại: máy thiếu node thì chỉ in «không kiểm được», không chặn."
+    },
+    {
+      "id": "d-20260907T221539Z-30822",
+      "p": "Kế hoạch bảy bước được duyệt bằng cách anh dán dòng mục tiêu cùng câu trả lời."
+    },
+    {
+      "id": "d-20260908T020308Z-4753",
+      "p": "Vòng chấm 1 bị chặn vì hạn mức phiên và một agent chạy suite dài chết; máy chạy tiếp cùng vòng thay vì tung lại cả bầy."
+    },
+    {
+      "id": "d-20260908T020309Z-4753",
+      "p": "Ghi lại một lỗ của bộ máy chấm: khi agent lấy xuất xứ chết, cả vòng sập thay vì báo BLOCKED có tên — sửa ở vòng riêng."
+    },
+    {
+      "id": "d-20260908T025824Z-19081",
+      "p": "Vá vòng 1: hai fixture từng viết tay nay rút từ khuôn bên viết, khuôn có thêm một mốc cho khối ui-check."
+    },
+    {
+      "id": "d-20260908T033851Z-1761",
+      "p": "Vá vòng 2: các ca cảnh báo khớp đúng nhánh nghĩa vụ thay vì «có cảnh báo là được», ca Cổng Bằng chứng tách ba trường hợp không đạt."
+    },
+    {
+      "id": "d-20260908T065247Z-9338",
+      "p": "Vòng 3 xanh 6/6 nhưng còn hai lỗi trong hợp đồng chưa vá, một lỗi cùng lớp với vòng 2 — máy dừng theo luật, không tự vá vòng bốn; anh chọn: đổi cách đo, thu phạm vi, hay ship kèm giới hạn đã biết."
+    },
+    {
+      "id": "d-20260908T072906Z-21213",
+      "p": "Hội đồng bốn giọng (anh gật): không mở vòng chấm thứ tư; sửa bốn câu nói sai về răng, gỡ ca đo diff so nhánh main, ghi hai lỗi đo còn lại vào giới hạn đã biết kèm ngưỡng đếm, ghim lại bằng làn máy rồi ký."
+    }
   ]
 }

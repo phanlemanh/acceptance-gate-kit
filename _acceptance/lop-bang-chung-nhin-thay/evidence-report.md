@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: dbe8615daabb6ac29ee7f37ab1260a6c6a7b378c
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-08
 ---
 
 # Evidence Report: lop-bang-chung-nhin-thay
