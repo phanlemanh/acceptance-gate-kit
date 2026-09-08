@@ -143,12 +143,15 @@ if (want('LNT4')) {
   // fixture không tự chép khuôn bên đọc (gap-probe S4-r1 #11, hình dạng 2).
   const EVID_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'evidence-report-template.md');
   const blockOf = (txt, marker) => { const m = txt.match(new RegExp(`<!-- <<<${marker} -->\\n([\\s\\S]*?)<!-- ${marker}>>> -->`)); if (!m) throw new Error('khuôn thiếu khối ' + marker); return m[1]; };
-  const uiBlock = (evalId, { pass }) => {
+  // Hai điều kiện ĐỘC LẬP của «đạt» (exit 0 VÀ có screenshot) → ma trận âm 3 ca viết trước
+  // (hình dạng 5, gap-probe S4-r2 #2): exit≠0+có shot · exit0+không shot · cả hai.
+  const uiBlock = (evalId, { exit = 0, shot = true } = {}) => {
     let b = blockOf(readFileSync(EVID_TPL, 'utf8'), 'UI-CHECK-BLOCK-TEMPLATE').replace(/E3/g, evalId);
     b = b.replace(/^(\s+run_id:).*$/m, `$1 x-${evalId}-001`).replace(/^(\s+verified_at:).*$/m, '$1 2026-09-08T00:00:00Z')
       .replace(/^(\s+observed: \|)\n[\s\S]*?(?=\n\s+network_observed:)/m, '$1\n    frame shows the hero fully rendered as expected')
       .replace(/^(\s+network_observed:).*$/m, '$1 n-a (driver)');
-    if (!pass) b = b.replace(/^(\s+exit_code:).*$/m, '$1 4').split('\n').filter(l => !/^\s+(screenshot|observed|network_observed):/.test(l) && !/^\s{4}frame shows/.test(l)).join('\n');
+    if (exit !== 0) b = b.replace(/^(\s+exit_code:).*$/m, `$1 ${exit}`);
+    if (!shot) b = b.split('\n').filter(l => !/^\s+(screenshot|observed|network_observed):/.test(l) && !/^\s{4}frame shows/.test(l)).join('\n');
     const left = b.match(/\{\{[^}]*\}\}/g); if (left) throw new Error('uiBlock: placeholder chưa điền: ' + left.join(' · '));
     return b.endsWith('\n') ? b : b + '\n';
   };
@@ -176,17 +179,22 @@ if (want('LNT4')) {
     W(r, '_acceptance/x/evals.yaml', 'evals:\n' + evalsBody); W(r, '_acceptance/x/evidence-report.md', report(blocks)); W(r, '_acceptance/x/run-log.jsonl', '');
     if (ledger) W(r, '_acceptance/x/decisions.jsonl', ledger); return r; };
   const EV = EV_T + '  - id: E10\n    criterion: AC-1\n    executor: ui-check\n    layer: ui-observed\n    expected: "frame"\n';
-  let r = ws('ui', EV, uiBlock('E10', { pass: false })); let x = extract(r);
-  eq(id, x.gate, 2, 'nhận Cổng Bằng chứng');
-  eq(id, x.ui_observed, { applicable: true, present: false, declared: 1, passed: 0, descoped: null }, '(a) khai mà không đạt');
-  { const h = html(r); if (!h.includes(NONE) || !h.includes('E10')) fail(id, '(a) HTML thiếu cờ KHÔNG có + id E10'); }
-  r = ws('ui', EV, uiBlock('E10', { pass: true })); x = extract(r);
+  // (a) ma trận âm — 3 phần tử, 3 assert (số assert = số phần tử)
+  const NEG = [['a1 exit≠0 + có screenshot', { exit: 4, shot: true }], ['a2 exit 0 + KHÔNG screenshot', { exit: 0, shot: false }], ['a3 cả hai', { exit: 4, shot: false }]];
+  let r, x;
+  for (const [name, opt] of NEG) {
+    r = ws('ui', EV, uiBlock('E10', opt)); x = extract(r);
+    eq(id, x.gate, 2, name + ' nhận Cổng Bằng chứng');
+    eq(id, x.ui_observed, { applicable: true, present: false, declared: 1, passed: 0, descoped: null }, '(' + name + ') khai mà không đạt');
+    const h = html(r); if (!h.includes(NONE) || !h.includes('E10')) fail(id, '(' + name + ') HTML thiếu cờ KHÔNG có + id E10');
+  }
+  r = ws('ui', EV, uiBlock('E10', { exit: 0, shot: true })); x = extract(r);
   eq(id, x.ui_observed.present, true, '(b) đạt'); eq(id, x.ui_observed.passed, 1, '(b) passed');
   { const h = html(r); if (h.includes(NONE) || !/1 eval ui-check đạt/.test(h)) fail(id, '(b) phải nêu 1 eval đạt, không cờ KHÔNG có'); }
   r = ws('ui', EV_T, ''); x = extract(r); eq(id, x.ui_observed.declared, 0, '(c) declared 0'); if (!html(r).includes(NONE)) fail(id, '(c) thiếu cờ');
   const seal = '{"id":"d-1","type":"seal","gate":1,"at":"2026-09-01T00:00:00Z"}\n';
   const ds = `{"id":"d-2","type":"descope","stage":"S4-r1","at":"2026-09-02T00:00:00Z","decision":"${L.UI_OBSERVED_DESCOPE}hạ tầng chụp hỏng","impact":"không frame"}\n`;
-  r = ws('ui', EV, uiBlock('E10', { pass: false }), seal + ds); x = extract(r);
+  r = ws('ui', EV, uiBlock('E10', { exit: 4, shot: false }), seal + ds); x = extract(r);
   if (!(x.decisions_provisional || []).some(d => d.id === 'd-2')) fail(id, '(d) descope sau seal phải ở khối CHƯA duyệt');
   eq(id, x.ui_observed.descoped, 'd-2', '(d) descoped'); if (!html(r).includes('d-2')) fail(id, '(d) cờ nêu id');
   r = ws('cli', EV_T, ''); x = extract(r); eq(id, x.ui_observed.applicable, false, '(e) cli'); if (html(r).includes('lớp nhìn-thấy')) fail(id, '(e) cli mà có cụm lớp nhìn-thấy');

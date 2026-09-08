@@ -1208,8 +1208,16 @@ mk_lnt "$T/l40" ui "$EV_TEST"; o="$(w8 "$T/l40")"; r=$?
 echo "L40 [ui] không ui-check -> W8 + chú giải, exit 1"; check L40 1 $r
 case "$o" in *"[feat-lnt] W8 "*"không có eval"*"W8 ="*) ok L40-msg ;; *) ko L40-msg ;; esac
 mk_lnt "$T/l41" ui "$EV_UI"; echo "L41 [ui] có ui-check + layer ui-observed -> không W8 (+W1 quét)"; no_w8 L41 "$T/l41"
-mk_lnt "$T/l42" web "$EV_TEST"; echo "L42 [web] alias -> W8"; o="$(w8 "$T/l42")"; case "$o" in *"[feat-lnt] W8 "*) ok L42 ;; *) ko L42 ;; esac
-mk_lnt "$T/l42b" web-ui "$EV_TEST"; echo "L42b [web-ui] alias -> W8"; o="$(w8 "$T/l42b")"; case "$o" in *"[feat-lnt] W8 "*) ok L42b ;; *) ko L42b ;; esac
+mk_lnt "$T/l42" web "$EV_TEST"; echo "L42 [web] alias -> W8 NGHĨA VỤ (không phải nhánh token-lạ)"; o="$(w8 "$T/l42")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*"không có eval"*) ok L42 ;; *) ko L42 ;; esac
+mk_lnt "$T/l42b" web-ui "$EV_TEST"; echo "L42b [web-ui] alias -> W8 NGHĨA VỤ"; o="$(w8 "$T/l42b")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*"không có eval"*) ok L42b ;; *) ko L42b ;; esac
+# L42m — chiều đỏ của LỚP (hình dạng 3): bản sao lib bỏ alias web → nhánh token-lạ nổ, nhánh NGHĨA VỤ im;
+# mẫu của L42 phải ĐỎ trên bản sao đó (phân biệt được «có dòng W8» với «đúng nhánh»).
+M42="$T/l42m-kit"; mkdir -p "$M42"; cp -R "$HERE/../../lib" "$M42/lib"; cp -R "$HERE/../../scripts" "$M42/scripts"
+sed -i.bak "s/web: 'ui', //" "$M42/lib/lop-nhin-thay.cjs" && rm -f "$M42/lib/lop-nhin-thay.cjs.bak"
+if grep -q "web: 'ui'" "$M42/lib/lop-nhin-thay.cjs"; then ko "L42m (không tiêm được mutant alias)"; else
+  o="$(node "$M42/scripts/eval-coverage-lint.js" "$T/l42" 2>&1)"
+  case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*) ko "L42m (mutant bỏ alias mà nhánh nghĩa vụ vẫn nổ)" ;; *"[feat-lnt] W8 surfaces carry token"*web*) ok "L42m (mutant: chỉ nhánh token-lạ nổ — mẫu L42 phân biệt được)" ;; *) ko "L42m (mutant không nổ nhánh nào — bản sao không chạy?)" ;; esac
+fi
 mk_lnt "$T/l43" mobile "$EV_TEST"; echo "L43 [mobile] -> không W8 (+W1 quét)"; no_w8 L43 "$T/l43"
 mk_lnt "$T/l44" "api, cli" "$EV_TEST"; echo "L44 [api, cli] -> không W8 (+W1)"; no_w8 L44 "$T/l44"
 mk_lnt "$T/l45" ui "$EV_UI
@@ -1225,8 +1233,8 @@ mk_lnt "$T/l46" ui '  - id: E1
 mk_lnt "$T/l47" "ui, kiosk" "$EV_UI"; echo "L47 token lạ kiosk -> W8 nêu token"; o="$(w8 "$T/l47")"; case "$o" in *"[feat-lnt] W8 "*kiosk*) ok L47 ;; *) ko L47 ;; esac
 echo "L48 cây thật của kit -> 0 dòng W8 + có dấu hiệu quét"; o="$(node "$LINT" "$HERE/../.." 2>&1)"; case "$o" in *"] W8 "*) ko "L48 (W8 trên cây thật)" ;; *"no coverage gaps"*|*"] W1 "*|*"] W3 "*|*"] W6 "*|*"] W7 "*) ok L48 ;; *) ko "L48 (không dấu hiệu quét)" ;; esac
 mk_lnt "$T/l49" ui "$EV_TEST" "{\"id\":\"d-1\",\"type\":\"descope\",\"decision\":\"${LNT_DESCOPE}hạ tầng chụp hỏng\"}"; echo "L49 descope đúng tiền tố -> không W8 nghĩa vụ"; no_w8 L49 "$T/l49"
-mk_lnt "$T/l50" ui "$EV_TEST" '{"id":"d-1","type":"descope","decision":"bỏ ui-observed: hỏng"}'; echo "L50 tiền tố dấu hai chấm -> W8"; o="$(w8 "$T/l50")"; case "$o" in *"[feat-lnt] W8 "*) ok L50 ;; *) ko L50 ;; esac
-echo "L51 --files (không sổ) -> W8"; o="$(node "$LINT" --files "$T/l49/_acceptance/feat-lnt/contract.md" "$T/l49/_acceptance/feat-lnt/evals.yaml" 2>&1)"; case "$o" in *"] W8 "*) ok L51 ;; *) ko L51 ;; esac
+mk_lnt "$T/l50" ui "$EV_TEST" '{"id":"d-1","type":"descope","decision":"bỏ ui-observed: hỏng"}'; echo "L50 tiền tố dấu hai chấm -> W8 NGHĨA VỤ"; o="$(w8 "$T/l50")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*) ok L50 ;; *) ko L50 ;; esac
+echo "L51 --files (không sổ) -> W8 NGHĨA VỤ"; o="$(node "$LINT" --files "$T/l49/_acceptance/feat-lnt/contract.md" "$T/l49/_acceptance/feat-lnt/evals.yaml" 2>&1)"; case "$o" in *"] W8 surfaces include a human-visible UI"*) ok L51 ;; *) ko L51 ;; esac
 # chiều đỏ của LỚP dấu-hiệu-quét: fixture ghi sai đường (file thay vì thư mục) → no_w8 phải ĐỎ
 mkdir -p "$T/l52/_acceptance"; printf 'x' > "$T/l52/_acceptance/feat-lnt"
 o="$(w8 "$T/l52")"; case "$o" in *"] W1 "*) ko "L52 (fixture sai đường mà vẫn có dấu hiệu quét)" ;; *) ok "L52 (lớp dấu-hiệu-quét phân biệt được fixture hỏng)" ;; esac
