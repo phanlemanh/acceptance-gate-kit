@@ -246,6 +246,70 @@ mk_xl "$P/pm06" feat-xl6 '- AC-1: Given app, When submit order, Then order saved
 outPM6="$(bash "$CHECK" "$P/pm06" 2>&1)"; check PM06 1 $?
 case "$outPM6" in *"chưa arm cổng"*) echo "  PASS: PM06-arm"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: PM06-arm (expected VIOLATION chưa arm cổng)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 case "$outPM6" in *cross-layer*) echo "  FAIL: PM06-silent (pairing rule ran on draft)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; *) echo "  PASS: PM06-silent"; PASS_COUNT=$((PASS_COUNT+1)) ;; esac
+# ─── PM-LNT — NOTE lớp bằng chứng nhìn-thấy (hồ sơ lop-bang-chung-nhin-thay) ─────
+# Fixture theo nếp mk_xl (không git, không --base → DIFF_READY=0 → luật chạy fail-safe trên
+# mọi slug, đúng như staleness). surfaces tham số + approved_at cố định để NOTE ghim ngày.
+# Contract RÚT TỪ KHUÔN (CONTRACT-FRONTMATTER-TEMPLATE qua tests/fixtures/from-template.mjs) —
+# không printf frontmatter tay theo khuôn bên đọc (gap-probe S4-r1 #12, hình dạng 2).
+lnt_contract() { # <surfaces> <status> <body>  → stdout
+  node --input-type=module -e "
+import { pathToFileURL } from 'node:url';
+const [, mod, tpl, surfaces, status, body] = process.argv;
+const { fileFromTemplate } = await import(pathToFileURL(mod).href);
+process.stdout.write(fileFromTemplate(tpl, 'CONTRACT-FRONTMATTER-TEMPLATE', { feature: 'feat-lnt', slug: 'feat-lnt', owner: 'o@x', risk_tier: 'T2', surfaces, status }, body));
+" -- "$HERE/../fixtures/from-template.mjs" "$HERE/../../skills/acceptance/references/contract-template.md" "$1" "$2" "$3"
+}
+mk_lnt_repo() { # <root> <surfaces> <evals-body|""> [ledger-line]
+  local d="$1/_acceptance/feat-lnt"; mkdir -p "$d"
+  # frontmatter từ khuôn; approved_by/approved_at điền vào đúng KHOÁ của khuôn (sed theo khoá, không viết lại dòng)
+  lnt_contract "$2" implemented '## Criteria
+- AC-1: Given app, When open, Then hero visible.
+## Out of scope
+## Notes
+Mobile backend target: staging — QA backend.
+' | sed -e 's/^approved_by:.*$/approved_by: Manh Phan/' -e 's/^approved_at:.*$/approved_at: 2026-09-01T00:00:00Z/' > "$d/contract.md"
+  if [ -n "$3" ]; then printf -- 'evals:\n%s\n' "$3" > "$d/evals.yaml"; fi
+  if [ -n "${4:-}" ]; then printf '%s\n' "$4" > "$d/decisions.jsonl"; fi
+  local v="$1/verify.sh"; printf '#!/bin/sh\nexit 0\n' > "$v"
+  printf -- '---\nschema_version: 1\nfeature_slug: feat-lnt\nverdict: PASS\nhuman_signoff: Manh 2026-09-02\n---\n\n## Evidence\n- eval: E1\n  run_id: feat-lnt-E1-001\n  exit_code: 0\n  verifier: %s\n  verified_at: 2026-09-02\n' "$v" > "$d/evidence-report.md"; :; }
+LNT_DESCOPE_PM="$(node -e "process.stdout.write(require('$HERE/../../lib/lop-nhin-thay.cjs').UI_OBSERVED_DESCOPE)")"
+LNT_EV_T='  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "green"'
+LNT_EV_U='  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    layer: ui-observed
+    expected: "frame"'
+pmok() { echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1)); }
+pmko() { echo "  FAIL: $1"; FAIL_COUNT=$((FAIL_COUNT+1)); }
+has_scan() { case "$1" in *"rules ran="*) return 0 ;; *) return 1 ;; esac; }
+mk_lnt_repo "$P/lnt-a" ui "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-a" 2>&1)"; r=$?
+echo "PM-LNT-a [ui] không ui-check -> NOTE mặt người nhìn + ngưỡng + approved_at, exit 0"; check PM-LNT-a 0 $r
+case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*"không eval ui-check"*"2026-09-01"*"2 hợp đồng"*) pmok PM-LNT-a-msg ;; *) pmko PM-LNT-a-msg ;; esac
+mk_lnt_repo "$P/lnt-b" ui "$LNT_EV_T" "{\"id\":\"d-77\",\"type\":\"descope\",\"decision\":\"${LNT_DESCOPE_PM}hỏng chụp\"}"; o="$(bash "$CHECK" "$P/lnt-b" 2>&1)"
+echo "PM-LNT-b descope có tên -> NOTE nêu id"; case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*d-77*) pmok PM-LNT-b ;; *) pmko PM-LNT-b ;; esac
+mk_lnt_repo "$P/lnt-c" ui "$LNT_EV_U"; o="$(bash "$CHECK" "$P/lnt-c" 2>&1)"
+echo "PM-LNT-c có ui-check -> không NOTE lớp nhìn-thấy (+ rules ran=)"; case "$o" in *"mặt người nhìn"*|*"lớp nhìn-thấy"*) pmko "PM-LNT-c (NOTE oan)" ;; *) if has_scan "$o"; then pmok PM-LNT-c; else pmko "PM-LNT-c (thiếu dấu hiệu quét)"; fi ;; esac
+mk_lnt_repo "$P/lnt-d" "api, mobile" "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-d" 2>&1)"
+echo "PM-LNT-d [api, mobile] -> không NOTE (+ quét)"; case "$o" in *"mặt người nhìn"*) pmko "PM-LNT-d (NOTE oan)" ;; *) if has_scan "$o"; then pmok PM-LNT-d; else pmko "PM-LNT-d (quét)"; fi ;; esac
+mk_lnt_repo "$P/lnt-e" web "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-e" 2>&1)"
+echo "PM-LNT-e [web] alias -> NOTE"; case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*) pmok PM-LNT-e ;; *) pmko PM-LNT-e ;; esac
+mk_lnt_repo "$P/lnt-f" ui ""; o="$(bash "$CHECK" "$P/lnt-f" 2>&1)"
+echo "PM-LNT-f không evals.yaml -> không NOTE lớp nhìn-thấy (+ quét)"; case "$o" in *"mặt người nhìn"*) pmko "PM-LNT-f (NOTE oan)" ;; *) if has_scan "$o"; then pmok PM-LNT-f; else pmko "PM-LNT-f (quét)"; fi ;; esac
+# (g) bản sao kit thiếu lib → NOTE «không kiểm được», exit 0
+G="$T/lnt-g-kit"; mkdir -p "$G/scripts" "$G/lib"; cp "$HERE/../../scripts/pre-merge-check.sh" "$G/scripts/"; cp "$HERE"/../../lib/* "$G/lib/" 2>/dev/null; rm -f "$G/lib/lop-nhin-thay.cjs"
+mk_lnt_repo "$P/lnt-g" ui "$LNT_EV_T"; o="$(bash "$G/scripts/pre-merge-check.sh" "$P/lnt-g" 2>&1)"; r=$?
+echo "PM-LNT-g lib thiếu -> NOTE không kiểm được, exit 0"; check PM-LNT-g 0 $r
+case "$o" in *"NOTE [feat-lnt]"*"không kiểm được"*) pmok PM-LNT-g-msg ;; *) pmko PM-LNT-g-msg ;; esac
+mk_lnt_repo "$P/lnt-h" ui "$LNT_EV_T"; o="$(bash "$CHECK" "$P/lnt-h" --recheck-all 2>&1)"
+echo "PM-LNT-h --recheck-all -> NOTE như (a)"; case "$o" in *"NOTE [feat-lnt]"*"mặt người nhìn"*"2026-09-01"*) pmok PM-LNT-h ;; *) pmko PM-LNT-h ;; esac
+mk_lnt_repo "$P/lnt-i" ui "$LNT_EV_T" '{"id":"d-78","type":"descope","decision":"bỏ ui-observed: hỏng"}'; o="$(bash "$CHECK" "$P/lnt-i" 2>&1)"
+echo "PM-LNT-i tiền tố dấu hai chấm -> NOTE như (a), không id"; case "$o" in *d-78*) pmko "PM-LNT-i (nhận nhầm id)" ;; *"NOTE [feat-lnt]"*"mặt người nhìn"*"không eval ui-check nào"*) pmok PM-LNT-i ;; *) pmko PM-LNT-i ;; esac
+# (PM-LNT-dv5 — ca «diff so main chỉ thêm dòng» đã GỠ sau S4-r3 theo council 08/09: nó đo trạng thái
+# nhánh, không đo vật; DV5 đã được chứng ở ba round trong evidence-report của hồ sơ.)
+
 echo "PM07 eval block mở bằng criterion (không phải id) + comment trên criterion -> vẫn paired, clean"
 mk_xl "$P/pm07" feat-xl7 '- AC-1: Given app, When submit order, Then order saved via API. (cross-layer)' '  - criterion: AC-1  # main flow
     id: E2
@@ -722,12 +786,19 @@ surfaces: [api, ui]
 - AC-1: Given user taps pay, When order submits, Then confirmation screen shows.
 ## Out of scope
 EOF
+# surfaces có ui → W8 (lop-bang-chung-nhin-thay) đòi ≥1 ui-check theo hợp đồng; thêm E2 để
+# fixture này vẫn SẠCH và ca L16 tiếp tục đo đúng một điều: W5 im khi không có mobile.
 cat > "$M/evals.yaml" <<'EOF'
 evals:
   - id: E1
     criterion: AC-1
     executor: test
     expected: "exit 0; flow green"
+  - id: E2
+    criterion: AC-1
+    executor: ui-check
+    layer: ui-observed
+    expected: "frame shows confirmation"
 EOF
 
 echo "L14 surfaces include mobile, no backend-target line -> warn (W5)"
@@ -755,6 +826,11 @@ evals:
     criterion: AC-1
     executor: test
     expected: "exit 0"
+  - id: E2
+    criterion: AC-1
+    executor: ui-check
+    layer: ui-observed
+    expected: "frame shows confirmation"
 EOF
 
 # Fixture O: mobile surface + dòng backend target có khoảng trắng đôi -> W5 im lặng
@@ -1097,6 +1173,68 @@ outL35b="$(node "$LINT" "$T/lintU" 2>&1)"; check L35b 1 $?
 case "$outL35b" in *"W1 AC-1"*) echo "  PASS: L35b-w1"; PASS_COUNT=$((PASS_COUNT+1)) ;; *) echo "  FAIL: L35b-w1 (gỡ đối chứng mà W1 vẫn im — từ vựng mới nuốt luôn ca thật)"; FAIL_COUNT=$((FAIL_COUNT+1)) ;; esac
 
 echo ""
+# ─── W8 — lớp bằng chứng nhìn-thấy (hồ sơ lop-bang-chung-nhin-thay, L40–L52) ─────────
+# Fixture code-sinh: mk_lnt <dir> <surfaces> <evals-body> [ledger-line]; contract luôn kèm AC-2
+# ngưỡng KHÔNG có eval âm để W1 nổ = DẤU HIỆU QUÉT dương cho các ca vắng W8 (gap-probe F2).
+# Dòng cảnh báo có dạng "[slug] W8 …" — ca khớp "] W8 " để chú giải cuối ("W8 = …") không tính.
+mk_lnt() { local d="$1/_acceptance/feat-lnt"; mkdir -p "$d"
+  lnt_contract "$2" approved '## Criteria
+- AC-1: Given user, When opens page, Then hero visible.
+- AC-2: Given user, When ≥3 opens trong 48h, Then fire hot.
+## Out of scope
+' > "$d/contract.md"
+  printf -- 'evals:\n%s\n  - id: E9\n    criterion: AC-2\n    executor: test\n    expected: "fires hot"\n' "$3" > "$d/evals.yaml"
+  if [ -n "${4:-}" ]; then printf '%s\n' "$4" > "$d/decisions.jsonl"; fi; :; }
+LNT_DESCOPE="$(node -e "process.stdout.write(require('$HERE/../../lib/lop-nhin-thay.cjs').UI_OBSERVED_DESCOPE)")"
+EV_TEST='  - id: E1
+    criterion: AC-1
+    executor: test
+    expected: "hero rendered (vitest)"'
+EV_UI='  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    layer: ui-observed
+    expected: "frame shows hero"'
+w8() { node "$LINT" "$1" 2>&1; }
+ok() { echo "  PASS: $1"; PASS_COUNT=$((PASS_COUNT+1)); }
+ko() { echo "  FAIL: $1"; FAIL_COUNT=$((FAIL_COUNT+1)); }
+# vắng-W8 + dấu hiệu quét W1: hàm chung
+no_w8() { local n="$1" dir="$2" o; o="$(w8 "$dir")"; case "$o" in *"] W8 "*) ko "$n (W8 bắn oan)" ;; *"] W1 "*) ok "$n" ;; *) ko "$n (thiếu dấu hiệu quét W1)" ;; esac; }
+mk_lnt "$T/l40" ui "$EV_TEST"; o="$(w8 "$T/l40")"; r=$?
+echo "L40 [ui] không ui-check -> W8 + chú giải, exit 1"; check L40 1 $r
+case "$o" in *"[feat-lnt] W8 "*"không có eval"*"W8 ="*) ok L40-msg ;; *) ko L40-msg ;; esac
+mk_lnt "$T/l41" ui "$EV_UI"; echo "L41 [ui] có ui-check + layer ui-observed -> không W8 (+W1 quét)"; no_w8 L41 "$T/l41"
+mk_lnt "$T/l42" web "$EV_TEST"; echo "L42 [web] alias -> W8 NGHĨA VỤ (không phải nhánh token-lạ)"; o="$(w8 "$T/l42")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*"không có eval"*) ok L42 ;; *) ko L42 ;; esac
+mk_lnt "$T/l42b" web-ui "$EV_TEST"; echo "L42b [web-ui] alias -> W8 NGHĨA VỤ"; o="$(w8 "$T/l42b")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*"không có eval"*) ok L42b ;; *) ko L42b ;; esac
+# L42m — chiều đỏ của LỚP (hình dạng 3): bản sao lib bỏ alias web → nhánh token-lạ nổ, nhánh NGHĨA VỤ im;
+# mẫu của L42 phải ĐỎ trên bản sao đó (phân biệt được «có dòng W8» với «đúng nhánh»).
+M42="$T/l42m-kit"; mkdir -p "$M42"; cp -R "$HERE/../../lib" "$M42/lib"; cp -R "$HERE/../../scripts" "$M42/scripts"
+sed -i.bak "s/web: 'ui', //" "$M42/lib/lop-nhin-thay.cjs" && rm -f "$M42/lib/lop-nhin-thay.cjs.bak"
+if grep -q "web: 'ui'" "$M42/lib/lop-nhin-thay.cjs"; then ko "L42m (không tiêm được mutant alias)"; else
+  o="$(node "$M42/scripts/eval-coverage-lint.js" "$T/l42" 2>&1)"
+  case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*) ko "L42m (mutant bỏ alias mà nhánh nghĩa vụ vẫn nổ)" ;; *"[feat-lnt] W8 surfaces carry token"*web*) ok "L42m (mutant: chỉ nhánh token-lạ nổ — mẫu L42 phân biệt được)" ;; *) ko "L42m (mutant không nổ nhánh nào — bản sao không chạy?)" ;; esac
+fi
+mk_lnt "$T/l43" mobile "$EV_TEST"; echo "L43 [mobile] -> không W8 (+W1 quét)"; no_w8 L43 "$T/l43"
+mk_lnt "$T/l44" "api, cli" "$EV_TEST"; echo "L44 [api, cli] -> không W8 (+W1)"; no_w8 L44 "$T/l44"
+mk_lnt "$T/l45" ui "$EV_UI
+  - id: E2
+    criterion: AC-1
+    executor: test
+    layer: ui-observed
+    expected: \"dom ok\""; echo "L45 layer ui-observed trên test -> W8 lạc chỗ + id"; o="$(w8 "$T/l45")"; case "$o" in *"[feat-lnt] W8 E2"*"lạc chỗ"*) ok L45 ;; *) ko L45 ;; esac
+mk_lnt "$T/l46" ui '  - id: E1
+    criterion: AC-1
+    executor: ui-check
+    expected: "frame shows hero"'; echo "L46 ui-check không layer (đọc-cũ) -> không W8"; no_w8 L46 "$T/l46"
+mk_lnt "$T/l47" "ui, kiosk" "$EV_UI"; echo "L47 token lạ kiosk -> W8 nêu token"; o="$(w8 "$T/l47")"; case "$o" in *"[feat-lnt] W8 "*kiosk*) ok L47 ;; *) ko L47 ;; esac
+echo "L48 cây thật của kit -> 0 dòng W8 + có dấu hiệu quét"; o="$(node "$LINT" "$HERE/../.." 2>&1)"; case "$o" in *"] W8 "*) ko "L48 (W8 trên cây thật)" ;; *"no coverage gaps"*|*"] W1 "*|*"] W3 "*|*"] W6 "*|*"] W7 "*) ok L48 ;; *) ko "L48 (không dấu hiệu quét)" ;; esac
+mk_lnt "$T/l49" ui "$EV_TEST" "{\"id\":\"d-1\",\"type\":\"descope\",\"decision\":\"${LNT_DESCOPE}hạ tầng chụp hỏng\"}"; echo "L49 descope đúng tiền tố -> không W8 nghĩa vụ"; no_w8 L49 "$T/l49"
+mk_lnt "$T/l50" ui "$EV_TEST" '{"id":"d-1","type":"descope","decision":"bỏ ui-observed: hỏng"}'; echo "L50 tiền tố dấu hai chấm -> W8 NGHĨA VỤ"; o="$(w8 "$T/l50")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*) ok L50 ;; *) ko L50 ;; esac
+echo "L51 --files (không sổ) -> W8 NGHĨA VỤ"; o="$(node "$LINT" --files "$T/l49/_acceptance/feat-lnt/contract.md" "$T/l49/_acceptance/feat-lnt/evals.yaml" 2>&1)"; case "$o" in *"] W8 surfaces include a human-visible UI"*) ok L51 ;; *) ko L51 ;; esac
+# chiều đỏ của LỚP dấu-hiệu-quét: fixture ghi sai đường (file thay vì thư mục) → no_w8 phải ĐỎ
+mkdir -p "$T/l52/_acceptance"; printf 'x' > "$T/l52/_acceptance/feat-lnt"
+o="$(w8 "$T/l52")"; case "$o" in *"] W1 "*) ko "L52 (fixture sai đường mà vẫn có dấu hiệu quét)" ;; *) ok "L52 (lớp dấu-hiệu-quét phân biệt được fixture hỏng)" ;; esac
+
 echo "--- gate-card.js ---"
 GCARD="$HERE/../../scripts/gate-card.js"
 ROOT_REAL_GC="$(cd "$HERE/../.." && pwd)"

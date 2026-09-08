@@ -568,6 +568,16 @@ if (gate === '1') {
   // ui/mobile mà ô cơ hội lại khai không đo được ⇒ đang trốn Cổng Giá trị.
   const mienDoCoNguoiDung = mienDo && NG1.coNguoiDungCuoi(clean(cfm.surfaces));
 
+  // ── Lớp bằng chứng nhìn-thấy (hồ sơ lop-bang-chung-nhin-thay) ──
+  // Hợp đồng có MẶT NGƯỜI NHÌN (ui; alias web/web-ui; không mobile) phải có ≥1 eval ui-check
+  // theo hợp đồng; vị từ + alias + tiền tố descope RÚT từ lib/lop-nhin-thay.cjs (một nguồn với
+  // lint W8 và pre-merge). Hai chuỗi cờ là CHUỖI PIN của ca LNT3 — đổi phải đổi test.
+  const UI_OBS_FLAG_WARN = 'Chưa có bằng chứng lớp nhìn-thấy';
+  const UI_OBS_FLAG_INFO = 'Đã bỏ bằng chứng lớp nhìn-thấy theo';
+  let LNT = null; try { LNT = require(path.join(__dirname, '..', 'lib', 'lop-nhin-thay.cjs')); } catch (_) {}
+  const uo = LNT ? LNT.classify(dir) : { applicable: false, reason: 'no-lib' };
+  const uiObserved = { applicable: !!uo.applicable, present: !uo.reason && (uo.declared || 0) > 0, declared: uo.reason ? 0 : (uo.declared || 0), descoped: (!uo.reason && uo.descoped) || null, token_la: uo.tokenLa || [] };
+
   // Câu gộp MÁY SINH cho Cổng 1 — đặt SAU mọi nguồn cờ đỏ và TRƯỚC --extract
   // (thứ tự khai có thật: blindSpot 349 · roiBac 401 · rangHong/mienDo ~549).
   // Ô duy nhất của cổng này là CHỮ QUYẾT: thẻ sạch → điền sẵn «duyệt»; có cờ
@@ -575,7 +585,7 @@ if (gate === '1') {
   // 01/09 gọi tên «mời khi chưa ký-được-ngay». dupIds chỉ VÀNG, không chặn.
   const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot;
   const oneShotG1 = `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: goalLine(slug), routing: { hoi: ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: goalLine(slug), routing: { hoi: ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null } }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
@@ -637,6 +647,12 @@ if (gate === '1') {
     if (ddDescope) flags.push(['finfo', `Đã bỏ đường đo theo ${esc(ddDescope.id || 'entry descope')} — Cổng Giá trị sẽ đọc ngưỡng với ô CHƯA ĐO; quyết định chủ động, có dấu vết.`]);
     else flags.push(['fwarn', 'Hồ sơ cơ hội có ngưỡng nhưng contract chưa có đường đo — không ai xây thứ sinh ra con số, Cổng Giá trị sẽ đọc bảng toàn CHƯA ĐO. Thêm section «Đường đo» (mỗi thước một dòng: số từ đâu · AC nào bảo đảm) hoặc ghi entry «bỏ đường-đo — lý do 1 dòng» rồi hãy duyệt.']);   // không đặt <…> thô trong cờ: HTML nuốt như tag (review S4-r1 F1)
   }
+  if (uiObserved.applicable && !uiObserved.present) {
+    if (uiObserved.descoped) flags.push(['finfo', `${UI_OBS_FLAG_INFO} ${esc(uiObserved.descoped)} — Cổng Bằng chứng sẽ không có frame; quyết định chủ động, có dấu vết.`]);
+    else flags.push(['fwarn', `${UI_OBS_FLAG_WARN}: hợp đồng có mặt người nhìn mà không eval nào nhìn màn hình (ui-check) — người ký Cổng Bằng chứng sẽ chỉ đọc tên ca máy. Thêm một eval ui-check (layer: ui-observed), hoặc ghi entry descope «${esc(LNT ? LNT.UI_OBSERVED_DESCOPE : 'bỏ ui-observed — ')}lý do» rồi hãy duyệt.`]);
+  }
+  if (uiObserved.token_la.length) flags.push(['fwarn', `Surface ghi chữ ngoài từ vựng (${esc(uiObserved.token_la.join(', '))}) — các bộ đọc có thể xếp hồ sơ khác nhau; dùng ${esc(LNT ? LNT.SURFACE_ENUM.join(' · ') : 'ui · api · cli · sdk · mobile')} (web, web-ui đọc là ui).`]);
+  if (!LNT) flags.push(['fwarn', 'Thẻ không đọc được lib/lop-nhin-thay.cjs — chưa kiểm được bằng chứng lớp nhìn-thấy.']);
   // Răng chống lách: đặt SAU chuỗi if/else của ngưỡng — chen vào giữa là cướp mất nhánh else.
   if (rangHong) flags.push(['fred', `Răng chống lách KHÔNG chạy được: ${rangHong} (${OPP_TPL1}) — thẻ này chưa kiểm được «khai không đo được nhưng có mặt người dùng». Sửa khuôn rồi dựng lại thẻ trước khi duyệt.`]);
   if (mienDoCoNguoiDung) flags.push(['fred', 'Khai không đo được nhưng hợp đồng có mặt người dùng (ui/mobile) — lối «không đo được» chỉ dành cho vòng không có người dùng cuối. Khai lại ngưỡng, hoặc bỏ mặt người dùng khỏi hợp đồng.']);
@@ -705,6 +721,18 @@ const evid = {};
     if (FIELDS.indexOf(key) < 0) continue;
     evid[cur][key] = val;
 } }
+// ── Lớp bằng chứng nhìn-thấy ở Cổng Bằng chứng: đọc trên BÁO CÁO, không trên bản khai
+// (hồ sơ lop-bang-chung-nhin-thay, gap-probe F1 — ca oneflow E10 «khai rồi bỏ ở S4»). Một eval
+// ui-check chỉ ĐẠT khi block của nó trong evidence-report có exit_code 0 + screenshot:. Hai chuỗi
+// là CHUỖI PIN của ca LNT4.
+const UI_OBS_G2_NONE = 'Bằng chứng lớp nhìn-thấy: KHÔNG có';
+const UI_OBS_G2_OK = 'Bằng chứng lớp nhìn-thấy:';
+let LNT2 = null; try { LNT2 = require(path.join(__dirname, '..', 'lib', 'lop-nhin-thay.cjs')); } catch (_) {}
+const uo2 = LNT2 ? LNT2.classify(dir) : { applicable: false, reason: 'no-lib' };
+const uiIds = (LNT2 && !uo2.reason) ? LNT2.uiCheckIds(LNT2.parseEvalsText(read(path.join(dir, 'evals.yaml')))) : [];
+const uiPassed = uiIds.filter(i => { const e = evid[i] || {}; return String(e.exit_code || '').trim() === '0' && !!(e.screenshot && e.screenshot.trim()); });
+const uiObserved2 = { applicable: !!uo2.applicable, present: uiPassed.length > 0, declared: uiIds.length, passed: uiPassed.length, descoped: (!uo2.reason && uo2.descoped) || null };
+
 const hasOverride = id => { const v = evid[id] && evid[id].human_override; return !!(v && v.trim() && !/^#|^<|^\{\{/.test(v.trim())); };
 
 // decisions the human still owes: any UNCERTAIN row, plus EVERY judgment row on T3
@@ -826,7 +854,7 @@ if (decsProvisional.length) { oneParts.push('Treo: phê hết'); routingBao.push
 const oneShotG2 = approvable ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
 if (!approvable) { routingHoi.length = 0; routingBao.length = 0; }
 
-if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken }, null, 2)); process.exit(0); }
+if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.map(e => ({ id: e.id, type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2 }, null, 2)); process.exit(0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -936,6 +964,11 @@ if (decsProvisional.length) {
 if (decsApproved.length) P.push(`<div class="lab">Đã duyệt từ Gate 1</div><div class="grp gnot">${decSort(decsApproved).map(e => `<p class="li">${decLine(e)}</p>`).join('')}</div>`);
 if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
 const flags = [];
+if (uiObserved2.applicable) {
+  if (uiObserved2.present) flags.push(['finfo', `${UI_OBS_G2_OK} ${uiPassed.length} eval ui-check đạt (${esc(uiPassed.join(', '))}) — xem frame ở trang bằng chứng.`]);
+  else if (uiObserved2.descoped) flags.push(['fwarn', `${UI_OBS_G2_NONE} — đã bỏ theo ${esc(uiObserved2.descoped)}; người ký đọc tên ca máy, không nhìn frame.`]);
+  else flags.push(['fwarn', `${UI_OBS_G2_NONE} — ${uiIds.length ? 'eval ui-check ' + esc(uiIds.join(', ')) + ' khai nhưng không đạt (không exit 0 kèm screenshot)' : 'hợp đồng có mặt người nhìn mà không eval ui-check nào'}; ký nghĩa là ký trên tên ca máy, không phải trên thứ người dùng thấy.`]);
+}
 // Cụm ngoài vùng phủ: bộ đo đang hụt so với chỗ lỗi thật xuất hiện. Không nêu
 // đường dẫn file ở thẻ — thẻ là chỗ quyết định, chi tiết nằm ở gói bằng chứng.
 if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các bộ đo đang phủ — dừng và quyết: mở rộng hợp đồng hay rút phạm vi. Chi tiết trong review-findings.md.']);

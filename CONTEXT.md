@@ -193,9 +193,10 @@ với `signed-off` ở bất kỳ mặt người nào.
 _Avoid_: level, priority
 
 **Surface**:
-Nơi feature lộ ra với người dùng — enum frontmatter `surfaces:` (`web`,
-`mobile`, `api`…). Quyết định làn evidence. Không dùng từ này cho bề mặt
-interface của code.
+Nơi feature lộ ra với người dùng — enum frontmatter `surfaces:` (`ui`,
+`mobile`, `api`, `cli`, `sdk`, `docs`, `ci`, `config`). Alias máy đọc: `web`,
+`web-ui` → `ui` (một nguồn: `lib/lop-nhin-thay.cjs`). Quyết định làn evidence.
+Không dùng từ này cho bề mặt interface của code.
 _Avoid_: platform
 _Allow_: artifact-platform
 # `artifact-platform` là TÊN RIÊNG của repo tiêu thụ đầu tiên — nó xuất hiện
@@ -203,9 +204,11 @@ _Allow_: artifact-platform
 # cụm, KHÔNG nới "platform" trơ: dùng sai từ ở chỗ khác vẫn phải kêu.
 
 **Layer**:
-Trường cấp eval (`layer: backend-effect`) — tầng hệ thống mà evidence chạm
-tới. Luật cặp cross-layer: criterion `(cross-layer)` phải có ≥1 eval
-backend-effect. Đừng gọi "tầng" chung chung khi không nói về trường này.
+Trường cấp eval (`layer: backend-effect` · `layer: ui-observed`) — tầng hệ
+thống mà evidence chạm tới. Hai luật cặp: criterion `(cross-layer)` phải có ≥1
+eval backend-effect; hợp đồng có mặt người nhìn phải có ≥1 eval `ui-check`
+(khai `ui-observed` — nghĩa vụ theo hợp đồng). Đừng gọi "tầng" chung chung khi
+không nói về trường này.
 _Avoid_: tier
 
 **Lane (làn)**:

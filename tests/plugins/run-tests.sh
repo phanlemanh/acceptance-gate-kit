@@ -11122,6 +11122,14 @@ assert "P86" in r_t, f"{EN_P}: khong goi ten rang giu no khop"
 print("     P86 VE: hai ban chep deu tu khai + tro dich danh ve nguon")
 PY
 
+# ─── Hồ sơ lop-bang-chung-nhin-thay: LNT1..LNT6 (file ca riêng) ───────────────
+# Danh sách ca do CHÍNH file ca xuất (--ids); tên dòng run KHÔNG chứa "PASS: [LNT".
+_lnt_ids="$(node "$ROOT/tests/plugins/lop-nhin-thay.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca LNT"; failures=$((failures+1)); _lnt_ids=""; }
+for _lnt in $_lnt_ids; do
+  run "ca lop nhin thay — $_lnt (ho so lop-bang-chung-nhin-thay)" \
+    env LNT_CASES="$_lnt" node "$ROOT/tests/plugins/lop-nhin-thay.test.mjs"
+done
+
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

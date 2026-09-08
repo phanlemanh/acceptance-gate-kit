@@ -118,7 +118,10 @@ Omit the `capture` block if the repo has no UI evidence need.
     puppeteer-core` (drives an EXISTING Chrome — no heavy download) and add
     `"ui:capture": "node scripts/ui-capture.mjs"` to package.json, then set
     `capture.ui: "npm run ui:capture"`. The script + dependency live in the REPO,
-    NOT in the plugin — the kit stays zero-dependency.
+    NOT in the plugin — the kit stays zero-dependency. Cheaper when the machine
+    already has `@playwright/cli` (`npm i -g @playwright/cli`): `capture.ui` can be
+    a 3-line repo script `playwright-cli open "$1" && playwright-cli screenshot
+    --filename "$2" && playwright-cli close` — still owned by the repo.
 
 3c. **(optional) Scaffold the external-VLM second opinion.** If the user wants a
     cross-model check on saved UI frames (a different model family re-reads the
@@ -152,6 +155,7 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/lib/ac-line.cjs` → `lib/` (criterion-line parser for the cross-layer teeth; missing → wider awk fallback, possible spurious blocks)
    - `${CLAUDE_PLUGIN_ROOT}/lib/md-section.cjs` → `lib/` (section boundary `require`d by ac-line)
    - `${CLAUDE_PLUGIN_ROOT}/lib/eval-yaml.cjs` → `lib/` (evals.yaml parser the re-pin eval-lane rule uses to list machine evals; missing → that rule fails closed on every new-form lane)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/lop-nhin-thay.cjs` → `lib/` (the ONE source for «human-visible surface» — ui/web/web-ui — and the ui-observed obligation; pre-merge's NOTE lane reads it via `classify`; missing → that lane prints «không kiểm được» and never blocks)
    <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence
    re-check layer (it degrades to a NOTE) and mutes the gap-probe rule.
