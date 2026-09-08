@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: d8b5dd374aa8673b4363d515d19a5a8e9a0ea62f
-human_signoff:
+human_signoff: Manh Phan 2026-09-08
 ---
 
 # Evidence Report: duong-lui-phai-song
