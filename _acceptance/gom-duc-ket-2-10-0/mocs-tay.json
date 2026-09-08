@@ -1,0 +1,9 @@
+{
+  "_ghi_chu": "Mốc cùng hạng của kit tại sha BẤT BIẾN 8caa9998 (main sau PR 158 — đúng cây mà đúc kết 08/09 đếm tay). Ba số dưới đây là số MÁY đã đối chiếu số tay; chỗ lệch và nguyên nhân ghi ở entry fix + Notes của hợp đồng.",
+  "at": "8caa9998",
+  "tiers": {
+    "T2": { "round_usage": 3.0, "token_s4": 43800000 },
+    "T3": { "round_usage": 3.25, "token_s4": 54400000, "round_iter": 6.6 }
+  },
+  "tol": { "round": 0.05, "token": 500000 }
+}

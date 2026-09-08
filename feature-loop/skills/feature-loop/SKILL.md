@@ -253,6 +253,17 @@ User: điền `human_override: <tên> <ngày>` cho từng UNCERTAIN (T3: MỌI j
 
 ## S5 — SHIP
 
+<!-- <<<S5-SHIP-DEFAULT -->
+**Mặc định MỞ PR — KHÔNG bày menu ba lối.** Nếp của kit là PR, nên câu hỏi «merge hay PR hay
+giữ nhánh?» ở cuối vòng chỉ có một lối ra sống: đó là trạm thu phí, không phải điểm quyết định
+(đo: 1 lượt gọi người mỗi vòng). Máy mở PR rồi báo MỘT DÒNG. Chỉ hỏi khi repo khai
+`feature_loop.ship_default: ask` trong `_acceptance/config.yaml`.
+Mặc định: `pr` (khoá vắng cũng là `pr`).
+giá trị hợp lệ: `pr` · `merge` · `branch` · `ask`
+(`merge` gộp thẳng khi repo cho phép · `branch` đẩy nhánh không mở PR · `ask` bày ba lối như
+cũ). Việc BẤM MERGE vẫn là của người — khó-đảo.
+<!-- S5-SHIP-DEFAULT>>> -->
+
 Invoke `superpowers:finishing-a-development-branch` → PR theo quy trình repo (không push thẳng nhánh chính nếu repo cấm). Update doc trạng thái của repo nếu có. CI pre-merge check của acceptance-gate kit (`scripts/pre-merge-check.sh`) là chốt chặn độc lập — không bypass; repo CHƯA wire nó vào CI → cảnh báo user rõ ràng (gate không enforce trước merge, xem README của kit cách wire).
 
 **Kết S5 — bàn giao sang Vòng TRAO, không kết bằng «xong».** Có `_acceptance/<slug>/opportunity.md` (vòng đi từ Cổng Đáng, có ngưỡng nghiệm thu) → in ĐÚNG MỘT DÒNG: «đã giao sau cờ · bước kế: lái-thử người-lạ (nghi thức của skill `/acceptance-gate:uat-session` §0, khuôn nhật-ký-vấp trong references của plugin acceptance-gate) rồi phiên nghiệm thu — `/acceptance-gate:uat-session <slug>`» — không hỏi, không tự chạy phiên nghiệm thu; lái-thử chạy trong lúc chờ mời người dự nên không kéo dài đường tới quyết định. Không có `opportunity.md` → một dòng «không hồ sơ cơ hội → ship thẳng, không phiên nghiệm thu; vòng đóng». Đường đi KHÔNG lưu ở đâu — suy khi đọc từ có/không hồ sơ cơ hội (cùng luật với thẻ Cổng Phạm vi và bộ đọc hồ sơ xưởng).
