@@ -212,6 +212,64 @@ PY
     mk_repo "{\"sections\":\"$SEC\",\"vendorFrom\":\"$COPY\"}"; pmc "$FX_ROOT" --base "$FX_A"
     if has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "chiều đỏ: ranh #{1,6} → bash sạch-giả trên h1 (bash sach-gia tren h1) — phép đo bám đúng hai dòng ranh"; else bad "chiều đỏ KHÔNG chạy: bản sao #{1,6} mà bash vẫn không xanh-sạch"; fi
     ;;
+  veto-ghi)
+    # E6: ma trận 4 ô {verified, machine-cleared} × {approved_by, mo}: ghi da-veto (có vết) không bị lưới ghi chặn;
+    # đối chứng base (origin/main): ô machine-cleared×mo phải đỏ «Gate 1 approval not recorded». Rồi veto-trace ở pre-merge.
+    copy_tree origin/main; BASE_LIB="$COPY/lib/evidence-core.cjs"
+    OPENED='2026-09-01T00:00:00Z'
+    veto_eval() { # $1 lib · $2 status · $3 approved_by ('' = làn V mo) → in số failure + failures
+      node -e '
+        const core=require(process.argv[1]); const st=process.argv[2], ap=process.argv[3], op=process.argv[4];
+        const fm=(veto)=>["---","schema_version: 1","feature: fx","slug: fx","risk_tier: T2","surfaces: [cli]",`status: ${st}`,`approved_by: ${ap}`,"approved_at:",
+          ...(veto||ap===""?[`veto_state: ${veto}`,`veto_opened_at: ${op}`]:[]),"---","","# fx","","## Criteria","","- AC-1: x.",""].join("\n");
+        const oldTxt=fm(ap===""?"mo":""); const newTxt=fm("da-veto");
+        const r=core.evaluateContractWrite(newTxt, oldTxt); process.stdout.write(r.failures.length+"\n"+r.failures.join("\n"));
+      ' "$1" "$2" "$3" "$OPENED"
+    }
+    for st in verified machine-cleared; do for ap in t ""; do
+      lab="$st×$([ -n "$ap" ] && echo approved || echo mo)"
+      R="$(veto_eval "$KIT/lib/evidence-core.cjs" "$st" "$ap")"; n="${R%%$'\n'*}"
+      if [ "$n" = 0 ]; then ok "lib mới · $lab: ghi da-veto QUA (0 failure)"; else bad "lib mới · $lab: $n failure — $(printf '%s' "$R" | tail -1 | cut -c1-120)"; fi
+      RB="$(veto_eval "$BASE_LIB" "$st" "$ap")"; nb="${RB%%$'\n'*}"
+      if [ "$st" = machine-cleared ] && [ -z "$ap" ]; then
+        if [ "$nb" != 0 ] && has "$RB" "Gate 1 approval not recorded"; then ok "lib base · $lab: đỏ «Gate 1 approval not recorded» (chiều đỏ của luật cũ — gap-probe P0 tái hiện)"; else bad "lib base · $lab: không tái hiện P0 ($nb)"; fi
+      else
+        if [ "$nb" = 0 ]; then ok "lib base · $lab: cũng QUA (ô không đổi hành vi)"; else bad "lib base · $lab: $nb failure"; fi
+      fi
+    done; done
+    # pre-merge veto-trace: da-veto chưa xử → VIOLATION; lật ngược không sổ → VIOLATION; có sổ → NOTE đã xử
+    fxgit() { git -C "$FX_ROOT" -c user.email=t@t -c user.name=t -c commit.gpgsign=false "$@"; }
+    mk_repo '{}'; sed -i '' 's/^veto_state: mo$/veto_state: da-veto/' "$FX_ROOT/_acceptance/fx/contract.md"
+    fxgit add -A >/dev/null; fxgit commit -q -m "C: veto"; C="$(fxgit rev-parse HEAD)"
+    pmc "$FX_ROOT" --base "$FX_A"
+    if has "$OUT" "VIOLATION [fx]: veto_state=da-veto chưa xử"; then ok "pre-merge: da-veto chưa xử → VIOLATION (hồ sơ không merge được ở trạng thái veto)"; else bad "pre-merge không báo da-veto chưa xử: $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    sed -i '' 's/^veto_state: da-veto$/veto_state: mo/' "$FX_ROOT/_acceptance/fx/contract.md"; fxgit add -A >/dev/null; fxgit commit -q -m "D: lat nguoc khong so"
+    pmc "$FX_ROOT" --base "$C"
+    if has "$OUT" "mà KHÔNG có entry sổ quyết định"; then ok "chiều đỏ: lật da-veto→mo KHÔNG entry sổ → VIOLATION (veto người không bốc hơi)"; else bad "lật ngược không sổ mà không đỏ: $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    printf '%s\n' '{"id":"d-v1","type":"veto","stage":"gate2","at":"2026-09-08T00:00:00Z","decision":"xử: về draft làm lại phạm vi","decided_by":"t"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"
+    fxgit add -A >/dev/null; fxgit commit -q -m "E: so"
+    pmc "$FX_ROOT" --base "$C"
+    if has "$OUT" "NOTE [fx]: veto đã xử"; then ok "có entry sổ → NOTE veto đã xử"; else bad "có sổ mà không NOTE đã xử: $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    ;;
+  veto-slot)
+    # E7: SLOTS/GRAMMAR có nhãn veto; thẻ máy-đi-trước render «veto hay để yên: ___»; checker P192 THẬT (rút từ suite) round-trip; chiều đỏ gỡ dòng SLOTS.
+    LAW="$KIT/skills/acceptance/references/human-facing-language.md"
+    SL="$(sed -n '/<<<GATE-ONESHOT-SLOTS/,/GATE-ONESHOT-SLOTS>>>/p' "$LAW")"; GR="$(sed -n '/<<<GATE-ONESHOT-GRAMMAR/,/GATE-ONESHOT-GRAMMAR>>>/p' "$LAW")"
+    if printf '%s\n' "$SL" | grep -qx 'g2 veto hay để yên'; then ok "SLOTS có dòng «g2 veto hay để yên»"; else bad "SLOTS thiếu dòng veto"; fi
+    if has "$GR" 'veto: <lý do>' && has "$GR" 'để yên'; then ok "GRAMMAR mục signoff khai «veto: <lý do>» / «để yên»"; else bad "GRAMMAR thiếu nhãn veto"; fi
+    WS="$TMP/ws-g2v"; mkdir -p "$WS"; . "$KIT/tests/plugins/fixtures/viec-cua-anh-scenarios.sh"; vca_scenario gate2-may-di-tiep "$WS"
+    node "$KIT/scripts/gate-card.js" --root "$WS" --slug fx --gate 2 > "$TMP/card-g2v.html" 2>"$TMP/card-g2v.err"; rc=$?
+    if [ $rc -eq 0 ] && grep -qF 'veto hay để yên: ___' "$TMP/card-g2v.html" && ! grep -qF 'ký hay trả: ___' "$TMP/card-g2v.html"; then ok "thẻ Cổng 2 hồ sơ máy-đi-trước: «veto hay để yên: ___», không «ký hay trả»"; else bad "thẻ g2v: rc=$rc — $(head -c 200 "$TMP/card-g2v.err")"; fi
+    # checker P192 rút NGUYÊN VĂN từ suite (writer→reader): thẻ ↔ SLOTS hai chiều
+    sed -n "/^cat > \"\$P192TMP\/check-rt.js\" <<'P192JS'$/,/^P192JS$/p" "$KIT/tests/plugins/run-tests.sh" | sed '1d;$d' > "$TMP/check-rt.js"
+    [ -s "$TMP/check-rt.js" ] || bad "không rút được checker P192 từ suite"
+    WS1="$TMP/ws-g1"; WS2="$TMP/ws-g2"; mkdir -p "$WS1" "$WS2"; vca_scenario gate1-draft "$WS1"; vca_scenario gate2-4loai "$WS2"
+    node "$KIT/scripts/gate-card.js" --root "$WS1" --slug fx --gate 1 > "$TMP/card-g1.html" 2>/dev/null; node "$KIT/scripts/gate-card.js" --root "$WS2" --slug fx --gate 2 > "$TMP/card-g2.html" 2>/dev/null
+    if node "$TMP/check-rt.js" "$LAW" E9 "$TMP/card-g1.html" "$TMP/card-g2.html" "$TMP/card-g2v.html" >/dev/null 2>"$TMP/rt.err"; then ok "checker P192 thật: ba thẻ ↔ SLOTS khớp hai chiều (đối chứng dương)"; else bad "checker P192 đỏ: $(cat "$TMP/rt.err")"; fi
+    grep -v '^g2 veto hay để yên$' "$LAW" > "$TMP/law-mut.md"
+    ERR="$(node "$TMP/check-rt.js" "$TMP/law-mut.md" E9 "$TMP/card-g1.html" "$TMP/card-g2.html" "$TMP/card-g2v.html" 2>&1)"; rc=$?
+    if [ $rc -ne 0 ] && has "$ERR" 'nhan khong khop SLOTS: veto hay để yên'; then ok "chiều đỏ: gỡ dòng SLOTS → checker đỏ đích danh «veto hay để yên»"; else bad "chiều đỏ KHÔNG chạy: rc=$rc $ERR"; fi
+    ;;
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;
 esac
 done_chan

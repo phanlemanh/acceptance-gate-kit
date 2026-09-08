@@ -644,6 +644,29 @@ veto_opened_at: 2026-08-14T10:00:00Z
 echo "V06 KHÔNG có khoá veto_state -> luật cũ nguyên vẹn (block vì approved_by rỗng)"
 payload Write "$V_DIR/contract.md" "$(v_contract T2 '')" | node "$HOOK" >/dev/null 2>/dev/null; check V06 2 $?
 
+
+echo "--- veto có tay nắm (duong-lui-phai-song AC-6): da-veto có vết = Cổng-1-đã-ghi trên hồ sơ máy-đi-trước ---"
+echo "V07 machine-cleared × làn V mo → da-veto (approved_by rỗng) -> allow (veto là Cổng-1-đã-ghi mạnh hơn mo)"
+printf -- '---\nschema_version: 1\nrisk_tier: T2\nstatus: machine-cleared\napproved_by:\napproved_at:\nveto_state: mo\nveto_opened_at: 2026-08-14T10:00:00Z\n---\n' > "$V_DIR/contract.md"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
+veto_opened_at: 2026-08-14T10:00:00Z
+' | sed 's/^status: approved$/status: machine-cleared/')" | node "$HOOK" >/dev/null; check V07 0 $?
+
+echo "V08 verified × mo → da-veto -> allow"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
+veto_opened_at: 2026-08-14T10:00:00Z
+' | sed 's/^status: approved$/status: verified/')" | node "$HOOK" >/dev/null; check V08 0 $?
+
+echo "V09 machine-cleared × da-veto THIẾU veto_opened_at -> block (veto không vết vẫn là bỏ cổng lặng lẽ)"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
+' | sed 's/^status: approved$/status: machine-cleared/')" | node "$HOOK" >/dev/null 2>/dev/null; check V09 2 $?
+
+echo "V10 T3 × da-veto trên machine-cleared -> block (T2-only giữ nguyên)"
+payload Write "$V_DIR/contract.md" "$(v_contract T3 'veto_state: da-veto
+veto_opened_at: 2026-08-14T10:00:00Z
+' | sed 's/^status: approved$/status: machine-cleared/')" | node "$HOOK" >/dev/null 2>/dev/null; check V10 2 $?
+rm -f "$V_DIR/contract.md"
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

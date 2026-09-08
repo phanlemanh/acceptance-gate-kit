@@ -9635,18 +9635,23 @@ console.log("ONESHOT-RT-NGUOC: moi dong SLOTS co fixture render");
 P192JS
 P192WS1="$(mktemp -d)"; vca_scenario gate1-draft "$P192WS1" || { echo "     dung fixture g1 that bai"; P192OK=0; }
 P192WS2="$(mktemp -d)"; vca_scenario gate2-4loai "$P192WS2" || { echo "     dung fixture g2 that bai"; P192OK=0; }
+P192WS3="$(mktemp -d)"; vca_scenario gate2-may-di-tiep "$P192WS3" || { echo "     dung fixture g2v that bai"; P192OK=0; }
 node "$ROOT/scripts/gate-card.js" --root "$P192WS1" --slug fx --gate 1 > "$P192TMP/card-g1.html" 2>/dev/null \
   || { echo "     render the g1 that bai"; P192OK=0; }
 node "$ROOT/scripts/gate-card.js" --root "$P192WS2" --slug fx --gate 2 > "$P192TMP/card-g2.html" 2>/dev/null \
   || { echo "     render the g2 that bai"; P192OK=0; }
+# the may-di-truoc: nhan cuoi la «veto hay để yên» (duong-lui-phai-song AC-7)
+node "$ROOT/scripts/gate-card.js" --root "$P192WS3" --slug fx --gate 2 > "$P192TMP/card-g2v.html" 2>/dev/null \
+  || { echo "     render the g2v that bai"; P192OK=0; }
+grep -qF 'veto hay để yên: ___' "$P192TMP/card-g2v.html" || { echo "     the g2v khong in «veto hay để yên» — fixture khong phai may-di-truoc"; P192OK=0; }
 grep -qF 'Trả lời mẫu' "$P192TMP/card-g1.html" && grep -qF 'Trả lời mẫu' "$P192TMP/card-g2.html" \
   || { echo "     the render thieu dong Tra-loi-mau — fixture/renderer hong"; P192OK=0; }
 # doi chung DUONG truoc moi dot bien
-if node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html"; then :; else { echo "     doi chung duong DO oan"; P192OK=0; }; fi
+if node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" "$P192TMP/card-g2v.html"; then :; else { echo "     doi chung duong DO oan"; P192OK=0; }; fi
 # MUTANT-A: go nhan co dinh «Treo» khoi ban sao SLOTS -> do dich danh
 grep -v '^g2 Treo$' "$ONESHOT_LAW" > "$P192TMP/law-mutA.md"
 if cmp -s "$ONESHOT_LAW" "$P192TMP/law-mutA.md"; then echo "     MUTANT-A khong tac dung (SLOTS chua co dong g2 Treo?)"; P192OK=0; else echo "     MUTANT-A: da go dong 'g2 Treo' khoi ban sao SLOTS"; fi
-P192AERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutA.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192AST=$?
+P192AERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutA.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" "$P192TMP/card-g2v.html" 2>&1)"; P192AST=$?
 if [ "$P192AST" -ne 0 ] && printf '%s' "$P192AERR" | grep -q "nhan khong khop SLOTS: Treo"; then
   echo "     MUTANT-A DO dung — nhan the day ma ngu phap khong khai: Treo"
 else
@@ -9655,7 +9660,7 @@ fi
 # MUTANT-B: tiem nhan la vao dung dong Tra-loi-mau cua HTML da render -> do
 sed 's/điền vào chỗ trống): «/điền vào chỗ trống): «lạ-oneshot: ___; /' "$P192TMP/card-g2.html" > "$P192TMP/card-g2-mutB.html"
 if cmp -s "$P192TMP/card-g2.html" "$P192TMP/card-g2-mutB.html"; then echo "     MUTANT-B khong tac dung"; P192OK=0; else echo "     MUTANT-B: da tiem nhan 'lạ-oneshot' vao dong Tra-loi-mau cua the g2"; fi
-P192BERR="$(node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2-mutB.html" 2>&1)"; P192BST=$?
+P192BERR="$(node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2-mutB.html" "$P192TMP/card-g2v.html" 2>&1)"; P192BST=$?
 if [ "$P192BST" -ne 0 ] && printf '%s' "$P192BERR" | grep -q "nhan khong khop SLOTS: lạ-oneshot"; then
   echo "     MUTANT-B DO dung — nhan la ngoai ngu phap: lạ-oneshot"
 else
@@ -9665,7 +9670,7 @@ fi
 # qua lop <mã eval> (checker doi chieu id that, khong regex rong)
 grep -v '^g2 Ngoài-<số>$' "$ONESHOT_LAW" > "$P192TMP/law-mutC.md"
 if cmp -s "$ONESHOT_LAW" "$P192TMP/law-mutC.md"; then echo "     MUTANT-C khong tac dung"; P192OK=0; else echo "     MUTANT-C: da go dong 'g2 Ngoài-<số>' khoi ban sao SLOTS"; fi
-P192CERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutC.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192CST=$?
+P192CERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutC.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" "$P192TMP/card-g2v.html" 2>&1)"; P192CST=$?
 if [ "$P192CST" -ne 0 ] && printf '%s' "$P192CERR" | grep -q "nhan khong khop SLOTS: Ngoài-1"; then
   echo "     SANITY-KHONG-NUOT: Ngoai-1 khong chui qua lop ma-eval"
 else
@@ -9674,13 +9679,13 @@ fi
 # MUTANT-H (leg NGUOC): them dong nhan chet vao ban sao SLOTS -> do dich danh
 sed 's/^g2 ký hay trả$/g2 ký hay trả\ng2 nhãn-chết-oneshot/' "$ONESHOT_LAW" > "$P192TMP/law-mutH.md"
 if grep -q '^g2 nhãn-chết-oneshot$' "$P192TMP/law-mutH.md"; then echo "     MUTANT-H: da them dong nhan chet vao ban sao SLOTS"; else echo "     MUTANT-H khong tac dung"; P192OK=0; fi
-P192HERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutH.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192HST=$?
+P192HERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutH.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" "$P192TMP/card-g2v.html" 2>&1)"; P192HST=$?
 if [ "$P192HST" -ne 0 ] && printf '%s' "$P192HERR" | grep -q "nhan SLOTS khong fixture nao render: g2 nhãn-chết-oneshot"; then
   echo "     MUTANT-H DO dung — nhan SLOTS khong fixture nao render"
 else
   echo "     PHEP DO MU: MUTANT-H khong do hoac sai nhan: $P192HERR"; P192OK=0
 fi
-rm -rf "$P192TMP" "$P192WS1" "$P192WS2"
+rm -rf "$P192TMP" "$P192WS1" "$P192WS2" "$P192WS3"
 if [ "$P192OK" -eq 1 ]; then pass "P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)"; else fail "P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)"; fi
 
 run "P193 dieu khoan mot-luot-go: 6 site nguon khop tung ky tu + quan he per-site (E3/E4 mot-luot-go)" \

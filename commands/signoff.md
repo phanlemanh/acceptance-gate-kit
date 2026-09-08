@@ -78,6 +78,16 @@ Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đ
   khối Out of scope đã duyệt ở Cổng 1, không hỏi mở. Đuôi tự do sau các
   nhãn nhận ra được → GIỮ NGUYÊN VĂN vào sổ quyết định. Nghi thức commit
   ghi-và-commit-một-lượt (bước 1 và bước 7) không đổi một li.
+- Hồ sơ MÁY-ĐI-TRƯỚC (`veto_state: mo`, không chữ ký; lời mời cổng in
+  «veto hay để yên» thay «ký hay trả»): `veto: <lý do>` → ghi `veto_state: da-veto` vào
+  contract bằng công cụ sửa file (lưới ghi-lúc-viết kiểm), append vào
+  `decisions.jsonl` một dòng
+  `{"id":"d-<UTC>-<rand>","type":"veto","stage":"gate2","at":"<ISO>","decision":"<lý do nguyên văn>","decided_by":"<tên>","decided_at":"<ISO>"}`,
+  commit `Veto: <slug> — <tên>` (chỉ contract + decisions), in đúng một dòng
+  «Đã veto. Máy dừng; hồ sơ chờ người xử: về `status: draft` để làm lại phạm
+  vi, hoặc duyệt tay (`approved_by`)» và DỪNG — không menu, không tranh luận.
+  `để yên` → không ghi gì, in «cửa veto vẫn mở». Danh tính suy theo cùng bậc
+  thang ở trên.
 «Ngoài-<số>», «cắt/hoãn», «Treo» không có trường frontmatter riêng: định
 đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và
 «ghi Known limits» thêm một gạch known-limits vào `## Notes` của hợp đồng)
