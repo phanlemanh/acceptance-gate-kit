@@ -131,6 +131,7 @@ tests/scripts/additive-only.test.mjs ca-đo-tính-chỉ-thêm-không-rẽ-theo-s
 .claude-plugin/plugin.json chuỗi-nằm-trong-mô-tả-gói-không-rẽ-nhánh
 tests/plugins/asserts-da-go.txt sổ-ca-đã-gỡ-văn-bản-lịch-sử-không-chạy
 tests/scripts/repin-lane.test.mjs ca-của-làn-ghim-lại-bằng-eval-trên-kho-git-code-sinh-không-rẽ-theo-status-của-hồ-sơ-này
+tests/hooks/run-tests.sh ca-V12-signed-off-kèm-da-veto-của-lưới-ghi-duong-lui-phai-song-không-rẽ-theo-status-máy-thông
 BO-DOC-KHAI-GACH>>> -->
 
 
