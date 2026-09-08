@@ -1923,4 +1923,23 @@ console.log('W36 bo dem va cham khong duoc dung object tran (khoa prototype)');
   check('W36 lop thu hai van giu hai ma khac nhau', new Set(rIds).size === 2, JSON.stringify(rIds));
 }
 
+// W37 — K1: agent capture:provenance chet (harness tra null) => BLOCKED co ten,
+// KHONG TypeError. Lop loi da do 24 lan tren may (dut ca vong o buoc cuoi).
+console.log('W37 provenance chet -> BLOCKED co ten, khong nem');
+{
+  let threw = null; let r = null;
+  try { r = await runWorkflow(WF, baseArgs(), responder({ 'capture:provenance': null })); }
+  catch (e) { threw = e; }
+  check('W37 workflow khong nem', threw === null, threw ? String(threw && threw.message) : '');
+  const bl = r ? (r.result.blocked || []).find(x => x.cmd === 'capture:provenance') : null;
+  check('W37 verdict BLOCKED', !!r && r.result.verdict === 'BLOCKED', r ? String(r.result.verdict) : 'no-result');
+  check('W37 reason ghim ten lane', !!bl && String(bl.reason).startsWith('capture:provenance agent bi skip/chet — khong co ket qua'), bl ? bl.reason : 'khong co muc blocked');
+  const synth = r ? r.calls.find(c => c.label === 'synthesize:report') : null;
+  check('W37 khong soan report tren provenance rong', !synth || !/enforcement_mode: (undefined|null|)"/.test(synth.prompt), synth ? 'co goi synthesize' : 'khong goi');
+  // doi chung duong CUNG args: provenance song -> khong muc blocked nao ten provenance
+  const ok = await runWorkflow(WF, baseArgs(), responder());
+  check('W37 doi chung duong', !(ok.result.blocked || []).some(x => x.cmd === 'capture:provenance'), JSON.stringify(ok.result.blocked));
+  check('W37 doi chung duong verdict khong BLOCKED', ok.result.verdict !== 'BLOCKED', String(ok.result.verdict));
+}
+
 summary('acceptance-verify');

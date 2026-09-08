@@ -125,7 +125,7 @@ function fieldVal(raw) {
     const end = s.indexOf(q, 1);
     if (end > 0) return s.slice(1, end);
   }
-  return s.replace(/[ \t]+#.*$/, '').trim();
+  return evalYaml.stripComment(s);
 }
 
 // Khuôn HẸP cũ, giữ lại CHỈ cho đường fail-open khi thiếu lib/ac-line.cjs.
@@ -214,7 +214,7 @@ function lintFeature(slug, contractText, evalsText, glossary, ledgerText) {
   // W5 — mobile backend-target presence (advisory): the kit never verifies the
   // VALUE (engine/binding split; a machine cannot check the word "real") — it
   // only checks the line EXISTS so the Gate-1 human has something to eyeball.
-  const surfacesLine = (contractText.match(/^surfaces:.*$/im) || [''])[0].replace(/[ \t]+#.*$/, '');
+  const surfacesLine = evalYaml.stripComment((contractText.match(/^surfaces:.*$/im) || [''])[0]);
   if (/\bmobile\b/i.test(surfacesLine)
       && !/mobile\s+backend\s+target\s*:/i.test(contractText)) {
     warns.push(`[${slug}] W5 surfaces include mobile but the contract has no "Mobile backend target:" line (## Notes) — declare local|staging|mock so the Gate-1 human can eyeball the V4 risk.`);

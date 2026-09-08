@@ -39,7 +39,8 @@ const { section } = require('../lib/md-section.cjs');
 // Parser evals.yaml dùng chung với eval-coverage-lint (lib/eval-yaml.cjs) — hiểu
 // block scalar: khuôn eval-gen viết `expected: >`, regex một-dòng cũ bắt được
 // ">" nên NEG_RE luôn false → covGaps bắn cảnh báo giả cho MỌI AC có số.
-const { parseEvals } = require('../lib/eval-yaml.cjs');
+const evalYamlLib = require('../lib/eval-yaml.cjs');
+const { parseEvals } = evalYamlLib;
 
 const a = process.argv.slice(2);
 const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
@@ -566,7 +567,7 @@ if (gate === '1') {
   // ── Răng chống lách (hồ sơ ra-co-ten, AC-11) ──
   // Lối «không đo được» chỉ dành cho vòng KHÔNG có người dùng cuối. Hợp đồng khai mặt
   // ui/mobile mà ô cơ hội lại khai không đo được ⇒ đang trốn Cổng Giá trị.
-  const mienDoCoNguoiDung = mienDo && NG1.coNguoiDungCuoi(clean(cfm.surfaces));
+  const mienDoCoNguoiDung = mienDo && NG1.coNguoiDungCuoi(evalYamlLib.stripComment(cfm.surfaces));
 
   // ── Lớp bằng chứng nhìn-thấy (hồ sơ lop-bang-chung-nhin-thay) ──
   // Hợp đồng có MẶT NGƯỜI NHÌN (ui; alias web/web-ui; không mobile) phải có ≥1 eval ui-check

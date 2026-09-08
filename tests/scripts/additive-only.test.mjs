@@ -18,6 +18,15 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
+  // gom-duc-ket-2-10-0 (AC-2b, nợ C1 Ngoài-5): NOTE lớp nhìn-thấy tách ba nguyên nhân
+  // (thiếu node · thiếu lib · lib lỗi exit n) thay một câu gộp. Năm dòng dưới là ĐÚNG các
+  // dòng của nhánh gộp cũ; nhánh mới nói NHIỀU hơn ở cùng chỗ, không nới luật nào — NOTE
+  // vẫn là NOTE, exit không đổi. Đối chứng: tests/scripts/lnt-no.test.mjs ca NO2.
+  `    lnt_line=""`,
+  `    if [ -f "$LNT_LIB" ] && command -v node >/dev/null 2>&1; then`,
+  `      lnt_line="$(node "$LNT_LIB" classify "$dir" 2>/dev/null || true)"`,
+  `    if [ -z "$lnt_line" ]; then`,
+  `      echo "NOTE [$slug]: lớp nhìn-thấy không kiểm được — thiếu node hoặc lib/lop-nhin-thay.cjs (mang cổng vào repo phải copy CẢ lib/); NOTE này không chặn."`,
   // duong-lui-phai-song ĐỔI KHUÔN (owner 08/09/2026, sau ba vòng S4 cùng bắt lớp fail-open):
   // dòng `continue` sau NOTE xanh-sạch của làn V bị GỠ — hồ sơ máy-đi-trước rơi xuống cùng
   // chuỗi kiểm với hồ sơ có chữ ký (DLPS-LAN-V-MOT-DUONG). Gỡ là luật CHẶT HƠN, không nới.

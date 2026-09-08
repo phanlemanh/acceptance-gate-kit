@@ -1023,6 +1023,30 @@ const prov = await agentT(
     `Chay DUNG 3 lenh, bao cao KET QUA THUC (KHONG suy dien, KHONG doan):\n1) printf '%s' "$ACCEPTANCE_GATE_BYPASS" — in ra dung "1" → bypass_used=true; rong/khac → false.\n2) Doc ${args.repoRoot}/_acceptance/config.yaml, lay field "enforcement" o cap 0 (^enforcement: strict|warn|off); thieu file/field → "strict".\n3) git -C ${args.repoRoot} rev-parse HEAD — tra ve verified_commit = chuoi 40-hex NGUYEN VAN tu stdout; lenh loi (khong phai git repo) → chuoi rong. TUYET DOI KHONG bia SHA.\nTra ve {bypass_used, enforcement_mode, verified_commit} dung ket qua 3 lenh tren.`,
     { label: 'capture:provenance', phase: 'Synthesize', schema: PROV_SCHEMA, ...modelOpt('provenance') }
   )
+// K1 (gom-duc-ket-2-10-0, AC-3): agent xuất-xứ chết vì hạn mức phiên → `prov` null →
+// `prov.enforcement_mode` ở prompt synthesize ném TypeError và GIẾT cả vòng chấm ở bước
+// cuối (đo 24 lần trên máy, 2 lần trong một vòng). Lane chết phải nói ra như mọi lane
+// khác: BLOCKED có tên, không đoán xuất-xứ, không soạn report trên trường rỗng.
+if (!prov || typeof prov !== 'object') {
+  blocked.push({ cmd: 'capture:provenance', reason: 'capture:provenance agent bi skip/chet — khong co ket qua, khong duoc tinh la pass' })
+  verdict = 'BLOCKED'
+  log('Provenance: agent chet — BLOCKED, KHONG soan report (khong bia enforcement_mode/bypass_used)')
+  return {
+    verdict,
+    failedEvals: failedEvalIds,
+    failedCommands,
+    blocked,
+    panels: panels.map(p => ({ evalId: p.evalId, proposal: p.proposal })),
+    carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
+    triaged,
+    triageFailed,
+    coverageCluster,
+    reviewIncomplete,
+    runLog: runLogLines,
+    report: '',
+    findings: '',
+  }
+}
 const runLogWriteFailed = runLogLines.length > 0 // luôn: main loop append, không còn scribe
 if (runLogWriteFailed) log('Run-log: ' + runLogLines.length + ' dong trong result.runLog — main loop TU append truoc Gate 2 (hook/recheck doi chieu run_id voi log nay)')
 // verified_commit sanitize bang JS thuan — khong tin agent: sai shape (khong phai hex SHA) coi nhu
