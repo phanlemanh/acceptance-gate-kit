@@ -1,0 +1,44 @@
+{
+ "feature_plain": "Chủ kho khai «mọi markdown là tài liệu» thì cổng hiểu đúng như vậy, kể cả file hướng dẫn ở gốc kho — sửa tài liệu không còn làm hồ sơ đã ký hoá cũ, mã đổi sau khi ký vẫn bị bắt.",
+ "decisions": [],
+ "decisions_plain": [
+  {
+   "id": "d-20260907T203915Z-24167",
+   "p": "Đã chọn cộng một nghĩa cho đoạn «bất kỳ thư mục nào» thay vì đổi hẳn sang chuẩn minimatch — đổi lại dấu sao đơn vẫn xuyên thư mục, khác gitignore một điểm và đã ghi vào hướng dẫn."
+  },
+  {
+   "id": "d-20260907T203915Z-12398",
+   "p": "Đã chọn đặt ca đo vào bộ kiểm thường trực của file cổng — đổi lại mỗi ca chỉ nhận ra qua dòng đạt đích danh trong đầu ra cả bộ."
+  },
+  {
+   "id": "d-20260907T203915Z-27627",
+   "p": "KHÔNG làm bước xem thử giao diện — việc này không có giao diện người dùng."
+  },
+  {
+   "id": "d-20260907T203915Z-13373",
+   "p": "KHÔNG viết đặc tả trải nghiệm — không có mặt người dùng nào đổi."
+  },
+  {
+   "id": "d-20260907T203915Z-30657",
+   "p": "KHÔNG đổi lời cảnh báo hoá cũ để gợi cách sửa mẫu — mở lại nếu kho thứ hai vấp cùng chỗ."
+  },
+  {
+   "id": "d-20260907T211448Z-16545",
+   "p": "Đã chọn sinh biến thể bằng cách giữ hay bỏ từng đoạn «bất kỳ thư mục nào», không chỉ cắt đoạn đầu — đổi lại thêm một hàm đệ quy nhỏ trong file cưỡng chế."
+  },
+  {
+   "id": "d-20260907T220148Z-854",
+   "p": "Vòng 1: bộ dựng tình huống thử tự kiểm bước tiêm (tạo thư mục cha, đối chứng file đổi có trong diff) — chặn lớp «tiêm hỏng mà vẫn xanh» cho mọi ca cùng khuôn."
+  },
+  {
+   "id": "d-20260907T222709Z-11932",
+   "p": "Vòng 2: ca đọc hướng dẫn nay đòi đúng quan hệ «mẫu này bắt file kia», không chỉ có mặt tên file."
+  },
+  {
+   "id": "d-20260907T225325Z-24035",
+   "p": "Vòng 3: máy dừng vá vì phát hiện còn lại cùng lớp với vòng 2 và đã chạm trần ba vòng — trình anh ba lối; máy khuyên ship với giới hạn đã biết vì hành vi người dùng thấy đã được đo thật, phần chưa đo là cơ chế bên trong mà thiết kế thuần cộng khiến không thể sai."
+  }
+ ],
+ "analyst_plain": "Mười phép thử đều chạy qua một bộ kiểm chung, bộ đó xanh cả trước lẫn sau thay đổi vì các ca mới chỉ tồn tại ở bản sau; đây là lưới hồi quy có chủ đích, không phải phép đo bịa.",
+ "scope_plain": "Không đổi lời cảnh báo hoá cũ; không chạm cấu hình kho nào khác; không thêm nghĩa cho ký tự đặc biệt; không đổi nghĩa dấu sao đơn."
+}
