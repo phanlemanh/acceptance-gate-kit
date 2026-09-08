@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — quyết định d-4308)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 77727323a1943685ad4150da5d3e1efffe4ce4e1
+verified_commit: c7ad28507295944f427cd2b375a78c7323fb5aed
 human_signoff: Manh Phan 2026-08-22 — ký với known-limits đã khai; 4 finding ngoài hợp đồng (review-findings.md) là ứng viên hồ sơ T2 kế: bỏ «metric» khỏi _Avoid_ + nới nhận diện dòng bỏ
 ---
 
@@ -228,3 +228,7 @@ sha: 24eec78ce4823260b1b4656b66ed8d7ec867ed55 · suites: 4 lệnh exit 0 (phiên
 ### Re-pin lần 5 — 2026-08-26, do nhánh design-pass-nac chạm mã sau mốc ghim cũ — ghim lại bằng MỘT lượt làn máy xanh trọn
 run_id: repin-20260826T073920Z-dpnkdb
 sha: 77727323a1943685ad4150da5d3e1efffe4ce4e1 · suites: 5 lệnh exit 0
+
+### Re-pin lần 6 — 2026-09-08, do chiến dịch ghim lại ADR 0014 — 26 hồ sơ chốt được; 6 thước mục nát + 18 bằng chứng ghi khoá chết chờ owner quyết
+run_id: repin-20260908T050515Z-82614
+sha: c7ad28507295944f427cd2b375a78c7323fb5aed · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0

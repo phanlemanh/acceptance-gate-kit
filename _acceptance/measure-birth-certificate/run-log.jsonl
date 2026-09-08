@@ -21,3 +21,4 @@
 {"ts":"2026-08-07T15:34:47Z","kind":"repin","run_id":"repin-20260807-mbc-ship-lane1","sha":"74dd33f31853e0fe1a39cf6069e2adbabd01f5d7","suites_exit":[0,0,0,0,0,0]}
 {"ts":"2026-08-07T16:01:33Z","kind":"repin","run_id":"repin-20260807-merge-mbc-uncoded-lane1","sha":"d55a836d454685cc1ab820ddada9e90b1a7ace95","suites_exit":[0,0,0,0,0,0]}
 {"ts":"2026-08-08T23:35:36Z","kind":"repin","run_id":"repin-20260809-consumer-copy-cjs-lane1","sha":"5f38521fae43348f8bad029a52a48cf302be3ee9","suites_exit":[0,0,0,0,0,0]}
+{"ts":"2026-09-08T05:05:15Z","kind":"repin","run_id":"repin-20260908T050515Z-82614","sha":"c7ad28507295944f427cd2b375a78c7323fb5aed","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E7":0,"E8":0,"E9":0}}

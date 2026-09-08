@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4bd6d4d5109c68d3a4bed3bf4d4d11003d70397a
+verified_commit: c7ad28507295944f427cd2b375a78c7323fb5aed
 human_signoff: Manh Phan 2026-08-18
 ---
 
@@ -152,3 +152,7 @@ Round 1: toàn bộ 9 eval (E1–E5e) PASS ngay từ lượt đầu tiên; khôn
 ### Re-pin lần 1 — 2026-08-18, do gộp main (PR #65 release-2-2-0) sau khi ký
 run_id: repin-20260818-merge65-4bd6d4d5
 sha: 4bd6d4d5109c68d3a4bed3bf4d4d11003d70397a · suites: 6 lệnh exit 0
+
+### Re-pin lần 2 — 2026-09-08, do chiến dịch ghim lại ADR 0014 — 26 hồ sơ chốt được; 6 thước mục nát + 18 bằng chứng ghi khoá chết chờ owner quyết
+run_id: repin-20260908T050515Z-82614
+sha: c7ad28507295944f427cd2b375a78c7323fb5aed · suites: 5 lệnh exit 0 · evals: 9 eval máy exit 0

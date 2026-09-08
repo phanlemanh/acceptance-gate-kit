@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6b0f7465c577073d21c125a8a569326251724c61
+verified_commit: c7ad28507295944f427cd2b375a78c7323fb5aed
 human_signoff: Manh Phan 2026-09-03 — ký phát hành 2.8.0 với 6 known-limits đã khai; Ngoài-1/2/4/5/6 ghi Known limits, Ngoài-3 mở hợp đồng mới; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -185,3 +185,7 @@ cũng exit 0. Verdict: PASS.
 run_id: repin-20260903-rel280-1
 sha: 6b0f7465c577073d21c125a8a569326251724c61 · suites: 4 lệnh exit 0 chạy trên đúng nội dung cây này TRƯỚC khi commit (scripts 796/0 · hooks 60/0 · plugins all-pass · workflows all-pass) + product-map --check khớp · pin cũ: 52556444 · chữ ký người giữ nguyên.
 Vòng khép kín có thật: hồ sơ chỉ vào tập «đã chốt» SAU khi ký, nên dòng ghim chỉ thêm được lúc ký — và thêm là hoá cũ. Cùng họ với sổ cái `vu-trang-goal-luc-goi-ten#29`; thuộc ô đã mở ở Ngoài-3.
+
+### Re-pin lần 2 — 2026-09-08, do chiến dịch ghim lại ADR 0014 — 26 hồ sơ chốt được; 6 thước mục nát + 18 bằng chứng ghi khoá chết chờ owner quyết
+run_id: repin-20260908T050515Z-82614
+sha: c7ad28507295944f427cd2b375a78c7323fb5aed · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0

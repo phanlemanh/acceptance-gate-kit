@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5f38521fae43348f8bad029a52a48cf302be3ee9
+verified_commit: c7ad28507295944f427cd2b375a78c7323fb5aed
 human_signoff: Manh Phan 2026-08-05
 ---
 
@@ -244,3 +244,7 @@ sha: d55a836d454685cc1ab820ddada9e90b1a7ace95 · suites: 6 lệnh exit 0
 ### Re-pin lần 15 — 2026-08-08, do bugfix engine 1.39.1 (bộ file chép sang consumer đổi .cjs + danh sách chép đủ 7 file — hooks/lib/scripts/tests đổi)
 run_id: repin-20260809-consumer-copy-cjs-lane1
 sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
+
+### Re-pin lần 16 — 2026-09-08, do chiến dịch ghim lại ADR 0014 — 26 hồ sơ chốt được; 6 thước mục nát + 18 bằng chứng ghi khoá chết chờ owner quyết
+run_id: repin-20260908T050515Z-82614
+sha: c7ad28507295944f427cd2b375a78c7323fb5aed · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0

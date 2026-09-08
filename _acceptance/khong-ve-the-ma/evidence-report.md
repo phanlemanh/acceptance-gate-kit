@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cd94d0048760da55e89ecdcae12463186b5fec10
+verified_commit: c7ad28507295944f427cd2b375a78c7323fb5aed
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -275,3 +275,7 @@ Chân `suite-tong` đỏ — **chết theo thiết kế sau merge**, đúng như
 ca của chính hồ sơ này nay đã nằm trong main nên điều kiện không bao giờ đạt lại
 (base 793 · cây 796 · đòi ≥ 799). Lưới thường trực thay vai (`kvtm_suite_case`,
 chân `suite-case`) XANH trên cùng sha.
+
+### Re-pin lần 5 — 2026-09-08, do chiến dịch ghim lại ADR 0014 — 26 hồ sơ chốt được; 6 thước mục nát + 18 bằng chứng ghi khoá chết chờ owner quyết
+run_id: repin-20260908T050515Z-82614
+sha: c7ad28507295944f427cd2b375a78c7323fb5aed · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0

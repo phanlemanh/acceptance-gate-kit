@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 72599f8c598e577f12f7a95f750aff7a3797c03c
+verified_commit: c7ad28507295944f427cd2b375a78c7323fb5aed
 # bypass_ack:
 human_signoff: Manh Phan 2026-07-28
 ---
@@ -837,3 +837,7 @@ sha: 72599f8c598e577f12f7a95f750aff7a3797c03c · suites: 4 lệnh exit 0
 Nguyên nhân stale: cùng chuỗi với lần 37 — vòng chấm 1 chỉ ra cơ chế V không
 có lưới thường trực, nên 6 ca V01–V06 được cộng vào `tests/hooks` (54 → 60)
 theo ADR 0011. Chỉ dòng máy; không chạm dòng của người.
+
+### Re-pin lần 39 — 2026-09-08, do chiến dịch ghim lại ADR 0014 — 26 hồ sơ chốt được; 6 thước mục nát + 18 bằng chứng ghi khoá chết chờ owner quyết
+run_id: repin-20260908T050515Z-82614
+sha: c7ad28507295944f427cd2b375a78c7323fb5aed · suites: 5 lệnh exit 0 · evals: 12 eval máy exit 0
