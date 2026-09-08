@@ -365,8 +365,8 @@ xanh_sach_check() { # <report path>
       const fs=require("fs");
       const t=fs.readFileSync(process.argv[2],"utf8");
       const h=process.argv[3];
-      const has=t.split("\n").some(l=>/^#{1,6}\s+/.test(l)
-      && l.replace(/^#{1,6}\s+/,"").trim().toLowerCase()===h.toLowerCase());
+      const has=t.split("\n").some(l=>/^#{2,6}\s+/.test(l)
+      && l.replace(/^#{2,6}\s+/,"").trim().toLowerCase()===h.toLowerCase());
       if(!has){process.stdout.write("__VANG__");process.exit(0);}
       process.stdout.write(section(t,h).join("\n").trim()?"__CO__":"");
     ' "$ROOT/lib/md-section.cjs" "$report" "$_sec" 2>/dev/null || printf '__LOI__')"
@@ -952,6 +952,31 @@ XLACS
     if [ "$clean_ok" -eq 1 ]; then
       # Đường xanh-sạch KHÔNG có chữ ký để kiểm tiếp — các chốt dưới (giữ-chỗ,
       # provenance commit chữ ký) đều nói về một chuỗi không tồn tại ở đây.
+      # DLPS-LAN-V-STALE (duong-lui-phai-song AC-2): làn V KHÔNG được thoát phép kiểm
+      # bằng-chứng-cũ chỉ vì không có chữ ký — cùng luật với hồ sơ có chữ ký ở khối dưới
+      # (ba đường: vắng pin → NOTE không xanh-sạch · pin ma → VIOLATION · cây đổi → VIOLATION).
+      # Cùng phạm vi stale-theo-diff-pr: chỉ soi slug nằm trong diff.
+      if [ "$DIFF_READY" -eq 1 ] && slug_in_diff "$slug"; then # DLPS-LAN-V-STALE
+        vc_v="$(front_field "$report" verified_commit)"
+        if [ -z "$vc_v" ]; then
+          echo "NOTE [$slug]: report has no verified_commit (older template) — làn V không xanh-sạch khi chưa ghim; re-verify to pin."
+          continue
+        elif ! git -C "$ROOT" rev-parse --quiet --verify "$vc_v^{commit}" >/dev/null 2>&1; then
+          shallow_v="$(git -C "$ROOT" rev-parse --is-shallow-repository 2>/dev/null || echo unknown)"
+          if [ "$shallow_v" = false ]; then
+            echo "VIOLATION [$slug]: verified_commit $vc_v does not exist in this repo — the pin is a phantom, so staleness is NOT machine-checked (làn V). Re-pin to a commit that lives on the target branch."
+            violations=$((violations+1)); continue
+          fi
+          echo "NOTE [$slug]: verified_commit $vc_v not found in this SHALLOW clone (fetch-depth) — staleness unverifiable here; a full clone decides"
+        else
+          stale_v="$(stale_files "$ROOT" "$vc_v")"
+          if [ -n "$stale_v" ]; then
+            echo "VIOLATION [$slug]: làn V — evidence is stale (code changed after verify, verified_commit $vc_v): $(printf '%s\n' "$stale_v" | wc -l | tr -d ' ') file — re-run verify or re-pin before merge"
+            printf '%s\n' "$stale_v" | head -10 | sed 's/^/    /'
+            violations=$((violations+1)); continue
+          fi
+        fi
+      fi
       echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · Ngoài hợp đồng rỗng · hạng T2). Cửa veto vẫn mở."
       continue
     fi

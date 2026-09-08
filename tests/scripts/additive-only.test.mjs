@@ -18,6 +18,11 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
+  // duong-lui-phai-song AC-3: ranh tiêu đề xanh-sạch về #{2,6} cùng section() — h1
+  // «Known limits» có nội dung từng được bash coi là «có tiêu đề» rồi section()
+  // trả rỗng → sạch-giả; hai dòng dưới là đúng hai dòng ranh cũ, thay bằng #{2,6}.
+  `      const has=t.split("\\n").some(l=>/^#{1,6}\\s+/.test(l)`,
+  `      && l.replace(/^#{1,6}\\s+/,"").trim().toLowerCase()===h.toLowerCase());`,
   `        if (vc && e.sha !== vc) { errs.push(\`REPIN x repin line for run_id "\${id}" has sha \${e.sha} but report verified_commit is \${vc} — signature and lane disagree; re-pin against the verified commit\`); continue; }`,
   `      if [ -n "$vc" ] && [ "$rsha" != "$vc" ]; then`,
   `        echo "VIOLATION [$slug]: re-pin line for run_id \\"$rid\\" has sha $rsha but verified_commit is $vc — signature and lane disagree; re-pin against the verified commit"`,

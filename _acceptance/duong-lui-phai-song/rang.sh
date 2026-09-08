@@ -162,6 +162,56 @@ PY
     mui recheck-vang "scripts/recheck-evidence.cjs" "recheck-evidence.cjs vắng" strict "$COPY"
     if [ "$VIOL" = 0 ] && has "$OUT" "NOTE [fx]: evidence re-check not vendored"; then ok "chiều đỏ: gỡ dòng mới → strict lại câm (chỉ NOTE) — phép đo bám đúng dòng"; else bad "chiều đỏ KHÔNG chạy: bản sao gỡ dòng mà vẫn VIOLATION ($VIOL)"; fi
     ;;
+  lan-v-stale)
+    # E2: làn V (không chữ ký, xanh-sạch) vẫn bị kiểm hoá cũ — 5 ô + chiều đỏ gỡ khối DLPS-LAN-V-STALE.
+    fxgit() { git -C "$FX_ROOT" -c user.email=t@t -c user.name=t -c commit.gpgsign=false "$@"; }
+    STALE_MSG='VIOLATION [fx]: làn V — evidence is stale (code changed after verify, verified_commit '
+    # (1) commit C đổi src.txt + sổ → VIOLATION làn V stale nêu vc=A
+    mk_repo '{}'; echo v2 > "$FX_ROOT/src.txt"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code"
+    pmc "$FX_ROOT" --base "$FX_A"
+    if has "$OUT" "$STALE_MSG$FX_A" && [ "$VIOL" = 1 ] && ! has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "(1) làn V + cây đổi ngoài T1 → VIOLATION làn V stale, không xanh-sạch"; else bad "(1) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (2) commit C chỉ đổi docs (T1) + sổ → xanh-sạch, 0 VIOLATION
+    mk_repo '{}'; echo more >> "$FX_ROOT/docs/README.md"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: docs"
+    pmc "$FX_ROOT" --base "$FX_A"
+    if has "$OUT" "NOTE [fx]: xanh-sạch" && [ "$VIOL" = 0 ]; then ok "(2) chỉ đổi T1 → vẫn xanh-sạch, 0 VIOLATION (đối chứng dương)"; else bad "(2) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (3) pin ma
+    mk_repo '{"vc":"b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3"}'; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: so"
+    pmc "$FX_ROOT" --base "$FX_A"
+    if has "$OUT" "VIOLATION [fx]: verified_commit b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3b3 does not exist in this repo — the pin is a phantom" && [ "$VIOL" = 1 ]; then ok "(3) pin ma trên làn V → VIOLATION cùng họ P184"; else bad "(3) VIOL=$VIOL — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (4) không có verified_commit
+    mk_repo '{"vc":""}'; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: so"
+    pmc "$FX_ROOT" --base "$FX_A"
+    if has "$OUT" "NOTE [fx]: report has no verified_commit" && ! has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "(4) vắng pin → NOTE, KHÔNG xanh-sạch"; else bad "(4) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # (5) code đổi nhưng hồ sơ NGOÀI diff PR (base = B) → không soi stale, không dòng stale [fx]
+    mk_repo '{}'; echo v2 > "$FX_ROOT/src.txt"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code only"
+    pmc "$FX_ROOT" --base "$FX_B"
+    if ! has "$OUT" "evidence is stale" && has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "(5) hồ sơ ngoài diff PR → không soi stale (stale-theo-diff-pr giữ nguyên)"; else bad "(5) — $(printf '%s\n' "$OUT" | grep -E '\[fx\]' | head -3 | tr '\n' ' ')"; fi
+    # chiều đỏ: bản sao gỡ khối → ô (1) thành xanh-sạch
+    copy_tree; inject lan-v-stale scripts/pre-merge-check.sh '      if [ "$DIFF_READY" -eq 1 ] && slug_in_diff "$slug"; then # DLPS-LAN-V-STALE' '      if false; then # DLPS-LAN-V-STALE'
+    mk_repo "{\"vendorFrom\":\"$COPY\"}"; echo v2 > "$FX_ROOT/src.txt"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code"
+    pmc "$FX_ROOT" --base "$FX_A"
+    if has "$OUT" "NOTE [fx]: xanh-sạch" && [ "$VIOL" = 0 ]; then ok "chiều đỏ: gỡ khối DLPS-LAN-V-STALE → làn V lại thoát stale (phép đo bám đúng khối)"; else bad "chiều đỏ KHÔNG chạy: gỡ khối mà vẫn VIOLATION ($VIOL)"; fi
+    ;;
+  h1-rong)
+    # E3: h1 «Known limits» có nội dung → bash và mjs cùng nói VẮNG (ranh #{2,6}); chiều đỏ đưa #{1,6} lại → bash sạch-giả.
+    SEC='# Known limits\n- có nội dung\n\n## Ngoài hợp đồng\n'
+    mk_repo "{\"sections\":\"$SEC\"}"; pmc "$FX_ROOT" --base "$FX_A"
+    # hồ sơ không approved_by dừng ở khối Cổng 1: «làn V đòi xanh-sạch hoặc chữ ký (<why>). Máy…» — rút <why> từ đó
+    WHY_BASH="$(printf '%s\n' "$OUT" | grep '^VIOLATION \[fx\]: status=verified but approved_by is empty' | sed -e 's/.*hoặc chữ ký (//' -e 's/)\. Máy .*//')"
+    WHY_MJS="$(cd "$KIT" && node -e '
+      import(process.argv[1]).then(m=>{const fs=require("fs");const c=fs.readFileSync(process.argv[2]+"/contract.md","utf8");const e=fs.readFileSync(process.argv[2]+"/evidence-report.md","utf8");process.stdout.write(m.xanhSach(c,e).why);});
+    ' "$KIT/scripts/khong-can-nguoi.mjs" "$FX_ROOT/_acceptance/fx")"
+    EXP='mục «Known limits» VẮNG khỏi báo cáo (vắng ≠ rỗng)'
+    if [ "$WHY_BASH" = "$EXP" ]; then ok "bash: h1 Known limits có nội dung → «$EXP»"; else bad "bash nói «$WHY_BASH»"; fi
+    if [ "$WHY_MJS" = "$EXP" ] && [ "$WHY_MJS" = "$WHY_BASH" ]; then ok "mjs nói cùng câu từng ký tự với bash"; else bad "mjs nói «$WHY_MJS»"; fi
+    if ! has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "h1 có nội dung → KHÔNG xanh-sạch"; else bad "bash vẫn xanh-sạch trên h1 có nội dung"; fi
+    # chiều đỏ: bản sao đưa #{1,6} trở lại ở hai dòng ranh → bash sạch-giả trong khi mjs vẫn VẮNG
+    copy_tree
+    inject h1-rong-a scripts/pre-merge-check.sh 'some(l=>/^#{2,6}\s+/.test(l)' 'some(l=>/^#{1,6}\s+/.test(l)'
+    inject h1-rong-b scripts/pre-merge-check.sh 'l.replace(/^#{2,6}\s+/,"")' 'l.replace(/^#{1,6}\s+/,"")'
+    mk_repo "{\"sections\":\"$SEC\",\"vendorFrom\":\"$COPY\"}"; pmc "$FX_ROOT" --base "$FX_A"
+    if has "$OUT" "NOTE [fx]: xanh-sạch"; then ok "chiều đỏ: ranh #{1,6} → bash sạch-giả trên h1 (bash sach-gia tren h1) — phép đo bám đúng hai dòng ranh"; else bad "chiều đỏ KHÔNG chạy: bản sao #{1,6} mà bash vẫn không xanh-sạch"; fi
+    ;;
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;
 esac
 done_chan
