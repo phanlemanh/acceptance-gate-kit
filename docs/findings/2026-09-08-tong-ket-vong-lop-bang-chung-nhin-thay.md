@@ -119,3 +119,27 @@ Bảy mục trong Known limits của hợp đồng, kèm ngưỡng đang đếm:
 (mutant lint chưa ghim dấu hiệu bản sao đã chạy · LNT6 đo chuỗi thay quan hệ) và năm mục
 nhỏ. Ngưỡng: lần đầu một hồ sơ có mặt người nhìn ở repo tiêu thụ ship không frame mà cả
 ba răng đều im → mở hợp đồng T2 docs+tests. Hạn: trước mốc 2.10.0.
+
+## 7. Lần sau — xếp theo số đo, không theo cảm giác
+
+Mọi con số «dự kiến» đều bị vượt (token, giờ, lượt gọi người). Ba chỗ rò dưới đây giải
+thích gần hết khoảng vượt; mỗi chỗ ghi nó đốt bao nhiêu và ai cắt được.
+
+| # | Chỗ rò | Đốt bao nhiêu (đo) | Cắt bằng gì | Ai quyết |
+|---|---|---|---|---|
+| 1 | **Một phiên 13 tiếng, mỗi lượt gọi đọc lại ~571K ngữ cảnh** — kể cả những lượt chỉ để nhận thông báo nền hay nói «đang chờ» | 327M cache-read ở phiên chính (57% tổng); ước lượng ≥1/3 số lượt gọi là lượt thức dậy không sinh việc | Chia phiên theo giai đoạn (điều tra · S1–Gate 1 · S3 · S4-điều-phối · Gate 2–S5), mỗi phiên bắt đầu từ hồ sơ trên đĩa, không từ hội thoại. Khi chờ tiến trình nền: MỘT lượt chờ chặn, không đặt thêm lượt canh song song (hôm nay nhiều tác vụ đánh thức máy hai lần cho cùng một sự kiện) | Máy, ngay lần sau — không đụng luật |
+| 2 | **Ba round S4 thay vì một** — rà soát đối kháng round 2 và 3 chỉ tìm lỗi ở *phép đo tôi tự viết* (fixture chép khuôn bên đọc · assert chuỗi thay quan hệ · một điểm-case cho lớp hai phần tử · âm-tính-một-mình · ref `main` di động) — đúng danh sách «thước phải gắn vào vật» trong CLAUDE.md | Round 2 + 3 = 120M token, ~4 giờ, 2 lượt gọi người | Trước khi khai `implemented`, chạy một bước tự-soi phép đo ở S3 theo đúng sáu hình dạng đã có tên (máy đọc test mới, không đọc code sản phẩm). Kit đã có gap-probe cho artifact S1; chưa có gương của nó cho test S3 | Kit (meta) — chờ owner gọi tên; hoặc máy tự làm bằng một prompt nội bộ trước S4, không cần sửa kit |
+| 3 | **Hạn mức phiên giữa vòng** + workflow sập thay vì BLOCKED sạch | ~4,5 giờ đứng im (38% thời gian vòng), 2 lượt «Try again», 2 lần resume | Phòng thủ null ở `acceptance-verify.js` (ô đã ghi); và xếp S4 nặng vào đầu cửa sổ hạn mức thay vì cuối | Kit (meta) cho phần null; máy cho phần xếp lịch |
+
+Ba chỗ nhỏ hơn, mỗi chỗ một lượt gọi người:
+
+- **Danh tính lệch hai nguồn** (`git config user.name` ≠ `signoff.approvers`) → 2 chạm. Đồng bộ một lần, hoặc chạy lệnh cổng với `--as "Manh Phan"`.
+- **Bàn giao S5 hỏi menu ba lối** trong khi nếp kit là PR. Mặc định PR, chỉ hỏi khi owner nói khác → −1 lượt.
+- **Phiên khác đẩy thẳng `main` chạm `tests/`** → 3 lần ghim lại (~50 phút làn máy). Khi hai phiên cùng làm trên kit: thoả thuận cửa sổ merge, hoặc thu phạm vi stale theo `paths:` của eval (meta, chờ owner).
+
+Điều KHÔNG nên cắt: hội đồng bốn giọng ở vòng 3 (7,2M token Opus, 1 lượt gọi người). Nó
+đảo đúng khuyến nghị sai của máy («mở round 4») và tiết kiệm một round ~70M token. Đó là
+lượt gọi người đúng thiết kế: đánh-đổi chỉ người biết.
+
+**Nếu chỉ làm một việc:** chia phiên (chỗ 1). Nó không cần sửa luật, không cần owner gọi
+tên, và cắt phần lớn nhất của hoá đơn.
