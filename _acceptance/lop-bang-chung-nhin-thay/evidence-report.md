@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 15f5e91bcb6560bfc0eaee64bf23af9f7c2eb955
+verified_commit: dbe8615daabb6ac29ee7f37ab1260a6c6a7b378c
 human_signoff:
 ---
 
@@ -126,3 +126,7 @@ none — every multi-run eval is uniform
 Round 1: E1, E2, E3, E4, E5, E6 đều pass ngay lần chạy đầu; các lệnh suite hồi quy (hooks, workflows, product-map) đều xanh. Không có vòng quay lại implementation.
 Round 2: E1–E6 và cả ba lệnh suite hồi quy vẫn PASS/exit 0 như round 1 (baseline không đo lại). Verdict tổng là REJECT không vì eval máy fail, mà vì review đối kháng (adversarial) tại round này xác nhận 2 lỗi thật map vào hợp đồng (AC-2, AC-4 — xem review-findings.md mục "Trong hợp đồng"); failed_evals để trống vì không eval nào tự thân báo fail, lỗi nằm ở độ phủ của chính assertion. Trả lại implementation để vá theo hai finding đó trước khi verify lại.
 Round 3: E1–E6 và cả ba lệnh suite hồi quy vẫn PASS/exit 0 (baseline không đo lại, carried từ round 1). Review đối kháng round này xác nhận 2 phát hiện mới map vào hợp đồng (AC-1, AC-6, mức trung bình/thấp — xem review-findings.md mục "Trong hợp đồng") cùng 9 phát hiện ngoài hợp đồng (đề xuất known-limits, người quyết ở Gate 2). Verdict tổng round này là PASS.
+
+### Re-pin lần 1 — 2026-09-08, do council 08/09: lượt sửa chỉ-TRỪ sau S4-r3 (đính chính răng hook, gỡ PM-LNT-dv5) — ghim lại bằng làn máy, không round 4
+run_id: repin-20260908T080159Z-84972
+sha: dbe8615daabb6ac29ee7f37ab1260a6c6a7b378c · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0
