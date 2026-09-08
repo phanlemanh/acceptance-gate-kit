@@ -84,3 +84,4 @@ thuoc-khai-mot-dang-do-mot-neo	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|
 release-2-9-0	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 duong-lui-phai-song	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
 lop-bang-chung-nhin-thay	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
+glob-hai-sao-khop-goc-kho	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
