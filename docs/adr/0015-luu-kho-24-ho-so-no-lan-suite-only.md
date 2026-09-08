@@ -29,3 +29,15 @@ trong git và tài liệu `docs/` trỏ tới chúng nay trỏ vào mốc. Bài 
 §7.1: một răng hồ sơ đo «cây trước tính năng» bằng `origin/main` di động sẽ
 chết khi nhánh chính trôi qua tính năng ấy — răng vĩnh viễn phải neo mốc bất
 biến, cùng lớp với `truoc-luu-kho-2026-08`.
+
+**Bổ sung 2026-09-08 (owner: «Lưu kho 3 hồ sơ mirror_sync luôn, rút tên»).** Ba hồ
+sơ còn lại của danh sách ADR 0010 (`consumer-copy-cjs` E10 · `mot-luot-go-cong-
+nguoi` E6 · `rang-phep-do-viec-cua-anh` E6) — không nợ làn, chỉ đỏ vì một eval trỏ
+khoá `mirror_sync` đã gỡ — rời corpus cùng khuôn, mốc
+**`truoc-luu-kho-mirror-sync-2026-09-08`** (commit `5dd77b0b`). Không khoá config,
+không răng, không hồ sơ sống nào trỏ vào chúng; chỉ 4 hàng bảng vàng của
+`gold-output-measure` rời đi (sinh lại cùng lệnh + xuất xứ). Hệ quả: cả hai danh
+sách trong `tests/scripts/mirror-sync-grandfather.mjs` RỖNG — trigger xoá tệp của
+ADR 0010 đã tới, nhưng tệp giữ lại vì phần sống của nó là răng «corpus sạch tuyệt
+đối» (`assertCorpus`): từ nay một hồ sơ đỏ ở recheck là lỗi mới, không có nợ nào
+để trốn sau. `--recheck-all` trên kit: 0 vi phạm.

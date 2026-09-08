@@ -20,15 +20,19 @@
 //
 // Trigger XOÁ cả tệp này: khi 21 hồ sơ dưới đây không còn được `recheck` soi
 // (chúng rời corpus), hoặc khi có quyết định migrate chúng. Xem ADR 0010.
+// 08/09/2026: trigger ĐÃ tới — cả 21 rời corpus (18 theo ADR 0015, 3 còn lại
+// theo bổ sung cùng ngày, mốc truoc-luu-kho-mirror-sync-2026-09-08). Tệp GIỮ
+// LẠI vì phần sống của nó là assertCorpus: «hồ sơ đỏ mà không có tên = lỗi
+// mới», nay với CẢ HAI danh sách RỖNG — corpus phải sạch tuyệt đối; nợ mới
+// muốn tồn tại phải đặt tên ở đây, hai chiều, không nới reader.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
 // 21 hồ sơ đã ký, đo tại chỗ 2026-08-13 — KHÔNG chép tay từ log. 08/09/2026:
-// 18 trong 21 LƯU KHO (ADR 0015, tag truoc-luu-kho-no-lan-2026-09-08) vì
-// cùng là nợ làn suite-only mà làn eval không chạy được — còn 3.
+// 18 trong 21 LƯU KHO (ADR 0015, tag truoc-luu-kho-no-lan-2026-09-08), 3 còn
+// lại LƯU KHO cùng ngày (tag truoc-luu-kho-mirror-sync-2026-09-08) — RỖNG.
 export const MIRROR_SYNC_GRANDFATHER = [
-  'consumer-copy-cjs', 'mot-luot-go-cong-nguoi', 'rang-phep-do-viec-cua-anh',
 ];
 
 const DEAD_KEY = 'executors.script.mirror_sync';

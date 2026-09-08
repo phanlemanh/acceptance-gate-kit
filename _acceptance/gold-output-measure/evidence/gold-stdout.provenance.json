@@ -1,8 +1,8 @@
 {
   "artifact": "gold-stdout.txt",
   "command": "node scripts/acceptance-gold.mjs --root .",
-  "generated_at": "2026-09-08T07:35:13Z",
-  "sha256": "b39934dc7a9de83cc892c775cc4e17eedebca5ec67af68d0b7aad5c5fccc617b",
-  "bytes": 10086,
-  "note": "repo_sha bỏ khỏi hồ sơ — trường không đo được thì không khai (known-limit Cổng 2) · sinh lại 2026-09-08 sau lưu kho 24 hồ sơ (ADR 0015): 8 hàng của hồ sơ lưu kho rời bảng vàng — cùng lệnh, cùng khuôn xuất xứ"
+  "generated_at": "2026-09-08T08:28:40Z",
+  "sha256": "63c274a85825a6cd38c7d252a5aad791b42b90286f570301c5ccc5716d306863",
+  "bytes": 9535,
+  "note": "repo_sha bỏ khỏi hồ sơ — trường không đo được thì không khai (known-limit Cổng 2) · sinh lại 2026-09-08 sau lưu kho 24 hồ sơ (ADR 0015): 8 hàng của hồ sơ lưu kho rời bảng vàng — cùng lệnh, cùng khuôn xuất xứ · sinh lại lần hai 08/09 sau lưu kho 3 hồ sơ mirror_sync (4 hàng rời bảng vàng)"
 }

@@ -1043,10 +1043,10 @@ lúc luật ra đời (đo 08/09): **25** ghim lại ngay bằng một làn eval
 tiền đề sau các mốc sau chúng, 18 trỏ khoá `mirror_sync` đã gỡ — **lưu kho** theo
 ADR 0015 (mốc `truoc-luu-kho-no-lan-2026-09-08`). Danh sách nợ
 `SUITE_ONLY_LANE_DEBT` trong `tests/scripts/mirror-sync-grandfather.mjs` giữ
-khung rỗng: nợ mới (nếu có) phải đặt tên ở đó, hai chiều, không nới reader. Nợ
-duy nhất còn lại của corpus sau 08/09 là **ba hồ sơ** trỏ khoá `mirror_sync` đã
-gỡ (`consumer-copy-cjs` · `mot-luot-go-cong-nguoi` · `rang-phep-do-viec-cua-anh`,
-ADR 0010) — ghi ở ô cơ hội `no-mirror-sync-ba-ho-so`, chờ Cổng Đáng. **Không phạm vi diff** (owner quyết
+khung rỗng: nợ mới (nếu có) phải đặt tên ở đó, hai chiều, không nới reader. Ba
+hồ sơ cuối trỏ khoá `mirror_sync` đã gỡ (ADR 0010) cũng lưu kho cùng ngày (mốc
+`truoc-luu-kho-mirror-sync-2026-09-08`), nên cả hai danh sách nợ RỖNG và
+`--recheck-all` trên kit về 0 vi phạm: từ 08/09 một hồ sơ đỏ ở recheck là lỗi mới. **Không phạm vi diff** (owner quyết
 08/09, lần hai): luật soi MỌI hồ sơ trong kho ở MỌI lượt pre-merge, khác luật
 recheck/staleness vốn thu theo diff PR (ADR 0010) — pin chưa chứng không được
 nằm im chỉ vì PR không chạm nó. Hệ quả nhận: pre-merge của chính kit đỏ 49 vi

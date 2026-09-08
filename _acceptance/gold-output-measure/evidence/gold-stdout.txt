@@ -1,6 +1,6 @@
 ## Sổ vàng — người đã quyết gì trên đề xuất của máy
 
-19 lần người quyết trên đề xuất của máy (rút từ chữ ký Cổng 2 đã có, không bịa; nguyên văn đầy đủ nằm trong hồ sơ từng việc):
+18 lần người quyết trên đề xuất của máy (rút từ chữ ký Cổng 2 đã có, không bịa; nguyên văn đầy đủ nằm trong hồ sơ từng việc):
 
 | Việc | Hạng mục được chấm | Máy đề xuất | Người quyết (trích 1 câu) |
 |---|---|---|---|
@@ -15,7 +15,6 @@
 | lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M9 — 4 câu cross-check lớp-đo-lường trong 2 SKILL: nếu một bộ… | chưa đạt (FAIL) | Manh Phan 2026-08-05 — M9: known-limits. |
 | lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M10 — S4 của chính vòng này đã chạy chưa? Nếu chưa (bình thường… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-05 — M10: PASS bằng số đếm dogfood… |
 | lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu… (matrix-measure-law) | M11 — Fix gap-probe P1 — đo HÀNH VI chứ không đo chỉ dẫn: file… | đạt (PASS) | Manh Phan 2026-08-05 — M11: chuẩn y PASS (r2+r3, fixture code-sinh từ writer thật)… |
-| Một-lượt-gõ + --repo cho 6 lệnh cổng người (mot-luot-go-cong-nguoi) | E7 — Một agent context SẠCH (không được đưa contract, không… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-11 — Đạt (lời nguyên văn ở human_evidence trên) |
 | Sổ luật-đã-chạy (premerge-rules-ledger) | E10 — Đọc thông điệp VIOLATION [ledger]: một người chưa từng đọc… | đạt (PASS) | Manh Phan 2026-07-28 |
 | Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát… (premerge-unjudged-pass) | E15 — Đọc các dòng VIOLATION và NOTE mà luật mới sinh ra. Một… | đạt (PASS) | Manh Phan 2026-07-29 |
 | Repo khai plugin (repo-khai-plugin) | E10 — File lời khai kiểm tay có đủ ba thứ không: (1) ngày ISO;… | chưa chắc (UNCERTAIN) | Manh Phan 2026-08-21 — chấp nhận UNCERTAIN có điều kiện: lời khai `kiem-tay-harness.md` tồn tại và ghi «CHƯA KIỂM ĐƯỢC» cả hai câu (owner chưa có máy thứ hai). |
@@ -37,7 +36,7 @@ Theo từng góc nhìn chấm:
 - doc-lap-vong-9: 0/1 lần nói "chưa chắc" hoặc "chưa đạt"
 - doc-lap-vong-10: 0/1 lần nói "chưa chắc" hoặc "chưa đạt"
 
-46 việc chưa có biên bản hội đồng trong hồ sơ. Sổ không suy đoán vì sao thiếu — tra hồ sơ từng việc để biết.
+43 việc chưa có biên bản hội đồng trong hồ sơ. Sổ không suy đoán vì sao thiếu — tra hồ sơ từng việc để biết.
 - Đưa bài học đo lường của tuần 08–14/08 vào engine (bai-hoc-do-luong-vao-engine)
 - Thẻ quyết định in đúng thứ hồ sơ viết (card-text-fidelity)
 - Kit thôi đo phút người ở mọi cổng (cat-hinh-thuc)
@@ -45,7 +44,6 @@ Theo từng góc nhìn chấm:
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» (co-qua-timebox-nhom-da-xong)
 - Gói Codex mang đủ mọi công cụ mà chỉ dẫn của nó bảo người dùng chạy (codex-script-packaging)
 - Cổng Đáng có cửa (cong-dang-co-cua)
-- Vật chép sang repo tiêu thụ phải chạy được ở repo tiêu thụ (.cjs + danh… (consumer-copy-cjs)
 - Bản đặc tả UX (dac-ta-ux-vat-hoa-cau-truc)
 - Ba lượt đổi hành vi ở cổng người (doi-hanh-vi-cong-nguoi)
 - Đường đo nằm trong định-nghĩa-xong (duong-do-trong-dinh-nghia-xong)
@@ -59,10 +57,8 @@ Theo từng góc nhìn chấm:
 - Lưu kho harness Codex và khai tử nghi lễ design-loop (luu-kho-codex-va-nghi-le-design)
 - Khuôn khai sinh phép đo (measure-birth-certificate)
 - Trả răng cho năm phép đo đã bị ghi là mất răng (measure-teeth-cleanup)
-- Một-lượt-gõ + --repo cho 6 lệnh cổng người (mot-luot-go-cong-nguoi)
 - Nhánh chính không tên main (nhanh-chinh-khong-ten-main)
 - Ra có tên ở Vòng LÀM và TRAO (ra-co-ten-lam-va-trao)
-- Răng cho phép đo khối "👉 VIỆC CỦA ANH" (rang-phep-do-viec-cua-anh)
 - Phát hành kit 2.0.0 (release-2-0-0)
 - Phát hành kit 2.2.0 (release-2-2-0)
 - Phát hành kit 2.3.0 (release-2-3-0)
