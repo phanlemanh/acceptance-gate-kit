@@ -853,6 +853,38 @@ XLACS
     fi
   fi
 
+  # ─── Lớp bằng chứng nhìn-thấy — NOTE, chưa VIOLATION (hồ sơ lop-bang-chung-nhin-thay) ──
+  # Gương của răng cross-layer ở trên: hợp đồng có MẶT NGƯỜI NHÌN (ui; alias web/web-ui —
+  # KHÔNG mobile) mà evals.yaml không có eval executor: ui-check → merge sẽ đi trên bằng
+  # chứng lớp mã cho một bề mặt người nhìn. Vị từ/alias/tiền tố descope RÚT từ
+  # lib/lop-nhin-thay.cjs (một nguồn với lint W8 và thẻ) qua MỘT lệnh node classify in
+  # một dòng tab (mẫu lib/gap-probe.cjs). Phạm vi: slug trong diff, --recheck-all (đường
+  # đếm ngưỡng), hoặc không có phạm vi diff (fail-safe như luật staleness — NOTE vô hại).
+  # Ngưỡng siết thành VIOLATION: 2 hợp đồng ký không frame trong một mốc phát hành — NOTE
+  # in kèm approved_at để đếm «ký trong cửa sổ» bằng grep, hồ sơ cũ bị kéo vào diff ở chiến
+  # dịch ghim lại có ngày cũ nên loại được. Fail-open có tiếng: thiếu node/lib → NOTE
+  # «không kiểm được», không đổi exit. Chỉ THÊM dòng (DV5).
+  LNT_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/lop-nhin-thay.cjs"
+  if { [ "$DIFF_READY" -eq 0 ] || slug_in_diff "$slug" || [ "$RECHECK_ALL" -eq 1 ]; } && [ -f "${dir}evals.yaml" ]; then
+    lnt_line=""
+    if [ -f "$LNT_LIB" ] && command -v node >/dev/null 2>&1; then
+      lnt_line="$(node "$LNT_LIB" classify "$dir" 2>/dev/null || true)"
+    fi
+    if [ -z "$lnt_line" ]; then
+      echo "NOTE [$slug]: lớp nhìn-thấy không kiểm được — thiếu node hoặc lib/lop-nhin-thay.cjs (mang cổng vào repo phải copy CẢ lib/); NOTE này không chặn."
+    else
+      lnt_app="$(printf '%s' "$lnt_line" | cut -f1)"; lnt_decl="$(printf '%s' "$lnt_line" | cut -f2)"
+      lnt_desc="$(printf '%s' "$lnt_line" | cut -f3)"; lnt_appr="$(printf '%s' "$lnt_line" | cut -f4)"
+      if [ "$lnt_app" = "1" ] && [ "$lnt_decl" = "0" ]; then
+        if [ "$lnt_desc" != "-" ]; then
+          echo "NOTE [$slug]: mặt người nhìn (surfaces ui/web) nhưng không eval ui-check — đã BỎ có tên theo ledger $lnt_desc (approved_at $lnt_appr); người ký Cổng Bằng chứng đọc tên ca máy, không nhìn frame. Ngưỡng siết: 2 hợp đồng ký không frame trong một mốc phát hành."
+        else
+          echo "NOTE [$slug]: mặt người nhìn (surfaces ui/web) nhưng không eval ui-check nào — bằng chứng lớp mã thay lớp nhìn-thấy (approved_at $lnt_appr). Thêm ≥1 ui-check (layer: ui-observed) theo hợp đồng, hoặc ghi entry descope có tên. Ngưỡng siết: 2 hợp đồng ký không frame trong một mốc phát hành."
+        fi
+      fi
+    fi
+  fi
+
   # Counter scope NẰM NGOÀI khối luật bên dưới và cố ý khác lexical (off không
   # nháy kép): tiêm vô hiệu khối thì counter vẫn đếm, sổ lệch, chokepoint bắt.
   [ "$GAP_PROBE_MODE" != off ] && slug_in_diff "$slug" && GP_SCOPE_N=$((GP_SCOPE_N+1))
