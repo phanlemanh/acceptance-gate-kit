@@ -127,9 +127,9 @@ check('RE8 chỉ làn CHỐNG LƯNG verified_commit bị xét: làn 1 (mới, th
   const p = pm(f.root); assert.equal(p.code, 0, p.out);
 });
 
-// ── RE9 phạm vi: sử liệu CHỈ theo diff PR (cùng guard với recheck, ADR 0010) ──
-// Kho git code-sinh: hồ sơ ghim bằng làn suite-only. Ngoài diff → im + NOTE đếm;
-// --recheck-all → đỏ; trong diff → đỏ. Đối chứng dương: cùng ba nhánh với làn đủ bộ → clean.
+// ── RE9 KHÔNG phạm vi diff (owner 08/09, lần hai): hồ sơ nợ đỏ dù PR không chạm nó ──
+// Kho git code-sinh: hồ sơ ghim bằng làn suite-only. Ngoài diff → vẫn đỏ; trong
+// diff → đỏ. Đối chứng dương: cùng hai nhánh với làn đủ bộ → clean.
 // touch: 'src' → PR chỉ đổi mã ngoài hồ sơ (hồ sơ NGOÀI diff) · 'notes' → PR chạm
 // thư mục hồ sơ (TRONG diff, không lệch cây). base = commit evidence.
 function gitFixture(opts, touch) {
@@ -148,24 +148,20 @@ function gitFixture(opts, touch) {
   return { f, base };
 }
 const pmArgs = (root, ...extra) => { try { return { code: 0, out: execFileSync('bash', [CHECK, root, '--no-t1-escape', ...extra], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }) }; } catch (e) { return { code: e.status, out: String(e.stdout || '') + String(e.stderr || '') }; } };
-check('RE9a hồ sơ nợ NGOÀI diff PR → pre-merge clean + NOTE «eval-lane scope — 1 slug»; --recheck-all → VIOLATION', () => {
+check('RE9a hồ sơ nợ NGOÀI diff PR → vẫn VIOLATION đích danh (không guard phạm vi, không NOTE scope)', () => {
   const { f, base } = gitFixture({ noEvalsExit: true }, 'src');
   const r = pmArgs(f.root, '--base', base);
-  assert.equal(r.code, 0, `nợ ngoài diff chặn PR không liên quan:\n${r.out}`);
-  assert.match(r.out, /NOTE: eval-lane scope — 1 slug ngoài diff PR không được soi làn ghim lại/);
-  assert.doesNotMatch(r.out, /VIOLATION \[feat-repin\]: re-pin lane/);
-  const all = pmArgs(f.root, '--base', base, '--recheck-all');
-  assert.equal(all.code, 1, '--recheck-all mà nợ vẫn im');
-  assert.match(all.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" .*recorded no evals_exit/);
+  assert.equal(r.code, 1, `nợ ngoài diff được cho qua — owner đã bỏ guard phạm vi:\n${r.out}`);
+  assert.match(r.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" .*recorded no evals_exit/);
+  assert.doesNotMatch(r.out, /eval-lane scope/);
 });
-check('RE9b hồ sơ nợ TRONG diff PR → VIOLATION đích danh, không NOTE scope', () => {
+check('RE9b hồ sơ nợ TRONG diff PR → VIOLATION đích danh', () => {
   const { f, base } = gitFixture({ noEvalsExit: true }, 'notes');
   const r = pmArgs(f.root, '--base', base);
   assert.equal(r.code, 1, `chạm hồ sơ nợ mà vẫn xanh:\n${r.out}`);
   assert.match(r.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" .*recorded no evals_exit/);
-  assert.doesNotMatch(r.out, /eval-lane scope/);
 });
-check('RE9+ đối chứng dương: làn đủ bộ → cả ba nhánh (ngoài diff · --recheck-all · trong diff) đều clean', () => {
+check('RE9+ đối chứng dương: làn đủ bộ → ngoài diff · --recheck-all · trong diff đều clean', () => {
   const a = gitFixture({}, 'src'); const b = gitFixture({}, 'notes');
   for (const [root, args] of [[a.f.root, ['--base', a.base]], [a.f.root, ['--base', a.base, '--recheck-all']], [b.f.root, ['--base', b.base]]]) {
     const r = pmArgs(root, ...args); assert.equal(r.code, 0, `${args.join(' ')}:\n${r.out}`);

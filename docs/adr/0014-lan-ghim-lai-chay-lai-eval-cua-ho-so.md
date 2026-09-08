@@ -47,3 +47,13 @@ của kit đỏ ở recheck (3 hồ sơ khác vẫn đỏ vì `mirror_sync`), đ
 khuôn ADR 0010, nhưng lần này danh sách dài vì nợ thật dài, không phải để khỏi
 nghĩ; mỗi hồ sơ ghim lại bằng làn eval là một tên phải rút. Repo tiêu thụ: hồ sơ
 ghim bằng làn cũ đỏ khi PR chạm nó; cách sửa duy nhất là làn eval, không cờ nới.
+
+**Sửa 2026-09-08 lần hai (owner: «Bỏ guard phạm vi diff luôn, soi mọi hồ sơ»).**
+Lần sửa trên tôi đã thu luật theo diff PR (cùng guard với recheck, ADR 0010) để
+nợ cũ không chặn PR không liên quan — owner bác: pin chưa chứng không được nằm
+im chỉ vì PR không chạm nó. Luật nay soi MỌI hồ sơ ở MỌI lượt pre-merge. Giá
+nhận, nói thẳng: pre-merge của chính kit đỏ 49 vi phạm ở mọi lần CI cho tới khi
+chiến dịch ghim lại bằng làn eval xong (răng corpus vẫn phân biệt nợ-có-tên với
+lỗi mới qua `SUITE_ONLY_LANE_DEBT`); repo tiêu thụ đỏ mọi PR kể từ mốc nhận luật
+cho tới khi ghim lại mọi hồ sơ đã ký. Đây là chọn «đỏ thật» thay «xanh nhờ phạm
+vi» — đúng nguyên tố hai, trả bằng một chiến dịch.

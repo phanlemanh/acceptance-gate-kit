@@ -974,7 +974,7 @@ flowchart LR
 | Chữ ký là chuỗi giữ-chỗ (không nêu tên người) | Chữ ký sinh cùng commit với thân báo cáo — từ 2.1 KHÔNG còn là vi phạm (ADR 0012) |
 | Evidence STALE — file ngoài `_acceptance/` + ngoài `t1_skip_globs` đổi sau `verified_commit` | |
 | `recheck: strict` + evidence đã commit rớt luật L1/L2/L3 | |
-| Làn re-pin chống lưng `verified_commit` **không chạy lại eval máy của hồ sơ** — dòng `kind:repin` thiếu `evals_exit` (kể cả dòng đời cũ, không mốc ngày), thiếu eval `test`/`script` nào của `evals.yaml`, có eval ≠ 0, hoặc hồ sơ không có `evals.yaml` (2.9.0, xem §7.1) | |
+| Làn re-pin chống lưng `verified_commit` **không chạy lại eval máy của hồ sơ** — dòng `kind:repin` thiếu `evals_exit` (kể cả dòng đời cũ, không mốc ngày), thiếu eval `test`/`script` nào của `evals.yaml`, có eval ≠ 0, hoặc hồ sơ không có `evals.yaml` — soi MỌI hồ sơ trong kho, không thu theo diff PR (2.9.0, xem §7.1) | |
 | Backstop T1 (`--base`): đổi `t3_paths`/file non-T1 mà PR không có `_acceptance/` | |
 | config.yaml có tab / indent lẻ | |
 
@@ -1042,11 +1042,12 @@ này (đo 08/09), đặt tên trong `tests/scripts/mirror-sync-grandfather.mjs`
 (`SUITE_ONLY_LANE_DEBT`, hai chiều, một lý do — cùng khuôn ADR 0010) để răng
 corpus phân biệt nợ-có-tên với lỗi mới; `pre-merge-check.sh --recheck-all` trên
 kit đỏ đúng 49 hồ sơ ấy cho tới khi chiến dịch phát hành ghim lại bằng làn eval,
-mỗi hồ sơ ghim xong là một tên phải rút. Phạm vi soi theo đúng ranh giới sử
-liệu-theo-diff của kit (ADR 0010): hồ sơ nằm trong diff PR bị soi, hồ sơ ngoài
-diff im và được đếm trong NOTE «eval-lane scope», `--recheck-all` quét toàn bộ.
-Repo tiêu thụ: hồ sơ ghim bằng làn cũ đỏ ngay khi PR chạm tới nó — ghim lại bằng
-làn eval là cách sửa duy nhất, không có cờ nới. **Giới hạn khai, một ngưỡng đang
+mỗi hồ sơ ghim xong là một tên phải rút. **Không phạm vi diff** (owner quyết
+08/09, lần hai): luật soi MỌI hồ sơ trong kho ở MỌI lượt pre-merge, khác luật
+recheck/staleness vốn thu theo diff PR (ADR 0010) — pin chưa chứng không được
+nằm im chỉ vì PR không chạm nó. Hệ quả nhận: pre-merge của chính kit đỏ 49 vi
+phạm cho tới khi chiến dịch ghim lại xong; repo tiêu thụ đỏ mọi PR kể từ mốc nhận
+luật cho tới khi ghim lại mọi hồ sơ đã ký bằng làn eval — không có cờ nới. **Giới hạn khai, một ngưỡng đang
 đếm:** eval `ui-check`/`judgment` không chạy được trong làn máy nên re-pin
 KHÔNG chứng lại chúng — hồ sơ mà diff chạm đúng phần `ui-check` đo phải đi
 vòng S4 delta; ngưỡng mở vòng kế: **≥1 hồi quy UI lọt qua một lượt re-pin**
