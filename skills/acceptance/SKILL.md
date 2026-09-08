@@ -310,11 +310,14 @@ Entry: implementation complete, contract `status: implemented`.
    **Người veto giữa chừng → DỪNG NGAY**, nêu hiện trạng và đường hoàn tác,
    KHÔNG tranh luận lại căn cứ đã trình, KHÔNG bày menu buộc người quyết lần
    nữa. Veto là quyết định của người; máy chỉ thi hành và để lại vết.
-   **Ô kết có tên của làn V — ĐƯỜNG GHI CHƯA BẬT (giới hạn đã khai).** Trạng
+   **Ô kết có tên của làn V — đường ghi MỘT cửa (duong-lui-phai-song).** Trạng
    thái `machine-cleared` đã có tên và MỌI bên đọc xử lý được nó (lưới
-   trước-merge · hook · bộ quét · bản đồ · thẻ), nhưng **máy KHÔNG được tự đặt
-   trạng thái đó** — làn V vẫn dừng ở `verified`. Lý do và đường bật:
-   `_acceptance/lan-may-thong-duong-ghi/`.
+   trước-merge · hook · bộ quét · bản đồ · thẻ). Đủ sáu → máy ghi ô kết bằng
+   ĐÚNG MỘT lệnh: `node <acceptance-gate>/scripts/khong-can-nguoi.mjs --write
+   --root . --slug <slug>` — lệnh tự kiểm bằng chính luật lưới ghi-lúc-viết
+   trước khi chạm đĩa, exit 2 kèm lý do khi còn cần người (khi đó mời ký như
+   cũ). **Máy KHÔNG tự sửa tay dòng `status`** — mọi đường ghi khác lệnh này
+   là bỏ cổng lặng lẽ, và bộ đọc RT6 canh đúng hình dạng câu đó.
 
 5. **STOP — Gate 2** (chỉ khi 4b KHÔNG đủ điều kiện đi tiếp). Commit the
    machine-written verify output (evidence-report.md + run-log.jsonl +

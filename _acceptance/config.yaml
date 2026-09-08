@@ -108,6 +108,21 @@ executors:
     cdcc_loi_thuat: bash _acceptance/cong-dang-co-cua/rang.sh --chan loi-thuat
     cdcc_gioi_han: bash _acceptance/cong-dang-co-cua/rang.sh --chan gioi-han
     cdcc_dang_thuc_lop: bash _acceptance/cong-dang-co-cua/rang.sh --chan dang-thuc-lop
+    # Răng hồ sơ duong-lui-phai-song — fixture kho git tạm CODE-SINH (fixture.mjs),
+    # mỗi chân mang đối chứng dương + chiều đỏ tiêm vào bản sao trong cùng lượt; dòng
+    # lệnh làn ký RÚT từ khối SIGNOFF-LANE-CLAUSE, checker P192 rút từ suite. Cùng
+    # nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ trên (lưới thường trực:
+    # V07–V10 hooks · LV5 · P192 · additive-only).
+    dlps_recheck_vang: bash _acceptance/duong-lui-phai-song/rang.sh --chan recheck-vang
+    dlps_lan_v_stale: bash _acceptance/duong-lui-phai-song/rang.sh --chan lan-v-stale
+    dlps_h1_rong: bash _acceptance/duong-lui-phai-song/rang.sh --chan h1-rong
+    dlps_ky_lan_song: bash _acceptance/duong-lui-phai-song/rang.sh --chan ky-lan-song
+    dlps_ky_stale: bash _acceptance/duong-lui-phai-song/rang.sh --chan ky-stale
+    dlps_veto_ghi: bash _acceptance/duong-lui-phai-song/rang.sh --chan veto-ghi
+    dlps_veto_slot: bash _acceptance/duong-lui-phai-song/rang.sh --chan veto-slot
+    dlps_ket_ghi: bash _acceptance/duong-lui-phai-song/rang.sh --chan ket-ghi
+    dlps_ky_lan_clause: bash _acceptance/duong-lui-phai-song/rang.sh --chan ky-lan-clause
+    dlps_su_lieu: bash _acceptance/duong-lui-phai-song/rang.sh --chan su-lieu
     product_map: "node scripts/product-map.mjs --root . --check"
     # Ca VĨNH VIỄN P200 chạy MỘT khối (ONLY_BLOCK) — cho hồ sơ MỐC PHÁT HÀNH: eval
     # ghim dòng «PASS: P200 …» của chính ca thay vì mã thoát trọn suite plugins

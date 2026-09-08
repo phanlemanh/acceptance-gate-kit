@@ -198,9 +198,11 @@ PY
     mk_repo "{\"sections\":\"$SEC\"}"; pmc "$FX_ROOT" --base "$FX_A"
     # hồ sơ không approved_by dừng ở khối Cổng 1: «làn V đòi xanh-sạch hoặc chữ ký (<why>). Máy…» — rút <why> từ đó
     WHY_BASH="$(printf '%s\n' "$OUT" | grep '^VIOLATION \[fx\]: status=verified but approved_by is empty' | sed -e 's/.*hoặc chữ ký (//' -e 's/)\. Máy .*//')"
-    WHY_MJS="$(cd "$KIT" && node -e '
-      import(process.argv[1]).then(m=>{const fs=require("fs");const c=fs.readFileSync(process.argv[2]+"/contract.md","utf8");const e=fs.readFileSync(process.argv[2]+"/evidence-report.md","utf8");process.stdout.write(m.xanhSach(c,e).why);});
-    ' "$KIT/scripts/khong-can-nguoi.mjs" "$FX_ROOT/_acceptance/fx")"
+    # đường script đi qua ENV, không qua argv: với `node -e`, argv[1] là đối số đầu, và khối CLI của
+    # khong-can-nguoi.mjs (Task 5) nhận mình là «main» khi argv[1] trỏ đúng file → thoát 3 trước .then
+    WHY_MJS="$(cd "$KIT" && KCN_PATH="$KIT/scripts/khong-can-nguoi.mjs" FX_DIR="$FX_ROOT/_acceptance/fx" node -e '
+      import(process.env.KCN_PATH).then(m=>{const fs=require("fs");const d=process.env.FX_DIR;const c=fs.readFileSync(d+"/contract.md","utf8");const e=fs.readFileSync(d+"/evidence-report.md","utf8");process.stdout.write(m.xanhSach(c,e).why);});
+    ')"
     EXP='mục «Known limits» VẮNG khỏi báo cáo (vắng ≠ rỗng)'
     if [ "$WHY_BASH" = "$EXP" ]; then ok "bash: h1 Known limits có nội dung → «$EXP»"; else bad "bash nói «$WHY_BASH»"; fi
     if [ "$WHY_MJS" = "$EXP" ] && [ "$WHY_MJS" = "$WHY_BASH" ]; then ok "mjs nói cùng câu từng ký tự với bash"; else bad "mjs nói «$WHY_MJS»"; fi
@@ -296,6 +298,23 @@ PY
     inject ket-ghi-m2 scripts/khong-can-nguoi.mjs "  if (r.anyFailure) { console.error(\`lưới ghi từ chối:" "  if (false) { console.error(\`lưới ghi từ chối:"
     mk_repo '{"contract":{"risk_tier":"T3","approved_by":"t","veto_state":""}}'; KOUT="$(node "$COPY/scripts/khong-can-nguoi.mjs" --write --root "$FX_ROOT" --slug fx 2>&1)"; KRC=$?
     if [ $KRC -eq 0 ] && grep -q '^status: machine-cleared$' "$FX_ROOT/_acceptance/fx/contract.md"; then ok "chiều đỏ M2: gỡ cả hai tầng → T3 bị ghi machine-cleared (ghi machine-cleared cho T3) — phép đo ô (4) đỏ đúng chỗ"; else bad "M2 KHÔNG chạy: rc=$KRC out=«$KOUT»"; fi
+    ;;
+  su-lieu)
+    # E11: trên CÂY THẬT của kit, bản mới không tăng số VIOLATION so với bản gốc origin/main (cùng cây, cùng cờ);
+    # hai luật mới (làn V stale · recheck câm) không cắn hồ sơ nào của kit. Đối chứng dương của phép đếm trên fixture stale.
+    mkdir -p "$TMP/base"; git -C "$KIT" archive origin/main scripts lib | tar -x -C "$TMP/base"
+    OUT_NEW="$(bash "$KIT/scripts/pre-merge-check.sh" "$KIT" --base origin/main --recheck-all 2>&1)"; RC_NEW=$?
+    OUT_BASE="$(bash "$TMP/base/scripts/pre-merge-check.sh" "$KIT" --base origin/main --recheck-all 2>&1)"; RC_BASE=$?
+    N_NEW="$(printf '%s\n' "$OUT_NEW" | grep -c '^VIOLATION' || true)"; N_BASE="$(printf '%s\n' "$OUT_BASE" | grep -c '^VIOLATION' || true)"
+    echo "  [su-lieu] VIOLATION trên cây thật: bản mới=$N_NEW (exit $RC_NEW) · bản gốc origin/main=$N_BASE (exit $RC_BASE)"
+    if [ "$N_NEW" -le "$N_BASE" ]; then ok "bản mới không tăng VIOLATION so với bản gốc ($N_NEW ≤ $N_BASE)"; else bad "bản mới TĂNG VIOLATION: $N_NEW > $N_BASE — $(printf '%s\n' "$OUT_NEW" | grep '^VIOLATION' | head -3 | cut -c1-160 | tr '\n' ' ')"; fi
+    N_LV="$(printf '%s\n' "$OUT_NEW" | grep -c 'làn V — evidence is stale' || true)"; N_RC="$(printf '%s\n' "$OUT_NEW" | grep -c 're-check KHÔNG CHẠY ĐƯỢC' || true)"
+    if [ "$N_LV" = 0 ] && [ "$N_RC" = 0 ]; then ok "hai luật mới không cắn hồ sơ nào của kit (làn V stale=0 · recheck câm=0)"; else bad "luật mới cắn cây thật: làn V stale=$N_LV · recheck câm=$N_RC"; fi
+    # đối chứng dương của phép đếm: fixture stale làn V → cùng lệnh đếm cho ≥1
+    fxgit() { git -C "$FX_ROOT" -c user.email=t@t -c user.name=t -c commit.gpgsign=false "$@"; }
+    mk_repo '{}'; echo v2 > "$FX_ROOT/src.txt"; echo '{"id":"d-1","type":"fix"}' >> "$FX_ROOT/_acceptance/fx/decisions.jsonl"; fxgit add -A >/dev/null; fxgit commit -q -m "C: code"
+    pmc "$FX_ROOT" --base "$FX_A"; N_FX="$(printf '%s\n' "$OUT" | grep -c 'làn V — evidence is stale' || true)"
+    if [ "$N_FX" -ge 1 ] && [ "$VIOL" -ge 1 ]; then ok "đối chứng dương của phép đếm: fixture stale làn V → đếm được $N_FX (VIOLATION=$VIOL)"; else bad "phép đếm mù: fixture stale mà đếm 0"; fi
     ;;
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;
 esac

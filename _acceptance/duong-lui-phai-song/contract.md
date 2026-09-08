@@ -5,7 +5,7 @@ slug: duong-lui-phai-song
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh (t3_paths) — lưới chặn-merge của mọi kho tiêu thụ
 surfaces: [cli]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-09-08-duong-lui-phai-song-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-07T22:58:00Z   # ISO UTC — «duyệt» + «Xác nhận» 08/09 ~05:58 giờ VN, máy ghi hộ
