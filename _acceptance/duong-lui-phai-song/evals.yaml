@@ -1,0 +1,161 @@
+# evals — duong-lui-phai-song (T3)
+# Răng của hồ sơ: _acceptance/duong-lui-phai-song/rang.sh --chan <x> — mỗi chân dựng fixture CODE-SINH
+# trong lần chạy (kho git tạm khi cần diff), có đối chứng dương và chiều đỏ ghim thông điệp; khoá config
+# dlps_* khai ở _acceptance/config.yaml (executors.script). Bốn suite thường trực + additive-only +
+# product-map --check chạy mỗi vòng. Không eval judgment: vòng không chạm giao diện.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.dlps_recheck_vang
+    paths: [scripts/pre-merge-check.sh, _acceptance/duong-lui-phai-song/rang.sh]
+    expected: >
+      Fixture kho tạm có hồ sơ đã ký + recheck: strict. Ba mũi tiêm (xoá recheck-evidence.cjs · PATH không có
+      node · lib/evidence-core.cjs vắng → exit 2) mỗi mũi in đúng «VIOLATION [x]: evidence re-check KHÔNG CHẠY
+      ĐƯỢC (<đường>)» và tổng violations tăng 1; cùng ba mũi ở recheck: warn → chỉ NOTE, 0 violation; đối chứng
+      dương: soi lại chạy được → 0 VIOLATION mới. Chiều đỏ: bản sao pre-merge gỡ khối mới → strict lại NOTE →
+      chân đỏ «strict van NOTE».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.dlps_lan_v_stale
+    paths: [scripts/pre-merge-check.sh, _acceptance/duong-lui-phai-song/rang.sh]
+    expected: >
+      Kho git tạm, ma trận 8 ô khai trước (đổi khuôn: làn V đi CÙNG chuỗi kiểm với hồ sơ có chữ ký): (1) hồ sơ
+      làn V xanh-sạch pin tại commit A, commit C đổi file mã ngoài T1, pre-merge --base A → «VIOLATION [x]:
+      evidence is stale — code changed after verify (verified_commit <A>)» cùng câu với hồ sơ có chữ ký, không
+      OK làn V; (2) chỉ đổi docs/ → NOTE xanh-sạch + «OK [x]: PASS — làn V, máy đi tiếp không chữ ký», 0
+      VIOLATION (đối chứng dương); (3) verified_commit là SHA không có trong repo → VIOLATION pin-ma P184; (4)
+      verified_commit rỗng → NOTE «report has no verified_commit»; (5) hồ sơ ngoài diff (--base B) → không stale,
+      OK làn V; (6) không --base mà cây đổi → VIOLATION stale (kiểm-tất, không tắt im); (7) làn suite-only chống
+      lưng pin → VIOLATION «recorded no evals_exit»; (8) run_id lạ → VIOLATION «committed evidence fails re-check
+      (recheck: strict)». Chiều đỏ: bản sao trả lại `continue` sau NOTE xanh-sạch → ô (1) và (7) đều 0 VIOLATION.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.dlps_h1_rong
+    paths: [scripts/pre-merge-check.sh, scripts/khong-can-nguoi.mjs, tests/plugins/lan-v.test.mjs]
+    expected: >
+      Fixture báo cáo với «# Known limits» (h1) có nội dung: bash xanh_sach_check trả __VANG__ và
+      khong-can-nguoi.mjs trả why «mục «Known limits» VẮNG khỏi báo cáo (vắng ≠ rỗng)» — hai bản cùng lý do,
+      so bằng nhau từng ký tự sau khi bash dịch mã sang câu; LV5 trong tests/plugins/lan-v.test.mjs chứa ca
+      kl-h1-co (grep dòng ma trận, không còn dòng loại trừ). Chiều đỏ: bản sao bash đưa #{1,6} trở lại → bash
+      «sạch» trong khi mjs «vắng» — chân in «bash sach-gia tren h1».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.dlps_ky_lan_song
+    paths: [commands/signoff.md, feature-loop/scripts/repin-lane.mjs, _acceptance/duong-lui-phai-song/rang.sh]
+    expected: >
+      Kho git tạm có hồ sơ verified + evals một eval script + feature_loop.suite_keys; chân RÚT dòng lệnh làn
+      từ khối marker SIGNOFF-LANE-CLAUSE của commands/signoff.md (round-trip writer→reader, không chép lời) rồi
+      chạy nó: eval xanh → bước commit của chân tạo commit «Gate 2 signoff»; phá eval (script fixture exit 1) →
+      lệnh rút ra thoát 1, in dòng đỏ nguyên văn, KHÔNG có commit chữ ký (git log không đổi). Mutant đổi cờ trong
+      khối (thêm --write hoặc bỏ --allow-dirty) → chân đỏ gọi tên «lenh trong clause lech». Đối chứng dương và
+      chiều đỏ trên cùng fixture.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.dlps_ky_stale
+    paths: [commands/signoff.md, feature-loop/scripts/repin-lane.mjs, _acceptance/duong-lui-phai-song/rang.sh]
+    expected: >
+      Kho git tạm: commit chữ ký chạm một file ngoài T1 → pre-merge báo stale cho slug; chân RÚT lệnh ghim lại từ
+      khối SIGNOFF-LANE-CLAUSE (vế bước 8) rồi chạy → dòng repin có evals_exit, verified_commit = commit chữ ký,
+      commit ghim lại có mặt, pre-merge lần hai 0 violation → mới in READY. Chiều đỏ: bỏ bước ghim lại → pre-merge
+      vẫn VIOLATION stale, không READY.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.dlps_veto_ghi
+    paths: [commands/signoff.md, scripts/pre-merge-check.sh, lib/evidence-core.cjs, _acceptance/duong-lui-phai-song/rang.sh]
+    expected: >
+      Ma trận 4 ô khai trước: status ∈ {verified, machine-cleared} × Cổng 1 ∈ {approved_by có, làn V mo}; mỗi ô
+      ghi veto_state: da-veto (bản cũ đang mo ở ô làn V) rồi tự kiểm bằng evaluateContractWrite(new, old) của
+      lib/evidence-core.cjs → 0 failure ở CẢ 4 ô; đối chứng dương của chiều đỏ: ô machine-cleared × mo phải ĐỎ
+      «Gate 1 approval not recorded» trên bản base git archive SHA CỐ ĐỊNH bafe2aad scripts lib (mốc cắt nhánh,
+      không phải ref trôi origin/main); sau ghi, pre-merge in «VIOLATION [x]: veto_state=da-veto chưa xử».
+      Chiều đỏ thứ hai: xử ngược da-veto→mo KHÔNG entry → «mà KHÔNG có entry sổ quyết định»; có entry → NOTE «veto đã xử».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.dlps_veto_slot
+    paths: [skills/acceptance/references/human-facing-language.md, scripts/gate-card.js, tests/plugins/run-tests.sh]
+    expected: >
+      SLOTS có dòng «g2 veto hay để yên»; GRAMMAR có luật «veto: <lý do>» kèm điều kiện máy-đi-trước; thẻ máy-đi-trước
+      render từ fixture code-sinh có nhãn «veto hay để yên» trong «Trả lời mẫu»; P192 trong suite plugins xanh.
+      Chiều đỏ: bản sao gỡ dòng SLOTS → chân đỏ «nhan the day ma ngu phap khong khai: veto hay để yên».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.dlps_ket_ghi
+    paths: [scripts/khong-can-nguoi.mjs, lib/evidence-core.cjs, _acceptance/duong-lui-phai-song/rang.sh]
+    expected: >
+      Ma trận fixture {verified sạch T2 · thiếu Known limits · có UNCERTAIN · T3 · status draft · thiếu cờ ·
+      status có comment đuôi · báo cáo đã có human_signoff}: ô đầu ghi status: machine-cleared (diff đúng một
+      dòng), exit 0, --check không đổi byte; các ô từ chối exit 2 nêu điều kiện trượt đầu tiên (thiếu cờ exit 3),
+      không ghi; comment đuôi giữ nguyên khi ghi; báo cáo có chữ ký → exit 2 «lưới ghi từ chối: chữ ký người
+      trên hồ sơ máy-thông» (cùng luật thứ hai của hook). Chiều đỏ hai tầng: gỡ cổng why → T3 vẫn bị lưới ghi từ
+      chối; gỡ cả hai → T3 bị ghi «ghi machine-cleared cho T3».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.workflows
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/workflows/skill-claims.test.mjs]
+    expected: >
+      Suite workflows xanh, trong đó skill-claims ghim: hàng verified của SKILL feature-loop chứa
+      «khong-can-nguoi.mjs --write», hàng machine-cleared KHÔNG còn «ĐƯỜNG GHI CHƯA BẬT». Chiều đỏ sống trong
+      ca (mutant đưa đoạn cũ trở lại → đỏ gọi tên hàng).
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.dlps_ky_lan_clause
+    paths: [commands/signoff.md, skills/acceptance/SKILL.md, _acceptance/duong-lui-phai-song/rang.sh]
+    expected: >
+      Khối SIGNOFF-LANE-CLAUSE rút từ marker ở commands/signoff.md và skills/acceptance/SKILL.md bằng nhau từng ký
+      tự; mutant đổi một ký tự ở bản chép → đỏ «lech ban chep: skills/acceptance/SKILL.md».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.dlps_su_lieu
+    paths: [scripts/pre-merge-check.sh]
+    expected: >
+      Chạy pre-merge-check --base origin/main --recheck-all trên cây đã vá và trên bản base (git archive
+      origin/main scripts lib) đối với cùng _acceptance/: số dòng VIOLATION NGOÀI họ nợ làn suite-only («recorded
+      no evals_exit») của cây vá ≤ bản base; mọi dòng tăng thêm phải là dòng nợ đó của slug có tên trong
+      SUITE_ONLY_LANE_DEBT (tests/scripts/mirror-sync-grandfather.mjs); «re-check KHÔNG CHẠY ĐƯỢC» = 0 trên cây
+      thật. In hai cặp số. Đối chứng dương của phép đếm: fixture làn V stale → đếm ≥ 1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH (gồm additive-only DV5 với dòng gỡ khai đích danh)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E12b
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E12c
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH (LV5 có ca kl-h1-co, P192 có fixture máy-đi-trước)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E12d
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 — bản đồ khớp hồ sơ xưởng sau khi hai ô gộp lưu kho và ô mới mở"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

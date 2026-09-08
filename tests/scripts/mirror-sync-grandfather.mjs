@@ -20,19 +20,19 @@
 //
 // Trigger XOÁ cả tệp này: khi 21 hồ sơ dưới đây không còn được `recheck` soi
 // (chúng rời corpus), hoặc khi có quyết định migrate chúng. Xem ADR 0010.
+// 08/09/2026: trigger ĐÃ tới — cả 21 rời corpus (18 theo ADR 0015, 3 còn lại
+// theo bổ sung cùng ngày, mốc truoc-luu-kho-mirror-sync-2026-09-08). Tệp GIỮ
+// LẠI vì phần sống của nó là assertCorpus: «hồ sơ đỏ mà không có tên = lỗi
+// mới», nay với CẢ HAI danh sách RỖNG — corpus phải sạch tuyệt đối; nợ mới
+// muốn tồn tại phải đặt tên ở đây, hai chiều, không nới reader.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
-// 21 hồ sơ đã ký, đo tại chỗ 2026-08-13 — KHÔNG chép tay từ log.
+// 21 hồ sơ đã ký, đo tại chỗ 2026-08-13 — KHÔNG chép tay từ log. 08/09/2026:
+// 18 trong 21 LƯU KHO (ADR 0015, tag truoc-luu-kho-no-lan-2026-09-08), 3 còn
+// lại LƯU KHO cùng ngày (tag truoc-luu-kho-mirror-sync-2026-09-08) — RỖNG.
 export const MIRROR_SYNC_GRANDFATHER = [
-  'claim-scan-parser-hardening', 'consumer-copy-cjs', 'context-ladder',
-  'cross-feature-claim-index', 'delta-verify-repin', 'design-pass-skill',
-  'discovery-brainstorm-socket', 'docs-first-run-audit', 'findings-section-boundary',
-  'gate-card-ac-visibility', 'hinh-theo-mat-phang', 'judgment-question-guard',
-  'may-ganh-nguoi-quyet', 'mot-luot-go-cong-nguoi', 'ngon-ngu-mat-nguoi',
-  'pha3-goi-luoi', 'product-map-uat-session', 'rang-phep-do-viec-cua-anh',
-  'stale-theo-diff-pr', 'start-command', 'start-scan-hardening',
 ];
 
 const DEAD_KEY = 'executors.script.mirror_sync';
@@ -40,28 +40,16 @@ const DEAD_KEY = 'executors.script.mirror_sync';
 // ── Nợ thứ hai, cùng khuôn (ADR 0014, sửa 08/09/2026 — owner bỏ mốc, xử ngược):
 // làn ghim lại suite-only (dòng kind:repin không có evals_exit) chưa bao giờ
 // chứng được pin. 49 hồ sơ đã ký, đo tại chỗ 2026-09-08 bằng chính recheck —
-// KHÔNG chép tay. Rút tên khi hồ sơ được ghim lại bằng làn eval (chiến dịch
-// phát hành); hai chiều như danh sách trên. Ghi chú: recheck dừng ở lớp re-pin
+// KHÔNG chép tay; 25 tên rút cùng ngày sau chiến dịch ghim lại bằng làn eval
+// (run_id repin-20260908T035246Z-95429 trong run-log từng hồ sơ). Còn 24:
+// 6 hồ sơ eval đỏ thật trên cây hiện tại (cham-dung-cay-dung-cho-dung,
+// cong-chan-nham-cho, het-gio-khong-phai-truot, khong-ve-the-ma,
+// moi-noi-vong-trao, release-2-1-0) + 18 hồ sơ eval trỏ khoá mirror_sync đã
+// gỡ (làn không chạy được) — owner quyết riêng. Rút tên khi hồ sơ được ghim
+// lại; hai chiều như danh sách trên. Ghi chú: recheck dừng ở lớp re-pin
 // trước khi tới lớp verifier, nên một hồ sơ nằm trong CẢ hai danh sách chỉ lộ
 // lý do suite-only cho tới khi được ghim lại — lúc đó lý do mirror_sync lộ lại.
 export const SUITE_ONLY_LANE_DEBT = [
-  'card-text-fidelity', 'cham-dung-cay-dung-cho-dung', 'claim-scan-parser-hardening',
-  'codex-script-packaging', 'cong-chan-nham-cho', 'context-ladder',
-  'cross-feature-claim-index', 'delta-verify-repin', 'design-pass-skill',
-  'discovery-brainstorm-socket', 'docs-first-run-audit', 'duong-do-trong-dinh-nghia-xong',
-  'findings-section-boundary', 'gap-probe-presence-hook', 'gate-card-ac-visibility',
-  'gold-output-measure', 'het-gio-khong-phai-truot', 'hinh-tai-cong-1',
-  'hinh-theo-mat-phang', 'judge-required-evidence', 'judgment-question-guard',
-  'khoi-viec-cua-anh', 'khong-ve-the-ma', 'lan-may-song-qua-bo-phan-loai',
-  'loi-moi-cong-may-sinh', 'matrix-measure-law', 'may-ganh-nguoi-quyet',
-  'measure-birth-certificate', 'measure-teeth-cleanup', 'moi-noi-vong-trao',
-  'ngon-ngu-mat-nguoi', 'pha3-goi-luoi', 'premerge-rules-ledger',
-  'premerge-unjudged-pass', 'product-map-uat-session', 'release-2-1-0',
-  'release-2-8-0', 'repo-khai-plugin', 's4-scope-triage',
-  'siet-rang-cau-ve-hinh', 'stale-theo-diff-pr', 'start-command',
-  'start-scan-hardening', 'status-chua-arm-cong', 'stop-patching-law',
-  'suite-run-log-provenance', 't1-escape-event-scope', 'vu-trang-goal-luc-goi-ten',
-  'workspace-reader-unification',
 ];
 const SUITE_ONLY_NEEDLE = 'recorded no evals_exit';
 

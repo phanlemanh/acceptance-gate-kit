@@ -1007,7 +1007,7 @@ for f in "$ROOT"/_acceptance/*/contract.md; do
   fi
 done
 # doi chung duong: ban sao doi heading -> phai bi bat
-P63TMP="$(mktemp -d)"; sed 's/^## Criteria$/## Acceptance criteria/' "$ROOT/_acceptance/gate-card-ac-visibility/contract.md" > "$P63TMP/c.md"
+P63TMP="$(mktemp -d)"; sed 's/^## Criteria$/## Acceptance criteria/' "$ROOT/_acceptance/cong-dang-co-cua/contract.md" > "$P63TMP/c.md"
 if grep -qE '^#{2,6}[[:space:]]+Criteria([[:space:]]|$)' "$P63TMP/c.md"; then
   fail "P70 doi chung duong HONG: ban sao doi heading van lot qua phep kiem"
 elif [ "$P63BAD" -ne 0 ]; then
@@ -5413,15 +5413,15 @@ root = Path(sys.argv[1])
 # mot-dong, khong thay ca am trong block scalar — cung lop bug parser gate-card,
 # chip sua rieng). Luat: canh bao cua context-ladder ⊆ {W3}; lint sua xong
 # (exit 0, khong W3) case nay VAN xanh — khong ghim bao gia thanh yeu cau.
-r = subprocess.run(["node", str(root / "scripts/eval-coverage-lint.js"), str(root), "--slug", "context-ladder"],
+r = subprocess.run(["node", str(root / "scripts/eval-coverage-lint.js"), str(root), "--slug", "stop-patching-law"],  # context-ladder lưu kho 08/09 (ADR 0015) — hồ sơ sống, lint sạch, có Coverage
                    capture_output=True, text=True)
-warns = [l for l in r.stdout.splitlines() if l.strip().startswith("[context-ladder]")]
+warns = [l for l in r.stdout.splitlines() if l.strip().startswith("[stop-patching-law]")]
 bad = [l for l in warns if " W3 " not in l]
 assert bad == [], f"canh bao NGOAI W3 cho context-ladder: {bad}"
 # DOI CHUNG DUONG (che do --files; W6 tat trong mode nay theo thiet ke — dong 214
 # cua lint): tiem AC nguong KHONG co eval am -> W1 phai no dung ten AC.
-ct = (root / "_acceptance/context-ladder/contract.md").read_text(encoding="utf-8")
-ev = (root / "_acceptance/context-ladder/evals.yaml").read_text(encoding="utf-8")
+ct = (root / "_acceptance/stop-patching-law/contract.md").read_text(encoding="utf-8")
+ev = (root / "_acceptance/stop-patching-law/evals.yaml").read_text(encoding="utf-8")
 d = Path(tempfile.mkdtemp())
 (d / "contract.md").write_text(ct.replace("## Coverage", "- AC-99: Given x, When đạt ngưỡng 5, Then y.\n\n## Coverage", 1), encoding="utf-8")
 (d / "evals.yaml").write_text(ev + "  - id: E99\n    criterion: AC-99\n    executor: script\n    cmd: config:executors.script.product_map\n    expected: chay xong la dat\n", encoding="utf-8")
@@ -5700,7 +5700,8 @@ P146OK=1
 P146WS="$(mktemp -d)"
 mkdir -p "$P146WS/_acceptance/demo"
 for f in contract.md gap-probe.md decisions.jsonl evals.yaml; do
-  cp "$ROOT/_acceptance/delta-verify-repin/$f" "$P146WS/_acceptance/demo/$f" \
+  # hồ sơ delta-verify-repin lưu kho 08/09 (ADR 0015): artifact chép nguyên văn vào tests/plugins/fixtures/
+  cp "$ROOT/tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/$f" "$P146WS/_acceptance/demo/$f" \
     || { echo "     fixture hong: khong cp duoc $f tu workspace that"; P146OK=0; }
 done
 # đối chứng dương cho chính fixture: bản gốc PHẢI chứa bullet wrap đang kiểm
@@ -5735,7 +5736,7 @@ P147OK=1
 P147WS="$(mktemp -d)"
 mkdir -p "$P147WS/_acceptance/demo"
 for f in contract.md gap-probe.md decisions.jsonl evals.yaml; do
-  cp "$ROOT/_acceptance/delta-verify-repin/$f" "$P147WS/_acceptance/demo/$f" \
+  cp "$ROOT/tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/$f" "$P147WS/_acceptance/demo/$f" \
     || { echo "     fixture hong: khong cp duoc $f"; P147OK=0; }
 done
 # khuôn key: writer doc là NGUỒN, reader phải đọc đúng tập đó (hai chiều — trôi là đỏ)
@@ -9635,18 +9636,23 @@ console.log("ONESHOT-RT-NGUOC: moi dong SLOTS co fixture render");
 P192JS
 P192WS1="$(mktemp -d)"; vca_scenario gate1-draft "$P192WS1" || { echo "     dung fixture g1 that bai"; P192OK=0; }
 P192WS2="$(mktemp -d)"; vca_scenario gate2-4loai "$P192WS2" || { echo "     dung fixture g2 that bai"; P192OK=0; }
+P192WS3="$(mktemp -d)"; vca_scenario gate2-may-di-tiep "$P192WS3" || { echo "     dung fixture g2v that bai"; P192OK=0; }
 node "$ROOT/scripts/gate-card.js" --root "$P192WS1" --slug fx --gate 1 > "$P192TMP/card-g1.html" 2>/dev/null \
   || { echo "     render the g1 that bai"; P192OK=0; }
 node "$ROOT/scripts/gate-card.js" --root "$P192WS2" --slug fx --gate 2 > "$P192TMP/card-g2.html" 2>/dev/null \
   || { echo "     render the g2 that bai"; P192OK=0; }
+# the may-di-truoc: nhan cuoi la «veto hay để yên» (duong-lui-phai-song AC-7)
+node "$ROOT/scripts/gate-card.js" --root "$P192WS3" --slug fx --gate 2 > "$P192TMP/card-g2v.html" 2>/dev/null \
+  || { echo "     render the g2v that bai"; P192OK=0; }
+grep -qF 'veto hay để yên: ___' "$P192TMP/card-g2v.html" || { echo "     the g2v khong in «veto hay để yên» — fixture khong phai may-di-truoc"; P192OK=0; }
 grep -qF 'Trả lời mẫu' "$P192TMP/card-g1.html" && grep -qF 'Trả lời mẫu' "$P192TMP/card-g2.html" \
   || { echo "     the render thieu dong Tra-loi-mau — fixture/renderer hong"; P192OK=0; }
 # doi chung DUONG truoc moi dot bien
-if node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html"; then :; else { echo "     doi chung duong DO oan"; P192OK=0; }; fi
+if node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" "$P192TMP/card-g2v.html"; then :; else { echo "     doi chung duong DO oan"; P192OK=0; }; fi
 # MUTANT-A: go nhan co dinh «Treo» khoi ban sao SLOTS -> do dich danh
 grep -v '^g2 Treo$' "$ONESHOT_LAW" > "$P192TMP/law-mutA.md"
 if cmp -s "$ONESHOT_LAW" "$P192TMP/law-mutA.md"; then echo "     MUTANT-A khong tac dung (SLOTS chua co dong g2 Treo?)"; P192OK=0; else echo "     MUTANT-A: da go dong 'g2 Treo' khoi ban sao SLOTS"; fi
-P192AERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutA.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192AST=$?
+P192AERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutA.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" "$P192TMP/card-g2v.html" 2>&1)"; P192AST=$?
 if [ "$P192AST" -ne 0 ] && printf '%s' "$P192AERR" | grep -q "nhan khong khop SLOTS: Treo"; then
   echo "     MUTANT-A DO dung — nhan the day ma ngu phap khong khai: Treo"
 else
@@ -9655,7 +9661,7 @@ fi
 # MUTANT-B: tiem nhan la vao dung dong Tra-loi-mau cua HTML da render -> do
 sed 's/điền vào chỗ trống): «/điền vào chỗ trống): «lạ-oneshot: ___; /' "$P192TMP/card-g2.html" > "$P192TMP/card-g2-mutB.html"
 if cmp -s "$P192TMP/card-g2.html" "$P192TMP/card-g2-mutB.html"; then echo "     MUTANT-B khong tac dung"; P192OK=0; else echo "     MUTANT-B: da tiem nhan 'lạ-oneshot' vao dong Tra-loi-mau cua the g2"; fi
-P192BERR="$(node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2-mutB.html" 2>&1)"; P192BST=$?
+P192BERR="$(node "$P192TMP/check-rt.js" "$ONESHOT_LAW" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2-mutB.html" "$P192TMP/card-g2v.html" 2>&1)"; P192BST=$?
 if [ "$P192BST" -ne 0 ] && printf '%s' "$P192BERR" | grep -q "nhan khong khop SLOTS: lạ-oneshot"; then
   echo "     MUTANT-B DO dung — nhan la ngoai ngu phap: lạ-oneshot"
 else
@@ -9665,7 +9671,7 @@ fi
 # qua lop <mã eval> (checker doi chieu id that, khong regex rong)
 grep -v '^g2 Ngoài-<số>$' "$ONESHOT_LAW" > "$P192TMP/law-mutC.md"
 if cmp -s "$ONESHOT_LAW" "$P192TMP/law-mutC.md"; then echo "     MUTANT-C khong tac dung"; P192OK=0; else echo "     MUTANT-C: da go dong 'g2 Ngoài-<số>' khoi ban sao SLOTS"; fi
-P192CERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutC.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192CST=$?
+P192CERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutC.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" "$P192TMP/card-g2v.html" 2>&1)"; P192CST=$?
 if [ "$P192CST" -ne 0 ] && printf '%s' "$P192CERR" | grep -q "nhan khong khop SLOTS: Ngoài-1"; then
   echo "     SANITY-KHONG-NUOT: Ngoai-1 khong chui qua lop ma-eval"
 else
@@ -9674,13 +9680,13 @@ fi
 # MUTANT-H (leg NGUOC): them dong nhan chet vao ban sao SLOTS -> do dich danh
 sed 's/^g2 ký hay trả$/g2 ký hay trả\ng2 nhãn-chết-oneshot/' "$ONESHOT_LAW" > "$P192TMP/law-mutH.md"
 if grep -q '^g2 nhãn-chết-oneshot$' "$P192TMP/law-mutH.md"; then echo "     MUTANT-H: da them dong nhan chet vao ban sao SLOTS"; else echo "     MUTANT-H khong tac dung"; P192OK=0; fi
-P192HERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutH.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" 2>&1)"; P192HST=$?
+P192HERR="$(node "$P192TMP/check-rt.js" "$P192TMP/law-mutH.md" "E9" "$P192TMP/card-g1.html" "$P192TMP/card-g2.html" "$P192TMP/card-g2v.html" 2>&1)"; P192HST=$?
 if [ "$P192HST" -ne 0 ] && printf '%s' "$P192HERR" | grep -q "nhan SLOTS khong fixture nao render: g2 nhãn-chết-oneshot"; then
   echo "     MUTANT-H DO dung — nhan SLOTS khong fixture nao render"
 else
   echo "     PHEP DO MU: MUTANT-H khong do hoac sai nhan: $P192HERR"; P192OK=0
 fi
-rm -rf "$P192TMP" "$P192WS1" "$P192WS2"
+rm -rf "$P192TMP" "$P192WS1" "$P192WS2" "$P192WS3"
 if [ "$P192OK" -eq 1 ]; then pass "P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)"; else fail "P192 round-trip the->SLOTS hai huong (4 chieu do: go-nhan, tiem-nhan-la, khong-nuot-lop, nhan-chet)"; fi
 
 run "P193 dieu khoan mot-luot-go: 6 site nguon khop tung ky tu + quan he per-site (E3/E4 mot-luot-go)" \
@@ -11120,6 +11126,14 @@ assert "copy" in r_t and "bốn-cổng-người" in r_t, f"{EN_P}: khong tu khai
 assert "P86" in r_t, f"{EN_P}: khong goi ten rang giu no khop"
 print("     P86 VE: hai ban chep deu tu khai + tro dich danh ve nguon")
 PY
+
+# ─── Hồ sơ lop-bang-chung-nhin-thay: LNT1..LNT6 (file ca riêng) ───────────────
+# Danh sách ca do CHÍNH file ca xuất (--ids); tên dòng run KHÔNG chứa "PASS: [LNT".
+_lnt_ids="$(node "$ROOT/tests/plugins/lop-nhin-thay.test.mjs" --ids)" || { echo "khong lay duoc danh sach ca LNT"; failures=$((failures+1)); _lnt_ids=""; }
+for _lnt in $_lnt_ids; do
+  run "ca lop nhin thay — $_lnt (ho so lop-bang-chung-nhin-thay)" \
+    env LNT_CASES="$_lnt" node "$ROOT/tests/plugins/lop-nhin-thay.test.mjs"
+done
 
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then

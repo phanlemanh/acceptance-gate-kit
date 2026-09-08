@@ -7,7 +7,7 @@ reason:                 # BLOCKED only
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c7ad28507295944f427cd2b375a78c7323fb5aed
+verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-06 — ký + gỡ nhóm B (hai chốt meta); ship 5 phép đo đã có răng
 ---
@@ -212,6 +212,6 @@ sha: d55a836d454685cc1ab820ddada9e90b1a7ace95 · suites: 6 lệnh exit 0
 run_id: repin-20260809-consumer-copy-cjs-lane1
 sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
 
-### Re-pin lần 12 — 2026-09-08, do chiến dịch ghim lại ADR 0014 — 26 hồ sơ chốt được; 6 thước mục nát + 18 bằng chứng ghi khoá chết chờ owner quyết
-run_id: repin-20260908T050515Z-82614
-sha: c7ad28507295944f427cd2b375a78c7323fb5aed · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0
+### Re-pin lần 12 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
+run_id: repin-20260908T035246Z-95429
+sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0

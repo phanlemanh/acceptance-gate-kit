@@ -108,6 +108,9 @@ ba lỗ phép đo còn lại ghi thành giới hạn đã biết.
 Khối máy-đọc cho AC-13(ii) — mỗi dòng `slug stateKey-cũ stateKey-mới`; thêm khác biệt là sửa khối này cùng lượt. Cờ KHÔNG khai ở đây: cờ đo bằng quan hệ ở AC-13(iii), vì danh sách cờ đổi theo ngày chạy (lớp «thước ghim vào thứ sẽ đổi»). Kiểm 23/08: 0 hồ sơ `stage: archived`, 5 hồ sơ có timebox ngày thật và cả 5 còn hạn.
 <!-- <<<KHAC-BIET-DOC-CU
 duong-do-trong-dinh-nghia-xong cho-cong-gia-tri da-giao-khong-do
+lan-may-thong-duong-ghi cho-cong-dang da-dong-ho-so
+lan-v-thoat-kiem-stale y-can-nhac da-dong-ho-so
+duong-lui-phai-song cho-cong-gia-tri da-giao-khong-do
 KHAC-BIET-DOC-CU>>> -->
 
 Khối máy-đọc cho AC-18 — file NGOÀI lib được phép mang chuỗi luật ngưỡng, mỗi dòng `đường-dẫn lý-do`; thêm bản chép mới là quyết định người, khai ở đây cùng lượt:
@@ -128,7 +131,9 @@ tests/scripts/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/additive-only.test.mjs ca-đo-tính-chỉ-thêm-không-rẽ-theo-status
 .claude-plugin/plugin.json chuỗi-nằm-trong-mô-tả-gói-không-rẽ-nhánh
 tests/plugins/asserts-da-go.txt sổ-ca-đã-gỡ-văn-bản-lịch-sử-không-chạy
+tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/contract.md artifact-đông-lạnh-của-hồ-sơ-lưu-kho-ADR-0015-làm-fixture-P146-P147-không-phải-bộ-đọc
 tests/scripts/repin-lane.test.mjs ca-của-làn-ghim-lại-bằng-eval-trên-kho-git-code-sinh-không-rẽ-theo-status-của-hồ-sơ-này
+tests/hooks/run-tests.sh ca-V12-signed-off-kèm-da-veto-của-lưới-ghi-duong-lui-phai-song-không-rẽ-theo-status-máy-thông
 BO-DOC-KHAI-GACH>>> -->
 
 

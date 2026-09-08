@@ -121,6 +121,21 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    `references/design-ui-check.md` (authoritative P0). Skip only when no surface
    renders UI, or when `executors.design` is absent from config.yaml (then note
    the skip). Strategic "on-brand / not generic" goes to a `judgment` eval.
+2c. **Lớp bằng chứng nhìn-thấy (`layer: ui-observed`, mặt người nhìn — mặc định bật).**
+   Nếu `surfaces` của contract có `ui` (alias `web`, `web-ui`; KHÔNG tính `mobile`),
+   evals.yaml PHẢI có ≥1 eval `executor: ui-check` — tính theo hợp đồng, không theo
+   AC — và eval đó khai `layer: ui-observed`. Bằng chứng lớp mã (`test` vitest/DOM,
+   `script` axe-core/design-gate) vẫn hợp lệ cho tiêu chí của nó, nhưng KHÔNG trả
+   nghĩa vụ này: nghĩa vụ là frame + `observed:` trong block ui-check của báo cáo —
+   răng của frame là THẺ Cổng Bằng chứng (đọc `exit_code: 0` + `screenshot:` trên
+   báo cáo); hook write-time chỉ kiểm `observed:` khi block đã có `screenshot:`, KHÔNG
+   tự đòi screenshot — đừng dựa vào hook cho vế này.
+   Nhãn `layer: ui-observed` trên executor khác ui-check là lạc chỗ (lint W8). Bỏ
+   nghĩa vụ (không dev server, hạ tầng chụp hỏng) PHẢI là entry `descope` bắt đầu
+   đúng chuỗi `bỏ ui-observed — <lý do>` — thẻ Cổng 1 hiện dòng thông tin, ghi sau
+   seal thì thẻ Cổng 2 hiện ở khối «CHƯA duyệt»; không có đường bỏ im lặng. Răng:
+   lint W8 · cờ vàng thẻ Cổng 1 · NOTE pre-merge (chưa chặn; ngưỡng siết: 2 hợp
+   đồng ký không frame trong một mốc phát hành).
 3. Repo-specific commands MUST be `config:` references
    (e.g. `cmd: config:executors.test.api`) — never hardcoded.
 3b. `inputs` on a `judgment` eval and `paths` on any eval are written from the
@@ -310,11 +325,14 @@ Entry: implementation complete, contract `status: implemented`.
    **Người veto giữa chừng → DỪNG NGAY**, nêu hiện trạng và đường hoàn tác,
    KHÔNG tranh luận lại căn cứ đã trình, KHÔNG bày menu buộc người quyết lần
    nữa. Veto là quyết định của người; máy chỉ thi hành và để lại vết.
-   **Ô kết có tên của làn V — ĐƯỜNG GHI CHƯA BẬT (giới hạn đã khai).** Trạng
+   **Ô kết có tên của làn V — đường ghi MỘT cửa (duong-lui-phai-song).** Trạng
    thái `machine-cleared` đã có tên và MỌI bên đọc xử lý được nó (lưới
-   trước-merge · hook · bộ quét · bản đồ · thẻ), nhưng **máy KHÔNG được tự đặt
-   trạng thái đó** — làn V vẫn dừng ở `verified`. Lý do và đường bật:
-   `_acceptance/lan-may-thong-duong-ghi/`.
+   trước-merge · hook · bộ quét · bản đồ · thẻ). Đủ sáu → máy ghi ô kết bằng
+   ĐÚNG MỘT lệnh: `node <acceptance-gate>/scripts/khong-can-nguoi.mjs --write
+   --root . --slug <slug>` — lệnh tự kiểm bằng chính luật lưới ghi-lúc-viết
+   trước khi chạm đĩa, exit 2 kèm lý do khi còn cần người (khi đó mời ký như
+   cũ). **Máy KHÔNG tự sửa tay dòng `status`** — mọi đường ghi khác lệnh này
+   là bỏ cổng lặng lẽ, và bộ đọc RT6 canh đúng hình dạng câu đó.
 
 5. **STOP — Gate 2** (chỉ khi 4b KHÔNG đủ điều kiện đi tiếp). Commit the
    machine-written verify output (evidence-report.md + run-log.jsonl +
@@ -341,6 +359,19 @@ Entry: implementation complete, contract `status: implemented`.
    <!-- SIGNATURE-OWNER-CLAUSE>>> -->
 
    (Bản gốc ở `commands/signoff.md` bước 7; khối trên là bản chép nguyên văn.)
+
+   <!-- <<<SIGNOFF-LANE-CLAUSE -->
+   Làn trước chữ ký — chạy làn máy của CHÍNH hồ sơ trên cây làm việc, chỉ ĐO không ghim:
+   ```bash
+   node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --allow-dirty
+   ```
+   Làn đỏ (exit ≠ 0) → KHÔNG commit chữ ký, in nguyên văn dòng đỏ, dừng lệnh — người sửa vật rồi gọi lại. Làn xanh → commit (7c). Sau commit, lưới trước-merge báo `evidence is stale` cho CHÍNH slug (commit chữ ký chạm file ngoài T1) → ghim lại trong CÙNG lượt rồi chạy lưới lại, TRƯỚC khi báo READY:
+   ```bash
+   node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --reason "hoá cũ do chính commit chữ ký" --write
+   ```
+   <!-- SIGNOFF-LANE-CLAUSE>>> -->
+
+   (Bản gốc ở `commands/signoff.md` bước 7b — làn máy chạy TRƯỚC chữ ký, ghim lại cùng lượt khi chính chữ ký làm hoá cũ; khối trên là bản chép nguyên văn, hồ sơ duong-lui-phai-song.)
    Then set contract `status: signed-off`. Where
    write-time hooks are not active, run
    `scripts/recheck-evidence.cjs` or `scripts/pre-merge-check.sh` before calling

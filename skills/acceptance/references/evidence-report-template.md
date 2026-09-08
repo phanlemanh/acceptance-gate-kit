@@ -159,8 +159,12 @@ Hàng bảng eval cho một judgment chưa người chốt (thay cho `PASS` ở 
 
 | E4 | AC-2 | judgment | UNCERTAIN |
 
-Khối evidence cho eval ui-check có ảnh chụp (đặt trong `## Evidence`, cạnh các khối khác):
+Khối evidence cho eval ui-check có ảnh chụp (đặt trong `## Evidence`, cạnh các khối khác).
+Marker dưới đây là NGUỒN bên viết của khối ui-check: ca LNT4 (hồ sơ lop-bang-chung-nhin-thay)
+rút khối này để dựng fixture, nên bên đọc (thẻ Cổng Bằng chứng: `exit_code` + `screenshot:`)
+trôi khỏi bên viết là ca đỏ, không phải fixture tự chép khuôn bên đọc.
 
+<!-- <<<UI-CHECK-BLOCK-TEMPLATE -->
 - eval: E3
   run_id: {{...}}
   exit_code: 0
@@ -172,6 +176,7 @@ Khối evidence cho eval ui-check có ảnh chụp (đặt trong `## Evidence`, 
     against the eval's expected — written AFTER opening each frame with a
     multimodal Read. >= 20 substantive chars; placeholders do not count.}}
   network_observed: {{clean|no-app-traffic|third-party-only|app-fail|n-a (driver)|n-a (tool-error)|unscoped|unscoped-partial}}   # words only — raw statuses live in evidence/E3-network.txt
+<!-- UI-CHECK-BLOCK-TEMPLATE>>> -->
 
 Khối cho một LỆNH SUITE (hồi quy) — lệnh chạy mỗi vòng nhưng không gắn AC nào.
 Đặt dưới `## Evidence`, sau các khối eval, trong mục `### Lệnh suite (hồi quy)`.

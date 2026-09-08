@@ -145,6 +145,27 @@ eval set MUST contain, besides the UI-half eval:
   baseline, run-log and carry-forward apply automatically since this is an
   ordinary machine eval.
 
+## Pairing mechanics — `layer: ui-observed` (human-visible surfaces)
+
+The mirror of the cross-layer rule. When the contract's `surfaces` include a
+web UI (`ui`; aliases `web`, `web-ui`; NOT `mobile`), evals.yaml MUST carry
+≥1 eval with `executor: ui-check` — per CONTRACT, not per criterion — and that
+eval declares `layer: ui-observed`. Code-layer evidence (`test` component/DOM,
+`script` axe-core/design-gate) stays valid for its own criterion but never
+discharges this obligation: the obligation is a saved frame + an `observed:`
+line in the ui-check block of the report. The tooth for the FRAME is the Gate-2
+card (it reads `exit_code: 0` + `screenshot:` on the report block); the write-time
+hook only checks `observed:` once a `screenshot:` is present and does NOT require
+a screenshot on ui-check blocks by itself. At the declaration tier (lint W8,
+Gate-1 card, pre-merge NOTE) the machine anchor is the executor; the label is for readers and for the vacuous
+guard (`layer: ui-observed` on a non-ui-check executor is lint W8). Opting out
+must be a named ledger entry whose decision starts with `bỏ ui-observed — `.
+Teeth: lint W8 · Gate-1 card flag · Gate-2 card reads the REPORT (a declared
+ui-check whose block lacks `exit_code: 0` + `screenshot:` counts as absent) ·
+pre-merge NOTE (not a VIOLATION yet; tightening threshold: two signed UI
+contracts without frames within one release). One source for the surface
+predicate, aliases and the descope prefix: `lib/lop-nhin-thay.cjs`.
+
 ## Mobile mechanics — surface `mobile`
 
 Mobile flows are ordinary `test` evals — no new executor. The binding is

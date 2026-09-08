@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c7ad28507295944f427cd2b375a78c7323fb5aed
+verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
 human_signoff: Manh Phan 2026-09-03 — ký với giới hạn: 1 mục trong hợp đồng (GL01) ghi Known limits; Ngoài-1/2/3/5/6 ghi Known limits, Ngoài-4 mở hợp đồng mới; đồng ý phạm vi đã cắt (kể cả thu phạm vi AC-7); phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -152,6 +152,6 @@ Round 4 (vòng này): tất cả tám eval E1–E8 xanh trên cả bốn lệnh 
 run_id: repin-20260903-vtg-self-1
 sha: e8f6caa9e09eba9895caf9b02383f91f042bd063 · suites: 4 lệnh exit 0 (scripts 796/0 · hooks 60/0 · plugins all-pass · workflows all-pass) + product-map --check khớp · pin cũ: d9911565 · chữ ký người giữ nguyên (sổ 7001, sổ cái #29).
 
-### Re-pin lần 2 — 2026-09-08, do chiến dịch ghim lại ADR 0014 — 26 hồ sơ chốt được; 6 thước mục nát + 18 bằng chứng ghi khoá chết chờ owner quyết
-run_id: repin-20260908T050515Z-82614
-sha: c7ad28507295944f427cd2b375a78c7323fb5aed · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
+### Re-pin lần 2 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
+run_id: repin-20260908T035246Z-95429
+sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
