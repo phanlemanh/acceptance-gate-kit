@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d8b5dd374aa8673b4363d515d19a5a8e9a0ea62f
+verified_commit: 127f535f4eacf0c0fc3795cdbffcf3ea2416f770
 human_signoff: Manh Phan 2026-09-08
 ---
 
@@ -209,3 +209,7 @@ Round 1: baseline đo A/B cho toàn bộ evals (không đo lại các round sau 
 Round 2: E1, E2, E4, E5, E6, E7, E9, E10, E11 xanh — carried forward round này; E3, E8, E12, E12b, E12c, E12d cần verify lại.
 Round 3: E12c (suite plugins, bash tests/plugins/run-tests.sh) đỏ — exit 1. Đã chạm trần 3 vòng, escalate cho user.
 Round 4: E1, E2, E3, E6, E8, E11, E12, E12b, E12c, E12d chạy lại — tất cả xanh (E12c đã sửa, giờ xanh); E4, E5, E7, E9, E10 carry-forward từ round 2 (delta không chạm paths của các eval đó). Verdict PASS.
+
+### Re-pin lần 1 — 2026-09-08, do hoá cũ do chính commit chữ ký
+run_id: repin-20260908T093906Z-54103
+sha: 127f535f4eacf0c0fc3795cdbffcf3ea2416f770 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0
