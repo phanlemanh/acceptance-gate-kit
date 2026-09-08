@@ -56,7 +56,7 @@ const AG_REQUIRES = [
   'skills/acceptance/references/evidence-report-template.md',
   'skills/acceptance/references/tool-kill-rule.md',
   'lib/evidence-core.cjs',
-  'lib/eval-yaml.js',
+  'lib/eval-yaml.cjs',
 ];
 let agRoot = flags['ag-root'];
 if (!agRoot) {
@@ -70,8 +70,9 @@ agRoot = (() => { try { return fs.realpathSync(agRoot); } catch { return die(`--
 for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acceptance-gate root thiếu ${r} (root: ${agRoot})`);
 
 const require_ = createRequire(import.meta.url);
-const { resolveConfigKey, frontmatterField } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
-const { parseEvals } = require_(path.join(agRoot, 'lib', 'eval-yaml.js'));
+const { resolveConfigKey, resolveConfigList, frontmatterField } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
+if (typeof resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0) — cập nhật plugin');
+const { parseEvals } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
 
 // ── Bảng trường bắt buộc: RÚT TỪ CHÍNH BÊN ĐỌC, không gõ tay ──────────────
 // Bên viết (script này) và bên đọc (acceptance-verify.js) từng trôi khỏi nhau:
@@ -178,22 +179,9 @@ for (const e of evals) {
   for (const k of need.arr) if (!Array.isArray(e[k]) || !e[k].length || e[k].some(x => typeof x !== 'string' || !x.trim())) die(`eval ${e.id} (${e.executor}): thiếu/hỏng trường mảng bắt buộc "${k}" — workflow sẽ BLOCKED, không sinh tệp`);
 }
 
-// ── suiteCommands từ feature_loop.suite_keys (list reader cục bộ) ──────────
-function readListUnder(text, topKey, listKey) {
-  const lines = text.split('\n'); const out = [];
-  let inTop = false; let inList = false;
-  for (const raw of lines) {
-    const line = raw.replace(/\t/g, '  ');
-    if (!line.trim() || line.trim().startsWith('#')) continue;
-    const indent = line.length - line.trimStart().length;
-    if (indent === 0) { inTop = line.trim() === `${topKey}:`; inList = false; continue; }
-    if (!inTop) continue;
-    if (indent === 2) { inList = line.trim() === `${listKey}:`; continue; }
-    if (inList && indent >= 4) { const m = line.trim().match(/^-\s+(.*)$/); if (m) out.push(m[1].replace(/\s+#.*$/, '').trim().replace(/^["']|["']$/g, '')); }
-  }
-  return out;
-}
-const suiteKeys = readListUnder(configText, 'feature_loop', 'suite_keys');
+// ── suiteCommands từ feature_loop.suite_keys — reader dùng chung với làn re-pin
+// (resolveConfigList trong evidence-core): hai làn không được đọc suite_keys khác nhau.
+const suiteKeys = resolveConfigList(configText, 'feature_loop.suite_keys');
 if (!suiteKeys.length) die('config.yaml thiếu feature_loop.suite_keys (hoặc rỗng) — khai danh sách suite chạy mỗi lượt rồi chạy lại');
 const suiteCommands = suiteKeys.map(k => resolveConfigKey(configText, k) || die(`suite_keys trỏ key không giải được: ${k}`));
 

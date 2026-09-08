@@ -37,6 +37,41 @@ export const MIRROR_SYNC_GRANDFATHER = [
 
 const DEAD_KEY = 'executors.script.mirror_sync';
 
+// ── Nợ thứ hai, cùng khuôn (ADR 0014, sửa 08/09/2026 — owner bỏ mốc, xử ngược):
+// làn ghim lại suite-only (dòng kind:repin không có evals_exit) chưa bao giờ
+// chứng được pin. 49 hồ sơ đã ký, đo tại chỗ 2026-09-08 bằng chính recheck —
+// KHÔNG chép tay. Rút tên khi hồ sơ được ghim lại bằng làn eval (chiến dịch
+// phát hành); hai chiều như danh sách trên. Ghi chú: recheck dừng ở lớp re-pin
+// trước khi tới lớp verifier, nên một hồ sơ nằm trong CẢ hai danh sách chỉ lộ
+// lý do suite-only cho tới khi được ghim lại — lúc đó lý do mirror_sync lộ lại.
+export const SUITE_ONLY_LANE_DEBT = [
+  'card-text-fidelity', 'cham-dung-cay-dung-cho-dung', 'claim-scan-parser-hardening',
+  'codex-script-packaging', 'cong-chan-nham-cho', 'context-ladder',
+  'cross-feature-claim-index', 'delta-verify-repin', 'design-pass-skill',
+  'discovery-brainstorm-socket', 'docs-first-run-audit', 'duong-do-trong-dinh-nghia-xong',
+  'findings-section-boundary', 'gap-probe-presence-hook', 'gate-card-ac-visibility',
+  'gold-output-measure', 'het-gio-khong-phai-truot', 'hinh-tai-cong-1',
+  'hinh-theo-mat-phang', 'judge-required-evidence', 'judgment-question-guard',
+  'khoi-viec-cua-anh', 'khong-ve-the-ma', 'lan-may-song-qua-bo-phan-loai',
+  'loi-moi-cong-may-sinh', 'matrix-measure-law', 'may-ganh-nguoi-quyet',
+  'measure-birth-certificate', 'measure-teeth-cleanup', 'moi-noi-vong-trao',
+  'ngon-ngu-mat-nguoi', 'pha3-goi-luoi', 'premerge-rules-ledger',
+  'premerge-unjudged-pass', 'product-map-uat-session', 'release-2-1-0',
+  'release-2-8-0', 'repo-khai-plugin', 's4-scope-triage',
+  'siet-rang-cau-ve-hinh', 'stale-theo-diff-pr', 'start-command',
+  'start-scan-hardening', 'status-chua-arm-cong', 'stop-patching-law',
+  'suite-run-log-provenance', 't1-escape-event-scope', 'vu-trang-goal-luc-goi-ten',
+  'workspace-reader-unification',
+];
+const SUITE_ONLY_NEEDLE = 'recorded no evals_exit';
+
+// Mỗi danh sách che ĐÚNG một lý do (needle). Một dòng lỗi được che khi hồ sơ
+// nằm trong danh sách có needle khớp dòng đó.
+const LISTS = [
+  { names: MIRROR_SYNC_GRANDFATHER, needle: DEAD_KEY, label: 'mirror_sync' },
+  { names: SUITE_ONLY_LANE_DEBT, needle: SUITE_ONLY_NEEDLE, label: 'suite-only lane' },
+];
+
 // Chạy recheck trên MỌI report thật, trả {slug, err} cho từng hồ sơ đỏ.
 export function recheckCorpus(root) {
   const acc = path.join(root, '_acceptance');
@@ -56,14 +91,23 @@ export function recheckCorpus(root) {
 }
 
 // Phân loại một tập đỏ thành {ngoaiDanhSach, saiLyDo, khaiThua}. Rỗng cả ba = ĐẠT.
+//   ngoaiDanhSach: hồ sơ đỏ không nằm trong danh sách nào;
+//   saiLyDo: dòng lỗi (`x `) không được che bởi danh sách nào chứa hồ sơ đó;
+//   khaiThua: tên trong danh sách mà hồ sơ đã HẾT đỏ (hai chiều).
 export function classify(bad) {
-  const allow = new Set(MIRROR_SYNC_GRANDFATHER);
-  const ngoaiDanhSach = bad.filter(b => !allow.has(b.slug)).map(b => b.slug);
-  const saiLyDo = bad
-    .filter(b => allow.has(b.slug) && !b.err.includes(DEAD_KEY))
-    .map(b => `${b.slug} (${b.err.replace(/\s+/g, ' ').slice(0, 80)})`);
+  const inAny = new Set(LISTS.flatMap(l => l.names));
+  const ngoaiDanhSach = bad.filter(b => !inAny.has(b.slug)).map(b => b.slug);
+  const saiLyDo = [];
+  for (const b of bad) {
+    if (!inAny.has(b.slug)) continue;
+    const mine = LISTS.filter(l => l.names.includes(b.slug));
+    const lines = b.err.split('\n').filter(l => / x /.test(l));
+    for (const line of (lines.length ? lines : [b.err])) {
+      if (!mine.some(l => line.includes(l.needle))) saiLyDo.push(`${b.slug} (${line.replace(/\s+/g, ' ').trim().slice(0, 80)})`);
+    }
+  }
   const doRoi = new Set(bad.map(b => b.slug));
-  const khaiThua = MIRROR_SYNC_GRANDFATHER.filter(s => !doRoi.has(s));
+  const khaiThua = LISTS.flatMap(l => l.names.filter(s => !doRoi.has(s)).map(s => `${s} [${l.label}]`));
   return { ngoaiDanhSach, saiLyDo, khaiThua };
 }
 
@@ -74,7 +118,7 @@ export function assertCorpus(assert, root, label) {
   assert.deepEqual(ngoaiDanhSach, [],
     `${label}: hồ sơ đỏ NGOÀI danh sách grandfather — đây là lỗi mới, không phải nợ cũ: ${ngoaiDanhSach.join(', ')}`);
   assert.deepEqual(saiLyDo, [],
-    `${label}: hồ sơ trong danh sách nhưng đỏ vì lý do KHÁC "${DEAD_KEY}" — grandfather chỉ che đúng một lý do: ${saiLyDo.join('; ')}`);
+    `${label}: hồ sơ trong danh sách nhưng có dòng đỏ vì lý do KHÁC lý do đã khai (mirror_sync / suite-only lane) — mỗi danh sách chỉ che đúng một lý do: ${saiLyDo.join('; ')}`);
   assert.deepEqual(khaiThua, [],
     `${label}: tên khai trong danh sách mà hồ sơ ĐÃ HẾT đỏ — rút tên ra, đừng để danh sách phình: ${khaiThua.join(', ')}`);
 }

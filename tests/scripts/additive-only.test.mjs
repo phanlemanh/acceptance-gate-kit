@@ -168,6 +168,29 @@ const ALLOWED_REMOVALS = [
   `  done <<CHANGED`,
   `$changed`,
   `CHANGED`,
+  // ADR 0014 sửa 08/09/2026 (owner bỏ mốc REPIN_EVALS_SINCE, xử ngược): hai
+  // dòng COMMENT của luật làn-eval nói về «sử liệu/NOTE» nay sai — sửa chữ,
+  // không đụng điều kiện nào (luật CHẶT HƠN vì lib hết nhánh sử liệu).
+  `    # INIT-CI-COPY-LIST. Làn trước mốc REPIN_EVALS_SINCE là sử liệu suite-only:`,
+  `    # NOTE, không chặn. Thiếu node/lib → khai NOT ENFORCED, không im lặng.`,
+  `      // label; history lanes (before REPIN_EVALS_SINCE) only NOTE there.`,
+  // Owner 08/09/2026 lần hai: «bỏ guard phạm vi diff luôn, soi mọi hồ sơ» — gỡ
+  // guard EVAL-LANE-DIFF-SCOPE (chín dòng dưới, nguyên văn). Gỡ guard = luật
+  // CHẶT HƠN (soi mọi hồ sơ ở mọi lượt), không nới điều kiện nào.
+  `EVAL_LANE_SKIPPED=0   # luật làn-eval: số hồ sơ ngoài diff PR không được soi (cùng phạm vi với recheck)`,
+  `    # INIT-CI-COPY-LIST. KHÔNG mốc ngày (owner 08/09/2026): làn suite-only đời`,
+  `    # nào cũng là VIOLATION. Sử liệu CHỈ theo PHẠM VI DIFF — hồ sơ ngoài diff PR`,
+  `    # không bị soi (cùng guard RECHECK-DIFF-SCOPE, cùng hàm slug_in_diff; cờ`,
+  `    # --recheck-all quét toàn bộ), vì một luật soi mọi hồ sơ ở mọi lượt CI biến`,
+  `    # nợ cũ thành cái chặn mọi PR (ô cong-chan-theo-ho-so-khong-theo-diff).`,
+  `    # Thiếu node/lib → khai NOT ENFORCED, không im lặng.`,
+  `      if [ "$RECHECK_ALL" -eq 0 ] && [ "$DIFF_READY" -eq 1 ] && ! slug_in_diff "$slug"; then # EVAL-LANE-DIFF-SCOPE-GUARD`,
+  `        EVAL_LANE_SKIPPED=$((EVAL_LANE_SKIPPED+1))`,
+  `      else`,
+  `      fi # đóng EVAL-LANE-DIFF-SCOPE-GUARD`,
+  `if [ "$EVAL_LANE_SKIPPED" -gt 0 ]; then`,
+  `  echo "NOTE: eval-lane scope — $EVAL_LANE_SKIPPED slug ngoài diff PR không được soi làn ghim lại (sử liệu theo phạm vi diff; dùng --recheck-all để quét toàn bộ)"`,
+  `fi`,
 ];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };

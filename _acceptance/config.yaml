@@ -109,6 +109,13 @@ executors:
     cdcc_gioi_han: bash _acceptance/cong-dang-co-cua/rang.sh --chan gioi-han
     cdcc_dang_thuc_lop: bash _acceptance/cong-dang-co-cua/rang.sh --chan dang-thuc-lop
     product_map: "node scripts/product-map.mjs --root . --check"
+    # Ca VĨNH VIỄN P200 chạy MỘT khối (ONLY_BLOCK) — cho hồ sơ MỐC PHÁT HÀNH: eval
+    # ghim dòng «PASS: P200 …» của chính ca thay vì mã thoát trọn suite plugins
+    # (Ngoài-6 của release-2-8-0: «P200 xanh» và «suite xanh» không phân biệt được).
+    # Không phải răng riêng của mốc — P200 là ca thường trực, khoá này chỉ khoanh nó.
+    # Lọc `grep -F P200` chỉ CHỌN DÒNG để ba dòng cuối của bằng chứng là chính «P200 OK» +
+    # «PASS: P200»; mã thoát vẫn là của suite (pipefail) — không phải phép đo mới.
+    p200_cat_so: "bash -c 'set -o pipefail; ONLY_BLOCK=P200 bash tests/plugins/run-tests.sh | grep -F P200'"
     cat_khoi_rang_khuon: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan khuon
     cat_khoi_rang_clause: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan clause
     cat_khoi_rang_oneshot: bash _acceptance/cat-khoi-viec-cua-anh-tren-tin/cat-khoi-rang.sh --chan oneshot
