@@ -1168,8 +1168,8 @@ console.log('W-G6b doi chung dot bien: ban TRUOC guard tra PASS tren cung bo arg
 
 console.log('W-G7 prompt hoi dong chan tu-cuu + dump chinh danh');
 {
-  const { readFileSync, writeFileSync, existsSync, rmSync, mkdirSync } = await import('node:fs');
-  const OUT = path.join(HERE, '..', '..', '_acceptance', 'judgment-question-guard', 'evidence', 'judge-prompt.txt');
+  const { readFileSync, writeFileSync, existsSync, rmSync, mkdirSync, mkdtempSync } = await import('node:fs');
+  const OUT = path.join(mkdtempSync(path.join((await import('node:os')).tmpdir(), 'jqg-')), 'evidence', 'judge-prompt.txt'); // trước 08/09 ghi vào hồ sơ judgment-question-guard (lưu kho, ADR 0015)
   if (existsSync(OUT)) rmSync(OUT);
   const jOK2 = { id: 'E9', criterion: 'AC-9', executor: 'judgment', question: 'ro rang?', inputs: ['/repo/a.md', '/repo/b.md'] };
   const { calls } = await runWorkflow(WF, baseArgs({ evals: [...baseArgs().evals, jOK2] }), responder());
@@ -1321,33 +1321,33 @@ console.log('W-G8 ton kho that: moi _acceptance/*/evals.yaml qua bang RUT TU MAR
   check('W-G8 sanity: quet duoc it nhat 10 workspace co evals.yaml', files >= 10, String(files));
   check('W-G8 0 eval bi chan cung tren ton kho that', hard.length === 0, hard.join(' | '));
   check('W-G8 ca ha UNCERTAIN dung bang danh sach mien tru da khai o Notes',
-    soft.slice().sort().join(',') === 'gate-card-ac-visibility/E11,gate-card-ac-visibility/E12', soft.join(','));
+    soft.slice().sort().join(',') === '', soft.join(',')); // 08/09/2026: hai ca miễn trừ thuộc gate-card-ac-visibility — lưu kho (ADR 0015); tồn kho sống không còn ca hạ UNCERTAIN
 
   // dot bien: tiem field rong vao BAN SAO sinh trong chinh lan chay -> phai do
   const tmp = mkdtempSync(path.join(os.tmpdir(), 'inv-'));
   cpSync(AC, path.join(tmp, '_acceptance'), { recursive: true });
-  const victim = path.join(tmp, '_acceptance', 'judgment-question-guard', 'evals.yaml');
+  const victim = path.join(tmp, '_acceptance', 'inputs-tinh-tu-goc-kho', 'evals.yaml'); // judgment-question-guard lưu kho 08/09 (ADR 0015)
   const before = readFileSync(victim, 'utf8');
   const after = before.replace(/^    criterion: AC-1$/m, '    criterion: ');
   check('W-G8 dot bien: buoc tiem THUC SU doi file', after !== before, 'khong tiem duoc — regex khong khop');
   writeFileSync(victim, after);
   const mut = scan(path.join(tmp, '_acceptance'));
   check('W-G8 dot bien: ban tiem field rong phai DO', mut.hard.length === 1, mut.hard.join(' | '));
-  check('W-G8 dot bien: neu dung slug + id + field', /^judgment-question-guard\/E1: criterion$/.test(mut.hard[0] || ''), mut.hard[0]);
+  check('W-G8 dot bien: neu dung slug + id + field', /^inputs-tinh-tu-goc-kho\/E1: criterion$/.test(mut.hard[0] || ''), mut.hard[0]);
 
   // Dot bien 2 (S4-r2 finding): muc list `inputs` RONG phai vao HARD, khong
   // duoc roi vao soft. Ban truoc chep tay vi tu nen ca nay xanh o phep do ma
   // BLOCKED o lan chay that — assert "0 ca chan cung" thanh vo nghia.
   const tmp2 = mkdtempSync(path.join(os.tmpdir(), 'inv2-'));
   cpSync(AC, path.join(tmp2, '_acceptance'), { recursive: true });
-  const v2 = path.join(tmp2, '_acceptance', 'judgment-question-guard', 'evals.yaml');
+  const v2 = path.join(tmp2, '_acceptance', 'inputs-tinh-tu-goc-kho', 'evals.yaml');
   const b2 = readFileSync(v2, 'utf8');
-  const a2 = b2.replace(/^      - _acceptance\/judgment-question-guard\/evidence\/judge-prompt\.txt$/m, '      - "  "');
+  const a2 = b2.replace(/^      - _acceptance\/inputs-tinh-tu-goc-kho\/contract\.md$/m, '      - "  "');
   check('W-G8 dot bien 2: buoc tiem THUC SU doi file', a2 !== b2, 'regex khong khop muc inputs');
   writeFileSync(v2, a2);
   const mut2 = scan(path.join(tmp2, '_acceptance'));
   check('W-G8 dot bien 2: muc inputs rong vao HARD (nhu engine), khong vao soft',
-    mut2.hard.some(h => /judgment-question-guard\/E10: inputs/.test(h)) && !mut2.soft.some(s => /judgment-question-guard\/E10/.test(s)),
+    mut2.hard.some(h => /inputs-tinh-tu-goc-kho\/E5: inputs/.test(h)) && !mut2.soft.some(s => /inputs-tinh-tu-goc-kho\/E5/.test(s)),
     `hard=${mut2.hard.join('|')} soft=${mut2.soft.join('|')}`);
 }
 

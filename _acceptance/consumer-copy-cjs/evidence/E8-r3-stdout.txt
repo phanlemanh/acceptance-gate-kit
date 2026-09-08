@@ -1,3 +1,0 @@
-sanity: 4 khối catch trong recheck-evidence.cjs (sàn 2)
-đo:     0 khối `catch (_) {}` rỗng còn lại
-RECHECK-LINT OK

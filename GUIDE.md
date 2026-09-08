@@ -1037,12 +1037,16 @@ chỉ suite của kho; «ghim lại theo diff» vẫn là đường rẻ hợp l
 vòng S4 delta (carry P1 theo `paths`), không đi re-pin. **Không có đường
 đọc-cũ (owner quyết 08/09/2026, bỏ mốc `REPIN_EVALS_SINCE` đặt hôm trước):** làn
 suite-only chưa bao giờ chứng được pin, nên hồ sơ ghim bằng nó là **nợ thật** —
-recheck đỏ dù dòng ghi khi nào. Với chính kho kit, 49 hồ sơ đã ký đang mang nợ
-này (đo 08/09), đặt tên trong `tests/scripts/mirror-sync-grandfather.mjs`
-(`SUITE_ONLY_LANE_DEBT`, hai chiều, một lý do — cùng khuôn ADR 0010) để răng
-corpus phân biệt nợ-có-tên với lỗi mới; `pre-merge-check.sh --recheck-all` trên
-kit đỏ đúng 49 hồ sơ ấy cho tới khi chiến dịch phát hành ghim lại bằng làn eval,
-mỗi hồ sơ ghim xong là một tên phải rút. **Không phạm vi diff** (owner quyết
+recheck đỏ dù dòng ghi khi nào. Với chính kho kit, 49 hồ sơ đã ký mang nợ này
+lúc luật ra đời (đo 08/09): **25** ghim lại ngay bằng một làn eval (run_id
+`repin-20260908T035246Z-95429`), **24** còn lại — 6 eval đỏ thật vì răng mất
+tiền đề sau các mốc sau chúng, 18 trỏ khoá `mirror_sync` đã gỡ — **lưu kho** theo
+ADR 0015 (mốc `truoc-luu-kho-no-lan-2026-09-08`). Danh sách nợ
+`SUITE_ONLY_LANE_DEBT` trong `tests/scripts/mirror-sync-grandfather.mjs` giữ
+khung rỗng: nợ mới (nếu có) phải đặt tên ở đó, hai chiều, không nới reader. Ba
+hồ sơ cuối trỏ khoá `mirror_sync` đã gỡ (ADR 0010) cũng lưu kho cùng ngày (mốc
+`truoc-luu-kho-mirror-sync-2026-09-08`), nên cả hai danh sách nợ RỖNG và
+`--recheck-all` trên kit về 0 vi phạm: từ 08/09 một hồ sơ đỏ ở recheck là lỗi mới. **Không phạm vi diff** (owner quyết
 08/09, lần hai): luật soi MỌI hồ sơ trong kho ở MỌI lượt pre-merge, khác luật
 recheck/staleness vốn thu theo diff PR (ADR 0010) — pin chưa chứng không được
 nằm im chỉ vì PR không chạm nó. Hệ quả nhận: pre-merge của chính kit đỏ 49 vi

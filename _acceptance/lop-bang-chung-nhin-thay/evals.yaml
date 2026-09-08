@@ -1,0 +1,99 @@
+schema_version: 1
+feature_slug: lop-bang-chung-nhin-thay
+# Mọi eval ghim đích danh "PASS: <case>" trong stdout suite. Fixture CODE-SINH trong chính
+# lần chạy (contract từ CONTRACT-FRONTMATTER-TEMPLATE); đường dẫn suy từ vị trí file; mỗi
+# phép đo mới có đối chứng dương + chiều đỏ ghim thông điệp (MEASURE-BIRTH-CLAUSE).
+# Ca lint + pre-merge sống ở tests/scripts/run-tests.sh (bash, nếp L*/PM*); ca gate-card,
+# lib, round-trip khuôn/SKILL sống ở tests/plugins/lop-nhin-thay.test.mjs (nếp *.test.mjs).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [lib/lop-nhin-thay.cjs, lib/nguong-o-co-hoi.cjs, skills/acceptance/references/contract-template.md, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT1]" — vị từ laMatNguoiNhin đúng trên 8 giá trị liệt ở AC-1
+      (4 true, 4 false — ma trận toàn phần viết trước), tokenLa bỏ chú thích sau '#',
+      coUiObserved true khi có ui-check không nhãn (đọc-cũ), nhanLacCho trả đúng id; SURFACE_ENUM
+      == danh sách rút từ chú thích `surfaces:` của khối CONTRACT-FRONTMATTER-TEMPLATE (round-trip).
+      Chiều đỏ: bản sao khuôn bỏ `docs` → reader đỏ nêu "docs". coNguoiDungCuoi('[web]') true;
+      chiều đỏ có sẵn: `git show main:lib/nguong-o-co-hoi.cjs` nạp vào tmp → trả false cho '[web]'.
+      MUTANT MỘT-NGUỒN (F3): chép trọn lib/ + scripts/ sang tmp, bỏ `web` khỏi SURFACE_ALIAS của bản
+      sao → nguong-o-co-hoi(bản sao) false cho [web] · gate-card(bản sao) --extract applicable=false
+      · lint(bản sao) 0 dòng W8; bản lành: true · true · có W8 — 6 assert, mỗi assert nêu tên bộ đọc.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/eval-coverage-lint.js, lib/lop-nhin-thay.cjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: L4x" cho 12 ca (a)–(l) của AC-2, mỗi ca một tên: (a) [ui] không
+      ui-check → exit 1 + dòng chứa "W8" + slug + "không có eval" (đối chứng dương TRƯỚC: (b) thêm
+      ui-check + layer ui-observed → exit 0); (c) [web]/[web-ui] → như (a); (d) [mobile] → không
+      "W8"; (e) [api, cli] → không "W8"; (f) layer ui-observed trên executor test → dòng "W8" chứa
+      "lạc chỗ" + id; (g) ui-check không layer → không "W8"; (h) [ui, kiosk] → "W8" chứa "kiosk";
+      (i) `node eval-coverage-lint.js <repo-root>` trên cây thật → 0 dòng "W8" + stdout có «no
+      coverage gaps detected» hoặc ≥1 dòng W1..W7; (j) gốc kho + decisions.jsonl entry descope đúng
+      tiền tố (rút từ lib) → không "W8" nghĩa vụ; (k) tiền tố dấu hai chấm → "W8" như (a); (l)
+      --files → "W8" như (a). DẤU HIỆU QUÉT (F2): fixture (d)(e)(g)(j) chèn AC ngưỡng không eval âm
+      → stdout PHẢI có "W1" cùng lần chạy; chiều đỏ của lớp: fixture ghi contract sai đường → ca đỏ
+      "thiếu dấu hiệu quét". Chú giải cuối stdout có "W8 =". Ca KHÔNG được ghim exit code một mình.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, lib/lop-nhin-thay.cjs, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT3]" — sáu nhánh (a)–(f) của AC-3 trên fixture code-sinh
+      draft: --extract `ui_observed` đúng khuôn {applicable, present, descoped}; HTML có cờ
+      fwarn chứa "chưa có bằng chứng lớp nhìn-thấy" ở (a), finfo chứa id entry ở (b), không cờ
+      ở (c)(d)(e); (f) [web] applicable true. Đối chứng seam: decision "bỏ ui-observed: x" (dấu
+      hai chấm) → vẫn fwarn. Chuỗi cờ rút từ hằng trong gate-card, ca ghim CỤM CHỮ (không chỉ
+      class CSS).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, lib/lop-nhin-thay.cjs, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT4]" — fixture verified + evidence-report dựng từ
+      evidence-report-template: (a) [ui] + eval ui-check E10 có block trong báo cáo KHÔNG đạt
+      (exit_code ≠ 0 hoặc thiếu screenshot:) → --extract gate 2 `ui_observed` {applicable:true,
+      present:false, declared:1, passed:0} + HTML chứa "Bằng chứng lớp nhìn-thấy: KHÔNG có" + "E10";
+      (b) đối chứng dương: block E10 exit_code 0 + screenshot: → present true, không cờ, HTML nêu
+      "1 eval" + "đạt"; (c) không eval ui-check → declared 0 + cờ; (d) entry descope ghi SAU seal →
+      trong decisions_provisional VÀ cờ nêu id; (e) [cli] → applicable false (dấu hiệu đã đọc) và
+      HTML không có cụm "lớp nhìn-thấy" (mutant phân biệt). present tính từ BÁO CÁO (F1), không từ
+      bản khai.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/pre-merge-check.sh, lib/lop-nhin-thay.cjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: PM-LNT-a".."PM-LNT-i" — 9 ca của AC-5 trên fixture git gated
+      (biến thể mk_xl với surfaces tham số): (a) NOTE ghim "mặt người nhìn" + "không eval" +
+      "2 hợp đồng" + approved_at rút từ frontmatter fixture (exit 0); (b) NOTE chứa id entry descope;
+      (c) có ui-check → stdout KHÔNG chứa "lớp nhìn-thấy" (đối chứng dương) + có "rules ran=" +
+      dòng gated nêu slug; (d) [api, mobile] → không, + dấu hiệu quét như (c); (e) [web] → NOTE;
+      (f) không evals.yaml → không NOTE lớp nhìn-thấy + "rules ran="; (g) bản sao xoá lib → NOTE chứa
+      "không kiểm được", exit 0; (h) --recheck-all trên fixture (a) → NOTE giống (a); (i) tiền tố dấu
+      hai chấm → NOTE như (a) không có id. Kèm ca: `git diff main -- scripts/pre-merge-check.sh`
+      không có dòng bắt đầu bằng '-' ngoài header (chỉ-thêm, DV5).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [skills/acceptance/SKILL.md, feature-loop/skills/feature-loop/SKILL.md, skills/acceptance/references/eval-executors.md, CONTEXT.md, skills/acceptance/references/contract-template.md, commands/acceptance-init.md, lib/lop-nhin-thay.cjs, tests/plugins/lop-nhin-thay.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: [LNT6]" — bảy mệnh đề (i)–(vii) của AC-6, mỗi mệnh đề đọc thân
+      với phạm vi cắt đúng (section/khối, không tới EOF; phạm vi cắt < 60% file); (vii) chuỗi
+      "bỏ ui-observed — " ở acceptance SKILL và feature-loop SKILL == UI_OBSERVED_DESCOPE của
+      lib. Chiều đỏ: bản sao gỡ TỪNG mệnh đề (7 bản sao, mỗi bản gỡ một) → reader đỏ nêu đúng
+      số mệnh đề; bản sao đổi chuỗi descope ở một SKILL → đỏ nêu "descope".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

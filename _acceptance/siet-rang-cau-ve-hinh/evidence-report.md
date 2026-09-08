@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9ef38ac15d3dfa29874daff247774c16a7af1ba4
+verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
 human_signoff: Manh Phan 2026-08-18
 ---
 
@@ -137,3 +137,7 @@ sha: 9925c91d9c473df8413283817766af46fd8aaa85 · suites: 5 lệnh exit 0 (4 suit
 ### Re-pin lần 2 — 2026-08-18, do gộp main (PR #63) — suite đổi (case của hồ sơ siet-rang đổi số P198→P199), machine-only
 run_id: repin-20260818-merge63-9ef38ac1
 sha: 9ef38ac15d3dfa29874daff247774c16a7af1ba4 · suites: 4 lệnh exit 0
+
+### Re-pin lần 3 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
+run_id: repin-20260908T035246Z-95429
+sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
