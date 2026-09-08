@@ -1,13 +1,13 @@
 ---
 schema_version: 2
 feature_slug: lop-bang-chung-nhin-thay
-verdict: PASS
+verdict: REJECT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6e44514d7cc82c7e0363ae075b55160a7015887f
+verified_commit: 7aae3d87a328b8706d8576addc309a507adf27a3
 human_signoff:
 ---
 
@@ -25,87 +25,87 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-lop-bang-chung-nhin-thay-E1-r1
+  run_id: minted-lop-bang-chung-nhin-thay-E1-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
   output: |
-      PASS: ca lop nhin thay — LNT6 (ho so lop-bang-chung-nhin-thay)
-
     Results: all plugin tests passed
 
+    [exited with code 0]
+
 - eval: E2
-  run_id: minted-lop-bang-chung-nhin-thay-E2-r1
+  run_id: minted-lop-bang-chung-nhin-thay-E2-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
   output: |
       PASS: SELF02 (doi chung duong: phep quet bat duoc loi khi no CO that)
 
     Results: 826 passed, 0 failed
 
 - eval: E3
-  run_id: minted-lop-bang-chung-nhin-thay-E3-r1
+  run_id: minted-lop-bang-chung-nhin-thay-E3-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
   output: |
-      PASS: ca lop nhin thay — LNT6 (ho so lop-bang-chung-nhin-thay)
-
     Results: all plugin tests passed
+
+    [exited with code 0]
 
 - eval: E4
-  run_id: minted-lop-bang-chung-nhin-thay-E4-r1
+  run_id: minted-lop-bang-chung-nhin-thay-E4-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
   output: |
-      PASS: ca lop nhin thay — LNT6 (ho so lop-bang-chung-nhin-thay)
-
     Results: all plugin tests passed
 
+    [exited with code 0]
+
 - eval: E5
-  run_id: minted-lop-bang-chung-nhin-thay-E5-r1
+  run_id: minted-lop-bang-chung-nhin-thay-E5-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.scripts
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
   output: |
       PASS: SELF02 (doi chung duong: phep quet bat duoc loi khi no CO that)
 
     Results: 826 passed, 0 failed
 
 - eval: E6
-  run_id: minted-lop-bang-chung-nhin-thay-E6-r1
+  run_id: minted-lop-bang-chung-nhin-thay-E6-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.plugins
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
   output: |
-      PASS: ca lop nhin thay — LNT6 (ho so lop-bang-chung-nhin-thay)
-
     Results: all plugin tests passed
+
+    [exited with code 0]
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-lop-bang-chung-nhin-thay-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-lop-bang-chung-nhin-thay-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-lop-bang-chung-nhin-thay-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-lop-bang-chung-nhin-thay-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-lop-bang-chung-nhin-thay-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-lop-bang-chung-nhin-thay-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-09-08T09:00:00Z
+  verified_at: 2026-09-08T10:00:00Z
 
 ## Known limits
 
@@ -113,7 +113,9 @@ human_signoff:
 
 ## Analyst
 
-E1, E3, E4, E6 (bash tests/plugins/run-tests.sh) và E2, E5 (bash tests/scripts/run-tests.sh) — pass trên cả HEAD và baseline (diffBase); harness xác nhận chạy được nhưng chưa phân biệt được hành vi mới với code cũ. Cần viết lại các assertion này để khẳng định đúng hành vi mới của lớp-bằng-chứng-nhìn-thấy, hoặc xác nhận rõ đây là regression-guard có chủ ý (không phải test đặc tả tính năng).
+carried tu round 1 — baseline khong do lai round nay
+
+E1, E3, E4, E6 (bash tests/plugins/run-tests.sh) và E2, E5 (bash tests/scripts/run-tests.sh) — pass trên cả HEAD và baseline (diffBase) ở round 1; harness xác nhận chạy được nhưng chưa phân biệt được hành vi mới với code cũ. Round này không đo lại baseline (evals.yaml không đổi từ lần baseline cuối). Cần viết lại các assertion này để khẳng định đúng hành vi mới của lớp-bằng-chứng-nhìn-thấy, hoặc xác nhận rõ đây là regression-guard có chủ ý (không phải test đặc tả tính năng).
 
 ## Variance
 
@@ -122,3 +124,4 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: E1, E2, E3, E4, E5, E6 đều pass ngay lần chạy đầu; các lệnh suite hồi quy (hooks, workflows, product-map) đều xanh. Không có vòng quay lại implementation.
+Round 2: E1–E6 và cả ba lệnh suite hồi quy vẫn PASS/exit 0 như round 1 (baseline không đo lại). Verdict tổng là REJECT không vì eval máy fail, mà vì review đối kháng (adversarial) tại round này xác nhận 2 lỗi thật map vào hợp đồng (AC-2, AC-4 — xem review-findings.md mục "Trong hợp đồng"); failed_evals để trống vì không eval nào tự thân báo fail, lỗi nằm ở độ phủ của chính assertion. Trả lại implementation để vá theo hai finding đó trước khi verify lại.
