@@ -65,23 +65,33 @@ gioi-han)
 dang-thuc-lop)
   # Chân round-trip của hồ sơ khong-ve-the-ma phải RÚT số ca từ marker, không
   # ghim hằng số. Chạy nó thật rồi ghim mã thoát + dòng tổng kết.
-  ( cd "$ROOT" && bash _acceptance/khong-ve-the-ma/rang.sh --chan round-trip ) > "$TMP/rt.out" 2>&1
-  rc=$?
-  [ "$rc" = "0" ] && ghim "chan round-trip cua ho so da ky: XANH tro lai" 0 || ghim "chan round-trip" 1 "exit=$rc — $(tail -1 "$TMP/rt.out")"
-  grep -qE '^--- chan round-trip: [0-9]+ pass, 0 fail ---$' "$TMP/rt.out" \
-    && ghim "dong tong ket: 0 fail" 0 || ghim "dong tong ket" 1 "$(tail -1 "$TMP/rt.out")"
-  # CHIỀU ĐỎ: ghim lại hằng số 3 trên bản sao TRỌN CÂY → phải ĐỎ.
-  M="$TMP/m"
-  if ! ( cd "$ROOT" && git diff --quiet HEAD -- _acceptance/khong-ve-the-ma/rang.sh scripts/gate-card.js ); then
+  # ĐƯỜNG ĐỌC-CŨ (09/09): hồ sơ khong-ve-the-ma đã LƯU KHO 08/09 (e0d80ffc, ADR
+  # 0015) nên cây HEAD không còn vật đo; đọc vật từ mốc lưu kho — phép đo giữ
+  # nguyên, chỉ đổi chỗ lấy vật. Cây còn vật thì vẫn ưu tiên cây.
+  KVTM="_acceptance/khong-ve-the-ma/rang.sh"
+  LUU_KHO_TAG="truoc-luu-kho-no-lan-2026-09-08"
+  if ! ( cd "$ROOT" && git diff --quiet HEAD -- scripts/gate-card.js ); then
     ghim "cay lam viec khop HEAD" 1 "con thay doi CHUA COMMIT o vat duoc do — ban sao se cham ban khac"
   else
-    mkdir -p "$M"; ( cd "$ROOT" && git archive HEAD ) | tar -x -C "$M"
-    b=$(shasum -a 256 < "$M/_acceptance/khong-ve-the-ma/rang.sh" | cut -d' ' -f1)
-    perl -0pi -e 's/SOHANG="\$\(printf .%s\\n. "\$HANG" \| grep -c \.\)"/SOHANG=3/' "$M/_acceptance/khong-ve-the-ma/rang.sh"
-    a=$(shasum -a 256 < "$M/_acceptance/khong-ve-the-ma/rang.sh" | cut -d' ' -f1)
+    M="$TMP/m"; mkdir -p "$M"; ( cd "$ROOT" && git archive HEAD ) | tar -x -C "$M"
+    if [ -f "$M/$KVTM" ]; then ghim "vat do co trong cay HEAD" 0
+    elif ( cd "$ROOT" && git archive "$LUU_KHO_TAG" _acceptance/khong-ve-the-ma ) | tar -x -C "$M" && [ -f "$M/$KVTM" ]; then
+      ghim "vat do doc tu moc luu kho $LUU_KHO_TAG (duong doc-cu)" 0
+    else ghim "vat do" 1 "khong co trong cay HEAD lan moc luu kho $LUU_KHO_TAG"
+    fi
+    ( cd "$M" && bash "$KVTM" --chan round-trip ) > "$TMP/rt.out" 2>&1
+    rc=$?
+    [ "$rc" = "0" ] && ghim "chan round-trip cua ho so da ky: XANH tro lai" 0 || ghim "chan round-trip" 1 "exit=$rc — $(tail -1 "$TMP/rt.out")"
+    grep -qE '^--- chan round-trip: [0-9]+ pass, 0 fail ---$' "$TMP/rt.out" \
+      && ghim "dong tong ket: 0 fail" 0 || ghim "dong tong ket" 1 "$(tail -1 "$TMP/rt.out")"
+    # CHIỀU ĐỎ: ghim lại hằng số 3 trên bản sao TRỌN CÂY thứ hai → phải ĐỎ.
+    M2="$TMP/m2"; mkdir -p "$M2"; cp -R "$M/." "$M2/"
+    b=$(shasum -a 256 < "$M2/$KVTM" | cut -d' ' -f1)
+    perl -0pi -e 's/SOHANG="\$\(printf .%s\\n. "\$HANG" \| grep -c \.\)"/SOHANG=3/' "$M2/$KVTM"
+    a=$(shasum -a 256 < "$M2/$KVTM" | cut -d' ' -f1)
     if [ "$b" = "$a" ]; then ghim "lenh tiem doi duoc vat" 1 "noi dung KHONG doi — neo tiem khong ton tai, chieu do VO NGHIA"
     else
-      ( cd "$M" && bash _acceptance/khong-ve-the-ma/rang.sh --chan round-trip ) > "$TMP/mut.out" 2>&1
+      ( cd "$M2" && bash "$KVTM" --chan round-trip ) > "$TMP/mut.out" 2>&1
       mrc=$?
       [ "$mrc" != "0" ] && ghim "chieu do: ghim lai hang so 3 -> chan DO (exit $mrc)" 0 \
         || ghim "chieu do" 1 "ghim lai hang so ma van XANH — phep do khong doc ben viet"
