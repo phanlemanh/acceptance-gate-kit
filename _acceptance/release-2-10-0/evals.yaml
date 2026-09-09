@@ -65,3 +65,15 @@ evals:
       «khong co muc v…»; dời câu khai cặp sang mục lịch sử → «cau khai cap nam ngoai muc nay». Các vế
       người-dùng-nhận-gì là văn cho người, đọc trực tiếp trong diff manifest — Known limits.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: >
+      exit 0; stdout có "PASS: V14", "PASS: V15" và "PASS: V16". V14 hồ sơ cũ draft + veto mo →
+      machine-cleared + da-veto, approved_by rỗng → exit 2 kèm chuỗi "skips Gate 1"; V15 cũ
+      implemented + mo cùng đích → exit 2 kèm "Gate 1 approval not recorded"; V16 là ĐỐI CHỨNG
+      DƯƠNG — cũ verified + mo → machine-cleared + da-veto → exit 0 (lối làn V phải còn sống).
+      Chiều đỏ đã chạy tay 09/09 trên bản sao đọc `status` MỚI: V14 + V15 ĐỎ, V16 vẫn xanh —
+      68 passed / 2 failed, tức phép đo phân biệt được bản vá với bản hỏng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

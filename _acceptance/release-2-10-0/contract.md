@@ -3,14 +3,12 @@ schema_version: 1
 feature: Phát hành kit 2.10.0 — đóng số cho cửa sổ 2.9→2.10 (PR 157 glob-hai-sao · 159 duong-lui-phai-song · 163 vòng T3 gom đúc kết 08/09), để repo tiêu thụ nhận bộ máy theo mốc có chủ đích
 slug: release-2-10-0
 owner: phanlemanh@gmail.com
-risk_tier: T2               # vật của PR: 2 manifest + dòng khớp-phiên-bản GUIDE + hồ sơ + bản đồ — không dính t3_paths
+risk_tier: T3               # NÂNG HẠNG 09/09 khi owner mở phạm vi «vá trong mốc»: bản vá chạm lib/evidence-core.cjs (t3_paths). Làn V là T2-only nên hồ sơ này bỏ trường veto và LUÔN cần approved_by
 surfaces: [cli]
 status: implemented
 design_doc:
-approved_by:
-approved_at:
-veto_state: mo
-veto_opened_at: 2026-09-09T13:56:23Z
+approved_by: Manh Phan
+approved_at: 2026-09-09T14:12:17Z
 ---
 
 # Acceptance Contract: release-2-10-0
@@ -70,16 +68,23 @@ không đổi dòng nào là lời khai sai.
 - AC-2: Given `GUIDE.md`, When P200 dựng câu «Khớp phiên bản» từ ba số đọc trong manifest rồi so, Then GUIDE chứa ĐÚNG câu dẫn xuất đó; bản sao giữ số cũ → đỏ ghim nguyên câu.
 - AC-3: Given cây tại lần cắt số, When chạy bốn suite + `product-map.mjs --check`, Then tất cả exit 0 và `PRODUCT-MAP.md` khớp hồ sơ xưởng.
 - AC-4: Given mô tả của hai manifest, When P200 rút mục của CHÍNH số `2.10.0`, Then mục `v2.10.0` của `acceptance-gate` có mặt và nói người dùng nhận gì; mục `v2.10.0` của `feature-loop` TỰ KHAI cặp `acceptance-gate >= 2.10.0` TRONG mục đó (câu khai cặp nằm ở mục lịch sử không tính).
+- AC-5: Given hook ghi-lúc-viết đọc `evaluateContractWrite` của `lib/evidence-core.cjs`, When một lượt ghi mang `veto_state: da-veto` mà hồ sơ CŨ chưa ở làn V, Then lượt ghi bị CHẶN đúng lý do: hồ sơ cũ `draft` + `veto_state: mo` → `machine-cleared` + `da-veto` với `approved_by` rỗng chặn nêu «skips Gate 1» (V14); hồ sơ cũ `implemented` + `mo` cùng đích chặn nêu chuỗi ghim `Gate 1 approval not recorded` của chính hook (V15); và ĐỐI CHỨNG DƯƠNG hồ sơ cũ `verified` + `mo` → `machine-cleared` + `da-veto` vẫn ALLOW (V16 — bản vá không được giết chính lối làn V). Chiều đỏ: bản sao đọc `status` MỚI thay vì bản cũ → V14 và V15 ĐỎ trong khi V16 vẫn xanh.
 
 ## Coverage
 
-- Trục A — bề mặt người dùng đọc số: manifest acceptance-gate | manifest feature-loop | manifest diagram-design | GUIDE | mô tả của chính số đó [thước CE: ca P200, 5 đột biến + đối chứng dương]
+- Trục A — răng cổng bị chạm: lối «da-veto» của `evaluateContractWrite` [thước CE: V14 · V15 · V16 ở suite hooks, cặp hai chiều trên cùng fixture]
+- Trục A' — bề mặt người dùng đọc số: manifest acceptance-gate | manifest feature-loop | manifest diagram-design | GUIDE | mô tả của chính số đó [thước CE: ca P200, 5 đột biến + đối chứng dương]
 - Trục B — hồi quy của cây tại lần cắt: scripts | hooks | plugins | workflows | bản đồ sản phẩm [thước CE: bốn suite + product-map]
 - Trục C — chiều đo: dương | đột biến ghim đúng câu | đối chứng dương bản-sao-nguyên-vẹn
 - Ô gạch có lý do: ba dòng số luật (c) và nhát cắt kế là VĂN — không phép đo máy nào chấm được, khai ở Known limits đúng như mốc 2.9.0 đã làm.
 
 ## Out of scope
 
+- **MỞ RỘNG PHẠM VI 09/09 (owner: «vá trong mốc»):** lỗ fail-open ở lối «da-veto» của
+  `lib/evidence-core.cjs` — lượt chấm 1 tìm ra, nó đã nằm trên `main` qua PR #159 trong
+  chính cửa sổ này. Vá TRONG mốc thay vì mở hồ sơ riêng vì 2.10.0 là cỗ xe đẩy code đó
+  tới bảy repo tiêu thụ, và mốc đã BLOCKED nên phải có lượt chấm nữa dù sao. Kéo theo:
+  hồ sơ NÂNG HẠNG T2 → T3 (chạm t3_paths), mất lối làn V, luôn cần `approved_by`.
 - Nâng `diagram-design` — không đổi dòng nào trong cửa sổ (xem Context).
 - Chiến dịch ghim lại của mốc — chạy sau khi hồ sơ này gộp, một chiến dịch mỗi release.
 - Rollout tới 7 repo tiêu thụ — mỗi repo một PR, chủ repo gộp; không thuộc hồ sơ này.
