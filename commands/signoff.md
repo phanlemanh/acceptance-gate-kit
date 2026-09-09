@@ -66,14 +66,14 @@ Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị 
   Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính
   (sửa được cả tên lẫn ngày ở cùng dòng đó); người tự khai phần nào thì phần đó ghi
-  thẳng; phần máy suy vẫn hiện trong dòng xác nhận, khai đủ thì không hỏi.
+  thẳng; phần máy suy vẫn HIỆN trong dòng danh tính đã ghi, không hỏi lại.
   **Máy KHÔNG hỏi và KHÔNG ghi số phút.**
   Vế `, phút <số>` ở cuối vẫn ĐƯỢC CHẤP NHẬN và BỎ QUA lặng
   — không lỗi, không ghi, không hỏi lại; người quen tay gõ
   nó theo phản xạ thì câu vẫn chạy trọn. Ngày người nêu — trong câu gộp hoặc ở dòng xác
-  nhận — LUÔN thắng ngày máy suy. Chữ «Ký» vẫn phải do NGƯỜI gõ — Enter xác
-  nhận chỉ xác nhận danh tính, không phải chữ ký; máy GHI THẲNG danh tính suy
-  được, người sửa bằng MỘT CÂU sau đó nếu muốn.
+  nhận — LUÔN thắng ngày máy suy. Chữ «Ký» vẫn phải do NGƯỜI gõ; danh tính thì
+  máy GHI THẲNG rồi nói ra, không chờ ai gật, và người sửa bằng MỘT CÂU sau đó
+  nếu muốn.
 - Nhãn nào thẻ đang đòi mà câu gộp vắng hẳn → hỏi đúng nhãn đó (đó là câu
   hỏi QUYẾT ĐỊNH — máy không đề xuất thay); giá trị NGƯỜI ĐÃ GÕ nhưng mơ
   hồ → luật khuyến-nghị-trước của `GATE-ONESHOT-GRAMMAR`: nêu

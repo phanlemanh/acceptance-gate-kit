@@ -9873,8 +9873,13 @@ NEO_AM = [
     ("hoi-lai-phan-la-cu", "hỏi lại đúng phần đó"),
     ("follow-up-cu", "follow-up DUY NHẤT"),
 ]
+def _phang(s):
+    # Neo so chuoi THO bi mot lan xuong dong lam mu (do 09/09: cau "Enter xac\n  nhan"
+    # trong signoff.md khien MOI neo am cua bo nay khong bao gio ban duoc). Chuan hoa
+    # khoang trang truoc khi so — luat noi ve CAU, khong noi ve cach ngat dong.
+    return re.sub(r"\s+", " ", s)
 def check_grammar(law_text):
-    g = grammar_of(law_text)
+    g = _phang(grammar_of(law_text))
     errs = []
     for tag, s in NEO:
         if s not in g:
@@ -9914,7 +9919,7 @@ def check_bodies(mapping):
     errs = []
     for role, rels in SITES.items():
         for rel in rels:
-            t = mapping[rel]
+            t = _phang(mapping[rel])
             if "GATE-ONESHOT-GRAMMAR" not in t:
                 errs.append("site thieu con tro GATE-ONESHOT-GRAMMAR: " + rel)
             if role in ("approve", "signoff"):

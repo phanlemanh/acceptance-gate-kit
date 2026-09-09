@@ -33,6 +33,9 @@ const blockOf = txt => {
   const m = txt.match(new RegExp(`<!-- <<<${MARK} -->\\n([\\s\\S]*?)\\n<!-- ${MARK}>>> -->`));
   return m ? m[1].trim() : null;
 };
+// Chuẩn hoá khoảng trắng trước khi so CÂU: một lần xuống dòng từng làm mọi neo âm mù
+// (finding S4-r1). Luật nói về câu, không nói về chỗ ngắt dòng.
+const phang = s => String(s).replace(/\s+/g, ' ');
 function kiem(texts) {
   const errs = [];
   const law = blockOf(texts[LAW]);
@@ -43,6 +46,7 @@ function kiem(texts) {
   if (!/CẠN/.test(law)) errs.push('khối luật không nêu ca CẠN là ca duy nhất được hỏi');
   for (const rel of SITES) {
     const t = texts[path.join(ROOT, rel)];
+    if (/Enter xác nhận/.test(phang(t))) errs.push(`thân lệnh vẫn dạy nhánh chờ (kể cả khi câu bị ngắt dòng): ${rel}`);
     const b = blockOf(t);
     if (b === null) { errs.push(`bản chép thiếu khối: ${rel}`); continue; }
     if (b !== law) errs.push(`bản chép TRÔI khỏi nguồn: ${rel}`);
@@ -66,7 +70,8 @@ if (want('DT1')) {
   if (!law) fail(id, 'không rút được khối luật');
   else {
     if (!/GHI THẲNG/.test(law)) fail(id, 'khối luật không nói GHI THẲNG');
-    if (/Enter xác nhận|chờ xác nhận/.test(law)) fail(id, `khối luật còn nhánh chờ: ${law.slice(0, 120)}`);
+    if (/Enter xác nhận|chờ xác nhận/.test(phang(law))) fail(id, `khối luật còn nhánh chờ: ${law.slice(0, 120)}`);
+    for (const rel of SITES) if (/Enter xác nhận/.test(phang(texts[path.join(ROOT, rel)]))) fail(id, `thân lệnh vẫn dạy nhánh chờ: ${rel}`);
     for (const rel of SITES) {
       const b = blockOf(texts[path.join(ROOT, rel)]);
       if (b !== law) fail(id, `bản chép không byte-đúng: ${rel}`);

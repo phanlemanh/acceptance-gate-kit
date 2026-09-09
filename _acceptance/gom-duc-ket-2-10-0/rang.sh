@@ -48,10 +48,14 @@ case "$CHAN" in
       if [ "$tk" -ne 0 ]; then echo "FAIL: $n còn $tk dòng W8-token (nhánh đã gỡ mà vẫn nổ)"; bad=1; fi
     done
     if [ "$bad" -ne 0 ]; then exit 1; fi
-    if [ "$seen" -lt 2 ]; then
-      echo "FAIL: chỉ chấm được $seen cây (cần ≥2: kit + ≥1 cây tiêu thụ) — dev-root=$DEV; truyền --dev-root <thư mục chứa các repo> nếu chạy ngoài chỗ thường"
+    # Cây tiêu thụ VẮNG là chuyện bình thường ở máy khác/CI — AC-5(e) nói SKIP có tên,
+    # không nói FAIL. Bất biến thường trực chỉ áp cho cây CÓ MẶT; kit thì luôn có, nên
+    # phép đo không bao giờ rỗng. Số ba cây tiêu thụ là CHỨNG-MỘT-LẦN, ghi ở Notes.
+    if [ "$seen" -lt 1 ]; then
+      echo "FAIL: không chấm được cây nào — kể cả kit ($ROOT) cũng không có _acceptance/"
       exit 1
     fi
+    echo "chứng-một-lần: $((seen - 1))/3 cây tiêu thụ có mặt ở dev-root=$DEV"
     echo "PASS: CAY-THAT ($seen cây)"
     ;;
   loop-health-that)
