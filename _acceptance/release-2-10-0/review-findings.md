@@ -1,65 +1,61 @@
-# Review Findings: release-2-10-0
-
 ## Trong hợp đồng
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Hồ sơ release-2-10-0 khai `veto_state: mo` mà thiếu `veto_opened_at` — cổng trước-merge của chính kit ĐỎ**
-  Người dùng thấy gì: Hồ sơ phát hành 2.10.0 có thể bị chặn không gộp được vào nhánh chính vì thiếu một mốc thời gian bắt buộc, làm chậm việc đưa bản cập nhật tới tay người dùng.
-  file: `_acceptance/release-2-10-0/contract.md`
+- **K8 thu hẹp làn conventions là fail-open không để lại vết: bỏ chấm file mà không hỏi round trước có thật sự chấm chưa**
+  Người dùng thấy gì: Nếu một vòng rà soát trước đó bị lỗi hạ tầng và không chạy xong, các phần mã không đổi file có thể không bao giờ được rà soát lại trong suốt vòng lặp, nhưng hệ thống vẫn báo đạt — người quyết có thể tin nhầm một phần mã chưa từng được kiểm thật.
+  file: `feature-loop/workflows/acceptance-verify.js`
   severity: high
   Đề xuất: new-contract
 
-- **Lời khai «lớp vendored không đổi» của hồ sơ mốc đo bằng `git diff -- vendor/` — thước gắn nhầm vật, dẫn tới chỉ dẫn rollout sai**
-  Người dùng thấy gì: Hướng dẫn phát hành nói các dự án dùng bộ công cụ này không cần làm gì thêm để cập nhật quy trình kiểm tra tự động, nhưng thực tế họ cần cập nhật — nếu làm theo hướng dẫn sai này, một lớp kiểm tra chất lượng sẽ âm thầm ngừng hoạt động và các lượt kiểm tra sau đó có thể bị chặn nhầm hàng loạt.
-  file: `_acceptance/release-2-10-0/contract.md`
-  severity: high
-  Đề xuất: new-contract
-
-- **Lối «da-veto» đọc status MỚI thay vì status CŨ — draft/implemented nhảy thẳng sang verified/machine-cleared mà approved_by rỗng vẫn ghi được**
-  Người dùng thấy gì: Một số bản ghi có thể được đánh dấu 'đã xác nhận an toàn' mà chưa thực sự qua đủ bước phê duyệt cần thiết, làm giảm độ tin cậy của chính dấu xác nhận đó.
-  file: `lib/evidence-core.cjs`
-  severity: high
-  Đề xuất: new-contract
-
-- **loop-health: `git log -S` quét TRỌN contract.md nên bắt cả chữ trong AC — «làm-xong→quyết-được» ra số âm mà không có tín hiệu nào**
-  Người dùng thấy gì: Báo cáo thời gian 'từ làm xong đến ra quyết định' của công cụ đo tự động có thể hiển thị số âm hoặc sai do lỗi tính toán, nên hiện tại số liệu này phải đếm tay thay vì tin vào máy.
-  file: `scripts/loop-health.mjs`
+- **`feature_loop.ship_default` là khoá config không bộ đọc máy nào đọc, và phép đo của nó chỉ grep chính tài liệu hướng dẫn**
+  Người dùng thấy gì: Người dùng thiết lập tuỳ chọn cách ship mặc định trong file cấu hình, nhưng chưa có phần nào của hệ thống thực sự đọc và áp dụng lựa chọn đó — hành vi ship tự động có thể không theo đúng thiết lập đã khai.
+  file: `feature-loop/skills/feature-loop/SKILL.md`
   severity: medium
   Đề xuất: known-limits
 
-- **eval-coverage-lint bỏ hẳn W8 trong im lặng khi thiếu lib/lop-nhin-thay.cjs, trong khi hai bộ đọc anh em đều nói ra**
-  Người dùng thấy gì: Nếu một dự án dùng bộ công cụ này thiếu một thành phần nội bộ, công cụ kiểm tra độ bao phủ có thể báo 'ổn, không có vấn đề gì' một cách im lặng dù thực chất chưa kiểm tra được gì, khiến người dùng lầm tưởng mọi thứ đã được rà soát.
-  file: `scripts/eval-coverage-lint.js`
+- **gate-card.js đọc `surfaces` bằng HAI parser frontmatter khác nhau trong cùng một thẻ, phá lời khai «một nguồn» của lop-nhin-thay.cjs**
+  Người dùng thấy gì: Với vài cách viết hợp đồng rất hiếm gặp (ví dụ khoảng trắng thừa trước dấu hai chấm), hai phần của công cụ có thể đưa ra hai kết luận khác nhau về việc tính năng có cần kiểm giao diện hay không, gây nhầm lẫn nhỏ khi người ký đọc thẻ quyết định.
+  file: `scripts/gate-card.js`
   severity: low
+  Đề xuất: wont-fix
+
+- **Gate-2 card silently skips the ui-observed check when lib/lop-nhin-thay.cjs is missing (Gate 1 and pre-merge both warn)**
+  Người dùng thấy gì: Nếu một kho dự án chưa cập nhật đủ file mới của bản phát hành, bước kiểm ở Cổng 2 sẽ âm thầm bỏ qua việc kiểm bằng chứng giao diện thay vì báo không kiểm được, khiến người ký có thể tưởng nhầm là tính năng đó không cần kiểm.
+  file: `scripts/gate-card.js`
+  severity: medium
   Đề xuất: known-limits
 
-- **Assertion âm-tính-một-mình: «chiều đỏ» của PV5 là hằng đúng, không bao giờ đỏ được**
-  Người dùng thấy gì: Một bài kiểm tra tự động được thiết kế để phát hiện một lớp lỗi cụ thể thực chất không bao giờ có thể báo lỗi, nên lớp lỗi đó có thể âm thầm quay lại mà không ai được cảnh báo.
+- **lop-nhin-thay.frontLine cannot read frontmatter preceded by a blank line, unlike evidence-core.frontmatterField — the whole ui-observed law goes quiet**
+  Người dùng thấy gì: Nếu tài liệu mô tả một tính năng có một dòng trống thừa ở đầu file, công cụ kiểm có thể âm thầm coi tính năng đó là không có giao diện người dùng cần kiểm và không báo lỗi gì — bỏ sót một bước kiểm quan trọng trong im lặng.
+  file: `lib/lop-nhin-thay.cjs`
+  severity: medium
+  Đề xuất: new-contract
+
+- **Hình dạng 4 — chiều đỏ của PV5 là assert vô điều kiện (không bao giờ đỏ được)**
+  Người dùng thấy gì: Một bài kiểm tra nội bộ của bộ công cụ hiện không thực sự phát hiện được khi phép quét lỗi bị hỏng — nó luôn báo đạt bất kể phép quét có hoạt động đúng hay không; hạn chế này đã được ghi sổ để xử lý ở đợt sau.
   file: `tests/scripts/w6-w8-pham-vi.test.mjs`
   severity: high
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **Chiều đỏ của NO4 chạy bằng BẢN SAO viết lại của phép quét, không phải chính phép quét**
-  Người dùng thấy gì: Một bài kiểm tra bảo vệ có thể ngừng phát hiện đúng vấn đề khi logic gốc mà nó theo dõi bị thay đổi, vì bài kiểm tra dùng một bản chép tay riêng thay vì logic thật đang chạy.
-  file: `tests/scripts/lnt-no.test.mjs`
+- **Hình dạng 2 — fixture usage-report viết tay đúng khuôn bên đọc, không round-trip từ wf-usage.mjs**
+  Người dùng thấy gì: Dữ liệu mẫu dùng để kiểm công cụ đo hiệu suất được viết tay thay vì lấy từ đầu ra thật của hệ thống, nên nếu định dạng đầu ra thật thay đổi, số liệu hiệu suất hiển thị cho người dùng có thể âm thầm sai mà bài kiểm tra này không phát hiện ra.
+  file: `tests/scripts/loop-health.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Assert «chuỗi có mặt» với vế OR nuốt đúng chế độ hỏng mà nó đi bắt**
-  Người dùng thấy gì: Một bài kiểm tra có thể báo 'đạt' ngay cả khi phần hiển thị số liệu bị lỗi và rơi vào chế độ dự phòng, vì bài kiểm tra chấp nhận cả kết quả đúng lẫn kết quả của nhánh lỗi.
-  file: `tests/scripts/loop-health.test.mjs`
-  severity: low
+- **Hình dạng 4 — lời khai của E11 neo `origin/main` (ref trôi) trong khi mã đo neo SHA cố định**
+  Người dùng thấy gì: Tài liệu mô tả cách một bài kiểm tra cũ (đã được ký duyệt) chạy không còn khớp với cách nó thực sự chạy trong mã; ai đọc lại tài liệu đó để dựng một kiểm tra tương tự trong tương lai có thể vô tình tái tạo đúng lỗi đã được sửa trước đó.
+  file: `_acceptance/duong-lui-phai-song/evals.yaml`
+  severity: medium
   Đề xuất: known-limits
 
-- **Ca L52 là assert âm-tính-một-mình, không ghim thông điệp và không đối chứng lint đã chạy**
-  Người dùng thấy gì: Một bài kiểm tra chỉ dựa vào việc 'không thấy thông báo lỗi xuất hiện' để kết luận 'ổn', nên nó không phân biệt được giữa 'không có vấn đề' và 'công cụ kiểm tra đã không chạy được'.
-  file: `tests/scripts/run-tests.sh`
+- **Hình dạng 4 — mệnh đề (iii) của LNT6 có một vế luôn đúng, section rỗng vẫn xanh**
+  Người dùng thấy gì: Một bài kiểm tra nội bộ vẫn có thể báo đạt ngay cả khi nội dung hướng dẫn quan trọng trong tài liệu bị xoá trống, do cách so khớp văn bản chưa đủ chặt — rủi ro thực tế thấp vì tình huống này hiếm khi xảy ra.
+  file: `tests/plugins/lop-nhin-thay.test.mjs`
   severity: low
-  Đề xuất: known-limits
-
-## Chưa adversarial-verify (refuter chết)
+  Đề xuất: wont-fix
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
