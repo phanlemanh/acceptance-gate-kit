@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d72fa37098066ff90a812aaf821f7c2755da1113
+verified_commit: f78a77618037a63b9632842acfd0644dd581cff4
 human_signoff: Manh Phan 2026-09-09
 ---
 
@@ -156,3 +156,7 @@ none — every multi-run eval is uniform
 
 Round 2: REJECT — 13 eval + 5 suite xanh nhưng rà soát xác nhận 11 lỗi thật (1 trong hợp đồng), lỗi lớp fail-open staleScope. Returned to implementation.
 Round 3: REJECT — 5 finding thật, cùng LỚP fail-open staleScope với round 2. Returned to implementation.
+
+### Re-pin lần 1 — 2026-09-09, do ghim bản ghi mốc định tuyến LM20 + vá lời khai executor E1; lưới hoá cũ là cả cây vì K4 đã rút
+run_id: repin-20260909T113748Z-12337
+sha: f78a77618037a63b9632842acfd0644dd581cff4 · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
