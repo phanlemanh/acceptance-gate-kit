@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khi nào một mã khác 0 được nhận</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --color-accent: #eb6c36;
+      --font-sans:  'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', serif;
+      --font-mono:  'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Bảng quyết định · AC-3 · AC-5 · AC-7 · AC-8 · AC-9 · AC-10</p>
+    <h1>Khi nào một mã khác không được nhận</h1>
+
+    <svg viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ================= GRID ================= -->
+      <!-- hàng ngang -->
+      <line x1="32" y1="120" x2="920" y2="120" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="32" y1="176" x2="920" y2="176" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="32" y1="232" x2="920" y2="232" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="32" y1="288" x2="920" y2="288" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="32" y1="344" x2="920" y2="344" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="32" y1="400" x2="920" y2="400" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="32" y1="456" x2="920" y2="456" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <!-- cột dọc -->
+      <line x1="240" y1="88" x2="240" y2="456" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="448" y1="88" x2="448" y2="456" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="592" y1="88" x2="592" y2="456" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- ================= ĐẦU CỘT ================= -->
+      <text x="48" y="104" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.18em">KHAI TRONG EVALS.YAML?</text>
+      <text x="256" y="104" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.18em">BÁO CÁO ĐÃ KÝ GHI MÃ ĐÓ?</text>
+      <text x="464" y="104" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.18em">MÃ THẬT KHI CHẠY</text>
+      <text x="608" y="104" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.18em">KẾT QUẢ</text>
+      <text x="984" y="104" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="end" letter-spacing="0.18em">AC</text>
+
+      <!-- ================= Ô TIÊU ĐIỂM (hàng 2) ================= -->
+      <rect x="596" y="180" width="320" height="48" rx="4"
+            fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+
+      <!-- ================= HÀNG 1 — khai + ký + khớp ================= -->
+      <text x="48" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">CÓ</text>
+      <text x="48" y="162" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">khai mã 2 cho đúng eval đó</text>
+      <text x="256" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">CÓ</text>
+      <text x="256" y="162" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">báo cáo ghi eval đó, mã 2</text>
+      <text x="520" y="154" fill="#2d3142" font-size="14" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle">2</text>
+      <rect x="608" y="138" width="88" height="20" rx="4" fill="none" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="652" y="152" fill="#2d3142" font-size="10" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GHI ĐƯỢC</text>
+      <text x="712" y="154" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Nhận là đạt-có-giới-hạn</text>
+      <text x="984" y="154" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">AC-7·8·9</text>
+
+      <!-- ================= HÀNG 2 — khai + ký ghi 0 (tiêu điểm) ================= -->
+      <text x="48" y="200" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">CÓ</text>
+      <text x="48" y="218" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">khai mã 2 cho đúng eval đó</text>
+      <text x="256" y="200" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">KHÔNG</text>
+      <text x="256" y="218" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">báo cáo đã ký ghi mã 0</text>
+      <text x="520" y="210" fill="#2d3142" font-size="14" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle">2</text>
+      <rect x="608" y="194" width="88" height="20" rx="4" fill="#2d3142"/>
+      <text x="652" y="208" fill="#f5f5f5" font-size="10" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐỎ</text>
+      <text x="712" y="202" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Tiền đề vừa mất</text>
+      <text x="712" y="218" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">mã mới hiện, chưa ai ký nhận</text>
+      <text x="984" y="210" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">AC-8</text>
+
+      <!-- ================= HÀNG 3 — không khai ================= -->
+      <text x="48" y="256" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">KHÔNG</text>
+      <text x="48" y="274" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">eval không khai mã nào</text>
+      <text x="256" y="256" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">CÓ</text>
+      <text x="256" y="274" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">báo cáo ghi eval đó, mã 2</text>
+      <text x="520" y="266" fill="#2d3142" font-size="14" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle">2</text>
+      <rect x="608" y="250" width="88" height="20" rx="4" fill="#2d3142"/>
+      <text x="652" y="264" fill="#f5f5f5" font-size="10" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐỎ</text>
+      <text x="712" y="258" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Chưa khai</text>
+      <text x="712" y="274" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">một vế thiếu là đủ để chặn</text>
+      <text x="984" y="266" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">AC-8</text>
+
+      <!-- ================= HÀNG 4 — khai, chạy ra mã khác ================= -->
+      <text x="48" y="312" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">CÓ</text>
+      <text x="48" y="330" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">khai mã 2 cho đúng eval đó</text>
+      <text x="256" y="312" fill="#636b80" font-size="12" font-weight="600" font-family="'Geist', sans-serif">—</text>
+      <text x="256" y="330" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">chỗ đọc này không dự phần</text>
+      <text x="520" y="322" fill="#2d3142" font-size="14" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle">3</text>
+      <rect x="608" y="306" width="88" height="20" rx="4" fill="#2d3142"/>
+      <text x="652" y="320" fill="#f5f5f5" font-size="10" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐỎ</text>
+      <text x="712" y="314" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Lệch mã đã khai</text>
+      <text x="712" y="330" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">vào danh sách eval trượt</text>
+      <text x="984" y="322" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">AC-3</text>
+
+      <!-- ================= HÀNG 5 — khai mã, nay trả 0 ================= -->
+      <text x="48" y="368" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">CÓ</text>
+      <text x="48" y="386" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">khai mã 2 cho đúng eval đó</text>
+      <text x="256" y="368" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">CÓ</text>
+      <text x="256" y="386" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">báo cáo ghi eval đó, mã 2</text>
+      <text x="520" y="378" fill="#2d3142" font-size="14" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle">0</text>
+      <rect x="608" y="362" width="88" height="20" rx="4" fill="none" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="652" y="376" fill="#2d3142" font-size="10" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">XANH</text>
+      <text x="712" y="370" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Không phạt một cải thiện</text>
+      <text x="712" y="386" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">kèm câu «giới hạn đã khai không còn»</text>
+      <text x="984" y="378" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">AC-10</text>
+
+      <!-- ================= HÀNG 6 — hai eval chung lệnh ================= -->
+      <text x="48" y="424" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">HAI MÃ KHÁC NHAU</text>
+      <text x="48" y="442" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">hai eval trỏ chung một lệnh</text>
+      <text x="256" y="424" fill="#636b80" font-size="12" font-weight="600" font-family="'Geist', sans-serif">—</text>
+      <text x="256" y="442" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">chỗ đọc này không dự phần</text>
+      <text x="520" y="430" fill="#636b80" font-size="10"
+            font-family="'Geist', sans-serif" text-anchor="middle">chưa chạy</text>
+      <rect x="608" y="418" width="88" height="20" rx="4" fill="#2d3142"/>
+      <text x="652" y="432" fill="#f5f5f5" font-size="10" font-weight="600"
+            font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">BLOCKED</text>
+      <text x="712" y="426" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif">Máy không chọn thầm</text>
+      <text x="712" y="442" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">gọi tên cả hai eval và lệnh chung</text>
+      <text x="984" y="430" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">AC-5</text>
+
+      <!-- ================= CHÚ THÍCH BIÊN ================= -->
+      <line x1="920" y1="464" x2="920" y2="488" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="920" y="512" fill="#ba4513" font-size="14" font-style="italic"
+            font-family="'Instrument Serif', 'Lora', serif" text-anchor="end">Hai vế: có chủ đích, VÀ đã có người ký nhận.</text>
+      <text x="920" y="532" fill="#ba4513" font-size="14" font-style="italic"
+            font-family="'Instrument Serif', 'Lora', serif" text-anchor="end">Thiếu một vế là chỗ fail-open.</text>
+
+      <!-- ================= CHÚ GIẢI ================= -->
+      <line x1="32" y1="560" x2="968" y2="560" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="584" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="128" y="574" width="24" height="14" rx="4" fill="#2d3142"/>
+      <text x="160" y="584" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Máy dừng lại</text>
+
+      <rect x="272" y="574" width="24" height="14" rx="4" fill="none" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="304" y="584" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Máy đi tiếp</text>
+
+      <rect x="416" y="574" width="24" height="14" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="448" y="584" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chốt chặn fail-open</text>
+
+      <text x="644" y="584" fill="#636b80" font-size="11" font-weight="600" font-family="'Geist', sans-serif">—</text>
+      <text x="664" y="584" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chỗ đọc này không dự phần vào ô đó</text>
+    </svg>
+  </div>
+</body>
+</html>
