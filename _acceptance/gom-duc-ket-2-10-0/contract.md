@@ -5,7 +5,7 @@ slug: gom-duc-ket-2-10-0
 owner: phanlemanh@gmail.com
 risk_tier: T3               # C1 chạm lib/eval-yaml.cjs + lib/lop-nhin-thay.cjs + lib/context-glossary.js + scripts/pre-merge-check.sh (t3_paths)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-09-08T15:20:00Z
 design_doc: docs/superpowers/specs/2026-09-08-gom-duc-ket-2-10-0-design.md
@@ -70,3 +70,17 @@ for changes]` cho làm-xong→quyết-được).
 - Chứng-một-lần (gap-probe P1): số đo cây tiêu thụ (E5b) chỉ IN, neo ở tập cây CÓ MẶT lúc đo — không ghim thành bất biến thường trực; kết quả ghi ở bằng chứng và hồ sơ mốc 2.10.0.
 - Ba dòng số của luật (c) cho mốc 2.10.0 ĐẾM TAY (đúng chữ CLAUDE.md), không lấy từ `scripts/loop-health.mjs` — K6 đã rút, lý do ở Out of scope.
 - Nếp đo ở vòng này (N2–N7): mục tiêu ≤2 round S4, S4 ≤ 40M token, ≤4 lượt gọi người trong thiết kế + 0 ngoài, 0 vòng bị hạ tầng đốt — ghi ở hồ sơ mốc.
+
+### Known limits — người quyết ở Cổng Bằng chứng 09/09/2026 (Manh Phan)
+
+Tám mục dưới đây là lỗi THẬT đã xác minh, nằm NGOÀI hợp đồng; owner chọn ghi giới
+hạn rồi ship. Chúng không chặn mốc 2.10.0 vì ba dòng số của luật (c) đếm tay.
+
+- **KL-1 (Ngoài-1 + Ngoài-5, high) — `scripts/loop-health.mjs` đọc `human_calls` không cắt chú thích.** `num()` xoá mọi ký tự không phải chữ số nên `human_calls: 3 (2 ngoài thiết kế)` ra 32, và `human_calls: đếm tay` ra 0 thay vì rơi về nhánh «đếm tay». Đúng con số mà luật (c) dùng để đếm mỗi mốc và để xét ĐIỀU KIỆN THU HỒI của luật nới 07/09. Vô hại ở mốc này vì K6 đã rút và số đếm tay; ô sửa đi cùng ô `loop-health-doc-frontmatter`.
+- **KL-2 (Ngoài-2, medium) — `--all` suy dev-root bằng `dirname(ROOT)`.** Chạy từ worktree thì bảng «mốc cùng hạng» chỉ còn một kho mà không kêu. Cùng lỗi `rang.sh` đã vá bằng `git rev-parse --git-common-dir`; script mới chưa dùng lại nếp đó, và không ca nào trong LH1–LH4 chạm nhánh `--all`.
+- **KL-3 (Ngoài-3, medium) — `loop-health` tự viết luật cắt `#` thứ ba.** `split('#')[0]` cắt cả `T2#x`, trái luật một-nguồn `stripComment` mà chính vòng này vừa lập và ca NO3 (c-bis) đang ghim. Hai bộ đọc, hai câu trả lời trên cùng một hợp đồng.
+- **KL-4 (Ngoài-6, medium) — `--check-hand` xanh vô điều kiện khi số tay không phải số.** `Math.abs(got - want)` ra NaN, `NaN > eps` luôn sai, nên một giá trị như `"~1M"` biến bước đối chiếu máy-với-tay thành xanh câm. Cần chặn `typeof want !== 'number'` khi mở lại K6.
+- **KL-5 (Ngoài-8, medium) — hai mutant của S5D3 hằng đúng theo cấu tạo.** Bản sao gỡ khối rồi đọc lại bằng chính khuôn vừa gỡ, nên câu PASS «mutant đều bị bắt» chưa chứng minh được gì. Luật S5 mặc-định-PR vẫn đúng ở bản đang chạy (S5D1/S5D2 đo trực tiếp), nhưng nếu ai sửa hỏng nó thì răng này không kêu.
+- **KL-6 (Ngoài-9, medium) — chiều đỏ của PV5 là tautology.** Đã khai đầy đủ ở Out of scope mục AC-5(d)(e) kèm ô `pv5-chieu-do-that`.
+- **KL-7 (Ngoài-10, low) — neo âm chết trong W39.** Ca ghim câu «bo qua lan nay», một chuỗi không đường sinh nào còn tạo ra. Lỗi cũ (làn câm khi vòng sửa chỉ chạm code) đang được chặn bởi ca chỉ-code-đổi ở cùng khối, nên neo âm này là dư chứ không phải lưới duy nhất.
+- **KL-8 — bộ lọc NO4 mới thấy 1 helper.** Ca tự khai «ma trận toàn phần» của LỚP helper đọc stdout thẻ nhưng bộ lọc đòi cùng MỘT dòng khớp cả tên thẻ lẫn biến, nên chưa phủ hết lớp. Đã khai trong `expected` của E2.
