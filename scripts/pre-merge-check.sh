@@ -503,29 +503,13 @@ GLOBS
   return 1
 }
 
-EVIDENCE_CORE_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/evidence-core.cjs"
-stale_files() { # <root> <commit> [<workspace dir>] — files changed since <commit>
-  # (incl. working tree) that are neither gate artifacts (_acceptance/) nor
-  # t1_skip_globs: i.e. code the pinned evidence no longer covers. Untracked files
-  # are invisible to git diff — CI runs on a committed tree, so that is moot there.
-  #
-  # THU PHẠM VI THEO `paths:` (gom-duc-ket-2-10-0, K4): hồ sơ mà MỌI eval máy/ui đều
-  # khai `paths` thì chỉ file KHỚP ∪paths mới làm nó hoá cũ — luật cũ đo «cây có đổi»
-  # nên mỗi lần nhánh chính chạm tests/ là cả xưởng phải ghim lại (277 lượt ở kho này).
-  # Fail-safe VỀ PHÍA CHẶT: thiếu node, thiếu lib, hoặc một eval không khai paths →
-  # exit ≠ 0 → giữ nguyên luật cũ (cả cây). Không có đường fail-open nào ở đây.
-  _sp=""
-  if [ -n "${3:-}" ] && [ -f "$3/evals.yaml" ] && command -v node >/dev/null 2>&1 && [ -f "$EVIDENCE_CORE_LIB" ]; then
-    _sp="$(node "$EVIDENCE_CORE_LIB" stale-scope "$3/evals.yaml" 2>/dev/null)" || _sp=""
-  fi
+stale_files() { # <root> <commit> — files changed since <commit> (incl. working
+  # tree) that are neither gate artifacts (_acceptance/) nor t1_skip_globs:
+  # i.e. code the pinned evidence no longer covers. Untracked files are
+  # invisible to git diff — CI runs on a committed tree, so that is moot there.
   git -C "$1" diff --name-only "$2" -- 2>/dev/null | while IFS= read -r f; do
     case "$f" in _acceptance/*|*/_acceptance/*) continue ;; esac
-    match_globs "$f" "$T1_GLOBS" && continue
-    if [ -n "$_sp" ]; then
-      match_globs "$f" "$_sp" && printf '%s\n' "$f"
-    else
-      printf '%s\n' "$f"
-    fi
+    match_globs "$f" "$T1_GLOBS" || printf '%s\n' "$f"
   done
 }
 
@@ -1161,10 +1145,7 @@ XLACS
     fi
     echo "NOTE [$slug]: verified_commit $vc not found in this SHALLOW clone (fetch-depth) — staleness unverifiable here; a full clone decides"
   else
-    if [ -f "$dir/evals.yaml" ] && { ! command -v node >/dev/null 2>&1 || [ ! -f "$EVIDENCE_CORE_LIB" ]; }; then
-      echo "NOTE [$slug]: phạm vi hoá-cũ chạy LUẬT CŨ (cả cây) — thiếu node hoặc lib/evidence-core.cjs nên không đọc được \`paths:\` của eval; luật cũ chặt hơn, không bỏ qua file nào."
-    fi
-    stale="$(stale_files "$ROOT" "$vc" "$dir")"
+    stale="$(stale_files "$ROOT" "$vc")"
     if [ -n "$stale" ]; then
       echo "VIOLATION [$slug]: evidence is stale — code changed after verify (verified_commit $vc); re-run verify before merge. Changed:"
       printf '%s\n' "$stale" | head -10 | sed 's/^/    /'

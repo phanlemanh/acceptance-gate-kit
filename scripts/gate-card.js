@@ -834,17 +834,6 @@ const chuMDT = () => (scanState == null ? CHU_MAY_THONG : trangThai.chu(scanStat
 // Đề xuất in bằng CHỮ NGƯỜI (OOC_GLOSS_NGUOI) chứ không token máy — thân lệnh
 // signoff dạy đúng những chữ đó, nên dòng này dán lại là chạy được (rà soát
 // Gate 1.5 rủi ro #1: in token máy thì owner dán vào vẫn tốn thêm một lượt).
-// K7 (AC-9d): mục TÁC HẠI HÀNH VI lên trước — người quyết đọc lỗi của vật giao trước lỗi
-// của thước. Sắp MỘT LẦN ở đây rồi ghi đè `ooc.findings`, vì nhãn «Ngoài-N» được đánh ở BA
-// nơi (khối hiển thị · dòng lệnh ký sẵn · khối «việc của anh») — sắp cục bộ ở một nơi làm
-// ba nơi nói ba thứ tự và nhãn trỏ nhầm mục (finding S4-r2). Sắp ổn định: cùng nhóm giữ
-// thứ tự S4 viết; file đời cũ (không mục nào khai harm) giữ NGUYÊN thứ tự (đọc-cũ).
-{
-  const harmRank = h => (h === 'behavior' ? 0 : h === 'measure' ? 1 : 2);
-  ooc.findings = ooc.findings.map((f, i) => ({ f, i }))
-    .sort((a, b) => (harmRank(a.f.harm) - harmRank(b.f.harm)) || (a.i - b.i))
-    .map(x => x.f);
-}
 const oneParts = [], routingHoi = [], routingBao = [];
 ooc.findings.forEach((f, fi) => {
   const lbl = 'Ngoài-' + (fi + 1);

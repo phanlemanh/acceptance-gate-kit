@@ -199,12 +199,9 @@ executors:
     gdk_k2: node tests/scripts/danh-tinh.test.mjs
     gdk_k3: node tests/scripts/w6-w8-pham-vi.test.mjs
     gdk_k3_cay_that: bash _acceptance/gom-duc-ket-2-10-0/rang.sh --chan cay-that
-    gdk_k4: node tests/scripts/stale-paths.test.mjs
     gdk_k5: node tests/scripts/s5-ship-default.test.mjs
     gdk_k6: node tests/scripts/loop-health.test.mjs
     gdk_k6_cay_that: bash _acceptance/gom-duc-ket-2-10-0/rang.sh --chan loop-health-that
-    gdk_k7: "bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs | grep -F W38'"
-    gdk_k7_the: node tests/scripts/ooc-tac-hai.test.mjs
     gdk_k8: "bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs | grep -F W39' && node tests/scripts/s4-args-delta.test.mjs"
 risk_tiers:
   t1_skip_globs:

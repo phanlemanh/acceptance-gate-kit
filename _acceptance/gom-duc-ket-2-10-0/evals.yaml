@@ -90,19 +90,7 @@ evals:
       trước: kit W6 127, W8-token 140/15/4, nghĩa vụ 16/2/9). Dòng cuối "PASS: CAY-THAT". Bản
       cũ: rang.sh vắng → đỏ; lint cũ trên artifact-platform → W8-token 140 → đỏ nêu số.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E6
-    criterion: AC-6
-    executor: test
-    cmd: config:executors.script.gdk_k4
-    paths: [lib/evidence-core.cjs, lib/eval-yaml.cjs, scripts/pre-merge-check.sh, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/stale-paths.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: SP1".."PASS: SP6": SP1 đủ paths + đổi tests/khac.sh → không
-      "stale", có "rules ran="; SP2 đổi src/app.js → VIOLATION "stale" nêu src/app.js; SP3 một
-      eval thiếu paths + đổi tests/khac.sh → VIOLATION (luật cũ); SP4 bản sao xoá
-      lib/evidence-core.cjs + đổi tests/khac.sh → VIOLATION + NOTE "luật cũ"; SP5 staleScope:
-      null khi thiếu, mảng khi đủ; pathsOf hai dạng cùng kết quả (deepEqual); SP6 SKILL
-      Staleness guard có "paths:" và "cả cây". Mỗi ca nêu tên; SP1/SP2 cùng fixture.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E7
     criterion: AC-7
     executor: test
@@ -139,30 +127,7 @@ evals:
       dòng cuối "PASS: LH-THAT". Chênh → exit 1 in số máy cạnh số tay và slug lệch nhiều nhất.
       Số tay sai → sửa AC-8(b) kèm entry fix nêu nguyên nhân (không sửa lặng).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E9
-    criterion: AC-9
-    executor: test
-    cmd: config:executors.script.gdk_k7
-    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
-    expected: >
-      exit 0 (pipefail grep "W38"); W38: args.evals E1 paths [src/a.js] AC-1, E2 paths [src/a.js]
-      AC-2, E3 paths [src/c.js] AC-3; finding src/a.js harm behavior inContract false → máy nâng
-      true, acRef "AC-1, AC-2" (tập khớp, sắp theo id), có trong rejectFindings; finding src/z.js
-      harm behavior → giữ false; finding src/a.js harm measure → giữ false; triage không trả harm
-      → giữ luật cũ, không unclassified; prompt triage chứa "harm"; synthesize prompt chứa
-      "Tác hại: {harm}". Số assert = 4 finding × trường (inContract, acRef) = 8.
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E9b
-    criterion: AC-9
-    executor: test
-    cmd: config:executors.script.gdk_k7_the
-    paths: [lib/out-of-contract.js, scripts/gate-card.js, tests/scripts/ooc-tac-hai.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: TH1".."PASS: TH3": TH1 parse review-findings có dòng "Tác hại:
-      behavior" → harm 'behavior', vắng → ''; TH2 thẻ Cổng 2 trên fixture 3 mục (measure,
-      behavior, vắng) → HTML thứ tự behavior, measure, vắng (vị trí chuỗi); TH3 fixture đời cũ
-      (không dòng Tác hại) → thẻ giữ thứ tự viết, không cờ mới (đọc-cũ).
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
   - id: E10
     criterion: AC-10
     executor: test

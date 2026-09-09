@@ -218,13 +218,35 @@ if (want('NO4')) {
       helpers.push({ f: path.relative(ROOT, f), line: line.trim() });
     }
   }
-  if (helpers.length < 2) fail(id, `chỉ tìm được ${helpers.length} helper đọc stdout thẻ — phép quét lớp không có gì để phân biệt (kỳ vọng ≥2)`);
+  // Số phần tử của LỚP là sự thật của cây (hôm nay 1, có thể n) — không ghim con số.
+  // Điều phải đúng: phép quét TÌM ĐƯỢC ít nhất một helper (0 = phép đo chết), MỌI helper
+  // tìm được đều bỏ mã thoát, và phép quét PHÂN BIỆT ĐƯỢC helper không bỏ (chiều đỏ chạy
+  // trên bản sao THẬT, không tự soi lại chuỗi).
+  const coStrip = line => /\\x1b|\\u001[bB]|stripAnsi/.test(line);
+  if (!helpers.length) fail(id, 'phép quét không tìm được helper nào đọc stdout thẻ — phép đo chết (đổi tên biến? đổi cách gọi?)');
   for (const h of helpers) {
-    if (!/\\x1b|\\u001[bB]|stripAnsi/.test(h.line)) fail(id, `helper KHÔNG bỏ mã thoát — ${h.f}: ${h.line.slice(0, 90)}`);
+    if (!coStrip(h.line)) fail(id, `helper KHÔNG bỏ mã thoát — ${h.f}: ${h.line.slice(0, 90)}`);
   }
-  // chiều đỏ CỦA PHÉP QUÉT: bản sao một helper bỏ đoạn strip → phép quét phải bắt
-  const probe = helpers[0] ? helpers[0].line.replace(/\.replace\(\/\\x1b[^)]*\)/, '') : '';
-  if (probe && /\\x1b|stripAnsi/.test(probe)) fail(id, 'mutant gỡ đoạn strip mà dòng vẫn còn dấu hiệu — phép quét không phân biệt được');
+  // chiều đỏ: dựng BẢN SAO một file test với helper đã gỡ đoạn strip, chạy LẠI chính phép
+  // quét trên thư mục bản sao — nó phải kêu đúng file đó.
+  if (helpers.length) {
+    const m = tmp(); mkdirSync(path.join(m, 'tests'), { recursive: true });
+    const src = readFileSync(path.join(ROOT, helpers[0].f), 'utf8');
+    const NEEDLE = ".replace(/" + String.fromCharCode(92) + "x1b" + String.fromCharCode(92) + "[[0-9;]*m/g, '')";
+    const mut = src.split(NEEDLE).join('');
+    writeFileSync(path.join(m, 'tests', 'mutant.test.mjs'), mut);
+    const found = [];
+    for (const line of readFileSync(path.join(m, 'tests', 'mutant.test.mjs'), 'utf8').split('\n')) {
+      if (!/^\s*const\s+\w+\s*=.*\.stdout/.test(line)) continue;
+      if (!/gate-?card|GATE_CARD|\bgc\(/i.test(line)) continue;
+      if (/--extract|JSON\.parse/.test(line)) continue;
+      found.push(line);
+    }
+    if (mut === src) fail(id, 'không tiêm được mutant (đoạn strip viết khác khuôn?)');
+    else if (!found.length) fail(id, 'bản sao mutant không còn helper nào để quét — chiều đỏ không chạy');
+    else if (found.every(coStrip)) fail(id, 'phép quét KHÔNG phân biệt được helper đã gỡ strip');
+    rmSync(m, { recursive: true, force: true });
+  }
   if (failures === before) pass(id, `${helpers.length} helper đọc stdout thẻ đều bỏ ANSI (ma trận toàn phần + chiều đỏ của phép quét)`);
 }
 

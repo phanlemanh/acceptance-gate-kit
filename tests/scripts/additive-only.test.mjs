@@ -18,18 +18,6 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
-  // gom-duc-ket-2-10-0 (AC-6, K4): phạm vi hoá-cũ thu theo `paths:` của eval. Đây là một
-  // NỚI CÓ CHỦ ĐÍCH — owner duyệt ở Cổng Phạm vi 08/09 — nên nó phải nằm ở đây, khai đích
-  // danh, chứ không lọt qua im lặng: luật cũ đo «cây có đổi» và bắt cả xưởng ghim lại mỗi
-  // lần nhánh chính chạm tests/ (277 lượt ở kho này, 0 thông tin về vật). Fail-safe giữ:
-  // một eval không khai paths, hoặc thiếu node/lib/evidence-core.cjs → CHẠY LUẬT CŨ (cả
-  // cây) kèm NOTE. Răng: tests/scripts/stale-paths.test.mjs SP1–SP4 (cặp cùng fixture).
-  `stale_files() { # <root> <commit> — files changed since <commit> (incl. working`,
-  `  # tree) that are neither gate artifacts (_acceptance/) nor t1_skip_globs:`,
-  `  # i.e. code the pinned evidence no longer covers. Untracked files are`,
-  `  # invisible to git diff — CI runs on a committed tree, so that is moot there.`,
-  `    match_globs "$f" "$T1_GLOBS" || printf '%s\\n' "$f"`,
-  `    stale="$(stale_files "$ROOT" "$vc")"`,
   // gom-duc-ket-2-10-0 (AC-2b, nợ C1 Ngoài-5): NOTE lớp nhìn-thấy tách ba nguyên nhân
   // (thiếu node · thiếu lib · lib lỗi exit n) thay một câu gộp. Năm dòng dưới là ĐÚNG các
   // dòng của nhánh gộp cũ; nhánh mới nói NHIỀU hơn ở cùng chỗ, không nới luật nào — NOTE
