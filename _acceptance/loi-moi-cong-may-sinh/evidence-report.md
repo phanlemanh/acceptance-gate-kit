@@ -7,7 +7,7 @@ reason: 11/11 eval máy XANH trên cây cuối 873db3de. Bảy finding TRONG h�
 verified_by: implementing session (đối kháng vòng 1–3 do ba phiên tươi độc lập; KHÔNG có phiên soi độc lập trên cây cuối — Known limits #1)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 37cbf58a4c65812f07f65354eefb8dd65860fd37
+verified_commit: 809669544314a99ba3da40065778030860deaa83
 human_signoff: Manh Phan 2026-09-02
 ---
 
@@ -264,3 +264,7 @@ sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 4 — 2026-09-09, do vòng gom-duc-ket-2-10-0 chạm commands/approve.md + signoff.md + acceptance-init.md (K2 danh tính, K5 khuôn config)
 run_id: repin-20260909T105537Z-51567
 sha: 37cbf58a4c65812f07f65354eefb8dd65860fd37 · suites: 5 lệnh exit 0 · evals: 11 eval máy exit 0
+
+### Re-pin lần 5 — 2026-09-09, do vá SD1/SD2 phụ thuộc bản cài (CI PR #163 đỏ) chạm tests/scripts/s4-args-delta.test.mjs
+run_id: repin-20260909T120653Z-96471
+sha: 809669544314a99ba3da40065778030860deaa83 · suites: 5 lệnh exit 0 · evals: 11 eval máy exit 0
