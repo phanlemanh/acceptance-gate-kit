@@ -33,15 +33,23 @@ Lớp đó KHÔNG phải thư mục `vendor/` (chỗ đó chỉ chứa skill bê
 `vendor/impeccable`); nó là danh sách khai trong marker `INIT-CI-COPY-LIST` của
 `commands/acceptance-init.md`. Đo đúng vật đó trong cửa sổ:
 
-| File lớp CI | Đổi |
+Danh sách có CHÍN mục; **năm** mục đổi trong cửa sổ (số là `git diff --numstat
+bafe2aad..da7ac3fc`, cột thêm/bớt):
+
+| Mục của INIT-CI-COPY-LIST | Thêm / bớt |
 |---|---|
-| `lib/lop-nhin-thay.cjs` | **MỚI, 101 dòng** — thành mục thứ CHÍN của danh sách |
-| `scripts/pre-merge-check.sh` | +99 |
-| `lib/evidence-core.cjs` | +64 / −37 |
-| `lib/context-glossary.js` | +35 |
-| `lib/eval-yaml.cjs` | +11 |
-| `commands/acceptance-init.md` | +8 (chính mục thứ chín) |
-| `scripts/recheck-evidence.cjs` | +2 |
+| `lib/lop-nhin-thay.cjs` | **101 / 0 — MỚI**, và là mục thứ CHÍN vừa thêm vào danh sách |
+| `scripts/pre-merge-check.sh` | 94 / 5 |
+| `lib/evidence-core.cjs` | 36 / 28 |
+| `lib/eval-yaml.cjs` | 10 / 1 |
+| `scripts/recheck-evidence.cjs` | 1 / 1 |
+
+Bốn mục còn lại của danh sách (`gap-probe.cjs`, `workspace-record.cjs`, `ac-line.cjs`,
+`md-section.cjs`) KHÔNG đổi. Hai file `lib/context-glossary.js` (35/0) và
+`commands/acceptance-init.md` (7/1) cũng đổi trong cửa sổ nhưng KHÔNG thuộc lớp chép —
+file đầu chỉ được hai script của kho require, file sau là nơi CHỨA marker. Bản đầu của
+hồ sơ này gộp cả hai vào bảng và ghi `evidence-core` là «+64 / −37» (số dòng `+` thô,
+cộng cả dòng header của diff) — gap-probe bắt cả hai, đã sửa.
 
 Hai hệ quả THẬT cho repo tiêu thụ, phải nói trong chỉ dẫn rollout:
 (a) repo không chép file thứ chín thì làn NOTE lớp nhìn-thấy in «không kiểm được»
@@ -49,8 +57,10 @@ và **không bao giờ chặn** — luật W8 mới tắt im ở consumer đó;
 (b) `lib/evidence-core.cjs` bỏ hằng `REPIN_EVALS_SINCE` và `pre-merge-check.sh` siết
 guard phạm vi diff của luật làn-eval, nên **mọi làn ghim lại suite-only đời cũ thành
 VIOLATION ở mọi lượt CI**. Đây là siết CÓ CHỦ Ý (owner quyết 08/09), nhưng nó bắt
-consumer chạy chiến dịch ghim lại — nợ đã đo: oneflow 29 làn · crm 18 · map 12 ·
-pgh 7+5 · floorplanstudio 4 · artifact-platform 3 · media-library 1.
+consumer chạy chiến dịch ghim lại. Quy mô nợ **đo 08/09/2026, KHÔNG neo sha, chưa đo lại
+sau hai commit siết luật của chính cửa sổ này** — con số chỉ để ước lượng, không phải lời
+khai đã kiểm: oneflow 29 làn · crm 18 · map 12 · pgh 12 · floorplanstudio 4 ·
+artifact-platform 3 · media-library 1. Chiến dịch phải ĐO LẠI trước khi chạy.
 
 **Lời khai đầu tiên của hồ sơ này SAI và đã sửa:** bản đầu đo bằng
 `git diff -- vendor/` rồi kết luận «không repo nào phải ghim lại lớp CI». Đo nhầm
@@ -120,9 +130,20 @@ revision đầu tiên sang `signed-off`; số lượt chấm đọc từ `run-lo
   sau hạn mức · «review lại» trước khi vá · «vá 8 mở lượt 4» · «đồng ý rút K4/K7» · «chọn
   lối 2 rút K6»). **Chạm/lượt = 1** ở cả mười lượt: người gõ một chữ hoặc dán lại một dòng
   máy soạn sẵn. Ba vòng kia không đếm được từ kho — cùng giới hạn mốc 2.5.0→2.9.0 đã khai.
-- **Dòng 3 — vòng bị hạ tầng kit đốt: 3/16 lượt chấm** — #158 một lượt, #159 một lượt,
-  #163 một lượt (hạn mức phiên giết 3 suite + 3 làn rà soát + xuất-xứ giữa lượt 2). Không
-  lượt nào là lỗi vật.
+- **Dòng 2b — lượt gọi người của CHÍNH mốc phát hành: 2. TRƯỢT trần ≤1.** Cổng Phạm vi
+  (owner mở phạm vi «vá trong mốc», sổ ghi `14:12:17Z`) và Cổng Bằng chứng (`23:02:04Z`).
+  Hồ sơ hạng T3 nên không có làn V để về 1 — chính bản vá kéo hạng lên. **Đây là mốc phát
+  hành THỨ HAI LIÊN TIẾP trượt trần ≤1** (2.9.0 trượt với 2, nguyên nhân khác: một commit
+  T3 đẩy thẳng lên main giữa mốc). Số này là dữ liệu mà ĐIỀU KIỆN THU HỒI của luật nới
+  07/09 đọc — nêu ra ở đây để lần đọc sau không phải tự dựng lại.
+- **Dòng 3 — vòng bị hạ tầng kit đốt: 5/19 lượt chấm.** Bốn vòng góp 3/16 (#158 một lượt,
+  #159 một lượt, #163 một lượt — hạn mức phiên giết 3 suite + 3 làn rà soát + xuất-xứ giữa
+  lượt 2), và **chính hồ sơ mốc này góp thêm 2/3**: lượt 1 BLOCKED vì agent suite chết, lượt
+  2 REJECT GIẢ vì agent nhận output bị công cụ cắt ở 19.857 ký tự rồi vẫn báo exit 1 (đo
+  lại tại chỗ: exit 0, 71.460 byte). Không lượt nào là lỗi vật. Bản đầu của hồ sơ bỏ sót ba
+  lượt của chính nó dù sổ quyết định đã ghi «vào dòng số thứ ba của luật (c)» — gap-probe
+  bắt, đã sửa. **Hai trong ba lượt của mốc bị đốt bởi CÙNG một lớp (tool-kill), đó là bằng
+  chứng đậm nhất của cửa sổ.**
 
 ### Nếp nào thật sự cắt việc, nếp nào không
 
@@ -168,10 +189,27 @@ rồi phát hành. Ba mục còn lại (Ngoài-1, Ngoài-4, Ngoài-5) đi lối 
 - **KL-4 (Ngoài-7, medium) — `expected` của E11 ở hồ sơ `duong-lui-phai-song` khai bản base là ref trôi.** Mã đo thật đã neo sha cố định; lời khai chưa theo. Hồ sơ đó ĐÃ KÝ nên không sửa; ai dựng lại phép đo từ lời khai có thể lặp lại phép so hoá rỗng.
 - **KL-5 (Ngoài-8, low) — cùng hình dạng ở `expected` của hồ sơ `lop-bang-chung-nhin-thay`.** Ca thật đã neo sha; lời khai còn nhắc nhánh chính. Cùng lối xử lý với KL-4.
 
-### Ba ô mở theo quyết định Cổng Bằng chứng 2026-09-10
+### Hai ô mở theo quyết định Cổng Bằng chứng 2026-09-10
 
 - **`surfaces-token-chuan-hoa` (Ngoài-1 + Ngoài-5, cùng một lỗi hai làn thấy).** `coNguoiDungCuoi` chuyển sang khớp token tách theo dấu phẩy, nên `ui-admin`, `mobile-app`, hay `ui api` không còn tính là có mặt người dùng — đo thật cả bốn ca. Đó là một cờ ĐỎ chặn một-chạm ở Cổng Phạm vi tụt xuống cờ vàng, tức fail-open trên răng chống lách. Nặng thêm: nhánh đọc-cũ (khi vắng lib) vẫn dùng regex cũ nên bản rơi bậc lại CHẶT HƠN bản đầy đủ — hai bên đọc trôi ngược chiều an toàn. Ô phải: chuẩn hoá `tokensOf` tách cả gạch nối và khoảng trắng, kèm ca đỏ cho từng hình dạng.
 - **`w6-alias-co-dau-nhay` (Ngoài-4).** Mặt nạ định danh ASCII mới làm W6 im lặng ngừng bắt mọi mục `_Avoid_` mà chuỗi đã bóc không trùng byte với token bên trong nó — cụ thể là mục có dấu nháy kép, và chính `CONTEXT.md` của kit đang có hai mục như vậy. Không dòng rơi-bậc nào phát ra. Ô phải: chuẩn hoá token trước khi tra `keepWords`, kèm ca đỏ dùng đúng mục có nháy kép của `CONTEXT.md`.
+
+### Hai ô nữa, mở theo phát hiện của phản biện context sạch
+
+- **`tool-kill-co-rang` (gap-probe P1 — sổ đã ghi từ lượt 2 mà hồ sơ chưa carry).** Luật
+  TOOL-KILL-RULE hiện chỉ là LỜI DẶN trong prompt: không răng nào bắt agent khai `exit 1`
+  trên một output đã bị công cụ cắt. Nó đốt 2/3 lượt chấm của chính mốc này. Ô phải: phần
+  MÁY tự nhận ra output bị cắt (so với dòng tổng kết cuối mà lệnh phải in) thay vì tin
+  trường `killedByTool` do agent tự khai.
+- **`lm20-ho-so-moc-khong-tu-qua-duoc` (gap-probe P0).** Ca LM20 chỉ ghim hồ sơ đã
+  `settled` — tức đã có `human_signoff`. Hồ sơ mốc vì thế KHÔNG THỂ qua LM20 trước chữ ký
+  của chính nó: nó lọt khỏi phép đo suốt ba lượt chấm rồi rơi vào đúng lúc chữ ký hạ
+  xuống, làm suite `scripts` đỏ NGAY TẠI commit chữ ký. Đây là lần thứ BA lớp «CI đỏ
+  hậu-chữ-ký» tái phát (2.9.0 đã gọi tên ở #146 và #151 với mục tiêu 0), và lần này nguyên
+  nhân là CẤU TRÚC chứ không phải quên: bài học «thêm dòng TRƯỚC, cùng commit chữ ký» của
+  2.8.0 KHÔNG THỂ thi hành cho một hồ sơ mốc. Ô phải: cho LM20 ghim cả hồ sơ đang chờ ký
+  (đọc routing của hồ sơ `verified`), hoặc cho lệnh ký tự thêm dòng vào cùng commit.
+  **Số cho luật (c): CI đỏ hậu-chữ-ký của mốc này = 1, mục tiêu 0.**
 
 ### Nhát cắt cho cửa sổ kế (luật (c) đòi gọi tên)
 
