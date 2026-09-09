@@ -216,3 +216,10 @@ hai tệp kia gọi vào đó. Không dựa vào `staleScope`/`pathsOf` (K4 đã
 2.10.0, không còn trên nhánh chính).
 
 Hồ sơ mốc phát hành `release-2-11-0` là một hồ sơ RIÊNG, mở sau hồ sơ này.
+
+**Trình tự ship (owner đổi 09/09).** Vòng này chạy ngay từ `main` hiện tại, song song
+với hồ sơ mốc `release-2-10-0`, không chờ nhánh mốc gộp. Không gộp trước khi
+`claude/moc-2-10-0` lên `main`; khi nó lên thì merge vào, giải xung đột, chạy lại làn
+ghim lại cho chính hồ sơ này rồi mới ship. Vùng của hồ sơ mốc là `evaluateContractWrite`
+và `tests/hooks/`; vùng của hồ sơ này là `checkRepinEvals` và `evaluateEvidence`. Đo
+09/09: hai vùng rời nhau, không tệp ca kiểm nào chung.

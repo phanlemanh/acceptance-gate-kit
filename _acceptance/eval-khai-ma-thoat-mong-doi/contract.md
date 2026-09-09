@@ -91,3 +91,14 @@ chạy được hai loại đó, cho khai sẽ làm hai bộ đọc bất đồn
   đang có hồ sơ đã ký mà không ghim lại được — ca thật `crm/man-cai-dat-noi-tieng-viet`;
   KHÔNG tăng lượt gọi người: eval đạt-có-giới-hạn định tuyến qua mục Known limits, tức
   dùng đúng Cổng Bằng chứng sẵn có, không dựng cổng mới.
+- **Trình tự ship (owner đổi 09/09, thay ràng buộc «chờ nhánh mốc gộp»).** Vòng này chạy
+  S0→S4 ngay từ `main` hiện tại, SONG SONG với hồ sơ mốc `release-2-10-0`. Hai ràng buộc
+  cứng: (1) KHÔNG gộp trước khi `claude/moc-2-10-0` lên `main`; khi nó lên thì merge `main`
+  vào nhánh này, giải xung đột, chạy `repin-lane.mjs` cho chính hồ sơ này — hoá cũ là chắc
+  chắn vì K4 stale-theo-`paths` đã rút ở `affc2108` nên luật cũ đo CẢ CÂY — mọi eval phải
+  exit 0 nên làn phải xanh; ghim xong mới ship, rồi mới tới `release-2-11-0`. (2) Vùng của
+  hồ sơ mốc là `evaluateContractWrite` (quanh dòng 613 của `lib/evidence-core.cjs`) và ca
+  V14/V15/V16 trong `tests/hooks/run-tests.sh`; vùng của hồ sơ này là `checkRepinEvals`
+  (quanh dòng 243) và `evaluateEvidence` (quanh dòng 460) — không chạm vùng của họ. Đã đo
+  09/09: hai vùng rời nhau, `repin-lane.mjs` không bị nhánh mốc chạm, và ca kiểm hai bên
+  nằm ở tệp khác nhau (`tests/workflows/` + `tests/scripts/` so với `tests/hooks/`).
