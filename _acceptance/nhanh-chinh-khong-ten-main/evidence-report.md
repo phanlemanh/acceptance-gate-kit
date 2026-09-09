@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 41e12d53401f5539cce68e0621f6b8df42d76857
+verified_commit: ffe138acbf4009855e5b874d6957a5976477c854
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -167,3 +167,7 @@ Round 3: toàn bộ eval XANH nhưng hồi quy AC-8 (đoán bừa sang nhánh kh
 Round 4: sửa s4-args.mjs cấm đoán sang tên khác khi remote đã khai nhánh chính (đóng AC-8) — toàn bộ eval và bốn bộ suite hồi quy xanh, verdict PASS.
 Round 5: thêm AC-9 (remote-hỏi-không-được) + chân đo + cửa chặn gfix + lưới thường trực E10 — tám eval và ba suite xanh, nhưng `bash tests/hooks/run-tests.sh` không trả kết quả (agent chết giữa chừng) → verdict BLOCKED.
 Round 6: thu phạm vi rút AC-9/E9 (remote-hỏi-không-được) khỏi hợp đồng, chuyển sang ô khuon-rang-dung-chung; chạy lại bảy eval còn lại (E1-E3, E6-E8, E10) và bốn bộ suite hồi quy (scripts, hooks, plugins, workflows) cùng product-map — `tests/hooks/run-tests.sh` (nghẽn ở round 5) nay trả đủ 60/60, mọi thứ khác vẫn xanh. Verdict PASS.
+
+### Re-pin lần 1 — 2026-09-09, do ghim lại sau đường đọc-cũ cho EC (vật đo lưu kho 08/09) và thêm uat-session.md — PR 162
+run_id: repin-20260909T001251Z-82742
+sha: ffe138acbf4009855e5b874d6957a5976477c854 · suites: 5 lệnh exit 0 · evals: 7 eval máy exit 0

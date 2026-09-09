@@ -7,7 +7,7 @@ reason:
 verified_by: verify doc lap tuan tu (phien tuoi, lenh chay lan luot) + hai phien hoi dong doc lap
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
+verified_commit: ffe138acbf4009855e5b874d6957a5976477c854
 human_signoff: Manh Phan 2026-08-26 — ky voi 8 gioi han da khai; gioi han so 1 (khong do hieu luc luc chay) chuyen sang Cong Gia tri doc bang 5 vong S4 ke
 ---
 
@@ -206,3 +206,7 @@ sha: 77727323a1943685ad4150da5d3e1efffe4ce4e1 · suites: 5 lệnh exit 0
 ### Re-pin lần 2 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
 run_id: repin-20260908T035246Z-95429
 sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 7 eval máy exit 0
+
+### Re-pin lần 3 — 2026-09-09, do ghim lại sau đường đọc-cũ cho EC (vật đo lưu kho 08/09) và thêm uat-session.md — PR 162
+run_id: repin-20260909T001251Z-82742
+sha: ffe138acbf4009855e5b874d6957a5976477c854 · suites: 5 lệnh exit 0 · evals: 7 eval máy exit 0
