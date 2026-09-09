@@ -32,8 +32,11 @@ evals:
       NO2 ba bản sao pre-merge (PATH không node · xoá lib · lib ném lỗi exit 7) → ba NOTE
       chứa lần lượt "thiếu node", "thiếu lib/lop-nhin-thay.cjs", "lib lỗi (exit 7)", exit 0
       cả ba, và ba chuỗi khác nhau; NO3 stripComment: 4 fixture × 3 bộ đọc = 12 assert nêu
-      tên bộ đọc, `[ui]#x` → applicable false ở cả ba; NO4 bản sao gate-card in "\x1b[31mX" →
-      html() không chứa ESC, spawnSync raw có ESC.
+      tên bộ đọc, `[ui]#x` → applicable false ở cả ba, và (c-bis) `clean` của THẺ dùng CHUNG
+      luật cắt chú thích (`T2#x` giữ nguyên, `T2 # ghi chú` cắt đúng); NO4 quét LỚP helper đọc
+      stdout của thẻ: tìm được ≥1 helper, MỌI helper tìm được đều bỏ ANSI, và chiều đỏ chạy
+      trên BẢN SAO thật (gỡ đoạn strip → phép quét kêu). Giới hạn đã khai ở Gate 2: bộ lọc của
+      NO4 hiện chỉ thấy 1 helper, chưa phủ hết lớp.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -70,13 +73,15 @@ evals:
     cmd: config:executors.script.gdk_k3
     paths: [lib/context-glossary.js, scripts/eval-coverage-lint.js, CONTEXT.md, tests/scripts/run-tests.sh, tests/scripts/w6-w8-pham-vi.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: PV1".."PASS: PV5": PV1 alias trong Context không kêu, cùng alias
+      exit 0; stdout có "PASS: PV1".."PASS: PV6": PV1 alias trong Context không kêu, cùng alias
       trong Criteria kêu (cặp cùng fixture); PV2 ba chiều cùng fixture: "ui-check" KHÔNG kêu
       alias "check"; "check-lại" và "thẻ-cổng-2" (ghép tiếng Việt) VẪN kêu; alias "pre-merge"
-      khớp nguyên vẹn; PV3 CONTEXT.md có _Allow_ chứa thẻ · hook · engine · test · check · tag,
-      và lint cây kit không dòng W6 chứa `"thẻ"`; PV4 [ui, kiosk] → 0 dòng "W8 surfaces carry
+      khớp nguyên vẹn; PV3 sáu từ đa nghĩa (thẻ · tag · hook · engine · test · check) đã GỠ
+      khỏi _Avoid_ của CONTEXT.md và KHÔNG mục _Allow_ nào là từ trần, cây kit hết dòng W6 vì
+      chúng (127 → số in ra trong câu PASS); PV4 [ui, kiosk] → 0 dòng "W8 surfaces carry
       token", vẫn có W8 nghĩa vụ khi thiếu ui-check, vẫn W8 "lạc chỗ"; PV5 run-tests.sh không
-      còn ca L47, L42m nêu "token_la" (bản sao đã chạy).
+      còn ca L47, L42m nêu "token_la" (bản sao đã chạy); PV6 thiếu `lib/md-section.cjs` → không
+      ném, chấm CẢ tài liệu và in một dòng rơi bậc có tên.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5b
     criterion: AC-5
@@ -112,8 +117,10 @@ evals:
     paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/scripts/s4-args.mjs, tests/workflows/acceptance-verify.test.mjs, tests/scripts/s4-args-delta.test.mjs]
     expected: >
       exit 0 (pipefail grep "W39"); W39: args.deltaFiles ['docs/a.md','src/b.js'] → prompt
-      review:conventions chứa "chỉ chấm file CHỮ" và "docs/a.md"; không deltaFiles → prompt
-      không chứa cụm đó, chứa diffBase...HEAD. Kèm ca SD1 (tests/scripts/s4-args-delta.test.mjs,
-      cùng lệnh qua &&): fixture git với --carry-anchor → tệp args có deltaFiles đúng; không
-      anchor → không có khoá.
+      review:conventions chứa "CHI cham cac file DA DOI" và liệt CẢ hai đuôi ("docs/a.md" VÀ
+      "src/b.js" — lọc riêng .md làm làn câm khi vòng sửa chỉ chạm code); ca chỉ-code-đổi
+      ['lib/x.cjs','scripts/y.sh'] → làn VẪN chấm, không trả rỗng; không deltaFiles → prompt
+      không chứa cụm đó, chứa main...HEAD. Kèm ca SD1/SD2 (tests/scripts/s4-args-delta.test.mjs,
+      cùng lệnh qua &&): fixture git với --carry-anchor → tệp args có deltaFiles đúng; --no-carry
+      → không có khoá.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -1957,7 +1957,7 @@ console.log('W37 provenance chet -> BLOCKED co ten, khong nem');
   check('W37 doi chung duong verdict khong BLOCKED', ok.result.verdict !== 'BLOCKED', String(ok.result.verdict));
 }
 
-// W39 — K8: làn conventions chỉ chấm file CHỮ đổi so round trước khi có deltaFiles.
+// W39 — K8: làn conventions chỉ chấm file ĐÃ ĐỔI so round trước (MỌI đuôi) khi có deltaFiles.
 console.log('W39 lan conventions gioi han theo deltaFiles (MOI duoi, khong rieng .md)');
 {
   const withDelta = await runWorkflow(WF, baseArgs({ deltaFiles: ['docs/a.md', 'src/b.js'] }), responder());

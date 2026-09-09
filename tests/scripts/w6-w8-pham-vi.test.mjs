@@ -1,7 +1,7 @@
 // tests/scripts/w6-w8-pham-vi.test.mjs — K3 của gom-duc-ket-2-10-0 (AC-5).
 //   PV1 W6 chỉ quét `## Criteria` (cặp cùng fixture: alias ngoài Criteria im, trong Criteria kêu)
 //   PV2 định danh ASCII gạch nối là MỘT từ; ghép gạch nối tiếng Việt thì KHÔNG (ba chiều)
-//   PV3 CONTEXT.md khai `_Allow_` cho từ đa nghĩa; hợp đồng thật của kit hết kêu vì chúng
+//   PV3 sáu từ đa nghĩa đã GỠ khỏi `_Avoid_`; `_Allow_` chỉ còn cụm nhiều từ; kit hết kêu vì chúng
 //   PV4 W8 không còn nhánh token-lạ; nghĩa vụ + nhãn lạc chỗ vẫn kêu
 //   PV5 suite bash: ca L47 đã gỡ, L42m chứng bản sao ĐÃ CHẠY bằng token_la
 // Fixture code-sinh; đường dẫn suy từ import.meta.url; mỗi luật có cặp hai chiều.
