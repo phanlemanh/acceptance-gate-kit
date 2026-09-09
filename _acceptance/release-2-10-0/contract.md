@@ -10,6 +10,7 @@ design_doc:
 approved_by:
 approved_at:
 veto_state: mo
+veto_opened_at: 2026-09-09T13:56:23Z
 ---
 
 # Acceptance Contract: release-2-10-0
@@ -29,9 +30,34 @@ gộp vào `main`, 141 commit. Bốn trong số đó là **vòng sửa**:
 Ba PR còn lại không phải vòng: #160 đúc kết 08/09 · #161 lịch sử 14–15/08 · #162 ba
 hồ sơ phiên nghiệm thu + làn ghim lại.
 
-**Lớp vendored KHÔNG đổi một dòng nào** (`git diff bafe2aad..da7ac3fc -- vendor/` rỗng)
-→ không repo tiêu thụ nào phải ghim lại lớp CI; mệnh đề (5) của manifest và
-INIT-CI-COPY-LIST giữ nguyên.
+**Lớp repo tiêu thụ CHÉP có đổi NẶNG — mốc này BẮT BUỘC chép lại và ghim lại.**
+Lớp đó KHÔNG phải thư mục `vendor/` (chỗ đó chỉ chứa skill bên thứ ba
+`vendor/impeccable`); nó là danh sách khai trong marker `INIT-CI-COPY-LIST` của
+`commands/acceptance-init.md`. Đo đúng vật đó trong cửa sổ:
+
+| File lớp CI | Đổi |
+|---|---|
+| `lib/lop-nhin-thay.cjs` | **MỚI, 101 dòng** — thành mục thứ CHÍN của danh sách |
+| `scripts/pre-merge-check.sh` | +99 |
+| `lib/evidence-core.cjs` | +64 / −37 |
+| `lib/context-glossary.js` | +35 |
+| `lib/eval-yaml.cjs` | +11 |
+| `commands/acceptance-init.md` | +8 (chính mục thứ chín) |
+| `scripts/recheck-evidence.cjs` | +2 |
+
+Hai hệ quả THẬT cho repo tiêu thụ, phải nói trong chỉ dẫn rollout:
+(a) repo không chép file thứ chín thì làn NOTE lớp nhìn-thấy in «không kiểm được»
+và **không bao giờ chặn** — luật W8 mới tắt im ở consumer đó;
+(b) `lib/evidence-core.cjs` bỏ hằng `REPIN_EVALS_SINCE` và `pre-merge-check.sh` siết
+guard phạm vi diff của luật làn-eval, nên **mọi làn ghim lại suite-only đời cũ thành
+VIOLATION ở mọi lượt CI**. Đây là siết CÓ CHỦ Ý (owner quyết 08/09), nhưng nó bắt
+consumer chạy chiến dịch ghim lại — nợ đã đo: oneflow 29 làn · crm 18 · map 12 ·
+pgh 7+5 · floorplanstudio 4 · artifact-platform 3 · media-library 1.
+
+**Lời khai đầu tiên của hồ sơ này SAI và đã sửa:** bản đầu đo bằng
+`git diff -- vendor/` rồi kết luận «không repo nào phải ghim lại lớp CI». Đo nhầm
+vật — đúng lớp lỗi «thước phải gắn vào vật được giao» của CLAUDE.md. Lượt chấm 1 bắt
+được, ghi ở đây làm vết.
 
 **`diagram-design` GIỮ 2.7.0, không nâng theo.** Phác thảo đầu cửa sổ định nâng nó lên
 2.10.0; bằng chứng nói ngược: `git diff bafe2aad..da7ac3fc -- diagram-design/` rỗng. P200
