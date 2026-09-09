@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
+verified_commit: 37cbf58a4c65812f07f65354eefb8dd65860fd37
 # bypass_ack:
 human_signoff: Manh Phan 2026-08-05
 ---
@@ -239,3 +239,7 @@ sha: 5f38521fae43348f8bad029a52a48cf302be3ee9 · suites: 6 lệnh exit 0
 ### Re-pin lần 18 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
 run_id: repin-20260908T035246Z-95429
 sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 7 eval máy exit 0
+
+### Re-pin lần 19 — 2026-09-09, do vòng gom-duc-ket-2-10-0 chạm commands/approve.md + signoff.md + acceptance-init.md (K2 danh tính, K5 khuôn config)
+run_id: repin-20260909T105537Z-51567
+sha: 37cbf58a4c65812f07f65354eefb8dd65860fd37 · suites: 5 lệnh exit 0 · evals: 7 eval máy exit 0
