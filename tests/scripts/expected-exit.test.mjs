@@ -19,12 +19,28 @@ const ev = (id, executor, extra = '') =>
   const r = EY.expectedExits(Y(ev('E1', 'script')));
   t('EE1', r.errs.length === 0 && r.byId.get('E1') === 0, 'vắng trường → 0, không lỗi');
 }
-// EE2 khai 0 TƯỜNG MINH → BẰNG HỆT vắng trường
+// EE2 ma trận 2×2: trục field (vắng trường / khai 0 tường minh) × trục
+// executor (hợp lệ "script" / không hợp lệ "judgment"). Cả BỐN ô phải cho
+// CÙNG một kết quả: im lặng, kỳ vọng 0 — "đã khai 0" không phải một trạng
+// thái riêng, executor sai không được ăn vào đường 0. Tự đếm số ô đã chạy để
+// hồi quy (ai đó xoá bớt một ô mà quên sửa assert) tự lộ ra là ĐỎ.
 {
-  const a = EY.expectedExits(Y(ev('E1', 'script')));
-  const b = EY.expectedExits(Y(ev('E1', 'script', '    expected_exit: 0\n')));
-  t('EE2', b.errs.length === 0 && b.byId.get('E1') === a.byId.get('E1'),
-    'khai 0 tường minh bằng hệt vắng trường');
+  const cells = [
+    ['absent-valid', 'script', ''],
+    ['absent-invalid', 'judgment', ''],
+    ['zero-valid', 'script', '    expected_exit: 0\n'],
+    ['zero-invalid', 'judgment', '    expected_exit: 0\n'],
+  ];
+  const results = [];
+  for (const [name, executor, extra] of cells) {
+    const r = EY.expectedExits(Y(ev('E1', executor, extra)));
+    const okCell = r.errs.length === 0 && r.byId.get('E1') === 0;
+    results.push(okCell);
+    t(`EE2-${name}`, okCell,
+      `field=${extra ? 'khai 0' : 'vắng trường'} executor=${executor} (${extra ? 'zero' : 'absent'}) → im, kỳ vọng 0`);
+  }
+  t('EE2-cell-count', results.length === cells.length,
+    `phải chạy đúng ${cells.length} ô của ma trận 2×2, đã chạy ${results.length}`);
 }
 // EE3 khai hợp lệ
 {
@@ -53,6 +69,14 @@ for (const [i, x] of [['a', 'judgment'], ['b', 'ui-check']]) {
 {
   const r = EY.expectedExits(Y(ev('E9', 'script', '    expected_exit: hai\n')));
   t('EE7', r.errs.length > 0, 'khai sai không được im mà trả 0');
+}
+// EE9 (AC-2c) khai một giá trị KHÁC 0 trên executor không hợp lệ VẪN phải
+// lỗi và nêu tên executor — giữ luật executor sống sau khi nới đường 0; bản
+// vá cho ca EE2 không được vô tình vô hiệu hoá cả luật executor.
+{
+  const r = EY.expectedExits(Y(ev('E1', 'judgment', '    expected_exit: 2\n')));
+  t('EE9', r.errs.length === 1 && r.errs[0].includes('E1') && r.errs[0].includes('judgment'),
+    'AC-2(c): khai 2 trên judgment vẫn phải lỗi và nêu tên executor');
 }
 // EE8 danh sách mã cấm khớp khối marker INFRA-EXIT-CODES (round-trip)
 {
