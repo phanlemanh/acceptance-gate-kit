@@ -49,7 +49,11 @@ function buildRepo() {
 
 const run = (d, ...extra) => {
   const out = path.join(d, 'args.json');
-  const r = execFileSync(process.execPath, [S4ARGS, '--slug', 'demo', '--root', d, '--out', out, '--diff-base', 'main', ...extra],
+  // --ag-root KIT: cây kit NÀY đóng vai bản cài. Không có nó, s4-args đi tìm plugin
+  // acceptance-gate đã cài trên máy — xanh ở máy tác giả, ĐỎ ở CI (đo 09/09, PR #163:
+  // «no usable install of acceptance-gate found»). Phép đo phải suy từ vị trí file,
+  // không từ môi trường của người chạy.
+  const r = execFileSync(process.execPath, [S4ARGS, '--slug', 'demo', '--root', d, '--ag-root', KIT, '--out', out, '--diff-base', 'main', ...extra],
     { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   return { out: JSON.parse(readFileSync(out, 'utf8')), stdout: r };
 };
