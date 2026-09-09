@@ -250,11 +250,13 @@ function lintFeature(slug, contractText, evalsText, glossary, ledgerText) {
   // and link targets are not the author speaking.
   if (glossary && glossaryLib) {
     const seenAlias = new Set();
-    for (const v of glossaryLib.findViolations(contractText, glossary, { section: 'Criteria' })) {
+    let w6Degraded = '';
+    for (const v of glossaryLib.findViolations(contractText, glossary, { section: 'Criteria', onDegraded: m => { w6Degraded = m; } })) {
       if (seenAlias.has(v.alias.toLowerCase())) continue; // one warning per alias
       seenAlias.add(v.alias.toLowerCase());
       warns.push(`[${slug}] W6 contract line ${v.lineNo} uses "${v.alias}", which CONTEXT.md lists under _Avoid_ for "${v.term}" — restate the criterion in the canonical term so the eval tests the agreed reading.`);
     }
+    if (w6Degraded) warns.push(`[${slug}] W6 rơi bậc: ${w6Degraded}`);
   }
 
   const oos = outOfScopeBullets(contractText);

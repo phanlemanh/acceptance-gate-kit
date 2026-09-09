@@ -11,13 +11,15 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 import { fileFromTemplate } from '../fixtures/from-template.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
 const LINT = path.join(ROOT, 'scripts', 'eval-coverage-lint.js');
 
-const ALL_IDS = ['PV1', 'PV2', 'PV3', 'PV4', 'PV5'];
+const ALL_IDS = ['PV1', 'PV2', 'PV3', 'PV4', 'PV5', 'PV6'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.PV_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -90,19 +92,28 @@ if (want('PV2')) {
   if (failures === before) pass(id, 'ui-check im · check-lại/thẻ-cổng-2 kêu · pre-merge vẫn khớp (ba chiều)');
 }
 
-// ─── PV3 — _Allow_ cho từ đa nghĩa trong CONTEXT.md thật ─────────────────────
+// ─── PV3 — sáu từ đa nghĩa GỠ khỏi _Avoid_, _Allow_ giữ hợp đồng của nó ─────
+// Bản đầu dùng `_Allow_: <từ trần>` làm chốt tắt — nhưng `allow` là TOÀN CỤC nên nó vô
+// hiệu alias đó ở MỌI term, khiến sáu luật `_Avoid_` còn chữ mà hết răng (finding S4-r1).
+// Luật đang sống: gỡ thẳng khỏi `_Avoid_` (khai là không còn cấm); `_Allow_` chỉ dành cho
+// CỤM nhiều từ chứa alias, đúng hợp đồng khai trong lib/context-glossary.js.
 if (want('PV3')) {
   const id = 'PV3'; const before = failures;
   const ctx = readFileSync(path.join(ROOT, 'CONTEXT.md'), 'utf8');
-  const allow = [...ctx.matchAll(/^_Allow_\s*:\s*(.+)$/gim)].flatMap(m => m[1].split(/[,;·]/).map(s => s.replace(/[`*_]/g, '').trim()));
-  for (const w of ['thẻ', 'hook', 'engine', 'test', 'check', 'tag']) {
-    if (!allow.some(a => a.toLowerCase() === w)) fail(id, `CONTEXT.md chưa khai _Allow_ cho từ đa nghĩa "${w}" (đang có: ${allow.join(', ')})`);
-  }
-  // cây thật: hợp đồng của kit hết kêu vì mấy từ đó
+  const avoid = [...ctx.matchAll(/^_Avoid_\s*:\s*(.+)$/gim)]
+    .flatMap(m => m[1].split(',').map(s => s.replace(/[`*_.]/g, '').trim().toLowerCase()));
+  for (const w of ['thẻ', 'hook', 'engine', 'test', 'check', 'tag'])
+    if (avoid.includes(w)) fail(id, `từ đa nghĩa "${w}" vẫn nằm trong _Avoid_ — luật sẽ lại kêu hàng loạt`);
+  // _Allow_ phải giữ hợp đồng: chỉ CỤM nhiều từ (bản đầu nhét sáu từ trần vào đây)
+  const allow = [...ctx.matchAll(/^_Allow_\s*:\s*(.+)$/gim)]
+    .flatMap(m => m[1].split(',').map(s => s.replace(/[`*_]/g, '').trim()));
+  const traNguyen = allow.filter(a => a && !/\s/.test(a) && !/-/.test(a));
+  if (traNguyen.length) fail(id, `_Allow_ đang chứa từ TRẦN (chốt tắt toàn cục, trái hợp đồng của lib): ${traNguyen.join(', ')}`);
+  // cây thật: sáu từ đó không còn sinh dòng W6 nào
   const out = spawnSync(process.execPath, [LINT, ROOT], { encoding: 'utf8' }).stdout;
   const noisy = w6Lines(out).filter(l => /uses "(thẻ|hook|engine|test|check|tag)"/i.test(l));
-  if (noisy.length) fail(id, `cây kit còn ${noisy.length} dòng W6 vì từ đa nghĩa: ${noisy.slice(0, 2).join(' | ')}`);
-  if (failures === before) pass(id, `_Allow_ khai đủ 6 từ đa nghĩa; cây kit còn ${w6Lines(out).length} dòng W6 (từ 127)`);
+  if (noisy.length) fail(id, `cây kit còn ${noisy.length} dòng W6 vì từ đa nghĩa: ${noisy[0]}`);
+  if (failures === before) pass(id, `sáu từ đa nghĩa đã gỡ khỏi _Avoid_; _Allow_ chỉ còn cụm nhiều từ; cây kit ${w6Lines(out).length} dòng W6 (từ 127)`);
 }
 
 // ─── PV4 — W8 bỏ nhánh token-lạ, giữ nghĩa vụ + lạc chỗ ──────────────────────
@@ -142,6 +153,32 @@ if (want('PV5')) {
   const probe = code.filter(l => !/L42m/.test(l));
   if (probe.filter(l => /L42m/.test(l)).length !== 0) fail(id, 'phép quét không phân biệt được bản sao đã gỡ ca');
   if (failures === before) pass(id, 'L47 đã gỡ; L42m chứng bản sao đã chạy');
+}
+
+// ─── PV6 — thiếu md-section.cjs → rơi bậc CÓ TIẾNG (không im lặng bỏ W6) ────
+if (want('PV6')) {
+  const id = 'PV6'; const before = failures;
+  const g = require(path.join(ROOT, 'lib', 'context-glossary.js'));
+  const glossary = g.readGlossary(ROOT);
+  const doc = '---\na: 1\n---\n\n## Context\n\nspec ở đây.\n\n## Criteria\n\n- AC-1: Given spec, When x, Then y.\n';
+  let note = '';
+  const lanh = g.findViolations(doc, glossary, { section: 'Criteria', onDegraded: m => { note = m; } });
+  if (note) fail(id, `bản lành không được rơi bậc: ${note}`);
+  if (!lanh.length) fail(id, 'bản lành phải bắt alias trong Criteria (phép đo chết?)');
+  // bản sao THIẾU md-section.cjs: nạp module từ thư mục chỉ có context-glossary.js
+  const m = tmp(); mkdirSync(path.join(m, 'lib'), { recursive: true });
+  writeFileSync(path.join(m, 'lib', 'context-glossary.js'), readFileSync(path.join(ROOT, 'lib', 'context-glossary.js'), 'utf8'));
+  let mod = null; let threw = null;
+  try { mod = require(path.join(m, 'lib', 'context-glossary.js')); } catch (e) { threw = e; }
+  if (threw) fail(id, `bản thiếu md-section.cjs NÉM lúc nạp (W6 sẽ chết lặng ở cây vendored): ${threw.message}`);
+  else {
+    let note2 = '';
+    const hits = mod.findViolations(doc, glossary, { section: 'Criteria', onDegraded: x => { note2 = x; } });
+    if (!note2) fail(id, 'thiếu lib mà không nói gì — rơi bậc im lặng');
+    if (!hits.length) fail(id, 'rơi bậc phải chấm CẢ tài liệu (chặt hơn), không bỏ luật');
+  }
+  rmSync(m, { recursive: true, force: true });
+  if (failures === before) pass(id, 'thiếu md-section.cjs: không ném, chấm cả tài liệu, nói ra một dòng');
 }
 
 console.log(failures === 0 ? `w6-w8-pham-vi: OK (${ALL_IDS.filter(want).join(', ')})` : `w6-w8-pham-vi: ${failures} FAILED`);

@@ -233,7 +233,10 @@ if (plainPath && fs.existsSync(plainPath)) {
 
 // ---- parsers ----
 function frontmatter(t) { const m = t.match(/^---\r?\n([\s\S]*?)\r?\n---/); const o = {}; if (m) for (const l of m[1].split('\n')) { const mm = l.match(/^(\w+)\s*:\s*(.*)$/); if (mm) o[mm[1]] = mm[2].trim(); } return o; }
-const clean = s => String(s == null ? '' : s).replace(/["']/g, '').replace(/\s*#.*$/, '').trim(); // strip quotes + trailing # comment (matches hook tolerance)
+// Cắt chú thích qua MỘT nguồn (lib/eval-yaml.cjs) cho MỌI trường frontmatter, không riêng
+// surfaces: luật cũ `\s*#` cắt cả `x#y` (dữ liệu), nên `risk_tier`, `status`, `veto_state`…
+// từng đọc khác lib. Phần bóc quote giữ nguyên vì đó là việc riêng của thẻ.
+const clean = s => evalYamlLib.stripComment(String(s == null ? '' : s).replace(/["']/g, ''));
 const unquote = s => String(s == null ? '' : s).replace(/^["']|["']$/g, '').trim();
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l)); // drop blanks + markdown-comment lines
 // Bullet list VỚI dòng-nối: contract hard-wrap 80 cột nên phần nối của một bullet
@@ -831,6 +834,17 @@ const chuMDT = () => (scanState == null ? CHU_MAY_THONG : trangThai.chu(scanStat
 // Đề xuất in bằng CHỮ NGƯỜI (OOC_GLOSS_NGUOI) chứ không token máy — thân lệnh
 // signoff dạy đúng những chữ đó, nên dòng này dán lại là chạy được (rà soát
 // Gate 1.5 rủi ro #1: in token máy thì owner dán vào vẫn tốn thêm một lượt).
+// K7 (AC-9d): mục TÁC HẠI HÀNH VI lên trước — người quyết đọc lỗi của vật giao trước lỗi
+// của thước. Sắp MỘT LẦN ở đây rồi ghi đè `ooc.findings`, vì nhãn «Ngoài-N» được đánh ở BA
+// nơi (khối hiển thị · dòng lệnh ký sẵn · khối «việc của anh») — sắp cục bộ ở một nơi làm
+// ba nơi nói ba thứ tự và nhãn trỏ nhầm mục (finding S4-r2). Sắp ổn định: cùng nhóm giữ
+// thứ tự S4 viết; file đời cũ (không mục nào khai harm) giữ NGUYÊN thứ tự (đọc-cũ).
+{
+  const harmRank = h => (h === 'behavior' ? 0 : h === 'measure' ? 1 : 2);
+  ooc.findings = ooc.findings.map((f, i) => ({ f, i }))
+    .sort((a, b) => (harmRank(a.f.harm) - harmRank(b.f.harm)) || (a.i - b.i))
+    .map(x => x.f);
+}
 const oneParts = [], routingHoi = [], routingBao = [];
 ooc.findings.forEach((f, fi) => {
   const lbl = 'Ngoài-' + (fi + 1);
@@ -922,14 +936,7 @@ if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   P.push(`<div class="flag fwarn">Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.</div>`);
-  // K7 (AC-9d): mục TÁC HẠI HÀNH VI lên trước — người quyết đọc lỗi của vật giao trước lỗi
-  // của thước. Sắp ổn định: trong cùng nhóm giữ thứ tự S4 viết; file đời cũ (không mục nào
-  // khai harm) giữ NGUYÊN thứ tự viết vì mọi khoá bằng nhau (đường đọc-cũ).
-  const harmRank = h => (h === 'behavior' ? 0 : h === 'measure' ? 1 : 2);
-  const oocSorted = ooc.findings.map((f, i) => ({ f, i }))
-    .sort((a, b) => (harmRank(a.f.harm) - harmRank(b.f.harm)) || (a.i - b.i))
-    .map(x => x.f);
-  oocSorted.forEach((f, fi) => {
+  ooc.findings.forEach((f, fi) => {
     const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
       : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
       // ngăn thứ ba (hồ sơ cham-dung-cay-dung-cho-dung, AC-10): lỗi thật nhưng

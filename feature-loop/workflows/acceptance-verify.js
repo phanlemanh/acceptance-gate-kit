@@ -488,8 +488,12 @@ const CD_GUARD = (dir) => `cd ${dir} || exit 97`
 
 // K8: tiền tố phạm vi cho làn conventions — TÍNH TRƯỚC, không nhúng template lồng, để phần
 // thân cũ của prompt giữ NGUYÊN VĂN (răng MM6 của hồ sơ matrix-measure-law đọc quan hệ đó).
-const conventionScope = Array.isArray(args.deltaFiles)
-  ? `CHI cham file CHU (.md) trong danh sach da doi so round truoc — file chu khong doi thi KHONG cham lai (gop y lap lai moi round la nhieu): ${args.deltaFiles.filter(f => /\.md$/i.test(f)).join(', ') || '(khong file chu nao doi — bo qua lan nay, tra findings rong)'}. `
+// Lọc theo FILE ĐÃ ĐỔI so round trước — MỌI đuôi, không riêng .md. Bản đầu chỉ giữ .md
+// nên vòng sửa chỉ chạm code làm làn này nhận lệnh «bỏ qua, trả rỗng»: code viết ở round
+// fix (phần rủi ro nhất của vòng) không còn làn nào chấm theo quy ước (finding S4-r2/r3).
+// Lý do gốc của K8 là bỏ file KHÔNG ĐỔI, không phải bỏ file code.
+const conventionScope = Array.isArray(args.deltaFiles) && args.deltaFiles.length
+  ? `CHI cham cac file DA DOI so round truoc (file khong doi thi KHONG cham lai — gop y lap lai moi round la nhieu): ${args.deltaFiles.join(', ')}. `
   : ''
 
 const REVIEWERS = [
@@ -1067,7 +1071,18 @@ const prov = await agentT(
 if (!prov || typeof prov !== 'object') {
   blocked.push({ cmd: 'capture:provenance', reason: 'capture:provenance agent bi skip/chet — khong co ket qua, khong duoc tinh la pass' })
   verdict = 'BLOCKED'
-  log('Provenance: agent chet — BLOCKED, KHONG soan report (khong bia enforcement_mode/bypass_used)')
+  // Dòng round-tally ĐÃ được đẩy vào runLogLines TRƯỚC bước này, mang verdict cũ (thường
+  // PASS). Nếu để nguyên, run-log trên đĩa khai một vòng PASS/blocked=0 cho đúng cái vòng
+  // bị hạ tầng giết — bằng chứng tự dối ở chính chỗ K1 sinh ra để chữa, và bộ đếm
+  // «vòng cháy vì hạ tầng» (round-tally-read.mjs) đếm hụt. Thay dòng cuối bằng dòng thật.
+  const tallyIdx = runLogLines.map(l => { try { return JSON.parse(l).kind } catch (_) { return null } }).lastIndexOf('round-tally')
+  const oldTally = tallyIdx >= 0 ? (() => { try { return JSON.parse(runLogLines[tallyIdx]) } catch (_) { return null } })() : null
+  const fixedTally = tallyLine('BLOCKED', blocked.length, oldTally ? oldTally.expected : 0, oldTally ? oldTally.returned : 0)
+  if (tallyIdx >= 0) runLogLines[tallyIdx] = fixedTally
+  else runLogLines.push(fixedTally)
+  log('Provenance: agent chet — BLOCKED, dong round-tally ghi lai theo verdict that, KHONG soan report')
+  // Khuôn trả về ĐỦ TRƯỜNG như blockedEarly: ba đường BLOCKED phải cùng một hợp đồng kết
+  // quả, nếu không bên đọc nào gọi `.length` trên trường vắng sẽ ném — đúng lớp lỗi K1 chữa.
   return {
     verdict,
     failedEvals: failedEvalIds,
@@ -1075,11 +1090,16 @@ if (!prov || typeof prov !== 'object') {
     blocked,
     panels: panels.map(p => ({ evalId: p.evalId, proposal: p.proposal })),
     carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
+    confirmedFindings,
+    rejectFindings,
+    nonDiscriminating,
+    variance: varianceCmds,
     triaged,
     triageFailed,
     coverageCluster,
     reviewIncomplete,
     runLog: runLogLines,
+    runLogWriteFailed: true,
     report: '',
     findings: '',
   }

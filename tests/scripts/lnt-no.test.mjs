@@ -154,6 +154,25 @@ if (want('NO3')) {
     eq(id, viaThe, expApplicable, `stripComment+coNguoiDungCuoi trên ${JSON.stringify(line)}`);
   }
 
+  // (c-bis) MỘT NGUỒN cho MỌI trường, không riêng surfaces: `clean` của thẻ từng giữ regex
+  // `\s*#` nên `risk_tier`, `status`, `veto_state`… đọc khác lib trên giá trị có `#` liền
+  // (finding S4-r1). Đo bằng hành vi: fixture có `risk_tier: T2#x` — thẻ phải KHÔNG cắt.
+  {
+    const w = tmp();
+    W(w, '_acceptance/x/contract.md', contractOf('api').replace(/^risk_tier:.*$/m, 'risk_tier: T2#x'));
+    W(w, '_acceptance/x/evals.yaml', EV_T);
+    const r = spawnSync(process.execPath, [GATE_CARD, '--root', w, '--slug', 'x', '--extract'], { encoding: 'utf8' });
+    let tier = null; try { tier = JSON.parse(r.stdout).tier; } catch (_) {}
+    if (tier !== 'T2#x') fail(id, `thẻ cắt '#' liền chữ ở trường risk_tier (phải giữ nguyên): got ${JSON.stringify(tier)}`);
+    const w2 = tmp();
+    W(w2, '_acceptance/x/contract.md', contractOf('api').replace(/^risk_tier:.*$/m, 'risk_tier: T2 # ghi chú'));
+    W(w2, '_acceptance/x/evals.yaml', EV_T);
+    const r2 = spawnSync(process.execPath, [GATE_CARD, '--root', w2, '--slug', 'x', '--extract'], { encoding: 'utf8' });
+    let tier2 = null; try { tier2 = JSON.parse(r2.stdout).tier; } catch (_) {}
+    if (tier2 !== 'T2') fail(id, `thẻ không cắt chú thích thật ở risk_tier: got ${JSON.stringify(tier2)}`);
+    rmSync(w, { recursive: true, force: true }); rmSync(w2, { recursive: true, force: true });
+  }
+
   // (c) chiều đỏ CỦA LỚP: bản sao tiêm lại regex cũ `\s*#` vào frontLine → hai đường
   //     bất đồng ở fixture `[ui]#x`; phép đo (b) phải bắt được điều đó.
   const m = tmp(); cpSync(path.join(ROOT, 'lib'), path.join(m, 'lib'), { recursive: true });

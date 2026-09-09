@@ -16,7 +16,7 @@ const require = createRequire(import.meta.url);
 const ooc = require(path.join(ROOT, 'lib', 'out-of-contract.js'));
 const GATE_CARD = path.join(ROOT, 'scripts', 'gate-card.js');
 
-const ALL_IDS = ['TH1', 'TH2', 'TH3'];
+const ALL_IDS = ['TH1', 'TH2', 'TH3', 'TH4'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.TH_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -105,6 +105,32 @@ if (want('TH3')) {
   if (/Tác hại/.test(h)) fail(id, 'thẻ in nhãn Tác hại cho file đời cũ (không có dữ liệu)');
   rmSync(r, { recursive: true, force: true });
   if (failures === before) pass(id, 'file đời cũ: giữ thứ tự viết, không nhãn mới');
+}
+
+// ─── TH4 — nhãn «Ngoài-N» phải trỏ CÙNG mục ở cả ba nơi ─────────────────────
+// Lỗi S4-r2: khối hiển thị sắp theo tác hại, còn dòng lệnh ký sẵn và khối «việc của anh»
+// vẫn đánh số theo thứ tự viết → «Ngoài-1» trên thẻ là mục này, trong lệnh ký là mục khác.
+if (want('TH4')) {
+  const id = 'TH4'; const before = failures;
+  const r = mkWs(findingsMd(true));
+  const h = html(r);
+  // vị trí tiêu đề mục mang nhãn N trong khối hiển thị
+  const posOfTitle = ti => h.indexOf(ti);
+  const order = ['F-hanh-vi-that', 'F-do-chat-thuoc', 'F-khong-khai'] // thứ tự ĐÚNG sau khi sắp
+    .map(posOfTitle);
+  if (order.some(x => x < 0)) fail(id, 'thẻ không in đủ ba mục');
+  else if (!(order[0] < order[1] && order[1] < order[2])) fail(id, `khối hiển thị sai thứ tự: ${JSON.stringify(order)}`);
+  // «Ngoài-1» trong khối «việc của anh» phải nói về mục ĐẦU của thứ tự đã sắp; kiểm bằng
+  // quan hệ: mục Ngoài-1 của khối hiển thị nằm TRƯỚC mục Ngoài-2, và dòng slot của lệnh ký
+  // liệt đúng số nhãn bằng số mục.
+  const nhan = [...h.matchAll(/Ngoài-(\d+)/g)].map(m => Number(m[1]));
+  const uniq = [...new Set(nhan)].sort((a, b) => a - b);
+  if (JSON.stringify(uniq) !== JSON.stringify([1, 2, 3])) fail(id, `nhãn Ngoài-N không phải 1..3: ${JSON.stringify(uniq)}`);
+  // Bằng chứng khớp: mục behavior (đứng đầu sau khi sắp) phải mang nhãn Ngoài-1 ở khối hiển thị
+  const seg = h.slice(0, posOfTitle('F-do-chat-thuoc'));
+  if (!/Ngoài-1/.test(seg)) fail(id, 'mục đầu (behavior) không mang nhãn Ngoài-1');
+  rmSync(r, { recursive: true, force: true });
+  if (failures === before) pass(id, 'ba nơi đánh nhãn theo CÙNG một thứ tự đã sắp');
 }
 
 console.log(failures === 0 ? `ooc-tac-hai: OK (${ALL_IDS.filter(want).join(', ')})` : `ooc-tac-hai: ${failures} FAILED`);
