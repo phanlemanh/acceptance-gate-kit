@@ -1,102 +1,101 @@
 ## Trong hợp đồng
 
-### K7 tự nâng finding vào hợp đồng làm lỗi hành vi non-high biến mất khỏi CẢ vòng vá LẪN thẻ Cổng 2
-- file: `feature-loop/workflows/acceptance-verify.js:886`
-- severity: high
-- AC: AC-10, AC-3, AC-9
-- detail: Khối K7 (dòng 886–908) đặt `f.inContract = true` rồi `f.proposal = null; f.plain = null` cho mọi finding `harm=behavior` rơi trong ∪paths — không phân biệt severity. Nhưng hai bên đọc phía sau chỉ nhận một nửa: (a) verdict REJECT chỉ bật bởi `triageHighInContract` (dòng 1026, lọc `severity === 'high'`), nên finding medium/low KHÔNG kéo round vá; (b) thẻ Cổng Bằng chứng chỉ render mục dưới heading «## Ngoài hợp đồng» (lib/out-of-contract.js:14 `HEAD_OUT`, scripts/gate-card.js:760), nên finding vừa bị nâng KHÔNG còn xuất hiện trên thẻ, và `plain`/`proposal` đã bị xoá nên có lọt cũng render rỗng.
+- **Chiều đỏ của PV5 là assert vô điều kiện (răng rỗng)**
+  file: `tests/scripts/w6-w8-pham-vi.test.mjs:154`
+  severity: high
+  AC: AC-5
+  PV5 tự khai có «chiều đỏ của phép quét» nhưng phép đó không bao giờ đỏ được:
 
-  Ca hỏng cụ thể — chính là ca test W38 đang ghim: finding `F-behavior-in`, `severity: medium`, file `src/a.js` nằm trong `paths` của E1/E2. Trước diff này nó đi nhánh ngoài-hợp-đồng → lên thẻ Cổng 2 với câu ngôn ngữ sản phẩm + ba lối («ghi Known limits» / «mở hợp đồng mới» / «nâng phạm vi sửa ngay») và người phải quyết. Sau diff: `inContract=true`, verdict vẫn PASS (không eval nào đỏ, không finding high), thẻ không có mục nào, `plain` đã bị null — lỗi hành vi thật nằm im trong review-findings.md và người ký PASS mà không hề thấy. Đây là ngược đúng mục tiêu K7 («không được trôi ra Known limits») và vi phạm luật CLAUDE.md «mọi thứ máy tự quyết đều có sổ + đường đảo + hiện ở khối CHƯA duyệt của Cổng Bằng chứng». Test W38 chỉ assert `inContract === true`, không assert verdict hay khả kiến trên thẻ, nên lớp này không có răng.
-- rationale: AC-9 chỉ đòi harm=behavior∧inPaths → inContract=true và acRef gán đúng; không AC nào ràng buộc verdict REJECT phải bật theo severity hay đòi finding đã nâng phải vẫn hiện trên thẻ Cổng 2 — đây là khoảng trống thiết kế ngoài lời văn AC-9.
+    const probe = code.filter(l => !/L42m/.test(l));
+    if (probe.filter(l => /L42m/.test(l)).length !== 0) fail(id, 'phép quét không phân biệt được bản sao đã gỡ ca');
 
-### AC-10 trong hợp đồng vẫn nói «file CHỮ (.md)» trong khi mã và eval đã đổi sang MỌI đuôi
-- file: `_acceptance/gom-duc-ket-2-10-0/contract.md:36`
-- severity: medium
-- AC: AC-10
-- detail: AC-10 phát biểu: «Then prompt chứa câu «chỉ chấm file CHỮ (.md) trong danh sách» + đúng danh sách». Bản vá S4-r2/r3 đã cố ý đổi hành vi sang lọc MỌI đuôi (feature-loop/workflows/acceptance-verify.js:495 `conventionScope` — chuỗi thật là «CHI cham cac file DA DOI so round truoc …»), và eval W39 (tests/workflows/acceptance-verify.test.mjs) ghim đúng hành vi mới, kể cả ca `deltaFiles: ['lib/x.cjs','scripts/y.sh']` chỉ có code. Hợp đồng KHÔNG được sửa theo.
+  `probe` được dựng bằng cách LOẠI mọi dòng khớp /L42m/, nên `probe.filter(l => /L42m/.test(l))` luôn rỗng theo cấu tạo — nhánh `fail` không đạt tới được với bất kỳ nội dung nào của `tests/scripts/run-tests.sh`. Nó không chạy lại phép quét thật trên bản sao; chiều đỏ đúng phải là khẳng định bộ dò (hai nhánh `l47Case` / `l42mLines` ở dòng 148–152) SẼ kêu trên `probe`, ví dụ `probe.filter(l => /L42m/.test(l)).length === 0` phải kích hoạt đúng thông điệp «không tìm thấy ca L42m».
 
-  Hệ quả: một người đọc AC-10 ở Cổng Bằng chứng để đối chiếu sẽ thấy bằng chứng chứng minh một điều KHÁC với điều đã duyệt ở Cổng Phạm vi — eval đã được viết lại theo mã thay vì AC được viết lại theo quyết định. Nếu ai đó viết một eval đúng nguyên văn AC-10 (grep «.md» trong prompt) thì nó ĐỎ trên mã hiện tại. Notes mục «Vá lượt 4 (4)» có ghi việc sửa, nhưng câu AC — nguồn sự thật của phạm vi — vẫn mang chữ cũ.
-- rationale: AC-10 tự khai câu «chỉ chấm file CHỮ (.md) trong danh sách»; đối chiếu nguyên văn với prompt thật thì câu đó không tồn tại — AC-10 đọc-nguyên-văn thất bại trên chính sản phẩm.
+  Đây đúng lớp lỗi CLAUDE.md gọi tên hai lần («assertion âm-tính-một-mình là assertion không sống», và ghi chú của chính vòng này về «assert vô điều kiện»): PV5 hiện chỉ có chiều dương, nếu bộ dò L42m chết thì không phép đo nào biết. Ca này đang XANH trên cây, nên nó âm thầm chứng nhận một thứ chưa từng được kiểm.
+  Rationale: AC-5(d) đòi ca L42m phải chứng minh được mutant bỏ alias thật sự đã chạy (token_la [web]); assert hằng-đúng ở đây không làm được điều đó nên AC-5 chưa đạt.
 
-### eval-yaml.cjs có HAI cách đọc `- id:` khác nhau; comment đuôi trên dòng id làm K4 im lặng rơi về luật cũ
-- file: `lib/eval-yaml.cjs:93`
-- severity: medium
-- AC: AC-2, AC-6
-- detail: Trong cùng một file tự khai là «MỘT nguồn», `parseEvals` đọc id bằng `/^\s*-\s+id:\s*(.+)$/` (dòng 42 — nuốt trọn phần còn lại của dòng, KHÔNG cắt chú thích, KHÔNG bóc quote, indent tuỳ ý), còn `pathsOf` đọc bằng `/^\s{0,4}-\s+id:\s*(\S+)/` + `unq` (dòng 93 — chỉ token đầu, có bóc quote, indent ≤4). `staleScope` ghép hai bên bằng `declared[e.id]` (lib/evidence-core.cjs:684–695), nên hai cách đọc lệch là ghép trượt.
+- **loop-health: `git log -S` khớp CHỮ trong thân hợp đồng, nên «làm-xong → quyết-được» ra số sai (có ca ÂM)**
+  file: `scripts/loop-health.mjs:115`
+  severity: high
+  AC: AC-8
+  `firstOf(needle)` chạy `git log --format=%cI --reverse -S "<needle>" -- _acceptance/<slug>/contract.md` rồi lấy dòng đầu. `-S` khớp MỌI commit làm đổi số lần xuất hiện của chuỗi ở BẤT KỲ đâu trong file — kể cả khi chuỗi nằm trong văn AC chứ không phải ở frontmatter. Nhiều hợp đồng trích nguyên văn `status: signed-off` / `status: implemented` trong tiêu chí (đo trên cây này: 4 hồ sơ — judge-required-evidence, premerge-unjudged-pass, ra-co-ten-lam-va-trao, status-chua-arm-cong).
 
-  Đo thật vừa chạy trên cây này: evals.yaml có dòng `  - id: E1   # eval dau` (E1 khai đủ `paths: [src/**]`, executor test) → parseEvals ids = ["E1   # eval dau"] · pathsOf = {"E1":["src/**"]} · staleScope = null. Tức một chú thích đuôi (hoặc id để trong nháy, hoặc entry thụt >4 space) làm cả hồ sơ rơi về luật cũ «cả cây» — CÂM: pre-merge chỉ in NOTE khi thiếu node/lib (scripts/pre-merge-check.sh:1164), không in gì cho ca này. Chiều lỗi an toàn (chặt hơn), nhưng nó vô hiệu hoá đúng tính năng sinh ra để cắt 277 lượt ghim lại, mà không ai biết. `staleScope` đã cẩn thận đưa `executor` qua `stripComment`; `id` thì không.
-- rationale: AC-6(e) chỉ ràng buộc pathsOf đọc đúng hai dạng khai `paths:`, không ràng buộc việc trích id giữa hai hàm đọc phải khớp nhau — lệch id nằm ngoài câu chữ AC-6.
+  Chiều đỏ chạy thật: `node scripts/loop-health.mjs --root .` in `premerge-unjudged-pass -64′` và `ra-co-ten-lam-va-trao -98′` — thời lượng ÂM, tức mốc «ký» được tính trước mốc «làm xong». Truy nguyên: với premerge-unjudged-pass, `firstOf('status: signed-off')` trả về `db4a23ed` (commit Cổng 1, 2026-07-28T20:20) vì contract.md tại commit đó đã chứa chuỗi `status: signed-off` trong AC-1 và AC-9; commit ký thật là `c858ad3f` (2026-07-29T08:05). Với các hồ sơ khác cùng hình dạng, sai số đi theo chiều LẶNG (số phình to) chứ không âm nên không ai thấy.
 
-### Đường trả về BLOCKED mới trả `variance` khác khuôn đường lành, dù comment ngay trên khai là «đủ trường như blockedEarly»
-- file: `feature-loop/workflows/acceptance-verify.js:1096`
-- severity: low
-- AC: AC-10, AC-3, AC-9
-- detail: Đường lành trả `variance: varianceCmds.map(m => ({ cmd, evals, runs, passRate }))` (dòng 1149). Nhánh BLOCKED mới của K1 trả `variance: varianceCmds` thô (dòng 1096) — tức mảng object kết quả máy nguyên vẹn, không có `passRate`, và mang theo `outputTail`/`runId` của từng lệnh. Bên đọc nào lấy `result.variance[i].passRate` (khuôn duy nhất đường lành cam kết) sẽ nhận `undefined` thay vì phân số, và payload trả về phình vô ích. Comment ngay phía trên (dòng 1084–1085) tuyên bố «Khuôn trả về ĐỦ TRƯỜNG như blockedEarly: ba đường BLOCKED phải cùng một hợp đồng kết quả» — lời khai đó không đúng với trường này. Tác động thấp vì hôm nay không tìm thấy bên đọc `result.variance` trong SKILL/main loop, nhưng đây đúng là lớp lỗi mà chính K1 sinh ra để chặn.
-- rationale: AC-3 chỉ ràng buộc khuôn trả về cho nhánh capture:provenance chết (blocked, reason, prov.enforcement_mode); không AC nào ràng buộc trường variance phải cùng khuôn giữa các đường BLOCKED khác nhau.
+  Đây là dòng số ĐẦU TIÊN của luật (c) — chính thứ script sinh ra để đếm. Không có chỗ nào chặn giá trị âm/vô lý, và `--check-hand` không phủ `minutes` (chỉ so `tiers`), nên `rang.sh --chan loop-health-that` vẫn PASS. Hướng sửa: đọc trạng thái từ dòng frontmatter (`^status:` trong khối `---`) của từng revision, hoặc ít nhất từ chối/gắn cờ khi `minutes < 0`.
+  Rationale: AC-8(a) yêu cầu dòng số «làm-xong→quyết-được đúng theo giờ commit»; số ÂM đo được trên chính cây kit chứng minh yêu cầu này chưa đạt.
 
-### Bare-directory `paths:` entries match nothing, so evidence silently stops going stale
-- file: `scripts/pre-merge-check.sh:525`
-- severity: high
-- AC: AC-2, AC-6
-- detail: K4 narrows staleness to `∪paths:` by feeding the eval globs into `match_globs`, but `match_globs` is a plain shell `case` pattern test with only a `**/` expansion. A `paths:` entry that names a directory (`scripts`, `tests/scripts`, `hooks`, `commands`, `skills`, `docs/adr`, or a trailing-slash entry like `_acceptance/measure-birth-certificate/evidence/`) matches the literal path only — never a file under it. Since the new branch reports a changed file ONLY when it matches `$_sp`, those declarations narrow the scope to nothing instead of to a whole subtree.
+- **loop-health: `infra_burned` đếm mọi lần xuất hiện chữ «BLOCKED» trong văn xuôi, không đếm round**
+  file: `scripts/loop-health.mjs:110`
+  severity: medium
+  AC: AC-8
+  `const blockedRounds = (it.match(/BLOCKED/g) || []).length;` grep chuỗi trên TOÀN BỘ section `## Iterations`, trong khi các dòng còn lại của cùng hàm đếm round bằng neo có cấu trúc (`/^\s*(?:[-*]\s*)?(?:\*\*)?Round\s+(\d+)/gim`).
 
-  Verified: a harness sourcing `glob_variants`/`match_globs` out of the script gives NOMATCH for `scripts` vs `scripts/gate-card.js` and for `tests/scripts` vs `tests/scripts/run-tests.sh`, while `scripts/**` gives MATCH. Running `node lib/evidence-core.cjs stale-scope` over every workspace in this repo shows 8 slugs that resolve to a scope (exit 0) and contain such entries: bai-hoc-do-luong-vao-engine, cat-hinh-thuc, design-pass-nac-khong-dong-bo, lenh-in-ra-phai-bam-duoc, luu-kho-codex-va-nghi-le-design, measure-birth-certificate, repo-khai-plugin, vao-co-o-ra-co-ten.
+  Đo thật trên cây này: `_acceptance/s4-scope-triage/evidence-report.md` có 3 round BLOCKED nhưng 6 lần chữ «BLOCKED» trong Iterations, vì mỗi mục viết cả «verdict BLOCKED …» lẫn «Nguyên nhân BLOCKED: …» → đếm gấp đôi. `repo-khai-plugin` 4 lần, `t1-escape-event-scope` 2 lần, cùng hình dạng.
 
-  Concrete failure: `_acceptance/bai-hoc-do-luong-vao-engine/evals.yaml` declares `scripts`, `tests/scripts`, `hooks`, `tests/workflows`. After that record is pinned, editing `scripts/gate-card.js` or `hooks/acceptance-evidence-gate.js` produces no VIOLATION — the record reads fresh while the code it measures has changed. Under the old rule every one of those edits was stale. This is exactly the fail-open the comment above `stale_files` claims does not exist («Không có đường fail-open nào ở đây»), and no NOTE is printed because node and the lib are both present.
+  Hệ quả: dòng số thứ ba của luật (c) («vòng bị hạ-tầng đốt», in ra 297 ở cây này) phình theo cách người viết report diễn đạt — số càng chi tiết thì càng cao. Cùng lớp với finding trên: phép đo bám VĂN thay vì bám VẬT. Sửa: đếm số round trong Iterations mà mục của round đó chứa BLOCKED (một lần/round), không đếm chuỗi.
+  Rationale: AC-8(a) định nghĩa rõ «vòng bị hạ tầng đốt = round BLOCKED»; đếm theo số lần xuất hiện chữ thay vì số round là sai đúng phép đo mà AC yêu cầu.
 
-  Related, same line: the two readers of `paths:` disagree on glob semantics — here `*` crosses `/` (shell `case`), while `globToRe` in feature-loop/workflows/acceptance-verify.js compiles `*` to `[^/]*`. One declaration therefore means two different file sets to the gate and to the coverage/K7 logic.
+- **Hình dạng 4 — «chiều đỏ» của PV5 là assert vô điều kiện, không bao giờ đỏ được**
+  file: `tests/scripts/w6-w8-pham-vi.test.mjs:153`
+  severity: medium
+  AC: AC-5
+  Hai dòng được chú thích là «chiều đỏ của phép quét»: `const probe = code.filter(l => !/L42m/.test(l));` rồi `if (probe.filter(l => /L42m/.test(l)).length !== 0) fail(...)`. `probe` được dựng bằng cách loại MỌI dòng khớp /L42m/, rồi assert rằng probe không còn dòng nào khớp /L42m/ — hằng đúng theo cấu trúc, độc lập hoàn toàn với nội dung `tests/scripts/run-tests.sh`. Nó không hề chạy lại phép quét (l42mLines / kiểm token_la) trên bản sao đã gỡ ca, tức không chứng minh được phép quét ở dòng 149-151 phân biệt được «suite còn ca L42m» với «suite đã mất ca». Kết quả: PV5 chỉ còn hai assert dương (L47 vắng, L42m có token_la) không có đối chứng nào chứng minh phép quét biết đỏ.
+  Rationale: Cùng lỗi với ca PV5 nêu trên: AC-5(d) đòi chiều đỏ mutant phải chứng minh được, còn assert hằng-đúng thì không bao giờ có thể đỏ.
 
-  Fix direction: normalize a directory-shaped entry to `<dir>/**` (or reject entries that are neither a glob nor an existing file) before matching, and add a case to tests/scripts/stale-paths.test.mjs — SP1–SP4 only use `src/**` and `lib/**`, so this shape is untested.
-- rationale: AC-6(a)/(b) chỉ chứng minh stale hoạt động đúng với các mục paths dạng file/glob cụ thể (vd src/app.js); không AC nào thử mục paths dạng thư mục trần — hình dạng lỗi này nằm ngoài fixture mà AC-6 đã chốt.
+- **Hình dạng 4 — bất biến thường trực của rang.sh --chan cay-that là assert âm-tính-một-mình trên chuỗi không mã nào còn sinh ra được**
+  file: `_acceptance/gom-duc-ket-2-10-0/rang.sh:44`
+  severity: medium
+  AC: AC-5
+  Chân cay-that ghim BẤT BIẾN THƯỜNG TRỰC = 0 dòng «W8 surfaces carry token» ở mọi cây có mặt (dòng 44 grep -c, dòng 48 FAIL nếu tk != 0). Nhưng chính diff này đã XOÁ nhánh sinh chuỗi đó khỏi `scripts/eval-coverage-lint.js` (AC-5d); grep toàn cây xác nhận chuỗi «surfaces carry token» giờ chỉ còn trong test/plan/hồ sơ, không còn trong bất kỳ đường sinh cảnh báo nào. Vì thế nhánh FAIL này không thể nổ với BẤT KỲ input nào của bất kỳ cây nào — nó là assert âm-tính không có đối chứng dương chứng minh phép đo còn phân biệt được. Dấu hiệu quét dương ở dòng 41 chỉ chứng minh «lint đã chạy», không chứng minh «bộ dò token-lạ còn sống». expected của E5b trong evals.yaml có khai chiều đỏ («lint cũ trên artifact-platform -> W8-token 140 -> đỏ nêu số») nhưng rang.sh không bao giờ chạy bản lint cũ, nên chiều đỏ đó chỉ tồn tại trong lời văn.
+  Rationale: AC-5(e) đặt bất biến «0 dòng W8 surfaces carry token» làm phép đo thường trực; chuỗi đó không còn đường sinh ra nên phép đo không còn khả năng phân biệt đúng/sai, tức AC-5(e) chưa thật sự được chứng minh.
 
-### Staleness scope is read from the working-tree `evals.yaml`, not from `verified_commit`
-- file: `scripts/pre-merge-check.sh:519`
-- severity: medium
-- AC: AC-2, AC-6
-- detail: `stale_files` resolves the scope with `node "$EVIDENCE_CORE_LIB" stale-scope "$3/evals.yaml"`, where `$3` is `$ROOT/_acceptance/<slug>/` in the CURRENT tree, while the staleness question being answered is about the tree at `$vc` (`verified_commit`). Two lines above, line 522 unconditionally skips `_acceptance/*` from the changed-file list, so a post-signoff edit to `evals.yaml` is itself never stale.
+- **Hình dạng 4 — E8b: expected khai số và bất biến mà phép đo không chạy, đầu ra PASS không ghim số nào**
+  file: `_acceptance/gom-duc-ket-2-10-0/evals.yaml:118`
+  severity: medium
+  AC: AC-8
+  expected của E8b hứa ba thứ: (1) in bảng tier với T2 round-usage 3.06±0.05, tokenS4 43.8M±0.5M; T3 3.25±0.05, 55.6M±0.5M; T3 Iterations 5.5±0.1; (2) bất biến máy-với-máy «--json == text cùng sha»; (3) dòng cuối PASS: LH-THAT. Thực tế rang.sh dòng 62 chỉ chạy `loop-health.mjs --root ... --at 8caa9998 --check-hand mocs-tay.json`. Ba lệch: (a) `--json` không hề được gọi, không có so sánh json-với-text nào — bất biến (2) không tồn tại trong phép đo; (b) mocs-tay.json ghim T2.round_usage 3.0 (không phải 3.06), T3.token_s4 54400000 (không phải 55.6M), T3.round_iter 6.6 (không phải 5.5) — số trong expected khác số thực sự bị ghim; (c) checkHand ở `scripts/loop-health.mjs:205` khi đạt chỉ in đúng một dòng «PASS: LH-THAT», không in bảng nào, nên bằng chứng thu được không chứa số nào để đọc lại — đã chạy thử: đầu ra là một dòng PASS. Người đọc evidence không phân biệt được «số máy khớp số tay đã khai» với «số tay đã bị sửa theo máy».
+  Rationale: AC-8(b) đòi hỏi so sánh --json với text cùng sha và số máy phải đối chiếu được với mocs-tay.json; eval E8b không chạy --json và không in số nào để đối chiếu, nên AC-8(b) chưa được chứng minh đầy đủ.
 
-  The two together make the pinned scope retroactively editable with no signal: after a record is signed off, deleting or narrowing `paths:` entries in its `evals.yaml` shrinks the set of files that can mark it stale, the edit does not trip the staleness check, `hooks/acceptance-evidence-gate.js` guards `contract.md`/`evidence-report.md` but not `evals.yaml`, and the NOTE at line 1164 only fires for missing node/lib — never for a scope that changed. Concretely: pin a record, change `lib/foo.js` (in scope, would be VIOLATION), then drop `lib/**` from `paths:` — the gate goes green without any re-verify and without printing which rule ran.
-
-  Reading the scope from `git -C "$ROOT" show "$vc:_acceptance/<slug>/evals.yaml"` would tie the measure to the artifact that was actually pinned, matching the kit's own rule that the ruler must be attached to the delivered thing.
-- rationale: AC-6 chứng minh hành vi stale trên các file được đo, nhưng không AC nào ràng buộc rằng chính khai báo phạm vi (`paths:` trong evals.yaml) phải được đọc từ verified_commit thay vì cây làm việc hiện tại.
+- **Hình dạng 3 — LH1 assert chuỗi-có-mặt bằng OR nên nhận cả bản đúng lẫn bản hỏng**
+  file: `tests/scripts/loop-health.test.mjs:93`
+  severity: low
+  AC: AC-8
+  `if (!/đếm tay|s-a 3/.test(text)) fail(id, 'bản chữ không nói rõ dòng lượt-gọi-người')`. Hai vế của OR là hai đầu ra LOẠI TRỪ nhau của cùng một dòng in trong `scripts/loop-health.mjs:180`: có hồ sơ khai `human_calls` thì in «s-a 3», không hồ sơ nào khai thì in «đếm tay (không hồ sơ nào khai human_calls:)». Vì thế nếu đường đọc human_calls hỏng hoàn toàn (mọi hồ sơ trả null), dòng chữ đổi sang nhánh «đếm tay» và assert này vẫn xanh — nó không đo được QUAN HỆ «bản chữ nói đúng human_calls của s-a», chỉ đo «một trong hai chuỗi có mặt». Ràng buộc thật nằm ở assert JSON phía trên (`a.human_calls !== 3`), nên assert này chỉ thêm màu xanh không mang thông tin.
+  Rationale: AC-8(a) đòi dòng chữ phải phản ánh đúng việc đọc human_calls: có/không; assert OR chấp nhận cả hai nhánh nên không thật sự kiểm chứng được yêu cầu này của AC-8.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Bản sao thứ hai của `clean` trong evidence-page.js không được kéo về nguồn stripComment mới**
-  Người dùng thấy gì: Nếu một thông tin trong hồ sơ chứa ký tự '#', trang tổng hợp bằng chứng có thể hiển thị giá trị khác với thẻ quyết định, khiến hai nơi người đọc cùng một hồ sơ thấy hai nội dung không khớp nhau.
-  file: `scripts/evidence-page.js`
-  severity: medium
-  Tác hại: behavior
-  Đề xuất: known-limits
-
-- **Hình dạng 4 — «chiều đỏ» của PV5 là assert tautology, không bao giờ đỏ được**
-  Người dùng thấy gì: Một bài kiểm dùng để đảm bảo công cụ quét phân biệt được bản lỗi giả với bản thật thực ra không thể báo lỗi trong bất kỳ trường hợp nào, nên nếu công cụ quét đó hỏng thật, sẽ không có cảnh báo nào bật lên.
-  file: `tests/scripts/w6-w8-pham-vi.test.mjs`
-  severity: medium
-  Tác hại: measure
-  Đề xuất: known-limits
-
-- **Hình dạng 5 — E9 tuyên ma trận 4 finding × 2 trường = 8 assert, W38 chỉ có điểm-case cho `acRef`**
-  Người dùng thấy gì: Bài kiểm tra tính năng phân loại lỗi vào/ngoài phạm vi hợp đồng chỉ kiểm đầy đủ cho một trong bốn trường hợp thử; ba trường hợp còn lại kiểm không đủ chặt, nên nếu máy gán sai thông tin phân loại cho chúng, sẽ không có cảnh báo nào bật lên.
-  file: `tests/workflows/acceptance-verify.test.mjs`
-  severity: medium
-  Tác hại: measure
-  Đề xuất: known-limits
-
-- **Hình dạng 5 — TH4 tuyên «ba nơi đánh nhãn cùng thứ tự» nhưng chỉ đo khối hiển thị; fixture làm hai nơi kia không đo được**
-  Người dùng thấy gì: Bài kiểm tra thứ tự hiển thị các mục ngoài phạm vi hợp đồng chỉ kiểm đúng được một trong ba nơi hiển thị; hai nơi còn lại dùng dữ liệu thử giống hệt nhau nên không thể phân biệt đúng/sai, và nếu thứ tự ở hai nơi đó bị sai thật, sẽ không có cảnh báo nào bật lên.
-  file: `tests/scripts/ooc-tac-hai.test.mjs`
-  severity: medium
-  Tác hại: measure
-  Đề xuất: known-limits
-
-- **Hình dạng 4 (biến thể «không ghim đúng thông điệp») — ba eval ghim trong `expected` những chuỗi/số mà phép đo đang chạy KHÔNG sinh ra, có chỗ còn ngược hẳn**
-  Người dùng thấy gì: Bộ tiêu chí dùng để chấm ba phần việc trong vòng này (quy tắc từ trong danh sách được phép dùng, phạm vi quét theo file thay đổi, và các con số đo hiệu suất) đang ghi sai so với thực tế đang chạy — người đọc bộ tiêu chí này để đối chiếu kết quả có thể bị dẫn tới kết luận sai.
-  file: `_acceptance/gom-duc-ket-2-10-0/evals.yaml`
+- **Câu `<dir>/**` trong contract làm suite tests/plugins đỏ (P161 zero-tolerance)**
+  Người dùng thấy gì: Một câu mô tả phạm vi trong hồ sơ đang khiến bộ kiểm tra nội bộ của kit báo lỗi, có thể làm chậm việc phát hành nếu không được sửa trước khi gộp.
+  file: `_acceptance/gom-duc-ket-2-10-0/contract.md`
   severity: high
-  Tác hại: measure
+  Đề xuất: known-limits
+
+- **Contract còn khai phủ K4/K7 và ngưỡng của mã đã gỡ**
+  Người dùng thấy gì: Bảng tổng kết phạm vi trong hồ sơ vẫn liệt kê hai phần việc đã bị rút khỏi vòng này, có thể khiến người đọc báo cáo sau này hiểu nhầm là đã hoàn tất.
+  file: `_acceptance/gom-duc-ket-2-10-0/contract.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Đường đọc-cũ của nguong-o-co-hoi.cjs không còn sống: lỗi chuyển từ require-time sang call-time**
+  Người dùng thấy gì: Các dự án khác đang dùng bản sao thư viện cũ của kit có thể bị dừng chương trình đột ngột thay vì được xử lý êm khi kit này cập nhật.
+  file: `lib/nguong-o-co-hoi.cjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **W6 im lặng bỏ luật khi hợp đồng không có heading `## Criteria` — không có dòng rơi-bậc**
+  Người dùng thấy gì: Nếu một tài liệu tiêu chí thiếu đúng tên tiêu đề quy định, công cụ rà từ ngữ sẽ bỏ qua toàn bộ tài liệu mà không báo hiệu, khiến lỗi dùng từ có thể lọt qua âm thầm.
+  file: `lib/context-glossary.js`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 5 — NO4 tuyên «ma trận toàn phần» của một LỚP nhưng bộ lọc chỉ thấy 1/11+ phần tử**
+  Người dùng thấy gì: Bộ kiểm tra tự nhận đã rà soát toàn bộ nơi hiển thị kết quả nhưng trên thực tế chỉ rà một phần nhỏ, nên các chỗ hiển thị còn lại có thể mang lỗi định dạng mà không ai phát hiện.
+  file: `tests/scripts/lnt-no.test.mjs`
+  severity: high
   Đề xuất: new-contract
 
-⚠ Cụm ngoài vùng phủ: 3/11 lỗi rơi vào file không bộ đo nào phủ (_acceptance/gom-duc-ket-2-10-0/contract.md, scripts/evidence-page.js, _acceptance/gom-duc-ket-2-10-0/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 3/12 lỗi rơi vào file không bộ đo nào phủ (_acceptance/gom-duc-ket-2-10-0/contract.md, _acceptance/gom-duc-ket-2-10-0/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
