@@ -36,7 +36,7 @@ Resume: `/feature-loop:feature-loop <slug>` → đọc status, vào đúng hàng
 {"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,0,0,0],"evals_exit":{"<E>":0}}
 ### Re-pin lần <N> — <ngày>, do <lý do 1 dòng>
 run_id: <id>
-sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m> eval máy exit 0
+sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt kỳ vọng
 ```
 <!-- REPIN-TEMPLATE>>> -->
 

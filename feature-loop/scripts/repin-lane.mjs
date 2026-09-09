@@ -68,7 +68,7 @@ agRoot = (() => { try { return fs.realpathSync(agRoot); } catch { return die(`--
 for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acceptance-gate root thiếu ${r} (root: ${agRoot}) — cần acceptance-gate ≥ 2.9.0`);
 const require_ = createRequire(import.meta.url);
 const core = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
-const { parseEvals } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
+const { parseEvals, expectedExits } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
 for (const fn of ['resolveConfigKey', 'resolveConfigList', 'REPIN_MACHINE_EXECUTORS']) if (core[fn] === undefined) die(`lib/evidence-core.cjs thiếu ${fn} — acceptance-gate quá cũ (cần ≥ 2.9.0)`);
 
 // ── git: sha = HEAD, cây phải sạch ngoài _acceptance/ (pin phải là cây đã đo) ──
@@ -99,13 +99,15 @@ const perSlug = slugs.map(slug => {
   const report = fs.readFileSync(reportPath, 'utf8');
   if (!/^verified_commit\s*:\s*\S+/m.test(report)) die(`${slug}: evidence-report.md không có verified_commit (khuôn cũ) — không ghim được, verify lại`);
   const evalsText = readOr(path.join(ws, 'evals.yaml'), `${slug}: evals.yaml`);
+  const { byId: expById, errs: expErrs } = expectedExits(evalsText);
+  if (expErrs.length) die(`${slug}: evals.yaml khai mã thoát mong đợi sai luật —\n  ${expErrs.join('\n  ')}`);
   const evals = parseEvals(evalsText, ['executor', 'cmd'])
     .filter(e => MACHINE.has(String(e.executor || '').trim().toLowerCase()))
     .map(e => {
       let cmd = String(e.cmd || '').trim();
       if (!cmd) die(`${slug}: eval ${e.id} (executor ${e.executor}) không có cmd`);
       if (cmd.startsWith('config:')) cmd = core.resolveConfigKey(configText, cmd.slice('config:'.length)) || die(`${slug}: eval ${e.id} trỏ ${cmd} không giải được trong config.yaml`);
-      return { id: e.id, cmd };
+      return { id: e.id, cmd, expected: expById.get(e.id) || 0 };
     });
   return { slug, ws, reportPath, report, evals };
 });
@@ -139,15 +141,29 @@ const out = { run_id: runId, sha, ts: iso, suites: suiteCmds.map((cmd, i) => ({ 
 let red = suitesExit.some(x => x !== 0);
 for (const s of perSlug) {
   const evalsExit = {};
-  for (const e of s.evals) { evalsExit[e.id] = e.exit; if (e.exit !== 0) red = true; }
+  const gioiHan = [];    // đạt đúng một mã khác 0 đã khai
+  const hetGioiHan = []; // khai mã khác 0 mà nay trả 0
+  let dat = 0;
+  for (const e of s.evals) {
+    evalsExit[e.id] = e.exit;
+    const datKyVong = e.exit === e.expected;
+    const hetHan = e.expected !== 0 && e.exit === 0;   // AC-10: không phạt một cải thiện
+    if (!datKyVong && !hetHan) { red = true; continue; }
+    dat++;
+    if (datKyVong && e.expected !== 0) gioiHan.push(`${e.id}=${e.exit}`);
+    if (hetHan) hetGioiHan.push(`${e.id} (khai ${e.expected})`);
+  }
   const n = (s.report.match(/^### Re-pin/gm) || []).length + 1;
   const line = JSON.stringify({ ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit });
-  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${s.evals.length} eval máy exit 0\n`;
+  const veGioiHan = gioiHan.length ? ` · đạt-có-giới-hạn: ${gioiHan.join(', ')}` : '';
+  const veHet = hetGioiHan.length ? ` · giới hạn đã khai không còn: ${hetGioiHan.join(', ')}` : '';
+  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}\n`;
   out.slugs[s.slug] = { evals_exit: evalsExit, line, section };
 }
 if (red) {
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
-  console.error(`repin-lane: LÀN ĐỎ — không ghi gì (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(e => e.exit !== 0).map(e => `${s.slug}/${e.id}=${e.exit}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.`);
+  const lech = (e) => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0);
+  console.error(`repin-lane: LÀN ĐỎ — không ghi gì (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lech).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.`);
   process.exit(1);
 }
 if (flags.write) {
