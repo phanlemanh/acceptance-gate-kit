@@ -1206,13 +1206,20 @@ case "$o" in *"[feat-lnt] W8 "*"không có eval"*"W8 ="*) ok L40-msg ;; *) ko L4
 mk_lnt "$T/l41" ui "$EV_UI"; echo "L41 [ui] có ui-check + layer ui-observed -> không W8 (+W1 quét)"; no_w8 L41 "$T/l41"
 mk_lnt "$T/l42" web "$EV_TEST"; echo "L42 [web] alias -> W8 NGHĨA VỤ (không phải nhánh token-lạ)"; o="$(w8 "$T/l42")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*"không có eval"*) ok L42 ;; *) ko L42 ;; esac
 mk_lnt "$T/l42b" web-ui "$EV_TEST"; echo "L42b [web-ui] alias -> W8 NGHĨA VỤ"; o="$(w8 "$T/l42b")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*"không có eval"*) ok L42b ;; *) ko L42b ;; esac
-# L42m — chiều đỏ của LỚP (hình dạng 3): bản sao lib bỏ alias web → nhánh token-lạ nổ, nhánh NGHĨA VỤ im;
-# mẫu của L42 phải ĐỎ trên bản sao đó (phân biệt được «có dòng W8» với «đúng nhánh»).
+# L42m — chiều đỏ của LỚP (hình dạng 3+4): bản sao lib bỏ alias web → nhánh NGHĨA VỤ im.
+# Nhánh token-lạ của lint đã GỠ (gom-duc-ket-2-10-0 AC-5d) nên sự-im-lặng-của-lint một mình
+# không phân biệt được «mutant đúng» với «bản sao chưa từng chạy»: DẤU HIỆU BẢN SAO ĐÃ CHẠY
+# lấy từ thẻ — gate-card của bản sao phải trả token_la ["web"], bản lành trả [].
 M42="$T/l42m-kit"; mkdir -p "$M42"; cp -R "$HERE/../../lib" "$M42/lib"; cp -R "$HERE/../../scripts" "$M42/scripts"
 sed -i.bak "s/web: 'ui', //" "$M42/lib/lop-nhin-thay.cjs" && rm -f "$M42/lib/lop-nhin-thay.cjs.bak"
 if grep -q "web: 'ui'" "$M42/lib/lop-nhin-thay.cjs"; then ko "L42m (không tiêm được mutant alias)"; else
   o="$(node "$M42/scripts/eval-coverage-lint.js" "$T/l42" 2>&1)"
-  case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*) ko "L42m (mutant bỏ alias mà nhánh nghĩa vụ vẫn nổ)" ;; *"[feat-lnt] W8 surfaces carry token"*web*) ok "L42m (mutant: chỉ nhánh token-lạ nổ — mẫu L42 phân biệt được)" ;; *) ko "L42m (mutant không nổ nhánh nào — bản sao không chạy?)" ;; esac
+  tl_of() { node "$1/scripts/gate-card.js" --root "$2" --slug feat-lnt --extract 2>/dev/null | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{try{process.stdout.write(JSON.stringify(JSON.parse(s).ui_observed.token_la))}catch(e){process.stdout.write("ERR")}})'; }
+  tlM="$(tl_of "$M42" "$T/l42")"
+  tlG="$(tl_of "$HERE/../.." "$T/l42")"
+  case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*) ko "L42m (mutant bỏ alias mà nhánh nghĩa vụ vẫn nổ)" ;; *)
+    if [ "$tlM" = '["web"]' ] && [ "$tlG" = "[]" ]; then ok "L42m (mutant: nghĩa vụ im + token_la [web] chứng bản sao đã chạy)"; else ko "L42m (dấu hiệu bản sao đã chạy sai: mutant=$tlM lành=$tlG)"; fi ;;
+  esac
 fi
 mk_lnt "$T/l43" mobile "$EV_TEST"; echo "L43 [mobile] -> không W8 (+W1 quét)"; no_w8 L43 "$T/l43"
 mk_lnt "$T/l44" "api, cli" "$EV_TEST"; echo "L44 [api, cli] -> không W8 (+W1)"; no_w8 L44 "$T/l44"
@@ -1226,7 +1233,8 @@ mk_lnt "$T/l46" ui '  - id: E1
     criterion: AC-1
     executor: ui-check
     expected: "frame shows hero"'; echo "L46 ui-check không layer (đọc-cũ) -> không W8"; no_w8 L46 "$T/l46"
-mk_lnt "$T/l47" "ui, kiosk" "$EV_UI"; echo "L47 token lạ kiosk -> W8 nêu token"; o="$(w8 "$T/l47")"; case "$o" in *"[feat-lnt] W8 "*kiosk*) ok L47 ;; *) ko L47 ;; esac
+# ca token-lạ đời cũ ĐÃ GỠ cùng nhánh lint — thẻ Cổng Phạm vi vẫn nêu token lạ,
+# và L42m ở trên dùng chính `token_la` của thẻ làm dấu hiệu bản-sao-đã-chạy.
 echo "L48 cây thật của kit -> 0 dòng W8 + có dấu hiệu quét"; o="$(node "$LINT" "$HERE/../.." 2>&1)"; case "$o" in *"] W8 "*) ko "L48 (W8 trên cây thật)" ;; *"no coverage gaps"*|*"] W1 "*|*"] W3 "*|*"] W6 "*|*"] W7 "*) ok L48 ;; *) ko "L48 (không dấu hiệu quét)" ;; esac
 mk_lnt "$T/l49" ui "$EV_TEST" "{\"id\":\"d-1\",\"type\":\"descope\",\"decision\":\"${LNT_DESCOPE}hạ tầng chụp hỏng\"}"; echo "L49 descope đúng tiền tố -> không W8 nghĩa vụ"; no_w8 L49 "$T/l49"
 mk_lnt "$T/l50" ui "$EV_TEST" '{"id":"d-1","type":"descope","decision":"bỏ ui-observed: hỏng"}'; echo "L50 tiền tố dấu hai chấm -> W8 NGHĨA VỤ"; o="$(w8 "$T/l50")"; case "$o" in *"[feat-lnt] W8 surfaces include a human-visible UI"*) ok L50 ;; *) ko L50 ;; esac

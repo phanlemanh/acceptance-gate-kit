@@ -1,0 +1,126 @@
+schema_version: 1
+feature_slug: gom-duc-ket-2-10-0
+# Nếp N4: `cmd` của MỖI eval là CA của tính năng (một file test có bộ chọn, một ca W qua grep
+# với pipefail, một chân răng), KHÔNG phải cả suite — suite chỉ ở feature_loop.suite_keys.
+# Baseline phải ĐỎ ở ít nhất một eval mỗi nhóm: file test mới vắng trên baseline, hoặc cụm chữ
+# PASS mới không có trên bản cũ. Mọi fixture code-sinh trong chính lần chạy; đường dẫn suy từ
+# vị trí file; mỗi phép đo mới có cặp hai-chiều cùng fixture (MEASURE-BIRTH-CLAUSE).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.script.gdk_lnt_do
+    paths: [tests/plugins/lop-nhin-thay.test.mjs, lib/lop-nhin-thay.cjs, lib/nguong-o-co-hoi.cjs, CONTEXT.md, commands/acceptance-init.md]
+    expected: >
+      exit 0; stdout có "PASS: [LNT1]" với cụm "dấu hiệu bản sao" và "PASS: [LNT6]" với cụm
+      "quan hệ alias" (cụm mới — bản cũ không in nên baseline đỏ qua grep pipefail). LNT1: bản
+      sao mutant bỏ alias web → gate-card bản sao --extract token_la chứa "web", bản lành [];
+      chiều đỏ có sẵn nạp từ `git show 334d5d52:lib/nguong-o-co-hoi.cjs`, không có chuỗi
+      "main:" trong ca. LNT6 (iv): cặp alias rút từ CONTEXT term Surface == SURFACE_ALIAS
+      (deepEqual); bản sao CONTEXT đổi "→ `ui`" thành "→ `mobile`" → đỏ nêu "alias". (vi) đoạn
+      3b chứa cả "@playwright/cli" lẫn "capture.ui" và "playwright-cli"; bản sao dời câu sang
+      3c → đỏ nêu "3b".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.script.gdk_c1_nho
+    paths: [lib/nguong-o-co-hoi.cjs, lib/eval-yaml.cjs, lib/lop-nhin-thay.cjs, scripts/eval-coverage-lint.js, scripts/gate-card.js, scripts/pre-merge-check.sh, tests/plugins/lop-nhin-thay.test.mjs, tests/scripts/lnt-no.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: NO1".."PASS: NO4": NO1 grep `LNT_AVAILABLE` trong lib hiện tại
+      = 0 dòng VÀ trong `git show 334d5d52:lib/nguong-o-co-hoi.cjs` ≥ 1 dòng (đối chứng dương);
+      NO2 ba bản sao pre-merge (PATH không node · xoá lib · lib ném lỗi exit 7) → ba NOTE
+      chứa lần lượt "thiếu node", "thiếu lib/lop-nhin-thay.cjs", "lib lỗi (exit 7)", exit 0
+      cả ba, và ba chuỗi khác nhau; NO3 stripComment: 4 fixture × 3 bộ đọc = 12 assert nêu
+      tên bộ đọc, `[ui]#x` → applicable false ở cả ba, và (c-bis) `clean` của THẺ dùng CHUNG
+      luật cắt chú thích (`T2#x` giữ nguyên, `T2 # ghi chú` cắt đúng); NO4 quét LỚP helper đọc
+      stdout của thẻ: tìm được ≥1 helper, MỌI helper tìm được đều bỏ ANSI, và chiều đỏ chạy
+      trên BẢN SAO thật (gỡ đoạn strip → phép quét kêu). Giới hạn đã khai ở Gate 2: bộ lọc của
+      NO4 hiện chỉ thấy 1 helper, chưa phủ hết lớp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.script.gdk_k1
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+    expected: >
+      exit 0 (pipefail: node exit 0 VÀ có dòng chứa "W37"); ca W37: responder trả null cho
+      `capture:provenance` → runWorkflow không throw, result.verdict === 'BLOCKED',
+      result.blocked có mục cmd 'capture:provenance' với reason bắt đầu
+      "capture:provenance agent bi skip/chet — khong co ket qua"; calls không có
+      'synthesize:report' với prompt chứa "enforcement_mode: undefined"/"null"; đối chứng
+      dương cùng args: provenance sống → verdict không BLOCKED vì provenance. Bản cũ: harness
+      bắt TypeError → ca đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.script.gdk_k2
+    paths: [skills/acceptance/references/human-facing-language.md, commands/approve.md, commands/signoff.md, tests/plugins/run-tests.sh, tests/scripts/danh-tinh.test.mjs, tests/scripts/gate-card-lmcms.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DT1".."PASS: DT5": DT1 khối IDENTITY-ECHO-RULE ở 3 file: có
+      "GHI THẲNG", "(từ <nguồn suy>)", không có "Enter xác nhận"/"chờ xác nhận"; DT2 thân
+      approve/signoff không có câu "không có trong `signoff.approvers`" kiểu cảnh báo, có "một
+      câu"; DT3 signoff có nấc "cổng trước" nêu approved_by + tác giả commit; DT4 mutant: bản
+      sao khối tiêm " — Enter xác nhận" → checker đỏ nêu "nhánh chờ"; bản sao thân tiêm câu
+      CẢNH BÁO approvers → đỏ nêu "cảnh báo approvers"; DT5 rút mảng anchors P191 và
+      GATE_NEEDLES/BODY_AM P194 từ run-tests.sh: có neo dương "GHI THẲNG", "Enter xác nhận" nằm
+      ở neo ÂM, không còn ở neo dương.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.script.gdk_k3
+    paths: [lib/context-glossary.js, scripts/eval-coverage-lint.js, CONTEXT.md, tests/scripts/run-tests.sh, tests/scripts/w6-w8-pham-vi.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: PV1".."PASS: PV6": PV1 alias trong Context không kêu, cùng alias
+      trong Criteria kêu (cặp cùng fixture); PV2 ba chiều cùng fixture: "ui-check" KHÔNG kêu
+      alias "check"; "check-lại" và "thẻ-cổng-2" (ghép tiếng Việt) VẪN kêu; alias "pre-merge"
+      khớp nguyên vẹn; PV3 sáu từ đa nghĩa (thẻ · tag · hook · engine · test · check) đã GỠ
+      khỏi _Avoid_ của CONTEXT.md và KHÔNG mục _Allow_ nào là từ trần, cây kit hết dòng W6 vì
+      chúng (127 → số in ra trong câu PASS); PV4 [ui, kiosk] → 0 dòng "W8 surfaces carry
+      token", vẫn có W8 nghĩa vụ khi thiếu ui-check, vẫn W8 "lạc chỗ"; PV5 run-tests.sh không
+      còn ca L47, L42m nêu "token_la" (bản sao đã chạy); PV6 thiếu `lib/md-section.cjs` → không
+      ném, chấm CẢ tài liệu và in một dòng rơi bậc có tên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5b
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.gdk_k3_cay_that
+    paths: [scripts/eval-coverage-lint.js, lib/context-glossary.js, CONTEXT.md, _acceptance/gom-duc-ket-2-10-0/rang.sh]
+    expected: >
+      exit 0; stdout in bảng "repo | W8-token | W8-nghia-vu | W6" cho kit + artifact-platform,
+      oneflow, crm (đọc từ --dev-root, mặc định thư mục cha của kit); cây vắng in
+      "SKIP <tên>: vắng" có tên. Ba chiều ĐỎ còn sống của chân này: lint chết (exit ≥2) → FAIL
+      nêu tên cây và dòng đầu; lint chạy mà không có dấu hiệu quét → FAIL nêu tên cây; không
+      chấm được cây nào kể cả kit → FAIL. Ba cột số chỉ IN, là CHỨNG-MỘT-LẦN (trước: kit W6
+      127, W8-token 140/15/4, nghĩa vụ 16/2/9) — không ghim thành bất biến thường trực; nhánh
+      FAIL khi W8-token khác 0 giữ làm lưới hồi quy rẻ, KHÔNG tính là bất biến đã chứng (khai
+      ở Out of scope). Dòng "chứng-một-lần: <n>/3" rồi dòng cuối "PASS: CAY-THAT".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.script.gdk_k5
+    paths: [feature-loop/skills/feature-loop/SKILL.md, commands/acceptance-init.md, tests/scripts/s5-ship-default.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: S5D1".."PASS: S5D3": S5D1 khối S5-SHIP-DEFAULT có "mặc định",
+      "PR", "không bày menu", "ship_default", bốn giá trị pr/merge/branch/ask; S5D2 bốn giá trị
+      rút từ SKILL == bốn giá trị rút từ khuôn config acceptance-init (deepEqual); S5D3 mutant
+      gỡ khối → đỏ "S5-SHIP-DEFAULT"; mutant mặc định ask → đỏ "mặc định".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.script.gdk_k8
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/scripts/s4-args.mjs, tests/workflows/acceptance-verify.test.mjs, tests/scripts/s4-args-delta.test.mjs]
+    expected: >
+      exit 0 (pipefail grep "W39"); W39: args.deltaFiles ['docs/a.md','src/b.js'] → prompt
+      review:conventions chứa "CHI cham cac file DA DOI" và liệt CẢ hai đuôi ("docs/a.md" VÀ
+      "src/b.js" — lọc riêng .md làm làn câm khi vòng sửa chỉ chạm code); ca chỉ-code-đổi
+      ['lib/x.cjs','scripts/y.sh'] → làn VẪN chấm, không trả rỗng; không deltaFiles → prompt
+      không chứa cụm đó, chứa main...HEAD. Kèm ca SD1/SD2 (tests/scripts/s4-args-delta.test.mjs,
+      cùng lệnh qua &&): fixture git với --carry-anchor → tệp args có deltaFiles đúng; --no-carry
+      → không có khoá.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

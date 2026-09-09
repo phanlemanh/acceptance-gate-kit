@@ -233,7 +233,7 @@ trước, hỏi mở là đường cùng:
     theo luật khuyến-nghị-trước: có danh sách thì LIỆT nó ra để người chọn
     một chạm, chỉ hỏi trắng khi không còn ứng viên nào.
 <!-- <<<IDENTITY-ECHO-RULE -->
-Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đúng một tên VÀ bằng `git config user.name`) → GHI THẲNG rồi hiển thị lại «với danh tính: <tên> <ngày> (từ <nguồn suy>)», KHÔNG chờ xác nhận: hai nguồn đã đồng ý thì lượt chờ đó không thêm bảo đảm nào, chỉ thêm một chạm — và người vẫn sửa được bằng một câu ngay sau đó. Mọi ca khác (một nguồn trống · hai nguồn lệch · danh sách nhiều tên) thì HIỂN THỊ LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị lại một dòng «với danh tính: <tên> <ngày> (từ <nguồn suy>)». Hai nguồn khớp hay lệch đều KHÔNG nói gì về ai đang gõ — xuất xứ thật là tác giả commit — nên lượt chờ không thêm bảo đảm nào, chỉ thêm một chạm; đo 08/09: 8 lần hỏi, 5 lần xác nhận suông, 2 lần sửa thành đúng giá trị đã có sẵn trong `signoff.approvers`. Người sửa tên hoặc ngày bằng MỘT CÂU bất kỳ lúc nào sau đó, máy ghi lại cùng lượt. Chỉ ca CẠN mới hỏi.
 <!-- IDENTITY-ECHO-RULE>>> -->
   Ở cả hai ca, khuôn PHẢI in cả nguồn suy (nấc nào của bậc thang đã bắn: câu
   anh gõ / cờ `--as` / `git config` / `signoff.approvers`), vì hiển thị
@@ -254,7 +254,7 @@ Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đ
   lời; nhiều ứng viên → bảng chọn như cũ.
 - Ranh giới với bất biến không-điền-sẵn: máy ĐƯỢC đề xuất cách hiểu + căn
   cứ + xin một cái gật rẻ; lời chấp thuận là PHÁT NGÔN CUỐI của người —
-  Enter xác nhận chỉ xác nhận DANH TÍNH sau khi người đã tự gõ quyết định;
+  dòng danh tính máy in ra chỉ NÓI ra danh tính đã suy, không hỏi lại;
   chữ ký vẫn là hành vi người (khoá ADR 0002 + commit chỉ-trường-người,
   git tự ghi author/date).
 - «<mã eval>» nhận dạng theo khuôn `E\w+` — đúng khuôn mã mà thẻ đưa lên

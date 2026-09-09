@@ -15,19 +15,19 @@ kit — khái niệm chung (subagent, worktree, frontmatter…) không vào đâ
 Bản chuẩn hoá yêu cầu của một feature (`_acceptance/<slug>/contract.md`) —
 frontmatter lifecycle + `## Criteria`. Nguồn sự thật của phạm vi; card chỉ là
 lớp trình bày.
-_Avoid_: spec, PRD (đó là *input* của Phase 1), thẻ.
+_Avoid_: spec, PRD (đó là *input* của Phase 1).
 
 **Criterion (AC)**:
 Một mục Given/When/Then trong `## Criteria`, định danh `AC-n` — đơn vị mà eval
 phải phủ.
-_Avoid_: requirement, user story, test (criterion là *điều phải đúng*, không
-phải cách chứng minh).
+_Avoid_: requirement, user story (criterion là *điều phải đúng*, không phải
+cách chứng minh).
 
 **Dấu**:
 Hậu tố trong ngoặc mà contract gắn vào một criterion để ĐỔI CÁCH MÁY XỬ LÝ nó —
 `(judgment)` (cần người phán) và `(cross-layer)` (đòi eval `layer:
 backend-effect`). Chốt 2026-07-30 vì repo chưa có từ cho khái niệm này.
-_Avoid_: thẻ, tag
+_Avoid_: nhãn dán, badge
 
 **Nhãn**:
 Phần mô tả tự do trong ngoặc giữa id và nội dung criterion — `- AC-1 (biên
@@ -37,11 +37,11 @@ cho người đọc; parser nuốt nó vào `gwt`.
 **Eval**:
 Một entry trong `evals.yaml` sinh evidence cho ≥1 criterion, chạy bởi đúng một
 executor.
-_Avoid_: test case (chỉ đúng khi executor là `test`), check.
+_Avoid_: test case (chỉ đúng khi executor là `test`).
 
 **Executor**:
 Một trong 4 loại máy chạy eval: `test` / `script` / `ui-check` / `judgment`.
-_Avoid_: runner, engine.
+_Avoid_: runner.
 
 **Driver**:
 Công cụ điều khiển surface bên trong `ui-check` (browser, mobile simulator).
@@ -64,8 +64,8 @@ fallback kit-own, KHÔNG chặn, không cờ đỏ. Chữa cho bệnh "luật g�
 của MỘT repo" (họ hàng với thước-gắn-vào-checkout-tác-giả). Hiện thân:
 `feature_loop.ui_standards_skill` · `design_pass.host_embed` ·
 `discovery.brainstorm_skill`.
-_Avoid_: hook, plugin point, "khoá config" trơ (không nói lên luật vắng-thì-
-fallback), extension point.
+_Avoid_: plugin point, "khoá config" trơ (không nói lên luật vắng-thì-fallback),
+extension point.
 
 **Cảnh ngữ-cảnh**:
 Bằng chứng đi kèm bản mẫu `standalone`: khung host thật dạng tĩnh bọc vật +

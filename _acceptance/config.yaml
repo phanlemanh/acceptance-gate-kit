@@ -192,6 +192,19 @@ executors:
     tkm_p86: 'ONLY_BLOCK="P86 GATE-MODEL" bash tests/plugins/run-tests.sh'
     tkm_suite_con_lai: 'bash tests/scripts/run-tests.sh && bash tests/hooks/run-tests.sh && bash tests/workflows/run-tests.sh && node scripts/product-map.mjs --root . --check'
     tkm_bay_chan: 'for c in goc-kho-giu thieu-exit-2 duong-cu-goi-y abs-hai-chieu tai-lieu-khong-con-duong-cu bang-chung-cung-ho-so thu-muc-khong-phai-file; do bash _acceptance/inputs-tinh-tu-goc-kho/rang.sh --chan "$c" || exit 1; done'
+    # --- gom-duc-ket-2-10-0 (08/09, T3) --- moi eval = MOT ca (N4); khoi rieng, cuoi executors.script
+    # Boc { ... ; } CO CHU Y, dung "don": resolveConfigKey (lib/evidence-core.cjs)
+    # boc MOT ky tu nhay o dau va cuoi gia tri ma KHONG go escape, nen dang
+    # bash -c voi nhay kep escape ben trong giai ra vo cu phap (do 09/09: exit 127,
+    # «quan: command not found»). Ngoac nhon giu nguyen van lenh va giu dung ma thoat.
+    gdk_lnt_do: { bash -c 'set -o pipefail; LNT_CASES=LNT1,LNT6 node tests/plugins/lop-nhin-thay.test.mjs | grep -E "dấu hiệu bản sao|quan hệ alias"' ; }
+    gdk_c1_nho: node tests/scripts/lnt-no.test.mjs
+    gdk_k1: "bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs | grep -F W37'"
+    gdk_k2: node tests/scripts/danh-tinh.test.mjs
+    gdk_k3: node tests/scripts/w6-w8-pham-vi.test.mjs
+    gdk_k3_cay_that: bash _acceptance/gom-duc-ket-2-10-0/rang.sh --chan cay-that
+    gdk_k5: node tests/scripts/s5-ship-default.test.mjs
+    gdk_k8: "bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs | grep -F W39' && node tests/scripts/s4-args-delta.test.mjs"
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

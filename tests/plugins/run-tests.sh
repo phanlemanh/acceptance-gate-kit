@@ -185,6 +185,7 @@ MIEN_TRU = {
     ("QUICKSTART.md", "phút"): "thời gian ĐỌC tài liệu",
     ("README.md", "phút"): "thời gian ĐỌC tài liệu",
     ("README.md", "minutes"): "câu tuyên kit KHÔNG đo phút người",
+    ("scripts/loop-health.mjs", "minutes"): "phút MÁY giữa hai commit (làm-xong→quyết-được của luật (c)) — không phải phút NGƯỜI ở cổng",
 }
 def _quet():
     hits = []
@@ -9544,12 +9545,16 @@ const anchors = [
   ["vang-gop-nhu-cu", "hỏi từng bước như cũ"],
   ["giu-nguyen-van", "GIỮ NGUYÊN VĂN"],
   ["khuyen-nghi-truoc", "cách hiểu khả dĩ nhất"],
-  ["enter-xac-nhan", "Enter xác nhận"],
+  // gom-duc-ket-2-10-0 (AC-4): «Enter xác nhận» chuyển từ neo DƯƠNG sang neo ÂM — luật
+  // mới GHI THẲNG ở mọi nấc còn tên, chỉ ca CẠN mới hỏi.
+  ["ghi-thang", "GHI THẲNG"],
   ["start-slug", "không thấy slug trong nhóm nào"],
   ["khuon-ma-eval", "E\\w+"],
   ["cu-phap-go", "TOÀN BỘ phần còn lại của dòng"],
 ];
 for (const [tag, s] of anchors) if (!grammar.includes(s)) die("GRAMMAR thieu luat " + tag + " (neo: " + s + ")");
+const anchorsAm = [["enter-xac-nhan", "Enter xác nhận"]];
+for (const [tag, s] of anchorsAm) if (grammar.includes(s)) die("GRAMMAR mang lai luat cu " + tag + " (neo am: " + s + ")");
 const rows = slotsRaw.split("\n").map(l => l.trim()).filter(l => /^(g1|g2|extra) /.test(l));
 if (!rows.length) die("SLOTS rong hoac sai khuon dong");
 const gates = new Set(rows.map(r => r.split(" ")[0]));
@@ -9837,7 +9842,9 @@ def grammar_of(law_text):
 NEO = [
     ("voi-danh-tinh", "với danh tính:"),
     ("nguon-suy", "(từ <nguồn suy>)"),
-    ("enter-xac-nhan", "Enter xác nhận"),
+    # gom-duc-ket-2-10-0 (AC-4): neo dương đổi từ nhánh chờ sang vế GHI THẲNG;
+    # chuỗi cũ nay là neo ÂM (NEO_AM ngay dưới).
+    ("ghi-thang", "GHI THẲNG"),
     ("bac-git-config", "git config user.name"),
     ("tuong-thich-cu", "vẫn chạy nguyên"),
     ("khong-ghi-phut", "KHÔNG hỏi và KHÔNG ghi số phút"),
@@ -9861,12 +9868,18 @@ NEO = [
 # (gap-probe P0, S4 r3: chen lai dong "Ask how many minutes" thi moi neo duong
 # van du). Cap doi: neo duong ("khong hoi phut") + neo am duoi day.
 NEO_AM = [
+    ("enter-xac-nhan-cu", "Enter xác nhận"),
     ("hoi-phut-quay-lai", "how many minutes"),
     ("hoi-lai-phan-la-cu", "hỏi lại đúng phần đó"),
     ("follow-up-cu", "follow-up DUY NHẤT"),
 ]
+def _phang(s):
+    # Neo so chuoi THO bi mot lan xuong dong lam mu (do 09/09: cau "Enter xac\n  nhan"
+    # trong signoff.md khien MOI neo am cua bo nay khong bao gio ban duoc). Chuan hoa
+    # khoang trang truoc khi so — luat noi ve CAU, khong noi ve cach ngat dong.
+    return re.sub(r"\s+", " ", s)
 def check_grammar(law_text):
-    g = grammar_of(law_text)
+    g = _phang(grammar_of(law_text))
     errs = []
     for tag, s in NEO:
         if s not in g:
@@ -9885,7 +9898,6 @@ texts = {rel: (root / rel).read_text(encoding="utf-8") for rels in SITES.values(
 GATE_NEEDLES = [
     ("khuon voi-danh-tinh", "với danh tính:"),
     ("khuon nguon-suy", "(từ <nguồn suy>)"),
-    ("khuon Enter-xac-nhan", "Enter xác nhận"),
     ("needle --as", "--as"),
     ("ho-so-mot-ung-vien", "đúng MỘT ứng viên"),
 ]
@@ -9897,16 +9909,17 @@ FIELDS = {
 # luat: doc-khong-bi-chan (lo hoi dong bat) va nhanh can (lo "bac thang het nac
 # thi lam gi" — file cu khong noi).
 CROSSCHECK = {"commands/": ["không điều kiện nào chặn việc đọc", "**CẠN**", "**CHỌN**",
-                            "không có trong `signoff.approvers`"]}
+                            "**KHÔNG CẢNH BÁO**"]}
 # Neo AM per-site: cau hoi cu KHONG duoc quay lai trong bat ky than lenh nao.
-BODY_AM = [("hoi-phut-quay-lai", "how many minutes"),
+BODY_AM = [("enter-xac-nhan-cu", "Enter xác nhận"),
+           ("hoi-phut-quay-lai", "how many minutes"),
            ("hoi-phut-viet", "Ask how many minutes"),
            ("follow-up-cu", "follow-up DUY NHẤT")]
 def check_bodies(mapping):
     errs = []
     for role, rels in SITES.items():
         for rel in rels:
-            t = mapping[rel]
+            t = _phang(mapping[rel])
             if "GATE-ONESHOT-GRAMMAR" not in t:
                 errs.append("site thieu con tro GATE-ONESHOT-GRAMMAR: " + rel)
             if role in ("approve", "signoff"):
@@ -9926,7 +9939,7 @@ def check_bodies(mapping):
                 if n != 1:
                     errs.append("bac thang khai " + str(n) + " lan (phai dung 1): " + rel)
                 if needs[3] not in t:
-                    errs.append("site thieu nhanh canh-bao-ngoai-danh-sach: " + rel)
+                    errs.append("site thieu nhanh khong-canh-bao-ngoai-danh-sach: " + rel)
                 # THU TU bac thang: git config PHAI dung TRUOC signoff.approvers
                 # (d-20008 loai phuong an nguoc — doi vi tri thi may ky ten lead
                 # trong khi nguoi go la teammate; khong ghim thu tu thi hoan vi
@@ -10072,14 +10085,17 @@ print("MUT-11: da hoan vi bac thang (approvers truoc git config) trong ban sao "
 e11 = check_bodies(m11)
 assert any(x.startswith("thu tu bac thang sai") and v11 in x for x in e11), "MUT-11 khong bi bat: " + repr(e11)
 print("     MUT-11 DO dung: thu tu bac thang sai (git config phai truoc approvers)")
-# MUT-12 (gap-probe P1): go nhanh CANH BAO khoi ban sao than approve
+# MUT-12 (gap-probe P1): go nhanh KHONG-CANH-BAO khoi ban sao than approve.
+# gom-duc-ket-2-10-0 (AC-4): luat doi chieu — than lenh phai noi RO la KHONG canh bao khi
+# ten ngoai `signoff.approvers` (danh sach do la thong tin, khong phai cuong che), nen
+# mutant phai go dung ve do; ban truoc go chuoi `signoff.approvers` con lai o nhanh khac.
 m12 = dict(texts); v12 = "commands/approve.md"
-m12[v12] = m12[v12].replace("không có trong `signoff.approvers`", "khong co trong danh sach")
+m12[v12] = m12[v12].replace("**KHÔNG CẢNH BÁO**", "**CẢNH BÁO**")
 assert m12[v12] != texts[v12], "MUT-12 khong tac dung"
-print("MUT-12: da go nhanh canh-bao-ngoai-danh-sach khoi ban sao " + v12)
+print("MUT-12: da lat nhanh khong-canh-bao thanh canh-bao trong ban sao " + v12)
 e12 = check_bodies(m12)
-assert ("site thieu nhanh canh-bao-ngoai-danh-sach: " + v12) in e12, "MUT-12 khong bi bat: " + repr(e12)
-print("     MUT-12 DO dich danh: site thieu nhanh canh-bao-ngoai-danh-sach: " + v12)
+assert ("site thieu nhanh khong-canh-bao-ngoai-danh-sach: " + v12) in e12, "MUT-12 khong bi bat: " + repr(e12)
+print("     MUT-12 DO dich danh: site thieu nhanh khong-canh-bao-ngoai-danh-sach: " + v12)
 # MUT-13 (gap-probe P2): role start chua co mutant nao -> chung minh nhanh
 # `if role == "start"` that su chay
 m13 = dict(texts); v13 = "commands/start.md"

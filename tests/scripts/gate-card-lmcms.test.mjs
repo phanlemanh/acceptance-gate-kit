@@ -292,7 +292,11 @@ check('LM17 dieu khoan AC-8 co mat o NGUON va CA HAI ban chep', () => {
   const mm = src.match(/<!-- <<<IDENTITY-ECHO-RULE -->\n([\s\S]*?)\n<!-- IDENTITY-ECHO-RULE>>> -->/);
   if (!mm) die('ban luat thieu khoi marker IDENTITY-ECHO-RULE');
   const rule = mm[1].trim();
-  if (!/khớp tuyệt đối/i.test(rule) || !/ghi thẳng/i.test(rule)) die('menh de nguon mat mot trong hai ve');
+  // Hai vế của luật SAU gom-duc-ket-2-10-0 (AC-4): ghi thẳng ở mọi nấc còn tên · chỉ ca
+  // CẠN mới hỏi. Vế «khớp tuyệt đối» là mệnh đề của luật CŨ (chỉ ghi thẳng khi hai nguồn
+  // khớp) — nó biến mất cùng nhánh chờ, nên ghim nó ở đây sẽ giữ răng cho một luật đã chết.
+  if (!/ghi thẳng/i.test(rule) || !/CẠN/.test(rule)) die('menh de nguon mat mot trong hai ve (ghi-thang / ca CAN)');
+  if (/Enter xác nhận/i.test(rule)) die('khoi luat mang lai nhanh cho da go');
   for (const p of ['commands/approve.md', 'commands/signoff.md']) {
     const t2 = readFileSync(path.join(ROOT, p), 'utf8');
     const m2 = t2.match(/<!-- <<<IDENTITY-ECHO-RULE -->\n([\s\S]*?)\n<!-- IDENTITY-ECHO-RULE>>> -->/);

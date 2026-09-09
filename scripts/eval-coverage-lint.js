@@ -125,7 +125,7 @@ function fieldVal(raw) {
     const end = s.indexOf(q, 1);
     if (end > 0) return s.slice(1, end);
   }
-  return s.replace(/[ \t]+#.*$/, '').trim();
+  return evalYaml.stripComment(s);
 }
 
 // Khuôn HẸP cũ, giữ lại CHỈ cho đường fail-open khi thiếu lib/ac-line.cjs.
@@ -214,7 +214,7 @@ function lintFeature(slug, contractText, evalsText, glossary, ledgerText) {
   // W5 — mobile backend-target presence (advisory): the kit never verifies the
   // VALUE (engine/binding split; a machine cannot check the word "real") — it
   // only checks the line EXISTS so the Gate-1 human has something to eyeball.
-  const surfacesLine = (contractText.match(/^surfaces:.*$/im) || [''])[0].replace(/[ \t]+#.*$/, '');
+  const surfacesLine = evalYaml.stripComment((contractText.match(/^surfaces:.*$/im) || [''])[0]);
   if (/\bmobile\b/i.test(surfacesLine)
       && !/mobile\s+backend\s+target\s*:/i.test(contractText)) {
     warns.push(`[${slug}] W5 surfaces include mobile but the contract has no "Mobile backend target:" line (## Notes) — declare local|staging|mock so the Gate-1 human can eyeball the V4 risk.`);
@@ -230,8 +230,11 @@ function lintFeature(slug, contractText, evalsText, glossary, ledgerText) {
   // có sổ nên vẫn nổ.
   if (lnt) {
     const surf = surfacesLine.replace(/^surfaces:\s*/i, '');
-    const la = lnt.tokenLa(surf);
-    if (la.length) warns.push(`[${slug}] W8 surfaces carry token(s) outside the enum: ${la.join(', ')} — canonical values are ${lnt.SURFACE_ENUM.join(' | ')} (aliases web, web-ui → ui); restate so every reader classifies the surface the same way.`);
+    // Nhánh token-lạ ĐÃ GỠ (gom-duc-ket-2-10-0, AC-5d). Nó là cảnh báo về TỪ VỰNG chứ
+    // không về nghĩa vụ bằng chứng: ở repo tiêu thụ nó kêu 140 / 15 / 4 dòng trong khi
+    // nghĩa vụ thật chỉ 16 / 2 / 9 — surface theo domain («media-library», «video-plugin»)
+    // là cách khai bình thường của họ. Thẻ Cổng Phạm vi VẪN nêu token lạ (`token_la`) cho
+    // người duyệt thấy; ở đây thì im.
     const lac = lnt.nhanLacCho(evals);
     if (lac.length) warns.push(`[${slug}] W8 ${lac.join(', ')} declare(s) layer: ui-observed on a non-ui-check executor — nhãn lạc chỗ: chỉ executor ui-check mới sinh frame + observed; bỏ nhãn hoặc đổi executor.`);
     if (lnt.laMatNguoiNhin(surf) && !lnt.coUiObserved(evals) && !lnt.descopeId(ledgerText)) {
@@ -247,11 +250,13 @@ function lintFeature(slug, contractText, evalsText, glossary, ledgerText) {
   // and link targets are not the author speaking.
   if (glossary && glossaryLib) {
     const seenAlias = new Set();
-    for (const v of glossaryLib.findViolations(contractText, glossary)) {
+    let w6Degraded = '';
+    for (const v of glossaryLib.findViolations(contractText, glossary, { section: 'Criteria', onDegraded: m => { w6Degraded = m; } })) {
       if (seenAlias.has(v.alias.toLowerCase())) continue; // one warning per alias
       seenAlias.add(v.alias.toLowerCase());
       warns.push(`[${slug}] W6 contract line ${v.lineNo} uses "${v.alias}", which CONTEXT.md lists under _Avoid_ for "${v.term}" — restate the criterion in the canonical term so the eval tests the agreed reading.`);
     }
+    if (w6Degraded) warns.push(`[${slug}] W6 rơi bậc: ${w6Degraded}`);
   }
 
   const oos = outOfScopeBullets(contractText);

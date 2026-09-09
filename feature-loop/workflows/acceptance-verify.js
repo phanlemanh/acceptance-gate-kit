@@ -485,10 +485,23 @@ const INFRA_EXITS = {
 const CD_GUARD = (dir) => `cd ${dir} || exit 97`
 // INFRA-EXIT-CODES>>>
 
+// K8: tiền tố phạm vi cho làn conventions — TÍNH TRƯỚC, không nhúng template lồng, để phần
+// thân cũ của prompt giữ NGUYÊN VĂN (răng MM6 của hồ sơ matrix-measure-law đọc quan hệ đó).
+// Lọc theo FILE ĐÃ ĐỔI so round trước — MỌI đuôi, không riêng .md. Bản đầu chỉ giữ .md
+// nên vòng sửa chỉ chạm code làm làn này nhận lệnh «bỏ qua, trả rỗng»: code viết ở round
+// fix (phần rủi ro nhất của vòng) không còn làn nào chấm theo quy ước (finding S4-r2/r3).
+// Lý do gốc của K8 là bỏ file KHÔNG ĐỔI, không phải bỏ file code.
+const conventionScope = Array.isArray(args.deltaFiles) && args.deltaFiles.length
+  ? `CHI cham cac file DA DOI so round truoc (file khong doi thi KHONG cham lai — gop y lap lai moi round la nhieu): ${args.deltaFiles.join(', ')}. `
+  : ''
+
 const REVIEWERS = [
   args.reviewSkillPath
     ? { key: 'invariants', prompt: `Trong repo ${args.repoRoot}: doc ${args.reviewSkillPath} va lam DUNG quy trinh cua skill do tren diff ${args.diffBase}...HEAD. Tra ve danh sach violation lam findings (title=ten check/rule, detail=vi pham gi o dau). Khong tu fix.` }
-    : { key: 'conventions', prompt: `Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot} theo conventions cua repo (doc CLAUDE.md / CONTRIBUTING.md neu co): vi pham invariant kien truc, sai pattern co san, thieu validation o system boundary. CHI bao finding high-confidence. Khong tu fix.` },
+    // K8: round ≥2 co deltaFiles (s4-args tinh tu --carry-anchor) → lan nay chi cham FILE CHU
+    // da doi so round truoc. Do tren kho nay: 13/34 finding cua mot vong la gop y ve chu lap
+    // lai o moi round vi lan doc lai TRON diff moi lan.
+    : { key: 'conventions', prompt: `${conventionScope}Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot} theo conventions cua repo (doc CLAUDE.md / CONTRIBUTING.md neu co): vi pham invariant kien truc, sai pattern co san, thieu validation o system boundary. CHI bao finding high-confidence. Khong tu fix.` },
   { key: 'bugs', prompt: `Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot}, tim correctness bugs va silent failures (catch nuot loi, fallback an, error bi nuot). CHI bao finding high-confidence — khong style nit, khong suy dien.` },
   // matrix-measure-law: lens do-luong — san loi trong chinh cac PHEP DO cua diff
   { key: 'measurement', prompt: `Review CAC FILE KIEM THU/EVAL trong diff ${args.diffBase}...HEAD cua repo ${args.repoRoot} (cac file test/spec, tests/**, evals.yaml, fixtures — bo qua file khong phai phep do; diff khong cham phep do nao thi tra findings rong). San DUNG 6 hinh dang loi do-luong sau, CHI bao finding high-confidence (thay RO trong code, khong suy dien y dinh), khong style-nit, khong tu fix, khong phan xu pham-vi (viec cua triage):\n${MEASUREMENT_SHAPES.map((s, i) => `${i + 1}. ${s}`).join('\n')}\nMoi finding: title goi TEN hinh dang bi pham + detail chi dong/assert cu the va vi sao no la hinh dang do.` },
@@ -876,13 +889,14 @@ const triageHighInContract = triageFailed ? [] : triaged.filter(f => f.inContrac
 // `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
 // Tach `**` TRUOC khi doi `*`, neu khong `**` bi doi thanh hai lan `[^/]*` va het
 // khop qua dau `/`. Ky tu glob khac (`?`) duoc escape de khong thanh luong tu regex.
-const globToRe = g => {
+function globToRe(g) {
   const lit = t => t.replace(/[.+^${}()|[\]\\?]/g, '\\$&').replace(/\*/g, '[^/]*')
   const body = String(g).split('**/')
     .map(part => part.split('**').map(lit).join('.*'))
     .join('(?:.*/)?')
   return new RegExp('^' + body + '$')
 }
+
 const coverageRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
 // Path đã chuẩn hoá bằng relFile khai ở đầu bước Triage — cùng một phép cho khoá
 // ghép, dedupe và vùng phủ, để ba chỗ không trôi khỏi nhau.
@@ -1023,6 +1037,46 @@ const prov = await agentT(
     `Chay DUNG 3 lenh, bao cao KET QUA THUC (KHONG suy dien, KHONG doan):\n1) printf '%s' "$ACCEPTANCE_GATE_BYPASS" — in ra dung "1" → bypass_used=true; rong/khac → false.\n2) Doc ${args.repoRoot}/_acceptance/config.yaml, lay field "enforcement" o cap 0 (^enforcement: strict|warn|off); thieu file/field → "strict".\n3) git -C ${args.repoRoot} rev-parse HEAD — tra ve verified_commit = chuoi 40-hex NGUYEN VAN tu stdout; lenh loi (khong phai git repo) → chuoi rong. TUYET DOI KHONG bia SHA.\nTra ve {bypass_used, enforcement_mode, verified_commit} dung ket qua 3 lenh tren.`,
     { label: 'capture:provenance', phase: 'Synthesize', schema: PROV_SCHEMA, ...modelOpt('provenance') }
   )
+// K1 (gom-duc-ket-2-10-0, AC-3): agent xuất-xứ chết vì hạn mức phiên → `prov` null →
+// `prov.enforcement_mode` ở prompt synthesize ném TypeError và GIẾT cả vòng chấm ở bước
+// cuối (đo 24 lần trên máy, 2 lần trong một vòng). Lane chết phải nói ra như mọi lane
+// khác: BLOCKED có tên, không đoán xuất-xứ, không soạn report trên trường rỗng.
+if (!prov || typeof prov !== 'object') {
+  blocked.push({ cmd: 'capture:provenance', reason: 'capture:provenance agent bi skip/chet — khong co ket qua, khong duoc tinh la pass' })
+  verdict = 'BLOCKED'
+  // Dòng round-tally ĐÃ được đẩy vào runLogLines TRƯỚC bước này, mang verdict cũ (thường
+  // PASS). Nếu để nguyên, run-log trên đĩa khai một vòng PASS/blocked=0 cho đúng cái vòng
+  // bị hạ tầng giết — bằng chứng tự dối ở chính chỗ K1 sinh ra để chữa, và bộ đếm
+  // «vòng cháy vì hạ tầng» (round-tally-read.mjs) đếm hụt. Thay dòng cuối bằng dòng thật.
+  const tallyIdx = runLogLines.map(l => { try { return JSON.parse(l).kind } catch (_) { return null } }).lastIndexOf('round-tally')
+  const oldTally = tallyIdx >= 0 ? (() => { try { return JSON.parse(runLogLines[tallyIdx]) } catch (_) { return null } })() : null
+  const fixedTally = tallyLine('BLOCKED', blocked.length, oldTally ? oldTally.expected : 0, oldTally ? oldTally.returned : 0)
+  if (tallyIdx >= 0) runLogLines[tallyIdx] = fixedTally
+  else runLogLines.push(fixedTally)
+  log('Provenance: agent chet — BLOCKED, dong round-tally ghi lai theo verdict that, KHONG soan report')
+  // Khuôn trả về ĐỦ TRƯỜNG như blockedEarly: ba đường BLOCKED phải cùng một hợp đồng kết
+  // quả, nếu không bên đọc nào gọi `.length` trên trường vắng sẽ ném — đúng lớp lỗi K1 chữa.
+  return {
+    verdict,
+    failedEvals: failedEvalIds,
+    failedCommands,
+    blocked,
+    panels: panels.map(p => ({ evalId: p.evalId, proposal: p.proposal })),
+    carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
+    confirmedFindings,
+    rejectFindings,
+    nonDiscriminating,
+    variance: varianceCmds.map(m => ({ cmd: m.cmd, evals: m.evals, runs: m.runs, passRate: `${m.passes}/${m.runs}` })),
+    triaged,
+    triageFailed,
+    coverageCluster,
+    reviewIncomplete,
+    runLog: runLogLines,
+    runLogWriteFailed: true,
+    report: '',
+    findings: '',
+  }
+}
 const runLogWriteFailed = runLogLines.length > 0 // luôn: main loop append, không còn scribe
 if (runLogWriteFailed) log('Run-log: ' + runLogLines.length + ' dong trong result.runLog — main loop TU append truoc Gate 2 (hook/recheck doi chieu run_id voi log nay)')
 // verified_commit sanitize bang JS thuan — khong tin agent: sai shape (khong phai hex SHA) coi nhu

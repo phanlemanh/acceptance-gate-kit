@@ -18,6 +18,8 @@ const GATE_CARD = path.join(ROOT, 'scripts', 'gate-card.js');
 const LINT = path.join(ROOT, 'scripts', 'eval-coverage-lint.js');
 const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
 const require = createRequire(import.meta.url);
+// Mốc BẤT BIẾN cho chiều đỏ có sẵn: cha của merge PR 158 (bản trước lib/lop-nhin-thay.cjs).
+const BASE_LNT = '334d5d52';
 
 let failures = 0;
 const ALL_IDS = ['LNT1', 'LNT3', 'LNT4', 'LNT6'];
@@ -37,7 +39,8 @@ const EV_T = '  - id: E1\n    criterion: AC-1\n    executor: test\n    expected:
 const EV_U = '  - id: E1\n    criterion: AC-1\n    executor: ui-check\n    layer: ui-observed\n    expected: "x"\n';
 const gc = (root, ...a) => spawnSync('node', [GATE_CARD, '--root', root, '--slug', 'x', ...a], { encoding: 'utf8' });
 const extract = root => { const r = gc(root, '--extract'); if (r.status !== 0) throw new Error('gate-card --extract exit ' + r.status + ': ' + r.stderr + r.stdout); return JSON.parse(r.stdout); };
-const html = root => gc(root).stdout;
+// thẻ có thể in mã thoát màu; ca kiểm so CỤM CHỮ nên phải bỏ ESC trước khi so.
+const html = root => gc(root).stdout.replace(/\x1b\[[0-9;]*m/g, '');
 
 // enum rút từ chú thích dòng `surfaces:` của khối khuôn — không literal
 const enumFromTemplate = (tpl = readFileSync(CONTRACT_TPL, 'utf8')) => {
@@ -70,9 +73,11 @@ if (want('LNT1')) {
   eq(id, N.coNguoiDungCuoi('[web-ui]'), true, 'coNguoiDungCuoi([web-ui])');
   eq(id, N.coNguoiDungCuoi('[mobile]'), true, 'coNguoiDungCuoi([mobile]) giữ nguyên');
   eq(id, N.coNguoiDungCuoi('[api]'), false, 'coNguoiDungCuoi([api])');
-  // chiều đỏ có sẵn: bản tại main không nhận [web]
-  const old = spawnSync('git', ['-C', ROOT, 'show', 'main:lib/nguong-o-co-hoi.cjs'], { encoding: 'utf8' });
-  if (old.status === 0) {
+  // chiều đỏ có sẵn — neo MỐC BẤT BIẾN (cha của merge PR 158, bản trước lib lop-nhin-thay),
+  // KHÔNG neo nhánh `main`: nhánh di chuyển thì phép đo lặng lẽ đo cây khác (hình dạng 4).
+  const old = spawnSync('git', ['-C', ROOT, 'show', `${BASE_LNT}:lib/nguong-o-co-hoi.cjs`], { encoding: 'utf8' });
+  if (old.status !== 0) fail(id, `không đọc được mốc ${BASE_LNT} — chiều đỏ có sẵn không chạy`);
+  else {
     const t = tmp(); mkdirSync(path.join(t, 'lib'), { recursive: true });
     cpSync(path.join(ROOT, 'lib', 'md-section.cjs'), path.join(t, 'lib', 'md-section.cjs'));
     writeFileSync(path.join(t, 'lib', 'nguong-o-co-hoi.cjs'), old.stdout);
@@ -98,13 +103,18 @@ if (want('LNT1')) {
   const uoG = gcG.status === 0 ? (JSON.parse(gcG.stdout).ui_observed || {}) : {};
   eq(id, uoM.applicable, false, 'mutant: gate-card [web] applicable');
   eq(id, uoG.applicable, true, 'lành: gate-card [web] applicable');
+  // DẤU HIỆU BẢN SAO ĐÃ CHẠY (hình dạng 4): nhánh nghĩa vụ VẮNG ở bản sao có thể vì
+  // mutant đúng, mà cũng có thể vì bản sao chưa từng chạy (cp lỗi, exit 127). Bản sao
+  // bỏ alias `web` thì `web` thành token LẠ — đó là dấu dương chứng minh nó đã chạy.
+  eq(id, uoM.token_la, ['web'], 'dấu hiệu bản sao đã chạy: mutant trả token_la [web]');
+  eq(id, uoG.token_la, [], 'lành: token_la rỗng');
   const lintM = spawnSync('node', [path.join(m, 'scripts', 'eval-coverage-lint.js'), ws], { encoding: 'utf8' });
   const lintG = spawnSync('node', [LINT, ws], { encoding: 'utf8' });
   // Dòng NGHĨA VỤ (không phải dòng token-lạ: mutant bỏ alias thì `web` thành token lạ, W8-token nổ hợp lệ)
   const OBLIG = /\] W8 surfaces include a human-visible UI/;
   if (OBLIG.test(lintM.stdout)) fail(id, 'mutant: lint vẫn đòi ui-check cho [web]');
   if (!OBLIG.test(lintG.stdout)) fail(id, 'lành: lint không đòi ui-check cho [web]');
-  if (failures === before) pass(id, 'lib một nguồn: vị từ 8 giá trị, alias, round-trip khuôn, mutant ba bộ đọc');
+  if (failures === before) pass(id, 'lib một nguồn: vị từ 8 giá trị, alias, round-trip khuôn, mutant ba bộ đọc + dấu hiệu bản sao đã chạy');
 }
 
 // ─── LNT3 — thẻ Cổng Phạm vi: cờ + extract ui_observed ───────────────────────
@@ -217,8 +227,21 @@ if (want('LNT6')) {
     ['i-acc-2c', 'acc', t => { const p2 = cut(t, /^## Phase 2/m, /^## Phase 3/m); return /layer: ui-observed/.test(p2) && /theo hợp đồng/.test(p2) && p2.includes(L.UI_OBSERVED_DESCOPE); }],
     ['ii-fl-evals', 'fl', t => { const s1 = cut(t, /^## S1 — DESIGN/m, /^## GATE 1/m); return /≥1 eval `ui-check`/.test(s1) && /mặt người nhìn mà không eval `ui-check`/.test(s1); }],
     ['iii-ex-section', 'ex', t => /^## Pairing mechanics — `layer: ui-observed`/m.test(t) && cut(t, /^## Pairing mechanics — `layer: ui-observed`/m, /^## /m).includes('ui-observed')],
-    ['iv-ctx-terms', 'ctx', t => cut(t, /^\*\*Layer\*\*:/m, /^\*\*[^*]+\*\*:/m).includes('ui-observed') && cut(t, /^\*\*Surface\*\*:/m, /^\*\*[^*]+\*\*:/m).includes('`web`')],
-    ['vi-init-playwright', 'init', t => cut(t, /^3b\./m, /^3c\./m).includes('@playwright/cli')],
+    // (iv) QUAN HỆ, không phải chuỗi có mặt: cặp alias khai trong CONTEXT phải BẰNG
+    // SURFACE_ALIAS của lib. Câu «có chữ web» xanh cả khi CONTEXT ánh xạ web → mobile.
+    ['iv-ctx-terms', 'ctx', t => {
+      if (!cut(t, /^\*\*Layer\*\*:/m, /^\*\*[^*]+\*\*:/m).includes('ui-observed')) return false;
+      const surf = cut(t, /^\*\*Surface\*\*:/m, /^\*\*[^*]+\*\*:/m);
+      const m = surf.match(/Alias máy đọc:\s*((?:`[^`]+`[,\s]*)+)→\s*`([^`]+)`/);
+      if (!m) return false;
+      const froms = [...m[1].matchAll(/`([^`]+)`/g)].map(x => x[1]);
+      const to = m[2];
+      const declared = Object.fromEntries(froms.map(f => [f, to]));
+      return JSON.stringify(declared) === JSON.stringify(L.SURFACE_ALIAS);
+    }],
+    // (vi) QUAN HỆ: câu nhắc @playwright/cli phải nằm CÙNG đoạn 3b với `capture.ui`
+    // và lệnh mẫu `playwright-cli` — dời câu sang mục khác thì gợi ý mất chỗ đứng.
+    ['vi-init-playwright', 'init', t => { const b = cut(t, /^3b\./m, /^3c\./m); return b.includes('@playwright/cli') && b.includes('capture.ui') && b.includes('playwright-cli '); }],
     ['vii-descope-roundtrip', 'fl', (t, all) => t.includes(L.UI_OBSERVED_DESCOPE) && all.acc.includes(L.UI_OBSERVED_DESCOPE)],
   ];
   const texts = Object.fromEntries(Object.entries(F).map(([k, p]) => [k, readFileSync(p, 'utf8')]));
@@ -228,8 +251,10 @@ if (want('LNT6')) {
     ['i-acc-2c', 'acc', t => t.split('layer: ui-observed').join('layer: xx')],
     ['ii-fl-evals', 'fl', t => t.split('≥1 eval `ui-check`').join('≥1 eval')],
     ['iii-ex-section', 'ex', t => t.replace(/^## Pairing mechanics — `layer: ui-observed`.*$/m, '## Gỡ')],
-    ['iv-ctx-terms', 'ctx', t => t.split('ui-observed').join('xx')],
-    ['vi-init-playwright', 'init', t => t.split('@playwright/cli').join('xx')],
+    // mutant QUAN HỆ: CONTEXT vẫn nói «web» nhưng ánh xạ sang mobile → phải đỏ
+    ['iv-ctx-terms', 'ctx', t => t.replace(/(Alias máy đọc:[\s\S]*?→\s*)`ui`/, '$1`mobile`')],
+    // mutant QUAN HỆ: câu vẫn còn trong file nhưng bị dời khỏi đoạn 3b
+    ['vi-init-playwright', 'init', t => t.replace(/^(3b\.[\s\S]*?)(\n3c\.)/m, (s, b, c) => b.split('@playwright/cli').join('mot-cong-cu-khac') + c)],
     ['vii-descope-roundtrip', 'acc', t => t.split(L.UI_OBSERVED_DESCOPE).join('bỏ ui-observed: ')],
   ];
   for (const [name, k, mut] of mutants) {
@@ -238,7 +263,7 @@ if (want('LNT6')) {
     const red = run(copy);
     if (!red.includes(name)) fail(id, `mutant ${name} không làm reader đỏ đúng mệnh đề (đỏ: ${red.join(',') || 'không'})`);
   }
-  if (failures === before) pass(id, 'bảy văn bản nghi thức chép luật; gỡ từng mệnh đề → đỏ đúng tên');
+  if (failures === before) pass(id, 'bảy văn bản nghi thức chép luật; (iv)(vi) đo quan hệ alias/chỗ đứng; gỡ từng mệnh đề → đỏ đúng tên');
 }
 
 process.exit(failures ? 1 : 0);

@@ -1923,4 +1923,54 @@ console.log('W36 bo dem va cham khong duoc dung object tran (khoa prototype)');
   check('W36 lop thu hai van giu hai ma khac nhau', new Set(rIds).size === 2, JSON.stringify(rIds));
 }
 
+// W37 — K1: agent capture:provenance chet (harness tra null) => BLOCKED co ten,
+// KHONG TypeError. Lop loi da do 24 lan tren may (dut ca vong o buoc cuoi).
+console.log('W37 provenance chet -> BLOCKED co ten, khong nem');
+{
+  let threw = null; let r = null;
+  try { r = await runWorkflow(WF, baseArgs(), responder({ 'capture:provenance': null })); }
+  catch (e) { threw = e; }
+  check('W37 workflow khong nem', threw === null, threw ? String(threw && threw.message) : '');
+  const bl = r ? (r.result.blocked || []).find(x => x.cmd === 'capture:provenance') : null;
+  check('W37 verdict BLOCKED', !!r && r.result.verdict === 'BLOCKED', r ? String(r.result.verdict) : 'no-result');
+  check('W37 reason ghim ten lane', !!bl && String(bl.reason).startsWith('capture:provenance agent bi skip/chet — khong co ket qua'), bl ? bl.reason : 'khong co muc blocked');
+  // Bat bien THAT: provenance chet thi KHONG duoc goi synthesize (khong co gi de chep).
+  // Ban truoc viet `!synth || ...` nen ve `!synth` lam assert xanh vo dieu kien.
+  const synth = r ? r.calls.find(c => c.label === 'synthesize:report') : null;
+  check('W37 khong goi synthesize khi provenance chet', synth === undefined || synth === null, 'van goi synthesize');
+  // doi chung duong CUNG args: provenance song -> khong muc blocked nao ten provenance
+  // Dòng round-tally phải nói ĐÚNG verdict của vòng (bằng chứng tự dối là lớp K1 chữa)
+  const tally = r ? (r.result.runLog || []).map(l => { try { return JSON.parse(l) } catch (_) { return null } }).filter(x => x && x.kind === 'round-tally').pop() : null;
+  check('W37 round-tally ghi BLOCKED, khong giu verdict cu', !!tally && tally.verdict === 'BLOCKED', tally ? JSON.stringify(tally) : 'khong co dong tally');
+  check('W37 round-tally dem blocked > 0', !!tally && tally.blocked >= 1, tally ? String(tally.blocked) : '-');
+  check('W37 chi MOT dong round-tally', r ? (r.result.runLog || []).filter(l => /"kind":"round-tally"/.test(l)).length === 1 : false, r ? String((r.result.runLog || []).filter(l => /"kind":"round-tally"/.test(l)).length) : '-');
+  // Khuôn trả về đủ trường như hai đường BLOCKED còn lại
+  for (const k of ['confirmedFindings', 'rejectFindings', 'nonDiscriminating', 'variance', 'runLogWriteFailed'])
+    check(`W37 khuon tra ve co ${k}`, r ? r.result[k] !== undefined : false, r ? `${k}=undefined` : 'no-result');
+  // `variance` phai CUNG KHUON voi duong lanh ({cmd, evals, runs, passRate}), khong phai
+  // mang ket qua may tho — ba duong BLOCKED mot hop dong ket qua (finding S4-r4).
+  const vShape = r && Array.isArray(r.result.variance) ? r.result.variance : [];
+  check('W37 variance dung khuon (khong co outputTail tho)', vShape.every(v => !('outputTail' in v)), JSON.stringify(vShape.slice(0, 1)));
+  const ok = await runWorkflow(WF, baseArgs(), responder());
+  check('W37 doi chung duong', !(ok.result.blocked || []).some(x => x.cmd === 'capture:provenance'), JSON.stringify(ok.result.blocked));
+  check('W37 doi chung duong: duong lanh CO goi synthesize', !!ok.calls.find(c => c.label === 'synthesize:report'), 'duong lanh cung khong goi — assert tren khong phan biet duoc');
+  check('W37 doi chung duong verdict khong BLOCKED', ok.result.verdict !== 'BLOCKED', String(ok.result.verdict));
+}
+
+// W39 — K8: làn conventions chỉ chấm file ĐÃ ĐỔI so round trước (MỌI đuôi) khi có deltaFiles.
+console.log('W39 lan conventions gioi han theo deltaFiles (MOI duoi, khong rieng .md)');
+{
+  const withDelta = await runWorkflow(WF, baseArgs({ deltaFiles: ['docs/a.md', 'src/b.js'] }), responder());
+  const p1 = (withDelta.calls.find(c => c.label === 'review:conventions') || {}).prompt || '';
+  check('W39 prompt neu gioi han file da doi', /CHI cham cac file DA DOI/i.test(p1), p1.slice(0, 140));
+  check('W39 prompt liet CA file chu VA file code', p1.includes('docs/a.md') && p1.includes('src/b.js'), p1.slice(0, 200));
+  // Ca that cua round fix: chi cham CODE — lan KHONG duoc cam (loi S4-r2/r3)
+  const onlyCode = await runWorkflow(WF, baseArgs({ deltaFiles: ['lib/x.cjs', 'scripts/y.sh'] }), responder());
+  const p3 = (onlyCode.calls.find(c => c.label === 'review:conventions') || {}).prompt || '';
+  check('W39 chi code doi -> lan van cham (khong tra rong)', p3.includes('lib/x.cjs') && !/bo qua lan nay/i.test(p3), p3.slice(0, 160));
+  const noDelta = await runWorkflow(WF, baseArgs(), responder());
+  const p2 = (noDelta.calls.find(c => c.label === 'review:conventions') || {}).prompt || '';
+  check('W39 khong deltaFiles -> nhu cu', !/CHI cham cac file DA DOI/i.test(p2) && /main\.\.\.HEAD/.test(p2), p2.slice(0, 120));
+}
+
 summary('acceptance-verify');

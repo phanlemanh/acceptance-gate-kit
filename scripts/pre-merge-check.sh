@@ -894,13 +894,21 @@ XLACS
   # «không kiểm được», không đổi exit. Chỉ THÊM dòng (DV5).
   LNT_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/lop-nhin-thay.cjs"
   if { [ "$DIFF_READY" -eq 0 ] || slug_in_diff "$slug" || [ "$RECHECK_ALL" -eq 1 ]; } && [ -f "${dir}evals.yaml" ]; then
-    lnt_line=""
-    if [ -f "$LNT_LIB" ] && command -v node >/dev/null 2>&1; then
-      lnt_line="$(node "$LNT_LIB" classify "$dir" 2>/dev/null || true)"
-    fi
-    if [ -z "$lnt_line" ]; then
-      echo "NOTE [$slug]: lớp nhìn-thấy không kiểm được — thiếu node hoặc lib/lop-nhin-thay.cjs (mang cổng vào repo phải copy CẢ lib/); NOTE này không chặn."
+    # Ba nguyên nhân KHÔNG-kiểm-được từng nấp sau một câu gộp: người đọc NOTE không
+    # biết phải copy lib, cài node, hay đi sửa lib đang lỗi (nợ C1 Ngoài-5).
+    lnt_line=""; lnt_why=""
+    if ! command -v node >/dev/null 2>&1; then
+      lnt_why="thiếu node; cài node để cổng đọc được lib"
+    elif [ ! -f "$LNT_LIB" ]; then
+      lnt_why="thiếu lib/lop-nhin-thay.cjs (mang cổng vào repo phải copy CẢ lib/)"
     else
+      lnt_line="$(node "$LNT_LIB" classify "$dir" 2>/dev/null)"; lnt_rc=$?
+      # exit 3 = hồ sơ không có contract.md (không phải lỗi lib) — im lặng như trước.
+      if [ "$lnt_rc" -ne 0 ] && [ "$lnt_rc" -ne 3 ]; then lnt_why="lib lỗi (exit $lnt_rc)"; lnt_line=""; fi
+    fi
+    if [ -n "$lnt_why" ]; then
+      echo "NOTE [$slug]: lớp nhìn-thấy không kiểm được — ${lnt_why}; NOTE này không chặn."
+    elif [ -n "$lnt_line" ]; then
       lnt_app="$(printf '%s' "$lnt_line" | cut -f1)"; lnt_decl="$(printf '%s' "$lnt_line" | cut -f2)"
       lnt_desc="$(printf '%s' "$lnt_line" | cut -f3)"; lnt_appr="$(printf '%s' "$lnt_line" | cut -f4)"
       if [ "$lnt_app" = "1" ] && [ "$lnt_decl" = "0" ]; then

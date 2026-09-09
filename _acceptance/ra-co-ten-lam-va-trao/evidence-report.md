@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 53fe0b5c101b633989c18147b3e9f32f55254ef3
+verified_commit: 809669544314a99ba3da40065778030860deaa83
 human_signoff: Manh 2026-08-25
 ---
 
@@ -274,3 +274,11 @@ sha: 127f535f4eacf0c0fc3795cdbffcf3ea2416f770 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 5 — 2026-09-08, do hoá cũ do gộp origin/main sau chữ ký
 run_id: repin-20260908T101651Z-37138
 sha: 53fe0b5c101b633989c18147b3e9f32f55254ef3 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0
+
+### Re-pin lần 6 — 2026-09-09, do vòng gom-duc-ket-2-10-0 chạm commands/approve.md + signoff.md + acceptance-init.md (K2 danh tính, K5 khuôn config)
+run_id: repin-20260909T105537Z-51567
+sha: 37cbf58a4c65812f07f65354eefb8dd65860fd37 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0
+
+### Re-pin lần 7 — 2026-09-09, do vá SD1/SD2 phụ thuộc bản cài (CI PR #163 đỏ) chạm tests/scripts/s4-args-delta.test.mjs
+run_id: repin-20260909T120653Z-96471
+sha: 809669544314a99ba3da40065778030860deaa83 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0

@@ -106,6 +106,8 @@ capture:
 #   models:                  # optional: override the verify-agent model per role
 #     judge: opus            # roles: machine/ui/judge/finder/refute/baseline/provenance/scribe/synthesize (+ executor for S3 fan-out)
 #     finder: session        # 'session' = inherit the main session's model
+#   ship_default: pr         # pr (default; key absent = pr) | merge | branch | ask
+#                            # S5 ships by opening a PR and says so in one line — no menu
 ```
 
 Omit executor keys for surfaces the repo does not have — do not write empty strings.
