@@ -5,7 +5,7 @@ slug: release-2-10-0
 owner: phanlemanh@gmail.com
 risk_tier: T3               # NÂNG HẠNG 09/09 khi owner mở phạm vi «vá trong mốc»: bản vá chạm lib/evidence-core.cjs (t3_paths). Làn V là T2-only nên hồ sơ này bỏ trường veto và LUÔN cần approved_by
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc:
 approved_by: Manh Phan
 approved_at: 2026-09-09T14:12:17Z
