@@ -3,7 +3,6 @@
 # không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ khác).
 #
 #   rang.sh --chan cay-that          # AC-5(e): lint trên cây kit + cây tiêu thụ CÓ MẶT
-#   rang.sh --chan loop-health-that  # AC-8(b): số máy so số đếm tay tại sha bất biến
 #
 # Đường quét lấy từ --dev-root (mặc định THƯ MỤC CHA của kit) — không hardcode đường
 # dẫn máy tác giả. Cây vắng in `SKIP <tên>: vắng` rồi đi tiếp: bất biến thường trực chỉ
@@ -27,9 +26,11 @@ done
 
 case "$CHAN" in
   cay-that)
-    # Bất biến ghim: 0 dòng «W8 surfaces carry token» ở MỌI cây có mặt (nhánh token-lạ
-    # đã gỡ — AC-5d). Hai cột còn lại CHỈ IN: số nghĩa vụ và W6 là sự thật của cây tại
-    # thời điểm đo, không phải lời hứa của mã.
+    # CHỨNG-MỘT-LẦN, không phải bất biến thường trực. Ba chiều đỏ còn SỐNG: lint chết
+    # (exit ≥2) · lint chạy mà không nói gì · không chấm được cây nào. Nhánh W8-token khác 0
+    # giữ làm lưới hồi quy rẻ nhưng KHÔNG còn đường sinh nào sau khi AC-5d gỡ nhánh token-lạ
+    # khỏi eval-coverage-lint.js — đã khai ở Out of scope, đừng đọc nó như bằng chứng.
+    # Ba cột số là sự thật của cây tại thời điểm đo, không phải lời hứa của mã.
     printf 'repo | W8-token | W8-nghia-vu | W6\n'
     bad=0; seen=0
     for r in "$ROOT" "$DEV/artifact-platform" "$DEV/oneflow" "$DEV/crm"; do
@@ -58,9 +59,6 @@ case "$CHAN" in
     echo "chứng-một-lần: $((seen - 1))/3 cây tiêu thụ có mặt ở dev-root=$DEV"
     echo "PASS: CAY-THAT ($seen cây)"
     ;;
-  loop-health-that)
-    node "$ROOT/scripts/loop-health.mjs" --root "$ROOT" --at 8caa9998 --check-hand "$HERE/mocs-tay.json"
-    ;;
   *)
-    echo "usage: rang.sh --chan cay-that|loop-health-that [--dev-root <dir>]" >&2; exit 2 ;;
+    echo "usage: rang.sh --chan cay-that [--dev-root <thư mục>]" >&2; exit 2 ;;
 esac

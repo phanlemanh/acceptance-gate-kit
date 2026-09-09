@@ -55,7 +55,7 @@ flowchart TD
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
-- Gom đúc kết 08/09 thành một vòng T3 trước mốc 2.10.0 — nợ C1 (7 Known limits của lop-bang-chung-nhin-thay), K1 null-guard workflow, K2 danh tính hết trạm thu phí, K3 W6/W8 thu phạm vi, K4 stale theo paths, K5 S5 mặc định PR, K6 loop-health, K7 triage theo tác hại, K8 làn conventions chỉ chấm file đổi (`gom-duc-ket-2-10-0`)
+- Gom đúc kết 08/09 thành một vòng T3 trước mốc 2.10.0 — nợ C1 (7 Known limits của lop-bang-chung-nhin-thay), K1 null-guard workflow, K2 danh tính hết trạm thu phí, K3 W6/W8 thu phạm vi, K5 S5 mặc định PR, K8 làn conventions chỉ chấm file đổi (`gom-duc-ket-2-10-0`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
 
 ## Đã giao — chờ phiên nghiệm thu

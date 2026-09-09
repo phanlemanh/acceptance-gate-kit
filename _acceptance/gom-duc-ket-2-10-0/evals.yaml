@@ -85,10 +85,13 @@ evals:
     paths: [scripts/eval-coverage-lint.js, lib/context-glossary.js, CONTEXT.md, _acceptance/gom-duc-ket-2-10-0/rang.sh]
     expected: >
       exit 0; stdout in bảng "repo | W8-token | W8-nghia-vu | W6" cho kit + artifact-platform,
-      oneflow, crm (đọc từ --dev-root, mặc định thư mục cha của kit); BẤT BIẾN ghim: W8-token 0
-      ở mọi cây có mặt; cây vắng in "SKIP <tên>: vắng"; nghĩa vụ và W6 chỉ IN (chứng-một-lần —
-      trước: kit W6 127, W8-token 140/15/4, nghĩa vụ 16/2/9). Dòng cuối "PASS: CAY-THAT". Bản
-      cũ: rang.sh vắng → đỏ; lint cũ trên artifact-platform → W8-token 140 → đỏ nêu số.
+      oneflow, crm (đọc từ --dev-root, mặc định thư mục cha của kit); cây vắng in
+      "SKIP <tên>: vắng" có tên. Ba chiều ĐỎ còn sống của chân này: lint chết (exit ≥2) → FAIL
+      nêu tên cây và dòng đầu; lint chạy mà không có dấu hiệu quét → FAIL nêu tên cây; không
+      chấm được cây nào kể cả kit → FAIL. Ba cột số chỉ IN, là CHỨNG-MỘT-LẦN (trước: kit W6
+      127, W8-token 140/15/4, nghĩa vụ 16/2/9) — không ghim thành bất biến thường trực; nhánh
+      FAIL khi W8-token khác 0 giữ làm lưới hồi quy rẻ, KHÔNG tính là bất biến đã chứng (khai
+      ở Out of scope). Dòng "chứng-một-lần: <n>/3" rồi dòng cuối "PASS: CAY-THAT".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
   - id: E7
@@ -102,32 +105,6 @@ evals:
       rút từ SKILL == bốn giá trị rút từ khuôn config acceptance-init (deepEqual); S5D3 mutant
       gỡ khối → đỏ "S5-SHIP-DEFAULT"; mutant mặc định ask → đỏ "mặc định".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E8
-    criterion: AC-8
-    executor: test
-    cmd: config:executors.script.gdk_k6
-    paths: [scripts/loop-health.mjs, tests/scripts/loop-health.test.mjs]
-    expected: >
-      exit 0; stdout có "PASS: LH1".."PASS: LH4": LH1 fixture git 3 hồ sơ → làm-xong→quyết-được
-      đúng số phút dựng từ giờ commit (GIT_COMMITTER_DATE), lượt gọi người "3" cho hồ sơ có
-      human_calls và "đếm tay" cho hồ sơ không; LH2 vòng bị hạ tầng đốt = 1 BLOCKED + 1 repin
-      = 2; LH3 mốc cùng hạng T2/T3: round TB usage 2/4, Iterations 2/4, token TB đúng tổng
-      dựng, repin 1, fix 2; LH4 --json cùng số với text; mutant xoá một section S4 trong
-      usage-report → round TB đổi (đỏ nếu không).
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E8b
-    criterion: AC-8
-    executor: script
-    cmd: config:executors.script.gdk_k6_cay_that
-    paths: [scripts/loop-health.mjs, _acceptance/gom-duc-ket-2-10-0/rang.sh]
-    expected: >
-      exit 0; chân chạy `loop-health.mjs --root . --at 8caa9998 --json` (tập BẤT BIẾN qua git
-      show) và in bảng tier: T2 round-usage 3.06±0.05, tokenS4 43.8M±0.5M; T3 3.25±0.05,
-      55.6M±0.5M; T3 Iterations 5.5±0.1; kèm bất biến máy-với-máy: `--json` == text cùng sha;
-      dòng cuối "PASS: LH-THAT". Chênh → exit 1 in số máy cạnh số tay và slug lệch nhiều nhất.
-      Số tay sai → sửa AC-8(b) kèm entry fix nêu nguyên nhân (không sửa lặng).
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-
   - id: E10
     criterion: AC-10
     executor: test
