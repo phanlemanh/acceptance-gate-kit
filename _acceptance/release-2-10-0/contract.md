@@ -5,7 +5,7 @@ slug: release-2-10-0
 owner: phanlemanh@gmail.com
 risk_tier: T3               # NÂNG HẠNG 09/09 khi owner mở phạm vi «vá trong mốc»: bản vá chạm lib/evidence-core.cjs (t3_paths). Làn V là T2-only nên hồ sơ này bỏ trường veto và LUÔN cần approved_by
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc:
 approved_by: Manh Phan
 approved_at: 2026-09-09T14:12:17Z
@@ -155,6 +155,23 @@ Lời dặn trong Known limits của một mốc KHÔNG tới được vòng c�
 luận mà 2.9.0 rút về bài học «thêm dòng định tuyến TRƯỚC, cùng commit chữ ký» (không được
 lặp ở #146 lẫn #151). Hai mốc liên tiếp, cùng hình dạng: **giới hạn khai bằng LỜI không
 phải nghiệm.**
+
+
+### Known limits — người quyết ở Cổng Bằng chứng 2026-09-10 (Manh Phan)
+
+Năm mục dưới đây là lỗi THẬT đã xác minh, nằm NGOÀI năm AC; owner chọn ghi giới hạn
+rồi phát hành. Ba mục còn lại (Ngoài-1, Ngoài-4, Ngoài-5) đi lối HỢP ĐỒNG MỚI.
+
+- **KL-1 (Ngoài-2, low) — `scripts/loop-health.mjs` tự dựng bộ đọc frontmatter và luật cắt chú thích riêng.** Regex của nó không giới hạn trong khối `---`, nên một dòng dạng khoá trong `## Notes` cũng đọc được như frontmatter; và nó cắt tại `#` đầu tiên thay vì đi qua `stripComment` mà chính cửa sổ này vừa lập làm một nguồn. Vô hại ở mốc này vì ba dòng số đếm tay, không lấy từ script. Đi cùng ô `loop-health-doc-frontmatter`.
+- **KL-2 (Ngoài-3, low) — `lib/lop-nhin-thay.cjs` require chéo `lib/eval-yaml.cjs` ở tầng module, không guard.** Ngược đúng luật mà cùng cửa sổ này ghi vào `lib/context-glossary.js`. Cây tiêu thụ chép thiếu file kia thì lint W8 tắt và pre-merge chỉ in «lib lỗi» thay vì nói thiếu file nào. Bên gọi đều bắt được nên không sập, chỉ chẩn đoán kém.
+- **KL-3 (Ngoài-6, high) — chiều đỏ của ca PV5 là mệnh đề hằng đúng.** Đã khai từ vòng trước ở Out of scope của hồ sơ `gom-duc-ket-2-10-0`, ô `pv5-chieu-do-that`. Ghi lại ở đây vì nó nằm trong diff của cửa sổ mốc.
+- **KL-4 (Ngoài-7, medium) — `expected` của E11 ở hồ sơ `duong-lui-phai-song` khai bản base là ref trôi.** Mã đo thật đã neo sha cố định; lời khai chưa theo. Hồ sơ đó ĐÃ KÝ nên không sửa; ai dựng lại phép đo từ lời khai có thể lặp lại phép so hoá rỗng.
+- **KL-5 (Ngoài-8, low) — cùng hình dạng ở `expected` của hồ sơ `lop-bang-chung-nhin-thay`.** Ca thật đã neo sha; lời khai còn nhắc nhánh chính. Cùng lối xử lý với KL-4.
+
+### Ba ô mở theo quyết định Cổng Bằng chứng 2026-09-10
+
+- **`surfaces-token-chuan-hoa` (Ngoài-1 + Ngoài-5, cùng một lỗi hai làn thấy).** `coNguoiDungCuoi` chuyển sang khớp token tách theo dấu phẩy, nên `ui-admin`, `mobile-app`, hay `ui api` không còn tính là có mặt người dùng — đo thật cả bốn ca. Đó là một cờ ĐỎ chặn một-chạm ở Cổng Phạm vi tụt xuống cờ vàng, tức fail-open trên răng chống lách. Nặng thêm: nhánh đọc-cũ (khi vắng lib) vẫn dùng regex cũ nên bản rơi bậc lại CHẶT HƠN bản đầy đủ — hai bên đọc trôi ngược chiều an toàn. Ô phải: chuẩn hoá `tokensOf` tách cả gạch nối và khoảng trắng, kèm ca đỏ cho từng hình dạng.
+- **`w6-alias-co-dau-nhay` (Ngoài-4).** Mặt nạ định danh ASCII mới làm W6 im lặng ngừng bắt mọi mục `_Avoid_` mà chuỗi đã bóc không trùng byte với token bên trong nó — cụ thể là mục có dấu nháy kép, và chính `CONTEXT.md` của kit đang có hai mục như vậy. Không dòng rơi-bậc nào phát ra. Ô phải: chuẩn hoá token trước khi tra `keepWords`, kèm ca đỏ dùng đúng mục có nháy kép của `CONTEXT.md`.
 
 ### Nhát cắt cho cửa sổ kế (luật (c) đòi gọi tên)
 
