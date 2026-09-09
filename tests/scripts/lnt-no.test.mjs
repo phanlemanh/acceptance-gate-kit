@@ -6,7 +6,7 @@
 // Fixture CODE-SINH trong chính lần chạy; đường dẫn suy từ import.meta.url; mỗi phép đo
 // có cặp hai-chiều cùng fixture + thông điệp ghim (MEASURE-BIRTH-CLAUSE).
 //   NO_CASES=NO3 node tests/scripts/lnt-no.test.mjs
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, cpSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -175,19 +175,38 @@ if (want('NO3')) {
   if (failures === before) pass(id, 'ba bộ đọc + hai đường cắt hội tụ trên 4 fixture; mutant \\s*# bị bắt');
 }
 
-// ─── NO4 — html() bỏ mã thoát ANSI ───────────────────────────────────────────
+// ─── NO4 — html() bỏ mã thoát ANSI (đo theo LỚP, không một điểm-case) ────────
 if (want('NO4')) {
   const id = 'NO4'; const before = failures;
-  const t = readFileSync(path.join(ROOT, 'tests', 'plugins', 'lop-nhin-thay.test.mjs'), 'utf8');
-  const m = t.match(/^const html = ([^\n]+)$/m);
-  if (!m) fail(id, 'không rút được helper html() từ tests/plugins/lop-nhin-thay.test.mjs');
-  else if (!/\\x1b|\\u001[bB]|stripAnsi/.test(m[1])) fail(id, `html() không bỏ mã thoát: ${m[1]}`);
-  // cặp hai chiều trên CÙNG chuỗi: helper phải sạch ESC, chuỗi thô thì không
-  const strip = s => String(s).replace(/\x1b\[[0-9;]*m/g, '');
-  const raw = '\x1b[31mX\x1b[0m';
-  if (strip(raw) !== 'X') fail(id, 'luật bỏ ANSI sai');
-  if (!/\x1b/.test(raw)) fail(id, 'fixture không có ESC — ca không phân biệt được');
-  if (failures === before) pass(id, 'html() bỏ ANSI, chuỗi thô vẫn giữ (cặp hai chiều)');
+  // LỚP = mọi helper trong tests/ đọc thẳng stdout của gate-card để so CỤM CHỮ. Ma trận
+  // toàn phần: số assert = số helper tìm được (bản trước chỉ ghim MỘT tên biến ở MỘT file
+  // — thêm helper thứ hai là mù). Quét bằng chính hình dạng của helper, không danh sách tên.
+  const files = [];
+  const walk = d => { for (const e of readdirSync(d, { withFileTypes: true })) {
+    const fp = path.join(d, e.name);
+    if (e.isDirectory()) walk(fp); else if (/\.test\.mjs$/.test(e.name)) files.push(fp);
+  } };
+  walk(path.join(ROOT, 'tests'));
+  const helpers = [];
+  for (const f of files) {
+    for (const line of readFileSync(f, 'utf8').split('\n')) {
+      // helper: một dòng khai biến, gọi gate-card (trực tiếp hay qua wrapper) rồi lấy .stdout
+      // CHỈ helper đọc stdout dạng CHỮ NGƯỜI (HTML của thẻ): `--extract` trả JSON và
+      // `JSON.parse` không bao giờ so cụm chữ, nên chúng ngoài lớp này.
+      if (!/^\s*const\s+\w+\s*=.*\.stdout/.test(line)) continue;
+      if (!/gate-?card|GATE_CARD|\bgc\(/i.test(line)) continue;
+      if (/--extract|JSON\.parse/.test(line)) continue;
+      helpers.push({ f: path.relative(ROOT, f), line: line.trim() });
+    }
+  }
+  if (helpers.length < 2) fail(id, `chỉ tìm được ${helpers.length} helper đọc stdout thẻ — phép quét lớp không có gì để phân biệt (kỳ vọng ≥2)`);
+  for (const h of helpers) {
+    if (!/\\x1b|\\u001[bB]|stripAnsi/.test(h.line)) fail(id, `helper KHÔNG bỏ mã thoát — ${h.f}: ${h.line.slice(0, 90)}`);
+  }
+  // chiều đỏ CỦA PHÉP QUÉT: bản sao một helper bỏ đoạn strip → phép quét phải bắt
+  const probe = helpers[0] ? helpers[0].line.replace(/\.replace\(\/\\x1b[^)]*\)/, '') : '';
+  if (probe && /\\x1b|stripAnsi/.test(probe)) fail(id, 'mutant gỡ đoạn strip mà dòng vẫn còn dấu hiệu — phép quét không phân biệt được');
+  if (failures === before) pass(id, `${helpers.length} helper đọc stdout thẻ đều bỏ ANSI (ma trận toàn phần + chiều đỏ của phép quét)`);
 }
 
 console.log(failures === 0 ? `lnt-no: OK (${ALL_IDS.filter(want).join(', ')})` : `lnt-no: ${failures} FAILED`);

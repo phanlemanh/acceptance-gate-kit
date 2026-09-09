@@ -11,6 +11,7 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fileFromTemplate } from '../fixtures/from-template.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -34,12 +35,13 @@ const CTX = [
 ].join('\n');
 
 // Hợp đồng fixture: ba vùng chữ (Context · Criteria · Notes) để đo PHẠM VI quét.
-const contract = ({ ctx = '', crit = '- AC-1: Given a, When b, Then c.', notes = '' }) => [
-  '---', 'schema_version: 1', 'feature: f', 'slug: feat-pv', 'risk_tier: T2',
-  'surfaces: [api]', 'status: approved', 'approved_by: Manh Phan', 'approved_at: 2026-09-08', '---', '',
-  '# Acceptance Contract: feat-pv', '', '## Context', '', ctx, '', '## Criteria', '', crit, '',
-  '## Out of scope', '', '- x', '', '## Notes', '', notes, '',
-].join('\n');
+const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
+const contract = ({ ctx = '', crit = '- AC-1: Given a, When b, Then c.', notes = '' }) =>
+  fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
+    { feature: 'f', slug: 'feat-pv', owner: 'o@x', risk_tier: 'T2', surfaces: 'api', status: 'approved' },
+    ['', '# Acceptance Contract: feat-pv', '', '## Context', '', ctx, '', '## Criteria', '', crit, '',
+      '## Out of scope', '', '- x', '', '## Notes', '', notes, ''].join('\n'))
+    .replace(/^approved_by:.*$/m, 'approved_by: Manh Phan').replace(/^approved_at:.*$/m, 'approved_at: 2026-09-08');
 const EVALS = 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    expected: "x"\n';
 
 const mkRepo = ({ ctx, crit, notes, withCtxFile = true, surfaces }) => {
@@ -128,11 +130,17 @@ if (want('PV4')) {
 if (want('PV5')) {
   const id = 'PV5'; const before = failures;
   const sh = readFileSync(path.join(ROOT, 'tests', 'scripts', 'run-tests.sh'), 'utf8');
-  const l47Case = sh.split('\n').filter(l => /\bL47\b/.test(l) && /(mk_lnt|\bok\b|\bko\b|w8 )/.test(l));
+  // GIỚI HẠN CÓ TÊN: ca này đọc NỘI DUNG suite (vật của nó chính là suite), nên phải loại
+  // dòng CHÚ THÍCH — chữ trong chú thích từng làm cả hai vế xanh giả khi tự-soi 09/09.
+  const code = sh.split('\n').filter(l => !/^\s*#/.test(l));
+  const l47Case = code.filter(l => /\bL47\b/.test(l) && /(mk_lnt|\bok\b|\bko\b|w8 )/.test(l));
   if (l47Case.length) fail(id, `ca L47 (token lạ) còn chạy trong suite dù nhánh đã gỡ: ${l47Case[0].trim().slice(0, 80)}`);
-  const l42m = sh.split('\n').filter(l => /L42m/.test(l)).join('\n');
-  if (!l42m) fail(id, 'không tìm thấy ca L42m');
-  else if (!/token_la/.test(l42m)) fail(id, 'L42m chưa chứng bản sao ĐÃ CHẠY bằng token_la (chỉ đọc sự VẮNG của nhánh nghĩa vụ)');
+  const l42mLines = code.filter(l => /L42m/.test(l));
+  if (!l42mLines.length) fail(id, 'không tìm thấy ca L42m trong dòng lệnh (chỉ có chú thích?)');
+  else if (!l42mLines.some(l => /token_la|tl_of|tlM/.test(l))) fail(id, `L42m chưa chứng bản sao ĐÃ CHẠY bằng token_la — dòng lệnh: ${l42mLines[0].trim().slice(0, 80)}`);
+  // chiều đỏ của phép quét: bản sao bỏ mọi dòng lệnh L42m → phép quét phải kêu
+  const probe = code.filter(l => !/L42m/.test(l));
+  if (probe.filter(l => /L42m/.test(l)).length !== 0) fail(id, 'phép quét không phân biệt được bản sao đã gỡ ca');
   if (failures === before) pass(id, 'L47 đã gỡ; L42m chứng bản sao đã chạy');
 }
 

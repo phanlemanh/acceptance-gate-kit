@@ -46,17 +46,22 @@ chỉ khai QUYẾT ĐỊNH; danh tính và ngày là điều máy biết:
   (không điều kiện nào chặn việc đọc — hai nguồn đối chiếu; bậc thang chọn
   GIÁ TRỊ, không chọn thứ được ĐỌC);
   **CHỌN** giá trị ở nấc cao nhất
-  còn tên: `--as "<tên>"` → `git config user.name` (chữ ký thuộc NGƯỜI
-  ĐANG GÕ) → `signoff.approvers` khi danh sách đúng một tên; **CẢNH BÁO**
-  khi tên sắp ghi không có trong `signoff.approvers` — nêu cảnh báo nhẹ
-  (tên đang dùng kèm nguồn và (các) tên trong danh sách), áp cả khi tên
-  do người tự gõ (khi đó in thành một dòng riêng); không chặn ghi, không
-  đẻ thêm lượt hỏi; **CẠN** (mọi nấc trống, hoặc chỉ còn danh sách nhiều
+  còn tên: `--as "<tên>"` → **cổng trước của CÙNG hồ sơ** (`approved_by`
+  trong `contract.md`, CHỈ khi tác giả commit đã ghi dòng đó — `git log -1
+  --format=%an -S"approved_by: <tên>" -- <contract>` — bằng `git config
+  user.name` hiện tại: cùng người thì hai cổng của một hồ sơ phải mang MỘT
+  tên, ≈99 hồ sơ đang ghi hai cách viết cho cùng một người) →
+  `git config user.name` (chữ ký thuộc NGƯỜI ĐANG GÕ) →
+  `signoff.approvers` khi danh sách đúng một tên; **KHÔNG CẢNH BÁO** khi
+  tên sắp ghi không có trong `signoff.approvers` — danh sách đó là thông tin,
+  không phải cưỡng chế (16/22 kho có nó lệch `git config user.name` của chính
+  chủ, nên cảnh báo thành nhiễu nền); `approvers` giữ vai NẤC CUỐI khi hai nấc
+  trên trống; **CẠN** (mọi nấc trống, hoặc chỉ còn danh sách nhiều
   tên) → hỏi tên đúng một câu, có danh sách thì LIỆT ra để người chọn một
   chạm. Vắng ngày → ngày
   lệnh chạy; suy xong HIỂN THỊ
 <!-- <<<IDENTITY-ECHO-RULE -->
-Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đúng một tên VÀ bằng `git config user.name`) → GHI THẲNG rồi hiển thị lại «với danh tính: <tên> <ngày> (từ <nguồn suy>)», KHÔNG chờ xác nhận: hai nguồn đã đồng ý thì lượt chờ đó không thêm bảo đảm nào, chỉ thêm một chạm — và người vẫn sửa được bằng một câu ngay sau đó. Mọi ca khác (một nguồn trống · hai nguồn lệch · danh sách nhiều tên) thì HIỂN THỊ LẠI «với danh tính: <tên> <ngày> (từ <nguồn suy>) — Enter xác nhận» TRƯỚC khi ghi.
+Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị lại một dòng «với danh tính: <tên> <ngày> (từ <nguồn suy>)». Hai nguồn khớp hay lệch đều KHÔNG nói gì về ai đang gõ — xuất xứ thật là tác giả commit — nên lượt chờ không thêm bảo đảm nào, chỉ thêm một chạm; đo 08/09: 8 lần hỏi, 5 lần xác nhận suông, 2 lần sửa thành đúng giá trị đã có sẵn trong `signoff.approvers`. Người sửa tên hoặc ngày bằng MỘT CÂU bất kỳ lúc nào sau đó, máy ghi lại cùng lượt. Chỉ ca CẠN mới hỏi.
 <!-- IDENTITY-ECHO-RULE>>> -->
   Mọi trả lời MANG NGHĨA KHẲNG ĐỊNH là xác nhận, dài hay ngắn, kể cả tin
   nhắn trống; chỉ trả lời nêu tên hoặc ngày khác mới là sửa danh tính
@@ -67,7 +72,8 @@ Suy xong: hai nguồn độc lập KHỚP TUYỆT ĐỐI (`signoff.approvers` đ
   — không lỗi, không ghi, không hỏi lại; người quen tay gõ
   nó theo phản xạ thì câu vẫn chạy trọn. Ngày người nêu — trong câu gộp hoặc ở dòng xác
   nhận — LUÔN thắng ngày máy suy. Chữ «Ký» vẫn phải do NGƯỜI gõ — Enter xác
-  nhận chỉ xác nhận danh tính, không phải chữ ký.
+  nhận chỉ xác nhận danh tính, không phải chữ ký; máy GHI THẲNG danh tính suy
+  được, người sửa bằng MỘT CÂU sau đó nếu muốn.
 - Nhãn nào thẻ đang đòi mà câu gộp vắng hẳn → hỏi đúng nhãn đó (đó là câu
   hỏi QUYẾT ĐỊNH — máy không đề xuất thay); giá trị NGƯỜI ĐÃ GÕ nhưng mơ
   hồ → luật khuyến-nghị-trước của `GATE-ONESHOT-GRAMMAR`: nêu

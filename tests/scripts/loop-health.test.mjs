@@ -9,6 +9,7 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fileFromTemplate } from '../fixtures/from-template.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -38,9 +39,12 @@ const usageSection = (n, out, inn, cr, cc) => [
   `| machine:x | claude-haiku-4-5 | 2 | ${out} | ${inn} | ${cr} | 3 |`, '',
   `- **claude-haiku-4-5**: 1 agent · 2 calls · out ${out} · in ${inn} · cache_read ${cr} · cache_create ${cc}`, '',
 ].join('\n');
-const contractOf = (slug, tier, extra = '') => ['---', 'schema_version: 1', `feature: ${slug}`, `slug: ${slug}`,
-  `risk_tier: ${tier}`, 'surfaces: [api]', 'status: implemented', 'approved_by: Manh Phan', 'approved_at: 2026-09-01',
-  extra, '---', '', '## Criteria', '', '- AC-1: Given a, When b, Then c.', ''].filter(Boolean).join('\n');
+const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
+const contractOf = (slug, tier, extra = '') => fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
+  { feature: slug, slug, owner: 'o@x', risk_tier: tier, surfaces: 'api', status: 'implemented' },
+  '\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n')
+  .replace(/^approved_by:.*$/m, 'approved_by: Manh Phan')
+  .replace(/^approved_at:.*$/m, 'approved_at: 2026-09-01' + (extra ? '\n' + extra : ''));
 
 function mkFixture() {
   const R = mkdtempSync(path.join(tmpdir(), 'loop-health-'));
@@ -125,8 +129,17 @@ if (want('LH3')) {
 
 if (want('LH4')) {
   const id = 'LH4'; const before = failures;
-  // --json và text cùng một nguồn số
-  if (js && !text.includes(String(js.tiers.T2.round_usage))) fail(id, 'bản chữ không in cùng số với --json');
+  // --json và text cùng MỘT nguồn số: rút đúng hàng T2 của bảng chữ rồi so từng ô.
+  // (bản trước dùng text.includes(String(round)) — chuỗi "2" có sẵn trong nhãn T2 và ngày,
+  //  nên assert không bao giờ đỏ được: so chuỗi thay quan hệ.)
+  const rowT2 = text.split('\n').find(l => /^\|\s*T2\s*\|/.test(l));
+  if (!rowT2) fail(id, 'bản chữ không có hàng T2 của bảng mốc cùng hạng');
+  else if (js) {
+    const cells = rowT2.split('|').map(s => s.trim());
+    const wantCells = [String(js.tiers.T2.n), String(js.tiers.T2.round_usage), String(js.tiers.T2.round_iter)];
+    const gotCells = [cells[2], cells[3], cells[4]];
+    if (JSON.stringify(gotCells) !== JSON.stringify(wantCells)) fail(id, `hàng T2 của bản chữ lệch --json: ${JSON.stringify(gotCells)} vs ${JSON.stringify(wantCells)}`);
+  }
   // mutant: xoá MỘT section S4 của s-b → round và token phải đổi (phép đo phân biệt được)
   const up = path.join(R, '_acceptance', 's-b', 'usage-report.md');
   const orig = String(spawnSync('cat', [up], { encoding: 'utf8' }).stdout);

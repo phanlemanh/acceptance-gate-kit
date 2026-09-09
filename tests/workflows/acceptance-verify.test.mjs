@@ -1934,11 +1934,14 @@ console.log('W37 provenance chet -> BLOCKED co ten, khong nem');
   const bl = r ? (r.result.blocked || []).find(x => x.cmd === 'capture:provenance') : null;
   check('W37 verdict BLOCKED', !!r && r.result.verdict === 'BLOCKED', r ? String(r.result.verdict) : 'no-result');
   check('W37 reason ghim ten lane', !!bl && String(bl.reason).startsWith('capture:provenance agent bi skip/chet — khong co ket qua'), bl ? bl.reason : 'khong co muc blocked');
+  // Bat bien THAT: provenance chet thi KHONG duoc goi synthesize (khong co gi de chep).
+  // Ban truoc viet `!synth || ...` nen ve `!synth` lam assert xanh vo dieu kien.
   const synth = r ? r.calls.find(c => c.label === 'synthesize:report') : null;
-  check('W37 khong soan report tren provenance rong', !synth || !/enforcement_mode: (undefined|null|)"/.test(synth.prompt), synth ? 'co goi synthesize' : 'khong goi');
+  check('W37 khong goi synthesize khi provenance chet', synth === undefined || synth === null, 'van goi synthesize');
   // doi chung duong CUNG args: provenance song -> khong muc blocked nao ten provenance
   const ok = await runWorkflow(WF, baseArgs(), responder());
   check('W37 doi chung duong', !(ok.result.blocked || []).some(x => x.cmd === 'capture:provenance'), JSON.stringify(ok.result.blocked));
+  check('W37 doi chung duong: duong lanh CO goi synthesize', !!ok.calls.find(c => c.label === 'synthesize:report'), 'duong lanh cung khong goi — assert tren khong phan biet duoc');
   check('W37 doi chung duong verdict khong BLOCKED', ok.result.verdict !== 'BLOCKED', String(ok.result.verdict));
 }
 

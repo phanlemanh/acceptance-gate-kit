@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { fileFromTemplate } from '../fixtures/from-template.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -27,6 +28,13 @@ const fail = (id, m) => { console.log(`  FAIL: ${id} — ${m}`); failures++; };
 const tmp = () => mkdtempSync(path.join(tmpdir(), 'stale-paths-'));
 const W = (root, rel, s) => { const p = path.join(root, rel); mkdirSync(path.dirname(p), { recursive: true }); writeFileSync(p, s); return p; };
 const git = (cwd, ...a) => spawnSync('git', ['-c', 'user.email=t@test.local', '-c', 'user.name=tester', '-c', 'commit.gpgsign=false', '-C', cwd, ...a], { encoding: 'utf8' });
+
+// Frontmatter dựng TỪ KHUÔN canonical (CONTRACT-FRONTMATTER-TEMPLATE) — khuôn đổi thì
+// fixture đổi theo, không phải bản chép thứ hai của khuôn bên đọc.
+const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
+const contractOf = (tier, status, body) => fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
+  { feature: 'x', slug: 'x', owner: 'o@x', risk_tier: tier, surfaces: 'api', status }, body)
+  .replace(/^approved_by:.*$/m, 'approved_by: Manh Phan').replace(/^approved_at:.*$/m, 'approved_at: 2026-09-08');
 
 const EV_FULL = [
   'evals:',
@@ -56,10 +64,8 @@ function mkRepo(evalsText) {
   W(R, 'lib/core.js', 'lib v1\n');
   W(R, 'tests/khac.sh', '#!/bin/sh\nexit 0\n');
   W(R, 'verify.sh', '#!/bin/sh\nexit 0\n');
-  W(R, '_acceptance/x/contract.md', ['---', 'schema_version: 1', 'feature: x', 'slug: x', 'risk_tier: T2',
-    'surfaces: [api]', 'status: signed-off', 'approved_by: Manh Phan', 'approved_at: 2026-09-08', '---', '',
-    '## Criteria', '', '- AC-1: Given a, When b, Then c.', '- AC-2: Given d, When e, Then f.', '',
-    '## Out of scope', '', '- x', ''].join('\n'));
+  W(R, '_acceptance/x/contract.md', contractOf('T2', 'signed-off',
+    '\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n- AC-2: Given d, When e, Then f.\n\n## Out of scope\n\n- x\n'));
   W(R, '_acceptance/x/evals.yaml', evalsText);
   git(R, 'init', '-q'); git(R, 'add', '-A'); git(R, 'commit', '-qm', 'impl');
   const vc = git(R, 'rev-parse', 'HEAD').stdout.trim();

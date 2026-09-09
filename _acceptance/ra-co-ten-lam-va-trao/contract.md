@@ -129,6 +129,10 @@ tests/plugins/bang-dieu-khien.test.mjs ca-anh-em-chạy-trong-cùng-suite-không
 tests/plugins/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/additive-only.test.mjs ca-đo-tính-chỉ-thêm-không-rẽ-theo-status
+tests/scripts/lnt-no.test.mjs fixture-code-sinh-mang-status-không-rẽ-nhánh-theo-status
+tests/scripts/stale-paths.test.mjs fixture-code-sinh-mang-status-không-rẽ-nhánh-theo-status
+tests/scripts/loop-health.test.mjs fixture-code-sinh-mang-status-không-rẽ-nhánh-theo-status
+scripts/loop-health.mjs đọc-giờ-commit-đổi-status-để-đếm-thời-gian-không-phân-loại-hồ-sơ
 .claude-plugin/plugin.json chuỗi-nằm-trong-mô-tả-gói-không-rẽ-nhánh
 tests/plugins/asserts-da-go.txt sổ-ca-đã-gỡ-văn-bản-lịch-sử-không-chạy
 tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/contract.md artifact-đông-lạnh-của-hồ-sơ-lưu-kho-ADR-0015-làm-fixture-P146-P147-không-phải-bộ-đọc

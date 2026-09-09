@@ -12,7 +12,11 @@ set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 CHAN=""
-DEV="$(dirname "$ROOT")"
+# Gốc kho THẬT: chạy từ worktree thì $ROOT là `.claude/worktrees/<x>`, nên cha của nó là
+# `.claude/worktrees` — không cây tiêu thụ nào ở đó và răng hoá rỗng LẶNG LẼ (đo 09/09:
+# lần dùng đầu tiên chấm đúng 1 cây rồi PASS). Suy qua --git-common-dir để luôn về kho gốc.
+MAIN_GIT="$(git -C "$ROOT" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+if [ -n "$MAIN_GIT" ]; then DEV="$(dirname "$(dirname "$MAIN_GIT")")"; else DEV="$(dirname "$ROOT")"; fi
 while [ $# -gt 0 ]; do
   case "$1" in
     --chan) CHAN="${2:-}"; shift 2 ;;
@@ -27,18 +31,28 @@ case "$CHAN" in
     # đã gỡ — AC-5d). Hai cột còn lại CHỈ IN: số nghĩa vụ và W6 là sự thật của cây tại
     # thời điểm đo, không phải lời hứa của mã.
     printf 'repo | W8-token | W8-nghia-vu | W6\n'
-    bad=0
+    bad=0; seen=0
     for r in "$ROOT" "$DEV/artifact-platform" "$DEV/oneflow" "$DEV/crm"; do
       n="$(basename "$r")"
       if [ ! -d "$r/_acceptance" ]; then echo "SKIP $n: vắng"; continue; fi
-      o="$(node "$ROOT/scripts/eval-coverage-lint.js" "$r" 2>&1)"
+      o="$(node "$ROOT/scripts/eval-coverage-lint.js" "$r" 2>&1)"; rc=$?
+      # exit 0 = sạch, 1 = có cảnh báo (đều là ĐÃ CHẠY); ≥2 = lint chết → không được đọc
+      # sự VẮNG của dòng W8 như bằng chứng.
+      if [ "$rc" -ge 2 ]; then echo "FAIL: $n lint chết (exit $rc): $(printf '%s' "$o" | head -1)"; bad=1; continue; fi
+      # dấu hiệu quét DƯƠNG: lint phải nói được nó đã quét (một dòng cảnh báo, hoặc câu sạch)
+      case "$o" in *"] W"*|*"no coverage gaps detected"*) : ;; *) echo "FAIL: $n không có dấu hiệu quét — lint chạy mà không nói gì"; bad=1; continue ;; esac
       tk="$(printf '%s\n' "$o" | grep -c 'W8 surfaces carry token' || true)"
       nv="$(printf '%s\n' "$o" | grep -c 'W8 surfaces include a human-visible' || true)"
       w6="$(printf '%s\n' "$o" | grep -c '\] W6 ' || true)"
-      printf '%s | %s | %s | %s\n' "$n" "$tk" "$nv" "$w6"
+      printf '%s | %s | %s | %s\n' "$n" "$tk" "$nv" "$w6"; seen=$((seen+1))
       if [ "$tk" -ne 0 ]; then echo "FAIL: $n còn $tk dòng W8-token (nhánh đã gỡ mà vẫn nổ)"; bad=1; fi
     done
-    if [ "$bad" -eq 0 ]; then echo "PASS: CAY-THAT"; else exit 1; fi
+    if [ "$bad" -ne 0 ]; then exit 1; fi
+    if [ "$seen" -lt 2 ]; then
+      echo "FAIL: chỉ chấm được $seen cây (cần ≥2: kit + ≥1 cây tiêu thụ) — dev-root=$DEV; truyền --dev-root <thư mục chứa các repo> nếu chạy ngoài chỗ thường"
+      exit 1
+    fi
+    echo "PASS: CAY-THAT ($seen cây)"
     ;;
   loop-health-that)
     node "$ROOT/scripts/loop-health.mjs" --root "$ROOT" --at 8caa9998 --check-hand "$HERE/mocs-tay.json"

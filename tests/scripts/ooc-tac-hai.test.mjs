@@ -3,7 +3,7 @@
 //   TH2 thẻ xếp mục behavior TRƯỚC measure, mục vắng harm xuống cuối
 //   TH3 review-findings đời cũ (không dòng Tác hại) → thứ tự viết giữ nguyên, không cờ mới
 //   TH_CASES=TH2 node tests/scripts/ooc-tac-hai.test.mjs
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -26,14 +26,21 @@ const fail = (id, m) => { console.log(`  FAIL: ${id} — ${m}`); failures++; };
 const W = (root, rel, s) => { const p = path.join(root, rel); mkdirSync(path.dirname(p), { recursive: true }); writeFileSync(p, s); return p; };
 const tmp = () => mkdtempSync(path.join(tmpdir(), 'ooc-harm-'));
 
-const item = (title, harm) => [
-  `- **${title}**`,
-  `  Người dùng thấy gì: hậu quả của ${title}.`,
-  '  file: `src/x.js`',
-  '  severity: medium',
-  ...(harm ? [`  Tác hại: ${harm}`] : []),
-  '  Đề xuất: known-limits',
-].join('\n');
+// Fixture RÚT TỪ KHUÔN bên VIẾT (marker OOC-ITEM-TEMPLATE trong acceptance-verify.js) —
+// không gõ tay theo khuôn bên đọc. Writer đổi nhãn thì ca này đỏ, đúng seam
+// LLM-viết→máy-đọc (hình dạng 3 của «thước phải gắn vào vật»).
+const WF_SRC = readFileSync(path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
+const OOC_TPL = (() => {
+  const m = WF_SRC.match(/<<<OOC-ITEM-TEMPLATE\\n([\s\S]*?)\\nOOC-ITEM-TEMPLATE>>>/);
+  if (!m) throw new Error('không rút được khuôn OOC-ITEM-TEMPLATE từ acceptance-verify.js — bên viết đổi marker?');
+  return m[1].split('\\n').join('\n');
+})();
+const fillItem = vals => OOC_TPL.split('\n').map(l => l.replace(/\{(\w+)\}/g, (_, k) => (vals[k] !== undefined ? vals[k] : `{${k}}`))).join('\n');
+// Mục KHÔNG khai harm = dòng `Tác hại:` vắng hẳn (hồ sơ đời cũ) — bỏ đúng dòng mang {harm}.
+const item = (title, harm) => {
+  const filled = fillItem({ title, plain: `hậu quả của ${title}.`, file: 'src/x.js', severity: 'medium', harm: harm || '', proposal: 'known-limits' });
+  return harm ? filled : filled.split('\n').filter(l => !/^\s*Tác hại:/.test(l)).join('\n');
+};
 // Thứ tự VIẾT cố ý ngược thứ tự mong đợi — nếu thẻ giữ nguyên thứ tự viết thì TH2 đỏ.
 const findingsMd = withHarm => [
   '## Ngoài hợp đồng — người quyết ở Gate 2', '',
@@ -47,6 +54,7 @@ const findingsMd = withHarm => [
 
 if (want('TH1')) {
   const id = 'TH1'; const before = failures;
+  if (!/Tác hại: \{harm\}/.test(OOC_TPL)) fail(id, `khuôn bên viết không có dòng «Tác hại: {harm}» — bên đọc và bên viết đã trôi khỏi nhau:\n${OOC_TPL}`);
   const withH = ooc.parse(findingsMd(true));
   const noH = ooc.parse(findingsMd(false));
   const byTitle = (r, t) => r.findings.find(f => f.title === t) || {};
