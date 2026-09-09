@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 339b81dc051f04ccaf2330d705bc078b1c07c6f7
+verified_commit: 0c28c597ca57cb6be3589d23decbb1e39b6ef454
 human_signoff: Manh Phan 2026-09-10
 ---
 
@@ -152,3 +152,7 @@ Round 3: E3c chạy lại trọn suite plugins (`bash tests/plugins/run-tests.sh
 khi case P186 được sửa ở S3 — exit 0, "Results: all plugin tests passed". Cả
 chín eval (E1, E2, E3, E3b, E3c, E3d, E3e, E4, E5) đều PASS, không eval nào
 thất bại hay treo UNCERTAIN. Verdict tổng = PASS.
+
+### Re-pin lần 1 — 2026-09-09, do ghim dòng định tuyến LM20 của chính hồ sơ mốc sau chữ ký (P0 của gap-probe) — lưới hoá cũ là cả cây vì K4 đã rút
+run_id: repin-20260909T235815Z-93571
+sha: 0c28c597ca57cb6be3589d23decbb1e39b6ef454 · suites: 5 lệnh exit 0 · evals: 9 eval máy exit 0
