@@ -18,7 +18,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
 const require = createRequire(import.meta.url);
 
-const ALL_IDS = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6'];
+const ALL_IDS = ['SP1', 'SP2', 'SP3', 'SP4', 'SP5', 'SP6', 'SP7'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.SP_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => only.length === 0 || only.includes(id);
@@ -168,6 +168,41 @@ if (want('SP6')) {
     if (!/require|import/.test(seg)) fail(id, 'Staleness guard không dặn liệt file được require (paths không bắc cầu)');
   }
   if (failures === before) pass(id, 'SKILL nêu luật paths + đường đọc-cũ + dặn không bắc cầu');
+}
+
+// ─── SP7 — thân block scalar KHÔNG phải lời khai (fail-closed) ───────────────
+// Lớp lỗi S4-r2: `paths:` viết trong thân `expected: >` từng bị đọc thành lời khai của
+// eval đó, nên hồ sơ KHÔNG khai paths vẫn được thu phạm vi hoá-cũ — fail-open ở đúng chỗ
+// K4 hứa không có. Cặp hai chiều trên CÙNG một hình dạng văn bản.
+if (want('SP7')) {
+  const id = 'SP7'; const before = failures;
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const ey = require(path.join(ROOT, 'lib', 'eval-yaml.cjs'));
+  const THAN = [
+    'evals:',
+    '  - id: E1',
+    '    criterion: AC-1',
+    '    executor: test',
+    '    expected: >',
+    '      luật nói paths: [docs/**] chỉ là ví dụ trong câu chữ',
+    '  - id: E2',
+    '    criterion: AC-2',
+    '    executor: script',
+    '    paths: [lib/x.js]',
+    '    expected: "y"',
+    '',
+  ].join('\n');
+  const p1 = ey.pathsOf(THAN);
+  if ('E1' in p1) fail(id, `pathsOf đọc thân block scalar thành lời khai: ${JSON.stringify(p1)}`);
+  if (JSON.stringify(p1.E2) !== JSON.stringify(['lib/x.js'])) fail(id, `pathsOf mất lời khai thật của E2: ${JSON.stringify(p1)}`);
+  if (core.staleScope(THAN) !== null) fail(id, `staleScope phải trả null (E1 không khai paths) — fail-open: ${JSON.stringify(core.staleScope(THAN))}`);
+  // đối chứng dương CÙNG hình dạng: E1 khai paths thật, thân vẫn có chữ paths
+  const DU = THAN.replace('    expected: >\n      luật nói paths: [docs/**] chỉ là ví dụ trong câu chữ',
+    '    paths: [src/**]\n    expected: >\n      luật nói paths: [docs/**] chỉ là ví dụ trong câu chữ');
+  const sc = core.staleScope(DU);
+  if (JSON.stringify((sc || []).sort()) !== JSON.stringify(['lib/x.js', 'src/**'])) fail(id, `đủ khai mà staleScope sai: ${JSON.stringify(sc)}`);
+  if ((sc || []).includes('docs/**')) fail(id, 'chữ trong thân block lọt vào phạm vi hoá-cũ');
+  if (failures === before) pass(id, 'thân block scalar là dữ liệu, không phải lời khai (fail-closed + đối chứng dương)');
 }
 
 console.log(failures === 0 ? `stale-paths: OK (${ALL_IDS.filter(want).join(', ')})` : `stale-paths: ${failures} FAILED`);
