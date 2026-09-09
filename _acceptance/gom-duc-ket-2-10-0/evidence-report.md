@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f78a77618037a63b9632842acfd0644dd581cff4
+verified_commit: 85a2ecb92f8f2227b43ff2cca9966ac7ff72d97a
 human_signoff: Manh Phan 2026-09-09
 ---
 
@@ -160,3 +160,7 @@ Round 3: REJECT — 5 finding thật, cùng LỚP fail-open staleScope với rou
 ### Re-pin lần 1 — 2026-09-09, do ghim bản ghi mốc định tuyến LM20 + vá lời khai executor E1; lưới hoá cũ là cả cây vì K4 đã rút
 run_id: repin-20260909T113748Z-12337
 sha: f78a77618037a63b9632842acfd0644dd581cff4 · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
+
+### Re-pin lần 2 — 2026-09-09, do vá SD1/SD2 phụ thuộc bản cài (CI PR #163 đỏ) — ghim lại sau khi phép đo hết đọc môi trường người chạy
+run_id: repin-20260909T115453Z-95194
+sha: 85a2ecb92f8f2227b43ff2cca9966ac7ff72d97a · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
