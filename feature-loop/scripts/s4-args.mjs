@@ -70,12 +70,13 @@ agRoot = (() => { try { return fs.realpathSync(agRoot); } catch { return die(`--
 for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acceptance-gate root thiếu ${r} (root: ${agRoot})`);
 
 const require_ = createRequire(import.meta.url);
-const { resolveConfigKey, resolveConfigList, frontmatterField, unquoteScalar } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
+const { resolveConfigKey, resolveConfigList, frontmatterField, unquoteScalar, stripYamlComment, splitTopLevel } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
 if (typeof resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0) — cập nhật plugin');
 // MỘT bộ bóc nháy dùng chung cho mọi đường giá-trị-bị-thi-hành (hồ sơ
 // release-2-11-0). Thiếu hàm = plugin cũ hơn 2.11.0: fail-CLOSED có tên, KHÔNG
 // rơi về mệnh đề cũ — rơi về nó chính là đường xanh-giả vòng này đóng.
-if (typeof unquoteScalar !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có unquoteScalar (cần ≥ 2.11.0) — cập nhật plugin');
+for (const [ten, fn] of [['unquoteScalar', unquoteScalar], ['stripYamlComment', stripYamlComment], ['splitTopLevel', splitTopLevel]])
+  if (typeof fn !== 'function') die(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${ten} (cần ≥ 2.11.0) — cập nhật plugin`);
 const { parseEvals, expectedExits } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
 
 // ── Bảng trường bắt buộc: RÚT TỪ CHÍNH BÊN ĐỌC, không gõ tay ──────────────
@@ -122,7 +123,12 @@ for (const e of evals) e.expectedExit = expById.get(e.id) || 0;
 { // list fields: bắt buộc theo bảng bên đọc + field vận hành — inline [..] hoặc block "- item"
   const LIST_KEYS = uniq([...REQ_ARR, 'inputs', 'paths', 'evidence_required']);
   let cur = null; let pendingList = null;
-  const parseInline = s => s.replace(/^\[|\]$/g, '').split(',').map(x => unquoteScalar(x.trim())).filter(Boolean);
+  // Tách phẩy Ở NGOÀI vỏ nháy và cắt chú thích CÓ NHẬN BIẾT VỎ — dùng chung
+  // với evidence-core. `split(',')` trần xẻ giữa vỏ, `replace(/\s+#.*$/)` trần
+  // xén giữa vỏ; cả hai cho ra mảnh KHÔNG CÂN mà unquoteScalar (đúng thiết kế)
+  // trả nguyên văn kèm dấu nháy MỞ. Hồi quy đó do chính bản vá 2.11.0 gây ra ở
+  // lượt chấm đầu, ca BG7 giữ chỗ này.
+  const parseInline = s => splitTopLevel(s.replace(/^\[|\]$/g, '')).map(x => unquoteScalar(x.trim())).filter(Boolean);
   for (const raw of evalsText.split('\n')) {
     const line = raw.replace(/\t/g, '  ');
     const idM = line.match(/^\s{0,4}-\s+id:\s*(\S+)/);
@@ -133,7 +139,7 @@ for (const e of evals) e.expectedExit = expById.get(e.id) || 0;
       pendingList = null;
       const [, k, vRaw] = fieldM;
       if (!LIST_KEYS.includes(k)) continue;
-      const v = vRaw.replace(/\s+#.*$/, '').trim();
+      const v = stripYamlComment(vRaw);
       if (v.startsWith('[')) cur[k] = parseInline(v);
       else if (v === '') { cur[k] = []; pendingList = k; }
       continue;

@@ -291,11 +291,72 @@ function bg6() {
   if (!hong) xanh('BG6', `ranh gioi va dung bang danh sach dong (${GIU.length} ham giu, 0 khop o s4-args)`);
 }
 
+// ─── BG7 — cắt chú thích và tách phẩy phải NHẬN BIẾT VỎ NHÁY ──────────────
+// Hồi quy do CHÍNH bản vá này gây ra, S4 lượt 1 bắt được: `unquoteScalar` chỉ
+// bóc khi cả chuỗi CÂN, nhưng bên gọi lại tự làm hỏng tính cân TRƯỚC khi đưa
+// vào — `replace(/\s+#.*$/)` xén một scalar hợp lệ có ` #` bên trong vỏ, và
+// `split(',')` xẻ ngay giữa vỏ. Mảnh còn lại không cân nên trả về NGUYÊN VĂN
+// kèm dấu nháy MỞ, rồi `bash -c '"echo a'` thoát 2 — đúng chuỗi xanh-giả bốn
+// bước mà vòng này tồn tại để đóng, chỉ đổi nguồn gây nháy-không-cân từ NGƯỜI
+// VIẾT sang CHÍNH BỘ GIẢI. Mệnh đề cũ ít ra còn gỡ được ký tự thừa đó.
+const BG7_ASSERTS = 9;
+function bg7() {
+  const cfg = [
+    'bg7:',
+    '  vo_kep_co_thang: "echo a # b"',
+    '  vo_don_co_thang: \'x # y\'',
+    '  tran_co_thang: echo a # b',
+    '  vo_kep_roi_chu_thich: "echo a"   # ghi chu that',
+    '  vo_kep_co_escape_va_thang: "echo \\"a # b\\" done"',
+    '  inline: [plain, "a, b", z]',
+    '  khoi:',
+    '    - "cd x # y"',
+    '    - "p, q"',
+  ].join('\n') + '\n';
+  const ca = [
+    ['vo_kep_co_thang', core.resolveConfigKey(cfg, 'bg7.vo_kep_co_thang'), 'echo a # b'],
+    ['vo_don_co_thang', core.resolveConfigKey(cfg, 'bg7.vo_don_co_thang'), 'x # y'],
+    ['tran_co_thang', core.resolveConfigKey(cfg, 'bg7.tran_co_thang'), 'echo a'],
+    ['vo_kep_roi_chu_thich', core.resolveConfigKey(cfg, 'bg7.vo_kep_roi_chu_thich'), 'echo a'],
+    ['vo_kep_co_escape_va_thang', core.resolveConfigKey(cfg, 'bg7.vo_kep_co_escape_va_thang'), 'echo "a # b" done'],
+  ];
+  const inline = core.resolveConfigList(cfg, 'bg7.inline');
+  ca.push(['inline[1] phay trong vo', inline[1], 'a, b']);
+  ca.push(['inline dai', String(inline.length), '3']);
+  const khoi = core.resolveConfigList(cfg, 'bg7.khoi');
+  ca.push(['khoi[0] thang trong vo', khoi[0], 'cd x # y']);
+  ca.push(['khoi[1] phay trong vo', khoi[1], 'p, q']);
+  if (ca.length !== BG7_ASSERTS) { do_('BG7', `so khang dinh ${ca.length} != BG7_ASSERTS ${BG7_ASSERTS} khai truoc`); return; }
+  let hong = 0;
+  for (const [ten, thay, mong] of ca) {
+    if (thay !== mong) { do_('BG7', `[${ten}]: doi ${JSON.stringify(mong)}, thay ${JSON.stringify(thay)}`); hong++; }
+  }
+  // Chân cuối: chuỗi ra phải CHẠY ĐƯỢC — không vỡ cú pháp. Đây là chỗ nối
+  // thẳng sang chuỗi xanh-giả: mã 2 của shell không được phép sinh ra ở đây.
+  const val = core.resolveConfigKey(cfg, 'bg7.vo_kep_co_thang');
+  const r = spawnSync('bash', ['-c', `${val} >/dev/null 2>&1`], { encoding: 'utf8' });
+  if (r.status === 2) { do_('BG7', `chuoi giai ra vo cu phap: bash -c thoat 2 tren ${JSON.stringify(val)} — dung chuoi xanh-gia vong nay dong`); hong++; }
+  if (!hong) xanh('BG7', `cat chu thich va tach phay nhan biet vo nhay (${BG7_ASSERTS} khang dinh + chan chay-duoc)`);
+}
+
 // ─── BG5 — chiều đỏ trên bản sao TRỌN cây ─────────────────────────────────
 // `git archive HEAD` — TRỌN cây, không chép danh sách tệp tay (bài học P150:
 // vật được đo gọi thêm một script mới thì bản base thiếu tệp, đỏ vì HẠ TẦNG
 // chứ không vì vật).
-const MENH_DE_MOI = /const val = unquoteScalar\(m\[2\]\.replace\(\/\\s\+#\.\*\$\/, ''\)\.trim\(\)\);/;
+// Bộ đột biến: đưa CẢ BA đường của evidence-core về đúng hành vi TRƯỚC 2.11.0
+// — bóc nháy vô điều kiện, cắt chú thích và tách phẩy không nhận biết vỏ. Tiêm
+// một đường thôi thì chiều đỏ chỉ chứng được một ô của ma trận bảy đường.
+const DOT_BIEN = [
+  ['resolveConfigKey la',
+   'const val = unquoteScalar(stripYamlComment(m[2]));',
+   "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');"],
+  ['resolveConfigList khoi',
+   'if (m) out.push(unquoteScalar(stripYamlComment(m[1])));',
+   "if (m) out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''));"],
+  ['resolveConfigList inline',
+   "if (val.startsWith('[')) return splitTopLevel(val.replace(/^\\[|\\]$/g, '')).map(s => unquoteScalar(s.trim())).filter(Boolean);",
+   "if (val.startsWith('[')) return val.replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);"],
+];
 function bg5() {
   if (process.env.BG_NO_RED === '1') { xanh('BG5', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
   const d = mkTmp('bg-archive-');
@@ -319,23 +380,27 @@ function bg5() {
   // (2) TIÊM mệnh đề cũ, chứng minh bản sao THẬT SỰ đổi nội dung bằng so BĂM.
   const coreP = path.join(d, 'lib', 'evidence-core.cjs');
   const truoc = bam(coreP);
-  const src = fs.readFileSync(coreP, 'utf8');
-  if (!MENH_DE_MOI.test(src)) { do_('BG5', 'khong tim thay menh de MOI de tiem nguoc — neo doi, phep do khong con chieu do'); return; }
-  fs.writeFileSync(coreP, src.replace(MENH_DE_MOI, "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');"));
+  let src = fs.readFileSync(coreP, 'utf8');
+  for (const [ten, moi, cu] of DOT_BIEN) {
+    if (!src.includes(moi)) { do_('BG5', `khong tim thay neo [${ten}] de tiem nguoc — neo doi, phep do khong con chieu do`); return; }
+    src = src.replace(moi, cu);
+  }
+  fs.writeFileSync(coreP, src);
   if (bam(coreP) === truoc) { do_('BG5', 'DOT BIEN KHONG AP DUOC — bam khong doi, chieu do vo nghia'); return; }
 
   // (3) Bản bị tiêm phải ĐỎ ở BG1, BG3 VÀ BG4 — ghim đúng tên, không chỉ exit≠0.
   const tiem = chay(d);
   const err = String(tiem.stderr || '') + String(tiem.stdout || '');
   if (tiem.status === 0) { do_('BG5', 'ban BI TIEM van XANH — phep do khong phan biet duoc ban va voi ban hong'); return; }
-  const thieu = ['BG1', 'BG3', 'BG4'].filter(n => !err.includes(`DO ${n}:`));
+  const CHAN_DO = ['BG1', 'BG3', 'BG4', 'BG7'];
+  const thieu = CHAN_DO.filter(n => !err.includes(`DO ${n}:`));
   if (thieu.length) { do_('BG5', `ban bi tiem do nhung KHONG ghim ${thieu.join(', ')} — chan do khong phu het vat`); return; }
-  for (const n of ['BG1', 'BG3', 'BG4']) console.log(`     [chieu do] ${n} -> DO`);
-  xanh('BG5', 'chieu do tren ban sao TRON CAY (doi chung duong xanh, bam doi, ghim BG1+BG3+BG4)');
+  for (const n of CHAN_DO) console.log(`     [chieu do] ${n} -> DO`);
+  xanh('BG5', `chieu do tren ban sao TRON CAY (${DOT_BIEN.length} dot bien, doi chung duong xanh, bam doi, ghim ${CHAN_DO.join('+')})`);
 }
 
-bg1(); bg2(); bg3(); bg4(); bg6(); bg5();
+bg1(); bg2(); bg3(); bg4(); bg6(); bg7(); bg5();
 
 // ── MỘT lối thoát duy nhất ────────────────────────────────────────────────
 if (loi.length) { console.error(`bo-giai-nhay: ${loi.length} ve do`); process.exit(1); }
-console.log('bo-giai-nhay OK (6 chan)');
+console.log('bo-giai-nhay OK (7 chan)');
