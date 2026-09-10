@@ -51,7 +51,7 @@ fi
 # `diff-tree` chứ KHÔNG phải `${NEO}^..${NEO}`: mốc có thể là commit GỐC (kho
 # squash, clone nông), lúc đó `^` không tồn tại và phép so trả rỗng — chân này
 # sẽ chẩn đoán SAI thành «phép đo không chạy» trong khi nó chạy đúng.
-if ! G diff-tree --no-commit-id --name-only -r "$NEO" -- diagram-design/ 2>/dev/null | grep -q .; then
+if ! G diff-tree --root --no-commit-id --name-only -r "$NEO" -- diagram-design/ 2>/dev/null | grep -q .; then
   echo "DO: moc cat so ${NEO} KHONG cham diagram-design/ — phep do khong chay that" >&2
   exit 4
 fi
