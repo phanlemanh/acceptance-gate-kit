@@ -133,6 +133,38 @@ const EVALS_OK = `schema_version: 1\nslug: l1k\n\nevals:\n` +
     `mã thoát THẬT lệch khai phải vi phạm nêu tên eval + cả hai mã (5 thực tế, 2 đã khai), không lẫn mã 9 của ghi chú. Được: ${r.consistencyFailure}`);
 }
 
+// ═══ Lỗ fail-open: dòng mã thoát LỆCH ĐỊNH DẠNG trong khối (dấu gạch đầu
+// dòng chen trước từ khoá, vd "  - exit_code: 9") từng bị walkEvalExits rơi
+// mất hoàn toàn — không vào byEval (từ khoá không phải token đầu dòng),
+// không vào outside (đang trong khối) — nên biến mất khỏi phép kiểm (hồ sơ
+// eval-khai-ma-thoat-mong-doi 2026-09-09). Hai ca dưới đổi ĐÚNG MỘT biến
+// (dòng thứ 3 trong cùng khối E1, mã thật exit_code: 2 khớp khai đứng sau):
+//   - dòng lệch định dạng "- exit_code: 9"            -> VI PHẠM
+//   - dòng ghi chú tự do "note: ... exit_code: 9 ..." -> KHÔNG vi phạm (đối chứng)
+const skewedBlockPayload = (variableLine) =>
+  `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n` +
+  `${variableLine}\n  exit_code: 2\n  verifier: x\n  verified_at: 2026-01-01\n`;
+
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = skewedBlockPayload('  - exit_code: 9');
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-skewed-dash-exit',
+    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') &&
+      r.consistencyFailure.includes('9') && r.consistencyFailure.includes('lệch định dạng'),
+    `dòng "- exit_code: 9" lệch định dạng trong khối phải VI PHẠM và ghim rõ dòng lệch, được: ${r.consistencyFailure}`);
+}
+
+// Đối chứng cùng fixture: đúng ghi chú tự do đã được việc hợp nhất sinh ra
+// để tha — không được lùi lại vì phần vá lỗ này.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = skewedBlockPayload('  note: last run had exit_code: 9 (stale, ignore)');
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-skewed-note-tolerated', r.consistencyFailure === null,
+    `đối chứng: ghi chú tự do chứa "exit_code: 9" không phải trường thật -> KHÔNG vi phạm (mã thật 2 khớp khai). Được: ${r.consistencyFailure}`);
+}
+
 // ═══ Nới điều kiện hình dạng: hồ sơ mà MỌI eval đều khai mã khác 0 ═════════
 
 // Shape-1: block khớp đúng khai -> HAS_EXIT_ZERO thoả, không đòi dòng "exit_code: 0".
