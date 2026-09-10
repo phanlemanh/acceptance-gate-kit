@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8f6a6bac84572277351fe80e644993b7f583a2ea
+verified_commit: b5c11c5f1ef1095de7a31262af03baec12fc7232
 human_signoff: Manh Phan 2026-09-10
 ---
 
@@ -201,3 +201,7 @@ none — không eval nào khai `runs > 1`.
 
 Round 1: cả 13 eval và cả 5 lệnh suite đều đạt ngay từ lượt đầu — không chân nào phải
 quay lại triển khai.
+
+### Re-pin lần 1 — 2026-09-10, do gộp main mang mốc 2.10.0
+run_id: repin-20260910T113714Z-18221
+sha: b5c11c5f1ef1095de7a31262af03baec12fc7232 · suites: 5 lệnh exit 0 · evals: 13/13 eval máy đạt kỳ vọng
