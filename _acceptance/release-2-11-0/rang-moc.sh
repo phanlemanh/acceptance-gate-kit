@@ -15,8 +15,8 @@
 # gõ vào config. Bất biến này đúng ở mọi HEAD tương lai, nên hồ sơ đã ký còn
 # ghim lại được.
 #
-#   3  không tìm được mốc cắt số của diagram-design  → không có nền để so
-#   4  mốc cắt số KHÔNG chạm diagram-design/          → phép đo không có nghĩa
+#   3  không tìm được lần CẮT SỐ nào                 → không có nền để so
+#   4  mốc chọn ra không phải một lần cắt số         → phép chọn mốc hỏng
 #   5  diagram-design/ CÓ đổi sau lần cắt số gần nhất → số đang nói dối
 #   0  xanh
 #
@@ -37,22 +37,31 @@ done
 [ "$CHAN" = "diagram" ] || { echo "rang-moc: --chan phai la 'diagram' (thay: '${CHAN}')" >&2; exit 2; }
 
 MANIFEST="diagram-design/.claude-plugin/plugin.json"
+ver_tai() { G show "$1:$MANIFEST" 2>/dev/null | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1; }
 
-# Chân 1 — mốc so phải SUY ĐƯỢC TỪ KHO.
-NEO="$(G log -n1 --format=%H -- "$MANIFEST" 2>/dev/null)"
+# Chân 1 — mốc so là lần CẮT SỐ gần nhất, KHÔNG phải lần CHẠM manifest gần nhất.
+# Lượt chấm 2 bắt được sai lệch này: một commit vừa sửa nội dung diagram-design/
+# vừa sửa mô tả trong manifest mà KHÔNG tăng `version` sẽ thành mốc mới, chân 3
+# so NEO..HEAD thấy rỗng và răng báo PASS trong khi nội dung đã đổi còn số thì
+# cũ — fail-open ĐÚNG chiều răng này canh.
+NEO=""
+for sha in $(G log --format=%H -- "$MANIFEST" 2>/dev/null); do
+  cha="$(G rev-parse -q --verify "${sha}^" 2>/dev/null || true)"
+  if [ -z "$cha" ] || [ "$(ver_tai "$sha")" != "$(ver_tai "$cha")" ]; then NEO="$sha"; break; fi
+done
 if [ -z "$NEO" ]; then
-  echo "DO: khong tim duoc commit nao cham ${MANIFEST} — khong co nen de so" >&2
+  echo "DO: khong tim duoc lan CAT SO nao cua ${MANIFEST} — khong co nen de so" >&2
   exit 3
 fi
 
-# Chân 2 — ĐỐI CHỨNG DƯƠNG: chính mốc đó PHẢI chạm diagram-design/. Rỗng ở đây
-# nghĩa là phép đo không chạy thật (clone nông, sai cwd, git chết) chứ không
-# phải "yên ả" — đúng lớp fail-open mà chân này sinh ra để chặn.
-# `diff-tree` chứ KHÔNG phải `${NEO}^..${NEO}`: mốc có thể là commit GỐC (kho
-# squash, clone nông), lúc đó `^` không tồn tại và phép so trả rỗng — chân này
-# sẽ chẩn đoán SAI thành «phép đo không chạy» trong khi nó chạy đúng.
-if ! G diff-tree --root --no-commit-id --name-only -r "$NEO" -- diagram-design/ 2>/dev/null | grep -q .; then
-  echo "DO: moc cat so ${NEO} KHONG cham diagram-design/ — phep do khong chay that" >&2
+# Chân 2 — ĐỐI CHỨNG DƯƠNG phải KHẲNG ĐỊNH ĐƯỢC SAI. Bản trước kiểm «mốc có
+# chạm diagram-design/ không», mà mốc vốn được CHỌN theo một đường dẫn nằm
+# trong diagram-design/ nên nó đúng theo CẤU TẠO — không đối chứng gì cả (lượt
+# chấm 2 gọi tên). Nay kiểm điều thật sự có thể sai: số tại mốc phải KHÁC số tại
+# cha nó (hoặc mốc là commit gốc).
+CHA="$(G rev-parse -q --verify "${NEO}^" 2>/dev/null || true)"
+if [ -n "$CHA" ] && [ "$(ver_tai "$NEO")" = "$(ver_tai "$CHA")" ]; then
+  echo "DO: moc ${NEO} KHONG phai mot lan cat so (so tai moc = so tai cha = $(ver_tai "$NEO")) — phep chon moc hong" >&2
   exit 4
 fi
 
@@ -64,5 +73,5 @@ if [ -n "$DOI" ]; then
   exit 5
 fi
 
-SO="$(G show "HEAD:${MANIFEST}" | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
-echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} (doi chung duong: chinh moc do cham diagram-design/)"
+SO="$(ver_tai HEAD)"
+echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} (doi chung duong: so tai moc KHAC so tai cha)"
