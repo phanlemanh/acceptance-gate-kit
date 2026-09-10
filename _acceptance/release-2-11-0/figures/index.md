@@ -7,7 +7,7 @@ Kê từ artifact cuối S1: 8 entry sổ quyết định chờ seal · 5 findin
 | Điểm | Đếm N5 | Hình |
 |---|---|---|
 | Chuỗi xanh-giả bốn bước, và bản vá cắt nó ở đâu | **4 bước nối tiếp** → cần hình | `chuoi-xanh-gia.html/.png` |
-| Ranh giới «sửa theo LỚP»: bảy đường thi hành vs bốn bộ đọc token cố ý giữ | **2 nhánh rẽ** + bán kính 28 chỗ trên 7 kho → cần hình | `ranh-gioi-va.html/.png` |
+| Ranh giới «sửa theo LỚP»: bảy đường thi hành vs năm bộ đọc token cố ý giữ | **2 nhánh rẽ** + bán kính 28 chỗ trên 7 kho → cần hình | `ranh-gioi-va.html/.png` |
 | Biểu thức cặp-vỏ-hợp-lệ-YAML thay vì `/^".*"$/` của bản oneflow | 2 nhánh rẽ → gộp vào hình 1 (một nút so hai bản) | (trong hình 1) |
 | Descope: un-double nháy đơn · bỏ đặc-tả-UX · bỏ design-pass · bỏ ui-observed | dưới ngưỡng: 1 | — |
 | Thu gọn brainstorm về một lượt máy | dưới ngưỡng: 1 | — |
@@ -25,7 +25,7 @@ Kê từ artifact cuối S1: 8 entry sổ quyết định chờ seal · 5 findin
 
 - Loại: **layer stack / boundary map** — một cột trái «đường GIÁ-TRỊ-BỊ-THI-HÀNH» (7 nút), một cột phải «bộ đọc TOKEN — cố ý giữ» (4 nút), giữa là nút `unquoteScalar` chỉ nối sang cột trái.
 - Cột trái: `resolveConfigKey` lá · `resolveConfigList` inline · `resolveConfigList` khối · `s4-args` list inline · `s4-args` list khối · `s4-args` id · `s4-args` models.
-- Cột phải: `extractRunIds` · `walkEvalExits` · `extractVerifierValues` · `frontmatterField`.
+- Cột phải (ĐO LẠI ở S3 — năm, không phải bốn): `extractRunIds` · `extractEvalBlockRunIds` · `walkEvalExits` · `extractVerifierValues` · `isAuthenticVerifier`. `frontmatterField` KHÔNG mang mệnh đề cũ (nó đã tự vá lớp này ở S4-r5).
 - Nhãn bán kính trên cột trái: `oneflow 19 · artifact-platform 5 · crm 4 · bốn kho khác 0 · kit 0 = 28 chỗ`.
-- Một dòng dưới: «tổng số khớp `^["']|["']$` trong hai tệp = 4 — bằng số nút cột phải (E4b chân 3)».
+- Một dòng dưới: «tổng khớp trong `lib/evidence-core.cjs` = 5, trong `feature-loop/scripts/s4-args.mjs` = 0 — bằng số nút cột phải (E4b chân 3)».
 - AC liên quan: AC-4.

@@ -51,11 +51,11 @@
 <body>
   <div class="frame">
     <p class="eyebrow">Bản đồ ranh giới · release-2-11-0</p>
-    <h1>Ranh giới «sửa theo LỚP»: bảy đường thi hành vs bốn bộ đọc token cố ý giữ</h1>
+    <h1>Ranh giới «sửa theo LỚP»: bảy đường thi hành vs năm bộ đọc token cố ý giữ</h1>
 
     <div class="wrap">
-    <svg viewBox="0 0 1200 540" xmlns="http://www.w3.org/2000/svg" role="img"
-         aria-label="unquoteScalar nối sang bảy đường giá trị bị thi hành, cố ý không nối sang bốn bộ đọc token">
+    <svg viewBox="0 0 1200 568" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="unquoteScalar nối sang bảy đường giá trị bị thi hành, cố ý không nối sang năm bộ đọc token">
       <defs>
         <marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2d3142"/></marker>
       </defs>
@@ -149,61 +149,68 @@
             text-anchor="middle">một bộ bóc nháy dùng chung</text>
 
       <!-- ============ CỘT PHẢI ============ -->
-      <rect x="816" y="158" width="344" height="176" rx="8" fill="#f5f5f5"/>
-      <rect x="816" y="158" width="344" height="176" rx="8" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <rect x="816" y="158" width="344" height="212" rx="8" fill="#f5f5f5"/>
+      <rect x="816" y="158" width="344" height="212" rx="8" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
       <path d="M 824 158 H 1152 A 8 8 0 0 1 1160 166 V 190 H 816 V 166 A 8 8 0 0 1 824 158 Z" fill="rgba(45,49,66,0.07)"/>
       <line x1="816" y1="190" x2="1160" y2="190" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
       <text x="832" y="179" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', monospace"
             letter-spacing="0.08em">BỘ ĐỌC TOKEN — CỐ Ý GIỮ</text>
       <text x="1144" y="179" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace"
-            text-anchor="end">4</text>
+            text-anchor="end">5</text>
 
       <line x1="816" y1="226" x2="1160" y2="226" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
       <line x1="816" y1="262" x2="1160" y2="262" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
       <line x1="816" y1="298" x2="1160" y2="298" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <line x1="816" y1="334" x2="1160" y2="334" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
 
       <text x="832" y="212" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">1</text>
       <text x="852" y="212" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">extractRunIds</text>
 
       <text x="832" y="248" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">2</text>
-      <text x="852" y="248" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">walkEvalExits</text>
+      <text x="852" y="248" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">extractEvalBlockRunIds</text>
 
       <text x="832" y="284" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">3</text>
-      <text x="852" y="284" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">extractVerifierValues</text>
+      <text x="852" y="284" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">walkEvalExits</text>
 
       <text x="832" y="320" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">4</text>
-      <text x="852" y="320" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">frontmatterField</text>
+      <text x="852" y="320" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">extractVerifierValues</text>
+
+      <text x="832" y="356" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">5</text>
+      <text x="852" y="356" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">isAuthenticVerifier</text>
 
       <!-- ============ SỐ ĐO ============ -->
       <text x="40" y="414" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
             letter-spacing="0.14em">BÁN KÍNH TRÊN CỘT TRÁI</text>
       <text x="40" y="434" font-size="10" font-family="'Geist Mono', monospace" fill="#2d3142">oneflow 19 · artifact-platform 5 · crm 4 · bốn kho khác 0 · kit 0 = 28 chỗ</text>
 
-      <text x="816" y="366" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+      <text x="816" y="400" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
             letter-spacing="0.14em">ĐỐI CHỨNG SỐ</text>
-      <text x="816" y="386" font-size="10" font-family="'Geist', sans-serif" fill="#4f5d75">tổng số khớp <tspan font-family="'Geist Mono', monospace" fill="#2d3142">^["']|["']$</tspan> trong hai tệp = 4</text>
-      <text x="816" y="402" font-size="10" font-family="'Geist', sans-serif" fill="#4f5d75">— bằng số nút cột phải (E4b chân 3)</text>
+      <text x="816" y="420" font-size="10" font-family="'Geist', sans-serif" fill="#4f5d75">khớp <tspan font-family="'Geist Mono', monospace" fill="#2d3142">^["']+?|["']+?$</tspan> trong <tspan font-family="'Geist Mono', monospace" fill="#2d3142">lib/evidence-core.cjs</tspan> = 5</text>
+      <text x="816" y="436" font-size="10" font-family="'Geist', sans-serif" fill="#4f5d75">trong <tspan font-family="'Geist Mono', monospace" fill="#2d3142">feature-loop/scripts/s4-args.mjs</tspan> = 0</text>
+      <text x="816" y="452" font-size="10" font-family="'Geist', sans-serif" fill="#4f5d75">— bằng số nút cột phải (E4b chân 3)</text>
+
+      <text x="1160" y="476" text-anchor="end" font-size="9" font-family="'Geist', sans-serif" fill="#4f5d75">tiền lệ cùng tệp: <tspan font-family="'Geist Mono', monospace">frontmatterField</tspan> đã vá đúng lớp này ở S4-r5 — kit giải một lần, không lan</text>
 
       <!-- ============ CHÚ GIẢI ============ -->
-      <line x1="40" y1="478" x2="1160" y2="478" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
-      <text x="40" y="502" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+      <line x1="40" y1="506" x2="1160" y2="506" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="530" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
             letter-spacing="0.14em">CHÚ GIẢI</text>
 
-      <rect x="160" y="492" width="16" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
-      <text x="184" y="502" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">đường giá-trị-bị-thi-hành</text>
+      <rect x="160" y="520" width="16" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="184" y="530" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">đường giá-trị-bị-thi-hành</text>
 
-      <rect x="348" y="492" width="16" height="12" rx="2" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
-      <text x="372" y="502" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">bộ đọc token — cố ý giữ</text>
+      <rect x="348" y="520" width="16" height="12" rx="2" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="372" y="530" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">bộ đọc token — cố ý giữ</text>
 
-      <rect x="524" y="492" width="16" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
-      <text x="548" y="502" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">bộ bóc nháy dùng chung</text>
+      <rect x="524" y="520" width="16" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="548" y="530" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">bộ bóc nháy dùng chung</text>
 
-      <circle cx="700" cy="498" r="7" fill="none" stroke="#eb6c36" stroke-width="1.6"/>
-      <line x1="696" y1="502" x2="704" y2="494" stroke="#eb6c36" stroke-width="1.6" stroke-linecap="round"/>
-      <text x="716" y="502" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">cố ý KHÔNG nối</text>
+      <circle cx="700" cy="526" r="7" fill="none" stroke="#eb6c36" stroke-width="1.6"/>
+      <line x1="696" y1="530" x2="704" y2="522" stroke="#eb6c36" stroke-width="1.6" stroke-linecap="round"/>
+      <text x="716" y="530" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">cố ý KHÔNG nối</text>
 
-      <line x1="820" y1="498" x2="836" y2="498" stroke="rgba(45,49,66,0.60)" stroke-width="1.2" stroke-dasharray="6,4"/>
-      <text x="844" y="502" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">ranh giới</text>
+      <line x1="820" y1="526" x2="836" y2="526" stroke="rgba(45,49,66,0.60)" stroke-width="1.2" stroke-dasharray="6,4"/>
+      <text x="844" y="530" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">ranh giới</text>
     </svg>
     </div>
   </div>

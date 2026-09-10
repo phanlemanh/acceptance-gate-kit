@@ -188,6 +188,13 @@ lần sau khỏi bàn lại.
 - **Sửa eval đỏ sẵn ở oneflow/crm** và hai PR nháp `phanlemanh/OneFlow#116`,
   `phanlemanh/crm#35` — vòng này KHÔNG chạm chúng.
 - **Un-double nháy đơn** (`'it''s'` → `it's` theo YAML) và **cấm mã 2** — xem Known limits.
+- **Lỗ `id` bọc nháy, tìm ra khi đo, KHÔNG sửa ở đây:** `parseEvals` (`lib/eval-yaml.cjs`)
+  giữ nguyên nháy trên `id` trong khi vòng list-field của `s4-args` bóc chúng, nên một eval
+  khai `id: "E2"` bị bỏ qua LẶNG mọi `paths`/`steps`/`inputs` rồi chết bằng thông điệp nói
+  sai nguyên nhân. Nó nằm ở tầng KHÁC (bên đọc evals.yaml, không phải bên bóc nháy), và sửa
+  nó là đổi hành vi `parseEvals` cho mọi caller — đúng loại việc phải có hợp đồng riêng.
+  Đường 6 của ma trận AC-4 vì thế là **lưới hồi quy**, không phải ca phân biệt: bản vá cố ý
+  KHÔNG đổi hành vi ở đó.
 
 ## Notes
 
@@ -213,6 +220,96 @@ chỗ để đo bằng chiều đỏ chứ không bằng «suite vẫn xanh».
 
 Sau khi 2.11.0 ship, bản vá này **trùm lên** vá local của oneflow ở
 `lib/evidence-core.cjs` — oneflow hết fork ở tệp đó, và 19 chỗ trên hết cần vá tay.
+
+### Ba dòng số của luật (c) — ĐẾM TAY
+
+Đếm tay theo đúng chữ luật (c). **KHÔNG dùng `scripts/loop-health.mjs`**: nó suy mốc cổng
+bằng `git log -S`, tức khớp CHỮ ở bất kỳ đâu trong thân hợp đồng, nên ra thời lượng ÂM
+trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTER của TỪNG revision
+(`git show <sha>:<contract>`), lấy revision đầu sang `implemented` và revision đầu sang
+`signed-off`; số lượt chấm đọc từ `run-log.jsonl` (`round`), không đọc văn xuôi.
+
+| Vòng | làm-xong → quyết-được | lượt chấm | lượt gọi người (thiết kế / ngoài) | bị hạ tầng đốt |
+|---|---|---|---|---|
+| `eval-khai-ma-thoat-mong-doi` (#165) | **184′ (3h04)** | **1** | **4 / 0** | **0** |
+| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | điền ở làn ghim lại | **3 / 0** | điền ở làn ghim lại |
+
+- **Dòng 1 — làm-xong→quyết-được: 184′ trên vòng duy nhất của cửa sổ.** `implemented` ở
+  `8f6a6bac` (10/09 14:58:38 +07) → `signed-off` ở `befa12ee` (18:02:32 +07). So mốc
+  trước: trung bình bốn vòng của cửa sổ 2.10.0 là **417′**, vòng chậm nhất 547′. Vòng này
+  **nhanh hơn 2,3 lần trung bình** và là vòng rẻ nhất đo được từ khi kit đếm số. Một lượt
+  chấm duy nhất, PASS ngay — so 6 lượt của vòng T3 gom ở mốc trước.
+- **Dòng 2 — lượt gọi người.** Vòng #165: **4 trong thiết kế, 0 ngoài** — đúng trần T3.
+  Hồ sơ mốc này: **3 trong thiết kế, 0 ngoài** (Cổng Phạm vi · Gate 1.5 · Cổng Bằng
+  chứng), đếm tới **lời mời Cổng Bằng chứng** như AC-9 khai trước. **Chạm/lượt = 1** ở cả
+  ba: owner gõ đúng một dòng máy soạn sẵn.
+- **Dòng 2b — mốc phát hành TRƯỢT trần ≤1, lần thứ BA liên tiếp** (2.9.0 = 2 · 2.10.0 = 2
+  · 2.11.0 = 3). Nhưng lần này nguyên nhân KHÁC hai lần trước và đo được: hồ sơ mốc hạng
+  **T3** có **ba cổng người theo thiết kế**, nên ≤1 là một mục tiêu **không đạt được về
+  mặt cấu trúc** — không phải một lần vận hành kém. Ba lần trượt với ba nguyên nhân khác
+  nhau chính là dữ liệu mà ĐIỀU KIỆN THU HỒI của luật nới 07/09 đọc; nó dẫn thẳng tới nhát
+  cắt gọi tên dưới đây, nên số này KHÔNG bị giấu.
+- **Dòng 3 — vòng bị hạ tầng kit đốt: 0/1 ở vòng #165.** Không lượt chấm nào của cửa sổ bị
+  hạ tầng giết — lần đầu tiên kể từ 2.8.0. Số của chính hồ sơ mốc điền ở làn ghim lại.
+
+### Lớp vendored — repo tiêu thụ PHẢI chép lại
+
+Đo bằng `git diff --numstat 04069351..HEAD` trên chín mục của `INIT-CI-COPY-LIST`:
+
+| Mục | +/− | Vì sao consumer phải chép |
+|---|---|---|
+| `lib/evidence-core.cjs` | **+258 / −16** | mang `unquoteScalar` — thiếu nó thì `s4-args` của feature-loop 2.11.0 fail-CLOSED có tên |
+| `lib/eval-yaml.cjs` | **+48 / −1** | luật `expected_exit` từ vòng #165 |
+| `scripts/pre-merge-check.sh` | +1 / −1 | truyền thêm một đối số cho làn ghim lại |
+| `scripts/recheck-evidence.cjs` | +1 / −1 | như trên |
+| `lib/gap-probe.cjs` · `lib/workspace-record.cjs` · `lib/ac-line.cjs` · `lib/md-section.cjs` · `lib/lop-nhin-thay.cjs` | 0 | không đổi trong cửa sổ |
+
+**Hệ quả cho rollout:** bản vá này **trùm lên** vá local của oneflow ở
+`lib/evidence-core.cjs` — sau khi chép lại, oneflow hết fork ở tệp đó và 19 chỗ giải sai
+của nó hết cần vá tay. Hai PR nháp đang mở (`phanlemanh/OneFlow#116`,
+`phanlemanh/crm#35`) KHÔNG bị vòng này chạm.
+
+### Lớp lỗi TÁI PHÁT — căn cứ cho nhát cắt kế
+
+1. **Bóc nháy vô điều kiện — ba mốc liên tiếp, NAY ĐÃ VÁ.** Bằng chứng đậm nhất không
+   phải số lần tái phát mà là chỗ nó tái phát: `frontmatterField` nằm trong **cùng tệp**,
+   cách `resolveConfigKey` chưa tới trăm dòng, và **đã tự vá đúng lớp này ở S4-r5** với
+   chú thích nêu chính xác cơ chế («Bóc đầu và cuối độc lập thì một giá trị không-quote mà
+   KẾT THÚC bằng nháy sẽ mất ký tự cuối»). Kit giải lớp MỘT LẦN rồi không lan sang bộ đọc
+   kế bên. Đó là lý do lần này đi bằng **một hàm dùng chung có phép đếm hai chiều canh
+   ranh giới**, không phải lại sửa một chỗ.
+2. **Danh sách chép CI không theo kịp thứ script thật sự cần** — đã ghi hai lần trong
+   `docs/research/so-vap-trien-khai.md`. Mốc này lại có **4/9 mục đổi**, và vẫn KHÔNG có
+   răng nào ở kho tiêu thụ bắt được «đã nâng plugin mà chưa chép lại lớp CI». Lỗ vẫn mở.
+3. **Ba dòng số là VĂN** — mốc thứ ba liên tiếp khai cùng Known limit. Chưa đủ nặng để
+   dựng phép đo (luật giới hạn CHIỀU RỘNG: lưới thường trực là trần), nhưng đã đủ để gọi
+   tên: xem nhát cắt.
+4. **Một lỗ MỚI tìm ra khi đo, ngoài hợp đồng:** `parseEvals` (`lib/eval-yaml.cjs`) giữ
+   nguyên nháy trên `id`, trong khi vòng list-field của `s4-args` bóc chúng — nên một eval
+   có `id: "E2"` bị bỏ qua LẶNG mọi list-field (`paths` · `steps` · `inputs`) rồi chết
+   bằng một thông điệp nói sai nguyên nhân. Ghi ở Out of scope; không sửa trong vòng này.
+
+### Nhát cắt cho cửa sổ kế (luật (c) đòi gọi tên)
+
+**Nhát cắt SỐ MỘT, có căn cứ số ngay trong hồ sơ này: hồ sơ mốc phát hành đừng mang bản
+vá code.** Ba mốc liên tiếp trượt trần ≤1 lượt gọi người, và lần này lý do đo được là
+**cấu trúc**: mốc mang bản vá chạm `lib/**` → hạng **T3** → **ba cổng người theo thiết
+kế** (Phạm vi · Gate 1.5 · Bằng chứng), nên ≤1 không đạt được dù vận hành hoàn hảo. Hai
+lối, owner chọn:
+
+- **(a) Tách:** bản vá đi vòng riêng, hồ sơ mốc quay về **T2 thuần cắt số** → đủ điều
+  kiện **làn V** → **≤1 lượt** (tiền lệ 2.5.0). Giá: thêm một vòng, và mất đúng cái lợi mà
+  tiền lệ «vá trong mốc» của 2.10.0 mở ra — vá đi thẳng tới tay người dùng cùng mốc.
+- **(b) Sửa luật:** trần của mốc phát hành đọc theo cùng nguyên tắc đã dùng cho T3 —
+  «**= số cổng thiết kế**», tức ≤1 cho mốc T2 và ≤3 cho mốc T3. Giá: một con số mục tiêu
+  bớt sắc; đổi lại nó thôi đo một điều không đạt được.
+
+Khuyến nghị **(b)**: nguyên tắc «= số cổng thiết kế» chính là cách owner đã đọc trần T3 ở
+dòng ký mốc 2.7.0; áp nó cho mốc phát hành là nhất quán, không phải nới.
+
+**Nhát cắt số hai, CHUYỂN TIẾP nguyên văn từ 2.10.0 (vẫn treo):** một phiên nghiệm thu
+**GỘP** cho 10 hồ sơ đang chờ Cổng Giá trị. Số lấy bằng máy:
+`node scripts/start-scan.mjs --root .` → `groups.gates` với `gate=gia-tri`.
 
 ### Known limits
 
