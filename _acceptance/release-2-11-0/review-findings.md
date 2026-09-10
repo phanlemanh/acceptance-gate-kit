@@ -1,133 +1,97 @@
 ## Trong hợp đồng
 
-### 1. resolveConfigKey/resolveConfigList cắt chú thích TRƯỚC khi bóc nháy — chuỗi sắp thi hành giữ lại dấu nháy MỞ, tái tạo đúng chuỗi xanh-giả vòng này đóng
-- file: `lib/evidence-core.cjs:94`
-- severity: medium
-- source: conventions
-- AC: AC-3
+### stripYamlComment không nhận biết vỏ nháy cho list inline `[...]` — tái mở đúng chuỗi xanh-giả mà AC-4 khai đã đóng
+- file: `lib/evidence-core.cjs:189`
+- severity: high
+- AC: AC-4
 
-`unquoteScalar` chỉ bóc khi cả chuỗi CÂN, nhưng ba bên gọi lại tự làm hỏng tính cân trước khi đưa vào:
+`stripYamlComment` chỉ nhận biết vỏ nháy khi TOÀN BỘ chuỗi là một scalar bọc nháy (`closingQuoteIndex(s)` đòi `s[0]` là dấu nháy). Với một flow-sequence `[...]`, `s[0] === '['` nên nó rơi thẳng về mệnh đề trần `s.replace(/\s+#.*$/, '')` — đúng mệnh đề mà chú thích ngay phía trên tuyên bố là sai.
 
-    lib/evidence-core.cjs:94   const val = unquoteScalar(m[2].replace(/\s+#.*$/, '').trim());
-    lib/evidence-core.cjs:120  out.push(unquoteScalar(m[1].replace(/\s+#.*$/, '').trim()));
+Đo được trên chính cây này:
 
-Phép cắt chú thích `/\s+#.*$/` không biết gì về vỏ nháy, nên một scalar HỢP LỆ có ` #` bên trong vỏ bị xén, phần còn lại không cân, và `unquoteScalar` (đúng theo thiết kế) trả NGUYÊN VĂN kèm dấu nháy mở.
+    resolveConfigList('bg:\n  a: ["click #submit", "then b"]\n', 'bg.a')  ->  ['"click']
+    stripYamlComment('["click #submit", "then b"]')                     ->  '"click'
 
-Đo trên chính cây này (node -e, cùng đầu vào `k: "echo a # b"`):
-- base d1d36479: `resolveConfigKey` → `echo a`
-- HEAD: `resolveConfigKey` → `"echo a`
+Hai hệ quả cùng lúc: (a) các item còn lại BIẾN MẤT LẶNG (2 item -> 1); (b) item còn lại mang dấu nháy MỞ không cân — `unquoteScalar` đúng thiết kế trả nguyên văn, nên chuỗi giao cho `bash -c` vỡ cú pháp và thoát 2, trong khi `EXPECTED_EXIT_BANNED = [97, 127]` KHÔNG cấm 2. Đó chính xác là chuỗi xanh-giả bốn bước mà hồ sơ release-2-11-0 tồn tại để đóng, chỉ khác nguồn gây nháy-không-cân.
 
-Chuỗi `"echo a` giao cho `bash -c` là vỡ cú pháp → thoát 2 → và `EXPECTED_EXIT_BANNED = [97,127]` vẫn KHÔNG cấm 2, nên một hồ sơ khai `expected_exit: 2` đọc nó thành «giới hạn đã khai» = PASS. Đó là nguyên văn chuỗi bốn bước mà §Context của contract nói vòng này đóng — chỉ đổi hình dạng đầu vào từ «nháy không cân do người viết» sang «nháy không cân do CHÍNH bộ giải tạo ra».
+Cùng lỗ ở bên feature-loop: `feature-loop/scripts/s4-args.mjs:142` gọi `stripYamlComment(vRaw)` rồi `parseInline` (dòng 131) trên `steps` / `paths` / `inputs`. Mô phỏng đúng biểu thức đó: `steps: ["click #submit", "assert title"]` -> `['"click']`. `steps` là CHỈ THỊ giao cho agent (Coverage của hợp đồng ghi rõ nó đang bị xén thật ở crm và artifact-platform) — một selector CSS `#submit` là hình dạng rất thật, không phải ca giả tưởng.
 
-Khối «Known limits» của contract (dòng 314-337) khai ba giới hạn (un-double nháy đơn, nháy hai đầu không phải một cặp, vòng round-trip dừng ở s4-args) nhưng KHÔNG khai giới hạn này, và không có ca nào trong `bo-giai-nhay.test.mjs` phủ hình dạng `#`-trong-vỏ. Trái luật CLAUDE.md «Chỗ không biến được → khai giới hạn kèm MỘT ngưỡng đang đếm — cấm dặn-bằng-lời làm nghiệm».
+Đây là đường 2 và đường 4 của bảng «danh sách đóng» AC-4, tức nằm TRONG hợp đồng, không phải ngoài. Known limits không khai hình dạng này (chỉ khai un-double nháy đơn và ca «nháy hai đầu không phải một cặp»). Review-findings lượt 1 mục 3 đã mô tả đúng cơ chế này; bản vá lượt 2 chỉ phủ nhánh SCALAR, bỏ nhánh inline. BG7 cũng chỉ thử `#` trong vỏ ở nhánh KHỐI (`- "cd x # y"`) và `,` trong vỏ ở nhánh inline — không có ô `#` trong vỏ ở nhánh inline, nên ma trận xanh mà lỗ vẫn sống (đúng lớp AC-12 sinh ra để chặn).
 
-Hiện config.yaml của kit có 0 giá trị dạng này (đã quét), nên chưa nổ ở đây — nhưng `lib/evidence-core.cjs` nằm trong INIT-CI-COPY-LIST và được vendor sang 7 kho tiêu thụ.
+Sửa đúng tầng là thứ tự: tách phẩy ngoài vỏ TRƯỚC, rồi cắt chú thích trên từng item (hoặc cho `stripYamlComment` biết nó đang đứng trước một flow-sequence).
 
-Hướng: cắt chú thích phải nhận biết vỏ nháy (bỏ qua `#` nằm trong vỏ), hoặc bóc vỏ trước rồi mới cắt chú thích; nếu cố ý không sửa thì phải khai ở Known limits kèm một ca đo.
+Vì sao đây là AC-4 chưa đóng: AC-4 liệt kê chính đường 2 (resolveConfigList inline) và đường 4 (s4-args list field inline) trong danh sách đóng; stripYamlComment sai trên flow-sequence khiến giá trị các đường này không trả nguyên văn, đúng điều AC-4 Then cấm.
 
-Rationale (map AC): Finding tái tạo đúng chuỗi bốn bước mà AC-3 hứa đã đóng (lệnh chứa nháy nội dòng vỡ cú pháp, thoát 2 không bị cấm, hồ sơ khai expected_exit:2 đọc nhầm thành PASS) — chỉ khác ở hình dạng đầu vào có thêm dấu #.
-
----
-
-### 2. Bảng lớp vendored trong contract khai +258/−16 cho lib/evidence-core.cjs, lệnh nó tự trích dẫn ra 260/16
-- file: `_acceptance/release-2-11-0/contract.md:261`
+### rang-moc.sh anchors on last manifest touch, not last version bump; leg 2 cannot fail
+- file: `_acceptance/release-2-11-0/rang-moc.sh:42`
 - severity: low
-- source: conventions
-- AC: AC-9
+- AC: AC-11
 
-Dòng 257 khai nguồn rút: «Đo bằng `git diff --numstat 04069351..HEAD` trên chín mục của INIT-CI-COPY-LIST». Chạy đúng lệnh đó trên cây này:
+NEO is computed as `git log -n1 --format=%H -- diagram-design/.claude-plugin/plugin.json`, i.e. the last commit that TOUCHED the manifest, while the stated promise (header line 12) is "diagram-design/ không đổi KỂ TỪ lần cắt số gần nhất của CHÍNH NÓ". A commit that edits diagram-design/ content and also edits the manifest without bumping `version` (a description or keyword edit — exactly what the acceptance-gate manifest gets every release) becomes the new NEO, so leg 3 compares NEO..HEAD, finds nothing, and the tooth reports PASS while diagram-design/ content changed with the version left stale. Fail-open in the direction the tooth exists to guard.
 
-    48   1    lib/eval-yaml.cjs
-    260  16   lib/evidence-core.cjs
-    1    1    scripts/pre-merge-check.sh
-    1    1    scripts/recheck-evidence.cjs
+Related, same file: leg 2 (line 54) is declared the "ĐỐI CHỨNG DƯƠNG" against "phép đo không chạy thật", but NEO was selected by a path that lives inside diagram-design/, so `diff-tree -- diagram-design/` on it is true by construction and the leg can never fire. And line 67 runs `G show HEAD:$MANIFEST | sed ...` with no `set -o pipefail`, so if git show fails, SO is empty and the script still prints `PASS: ... giu ` with a blank version.
 
-Ba hàng kia khớp; hàng `lib/evidence-core.cjs` khai **+258** thay vì **260**. Không phải trôi do commit sau: tại chính commit viết contract (52929f40) numstat đã là 260/16, nên số sai từ lúc viết.
+Fix direction: derive NEO from the last commit where the manifest's `version` value actually changed (e.g. walk `git log --format=%H -- $MANIFEST` and compare `git show <sha>:$MANIFEST` versions), and make leg 2 assert something independent of how NEO was picked.
 
-AC-9 (dòng 136+) và eval E9 đòi «mỗi số nói được nó đọc từ đâu» và «trả FAIL cho số nào không nói được nó đọc từ đâu» — số này khai nguồn nhưng không khớp nguồn, tức đúng thứ E9 sinh ra để bắt. Sửa một chữ số, hoặc để làn ghim lại rút số bằng máy thay vì gõ tay (cùng bài học «sha phải là output lệnh»).
+Vì sao đây là AC-11 chưa đóng: AC-11 đòi mốc so phải "suy từ kho" đúng nghĩa "lần cắt số gần nhất của chính nó"; finding chứng minh mốc so thực chất là "lần chạm manifest gần nhất", hai điều có thể khác nhau — đúng bất biến AC-11 cam kết mà không giữ được.
 
-Rationale (map AC): AC-9 đòi mỗi số trong bảng lớp vendored phải nói được nguồn rút và khớp nguồn đó; số này khai đúng nguồn (git diff --numstat) nhưng chạy lệnh đó ra số khác, nên AC-9 thất bại đúng chỗ nó lập ra để bắt.
+### Assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ — E11 ghim cứng `giu 2.7.0` vào expected, đúng thứ AC-11 sinh ra để bỏ
+- file: `_acceptance/release-2-11-0/evals.yaml:215`
+- severity: high
+- AC: AC-11
 
----
+AC-11 hứa một QUAN HỆ bền: «diagram-design/ không đổi KỂ TỪ lần cắt số gần nhất CỦA CHÍNH NÓ», cốt để răng của hồ sơ đã ký còn xanh khi chiến dịch ghim lại chạy nó ở một HEAD muộn hơn sau khi diagram-design đã đổi. Nhưng `expected` của E11 lại khai một PHÉP CÓ-MẶT CHUỖI: «stdout có dòng «PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (<sha>), giu 2.7.0 (…)»». Tác giả đã trừu tượng hoá phần biến thiên của sha thành `<sha>` nhưng để NGUYÊN literal `2.7.0`. `rang-moc.sh:67` đọc số từ `git show HEAD:diagram-design/.claude-plugin/plugin.json` nên dòng in ra đổi theo kho.
 
-### 3. Comment/comma stripping runs before unquoteScalar, so unbalanced fragments now keep a stray quote that gets executed
-- file: `lib/evidence-core.cjs:94`
-- severity: medium
-- source: bugs
-- AC: AC-3
+Đã dựng thật: `git archive HEAD` ra bản sao trọn cây, bump diagram-design lên 2.8.0, commit, chạy lại răng → script vẫn `exit=0` và in «… giu 2.8.0 …». Tức đúng kịch bản Given của AC-11 (diagram-design đổi sau khi mốc này ship), VẬT thì sống nhưng LỜI KHAI của eval thì đỏ: người/agent chấm lại so stdout với `expected` đòi `giu 2.7.0` sẽ chấm FAIL. Chỗ giòn chỉ dời từ script sang expected, không bị gỡ.
 
-resolveConfigKey (line 94), resolveConfigList block branch (line 120) and inline branch (line 132) — and the mirrored code in feature-loop/scripts/s4-args.mjs lines 125/139 — apply `.replace(/\s+#.*$/,'')` and `.split(',')` BEFORE calling unquoteScalar. unquoteScalar only strips a shell when the whole string is a balanced pair, so the truncated fragment is now returned VERBATIM including the orphan quote character. The old anchored clause at least removed it.
+Kèm theo: kịch bản Given của AC-11 không được chạy ở đâu cả — E11 chỉ quan sát «răng xanh ở HEAD hôm nay», y hệt E7 (cùng `cmd`, cùng dòng PASS). Ở HEAD hôm nay bản răng CŨ ghim cứng cửa sổ `04069351..HEAD` cũng xanh, nên phép đo hành vi không phân biệt được bản trước vá với bản sau vá; thứ duy nhất phân biệt là chuỗi thông điệp — đúng hình dạng số 3. Ba chiều đỏ mà E11 nêu (exit 3/4/5) đều tự khai là «đã chạy TAY 10/09», và không cái nào là kịch bản của AC-11 (mốc dời tới trước → vẫn xanh).
 
-Reproduced on this tree:
-    resolveConfigKey('bg:\n  k: "echo hi # note"\n', 'bg.k')  ->  '"echo hi'   (was 'echo hi')
-    resolveConfigList('bg:\n  inline: [plain, "a, b", z]\n', ...) -> ['plain','"a','b"','z']  (was ['plain','a','b','z'])
-
-The resolveConfigKey case is the worse one: that value is handed straight to `bash -c` by repin-lane.mjs:115 and by the S4 machine lane, and `bash -c '"echo hi'` dies on an unbalanced quote with exit 2 — which is exactly the shell-exit-2 mis-read as a declared tool limit that this whole change set exists to close (EXPECTED_EXIT_BANNED is [97,127], 2 is allowed). So for this input shape the patch re-opens the four-step false-green channel it closes for the trailing-quote shape.
-
-Fix is ordering, not the new regex: parse the quoted scalar first, strip a trailing comment / split on commas only outside the shell. Neither Known limits nor the contract's Coverage 'Never' section covers this shape (it lists only un-doubling single quotes and the two-quotes-not-a-pair case). No config in this repo hits it today, and the 28-site measurement across the 7 consumer repos would not have surfaced it because it only measured shapes present there.
-
-failure_scenario: A consumer config key such as `executors.script.x: "pytest -q # smoke"` (or any quoted command containing ' #') resolves to `"pytest -q` — with a leading double quote. `bash -c '"pytest -q'` fails with an unbalanced-quote syntax error and exit code 2; if the eval declares `expected_exit: 2`, the run is scored PASS even though the tool never executed. Before this diff the same key resolved to `pytest -q`, which actually ran.
-
-Rationale (map AC): Cùng cơ chế với finding cắt-chú-thích ở trên (bản tiếng Anh của cùng lớp lỗi), tái mở đúng kênh xanh-giả bốn bước mà AC-3 hứa đã đóng cho hình dạng lệnh có dấu # bên trong nháy.
+Vì sao đây là AC-11 chưa đóng: AC-11 tồn tại chính xác để răng của hồ sơ mốc sống qua chiến dịch ghim lại kể cả sau khi diagram-design cắt số mới; expected ghim cứng số cũ '2.7.0' tái tạo đúng lỗi mà AC-11 cấm, chỉ dời từ mã sang lời khai.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-<<<OOC-ITEM-TEMPLATE
-- **carry-plan.mjs vẫn bóc nháy kiểu cũ — hai bộ đọc của CÙNG trường `paths:` nay bất đồng (đúng lớp «bên VIẾT trôi khỏi bên ĐỌC»)**
-  Người dùng thấy gì: Một phần của hệ thống có thể vẫn dùng kết quả kiểm tra cũ (đánh dấu 'đã đạt' từ vòng trước) thay vì kiểm tra lại khi tệp liên quan đã thay đổi thật, khiến báo cáo có thể không phản ánh đúng thay đổi mới nhất.
-  file: `feature-loop/scripts/carry-plan.mjs`
-  severity: high
-  Đề xuất: new-contract
-OOC-ITEM-TEMPLATE>>>
-
-<<<OOC-ITEM-TEMPLATE
-- **Nhánh list inline tách theo dấu phẩy trước khi bóc nháy — item bọc nháy có dấu phẩy giữ lại nháy thừa**
-  Người dùng thấy gì: Nếu một mục cấu hình dạng danh sách chứa dấu phẩy bên trong dấu ngoặc kép, hệ thống có thể đọc sai đường dẫn tệp hoặc nội dung chỉ dẫn công việc. Trường hợp này chưa từng xảy ra trong các dự án đang dùng kit.
-  file: `lib/evidence-core.cjs`
-  severity: low
-  Đề xuất: known-limits
-OOC-ITEM-TEMPLATE>>>
-
-<<<OOC-ITEM-TEMPLATE
-- **AC-7 teeth pin a fixed base sha, so re-pin of this signed dossier goes permanently red once diagram-design changes**
-  Người dùng thấy gì: Ở các đợt phát hành sau, một phép kiểm tra tự động có thể luôn báo lỗi một cách sai lệch ngay khi có bất kỳ thay đổi nào ở phần sơ đồ, kể cả khi bản phát hành đó hoàn toàn ổn — khiến người vận hành phải bỏ qua cảnh báo đỏ, làm giảm độ tin cậy của các cảnh báo khác.
+- **rang-moc.sh treo vô hạn khi `--chan` thiếu giá trị — hạ tầng hỏng không có tên, không có mã thoát**
+  Người dùng thấy gì: Nếu ai đó chạy công cụ kiểm tra bản phát hành mà quên nhập giá trị cho một tuỳ chọn, công cụ có thể treo vô thời hạn thay vì báo lỗi ngay, làm mất thời gian chờ trong dây chuyền phát hành.
   file: `_acceptance/release-2-11-0/rang-moc.sh`
-  severity: low
-  Đề xuất: known-limits
-OOC-ITEM-TEMPLATE>>>
-
-<<<OOC-ITEM-TEMPLATE
-- **Hình dạng 1 — đo CHỈ DẪN thay vì ĐẦU RA: phép đếm `unquoteScalar(` của BG6 tính cả chuỗi thông điệp `die()`**
-  Người dùng thấy gì: Bài kiểm tra tự động dùng để đảm bảo toàn bộ mã nguồn xử lý dấu ngoặc kép một cách nhất quán có một lỗ hổng: nó có thể vẫn báo 'đạt' ngay cả khi một phần thực sự bị bỏ sót bản vá, khiến lỗi cũ có thể quay lại đúng chỗ đó mà không bị phát hiện sớm.
-  file: `tests/scripts/bo-giai-nhay.test.mjs`
-  severity: high
-  Đề xuất: new-contract
-OOC-ITEM-TEMPLATE>>>
-
-<<<OOC-ITEM-TEMPLATE
-- **Hình dạng 5 — ma trận bảy đường khai trước 13 assert nhưng ô «đường 7 (models)» không phân biệt được bản vá với bản chưa vá**
-  Người dùng thấy gì: Một trong các phép kiểm tra tự động không thực sự phân biệt được giữa bản đã vá và bản chưa vá ở phần xử lý tên mô hình AI, nên nếu lỗi cũ quay lại đúng chỗ đó, hệ thống kiểm tra sẽ không phát hiện ra.
-  file: `tests/scripts/bo-giai-nhay.test.mjs`
-  severity: high
-  Đề xuất: new-contract
-OOC-ITEM-TEMPLATE>>>
-
-<<<OOC-ITEM-TEMPLATE
-- **Hình dạng 4 — chiều đỏ BG5 chỉ tiêm MỘT trong bảy đường nhưng ghim kết luận cho cả ca hành vi bảy đường**
-  Người dùng thấy gì: Phép kiểm tra 'phải báo lỗi khi cố tình gài lại lỗi cũ' chỉ thực sự thử nghiệm trên một phần nhỏ của toàn bộ thay đổi, nhưng thông điệp báo cáo lại ngụ ý đã kiểm tra toàn diện hơn thực tế.
-  file: `tests/scripts/bo-giai-nhay.test.mjs`
   severity: medium
-  Đề xuất: new-contract
-OOC-ITEM-TEMPLATE>>>
+  Đề xuất: known-limits
 
-<<<OOC-ITEM-TEMPLATE
-- **Hình dạng 3 — BG2 khẳng định «chuỗi con có mặt» trong khi lời hứa AC-2 là quan hệ trên trọn chuỗi ra**
-  Người dùng thấy gì: Một phép kiểm tra tự động chỉ xác nhận một đoạn nhỏ trong kết quả có đúng hay không, thay vì kiểm tra toàn bộ kết quả — nên một số lỗi nằm ngoài đoạn đó có thể lọt qua mà không bị phát hiện.
-  file: `tests/scripts/bo-giai-nhay.test.mjs`
+- **AC-10 chưa giữ được: carry-plan và s4-args vẫn bất đồng trên `paths:` có chú thích đuôi dòng**
+  Người dùng thấy gì: Khi một dòng cấu hình liệt kê tệp có kèm ghi chú ở cuối dòng, hai phần của hệ thống có thể đọc khác nhau — hệ quả là một số bước kiểm tra chạy lại thừa dù không cần, không làm mất kết quả nhưng tốn thêm thời gian.
+  file: `feature-loop/scripts/carry-plan.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **.gitignore thêm `s4-args.json` không neo đường dẫn và không có dòng chú thích như mọi mục khác**
+  Người dùng thấy gì: Không ảnh hưởng người dùng — đây chỉ là một quy tắc bỏ qua tệp trong hệ thống quản lý mã nguồn, thiếu một dòng giải thích cho người bảo trì sau này.
+  file: `.gitignore`
+  severity: low
+  Đề xuất: wont-fix
+
+- **rang-moc.sh loops forever when --chan is passed without a value**
+  Người dùng thấy gì: Nếu ai đó chạy công cụ kiểm tra bản phát hành mà quên nhập giá trị cho một tuỳ chọn, công cụ có thể treo vô thời hạn thay vì báo lỗi ngay, làm mất thời gian chờ trong dây chuyền phát hành.
+  file: `_acceptance/release-2-11-0/rang-moc.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **paths entry `diagram-design` matches no file — E7/E11 can be carried forward stale**
+  Người dùng thấy gì: Một vài mục kiểm tra liên quan tới phần vẽ sơ đồ có thể giữ nguyên kết quả kiểm tra cũ trong một vòng sửa lỗi nhiều bước, dù nội dung đã thay đổi — khiến thay đổi mới chưa chắc được kiểm tra lại kịp thời trong vòng đó.
+  file: `_acceptance/release-2-11-0/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Inline `cmd:` in evals.yaml keeps its YAML quotes — ninth executed-value path uncovered**
+  Người dùng thấy gì: Khi một dự án tiêu thụ viết lệnh kiểm tra trong ngoặc kép ở tệp cấu hình, lệnh đó có thể chạy sai và báo lỗi gây hiểu nhầm nguyên nhân — hiện chưa có dự án nào dùng cách viết này nên chưa ai gặp phải.
+  file: `feature-loop/scripts/s4-args.mjs`
   severity: low
   Đề xuất: known-limits
-OOC-ITEM-TEMPLATE>>>
 
-⚠ Cụm ngoài vùng phủ: 2/10 lỗi rơi vào file không bộ đo nào phủ (feature-loop/scripts/carry-plan.mjs, _acceptance/release-2-11-0/contract.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+- **Đo CHỈ DẪN thay vì ĐẦU RA — E10 khai «thiếu --ag-root là fail-CLOSED có tên», mã KHÔNG làm vậy và BG9 không hề chạm đường đó**
+  Người dùng thấy gì: Một mục kiểm tra mô tả một cơ chế bảo vệ mà trên thực tế chưa từng được chạy thử để xác nhận — người đọc báo cáo kiểm tra có thể tin nhầm vào một sự bảo vệ chưa được chứng minh là tồn tại.
+  file: `_acceptance/release-2-11-0/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+⚠ Cụm ngoài vùng phủ: 4/10 lỗi rơi vào file không bộ đo nào phủ (.gitignore, _acceptance/release-2-11-0/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
