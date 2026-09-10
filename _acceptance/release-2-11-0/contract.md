@@ -64,7 +64,12 @@ nội dòng
 **Then** lệnh chạy THẬT (không vỡ cú pháp), và mã thoát đem so là mã của **công cụ**,
 không phải mã 2 của shell — tức một PASS ở đây chỉ có thể đến từ công cụ thật sự trả 2.
 
-### AC-4 (theo LỚP) — một bộ bóc nháy dùng chung trên mọi đường giá-trị-bị-thi-hành
+### AC-4 (theo LỚP) — MỘT cổng tách token trên mọi đường giá-trị-bị-thi-hành
+
+> **Khuôn đổi 11/09 (owner chọn ĐƯỜNG A sau khi STOP-PATCHING nổ).** Hai lượt vá trước
+> đều gắn nhận-biết-vỏ vào MỘT bước phẫu-thuật-chuỗi và lượt sau lại thủng ở bước kế bên
+> trong cùng ống dẫn. Nay có MỘT `parseFlowValue` là cổng duy nhất, trả `{kind:'seq'|
+> 'scalar', …}`; tính đúng của nó KHÔNG phụ thuộc việc đếm đủ số đường đọc.
 
 **Given** kho ở HEAD của hồ sơ này
 **When** cho giá trị thật đi qua từng đường đọc trong **danh sách đóng** dưới đây (đường 8
@@ -82,6 +87,7 @@ thêm 10/09 cùng lúc mở AC-10)
 | 6 | `s4-args` id của eval | id |
 | 7 | `s4-args` `models` | tên model |
 | 8 | `carry-plan.mjs` `paths:` | glob quyết eval nào được carry-forward (AC-10) |
+| 9 | `carry-plan.mjs` `cmd:` | chuỗi lệnh mang sang lượt sau (thêm 11/09 cùng đường A) |
 
 **Và** tập hàm **CỐ Ý GIỮ** mệnh đề cũ là một danh sách đóng **năm** tên trong
 `lib/evidence-core.cjs` — `extractRunIds` · `extractEvalBlockRunIds` · `walkEvalExits` ·

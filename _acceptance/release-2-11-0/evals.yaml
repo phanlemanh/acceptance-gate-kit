@@ -99,8 +99,9 @@ evals:
       chú thích: nó đếm MÃ, không đếm VĂN — chính chú thích của `unquoteScalar` nêu nguyên
       văn mệnh đề cũ để giải thích vì sao nó sai. **(d)** TÁM đường của bảng AC-4 phải còn
       NEO GỌI của mình (`unquoteScalar(stripYamlComment(...))` · `splitTopLevel(...)` ·
-      `R.splitTopLevel(f[1])` …) — neo THEO CHỖ GỌI thay cho phép đếm văn bản của bản trước,
-      vì phép đếm đó nhận dư một đơn vị từ một chuỗi `die()` (AC-12). Ca này là ĐỐI CHỨNG
+      `R.parseFlowValue(f[1])` …) — CHÍN đường nay đi qua MỘT cổng `parseFlowValue`, neo
+      THEO CHỖ GỌI thay cho phép đếm văn bản của bản trước, vì phép đếm đó nhận dư một đơn
+      vị từ một chuỗi `die()` (AC-12). Ca này là ĐỐI CHỨNG
       cho quyết định descope đã ghi sổ, không thay ca hành vi E4.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
@@ -139,9 +140,10 @@ evals:
     cmd: config:executors.script.moc_diagram_khong_doi
     paths: [diagram-design, _acceptance/release-2-11-0/rang-moc.sh]
     expected: >
-      GIỐNG HỆT E11 — cùng lệnh, cùng dòng PASS. E7 khai vế «số 2.7.0 đúng», E11 khai vế
-      «răng sống qua chiến dịch ghim lại». Xem `expected` của E11 cho ba chân ba mã thoát và
-      bốn chiều đỏ; workflow chạy lệnh trùng MỘT lần.
+      GIỐNG HỆT E11 — cùng lệnh, cùng dòng PASS. E7 khai vế «số đang giữ là ĐÚNG vì vật
+      không đổi kể từ lần cắt số của chính nó», E11 khai vế «răng sống qua chiến dịch ghim
+      lại». Xem `expected` của E11 cho bốn chân bốn mã thoát và bốn chiều đỏ; workflow chạy
+      lệnh trùng MỘT lần.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8a
     criterion: AC-8
@@ -211,16 +213,21 @@ evals:
     cmd: config:executors.script.moc_diagram_khong_doi
     paths: [_acceptance/release-2-11-0/rang-moc.sh, diagram-design]
     expected: >
-      Exit 0 và stdout có dòng «PASS: diagram-design KHONG doi ke tu lan cat so gan nhat
-      (<sha>), giu 2.7.0 (doi chung duong: chinh moc do cham diagram-design/)». Mốc so
-      SUY TỪ KHO (`git log -n1 -- diagram-design/.claude-plugin/plugin.json`), KHÔNG ghim
-      vào config — nhờ vậy hồ sơ đã ký còn ghim lại được ở mọi HEAD tương lai. Ba chân ba
-      mã thoát: **3** không tìm được mốc cắt số · **4** chính mốc đó KHÔNG chạm
-      `diagram-design/` (phép đo không chạy thật) · **5** `diagram-design/` CÓ đổi sau lần
-      cắt số. Ba chiều đỏ đã chạy tay trên bản sao trọn cây 10/09: xoá `diagram-design/` →
-      exit 3; chạm `diagram-design/NOTICE` sau mốc → exit 5; cây thật → exit 0. Chiều đỏ
-      thứ tư ở đường giải chuỗi: bộ giải chưa vá đưa `--chan` thành `"diagram"` → exit 2
-      có tên, nên eval này không thể xanh trên bản chưa vá.
+      Exit 0, và stdout khai đúng QUAN HỆ chứ không phải một con số ghim cứng:
+      «PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (<sha>), giu <số đọc từ
+      manifest tại HEAD> (doi chung duong: so tai moc KHAC so tai cha)». **KHÔNG ghim
+      literal `2.7.0` vào đây** — lượt chấm 2 bắt đúng lỗi đó: AC-11 hứa răng còn xanh khi
+      chiến dịch ghim lại chạy nó ở HEAD muộn hơn SAU khi diagram-design đã cắt số mới, mà
+      một lời khai ghim `2.7.0` sẽ đỏ đúng lúc vật còn sống. Số và sha đều là biến.
+      Mốc so SUY TỪ KHO: commit đầu tiên (từ mới về cũ) chạm manifest mà **số tại nó KHÁC
+      số tại cha** — lần CẮT SỐ, không phải lần CHẠM. Bốn chân, bốn mã thoát riêng:
+      **6** không đọc được số tại HEAD (vật không còn) · **3** không tìm được lần cắt số
+      nào · **4** mốc chọn ra không phải một lần cắt số (đối chứng dương — chân này KHẲNG
+      ĐỊNH ĐƯỢC SAI, khác bản trước vốn đúng theo cấu tạo) · **5** `diagram-design/` CÓ đổi
+      sau lần cắt số. Ba chiều đỏ đã chạy trên bản sao trọn cây 10/09: xoá `diagram-design/`
+      → exit 6; chạm `diagram-design/NOTICE` sau mốc → exit 5; bản nguyên vẹn → exit 0.
+      Chiều đỏ thứ tư ở đường giải chuỗi: bộ giải chưa vá đưa `--chan` thành `"diagram"` →
+      exit 2 có tên, nên eval này không thể xanh trên bản chưa vá.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-12
