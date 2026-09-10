@@ -13,13 +13,35 @@
 // an toàn); exit 2 = usage/file lỗi. Suite commands KHÔNG thuộc phạm vi file
 // này — SKILL luôn bắt chạy lại suite. Judgment đi đường P3, không ở đây.
 import fs from 'node:fs';
+import path from 'node:path';
 import { realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+// MỘT bộ đọc dùng chung với `s4-args.mjs` cho CÙNG trường `paths:` của CÙNG
+// `evals.yaml`. Trước 2.11.0 tệp này tự bóc nháy bằng mệnh đề cũ, nên hai bên
+// trả hai chuỗi KHÁC nhau — và vì `paths` ở đây biến thành glob quyết eval nào
+// được CARRY-FORWARD, một glob mang ký tự thừa không khớp file nào và eval
+// được mang màu xanh cũ sang lượt mới dù file thật đã đổi (chiều FAIL-OPEN).
+// Lượt chấm 1 của hồ sơ release-2-11-0 đo được; AC-10 giữ chỗ này.
+let SHARED = null;
+function readers(agRoot) {
+  if (SHARED) return SHARED;
+  const req = createRequire(import.meta.url);
+  let core;
+  try { core = req(path.resolve(agRoot, 'lib', 'evidence-core.cjs')); }
+  catch (e) { die3(`không nạp được lib/evidence-core.cjs từ --ag-root ${agRoot}: ${String(e.message).split('\n')[0]}`); }
+  for (const n of ['unquoteScalar', 'splitTopLevel'])
+    if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} (cần >= 2.11.0)`);
+  SHARED = core;
+  return SHARED;
+}
+function die3(msg) { process.stderr.write(`carry-plan: ${msg}\n`); process.exit(2); }
 
 // Cờ được nhận DIỆN — một chỗ duy nhất. Cờ lạ (kể cả gõ lệch dấu gạch, vd
 // `--delta_files`) PHẢI nổ: bản trước im lặng nhận mọi tên, nên một lần gõ sai
 // biến thành "không có delta" = mang sang TOÀN BỘ với mã thoát 0 (S4-r3).
-const KNOWN_FLAGS = new Set(['run-log', 'evals', 'contract', 'delta-files', 'round', 'no-delta']);
+const KNOWN_FLAGS = new Set(['run-log', 'evals', 'contract', 'delta-files', 'round', 'no-delta', 'ag-root']);
 function parseArgs(argv) {
   const a = {}; const unknown = [];
   for (let i = 0; i < argv.length; i += 1) {
@@ -62,7 +84,7 @@ function globToRe(g) {
 
 // Parser evals.yaml tối giản cho đúng các field carry cần (id/criterion/
 // executor/cmd/paths) — cùng hình dạng subset mà eval-coverage-lint hiểu.
-function parseEvals(text) {
+function parseEvals(text, R) {
   const evals = []; let cur = null;
   for (const raw of text.split('\n')) {
     const m = raw.match(/^\s*-\s+id:\s*(\S+)/);
@@ -73,7 +95,7 @@ function parseEvals(text) {
     else if ((f = raw.match(/^\s+executor:\s*(\S+)/))) cur.executor = f[1];
     else if ((f = raw.match(/^\s+cmd:\s*"?([^"\n]+)"?\s*$/))) cur.cmd = f[1].trim();
     else if ((f = raw.match(/^\s+paths:\s*\[(.*)\]\s*$/)))
-      cur.paths = f[1].split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+      cur.paths = R.splitTopLevel(f[1]).map(s => R.unquoteScalar(s.trim())).filter(Boolean);
   }
   return evals;
 }
@@ -97,8 +119,9 @@ function crossLayerACs(contract) {
   return out;
 }
 
-export function plan({ runLogText, evalsText, contractText, deltaFiles, round }) {
-  const evals = parseEvals(evalsText).filter(e => e.executor !== 'judgment');
+export function plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot }) {
+  const R = readers(agRoot);
+  const evals = parseEvals(evalsText, R).filter(e => e.executor !== 'judgment');
   const xACs = crossLayerACs(contractText);
   const prevRound = round - 1;
   const lines = runLogText.split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);
@@ -153,7 +176,7 @@ const isMain = (() => {
 
 if (isMain) {
   const a = parseArgs(process.argv.slice(2));
-  const USAGE = 'carry-plan: usage: carry-plan.mjs --run-log <p> --evals <p> --contract <p> --round <N> (--delta-files <f1,f2,...> | --no-delta)\n';
+  const USAGE = 'carry-plan: usage: carry-plan.mjs --run-log <p> --evals <p> --contract <p> --round <N> --ag-root <p> (--delta-files <f1,f2,...> | --no-delta)\n';
   if (!a || a.__error) {
     process.stderr.write(`carry-plan: ${a && a.__error ? a.__error : 'không đọc được tham số'}\n` + USAGE);
     process.exit(2);
@@ -183,7 +206,13 @@ if (isMain) {
   const round = parseInt(a.round, 10);
   if (!Number.isInteger(round) || round < 2) { process.stderr.write('carry-plan: --round phải là số nguyên ≥ 2 (round fix)\n'); process.exit(2); }
   const deltaFiles = (a['delta-files'] || '').split(',').map(s => s.trim()).filter(Boolean);
-  const r = plan({ runLogText, evalsText, contractText, deltaFiles, round });
+  // --ag-root BẮT BUỘC: bộ đọc `paths:` phải là bộ dùng chung với s4-args, không
+  // phải một bản chép trong tệp này. Thiếu cờ = fail-CLOSED có tên (AC-10).
+  if (!a['ag-root']) {
+    process.stderr.write('carry-plan: thiếu --ag-root <gốc plugin acceptance-gate> — bộ đọc `paths:` phải dùng chung với s4-args (>= 2.11.0)\n' + USAGE);
+    process.exit(2);
+  }
+  const r = plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot: a['ag-root'] });
   if (r.noCarry) {
     process.stderr.write('carry-plan: dòng run-log round trước thiếu field sha (hoặc sha không thuần nhất) — lịch sử cũ, full re-run là mặc định an toàn\n');
     process.exit(3);

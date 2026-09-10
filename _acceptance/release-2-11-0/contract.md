@@ -148,6 +148,36 @@ contract qua `git show <sha>:<contract>` · `run-log.jsonl` · `git diff --numst
 sau chữ ký: nó **không** nằm trong AC này (xem Known limits) và được ghim lại ở làn re-pin
 sau khi ký, không sửa hồ sơ đã ký.
 
+### AC-10 (theo LỚP, mở 10/09) — `carry-plan.mjs` đọc `paths:` bằng CÙNG bộ đọc
+
+**Given** một dòng `paths:` inline trong `evals.yaml` có item bọc vỏ nháy
+**When** `s4-args.mjs` và `feature-loop/scripts/carry-plan.mjs` cùng đọc dòng đó
+**Then** hai bên trả **CÙNG một chuỗi**. Đây là đường thứ **tám** của bảng AC-4, thêm sau
+khi lượt chấm 1 đo được hai bên bất đồng: `carry-plan` biến `paths` thành glob để quyết
+eval nào được **carry-forward**, nên một glob mang ký tự thừa không khớp file nào và eval
+được mang màu xanh cũ sang lượt mới dù file thật đã đổi — chiều **fail-open**.
+
+### AC-11 (mở 10/09) — răng của hồ sơ mốc phải SỐNG QUA chiến dịch ghim lại
+
+**Given** hồ sơ mốc này đã ký, và một chiến dịch ghim lại chạy lại mọi eval máy của nó
+trên cây tại một HEAD muộn hơn
+**When** `diagram-design/` đã đổi sau khi mốc này ship
+**Then** răng AC-7 **KHÔNG được đỏ vì lý do đó**. Bất biến đúng và bền là «`diagram-design/`
+không đổi KỂ TỪ lần cắt số gần nhất của chính nó», không phải «không đổi trong một cửa sổ
+ghim cứng». Mốc so phải **suy từ kho**, không gõ vào config.
+
+### AC-12 (mở 10/09) — mọi khẳng định trong ma trận hành vi phải PHÂN BIỆT ĐƯỢC
+
+**Given** ma trận hành vi của AC-4 và các phép đếm trên mã nguồn của AC-4
+**When** hoàn nguyên **đúng MỘT** đường về mệnh đề cũ trên một bản sao
+**Then** đúng (các) khẳng định của đường đó phải ĐỎ — không ô nào trong ma trận được trơ.
+**Và** mọi phép đếm trên mã nguồn phải đếm **MÃ**, không đếm **VĂN**: một chuỗi thông điệp
+cho người có chứa tên hàm không được tính là một lời gọi. Lý do mở: lượt chấm 1 đo được hai
+ô trơ — «đường 7 (models)» xanh đủ 13/13 kể cả khi hoàn nguyên `s4-args`, và phép đếm
+`unquoteScalar(` của BG6 nhận dư một đơn vị từ chuỗi `die()`, nên nó dung thứ việc mất MỘT
+trong bốn chỗ gọi. Một thước không phân biệt được bản vá với bản chưa vá thì màu xanh của
+nó không nói gì — đúng lớp mà chính vòng này tồn tại để đóng.
+
 ## Coverage
 
 Quét bằng `morphological-scan`, preset test-matrix. Chân sản phẩm:
@@ -183,6 +213,11 @@ lần sau khỏi bàn lại.
 
 ## Out of scope
 
+- **Nâng phạm vi 10/09 (owner gọi tên «nâng phạm vi và tiếp tục»)**: năm mục lượt chấm 1
+  xếp NGOÀI hợp đồng nay vào trong, thành AC-10 · AC-11 · AC-12. Hai mục khác của lượt đó
+  (chiều đỏ BG5 chỉ tiêm một đường · nhánh inline tách phẩy giữa vỏ) đã tự khép trong lượt
+  sửa vì neo tiêm buộc phải đổi theo mã. Đây là phê chuẩn của người ở giữa vòng, không phải
+  máy tự mở.
 - **Rollout tới 7 repo tiêu thụ** (mỗi repo một PR, chủ repo gộp) — mốc chỉ cắt số ở kho kit.
 - **Phiên nghiệm thu gộp 10 hồ sơ chờ Cổng Giá trị** — nhát cắt số một của 2.10.0, vẫn treo.
 - **Sửa eval đỏ sẵn ở oneflow/crm** và hai PR nháp `phanlemanh/OneFlow#116`,
@@ -232,7 +267,7 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
 | Vòng | làm-xong → quyết-được | lượt chấm | lượt gọi người (thiết kế / ngoài) | bị hạ tầng đốt |
 |---|---|---|---|---|
 | `eval-khai-ma-thoat-mong-doi` (#165) | **184′ (3h04)** | **1** | **4 / 0** | **0** |
-| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | điền ở làn ghim lại | **3 / 0** | điền ở làn ghim lại |
+| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | **2** | **3 / 0** | **2** |
 
 - **Dòng 1 — làm-xong→quyết-được: 184′ trên vòng duy nhất của cửa sổ.** `implemented` ở
   `8f6a6bac` (10/09 14:58:38 +07) → `signed-off` ở `befa12ee` (18:02:32 +07). So mốc
@@ -249,17 +284,37 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
   mặt cấu trúc** — không phải một lần vận hành kém. Ba lần trượt với ba nguyên nhân khác
   nhau chính là dữ liệu mà ĐIỀU KIỆN THU HỒI của luật nới 07/09 đọc; nó dẫn thẳng tới nhát
   cắt gọi tên dưới đây, nên số này KHÔNG bị giấu.
-- **Dòng 3 — vòng bị hạ tầng kit đốt: 0/1 ở vòng #165.** Không lượt chấm nào của cửa sổ bị
-  hạ tầng giết — lần đầu tiên kể từ 2.8.0. Số của chính hồ sơ mốc điền ở làn ghim lại.
+- **Dòng 3 — hạ tầng kit đốt: 0/1 ở vòng #165, nhưng 2 ở CHÍNH hồ sơ mốc này.** Vòng #165
+  sạch — lần đầu kể từ 2.8.0. Hồ sơ mốc thì không, và cả hai lần đều là ĐƯỜNG VẬN CHUYỂN
+  chứ không phải vật:
+  1. **Lượt dispatch đầu BLOCKED `(args)`** — máy gõ tay một bản `toolKillRule` rút gọn
+     thay vì truyền nguyên văn tệp `s4-args.mjs` sinh, nên mất khối marker. Workflow
+     fail-CLOSED đúng thiết kế. Vi phạm chính `S4-ARGS-CLAUSE`; nguyên nhân gốc là args
+     phải đi QUA ngữ cảnh mô hình để tới công cụ Workflow.
+  2. **E8c REJECT GIẢ do tool-kill trong lượt 1** — đầu ra của suite `plugins` bị CẮT giữa
+     dòng (`MUTANT-2: da go ma eval khoi item 'V`), đúng chữ ký mà `TOOL-KILL-RULE` mô tả;
+     agent CÓ luật đó trong prompt và vẫn khai `exit_code: 1` thay vì `killedByTool`. Chạy
+     lại cùng lệnh tại chỗ ngay sau đó: **exit 0**. Lượt 1 vẫn có giá trị (nó bắt được hai
+     hồi quy thật), nhưng verdict REJECT của nó mang một eval đỏ giả.
+
+  **Đây là mốc thứ BA liên tiếp lớp tool-kill đốt lượt chấm** (2.10.0: 2/3 lượt của hồ sơ
+  mốc). `TOOL-KILL-RULE` là lời dặn trong prompt, không có răng: engine cố ý không grep nội
+  dung output, và không có phép đo nào bắt agent khai sai. Xem nhát cắt.
 
 ### Lớp vendored — repo tiêu thụ PHẢI chép lại
 
 Đo bằng `git diff --numstat 04069351..HEAD` trên chín mục của `INIT-CI-COPY-LIST`:
 
-| Mục | +/− | Vì sao consumer phải chép |
+Số dưới đây đo tại `56805d48` (lượt chấm 2). **Nó lớn dần theo chính các commit
+của vòng này** — đây là số ĐỌC TỪ LỆNH tại một sha có tên, không phải một hằng gõ
+tay; làn ghim lại rút lại ở sha chữ ký. Bản đầu của bảng này khai `+258/−16` cho
+`evidence-core` trong khi lệnh nó tự trích dẫn ra `260/16` — S4 lượt 1 bắt được,
+đúng thứ E9 sinh ra để bắt.
+
+| Mục | +/− tại `56805d48` | Vì sao consumer phải chép |
 |---|---|---|
-| `lib/evidence-core.cjs` | **+258 / −16** | mang `unquoteScalar` — thiếu nó thì `s4-args` của feature-loop 2.11.0 fail-CLOSED có tên |
-| `lib/eval-yaml.cjs` | **+48 / −1** | luật `expected_exit` từ vòng #165 |
+| `lib/evidence-core.cjs` | **+321 / −17** | mang `unquoteScalar` · `stripYamlComment` · `splitTopLevel` — thiếu bất kỳ hàm nào thì `s4-args` của feature-loop 2.11.0 fail-CLOSED có tên |
+| `lib/eval-yaml.cjs` | **+48 / −1** | luật kỳ-vọng-mã-thoát từ vòng #165 |
 | `scripts/pre-merge-check.sh` | +1 / −1 | truyền thêm một đối số cho làn ghim lại |
 | `scripts/recheck-evidence.cjs` | +1 / −1 | như trên |
 | `lib/gap-probe.cjs` · `lib/workspace-record.cjs` · `lib/ac-line.cjs` · `lib/md-section.cjs` · `lib/lop-nhin-thay.cjs` | 0 | không đổi trong cửa sổ |
@@ -284,7 +339,15 @@ của nó hết cần vá tay. Hai PR nháp đang mở (`phanlemanh/OneFlow#116`
 3. **Ba dòng số là VĂN** — mốc thứ ba liên tiếp khai cùng Known limit. Chưa đủ nặng để
    dựng phép đo (luật giới hạn CHIỀU RỘNG: lưới thường trực là trần), nhưng đã đủ để gọi
    tên: xem nhát cắt.
-4. **Một lỗ MỚI tìm ra khi đo, ngoài hợp đồng:** `parseEvals` (`lib/eval-yaml.cjs`) giữ
+4. **`TOOL-KILL-RULE` không có RĂNG — mốc thứ BA liên tiếp đốt lượt chấm.** Luật sống
+   trong prompt của agent; engine CỐ Ý không grep nội dung output (chuỗi tổng kết là của
+   suite từng repo), và không phép đo nào bắt agent khai sai. Ở lượt 1 của hồ sơ này, agent
+   nhận output bị cắt giữa dòng, có luật trong tay, vẫn báo `exit_code: 1`. Mốc 2.10.0 khai
+   cùng lớp này với 2/3 lượt bị đốt. **Cái phân biệt được «lệnh fail» với «công cụ giết»
+   nằm trong tool result mà chỉ agent thấy** — nên hoặc engine phải nhận được một tín hiệu
+   CẤU TRÚC từ harness, hoặc mỗi lượt REJECT phải có một lượt chạy-lại-xác-nhận trước khi
+   verdict được tin. Cả hai đều là việc có hợp đồng riêng.
+5. **Một lỗ MỚI tìm ra khi đo, ngoài hợp đồng:** `parseEvals` (`lib/eval-yaml.cjs`) giữ
    nguyên nháy trên `id`, trong khi vòng list-field của `s4-args` bóc chúng — nên một eval
    có `id: "E2"` bị bỏ qua LẶNG mọi list-field (`paths` · `steps` · `inputs`) rồi chết
    bằng một thông điệp nói sai nguyên nhân. Ghi ở Out of scope; không sửa trong vòng này.
@@ -307,7 +370,14 @@ lối, owner chọn:
 Khuyến nghị **(b)**: nguyên tắc «= số cổng thiết kế» chính là cách owner đã đọc trần T3 ở
 dòng ký mốc 2.7.0; áp nó cho mốc phát hành là nhất quán, không phải nới.
 
-**Nhát cắt số hai, CHUYỂN TIẾP nguyên văn từ 2.10.0 (vẫn treo):** một phiên nghiệm thu
+**Nhát cắt số hai, có căn cứ số ở dòng 3: cho `TOOL-KILL-RULE` một cái răng.** Ba mốc
+liên tiếp bị lớp này đốt lượt chấm, và lần này agent CÓ luật trong prompt mà vẫn khai sai —
+tức lời dặn đã hết tác dụng biên. Hai lối rẻ nhất, chưa chọn: (a) engine đọc một tín hiệu
+CẤU TRÚC của harness (tool result báo cắt/killed) thay vì tin lời khai của agent; (b) mọi
+verdict REJECT phải qua MỘT lượt chạy-lại-xác-nhận riêng cho các eval đỏ trước khi được ghi
+— rẻ vì chỉ chạy lại phần đỏ, và nó biến «đỏ giả» thành một lượt máy thay vì một vòng người.
+
+**Nhát cắt số ba, CHUYỂN TIẾP nguyên văn từ 2.10.0 (vẫn treo):** một phiên nghiệm thu
 **GỘP** cho 10 hồ sơ đang chờ Cổng Giá trị. Số lấy bằng máy:
 `node scripts/start-scan.mjs --root .` → `groups.gates` với `gate=gia-tri`.
 

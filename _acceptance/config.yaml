@@ -224,10 +224,11 @@ executors:
     emmd_dau_cuoi_that: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan dau-cuoi-that
     bo_giai_nhay: "node tests/scripts/bo-giai-nhay.test.mjs"
     # Vật của hồ sơ release-2-11-0. Giá trị CỐ Ý là scalar vỏ nháy kép có `\"` bên trong:
-    # bộ giải TRƯỚC 2.11.0 trả chuỗi còn dấu chéo ngược nên `--neo` nhận `\"04069351\"`,
-    # `git rev-parse` trượt và răng thoát 3 có tên. Tức eval AC-7 không thể xanh trên bản
-    # chưa vá — bằng chứng sống của bản vá nằm ngay trong làn chấm.
-    moc_diagram_khong_doi: "bash -c 'bash _acceptance/release-2-11-0/rang-moc.sh --chan diagram --neo \"04069351\"'"
+    # bộ giải TRƯỚC 2.11.0 trả chuỗi còn dấu chéo ngược nên `--chan` nhận `\"diagram\"`
+    # và răng thoát 2 có tên. Tức eval AC-7 không thể xanh trên bản chưa vá — bằng chứng
+    # sống của bản vá nằm ngay trong làn chấm. Mốc so KHÔNG ghim vào đây: răng tự suy từ
+    # kho, nên hồ sơ đã ký còn ghim lại được ở mọi HEAD tương lai (AC-11).
+    moc_diagram_khong_doi: "bash -c 'bash _acceptance/release-2-11-0/rang-moc.sh --chan \"diagram\"'"
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

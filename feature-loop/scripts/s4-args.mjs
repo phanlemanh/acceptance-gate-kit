@@ -329,7 +329,7 @@ if (flags['carry-anchor']) {
   // file CHỮ không đổi so round trước thì không phải chấm lại (13/34 finding của một vòng là
   // góp ý về chữ lặp lại mỗi round). Cùng MỘT nguồn với carry-forward P1, không tính lần hai.
   deltaForArgs = deltaFiles;
-  const cpArgs = ['--run-log', runLogPath, '--evals', path.join(ws, 'evals.yaml'), '--contract', contractPath, '--round', String(round)];
+  const cpArgs = ['--run-log', runLogPath, '--evals', path.join(ws, 'evals.yaml'), '--contract', contractPath, '--round', String(round), '--ag-root', agRoot];
   cpArgs.push(...(deltaFiles.length ? ['--delta-files', deltaFiles.join(',')] : ['--no-delta']));
   try {
     const out = execFileSync(process.execPath, [path.join(HERE, 'carry-plan.mjs'), ...cpArgs], { encoding: 'utf8' });
