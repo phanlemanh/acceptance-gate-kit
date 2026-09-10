@@ -63,17 +63,21 @@ evals:
     paths: [lib/evidence-core.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/bo-giai-nhay.test.mjs]
     expected: >
       Cùng lệnh với E1. Đầu ra có dòng «PASS: BG4 bay duong thi-hanh tra dung chuoi nguoi
-      viet». Đây là ca HÀNH VI, không phải ca đọc mã nguồn: ma trận **toàn phần** bảy đường
-      của bảng AC-4 × các hình dạng trục B có nghĩa cho từng đường, số assert BẰNG một hằng
-      khai trước trong tệp ca (lệch là đỏ). Fixture code-sinh trong chính lần chạy, rồi gọi
+      viet». Đây là ca HÀNH VI, không phải ca đọc mã nguồn: ma trận bảy đường của bảng AC-4
+      × các hình dạng trục B CÓ NGHĨA cho từng đường — TẬP CON khai trước, không phải tích
+      Descartes đầy đủ (nhiều ô vô nghĩa, vd một tên model kết thúc bằng nháy) — số assert
+      BẰNG một hằng khai trước trong tệp ca (lệch là đỏ). Fixture code-sinh trong chính lần chạy, rồi gọi
       **CHÍNH** `resolveConfigList` (cả nhánh inline `[a, "b\"c"]` lẫn nhánh khối
       `- "cd x && echo \"y\""`) và **CHÍNH** `s4-args.mjs` (đọc `paths`/`inputs`/`steps`
       kết thúc bằng nháy, id, `models`) của cây đang kiểm. Khẳng định là QUAN HỆ trên chuỗi
       ra — đúng argv, không còn dấu chéo ngược, không mất ký tự cuối — không phải phép
       có-mặt của một chuỗi con. Ba hình dạng lấy NGUYÊN VĂN từ bán kính đã đo:
       `<html lang=\"vi\">` (crm, `steps`), `evidence-report.md §"E7 — render thật"`
-      (artifact-platform, `inputs`), và khoá `uicheck_avatar_pool` (artifact-platform,
-      `config.yaml`).
+      (artifact-platform, `paths`), và khoá `uicheck_avatar_pool` (artifact-platform,
+      `config.yaml`). Cộng hình dạng **kết thúc bằng nháy mà KHÔNG phải vỏ** chạy trên CẢ
+      hai nhánh list của `s4-args` — hình dạng sinh ra chuỗi xanh-giả, N5 tự-soi bắt được
+      chỗ nó còn thiếu (11 → 13 khẳng định). Đường 6 (`id`) là LƯỚI HỒI QUY, không phải ca
+      phân biệt: id bọc nháy hỏng ở tầng khác, xem Out of scope.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4b
     criterion: AC-4
@@ -81,14 +85,19 @@ evals:
     cmd: config:executors.script.bo_giai_nhay
     paths: [lib/evidence-core.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/bo-giai-nhay.test.mjs]
     expected: >
-      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG6 ranh gioi vá dung bang danh sach dong».
-      Ca đọc mã nguồn hai tệp và khẳng định TRÊN TỪNG HÀM, không trên cả tệp: bảy đường của
-      bảng AC-4 KHÔNG còn khớp `replace(/^["']|["']$/g` trong thân hàm của chúng, và bốn
-      hàm cố-ý-giữ (`extractRunIds` · `walkEvalExits` · `extractVerifierValues` ·
-      `frontmatterField`) VẪN còn. Chân thứ ba chống cả hai chiều trôi: **tổng số khớp
-      trong hai tệp BẰNG số phần tử tập cố-ý-giữ** — vá sót thì tổng lớn hơn, vá lan thì
-      tổng nhỏ hơn, cả hai đỏ ghim tên hàm. Ca này là ĐỐI CHỨNG cho quyết định descope đã
-      ghi sổ, không thay ca hành vi E4.
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG6 ranh gioi va dung bang danh sach dong».
+      Ca đọc mã nguồn hai tệp và khẳng định TRÊN TỪNG HÀM, không trên cả tệp. Ba chân:
+      (a) `resolveConfigKey` và `resolveConfigList` KHÔNG còn khớp
+      `replace(/^["']|["']$/g` trong thân hàm, và `s4-args.mjs` còn ĐÚNG 0 khớp toàn tệp;
+      (b) NĂM hàm cố-ý-giữ VẪN còn — `extractRunIds` · `extractEvalBlockRunIds` ·
+      `walkEvalExits` · `extractVerifierValues` · `isAuthenticVerifier` (danh sách này ĐO
+      bằng máy ở S3, KHÔNG lấy từ trí nhớ: bản Cổng 1 đoán bốn và SAI — `frontmatterField`
+      không mang mệnh đề cũ vì nó đã tự vá đúng lớp này ở S4-r5, còn `extractEvalBlockRunIds`
+      và `isAuthenticVerifier` thì có); (c) **tổng khớp trong `lib/evidence-core.cjs` BẰNG 5**
+      — vá sót thì lớn hơn, vá lan thì nhỏ hơn, cả hai đỏ ghim tên hàm. Phép đếm bỏ qua dòng
+      chú thích: nó đếm MÃ, không đếm VĂN — chính chú thích của `unquoteScalar` nêu nguyên
+      văn mệnh đề cũ để giải thích vì sao nó sai. Ca này là ĐỐI CHỨNG cho quyết định descope
+      đã ghi sổ, không thay ca hành vi E4.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
