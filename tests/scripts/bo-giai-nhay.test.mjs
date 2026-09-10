@@ -297,14 +297,15 @@ function bg6() {
   const boChuThich = (f) => fs.readFileSync(f, 'utf8').split('\n').filter(l => !l.trim().startsWith('//')).join('\n');
   const sCore = boChuThich(coreP), sArgs = boChuThich(argsP), sCp = boChuThich(cpP);
   const GOI = [
-    ['1 resolveConfigKey la', sCore, 'unquoteScalar(stripYamlComment(m[2]))'],
-    ['2 resolveConfigList inline', sCore, 'splitTopLevel(val.replace('],
-    ['3 resolveConfigList khoi', sCore, 'unquoteScalar(stripYamlComment(m[1]))'],
-    ['4 s4-args list inline', sArgs, 'splitTopLevel(s.replace('],
-    ['5 s4-args list khoi', sArgs, 'unquoteScalar(itemM[1].trim())'],
-    ['6 s4-args id', sArgs, 'unquoteScalar(idM[1])'],
-    ['7 s4-args models', sArgs, 'unquoteScalar(m[2])'],
-    ['8 carry-plan paths', sCp, 'R.splitTopLevel(f[1])'],
+    ['1 resolveConfigKey la', sCore, "const pv = parseFlowValue(m[2]);\n        const val = pv.kind === 'seq' ? pv.text : pv.value;"],
+    ['2 resolveConfigList inline', sCore, "const pv = parseFlowValue(m[2]);\n        if (pv.kind === 'seq') return pv.items;"],
+    ['3 resolveConfigList khoi', sCore, 'out.push(parseFlowValue(m[1]).value)'],
+    ['4 s4-args list field', sArgs, 'const pv = parseFlowValue(vRaw);'],
+    ['5 s4-args list khoi', sArgs, 'cur[pendingList].push(parseFlowValue(itemM[1]).value)'],
+    ['6 s4-args id', sArgs, 'parseFlowValue(idM[1]).value'],
+    ['7 s4-args models', sArgs, 'out[m[1]] = parseFlowValue(m[2]).value'],
+    ['8 carry-plan paths', sCp, 'const pv = R.parseFlowValue(f[1]);'],
+    ['9 carry-plan cmd', sCp, 'cur.cmd = R.parseFlowValue(f[1]).value'],
   ];
   for (const [ten, src, neo] of GOI)
     if (!src.includes(neo)) { do_('BG6', `duong [${ten}] KHONG con goi bo dung chung — mat neo «${neo}»`); hong++; }
@@ -314,7 +315,7 @@ function bg6() {
     lines.forEach((l, i) => { if (l.trim().startsWith('//')) return; CU_RE.lastIndex = 0; if (CU_RE.test(l)) hitCp.push(i + 1); });
     if (hitCp.length) { do_('BG6', `carry-plan.mjs con ${hitCp.length} menh de cu (dong ${hitCp.join(', ')})`); hong++; }
   }
-  if (!hong) xanh('BG6', `ranh gioi va dung bang danh sach dong (${GIU.length} ham giu, 8 duong neo theo cho goi, 0 khop o s4-args va carry-plan)`);
+  if (!hong) xanh('BG6', `ranh gioi va dung bang danh sach dong (${GIU.length} ham giu, ${GOI.length} duong qua CONG CHUNG, 0 khop o s4-args va carry-plan)`);
 }
 
 // ─── BG7 — cắt chú thích và tách phẩy phải NHẬN BIẾT VỎ NHÁY ──────────────
@@ -325,7 +326,7 @@ function bg6() {
 // kèm dấu nháy MỞ, rồi `bash -c '"echo a'` thoát 2 — đúng chuỗi xanh-giả bốn
 // bước mà vòng này tồn tại để đóng, chỉ đổi nguồn gây nháy-không-cân từ NGƯỜI
 // VIẾT sang CHÍNH BỘ GIẢI. Mệnh đề cũ ít ra còn gỡ được ký tự thừa đó.
-const BG7_ASSERTS = 9;
+const BG7_ASSERTS = 11;
 function bg7() {
   const cfg = [
     'bg7:',
@@ -335,6 +336,7 @@ function bg7() {
     '  vo_kep_roi_chu_thich: "echo a"   # ghi chu that',
     '  vo_kep_co_escape_va_thang: "echo \\"a # b\\" done"',
     '  inline: [plain, "a, b", z]',
+    '  inline_thang: ["click #submit", "then b"]',   // hình dạng làm nổ lượt chấm 2
     '  khoi:',
     '    - "cd x # y"',
     '    - "p, q"',
@@ -352,6 +354,12 @@ function bg7() {
   const khoi = core.resolveConfigList(cfg, 'bg7.khoi');
   ca.push(['khoi[0] thang trong vo', khoi[0], 'cd x # y']);
   ca.push(['khoi[1] phay trong vo', khoi[1], 'p, q']);
+  // Hình dạng đã tái mở chuỗi xanh-giả ở lượt chấm 2: `#` bên trong vỏ, Ở
+  // NHÁNH INLINE. Bản trước chỉ thử `#` ở nhánh KHỐI nên ma trận xanh mà lỗ
+  // vẫn sống — đúng lớp AC-12 sinh ra để chặn.
+  const it = core.resolveConfigList(cfg, 'bg7.inline_thang');
+  ca.push(['inline thang trong vo [0]', it[0], 'click #submit']);
+  ca.push(['inline thang trong vo dai', String(it.length), '2']);
   if (ca.length !== BG7_ASSERTS) { do_('BG7', `so khang dinh ${ca.length} != BG7_ASSERTS ${BG7_ASSERTS} khai truoc`); return; }
   let hong = 0;
   for (const [ten, thay, mong] of ca) {
@@ -426,13 +434,13 @@ function bg8() {
   if (process.env.BG_NO_RED === '1') { xanh('BG8', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
   const CORE = ['lib', 'evidence-core.cjs'], ARGS = ['feature-loop', 'scripts', 's4-args.mjs'], CP = ['feature-loop', 'scripts', 'carry-plan.mjs'];
   const MUT = [
-    ['1 resolveConfigKey la', CORE, 'const val = unquoteScalar(stripYamlComment(m[2]));', "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');", 'BG4'],
-    ['2 resolveConfigList inline', CORE, "if (val.startsWith('[')) return splitTopLevel(val.replace(/^\\[|\\]$/g, '')).map(s => unquoteScalar(s.trim())).filter(Boolean);", "if (val.startsWith('[')) return val.replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG4'],
-    ['3 resolveConfigList khoi', CORE, 'if (m) out.push(unquoteScalar(stripYamlComment(m[1])));', "if (m) out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''));", 'BG4'],
-    ['4 s4-args list inline', ARGS, "const parseInline = s => splitTopLevel(s.replace(/^\\[|\\]$/g, '')).map(x => unquoteScalar(x.trim())).filter(Boolean);", "const parseInline = s => s.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG4'],
-    ['5 s4-args list khoi', ARGS, 'if (itemM) { cur[pendingList].push(unquoteScalar(itemM[1].trim())); continue; }', "if (itemM) { cur[pendingList].push(itemM[1].trim().replace(/^[\"']|[\"']$/g, '')); continue; }", 'BG4'],
-    ['7 s4-args models', ARGS, 'if (m) out[m[1]] = unquoteScalar(m[2]);', "if (m) out[m[1]] = m[2].replace(/^[\"']|[\"']$/g, '');", 'BG4'],
-    ['8 carry-plan paths', CP, 'cur.paths = R.splitTopLevel(f[1]).map(s => R.unquoteScalar(s.trim())).filter(Boolean);', "cur.paths = f[1].split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG9'],
+    ['1 resolveConfigKey la', CORE, "const pv = parseFlowValue(m[2]);\n        const val = pv.kind === 'seq' ? pv.text : pv.value;", "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');", 'BG4'],
+    ['2 resolveConfigList inline', CORE, "const pv = parseFlowValue(m[2]);\n        if (pv.kind === 'seq') return pv.items;", "const pv = { kind: 'x', text: m[2].replace(/\\s+#.*$/, '').trim() };\n        if (pv.text.startsWith('[')) return pv.text.replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG4'],
+    ['3 resolveConfigList khoi', CORE, 'out.push(parseFlowValue(m[1]).value)', "out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
+    ['4 s4-args list field', ARGS, 'const pv = parseFlowValue(vRaw);', "const _v = vRaw.replace(/\\s+#.*$/, '').trim();\n      const pv = _v.startsWith('[') ? { kind: 'seq', items: _v.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) } : { kind: 's', value: _v };", 'BG4'],
+    ['5 s4-args list khoi', ARGS, 'cur[pendingList].push(parseFlowValue(itemM[1]).value)', "cur[pendingList].push(itemM[1].trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
+    ['7 s4-args models', ARGS, 'out[m[1]] = parseFlowValue(m[2]).value', "out[m[1]] = m[2].replace(/^[\"']|[\"']$/g, '')", 'BG4'],
+    ['8 carry-plan paths', CP, 'const pv = R.parseFlowValue(f[1]);', "const pv = { kind: 'seq', items: f[1].replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) };", 'BG9'],
   ];
   if (MUT.length !== BG8_MUTANTS) { do_('BG8', `so dot bien ${MUT.length} != BG8_MUTANTS ${BG8_MUTANTS} khai truoc`); return; }
   const d = mkTmp('bg8-archive-');

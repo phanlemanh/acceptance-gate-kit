@@ -41,7 +41,7 @@ function readers(agRoot) {
     try { core = req(c); break; } catch (e) { vet.push(`${c} (${String(e.message).split('\n')[0]})`); }
   }
   if (!core) die3(`không nạp được lib/evidence-core.cjs — đã thử: ${vet.join(' · ')}; truyền --ag-root <gốc plugin acceptance-gate>`);
-  for (const n of ['unquoteScalar', 'splitTopLevel'])
+  for (const n of ['parseFlowValue'])
     if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} (cần >= 2.11.0) — truyền --ag-root trỏ bản >= 2.11.0`);
   SHARED = core;
   return SHARED;
@@ -103,9 +103,11 @@ function parseEvals(text, R) {
     let f;
     if ((f = raw.match(/^\s+criterion:\s*(\S+)/))) cur.criterion = f[1];
     else if ((f = raw.match(/^\s+executor:\s*(\S+)/))) cur.executor = f[1];
-    else if ((f = raw.match(/^\s+cmd:\s*"?([^"\n]+)"?\s*$/))) cur.cmd = f[1].trim();
-    else if ((f = raw.match(/^\s+paths:\s*\[(.*)\]\s*$/)))
-      cur.paths = R.splitTopLevel(f[1]).map(s => R.unquoteScalar(s.trim())).filter(Boolean);
+    else if ((f = raw.match(/^\s+cmd:\s*(\S.*)$/))) cur.cmd = R.parseFlowValue(f[1]).value;
+    else if ((f = raw.match(/^\s+paths:\s*(\[.*)$/))) {
+      const pv = R.parseFlowValue(f[1]);
+      if (pv.kind === 'seq') cur.paths = pv.items;
+    }
   }
   return evals;
 }
