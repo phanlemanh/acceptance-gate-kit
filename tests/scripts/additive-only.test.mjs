@@ -209,6 +209,20 @@ const ALLOWED_REMOVALS = [
   `if [ "$EVAL_LANE_SKIPPED" -gt 0 ]; then`,
   `  echo "NOTE: eval-lane scope — $EVAL_LANE_SKIPPED slug ngoài diff PR không được soi làn ghim lại (sử liệu theo phạm vi diff; dùng --recheck-all để quét toàn bộ)"`,
   `fi`,
+  // Hồ sơ eval-khai-ma-thoat-mong-doi (2026-09-09): checkRepinEvals nhận thêm
+  // tham số thứ tư mang nội dung evidence-report.md ĐÃ KÝ — vế hai của luật
+  // hai vế (mã khác 0 chỉ chống lưng pin khi ĐÃ KHAI VÀ ĐÃ KÝ) cần đối chiếu
+  // với báo cáo, mà chỉ BÊN GỌI mới có đường tới nội dung đó (recheck-evidence.cjs
+  // giữ sẵn payload; pre-merge-check.sh có đường dẫn evals.yaml để suy ra
+  // evidence-report.md cạnh nó). Đây là SỬA MỘT LỜI GỌI HÀM thêm đối số, không
+  // phải một dòng luật mới — không có đường "chỉ thêm" cho việc truyền tham số
+  // vào một lệnh gọi đã tồn tại. Luật vẫn sống MỘT chỗ ở lib/evidence-core.cjs
+  // (checkRepinEvals); phần đọc tệp evidence-report.md cũng đã dọn về đó
+  // (readSignedReportFor) — recheck-evidence.cjs không cần đọc lại, nó truyền
+  // thẳng payload đang có sẵn. Miễn trừ ĐÍCH DANH hai dòng gọi cũ (tiền lệ
+  // LEDGER_EXPECTED); mọi sửa khác trên hai dòng thay thế vẫn ĐỎ.
+  `            const r = core.checkRepinEvals(e, evalsText, slug);`,
+  `          for (const x of core.checkRepinEvals(e, evalsText, slug).errs) errs.push(\`REPIN x \${x}\`);`,
 ];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
