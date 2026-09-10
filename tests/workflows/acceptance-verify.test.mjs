@@ -1973,4 +1973,89 @@ console.log('W39 lan conventions gioi han theo deltaFiles (MOI duoi, khong rieng
   check('W39 khong deltaFiles -> nhu cu', !/CHI cham cac file DA DOI/i.test(p2) && /main\.\.\.HEAD/.test(p2), p2.slice(0, 120));
 }
 
+// W-EE — kỳ vọng mã thoát mong đợi tính theo LỆNH (Task 5, evals[].expectedExit
+// do s4-args.mjs mang vào; workflow không tự đọc evals.yaml). Hai eval chung
+// lệnh khai khác mã là mâu thuẫn không có lời giải đúng → BLOCKED có tên.
+console.log('W-EE1 eval khai expectedExit 2 va lenh tra 2 -> khong failed, verdict khong REJECT');
+{
+  const { result } = await runWorkflow(WF, baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'gioi han da khai', expectedExit: 2 }],
+    suiteCommands: [],
+  }), responder({ 'machine:': { exitCode: 2, outputTail: 'tien de thieu', runId: '', cannotRun: false } }));
+  check('W-EE1', result.verdict !== 'REJECT' && result.failedEvals.length === 0,
+    `verdict=${result.verdict} failed=${JSON.stringify(result.failedEvals)}`);
+}
+
+console.log('W-EE2 cung eval tra 1 -> REJECT va co trong failedEvals');
+{
+  const { result } = await runWorkflow(WF, baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'gioi han da khai', expectedExit: 2 }],
+    suiteCommands: [],
+  }), responder({ 'machine:': { exitCode: 1, outputTail: 'truot that', runId: '', cannotRun: false } }));
+  check('W-EE2', result.verdict === 'REJECT' && result.failedEvals.includes('E1'),
+    `verdict=${result.verdict} failed=${JSON.stringify(result.failedEvals)}`);
+}
+
+console.log('W-EE3 eval KHONG khai ma tra 2 -> REJECT (khong mo rong ngam)');
+{
+  const { result } = await runWorkflow(WF, baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'binh thuong' }],
+    suiteCommands: [],
+  }), responder({ 'machine:': { exitCode: 2, outputTail: 'truot', runId: '', cannotRun: false } }));
+  check('W-EE3', result.verdict === 'REJECT' && result.failedEvals.includes('E1'),
+    `verdict=${result.verdict}`);
+}
+
+console.log('W-EE4 hai eval chung lenh khai KHAC ma -> BLOCKED goi ten ca hai');
+{
+  const { result } = await runWorkflow(WF, baseArgs({
+    evals: [
+      { id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 },
+      { id: 'E2', criterion: 'AC-2', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'b', expectedExit: 3 },
+    ],
+    suiteCommands: [],
+  }), responder());
+  const b = (result.blocked || []).find(x => x.cmd === './x.sh');
+  check('W-EE4', result.verdict === 'BLOCKED' && b && b.reason.includes('E1') && b.reason.includes('E2') && b.reason.includes('2') && b.reason.includes('3'),
+    `blocked=${JSON.stringify(result.blocked)}`);
+}
+
+console.log('W-EE5 doi chung duong: hai eval chung lenh khai CUNG ma -> khong blocked');
+{
+  const { result } = await runWorkflow(WF, baseArgs({
+    evals: [
+      { id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 },
+      { id: 'E2', criterion: 'AC-2', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'b', expectedExit: 2 },
+    ],
+    suiteCommands: [],
+  }), responder({ 'machine:': { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false } }));
+  check('W-EE5', (result.blocked || []).length === 0 && result.verdict !== 'REJECT', `verdict=${result.verdict}`);
+}
+
+console.log('W-EE6 lan doi chung tra dung/khac ky vong -> Analyst so voi expectedExit, khong so voi 0');
+{
+  // Hai chieu tren CUNG fixture: baselineExit KHOP expectedExit=2 phai doc la
+  // "khong phan biet" (green-on-both); baselineExit LECH phai KHONG nam trong do.
+  // Neu code con so cung 0 (hardcode cu), ca hai case se cho CUNG mot ket qua.
+  const mkArgs = () => baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 }],
+    suiteCommands: [], runBaseline: true,
+  });
+  const { result: rMatch } = await runWorkflow(WF, mkArgs(), responder({
+    'machine:': { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false },
+    'baseline:': { results: [{ cmd: './x.sh', baselineExit: 2, cannotRun: false }] },
+  }));
+  const ndMatch = (rMatch.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));
+  check('W-EE6a baseline == expectedExit(2) -> E1 non-discriminating (green-on-both)',
+    ndMatch, JSON.stringify(rMatch.nonDiscriminating));
+
+  const { result: rDiff } = await runWorkflow(WF, mkArgs(), responder({
+    'machine:': { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false },
+    'baseline:': { results: [{ cmd: './x.sh', baselineExit: 1, cannotRun: false }] },
+  }));
+  const ndDiff = (rDiff.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));
+  check('W-EE6b baseline != expectedExit(2) -> E1 KHONG non-discriminating (doi chung)',
+    !ndDiff, JSON.stringify(rDiff.nonDiscriminating));
+}
+
 summary('acceptance-verify');

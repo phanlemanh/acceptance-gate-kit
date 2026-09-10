@@ -406,6 +406,25 @@ for (const cmd of args.suiteCommands) {
 }
 const distinctCmds = [...byCmd.keys()]
 
+// Kỳ vọng tính theo LỆNH, không theo eval: byCmd gom nhiều eval vào MỘT lượt
+// chạy, mà một lượt chạy chỉ có một mã thoát. Hai eval chung lệnh khai hai mã
+// khác nhau là mâu thuẫn không có lời giải đúng — BLOCKED có tên, để người sửa
+// evals.yaml. Chọn thầm một mã là đúng lớp fail-open kit đang chặn.
+const expOf = e => Number.isInteger(e.expectedExit) ? e.expectedExit : 0
+const expByCmd = new Map()
+const expConflicts = []
+for (const cmd of distinctCmds) {
+  const es = machineEvals.filter(e => e.cmd === cmd)
+  if (!es.length) { expByCmd.set(cmd, 0); continue }   // lệnh suite: luôn kỳ vọng 0
+  const set = [...new Set(es.map(expOf))]
+  if (set.length > 1) {
+    expConflicts.push({ cmd, reason: `hai eval tro cung lenh "${cmd}" khai HAI ma thoat mong doi khac nhau: ${es.map(e => `${e.id}=${expOf(e)}`).join(', ')} — mot luot chay chi co MOT ma thoat, may khong chon tham. Sua evals.yaml: tach lenh, hoac khai cung mot ma.` })
+    expByCmd.set(cmd, 0); continue
+  }
+  expByCmd.set(cmd, set[0])
+}
+const expCmd = cmd => expByCmd.get(cmd) || 0
+
 // variance-N: số lần chạy mỗi lệnh = max(runs) trên các eval trỏ tới nó (default 1, cap 10).
 // runs>1 = eval NGẪU NHIÊN (vd qua ctx.providers.invoke / generator-LLM) → cần phân phối pass-rate, không phải 1 phát.
 const evalRuns = e => Math.max(1, Number.isInteger(e.runs) ? e.runs : 1)
@@ -615,14 +634,14 @@ for (const cmd of distinctCmds) {
   // KHÔNG được tính pass-rate/variance trên mẫu thiếu: 1/5 lần chạy được mà PASS = giả mạo (đúng triết lý kit: verify được hay BLOCKED, không fake).
   if (cannotRunCount > 0 || missing > 0) {
     const firstCannot = rs.find(r => r.cannotRun)
-    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === 0).length, variance: false, cannotRun: true, reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
+    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === expCmd(cmd)).length, variance: false, cannotRun: true, reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
     continue
   }
   // đủ N lần chạy sạch → tính pass-rate / variance
-  const passes = ran.filter(r => r.exitCode === 0).length
+  const passes = ran.filter(r => r.exitCode === expCmd(cmd)).length
   const variance = ran.length > 1 && passes > 0 && passes < ran.length
-  const rep = ran.find(r => r.exitCode !== 0) || ran[0] // ưu tiên lần fail làm đại diện chẩn đoán
-  const exitCode = (passes === ran.length || variance) ? 0 : (rep.exitCode || 1)
+  const rep = ran.find(r => r.exitCode !== expCmd(cmd)) || ran[0] // ưu tiên lần fail làm đại diện chẩn đoán
+  const exitCode = (passes === ran.length || variance) ? expCmd(cmd) : (rep.exitCode || 1)
   machine.push({ cmd, evals: byCmd.get(cmd), runs: ran.length, passes, variance, cannotRun: false, reason: rep.reason, exitCode, runId: rep.runId, outputTail: rep.outputTail })
 }
 // ui-check hợp nhất vào machine-style (luôn 1 lần): cmd ui-check:<evalId> — routing blocked/failed dùng chung
@@ -744,7 +763,7 @@ const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
 const baselineStatus = (cmd) => {
   const b = baselineByCmd.get(cmd)
   if (!b || b.cannotRun) return 'n-a'
-  return b.baselineExit === 0 ? 'green' : 'red'
+  return b.baselineExit === expCmd(cmd) ? 'green' : 'red'
 }
 // Eval không-phân-biệt: lệnh-CÓ-eval pass trên CẢ HEAD lẫn baseline (green-on-both) → chứng minh harness, không phải feature
 // P2: round không đo baseline → Analyst carry nguyên từ round có baseline gần nhất (carriedAnalyst).
@@ -752,7 +771,7 @@ const carriedAnalyst = (!runBaseline && args.carriedAnalyst && Array.isArray(arg
   ? args.carriedAnalyst : null
 const nonDiscriminating = runBaseline
   ? machine
-      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && m.exitCode === 0 && baselineStatus(m.cmd) === 'green')
+      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && m.exitCode === expCmd(m.cmd) && baselineStatus(m.cmd) === 'green')
       .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
   : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
 const judges = (judgeRaw || []).filter(Boolean).map(normalizeVote)
@@ -965,6 +984,7 @@ if (typeof args.evalsHash === 'string' && args.evalsHash) {
 // ---- verdict routing (kit rules) ----
 const blocked = machine.filter(m => m.cannotRun)
   .map(m => ({ cmd: m.cmd, reason: m.reason || 'cannotRun khong co reason' }))
+  .concat(expConflicts)
 {
   // AC-8 (cham-dung-cay-dung-cho-dung): vắng mặt là TÍN HIỆU — agent chết không
   // được tàng hình. Mỗi eval mất kết quả để lại một dòng `kind: vang-mat` trong
@@ -982,7 +1002,7 @@ const blocked = machine.filter(m => m.cannotRun)
     vangMat(e.id, 'ui-check agent bi skip/chet — khong co ket qua')
   }
 }
-const failed = machine.filter(m => !m.cannotRun && m.exitCode !== 0)
+const failed = machine.filter(m => !m.cannotRun && m.exitCode !== expCmd(m.cmd))
 const failedEvalIds = [...new Set(failed.flatMap(m => m.evals))]
 
 const failedCommands = failed.map(m => ({ cmd: m.cmd, evals: m.evals, exitCode: m.exitCode }))
@@ -1024,7 +1044,7 @@ log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds
 // ---- Synthesize: 1 agent viết evidence-report.md đúng template (hook enforce) ----
 phase('Synthesize')
 // Trim payload: lệnh PASS chỉ cần ~3 dòng output cuối làm evidence; lệnh fail/blocked giữ nguyên tail (cần cho chẩn đoán)
-const machineForReport = machine.map(m => (!m.cannotRun && m.exitCode === 0 && !m.variance)
+const machineForReport = machine.map(m => (!m.cannotRun && m.exitCode === expCmd(m.cmd) && !m.variance)
   ? { ...m, outputTail: String(m.outputTail || '').split('\n').slice(-3).join('\n') }
   : m)
 const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd) }))
