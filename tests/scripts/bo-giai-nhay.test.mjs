@@ -326,7 +326,7 @@ function bg6() {
 // kèm dấu nháy MỞ, rồi `bash -c '"echo a'` thoát 2 — đúng chuỗi xanh-giả bốn
 // bước mà vòng này tồn tại để đóng, chỉ đổi nguồn gây nháy-không-cân từ NGƯỜI
 // VIẾT sang CHÍNH BỘ GIẢI. Mệnh đề cũ ít ra còn gỡ được ký tự thừa đó.
-const BG7_ASSERTS = 11;
+const BG7_ASSERTS = 13;
 function bg7() {
   const cfg = [
     'bg7:',
@@ -337,6 +337,8 @@ function bg7() {
     '  vo_kep_co_escape_va_thang: "echo \\"a # b\\" done"',
     '  inline: [plain, "a, b", z]',
     '  inline_thang: ["click #submit", "then b"]',   // hình dạng làm nổ lượt chấm 2
+    '  hong_khong_dong: [x, y',                     // `[` không đóng — phải fail-CLOSED
+    '  hong_dong_trong_vo: ["a]b", c',              // `]` chỉ có bên trong vỏ
     '  khoi:',
     '    - "cd x # y"',
     '    - "p, q"',
@@ -360,6 +362,9 @@ function bg7() {
   const it = core.resolveConfigList(cfg, 'bg7.inline_thang');
   ca.push(['inline thang trong vo [0]', it[0], 'click #submit']);
   ca.push(['inline thang trong vo dai', String(it.length), '2']);
+  // `[` không đóng thì KHÔNG được đoán: trả [] (fail-CLOSED) chứ không tách bừa.
+  ca.push(['ngoac khong dong -> fail-CLOSED', JSON.stringify(core.resolveConfigList(cfg, 'bg7.hong_khong_dong')), '[]']);
+  ca.push(['] chi trong vo -> fail-CLOSED', JSON.stringify(core.resolveConfigList(cfg, 'bg7.hong_dong_trong_vo')), '[]']);
   if (ca.length !== BG7_ASSERTS) { do_('BG7', `so khang dinh ${ca.length} != BG7_ASSERTS ${BG7_ASSERTS} khai truoc`); return; }
   let hong = 0;
   for (const [ten, thay, mong] of ca) {

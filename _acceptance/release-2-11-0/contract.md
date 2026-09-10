@@ -277,7 +277,7 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
 | Vòng | làm-xong → quyết-được | lượt chấm | lượt gọi người (thiết kế / ngoài) | bị hạ tầng đốt |
 |---|---|---|---|---|
 | `eval-khai-ma-thoat-mong-doi` (#165) | **184′ (3h04)** | **1** | **4 / 0** | **0** |
-| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | **2** | **3 / 1** | **2** |
+| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | **3** | **4 / 1** | **3** |
 
 - **Dòng 1 — làm-xong→quyết-được: 184′ trên vòng duy nhất của cửa sổ.** `implemented` ở
   `8f6a6bac` (10/09 14:58:38 +07) → `signed-off` ở `befa12ee` (18:02:32 +07). So mốc
@@ -285,8 +285,11 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
   **nhanh hơn 2,3 lần trung bình** và là vòng rẻ nhất đo được từ khi kit đếm số. Một lượt
   chấm duy nhất, PASS ngay — so 6 lượt của vòng T3 gom ở mốc trước.
 - **Dòng 2 — lượt gọi người.** Vòng #165: **4 trong thiết kế, 0 ngoài** — đúng trần T3.
-  Hồ sơ mốc này: **3 trong thiết kế** (Cổng Phạm vi · Gate 1.5 · Cổng Bằng chứng) **+ 1
-  NGOÀI thiết kế** = 4, đếm tới **lời mời Cổng Bằng chứng** như AC-9 khai trước. Lượt ngoài
+  Hồ sơ mốc này: **4 trong thiết kế** (Cổng Phạm vi · Gate 1.5 · **STOP-PATCHING** ·
+  Cổng Bằng chứng) **+ 1 NGOÀI thiết kế** = 5, đếm tới **lời mời Cổng Bằng chứng** như
+  AC-9 khai trước. STOP-PATCHING là điểm dừng CÓ TRONG THIẾT KẾ của SKILL (nó bắt máy
+  trình người ba đường khi lượt sửa thứ hai sinh lỗi cùng lớp) — nhưng nó là điểm dừng
+  thứ TƯ ngoài ba cổng, nên T3 trần 4 nay đã CHẠM ĐÁY chỉ với phần trong-thiết-kế. Lượt ngoài
   thiết kế là «nâng phạm vi và tiếp tục»: máy trình khối *Ngoài hợp đồng* của lượt chấm 1
   NGAY khi có, thay vì để tới Cổng Bằng chứng — nơi thiết kế dành cho quyết định đó. Ghi là
   NGOÀI dù nó **tiết kiệm việc**: quyết ở Cổng Bằng chứng sẽ phải mở lại hợp đồng rồi chạy
@@ -298,7 +301,7 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
   mặt cấu trúc** — không phải một lần vận hành kém. Ba lần trượt với ba nguyên nhân khác
   nhau chính là dữ liệu mà ĐIỀU KIỆN THU HỒI của luật nới 07/09 đọc; nó dẫn thẳng tới nhát
   cắt gọi tên dưới đây, nên số này KHÔNG bị giấu.
-- **Dòng 3 — hạ tầng kit đốt: 0/1 ở vòng #165, nhưng 2 ở CHÍNH hồ sơ mốc này.** Vòng #165
+- **Dòng 3 — hạ tầng kit đốt: 0/1 ở vòng #165, nhưng 3 ở CHÍNH hồ sơ mốc này.** Vòng #165
   sạch — lần đầu kể từ 2.8.0. Hồ sơ mốc thì không, và cả hai lần đều là ĐƯỜNG VẬN CHUYỂN
   chứ không phải vật:
   1. **Lượt dispatch đầu BLOCKED `(args)`** — máy gõ tay một bản `toolKillRule` rút gọn
@@ -311,8 +314,12 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
      lại cùng lệnh tại chỗ ngay sau đó: **exit 0**. Lượt 1 vẫn có giá trị (nó bắt được hai
      hồi quy thật), nhưng verdict REJECT của nó mang một eval đỏ giả.
 
+  3. **E8c REJECT GIẢ do tool-kill LẦN THỨ HAI, ở lượt 2** — báo cáo tự ghi
+     «(output truncated - 19854 characters)» mà agent vẫn khai `exit_code: 1`; chạy lại
+     tại chỗ exit 0. Cùng ngưỡng cắt với lần đầu và với mốc 2.10.0.
+
   **Đây là mốc thứ BA liên tiếp lớp tool-kill đốt lượt chấm** (2.10.0: 2/3 lượt của hồ sơ
-  mốc). `TOOL-KILL-RULE` là lời dặn trong prompt, không có răng: engine cố ý không grep nội
+  mốc; mốc này 2/3). `TOOL-KILL-RULE` là lời dặn trong prompt, không có răng: engine cố ý không grep nội
   dung output, và không có phép đo nào bắt agent khai sai. Xem nhát cắt.
 
 ### Lớp vendored — repo tiêu thụ PHẢI chép lại
