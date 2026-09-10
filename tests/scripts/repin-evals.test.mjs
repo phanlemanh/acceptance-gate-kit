@@ -13,11 +13,13 @@ import { readFileSync, writeFileSync, mkdtempSync, cpSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import { mkRepinFixture, SHA_A, TS_NEW, evalsYamlWith } from './repin-fixture.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
+const require = createRequire(import.meta.url);
 const RC = path.join(ROOT, 'scripts', 'recheck-evidence.cjs');
 const CHECK = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
 let passed = 0, failed = 0;
@@ -72,12 +74,12 @@ check('RE2+ đối chứng: eval judgment/ui-check KHÔNG bị đòi — E1 máy
   assert.equal(pm(f.root).code, 0, pm(f.root).out);
 });
 
-check('RE3 eval đỏ: evals_exit {E1:1} → ĐỎ đích danh (làn đỏ không chống lưng được pin)', () => {
+check('RE3 eval đỏ: evals_exit {E1:1}, evals.yaml KHÔNG khai giới hạn nào → ĐỎ đích danh «chưa khai» (luật hai vế: chưa khai vẫn là làn đỏ không chống lưng được pin)', () => {
   const f = NEW({ evalsExit: { E1: 1 } });
   const r = rc(f.report);
   assert.equal(r.code, 1);
-  assert.match(r.err, /REPIN x re-pin lane "repin-test-1" evals_exit has nonzero exit for E1=1/);
-  assert.match(pm(f.root).out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" evals_exit has nonzero exit for E1=1/);
+  assert.match(r.err, /REPIN x re-pin lane "repin-test-1" evals_exit không đạt kỳ vọng đã khai cho E1=1 \(chưa khai/);
+  assert.match(pm(f.root).out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" evals_exit không đạt kỳ vọng đã khai cho E1=1 \(chưa khai/);
 });
 
 check('RE4 evals_exit sai khuôn (mảng thay vì object) → ĐỎ đích danh', () => {
@@ -103,7 +105,7 @@ check('RE5b dòng ts CŨ có evals_exit: {E1:0} clean; {E1:1} ĐỎ — luật k
   const ok = mkRepinFixture({ evalsExit: { E1: 0 } });
   assert.equal(rc(ok.report).code, 0); const p = pm(ok.root); assert.equal(p.code, 0); assert.doesNotMatch(p.out, /suite-only/);
   const bad = mkRepinFixture({ evalsExit: { E1: 1 } });
-  assert.equal(rc(bad.report).code, 1); assert.match(rc(bad.report).err, /nonzero exit for E1=1/);
+  assert.equal(rc(bad.report).code, 1); assert.match(rc(bad.report).err, /evals_exit không đạt kỳ vọng đã khai cho E1=1/);
 });
 
 check('RE6 dòng repin KHÔNG có ts và không evals_exit → ĐỎ, thông điệp in ts ?', () => {
@@ -168,6 +170,62 @@ check('RE9+ đối chứng dương: làn đủ bộ → ngoài diff · --recheck
   }
 });
 
+// ── RE-EE luật hai vế (hồ sơ eval-khai-ma-thoat-mong-doi, Task 3): một mã
+// thoát KHÁC 0 chỉ chống lưng được pin khi ĐỦ HAI VẾ — (a) evals.yaml đã KHAI
+// đúng mã đó, VÀ (b) báo cáo ĐÃ KÝ (khối `- eval: <id>` trong `## Evidence`)
+// đã ghi ĐÚNG mã đó TRƯỚC khi làn này chạy. Thiếu MỘT vế = fail-open (chỉ cần
+// sửa dòng khai của hồ sơ đã ký là làn xanh lại) — chính tiền đề vừa mất.
+function evalsYamlWithExpectedExit(id, exitCode) {
+  return `schema_version: 1\nslug: feat-repin\n\nevals:\n  - id: ${id}\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.rang_${id.toLowerCase()}\n    expected: >\n      Xanh: răng ${id} exit ${exitCode}.\n    expected_exit: ${exitCode}\n`;
+}
+// Mô phỏng «báo cáo ĐÃ KÝ ghi mã N»: patch khối `- eval: E1` trong
+// evidence-report.md mặc định (sinh ra với exit_code: 0) sang exit_code: N.
+function signReportExit(reportPath, code) {
+  writeFileSync(reportPath, readFileSync(reportPath, 'utf8').replace('exit_code: 0', `exit_code: ${code}`));
+}
+
+check('RE-EE1 hai vế ĐỦ: khai 2 + báo cáo đã ký ghi 2 + làn trả 2 → clean (mã đã khai VÀ đã ký nhận). checkRepinEvals trực tiếp KHÔNG đỏ, và luật eval-lane của pre-merge (bên đọc thứ hai) cũng không in VIOLATION cho làn này — L1 CONSISTENCY toàn-payload là một cổng KHÁC, ngoài phạm vi việc này (hồ sơ song song đang chữa nó), nên không dùng rc() làm phép đo ở ca này', () => {
+  const evalsText = evalsYamlWithExpectedExit('E1', 2);
+  const f = mkRepinFixture({ ts: TS_NEW, evalsYaml: evalsText, evalsExit: { E1: 2 } });
+  signReportExit(f.report, 2);
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const entry = { run_id: f.runId, sha: f.sha, ts: TS_NEW, evals_exit: { E1: 2 } };
+  const { errs } = core.checkRepinEvals(entry, evalsText, f.slug, readFileSync(f.report, 'utf8'));
+  assert.equal(errs.length, 0, errs.join('\n'));
+  const p = pm(f.root);
+  assert.doesNotMatch(p.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" evals_exit/, `luật eval-lane của pre-merge vẫn phải sạch cho làn hai-vế-đủ:\n${p.out}`);
+});
+
+check('RE-EE2 vế hai THIẾU (đối chứng đỏ của RE-EE1, cùng fixture): khai 2 nhưng báo cáo đã ký còn ghi 0, làn trả 2 → ĐỎ «tiền đề»', () => {
+  const f = mkRepinFixture({ ts: TS_NEW, evalsYaml: evalsYamlWithExpectedExit('E1', 2), evalsExit: { E1: 2 } });
+  // KHÔNG ký lại báo cáo — vẫn giữ exit_code: 0 mặc định (chưa ai ký nhận mã 2)
+  const r = rc(f.report);
+  assert.equal(r.code, 1, 'khai đúng mã mà báo cáo đã ký chưa hề ghi mã đó vẫn phải đỏ');
+  assert.match(r.err, /tiền đề/);
+  const p = pm(f.root);
+  assert.equal(p.code, 1);
+  assert.match(p.out, /tiền đề/);
+});
+
+check('RE-EE3 vế một THIẾU (đối chứng đỏ khác của RE-EE1): evals.yaml KHÔNG khai mã thoát, làn trả 2, báo cáo có ghi 2 → ĐỎ «chưa khai»', () => {
+  const f = mkRepinFixture({ ts: TS_NEW, evalsYaml: evalsYamlWith(['E1']), evalsExit: { E1: 2 } });
+  signReportExit(f.report, 2);
+  const r = rc(f.report);
+  assert.equal(r.code, 1, 'chưa khai giới hạn nào mà làn trả mã khác 0 vẫn phải đỏ, dù báo cáo có ghi đúng mã đó');
+  assert.match(r.err, /chưa khai/);
+  const p = pm(f.root);
+  assert.equal(p.code, 1);
+  assert.match(p.out, /chưa khai/);
+});
+
+check('RE-EE4 đường đọc-cũ: gọi checkRepinEvals KHÔNG truyền reportText (bên gọi cũ/vắng thư viện) → mọi mã khác 0 vẫn ĐỎ dù đã khai đúng mã (fail-closed)', () => {
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const evalsText = evalsYamlWithExpectedExit('E1', 2);
+  const entry = { run_id: 'repin-test-1', sha: SHA_A, ts: TS_NEW, evals_exit: { E1: 2 } };
+  const { errs } = core.checkRepinEvals(entry, evalsText, 'feat-repin'); // tham số 4 VẮNG
+  assert.equal(errs.length, 1, `đường đọc-cũ phải đỏ (fail-closed) khi không có reportText để đối chiếu vế hai:\n${errs.join('\n')}`);
+});
+
 // ── Mutant: phá phần mã bị canh → ca đổi màu (phép đo sống). Bản sao lấy TRỌN
 // thư mục scripts/ + lib/ (không chép danh sách file tay — P150).
 function mutantTree(mutate) {
@@ -190,7 +248,7 @@ check('REm1 mutant lib: danh sách executor máy → [] ⇒ ca phủ-thiếu (RE
 });
 check('REm3 mutant dây nối: recheck bỏ lời gọi checkRepinEvals ⇒ RE1 xanh ở recheck nhưng pre-merge VẪN đỏ (mỗi reader nối riêng)', () => {
   const f = NEW({ noEvalsExit: true });
-  const m = mutantTree([['scripts/recheck-evidence.cjs', 'for (const x of core.checkRepinEvals(e, evalsText, slug).errs) errs.push(`REPIN x ${x}`);', '/* mutant */']]);
+  const m = mutantTree([['scripts/recheck-evidence.cjs', 'for (const x of core.checkRepinEvals(e, evalsText, slug, payload).errs) errs.push(`REPIN x ${x}`);', '/* mutant */']]);
   assert.equal(rc(f.report, m.rc).code, 0);
   assert.equal(pm(f.root, m.pm).code, 1);
 });

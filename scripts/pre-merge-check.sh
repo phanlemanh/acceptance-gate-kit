@@ -1230,7 +1230,7 @@ REPINIDS
           let bad = 0;
           for (const id of ids) {
             const e = repins.get(id); if (!e || e.sha !== vc) continue;
-            const r = core.checkRepinEvals(e, evalsText, slug);
+            const r = core.checkRepinEvals(e, evalsText, slug, (() => { const rp = evalsPath.replace(/evals\.yaml$/, "evidence-report.md"); return fs.existsSync(rp) ? fs.readFileSync(rp, "utf8") : null; })());
             if (r.note) process.stdout.write(`NOTE [${slug}]: ${r.note}\n`);
             for (const x of r.errs) { bad = 1; process.stdout.write(`VIOLATION [${slug}]: ${x}\n`); }
           }
