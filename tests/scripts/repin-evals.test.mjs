@@ -196,34 +196,68 @@ check('RE-EE1 hai vế ĐỦ: khai 2 + báo cáo đã ký ghi 2 + làn trả 2 �
   assert.doesNotMatch(p.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" evals_exit/, `luật eval-lane của pre-merge vẫn phải sạch cho làn hai-vế-đủ:\n${p.out}`);
 });
 
-check('RE-EE2 vế hai THIẾU (đối chứng đỏ của RE-EE1, cùng fixture): khai 2 nhưng báo cáo đã ký còn ghi 0, làn trả 2 → ĐỎ «tiền đề»', () => {
+check('RE-EE2 vế hai THIẾU (đối chứng đỏ của RE-EE1, cùng fixture): khai 2 nhưng báo cáo đã ký còn ghi 0, làn trả 2 → ĐỎ «tiền đề», thông điệp neo cả id eval lẫn hai mã (đã khai/ đã ký/ làn trả) — không chỉ chuỗi "tiền đề" đứng một mình, vì một lỗi gắn nhầm id (dùng nhầm biến vòng lặp) vẫn có chữ "tiền đề" ở đâu đó', () => {
   const f = mkRepinFixture({ ts: TS_NEW, evalsYaml: evalsYamlWithExpectedExit('E1', 2), evalsExit: { E1: 2 } });
   // KHÔNG ký lại báo cáo — vẫn giữ exit_code: 0 mặc định (chưa ai ký nhận mã 2)
   const r = rc(f.report);
   assert.equal(r.code, 1, 'khai đúng mã mà báo cáo đã ký chưa hề ghi mã đó vẫn phải đỏ');
-  assert.match(r.err, /tiền đề/);
+  assert.match(r.err, /E1=2 \(tiền đề vừa mất: báo cáo đã ký ghi 0, làn nay trả 2 — một mã khác 0 MỚI xuất hiện chưa ai ký nhận\)/);
   const p = pm(f.root);
   assert.equal(p.code, 1);
-  assert.match(p.out, /tiền đề/);
+  assert.match(p.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" evals_exit không đạt kỳ vọng đã khai cho E1=2 \(tiền đề vừa mất: báo cáo đã ký ghi 0, làn nay trả 2 — một mã khác 0 MỚI xuất hiện chưa ai ký nhận\)/);
 });
 
-check('RE-EE3 vế một THIẾU (đối chứng đỏ khác của RE-EE1): evals.yaml KHÔNG khai mã thoát, làn trả 2, báo cáo có ghi 2 → ĐỎ «chưa khai»', () => {
+check('RE-EE3 vế một THIẾU (đối chứng đỏ khác của RE-EE1): evals.yaml KHÔNG khai mã thoát, làn trả 2, báo cáo có ghi 2 → ĐỎ «chưa khai», thông điệp neo cả id eval lẫn mã cụ thể', () => {
   const f = mkRepinFixture({ ts: TS_NEW, evalsYaml: evalsYamlWith(['E1']), evalsExit: { E1: 2 } });
   signReportExit(f.report, 2);
   const r = rc(f.report);
   assert.equal(r.code, 1, 'chưa khai giới hạn nào mà làn trả mã khác 0 vẫn phải đỏ, dù báo cáo có ghi đúng mã đó');
-  assert.match(r.err, /chưa khai/);
+  assert.match(r.err, /E1=2 \(chưa khai: evals\.yaml không khai mã thoát mong đợi cho eval này\)/);
   const p = pm(f.root);
   assert.equal(p.code, 1);
-  assert.match(p.out, /chưa khai/);
+  assert.match(p.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" evals_exit không đạt kỳ vọng đã khai cho E1=2 \(chưa khai: evals\.yaml không khai mã thoát mong đợi cho eval này\)/);
 });
 
-check('RE-EE4 đường đọc-cũ: gọi checkRepinEvals KHÔNG truyền reportText (bên gọi cũ/vắng thư viện) → mọi mã khác 0 vẫn ĐỎ dù đã khai đúng mã (fail-closed)', () => {
+check('RE-EE4 đường đọc-cũ: gọi checkRepinEvals KHÔNG truyền reportText (bên gọi cũ/vắng thư viện) → mọi mã khác 0 vẫn ĐỎ dù đã khai đúng mã (fail-closed), và thông điệp phải rơi đúng nhánh «vế hai không kiểm được» — không phải lọt nhầm sang nhánh «chưa khai» hay «lệch mã đã khai»', () => {
   const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
   const evalsText = evalsYamlWithExpectedExit('E1', 2);
   const entry = { run_id: 'repin-test-1', sha: SHA_A, ts: TS_NEW, evals_exit: { E1: 2 } };
   const { errs } = core.checkRepinEvals(entry, evalsText, 'feat-repin'); // tham số 4 VẮNG
   assert.equal(errs.length, 1, `đường đọc-cũ phải đỏ (fail-closed) khi không có reportText để đối chiếu vế hai:\n${errs.join('\n')}`);
+  assert.match(errs[0], /E1=2 \(không đọc được báo cáo đã ký để đối chiếu — vế hai của luật không kiểm được\)/, `thông điệp phải rơi đúng nhánh «vế hai không kiểm được», không phải một nhánh khác:\n${errs[0]}`);
+});
+
+// ── «khai lệch» (owner review, Task 3): evals.yaml khai một mã, làn trả một
+// mã KHÁC, cả hai đều khác 0 — nhánh got !== want, chưa từng có ca nào chạm
+// tới (RE-EE1..4 chỉ chạm want===0 và signed-mismatch). Cặp hai chiều trên
+// CÙNG fixture, một biến duy nhất đổi giữa hai ca: evals_exit của E1 (2 → 3).
+check('RE-EE-KL1 khai lệch đối chứng dương: evals.yaml khai E1=2, làn trả ĐÚNG 2, báo cáo đã ký ghi 2 → checkRepinEvals sạch (mã khớp cả khai lẫn ký). exit_code:2 trong payload trúng L1 CONSISTENCY (cổng khác toàn-payload, ngoài phạm vi việc này) nên không dùng rc()/p.code làm phép đo tổng — chỉ soi pm() không in VIOLATION của luật repin cho làn này (như RE-EE1)', () => {
+  const evalsText = evalsYamlWithExpectedExit('E1', 2);
+  const f = mkRepinFixture({ ts: TS_NEW, evalsYaml: evalsText, evalsExit: { E1: 2 } });
+  signReportExit(f.report, 2);
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const entry = { run_id: f.runId, sha: f.sha, ts: TS_NEW, evals_exit: { E1: 2 } };
+  const { errs } = core.checkRepinEvals(entry, evalsText, f.slug, readFileSync(f.report, 'utf8'));
+  assert.equal(errs.length, 0, errs.join('\n'));
+  const p = pm(f.root);
+  assert.doesNotMatch(p.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" evals_exit/, `luật eval-lane của pre-merge vẫn phải sạch cho làn khớp-cả-khai-lẫn-ký:\n${p.out}`);
+});
+
+check('RE-EE-KL2 khai lệch (một-biến so với KL1: chỉ đổi evals_exit E1 2→3): evals.yaml khai E1=2, làn trả 3 (khác 0, khác mã đã khai) → ĐỎ neo cả hai mã «khai 2, làn trả 3», cả hai bên đọc (checkRepinEvals trực tiếp + recheck + pre-merge)', () => {
+  const evalsText = evalsYamlWithExpectedExit('E1', 2);
+  const f = mkRepinFixture({ ts: TS_NEW, evalsYaml: evalsText, evalsExit: { E1: 3 } });
+  signReportExit(f.report, 2); // giữ nguyên như KL1 — không liên quan nhánh «khai lệch», chỉ evals_exit đổi
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const entry = { run_id: f.runId, sha: f.sha, ts: TS_NEW, evals_exit: { E1: 3 } };
+  const { errs } = core.checkRepinEvals(entry, evalsText, f.slug, readFileSync(f.report, 'utf8'));
+  assert.equal(errs.length, 1, errs.join('\n'));
+  assert.match(errs[0], /E1=3 \(khai 2, làn trả 3 — lệch mã đã khai\)/);
+  const r = rc(f.report);
+  assert.equal(r.code, 1, r.err);
+  assert.match(r.err, /E1=3 \(khai 2, làn trả 3 — lệch mã đã khai\)/);
+  const p = pm(f.root);
+  assert.equal(p.code, 1, p.out);
+  assert.match(p.out, /VIOLATION \[feat-repin\]: re-pin lane "repin-test-1" evals_exit không đạt kỳ vọng đã khai cho E1=3 \(khai 2, làn trả 3 — lệch mã đã khai\)/);
 });
 
 // ── Mutant: phá phần mã bị canh → ca đổi màu (phép đo sống). Bản sao lấy TRỌN
