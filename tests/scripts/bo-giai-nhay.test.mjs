@@ -296,17 +296,8 @@ function bg6() {
   const cpP = path.join(ROOT, 'feature-loop', 'scripts', 'carry-plan.mjs');
   const boChuThich = (f) => fs.readFileSync(f, 'utf8').split('\n').filter(l => !l.trim().startsWith('//')).join('\n');
   const sCore = boChuThich(coreP), sArgs = boChuThich(argsP), sCp = boChuThich(cpP);
-  const GOI = [
-    ['1 resolveConfigKey la', sCore, "const pv = parseFlowValue(m[2]);\n        const val = pv.kind === 'seq' ? pv.text : pv.value;"],
-    ['2 resolveConfigList inline', sCore, "const pv = parseFlowValue(m[2]);\n        if (pv.kind === 'seq') return pv.items;"],
-    ['3 resolveConfigList khoi', sCore, 'out.push(parseFlowValue(m[1]).value)'],
-    ['4 s4-args list field', sArgs, 'const pv = parseFlowValue(vRaw);'],
-    ['5 s4-args list khoi', sArgs, 'cur[pendingList].push(parseFlowValue(itemM[1]).value)'],
-    ['6 s4-args id', sArgs, 'parseFlowValue(idM[1]).value'],
-    ['7 s4-args models', sArgs, 'out[m[1]] = parseFlowValue(m[2]).value'],
-    ['8 carry-plan paths', sCp, 'const pv = R.parseFlowValue(f[1]);'],
-    ['9 carry-plan cmd', sCp, 'cur.cmd = R.parseFlowValue(f[1]).value'],
-  ];
+  const SRC = new Map([[CORE, sCore], [ARGS, sArgs], [CP, sCp]]);
+  const GOI = DUONG.map(d => [d[0], SRC.get(d[1]), d[2]]);
   for (const [ten, src, neo] of GOI)
     if (!src.includes(neo)) { do_('BG6', `duong [${ten}] KHONG con goi bo dung chung — mat neo «${neo}»`); hong++; }
   { // carry-plan cũng phải sạch mệnh đề cũ (đường thứ tám, AC-10)
@@ -435,21 +426,44 @@ function bg9() {
 // Đường 6 (`id`) CỐ Ý không có trong danh sách: nó là LƯỚI HỒI QUY, bản vá ở
 // đó là hợp nhất lớp và không đổi hành vi — xem Out of scope của hợp đồng.
 const CORE = ['lib', 'evidence-core.cjs'], ARGS = ['feature-loop', 'scripts', 's4-args.mjs'], CP = ['feature-loop', 'scripts', 'carry-plan.mjs'];
-// MỘT nguồn cho danh sách đột biến — BG8 dùng cả bảy, BG5 dùng ba ô của
-// evidence-core. Trước đó hai chân giữ HAI bản cùng danh sách neo và chúng
-// trôi khỏi nhau ngay lần đổi khuôn đầu tiên (BG5 đỏ vì «neo đổi»). Đúng lớp
-// «bên VIẾT trôi khỏi bên ĐỌC», lần này giữa hai phép đo của cùng tệp.
-const MUT_ALL = [
-    ['1 resolveConfigKey la', CORE, "const pv = parseFlowValue(m[2]);\n        const val = pv.kind === 'seq' ? pv.text : pv.value;", "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');", 'BG4'],
-    ['2 resolveConfigList inline', CORE, "const pv = parseFlowValue(m[2]);\n        if (pv.kind === 'seq') return pv.items;", "const pv = { kind: 'x', text: m[2].replace(/\\s+#.*$/, '').trim() };\n        if (pv.text.startsWith('[')) return pv.text.replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG4'],
-    ['3 resolveConfigList khoi', CORE, 'out.push(parseFlowValue(m[1]).value)', "out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
-    ['4 s4-args list field', ARGS, 'const pv = parseFlowValue(vRaw);', "const _v = vRaw.replace(/\\s+#.*$/, '').trim();\n      const pv = _v.startsWith('[') ? { kind: 'seq', items: _v.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) } : { kind: 's', value: _v };", 'BG4'],
-    ['5 s4-args list khoi', ARGS, 'cur[pendingList].push(parseFlowValue(itemM[1]).value)', "cur[pendingList].push(itemM[1].trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
-    ['7 s4-args models', ARGS, 'out[m[1]] = parseFlowValue(m[2]).value', "out[m[1]] = m[2].replace(/^[\"']|[\"']$/g, '')", 'BG4'],
-    ['8 carry-plan paths', CP, 'const pv = R.parseFlowValue(f[1]);', "const pv = { kind: 'seq', items: f[1].replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) };", 'BG9'],
-  ];
 
-const BG8_MUTANTS = 7;
+// ─── MỘT BẢNG ĐƯỜNG, ba chân tiêu thụ ────────────────────────────────────
+// `neo` = chuỗi NGUYÊN VĂN tại chỗ gọi cổng chung · `cu` = mệnh đề ad-hoc đời
+// trước để hoàn nguyên (null = đường không đột biến được) · `chan` = chân nào
+// phải ĐỎ khi hoàn nguyên đường đó.
+//   BG6 kiểm mọi `neo` còn có mặt · BG8 hoàn nguyên mọi đường có `cu` ·
+//   BG5 hoàn nguyên ba đường của evidence-core cùng lúc.
+// Trước đó ba chân giữ BA bản danh sách và chúng trôi khỏi nhau HAI lần trong
+// cùng một vòng (BG5 đỏ vì neo đổi, rồi BG6 đỏ vì mã đổi mà neo không đổi) —
+// đúng lớp «bên VIẾT trôi khỏi bên ĐỌC» mà đường A đang áp cho mã sản phẩm.
+const DUONG = [
+  ['1 resolveConfigKey la', CORE,
+   "const pv = parseFlowValue(m[2]);\n        const val = pv.kind === 'seq' ? pv.text : pv.value;",
+   "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');", 'BG4'],
+  ['2 resolveConfigList inline', CORE,
+   "if (parseFlowValue(m[2]).kind === 'seq') return parseFlowValue(m[2]).items;",
+   "{ const _t = m[2].replace(/\\s+#.*$/, '').trim(); if (_t.startsWith('[')) return _t.replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean); }", 'BG4'],
+  ['3 resolveConfigList khoi', CORE,
+   'out.push(parseFlowValue(m[1]).value)',
+   "out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
+  ['4 s4-args list field', ARGS,
+   'const pv = parseFlowValue(vRaw);',
+   "const _v = vRaw.replace(/\\s+#.*$/, '').trim();\n      const pv = _v.startsWith('[') ? { kind: 'seq', items: _v.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) } : { kind: 's', value: _v };", 'BG4'],
+  ['5 s4-args list khoi', ARGS,
+   'cur[pendingList].push(parseFlowValue(itemM[1]).value)',
+   "cur[pendingList].push(itemM[1].trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
+  ['6 s4-args id', ARGS, 'parseFlowValue(idM[1]).value', null, null],
+  ['7 s4-args models', ARGS,
+   'out[m[1]] = parseFlowValue(m[2]).value',
+   "out[m[1]] = m[2].replace(/^[\"']|[\"']$/g, '')", 'BG4'],
+  ['8 carry-plan paths', CP,
+   'const pv = R.parseFlowValue(f[1]);',
+   "const pv = { kind: 'seq', items: f[1].replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) };", 'BG9'],
+  ['9 carry-plan cmd', CP, 'cur.cmd = R.parseFlowValue(f[1]).value', null, null],
+];
+const MUT_ALL = DUONG.filter(d => d[3] !== null).map(d => [d[0], d[1], d[2], d[3], d[4]]);
+
+const BG8_MUTANTS = MUT_ALL.length;   // suy TỪ bảng, không gõ tay
 function bg8() {
   if (process.env.BG_NO_RED === '1') { xanh('BG8', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
   const MUT = MUT_ALL;
