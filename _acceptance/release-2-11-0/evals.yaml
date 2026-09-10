@@ -133,16 +133,9 @@ evals:
     cmd: config:executors.script.moc_diagram_khong_doi
     paths: [diagram-design, _acceptance/release-2-11-0/rang-moc.sh]
     expected: >
-      Exit 0 và stdout có dòng «PASS: diagram-design KHONG doi trong cua so, giu 2.7.0
-      (doi chung duong: lib/ CO doi)». Ba chân tách bằng ba mã thoát riêng nên không chân
-      nào fail-open thành màu xanh: **exit 3** sha nền không giải được
-      (`git rev-parse --verify`) · **exit 4** đối chứng dương rỗng — `git diff --name-only
-      04069351..HEAD -- lib/` phải KHÁC rỗng, rỗng nghĩa là phép đo không chạy (clone nông,
-      sai thư mục, git chết) · **exit 5** `diagram-design/` CÓ đổi mà không cắt số. Chiều
-      đỏ thứ tư nằm ở chính đường giải chuỗi: giá trị khoá là scalar vỏ nháy kép có `\"`
-      bên trong, nên **bộ giải chưa vá đưa `--neo` thành `\"04069351\"` và răng thoát 3
-      có tên** — eval này không thể xanh trên bản chưa vá. Đã chạy tay cả hai bản 10/09
-      trước khi mở hồ sơ.
+      GIỐNG HỆT E11 — cùng lệnh, cùng dòng PASS. E7 khai vế «số 2.7.0 đúng», E11 khai vế
+      «răng sống qua chiến dịch ghim lại». Xem `expected` của E11 cho ba chân ba mã thoát và
+      bốn chiều đỏ; workflow chạy lệnh trùng MỘT lần.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8a
     criterion: AC-8
@@ -191,3 +184,52 @@ evals:
       `run-log.jsonl`, `git diff --numstat`). Khối nào là VĂN không có phép đo máy thì phải
       tự khai điều đó ở Known limits.
     evidence_required: [run_id, verifier, verified_at]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [feature-loop/scripts/carry-plan.mjs, lib/evidence-core.cjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG9 carry-plan va s4-args dong y ve paths».
+      Ca đo HỆ QUẢ chứ không so chuỗi: `paths` ở `carry-plan` biến thành glob quyết eval nào
+      được CARRY-FORWARD, nên bộ đọc mangle đường dẫn sẽ cho glob không khớp file nào và
+      eval mang màu xanh cũ sang lượt mới dù file thật ĐÃ đổi — chiều FAIL-OPEN. Hai chiều
+      trên CÙNG fixture: (a) bản sửa chạm đúng đường đó → E1 phải nằm trong `rerun`, KHÔNG
+      được có trong `carriedEvals`; (b) đối chứng dương — bản sửa chạm đường KHÁC → E1 phải
+      được carry. Đường dẫn dùng làm fixture lấy hình dạng từ bán kính artifact-platform
+      (vỏ kép có escape). `carry-plan` nay đòi `--ag-root`, thiếu là fail-CLOSED có tên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.moc_diagram_khong_doi
+    paths: [_acceptance/release-2-11-0/rang-moc.sh, diagram-design]
+    expected: >
+      Exit 0 và stdout có dòng «PASS: diagram-design KHONG doi ke tu lan cat so gan nhat
+      (<sha>), giu 2.7.0 (doi chung duong: chinh moc do cham diagram-design/)». Mốc so
+      SUY TỪ KHO (`git log -n1 -- diagram-design/.claude-plugin/plugin.json`), KHÔNG ghim
+      vào config — nhờ vậy hồ sơ đã ký còn ghim lại được ở mọi HEAD tương lai. Ba chân ba
+      mã thoát: **3** không tìm được mốc cắt số · **4** chính mốc đó KHÔNG chạm
+      `diagram-design/` (phép đo không chạy thật) · **5** `diagram-design/` CÓ đổi sau lần
+      cắt số. Ba chiều đỏ đã chạy tay trên bản sao trọn cây 10/09: xoá `diagram-design/` →
+      exit 3; chạm `diagram-design/NOTICE` sau mốc → exit 5; cây thật → exit 0. Chiều đỏ
+      thứ tư ở đường giải chuỗi: bộ giải chưa vá đưa `--chan` thành `"diagram"` → exit 2
+      có tên, nên eval này không thể xanh trên bản chưa vá.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [lib/evidence-core.cjs, feature-loop/scripts/s4-args.mjs, feature-loop/scripts/carry-plan.mjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG8 moi o cua ma tran phan biet duoc ban va
+      voi ban chua va (7 dot bien, doi chung duong xanh)» và BẢY dòng «[phan biet] <tên
+      đường> -> <chân> DO». Ca dựng bản sao trọn cây bằng `git archive HEAD`, chạy đối
+      chứng dương trước (bản nguyên vẹn phải xanh ở BG4 và BG9 — không có nó thì mọi phép
+      phân biệt dưới vô nghĩa), rồi HOÀN NGUYÊN ĐÚNG MỘT đường về mệnh đề cũ mỗi lượt, so
+      BĂM để chứng đột biến áp được, và đòi đúng chân của đường đó ĐỎ. Số đột biến BẰNG một
+      hằng khai trước. Đường 6 (`id`) CỐ Ý ngoài danh sách — nó là lưới hồi quy, khai ở Out
+      of scope. Ca cũng phủ vế thứ hai của AC-12 gián tiếp: BG6 nay neo THEO CHỖ GỌI (tám
+      đường, bỏ dòng chú thích) thay vì đếm văn bản nguồn, nên một chuỗi thông điệp cho
+      người không còn được tính là một lời gọi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
