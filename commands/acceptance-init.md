@@ -156,7 +156,7 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/lib/workspace-record.cjs` → `lib/` (shared config-list reader; missing → weaker sed fallback)
    - `${CLAUDE_PLUGIN_ROOT}/lib/ac-line.cjs` → `lib/` (criterion-line parser for the cross-layer teeth; missing → wider awk fallback, possible spurious blocks)
    - `${CLAUDE_PLUGIN_ROOT}/lib/md-section.cjs` → `lib/` (section boundary `require`d by ac-line)
-   - `${CLAUDE_PLUGIN_ROOT}/lib/eval-yaml.cjs` → `lib/` (evals.yaml parser the re-pin eval-lane rule uses to list machine evals; missing → that rule fails closed on every new-form lane)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/eval-yaml.cjs` → `lib/` (evals.yaml parser the re-pin eval-lane rule uses to list machine evals; missing → that rule fails closed on every new-form lane; ALSO the one source `checkRepinEvals` and the `evaluateEvidence` L1-consistency rule both read `expected_exit` from — missing it, both fail closed on a declared-limit eval)
    - `${CLAUDE_PLUGIN_ROOT}/lib/lop-nhin-thay.cjs` → `lib/` (the ONE source for «human-visible surface» — ui/web/web-ui — and the ui-observed obligation; pre-merge's NOTE lane reads it via `classify`; missing → that lane prints «không kiểm được» and never blocks)
    <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence

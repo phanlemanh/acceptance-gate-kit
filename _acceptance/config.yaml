@@ -205,6 +205,23 @@ executors:
     gdk_k3_cay_that: bash _acceptance/gom-duc-ket-2-10-0/rang.sh --chan cay-that
     gdk_k5: node tests/scripts/s5-ship-default.test.mjs
     gdk_k8: "bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs | grep -F W39' && node tests/scripts/s4-args-delta.test.mjs"
+    # --- eval-khai-ma-thoat-mong-doi (09/09, T3) --- moi eval = MOT chan cua rang ho so.
+    # Lenh de TRAN (khong nhay): resolveConfigKey boc MOT ky tu nhay o dau/cuoi ma KHONG
+    # go escape, nen dang bash -c voi nhay long nhau giai ra vo cu phap (do 09/09, exit 127).
+    # Cung nep khong-vao-suite-vinh-vien: chet theo ho so khi moc phat hanh khep.
+    emmd_mot_nguon: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan mot-nguon
+    emmd_khai_sai: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan khai-sai
+    emmd_s4_dat_gioi_han: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan s4-dat-gioi-han
+    emmd_known_limits: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan known-limits
+    emmd_xung_dot_lenh: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan xung-dot-lenh
+    emmd_so_ky_vong: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan so-ky-vong
+    emmd_lan_ghim: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan lan-ghim
+    emmd_luat_ghim: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan luat-ghim
+    emmd_l1_nhat_quan: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan l1-nhat-quan
+    emmd_gioi_han_het: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan gioi-han-het
+    emmd_tai_lieu: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan tai-lieu
+    emmd_loi_dan_soan: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan loi-dan-soan
+    emmd_dau_cuoi_that: bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan dau-cuoi-that
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

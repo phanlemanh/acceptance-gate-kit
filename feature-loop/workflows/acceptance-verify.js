@@ -406,6 +406,31 @@ for (const cmd of args.suiteCommands) {
 }
 const distinctCmds = [...byCmd.keys()]
 
+// Kỳ vọng tính theo LỆNH, không theo eval: byCmd gom nhiều eval vào MỘT lượt
+// chạy, mà một lượt chạy chỉ có một mã thoát. Hai eval chung lệnh khai hai mã
+// khác nhau là mâu thuẫn không có lời giải đúng — BLOCKED có tên, để người sửa
+// evals.yaml. Chọn thầm một mã là đúng lớp fail-open kit đang chặn.
+const expOf = e => Number.isInteger(e.expectedExit) ? e.expectedExit : 0
+const expByCmd = new Map()
+const expConflicts = []
+for (const cmd of distinctCmds) {
+  const es = machineEvals.filter(e => e.cmd === cmd)
+  if (!es.length) { expByCmd.set(cmd, 0); continue }   // lệnh suite: luôn kỳ vọng 0
+  const set = [...new Set(es.map(expOf))]
+  if (set.length > 1) {
+    expConflicts.push({ cmd, reason: `hai eval tro cung lenh "${cmd}" khai HAI ma thoat mong doi khac nhau: ${es.map(e => `${e.id}=${expOf(e)}`).join(', ')} — mot luot chay chi co MOT ma thoat, may khong chon tham. Sua evals.yaml: tach lenh, hoac khai cung mot ma.` })
+    expByCmd.set(cmd, 0); continue
+  }
+  expByCmd.set(cmd, set[0])
+}
+const expCmd = cmd => expByCmd.get(cmd) || 0
+// AC-10 (khong phat mot cai thien): mot lenh khai ky vong khac 0 ma lan chay
+// tra 0 la GIOI HAN DA KHAI KHONG CON, khong phai mot luot truot — cung dinh
+// nghia voi lane repin-lane.mjs (hetHan). Dat MOT noi, dung xuyen "failed",
+// rut gon dau ra bao cao, va lane doi chung (baseline/non-discriminating) de
+// ba cho do khong troi khoi nhau nhu chinh lo hong nay da xay ra.
+const isHetHan = (exitCode, cmd) => expCmd(cmd) !== 0 && exitCode === 0
+
 // variance-N: số lần chạy mỗi lệnh = max(runs) trên các eval trỏ tới nó (default 1, cap 10).
 // runs>1 = eval NGẪU NHIÊN (vd qua ctx.providers.invoke / generator-LLM) → cần phân phối pass-rate, không phải 1 phát.
 const evalRuns = e => Math.max(1, Number.isInteger(e.runs) ? e.runs : 1)
@@ -615,14 +640,19 @@ for (const cmd of distinctCmds) {
   // KHÔNG được tính pass-rate/variance trên mẫu thiếu: 1/5 lần chạy được mà PASS = giả mạo (đúng triết lý kit: verify được hay BLOCKED, không fake).
   if (cannotRunCount > 0 || missing > 0) {
     const firstCannot = rs.find(r => r.cannotRun)
-    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === 0).length, variance: false, cannotRun: true, reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
+    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === expCmd(cmd)).length, variance: false, cannotRun: true, reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
     continue
   }
   // đủ N lần chạy sạch → tính pass-rate / variance
-  const passes = ran.filter(r => r.exitCode === 0).length
+  const passes = ran.filter(r => r.exitCode === expCmd(cmd)).length
   const variance = ran.length > 1 && passes > 0 && passes < ran.length
-  const rep = ran.find(r => r.exitCode !== 0) || ran[0] // ưu tiên lần fail làm đại diện chẩn đoán
-  const exitCode = (passes === ran.length || variance) ? 0 : (rep.exitCode || 1)
+  const rep = ran.find(r => r.exitCode !== expCmd(cmd)) || ran[0] // ưu tiên lần fail làm đại diện chẩn đoán
+  // Mã thoát là SỐ — 0 là mã hợp lệ (verifier trả 0 khi eval khai exit khác 0
+  // vẫn phải giữ nguyên 0 để "gioi han da khai khong con" bắt được). Phép
+  // hoặc-mặc-định (`rep.exitCode || 1`) biến 0 thành 1 vì 0 là falsy trong JS —
+  // đúng lớp lỗi lib/evidence-core.cjs đã tự vá ở nơi khác. Kiểm số nguyên rồi
+  // mới dùng, đừng suy diễn qua truthy/falsy.
+  const exitCode = (passes === ran.length || variance) ? expCmd(cmd) : (Number.isInteger(rep.exitCode) ? rep.exitCode : 1)
   machine.push({ cmd, evals: byCmd.get(cmd), runs: ran.length, passes, variance, cannotRun: false, reason: rep.reason, exitCode, runId: rep.runId, outputTail: rep.outputTail })
 }
 // ui-check hợp nhất vào machine-style (luôn 1 lần): cmd ui-check:<evalId> — routing blocked/failed dùng chung
@@ -741,10 +771,22 @@ const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
   .map(normKill)
   .map(b => normInfra({ ...b, exitCode: b.baselineExit }))
   .map(b => [b.cmd, b]))
-const baselineStatus = (cmd) => {
+// AC-6: 'green' nghia la lan doi chung tra DUNG KY VONG — hai duong:
+//   (1) baseline khop CHINH XAC ma da khai (b.baselineExit === expCmd(cmd)), HOAC
+//   (2) CA HAI phia (baseline VA HEAD) cung the hien DUNG mot hanh vi hetHan
+//       (gioi han da khai khong con) — currentExit BAT BUOC phai duoc truyen
+//       va cung hetHan, khong chi rieng baseline. Truoc ban vi nay chi doi
+//       isHetHan(baseline) ma KHONG doi HEAD cung hetHan, nen HEAD con gioi han
+//       (exitCode === expCmd(cmd), vd 2) so baseline HET gioi han (0) van bi
+//       doc la 'green' — mot hoi quy that (S4, eval-khai-ma-thoat-mong-doi,
+//       luot soi toan nhanh 2026-09-09/10) bi dan nhan sai thanh
+//       nonDiscriminating. currentExit thieu (khong truyen) -> chi con duong
+//       (1), khong tu suy dien hetHan.
+const baselineStatus = (cmd, currentExit) => {
   const b = baselineByCmd.get(cmd)
   if (!b || b.cannotRun) return 'n-a'
-  return b.baselineExit === 0 ? 'green' : 'red'
+  const bothHetHan = typeof currentExit === 'number' && isHetHan(b.baselineExit, cmd) && isHetHan(currentExit, cmd)
+  return (b.baselineExit === expCmd(cmd) || bothHetHan) ? 'green' : 'red'
 }
 // Eval không-phân-biệt: lệnh-CÓ-eval pass trên CẢ HEAD lẫn baseline (green-on-both) → chứng minh harness, không phải feature
 // P2: round không đo baseline → Analyst carry nguyên từ round có baseline gần nhất (carriedAnalyst).
@@ -752,7 +794,7 @@ const carriedAnalyst = (!runBaseline && args.carriedAnalyst && Array.isArray(arg
   ? args.carriedAnalyst : null
 const nonDiscriminating = runBaseline
   ? machine
-      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && m.exitCode === 0 && baselineStatus(m.cmd) === 'green')
+      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)) && baselineStatus(m.cmd, m.exitCode) === 'green')
       .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
   : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
 const judges = (judgeRaw || []).filter(Boolean).map(normalizeVote)
@@ -965,6 +1007,7 @@ if (typeof args.evalsHash === 'string' && args.evalsHash) {
 // ---- verdict routing (kit rules) ----
 const blocked = machine.filter(m => m.cannotRun)
   .map(m => ({ cmd: m.cmd, reason: m.reason || 'cannotRun khong co reason' }))
+  .concat(expConflicts)
 {
   // AC-8 (cham-dung-cay-dung-cho-dung): vắng mặt là TÍN HIỆU — agent chết không
   // được tàng hình. Mỗi eval mất kết quả để lại một dòng `kind: vang-mat` trong
@@ -982,7 +1025,7 @@ const blocked = machine.filter(m => m.cannotRun)
     vangMat(e.id, 'ui-check agent bi skip/chet — khong co ket qua')
   }
 }
-const failed = machine.filter(m => !m.cannotRun && m.exitCode !== 0)
+const failed = machine.filter(m => !m.cannotRun && m.exitCode !== expCmd(m.cmd) && !isHetHan(m.exitCode, m.cmd))
 const failedEvalIds = [...new Set(failed.flatMap(m => m.evals))]
 
 const failedCommands = failed.map(m => ({ cmd: m.cmd, evals: m.evals, exitCode: m.exitCode }))
@@ -1021,13 +1064,30 @@ else verdict = 'PASS'
 
 log(`Verdict: ${verdict}${failedEvalIds.length ? ' — failed: ' + failedEvalIds.join(', ') : ''}${blocked.length ? ' — blocked: ' + blocked.length + ' lenh' : ''}${varianceCmds.length ? ' — variance: ' + varianceCmds.length : ''} — findings xac nhan: ${confirmedFindings.length}${triaged.length ? ` (trong hop dong: ${rejectFindings.length}, ngoai: ${triaged.filter(f => !f.inContract && !f.unclassified).length}${triageFailed ? ', TRIAGE HONG' : ''})` : ''}`)
 
+// Dòng Known limits cho eval đạt-có-giới-hạn — JS TÍNH SẴN, bên soạn chỉ chép
+// nguyên văn. Không để bên soạn tự diễn đạt: mục này là điều kiện xanh-sạch,
+// một câu lệch khuôn là một hồ sơ đi nhầm cổng.
+const acOf = id => (args.evals.find(e => e.id === id) || {}).criterion || '?'
+const knownLimitLines = machine
+  .filter(m => !m.cannotRun && expCmd(m.cmd) !== 0 && m.exitCode === expCmd(m.cmd))
+  .flatMap(m => (byCmd.get(m.cmd) || []).map(id =>
+    `- ${id} (${acOf(id)}) dat-co-gioi-han: ma thoat ${m.exitCode} la ket qua DA KHAI TRUOC cua eval nay, khong phai mot luot truot. Lenh: ${m.cmd}`))
+// Giới hạn đã khai KHÔNG CÒN: khai mã khác 0 mà nay trả 0.
+const gioiHanHet = machine
+  .filter(m => !m.cannotRun && isHetHan(m.exitCode, m.cmd))
+  .flatMap(m => (byCmd.get(m.cmd) || []).map(id =>
+    `- ${id} (${acOf(id)}): gioi han da khai khong con — evals.yaml khai ma ${expCmd(m.cmd)}, lan chay nay tra 0. Go loi khai o vong sau.`))
+
 // ---- Synthesize: 1 agent viết evidence-report.md đúng template (hook enforce) ----
 phase('Synthesize')
-// Trim payload: lệnh PASS chỉ cần ~3 dòng output cuối làm evidence; lệnh fail/blocked giữ nguyên tail (cần cho chẩn đoán)
-const machineForReport = machine.map(m => (!m.cannotRun && m.exitCode === 0 && !m.variance)
+// Trim payload: lệnh PASS chỉ cần ~3 dòng output cuối làm evidence; lệnh fail/blocked giữ nguyên tail (cần cho chẩn đoán).
+// AC-10: hetHan (giới hạn đã khai không còn) là ĐẠT, không phải một lượt trượt
+// cần chẩn đoán — dòng "GIOI HAN DA KHAI KHONG CON" đã nói rõ mã khai/mã thật,
+// nên trim như một PASS bình thường, không giữ tail đầy đủ.
+const machineForReport = machine.map(m => (!m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)))
   ? { ...m, outputTail: String(m.outputTail || '').split('\n').slice(-3).join('\n') }
   : m)
-const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd) }))
+const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd, m.exitCode) }))
 // Provenance xác định bằng máy → literal (synthesizer chỉ chép, không tự suy diễn/bỏ field trust-critical).
 // Run-log KHÔNG còn agent scribe: một agent "chép sẵn dòng audit" trông y hệt hành
 // vi ngụy tạo hồ sơ và bị safety layer chặn lặp lại (4 lần, phiên 2026-07-27→28),
@@ -1095,7 +1155,7 @@ const carriedForReport = carriedEvals.map(c => {
   }
 })
 const report = await agentT(
-  `Soan NOI DUNG evidence report cho feature "${args.slug}" round ${args.round} — TRA VE trong field "report", KHONG ghi file nao ca (main loop se append run-log roi MOI ghi evidence-report.md — hook doi chieu run_id trong report voi log nen thu tu do la bat buoc). Noi dung thay tron round cu; lich su round nam trong section Iterations.\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\n${triageFailed ? `TRIAGE HONG — buoc phan loai pham vi KHONG chay duoc round nay, nen may KHONG biet finding nao trong hop dong va KHONG tu sua gi. Ghi CA HAI dau vet sau, khong duoc bo mot cai nao:\n(1) frontmatter THEM DUNG dong "triage_failed: true" (dat ngay duoi dong verdict);\n(2) than bai, NGAY DUOI dong tieu de "# Evidence Report: ...", mot dong canh bao BAT DAU bang "⚠ phân loại phạm vi KHÔNG chạy được" roi noi ro: khong loi nao duoc may tu sua, danh sach day du nam trong review-findings.md, nguoi xem lai toan bo truoc khi ky.\nTUYET DOI KHONG them section "##" moi cho viec nay va KHONG viet lai verdict.\n` : ''}failed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua VA field "observed:" = observed tu ket qua (template schema v2 — hook CHAN report PASS co screenshot: ma thieu observed: thuc chat >=20 ky tu; neu ket qua ui THIEU observed → TU MO tung frame evidence da luu bang Read va viet observed truoc khi ghi report, KHONG bia)): ${JSON.stringify(machineForReportB)}\nNETWORK TRUTH (advisory — schema v2 GIU NGUYEN, hook KHONG kiem field nay): moi block eval ui-check ghi them field "network_observed:" = chep NGUYEN VAN field networkObserved tu ket qua ui o tren; ket qua ui KHONG co field nay → ghi "n-a (driver)". TUYET DOI KHONG tu suy ra "clean". Vocab chu duy nhat: clean | no-app-traffic | third-party-only | app-fail | n-a (driver) | n-a (tool-error) | unscoped | unscoped-partial — CAM ghi so status/exit tho hay chu 'verdict: FAIL' vao report (bay L1 CONSISTENCY; so tho nam trong evidence/E{id}-network.txt).
+  `Soan NOI DUNG evidence report cho feature "${args.slug}" round ${args.round} — TRA VE trong field "report", KHONG ghi file nao ca (main loop se append run-log roi MOI ghi evidence-report.md — hook doi chieu run_id trong report voi log nen thu tu do la bat buoc). Noi dung thay tron round cu; lich su round nam trong section Iterations.\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS chi duoc chua token exit khac 0 BEN TRONG khoi cua eval DA KHAI dung ma do (gioi han da khai) — moi cho khac van cam; chuoi "verdict: FAIL" van bi cam o moi cho; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\n${triageFailed ? `TRIAGE HONG — buoc phan loai pham vi KHONG chay duoc round nay, nen may KHONG biet finding nao trong hop dong va KHONG tu sua gi. Ghi CA HAI dau vet sau, khong duoc bo mot cai nao:\n(1) frontmatter THEM DUNG dong "triage_failed: true" (dat ngay duoi dong verdict);\n(2) than bai, NGAY DUOI dong tieu de "# Evidence Report: ...", mot dong canh bao BAT DAU bang "⚠ phân loại phạm vi KHÔNG chạy được" roi noi ro: khong loi nao duoc may tu sua, danh sach day du nam trong review-findings.md, nguoi xem lai toan bo truoc khi ky.\nTUYET DOI KHONG them section "##" moi cho viec nay va KHONG viet lai verdict.\n` : ''}failed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua VA field "observed:" = observed tu ket qua (template schema v2 — hook CHAN report PASS co screenshot: ma thieu observed: thuc chat >=20 ky tu; neu ket qua ui THIEU observed → TU MO tung frame evidence da luu bang Read va viet observed truoc khi ghi report, KHONG bia)): ${JSON.stringify(machineForReportB)}\n${knownLimitLines.length ? `\nKNOWN LIMITS — chep NGUYEN VAN ${knownLimitLines.length} dong sau vao muc "## Known limits", moi dong mot bullet, KHONG dien dat lai, KHONG gop dong:\n${knownLimitLines.join('\n')}\nVoi cac eval nay: khoi eval PHAI ghi "exit_code: <ma that>" DUNG TEN TRUONG do — TUYET DOI khong bo truong va khong dat ten truong khac.\n` : ''}${gioiHanHet.length ? `\nGIOI HAN DA KHAI KHONG CON — chep NGUYEN VAN vao muc "## Known limits":\n${gioiHanHet.join('\n')}\n` : ''}NETWORK TRUTH (advisory — schema v2 GIU NGUYEN, hook KHONG kiem field nay): moi block eval ui-check ghi them field "network_observed:" = chep NGUYEN VAN field networkObserved tu ket qua ui o tren; ket qua ui KHONG co field nay → ghi "n-a (driver)". TUYET DOI KHONG tu suy ra "clean". Vocab chu duy nhat: clean | no-app-traffic | third-party-only | app-fail | n-a (driver) | n-a (tool-error) | unscoped | unscoped-partial — CAM ghi so status/exit tho hay chu 'verdict: FAIL' vao report (bay L1 CONSISTENCY; so tho nam trong evidence/E{id}-network.txt).
 run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}\nrun_id cua TUNG LENH SUITE — cung luat, key la cmd. MOI lenh mot khoi theo DUNG khuon SUITE-BLOCK-TEMPLATE trong ban mau o tren — ban mau noi ro ca hinh dang lan cho dat, dung tu che khuon khac. Khoi do BAT BUOC co dong run_id: bo doi chieu quet MOI dong run_id trong bao cao va doi tung ma co mat trong run-log, nen khoi vang run_id la lenh suite khong co dau vet, con ma tu dat la cong do L2 PROVENANCE ngay sau chu ky: ${JSON.stringify(suiteRunIds)}${carriedForReport.length ? `
 EVAL CARRY-FORWARD (P1 — delta staleness khong cham paths cua cac eval nay, round nay KHONG chay lai): moi item van la MOT block eval PASS trong bang + Evidence, ghi run_id va verified_at NGUYEN VAN tu payload (id da nam trong run-log tu round goc), exit_code: 0, verifier = field ref, THEM dong "carried_from_round: <N>" va ghi chu 1 dong "carry-forward tu round <N> — delta khong cham paths cua eval". TUYET DOI KHONG ghi screenshot:/observed: cho block carried (frame goc xem round <N> trong Iterations): ${JSON.stringify(carriedForReport)}` : ''}
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.

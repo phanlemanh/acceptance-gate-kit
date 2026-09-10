@@ -36,9 +36,19 @@ Resume: `/feature-loop:feature-loop <slug>` → đọc status, vào đúng hàng
 {"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,0,0,0],"evals_exit":{"<E>":0}}
 ### Re-pin lần <N> — <ngày>, do <lý do 1 dòng>
 run_id: <id>
-sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m> eval máy exit 0
+sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt kỳ vọng
 ```
 <!-- REPIN-TEMPLATE>>> -->
+Dòng `sha:` mang thêm hai hậu tố TUỲ CHỌN (script tự nối, KHÔNG viết tay) khi
+hồ sơ có eval khai `expected_exit` (2.11.0, ADR 0016): ` · đạt-có-giới-hạn:
+<E>=<mã>` cho mỗi eval đạt ĐÚNG một mã khác 0 đã khai, và ` · giới hạn đã khai
+không còn: <E> (khai <mã>)` cho mỗi eval từng khai mã khác 0 mà lượt này trả
+0 (AC-10 — không phạt một cải thiện, nhưng phải nói ra, không được im). Ví dụ
+dòng `sha:` mang cả hai (VÍ DỤ MINH HOẠ — nằm NGOÀI khuôn máy-đọc ở trên, không
+phải một biến thể khuôn thứ hai):
+```
+sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt kỳ vọng · đạt-có-giới-hạn: E5=2 · giới hạn đã khai không còn: E7 (khai 3)
+```
 
 ## Sổ quyết định (decisions.jsonl — rationale, KHÔNG phải scope-truth)
 

@@ -72,7 +72,7 @@ for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acce
 const require_ = createRequire(import.meta.url);
 const { resolveConfigKey, resolveConfigList, frontmatterField } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
 if (typeof resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0) — cập nhật plugin');
-const { parseEvals } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
+const { parseEvals, expectedExits } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
 
 // ── Bảng trường bắt buộc: RÚT TỪ CHÍNH BÊN ĐỌC, không gõ tay ──────────────
 // Bên viết (script này) và bên đọc (acceptance-verify.js) từng trôi khỏi nhau:
@@ -103,6 +103,18 @@ const REQ_ARR = uniq(Object.values(EVAL_REQUIRED).flatMap(v => v.arr));
 // ── evals: scalar qua parser dùng chung + list fields quét cục bộ ──────────
 const evals = parseEvals(evalsText, uniq([...REQ_STR, 'executor', 'expected', 'runs']));
 if (!evals.length) die('evals.yaml không có eval nào (hoặc không parse được)');
+
+// ── kỳ vọng mã thoát: nguồn DUY NHẤT là expectedExits (lib/eval-yaml.cjs).
+// Workflow chạy không có filesystem nên không tự đọc evals.yaml được — script
+// này là nơi RÚT kỳ vọng và mang vào tệp args, dưới tên đã đổi dạng
+// `expectedExit` trên từng phần tử `evals[]`. errs không rỗng → fail-CLOSED
+// ngay, không đoán, không sinh tệp.
+const { byId: expById, errs: expErrs } = expectedExits(evalsText);
+if (expErrs.length) {
+  console.error(`s4-args: evals.yaml khai mã thoát mong đợi sai luật —\n  ${expErrs.join('\n  ')}`);
+  process.exit(2);
+}
+for (const e of evals) e.expectedExit = expById.get(e.id) || 0;
 { // list fields: bắt buộc theo bảng bên đọc + field vận hành — inline [..] hoặc block "- item"
   const LIST_KEYS = uniq([...REQ_ARR, 'inputs', 'paths', 'evidence_required']);
   let cur = null; let pendingList = null;

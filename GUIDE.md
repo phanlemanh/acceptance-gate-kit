@@ -1057,6 +1057,24 @@ KHÔNG chứng lại chúng — hồ sơ mà diff chạm đúng phần `ui-check
 vòng S4 delta; ngưỡng mở vòng kế: **≥1 hồi quy UI lọt qua một lượt re-pin**
 giữa hai bản phát hành. Lý do và các lối bị loại: ADR 0014.
 
+**Ghim lại chấm theo kỳ vọng đã khai, không theo số 0 (2.11.0).** Một eval
+`test`/`script` có thể khai trước, ngay trong `evals.yaml`, rằng mã thoát mong
+đợi của nó khác 0 — ca thật đã xảy ra ở kho tiêu thụ: một hồ sơ đã ký đứng
+trên một giới hạn có thật, nhưng phải giấu con số vào một trường tự đặt vì
+luật nhất-quán cũ chỉ hiểu «khác 0 là trượt», nên không ghim lại được. Từ nay
+làn ghim lại và luật nhất-quán cùng đọc kỳ vọng đó từ một nguồn
+(`lib/eval-yaml.cjs`): lệnh trả đúng mã đã khai là **đạt-có-giới-hạn**, không
+phải trượt — mã thật vẫn ghi nguyên trong khối eval, và báo cáo phải nói ra
+bằng một dòng ở mục Known limits, không được lặng lẽ coi là PASS trơn. Nhưng
+một mã khác 0 chỉ chống lưng được một pin khi ĐỦ HAI VẾ: đã khai trong
+`evals.yaml`, VÀ báo cáo đã ký từng ghi đúng mã đó trước khi làn chạy — thiếu
+vế sau nghĩa là mã khác 0 mới xuất hiện là một tiền đề vừa mất, không phải
+giới hạn ai đã nhận, và làn phải đỏ đúng chỗ đó thay vì tự nhận nó là quen
+thuộc. Giới hạn của chính luật này không đổi: `ui-check` và `judgment` không
+khai được kỳ vọng khác 0 — hai loại đó không chạy lệnh nên không có mã thoát
+để so, và làn ghim lại bằng máy vẫn không chạy được chúng. Lý do đầy đủ và các
+lối bị loại: ADR 0016.
+
 ## 8. Tinh chỉnh cho repo của đội
 
 **Model routing** (`feature_loop.models.<role>`) — chỉnh chi phí/chất lượng đội verify

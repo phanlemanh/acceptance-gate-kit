@@ -67,7 +67,7 @@ check('LN1 --write: run-log +1 dòng repin, section Re-pin lần 1 với evals: 
   assert.equal(line.sha, HEAD_E); assert.deepEqual(line.evals_exit, { E1: 0 });
   assert.equal(vcOf(), HEAD_E, 'verified_commit phải nhảy tới sha của làn');
   const rep = readFileSync(REPORT, 'utf8');
-  assert.match(rep, /### Re-pin lần 1 — \d{4}-\d{2}-\d{2}, do kiểm làn\nrun_id: repin-\S+\nsha: [0-9a-f]{40} · suites: 1 lệnh exit 0 · evals: 1 eval máy exit 0/);
+  assert.match(rep, /### Re-pin lần 1 — \d{4}-\d{2}-\d{2}, do kiểm làn\nrun_id: repin-\S+\nsha: [0-9a-f]{40} · suites: 1 lệnh exit 0 · evals: 1\/1 eval máy đạt kỳ vọng/);
   assert.match(r.stderr, /recheck-evidence xanh/, 'làn phải tự kiểm bằng reader sau khi ghi');
   assert.equal(rc().status, 0, rc().stderr);
   const p = pm(); assert.equal(p.status, 0, p.stdout + p.stderr);
@@ -130,6 +130,77 @@ check('LN6 usage/nguồn hỏng: cờ lạ → exit 3; config thiếu suite_keys
   const r2 = lane('--slug', 'khong-co'); assert.equal(r2.status, 2); assert.match(r2.stderr, /khong-co: không có evidence-report\.md/);
   git('checkout', '--', '.');
   assert.ok(existsSync(path.join(WS, 'evals.yaml')));
+});
+
+// ── expected_exit (chấm theo kỳ vọng đã khai) — mỗi ca dựng kho git TẠM riêng ──
+// Executor script trỏ `bash -c 'exit <n>'` qua config, khai expected_exit trên
+// eval EE1. Factory nhận exitCode thật của script + expectedExit khai trong
+// evals.yaml (0 = không khai) và trả kho git đã commit đủ 2 lớp (impl + evidence).
+function mkEERepo(exitCode, expectedExit) {
+  const root = mkdtempSync(path.join(tmpdir(), 'repin-lane-ee-'));
+  const g = (...a) => execFileSync('git', ['-C', root, '-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  const ws = path.join(root, '_acceptance', 'feat-ee');
+  mkdirSync(ws, { recursive: true });
+  writeFileSync(path.join(root, '_acceptance', 'config.yaml'),
+    'schema_version: 1\nenforcement: strict\nrecheck: strict\ngap_probe: off\nfeature_loop:\n  suite_keys:\n    - executors.test.suite\nexecutors:\n  test:\n    suite: "sh suite.sh"\n  script:\n    rang_ee1: "bash -c \'exit ' + exitCode + '\'"\n');
+  writeFileSync(path.join(root, 'suite.sh'), 'exit 0\n');
+  const expLine = expectedExit ? `    expected_exit: ${expectedExit}\n` : '';
+  writeFileSync(path.join(ws, 'evals.yaml'),
+    `schema_version: 1\nslug: feat-ee\n\nevals:\n  - id: EE1\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.rang_ee1\n${expLine}    expected: >\n      Xanh: EE1 exit ${expectedExit || 0}.\n`);
+  writeFileSync(path.join(ws, 'contract.md'), '---\nschema_version: 1\nfeature: feat-ee\nslug: feat-ee\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\n---\n');
+  g('init', '-q'); g('add', '-A'); g('commit', '-qm', 'impl');
+  const head1 = g('rev-parse', 'HEAD');
+  writeFileSync(path.join(ws, 'run-log.jsonl'), JSON.stringify({ ts: '2026-09-09T00:00:00Z', kind: 'eval', run_id: 'r1-EE1', sha: head1, eval: 'EE1', exit_code: 0 }) + '\n');
+  writeFileSync(path.join(ws, 'evidence-report.md'),
+    `---\nschema_version: 1\nfeature_slug: feat-ee\nverdict: PASS\nverified_commit: ${head1}\nhuman_signoff: Manh 2026-09-09\n---\n\n## Evidence\n- eval: EE1\n  run_id: r1-EE1\n  exit_code: 0\n  verifier: config:executors.script.rang_ee1\n  verified_at: 2026-09-09\n\n## Iterations\n\nRound 1 — PASS.\n`);
+  g('add', '-A'); g('commit', '-qm', 'evidence');
+  const head = g('rev-parse', 'HEAD');
+  return { root, ws, head, reportPath: path.join(ws, 'evidence-report.md'), logPath: path.join(ws, 'run-log.jsonl') };
+}
+const eeLane = (root, ...a) => spawnSync(process.execPath, [LANE, '--root', root, '--ag-root', ROOT, '--slug', 'feat-ee', ...a], { encoding: 'utf8' });
+
+check('RL-EE1 eval khai 2, lệnh trả 2: làn XANH, evals_exit giữ mã thật', () => {
+  const f = mkEERepo(2, 2);
+  const r = eeLane(f.root);
+  assert.equal(r.status, 0, r.stderr);
+  const o = JSON.parse(r.stdout);
+  assert.deepEqual(o.slugs['feat-ee'].evals_exit, { EE1: 2 }, 'evals_exit phải giữ mã thật (2), không quy về 0/1');
+  rmSync(f.root, { recursive: true, force: true });
+});
+
+check('RL-EE2 cùng fixture (khai 2), lệnh trả 1: làn ĐỎ exit 1, KHÔNG tệp nào bị ghi (so byte trước/sau)', () => {
+  const f = mkEERepo(1, 2); // lệnh trả 1 nhưng evals.yaml khai kỳ vọng 2 → lệch
+  const beforeLog = readFileSync(f.logPath, 'utf8');
+  const beforeRep = readFileSync(f.reportPath, 'utf8');
+  const r = eeLane(f.root, '--reason', 'kiểm lệch', '--write');
+  assert.equal(r.status, 1, `mã trả 1 lệch với khai 2 phải ĐỎ:\n${r.stderr}`);
+  assert.match(r.stderr, /LÀN ĐỎ — không ghi gì/);
+  assert.match(r.stderr, /feat-ee\/EE1=1 \(khai 2\)/, 'thông điệp phải gọi tên mã thật lẫn mã đã khai');
+  assert.equal(readFileSync(f.logPath, 'utf8'), beforeLog, 'làn đỏ mà run-log.jsonl đổi dù chỉ 1 byte');
+  assert.equal(readFileSync(f.reportPath, 'utf8'), beforeRep, 'làn đỏ mà evidence-report.md đổi dù chỉ 1 byte');
+  const o = JSON.parse(r.stdout);
+  assert.deepEqual(o.slugs['feat-ee'].evals_exit, { EE1: 1 });
+  rmSync(f.root, { recursive: true, force: true });
+});
+
+check('RL-EE3 câu chữ mục Re-pin đếm từ mã thật và GỌI TÊN eval đạt-có-giới-hạn', () => {
+  const f = mkEERepo(2, 2);
+  const r = eeLane(f.root, '--reason', 'giới hạn còn sống');
+  assert.equal(r.status, 0, r.stderr);
+  const sec = JSON.parse(r.stdout).slugs['feat-ee'].section;
+  assert.match(sec, /evals: 1\/1 eval máy đạt kỳ vọng/, 'đếm phải từ mã thật (1/1 đạt), không phải đếm cứng theo tổng số eval');
+  assert.match(sec, /đạt-có-giới-hạn: EE1=2/, 'phải gọi tên đích danh eval đạt-có-giới-hạn kèm mã');
+  rmSync(f.root, { recursive: true, force: true });
+});
+
+check('RL-EE4 eval khai 2 mà lệnh trả 0: XANH và câu chữ chứa «giới hạn đã khai không còn»', () => {
+  const f = mkEERepo(0, 2); // khai giới hạn 2 nhưng nay lệnh đã hết lỗi, trả 0
+  const r = eeLane(f.root, '--reason', 'giới hạn đã hết');
+  assert.equal(r.status, 0, r.stderr, 'không được phạt một cải thiện (khai khác 0 mà nay trả 0)');
+  const o = JSON.parse(r.stdout);
+  assert.deepEqual(o.slugs['feat-ee'].evals_exit, { EE1: 0 });
+  assert.match(o.slugs['feat-ee'].section, /giới hạn đã khai không còn: EE1 \(khai 2\)/);
+  rmSync(f.root, { recursive: true, force: true });
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);

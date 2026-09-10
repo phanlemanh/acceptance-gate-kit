@@ -305,6 +305,14 @@ Giới hạn đã biết của một vòng: khiếm khuyết người ký ĐỌC
 "bug chưa biết" (chưa ai thấy) và khác "nợ kỹ thuật" (không qua cổng người).
 _Avoid_: "hạn chế" trơ (không nói ai đã chấp nhận).
 
+**đạt-có-giới-hạn**:
+Kết quả của một eval máy trả ĐÚNG mã thoát khác 0 mà `evals.yaml` đã khai trước
+ở `expected_exit`. Không phải một lượt trượt, cũng không phải PASS trơn: nó sinh
+một dòng ở mục Known limits, nên hồ sơ hết xanh-sạch và về Cổng Bằng chứng cho
+người quyết. Khác **cannotRun** — cannotRun là hạ tầng chấm hỏng, đạt-có-giới-hạn
+là tiền đề của sản phẩm thiếu và điều đó đã được khai trước.
+_Avoid_: pass có điều kiện, soft fail, «trượt nhưng chấp nhận được».
+
 **dogfood**:
 Chính đội làm ra bộ công cụ đem nó áp lên công việc của mình — kit tự chạy cổng
 của chính kit. Giá trị: lỗi lộ ra ở lần dùng thật đầu tiên thay vì ở repo tiêu

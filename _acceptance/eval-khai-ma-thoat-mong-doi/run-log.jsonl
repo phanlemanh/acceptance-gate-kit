@@ -1,0 +1,19 @@
+{"ts":"2026-09-10T08:10:45Z","round":1,"evalId":"SUITE-scripts","run_id":"eval-khai-ma-thoat-mong-doi-SUITE-scripts-20260910T081045Z","exit_code":0,"cmd":"bash tests/scripts/run-tests.sh"}
+{"ts":"2026-09-10T08:11:07Z","round":1,"evalId":"SUITE-hooks","run_id":"eval-khai-ma-thoat-mong-doi-SUITE-hooks-20260910T081107Z","exit_code":0,"cmd":"bash tests/hooks/run-tests.sh"}
+{"ts":"2026-09-10T08:17:52Z","round":1,"evalId":"SUITE-plugins","run_id":"eval-khai-ma-thoat-mong-doi-SUITE-plugins-20260910T081752Z","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
+{"ts":"2026-09-10T08:18:11Z","round":1,"evalId":"SUITE-workflows","run_id":"eval-khai-ma-thoat-mong-doi-SUITE-workflows-20260910T081811Z","exit_code":0,"cmd":"bash tests/workflows/run-tests.sh"}
+{"ts":"2026-09-10T08:18:25Z","round":1,"evalId":"SUITE-product-map","run_id":"eval-khai-ma-thoat-mong-doi-SUITE-product-map-20260910T081825Z","exit_code":0,"cmd":"node scripts/product-map.mjs --root . --check"}
+{"ts":"2026-09-10T08:18:43Z","round":1,"evalId":"E1","run_id":"eval-khai-ma-thoat-mong-doi-E1-20260910T081843Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan mot-nguon"}
+{"ts":"2026-09-10T08:19:00Z","round":1,"evalId":"E2","run_id":"eval-khai-ma-thoat-mong-doi-E2-20260910T081900Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan khai-sai"}
+{"ts":"2026-09-10T08:19:17Z","round":1,"evalId":"E3","run_id":"eval-khai-ma-thoat-mong-doi-E3-20260910T081917Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan s4-dat-gioi-han"}
+{"ts":"2026-09-10T08:19:33Z","round":1,"evalId":"E4","run_id":"eval-khai-ma-thoat-mong-doi-E4-20260910T081933Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan known-limits"}
+{"ts":"2026-09-10T08:19:51Z","round":1,"evalId":"E5","run_id":"eval-khai-ma-thoat-mong-doi-E5-20260910T081951Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan xung-dot-lenh"}
+{"ts":"2026-09-10T08:20:18Z","round":1,"evalId":"E6","run_id":"eval-khai-ma-thoat-mong-doi-E6-20260910T082018Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan so-ky-vong"}
+{"ts":"2026-09-10T08:20:36Z","round":1,"evalId":"E7","run_id":"eval-khai-ma-thoat-mong-doi-E7-20260910T082036Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan lan-ghim"}
+{"ts":"2026-09-10T08:20:53Z","round":1,"evalId":"E8","run_id":"eval-khai-ma-thoat-mong-doi-E8-20260910T082053Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan luat-ghim"}
+{"ts":"2026-09-10T08:21:18Z","round":1,"evalId":"E9","run_id":"eval-khai-ma-thoat-mong-doi-E9-20260910T082118Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan l1-nhat-quan"}
+{"ts":"2026-09-10T08:21:35Z","round":1,"evalId":"E10","run_id":"eval-khai-ma-thoat-mong-doi-E10-20260910T082135Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan gioi-han-het"}
+{"ts":"2026-09-10T08:21:53Z","round":1,"evalId":"E11","run_id":"eval-khai-ma-thoat-mong-doi-E11-20260910T082153Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan tai-lieu"}
+{"ts":"2026-09-10T08:22:08Z","round":1,"evalId":"E12","run_id":"eval-khai-ma-thoat-mong-doi-E12-20260910T082208Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan loi-dan-soan"}
+{"ts":"2026-09-10T08:22:26Z","round":1,"evalId":"E13","run_id":"eval-khai-ma-thoat-mong-doi-E13-20260910T082226Z","exit_code":0,"cmd":"bash _acceptance/eval-khai-ma-thoat-mong-doi/rang.sh --chan dau-cuoi-that"}
+{"ts":"2026-09-10T11:37:14Z","kind":"repin","run_id":"repin-20260910T113714Z-18221","sha":"b5c11c5f1ef1095de7a31262af03baec12fc7232","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E7":0,"E8":0,"E9":0,"E10":0,"E11":0,"E12":0,"E13":0}}

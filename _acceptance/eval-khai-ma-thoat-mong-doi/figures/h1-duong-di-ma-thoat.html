@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đường đi của một mã thoát đã khai</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --color-accent: #eb6c36;
+      --font-sans:  'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', serif;
+      --font-mono:  'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Sơ đồ luồng · AC-1 · AC-4</p>
+    <h1>Đường đi của một mã thoát đã khai</h1>
+
+    <svg viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ================= ARROWS FIRST ================= -->
+
+      <!-- khai → một nguồn -->
+      <line x1="500" y1="112" x2="500" y2="152" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+
+      <!-- một nguồn → bốn bộ đọc (fan, mỗi nhánh một hành lang riêng) -->
+      <path d="M 416 232 L 416 244 Q 416 252 408 252 L 160 252 Q 152 252 152 260 L 152 280"
+            fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M 464 232 L 464 260 Q 464 268 456 268 L 392 268 Q 384 268 384 276 L 384 280"
+            fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M 536 232 L 536 260 Q 536 268 544 268 L 608 268 Q 616 268 616 276 L 616 280"
+            fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M 584 232 L 584 244 Q 584 252 592 252 L 840 252 Q 848 252 848 260 L 848 280"
+            fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+
+      <!-- S4 → mục Known limits -->
+      <line x1="152" y1="360" x2="152" y2="416" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <!-- chuỗi nối tiếp -->
+      <line x1="256" y1="456" x2="296" y2="456" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="512" y1="456" x2="552" y2="456" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+
+      <!-- nhãn nhánh (mask cách nét 8px) -->
+      <rect x="160" y="376" width="96" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="208" y="388" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.06em">ĐẠT-CÓ-GIỚI-HẠN</text>
+
+      <!-- ================= NODES ================= -->
+
+      <!-- 1. điểm đầu -->
+      <rect x="380" y="64" width="240" height="48" rx="20" fill="#f5f5f5"/>
+      <rect x="380" y="64" width="240" height="48" rx="20" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="500" y="86" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Hồ sơ khai kỳ vọng</text>
+      <text x="500" y="102" fill="#4f5d75" font-size="9"
+            font-family="'Geist Mono', monospace" text-anchor="middle">evals.yaml · expected_exit</text>
+
+      <!-- 2. MỘT NGUỒN (focal) -->
+      <rect x="352" y="152" width="296" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="352" y="152" width="296" height="80" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="364" y="164" width="88" height="16" rx="2" fill="none" stroke="rgba(235,108,54,0.40)" stroke-width="0.8"/>
+      <text x="408" y="176" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">FAIL-CLOSED</text>
+      <text x="500" y="204" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Một nguồn rút kỳ vọng</text>
+      <text x="500" y="222" fill="#4f5d75" font-size="9"
+            font-family="'Geist Mono', monospace" text-anchor="middle">lib/eval-yaml.cjs</text>
+
+      <!-- eyebrow hàng bộ đọc -->
+      <text x="48" y="272" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.18em">BỐN BỘ ĐỌC</text>
+
+      <!-- 3–6. bốn bộ đọc -->
+      <rect x="48" y="280" width="208" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="152" y="318" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Chấm vòng S4</text>
+      <text x="152" y="336" fill="#4f5d75" font-size="9"
+            font-family="'Geist Mono', monospace" text-anchor="middle">acceptance-verify.js</text>
+
+      <rect x="280" y="280" width="208" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="384" y="318" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Làn ghim lại</text>
+      <text x="384" y="336" fill="#4f5d75" font-size="9"
+            font-family="'Geist Mono', monospace" text-anchor="middle">repin-lane.mjs</text>
+
+      <rect x="512" y="280" width="208" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="616" y="318" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Luật ghim lại</text>
+      <text x="616" y="336" fill="#4f5d75" font-size="9"
+            font-family="'Geist Mono', monospace" text-anchor="middle">checkRepinEvals</text>
+
+      <rect x="744" y="280" width="208" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="848" y="318" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Luật nhất-quán L1</text>
+      <text x="848" y="336" fill="#4f5d75" font-size="9"
+            font-family="'Geist Mono', monospace" text-anchor="middle">evaluateEvidence</text>
+
+      <!-- 7. Known limits -->
+      <rect x="48" y="416" width="208" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="152" y="448" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Mục Known limits</text>
+      <text x="152" y="466" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">hết rỗng</text>
+      <text x="152" y="486" fill="#4f5d75" font-size="9"
+            font-family="'Geist', sans-serif" text-anchor="middle">dòng do máy tính sẵn</text>
+
+      <!-- 8. hết xanh-sạch -->
+      <rect x="296" y="416" width="216" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="404" y="460" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Hồ sơ hết xanh-sạch</text>
+      <text x="404" y="486" fill="#4f5d75" font-size="9"
+            font-family="'Geist', sans-serif" text-anchor="middle">mất một trong sáu điều kiện</text>
+
+      <!-- 9. cổng người (focal) -->
+      <rect x="552" y="416" width="320" height="80" rx="20" fill="#f5f5f5"/>
+      <rect x="552" y="416" width="320" height="80" rx="20" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="668" y="428" width="88" height="16" rx="2" fill="#2d3142"/>
+      <text x="712" y="440" fill="#f5f5f5" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">CÓ NGƯỜI</text>
+      <text x="712" y="466" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Cổng Bằng chứng</text>
+      <text x="712" y="486" fill="#4f5d75" font-size="9"
+            font-family="'Geist', sans-serif" text-anchor="middle">giới hạn đã khai là một đánh-đổi</text>
+
+      <!-- ================= CALLOUT ================= -->
+      <text x="964" y="164" fill="#2d3142" font-size="14" font-style="italic"
+            font-family="'Instrument Serif', 'Lora', serif" text-anchor="end">Khai sai luật thì dừng ngay và gọi tên eval —</text>
+      <text x="964" y="184" fill="#2d3142" font-size="14" font-style="italic"
+            font-family="'Instrument Serif', 'Lora', serif" text-anchor="end">không rơi thầm về kỳ vọng mặc định.</text>
+      <path d="M 932 196 Q 792 216 656 200" fill="none"
+            stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <circle cx="652" cy="200" r="2" fill="#2d3142"/>
+
+      <!-- ================= LEGEND ================= -->
+      <line x1="48" y1="532" x2="952" y2="532" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="48" y="556" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="148" y="546" width="24" height="12" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="180" y="556" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Điểm đầu · điểm cuối</text>
+
+      <rect x="316" y="546" width="24" height="12" rx="3" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="348" y="556" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bước máy làm</text>
+
+      <rect x="468" y="546" width="24" height="12" rx="3" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="500" y="556" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Single-source · nơi người quyết</text>
+
+      <rect x="712" y="546" width="24" height="12" rx="2" fill="#2d3142"/>
+      <text x="744" y="556" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Cổng có người đứng</text>
+    </svg>
+  </div>
+</body>
+</html>

@@ -1,0 +1,278 @@
+# Eval cho hồ sơ eval-khai-ma-thoat-mong-doi.
+#
+# Một răng hồ sơ `rang.sh` với 11 chân, mỗi chân một AC. Mỗi chân dựng fixture
+# CODE-SINH trong chính lượt chạy, chạy CHÍNH bộ đọc thật (không chép khuôn bên
+# đọc), và mang cặp hai chiều: bản lành XANH trước, rồi tiêm vào BẢN SAO và đòi
+# ĐỎ với THÔNG ĐIỆP GHIM. Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ
+# sơ khác: chúng chết theo hồ sơ khi mốc phát hành khép.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.emmd_mot_nguon
+    expected: >-
+      MỘT nguồn kỳ vọng — đo QUAN HỆ, không chỉ đo giá trị.
+      (a) Ma trận TOÀN PHẦN 4 bộ đọc tiêu thụ (acceptance-verify.js · repin-lane.mjs ·
+      checkRepinEvals · evaluateEvidence) × 4 fixture code-sinh (khai n hợp lệ · khai
+      0 TƯỜNG MINH · vắng trường · khai SAI luật). Số assert phải BẰNG 16 — ca tự
+      đếm và ĐỎ nếu số assert khác số ô, thông điệp ghim "số ô lệch".
+      Ô "khai sai luật" đòi CẢ BỐN bộ đọc cùng NỔ và cùng thông điệp: đây là ô làm
+      chiều đỏ SỐNG, vì một bộ đọc tự đọc thẳng trường sẽ trả một SỐ thay vì lỗi.
+      Ô "khai 0 tường minh" phải cho kết quả BẰNG HỆT ô "vắng trường" ở cả bốn.
+      (b) Ràng buộc TĨNH: chỉ lib/eval-yaml.cjs được khớp tên trường expected_exit;
+      bốn tệp tiêu thụ khớp ĐÚNG 0 lần. Chiều đỏ: thêm một lần khớp ở một tệp bất kỳ
+      → ĐỎ, thông điệp ghim GỌI TÊN tệp mọc lối đọc thứ sáu.
+      Đối chứng dương: cây lành → 16/16 ô khớp và 0 lần khớp tĩnh, chân xanh.
+    paths:
+      - "lib/eval-yaml.cjs"
+      - "lib/evidence-core.cjs"
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.emmd_khai_sai
+    expected: >-
+      Khai sai thì fail-CLOSED, gọi tên eval. BA hình dạng hỏng, mỗi cái một fixture
+      code-sinh: (a) không phải số nguyên 0-255 — "hai", -1, 256, 2.5; (b) mã hạ tầng
+      97 và 127; (c) executor judgment và ui-check.
+      Với cả ba: bộ đọc phải trả lỗi có TÊN EVAL trong thông điệp; mã hạ tầng nêu
+      "mã hạ tầng", executor sai nêu tên executor. TUYỆT ĐỐI không rơi thầm về 0 —
+      chân ĐỎ nếu bộ đọc trả kỳ vọng 0 mà không lỗi, thông điệp ghim "rơi thầm về 0".
+      HAI đối chứng dương CÙNG fixture, để ba nhánh trên không phải hằng-đúng:
+      (d) expected_exit: 2 hợp lệ → không lỗi nào;
+      (e) expected_exit: 0 TƯỜNG MINH → không lỗi nào VÀ không bị tính là giới hạn đã
+      khai: không dòng Known limits, không câu nói-ra, hồ sơ vẫn xanh-sạch được.
+      Chiều đỏ của (e): bản sao coi "có trường" là đã-khai → chân ĐỎ, thông điệp ghim
+      "khai 0 bị tính là giới hạn".
+    paths:
+      - "lib/eval-yaml.cjs"
+      - "feature-loop/workflows/acceptance-verify.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.emmd_s4_dat_gioi_han
+    expected: >-
+      S4 nhận đạt-có-giới-hạn. Chạy CHÍNH acceptance-verify.js trong harness
+      vm-realm của tests/workflows với một eval khai expected_exit: 2 và một
+      lượt chạy giả trả đúng 2.
+      Đối chứng dương: failedEvals RỖNG, verdict không REJECT vì eval đó;
+      hàng bảng và khối eval mang mã 2 THẬT (trường exit_code còn nguyên tên,
+      không bị đổi tên, không bị bỏ).
+      Chiều đỏ CÙNG fixture: đổi lượt chạy sang trả 1 → failedEvals chứa eval
+      đó và verdict REJECT; chân ĐỎ nếu không, thông điệp ghim "lệch mã mà vẫn
+      nhận".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.emmd_known_limits
+    expected: >-
+      Known limits do MÁY tính, bên soạn chỉ chép. Chạy acceptance-verify.js
+      với một eval đạt-có-giới-hạn và rút chuỗi truyền cho bước soạn báo cáo.
+      Đối chứng dương: chuỗi đó chứa một dòng Known limits gọi tên id eval, mã
+      thật, và AC nó phục vụ — nghĩa là bên soạn không phải tự nghĩ ra câu.
+      Chiều đỏ: bản sao gỡ dòng tính sẵn khỏi luồng truyền → chân ĐỎ, thông
+      điệp ghim "Known limits vắng eval" kèm id.
+      Chứng thêm hệ quả định tuyến: một báo cáo mang dòng đó KHÔNG thoả điều
+      kiện xanh-sạch `sections` (mục Known limits phải hiện-diện-và-RỖNG), đo
+      bằng chính bộ kiểm xanh-sạch của kit chứ không bằng mắt.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "scripts/khong-can-nguoi.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.emmd_xung_dot_lenh
+    expected: >-
+      Hai eval chung lệnh khai khác mã thì BLOCKED có tên. Fixture code-sinh:
+      hai eval cùng trỏ một khoá config, một khai expected_exit: 2, một khai 3.
+      Đối chứng dương của chiều ngược: cùng fixture nhưng cả hai khai 2 → chạy
+      bình thường, không mục blocked nào.
+      Chiều đỏ: bản khai lệch → verdict BLOCKED, mục blocked nêu TÊN CẢ HAI
+      eval, CẢ HAI mã, và lệnh chung; chân ĐỎ nếu máy chọn thầm một mã hoặc
+      blocked không gọi đủ tên, thông điệp ghim "chọn thầm".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.emmd_so_ky_vong
+    expected: >-
+      Mọi phép so đều so với kỳ vọng, không với 0. Bốn chỗ: đếm lượt đạt, chọn
+      lượt đại diện chẩn đoán, mã thoát gộp, trạng thái làn đối chứng.
+      Đối chứng dương: lệnh kỳ vọng 2 chạy nhiều lượt đều trả 2 → đếm đủ lượt
+      đạt, không phương sai, làn đối chứng trả 2 được đọc là "green".
+      Chiều đỏ: bản sao khôi phục MỘT phép so `=== 0` ở từng chỗ (bốn bản sao,
+      mỗi bản một chỗ) → chân ĐỎ và thông điệp ghim GỌI TÊN đúng chỗ bị hoàn
+      nguyên; bốn bản sao phải cho bốn thông điệp KHÁC nhau, không gộp một.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.emmd_lan_ghim
+    expected: >-
+      Làn ghim lại chấm theo kỳ vọng. Fixture kho git tạm CODE-SINH với một hồ
+      sơ có eval khai expected_exit: 2 và một lệnh trả đúng 2.
+      Đối chứng dương: làn XANH; dòng kind:repin có evals_exit giữ MÃ THẬT 2
+      (không quy về 0); dòng chữ mục Re-pin đếm từ mã thật và GỌI TÊN eval
+      đạt-có-giới-hạn — chân ĐỎ nếu dòng chữ vẫn là câu ghi cứng lấy số từ độ
+      dài mảng, thông điệp ghim "đếm từ độ dài mảng".
+      Chiều đỏ CÙNG fixture: đổi lệnh sang trả 1 → làn ĐỎ, exit 1, và KHÔNG
+      tệp nào bị ghi (run-log và evidence-report còn nguyên byte).
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.emmd_luat_ghim
+    expected: >-
+      Luật hai vế của checkRepinEvals, đo trên BÁO CÁO THẬT.
+      Đầu vào KHÔNG phải fixture viết tay: chân này chạy acceptance-verify.js trước
+      để LẤY báo cáo do chính bên viết sinh ra, rồi mới đưa cho checkRepinEvals đọc
+      (round-trip rút-từ-writer-thật). Fixture báo cáo viết tay theo khuôn bên đọc bị
+      CẤM — đó là lớp lỗi bên-viết-trôi-khỏi-bên-đọc mà kit đã dẫm nhiều lần.
+      Ba ca: (a) khai 2 + báo cáo thật ghi 2 + làn trả 2 → NHẬN, không lỗi nào (đối
+      chứng dương); (b) khai 2 + báo cáo ghi 0 + làn trả 2 → ĐỎ, thông điệp chứa
+      "tiền đề"; (c) KHÔNG khai + báo cáo ghi 2 + làn trả 2 → ĐỎ, chứa "chưa khai".
+      Chiều đỏ của chính lưới round-trip: đổi khuôn bên VIẾT (dấu phân biệt
+      đạt-có-giới-hạn của AC-3) mà bên đọc không đổi → chân ĐỎ, thông điệp ghim
+      "writer trôi khỏi reader".
+      Chân ĐỎ nếu (b) hoặc (c) được nhận — đó là fail-open: sửa một dòng evals.yaml
+      của hồ sơ đã ký là làn xanh trở lại.
+    paths:
+      - "lib/evidence-core.cjs"
+      - "lib/eval-yaml.cjs"
+      - "feature-loop/workflows/acceptance-verify.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.emmd_l1_nhat_quan
+    expected: >-
+      Luật nhất-quán L1 quét theo KHỐI, đo trên BÁO CÁO THẬT.
+      Cùng luật round-trip với E8: báo cáo đầu vào do acceptance-verify.js sinh trong
+      chính lượt chạy, không viết tay theo khuôn regex bên đọc.
+      (a) exit_code khác 0 nằm TRONG khối của eval đã khai đúng mã → KHÔNG vi phạm
+      nhất quán. Đây là ca hôm nay bị chặn, khiến ca thật crm phải bịa tên trường
+      khong_do_duoc — đối chứng dương của cả tính năng.
+      (b) cùng báo cáo thật, đổi mã trong khối sang 3 → vi phạm, thông điệp nêu tên eval.
+      (c) mã khác 0 đặt NGOÀI mọi khối eval → vi phạm như cũ.
+      (d) mã khác 0 trong khối của eval KHÔNG khai → vi phạm.
+      Số assert bằng số hình dạng (4), ca tự đếm.
+      Chứng thêm: báo cáo mà MỌI eval máy đều khai mã khác 0 vẫn thoả điều kiện hình
+      dạng L1 — không bị đòi một dòng exit_code: 0 không thể tồn tại.
+    paths:
+      - "lib/evidence-core.cjs"
+      - "lib/eval-yaml.cjs"
+      - "feature-loop/workflows/acceptance-verify.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.emmd_gioi_han_het
+    expected: >-
+      Giới hạn hết thì XANH nhưng phải nói ra. Fixture: eval khai
+      expected_exit: 2 mà lệnh nay trả 0.
+      Đối chứng dương: cả S4 lẫn làn ghim lại đều XANH — không phạt một cải
+      thiện; VÀ báo cáo cùng dòng mục Re-pin chứa câu nói ra, gọi tên eval kèm
+      cặp mã khai/thật.
+      Chiều đỏ: bản sao bỏ câu nói-ra → chân ĐỎ, thông điệp ghim "giới hạn hết
+      mà im". Bản sao làm nó ĐỎ thay vì xanh cũng là chân ĐỎ, thông điệp ghim
+      "phạt cải thiện".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.emmd_tai_lieu
+    expected: >-
+      Tài liệu và ranh giới mã cấm. Đọc cây thật:
+      (a) GUIDE.md §7.1 có đoạn về kỳ vọng đã khai + luật hai vế + giới hạn
+      ui-check/judgment;
+      (b) tồn tại docs/adr/0016-*.md và nó NÊU ĐÍCH DANH chuỗi
+      "baseline-127-tin-hieu-phan-biet";
+      (c) CONTEXT.md có term đạt-có-giới-hạn kèm dòng _Avoid_;
+      (d) chú thích eval-yaml.cjs trong khối INIT-CI-COPY-LIST nói vai mới;
+      (e) danh sách mã cấm trong lib/eval-yaml.cjs RÚT từ khối marker
+      INFRA-EXIT-CODES của acceptance-verify.js và so BẰNG.
+      Chiều đỏ cho (e): bản sao đổi một mã trong khối marker → chân ĐỎ, thông
+      điệp ghim "mã cấm trôi khỏi marker". Chiều đỏ cho (a)-(d): bản sao gỡ
+      từng vật → ĐỎ gọi tên đúng vật bị gỡ, bốn thông điệp khác nhau.
+      Ca DƯỚI NGƯỠNG phải IM, để phép so (e) không quá nhạy: bản sao chỉ đổi
+      khoảng trắng và đảo thứ tự hai mã trong khối marker mà TẬP mã KHÔNG đổi
+      → chân XANH, KHÔNG kêu. So theo GIÁ TRỊ của tập, không so byte. Thiếu ca
+      im này thì phép so không phân biệt được "trôi thật" với "định dạng lại".
+    paths:
+      - "GUIDE.md"
+      - "CONTEXT.md"
+      - "docs/adr"
+      - "commands/acceptance-init.md"
+      - "lib/eval-yaml.cjs"
+      - "feature-loop/workflows/acceptance-verify.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.emmd_loi_dan_soan
+    expected: >-
+      Lời dặn cho bước soạn báo cáo phải được nới ĐÚNG phạm vi — hai tầng.
+      (a) Tầng VẬT: đọc chuỗi prompt trong acceptance-verify.js, đòi câu cấm cũ
+      ("report PASS không được chứa mã thoát khác 0") đã đổi thành lời cho phép mã
+      khác 0 TRONG khối của eval đã khai, và VẪN cấm mọi chỗ khác. Chiều đỏ: bản sao
+      khôi phục câu cấm cũ → ĐỎ, thông điệp ghim "lời dặn còn cấm mã khác 0".
+      (b) Tầng ĐẦU RA THẬT: báo cáo do bước soạn sinh ra cho một eval đạt-có-giới-hạn
+      phải chứa dòng exit_code với mã thật, ĐÚNG TÊN TRƯỜNG. Chân ĐỎ nếu báo cáo bỏ
+      trường hoặc đặt tên trường tự chế, thông điệp ghim "bịa tên trường" — đúng vết
+      khong_do_duoc của ca crm mà hồ sơ này lấy làm lý do tồn tại.
+      Lý do phải có tầng (b): đo mỗi tầng (a) là đo CHỈ DẪN chứ không đo đầu ra.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.emmd_dau_cuoi_that
+    expected: >-
+      Đường ĐẦU-CUỐI thật, không bơm sẵn kết quả lượt chạy.
+      Dựng một khoá executor CODE-SINH trong một bản sao config trỏ một lệnh THẬT
+      `exit 2`, và một eval khai expected_exit: 2 trỏ đúng khoá đó. Chạy
+      acceptance-verify.js để mã 2 đi TRỌN đường: giải khoá config → chạy lệnh →
+      chuẩn hoá mã hạ tầng → so kỳ vọng.
+      Đối chứng dương: ra đạt-có-giới-hạn; khối eval mang mã 2; mục Known limits có dòng.
+      Hai chiều đối chứng cùng khoá: đổi lệnh sang exit 0 với eval KHÔNG khai → PASS
+      trơn, không dòng Known limits; đổi sang exit 1 → REJECT gọi tên eval.
+      Lý do có chân riêng: bốn chân S4 kia bơm mã vào SAU khâu giải khoá, nên không
+      chân nào bắt được lớp lỗi ĐÃ XẢY RA THẬT ở vòng trước — lệnh khai giải ra vỡ cú
+      pháp và thoát 127 chứ không phải mã của lệnh. Chân ĐỎ nếu khoá không giải được,
+      thông điệp ghim "khoá khai giải ra không phải lệnh đã định".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "lib/evidence-core.cjs"
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
