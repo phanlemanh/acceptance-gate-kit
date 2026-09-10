@@ -10,6 +10,12 @@
 // sai, fail-closed khi không có fileDir, và một ca đi TRỌN qua
 // scripts/recheck-evidence.cjs thật (nghĩa vụ riêng — đường đầu-cuối phải có
 // người đo được, không chỉ unit test gọi thẳng evaluateEvidence).
+//
+// Đảo phép nới SAI (vòng này): hợp đồng chỉ có ĐÚNG MỘT ngoại lệ — dòng
+// trường thật, neo đầu dòng, khớp mã đã khai, trong khối eval. HAI đường,
+// không ba: mọi thứ khác mang hình dạng mã thoát khác 0 (ngoài khối, lệch
+// định dạng, hay lẫn trong ghi chú tự do) đều là VI PHẠM như nhau — không
+// còn rổ "malformed" hay rổ "ghi chú được tha" riêng.
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -107,40 +113,47 @@ const EVALS_OK = `schema_version: 1\nslug: l1k\n\nevals:\n` +
     `expected_exit: 0 tường minh phải đọc "khai 0", không phải "chưa khai", được: ${r.consistencyFailure}`);
 }
 
-// ═══ Phát hiện 1: phân kỳ đã tái hiện — ghi chú tự do lẫn trong khối ═══════
+// ═══ Đảo phép nới SAI: ghi chú tự do lẫn trong khối KHÔNG còn được tha ═════
+// Ở một vòng trước, người yêu cầu THA dòng ghi chú tự do chứa cụm mã thoát
+// bên trong khối eval — đó là chỉ dẫn SAI, nay đảo lại. Hợp đồng chỉ có
+// ĐÚNG MỘT ngoại lệ: dòng trường thật, neo đầu dòng, khớp mã đã khai. MỌI
+// dòng khác mang hình dạng mã thoát khác 0 trong khối — kể cả ghi chú tự do
+// — là vi phạm, không phân biệt theo "trông giống trường thật" hay "trông
+// giống văn xuôi" nữa (HAI đường, không ba).
+//
 // Khối eval khai mã 2 (declared), bên trong có một dòng ghi chú TỰ DO chứa
-// cụm "exit_code: 9" (không phải trường thật — không đứng đầu dòng sau thụt
-// lề) rồi mới tới dòng mã thoát THẬT exit_code: 2. Biểu thức không neo cũ đọc
-// nhầm dòng ghi chú thành mã thoát của E1 (9 != khai 2) và chặn nhầm một báo
-// cáo PASS hợp lệ.
+// cụm "exit_code: 9" (không neo đầu dòng) rồi mới tới dòng mã thoát THẬT
+// exit_code: 2 (neo đầu dòng, khớp khai). Dòng ghi chú tự nó là một vi phạm
+// (không neo đầu dòng) dù dòng trường thật khớp khai — đây là ca đã ĐẢO so
+// với vòng trước (trước đó dòng ghi chú được tha, nay không còn).
 {
   const { dir } = mkWorkspace(EVALS_OK);
   const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  note: last run had exit_code: 9 (stale, ignore)\n  exit_code: 2\n  verifier: x\n  verified_at: 2026-01-01\n`;
   const r = CORE.evaluateEvidence(payload, { fileDir: dir });
-  t('L1K-note-mid-block', r.consistencyFailure === null,
-    `ghi chú tự do chứa "exit_code: 9" trong khối không được đọc thành mã thoát thật; mã thật (2) khớp khai -> KHÔNG vi phạm. Được: ${r.consistencyFailure}`);
+  t('L1K-note-mid-block-violates',
+    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') && r.consistencyFailure.includes('không neo đầu dòng'),
+    `ĐẢO so với vòng trước: ghi chú tự do chứa "exit_code: 9" trong khối không neo đầu dòng -> VI PHẠM, dù dòng trường thật (2) khớp khai. Được: ${r.consistencyFailure}`);
 }
 
 // Đối chứng cùng fixture: đổi dòng mã thoát THẬT (không phải dòng ghi chú)
-// sang 5 -> vi phạm, nêu tên eval và CẢ HAI mã (5 thực tế, 2 đã khai) — và
-// KHÔNG lẫn mã 9 của dòng ghi chú vào thông điệp.
+// sang 5 -> vi phạm nêu tên eval + cả hai mã (5 thực tế, 2 đã khai) — VÀ nay
+// mã 9 của dòng ghi chú CŨNG được nêu, vì bản thân dòng ghi chú giờ là một
+// vi phạm độc lập, không còn là "lẫn vào rồi biến mất" như trước.
 {
   const { dir } = mkWorkspace(EVALS_OK);
   const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  note: last run had exit_code: 9 (stale, ignore)\n  exit_code: 5\n  verifier: x\n  verified_at: 2026-01-01\n`;
   const r = CORE.evaluateEvidence(payload, { fileDir: dir });
   t('L1K-note-mid-block-red',
-    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') && r.consistencyFailure.includes('mã 5') && r.consistencyFailure.includes('khai 2') && !r.consistencyFailure.includes('mã 9'),
-    `mã thoát THẬT lệch khai phải vi phạm nêu tên eval + cả hai mã (5 thực tế, 2 đã khai), không lẫn mã 9 của ghi chú. Được: ${r.consistencyFailure}`);
+    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') && r.consistencyFailure.includes('mã 5') && r.consistencyFailure.includes('khai 2') && r.consistencyFailure.includes('mã 9'),
+    `mã thoát THẬT lệch khai (5 thực tế, 2 đã khai) VÀ dòng ghi chú (mã 9) phải CÙNG bị nêu — cả hai đều là vi phạm độc lập nay. Được: ${r.consistencyFailure}`);
 }
 
-// ═══ Lỗ fail-open: dòng mã thoát LỆCH ĐỊNH DẠNG trong khối (dấu gạch đầu
-// dòng chen trước từ khoá, vd "  - exit_code: 9") từng bị walkEvalExits rơi
-// mất hoàn toàn — không vào byEval (từ khoá không phải token đầu dòng),
-// không vào outside (đang trong khối) — nên biến mất khỏi phép kiểm (hồ sơ
-// eval-khai-ma-thoat-mong-doi 2026-09-09). Hai ca dưới đổi ĐÚNG MỘT biến
-// (dòng thứ 3 trong cùng khối E1, mã thật exit_code: 2 khớp khai đứng sau):
-//   - dòng lệch định dạng "- exit_code: 9"            -> VI PHẠM
-//   - dòng ghi chú tự do "note: ... exit_code: 9 ..." -> KHÔNG vi phạm (đối chứng)
+// ═══ Một nhánh gộp: dòng lệch định dạng và ghi chú tự do là CÙNG một hình
+// dạng vi phạm (không neo đầu dòng) — không còn rổ "malformed" riêng ═══════
+// Hai ca dưới đổi ĐÚNG MỘT biến (dòng thứ 3 trong cùng khối E1, mã thật
+// exit_code: 2 khớp khai đứng sau) và giờ CẢ HAI đều VI PHẠM:
+//   - dòng lệch định dạng "- exit_code: 9"             -> VI PHẠM (giữ như cũ)
+//   - dòng ghi chú tự do "note: ... exit_code: 9 ..."  -> VI PHẠM (ĐẢO so với vòng trước)
 const skewedBlockPayload = (variableLine) =>
   `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n` +
   `${variableLine}\n  exit_code: 2\n  verifier: x\n  verified_at: 2026-01-01\n`;
@@ -151,18 +164,44 @@ const skewedBlockPayload = (variableLine) =>
   const r = CORE.evaluateEvidence(payload, { fileDir: dir });
   t('L1K-skewed-dash-exit',
     r.consistencyFailure !== null && r.consistencyFailure.includes('E1') &&
-      r.consistencyFailure.includes('9') && r.consistencyFailure.includes('lệch định dạng'),
+      r.consistencyFailure.includes('9') && r.consistencyFailure.includes('không neo đầu dòng'),
     `dòng "- exit_code: 9" lệch định dạng trong khối phải VI PHẠM và ghim rõ dòng lệch, được: ${r.consistencyFailure}`);
 }
 
-// Đối chứng cùng fixture: đúng ghi chú tự do đã được việc hợp nhất sinh ra
-// để tha — không được lùi lại vì phần vá lỗ này.
+// ĐẢO lại: đây là ca "L1K-skewed-note-tolerated" của vòng trước, nay đổi tên
+// vì nghĩa đã lật — ghi chú tự do KHÔNG còn được tha nữa (đúng phép đảo mà
+// người yêu cầu ở đầu vòng này).
 {
   const { dir } = mkWorkspace(EVALS_OK);
   const payload = skewedBlockPayload('  note: last run had exit_code: 9 (stale, ignore)');
   const r = CORE.evaluateEvidence(payload, { fileDir: dir });
-  t('L1K-skewed-note-tolerated', r.consistencyFailure === null,
-    `đối chứng: ghi chú tự do chứa "exit_code: 9" không phải trường thật -> KHÔNG vi phạm (mã thật 2 khớp khai). Được: ${r.consistencyFailure}`);
+  t('L1K-skewed-note-violates',
+    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') &&
+      r.consistencyFailure.includes('9') && r.consistencyFailure.includes('không neo đầu dòng'),
+    `ĐẢO: ghi chú tự do chứa "exit_code: 9" không neo đầu dòng trong khối -> VI PHẠM (không còn được tha). Được: ${r.consistencyFailure}`);
+}
+
+// ═══ Chốt phạm vi ngoại lệ: đúng MỘT biến là VỊ TRÍ NEO của dòng mã thoát
+// khớp khai — chứng ngoại lệ hẹp đúng bằng một dòng trường thật, không rộng
+// hơn. Cùng khối E1, cùng mã 2 khớp khai; chỉ đổi có neo đầu dòng hay không.
+const anchorBoundaryPayload = (exitLine) =>
+  `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n${exitLine}\n  verifier: x\n  verified_at: 2026-01-01\n`;
+
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = anchorBoundaryPayload('  exit_code: 2');
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-anchor-boundary-tolerated', r.consistencyFailure === null,
+    `từ khoá neo đầu dòng trong khối, khớp khai -> THA đúng MỘT ngoại lệ hợp đồng. Được: ${r.consistencyFailure}`);
+}
+
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = anchorBoundaryPayload('  z exit_code: 2');
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-anchor-boundary-violates',
+    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') && r.consistencyFailure.includes('không neo đầu dòng'),
+    `chỉ lùi neo ra sau MỘT chữ bất kỳ ("z "), dù CÙNG mã đã khai (2) -> VI PHẠM — ngoại lệ không rộng hơn đúng một dòng neo đầu dòng. Được: ${r.consistencyFailure}`);
 }
 
 // ═══ Nới điều kiện hình dạng: hồ sơ mà MỌI eval đều khai mã khác 0 ═════════
