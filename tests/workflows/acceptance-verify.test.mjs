@@ -2058,4 +2058,32 @@ console.log('W-EE6 lan doi chung tra dung/khac ky vong -> Analyst so voi expecte
     !ndDiff, JSON.stringify(rDiff.nonDiscriminating));
 }
 
+console.log('W-EE7 eval dat-co-gioi-han → prompt soan bao cao mang dong Known limits tinh san');
+{
+  const { calls } = await runWorkflow(WF, baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 }],
+    suiteCommands: [],
+  }), responder({ 'machine:': { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false } }));
+  const p = byLabel(calls, 'synthesize:report')[0].prompt;
+  check('W-EE7', p.includes('E1') && p.includes('AC-1') && /Known limits/i.test(p), 'prompt co dong tinh san');
+}
+
+console.log('W-EE8 loi dan khong con cam TRON goi ma khac 0');
+{
+  const { calls } = await runWorkflow(WF, baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 }],
+    suiteCommands: [],
+  }), responder({ 'machine:': { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false } }));
+  const p = byLabel(calls, 'synthesize:report')[0].prompt;
+  check('W-EE8', !/report PASS khong duoc chua token exit khac 0/i.test(p) && /khoi cua eval da khai/i.test(p),
+    'cau cam da noi dung pham vi');
+}
+
+console.log('W-EE9 khong co eval dat-co-gioi-han → khong dong Known limits nao');
+{
+  const { calls } = await runWorkflow(WF, baseArgs({ suiteCommands: [] }), responder());
+  const p = byLabel(calls, 'synthesize:report')[0].prompt;
+  check('W-EE9', !/dat-co-gioi-han/i.test(p), 'khong bia dong khi khong co gi de khai');
+}
+
 summary('acceptance-verify');
