@@ -5,7 +5,7 @@ slug: release-2-11-0
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs (t3_paths). Làn V là T2-only nên hồ sơ này LUÔN cần approved_by — cùng đường 2.10.0 đã đi
 surfaces: [cli]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-09-10-release-2-11-0-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-10T14:37:16Z
