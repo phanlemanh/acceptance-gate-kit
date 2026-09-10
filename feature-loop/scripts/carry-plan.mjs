@@ -24,15 +24,25 @@ import { createRequire } from 'node:module';
 // được CARRY-FORWARD, một glob mang ký tự thừa không khớp file nào và eval
 // được mang màu xanh cũ sang lượt mới dù file thật đã đổi (chiều FAIL-OPEN).
 // Lượt chấm 1 của hồ sơ release-2-11-0 đo được; AC-10 giữ chỗ này.
+// `--ag-root` là đường TƯỜNG MINH (s4-args luôn truyền). Vắng cờ thì suy từ vị
+// trí CHÍNH tệp này — kho tự host có `lib/evidence-core.cjs` ngay ở gốc. Không
+// tìm thấy ở đâu cả thì fail-CLOSED CÓ TÊN: thà dừng còn hơn im lặng rơi về
+// một bản chép trong tệp này, vì đúng cái đó là lớp lỗi AC-10 đóng.
 let SHARED = null;
 function readers(agRoot) {
   if (SHARED) return SHARED;
+  const HERE = path.dirname(fileURLToPath(import.meta.url));
+  const ung = [agRoot, path.resolve(HERE, '..', '..')].filter(Boolean)
+    .map(r => path.resolve(r, 'lib', 'evidence-core.cjs'));
   const req = createRequire(import.meta.url);
-  let core;
-  try { core = req(path.resolve(agRoot, 'lib', 'evidence-core.cjs')); }
-  catch (e) { die3(`không nạp được lib/evidence-core.cjs từ --ag-root ${agRoot}: ${String(e.message).split('\n')[0]}`); }
+  let core = null; const vet = [];
+  for (const c of ung) {
+    if (!fs.existsSync(c)) { vet.push(`${c} (không có)`); continue; }
+    try { core = req(c); break; } catch (e) { vet.push(`${c} (${String(e.message).split('\n')[0]})`); }
+  }
+  if (!core) die3(`không nạp được lib/evidence-core.cjs — đã thử: ${vet.join(' · ')}; truyền --ag-root <gốc plugin acceptance-gate>`);
   for (const n of ['unquoteScalar', 'splitTopLevel'])
-    if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} (cần >= 2.11.0)`);
+    if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} (cần >= 2.11.0) — truyền --ag-root trỏ bản >= 2.11.0`);
   SHARED = core;
   return SHARED;
 }
@@ -176,7 +186,7 @@ const isMain = (() => {
 
 if (isMain) {
   const a = parseArgs(process.argv.slice(2));
-  const USAGE = 'carry-plan: usage: carry-plan.mjs --run-log <p> --evals <p> --contract <p> --round <N> --ag-root <p> (--delta-files <f1,f2,...> | --no-delta)\n';
+  const USAGE = 'carry-plan: usage: carry-plan.mjs --run-log <p> --evals <p> --contract <p> --round <N> [--ag-root <p>] (--delta-files <f1,f2,...> | --no-delta)\n';
   if (!a || a.__error) {
     process.stderr.write(`carry-plan: ${a && a.__error ? a.__error : 'không đọc được tham số'}\n` + USAGE);
     process.exit(2);
@@ -206,12 +216,6 @@ if (isMain) {
   const round = parseInt(a.round, 10);
   if (!Number.isInteger(round) || round < 2) { process.stderr.write('carry-plan: --round phải là số nguyên ≥ 2 (round fix)\n'); process.exit(2); }
   const deltaFiles = (a['delta-files'] || '').split(',').map(s => s.trim()).filter(Boolean);
-  // --ag-root BẮT BUỘC: bộ đọc `paths:` phải là bộ dùng chung với s4-args, không
-  // phải một bản chép trong tệp này. Thiếu cờ = fail-CLOSED có tên (AC-10).
-  if (!a['ag-root']) {
-    process.stderr.write('carry-plan: thiếu --ag-root <gốc plugin acceptance-gate> — bộ đọc `paths:` phải dùng chung với s4-args (>= 2.11.0)\n' + USAGE);
-    process.exit(2);
-  }
   const r = plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot: a['ag-root'] });
   if (r.noCarry) {
     process.stderr.write('carry-plan: dòng run-log round trước thiếu field sha (hoặc sha không thuần nhất) — lịch sử cũ, full re-run là mặc định an toàn\n');
