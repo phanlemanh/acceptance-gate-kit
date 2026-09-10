@@ -429,11 +429,12 @@ function bg9() {
 //
 // Đường 6 (`id`) CỐ Ý không có trong danh sách: nó là LƯỚI HỒI QUY, bản vá ở
 // đó là hợp nhất lớp và không đổi hành vi — xem Out of scope của hợp đồng.
-const BG8_MUTANTS = 7;
-function bg8() {
-  if (process.env.BG_NO_RED === '1') { xanh('BG8', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
-  const CORE = ['lib', 'evidence-core.cjs'], ARGS = ['feature-loop', 'scripts', 's4-args.mjs'], CP = ['feature-loop', 'scripts', 'carry-plan.mjs'];
-  const MUT = [
+const CORE = ['lib', 'evidence-core.cjs'], ARGS = ['feature-loop', 'scripts', 's4-args.mjs'], CP = ['feature-loop', 'scripts', 'carry-plan.mjs'];
+// MỘT nguồn cho danh sách đột biến — BG8 dùng cả bảy, BG5 dùng ba ô của
+// evidence-core. Trước đó hai chân giữ HAI bản cùng danh sách neo và chúng
+// trôi khỏi nhau ngay lần đổi khuôn đầu tiên (BG5 đỏ vì «neo đổi»). Đúng lớp
+// «bên VIẾT trôi khỏi bên ĐỌC», lần này giữa hai phép đo của cùng tệp.
+const MUT_ALL = [
     ['1 resolveConfigKey la', CORE, "const pv = parseFlowValue(m[2]);\n        const val = pv.kind === 'seq' ? pv.text : pv.value;", "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');", 'BG4'],
     ['2 resolveConfigList inline', CORE, "const pv = parseFlowValue(m[2]);\n        if (pv.kind === 'seq') return pv.items;", "const pv = { kind: 'x', text: m[2].replace(/\\s+#.*$/, '').trim() };\n        if (pv.text.startsWith('[')) return pv.text.replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG4'],
     ['3 resolveConfigList khoi', CORE, 'out.push(parseFlowValue(m[1]).value)', "out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
@@ -442,6 +443,11 @@ function bg8() {
     ['7 s4-args models', ARGS, 'out[m[1]] = parseFlowValue(m[2]).value', "out[m[1]] = m[2].replace(/^[\"']|[\"']$/g, '')", 'BG4'],
     ['8 carry-plan paths', CP, 'const pv = R.parseFlowValue(f[1]);', "const pv = { kind: 'seq', items: f[1].replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) };", 'BG9'],
   ];
+
+const BG8_MUTANTS = 7;
+function bg8() {
+  if (process.env.BG_NO_RED === '1') { xanh('BG8', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
+  const MUT = MUT_ALL;
   if (MUT.length !== BG8_MUTANTS) { do_('BG8', `so dot bien ${MUT.length} != BG8_MUTANTS ${BG8_MUTANTS} khai truoc`); return; }
   const d = mkTmp('bg8-archive-');
   try {
@@ -478,20 +484,8 @@ function bg8() {
 // `git archive HEAD` — TRỌN cây, không chép danh sách tệp tay (bài học P150:
 // vật được đo gọi thêm một script mới thì bản base thiếu tệp, đỏ vì HẠ TẦNG
 // chứ không vì vật).
-// Bộ đột biến: đưa CẢ BA đường của evidence-core về đúng hành vi TRƯỚC 2.11.0
-// — bóc nháy vô điều kiện, cắt chú thích và tách phẩy không nhận biết vỏ. Tiêm
-// một đường thôi thì chiều đỏ chỉ chứng được một ô của ma trận bảy đường.
-const DOT_BIEN = [
-  ['resolveConfigKey la',
-   'const val = unquoteScalar(stripYamlComment(m[2]));',
-   "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');"],
-  ['resolveConfigList khoi',
-   'if (m) out.push(unquoteScalar(stripYamlComment(m[1])));',
-   "if (m) out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''));"],
-  ['resolveConfigList inline',
-   "if (val.startsWith('[')) return splitTopLevel(val.replace(/^\\[|\\]$/g, '')).map(s => unquoteScalar(s.trim())).filter(Boolean);",
-   "if (val.startsWith('[')) return val.replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);"],
-];
+// Chiều đỏ của BG5 lấy ĐÚNG ba ô evidence-core từ MUT_ALL — một nguồn.
+const DOT_BIEN = () => MUT_ALL.filter(m => m[1] === CORE).map(m => [m[0], m[2], m[3]]);
 function bg5() {
   if (process.env.BG_NO_RED === '1') { xanh('BG5', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
   const d = mkTmp('bg-archive-');
@@ -516,7 +510,8 @@ function bg5() {
   const coreP = path.join(d, 'lib', 'evidence-core.cjs');
   const truoc = bam(coreP);
   let src = fs.readFileSync(coreP, 'utf8');
-  for (const [ten, moi, cu] of DOT_BIEN) {
+  const DB = DOT_BIEN();
+  for (const [ten, moi, cu] of DB) {
     if (!src.includes(moi)) { do_('BG5', `khong tim thay neo [${ten}] de tiem nguoc — neo doi, phep do khong con chieu do`); return; }
     src = src.replace(moi, cu);
   }
@@ -531,7 +526,7 @@ function bg5() {
   const thieu = CHAN_DO.filter(n => !err.includes(`DO ${n}:`));
   if (thieu.length) { do_('BG5', `ban bi tiem do nhung KHONG ghim ${thieu.join(', ')} — chan do khong phu het vat`); return; }
   for (const n of CHAN_DO) console.log(`     [chieu do] ${n} -> DO`);
-  xanh('BG5', `chieu do tren ban sao TRON CAY (${DOT_BIEN.length} dot bien, doi chung duong xanh, bam doi, ghim ${CHAN_DO.join('+')})`);
+  xanh('BG5', `chieu do tren ban sao TRON CAY (${DB.length} dot bien, doi chung duong xanh, bam doi, ghim ${CHAN_DO.join('+')})`);
 }
 
 // BG_ONLY=<danh sách> chạy đúng các chân được nêu — BG8 dùng nó để chấm từng
