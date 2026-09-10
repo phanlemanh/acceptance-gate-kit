@@ -5,7 +5,7 @@ slug: eval-khai-ma-thoat-mong-doi
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/eval-yaml.cjs + lib/evidence-core.cjs (t3_paths: lib/**)
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-09-09T22:32:46Z
 design_doc: docs/superpowers/specs/2026-09-09-eval-khai-ma-thoat-mong-doi-design.md
