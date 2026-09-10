@@ -2150,12 +2150,16 @@ console.log('W-EE12 AC-10 hai chieu tren CUNG fixture (khai expectedExit khac 0)
   check('W-EE12b ma lech -> verdict REJECT', rLech.verdict === 'REJECT', rLech.verdict);
 }
 
-// W-EE13 — lo eval-khai-ma-thoat-mong-doi (09/09->10/09, task 7b): dong 781
-// (baselineStatus) va 789 (nonDiscriminating) moi duoc mo rong dung isHetHan
-// nhu dong 1020 (failed) da co tu truoc, nhung chua ca kiem nao phu TO HOP do
-// — W-EE12 chi phu 'failed', W-EE6 chi phu baseline/khong-phan-biet KHONG co
-// hetHan. Thieu ca nay thi mot ban sao xoa isHetHan khoi MOT trong hai cho van
-// xanh qua het cac W-EE khac.
+// W-EE13 — lo eval-khai-ma-thoat-mong-doi (09/09->10/09, task 7b/luot soi toan
+// nhanh): baselineStatus() 'green' CHI khi baseline khop dung ky vong
+// (baselineExit === expCmd), HOAC ca HAI phia (baseline VA HEAD) cung the
+// hien DUNG mot hanh vi hetHan (gioi han da khai khong con tren CA HAI). Mot
+// ban vi truoc chi doi isHetHan(baseline) ma KHONG doi HEAD cung hetHan, nen
+// to hop HEAD-CON-GIOI-HAN (exitCode===expCmd, vd 2) so baseline-HET-GIOI-HAN
+// (0) van bi doc la 'green' -> mot hoi quy that bi dan nhan sai thanh
+// nonDiscriminating (Chieu 3 duoi day). W-EE12 chi phu 'failed', W-EE6 chi
+// phu baseline/khong-phan-biet KHONG co hetHan. Thieu cac ca nay thi mot ban
+// sua lam mat tinh doi xung (chi doi mot ben) van xanh qua het cac W-EE khac.
 console.log('W-EE13 AC-10 ap cho CA lan doi chung lan danh sach khong-phan-biet: HEAD=0 VA baseline=0 (ca hai gioi han da khai khong con) -> non-discriminating; doi chung tren CUNG fixture (chi doi baselineExit) de ca dau khong hang-dung');
 {
   const mkArgs = () => baseArgs({
@@ -2187,6 +2191,25 @@ console.log('W-EE13 AC-10 ap cho CA lan doi chung lan danh sach khong-phan-biet:
   const ndBaselineLech = (rBaselineLech.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));
   check('W-EE13b doi chung: baseline LECH (1, khong phai gioi han da khai khong con) -> E1 KHONG non-discriminating du HEAD=0',
     !ndBaselineLech, JSON.stringify(rBaselineLech.nonDiscriminating));
+
+  // Chieu 3 (Phat hien 2, luot soi toan nhanh): HOI QUY THAT — HEAD CON gioi
+  // han (exitCode === expectedExit khai, 2, qua duong khop chinh xac chu KHONG
+  // phai hetHan — day la mot PASS dat-co-gioi-han binh thuong tren HEAD, KHONG
+  // phai mot luot truot) trong khi baseline HET gioi han (0, hetHan tren rieng
+  // baseline). Day la MOT hoi quy that (code cu KHONG co gioi han ma HEAD lai
+  // co) chu khong phai "hai ben cung mot hanh vi" — AC-6 doi baselineStatus
+  // phai la 'red' va E1 KHONG duoc gom vao nonDiscriminating (nonDiscriminating
+  // la tin hieu "eval nay khong chung minh duoc gi ve feature", KHONG phai
+  // failedEvals — bo qua no o day se an mat mot hoi quy that). Neu
+  // baselineStatus van chi doi rieng isHetHan(baseline) (ban vi cu) thi ca nay
+  // se bat duoc (E1 se lot vao nonDiscriminating sai).
+  const { result: rHeadConGioiHan } = await runWorkflow(WF, mkArgs(), responder({
+    'machine:': { exitCode: 2, outputTail: 'boom', runId: '', cannotRun: false },
+    'baseline:': { results: [{ cmd: './x.sh', baselineExit: 0, cannotRun: false }] },
+  }));
+  const ndHeadConGioiHan = (rHeadConGioiHan.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));
+  check('W-EE13c hoi quy that: HEAD CON gioi han (2, khop khai) so baseline HET gioi han (0) -> E1 KHONG non-discriminating',
+    !ndHeadConGioiHan, JSON.stringify(rHeadConGioiHan.nonDiscriminating));
 }
 
 summary('acceptance-verify');

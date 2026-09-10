@@ -771,14 +771,22 @@ const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
   .map(normKill)
   .map(b => normInfra({ ...b, exitCode: b.baselineExit }))
   .map(b => [b.cmd, b]))
-const baselineStatus = (cmd) => {
+// AC-6: 'green' nghia la lan doi chung tra DUNG KY VONG — hai duong:
+//   (1) baseline khop CHINH XAC ma da khai (b.baselineExit === expCmd(cmd)), HOAC
+//   (2) CA HAI phia (baseline VA HEAD) cung the hien DUNG mot hanh vi hetHan
+//       (gioi han da khai khong con) — currentExit BAT BUOC phai duoc truyen
+//       va cung hetHan, khong chi rieng baseline. Truoc ban vi nay chi doi
+//       isHetHan(baseline) ma KHONG doi HEAD cung hetHan, nen HEAD con gioi han
+//       (exitCode === expCmd(cmd), vd 2) so baseline HET gioi han (0) van bi
+//       doc la 'green' — mot hoi quy that (S4, eval-khai-ma-thoat-mong-doi,
+//       luot soi toan nhanh 2026-09-09/10) bi dan nhan sai thanh
+//       nonDiscriminating. currentExit thieu (khong truyen) -> chi con duong
+//       (1), khong tu suy dien hetHan.
+const baselineStatus = (cmd, currentExit) => {
   const b = baselineByCmd.get(cmd)
   if (!b || b.cannotRun) return 'n-a'
-  // AC-10 ap doi xung cho lane doi chung: baseline (code cu) tra 0 du eval khai
-  // ky vong khac 0 CUNG la dat (gioi han khong con, ke ca tren code cu) — khong
-  // de mot dinh nghia "dat" lech giua HEAD va baseline lam nonDiscriminating o
-  // duoi doc sai (hai ben cung tra 0 la CUNG mot hanh vi, phai duoc thay green).
-  return (b.baselineExit === expCmd(cmd) || isHetHan(b.baselineExit, cmd)) ? 'green' : 'red'
+  const bothHetHan = typeof currentExit === 'number' && isHetHan(b.baselineExit, cmd) && isHetHan(currentExit, cmd)
+  return (b.baselineExit === expCmd(cmd) || bothHetHan) ? 'green' : 'red'
 }
 // Eval không-phân-biệt: lệnh-CÓ-eval pass trên CẢ HEAD lẫn baseline (green-on-both) → chứng minh harness, không phải feature
 // P2: round không đo baseline → Analyst carry nguyên từ round có baseline gần nhất (carriedAnalyst).
@@ -786,7 +794,7 @@ const carriedAnalyst = (!runBaseline && args.carriedAnalyst && Array.isArray(arg
   ? args.carriedAnalyst : null
 const nonDiscriminating = runBaseline
   ? machine
-      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)) && baselineStatus(m.cmd) === 'green')
+      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)) && baselineStatus(m.cmd, m.exitCode) === 'green')
       .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
   : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
 const judges = (judgeRaw || []).filter(Boolean).map(normalizeVote)
@@ -1079,7 +1087,7 @@ phase('Synthesize')
 const machineForReport = machine.map(m => (!m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)))
   ? { ...m, outputTail: String(m.outputTail || '').split('\n').slice(-3).join('\n') }
   : m)
-const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd) }))
+const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd, m.exitCode) }))
 // Provenance xác định bằng máy → literal (synthesizer chỉ chép, không tự suy diễn/bỏ field trust-critical).
 // Run-log KHÔNG còn agent scribe: một agent "chép sẵn dòng audit" trông y hệt hành
 // vi ngụy tạo hồ sơ và bị safety layer chặn lặp lại (4 lần, phiên 2026-07-27→28),

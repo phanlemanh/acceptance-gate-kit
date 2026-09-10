@@ -470,7 +470,15 @@ LGEOF
   # ── l1-nhat-quan (AC-9) ────────────────────────────────────────────────────
   l1-nhat-quan)
     copy_tree
-    sed -n '608,634p' "$KIT/lib/evidence-core.cjs" > "$TMP/l1-before.txt"
+    # Rút khối bằng NEO CHỮ, không hardcode số dòng (lượt soi toàn nhánh
+    # 09/09→10/09: một sửa lib/evidence-core.cjs thêm comment đã dịch chuyển
+    # dòng 608-634 cũ, khiến "before" chỉ chụp được NỬA khối — inject_file vẫn
+    # đếm khớp 1 lần trên nửa khối đó nên KHÔNG tự báo lỗi, nhưng "after" (mutant)
+    # khai lại `const { byEval: blockExits }` trong khi khai gốc ở phần khối
+    # KHÔNG bị thay vẫn còn nguyên → SyntaxError trùng tên biến khi node nạp bản
+    # sao). Neo bắt đầu tại khai báo `blockExits` và kết ở dấu đóng khối `  }`
+    # đầu tiên theo sau — sống được qua mọi lần thêm/bớt dòng comment xung quanh.
+    sed -n '/const { byEval: blockExits/,/^  }$/p' "$KIT/lib/evidence-core.cjs" > "$TMP/l1-before.txt"
     cat > "$TMP/l1-after.txt" <<'EOF'
   const { byEval: blockExits } = walkEvalExits(payload);
   const NONZERO_EXIT_RE = /(?:exit_code|verifier_exit_code|exit)\s*[:=]\s*(-?[1-9]\d*)\b/i;
@@ -790,7 +798,14 @@ SDGHEOF
   # văn — nếu JS bỏ trống mảng này, lời dặn soạn báo cáo vắng tên eval đạt-có-
   # giới-hạn, và bên soạn không còn gì để chép.
   known-limits)
-    sed -n '1063,1066p' "$KIT/feature-loop/workflows/acceptance-verify.js" > "$TMP/kl-before.txt"
+    # Neo bằng chữ (không hardcode số dòng — lượt soi toàn nhánh 09/09→10/09:
+    # sửa baselineStatus() ở Phát hiện 2 thêm comment PHÍA TRÊN, dịch chuyển
+    # dòng 1063-1066 cũ khỏi khối knownLimitLines thật, inject_file vẫn khớp 1
+    # lần trên vùng SAI nên không tự báo lỗi, nhưng "after" mutant khai lại
+    # `const knownLimitLines` trong khi khai gốc còn nguyên → SyntaxError trùng
+    # tên biến). Neo bắt đầu tại khai báo và kết ở dòng flatMap kết thúc bằng
+    # `))` đầu tiên theo sau — sống được qua mọi lần thêm/bớt dòng xung quanh.
+    sed -n '/^const knownLimitLines = machine$/,/^    `- \${id} (\${acOf(id)}) dat-co-gioi-han:/p' "$KIT/feature-loop/workflows/acceptance-verify.js" > "$TMP/kl-before.txt"
     cat > "$TMP/kl-after.txt" <<'EOF'
 const knownLimitLines = []
 EOF
@@ -921,7 +936,7 @@ XDLEOF
   # ── so-ky-vong (AC-6) ────────────────────────────────────────────────────────
   # Bốn chỗ đều phải so với KỲ VỌNG đã khai (expCmd), không so trần với 0: đếm
   # lượt đạt (dòng ~647), chọn lượt đại diện chẩn đoán (dòng ~649), mã thoát
-  # gộp (dòng ~655), và baselineStatus của làn đối chứng (dòng ~781). BỐN bản
+  # gộp (dòng ~655), và baselineStatus của làn đối chứng (dòng ~789). BỐN bản
   # sao RIÊNG, mỗi bản hoàn nguyên ĐÚNG MỘT phép so về `=== 0` / `!== 0`, và bốn
   # thông điệp phải KHÁC nhau — dùng chung MỘT fixture (2 lượt chạy: A khớp kỳ
   # vọng, B lệch) để bốn chỗ quan sát được qua bốn TRƯỜNG riêng của cùng entry
@@ -980,7 +995,7 @@ if (MODE === 'healthy') {
   check('CHIỀU ĐỎ (mã thoát gộp — dòng ~655): mutant trả hằng số 0 thay vì kỳ vọng đã khai (2)',
     m.exitCode === 0, `exitCode=${m.exitCode}`);
 } else if (MODE === 'm4') {
-  check('CHIỀU ĐỎ (baselineStatus — dòng ~781): mutant so với 0 → baseline khớp đúng kỳ vọng (2) lại bị đọc SAI thành red',
+  check('CHIỀU ĐỎ (baselineStatus — dòng ~789): mutant so với 0 → baseline khớp đúng kỳ vọng (2) lại bị đọc SAI thành red',
     m.baseline === 'red', `baseline=${m.baseline}`);
 } else {
   throw new Error('MODE la (' + MODE + ')');
@@ -1025,9 +1040,14 @@ SKVEOF
     [ "$RC" -eq 0 ] || bad "so-ky-vong: mũi m3 (mã thoát gộp) skv-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
 
     copy_tree
+    # Chuỗi nguyên văn cập nhật theo Phát hiện 2 (lượt soi toàn nhánh
+    # 09/09→10/09): baselineStatus() nay đòi CẢ HAI phía cùng hetHan
+    # (bothHetHan) thay vì chỉ riêng baseline — mũi tiêm chỉ đổi vế so-khớp-
+    # kỳ-vọng (expCmd(cmd) -> 0), giữ nguyên vế bothHetHan, để cô lập ĐÚNG một
+    # phép so như các mũi m1-m3 phía trên.
     inject skv-m4-baseline feature-loop/workflows/acceptance-verify.js \
-      "return (b.baselineExit === expCmd(cmd) || isHetHan(b.baselineExit, cmd)) ? 'green' : 'red'" \
-      "return (b.baselineExit === 0 || isHetHan(b.baselineExit, cmd)) ? 'green' : 'red'"
+      "return (b.baselineExit === expCmd(cmd) || bothHetHan) ? 'green' : 'red'" \
+      "return (b.baselineExit === 0 || bothHetHan) ? 'green' : 'red'"
     node "$TMP/skv-check.mjs" "$KIT" "$COPY/feature-loop/workflows/acceptance-verify.js" m4 > "$TMP/skv-m4.out" 2>&1
     RC=$?
     cat "$TMP/skv-m4.out"

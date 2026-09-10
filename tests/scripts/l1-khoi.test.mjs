@@ -253,6 +253,78 @@ const anchorBoundaryPayload = (exitLine) =>
     `verdict: FAIL vẫn phải bắt, được: ${r.consistencyFailure}`);
 }
 
+// ═══ Lượt soi toàn nhánh 2026-09-09 — Phát hiện 1: thiếu cờ toàn cục (g) +
+// Map.set ghi đè khiến ba hình dạng lọt fail-open. Mỗi ca kèm đối chứng
+// DƯƠNG (cùng khối/vị trí nhưng KHÔNG có mã thoát ẩn) để chứng minh phép
+// kiểm phân biệt được — không hằng-đúng vì luôn thấy vi phạm. ═══════════════
+
+// (A) TRONG khối, MỘT dòng mang HAI khớp: khớp đầu neo đầu dòng là 0 (khớp
+// khai của E1 là 2, nên tự nó CŨNG đã lệch — nhưng điểm mấu chốt của hình
+// dạng A là khớp THỨ HAI, "exit_code: 7" nằm trong ngoặc cuối dòng, phải
+// KHÔNG được biến mất). Không có cờ g, `line.match()` chỉ thấy khớp đầu (0)
+// nên mã 7 không ai thấy — bug cũ đọc dòng này là "khai lệch 0 vs 2" mà bỏ
+// sót hẳn sự tồn tại của mã 7 lạc chỗ (không neo đầu dòng) trong violations.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  exit_code: 0 (truoc do exit_code: 7)\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-scan-A-hidden-second-match',
+    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') && r.consistencyFailure.includes('7') && r.consistencyFailure.includes('không neo đầu dòng'),
+    `dòng "exit_code: 0 (truoc do exit_code: 7)" phải lộ CẢ mã 7 lạc chỗ (không neo đầu dòng), không chỉ khớp đầu (0). Được: ${r.consistencyFailure}`);
+}
+// Đối chứng dương (A): cùng khối, cùng vị trí, nhưng KHÔNG có khớp thứ hai —
+// dòng trường thật khớp đúng mã đã khai (2), không có gì khác trên dòng.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  exit_code: 2 (khong con gi khac)\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-scan-A-control-single-match', r.consistencyFailure === null,
+    `dòng chỉ có MỘT khớp, neo đầu dòng, khớp khai -> KHÔNG vi phạm. Được: ${r.consistencyFailure}`);
+}
+
+// (B) TRONG khối, HAI dòng neo đầu dòng riêng biệt: "exit_code: 7" rồi
+// "verifier_exit_code: 0". Bug cũ dùng Map.set(cur, code) nên dòng SAU ghi
+// đè dòng TRƯỚC — mã 7 (lệch khai 2) biến mất, khối đọc ra "toàn 0". Sau vá,
+// byEval gom DANH SÁCH [7, 0] cho E1 — mã 7 vẫn phải bị nêu.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  exit_code: 7\n  verifier_exit_code: 0\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-scan-B-second-line-overwrites',
+    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') && r.consistencyFailure.includes('mã 7') && r.consistencyFailure.includes('khai 2'),
+    `dòng "verifier_exit_code: 0" SAU đó không được xoá dấu vết mã 7 lệch khai của dòng trước. Được: ${r.consistencyFailure}`);
+}
+// Đối chứng dương (B): cùng hai-dòng-neo-đầu-dòng nhưng CẢ HAI đều khớp khai
+// (2) — không có mã nào lệch, không vi phạm.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  exit_code: 2\n  verifier_exit_code: 2\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-scan-B-control-both-match', r.consistencyFailure === null,
+    `hai dòng neo đầu dòng CÙNG khớp khai -> KHÔNG vi phạm. Được: ${r.consistencyFailure}`);
+}
+
+// (C) NGOÀI mọi khối eval, MỘT dòng mang HAI khớp: "Tong ket: exit_code: 0,
+// exit_code: 3". Không có cờ g, khớp đầu (0) được đọc rồi dừng nên mã 3
+// không ai thấy — `outside` bỏ lọt một mã khác 0 nằm ngoài khối.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\nTong ket: exit_code: 0, exit_code: 3\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  exit_code: 2\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-scan-C-outside-hidden-second-match',
+    r.consistencyFailure !== null && r.consistencyFailure.includes('mã 3 ngoài mọi khối eval'),
+    `dòng "Tong ket: exit_code: 0, exit_code: 3" ngoài khối phải lộ CẢ mã 3, không chỉ khớp đầu (0). Được: ${r.consistencyFailure}`);
+}
+// Đối chứng dương (C): cùng vị trí ngoài khối, cả hai khớp đều là 0 — không
+// có mã khác 0 nào để nêu, khối E1 khớp khai -> không vi phạm.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\nTong ket: exit_code: 0, exit_code: 0\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  exit_code: 2\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-scan-C-control-both-zero', r.consistencyFailure === null,
+    `hai khớp ngoài khối ĐỀU là 0 -> không có mã khác 0 để nêu, không vi phạm. Được: ${r.consistencyFailure}`);
+}
+
 // ═══ Nghĩa vụ riêng: một ca đi TRỌN qua scripts/recheck-evidence.cjs thật ══
 // Hồ sơ PASS thật, mã thoát khác 0 đã khai trong evals.yaml và ghi đúng
 // trong khối eval — phải XANH đầu-cuối qua CLI thật, không chỉ qua
