@@ -74,8 +74,63 @@ const EVALS_OK = `schema_version: 1\nslug: l1k\n\nevals:\n` +
   const { dir } = mkWorkspace(EVALS_OK);
   const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E2\n  run_id: r-002\n  exit_code: 4\n  verifier: x\n  verified_at: 2026-01-01\n`;
   const r = CORE.evaluateEvidence(payload, { fileDir: dir });
-  t('L1K-d', r.consistencyFailure !== null && r.consistencyFailure.includes('E2') && r.consistencyFailure.includes('chưa khai'),
-    `ca (d) phải vi phạm nêu "chưa khai", được: ${r.consistencyFailure}`);
+  // E2 xuất hiện trong evals.yaml (không khai expected_exit -> kỳ vọng ngầm
+  // 0) nên declared.has('E2') là true — đúng ý nghĩa (Phát hiện 2) là "khai
+  // 0", không phải "chưa khai" (chuỗi đó dành riêng cho một eval id KHÔNG hề
+  // xuất hiện trong evals.yaml, xem ca L1K-unknown-id bên dưới).
+  t('L1K-d', r.consistencyFailure !== null && r.consistencyFailure.includes('E2') && r.consistencyFailure.includes('khai 0'),
+    `ca (d) phải vi phạm nêu "khai 0", được: ${r.consistencyFailure}`);
+}
+
+// (d+) đối chứng cho "chưa khai" thật: eval id KHÔNG xuất hiện trong
+// evals.yaml (không phải chỉ thiếu expected_exit như E2 ở trên) -> declared
+// không có entry nào cho nó -> "chưa khai" đúng nghĩa.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E404\n  run_id: r-404\n  exit_code: 9\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-unknown-id', r.consistencyFailure !== null && r.consistencyFailure.includes('E404') && r.consistencyFailure.includes('chưa khai'),
+    `eval id không có trong evals.yaml phải nêu "chưa khai" đúng nghĩa, được: ${r.consistencyFailure}`);
+}
+
+// ═══ Phát hiện 2: declared.has(id) chứ KHÔNG declared.get(id) truthy ═══════
+// Một eval khai TƯỜNG MINH expected_exit: 0 phải đọc ra "khai 0" khi trượt —
+// giá trị 0 là falsy nên phép kiểm cũ (declared.has(x) && declared.get(x))
+// đọc nhầm nó thành "chưa khai".
+{
+  const evalsYaml = `schema_version: 1\nslug: l1k\n\nevals:\n` +
+    `  - id: E3\n    executor: script\n    cmd: z\n    expected_exit: 0\n`;
+  const { dir } = mkWorkspace(evalsYaml);
+  const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E3\n  run_id: r-003\n  exit_code: 7\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-explicit-zero', r.consistencyFailure !== null && r.consistencyFailure.includes('E3') && r.consistencyFailure.includes('khai 0') && !r.consistencyFailure.includes('chưa khai'),
+    `expected_exit: 0 tường minh phải đọc "khai 0", không phải "chưa khai", được: ${r.consistencyFailure}`);
+}
+
+// ═══ Phát hiện 1: phân kỳ đã tái hiện — ghi chú tự do lẫn trong khối ═══════
+// Khối eval khai mã 2 (declared), bên trong có một dòng ghi chú TỰ DO chứa
+// cụm "exit_code: 9" (không phải trường thật — không đứng đầu dòng sau thụt
+// lề) rồi mới tới dòng mã thoát THẬT exit_code: 2. Biểu thức không neo cũ đọc
+// nhầm dòng ghi chú thành mã thoát của E1 (9 != khai 2) và chặn nhầm một báo
+// cáo PASS hợp lệ.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  note: last run had exit_code: 9 (stale, ignore)\n  exit_code: 2\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-note-mid-block', r.consistencyFailure === null,
+    `ghi chú tự do chứa "exit_code: 9" trong khối không được đọc thành mã thoát thật; mã thật (2) khớp khai -> KHÔNG vi phạm. Được: ${r.consistencyFailure}`);
+}
+
+// Đối chứng cùng fixture: đổi dòng mã thoát THẬT (không phải dòng ghi chú)
+// sang 5 -> vi phạm, nêu tên eval và CẢ HAI mã (5 thực tế, 2 đã khai) — và
+// KHÔNG lẫn mã 9 của dòng ghi chú vào thông điệp.
+{
+  const { dir } = mkWorkspace(EVALS_OK);
+  const payload = `---\nverdict: PASS\n---\n\n## Evidence\n- eval: E1\n  run_id: r-001\n  note: last run had exit_code: 9 (stale, ignore)\n  exit_code: 5\n  verifier: x\n  verified_at: 2026-01-01\n`;
+  const r = CORE.evaluateEvidence(payload, { fileDir: dir });
+  t('L1K-note-mid-block-red',
+    r.consistencyFailure !== null && r.consistencyFailure.includes('E1') && r.consistencyFailure.includes('mã 5') && r.consistencyFailure.includes('khai 2') && !r.consistencyFailure.includes('mã 9'),
+    `mã thoát THẬT lệch khai phải vi phạm nêu tên eval + cả hai mã (5 thực tế, 2 đã khai), không lẫn mã 9 của ghi chú. Được: ${r.consistencyFailure}`);
 }
 
 // ═══ Nới điều kiện hình dạng: hồ sơ mà MỌI eval đều khai mã khác 0 ═════════
