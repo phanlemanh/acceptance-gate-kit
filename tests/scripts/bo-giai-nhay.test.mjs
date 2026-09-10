@@ -166,10 +166,16 @@ function bg3() {
 // Ba hình dạng lấy NGUYÊN VĂN từ bán kính đo trên cây thật của kho tiêu thụ
 // (crm `steps`, artifact-platform `paths`, artifact-platform `config.yaml`) —
 // hình dạng là HÀNG THẬT, không phải hàng dựng cho vừa bên đọc.
-const BG4_ASSERTS = 11;
+const BG4_ASSERTS = 13;
 const CRM_STEP = 'Khang dinh <html lang=\\"vi\\"> trong HTML may chu tra ve';
 const AP_PATH = 'evidence-report.md §"E7 — render thật"';
 const AP_CMD = `bash -c 'for s in PICKER WARN BLOCK; do npx tsx uicheck.ts "$s" http://localhost:3001 || exit 1; done'`;
+// Hình dạng B5 — KẾT THÚC bằng nháy mà KHÔNG phải vỏ. Đây là hình dạng đang
+// sống ở `executors.script.uicheck_avatar_pool` của artifact-platform và là
+// hình dạng sinh ra chuỗi xanh-giả; nó phải chạy trên CẢ đường s4-args, không
+// chỉ trên resolveConfigKey (N5 tự-soi 10/09 bắt được chỗ thiếu này).
+const B5_LIST = "ends'";
+const B5_STEP = 'Bam nut co nhan "Save"';
 function bg4() {
   const ket = [];
   // Đường 1 — resolveConfigKey lá (hình dạng NGUYÊN VĂN của artifact-platform).
@@ -200,10 +206,11 @@ function bg4() {
       themCauHinh: '',
       themEval:
         '  - id: E2\n    criterion: AC-1\n    executor: ui-check\n    expected: "ca do"\n'
-        + `    paths: [a.js, "${AP_PATH.replace(/"/g, '\\"')}"]\n`
+        + `    paths: [a.js, "${AP_PATH.replace(/"/g, '\\"')}", ${B5_LIST}]\n`
         + '    steps:\n'
         + `      - "${CRM_STEP}"\n`
-        + `      - "${AP_PATH.replace(/"/g, '\\"')}"\n`,
+        + `      - "${AP_PATH.replace(/"/g, '\\"')}"\n`
+        + `      - ${B5_STEP}\n`,
     });
     // models sống trong feature_loop, splice thêm vào config đã sinh.
     const cfgP = path.join(ws.dir, '_acceptance', 'config.yaml');
@@ -214,9 +221,11 @@ function bg4() {
     if (r.err) { do_('BG4', `s4-args khong sinh duoc args: ${r.err}`); return; }
     const e2 = (r.args.evals || []).find(e => e.id === 'E2');
     if (!e2) { do_('BG4', 'tep args khong co eval E2 — duong 6 (id) hong: id "E2" khong giai duoc'); return; }
-    ket.push(['4 s4-args list inline [1]', (e2.paths || [])[1], AP_PATH]);
-    ket.push(['5 s4-args list khoi [0]', (e2.steps || [])[0], CRM_STEP.replace(/\\"/g, '"')]);
-    ket.push(['5 s4-args list khoi [1]', (e2.steps || [])[1], AP_PATH]);
+    ket.push(['4 s4-args list inline [1] vo kep co escape', (e2.paths || [])[1], AP_PATH]);
+    ket.push(['4 s4-args list inline [2] B5 ket-thuc-bang-nhay', (e2.paths || [])[2], B5_LIST]);
+    ket.push(['5 s4-args list khoi [0] vo kep co escape', (e2.steps || [])[0], CRM_STEP.replace(/\\"/g, '"')]);
+    ket.push(['5 s4-args list khoi [1] vo kep co escape', (e2.steps || [])[1], AP_PATH]);
+    ket.push(['5 s4-args list khoi [2] B5 ket-thuc-bang-nhay', (e2.steps || [])[2], B5_STEP]);
     // Đường 6 là LƯỚI HỒI QUY, không phải ca phân biệt: một id BỌC NHÁY hôm
     // nay đã hỏng ở tầng KHÁC — `parseEvals` (lib/eval-yaml.cjs) giữ nguyên
     // `"E2"` trong khi vòng list-field của s4-args bóc thành `E2`, nên mọi
