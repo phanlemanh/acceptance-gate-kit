@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Răng hồ sơ eval-khai-ma-thoat-mong-doi — PHẦN MỘT + vá task-7a: bảy chân
-# (mot-nguon · khai-sai · luat-ghim · l1-nhat-quan · lan-ghim · gioi-han-het ·
-# ... gioi-han-het dựng SAU khi lỗ AC-10 ở acceptance-verify.js/repin-lane.mjs
-# đã vá — xem task-7a-report.md).
-# Sáu chân còn lại (s4-dat-gioi-han · known-limits · xung-dot-lenh · so-ky-vong ·
-# tai-lieu · loi-dan-soan · dau-cuoi-that) do phiên khác dựng sau — ở đây chúng
-# thoát khác 0 với thông điệp «chân chưa dựng», không im lặng thoát 0.
+# Răng hồ sơ eval-khai-ma-thoat-mong-doi — mười ba chân đủ (task-7a + task-7b +
+# task-7c): mot-nguon · khai-sai · luat-ghim · l1-nhat-quan · lan-ghim ·
+# gioi-han-het (gioi-han-het dựng SAU khi lỗ AC-10 ở acceptance-verify.js/
+# repin-lane.mjs đã vá — xem task-7a-report.md) · s4-dat-gioi-han · known-limits ·
+# xung-dot-lenh · so-ky-vong · loi-dan-soan · dau-cuoi-that (task-7b-report.md) ·
+# tai-lieu (task-7c — chân cuối, đo tài liệu: GUIDE.md §7.1, docs/adr/0016,
+# CONTEXT.md, commands/acceptance-init.md, khối marker INFRA-EXIT-CODES).
 #
 # Khuôn chép từ _acceptance/duong-lui-phai-song/rang.sh: set -uo pipefail;
 # HERE/KIT suy từ vị trí script; ok/bad/done_chan; TMP có trap dọn; copy_tree;
@@ -1233,9 +1233,221 @@ DCTEOF
     [ "$RC" -eq 0 ] || bad "dau-cuoi-that: dct-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
     ;;
 
-  # ── chân còn lại của hồ sơ này: phiên khác dựng sau (đo tài liệu chưa tồn tại) ──
+  # ── tai-lieu (AC-11) ───────────────────────────────────────────────────────
+  # Năm mục tài liệu, mỗi mục MỘT mũi tiêm riêng, năm thông điệp KHÁC nhau gọi
+  # tên đúng vật bị gỡ: (a) GUIDE.md §7.1 đoạn kỳ vọng đã khai + luật hai vế +
+  # giới hạn ui-check/judgment; (b) docs/adr/0016-*.md tồn tại và nêu đích danh
+  # "baseline-127-tin-hieu-phan-biet"; (c) CONTEXT.md term đạt-có-giới-hạn kèm
+  # dòng _Avoid_; (d) khối marker INIT-CI-COPY-LIST của commands/acceptance-init.md
+  # nói vai mới của eval-yaml.cjs (checkRepinEvals + evaluateEvidence đọc
+  # expected_exit); (e) danh sách mã cấm EXPECTED_EXIT_BANNED của
+  # lib/eval-yaml.cjs RÚT từ khối marker INFRA-EXIT-CODES của
+  # acceptance-verify.js, so BẰNG theo GIÁ TRỊ CỦA TẬP — kèm một ca DƯỚI
+  # NGƯỠNG phải IM (đảo thứ tự hai mã + đổi khoảng trắng, TẬP mã không đổi).
+  # copy_tree() loại trừ docs/ nên mục (b) không dùng $COPY của nó — mũi (b) là
+  # một bản sao BOUNDED riêng của một thư mục cụ thể (cp -r docs/adr, không
+  # rsync từ KIT suy diễn) — không có rủi ro quét cả đĩa dù KIT có sai.
   tai-lieu)
-    bad "chân chưa dựng: $CHAN — đo tài liệu chưa tồn tại, phiên khác làm sau"
+    cat > "$TMP/tl-check.mjs" <<'TLEOF'
+import fs from 'node:fs';
+import path from 'node:path';
+const [, , ROOT, ADR_DIR, MODE] = process.argv;
+
+let okc = 0, badc = 0;
+function check(name, cond, detail) {
+  if (cond) { console.log(`CHECK-OK: ${name}`); okc++; }
+  else { console.log(`CHECK-BAD: ${name} -- ${detail || ''}`); badc++; }
+}
+function read(p) { try { return fs.readFileSync(p, 'utf8'); } catch { return null; } }
+function flat(s) { return String(s == null ? '' : s).replace(/\s+/g, ' '); }
+
+function checkA() {
+  const g = flat(read(path.join(ROOT, 'GUIDE.md')));
+  const m1 = g.includes('Ghim lại chấm theo kỳ vọng đã khai, không theo số 0');
+  const m2 = g.includes('ĐỦ HAI VẾ');
+  const m3 = g.includes('`ui-check` và `judgment` không khai được kỳ vọng khác 0');
+  return { ok: m1 && m2 && m3, detail: `m1=${m1} m2=${m2} m3=${m3}` };
+}
+function checkB() {
+  let files = [];
+  try { files = fs.readdirSync(ADR_DIR); } catch { files = []; }
+  const adr = files.find(f => /^0016-.*\.md$/.test(f));
+  if (!adr) return { ok: false, detail: `khong tim thay tep docs/adr/0016-*.md trong ${ADR_DIR}` };
+  const content = read(path.join(ADR_DIR, adr)) || '';
+  const hasStr = content.includes('baseline-127-tin-hieu-phan-biet');
+  return { ok: hasStr, detail: `adr=${adr} hasStr=${hasStr}` };
+}
+function checkC() {
+  const c = read(path.join(ROOT, 'CONTEXT.md')) || '';
+  const idx = c.indexOf('**đạt-có-giới-hạn**:');
+  if (idx === -1) return { ok: false, detail: 'khong tim thay heading term dat-co-gioi-han trong CONTEXT.md' };
+  const windowText = c.slice(idx, idx + 700);
+  const hasAvoid = /_Avoid_/.test(windowText);
+  return { ok: hasAvoid, detail: `hasAvoid=${hasAvoid}` };
+}
+function checkD() {
+  const a = read(path.join(ROOT, 'commands', 'acceptance-init.md')) || '';
+  const i = a.indexOf('<<<INIT-CI-COPY-LIST');
+  const j = a.indexOf('INIT-CI-COPY-LIST>>>', i);
+  if (i === -1 || j === -1) return { ok: false, detail: 'khong tim thay khoi marker INIT-CI-COPY-LIST' };
+  const block = a.slice(i, j);
+  const line = block.split('\n').find(l => l.includes('lib/eval-yaml.cjs'));
+  if (!line) return { ok: false, detail: 'khong tim thay dong eval-yaml.cjs trong khoi marker' };
+  const hasNewRole = line.includes('checkRepinEvals') && line.includes('evaluateEvidence') && line.includes('expected_exit');
+  return { ok: hasNewRole, detail: line.trim().slice(0, 220) };
+}
+function extractInfraKeys(root) {
+  const wf = read(path.join(root, 'feature-loop', 'workflows', 'acceptance-verify.js')) || '';
+  const i = wf.indexOf('<<<INFRA-EXIT-CODES');
+  const j = wf.indexOf('INFRA-EXIT-CODES>>>', i);
+  if (i === -1 || j === -1) return null;
+  const block = wf.slice(i, j);
+  const m = block.match(/INFRA_EXITS\s*=\s*\{([\s\S]*?)\}/);
+  if (!m) return null;
+  const keys = [...m[1].matchAll(/^\s*(\d+)\s*:/gm)].map(x => Number(x[1]));
+  return keys.sort((x, y) => x - y);
+}
+function extractBannedList(root) {
+  const ey = read(path.join(root, 'lib', 'eval-yaml.cjs')) || '';
+  const m = ey.match(/EXPECTED_EXIT_BANNED\s*=\s*\[([^\]]*)\]/);
+  if (!m) return null;
+  const keys = m[1].split(',').map(s => s.trim()).filter(Boolean).map(Number);
+  return keys.sort((x, y) => x - y);
+}
+function checkE() {
+  const infraKeys = extractInfraKeys(ROOT);
+  const bannedKeys = extractBannedList(ROOT);
+  if (!infraKeys || !bannedKeys) return { ok: false, detail: `infraKeys=${JSON.stringify(infraKeys)} bannedKeys=${JSON.stringify(bannedKeys)}` };
+  const equal = JSON.stringify(infraKeys) === JSON.stringify(bannedKeys);
+  return { ok: equal, detail: `infraKeys=${JSON.stringify(infraKeys)} bannedKeys=${JSON.stringify(bannedKeys)}` };
+}
+
+if (MODE === 'healthy') {
+  { const r = checkA(); check('(a) đối chứng dương: GUIDE.md §7.1 có đủ kỳ vọng đã khai + luật hai vế (ĐỦ HAI VẾ) + giới hạn ui-check/judgment', r.ok, r.detail); }
+  { const r = checkB(); check('(b) đối chứng dương: docs/adr/0016-*.md tồn tại và nêu đích danh baseline-127-tin-hieu-phan-biet', r.ok, r.detail); }
+  { const r = checkC(); check('(c) đối chứng dương: CONTEXT.md có term đạt-có-giới-hạn kèm dòng _Avoid_', r.ok, r.detail); }
+  { const r = checkD(); check('(d) đối chứng dương: khối INIT-CI-COPY-LIST của commands/acceptance-init.md nói vai mới của eval-yaml.cjs (checkRepinEvals + evaluateEvidence đọc expected_exit)', r.ok, r.detail); }
+  { const r = checkE(); check('(e) đối chứng dương: danh sách mã cấm lib/eval-yaml.cjs BẰNG tập mã của khối marker INFRA-EXIT-CODES', r.ok, r.detail); }
+} else if (MODE === 'mut-a') {
+  const r = checkA();
+  check('CHIỀU ĐỎ (a): gỡ đoạn GUIDE.md §7.1 (kỳ vọng đã khai/luật hai vế/giới hạn ui-check-judgment) → gọi tên đúng vật bị gỡ: đoạn GUIDE.md §7.1 kỳ vọng đã khai', !r.ok, r.detail);
+} else if (MODE === 'mut-b') {
+  const r = checkB();
+  check('CHIỀU ĐỎ (b): xoá tệp docs/adr/0016-*.md → gọi tên đúng vật bị gỡ: tệp docs/adr/0016 (ADR 0016)', !r.ok, r.detail);
+} else if (MODE === 'mut-c') {
+  const r = checkC();
+  check('CHIỀU ĐỎ (c): gỡ term đạt-có-giới-hạn khỏi CONTEXT.md → gọi tên đúng vật bị gỡ: term CONTEXT.md đạt-có-giới-hạn', !r.ok, r.detail);
+} else if (MODE === 'mut-d') {
+  const r = checkD();
+  check('CHIỀU ĐỎ (d): gỡ chú thích vai mới của eval-yaml.cjs khỏi khối INIT-CI-COPY-LIST → gọi tên đúng vật bị gỡ: chú thích vai mới eval-yaml.cjs trong commands/acceptance-init.md', !r.ok, r.detail);
+} else if (MODE === 'mut-e') {
+  const r = checkE();
+  check('CHIỀU ĐỎ (e): đổi một mã trong khối marker INFRA-EXIT-CODES → mã cấm trôi khỏi marker', !r.ok, r.detail);
+} else if (MODE === 'mut-e-silent') {
+  const r = checkE();
+  check('CA DƯỚI NGƯỠNG (e) phải IM: đảo thứ tự + đổi khoảng trắng trong khối marker mà TẬP mã KHÔNG đổi → vẫn NHẬN, không kêu', r.ok, r.detail);
+} else {
+  throw new Error('MODE la (' + MODE + ')');
+}
+process.exit(badc > 0 ? 1 : 0);
+TLEOF
+
+    # ── Bản lành: đọc THẲNG cây thật $KIT — đòi cả năm mục XANH ────────────────
+    node "$TMP/tl-check.mjs" "$KIT" "$KIT/docs/adr" healthy > "$TMP/tl-healthy.out" 2>&1
+    RC=$?
+    cat "$TMP/tl-healthy.out"
+    run_checks "$TMP/tl-healthy.out"
+    [ "$RC" -eq 0 ] || bad "tai-lieu: bản lành tl-check.mjs tự thoát khác 0 ($RC) — tài liệu thật thiếu điều nó hứa, xem log ở trên"
+
+    # ── Mũi (a): gỡ đoạn GUIDE.md §7.1 ─────────────────────────────────────────
+    copy_tree
+    sed -n '1060,1076p' "$KIT/GUIDE.md" > "$TMP/tl-a-before.txt"
+    : > "$TMP/tl-a-after.txt"
+    inject_file tai-lieu-a GUIDE.md "$TMP/tl-a-before.txt" "$TMP/tl-a-after.txt"
+    node "$TMP/tl-check.mjs" "$COPY" "$KIT/docs/adr" mut-a > "$TMP/tl-a.out" 2>&1
+    RC=$?
+    cat "$TMP/tl-a.out"
+    run_checks "$TMP/tl-a.out"
+    [ "$RC" -eq 0 ] || bad "tai-lieu: mũi (a) tl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    # ── Mũi (b): xoá tệp docs/adr/0016-*.md ────────────────────────────────────
+    ADR_MUT="$TMP/adr-mut-b"
+    mkdir -p "$ADR_MUT"
+    cp "$KIT/docs/adr/"*.md "$ADR_MUT/" 2>/dev/null || true
+    rm -f "$ADR_MUT"/0016-*.md
+    node "$TMP/tl-check.mjs" "$KIT" "$ADR_MUT" mut-b > "$TMP/tl-b.out" 2>&1
+    RC=$?
+    cat "$TMP/tl-b.out"
+    run_checks "$TMP/tl-b.out"
+    [ "$RC" -eq 0 ] || bad "tai-lieu: mũi (b) tl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    # ── Mũi (c): gỡ term đạt-có-giới-hạn khỏi CONTEXT.md ───────────────────────
+    copy_tree
+    sed -n '308,314p' "$KIT/CONTEXT.md" > "$TMP/tl-c-before.txt"
+    : > "$TMP/tl-c-after.txt"
+    inject_file tai-lieu-c CONTEXT.md "$TMP/tl-c-before.txt" "$TMP/tl-c-after.txt"
+    node "$TMP/tl-check.mjs" "$COPY" "$KIT/docs/adr" mut-c > "$TMP/tl-c.out" 2>&1
+    RC=$?
+    cat "$TMP/tl-c.out"
+    run_checks "$TMP/tl-c.out"
+    [ "$RC" -eq 0 ] || bad "tai-lieu: mũi (c) tl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    # ── Mũi (d): gỡ chú thích vai mới khỏi dòng eval-yaml.cjs trong khối
+    # INIT-CI-COPY-LIST của commands/acceptance-init.md (dựng before/after
+    # bằng python để tránh chép tay chuỗi có backtick/${...}/mũi tên unicode).
+    python3 - "$KIT/commands/acceptance-init.md" "$TMP/tl-d-before.txt" "$TMP/tl-d-after.txt" <<'PYEOF'
+import sys
+src, before_path, after_path = sys.argv[1], sys.argv[2], sys.argv[3]
+s = open(src, encoding='utf8').read()
+target = None
+for line in s.split('\n'):
+    if 'lib/eval-yaml.cjs' in line and 'ALSO the one source' in line:
+        target = line
+        break
+if target is None:
+    print('rang.sh: khong tim thay dong eval-yaml.cjs trong khoi marker', file=sys.stderr)
+    sys.exit(1)
+start = target.index('; ALSO')
+end = target.rindex(')')
+after_line = target[:start] + target[end:]
+open(before_path, 'w', encoding='utf8').write(target + '\n')
+open(after_path, 'w', encoding='utf8').write(after_line + '\n')
+PYEOF
+    copy_tree
+    inject_file tai-lieu-d commands/acceptance-init.md "$TMP/tl-d-before.txt" "$TMP/tl-d-after.txt"
+    node "$TMP/tl-check.mjs" "$COPY" "$KIT/docs/adr" mut-d > "$TMP/tl-d.out" 2>&1
+    RC=$?
+    cat "$TMP/tl-d.out"
+    run_checks "$TMP/tl-d.out"
+    [ "$RC" -eq 0 ] || bad "tai-lieu: mũi (d) tl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    # ── Mũi (e): đổi một mã trong khối marker INFRA-EXIT-CODES (127→128) ───────
+    copy_tree
+    inject tai-lieu-e feature-loop/workflows/acceptance-verify.js \
+      "  127: 'lenh/script khong ton tai o cho dung (command not found) — HA TANG CHAM, khong phai san pham do'," \
+      "  128: 'lenh/script khong ton tai o cho dung (command not found) — HA TANG CHAM, khong phai san pham do',"
+    node "$TMP/tl-check.mjs" "$COPY" "$KIT/docs/adr" mut-e > "$TMP/tl-e.out" 2>&1
+    RC=$?
+    cat "$TMP/tl-e.out"
+    run_checks "$TMP/tl-e.out"
+    [ "$RC" -eq 0 ] || bad "tai-lieu: mũi (e) tl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    # ── Ca DƯỚI NGƯỠNG (e) phải IM: đảo thứ tự hai mã + đổi khoảng trắng, TẬP
+    # mã KHÔNG đổi → chân vẫn XANH, KHÔNG kêu (so theo GIÁ TRỊ, không so byte).
+    copy_tree
+    sed -n '506,509p' "$KIT/feature-loop/workflows/acceptance-verify.js" > "$TMP/tl-esilent-before.txt"
+    cat > "$TMP/tl-esilent-after.txt" <<'EOF'
+const INFRA_EXITS = {
+    127: 'lenh/script khong ton tai o cho dung (command not found) — HA TANG CHAM, khong phai san pham do',
+  97:   'khong vao duoc cho dung (cd that bai: worktree bi don? repoRoot sai?) — HA TANG CHAM, khong phai san pham do',
+}
+EOF
+    inject_file tai-lieu-e-silent feature-loop/workflows/acceptance-verify.js "$TMP/tl-esilent-before.txt" "$TMP/tl-esilent-after.txt"
+    node "$TMP/tl-check.mjs" "$COPY" "$KIT/docs/adr" mut-e-silent > "$TMP/tl-esilent.out" 2>&1
+    RC=$?
+    cat "$TMP/tl-esilent.out"
+    run_checks "$TMP/tl-esilent.out"
+    [ "$RC" -eq 0 ] || bad "tai-lieu: ca dưới ngưỡng (e) tl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
     ;;
 
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;
