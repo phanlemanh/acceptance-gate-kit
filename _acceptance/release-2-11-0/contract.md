@@ -81,11 +81,24 @@ không phải mã 2 của shell — tức một PASS ở đây chỉ có thể �
 | 6 | `s4-args` id của eval | id |
 | 7 | `s4-args` `models` | tên model |
 
-**Và** tập hàm **CỐ Ý GIỮ** mệnh đề cũ là một danh sách đóng bốn tên — `extractRunIds` ·
-`walkEvalExits` · `extractVerifierValues` · `frontmatterField` (chúng nằm CÙNG
-`lib/evidence-core.cjs` với đường số 1–3, nên phạm vi phải tính theo HÀM chứ không theo
-TỆP). Tổng số khớp `replace(/^["\']|["\']$/g` trong hai tệp phải **BẰNG** số phần tử tập
-cố-ý-giữ — vá sót và vá lan đều đỏ có tên.
+**Và** tập hàm **CỐ Ý GIỮ** mệnh đề cũ là một danh sách đóng **năm** tên trong
+`lib/evidence-core.cjs` — `extractRunIds` · `extractEvalBlockRunIds` · `walkEvalExits` ·
+`extractVerifierValues` · `isAuthenticVerifier`. Chúng nằm CÙNG tệp với đường 1–3 nên
+phạm vi phải tính theo **HÀM**, không theo TỆP. Bốn tên đầu đọc id và tên người. Tên thứ
+năm có lý do cứng riêng: biểu thức bắt đường dẫn `(\S+\.(py|mjs|js|sh))\b` **hút cả nháy
+MỞ** vào chuỗi (`"./verify.sh`), nên chuỗi nó cầm KHÔNG cân — bóc-theo-cặp sẽ để nguyên
+dấu nháy và làm mất đường tìm tệp. Đây là ca duy nhất mà bóc vô điều kiện là ĐÚNG.
+
+Phép đếm: khớp `replace(/^["\']+?|["\']+?$/g` trong `lib/evidence-core.cjs` phải **BẰNG
+5**, và trong `feature-loop/scripts/s4-args.mjs` phải **BẰNG 0** — vá sót thì lớn hơn, vá
+lan thì nhỏ hơn, cả hai đỏ ghim tên hàm.
+
+**Tiền lệ trong chính tệp này:** `frontmatterField` ĐÃ học đúng bài học ấy ở S4-r5 và tự
+vá — «Chỉ bóc nháy khi CẢ CẶP khớp. Bóc đầu và cuối độc lập thì một giá trị không-quote
+mà KẾT THÚC bằng nháy sẽ mất ký tự cuối». Nó nằm cách `resolveConfigKey` chưa tới trăm
+dòng. Kit đã giải lớp này MỘT LẦN rồi không lan sang bộ đọc kế bên — đó là bằng chứng
+đậm nhất của mục «lớp lỗi TÁI PHÁT» dưới đây, và là lý do bản vá lần này đi bằng MỘT hàm
+dùng chung thay vì lại sửa một chỗ.
 
 ### AC-5 (chiều đỏ) — tiêm lại mệnh đề cũ vào bản sao TRỌN CÂY làm phép đo ĐỎ đích danh
 
