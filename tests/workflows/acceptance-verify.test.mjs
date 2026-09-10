@@ -2150,4 +2150,43 @@ console.log('W-EE12 AC-10 hai chieu tren CUNG fixture (khai expectedExit khac 0)
   check('W-EE12b ma lech -> verdict REJECT', rLech.verdict === 'REJECT', rLech.verdict);
 }
 
+// W-EE13 — lo eval-khai-ma-thoat-mong-doi (09/09->10/09, task 7b): dong 781
+// (baselineStatus) va 789 (nonDiscriminating) moi duoc mo rong dung isHetHan
+// nhu dong 1020 (failed) da co tu truoc, nhung chua ca kiem nao phu TO HOP do
+// — W-EE12 chi phu 'failed', W-EE6 chi phu baseline/khong-phan-biet KHONG co
+// hetHan. Thieu ca nay thi mot ban sao xoa isHetHan khoi MOT trong hai cho van
+// xanh qua het cac W-EE khac.
+console.log('W-EE13 AC-10 ap cho CA lan doi chung lan danh sach khong-phan-biet: HEAD=0 VA baseline=0 (ca hai gioi han da khai khong con) -> non-discriminating; doi chung tren CUNG fixture (chi doi baselineExit) de ca dau khong hang-dung');
+{
+  const mkArgs = () => baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 }],
+    suiteCommands: [], runBaseline: true,
+  });
+  // Chieu 1: HEAD tra 0 (gioi han da khai KHONG CON tren HEAD) VA baseline
+  // CUNG tra 0 (gioi han da khai KHONG CON tren baseline) -> ca hai phia deu
+  // la "dat" qua duong hetHan (khong phai qua khop expectedExit tran) -> eval
+  // phai duoc doc la KHONG PHAN BIET (nonDiscriminating).
+  const { result: rBoth0 } = await runWorkflow(WF, mkArgs(), responder({
+    'machine:': { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false },
+    'baseline:': { results: [{ cmd: './x.sh', baselineExit: 0, cannotRun: false }] },
+  }));
+  const ndBoth0 = (rBoth0.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));
+  check('W-EE13a HEAD=0 va baseline=0 (ca hai gioi han da khai khong con qua duong hetHan) -> E1 non-discriminating',
+    ndBoth0, JSON.stringify(rBoth0.nonDiscriminating));
+
+  // Chieu 2 (doi chung TREN CUNG fixture, chi doi baselineExit): baseline tra
+  // 1 — khac 0 VA khac ky vong da khai (2), KHONG phai gioi han da khai khong
+  // con tren baseline -> baselineStatus phai la 'red', nen E1 KHONG duoc coi
+  // la khong-phan-biet du HEAD van la 0 (gioi han het tren HEAD). Neu ca dau
+  // hang-dung (vd code luon tra nonDiscriminating=true bat ke baseline) thi ca
+  // nay se bat duoc.
+  const { result: rBaselineLech } = await runWorkflow(WF, mkArgs(), responder({
+    'machine:': { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false },
+    'baseline:': { results: [{ cmd: './x.sh', baselineExit: 1, cannotRun: false }] },
+  }));
+  const ndBaselineLech = (rBaselineLech.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));
+  check('W-EE13b doi chung: baseline LECH (1, khong phai gioi han da khai khong con) -> E1 KHONG non-discriminating du HEAD=0',
+    !ndBaselineLech, JSON.stringify(rBaselineLech.nonDiscriminating));
+}
+
 summary('acceptance-verify');

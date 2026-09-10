@@ -30,7 +30,16 @@ while [ $# -gt 0 ]; do case "$1" in --chan) CHAN="$2"; shift 2;; *) echo "rang.s
 has() { printf '%s\n' "$1" | grep -qF -- "$2"; }
 
 # copy_tree → COPY: bản sao TRỌN cây kit (trừ .git/node_modules/.claude/_acceptance/docs).
+# Chốt an toàn (soi phiên trước 09/09): KIT suy từ vị trí script — nếu rang.sh
+# bị chép sang một thư mục khác để thử, "$HERE/../.." có thể hoá thành một gốc
+# SAI (kể cả "/"), và rsync -a từ đó sẽ bắt đầu quét CẢ Ổ ĐĨA trước khi ai kịp
+# Ctrl-C. Đòi ĐỒNG THỜI vài vật đặc trưng của gốc kit thật — không chỉ MỘT tệp,
+# để một checkout thiếu-tệp-cục-bộ không giả mạo được — rồi thoát có tên nếu
+# thiếu bất kỳ cái nào, TRƯỚC khi rsync chạy.
 copy_tree() {
+  for must in lib/evidence-core.cjs feature-loop/workflows/acceptance-verify.js _acceptance/config.yaml; do
+    [ -f "$KIT/$must" ] || { echo "rang.sh: KIT ('$KIT') khong phai goc kit that — thieu $must, tu choi rsync de tranh quet ca dia"; exit 3; }
+  done
   local d="$TMP/copy-$RANDOM"; mkdir -p "$d"
   rsync -a --exclude .git --exclude node_modules --exclude .claude --exclude _acceptance --exclude docs "$KIT/" "$d/"
   COPY="$d"
@@ -713,9 +722,520 @@ PYEOF
     else bad "mũi (ii) KHÔNG đúng: rc=$RC_M — $(printf '%s\n' "$OUT_M" | tail -5 | tr '\n' ' ')"; fi
     ;;
 
-  # ── sáu chân còn lại của hồ sơ này: phiên khác dựng sau ────────────────────
-  s4-dat-gioi-han|known-limits|xung-dot-lenh|so-ky-vong|tai-lieu|loi-dan-soan|dau-cuoi-that)
-    bad "chân chưa dựng: $CHAN — thuộc phần hai (sáu chân còn lại + tài liệu), phiên khác làm sau"
+  # ── s4-dat-gioi-han (AC-3) ───────────────────────────────────────────────────
+  # Lớp máy (S4) phải nhận đạt-có-giới-hạn: phép so của `failed` phải so với KỲ
+  # VỌNG đã khai (expCmd(m.cmd)), không so trần với 0 — nếu không, một eval đã
+  # khai đúng mã (đang được NHẬN hợp lệ) sẽ bị mutant coi là lệch mã mà vẫn
+  # nhận rồi REJECT sai.
+  s4-dat-gioi-han)
+    cat > "$TMP/sdgh-check.mjs" <<'SDGHEOF'
+import path from 'node:path';
+const [, , KIT, WF_PATH, MODE] = process.argv;
+const { runWorkflow } = await import(path.join(KIT, 'tests', 'workflows', 'harness.mjs'));
+
+let okc = 0, badc = 0;
+function check(name, cond, detail) {
+  if (cond) { console.log(`CHECK-OK: ${name}`); okc++; }
+  else { console.log(`CHECK-BAD: ${name} -- ${detail || ''}`); badc++; }
+}
+function baseArgs() {
+  return {
+    slug: 'fx', round: 1, riskTier: 'T2',
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 2 }],
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo', personasPath: '/p', templatePath: '/t', invokedAt: '2026-09-09T00:00:00Z',
+  };
+}
+function responder(exitCode) {
+  return (call) => {
+    const l = call.label;
+    if (l.startsWith('machine:')) return { exitCode, outputTail: 'ok', runId: '', cannotRun: false };
+    if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a'.repeat(40) };
+    if (l === 'synthesize:report') return { report: 'x', findings: 'f' };
+    throw new Error('unexpected ' + l);
+  };
+}
+// eval khai expectedExit=2, lan chay tra DUNG 2 — day la MOT eval DA KHAI
+// dung, dang duoc NHAN (dat-co-gioi-han), KHONG phai mot luot truot.
+const { result } = await runWorkflow(WF_PATH, baseArgs(), responder(2));
+const notRejected = result.verdict !== 'REJECT' && !(result.failedEvals || []).includes('E1');
+if (MODE === 'healthy') {
+  check('đối chứng dương: mã đúng như khai (2) → verdict KHÔNG REJECT, được NHẬN — không phải lệch mã mà vẫn nhận',
+    notRejected, `verdict=${result.verdict} failed=${JSON.stringify(result.failedEvals)}`);
+} else {
+  check('CHIỀU ĐỎ: mutant (so với 0 thay vì expCmd) coi một eval đã khai đúng (2, đúng ra vẫn phải NHẬN) là lệch mã mà vẫn nhận nên REJECT sai',
+    !notRejected, `verdict=${result.verdict} failed=${JSON.stringify(result.failedEvals)}`);
+}
+process.exit(badc > 0 ? 1 : 0);
+SDGHEOF
+    node "$TMP/sdgh-check.mjs" "$KIT" "$WF" healthy > "$TMP/sdgh-healthy.out" 2>&1
+    RC=$?
+    cat "$TMP/sdgh-healthy.out"
+    run_checks "$TMP/sdgh-healthy.out"
+    [ "$RC" -eq 0 ] || bad "s4-dat-gioi-han: bản lành sdgh-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    copy_tree
+    inject sdgh-failed-so-0 feature-loop/workflows/acceptance-verify.js \
+      "const failed = machine.filter(m => !m.cannotRun && m.exitCode !== expCmd(m.cmd) && !isHetHan(m.exitCode, m.cmd))" \
+      "const failed = machine.filter(m => !m.cannotRun && m.exitCode !== 0 && !isHetHan(m.exitCode, m.cmd))"
+    COPY_WF="$COPY/feature-loop/workflows/acceptance-verify.js"
+    node "$TMP/sdgh-check.mjs" "$KIT" "$COPY_WF" mutant > "$TMP/sdgh-mut.out" 2>&1
+    RC=$?
+    cat "$TMP/sdgh-mut.out"
+    run_checks "$TMP/sdgh-mut.out"
+    [ "$RC" -eq 0 ] || bad "s4-dat-gioi-han: mũi sdgh-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+    ;;
+
+  # ── known-limits (AC-4) ──────────────────────────────────────────────────────
+  # Known limits do MÁY tính sẵn (knownLimitLines), bên soạn chỉ chép nguyên
+  # văn — nếu JS bỏ trống mảng này, lời dặn soạn báo cáo vắng tên eval đạt-có-
+  # giới-hạn, và bên soạn không còn gì để chép.
+  known-limits)
+    sed -n '1063,1066p' "$KIT/feature-loop/workflows/acceptance-verify.js" > "$TMP/kl-before.txt"
+    cat > "$TMP/kl-after.txt" <<'EOF'
+const knownLimitLines = []
+EOF
+    copy_tree
+    inject_file known-limits-rong feature-loop/workflows/acceptance-verify.js "$TMP/kl-before.txt" "$TMP/kl-after.txt"
+    COPY_WF="$COPY/feature-loop/workflows/acceptance-verify.js"
+
+    cat > "$TMP/kl-check.mjs" <<'KLEOF'
+import path from 'node:path';
+const [, , KIT, WF_PATH, MODE] = process.argv;
+const { runWorkflow } = await import(path.join(KIT, 'tests', 'workflows', 'harness.mjs'));
+
+let okc = 0, badc = 0;
+function check(name, cond, detail) {
+  if (cond) { console.log(`CHECK-OK: ${name}`); okc++; }
+  else { console.log(`CHECK-BAD: ${name} -- ${detail || ''}`); badc++; }
+}
+const baseArgs = {
+  slug: 'fx', round: 1, riskTier: 'T2',
+  evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 2 }],
+  suiteCommands: [], diffBase: 'main', repoRoot: '/repo', personasPath: '/p', templatePath: '/t', invokedAt: '2026-09-09T00:00:00Z',
+};
+const responder = (call) => {
+  const l = call.label;
+  if (l.startsWith('machine:')) return { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false };
+  if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a'.repeat(40) };
+  if (l === 'synthesize:report') return { report: 'x', findings: 'f' };
+  throw new Error('unexpected ' + l);
+};
+const { calls } = await runWorkflow(WF_PATH, baseArgs, responder);
+const synth = calls.find(c => c.label === 'synthesize:report');
+const prompt = synth ? synth.prompt : '';
+const hasBlock = /KNOWN LIMITS —/.test(prompt) && prompt.includes('E1') && prompt.includes('AC-1');
+if (MODE === 'healthy') {
+  check('đối chứng dương: eval đạt-có-giới-hạn → prompt mang khối Known limits tính sẵn, gọi tên E1/AC-1', hasBlock, prompt.slice(0, 250));
+} else {
+  check('CHIỀU ĐỎ: mutant (knownLimitLines rỗng cứng) → Known limits vắng eval E1, prompt KHÔNG còn khối tính sẵn', !hasBlock, prompt.slice(0, 250));
+}
+process.exit(badc > 0 ? 1 : 0);
+KLEOF
+    node "$TMP/kl-check.mjs" "$KIT" "$WF" healthy > "$TMP/kl-healthy.out" 2>&1
+    RC=$?
+    cat "$TMP/kl-healthy.out"
+    run_checks "$TMP/kl-healthy.out"
+    [ "$RC" -eq 0 ] || bad "known-limits: bản lành kl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    node "$TMP/kl-check.mjs" "$KIT" "$COPY_WF" mutant > "$TMP/kl-mut.out" 2>&1
+    RC=$?
+    cat "$TMP/kl-mut.out"
+    run_checks "$TMP/kl-mut.out"
+    [ "$RC" -eq 0 ] || bad "known-limits: mũi kl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+    ;;
+
+  # ── xung-dot-lenh (AC-5) ─────────────────────────────────────────────────────
+  # Hai eval chung lệnh khai khác mã thoát mong đợi là mâu thuẫn không có lời
+  # giải đúng — máy phải BLOCKED có tên cả hai, KHÔNG được chọn thầm một mã.
+  xung-dot-lenh)
+    cat > "$TMP/xdl-check.mjs" <<'XDLEOF'
+import path from 'node:path';
+const [, , KIT, WF_PATH, MODE] = process.argv;
+const { runWorkflow } = await import(path.join(KIT, 'tests', 'workflows', 'harness.mjs'));
+
+let okc = 0, badc = 0;
+function check(name, cond, detail) {
+  if (cond) { console.log(`CHECK-OK: ${name}`); okc++; }
+  else { console.log(`CHECK-BAD: ${name} -- ${detail || ''}`); badc++; }
+}
+function baseArgs(evals) {
+  return {
+    slug: 'fx', round: 1, riskTier: 'T2', evals,
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo', personasPath: '/p', templatePath: '/t', invokedAt: '2026-09-09T00:00:00Z',
+  };
+}
+const responder = (call) => {
+  const l = call.label;
+  if (l.startsWith('machine:')) return { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false };
+  if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a'.repeat(40) };
+  if (l === 'synthesize:report') return { report: 'x', findings: 'f' };
+  throw new Error('unexpected ' + l);
+};
+
+// Ca xung đột: E1 khai 2, E2 khai 3, cùng chung lệnh './x.sh'.
+const conflictEvals = [
+  { id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 2 },
+  { id: 'E2', criterion: 'AC-2', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 3 },
+];
+const { result } = await runWorkflow(WF_PATH, baseArgs(conflictEvals), responder);
+const b = (result.blocked || []).find(x => x.cmd === './x.sh');
+const conflictDetected = result.verdict === 'BLOCKED' && !!b && b.reason.includes('E1') && b.reason.includes('E2') && b.reason.includes('2') && b.reason.includes('3');
+if (MODE === 'healthy') {
+  check('đối chứng dương: hai eval chung lệnh khai KHÁC mã → BLOCKED, gọi tên cả hai eval + cả hai mã', conflictDetected, JSON.stringify(result.blocked));
+} else {
+  check('CHIỀU ĐỎ: mutant (if (false)) không phát hiện xung đột — máy chọn thầm một mã (2), bỏ qua mã kia (3) của E2, KHÔNG BLOCKED nào',
+    !conflictDetected && result.verdict !== 'BLOCKED', `verdict=${result.verdict} blocked=${JSON.stringify(result.blocked)}`);
+}
+
+// Đối chứng dương của chiều ngược (bất biến với mutation này: chỉ MỘT giá trị
+// phân biệt nên set.length luôn <=1, if(true) hay if(false) đều không chạy):
+// hai eval cùng khai 2 → không xung đột, không blocked nào.
+const agreeEvals = [
+  { id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 2 },
+  { id: 'E2', criterion: 'AC-2', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 2 },
+];
+const { result: rAgree } = await runWorkflow(WF_PATH, baseArgs(agreeEvals), responder);
+check('đối chứng dương (chiều ngược): hai eval cùng khai mã GIỐNG nhau → không xung đột, không blocked nào',
+  (rAgree.blocked || []).length === 0 && rAgree.verdict !== 'BLOCKED', `verdict=${rAgree.verdict} blocked=${JSON.stringify(rAgree.blocked)}`);
+
+process.exit(badc > 0 ? 1 : 0);
+XDLEOF
+    node "$TMP/xdl-check.mjs" "$KIT" "$WF" healthy > "$TMP/xdl-healthy.out" 2>&1
+    RC=$?
+    cat "$TMP/xdl-healthy.out"
+    run_checks "$TMP/xdl-healthy.out"
+    [ "$RC" -eq 0 ] || bad "xung-dot-lenh: bản lành xdl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    copy_tree
+    inject xdl-if-false feature-loop/workflows/acceptance-verify.js \
+      "if (set.length > 1) {" \
+      "if (false) {"
+    COPY_WF="$COPY/feature-loop/workflows/acceptance-verify.js"
+    node "$TMP/xdl-check.mjs" "$KIT" "$COPY_WF" mutant > "$TMP/xdl-mut.out" 2>&1
+    RC=$?
+    cat "$TMP/xdl-mut.out"
+    run_checks "$TMP/xdl-mut.out"
+    [ "$RC" -eq 0 ] || bad "xung-dot-lenh: mũi xdl-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+    ;;
+
+  # ── so-ky-vong (AC-6) ────────────────────────────────────────────────────────
+  # Bốn chỗ đều phải so với KỲ VỌNG đã khai (expCmd), không so trần với 0: đếm
+  # lượt đạt (dòng ~647), chọn lượt đại diện chẩn đoán (dòng ~649), mã thoát
+  # gộp (dòng ~655), và baselineStatus của làn đối chứng (dòng ~781). BỐN bản
+  # sao RIÊNG, mỗi bản hoàn nguyên ĐÚNG MỘT phép so về `=== 0` / `!== 0`, và bốn
+  # thông điệp phải KHÁC nhau — dùng chung MỘT fixture (2 lượt chạy: A khớp kỳ
+  # vọng, B lệch) để bốn chỗ quan sát được qua bốn TRƯỜNG riêng của cùng entry
+  # `machine` (passes/runId/exitCode/baseline), rút từ prompt qua marker
+  # "Ket qua may (" — không cần đoán hành vi tổng thể (verdict) vì nhiều chỗ
+  # trong bốn chỗ này KHÔNG đổi verdict cuối dù đổi giá trị trung gian.
+  so-ky-vong)
+    cat > "$TMP/skv-check.mjs" <<'SKVEOF'
+import path from 'node:path';
+const [, , KIT, WF_PATH, MODE] = process.argv;
+const { runWorkflow } = await import(path.join(KIT, 'tests', 'workflows', 'harness.mjs'));
+const { extractBracketed } = await import(path.join(KIT, '_acceptance', 'eval-khai-ma-thoat-mong-doi', 'fixture.mjs'));
+
+let okc = 0, badc = 0;
+function check(name, cond, detail) {
+  if (cond) { console.log(`CHECK-OK: ${name}`); okc++; }
+  else { console.log(`CHECK-BAD: ${name} -- ${detail || ''}`); badc++; }
+}
+const baseArgs = {
+  slug: 'fx', round: 1, riskTier: 'T2',
+  evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 2, runs: 2 }],
+  suiteCommands: [], diffBase: 'main', repoRoot: '/repo', personasPath: '/p', templatePath: '/t', invokedAt: '2026-09-09T00:00:00Z',
+  runBaseline: true,
+};
+const responder = (call) => {
+  const l = call.label;
+  if (l.startsWith('machine:')) {
+    if (l.endsWith('#1')) return { exitCode: 2, outputTail: 'A-tail', runId: 'rA', cannotRun: false }; // khop ky vong 2
+    if (l.endsWith('#2')) return { exitCode: 9, outputTail: 'B-tail', runId: 'rB', cannotRun: false }; // lech
+    throw new Error('unexpected machine label ' + l);
+  }
+  if (l.startsWith('baseline:')) return { results: [{ cmd: './x.sh', baselineExit: 2, cannotRun: false }] }; // baseline khop ky vong
+  if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a'.repeat(40) };
+  if (l === 'synthesize:report') return { report: 'x', findings: 'f' };
+  throw new Error('unexpected ' + l);
+};
+const { calls } = await runWorkflow(WF_PATH, baseArgs, responder);
+const synth = calls.find(c => c.label === 'synthesize:report');
+const prompt = synth ? synth.prompt : '';
+const arr = extractBracketed(prompt, 'Ket qua may (') || [];
+const m = arr.find(x => x.cmd === './x.sh');
+if (!m) { console.log('CHECK-BAD: khong tim thay machine entry cho ./x.sh -- ' + JSON.stringify(arr).slice(0, 300)); process.exit(1); }
+
+if (MODE === 'healthy') {
+  check('đối chứng dương (đếm lượt đạt): passes=1 — chỉ lượt A khớp kỳ vọng 2', m.passes === 1, `passes=${m.passes}`);
+  check('đối chứng dương (đại diện chẩn đoán): chọn lượt LỆCH (B, runId=rB) làm đại diện', m.runId === 'rB', `runId=${m.runId}`);
+  check('đối chứng dương (mã thoát gộp): variance → trả mã kỳ vọng đã khai (2), không phải mã raw của lượt lệch', m.exitCode === 2, `exitCode=${m.exitCode}`);
+  check('đối chứng dương (baselineStatus): baseline khớp kỳ vọng (2) → green', m.baseline === 'green', `baseline=${m.baseline}`);
+} else if (MODE === 'm1') {
+  check('CHIỀU ĐỎ (đếm lượt đạt — dòng ~647): mutant so với 0 → passes đếm SAI (0 thay vì 1, vì mã thật là 2 chứ không phải 0)',
+    m.passes === 0, `passes=${m.passes}`);
+} else if (MODE === 'm2') {
+  check('CHIỀU ĐỎ (đại diện chẩn đoán — dòng ~649): mutant so với 0 → chọn NHẦM lượt A (runId=rA, lượt ĐẠT) làm đại diện chẩn đoán thay vì lượt LỆCH (B)',
+    m.runId === 'rA', `runId=${m.runId}`);
+} else if (MODE === 'm3') {
+  check('CHIỀU ĐỎ (mã thoát gộp — dòng ~655): mutant trả hằng số 0 thay vì kỳ vọng đã khai (2)',
+    m.exitCode === 0, `exitCode=${m.exitCode}`);
+} else if (MODE === 'm4') {
+  check('CHIỀU ĐỎ (baselineStatus — dòng ~781): mutant so với 0 → baseline khớp đúng kỳ vọng (2) lại bị đọc SAI thành red',
+    m.baseline === 'red', `baseline=${m.baseline}`);
+} else {
+  throw new Error('MODE la (' + MODE + ')');
+}
+process.exit(badc > 0 ? 1 : 0);
+SKVEOF
+    node "$TMP/skv-check.mjs" "$KIT" "$WF" healthy > "$TMP/skv-healthy.out" 2>&1
+    RC=$?
+    cat "$TMP/skv-healthy.out"
+    run_checks "$TMP/skv-healthy.out"
+    [ "$RC" -eq 0 ] || bad "so-ky-vong: bản lành skv-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    # Bốn bản sao RIÊNG — mỗi bản hoàn nguyên ĐÚNG MỘT phép so.
+    copy_tree
+    inject skv-m1-passes feature-loop/workflows/acceptance-verify.js \
+      "const passes = ran.filter(r => r.exitCode === expCmd(cmd)).length" \
+      "const passes = ran.filter(r => r.exitCode === 0).length"
+    node "$TMP/skv-check.mjs" "$KIT" "$COPY/feature-loop/workflows/acceptance-verify.js" m1 > "$TMP/skv-m1.out" 2>&1
+    RC=$?
+    cat "$TMP/skv-m1.out"
+    run_checks "$TMP/skv-m1.out"
+    [ "$RC" -eq 0 ] || bad "so-ky-vong: mũi m1 (đếm lượt đạt) skv-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    copy_tree
+    inject skv-m2-rep feature-loop/workflows/acceptance-verify.js \
+      "const rep = ran.find(r => r.exitCode !== expCmd(cmd)) || ran[0] // ưu tiên lần fail làm đại diện chẩn đoán" \
+      "const rep = ran.find(r => r.exitCode !== 0) || ran[0] // ưu tiên lần fail làm đại diện chẩn đoán"
+    node "$TMP/skv-check.mjs" "$KIT" "$COPY/feature-loop/workflows/acceptance-verify.js" m2 > "$TMP/skv-m2.out" 2>&1
+    RC=$?
+    cat "$TMP/skv-m2.out"
+    run_checks "$TMP/skv-m2.out"
+    [ "$RC" -eq 0 ] || bad "so-ky-vong: mũi m2 (đại diện chẩn đoán) skv-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    copy_tree
+    inject skv-m3-exit feature-loop/workflows/acceptance-verify.js \
+      "const exitCode = (passes === ran.length || variance) ? expCmd(cmd) : (Number.isInteger(rep.exitCode) ? rep.exitCode : 1)" \
+      "const exitCode = (passes === ran.length || variance) ? 0 : (Number.isInteger(rep.exitCode) ? rep.exitCode : 1)"
+    node "$TMP/skv-check.mjs" "$KIT" "$COPY/feature-loop/workflows/acceptance-verify.js" m3 > "$TMP/skv-m3.out" 2>&1
+    RC=$?
+    cat "$TMP/skv-m3.out"
+    run_checks "$TMP/skv-m3.out"
+    [ "$RC" -eq 0 ] || bad "so-ky-vong: mũi m3 (mã thoát gộp) skv-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    copy_tree
+    inject skv-m4-baseline feature-loop/workflows/acceptance-verify.js \
+      "return (b.baselineExit === expCmd(cmd) || isHetHan(b.baselineExit, cmd)) ? 'green' : 'red'" \
+      "return (b.baselineExit === 0 || isHetHan(b.baselineExit, cmd)) ? 'green' : 'red'"
+    node "$TMP/skv-check.mjs" "$KIT" "$COPY/feature-loop/workflows/acceptance-verify.js" m4 > "$TMP/skv-m4.out" 2>&1
+    RC=$?
+    cat "$TMP/skv-m4.out"
+    run_checks "$TMP/skv-m4.out"
+    [ "$RC" -eq 0 ] || bad "so-ky-vong: mũi m4 (baselineStatus) skv-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+    ;;
+
+  # ── loi-dan-soan (AC-12) ─────────────────────────────────────────────────────
+  # Đo HAI tầng: (a) tầng VẬT — câu chữ trong prompt soạn báo cáo phải cho phép
+  # mã khác 0 BÊN TRONG khối của eval đã khai đúng mã, không còn câu cấm cũ
+  # (cấm TRỌN mọi nơi); (b) tầng ĐẦU RA THẬT — báo cáo do bước soạn sinh ra
+  # (round-trip rút từ chính prompt qua fixture.mjs) phải mang đúng tên trường
+  # exit_code, không phải một tên tự chế.
+  loi-dan-soan)
+    cat > "$TMP/lds-check.mjs" <<'LDSEOF'
+import path from 'node:path';
+const [, , KIT, WF_PATH, MODE] = process.argv;
+const { runWorkflow } = await import(path.join(KIT, 'tests', 'workflows', 'harness.mjs'));
+const { buildReportFromPrompt } = await import(path.join(KIT, '_acceptance', 'eval-khai-ma-thoat-mong-doi', 'fixture.mjs'));
+
+let okc = 0, badc = 0;
+function check(name, cond, detail) {
+  if (cond) { console.log(`CHECK-OK: ${name}`); okc++; }
+  else { console.log(`CHECK-BAD: ${name} -- ${detail || ''}`); badc++; }
+}
+const baseArgs = {
+  slug: 'fx', round: 1, riskTier: 'T2',
+  evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 2 }],
+  suiteCommands: [], diffBase: 'main', repoRoot: '/repo', personasPath: '/p', templatePath: '/t', invokedAt: '2026-09-09T00:00:00Z',
+};
+const responder = (call) => {
+  const l = call.label;
+  if (l.startsWith('machine:')) return { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false };
+  if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a'.repeat(40) };
+  if (l === 'synthesize:report') return { report: 'x', findings: 'f' };
+  throw new Error('unexpected ' + l);
+};
+const OLD_PHRASE = 'report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"';
+const NEW_PHRASE = 'report PASS chi duoc chua token exit khac 0 BEN TRONG khoi cua eval DA KHAI dung ma do';
+
+const { calls } = await runWorkflow(WF_PATH, baseArgs, responder);
+const synth = calls.find(c => c.label === 'synthesize:report');
+const prompt = synth ? synth.prompt : '';
+const hasOld = prompt.includes(OLD_PHRASE);
+const hasNew = prompt.includes(NEW_PHRASE);
+
+// (a) tầng VẬT — phụ thuộc MODE (đây là chỗ mũi tiêm nhắm tới).
+if (MODE === 'healthy') {
+  check('(a) đối chứng dương — tầng VẬT: lời dặn cho phép mã khác 0 BÊN TRONG khối đã khai, KHÔNG còn câu cấm cũ',
+    hasNew && !hasOld, `hasNew=${hasNew} hasOld=${hasOld}`);
+} else {
+  check('CHIỀU ĐỎ (a) — tầng VẬT: mutant khôi phục câu cấm cũ → lời dặn còn cấm mã khác 0 ở MỌI nơi, không còn cho phép đạt-có-giới-hạn',
+    hasOld && !hasNew, `hasNew=${hasNew} hasOld=${hasOld}`);
+}
+
+// (b) tầng ĐẦU RA THẬT — bất biến với mutation này (mutation chỉ đổi câu chữ
+// chỉ dẫn, không đổi phần JS tính machineForReportB) nên chạy y hệt ở CẢ HAI
+// MODE: một writer đúng khuôn PHẢI ra exit_code đúng tên trường, và một writer
+// "bịa tên trường" PHẢI bị chân này phát hiện — đo cả hai chiều để (b) không
+// chỉ là một bài kiểm trơ (chỉ biết đọc writer đúng, không biết bắt writer sai).
+const repGood = buildReportFromPrompt(prompt, { slug: 'fx' });
+check('(b) tầng ĐẦU RA THẬT: writer đúng khuôn → báo cáo có dòng "exit_code: 2" ĐÚNG TÊN TRƯỜNG cho eval đạt-có-giới-hạn',
+  /  exit_code: 2\b/.test(repGood.text), repGood.text.slice(0, 400));
+const repBad = buildReportFromPrompt(prompt, { slug: 'fx', fieldName: 'ma_thoat_tuy_bien' });
+check('CHIỀU ĐỎ (b) — bịa tên trường: writer đặt tên trường tự chế (ma_thoat_tuy_bien thay exit_code) → báo cáo KHÔNG còn dòng exit_code đúng tên cho E1',
+  !/  exit_code: 2\b/.test(repBad.text), repBad.text.slice(0, 400));
+
+process.exit(badc > 0 ? 1 : 0);
+LDSEOF
+    node "$TMP/lds-check.mjs" "$KIT" "$WF" healthy > "$TMP/lds-healthy.out" 2>&1
+    RC=$?
+    cat "$TMP/lds-healthy.out"
+    run_checks "$TMP/lds-healthy.out"
+    [ "$RC" -eq 0 ] || bad "loi-dan-soan: bản lành lds-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    python3 - "$KIT/feature-loop/workflows/acceptance-verify.js" "$TMP/lds-before.txt" "$TMP/lds-after.txt" <<'PYEOF'
+import sys
+src_path, before_path, after_path = sys.argv[1], sys.argv[2], sys.argv[3]
+s = open(src_path, encoding='utf8').read()
+start_marker = 'L1 CONSISTENCY: report PASS chi duoc chua'
+end_marker = '; L2: verifier la config: ref hoac script path'
+i = s.index(start_marker)
+j = s.index(end_marker, i)
+before = s[i:j]
+open(before_path, 'w', encoding='utf8').write(before)
+old_clause = 'L1 CONSISTENCY: report PASS khong duoc chua token exit khac 0 hay chuoi "verdict: FAIL"'
+open(after_path, 'w', encoding='utf8').write(old_clause)
+PYEOF
+    copy_tree
+    inject_file loi-dan-soan-cau-cam-cu feature-loop/workflows/acceptance-verify.js "$TMP/lds-before.txt" "$TMP/lds-after.txt"
+    COPY_WF="$COPY/feature-loop/workflows/acceptance-verify.js"
+    node "$TMP/lds-check.mjs" "$KIT" "$COPY_WF" mutant > "$TMP/lds-mut.out" 2>&1
+    RC=$?
+    cat "$TMP/lds-mut.out"
+    run_checks "$TMP/lds-mut.out"
+    [ "$RC" -eq 0 ] || bad "loi-dan-soan: mũi lds-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+    ;;
+
+  # ── dau-cuoi-that (AC-13) ────────────────────────────────────────────────────
+  # Chân DUY NHẤT chạy lệnh THẬT — bắt lớp lỗi 09/09: khoá khai giải ra vỡ cú
+  # pháp nên lệnh thoát 127 (hay 1, hay bất kỳ mã nào của MỘT lệnh khác) chứ
+  # KHÔNG phải mã của chính lệnh đã định. Năm nhịp: (1) mk_repo code-sinh một
+  # khoá executor trỏ lệnh THẬT `exit 2` + một eval khai mã 2 trỏ đúng khoá đó;
+  # (2) giải khoá bằng CHÍNH s4-args.mjs; (3) rút evals[0].cmd, so BẰNG với
+  # lệnh đã khai; (4) chạy ĐÚNG chuỗi đó bằng bash -c, LẤY mã thoát THẬT vào một
+  # biến (không viết hằng số vào chỗ đáng lẽ là kết quả đo); (5) đưa mã THẬT đó
+  # vào workflow qua harness và đòi đạt-có-giới-hạn + Known limits gọi tên eval.
+  # Hai đối chứng cùng năm nhịp: khoá thoát 0 + eval KHÔNG khai → PASS trơn,
+  # không Known limits; khoá thoát 1 + eval khai 2 → REJECT gọi tên eval.
+  dau-cuoi-that)
+    cat > "$TMP/dct-check.mjs" <<'DCTEOF'
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+const [, , KIT] = process.argv;
+const { mkRepo } = await import(path.join(KIT, '_acceptance', 'eval-khai-ma-thoat-mong-doi', 'fixture.mjs'));
+const { runWorkflow } = await import(path.join(KIT, 'tests', 'workflows', 'harness.mjs'));
+const WF = path.join(KIT, 'feature-loop', 'workflows', 'acceptance-verify.js');
+
+let okc = 0, badc = 0;
+function check(name, cond, detail) {
+  if (cond) { console.log(`CHECK-OK: ${name}`); okc++; }
+  else { console.log(`CHECK-BAD: ${name} -- ${detail || ''}`); badc++; }
+}
+
+function runS4Real(root) {
+  return spawnSync(process.execPath, [path.join(KIT, 'feature-loop', 'scripts', 's4-args.mjs'), '--slug', 'fx', '--root', root, '--ag-root', KIT, '--round', '1', '--no-carry'],
+    { cwd: KIT, encoding: 'utf8' });
+}
+
+async function scenario(name, { executorCmd, expectedExitLine, mode }) {
+  const evalSpec = { id: 'E1', cmd: 'config:executors.script.e1' };
+  if (expectedExitLine !== undefined) evalSpec.expectedExitLine = expectedExitLine;
+  const { root } = mkRepo({
+    config: { executors: { e1: executorCmd, suite: 'exit 0' }, suiteKeys: ['executors.script.suite'] },
+    evals: [evalSpec],
+  });
+
+  // Nhịp 2: giải khoá bằng CHÍNH s4-args.mjs thật.
+  const s4 = runS4Real(root);
+  check(`${name}: (2) s4-args.mjs (THẬT) thoát 0`, s4.status === 0, `exit=${s4.status} stderr=${(s4.stderr || '').slice(-300)}`);
+  if (s4.status !== 0) return;
+
+  let parsed;
+  try { parsed = JSON.parse(s4.stdout); } catch (e) { check(`${name}: stdout là JSON hợp lệ`, false, String(e) + ' -- ' + s4.stdout.slice(0, 200)); return; }
+
+  // Nhịp 3: rút evals[0].cmd, so BẰNG với chuỗi lệnh đã khai trong config fixture.
+  const gotCmd = (parsed.evals[0] || {}).cmd;
+  const cmdMatches = gotCmd === executorCmd;
+  check(`${name}: (3) khoá khai giải ra ĐÚNG lệnh đã định`, cmdMatches,
+    `khoá khai giải ra không phải lệnh đã định — got=${JSON.stringify(gotCmd)} want=${JSON.stringify(executorCmd)}`);
+  if (!cmdMatches) return;
+
+  // Nhịp 4: chạy ĐÚNG chuỗi lệnh vừa rút bằng bash -c, LẤY mã thoát THẬT vào
+  // một biến — TUYỆT ĐỐI không viết hằng số vào chỗ đáng lẽ là kết quả đo.
+  const CMD = gotCmd;
+  const real = spawnSync('bash', ['-c', CMD], { encoding: 'utf8' });
+  const realExit = real.status;
+
+  // Nhịp 5: đưa mã THẬT vừa đo vào workflow qua harness.
+  const expectedExit = parsed.evals[0].expectedExit;
+  const baseArgs = {
+    slug: 'fx', round: 1, riskTier: 'T2',
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: CMD, ref: 'config:executors.script.e1', expectedExit }],
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo', personasPath: '/p', templatePath: '/t', invokedAt: '2026-09-09T00:00:00Z',
+  };
+  const responder = (call) => {
+    const l = call.label;
+    if (l.startsWith('machine:')) return { exitCode: realExit, outputTail: 'ok', runId: '', cannotRun: false };
+    if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a'.repeat(40) };
+    if (l === 'synthesize:report') return { report: 'x', findings: 'f' };
+    throw new Error('unexpected ' + l);
+  };
+  const { result, calls } = await runWorkflow(WF, baseArgs, responder);
+  const synth = calls.find(c => c.label === 'synthesize:report');
+  const prompt = synth ? synth.prompt : '';
+
+  if (mode === 'chinh') {
+    check(`${name}: (4) lệnh THẬT tra đúng mã kỳ vọng (2)`, realExit === 2, `realExit=${realExit}`);
+    check(`${name}: (5) đạt-có-giới-hạn → KHÔNG trong failedEvals`, !(result.failedEvals || []).includes('E1'), JSON.stringify(result.failedEvals));
+    check(`${name}: (5) verdict KHÔNG REJECT`, result.verdict !== 'REJECT', result.verdict);
+    check(`${name}: (5) Known limits có dòng gọi tên eval E1/AC-1`, /KNOWN LIMITS —/.test(prompt) && prompt.includes('E1') && prompt.includes('AC-1'), prompt.slice(0, 250));
+  } else if (mode === 'pass-tron') {
+    check(`${name}: lệnh THẬT trả 0`, realExit === 0, `realExit=${realExit}`);
+    check(`${name}: verdict PASS trơn, KHÔNG REJECT`, result.verdict !== 'REJECT', result.verdict);
+    check(`${name}: KHÔNG dòng Known limits nào`, !/KNOWN LIMITS —/.test(prompt), prompt.slice(0, 250));
+  } else if (mode === 'reject') {
+    check(`${name}: lệnh THẬT trả 1 (lệch kỳ vọng 2)`, realExit === 1, `realExit=${realExit}`);
+    check(`${name}: verdict REJECT`, result.verdict === 'REJECT', result.verdict);
+    check(`${name}: failedEvals gọi tên E1`, (result.failedEvals || []).includes('E1'), JSON.stringify(result.failedEvals));
+  }
+}
+
+await scenario('chính (khai 2, chạy thật exit 2)', { executorCmd: 'exit 2', expectedExitLine: '2', mode: 'chinh' });
+await scenario('đối chứng PASS trơn (không khai, chạy thật exit 0)', { executorCmd: 'exit 0', expectedExitLine: undefined, mode: 'pass-tron' });
+await scenario('đối chứng REJECT (khai 2, chạy thật exit 1)', { executorCmd: 'exit 1', expectedExitLine: '2', mode: 'reject' });
+
+process.exit(badc > 0 ? 1 : 0);
+DCTEOF
+    node "$TMP/dct-check.mjs" "$KIT" > "$TMP/dct.out" 2>&1
+    RC=$?
+    cat "$TMP/dct.out"
+    run_checks "$TMP/dct.out"
+    [ "$RC" -eq 0 ] || bad "dau-cuoi-that: dct-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+    ;;
+
+  # ── chân còn lại của hồ sơ này: phiên khác dựng sau (đo tài liệu chưa tồn tại) ──
+  tai-lieu)
+    bad "chân chưa dựng: $CHAN — đo tài liệu chưa tồn tại, phiên khác làm sau"
     ;;
 
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;
