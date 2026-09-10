@@ -690,6 +690,25 @@ payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
 veto_opened_at: 2026-08-14T10:00:00Z
 ' | sed 's/^status: approved$/status: machine-cleared/')
 - ghi chú thêm sau veto" | node "$HOOK" >/dev/null; check V13 0 $?
+
+echo "V14 hồ sơ cũ draft NHƯNG đã có veto mo → machine-cleared kèm da-veto, approved_by rỗng -> block (lượt ghi không được TỰ ĐẶT mình vào làn V)"
+printf -- '---\nschema_version: 1\nrisk_tier: T2\nstatus: draft\napproved_by:\napproved_at:\nveto_state: mo\nveto_opened_at: 2026-08-14T10:00:00Z\n---\n' > "$V_DIR/contract.md"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
+veto_opened_at: 2026-08-14T10:00:00Z
+' | sed 's/^status: approved$/status: machine-cleared/')" | node "$HOOK" >/dev/null 2>"$V_ERR"; check_msg V14 2 $? "$V_ERR" "skips Gate 1"
+
+echo "V15 hồ sơ cũ implemented + veto mo → machine-cleared kèm da-veto, approved_by rỗng -> block (implemented chưa thuộc làn V)"
+printf -- '---\nschema_version: 1\nrisk_tier: T2\nstatus: implemented\napproved_by:\napproved_at:\nveto_state: mo\nveto_opened_at: 2026-08-14T10:00:00Z\n---\n' > "$V_DIR/contract.md"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
+veto_opened_at: 2026-08-14T10:00:00Z
+' | sed 's/^status: approved$/status: machine-cleared/')" | node "$HOOK" >/dev/null 2>"$V_ERR"; check_msg V15 2 $? "$V_ERR" "Gate 1 approval not recorded"
+
+echo "V16 ĐỐI CHỨNG DƯƠNG của V14/V15: hồ sơ cũ verified + veto mo → machine-cleared kèm da-veto -> allow (đúng lối làn V, vá không được giết nó)"
+printf -- '---\nschema_version: 1\nrisk_tier: T2\nstatus: verified\napproved_by:\napproved_at:\nveto_state: mo\nveto_opened_at: 2026-08-14T10:00:00Z\n---\n' > "$V_DIR/contract.md"
+payload Write "$V_DIR/contract.md" "$(v_contract T2 'veto_state: da-veto
+veto_opened_at: 2026-08-14T10:00:00Z
+' | sed 's/^status: approved$/status: machine-cleared/')" | node "$HOOK" >/dev/null; check V16 0 $?
+
 rm -f "$V_DIR/contract.md" "$V_ERR"
 
 echo ""
