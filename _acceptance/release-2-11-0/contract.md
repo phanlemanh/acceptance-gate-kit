@@ -256,7 +256,9 @@ của `s4-args`. Chỉ đếm chỗ bản cũ và bản mới trả KHÁC nhau.
 | crm | **4** | `steps` của `tieng-viet-cho-crm` — chỉ thị `<html lang=\"vi\">` giao cho agent kèm dấu chéo ngược thừa |
 | map · policy-graph-hub · floorplanstudio · media-library · **kit** | **0** | — |
 
-**Tổng 28 chỗ trên 7 repo tiêu thụ.** Hai điều đáng ghi: (a) chuỗi xanh-giả **không phải
+**Tổng 28 chỗ trên 7 repo tiêu thụ** — **đo lại bằng KHUÔN CUỐI (`parseFlowValue`) sau khi
+đổi khuôn 11/09: vẫn đúng 28, cùng phân bố.** Đổi khuôn không mở rộng cũng không thu hẹp
+bán kính; nó đổi cách bất biến được giữ, không đổi tập giá trị bị ảnh hưởng. Hai điều đáng ghi: (a) chuỗi xanh-giả **không phải
 giả thuyết** — `artifact-platform` đang mang một khoá config sinh đúng nó hôm nay; (b)
 `kit` là 0, nên bản vá không đổi hành vi của bất kỳ hồ sơ nào trong chính kho này — đúng
 chỗ để đo bằng chiều đỏ chứ không bằng «suite vẫn xanh».
