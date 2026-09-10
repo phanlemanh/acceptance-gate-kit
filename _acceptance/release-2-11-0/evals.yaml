@@ -86,9 +86,10 @@ evals:
     paths: [lib/evidence-core.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/bo-giai-nhay.test.mjs]
     expected: >
       Cùng lệnh với E1. Đầu ra có dòng «PASS: BG6 ranh gioi va dung bang danh sach dong».
-      Ca đọc mã nguồn hai tệp và khẳng định TRÊN TỪNG HÀM, không trên cả tệp. Ba chân:
+      Ca đọc mã nguồn BA tệp và khẳng định TRÊN TỪNG HÀM, không trên cả tệp. Bốn chân:
       (a) `resolveConfigKey` và `resolveConfigList` KHÔNG còn khớp
-      `replace(/^["']|["']$/g` trong thân hàm, và `s4-args.mjs` còn ĐÚNG 0 khớp toàn tệp;
+      `replace(/^["']|["']$/g` trong thân hàm, và `s4-args.mjs` lẫn `carry-plan.mjs` còn
+      ĐÚNG 0 khớp toàn tệp;
       (b) NĂM hàm cố-ý-giữ VẪN còn — `extractRunIds` · `extractEvalBlockRunIds` ·
       `walkEvalExits` · `extractVerifierValues` · `isAuthenticVerifier` (danh sách này ĐO
       bằng máy ở S3, KHÔNG lấy từ trí nhớ: bản Cổng 1 đoán bốn và SAI — `frontmatterField`
@@ -96,8 +97,11 @@ evals:
       và `isAuthenticVerifier` thì có); (c) **tổng khớp trong `lib/evidence-core.cjs` BẰNG 5**
       — vá sót thì lớn hơn, vá lan thì nhỏ hơn, cả hai đỏ ghim tên hàm. Phép đếm bỏ qua dòng
       chú thích: nó đếm MÃ, không đếm VĂN — chính chú thích của `unquoteScalar` nêu nguyên
-      văn mệnh đề cũ để giải thích vì sao nó sai. Ca này là ĐỐI CHỨNG cho quyết định descope
-      đã ghi sổ, không thay ca hành vi E4.
+      văn mệnh đề cũ để giải thích vì sao nó sai. **(d)** TÁM đường của bảng AC-4 phải còn
+      NEO GỌI của mình (`unquoteScalar(stripYamlComment(...))` · `splitTopLevel(...)` ·
+      `R.splitTopLevel(f[1])` …) — neo THEO CHỖ GỌI thay cho phép đếm văn bản của bản trước,
+      vì phép đếm đó nhận dư một đơn vị từ một chuỗi `die()` (AC-12). Ca này là ĐỐI CHỨNG
+      cho quyết định descope đã ghi sổ, không thay ca hành vi E4.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -107,12 +111,14 @@ evals:
     expected: >
       Cùng lệnh với E1. Đầu ra có dòng «PASS: BG5 chieu do tren ban sao TRON CAY». Ca dựng
       bản sao bằng `git archive HEAD` (TRỌN cây, không chép danh sách tệp tay — bài học
-      P150), rồi: (1) bản NGUYÊN VẸN chạy lại ma trận BG1–BG4 (kể cả ca hành vi bảy đường) → 0 vế đỏ (đối chứng dương,
-      không có nó thì mọi màu đỏ dưới đây vô nghĩa) · (2) tiêm lại mệnh đề cũ
-      `replace(/^["']|["']$/g, '')` vào `lib/evidence-core.cjs` của bản sao, so BĂM
-      trước/sau — **băm không đổi thì ca ĐỎ ngay** với thông điệp «DOT BIEN KHONG AP DUOC»
-      · (3) bản bị tiêm phải ĐỎ ở BG1, BG3 **và BG4** — chiều đỏ phủ cả ca hành vi bảy đường, ghim đúng tên đường và tên hình dạng bị hỏng, không chỉ
-      «exit khác 0». Đường dẫn suy từ vị trí tệp ca, KHÔNG hardcode gốc kho.
+      P150), rồi: (1) bản NGUYÊN VẸN chạy lại BG1–BG4 và BG7 → 0 vế đỏ (đối chứng dương;
+      không có nó thì mọi màu đỏ dưới đây vô nghĩa) · (2) tiêm lại mệnh đề cũ vào **CẢ BA**
+      đường của `lib/evidence-core.cjs` (lá · nhánh khối · nhánh inline) — tiêm một đường
+      thôi thì chiều đỏ chỉ chứng được một ô — rồi so BĂM trước/sau, **băm không đổi thì ca
+      ĐỎ ngay** với thông điệp «DOT BIEN KHONG AP DUOC» · (3) bản bị tiêm phải ĐỎ ở
+      **BG1, BG3, BG4 VÀ BG7**, mỗi cái ghim đúng tên đường và tên hình dạng bị hỏng, không
+      chỉ «exit khác 0». Ca fail-CLOSED khi tệp ca ở HEAD khác bản đang chạy. Đường dẫn suy
+      từ vị trí tệp ca, KHÔNG hardcode gốc kho. Phép phân biệt TỪNG đường sống ở E12/BG8.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
