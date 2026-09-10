@@ -641,7 +641,12 @@ for (const cmd of distinctCmds) {
   const passes = ran.filter(r => r.exitCode === expCmd(cmd)).length
   const variance = ran.length > 1 && passes > 0 && passes < ran.length
   const rep = ran.find(r => r.exitCode !== expCmd(cmd)) || ran[0] // ưu tiên lần fail làm đại diện chẩn đoán
-  const exitCode = (passes === ran.length || variance) ? expCmd(cmd) : (rep.exitCode || 1)
+  // Mã thoát là SỐ — 0 là mã hợp lệ (verifier trả 0 khi eval khai exit khác 0
+  // vẫn phải giữ nguyên 0 để "gioi han da khai khong con" bắt được). Phép
+  // hoặc-mặc-định (`rep.exitCode || 1`) biến 0 thành 1 vì 0 là falsy trong JS —
+  // đúng lớp lỗi lib/evidence-core.cjs đã tự vá ở nơi khác. Kiểm số nguyên rồi
+  // mới dùng, đừng suy diễn qua truthy/falsy.
+  const exitCode = (passes === ran.length || variance) ? expCmd(cmd) : (Number.isInteger(rep.exitCode) ? rep.exitCode : 1)
   machine.push({ cmd, evals: byCmd.get(cmd), runs: ran.length, passes, variance, cannotRun: false, reason: rep.reason, exitCode, runId: rep.runId, outputTail: rep.outputTail })
 }
 // ui-check hợp nhất vào machine-style (luôn 1 lần): cmd ui-check:<evalId> — routing blocked/failed dùng chung

@@ -2083,7 +2083,44 @@ console.log('W-EE9 khong co eval dat-co-gioi-han → khong dong Known limits nao
 {
   const { calls } = await runWorkflow(WF, baseArgs({ suiteCommands: [] }), responder());
   const p = byLabel(calls, 'synthesize:report')[0].prompt;
-  check('W-EE9', !/dat-co-gioi-han/i.test(p), 'khong bia dong khi khong co gi de khai');
+  // Khong chi do noi dung bullet ("dat-co-gioi-han") ma con do CA khung bao —
+  // ne mot ho gian ly thuyet: go rieng dieu kien boc ma mang loc van rong thi
+  // mot khoi "0 dong" rong van lot vao prompt, va ban check cu (chi soi bullet)
+  // van xanh vi bullet ro rang khong co. Neo them vao dong tieu de cua CA HAI
+  // khoi de khung bao khong lo ra khi khong co gi de khai.
+  check('W-EE9', !/dat-co-gioi-han/i.test(p)
+    && !/KNOWN LIMITS —/.test(p)
+    && !/GIOI HAN DA KHAI KHONG CON/.test(p),
+    'khong bia dong khi khong co gi de khai, va khung bao khoi cung khong lo ra');
+}
+
+console.log('W-EE10 eval khai ma khac 0, lan chay tra 0 -> khoi GIOI HAN DA KHAI KHONG CON goi ten eval + cap ma khai/that, Ket qua may ghi dung ma that la 0');
+{
+  const { calls } = await runWorkflow(WF, baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 }],
+    suiteCommands: [],
+  }), responder({ 'machine:': { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false } }));
+  const p = byLabel(calls, 'synthesize:report')[0].prompt;
+  check('W-EE10a khoi GIOI HAN DA KHAI KHONG CON goi ten eval + cap ma khai(2)/that(0)',
+    /GIOI HAN DA KHAI KHONG CON/.test(p) && p.includes('E1') && p.includes('AC-1')
+      && /khai ma 2/i.test(p) && /tra 0/i.test(p),
+    p);
+  // Bay falsy cu: rep.exitCode || 1 bien ma THAT 0 thanh 1 trong "Ket qua may".
+  // exitCode phai la 0 dung mat, TUYET DOI khong duoc la 1.
+  check('W-EE10b Ket qua may ghi exitCode:0 dung ma that, KHONG bi lech thanh 1',
+    /"exitCode":0/.test(p) && !/"exitCode":1/.test(p),
+    (p.match(/"exitCode":-?\d+/g) || []).join(','));
+}
+
+console.log('W-EE11 cung fixture nhung lan chay tra DUNG ky vong -> KHONG co khoi GIOI HAN DA KHAI KHONG CON, chi co Known limits dat-co-gioi-han');
+{
+  const { calls } = await runWorkflow(WF, baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 }],
+    suiteCommands: [],
+  }), responder({ 'machine:': { exitCode: 2, outputTail: 'ok', runId: '', cannotRun: false } }));
+  const p = byLabel(calls, 'synthesize:report')[0].prompt;
+  check('W-EE11', !/GIOI HAN DA KHAI KHONG CON/.test(p) && /dat-co-gioi-han/i.test(p),
+    p);
 }
 
 summary('acceptance-verify');
