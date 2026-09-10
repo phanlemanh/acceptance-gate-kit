@@ -67,7 +67,8 @@ không phải mã 2 của shell — tức một PASS ở đây chỉ có thể �
 ### AC-4 (theo LỚP) — một bộ bóc nháy dùng chung trên mọi đường giá-trị-bị-thi-hành
 
 **Given** kho ở HEAD của hồ sơ này
-**When** cho giá trị thật đi qua từng đường đọc trong **danh sách đóng** dưới đây
+**When** cho giá trị thật đi qua từng đường đọc trong **danh sách đóng** dưới đây (đường 8
+thêm 10/09 cùng lúc mở AC-10)
 **Then** mọi đường đó trả chuỗi đúng như người viết nó, và cùng gọi **một** hàm
 `unquoteScalar`:
 
@@ -80,6 +81,7 @@ không phải mã 2 của shell — tức một PASS ở đây chỉ có thể �
 | 5 | `s4-args` list field khối | như trên |
 | 6 | `s4-args` id của eval | id |
 | 7 | `s4-args` `models` | tên model |
+| 8 | `carry-plan.mjs` `paths:` | glob quyết eval nào được carry-forward (AC-10) |
 
 **Và** tập hàm **CỐ Ý GIỮ** mệnh đề cũ là một danh sách đóng **năm** tên trong
 `lib/evidence-core.cjs` — `extractRunIds` · `extractEvalBlockRunIds` · `walkEvalExits` ·
@@ -90,8 +92,9 @@ MỞ** vào chuỗi (`"./verify.sh`), nên chuỗi nó cầm KHÔNG cân — bó
 dấu nháy và làm mất đường tìm tệp. Đây là ca duy nhất mà bóc vô điều kiện là ĐÚNG.
 
 Phép đếm: khớp `replace(/^["\']+?|["\']+?$/g` trong `lib/evidence-core.cjs` phải **BẰNG
-5**, và trong `feature-loop/scripts/s4-args.mjs` phải **BẰNG 0** — vá sót thì lớn hơn, vá
-lan thì nhỏ hơn, cả hai đỏ ghim tên hàm.
+5**, và trong `feature-loop/scripts/s4-args.mjs` lẫn `feature-loop/scripts/carry-plan.mjs`
+phải **BẰNG 0** — vá sót thì lớn hơn, vá lan thì nhỏ hơn, cả hai đỏ ghim tên hàm. Phép đếm
+bỏ qua dòng chú thích và **neo theo CHỖ GỌI** cho tám đường (AC-12) — đếm MÃ, không đếm VĂN.
 
 **Tiền lệ trong chính tệp này:** `frontmatterField` ĐÃ học đúng bài học ấy ở S4-r5 và tự
 vá — «Chỉ bóc nháy khi CẢ CẶP khớp. Bóc đầu và cuối độc lập thì một giá trị không-quote
@@ -187,8 +190,9 @@ của kit). Chân ngành: `[NGÀNH: YAML 1.2 spec §7.3 — flow scalar styles]`
 của trục B.
 
 - **Trục A — vị trí đọc:** `resolveConfigKey` lá | `resolveConfigList` inline |
-  `resolveConfigList` khối | `s4-args.mjs` ×4 | bộ đọc token (runId · exit · verifier ·
-  frontmatter · expected_exit).
+  `resolveConfigList` khối | `s4-args.mjs` ×4 | **`carry-plan.mjs` `paths:` (đường thứ
+  TÁM, thêm 10/09 khi lượt chấm 1 đo được nó bất đồng với `s4-args`)** | bộ đọc token
+  (runId · exit · verifier · frontmatter · expected_exit).
   [thước CE: `grep '\^\["'\''\]'` toàn kho — 30 hit — phân loại theo *giá trị đọc ra có bị
   THI HÀNH không*; danh sách bên gọi rút bằng `grep 'resolveConfigKey('`]
 - **Trục B — hình dạng giá trị:** không nháy | vỏ đơn cân | vỏ kép cân | vỏ kép có
@@ -267,7 +271,7 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
 | Vòng | làm-xong → quyết-được | lượt chấm | lượt gọi người (thiết kế / ngoài) | bị hạ tầng đốt |
 |---|---|---|---|---|
 | `eval-khai-ma-thoat-mong-doi` (#165) | **184′ (3h04)** | **1** | **4 / 0** | **0** |
-| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | **2** | **3 / 0** | **2** |
+| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | **2** | **3 / 1** | **2** |
 
 - **Dòng 1 — làm-xong→quyết-được: 184′ trên vòng duy nhất của cửa sổ.** `implemented` ở
   `8f6a6bac` (10/09 14:58:38 +07) → `signed-off` ở `befa12ee` (18:02:32 +07). So mốc
@@ -275,9 +279,13 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
   **nhanh hơn 2,3 lần trung bình** và là vòng rẻ nhất đo được từ khi kit đếm số. Một lượt
   chấm duy nhất, PASS ngay — so 6 lượt của vòng T3 gom ở mốc trước.
 - **Dòng 2 — lượt gọi người.** Vòng #165: **4 trong thiết kế, 0 ngoài** — đúng trần T3.
-  Hồ sơ mốc này: **3 trong thiết kế, 0 ngoài** (Cổng Phạm vi · Gate 1.5 · Cổng Bằng
-  chứng), đếm tới **lời mời Cổng Bằng chứng** như AC-9 khai trước. **Chạm/lượt = 1** ở cả
-  ba: owner gõ đúng một dòng máy soạn sẵn.
+  Hồ sơ mốc này: **3 trong thiết kế** (Cổng Phạm vi · Gate 1.5 · Cổng Bằng chứng) **+ 1
+  NGOÀI thiết kế** = 4, đếm tới **lời mời Cổng Bằng chứng** như AC-9 khai trước. Lượt ngoài
+  thiết kế là «nâng phạm vi và tiếp tục»: máy trình khối *Ngoài hợp đồng* của lượt chấm 1
+  NGAY khi có, thay vì để tới Cổng Bằng chứng — nơi thiết kế dành cho quyết định đó. Ghi là
+  NGOÀI dù nó **tiết kiệm việc**: quyết ở Cổng Bằng chứng sẽ phải mở lại hợp đồng rồi chạy
+  thêm một vòng chấm nữa. Số này để đúng chỗ nó thuộc về, không làm đẹp.
+  **Chạm/lượt = 1** ở cả bốn: owner gõ một dòng máy soạn sẵn hoặc một câu bốn chữ.
 - **Dòng 2b — mốc phát hành TRƯỢT trần ≤1, lần thứ BA liên tiếp** (2.9.0 = 2 · 2.10.0 = 2
   · 2.11.0 = 3). Nhưng lần này nguyên nhân KHÁC hai lần trước và đo được: hồ sơ mốc hạng
   **T3** có **ba cổng người theo thiết kế**, nên ≤1 là một mục tiêu **không đạt được về
@@ -394,6 +402,12 @@ verdict REJECT phải qua MỘT lượt chạy-lại-xác-nhận riêng cho các
   `a" && echo "b`; hai bản chỉ khác đúng ở đây, và trên mọi đầu vào oneflow thật sự chạy
   chúng cho cùng kết quả.
 - **Bộ đọc token (A5) không đổi** — xem mục Never của Coverage.
+- **Đường 6 (`id` của eval) là LƯỚI HỒI QUY, không phải ca phân biệt.** Bản vá ở đó là hợp
+  nhất lớp và cố ý KHÔNG đổi hành vi, nên nó nằm ngoài bảy đột biến của BG8. Lý do nó không
+  đổi được: một `id` bọc nháy đã hỏng ở TẦNG KHÁC (`parseEvals` giữ nháy) — xem Out of scope.
+- **Phép quét mã nguồn bỏ qua dòng bắt đầu bằng `//`, không phân tích chuỗi literal.** Một
+  lời gọi thật nằm bên trong một chuỗi nhiều dòng sẽ bị đếm. Chưa có ca thật; ngưỡng mở lại:
+  ≥1 lần phép đếm cho kết quả sai vì chuỗi literal.
 - **Vòng round-trip của AC-3 dừng ở `s4-args`, không chạy trọn workflow chấm.** Ca lấy
   chuỗi lệnh từ đầu ra THẬT của `s4-args.mjs` (bên VIẾT) rồi chạy nó, và so bằng chính
   `expectedExits` (bên ĐỌC) — nhưng phép so verdict cuối sống trong `acceptance-verify.js`
