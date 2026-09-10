@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 8f6a6bac84572277351fe80e644993b7f583a2ea
-human_signoff:
+human_signoff: Manh Phan 2026-09-10
 ---
 
 # Evidence Report: eval-khai-ma-thoat-mong-doi
