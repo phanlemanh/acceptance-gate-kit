@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Răng hồ sơ eval-khai-ma-thoat-mong-doi — PHẦN MỘT: sáu chân đầu
-# (mot-nguon · khai-sai · luat-ghim · l1-nhat-quan · lan-ghim · gioi-han-het).
-# Bảy chân còn lại (s4-dat-gioi-han · known-limits · xung-dot-lenh · so-ky-vong ·
+# Răng hồ sơ eval-khai-ma-thoat-mong-doi — PHẦN MỘT + vá task-7a: bảy chân
+# (mot-nguon · khai-sai · luat-ghim · l1-nhat-quan · lan-ghim · gioi-han-het ·
+# ... gioi-han-het dựng SAU khi lỗ AC-10 ở acceptance-verify.js/repin-lane.mjs
+# đã vá — xem task-7a-report.md).
+# Sáu chân còn lại (s4-dat-gioi-han · known-limits · xung-dot-lenh · so-ky-vong ·
 # tai-lieu · loi-dan-soan · dau-cuoi-that) do phiên khác dựng sau — ở đây chúng
 # thoát khác 0 với thông điệp «chân chưa dựng», không im lặng thoát 0.
 #
@@ -604,14 +606,116 @@ L1EOF
     else bad "chiều đỏ KHÔNG đúng: rc=$RC_R rl_equal=$([ "$H1RL" = "$H2RL" ] && echo y || echo n) ev_equal=$([ "$H1EV" = "$H2EV" ] && echo y || echo n) — $(printf '%s\n' "$OUT_R" | tail -3 | tr '\n' ' ')"; fi
     ;;
 
-  # ── gioi-han-het (AC-10) — CHẶN: phát hiện lỗi sản phẩm thật, không tự sửa ──
+  # ── gioi-han-het (AC-10) — một cải thiện KHÔNG bị phạt, và KHÔNG được IM ────
+  # Lỗ đã vá (task-7a): acceptance-verify.js dòng ~1010 nay có isHetHan loại
+  # trừ đúng định nghĩa của repin-lane.mjs (expected khác 0 VÀ exit thật = 0).
+  # Chân đo TRÊN HARNESS THẬT (tests/workflows/harness.mjs), hai chiều trên
+  # CÙNG fixture (giới hạn hết → ĐẠT + được NÊU RA; mã lệch → vẫn REJECT), rồi
+  # hai mũi tiêm — một ở acceptance-verify.js (khối lời dặn), một ở
+  # repin-lane.mjs (định nghĩa hetHan) — mỗi mũi đòi ĐỎ với chuỗi ghim riêng.
   gioi-han-het)
-    bad "chân chưa dựng: gioi-han-het — CHẶN bởi lỗi sản phẩm THẬT (đã đo, xem task-7a-report.md): feature-loop/workflows/acceptance-verify.js dòng ~1010 \`const failed = machine.filter(m => !m.cannotRun && m.exitCode !== expCmd(m.cmd))\` KHÔNG có ngoại lệ hetHan (exit 0 khi expected_exit khác 0 — một cải thiện) → verdict ra REJECT thay vì PASS, trái với AC-10 'không phạt một cải thiện'. Đo thật bằng harness.mjs: eval khai expectedExit:2, agent trả exitCode:0 → result.verdict=REJECT, failedEvals=[E1]. Nhiệm vụ cấm sửa mã sản phẩm để chân xanh — DỪNG, báo owner quyết (vá acceptance-verify.js hay đổi phạm vi AC-10) trước khi viết chân này."
+    cat > "$TMP/ghh-check.mjs" <<'GHHEOF'
+import path from 'node:path';
+const [, , KIT, WF_PATH, EXPECT_SILENT] = process.argv;
+const { runWorkflow } = await import(path.join(KIT, 'tests', 'workflows', 'harness.mjs'));
+const expectSilent = EXPECT_SILENT === '1';
+
+let okc = 0, badc = 0;
+function check(name, cond, detail) {
+  if (cond) { console.log(`CHECK-OK: ${name}`); okc++; }
+  else { console.log(`CHECK-BAD: ${name} -- ${detail || ''}`); badc++; }
+}
+function baseArgs() {
+  return {
+    slug: 'fx', round: 1, riskTier: 'T2',
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.e1', expectedExit: 2 }],
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo', personasPath: '/p', templatePath: '/t', invokedAt: '2026-09-09T00:00:00Z',
+  };
+}
+function responder(exitCode) {
+  return (call) => {
+    const l = call.label;
+    if (l.startsWith('machine:')) return { exitCode, outputTail: exitCode === 0 ? 'ok' : 'boom', runId: '', cannotRun: false };
+    if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a'.repeat(40) };
+    if (l === 'synthesize:report') return { report: 'x', findings: 'f' };
+    throw new Error('unexpected ' + l);
+  };
+}
+
+// Chieu 1: eval khai expectedExit=2, lan chay tra 0 — gioi han da khai KHONG
+// CON, mot cai thien. AC-10: KHONG duoc phat (failedEvals rong, verdict khac
+// REJECT) VA KHONG duoc IM (loi dan soan bao cao van phai neu ten eval).
+const { result: rHet, calls: callsHet } = await runWorkflow(WF_PATH, baseArgs(), responder(0));
+check('gioi han het -> failedEvals RONG (khong phat mot cai thien)', (rHet.failedEvals || []).length === 0, JSON.stringify(rHet.failedEvals));
+check('gioi han het -> verdict KHONG phai REJECT', rHet.verdict !== 'REJECT', rHet.verdict);
+const synthHet = callsHet.find(c => c.label === 'synthesize:report');
+const pHet = synthHet ? synthHet.prompt : '';
+const hasBlock = /GIOI HAN DA KHAI KHONG CON/.test(pHet) && pHet.includes('E1') && pHet.includes('AC-1');
+if (expectSilent) {
+  check('MUTANT (i) -- giới hạn hết mà im: loi dan soan bao cao KHONG CON goi ten gioi han da khai khong con', !hasBlock, pHet.slice(0, 200));
+} else {
+  check('doi chung duong: loi dan soan bao cao MANG khoi GIOI HAN DA KHAI KHONG CON, goi ten eval E1/AC-1', hasBlock, pHet.slice(0, 200));
+}
+
+// Chieu 2 (doi chung tren CUNG fixture): ma LECH — khac 0 VA khac ky vong da
+// khai (2) — day KHONG phai gioi han da khai khong con, van la mot luot truot
+// that: phai o trong failedEvals va verdict REJECT (o CA hai ban, mutant (i)
+// khong dung toi nhanh nay nen phai giu nguyen — luoi chan hoi quy).
+const { result: rLech } = await runWorkflow(WF_PATH, baseArgs(), responder(1));
+check('ma lech (1, khac 0 va khac ky vong 2) -> co trong failedEvals', (rLech.failedEvals || []).includes('E1'), JSON.stringify(rLech.failedEvals));
+check('ma lech -> verdict REJECT', rLech.verdict === 'REJECT', rLech.verdict);
+
+process.exit(badc > 0 ? 1 : 0);
+GHHEOF
+
+    # ── Bản lành: chạy trên CHÍNH acceptance-verify.js thật → đòi XANH ────────
+    node "$TMP/ghh-check.mjs" "$KIT" "$WF" 0 > "$TMP/ghh-healthy.out" 2>&1
+    RC=$?
+    cat "$TMP/ghh-healthy.out"
+    run_checks "$TMP/ghh-healthy.out"
+    [ "$RC" -eq 0 ] || bad "gioi-han-het: bản lành ghh-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    # ── Mũi (i): bỏ khối GIOI HAN DA KHAI KHONG CON khỏi lời dặn soạn báo cáo ─
+    copy_tree
+    python3 - "$TMP/ghh-i-before.txt" "$TMP/ghh-i-after.txt" <<'PYEOF'
+import sys
+before, after = sys.argv[1], sys.argv[2]
+target = "${gioiHanHet.length ? `\\nGIOI HAN DA KHAI KHONG CON — chep NGUYEN VAN vao muc \"## Known limits\":\\n${gioiHanHet.join('\\n')}\\n` : ''}"
+open(before, 'w', encoding='utf8').write(target)
+open(after, 'w', encoding='utf8').write('')
+PYEOF
+    inject_file ghh-prompt feature-loop/workflows/acceptance-verify.js "$TMP/ghh-i-before.txt" "$TMP/ghh-i-after.txt"
+    COPY_WF="$COPY/feature-loop/workflows/acceptance-verify.js"
+    node "$TMP/ghh-check.mjs" "$KIT" "$COPY_WF" 1 > "$TMP/ghh-i.out" 2>&1
+    RC=$?
+    cat "$TMP/ghh-i.out"
+    run_checks "$TMP/ghh-i.out"
+    [ "$RC" -eq 0 ] || bad "gioi-han-het: mũi (i) ghh-check.mjs tự thoát khác 0 ($RC) — xem log ở trên"
+
+    # ── Mũi (ii): repin-lane.mjs — ép hetHan luôn false → phạt một cải thiện ──
+    copy_tree
+    inject ghh-repin feature-loop/scripts/repin-lane.mjs \
+      "const hetHan = e.expected !== 0 && e.exit === 0;" \
+      "const hetHan = false;"
+    FXCFG='{"config":{"executors":{"e1":"exit 0","suite":"exit 0"},"suiteKeys":["executors.script.suite"]},"evals":[{"id":"E1","cmd":"config:executors.script.e1","expectedExitLine":"2"}]}'
+    node "$HERE/fixture.mjs" mkRepo "$FXCFG" > "$TMP/ghh-fx-healthy.txt"
+    FX_H="$(sed -n '1p' "$TMP/ghh-fx-healthy.txt")"
+    OUT_H=$(node "$KIT/feature-loop/scripts/repin-lane.mjs" --root "$FX_H" --slug fx --ag-root "$KIT" 2>&1); RC_H=$?
+    if [ "$RC_H" -eq 0 ] && has "$OUT_H" "giới hạn đã khai không còn"; then
+      ok "đối chứng dương: repin-lane thật trên eval cải thiện (khai 2, chạy trả 0) → LÀN XANH, gọi tên 'giới hạn đã khai không còn'"
+    else bad "đối chứng dương KHÔNG xanh (rc=$RC_H): $(printf '%s\n' "$OUT_H" | tail -5 | tr '\n' ' ')"; fi
+
+    node "$HERE/fixture.mjs" mkRepo "$FXCFG" > "$TMP/ghh-fx-mut.txt"
+    FX_M="$(sed -n '1p' "$TMP/ghh-fx-mut.txt")"
+    OUT_M=$(node "$COPY/feature-loop/scripts/repin-lane.mjs" --root "$FX_M" --slug fx --ag-root "$KIT" 2>&1); RC_M=$?
+    if [ "$RC_M" -eq 1 ] && has "$OUT_M" "LÀN ĐỎ"; then
+      ok "MŨI (ii) -- phạt cải thiện: repin-lane với hetHan=false ép eval cải thiện (khai 2, chạy trả 0) thành LÀN ĐỎ"
+    else bad "mũi (ii) KHÔNG đúng: rc=$RC_M — $(printf '%s\n' "$OUT_M" | tail -5 | tr '\n' ' ')"; fi
     ;;
 
-  # ── bảy chân còn lại của hồ sơ này: phiên khác dựng sau ────────────────────
+  # ── sáu chân còn lại của hồ sơ này: phiên khác dựng sau ────────────────────
   s4-dat-gioi-han|known-limits|xung-dot-lenh|so-ky-vong|tai-lieu|loi-dan-soan|dau-cuoi-that)
-    bad "chân chưa dựng: $CHAN — thuộc phần hai (bảy chân còn lại + tài liệu), phiên khác làm sau"
+    bad "chân chưa dựng: $CHAN — thuộc phần hai (sáu chân còn lại + tài liệu), phiên khác làm sau"
     ;;
 
   *) echo "rang.sh: chân lạ '$CHAN'"; exit 3 ;;

@@ -424,6 +424,12 @@ for (const cmd of distinctCmds) {
   expByCmd.set(cmd, set[0])
 }
 const expCmd = cmd => expByCmd.get(cmd) || 0
+// AC-10 (khong phat mot cai thien): mot lenh khai ky vong khac 0 ma lan chay
+// tra 0 la GIOI HAN DA KHAI KHONG CON, khong phai mot luot truot — cung dinh
+// nghia voi lane repin-lane.mjs (hetHan). Dat MOT noi, dung xuyen "failed",
+// rut gon dau ra bao cao, va lane doi chung (baseline/non-discriminating) de
+// ba cho do khong troi khoi nhau nhu chinh lo hong nay da xay ra.
+const isHetHan = (exitCode, cmd) => expCmd(cmd) !== 0 && exitCode === 0
 
 // variance-N: số lần chạy mỗi lệnh = max(runs) trên các eval trỏ tới nó (default 1, cap 10).
 // runs>1 = eval NGẪU NHIÊN (vd qua ctx.providers.invoke / generator-LLM) → cần phân phối pass-rate, không phải 1 phát.
@@ -768,7 +774,11 @@ const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
 const baselineStatus = (cmd) => {
   const b = baselineByCmd.get(cmd)
   if (!b || b.cannotRun) return 'n-a'
-  return b.baselineExit === expCmd(cmd) ? 'green' : 'red'
+  // AC-10 ap doi xung cho lane doi chung: baseline (code cu) tra 0 du eval khai
+  // ky vong khac 0 CUNG la dat (gioi han khong con, ke ca tren code cu) — khong
+  // de mot dinh nghia "dat" lech giua HEAD va baseline lam nonDiscriminating o
+  // duoi doc sai (hai ben cung tra 0 la CUNG mot hanh vi, phai duoc thay green).
+  return (b.baselineExit === expCmd(cmd) || isHetHan(b.baselineExit, cmd)) ? 'green' : 'red'
 }
 // Eval không-phân-biệt: lệnh-CÓ-eval pass trên CẢ HEAD lẫn baseline (green-on-both) → chứng minh harness, không phải feature
 // P2: round không đo baseline → Analyst carry nguyên từ round có baseline gần nhất (carriedAnalyst).
@@ -776,7 +786,7 @@ const carriedAnalyst = (!runBaseline && args.carriedAnalyst && Array.isArray(arg
   ? args.carriedAnalyst : null
 const nonDiscriminating = runBaseline
   ? machine
-      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && m.exitCode === expCmd(m.cmd) && baselineStatus(m.cmd) === 'green')
+      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)) && baselineStatus(m.cmd) === 'green')
       .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
   : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
 const judges = (judgeRaw || []).filter(Boolean).map(normalizeVote)
@@ -1007,7 +1017,7 @@ const blocked = machine.filter(m => m.cannotRun)
     vangMat(e.id, 'ui-check agent bi skip/chet — khong co ket qua')
   }
 }
-const failed = machine.filter(m => !m.cannotRun && m.exitCode !== expCmd(m.cmd))
+const failed = machine.filter(m => !m.cannotRun && m.exitCode !== expCmd(m.cmd) && !isHetHan(m.exitCode, m.cmd))
 const failedEvalIds = [...new Set(failed.flatMap(m => m.evals))]
 
 const failedCommands = failed.map(m => ({ cmd: m.cmd, evals: m.evals, exitCode: m.exitCode }))
@@ -1056,14 +1066,17 @@ const knownLimitLines = machine
     `- ${id} (${acOf(id)}) dat-co-gioi-han: ma thoat ${m.exitCode} la ket qua DA KHAI TRUOC cua eval nay, khong phai mot luot truot. Lenh: ${m.cmd}`))
 // Giới hạn đã khai KHÔNG CÒN: khai mã khác 0 mà nay trả 0.
 const gioiHanHet = machine
-  .filter(m => !m.cannotRun && expCmd(m.cmd) !== 0 && m.exitCode === 0)
+  .filter(m => !m.cannotRun && isHetHan(m.exitCode, m.cmd))
   .flatMap(m => (byCmd.get(m.cmd) || []).map(id =>
     `- ${id} (${acOf(id)}): gioi han da khai khong con — evals.yaml khai ma ${expCmd(m.cmd)}, lan chay nay tra 0. Go loi khai o vong sau.`))
 
 // ---- Synthesize: 1 agent viết evidence-report.md đúng template (hook enforce) ----
 phase('Synthesize')
-// Trim payload: lệnh PASS chỉ cần ~3 dòng output cuối làm evidence; lệnh fail/blocked giữ nguyên tail (cần cho chẩn đoán)
-const machineForReport = machine.map(m => (!m.cannotRun && m.exitCode === expCmd(m.cmd) && !m.variance)
+// Trim payload: lệnh PASS chỉ cần ~3 dòng output cuối làm evidence; lệnh fail/blocked giữ nguyên tail (cần cho chẩn đoán).
+// AC-10: hetHan (giới hạn đã khai không còn) là ĐẠT, không phải một lượt trượt
+// cần chẩn đoán — dòng "GIOI HAN DA KHAI KHONG CON" đã nói rõ mã khai/mã thật,
+// nên trim như một PASS bình thường, không giữ tail đầy đủ.
+const machineForReport = machine.map(m => (!m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)))
   ? { ...m, outputTail: String(m.outputTail || '').split('\n').slice(-3).join('\n') }
   : m)
 const machineForReportB = machineForReport.map(m => ({ ...m, baseline: baselineStatus(m.cmd) }))

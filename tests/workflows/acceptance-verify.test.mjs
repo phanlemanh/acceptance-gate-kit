@@ -2123,4 +2123,31 @@ console.log('W-EE11 cung fixture nhung lan chay tra DUNG ky vong -> KHONG co kho
     p);
 }
 
+console.log('W-EE12 AC-10 hai chieu tren CUNG fixture (khai expectedExit khac 0): lan chay tra 0 -> khong phat mot cai thien; lan chay tra ma LECH -> van REJECT');
+{
+  // Chieu 1: eval khai expectedExit=2, luot chay nay tra 0 (gioi han da khai
+  // KHONG CON — mot cai thien). AC-10: verdict KHONG duoc la REJECT, failedEvals
+  // phai RONG, va loi dan soan bao cao van phai NEU RA dieu do (khoi "GIOI HAN
+  // DA KHAI KHONG CON" goi ten eval) — khong duoc PASS ma im re.
+  const mkArgs = () => baseArgs({
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 }],
+    suiteCommands: [],
+  });
+  const { result: rHetHan, calls: callsHetHan } = await runWorkflow(WF, mkArgs(),
+    responder({ 'machine:': { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false } }));
+  check('W-EE12a gioi han het -> failedEvals RONG', (rHetHan.failedEvals || []).length === 0, JSON.stringify(rHetHan.failedEvals));
+  check('W-EE12a gioi han het -> verdict KHONG phai REJECT', rHetHan.verdict !== 'REJECT', rHetHan.verdict);
+  const pHetHan = byLabel(callsHetHan, 'synthesize:report')[0].prompt;
+  check('W-EE12a loi dan soan bao cao van mang khoi GIOI HAN DA KHAI KHONG CON, goi ten eval',
+    /GIOI HAN DA KHAI KHONG CON/.test(pHetHan) && pHetHan.includes('E1') && pHetHan.includes('AC-1'), pHetHan);
+
+  // Chieu 2 (doi chung, CUNG fixture): luot chay tra mot ma LECH — khac 0 VA
+  // khac ma da khai (2) — day KHONG phai gioi han da khai khong con, van la
+  // mot luot truot that: phai co trong failedEvals va verdict REJECT.
+  const { result: rLech } = await runWorkflow(WF, mkArgs(),
+    responder({ 'machine:': { exitCode: 1, outputTail: 'boom', runId: '', cannotRun: false } }));
+  check('W-EE12b ma lech (1, khac 0 va khac ky vong 2) -> co trong failedEvals', (rLech.failedEvals || []).includes('E1'), JSON.stringify(rLech.failedEvals));
+  check('W-EE12b ma lech -> verdict REJECT', rLech.verdict === 'REJECT', rLech.verdict);
+}
+
 summary('acceptance-verify');
