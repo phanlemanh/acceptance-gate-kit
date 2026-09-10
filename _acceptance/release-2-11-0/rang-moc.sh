@@ -18,6 +18,7 @@
 #   3  không tìm được lần CẮT SỐ nào                 → không có nền để so
 #   4  mốc chọn ra không phải một lần cắt số         → phép chọn mốc hỏng
 #   5  diagram-design/ CÓ đổi sau lần cắt số gần nhất → số đang nói dối
+#   6  không đọc được số tại HEAD (vật không còn)  → không có vật để đo
 #   0  xanh
 #
 # Gốc kho suy TỪ VỊ TRÍ SCRIPT (bài học P150), không từ thư mục gọi.
@@ -44,6 +45,15 @@ ver_tai() { G show "$1:$MANIFEST" 2>/dev/null | sed -n 's/.*"version"[[:space:]]
 # vừa sửa mô tả trong manifest mà KHÔNG tăng `version` sẽ thành mốc mới, chân 3
 # so NEO..HEAD thấy rỗng và răng báo PASS trong khi nội dung đã đổi còn số thì
 # cũ — fail-open ĐÚNG chiều răng này canh.
+# Chân 0 — VẬT phải còn tồn tại và số phải đọc được. Không có chân này thì xoá
+# hẳn `diagram-design/` vẫn cho PASS: commit xoá cũng «đổi số» (2.7.0 → rỗng)
+# nên nó thành mốc, và diff mốc..HEAD rỗng. Chiều đỏ bắt được ngay khi dựng.
+SO_HEAD="$(ver_tai HEAD)"
+if [ -z "$SO_HEAD" ]; then
+  echo "DO: khong doc duoc so tai HEAD tu ${MANIFEST} — vat khong con hoac manifest hong" >&2
+  exit 6
+fi
+
 NEO=""
 for sha in $(G log --format=%H -- "$MANIFEST" 2>/dev/null); do
   cha="$(G rev-parse -q --verify "${sha}^" 2>/dev/null || true)"
@@ -73,5 +83,5 @@ if [ -n "$DOI" ]; then
   exit 5
 fi
 
-SO="$(ver_tai HEAD)"
+SO="$SO_HEAD"
 echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} (doi chung duong: so tai moc KHAC so tai cha)"
