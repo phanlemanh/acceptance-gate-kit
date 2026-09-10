@@ -83,8 +83,12 @@ function bg2() {
   const pin = core.resolveConfigKey(cfg, 'bg2.pin');
   const cheo = core.resolveConfigKey(cfg, 'bg2.cheo');
   let hong = 0;
-  if (typeof pin !== 'string' || !pin.includes('--with "x==1"')) { do_('BG2', `chuoi ra khong mang dung argv --with "x==1": ${JSON.stringify(pin)}`); hong++; }
-  else if (/\\["\\]/.test(pin)) { do_('BG2', `chuoi ra van con dau cheo nguoc truoc nhay: ${JSON.stringify(pin)}`); hong++; }
+  // So BẰNG trọn chuỗi, KHÔNG dùng `includes`: giá trị mong đợi là hằng biết
+  // trước, nên phép có-mặt một chuỗi con chỉ để lọt mọi sai lệch ngoài đoạn đó
+  // (vd off-by-one ở `slice(1,-1)` nuốt mất ký tự đầu vẫn xanh). Lượt chấm 1
+  // bắt được; AC-12.
+  const MONG = 'cd sdk && uv run --with "x==1" pytest';
+  if (pin !== MONG) { do_('BG2', `chuoi ra KHAC hang mong doi:\n      doi  ${JSON.stringify(MONG)}\n      thay ${JSON.stringify(pin)}`); hong++; }
   if (cheo !== 'a\\b') { do_('BG2', `\\\\ khong go thanh \\: doi ${JSON.stringify('a\\b')}, thay ${JSON.stringify(cheo)}`); hong++; }
   if (!hong) xanh('BG2', 'escape trong vo nhay kep duoc go');
 }
@@ -214,7 +218,10 @@ function bg4() {
     });
     // models sống trong feature_loop, splice thêm vào config đã sinh.
     const cfgP = path.join(ws.dir, '_acceptance', 'config.yaml');
-    fs.writeFileSync(cfgP, fs.readFileSync(cfgP, 'utf8') + '  models:\n    executor: "haiku"\n');
+    // `"haiku"` là vỏ kép CÂN không escape — mệnh đề CŨ xử y hệt unquoteScalar,
+    // nên ô này TRƠ (lượt chấm 1 chứng: hoàn nguyên s4-args vẫn xanh 13/13).
+    // Đổi sang vỏ kép CÓ ESCAPE để ô mang tín hiệu thật (AC-12).
+    fs.writeFileSync(cfgP, fs.readFileSync(cfgP, 'utf8') + '  models:\n    executor: "hai\\"ku"\n');
     execFileSync('git', ['-C', ws.dir, 'add', '-A'], { stdio: 'ignore' });
     execFileSync('git', ['-C', ws.dir, '-c', 'user.name=Ca Do', '-c', 'user.email=ca@do', 'commit', '-qm', 'models'], { stdio: 'ignore' });
     const r = chayS4Args(ws);
@@ -233,7 +240,7 @@ function bg4() {
     // đồng vòng này (ghi ở Out of scope + sổ quyết định); bản vá ở đây là hợp
     // nhất lớp, cố ý KHÔNG đổi hành vi đường này.
     ket.push(['6 s4-args id (luoi hoi quy)', e2.id, 'E2']);
-    ket.push(['7 s4-args models', (r.args.models || {}).executor, 'haiku']);
+    ket.push(['7 s4-args models', (r.args.models || {}).executor, 'hai"ku']);
   }
   if (ket.length !== BG4_ASSERTS) { do_('BG4', `so khang dinh ${ket.length} != BG4_ASSERTS ${BG4_ASSERTS} khai truoc`); return; }
   let hong = 0;
@@ -281,14 +288,33 @@ function bg6() {
   for (const g of GIU) if (!conGiu.has(g)) { do_('BG6', `ham co-y-giu [${g}] MAT menh de cu — va lan ra ngoai ranh gioi da khai`); hong++; }
   // (c) phép đếm tổng — chặn cả hai chiều trôi.
   if (hCore.length !== GIU.length) { do_('BG6', `tong khop trong evidence-core = ${hCore.length}, khai truoc ${GIU.length} (${hCore.map(h => `${h.ham}:${h.dong}`).join(' ')})`); hong++; }
-  // (d) bảy đường phải GỌI bộ bóc dùng chung.
-  const src = fs.readFileSync(coreP, 'utf8');
-  const srcArgs = fs.readFileSync(argsP, 'utf8');
-  const demCore = (src.match(/unquoteScalar\s*\(/g) || []).length;
-  const demArgs = (srcArgs.match(/unquoteScalar\s*\(/g) || []).length;
-  if (demCore < 4) { do_('BG6', `evidence-core goi unquoteScalar ${demCore} lan, can >= 4 (1 dinh nghia + 3 duong)`); hong++; }
-  if (demArgs < 4) { do_('BG6', `s4-args goi unquoteScalar ${demArgs} lan, can >= 4 (bon cho)`); hong++; }
-  if (!hong) xanh('BG6', `ranh gioi va dung bang danh sach dong (${GIU.length} ham giu, 0 khop o s4-args)`);
+  // (d) TÁM đường phải GỌI bộ dùng chung — neo THEO CHỖ GỌI, KHÔNG đếm văn bản.
+  // Bản trước đếm `unquoteScalar(` trên nguồn thô, nên một chuỗi THÔNG ĐIỆP
+  // `die('… không có unquoteScalar (cần ≥ 2.11.0) …')` cũng được tính: thước
+  // nhận dư một đơn vị từ VĂN và dung thứ việc mất MỘT trong bốn chỗ gọi thật
+  // (lượt chấm 1 bắt được; AC-12 — đếm MÃ, không đếm VĂN).
+  const cpP = path.join(ROOT, 'feature-loop', 'scripts', 'carry-plan.mjs');
+  const boChuThich = (f) => fs.readFileSync(f, 'utf8').split('\n').filter(l => !l.trim().startsWith('//')).join('\n');
+  const sCore = boChuThich(coreP), sArgs = boChuThich(argsP), sCp = boChuThich(cpP);
+  const GOI = [
+    ['1 resolveConfigKey la', sCore, 'unquoteScalar(stripYamlComment(m[2]))'],
+    ['2 resolveConfigList inline', sCore, 'splitTopLevel(val.replace('],
+    ['3 resolveConfigList khoi', sCore, 'unquoteScalar(stripYamlComment(m[1]))'],
+    ['4 s4-args list inline', sArgs, 'splitTopLevel(s.replace('],
+    ['5 s4-args list khoi', sArgs, 'unquoteScalar(itemM[1].trim())'],
+    ['6 s4-args id', sArgs, 'unquoteScalar(idM[1])'],
+    ['7 s4-args models', sArgs, 'unquoteScalar(m[2])'],
+    ['8 carry-plan paths', sCp, 'R.splitTopLevel(f[1])'],
+  ];
+  for (const [ten, src, neo] of GOI)
+    if (!src.includes(neo)) { do_('BG6', `duong [${ten}] KHONG con goi bo dung chung — mat neo «${neo}»`); hong++; }
+  { // carry-plan cũng phải sạch mệnh đề cũ (đường thứ tám, AC-10)
+    const lines = fs.readFileSync(cpP, 'utf8').split('\n');
+    const hitCp = [];
+    lines.forEach((l, i) => { if (l.trim().startsWith('//')) return; CU_RE.lastIndex = 0; if (CU_RE.test(l)) hitCp.push(i + 1); });
+    if (hitCp.length) { do_('BG6', `carry-plan.mjs con ${hitCp.length} menh de cu (dong ${hitCp.join(', ')})`); hong++; }
+  }
+  if (!hong) xanh('BG6', `ranh gioi va dung bang danh sach dong (${GIU.length} ham giu, 8 duong neo theo cho goi, 0 khop o s4-args va carry-plan)`);
 }
 
 // ─── BG7 — cắt chú thích và tách phẩy phải NHẬN BIẾT VỎ NHÁY ──────────────
@@ -337,6 +363,107 @@ function bg7() {
   const r = spawnSync('bash', ['-c', `${val} >/dev/null 2>&1`], { encoding: 'utf8' });
   if (r.status === 2) { do_('BG7', `chuoi giai ra vo cu phap: bash -c thoat 2 tren ${JSON.stringify(val)} — dung chuoi xanh-gia vong nay dong`); hong++; }
   if (!hong) xanh('BG7', `cat chu thich va tach phay nhan biet vo nhay (${BG7_ASSERTS} khang dinh + chan chay-duoc)`);
+}
+
+// ─── BG9 — carry-plan và s4-args phải ĐỒNG Ý về CÙNG trường `paths:` ──────
+// Đo HỆ QUẢ, không so chuỗi: `paths` ở carry-plan biến thành glob quyết eval
+// nào được CARRY-FORWARD. Nếu bộ đọc của nó mangle đường dẫn, glob không khớp
+// file nào → eval được mang màu xanh cũ sang lượt mới dù file thật ĐÃ đổi. Đó
+// là chiều FAIL-OPEN, nên ca này khẳng định đúng quyết định carry chứ không
+// khẳng định một chuỗi bằng nhau (AC-10).
+function bg9() {
+  const duong = 'src/§"E7 — render thật".js';   // hình dạng vỏ kép có escape, lấy từ bán kính artifact-platform
+  const d = mkTmp('bg9-ws-'); const slug = 'ca-carry';
+  fs.mkdirSync(path.join(d, '_acceptance', slug), { recursive: true });
+  fs.writeFileSync(path.join(d, '_acceptance', slug, 'contract.md'),
+    '---\nschema_version: 1\nrisk_tier: T2\nstatus: implemented\n---\n\n## Criteria\n\n### AC-1\n\nGiven x When y Then z\n');
+  fs.writeFileSync(path.join(d, '_acceptance', slug, 'evals.yaml'),
+    'evals:\n  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: echo ok\n'
+    + `    paths: ["${duong.replace(/"/g, '\\"')}"]\n`);
+  fs.writeFileSync(path.join(d, '_acceptance', slug, 'run-log.jsonl'),
+    JSON.stringify({ ts: 't', sha: 'a'.repeat(40), round: 1, evalId: 'E1', run_id: 'r-1', exit_code: 0, verified_at: 'x', cmd: 'echo ok' }) + '\n');
+  const chay = (delta) => {
+    const r = spawnSync(process.execPath, [
+      path.join(ROOT, 'feature-loop', 'scripts', 'carry-plan.mjs'),
+      '--run-log', path.join(d, '_acceptance', slug, 'run-log.jsonl'),
+      '--evals', path.join(d, '_acceptance', slug, 'evals.yaml'),
+      '--contract', path.join(d, '_acceptance', slug, 'contract.md'),
+      '--round', '2', '--ag-root', ROOT,
+      ...(delta ? ['--delta-files', delta] : ['--no-delta']),
+    ], { encoding: 'utf8' });
+    if (r.status !== 0) return { err: `carry-plan exit ${r.status}: ${String(r.stderr || '').split('\n').filter(Boolean).pop()}` };
+    try { return { j: JSON.parse(r.stdout) }; } catch (e) { return { err: `stdout khong phai JSON: ${e.message}` }; }
+  };
+  let hong = 0;
+  // (a) bản sửa CHẠM đúng đường đó → PHẢI chạy lại, KHÔNG được carry.
+  const A = chay(duong);
+  if (A.err) { do_('BG9', `[cham dung duong] ${A.err}`); hong++; }
+  else {
+    const daCarry = (A.j.carriedEvals || []).some(e => e.id === 'E1');
+    if (daCarry) { do_('BG9', `[cham dung duong] E1 VAN duoc carry — bo doc paths cua carry-plan mangle duong dan nen glob khong khop file nao (FAIL-OPEN: mang mau xanh cu sang luot moi du file that da doi)`); hong++; }
+    else if (!(A.j.rerun || []).includes('E1')) { do_('BG9', `[cham dung duong] E1 khong nam trong rerun: ${JSON.stringify(A.j.rerun)}`); hong++; }
+  }
+  // (b) ĐỐI CHỨNG DƯƠNG: bản sửa chạm đường KHÁC → carry là ĐÚNG.
+  const B = chay('src/khac.js');
+  if (B.err) { do_('BG9', `[cham duong khac] ${B.err}`); hong++; }
+  else if (!(B.j.carriedEvals || []).some(e => e.id === 'E1')) {
+    do_('BG9', `[cham duong khac] E1 KHONG duoc carry — doi chung duong hong, ve (a) mat y nghia`); hong++;
+  }
+  if (!hong) xanh('BG9', 'carry-plan va s4-args dong y ve paths (2 chieu tren cung fixture)');
+}
+
+// ─── BG8 — MỌI ô của ma trận phải PHÂN BIỆT ĐƯỢC ─────────────────────────
+// Hoàn nguyên ĐÚNG MỘT đường về mệnh đề cũ trên bản sao trọn cây, rồi đòi đúng
+// (các) khẳng định của đường đó ĐỎ. Lượt chấm 1 đo được hai ô TRƠ — ô «đường 7
+// (models)» xanh đủ 13/13 kể cả khi hoàn nguyên s4-args, và phép đếm của BG6
+// dung thứ việc mất một chỗ gọi. Một thước không phân biệt được bản vá với bản
+// chưa vá thì màu xanh của nó không nói gì (AC-12).
+//
+// Đường 6 (`id`) CỐ Ý không có trong danh sách: nó là LƯỚI HỒI QUY, bản vá ở
+// đó là hợp nhất lớp và không đổi hành vi — xem Out of scope của hợp đồng.
+const BG8_MUTANTS = 7;
+function bg8() {
+  if (process.env.BG_NO_RED === '1') { xanh('BG8', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
+  const CORE = ['lib', 'evidence-core.cjs'], ARGS = ['feature-loop', 'scripts', 's4-args.mjs'], CP = ['feature-loop', 'scripts', 'carry-plan.mjs'];
+  const MUT = [
+    ['1 resolveConfigKey la', CORE, 'const val = unquoteScalar(stripYamlComment(m[2]));', "const val = m[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, '');", 'BG4'],
+    ['2 resolveConfigList inline', CORE, "if (val.startsWith('[')) return splitTopLevel(val.replace(/^\\[|\\]$/g, '')).map(s => unquoteScalar(s.trim())).filter(Boolean);", "if (val.startsWith('[')) return val.replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG4'],
+    ['3 resolveConfigList khoi', CORE, 'if (m) out.push(unquoteScalar(stripYamlComment(m[1])));', "if (m) out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''));", 'BG4'],
+    ['4 s4-args list inline', ARGS, "const parseInline = s => splitTopLevel(s.replace(/^\\[|\\]$/g, '')).map(x => unquoteScalar(x.trim())).filter(Boolean);", "const parseInline = s => s.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG4'],
+    ['5 s4-args list khoi', ARGS, 'if (itemM) { cur[pendingList].push(unquoteScalar(itemM[1].trim())); continue; }', "if (itemM) { cur[pendingList].push(itemM[1].trim().replace(/^[\"']|[\"']$/g, '')); continue; }", 'BG4'],
+    ['7 s4-args models', ARGS, 'if (m) out[m[1]] = unquoteScalar(m[2]);', "if (m) out[m[1]] = m[2].replace(/^[\"']|[\"']$/g, '');", 'BG4'],
+    ['8 carry-plan paths', CP, 'cur.paths = R.splitTopLevel(f[1]).map(s => R.unquoteScalar(s.trim())).filter(Boolean);', "cur.paths = f[1].split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean);", 'BG9'],
+  ];
+  if (MUT.length !== BG8_MUTANTS) { do_('BG8', `so dot bien ${MUT.length} != BG8_MUTANTS ${BG8_MUTANTS} khai truoc`); return; }
+  const d = mkTmp('bg8-archive-');
+  try {
+    const tar = execFileSync('git', ['-C', ROOT, 'archive', 'HEAD'], { maxBuffer: 512 * 1024 * 1024 });
+    execFileSync('tar', ['-x', '-C', d], { input: tar });
+  } catch (e) { do_('BG8', `khong dung duoc ban sao tron cay: ${String(e.message).split('\n')[0]}`); return; }
+  const tepCa = path.join(d, 'tests', 'scripts', 'bo-giai-nhay.test.mjs');
+  if (!fs.existsSync(tepCa) || bam(tepCa) !== bam(path.join(HERE, 'bo-giai-nhay.test.mjs'))) {
+    do_('BG8', 'tep ca o HEAD khac ban dang chay — commit truoc khi do phan biet'); return;
+  }
+  const chay = (chan) => spawnSync(process.execPath, [tepCa], { encoding: 'utf8', env: { ...process.env, BG_NO_RED: '1', BG_ONLY: chan } });
+  // ĐỐI CHỨNG DƯƠNG: bản NGUYÊN VẸN phải xanh ở cả hai chân được dùng làm thước.
+  const sach = chay('BG4,BG9');
+  if (sach.status !== 0) { do_('BG8', `ban sao NGUYEN VEN da do (exit ${sach.status}) — moi phep phan biet duoi vo nghia:\n${String(sach.stderr || '').trim().slice(0, 400)}`); return; }
+  let hong = 0;
+  for (const [ten, rel, moi, cu, chan] of MUT) {
+    const f = path.join(d, ...rel);
+    const goc = fs.readFileSync(f, 'utf8');
+    if (!goc.includes(moi)) { do_('BG8', `khong tim thay neo [${ten}] — neo doi, o nay khong con do duoc`); hong++; continue; }
+    const truoc = bam(f);
+    fs.writeFileSync(f, goc.replace(moi, cu));
+    if (bam(f) === truoc) { do_('BG8', `DOT BIEN KHONG AP DUOC [${ten}] — bam khong doi`); fs.writeFileSync(f, goc); hong++; continue; }
+    const r = chay(chan);
+    const err = String(r.stderr || '') + String(r.stdout || '');
+    fs.writeFileSync(f, goc);   // hoàn nguyên NGAY, mỗi đột biến đứng một mình
+    if (r.status === 0) { do_('BG8', `o [${ten}] TRO — hoan nguyen ve menh de cu ma ${chan} van XANH; mau xanh cua o nay khong noi gi`); hong++; continue; }
+    if (!err.includes(`DO ${chan}:`)) { do_('BG8', `o [${ten}] do nhung khong ghim ${chan}`); hong++; continue; }
+    console.log(`     [phan biet] ${ten} -> ${chan} DO`);
+  }
+  if (!hong) xanh('BG8', `moi o cua ma tran phan biet duoc ban va voi ban chua va (${BG8_MUTANTS} dot bien, doi chung duong xanh)`);
 }
 
 // ─── BG5 — chiều đỏ trên bản sao TRỌN cây ─────────────────────────────────
@@ -399,8 +526,18 @@ function bg5() {
   xanh('BG5', `chieu do tren ban sao TRON CAY (${DOT_BIEN.length} dot bien, doi chung duong xanh, bam doi, ghim ${CHAN_DO.join('+')})`);
 }
 
-bg1(); bg2(); bg3(); bg4(); bg6(); bg7(); bg5();
+// BG_ONLY=<danh sách> chạy đúng các chân được nêu — BG8 dùng nó để chấm từng
+// đột biến bằng một chân rẻ thay vì chạy trọn tệp bảy lần.
+const CHAN = { BG1: bg1, BG2: bg2, BG3: bg3, BG4: bg4, BG6: bg6, BG7: bg7, BG9: bg9, BG8: bg8, BG5: bg5 };
+const chon = String(process.env.BG_ONLY || '').split(',').map(s => s.trim()).filter(Boolean);
+if (chon.length) {
+  const la = chon.filter(c => !CHAN[c]);
+  if (la.length) { console.error(`bo-giai-nhay: BG_ONLY co chan khong ton tai: ${la.join(', ')}`); process.exit(2); }
+  for (const c of chon) CHAN[c]();
+} else {
+  for (const c of Object.keys(CHAN)) CHAN[c]();
+}
 
 // ── MỘT lối thoát duy nhất ────────────────────────────────────────────────
 if (loi.length) { console.error(`bo-giai-nhay: ${loi.length} ve do`); process.exit(1); }
-console.log('bo-giai-nhay OK (7 chan)');
+console.log(`bo-giai-nhay OK (${chon.length ? chon.join('+') : '9 chan'})`);
