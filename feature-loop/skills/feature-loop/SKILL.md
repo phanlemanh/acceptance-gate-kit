@@ -52,7 +52,14 @@ sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt k�
 
 ## Sổ quyết định (decisions.jsonl — rationale, KHÔNG phải scope-truth)
 
-`_acceptance/<slug>/decisions.jsonl` — append-only, 1 dòng JSON/quyết định; ledger KHÔNG BAO GIỜ override contract/evals (descope một AC = sửa contract + re-approve; ledger chỉ ghi *vì sao*; mâu thuẫn ledger↔contract = lỗi phải báo user). Schema: `{"id":"d-<UTC>-<rand>","type":"descope|approach|fix|revisit","stage":"S1|S2|S3|S4-r<N>|gate1|gate2","at":"<ISO>","decision":"1 câu","impact":"tiết kiệm gì · rủi ro gì"}` + optional `serves:["AC-2"]`, `revisit`, `supersedes:"<id>"`. Append (không script mới): `printf '%s\n' '<json 1 dòng>' >> _acceptance/<slug>/decisions.jsonl` với id `d-$(date -u +%Y%m%dT%H%M%SZ)-$RANDOM`.
+`_acceptance/<slug>/decisions.jsonl` — append-only, 1 dòng JSON/quyết định; ledger KHÔNG BAO GIỜ override contract/evals (descope một AC = sửa contract + re-approve; ledger chỉ ghi *vì sao*; mâu thuẫn ledger↔contract = lỗi phải báo user). Schema: `{"id":"d-<UTC>-<n>","type":"descope|approach|fix|revisit","stage":"S1|S2|S3|S4-r<N>|gate1|gate2","at":"<ISO>","decision":"1 câu","impact":"tiết kiệm gì · rủi ro gì"}` + optional `serves:["AC-2"]`, `revisit`, `supersedes:"<id>"`. Append (không script mới) bằng ĐÚNG khối lệnh ba dòng dưới, mỗi dòng sổ một lần chạy — chỉ thay `<slug>` và các ô `<…>` ở dòng giữa. Id `d-<UTC>-<n>` do lệnh tự tính: `<n>` = số thứ tự dòng mới trong sổ, nên sổ append-only cho mỗi dòng một mã kể cả khi nhiều dòng rơi vào cùng một giây. Phần JSON đi trong heredoc CÓ NHÁY (`<<'JSON'`), nên mọi ký tự trong câu — nháy đơn, `%`, `$`, backtick — được ghi nguyên văn; chỉ `"` và `\` phải escape theo JSON (`\"`, `\\`), và phần JSON nằm trên MỘT dòng. Đừng tính id một lần vào biến rồi dùng cho nhiều dòng — đó đúng là lỗi làm 8 dòng sổ release-2-11-0 chung một mã, và câu dịch trên thẻ bị lặp sang mọi dòng cùng mã:
+<!-- <<<DEC-ID-RECIPE -->
+```
+L=_acceptance/<slug>/decisions.jsonl; { printf '{"id":"d-%s-%s",' "$(date -u +%Y%m%dT%H%M%SZ)" "$(( $(cat "$L" 2>/dev/null | grep -c '') + 1 ))"; tr -d '\n' <<'JSON'; printf '}\n'; } >> "$L"
+"type":"<type>","stage":"<stage>","at":"<ISO>","decision":"<1 câu>","impact":"<đổi lại gì>"
+JSON
+```
+<!-- DEC-ID-RECIPE>>> -->
 
 **Rule đáng-log (chống nhiễu):** CHỈ khi (a) loại một phương án khả dĩ ∨ (b) cố tình nhận downside ∨ (c) có điều kiện revisit. Không có phương án thay thế → KHÔNG log; feature đơn giản 0 entry là hợp lệ. `descope` = ưu tiên 1 — quyết định "không làm" vô hình trong code, đắt nhất khi bị lật lại.
 

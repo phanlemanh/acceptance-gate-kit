@@ -151,6 +151,17 @@ Steps:
      `decisions_approved` + `decisions_provisional` (Gate 2): mỗi `p` = 1 câu sản
      phẩm "đã chọn gì — đổi lại gì" (descope: bắt đầu "KHÔNG làm ..."). Ledger là
      rationale, KHÔNG phải scope-truth — không dịch thành cam kết mới.
+     `id` của overlay = trường **`key`** của entry trong extract, không phải
+     `id`: hai trường trùng nhau khi mã là duy nhất; sổ ghi trước khuôn
+     `d-<UTC>-<n>` có thể nhiều dòng chung một mã, khi đó `key` là `<id>#<k>`
+     (k theo thứ tự dòng sổ) và mỗi dòng dịch riêng. Overlay dùng mã trần cho
+     mã trùng thì bị bỏ qua — thẻ in chữ gốc của sổ, script báo trên stderr.
+     Khuôn MỘT phần tử (máy đọc — lưới DK11 rút đúng khối này, điền `<key>` bằng
+     trường `key` của extract và `<câu>` bằng câu sản phẩm):
+
+     <!-- <<<DEC-PLAIN-ITEM-TEMPLATE
+     {"id":"<key>","p":"<câu>"}
+     DEC-PLAIN-ITEM-TEMPLATE>>> -->
    Write it to `_acceptance/<slug>/card-plain.json`.
 
 5. **Render** + present:

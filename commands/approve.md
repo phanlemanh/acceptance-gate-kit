@@ -106,8 +106,10 @@ Steps:
      wrote, unless the human named a different date on the confirm line —
      a date the human states there WINS and is what gets written.
    - If `_acceptance/<slug>/decisions.jsonl` exists (feature-loop), append the
-     seal entry `{"id":"d-<next>","type":"seal","gate":1,"at":"<ISO>"}` in the
-     same write-batch as `approved_by`.
+     seal entry `{"id":"d-<UTC>-<n>","type":"seal","gate":1,"at":"<ISO>"}` in the
+     same write-batch as `approved_by` — id from the `DEC-ID-RECIPE` block of the
+     feature-loop SKILL (`<n>` = the new line's number in the ledger; expand it
+     afresh per appended line, never reuse one id variable for several lines).
    - Regenerate the product map — but FIRST check the repo opted in: read
      `risk_tiers.t1_skip_globs` in `_acceptance/config.yaml`. If `PRODUCT-MAP.md`
      is NOT listed, this repo was initialised before acceptance-gate 1.31.0 —
