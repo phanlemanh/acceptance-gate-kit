@@ -5,7 +5,9 @@ slug: ghim-lai-tren-lop-cu
 owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/repin-lane.mjs + tests/scripts/ + _acceptance/config.yaml — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs
 surfaces: [cli]
-status: draft
+status: approved
+veto_state: mo
+veto_opened_at: 2026-09-11T16:06:06Z
 approved_by:
 approved_at:
 design_doc: docs/superpowers/specs/2026-09-11-ghim-lai-tren-lop-cu-design.md
