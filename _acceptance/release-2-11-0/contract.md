@@ -5,7 +5,7 @@ slug: release-2-11-0
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs (t3_paths). Làn V là T2-only nên hồ sơ này LUÔN cần approved_by — cùng đường 2.10.0 đã đi
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: docs/superpowers/specs/2026-09-10-release-2-11-0-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-10T14:37:16Z
@@ -295,7 +295,7 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
 | Vòng | làm-xong → quyết-được | lượt chấm | lượt gọi người (thiết kế / ngoài) | bị hạ tầng đốt |
 |---|---|---|---|---|
 | `eval-khai-ma-thoat-mong-doi` (#165) | **184′ (3h04)** | **1** | **4 / 0** | **0** |
-| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | **3** | **4 / 1** | **3** |
+| hồ sơ mốc `release-2-11-0` | điền ở làn ghim lại | **6** | **7 / 1** | **5** |
 
 - **Dòng 1 — làm-xong→quyết-được: 184′ trên vòng duy nhất của cửa sổ.** `implemented` ở
   `8f6a6bac` (10/09 14:58:38 +07) → `signed-off` ở `befa12ee` (18:02:32 +07). So mốc
@@ -339,6 +339,21 @@ trên chính kho này. Cách đếm ở đây: đọc `status:` trong FRONTMATTE
   **Đây là mốc thứ BA liên tiếp lớp tool-kill đốt lượt chấm** (2.10.0: 2/3 lượt của hồ sơ
   mốc; mốc này 2/3). `TOOL-KILL-RULE` là lời dặn trong prompt, không có răng: engine cố ý không grep nội
   dung output, và không có phép đo nào bắt agent khai sai. Xem nhát cắt.
+
+- **Cập nhật tới lời mời Cổng Bằng chứng lượt 6 (11/09) — bảng trên đã sửa theo.** Các
+  đoạn phía trên viết ở lượt 2 và giữ nguyên làm sử liệu; số đúng là số trong bảng.
+  - **Lượt chấm 6**, đọc từ `run-log.jsonl` (các dòng `kind:"round-tally"` r1–r6: REJECT ·
+    REJECT · REJECT · PENDING-JUDGMENT · REJECT · PENDING-JUDGMENT). Trần 3; lượt 4, 5, 6
+    đều mở bằng chữ của owner, không lượt nào máy tự đi.
+  - **Gọi người 7 trong thiết kế + 1 ngoài = 8**, chạm = 1 mỗi lượt: Cổng Phạm vi · Gate
+    1.5 · STOP-PATCHING · escalate hết trần (→ lượt 4) · Cổng Bằng chứng lượt 4 (→ «Lượt 5
+    hẹp») · escalate sau REJECT lượt 5 (→ «Lượt 6 hẹp nhất») · Cổng Bằng chứng lượt 6
+    *(thiết kế)* + «nâng phạm vi và tiếp tục» *(ngoài)*. Trần T3 là 4.
+  - **Hạ tầng đốt 5 sự kiện:** 1 dispatch BLOCKED `(args)` + **4 lần tool-kill ở E8c** —
+    `run-log.jsonl` ghi E8c `exit_code: 1` ở lượt 1, 2, 3, 5, và mỗi lần chạy lại cùng lệnh
+    tại chỗ đều exit 0. Lượt 6 bọc `executors.test.plugins` (pipefail + lọc + tail) và E8c
+    xanh ngay lượt đầu dùng lệnh bọc. Đó là răng TẠM ở một khoá, không phải răng của
+    `TOOL-KILL-RULE` — nhát cắt thứ nhất vẫn đứng nguyên.
 
 ### Lớp vendored — repo tiêu thụ PHẢI chép lại
 
