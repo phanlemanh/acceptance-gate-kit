@@ -16,7 +16,7 @@
 # ghim lại được.
 #
 #   3  không tìm được lần CẮT SỐ nào                 → không có nền để so
-#   4  mốc chọn ra không phải một lần cắt số         → phép chọn mốc hỏng
+#   4  cửa sổ mốc..HEAD RỖNG (mốc trùng HEAD)        → kết luận là hằng đúng
 #   5  diagram-design/ CÓ đổi sau lần cắt số gần nhất → số đang nói dối
 #   6  không đọc được số tại HEAD (vật không còn)  → không có vật để đo
 #   0  xanh
@@ -64,14 +64,21 @@ if [ -z "$NEO" ]; then
   exit 3
 fi
 
-# Chân 2 — ĐỐI CHỨNG DƯƠNG phải KHẲNG ĐỊNH ĐƯỢC SAI. Bản trước kiểm «mốc có
-# chạm diagram-design/ không», mà mốc vốn được CHỌN theo một đường dẫn nằm
-# trong diagram-design/ nên nó đúng theo CẤU TẠO — không đối chứng gì cả (lượt
-# chấm 2 gọi tên). Nay kiểm điều thật sự có thể sai: số tại mốc phải KHÁC số tại
-# cha nó (hoặc mốc là commit gốc).
-CHA="$(G rev-parse -q --verify "${NEO}^" 2>/dev/null || true)"
-if [ -n "$CHA" ] && [ "$(ver_tai "$NEO")" = "$(ver_tai "$CHA")" ]; then
-  echo "DO: moc ${NEO} KHONG phai mot lan cat so (so tai moc = so tai cha = $(ver_tai "$NEO")) — phep chon moc hong" >&2
+# Chân 2 — ĐỐI CHỨNG DƯƠNG, phải KHẲNG ĐỊNH ĐƯỢC SAI.
+#
+# Hai bản trước đều hỏng CÙNG một kiểu và lượt chấm 2 rồi lượt 3 lần lượt gọi
+# tên: chân kiểm một điều ĐÚNG THEO CẤU TẠO nên không bao giờ nổ được.
+#   bản 1: «mốc có chạm diagram-design/ không» — mốc vốn được CHỌN theo một
+#          đường dẫn nằm trong diagram-design/.
+#   bản 2: «số tại mốc khác số tại cha» — vòng lặp CHỌN mốc chính vì điều đó.
+#
+# Điều thật sự có thể sai, và làm kết luận ở chân 3 hoá vô nghĩa khi nó sai:
+# **cửa sổ mốc..HEAD phải KHÔNG RỖNG**. Nếu mốc TRÙNG HEAD (vừa cắt số
+# diagram-design xong, hoặc kho squash một commit) thì `diff` rỗng với MỌI
+# đường dẫn — «diagram-design không đổi» lúc đó là hằng đúng, không phải một
+# phép đo. Chân này nổ thật: nó đỏ ngay sau mỗi lần diagram-design lên số.
+if ! G diff --name-only "${NEO}..HEAD" 2>/dev/null | grep -q .; then
+  echo "DO: cua so ${NEO}..HEAD RONG (moc trung HEAD) — ket luan «khong doi» la hang dung, khong phai phep do" >&2
   exit 4
 fi
 
@@ -84,4 +91,4 @@ if [ -n "$DOI" ]; then
 fi
 
 SO="$SO_HEAD"
-echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} (doi chung duong: so tai moc KHAC so tai cha)"
+echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} (doi chung duong: cua so moc..HEAD KHONG rong)"
