@@ -17,6 +17,17 @@
 - Khuôn `DEC-PLAIN-ITEM-TEMPLATE` nói đúng rằng trường `id` của overlay mang giá trị `key` (DK11).
 - Danh sách đóng `CARD-PLAIN-KEYS` không đổi (chỉ thêm trường lồng `key`), P147 xanh; `lop-nhin-thay.test.mjs` và `gate-card-lmcms.test.mjs` xanh trọn.
 
+## Vòng 2 (reviewer tươi trên diff `f150bcd8..4defd90d`)
+
+Sạch — 0 finding trong hợp đồng, 0 finding ngoài hợp đồng. Finding vòng 1 đã sửa trọn:
+- Tái lập khuôn cũ (JSON trong nháy đơn) với câu có dấu nháy đơn → shell lỗi trích dẫn, không ghi dòng nào.
+- Khuôn mới rút sống từ SKILL, chạy dưới bash và zsh: sổ chưa có, sổ đã có (ghi lần hai, lần ba), câu có nháy
+  đơn, câu có chữ JSON giữa câu, câu có `%` `$HOME` backtick `\"` → mọi dòng là JSON hợp lệ, chữ giữ nguyên văn,
+  mã tăng -1/-2/-3.
+- Văn SKILL («chỉ `"` và `\` phải escape theo JSON, phần JSON nằm trên MỘT dòng») nay đúng.
+- DK13 là ca canh lớp lỗi này (khuôn cũ làm nó đỏ ồn, không xanh lặng); DK07/DK08 vẫn đo tính duy nhất trên
+  khối ba dòng thật. approve.md/signoff.md không đổi và vẫn đọc đúng giao diện của khối (DK10 xanh).
+
 ## Ghi chú reviewer — không tính là finding
 
 - Dòng tóm tắt «Seal» trong SKILL feature-loop (không đổi trong diff) còn viết `{"id":"d-...",...}` thay vì trỏ khối `DEC-ID-RECIPE` — reviewer ghi «vô hại về chữ, không phải lỗi»; AC-8 chỉ đòi approve.md/signoff.md.

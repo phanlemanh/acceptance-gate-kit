@@ -5,7 +5,7 @@ slug: ma-so-quyet-dinh-duy-nhat
 owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/gate-card.js + SKILL feature-loop + 3 commands + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
-status: implemented
+status: machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
@@ -54,5 +54,5 @@ Source input: prompt của owner 11/09/2026 (hội thoại) · PR https://github
 
 ## Notes
 
-- Ca đo: `tests/scripts/gate-card-dec-key.test.mjs` (DK01–DK12), suite scripts tự chạy qua glob `*.test.mjs`.
+- Ca đo: `tests/scripts/gate-card-dec-key.test.mjs` (DK01–DK13; DK13 thêm ở S4 vòng 1 cho câu thật có dấu nháy đơn), suite scripts tự chạy qua glob `*.test.mjs`.
 - Kiểm chỉ-đọc trên sổ thật release-2-11-0 lúc làm: 35 khoá phân biệt, các dòng Treo đều khác nhau.
