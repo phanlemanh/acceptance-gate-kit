@@ -20,3 +20,4 @@ _acceptance/*/evidence-page.html
 
 # Fixture gap-probe sinh ra lúc chạy test — không thuộc git (xem run-tests.sh).
 tests/hooks/fixtures/gapprobe/
+s4-args.json

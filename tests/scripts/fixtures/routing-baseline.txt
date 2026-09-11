@@ -88,3 +88,4 @@ glob-hai-sao-khop-goc-kho	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Tr
 gom-duc-ket-2-10-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|ký hay trả	bao=cắt/hoãn|Treo
 release-2-10-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
 eval-khai-ma-thoat-mong-doi	hoi=ký hay trả	bao=cắt/hoãn|Treo
+release-2-11-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|ký hay trả	bao=cắt/hoãn|Treo

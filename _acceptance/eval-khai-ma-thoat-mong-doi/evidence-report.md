@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b5c11c5f1ef1095de7a31262af03baec12fc7232
+verified_commit: 45e5f1d860b895752cfa79e79c9ea5fc85b3a786
 human_signoff: Manh Phan 2026-09-10
 ---
 
@@ -205,3 +205,7 @@ quay lại triển khai.
 ### Re-pin lần 1 — 2026-09-10, do gộp main mang mốc 2.10.0
 run_id: repin-20260910T113714Z-18221
 sha: b5c11c5f1ef1095de7a31262af03baec12fc7232 · suites: 5 lệnh exit 0 · evals: 13/13 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-11, do chiến dịch mốc 2.11.0 — cửa sổ 04069351..45e5f1d8 chạm lib/evidence-core, s4-args, carry-plan
+run_id: repin-20260911T072336Z-19689
+sha: 45e5f1d860b895752cfa79e79c9ea5fc85b3a786 · suites: 5 lệnh exit 0 · evals: 13/13 eval máy đạt kỳ vọng
