@@ -245,6 +245,21 @@ executors:
     gllc_nguon_cache: GLLC_CASES=GL06 node tests/scripts/repin-lane-lop-cu.test.mjs
     gllc_loi_di_tiep: GLLC_CASES=GL07 node tests/scripts/repin-lane-lop-cu.test.mjs
     gllc_bo_loc_rong: GLLC_CASES=GL08 node tests/scripts/repin-lane-lop-cu.test.mjs
+    # --- cua-veto-sau-chu-ky (11/09, T3) --- moi eval = MOT chan cua rang ho so (rang.sh viet o S3).
+    # Lenh de TRAN (khong nhay), cung ly do khoi emmd_* o tren. Cung nep khong-vao-suite-vinh-vien;
+    # luoi thuong truc cua luat la ca tests/scripts/cua-veto-sau-chu-ky.test.mjs (cvsck_ca_thuong_truc).
+    cvsck_note_da_ky: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan note-da-ky
+    cvsck_that_con_mo: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan that-con-mo
+    cvsck_dong_tong: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan dong-tong
+    cvsck_giu_cho: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan giu-cho
+    cvsck_nhan_khong_dong: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan nhan-khong-dong
+    cvsck_dang_thuc: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan dang-thuc
+    cvsck_khong_noi: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan khong-noi
+    cvsck_luat_lan_can: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan luat-lan-can
+    cvsck_dv5: node tests/scripts/additive-only.test.mjs
+    cvsck_cay_that: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan cay-that
+    cvsck_van_ban: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan van-ban
+    cvsck_ca_thuong_truc: node tests/scripts/cua-veto-sau-chu-ky.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

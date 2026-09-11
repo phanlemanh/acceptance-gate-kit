@@ -1,0 +1,226 @@
+# Eval cho hồ sơ cua-veto-sau-chu-ky (T3).
+#
+# Một răng hồ sơ `rang.sh` (viết ở S3) với một chân cho mỗi AC máy. Mỗi chân:
+#   - dựng kho git fixture CODE-SINH trong chính lượt chạy — chép TRỌN thư mục
+#     scripts + lib của cây đang kiểm (đường dẫn suy từ vị trí script, nếp
+#     pm_fixture của _acceptance/veto-co-dau-vet/rang-veto.sh);
+#   - rút evidence-report.md từ khuôn bên VIẾT (evidence-report-template.md qua
+#     tests/fixtures/from-template.mjs), không gõ tay theo khuôn bên đọc;
+#   - chạy CHÍNH scripts/pre-merge-check.sh và scripts/start-scan.mjs;
+#   - mang cặp hai chiều: bản lành XANH trước, rồi tiêm vào BẢN SAO và đòi ĐỎ
+#     với THÔNG ĐIỆP GHIM.
+# Cùng nếp không-vào-suite-vĩnh-viễn với các bộ răng hồ sơ khác. Lưới thường trực
+# của luật là ca tests/scripts/cua-veto-sau-chu-ky.test.mjs (AC-12, E12).
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.cvsck_note_da_ky
+    expected: >-
+      Hồ sơ làn V đã ký thì lưới nói «đã đóng», không nói «mở».
+      Fixture code-sinh: một hồ sơ T2 có approved_by rỗng, veto_state mo,
+      veto_opened_at parse được, evidence xanh-sạch, human_signoff «Manh Phan
+      2026-09-11».
+      Đối chứng dương: đúng MỘT dòng NOTE [s] chứa «cửa veto đã đóng bằng chữ ký»;
+      0 dòng chứa «cửa veto mở» cho [s]; s không có trong dòng «cửa veto đang mở».
+      Chiều đỏ CÙNG fixture: bản sao lưới gỡ nhánh mới → câu «cửa veto mở» quay
+      lại → chân ĐỎ, thông điệp ghim «chữ ký không đóng cửa».
+    paths:
+      - "scripts/pre-merge-check.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.cvsck_that_con_mo
+    expected: >-
+      Trường hợp THẬT phải còn nguyên. Cùng fixture E1 nhưng human_signoff rỗng.
+      Đối chứng dương: dòng «NOTE [s]: làn V — máy đi trước, Cổng 1 không có chữ
+      duyệt; cửa veto mở» in NGUYÊN VĂN, và s có tên trong dòng «cửa veto đang mở».
+      Cặp cùng fixture: chỉ điền chữ ký → cả hai dòng đổi theo E1 (chứng phép so
+      phân biệt được hai ô, không hằng-đúng).
+      Chiều đỏ: bản sao coi mọi mo là đã đóng → s biến khỏi dòng tổng → chân ĐỎ,
+      thông điệp ghim «cửa thật bị giấu».
+    paths:
+      - "scripts/pre-merge-check.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.cvsck_dong_tong
+    expected: >-
+      Dòng tổng chỉ đếm cửa mở thật. Fixture: hai hồ sơ mo có approved_by có tên,
+      một đã ký, một chưa; cộng một hồ sơ làn V đã ký.
+      Đối chứng dương: dòng tổng liệt ĐÚNG một tên (hồ sơ chưa ký), và số N trong
+      câu BẰNG số tên liệt (ca tự đếm, lệch thì ĐỎ «N lệch số tên»).
+      Ca im: ký nốt hồ sơ còn lại → lưới KHÔNG in dòng «cửa veto đang mở» nào.
+      Chiều đỏ: bản sao khôi phục đếm mọi mo → dòng tổng liệt ba tên → chân ĐỎ,
+      thông điệp ghim «dòng tổng đếm hồ sơ đã ký».
+    paths:
+      - "scripts/pre-merge-check.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.cvsck_giu_cho
+    expected: >-
+      Chữ ký giữ-chỗ không đóng cửa. Ma trận TOÀN PHẦN các mẫu trong bảng
+      placeholder_signoff (RÚT từ chính hàm trong lưới lúc chạy, không gõ tay danh
+      sách) × hồ sơ mo; số assert BẰNG số mẫu rút được, sàn ≥ 3.
+      Mỗi mẫu: s có tên trong dòng tổng, không có câu «đã đóng», và VIOLATION
+      giữ-chỗ («is a placeholder, not a signature») vẫn in.
+      Đối chứng dương cùng fixture: chữ ký thật → cửa đóng (không kêu giữ-chỗ).
+      Chiều đỏ: bản sao đổi phép thử thành «chuỗi không rỗng» → chân ĐỎ, thông điệp
+      ghim «giữ-chỗ đóng cửa».
+    paths:
+      - "scripts/pre-merge-check.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.cvsck_nhan_khong_dong
+    expected: >-
+      Nhãn status không đóng cửa. Fixture: hồ sơ mo, status signed-off, (i)
+      human_signoff rỗng, (ii) KHÔNG có evidence-report.md.
+      Đối chứng dương: cả hai ô vẫn có tên ở dòng tổng của lưới VÀ có
+      humanSignoff: false trong vetoOpen của máy quét.
+      Cặp: điền chữ ký thật vào ô (i) → cả hai bộ đọc chuyển sang đã đóng.
+      Chiều đỏ: bản sao (lưới hoặc máy quét) coi status signed-off là đã ký → chân
+      ĐỎ, thông điệp ghim «nhãn status đóng cửa» kèm tên bộ đọc.
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "scripts/start-scan.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.cvsck_dang_thuc
+    expected: >-
+      Hai bộ đọc nói cùng một vị từ, đo QUAN HỆ trên CÙNG một kho git.
+      Ma trận viết TRƯỚC: veto (vắng · mo · da-veto) × chữ ký (thật · giữ-chỗ ·
+      rỗng · báo cáo vắng) × Cổng 1 (có tên · rỗng) = 24 hồ sơ, ca tự đếm và ĐỎ
+      «số ô lệch» nếu khác 24.
+      (a) mọi phần tử vetoOpen có khoá humanSignoff kiểu boolean; tập phần tử
+      vetoOpen BẰNG tập grep veto_state mo (lời hứa cũ giữ nguyên);
+      (b) tập vetoOpen lọc humanSignoff false BẰNG tập tên dòng «cửa veto đang mở»;
+      (c) thêm một hồ sơ mo chưa ký → hai tập cùng +1; thêm một hồ sơ mo đã ký →
+      hai tập cùng +0.
+      Chiều đỏ: hai bản sao, mỗi bản đột biến vị từ ở MỘT bên → đẳng thức vỡ,
+      thông điệp ghim «lệch ở <lưới|máy quét>»; hai bản phải cho hai thông điệp
+      KHÁC nhau.
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "scripts/start-scan.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.cvsck_khong_noi
+    expected: >-
+      Chỉ đổi LỜI, không đổi CHẶN. Bản base = git archive trọn scripts + lib ở
+      origin/main lúc chạy (sha suy từ git, không hardcode; KHÔNG chép danh sách
+      file tay — bài học P150). Chạy base và bản sau sửa trên TỪNG ô của ma trận E6.
+      Đối chứng dương: mọi ô cùng mã thoát và cùng tập dòng VIOLATION; ít nhất một
+      ô KHÁC ở dòng NOTE (chứng hai bản thật sự khác nhau, không so một bản với
+      chính nó).
+      Chiều đỏ: bản sao cho nhánh đã-ký gọi continue trước các chốt bằng chứng →
+      ≥1 ô đổi mã thoát → chân ĐỎ, thông điệp ghim «bản sửa đổi luật chặn» kèm tên ô.
+    paths:
+      - "scripts/pre-merge-check.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.cvsck_luat_lan_can
+    expected: >-
+      Năm luật lân cận vẫn nổ trên hồ sơ ĐÃ KÝ, mỗi luật một fixture code-sinh, mỗi
+      assert ghim đúng chuỗi VIOLATION của luật đó: «veto_state=da-veto chưa xử» ·
+      «da-veto -> mo mà KHÔNG có entry sổ» · «khoá veto_state biến mất» · «làn V chỉ
+      T2» · «veto_opened_at». Số assert = 5, ca tự đếm.
+      Đối chứng dương: cùng năm fixture mà gỡ lỗi (sổ có entry, hạng T2, vết giờ
+      đúng…) → không VIOLATION nào của năm luật đó.
+      Chiều đỏ: bản sao cho chữ ký thật đi tắt qua khối veto → ≥1 luật thôi nổ →
+      chân ĐỎ, thông điệp ghim «chữ ký mở đường vòng» kèm tên luật.
+    paths:
+      - "scripts/pre-merge-check.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.cvsck_dv5
+    expected: >-
+      DV5 xanh trên cây sau hồ sơ: diff pre-merge-check.sh + recheck-evidence.cjs so
+      với base CHỈ thêm, mọi dòng gỡ liệt đích danh trong ALLOWED_REMOVALS. Chiều đỏ
+      nằm trong chính ca: răng (c) của DV5 sửa một luật cũ trong bản sao và đòi ĐỎ
+      đích danh — exit 0 của ca này chỉ tin khi dòng của răng (c) có trong output.
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "tests/scripts/additive-only.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.cvsck_cay_that
+    expected: >-
+      Cây thật của kit. Tập kỳ vọng tính bằng một bộ đọc frontmatter ĐỘC LẬP (node
+      đọc veto_state của contract + human_signoff của evidence-report, không gọi
+      lưới hay máy quét), cộng bảng giữ-chỗ rút từ lưới.
+      Đối chứng dương: tập tên dòng «cửa veto đang mở» BẰNG tập kỳ vọng; giao với
+      tập đã-ký thật RỖNG; 0 dòng NOTE «cửa veto mở» cho hồ sơ đã ký. Sàn: tập kỳ
+      vọng ≥1 và tập đã-ký ≥1 — không ghim tên, không ghim số.
+      Chiều đỏ: chạy CÙNG phép so bằng lưới base (git archive trọn scripts + lib ở
+      origin/main) trên cây thật → giao với tập đã-ký KHÁC rỗng → chân ghi vết đỏ
+      «bản cũ liệt <n> hồ sơ đã ký» (bằng chứng phép so bắt được bản cũ).
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "scripts/start-scan.mjs"
+      - "_acceptance"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.cvsck_van_ban
+    expected: >-
+      Văn bản đi cùng vật. Đọc cây thật:
+      (a) commands/start.md và commands/acceptance-status.md dặn chỉ in «Còn veto
+      được» cho phần tử humanSignoff false;
+      (b) khối START-SCAN-KEYS khai vetoOpen[].humanSignoff VÀ ca P99 của suite
+      plugins xanh — chạy riêng khối đó (ONLY_BLOCK=P99), ghim dòng «PASS: P99»;
+      (c) CONTEXT.md mang luật «chữ ký Cổng Bằng chứng đóng cửa veto» kèm _Avoid_.
+      Chiều đỏ: bản sao gỡ từng vật (a)(b)(c) → ĐỎ gọi tên đúng vật bị gỡ, ba thông
+      điệp khác nhau. Giới hạn đã khai: (a) đo CHỈ DẪN, không đo thẻ render.
+    paths:
+      - "commands/start.md"
+      - "commands/acceptance-status.md"
+      - "CONTEXT.md"
+      - "scripts/start-scan.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.cvsck_ca_thuong_truc
+    expected: >-
+      Ca thường trực tests/scripts/cua-veto-sau-chu-ky.test.mjs chạy độc lập exit 0,
+      in dòng PASS cho ba ca (đã-ký-đóng · thật-còn-mở · đẳng-thức) và dòng chiều đỏ
+      tự chạy trên bản sao. Sàn đếm: 0 assert → exit khác 0.
+      Thêm: tests/scripts/run-tests.sh THẬT SỰ gọi file đó — đo bằng cách chạy
+      suite scripts và ghim tên ca trong output, không grep file hướng dẫn.
+      Chiều đỏ: bản sao lưới gỡ nhánh mới → ca thường trực exit khác 0, thông điệp
+      ghim «chữ ký không đóng cửa».
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "scripts/start-scan.mjs"
+      - "tests/scripts/cua-veto-sau-chu-ky.test.mjs"
+      - "tests/scripts/run-tests.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
