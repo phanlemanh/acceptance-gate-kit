@@ -170,7 +170,7 @@ function bg3() {
 // Ba hình dạng lấy NGUYÊN VĂN từ bán kính đo trên cây thật của kho tiêu thụ
 // (crm `steps`, artifact-platform `paths`, artifact-platform `config.yaml`) —
 // hình dạng là HÀNG THẬT, không phải hàng dựng cho vừa bên đọc.
-const BG4_ASSERTS = 13;
+const BG4_ASSERTS = 14;
 const CRM_STEP = 'Khang dinh <html lang=\\"vi\\"> trong HTML may chu tra ve';
 const AP_PATH = 'evidence-report.md §"E7 — render thật"';
 const AP_CMD = `bash -c 'for s in PICKER WARN BLOCK; do npx tsx uicheck.ts "$s" http://localhost:3001 || exit 1; done'`;
@@ -221,7 +221,9 @@ function bg4() {
     // `"haiku"` là vỏ kép CÂN không escape — mệnh đề CŨ xử y hệt unquoteScalar,
     // nên ô này TRƠ (lượt chấm 1 chứng: hoàn nguyên s4-args vẫn xanh 13/13).
     // Đổi sang vỏ kép CÓ ESCAPE để ô mang tín hiệu thật (AC-12).
-    fs.writeFileSync(cfgP, fs.readFileSync(cfgP, 'utf8') + '  models:\n    executor: "hai\\"ku"\n');
+    // Khoá thứ hai: giá trị CÓ KHOẢNG TRẮNG rồi chú thích. Lượt chấm 4 bắt: vòng
+    // models bắt `(\S+)` nên `"sonnet 4.6"` bị cắt thành `"sonnet` còn nháy MỞ.
+    fs.writeFileSync(cfgP, fs.readFileSync(cfgP, 'utf8') + '  models:\n    executor: "hai\\"ku"\n    critic: "sonnet 4.6"   # ghi chu\n');
     execFileSync('git', ['-C', ws.dir, 'add', '-A'], { stdio: 'ignore' });
     execFileSync('git', ['-C', ws.dir, '-c', 'user.name=Ca Do', '-c', 'user.email=ca@do', 'commit', '-qm', 'models'], { stdio: 'ignore' });
     const r = chayS4Args(ws);
@@ -241,6 +243,7 @@ function bg4() {
     // nhất lớp, cố ý KHÔNG đổi hành vi đường này.
     ket.push(['6 s4-args id (luoi hoi quy)', e2.id, 'E2']);
     ket.push(['7 s4-args models', (r.args.models || {}).executor, 'hai"ku']);
+    ket.push(['7 s4-args models co khoang trang', (r.args.models || {}).critic, 'sonnet 4.6']);
   }
   if (ket.length !== BG4_ASSERTS) { do_('BG4', `so khang dinh ${ket.length} != BG4_ASSERTS ${BG4_ASSERTS} khai truoc`); return; }
   let hong = 0;
@@ -317,7 +320,7 @@ function bg6() {
 // kèm dấu nháy MỞ, rồi `bash -c '"echo a'` thoát 2 — đúng chuỗi xanh-giả bốn
 // bước mà vòng này tồn tại để đóng, chỉ đổi nguồn gây nháy-không-cân từ NGƯỜI
 // VIẾT sang CHÍNH BỘ GIẢI. Mệnh đề cũ ít ra còn gỡ được ký tự thừa đó.
-const BG7_ASSERTS = 18;
+const BG7_ASSERTS = 20;
 function bg7() {
   const cfg = [
     'bg7:',
@@ -326,6 +329,7 @@ function bg7() {
     '  tran_co_thang: echo a # b',
     '  vo_kep_roi_chu_thich: "echo a"   # ghi chu that',
     '  vo_kep_co_escape_va_thang: "echo \\"a # b\\" done"',
+    '  chi_chu_thich:   # TODO dien lenh that',        // khoá chưa điền — lượt chấm 4 bắt
     '  inline: [plain, "a, b", z]',
     '  inline_thang: ["click #submit", "then b"]',   // hình dạng làm nổ lượt chấm 2
     '  hong_khong_dong: [x, y',                     // `[` không đóng — phải fail-CLOSED
@@ -368,6 +372,16 @@ function bg7() {
   }
   // Và hệ quả trên đường thật: nhánh khối có item là flow-sequence.
   ca.push(['khoi co item seq', JSON.stringify(core.resolveConfigList(cfg, 'bg7.khoi_co_seq')), JSON.stringify(['[a, b]', 'plain'])]);
+  // Giá trị CHỈ LÀ chú thích phải giải thành RỖNG. Lượt chấm 4 bắt: cổng chung
+  // `trim()` rồi mới đòi khoảng trắng trước `#`, nên trả nguyên chuỗi chú thích —
+  // truthy, qua lưới `if (!val) die`, và `bash -c '# TODO'` thoát 0 → PASS mà
+  // không chạy gì. Hai khẳng định: chuỗi ra, và HỆ QUẢ trên bên VIẾT thật.
+  ca.push(['chi chu thich -> rong', JSON.stringify(core.resolveConfigKey(cfg, 'bg7.chi_chu_thich')), 'null']);
+  {
+    const r = chayS4Args(dungKho({ cmdValue: '  # TODO dien lenh that', expectedExit: null }));
+    const thay = r.err && r.err.includes('ref không giải được') ? 'fail-CLOSED' : (r.err || `SINH TEP ARGS, cmd=${JSON.stringify(((r.args || {}).evals || [])[0] && r.args.evals[0].cmd)}`);
+    ca.push(['chi chu thich -> s4-args fail-CLOSED', thay, 'fail-CLOSED']);
+  }
   if (ca.length !== BG7_ASSERTS) { do_('BG7', `so khang dinh ${ca.length} != BG7_ASSERTS ${BG7_ASSERTS} khai truoc`); return; }
   let hong = 0;
   for (const [ten, thay, mong] of ca) {
@@ -475,7 +489,10 @@ const DUONG = [
 ];
 const MUT_ALL = DUONG.filter(d => d[3] !== null).map(d => [d[0], d[1], d[2], d[3], d[4]]);
 
-const BG8_MUTANTS = MUT_ALL.length;   // suy TỪ bảng, không gõ tay
+// GÕ TAY, không suy từ bảng. Lượt chấm 4 bắt: `MUT_ALL.length` suy TỪ chính
+// mảng thì phép so dưới là hằng-đúng — xoá một dòng `DUONG` làm ma trận co lại
+// LẶNG. Đổi bảng đường thì phải đổi số này cùng lượt, có chủ ý.
+const BG8_MUTANTS = 7;
 function bg8() {
   if (process.env.BG_NO_RED === '1') { xanh('BG8', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
   const MUT = MUT_ALL;

@@ -76,7 +76,8 @@ evals:
       (artifact-platform, `paths`), và khoá `uicheck_avatar_pool` (artifact-platform,
       `config.yaml`). Cộng hình dạng **kết thúc bằng nháy mà KHÔNG phải vỏ** chạy trên CẢ
       hai nhánh list của `s4-args` — hình dạng sinh ra chuỗi xanh-giả, N5 tự-soi bắt được
-      chỗ nó còn thiếu (11 → 13 khẳng định). Đường 6 (`id`) là LƯỚI HỒI QUY, không phải ca
+      chỗ nó còn thiếu (11 → 13 khẳng định). Lượt 5 thêm `models` CÓ KHOẢNG TRẮNG
+      (`"sonnet 4.6"   # ghi chu`) — lượt chấm 4 bắt vòng models cắt ở `(\S+)` (13 → 14). Đường 6 (`id`) là LƯỚI HỒI QUY, không phải ca
       phân biệt: id bọc nháy hỏng ở tầng khác, xem Out of scope.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4b
@@ -250,5 +251,6 @@ evals:
       đường, bỏ dòng chú thích) thay vì đếm văn bản nguồn, nên một chuỗi thông điệp cho
       người không còn được tính là một lời gọi. Ba chân BG5/BG6/BG8 đọc CÙNG một bảng
       `DUONG` chín dòng — trước đó mỗi chân giữ một bản và chúng trôi khỏi nhau HAI lần
-      trong chính vòng này; `BG8_MUTANTS` suy TỪ bảng, không gõ tay.
+      trong chính vòng này; `BG8_MUTANTS` là hằng GÕ TAY (= 7) — lượt chấm 4 bắt bản suy-từ-bảng
+      là hằng-đúng: xoá một dòng `DUONG` thì ma trận co lại LẶNG mà phép so vẫn qua.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

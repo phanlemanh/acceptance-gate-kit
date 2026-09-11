@@ -216,7 +216,7 @@ const models = (() => {
     if (indent === 0) { inFl = line.trim() === 'feature_loop:'; inModels = false; continue; }
     if (!inFl) continue;
     if (indent === 2) { inModels = line.trim() === 'models:'; continue; }
-    if (inModels && indent >= 4) { const m = line.trim().match(/^([\w-]+):\s*(\S+)/); if (m) out[m[1]] = parseFlowValue(m[2]).value; }
+    if (inModels && indent >= 4) { const m = line.trim().match(/^([\w-]+):\s*(.*)$/); if (m) out[m[1]] = parseFlowValue(m[2]).value; }   // `(.*)$` cả phần còn lại — `(\S+)` cắt `"sonnet 4.6"` thành `"sonnet` còn nháy MỞ; cắt chú thích là việc của cổng chung
   }
   return Object.keys(out).length ? out : null;
 })();

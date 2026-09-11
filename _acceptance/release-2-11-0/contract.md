@@ -5,7 +5,7 @@ slug: release-2-11-0
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs (t3_paths). Làn V là T2-only nên hồ sơ này LUÔN cần approved_by — cùng đường 2.10.0 đã đi
 surfaces: [cli]
-status: verified
+status: implemented
 design_doc: docs/superpowers/specs/2026-09-10-release-2-11-0-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-10T14:37:16Z
@@ -109,6 +109,15 @@ dòng. Kit đã giải lớp này MỘT LẦN rồi không lan sang bộ đọc 
 đậm nhất của mục «lớp lỗi TÁI PHÁT» dưới đây, và là lý do bản vá lần này đi bằng MỘT hàm
 dùng chung thay vì lại sửa một chỗ.
 
+> **Mở rộng lượt 5 (owner chọn 11/09 tại Cổng Bằng chứng, «Lượt 5 hẹp»).** Hai hình dạng
+> lọt qua lượt 4 được nâng vào AC này. (a) Giá trị **CHỈ LÀ chú thích** (`khoa:   # TODO`)
+> phải giải thành RỖNG: `resolveConfigKey` trả `null` và `s4-args` fail-CLOSED gọi tên ref.
+> Trước lượt 5, `stripYamlComment` `trim()` rồi mới đòi khoảng trắng trước `#`, nên trả
+> chuỗi chú thích; `bash -c '# TODO'` thoát 0 và eval ghi PASS mà không chạy gì — xanh-giả
+> ngay BÊN TRONG cổng chung. (b) Đường 7 (`models`) giữ nguyên giá trị có khoảng trắng
+> (`"sonnet 4.6"`), không cắt ở khoảng trắng đầu tiên. Răng: BG7 thêm hai khẳng định
+> (18 → 20, một trên chuỗi ra, một trên HỆ QUẢ ở `s4-args`), BG4 thêm một (13 → 14).
+
 ### AC-5 (chiều đỏ) — tiêm lại mệnh đề cũ vào bản sao TRỌN CÂY làm phép đo ĐỎ đích danh
 
 **Given** một bản sao trọn cây dựng bằng `git archive HEAD`
@@ -125,6 +134,12 @@ băm không đổi thì chiều đỏ vô nghĩa và phép đo phải tự tố 
 trong GUIDE **dẫn xuất** từ manifest; mô tả `acceptance-gate` có mục `v2.11.0` nói người
 dùng nhận gì; mục `v2.11.0` của `feature-loop` **tự khai cặp** `acceptance-gate >= 2.11.0`
 bên trong chính mục đó.
+
+> **Mở rộng lượt 5 (cùng quyết định với AC-4).** Mục `v2.11.0` của cả hai manifest phải
+> khai **đúng cơ chế đang ship** — cổng tách token `parseFlowValue` trên chín đường, không
+> phải `unquoteScalar` đơn lẻ trên bảy — và **không mang con số dòng gõ tay**: số
+> `git diff --numstat` sống ở bảng vendored của hồ sơ này, đọc từ lệnh tại một sha có tên.
+> Vế này là VĂN, không phép đo máy nào chấm — cùng giới hạn đã khai cho AC-9.
 
 ### AC-7 (cắt số) — `diagram-design` giữ 2.7.0, có bằng chứng đo được KHÔNG fail-open
 
