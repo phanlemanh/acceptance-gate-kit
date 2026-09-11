@@ -120,7 +120,9 @@ function mkRepo() {
   for (const [slug, d] of Object.entries(dossiers)) {
     const ws = path.join(R, '_acceptance', slug);
     fs.mkdirSync(ws, { recursive: true });
-    fs.writeFileSync(path.join(ws, 'contract.md'), `---\nschema_version: 1\nfeature: ${slug}\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [cli]\nstatus: signed-off\napproved_by: Manh Phan\n---\n`);
+    // status của contract không được làn lẫn recheck đọc; để `implemented` như
+    // repin-fixture.mjs — tệp ca này không phải một bộ đọc trạng thái ký.
+    fs.writeFileSync(path.join(ws, 'contract.md'), `---\nschema_version: 1\nfeature: ${slug}\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [cli]\nstatus: implemented\napproved_by: Manh Phan\n---\n`);
     fs.writeFileSync(path.join(ws, 'evals.yaml'),
       `schema_version: 1\nslug: ${slug}\n\nevals:\n  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.${d.key}\n${d.code ? `    expected_exit: ${d.code}\n` : ''}    expected: >\n      E1 thoát ${d.code}.\n`);
   }
