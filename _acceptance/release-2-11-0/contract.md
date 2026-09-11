@@ -87,7 +87,7 @@ thêm 10/09 cùng lúc mở AC-10)
 | 6 | `s4-args` id của eval | id |
 | 7 | `s4-args` `models` | tên model |
 | 8 | `carry-plan.mjs` `paths:` | glob quyết eval nào được carry-forward (AC-10) |
-| 9 | `carry-plan.mjs` `cmd:` | chuỗi lệnh mang sang lượt sau (thêm 11/09 cùng đường A) |
+| 9 | `carry-plan.mjs` `cmd:` | chuỗi lệnh mang sang lượt sau (thêm 11/09 cùng đường A) — *chỉ đo bằng neo chỗ gọi, không ca hành vi: xem Known limits (lượt 6)* |
 
 **Và** tập hàm **CỐ Ý GIỮ** mệnh đề cũ là một danh sách đóng **năm** tên trong
 `lib/evidence-core.cjs` — `extractRunIds` · `extractEvalBlockRunIds` · `walkEvalExits` ·
@@ -180,6 +180,7 @@ sau khi ký, không sửa hồ sơ đã ký.
 khi lượt chấm 1 đo được hai bên bất đồng: `carry-plan` biến `paths` thành glob để quyết
 eval nào được **carry-forward**, nên một glob mang ký tự thừa không khớp file nào và eval
 được mang màu xanh cũ sang lượt mới dù file thật đã đổi — chiều **fail-open**.
+*(Lượt 6: vế «cùng một chuỗi» chỉ đo gián tiếp — xem Known limits. Vế fail-open có răng.)*
 
 ### AC-11 (mở 10/09) — răng của hồ sơ mốc phải SỐNG QUA chiến dịch ghim lại
 
@@ -446,3 +447,13 @@ verdict REJECT phải qua MỘT lượt chạy-lại-xác-nhận riêng cho các
 - **Thời gian làm-xong→quyết-được của CHÍNH mốc này** chỉ biết sau chữ ký, nên nó nằm
   ngoài AC-9 và được điền ở làn ghim lại sau khi ký — không phải một ô số hình thức, và
   không phải một lần chạm hồ sơ đã ký.
+- **Đường 9 của bảng AC-4 (`carry-plan` `cmd:`) KHÔNG có ca hành vi** (thu ở lượt 6, owner
+  chọn 11/09). Bằng chứng duy nhất là neo chỗ gọi của BG6 — phép có-mặt chuỗi nguồn — nên
+  hoàn nguyên đường này về mệnh đề cũ chỉ làm BG6 đỏ, BG4/BG7/BG9 vẫn xanh. Lượt chấm 4 và
+  5 đều gọi tên. Cố ý không dựng thêm răng trong mốc: STOP-PATCHING không cho mở lớp đo mới
+  ở lượt thứ sáu. Ngưỡng mở lại: ≥1 lần một `cmd:` bọc nháy mang sang lượt sau sai.
+- **AC-10 «hai bên trả CÙNG một chuỗi» chỉ đo GIÁN TIẾP** (thu cùng quyết định). BG9 chạy
+  MỘT phía (`carry-plan`) trên `src/§"E7 — render thật".js`; phía `s4-args` được đo ở BG4
+  trên một chuỗi KHÁC. Sự đồng ý suy bắc cầu qua hai đầu vào, không so trực tiếp trên cùng
+  dòng như lời hứa. Hệ quả fail-open mà AC-10 canh (glob không khớp → carry sai) VẪN có
+  răng: BG9 đỏ khi `carry-plan` mangle đường dẫn (BG8 chứng ô «8 carry-plan paths»).

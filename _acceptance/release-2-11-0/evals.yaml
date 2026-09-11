@@ -162,7 +162,7 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.test.plugins
-    expected: "suite plugins XANH (trọn suite — E6 đã khoanh riêng ca P200)"
+    expected: "suite plugins XANH (trọn suite — E6 đã khoanh riêng ca P200). Từ lượt 6 lệnh được bọc pipefail + lọc FAIL|^Results: + tail — mã thoát là của suite, đầu ra chỉ còn dòng FAIL (nếu có) và dòng Results"
     evidence_required: [run_id, exit_code, verifier, verified_at]
   - id: E8d
     criterion: AC-8

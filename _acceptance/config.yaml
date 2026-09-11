@@ -30,7 +30,11 @@ executors:
   test:
     scripts: "bash tests/scripts/run-tests.sh"
     hooks: "bash tests/hooks/run-tests.sh"
-    plugins: "bash tests/plugins/run-tests.sh"
+    # Bọc lượt 6 release-2-11-0 (owner chọn 11/09): suite plugins in ~70k ký tự và
+    # bốn trên năm lượt chấm của hồ sơ đó bị công cụ cắt output giữa chừng rồi agent
+    # khai exit 1 (tool-kill). pipefail GIỮ mã thoát của suite; lọc + tail chỉ để
+    # đầu ra lọt qua. Suite sập trước dòng «Results:» thì grep không khớp → vẫn ≠ 0.
+    plugins: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
     workflows: "bash tests/workflows/run-tests.sh"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
