@@ -1,0 +1,128 @@
+schema_version: 1
+feature_slug: ma-so-quyet-dinh-duy-nhat
+# Ca đo sống ở tests/scripts/gate-card-dec-key.test.mjs (suite scripts tự chạy qua glob *.test.mjs).
+# Fixture do code sinh; khoá rút từ marker DEC-PLAIN-KEY (gate-card.js), lệnh ghi rút từ marker
+# DEC-ID-RECIPE (SKILL feature-loop), khuôn overlay rút từ marker DEC-PLAIN-ITEM-TEMPLATE
+# (acceptance-card.md); chiều đỏ trên bản sao, thông điệp ghim. Mỗi eval ghim đúng dòng
+# "PASS: DKnn" trong stdout suite — suite xanh mà thiếu dòng ghim là eval ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DK07" — lệnh append rút NGUYÊN VĂN từ khối DEC-ID-RECIPE, chạy ba lần với
+      đồng hồ ghim cùng một giây, dưới bash VÀ zsh → ba mã d-20260910T121327Z-1/-2/-3, KHÔNG hai mã nào
+      trùng nhau (chiều không-được-nổ: lệnh nguyên vẹn không sinh cảnh báo trùng); và "PASS: DK08" —
+      chiều đỏ trên cùng lệnh: cắt phần đếm dòng → ba mã trùng, thông điệp ghim
+      "id trung: d-20260910T121327Z-0 d-20260910T121327Z-0 d-20260910T121327Z-0".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/gate-card.js, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DK01" — --extract: khoá Cổng 1 == [DUP#1, DUP#2, DUP#3, UNI] theo thứ tự
+      DÒNG SỔ (descope ở vị trí 2 hiển thị lên đầu mà vẫn mang #2); id gốc giữ nguyên; khoá Treo Cổng 2
+      == [DUP#1..#3]; khoá khối đã duyệt == [d-s-1]. Và "PASS: DK12" — mã trùng vắt qua dấu niêm Cổng 1:
+      khoá đã duyệt == [DUP#1, DUP#2], khoá Treo == [DUP#3]; bản sao đếm theo thứ tự khác thứ tự sổ
+      (Treo trước) ra đúng [DUP#2, DUP#3] cho khối đã duyệt → đỏ. So đẳng thức mảng, không phép chứa.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/gate-card.js, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DK02" và "PASS: DK04" — overlay SINH BẰNG CODE từ chính --extract
+      (round-trip bên viết → bên đọc), mỗi câu mang chữ của đúng dòng nó dịch: Cổng 1 ra đúng tập
+      {DICH KHONG lam B, DICH chon A, DICH chon C, DICH sua D}, không dòng nào lặp; Treo ra đúng
+      [DICH sua E, DICH sua F, DICH xem G] theo thứ tự Treo-1..3.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/gate-card.js, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DK03" và "PASS: DK05" — overlay cũ theo mã TRẦN: dòng mang mã trùng in
+      chữ gốc của sổ (ba dòng khác nhau), mã duy nhất vẫn dịch ("CAU CU"), câu "CAU TRAN" vắng hẳn khỏi
+      thẻ; stderr chứa nguyên văn thông điệp ghim «decisions_plain id "<DUP>" trùng 3 dòng trong sổ — bỏ
+      qua; dịch từng dòng bằng khoá <DUP>#1…#3 lấy từ --extract».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/gate-card.js, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DK06" — phá vật thật: trong bản sao trọn scripts/ + lib/, thay đúng MỘT
+      "x.id === decKey(e)" trong khối DEC-PLAIN-KEY bằng lối tra cũ "x.id === e.id" (bản sao phải khác
+      bản gốc); ĐỐI CHỨNG DƯƠNG trên cùng fixture đọc-cũ trước (bản thật: không dòng lặp), rồi bản đột
+      biến ra đúng thông điệp ghim 'dong trung: "CAU TRAN" x3' ở CẢ Cổng 1 lẫn Treo Cổng 2.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/gate-card.js, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DK09" — overlay sai dạng (phần tử null trong mảng; object thay mảng):
+      bản thật thoát 0 và in chữ gốc "chon A — i"; bản sao gỡ guard (khôi phục lối tra không kiểm mảng)
+      thoát khác 0 với TypeError trên stderr — cả hai dạng sai.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/gate-card.js, scripts/pre-merge-check.sh, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; dòng tổng kết "Results: <n> passed, 0 failed" — hồi quy suite scripts, gồm DV5
+      (pre-merge-check.sh chỉ thêm) và GPM12 (thông điệp gap-probe khớp bản chụp từng byte).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, commands/acceptance-card.md, feature-loop/skills/feature-loop/SKILL.md]
+    expected: >
+      exit 0; dòng "Results: all plugin tests passed" — gồm P147 (reader gate-card chỉ đọc key trong khuôn
+      CARD-PLAIN-KEYS, hai chiều) và các ca đọc SKILL feature-loop.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.hooks
+    paths: [scripts/gate-card.js]
+    expected: exit 0 — suite hooks hồi quy.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E10
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    paths: [feature-loop/skills/feature-loop/SKILL.md]
+    expected: exit 0 — suite workflows hồi quy.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E11
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [commands/approve.md, commands/signoff.md, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DK10" — approve.md và signoff.md đều chứa "DEC-ID-RECIPE" và KHÔNG chứa
+      dạng cũ nào trong [d-<next>, d-<UTC>-<rand>, $RANDOM]; chiều đỏ: bản sao approve.md đổi
+      "d-<UTC>-<n>" thành "d-<next>" → thông điệp ghim "approve.md: con dang ma cu d-<next>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [commands/acceptance-card.md, scripts/gate-card.js, tests/scripts/gate-card-dec-key.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DK11" — khuôn phần tử rút từ khối DEC-PLAIN-ITEM-TEMPLATE của
+      acceptance-card.md, điền bằng key của --extract (thay <key>, <câu>) rồi JSON.parse, render Cổng 1:
+      đối chứng dương 4/4 dòng mang đúng "DICH <chữ của dòng>"; chiều đỏ trên cùng fixture: khuôn đổi
+      tên trường "id" thành "key" → thông điệp ghim "khuon overlay khong dich duoc 4/4 dong".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

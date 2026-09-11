@@ -185,5 +185,69 @@ check('DK09 overlay di dang (null trong mang, object thay mang) -> the van ra, i
   }
 });
 
+// ---- bên VIẾT, hai lệnh cổng ghi sổ (seal ở approve, veto ở signoff): phải trỏ về khuôn MỘT nguồn ----
+// gap-probe F1: SKILL không phải bên ghi duy nhất — hai lệnh này tự nêu dạng mã trong chữ của chúng.
+const OLD_ID_FORMS = ['d-<next>', 'd-<UTC>-<rand>', '$RANDOM'];
+const idFormIssue = (name, t) => {
+  if (!t.includes('DEC-ID-RECIPE')) return `${name}: khong tro toi DEC-ID-RECIPE`;
+  const old = OLD_ID_FORMS.find(f => t.includes(f));
+  return old ? `${name}: con dang ma cu ${old}` : null;
+};
+check('DK10 approve.md + signoff.md tro toi DEC-ID-RECIPE, 0 dang ma cu; chen lai d-<next> -> DO dung thong diep', () => {
+  for (const f of ['approve.md', 'signoff.md']) {
+    const iss = idFormIssue(f, readFileSync(path.join(ROOT, 'commands', f), 'utf8'));
+    if (iss) die(iss);
+  }
+  const t = readFileSync(path.join(ROOT, 'commands', 'approve.md'), 'utf8');
+  const mut = t.replace('d-<UTC>-<n>', 'd-<next>');
+  if (mut === t) die('dot bien khong chen duoc dang cu vao approve.md');
+  eq(idFormIssue('approve.md', mut), 'approve.md: con dang ma cu d-<next>', 'dot bien approve.md');
+});
+
+// ---- bên VIẾT thật của overlay: khuôn phần tử trong acceptance-card.md (gap-probe F2) ----
+// Không dựng phần tử overlay theo khuôn bên đọc: rút khuôn từ tài liệu người viết thẻ làm theo.
+const itemTplOf = t => {
+  const m = t.match(/<!-- <<<DEC-PLAIN-ITEM-TEMPLATE\n([^\n]+)\n[ \t]*DEC-PLAIN-ITEM-TEMPLATE>>> -->/);
+  if (!m) die('acceptance-card.md thieu khoi marker DEC-PLAIN-ITEM-TEMPLATE (mot dong khuon)');
+  return m[1].trim();
+};
+const tplIssue = tpl => {
+  const r = wsG1();
+  const j = extract(GC, r, 'g');
+  const fill = d => JSON.parse(tpl.split('<key>').join(d.key).split('<câu>').join('DICH ' + d.decision));
+  writeFileSync(path.join(r, '_acceptance', 'g', 'plain.json'), JSON.stringify({ decisions_plain: j.decisions.map(fill) }));
+  const lines = g1Lines(run(GC, r, 'g', plainArg(r, 'g')).stdout);
+  const miss = j.decisions.filter(d => !lines.includes('DICH ' + d.decision));
+  return miss.length ? `khuon overlay khong dich duoc ${miss.length}/${j.decisions.length} dong` : null;
+};
+check('DK11 khuon phan tu overlay (acceptance-card.md) dien bang key extract -> moi dong dung cau; doi ten truong id->key -> DO', () => {
+  const tpl = itemTplOf(readFileSync(path.join(ROOT, 'commands', 'acceptance-card.md'), 'utf8'));
+  const ok = tplIssue(tpl);
+  if (ok) die('ban that: ' + ok);
+  const mut = tpl.replace('"id"', '"key"');
+  if (mut === tpl) die('dot bien khong doi duoc ten truong');
+  eq(tplIssue(mut), 'khuon overlay khong dich duoc 4/4 dong', 'dot bien khuon');
+});
+
+// ---- mã trùng vắt qua dấu niêm Cổng 1 (gap-probe F4): khoá đếm trên TOÀN sổ, không theo khối ----
+check('DK12 ma trung vat qua dau niem Cong 1: da duyet #1 #2, Treo #3; dem Treo truoc -> DO', () => {
+  const led = [row(DUP, 'approach', 'truoc 1'), row(DUP, 'approach', 'truoc 2'),
+    JSON.stringify({ id: 'd-s-9', type: 'seal', gate: 1, at: '2026-09-10T13:00:00Z' }), row(DUP, 'fix', 'sau 3', 'S4-r1'), ''].join('\n');
+  const r = mkWs('s', { ...G2(REVIEW2), 'decisions.jsonl': led });
+  const j = extract(GC, r, 's');
+  eq(j.decisions_approved.map(d => d.key), [`${DUP}#1`, `${DUP}#2`], 'khoa da duyet');
+  eq(j.decisions_provisional.map(d => d.key), [`${DUP}#3`], 'khoa Treo');
+  // đột biến trong khối DEC-PLAIN-KEY: đếm theo thứ tự Treo-trước (không phải thứ tự sổ)
+  const block = (SRC.match(MARK) || [])[0] || die('thieu khoi DEC-PLAIN-KEY');
+  const LOOP = 'for (const e of decsAll) {\n    const k';
+  if (block.split(LOOP).length !== 2) die('khoi DEC-PLAIN-KEY phai co dung MOT vong gan khoa');
+  const md = mkdtempSync(path.join(tmpdir(), 'deckey-order-'));
+  cpSync(path.join(ROOT, 'scripts'), path.join(md, 'scripts'), { recursive: true });
+  cpSync(path.join(ROOT, 'lib'), path.join(md, 'lib'), { recursive: true });
+  const mg = path.join(md, 'scripts', 'gate-card.js');
+  writeFileSync(mg, SRC.replace(block, block.replace(LOOP, 'for (const e of [...decsProvisional, ...decsApproved]) {\n    const k')));
+  eq(extract(mg, r, 's').decisions_approved.map(d => d.key), [`${DUP}#2`, `${DUP}#3`], 'dot bien dem Treo truoc');
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-dec-key)`);
 process.exit(failed ? 1 : 0);
