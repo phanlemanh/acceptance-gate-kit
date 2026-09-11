@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: release-2-11-0
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: ef36d81fca11d962fee404622dd93632ec64f72f
-human_signoff:
+human_signoff: Manh Phan 2026-09-11
 ---
 
 # Evidence Report: release-2-11-0
@@ -163,7 +163,7 @@ human_signoff:
     - operational-feasibility: PASS — Section `## Notes` của contract.md chứa đủ bốn khối với nội dung số thật, không chỉ tiêu đề: (1) "Ba dòng số của luật (c)" có bảng số (184′, 1 lượt chấm, 4/0 lượt gọi người, 0 hạ tầng đốt cho vòng #165; 3/4-1/3 cho hồ sơ mốc) kèm nguồn rút tường minh (`git show <sha>:contract` cho status, `run-log.jsonl` round, sha cụ thể 8f6a6bac/befa12ee); (2) "Lớp vendored" có bảng đủ 9 mục (4 dòng riêng + 1 dòng gộp 5 file) với số +/- dòng đo tại sha `56805d48` qua `git diff --numstat`; (3) "Lớp lỗi TÁI PHÁT" liệt kê 5 mục cụ thể có tên hàm/file và bằng chứng; (4) "Nhát cắt cho cửa sổ kế" gọi tên 3 nhát cắt cụ thể kèm hai lối chọn (a)/(b) và khuyến nghị. Trường hợp duy nhất thiếu số ("làm-xong→quyết-được" của chính hồ sơ mốc) được giải thích rõ là cố ý hoãn tới làn re-pin sau chữ ký (đúng logic AC-9 tự khai), không phải một khối rỗng.
     - spec-alignment: PASS — Section `## Notes` của contract.md chứa đủ bốn khối với nội dung số thật, không chỉ tiêu đề: (1) "Ba dòng số của luật (c)" có bảng 184′/1/4-0/0 và 3/4-1/3 kèm nguồn rút tường minh (sha `8f6a6bac`→`befa12ee`, `run-log.jsonl` round); (2) "Lớp vendored" liệt đủ 9 mục của INIT-CI-COPY-LIST (4 dòng riêng + 1 dòng gộp 5 file) với +/- tại sha `56805d48` nêu tên; (3) "Lớp lỗi TÁI PHÁT" gọi tên 5 lớp cụ thể kèm căn cứ; (4) "Nhát cắt cho cửa sổ kế" gọi tên ba nhát cắt kèm số (2.9.0=2, 2.10.0=2, 2.11.0=3; hai lối a/b có giá cụ thể).
   rationale: Cả ba lens đồng thuận PASS trên cùng một căn cứ (bốn khối của `## Notes` trong contract.md đều mang số có nguồn rút cụ thể, không phải văn suông); chi tiết từng lens ở "votes" trên. Vòng này 16 eval máy đều PASS (E8c đã hết đứt-giữa-chuỗi) nên verdict tổng của báo cáo là PENDING-JUDGMENT — duy nhất E9 còn chờ. Hợp đồng risk_tier T3 nên PASS panel vẫn cần human_override tại Gate 2 trên chính mục này trước khi được tính là chốt, bất kể ba lens đã đồng thuận PASS.
-  human_override:
+  human_override: Manh Phan 2026-09-11 — Đạt. Chấm trên khối «Ba dòng số» ĐÃ SỬA sau lượt chấm 6 (6 lượt chấm · gọi người 7 trong thiết kế + 1 ngoài · hạ tầng đốt 5, mỗi số có nguồn), không phải bản hội đồng máy đã đọc.
 
 - eval: E10
   run_id: minted-release-2-11-0-E10-r5

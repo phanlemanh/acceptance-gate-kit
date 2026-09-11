@@ -5,7 +5,7 @@ slug: release-2-11-0
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs (t3_paths). Làn V là T2-only nên hồ sơ này LUÔN cần approved_by — cùng đường 2.10.0 đã đi
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-09-10-release-2-11-0-design.md
 approved_by: Manh Phan
 approved_at: 2026-09-10T14:37:16Z
@@ -472,3 +472,17 @@ verdict REJECT phải qua MỘT lượt chạy-lại-xác-nhận riêng cho các
   trên một chuỗi KHÁC. Sự đồng ý suy bắc cầu qua hai đầu vào, không so trực tiếp trên cùng
   dòng như lời hứa. Hệ quả fail-open mà AC-10 canh (glob không khớp → carry sai) VẪN có
   răng: BG9 đỏ khi `carry-plan` mangle đường dẫn (BG8 chứng ô «8 carry-plan paths»).
+- **Phép phân biệt của BG8/BG5 ghim TÊN CHÂN, không ghim câu của đúng ô** (trong hợp đồng,
+  AC-12; owner ghi Known limits ở Cổng Bằng chứng 11/09). Hoàn nguyên đường N chỉ đòi dòng
+  `DO BG4:` xuất hiện, không đòi `duong [<tên đường N>]`; sáu trên bảy đột biến dùng chung
+  chân BG4 (14 khẳng định), nên một ô có thể được tính «phân biệt được» vì một khẳng định
+  KHÁC đỏ. Thông điệp đã mang sẵn dấu `duong [...]` — siết chỉ là một phép so chuỗi.
+  Ngưỡng mở lại: ≥1 lần một ô BG8 báo «phân biệt được» mà khẳng định của chính đường đó xanh.
+- **Danh sách chân của tệp ca không có số khai trước** (ngoài hợp đồng, owner ghi Known
+  limits 11/09). Tám eval dùng chung lệnh `bo_giai_nhay` nên máy chấm theo mã thoát trọn
+  tệp; xoá một chân khỏi bảng chạy (vd `BG2`) vẫn thoát 0 và vẫn in «9 chan». Ngưỡng mở
+  lại: ≥1 lần một chân biến mất khỏi đầu ra mà eval của nó vẫn xanh.
+- **Chiều đỏ của BG5/BG8 dựng từ HEAD, chỉ so băm tệp ca** (ngoài hợp đồng, owner ghi Known
+  limits 11/09). Có sửa chưa commit ở `evidence-core`/`s4-args`/`carry-plan` thì chiều xuôi
+  đo cây làm việc còn chiều đỏ đo HEAD. Nếp hiện hành bù lại: commit trước khi đo chiều đỏ
+  (bẫy đã ghi ở handoff 11/09). Ngưỡng mở lại: ≥1 lượt chấm xanh trên cây bẩn ở ba tệp đó.
