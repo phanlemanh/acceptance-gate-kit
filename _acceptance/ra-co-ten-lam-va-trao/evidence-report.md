@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 809669544314a99ba3da40065778030860deaa83
+verified_commit: 944dce5fbe76b26f3210a8409946d15297a68695
 human_signoff: Manh 2026-08-25
 ---
 
@@ -282,3 +282,7 @@ sha: 37cbf58a4c65812f07f65354eefb8dd65860fd37 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 7 — 2026-09-09, do vá SD1/SD2 phụ thuộc bản cài (CI PR #163 đỏ) chạm tests/scripts/s4-args-delta.test.mjs
 run_id: repin-20260909T120653Z-96471
 sha: 809669544314a99ba3da40065778030860deaa83 · suites: 5 lệnh exit 0 · evals: 15 eval máy exit 0
+
+### Re-pin lần 8 — 2026-09-11, do vấp giữa hai release: PR #168 khai dòng RT13 vào khối KHAC-BIET-DOC-CU của hồ sơ này nên hồ sơ vào phạm vi diff và lộ pin cũ
+run_id: repin-20260911T102033Z-96098
+sha: 944dce5fbe76b26f3210a8409946d15297a68695 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
