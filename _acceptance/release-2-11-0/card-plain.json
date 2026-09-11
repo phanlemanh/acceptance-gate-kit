@@ -1,0 +1,27 @@
+{
+  "feature_plain": "Kit 2.11.0: lệnh kiểm trong cấu hình được đọc đúng như người viết, nên một lệnh hỏng hay chưa điền không còn được báo là đạt.",
+  "decisions": [
+    {
+      "id": "E9",
+      "q": "Hồ sơ phát hành đủ bốn khối số, mỗi số có nguồn chưa?",
+      "why": "Ba người chấm máy cùng thấy đủ; hồ sơ hạng T3 (chạm lõi) nên mục này cần anh xác nhận."
+    }
+  ],
+  "scope_plain": "Hoãn sang việc riêng: phát hành tới các kho dùng kit, phiên nghiệm thu gộp, và lỗi mã hồ sơ bọc nháy.",
+  "decisions_plain": [
+    { "id": "d-20260910T144238Z-31555", "p": "Duyệt kế hoạch bằng cách dán dòng chạy-tự-động, không kèm chữ quyết riêng — đổi lại một lượt gõ ít hơn." },
+    { "id": "d-20260910T144354Z-8367", "p": "Sửa danh sách hàm cố ý giữ nguyên thành năm, đo bằng máy vì bản đoán ban đầu sai — đổi lại ranh giới vá khớp thực tế." },
+    { "id": "d-20260910T145437Z-6740", "p": "KHÔNG sửa lỗi mã hồ sơ bọc nháy trong vòng này — đổi lại phạm vi gọn; lỗi đó cần hợp đồng riêng." },
+    { "id": "d-20260910T152735Z-27997", "p": "Lượt chấm đầu bị chặn vì máy chép tay tham số — từ đó tham số luôn do máy sinh." },
+    { "id": "d-20260910T161000Z-21492", "p": "Anh cho nâng phạm vi giữa vòng: năm lỗi đo được vào hợp đồng thành ba tiêu chí mới — đổi lại thêm lượt chấm." },
+    { "id": "d-20260910T162020Z-23603", "p": "Tính lần nâng phạm vi giữa vòng là một lượt gọi người ngoài thiết kế — đổi lại số đếm trung thực." },
+    { "id": "d-20260910T172015Z-27141", "p": "Dừng vá khi lỗi cùng loại tái phát và trình anh chọn đổi khuôn — máy không tự chấm lượt ba." },
+    { "id": "d-20260910T172015Z-7899", "p": "Ghi nhận lượt chấm hai đỏ giả vì công cụ cắt đầu ra — không sửa sản phẩm." },
+    { "id": "d-20260911T010733Z-12867", "p": "Anh cho mở lượt chấm thứ tư, vượt trần ba — máy không tự đi quá trần." },
+    { "id": "d-20260911T023134Z-15712", "p": "Anh chọn lượt năm hẹp: vá đúng bốn mục, trong đó có lỗi lệnh chưa điền mà vẫn báo đạt." },
+    { "id": "d-20260911T023444Z-3805", "p": "Bỏ số dòng gõ tay khỏi ghi chú phát hành thay vì đo lại — đổi lại ghi chú không trôi theo mỗi lần sửa." },
+    { "id": "d-20260911T030516Z-25032", "p": "Ghi nhận lượt năm đỏ giả vì công cụ cắt đầu ra, lần thứ tư — dừng chờ anh." },
+    { "id": "d-20260911T031451Z-14019", "p": "Anh chọn lượt sáu hẹp nhất: bọc đầu ra bộ kiểm, ghi chú phát hành kể thêm vòng trước, rút hai lời hứa đo sang hạn chế đã biết." },
+    { "id": "d-20260911T033303Z-23383", "p": "Bọc lệnh chạy bộ kiểm để đầu ra ngắn mà vẫn giữ kết quả thật, và sửa danh sách lệnh được phép chạy theo." }
+  ]
+}

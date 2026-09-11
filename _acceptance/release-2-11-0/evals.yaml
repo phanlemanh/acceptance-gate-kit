@@ -1,0 +1,256 @@
+# evals — release-2-11-0
+# Hai nhóm. (1) Bộ giải: MỘT tệp ca `tests/scripts/bo-giai-nhay.test.mjs` chạy trọn ma trận
+# trục A × trục B cộng chiều đỏ trọn-cây; năm eval dưới ghim NĂM DÒNG KHÁC NHAU của chính
+# tệp đó (`PASS: BG1..BG5`), không ghim mã thoát chung — «tệp xanh» và «ca này xanh» phải
+# phân biệt được. Workflow chạy lệnh trùng MỘT lần. (2) Cắt số: ca vĩnh viễn P200, không
+# dựng dàn đo dùng-một-lần (nếp từ 2.2.0).
+# E7 CỐ Ý là bằng chứng SỐNG của chính bản vá: giá trị khoá `moc_diagram_khong_doi` là một
+# scalar vỏ nháy kép có `\"` bên trong — bộ giải CŨ trả chuỗi còn dấu chéo ngược nên lệnh
+# thoát 1 không in gì; bộ giải MỚI trả đúng chuỗi nên lệnh in dòng PASS. Eval này không thể
+# xanh trên bản chưa vá.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [lib/evidence-core.cjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có dòng «PASS: BG1 boc nhay chi khi CAN va dung mot cap vo». Ma trận
+      trục B đủ tám hình dạng trên cùng một khuôn fixture code-sinh, mỗi hình dạng in một
+      dòng «BG1-M: <tên>»: không nháy · vỏ đơn cân · vỏ kép cân · vỏ kép có escape · KẾT
+      THÚC bằng nháy (không phải vỏ) · BẮT ĐẦU bằng nháy (không phải vỏ) · nháy hai đầu
+      nhưng KHÔNG phải một cặp · suy biến (rỗng, `""`, một ký tự `"`). Số dòng BG1-M phải
+      BẰNG hằng khai trước trong tệp ca — lệch là đỏ, để một hình dạng bị xoá không tàng
+      hình. Chiều đỏ của ca này sống ở BG5.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [lib/evidence-core.cjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG2 escape trong vo nhay kep duoc go». Ca
+      dựng scalar `"cd sdk && uv run --with \"x==1\" pytest"` rồi khẳng định chuỗi trả về
+      chứa ĐÚNG `--with "x==1"` và KHÔNG còn ký tự chéo ngược nào trước nháy; thêm một ca
+      `\\` → `\`. Khẳng định là QUAN HỆ trên chuỗi ra, không phải phép có-mặt của một chuỗi
+      con dễ trúng nhầm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [lib/evidence-core.cjs, lib/eval-yaml.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG3 chuoi xanh-gia bon buoc da dong». Ca đi
+      ROUND-TRIP qua BÊN VIẾT THẬT, không mô phỏng: dựng một workspace code-sinh
+      (`config.yaml` + `contract.md` + `evals.yaml`) trong thư mục tạm, `evals.yaml` khai
+      `expected_exit: 2` cho một eval `script` mà `cmd: config:<khoá>` trỏ một khoá mang
+      `<công-cụ-giả> -k 'a or b'`; công cụ giả là một tệp sinh trong CHÍNH lần chạy, trả mã
+      thoát khai trước qua biến môi trường (không cần pytest). Rồi: (1) chạy CHÍNH
+      `feature-loop/scripts/s4-args.mjs` của cây đang kiểm và RÚT chuỗi lệnh từ tệp args nó
+      SINH RA — không tự gọi `resolveConfigKey`, không tự dựng args · (2) `bash -c` đúng
+      chuỗi rút được · (3) so mã thoát với `expectedExits` (lib/eval-yaml.cjs) đọc từ chính
+      `evals.yaml` đó. Ma trận hai chiều trên cùng workspace: công cụ giả trả **2** →
+      «đạt-có-giới-hạn» (mã của CÔNG CỤ, không phải mã 2 của shell — ca khẳng định công cụ
+      giả THẬT SỰ chạy bằng một dấu vết nó ghi ra đĩa); công cụ giả trả **3** với cùng lệnh
+      → phép so phải ĐỎ, ghim thông điệp. Giới hạn: phép so verdict cuối sống trong
+      `acceptance-verify.js` — xem Known limits, E8d là lưới cho tệp đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [lib/evidence-core.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG4 bay duong thi-hanh tra dung chuoi nguoi
+      viet». Đây là ca HÀNH VI, không phải ca đọc mã nguồn: ma trận bảy đường của bảng AC-4
+      × các hình dạng trục B CÓ NGHĨA cho từng đường — TẬP CON khai trước, không phải tích
+      Descartes đầy đủ (nhiều ô vô nghĩa, vd một tên model kết thúc bằng nháy) — số assert
+      BẰNG một hằng khai trước trong tệp ca (lệch là đỏ). Fixture code-sinh trong chính lần chạy, rồi gọi
+      **CHÍNH** `resolveConfigList` (cả nhánh inline `[a, "b\"c"]` lẫn nhánh khối
+      `- "cd x && echo \"y\""`) và **CHÍNH** `s4-args.mjs` (đọc `paths`/`inputs`/`steps`
+      kết thúc bằng nháy, id, `models`) của cây đang kiểm. Khẳng định là QUAN HỆ trên chuỗi
+      ra — đúng argv, không còn dấu chéo ngược, không mất ký tự cuối — không phải phép
+      có-mặt của một chuỗi con. Ba hình dạng lấy NGUYÊN VĂN từ bán kính đã đo:
+      `<html lang=\"vi\">` (crm, `steps`), `evidence-report.md §"E7 — render thật"`
+      (artifact-platform, `paths`), và khoá `uicheck_avatar_pool` (artifact-platform,
+      `config.yaml`). Cộng hình dạng **kết thúc bằng nháy mà KHÔNG phải vỏ** chạy trên CẢ
+      hai nhánh list của `s4-args` — hình dạng sinh ra chuỗi xanh-giả, N5 tự-soi bắt được
+      chỗ nó còn thiếu (11 → 13 khẳng định). Lượt 5 thêm `models` CÓ KHOẢNG TRẮNG
+      (`"sonnet 4.6"   # ghi chu`) — lượt chấm 4 bắt vòng models cắt ở `(\S+)` (13 → 14). Đường 6 (`id`) là LƯỚI HỒI QUY, không phải ca
+      phân biệt: id bọc nháy hỏng ở tầng khác, xem Out of scope.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4b
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [lib/evidence-core.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG6 ranh gioi va dung bang danh sach dong».
+      Ca đọc mã nguồn BA tệp và khẳng định TRÊN TỪNG HÀM, không trên cả tệp. Bốn chân:
+      (a) `resolveConfigKey` và `resolveConfigList` KHÔNG còn khớp
+      `replace(/^["']|["']$/g` trong thân hàm, và `s4-args.mjs` lẫn `carry-plan.mjs` còn
+      ĐÚNG 0 khớp toàn tệp;
+      (b) NĂM hàm cố-ý-giữ VẪN còn — `extractRunIds` · `extractEvalBlockRunIds` ·
+      `walkEvalExits` · `extractVerifierValues` · `isAuthenticVerifier` (danh sách này ĐO
+      bằng máy ở S3, KHÔNG lấy từ trí nhớ: bản Cổng 1 đoán bốn và SAI — `frontmatterField`
+      không mang mệnh đề cũ vì nó đã tự vá đúng lớp này ở S4-r5, còn `extractEvalBlockRunIds`
+      và `isAuthenticVerifier` thì có); (c) **tổng khớp trong `lib/evidence-core.cjs` BẰNG 5**
+      — vá sót thì lớn hơn, vá lan thì nhỏ hơn, cả hai đỏ ghim tên hàm. Phép đếm bỏ qua dòng
+      chú thích: nó đếm MÃ, không đếm VĂN — chính chú thích của `unquoteScalar` nêu nguyên
+      văn mệnh đề cũ để giải thích vì sao nó sai. **(d)** CHÍN đường của bảng AC-4 phải còn
+      NEO GỌI của mình (`parseFlowValue(m[2])` · `parseFlowValue(vRaw)` ·
+      `R.parseFlowValue(f[1])` …) — CHÍN đường nay đi qua MỘT cổng `parseFlowValue`, neo
+      THEO CHỖ GỌI thay cho phép đếm văn bản của bản trước, vì phép đếm đó nhận dư một đơn
+      vị từ một chuỗi `die()` (AC-12). Ca này là ĐỐI CHỨNG
+      cho quyết định descope đã ghi sổ, không thay ca hành vi E4.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [lib/evidence-core.cjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG5 chieu do tren ban sao TRON CAY». Ca dựng
+      bản sao bằng `git archive HEAD` (TRỌN cây, không chép danh sách tệp tay — bài học
+      P150), rồi: (1) bản NGUYÊN VẸN chạy lại BG1–BG4 và BG7 → 0 vế đỏ (đối chứng dương;
+      không có nó thì mọi màu đỏ dưới đây vô nghĩa) · (2) tiêm lại mệnh đề cũ vào **CẢ BA**
+      đường của `lib/evidence-core.cjs` (lá · nhánh khối · nhánh inline) — tiêm một đường
+      thôi thì chiều đỏ chỉ chứng được một ô — rồi so BĂM trước/sau, **băm không đổi thì ca
+      ĐỎ ngay** với thông điệp «DOT BIEN KHONG AP DUOC» · (3) bản bị tiêm phải ĐỎ ở
+      **BG1, BG3, BG4 VÀ BG7**, mỗi cái ghim đúng tên đường và tên hình dạng bị hỏng, không
+      chỉ «exit khác 0». Ca fail-CLOSED khi tệp ca ở HEAD khác bản đang chạy. Đường dẫn suy
+      từ vị trí tệp ca, KHÔNG hardcode gốc kho. Phép phân biệt TỪNG đường sống ở E12/BG8.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.p200_cat_so
+    paths: [.claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, GUIDE.md]
+    expected: >
+      Exit 0 và đầu ra có dòng «PASS: P200 mot lan cat so nhat quan: hai plugin cung so ·
+      GUIDE dan xuat · muc mo ta cua chinh so do (5 dot bien, mot loi thoat)». Ba vế «hop
+      semver» đọc TỪ manifest (2.11.0 · 2.11.0 · 2.7.0), vế «hai plugin cung so: 2.11.0»,
+      vế «GUIDE khop so DOC TU manifest», vế «mo ta acceptance-gate co muc v2.11.0» và vế
+      «muc v2.11.0 cua feature-loop TU khai cap». Chiều đỏ sống trong chính P200 (5 đột
+      biến chạy thật + đối chứng dương bản sao nguyên vẹn 0 vế đỏ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.moc_diagram_khong_doi
+    paths: [diagram-design, _acceptance/release-2-11-0/rang-moc.sh]
+    expected: >
+      GIỐNG HỆT E11 — cùng lệnh, cùng dòng PASS. E7 khai vế «số đang giữ là ĐÚNG vì vật
+      không đổi kể từ lần cắt số của chính nó», E11 khai vế «răng sống qua chiến dịch ghim
+      lại». Xem `expected` của E11 cho bốn chân bốn mã thoát và bốn chiều đỏ; workflow chạy
+      lệnh trùng MỘT lần.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8a
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "suite scripts XANH (tệp ca mới của bộ giải chạy trong suite này qua vòng lặp *.test.mjs)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8b
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8c
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: "suite plugins XANH (trọn suite — E6 đã khoanh riêng ca P200). Từ lượt 6 lệnh được bọc pipefail + lọc FAIL|^Results: + tail — mã thoát là của suite, đầu ra chỉ còn dòng FAIL (nếu có) và dòng Results"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8d
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E8e
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 — PRODUCT-MAP.md khớp hồ sơ xưởng (bản đồ vẽ lại cùng commit mở hồ sơ)."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: judgment
+    question: >
+      Hồ sơ mốc có ĐỦ BỐN khối bắt buộc, và mỗi khối có nội dung THẬT hay chỉ có tiêu đề?
+      (1) ba dòng số của luật (c) — thời gian làm-xong→quyết-được, số lượt chấm, số lượt
+      gọi người TÁCH trong-thiết-kế/ngoài-thiết-kế kèm số chạm, số vòng bị hạ-tầng-kit đốt;
+      (2) bảng lớp vendored đủ 9 mục của `INIT-CI-COPY-LIST` với số dòng thêm/bớt; (3) lớp
+      lỗi TÁI PHÁT gọi tên; (4) nhát cắt cho cửa sổ kế, gọi tên MỘT chỗ cắt hoặc tuyên
+      đã-tối-ưu kèm số. Trả FAIL cho khối chỉ có tiêu đề mà không có số, và cho số nào
+      không nói được nó đọc từ đâu.
+    inputs: [_acceptance/release-2-11-0/contract.md]
+    expected: >
+      Bốn khối có mặt và mỗi khối mang số đọc được từ nguồn có tên (revision của contract,
+      `run-log.jsonl`, `git diff --numstat`). Khối nào là VĂN không có phép đo máy thì phải
+      tự khai điều đó ở Known limits.
+    evidence_required: [run_id, verifier, verified_at]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [feature-loop/scripts/carry-plan.mjs, lib/evidence-core.cjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG9 carry-plan va s4-args dong y ve paths».
+      Ca đo HỆ QUẢ chứ không so chuỗi: `paths` ở `carry-plan` biến thành glob quyết eval nào
+      được CARRY-FORWARD, nên bộ đọc mangle đường dẫn sẽ cho glob không khớp file nào và
+      eval mang màu xanh cũ sang lượt mới dù file thật ĐÃ đổi — chiều FAIL-OPEN. Hai chiều
+      trên CÙNG fixture: (a) bản sửa chạm đúng đường đó → E1 phải nằm trong `rerun`, KHÔNG
+      được có trong `carriedEvals`; (b) đối chứng dương — bản sửa chạm đường KHÁC → E1 phải
+      được carry. Đường dẫn dùng làm fixture lấy hình dạng từ bán kính artifact-platform
+      (vỏ kép có escape). `carry-plan` nay đòi `--ag-root`, thiếu là fail-CLOSED có tên.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.moc_diagram_khong_doi
+    paths: [_acceptance/release-2-11-0/rang-moc.sh, diagram-design]
+    expected: >
+      Exit 0, và stdout khai đúng QUAN HỆ chứ không phải một con số ghim cứng:
+      «PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (<sha>), giu <số đọc từ
+      manifest tại HEAD> (doi chung duong: cua so moc..HEAD KHONG rong)». **KHÔNG ghim
+      literal `2.7.0` vào đây** — lượt chấm 2 bắt đúng lỗi đó: AC-11 hứa răng còn xanh khi
+      chiến dịch ghim lại chạy nó ở HEAD muộn hơn SAU khi diagram-design đã cắt số mới, mà
+      một lời khai ghim `2.7.0` sẽ đỏ đúng lúc vật còn sống. Số và sha đều là biến.
+      Mốc so SUY TỪ KHO: commit đầu tiên (từ mới về cũ) chạm manifest mà **số tại nó KHÁC
+      số tại cha** — lần CẮT SỐ, không phải lần CHẠM. Bốn chân, bốn mã thoát riêng:
+      **6** không đọc được số tại HEAD (vật không còn) · **3** không tìm được lần cắt số
+      nào · **4** cửa sổ mốc..HEAD RỖNG, tức mốc trùng HEAD (ĐỐI CHỨNG DƯƠNG). Hai bản trước
+      của chân này đều kiểm một điều ĐÚNG THEO CẤU TẠO nên không bao giờ nổ được — lượt
+      chấm 2 và 3 lần lượt gọi tên. Nay nó kiểm điều thật sự sai được: mốc trùng HEAD thì
+      `diff` rỗng với MỌI đường dẫn, nên kết luận «không đổi» là hằng đúng chứ không phải
+      một phép đo; và nó sẽ đỏ thật ngay sau mỗi lần diagram-design lên số · **5** `diagram-design/` CÓ đổi
+      sau lần cắt số. Ba chiều đỏ đã chạy trên bản sao trọn cây 10/09: xoá `diagram-design/`
+      → exit 6; chạm `diagram-design/NOTICE` sau mốc → exit 5; kho squash một commit (mốc
+      trùng HEAD) → exit 4; bản nguyên vẹn → exit 0.
+      Chiều đỏ thứ tư ở đường giải chuỗi: bộ giải chưa vá đưa `--chan` thành `"diagram"` →
+      exit 2 có tên, nên eval này không thể xanh trên bản chưa vá.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.bo_giai_nhay
+    paths: [lib/evidence-core.cjs, feature-loop/scripts/s4-args.mjs, feature-loop/scripts/carry-plan.mjs, tests/scripts/bo-giai-nhay.test.mjs]
+    expected: >
+      Cùng lệnh với E1. Đầu ra có dòng «PASS: BG8 moi o cua ma tran phan biet duoc ban va
+      voi ban chua va (7 dot bien, doi chung duong xanh)» và BẢY dòng «[phan biet] <tên
+      đường> -> <chân> DO». Ca dựng bản sao trọn cây bằng `git archive HEAD`, chạy đối
+      chứng dương trước (bản nguyên vẹn phải xanh ở BG4 và BG9 — không có nó thì mọi phép
+      phân biệt dưới vô nghĩa), rồi HOÀN NGUYÊN ĐÚNG MỘT đường về mệnh đề cũ mỗi lượt, so
+      BĂM để chứng đột biến áp được, và đòi đúng chân của đường đó ĐỎ. Số đột biến BẰNG một
+      hằng khai trước. Đường 6 (`id`) CỐ Ý ngoài danh sách — nó là lưới hồi quy, khai ở Out
+      of scope. Ca cũng phủ vế thứ hai của AC-12 gián tiếp: BG6 nay neo THEO CHỖ GỌI (CHÍN
+      đường, bỏ dòng chú thích) thay vì đếm văn bản nguồn, nên một chuỗi thông điệp cho
+      người không còn được tính là một lời gọi. Ba chân BG5/BG6/BG8 đọc CÙNG một bảng
+      `DUONG` chín dòng — trước đó mỗi chân giữ một bản và chúng trôi khỏi nhau HAI lần
+      trong chính vòng này; `BG8_MUTANTS` là hằng GÕ TAY (= 7) — lượt chấm 4 bắt bản suy-từ-bảng
+      là hằng-đúng: xoá một dòng `DUONG` thì ma trận co lại LẶNG mà phép so vẫn qua.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

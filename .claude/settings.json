@@ -17,7 +17,7 @@
     "allow": [
       "Bash(bash tests/scripts/run-tests.sh)",
       "Bash(bash tests/hooks/run-tests.sh)",
-      "Bash(bash tests/plugins/run-tests.sh)",
+      "Bash(bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40')",
       "Bash(bash tests/workflows/run-tests.sh)",
       "Bash(node scripts/product-map.mjs --root . --check)"
     ]

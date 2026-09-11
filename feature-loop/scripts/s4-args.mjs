@@ -70,8 +70,16 @@ agRoot = (() => { try { return fs.realpathSync(agRoot); } catch { return die(`--
 for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acceptance-gate root thiếu ${r} (root: ${agRoot})`);
 
 const require_ = createRequire(import.meta.url);
-const { resolveConfigKey, resolveConfigList, frontmatterField } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
+const { resolveConfigKey, resolveConfigList, frontmatterField, parseFlowValue } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
 if (typeof resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0) — cập nhật plugin');
+// MỘT bộ bóc nháy dùng chung cho mọi đường giá-trị-bị-thi-hành (hồ sơ
+// release-2-11-0). Thiếu hàm = plugin cũ hơn 2.11.0: fail-CLOSED có tên, KHÔNG
+// rơi về mệnh đề cũ — rơi về nó chính là đường xanh-giả vòng này đóng.
+// MỘT cổng tách token dùng chung cho mọi giá trị YAML một dòng (hồ sơ
+// release-2-11-0, đường A). Thiếu nó = plugin cũ hơn 2.11.0: fail-CLOSED có
+// tên, KHÔNG rơi về biểu thức tự viết — rơi về đó chính là khuôn sai mà
+// STOP-PATCHING đã bắt.
+if (typeof parseFlowValue !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có parseFlowValue (cần ≥ 2.11.0) — cập nhật plugin');
 const { parseEvals, expectedExits } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
 
 // ── Bảng trường bắt buộc: RÚT TỪ CHÍNH BÊN ĐỌC, không gõ tay ──────────────
@@ -118,25 +126,25 @@ for (const e of evals) e.expectedExit = expById.get(e.id) || 0;
 { // list fields: bắt buộc theo bảng bên đọc + field vận hành — inline [..] hoặc block "- item"
   const LIST_KEYS = uniq([...REQ_ARR, 'inputs', 'paths', 'evidence_required']);
   let cur = null; let pendingList = null;
-  const parseInline = s => s.replace(/^\[|\]$/g, '').split(',').map(x => x.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+  // MỌI giá trị đi qua CỔNG CHUNG, không bộ đọc nào tự nhận-biết-vỏ nữa.
   for (const raw of evalsText.split('\n')) {
     const line = raw.replace(/\t/g, '  ');
     const idM = line.match(/^\s{0,4}-\s+id:\s*(\S+)/);
-    if (idM) { cur = evals.find(e => e.id === idM[1].replace(/^["']|["']$/g, '')) || null; pendingList = null; continue; }
+    if (idM) { cur = evals.find(e => e.id === parseFlowValue(idM[1]).value) || null; pendingList = null; continue; }
     if (!cur) continue;
     const fieldM = line.match(/^\s{4}([\w-]+):\s*(.*)$/);
     if (fieldM) {
       pendingList = null;
       const [, k, vRaw] = fieldM;
       if (!LIST_KEYS.includes(k)) continue;
-      const v = vRaw.replace(/\s+#.*$/, '').trim();
-      if (v.startsWith('[')) cur[k] = parseInline(v);
-      else if (v === '') { cur[k] = []; pendingList = k; }
+      const pv = parseFlowValue(vRaw);
+      if (pv.kind === 'seq') cur[k] = pv.items;
+      else if (pv.value === '') { cur[k] = []; pendingList = k; }
       continue;
     }
     if (pendingList) {
       const itemM = line.match(/^\s{6,}-\s+(.*)$/);
-      if (itemM) { cur[pendingList].push(itemM[1].trim().replace(/^["']|["']$/g, '')); continue; }
+      if (itemM) { cur[pendingList].push(parseFlowValue(itemM[1]).value); continue; }
       if (line.trim()) pendingList = null;
     }
   }
@@ -208,7 +216,7 @@ const models = (() => {
     if (indent === 0) { inFl = line.trim() === 'feature_loop:'; inModels = false; continue; }
     if (!inFl) continue;
     if (indent === 2) { inModels = line.trim() === 'models:'; continue; }
-    if (inModels && indent >= 4) { const m = line.trim().match(/^([\w-]+):\s*(\S+)/); if (m) out[m[1]] = m[2].replace(/^["']|["']$/g, ''); }
+    if (inModels && indent >= 4) { const m = line.trim().match(/^([\w-]+):\s*(.*)$/); if (m) out[m[1]] = parseFlowValue(m[2]).value; }   // `(.*)$` cả phần còn lại — `(\S+)` cắt `"sonnet 4.6"` thành `"sonnet` còn nháy MỞ; cắt chú thích là việc của cổng chung
   }
   return Object.keys(out).length ? out : null;
 })();
@@ -319,7 +327,7 @@ if (flags['carry-anchor']) {
   // file CHỮ không đổi so round trước thì không phải chấm lại (13/34 finding của một vòng là
   // góp ý về chữ lặp lại mỗi round). Cùng MỘT nguồn với carry-forward P1, không tính lần hai.
   deltaForArgs = deltaFiles;
-  const cpArgs = ['--run-log', runLogPath, '--evals', path.join(ws, 'evals.yaml'), '--contract', contractPath, '--round', String(round)];
+  const cpArgs = ['--run-log', runLogPath, '--evals', path.join(ws, 'evals.yaml'), '--contract', contractPath, '--round', String(round), '--ag-root', agRoot];
   cpArgs.push(...(deltaFiles.length ? ['--delta-files', deltaFiles.join(',')] : ['--no-delta']));
   try {
     const out = execFileSync(process.execPath, [path.join(HERE, 'carry-plan.mjs'), ...cpArgs], { encoding: 'utf8' });

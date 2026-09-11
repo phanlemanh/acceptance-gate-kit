@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chuỗi xanh-giả bốn bước — release-2-11-0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --color-accent: #eb6c36;
+      --font-sans:  'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', serif;
+      --font-mono:  'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1280px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+    .wrap { overflow-x: auto; }
+    svg { width: 100%; min-width: 1000px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Chuỗi bằng chứng · release-2-11-0</p>
+    <h1>Chuỗi xanh-giả bốn bước, và bản vá cắt nó ở đâu</h1>
+
+    <div class="wrap">
+    <svg viewBox="0 0 1280 600" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Chuỗi xanh-giả bốn bước ở làn trước vá và chuỗi tương ứng ở làn sau vá">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2d3142"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ============ CONNECTORS (drawn before boxes) ============ -->
+      <!-- input -> làn TRƯỚC (right, then up) -->
+      <path d="M 256 252 H 272 A 8 8 0 0 0 280 244 V 136 A 8 8 0 0 1 288 128 H 302"
+            fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <!-- input -> làn SAU (right, then down) -->
+      <path d="M 256 276 H 272 A 8 8 0 0 1 280 284 V 392 A 8 8 0 0 0 288 400 H 302"
+            fill="none" stroke="#2d3142" stroke-width="1" marker-end="url(#arrow-ink)"/>
+
+      <!-- làn TRƯỚC: bước → bước -->
+      <line x1="520" y1="128" x2="542" y2="128" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="760" y1="128" x2="782" y2="128" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="1000" y1="128" x2="1022" y2="128" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+
+      <!-- làn SAU: bước → bước -->
+      <line x1="520" y1="400" x2="542" y2="400" stroke="#2d3142" stroke-width="1" marker-end="url(#arrow-ink)"/>
+      <line x1="760" y1="400" x2="782" y2="400" stroke="#2d3142" stroke-width="1" marker-end="url(#arrow-ink)"/>
+      <line x1="1000" y1="400" x2="1022" y2="400" stroke="#2d3142" stroke-width="1" marker-end="url(#arrow-ink)"/>
+
+      <!-- ============ CHỖ BẢN VÁ CẮT (coral #1) ============ -->
+      <rect x="272" y="182" width="16" height="20" fill="#f5f5f5"/>
+      <line x1="270" y1="200" x2="290" y2="186" stroke="#eb6c36" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="270" y1="208" x2="290" y2="194" stroke="#eb6c36" stroke-width="1.6" stroke-linecap="round"/>
+      <rect x="140" y="182" width="116" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="252" y="194" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="end" letter-spacing="0.08em">BẢN VÁ CẮT Ở ĐÂY</text>
+
+      <!-- ============ NODE: đầu vào chung ============ -->
+      <rect x="40" y="220" width="216" height="88" rx="6" fill="#f5f5f5"/>
+      <rect x="40" y="220" width="216" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="48" y="228" width="56" height="16" rx="2" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="76" y="239" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">ĐẦU VÀO</text>
+      <text x="48" y="266" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Cùng một đầu vào</text>
+      <text x="48" y="284" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace">config.yaml</text>
+      <text x="48" y="300" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">pytest -q -k 'a or b'</text>
+
+      <!-- ============ LÀN TRƯỚC VÁ ============ -->
+      <text x="304" y="66" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace"
+            letter-spacing="0.14em">LÀN TRƯỚC VÁ · CHUỖI XANH GIẢ BỐN BƯỚC</text>
+
+      <!-- bước 1 -->
+      <rect x="304" y="80" width="216" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="304" y="80" width="216" height="96" rx="6" fill="#ececec" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="312" y="88" width="52" height="16" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="338" y="99" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BƯỚC 1</text>
+      <text x="312" y="126" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist Mono', monospace">resolveConfigKey</text>
+      <text x="312" y="144" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">pytest -q -k 'a or b</text>
+      <text x="312" y="162" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">mất dấu đóng</text>
+
+      <!-- bước 2 -->
+      <rect x="544" y="80" width="216" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="544" y="80" width="216" height="96" rx="6" fill="#ececec" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="552" y="88" width="52" height="16" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="578" y="99" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BƯỚC 2</text>
+      <text x="552" y="126" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist Mono', monospace">bash -c</text>
+      <text x="552" y="144" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">exit 2</text>
+      <text x="552" y="162" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">vỡ cú pháp</text>
+
+      <!-- bước 3 -->
+      <rect x="784" y="80" width="216" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="784" y="80" width="216" height="96" rx="6" fill="#ececec" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="792" y="88" width="52" height="16" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+      <text x="818" y="99" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BƯỚC 3</text>
+      <text x="792" y="130" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', monospace">EXPECTED_EXIT_BANNED</text>
+      <text x="792" y="146" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">= [97,127]</text>
+      <text x="792" y="164" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">2 không bị cấm</text>
+
+      <!-- bước 4 — KẾT CỤC SAI (coral #2) -->
+      <rect x="1024" y="80" width="216" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="1024" y="80" width="216" height="96" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="1032" y="88" width="52" height="16" rx="2" fill="none" stroke="rgba(235,108,54,0.55)" stroke-width="0.8"/>
+      <text x="1058" y="99" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BƯỚC 4</text>
+      <rect x="1150" y="88" width="82" height="16" rx="2" fill="rgba(235,108,54,0.14)" stroke="rgba(235,108,54,0.55)" stroke-width="0.8"/>
+      <text x="1191" y="99" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">KẾT CỤC SAI</text>
+      <text x="1132" y="138" fill="#ba4513" font-size="17" font-weight="600" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.04em">PASS</text>
+      <text x="1132" y="162" fill="#ba4513" font-size="12" font-weight="600" font-family="'Geist', sans-serif"
+            text-anchor="middle">(xanh giả)</text>
+
+      <!-- ============ LÀN SAU VÁ ============ -->
+      <text x="304" y="332" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace"
+            letter-spacing="0.14em">LÀN SAU VÁ · CÙNG ĐẦU VÀO</text>
+
+      <!-- bước 1 -->
+      <rect x="304" y="344" width="216" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="304" y="344" width="216" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="312" y="352" width="52" height="16" rx="2" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="338" y="363" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BƯỚC 1</text>
+      <text x="312" y="388" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist Mono', monospace">unquoteScalar</text>
+      <text x="312" y="406" fill="#2d3142" font-size="10" font-family="'Geist', sans-serif">không phải cặp vỏ → giữ nguyên văn</text>
+      <text x="312" y="426" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace">/^"(?:[^"\\]|\\.)*"$/</text>
+      <text x="312" y="442" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">cặp vỏ HỢP LỆ YAML</text>
+
+      <!-- bước 2 -->
+      <rect x="544" y="344" width="216" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="544" y="344" width="216" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="552" y="352" width="52" height="16" rx="2" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="578" y="363" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BƯỚC 2</text>
+      <text x="552" y="396" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist Mono', monospace">bash -c</text>
+      <text x="552" y="416" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">mã của CÔNG CỤ</text>
+
+      <!-- bước 3 -->
+      <rect x="784" y="344" width="216" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="784" y="344" width="216" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="792" y="352" width="52" height="16" rx="2" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="818" y="363" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BƯỚC 3</text>
+      <text x="792" y="396" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">so với</text>
+      <text x="792" y="416" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist Mono', monospace">expected_exit</text>
+
+      <!-- bước 4 -->
+      <rect x="1024" y="344" width="216" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="1024" y="344" width="216" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="1032" y="352" width="52" height="16" rx="2" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="1058" y="363" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BƯỚC 4</text>
+      <text x="1132" y="400" fill="#2d3142" font-size="17" font-weight="600" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.04em">PASS</text>
+      <text x="1132" y="424" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif"
+            text-anchor="middle">chỉ khi công cụ thật</text>
+      <text x="1132" y="440" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif"
+            text-anchor="middle">trả 2</text>
+
+      <!-- ============ GHI CHÚ (leader từ bước 1 làn SAU) ============ -->
+      <line x1="316" y1="456" x2="316" y2="480" stroke="#bfc0c0" stroke-width="0.8" stroke-dasharray="3,3"/>
+      <text x="304" y="498" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.14em">GHI CHÚ</text>
+      <text x="304" y="518" font-size="10" font-family="'Geist', sans-serif" fill="#4f5d75">bản oneflow dùng <tspan font-family="'Geist Mono', monospace" fill="#2d3142">/^".*"$/</tspan>, khác đúng một hình dạng: <tspan font-family="'Geist Mono', monospace" fill="#2d3142">"a" &amp;&amp; echo "b"</tspan></text>
+
+      <!-- ============ CHÚ GIẢI ============ -->
+      <line x1="40" y1="548" x2="1240" y2="548" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="572" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="160" y="562" width="16" height="12" rx="2" fill="#ececec" stroke="#4f5d75" stroke-width="1"/>
+      <text x="184" y="572" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">bước ở làn TRƯỚC vá</text>
+
+      <rect x="400" y="562" width="16" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="424" y="572" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">bước ở làn SAU vá</text>
+
+      <rect x="620" y="562" width="16" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="644" y="572" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">kết cục SAI</text>
+
+      <line x1="800" y1="574" x2="812" y2="562" stroke="#eb6c36" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="808" y1="574" x2="820" y2="562" stroke="#eb6c36" stroke-width="1.6" stroke-linecap="round"/>
+      <text x="832" y="572" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">chỗ bản vá cắt chuỗi</text>
+    </svg>
+    </div>
+  </div>
+</body>
+</html>
