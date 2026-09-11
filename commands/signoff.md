@@ -88,7 +88,8 @@ Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị 
   «veto hay để yên» thay «ký hay trả»): `veto: <lý do>` → ghi `veto_state: da-veto` vào
   contract bằng công cụ sửa file (lưới ghi-lúc-viết kiểm), append vào
   `decisions.jsonl` một dòng
-  `{"id":"d-<UTC>-<rand>","type":"veto","stage":"gate2","at":"<ISO>","decision":"<lý do nguyên văn>","decided_by":"<tên>","decided_at":"<ISO>"}`,
+  `{"id":"d-<UTC>-<n>","type":"veto","stage":"gate2","at":"<ISO>","decision":"<lý do nguyên văn>","decided_by":"<tên>","decided_at":"<ISO>"}`
+  (id theo khối `DEC-ID-RECIPE` của SKILL feature-loop — `<n>` là số dòng mới trong sổ),
   commit `Veto: <slug> — <tên>` (chỉ contract + decisions), in đúng một dòng
   «Đã veto. Máy dừng; hồ sơ chờ người xử: về `status: draft` để làm lại phạm
   vi, hoặc duyệt tay (`approved_by`)» và DỪNG — không menu, không tranh luận.
