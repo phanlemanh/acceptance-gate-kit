@@ -1,0 +1,188 @@
+# Eval cho hồ sơ ghim-lai-tren-lop-cu.
+#
+# Ca sống VĨNH VIỄN ở tests/scripts/repin-lane-lop-cu.test.mjs (suite scripts tự chạy
+# qua glob *.test.mjs) — lưới thường trực cho lớp «điểm chạm bộ máy của làn ghim
+# lại». Mỗi eval gọi ĐÚNG MỘT ca qua GLLC_CASES; bộ lọc khớp 0 ca phải thoát khác 0
+# với thông điệp ghim "GLLC_CASES khop 0 ca" (bài học P86: bộ chọn khớp 0 ca mà xanh).
+# Fixture do code sinh trong chính lượt chạy: kho git tạm theo khuôn repin-lane.test.mjs;
+# lớp cũ THẬT = git archive 0b5c5b37 lib scripts (trọn thư mục); lớp lai = trọn cây đang
+# đo với lib/evidence-core.cjs của 04069351; mọi đường dẫn suy từ vị trí tệp ca.
+# Mốc vắng (clone nông) → ca ĐỎ có tên "thieu moc <sha>", không xanh lặng.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.gllc_lop_cu_that
+    expected: >-
+      Ca GL01. Đối chứng dương TRƯỚC: cùng kho tạm, --ag-root = cây đang đo → exit 0.
+      Rồi --ag-root = lớp 0b5c5b37 (git archive, trọn lib+scripts), chạy cả không --write
+      lẫn --write: exit ĐÚNG 2; stderr chứa "lib/eval-yaml.cjs", "expectedExits",
+      "≥ 2.11.0", "--ag-root", "--root vẫn là cây đang đo"; stderr KHÔNG chứa "TypeError";
+      tệp dấu của suite vắng (không suite nào chạy); run-log.jsonl và evidence-report.md
+      bằng byte trước lượt chạy. Chiều đỏ trên bản sao repin-lane.mjs hoàn nguyên lối rút
+      không kiểm (mũi tiêm phải trúng đúng một lần, mutant qua node --check): chạy trên
+      cùng lớp cũ ra TypeError → ca ĐỎ, thông điệp ghim "TypeError tho".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.gllc_liet_ke_tron
+    expected: >-
+      Ca GL02. Trên lớp 0b5c5b37: MỘT lượt chạy liệt kê cả "lib/eval-yaml.cjs: expectedExits"
+      lẫn "lib/evidence-core.cjs: readSignedReportFor", mỗi mục một dòng có "2.11.0"; stderr
+      KHÔNG chứa "≥ 2.9.0" gắn với hai mục đó. Đối chứng dương: trên cây đang đo không dòng
+      thiếu nào. Chiều đỏ trên bản sao dừng ở mục thiếu đầu tiên → chỉ còn một dòng → ca
+      ĐỎ, thông điệp ghim "chi bao muc dau".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.gllc_ma_tran_export
+    expected: >-
+      Ca GL03 — ma trận TOÀN PHẦN xoá-một-export. Danh sách export đếm lúc chạy bằng
+      require() của lib/eval-yaml.cjs + lib/evidence-core.cjs trong cây đang đo (không gõ
+      tay); mỗi ô = bản chép trọn cây với `delete module.exports.<X>` nối cuối tệp (mutant
+      phải khác bản gốc). Chạy làn --write. Kết cục hợp lệ: (G) exit 0 + "recheck-evidence
+      xanh", hoặc (N) exit 2 + stderr gọi tên tệp và <X> + 0 byte bị ghi + tệp dấu suite
+      vắng. Mọi kết cục khác → ĐỎ ghim "o <tep>:<X> ra <mo ta>". Chín export làn/recheck gọi
+      phải ra (N). Số assert BẰNG số export đếm được, ca tự đếm; lệch → ĐỎ "so o lech".
+      Đối chứng dương: cây nguyên vẹn → exit 0. Chiều đỏ: bản sao repin-lane.mjs gỡ hàng
+      checkRepinEvals khỏi bảng → ô đó ra "ghi roi moi do" → ca ĐỎ gọi tên ô.
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "scripts/recheck-evidence.cjs"
+      - "lib/eval-yaml.cjs"
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.gllc_lop_lai
+    expected: >-
+      Ca GL04. Hồ sơ code-sinh có eval khai expected_exit: 2, lệnh trả 2, báo cáo đã ký
+      ghi 2. Đối chứng dương trên cây đang đo: làn --write xanh, evals_exit giữ 2,
+      recheck xanh. Trên lớp LAI (trọn cây, riêng lib/evidence-core.cjs = git show
+      04069351): exit 2 TRƯỚC khi ghi, stderr chứa "lib/evidence-core.cjs",
+      "readSignedReportFor", "2.11.0"; run-log và evidence-report bằng byte. Chiều đỏ trên
+      bản sao repin-lane.mjs gỡ hàng readSignedReportFor khỏi bảng: làn GHI rồi recheck
+      từ chối (stderr "đã ghi nhưng recheck-evidence ĐỎ") → ca ĐỎ, thông điệp ghim
+      "ghi roi moi do".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.gllc_nap_loi
+    expected: >-
+      Ca GL05. Bản chép trọn cây đang đo, lib/eval-yaml.cjs bị tiêm lỗi cú pháp (bản tiêm
+      phải thật sự hỏng: node --check trên nó thoát khác 0). Làn thoát 2, stderr chứa
+      "không nạp được lib/eval-yaml.cjs", KHÔNG chứa dòng stack "    at "; tệp hồ sơ bằng
+      byte. Đối chứng dương: bản chép chưa tiêm → qua cổng kiểm bộ máy. Chiều đỏ trên
+      bản sao repin-lane.mjs bỏ lớp bọc nạp → stack thô → ca ĐỎ, thông điệp ghim
+      "nap khong boc".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.gllc_nguon_cache
+    expected: >-
+      Ca GL06. Không --ag-root; HOME = thư mục tạm có .claude/plugins/cache/<mkt>/
+      acceptance-gate/<ver>/ chứa lớp 0b5c5b37 (đủ ba tệp AG_REQUIRES nên resolve-plugin
+      chọn nó). Làn thoát 2, stderr có cùng khuôn của GL01 cộng câu nói nguồn là plugin
+      cache và "cập nhật plugin". Đối chứng dương: cache chứa bản chép cây đang đo → làn
+      qua cổng kiểm bộ máy. Chiều đỏ trên bản sao bỏ nhánh nguồn → ca ĐỎ, thông điệp ghim
+      "khong noi nguon".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/resolve-plugin.mjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.gllc_loi_di_tiep
+    expected: >-
+      Ca GL07 — lối đi tiếp là đường SỐNG. Cùng kho tạm: làn trên lớp 0b5c5b37 dừng (exit
+      2); rồi làm theo lối in ra: --ag-root = cây đang đo, --root giữ nguyên, --write →
+      exit 0; rồi bên đọc CŨ (scripts/recheck-evidence.cjs của lớp 0b5c5b37, nạp lib cùng
+      lớp) chấm evidence-report.md vừa ghi → exit 0. Chiều đỏ CÙNG fixture: bản sao làn bỏ
+      evals_exit khỏi dòng repin → bên đọc cũ thoát khác 0 và stderr chứa
+      "recorded no evals_exit" → ca ghim đúng chuỗi đó; thiếu chuỗi → ca ĐỎ.
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >-
+      exit 0; stdout có dòng PASS của mọi ca LN trong tests/scripts/repin-lane.test.mjs và
+      của GL01..GL07 — tệp ca mới được suite scripts tự chạy qua glob *.test.mjs. Suite
+      xanh mà thiếu dòng GL nào là ĐỎ (tệp ca không được wire là ca không sống).
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane.test.mjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: >-
+      exit 0 — lõi cưỡng chế không đổi hành vi (hồ sơ không chạm hooks/**, lib/**).
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >-
+      exit 0 — gồm các ca plugin đọc SKILL/khuôn REPIN-TEMPLATE; dòng repin và section
+      Re-pin của làn xanh không đổi khuôn.
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >-
+      exit 0 — hai workflow script không đổi hành vi.
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: >-
+      exit 0 — bản đồ sản phẩm khớp hồ sơ xưởng sau khi thêm hồ sơ này.
+    paths:
+      - "PRODUCT-MAP.md"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
