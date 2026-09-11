@@ -317,7 +317,7 @@ function bg6() {
 // kèm dấu nháy MỞ, rồi `bash -c '"echo a'` thoát 2 — đúng chuỗi xanh-giả bốn
 // bước mà vòng này tồn tại để đóng, chỉ đổi nguồn gây nháy-không-cân từ NGƯỜI
 // VIẾT sang CHÍNH BỘ GIẢI. Mệnh đề cũ ít ra còn gỡ được ký tự thừa đó.
-const BG7_ASSERTS = 13;
+const BG7_ASSERTS = 18;
 function bg7() {
   const cfg = [
     'bg7:',
@@ -330,6 +330,9 @@ function bg7() {
     '  inline_thang: ["click #submit", "then b"]',   // hình dạng làm nổ lượt chấm 2
     '  hong_khong_dong: [x, y',                     // `[` không đóng — phải fail-CLOSED
     '  hong_dong_trong_vo: ["a]b", c',              // `]` chỉ có bên trong vỏ
+    '  khoi_co_seq:',
+    '    - [a, b]',
+    '    - plain',
     '  khoi:',
     '    - "cd x # y"',
     '    - "p, q"',
@@ -356,6 +359,15 @@ function bg7() {
   // `[` không đóng thì KHÔNG được đoán: trả [] (fail-CLOSED) chứ không tách bừa.
   ca.push(['ngoac khong dong -> fail-CLOSED', JSON.stringify(core.resolveConfigList(cfg, 'bg7.hong_khong_dong')), '[]']);
   ca.push(['] chi trong vo -> fail-CLOSED', JSON.stringify(core.resolveConfigList(cfg, 'bg7.hong_dong_trong_vo')), '[]']);
+  // `.value` phải là CHUỖI ở MỌI hình dạng — không bao giờ undefined. Lượt chấm 3
+  // bắt: nhánh khối của resolveConfigList gọi `.value` trên một item flow-sequence
+  // và đẩy `undefined` vào mảng khai kiểu string[], mà đó là nguồn của suite_keys.
+  // Chỗ dễ quên phải nằm TRONG cổng chung, không ở chín chỗ gọi.
+  for (const [ten, dv] of [['plain', 'plain'], ['seq', '[a, b]'], ['vo', '"q"'], ['ngoac hong', '[x']]) {
+    ca.push([`value luon la chuoi [${ten}]`, typeof core.parseFlowValue(dv).value, 'string']);
+  }
+  // Và hệ quả trên đường thật: nhánh khối có item là flow-sequence.
+  ca.push(['khoi co item seq', JSON.stringify(core.resolveConfigList(cfg, 'bg7.khoi_co_seq')), JSON.stringify(['[a, b]', 'plain'])]);
   if (ca.length !== BG7_ASSERTS) { do_('BG7', `so khang dinh ${ca.length} != BG7_ASSERTS ${BG7_ASSERTS} khai truoc`); return; }
   let hong = 0;
   for (const [ten, thay, mong] of ca) {

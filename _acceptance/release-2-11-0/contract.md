@@ -130,7 +130,7 @@ bên trong chính mục đó.
 
 **Given** cửa sổ `04069351..HEAD`
 **When** đo diff của thư mục `diagram-design/`
-**Then** diff RỖNG **và phép đo tự chứng minh nó đã chạy**: sha nền phải giải được
+**Then** diff RỖNG **và phép đo tự chứng minh nó đã chạy bằng một đối chứng NỔ ĐƯỢC**: sha nền phải giải được
 (`git rev-parse --verify`), và **đối chứng dương** cùng cửa sổ — `git diff --name-only
 04069351..HEAD -- lib/` phải KHÁC rỗng. Ba chân này tách nhau bằng ba mã thoát riêng, nên
 «rỗng vì không đổi» không lẫn được với «rỗng vì git chết / clone nông / sai thư mục».

@@ -215,17 +215,21 @@ evals:
     expected: >
       Exit 0, và stdout khai đúng QUAN HỆ chứ không phải một con số ghim cứng:
       «PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (<sha>), giu <số đọc từ
-      manifest tại HEAD> (doi chung duong: so tai moc KHAC so tai cha)». **KHÔNG ghim
+      manifest tại HEAD> (doi chung duong: cua so moc..HEAD KHONG rong)». **KHÔNG ghim
       literal `2.7.0` vào đây** — lượt chấm 2 bắt đúng lỗi đó: AC-11 hứa răng còn xanh khi
       chiến dịch ghim lại chạy nó ở HEAD muộn hơn SAU khi diagram-design đã cắt số mới, mà
       một lời khai ghim `2.7.0` sẽ đỏ đúng lúc vật còn sống. Số và sha đều là biến.
       Mốc so SUY TỪ KHO: commit đầu tiên (từ mới về cũ) chạm manifest mà **số tại nó KHÁC
       số tại cha** — lần CẮT SỐ, không phải lần CHẠM. Bốn chân, bốn mã thoát riêng:
       **6** không đọc được số tại HEAD (vật không còn) · **3** không tìm được lần cắt số
-      nào · **4** mốc chọn ra không phải một lần cắt số (đối chứng dương — chân này KHẲNG
-      ĐỊNH ĐƯỢC SAI, khác bản trước vốn đúng theo cấu tạo) · **5** `diagram-design/` CÓ đổi
+      nào · **4** cửa sổ mốc..HEAD RỖNG, tức mốc trùng HEAD (ĐỐI CHỨNG DƯƠNG). Hai bản trước
+      của chân này đều kiểm một điều ĐÚNG THEO CẤU TẠO nên không bao giờ nổ được — lượt
+      chấm 2 và 3 lần lượt gọi tên. Nay nó kiểm điều thật sự sai được: mốc trùng HEAD thì
+      `diff` rỗng với MỌI đường dẫn, nên kết luận «không đổi» là hằng đúng chứ không phải
+      một phép đo; và nó sẽ đỏ thật ngay sau mỗi lần diagram-design lên số · **5** `diagram-design/` CÓ đổi
       sau lần cắt số. Ba chiều đỏ đã chạy trên bản sao trọn cây 10/09: xoá `diagram-design/`
-      → exit 6; chạm `diagram-design/NOTICE` sau mốc → exit 5; bản nguyên vẹn → exit 0.
+      → exit 6; chạm `diagram-design/NOTICE` sau mốc → exit 5; kho squash một commit (mốc
+      trùng HEAD) → exit 4; bản nguyên vẹn → exit 0.
       Chiều đỏ thứ tư ở đường giải chuỗi: bộ giải chưa vá đưa `--chan` thành `"diagram"` →
       exit 2 có tên, nên eval này không thể xanh trên bản chưa vá.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
