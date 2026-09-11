@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ef36d81fca11d962fee404622dd93632ec64f72f
+verified_commit: 4d61b2a332e6cb8c4f7824946c0679b814c005e4
 human_signoff: Manh Phan 2026-09-11
 ---
 
@@ -207,3 +207,7 @@ Round 3: E8c thất bại (`bash tests/plugins/run-tests.sh`, exit 1) — chuỗ
 Round 4: Toàn bộ 16 eval máy (E1-E8e, E10-E12) PASS, bao gồm E8c đã vá (suite plugins xanh trọn — "all plugin tests passed"); duy nhất E9 (judgment, AC-9) còn chờ human_override vì hợp đồng risk_tier T3 đòi xác nhận người trên MỌI judgment item bất kể phiếu panel — verdict tổng PENDING-JUDGMENT, chuyển Gate 2.
 Round 5: E8c thất bại lại (`bash tests/plugins/run-tests.sh`, exit 1) — lần này chuỗi test dừng muộn hơn round 3, sau khi case MUTANT-PHUT của P186 đã qua ("MUTANT-PHUT bi bat dung ... OK"), nhưng cắt giữa case MUTANT-2 (đã gỡ mã eval khỏi item 'Ví dụ'), không tới được dòng PASS/FAIL của case đó; 16 eval máy còn lại (bao gồm E7/E11 carry-forward từ round 4) vẫn PASS, E9 (judgment) panel vẫn đồng thuận PASS nhưng chưa được tính vì verdict tổng đã REJECT. Quay lại triển khai.
 Round 6: Lệnh E8c được bọc lại `bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'` để mã thoát phản ánh đúng suite thay vì bị TOOL cắt giữa chừng — exit 0, "Results: all plugin tests passed", không còn đứt giữa case như round 3/5. Toàn bộ 16 eval máy (E1-E8e, E10-E12) PASS (E1-E5,E4b,E10,E12 carry-forward từ round 5; E7,E11 carry-forward từ round 4; E6,E8a-E8e chạy lại tươi). Duy nhất E9 (judgment, AC-9) còn chờ — hợp đồng risk_tier T3 đòi human_override trên MỌI judgment item bất kể phiếu panel đã đồng thuận PASS cả ba lens. Verdict tổng PENDING-JUDGMENT, chuyển Gate 2.
+
+### Re-pin lần 1 — 2026-09-11, do hoá cũ do chính commit chữ ký
+run_id: repin-20260911T065627Z-20732
+sha: 4d61b2a332e6cb8c4f7824946c0679b814c005e4 · suites: 5 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng
