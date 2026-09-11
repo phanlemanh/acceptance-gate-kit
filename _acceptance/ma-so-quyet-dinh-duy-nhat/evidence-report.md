@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 4 lệnh chạy tuần tự — entry d-20260911T092728Z-10)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4defd90ddda384353a2d719744a56f86a73ba1bb
+verified_commit: 1d6f7e4a50acabf05006ad6f1db49e4a8a2fc164
 human_signoff:
 ---
 
@@ -165,3 +165,7 @@ none — mọi eval tất định.
 
 Round 1 (`f150bcd8`): E8 đỏ vì PRODUCT-MAP.md chưa vẽ lại sau khi thêm hồ sơ; reviewer tươi bắt khuôn mã hỏng khi câu có dấu nháy đơn (trong hợp đồng AC-1, high) — sửa cả hai trong `4defd90d`.
 Round 2 (`4defd90d`): 12/12 eval đạt; reviewer tươi vòng 2 sạch — 0 finding trong hợp đồng, 0 ngoài hợp đồng (chi tiết `review-findings.md`).
+
+### Re-pin lần 1 — 2026-09-11, do gộp main mang mốc 2.11.0 + khai khác biệt RT13 cho trạng thái machine-cleared
+run_id: repin-20260911T100823Z-37887
+sha: 1d6f7e4a50acabf05006ad6f1db49e4a8a2fc164 · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
