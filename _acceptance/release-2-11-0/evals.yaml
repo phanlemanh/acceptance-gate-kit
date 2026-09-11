@@ -97,8 +97,8 @@ evals:
       và `isAuthenticVerifier` thì có); (c) **tổng khớp trong `lib/evidence-core.cjs` BẰNG 5**
       — vá sót thì lớn hơn, vá lan thì nhỏ hơn, cả hai đỏ ghim tên hàm. Phép đếm bỏ qua dòng
       chú thích: nó đếm MÃ, không đếm VĂN — chính chú thích của `unquoteScalar` nêu nguyên
-      văn mệnh đề cũ để giải thích vì sao nó sai. **(d)** TÁM đường của bảng AC-4 phải còn
-      NEO GỌI của mình (`unquoteScalar(stripYamlComment(...))` · `splitTopLevel(...)` ·
+      văn mệnh đề cũ để giải thích vì sao nó sai. **(d)** CHÍN đường của bảng AC-4 phải còn
+      NEO GỌI của mình (`parseFlowValue(m[2])` · `parseFlowValue(vRaw)` ·
       `R.parseFlowValue(f[1])` …) — CHÍN đường nay đi qua MỘT cổng `parseFlowValue`, neo
       THEO CHỖ GỌI thay cho phép đếm văn bản của bản trước, vì phép đếm đó nhận dư một đơn
       vị từ một chuỗi `die()` (AC-12). Ca này là ĐỐI CHỨNG
@@ -242,7 +242,9 @@ evals:
       phân biệt dưới vô nghĩa), rồi HOÀN NGUYÊN ĐÚNG MỘT đường về mệnh đề cũ mỗi lượt, so
       BĂM để chứng đột biến áp được, và đòi đúng chân của đường đó ĐỎ. Số đột biến BẰNG một
       hằng khai trước. Đường 6 (`id`) CỐ Ý ngoài danh sách — nó là lưới hồi quy, khai ở Out
-      of scope. Ca cũng phủ vế thứ hai của AC-12 gián tiếp: BG6 nay neo THEO CHỖ GỌI (tám
+      of scope. Ca cũng phủ vế thứ hai của AC-12 gián tiếp: BG6 nay neo THEO CHỖ GỌI (CHÍN
       đường, bỏ dòng chú thích) thay vì đếm văn bản nguồn, nên một chuỗi thông điệp cho
-      người không còn được tính là một lời gọi.
+      người không còn được tính là một lời gọi. Ba chân BG5/BG6/BG8 đọc CÙNG một bảng
+      `DUONG` chín dòng — trước đó mỗi chân giữ một bản và chúng trôi khỏi nhau HAI lần
+      trong chính vòng này; `BG8_MUTANTS` suy TỪ bảng, không gõ tay.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
