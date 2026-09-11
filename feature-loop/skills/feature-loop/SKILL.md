@@ -52,10 +52,12 @@ sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt k�
 
 ## Sổ quyết định (decisions.jsonl — rationale, KHÔNG phải scope-truth)
 
-`_acceptance/<slug>/decisions.jsonl` — append-only, 1 dòng JSON/quyết định; ledger KHÔNG BAO GIỜ override contract/evals (descope một AC = sửa contract + re-approve; ledger chỉ ghi *vì sao*; mâu thuẫn ledger↔contract = lỗi phải báo user). Schema: `{"id":"d-<UTC>-<n>","type":"descope|approach|fix|revisit","stage":"S1|S2|S3|S4-r<N>|gate1|gate2","at":"<ISO>","decision":"1 câu","impact":"tiết kiệm gì · rủi ro gì"}` + optional `serves:["AC-2"]`, `revisit`, `supersedes:"<id>"`. Append (không script mới) bằng ĐÚNG lệnh dưới, mỗi dòng sổ một lần chạy — chỉ thay `<slug>` và phần JSON trong cặp nháy đơn cuối. Id `d-<UTC>-<n>` do lệnh tự tính: `<n>` = số thứ tự dòng mới trong sổ, nên sổ append-only cho mỗi dòng một mã kể cả khi nhiều dòng rơi vào cùng một giây. Id đi trong nháy KÉP (để shell mở rộng), phần JSON còn lại đi trong nháy ĐƠN như dữ liệu (dấu `%` trong câu không phá được lệnh). Đừng tính id một lần vào biến rồi dùng cho nhiều dòng — đó đúng là lỗi làm 8 dòng sổ release-2-11-0 chung một mã, và câu dịch trên thẻ bị lặp sang mọi dòng cùng mã:
+`_acceptance/<slug>/decisions.jsonl` — append-only, 1 dòng JSON/quyết định; ledger KHÔNG BAO GIỜ override contract/evals (descope một AC = sửa contract + re-approve; ledger chỉ ghi *vì sao*; mâu thuẫn ledger↔contract = lỗi phải báo user). Schema: `{"id":"d-<UTC>-<n>","type":"descope|approach|fix|revisit","stage":"S1|S2|S3|S4-r<N>|gate1|gate2","at":"<ISO>","decision":"1 câu","impact":"tiết kiệm gì · rủi ro gì"}` + optional `serves:["AC-2"]`, `revisit`, `supersedes:"<id>"`. Append (không script mới) bằng ĐÚNG khối lệnh ba dòng dưới, mỗi dòng sổ một lần chạy — chỉ thay `<slug>` và các ô `<…>` ở dòng giữa. Id `d-<UTC>-<n>` do lệnh tự tính: `<n>` = số thứ tự dòng mới trong sổ, nên sổ append-only cho mỗi dòng một mã kể cả khi nhiều dòng rơi vào cùng một giây. Phần JSON đi trong heredoc CÓ NHÁY (`<<'JSON'`), nên mọi ký tự trong câu — nháy đơn, `%`, `$`, backtick — được ghi nguyên văn; chỉ `"` và `\` phải escape theo JSON (`\"`, `\\`), và phần JSON nằm trên MỘT dòng. Đừng tính id một lần vào biến rồi dùng cho nhiều dòng — đó đúng là lỗi làm 8 dòng sổ release-2-11-0 chung một mã, và câu dịch trên thẻ bị lặp sang mọi dòng cùng mã:
 <!-- <<<DEC-ID-RECIPE -->
 ```
-printf '{"id":"%s",%s}\n' "d-$(date -u +%Y%m%dT%H%M%SZ)-$(( $(cat _acceptance/<slug>/decisions.jsonl 2>/dev/null | grep -c '') + 1 ))" '"type":"<type>","stage":"<stage>","at":"<ISO>","decision":"<1 câu>","impact":"<đổi lại gì>"' >> _acceptance/<slug>/decisions.jsonl
+L=_acceptance/<slug>/decisions.jsonl; { printf '{"id":"d-%s-%s",' "$(date -u +%Y%m%dT%H%M%SZ)" "$(( $(cat "$L" 2>/dev/null | grep -c '') + 1 ))"; tr -d '\n' <<'JSON'; printf '}\n'; } >> "$L"
+"type":"<type>","stage":"<stage>","at":"<ISO>","decision":"<1 câu>","impact":"<đổi lại gì>"
+JSON
 ```
 <!-- DEC-ID-RECIPE>>> -->
 

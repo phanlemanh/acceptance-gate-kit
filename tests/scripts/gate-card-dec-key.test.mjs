@@ -128,11 +128,37 @@ check('DK06 pha vat that: khoi phuc lookup cu (x.id === e.id) -> CUNG fixture do
 
 // ---- bên VIẾT: khuôn id của SKILL, chạy thật trong cùng một giây ----
 const SKILL = readFileSync(path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
+// Khối là TRỌN lệnh nhiều dòng (heredoc) — rút nguyên khối giữa hai hàng ```.
 const recipeOf = t => {
-  const m = t.match(/<!-- <<<DEC-ID-RECIPE -->\n```\n([^\n]+)\n```\n<!-- DEC-ID-RECIPE>>> -->/);
-  if (!m) die('SKILL feature-loop thieu khoi marker DEC-ID-RECIPE (mot dong trong ```)');
+  const m = t.match(/<!-- <<<DEC-ID-RECIPE -->\n```\n([\s\S]+?)\n```\n<!-- DEC-ID-RECIPE>>> -->/);
+  if (!m) die('SKILL feature-loop thieu khoi marker DEC-ID-RECIPE (lenh trong ```)');
   return m[1];
 };
+
+// Câu THẬT, không chỉ thay <slug>: review S4-r1 bắt khuôn đặt JSON trong nháy đơn làm câu có dấu
+// nháy đơn phá lệnh (không ghi được dòng nào). Câu thử mang đủ ký tự shell nhạy: ' % $HOME `...`
+// và \" (nháy đã escape theo JSON). Bản ghi phải là ĐÚNG câu đó sau khi đọc JSON.
+const REAL_JSON = "sua loi user's config 100% $HOME `echo X` noi \\\"x\\\"";
+const REAL_TEXT = "sua loi user's config 100% $HOME `echo X` noi \"x\"";
+const appendReal = (block, shell) => {
+  const d = mkdtempSync(path.join(tmpdir(), 'decreal-'));
+  mkdirSync(path.join(d, '_acceptance', 'x'), { recursive: true });
+  const cmd = block.split('<slug>').join('x').split('<1 câu>').join(REAL_JSON);
+  const r = spawnSync(shell, ['-c', cmd], { cwd: d, encoding: 'utf8' });
+  if (r.status !== 0) die(`lenh ghi so voi cau that khong chay duoi ${shell}: ` + String(r.stderr).split('\n')[0]);
+  return readFileSync(path.join(d, '_acceptance', 'x', 'decisions.jsonl'), 'utf8').trim().split('\n').map(l => {
+    try { return JSON.parse(l).decision; } catch (_) { return die('dong so khong phai JSON: ' + l); }
+  });
+};
+check('DK13 lenh SKILL voi cau THAT (nhay don, %, $, backtick, \\"): ghi nguyen van, bash + zsh; bo nhay heredoc -> DO', () => {
+  const blk = recipeOf(readFileSync(path.join(ROOT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8'));
+  const shells = spawnSync('zsh', ['-c', 'true']).status === 0 ? ['bash', 'zsh'] : ['bash'];
+  for (const sh of shells) eq(appendReal(blk, sh), [REAL_TEXT], `cau ghi vao so (${sh})`);
+  // đột biến trong CÙNG lệnh: heredoc không nháy → shell mở rộng $HOME và chạy backtick
+  const mut = blk.replace("<<'JSON'", '<<JSON');
+  if (mut === blk) die("dot bien khong bo duoc nhay heredoc (<<'JSON' vang khoi khoi lenh?)");
+  eq(appendReal(mut, 'bash'), [REAL_TEXT.replace('$HOME', process.env.HOME).replace('`echo X`', 'X')], 'dot bien bo nhay heredoc');
+});
 // Chạy NGUYÊN VĂN lệnh append của SKILL (chỉ thay <slug>) ba lần liền, dưới hai shell. `date` giả
 // ghim đồng hồ — mọi dòng rơi vào CÙNG một giây, như lượt ghi của sổ thật. Không dựng lệnh ghi riêng
 // cho test: review 11/09 bắt bản đầu chạy một printf tự viết, lệch nháy với lệnh SKILL thật.
