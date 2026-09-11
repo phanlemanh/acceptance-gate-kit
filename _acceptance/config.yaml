@@ -244,6 +244,7 @@ executors:
     gllc_nap_loi: GLLC_CASES=GL05 node tests/scripts/repin-lane-lop-cu.test.mjs
     gllc_nguon_cache: GLLC_CASES=GL06 node tests/scripts/repin-lane-lop-cu.test.mjs
     gllc_loi_di_tiep: GLLC_CASES=GL07 node tests/scripts/repin-lane-lop-cu.test.mjs
+    gllc_bo_loc_rong: GLLC_CASES=GL08 node tests/scripts/repin-lane-lop-cu.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

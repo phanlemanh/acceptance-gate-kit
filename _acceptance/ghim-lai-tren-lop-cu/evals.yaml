@@ -2,11 +2,14 @@
 #
 # Ca sống VĨNH VIỄN ở tests/scripts/repin-lane-lop-cu.test.mjs (suite scripts tự chạy
 # qua glob *.test.mjs) — lưới thường trực cho lớp «điểm chạm bộ máy của làn ghim
-# lại». Mỗi eval gọi ĐÚNG MỘT ca qua GLLC_CASES; bộ lọc khớp 0 ca phải thoát khác 0
-# với thông điệp ghim "GLLC_CASES khop 0 ca" (bài học P86: bộ chọn khớp 0 ca mà xanh).
+# lại». Mỗi eval gọi ĐÚNG MỘT ca qua GLLC_CASES và ghim: stdout có ĐÚNG MỘT dòng kết
+# quả khớp /^\s*(PASS|FAIL): GL\d\d/ và dòng đó mang chính mã ca của eval (bài học
+# [thuoc-khai-mot-dang-do-mot-neo#F1]: eval trỏ một khoá không chạy đúng vật). Bộ lọc
+# khớp 0 ca → thoát khác 0 in "GLLC_CASES khop 0 ca" — chiều đỏ này chạy ở E13 (GL08).
 # Fixture do code sinh trong chính lượt chạy: kho git tạm theo khuôn repin-lane.test.mjs;
 # lớp cũ THẬT = git archive 0b5c5b37 lib scripts (trọn thư mục); lớp lai = trọn cây đang
-# đo với lib/evidence-core.cjs của 04069351; mọi đường dẫn suy từ vị trí tệp ca.
+# đo với lib/evidence-core.cjs của 04069351; hàng bảng rút từ khối marker AG-ENGINE-TABLE
+# của repin-lane.mjs; mọi đường dẫn suy từ vị trí tệp ca.
 # Mốc vắng (clone nông) → ca ĐỎ có tên "thieu moc <sha>", không xanh lặng.
 
 evals:
@@ -15,14 +18,18 @@ evals:
     executor: script
     cmd: config:executors.script.gllc_lop_cu_that
     expected: >-
-      Ca GL01. Đối chứng dương TRƯỚC: cùng kho tạm, --ag-root = cây đang đo → exit 0.
-      Rồi --ag-root = lớp 0b5c5b37 (git archive, trọn lib+scripts), chạy cả không --write
-      lẫn --write: exit ĐÚNG 2; stderr chứa "lib/eval-yaml.cjs", "expectedExits",
-      "≥ 2.11.0", "--ag-root", "--root vẫn là cây đang đo"; stderr KHÔNG chứa "TypeError";
-      tệp dấu của suite vắng (không suite nào chạy); run-log.jsonl và evidence-report.md
-      bằng byte trước lượt chạy. Chiều đỏ trên bản sao repin-lane.mjs hoàn nguyên lối rút
-      không kiểm (mũi tiêm phải trúng đúng một lần, mutant qua node --check): chạy trên
-      cùng lớp cũ ra TypeError → ca ĐỎ, thông điệp ghim "TypeError tho".
+      Ca GL01; stdout có đúng một dòng kết quả, mang "GL01". Đối chứng dương TRƯỚC: cùng kho
+      tạm, --ag-root = cây đang đo → exit 0. Rồi --ag-root = lớp 0b5c5b37 (git archive, trọn
+      lib+scripts), chạy cả không --write lẫn --write: exit ĐÚNG 2; stderr chứa
+      "lib/eval-yaml.cjs", "expectedExits", "≥ 2.11.0", "--ag-root", "--root vẫn là cây đang
+      đo"; stderr KHÔNG chứa "TypeError"; tệp dấu của suite vắng; run-log.jsonl và
+      evidence-report.md bằng byte trước lượt chạy. Ô cây bẩn: sửa một tệp ĐÃ THEO DÕI ngoài
+      _acceptance/ chưa commit; --ag-root = 0b5c5b37 → exit 2, stderr có "expectedExits" và
+      KHÔNG có "cây bẩn ngoài _acceptance/"; đối chứng dương cùng kho bẩn với --ag-root = cây
+      đang đo → exit 2 và stderr chứa "cây bẩn ngoài _acceptance/" (thông điệp hôm nay).
+      Chiều đỏ trên bản sao repin-lane.mjs hoàn nguyên lối rút không kiểm (mũi tiêm trúng
+      đúng một lần, mutant qua node --check): trên cùng lớp cũ ra TypeError → ca ĐỎ, thông
+      điệp ghim "TypeError tho".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
       - "tests/scripts/repin-lane-lop-cu.test.mjs"
@@ -33,11 +40,15 @@ evals:
     executor: script
     cmd: config:executors.script.gllc_liet_ke_tron
     expected: >-
-      Ca GL02. Trên lớp 0b5c5b37: MỘT lượt chạy liệt kê cả "lib/eval-yaml.cjs: expectedExits"
-      lẫn "lib/evidence-core.cjs: readSignedReportFor", mỗi mục một dòng có "2.11.0"; stderr
-      KHÔNG chứa "≥ 2.9.0" gắn với hai mục đó. Đối chứng dương: trên cây đang đo không dòng
-      thiếu nào. Chiều đỏ trên bản sao dừng ở mục thiếu đầu tiên → chỉ còn một dòng → ca
-      ĐỎ, thông điệp ghim "chi bao muc dau".
+      Ca GL02; stdout có đúng một dòng kết quả, mang "GL02". Tập kỳ vọng TÍNH LÚC CHẠY: các
+      hàng của khối AG-ENGINE-TABLE mà export vắng khi require() lib/eval-yaml.cjs +
+      lib/evidence-core.cjs của lớp 0b5c5b37. Trên lớp đó: tập dòng «thiếu» in ra (mỗi dòng
+      "<tệp>: <export>") BẰNG tập kỳ vọng (so đẳng thức tập, không phép chứa), số dòng bằng
+      số phần tử, mỗi dòng mang bản cần đúng như hàng bảng; không dòng nào cần 2.11.0 mà in
+      "≥ 2.9.0". Ô hai-thiếu-cùng-tệp: bản chép trọn cây đang đo, xoá HAI export của
+      lib/evidence-core.cjs đều là hàng bảng → in đúng hai dòng đó. Đối chứng dương: cây
+      đang đo → exit 0, không dòng thiếu. Chiều đỏ: bản sao dừng ở mục thiếu đầu tiên của MỖI
+      tệp → ô hai-thiếu-cùng-tệp ĐỎ, thông điệp ghim "thieu muc cung tep".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
       - "tests/scripts/repin-lane-lop-cu.test.mjs"
@@ -48,15 +59,21 @@ evals:
     executor: script
     cmd: config:executors.script.gllc_ma_tran_export
     expected: >-
-      Ca GL03 — ma trận TOÀN PHẦN xoá-một-export. Danh sách export đếm lúc chạy bằng
-      require() của lib/eval-yaml.cjs + lib/evidence-core.cjs trong cây đang đo (không gõ
-      tay); mỗi ô = bản chép trọn cây với `delete module.exports.<X>` nối cuối tệp (mutant
-      phải khác bản gốc). Chạy làn --write. Kết cục hợp lệ: (G) exit 0 + "recheck-evidence
-      xanh", hoặc (N) exit 2 + stderr gọi tên tệp và <X> + 0 byte bị ghi + tệp dấu suite
-      vắng. Mọi kết cục khác → ĐỎ ghim "o <tep>:<X> ra <mo ta>". Chín export làn/recheck gọi
-      phải ra (N). Số assert BẰNG số export đếm được, ca tự đếm; lệch → ĐỎ "so o lech".
-      Đối chứng dương: cây nguyên vẹn → exit 0. Chiều đỏ: bản sao repin-lane.mjs gỡ hàng
-      checkRepinEvals khỏi bảng → ô đó ra "ghi roi moi do" → ca ĐỎ gọi tên ô.
+      Ca GL03; stdout có đúng một dòng kết quả, mang "GL03". Ma trận TOÀN PHẦN xoá-một-export
+      × HAI hồ sơ fixture (hồ sơ mọi eval exit 0; hồ sơ eval khai expected_exit: 2 trả 2, báo
+      cáo đã ký ghi 2). Danh sách export đếm lúc chạy bằng require() hai tệp lib của cây đang
+      đo; mỗi ô = bản chép trọn cây, nối `delete module.exports.<X>` cuối tệp (mutant phải
+      khác bản gốc). Chạy làn --write. Kết cục hợp lệ: (G) exit 0 + "recheck-evidence xanh"
+      + dòng repin và mục Re-pin BẰNG BYTE lượt đối chứng của cùng hồ sơ sau khi chuẩn hoá
+      run_id, ts, ngày; hoặc (N) exit 2 + stderr gọi tên tệp và <X> + 0 byte bị ghi + tệp dấu
+      suite vắng. Khác → ĐỎ ghim "o <tep>:<X>/<ho so> ra <mo ta>". Số assert BẰNG số export × 2,
+      ca tự đếm; lệch → ĐỎ "so o lech". QUAN HỆ: tập tên trích lúc chạy từ
+      scripts/recheck-evidence.cjs và feature-loop/scripts/repin-lane.mjs (mọi `core.<X>` và
+      mọi tên rút từ hai tệp lib) ⊆ tập export của các hàng AG-ENGINE-TABLE. Đối chứng dương:
+      cây nguyên vẹn → hai hồ sơ đều exit 0 và quan hệ thoả. Chiều đỏ: (i) bản sao
+      repin-lane.mjs gỡ hàng checkRepinEvals → ô đó ra "ghi roi moi do", ca ĐỎ gọi tên ô;
+      (ii) bản sao recheck-evidence.cjs thêm lời gọi core.fakeX → phép quan hệ ĐỎ, thông điệp
+      ghim "fakeX".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
       - "scripts/recheck-evidence.cjs"
@@ -70,13 +87,13 @@ evals:
     executor: script
     cmd: config:executors.script.gllc_lop_lai
     expected: >-
-      Ca GL04. Hồ sơ code-sinh có eval khai expected_exit: 2, lệnh trả 2, báo cáo đã ký
-      ghi 2. Đối chứng dương trên cây đang đo: làn --write xanh, evals_exit giữ 2,
-      recheck xanh. Trên lớp LAI (trọn cây, riêng lib/evidence-core.cjs = git show
-      04069351): exit 2 TRƯỚC khi ghi, stderr chứa "lib/evidence-core.cjs",
-      "readSignedReportFor", "2.11.0"; run-log và evidence-report bằng byte. Chiều đỏ trên
-      bản sao repin-lane.mjs gỡ hàng readSignedReportFor khỏi bảng: làn GHI rồi recheck
-      từ chối (stderr "đã ghi nhưng recheck-evidence ĐỎ") → ca ĐỎ, thông điệp ghim
+      Ca GL04; stdout có đúng một dòng kết quả, mang "GL04". Hồ sơ code-sinh có eval khai
+      expected_exit: 2, lệnh trả 2, báo cáo đã ký ghi 2. Đối chứng dương trên cây đang đo:
+      làn --write exit 0, evals_exit giữ 2, recheck xanh. Trên lớp LAI (trọn cây, riêng
+      lib/evidence-core.cjs = git show 04069351): exit 2 TRƯỚC khi ghi, stderr chứa
+      "lib/evidence-core.cjs", "readSignedReportFor", "2.11.0"; run-log và evidence-report
+      bằng byte. Chiều đỏ trên bản sao repin-lane.mjs gỡ hàng readSignedReportFor: làn GHI rồi
+      recheck từ chối (stderr "đã ghi nhưng recheck-evidence ĐỎ") → ca ĐỎ, thông điệp ghim
       "ghi roi moi do".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
@@ -88,12 +105,12 @@ evals:
     executor: script
     cmd: config:executors.script.gllc_nap_loi
     expected: >-
-      Ca GL05. Bản chép trọn cây đang đo, lib/eval-yaml.cjs bị tiêm lỗi cú pháp (bản tiêm
-      phải thật sự hỏng: node --check trên nó thoát khác 0). Làn thoát 2, stderr chứa
-      "không nạp được lib/eval-yaml.cjs", KHÔNG chứa dòng stack "    at "; tệp hồ sơ bằng
-      byte. Đối chứng dương: bản chép chưa tiêm → qua cổng kiểm bộ máy. Chiều đỏ trên
-      bản sao repin-lane.mjs bỏ lớp bọc nạp → stack thô → ca ĐỎ, thông điệp ghim
-      "nap khong boc".
+      Ca GL05; stdout có đúng một dòng kết quả, mang "GL05". Đối chứng dương TRƯỚC, cùng kho
+      tạm: bản chép trọn cây đang đo chưa tiêm → exit 0. Rồi tiêm lỗi cú pháp vào
+      lib/eval-yaml.cjs của bản chép (bản tiêm phải thật sự hỏng: node --check thoát khác 0):
+      làn thoát 2, stderr chứa "không nạp được lib/eval-yaml.cjs", KHÔNG chứa dòng stack
+      "    at "; tệp hồ sơ bằng byte. Chiều đỏ trên bản sao repin-lane.mjs bỏ lớp bọc nạp →
+      stack thô → ca ĐỎ, thông điệp ghim "nap khong boc".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
       - "tests/scripts/repin-lane-lop-cu.test.mjs"
@@ -104,12 +121,12 @@ evals:
     executor: script
     cmd: config:executors.script.gllc_nguon_cache
     expected: >-
-      Ca GL06. Không --ag-root; HOME = thư mục tạm có .claude/plugins/cache/<mkt>/
-      acceptance-gate/<ver>/ chứa lớp 0b5c5b37 (đủ ba tệp AG_REQUIRES nên resolve-plugin
-      chọn nó). Làn thoát 2, stderr có cùng khuôn của GL01 cộng câu nói nguồn là plugin
-      cache và "cập nhật plugin". Đối chứng dương: cache chứa bản chép cây đang đo → làn
-      qua cổng kiểm bộ máy. Chiều đỏ trên bản sao bỏ nhánh nguồn → ca ĐỎ, thông điệp ghim
-      "khong noi nguon".
+      Ca GL06; stdout có đúng một dòng kết quả, mang "GL06". Không --ag-root. Đối chứng dương
+      TRƯỚC, cùng kho tạm: HOME = thư mục tạm có .claude/plugins/cache/<mkt>/acceptance-gate/
+      <ver>/ chứa bản chép cây đang đo → exit 0. Rồi cache chỉ chứa lớp 0b5c5b37 (đủ ba tệp
+      AG_REQUIRES nên resolve-plugin chọn nó): làn thoát 2, stderr có cùng khuôn của GL01 cộng
+      câu nói nguồn là plugin cache và "cập nhật plugin". Chiều đỏ trên bản sao bỏ nhánh
+      nguồn → ca ĐỎ, thông điệp ghim "khong noi nguon".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
       - "feature-loop/scripts/resolve-plugin.mjs"
@@ -121,14 +138,20 @@ evals:
     executor: script
     cmd: config:executors.script.gllc_loi_di_tiep
     expected: >-
-      Ca GL07 — lối đi tiếp là đường SỐNG. Cùng kho tạm: làn trên lớp 0b5c5b37 dừng (exit
-      2); rồi làm theo lối in ra: --ag-root = cây đang đo, --root giữ nguyên, --write →
-      exit 0; rồi bên đọc CŨ (scripts/recheck-evidence.cjs của lớp 0b5c5b37, nạp lib cùng
-      lớp) chấm evidence-report.md vừa ghi → exit 0. Chiều đỏ CÙNG fixture: bản sao làn bỏ
-      evals_exit khỏi dòng repin → bên đọc cũ thoát khác 0 và stderr chứa
-      "recorded no evals_exit" → ca ghim đúng chuỗi đó; thiếu chuỗi → ca ĐỎ.
+      Ca GL07; stdout có đúng một dòng kết quả, mang "GL07". Round-trip lối đi tiếp rút từ
+      CHÍNH stderr — không gõ tay --ag-root. Cùng kho tạm: làn trên lớp 0b5c5b37 dừng (exit
+      2); (1) trích dòng bắt đầu "lệnh dò:" khỏi stderr (vắng → ĐỎ "khong co lenh do");
+      (2) chạy đúng lệnh đó với cwd = --root của kho tạm và HOME = plugin cache code-sinh chứa
+      bản chép cây đang đo → exit 0 và in một đường dẫn tồn tại; (3) dùng ĐÚNG đường dẫn đó
+      làm --ag-root, --root giữ nguyên, --write → exit 0; rồi bên đọc CŨ
+      (scripts/recheck-evidence.cjs của lớp 0b5c5b37, nạp lib cùng lớp) chấm
+      evidence-report.md vừa ghi → exit 0. Hai chiều đỏ CÙNG fixture: (a) bản sao làn in lệnh
+      dò với đường dẫn tương đối gốc kit → bước (2) thoát khác 0 từ cwd kho tạm → ca ghim
+      "lenh do khong chay duoc tu --root"; (b) bản sao làn bỏ evals_exit khỏi dòng repin → bên
+      đọc cũ thoát khác 0 và stderr chứa "recorded no evals_exit" → ca ghim đúng chuỗi đó.
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/resolve-plugin.mjs"
       - "tests/scripts/repin-lane-lop-cu.test.mjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
@@ -138,7 +161,7 @@ evals:
     cmd: config:executors.test.scripts
     expected: >-
       exit 0; stdout có dòng PASS của mọi ca LN trong tests/scripts/repin-lane.test.mjs và
-      của GL01..GL07 — tệp ca mới được suite scripts tự chạy qua glob *.test.mjs. Suite
+      của GL01..GL08 — tệp ca mới được suite scripts tự chạy qua glob *.test.mjs. Suite
       xanh mà thiếu dòng GL nào là ĐỎ (tệp ca không được wire là ca không sống).
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
@@ -185,4 +208,18 @@ evals:
       exit 0 — bản đồ sản phẩm khớp hồ sơ xưởng sau khi thêm hồ sơ này.
     paths:
       - "PRODUCT-MAP.md"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.gllc_bo_loc_rong
+    expected: >-
+      Ca GL08; stdout có đúng một dòng kết quả, mang "GL08". Chiều đỏ của chính bộ chọn ca:
+      GL08 chạy lại tệp ca với GLLC_CASES=GL99 → phải thoát khác 0 và in "GLLC_CASES khop 0
+      ca". Đối chứng dương cùng lượt: GLLC_CASES=GL01 → đúng một dòng kết quả mang "GL01".
+      Bản sao tệp ca bỏ phép kiểm khớp-0 → GL99 thoát 0 → GL08 ĐỎ, thông điệp ghim
+      "bo loc rong ma xanh".
+    paths:
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

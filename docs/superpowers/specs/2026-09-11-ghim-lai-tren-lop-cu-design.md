@@ -108,9 +108,30 @@ Nạp tệp bọc `try/catch` → exit 2 «không nạp được <tệp> (<dòng
 Thông điệp tệp-thiếu ở dòng 68 và export-thiếu ở dòng 72 gộp về cùng một khuôn,
 sàn đọc từ bảng (không còn «≥ 2.9.0» ghi cứng).
 
-Cái giá cố tình nhận: bảng phải biết recheck cần gì. Nếu mai `recheck-evidence.cjs`
-gọi thêm `core.X` mà bảng không thêm thì sao? Ma trận xoá-export (AC-3) đỏ ngay:
-ô đó ra hình dạng «ghi rồi mới đỏ». Coupling có răng, không phải lời dặn.
+Bảng đặt trong MỘT khối marker `AG-ENGINE-TABLE`. Phép đo rút hàng từ khối đó lúc
+chạy, không chép tay (single-source cho cả làn lẫn thước).
+
+Thông điệp dừng in trọn tập thiếu, mỗi mục một dòng `<tệp>: <export> (cần ≥ <bản>)`,
+không dừng ở mục đầu của mỗi tệp. Cuối thông điệp là một dòng `lệnh dò: node
+<đường TUYỆT ĐỐI tới resolve-plugin.mjs> --plugin acceptance-gate --require …`. Tuyệt
+đối, vì người chạy đứng ở `--root` chứ không ở gốc kit. Dòng này cũng là vật mà
+AC-7 trích ra chạy thật.
+
+Cổng bộ máy chạy TRƯỚC kiểm cây sạch. Bộ máy cũ là lỗi nguồn, cây bẩn là lỗi người
+chạy, và báo lỗi người chạy khi bộ máy đã không dùng được là dẫn sai hướng.
+
+Cái giá cố tình nhận: bảng phải biết recheck cần gì. Hai răng giữ coupling đó:
+
+- **Phép QUAN HỆ (AC-3).** Trích lúc chạy mọi tên `core.<X>` và mọi tên rút từ hai
+  tệp lib trong `recheck-evidence.cjs` + `repin-lane.mjs`, đòi tập đó ⊆ hàng bảng.
+  Recheck gọi thêm `core.X` mà bảng không thêm → đỏ gọi tên X ngay, không phải chờ
+  một ô matrix tình cờ chạm tới nó.
+- **Ma trận xoá-export trên HAI hồ sơ (AC-3).** Một hồ sơ mọi eval exit 0, một hồ
+  sơ eval khai `expected_exit: 2`. Có hồ sơ thứ hai thì nhánh chỉ chạy khi
+  `evals_exit` khác 0 mới được với tới. Ô (G) phải ghi BẰNG BYTE bản đối chứng sau
+  khi chuẩn hoá `run_id`/`ts`/ngày. «Exit 0 + recheck xanh» thôi không đủ, vì một
+  lối đọc mới kiểu `?.`/`?? mặc định` sẽ lặng lẽ rơi về mặc định mà vẫn xanh —
+  tức đúng lựa chọn (b) đã loại, lọt vào qua cửa sau.
 
 ## 5. Phép đo
 
