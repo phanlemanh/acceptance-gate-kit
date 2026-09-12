@@ -245,6 +245,20 @@ executors:
     gllc_nguon_cache: GLLC_CASES=GL06 node tests/scripts/repin-lane-lop-cu.test.mjs
     gllc_loi_di_tiep: GLLC_CASES=GL07 node tests/scripts/repin-lane-lop-cu.test.mjs
     gllc_bo_loc_rong: GLLC_CASES=GL08 node tests/scripts/repin-lane-lop-cu.test.mjs
+    # --- lan-doc-status-not-run (12/09, T3) --- moi eval = MOT ca cua tep ca
+    # VINH VIEN tests/scripts/lan-status-not-run.test.mjs (suite scripts tu chay
+    # qua glob). Lenh de TRAN (khong nhay) theo nep gllc_*/emmd_*. Bo loc
+    # LSNR_CASES khop 0 ca phai thoat khac 0 (bai hoc P86, ca lsnr_bo_loc_rong).
+    lsnr_mot_nguon: LSNR_CASES=L01 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_bo_qua_that: LSNR_CASES=L02 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_ben_doc_nhan: LSNR_CASES=L03 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_hai_ve: LSNR_CASES=L04 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_pin_cu: LSNR_CASES=L05 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_noi_ra: LSNR_CASES=L06 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_ca_that: LSNR_CASES=L07 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_bo_loc_rong: LSNR_CASES=L08 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_chuan_hoa: LSNR_CASES=L09 node tests/scripts/lan-status-not-run.test.mjs
+    lsnr_cho_xuat_hien: LSNR_CASES=L10 node tests/scripts/lan-status-not-run.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
