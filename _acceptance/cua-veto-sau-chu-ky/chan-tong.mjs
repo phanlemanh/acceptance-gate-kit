@@ -31,4 +31,17 @@ if (JSON.stringify(lai) !== JSON.stringify(['b-da-ky']))
   loi.push(`gỡ chữ ký mà tên không quay lại dòng tổng: [${lai.join(' ')}]`);
 
 if (loi.length) { console.error(loi.join(' | ')); process.exit(1); }
+
+// ── chiều đỏ trong CÙNG lượt: gỡ dòng rẽ khỏi bản sao lưới ──────────────────
+F.writeDossier(repo, 'b-da-ky', { veto: F.MO, cong1: F.CO_TEN, chuKy: F.o('that-tran') });
+F.gitAll(repo, 'ky lai');
+F.tiem(repo, 'scripts/pre-merge-check.sh',
+  'if [ "$vstate" = "mo" ] && signoff_that "$dir"; then vstate="mo-da-ky"; fi',
+  ':');
+const mutTen = F.tenDongTong(F.runPremerge(repo).out);
+if (!mutTen.includes('b-da-ky')) {
+  console.error('chiều đỏ KHÔNG chạy: gỡ dòng rẽ mà dòng tổng vẫn bỏ hồ sơ đã ký');
+  process.exit(1);
+}
 console.log('dòng tổng: 1 tên đúng, N khớp số tên, ký hết thì im, gỡ ký thì hiện lại');
+console.log(`       [chiều đỏ] gỡ dòng rẽ khỏi bản sao → dòng tổng đếm lại hồ sơ đã ký: [${mutTen.join(' ')}]`);
