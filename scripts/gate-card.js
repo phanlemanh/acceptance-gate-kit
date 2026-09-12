@@ -35,7 +35,7 @@ const outOfContract = require('../lib/out-of-contract.cjs');
 const evidenceCore = require('../lib/evidence-core.cjs');
 // Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.cjs
 // (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).
-const { section } = require('../lib/md-section.cjs');
+const { section, contentLines } = require('../lib/md-section.cjs');
 // Parser evals.yaml dùng chung với eval-coverage-lint (lib/eval-yaml.cjs) — hiểu
 // block scalar: khuôn eval-gen viết `expected: >`, regex một-dòng cũ bắt được
 // ">" nên NEG_RE luôn false → covGaps bắn cảnh báo giả cho MỌI AC có số.
@@ -418,9 +418,7 @@ if (gate === '1') {
   // mục CÓ THẬT — đo được 29 trên 244 hợp đồng có mục Coverage ở 11 kho. Gạch đầu
   // dòng vẫn được ưu tiên; chỉ khi KHÔNG có gạch nào mới lấy dòng thường, và bỏ
   // hàng phân cách của bảng vì nó không mang chữ cho người đọc.
-  const covBullets = bullets(covAll).filter(l => !/\{\{/.test(l));
-  const covLines = covBullets.length ? covBullets
-    : covAll.filter(l => l.trim() && !/\{\{/.test(l) && !/^\s*\|?\s*:?-{2,}/.test(l));
+  const covLines = contentLines(covAll);
   const covUnverified = covAll.some(l => /CE chưa kiểm chứng/i.test(l));
   // gap-probe (S1#7 phản biện context sạch) — presentation only: render findings + disposition, flag absence/failed/dropped
   const gpFm = frontmatter(probeT);

@@ -743,6 +743,57 @@ def('CN15', () => {
   say('CN15', true, '', chi);
 });
 
+// ══ CN12 — danh sách chép lớp CI, đo theo BAO ĐÓNG BẮC CẦU ════════════════
+// Phép đo sẵn có (CE2 của tests/scripts/consumer-esm.test.mjs) quét tên tệp lib
+// xuất hiện TRONG HAI TỆP cưỡng chế. Nó không lần theo require bắc cầu, nên một
+// tệp lib nạp từ bên trong một tệp lib khác nằm ngoài tầm. Ở vòng này nó chỉ lọt
+// lưới nhờ tên tình cờ nằm trong một câu thông điệp lỗi — gỡ câu đó đi thì nó
+// XANH trên một lớp hỏng thật. Ca này đo chỗ trống ấy, và ghim luôn sự khác biệt.
+def('CN12', () => {
+  const chi = [];
+  const cp = req('node:child_process');
+  const DO = path.join(ROOT, '_acceptance', 'cong-nguoi-doc-du-nguon', 'do-ban-kinh.cjs');
+  const chay = (agRoot) => {
+    const r = cp.spawnSync(process.execPath, [DO, '--truc', 'chep', '--ag-root', agRoot, '--json'], { encoding: 'utf8' });
+    let j = {}; try { j = JSON.parse(r.stdout); } catch (_) { /* giữ rỗng */ }
+    return { ma: r.status, chep: j.chep || {}, err: String(r.stderr || '') };
+  };
+  // Đối chứng dương TRƯỚC: cây đang đo — không thiếu mục nào, thoát 0.
+  const duong = chay(ROOT);
+  chi.push(`cây đang đo: khai=${duong.chep.khai} dùng=${duong.chep.dung} thiếu=${(duong.chep.thieu || []).length} mã=${duong.ma}`);
+  if (duong.ma !== 0) return say('CN12', false, `doi chung duong thoat ${duong.ma}`, chi);
+  if ((duong.chep.thieu || []).length) return say('CN12', false, `cay dang do THIEU: ${duong.chep.thieu.join(', ')}`, chi);
+  if (!(duong.chep.batCau || []).includes('lib/out-of-contract.cjs')) {
+    return say('CN12', false, 'bao dong bac cau KHONG toi duoc lib/out-of-contract.cjs — phep do khong lan theo require', chi);
+  }
+  chi.push('bao đóng bắc cầu chạm tới bộ đọc nạp từ BÊN TRONG lõi');
+
+  // Mũi tiêm: gỡ mục khỏi danh sách chép VÀ gỡ tên tệp khỏi thông điệp lỗi, để
+  // phép đo không thể bắt được bằng cách dò chuỗi.
+  const ban = mk('cn12-tiem-');
+  for (const d of ['lib', 'scripts', 'commands']) fs.cpSync(path.join(ROOT, d), path.join(ban, d), { recursive: true });
+  const pCmd = path.join(ban, 'commands', 'acceptance-init.md');
+  const sCmd = fs.readFileSync(pCmd, 'utf8');
+  const reMuc = /\n *- `\$\{CLAUDE_PLUGIN_ROOT\}\/lib\/out-of-contract\.cjs`[^\n]*/;
+  if (!reMuc.test(sCmd)) return say('CN12', false, 'khong tim thay muc de go khoi danh sach chep', chi);
+  fs.writeFileSync(pCmd, sCmd.replace(reMuc, ''));
+  const pSh = path.join(ban, 'scripts', 'pre-merge-check.sh');
+  const sSh = fs.readFileSync(pSh, 'utf8');
+  const cauCu = '(thiếu node, hoặc lib/evidence-core.cjs + lib/out-of-contract.cjs chưa chép)';
+  if (sSh.split(cauCu).length !== 2) return say('CN12', false, 'cau thong diep da doi — mui tiem khong khop dung mot lan', chi);
+  fs.writeFileSync(pSh, sSh.replace(cauCu, '(thiếu node, hoặc lớp CI chưa chép đủ)'));
+  const kt = cp.spawnSync('bash', ['-n', pSh], { encoding: 'utf8' });
+  if (kt.status !== 0) return say('CN12', false, 'ban tiem khong qua bash -n', chi);
+
+  const do_ = chay(ban);
+  chi.push(`bản tiêm: thiếu=${JSON.stringify(do_.chep.thieu || [])} mã=${do_.ma}`);
+  if (do_.ma === 0) return say('CN12', false, 'go muc khoi danh sach ma phep do van thoat 0', chi);
+  if (!(do_.chep.thieu || []).includes('lib/out-of-contract.cjs')) {
+    return say('CN12', false, 'phep do khong neu DICH DANH tep thieu', chi);
+  }
+  say('CN12', true, '', chi);
+});
+
 // ── chạy ──────────────────────────────────────────────────────────────────
 const chon = (process.env.CNDN_CASES || '').split(/[,\s]+/).filter(Boolean);
 const ids = Object.keys(CASES).filter(id => !chon.length || chon.includes(id));

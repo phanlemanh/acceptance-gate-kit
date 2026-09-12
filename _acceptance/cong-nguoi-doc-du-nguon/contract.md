@@ -81,23 +81,38 @@ phủ bởi AC-15. Bán kính đo tại chỗ: **29 hợp đồng / 244 hợp đ
 
 ## Đường đo
 
-Hồ sơ này không có `opportunity.md`. Bốn số dưới đây là số của chính vòng, đo bằng lệnh,
-để Cổng Bằng chứng đối chiếu trước và sau.
+Số dưới đây do `_acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs` ĐỌC TỪ VẬT
+(1243 hợp đồng và 740 tệp rà soát thật trên 22 kho của máy này), không phải hằng
+gõ tay. Cột «lớp CŨ» là cùng script chạy với `--ag-root` trỏ bản dựng tại
+`git merge-base HEAD origin/main` — đó là chiều đỏ của chính phép đo: số không
+đổi theo lớp nghĩa là script đo VĂN chứ không đo VẬT.
 
-| Thước | Số TRƯỚC khi vá | Lệnh sinh số | AC bảo đảm | Ngưỡng SAU |
-|---|---|---|---|---|
-| Hợp đồng thẻ hiện ít tiêu chí hơn hợp đồng khai | **221** / 11 kho, **1 491** tiêu chí vô hình, **214** đã duyệt Cổng Phạm vi | `node _acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs --truc ac` | AC-7, AC-8, AC-13 | **0** hợp đồng |
-| Bộ dò điểm mù IM LẶNG | **35** | cùng lệnh, cột cuối | AC-9 | **0** im lặng |
-| Hồ sơ làn V / máy-thông còn mục CHỜ NGƯỜI | **4** (kit 2 · crm 2); đếm trần không trừ sổ cho 5 | `node …/do-ban-kinh.cjs --truc findings` | AC-1, AC-5 | không có ngưỡng — số này là HIỆN TRẠNG bản vá phơi ra, không phải thứ vòng này phải hạ |
-| Hợp đồng sinh VIOLATION cross-layer MỚI | **0** | `node …/do-ban-kinh.cjs --truc cross-layer` | AC-11 | **0**; ≥1 là ngưỡng đảo quyết định `d-…-5` |
-| Cảnh báo lint MỚI ở 11 kho do tiêu chí hoá nhìn-thấy | **chưa đo** — đo ở S3 trước khi khai `implemented` | `node …/do-ban-kinh.cjs --truc lint` | AC-12, AC-13 | không đặt trước; S3 ghi số thật, >0 thì vào Known limits kèm số và kho |
+| Trục | lớp CŨ | lớp MỚI | AC bảo đảm |
+|---|---:|---:|---|
+| Hợp đồng thẻ đọc THÊM được tiêu chí | 0 | **220** | AC-7, AC-8, AC-13 |
+| Số tiêu chí đọc thêm | 0 | **1 490** | AC-7 |
+| Hồi quy đọc thiếu | 0 | **0** | AC-13 |
+| Mục Coverage bị báo thiếu OAN | 29 | **0** | AC-15 |
+| Hồ sơ có lỗi TRONG hợp đồng mà thẻ GIẤU | 0 | **35** (69 mục) | AC-10 |
+| Hồ sơ còn mục CHỜ NGƯỜI | 101 | 104 | AC-1, AC-4 |
+| Hợp đồng SINH vi phạm xuyên lớp MỚI | 0 | **0** | AC-11 |
+| Danh sách chép: mục khai / dùng bắc cầu | 13 / 9 | 14 / 10 | AC-12 |
 
-Số thứ tư là bản lề của quyết định `d-…-5`: **0** là căn cứ để widen răng cross-layer mà
-KHÔNG dựng đường đọc-cũ cho nó.
+Lệnh sinh bảng:
 
-Dòng thứ năm là nợ đo có tên, mở theo phản biện context sạch P1-3: bản vá làm 1 491 tiêu
-chí hiện ra với lint ở kho tiêu thụ, và chưa ai biết bao nhiêu cảnh báo mới sinh. Đo TRƯỚC
-khi khai `implemented`, không đợi tới lúc chiến dịch ghim lại 2.12.0 làm đỏ hàng loạt kho.
+```
+node _acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs --truc tat-ca
+node _acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs --truc tat-ca --ag-root <cây tại merge-base>
+```
+
+Đọc hai con số quan trọng nhất:
+
+- 220 / 1 490 là bán kính thật của bộ bóc tiêu chí, lớn hơn ước lượng 38 hồ sơ
+  lúc trình Cổng Phạm vi: 38 là số hồ sơ thẻ hiện SỐ KHÔNG, còn 220 là số hồ sơ
+  hiện THIẾU. Hồi quy 0 đo trên cùng tập.
+- 35 hồ sơ (69 mục) mang lỗi TRONG hợp đồng mà thẻ chưa từng hiện, trong đó có
+  hồ sơ mốc phát hành gần nhất của chính kit. Lúc trình cổng máy mới nêu được MỘT
+  ca thật.
 
 ## Out of scope
 
