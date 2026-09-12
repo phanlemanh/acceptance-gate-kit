@@ -43,7 +43,7 @@ function frontmatter(t) { const m = t.match(/^---\r?\n([\s\S]*?)\r?\n---/); cons
 // Ranh giới section: dùng chung bảng marker của lib/md-section.cjs (một nguồn).
 const { section } = require(path.join(__dirname, '..', 'lib', 'md-section.cjs'));
 // Dòng criterion: dùng chung parseAC của lib/ac-line.cjs — cùng lý do, một nguồn.
-const { parseAC } = require(path.join(__dirname, '..', 'lib', 'ac-line.cjs'));
+const { parseACBlock } = require(path.join(__dirname, '..', 'lib', 'ac-line.cjs'));
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l));
 
 const rfm = frontmatter(report), cfm = frontmatter(contract);
@@ -65,7 +65,7 @@ const reason = (rfm.reason || '').replace(/^["']|["']$/g, '').trim();
 // (judgment) nên `.replace()` tay ở đây không cần nữa (và nó giữ được code span,
 // thứ replace thô làm hỏng).
 const critText = {};
-for (const l of section(contract, 'Criteria')) { const p = parseAC(l); if (p && !critText[p.id]) critText[p.id] = p.gwt; }
+for (const p of parseACBlock(contract)) { if (!critText[p.id]) critText[p.id] = p.gwt; }
 
 // per-eval summary table rows
 const rows = [];

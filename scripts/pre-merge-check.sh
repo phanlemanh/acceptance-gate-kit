@@ -934,6 +934,16 @@ for dir in "$ACC"/*/; do
   # content, not a boundary. Exiting on any heading truncated the scan and every
   # AC after the first sub-heading went untagged (teeth silently off).
   xl_acs="$(awk '/^#/ && !/^###/ {insec=0} tolower($0) ~ /^##[[:space:]]+criteria/{insec=1; next} insec && tolower($0) ~ /^[[:space:]]*[-*].*\(cross-layer\)/ { if (match($0, /AC-[0-9]+/)) print substr($0, RSTART, RLENGTH) }' "$contract" | sort -u)"
+  # THÊM (hồ sơ cong-nguoi-doc-du-nguon): lượt quét THỨ HAI cho tiêu chí khai bằng
+  # TIÊU ĐỀ, và nhận cả `## Acceptance Criteria`. Không có nó thì máy THIẾU node trả
+  # tập id khác máy CÓ node trên cùng một hợp đồng — hai bề mặt, hai câu trả lời.
+  xl_acs_head="$(awk '
+    tolower($0) ~ /^##[[:space:]]+(acceptance[[:space:]]+)?criteria/ { insec=1; cur=""; next }
+    /^##[[:space:]]/ { insec=0 }
+    insec && /^###*[[:space:]]/ { cur=""; if (match($0, /AC-[0-9]+/)) cur=substr($0, RSTART, RLENGTH) }
+    insec && cur != "" && tolower($0) ~ /\(cross-layer\)/ { print cur }
+  ' "$contract" 2>/dev/null | sort -u)"
+  xl_acs="$(printf '%s\n%s\n' "$xl_acs" "$xl_acs_head" | sed '/^$/d' | sort -u)"
   # "Thế nào là một dòng criterion" có MỘT nguồn: lib/ac-line.cjs — cùng nơi
   # gate-card.js, eval-coverage-lint.js và evidence-page.js đọc. Khi có node +
   # lib, kết quả của nó ĐÈ khuôn awk ở trên; khuôn awk ở lại làm đường lùi cho
@@ -965,6 +975,14 @@ for dir in "$ACC"/*/; do
           // `judgment` (bỏ code span qua uncoded()), và nó là tiếng nói cuối.
           if (a && a.crossLayer === false) out.delete(a.id);
         }
+        // ĐÈ (hồ sơ cong-nguoi-doc-du-nguon): vòng trên chỉ thấy tiêu chí khai bằng
+        // GẠCH ĐẦU DÒNG trong mục tên đúng `Criteria`. parseACBlock đọc cả dạng
+        // TIÊU ĐỀ và cả ba cách đặt tên mục; nó là tiếng nói cuối. Union ở đây thay
+        // vì sửa vòng cũ, theo luật diff-chỉ-thêm (DV5).
+        try {
+          const { parseACBlock } = require(process.argv[1]);
+          for (const a of parseACBlock(t)) { if (a.crossLayer) out.add(a.id); else out.delete(a.id); }
+        } catch (_) { /* lib đời cũ không có parseACBlock: giữ kết quả vòng trên */ }
         process.stdout.write([...out].sort().join("\n"));
       ' "$AC_LINE_LIB" "$(dirname "$AC_LINE_LIB")/md-section.cjs" 2>/dev/null)"; then
       xl_acs="$xl_from_lib"

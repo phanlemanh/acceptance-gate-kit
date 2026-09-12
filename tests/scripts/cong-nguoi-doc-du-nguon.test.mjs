@@ -514,6 +514,150 @@ def('CN09', () => {
   say('CN09', true, '', chi);
 });
 
+// ══ CN13 — bốn bên đọc cùng thấy MỘT số ═══════════════════════════════════
+// Đo QUAN HỆ: bốn bề mặt chấm cùng một hợp đồng phải ra cùng tập id. Mũi tiêm
+// hoàn nguyên ĐÚNG MỘT bên về khuôn hẹp → đúng bên đó lệch, ba bên kia không.
+def('CN13', () => {
+  const chi = [];
+  const cp = req('node:child_process');
+  const than = [1, 2, 3, 4, 5].map(i => `### AC-${i} — nhãn ${i}\nGiven a, When b, Then c`).join('\n\n');
+  const hd = ['---', 'schema_version: 1', 'feature: x', 'slug: x', 'risk_tier: T2', 'surfaces: [cli]',
+    'status: draft', 'approved_by:', 'approved_at:', '---', '', '## Criteria', '', than, '',
+    '## Coverage', '', '- trục: một', '', '## Out of scope', '', '- x', ''].join('\n');
+  const ev = ['evals:', ...[1, 2, 3, 4, 5].flatMap(i => [
+    `  - id: E${i}`, `    criterion: AC-${i}`, '    executor: script',
+    '    cmd: config:executors.script.x', '    expected: x'])].join('\n');
+
+  const dungKho = (root) => {
+    const d = path.join(root, '_acceptance', 'x');
+    fs.mkdirSync(d, { recursive: true });
+    fs.writeFileSync(path.join(root, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
+    fs.writeFileSync(path.join(d, 'contract.md'), hd);
+    fs.writeFileSync(path.join(d, 'evals.yaml'), ev);
+    return d;
+  };
+  // Bốn bên đọc, mỗi bên trả một CON SỐ tiêu chí đọc được.
+  const doBon = (agRoot) => {
+    const R = mk('cn13-kho-');
+    const d = dungKho(R);
+    // Bên (1) — bộ bóc: nạp qua tiến trình CON, không require trong tiến trình này.
+    // createRequire cache theo đường dẫn, mà bản tiêm nằm ở đường dẫn KHÁC nên
+    // không đụng cache; nhưng chạy con vẫn đúng hơn vì nó đo đúng thứ ba bên kia
+    // đang chạy — cùng một Node, cùng một lần nạp.
+    const rLib = cp.spawnSync(process.execPath, ['-e',
+      'const{parseACBlock}=require(process.argv[1]);const fs=require("fs");process.stdout.write(String(parseACBlock(fs.readFileSync(process.argv[2],"utf8")).length))',
+      path.join(agRoot, 'lib', 'ac-line.cjs'), path.join(d, 'contract.md')], { encoding: 'utf8' });
+    const soLib = /^\d+$/.test(String(rLib.stdout || '').trim()) ? Number(rLib.stdout) : -1;
+    if (soLib < 0) chi.push(`  bộ bóc lỗi: ${String(rLib.stderr || '').trim().split('\n')[0].slice(0, 120)}`);
+    const the = cp.spawnSync(process.execPath, [path.join(agRoot, 'scripts', 'gate-card.js'), '--slug', 'x', '--root', R, '--extract'], { encoding: 'utf8' });
+    let soThe = -1;
+    try { const j = JSON.parse(the.stdout); soThe = (j.will_do || []).length + (j.wont_do || []).length + (j.judgment || []).length; } catch (_) { /* giữ -1 */ }
+    const lint = cp.spawnSync(process.execPath, [path.join(agRoot, 'scripts', 'eval-coverage-lint.js'), '--files', path.join(R, '_acceptance', 'x', 'contract.md'), path.join(R, '_acceptance', 'x', 'evals.yaml')], { encoding: 'utf8' });
+    // lint không in số tiêu chí; dùng W7 (bộ dò điểm mù) làm đại lượng. Khớp DÒNG
+    // CẢNH BÁO `  [nhãn] W7 …`, KHÔNG khớp dòng chú giải cuối output — dòng đó
+    // LUÔN in và giải thích cả W1..W8, nên `/W7 /` trần cho kết quả hằng-đúng.
+    const lintThieu = /^\s*\[[^\]]*\]\s*W7 /m.test(lint.stdout || '');
+    // Báo cáo phải mang BẢNG per-eval: trang bằng chứng chỉ dùng chữ của tiêu chí
+    // để chú cho từng dòng eval, nên không có bảng thì nó không đọc tiêu chí nào
+    // và phép đo hoá hằng-đúng (đo được ở chính lượt dựng ca này).
+    fs.writeFileSync(path.join(R, '_acceptance', 'x', 'evidence-report.md'),
+      ['---', 'schema_version: 1', 'feature_slug: x', 'verdict: PASS', 'human_signoff: Ng 2026-09-13', '---', '',
+        '| Eval | Criterion | Executor | Verdict |', '|---|---|---|---|',
+        ...[1, 2, 3, 4, 5].map(i => `| E${i} | AC-${i} | script | PASS |`), '',
+        '## Evidence', '', '- E1 exit 0', '', '## Known limits', '', '## Ngoài hợp đồng', ''].join('\n'));
+    // evidence-page GHI RA TỆP rồi in đường dẫn — đọc TỆP, không đọc stdout.
+    const trang = cp.spawnSync(process.execPath, [path.join(agRoot, 'scripts', 'evidence-page.js'), '--slug', 'x', '--root', R], { encoding: 'utf8' });
+    let soTrang = -1;
+    try {
+      const html = fs.readFileSync(String(trang.stdout || '').trim(), 'utf8');
+      // Đếm CHỮ của tiêu chí, không đếm MÃ: mã AC-n cũng nằm trong bảng per-eval
+      // của chính báo cáo, nên đếm mã cho kết quả hằng-đúng dù trang không đọc
+      // được hợp đồng (đo được ở chính lượt dựng ca này).
+      soTrang = (html.match(/nhãn \d+/g) || []).filter((v, i, a) => a.indexOf(v) === i).length;
+    } catch (_) { /* giữ -1 */ }
+    return { soLib, soThe, lintThieu, soTrang, theMa: the.status, trangMa: trang.status };
+  };
+
+  // Đối chứng dương TRƯỚC: cây đang đo — cả bốn bên thấy 5.
+  const duong = doBon(ROOT);
+  chi.push(`cây đang đo: lib=${duong.soLib} thẻ=${duong.soThe} trang=${duong.soTrang} lint-thiếu=${duong.lintThieu}`);
+  if (duong.soLib !== 5) return say('CN13', false, `bo boc ra ${duong.soLib}, cho 5`, chi);
+  if (duong.soThe !== 5) return say('CN13', false, `the ra ${duong.soThe}, cho 5 (ma thoat ${duong.theMa})`, chi);
+  if (duong.soTrang !== 5) return say('CN13', false, `trang bang chung ra ${duong.soTrang}, cho 5 (ma thoat ${duong.trangMa})`, chi);
+  if (duong.lintThieu) return say('CN13', false, 'lint bao doc thieu tren hop dong lanh', chi);
+
+  // CHIỀU ĐỎ: bản sao cây, hoàn nguyên parseACBlock về «chỉ gạch đầu dòng».
+  const ban = mk('cn13-tiem-');
+  fs.cpSync(path.join(ROOT, 'lib'), path.join(ban, 'lib'), { recursive: true });
+  fs.cpSync(path.join(ROOT, 'scripts'), path.join(ban, 'scripts'), { recursive: true });
+  const f = path.join(ban, 'lib', 'ac-line.cjs');
+  const src = fs.readFileSync(f, 'utf8');
+  const moc = '    const h = l.match(AC_HEAD);';
+  if (src.split(moc).length !== 2) return say('CN13', false, 'mui tiem khong khop dung mot lan', chi);
+  fs.writeFileSync(f, src.replace(moc, '    const h = null;'));
+  const kt = cp.spawnSync(process.execPath, ['--check', f], { encoding: 'utf8' });
+  if (kt.status !== 0) return say('CN13', false, 'ban tiem khong qua node --check', chi);
+  const do_ = doBon(ban);
+  chi.push(`bản tiêm: lib=${do_.soLib} thẻ=${do_.soThe} trang=${do_.soTrang} lint-thiếu=${do_.lintThieu}`);
+  const lech = [];
+  if (do_.soLib === 5) lech.push('lib');
+  if (do_.soThe === 5) lech.push('thẻ');
+  if (do_.soTrang === 5) lech.push('trang bằng chứng');
+  if (!do_.lintThieu) lech.push('lint (W7 không kêu)');
+  if (lech.length) return say('CN13', false, `ben KHONG theo bo boc chung: ${lech.join(', ')}`, chi);
+  chi.push('cả bốn bên đổi theo mũi tiêm — chúng cùng một nguồn');
+  say('CN13', true, '', chi);
+});
+
+// ══ CN11 — hai nhánh của răng xuyên lớp trả CÙNG tập id ═══════════════════
+// Nhánh node và nhánh awk là hai bản dựng độc lập của cùng một luật. Hợp đồng
+// khai tiêu chí bằng TIÊU ĐỀ mà chỉ một nhánh nhận ra Dấu thì hai máy khác nhau
+// cho hai câu trả lời về cùng một PR — đúng lớp lỗi hồ sơ này đi đóng.
+def('CN11', () => {
+  const chi = [];
+  const cp = req('node:child_process');
+  // Hợp đồng: AC-1 MANG Dấu ở nhãn tiêu đề; evals.yaml KHÔNG có eval backend-effect
+  // → răng phải nổ. AC-2 không mang Dấu.
+  const hd = ['---', 'schema_version: 1', 'feature: x', 'slug: x', 'risk_tier: T2', 'surfaces: [api]',
+    'status: verified', 'approved_by: Ng', 'approved_at: 2026-09-13', '---', '',
+    '## Criteria', '',
+    '### AC-1 (cross-layer) — xuyên lớp', 'Given a, When b, Then c', '',
+    '### AC-2 — thường', 'Given d, When e, Then f', '',
+    '## Out of scope', '', '- x', ''].join('\n');
+  const ev = ['evals:', '  - id: E1', '    criterion: AC-1', '    executor: test',
+    '    cmd: config:executors.test.x', '    expected: x', '    layer: ui-observed'].join('\n');
+  const kho = (khongNode) => {
+    const R = mk('cn11-');
+    const git = (...a) => cp.execFileSync('git', ['-c', 'user.name=cn', '-c', 'user.email=cn@x', '-C', R, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    fs.mkdirSync(path.join(R, '_acceptance', 'x'), { recursive: true });
+    fs.mkdirSync(path.join(R, 'lib'), { recursive: true });
+    fs.mkdirSync(path.join(R, 'scripts'), { recursive: true });
+    fs.mkdirSync(path.join(R, 'src'), { recursive: true });
+    git('init', '-q');
+    fs.writeFileSync(path.join(R, '_acceptance', 'config.yaml'), 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "*.md"\n');
+    fs.writeFileSync(path.join(R, 'src', 'app.js'), 'v1\n');
+    for (const f of LIB_CHEP) fs.copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
+    fs.copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
+    git('add', '-A'); git('commit', '-qm', 'c1'); git('branch', 'basepoint');
+    fs.writeFileSync(path.join(R, 'src', 'app.js'), 'v2\n');
+    fs.writeFileSync(path.join(R, '_acceptance', 'x', 'contract.md'), hd);
+    fs.writeFileSync(path.join(R, '_acceptance', 'x', 'evals.yaml'), ev);
+    git('add', '-A'); git('commit', '-qm', 'c2');
+    const env = { ...process.env }; delete env.PRE_MERGE_BASE;
+    if (khongNode) env.PATH = '/usr/bin:/bin';
+    const r = cp.spawnSync('bash', [path.join(ROOT, 'scripts', 'pre-merge-check.sh'), R, '--base', 'basepoint'], { encoding: 'utf8', env });
+    return (r.stdout || '') + '\n' + (r.stderr || '');
+  };
+  const noiXL = (out) => /cross-layer/i.test(out) && /AC-1/.test(out);
+  const coNode = kho(false);
+  const khongNode = kho(true);
+  chi.push(`nhánh node  → nêu AC-1 xuyên lớp: ${noiXL(coNode)}`);
+  chi.push(`nhánh awk   → nêu AC-1 xuyên lớp: ${noiXL(khongNode)}`);
+  if (!noiXL(coNode)) return say('CN11', false, 'nhanh node KHONG bat duoc Dau o tieu de', chi);
+  if (!noiXL(khongNode)) return say('CN11', false, 'nhanh awk KHONG bat duoc Dau o tieu de — hai be mat hai cau tra loi', chi);
+  say('CN11', true, '', chi);
+});
+
 // ── chạy ──────────────────────────────────────────────────────────────────
 const chon = (process.env.CNDN_CASES || '').split(/[,\s]+/).filter(Boolean);
 const ids = Object.keys(CASES).filter(id => !chon.length || chon.includes(id));

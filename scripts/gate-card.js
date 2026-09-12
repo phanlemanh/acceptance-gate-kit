@@ -284,7 +284,7 @@ const stripMd = s => {
     .replace(/(?<![*/])\*(?=[^\s/])([^*]+?)(?<=[^\s/])\*(?!\*)/g, '$1');
   return t.replace(new RegExp(MASK + '(\\d+)' + MASK, 'g'), (_, i) => (code[+i] !== undefined ? code[+i] : ''));
 };
-const { parseAC, acBlindSpot, blindSpotText } = require('../lib/ac-line.cjs');
+const { parseAC, parseACBlock, acBlindSpot, blindSpotText } = require('../lib/ac-line.cjs');
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 const NEG_RE = /\bKHÔNG\b|\bkhông\b|\bkhong\b|\bNOT\b|reject|denied|\bdeny\b|từ chối|tu choi|\b0\s*(row|touch)\b|rỗng|\bn-a\b|\bbiên\b|\bbien\b|dưới ngưỡng|duoi nguong|just[- ]?below|should[- ]?not|không tăng|không ghi|không fire|không kích hoạt|suppress|absent|vắng/i;
@@ -397,7 +397,12 @@ for (const x of decPlainList) {
 // ================= GATE 1 =================
 if (gate === '1') {
   const acs = []; const seen = {}; const dupIds = [];
-  for (const l of section(contract, 'Criteria')) { const ac = parseAC(l); if (ac) { if (seen[ac.id]) dupIds.push(ac.id); seen[ac.id] = 1; acs.push(ac); } }
+  // parseACBlock (hồ sơ cong-nguoi-doc-du-nguon): đọc cả dạng TIÊU ĐỀ và cả ba
+  // cách đặt tên mục. Vòng lặp cũ chỉ thấy gạch đầu dòng trong mục tên đúng
+  // `Criteria`, nên 220 hợp đồng trên 11 kho hiện thiếu tiêu chí — 38 trong đó
+  // hiện SỐ KHÔNG. Bộ bóc trả ĐỦ, không gộp id trùng, nên phép dò trùng dưới đây
+  // giữ nguyên ý nghĩa.
+  for (const ac of parseACBlock(contract)) { if (seen[ac.id]) dupIds.push(ac.id); seen[ac.id] = 1; acs.push(ac); }
   const blindSpot = acBlindSpot(contract, acs.map(x => x.id));
   const evalList = parseEvals(evalsT, ['criterion', 'expected'], unquote);
   const evalsFor = id => evalList.filter(e => e.criterion === id);
@@ -713,7 +718,7 @@ const verdict = clean(rfm.verdict).toUpperCase();
 const reason = unquote(rfm.reason);
 const approvable = verdict === 'PASS' || verdict === 'PENDING-JUDGMENT';
 
-const critText = {}; for (const l of section(contract, 'Criteria')) { const ac = parseAC(l); if (ac && !critText[ac.id]) critText[ac.id] = ac.gwt; }
+const critText = {}; for (const ac of parseACBlock(contract)) { if (!critText[ac.id]) critText[ac.id] = ac.gwt; }
 
 // per-eval rows — tolerate any non-pipe cell content (e.g. "N/A", "PASS*")
 const rows = [];
