@@ -89,6 +89,8 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'resolveConfigKey', kind: 'function', since: '2.9.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'resolveConfigList', kind: 'function', since: '2.9.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'REPIN_MACHINE_EXECUTORS', kind: 'array', since: '2.9.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'isRepinMachineEval', kind: 'function', since: '2.12.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'machineEvalIdsSkipped', kind: 'function', since: '2.12.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'determineEnforce', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'evaluateEvidence', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'checkRepinEvals', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
@@ -146,8 +148,10 @@ const suiteKeys = core.resolveConfigList(configText, 'feature_loop.suite_keys');
 if (!suiteKeys.length) die('config.yaml thiếu feature_loop.suite_keys (hoặc rỗng) — khai danh sách suite chạy mỗi lượt rồi chạy lại');
 const suiteCmds = suiteKeys.map(k => core.resolveConfigKey(configText, k) || die(`suite_keys trỏ key không giải được: ${k}`));
 
-// ── eval máy của từng hồ sơ: executor test/script, cmd đã giải ───────────
-const MACHINE = new Set(core.REPIN_MACHINE_EXECUTORS);
+// ── eval máy của từng hồ sơ: executor test/script VÀ không tự khai không-chạy,
+// cmd đã giải — MỘT định nghĩa dùng chung với bên đọc (core.isRepinMachineEval,
+// core.machineEvalIdsSkipped trong lib/evidence-core.cjs); làn không còn tự
+// lọc riêng để hai bên không trôi khỏi nhau (hồ sơ lan-doc-status-not-run).
 const perSlug = slugs.map(slug => {
   const ws = path.join(root, '_acceptance', slug);
   const reportPath = path.join(ws, 'evidence-report.md');
@@ -157,15 +161,16 @@ const perSlug = slugs.map(slug => {
   const evalsText = readOr(path.join(ws, 'evals.yaml'), `${slug}: evals.yaml`);
   const { byId: expById, errs: expErrs } = expectedExits(evalsText);
   if (expErrs.length) die(`${slug}: evals.yaml khai mã thoát mong đợi sai luật —\n  ${expErrs.join('\n  ')}`);
-  const evals = parseEvals(evalsText, ['executor', 'cmd'])
-    .filter(e => MACHINE.has(String(e.executor || '').trim().toLowerCase()))
+  const evals = parseEvals(evalsText, ['executor', 'cmd', 'status'])
+    .filter(e => core.isRepinMachineEval(e))
     .map(e => {
       let cmd = String(e.cmd || '').trim();
       if (!cmd) die(`${slug}: eval ${e.id} (executor ${e.executor}) không có cmd`);
       if (cmd.startsWith('config:')) cmd = core.resolveConfigKey(configText, cmd.slice('config:'.length)) || die(`${slug}: eval ${e.id} trỏ ${cmd} không giải được trong config.yaml`);
       return { id: e.id, cmd, expected: expById.get(e.id) || 0 };
     });
-  return { slug, ws, reportPath, report, evals };
+  const skipped = core.machineEvalIdsSkipped(evalsText) || [];
+  return { slug, ws, reportPath, report, evals, skipped };
 });
 
 // ── chạy: một lệnh trùng chỉ chạy MỘT lần (dedupe cmd như S4) ─────────────
