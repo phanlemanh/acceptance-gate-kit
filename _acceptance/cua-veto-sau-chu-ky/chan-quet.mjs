@@ -46,7 +46,7 @@ if (loi.length) { console.error(loi.join(' | ')); process.exit(1); }
 
 // ── chiều đỏ trong CÙNG lượt: bỏ bảng giữ-chỗ khỏi bản sao máy quét ──────────
 F.tiem(repo, 'scripts/start-scan.mjs',
-  'if (GIU_CHO_TIEN_TO.test(s) || GIU_CHO_DUNG.test(s)) return { signed: false, warn: \'\' };',
+  'if (GIU_CHO_TIEN_TO.test(s) || GIU_CHO_DUNG.test(s)) return { signed: false, warn };',
   '// đột biến: bảng giữ-chỗ bị gỡ');
 const dsMut = F.runScan(repo).vetoOpenUnsigned || [];
 const sot = mau.map((p, i) => F.slugGiuCho(p, i)).filter(s => !dsMut.includes(s));
