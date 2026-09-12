@@ -2489,7 +2489,12 @@ mk_v() { # <root> <tier> <veto_opened_at> <có khoá veto_state? 1|0> <sạch? 1
   local R="$1" tier="$2" vat="$3" hasv="$4" clean="$5" sig="$6"
   local d="$R/_acceptance/feat-v"; mkdir -p "$d" "$R/lib"
   printf 'schema_version: 1\nsignoff:\n  required_for: [T2, T3]\n' > "$R/_acceptance/config.yaml"
-  cp "$HERE/../../lib/md-section.cjs" "$R/lib/" 2>/dev/null || true
+  # Kho tiêu thụ chép đủ INIT-CI-COPY-LIST. evidence-core + out-of-contract vào từ
+  # hồ sơ cong-nguoi-doc-du-nguon: điều kiện xanh-sạch THỨ BẢY nạp chúng, và thiếu
+  # thì lưới fail-CLOSED (đúng ý, không phải lỗi ca).
+  for _f in md-section.cjs evidence-core.cjs out-of-contract.cjs; do
+    cp "$HERE/../../lib/$_f" "$R/lib/" 2>/dev/null || true
+  done
   git -C "$R" init -q
   { printf -- '---\nschema_version: 1\nfeature: feat-v\nslug: feat-v\nrisk_tier: %s\nsurfaces: [api]\nstatus: verified\napproved_by:\n' "$tier"
     [ "$hasv" = 1 ] && printf 'veto_state: mo\nveto_opened_at:%s\n' "${vat:+ $vat}"

@@ -201,14 +201,14 @@ if (want('RT1')) {
     if (u !== (s === 'signed-off' || s === 'machine-cleared')) errs.push(`usesUat(${s})=${u}`);
     if (e !== ['implemented', 'verified', 'machine-cleared'].includes(s)) errs.push(`usesEvidence(${s})=${e}`);
   }
-  const EXPECT_XS = ['verdict-pass', 'bypass', 'enforcement', 'tier', 'uncertain', 'sections'];
+  const EXPECT_XS = ['verdict-pass', 'bypass', 'enforcement', 'tier', 'uncertain', 'sections', 'findings'];
   if (JSON.stringify(XANH_SACH) !== JSON.stringify(EXPECT_XS)) errs.push(`khối xanh-sạch = ${JSON.stringify(XANH_SACH)}`);
   // Thứ tự sáu điều kiện trong HAI bản dựng phải khớp thứ tự khối (round-trip ba đầu).
   const mjsAll = readFileSync(path.join(ROOT, 'scripts', 'khong-can-nguoi.mjs'), 'utf8');
   // Cắt THÂN HÀM: khối chú thích đầu file cũng nhắc bypass_used/enforcement_mode, dò cả file
   // là đo văn xuôi chứ không đo mã (bắt được ở chính lượt chạy đầu).
   const mjs = mjsAll.slice(mjsAll.indexOf('export function xanhSach'), mjsAll.indexOf('export function khongCanNguoi'));
-  const orderMjs = ["!== 'PASS'", 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN_RE.test', "'Known limits', 'Ngoài hợp đồng'"].map(n => mjs.indexOf(n));
+  const orderMjs = ["!== 'PASS'", 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN_RE.test', "'Known limits', 'Ngoài hợp đồng'", 'dieuKienFindings'].map(n => mjs.indexOf(n));
   if (orderMjs.some(i => i < 0) || orderMjs.some((v, i) => i > 0 && v < orderMjs[i - 1])) errs.push(`thứ tự xanhSach (mjs) lệch khối: ${orderMjs}`);
   // Cắt ĐÚNG THÂN HÀM, không chạy tới hết file: `xanh_sach_check` không phải hàm cuối, nên
   // cắt-tới-EOF cho năm trong sáu needle cơ hội được thoả bởi mã NGOÀI hàm (S4-r8 [5]) — cùng
@@ -226,7 +226,7 @@ if (want('RT1')) {
   if (fn && fn.length >= sh.length * 0.9) errs.push(`phạm vi cắt xanh_sach_check gần bằng cả file (${fn.length}/${sh.length}) — cắt không có thật`);
   // SÁU needle, không phải năm: bỏ `enforcement_mode` khỏi vế bash là ca đo tự khoét đúng
   // chỗ vật thiếu — thước không thể đỏ cho điều kiện đó ở cả hai chiều (finding S4-r1).
-  const orderSh = ['= "PASS"', 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN', '"Known limits" "Ngoài hợp đồng"'].map(n => fn.indexOf(n));
+  const orderSh = ['= "PASS"', 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN', '"Known limits" "Ngoài hợp đồng"', 'dieuKienFindings'].map(n => fn.indexOf(n));
   if (orderSh.some(i => i < 0) || orderSh.some((v, i) => i > 0 && v < orderSh[i - 1])) errs.push(`thứ tự xanh_sach_check (bash) lệch khối: ${orderSh}`);
   // Số needle PHẢI bằng số điều kiện khối: bớt một needle là ca đo tự khoét đúng chỗ vật thiếu.
   if (orderMjs.length !== EXPECT_XS.length || orderSh.length !== EXPECT_XS.length)
@@ -400,7 +400,9 @@ function mkGit(slug, o, { evidence = true } = {}) {
   // Kho tiêu thụ chép đúng bộ này khi /acceptance-init. Thiếu lib/md-section.cjs thì lưới
   // KHÔNG BAO GIỜ thấy hồ sơ sạch (fail-closed) — đối chứng dương sẽ đỏ, y như đời thật.
   mkdirSync(path.join(R, 'lib'), { recursive: true }); mkdirSync(path.join(R, 'scripts'), { recursive: true });
-  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs'])
+  // out-of-contract.cjs vào danh sách từ hồ sơ cong-nguoi-doc-du-nguon: điều kiện
+  // xanh-sạch THỨ BẢY nạp nó; thiếu nó lưới fail-CLOSED (đúng ý, không phải lỗi ca).
+  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs', 'out-of-contract.cjs'])
     copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
   copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
   git('add', '-A'); git('commit', '-qm', 'c1'); git('branch', 'basepoint');
@@ -1312,7 +1314,7 @@ if (want('RT16')) {
   // Chiều đỏ: bản sao product-map GỠ nhánh mới → phép so phải ĐỎ nêu slug và hai ô lệch.
   {
     const mut = tmp('rt16-mut-');
-    for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs',
+    for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs', 'lib/out-of-contract.cjs',
                        'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'scripts/trang-thai-ho-so.cjs',
                        // bản đồ nay đọc khuôn LÚC CHẠY (fail-closed) — cây mutant thiếu khuôn thì
                        // chết vì hạ tầng chứ không vì vật, và chiều đỏ thành xanh-không-chạy

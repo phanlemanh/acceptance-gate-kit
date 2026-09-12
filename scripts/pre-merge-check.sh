@@ -332,6 +332,15 @@ xanh_sach_check() { # <report path>
   local report="$1" clean_ok=1 clean_why="" _cdir _tier _sec _body _v _bp _ack
   CLEAN_WHY=""
   [ -f "$report" ] || { CLEAN_WHY="không có evidence-report.md"; return 1; }
+  # AC-3 (hồ sơ cong-nguoi-doc-du-nguon): vắng node thì hàm này KHÔNG chấm được
+  # hai điều kiện cuối (đọc mục, và «mục chờ người») — trước bản này nó vẫn
+  # fail-closed nhưng bằng thông điệp «không đọc được mục …», tức người vận hành
+  # đi sửa nhầm chỗ. Nêu đích danh thứ đang thiếu, và vẫn KHÔNG trả sạch.
+  if ! command -v node >/dev/null 2>&1; then
+    CLEAN_DOI_CU=0
+    CLEAN_WHY="thiếu node — không chấm được điều kiện đọc mục và điều kiện «mục chờ người» (fail-closed); cài node, và chép đủ INIT-CI-COPY-LIST sang kho này"
+    return 1
+  fi
   # SÁU điều kiện, khai đủ ở ĐÂY (không dựa vào chốt nào chạy trước): hai chỗ
   # gọi hàm này đứng ở hai vị trí khác nhau trong luồng, nên hàm phải tự đủ.
   _v="$(front_field "$report" verdict)"
@@ -379,6 +388,37 @@ xanh_sach_check() { # <report path>
       __LOI__)  clean_ok=0; clean_why="không đọc được mục «$_sec» (fail-closed)"; break ;;
     esac
     done
+  fi
+  # ĐIỀU KIỆN THỨ BẢY (hồ sơ cong-nguoi-doc-du-nguon): còn mục chờ người ở
+  # review-findings.md thì KHÔNG sạch. Ngữ pháp sống MỘT chỗ — khối CHO-NGUOI
+  # của lib/evidence-core.cjs; ở đây chỉ HỎI, không tự duyệt lại tệp.
+  # CLEAN_DOI_CU=1 nghĩa là trượt theo ĐƯỜNG ĐỌC-CŨ (báo cáo vắng khoá
+  # findings_open) — bên gọi hạ xuống NOTE thay vì VIOLATION (AC-5).
+  # Vắng node hoặc vắng lib → fail-CLOSED có tên (AC-3), KHÔNG bỏ qua im lặng.
+  CLEAN_DOI_CU=0
+  if [ "$clean_ok" -eq 1 ]; then
+    _fjson="$(AGK_DIR="$_cdir" AGK_REPORT="$report" node -e '
+      const fs=require("fs"), path=require("path");
+      const core=require(process.argv[1]);
+      const doc=p=>{try{return fs.readFileSync(p,"utf8")}catch(_){return null}};
+      const d=process.env.AGK_DIR;
+      const r=core.dieuKienFindings({
+        findingsText: doc(path.join(d,"review-findings.md")),
+        ledgerText: doc(path.join(d,"decisions.jsonl"))||"",
+        reportText: doc(process.env.AGK_REPORT),
+      });
+      process.stdout.write((r.clean?"OK":"NO")+(r.doiCu?"|CU|":"|MOI|")+String(r.why||""));
+    ' "$ROOT/lib/evidence-core.cjs" 2>/dev/null)"
+    case "$_fjson" in
+      "") clean_ok=0
+          clean_why="không chấm được điều kiện «mục chờ người» (thiếu node, hoặc lib/evidence-core.cjs + lib/out-of-contract.cjs chưa chép) — fail-closed, chép đủ INIT-CI-COPY-LIST" ;;
+      OK*) : ;;
+      NO*) clean_ok=0
+           clean_why="${_fjson#*|*|}"
+           case "$_fjson" in NO\|CU\|*) CLEAN_DOI_CU=1 ;; esac ;;
+      *)  clean_ok=0
+          clean_why="điều kiện «mục chờ người» trả lời lạ (fail-closed)" ;;
+    esac
   fi
   CLEAN_WHY="$clean_why"
   [ "$clean_ok" -eq 1 ]
@@ -810,8 +850,19 @@ for dir in "$ACC"/*/; do
   # sở hữu câu đó, mỗi luật một câu.
   if [ "$status" = "machine-cleared" ] && [ -f "$dir/evidence-report.md" ]; then
     if xanh_sach_check "$dir/evidence-report.md"; then :; else
+      # ĐÈ (hồ sơ cong-nguoi-doc-du-nguon, AC-5): hồ sơ ĐỜI TRƯỚC luật thứ bảy — báo
+      # cáo vắng khoá findings_open — trượt CHỈ vì đường đọc-cũ. Nhánh này đặt TRƯỚC
+      # dòng VIOLATION cũ; dòng ấy GIỮ NGUYÊN VĂN trong nhánh else (DV5 cấm sửa dòng
+      # cũ). Đặt SAU nó rồi trừ lại bộ đếm thì lưới in VIOLATION và mã thoát nói
+      # ngược nhau — đúng lớp lỗi hồ sơ này đi đóng, nên không làm thế.
+      # Hồ sơ MỚI không đi được đường này: cửa GHI (khong-can-nguoi.mjs --write) đọc
+      # THẲNG review-findings.md, không qua khoá findings_open.
+      if [ "${CLEAN_DOI_CU:-0}" = "1" ]; then
+        echo "NOTE [$slug]: $CLEAN_WHY — hồ sơ thuộc đời trước luật «mục chờ người»; xử bằng chữ ký Cổng 2, hoặc một dòng sổ quyết định stage gate2 cho mỗi mục đã định đoạt"
+      else
       echo "VIOLATION [$slug]: status machine-cleared nhưng hồ sơ còn cần người — $CLEAN_WHY. Hạ về verified rồi mời ký, hoặc sửa cho bằng chứng xanh-sạch thật."
       violations=$((violations+1)); continue
+      fi
     fi
   fi
 
@@ -852,8 +903,19 @@ for dir in "$ACC"/*/; do
           elif [ -n "$_vsig" ] || xanh_sach_check "$_vrep"; then
             echo "NOTE [$slug]: làn V — máy đi trước, Cổng 1 không có chữ duyệt; cửa veto mở"
           else
+            # ĐÈ (hồ sơ cong-nguoi-doc-du-nguon, AC-5): hồ sơ ĐỜI TRƯỚC luật thứ bảy — báo
+            # cáo vắng khoá findings_open — trượt CHỈ vì đường đọc-cũ. Nhánh này đặt TRƯỚC
+            # dòng VIOLATION cũ; dòng ấy GIỮ NGUYÊN VĂN trong nhánh else (DV5 cấm sửa dòng
+            # cũ). Đặt SAU nó rồi trừ lại bộ đếm thì lưới in VIOLATION và mã thoát nói
+            # ngược nhau — đúng lớp lỗi hồ sơ này đi đóng, nên không làm thế.
+            # Hồ sơ MỚI không đi được đường này: cửa GHI (khong-can-nguoi.mjs --write) đọc
+            # THẲNG review-findings.md, không qua khoá findings_open.
+            if [ "${CLEAN_DOI_CU:-0}" = "1" ]; then
+              echo "NOTE [$slug]: $CLEAN_WHY — hồ sơ thuộc đời trước luật «mục chờ người»; xử bằng chữ ký Cổng 2, hoặc một dòng sổ quyết định stage gate2 cho mỗi mục đã định đoạt"
+            else
             echo "VIOLATION [$slug]: status=$status but approved_by is empty — làn V đòi xanh-sạch hoặc chữ ký ($CLEAN_WHY). Máy được đi trước khi bằng chứng tự đứng vững; hồ sơ này thì không, nên nó cần người: điền approved_by, hoặc ký Cổng 2."
             violations=$((violations+1)); continue
+            fi
           fi
         else
           echo "VIOLATION [$slug]: status=$status but approved_by is empty and gate1_skipped is not true — Gate 1 approval was never recorded (contract skipped the gate)"
@@ -1109,6 +1171,15 @@ XLACS
       # máy-đi-trước là loại KHÔNG có người đọc lại, nên không được là loại duy nhất thoát lưới.
       # Các chốt chỉ nói về chữ ký (giữ-chỗ · chiều ghi chữ ký) tự bỏ qua vì $signoff rỗng /
       # LAN_V=1; dòng OK ở cuối gọi đúng tên làn.
+      LAN_V=1
+    fi
+    # ĐÈ (hồ sơ cong-nguoi-doc-du-nguon, AC-5): hồ sơ ĐỜI TRƯỚC luật thứ bảy trượt
+    # CHỈ vì đường đọc-cũ — nó là làn V hợp lệ dưới luật CŨ, nên không được biến
+    # thành vi phạm bởi một luật ra sau khi nó đã khép. Nâng LAN_V lên 1 và nói ra
+    # bằng NOTE; dòng VIOLATION cũ ở dưới GIỮ NGUYÊN VĂN (DV5) và không tới được.
+    # Hồ sơ MỚI không đi đường này: cửa GHI đọc THẲNG review-findings.md.
+    if [ "$LAN_V" != 1 ] && [ "${CLEAN_DOI_CU:-0}" = "1" ]; then
+      echo "NOTE [$slug]: $clean_why — hồ sơ thuộc đời trước luật «mục chờ người»; xử bằng chữ ký Cổng 2, hoặc một dòng sổ quyết định stage gate2 cho mỗi mục đã định đoạt"
       LAN_V=1
     fi
     if [ "$LAN_V" != 1 ]; then

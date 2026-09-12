@@ -252,6 +252,268 @@ def('CN06', () => {
   say('CN06', true, '', chi);
 });
 
+// ── kho git fixture cho lưới trước-merge ──────────────────────────────────
+// Khuôn dựng chép từ tests/plugins/lan-v.test.mjs (mkGitRepo) — cùng bộ tệp mà
+// kho tiêu thụ chép khi acceptance-init. DANH SÁCH lib ở đây nay có
+// out-of-contract.cjs: thiếu nó thì điều kiện thứ bảy fail-CLOSED và mọi ca đỏ
+// vì HẠ TẦNG chứ không vì vật.
+const LIB_CHEP = ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs', 'eval-yaml.cjs', 'lop-nhin-thay.cjs', 'out-of-contract.cjs'];
+function khoGit({ slug = 'cn', findings = null, so = '', findingsOpen = null, boLib = [] } = {}) {
+  const cp = req('node:child_process');
+  const R = mk('cndn-git-');
+  const git = (...a) => cp.execFileSync('git', ['-c', 'user.name=cn', '-c', 'user.email=cn@x', '-C', R, ...a],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  fs.mkdirSync(path.join(R, 'src'), { recursive: true });
+  fs.mkdirSync(path.join(R, '_acceptance'), { recursive: true });
+  fs.mkdirSync(path.join(R, 'lib'), { recursive: true });
+  fs.mkdirSync(path.join(R, 'scripts'), { recursive: true });
+  git('init', '-q');
+  fs.writeFileSync(path.join(R, '_acceptance', 'config.yaml'),
+    'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n');
+  fs.writeFileSync(path.join(R, 'src', 'app.js'), 'code v1\n');
+  for (const f of LIB_CHEP) { if (!boLib.includes(f)) fs.copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f)); }
+  fs.copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
+  git('add', '-A'); git('commit', '-qm', 'c1');
+  git('branch', 'basepoint');
+  fs.writeFileSync(path.join(R, 'src', 'app.js'), 'code v2\n');
+  const d = path.join(R, '_acceptance', slug);
+  fs.mkdirSync(d, { recursive: true });
+  // Hồ sơ làn V: T2, verified, approved_by RỖNG, cửa veto mở có mốc parse được.
+  fs.writeFileSync(path.join(d, 'contract.md'), [
+    '---', 'schema_version: 1', `slug: ${slug}`, 'risk_tier: T2', 'surfaces: [cli]',
+    'status: verified', 'approved_by:', 'approved_at:',
+    'veto_state: mo', 'veto_opened_at: 2026-09-13T00:00:00Z', '---', '',
+    '## Criteria', '', '- AC-1: Given a, When b, Then c', '',
+    '## Out of scope', '', '- x', '',
+  ].join('\n'));
+  if (findings != null) fs.writeFileSync(path.join(d, 'review-findings.md'), findings);
+  if (so) fs.writeFileSync(path.join(d, 'decisions.jsonl'), so);
+  git('add', '-A'); git('commit', '-qm', 'c2');
+  const c2 = git('rev-parse', 'HEAD').trim();
+  fs.writeFileSync(path.join(d, 'evidence-report.md'), [
+    '---', 'schema_version: 1', `feature_slug: ${slug}`, 'verdict: PASS',
+    'enforcement_mode: strict', 'bypass_used: false', `verified_commit: ${c2}`,
+    ...(findingsOpen == null ? [] : [`findings_open: ${findingsOpen}`]),
+    '---', '', '## Evidence', '', '- E1 exit 0', '',
+    '## Known limits', '', '## Ngoài hợp đồng', '',
+  ].join('\n'));
+  git('add', '-A'); git('commit', '-qm', 'c3');
+  return R;
+}
+function luoi(R, { khongNode = false } = {}) {
+  const cp = req('node:child_process');
+  const env = { ...process.env }; delete env.PRE_MERGE_BASE;
+  // Giả lập «vắng node» mà VẪN có bash/git/awk: PATH hệ thống trần. Trên máy này
+  // node sống ở /opt/homebrew/bin và /usr/local/bin, không ở /usr/bin — ca tự
+  // kiểm điều đó ngay dưới, nên nó KHÔNG xanh lặng trên máy có /usr/bin/node.
+  if (khongNode) env.PATH = '/usr/bin:/bin';
+  const r = cp.spawnSync('bash', [path.join(ROOT, 'scripts', 'pre-merge-check.sh'), R, '--base', 'basepoint'],
+    { encoding: 'utf8', env });
+  return { ma: r.status, out: (r.stdout || '') + '\n' + (r.stderr || '') };
+}
+const dongCua = (out, loai, slug) => (out.split('\n').filter(l => l.startsWith(`${loai} [${slug}]`)));
+
+// ══ CN01 — hai bản dựng, CÙNG một lý do ═══════════════════════════════════
+def('CN01', () => {
+  const chi = [];
+  const core = req(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  // Đối chứng dương TRƯỚC: hồ sơ làn V sạch → lưới KHÔNG chặn slug này.
+  const rSach = khoGit({ findings: '## Trong hợp đồng\n\n## Ngoài hợp đồng\n\n', findingsOpen: 0 });
+  const oSach = luoi(rSach);
+  chi.push(`đối chứng dương: VIOLATION=${dongCua(oSach.out, 'VIOLATION', 'cn').length}`);
+  if (dongCua(oSach.out, 'VIOLATION', 'cn').length) {
+    return say('CN01', false, `ho so sach ma bi chan: ${dongCua(oSach.out, 'VIOLATION', 'cn')[0].slice(0, 130)}`, chi);
+  }
+  // Ô thật: 2 mục chờ người, báo cáo KHAI ĐÚNG 2 → cả hai bản dựng phải chặn.
+  const rDo = khoGit({ findings: rfText(2, 0), findingsOpen: 2 });
+  const oDo = luoi(rDo);
+  const vi = dongCua(oDo.out, 'VIOLATION', 'cn');
+  chi.push(`bash: ${vi.length} VIOLATION`);
+  if (!vi.length) return say('CN01', false, 'ban dung bash KHONG chan ho so con muc cho nguoi', chi);
+  const mjs = core.dieuKienFindings({ findingsText: rfText(2, 0), ledgerText: '', reportText: '---\nverdict: PASS\nfindings_open: 2\n---\n' });
+  chi.push(`mjs why: "${String(mjs.why).slice(0, 80)}"`);
+  // Đo QUAN HỆ: lý do của bash phải CHỨA nguyên văn lý do của mjs — cùng một
+  // nguồn chữ, không phải hai câu viết tay giống nhau.
+  if (!vi[0].includes(mjs.why)) {
+    return say('CN01', false, `hai ban dung noi KHAC nhau — bash: "${vi[0].slice(0, 140)}"`, chi);
+  }
+  chi.push('lý do bash CHỨA nguyên văn lý do mjs');
+  say('CN01', true, '', chi);
+});
+
+// ══ CN05 — đường đọc-cũ: NOTE, không VIOLATION ════════════════════════════
+def('CN05', () => {
+  const chi = [];
+  // Hồ sơ còn 2 mục nhưng báo cáo VẮNG khoá findings_open → đời trước luật.
+  const R = khoGit({ findings: rfText(2, 0), findingsOpen: null });
+  const o = luoi(R);
+  const vi = dongCua(o.out, 'VIOLATION', 'cn');
+  const note = dongCua(o.out, 'NOTE', 'cn');
+  chi.push(`VIOLATION=${vi.length} NOTE=${note.length}`);
+  if (vi.length) return say('CN05', false, `doc-cu ma van VIOLATION: ${vi[0].slice(0, 130)}`, chi);
+  const hop = note.filter(l => l.includes('mục chờ người'));
+  chi.push(hop.length ? `NOTE: "${hop[0].slice(0, 130)}"` : '(không NOTE nào nói về mục chờ người)');
+  if (!hop.length) return say('CN05', false, 'khong co NOTE nao neu so muc cho nguoi', chi);
+  if (!/\b2\b/.test(hop[0])) return say('CN05', false, 'NOTE khong neu SO muc', chi);
+  // Và hồ sơ VẮNG HẲN tệp rà soát cũng không được chặn (41% hồ sơ thật ở dạng này).
+  const R2 = khoGit({ findings: null, findingsOpen: null });
+  const o2 = luoi(R2);
+  chi.push(`vắng hẳn tệp: VIOLATION=${dongCua(o2.out, 'VIOLATION', 'cn').length}`);
+  if (dongCua(o2.out, 'VIOLATION', 'cn').length) return say('CN05', false, 'vang han tep ma bi chan', chi);
+  say('CN05', true, '', chi);
+});
+
+// ══ CN03b — vắng node thì fail-CLOSED có tên ══════════════════════════════
+def('CN03b', () => {
+  const chi = [];
+  const R = khoGit({ findings: rfText(2, 0), findingsOpen: 2 });
+  // Đối chứng dương TRƯỚC: có node → chặn có tên.
+  const co = luoi(R);
+  chi.push(`có node: VIOLATION=${dongCua(co.out, 'VIOLATION', 'cn').length}`);
+  if (!dongCua(co.out, 'VIOLATION', 'cn').length) return say('CN03b', false, 'doi chung duong: co node ma khong chan', chi);
+  // Tự kiểm PATH giả lập: phải KHÔNG có node mà VẪN có bash — không thì ca này
+  // xanh/đỏ vì lý do khác hẳn thứ nó đi đo.
+  const cp2 = req('node:child_process');
+  const coNode = cp2.spawnSync('sh', ['-c', 'command -v node'], { encoding: 'utf8', env: { PATH: '/usr/bin:/bin' } });
+  const coBash = cp2.spawnSync('sh', ['-c', 'command -v bash'], { encoding: 'utf8', env: { PATH: '/usr/bin:/bin' } });
+  chi.push(`PATH giả lập: node=${(coNode.stdout || '').trim() || '(không có)'} bash=${(coBash.stdout || '').trim() || '(không có)'}`);
+  if ((coNode.stdout || '').trim()) return say('CN03b', false, 'PATH gia lap VAN co node — ca khong do duoc thu no di do', chi);
+  if (!(coBash.stdout || '').trim()) return say('CN03b', false, 'PATH gia lap khong co bash — luoi khong chay duoc', chi);
+  // Vắng node: lưới vẫn phải KHÔNG gọi hồ sơ này là sạch.
+  const khong = luoi(R, { khongNode: true });
+  const sachGia = /xanh-sạch — máy đi tiếp/.test(khong.out) && dongCua(khong.out, 'NOTE', 'cn').some(l => /xanh-sạch/.test(l));
+  chi.push(`vắng node: sạch-giả=${sachGia}`);
+  if (sachGia) return say('CN03b', false, 'vang node ma van goi la xanh-sach', chi);
+  const neuTen = /thiếu node|không chấm được|out-of-contract\.cjs|INIT-CI-COPY-LIST/.test(khong.out);
+  chi.push(`vắng node: nêu đích danh thứ thiếu=${neuTen}`);
+  if (!neuTen) return say('CN03b', false, 'vang node ma khong neu dich danh thu thieu', chi);
+  say('CN03b', true, '', chi);
+});
+
+// ── ba hình dạng NGUYÊN VĂN từ hợp đồng thật ──────────────────────────────
+// Chép CHUỖI vào đây, KHÔNG đọc tệp thật lúc chạy: hồ sơ đã ký là sử liệu, và
+// một ca đọc chúng sẽ đổi màu khi kho đổi, tức đo kho chứ không đo bộ bóc.
+const THAT_CRM = '### AC-1 — Ở kho này, job không chạy — đo bằng số GitHub trả về';   // crm/auto-pr-thoi-do-o-ban-re
+const THAT_AP  = '### AC-2 — Google Contacts một-cú-bấm';                             // artifact-platform/customer-segment-foundation
+const THAT_KIT = '### AC-1 (bộ giải) — bóc nháy chỉ khi nháy CÂN và đúng một cặp vỏ'; // kit/release-2-11-0
+
+const hopDong = (than, muc = 'Criteria') => ['---', 'schema_version: 1', 'slug: x', '---', '', `## ${muc}`, '', than, '', '## Out of scope', '', '- x', ''].join('\n');
+
+// ══ CN07 — ma trận 12 hình dạng khai báo ══════════════════════════════════
+def('CN07', () => {
+  const chi = [];
+  const lib = req(path.join(ROOT, 'lib', 'ac-line.cjs'));
+  if (typeof lib.parseACBlock !== 'function') return say('CN07', false, 'lib.parseACBlock chua ton tai', chi);
+  // [tên ô, thân, id mong đợi, chữ phải có trong gwt của id đó, judgment, crossLayer]
+  const O = [
+    ['tiêu đề · thân nhiều dòng', '### AC-1 — nhãn một\n\nGiven a\n\nWhen b\n\nThen c', 'AC-1', 'When b', false, false],
+    ['tiêu đề · thân một dòng', '### AC-2 — nhãn hai\nGiven a, When b, Then c', 'AC-2', 'Then c', false, false],
+    ['tiêu đề · (judgment) ở nhãn', '### AC-3 (judgment) — cần mắt người\nGiven a, When b, Then c', 'AC-3', 'cần mắt người', true, false],
+    ['tiêu đề · (cross-layer) ở nhãn', '### AC-4 (cross-layer) — xuyên lớp\nGiven a, When b, Then c', 'AC-4', 'xuyên lớp', false, true],
+    ['tiêu đề · tag ở THÂN', '### AC-5 — nhãn năm\nGiven a, When b, Then c (cross-layer)', 'AC-5', 'Then c', false, true],
+    ['tiêu đề · tag trong code span KHÔNG tính', '### AC-6 — nhãn sáu\nGiven hồ sơ giải thích `(cross-layer)` cho người mới, When b, Then c', 'AC-6', 'người mới', false, false],
+    ['tiêu đề có dấu đậm', '### **AC-8** — nhãn tám\nGiven a, When b, Then c', 'AC-8', 'nhãn tám', false, false],
+    ['tiêu đề kế CẮT thân', '### AC-9 — nhãn chín\nGiven a\n### AC-10 — nhãn mười\nGiven b, When c, Then d', 'AC-9', 'nhãn chín', false, false],
+    ['gạch đầu dòng LẪN tiêu đề', '- AC-11: Given a, When b, Then c\n\n### AC-12 — nhãn mười hai\nGiven d, When e, Then f', 'AC-11', 'When b', false, false],
+    ['ca thật crm', THAT_CRM + '\nGiven commit đã đẩy, When chạy lệnh, Then số trả về là 0', 'AC-1', 'job không chạy', false, false],
+    ['ca thật ap', THAT_AP + '\nGiven tenant đã nối, When bấm nhập, Then danh bạ kéo về', 'AC-2', 'một-cú-bấm', false, false],
+  ];
+  const boc = (than) => {
+    const m = new Map();
+    for (const a of lib.parseACBlock(hopDong(than))) if (!m.has(a.id)) m.set(a.id, a);
+    return m;
+  };
+  const lech = [];
+  for (const [ten, than, id, chu, jg, xl] of O) {
+    const m = boc(than);
+    const a = m.get(id);
+    if (!a) { lech.push(`${ten}: KHÔNG ra ${id}`); continue; }
+    if (!a.gwt.includes(chu)) lech.push(`${ten}: gwt thiếu "${chu}" (gwt="${a.gwt.slice(0, 60)}")`);
+    if (a.judgment !== jg) lech.push(`${ten}: judgment=${a.judgment} cho ${jg}`);
+    if (a.crossLayer !== xl) lech.push(`${ten}: crossLayer=${a.crossLayer} cho ${xl}`);
+  }
+  // Ô cấp h2 — dựng ĐÚNG hình dạng đời thật: `## AC-n` là cấu trúc TOP-LEVEL,
+  // KHÔNG có mục bao ngoài (media-library/embed-on-approve và 17 hồ sơ khác).
+  const h2Doi = ['---', 'schema_version: 1', '---', '', '# Contract — x', '',
+    '## AC-7 (nhãn bảy)', 'Given a, When b, Then c', '', '## Known limits', '', '- x', ''].join('\n');
+  const mH2 = new Map(lib.parseACBlock(h2Doi).map(a => [a.id, a]));
+  if (!mH2.has('AC-7') || !mH2.get('AC-7').gwt.includes('nhãn bảy')) {
+    return say('CN07', false, `cap h2 doi that: ${[...mH2.keys()].join(',') || 'khong ra id nao'}`, chi);
+  }
+  // Ô mục-CÓ-mà-không-chứa-tiêu-chí-nào: phải rơi về quét cả tệp, không nuốt phạm vi.
+  const mucRong = ['---', 'schema_version: 1', '---', '', '## Criteria', '',
+    'Xem các mục dưới đây.', '', '## AC-8 (nhãn tám)', 'Given a, When b, Then c', ''].join('\n');
+  const mMR = lib.parseACBlock(mucRong).map(a => a.id).join(',');
+  if (mMR !== 'AC-8') return say('CN07', false, `muc Criteria rong nuot pham vi: ra "${mMR}"`, chi);
+
+  // Hai ô còn lại của ma trận: tham chiếu chéo trong thân, và tiêu chí thân RỖNG.
+  const mTc = boc('### AC-13 — nhãn\nGiven a, When b, Then c. Xem thêm **AC-5, AC-9** ở Notes.');
+  if (mTc.size !== 1 || !mTc.has('AC-13')) lech.push(`tham chiếu chéo sinh id lạ: ${[...mTc.keys()].join(',')}`);
+  const mRong = boc('### AC-14\n\n### AC-15 — có chữ\nGiven a, When b, Then c');
+  if (mRong.has('AC-14')) lech.push('tiêu chí thân RỖNG vẫn được tính');
+  if (!mRong.has('AC-15')) lech.push('tiêu chí sau tiêu chí rỗng bị mất');
+  chi.push(`ma trận 14 ô: ${lech.length ? lech.length + ' lệch' : 'đủ'}`);
+  for (const l of lech.slice(0, 4)) chi.push(`  ${l}`);
+  if (lech.length) return say('CN07', false, `ma tran lech ${lech.length} o`, chi);
+  // Ca thật thứ ba mang nhãn trong ngoặc — ghim riêng vì nó là hình dạng của kit.
+  const mKit = boc(THAT_KIT + '\nGiven giá trị scalar, When giải khoá, Then bóc đúng một cặp vỏ');
+  const aKit = mKit.get('AC-1');
+  if (!aKit || !aKit.gwt.includes('bóc nháy chỉ khi')) return say('CN07', false, 'ca that kit: nhan trong ngoac roi mat chu', chi);
+  chi.push('ba ca nguyên văn từ hợp đồng thật: đạt');
+  say('CN07', true, '', chi);
+});
+
+// ══ CN08 — bốn cách đặt tên mục tiêu chí ══════════════════════════════════
+def('CN08', () => {
+  const chi = [];
+  const lib = req(path.join(ROOT, 'lib', 'ac-line.cjs'));
+  if (typeof lib.parseACBlock !== 'function') return say('CN08', false, 'lib.parseACBlock chua ton tai', chi);
+  const than = '### AC-1 — nhãn một\nGiven a, When b, Then c\n\n### AC-2 — nhãn hai\nGiven d, When e, Then f';
+  const dau = (ls) => ls.map(a => `${a.id}|${a.gwt}`).join('\n');
+  // Đối chứng dương TRƯỚC: mục tên chuẩn.
+  const chuan = dau(lib.parseACBlock(hopDong(than, 'Criteria')));
+  chi.push(`## Criteria → ${chuan.split('\n').length} tiêu chí`);
+  if (!/AC-1\|/.test(chuan) || !/AC-2\|/.test(chuan)) return say('CN08', false, 'doi chung duong: muc chuan khong ra du id', chi);
+  for (const muc of ['Acceptance Criteria', 'Acceptance criteria']) {
+    const r = dau(lib.parseACBlock(hopDong(than, muc)));
+    chi.push(`## ${muc} → ${r === chuan ? 'BẰNG chuẩn' : 'LỆCH'}`);
+    if (r !== chuan) return say('CN08', false, `tieu de muc chua nhan het: "${muc}"`, chi);
+  }
+  // Ô thứ tư: KHÔNG mục nào → quét cả tệp, vẫn ra đủ id.
+  const khongMuc = ['---', 'schema_version: 1', '---', '', than, ''].join('\n');
+  const r4 = lib.parseACBlock(khongMuc).map(a => a.id).join(',');
+  chi.push(`không mục nào → ${r4}`);
+  if (r4 !== 'AC-1,AC-2') return say('CN08', false, `khong muc nao ma ra "${r4}"`, chi);
+  say('CN08', true, '', chi);
+});
+
+// ══ CN09 — bộ dò điểm mù KHÔNG im trước dạng tiêu đề ══════════════════════
+def('CN09', () => {
+  const chi = [];
+  const lib = req(path.join(ROOT, 'lib', 'ac-line.cjs'));
+  if (typeof lib.parseACBlock !== 'function') return say('CN09', false, 'lib.parseACBlock chua ton tai', chi);
+  const than = [1, 2, 3, 4, 5, 6].map(i => `### AC-${i} — nhãn ${i}\nGiven a, When b, Then c`).join('\n\n');
+  const t = hopDong(than);
+  // Đối chứng dương TRƯỚC, và đây là vế chống kêu-oan: hợp đồng LÀNH → im.
+  const ids = lib.parseACBlock(t).map(a => a.id);
+  chi.push(`hợp đồng lành: bóc ${ids.length} tiêu chí`);
+  if (ids.length !== 6) return say('CN09', false, `boc ${ids.length} thay vi 6`, chi);
+  const lanh = lib.acBlindSpot(t, ids);
+  chi.push(`hợp đồng lành → ${lanh === null ? 'IM (đúng)' : 'KÊU OAN: ' + JSON.stringify(lanh)}`);
+  if (lanh !== null) return say('CN09', false, 'bo do keu oan tren hop dong lanh', chi);
+  // Ô bỏ sót 2/6 → kind short, nêu số 2 và liệt dòng.
+  const short = lib.acBlindSpot(t, ids.slice(0, 4));
+  chi.push(`bỏ sót 2/6 → ${short ? short.kind : 'null'}`);
+  if (!short || short.kind !== 'short') return say('CN09', false, 'bo do van im truoc dang tieu de (short)', chi);
+  const vanShort = lib.blindSpotText(short);
+  if (!/\b2\b/.test(vanShort) || !short.lines.length) return say('CN09', false, 'van ban khong neu so bo sot hoac khong liet dong', chi);
+  // Ô bỏ sót 6/6 → kind blank.
+  const blank = lib.acBlindSpot(t, []);
+  chi.push(`bỏ sót 6/6 → ${blank ? blank.kind : 'null'}`);
+  if (!blank || blank.kind !== 'blank') return say('CN09', false, 'bo do van im truoc dang tieu de (blank)', chi);
+  say('CN09', true, '', chi);
+});
+
 // ── chạy ──────────────────────────────────────────────────────────────────
 const chon = (process.env.CNDN_CASES || '').split(/[,\s]+/).filter(Boolean);
 const ids = Object.keys(CASES).filter(id => !chon.length || chon.includes(id));

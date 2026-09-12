@@ -226,7 +226,10 @@ function mkGitRepo(slug, o) {
   // Thiếu lib/md-section.cjs thì lưới KHÔNG BAO GIỜ thấy hồ sơ sạch (fail-closed) —
   // LV5 từng đỏ ở chính đối chứng dương vì fixture chưa chép, đúng như đời thật.
   mkdirSync(path.join(R, 'lib'), { recursive: true }); mkdirSync(path.join(R, 'scripts'), { recursive: true });
-  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs'])
+  // out-of-contract.cjs vào danh sách từ hồ sơ cong-nguoi-doc-du-nguon: điều kiện
+  // xanh-sạch THỨ BẢY nạp nó, và thiếu nó thì lưới fail-CLOSED — đúng như đời thật
+  // với một kho tiêu thụ chép thiếu (đó là ý của fail-CLOSED, không phải lỗi ca).
+  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs', 'out-of-contract.cjs'])
     copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
   copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
   git('add', '-A'); git('commit', '-qm', 'c1');

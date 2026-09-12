@@ -135,6 +135,7 @@ enforcement    enforcement_mode không off
 tier           risk_tier của hợp đồng là T2
 uncertain      không có mục UNCERTAIN trong báo cáo
 sections       hai mục «Known limits» và «Ngoài hợp đồng» hiện diện và rỗng
+findings       review-findings.md không còn mục chờ người ở «Ngoài hợp đồng» và «Trong hợp đồng»
 <!-- EVIDENCE-XANH-SACH-BLOCK>>> -->
 
 <!-- Hai mục điều kiện `sections` đòi — bản gốc máy-đọc; vùng chép dưới mốc cắt đặt chúng
