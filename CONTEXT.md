@@ -185,6 +185,18 @@ nó là LỜI KHAI và đòi bằng chứng — máy không tự phong. Người
 _Avoid_: gọi hồ sơ máy-thông là «đã ký» (đó là chữ của người); in nó cùng chữ
 với `signed-off` ở bất kỳ mặt người nào.
 
+**Cửa veto (mở · đã đóng bằng chữ ký)**:
+Đường đảo cho việc MÁY tự quyết mà người chưa nói gì — ghi bằng `veto_state: mo`
++ `veto_opened_at` trong contract. Cửa **mở** ⟺ `veto_state: mo` ∧ chưa có chữ ký
+THẬT ở `human_signoff` của `evidence-report.md` (rỗng · chỉ chú thích · báo cáo
+vắng · frontmatter không dẫn đầu · khớp bảng giữ-chỗ). **Chữ ký người ở Cổng Bằng
+chứng ĐÓNG cửa veto**: người đã phát ngôn thì hồ sơ hết nằm trong danh sách chờ
+người. Căn cứ là QUAN HỆ, không phải nhãn — `status: signed-off` một mình không
+đóng cửa. Ba bộ đọc nói cùng vị từ này: lưới trước-merge (dòng NOTE và dòng tổng)
+và máy quét `/start` (`vetoOpen[].humanSignoff` · `vetoOpenUnsigned[]`).
+_Avoid_: gọi hồ sơ ĐÃ KÝ là «còn veto được» hay «owner chưa veto»; coi
+`veto_state: mo` một mình là cửa đang mở.
+
 ### Classification
 
 **Risk tier**:
