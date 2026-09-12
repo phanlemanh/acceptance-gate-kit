@@ -1,0 +1,110 @@
+{
+  "feature_plain": "Người chạy chiến dịch ghim lại thôi phải chọn giữa «chôn một hồ sơ tốt» và «cổng đỏ mãi»: ô nào hồ sơ đã ký khai là không chạy thì lượt ghim lại bỏ qua đúng ô đó, và nói ra mình đã bỏ ô nào.",
+  "will_do": [
+    {
+      "id": "AC-2",
+      "p": "Sẽ bỏ qua thật ô đã khai không chạy — lệnh của ô đó không được thi hành lần nào, chứng bằng một dấu vết chỉ xuất hiện nếu nó chạy."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ dừng lại và gọi tên khi hồ sơ tự mâu thuẫn: khai một ô là không chạy nhưng bằng chứng đã ký lại có kết quả của chính ô đó."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ giữ nguyên giá trị của mọi bằng chứng cũ — không hồ sơ nào đang xanh bị hoá đỏ vì bản nâng này."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ nói ra ô nào không được đo, ở cả chỗ máy đọc lẫn dòng người đọc — không có ô nào biến mất im lặng."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ thông đúng ca thật đang treo một hồ sơ lành ở kho OneFlow, đo trên bản dựng lại y hình dạng của nó."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ giữ bảng điểm chạm bộ máy khớp với thực tế — thêm một lời gọi mới mà quên khai là lưới báo ngay."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ KHÔNG để bên ghi và bên chấm có hai bản luật: cả hai rút cùng một danh sách từ một chỗ duy nhất."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ KHÔNG còn báo thiếu bằng chứng cho ô mà chính hồ sơ đã khai là không chạy — nhưng ô chạy được mà thiếu thì vẫn chặn."
+    },
+    {
+      "id": "AC-9",
+      "p": "Chặn lối viết lệch làm luật hụt: khai có nháy, viết hoa hay thừa khoảng trắng đều được hiểu đúng, còn chữ khác hẳn thì không được ngầm chấp nhận."
+    },
+    {
+      "id": "AC-10",
+      "p": "Chặn nhận nhầm: chữ nhắc tới trạng thái nằm trong phần mô tả hay chú thích không được tính là lời khai của ô."
+    }
+  ],
+  "scope_plain": "Vòng này không ghim lại hộ kho OneFlow, không lưu kho hồ sơ nào, và không đụng hai tệp mà vòng song song đang sửa.",
+  "decisions_plain": [
+    {
+      "id": "d-20260912T034719Z-16633",
+      "p": "Đặt định nghĩa dùng chung ở chỗ bên chấm đã sống, để hai bên không sinh luật thứ hai — đổi lại việc này lên hạng cao nhất nên có thêm một cổng duyệt kế hoạch."
+    },
+    {
+      "id": "d-20260912T034719Z-22505",
+      "p": "Chỉ bỏ qua một ô khi hồ sơ khai VÀ bằng chứng đã ký không có kết quả của ô đó — đổi lại hồ sơ nào từng đo rồi đổi ý sẽ phải đi lại vòng chấm thay vì ghim lại."
+    },
+    {
+      "id": "d-20260912T034719Z-9634",
+      "p": "KHÔNG làm phần đặc tả giao diện — việc này không có màn hình nào cho người nhìn."
+    },
+    {
+      "id": "d-20260912T034719Z-25400",
+      "p": "KHÔNG làm bằng chứng dạng nhìn-thấy — thứ được giao là một dòng ghi và một thông điệp dừng, đo bằng lệnh."
+    }
+  ],
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Đã phủ cả hai phía của cùng một luật: phía ghi bằng chứng và phía chấm bằng chứng, cộng ca cả hai cùng đọc một đầu vào. Bằng chứng đủ: đây đúng là lớp lỗi hai-phía-trôi-khỏi-nhau mà nhà đã ghi thành luật."
+    },
+    {
+      "i": 1,
+      "p": "Đã phủ ba trạng thái của một ô: chạy được, khai không chạy, và khai không chạy nhưng bằng chứng đã ký lại có kết quả. Bằng chứng đủ: quét 8 kho — trạng thái giữa có đúng một ca thật, trạng thái cuối chưa có ca thật nên dựng bằng bản mã sinh."
+    },
+    {
+      "i": 2,
+      "p": "Đã phủ hai tuổi của bằng chứng: bản ghi mới và bản ghi cũ đang nằm trong kho. Bằng chứng đủ: chuẩn ngành về nâng cấp định dạng đòi bản đọc mới phải hiểu bản ghi cũ, và kho có sẵn bản ghi cũ để thử."
+    },
+    {
+      "i": 3,
+      "p": "Đã phủ hai chỗ phải nói ra: chỗ máy đọc và dòng người đọc. Bằng chứng đủ: khuôn ghi đã có sẵn một hậu tố cùng kiểu từ lần nâng trước."
+    },
+    {
+      "i": 4,
+      "p": "Đã phủ hình dạng lời khai và chỗ lời khai xuất hiện. Bằng chứng đủ: mốc phát hành gần nhất mất nhiều lượt vì đúng lớp đọc-lệch-một-ký-tự, và chính bản nháp đầu của việc này đã dẫm bẫy chỗ-xuất-hiện."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Bản nháp đầu tự dẫm bẫy của chính nó: một câu mô tả có nhắc tới lời khai, và bộ đọc theo dòng sẽ tưởng đó là lời khai thật rồi loại nhầm một phép đo — phép đo ấy sẽ không bao giờ chạy lại mà cổng vẫn xanh. Đã thêm hẳn một tiêu chí về chỗ-xuất-hiện, kèm phép tự soi chạy trên chính bản khai của việc này."
+    },
+    {
+      "i": 1,
+      "p": "Bản ghi cũ dùng để thử lại do chính tay mình dựng theo khuôn của bên chấm, nên nó chỉ chứng minh mình khớp với mình. Đã đổi: bản ghi cũ phải do bản trước bản vá tự sinh ra, lấy trọn thư mục chứ không nhặt từng tệp."
+    },
+    {
+      "i": 2,
+      "p": "Thiết kế hứa hiểu được lời khai viết lệch nhưng không tiêu chí nào bắt buộc điều đó, trong khi nhà vừa mất một mốc vì đúng lớp đọc-lệch. Đã thêm một tiêu chí liệt đủ bảy cách viết và nói rõ cách nào phải hiểu, cách nào không."
+    },
+    {
+      "i": 3,
+      "p": "Câu «không hồ sơ nào hoá đỏ» định đo bằng hai con số bằng nhau — hai lần cùng hỏng cũng cho hai số bằng nhau. Đã đổi sang ghim ba thứ và thêm một phép thử cố tình làm hỏng để chắc phép đếm còn sống."
+    },
+    {
+      "i": 4,
+      "p": "Câu «dừng trước khi ghi gì» không có vật nào chứng. Đã thêm: so dấu vân của hai tệp trước và sau, cộng một lượt chạy bình thường phải làm dấu vân đổi — nếu không thì «không ghi» và «không chạy» trông giống hệt nhau."
+    }
+  ]
+}

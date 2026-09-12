@@ -5,9 +5,9 @@ slug: lan-doc-status-not-run
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs ∈ t3_paths (định nghĩa dùng chung sống ở bên đọc)
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-09-12
 design_doc: docs/superpowers/specs/2026-09-12-lan-doc-status-not-run-design.md
 ---
 
@@ -42,81 +42,25 @@ OneFlow · thiết kế: `docs/superpowers/specs/2026-09-12-lan-doc-status-not-r
 
 ## Criteria
 
-### AC-1 (một nguồn) — định nghĩa «eval máy đáng ghim» chỉ tồn tại MỘT chỗ
+- AC-1 (một nguồn): Given một bản khai eval có ô `executor: script` khai giá trị không-chạy và các ô khác không khai, When bên VIẾT (`repin-lane.mjs`) và bên ĐỌC (`machineEvalIds`) cùng rút danh sách eval máy, Then hai bên trả CÙNG một tập id và tập đó không chứa ô kia — tập bên đọc lấy bằng cách GỌI hàm, tập bên viết lấy từ khoá `evals_exit` làn THẬT SỰ ghi, không so với danh sách gõ tay. Chiều đỏ: bản sao hoàn nguyên bộ lọc riêng ở bên viết → ĐỎ ghim «hai bên trả tập khác nhau» kèm id lệch.
 
-**Given** một `evals.yaml` có ô `executor: script` khai `status: not-run` và các ô khác không khai
-**When** bên VIẾT (`repin-lane.mjs`) và bên ĐỌC (`machineEvalIds` trong `lib/evidence-core.cjs`) cùng rút danh sách eval máy
-**Then** hai bên trả về **CÙNG một tập id** trên cùng đầu vào, và tập đó KHÔNG chứa ô `not-run`; phép đo lấy danh sách từ đầu ra THẬT của cả hai đường (gọi hàm của bên đọc; chạy `repin-lane.mjs` rồi rút id từ `evals_exit` nó ghi), không so với một danh sách gõ tay.
-**Chiều đỏ:** bản sao `repin-lane.mjs` hoàn nguyên về bộ lọc riêng `MACHINE.has(...)` → phép đo ĐỎ ghim «hai bên trả tập khác nhau», nêu tên id lệch.
+- AC-2 (bên viết bỏ qua thật): Given kho git tạm do MÃ SINH, ô khai không-chạy mang lệnh ghi một TỆP DẤU, When chạy làn có và không `--write`, Then làn thoát 0, tệp dấu KHÔNG tồn tại, `evals_exit` thiếu đúng id đó và đủ các id còn lại. Đối chứng dương cùng kho: gỡ dòng khai đi → tệp dấu XUẤT HIỆN và id có mặt. Chiều đỏ: bản sao bỏ bước đọc trường khai → tệp dấu xuất hiện, ĐỎ ghim «ô không-chạy đã bị thi hành».
 
-### AC-2 (bên viết bỏ qua thật) — ô `not-run` KHÔNG được thi hành
+- AC-3 (bên đọc nhận pin thiếu id đã khai): Given dòng pin do làn AC-2 ghi cùng bản khai và báo cáo đã ký của hồ sơ, When chạy `checkRepinEvals` và `recheck-evidence.cjs`, Then 0 lỗi và chuỗi «evals_exit lacks eval(s)» KHÔNG xuất hiện. Đối chứng dương: pin thiếu id một ô CHẠY ĐƯỢC → vẫn vi phạm, gọi đúng id thiếu. Chiều đỏ: `machineEvalIds` hoàn nguyên → ĐỎ ghim «pin hợp lệ bị báo thiếu id».
 
-**Given** kho git tạm do MÃ SINH trong chính lần chạy, có một hồ sơ đã ký; ô `not-run` của nó mang `cmd` ghi một **tệp dấu** vào thư mục tạm khi chạy
-**When** chạy làn (có và không `--write`)
-**Then** làn thoát **0**, **tệp dấu KHÔNG tồn tại** (ô chưa từng chạy), `evals_exit` không có id đó, và các ô còn lại vẫn có đủ.
-**Đối chứng dương cùng kho:** gỡ dòng `status: not-run` → tệp dấu XUẤT HIỆN và id có trong `evals_exit`.
-**Chiều đỏ:** bản sao bỏ bước đọc `status` → tệp dấu xuất hiện, phép đo ĐỎ ghim «ô not-run đã bị thi hành».
+- AC-4 (hai vế chặn đường lách): Given hồ sơ khai ô X là không-chạy NHƯNG báo cáo đã ký có khối eval mang mã thoát cho X, When chạy làn và chạy bên đọc trên pin thiếu X, Then bên viết dừng exit 2 và bên đọc ghi vi phạm, cả hai gọi tên hồ sơ, id X và cả hai vế. Vật quan sát cho «chưa ghi byte nào»: băm nội dung sổ chạy và báo cáo trước/sau phải GIỐNG nhau, không tệp mới nào; đối chứng dương: lượt chạy XANH phải làm hai băm ĐỔI. Chiều đỏ: bản sao bỏ vế 2 → ca xung đột đi qua, ĐỎ ghim «đường lách mở».
 
-### AC-3 (bên đọc nhận pin thiếu id đã khai) — không còn VIOLATION oan
+- AC-5 (đường đọc-cũ): Given dòng pin CŨ do WRITER THẬT của bản trước vá ghi — bản base dựng bằng `git archive` lấy TRỌN thư mục, không chép danh sách file tay, When bên đọc mới chấm nó, Then 0 lỗi; đối chứng dương: bên đọc CŨ chấm cùng dòng cũng 0 lỗi. Vế «không hồ sơ nào hoá đỏ» ghim BA thứ: hai lượt recheck đều thoát 0, tổng số hồ sơ đã chấm in ra và lớn hơn 0, tập TÊN hồ sơ vi phạm giống nhau; chân dương: tiêm một pin thiếu id ô chạy được → số vi phạm TĂNG đúng 1, gọi đúng tên. Chiều đỏ: bản sao đổi luật thành «tập id khớp chính xác» → ĐỎ ghim tên hồ sơ cũ hoá đỏ.
 
-**Given** dòng pin do làn ở AC-2 ghi (thiếu id của ô `not-run`) + `evals.yaml` + báo cáo đã ký của cùng hồ sơ
-**When** chạy `checkRepinEvals` và `scripts/recheck-evidence.cjs`
-**Then** **0 lỗi**, và thông điệp «evals_exit lacks eval(s) …» KHÔNG xuất hiện.
-**Đối chứng dương:** cùng pin nhưng thiếu id của một ô CHẠY ĐƯỢC → vẫn VIOLATION, thông điệp gọi đúng id thiếu.
-**Chiều đỏ:** bản sao `machineEvalIds` hoàn nguyên (lọc chỉ theo executor) → phép đo ĐỎ ghim «pin hợp lệ bị báo thiếu id».
+- AC-6 (pin nói ra): Given làn xanh trên hồ sơ có ô khai không-chạy, When đọc dòng sổ chạy và mục ghim lại trong báo cáo, Then dòng sổ có khoá `evals_not_run` chứa đúng id bị loại theo thứ tự bản khai, và dòng `sha:` nối hậu tố «không chạy theo hồ sơ»; hồ sơ không có ô nào như vậy thì cả hai chỗ vắng hoàn toàn. Hai chỗ đọc bằng hai bộ đọc khác nhau. Chiều đỏ: bản sao bỏ bước nối hậu tố → ĐỎ ghim «pin im lặng về ô không đo».
 
-### AC-4 (hai vế — chặn đường lách) — `not-run` mà báo cáo đã đo là XUNG ĐỘT
+- AC-7 (ca thật): Given fixture do MÃ SINH dựng đúng hình dạng đo ở OneFlow — 14 ô máy, một ô khai không-chạy trỏ lệnh thiếu đối số nên thoát 4, báo cáo đã ký có 13 khối eval, When chạy làn `--write` rồi recheck, Then làn xanh, pin ghi 13 id, khoá nói-ra chứa ô kia, recheck 0 lỗi. Chiều đỏ: trả bên đọc về bản trước vá → cùng fixture cho làn ĐỎ với đúng thông điệp exit-4 đã đo ở OneFlow, ĐỎ ghim tên ca.
 
-**Given** một hồ sơ mà `evals.yaml` khai ô X `status: not-run` NHƯNG báo cáo đã ký có khối eval mang mã thoát cho X
-**When** chạy làn, và chạy bên đọc trên một pin thiếu X
-**Then** bên VIẾT dừng **exit 2** trước khi ghi byte nào, thông điệp gọi tên hồ sơ + id X + cả hai vế; bên ĐỌC ghi **VIOLATION** gọi tên X là «khai not-run nhưng báo cáo đã ký có mã thoát».
-**Vật quan sát cho «chưa ghi byte nào»** (gap-probe P1-5): băm nội dung `run-log.jsonl` và `evidence-report.md` trước/sau lượt xung đột phải GIỐNG nhau, và thư mục hồ sơ không có tệp mới nào. **Đối chứng dương cùng kho:** lượt chạy XANH phải làm HAI băm ĐỔI — không có chân đó thì băm-giống-nhau không phân biệt «không ghi» với «không chạy»; và gỡ khối eval X khỏi báo cáo → làn xanh, bên đọc 0 lỗi.
-**Chiều đỏ:** bản sao bỏ vế 2 → ca xung đột đi qua, phép đo ĐỎ ghim «đường lách trạng-thái mở».
+- AC-8 (bảng bộ máy): Given làn gọi thêm export nào từ thư viện cho việc lọc hoặc kiểm xung đột, When chạy ca thường trực của làn lớp-cũ, Then mọi tên hàm làn và recheck gọi đều nằm trong bảng điểm chạm bộ máy, và chân quan hệ xanh. Chiều đỏ có sẵn: thêm một lời gọi không có hàng trong bảng → ĐỎ gọi đúng tên hàm thiếu.
 
-### AC-5 (đường đọc-cũ) — pin CŨ mang đủ id vẫn phải xanh
+- AC-9 (chuẩn hoá hình dạng khai): Given bảy hình dạng của giá trị khai — trơn, bọc nháy kép, bọc nháy đơn, viết hoa toàn phần, viết hoa chữ đầu, thừa khoảng trắng hai đầu, gạch dưới thay gạch ngang, When cả hai đường thi hành đọc chúng, Then sáu dạng đầu BỊ LOẠI và dạng thứ bảy KHÔNG bị loại, số assert bằng số phần tử đếm lúc chạy từ bảng ca — lệch số thì ĐỎ «số ô lệch». Chiều đỏ: bản sao so chuỗi thô không chuẩn hoá → ĐỎ ghim đúng dạng lọt.
 
-**Given** một dòng pin CŨ do **WRITER THẬT của bản TRƯỚC vá** ghi — dựng bản base bằng `git archive <sha-trước-vá> lib scripts feature-loop` lấy TRỌN thư mục (không chép danh sách file tay, P150), chạy `repin-lane.mjs` của bản đó trên fixture mã-sinh rồi lấy đúng dòng nó ghi; KHÔNG soạn tay theo khuôn bên đọc (gap-probe P0-2)
-**When** bên đọc mới chấm dòng đó
-**Then** **0 lỗi** — khoá thừa không bị phạt; đối chứng dương: bên đọc CŨ chấm cùng dòng cũng 0 lỗi. Vế «không hồ sơ nào hoá đỏ» ghim **BA** thứ chứ không phải một đẳng thức (gap-probe P1-4): hai lượt recheck đều **thoát 0**; **tổng số hồ sơ đã chấm** in ra và phải **lớn hơn 0**; **tập TÊN** hồ sơ vi phạm giống nhau theo tập. Chân dương: tiêm một pin thiếu id của ô CHẠY ĐƯỢC vào bản sao corpus → số vi phạm **TĂNG đúng 1** và gọi đúng tên hồ sơ.
-**Chiều đỏ:** bản sao đổi luật thành «tập id phải KHỚP CHÍNH XÁC» → phép đo ĐỎ ghim tên hồ sơ cũ bị hoá đỏ.
-
-### AC-6 (pin nói ra) — ô không đo phải hiện ở CẢ HAI chỗ máy-đọc và người-đọc
-
-**Given** làn xanh trên hồ sơ có ô `not-run`
-**When** đọc dòng JSON trong `run-log.jsonl` và mục `### Re-pin lần <N>` trong `evidence-report.md`
-**Then** dòng JSON có khoá `evals_not_run` là mảng chứa đúng id bị loại, và dòng `sha:` nối hậu tố `· không chạy theo hồ sơ: <id>` (nhiều id thì liệt đủ, thứ tự như trong `evals.yaml`); hồ sơ KHÔNG có ô `not-run` thì **cả hai** chỗ vắng hoàn toàn hậu tố và khoá đó.
-**Chiều đỏ:** bản sao bỏ bước nối hậu tố → phép đo ĐỎ ghim «pin im lặng về ô không đo».
-
-### AC-7 (ca thật) — hình dạng hồ sơ của OneFlow đi qua được
-
-**Given** fixture do MÃ SINH dựng lại đúng hình dạng đo được ở OneFlow: `evals.yaml` 14 ô máy trong đó một ô khai `status: not-run` trỏ một lệnh **thiếu đối số nên thoát 4**, và báo cáo đã ký có 13 khối eval (không có khối cho ô đó)
-**When** chạy làn `--write` rồi chạy `recheck-evidence.cjs`
-**Then** làn **xanh**, pin ghi 13 id, `evals_not_run` chứa ô kia, recheck **0 lỗi**.
-**Chiều đỏ:** trả `lib/evidence-core.cjs` về bản trước vá → cùng fixture cho làn ĐỎ với đúng thông điệp exit-4 đã đo ở OneFlow, phép đo ĐỎ ghim tên ca.
-
-### AC-8 (bảng bộ máy) — hàng mới của `AG-ENGINE-TABLE` đi cùng lời gọi mới
-
-**Given** làn gọi thêm export nào từ `lib/` cho việc lọc/xung đột
-**When** chạy ca thường trực `tests/scripts/repin-lane-lop-cu.test.mjs` (GL01–GL08, có chân đo QUAN HỆ)
-**Then** mọi tên hàm làn/recheck gọi đều ⊆ hàng của khối `AG-ENGINE-TABLE`, và GL03 xanh.
-**Chiều đỏ:** thêm một lời gọi `core.<X>` mà không thêm hàng → GL03 ĐỎ gọi đúng tên `<X>`.
-
-### AC-9 (chuẩn hoá hình dạng khai) — ma trận toàn phần, không so chuỗi thô
-
-**Given** bảy hình dạng của giá trị khai trong `evals.yaml`: trơn · bọc nháy kép · bọc nháy đơn · viết hoa toàn phần · viết hoa chữ đầu · thừa khoảng trắng hai đầu · gạch dưới thay gạch ngang
-**When** cả hai đường thi hành đọc chúng (gọi `machineEvalIds`, và chạy làn)
-**Then** **sáu dạng đầu BỊ LOẠI**, dạng thứ bảy **KHÔNG** bị loại; **số assert = số phần tử** của bảng ca, số dạng đếm LÚC CHẠY từ bảng — lệch số thì ĐỎ «số ô lệch».
-**Chiều đỏ:** bản sao so chuỗi thô không chuẩn hoá → phép đo ĐỎ ghim đúng dạng lọt.
-**Vì sao có AC này** (gap-probe P1-3): kho vừa mất một mốc vì bộ giải cắt nháy vô điều kiện; một giá trị bọc nháy đọc thành khác nghĩa là đúng lớp lỗi đó ở chiều ngược.
-
-### AC-10 (chỗ chuỗi xuất hiện) — chỉ TRƯỜNG thật được tính
-
-**Given** cùng một chuỗi chỉ trạng-thái nằm ở năm chỗ: trong comment `#` · trong thân `expected:` dạng folded · trong thân `expected:` dạng literal · dưới `paths:` · là TRƯỜNG thật của eval
-**When** hai bên rút tập id
-**Then** **chỉ chỗ cuối** làm ô bị loại; bốn chỗ đầu KHÔNG ảnh hưởng tập id; **số assert = số chỗ**.
-**Chân tự soi:** chạy làn trên CHÍNH `_acceptance/lan-doc-status-not-run/evals.yaml` → `evals_not_run` phải là mảng **RỖNG** (tệp này nói về giá trị đó suốt nhưng không khai ô nào như vậy).
-**Chiều đỏ:** bản sao quét theo dòng không phân biệt thân block scalar → phép đo ĐỎ ghim đúng id bị gán oan.
-**Vì sao có AC này** (gap-probe P0-1): bản `evals.yaml` ĐẦU của chính vòng này đã có chuỗi đó trong thân `expected:` của E2 — nếu bộ quét theo dòng, làn sẽ loại E2 vĩnh viễn và mọi chiến dịch sau không bao giờ chạy lại ca «bên viết bỏ qua thật» mà vẫn xanh.
+- AC-10 (chỗ chuỗi xuất hiện): Given cùng một chuỗi chỉ trạng-thái nằm ở năm chỗ — trong chú thích, trong thân mô tả dạng gấp, trong thân mô tả dạng nguyên khối, dưới danh sách đường dẫn, và là TRƯỜNG thật của eval, When hai bên rút tập id, Then chỉ chỗ cuối làm ô bị loại và bốn chỗ đầu không ảnh hưởng tập id, số assert bằng số chỗ. Chân tự soi: chạy làn trên CHÍNH bản khai của vòng này → danh sách nói-ra phải RỖNG. Chiều đỏ: bản sao quét theo dòng không phân biệt thân mô tả → ĐỎ ghim đúng id bị gán oan.
 
 ## Coverage
 
