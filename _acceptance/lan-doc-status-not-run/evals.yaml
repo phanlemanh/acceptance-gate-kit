@@ -1,0 +1,190 @@
+# Mỗi eval = MỘT ca của tệp ca VĨNH VIỄN tests/scripts/lan-status-not-run.test.mjs
+# (suite `scripts` tự chạy qua glob, nên đây là lưới thường trực chứ không phải
+# răng hồ sơ). Lệnh để TRẦN (không nháy) theo nếp gllc_*/emmd_*. Bộ lọc
+# LSNR_CASES khớp 0 ca phải thoát khác 0 (bài học P86, ca lsnr_bo_loc_rong).
+#
+# LUẬT VIẾT CHO CHÍNH TỆP NÀY (gap-probe P0-1, 12/09): không dòng văn nào trong
+# tệp được đặt chữ `status:` liền chữ chỉ-trạng-thái-không-chạy, vì bộ quét theo
+# dòng sẽ gán nó cho eval đang mở và loại eval đó vĩnh viễn. Trong văn xuôi gọi
+# nó là «trường trạng-thái» / «giá trị không-chạy». Ca E11 canh đúng điều này,
+# kể cả trên chính tệp này.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lsnr_mot_nguon
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      Hai bên rút CÙNG tập id trên cùng một evals.yaml, và tập đó không chứa ô
+      khai giá trị không-chạy. Tập của bên đọc lấy bằng cách GỌI machineEvalIds;
+      tập của bên viết lấy từ khoá evals_exit mà repin-lane.mjs THẬT SỰ ghi —
+      giá trị đi qua cả hai đường thi hành, không grep mã nguồn, không so với
+      danh sách gõ tay. Chiều đỏ: bản sao repin-lane.mjs hoàn nguyên bộ lọc
+      riêng của nó → ĐỎ ghim «hai bên trả tập khác nhau» kèm id lệch.
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.lsnr_bo_qua_that
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      Kho tạm do MÃ SINH; ô khai không-chạy mang cmd ghi một TỆP DẤU vào thư mục
+      tạm. Làn thoát 0, tệp dấu KHÔNG tồn tại, evals_exit thiếu đúng id đó và đủ
+      các id còn lại; chạy cả hai lượt có và không --write. Đối chứng dương cùng
+      kho: gỡ dòng trường trạng-thái đi → tệp dấu XUẤT HIỆN và id có mặt trong
+      evals_exit. Chiều đỏ: bản sao bỏ bước đọc trường trạng-thái → tệp dấu xuất
+      hiện, ĐỎ ghim «ô không-chạy đã bị thi hành».
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.lsnr_ben_doc_nhan
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/recheck-evidence.cjs"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      Pin do làn của ca E2 ghi (thiếu id ô không-chạy) đi qua checkRepinEvals VÀ
+      recheck-evidence.cjs: 0 lỗi, và chuỗi «evals_exit lacks eval(s)» KHÔNG
+      xuất hiện trong đầu ra. Đối chứng dương: cùng pin nhưng thiếu id một ô
+      CHẠY ĐƯỢC → vẫn VIOLATION, thông điệp gọi đúng id thiếu. Chiều đỏ:
+      machineEvalIds hoàn nguyên → ĐỎ ghim «pin hợp lệ bị báo thiếu id».
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.lsnr_hai_ve
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      Hồ sơ khai ô X là không-chạy NHƯNG báo cáo đã ký có khối eval mang mã
+      thoát cho X: bên viết dừng exit 2, bên đọc ghi VIOLATION gọi tên X và cả
+      hai vế. VẬT QUAN SÁT cho «chưa ghi byte nào» (gap-probe P1-5): băm nội
+      dung run-log.jsonl và evidence-report.md trước/sau lượt xung đột phải
+      GIỐNG nhau, và thư mục hồ sơ không có tệp mới nào. Đối chứng dương cùng
+      kho: lượt chạy XANH phải làm HAI băm ĐỔI — không có chân này thì
+      băm-giống-nhau không phân biệt «không ghi» với «không chạy». Chiều đỏ: bản
+      sao bỏ vế 2 → ca xung đột đi qua, ĐỎ ghim «đường lách không-chạy mở».
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.lsnr_pin_cu
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/recheck-evidence.cjs"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      Pin CŨ phải do WRITER THẬT của bản TRƯỚC vá ghi, không soạn tay theo khuôn
+      bên đọc (gap-probe P0-2): dựng bản base bằng `git archive <sha-trước-vá>
+      lib scripts feature-loop` lấy TRỌN thư mục (không chép danh sách file tay,
+      P150), chạy repin-lane.mjs của bản đó trên cùng fixture mã-sinh, lấy đúng
+      dòng pin nó ghi, rồi cho bên ĐỌC MỚI chấm dòng đó → 0 lỗi. Đối chứng
+      dương: bên đọc CŨ chấm cùng dòng cũng 0 lỗi. Vế «không hồ sơ nào hoá đỏ»
+      ghim BA thứ, không phải một đẳng thức (gap-probe P1-4): hai lượt recheck
+      đều thoát 0; tổng số hồ sơ đã chấm in ra và phải lớn hơn 0; tập TÊN hồ sơ
+      vi phạm giống nhau theo tập. Chân dương: tiêm một pin thiếu id của ô CHẠY
+      ĐƯỢC vào bản sao corpus → số vi phạm TĂNG đúng 1 và gọi đúng tên hồ sơ.
+      Chiều đỏ: bản sao đổi luật thành «tập id phải KHỚP CHÍNH XÁC» → ĐỎ ghim
+      tên hồ sơ cũ bị hoá đỏ.
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.lsnr_noi_ra
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      Làn xanh trên hồ sơ có ô không-chạy: dòng JSON có khoá evals_not_run là
+      mảng chứa đúng id bị loại, thứ tự như trong evals.yaml; dòng sha: nối hậu
+      tố «· không chạy theo hồ sơ: <id>». Hồ sơ KHÔNG có ô nào như vậy thì CẢ
+      HAI chỗ vắng hoàn toàn (khoá vắng, hậu tố vắng). Hai chỗ đọc bằng hai bộ
+      đọc khác nhau: JSON.parse cho dòng log, và bộ rút mục Re-pin cho báo cáo.
+      Chiều đỏ: bản sao bỏ bước nối hậu tố → ĐỎ ghim «pin im lặng về ô không đo».
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.lsnr_ca_that
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      Fixture do MÃ SINH dựng đúng hình dạng đo ở OneFlow: 14 ô máy, một ô khai
+      không-chạy trỏ lệnh thiếu đối số nên thoát 4; báo cáo đã ký có 13 khối
+      eval, không có khối cho ô đó. Làn --write xanh, pin ghi 13 id,
+      evals_not_run chứa ô kia, recheck 0 lỗi. Chiều đỏ: trả
+      lib/evidence-core.cjs về bản trước vá → cùng fixture cho làn ĐỎ với đúng
+      thông điệp exit-4 đã đo ở OneFlow, ĐỎ ghim tên ca.
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.gllc_ma_tran_export
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/repin-lane-lop-cu.test.mjs"
+    expected: >-
+      Chân đo QUAN HỆ của ca thường trực GL03: mọi tên core.<X> mà làn hoặc
+      recheck gọi đều ⊆ hàng của khối AG-ENGINE-TABLE trong repin-lane.mjs.
+      Chiều đỏ có sẵn trong GL03: thêm một lời gọi core.fakeX mà không thêm hàng
+      → ĐỎ gọi đúng tên fakeX.
+
+  - id: E9
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lsnr_bo_loc_rong
+    paths:
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      Lưới của chính phép đo: LSNR_CASES trỏ một tên ca không tồn tại phải thoát
+      KHÁC 0 với thông điệp gọi tên bộ lọc rỗng — chặn lớp «bộ lọc khớp 0 ca mà
+      vẫn xanh» (P86). Chiều đỏ: bản sao trả 0 khi không khớp ca nào → ĐỎ ghim
+      «bộ lọc rỗng đọc thành xanh».
+
+  - id: E10
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.lsnr_chuan_hoa
+    paths:
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      MA TRẬN TOÀN PHẦN về hình dạng giá trị khai, số assert = số phần tử
+      (gap-probe P1-3, cùng lớp với bộ giải cắt nháy của 2.11.0). Sáu dạng phải
+      BỊ LOẠI: trơn · bọc nháy kép · bọc nháy đơn · viết hoa toàn phần · viết
+      hoa chữ đầu · thừa khoảng trắng hai đầu. Một dạng ngoài tập phải KHÔNG bị
+      loại: gạch dưới thay gạch ngang. Mỗi dạng đi qua CẢ HAI đường thi hành
+      (gọi machineEvalIds và chạy làn), không chỉ gọi hàm bên đọc. Số dạng đếm
+      lúc chạy từ bảng ca; lệch số → ĐỎ «số ô lệch». Chiều đỏ: bản sao so chuỗi
+      thô không chuẩn hoá → ĐỎ ghim đúng dạng lọt.
+
+  - id: E11
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.lsnr_cho_xuat_hien
+    paths:
+      - "lib/evidence-core.cjs"
+      - "_acceptance/lan-doc-status-not-run/evals.yaml"
+      - "tests/scripts/lan-status-not-run.test.mjs"
+    expected: >-
+      MA TRẬN TOÀN PHẦN về CHỖ chuỗi xuất hiện, số assert = số phần tử (gap-probe
+      P0-1). Năm chỗ: trong comment mở đầu bằng dấu thăng · trong thân expected
+      dạng folded · trong thân expected dạng literal · dưới danh sách paths ·
+      trường thật của eval. CHỈ chỗ cuối được loại; bốn chỗ đầu không được ảnh
+      hưởng tới tập id. Kèm chân TỰ SOI: chạy làn trên CHÍNH
+      _acceptance/lan-doc-status-not-run/evals.yaml và assert evals_not_run là
+      mảng RỖNG — tệp này nói về giá trị không-chạy suốt nhưng không khai ô nào
+      như vậy. Chiều đỏ: bản sao quét theo dòng không phân biệt thân block
+      scalar → ĐỎ ghim đúng id bị gán oan.

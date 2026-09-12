@@ -1,0 +1,27 @@
+{
+  "feature_plain": "Lượt ghim lại nay bỏ qua đúng ô mà hồ sơ đã ký khai là không chạy, và nói ra mình đã bỏ ô nào — nên hồ sơ lành thôi bị đọc thành nợ.",
+  "scope_plain": "Không ghim lại hộ kho tiêu thụ, không lưu kho hồ sơ nào, không đụng hai tệp mà vòng song song đang giữ.",
+  "decisions_plain": [
+    {
+      "id": "d-20260912T034719Z-16633",
+      "p": "Đặt định nghĩa dùng chung ở chỗ bên chấm đã sống, để hai bên không sinh luật thứ hai — đổi lại việc lên hạng cao nhất nên có thêm một cổng duyệt kế hoạch."
+    },
+    {
+      "id": "d-20260912T034719Z-22505",
+      "p": "Chỉ bỏ qua một ô khi hồ sơ khai VÀ bằng chứng đã ký không có kết quả của ô đó — đổi lại hồ sơ từng đo rồi đổi ý phải đi lại vòng chấm."
+    },
+    {
+      "id": "d-20260912T034719Z-9634",
+      "p": "KHÔNG làm phần đặc tả giao diện — việc này không có màn hình nào cho người nhìn."
+    },
+    {
+      "id": "d-20260912T034719Z-25400",
+      "p": "KHÔNG làm bằng chứng dạng nhìn-thấy — thứ được giao là một dòng ghi và một thông điệp dừng."
+    },
+    {
+      "id": "d-20260912T074919Z-14939",
+      "p": "Cổng 1.5: anh duyệt kế hoạch sáu việc, thứ tự đi từ định nghĩa dùng chung ra ngoài, mỗi việc một vòng kiểm riêng kèm chiều đỏ."
+    }
+  ],
+  "analyst_plain": "Một lệnh phục vụ nhiều mục nên không tự phân biệt được mục nào hỏng; đã ghi nhận, không ảnh hưởng kết quả."
+}
