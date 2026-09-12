@@ -125,3 +125,51 @@
 - **claude-opus-5**: 3 agent · 84 calls · out 67,291 · in 168 · cache_read 11,657,501 · cache_create 459,701
 - **claude-haiku-4-5-20251001**: 17 agent · 39 calls · out 18,916 · in 346 · cache_read 2,124,804 · cache_create 906,364
 
+### S4 round 4 — wf_a41145c1-29c (39 agent, 293,579 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:bugs | claude-opus-5 | 34 | 33,197 | 68 | 5,219,725 | 763 |
+| review:measurement | claude-opus-5 | 26 | 28,117 | 52 | 4,284,420 | 518 |
+| triage | claude-sonnet-5 | 2 | 23,659 | 4 | 151,939 | 260 |
+| synthesize:report | claude-sonnet-5 | 2 | 22,516 | 4 | 168,787 | 240 |
+| review:conventions | claude-opus-5 | 15 | 17,642 | 30 | 1,783,662 | 311 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 16 | 15,324 | 32 | 2,112,020 | 215 |
+| refute:chan-khong-noi.mjs | claude-sonnet-5 | 13 | 13,057 | 26 | 1,556,493 | 215 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 16 | 12,832 | 32 | 1,971,821 | 186 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 13 | 12,666 | 26 | 1,465,158 | 182 |
+| refute:chan-quet.mjs | claude-sonnet-5 | 21 | 12,287 | 42 | 2,599,038 | 200 |
+| refute:chan-lan-can.mjs | claude-sonnet-5 | 12 | 11,307 | 24 | 1,411,465 | 172 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 9 | 11,096 | 18 | 991,778 | 148 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 22 | 11,033 | 44 | 2,590,649 | 189 |
+| refute:chan-note.mjs | claude-sonnet-5 | 7 | 10,951 | 14 | 754,903 | 149 |
+| refute:chan-lui-engine.mjs | claude-sonnet-5 | 8 | 9,048 | 16 | 807,904 | 163 |
+| refute:chan-van-ban.mjs | claude-sonnet-5 | 9 | 8,560 | 18 | 968,390 | 124 |
+| refute:additive-only.test.mjs | claude-sonnet-5 | 7 | 5,871 | 14 | 748,966 | 91 |
+| baseline:diffBase | claude-sonnet-5 | 10 | 5,668 | 20 | 984,730 | 90 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 3 | 2,869 | 26 | 185,200 | 247 |
+| refute:additive-only.test.mjs | claude-sonnet-5 | 5 | 2,702 | 10 | 498,748 | 44 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 2,058 | 50 | 429,640 | 43 |
+| refute:additive-only.test.mjs | claude-sonnet-5 | 3 | 1,762 | 6 | 247,817 | 29 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,648 | 42 | 346,576 | 547 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,432 | 18 | 105,744 | 22 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,421 | 18 | 105,743 | 29 |
+| machine:bash -c 'set -o pipefail; node tests/scr | claude-haiku-4-5-20251001 | 2 | 1,325 | 18 | 105,786 | 289 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,225 | 18 | 105,740 | 26 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,180 | 18 | 105,742 | 46 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,166 | 18 | 105,741 | 65 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,164 | 18 | 105,743 | 22 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,158 | 18 | 75,078 | 22 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,146 | 18 | 105,742 | 19 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,127 | 18 | 105,743 | 18 |
+| machine:node tests/scripts/additive-only.test.mj | claude-haiku-4-5-20251001 | 2 | 1,077 | 18 | 105,725 | 18 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,010 | 18 | 105,717 | 19 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 930 | 18 | 105,724 | 15 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 911 | 18 | 61,326 | 414 |
+| capture:provenance | claude-sonnet-5 | 2 | 749 | 4 | 140,163 | 12 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 688 | 18 | 105,741 | 24 |
+
+- **claude-opus-5**: 3 agent · 75 calls · out 78,956 · in 150 · cache_read 11,287,807 · cache_create 501,683
+- **claude-sonnet-5**: 18 agent · 177 calls · out 191,088 · in 354 · cache_read 20,170,769 · cache_create 1,778,956
+- **claude-haiku-4-5-20251001**: 18 agent · 44 calls · out 23,535 · in 388 · cache_read 2,472,451 · cache_create 958,644
+
