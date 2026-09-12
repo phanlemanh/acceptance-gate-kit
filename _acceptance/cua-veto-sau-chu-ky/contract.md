@@ -50,23 +50,29 @@ thiết kế: `docs/superpowers/specs/2026-09-11-cua-veto-sau-chu-ky-design.md`.
   - lưới liệt slug, không có câu «đã đóng», và VIOLATION giữ-chỗ của luật chữ ký vẫn nổ nguyên văn;
   - máy quét cho `humanSignoff: false`, và slug có trong `vetoOpenUnsigned[]`.
 
-  Bảng mẫu của lưới là CHÍNH hàm `placeholder_signoff`. Bảng mẫu của máy quét là bản dựng thứ hai, canh bằng ma trận TOÀN PHẦN: mọi mẫu RÚT lúc chạy từ `placeholder_signoff` × hai bộ đọc, số assert = 2 × số mẫu, sàn ≥ 3 mẫu. Chiều đỏ: một bản sao coi chuỗi không rỗng bất kỳ là chữ ký, và một bản sao máy quét bỏ một mẫu khỏi bảng JS. Mỗi bản sao cho ĐỎ với thông điệp riêng: «giữ-chỗ đóng cửa» và «máy quét coi giữ-chỗ <mẫu> là chữ ký».
+  Bảng mẫu giữ-chỗ có **MỘT nguồn** trong `lib/evidence-core.cjs` (đổi khuôn S4-r2); cả hai bộ đọc hỏi nó. Ma trận vẫn TOÀN PHẦN để chứng mỗi mẫu đi trọn đường ở cả hai đường gọi: mọi mẫu RÚT lúc chạy từ chính bảng ấy × hai bộ đọc, số assert = 2 × số mẫu, sàn ≥ 3 mẫu. Chiều đỏ: một bản sao coi chuỗi không rỗng bất kỳ là chữ ký, và một bản sao máy quét bỏ một mẫu khỏi bảng JS. Mỗi bản sao cho ĐỎ với thông điệp riêng: «giữ-chỗ đóng cửa» và «máy quét coi giữ-chỗ <mẫu> là chữ ký».
 - AC-5: Given `status: signed-off` mà `human_signoff` rỗng hoặc báo cáo vắng, When chạy lưới và máy quét, Then cửa vẫn MỞ ở cả hai bộ đọc: nhãn status KHÔNG đóng cửa, chỉ chữ ký thật mới đóng.
-- AC-6: Given một kho git fixture code-sinh, ma trận khai TRƯỚC là veto (vắng · `mo` · `da-veto`) × Cổng 1 (`approved_by` có · rỗng) × 14 ô chữ ký = **84 ô**. Mười bốn ô chữ ký:
+- AC-6 (đổi khuôn S4-r2 — owner quyết 12/09): Given vị từ «chữ ký thật» có **MỘT nguồn** là `chuKyThat()` trong `lib/evidence-core.cjs` — sở hữu TRỌN ngữ pháp: nhận diện khối frontmatter (dấu mở · dấu đóng · luật cột), cách viết khoá (hoa/thường · `:` hay `=` · khoảng trắng), bảng giữ-chỗ, và bốn ca rỗng/vắng/chỉ-ở-thân/không-giải-được — When `scripts/start-scan.mjs` (import) và `scripts/pre-merge-check.sh` (gọi qua `node`, cùng nếp `lop-nhin-thay`) hỏi cùng một báo cáo, Then:
+  - (0) **một nguồn, đo được**: không tệp nào dưới `scripts/` giữ bảng giữ-chỗ hay biểu thức đọc `human_signoff` của riêng nó; thêm một bảng thứ hai vào bản sao → ĐỎ, thông điệp gọi tên tệp mọc bảng;
+  - hai bộ đọc khớp nhau **theo cấu trúc** (cùng một hàm), nên phép đo chuyển sang chứng: (0) ở trên, và từng ô ngữ pháp cho ra ĐÚNG kết luận hợp đồng nói.
+
+  Ma trận khai TRƯỚC là veto (vắng · `mo` · `da-veto`) × Cổng 1 (`approved_by` có · rỗng) × 18 ô chữ ký = **108 ô**. Mười tám ô chữ ký:
   - thật: trần · nháy kép · nháy đơn · chú thích đuôi;
   - giữ-chỗ `TBD`: trần · nháy kép · nháy đơn · chú thích đuôi;
   - rỗng: dòng `human_signoff:` mặc định RÚT NGUYÊN VĂN từ khuôn bên viết · chỉ chú thích;
   - báo cáo vắng;
   - chữ ký thật chỉ nằm ở THÂN báo cáo;
   - frontmatter hỏng hoặc không dẫn đầu;
-  - frontmatter MỞ mà thiếu dấu đóng «---» (thêm ở S4-r1): bản awk của lưới đọc tới HẾT TỆP nên nó thấy chữ ký và cửa ĐÓNG — máy quét phải kết luận y hệt, kèm `signoffWarn` nêu tên hồ sơ và lý do.
+  - frontmatter MỞ mà thiếu dấu đóng «---» (thêm ở S4-r1): khối chạy tới HẾT TỆP nên chữ ký vẫn đọc được và cửa ĐÓNG, kèm `signoffWarn` nêu tên hồ sơ và lý do;
+  - **cách viết khoá** (thêm ở S4-r2 — lớp ngữ pháp đã cắn hai lượt): `Human_signoff:` viết hoa · `human_signoff =` dấu bằng · `human_signoff :` có khoảng trắng trước dấu. Cả ba là chữ ký THẬT, cửa ĐÓNG;
+  - **dấu đóng thụt lề** (thêm ở S4-r2): `  ---` KHÔNG phải dấu đóng (dấu fence chỉ tính ở CỘT 0), nên khối chạy tới hết tệp — cùng kết luận và cùng `signoffWarn` với ô thiếu dấu đóng.
 
   When chạy `start-scan.mjs` và `pre-merge-check.sh` trên CÙNG cây, Then:
   - (a) mỗi phần tử `vetoOpen[]` mang `humanSignoff` (boolean) và `signoffWarn` (chuỗi, luôn có mặt); tập phần tử `vetoOpen[]` KHÔNG đổi so với hôm nay (mọi `mo`, bất kể status);
   - (b) trên TỪNG ô, hai bộ đọc cùng kết luận: `vetoOpenUnsigned[]` = tập `vetoOpen` lọc `humanSignoff: false` = tập tên trong dòng «cửa veto đang mở» của lưới. Các ô chỉ-chú-thích, `"TBD"` có nháy, chỉ-ở-thân và frontmatter-hỏng đều là cửa MỞ. Ô frontmatter-hỏng mang `signoffWarn` nêu lý do, không nuốt im;
   - (c) thêm một hồ sơ `mo` chưa ký thì cả hai tập cùng tăng đúng 1; thêm một hồ sơ `mo` đã ký thì cả hai tập đều không tăng.
 
-  Số ô ca tự đếm, lệch 84 thì ĐỎ. Chiều đỏ: đột biến vị từ ở MỘT bên thì đẳng thức vỡ với thông điệp «lệch ở <lưới|máy quét>»; bản sao máy quét đọc chữ ký bằng regex cả file thì ĐỎ «lệch ở máy quét».
+  Số ô ca tự đếm, lệch 108 thì ĐỎ. Chiều đỏ, mỗi cái một thông điệp: (i) thêm một bảng giữ-chỗ THỨ HAI vào bản sao `scripts/pre-merge-check.sh` → ĐỎ «bảng giữ-chỗ mọc bản thứ hai ở <tệp>»; (ii) đột biến vị từ trong CHÍNH nguồn (`lib/evidence-core.cjs`) → CẢ HAI bộ đọc cùng đổi (chứng chúng thật sự dùng chung một nguồn, không phải hai bản trùng nhau tình cờ) và ma trận ĐỎ nêu ô sai; (iii) bản sao máy quét đọc chữ ký bằng regex cả file → ĐỎ «lệch ở máy quét».
 - AC-7: Given cùng ma trận của AC-6 và bản base = cha của commit đầu tiên đưa câu «cửa veto đã đóng bằng chữ ký» vào `scripts/pre-merge-check.sh`, When chạy lưới base và lưới sau sửa, Then trên MỌI ô, mã thoát và tập dòng `VIOLATION` giống hệt nhau; chỉ dòng `NOTE` được khác. Nói cách khác, bản sửa không nới và không siết luật chặn nào.
   - Bản base: tìm bằng lệnh git trong lượt chạy, in sha ra output, lấy bằng `git archive` trọn `scripts` + `lib`.
   - Tự kiểm trước khi so: base ≠ HEAD trên file đó, VÀ bản base chưa chứa câu ấy. Sai một vế → LỖI HẠ TẦNG, thoát 97, không xanh cũng không đỏ trên vật.
@@ -136,17 +142,18 @@ người».
 ## Out of scope
 
 - **Đổi lệnh `/signoff` hay `/approve`** để ghi một trạng thái đóng vào `veto_state` (phương án P2/P3 của thiết kế).
-- **Chạm `lib/`, `hooks/`**: `vetoGateState` và luật ghi-lúc-viết giữ nguyên.
+- **Chạm `hooks/`**: luật ghi-lúc-viết giữ nguyên. (`lib/` KHÔNG còn ngoài phạm vi — xem Notes: owner đổi khuôn 12/09. `vetoGateState` vẫn không đụng.)
 - **Sửa hồ sơ đã ký nào**, kể cả `start-bang-dieu-khien` và răng `rang-bdk.sh` của nó. Tập phần tử `vetoOpen[]` giữ nguyên chính vì điều này.
 - **Mang bản sửa sang media-library / floorplanstudio**: hai kho nhận qua bản phát hành tới.
 - **Đổi tên khoá `vetoOpen`** cho khớp nghĩa mới. Đây là nợ tên đã ghi sổ kèm điều kiện xem lại.
 - **Dòng đếm «N hồ sơ đã ký, cửa đã đóng»** ở dòng tổng: dòng hằng lặp lại là rác.
-- **Hợp nhất bash + JS về một vị từ một nguồn** (nợ `lan-v-khong-phai-cho-ky` known-limit `#3`). Ma trận toàn phần AC-4/AC-6 canh thay.
+- **Hợp nhất mọi vị từ bash + JS khác về một nguồn**: chỉ vị từ «chữ ký thật» được gom (AC-6). `xanh_sach_check`, `vetoGateState` và các luật khác vẫn là hai bản dựng như trước — nợ `lan-v-khong-phai-cho-ky` known-limit `#3` còn nguyên cho phần còn lại.
 
 ## Notes
 
 - **Vòng này là việc-kit, owner GỌI TÊN 11/09** («Chạy hai việc kit còn mở»). Luật chiều rộng (b) của CLAUDE.md cho tối đa MỘT vòng meta giữa hai release, và chỉ khi owner gọi tên. Vòng này có **neo ngoài**: câu sai hiện ở lưới của media-library (3 hồ sơ) và floorplanstudio (1 hồ sơ). Giá trị chạm người dùng kit ở bản phát hành tới.
 - **Ô mở dưới luật NỚI 2026-09-07?** Phần cộng gồm ba trường của máy quét, một NOTE mới và một ca thường trực. Chúng trace về nguyên tố 2 (bằng chứng không tự dối: lưới đang nói sai 27/30) và nguyên tố 3 (khoảnh khắc quyết thật: cửa veto chỉ còn giá trị khi danh sách của nó đúng). Người hưởng: owner, khi đọc dòng «cửa veto đang mở» ở lưới và ở `/start`. Vòng này KHÔNG tăng lượt gọi người: không dựng cổng mới, và giảm số tên phải đọc từ 30 xuống 3.
+- **ĐỔI KHUÔN, owner quyết 12/09 tại chốt DỪNG-VÁ.** Lượt chấm 1 và lượt chấm 2 bắt CÙNG MỘT LỚP: một vị từ («đã ký thật») dựng HAI lần, bash và JS, hai ngữ pháp, lệch nhau trong im lặng. Vá từng ca là vá instance, nên owner chọn đổi khuôn: vị từ về **một nguồn** trong `lib/`, hai bộ đọc cùng gọi. Vì thế mục «Chạm `lib/`» rời khỏi `## Out of scope` — đây là quyết định của owner ở chốt dừng, không phải máy tự nới phạm vi. Hạng giữ T3.
 - **T3 nên Cổng Phạm vi và Gate 1.5 cần người** theo thiết kế, trần 4 lượt gọi người.
 - **Không có `opportunity.md`**, nên không có mục `## Đường đo`.
 - **Giới hạn khai trước (co lại sau phản biện S1#7):**

@@ -74,8 +74,8 @@ evals:
     cmd: config:executors.script.cvsck_giu_cho
     expected: >-
       Chữ ký giữ-chỗ không đóng cửa — ma trận TOÀN PHẦN trên HAI bộ đọc.
-      Mẫu RÚT lúc chạy từ chính hàm placeholder_signoff trong lưới (không gõ tay
-      danh sách); sàn ≥ 3 mẫu, rút được ít hơn thì ĐỎ «bảng mẫu rút hụt».
+      Mẫu RÚT lúc chạy từ MỘT NGUỒN lib/evidence-core.cjs (đổi khuôn S4-r2; không
+      gõ tay danh sách); sàn ≥ 3 mẫu, rút được ít hơn thì ĐỎ «bảng mẫu rút hụt».
       Mỗi mẫu × hồ sơ mo: (i) lưới liệt s ở dòng tổng, không câu «đã đóng», VIOLATION
       giữ-chỗ («is a placeholder, not a signature») vẫn in; (ii) máy quét cho
       humanSignoff false và s có trong vetoOpenUnsigned. Số assert BẰNG 2 × số mẫu,
@@ -111,15 +111,23 @@ evals:
     executor: script
     cmd: config:executors.script.cvsck_dang_thuc
     expected: >-
-      Hai bộ đọc nói cùng một vị từ trên TỪNG ô, đo QUAN HỆ trên CÙNG một kho git.
+      MỘT NGUỒN cho vị từ «chữ ký thật» (đổi khuôn S4-r2, owner quyết 12/09):
+      chuKyThat() trong lib/evidence-core.cjs; máy quét import, lưới gọi qua node.
+      (0) Chứng một nguồn: không tệp nào dưới scripts/ giữ bảng giữ-chỗ hay biểu
+      thức đọc human_signoff riêng; thêm bảng thứ hai vào bản sao → ĐỎ «bảng
+      giữ-chỗ mọc bản thứ hai ở <tệp>».
       Ma trận viết TRƯỚC: veto (vắng · mo · da-veto) × Cổng 1 (có tên · rỗng) ×
-      14 ô chữ ký = 84 ô; ca tự đếm, khác 84 thì ĐỎ «số ô lệch». 14 ô chữ ký:
+      18 ô chữ ký = 108 ô; ca tự đếm, khác 108 thì ĐỎ «số ô lệch». 18 ô chữ ký:
       thật {trần, "nháy kép", 'nháy đơn', chú thích đuôi} · giữ-chỗ TBD {trần,
       "nháy kép", 'nháy đơn', chú thích đuôi} · rỗng {dòng mặc định RÚT nguyên văn
       từ khuôn bên viết, chỉ chú thích} · báo cáo vắng · chữ ký thật CHỈ ở thân
       báo cáo · frontmatter hỏng hoặc không dẫn đầu · frontmatter MỞ mà THIẾU dấu
-      đóng «---» (ô thêm ở S4-r1: awk của lưới đọc tới hết tệp nên lưới THẤY chữ ký
-      và cửa ĐÓNG; máy quét phải kết luận y hệt, kèm signoffWarn nêu tên hồ sơ).
+      đóng «---» (ô thêm ở S4-r1: khối chạy tới hết tệp nên chữ ký vẫn đọc được, cửa
+      ĐÓNG, kèm signoffWarn nêu tên hồ sơ) · BA cách viết khoá (Human_signoff: hoa ·
+      human_signoff = dấu bằng · human_signoff : cách trước dấu — cả ba là chữ ký
+      THẬT) · dấu đóng THỤT LỀ (không phải fence, khối chạy tới hết tệp, cùng kết
+      luận và cùng warn với ô thiếu dấu đóng). Bốn ô cuối thêm ở S4-r2: lớp NGỮ PHÁP
+      chính là chỗ hai bản dựng cũ lệch nhau.
       (a) mọi phần tử vetoOpen có humanSignoff kiểu boolean và signoffWarn kiểu
       chuỗi; tập phần tử vetoOpen BẰNG tập grep veto_state mo (lời hứa cũ giữ).
       (b) trên từng ô: vetoOpenUnsigned = vetoOpen lọc humanSignoff false = tập tên
@@ -128,11 +136,12 @@ evals:
       ô frontmatter-hỏng và ô thiếu-dấu-đóng đều có signoffWarn không rỗng nêu lý do.
       (c) thêm một hồ sơ mo chưa ký → hai tập cùng +1; thêm một hồ sơ mo đã ký →
       hai tập cùng +0.
-      Chiều đỏ: BỐN bản sao, bốn thông điệp: đột biến vị từ lưới → «lệch ở lưới»;
-      đột biến vị từ máy quét → «lệch ở máy quét»; máy quét đọc chữ ký bằng regex
-      CẢ FILE → ô chỉ-ở-thân vỡ → «lệch ở máy quét» kèm tên ô; máy quét bỏ nhánh
-      soi-gương frontmatter thiếu dấu đóng → ô thiếu-dấu-đóng vỡ → «lệch ở máy
-      quét» kèm tên ô.
+      Chiều đỏ, mỗi cái một thông điệp: (i) thêm bảng giữ-chỗ THỨ HAI vào bản sao
+      pre-merge-check.sh → ĐỎ «bảng giữ-chỗ mọc bản thứ hai ở <tệp>»; (ii) đột biến
+      vị từ trong CHÍNH nguồn lib/evidence-core.cjs → CẢ HAI bộ đọc cùng đổi (chứng
+      chúng dùng chung một nguồn chứ không trùng nhau tình cờ) và ma trận ĐỎ nêu ô
+      sai; (iii) máy quét đọc chữ ký bằng regex CẢ FILE → ô chỉ-ở-thân vỡ → «lệch ở
+      máy quét» kèm tên ô.
     paths:
       - "scripts/pre-merge-check.sh"
       - "scripts/start-scan.mjs"

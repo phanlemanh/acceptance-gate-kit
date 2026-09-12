@@ -175,6 +175,16 @@ lọc `humanSignoff: false`.**
   `skills/acceptance/references/evidence-report-template.md`. Ô «rỗng» lấy NGUYÊN VĂN
   dòng `human_signoff:` mặc định của khuôn. Hôm nay dòng đó mang chú thích gợi ý chứa
   `<name>` — chính hình dạng dễ bị đọc nhầm thành chữ ký. Không gõ tay ô trống.
+- **ĐỔI KHUÔN S4-r2 (owner quyết 12/09 tại chốt DỪNG-VÁ).** Hai lượt chấm bắt cùng
+  một lớp: vị từ «đã ký thật» dựng HAI lần (bash · JS), hai ngữ pháp, lệch trong im
+  lặng. Nay vị từ có **một nguồn**: `chuKyThat()` trong `lib/evidence-core.cjs`, sở
+  hữu trọn ngữ pháp (khối frontmatter · luật cột của dấu fence · cách viết khoá ·
+  bảng giữ-chỗ · bốn ca rỗng/vắng/chỉ-ở-thân/không-giải-được). `start-scan.mjs`
+  `require` nó; `pre-merge-check.sh` gọi `node lib/evidence-core.cjs chu-ky-that
+  <báo cáo>` và đọc một dòng tab, đúng nếp `lop-nhin-thay`. Hệ quả cho phép đo: hai
+  bộ đọc khớp **theo cấu trúc**, nên phép đo chuyển sang (0) chứng CHỈ CÓ một nguồn
+  và (1) từng ô ngữ pháp cho đúng kết luận hợp đồng nói. Ma trận lên **108 ô** (18 ô
+  chữ ký: 14 cũ + ba cách viết khoá + dấu đóng thụt lề).
 - **Ma trận đẳng thức hai bộ đọc (E6), khai TRƯỚC:**
   - veto (3) × Cổng 1 (2) × ô chữ ký (14) = **84 ô**.
   - 14 ô chữ ký gồm: thật {trần · nháy kép · nháy đơn · chú thích đuôi}; giữ-chỗ `TBD`
