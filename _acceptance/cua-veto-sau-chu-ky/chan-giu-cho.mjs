@@ -43,22 +43,20 @@ mau.forEach((p, i) =>
   }));
 F.gitAll(kho2, 'ma tran giu cho 2');
 
-// (a) lưới bỏ phép thử giữ-chỗ trong vị từ
-F.tiem(kho2, 'scripts/pre-merge-check.sh',
-  '  placeholder_signoff "$s" && return 1',
-  '  # đột biến: bỏ phép thử giữ-chỗ');
-const tenMut = F.tenDongTong(F.runPremerge(kho2).out);
-const sotLuoi = mau.map((p, i) => F.slugGiuCho(p, i)).filter(s => !tenMut.includes(s));
-if (sotLuoi.length === 0) { console.error('chiều đỏ (a) KHÔNG chạy: bỏ phép thử giữ-chỗ mà lưới vẫn liệt đủ'); process.exit(1); }
-
-// (b) máy quét bỏ MỘT mẫu khỏi bảng JS — mẫu đầu tiên khớp theo tiền tố
+// Đổi khuôn S4-r2: bảng giữ-chỗ ở MỘT NGUỒN, nên chiều đỏ tiêm vào NGUỒN và đòi
+// CẢ HAI bộ đọc cùng đổi — đó vừa là chiều đỏ, vừa là bằng chứng hai bên thật sự
+// hỏi chung một chỗ (nếu một bên còn bảng riêng, bên đó không đổi và chân ĐỎ).
 const mauTienTo = mau.find(p => p.tienTo && /^[a-z]/i.test(p.mau));
-F.tiem(kho2, 'scripts/start-scan.mjs', `${mauTienTo.mau}|`, '');
-const dsMut = F.runScan(kho2).vetoOpenUnsigned || [];
 const iMau = mau.indexOf(mauTienTo);
 const slugMau = F.slugGiuCho(mauTienTo, iMau);
-if (dsMut.includes(slugMau)) { console.error(`chiều đỏ (b) KHÔNG chạy: bỏ mẫu ${mauTienTo.mau} khỏi bảng JS mà máy quét vẫn coi là chưa ký`); process.exit(1); }
+F.tiem(kho2, 'lib/evidence-core.cjs',
+  `{ mau: '${mauTienTo.mau}', tienTo: true },`, '');
+const tenMut = F.tenDongTong(F.runPremerge(kho2).out);
+const dsMut = F.runScan(kho2).vetoOpenUnsigned || [];
+if (tenMut.includes(slugMau))
+  { console.error(`chiều đỏ KHÔNG chạy ở LƯỚI: gỡ mẫu ${mauTienTo.mau} khỏi nguồn mà lưới vẫn coi nó là giữ-chỗ — lưới đang đọc bảng nào khác?`); process.exit(1); }
+if (dsMut.includes(slugMau))
+  { console.error(`chiều đỏ KHÔNG chạy ở MÁY QUÉT: gỡ mẫu ${mauTienTo.mau} khỏi nguồn mà máy quét vẫn coi nó là giữ-chỗ — máy quét đang đọc bảng nào khác?`); process.exit(1); }
 
 console.log(`giữ-chỗ: ${mau.length} mẫu × 2 bộ đọc = ${assert} assert, cả hai bộ đọc giữ cửa MỞ`);
-console.log(`       [chiều đỏ a] bỏ phép thử giữ-chỗ khỏi lưới → lưới coi ${sotLuoi.length}/${mau.length} mẫu là chữ ký: ${sotLuoi.join(' ')}`);
-console.log(`       [chiều đỏ b] bỏ mẫu «${mauTienTo.mau}» khỏi bảng JS → máy quét coi giữ-chỗ ${F.giaTriGiuCho(mauTienTo)} là chữ ký`);
+console.log(`       [chiều đỏ] gỡ mẫu «${mauTienTo.mau}» khỏi BẢNG Ở NGUỒN → cả lưới lẫn máy quét cùng coi giữ-chỗ ${F.giaTriGiuCho(mauTienTo)} là chữ ký (hồ sơ ${slugMau} rời cả hai danh sách)`);

@@ -9,6 +9,7 @@
 //
 // Dùng chung cho răng hồ sơ (rang.sh) và ca thường trực tests/scripts/.
 import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -28,26 +29,13 @@ export function templateSignoffLine() {
   return line;
 }
 
-// Bảng giữ-chỗ RÚT từ khối `case` trong hàm placeholder_signoff của lưới.
-// Trả về [{ mau, tienTo }] — `tienTo` true nghĩa là bash khớp theo tiền tố (`tbd*`).
+// Bảng giữ-chỗ RÚT từ MỘT NGUỒN (đổi khuôn S4-r2): lib/evidence-core.cjs xuất
+// `CHU_KY_GIU_CHO`, phép đo đọc thẳng — không gõ lại danh sách, và cũng không
+// parse mã nguồn của bên nào nữa (trước S4-r2 nó rút từ khối `case` của bash,
+// tức từ MỘT TRONG HAI bản dựng).
 export function placeholderPatterns() {
-  const src = readFileSync(path.join(ROOT, 'scripts/pre-merge-check.sh'), 'utf8');
-  const fn = src.match(/placeholder_signoff\(\)[\s\S]*?\n\}/);
-  if (!fn) throw new Error('không rút được hàm placeholder_signoff');
-  const body = fn[0].match(/case[\s\S]*?esac/);
-  if (!body) throw new Error('không rút được khối case của placeholder_signoff');
-  const out = [];
-  for (const line of body[0].split('\n')) {
-    const m = line.match(/^\s*(\S.*?)\)\s*return 0\s*;;/);
-    if (!m) continue;
-    // KHÔNG tách theo `|`: nhánh '>'|'|'|'-' mang chính dấu ngăn BÊN TRONG nháy.
-    // Quét token: chuỗi trong nháy đơn, hoặc chữ liền, rồi cờ `*` nếu có.
-    for (const t of m[1].matchAll(/'([^']*)'(\*)?|([^|\s'*]+)(\*)?/g)) {
-      const mau = t[1] !== undefined ? t[1] : t[3];
-      const tienTo = Boolean(t[2] || t[4]);
-      if (mau !== '') out.push({ mau, tienTo });
-    }
-  }
+  const { CHU_KY_GIU_CHO } = createRequire(import.meta.url)(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const out = (CHU_KY_GIU_CHO || []).map(p => ({ mau: p.mau, tienTo: p.tienTo }));
   if (out.length < 3) throw new Error(`bảng mẫu rút hụt: ${out.length}`);
   return out;
 }
@@ -78,9 +66,15 @@ export const SIGNOFF_CELLS = [
   { ten: 'bao-cao-vang',      dong: undefined,                                   dung: true },
   { ten: 'chi-o-than',        dong: 'human_signoff:',                            dung: true },
   { ten: 'frontmatter-hong',  dong: 'human_signoff: Manh Phan 2026-09-11',       dung: true },
-  // Khối frontmatter MỞ mà không có dấu đóng «---». Bản awk của lưới đọc tới hết
-  // tệp nên nó THẤY chữ ký → cửa ĐÓNG; máy quét phải kết luận y hệt (S4-r1).
+  // Khối frontmatter MỞ mà không có dấu đóng «---»: khối chạy tới hết tệp nên chữ
+  // ký vẫn đọc được → cửa ĐÓNG, kèm warn (S4-r1).
   { ten: 'thieu-fence-dong',  dong: 'human_signoff: Manh Phan 2026-09-11',       dung: false },
+  // ── lớp NGỮ PHÁP, thêm ở S4-r2: đúng chỗ hai bản dựng cũ lệch nhau ──────────
+  { ten: 'khoa-hoa',          dong: 'Human_signoff: Manh Phan 2026-09-11',       dung: false },
+  { ten: 'khoa-dau-bang',     dong: 'human_signoff = Manh Phan 2026-09-11',      dung: false },
+  { ten: 'khoa-cach-truoc',   dong: 'human_signoff : Manh Phan 2026-09-11',      dung: false },
+  // Dấu đóng THỤT LỀ không phải dấu đóng (fence chỉ tính ở cột 0) → như thiếu.
+  { ten: 'fence-thut-le',     dong: 'human_signoff: Manh Phan 2026-09-11',       dung: false },
 ];
 
 export const VETO_CELLS = [
@@ -106,7 +100,7 @@ export function cells() {
   const out = [];
   for (const v of VETO_CELLS) for (const g of CONG1_CELLS) for (const s of SIGNOFF_CELLS)
     out.push({ ten: `${v.ten}-${g.ten}-${s.ten}`, veto: v, cong1: g, chuKy: s });
-  return out;   // 3 × 2 × 14 = 84
+  return out;   // 3 × 2 × 18 = 108
 }
 
 // Cửa veto MỞ thật theo luật của hồ sơ: veto_state mo ∧ chữ ký không thật.
@@ -178,7 +172,10 @@ export function writeDossier(repo, slug, spec) {
     : c.ten === 'thieu-fence-dong'
       // MỞ khối mà không đóng: bỏ đúng dòng `---` cuối của khối frontmatter.
       ? head.slice(0, -1).join('\n') + body
-      : head.join('\n') + body;
+      : c.ten === 'fence-thut-le'
+        // Dấu đóng THỤT LỀ: có `---` nhưng không ở cột 0 → không phải fence.
+        ? head.slice(0, -1).concat(['  ---']).join('\n') + body
+        : head.join('\n') + body;
   writeFileSync(path.join(dir, 'evidence-report.md'), txt);
   return dir;
 }
@@ -229,7 +226,7 @@ export const dongNote = out =>
 // ── tự kiểm của chính bộ sinh ───────────────────────────────────────────────
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
   const c = cells();
-  if (c.length !== 84) { console.error(`so o ${c.length}`); process.exit(1); }
+  if (c.length !== 108) { console.error(`so o ${c.length}`); process.exit(1); }
   const mau = placeholderPatterns();
   const sig = templateSignoffLine();
   console.log(`OK fixture ${c.length} ô · ${mau.length} mẫu giữ-chỗ: ${mau.map(x => x.mau + (x.tienTo ? '*' : '')).join(' ')}`);

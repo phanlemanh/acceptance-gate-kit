@@ -45,9 +45,12 @@ if (assert !== 3 + mau.length) loi.push(`sàn đếm: ${assert} assert, mong ${3
 if (loi.length) { console.error(loi.join(' | ')); process.exit(1); }
 
 // ── chiều đỏ trong CÙNG lượt: bỏ bảng giữ-chỗ khỏi bản sao máy quét ──────────
-F.tiem(repo, 'scripts/start-scan.mjs',
-  'if (GIU_CHO_TIEN_TO.test(s) || GIU_CHO_DUNG.test(s)) return { signed: false, warn };',
-  '// đột biến: bảng giữ-chỗ bị gỡ');
+// Đổi khuôn S4-r2: bảng giữ-chỗ sống ở MỘT NGUỒN, nên đột biến tiêm vào nguồn.
+// Đây cũng là vế chứng máy quét THẬT SỰ hỏi nguồn: gỡ bảng ở lib thì máy quét đổi
+// kết luận — nếu nó còn giữ bảng riêng thì bản sao vẫn xanh và chân ĐỎ ở dòng dưới.
+F.tiem(repo, 'lib/evidence-core.cjs',
+  '  if (laGiuCho(s)) return ket({ value: s, placeholder: true, warn });',
+  '  // đột biến: nguồn thôi nhận giữ-chỗ');
 const dsMut = F.runScan(repo).vetoOpenUnsigned || [];
 const sot = mau.map((p, i) => F.slugGiuCho(p, i)).filter(s => !dsMut.includes(s));
 if (sot.length === 0) {

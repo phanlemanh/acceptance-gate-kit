@@ -20,7 +20,9 @@ import { khongCanNguoi } from './khong-can-nguoi.mjs';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+// `chuKyThat` — MỘT NGUỒN của vị từ «chữ ký thật» (đổi khuôn S4-r2). Lưới
+// trước-merge gọi CÙNG hàm này qua CLI `node lib/evidence-core.cjs chu-ky-that`.
+const { frontmatterField, resolveConfigKey, chuKyThat } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 // Luật "hồ sơ nào được tiêu thụ" VÀ luật "field điều hướng có hợp lệ không"
 // đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
@@ -133,42 +135,20 @@ const vetoOpen = [];
 //   signoffWarn   — LUÔN có mặt, rỗng khi đọc sạch; nêu lý do khi báo cáo không
 //                   đọc được hoặc frontmatter không dẫn đầu (không nuốt im)
 //   vetoOpenUnsigned[] (cuối file) — danh sách tên DỰNG SẴN để thân lệnh CHÉP
-// Đây là bản dựng JS thứ hai của vị từ bash `signoff_that`; hai bên canh nhau
-// bằng đẳng thức trên ma trận 78 ô + ma trận giữ-chỗ toàn phần, không bằng import.
-// Bảng giữ-chỗ phải khớp `placeholder_signoff` của lưới: 7 từ khoá khớp TIỀN TỐ,
-// `none` khớp ĐÚNG, `<` khớp tiền tố, ba ký hiệu khớp đúng.
-const GIU_CHO_TIEN_TO = /^(pending|tbd|todo|n\/a|unsigned|waiting|<)/i;
-const GIU_CHO_DUNG = /^(none|>|\||-)$/i;
+// ĐỔI KHUÔN S4-r2 (owner quyết 12/09 tại chốt DỪNG-VÁ): vị từ có MỘT NGUỒN —
+// `chuKyThat` trong lib/evidence-core.cjs, nơi giữ TRỌN ngữ pháp (khối frontmatter ·
+// luật cột của dấu fence · cách viết khoá · bảng giữ-chỗ · bốn ca rỗng/vắng/
+// chỉ-ở-thân/không-giải-được). Ở ĐÂY không còn bảng và không còn biểu thức đọc
+// `human_signoff` nào: hai lượt chấm trước đã chứng bản dựng thứ hai lệch trong im
+// lặng dù có ma trận canh — nên khuôn đổi, không vá thêm một ca nữa.
 function signoffState(dir) {                 // { signed, warn }
   let t;
   try { t = readFileSync(path.join(dir, 'evidence-report.md'), 'utf8'); }
   catch (e) { return { signed: false, warn: e.code === 'ENOENT' ? '' : `không đọc được báo cáo: ${e.code}` }; }
-  // CHỈ frontmatter DẪN ĐẦU: một dòng `human_signoff:` ở THÂN (trích khuôn) không
-  // phải chữ ký. Cùng luật với front_field của lưới.
-  const dong = t.split('\n');
-  const dau = dong.findIndex(l => l.trim() !== '');
-  if (dau < 0 || dong[dau].trim() !== '---')
-    return { signed: false, warn: 'frontmatter không dẫn đầu báo cáo' };
-  let raw = frontmatterField(t, 'human_signoff');
-  let warn = '';
-  // `frontmatterField` trả null cho CẢ HAI ca: khối frontmatter không giải được,
-  // và khoá vắng. Gộp chúng bằng `(raw || '')` là chỗ hai bộ đọc nói hai chuyện:
-  // khi khối thiếu dấu đóng `---`, awk của `front_field` (pre-merge-check.sh) đọc
-  // tới dấu đóng HOẶC HẾT TỆP nên lưới VẪN thấy chữ ký và đóng cửa veto, trong
-  // khi máy quét trả «chưa ký» kèm warn RỖNG — đúng lớp «thẻ đếm khác lưới đếm»
-  // mà hồ sơ này sinh ra để giết (S4-r1, AC-6).
-  // Chọn SOI GƯƠNG bản lưới, không chọn «cứ coi là chưa ký»: chữ ký người CÓ
-  // THẬT trong tệp, bên kia đọc được, và bất biến của hồ sơ là hai bộ đọc cùng
-  // kết luận. Nhưng không im: warn NÊU TÊN hồ sơ và lý do.
-  if (raw === null && !dong.slice(dau + 1).some(l => l.trim() === '---')) {
-    const d = dong.slice(dau + 1).find(l => /^human_signoff[ \t]*[:=]/.test(l));
-    raw = d === undefined ? '' : d.replace(/^human_signoff[ \t]*[:=]/, '');
-    warn = `${path.basename(dir)}: frontmatter của evidence-report.md thiếu dấu đóng «---» — đọc tới hết tệp như lưới trước-merge`;
-  }
-  const s = (raw || '').replace(/\s*#.*$/, '').replace(/^["']|["']$/g, '').trim();
-  if (!s) return { signed: false, warn };
-  if (GIU_CHO_TIEN_TO.test(s) || GIU_CHO_DUNG.test(s)) return { signed: false, warn };
-  return { signed: true, warn };
+  const r = chuKyThat(t);
+  // `warn` của nguồn nói về HÌNH DẠNG tệp; thêm tên hồ sơ vì nguồn không biết
+  // nó đang đọc hồ sơ nào, mà người đọc thẻ thì cần biết phải mở cái nào.
+  return { signed: r.signed, warn: r.warn ? `${path.basename(dir)}: ${r.warn}` : '' };
 }
 // MỌI lối hỏng về cùng một khoá — gom về một cửa duy nhất.
 const pushHong = obj => broken.push(g('ho-so-hong', obj));

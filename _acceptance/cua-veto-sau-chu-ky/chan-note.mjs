@@ -44,9 +44,11 @@ if (KY) {
   // (Tiêm vào chính vị từ, không vào dòng `elif`: `elif true` làm bản sao chết
   // vì `set -u` trên $SIGNOFF_THAT — một đột biến chết vì HẠ TẦNG không chứng
   // được điều gì về vật.)
-  F.tiem(repo, 'scripts/pre-merge-check.sh',
-    '  [ -n "$s" ] || return 1',
-    '  [ -n "$s" ] || { SIGNOFF_THAT="dot-bien"; return 0; }');
+  // Đổi khuôn S4-r2: vị từ ở lib, nên tiêm vào NGUỒN — nguồn nhận mọi thứ là chữ
+  // ký thật thì hồ sơ CHƯA ký bị tuyên đã đóng ở cả hai bộ đọc.
+  F.tiem(repo, 'lib/evidence-core.cjs',
+    '  if (!s) return ket({ warn });',
+    "  if (!s) return ket({ signed: true, value: 'dot-bien', warn });");
   const m = F.runPremerge(repo).out;
   if (!m.includes(F.CAU_GHIM)) {
     console.error('chiều đỏ KHÔNG chạy: nhánh nuốt mọi hồ sơ mà lưới vẫn không nói đã đóng');

@@ -54,6 +54,9 @@ violations=0
 # Bật khi lưới giữ-chỗ nổ ít nhất một lần; dùng để in ĐÚNG MỘT dòng cảnh báo
 # về phạm vi hẹp của chính lưới đó ở cuối lần chạy.
 NARROW_NET_SEEN=""
+# Lưới giữ-chỗ KHÔNG chạy được (thiếu node / thiếu lib/evidence-core.cjs / lib lỗi).
+# Nói ra ở cuối lượt: một luật im lặng không chạy là luật không còn.
+NARROW_NET_BLIND=""
 # Bật khi răng cross-layer phải chấm bằng khuôn awk nội bộ vì thiếu node hoặc
 # lib/ac-line.cjs. Răng VẪN chạy (awk rộng hơn nên không rụng dòng nào), nhưng đó
 # là một định nghĩa "dòng criterion" khác với ba consumer JS — in đúng một dòng ở
@@ -410,6 +413,10 @@ claims_released() { # <dir> — 0 iff thư mục TỰ NHẬN đã qua cổng.
   return 1
 }
 
+# MỘT NGUỒN của vị từ «chữ ký thật» (đổi khuôn S4-r2). Đường dẫn suy từ vị trí
+# script như các lib khác của lưới (AC_LINE_LIB, LNT_LIB, WSREC_LIB).
+CHU_KY_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/evidence-core.cjs"
+
 placeholder_signoff() { # <chuỗi> — 0 iff chữ ký khớp một mẫu giữ-chỗ đã biết.
   # ĐÂY LÀ LUẬT CHỮ KÝ DUY NHẤT còn lại (ngoài chốt rỗng). Không có lớp dự
   # phòng nào phía sau: `signoff.approvers` KHÔNG được cổng đọc kể từ 1.24.0 —
@@ -422,12 +429,23 @@ placeholder_signoff() { # <chuỗi> — 0 iff chữ ký khớp một mẫu giữ
   # `x`, `.`), và mọi giữ-chỗ viết bằng ngôn ngữ khác (`chờ Manh gật`).
   # Khớp theo TIỀN TỐ vì chữ ký thật dẫn đầu bằng tên. LC_ALL=C để `tr` không
   # chết trên UTF-8.
-  case "$(printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in
-    '>'|'|'|'-') return 0 ;;
-    '<'*) return 0 ;;                       # template chưa điền: "<name> <date>"
-    pending*|tbd*|todo*|n/a*|none|unsigned*|waiting*) return 0 ;;
+  # ĐỔI KHUÔN S4-r2 (owner quyết 12/09): bảng mẫu KHÔNG còn ở đây. Nó sống MỘT
+  # chỗ — `laGiuCho` trong lib/evidence-core.cjs — và hàm này hỏi nó qua node,
+  # cùng nếp `lib/lop-nhin-thay.cjs classify`. Bảng bash cũ (bốn dòng `case`) đã
+  # GỠ và liệt đích danh trong ALLOWED_REMOVALS của DV5: giữ nó lại là giữ đúng
+  # bản-dựng-thứ-hai mà hai lượt chấm vừa bắt.
+  # Không đọc được nguồn (thiếu node / thiếu lib / lib lỗi) → KHÔNG chặn, và nói
+  # ra: cùng doctrine với lớp nhìn-thấy và ac-line trong chính tệp này, và ca NO2
+  # của lưới thường trực ghim đúng điều đó («thiếu node: NOTE không được chặn
+  # merge»). Bản đầu của lượt S4-r2 chọn fail-CLOSED ở đây và làm 6 ca đỏ —
+  # chốt rỗng phía trên vẫn chặn chữ ký trống, nên đường này không im lặng cho
+  # qua một hồ sơ chưa ký; nó chỉ thôi phân loại GIỮ-CHỖ khi không có bộ đọc.
+  _gc="$(node "$CHU_KY_LIB" giu-cho "$1" 2>/dev/null)"
+  case "$_gc" in
+    1) return 0 ;;
+    0) return 1 ;;
+    *) NARROW_NET_BLIND=1; return 1 ;;
   esac
-  return 1
 }
 
 # Chữ ký người ở Cổng Bằng chứng ĐÓNG cửa veto (hồ sơ cua-veto-sau-chu-ky).
@@ -443,12 +461,19 @@ placeholder_signoff() { # <chuỗi> — 0 iff chữ ký khớp một mẫu giữ
 # MỘT hàm cho CẢ HAI chỗ đọc (NOTE làn V và vòng veto-trace) — hai bản trong
 # cùng một file là hình dạng bên-viết-bên-đọc-trôi mà kit đã dẫm nhiều lần.
 signoff_that() { # <thư mục hồ sơ> — 0 iff có chữ ký THẬT; đặt $SIGNOFF_THAT
+  # ĐỔI KHUÔN S4-r2: không tự đọc frontmatter nữa. Ngữ pháp (dấu fence, luật cột,
+  # cách viết khoá, bảng giữ-chỗ) sống MỘT chỗ trong lib/evidence-core.cjs; hàm
+  # này hỏi nó qua node và đọc MỘT dòng tab — nếp lib/lop-nhin-thay.cjs.
+  # Không đọc được nguồn → return 1 (chưa ký): cửa veto GIỮ MỞ, chiều an toàn của
+  # luật này, và hồ sơ vẫn đi tiếp qua các chốt bằng chứng như thường.
   SIGNOFF_THAT=""
   [ -f "$1/evidence-report.md" ] || return 1
-  local s; s="$(front_field "$1/evidence-report.md" human_signoff)"
-  [ -n "$s" ] || return 1
-  placeholder_signoff "$s" && return 1
-  SIGNOFF_THAT="$s"; return 0
+  local _line _signed
+  _line="$(node "$CHU_KY_LIB" chu-ky-that "$1/evidence-report.md" 2>/dev/null)" || return 1
+  _signed="$(printf '%s' "$_line" | cut -f1)"
+  [ "$_signed" = "1" ] || return 1
+  SIGNOFF_THAT="$(printf '%s' "$_line" | cut -f3)"
+  return 0
 }
 
 
@@ -1513,7 +1538,11 @@ if [ -n "$AC_LINE_FALLBACK_SEEN" ]; then
 fi
 
 if [ -n "$NARROW_NET_SEEN" ]; then
-  echo "NOTE: the placeholder net that just fired matches a SHORT FIXED prefix list — pending, tbd, todo, n/a, none, unsigned, waiting, a bare > | or -, and an unfilled <...> template. NOTHING else. A holding note phrased any other way (\"FIXME\", \"LGTM\", \"ok\", or one written in another language) passes this gate. Rewording the line is NOT a fix; put a real approver name + date there."
+  echo "NOTE: the placeholder net that just fired matches a SHORT FIXED prefix list — $(node \"$CHU_KY_LIB\" bang-mau) (dấu * = khớp tiền tố). NOTHING else is treated as a placeholder: unlisted English holds (FIXME, placeholder, LGTM), curt words (ok, yes, x, .), and holds written in any other language ALL PASS the net. Bảng ở lib/evidence-core.cjs là MỘT nguồn — câu này đọc từ đó, không chép lại."
+fi
+
+if [ -n "$NARROW_NET_BLIND" ]; then
+  echo "NOTE: lưới giữ-chỗ của chữ ký KHÔNG chạy được lượt này — thiếu node hoặc thiếu lib/evidence-core.cjs (mang cổng vào repo phải copy CẢ lib/). Chốt «chữ ký rỗng» vẫn chặn; riêng phép phân loại giữ-chỗ (bảng ở lib/evidence-core.cjs, xem \`node lib/evidence-core.cjs bang-mau\`) không kiểm được, nên một dòng giữ chỗ có thể lọt. NOTE này không chặn."
 fi
 
 if [ "$LEGACY_SIGN_KNOB" -eq 1 ]; then

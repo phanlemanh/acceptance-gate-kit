@@ -42,7 +42,7 @@ case "$CHAN" in
   dong-tong)        chay "dòng tổng chỉ đếm cửa mở thật"        "$WS/chan-tong.mjs" ;;
   giu-cho)          chay "ma trận giữ-chỗ trên HAI bộ đọc"      "$WS/chan-giu-cho.mjs" ;;
   nhan-khong-dong)  chay "nhãn status không đóng cửa"           "$WS/chan-quet.mjs" ;;
-  dang-thuc)        chay "đẳng thức hai bộ đọc trên 84 ô"       "$WS/chan-dang-thuc.mjs" ;;
+  dang-thuc)        chay "một nguồn + ngữ pháp trên 108 ô"      "$WS/chan-dang-thuc.mjs" ;;
   khong-noi)        chay "chỉ đổi LỜI, không đổi CHẶN"          "$WS/chan-khong-noi.mjs" ;;
   luat-lan-can)     chay "năm luật chặn vẫn nổ trên hồ sơ đã ký" "$WS/chan-lan-can.mjs" ;;
   cay-that)         chay "cây thật của kit"                     "$WS/chan-cay-that.mjs" ;;

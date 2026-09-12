@@ -18,6 +18,24 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
+  // cua-veto-sau-chu-ky ĐỔI KHUÔN (owner quyết 12/09 tại chốt DỪNG-VÁ): vị từ «chữ
+  // ký thật» có MỘT nguồn — `chuKyThat`/`laGiuCho` trong lib/evidence-core.cjs —
+  // và lưới hỏi nó qua `node` (nếp lib/lop-nhin-thay.cjs). Năm dòng `case` dưới là
+  // BẢNG GIỮ-CHỖ bản-dựng-thứ-hai của bash: giữ chúng lại chính là giữ thứ vừa làm
+  // hai lượt chấm liên tiếp bắt cùng một lớp lệch. Luật KHÔNG nới: phạm vi bảng
+  // giữ nguyên (7 từ khoá tiền tố + none + ba ký hiệu + `<`), chỉ đổi CHỖ Ở; ca
+  // V04b/L1K của lưới thường trực và chân giu-cho (ma trận toàn phần, 2 × số mẫu)
+  // chứng điều đó. Dòng `return 1` là vế cuối của chính khối `case` ấy.
+  `  case "$(printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in`,
+  `    '>'|'|'|'-') return 0 ;;`,
+  `    '<'*) return 0 ;;                       # template chưa điền: "<name> <date>"`,
+  `    pending*|tbd*|todo*|n/a*|none|unsigned*|waiting*) return 0 ;;`,
+  `  esac`,
+  `  return 1`,
+  // Câu NOTE này KỂ TÊN bảng bằng văn xuôi — một bản sao thứ hai nữa, và nó trôi
+  // im lặng y như mã. Bản mới đọc danh sách từ chính nguồn (`node … bang-mau`);
+  // nội dung thông điệp giữ nguyên ý, kể cả vế «rewording is NOT a fix».
+  `  echo "NOTE: the placeholder net that just fired matches a SHORT FIXED prefix list — pending, tbd, todo, n/a, none, unsigned, waiting, a bare > | or -, and an unfilled <...> template. NOTHING else. A holding note phrased any other way (\\"FIXME\\", \\"LGTM\\", \\"ok\\", or one written in another language) passes this gate. Rewording the line is NOT a fix; put a real approver name + date there."`,
   // gom-duc-ket-2-10-0 (AC-2b, nợ C1 Ngoài-5): NOTE lớp nhìn-thấy tách ba nguyên nhân
   // (thiếu node · thiếu lib · lib lỗi exit n) thay một câu gộp. Năm dòng dưới là ĐÚNG các
   // dòng của nhánh gộp cũ; nhánh mới nói NHIỀU hơn ở cùng chỗ, không nới luật nào — NOTE
