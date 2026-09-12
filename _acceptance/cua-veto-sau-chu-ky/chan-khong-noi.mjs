@@ -33,16 +33,35 @@ if (khacNote === 0) loi.push('phép so vô nghĩa: base và head cho CÙNG tập
 if (loi.length) { console.error(loi.slice(0, 8).join(' | ')); process.exit(1); }
 
 // ── chiều đỏ 1: cho nhánh đã-ký continue trước các chốt bằng chứng ──────────
-const mut = F.mkRepo();
-F.writeDossier(mut, 'ky-reject', { veto: F.MO, cong1: F.RONG, chuKy: F.o('that-tran'), verdict: 'REJECT' });
-F.gitAll(mut, 'ky reject');
+// S4-r4 sửa LỚP: bản cũ so vLanh = lưới BASE chạy trên chính kho ĐÃ tiêm, và chỉ
+// so SỐ LƯỢNG VIOLATION. Ba lỗ cùng lúc: (a) một bản sao CHẾT (tiêm hỏng cú pháp,
+// thiếu tệp, node lỗi) cho vMut=[] nên 0 < vLanh.length tự tuyên «đã chạy»;
+// (b) không ghim dòng nào phải mất; (c) mã thoát bị bỏ. Nay: đối chứng dương trên
+// bản LÀNH cùng fixture + bằng chứng bản tiêm CHẠY TRỌN + ghim đích danh dòng.
+const GHIM_KN = 'verdict=REJECT (must be PASS to merge)';
+const DA_CHAY = 'rules ran=';
+const dungKho = () => {
+  const r = F.mkRepo();
+  F.writeDossier(r, 'ky-reject', { veto: F.MO, cong1: F.RONG, chuKy: F.o('that-tran'), verdict: 'REJECT' });
+  F.gitAll(r, 'ky reject');
+  return r;
+};
+const lanhKN = F.runPremerge(dungKho());
+if (lanhKN.code === 0 || !lanhKN.out.includes(GHIM_KN)) {
+  console.error(`chiều đỏ 1 KHÔNG chạy — đối chứng dương hỏng: bản lành phải ĐỎ kèm «${GHIM_KN}», nhận mã ${lanhKN.code}`);
+  process.exit(1);
+}
+const mut = dungKho();
 F.tiem(mut, 'scripts/pre-merge-check.sh',
   ': cửa veto đã đóng bằng chữ ký"',
   ': cửa veto đã đóng bằng chữ ký"; continue');
-const vMut = F.dongViPham(F.runPremerge(mut).out);
-const vLanh = F.dongViPham(F.runPremerge(mut, cayBase).out);
-if (vMut.length >= vLanh.length) {
-  console.error(`chiều đỏ 1 KHÔNG chạy: cho nhánh đã-ký continue mà tập VIOLATION không giảm (${vLanh.length} → ${vMut.length})`);
+const sauTiem = F.runPremerge(mut);
+if (!sauTiem.out.includes(DA_CHAY)) {
+  console.error(`chiều đỏ 1 KHÔNG chạy: bản tiêm không tới được dòng tổng «${DA_CHAY}» — bản sao CHẾT, không phải đột biến`);
+  process.exit(1);
+}
+if (sauTiem.out.includes(GHIM_KN) || sauTiem.code === lanhKN.code) {
+  console.error(`chiều đỏ 1 KHÔNG chạy: cho nhánh đã-ký continue mà «${GHIM_KN}» vẫn còn hoặc mã thoát không đổi (${lanhKN.code} → ${sauTiem.code})`);
   process.exit(1);
 }
 
@@ -61,5 +80,5 @@ if (ma !== 97 || !r.includes('LỖI HẠ TẦNG')) {
 }
 
 console.log(`không nới: base=${b.slice(0, 8)} · mã thoát base=${base.code} head=${head.code} · VIOLATION ${vBase.length}=${vHead.length} khớp từng dòng · NOTE khác nhau ${khacNote} dòng`);
-console.log(`       [chiều đỏ 1] cho nhánh đã-ký continue → tập VIOLATION tụt ${vLanh.length} → ${vMut.length}`);
+console.log(`       [chiều đỏ 1] cho nhánh đã-ký continue → mất «${GHIM_KN}», mã thoát ${lanhKN.code} → ${sauTiem.code}, bản tiêm vẫn chạy trọn`);
 console.log('       [chiều đỏ 2] neo trên kho chưa có câu ghim → thoát 97 «LỖI HẠ TẦNG: base không hợp lệ»');

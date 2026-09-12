@@ -9,7 +9,11 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import * as F from './fixture.mjs';
 
-const doc = rel => readFileSync(path.join(F.ROOT, rel), 'utf8');
+// GỐC đang đo — đổi được, để chiều đỏ chạy CHÍNH phép đo trên bản sao thay vì một
+// bản chép tay của phép đo (S4-r4: hình dạng «thước không gắn vào vật»).
+let GOC = F.ROOT;
+const doc = rel => readFileSync(path.join(GOC, rel), 'utf8');
+const doTren = (goc, ten) => { const cu = GOC; GOC = goc; try { return vat[ten](); } finally { GOC = cu; } };
 // `vetoOpenUnsigned` khai KHÔNG có `[]`: P99 quy ước `[]` chỉ dành cho MẢNG BẢN
 // GHI (còn đi sâu vào khoá con); mảng giá trị thô là một lá.
 const KHOA = ['vetoOpen[].humanSignoff', 'vetoOpen[].signoffWarn', 'vetoOpenUnsigned'];
@@ -54,32 +58,36 @@ const chepDoc = () => {
   const d = mkdtempSync(path.join(tmpdir(), 'cvsck-doc-'));
   execFileSync('bash', ['-c', `mkdir -p "${d}/commands"`]);
   for (const rel of ['commands/start.md', 'commands/acceptance-status.md', 'CONTEXT.md'])
-    writeFileSync(path.join(d, rel), doc(rel));
+    writeFileSync(path.join(d, rel), readFileSync(path.join(F.ROOT, rel), 'utf8'));
   return d;
 };
 
-const docSao = (d, rel) => readFileSync(path.join(d, rel), 'utf8');
-const goVat = (nhan, rel, tim, ktr) => {
+// `vatKey` trỏ vào CHÍNH vị từ ở bảng `vat` — không chép lại luật. Làm yếu một vị từ
+// ở trên thì chiều đỏ tương ứng phải đỏ theo; bản cũ tự viết lại `ktr` nên hai bên
+// trôi khỏi nhau (d3 chỉ kiểm 'ĐÓNG cửa veto' còn vị từ thật kiểm cả `_Avoid_`).
+const goVat = (nhan, vatKey, rel, tim) => {
   const d = chepDoc();
   const p = path.join(d, rel);
-  const t = docSao(d, rel);
+  const t = readFileSync(p, 'utf8');
   if (!t.includes(tim)) { console.error(`chiều đỏ «${nhan}» KHÔNG chạy: bản sao không chứa chuỗi cần gỡ`); process.exit(1); }
+  if (!doTren(d, vatKey)) { console.error(`chiều đỏ «${nhan}» KHÔNG chạy — đối chứng dương hỏng: bản sao CHƯA gỡ mà vị từ «${vatKey}» đã thấy thiếu`); process.exit(1); }
   writeFileSync(p, t.split(tim).join(''));
-  if (ktr(docSao(d, rel))) { console.error(`chiều đỏ «${nhan}» KHÔNG chạy: gỡ vật mà phép đo vẫn thấy đủ`); process.exit(1); }
+  if (doTren(d, vatKey)) { console.error(`chiều đỏ «${nhan}» KHÔNG chạy: gỡ vật mà CHÍNH vị từ «${vatKey}» vẫn thấy đủ`); process.exit(1); }
   return nhan;
 };
 
-const d1 = goVat('start.md mất câu chép', 'commands/start.md', 'KHÔNG tự lọc `vetoOpen`',
-  t => t.includes('`vetoOpenUnsigned` có phần tử') && t.includes('KHÔNG tự lọc `vetoOpen`'));
-const d2 = goVat('START-SCAN-KEYS mất khoá', 'commands/start.md', '\n   vetoOpenUnsigned\n',
-  t => {
-    const m = t.match(/<<<START-SCAN-KEYS([\s\S]*?)START-SCAN-KEYS>>>/);
-    return Boolean(m) && KHOA.every(k => m[1].includes(k));
-  });
-const d3 = goVat('CONTEXT.md mất luật', 'CONTEXT.md', 'ĐÓNG cửa veto',
-  t => t.includes('ĐÓNG cửa veto'));
+const d1 = goVat('start.md mất câu chép', 'start.md chép danh sách',
+  'commands/start.md', 'KHÔNG tự lọc `vetoOpen`');
+const d2 = goVat('START-SCAN-KEYS mất khoá', 'START-SCAN-KEYS khai ba khoá',
+  'commands/start.md', '\n   vetoOpenUnsigned\n');
+const d3 = goVat('CONTEXT.md mất luật', 'CONTEXT.md mang luật + _Avoid_',
+  'CONTEXT.md', 'ĐÓNG cửa veto');
+// Vế `_Avoid_` trước đây KHÔNG có chiều đỏ nào: gỡ sạch mục _Avoid_ mà chân vẫn xanh.
+const d4 = goVat('CONTEXT.md mất vế _Avoid_', 'CONTEXT.md mang luật + _Avoid_',
+  'CONTEXT.md', '_Avoid_');
 
 console.log(`văn bản: ${Object.keys(vat).length} vật đủ · ca P99 xanh`);
 console.log(`       [chiều đỏ 1] ${d1}`);
 console.log(`       [chiều đỏ 2] ${d2}`);
 console.log(`       [chiều đỏ 3] ${d3}`);
+console.log(`       [chiều đỏ 4] ${d4}`);

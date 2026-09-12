@@ -67,16 +67,35 @@ for (const ghim of ['veto_state=da-veto chưa xử', 'da-veto -> mo mà KHÔNG c
 if (loi.length) { console.error(loi.join(' | ')); process.exit(1); }
 
 // ── chiều đỏ: cho hồ sơ ĐÃ KÝ đi vòng qua trọn khối cửa veto ────────────────
-const mut = F.mkRepo();
-F.writeDossier(mut, 'x', { veto: F.MO, cong1: F.RONG, chuKy: KY, tier: 'T3' });
-F.gitAll(mut, 'T3 lan V');
+// S4-r4 sửa LỚP: bản cũ kết luận CHỈ từ vắng mặt («không thấy dòng ghim» → đỏ đã
+// chạy). Một bản sao CHẾT cho đúng màu ấy — assertion âm-tính-một-mình mà
+// CLAUDE.md cấm. Nay hai chốt đứng trước phép vắng mặt: bản LÀNH cùng fixture
+// phải NỔ dòng ghim, và bản tiêm phải chạy tới dòng tổng.
+const GHIM_LV = 'làn V chỉ T2';
+const dungT3 = () => {
+  const r = F.mkRepo();
+  F.writeDossier(r, 'x', { veto: F.MO, cong1: F.RONG, chuKy: KY, tier: 'T3' });
+  F.gitAll(r, 'T3 lan V');
+  return r;
+};
+const lanhLV = F.runPremerge(dungT3());
+if (!lanhLV.out.includes(GHIM_LV)) {
+  console.error(`chiều đỏ KHÔNG chạy — đối chứng dương hỏng: bản lành cùng fixture phải nổ «${GHIM_LV}», nhận mã ${lanhLV.code}`);
+  process.exit(1);
+}
+const mut = dungT3();
 F.tiem(mut, 'scripts/pre-merge-check.sh',
   'if [ "$_vst" = "mo" ]; then',
   'if [ "$_vst" = "mo" ] && ! signoff_that "$dir"; then');
-const outMut = F.runPremerge(mut).out;
-if (outMut.includes('làn V chỉ T2')) {
-  console.error('chiều đỏ KHÔNG chạy: cho hồ sơ đã ký đi vòng mà luật «làn V chỉ T2» vẫn nổ');
+const rMut = F.runPremerge(mut);
+if (!rMut.out.includes('rules ran=')) {
+  console.error('chiều đỏ KHÔNG chạy: bản tiêm không tới được dòng tổng «rules ran=» — bản sao CHẾT, không phải đột biến');
+  process.exit(1);
+}
+const outMut = rMut.out;
+if (outMut.includes(GHIM_LV)) {
+  console.error(`chiều đỏ KHÔNG chạy: cho hồ sơ đã ký đi vòng mà luật «${GHIM_LV}» vẫn nổ`);
   process.exit(1);
 }
 console.log(`năm luật lân cận: ${assert}/5 luật vẫn nổ trên hồ sơ ĐÃ KÝ; bản lành im`);
-console.log('       [chiều đỏ] cho hồ sơ đã ký đi vòng qua khối cửa veto → mất VIOLATION «làn V chỉ T2»');
+console.log(`       [chiều đỏ] bản lành nổ «${GHIM_LV}»; cho hồ sơ đã ký đi vòng → mất đúng dòng ấy, bản tiêm vẫn chạy trọn`);

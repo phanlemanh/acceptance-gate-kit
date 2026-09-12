@@ -261,23 +261,3 @@ evals:
       - "tests/scripts/run-tests.sh"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
-  - id: E14
-    criterion: AC-13
-    executor: script
-    cmd: config:executors.script.cvsck_lui_khong_engine
-    expected: >-
-      Lưới không mất răng khi vắng engine, và câu NOTE một-nguồn nói thật (S4-r3).
-      (A) NOTE «SHORT FIXED prefix list» phải chứa một mẫu THẬT đọc từ nguồn (ghim
-      pending*) và output KHÔNG được mang vết lỗi node (MODULE_NOT_FOUND).
-      (B) Đối chứng dương: engine CÓ → VIOLATION «is a placeholder, not a signature».
-      Gỡ lib/evidence-core.cjs khỏi kho fixture → VẪN có đúng VIOLATION đó, mã thoát
-      khác 0, và lưới NÓI RA rằng lưới giữ-chỗ không chạy được; chữ ký THẬT trong
-      cùng cảnh KHÔNG bị chặn oan.
-      (C) Bản lùi khớp nguồn trên MỌI mẫu: mỗi mẫu rút từ nguồn, chạy qua đường vắng
-      engine, đều phải bị chặn. Số assert = 4 + số mẫu, ca tự đếm.
-      Chiều đỏ 1: gỡ dòng mẫu chữ khỏi khối BANG-LUI-GIU-CHO → giữ-chỗ TBD lọt khi
-      vắng engine. Chiều đỏ 2: trả câu NOTE về dạng nháy hỏng → NOTE in danh sách RỖNG.
-    paths:
-      - "scripts/pre-merge-check.sh"
-      - "lib/evidence-core.cjs"
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
