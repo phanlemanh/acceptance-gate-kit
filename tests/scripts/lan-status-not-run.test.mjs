@@ -333,6 +333,157 @@ test('L10', 'chỉ TRƯỜNG thật mới tính, bốn chỗ khác không', () =
   if (skipped.length !== 0) fail(`L10 tự soi: bản khai của chính hồ sơ bị loại ${skipped.join(',')} — phải RỖNG`);
 });
 
+// ── Task 5: đường đọc-cũ — bản TRƯỚC vá do WRITER THẬT của nó ghi ─────────
+// Ruling coordinator 12/09/2026 (progress.md của hồ sơ này): kế hoạch gốc viết
+// mốc bản base là `git rev-parse HEAD~5` — SỐ TƯƠNG ĐỐI trôi theo mỗi commit
+// của chính vòng này, đúng lớp lỗi mà vòng này đi đóng (bất biến CLAUDE.md
+// "thước phải gắn vào vật được giao"). Dùng `git merge-base main HEAD` (điểm
+// nhánh, TRƯỚC MỌI thay đổi của vòng) thay cho nó. Tự kiểm BẮT BUỘC trước khi
+// tin: bản base phải KHÔNG chứa `isRepinMachineEval` (hàm Task 1 thêm) — nếu
+// điểm nhánh lỡ đã mang vá, ca phải DỪNG thay vì lặng lẽ mất nghĩa phân biệt.
+let _banBase = null;
+function dungBanBase() {
+  if (_banBase) return _banBase;
+  const sha = execFileSync('git', ['-C', SELF_ROOT, 'merge-base', 'main', 'HEAD'], { encoding: 'utf8' }).trim();
+  const dir = fs.mkdtempSync(path.join(TMP, 'lsnr-base-'));
+  // TRỌN thư mục (lib scripts feature-loop), không danh sách file tay — một
+  // bản base thiếu file thì đỏ vì HẠ TẦNG chứ không vì vật (bài học P150,
+  // CLAUDE.md "thước phải gắn vào vật được giao").
+  execFileSync('sh', ['-c', `git -C ${SELF_ROOT} archive ${sha} lib scripts feature-loop | tar -x -C ${dir}`]);
+  let dong = [];
+  try { dong = execFileSync('grep', ['-rn', 'isRepinMachineEval', dir], { encoding: 'utf8' }).split('\n').filter(Boolean); }
+  catch (e) { if (e.status !== 1) throw e; /* grep: 0 dòng khớp — đúng như mong đợi */ }
+  if (dong.length) fail(`L05 tự kiểm bản base ${sha} THẤT BẠI: isRepinMachineEval xuất hiện ${dong.length} lần — điểm nhánh đã mang vá, mốc không còn "trước vòng này"; DỪNG, không tin bản base này`);
+  _banBase = { dir, sha };
+  return _banBase;
+}
+
+// Chạy repin-lane.mjs CỦA MỘT BẢN CỤ THỂ (baseDir) — tổng quát hoá chayLan()
+// ở trên (hardcode LANE/ROOT của bản hiện tại) để gọi được writer của bản
+// base mà không đụng chayLan/ca cũ.
+function chayLanBan(baseDir, kho, opts) {
+  opts = opts || {};
+  const lane = path.join(baseDir, 'feature-loop', 'scripts', 'repin-lane.mjs');
+  const args = [lane, '--root', kho.dir, '--slug', 's1', '--ag-root', baseDir, '--reason', 'pin cũ'];
+  if (opts.write) args.push('--write');
+  let exit = 0; let stdout = ''; let stderr = '';
+  try { stdout = execFileSync(process.execPath, args, { encoding: 'utf8' }); }
+  catch (e) { exit = e.status == null ? 1 : e.status; stdout = e.stdout || ''; stderr = e.stderr || ''; }
+  let parsed = {};
+  try { parsed = JSON.parse(stdout); } catch (_) { /* làn chết trước khi in JSON */ }
+  return { exit, stderr, ...parsed };
+}
+
+// Quét TRỌN corpus `_acceptance/*` dưới `accDir` bằng `node <recheckScript>
+// <report>` cho MỖI hồ sơ có evidence-report.md — lối tương đương của
+// `recheck-evidence.cjs --all` (cờ đó không tồn tại; script chỉ nhận MỘT
+// đường dẫn một lượt). Trả `{ soDaCham, viPham }` thay vì ném ở hồ sơ đỏ đầu
+// tiên, để ca so sánh được TẬP TÊN giữa hai lượt (bản base / bản hiện tại).
+function quetKho(recheckScript, accDir) {
+  const daCham = [];
+  const viPham = [];
+  for (const slug of fs.readdirSync(accDir).sort()) {
+    const rp = path.join(accDir, slug, 'evidence-report.md');
+    if (!fs.existsSync(rp)) continue;
+    daCham.push(slug);
+    try { execFileSync(process.execPath, [recheckScript, rp], { encoding: 'utf8' }); }
+    catch (_) { viPham.push(slug); }
+  }
+  return { soDaCham: daCham.length, viPham };
+}
+
+// Tìm ĐỘNG (không hardcode tên slug — corpus đổi theo thời gian) một hồ sơ
+// thật có dòng repin (kind:'repin', sha === verified_commit, được `### Re-pin`
+// trích run_id) mang evals_exit ≥ 1 khoá — ứng viên cho mũi tiêm "thiếu id
+// của ô CHẠY ĐƯỢC". Cùng biểu thức chính quy với recheck-evidence.cjs (đọc
+// dòng run_id trong section), không phát minh luật đọc thứ hai.
+function timUngVienDeTiem(accDir) {
+  const secRe = /^###\s+Re-pin\b[^\n]*\n([\s\S]*?)(?=\n#{1,3}\s|$(?![\s\S]))/gm;
+  for (const slug of fs.readdirSync(accDir).sort()) {
+    const rp = path.join(accDir, slug, 'evidence-report.md');
+    const lp = path.join(accDir, slug, 'run-log.jsonl');
+    if (!fs.existsSync(rp) || !fs.existsSync(lp)) continue;
+    const payload = fs.readFileSync(rp, 'utf8');
+    if (!core.determineEnforce(payload)) continue;
+    const vcm = payload.match(/^verified_commit\s*:\s*(\S+)/m);
+    const vc = vcm ? vcm[1] : '';
+    if (!vc) continue;
+    const cited = [];
+    let m; secRe.lastIndex = 0;
+    while ((m = secRe.exec(payload)) !== null) {
+      for (const im of m[1].matchAll(/^\s*run_id\s*[:=]\s*([^\s·,]+)/gim)) cited.push(im[1]);
+    }
+    if (!cited.length) continue;
+    for (const l of fs.readFileSync(lp, 'utf8').split('\n').filter(Boolean)) {
+      let e; try { e = JSON.parse(l); } catch (_) { continue; }
+      if (e && e.kind === 'repin' && cited.includes(e.run_id) && e.sha === vc && e.evals_exit && Object.keys(e.evals_exit).length) {
+        return { slug, runId: e.run_id, idBoQua: Object.keys(e.evals_exit)[0] };
+      }
+    }
+  }
+  return null;
+}
+
+// Sửa ĐÚNG MỘT dòng repin (khớp run_id) trong run-log.jsonl của `slug` dưới
+// `accDir`: xoá `idBoQua` khỏi evals_exit — mũi tiêm "thiếu id của ô CHẠY
+// ĐƯỢC", không đụng dòng nào khác trong tệp.
+function tiemThieuId(accDir, slug, runId, idBoQua) {
+  const lp = path.join(accDir, slug, 'run-log.jsonl');
+  const moi = fs.readFileSync(lp, 'utf8').split('\n').map(l => {
+    if (!l) return l;
+    let e; try { e = JSON.parse(l); } catch (_) { return l; }
+    if (!(e && e.kind === 'repin' && e.run_id === runId)) return l;
+    const ex = { ...e.evals_exit };
+    delete ex[idBoQua];
+    return JSON.stringify({ ...e, evals_exit: ex });
+  });
+  fs.writeFileSync(lp, moi.join('\n'));
+}
+
+test('L05', 'pin CŨ do writer thật (bản trước vá) ghi vẫn xanh với bên đọc mới; corpus hiện có không hồ sơ nào hoá đỏ', () => {
+  // ── Vế 1: writer THẬT của bản base ghi, bên đọc MỚI chấm ────────────────
+  const { dir: base, sha: baseSha } = dungBanBase();
+  const kho = dungKhoTam({});   // fixture mặc định: MỘT eval máy (E1), không
+                                 // status — bản base không hiểu lời khai đó
+  const w = chayLanBan(base, kho, { write: true });
+  if (w.exit !== 0) fail(`L05 writer bản base ${baseSha} ghi thất bại, nhận exit ${w.exit}: ${w.stderr}`);
+  const dongCu = docDongCuoi(kho, 'run-log.jsonl');
+  const errsMoi = core.checkRepinEvals(JSON.parse(dongCu), docEvals(kho), 's1', docReport(kho)).errs;
+  if (errsMoi.length) fail(`L05 bên đọc MỚI từ chối pin cũ do writer bản base ${baseSha} ghi: ${errsMoi.join(' | ')}`);
+  const coreCu = require(path.join(base, 'lib', 'evidence-core.cjs'));
+  const errsCu = coreCu.checkRepinEvals(JSON.parse(dongCu), docEvals(kho), 's1', docReport(kho)).errs;
+  if (errsCu.length) fail(`L05 đối chứng dương hỏng: bên đọc CŨ cũng từ chối pin của chính nó — ${errsCu.join(' | ')}`);
+
+  // ── Vế 2: «không hồ sơ nào hoá đỏ» — ghim BA thứ trên corpus thật ───────
+  const accDir = path.join(SELF_ROOT, '_acceptance');
+  const quetBase = quetKho(path.join(base, 'scripts', 'recheck-evidence.cjs'), accDir);
+  const quetMoi = quetKho(path.join(SELF_ROOT, 'scripts', 'recheck-evidence.cjs'), accDir);
+  console.log(`  L05: lượt bản base chấm ${quetBase.soDaCham} hồ sơ, ${quetBase.viPham.length} vi phạm`);
+  console.log(`  L05: lượt bản hiện tại chấm ${quetMoi.soDaCham} hồ sơ, ${quetMoi.viPham.length} vi phạm`);
+  if (quetBase.soDaCham === 0 || quetMoi.soDaCham === 0) fail(`L05 quét corpus rỗng — base=${quetBase.soDaCham} mới=${quetMoi.soDaCham}, không chứng được gì`);
+  if (quetBase.viPham.length) fail(`L05 lượt bản base hoá đỏ trên hồ sơ ĐÃ KÝ: ${quetBase.viPham.join(', ')}`);
+  if (quetMoi.viPham.length) fail(`L05 lượt bản hiện tại hoá đỏ trên hồ sơ ĐÃ KÝ (bản vá làm hồ sơ cũ thành đỏ): ${quetMoi.viPham.join(', ')}`);
+  const tenBase = [...quetBase.viPham].sort().join(',');
+  const tenMoi = [...quetMoi.viPham].sort().join(',');
+  if (tenBase !== tenMoi) fail(`L05 tập tên hồ sơ vi phạm khác nhau giữa hai lượt — base=[${tenBase}] mới=[${tenMoi}]`);
+
+  // ── Chân dương: tiêm một pin thiếu id CHẠY ĐƯỢC → vi phạm phải TĂNG đúng 1 ──
+  const corpusSaoCha = fs.mkdtempSync(path.join(TMP, 'lsnr-corpus-'));
+  // basename PHẢI là `_acceptance` — core.findAcceptanceConfig tìm config.yaml
+  // bằng cách so basename thư mục; đặt tên khác sẽ không thấy config.yaml và
+  // đo một đường khác với bản gốc (không cùng luật).
+  const corpusSao = path.join(corpusSaoCha, '_acceptance');
+  fs.cpSync(accDir, corpusSao, { recursive: true });
+  const quetSaoTruoc = quetKho(path.join(SELF_ROOT, 'scripts', 'recheck-evidence.cjs'), corpusSao);
+  if (quetSaoTruoc.viPham.length) fail(`L05 bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ (${quetSaoTruoc.viPham.join(', ')}) — không dùng làm nền so sánh được`);
+  const ung = timUngVienDeTiem(corpusSao);
+  if (!ung) fail('L05 không tìm được ứng viên để tiêm (hồ sơ PASS có dòng repin evals_exit ≥ 1 khoá) — corpus đổi hình dạng, cần chọn ứng viên khác');
+  tiemThieuId(corpusSao, ung.slug, ung.runId, ung.idBoQua);
+  const quetSaoSau = quetKho(path.join(SELF_ROOT, 'scripts', 'recheck-evidence.cjs'), corpusSao);
+  if (quetSaoSau.viPham.length !== quetSaoTruoc.viPham.length + 1) fail(`L05 tiêm thiếu ${ung.idBoQua} vào ${ung.slug}: vi phạm phải TĂNG đúng 1, nhận trước=${quetSaoTruoc.viPham.length} sau=${quetSaoSau.viPham.length}`);
+  if (!quetSaoSau.viPham.includes(ung.slug)) fail(`L05 tiêm vào ${ung.slug} nhưng vi phạm không gọi đúng tên hồ sơ đó — vi phạm=[${quetSaoSau.viPham.join(',')}]`);
+});
+
 const only = (process.env.LSNR_CASES || '').split(/[,\s]+/).filter(Boolean);
 const chay = only.length ? CASES.filter(c => only.includes(c.id)) : CASES;
 if (!chay.length) { console.error(`lan-status-not-run: bộ lọc LSNR_CASES=${process.env.LSNR_CASES} khớp 0 ca — không có gì chạy`); process.exit(2); }
