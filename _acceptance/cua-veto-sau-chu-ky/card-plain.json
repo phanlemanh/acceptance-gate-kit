@@ -1,0 +1,55 @@
+{
+  "feature_plain": "Khi người đã ký ở Cổng Bằng chứng, lưới trước khi gộp và bảng /start thôi báo hồ sơ đó «còn cửa veto mở»; chỉ hồ sơ máy đi trước mà chưa ai ký mới được báo là mở.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ báo hồ sơ máy đi trước đã có chữ ký thật là «cửa veto đã đóng bằng chữ ký», và không đếm nó vào dòng tổng cửa mở." },
+    { "id": "AC-2", "p": "Sẽ vẫn báo đúng như cũ hồ sơ máy đi trước mà chưa ai ký — đây là cửa mở thật, phải giữ." },
+    { "id": "AC-3", "p": "Sẽ không liệt hồ sơ đã có người duyệt Cổng 1 vào danh sách cửa veto đang mở." },
+    { "id": "AC-4", "p": "Sẽ coi chữ ký giữ chỗ (kiểu TBD, pending) là chưa ký, ở cả lưới lẫn bảng /start." },
+    { "id": "AC-6", "p": "Sẽ đo trọn 78 tình huống (trạng thái veto × Cổng 1 × 13 dạng chữ ký) và buộc lưới với bảng /start ra cùng một kết luận." },
+    { "id": "AC-7", "p": "Sẽ chứng minh không luật chặn nào đổi: mã thoát và mọi dòng chặn giống hệt bản ngay trước khi sửa, chỉ dòng ghi chú được khác." },
+    { "id": "AC-8", "p": "Sẽ giữ nguyên năm luật chặn lân cận trên hồ sơ đã ký: veto chưa xử, veto bị lật, khoá veto biến mất, làn máy đi trước trên hạng T3, mốc giờ hỏng." },
+    { "id": "AC-9", "p": "Sẽ chỉ thêm dòng vào lưới, không gỡ dòng nào, đúng luật chỉ-thêm của kit." },
+    { "id": "AC-10", "p": "Sẽ đo trên chính kho kit: danh sách cửa mở phải bằng đúng tập hồ sơ chưa ký do một bộ đọc độc lập tính ra, không ghim tên hay con số." },
+    { "id": "AC-11", "p": "Sẽ sửa chữ trong /start, trạng thái hồ sơ và từ điển để nói đúng luật mới; bảng /start chỉ chép danh sách máy đã dựng sẵn." },
+    { "id": "AC-12", "p": "Sẽ thêm một ca kiểm thường trực chạy chính lưới và bảng /start, có chiều đỏ tự chạy." }
+  ],
+  "wont_do": [
+    { "id": "AC-5", "p": "Sẽ KHÔNG đóng cửa chỉ vì nhãn trạng thái «đã ký» khi thiếu chữ ký thật — nhãn không phải chữ ký." }
+  ],
+  "scope_plain": "Không đổi lệnh ký hay lệnh duyệt, không chạm lõi cưỡng chế, không sửa hồ sơ đã ký, chưa mang sang các kho tiêu thụ (đi theo bản phát hành tới), chưa đổi tên khoá danh sách cửa mở.",
+  "coverage_plain": [
+    { "i": 0, "p": "Tiền lệ ngành: Gerrit rút người khỏi danh sách chờ khi họ đã trả lời — cùng tinh thần «đã ký thì thôi chờ veto»." },
+    { "i": 1, "p": "Tiền lệ ngành: GitHub tự rút yêu cầu review khi người review đã nộp — cùng tinh thần." },
+    { "i": 2, "p": "Trạng thái veto: vắng · đang mở có mốc giờ · mở mà mốc giờ hỏng · đã veto — cả bốn nhánh đều có tiêu chí phủ." },
+    { "i": 3, "p": "Chữ ký ở Cổng Bằng chứng được xét theo hai lớp: nghĩa và hình dạng." },
+    { "i": 4, "p": "Về nghĩa: chữ ký thật · giữ chỗ · để trống · không có báo cáo · chỉ nằm trong thân · phần đầu báo cáo hỏng — chỉ chữ ký thật mới đóng cửa." },
+    { "i": 5, "p": "Về hình dạng: viết trần · trong nháy kép · trong nháy đơn · chỉ có chú thích · có chú thích cuối dòng — hai bộ đọc phải hiểu mọi dạng giống nhau." },
+    { "i": 6, "p": "Cổng 1: có người duyệt · để trống (máy đi trước) · bỏ cổng có ghi — hai nhánh đầu có tiêu chí (AC-1/2/3/6), nhánh bỏ cổng để sau." },
+    { "i": 7, "p": "Ba chỗ nói «cửa veto mở»: ghi chú từng hồ sơ · dòng tổng · bảng /start — cả ba cùng theo một luật." },
+    { "i": 8, "p": "Nhãn trạng thái (đã kiểm, máy đã thông, đã ký) không phải căn cứ để đóng cửa (AC-5)." },
+    { "i": 9, "p": "Luật chặn lân cận giữ nguyên văn: đo quan hệ với bản ngay trước khi sửa (AC-7) và năm luật có tên (AC-8)." },
+    { "i": 10, "p": "Lưới chỉ được thêm dòng (AC-9)." },
+    { "i": 11, "p": "Để sau: hồ sơ vừa bỏ Cổng 1, vừa mở veto, vừa đã ký — chưa có ca thật, và lúc ghi hệ thống đã khó để lọt." },
+    { "i": 12, "p": "Không làm: giá trị veto lạ — đã bị chặn ngay lúc ghi." },
+    { "i": 13, "p": "Không làm: đã veto mà có chữ ký thì vẫn chặn — veto là lời của người, luôn thắng (AC-8)." },
+    { "i": 14, "p": "Không làm: suy «đã ký» từ nhãn trạng thái — nhãn không phải quan hệ." }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Phép so «trước khi sửa» từng neo vào nhánh chính lúc chạy, nên sau khi gộp sẽ tự đỏ mãi — đã neo vào bản ngay trước commit sửa, máy tự tìm và in ra." },
+    { "i": 1, "p": "Bảng giữ chỗ chỉ được đo ở lưới, bảng /start có thể lệch — đã đo mọi mẫu giữ chỗ trên cả hai bộ đọc." },
+    { "i": 2, "p": "Chữ ký có nhiều dạng viết (nháy, chú thích) có thể làm cửa đóng oan — đã đưa năm dạng viết vào ma trận, ô «để trống» lấy đúng từ khuôn báo cáo." },
+    { "i": 3, "p": "Hai luật đọc báo cáo (chỉ đọc phần đầu, đọc lỗi thì coi là chưa ký) chưa được đo — đã thêm hai ô và một cảnh báo có tên hồ sơ." },
+    { "i": 4, "p": "Giới hạn đã khai có ngưỡng mở lại nhưng không ai đếm — bảng /start nay nhận sẵn danh sách tên cần in, eval đo đúng thứ người thấy." }
+  ],
+  "decisions_plain": [
+    { "id": "d-20260911T155426Z-1", "p": "Bỏ vòng hỏi đáp thiết kế, máy làm một lượt — đổi lại dựa hoàn toàn vào đề bài anh đã gọi tên." },
+    { "id": "d-20260911T155426Z-2", "p": "Cửa veto đóng khi có chữ ký thật, không dựa nhãn trạng thái hay người duyệt Cổng 1 — đổi lại phải đo kỹ mọi dạng chữ ký." },
+    { "id": "d-20260911T155426Z-3", "p": "Sửa ở chỗ đọc (lưới và bảng /start), không đổi lệnh ký — đổi lại không phải chuyển 31 hồ sơ đã ký, lệnh khoá giữ nguyên." },
+    { "id": "d-20260911T155426Z-4", "p": "Kéo bảng /start vào phạm vi bằng cách thêm trường, không lọc danh sách cũ — đổi lại một nợ tên: danh sách cửa mở giờ chứa cả mục đã đóng." },
+    { "id": "d-20260911T155426Z-5", "p": "Chỉ thêm dòng vào lưới để qua luật chỉ-thêm — đổi lại để lại nửa điều kiện cũ ở dòng 777 không còn chạy tới." },
+    { "id": "d-20260911T155426Z-6", "p": "KHÔNG làm đặc tả giao diện — hồ sơ không chạm màn hình nào." },
+    { "id": "d-20260911T155426Z-7", "p": "KHÔNG mang bản sửa sang media-library, floorplanstudio và không sửa hồ sơ đã ký — hai kho nhận qua bản phát hành tới." },
+    { "id": "d-20260911T161109Z-8", "p": "Sau phản biện: bảng /start giữ bảng giữ chỗ riêng, được canh bằng ma trận mọi mẫu trên cả hai bộ đọc." },
+    { "id": "d-20260911T161109Z-9", "p": "Sau phản biện: bảng /start nhận sẵn danh sách tên cần in; lệnh chỉ chép lại, để đo được đúng thứ người thấy." }
+  ]
+}
