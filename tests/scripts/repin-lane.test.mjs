@@ -110,15 +110,55 @@ check('LN4 cây bẩn ngoài _acceptance/ → exit 2 gọi tên file; --allow-di
   git('checkout', '--', 'src.js');
 });
 
-check('LN5 khoá dòng repin của SCRIPT == khoá khuôn REPIN-TEMPLATE trong SKILL (writer máy ↔ khuôn không trôi)', () => {
+// Kho tạm CODE-SINH cho ca có ô khai `status: not-run` — một hồ sơ hai eval máy
+// (NR1 chạy được · NR2 khai không-chạy, cmd của nó `exit 4` nên nếu bị chạy nhầm
+// thì làn ĐỎ chứ không xanh lặng). Báo cáo đã ký chỉ có khối cho NR1, nên không
+// có xung đột hai vế. Dùng cho LN5: dòng pin của hồ sơ NÀY mang khoá
+// `evals_not_run`, còn dòng của `feat-lane` (không khai ô nào) thì KHÔNG —
+// khuôn REPIN-TEMPLATE phải khớp CẢ HAI hình dạng (rà cuối 12/09/2026).
+function mkNotRunRepo() {
+  const root = mkdtempSync(path.join(tmpdir(), 'repin-lane-nr-'));
+  const g = (...a) => execFileSync('git', ['-C', root, '-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  const ws = path.join(root, '_acceptance', 'feat-nr');
+  mkdirSync(ws, { recursive: true });
+  writeFileSync(path.join(root, '_acceptance', 'config.yaml'),
+    'schema_version: 1\nenforcement: strict\nrecheck: strict\ngap_probe: off\nfeature_loop:\n  suite_keys:\n    - executors.test.suite\nexecutors:\n  test:\n    suite: "sh suite.sh"\n  script:\n    rang_nr1: "true"\n    rang_nr2: "bash -c \'exit 4\'"\n');
+  writeFileSync(path.join(root, 'suite.sh'), 'exit 0\n');
+  writeFileSync(path.join(ws, 'evals.yaml'),
+    'schema_version: 1\nslug: feat-nr\n\nevals:\n  - id: NR1\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.rang_nr1\n    expected: >\n      Xanh: NR1 exit 0.\n  - id: NR2\n    criterion: AC-2\n    executor: script\n    cmd: config:executors.script.rang_nr2\n    status: not-run\n    expected: >\n      Ô này hồ sơ khai không chạy; làn phải bỏ qua và NÓI RA.\n');
+  writeFileSync(path.join(ws, 'contract.md'), '---\nschema_version: 1\nfeature: feat-nr\nslug: feat-nr\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\n---\n');
+  g('init', '-q'); g('add', '-A'); g('commit', '-qm', 'impl');
+  const head1 = g('rev-parse', 'HEAD');
+  writeFileSync(path.join(ws, 'run-log.jsonl'), JSON.stringify({ ts: '2026-09-12T00:00:00Z', kind: 'eval', run_id: 'r1-NR1', sha: head1, eval: 'NR1', exit_code: 0 }) + '\n');
+  writeFileSync(path.join(ws, 'evidence-report.md'),
+    `---\nschema_version: 1\nfeature_slug: feat-nr\nverdict: PASS\nverified_commit: ${head1}\nhuman_signoff: Manh 2026-09-12\n---\n\n## Evidence\n- eval: NR1\n  run_id: r1-NR1\n  exit_code: 0\n  verifier: config:executors.script.rang_nr1\n  verified_at: 2026-09-12\n\n## Iterations\n\nRound 1 — PASS.\n`);
+  g('add', '-A'); g('commit', '-qm', 'evidence');
+  return { root, logPath: path.join(ws, 'run-log.jsonl') };
+}
+
+check('LN5 khoá dòng repin của SCRIPT == khoá khuôn REPIN-TEMPLATE trong SKILL, CẢ ca có ô khai không-chạy (writer máy ↔ khuôn không trôi)', () => {
   const m = SKILL.match(/<!-- <<<REPIN-TEMPLATE -->\s*```\n([\s\S]*?)```\s*<!-- REPIN-TEMPLATE>>> -->/);
   assert.ok(m, 'không thấy marker REPIN-TEMPLATE');
   const tl = m[1].split('\n').find(l => l.includes('"kind":"repin"'));
   const filled = tl.replaceAll('<ISO>', '2026-09-09T00:00:00Z').replaceAll('<id>', 'x').replaceAll('<40-hex>', 'a'.repeat(40)).replaceAll('"<E>"', '"E1"');
   const tKeys = Object.keys(JSON.parse(filled));
-  const sKeys = Object.keys(JSON.parse(repinLines()[0]));
-  assert.deepEqual(sKeys, tKeys, 'script viết khoá khác khuôn SKILL');
   assert.ok(tKeys.includes('evals_exit'), 'khuôn SKILL chưa có evals_exit');
+  assert.ok(tKeys.includes('evals_not_run'), 'khuôn SKILL chưa có evals_not_run — khuôn trôi khỏi bên viết');
+  // Hình dạng CÓ ô khai không-chạy: phải khớp TRỌN tập khoá của khuôn. Bản
+  // trước chỉ đo `feat-lane` (không khai ô nào) nên phép đo writer↔khuôn bị làm
+  // mù đúng chỗ nhánh này thêm vào (rà cuối 12/09/2026).
+  const f = mkNotRunRepo();
+  const rNR = spawnSync(process.execPath, [LANE, '--root', f.root, '--ag-root', ROOT, '--slug', 'feat-nr', '--reason', 'khuôn nói-ra', '--write'], { encoding: 'utf8' });
+  assert.equal(rNR.status, 0, rNR.stderr);
+  const dongNR = JSON.parse(readFileSync(f.logPath, 'utf8').split('\n').filter(l => l.includes('"kind":"repin"')).pop());
+  assert.deepEqual(Object.keys(dongNR), tKeys, 'script viết khoá khác khuôn SKILL trên hồ sơ CÓ ô khai không-chạy');
+  assert.deepEqual(dongNR.evals_not_run, ['NR2'], 'khoá nói-ra phải mang đúng id bị loại');
+  assert.deepEqual(dongNR.evals_exit, { NR1: 0 }, 'ô khai không-chạy không được có khoá trong evals_exit');
+  rmSync(f.root, { recursive: true, force: true });
+  // Hình dạng KHÔNG ô nào khai: khoá `evals_not_run` VẮNG HẲN (không phải mảng
+  // rỗng) — tập khoá = khuôn TRỪ đúng khoá đó, không hơn không kém.
+  const sKeys = Object.keys(JSON.parse(repinLines()[0]));
+  assert.deepEqual(sKeys, tKeys.filter(k => k !== 'evals_not_run'), 'script viết khoá khác khuôn SKILL (hồ sơ không khai ô nào)');
 });
 
 check('LN6 usage/nguồn hỏng: cờ lạ → exit 3; config thiếu suite_keys → exit 2 gọi tên; hồ sơ không evals.yaml → exit 2', () => {

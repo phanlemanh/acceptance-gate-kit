@@ -168,6 +168,16 @@ function mutantLane(before, after) {
   injectInto(f, before, after);
   return f;
 }
+// Như mutantLane, nhưng áp NHIỀU mũi tiêm liên tiếp lên CÙNG một bản sao —
+// dùng cho GL04 (Đường B, hồ sơ lan-doc-status-not-run 12/09/2026): xoá TOÀN
+// BỘ tập hàng đang thiếu, không phải một hàng gõ tay.
+function mutantLaneMulti(edits) {
+  const d = mk('fl-');
+  fs.cpSync(path.join(ROOT, 'feature-loop', 'scripts'), path.join(d, 'scripts'), { recursive: true });
+  const f = path.join(d, 'scripts', 'repin-lane.mjs');
+  for (const [before, after] of edits) injectInto(f, before, after);
+  return f;
+}
 function mutantFile(src, before, after) {
   const f = path.join(mk('mf-'), path.basename(src));
   fs.copyFileSync(src, f);
@@ -313,8 +323,39 @@ function judgeGL04(lane) {
   if (!repo.same('feat-h')) p.push('tep ho so bi ghi');
   return p;
 }
+// Đường B (phán quyết coordinator, hồ sơ lan-doc-status-not-run 12/09/2026):
+// mũi tiêm tính LÚC CHẠY — xoá MỌI hàng mà lacksIn(layerMixed()) báo thiếu,
+// KHÔNG ghim cứng một tên hàng. Vì sao: mũi cũ (xoá RIÊNG hàng
+// readSignedReportFor) chỉ đúng khi đó là hàng DUY NHẤT "mới hơn" sha
+// 04069351; bảng lớn thêm hàng (isRepinMachineEval, machineEvalIdsSkipped,
+// since 2.12.0 — Task 2 hồ sơ này) làm layerMixed() thiếu CẢ BA, nên xoá
+// riêng MỘT hàng không còn đủ khiến cổng thôi chặn (hai hàng kia vẫn chặn
+// hộ) — mũi tiêm cũ đỏ SAI LÝ DO (đo đúng MỘT hàng, không phải TOÀN cổng).
+// Xoá TOÀN BỘ tập hàng-đang-thiếu (tính từ CHÍNH bảng của LANE thật lúc
+// chạy, không phải danh sách gõ tay) mới tái hiện đúng «cổng không còn ai
+// bảo vệ layerMixed()», và miễn nhiễm với việc bảng lớn thêm bao nhiêu hàng
+// nữa về sau — thước co theo vật, không phải hằng số đóng băng theo thời
+// điểm viết ca.
+// Delta so văn AC-4 đã ký (khai rõ, không sửa hồ sơ): AC-4 mô tả "gỡ hàng
+// readSignedReportFor"; mũi tiêm nay là "gỡ MỌI hàng đang thiếu". Không
+// tránh được: isRepinMachineEval (2.12.0) mới hơn readSignedReportFor
+// (2.11.0), nên không có sha lịch sử nào chỉ thiếu đúng MỘT trong hai.
+function judgeGL04Mut(mutantLaneFile) {
+  const repo = mkRepo();
+  const r = runLane(mutantLaneFile, repo, ['--ag-root', layerMixed(), '--slug', 'feat-h', '--write']);
+  if (r.status === 2) return [`cong van dung du da xoa het hang thieu (exit 2): ${cut(r.stderr, 200)}`];
+  return [`cong khong con chan (exit ${r.status}${r.suiteRan ? ', suite da chay' : ''}${repo.same('feat-h') ? '' : ', tep ho so bi ghi'}): ${cut(r.stderr || '', 160)}`];
+}
 ca('GL04', 'lớp LAI (evidence-core 04069351) → dừng TRƯỚC khi ghi, gọi tên readSignedReportFor', judgeGL04, [
-  { pin: 'ghi roi moi do', make: () => mutantLane("  { file: 'lib/evidence-core.cjs', name: 'readSignedReportFor', kind: 'function', since: '2.11.0', why: 'sàn ngữ nghĩa bên đọc' },\n", '') },
+  {
+    pin: 'cong khong con chan',
+    make: () => {
+      const missing = tableRows(LANE).filter(lacksIn(layerMixed()));
+      if (!missing.length) throw new Error('layerMixed() khong con thieu hang nao — fixture het gia tri, can sha lich su moi hon');
+      return mutantLaneMulti(missing.map(r => [`  { file: '${r.file}', name: '${r.name}', kind: '${r.kind}', since: '${r.since}', why: '${r.why}' },\n`, '']));
+    },
+    judge: judgeGL04Mut,
+  },
 ]);
 
 function judgeGL05(lane) {
@@ -394,6 +435,46 @@ ca('GL08', 'bộ chọn ca sống: GL99 khớp 0 ca → exit khác 0; GL01 → �
   { pin: 'bo loc rong ma xanh', make: () => mutantFile(SELF, 'if (!chosen' + '.length) {', 'if (false) {') },
 ]);
 
+// ── ca meta: mọi ca GL phải có ≥1 mũi tiêm (phán quyết coordinator, hồ sơ
+// lan-doc-status-not-run 12/09/2026) ────────────────────────────────────
+// Vì sao thêm: GL04 từng bị làm rỗng `mutants: []` để né một chiều đỏ ghim sai
+// lý do — bộ chạy đi qua KHÔNG một tiếng kêu, nên lần sau gặp ca đỏ vì bảng
+// lớn thêm hàng thì cách rẻ nhất lại là làm rỗng mảng, y hệt lần trước. Ca này
+// KHÔNG hạ răng nào — CỘNG một răng chặn đúng lớp "mũi tiêm biến mất lặng lẽ".
+// GLLC_CHECK_MUTANTS=1: đặt SAU ca('GL09', …) (dưới cùng) để CASES đầy đủ —
+// kể cả GL09 tự soi chính nó — trước khi kiểm; chỉ in vi phạm rồi thoát,
+// KHÔNG chạm vòng lặp GLLC_CASES bình thường, để spawn CHÍNH tệp này (real
+// trên SELF, và judge trên bản sao bị tiêm) không đệ quy vào case-runner.
+function judgeGL09(testFile) {
+  const r = spawnSync(process.execPath, [testFile], { encoding: 'utf8', env: { ...process.env, GLLC_CHECK_MUTANTS: '1' } });
+  const out = `${r.stdout || ''}${r.stderr || ''}`;
+  if (testFile === SELF) {
+    // vật thật: CASES hiện có (kể cả GL09 chính nó) đều phải có ≥1 mũi tiêm.
+    if (r.status !== 0) return [`GLLC_CHECK_MUTANTS bao do tren vat that (exit ${r.status}): ${cut(out, 200)}`];
+    return [];
+  }
+  // bản sao: MỘT ca (GL05) bị làm rỗng mutants — ca meta PHẢI đỏ, gọi đúng tên.
+  if (r.status === 0) return [`cong khong con chan: ban sao co ca rong mutants ma van xanh (${cut(out, 160)})`];
+  if (!out.includes('GL05')) return [`do sai ly do: khong goi ten GL05 (${cut(out, 160)})`];
+  return ['cong khong con chan'];
+}
+ca('GL09', 'ca meta: mọi ca GL phải có ≥1 mũi tiêm — mutants rỗng không lọt qua lặng lẽ', judgeGL09, [
+  {
+    pin: 'cong khong con chan',
+    make: () => mutantFile(
+      SELF,
+      "ca('GL05', 'tệp có mà nạp lỗi → exit 2 «không nạp được», không stack', judgeGL05, [\n  { pin: 'nap khong boc', make: () => mutantLane('try { return require_(path.join(agRoot, rel)); } catch (e) {', 'return require_(path.join(agRoot, rel)); {') },\n]);",
+      "ca('GL05', 'tệp có mà nạp lỗi → exit 2 «không nạp được», không stack', judgeGL05, []);",
+    ),
+  },
+]);
+if (process.env.GLLC_CHECK_MUTANTS) {
+  const bad = CASES.filter(c => !c.mutants || c.mutants.length === 0).map(c => c.id);
+  if (bad.length) { console.log(`GLLC_CHECK_MUTANTS: ca khong co mui tiem: ${bad.join(',')}`); process.exit(1); }
+  console.log('GLLC_CHECK_MUTANTS: moi ca co mui tiem');
+  process.exit(0);
+}
+
 // ── chạy ────────────────────────────────────────────────────────────────
 const want = (process.env.GLLC_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const chosen = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;
@@ -403,7 +484,7 @@ for (const c of chosen) {
   const t0 = Date.now();
   let errs;
   try {
-    const obj = c.id === 'GL08' ? SELF : LANE;
+    const obj = (c.id === 'GL08' || c.id === 'GL09') ? SELF : LANE;
     errs = c.real(obj).map(e => `vat that: ${e}`);
     for (const m of c.mutants) {
       let got;

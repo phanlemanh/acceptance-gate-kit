@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Một nguồn cho «eval máy đáng ghim»</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:  #f5f5f5;
+      --color-ink:    #2d3142;
+      --color-muted:  #4f5d75;
+      --color-accent: #eb6c36;
+      --font-sans:  'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', serif;
+      --font-mono:  'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .colophon {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      line-height: 1.6;
+      color: var(--color-muted);
+      border-top: 1px solid rgba(45,49,66,0.12);
+      margin-top: 1.5rem;
+      padding-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Sơ đồ luồng · AC-1 · AC-3 · AC-6</p>
+    <h1>Một nguồn cho «eval máy đáng ghim» — bên đọc và bên viết cùng rút</h1>
+
+    <svg viewBox="0 0 1040 720" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-ghost" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="rgba(45,49,66,0.35)"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ================= ARROWS FIRST ================= -->
+
+      <!-- bản khai → định nghĩa dùng chung -->
+      <line x1="460" y1="144" x2="460" y2="208" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- định nghĩa dùng chung → BÊN ĐỌC -->
+      <path d="M 380,304 V 336 Q 380,344 372,344 H 224 Q 216,344 216,352 V 384"
+            fill="none" stroke="#2d3142" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- định nghĩa dùng chung → BÊN VIẾT -->
+      <path d="M 540,304 V 336 Q 540,344 548,344 H 696 Q 704,344 704,352 V 384"
+            fill="none" stroke="#2d3142" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- nhãn «cùng một tập id» trên hai nhánh toả -->
+      <rect x="250" y="322" width="96" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="298" y="334" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.06em">cùng một tập id</text>
+      <rect x="574" y="322" width="96" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="622" y="334" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.06em">cùng một tập id</text>
+
+      <!-- BÊN ĐỌC → dòng pin -->
+      <path d="M 216,472 V 504 Q 216,512 224,512 H 372 Q 380,512 380,520 V 552"
+            fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <rect x="274" y="490" width="48" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="298" y="502" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.06em">CHẤM</text>
+
+      <!-- BÊN VIẾT → dòng pin -->
+      <path d="M 704,472 V 504 Q 704,512 696,512 H 548 Q 540,512 540,520 V 552"
+            fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <rect x="598" y="490" width="48" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="622" y="502" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.06em">GHI</text>
+
+      <!-- BẢN CŨ (nét đứt): bản khai → bộ lọc riêng ở bên viết -->
+      <path d="M 604,96 H 792 Q 800,96 800,104 V 208"
+            fill="none" stroke="rgba(45,49,66,0.35)" stroke-width="1" stroke-dasharray="4,3"
+            marker-end="url(#arrow-ghost)"/>
+      <rect x="650" y="74" width="96" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="698" y="86" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.06em">HAI BẢN LUẬT</text>
+
+      <!-- BẢN CŨ (nét đứt): bộ lọc riêng → bên viết -->
+      <path d="M 800,304 V 384"
+            fill="none" stroke="rgba(45,49,66,0.35)" stroke-width="1" stroke-dasharray="4,3"
+            marker-end="url(#arrow-ghost)"/>
+
+      <!-- ================= NODES ================= -->
+
+      <!-- N1 · bản khai eval -->
+      <rect x="316" y="48" width="288" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="316" y="48" width="288" height="96" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="328" y="58" width="44" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="350" y="70" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">KHAI</text>
+      <text x="460" y="100" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Bản khai eval của hồ sơ</text>
+      <text x="460" y="118" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle">evals.yaml</text>
+      <text x="460" y="134" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif"
+            text-anchor="middle">có ô khai không-chạy</text>
+
+      <!-- N2 · định nghĩa dùng chung (FOCAL) -->
+      <rect x="300" y="208" width="320" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="300" y="208" width="320" height="96" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="312" y="218" width="80" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.50)" stroke-width="0.8"/>
+      <text x="352" y="230" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">MỘT NGUỒN</text>
+      <text x="460" y="260" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Định nghĩa dùng chung</text>
+      <text x="460" y="278" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle">lib/evidence-core.cjs</text>
+      <text x="460" y="294" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif"
+            text-anchor="middle">«eval máy đáng ghim»</text>
+
+      <!-- GHOST · bộ lọc riêng của bản CŨ -->
+      <rect x="660" y="208" width="280" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="660" y="208" width="280" height="96" rx="6" fill="rgba(45,49,66,0.02)"
+            stroke="rgba(45,49,66,0.30)" stroke-width="1" stroke-dasharray="4,3"/>
+      <rect x="672" y="218" width="60" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+      <text x="702" y="230" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">BẢN CŨ</text>
+      <text x="800" y="264" fill="#4f5d75" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Bộ lọc riêng ở bên viết</text>
+      <text x="800" y="284" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle">MACHINE.has(...)</text>
+
+      <!-- N3 · bên ĐỌC -->
+      <rect x="64" y="384" width="304" height="88" rx="6" fill="#f5f5f5"/>
+      <rect x="64" y="384" width="304" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="76" y="394" width="40" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="96" y="406" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">ĐỌC</text>
+      <text x="216" y="436" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Bên đọc chấm pin</text>
+      <text x="216" y="456" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle">machineEvalIds → checkRepinEvals</text>
+
+      <!-- N4 · bên VIẾT -->
+      <rect x="552" y="384" width="304" height="88" rx="6" fill="#f5f5f5"/>
+      <rect x="552" y="384" width="304" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="564" y="394" width="44" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="586" y="406" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">VIẾT</text>
+      <text x="704" y="436" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Bên viết chạy làn ghim lại</text>
+      <text x="704" y="456" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle">repin-lane.mjs</text>
+
+      <!-- N5 · dòng pin -->
+      <rect x="300" y="552" width="320" height="88" rx="6" fill="#f5f5f5"/>
+      <rect x="300" y="552" width="320" height="88" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="312" y="562" width="36" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="330" y="574" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle" letter-spacing="0.08em">PIN</text>
+      <text x="460" y="604" fill="#2d3142" font-size="12" font-weight="600"
+            font-family="'Geist', sans-serif" text-anchor="middle">Dòng pin của mục ghim lại</text>
+      <text x="460" y="624" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            text-anchor="middle">evals_exit + evals_not_run</text>
+
+      <!-- ================= CHÚ GIẢI ================= -->
+      <line x1="48" y1="676" x2="992" y2="676" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="48" y="700" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace"
+            letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="148" y="690" width="24" height="12" rx="3" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="180" y="700" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đường thi hành hôm nay</text>
+
+      <rect x="376" y="690" width="24" height="12" rx="3" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="408" y="700" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Định nghĩa duy nhất</text>
+
+      <rect x="592" y="690" width="24" height="12" rx="3" fill="rgba(45,49,66,0.02)"
+            stroke="rgba(45,49,66,0.30)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="624" y="700" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bản CŨ — hai bản luật</text>
+    </svg>
+
+    <p class="colophon">
+      Nguồn chữ: <strong>_acceptance/lan-doc-status-not-run/figures/index.md</strong> (đề bài hình 1) ·
+      contract AC-1 · AC-3 · AC-6 · thiết kế §1, §3<br>
+      Nhánh feat/lan-doc-status-not-run @ aafb12e5 · vẽ bằng skill diagram-design 2.7.0 · hình là chiếu, nguồn là chữ
+    </p>
+  </div>
+</body>
+</html>
