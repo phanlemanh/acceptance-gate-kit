@@ -173,3 +173,47 @@
 - **claude-sonnet-5**: 18 agent · 177 calls · out 191,088 · in 354 · cache_read 20,170,769 · cache_create 1,778,956
 - **claude-haiku-4-5-20251001**: 18 agent · 44 calls · out 23,535 · in 388 · cache_read 2,472,451 · cache_create 958,644
 
+### S4 round 5 — wf_1b157349-a0f (35 agent, 268,716 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 6 | 32,412 | 12 | 748,706 | 364 |
+| review:bugs | claude-opus-5 | 37 | 30,029 | 74 | 6,029,643 | 689 |
+| review:measurement | claude-opus-5 | 18 | 24,451 | 36 | 2,733,380 | 424 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 35 | 23,522 | 70 | 4,731,853 | 378 |
+| refute:chan-lui-engine.mjs | claude-sonnet-5 | 15 | 22,838 | 30 | 1,864,874 | 319 |
+| review:conventions | claude-opus-5 | 26 | 19,363 | 52 | 3,642,937 | 383 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 21 | 13,795 | 42 | 2,792,441 | 208 |
+| triage | claude-sonnet-5 | 2 | 12,625 | 4 | 108,932 | 145 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 10 | 9,775 | 20 | 1,255,606 | 147 |
+| refute:additive-only.test.mjs | claude-sonnet-5 | 12 | 9,686 | 24 | 1,412,001 | 144 |
+| refute:chan-van-ban.mjs | claude-sonnet-5 | 11 | 9,293 | 22 | 1,213,924 | 139 |
+| refute:additive-only.test.mjs | claude-sonnet-5 | 14 | 8,405 | 28 | 1,521,751 | 142 |
+| refute:cua-veto-sau-chu-ky.test.mjs | claude-sonnet-5 | 7 | 8,382 | 14 | 752,375 | 121 |
+| refute:chan-dang-thuc.mjs | claude-sonnet-5 | 6 | 7,901 | 12 | 639,253 | 105 |
+| refute:acceptance-init.md | claude-sonnet-5 | 9 | 6,706 | 18 | 951,534 | 95 |
+| baseline:diffBase | claude-sonnet-5 | 10 | 5,289 | 20 | 993,002 | 87 |
+| refute:pre-merge-check.sh | claude-sonnet-5 | 6 | 3,704 | 12 | 618,661 | 66 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 3 | 2,324 | 26 | 186,346 | 49 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,944 | 42 | 353,161 | 41 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,641 | 18 | 75,786 | 72 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,394 | 42 | 349,638 | 555 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,304 | 18 | 106,449 | 27 |
+| machine:node tests/scripts/additive-only.test.mj | claude-haiku-4-5-20251001 | 2 | 1,270 | 18 | 106,433 | 19 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,203 | 18 | 106,450 | 47 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,185 | 18 | 106,450 | 128 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,183 | 18 | 106,451 | 24 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 1,091 | 18 | 106,449 | 21 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,003 | 18 | 106,425 | 19 |
+| capture:provenance | claude-sonnet-5 | 3 | 935 | 6 | 207,110 | 22 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 925 | 18 | 106,432 | 15 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 844 | 18 | 106,451 | 16 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 763 | 18 | 106,452 | 19 |
+| machine:bash -c 'set -o pipefail; node tests/scr | claude-haiku-4-5-20251001 | 2 | 633 | 18 | 106,494 | 290 |
+| machine:bash _acceptance/cua-veto-sau-chu-ky/ran | claude-haiku-4-5-20251001 | 2 | 491 | 18 | 106,450 | 18 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 407 | 18 | 61,326 | 409 |
+
+- **claude-sonnet-5**: 15 agent · 167 calls · out 175,268 · in 334 · cache_read 19,812,023 · cache_create 1,678,837
+- **claude-opus-5**: 3 agent · 81 calls · out 73,843 · in 162 · cache_read 12,405,960 · cache_create 517,048
+- **claude-haiku-4-5-20251001**: 17 agent · 41 calls · out 19,605 · in 362 · cache_read 2,303,643 · cache_create 923,111
+
