@@ -5,7 +5,7 @@ slug: cua-veto-sau-chu-ky
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh (t3_paths)
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-09-12T02:30:53Z
 design_doc: docs/superpowers/specs/2026-09-11-cua-veto-sau-chu-ky-design.md
