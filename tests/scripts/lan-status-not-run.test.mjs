@@ -24,6 +24,14 @@ const CASES = [];
 const test = (id, name, fn) => CASES.push({ id, name, fn });
 const fail = (msg) => { throw new Error(msg); };
 
+// Một gốc tạm dùng chung cho mọi kho `dungKhoTam` sinh ra, dọn khi tiến trình
+// thoát — cùng khuôn TMP + process.on('exit') của
+// tests/scripts/repin-lane-lop-cu.test.mjs (dòng 35), tránh rơi vãi thư mục
+// dưới os.tmpdir() sau mỗi lượt chạy (minor nêu ở phán quyết coordinator
+// 12/09/2026).
+const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'lsnr-root-'));
+process.on('exit', () => { try { fs.rmSync(TMP, { recursive: true, force: true }); } catch { /* dọn tạm */ } });
+
 function evalsYaml(rows) {   // fixture do MÃ SINH
   const body = rows.map(r => [
     `  - id: ${r.id}`,
@@ -48,7 +56,7 @@ function evalsYaml(rows) {   // fixture do MÃ SINH
 //   KHI opts.goStatus true (đối chứng dương — gỡ dòng khai để E2 CHẠY ĐƯỢC).
 function dungKhoTam(opts) {
   opts = opts || {};
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'lsnr-'));
+  const dir = fs.mkdtempSync(path.join(TMP, 'kho-'));
   const g = (...a) => execFileSync('git', ['-C', dir, '-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
   const ws = path.join(dir, '_acceptance', 's1');
   fs.mkdirSync(ws, { recursive: true });
