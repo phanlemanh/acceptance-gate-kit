@@ -179,6 +179,68 @@ def('CN03a', () => {
   say('CN03a', true, '', chi);
 });
 
+// ══ CN06 — cửa GHI đọc thẳng VẬT, không đi qua lời khai ═══════════════════
+// Đường fail-open của luật thứ bảy (báo cáo vắng khoá → NOTE) chỉ chấp nhận
+// được NẾU cửa ghi không dùng khoá đó. Ca này là thứ giữ tiền đề ấy sống.
+def('CN06', () => {
+  const chi = [];
+  const d = mk('cuaghi-');
+  const ws = path.join(d, '_acceptance', 'x');
+  fs.mkdirSync(ws, { recursive: true });
+  const hopDong = [
+    '---', 'schema_version: 1', 'slug: x', 'risk_tier: T2',
+    'status: verified   # khuôn hợp đồng mang đuôi chú thích; cửa ghi phải chừa nó',
+    'approved_by: Người Duyệt', 'approved_at: 2026-09-13',
+    'veto_state: mo', 'veto_opened_at: 2026-09-13T00:00:00Z', '---', '',
+    '## Criteria', '', '- AC-1: Given a, When b, Then c', '',
+  ].join('\n');
+  const bcSach = ['---', 'schema_version: 1', 'verdict: PASS', '---', '',
+    '## Known limits', '', '## Ngoài hợp đồng', ''].join('\n');
+  const chay = () => {
+    const r = req('node:child_process').spawnSync(process.execPath,
+      [path.join(ROOT, 'scripts', 'khong-can-nguoi.mjs'), '--write', '--root', d, '--slug', 'x'],
+      { encoding: 'utf8' });
+    return { ma: r.status, err: String(r.stderr || '') + String(r.stdout || '') };
+  };
+  const dat = () => {
+    fs.writeFileSync(path.join(ws, 'contract.md'), hopDong);
+    fs.writeFileSync(path.join(ws, 'evidence-report.md'), bcSach);
+    fs.writeFileSync(path.join(ws, 'decisions.jsonl'), '');
+  };
+
+  // Đối chứng dương TRƯỚC: review-findings RỖNG → ghi được.
+  dat();
+  fs.writeFileSync(path.join(ws, 'review-findings.md'), '## Trong hợp đồng\n\n## Ngoài hợp đồng\n\n');
+  const a = chay();
+  const sauA = fs.readFileSync(path.join(ws, 'contract.md'), 'utf8');
+  const stA = (/status:\s*(\S+)/.exec(sauA) || [])[1];
+  chi.push(`đối chứng dương: mã=${a.ma}, status→${stA}`);
+  if (a.ma !== 0 || stA !== 'machine-cleared') return say('CN06', false, `doi chung duong: ma=${a.ma} status=${stA}`, chi);
+
+  // Ô thật: 2 mục chờ người, báo cáo VẮNG khoá findings_open → vẫn phải CHẶN.
+  dat();
+  fs.writeFileSync(path.join(ws, 'review-findings.md'), rfText(2, 0));
+  const truoc = fs.readFileSync(path.join(ws, 'contract.md'));
+  const b = chay();
+  const sau = fs.readFileSync(path.join(ws, 'contract.md'));
+  chi.push(`vắng khoá + 2 mục: mã=${b.ma}, thông điệp="${b.err.trim().split('\n')[0].slice(0, 90)}"`);
+  if (b.ma !== 2) return say('CN06', false, `cua ghi di qua loi khai — ma=${b.ma}, cho 2`, chi);
+  if (!b.err.includes('2')) return say('CN06', false, 'thong diep khong neu so muc', chi);
+  if (!truoc.equals(sau)) return say('CN06', false, 'da GHI DIA du bi chan', chi);
+
+  // Ô ba: mục đã được định đoạt ở Cổng Bằng chứng → ghi lại được. Không có ô này
+  // thì luật mới biến mọi hồ sơ từng có phát hiện thành không-bao-giờ-ghi-được.
+  dat();
+  fs.writeFileSync(path.join(ws, 'review-findings.md'), rfText(2, 0));
+  fs.writeFileSync(path.join(ws, 'decisions.jsonl'), soText(2));
+  const c = chay();
+  const stC = (/status:\s*(\S+)/.exec(fs.readFileSync(path.join(ws, 'contract.md'), 'utf8')) || [])[1];
+  chi.push(`2 mục + 2 dòng sổ gate2: mã=${c.ma}, status→${stC}`);
+  if (c.ma !== 0 || stC !== 'machine-cleared') return say('CN06', false, `dinh doat roi ma van chan: ma=${c.ma}`, chi);
+
+  say('CN06', true, '', chi);
+});
+
 // ── chạy ──────────────────────────────────────────────────────────────────
 const chon = (process.env.CNDN_CASES || '').split(/[,\s]+/).filter(Boolean);
 const ids = Object.keys(CASES).filter(id => !chon.length || chon.includes(id));

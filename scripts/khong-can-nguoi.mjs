@@ -47,9 +47,14 @@ function sectionState(txt, heading) {
   return section(txt, heading).join('\n').trim() ? 'co' : 'rong';
 }
 
-// Sáu điều kiện xanh-sạch, CÙNG THỨ TỰ với xanh_sach_check để `why` nêu cùng
-// điều kiện trượt đầu tiên. Trả { clean, why }.
-export function xanhSach(contractTxt, evidenceTxt) {
+// BẢY điều kiện xanh-sạch, CÙNG THỨ TỰ với xanh_sach_check để `why` nêu cùng
+// điều kiện trượt đầu tiên. Trả { clean, why, doiCu? }.
+//
+// `phu` = { findingsText, ledgerText } — VẬT của điều kiện thứ bảy. Đối số TUỲ
+// CHỌN: vắng nó thì điều kiện thứ bảy KHÔNG chạy, nên mọi bên gọi đời cũ giữ
+// nguyên hành vi. Đó là đường đọc-cũ ở TẦNG API, tách khỏi đường đọc-cũ ở tầng
+// dữ liệu (báo cáo vắng khoá findings_open).
+export function xanhSach(contractTxt, evidenceTxt, phu) {
   if (evidenceTxt == null) return { clean: false, why: 'không có evidence-report.md' };
   const v = (frontmatterField(evidenceTxt, 'verdict') || '').trim();
   // KCN-PASS: chỉ PASS mới sạch.
@@ -68,6 +73,13 @@ export function xanhSach(contractTxt, evidenceTxt) {
     if (st === 'vang') return { clean: false, why: `mục «${h}» VẮNG khỏi báo cáo (vắng ≠ rỗng)` };
     if (st === 'co') return { clean: false, why: `mục «${h}» có nội dung` };
   }
+  // KCN-FINDINGS: điều kiện THỨ BẢY — review-findings.md không còn mục chờ người.
+  // Ngữ pháp sống MỘT chỗ (khối CHO-NGUOI của lib/evidence-core.cjs); ở đây chỉ hỏi.
+  if (phu) {
+    const { dieuKienFindings } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+    const f = dieuKienFindings({ findingsText: phu.findingsText, ledgerText: phu.ledgerText, reportText: evidenceTxt });
+    if (!f.clean) return { clean: false, why: f.why, doiCu: !!f.doiCu };
+  }
   return { clean: true, why: '' };
 }
 
@@ -78,12 +90,12 @@ export function xanhSach(contractTxt, evidenceTxt) {
 //   'xanh-sach' — không có cửa veto: người đóng/miễn Cổng 1, Cổng 2 xanh-sạch
 // Thứ tự nhánh tường minh (AC-4): da-veto cắt trước → chữ ký (bên gọi xử) →
 // Cổng 1 → Cổng 2.
-export function khongCanNguoi(contractTxt, evidenceTxt) {
+export function khongCanNguoi(contractTxt, evidenceTxt, phu) {
   const veto = vetoGateState(contractTxt);
   // KCN-VETO: veto là phát ngôn của người — không bao giờ «đã giao».
   if (veto.present && veto.state === 'da-veto') return null;
   // KCN-SACH: Cổng 2 — sáu điều kiện.
-  if (!xanhSach(contractTxt, evidenceTxt).clean) return null;
+  if (!xanhSach(contractTxt, evidenceTxt, phu).clean) return null;
   // Cổng 1 — người duyệt, hay máy đóng đúng vết.
   const approvedBy = (frontmatterField(contractTxt, 'approved_by') || '').trim();
   // KCN-SKIP: người chủ động miễn Cổng 1 — lưới chỉ NOTE, không chặn (cùng luật với
@@ -113,11 +125,21 @@ if (_isMain) {
   let contract, evidence;
   try { contract = fs.readFileSync(cp, 'utf8'); } catch { console.error(`khong-can-nguoi: không đọc được ${cp}`); process.exit(3); }
   try { evidence = fs.readFileSync(ep, 'utf8'); } catch { evidence = null; }
+  // Cửa GHI đọc THẲNG vật, không đi qua khoá findings_open của báo cáo — đó là
+  // tiền đề làm cho đường đọc-cũ ở lưới trước-merge chấp nhận được: hồ sơ MỚI
+  // không vào được trạng thái máy-thông với mục còn treo, kể cả khi báo cáo
+  // quên khai khoá.
+  const fp = path.join(root, '_acceptance', slug, 'review-findings.md');
+  const lp = path.join(root, '_acceptance', slug, 'decisions.jsonl');
+  let findingsText = null, ledgerText = '';
+  try { findingsText = fs.readFileSync(fp, 'utf8'); } catch { findingsText = null; }
+  try { ledgerText = fs.readFileSync(lp, 'utf8'); } catch { ledgerText = ''; }
+  const phu = { findingsText, ledgerText };
   const status = (frontmatterField(contract, 'status') || '').trim().toLowerCase();
   const tier = (frontmatterField(contract, 'risk_tier') || '').trim().toUpperCase();
   const why = status !== 'verified' ? `status ${status || '(rỗng)'} (chỉ verified)`
     : tier !== 'T2' ? `hạng ${tier || '(rỗng)'} (chỉ T2)`
-    : (khongCanNguoi(contract, evidence) == null ? (xanhSach(contract, evidence).why || 'còn cần người') : '');
+    : (khongCanNguoi(contract, evidence, phu) == null ? (xanhSach(contract, evidence, phu).why || 'còn cần người') : '');
   if (why) { console.error(`chưa đủ: ${why}`); process.exit(2); }
   // Dòng status của khuôn hợp đồng mang comment đuôi (`status: verified   # draft | approved | …`) —
   // giữ nguyên phần comment, chỉ thay giá trị (S4-r2 finding: regex đòi hết dòng làm cửa ghi
