@@ -430,6 +430,27 @@ placeholder_signoff() { # <chuỗi> — 0 iff chữ ký khớp một mẫu giữ
   return 1
 }
 
+# Chữ ký người ở Cổng Bằng chứng ĐÓNG cửa veto (hồ sơ cua-veto-sau-chu-ky).
+# Cửa veto là đường đảo cho việc MÁY tự quyết mà người chưa nói gì; người đã
+# phát ngôn rồi thì «owner chưa veto» là câu sai. Đo 11/09: 27 trên 30 tên ở
+# dòng tổng của kit đã ký, media-library 3/3, floorplanstudio 1/1.
+#
+# Vị từ là QUAN HỆ, không phải nhãn: `status: signed-off` không đóng cửa (nhãn
+# là lời khai, luật khác đã bắt nó), chữ ký giữ-chỗ cũng không — dùng lại ĐÚNG
+# `placeholder_signoff` ở trên, không dựng bảng thứ hai. Chỉ đọc frontmatter DẪN
+# ĐẦU qua front_field: một dòng `human_signoff:` ở THÂN báo cáo (trích khuôn)
+# không phải chữ ký.
+# MỘT hàm cho CẢ HAI chỗ đọc (NOTE làn V và vòng veto-trace) — hai bản trong
+# cùng một file là hình dạng bên-viết-bên-đọc-trôi mà kit đã dẫm nhiều lần.
+signoff_that() { # <thư mục hồ sơ> — 0 iff có chữ ký THẬT; đặt $SIGNOFF_THAT
+  SIGNOFF_THAT=""
+  [ -f "$1/evidence-report.md" ] || return 1
+  local s; s="$(front_field "$1/evidence-report.md" human_signoff)"
+  [ -n "$s" ] || return 1
+  placeholder_signoff "$s" && return 1
+  SIGNOFF_THAT="$s"; return 0
+}
+
 
 # Mọi đường mà luật gap-probe KHÔNG chạy được đều đi qua ĐÂY. Một hàm, một
 # marker, một chỗ quyết định mode — vì kênh "NOTE rồi exit 0" đã giết contract
@@ -774,6 +795,12 @@ for dir in "$ACC"/*/; do
           elif [ -z "$_vat" ] || ! date_parseable "$_vat"; then
             echo "VIOLATION [$slug]: status=$status but approved_by is empty — veto_opened_at ${_vat:+\"$_vat\" }không đọc được: làn V ĐÒI một mốc thời gian parse được, không có nó thì đây là bỏ cổng im lặng chứ không phải cửa veto có dấu vết."
             violations=$((violations+1)); continue
+          elif signoff_that "$dir"; then
+            # Đã ký ở Cổng Bằng chứng: cửa veto hết là chốt đang giữ hồ sơ, nên
+            # câu «cửa veto mở» là sai. Nhánh này đặt TRƯỚC nhánh cũ; vế
+            # `[ -n "$_vsig" ]` của nhánh dưới từ nay không còn tới được nhưng
+            # GIỮ NGUYÊN VĂN — luật diff-chỉ-thêm (DV5) cấm sửa dòng cũ.
+            echo "NOTE [$slug]: làn V — Cổng 1 không có chữ duyệt; Cổng 2 đã có chữ ký người ($SIGNOFF_THAT): cửa veto đã đóng bằng chữ ký"
           elif [ -n "$_vsig" ] || xanh_sach_check "$_vrep"; then
             echo "NOTE [$slug]: làn V — máy đi trước, Cổng 1 không có chữ duyệt; cửa veto mở"
           else
