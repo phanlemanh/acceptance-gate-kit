@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1120 684" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif">
+<defs>
+<style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+<style><![CDATA[
+svg{--paper:#f5f5f5;--white:#ffffff;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;--rule:rgba(45,49,66,0.12);--accent:#eb6c36;--accent-text:#ba4513;--accent-tint:rgba(235,108,54,0.08);--fill-faint:rgba(45,49,66,0.03);}
+@media (prefers-color-scheme: dark){svg{--paper:#2d3142;--white:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,0.12);--accent:#f08a59;--accent-text:#f19162;--accent-tint:rgba(240,138,89,0.10);--fill-faint:rgba(245,245,245,0.04);}}
+]]></style>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/></marker>
+<marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--ink)"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/></marker>
+</defs>
+
+<rect width="100%" height="100%" fill="var(--paper)"/>
+
+<!-- ===== Connectors (drawn first) ===== -->
+<!-- start → Q1 -->
+<line x1="560" y1="104" x2="560" y2="142" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<!-- Q1 CÓ → closed -->
+<line x1="688" y1="208" x2="766" y2="208" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+<rect x="712" y="182" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="728" y="194" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CÓ</text>
+<!-- label-note ↔ Q1 (dashed, no marker) -->
+<line x1="352" y1="208" x2="432" y2="208" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<!-- Q1 KHÔNG → open -->
+<line x1="560" y1="272" x2="560" y2="318" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<rect x="572" y="284" width="48" height="16" rx="2" fill="var(--paper)"/>
+<text x="596" y="296" fill="var(--ink)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHÔNG</text>
+<!-- open → Q2 -->
+<line x1="560" y1="408" x2="560" y2="446" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<rect x="572" y="416" width="72" height="16" rx="2" fill="var(--paper)"/>
+<text x="608" y="428" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CHỈ LÀN V</text>
+<!-- Q2 CÓ → old note -->
+<line x1="688" y1="512" x2="766" y2="512" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<rect x="712" y="486" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="728" y="498" fill="var(--ink)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CÓ</text>
+<!-- Q2 KHÔNG → block -->
+<line x1="432" y1="512" x2="354" y2="512" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<rect x="368" y="486" width="48" height="16" rx="2" fill="var(--paper)"/>
+<text x="392" y="498" fill="var(--ink)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHÔNG</text>
+
+<!-- ===== Nodes ===== -->
+<!-- Start -->
+<rect x="400" y="48" width="320" height="56" rx="28" fill="var(--paper)"/>
+<rect x="400" y="48" width="320" height="56" rx="28" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="560" y="74" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">Hồ sơ máy đi trước ở Cổng 1</text>
+<text x="560" y="90" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">hợp đồng mang dấu vết «cửa veto mở»</text>
+
+<!-- Q1 (focal: the new question) -->
+<polygon points="560,144 688,208 560,272 432,208" fill="var(--paper)"/>
+<polygon points="560,144 688,208 560,272 432,208" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="560" y="204" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Cổng Bằng chứng có</text>
+<text x="560" y="220" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">chữ ký người thật?</text>
+
+<!-- Closed -->
+<rect x="768" y="176" width="320" height="64" rx="6" fill="var(--paper)"/>
+<rect x="768" y="176" width="320" height="64" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="780" y="184" width="40" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="800" y="195" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">MỚI</text>
+<text x="780" y="218" fill="var(--ink)" font-size="12" font-weight="600">Cửa veto đã đóng bằng chữ ký</text>
+<text x="780" y="232" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">một dòng nhắc · không vào danh sách đang mở</text>
+
+<!-- Label note (status label does NOT count) -->
+<rect x="32" y="176" width="320" height="64" rx="6" fill="var(--paper)"/>
+<rect x="32" y="176" width="320" height="64" rx="6" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<rect x="44" y="184" width="84" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="86" y="195" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">KHÔNG TÍNH</text>
+<text x="44" y="218" fill="var(--ink)" font-size="12" font-weight="600">Nhãn «đã ký» trên trạng thái</text>
+<text x="44" y="232" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">nhãn là lời khai — chỉ chữ ký thật mới đóng</text>
+
+<!-- Still open -->
+<rect x="400" y="320" width="320" height="88" rx="6" fill="var(--paper)"/>
+<rect x="400" y="320" width="320" height="88" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="412" y="344" fill="var(--ink)" font-size="12" font-weight="600">Cửa veto còn mở — vào danh sách</text>
+<text x="412" y="362" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">rỗng · chỉ chú thích · chữ giữ-chỗ «TBD»</text>
+<text x="412" y="376" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">chỉ ở thân · đầu báo cáo hỏng · báo cáo vắng</text>
+<text x="412" y="394" fill="var(--soft)" font-size="9">lưới và thẻ bảng điều khiển cùng liệt tên</text>
+
+<!-- Q2 -->
+<polygon points="560,448 688,512 560,576 432,512" fill="var(--paper)"/>
+<polygon points="560,448 688,512 560,576 432,512" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="560" y="508" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Bằng chứng</text>
+<text x="560" y="524" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">xanh-sạch?</text>
+
+<!-- Old note kept (true open door) -->
+<rect x="768" y="480" width="320" height="64" rx="6" fill="var(--paper)"/>
+<rect x="768" y="480" width="320" height="64" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="780" y="488" width="84" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="822" y="499" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GIỮ NGUYÊN</text>
+<text x="780" y="522" fill="var(--ink)" font-size="12" font-weight="600">Nhắc «cửa veto mở» — câu cũ</text>
+<text x="780" y="536" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">cửa mở thật: người còn đường đảo</text>
+
+<!-- Block (old rule) -->
+<rect x="32" y="480" width="320" height="64" rx="6" fill="var(--paper)"/>
+<rect x="32" y="480" width="320" height="64" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="44" y="488" width="84" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="86" y="499" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">GIỮ NGUYÊN</text>
+<text x="44" y="522" fill="var(--ink)" font-size="12" font-weight="600">Chặn merge — luật cũ nguyên văn</text>
+<text x="44" y="536" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">không sạch mà không ký</text>
+
+<!-- Callout -->
+<text x="32" y="612" fill="var(--accent-text)" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">Chỉ đổi lời, không đổi chặn: câu hỏi chữ ký đứng trước, mọi lối chặn merge cũ vẫn nằm nguyên chỗ.</text>
+
+<!-- Legend -->
+<line x1="32" y1="636" x2="1088" y2="636" stroke="var(--rule)" stroke-width="0.8"/>
+<text x="32" y="660" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<polygon points="124,656 136,650 148,656 136,662" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.2"/>
+<text x="156" y="660" fill="var(--muted)" font-size="9">câu hỏi mới của vòng này</text>
+<line x1="300" y1="656" x2="332" y2="656" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+<text x="340" y="660" fill="var(--muted)" font-size="9">lối ra mới</text>
+<line x1="428" y1="656" x2="460" y2="656" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<text x="468" y="660" fill="var(--muted)" font-size="9">lối ra đã có</text>
+<rect x="560" y="648" width="32" height="16" rx="4" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="600" y="660" fill="var(--muted)" font-size="9">thứ không được tính làm căn cứ</text>
+</svg>

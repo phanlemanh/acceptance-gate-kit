@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hai bộ đọc, một phép hỏi — cua-veto-sau-chu-ky</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-rule: rgba(45,49,66,0.12);
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --color-paper: #2d3142; --color-ink: #f5f5f5; --color-muted: #bfc0c0; --color-rule: rgba(245,245,245,0.12); }
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1240px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 960px; display: block; }
+    .footer { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid var(--color-rule); font-family: var(--font-mono); font-size: 0.62rem; color: var(--color-muted); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Hình 2 · một nguồn, hai bộ đọc, một phép canh · hồ sơ cua-veto-sau-chu-ky</p>
+    <h1>Lưới và thẻ bảng điều khiển hỏi cùng một câu về chữ ký, và phải liệt cùng một danh sách</h1>
+<svg viewBox="0 0 1200 684" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif">
+<defs>
+<style><![CDATA[
+svg{--paper:#f5f5f5;--white:#ffffff;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;--rule:rgba(45,49,66,0.12);--accent:#eb6c36;--accent-text:#ba4513;--accent-tint:rgba(235,108,54,0.08);--fill-faint:rgba(45,49,66,0.03);}
+@media (prefers-color-scheme: dark){svg{--paper:#2d3142;--white:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,0.12);--accent:#f08a59;--accent-text:#f19162;--accent-tint:rgba(240,138,89,0.10);--fill-faint:rgba(245,245,245,0.04);}}
+]]></style>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/></marker>
+<marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--ink)"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/></marker>
+</defs>
+
+<rect width="100%" height="100%" fill="var(--paper)"/>
+
+<!-- ===== Connectors (drawn first) ===== -->
+<!-- rejected A ↔ source (dashed, no marker) -->
+<line x1="280" y1="96" x2="400" y2="96" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<rect x="296" y="72" width="88" height="16" rx="2" fill="var(--paper)"/>
+<text x="340" y="84" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ĐỔI BÊN VIẾT</text>
+<!-- source → predicate -->
+<line x1="560" y1="128" x2="560" y2="166" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<!-- predicate → grid (left) -->
+<path d="M520,232 V248 Q520,256 512,256 H288 Q280,256 280,264 V294" fill="none" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<!-- predicate → scanner (right) -->
+<path d="M600,232 V248 Q600,256 608,256 H832 Q840,256 840,264 V294" fill="none" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<!-- scanner ↔ rejected B (dashed, no marker) -->
+<line x1="960" y1="332" x2="992" y2="332" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<!-- scanner → unsigned list -->
+<line x1="840" y1="368" x2="840" y2="414" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<!-- grid → guard -->
+<path d="M280,368 V436 Q280,444 288,444 H438" fill="none" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<rect x="300" y="420" width="120" height="16" rx="2" fill="var(--paper)"/>
+<text x="360" y="432" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DANH SÁCH CỬA MỞ</text>
+<!-- unsigned list → guard -->
+<line x1="720" y1="444" x2="682" y2="444" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<!-- unsigned list → card -->
+<line x1="840" y1="472" x2="840" y2="518" stroke="var(--ink)" stroke-width="1.4" marker-end="url(#arrow-ink)"/>
+<rect x="852" y="484" width="96" height="16" rx="2" fill="var(--paper)"/>
+<text x="900" y="496" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CHÉP NGUYÊN</text>
+
+<!-- ===== Nodes ===== -->
+<!-- Rejected A -->
+<rect x="40" y="64" width="240" height="64" rx="6" fill="var(--paper)"/>
+<rect x="40" y="64" width="240" height="64" rx="6" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<rect x="52" y="72" width="40" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="72" y="83" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">LOẠI</text>
+<text x="52" y="106" fill="var(--ink)" font-size="12" font-weight="600">Lệnh ký ghi thêm trạng thái</text>
+<text x="52" y="120" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">phải sửa hook + đọc lại hồ sơ cũ</text>
+
+<!-- Source -->
+<rect x="400" y="64" width="320" height="64" rx="6" fill="var(--paper)"/>
+<rect x="400" y="64" width="320" height="64" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="560" y="92" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">Chữ ký người ở đầu báo cáo bằng chứng</text>
+<text x="560" y="110" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">sự thật có sẵn — không dựng khoá thứ hai</text>
+
+<!-- Predicate (focal 1) -->
+<rect x="400" y="168" width="320" height="64" rx="6" fill="var(--paper)"/>
+<rect x="400" y="168" width="320" height="64" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="560" y="196" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">Một phép hỏi: có chữ ký người thật?</text>
+<text x="560" y="214" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cùng luật bóc nháy · chú thích · chữ giữ-chỗ</text>
+
+<!-- Grid (reader 1) -->
+<rect x="160" y="296" width="240" height="72" rx="6" fill="var(--paper)"/>
+<rect x="160" y="296" width="240" height="72" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="172" y="322" fill="var(--ink)" font-size="12" font-weight="600">Lưới trước-merge</text>
+<text x="172" y="340" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">dòng nhắc riêng từng hồ sơ</text>
+<text x="172" y="354" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">danh sách «cửa veto đang mở»</text>
+
+<!-- Scanner (reader 2) -->
+<rect x="720" y="296" width="240" height="72" rx="6" fill="var(--paper)"/>
+<rect x="720" y="296" width="240" height="72" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="732" y="322" fill="var(--ink)" font-size="12" font-weight="600">Máy quét bảng điều khiển</text>
+<text x="732" y="340" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">danh sách đầy đủ GIỮ NGUYÊN</text>
+<text x="732" y="354" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">mỗi hồ sơ gắn cờ đã-ký + cảnh báo</text>
+
+<!-- Rejected B -->
+<rect x="992" y="296" width="168" height="72" rx="6" fill="var(--paper)"/>
+<rect x="992" y="296" width="168" height="72" rx="6" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<rect x="1004" y="304" width="40" height="16" rx="4" fill="none" stroke="var(--muted)" stroke-width="0.8"/>
+<text x="1024" y="315" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">LOẠI</text>
+<text x="1004" y="338" fill="var(--ink)" font-size="12" font-weight="600">Lọc thẳng danh sách</text>
+<text x="1004" y="354" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">đỏ phép đo hồ sơ đã ký cũ</text>
+
+<!-- Guard (focal 2) -->
+<rect x="440" y="412" width="240" height="64" rx="6" fill="var(--paper)"/>
+<rect x="440" y="412" width="240" height="64" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="452" y="434" fill="var(--ink)" font-size="12" font-weight="600">Hai danh sách phải bằng nhau</text>
+<text x="452" y="450" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">ma trận 78 ô + mọi mẫu giữ-chỗ</text>
+<text x="452" y="464" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">lệch → đỏ, gọi tên bên lệch</text>
+
+<!-- Unsigned list -->
+<rect x="720" y="416" width="240" height="56" rx="6" fill="var(--paper)"/>
+<rect x="720" y="416" width="240" height="56" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="732" y="440" fill="var(--ink)" font-size="12" font-weight="600">Danh sách chưa ký, dựng sẵn</text>
+<text x="732" y="458" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace">chỉ hồ sơ có cờ đã-ký = không</text>
+
+<!-- Card -->
+<rect x="720" y="520" width="240" height="56" rx="28" fill="var(--paper)"/>
+<rect x="720" y="520" width="240" height="56" rx="28" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="840" y="546" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">Thẻ «Còn veto được — ‹tên›»</text>
+<text x="840" y="562" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">bảng điều khiển · trạng thái xưởng</text>
+
+<!-- Callout -->
+<text x="40" y="620" fill="var(--accent-text)" font-size="14" font-family="'Instrument Serif', 'Lora', serif" font-style="italic">Hai bản dựng của một câu hỏi được giữ bằng nhau nhờ phép đo, không nhờ lời dặn.</text>
+
+<!-- Legend -->
+<line x1="40" y1="640" x2="1160" y2="640" stroke="var(--rule)" stroke-width="0.8"/>
+<text x="40" y="664" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="124" y="652" width="32" height="16" rx="4" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="164" y="664" fill="var(--muted)" font-size="9">vật mới giữ luật</text>
+<rect x="280" y="652" width="32" height="16" rx="4" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="320" y="664" fill="var(--muted)" font-size="9">bộ đọc / đầu ra</text>
+<rect x="436" y="652" width="32" height="16" rx="4" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="476" y="664" fill="var(--muted)" font-size="9">phương án đã cân và loại</text>
+</svg>
+    <div class="footer">
+      <span>Chiếu của quyết định d-20260911T155426Z-3, -4 (thay bởi -9), -8 · design §3, §4, §6 trong docs/superpowers/specs/2026-09-11-cua-veto-sau-chu-ky-design.md · AC-4, AC-6, AC-10, AC-11, AC-12 · lưới = scripts/pre-merge-check.sh (placeholder_signoff) · máy quét = scripts/start-scan.mjs: vetoOpen[] + humanSignoff + signoffWarn, vetoOpenUnsigned[] · thẻ = commands/start.md, commands/acceptance-status.md · loại A = phương án P2 (vetoGateState trong lib/evidence-core.cjs) · loại B = eval E5 bdk_rang_veto của start-bang-dieu-khien</span>
+      <span>hồ sơ cua-veto-sau-chu-ky · vẽ 11/09/2026</span>
+    </div>
+  </div>
+</body>
+</html>

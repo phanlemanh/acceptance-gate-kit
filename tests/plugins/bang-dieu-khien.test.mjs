@@ -127,8 +127,13 @@ if (want('BDK1')) {
     ['dòng «vừa xong» mỗi việc một dòng', /mỗi việc MỘT dòng: `at` · `label`/],
     ['thẻ KHÔNG tự xếp lại — máy quét đã xếp', /máy quét đã xếp `at` giảm dần[\s\S]{0,80}KHÔNG tự xếp lại/],
     ['at null → «chưa rõ ngày», không bỏ dòng', /chưa rõ ngày.*KHÔNG bỏ dòng/s],
-    ['nêu TÊN từng hồ sơ veto-mở', /`vetoOpen` có phần tử → in \*\*TÊN từng hồ sơ\*\*/],
-    ['cùng con số lưới trước-merge in', /cùng con số lưới trước-merge/],
+    // Danh sách tên nay do máy quét dựng sẵn (`vetoOpenUnsigned`) và thẻ CHÉP —
+    // hồ sơ cua-veto-sau-chu-ky: chữ ký Cổng Bằng chứng đóng cửa veto, nên «cùng
+    // con số» thành «cùng TẬP TÊN». Lời hứa được giữ nguyên vế sống: vẫn nêu TÊN
+    // từng hồ sơ, vẫn khớp thứ lưới trước-merge in ra.
+    ['nêu TÊN từng hồ sơ veto-mở', /`vetoOpenUnsigned` có phần tử → in \*\*TÊN từng hồ sơ\*\*/],
+    ['thẻ CHÉP danh sách, không tự lọc', /KHÔNG tự lọc `vetoOpen`/],
+    ['cùng tập tên lưới trước-merge in', /cùng tập tên lưới trước-merge/],
     ['dòng cây sau bản chung', /`git\.behind` > 0 → «cây này\n?\s*đang sau bản chung/],
     ['compareRef null → chưa biết, không nói đã khớp', /chưa so được với bản\n?\s*chung.*ĐỪNG nói là đã khớp/s],
     ['behind 0 → không in dòng nào', /`behind` là 0 → không in dòng nào/],

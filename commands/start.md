@@ -37,7 +37,8 @@ worktree/nhánh đọc từ git của `<path>`.
    groups.done[].slug groups.done[].state groups.done[].at groups.done[].stateKey groups.done[].label groups.done[].viecKe groups.done[].flags
    map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
-   vetoOpen[].slug vetoOpen[].status
+   vetoOpen[].slug vetoOpen[].status vetoOpen[].humanSignoff vetoOpen[].signoffWarn
+   vetoOpenUnsigned
    broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
    START-SCAN-KEYS>>> -->
 
@@ -164,10 +165,16 @@ worktree/nhánh đọc từ git của `<path>`.
      nhưng hợp đồng có mặt người dùng — lối đó chỉ cho vòng không có người dùng
      cuối») — việc đã giao vẫn phải hiện cờ, cờ là thứ người quyết, máy KHÔNG
      tự xử.
-   - **Còn veto được** — `vetoOpen` có phần tử → in **TÊN từng hồ sơ** (không
-     chỉ đếm), kèm một câu «người veto lúc nào cũng được, cửa không có hạn».
-     Đây là cùng con số lưới trước-merge in ra; veto-default chỉ sống nếu
-     người THẤY TÊN — không ai veto được thứ mình không thấy.
+   - **Còn veto được** — `vetoOpenUnsigned` có phần tử → in **TÊN từng hồ sơ**
+     trong danh sách đó, nguyên văn, không chỉ đếm và KHÔNG tự lọc `vetoOpen`;
+     kèm một câu «người veto lúc nào cũng được, cửa không có hạn». Máy quét đã
+     dựng sẵn danh sách này, thẻ chỉ CHÉP — nhờ vậy thứ thẻ in ra là đúng thứ
+     phép đo máy chấm. Đây là cùng tập tên lưới trước-merge in ra; veto-default
+     chỉ sống nếu người THẤY TÊN — không ai veto được thứ mình không thấy.
+     Hồ sơ đã có chữ ký người KHÔNG hiện ở mục này: chữ ký Cổng Bằng chứng đã
+     đóng cửa veto (`vetoOpen[].humanSignoff: true`). Phần tử nào có
+     `signoffWarn` khác rỗng thì in thêm câu đó — máy không đọc được chữ ký nên
+     để cửa MỞ, và người cần biết vì sao.
 
 4. **MỘT câu hỏi chọn bằng chữ cái/số dòng** — không hỏi câu thứ hai. Người
    chọn xong → bàn giao sang nghi thức đích:

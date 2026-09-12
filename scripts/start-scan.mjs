@@ -20,7 +20,9 @@ import { khongCanNguoi } from './khong-can-nguoi.mjs';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { frontmatterField, resolveConfigKey } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+// `chuKyThat` — MỘT NGUỒN của vị từ «chữ ký thật» (đổi khuôn S4-r2). Lưới
+// trước-merge gọi CÙNG hàm này qua CLI `node lib/evidence-core.cjs chu-ky-that`.
+const { frontmatterField, resolveConfigKey, chuKyThat } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 // Luật "hồ sơ nào được tiêu thụ" VÀ luật "field điều hướng có hợp lệ không"
 // đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
@@ -126,6 +128,28 @@ const gates = [], inProgress = [], considering = [], done = [], broken = [];
 // Veto-default chỉ sống nếu owner THẤY TÊN — đếm một con số mà không nêu tên là
 // giấu đúng thứ mình đang mời người veto.
 const vetoOpen = [];
+// Chữ ký người ở Cổng Bằng chứng ĐÓNG cửa veto (hồ sơ cua-veto-sau-chu-ky).
+// `vetoOpen[]` GIỮ NGUYÊN tập phần tử (mọi `mo`, bất kể status — lời hứa đã ký
+// của start-bang-dieu-khien); ba trường CỘNG thêm nói hồ sơ nào còn veto được:
+//   humanSignoff  — có chữ ký THẬT chưa (nhãn status không tính, giữ-chỗ không tính)
+//   signoffWarn   — LUÔN có mặt, rỗng khi đọc sạch; nêu lý do khi báo cáo không
+//                   đọc được hoặc frontmatter không dẫn đầu (không nuốt im)
+//   vetoOpenUnsigned[] (cuối file) — danh sách tên DỰNG SẴN để thân lệnh CHÉP
+// ĐỔI KHUÔN S4-r2 (owner quyết 12/09 tại chốt DỪNG-VÁ): vị từ có MỘT NGUỒN —
+// `chuKyThat` trong lib/evidence-core.cjs, nơi giữ TRỌN ngữ pháp (khối frontmatter ·
+// luật cột của dấu fence · cách viết khoá · bảng giữ-chỗ · bốn ca rỗng/vắng/
+// chỉ-ở-thân/không-giải-được). Ở ĐÂY không còn bảng và không còn biểu thức đọc
+// `human_signoff` nào: hai lượt chấm trước đã chứng bản dựng thứ hai lệch trong im
+// lặng dù có ma trận canh — nên khuôn đổi, không vá thêm một ca nữa.
+function signoffState(dir) {                 // { signed, warn }
+  let t;
+  try { t = readFileSync(path.join(dir, 'evidence-report.md'), 'utf8'); }
+  catch (e) { return { signed: false, warn: e.code === 'ENOENT' ? '' : `không đọc được báo cáo: ${e.code}` }; }
+  const r = chuKyThat(t);
+  // `warn` của nguồn nói về HÌNH DẠNG tệp; thêm tên hồ sơ vì nguồn không biết
+  // nó đang đọc hồ sơ nào, mà người đọc thẻ thì cần biết phải mở cái nào.
+  return { signed: r.signed, warn: r.warn ? `${path.basename(dir)}: ${r.warn}` : '' };
+}
 // MỌI lối hỏng về cùng một khoá — gom về một cửa duy nhất.
 const pushHong = obj => broken.push(g('ho-so-hong', obj));
 // MỘT từ vựng verdict cho MỌI nhánh: nhánh `verified` gọi tên giá trị lạ trong
@@ -249,8 +273,13 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     // tồn tại rồi đọc thẳng veto_state, nên đặt sau `continue` là hồ sơ có cửa
     // veto mở mà status hỏng biến khỏi thẻ trong khi lưới vẫn đếm — đúng lớp
     // «thẻ đếm 2 lưới đếm 16» mà hồ sơ này sinh ra để giết, chỉ ở góc khác.
-    if ((frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo')
-      vetoOpen.push({ slug, status: (frontmatterField(cTxt, 'status') || '').toLowerCase() });
+    if ((frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo') {
+      // Đọc chữ ký NGAY ở đây, không qua readEvidence(): hàm đó pushHong và đổi
+      // ô của slug, trong khi cửa veto phải trả lời được cả cho hồ sơ status hỏng.
+      const ss = signoffState(dir);
+      vetoOpen.push({ slug, status: (frontmatterField(cTxt, 'status') || '').toLowerCase(),
+                      humanSignoff: ss.signed, signoffWarn: ss.warn });
+    }
     const statusProblem = fieldProblem('contract.md', cTxt, 'status');
     if (statusProblem) { pushHong({ slug, ...statusProblem }); continue; }
     const status = frontmatterField(cTxt, 'status').toLowerCase();
@@ -546,4 +575,7 @@ if (map.present) {
   } catch { map.fresh = null; }
 }
 
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, map, discovery, broken });
+// Danh sách DỰNG SẴN cho thân lệnh CHÉP — thẻ không tự lọc `vetoOpen`, nhờ vậy
+// phép đo máy chấm đúng danh sách tên mà thẻ in ra (hồ sơ cua-veto-sau-chu-ky).
+const vetoOpenUnsigned = vetoOpen.filter(v => !v.humanSignoff).map(v => v.slug);
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, broken });

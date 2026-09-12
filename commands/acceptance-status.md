@@ -33,8 +33,10 @@ Print a status table for every feature in this repository (or under
 |---|---|---|---|
 | login-flow | T2 | chờ chữ ký — Cổng Bằng chứng | người: đọc bằng chứng rồi ký |
 
-4. `vetoOpen` có phần tử → dưới bảng in TÊN từng hồ sơ còn cửa veto mở; đây là
-   cùng con số lưới trước-merge in ra.
+4. `vetoOpenUnsigned` có phần tử → dưới bảng in TÊN từng hồ sơ trong danh sách
+   đó, nguyên văn — KHÔNG tự lọc `vetoOpen`. Máy quét dựng sẵn danh sách, lệnh
+   chỉ CHÉP. Đây là cùng tập tên lưới trước-merge in ra. Hồ sơ đã có chữ ký
+   người không hiện ở mục này: chữ ký Cổng Bằng chứng đóng cửa veto.
 5. **Hai trạng thái kết KHÔNG được gộp một chữ.** `signed-off` là người ký;
    `machine-cleared` là máy đã thông (làn V xanh-sạch, không chữ ký, cửa veto
    theo `veto_state`). Máy quét đã trả hai nhãn khác nhau — in nguyên văn, đừng
