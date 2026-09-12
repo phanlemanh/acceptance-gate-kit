@@ -8,7 +8,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d70dfcb6148a545265ea3371092ad263ee800072
+verified_commit: 72a571f7b4e050421774b7443c8c0553d2fd65c1
 human_signoff: Phan Le Manh 2026-09-12
 ---
 
@@ -211,3 +211,7 @@ none — không có eval nào chạy nhiều lần (runs > 1) trong vòng này.
 Round 4: 13/13 eval máy (E1–E12, E14) + 5 lệnh suite hồi quy đều PASS cơ học (exit 0); verdict tổng vẫn REJECT vì scope-triage xác nhận 8 phát hiện THẬT khớp AC trong hợp đồng (2 lỗ AC-13 nghiêm trọng: cờ NARROW_NET_BLIND/blind-note bị nuốt qua subshell hoặc không được đặt ở `signoff_that`, khiến lưới im lặng chạy bằng bản lùi hẹp hơn hoặc báo sai hồ sơ đã ký là "còn veto"; cộng 5 lỗ đo-không-gắn-vào-vật ở AC-1/AC-7/AC-8/AC-11 nơi chiều đỏ của chan-*.mjs chỉ so số lượng, dùng assertion âm-tính-một-mình, hoặc `|| ''` che ca NOTE biến mất) — quay lại triển khai để vá đúng lớp trước khi verify lại.
 Round 5: 12/12 eval máy (E1–E12; AC-13/E14 đã rút khỏi hợp đồng) PASS cơ học (exit 0); 4/5 lệnh suite hồi quy PASS, lệnh `bash tests/plugins/run-tests.sh` ĐỎ (P93 một-nguồn: bảng luật khớp từng ký tự + thân khuôn và CAP MARKER duy nhất toàn kho — không gắn AC nào của hợp đồng này) → verdict tổng REJECT. Bước phân loại phạm vi (scope-triage) KHÔNG chạy được ở lượt này nên máy KHÔNG tự sửa lỗi nào; toàn bộ 9 phát hiện (2 trong hợp đồng, 6 ngoài hợp đồng, 1 chưa phân loại) chuyển thẳng vào review-findings.md cho người xem lại trước khi quyết.
 Round 6: 12/12 eval máy (E1–E12) PASS cơ học (exit 0); 5/5 lệnh suite hồi quy PASS (lệnh `bash tests/plugins/run-tests.sh` đã xanh lại, không còn kẹt ở P93 như round 5). Bước phân loại phạm vi (scope-triage) LẠI không chạy được ở lượt này nên máy KHÔNG tự sửa lỗi nào; 6 phát hiện xác nhận trong lượt review (1 trong hợp đồng — AC-6 vế (0) chỉ quét một tệp scripts/start-scan.mjs cho biểu thức đọc human_signoff riêng trong khi scripts/pre-merge-check.sh vẫn giữ hai ngữ pháp cũ sống sót; 4 ngoài hợp đồng — cờ NARROW_NET_BLIND mất qua subshell + signoff_that không đặt cờ khi thiếu engine (làn AC-13 đã rút, "known limits" đã khai trong Contract Notes) và DV5u-mutant tự chép thân luật thay vì gọi qua nó; 1 chưa phân loại — ngữ pháp đọc human_signoff thứ ba ở pre-merge-check.sh:1175 do bước triage chết không kịp xếp hạng) chuyển toàn bộ vào review-findings.md; verdict tổng PENDING-JUDGMENT, người xem lại toàn bộ trước khi ký.
+
+### Re-pin lần 1 — 2026-09-12, do hoá cũ do chính commit chữ ký
+run_id: repin-20260912T142208Z-69841
+sha: 72a571f7b4e050421774b7443c8c0553d2fd65c1 · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
