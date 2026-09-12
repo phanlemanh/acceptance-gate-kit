@@ -186,6 +186,16 @@ export function runPremerge(repo, kitRoot = repo) {
   return { out: r.slice(0, i), code: Number(r.slice(i + 6).trim()) };
 }
 
+// Chạy lưới với BASE tuỳ chọn — luật chiều ghi-ngược chỉ xét slug có trong diff
+// PR, nên hai ca «da-veto → mo» và «gỡ khoá» phải so với một commit TRƯỚC đó.
+export function runPremergeBase(repo, base, kitRoot = repo) {
+  const r = execFileSync('bash', ['-c',
+    `cd "${repo}" && bash "${kitRoot}/scripts/pre-merge-check.sh" . --base "${base}" 2>&1; echo "__MA__$?"`],
+    { encoding: 'utf8', maxBuffer: 1e8 });
+  const i = r.lastIndexOf('__MA__');
+  return { out: r.slice(0, i), code: Number(r.slice(i + 6).trim()) };
+}
+
 export function runScan(repo, kitRoot = repo) {
   return JSON.parse(execFileSync('node',
     [path.join(kitRoot, 'scripts/start-scan.mjs'), '--root', repo],

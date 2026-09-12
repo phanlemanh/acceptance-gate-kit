@@ -1389,6 +1389,11 @@ if [ -d "$ACC" ]; then
         echo "VIOLATION [$slug]: veto_state=da-veto chưa xử — owner đã veto, hồ sơ không được merge ở trạng thái này. Xử bằng một trong hai đường rồi ghi entry sổ quyết định: quay hồ sơ về status draft để làm lại phạm vi, hoặc owner duyệt tay (approved_by)."
         violations=$((violations+1)) ;;
     esac
+    # Trả nhãn tạm về ngay sau `case`: `mo-da-ky` chỉ sống ĐÚNG trong phép đếm ở
+    # trên. Để nó chảy tiếp thì thông điệp của luật ghi-ngược in «da-veto ->
+    # mo-da-ky» — một nhãn nội bộ rò ra câu nói với người, và đó là ĐỔI một câu
+    # chặn chứ không còn là đổi lời của cửa veto (chân luat-lan-can bắt sống).
+    if [ "$vstate" = "mo-da-ky" ]; then vstate="mo"; fi
     # chiều ghi-ngược — chỉ xét được khi dựng nổi phạm vi diff
     if [ "$DIFF_READY" -eq 1 ] && slug_in_diff "$slug"; then
       base_c="$(git -C "$ROOT" show "$BASE_SHA:_acceptance/$slug/contract.md" 2>/dev/null || true)"
