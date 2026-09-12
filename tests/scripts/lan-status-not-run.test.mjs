@@ -73,7 +73,11 @@ function dungKhoTam(opts) {
   const ws = path.join(dir, '_acceptance', 's1');
   fs.mkdirSync(ws, { recursive: true });
   // config tối thiểu: MỘT suite no-op (feature_loop.suite_keys trỏ nó).
-  fs.writeFileSync(path.join(dir, '_acceptance', 'config.yaml'),
+  // opts.configText ghi đè (Vòng sửa S4-r1, mục AC-10): chân TỰ SOI chạy làn
+  // trên CHÍNH bản khai của hồ sơ này, mà mọi cmd ở đó là `config:…` trỏ khoá
+  // của kho kit — kho tạm phải có config giải được các khoá ĐÓ, nếu không làn
+  // die exit 2 trước khi đọc trường trạng-thái nào.
+  fs.writeFileSync(path.join(dir, '_acceptance', 'config.yaml'), opts.configText ||
     'schema_version: 1\nfeature_loop:\n  suite_keys:\n    - executors.script.noop\nexecutors:\n  script:\n    noop: true\n');
   const tepDau = path.join(dir, 'danh-dau.txt');
   let evalsText;
@@ -109,8 +113,12 @@ function dungKhoTam(opts) {
   // không thuộc runIds, và fixture này luôn dừng ở notRunConflicts TRƯỚC khi
   // chạm recheck-evidence nên không cần run-log khớp.
   const runIds = opts.xungDot ? [] : core.machineEvalIds(evalsText);
+  // opts.verifier đi CÙNG opts.configText: khối Evidence phải trỏ một khoá
+  // config GIẢI ĐƯỢC trong config.yaml của chính kho tạm, nếu không recheck
+  // (bước tự kiểm bên trong làn ở lượt --write) đỏ L2 SUBSTANCE.
+  const verifier = opts.verifier || 'config:executors.script.noop';
   const khoiEvidence = (ids) => ids.map(id =>
-    `- eval: ${id}\n  run_id: seed-${id}\n  exit_code: 0\n  verifier: config:executors.script.noop\n  verified_at: 2026-09-11\n\n`).join('');
+    `- eval: ${id}\n  run_id: seed-${id}\n  exit_code: 0\n  verifier: ${verifier}\n  verified_at: 2026-09-11\n\n`).join('');
   const evidenceBody = opts.xungDot
     ? '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n' +
       '## Evidence\n\n' + khoiEvidence(['E1', 'E2']) + '## Iterations\n\nRound 1 — PASS.\n'
@@ -222,6 +230,69 @@ function pinThieu(idThieu, kho) {
   return { run_id: 'lsnr-l03-doc', sha, ts: '2026-09-12T00:00:00Z', evals_exit };
 }
 
+// ── Vòng sửa S4-r1 (12/09/2026): QUAN HỆ hai đường thi hành ────────────────
+// AC-9 khai «When CẢ HAI đường thi hành đọc chúng» và AC-10 «When hai bên rút
+// tập id» — gọi hàm bên ĐỌC một mình là đo nửa lời hứa (bên VIẾT có thể trôi:
+// ví dụ danh sách trường của parseEvals ở repin-lane.mjs không còn mang trường
+// trạng-thái, mọi ca chỉ-gọi-hàm vẫn xanh). `haiDuong` cho MỘT văn bản khai đi
+// qua cả hai: (a) core.machineEvalIds trên chính văn bản đó, (b) LÀN THẬT chạy
+// trên một kho do MÃ SINH mang đúng văn bản đó, tập id rút từ khoá `evals_exit`
+// mà làn GHI ra (đầu ra quan sát được của bên viết, không suy diễn từ input).
+// Không `--write`: ca chỉ cần tập id, và kho tạm giữ nguyên.
+function haiDuong(text) {
+  const benDoc = core.machineEvalIds(text);
+  const kho = dungKhoTam({ evals: text });
+  const r = chayLan(kho, []);
+  if (r.exit !== 0) fail(`haiDuong: làn phải xanh trên bản khai đang đo, nhận exit ${r.exit}: ${String(r.stderr).slice(-300)}`);
+  if (!r.slugs || !r.slugs.s1) fail('haiDuong: làn không in slugs.s1 — không rút được tập id bên GHI');
+  return { benDoc, benGhi: Object.keys(r.slugs.s1.evals_exit) };
+}
+
+// ── Bộ đọc NGƯỜI-ĐỌC của mục Re-pin (AC-6): rút mục `### Re-pin` CUỐI rồi lấy
+// ĐÚNG dòng `sha:` trong mục đó. Bộ đọc này khác hẳn JSON.parse của dòng log
+// (AC-6 đòi «hai chỗ đọc bằng hai bộ đọc khác nhau») và dùng CÙNG biểu thức rút
+// mục với recheck-evidence.cjs / timUngVienDeTiem bên dưới — không phát minh
+// luật đọc thứ ba. Trả null khi không có mục nào, hoặc mục cuối không có đúng
+// một dòng `sha:` (ca gọi fail có tên, không đọc nhầm dòng khác).
+function dongShaMucRepinCuoi(rep) {
+  const secRe = /^###\s+Re-pin\b[^\n]*\n([\s\S]*?)(?=\n#{1,3}\s|$(?![\s\S]))/gm;
+  const than = [];
+  let m;
+  while ((m = secRe.exec(rep)) !== null) than.push(m[1]);
+  if (!than.length) return null;
+  const dong = than[than.length - 1].split('\n').filter(l => /^sha\s*:/.test(l));
+  return dong.length === 1 ? dong[0] : null;
+}
+// Tập id trong hậu tố nói-ra của MỘT dòng `sha:`, THEO THỨ TỰ đã in. `null` =
+// hậu tố VẮNG HẲN (khác `[]` = hậu tố có mà không id nào) — hai trạng thái này
+// là hai vế khác nhau của AC-6 nên không được nhập một.
+function idHauTo(dongSha) {
+  const m = /· không chạy theo hồ sơ:([^·\n]*)/.exec(String(dongSha));
+  if (!m) return null;
+  return m[1].trim().split(/\s*,\s*/).filter(Boolean);
+}
+
+// ── config.yaml no-op giải ĐÚNG các khoá `config:` mà một bản khai trỏ tới ──
+// Dùng cho chân TỰ SOI của AC-10: bản khai của chính hồ sơ này không được sửa
+// một byte nào, nhưng kho tạm không có bộ ca của kit — nên mọi khoá `config:`
+// được giải thành `true` (lệnh no-op) và suite_keys trỏ khoá đầu tiên. Cây khoá
+// dựng từ CHÍNH văn bản khai (rút bằng biểu thức trên các dòng cmd), không gõ
+// tay danh sách khoá — bản khai thêm một eval mới là config tự theo.
+function configNoop(evalsText) {
+  const khoa = [...new Set([...String(evalsText).matchAll(/^\s*cmd:\s*config:(\S+)/gm)].map(m => m[1]))];
+  if (!khoa.length) fail('configNoop: bản khai không có cmd `config:` nào — gọi sai chỗ');
+  const cay = {};
+  for (const k of khoa) {
+    let cur = cay;
+    const seg = k.split('.');
+    seg.forEach((s, i) => { if (i === seg.length - 1) cur[s] = true; else cur = (cur[s] = cur[s] || {}); });
+  }
+  const emit = (o, lv) => Object.entries(o).map(([k, v]) => v === true
+    ? `${'  '.repeat(lv)}${k}: true\n`
+    : `${'  '.repeat(lv)}${k}:\n${emit(v, lv + 1)}`).join('');
+  return { text: `schema_version: 1\nfeature_loop:\n  suite_keys:\n    - ${khoa[0]}\n${emit(cay, 0)}`, khoa };
+}
+
 // ── Mũi tiêm thường trực (rà cuối 12/09/2026, Important 4) ────────────────
 // Nhánh này CỘNG một răng «mọi ca phải có ≥1 mũi tiêm» cho tệp ca lớp-cũ
 // (GL09) nhưng tệp ca MỚI lại không có mũi tiêm thường trực nào ngoài chiều đỏ
@@ -275,6 +346,25 @@ const TIEM_KHONG_CHUAN_HOA = [[CORE_REL,
 const TIEM_GO_RANG_MA_DO = [[CORE_REL,
   '  const doTrongOBoQua = boQua.filter(i => has(i) && ex[i] !== 0);',
   '  const doTrongOBoQua = [];']];
+// ── Vòng sửa S4-r1: mũi tiêm cho CHÍNH các phép đo vừa mạnh lên ────────────
+// Bốn phát hiện S4 vòng 1 đều là «phép đo yếu hơn lời hứa», nên mỗi phép đo mới
+// phải có mũi tiêm riêng chứng minh nó phân biệt được đúng cái yếu đó — không
+// chỉ dựa vào mũi tiêm cũ (mũi tiêm cũ đã ĐỎ trước cả khi sửa).
+// (a) AC-2: ô không-chạy chỉ được tôn trọng ở lượt KHÔNG --write — lượt GHI thi
+//     hành nó. Bản trước vá của ca L02 (chỉ chạy lượt không --write) sẽ XANH.
+const TIEM_BO_QUA_CHI_KHI_KHONG_GHI = [[LANE_REL,
+  '    .filter(e => core.isRepinMachineEval(e))',
+  '    .filter(e => (flags.write ? true : core.isRepinMachineEval(e)))']];
+// (b) AC-6: hậu tố nói-ra in tập id ĐÃ SẮP thay vì theo thứ tự bản khai —
+//     một assert substring trên trọn báo cáo không phân biệt được.
+const TIEM_HAU_TO_SAP_LAI = [[LANE_REL, THAN_HAU_TO,
+  "  const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${[...boQua].sort().join(', ')}` : '';"]];
+// (c) AC-9/AC-10: bên VIẾT trôi khỏi bên đọc — danh sách trường của parseEvals ở
+//     làn không còn mang trường trạng-thái, nên làn CHẠY ô đã khai không-chạy.
+//     Ca chỉ gọi hàm bên đọc sẽ XANH; ca đi qua cả hai đường phải ĐỎ.
+const TIEM_BEN_GHI_MAT_TRUONG = [[LANE_REL,
+  "  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'status']);",
+  "  const evalRecords = parseEvals(evalsText, ['executor', 'cmd']);"]];
 // Hoàn nguyên fail-OPEN của vế hai (rà cuối 12/09/2026, Important 2).
 const TIEM_FAIL_OPEN = [[CORE_REL,
   '  if (reportText == null) return { xungDot: [], khongDoiChieuDuoc: skipped.slice() };',
@@ -291,16 +381,34 @@ test('L01', 'hai bên trả CÙNG một tập id', () => {
   { pin: 'hai bên trả tập khác nhau', make: (c) => tiemBoMay(TIEM_BEN_GHI, c) },
 ]);
 
-test('L02', 'ô khai không-chạy KHÔNG được thi hành', () => {
+test('L02', 'ô khai không-chạy KHÔNG được thi hành (cả hai lượt: không và CÓ --write)', () => {
   const kho = dungKhoTam({ danhDau: true });                 // cmd của ô ghi một tệp dấu
+  // ── Lượt 1: KHÔNG --write ────────────────────────────────────────────────
   const r = chayLan(kho, []);
-  if (r.exit !== 0) fail(`L02 làn phải xanh, nhận exit ${r.exit}`);
-  if (fs.existsSync(kho.tepDau)) fail('L02 ô không-chạy ĐÃ BỊ THI HÀNH — tệp dấu tồn tại');
-  const kho2 = dungKhoTam({ danhDau: true, goStatus: true }); // đối chứng dương
+  if (r.exit !== 0) fail(`L02 làn phải xanh (lượt KHÔNG --write), nhận exit ${r.exit}: ${String(r.stderr).slice(-300)}`);
+  if (fs.existsSync(kho.tepDau)) fail('L02 ô không-chạy ĐÃ BỊ THI HÀNH — tệp dấu tồn tại (lượt KHÔNG --write)');
+  const ghi1 = Object.keys(r.slugs.s1.evals_exit);
+  if (ghi1.join(',') !== 'E1') fail(`L02 evals_exit lượt KHÔNG --write phải thiếu đúng E2 và đủ E1, nhận [${ghi1}]`);
+  // ── Lượt 2: CÓ --write, CÙNG kho (AC-2 khai «chạy cả hai lượt có và không
+  // --write»; vòng sửa S4-r1: trước đây phần «có --write» là lời khai chứ chưa
+  // phải phép đo — không ca nào soi tệp dấu ở lượt GHI).
+  const w = chayLan(kho, [], { write: true });
+  if (w.exit !== 0) fail(`L02 làn phải xanh (lượt CÓ --write), nhận exit ${w.exit}: ${String(w.stderr).slice(-300)}`);
+  if (fs.existsSync(kho.tepDau)) fail('L02 ô không-chạy ĐÃ BỊ THI HÀNH — tệp dấu tồn tại (lượt CÓ --write)');
+  const ghi2 = Object.keys(w.slugs.s1.evals_exit);
+  if (ghi2.join(',') !== 'E1') fail(`L02 evals_exit lượt CÓ --write phải thiếu đúng E2 và đủ E1, nhận [${ghi2}]`);
+  // ── Đối chứng dương cùng kho: gỡ dòng khai → ô CHẠY, ở CẢ HAI lượt ───────
+  const kho2 = dungKhoTam({ danhDau: true, goStatus: true });
   chayLan(kho2, []);
   if (!fs.existsSync(kho2.tepDau)) fail('L02 đối chứng dương hỏng: gỡ lời khai mà ô vẫn không chạy — ca không phân biệt được gì');
+  const kho3 = dungKhoTam({ danhDau: true, goStatus: true });
+  const w3 = chayLan(kho3, [], { write: true });
+  if (!fs.existsSync(kho3.tepDau)) fail('L02 đối chứng dương hỏng ở lượt CÓ --write: gỡ lời khai mà ô vẫn không chạy');
+  const ghi3 = Object.keys(w3.slugs.s1.evals_exit);
+  if (ghi3.join(',') !== 'E1,E2') fail(`L02 đối chứng dương: gỡ lời khai thì evals_exit phải đủ E1,E2 — nhận [${ghi3}]`);
 }, [
   { pin: 'ĐÃ BỊ THI HÀNH', make: (c) => tiemBoMay(TIEM_BEN_GHI, c) },
+  { pin: '(lượt CÓ --write)', make: (c) => tiemBoMay(TIEM_BO_QUA_CHI_KHI_KHONG_GHI, c) },
 ]);
 
 test('L03', 'bên đọc nhận pin thiếu id đã khai, vẫn chặn id CHẠY ĐƯỢC bị thiếu', () => {
@@ -329,16 +437,37 @@ test('L06', 'pin nói ra ô không đo ở CẢ HAI chỗ', () => {
   if (w1.exit !== 0) fail(`L06 lượt ghi (E2 khai không-chạy) phải xanh tuyệt đối, nhận exit ${w1.exit}: ${w1.stderr}`);
   const dong = JSON.parse(docDongCuoi(kho, 'run-log.jsonl'));
   if (JSON.stringify(dong.evals_not_run) !== JSON.stringify(['E2'])) fail(`L06 khoá JSON sai: ${JSON.stringify(dong.evals_not_run)}`);
+  // Vế người-đọc là một QUAN HỆ, không phải «chuỗi có mặt đâu đó» (vòng sửa
+  // S4-r1): hậu tố phải nằm trên ĐÚNG dòng `sha:` của mục Re-pin MỚI NHẤT, và
+  // mang ĐÚNG tập id THEO ĐÚNG thứ tự bản khai — một hậu tố `E2, E9` hay một
+  // hậu tố rơi ở mục Re-pin CŨ đều phải ĐỎ.
   const rep = docReport(kho);
-  if (!/· không chạy theo hồ sơ: E2/.test(rep)) fail('L06 dòng sha thiếu hậu tố nói-ra');
+  const dongSha = dongShaMucRepinCuoi(rep);
+  if (!dongSha) fail(`L06 không rút được đúng MỘT dòng sha: trong mục Re-pin cuối của báo cáo:\n${rep.slice(-300)}`);
+  const hauTo = idHauTo(dongSha);
+  if (hauTo === null) fail(`L06 dòng sha thiếu hậu tố nói-ra: ${dongSha}`);
+  if (JSON.stringify(hauTo) !== JSON.stringify(['E2'])) fail(`L06 hậu tố trên dòng sha: sai tập id: ${JSON.stringify(hauTo)}`);
+
+  // ── Thứ tự: HAI ô khai không-chạy, id cố ý NGƯỢC thứ tự chữ cái trong bản
+  // khai (E9 trước E2) — một bên in theo thứ tự đã sắp sẽ ra ['E2','E9'] và ĐỎ.
+  const thuTu = dungKhoTam({ evals: evalsYaml([{ id: 'E1' }, { id: 'E9', status: 'not-run' }, { id: 'E2', status: 'not-run' }]) });
+  const wTu = chayLan(thuTu, [], { write: true });
+  if (wTu.exit !== 0) fail(`L06 lượt ghi (hai ô khai không-chạy) phải xanh tuyệt đối, nhận exit ${wTu.exit}: ${wTu.stderr}`);
+  const dTu = JSON.parse(docDongCuoi(thuTu, 'run-log.jsonl'));
+  if (JSON.stringify(dTu.evals_not_run) !== JSON.stringify(['E9', 'E2'])) fail(`L06 khoá JSON sai thứ tự bản khai: ${JSON.stringify(dTu.evals_not_run)}`);
+  const hauToTu = idHauTo(dongShaMucRepinCuoi(docReport(thuTu)));
+  if (JSON.stringify(hauToTu) !== JSON.stringify(['E9', 'E2'])) fail(`L06 hậu tố trên dòng sha: sai tập/thứ tự id: ${JSON.stringify(hauToTu)}`);
+
   const sach = dungKhoTam({});                       // hồ sơ mặc định: 0 ô khai không-chạy
   const w2 = chayLan(sach, [], { write: true });
   if (w2.exit !== 0) fail(`L06 lượt ghi (0 ô khai không-chạy) phải xanh tuyệt đối, nhận exit ${w2.exit}: ${w2.stderr}`);
   const d2 = JSON.parse(docDongCuoi(sach, 'run-log.jsonl'));
   if ('evals_not_run' in d2) fail('L06 hồ sơ không có ô nào mà pin vẫn mang khoá');
   if (/không chạy theo hồ sơ/.test(docReport(sach))) fail('L06 hậu tố xuất hiện khi không có ô nào');
+  if (idHauTo(dongShaMucRepinCuoi(docReport(sach))) !== null) fail('L06 dòng sha: của mục Re-pin cuối vẫn mang hậu tố khi không có ô nào');
 }, [
   { pin: 'thiếu hậu tố nói-ra', make: (c) => tiemBoMay(TIEM_BO_HAU_TO, c) },
+  { pin: 'sai tập/thứ tự id', make: (c) => tiemBoMay(TIEM_HAU_TO_SAP_LAI, c) },
 ]);
 
 test('L04', 'khai không-chạy mà báo cáo đã ký có mã thoát → dừng, chưa ghi byte nào', () => {
@@ -388,37 +517,73 @@ test('L09', 'chuẩn hoá bảy hình dạng lời khai', () => {
   let n = 0;
   for (const [raw, phaiLoai] of DANG) {
     const text = evalsYaml([{ id: 'E1' }, { id: 'E2', status: raw }]);
-    const ids = core.machineEvalIds(text);
-    const biLoai = !ids.includes('E2');
-    if (biLoai !== phaiLoai) fail(`L09 dạng ${JSON.stringify(raw)}: phải ${phaiLoai ? 'BỊ LOẠI' : 'GIỮ'} mà không — ids=${ids.join(',')}`);
+    // CẢ HAI đường thi hành trên cùng văn bản (AC-9: «When cả hai đường thi
+    // hành đọc chúng») — bên ĐỌC gọi hàm, bên VIẾT là làn THẬT chạy trên kho
+    // mã-sinh, tập id lấy từ khoá evals_exit làn ghi ra.
+    const { benDoc, benGhi } = haiDuong(text);
+    const biLoai = !benDoc.includes('E2');
+    if (biLoai !== phaiLoai) fail(`L09 dạng ${JSON.stringify(raw)}: phải ${phaiLoai ? 'BỊ LOẠI' : 'GIỮ'} mà không — ids=${benDoc.join(',')}`);
+    const biLoaiGhi = !benGhi.includes('E2');
+    if (biLoaiGhi !== phaiLoai) fail(`L09 dạng ${JSON.stringify(raw)} ở ĐƯỜNG GHI: phải ${phaiLoai ? 'BỊ LOẠI' : 'GIỮ'} mà không — evals_exit=[${benGhi}]`);
+    if (benDoc.join(',') !== benGhi.join(',')) fail(`L09 dạng ${JSON.stringify(raw)}: hai đường thi hành trả tập khác nhau — đọc=[${benDoc}] ghi=[${benGhi}]`);
     n++;
   }
   if (n !== SO_DANG_KHAI) fail(`L09 số ô lệch: chạy ${n}, hợp đồng khai ${SO_DANG_KHAI}`);
 }, [
   { pin: 'phải BỊ LOẠI', make: (c) => tiemBoMay(TIEM_KHONG_CHUAN_HOA, c) },
+  { pin: 'ở ĐƯỜNG GHI', make: (c) => tiemBoMay(TIEM_BEN_GHI_MAT_TRUONG, c) },
 ]);
 
 test('L10', 'chỉ TRƯỜNG thật mới tính, bốn chỗ khác không', () => {
   const base = evalsYaml([{ id: 'E1' }, { id: 'E2' }]);
+  // Phép đếm phải có MỘT hằng số NGOÀI bảng (vòng sửa S4-r1, AC-10 «số assert
+  // bằng số chỗ»): trước đây `CHO` có bốn phần tử và chỗ thứ năm (TRƯỜNG thật)
+  // kiểm riêng bên dưới, không hằng số nào ghim tổng — đã ĐO: xoá phần tử
+  // `paths` khỏi bảng thì ca vẫn in «1/1 ca xanh», mất assert lặng lẽ. Nay cả
+  // năm chỗ nằm TRONG bảng, mỗi hàng khai luôn TẬP id mong đợi, và SO_CHO_KHAI
+  // ghim con số của hợp đồng ngoài bảng.
+  const SO_CHO_KHAI = 5;   // AC-10: chú thích · thân folded · thân literal · danh sách paths · TRƯỜNG thật
   const CHO = [
-    ['comment', base.replace('evals:', '# status: not-run\nevals:')],
-    ['folded', base.replace('    cmd: true\n', '    cmd: true\n    expected: >-\n      gỡ dòng status: not-run đi thì ô chạy\n')],
-    ['literal', base.replace('    cmd: true\n', '    cmd: true\n    expected: |\n      status: not-run\n')],
-    ['paths', base.replace('    cmd: true\n', '    cmd: true\n    paths:\n      - "docs/status: not-run.md"\n')],
+    ['comment', base.replace('evals:', '# status: not-run\nevals:'), ['E1', 'E2']],
+    ['folded', base.replace('    cmd: true\n', '    cmd: true\n    expected: >-\n      gỡ dòng status: not-run đi thì ô chạy\n'), ['E1', 'E2']],
+    ['literal', base.replace('    cmd: true\n', '    cmd: true\n    expected: |\n      status: not-run\n'), ['E1', 'E2']],
+    ['paths', base.replace('    cmd: true\n', '    cmd: true\n    paths:\n      - "docs/status: not-run.md"\n'), ['E1', 'E2']],
+    ['trường thật', evalsYaml([{ id: 'E1' }, { id: 'E2', status: 'not-run' }]), ['E1']],
   ];
-  for (const [ten, text] of CHO) {
-    const ids = core.machineEvalIds(text);
-    if (ids.length !== 2) fail(`L10 chỗ ${ten}: tập id phải còn 2, nhận ${ids.length} (${ids.join(',')})`);
+  if (CHO.length !== SO_CHO_KHAI) fail(`L10 bảng ca lệch bản khai: hợp đồng khai ${SO_CHO_KHAI} chỗ, bảng có ${CHO.length}`);
+  let n = 0;
+  for (const [ten, text, mong] of CHO) {
+    // CẢ HAI đường thi hành cho MỖI chỗ (AC-10: «When hai bên rút tập id») —
+    // bên đọc gọi hàm, bên viết là làn THẬT; trước đây chỉ có bên đọc.
+    const { benDoc, benGhi } = haiDuong(text);
+    if (benDoc.join(',') !== mong.join(',')) fail(`L10 chỗ ${ten}: tập id phải còn ${mong.length} (${mong.join(',')}), nhận ${benDoc.length} (${benDoc.join(',')})`);
+    if (benGhi.join(',') !== mong.join(',')) fail(`L10 chỗ ${ten} ở ĐƯỜNG GHI: tập id phải còn ${mong.length} (${mong.join(',')}), nhận ${benGhi.length} (${benGhi.join(',')})`);
+    n++;
   }
-  const that = evalsYaml([{ id: 'E1' }, { id: 'E2', status: 'not-run' }]);
-  const ids = core.machineEvalIds(that);
-  if (ids.length !== 1 || ids[0] !== 'E1') fail(`L10 trường thật: phải còn đúng E1, nhận ${ids.join(',')}`);
-  // chân tự soi: bản khai CỦA CHÍNH hồ sơ này không khai ô nào là không-chạy
+  if (n !== SO_CHO_KHAI) fail(`L10 số chỗ lệch: chạy ${n}, hợp đồng khai ${SO_CHO_KHAI}`);
+
+  // ── Chân TỰ SOI: bản khai CỦA CHÍNH hồ sơ này, qua CẢ HAI đường ──────────
+  // Bên ĐỌC: machineEvalIdsSkipped. Bên GHI: LÀN THẬT chạy trên kho mã-sinh
+  // mang ĐÚNG văn bản đó (không sửa một byte của bản khai; chỉ config.yaml của
+  // kho tạm được sinh để giải các khoá `config:` thành lệnh no-op) — vật đo là
+  // khoá `evals_not_run` trên dòng pin làn GHI ra: phải VẮNG HẲN.
   const own = fs.readFileSync(path.join(SELF_ROOT, '_acceptance', 'lan-doc-status-not-run', 'evals.yaml'), 'utf8');
   const skipped = core.machineEvalIdsSkipped(own);
   if (skipped.length !== 0) fail(`L10 tự soi: bản khai của chính hồ sơ bị loại ${skipped.join(',')} — phải RỖNG`);
+  const cfgOwn = configNoop(own);
+  const khoOwn = dungKhoTam({ evals: own, configText: cfgOwn.text, verifier: `config:${cfgOwn.khoa[0]}` });
+  const wOwn = chayLan(khoOwn, [], { write: true });
+  if (wOwn.exit !== 0) fail(`L10 tự soi: làn trên bản khai của chính hồ sơ phải xanh, nhận exit ${wOwn.exit}: ${String(wOwn.stderr).slice(-400)}`);
+  const dOwn = JSON.parse(docDongCuoi(khoOwn, 'run-log.jsonl'));
+  if ('evals_not_run' in dOwn) fail(`L10 tự soi: dòng pin của bản khai chính hồ sơ mang evals_not_run=${JSON.stringify(dOwn.evals_not_run)} — phải VẮNG HẲN`);
+  if (Object.keys(dOwn.evals_exit).join(',') !== core.machineEvalIds(own).join(',')) fail(`L10 tự soi: hai đường thi hành trả tập khác nhau trên bản khai chính hồ sơ — ghi=[${Object.keys(dOwn.evals_exit)}] đọc=[${core.machineEvalIds(own)}]`);
 }, [
   { pin: 'tập id phải còn 2', make: (c) => tiemBoMay(TIEM_QUET_THEO_DONG, c) },
+  { pin: 'ở ĐƯỜNG GHI', make: (c) => tiemBoMay(TIEM_BEN_GHI_MAT_TRUONG, c) },
+  // Bảng chỗ-xuất-hiện teo đi MỘT phần tử (đúng mũi tiêm của phát hiện S4
+  // vòng 1: xoá `['paths', …]` khỏi bảng mà ca vẫn xanh) — hằng số SO_CHO_KHAI
+  // ngoài bảng phải bắt được, nên mũi tiêm sửa TỆP CA chứ không sửa bộ máy.
+  { pin: 'bảng ca lệch bản khai', make: () => tiemTepCa("['E1']],\n  ];", "['E1']],\n  ].slice(0, -1);", { LSNR_MUI_TIEM: '', LSNR_CASES: 'L10' }) },
 ]);
 
 // ── Task 5: đường đọc-cũ — bản TRƯỚC vá do WRITER THẬT của nó ghi ─────────
@@ -766,14 +931,16 @@ function tiemBoMay(tiem, c) {
   return { file: SELF_FILE, env: { LSNR_ROOT: dungCayTiem(tiem), LSNR_CASES: c.id, LSNR_TIEM: '1' } };
 }
 // Mũi tiêm TỆP CA: bản sao chính tệp này (đặt dưới TMP nên ROOT phải trỏ lại
-// bằng LSNR_ROOT), chạy ở chế độ kiểm mũi tiêm.
-function tiemTepCa(truoc, sau) {
+// bằng LSNR_ROOT), mặc định chạy ở chế độ kiểm mũi tiêm (L13). `env` ghi đè để
+// một mũi tiêm sửa BẢNG CA chạy đúng ca đó thay vì chế độ meta (mũi tiêm
+// SO_CHO_KHAI của L10, vòng sửa S4-r1).
+function tiemTepCa(truoc, sau, env) {
   const f = path.join(fs.mkdtempSync(path.join(TMP, 'lsnr-ca-')), 'ban-tiem.mjs');
   const goc = fs.readFileSync(SELF_FILE, 'utf8');
   const lan = goc.split(truoc).length - 1;
   if (lan !== 1) fail(`mũi tiêm vào tệp ca khớp ${lan} lần (cần đúng 1) — chuỗi neo đã trôi`);
   fs.writeFileSync(f, goc.replace(truoc, sau));
-  return { file: f, env: { LSNR_ROOT: SELF_ROOT, LSNR_MUI_TIEM: '1', LSNR_TIEM: '1' } };
+  return { file: f, env: { LSNR_ROOT: SELF_ROOT, LSNR_MUI_TIEM: '1', LSNR_TIEM: '1', ...(env || {}) } };
 }
 function chayMuiTiem(c) {
   for (const m of c.muiTiem) {
