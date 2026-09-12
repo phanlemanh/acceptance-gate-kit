@@ -5,7 +5,7 @@ slug: cua-veto-sau-chu-ky
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh (t3_paths)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-09-12T02:30:53Z
 design_doc: docs/superpowers/specs/2026-09-11-cua-veto-sau-chu-ky-design.md
@@ -159,6 +159,7 @@ người».
 - **RÚT AC-13, owner quyết 12/09 sau lượt chấm 4.** AC-13 («vắng engine thì bản lùi vẫn chặn VÀ lượt chạy in NOTE khai bản lùi») do MÁY tự thêm ở S4-r3, sau Cổng Phạm vi — owner chưa bao giờ duyệt nó. Nó là nguồn của 4 trên 9 phát hiện trong hợp đồng ở lượt 4. Đề bài owner giao là câu sai của cửa veto khi CÓ engine; làn vắng-engine là phạm vi máy tự kéo vào. Rút khỏi `## Criteria`, eval E14 gỡ theo; mã bản lùi và chân `lui-khong-engine` GIỮ NGUYÊN như phép đo thường trực, chỉ thôi mang tư cách tiêu chí. Hai lỗ còn lại của làn ấy khai ở Known limits dưới và có ô riêng.
 - **T3 nên Cổng Phạm vi và Gate 1.5 cần người** theo thiết kế, trần 4 lượt gọi người.
 - **Không có `opportunity.md`**, nên không có mục `## Đường đo`.
+- **Known limits — bốn mục ngoài hợp đồng, owner định đoạt tại Cổng 2 ngày 12/09: GHI KNOWN LIMITS, ship như hiện tại.** `Ngoài-1` lưới lùi sang bộ đọc chữ ký hẹp hơn mà không báo · `Ngoài-2` dòng NOTE khai «đang chạy suy giảm» không bao giờ in ra từ đường `chu_ky_gia_tri` · `Ngoài-3` hồ sơ ĐÃ ký bị báo lại là «owner chưa veto» · `Ngoài-4` chiều đỏ của DV5u chấm bản chép của chính luật thay vì chạy qua luật. Ba mục đầu chỉ xảy ra ở cây thiếu `node` hoặc thiếu `lib/evidence-core.cjs` — chi tiết và bán kính ở gạch «làn VẮNG ENGINE» dưới; mục thứ tư ở gạch «phép đo». Ô đã mở: `task_da1f3eac` (hai lỗ đường lùi) và `task_98fd6eea` (nới phép đo + `base_sig`), kèm gợi ý gộp vì cùng chạm `scripts/pre-merge-check.sh` mà tệp đó bị DV5 canh chỉ-được-thêm.
 - **Known limits — AC-6 vế (0) đo HẸP HƠN lời hứa (owner quyết 12/09 tại Cổng 2: ghi Known limits + ô, KHÔNG sửa trong vòng này).** Điều AC-6 hứa: không tệp nào dưới `scripts/` giữ bảng giữ-chỗ hay biểu thức đọc `human_signoff` riêng. Điều thật sự ĐO: vế BẢNG quét đúng lớp (mọi `.sh/.mjs/.cjs/.js` dưới `scripts/`); vế BIỂU THỨC chỉ điểm-case MỘT tệp `scripts/start-scan.mjs`. Cái KHÔNG đo mà đang vi phạm: `scripts/pre-merge-check.sh` dòng 839 (`front_field`) và dòng 1175 (`sed -n 's/^human_signoff:[[:space:]]*//p'` tính `base_sig`) — cả hai hẹp hơn ngữ pháp của nguồn `chuKyThat`. Hệ quả đã đo: hồ sơ mà bản base ký bằng `human_signoff = <tên>` cho `base_sig` rỗng → lưới in «NOTE: chữ ký MỚI trong diff» cho chữ ký đã có từ trước. **Không chặn ai** — chỉ một dòng NOTE sai — nên owner chọn ship kèm giới hạn này. Ô riêng đã mở cho lượt nới vế biểu thức ra cả lớp + sửa dòng 1175.
 - **Known limits — làn VẮNG ENGINE (đo thật ở lượt chấm 4, KHÔNG sửa trong vòng này):** khi lưới chạy ở cây thiếu `node` hoặc thiếu `lib/evidence-core.cjs`:
   - `chu_ky_gia_tri` (`scripts/pre-merge-check.sh:482`) lùi về `front_field` — ngữ pháp HẸP HƠN nguồn (chỉ nhận `human_signoff:`, không nhận `=`, không nhận hoa-thường hay khoảng trắng trước dấu) — và **không khai ra**: cờ `NARROW_NET_BLIND=1` nằm trong subshell của `signoff="$(chu_ky_gia_tri …)"` nên không tới được shell cha. Hệ quả: hồ sơ ký bằng `human_signoff = <tên>` bị chặn với lý do SAI («is empty»), không có NOTE nào nói lưới đang chạy suy giảm.
