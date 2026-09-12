@@ -16,7 +16,7 @@ WS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$WS/../.." && pwd)"
 export CVSCK_ROOT="$ROOT"
 
-TEN_CHAN="note-da-ky that-con-mo dong-tong giu-cho nhan-khong-dong dang-thuc khong-noi luat-lan-can cay-that van-ban"
+TEN_CHAN="note-da-ky that-con-mo dong-tong giu-cho nhan-khong-dong dang-thuc khong-noi luat-lan-can cay-that van-ban lui-khong-engine"
 CHAN=""
 [ "${1:-}" = "--chan" ] && CHAN="${2:-}"
 case " $TEN_CHAN " in
@@ -46,5 +46,6 @@ case "$CHAN" in
   khong-noi)        chay "chỉ đổi LỜI, không đổi CHẶN"          "$WS/chan-khong-noi.mjs" ;;
   luat-lan-can)     chay "năm luật chặn vẫn nổ trên hồ sơ đã ký" "$WS/chan-lan-can.mjs" ;;
   cay-that)         chay "cây thật của kit"                     "$WS/chan-cay-that.mjs" ;;
+  lui-khong-engine) chay "bản lùi + NOTE một nguồn"        "$WS/chan-lui-engine.mjs" ;;
   van-ban)          chay "thân lệnh · START-SCAN-KEYS · CONTEXT" "$WS/chan-van-ban.mjs" ;;
 esac

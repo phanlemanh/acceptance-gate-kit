@@ -259,6 +259,7 @@ executors:
     cvsck_dv5: node tests/scripts/additive-only.test.mjs
     cvsck_cay_that: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan cay-that
     cvsck_van_ban: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan van-ban
+    cvsck_lui_khong_engine: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan lui-khong-engine
     # Hai vế trong MỘT khoá: ca chạy độc lập xanh, VÀ suite scripts thật sự gọi nó
     # (vòng nạp `*.test.mjs` in dòng `=== <tên> ===`). Đo chỉ vế đầu là đo ca, không
     # đo việc nó có sống trong lưới thường trực hay không.

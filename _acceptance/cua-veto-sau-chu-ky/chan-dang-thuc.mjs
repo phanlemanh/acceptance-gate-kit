@@ -21,11 +21,22 @@ const MAU_CHU = F.placeholderPatterns().filter(p => /^[a-z]/i.test(p.mau)).map(p
 // Ngưỡng 3 phân biệt sạch trên cây hôm nay: nguồn 7/7, mọi tệp scripts/ khác 2/7.
 const demMau = txt => MAU_CHU.filter(m =>
   new RegExp(`(^|[^a-z0-9_-])${m.replace('/', '\\/')}([^a-z0-9_-]|$)`, 'i').test(txt)).length;
+// BẢN LÙI có MỐC (S4-r3) được miễn: luật chặn không được mất răng khi vắng engine,
+// nên bảng lùi ở lại — nhưng nó là BẢN CHIẾU, và chân `lui-khong-engine` chạy mọi
+// mẫu của nguồn qua chính đường đó. Cắt khối theo mốc TRƯỚC khi đếm; nếu tệp có
+// mốc mà cắt không ra nội dung thì báo ĐỎ (miễn trừ không được im lặng nuốt).
+const catBanLui = (txt, tep) => {
+  const m = txt.match(/# <<<BANG-LUI-GIU-CHO\n([\s\S]*?)\n# BANG-LUI-GIU-CHO>>>/);
+  if (!txt.includes('BANG-LUI-GIU-CHO')) return txt;
+  if (!m) { loi.push(`mốc BANG-LUI-GIU-CHO ở ${tep} hỏng — không cắt được khối bản lùi`); return txt; }
+  if (demMau(m[1]) < 3) loi.push(`khối bản lùi ở ${tep} không còn giữ bảng (${demMau(m[1])} mẫu) — miễn trừ đang che một khối rỗng`);
+  return txt.split(m[0]).join('');
+};
 const quetBang = (goc) => {
   const thuMuc = path.join(goc, 'scripts');
   return readdirSync(thuMuc)
     .filter(f => /\.(sh|mjs|cjs|js)$/.test(f))
-    .map(f => ({ tep: `scripts/${f}`, n: demMau(readFileSync(path.join(thuMuc, f), 'utf8')) }))
+    .map(f => ({ tep: `scripts/${f}`, n: demMau(catBanLui(readFileSync(path.join(thuMuc, f), 'utf8'), `scripts/${f}`)) }))
     .filter(x => x.n >= 3);
 };
 const mocBang = quetBang(F.ROOT);
@@ -48,6 +59,7 @@ const doc = () => {
   const { out } = F.runPremerge(repo);
   const j = F.runScan(repo);
   return {
+    out,
     luoi: new Set(F.tenDongTong(out)),
     quet: new Set(j.vetoOpenUnsigned || []),
     tapVeto: new Set((j.vetoOpen || []).map(v => v.slug)),
@@ -72,6 +84,18 @@ for (const c of o) {
 }
 const chenh = [...new Set([...d.luoi, ...d.quet])].filter(s => d.luoi.has(s) !== d.quet.has(s));
 if (chenh.length) loi.push(`lưới và máy quét chênh nhau ở: ${chenh.join(' ')}`);
+
+// LƯỚI KHÔNG ĐƯỢC TỰ MÂU THUẪN (S4-r3, lỗ ngữ pháp cuối): một hồ sơ vừa được tuyên
+// «đã đóng bằng chữ ký» vừa được tuyên «cửa veto vẫn mở» trong CÙNG một lượt nghĩa
+// là hai chỗ đọc chữ ký của chính lưới đang dùng hai ngữ pháp (chỗ này thấy chữ ký,
+// chỗ kia đọc ra rỗng). Đo trên MỌI ô, không riêng ô ngữ pháp lạ.
+for (const c of o) {
+  const dong = d.out.split('\n').filter(l => l.startsWith(`NOTE [${c.ten}]`));
+  const daDong = dong.some(l => l.includes(F.CAU_GHIM));
+  const vanMo = dong.some(l => l.includes('Cửa veto vẫn mở'));
+  if (daDong && vanMo)
+    loi.push(`lưới tự mâu thuẫn ở ô ${c.ten}: vừa nói «${F.CAU_GHIM}» vừa nói «Cửa veto vẫn mở» trong cùng lượt`);
+}
 if (loi.length) { console.error(loi.slice(0, 8).join(' | ')); process.exit(1); }
 
 // phá thử: +1 khi thêm hồ sơ chưa ký, +0 khi thêm hồ sơ đã ký
@@ -120,6 +144,21 @@ if (!(doiLuoi && doiQuet) || k2.ch.length !== 0) {
   process.exit(1);
 }
 
+// (iv) trả chỗ đọc chữ ký của luật Cổng 2 về front_field (ngữ pháp hẹp hơn nguồn)
+// → lưới tự mâu thuẫn ở ô khoá-dấu-bằng: một chỗ thấy chữ ký, chỗ kia đọc ra rỗng.
+const k4 = banSao('scripts/pre-merge-check.sh',
+  '  signoff="$(chu_ky_gia_tri "$report")"',
+  '  signoff="$(front_field "$report" human_signoff)"');
+const mauThuan = (out) => o.filter(c => {
+  const dong = out.split('\n').filter(l => l.startsWith(`NOTE [${c.ten}]`));
+  return dong.some(l => l.includes(F.CAU_GHIM)) && dong.some(l => l.includes('Cửa veto vẫn mở'));
+}).map(c => c.ten);
+const mt4 = mauThuan(F.runPremerge(k4.goc).out);
+if (!mt4.some(s => s.endsWith('khoa-dau-bang'))) {
+  console.error(`chiều đỏ (iv) KHÔNG chạy: trả về front_field mà lưới không tự mâu thuẫn ở ô khoá-dấu-bằng (thấy: ${mt4.join(' ') || 'không ô nào'})`);
+  process.exit(1);
+}
+
 // (iii) máy quét tự đọc cả file → ô chỉ-ở-thân vỡ
 const k3 = banSao('scripts/start-scan.mjs', '  const r = chuKyThat(t);',
   '  const r = { signed: /human_signoff:[ \\t]*\\S/.test(t), warn: \'\' };');
@@ -132,3 +171,4 @@ console.log(`một nguồn + ngữ pháp: ${o.length} ô khớp · lưới=${d.l
 console.log('       [chiều đỏ i] cấy bảng giữ-chỗ thứ hai vào lưới → bảng giữ-chỗ mọc bản thứ hai ở scripts/pre-merge-check.sh');
 console.log(`       [chiều đỏ ii] đột biến CHÍNH nguồn → cả hai bộ đọc cùng đổi (lưới ${d.luoi.size}→${k2.luoi.size}, máy quét ${d.quet.size}→${k2.quet.size}), vẫn khớp nhau`);
 console.log(`       [chiều đỏ iii] máy quét tự đọc cả file → lệch ở máy quét tại ô ${k3.ch.filter(s => s.endsWith('chi-o-than')).join(' ')}`);
+console.log(`       [chiều đỏ iv] trả chỗ đọc chữ ký của Cổng 2 về front_field → lưới tự mâu thuẫn ở ô ${mt4.join(' ')}`);

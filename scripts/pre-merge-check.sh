@@ -444,8 +444,23 @@ placeholder_signoff() { # <chuỗi> — 0 iff chữ ký khớp một mẫu giữ
   case "$_gc" in
     1) return 0 ;;
     0) return 1 ;;
-    *) NARROW_NET_BLIND=1; return 1 ;;
   esac
+  # Engine không nạp được (thiếu node / thiếu lib / lib lỗi). Đây là luật CHẶN và
+  # trước đổi khuôn nó KHÔNG cần node — nên KHÔNG được im lặng cho qua (S4-r3:
+  # đo được «lib bị gỡ → exit 0, mất VIOLATION»). Bản lùi dưới đây là BẢN CHIẾU
+  # của bảng ở lib, KHÔNG phải nguồn thứ hai: chân `lui-khong-engine` chạy MỌI mẫu
+  # của nguồn qua chính đường này với lib đã gỡ và đòi kết luận khớp, nên hai bên
+  # không trôi khỏi nhau trong im lặng. Tiền lệ cùng hình dạng: khuôn awk của
+  # ac-line ở lại làm đường lùi cho máy thiếu node.
+  NARROW_NET_BLIND=1
+# <<<BANG-LUI-GIU-CHO
+  case "$(printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in
+    '>'|'|'|'-') return 0 ;;
+    '<'*) return 0 ;;                       # template chưa điền: "<name> <date>"
+    pending*|tbd*|todo*|n/a*|none|unsigned*|waiting*) return 0 ;;
+  esac
+# BANG-LUI-GIU-CHO>>>
+  return 1
 }
 
 # Chữ ký người ở Cổng Bằng chứng ĐÓNG cửa veto (hồ sơ cua-veto-sau-chu-ky).
@@ -460,6 +475,14 @@ placeholder_signoff() { # <chuỗi> — 0 iff chữ ký khớp một mẫu giữ
 # không phải chữ ký.
 # MỘT hàm cho CẢ HAI chỗ đọc (NOTE làn V và vòng veto-trace) — hai bản trong
 # cùng một file là hình dạng bên-viết-bên-đọc-trôi mà kit đã dẫm nhiều lần.
+chu_ky_gia_tri() { # <đường dẫn báo cáo> — in GIÁ TRỊ chữ ký theo NGUỒN (rỗng nếu vắng)
+  local _l
+  _l="$(node "$CHU_KY_LIB" chu-ky-that "$1" 2>/dev/null)"
+  if [ -n "$_l" ]; then printf '%s' "$_l" | cut -f3; return 0; fi
+  NARROW_NET_BLIND=1
+  front_field "$1" human_signoff
+}
+
 signoff_that() { # <thư mục hồ sơ> — 0 iff có chữ ký THẬT; đặt $SIGNOFF_THAT
   # ĐỔI KHUÔN S4-r2: không tự đọc frontmatter nữa. Ngữ pháp (dấu fence, luật cột,
   # cách viết khoá, bảng giữ-chỗ) sống MỘT chỗ trong lib/evidence-core.cjs; hàm
@@ -1030,7 +1053,12 @@ XLACS
   # provenance reads below, so a no-fence/offset-fence report can't pass verdict
   # while its provenance reads empty (would otherwise let a bypassed PASS slip).
   verdict="$(front_field "$report" verdict)"
-  signoff="$(front_field "$report" human_signoff)"
+  # S4-r3: chỗ đọc chữ ký của luật Cổng 2 cũng đi qua NGUỒN. Trước đó nó dùng
+  # front_field (awk chỉ nhận `human_signoff:`) trong khi engine nhận thêm `=` và
+  # khoảng trắng trước dấu — cùng một tệp cho hai kết luận: lưới in «đã đóng bằng
+  # chữ ký (…)» rồi ngay dưới in «xanh-sạch … cửa veto vẫn mở». Một ngữ pháp, một
+  # chỗ. Engine vắng → lùi về front_field (khai ở NOTE của lưới giữ-chỗ).
+  signoff="$(chu_ky_gia_tri "$report")"
   LAN_V=0 # DLPS-LAN-V-MOT-DUONG: 1 khi hồ sơ làn V xanh-sạch đi tiếp KHÔNG chữ ký (đổi khuôn, owner 08/09)
   # ── machine-cleared × chữ ký người = hai sự thật cãi nhau (hồ sơ ra-co-ten, AC-15) ──
   # Ký thì status phải sang signed-off; để chữ ký nằm trên hồ sơ máy-thông là mọi bên đọc
@@ -1538,7 +1566,7 @@ if [ -n "$AC_LINE_FALLBACK_SEEN" ]; then
 fi
 
 if [ -n "$NARROW_NET_SEEN" ]; then
-  echo "NOTE: the placeholder net that just fired matches a SHORT FIXED prefix list — $(node \"$CHU_KY_LIB\" bang-mau) (dấu * = khớp tiền tố). NOTHING else is treated as a placeholder: unlisted English holds (FIXME, placeholder, LGTM), curt words (ok, yes, x, .), and holds written in any other language ALL PASS the net. Bảng ở lib/evidence-core.cjs là MỘT nguồn — câu này đọc từ đó, không chép lại."
+  echo "NOTE: the placeholder net that just fired matches a SHORT FIXED prefix list — $(node "$CHU_KY_LIB" bang-mau 2>/dev/null) (dấu * = khớp tiền tố). NOTHING else is treated as a placeholder: unlisted English holds (FIXME, placeholder, LGTM), curt words (ok, yes, x, .), and holds written in any other language ALL PASS the net. Bảng ở lib/evidence-core.cjs là MỘT nguồn — câu này đọc từ đó, không chép lại."
 fi
 
 if [ -n "$NARROW_NET_BLIND" ]; then

@@ -18,20 +18,23 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
-  // cua-veto-sau-chu-ky ĐỔI KHUÔN (owner quyết 12/09 tại chốt DỪNG-VÁ): vị từ «chữ
-  // ký thật» có MỘT nguồn — `chuKyThat`/`laGiuCho` trong lib/evidence-core.cjs —
-  // và lưới hỏi nó qua `node` (nếp lib/lop-nhin-thay.cjs). Năm dòng `case` dưới là
-  // BẢNG GIỮ-CHỖ bản-dựng-thứ-hai của bash: giữ chúng lại chính là giữ thứ vừa làm
-  // hai lượt chấm liên tiếp bắt cùng một lớp lệch. Luật KHÔNG nới: phạm vi bảng
-  // giữ nguyên (7 từ khoá tiền tố + none + ba ký hiệu + `<`), chỉ đổi CHỖ Ở; ca
-  // V04b/L1K của lưới thường trực và chân giu-cho (ma trận toàn phần, 2 × số mẫu)
-  // chứng điều đó. Dòng `return 1` là vế cuối của chính khối `case` ấy.
-  `  case "$(printf '%s' "$1" | LC_ALL=C tr '[:upper:]' '[:lower:]')" in`,
-  `    '>'|'|'|'-') return 0 ;;`,
-  `    '<'*) return 0 ;;                       # template chưa điền: "<name> <date>"`,
-  `    pending*|tbd*|todo*|n/a*|none|unsigned*|waiting*) return 0 ;;`,
-  `  esac`,
-  `  return 1`,
+  // S4-r3: đã GỠ các mục chuỗi-CHUNG (`fi`, `    fi`, `      else`, `  esac`,
+  // `  return 1`). Chúng khớp hàng chục dòng của lưới, nên mỗi mục là một lỗ tàng
+  // hình: xoá một `fi` hay một dấu đóng `case` ở BẤT KỲ luật nào cũng lọt qua DV5.
+  // Chốt DV5u dưới cấm cả lớp này. Mục miễn trừ mới phải nhận diện ĐÚNG dòng nó tha.
+  // cua-veto-sau-chu-ky S4-r3 (AC-6, lỗ ngữ pháp cuối): chỗ đọc chữ ký của luật
+  // Cổng 2 chuyển từ `front_field` (awk chỉ nhận `human_signoff:`) sang NGUỒN
+  // (`chu_ky_gia_tri` → lib), vì hai ngữ pháp trên cùng một tệp cho hai kết luận:
+  // lưới in «đã đóng bằng chữ ký (…)» rồi in tiếp «xanh-sạch … cửa veto vẫn mở».
+  // Luật KHÔNG nới: vẫn là chốt rỗng + chốt giữ-chỗ trên cùng một giá trị, chỉ đổi
+  // BỘ ĐỌC. Chuỗi này có mặt ĐÚNG MỘT lần trong base (chốt DV5u canh điều đó).
+  `  signoff="$(front_field "$report" human_signoff)"`,
+  // cua-veto-sau-chu-ky S4-r3: SÁU mục miễn trừ của S4-r2 đã GỠ. Hai trong số đó là
+  // `  esac` và `  return 1` — chuỗi CHUNG, có mặt 7 và 3 lần trong lưới, nên chúng
+  // làm DV5 mù với mọi lần xoá một dấu đóng `case` hay một `return 1` fail-closed
+  // khác (lỗ HIGH của chính lượt đổi khuôn). Nay bảng lùi đã quay lại tệp (luật
+  // chặn không được mất răng khi vắng engine) nên không dòng nào bị xoá, và chốt
+  // MOT-DONG dưới đây cấm mọi mục miễn trừ mơ hồ về sau.
   // Câu NOTE này KỂ TÊN bảng bằng văn xuôi — một bản sao thứ hai nữa, và nó trôi
   // im lặng y như mã. Bản mới đọc danh sách từ chính nguồn (`node … bang-mau`);
   // nội dung thông điệp giữ nguyên ý, kể cả vế «rewording is NOT a fix».
@@ -57,8 +60,8 @@ const ALLOWED_REMOVALS = [
   `        if (vc && e.sha !== vc) { errs.push(\`REPIN x repin line for run_id "\${id}" has sha \${e.sha} but report verified_commit is \${vc} — signature and lane disagree; re-pin against the verified commit\`); continue; }`,
   `      if [ -n "$vc" ] && [ "$rsha" != "$vc" ]; then`,
   `        echo "VIOLATION [$slug]: re-pin line for run_id \\"$rid\\" has sha $rsha but verified_commit is $vc — signature and lane disagree; re-pin against the verified commit"`,
-  `        repin_bad=1; continue`,
-  `      fi`,
+  // S4-r3: mục `      fi` đã GỠ — chuỗi chung khớp 22 dòng của lưới, tức nó tha
+  // luôn mọi lần xoá một `fi` ở chỗ khác. Chốt DV5u cấm lớp mục mơ hồ này.
   // Bugfix 1.39.1 (2026-08-08, lớp "vật chép sang consumer chưa từng được đo ở
   // consumer"): mọi file .js mà acceptance-init chép sang repo tiêu thụ đổi đuôi
   // .cjs — repo khai "type": "module" phân loại .js là ESM nên require() trong
@@ -111,7 +114,6 @@ const ALLOWED_REMOVALS = [
   `    [ "$_tier" = "T2" ] || { clean_ok=0; clean_why="hạng $_tier (chỉ T2 được đi tiếp không ký)"; }`,
   `    if [ "$clean_ok" -eq 1 ] && grep -qiE '(^|[^a-z])UNCERTAIN([^a-z]|$)' "$report"; then`,
   `      clean_ok=0; clean_why="có mục UNCERTAIN"`,
-  `    fi`,
   `    if [ "$clean_ok" -eq 1 ]; then`,
   `      for _sec in "Known limits" "Ngoài hợp đồng"; do`,
   `        # section() trả MẢNG RỖNG cho cả «tiêu đề vắng» lẫn «tiêu đề có mà`,
@@ -133,7 +135,6 @@ const ALLOWED_REMOVALS = [
   `          __LOI__)  clean_ok=0; clean_why="không đọc được mục «$_sec» (fail-closed)"; break ;;`,
   `        esac`,
   `      done`,
-  `    fi`,
   `  # Human-signoff provenance: the signature is text in an AI-writable file —`,
   `  # the git history of the commit that INTRODUCED it is the only`,
   `  # machine-checkable attribution. Standard flow: verify commits the`,
@@ -142,7 +143,6 @@ const ALLOWED_REMOVALS = [
   `  # verdict upgrade / bypass_ack). Comment-only and blank +/- lines tolerated.`,
   `    if ! command -v git >/dev/null 2>&1 || ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then`,
   `      echo "NOTE [$slug]: signoff provenance unverifiable — $ROOT is not a git repo here (signoff.require_human_commit/agent_authors set)"`,
-  `    else`,
   `      rel_report="\${report#"$ROOT"/}"`,
   `      sign_commit="$(git -C "$ROOT" log --format=%H -S"human_signoff: $signoff" -- "$rel_report" 2>/dev/null | head -1)"`,
   `      [ -z "$sign_commit" ] && sign_commit="$(git -C "$ROOT" log --format=%H -S"$signoff" -- "$rel_report" 2>/dev/null | head -1)"`,
@@ -150,8 +150,6 @@ const ALLOWED_REMOVALS = [
   `        if [ "$REQ_HUMAN_COMMIT" = "true" ]; then`,
   `          echo "VIOLATION [$slug]: human_signoff present but not found in any commit of $rel_report — the reviewer must COMMIT the signoff themselves (signoff.require_human_commit)"`,
   `          violations=$((violations+1)); continue`,
-  `        fi`,
-  `      else`,
   `        if [ -n "$AGENT_AUTHORS" ]; then`,
   `          author="$(git -C "$ROOT" log -1 --format=%ae "$sign_commit" 2>/dev/null)"`,
   `          hit=""`,
@@ -163,9 +161,6 @@ const ALLOWED_REMOVALS = [
   `GLOBS2`,
   `          if [ -n "$hit" ]; then`,
   `            echo "VIOLATION [$slug]: signoff commit $sign_commit authored by \\"$author\\" — matches signoff.agent_authors blocklist ($hit); Gate 2 must be signed by a human identity"`,
-  `            violations=$((violations+1)); continue`,
-  `          fi`,
-  `        fi`,
   `        if [ "$REQ_HUMAN_COMMIT" = "true" ]; then`,
   `          nonhuman="$(git -C "$ROOT" show --format= --unified=0 "$sign_commit" -- "$rel_report" 2>/dev/null \\`,
   `            | grep -E '^[+-]' | grep -vE '^(\\+\\+\\+|---)' \\`,
@@ -173,10 +168,6 @@ const ALLOWED_REMOVALS = [
   `          if [ -n "$nonhuman" ]; then`,
   `            echo "VIOLATION [$slug]: the commit introducing human_signoff ($sign_commit) also edits the report body — the Gate-2 signature must land in its own human-fields-only commit (signoff.require_human_commit). Offending lines:"`,
   `            printf '%s\\n' "$nonhuman" | head -5 | sed 's/^/    /'`,
-  `            violations=$((violations+1)); continue`,
-  `          fi`,
-  `        fi`,
-  `      fi`,
   // Hồ sơ `status-chua-arm-cong` (2026-08-18): (1) dòng `case "$status" …
   // continue` là ĐÚNG lỗ đang bịt — hồ sơ draft/approved đã có evidence hoặc
   // nằm trong PR đổi code chịu cổng không được `continue` im lặng nữa; dòng cũ
@@ -193,14 +184,11 @@ const ALLOWED_REMOVALS = [
   `  case "$status" in implemented|verified|signed-off) ;; *) continue ;; esac`,
   `  changed="$DIFF_FILES"`,
   `  gate_touched=0; t3_hits=""; nont1_hits=""`,
-  `  while IFS= read -r f; do`,
-  `    [ -n "$f" ] || continue`,
   `    case "$f" in _acceptance/*|*/_acceptance/*) gate_touched=1; continue ;; esac`,
   `    if [ -n "$T3_PATHS" ] && match_globs "$f" "$T3_PATHS"; then`,
   `      t3_hits="\${t3_hits}\${f}"$'\\n'`,
   `    elif ! match_globs "$f" "$T1_GLOBS"; then`,
   `      nont1_hits="\${nont1_hits}\${f}"$'\\n'`,
-  `    fi`,
   `  done <<CHANGED`,
   `$changed`,
   `CHANGED`,
@@ -222,11 +210,9 @@ const ALLOWED_REMOVALS = [
   `    # Thiếu node/lib → khai NOT ENFORCED, không im lặng.`,
   `      if [ "$RECHECK_ALL" -eq 0 ] && [ "$DIFF_READY" -eq 1 ] && ! slug_in_diff "$slug"; then # EVAL-LANE-DIFF-SCOPE-GUARD`,
   `        EVAL_LANE_SKIPPED=$((EVAL_LANE_SKIPPED+1))`,
-  `      else`,
   `      fi # đóng EVAL-LANE-DIFF-SCOPE-GUARD`,
   `if [ "$EVAL_LANE_SKIPPED" -gt 0 ]; then`,
   `  echo "NOTE: eval-lane scope — $EVAL_LANE_SKIPPED slug ngoài diff PR không được soi làn ghim lại (sử liệu theo phạm vi diff; dùng --recheck-all để quét toàn bộ)"`,
-  `fi`,
   // Hồ sơ eval-khai-ma-thoat-mong-doi (2026-09-09): checkRepinEvals nhận thêm
   // tham số thứ tư mang nội dung evidence-report.md ĐÃ KÝ — vế hai của luật
   // hai vế (mã khác 0 chỉ chống lưng pin khi ĐÃ KHAI VÀ ĐÃ KÝ) cần đối chiếu
@@ -271,6 +257,12 @@ function measure(baseText, curText) {
     .filter(l => !ALLOWED_REMOVALS.includes(l));
 }
 
+// MOT-DONG (S4-r3): mỗi mục miễn trừ phải NHẬN DIỆN ĐÚNG MỘT dòng. Mục khớp
+// nhiều dòng là một lỗ tàng hình: nó tha luôn mọi dòng trùng chuỗi ở chỗ khác.
+function demTrongBase(baseText, entry) {
+  return baseText.split('\n').filter(l => l === entry).length;
+}
+
 const BASE = resolveBase();
 // 1.39.1: recheck-evidence đổi đuôi .js → .cjs (fix ESM-scope ở consumer). Base
 // trước đợt đó còn giữ tên .js — đọc tên hiện hành trước, lùi về tên cũ khi
@@ -294,6 +286,36 @@ for (const f of FILES) {
     assert.deepEqual(removed, [], `additive-only: existing rule line removed/modified trong ${f}:\n${removed.slice(0, 5).join('\n')}`);
   });
 }
+
+check('DV5u: không mục ALLOWED_REMOVALS nào MƠ HỒ (khớp ≥2 dòng của base)', () => {
+  const baseText = git('show', `${BASE}:scripts/pre-merge-check.sh`);
+  const baseRecheck = showAtBase('scripts/recheck-evidence.cjs');
+  const mo = [];
+  for (const e of ALLOWED_REMOVALS) {
+    const n = demTrongBase(baseText, e) + demTrongBase(baseRecheck, e);
+    // ≥2 = MƠ HỒ: mục tha luôn mọi dòng trùng chuỗi ở chỗ khác. 0 = lỗi thời
+    // (mốc base trôi qua lần sửa ấy) — rác, nhưng không mở lỗ nào.
+    if (n >= 2) mo.push(`mục miễn trừ khớp ${n} dòng (phải ≤1): ${JSON.stringify(e.slice(0, 60))}`);
+  }
+  assert.deepEqual(mo, [], `ALLOWED_REMOVALS có mục mơ hồ — mục khớp nhiều dòng tha luôn mọi dòng trùng chuỗi:\n${mo.join('\n')}`);
+  // ĐỐI CHỨNG DƯƠNG: phép đếm phải THẤY một chuỗi chung có mặt nhiều lần, nếu không
+  // thì «0 mục mơ hồ» không phân biệt được với phép đếm mù.
+  const chung = demTrongBase(baseText, '  esac');
+  assert.ok(chung >= 2, `phép đếm MÙ: chuỗi chung «  esac» chỉ thấy ${chung} lần trong base`);
+});
+
+check('DV5u-mutant: một mục miễn trừ mơ hồ phải ĐỎ đích danh', () => {
+  const baseText = git('show', `${BASE}:scripts/pre-merge-check.sh`);
+  const n = demTrongBase(baseText, '  esac');
+  assert.ok(n >= 2, 'fixture hỏng: chuỗi chung không còn chung');
+  const mo = [];
+  for (const e of ['  esac']) {
+    const k = demTrongBase(baseText, e);
+    if (k >= 2) mo.push(`mục miễn trừ khớp ${k} dòng (phải ≤1): ${JSON.stringify(e)}`);
+  }
+  assert.ok(mo.length === 1 && /khớp \d+ dòng \(phải ≤1\)/.test(mo[0]),
+    `chiều đỏ KHÔNG chạy: mục mơ hồ «  esac» không bị bắt (${JSON.stringify(mo)})`);
+});
 
 check('DV5m mutant: bản sao sửa 1 dòng VIOLATION cũ → phép đo phải ĐỎ đích danh', () => {
   const baseText = git('show', `${BASE}:scripts/pre-merge-check.sh`);

@@ -101,6 +101,9 @@ thiết kế: `docs/superpowers/specs/2026-09-11-cua-veto-sau-chu-ky-design.md`.
   Chiều đỏ: gỡ từng vật khỏi bản sao thì ĐỎ, gọi tên đúng vật bị gỡ.
 - AC-12: Given ca thường trực mới `tests/scripts/cua-veto-sau-chu-ky.test.mjs` được nạp vào `tests/scripts/run-tests.sh`, When chạy suite `executors.test.scripts`, Then ca đó chạy CHÍNH lưới và máy quét trên fixture code-sinh, và giữ hai chiều của AC-1/AC-2 cùng đẳng thức AC-6(b). Ca có sàn đếm (0 assert thì exit khác 0) và chiều đỏ tự chạy trên bản sao, để luật còn răng sau khi răng hồ sơ chết theo hồ sơ.
 
+- AC-13 (thêm ở S4-r3): Given lưới gọi NGUỒN qua `node`, When engine không nạp được (thiếu node · thiếu `lib/evidence-core.cjs` · lib lỗi), Then luật CHẶN giữ-chỗ **vẫn chặn**: bản lùi trong lưới (khối có mốc `BANG-LUI-GIU-CHO`) phân loại giữ-chỗ y như nguồn trên MỌI mẫu của bảng, lượt chạy in một NOTE nói rõ đang chạy bằng bản lùi, và chữ ký THẬT không bị chặn oan. Bản lùi là BẢN CHIẾU có phép đo canh, không phải nguồn thứ hai: chiều đỏ gỡ một mẫu khỏi khối ấy → giữ-chỗ lọt khi vắng engine.
+  Và: câu NOTE «MỘT nguồn» của lưới phải in DANH SÁCH THẬT đọc từ nguồn (ghim một mẫu, ví dụ `pending*`), không bao giờ rỗng, và không nhả vết lỗi của `node` ra output. Chiều đỏ: trả câu ấy về dạng nháy hỏng → danh sách rỗng.
+
 ## Coverage
 
 Quét bằng morphological-scan (preset test-matrix), một lượt máy.
