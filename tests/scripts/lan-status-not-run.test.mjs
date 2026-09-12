@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
@@ -54,6 +55,12 @@ function evalsYaml(rows) {   // fixture do MÃ SINH
 // opts.danhDau: true → dựng đúng hai eval máy — E1 (cmd: true, luôn chạy) và
 //   E2 (cmd ghi một TỆP DẤU vào kho.tepDau); E2 tự khai `status: not-run` TRỪ
 //   KHI opts.goStatus true (đối chứng dương — gỡ dòng khai để E2 CHẠY ĐƯỢC).
+// opts.xungDot: true (Task 3, hồ sơ lan-doc-status-not-run) → cùng cặp E1/E2
+//   của opts.danhDau (E2 LUÔN khai `status: not-run`), NHƯNG evidence-report.md
+//   được dựng với hai khối `- eval:` ĐÃ KÝ (E1 lẫn E2) mang `exit_code: 0` —
+//   vật quan sát cho «hồ sơ đã ký có mã thoát cho ô mà evals.yaml nay khai
+//   không-chạy». Không có opts nào khác → evals mặc định một eval E1 xanh
+//   (dùng cho đối chứng dương của L04: một lượt lành phải ĐỔI băm).
 function dungKhoTam(opts) {
   opts = opts || {};
   const dir = fs.mkdtempSync(path.join(TMP, 'kho-'));
@@ -65,18 +72,28 @@ function dungKhoTam(opts) {
     'schema_version: 1\nfeature_loop:\n  suite_keys:\n    - executors.script.noop\nexecutors:\n  script:\n    noop: true\n');
   const tepDau = path.join(dir, 'danh-dau.txt');
   let evalsText;
-  if (opts.danhDau) {
+  if (opts.xungDot) {
+    evalsText = 'evals:\n' +
+      '  - id: E1\n    executor: script\n    cmd: true\n' +
+      `  - id: E2\n    executor: script\n    cmd: sh -c 'touch ${tepDau}'\n    status: not-run\n`;
+  } else if (opts.danhDau) {
     evalsText = 'evals:\n' +
       '  - id: E1\n    executor: script\n    cmd: true\n' +
       `  - id: E2\n    executor: script\n    cmd: sh -c 'touch ${tepDau}'\n` +
       (opts.goStatus ? '' : '    status: not-run\n');
   } else {
-    evalsText = opts.evals;
+    evalsText = opts.evals || evalsYaml([{ id: 'E1' }]);
   }
   fs.writeFileSync(path.join(ws, 'evals.yaml'), evalsText);
   fs.writeFileSync(path.join(ws, 'run-log.jsonl'), '');
-  fs.writeFileSync(path.join(ws, 'evidence-report.md'),
-    '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n## Evidence\n\n## Iterations\n\nRound 1 — PASS.\n');
+  const evidenceBody = opts.xungDot
+    ? '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n' +
+      '## Evidence\n\n' +
+      '- eval: E1\n  run_id: seed-E1\n  exit_code: 0\n  verifier: config:executors.script.noop\n  verified_at: 2026-09-11\n\n' +
+      '- eval: E2\n  run_id: seed-E2\n  exit_code: 0\n  verifier: config:executors.script.noop\n  verified_at: 2026-09-11\n\n' +
+      '## Iterations\n\nRound 1 — PASS.\n'
+    : '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n## Evidence\n\n## Iterations\n\nRound 1 — PASS.\n';
+  fs.writeFileSync(path.join(ws, 'evidence-report.md'), evidenceBody);
   g('init', '-q');
   g('add', '-A');
   g('commit', '-qm', 'impl');
@@ -88,27 +105,66 @@ function dungKhoTam(opts) {
   return { dir, tepDau };
 }
 
-// Chạy feature-loop/scripts/repin-lane.mjs THẬT (không --write: chỉ đọc, kho
-// tạm không đổi) trên kho tạm; bắt mã thoát (execFileSync ném khi ≠ 0) và trả
-// JSON stdout đã parse, gộp thêm `exit` — mã thoát của TIẾN TRÌNH, JSON riêng
-// của làn không mang trường này. `--ag-root ROOT` neo bộ máy vào ĐÚNG cây đang
-// đo (không phải plugin cache đã cài trên máy, có thể tụt version so với vá
-// vừa làm) — cùng ROOT với `core`/`LANE` nên Bước 6 đổi cả ba bằng một
-// LSNR_ROOT. `ids` không đi vào lệnh gọi (làn luôn chạy TRỌN eval máy của
-// slug, không lọc theo id) — hai ca dưới tự đối chiếu tập id NGOÀI lệnh gọi.
-function chayLan(kho, ids) {
+// Chạy feature-loop/scripts/repin-lane.mjs THẬT trên kho tạm; bắt mã thoát
+// (execFileSync ném khi ≠ 0) và trả JSON stdout đã parse, gộp thêm `exit` —
+// mã thoát của TIẾN TRÌNH, JSON riêng của làn không mang trường này — và
+// `stderr` (thông điệp của làn, để ca đối chiếu chữ). `--ag-root ROOT` neo bộ
+// máy vào ĐÚNG cây đang đo (không phải plugin cache đã cài trên máy, có thể
+// tụt version so với vá vừa làm) — cùng ROOT với `core`/`LANE` nên Bước 6 đổi
+// cả ba bằng một LSNR_ROOT. `ids` không đi vào lệnh gọi (làn luôn chạy TRỌN
+// eval máy của slug, không lọc theo id) — hai ca dưới tự đối chiếu tập id
+// NGOÀI lệnh gọi. `opts.write` (mặc định false, giữ hành vi CŨ không --write
+// — kho tạm không đổi) thêm cờ `--write`: L04 cần làn thật sự CHẠM tới lượt
+// ghi để chứng minh nó KHÔNG ghi khi có xung đột, và đối chứng dương cần một
+// lượt --write THẬT làm đổi băm.
+function chayLan(kho, ids, opts) {
   void ids;
+  opts = opts || {};
+  const args = [LANE, '--root', kho.dir, '--slug', 's1', '--ag-root', ROOT, '--reason', 'ca kiểm'];
+  if (opts.write) args.push('--write');
   let exit = 0;
   let stdout = '';
+  let stderr = '';
   try {
-    stdout = execFileSync(process.execPath, [LANE, '--root', kho.dir, '--slug', 's1', '--ag-root', ROOT, '--reason', 'ca kiểm'], { encoding: 'utf8' });
+    stdout = execFileSync(process.execPath, args, { encoding: 'utf8' });
   } catch (e) {
     exit = e.status == null ? 1 : e.status;
     stdout = e.stdout || '';
+    stderr = e.stderr || '';
   }
   let parsed = {};
   try { parsed = JSON.parse(stdout); } catch (_) { /* làn chết trước khi in JSON (die sớm) */ }
-  return { exit, ...parsed };
+  return { exit, stderr, ...parsed };
+}
+
+// ── Task 3: băm nội dung hồ sơ (run-log.jsonl + evidence-report.md) của kho
+// `s1` — vật quan sát cho «chưa ghi byte nào». Băm SAI KHÁC (thiếu tệp) cũng
+// được gộp vào digest bằng một placeholder cố định, để "tệp biến mất" cũng
+// đổi băm thay vì ném lỗi làm ca chết oan.
+function bam(kho) {
+  const ws = path.join(kho.dir, '_acceptance', 's1');
+  const h = crypto.createHash('sha256');
+  for (const f of ['run-log.jsonl', 'evidence-report.md']) {
+    h.update(f); h.update('\0');
+    try { h.update(fs.readFileSync(path.join(ws, f))); } catch { h.update('__MISSING__'); }
+  }
+  return h.digest('hex');
+}
+
+// true nếu thư mục hồ sơ s1 có tệp NGOÀI ba tệp dungKhoTam đã dựng sẵn — làn
+// xung đột không được để rơi rớt tệp mới nào (vd một .tmp nửa-ghi).
+function themTepMoi(kho) {
+  const ws = path.join(kho.dir, '_acceptance', 's1');
+  const goc = new Set(['evals.yaml', 'run-log.jsonl', 'evidence-report.md']);
+  return fs.readdirSync(ws).some(f => !goc.has(f));
+}
+
+// Dòng repin HỢP LỆ (đủ evals_exit cho mọi eval máy KHÔNG bị khai không-chạy —
+// ở đây chỉ E1) để gọi thẳng core.checkRepinEvals — kiểm bên ĐỌC độc lập với
+// làn (repin-lane.mjs), cùng dữ liệu xung đột.
+function dongPinThieuE2(kho) {
+  const sha = execFileSync('git', ['-C', kho.dir, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  return { run_id: 'lsnr-l04-doc', sha, ts: '2026-09-12T00:00:00Z', evals_exit: { E1: 0 } };
 }
 
 test('L01', 'hai bên trả CÙNG một tập id', () => {
@@ -128,6 +184,31 @@ test('L02', 'ô khai không-chạy KHÔNG được thi hành', () => {
   const kho2 = dungKhoTam({ danhDau: true, goStatus: true }); // đối chứng dương
   chayLan(kho2, []);
   if (!fs.existsSync(kho2.tepDau)) fail('L02 đối chứng dương hỏng: gỡ lời khai mà ô vẫn không chạy — ca không phân biệt được gì');
+});
+
+test('L04', 'khai không-chạy mà báo cáo đã ký có mã thoát → dừng, chưa ghi byte nào', () => {
+  const kho = dungKhoTam({ xungDot: true });   // báo cáo có khối `- eval: E2` + `exit_code: 0`
+  const truoc = bam(kho);                       // băm run-log.jsonl + evidence-report.md TRƯỚC
+  const r = chayLan(kho, [], { write: true });
+  if (r.exit !== 2) fail(`L04 phải thoát 2, nhận ${r.exit}`);
+  for (const can of ['s1', 'E2', 'không-chạy', 'báo cáo đã ký']) {
+    if (!r.stderr.includes(can)) fail(`L04 thông điệp thiếu «${can}»: ${r.stderr.slice(0, 200)}`);
+  }
+  if (bam(kho) !== truoc) fail('L04 đã ghi byte trước khi dừng');
+  if (themTepMoi(kho)) fail('L04 để lại tệp mới trong thư mục hồ sơ');
+  // đối chứng dương: một lượt XANH thật sự PHẢI đổi băm — thiếu chân này thì
+  // "băm giống nhau" không phân biệt được "không ghi" với "không chạy gì cả".
+  const lanh = dungKhoTam({});
+  const b0 = bam(lanh);
+  chayLan(lanh, [], { write: true });
+  if (bam(lanh) === b0) fail('L04 đối chứng dương hỏng: lượt xanh không đổi băm — băm-giống-nhau không chứng được gì');
+  // bên ĐỌC (checkRepinEvals) độc lập với làn cũng phải bắt xung đột này —
+  // hai điểm chạm cùng một luật (readSignedReportFor / notRunConflicts).
+  const ws = path.join(kho.dir, '_acceptance', 's1');
+  const evalsXungDot = fs.readFileSync(path.join(ws, 'evals.yaml'), 'utf8');
+  const baoCaoXungDot = fs.readFileSync(path.join(ws, 'evidence-report.md'), 'utf8');
+  const errs = core.checkRepinEvals(dongPinThieuE2(kho), evalsXungDot, 's1', baoCaoXungDot).errs;
+  if (!errs.some(e => e.includes('E2'))) fail('L04 bên đọc im lặng trước xung đột');
 });
 
 test('L09', 'chuẩn hoá bảy hình dạng lời khai', () => {

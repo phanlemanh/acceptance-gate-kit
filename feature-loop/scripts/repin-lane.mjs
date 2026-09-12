@@ -91,6 +91,7 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'REPIN_MACHINE_EXECUTORS', kind: 'array', since: '2.9.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'isRepinMachineEval', kind: 'function', since: '2.12.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'machineEvalIdsSkipped', kind: 'function', since: '2.12.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'notRunConflicts', kind: 'function', since: '2.12.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'determineEnforce', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'evaluateEvidence', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'checkRepinEvals', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
@@ -172,6 +173,16 @@ const perSlug = slugs.map(slug => {
   const skipped = core.machineEvalIdsSkipped(evalsText) || [];
   return { slug, ws, reportPath, report, evals, skipped };
 });
+
+// ── luật hai vế (hồ sơ lan-doc-status-not-run, 2026-09-12): một ô khai
+// không-chạy trong evals.yaml mà báo cáo ĐÃ KÝ vẫn mang mã thoát cho chính ô
+// đó là hai vế mâu thuẫn — «thêm một dòng khai» không được phép trở thành
+// đường né đo. Đứng NGAY SAU khi dựng perSlug, TRƯỚC lượt chạy suite đầu
+// tiên: một xung đột phải dừng làn TRƯỚC KHI ghi byte nào, không phải sau.
+for (const s of perSlug) {
+  const xungDot = core.notRunConflicts(fs.readFileSync(path.join(s.ws, 'evals.yaml'), 'utf8'), s.report);
+  if (xungDot.length) die(`${s.slug}: eval ${xungDot.join(', ')} khai không-chạy trong evals.yaml nhưng báo cáo đã ký CÓ mã thoát cho chính nó — hai vế mâu thuẫn, làn không ghi gì; sửa hồ sơ rồi chạy làn mới`);
+}
 
 // ── chạy: một lệnh trùng chỉ chạy MỘT lần (dedupe cmd như S4) ─────────────
 const results = new Map(); // cmd → exit
