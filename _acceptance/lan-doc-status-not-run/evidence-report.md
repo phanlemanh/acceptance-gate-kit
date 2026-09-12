@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 49055b78cd201b6522101ad7f25a2a84bb36aabf
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-12
 ---
 
 # Evidence Report: lan-doc-status-not-run

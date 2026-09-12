@@ -5,7 +5,7 @@ slug: lan-doc-status-not-run
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs ∈ t3_paths (định nghĩa dùng chung sống ở bên đọc)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-09-12
 design_doc: docs/superpowers/specs/2026-09-12-lan-doc-status-not-run-design.md
@@ -113,3 +113,40 @@ sửa `evals.yaml` hay báo cáo của hồ sơ ĐÃ KÝ ở bất kỳ kho nào
   hai lượt trên CÙNG cây — nó bắt được hồi quy toàn cục, nhưng không chứng được một
   kho tiêu thụ nào khác; các kho đó nhận bản vá theo mốc phát hành và chiến dịch ghim
   lại của mốc là chỗ đo thật.
+
+## Known limits (owner định đoạt tại Cổng Bằng chứng 12/09/2026)
+
+Chín mục ngoài hợp đồng, owner quyết: tám ghi vào giới hạn đã biết, một mở hợp đồng
+mới. Không mục nào là sản phẩm sai; tất cả đều fail-closed, không tạo xanh-giả.
+
+- **Chú thích cuối dòng làm lời khai mất hiệu lực LẶNG** (Ngoài-6, mức cao) —
+  `status: not-run   # lý do` không được nhận, ô vẫn bị thi hành. Đo 12/09: 8 kho có
+  **0 dòng** trạng-thái mang chú thích đuôi, và ca thật OneFlow viết trơn, nên không
+  ca sống nào bị chặn. **Owner quyết: MỞ HỢP ĐỒNG MỚI** — vá đúng tầng là cho bộ đọc
+  trường trạng-thái đi qua `stripComment` của `lib/eval-yaml.cjs`, kèm một hàng mới
+  trong bảng ca hình dạng.
+- **Pin mới bị bản đọc cũ chấm vi phạm** (Ngoài-7) — kho tiêu thụ chưa chép lớp
+  2.12.0 sẽ thấy pin thiếu khoá cho ô không-chạy và báo đỏ. PHẢI nằm trong ghi chú
+  phát hành 2.12.0 cùng danh sách tệp phải chép lại.
+- **Chân dương của ca pin-cũ chỉ đếm, không ghim thông điệp** (Ngoài-1, mức cao) —
+  exit 1 (vi phạm) và exit 2 (không chạy được) bị nhập một.
+- **Ca pin-cũ đòi 0 vi phạm tuyệt đối trên corpus sống** (Ngoài-2) — ghép ca vĩnh
+  viễn vào độ tươi của 64 hồ sơ không liên quan, ngược luật «ghim lại theo release».
+- **Bản base dựng qua `sh -c` có ống dẫn, không `pipefail`, không kiểm tệp sau khi
+  bung** (Ngoài-3) — một lượt `git archive` hỏng sẽ đi tiếp im lặng.
+- **Ca lưới bộ lọc rỗng gọi tên tệp gõ tay thay vì suy từ vị trí script** (Ngoài-4).
+- **Ba ca mới không có hàng eval trong bản khai** (Ngoài-5) — chỉ sống qua glob suite;
+  bản khai đã qua Cổng Phạm vi nên không sửa trong vòng này.
+- **Chiều đỏ của ca thường trực lớp-cũ chỉ kết luận từ mã thoát** (Ngoài-8).
+- **Chiều đỏ đã khai của ca lưới bộ lọc rỗng chưa được thi hành** (Ngoài-9).
+
+**Ba delta phải khai, không giấu:**
+
+1. `notRunConflicts` đổi kiểu trả về từ mảng id sang cấu trúc hai trường — vì một
+   mảng không phân biệt được «không có xung đột» với «không soi được», chính chỗ
+   fail-OPEN đã vá.
+2. Chữ ghim thật của bốn tiêu chí (AC-4 · AC-6 · AC-9 · AC-10) khác câu chữ hợp đồng
+   mô tả; tương đương về thực chất, mỗi mũi tiêm vẫn ghim một thông điệp cụ thể.
+3. **Một mục TRONG hợp đồng còn mở** (mức thấp): chiều đỏ đã khai của eval lưới
+   bộ-lọc-rỗng chưa được thi hành. Luật dừng-vá nổ ở vòng sửa thứ hai nên máy không
+   tự mở vòng ba; owner ship với giới hạn này.
