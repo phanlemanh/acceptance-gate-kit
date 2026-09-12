@@ -297,6 +297,7 @@ executors:
     cndn_lop_chep_ci: CNDN_CASES=CN12 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_bon_ben_goi: CNDN_CASES=CN13 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_round_trip_writer: CNDN_CASES=CN14 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
+    cndn_coverage_bang: CNDN_CASES=CN15 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_ban_kinh: node _acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs --truc tat-ca --json
 risk_tiers:
   t1_skip_globs:

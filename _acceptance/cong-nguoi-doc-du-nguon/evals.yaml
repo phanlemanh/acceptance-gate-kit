@@ -355,3 +355,27 @@ evals:
       - "_acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs"
       - "lib/ac-line.cjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  # E18 — AC-15. Hình dạng thứ ba của lớp «bên đọc hẹp hơn vật», nhập phạm vi
+  # 13/09. Hai hợp đồng do CODE SINH trong chính lượt chạy: một có mục Coverage
+  # viết bằng BẢNG, một VẮNG HẲN mục đó. Cùng một lệnh gate-card.js --extract.
+  - id: E18
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.script.cndn_coverage_bang
+    expected: >-
+      Ca CN15; stdout có đúng một dòng kết quả, mang "CN15". Đối chứng dương TRƯỚC, trên
+      cây đang đo: hợp đồng có Coverage dạng GẠCH ĐẦU DÒNG → --extract trả
+      coverage_missing = false và mảng coverage khác rỗng. Rồi hai ô thật: (1) Coverage
+      dạng BẢNG → coverage_missing phải là false và mảng coverage phải chứa chữ của ít
+      nhất một hàng bảng; (2) VẮNG HẲN mục Coverage → coverage_missing vẫn true và cờ
+      vàng vẫn còn nguyên văn "chưa có section Coverage" trong HTML (đường cũ không bị
+      nới theo). Chiều đỏ trên BẢN SAO gate-card.js hoàn nguyên bộ đọc Coverage về
+      bullets-only (mũi tiêm khớp đúng một lần, bản sao qua node --check): ô (1) phải ĐỎ
+      với thông điệp ghim "coverage_missing=true tren muc BANG"; ô (2) vẫn xanh, tức mũi
+      tiêm không giết cả hai ô — nếu cả hai cùng đỏ thì phép đo không phân biệt được
+      hình dạng, ca ĐỎ có tên.
+    paths:
+      - "scripts/gate-card.js"
+      - "tests/scripts/cong-nguoi-doc-du-nguon.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

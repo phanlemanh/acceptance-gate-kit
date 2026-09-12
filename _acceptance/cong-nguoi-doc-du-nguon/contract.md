@@ -5,9 +5,9 @@ slug: cong-nguoi-doc-du-nguon
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli, ci, docs]
-status: approved
-approved_by: Phan Le Manh
-approved_at: 2026-09-13
+status: draft
+approved_by:
+approved_at:
 design_doc: docs/superpowers/specs/2026-09-12-cong-nguoi-doc-du-nguon-design.md
 ---
 
@@ -50,6 +50,7 @@ phải sạch).
 - AC-12: Given cây sau bản vá, When chạy trọn bốn suite của `feature_loop.suite_keys`, Then tất cả thoát 0; và tập tệp `lib/**` mà ba tệp cưỡng chế thật sự nạp tới phải là TẬP CON của khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`, trong đó có `lib/out-of-contract.cjs`.
 - AC-13 (mọi bên gọi, không chỉ thẻ): Given cùng một hợp đồng khai n tiêu chí bằng tiêu đề, When chạy BỐN bên đọc — `scripts/gate-card.js`, `scripts/evidence-page.js`, `scripts/eval-coverage-lint.js`, và nhánh node của răng cross-layer trong `scripts/pre-merge-check.sh` — Then mỗi bên nhìn thấy ĐÚNG n tiêu chí; và hoàn nguyên bất kỳ MỘT bên gọi nào về khuôn cũ làm đúng bên đó đếm sai.
 - AC-14 (khuôn mục rút từ bên VIẾT): Given khuôn một mục của `review-findings.md` được rút trong chính lượt chạy từ chỗ có marker mà bên VIẾT dùng (prompt soạn của `feature-loop/workflows/acceptance-verify.js`), When sinh fixture từ khuôn đó rồi đếm bằng `lib/out-of-contract.cjs`, Then số đếm bằng đúng số mục đã sinh — cho CẢ HAI mục `Ngoài hợp đồng` và `Trong hợp đồng`; và đổi khuôn ở bên viết mà bên đọc vẫn ra số cũ là ĐỎ.
+- AC-15 (hình dạng thứ ba của cùng lớp): Given một hợp đồng có mục `## Coverage` viết bằng BẢNG hoặc văn xuôi thay vì gạch đầu dòng, When thẻ Cổng Phạm vi dựng khối «Độ phủ AC», Then khối hiện nội dung thật và thẻ KHÔNG nổi cờ «Contract chưa có section Coverage»; và khi mục Coverage VẮNG HẲN thì cờ đó vẫn nổi nguyên văn như hôm nay — đo bằng hai hợp đồng do code sinh trong chính lượt chạy, một có bảng một vắng mục, cùng một lệnh `gate-card.js --extract`
 
 ## Coverage
 
@@ -67,6 +68,12 @@ cả bốn bên đọc (AC-7, AC-8, AC-13) · đọc-cũ (AC-5) · fail-closed c
 
 Ô Later, có tên: **hai nhánh của răng cross-layer** tách riêng thành AC-11 vì nhánh awk là
 bản dựng thứ hai của cùng luật — đúng lớp lỗi vòng này đi đóng, nên không gộp.
+
+Ô Core BỔ SUNG (nhập 13/09, sau khi một phiên khác đo được hình dạng thứ ba):
+`## Coverage` viết bằng bảng/văn xuôi — cùng lớp «bên đọc của thẻ hẹp hơn vật»,
+phủ bởi AC-15. Bán kính đo tại chỗ: **29 hợp đồng / 244 hợp đồng có mục Coverage**
+đang bị thẻ báo «chưa có Coverage» OAN (kit 4 · artifact-platform và các nhánh của nó
+21 · crm và khác 4).
 
 Ô Never: `parseEvals` giữ nháy `id` (xem Out of scope).
 

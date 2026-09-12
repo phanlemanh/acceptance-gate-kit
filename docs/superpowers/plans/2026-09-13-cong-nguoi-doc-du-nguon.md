@@ -35,7 +35,7 @@
 | `lib/ac-line.cjs` | Bộ bóc tiêu chí — thêm `parseACBlock`, `criteriaLines`, nới `AC_SUSPECT` | Sửa |
 | `scripts/khong-can-nguoi.mjs` | Bản dựng mjs của luật xanh-sạch + cửa GHI | Sửa |
 | `scripts/pre-merge-check.sh` | Bản dựng bash + nhánh đọc-cũ + nới răng cross-layer (CHỈ THÊM) | Sửa |
-| `scripts/gate-card.js` | Khối «Trong hợp đồng» ở thẻ Cổng Bằng chứng; đổi sang `parseACBlock` | Sửa |
+| `scripts/gate-card.js` | Khối «Trong hợp đồng» ở thẻ Cổng Bằng chứng; đổi sang `parseACBlock`; bộ đọc `Coverage` nhận bảng và văn xuôi | Sửa |
 | `scripts/evidence-page.js`, `scripts/eval-coverage-lint.js` | Đổi sang `parseACBlock` | Sửa |
 | `skills/acceptance/references/evidence-report-template.md` | Điều kiện thứ bảy vào khối `EVIDENCE-XANH-SACH-BLOCK`; khoá `findings_open` | Sửa |
 | `feature-loop/workflows/acceptance-verify.js` | Bên VIẾT điền `findings_open` | Sửa |
@@ -946,11 +946,11 @@ MSG
 
 ---
 
-### Task 8: Thẻ Cổng Bằng chứng hiện lỗi trong hợp đồng
+### Task 8: Thẻ hiện lỗi trong hợp đồng, và đọc được Coverage dạng bảng
 
 **Files:**
-- Modify: `scripts/gate-card.js` (khối «Trong hợp đồng» trước khối «Ngoài hợp đồng»; chặn phát ngôn đầy-đủ khi n > 0)
-- Test: `tests/scripts/cong-nguoi-doc-du-nguon.test.mjs` (ca CN10)
+- Modify: `scripts/gate-card.js` (khối «Trong hợp đồng» trước khối «Ngoài hợp đồng»; chặn phát ngôn đầy-đủ khi n > 0; dòng 411 `covLines` nhận bảng và văn xuôi)
+- Test: `tests/scripts/cong-nguoi-doc-du-nguon.test.mjs` (ca CN10, CN15)
 
 **Interfaces:**
 - Consumes: `parse().inContract` từ Task 1.
@@ -991,15 +991,42 @@ Chặn phát ngôn đầy-đủ: tìm chỗ thẻ in câu khẳng định bằng
 Run: `CNDN_CASES=CN10 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs && bash tests/plugins/run-tests.sh 2>&1 | tail -3`
 Expected: PASS cả hai.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Viết CN15 và nới bộ đọc Coverage**
+
+Ca CN15 theo đúng `expected` của E18: ba ô (đối chứng dương gạch-đầu-dòng · bảng · vắng hẳn), một mũi tiêm hoàn nguyên `covLines` về bullets-only, và khẳng định mũi tiêm KHÔNG giết ô «vắng hẳn» — nếu cả hai ô cùng đỏ thì phép đo không phân biệt được hình dạng.
+
+Sửa dòng 411 của `scripts/gate-card.js`:
+
+```js
+  // Nới (AC-15): mục Coverage viết bằng BẢNG hoặc văn xuôi từng đọc ra rỗng,
+  // nên dòng 684 nổi cờ «chưa có section Coverage» trên một mục CÓ THẬT — đo
+  // được 29/244 hợp đồng có mục Coverage trên 11 kho. Cùng lớp với hai hình
+  // dạng kia của vòng này: bên đọc hẹp hơn vật.
+  const covRaw = covAll.filter(l => l.trim() && !/\{\{/.test(l));
+  const covBullets = bullets(covAll).filter(l => !/\{\{/.test(l));
+  const covLines = covBullets.length ? covBullets
+    : covRaw.filter(l => !/^\s*\|\s*:?-{2,}/.test(l));
+```
+
+Hàng phân cách của bảng (`|---|---|`) bị loại vì nó không mang chữ cho người đọc; mọi hàng bảng khác và mọi dòng văn xuôi đều giữ.
+
+- [ ] **Step 6: Chạy CN10, CN15 và suite plugins**
+
+Run: `CNDN_CASES="CN10 CN15" node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs && bash tests/plugins/run-tests.sh 2>&1 | tail -3`
+Expected: PASS cả hai.
+
+- [ ] **Step 7: Commit**
 
 ```bash
 git add scripts/gate-card.js tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
 git commit -F - <<'MSG'
-feat(cong-nguoi-doc-du-nguon): thẻ Cổng Bằng chứng hiện lỗi TRONG hợp đồng chưa sửa
+feat(cong-nguoi-doc-du-nguon): thẻ hiện lỗi TRONG hợp đồng, và đọc được Coverage dạng bảng
 
-AC-10. Khối đứng trước «Ngoài hợp đồng» vì nó nặng hơn — lỗi nằm trong phạm vi
-người đã duyệt. Thẻ thôi khẳng định bằng chứng đầy đủ khi còn mục như vậy.
+AC-10, AC-15. Khối đứng trước «Ngoài hợp đồng» vì nó nặng hơn — lỗi nằm trong
+phạm vi người đã duyệt. Thẻ thôi khẳng định bằng chứng đầy đủ khi còn mục như vậy.
+
+Bộ đọc Coverage nhận bảng và văn xuôi: 29/244 hợp đồng có mục Coverage đang bị
+báo «chưa có section Coverage» oan.
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 MSG
@@ -1091,6 +1118,7 @@ Rồi đổi `status: approved` → `status: implemented` trong hợp đồng v�
 | AC-5 | 4 | AC-12 | 9 |
 | AC-6 | 3 | AC-13 | 7 |
 | AC-7 | 6 | AC-14 | 1 |
+| | | AC-15 | 8 |
 
 **2. Quét giữ-chỗ** — Task 4 Step 1, Task 5 Step 5, Task 7 Step 1, Task 8 Step 1 và Task 9 Step 2–3 mô tả ca kiểm bằng lời thay vì dán trọn mã. Đó là CÓ CHỦ Ý và là chỗ yếu đã biết của kế hoạch này: mã ca của chúng dài hơn mã sản phẩm, và `expected` của eval tương ứng trong `evals.yaml` đã liệt đủ từng ô, từng mũi tiêm, từng thông điệp ghim — người thi công đọc `evals.yaml` làm đặc tả ca. Mọi bước KHÁC đều có mã thật.
 
