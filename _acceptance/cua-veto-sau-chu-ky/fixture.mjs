@@ -166,7 +166,7 @@ export function writeDossier(repo, slug, spec) {
   const sig = c.dong === null ? templateSignoffLine() : c.dong;
   const than = c.ten === 'chi-o-than'
     ? '\n## Ghi chú\n\nTrích khuôn:\n\n    human_signoff: Manh Phan 2026-09-11\n' : '';
-  const head = ['---', 'schema_version: 1', `slug: ${slug}`, 'verdict: PASS',
+  const head = ['---', 'schema_version: 1', `slug: ${slug}`, `verdict: ${spec.verdict || 'PASS'}`,
     'enforcement_mode: strict', 'bypass_used: false',
     `verified_commit: ${spec.sha || headSha(repo)}`, sig, '---'];
   const body = `\n## Evidence\n\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: config:executors.test.scripts\n  verified_at: 2026-09-01\n\n## Known limits\n\n\n## Ngoài hợp đồng\n${than}\n`;
