@@ -1376,6 +1376,11 @@ if [ -d "$ACC" ]; then
     contract="$dir/contract.md"
     [ -f "$contract" ] || continue
     vstate="$(front_field "$contract" veto_state | tr '[:upper:]' '[:lower:]')"
+    # Hồ sơ đã có chữ ký người thì cửa veto không còn là chốt đang giữ nó — đổi
+    # nhãn TRƯỚC khi `case` đếm, để dòng `mo)` bên dưới giữ nguyên văn (DV5).
+    # Nhãn `mo-da-ky` cố ý KHÔNG rỗng: nhánh ghi-ngược bên dưới đọc `$vstate`, và
+    # một chuỗi rỗng ở đó nghĩa là «đã gỡ khoá» — nói dối về một hồ sơ còn khoá.
+    if [ "$vstate" = "mo" ] && signoff_that "$dir"; then vstate="mo-da-ky"; fi
     case "$vstate" in
       mo)
         VETO_OPEN_N=$((VETO_OPEN_N+1))
