@@ -176,11 +176,17 @@ lọc `humanSignoff: false`.**
   dòng `human_signoff:` mặc định của khuôn. Hôm nay dòng đó mang chú thích gợi ý chứa
   `<name>` — chính hình dạng dễ bị đọc nhầm thành chữ ký. Không gõ tay ô trống.
 - **Ma trận đẳng thức hai bộ đọc (E6), khai TRƯỚC:**
-  - veto (3) × Cổng 1 (2) × ô chữ ký (13) = **78 ô**.
-  - 13 ô chữ ký gồm: thật {trần · nháy kép · nháy đơn · chú thích đuôi}; giữ-chỗ `TBD`
+  - veto (3) × Cổng 1 (2) × ô chữ ký (14) = **84 ô**.
+  - 14 ô chữ ký gồm: thật {trần · nháy kép · nháy đơn · chú thích đuôi}; giữ-chỗ `TBD`
     {trần · nháy kép · nháy đơn · chú thích đuôi}; rỗng {dòng mặc định của khuôn · chỉ
     chú thích}; báo cáo vắng; chữ ký thật chỉ ở THÂN; frontmatter hỏng hoặc không dẫn
-    đầu.
+    đầu; frontmatter MỞ mà thiếu dấu đóng.
+  - **Ô «thiếu dấu đóng» thêm ở S4-r1.** `frontmatterField` (JS) đòi ĐỦ CẶP `---` và
+    trả `null` khi thiếu vế đóng, còn `front_field` (awk) đọc tới dấu đóng HOẶC HẾT
+    TỆP — nên trên cùng một tệp, lưới thấy chữ ký còn máy quét thì không. Máy quét nay
+    SOI GƯƠNG bản lưới ở đúng ca này (đọc tới hết tệp) và nêu `signoffWarn` có tên hồ
+    sơ; chọn vậy vì chữ ký người CÓ THẬT trong tệp và bất biến của hồ sơ là hai bộ đọc
+    cùng kết luận — coi là «chưa ký» thì giấu sự lệch chứ không gỡ nó.
 - **Ma trận giữ-chỗ (E4):** mọi mẫu rút lúc chạy từ `placeholder_signoff` × hai bộ đọc.
   Số assert = 2 × số mẫu, sàn ≥ 3 mẫu.
 - **Neo base cho phép so «không nới luật» (E7) và chiều đỏ cây thật (E10):**

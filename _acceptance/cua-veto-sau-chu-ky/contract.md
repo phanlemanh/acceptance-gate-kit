@@ -52,20 +52,21 @@ thiết kế: `docs/superpowers/specs/2026-09-11-cua-veto-sau-chu-ky-design.md`.
 
   Bảng mẫu của lưới là CHÍNH hàm `placeholder_signoff`. Bảng mẫu của máy quét là bản dựng thứ hai, canh bằng ma trận TOÀN PHẦN: mọi mẫu RÚT lúc chạy từ `placeholder_signoff` × hai bộ đọc, số assert = 2 × số mẫu, sàn ≥ 3 mẫu. Chiều đỏ: một bản sao coi chuỗi không rỗng bất kỳ là chữ ký, và một bản sao máy quét bỏ một mẫu khỏi bảng JS. Mỗi bản sao cho ĐỎ với thông điệp riêng: «giữ-chỗ đóng cửa» và «máy quét coi giữ-chỗ <mẫu> là chữ ký».
 - AC-5: Given `status: signed-off` mà `human_signoff` rỗng hoặc báo cáo vắng, When chạy lưới và máy quét, Then cửa vẫn MỞ ở cả hai bộ đọc: nhãn status KHÔNG đóng cửa, chỉ chữ ký thật mới đóng.
-- AC-6: Given một kho git fixture code-sinh, ma trận khai TRƯỚC là veto (vắng · `mo` · `da-veto`) × Cổng 1 (`approved_by` có · rỗng) × 13 ô chữ ký = **78 ô**. Mười ba ô chữ ký:
+- AC-6: Given một kho git fixture code-sinh, ma trận khai TRƯỚC là veto (vắng · `mo` · `da-veto`) × Cổng 1 (`approved_by` có · rỗng) × 14 ô chữ ký = **84 ô**. Mười bốn ô chữ ký:
   - thật: trần · nháy kép · nháy đơn · chú thích đuôi;
   - giữ-chỗ `TBD`: trần · nháy kép · nháy đơn · chú thích đuôi;
   - rỗng: dòng `human_signoff:` mặc định RÚT NGUYÊN VĂN từ khuôn bên viết · chỉ chú thích;
   - báo cáo vắng;
   - chữ ký thật chỉ nằm ở THÂN báo cáo;
-  - frontmatter hỏng hoặc không dẫn đầu.
+  - frontmatter hỏng hoặc không dẫn đầu;
+  - frontmatter MỞ mà thiếu dấu đóng «---» (thêm ở S4-r1): bản awk của lưới đọc tới HẾT TỆP nên nó thấy chữ ký và cửa ĐÓNG — máy quét phải kết luận y hệt, kèm `signoffWarn` nêu tên hồ sơ và lý do.
 
   When chạy `start-scan.mjs` và `pre-merge-check.sh` trên CÙNG cây, Then:
   - (a) mỗi phần tử `vetoOpen[]` mang `humanSignoff` (boolean) và `signoffWarn` (chuỗi, luôn có mặt); tập phần tử `vetoOpen[]` KHÔNG đổi so với hôm nay (mọi `mo`, bất kể status);
   - (b) trên TỪNG ô, hai bộ đọc cùng kết luận: `vetoOpenUnsigned[]` = tập `vetoOpen` lọc `humanSignoff: false` = tập tên trong dòng «cửa veto đang mở» của lưới. Các ô chỉ-chú-thích, `"TBD"` có nháy, chỉ-ở-thân và frontmatter-hỏng đều là cửa MỞ. Ô frontmatter-hỏng mang `signoffWarn` nêu lý do, không nuốt im;
   - (c) thêm một hồ sơ `mo` chưa ký thì cả hai tập cùng tăng đúng 1; thêm một hồ sơ `mo` đã ký thì cả hai tập đều không tăng.
 
-  Số ô ca tự đếm, lệch 78 thì ĐỎ. Chiều đỏ: đột biến vị từ ở MỘT bên thì đẳng thức vỡ với thông điệp «lệch ở <lưới|máy quét>»; bản sao máy quét đọc chữ ký bằng regex cả file thì ĐỎ «lệch ở máy quét».
+  Số ô ca tự đếm, lệch 84 thì ĐỎ. Chiều đỏ: đột biến vị từ ở MỘT bên thì đẳng thức vỡ với thông điệp «lệch ở <lưới|máy quét>»; bản sao máy quét đọc chữ ký bằng regex cả file thì ĐỎ «lệch ở máy quét».
 - AC-7: Given cùng ma trận của AC-6 và bản base = cha của commit đầu tiên đưa câu «cửa veto đã đóng bằng chữ ký» vào `scripts/pre-merge-check.sh`, When chạy lưới base và lưới sau sửa, Then trên MỌI ô, mã thoát và tập dòng `VIOLATION` giống hệt nhau; chỉ dòng `NOTE` được khác. Nói cách khác, bản sửa không nới và không siết luật chặn nào.
   - Bản base: tìm bằng lệnh git trong lượt chạy, in sha ra output, lấy bằng `git archive` trọn `scripts` + `lib`.
   - Tự kiểm trước khi so: base ≠ HEAD trên file đó, VÀ bản base chưa chứa câu ấy. Sai một vế → LỖI HẠ TẦNG, thoát 97, không xanh cũng không đỏ trên vật.

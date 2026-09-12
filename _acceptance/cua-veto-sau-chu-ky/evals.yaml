@@ -113,22 +113,26 @@ evals:
     expected: >-
       Hai bộ đọc nói cùng một vị từ trên TỪNG ô, đo QUAN HỆ trên CÙNG một kho git.
       Ma trận viết TRƯỚC: veto (vắng · mo · da-veto) × Cổng 1 (có tên · rỗng) ×
-      13 ô chữ ký = 78 ô; ca tự đếm, khác 78 thì ĐỎ «số ô lệch». 13 ô chữ ký:
+      14 ô chữ ký = 84 ô; ca tự đếm, khác 84 thì ĐỎ «số ô lệch». 14 ô chữ ký:
       thật {trần, "nháy kép", 'nháy đơn', chú thích đuôi} · giữ-chỗ TBD {trần,
       "nháy kép", 'nháy đơn', chú thích đuôi} · rỗng {dòng mặc định RÚT nguyên văn
       từ khuôn bên viết, chỉ chú thích} · báo cáo vắng · chữ ký thật CHỈ ở thân
-      báo cáo · frontmatter hỏng hoặc không dẫn đầu.
+      báo cáo · frontmatter hỏng hoặc không dẫn đầu · frontmatter MỞ mà THIẾU dấu
+      đóng «---» (ô thêm ở S4-r1: awk của lưới đọc tới hết tệp nên lưới THẤY chữ ký
+      và cửa ĐÓNG; máy quét phải kết luận y hệt, kèm signoffWarn nêu tên hồ sơ).
       (a) mọi phần tử vetoOpen có humanSignoff kiểu boolean và signoffWarn kiểu
       chuỗi; tập phần tử vetoOpen BẰNG tập grep veto_state mo (lời hứa cũ giữ).
       (b) trên từng ô: vetoOpenUnsigned = vetoOpen lọc humanSignoff false = tập tên
       dòng «cửa veto đang mở»; các ô chỉ-chú-thích, "TBD" có nháy, chỉ-ở-thân,
-      frontmatter-hỏng đều là cửa MỞ; ô frontmatter-hỏng có signoffWarn không rỗng
-      nêu lý do.
+      frontmatter-hỏng đều là cửa MỞ; ô thiếu-dấu-đóng là cửa ĐÓNG ở CẢ HAI bộ đọc;
+      ô frontmatter-hỏng và ô thiếu-dấu-đóng đều có signoffWarn không rỗng nêu lý do.
       (c) thêm một hồ sơ mo chưa ký → hai tập cùng +1; thêm một hồ sơ mo đã ký →
       hai tập cùng +0.
-      Chiều đỏ: ba bản sao, ba thông điệp: đột biến vị từ lưới → «lệch ở lưới»;
+      Chiều đỏ: BỐN bản sao, bốn thông điệp: đột biến vị từ lưới → «lệch ở lưới»;
       đột biến vị từ máy quét → «lệch ở máy quét»; máy quét đọc chữ ký bằng regex
-      CẢ FILE → ô chỉ-ở-thân vỡ → «lệch ở máy quét» kèm tên ô.
+      CẢ FILE → ô chỉ-ở-thân vỡ → «lệch ở máy quét» kèm tên ô; máy quét bỏ nhánh
+      soi-gương frontmatter thiếu dấu đóng → ô thiếu-dấu-đóng vỡ → «lệch ở máy
+      quét» kèm tên ô.
     paths:
       - "scripts/pre-merge-check.sh"
       - "scripts/start-scan.mjs"

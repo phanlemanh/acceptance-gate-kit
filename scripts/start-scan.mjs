@@ -145,14 +145,30 @@ function signoffState(dir) {                 // { signed, warn }
   catch (e) { return { signed: false, warn: e.code === 'ENOENT' ? '' : `không đọc được báo cáo: ${e.code}` }; }
   // CHỈ frontmatter DẪN ĐẦU: một dòng `human_signoff:` ở THÂN (trích khuôn) không
   // phải chữ ký. Cùng luật với front_field của lưới.
-  const dau = t.split('\n').findIndex(l => l.trim() !== '');
-  if (dau < 0 || t.split('\n')[dau].trim() !== '---')
+  const dong = t.split('\n');
+  const dau = dong.findIndex(l => l.trim() !== '');
+  if (dau < 0 || dong[dau].trim() !== '---')
     return { signed: false, warn: 'frontmatter không dẫn đầu báo cáo' };
-  const raw = frontmatterField(t, 'human_signoff');
+  let raw = frontmatterField(t, 'human_signoff');
+  let warn = '';
+  // `frontmatterField` trả null cho CẢ HAI ca: khối frontmatter không giải được,
+  // và khoá vắng. Gộp chúng bằng `(raw || '')` là chỗ hai bộ đọc nói hai chuyện:
+  // khi khối thiếu dấu đóng `---`, awk của `front_field` (pre-merge-check.sh) đọc
+  // tới dấu đóng HOẶC HẾT TỆP nên lưới VẪN thấy chữ ký và đóng cửa veto, trong
+  // khi máy quét trả «chưa ký» kèm warn RỖNG — đúng lớp «thẻ đếm khác lưới đếm»
+  // mà hồ sơ này sinh ra để giết (S4-r1, AC-6).
+  // Chọn SOI GƯƠNG bản lưới, không chọn «cứ coi là chưa ký»: chữ ký người CÓ
+  // THẬT trong tệp, bên kia đọc được, và bất biến của hồ sơ là hai bộ đọc cùng
+  // kết luận. Nhưng không im: warn NÊU TÊN hồ sơ và lý do.
+  if (raw === null && !dong.slice(dau + 1).some(l => l.trim() === '---')) {
+    const d = dong.slice(dau + 1).find(l => /^human_signoff[ \t]*[:=]/.test(l));
+    raw = d === undefined ? '' : d.replace(/^human_signoff[ \t]*[:=]/, '');
+    warn = `${path.basename(dir)}: frontmatter của evidence-report.md thiếu dấu đóng «---» — đọc tới hết tệp như lưới trước-merge`;
+  }
   const s = (raw || '').replace(/\s*#.*$/, '').replace(/^["']|["']$/g, '').trim();
-  if (!s) return { signed: false, warn: '' };
-  if (GIU_CHO_TIEN_TO.test(s) || GIU_CHO_DUNG.test(s)) return { signed: false, warn: '' };
-  return { signed: true, warn: '' };
+  if (!s) return { signed: false, warn };
+  if (GIU_CHO_TIEN_TO.test(s) || GIU_CHO_DUNG.test(s)) return { signed: false, warn };
+  return { signed: true, warn };
 }
 // MỌI lối hỏng về cùng một khoá — gom về một cửa duy nhất.
 const pushHong = obj => broken.push(g('ho-so-hong', obj));

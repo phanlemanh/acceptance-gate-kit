@@ -3,7 +3,7 @@
 import * as F from './fixture.mjs';
 
 const o = F.cells();
-if (o.length !== 78) { console.error(`số ô lệch: ${o.length}, khai trước 78`); process.exit(1); }
+if (o.length !== 84) { console.error(`số ô lệch: ${o.length}, khai trước 84`); process.exit(1); }
 
 const repo = F.mkRepo();
 for (const c of o) F.writeDossier(repo, c.ten, { veto: c.veto, cong1: c.cong1, chuKy: c.chuKy });
@@ -34,6 +34,8 @@ for (const c of o) {
     if (typeof v.signoffWarn !== 'string') loi.push(`lệch ở máy quét: ô ${c.ten} thiếu signoffWarn (phải LUÔN có mặt)`);
     if (c.chuKy.ten === 'frontmatter-hong' && !v.signoffWarn)
       loi.push(`lệch ở máy quét: ô ${c.ten} nuốt im lỗi frontmatter (signoffWarn rỗng)`);
+    if (c.chuKy.ten === 'thieu-fence-dong' && !v.signoffWarn)
+      loi.push(`lệch ở máy quét: ô ${c.ten} nuốt im frontmatter THIẾU DẤU ĐÓNG (signoffWarn rỗng)`);
   }
 }
 // Đẳng thức cấp TẬP, không chỉ từng ô: hai bên phải bằng nhau đúng từng phần tử.
@@ -74,12 +76,20 @@ const ch1 = dung('lệch ở lưới', 'scripts/pre-merge-check.sh',
 const ch2 = dung('lệch ở máy quét', 'scripts/start-scan.mjs',
   'humanSignoff: ss.signed', 'humanSignoff: false',
   ({ ch }) => ch.length > 0);
+// Ô «thiếu dấu đóng» (S4-r1): gỡ nhánh soi-gương → máy quét lại đọc ra «chưa ký»
+// trong khi lưới đọc tới hết tệp và thấy chữ ký. Đây là chiều đỏ của chính ô mới.
+const ch4 = dung('máy quét bỏ nhánh soi-gương', 'scripts/start-scan.mjs',
+  "  if (raw === null && !dong.slice(dau + 1).some(l => l.trim() === '---')) {",
+  '  if (false) {',
+  ({ ch }) => ch.some(s => s.endsWith('thieu-fence-dong')));
+
 const ch3 = dung('máy quét đọc cả file', 'scripts/start-scan.mjs',
-  "  const raw = frontmatterField(t, 'human_signoff');",
-  '  const raw = (t.match(/human_signoff:[ \\t]*([^\\n#]+)/g) || []).map(x => x.split(":").slice(1).join(":").trim()).find(Boolean);',
+  "  let raw = frontmatterField(t, 'human_signoff');",
+  '  let raw = (t.match(/human_signoff:[ \\t]*([^\\n#]+)/g) || []).map(x => x.split(":").slice(1).join(":").trim()).find(Boolean);',
   ({ ch }) => ch.some(s => s.endsWith('chi-o-than')));
 
 console.log(`đẳng thức: ${o.length} ô khớp · lưới=${d.luoi.size} · máy quét=${d.quet.size} · +1 khi thêm hồ sơ chưa ký, +0 khi thêm hồ sơ đã ký`);
 console.log(`       [chiều đỏ 1] gỡ dòng rẽ của lưới → lệch ở lưới tại ${ch1.length} ô`);
 console.log(`       [chiều đỏ 2] ghim humanSignoff=false ở máy quét → lệch ở máy quét tại ${ch2.length} ô`);
 console.log(`       [chiều đỏ 3] máy quét đọc human_signoff CẢ FILE → lệch ở máy quét tại ô ${ch3.filter(s => s.endsWith('chi-o-than')).join(' ')}`);
+console.log(`       [chiều đỏ 4] máy quét bỏ nhánh soi-gương frontmatter thiếu dấu đóng → lệch ở máy quét tại ô ${ch4.filter(s => s.endsWith('thieu-fence-dong')).join(' ')}`);

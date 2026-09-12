@@ -78,6 +78,9 @@ export const SIGNOFF_CELLS = [
   { ten: 'bao-cao-vang',      dong: undefined,                                   dung: true },
   { ten: 'chi-o-than',        dong: 'human_signoff:',                            dung: true },
   { ten: 'frontmatter-hong',  dong: 'human_signoff: Manh Phan 2026-09-11',       dung: true },
+  // Khối frontmatter MỞ mà không có dấu đóng «---». Bản awk của lưới đọc tới hết
+  // tệp nên nó THẤY chữ ký → cửa ĐÓNG; máy quét phải kết luận y hệt (S4-r1).
+  { ten: 'thieu-fence-dong',  dong: 'human_signoff: Manh Phan 2026-09-11',       dung: false },
 ];
 
 export const VETO_CELLS = [
@@ -103,7 +106,7 @@ export function cells() {
   const out = [];
   for (const v of VETO_CELLS) for (const g of CONG1_CELLS) for (const s of SIGNOFF_CELLS)
     out.push({ ten: `${v.ten}-${g.ten}-${s.ten}`, veto: v, cong1: g, chuKy: s });
-  return out;   // 3 × 2 × 13 = 78
+  return out;   // 3 × 2 × 14 = 84
 }
 
 // Cửa veto MỞ thật theo luật của hồ sơ: veto_state mo ∧ chữ ký không thật.
@@ -172,7 +175,10 @@ export function writeDossier(repo, slug, spec) {
   const body = `\n## Evidence\n\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: config:executors.test.scripts\n  verified_at: 2026-09-01\n\n## Known limits\n\n\n## Ngoài hợp đồng\n${than}\n`;
   const txt = c.ten === 'frontmatter-hong'
     ? `# tieu de truoc frontmatter\n\n${head.join('\n')}${body}`   // frontmatter KHÔNG dẫn đầu
-    : head.join('\n') + body;
+    : c.ten === 'thieu-fence-dong'
+      // MỞ khối mà không đóng: bỏ đúng dòng `---` cuối của khối frontmatter.
+      ? head.slice(0, -1).join('\n') + body
+      : head.join('\n') + body;
   writeFileSync(path.join(dir, 'evidence-report.md'), txt);
   return dir;
 }
@@ -223,7 +229,7 @@ export const dongNote = out =>
 // ── tự kiểm của chính bộ sinh ───────────────────────────────────────────────
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
   const c = cells();
-  if (c.length !== 78) { console.error(`so o ${c.length}`); process.exit(1); }
+  if (c.length !== 84) { console.error(`so o ${c.length}`); process.exit(1); }
   const mau = placeholderPatterns();
   const sig = templateSignoffLine();
   console.log(`OK fixture ${c.length} ô · ${mau.length} mẫu giữ-chỗ: ${mau.map(x => x.mau + (x.tienTo ? '*' : '')).join(' ')}`);
