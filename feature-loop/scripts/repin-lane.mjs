@@ -162,7 +162,17 @@ const perSlug = slugs.map(slug => {
   const evalsText = readOr(path.join(ws, 'evals.yaml'), `${slug}: evals.yaml`);
   const { byId: expById, errs: expErrs } = expectedExits(evalsText);
   if (expErrs.length) die(`${slug}: evals.yaml khai mã thoát mong đợi sai luật —\n  ${expErrs.join('\n  ')}`);
-  const evals = parseEvals(evalsText, ['executor', 'cmd', 'status'])
+  // MỘT lượt rút cho cả hai vế (minor ghi-lai-tren-lop-cu 12/09/2026): trước
+  // đây `evals` lọc bằng core.isRepinMachineEval trên một parseEvals, còn
+  // `skipped` gọi core.machineEvalIdsSkipped — hàm đó TỰ rút evalsText lần
+  // hai. Hai lượt độc lập không mang bất biến nào buộc ids(evals) ∪ skipped =
+  // trọn tập executor máy; sửa một bên mà quên bên kia là trôi lặng. Nay
+  // `evals` và `skipped` cùng lọc trên MỘT mảng `evalRecords` — hai vế là bù
+  // của nhau trên cùng dữ liệu, đúng bằng xây dựng chứ không phải hai luật gõ
+  // tay đi song song. core.REPIN_MACHINE_EXECUTORS đã có hàng trong
+  // AG-ENGINE-TABLE (2.9.0), nay mới thật sự được làn gọi.
+  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'status']);
+  const evals = evalRecords
     .filter(e => core.isRepinMachineEval(e))
     .map(e => {
       let cmd = String(e.cmd || '').trim();
@@ -170,8 +180,11 @@ const perSlug = slugs.map(slug => {
       if (cmd.startsWith('config:')) cmd = core.resolveConfigKey(configText, cmd.slice('config:'.length)) || die(`${slug}: eval ${e.id} trỏ ${cmd} không giải được trong config.yaml`);
       return { id: e.id, cmd, expected: expById.get(e.id) || 0 };
     });
-  const skipped = core.machineEvalIdsSkipped(evalsText) || [];
-  return { slug, ws, reportPath, report, evals, skipped };
+  const skipped = evalRecords
+    .filter(e => core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))
+    .filter(e => !core.isRepinMachineEval(e))
+    .map(e => e.id);
+  return { slug, ws, reportPath, report, evalsText, evals, skipped };
 });
 
 // ── luật hai vế (hồ sơ lan-doc-status-not-run, 2026-09-12): một ô khai
@@ -180,7 +193,9 @@ const perSlug = slugs.map(slug => {
 // đường né đo. Đứng NGAY SAU khi dựng perSlug, TRƯỚC lượt chạy suite đầu
 // tiên: một xung đột phải dừng làn TRƯỚC KHI ghi byte nào, không phải sau.
 for (const s of perSlug) {
-  const xungDot = core.notRunConflicts(fs.readFileSync(path.join(s.ws, 'evals.yaml'), 'utf8'), s.report);
+  // s.evalsText: cùng nội dung đã đọc khi dựng perSlug (minor ghi-lai-tren-lop-cu
+  // 12/09/2026) — không đọc lại evals.yaml lần hai từ đĩa.
+  const xungDot = core.notRunConflicts(s.evalsText, s.report);
   if (xungDot.length) die(`${s.slug}: eval ${xungDot.join(', ')} khai không-chạy trong evals.yaml nhưng báo cáo đã ký CÓ mã thoát cho chính nó — hai vế mâu thuẫn, làn không ghi gì; sửa hồ sơ rồi chạy làn mới`);
 }
 
@@ -226,10 +241,18 @@ for (const s of perSlug) {
     if (hetHan) hetGioiHan.push(`${e.id} (khai ${e.expected})`);
   }
   const n = (s.report.match(/^### Re-pin/gm) || []).length + 1;
-  const line = JSON.stringify({ ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit });
+  // Pin phải NÓI RA ô không đo (Task 4, hồ sơ lan-doc-status-not-run): khi
+  // s.skipped rỗng, khoá evals_not_run VẮNG HẲN trong JSON (không phải mảng
+  // rỗng) — hồ sơ không khai ô nào thì cả hai chỗ phải sạch, không phải một
+  // khoá luôn có mặt mang giá trị rỗng.
+  const boQua = s.skipped;
+  const line = JSON.stringify(boQua.length
+    ? { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit, evals_not_run: boQua }
+    : { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit });
   const veGioiHan = gioiHan.length ? ` · đạt-có-giới-hạn: ${gioiHan.join(', ')}` : '';
   const veHet = hetGioiHan.length ? ` · giới hạn đã khai không còn: ${hetGioiHan.join(', ')}` : '';
-  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}\n`;
+  const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${boQua.join(', ')}` : '';
+  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}\n`;
   out.slugs[s.slug] = { evals_exit: evalsExit, line, section };
 }
 if (red) {

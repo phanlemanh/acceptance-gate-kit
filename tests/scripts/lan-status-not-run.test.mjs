@@ -86,13 +86,23 @@ function dungKhoTam(opts) {
   }
   fs.writeFileSync(path.join(ws, 'evals.yaml'), evalsText);
   fs.writeFileSync(path.join(ws, 'run-log.jsonl'), '');
+  // opts.coBangChung (Task 4, ca L03): CHỈ thêm nhánh mới, không đụng hai
+  // nhánh trên — L03 cần một báo cáo mà recheck-evidence.cjs THẬT SỰ chấm
+  // xanh (khối `## Evidence` đủ hình dạng cho E1), khác với nhánh mặc định
+  // (khối Evidence rỗng — đủ cho L01/L02/L04/L09/L10 vì các ca đó không đòi
+  // recheck-evidence xanh trên chính kho mặc định).
   const evidenceBody = opts.xungDot
     ? '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n' +
       '## Evidence\n\n' +
       '- eval: E1\n  run_id: seed-E1\n  exit_code: 0\n  verifier: config:executors.script.noop\n  verified_at: 2026-09-11\n\n' +
       '- eval: E2\n  run_id: seed-E2\n  exit_code: 0\n  verifier: config:executors.script.noop\n  verified_at: 2026-09-11\n\n' +
       '## Iterations\n\nRound 1 — PASS.\n'
-    : '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n## Evidence\n\n## Iterations\n\nRound 1 — PASS.\n';
+    : opts.coBangChung
+      ? '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n' +
+        '## Evidence\n\n' +
+        '- eval: E1\n  run_id: seed-E1\n  exit_code: 0\n  verifier: config:executors.script.noop\n  verified_at: 2026-09-11\n\n' +
+        '## Iterations\n\nRound 1 — PASS.\n'
+      : '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n## Evidence\n\n## Iterations\n\nRound 1 — PASS.\n';
   fs.writeFileSync(path.join(ws, 'evidence-report.md'), evidenceBody);
   g('init', '-q');
   g('add', '-A');
@@ -100,6 +110,13 @@ function dungKhoTam(opts) {
   const sha = g('rev-parse', 'HEAD');
   const reportPath = path.join(ws, 'evidence-report.md');
   fs.writeFileSync(reportPath, fs.readFileSync(reportPath, 'utf8').replace('verified_commit: PENDING', `verified_commit: ${sha}`));
+  // opts.coBangChung: run-log.jsonl phải mang MỘT dòng {kind:'eval', run_id:
+  // seed-E1,...} khớp sha vừa biết — recheck-evidence đòi run_id trong khối
+  // Evidence được TÌM THẤY trong run-log (L2 PROVENANCE), không chấp nhận
+  // run_id hand-mint không có dòng máy-ghi đứng sau nó.
+  if (opts.coBangChung) {
+    fs.writeFileSync(path.join(ws, 'run-log.jsonl'), JSON.stringify({ ts: '2026-09-11T00:00:00Z', kind: 'eval', run_id: 'seed-E1', sha, eval: 'E1', exit_code: 0 }) + '\n');
+  }
   g('add', '-A');
   g('commit', '-qm', 'evidence');
   return { dir, tepDau };
@@ -167,6 +184,30 @@ function dongPinThieuE2(kho) {
   return { run_id: 'lsnr-l04-doc', sha, ts: '2026-09-12T00:00:00Z', evals_exit: { E1: 0 } };
 }
 
+// ── Task 4: đọc dòng cuối một tệp NDJSON dưới ws của kho tạm, và hai lối tắt
+// đọc evals.yaml/evidence-report.md — dùng cho L03/L06 (bên đọc PHẢI dùng bộ
+// đọc KHÁC bộ đọc dòng log: JSON.parse cho run-log.jsonl, đọc chữ thường cho
+// evidence-report.md).
+function docDongCuoi(kho, ten) {
+  const dong = fs.readFileSync(path.join(kho.dir, '_acceptance', 's1', ten), 'utf8').split('\n').filter(Boolean);
+  return dong[dong.length - 1];
+}
+function docEvals(kho) { return fs.readFileSync(path.join(kho.dir, '_acceptance', 's1', 'evals.yaml'), 'utf8'); }
+function docReport(kho) { return fs.readFileSync(path.join(kho.dir, '_acceptance', 's1', 'evidence-report.md'), 'utf8'); }
+
+// Dòng pin THIẾU đúng một id CHẠY ĐƯỢC (không phải id tự khai không-chạy) —
+// tổng quát hoá dongPinThieuE2 ở trên (E2 ở đó tự khai không-chạy nên bỏ nó ra
+// là no-op đối với machineEvalIds; ở đây `idThieu` là một id THẬT sự phải
+// chạy, việc thiếu nó phải bị bên đọc chặn). evals_exit mang 0 cho MỌI id máy
+// khác ngoài `idThieu`, để ca chỉ còn đúng MỘT biến: chính id bị bỏ sót.
+function pinThieu(idThieu, kho) {
+  const sha = execFileSync('git', ['-C', kho.dir, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const ids = core.machineEvalIds(docEvals(kho)).filter(i => i !== idThieu);
+  const evals_exit = {};
+  for (const i of ids) evals_exit[i] = 0;
+  return { run_id: 'lsnr-l03-doc', sha, ts: '2026-09-12T00:00:00Z', evals_exit };
+}
+
 test('L01', 'hai bên trả CÙNG một tập id', () => {
   const text = evalsYaml([{ id: 'E1' }, { id: 'E2', status: 'not-run' }, { id: 'E3', executor: 'test' }]);
   const kho = dungKhoTam({ evals: text });                  // helper ở Step 2
@@ -184,6 +225,33 @@ test('L02', 'ô khai không-chạy KHÔNG được thi hành', () => {
   const kho2 = dungKhoTam({ danhDau: true, goStatus: true }); // đối chứng dương
   chayLan(kho2, []);
   if (!fs.existsSync(kho2.tepDau)) fail('L02 đối chứng dương hỏng: gỡ lời khai mà ô vẫn không chạy — ca không phân biệt được gì');
+});
+
+test('L03', 'bên đọc nhận pin thiếu id đã khai, vẫn chặn id CHẠY ĐƯỢC bị thiếu', () => {
+  const kho = dungKhoTam({ coBangChung: true });    // báo cáo có khối Evidence đủ hình dạng cho E1
+  const w = chayLan(kho, [], { write: true });
+  if (w.exit !== 0) fail(`L03 lượt ghi phải xanh (đối chứng dương của bên đọc cần một pin THẬT hợp lệ), nhận exit ${w.exit}: ${w.stderr}`);
+  let rc = '';
+  try {
+    rc = execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(kho.dir, '_acceptance', 's1', 'evidence-report.md')], { encoding: 'utf8' });
+  } catch (e) { rc = String(e.stdout || '') + String(e.stderr || ''); }
+  if (/lacks eval/.test(rc)) fail(`L03 pin hợp lệ bị báo thiếu id: ${rc}`);
+  const thieuThat = core.checkRepinEvals(pinThieu('E1', kho), docEvals(kho), 's1', docReport(kho)).errs;
+  if (!thieuThat.some(e => e.includes('E1'))) fail('L03 đối chứng dương hỏng: thiếu id CHẠY ĐƯỢC mà bên đọc im');
+});
+
+test('L06', 'pin nói ra ô không đo ở CẢ HAI chỗ', () => {
+  const kho = dungKhoTam({ danhDau: true });        // E2 tự khai status: not-run
+  chayLan(kho, [], { write: true });
+  const dong = JSON.parse(docDongCuoi(kho, 'run-log.jsonl'));
+  if (JSON.stringify(dong.evals_not_run) !== JSON.stringify(['E2'])) fail(`L06 khoá JSON sai: ${JSON.stringify(dong.evals_not_run)}`);
+  const rep = docReport(kho);
+  if (!/· không chạy theo hồ sơ: E2/.test(rep)) fail('L06 dòng sha thiếu hậu tố nói-ra');
+  const sach = dungKhoTam({});                       // hồ sơ mặc định: 0 ô khai không-chạy
+  chayLan(sach, [], { write: true });
+  const d2 = JSON.parse(docDongCuoi(sach, 'run-log.jsonl'));
+  if ('evals_not_run' in d2) fail('L06 hồ sơ không có ô nào mà pin vẫn mang khoá');
+  if (/không chạy theo hồ sơ/.test(docReport(sach))) fail('L06 hậu tố xuất hiện khi không có ô nào');
 });
 
 test('L04', 'khai không-chạy mà báo cáo đã ký có mã thoát → dừng, chưa ghi byte nào', () => {
