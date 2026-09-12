@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 49055b78cd201b6522101ad7f25a2a84bb36aabf
+verified_commit: 95da100c2a933bfc325bb6ef166a9cff98b71a9e
 human_signoff: Phan Le Manh 2026-09-12
 ---
 
@@ -195,3 +195,7 @@ none — every multi-run eval is uniform
 
 Round 1: tất cả 11 eval script (E1-E11) và 5 lệnh suite hồi quy đều xanh (exit 0); 10/11 eval có baseline: red (đối chứng dương), E8 baseline: green là regression-guard lớp-cũ có chủ ý. Không có vòng quay lại implementation.
 Round 2: chạy lại toàn bộ 11 eval + 5 lệnh suite trên verified_commit 49055b78cd201b6522101ad7f25a2a84bb36aabf (sau repin/ghim lại), tất cả xanh (exit 0); evals.yaml không đổi từ baseline cuối (round 1) nên baseline không đo lại round này — mọi block eval ghi baseline: n-a; E8 vẫn là ca non-discriminating do bản chất regression-guard lớp-cũ (carried từ round 1, xem mục Analyst). Không có vòng quay lại implementation.
+
+### Re-pin lần 1 — 2026-09-12, do gộp main mang vòng cua-veto-sau-chu-ky + dòng định tuyến LM20
+run_id: repin-20260912T153423Z-23052
+sha: 95da100c2a933bfc325bb6ef166a9cff98b71a9e · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
