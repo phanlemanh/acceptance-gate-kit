@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 700" role="img" aria-labelledby="f2-title f2-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="f2-title">Một bộ đọc cho mỗi vật, mọi bên đọc cùng rút qua đó</title>
+        <desc id="f2-desc">Sơ đồ luồng ngang bốn tầng. Làn trên: vật review-findings.md đi qua bộ đọc lib/out-of-contract.cjs tới vị từ dùng chung trong lib/evidence-core.cjs, rồi tới hai bản dựng khong-can-nguoi.mjs và pre-merge-check.sh; ba đoạn từ bộ đọc trở đi vẽ nét đứt vì hôm nay chưa có. Làn dưới: vật là mục tiêu chí của contract.md, đi qua bộ đọc lib/ac-line.cjs với lối vào parseACBlock, rồi toả tới bốn bên đọc: pre-merge-check.sh nhánh node, gate-card.js, eval-coverage-lint.js và evidence-page.js. Ghi chú bên dưới nêu hai ca fail-CLOSED khi thiếu tệp bộ đọc hoặc thiếu node.</desc>
+
+        <defs>
+  <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        </defs>
+
+        <rect width="1000" height="700" fill="#f5f5f5"/>
+
+        <!-- ===================== ĐẦU TẦNG ===================== -->
+        <text x="24" y="72" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">1 · VẬT ĐƯỢC GIAO</text>
+        <text x="268" y="72" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">2 · BỘ ĐỌC — MỘT CHO MỖI VẬT</text>
+        <text x="528" y="72" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">3 · VỊ TỪ DÙNG CHUNG</text>
+        <text x="788" y="72" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">4 · BÊN ĐỌC</text>
+        <line x1="24" y1="84" x2="976" y2="84" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+        <!-- ===================== ĐƯỜNG NỐI (vẽ trước) ===================== -->
+
+        <!-- LÀN PHÁT HIỆN -->
+        <line x1="204" y1="162" x2="268" y2="162" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="464" y1="162" x2="528" y2="162" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <path d="M724 148 H740 Q748 148 748 140 H788" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <path d="M724 176 H840 Q848 176 848 184 V188" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+        <!-- LÀN TIÊU CHÍ -->
+        <line x1="204" y1="404" x2="268" y2="404" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M464 384 H476 Q484 384 484 376 V224 Q484 216 492 216 H788" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M464 396 H492 Q500 396 500 388 V308 Q500 300 508 300 H788" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M464 412 H508 Q516 412 516 404 V392 Q516 384 524 384 H788" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <path d="M464 428 H524 Q532 428 532 436 V460 Q532 468 540 468 H788" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- nhãn cho cụm nét đứt -->
+        <rect x="556" y="222" width="212" height="18" rx="2" fill="#f5f5f5"/>
+        <text x="560" y="236" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">NÉT ĐỨT = ĐƯỜNG HÔM NAY ĐANG THIẾU</text>
+
+        <!-- ===================== TẦNG 1 — VẬT ===================== -->
+        <rect x="24" y="126" width="180" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="24" y="126" width="180" height="72" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="36" y="136" width="44" height="16" rx="2" fill="transparent" stroke="rgba(79,93,117,0.45)" stroke-width="0.8"/>
+        <text x="58" y="148" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">VẬT</text>
+        <text x="114" y="172" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">review-findings.md</text>
+        <text x="114" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Ngoài + Trong hợp đồng</text>
+
+        <rect x="24" y="352" width="180" height="104" rx="6" fill="#f5f5f5"/>
+        <rect x="24" y="352" width="180" height="104" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <rect x="36" y="362" width="44" height="16" rx="2" fill="transparent" stroke="rgba(79,93,117,0.45)" stroke-width="0.8"/>
+        <text x="58" y="374" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">VẬT</text>
+        <text x="114" y="398" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">mục tiêu chí</text>
+        <text x="114" y="414" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">contract.md</text>
+        <text x="114" y="430" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">- AC-n · ### AC-n</text>
+        <text x="114" y="446" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Criteria/Acceptance C.</text>
+
+        <!-- ===================== TẦNG 2 — BỘ ĐỌC (tiêu điểm) ===================== -->
+        <rect x="268" y="126" width="196" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="268" y="126" width="196" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <rect x="280" y="136" width="64" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.55)" stroke-width="0.8"/>
+        <text x="312" y="148" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BỘ ĐỌC</text>
+        <text x="366" y="172" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">lib/out-of-contract.cjs</text>
+        <text x="366" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">rút mục còn chờ người</text>
+
+        <rect x="268" y="370" width="196" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="268" y="370" width="196" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <rect x="280" y="380" width="64" height="16" rx="2" fill="transparent" stroke="rgba(235,108,54,0.55)" stroke-width="0.8"/>
+        <text x="312" y="392" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">BỘ ĐỌC</text>
+        <text x="366" y="416" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">lib/ac-line.cjs</text>
+        <text x="366" y="432" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">parseACBlock — một lối vào</text>
+
+        <!-- ===================== TẦNG 3 — VỊ TỪ ===================== -->
+        <rect x="528" y="126" width="196" height="72" rx="6" fill="#f5f5f5"/>
+        <rect x="528" y="126" width="196" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="540" y="136" width="56" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+        <text x="568" y="148" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">VỊ TỪ</text>
+        <text x="626" y="172" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">lib/evidence-core.cjs</text>
+        <text x="626" y="188" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">điều kiện xanh-sạch thứ 7</text>
+
+        <!-- ===================== TẦNG 4 — BÊN ĐỌC ===================== -->
+        <rect x="788" y="104" width="188" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="788" y="104" width="188" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="882" y="130" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">khong-can-nguoi.mjs</text>
+        <text x="882" y="146" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">cửa máy-thông · xanhSach</text>
+
+        <rect x="788" y="188" width="188" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="788" y="188" width="188" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="882" y="214" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">pre-merge-check.sh</text>
+        <text x="882" y="230" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">lưới trước-merge · node + awk</text>
+
+        <rect x="788" y="272" width="188" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="788" y="272" width="188" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="882" y="298" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">gate-card.js</text>
+        <text x="882" y="314" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">thẻ cổng người</text>
+
+        <rect x="788" y="356" width="188" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="788" y="356" width="188" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="882" y="382" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">eval-coverage-lint.js</text>
+        <text x="882" y="398" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">lint phủ eval</text>
+
+        <rect x="788" y="440" width="188" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="788" y="440" width="188" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="882" y="466" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">evidence-page.js</text>
+        <text x="882" y="482" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">trang bằng chứng</text>
+
+        <!-- ===================== GHI CHÚ BIÊN ===================== -->
+        <line x1="24" y1="512" x2="24" y2="560" stroke="#2d3142" stroke-width="1.2"/>
+        <text x="40" y="530" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">Vắng tệp bộ đọc ở kho tiêu thụ, hoặc vắng `node` nên lưới rơi về nhánh awk —</text>
+        <text x="40" y="552" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">vị từ fail-CLOSED: nêu đích danh thứ đang thiếu, không ném ngoại lệ, không trả sạch. AC-3</text>
+
+        <!-- ===================== CHÚ GIẢI ===================== -->
+        <line x1="24" y1="596" x2="976" y2="596" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+        <text x="24" y="616" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">CHÚ GIẢI · KIỂU NÉT VÀ CHỮ MANG NGHĨA, KHÔNG PHẢI MÀU</text>
+
+        <line x1="24" y1="640" x2="52" y2="640" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="64" y="643" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đường đang có hôm nay</text>
+
+        <line x1="236" y1="640" x2="264" y2="640" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <text x="276" y="643" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đường HÔM NAY đang thiếu — bên đọc không tới được vật</text>
+
+        <rect x="628" y="634" width="24" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+        <text x="664" y="643" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bộ đọc một-nguồn — mọi bên cùng rút qua đó (AC-2)</text>
+      </svg>

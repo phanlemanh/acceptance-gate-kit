@@ -110,9 +110,12 @@ khi khai `implemented`, không đợi tới lúc chiến dịch ghim lại 2.12.
 
 ## Notes
 
-- Ràng buộc trình tự: vòng `cua-veto-sau-chu-ky` (phiên khác, đã ký) chạm cùng tệp
-  `scripts/pre-merge-check.sh` và cùng ca RT1 của `tests/plugins/ra-co-ten.test.mjs`. Vòng
-  kia gộp trước; vòng này gộp `main` rồi ghim lại trước khi trình Cổng Bằng chứng.
+- Ràng buộc trình tự ĐÃ GIẢI: vòng `cua-veto-sau-chu-ky` gộp `main` ở `99137c06` (PR #172)
+  trước vòng này; nhánh này đã gộp `main` tại `2b49621c`, xung đột duy nhất là khoá executor
+  trong `config.yaml` (giữ cả hai khối). Kiểm sau gộp: `xanh_sach_check` còn nguyên 55 dòng
+  và ba chỗ gọi, nên điều kiện thứ bảy là dòng THÊM — DV5 chỉ-được-thêm không đòi mục
+  `ALLOWED_REMOVALS` nào. Khối `CHU-KY-THAT` mới trong `lib/evidence-core.cjs` là TIỀN LỆ
+  KHUÔN cho AC-2, không phải chỗ đụng.
 - Lớp vendored ĐỔI: `lib/evidence-core.cjs`, `lib/ac-line.cjs`, `scripts/pre-merge-check.sh`,
   và một mục MỚI `lib/out-of-contract.cjs` (đổi tên từ `.js`). Ghi chú phát hành 2.12.0 phải
   mang cảnh báo này.

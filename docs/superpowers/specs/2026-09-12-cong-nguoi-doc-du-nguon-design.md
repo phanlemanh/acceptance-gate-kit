@@ -30,12 +30,18 @@ Lệnh sinh số nằm trong `## Đường đo` của hợp đồng; đây là k
 | Tiêu chí vô hình với thẻ | **1 491** |
 | Trong đó đã có chữ duyệt Cổng Phạm vi | **214** |
 | Bộ dò điểm mù IM LẶNG (thẻ trống, không cờ nào) | **35** |
-| Hồ sơ làn V / máy-thông còn phát hiện chưa ai quyết | **5** (kit 3 · crm 2) |
+| Hồ sơ làn V / máy-thông còn mục CHỜ NGƯỜI | **4** (kit 2 · crm 2) — đếm trần không trừ sổ định đoạt cho 5 |
 | Hợp đồng sẽ sinh VIOLATION cross-layer MỚI nếu widen | **0** |
 
 Hai con số cuối là hai bản lề của thiết kế: **0** nói răng cross-layer widen được mà không
-khoá kho nào; **5** nói luật thứ bảy PHẢI có đường đọc-cũ, vì ba trong năm hồ sơ đó nằm
+khoá kho nào; **4** nói luật thứ bảy PHẢI có đường đọc-cũ, vì hai trong bốn hồ sơ đó nằm
 trên `main` của chính kit — áp thẳng là kho tự khoá mình ở mọi PR.
+
+Vị từ **«mục CHỜ NGƯỜI»** khai đủ ở mục Context của hợp đồng: số mục ở hai tiêu đề TRỪ số
+dòng sổ khai `stage: "gate2"`. Đếm trần cho 5, vị từ cho 4 — `ghim-lai-tren-lop-cu` có 2
+mục và 5 dòng định đoạt nên nó SẠCH, và đúng ra phải sạch. Phản biện context sạch xếp chỗ
+thiếu định nghĩa này là P0; nếu đếm trần thì mọi hồ sơ từng có phát hiện rồi đã xử sẽ vĩnh
+viễn không sạch và kit tự khoá mọi PR của chính nó.
 
 ## 4. Ba quyết định thiết kế
 
@@ -100,14 +106,19 @@ nới cùng lượt, nếu không hai bề mặt trả lời khác nhau về cù
 - **Răng «đã nâng plugin mà chưa chép lớp CI»** — sống ở phía kho tiêu thụ, hợp đồng riêng.
 - **Tool-kill đỏ giả** — cần tín hiệu cấu trúc từ harness, hợp đồng riêng.
 
-## 6. Ràng buộc trình tự
+## 6. Ràng buộc trình tự — ĐÃ GIẢI
 
-Vòng `cua-veto-sau-chu-ky` (phiên khác, đã ký, chưa mở PR) sửa vùng dòng 770–780 của
-`pre-merge-check.sh` — sát chỗ vòng này thêm điều kiện thứ bảy vào `xanh_sach_check`
-(dòng 328–380). Hai vùng khác nhau nên gộp máy móc được, nhưng ca RT1 trong
-`tests/plugins/ra-co-ten.test.mjs` ghim thứ tự điều kiện ở CẢ HAI bản dựng, và vòng này
-thêm điều kiện thứ bảy vào đó. **Vòng kia gộp trước; vòng này ghim lại trên `main` đã có
-nó trước khi trình Cổng Bằng chứng.**
+Vòng `cua-veto-sau-chu-ky` gộp `main` ở `99137c06` (PR #172) ngày 12/09, TRƯỚC vòng này.
+Nhánh của vòng này đã gộp `main` tại `2b49621c`. Xung đột duy nhất: cả hai chèn khoá
+executor ở cùng chỗ trong `_acceptance/config.yaml` — giữ cả hai khối.
+
+Ba chỗ phiên kia cảnh báo, kiểm sau khi gộp:
+
+| Chỗ | Trạng thái |
+|---|---|
+| `lib/evidence-core.cjs` có khối mới `CHU-KY-THAT` (dòng 1038–1126) | KHÔNG đụng. Vị từ của vòng này là một khối marker RIÊNG. Khối kia còn là **tiền lệ khuôn**: một nguồn trong lõi, hai bên gọi rút vào — đúng hình dạng AC-2 đòi |
+| `scripts/pre-merge-check.sh` đổi 98 dòng, bị DV5 canh chỉ-được-thêm | `xanh_sach_check` còn NGUYÊN 55 dòng, vẫn ba chỗ gọi. Điều kiện thứ bảy là dòng THÊM, không xoá dòng luật cũ nào, nên không cần mục `ALLOWED_REMOVALS` |
+| `scripts/start-scan.mjs` thêm ba khoá vào `START-SCAN-KEYS` | Không chạm. Vòng này không đọc bộ quét |
 
 ## 7. Hình
 
