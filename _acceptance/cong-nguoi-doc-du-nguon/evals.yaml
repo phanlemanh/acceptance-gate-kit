@@ -323,13 +323,13 @@ evals:
   - id: E16
     criterion: AC-12
     executor: script
-    cmd: config:executors.script.coverage_lint
+    cmd: config:executors.script.cndn_lint_ho_so
     expected: >-
-      `node scripts/eval-coverage-lint.js .` thoát 0 trên cây sau bản vá. Vế này là lưới
-      chống bất ngờ cho bán kính: bản vá làm 1 491 tiêu chí trở nên NHÌN THẤY với lint, nên
-      mọi cảnh báo mới sinh phải hoặc đã xử, hoặc được khai ở Known limits kèm SỐ và tên
-      kho. Đây là eval chống-bất-ngờ, không phải ca phân biệt — số thật đo ở dòng thứ năm
-      của mục Đường đo.
+      Lint phủ eval chạy trên ĐÚNG hồ sơ này (`--slug cong-nguoi-doc-du-nguon`) phải thoát 0,
+      không cảnh báo nào. Khoá dùng chung `coverage_lint` quét CẢ KHO nên nó đỏ vì 22 cảnh
+      báo của hồ sơ KHÁC — đo hạ tầng kho chứ không đo vật của vòng này (đo được ở lượt
+      chấm 1, và đó là lý do khoá riêng ra đời). Chiều đỏ: thêm một tiêu chí ngưỡng vào
+      hợp đồng mà không có eval biên → W1 nổ, lint thoát khác 0.
     paths:
       - "lib/ac-line.cjs"
       - "scripts/eval-coverage-lint.js"

@@ -112,6 +112,7 @@ lan-may-thong-duong-ghi cho-cong-dang da-dong-ho-so
 lan-v-thoat-kiem-stale y-can-nhac da-dong-ho-so
 duong-lui-phai-song cho-cong-gia-tri da-giao-khong-do
 ma-so-quyet-dinh-duy-nhat ho-so-hong da-giao-may-thong-veto-mo
+co-qua-timebox-nhom-da-xong may-di-tiep-veto-mo cho-cong-bang-chung
 KHAC-BIET-DOC-CU>>> -->
 
 Khối máy-đọc cho AC-18 — file NGOÀI lib được phép mang chuỗi luật ngưỡng, mỗi dòng `đường-dẫn lý-do`; thêm bản chép mới là quyết định người, khai ở đây cùng lượt:

@@ -331,6 +331,10 @@ date_parseable() { # <chuỗi>
 xanh_sach_check() { # <report path>
   local report="$1" clean_ok=1 clean_why="" _cdir _tier _sec _body _v _bp _ack
   CLEAN_WHY=""
+  # ĐẶT LẠI ngay đầu hàm (sửa sau lượt chấm 1): CLEAN_DOI_CU là biến TOÀN CỤC —
+  # bỏ sót ở một đường về sớm thì hồ sơ sau thừa hưởng cờ «đọc-cũ» của hồ sơ
+  # trước, và một VIOLATION thật bị hạ xuống NOTE vì trạng thái của người khác.
+  CLEAN_DOI_CU=0
   [ -f "$report" ] || { CLEAN_WHY="không có evidence-report.md"; return 1; }
   # AC-3 (hồ sơ cong-nguoi-doc-du-nguon): vắng node thì hàm này KHÔNG chấm được
   # hai điều kiện cuối (đọc mục, và «mục chờ người») — trước bản này nó vẫn

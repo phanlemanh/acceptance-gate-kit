@@ -113,9 +113,13 @@ const rfText = (ngoai, trong) => {
   for (let i = 1; i <= ngoai; i++) out.push(mucPhang('ngoai', i));
   return out.join('\n') + '\n';
 };
+// Dòng sổ ĐỊNH ĐOẠT phải NHẮC NHÃN «Ngoài-n»/«Trong-n» — thẻ đánh số mục bằng
+// nhãn đó và người trả lời theo nhãn. Đếm mọi dòng `stage: gate2` là sai NGƯỢC
+// chiều an toàn (lượt chấm 1): 621 dòng như thế trên 22 kho, 12 loại type, phần
+// lớn không định đoạt mục nào — một hồ sơ 1 mục treo + 1 dòng veto sẽ ra n = 0.
 const soText = (soGate2, soKhac = 0) => {
   const ln = [];
-  for (let i = 0; i < soGate2; i++) ln.push(JSON.stringify({ id: `d-x-${i}`, type: 'descope', stage: 'gate2', at: '2026-09-13T00:00:00Z', decision: 'x', impact: 'y' }));
+  for (let i = 0; i < soGate2; i++) ln.push(JSON.stringify({ id: `d-x-${i}`, type: 'descope', stage: 'gate2', at: '2026-09-13T00:00:00Z', decision: `Ngoài-${i + 1}: ghi Known limits`, impact: 'y' }));
   for (let i = 0; i < soKhac; i++) ln.push(JSON.stringify({ id: `d-y-${i}`, type: 'fix', stage: 'S4-r1', at: '2026-09-13T00:00:00Z', decision: 'x', impact: 'y' }));
   return ln.join('\n') + (ln.length ? '\n' : '');
 };
@@ -149,6 +153,13 @@ def('CN04', () => {
   const vt2 = core.dieuKienFindings({ findingsText: null, ledgerText: soText(3), reportText: baoCao(0) });
   chi.push(`vắng tệp · báo cáo khai 0 → clean=${vt2.clean} doiCu=${vt2.doiCu}`);
   if (!vt2.clean || !vt2.doiCu) return say('CN04', false, 'vang tep + khai 0 phai SACH va mang co doc-cu', chi);
+
+  // Ô mới sau lượt chấm 1: dòng sổ gate2 KHÔNG nhắc nhãn nào thì KHÔNG trừ gì —
+  // veto và revisit của người cũng mang stage gate2 mà không định đoạt mục nào.
+  const veto = JSON.stringify({ id: 'd-v', type: 'veto', stage: 'gate2', at: '2026-09-13T00:00:00Z', decision: 'owner veto, không nhắc mục nào', impact: 'x' });
+  const rV = core.dieuKienFindings({ findingsText: rfText(2, 0), ledgerText: veto + '\n', reportText: baoCao(2) });
+  chi.push(`2 mục + 1 dòng veto không nhắc nhãn → clean=${rV.clean} (phải false)`);
+  if (rV.clean) return say('CN04', false, 'dong so KHONG nhac nhan van bi tru — sach gia', chi);
 
   for (const [ten, khoa, ng, tr, g2, mongSach, phaiCo] of O) {
     const r = core.dieuKienFindings({ findingsText: rfText(ng, tr), ledgerText: soText(g2), reportText: baoCao(khoa) });
