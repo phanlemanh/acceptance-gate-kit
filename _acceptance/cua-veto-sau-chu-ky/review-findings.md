@@ -1,69 +1,63 @@
+# Review Findings: cua-veto-sau-chu-ky (round 6)
+
 ## Trong hợp đồng
 
-- **Lưới THƯỜNG TRỰC import fixture từ thư mục hồ sơ `_acceptance/` — đúng lớp coupling ADR 0015 đã trả giá**
-  file: `tests/scripts/cua-veto-sau-chu-ky.test.mjs:13`
-  severity: high
-  source: conventions
-  AC: AC-12
-  `const F = await import(path.join(HERE, '..', '..', '_acceptance', 'cua-veto-sau-chu-ky', 'fixture.mjs'))` — ca này được `tests/scripts/run-tests.sh` tự nạp (vòng `for _f in "$HERE"/*.test.mjs`, dòng 2769) nên nó nằm trong CI thường trực, trong khi vật nó phụ thuộc nằm trong thư mục hồ sơ. ADR 0011 chốt thẳng: răng-hồ-sơ là lớp RẺ dùng-rồi-bỏ, mọi bảo đảm DÀI HẠN phải vào lưới thường trực NGAY TỪ LƯỢT ĐẦU. ADR 0015 đã trả giá đúng lớp này: khi `git rm` 24 thư mục `_acceptance/<slug>/`, bốn răng từng đọc vật hồ sơ lưu kho phải đổi sang hồ sơ sống, và artifact của `delta-verify-repin` phải chép NGUYÊN VĂN vào `tests/plugins/fixtures/luu-kho-2026-09-08/` («bản đông lạnh có tên, không viết tay»). Lần này hướng ngược lại: hồ sơ khép/lưu kho → `fixture.mjs` biến mất → `tests/scripts/run-tests.sh` đỏ toàn bộ ở bước «scripts suite» của `.github/workflows/gate.yml`, tức CI chết cứng chứ không suy giảm mềm. Chú thích ở đầu file có nêu và hoãn quyết (sổ `d-20260912T024254Z-14`), nhưng việc hoãn chính là chỗ ADR 0011 cấm: quyết «chuyển fixture.mjs về tests/ hay nhân bản» phải làm trong lượt này, không phải sau khi hồ sơ khép.
-  Vì sao trong hợp đồng: AC-12 nói rõ mục đích của ca thường trực này là "để luật còn răng SAU KHI răng hồ sơ chết theo hồ sơ"; ca lấy fixture trực tiếp từ thư mục hồ sơ `_acceptance/` sẽ hỏng ngay khi hồ sơ đó được lưu kho, tức làm hỏng chính điều kiện AC-12 yêu cầu.
-
-- **Hình dạng 5 — chốt «một nguồn» tuyên quét LỚP «mọi tệp dưới scripts/» nhưng vế biểu thức chỉ là điểm-case một tệp**
+- **Hình dạng 5 — tuyên quét LỚP «không tệp nào dưới scripts/» nhưng chỉ có ĐIỂM-CASE một tệp (và tệp không quét thật sự vi phạm)**
   file: `_acceptance/cua-veto-sau-chu-ky/chan-dang-thuc.mjs:49`
-  severity: medium
-  source: measurement
+  severity: high
   AC: AC-6
-  evals.yaml E6 khai lớp: «(0) Chứng một nguồn: không tệp nào dưới scripts/ giữ bảng giữ-chỗ hay biểu thức đọc human_signoff riêng». Vế BẢNG được quét theo lớp thật (`quetBang()` dòng 35–41 `readdirSync(scripts)` rồi lọc mọi `.sh/.mjs/.cjs/.js`). Vế BIỂU THỨC thì chỉ có một dòng điểm-case: `const scanSrc = readFileSync(path.join(F.ROOT, 'scripts/start-scan.mjs'), 'utf8');` + `if (/human_signoff[^\n]*(\/|match\(|RegExp)/.test(scanSrc))` — chỉ đọc ĐÚNG MỘT tệp. Trên chính cây đang kiểm có 4 tệp dưới `scripts/` nhắc `human_signoff`, trong đó `scripts/evidence-page.js:54` (`const signoff = clean(rfm.human_signoff);`) là một bộ đọc thứ ba của cùng trường, dùng bộ giải frontmatter riêng, và không lượt quét nào chạm tới nó. Số assert không bằng số phần tử của lớp đã tuyên (1 thay vì số tệp dưới `scripts/`), nên một bản dựng thứ hai mọc ở bất kỳ tệp nào khác `start-scan.mjs` vẫn cho màu xanh.
-  Vì sao trong hợp đồng: AC-6(0) đòi "không tệp nào dưới scripts/ giữ ... biểu thức đọc human_signoff của riêng nó", nhưng eval kiểm điều này chỉ quét đúng một tệp (start-scan.mjs) trong khi scripts/evidence-page.js cũng tự đọc human_signoff bằng bộ giải riêng — tức AC-6 không thật sự được bảo đảm trên cây hiện tại.
+  detail: AC-6/E6 khai vế (0) là một LỚP: «không tệp nào dưới scripts/ giữ bảng giữ-chỗ HAY biểu thức đọc human_signoff riêng». Vế thứ nhất (bảng giữ-chỗ) đúng là quét lớp: `quetBang()` (dòng 35-41) đọc mọi tệp .sh/.mjs/.cjs/.js trong scripts/ và đếm mẫu. Vế thứ hai thì KHÔNG: dòng 49-51 chỉ đọc đúng MỘT tệp
+
+      const scanSrc = readFileSync(path.join(F.ROOT, 'scripts/start-scan.mjs'), 'utf8');
+      if (/human_signoff[^\n]*(\/|match\(|RegExp)/.test(scanSrc))
+        loi.push('máy quét mọc biểu thức đọc human_signoff riêng — vị từ phải hỏi lib');
+
+  Số assert = 1 trong khi số phần tử của lớp = số tệp thi hành dưới scripts/. Đây không phải lỗ lý thuyết: `scripts/pre-merge-check.sh` — tệp KHÔNG được quét — hiện có ít nhất hai biểu thức đọc human_signoff của riêng nó, và cả hai đều KHỚP chính regex ở trên nếu đem áp vào:
+  - dòng 839: `_vsig="$(front_field "$_vrep" human_signoff 2>/dev/null)"` (chuỗi sau khoá có `/`)
+  - dòng 1175: `| sed -n 's/^human_signoff:[[:space:]]*//p' | head -1 ...` (ngữ pháp awk/sed thứ hai, dùng cho `base_sig`)
+
+  Chính chú thích của vật ở pre-merge-check.sh dòng 1057 thừa nhận front_field là ngữ pháp HẸP HƠN engine. Nói cách khác: phép đo tuyên «một nguồn» cho cả scripts/, nhưng nó được viết đúng chỗ duy nhất đã sạch, và im lặng ở chỗ ngữ pháp thứ hai còn sống. Cách sửa cùng tầng với vế (0) thứ nhất: chạy chính regex ấy qua vòng `readdirSync(scripts/)` như `quetBang`, kèm danh sách miễn trừ có tên + lý do nếu dòng 839/1175 là cố ý giữ.
+  rationale: AC-6(0) đòi bất biến "không tệp nào dưới scripts/ giữ bảng giữ-chỗ hay biểu thức đọc human_signoff của riêng nó" cho TOÀN BỘ scripts/, nhưng eval chỉ kiểm một tệp và bỏ sót một tệp khác đang thực sự vi phạm — đúng AC-6 thất bại trên vật thật, không chỉ là hạn chế đã biết.
+  source: measurement
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Bảng giữ-chỗ dựng LẦN HAI trong bash, và phép đo giữ hai bản khớp nhau đã chết (không eval nào, không lưới thường trực nào chạy nó)**
-  Người dùng thấy gì: Nếu sau này có ai thêm hoặc sửa một kiểu chữ ký giữ-chỗ, phần kiểm tra dự phòng dùng khi máy thiếu công cụ hỗ trợ có thể không được cập nhật theo, và hiện không có cảnh báo nào cho biết điều đó — rủi ro này đã được ghi nhận là giới hạn đã biết, chưa sửa trong vòng này.
+- **Cờ «lưới chữ ký không chạy được» bị mất trong subshell — và signoff_that không hề đặt cờ, nên bản lùi chạy im**
+  Người dùng thấy gì: Khi máy thiếu công cụ hỗ trợ để kiểm tra chữ ký, lưới kiểm tra trước khi gộp có thể âm thầm chuyển sang chế độ kiểm tra hẹp hơn mà không báo cho người biết — một hồ sơ đã được ký hợp lệ có thể bị báo nhầm là còn chờ duyệt mà không có lời giải thích nào đi kèm.
   file: `scripts/pre-merge-check.sh`
   severity: high
   Đề xuất: known-limits
 
-- **Cờ `NARROW_NET_BLIND` đặt trong `chu_ky_gia_tri` chết trong subshell — khối NOTE mới không bao giờ in cho đường này**
-  Người dùng thấy gì: Trên một máy thiếu công cụ hỗ trợ đi kèm, người có thể bị báo sai là 'chưa ký' dù đã ký hợp lệ, mà không có cảnh báo nào cho biết máy đang chạy ở chế độ kiểm tra bị thu hẹp — giới hạn này đã được ghi nhận và tạm chưa sửa.
+- **NARROW_NET_BLIND set inside a command substitution is discarded — the "engine did not run" NOTE can be silently skipped**
+  Người dùng thấy gì: Khi máy thiếu công cụ hỗ trợ để kiểm tra chữ ký, một dòng cảnh báo lẽ ra phải xuất hiện để báo 'phép kiểm đang chạy suy giảm' có thể không bao giờ hiện ra, khiến người đọc không biết kết quả kiểm tra đang kém tin cậy hơn bình thường.
   file: `scripts/pre-merge-check.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **`DV5u-mutant` chấm trên BẢN CHÉP thân DV5u chứ không gọi DV5u — làm yếu luật thật vẫn xanh**
-  Người dùng thấy gì: Một bài kiểm tra tự động dùng để bảo vệ quy tắc 'chỉ được thêm, không được bớt luật chặn' có thể vẫn báo đạt ngay cả khi quy tắc đó bị nới lỏng thật sự, khiến người xem báo cáo yên tâm nhầm — giới hạn này đã được ghi nhận, chưa sửa trong vòng này.
-  file: `tests/scripts/additive-only.test.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **NARROW_NET_BLIND=1 trong chu_ky_gia_tri() nằm trong subshell — cờ khai-báo-bản-lùi bị mất**
-  Người dùng thấy gì: Trên một máy thiếu công cụ hỗ trợ đi kèm, một hồ sơ đã ký hợp lệ có thể bị lưới báo nhầm là 'chưa ký, còn mở', mà không có dòng cảnh báo nào cho biết máy đang chạy kiểu kiểm tra thu hẹp — giới hạn này đã được ghi nhận, chưa sửa trong vòng này.
+- **signoff_that() degrades to "unsigned" with no diagnostic when node/lib is unavailable, producing a self-contradicting report**
+  Người dùng thấy gì: Khi máy thiếu công cụ hỗ trợ để kiểm tra chữ ký, một hồ sơ ĐÃ được người ký thật vẫn có thể bị báo cáo hiện dòng 'đang chờ duyệt' — đúng thông điệp sai mà tính năng này vốn được làm ra để loại bỏ, nhưng chỉ xảy ra trong tình huống thiếu công cụ hỗ trợ đó.
   file: `scripts/pre-merge-check.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 4 — hai chiều đỏ của chan-lui-engine.mjs là assertion âm-tính-một-mình (không có bằng chứng bản tiêm chạy trọn)**
-  Người dùng thấy gì: Một kiểm tra tự động cho chế độ dự phòng khi thiếu công cụ hỗ trợ có thể báo 'đạt' ngay cả khi phần bị thử lỗi chưa từng thực sự chạy, nên một lỗi thật ở chế độ đó có thể lọt qua mà không ai biết.
-  file: `_acceptance/cua-veto-sau-chu-ky/chan-lui-engine.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hình dạng 2 — chiều đỏ DV5u-mutant chép tay lại vị từ bên đọc thay vì chạy chính chốt DV5u**
-  Người dùng thấy gì: Một bài kiểm tra tự động dùng để bảo vệ quy tắc 'chỉ được thêm, không được bớt luật chặn' có thể vẫn báo đạt ngay cả khi quy tắc đó bị nới lỏng thật sự — giới hạn này đã được ghi nhận, chưa sửa trong vòng này.
+- **Hình dạng 1 — chiều đỏ DV5u đo BẢN CHÉP của luật, không đo chính luật vừa thêm**
+  Người dùng thấy gì: Bài kiểm chứng cho luật mới chỉ tự chấm lại một bản sao chép của chính nó chứ không kiểm tra luật thật đang chạy — nếu sau này ai đó vô tình làm yếu luật thật, bài kiểm này sẽ không phát hiện ra.
   file: `tests/scripts/additive-only.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
 ## Chưa phân loại (triage-failed)
 
-phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ.
+phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ
 
-- **INIT-CI-COPY-LIST khai thiếu hệ quả mới của `lib/evidence-core.cjs` — nay nó chống lưng một luật CHẶN và vị từ cửa veto**
-  file: `commands/acceptance-init.md:154`
+- **Vẫn còn ngữ pháp đọc `human_signoff` thứ ba trong chính tệp vừa gom về MỘT nguồn**
+  file: `scripts/pre-merge-check.sh:1175`
   severity: medium
-  source: conventions
-  Mục `lib/evidence-core.cjs` vẫn ghi «the evidence bar shared with the hook; the re-check cannot load without it». Sau diff này file đó còn là NGUỒN của: (a) luật CHẶN giữ-chỗ chữ ký (`placeholder_signoff` → `node "$CHU_KY_LIB" giu-cho`, pre-merge-check.sh:443); (b) giá trị chữ ký của luật Cổng 2 (`chu_ky_gia_tri`, dòng 1061); (c) vị từ cửa veto (`signoff_that`, dòng 486). Khuôn của chính danh sách này là mỗi mục KHAI hệ quả khi thiếu (xem entry `ac-line.cjs` «possible spurious blocks», `lop-nhin-thay.cjs` «never blocks»), nên mục understated ở đây làm consumer đọc danh sách quyết sai mức ưu tiên. Hệ quả thiếu file, đo thật ở lượt chấm 4 và khai ở Known limits của hợp đồng: `signoff_that` trả «chưa ký» cho MỌI hồ sơ và KHÔNG bật cờ nào → hồ sơ ĐÃ KÝ bị in lại «làn V — cửa veto mở» và bị đếm vào `VETO_OPEN_N`; `chu_ky_gia_tri` lùi về `front_field` (ngữ pháp hẹp hơn) → hồ sơ ký bằng `human_signoff = <tên>` bị chặn với lý do SAI («is empty»). Bán kính là repo tiêu thụ mang cổng vào mà chép thiếu `lib/` — đúng đối tượng danh sách này phục vụ.
+  detail: Đổi khuôn S4-r2/r3 khai `chuKyThat` trong `lib/evidence-core.cjs` là «nơi DUY NHẤT được giữ các luật này», và nó cố ý MỞ RỘNG ngữ pháp: khoá không phân biệt hoa thường, ngăn bằng `:` hoặc `=`, cho phép khoảng trắng trước dấu ngăn. Fixture của chính hồ sơ ghim ba ca đó là CHỮ KÝ THẬT (`khoa-hoa`, `khoa-dau-bang`, `khoa-cach-truoc` trong `_acceptance/cua-veto-sau-chu-ky/fixture.mjs`).
 
-⚠ Cụm ngoài vùng phủ: 3/9 lỗi rơi vào file không bộ đo nào phủ (commands/acceptance-init.md, _acceptance/cua-veto-sau-chu-ky/chan-lui-engine.mjs, _acceptance/cua-veto-sau-chu-ky/chan-dang-thuc.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+  Nhưng nhánh «chiều GHI chữ ký» ở dòng 1172–1175 vẫn tự đọc bản BASE bằng một khuôn awk+sed gõ tay: `sed -n 's/^human_signoff:[[:space:]]*//p'` — chỉ nhận đúng `human_signoff:` viết thường, không nhận `=`, không nhận khoảng trắng trước dấu hai chấm. Hệ quả cụ thể: hồ sơ mà bản base đã ký bằng `human_signoff = Manh 2026-09-11` (hoặc `Human_signoff:`) cho `base_sig` rỗng, nên lưới in «NOTE [slug]: chữ ký mới trong diff — …» cho một chữ ký đã có từ trước — cùng một tệp, cùng một khoá, hai kết luận trái nhau, đúng hình dạng lỗi mà hai lượt chấm trước vừa bắt. Dòng 839 (`_vsig="$(front_field "$_vrep" human_signoff)"`, awk phân biệt hoa thường, chỉ `:`) là bản dựng thứ tư của cùng vị từ, đặt ngay cạnh lượt gọi `signoff_that` mới ở dòng 846.
+  source: conventions
+
+⚠ Cụm ngoài vùng phủ: 2/7 lỗi rơi vào file không bộ đo nào phủ (_acceptance/cua-veto-sau-chu-ky/chan-dang-thuc.mjs, _acceptance/cua-veto-sau-chu-ky/chan-lui-engine.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
