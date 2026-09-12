@@ -140,6 +140,16 @@ def('CN04', () => {
     ['khoá 0 · 2 mục · 2 định đoạt',   0, 2, 0, 2, true,  ''],
     ['khoá 2 · 2 mục · 2 định đoạt',   2, 2, 0, 2, false, 'lệch'],
   ];
+  // Hai ô VẮNG TỆP — tách khỏi bảng vì chúng truyền findingsText = null.
+  // 505/1242 hồ sơ có báo cáo trên 11 kho không có tệp rà soát; gộp ca này vào
+  // nhánh fail-CLOSED là khoá 41% hồ sơ.
+  const vt1 = core.dieuKienFindings({ findingsText: null, ledgerText: '', reportText: baoCao(null) });
+  chi.push(`vắng tệp · báo cáo vắng khoá → clean=${vt1.clean} doiCu=${vt1.doiCu}`);
+  if (!vt1.clean || !vt1.doiCu) return say('CN04', false, 'vang tep phai SACH va mang co doc-cu', chi);
+  const vt2 = core.dieuKienFindings({ findingsText: null, ledgerText: soText(3), reportText: baoCao(0) });
+  chi.push(`vắng tệp · báo cáo khai 0 → clean=${vt2.clean} doiCu=${vt2.doiCu}`);
+  if (!vt2.clean || !vt2.doiCu) return say('CN04', false, 'vang tep + khai 0 phai SACH va mang co doc-cu', chi);
+
   for (const [ten, khoa, ng, tr, g2, mongSach, phaiCo] of O) {
     const r = core.dieuKienFindings({ findingsText: rfText(ng, tr), ledgerText: soText(g2), reportText: baoCao(khoa) });
     chi.push(`${ten} → clean=${r.clean}${r.why ? ' why="' + String(r.why).slice(0, 70) + '"' : ''}`);
@@ -171,8 +181,9 @@ def('CN03a', () => {
   if (r.clean) return say('CN03a', false, 'vang bo doc ma van SACH — fail-open', chi);
   if (!String(r.why).includes('out-of-contract.cjs')) return say('CN03a', false, 'why khong neu dich danh tep thieu', chi);
   if (!String(r.why).includes('INIT-CI-COPY-LIST')) return say('CN03a', false, 'why khong neu duong sua', chi);
-  // Và ô «khai 0, vật 0» cũng KHÔNG được sạch khi vắng bộ đọc — không có bộ đọc
-  // thì không biết vật rỗng hay không; sạch ở đây là đoán.
+  // Ô «khai 0, vật 0» cũng KHÔNG được sạch khi vắng BỘ ĐỌC: có tệp nhưng không
+  // có cách đọc nó thì «rỗng» là phỏng đoán. Khác hẳn ca VẮNG TỆP ở CN04 — ở đó
+  // không có vật nào nên không có gì để phỏng đoán.
   const r0 = core2.dieuKienFindings({ findingsText: rfText(0, 0), ledgerText: '', reportText: baoCao(0) });
   chi.push(`vắng bộ đọc + khai 0: clean=${r0.clean}`);
   if (r0.clean) return say('CN03a', false, 'vang bo doc ma khai 0 van duoc goi la SACH', chi);
