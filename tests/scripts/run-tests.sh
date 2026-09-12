@@ -2528,7 +2528,11 @@ v_msg V04-msg "$outV" "làn V đòi xanh-sạch hoặc chữ ký"
 echo "V04b giữ-gân: cùng hồ sơ KHÔNG sạch nhưng ĐÃ ký -> NOTE làn V, clean"
 R="$T/v04b"; mk_v "$R" T2 "2026-08-16T09:00:00Z" 1 0 "Manh Phan 2026-08-16"
 outV="$(bash "$CHECK" "$R" 2>&1)"; check V04b 0 $?
-v_msg V04b-note "$outV" "làn V — máy đi trước"
+# Hồ sơ ĐÃ KÝ nay có câu RIÊNG (hồ sơ cua-veto-sau-chu-ky): cửa veto không còn là
+# chốt đang giữ nó, nên nói «cửa veto mở» là sai. Vế CHO QUA (`check V04b 0`) không
+# đổi một li — đây là đổi LỜI, không đổi CHẶN. Câu của hồ sơ CHƯA ký vẫn nguyên
+# văn ở V01 ngay trên.
+v_msg V04b-note "$outV" "cửa veto đã đóng bằng chữ ký"
 
 echo "V05 vắng khoá veto_state -> VIOLATION nguyên văn luật cũ (đối chứng)"
 R="$T/v05"; mk_v "$R" T2 "" 0 1 ""
