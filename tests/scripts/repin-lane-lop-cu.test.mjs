@@ -313,23 +313,9 @@ function judgeGL04(lane) {
   if (!repo.same('feat-h')) p.push('tep ho so bi ghi');
   return p;
 }
-// KHÔNG còn mũi tiêm riêng (hồ sơ lan-doc-status-not-run, 12/09/2026): mũi cũ
-// xoá RIÊNG hàng readSignedReportFor khỏi bảng rồi kỳ vọng layerMixed() (sha
-// 04069351) trượt qua cổng — đúng lúc bảng chỉ có MỘT hàng "mới hơn" sha đó.
-// Bảng nay có thêm isRepinMachineEval + machineEvalIdsSkipped (since 2.12.0,
-// Task 2 của hồ sơ này): sha 04069351 giờ thiếu CẢ BA, nên xoá riêng một hàng
-// không còn đủ để "cổng thôi chặn" — hai hàng kia vẫn chặn hộ, cổng vẫn dừng
-// nhưng ghim hộ SAI lý do, mũi tiêm cũ đỏ vì đúng thứ nó không đo (chiều đỏ
-// của MỘT hàng, không phải của TOÀN cổng). Thứ mũi tiêm cũ muốn chứng — "xoá
-// hàng readSignedReportFor khỏi bảng khiến cổng thôi bắt nó" — GL03 ĐÃ chứng
-// exhaustively trong chính vật thật của nó (matrixJudge xoá TỪNG export của
-// CẢ HAI tệp lib khỏi một bản sao cây hiện tại, readSignedReportFor nằm trong
-// tập đó). Giữ mũi tiêm cũ nghĩa là bắt một fixture neo-sha-cố-định phải sống
-// mãi cân bằng với một bảng đang LỚN DẦN — đúng lớp «thước phải gắn vào vật
-// được giao» CLAUDE.md cảnh báo, không phải giá trị đo thật bị mất: real()
-// dưới đây vẫn giữ NGUYÊN phần có giá trị riêng (một sha LỊCH SỬ THẬT, không
-// phải export bị xoá tay, vẫn bị cổng chặn đúng lý do).
-ca('GL04', 'lớp LAI (evidence-core 04069351) → dừng TRƯỚC khi ghi, gọi tên readSignedReportFor', judgeGL04, []);
+ca('GL04', 'lớp LAI (evidence-core 04069351) → dừng TRƯỚC khi ghi, gọi tên readSignedReportFor', judgeGL04, [
+  { pin: 'ghi roi moi do', make: () => mutantLane("  { file: 'lib/evidence-core.cjs', name: 'readSignedReportFor', kind: 'function', since: '2.11.0', why: 'sàn ngữ nghĩa bên đọc' },\n", '') },
+]);
 
 function judgeGL05(lane) {
   const p = [];
