@@ -5,7 +5,7 @@ slug: lan-doc-status-not-run
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs ∈ t3_paths (định nghĩa dùng chung sống ở bên đọc)
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-09-12
 design_doc: docs/superpowers/specs/2026-09-12-lan-doc-status-not-run-design.md
