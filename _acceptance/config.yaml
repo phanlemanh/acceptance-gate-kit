@@ -259,7 +259,10 @@ executors:
     cvsck_dv5: node tests/scripts/additive-only.test.mjs
     cvsck_cay_that: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan cay-that
     cvsck_van_ban: bash _acceptance/cua-veto-sau-chu-ky/rang.sh --chan van-ban
-    cvsck_ca_thuong_truc: node tests/scripts/cua-veto-sau-chu-ky.test.mjs
+    # Hai vế trong MỘT khoá: ca chạy độc lập xanh, VÀ suite scripts thật sự gọi nó
+    # (vòng nạp `*.test.mjs` in dòng `=== <tên> ===`). Đo chỉ vế đầu là đo ca, không
+    # đo việc nó có sống trong lưới thường trực hay không.
+    cvsck_ca_thuong_truc: "bash -c 'set -o pipefail; node tests/scripts/cua-veto-sau-chu-ky.test.mjs && bash tests/scripts/run-tests.sh | grep -F \"=== cua-veto-sau-chu-ky.test.mjs ===\"'"
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
