@@ -160,17 +160,19 @@ def('CN04', () => {
   say('CN04', true, '', chi);
 });
 
-// ══ CN03a — vắng bộ đọc thì fail-CLOSED, nêu đích danh tệp thiếu ═══════════
-def('CN03a', () => {
+// ══ CN03 — HAI hình dạng THIẾU trên cùng một fixture ══════════════════════
+// (1) vắng lib/out-of-contract.cjs · (2) vắng node. Cả hai phải fail-CLOSED và
+// nêu đích danh thứ đang thiếu. Một ca, hai vế — đúng vật mà AC-3 mô tả.
+def('CN03', () => {
   const chi = [];
   const d = mk('failclosed-');
   fs.cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
   const core = req(path.join(d, 'lib', 'evidence-core.cjs'));
-  if (typeof core.dieuKienFindings !== 'function') return say('CN03a', false, 'core.dieuKienFindings chua ton tai', chi);
+  if (typeof core.dieuKienFindings !== 'function') return say('CN03', false, 'core.dieuKienFindings chua ton tai', chi);
   // Đối chứng dương TRƯỚC: bản sao NGUYÊN VẸN, 2 mục chờ người → không sạch, nêu 2.
   const duong = core.dieuKienFindings({ findingsText: rfText(2, 0), ledgerText: soText(0), reportText: baoCao(2) });
   chi.push(`đối chứng dương (bản sao nguyên vẹn): clean=${duong.clean} why="${String(duong.why).slice(0, 60)}"`);
-  if (duong.clean || !String(duong.why).includes('2')) return say('CN03a', false, 'doi chung duong khong dat', chi);
+  if (duong.clean || !String(duong.why).includes('2')) return say('CN03', false, 'doi chung duong khong dat', chi);
   // Mũi tiêm: gỡ bộ đọc khỏi một bản sao KHÁC (cache require của Node giữ bản cũ).
   const d2 = mk('failclosed-b-');
   fs.cpSync(path.join(d, 'lib'), path.join(d2, 'lib'), { recursive: true });
@@ -178,16 +180,17 @@ def('CN03a', () => {
   const core2 = req(path.join(d2, 'lib', 'evidence-core.cjs'));
   const r = core2.dieuKienFindings({ findingsText: rfText(2, 0), ledgerText: soText(0), reportText: baoCao(2) });
   chi.push(`vắng bộ đọc: clean=${r.clean} why="${String(r.why).slice(0, 80)}"`);
-  if (r.clean) return say('CN03a', false, 'vang bo doc ma van SACH — fail-open', chi);
-  if (!String(r.why).includes('out-of-contract.cjs')) return say('CN03a', false, 'why khong neu dich danh tep thieu', chi);
-  if (!String(r.why).includes('INIT-CI-COPY-LIST')) return say('CN03a', false, 'why khong neu duong sua', chi);
+  if (r.clean) return say('CN03', false, 'vang bo doc ma van SACH — fail-open', chi);
+  if (!String(r.why).includes('out-of-contract.cjs')) return say('CN03', false, 'why khong neu dich danh tep thieu', chi);
+  if (!String(r.why).includes('INIT-CI-COPY-LIST')) return say('CN03', false, 'why khong neu duong sua', chi);
   // Ô «khai 0, vật 0» cũng KHÔNG được sạch khi vắng BỘ ĐỌC: có tệp nhưng không
   // có cách đọc nó thì «rỗng» là phỏng đoán. Khác hẳn ca VẮNG TỆP ở CN04 — ở đó
   // không có vật nào nên không có gì để phỏng đoán.
   const r0 = core2.dieuKienFindings({ findingsText: rfText(0, 0), ledgerText: '', reportText: baoCao(0) });
   chi.push(`vắng bộ đọc + khai 0: clean=${r0.clean}`);
-  if (r0.clean) return say('CN03a', false, 'vang bo doc ma khai 0 van duoc goi la SACH', chi);
-  say('CN03a', true, '', chi);
+  if (r0.clean) return say('CN03', false, 'vang bo doc ma khai 0 van duoc goi la SACH', chi);
+  // ── vế (2): vắng node → lưới rơi về nhánh awk và VẪN không gọi là sạch ──
+  return ve2VangNode(chi);
 });
 
 // ══ CN06 — cửa GHI đọc thẳng VẬT, không đi qua lời khai ═══════════════════
@@ -363,32 +366,31 @@ def('CN05', () => {
   say('CN05', true, '', chi);
 });
 
-// ══ CN03b — vắng node thì fail-CLOSED có tên ══════════════════════════════
-def('CN03b', () => {
-  const chi = [];
+// vế (2) của CN03 — vắng node thì fail-CLOSED CÓ TÊN.
+function ve2VangNode(chi) {
   const R = khoGit({ findings: rfText(2, 0), findingsOpen: 2 });
   // Đối chứng dương TRƯỚC: có node → chặn có tên.
   const co = luoi(R);
   chi.push(`có node: VIOLATION=${dongCua(co.out, 'VIOLATION', 'cn').length}`);
-  if (!dongCua(co.out, 'VIOLATION', 'cn').length) return say('CN03b', false, 'doi chung duong: co node ma khong chan', chi);
+  if (!dongCua(co.out, 'VIOLATION', 'cn').length) return say('CN03', false, 'doi chung duong: co node ma khong chan', chi);
   // Tự kiểm PATH giả lập: phải KHÔNG có node mà VẪN có bash — không thì ca này
   // xanh/đỏ vì lý do khác hẳn thứ nó đi đo.
   const cp2 = req('node:child_process');
   const coNode = cp2.spawnSync('sh', ['-c', 'command -v node'], { encoding: 'utf8', env: { PATH: '/usr/bin:/bin' } });
   const coBash = cp2.spawnSync('sh', ['-c', 'command -v bash'], { encoding: 'utf8', env: { PATH: '/usr/bin:/bin' } });
   chi.push(`PATH giả lập: node=${(coNode.stdout || '').trim() || '(không có)'} bash=${(coBash.stdout || '').trim() || '(không có)'}`);
-  if ((coNode.stdout || '').trim()) return say('CN03b', false, 'PATH gia lap VAN co node — ca khong do duoc thu no di do', chi);
-  if (!(coBash.stdout || '').trim()) return say('CN03b', false, 'PATH gia lap khong co bash — luoi khong chay duoc', chi);
+  if ((coNode.stdout || '').trim()) return say('CN03', false, 'PATH gia lap VAN co node — ca khong do duoc thu no di do', chi);
+  if (!(coBash.stdout || '').trim()) return say('CN03', false, 'PATH gia lap khong co bash — luoi khong chay duoc', chi);
   // Vắng node: lưới vẫn phải KHÔNG gọi hồ sơ này là sạch.
   const khong = luoi(R, { khongNode: true });
   const sachGia = /xanh-sạch — máy đi tiếp/.test(khong.out) && dongCua(khong.out, 'NOTE', 'cn').some(l => /xanh-sạch/.test(l));
   chi.push(`vắng node: sạch-giả=${sachGia}`);
-  if (sachGia) return say('CN03b', false, 'vang node ma van goi la xanh-sach', chi);
+  if (sachGia) return say('CN03', false, 'vang node ma van goi la xanh-sach', chi);
   const neuTen = /thiếu node|không chấm được|out-of-contract\.cjs|INIT-CI-COPY-LIST/.test(khong.out);
   chi.push(`vắng node: nêu đích danh thứ thiếu=${neuTen}`);
-  if (!neuTen) return say('CN03b', false, 'vang node ma khong neu dich danh thu thieu', chi);
-  say('CN03b', true, '', chi);
-});
+  if (!neuTen) return say('CN03', false, 'vang node ma khong neu dich danh thu thieu', chi);
+  return say('CN03', true, '', chi);
+}
 
 // ── ba hình dạng NGUYÊN VĂN từ hợp đồng thật ──────────────────────────────
 // Chép CHUỖI vào đây, KHÔNG đọc tệp thật lúc chạy: hồ sơ đã ký là sử liệu, và
@@ -792,6 +794,84 @@ def('CN12', () => {
     return say('CN12', false, 'phep do khong neu DICH DANH tep thieu', chi);
   }
   say('CN12', true, '', chi);
+});
+
+// ══ CN02 — MỘT nguồn: khối bảy điều kiện, hai bản dựng, không bên nào tự duyệt ═
+def('CN02', () => {
+  const chi = [];
+  const cp = req('node:child_process');
+  const TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'evidence-report-template.md');
+  const MJS = path.join(ROOT, 'scripts', 'khong-can-nguoi.mjs');
+  const SH = path.join(ROOT, 'scripts', 'pre-merge-check.sh');
+
+  // (1) khối rút ra ĐÚNG bảy khoá, khoá thứ bảy là `findings`.
+  const rutKhoi = (tplText) => {
+    const m = tplText.match(/<<<EVIDENCE-XANH-SACH-BLOCK -->\n([\s\S]*?)<!-- EVIDENCE-XANH-SACH-BLOCK>>>/);
+    if (!m) return null;
+    return m[1].trim().split('\n').map(l => l.trim().split(/\s+/)[0]).filter(Boolean);
+  };
+  const khoa = rutKhoi(fs.readFileSync(TPL, 'utf8'));
+  chi.push(`khối: ${khoa ? khoa.join(' · ') : 'KHÔNG rút được'}`);
+  if (!khoa) return say('CN02', false, 'khong rut duoc khoi EVIDENCE-XANH-SACH-BLOCK', chi);
+  if (khoa.length !== 7 || khoa[6] !== 'findings') return say('CN02', false, `khoi co ${khoa.length} khoa, cuoi la ${khoa[6]}`, chi);
+
+  // (2) hai thân hàm mỗi bên có ĐÚNG BẢY mốc, ĐÚNG thứ tự khối.
+  const than = (src, mo, dong) => { const i = src.indexOf(mo); if (i < 0) return ''; const j = src.indexOf(dong, i); return j < 0 ? src.slice(i) : src.slice(i, j); };
+  const mjsThan = than(fs.readFileSync(MJS, 'utf8'), 'export function xanhSach', 'export function khongCanNguoi');
+  const shSrc = fs.readFileSync(SH, 'utf8');
+  const shThan = (() => { const i = shSrc.indexOf('xanh_sach_check() {'); if (i < 0) return ''; const j = shSrc.indexOf('\n}\n', i); return j < 0 ? '' : shSrc.slice(i, j); })();
+  if (!mjsThan || !shThan) return say('CN02', false, 'khong cat duoc than ham — pham vi cat khong co that', chi);
+  const mocMjs = ["!== 'PASS'", 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN_RE.test', "'Known limits', 'Ngoài hợp đồng'", 'dieuKienFindings'];
+  const mocSh = ['= "PASS"', 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN', '"Known limits" "Ngoài hợp đồng"', 'dieuKienFindings'];
+  const thuTu = (src, moc) => moc.map(n => src.indexOf(n));
+  const okThuTu = (v) => v.every(x => x >= 0) && v.every((x, i) => i === 0 || x > v[i - 1]);
+  const vMjs = thuTu(mjsThan, mocMjs), vSh = thuTu(shThan, mocSh);
+  chi.push(`mốc mjs: ${vMjs.join(',')} · mốc bash: ${vSh.join(',')}`);
+  if (mocMjs.length !== khoa.length || mocSh.length !== khoa.length) return say('CN02', false, 'so moc != so khoa khoi — thuoc khong phu het khoi', chi);
+  if (!okThuTu(vMjs)) return say('CN02', false, 'thu tu bay moc trong xanhSach lech khoi', chi);
+  if (!okThuTu(vSh)) return say('CN02', false, 'thu tu bay moc trong xanh_sach_check lech khoi', chi);
+
+  // (3) không bên nào TỰ DUYỆT review-findings.md: tiêu đề mục chỉ được nhắc
+  // trong lời gọi vị từ dùng chung, không nằm trong một phép dò riêng.
+  const tuDuyet = (src) => (src.match(/Trong hợp đồng/g) || []).length;
+  chi.push(`nhắc «Trong hợp đồng» — mjs ${tuDuyet(mjsThan)} · bash ${tuDuyet(shThan)}`);
+  if (tuDuyet(mjsThan) || tuDuyet(shThan)) return say('CN02', false, 'mot ban dung TU DUYET review-findings', chi);
+
+  // ── ba mũi tiêm ĐỘC LẬP ──
+  const ban = mk('cn02-tiem-');
+  for (const d of ['lib', 'scripts', 'skills']) fs.cpSync(path.join(ROOT, d), path.join(ban, d), { recursive: true });
+  // (a) gỡ dòng `findings` khỏi khối → khẳng định (1) đỏ
+  const tplB = path.join(ban, 'skills', 'acceptance', 'references', 'evidence-report-template.md');
+  const tA = fs.readFileSync(tplB, 'utf8');
+  const tA2 = tA.replace(/^findings {2,}.*\n/m, '');
+  if (tA2 === tA) return say('CN02', false, 'khong go duoc dong findings khoi khoi', chi);
+  fs.writeFileSync(tplB, tA2);
+  const khoaA = rutKhoi(fs.readFileSync(tplB, 'utf8'));
+  chi.push(`mũi (a): khối còn ${khoaA ? khoaA.length : '?'} khoá`);
+  if (!khoaA || khoaA.length !== 6) return say('CN02', false, 'mui (a) khong lam khoi tut xuong 6', chi);
+  // (b) đảo chỗ hai mốc trong thân mjs → (2) đỏ
+  const mjsB = path.join(ban, 'scripts', 'khong-can-nguoi.mjs');
+  const sB = fs.readFileSync(mjsB, 'utf8');
+  const iA = sB.indexOf("const bp = (frontmatterField(evidenceTxt, 'bypass_used')");
+  const iB = sB.indexOf("const enf = (frontmatterField(evidenceTxt, 'enforcement_mode')");
+  if (iA < 0 || iB < 0 || iA > iB) return say('CN02', false, 'khong tim duoc hai moc de dao cho', chi);
+  const dongA = sB.slice(iA, sB.indexOf('\n', iA)), dongB = sB.slice(iB, sB.indexOf('\n', iB));
+  fs.writeFileSync(mjsB, sB.slice(0, iA) + dongB + sB.slice(sB.indexOf('\n', iA), iB) + dongA + sB.slice(sB.indexOf('\n', iB)));
+  if (cp.spawnSync(process.execPath, ['--check', mjsB], { encoding: 'utf8' }).status !== 0) return say('CN02', false, 'ban tiem (b) khong qua node --check', chi);
+  const thanB = than(fs.readFileSync(mjsB, 'utf8'), 'export function xanhSach', 'export function khongCanNguoi');
+  chi.push(`mũi (b): thứ tự mốc còn đúng = ${okThuTu(thuTu(thanB, mocMjs))}`);
+  if (okThuTu(thuTu(thanB, mocMjs))) return say('CN02', false, 'dao cho hai moc ma phep do thu tu van XANH', chi);
+  // (c) thêm một phép dò riêng vào bản sao pre-merge → (3) đỏ
+  const shB = path.join(ban, 'scripts', 'pre-merge-check.sh');
+  const sC = fs.readFileSync(shB, 'utf8');
+  const neo = 'xanh_sach_check() {';
+  fs.writeFileSync(shB, sC.replace(neo, neo + '\n  # MUTANT: tự duyệt thay vì hỏi vị từ\n  grep -c "Trong hợp đồng" "$report" >/dev/null 2>&1'));
+  if (cp.spawnSync('bash', ['-n', shB], { encoding: 'utf8' }).status !== 0) return say('CN02', false, 'ban tiem (c) khong qua bash -n', chi);
+  const sC2 = fs.readFileSync(shB, 'utf8');
+  const thanC = (() => { const i = sC2.indexOf('xanh_sach_check() {'); const j = sC2.indexOf('\n}\n', i); return sC2.slice(i, j); })();
+  chi.push(`mũi (c): bash tự duyệt = ${tuDuyet(thanC)} lần`);
+  if (!tuDuyet(thanC)) return say('CN02', false, 'mui (c) khong lam phep do tu-duyet do', chi);
+  say('CN02', true, '', chi);
 });
 
 // ── chạy ──────────────────────────────────────────────────────────────────

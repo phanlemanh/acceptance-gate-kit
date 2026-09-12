@@ -286,6 +286,7 @@ executors:
     cndn_luat_thu_bay: CNDN_CASES=CN01 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_mot_nguon: CNDN_CASES=CN02 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_fail_closed: CNDN_CASES=CN03 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
+    cndn_luoi_chep_san_co: node tests/scripts/consumer-esm.test.mjs
     cndn_khai_lech_vat: CNDN_CASES=CN04 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_duong_doc_cu: CNDN_CASES=CN05 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_cua_ghi: CNDN_CASES=CN06 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs

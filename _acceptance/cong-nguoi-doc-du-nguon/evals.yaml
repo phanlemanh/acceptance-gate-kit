@@ -242,15 +242,15 @@ evals:
   - id: E12
     criterion: AC-12
     executor: script
-    cmd: config:executors.script.cndn_lop_chep_ci
+    cmd: config:executors.script.cndn_luoi_chep_san_co
     expected: >-
-      Ca CN12, đo QUAN HỆ giữa danh sách chép và thứ mã thật sự cần: rút khối
-      `INIT-CI-COPY-LIST` của `commands/acceptance-init.md` thành tập đường dẫn; rút tập
-      tệp mà `lib/evidence-core.cjs` + `scripts/pre-merge-check.sh` + `scripts/recheck-evidence.cjs`
-      thật sự `require`/nguồn tới trong `lib/`; tập thứ hai phải là TẬP CON của tập thứ
-      nhất, và `lib/out-of-contract.cjs` phải có mặt ở cả hai. Đối chứng dương: cây thật
-      đạt. Chiều đỏ: bản sao gỡ dòng `out-of-contract.cjs` khỏi danh sách → ca ĐỎ, thông
-      điệp ghim "lop CI thieu muc". Đây là ca đo tổng quát, không phải phép đếm chín mục.
+      Lưới quan hệ SẴN CÓ của kit (`tests/scripts/consumer-esm.test.mjs`) phải XANH trên
+      cây sau bản vá: ca CE1 rút được danh sách chép từ marker và mọi mục tồn tại; CE2 đòi
+      mọi tệp mà hai tệp cưỡng chế dùng đều nằm trong danh sách; CE2m là chiều đỏ sẵn có
+      của chính nó. Đây là chân THỨ NHẤT của AC-12, đo một tầng.
+      Chân thứ hai là E15 (bao đóng BẮC CẦU) — hai chân cố ý khác nhau: đo được ngày
+      13/09 rằng CE2 XANH trên một lớp gỡ cả mục lẫn tên tệp khỏi thông điệp, trong khi
+      E15 thoát khác 0 nêu đích danh. Giữ cả hai để thấy chỗ chân một không với tới.
     paths:
       - "commands/acceptance-init.md"
       - "lib/evidence-core.cjs"
