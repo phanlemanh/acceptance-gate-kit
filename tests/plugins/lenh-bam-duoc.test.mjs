@@ -246,7 +246,7 @@ if (want('LB5')) {
     execFileSync('tar', ['-xf', tar, '-C', copy]);
     rmSync(tar, { force: true });
   }
-  const kinds = { baseline: 0, glossary: 0 };
+  const kinds = { baseline: 0, glossary: 0, trongHopDong: 0 };
   // Đối chứng dương cho cờ glossary: cờ này chỉ có ở thẻ Cổng 1 (A/B/C đều đã ký → Cổng 2), nên đo trên
   // fixture Cổng 1 bằng CHÍNH bản cũ: cũ phải bắn, mới không.
   const oldFx = flagsOf(cardHtml(r, 'x', path.join(copy, 'scripts', 'gate-card.js')));
@@ -260,10 +260,22 @@ if (want('LB5')) {
       else if (/--glossary-base/.test(t)) kinds.glossary++;
       else errs.push(`${s}: cờ mất ngoài hai loại TRỪ: «${t.slice(0, 60)}»`);
     }
-    if (added.length) errs.push(`${s}: CỘNG cờ lén: ${added.map(t => t.slice(0, 50)).join(' | ')}`);
+    // CỘNG cờ: mặc định vẫn CẤM. Mở đúng MỘT loại có tên (hồ sơ
+    // cong-nguoi-doc-du-nguon): cờ đỏ của khối «Lỗi TRONG hợp đồng CHƯA sửa». Nó
+    // không phải trang trí — trước bản vá thẻ KHÔNG có khối nào cho mục đó, nên
+    // lỗi có mã AC chưa sửa không hiện ở bất kỳ đâu. Đo trên 740 hồ sơ có tệp rà
+    // soát ở 11 kho: 35 hồ sơ mang mục đó, trong đó cả BA hồ sơ mẫu của ca này.
+    for (const t of added) {
+      if (/nằm TRONG phạm vi bạn đã duyệt/.test(t)) kinds.trongHopDong++;
+      else errs.push(`${s}: CỘNG cờ lén: ${t.slice(0, 60)}`);
+    }
   }
   if (!kinds.baseline) errs.push('đối chứng dương: bản cũ không phát cờ baseline nào trên ba hồ sơ');
-  if (errs.length) fail('LB5', errs.join(' · ')); else pass('LB5', `0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(${kinds.baseline}) + glossary(${kinds.glossary}), mới∖cũ = ∅`);
+  // Đối chứng dương cho loại CỘNG vừa mở: ba hồ sơ mẫu PHẢI có ít nhất một cờ
+  // như thế. Không có thì loại miễn trừ này là dòng chết, và nó sẽ lặng lẽ tha
+  // cho một cờ lén thật ở vòng sau.
+  if (!kinds.trongHopDong) errs.push('đối chứng dương: không hồ sơ mẫu nào phát cờ «lỗi TRONG hợp đồng» — loại CỘNG vừa mở là dòng chết');
+  if (errs.length) fail('LB5', errs.join(' · ')); else pass('LB5', `0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(${kinds.baseline}) + glossary(${kinds.glossary}); mới∖cũ chỉ gồm cờ «lỗi TRONG hợp đồng»(${kinds.trongHopDong})`);
 }
 
 // ---------- LB6: dòng bỏ lệch gạch nối (AC-6)

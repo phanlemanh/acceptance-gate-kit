@@ -658,6 +658,91 @@ def('CN11', () => {
   say('CN11', true, '', chi);
 });
 
+// ── thẻ: dựng kho rồi rút HTML ────────────────────────────────────────────
+// gate: '2' (mặc định, hồ sơ verified) hoặc '1' (hồ sơ draft — khối Độ phủ AC và
+// khoá coverage_missing CHỈ có ở thẻ Cổng Phạm vi).
+function theCong2({ trong = 0, ngoai = 0, coverage = 'bullet', gate = '2' } = {}) {
+  const cp = req('node:child_process');
+  const R = mk('cn-the-');
+  const d = path.join(R, '_acceptance', 'x');
+  fs.mkdirSync(d, { recursive: true });
+  fs.writeFileSync(path.join(R, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
+  const cov = coverage === 'khong' ? []
+    : coverage === 'bang' ? ['## Coverage', '', '| Trục | Giá trị |', '|---|---|', '| hình dạng | gạch · bảng |', '| tên mục | Criteria |', '']
+    : coverage === 'vanxuoi' ? ['## Coverage', '', 'Quét bằng khuôn ba trục, không gian Core 24 ô.', '']
+    : ['## Coverage', '', '- trục hình dạng: gạch · bảng', ''];
+  fs.writeFileSync(path.join(d, 'contract.md'), ['---', 'schema_version: 1', 'feature: x', 'slug: x',
+    'risk_tier: T2', 'surfaces: [cli]',
+    ...(gate === '1' ? ['status: draft', 'approved_by:', 'approved_at:'] : ['status: verified', 'approved_by: Ng', 'approved_at: 2026-09-13']),
+    '---', '',
+    '## Criteria', '', '- AC-1: Given a, When b, Then c', '', ...cov, '## Out of scope', '', '- x', ''].join('\n'));
+  fs.writeFileSync(path.join(d, 'evals.yaml'), 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.x\n    expected: x\n');
+  const muc = (n, i) => `- **${n}-${i}**\n  Người dùng thấy gì: người dùng thấy ${n}-${i}\n  file: \`src/${n}${i}.ts\`\n  severity: high\n  Đề xuất: known-limits`;
+  fs.writeFileSync(path.join(d, 'review-findings.md'), [
+    '## Trong hợp đồng', '', ...Array.from({ length: trong }, (_, i) => muc('trong', i + 1)), '',
+    '## Ngoài hợp đồng — người quyết ở Gate 2', '', ...Array.from({ length: ngoai }, (_, i) => muc('ngoai', i + 1)), '',
+  ].join('\n'));
+  fs.writeFileSync(path.join(d, 'evidence-report.md'), ['---', 'schema_version: 1', 'feature_slug: x',
+    'verdict: PENDING-JUDGMENT', 'human_signoff:', `findings_open: ${trong + ngoai}`, '---', '',
+    '## Evidence', '', '- E1 exit 0', '', '## Known limits', '', '## Ngoài hợp đồng', ''].join('\n'));
+  const r = cp.spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gate-card.js'), '--slug', 'x', '--root', R], { encoding: 'utf8' });
+  const x = cp.spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gate-card.js'), '--slug', 'x', '--root', R, '--extract'], { encoding: 'utf8' });
+  let ex = {}; try { ex = JSON.parse(x.stdout); } catch (_) { /* giữ rỗng */ }
+  return { html: r.stdout || '', ma: r.status, ex, root: R };
+}
+
+// ══ CN10 — thẻ Cổng Bằng chứng hiện lỗi TRONG hợp đồng chưa sửa ═══════════
+def('CN10', () => {
+  const chi = [];
+  // Đối chứng dương TRƯỚC: mục Trong hợp đồng RỖNG → không khối nào, và thẻ nói
+  // bằng chứng đầy đủ như hành vi hiện có.
+  const duong = theCong2({ trong: 0, ngoai: 1 });
+  chi.push(`0 mục trong hợp đồng: mã=${duong.ma}, có khối=${/Lỗi TRONG hợp đồng/.test(duong.html)}`);
+  if (duong.ma !== 0) return say('CN10', false, `the chet, ma ${duong.ma}`, chi);
+  if (/Lỗi TRONG hợp đồng/.test(duong.html)) return say('CN10', false, 'muc rong ma van hien khoi', chi);
+  const noiDu = /Bằng chứng đầy đủ/.test(duong.html);
+  chi.push(`0 mục: thẻ nói «Bằng chứng đầy đủ» = ${noiDu}`);
+
+  // Ô thật: 2 mục trong hợp đồng chưa sửa.
+  const r = theCong2({ trong: 2, ngoai: 1 });
+  chi.push(`2 mục: có khối=${/Lỗi TRONG hợp đồng/.test(r.html)}`);
+  if (!/Lỗi TRONG hợp đồng/.test(r.html)) return say('CN10', false, 'the giau loi trong hop dong', chi);
+  if (!/Lỗi TRONG hợp đồng[^<]*\(2\)/.test(r.html)) return say('CN10', false, 'khoi khong neu dung so 2', chi);
+  // Khối Trong hợp đồng phải đứng TRƯỚC khối Ngoài hợp đồng: nó nặng hơn.
+  const iTrong = r.html.indexOf('Lỗi TRONG hợp đồng');
+  const iNgoai = r.html.indexOf('Ngoài hợp đồng — bạn quyết');
+  chi.push(`vị trí: Trong=${iTrong} Ngoài=${iNgoai}`);
+  if (iNgoai >= 0 && iTrong > iNgoai) return say('CN10', false, 'khoi Trong dung SAU khoi Ngoai', chi);
+  // Và thẻ thôi khẳng định bằng chứng đầy đủ khi còn mục như vậy.
+  if (noiDu && /Bằng chứng đầy đủ/.test(r.html)) return say('CN10', false, 'con loi trong hop dong ma the van noi «Bang chung day du»', chi);
+  say('CN10', true, '', chi);
+});
+
+// ══ CN15 — thẻ đọc được Coverage dạng BẢNG và văn xuôi ════════════════════
+def('CN15', () => {
+  const chi = [];
+  // Đối chứng dương TRƯỚC: Coverage dạng gạch đầu dòng.
+  const g = theCong2({ coverage: 'bullet', gate: '1' });
+  chi.push(`gạch đầu dòng: coverage_missing=${g.ex.coverage_missing}`);
+  if (g.ex.coverage_missing !== false) return say('CN15', false, 'doi chung duong: dang gach van bao thieu', chi);
+  // Ô (1) BẢNG: phải KHÔNG báo thiếu, và khối phải mang chữ của một hàng bảng.
+  const b = theCong2({ coverage: 'bang', gate: '1' });
+  chi.push(`bảng: coverage_missing=${b.ex.coverage_missing}`);
+  if (b.ex.coverage_missing !== false) return say('CN15', false, 'coverage_missing=true tren muc BANG', chi);
+  if (!/hình dạng/.test(JSON.stringify(b.ex.coverage || []))) return say('CN15', false, 'khoi khong mang chu cua hang bang', chi);
+  if (/chưa có section Coverage/.test(b.html)) return say('CN15', false, 'van con co vang «chua co section Coverage» tren muc BANG', chi);
+  // Ô (1b) văn xuôi — cùng lớp.
+  const v = theCong2({ coverage: 'vanxuoi', gate: '1' });
+  chi.push(`văn xuôi: coverage_missing=${v.ex.coverage_missing}`);
+  if (v.ex.coverage_missing !== false) return say('CN15', false, 'coverage_missing=true tren muc VAN XUOI', chi);
+  // Ô (2) VẮNG HẲN: đường cũ KHÔNG được nới theo.
+  const k = theCong2({ coverage: 'khong', gate: '1' });
+  chi.push(`vắng hẳn: coverage_missing=${k.ex.coverage_missing}, còn cờ vàng=${/chưa có section Coverage/.test(k.html)}`);
+  if (k.ex.coverage_missing !== true) return say('CN15', false, 'vang han muc ma khong bao thieu — da noi ca duong cu', chi);
+  if (!/chưa có section Coverage/.test(k.html)) return say('CN15', false, 'vang han muc ma co vang bien mat', chi);
+  say('CN15', true, '', chi);
+});
+
 // ── chạy ──────────────────────────────────────────────────────────────────
 const chon = (process.env.CNDN_CASES || '').split(/[,\s]+/).filter(Boolean);
 const ids = Object.keys(CASES).filter(id => !chon.length || chon.includes(id));

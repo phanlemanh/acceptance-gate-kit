@@ -169,7 +169,11 @@ if (want('LNT4')) {
     const tpl = readFileSync(EVID_TPL, 'utf8');
     let t = tpl.slice(tpl.indexOf('---8<---') + '---8<---'.length).replace(/^\s*/, '');
     t = t.replace(/\{\{slug\}\}/g, 'x').replace(/^verdict: .*$/m, 'verdict: PASS').replace(/^enforcement_mode: .*$/m, 'enforcement_mode: strict')
-      .replace(/^bypass_used: .*$/m, 'bypass_used: false').replace(/^verified_commit: .*$/m, `verified_commit: ${'a'.repeat(40)}`).replace(/^human_signoff:.*$/m, 'human_signoff:');
+      .replace(/^bypass_used: .*$/m, 'bypass_used: false')
+      // findings_open — khoá của điều kiện xanh-sạch THỨ BẢY (hồ sơ
+      // cong-nguoi-doc-du-nguon). Fixture này không có review-findings.md nên vật
+      // rỗng; khai 0 là khai ĐÚNG.
+      .replace(/^findings_open: .*$/m, 'findings_open: 0').replace(/^verified_commit: .*$/m, `verified_commit: ${'a'.repeat(40)}`).replace(/^human_signoff:.*$/m, 'human_signoff:');
     const rowVals = ['E1', 'AC-1', 'test', 'PASS']; let ri = 0;
     t = t.replace(/^\|.*\{\{.*\|$/m, line => line.replace(/\{\{[^}]*\}\}/g, () => rowVals[ri++] ?? '…'));
     t = t.replace(/^(- eval:).*\{\{[^}]*\}\}.*$/m, '$1 E1').replace(/^(\s+run_id:).*\{\{[^}]*\}\}.*$/m, '$1 x-E1-001')
