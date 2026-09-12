@@ -16,8 +16,9 @@
 //
 // exit 0 = làn xanh (đã ghi run-log + evidence-report nếu --write, rồi tự kiểm
 //          bằng recheck-evidence.cjs) · 1 = làn ĐỎ — KHÔNG ghi gì, khắc phục rồi
-//          chạy làn MỚI · 2 = nguồn thiếu/hỏng (config, evals.yaml, report, cây
-//          bẩn, ref không giải được) · 3 = usage.
+//          chạy làn MỚI · 2 = nguồn thiếu/hỏng (bộ máy acceptance-gate thiếu
+//          tệp/export hoặc nạp lỗi, config, evals.yaml, report, cây bẩn, ref
+//          không giải được) · 3 = usage.
 // Mọi lệnh chạy bằng `bash -c` tại gốc kho với env hiện tại (đặt
 // CLAUDE_PLUGIN_ROOT… như khi chạy S4). stdout = JSON kết quả; tiến trình ở stderr.
 import fs from 'node:fs';
@@ -56,20 +57,75 @@ const readOr = (p, what) => { try { return fs.readFileSync(p, 'utf8'); } catch {
 const configText = readOr(path.join(root, '_acceptance', 'config.yaml'), 'config.yaml');
 
 // ── acceptance-gate root: --ag-root (tự host) hoặc resolve-plugin ─────────
+// --ag-root chỉ cấp BỘ MÁY (lib/ + scripts/ của acceptance-gate); --root là cây
+// đang đo. Hai thứ tách nhau, nên một cây mang lớp vendored cũ vẫn đo được bằng
+// một bộ máy đủ đời.
 const AG_REQUIRES = ['lib/evidence-core.cjs', 'lib/eval-yaml.cjs', 'scripts/recheck-evidence.cjs'];
+const RESOLVER = path.join(HERE, 'resolve-plugin.mjs');
 let agRoot = flags['ag-root'];
 if (!agRoot) {
   try {
-    const out = execFileSync(process.execPath, [path.join(HERE, 'resolve-plugin.mjs'), '--plugin', 'acceptance-gate', ...AG_REQUIRES.flatMap(r => ['--require', r])], { encoding: 'utf8' });
+    const out = execFileSync(process.execPath, [RESOLVER, '--plugin', 'acceptance-gate', ...AG_REQUIRES.flatMap(r => ['--require', r])], { encoding: 'utf8' });
     agRoot = out.trim().split('\n').pop();
   } catch (e) { die(`không resolve được plugin acceptance-gate: ${String(e.message || e).split('\n')[0]}`); }
 }
 agRoot = (() => { try { return fs.realpathSync(agRoot); } catch { return die(`--ag-root không tồn tại: ${agRoot}`); } })();
-for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acceptance-gate root thiếu ${r} (root: ${agRoot}) — cần acceptance-gate ≥ 2.9.0`);
+
+// ── Cổng bộ máy — chạy TRƯỚC kiểm cây sạch, trước mọi suite, trước mọi lần ghi ──
+// (hồ sơ ghim-lai-tren-lop-cu, 11/09/2026). Trước đây làn rút expectedExits từ
+// một lớp cũ mà không kiểm, sập TypeError và thoát 1 — trùng mã LÀN ĐỎ, tức bộ
+// máy cũ bị đọc thành hồ sơ mất tiền đề. Mỗi hàng dưới là MỘT điểm chạm của làn
+// vào bộ máy, kể cả thứ bước tự kiểm recheck-evidence.cjs gọi (nó chạy SAU khi
+// ghi, từ cùng gốc) và sàn ngữ nghĩa readSignedReportFor: nó sinh cùng luật hai
+// vế của checkRepinEvals, evidence-core thiếu nó sẽ từ chối mã khác 0 đã khai
+// SAU khi làn đã ghi. Kiểm export có mặt, không kiểm chuỗi version: lớp vendored
+// không mang plugin.json. Tệp ca tests/scripts/repin-lane-lop-cu.test.mjs rút
+// hàng từ CHÍNH khối này; thêm một lời gọi vào bộ máy mà không thêm hàng là ca
+// GL03 đỏ gọi tên lời gọi đó.
+// <<<AG-ENGINE-TABLE
+const AG_ENGINE = [
+  { file: 'lib/eval-yaml.cjs', name: 'parseEvals', kind: 'function', since: '2.9.0', why: 'làn gọi' },
+  { file: 'lib/eval-yaml.cjs', name: 'expectedExits', kind: 'function', since: '2.11.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'resolveConfigKey', kind: 'function', since: '2.9.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'resolveConfigList', kind: 'function', since: '2.9.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'REPIN_MACHINE_EXECUTORS', kind: 'array', since: '2.9.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'determineEnforce', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'evaluateEvidence', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'checkRepinEvals', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'findAcceptanceConfig', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'readSignedReportFor', kind: 'function', since: '2.11.0', why: 'sàn ngữ nghĩa bên đọc' },
+];
+// AG-ENGINE-TABLE>>>
+const verNum = (v) => String(v).split('.').map(Number).reduce((n, x) => n * 1000 + (x || 0), 0);
+const AG_FLOOR = AG_ENGINE.map(r => r.since).reduce((a, b) => (verNum(b) > verNum(a) ? b : a));
+const shq = (s) => (/^[\w@%+=:,./-]+$/.test(s) ? s : `'${String(s).replace(/'/g, `'\\''`)}'`);
+const nguon = flags['ag-root']
+  ? `nguồn bộ máy: --ag-root ${flags['ag-root']}`
+  : 'nguồn bộ máy: plugin cache (resolve-plugin.mjs chọn, không có --ag-root) — cập nhật plugin: claude plugin update acceptance-gate@acceptance-gate-kit';
+// Dòng `lệnh dò:` in đường TUYỆT ĐỐI tới resolve-plugin.mjs: người chạy đứng ở
+// --root, không ở gốc kit. resolve-plugin chỉ kiểm tệp có mặt, không kiểm
+// export — nó có thể chỉ ra một bản đã cài vẫn cũ; lượt kế sẽ dừng lại ở chính
+// cổng này với cùng khuôn thông điệp, không bao giờ lặng.
+function engineStop(head) {
+  return die([
+    head,
+    nguon,
+    `lối đi tiếp: trỏ --ag-root vào một acceptance-gate ≥ ${AG_FLOOR}, ví dụ bản plugin đã cài — --ag-root chỉ cấp bộ máy, --root vẫn là cây đang đo (lớp vendored cũ trong cây vẫn đo được).`,
+    `lệnh dò: node ${shq(RESOLVER)} --plugin acceptance-gate ${AG_REQUIRES.map(r => `--require ${r}`).join(' ')}`,
+  ].join('\n'));
+}
+const vangTep = AG_REQUIRES.filter(r => !fs.existsSync(path.join(agRoot, r)));
+if (vangTep.length) engineStop(`acceptance-gate không đủ tệp cho làn ghim lại (root: ${agRoot}) — thiếu ${vangTep.length} mục:\n${vangTep.map(r => `  - ${r}: (vắng tệp)`).join('\n')}`);
 const require_ = createRequire(import.meta.url);
-const core = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
-const { parseEvals, expectedExits } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
-for (const fn of ['resolveConfigKey', 'resolveConfigList', 'REPIN_MACHINE_EXECUTORS']) if (core[fn] === undefined) die(`lib/evidence-core.cjs thiếu ${fn} — acceptance-gate quá cũ (cần ≥ 2.9.0)`);
+function loadEngine(rel) {
+  try { return require_(path.join(agRoot, rel)); } catch (e) { return engineStop(`không nạp được ${rel} (root: ${agRoot}): ${String((e && e.message) || e).split('\n')[0]}`); }
+}
+const mods = { 'lib/evidence-core.cjs': loadEngine('lib/evidence-core.cjs'), 'lib/eval-yaml.cjs': loadEngine('lib/eval-yaml.cjs') };
+const lacks = (r) => { const v = mods[r.file] ? mods[r.file][r.name] : undefined; return r.kind === 'array' ? !Array.isArray(v) : typeof v !== 'function'; };
+const missing = AG_ENGINE.filter(lacks);
+if (missing.length) engineStop(`acceptance-gate quá cũ cho làn ghim lại (root: ${agRoot}) — thiếu ${missing.length} mục:\n${missing.map(r => `  - ${r.file}: ${r.name} (cần ≥ ${r.since})`).join('\n')}`);
+const core = mods['lib/evidence-core.cjs'];
+const { parseEvals, expectedExits } = mods['lib/eval-yaml.cjs'];
 
 // ── git: sha = HEAD, cây phải sạch ngoài _acceptance/ (pin phải là cây đã đo) ──
 const gitRaw = (...a) => { try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch (e) { return die(`git ${a[0]} thất bại tại ${root}: ${String(e.stderr || e.message).trim().split('\n')[0]}`); } };

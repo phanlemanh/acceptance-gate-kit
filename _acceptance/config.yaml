@@ -233,6 +233,18 @@ executors:
     # sống của bản vá nằm ngay trong làn chấm. Mốc so KHÔNG ghim vào đây: răng tự suy từ
     # kho, nên hồ sơ đã ký còn ghim lại được ở mọi HEAD tương lai (AC-11).
     moc_diagram_khong_doi: "bash -c 'bash _acceptance/release-2-11-0/rang-moc.sh --chan \"diagram\"'"
+    # --- ghim-lai-tren-lop-cu (11/09, T2) --- moi eval = MOT ca cua tep ca VINH VIEN
+    # tests/scripts/repin-lane-lop-cu.test.mjs (suite scripts tu chay qua glob, nen day
+    # la luoi thuong truc chu khong phai rang ho so). Lenh de TRAN (khong nhay) theo nep
+    # emmd_*. Bo loc GLLC_CASES khop 0 ca phai thoat khac 0 (bai hoc P86).
+    gllc_lop_cu_that: GLLC_CASES=GL01 node tests/scripts/repin-lane-lop-cu.test.mjs
+    gllc_liet_ke_tron: GLLC_CASES=GL02 node tests/scripts/repin-lane-lop-cu.test.mjs
+    gllc_ma_tran_export: GLLC_CASES=GL03 node tests/scripts/repin-lane-lop-cu.test.mjs
+    gllc_lop_lai: GLLC_CASES=GL04 node tests/scripts/repin-lane-lop-cu.test.mjs
+    gllc_nap_loi: GLLC_CASES=GL05 node tests/scripts/repin-lane-lop-cu.test.mjs
+    gllc_nguon_cache: GLLC_CASES=GL06 node tests/scripts/repin-lane-lop-cu.test.mjs
+    gllc_loi_di_tiep: GLLC_CASES=GL07 node tests/scripts/repin-lane-lop-cu.test.mjs
+    gllc_bo_loc_rong: GLLC_CASES=GL08 node tests/scripts/repin-lane-lop-cu.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
