@@ -1,0 +1,357 @@
+# Eval cho hồ sơ cong-nguoi-doc-du-nguon.
+#
+# Ca sống VĨNH VIỄN ở tests/scripts/cong-nguoi-doc-du-nguon.test.mjs — suite `scripts`
+# tự chạy mọi *.test.mjs qua glob, nên đây là lưới thường trực cho lớp «cổng người đọc
+# thiếu nguồn». Luật đo của tệp ca, áp cho MỌI ca:
+#
+#  - Fixture do CODE SINH trong chính lượt chạy (kho git tạm + hồ sơ tạm). Không hợp đồng
+#    thật nào của kho bị đọc làm fixture — hồ sơ đã ký là sử liệu, và một fixture viết tay
+#    đúng khuôn bên đọc là đúng hình dạng lỗi (2) của luật «thước phải gắn vào vật».
+#  - Mỗi ca CHẠY HAI CHIỀU trên CÙNG fixture: vật lành → phép phán xanh (đối chứng dương,
+#    chạy TRƯỚC); rồi hoàn nguyên ĐÚNG MỘT đường của bản vá trên một BẢN SAO → phép phán
+#    phải ĐỎ với ĐÚNG thông điệp ghim. Mũi tiêm phải khớp đúng một lần, bản sao phải khác
+#    gốc, và bản sao `.cjs`/`.mjs` phải qua `node --check`; không thì ca đỏ có tên.
+#  - Mỗi ca in ĐÚNG MỘT dòng `PASS: CNxx …` / `FAIL: CNxx … (DO: …)`; chi tiết in bằng
+#    tiền tố `    · `. Bộ chọn `CNDN_CASES` khớp 0 ca → thoát khác 0 in "CNDN_CASES khop 0 ca".
+#  - Mọi đường dẫn suy từ vị trí tệp ca, không hằng nào trỏ checkout của tác giả.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.cndn_luat_thu_bay
+    expected: >-
+      Ca CN01, ma trận 6 ô trên fixture do code sinh (hồ sơ T2 verified, báo cáo xanh-sạch
+      sáu điều kiện cũ). Sáu ô, mỗi ô một khẳng định phân biệt được, ghim CẢ số lẫn câu:
+      (a) 0 mục · 0 dòng sổ gate2 → SẠCH — đối chứng dương, chạy TRƯỚC;
+      (b) 3 mục «Ngoài hợp đồng» · 0 dòng sổ → KHÔNG-sạch, lý do chứa số 3 và tên mục;
+      (c) 1 mục «Trong hợp đồng» · 0 dòng sổ → KHÔNG-sạch, lý do chứa số 1 và tên mục;
+      (d) 2 mục · 2 dòng sổ `stage: "gate2"` → SẠCH (đã định đoạt hết — ô này lấy hình dạng
+      NGUYÊN VĂN từ hồ sơ thật `ghim-lai-tren-lop-cu`, chép chuỗi vào fixture chứ không đọc
+      tệp thật lúc chạy);
+      (e) 6 mục · 4 dòng sổ → KHÔNG-sạch, lý do chứa số 2 (còn treo), KHÔNG chứa 6;
+      (f) 2 mục · 2 dòng sổ trong đó một dòng `stage: "S4-r1"` → KHÔNG-sạch nêu 1 (chỉ dòng
+      gate2 mới tính).
+      Trên MỌI ô, hai bản dựng phải nêu CÙNG một lý do (so BẰNG chuỗi sau khi chuẩn hoá
+      khoảng trắng), không chỉ cùng kết luận. Chiều đỏ ba mũi tiêm độc lập trên bản sao
+      evidence-core: vị từ luôn trả 0 mục → (b)(c)(e)(f) hoá SẠCH; bỏ phép trừ sổ → (d) hoá
+      KHÔNG-sạch; nhận mọi `stage` → (f) hoá SẠCH. Mũi nào không làm đỏ đúng tập ô của nó
+      thì ca ĐỎ, thông điệp ghim "dieu kien thu bay khong con rang".
+    paths:
+      - "lib/evidence-core.cjs"
+      - "lib/out-of-contract.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "scripts/khong-can-nguoi.mjs"
+      - "tests/scripts/cong-nguoi-doc-du-nguon.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.cndn_mot_nguon
+    expected: >-
+      Ca CN02, đo QUAN HỆ chứ không đo chuỗi-có-mặt. Ba khẳng định trên vật: (1) khối
+      `EVIDENCE-XANH-SACH-BLOCK` của evidence-report-template rút ra ĐÚNG bảy khoá, khoá
+      thứ bảy là `findings`; (2) thân hàm `xanh_sach_check` (cắt đúng thân, kiểm phạm vi
+      cắt có thật) và thân `xanhSach` mỗi bên có ĐÚNG BẢY mốc theo ĐÚNG thứ tự khối; (3)
+      không bên nào tự duyệt `review-findings.md` — quét cả hai tệp tìm chuỗi tiêu đề mục
+      («Ngoài hợp đồng» / «Trong hợp đồng») nằm NGOÀI lời gọi vị từ dùng chung: phải bằng 0.
+      Đối chứng dương: cây thật đạt cả ba. Chiều đỏ ba mũi tiêm độc lập trên bản sao —
+      (a) gỡ dòng `findings` khỏi khối → khẳng định (1) đỏ; (b) đảo chỗ hai mốc trong thân
+      mjs → (2) đỏ; (c) thêm một regex tự duyệt vào bản sao pre-merge → (3) đỏ. Mỗi mũi
+      tiêm ghim một thông điệp riêng; mũi nào không làm đỏ đúng khẳng định của nó → ca ĐỎ.
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "scripts/khong-can-nguoi.mjs"
+      - "skills/acceptance/references/evidence-report-template.md"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.cndn_fail_closed
+    expected: >-
+      Ca CN03, HAI hình dạng thiếu trên cùng một fixture (bản sao TRỌN `lib/` + `scripts/`
+      của cây đang đo — chép cả thư mục bằng cpSync, không liệt kê tệp tay; hồ sơ có 2 mục
+      chờ người). Đối chứng dương TRƯỚC: bản sao nguyên vẹn, có node → KHÔNG-sạch, lý do
+      nêu số 2.
+      (1) XOÁ `lib/out-of-contract.cjs`: cả hai bản dựng vẫn KHÔNG-sạch (fail-CLOSED), lý do
+      chứa nguyên văn "lib/out-of-contract.cjs" và "INIT-CI-COPY-LIST"; stderr KHÔNG để lọt
+      "Cannot find module" hay "TypeError"; mã thoát là mã vi phạm bình thường, không phải
+      mã sập.
+      (2) Chạy `scripts/pre-merge-check.sh` với PATH dựng lại KHÔNG có `node` (thư mục bin
+      tạm chỉ chứa các lệnh POSIX cần thiết): lưới rơi về nhánh awk dự phòng và VẪN kết
+      luận KHÔNG-sạch cho hồ sơ đó, thông điệp nêu đích danh việc thiếu thông dịch; TUYỆT
+      ĐỐI không có đường im lặng bỏ qua điều kiện thứ bảy.
+      Chiều đỏ hai mũi độc lập: bản sao evidence-core bắt lỗi require rồi trả 0 mục → ô (1)
+      hoá SẠCH, ghim "vang bo doc ma van SACH"; bản sao pre-merge bỏ qua điều kiện thứ bảy
+      khi không có node → ô (2) hoá SẠCH, ghim "vang node thi fail-open".
+    paths:
+      - "lib/evidence-core.cjs"
+      - "lib/out-of-contract.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.cndn_khai_lech_vat
+    expected: >-
+      Ca CN04, ma trận 6 ô trên cùng fixture, mỗi ô một khẳng định phân biệt được. Vật ở
+      đây là vị từ «mục chờ người» (đã trừ sổ), không phải số mục trần:
+      khoá 0 · vật 0 → SẠCH (đối chứng dương, chạy TRƯỚC) ·
+      khoá 2 · vật 2 → KHÔNG-sạch nêu 2 ·
+      khoá 0 · vật 2 → KHÔNG-sạch, lý do chứa CẢ HAI số và chữ "lệch" ·
+      khoá 5 · vật 2 → cùng vậy ·
+      khoá 0 · 2 mục nhưng 2 dòng sổ gate2 (vật = 0) → SẠCH, KHÔNG báo lệch ·
+      khoá 2 · 2 mục và 2 dòng sổ gate2 (vật = 0) → KHÔNG-sạch báo lệch (khai thừa cũng là
+      lệch, không chỉ khai thiếu).
+      Chiều đỏ hai mũi: bỏ phép so khai-với-vật (chỉ đọc khoá) → ô ba và ô sáu hoá SẠCH,
+      ghim "tin loi khai"; so khoá với số mục TRẦN thay vì với vị từ → ô năm hoá KHÔNG-sạch,
+      ghim "so voi so muc tran".
+    paths:
+      - "lib/evidence-core.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.cndn_duong_doc_cu
+    expected: >-
+      Ca CN05. Fixture kho git tạm, hồ sơ làn V (`approved_by` rỗng, `veto_state: mo`,
+      `veto_opened_at` parse được, T2), báo cáo PASS xanh-sạch sáu điều kiện cũ. HAI ô
+      đọc-cũ: (1) VẮNG khoá `findings_open`, review-findings có 3 mục · (2) `review-findings.md`
+      VẮNG HẲN khỏi thư mục hồ sơ. Cả hai: stdout có dòng NOTE mang slug và nêu lý do đọc-cũ
+      đúng loại, KHÔNG có dòng VIOLATION nào cho slug đó, và mã thoát của lưới KHÔNG đổi so
+      với lượt chạy trên cùng kho khi review-findings rỗng (đối chứng dương, chạy TRƯỚC).
+      Thêm chân thẻ: `node scripts/gate-card.js <slug> --extract` cho cả hai ô trả cờ vàng
+      đời-trước-luật. Chiều đỏ hai mũi: đổi nhánh vắng-khoá từ NOTE sang VIOLATION → ô (1)
+      đỏ; đổi nhánh vắng-tệp thành SẠCH im lặng → ô (2) mất cờ vàng. Thông điệp ghim
+      "duong doc cu da chan ho so cu" và "vang tep thi im".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/evidence-core.cjs"
+      - "scripts/gate-card.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.cndn_cua_ghi
+    expected: >-
+      Ca CN06, hai ô: hồ sơ verified + review-findings có 2 mục + báo cáo VẮNG khoá
+      `findings_open` → `khong-can-nguoi.mjs --write` thoát ĐÚNG 2, stderr nêu số 2, và
+      tệp contract.md bằng BYTE trước lượt chạy; cùng hồ sơ với review-findings RỖNG →
+      thoát 0 và contract.md đổi sang `machine-cleared` (đối chứng dương, chạy TRƯỚC). Vế
+      «vắng khoá vẫn chặn» là điều phân biệt cửa GHI với lưới đọc — chiều đỏ: bản sao
+      khong-can-nguoi rút số mục từ khoá thay vì từ vật → ô thứ nhất thoát 0 và ghi đĩa →
+      ca ĐỎ, thông điệp ghim "cua ghi di qua loi khai".
+    paths:
+      - "scripts/khong-can-nguoi.mjs"
+      - "lib/evidence-core.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.cndn_ac_tieu_de
+    expected: >-
+      Ca CN07, ma trận 12 hình dạng khai báo, mỗi hình dạng một khẳng định phân biệt được,
+      ba trong số đó lấy NGUYÊN VĂN từ hợp đồng thật (crm `auto-pr-thoi-do-o-ban-re`,
+      artifact-platform `customer-segment-foundation`, kit `release-2-11-0`) — chép chuỗi
+      vào fixture, KHÔNG đọc tệp thật lúc chạy. Phủ: `### AC-n — nhãn` thân nhiều dòng ·
+      thân một dòng · `### AC-n (judgment)` · tag `(cross-layer)` ở nhãn · tag ở thân ·
+      tag trong code span (KHÔNG tính) · `## AC-n` cấp h2 · tiêu đề có `**` · tiêu đề rồi
+      tiêu đề kế cắt thân · tiêu chí gạch đầu dòng lẫn tiêu đề trong cùng tệp · dòng THAM
+      CHIẾU CHÉO trong thân (không sinh id mới) · tiêu chí thân rỗng (KHÔNG tính là tiêu
+      chí). Mỗi ô ghim id, chữ phải có trong `gwt`, và cặp (judgment, crossLayer). Đối
+      chứng dương: cả 12 ô đạt trên cây thật. Chiều đỏ: 3 mũi tiêm độc lập trên bản sao
+      ac-line (bỏ nhánh tiêu đề · bỏ nối thân · đọc tag trong code span) — mỗi mũi phải làm
+      ĐỎ đúng tập ô của nó, mũi nào để cả 12 ô xanh → ca ĐỎ.
+    paths:
+      - "lib/ac-line.cjs"
+      - "tests/scripts/cong-nguoi-doc-du-nguon.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.cndn_tieu_de_muc
+    expected: >-
+      Ca CN08. Cùng một thân hợp đồng, đặt dưới bốn tiêu đề mục: `## Criteria` ·
+      `## Acceptance Criteria` · `## Acceptance criteria` · KHÔNG mục nào. Ba ô đầu phải
+      trả CÙNG một tập id và cùng `gwt` (so BẰNG trọn chuỗi, không so độ dài); ô thứ tư
+      quét cả tệp và vẫn ra đủ id. Đối chứng dương là ô `## Criteria`, chạy TRƯỚC. Chiều
+      đỏ: bản sao thu tiêu đề về đúng `Criteria` → ba ô sau lệch ô đầu → ca ĐỎ, thông điệp
+      ghim "tieu de muc chua nhan het".
+    paths:
+      - "lib/ac-line.cjs"
+      - "lib/md-section.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.cndn_bo_do_khong_im
+    expected: >-
+      Ca CN09, ba ô: hợp đồng khai bằng tiêu đề mà bộ bóc bị tiêm cho bỏ sót 2/6 → bộ dò
+      trả kind `short`, văn bản nêu số 2 và liệt số dòng · bỏ sót 6/6 → kind `blank` ·
+      hợp đồng LÀNH (bóc đủ) → bộ dò trả null, KHÔNG kêu oan (đối chứng dương, chạy TRƯỚC,
+      và đây là vế chống cry-wolf). Chiều đỏ: bản sao giữ `AC_SUSPECT` cũ (không nhận dòng
+      tiêu đề) → hai ô đầu hoá null → ca ĐỎ, thông điệp ghim "bo do van im truoc dang
+      tieu de".
+    paths:
+      - "lib/ac-line.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.cndn_the_cong_2
+    expected: >-
+      Ca CN10. Fixture hồ sơ verified + review-findings có 2 mục «Trong hợp đồng» và 1 mục
+      «Ngoài hợp đồng». Render `scripts/gate-card.js <slug>`: HTML có khối «Trong hợp đồng»
+      nêu đúng số 2, vị trí khối đó đứng TRƯỚC khối «Ngoài hợp đồng» (so chỉ số chuỗi), và
+      HTML không chứa phát ngôn khẳng định bằng chứng đầy đủ. Đối chứng dương TRƯỚC: cùng
+      hồ sơ với mục «Trong hợp đồng» RỖNG → không có khối đó, và phát ngôn đầy-đủ xuất hiện
+      như hành vi hiện có. Chiều đỏ: bản sao gate-card bỏ khối mới → ca ĐỎ, thông điệp ghim
+      "the giau loi trong hop dong".
+    paths:
+      - "scripts/gate-card.js"
+      - "lib/out-of-contract.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.cndn_cross_layer_hai_nhanh
+    expected: >-
+      Ca CN11. Fixture kho git tạm: hợp đồng khai tiêu chí bằng tiêu đề, AC-3 mang
+      `(cross-layer)`, evals.yaml KHÔNG có eval nào của AC-3 khai `layer: backend-effect`.
+      Chạy `scripts/pre-merge-check.sh` HAI lần trên cùng kho: lần thường (nhánh node) và
+      lần ép nhánh awk dự phòng. Cả hai lần in VIOLATION nêu đích danh `AC-3`, và tập id
+      hai nhánh trả về BẰNG NHAU. Đối chứng dương TRƯỚC: thêm eval `layer: backend-effect`
+      cho AC-3 → cả hai nhánh im. Chiều đỏ hai mũi độc lập: bản sao gỡ nhánh tiêu đề khỏi
+      ac-line → nhánh node im trong khi awk kêu (hai nhánh LỆCH) → ca ĐỎ ghim "hai nhanh
+      lech"; bản sao giữ khuôn awk cũ chỉ nhận gạch đầu dòng → cùng vậy.
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/ac-line.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.cndn_lop_chep_ci
+    expected: >-
+      Ca CN12, đo QUAN HỆ giữa danh sách chép và thứ mã thật sự cần: rút khối
+      `INIT-CI-COPY-LIST` của `commands/acceptance-init.md` thành tập đường dẫn; rút tập
+      tệp mà `lib/evidence-core.cjs` + `scripts/pre-merge-check.sh` + `scripts/recheck-evidence.cjs`
+      thật sự `require`/nguồn tới trong `lib/`; tập thứ hai phải là TẬP CON của tập thứ
+      nhất, và `lib/out-of-contract.cjs` phải có mặt ở cả hai. Đối chứng dương: cây thật
+      đạt. Chiều đỏ: bản sao gỡ dòng `out-of-contract.cjs` khỏi danh sách → ca ĐỎ, thông
+      điệp ghim "lop CI thieu muc". Đây là ca đo tổng quát, không phải phép đếm chín mục.
+    paths:
+      - "commands/acceptance-init.md"
+      - "lib/evidence-core.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.cndn_bon_ben_goi
+    expected: >-
+      Ca CN13, đo QUAN HỆ «mọi bên gọi thấy cùng một số». Fixture do code sinh: MỘT hợp đồng
+      khai 9 tiêu chí bằng tiêu đề (kèm evals.yaml và báo cáo tối thiểu để bốn bên chạy
+      được). Bốn bên đọc, mỗi bên rút ra một SỐ tiêu chí nhìn thấy: `scripts/gate-card.js`
+      (đếm từ `--extract`) · `scripts/evidence-page.js` (đếm hàng tiêu chí trong HTML) ·
+      `scripts/eval-coverage-lint.js` (đếm qua W7 hoặc số AC nó lint) · nhánh node của răng
+      cross-layer trong `scripts/pre-merge-check.sh` (đếm id nó rút được). Cả bốn phải bằng
+      9. Đối chứng dương TRƯỚC: CÙNG nội dung viết dạng gạch đầu dòng → cả bốn cũng bằng 9,
+      tức phép đo phân biệt được HÌNH DẠNG KHAI chứ không phải phân biệt bốn bên.
+      Chiều đỏ BỐN mũi tiêm độc lập, mỗi mũi hoàn nguyên ĐÚNG MỘT bên gọi về `parseAC` từng
+      dòng: mũi nào cũng phải làm ĐÚNG bên đó ra số khác 9 trong khi ba bên kia vẫn 9. Mũi
+      không làm đỏ được bên của nó → ca ĐỎ, thông điệp ghim "ben goi <tên> khong doi theo
+      ban vá" — đây chính là vế chống «sửa ba bên quên bên thứ tư».
+    paths:
+      - "lib/ac-line.cjs"
+      - "scripts/gate-card.js"
+      - "scripts/evidence-page.js"
+      - "scripts/eval-coverage-lint.js"
+      - "scripts/pre-merge-check.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E14
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.script.cndn_round_trip_writer
+    expected: >-
+      Ca CN14, round-trip rút-từ-writer-đọc-bằng-reader. Trong CHÍNH lượt chạy: rút khuôn
+      một mục của `review-findings.md` từ chỗ có marker mà bên VIẾT dùng — prompt soạn
+      trong `feature-loop/workflows/acceptance-verify.js` — KHÔNG chép khuôn vào tệp ca.
+      Marker vắng hoặc rút ra rỗng → ca ĐỎ có tên, không xanh lặng (đây là chân chống
+      «khuôn trôi khỏi bên viết mà ca vẫn xanh»). Sinh fixture từ khuôn vừa rút: 3 mục dưới
+      `## Ngoài hợp đồng` và 2 mục dưới `## Trong hợp đồng`. Đếm bằng `lib/out-of-contract.cjs`:
+      phải ra đúng 3 và 2. Đối chứng dương là chính phép đếm đó trên khuôn thật.
+      Chiều đỏ hai mũi: (a) đổi khuôn trong bản sao prompt của bên viết (ví dụ mục mở bằng
+      `### ` thay vì `- **`) mà bộ đọc vẫn ra 3 và 2 → ca ĐỎ, ghim "ben doc khong theo ben
+      viet"; (b) hoàn nguyên bộ đọc để bỏ mục `Trong hợp đồng` → số thứ hai khác 2.
+    paths:
+      - "lib/out-of-contract.cjs"
+      - "feature-loop/workflows/acceptance-verify.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E15
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.cndn_lop_chep_ci
+    expected: >-
+      Ca CN12, đo QUAN HỆ giữa danh sách chép và thứ mã thật sự cần: rút khối
+      `INIT-CI-COPY-LIST` của `commands/acceptance-init.md` thành tập đường dẫn; rút tập
+      tệp trong `lib/` mà `lib/evidence-core.cjs` + `scripts/pre-merge-check.sh` +
+      `scripts/recheck-evidence.cjs` thật sự nạp tới (lần theo cả require bắc cầu, không chỉ
+      một tầng); tập thứ hai phải là TẬP CON của tập thứ nhất, và `lib/out-of-contract.cjs`
+      phải có mặt ở cả hai. Đối chứng dương: cây thật đạt. Chiều đỏ hai mũi: gỡ dòng
+      `out-of-contract.cjs` khỏi danh sách → ca ĐỎ ghim "lop CI thieu muc"; thêm một require
+      tới một tệp lib chưa có trong danh sách → cũng ĐỎ. Đây là ca đo tổng quát, KHÔNG phải
+      phép đếm số mục.
+    paths:
+      - "commands/acceptance-init.md"
+      - "lib/evidence-core.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E16
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.coverage_lint
+    expected: >-
+      `node scripts/eval-coverage-lint.js .` thoát 0 trên cây sau bản vá. Vế này là lưới
+      chống bất ngờ cho bán kính: bản vá làm 1 491 tiêu chí trở nên NHÌN THẤY với lint, nên
+      mọi cảnh báo mới sinh phải hoặc đã xử, hoặc được khai ở Known limits kèm SỐ và tên
+      kho. Đây là eval chống-bất-ngờ, không phải ca phân biệt — số thật đo ở dòng thứ năm
+      của mục Đường đo.
+    paths:
+      - "lib/ac-line.cjs"
+      - "scripts/eval-coverage-lint.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E17
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.cndn_ban_kinh
+    expected: >-
+      `node _acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs --truc tat-ca --json` thoát 0
+      và in năm số của mục `## Đường đo`. Sau bản vá: trục `ac` trả **0** hợp đồng còn bị
+      đọc thiếu và **0** hồ sơ bộ dò im lặng (trước: 221 hợp đồng / 1 491 tiêu chí / 35 im);
+      trục `cross-layer` trả **0**; trục `findings` trả đúng danh sách hồ sơ còn mục chờ
+      người; trục `lint` in số cảnh báo mới mỗi kho. Script suy mọi đường dẫn từ vị trí của
+      chính nó, nhận `--root` để quét kho khác và `--ag-root` để đo bằng một lớp thư viện
+      khác; kho không đọc được thì bỏ qua CÓ TÊN, không im.
+      Chiều đỏ: chạy cùng script với `--ag-root` trỏ lớp TRƯỚC bản vá (dựng bằng
+      `git archive <mốc cha> lib`, trọn thư mục) → trục `ac` phải trả lại 221. Số không đổi
+      theo lớp đo là dấu script đo VĂN chứ không đo VẬT → ca ĐỎ, ghim "ban kinh khong doi
+      theo ban do".
+    paths:
+      - "_acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs"
+      - "lib/ac-line.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

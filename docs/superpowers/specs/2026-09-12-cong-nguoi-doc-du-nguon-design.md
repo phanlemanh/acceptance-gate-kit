@@ -1,0 +1,115 @@
+# Thiết kế — Cổng người đọc đủ nguồn
+
+*Ngày 12/09/2026 · hạng T3 · slug `cong-nguoi-doc-du-nguon`*
+
+## 1. Một câu
+
+Hai cổng người của kit kết luận trên một nguồn HẸP HƠN nguồn đang có: Cổng Bằng chứng
+phán «xanh-sạch» mà không đọc `review-findings.md`, và Cổng Phạm vi đếm tiêu chí bằng một
+khuôn chỉ nhận dòng gạch đầu dòng. Vòng này nối hai cổng vào đủ nguồn, và bắt lời khai
+phải đối chiếu được với vật.
+
+## 2. Lớp lỗi — một hình dạng, ba chỗ
+
+| Chỗ | Nguồn đang đọc | Nguồn đang có | Hệ quả |
+|---|---|---|---|
+| Luật xanh-sạch (`xanh_sach_check` bash · `xanhSach` mjs) | `evidence-report.md` | `review-findings.md` cùng lượt | Hồ sơ còn phát hiện chưa ai quyết vẫn đi làn V, không mời ký |
+| Thẻ Cổng Phạm vi + lint + răng cross-layer (`lib/ac-line.cjs`) | dòng gạch đầu dòng trong mục `Criteria` | tiêu chí khai bằng `### AC-n`, và mục tên `Acceptance Criteria` | Thẻ hiện 0 tiêu chí; bộ dò điểm mù im ở 35 hồ sơ |
+| Thẻ Cổng Bằng chứng (`gate-card.js`) | mục `Ngoài hợp đồng` | có thêm mục `Trong hợp đồng` | Lỗi trong hợp đồng chưa sửa không hiện ở đâu, thẻ vẫn ghi «Bằng chứng đầy đủ» |
+
+Cả ba cùng một câu: **bên đọc hẹp hơn bên viết, và chỗ chênh lệch đó im lặng.** Vì thế
+vòng này sửa theo LỚP — một bộ đọc cho mỗi vật, hai bên cùng rút — chứ không vá ba chỗ.
+
+## 3. Số đo trước khi sửa
+
+Lệnh sinh số nằm trong `## Đường đo` của hợp đồng; đây là kết quả.
+
+| Số | Giá trị |
+|---|---|
+| Hợp đồng thẻ hiện ÍT tiêu chí hơn hợp đồng khai | **221** / 11 kho |
+| Tiêu chí vô hình với thẻ | **1 491** |
+| Trong đó đã có chữ duyệt Cổng Phạm vi | **214** |
+| Bộ dò điểm mù IM LẶNG (thẻ trống, không cờ nào) | **35** |
+| Hồ sơ làn V / máy-thông còn phát hiện chưa ai quyết | **5** (kit 3 · crm 2) |
+| Hợp đồng sẽ sinh VIOLATION cross-layer MỚI nếu widen | **0** |
+
+Hai con số cuối là hai bản lề của thiết kế: **0** nói răng cross-layer widen được mà không
+khoá kho nào; **5** nói luật thứ bảy PHẢI có đường đọc-cũ, vì ba trong năm hồ sơ đó nằm
+trên `main` của chính kit — áp thẳng là kho tự khoá mình ở mọi PR.
+
+## 4. Ba quyết định thiết kế
+
+### D1 — Luật thứ bảy đọc VẬT, lời khai chỉ để đối chiếu
+
+Khối `EVIDENCE-XANH-SACH-BLOCK` (nguồn duy nhất của sáu điều kiện) nhận điều kiện thứ bảy
+`findings`: *`review-findings.md` không còn mục nào chờ người ở «Ngoài hợp đồng» và «Trong
+hợp đồng»*. Cả hai bản dựng (bash + mjs) rút qua **một vị từ** trong `lib/evidence-core.cjs`,
+vị từ đó gọi **một bộ đọc** `lib/out-of-contract.cjs`.
+
+Đổi tên `lib/out-of-contract.js` → `.cjs` là bắt buộc, không phải thẩm mỹ: tệp nay chép sang
+kho tiêu thụ, mà kho `type: module` sẽ nạp `.js` thành ESM và `require` chết. Chú thích cũ ở
+`tests/plugins/run-tests.sh` nói «file không chép sang consumer nên giữ đuôi cũ» — lý do đó
+hết hiệu lực trong chính vòng này, nên chú thích sửa cùng lượt.
+
+### D2 — Đường đọc-cũ neo vào LỜI KHAI của báo cáo, không neo vào ngày
+
+Báo cáo mang khoá mới `findings_open: <n>` do bên viết điền. Luật đọc:
+
+| Báo cáo | Vật (`review-findings.md`) | Xử |
+|---|---|---|
+| có khoá, khớp vật | 0 mục | xanh-sạch |
+| có khoá, khớp vật | n > 0 mục | **VIOLATION** — mời ký |
+| có khoá, LỆCH vật | bất kỳ | **VIOLATION** — lời khai lệch vật |
+| VẮNG khoá | n > 0 mục | **NOTE + cờ vàng** — hồ sơ đời trước, không chặn |
+| VẮNG khoá | 0 mục | xanh-sạch |
+
+Vì sao neo vào khoá chứ không vào ngày hay sha: mệnh đề gắn ngày là đúng thứ
+`bat-bien-khong-duoc-nam-trong-ho-so-da-ky` vừa buộc lưu kho bốn hồ sơ. Khoá là **thuộc tính
+của vật**, còn đúng sau 50 commit.
+
+Vế «vắng khoá → NOTE» là một đường fail-open có tên: xoá khoá thì hạ xuống NOTE. Nó chấp
+nhận được vì **cửa GHI không đi qua khoá** — `khong-can-nguoi.mjs --write` luôn đọc thẳng
+`review-findings.md`, nên không hồ sơ MỚI nào vào được trạng thái máy-thông với phát hiện
+còn treo. Ngưỡng mở lại ghi ở Known limits.
+
+### D3 — `ac-line.cjs` đọc theo KHỐI, và mục tiêu chí nhận cả ba cách viết
+
+`parseAC(line)` giữ nguyên chữ ký (ba bên gọi khỏi đổi). Thêm `parseACBlock(contractText)`
+trả trọn danh sách, hiểu hai hình dạng khai:
+
+- **gạch đầu dòng** — như hôm nay, `parseAC` từng dòng;
+- **tiêu đề** — `### AC-n — nhãn`, thân là các dòng tới tiêu đề kế; nhãn và thân nối lại
+  thành `gwt`, tag `(judgment)` / `(cross-layer)` đọc theo đúng luật cũ (nhãn lỏng, thân
+  chỉ nhận tag đúng chữ, code span không phải tác giả đang nói).
+
+Mục tiêu chí nhận `Criteria` · `Acceptance Criteria` · `Acceptance criteria`; không có mục
+nào thì quét cả tệp như hôm nay. `AC_SUSPECT` nới để nhận dòng tiêu đề — không nới thì bộ dò
+tiếp tục im đúng ở chỗ nó sinh ra để kêu.
+
+Ba bên gọi (`gate-card.js` ×2, `evidence-page.js`, `eval-coverage-lint.js`) và nhánh node của
+răng cross-layer trong `pre-merge-check.sh` chuyển sang `parseACBlock`. Nhánh awk dự phòng
+nới cùng lượt, nếu không hai bề mặt trả lời khác nhau về cùng hợp đồng — đúng lớp lỗi
+`xanh_sach_check` từng mắc.
+
+## 5. Vì sao KHÔNG làm trong vòng này
+
+- **`parseEvals` giữ nháy trên `id`** — vá đúng chỗ cần `unquoteScalar`, mà hàm đó sống ở
+  `evidence-core.cjs`, tầng TRÊN `eval-yaml.cjs`. Vá tử tế là dời bộ tách token xuống tầng
+  dưới, tức chạm hai tệp vendored ngay sau khi 2.11.0 vừa sắp xếp lại chúng. Bán kính đo
+  được hôm nay: **0 eval** trong 8 kho. Ghi sổ, không làm.
+- **Răng «đã nâng plugin mà chưa chép lớp CI»** — sống ở phía kho tiêu thụ, hợp đồng riêng.
+- **Tool-kill đỏ giả** — cần tín hiệu cấu trúc từ harness, hợp đồng riêng.
+
+## 6. Ràng buộc trình tự
+
+Vòng `cua-veto-sau-chu-ky` (phiên khác, đã ký, chưa mở PR) sửa vùng dòng 770–780 của
+`pre-merge-check.sh` — sát chỗ vòng này thêm điều kiện thứ bảy vào `xanh_sach_check`
+(dòng 328–380). Hai vùng khác nhau nên gộp máy móc được, nhưng ca RT1 trong
+`tests/plugins/ra-co-ten.test.mjs` ghim thứ tự điều kiện ở CẢ HAI bản dựng, và vòng này
+thêm điều kiện thứ bảy vào đó. **Vòng kia gộp trước; vòng này ghim lại trên `main` đã có
+nó trước khi trình Cổng Bằng chứng.**
+
+## 7. Hình
+
+Hai điểm quyết định vượt ngưỡng N5 — luật thứ bảy (bốn nhánh) và đường đọc của tiêu chí
+(hai hình dạng khai × ba bên đọc). Đề bài và hình ở `_acceptance/cong-nguoi-doc-du-nguon/figures/`.
