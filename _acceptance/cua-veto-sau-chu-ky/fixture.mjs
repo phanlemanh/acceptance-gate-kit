@@ -57,6 +57,11 @@ export function placeholderPatterns() {
 export const giaTriGiuCho = p =>
   p.mau === '<' ? '<name> <date>' : (p.tienTo ? `${p.mau} 2026-09-11` : p.mau);
 
+// Tên hồ sơ cho mỗi mẫu — CÓ CHỈ SỐ, vì ba ký hiệu `>` `|` `-` cùng rút gọn về
+// một chuỗi rỗng: đặt tên theo nội dung mẫu là ba hồ sơ ghi đè nhau và phép đo
+// chỉ còn đo mẫu cuối (bắt được ở lượt chạy đầu của chân nhan-khong-dong).
+export const slugGiuCho = (p, i) => `gc-${i}-${p.mau.replace(/[^a-z0-9]/gi, '') || 'kyhieu'}`;
+
 // ── ba trục ─────────────────────────────────────────────────────────────────
 // `dung: true` = cửa veto còn MỞ (chữ ký không phải chữ ký thật)
 export const SIGNOFF_CELLS = [
@@ -131,6 +136,16 @@ export function mkKitCopy(kitRoot = ROOT) {
   execFileSync('bash', ['-c',
     `cd "${kitRoot}" && tar -cf - --exclude=.git --exclude=.worktrees --exclude=.claude scripts lib | tar -x -C "${d}"`]);
   return d;
+}
+
+// Tiêm đột biến vào VẬT THẬT trong bản sao (kho fixture đã chép trọn scripts+lib).
+// Ném lỗi khi chuỗi cần tiêm không có: một đột biến «không đổi được dòng nào» là
+// chiều đỏ giả — xanh vì chưa bao giờ chạy.
+export function tiem(repo, rel, tim, thay) {
+  const p = path.join(repo, rel);
+  const t = readFileSync(p, 'utf8');
+  if (!t.includes(tim)) throw new Error(`đột biến không đổi được dòng nào trong ${rel}: không thấy ${JSON.stringify(tim.slice(0, 60))}`);
+  writeFileSync(p, t.split(tim).join(thay));
 }
 
 export function writeDossier(repo, slug, spec) {

@@ -126,6 +126,34 @@ const gates = [], inProgress = [], considering = [], done = [], broken = [];
 // Veto-default chỉ sống nếu owner THẤY TÊN — đếm một con số mà không nêu tên là
 // giấu đúng thứ mình đang mời người veto.
 const vetoOpen = [];
+// Chữ ký người ở Cổng Bằng chứng ĐÓNG cửa veto (hồ sơ cua-veto-sau-chu-ky).
+// `vetoOpen[]` GIỮ NGUYÊN tập phần tử (mọi `mo`, bất kể status — lời hứa đã ký
+// của start-bang-dieu-khien); ba trường CỘNG thêm nói hồ sơ nào còn veto được:
+//   humanSignoff  — có chữ ký THẬT chưa (nhãn status không tính, giữ-chỗ không tính)
+//   signoffWarn   — LUÔN có mặt, rỗng khi đọc sạch; nêu lý do khi báo cáo không
+//                   đọc được hoặc frontmatter không dẫn đầu (không nuốt im)
+//   vetoOpenUnsigned[] (cuối file) — danh sách tên DỰNG SẴN để thân lệnh CHÉP
+// Đây là bản dựng JS thứ hai của vị từ bash `signoff_that`; hai bên canh nhau
+// bằng đẳng thức trên ma trận 78 ô + ma trận giữ-chỗ toàn phần, không bằng import.
+// Bảng giữ-chỗ phải khớp `placeholder_signoff` của lưới: 7 từ khoá khớp TIỀN TỐ,
+// `none` khớp ĐÚNG, `<` khớp tiền tố, ba ký hiệu khớp đúng.
+const GIU_CHO_TIEN_TO = /^(pending|tbd|todo|n\/a|unsigned|waiting|<)/i;
+const GIU_CHO_DUNG = /^(none|>|\||-)$/i;
+function signoffState(dir) {                 // { signed, warn }
+  let t;
+  try { t = readFileSync(path.join(dir, 'evidence-report.md'), 'utf8'); }
+  catch (e) { return { signed: false, warn: e.code === 'ENOENT' ? '' : `không đọc được báo cáo: ${e.code}` }; }
+  // CHỈ frontmatter DẪN ĐẦU: một dòng `human_signoff:` ở THÂN (trích khuôn) không
+  // phải chữ ký. Cùng luật với front_field của lưới.
+  const dau = t.split('\n').findIndex(l => l.trim() !== '');
+  if (dau < 0 || t.split('\n')[dau].trim() !== '---')
+    return { signed: false, warn: 'frontmatter không dẫn đầu báo cáo' };
+  const raw = frontmatterField(t, 'human_signoff');
+  const s = (raw || '').replace(/\s*#.*$/, '').replace(/^["']|["']$/g, '').trim();
+  if (!s) return { signed: false, warn: '' };
+  if (GIU_CHO_TIEN_TO.test(s) || GIU_CHO_DUNG.test(s)) return { signed: false, warn: '' };
+  return { signed: true, warn: '' };
+}
 // MỌI lối hỏng về cùng một khoá — gom về một cửa duy nhất.
 const pushHong = obj => broken.push(g('ho-so-hong', obj));
 // MỘT từ vựng verdict cho MỌI nhánh: nhánh `verified` gọi tên giá trị lạ trong
@@ -249,8 +277,13 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     // tồn tại rồi đọc thẳng veto_state, nên đặt sau `continue` là hồ sơ có cửa
     // veto mở mà status hỏng biến khỏi thẻ trong khi lưới vẫn đếm — đúng lớp
     // «thẻ đếm 2 lưới đếm 16» mà hồ sơ này sinh ra để giết, chỉ ở góc khác.
-    if ((frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo')
-      vetoOpen.push({ slug, status: (frontmatterField(cTxt, 'status') || '').toLowerCase() });
+    if ((frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo') {
+      // Đọc chữ ký NGAY ở đây, không qua readEvidence(): hàm đó pushHong và đổi
+      // ô của slug, trong khi cửa veto phải trả lời được cả cho hồ sơ status hỏng.
+      const ss = signoffState(dir);
+      vetoOpen.push({ slug, status: (frontmatterField(cTxt, 'status') || '').toLowerCase(),
+                      humanSignoff: ss.signed, signoffWarn: ss.warn });
+    }
     const statusProblem = fieldProblem('contract.md', cTxt, 'status');
     if (statusProblem) { pushHong({ slug, ...statusProblem }); continue; }
     const status = frontmatterField(cTxt, 'status').toLowerCase();
@@ -546,4 +579,7 @@ if (map.present) {
   } catch { map.fresh = null; }
 }
 
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, map, discovery, broken });
+// Danh sách DỰNG SẴN cho thân lệnh CHÉP — thẻ không tự lọc `vetoOpen`, nhờ vậy
+// phép đo máy chấm đúng danh sách tên mà thẻ in ra (hồ sơ cua-veto-sau-chu-ky).
+const vetoOpenUnsigned = vetoOpen.filter(v => !v.humanSignoff).map(v => v.slug);
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, broken });
