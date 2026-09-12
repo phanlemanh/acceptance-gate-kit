@@ -484,6 +484,107 @@ test('L05', 'pin CŨ do writer thật (bản trước vá) ghi vẫn xanh với 
   if (!quetSaoSau.viPham.includes(ung.slug)) fail(`L05 tiêm vào ${ung.slug} nhưng vi phạm không gọi đúng tên hồ sơ đó — vi phạm=[${quetSaoSau.viPham.join(',')}]`);
 });
 
+// ── Task 6: hình dạng THẬT đo ở OneFlow 12/09/2026 — evals.yaml có 14 ô máy,
+// MỘT ô khai `status: not-run` trỏ một lệnh mà nếu bị chạy nhầm sẽ thoát 4;
+// báo cáo đã ký có đúng 13 khối eval (không khối nào cho ô kia). Fixture do
+// MÃ SINH (vòng lặp dựng `rows`), cùng khuôn dungKhoTam/evalsYaml — không viết
+// tay 14 dòng YAML.
+function dungKhoOneFlow() {
+  const dir = fs.mkdtempSync(path.join(TMP, 'kho-of-'));
+  const g = (...a) => execFileSync('git', ['-C', dir, '-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  const ws = path.join(dir, '_acceptance', 's1');
+  fs.mkdirSync(ws, { recursive: true });
+  fs.writeFileSync(path.join(dir, '_acceptance', 'config.yaml'),
+    'schema_version: 1\nfeature_loop:\n  suite_keys:\n    - executors.script.noop\nexecutors:\n  script:\n    noop: true\n');
+  const rows = Array.from({ length: 13 }, (_, i) => ({ id: `E${i + 1}` }));
+  rows.push({ id: 'E14', cmd: "sh -c 'exit 4'", status: 'not-run' }); // bản base chạy nhầm cái này → thoát 4
+  const evalsText = evalsYaml(rows);
+  fs.writeFileSync(path.join(ws, 'evals.yaml'), evalsText);
+  fs.writeFileSync(path.join(ws, 'run-log.jsonl'), '');
+  // 13 id CHẠY ĐƯỢC — rút bằng core.machineEvalIds trên VĂN BẢN evalsText vừa
+  // ghi (bộ đọc dùng chung), KHÔNG đếm lại từ vòng lặp `rows` ở trên: đây là
+  // nguồn cho khối Evidence/run-log của FIXTURE, tách khỏi phép đếm-đối-chiếu
+  // trong chính ca L07 bên dưới (đọc lại evalsText một lần NỮA, độc lập).
+  const runIds = core.machineEvalIds(evalsText);
+  const khoiEvidence = (ids) => ids.map(id =>
+    `- eval: ${id}\n  run_id: seed-${id}\n  exit_code: 0\n  verifier: config:executors.script.noop\n  verified_at: 2026-09-11\n\n`).join('');
+  const evidenceBody = '---\nschema_version: 1\nfeature_slug: s1\nverdict: PASS\nverified_commit: PENDING\nhuman_signoff: t 2026-09-12\n---\n\n' +
+    '## Evidence\n\n' + khoiEvidence(runIds) + '## Iterations\n\nRound 1 — PASS.\n';
+  fs.writeFileSync(path.join(ws, 'evidence-report.md'), evidenceBody);
+  g('init', '-q');
+  g('add', '-A');
+  g('commit', '-qm', 'impl');
+  const sha = g('rev-parse', 'HEAD');
+  const reportPath = path.join(ws, 'evidence-report.md');
+  fs.writeFileSync(reportPath, fs.readFileSync(reportPath, 'utf8').replace('verified_commit: PENDING', `verified_commit: ${sha}`));
+  fs.writeFileSync(path.join(ws, 'run-log.jsonl'), runIds.map(id =>
+    JSON.stringify({ ts: '2026-09-11T00:00:00Z', kind: 'eval', run_id: `seed-${id}`, sha, eval: id, exit_code: 0 }) + '\n').join(''));
+  g('add', '-A');
+  g('commit', '-qm', 'evidence');
+  return { dir, evalsText };
+}
+
+test('L07', 'hình dạng OneFlow 12/09: 14 ô máy, một ô không-chạy trỏ lệnh thoát 4', () => {
+  const kho = dungKhoOneFlow();
+  const w = chayLan(kho, [], { write: true });
+  if (w.exit !== 0) fail(`L07 làn --write phải xanh, nhận exit ${w.exit}: ${w.stderr}`);
+
+  // Đếm ô máy ĐANG CHẠY từ HAI NGUỒN TÁCH BIỆT (bài học P86/lưới-rỗng-L09: một
+  // phép đếm chỉ tăng bên trong đúng vòng lặp đang tiêu thụ chính bảng đó
+  // không bao giờ sai được) — (a) bộ đọc dùng chung trên văn bản evalsText của
+  // fixture, KHÔNG phải vòng lặp đã dựng `rows` trong dungKhoOneFlow, và
+  // (b) số khoá THẬT mà làn vừa GHI ra trong evals_exit — đầu ra quan sát
+  // được của bên GHI, không suy diễn từ input.
+  const soDoc = core.machineEvalIds(kho.evalsText).length;
+  const soGhi = Object.keys(w.slugs.s1.evals_exit).length;
+  if (soDoc !== soGhi) fail(`L07 số ô đọc từ fixture (${soDoc}) khác số khoá làn ghi (${soGhi})`);
+  if (soGhi !== 13) fail(`L07 kỳ vọng đúng 13 khoá evals_exit (14 ô máy trừ 1 không-chạy), nhận ${soGhi}`);
+
+  const dong = JSON.parse(docDongCuoi(kho, 'run-log.jsonl'));
+  if (JSON.stringify(dong.evals_not_run) !== JSON.stringify(['E14'])) fail(`L07 khoá evals_not_run sai: ${JSON.stringify(dong.evals_not_run)}`);
+
+  try {
+    execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(kho.dir, '_acceptance', 's1', 'evidence-report.md')], { encoding: 'utf8' });
+  } catch (e) { fail(`L07 recheck-evidence phải 0 lỗi, nhận exit ${e.status}: ${e.stderr || e.stdout}`); }
+
+  // ── Chiều đỏ: CÙNG hình dạng fixture (kho MỚI, không tái dùng kho đã ghi ở
+  // trên), chạy bằng bộ máy của BẢN BASE (trước vá, dungBanBase() đã tự kiểm ở
+  // L05). Bản base lọc ô máy CHỈ theo executor (xem /tmp thẩm định: MACHINE =
+  // Set(core.REPIN_MACHINE_EXECUTORS), không biết `status`) nên nó CHẠY cả
+  // E14; cmd của E14 thoát 4, evals.yaml không khai expected_exit cho E14 nên
+  // 4 ≠ 0 → làn phải ĐỎ với đúng mã 4 — đúng hình dạng đã đo ở OneFlow
+  // 12/09/2026 (bản trước vá từng ghim NHẦM một hồ sơ lành thành đỏ).
+  const { dir: base } = dungBanBase();
+  const khoDo = dungKhoOneFlow();
+  const truoc = bam(khoDo);
+  const rDo = chayLanBan(base, khoDo, { write: true });
+  if (rDo.exit !== 1) fail(`L07 chiều đỏ: bản base phải thoát 1 (LÀN ĐỎ), nhận ${rDo.exit}: ${rDo.stderr}`);
+  if (!/LÀN ĐỎ/.test(rDo.stderr)) fail(`L07 chiều đỏ: thiếu «LÀN ĐỎ» trong thông điệp: ${rDo.stderr}`);
+  if (!/s1\/E14=4/.test(rDo.stderr)) fail(`L07 chiều đỏ: thông điệp thiếu đúng mã thoát 4 cho E14: ${rDo.stderr}`);
+  if (bam(khoDo) !== truoc) fail('L07 chiều đỏ: bản base đã ghi byte dù làn đỏ');
+});
+
+test('L08', 'lưới bộ lọc rỗng: LSNR_CASES không khớp ca nào → thoát 2 kèm thông điệp', () => {
+  // Bộ lọc `only`/`chay` sống ở CUỐI CHÍNH tệp này (dưới) và gọi process.exit
+  // ngay khi nạp module — không gọi được trong-tiến-trình mà không giết ca
+  // đang chạy, nên phải SINH TIẾN TRÌNH CON thật (bài học P86: lưới cho chính
+  // phép đo — nếu không tự spawn thì ca này không bao giờ chạm được nhánh
+  // "khớp 0 ca" nó tuyên bố đang kiểm).
+  let exit = 0;
+  let stderr = '';
+  try {
+    execFileSync(process.execPath, [path.join(HERE, 'lan-status-not-run.test.mjs')], {
+      encoding: 'utf8',
+      env: { ...process.env, LSNR_CASES: 'KHONG-CO-CA-NAY' },
+    });
+  } catch (e) {
+    exit = e.status == null ? 1 : e.status;
+    stderr = e.stderr || '';
+  }
+  if (exit !== 2) fail(`L08 bộ lọc không khớp ca nào phải thoát 2, nhận ${exit}: ${stderr}`);
+  if (!/khớp 0 ca/.test(stderr)) fail(`L08 thông điệp thiếu «khớp 0 ca»: ${stderr}`);
+});
+
 const only = (process.env.LSNR_CASES || '').split(/[,\s]+/).filter(Boolean);
 const chay = only.length ? CASES.filter(c => only.includes(c.id)) : CASES;
 if (!chay.length) { console.error(`lan-status-not-run: bộ lọc LSNR_CASES=${process.env.LSNR_CASES} khớp 0 ca — không có gì chạy`); process.exit(2); }
