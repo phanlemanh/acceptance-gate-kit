@@ -74,7 +74,7 @@ function contractText(slug, { status, tier = 'T2', veto = null, opened = null, a
 // khuôn bên đọc, nên bên viết đổi hình dạng thì mọi ca vẫn xanh trong khi hồ sơ thật đỏ
 // ở lưới (S4-r6 [8], đúng hình dạng (3) của «thước phải gắn vào vật được giao»).
 // sach: 'sach' | 'uncertain' | 'kl-co' | 'bypass' | 'enf-off'
-function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', verifiedCommit = '0'.repeat(40) } = {}) {
+function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', verifiedCommit = '0'.repeat(40), findings = 0 } = {}) {
   const tpl = readFileSync(EVID_TPL, 'utf8');
   // Hồ sơ THẬT phải bắt đầu ngay ở dòng `---`: dư một dòng trống là hàng rào lệch và mọi
   // bên đọc gọi là hồ sơ hỏng (đúng ca P115 của khuôn). Cắt xong phải trim đầu.
@@ -84,7 +84,11 @@ function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', ver
     .replace(/^enforcement_mode: .*$/m, `enforcement_mode: ${sach === 'enf-off' ? 'off' : 'strict'}`)
     .replace(/^bypass_used: .*$/m, `bypass_used: ${sach === 'bypass' ? 'true' : 'false'}`)
     .replace(/^verified_commit: .*$/m, `verified_commit: ${verifiedCommit}`)
-    .replace(/^human_signoff:.*$/m, `human_signoff:${signoff ? ' ' + signoff : ''}`);
+    .replace(/^human_signoff:.*$/m, `human_signoff:${signoff ? ' ' + signoff : ''}`)
+    // findings_open — VẬT của điều kiện xanh-sạch THỨ BẢY. Khai ĐÚNG số mục mà
+    // mkGit dựng vào review-findings.md, nên fixture sạch vẫn sạch và fixture có
+    // mục thì lưới chặn vì mục, không vì lời khai lệch.
+    .replace(/^findings_open:.*$/m, `findings_open: ${findings}`);
   // Một dòng eval thật vào bảng: điền 4 ô placeholder THEO THỨ TỰ CỘT của khuôn.
   const rowVals = ['E1', 'AC-1', 'test', 'PASS']; let ri = 0;
   t = t.replace(/^\|.*\{\{.*\|$/m, line => line.replace(/\{\{[^}]*\}\}/g, () => rowVals[ri++] ?? '…'));
@@ -414,6 +418,13 @@ function mkGit(slug, o, { evidence = true } = {}) {
   if (evidence) {
     writeFileSync(path.join(R, '_acceptance', slug, 'evidence-report.md'), evidenceText(slug, { ...o, verifiedCommit: c2 }));
     writeFileSync(path.join(R, '_acceptance', slug, 'run-log.jsonl'), runLogText(slug));
+    // review-findings.md — VẬT của điều kiện thứ bảy (hồ sơ cong-nguoi-doc-du-nguon).
+    // Mặc định 0 mục, và báo cáo khai 0 → hồ sơ sạch y như trước bản vá.
+    const nF = o.findings || 0;
+    const mucF = i => `- **ngoai-${i}**\n  Người dùng thấy gì: người dùng thấy ngoai-${i}\n  file: \`src/x${i}.ts\`\n  severity: medium\n  Đề xuất: known-limits`;
+    writeFileSync(path.join(R, '_acceptance', slug, 'review-findings.md'),
+      ['## Trong hợp đồng', '', '## Ngoài hợp đồng — người quyết ở Gate 2', '',
+        ...Array.from({ length: nF }, (_, i) => mucF(i + 1)), ''].join('\n'));
     git('add', '-A'); git('commit', '-qm', 'c3');
   }
   return R;
@@ -442,6 +453,9 @@ if (want('RT2')) {
     // 'bypass' / 'enf-off' đã có sẵn từ đầu mà không ca nào dùng tới.
     ['(e) verdict khác PASS', 'verdict-pass', { ...BASE, verdict: 'REJECT' }, r => r.status !== 0 && /còn cần người — verdict=REJECT \(chỉ PASS mới xanh-sạch\)/.test(r.out), 'VIOLATION ghim verdict khác PASS'],
     ['(f) bypass_used: true', 'bypass', { ...BASE, sach: 'bypass' }, r => r.status !== 0 && /còn cần người — bypass_used=true/.test(r.out), 'VIOLATION ghim bypass_used'],
+    // (h) điều kiện THỨ BẢY: review-findings.md còn mục chưa ai quyết. Báo cáo khai
+    // ĐÚNG số (2) nên đây là ca «còn mục», không phải ca «lời khai lệch vật».
+    ['(h) còn mục chờ người', 'findings', { ...BASE, findings: 2 }, r => r.status !== 0 && /còn cần người — còn 2 mục chờ người/.test(r.out), 'VIOLATION ghim số mục chờ người'],
     ['(g) enforcement_mode: off', 'enforcement', { ...BASE, sach: 'enf-off' }, r => r.status !== 0 && /còn cần người — enforcement_mode=off/.test(r.out), 'VIOLATION ghim enforcement_mode=off'],
   ];
   // Ma trận hành vi phải phủ ĐỦ sáu điều kiện của khối — không phải «đủ needle trong mã».

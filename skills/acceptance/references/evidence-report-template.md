@@ -229,6 +229,7 @@ enforcement_mode: {{strict|warn|off}}   # the `enforcement` value from _acceptan
 bypass_used: {{true|false}}              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
 verified_commit: {{git rev-parse HEAD at verify time}}   # pins the evidence to the exact tree verified. CI pre-merge BLOCKS when non-gate files changed after it (stale evidence — re-verify). Omit ONLY if not a git repo; hook rejects non-SHA values.
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
+findings_open: {{số mục còn CHỜ NGƯỜI}}   # = (số mục dưới "## Ngoài hợp đồng" + số mục dưới "## Trong hợp đồng" của review-findings.md) trừ số dòng decisions.jsonl khai stage gate2. 0 khi đã dọn hết. Điều kiện xanh-sạch thứ bảy đối chiếu khoá này với chính tệp đó; khai lệch là VIOLATION, vắng khoá là đường đọc-cũ (NOTE).
 human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
 

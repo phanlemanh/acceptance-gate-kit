@@ -2,7 +2,7 @@
 // Bảng COMMAND-NAMES rút từ marker; vật thật đọc từ thư mục + plugin.json lúc chạy; quét token với ranh
 // giới khai tường minh (AC-2); đối chứng dương bằng vật TIÊM (không neo mốc git di động); gate-card thật.
 //   LB_CASES=LB1,LB2 node tests/plugins/lenh-bam-duoc.test.mjs
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, rmSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -235,8 +235,17 @@ if (want('LB5')) {
   // SHA CỐ ĐỊNH (main trước chip D #93) — KHÔNG `origin/main`: mốc di động làm «bản cũ» hoá bản mới
   // ngay lần merge kế, đối chứng dương chết im lặng (S4-r1 hồ sơ lenh-tran-tai-lieu-dau-tay).
   const OLD_SHA = 'ba539284';
-  const oldSrc = execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:scripts/gate-card.js`], { encoding: 'utf8' });
-  writeFileSync(path.join(copy, 'scripts', 'gate-card.js'), oldSrc);
+  // Bản base lấy TRỌN scripts/ + lib/ của mốc, KHÔNG chép một tệp rồi ghép với lib
+  // MỚI — đó là bẫy «chép danh sách file tay» mà hiến pháp kit ghi (P150, 23/08):
+  // gate-card cũ require một tệp lib mà cây mới đã đổi tên thì ca đỏ vì HẠ TẦNG
+  // chứ không vì vật. Đo được ở hồ sơ cong-nguoi-doc-du-nguon, khi
+  // lib/out-of-contract.js thành .cjs.
+  {
+    const tar = path.join(copy, '..', `lb5-base-${OLD_SHA}.tar`);
+    execFileSync('git', ['-C', ROOT, 'archive', '-o', tar, OLD_SHA, 'scripts', 'lib']);
+    execFileSync('tar', ['-xf', tar, '-C', copy]);
+    rmSync(tar, { force: true });
+  }
   const kinds = { baseline: 0, glossary: 0 };
   // Đối chứng dương cho cờ glossary: cờ này chỉ có ở thẻ Cổng 1 (A/B/C đều đã ký → Cổng 2), nên đo trên
   // fixture Cổng 1 bằng CHÍNH bản cũ: cũ phải bắn, mới không.
