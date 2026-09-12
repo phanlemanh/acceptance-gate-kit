@@ -21,8 +21,13 @@ const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
 // `core` ở trên, để bản sao bị tiêm ở Bước 6 đổi CẢ HAI cùng lúc.
 const LANE = path.join(ROOT, 'feature-loop', 'scripts', 'repin-lane.mjs');
 
+const SELF_FILE = fileURLToPath(import.meta.url);
+
+// `muiTiem` = danh sách mũi tiêm CHẠY ĐƯỢC của ca (xem khối «lưới hai chiều»
+// gần cuối tệp). Ca không có mũi tiêm PHẢI có một dòng lý do trong
+// MIEN_MUI_TIEM — ca meta L13 đỏ nếu ai đó để mảng rỗng im lặng.
 const CASES = [];
-const test = (id, name, fn) => CASES.push({ id, name, fn });
+const test = (id, name, fn, muiTiem) => CASES.push({ id, name, fn, muiTiem: muiTiem || [] });
 const fail = (msg) => { throw new Error(msg); };
 
 // Một gốc tạm dùng chung cho mọi kho `dungKhoTam` sinh ra, dọn khi tiến trình
@@ -217,6 +222,64 @@ function pinThieu(idThieu, kho) {
   return { run_id: 'lsnr-l03-doc', sha, ts: '2026-09-12T00:00:00Z', evals_exit };
 }
 
+// ── Mũi tiêm thường trực (rà cuối 12/09/2026, Important 4) ────────────────
+// Nhánh này CỘNG một răng «mọi ca phải có ≥1 mũi tiêm» cho tệp ca lớp-cũ
+// (GL09) nhưng tệp ca MỚI lại không có mũi tiêm thường trực nào ngoài chiều đỏ
+// nội tại của L05/L07 — lưới hai chiều bất đối xứng. Nay mỗi ca lõi mang một
+// mũi tiêm chạy được: MỘT chỗ trong bộ máy (lib/ · feature-loop/) bị sửa trên
+// một BẢN SAO, rồi CHÍNH ca đó chạy lại trong bản sao đó (LSNR_ROOT) và phải
+// ĐỎ kèm đúng chữ ghim. Khuôn giống GLLC_CHECK_MUTANTS của
+// tests/scripts/repin-lane-lop-cu.test.mjs; bộ máy dựng ở `dungCayTiem` /
+// `chayMuiTiem` gần cuối tệp.
+//
+// Mỗi phần tử `tiem`: [đường dẫn tương đối trong bộ máy, chuỗi neo, chuỗi thay].
+// Chuỗi neo phải khớp ĐÚNG MỘT lần — trôi khỏi vật là ca đỏ có tên, không xanh lặng.
+const LANE_REL = 'feature-loop/scripts/repin-lane.mjs';
+const CORE_REL = 'lib/evidence-core.cjs';
+const LOC_MAY = "REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase())";
+// Bên VIẾT hoàn nguyên bộ lọc riêng: lọc CHỈ theo executor, không đọc lời khai.
+const TIEM_BEN_GHI = [[LANE_REL, '    .filter(e => core.isRepinMachineEval(e))', `    .filter(e => core.${LOC_MAY})`]];
+const NEO_MACHINE_IDS = "  return ey.parseEvals(evalsText, ['executor', 'status']).filter(isRepinMachineEval).map(e => e.id);";
+// Bên ĐỌC hoàn nguyên TẠI CHỖ DÙNG: `missing` đòi lại cả id đã khai không-chạy.
+// KHÔNG tiêm vào chính machineEvalIds: `dungKhoTam` dựng khối Evidence của
+// fixture BẰNG core.machineEvalIds, nên tiêm ở đó làm bản tiêm tự dựng một
+// fixture khác (báo cáo đã ký có khối cho E2) và ca đỏ vì XUNG ĐỘT HAI VẾ —
+// đỏ sai lý do. Tiêm ở chỗ dùng giữ fixture y nguyên (đo 12/09/2026).
+const TIEM_BEN_DOC = [[CORE_REL,
+  '  const missing = ids.filter(i => !has(i));',
+  '  const missing = [...ids, ...(machineEvalIdsSkipped(evalsText) || [])].filter(i => !has(i));']];
+// Bên ĐỌC quét THEO DÒNG, không phân biệt thân mô tả / chú thích / danh sách
+// đường dẫn — đúng lớp lỗi AC-10 đi đóng.
+const QUET_THO = [
+  "  const recs = ey.parseEvals(evalsText, ['executor', 'status']);",
+  "  const boQuaTho = new Set(); let cur = null;",
+  "  for (const l of String(evalsText).split('\\n')) {",
+  "    const m = l.match(/^\\s*-\\s*id:\\s*(\\S+)/); if (m) cur = m[1];",
+  "    if (cur && /status:\\s*not-run/.test(l)) boQuaTho.add(cur);",
+  "  }",
+  `  return recs.filter(e => ${LOC_MAY} && !boQuaTho.has(e.id)).map(e => e.id);`,
+].join('\n');
+const TIEM_QUET_THEO_DONG = [[CORE_REL, NEO_MACHINE_IDS, QUET_THO]];
+// Bên VIẾT thôi nối hậu tố nói-ra trên dòng `sha:`.
+const THAN_HAU_TO = "  const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${boQua.join(', ')}` : '';";
+const TIEM_BO_HAU_TO = [[LANE_REL, THAN_HAU_TO, "  const veBoQua = '';"]];
+// Bỏ VẾ 2 của luật hai vế: xung đột không bao giờ được báo.
+const TIEM_BO_VE_HAI = [[CORE_REL,
+  '  return { xungDot: skipped.filter(id => signed.has(id)), khongDoiChieuDuoc: [] };',
+  '  return { xungDot: [], khongDoiChieuDuoc: [] };']];
+// Thôi chuẩn hoá lời khai: nháy/hoa/khoảng trắng lọt.
+const TIEM_KHONG_CHUAN_HOA = [[CORE_REL,
+  "  return unquoteScalar(String(v == null ? '' : v)).trim().toLowerCase();",
+  "  return String(v == null ? '' : v);"]];
+// Gỡ răng «ô khai không-chạy mang mã đỏ» (rà cuối 12/09/2026, Important 1).
+const TIEM_GO_RANG_MA_DO = [[CORE_REL,
+  '  const doTrongOBoQua = boQua.filter(i => has(i) && ex[i] !== 0);',
+  '  const doTrongOBoQua = [];']];
+// Hoàn nguyên fail-OPEN của vế hai (rà cuối 12/09/2026, Important 2).
+const TIEM_FAIL_OPEN = [[CORE_REL,
+  '  if (reportText == null) return { xungDot: [], khongDoiChieuDuoc: skipped.slice() };',
+  '  if (reportText == null) return { xungDot: [], khongDoiChieuDuoc: [] };']];
+
 test('L01', 'hai bên trả CÙNG một tập id', () => {
   const text = evalsYaml([{ id: 'E1' }, { id: 'E2', status: 'not-run' }, { id: 'E3', executor: 'test' }]);
   const kho = dungKhoTam({ evals: text });                  // helper ở Step 2
@@ -224,7 +287,9 @@ test('L01', 'hai bên trả CÙNG một tập id', () => {
   const benGhi = Object.keys(chayLan(kho, ['E1','E2','E3']).slugs.s1.evals_exit);
   if (benDoc.join(',') !== benGhi.join(',')) fail(`L01 hai bên trả tập khác nhau — đọc=[${benDoc}] ghi=[${benGhi}]`);
   if (benDoc.includes('E2')) fail('L01 ô khai không-chạy vẫn nằm trong tập');
-});
+}, [
+  { pin: 'hai bên trả tập khác nhau', make: (c) => tiemBoMay(TIEM_BEN_GHI, c) },
+]);
 
 test('L02', 'ô khai không-chạy KHÔNG được thi hành', () => {
   const kho = dungKhoTam({ danhDau: true });                 // cmd của ô ghi một tệp dấu
@@ -234,10 +299,17 @@ test('L02', 'ô khai không-chạy KHÔNG được thi hành', () => {
   const kho2 = dungKhoTam({ danhDau: true, goStatus: true }); // đối chứng dương
   chayLan(kho2, []);
   if (!fs.existsSync(kho2.tepDau)) fail('L02 đối chứng dương hỏng: gỡ lời khai mà ô vẫn không chạy — ca không phân biệt được gì');
-});
+}, [
+  { pin: 'ĐÃ BỊ THI HÀNH', make: (c) => tiemBoMay(TIEM_BEN_GHI, c) },
+]);
 
 test('L03', 'bên đọc nhận pin thiếu id đã khai, vẫn chặn id CHẠY ĐƯỢC bị thiếu', () => {
-  const kho = dungKhoTam({});                       // báo cáo có khối Evidence đủ hình dạng cho E1 (mặc định, Vòng sửa 1)
+  // Fixture = ĐÚNG fixture của AC-2 (`danhDau`: E1 chạy được + E2 khai
+  // không-chạy) vì AC-3 khai Given là «dòng pin do làn AC-2 ghi». Bản trước
+  // dùng fixture mặc định (chỉ E1, không ô nào khai không-chạy), nên vế «pin
+  // thiếu id đã khai vẫn được nhận» KHÔNG có id nào bị thiếu để mà nhận — ca
+  // xanh cả khi bộ lọc `status` của bên đọc bị hoàn nguyên (rà cuối 12/09/2026).
+  const kho = dungKhoTam({ danhDau: true });
   const w = chayLan(kho, [], { write: true });
   if (w.exit !== 0) fail(`L03 lượt ghi phải xanh (đối chứng dương của bên đọc cần một pin THẬT hợp lệ), nhận exit ${w.exit}: ${w.stderr}`);
   let rc = '';
@@ -247,7 +319,9 @@ test('L03', 'bên đọc nhận pin thiếu id đã khai, vẫn chặn id CHẠY
   if (/lacks eval/.test(rc)) fail(`L03 pin hợp lệ bị báo thiếu id: ${rc}`);
   const thieuThat = core.checkRepinEvals(pinThieu('E1', kho), docEvals(kho), 's1', docReport(kho)).errs;
   if (!thieuThat.some(e => e.includes('E1'))) fail('L03 đối chứng dương hỏng: thiếu id CHẠY ĐƯỢC mà bên đọc im');
-});
+}, [
+  { pin: 'lacks eval', make: (c) => tiemBoMay(TIEM_BEN_DOC, c) },
+]);
 
 test('L06', 'pin nói ra ô không đo ở CẢ HAI chỗ', () => {
   const kho = dungKhoTam({ danhDau: true });        // E2 tự khai status: not-run
@@ -263,7 +337,9 @@ test('L06', 'pin nói ra ô không đo ở CẢ HAI chỗ', () => {
   const d2 = JSON.parse(docDongCuoi(sach, 'run-log.jsonl'));
   if ('evals_not_run' in d2) fail('L06 hồ sơ không có ô nào mà pin vẫn mang khoá');
   if (/không chạy theo hồ sơ/.test(docReport(sach))) fail('L06 hậu tố xuất hiện khi không có ô nào');
-});
+}, [
+  { pin: 'thiếu hậu tố nói-ra', make: (c) => tiemBoMay(TIEM_BO_HAU_TO, c) },
+]);
 
 test('L04', 'khai không-chạy mà báo cáo đã ký có mã thoát → dừng, chưa ghi byte nào', () => {
   const kho = dungKhoTam({ xungDot: true });   // báo cáo có khối `- eval: E2` + `exit_code: 0`
@@ -293,7 +369,9 @@ test('L04', 'khai không-chạy mà báo cáo đã ký có mã thoát → dừng
   const baoCaoXungDot = fs.readFileSync(path.join(ws, 'evidence-report.md'), 'utf8');
   const errs = core.checkRepinEvals(dongPinThieuE2(kho), evalsXungDot, 's1', baoCaoXungDot).errs;
   if (!errs.some(e => e.includes('E2'))) fail('L04 bên đọc im lặng trước xung đột');
-});
+}, [
+  { pin: 'L04 phải thoát 2', make: (c) => tiemBoMay(TIEM_BO_VE_HAI, c) },
+]);
 
 test('L09', 'chuẩn hoá bảy hình dạng lời khai', () => {
   const DANG = [
@@ -301,6 +379,12 @@ test('L09', 'chuẩn hoá bảy hình dạng lời khai', () => {
     ['NOT-RUN', true], ['Not-Run', true], ['  not-run  ', true],
     ['not_run', false],
   ];
+  // Phép đếm phải có MỘT hằng số NGOÀI bảng (minor rà cuối 12/09/2026): `n`
+  // chỉ tăng trong đúng vòng lặp tiêu thụ `DANG`, nên `n === DANG.length` là
+  // tautology — bảng bị làm rỗng thì cả hai bằng 0 và ca vẫn xanh. AC-9 khai
+  // BẢY hình dạng: ghim 7 ở đây, ngoài bảng.
+  const SO_DANG_KHAI = 7;   // AC-9: trơn · nháy kép · nháy đơn · HOA · Hoa chữ đầu · thừa khoảng trắng · gạch dưới
+  if (DANG.length !== SO_DANG_KHAI) fail(`L09 bảng ca lệch bản khai: hợp đồng khai ${SO_DANG_KHAI} hình dạng, bảng có ${DANG.length}`);
   let n = 0;
   for (const [raw, phaiLoai] of DANG) {
     const text = evalsYaml([{ id: 'E1' }, { id: 'E2', status: raw }]);
@@ -309,8 +393,10 @@ test('L09', 'chuẩn hoá bảy hình dạng lời khai', () => {
     if (biLoai !== phaiLoai) fail(`L09 dạng ${JSON.stringify(raw)}: phải ${phaiLoai ? 'BỊ LOẠI' : 'GIỮ'} mà không — ids=${ids.join(',')}`);
     n++;
   }
-  if (n !== DANG.length) fail(`L09 số ô lệch: chạy ${n}, bảng có ${DANG.length}`);
-});
+  if (n !== SO_DANG_KHAI) fail(`L09 số ô lệch: chạy ${n}, hợp đồng khai ${SO_DANG_KHAI}`);
+}, [
+  { pin: 'phải BỊ LOẠI', make: (c) => tiemBoMay(TIEM_KHONG_CHUAN_HOA, c) },
+]);
 
 test('L10', 'chỉ TRƯỜNG thật mới tính, bốn chỗ khác không', () => {
   const base = evalsYaml([{ id: 'E1' }, { id: 'E2' }]);
@@ -331,21 +417,39 @@ test('L10', 'chỉ TRƯỜNG thật mới tính, bốn chỗ khác không', () =
   const own = fs.readFileSync(path.join(SELF_ROOT, '_acceptance', 'lan-doc-status-not-run', 'evals.yaml'), 'utf8');
   const skipped = core.machineEvalIdsSkipped(own);
   if (skipped.length !== 0) fail(`L10 tự soi: bản khai của chính hồ sơ bị loại ${skipped.join(',')} — phải RỖNG`);
-});
+}, [
+  { pin: 'tập id phải còn 2', make: (c) => tiemBoMay(TIEM_QUET_THEO_DONG, c) },
+]);
 
 // ── Task 5: đường đọc-cũ — bản TRƯỚC vá do WRITER THẬT của nó ghi ─────────
 // Ruling coordinator 12/09/2026 (progress.md của hồ sơ này): kế hoạch gốc viết
 // mốc bản base là `git rev-parse HEAD~5` — SỐ TƯƠNG ĐỐI trôi theo mỗi commit
 // của chính vòng này, đúng lớp lỗi mà vòng này đi đóng (bất biến CLAUDE.md
-// "thước phải gắn vào vật được giao"). Dùng `git merge-base main HEAD` (điểm
-// nhánh, TRƯỚC MỌI thay đổi của vòng) thay cho nó. Tự kiểm BẮT BUỘC trước khi
-// tin: bản base phải KHÔNG chứa `isRepinMachineEval` (hàm Task 1 thêm) — nếu
-// điểm nhánh lỡ đã mang vá, ca phải DỪNG thay vì lặng lẽ mất nghĩa phân biệt.
+// "thước phải gắn vào vật được giao").
+//
+// Mốc PHẢI là SHA TUYỆT ĐỐI (rà cuối toàn nhánh 12/09/2026 — controller tự nhận
+// một phán quyết SAI): bản trước đó dùng `git merge-base main HEAD`, tức MỘT
+// MỆNH ĐỀ VỀ HÌNH DẠNG LỊCH SỬ, nên nó vẫn TRÔI — chỉ trôi theo chiều khác.
+// Sau khi nhánh này GỘP, `main == HEAD` và merge-base CHÍNH LÀ bản đã mang vá:
+// phép tự kiểm dưới nổ, và suite thường trực của main đỏ (mô phỏng thật:
+// 865 passed, 1 failed). Một mốc bất biến là hằng số ghim cứng, đúng tiền lệ
+// MOC_CU/MOC_LAI (`0b5c5b37`/`04069351`) của tests/scripts/repin-lane-lop-cu.test.mjs.
+// Tự kiểm BẮT BUỘC trước khi tin: bản base phải KHÔNG chứa `isRepinMachineEval`
+// (hàm Task 1 thêm) — mốc bị ai đó đổi sang một bản đã có hàm mới thì ca DỪNG,
+// không lặng lẽ mất nghĩa phân biệt.
+const MOC_TRUOC_VA = '9509a81e';  // điểm nhánh feat/lan-doc-status-not-run — bản TRƯỚC mọi commit của vòng này
 let _banBase = null;
 function dungBanBase() {
   if (_banBase) return _banBase;
-  const sha = execFileSync('git', ['-C', SELF_ROOT, 'merge-base', 'main', 'HEAD'], { encoding: 'utf8' }).trim();
+  const sha = MOC_TRUOC_VA;
   const dir = fs.mkdtempSync(path.join(TMP, 'lsnr-base-'));
+  // Mốc vắng (clone nông, fetch-depth khác 0) → ĐỎ CÓ TÊN, không đỏ vì `git
+  // archive` thất bại với một dòng khó đọc — cùng nếp với layerAt() của
+  // tests/scripts/repin-lane-lop-cu.test.mjs.
+  {
+    const co = execFileSync('git', ['-C', SELF_ROOT, 'cat-file', '-t', `${sha}^{commit}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    if (co !== 'commit') fail(`L05 mốc bản base ${sha} không phải commit (nhận «${co}») — cần lịch sử git đầy đủ (fetch-depth: 0)`);
+  }
   // TRỌN thư mục (lib scripts feature-loop), không danh sách file tay — một
   // bản base thiếu file thì đỏ vì HẠ TẦNG chứ không vì vật (bài học P150,
   // CLAUDE.md "thước phải gắn vào vật được giao").
@@ -585,12 +689,152 @@ test('L08', 'lưới bộ lọc rỗng: LSNR_CASES không khớp ca nào → tho
   if (!/khớp 0 ca/.test(stderr)) fail(`L08 thông điệp thiếu «khớp 0 ca»: ${stderr}`);
 });
 
+// ── Rà cuối 12/09/2026, Important 1: ô bị loại rời khỏi vòng chấm mã thoát ──
+test('L11', 'mã đỏ ghi cho chính ô khai không-chạy là vi phạm, gọi tên id', () => {
+  const kho = dungKhoTam({ danhDau: true });     // E1 chạy được · E2 khai không-chạy
+  const evalsText = docEvals(kho);
+  const rep = docReport(kho);
+  const sha = execFileSync('git', ['-C', kho.dir, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const pin = (evals_exit) => ({ run_id: 'lsnr-l11-doc', sha, ts: '2026-09-12T00:00:00Z', evals_exit });
+  // Đối chứng dương: ĐÚNG vật làn ghi (chỉ id chạy được, mã 0) → sạch.
+  const lanh = core.checkRepinEvals(pin({ E1: 0 }), evalsText, 's1', rep).errs;
+  if (lanh.length) fail(`L11 đối chứng dương hỏng: dòng pin lành bị báo — ${lanh.join(' | ')}`);
+  // Vật đo: id bị loại KHÔNG còn nằm trong `ids` nên vòng chấm mã thoát không
+  // soi nó; thiếu răng riêng thì một mã đỏ chống lưng pin mà 0 ai kêu.
+  const mangMaDo = core.checkRepinEvals(pin({ E1: 0, E2: 4 }), evalsText, 's1', rep).errs;
+  if (!mangMaDo.some(e => e.includes('E2=4') && e.includes('không được mang mã đỏ chống lưng một pin'))) {
+    fail(`L11 mã đỏ cho ô khai không-chạy LỌT: ${mangMaDo.join(' | ') || 'không lỗi nào'}`);
+  }
+  // Đừng đỏ oan: một khoá DƯ mang mã 0 không phải mã đỏ.
+  const maKhong = core.checkRepinEvals(pin({ E1: 0, E2: 0 }), evalsText, 's1', rep).errs;
+  if (maKhong.length) fail(`L11 đỏ oan trên khoá dư mang mã 0: ${maKhong.join(' | ')}`);
+}, [
+  { pin: 'mã đỏ cho ô khai không-chạy LỌT', make: (c) => tiemBoMay(TIEM_GO_RANG_MA_DO, c) },
+]);
+
+// ── Rà cuối 12/09/2026, Important 2: vế 2 phải fail-CLOSED ─────────────────
+test('L12', 'ô khai không-chạy mà không đọc được báo cáo đã ký → fail-CLOSED, có tên', () => {
+  const kho = dungKhoTam({ danhDau: true });
+  const evalsText = docEvals(kho);
+  const pinLanh = dongPinThieuE2(kho);           // evals_exit {E1:0} — đúng vật làn ghi
+  // Đối chứng dương: BỐN đối số (có báo cáo đã ký) → sạch.
+  const bonDoi = core.checkRepinEvals(pinLanh, evalsText, 's1', docReport(kho)).errs;
+  if (bonDoi.length) fail(`L12 đối chứng dương hỏng: gọi bốn đối số mà vẫn đỏ — ${bonDoi.join(' | ')}`);
+  // Vật đo: BA đối số (bản recheck/pre-merge của repo tiêu thụ chưa chép tệp
+  // mới) → không đối chiếu được vế hai, phải ĐỎ chứ không im.
+  const baDoi = core.checkRepinEvals(pinLanh, evalsText, 's1').errs;
+  if (!baDoi.some(e => e.includes('E2') && e.includes('không đối chiếu được vế hai'))) {
+    fail(`L12 vế hai IM LẶNG khi vắng báo cáo đã ký: ${baDoi.join(' | ') || 'không lỗi nào'}`);
+  }
+  // Đừng đỏ oan: hồ sơ KHÔNG có ô bị loại nào, gọi ba đối số → vẫn sạch.
+  const sach = dungKhoTam({});
+  const sachErrs = core.checkRepinEvals(dongPinThieuE2(sach), docEvals(sach), 's1').errs;
+  if (sachErrs.length) fail(`L12 đỏ oan hồ sơ không khai ô nào khi vắng báo cáo: ${sachErrs.join(' | ')}`);
+}, [
+  { pin: 'vế hai IM LẶNG', make: (c) => tiemBoMay(TIEM_FAIL_OPEN, c) },
+]);
+
+// ── Lưới hai chiều: bộ máy dựng bản sao bị tiêm + ca meta ──────────────────
+// Ca KHÔNG có mũi tiêm phải khai lý do ở đây; mảng rỗng im lặng là thứ L13 bắt.
+const MIEN_MUI_TIEM = {
+  L05: 'chiều đỏ NỘI TẠI: ca tự dựng bộ máy bản base THẬT (dungBanBase, mốc 9509a81e) rồi chấm bằng cả bên đọc cũ lẫn mới, và tự tiêm một pin thiếu id vào bản sao corpus — một mũi tiêm ngoài sẽ đo lại đúng thứ đó với giá hai lượt quét 63 hồ sơ.',
+  L07: 'chiều đỏ NỘI TẠI: ca chạy CÙNG fixture bằng bộ máy bản base và ghim «LÀN ĐỎ … s1/E14=4» + khẳng định không ghi byte nào.',
+  L08: 'đo bộ lọc ca của CHÍNH tệp này, không đi qua bộ máy dưới LSNR_ROOT — mũi tiêm phải sửa tệp ca, và đó chính là hình dạng mũi tiêm của L13.',
+};
+// Bản sao bộ máy (lib/ · scripts/ · feature-loop/) với MỘT chỗ bị sửa. Mỗi mũi
+// tiêm phải khớp ĐÚNG MỘT lần và bản sao phải qua `node --check` — nếu không,
+// ca đỏ vì HẠ TẦNG có tên thay vì đỏ lặng (bài học P150).
+function dungCayTiem(tiem) {
+  const dir = fs.mkdtempSync(path.join(TMP, 'lsnr-tiem-'));
+  for (const d of ['lib', 'scripts', 'feature-loop']) fs.cpSync(path.join(SELF_ROOT, d), path.join(dir, d), { recursive: true });
+  for (const [rel, truoc, sau] of tiem) {
+    const f = path.join(dir, rel);
+    const goc = fs.readFileSync(f, 'utf8');
+    const lan = goc.split(truoc).length - 1;
+    if (lan !== 1) fail(`mũi tiêm vào ${rel} khớp ${lan} lần (cần đúng 1) — chuỗi neo đã trôi khỏi vật, sửa mũi tiêm chứ đừng tin màu xanh`);
+    const moi = goc.replace(truoc, sau);
+    if (moi === goc) fail(`mũi tiêm vào ${rel} không đổi byte nào — mũi tiêm no-op không phân biệt được gì`);
+    fs.writeFileSync(f, moi);
+    try { execFileSync(process.execPath, ['--check', f], { stdio: ['ignore', 'pipe', 'pipe'] }); }
+    catch (e) { fail(`bản tiêm ${rel} không qua node --check: ${String(e.stderr || e.message).split('\n').slice(0, 3).join(' ')}`); }
+  }
+  return dir;
+}
+// Mũi tiêm BỘ MÁY: tiến trình con chạy CHÍNH tệp ca này, đúng MỘT ca, trong cây
+// đã tiêm (LSNR_ROOT). LSNR_TIEM=1 để tiến trình con không dựng mũi tiêm nữa.
+function tiemBoMay(tiem, c) {
+  return { file: SELF_FILE, env: { LSNR_ROOT: dungCayTiem(tiem), LSNR_CASES: c.id, LSNR_TIEM: '1' } };
+}
+// Mũi tiêm TỆP CA: bản sao chính tệp này (đặt dưới TMP nên ROOT phải trỏ lại
+// bằng LSNR_ROOT), chạy ở chế độ kiểm mũi tiêm.
+function tiemTepCa(truoc, sau) {
+  const f = path.join(fs.mkdtempSync(path.join(TMP, 'lsnr-ca-')), 'ban-tiem.mjs');
+  const goc = fs.readFileSync(SELF_FILE, 'utf8');
+  const lan = goc.split(truoc).length - 1;
+  if (lan !== 1) fail(`mũi tiêm vào tệp ca khớp ${lan} lần (cần đúng 1) — chuỗi neo đã trôi`);
+  fs.writeFileSync(f, goc.replace(truoc, sau));
+  return { file: f, env: { LSNR_ROOT: SELF_ROOT, LSNR_MUI_TIEM: '1', LSNR_TIEM: '1' } };
+}
+function chayMuiTiem(c) {
+  for (const m of c.muiTiem) {
+    const { file, env } = m.make(c);
+    const r = (() => {
+      try { return { status: 0, out: execFileSync(process.execPath, [file], { encoding: 'utf8', env: { ...process.env, ...env }, stdio: ['ignore', 'pipe', 'pipe'] }) }; }
+      catch (e) { return { status: e.status == null ? 1 : e.status, out: String(e.stdout || '') + String(e.stderr || '') }; }
+    })();
+    if (r.status === 0) fail(`${c.id} chiều đỏ «${m.pin}»: bản tiêm vẫn XANH — phép đo không phân biệt được gì`);
+    if (!r.out.includes(m.pin)) fail(`${c.id} chiều đỏ ĐỎ SAI LÝ DO: thiếu ghim «${m.pin}» trong:\n${r.out.slice(-700)}`);
+    process.stdout.write(`    · ${c.id} chiều đỏ: bản tiêm ĐỎ, ghim «${m.pin}»\n`);
+  }
+}
+
+test('L13', 'ca meta: mọi ca phải có mũi tiêm hoặc một dòng lý do miễn — mảng rỗng không lọt qua lặng lẽ', () => {
+  const chay = (file, env) => {
+    try { return { status: 0, out: execFileSync(process.execPath, [file], { encoding: 'utf8', env: { ...process.env, ...env }, stdio: ['ignore', 'pipe', 'pipe'] }) }; }
+    catch (e) { return { status: e.status == null ? 1 : e.status, out: String(e.stdout || '') + String(e.stderr || '') }; }
+  };
+  // Vật thật: mọi ca hiện có (kể cả L13) đủ mũi tiêm hoặc có lý do miễn.
+  const that = chay(SELF_FILE, { LSNR_MUI_TIEM: '1', LSNR_TIEM: '1' });
+  if (that.status !== 0) fail(`L13 vật thật đỏ (exit ${that.status}): ${that.out.slice(-400)}`);
+}, [
+  {
+    // Bản sao: MỘT ca (L11) bị làm rỗng mũi tiêm — ca meta PHẢI đỏ, gọi đúng tên.
+    pin: 'không có mũi tiêm và không khai miễn: L11',
+    make: () => tiemTepCa(
+      "}, [\n  { pin: 'mã đỏ cho ô khai không-chạy LỌT', make: (c) => tiemBoMay(TIEM_GO_RANG_MA_DO, c) },\n]);",
+      '}, []);',
+    ),
+  },
+]);
+
+// Chế độ kiểm mũi tiêm — đặt SAU mọi lượt `test(...)` để CASES đã đầy đủ (kể cả
+// L13 tự soi chính nó), và THOÁT trước vòng chạy ca thường để bản sao tệp ca
+// không đệ quy vào bộ chạy.
+if (process.env.LSNR_MUI_TIEM) {
+  const loi = [];
+  const thieu = CASES.filter(c => !c.muiTiem.length && !MIEN_MUI_TIEM[c.id]).map(c => c.id);
+  if (thieu.length) loi.push(`ca không có mũi tiêm và không khai miễn: ${thieu.join(',')}`);
+  const mienSuong = Object.entries(MIEN_MUI_TIEM).filter(([, ly]) => String(ly || '').trim().length < 40).map(([id]) => id);
+  if (mienSuong.length) loi.push(`ca khai miễn mà lý do rỗng/quá ngắn: ${mienSuong.join(',')}`);
+  const mienLa = Object.keys(MIEN_MUI_TIEM).filter(id => !CASES.some(c => c.id === id));
+  if (mienLa.length) loi.push(`khai miễn cho ca không tồn tại: ${mienLa.join(',')}`);
+  const mienMaCoTiem = CASES.filter(c => c.muiTiem.length && MIEN_MUI_TIEM[c.id]).map(c => c.id);
+  if (mienMaCoTiem.length) loi.push(`ca vừa khai miễn vừa có mũi tiêm (lý do miễn đã hết đúng): ${mienMaCoTiem.join(',')}`);
+  if (loi.length) { console.error(`LSNR_MUI_TIEM: ${loi.join(' | ')}`); process.exit(1); }
+  console.log(`LSNR_MUI_TIEM: ${CASES.filter(c => c.muiTiem.length).length} ca có mũi tiêm, ${Object.keys(MIEN_MUI_TIEM).length} ca miễn có lý do`);
+  process.exit(0);
+}
+
 const only = (process.env.LSNR_CASES || '').split(/[,\s]+/).filter(Boolean);
 const chay = only.length ? CASES.filter(c => only.includes(c.id)) : CASES;
 if (!chay.length) { console.error(`lan-status-not-run: bộ lọc LSNR_CASES=${process.env.LSNR_CASES} khớp 0 ca — không có gì chạy`); process.exit(2); }
+const LA_BAN_TIEM = !!process.env.LSNR_TIEM;   // tiến trình con: chạy ca, KHÔNG dựng mũi tiêm (đệ quy)
 let ok = 0;
 for (const c of chay) {
-  try { c.fn(); ok++; console.log(`  ✓ ${c.id} ${c.name}`); }
-  catch (e) { console.error(`  ✗ ${c.id} ${c.name}\n    ${e.message}`); process.exit(1); }
+  try {
+    c.fn();
+    if (!LA_BAN_TIEM) chayMuiTiem(c);
+    ok++; console.log(`  ✓ ${c.id} ${c.name}`);
+  } catch (e) { console.error(`  ✗ ${c.id} ${c.name}\n    ${e.message}`); process.exit(1); }
 }
 console.log(`lan-status-not-run: ${ok}/${chay.length} ca xanh`);

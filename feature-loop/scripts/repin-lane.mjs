@@ -90,7 +90,7 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'resolveConfigList', kind: 'function', since: '2.9.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'REPIN_MACHINE_EXECUTORS', kind: 'array', since: '2.9.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'isRepinMachineEval', kind: 'function', since: '2.12.0', why: 'làn gọi' },
-  { file: 'lib/evidence-core.cjs', name: 'machineEvalIdsSkipped', kind: 'function', since: '2.12.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'machineEvalIdsSkipped', kind: 'function', since: '2.12.0', why: 'notRunConflicts gọi (làn gọi gián tiếp)' },
   { file: 'lib/evidence-core.cjs', name: 'notRunConflicts', kind: 'function', since: '2.12.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'determineEnforce', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'evaluateEvidence', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
@@ -195,8 +195,12 @@ const perSlug = slugs.map(slug => {
 for (const s of perSlug) {
   // s.evalsText: cùng nội dung đã đọc khi dựng perSlug (minor ghi-lai-tren-lop-cu
   // 12/09/2026) — không đọc lại evals.yaml lần hai từ đĩa.
-  const xungDot = core.notRunConflicts(s.evalsText, s.report);
+  const { xungDot, khongDoiChieuDuoc } = core.notRunConflicts(s.evalsText, s.report);
   if (xungDot.length) die(`${s.slug}: eval ${xungDot.join(', ')} khai không-chạy trong evals.yaml nhưng báo cáo đã ký CÓ mã thoát cho chính nó — hai vế mâu thuẫn, làn không ghi gì; sửa hồ sơ rồi chạy làn mới`);
+  // s.report LUÔN là chuỗi ở làn (đọc ngay trên, die nếu vắng) nên vế dưới
+  // không chạy ở đây hôm nay; giữ để một bên gọi tương lai không lách qua
+  // lặng lẽ — cùng nếp fail-closed với bên đọc.
+  if (khongDoiChieuDuoc.length) die(`${s.slug}: eval ${khongDoiChieuDuoc.join(', ')} khai không-chạy mà không đọc được báo cáo đã ký để đối chiếu vế hai — làn không ghi gì; khôi phục evidence-report.md rồi chạy làn mới`);
 }
 
 // ── chạy: một lệnh trùng chỉ chạy MỘT lần (dedupe cmd như S4) ─────────────
