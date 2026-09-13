@@ -27,12 +27,16 @@ Vòng này đi TRƯỚC mốc phát hành 2.12.0; mốc là hồ sơ T2 thuần 
 
 **Vị từ trung tâm, khai một lần ở đây rồi mọi AC dưới dùng lại — «mục CHỜ NGƯỜI»:**
 số phần tử dưới `## Ngoài hợp đồng` cộng `## Trong hợp đồng` của `review-findings.md`,
-TRỪ số dòng trong `decisions.jsonl` khai `stage: "gate2"`. Lớn hơn 0 là còn chờ người.
-Vì sao trừ đi sổ chứ không đếm trần: một phát hiện ĐÃ được người định đoạt ở Cổng Bằng
-chứng để lại đúng một dòng sổ, và nếu đếm trần thì mọi hồ sơ từng có phát hiện rồi đã xử
-sẽ vĩnh viễn KHÔNG-sạch — đo thật trên corpus hôm nay: đếm trần cho 5 hồ sơ, vị từ này
-cho **4** (`ghim-lai-tren-lop-cu` có 2 mục và 5 dòng định đoạt, nên nó SẠCH và đúng ra
-phải sạch).
+CỘNG lại, KHÔNG trừ gì cả.
+
+**Định nghĩa này ĐỔI sau lượt chấm 2, owner duyệt 13/09.** Bản duyệt ở Cổng Phạm vi
+trừ đi số dòng sổ khai `stage: "gate2"`. Hai bản cài của phép trừ ấy đều sai và đều
+sai NGƯỢC chiều an toàn: bản một trừ mọi dòng gate2 (621 dòng, 12 loại `type`, trên
+22 kho — phần lớn không định đoạt mục nào); bản hai trừ theo nhãn `Ngoài-n`, mà nhãn
+là chỉ số VỊ TRÍ còn sổ thì chỉ nối thêm, nên nhãn đời trước trừ nhầm cho phát hiện
+MỚI. Gốc: số hạng bị trừ luôn bằng KHÔNG trên chính đường nó canh — cả ba chỗ hỏi
+điều kiện thứ bảy đều là hồ sơ CHƯA có chữ ký người, tức chưa qua Cổng Bằng chứng.
+Đo trước khi bỏ: **0 hồ sơ trong 740 hồ sơ có tệp rà soát đổi trạng thái**.
 
 ## Criteria
 
@@ -141,7 +145,8 @@ node _acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs --truc tat-ca --ag-root
 - Lớp vendored ĐỔI: `lib/evidence-core.cjs`, `lib/ac-line.cjs`, `scripts/pre-merge-check.sh`,
   và một mục MỚI `lib/out-of-contract.cjs` (đổi tên từ `.js`). Ghi chú phát hành 2.12.0 phải
   mang cảnh báo này.
-- Vị từ «mục chờ người» trừ đi số dòng `stage: "gate2"` là một phép ĐẾM, không phải phép
-  ghép từng mục với từng định đoạt. Một dòng sổ gộp nhiều mục sẽ đếm thiếu. Chấp nhận vì
+- Vị từ «mục chờ người» KHÔNG trừ gì; mọi mục còn trong tệp rà soát đều tính là chờ
+  người. Hệ quả đã khai: một hồ sơ đã được người định đoạt ở Cổng Bằng chứng mà chưa
+  ký vẫn hiện «còn mục chờ người». Chấp nhận vì
   lệch về phía MỜI KÝ, và vì ghép theo nhãn `Ngoài-<n>` là neo vào thứ tự render của thẻ —
   đúng lớp bất-biến-không-được-nằm-trong-hồ-sơ-đã-ký. Ngưỡng mở lại: ≥1 hồ sơ bị chặn oan.

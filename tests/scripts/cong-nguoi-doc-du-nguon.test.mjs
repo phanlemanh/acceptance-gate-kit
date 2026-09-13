@@ -141,8 +141,10 @@ def('CN04', () => {
     ['khoá 0 · vật 2 (khai thấp)',     0, 2, 0, 0, false, 'lệch'],
     ['khoá 5 · vật 2 (khai cao)',      5, 2, 0, 0, false, 'lệch'],
     ['khoá 2 · 2 ngoài + 2 trong · 2 định đoạt', 2, 2, 2, 2, false, '2'],
-    ['khoá 0 · 2 mục · 2 định đoạt',   0, 2, 0, 2, true,  ''],
-    ['khoá 2 · 2 mục · 2 định đoạt',   2, 2, 0, 2, false, 'lệch'],
+    // KHÔNG TRỪ (owner duyệt 13/09): dòng sổ định đoạt KHÔNG kéo số về 0 nữa.
+    // Mục còn trong tệp là mục còn chờ người, bất kể sổ ghi gì.
+    ['khoá 2 · 2 mục · 2 dòng sổ',     2, 2, 0, 2, false, '2'],
+    ['khoá 0 · 2 mục · 2 dòng sổ',     0, 2, 0, 2, false, 'lệch'],
   ];
   // Hai ô VẮNG TỆP — tách khỏi bảng vì chúng truyền findingsText = null.
   // 505/1242 hồ sơ có báo cáo trên 11 kho không có tệp rà soát; gộp ca này vào
@@ -158,8 +160,31 @@ def('CN04', () => {
   // veto và revisit của người cũng mang stage gate2 mà không định đoạt mục nào.
   const veto = JSON.stringify({ id: 'd-v', type: 'veto', stage: 'gate2', at: '2026-09-13T00:00:00Z', decision: 'owner veto, không nhắc mục nào', impact: 'x' });
   const rV = core.dieuKienFindings({ findingsText: rfText(2, 0), ledgerText: veto + '\n', reportText: baoCao(2) });
-  chi.push(`2 mục + 1 dòng veto không nhắc nhãn → clean=${rV.clean} (phải false)`);
-  if (rV.clean) return say('CN04', false, 'dong so KHONG nhac nhan van bi tru — sach gia', chi);
+  chi.push(`2 mục + 1 dòng veto → clean=${rV.clean} (phải false)`);
+  if (rV.clean) return say('CN04', false, 'dong so keo so ve 0 — sach gia', chi);
+  // Và dòng sổ NHẮC ĐÚNG NHÃN cũng KHÔNG được trừ: đó là bản đếm thứ hai đã bỏ.
+  const nhan = JSON.stringify({ id: 'd-n', type: 'approach', stage: 'gate2', at: '2026-09-13T00:00:00Z', decision: 'Ngoài-1: ghi Known limits · Ngoài-2: ghi Known limits', impact: 'x' });
+  const rN = core.dieuKienFindings({ findingsText: rfText(2, 0), ledgerText: nhan + '\n', reportText: baoCao(2) });
+  chi.push(`2 mục + 1 dòng nhắc đủ hai nhãn → clean=${rN.clean} (phải false)`);
+  if (rN.clean) return say('CN04', false, 'nhan van bi tru — ban dem thu hai chua bo het', chi);
+  // SAI KHUÔN — ba chiều, vì hai bên gánh hai phần khác nhau:
+  //  (i) vắng khoá  → đường đọc-cũ CÓ CỜ, KHÔNG chặn (hồ sơ đời trước; fail-CLOSED
+  //      ở đây làm một hồ sơ ĐÃ KÝ hoá «hỏng» ngược — đo được ở lượt sửa này);
+  //  (ii) khoá khai KHÁC vật → VIOLATION «lời khai lệch vật» (hồ sơ MỚI: khoá do
+  //      MÁY tính, nên bên viết trôi khuôn là lộ ngay ở đây);
+  //  (iii) cờ ngoRong phải BẬT ở cả hai để bề mặt nói ra được.
+  const saiKhuon = '## Trong hợp đồng\n\n- **T kiểu cũ** · severity: high · AC-1\n  chi tiết\n\n## Ngoài hợp đồng\n\n';
+  const sCu = core.dieuKienFindings({ findingsText: saiKhuon, ledgerText: '', reportText: baoCao(null) });
+  chi.push(`sai khuôn · vắng khoá → clean=${sCu.clean} doiCu=${sCu.doiCu} ngoRong=${sCu.ngoRong}`);
+  if (!sCu.clean || !sCu.doiCu || !sCu.ngoRong) return say('CN04', false, 'sai khuon + vang khoa phai la duong doc-cu CO CO', chi);
+  const sMoi = core.dieuKienFindings({ findingsText: saiKhuon, ledgerText: '', reportText: baoCao(1) });
+  chi.push(`sai khuôn · khoá khai 1 → clean=${sMoi.clean} why="${String(sMoi.why).slice(0, 46)}"`);
+  if (sMoi.clean) return say('CN04', false, 'ben viet troi khuon ma khong lo o phep doi chieu', chi);
+  if (!/lệch vật/.test(String(sMoi.why))) return say('CN04', false, 'why khong neu lech vat', chi);
+  const ooc2 = req(path.join(ROOT, 'lib', 'out-of-contract.cjs'));
+  const co = ooc2.parse(saiKhuon).suspect_empty_in;
+  chi.push(`bộ đọc bật cờ ngờ sai khuôn: ${co}`);
+  if (!co) return say('CN04', false, 'bo doc KHONG bat co ngo sai khuon', chi);
 
   for (const [ten, khoa, ng, tr, g2, mongSach, phaiCo] of O) {
     const r = core.dieuKienFindings({ findingsText: rfText(ng, tr), ledgerText: soText(g2), reportText: baoCao(khoa) });
@@ -253,15 +278,23 @@ def('CN06', () => {
   if (!b.err.includes('2')) return say('CN06', false, 'thong diep khong neu so muc', chi);
   if (!truoc.equals(sau)) return say('CN06', false, 'da GHI DIA du bi chan', chi);
 
-  // Ô ba: mục đã được định đoạt ở Cổng Bằng chứng → ghi lại được. Không có ô này
-  // thì luật mới biến mọi hồ sơ từng có phát hiện thành không-bao-giờ-ghi-được.
+  // Ô ba: dòng sổ định đoạt KHÔNG mở cửa ghi (owner duyệt 13/09 — bỏ phép trừ).
+  // Mục còn trong tệp là mục còn chờ người; đường đúng để đóng là chữ ký, không
+  // phải một dòng sổ. Ô này ghim CHÍNH chỗ định nghĩa vừa đổi.
   dat();
   fs.writeFileSync(path.join(ws, 'review-findings.md'), rfText(2, 0));
   fs.writeFileSync(path.join(ws, 'decisions.jsonl'), soText(2));
   const c = chay();
   const stC = (/status:\s*(\S+)/.exec(fs.readFileSync(path.join(ws, 'contract.md'), 'utf8')) || [])[1];
   chi.push(`2 mục + 2 dòng sổ gate2: mã=${c.ma}, status→${stC}`);
-  if (c.ma !== 0 || stC !== 'machine-cleared') return say('CN06', false, `dinh doat roi ma van chan: ma=${c.ma}`, chi);
+  if (c.ma !== 2 || stC !== 'verified') return say('CN06', false, `dong so van mo duoc cua ghi: ma=${c.ma} status=${stC}`, chi);
+  // Ô bốn: dọn HẾT mục thì cửa ghi mở lại — chứng rằng chốt không phải cửa chết.
+  dat();
+  fs.writeFileSync(path.join(ws, 'review-findings.md'), '## Trong hợp đồng\n\n## Ngoài hợp đồng\n\n');
+  const e = chay();
+  const stE = (/status:\s*(\S+)/.exec(fs.readFileSync(path.join(ws, 'contract.md'), 'utf8')) || [])[1];
+  chi.push(`dọn hết mục: mã=${e.ma}, status→${stE}`);
+  if (e.ma !== 0 || stE !== 'machine-cleared') return say('CN06', false, 'don het muc ma cua ghi van dong — cua chet', chi);
 
   say('CN06', true, '', chi);
 });

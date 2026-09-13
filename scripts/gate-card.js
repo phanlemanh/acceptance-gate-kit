@@ -957,6 +957,10 @@ if (ooc.unclassified) {
     + `<p class="li">Rà soát đối kháng: ${ooc.findings.length} mục ngoài hợp đồng${ooc.suspect_empty ? ' (⚠ khối nghi sai khuôn)' : ''} · ${decisions.length} mục cần mắt người</p></div>`);
 }
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
+// Vế thứ hai của cùng cờ, cho mục «Trong hợp đồng» (owner duyệt 13/09). Mục có
+// chữ mà bộ đọc ra 0 thì khối bên dưới KHÔNG render dòng nào — im lặng ở đúng
+// chỗ nặng nhất. Đo trên 22 kho: 43 hồ sơ ở tình trạng đó.
+if (ooc.suspect_empty_in) P.push(`<div class="flag fwarn">⚠ mục «Trong hợp đồng» có chữ nhưng máy không đọc ra mục nào — sai khuôn OOC-ITEM-TEMPLATE. Khối «Lỗi TRONG hợp đồng» bên dưới đang TRỐNG vì lý do đó, KHÔNG phải vì hồ sơ sạch: mở review-findings.md đọc tay trước khi quyết.</div>`);
 // Lỗi TRONG hợp đồng chưa sửa — đứng TRƯỚC khối «Ngoài hợp đồng» vì nó NẶNG hơn:
 // nó nằm trong phạm vi người đã duyệt ở Cổng 1. Ca thật: sau STOP-PATCHING máy dừng
 // với một lỗi có mã AC chưa sửa, verdict PENDING-JUDGMENT, và trước bản này lỗi đó
