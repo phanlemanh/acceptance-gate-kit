@@ -71,7 +71,7 @@ vòng soi lại tìm ra một cách nó không đo thật.
 ### AC-2 (cắt số) — `diagram-design` giữ 2.7.0, có bằng chứng đo được KHÔNG fail-open
 
 **Given** `diagram-design/` không đổi dòng nào trong cửa sổ
-**When** chạy `rang-moc.sh --chan diagram --moc-truoc <sha mốc trước>` của hồ sơ này
+**When** chạy `rang-moc.sh --chan diagram` của hồ sơ này
 **Then** răng xanh, in ra ĐÚNG chuỗi `giu 2.7.0`, và nó xanh vì ĐO chứ không vì thiếu
 vật. Năm lối hỏng có mã thoát riêng: 3 không tìm được lần cắt số · 4 cửa sổ rỗng ·
 5 có đổi sau lần cắt số · 6 không đọc được số tại HEAD · **7 số tại HEAD KHÁC số tại
@@ -81,7 +81,13 @@ Chân 7 thêm sau phản biện context sạch. Ba chân đầu chỉ kiểm m�
 từ lần cắt số của CHÍNH NÓ») rồi IN RA bất kỳ số nào đọc được, trong khi hợp đồng hứa
 một QUAN HỆ («giữ 2.7.0» — bằng số của mốc trước). Không có chân 7, ở mốc sau nữa khi
 `diagram-design` đã lên 2.8.0, răng vẫn PASS và in «giu 2.8.0» — ghim lại được bằng
-cách rỗng nghĩa. Số so KHÔNG gõ vào răng: nó đọc từ manifest TẠI commit mốc trước.
+cách rỗng nghĩa.
+
+**Hai mốc so đều SUY TỪ KHO, không sha nào gõ vào cấu hình hay vào `expected`.** Chân
+1..3 tìm lần cắt số gần nhất của chính `diagram-design`; chân 7 đi ngược lịch sử manifest
+của `acceptance-gate` tới commit đầu tiên mang số khác số tại HEAD. Lượt chấm 3 bắt được
+hậu quả của việc gõ sha: `expected` ghim `45e5f1d8` trong khi răng in `ef36d81f`, tức
+một lời khai không bao giờ đối chiếu được.
 
 ### AC-3 (không hồi quy) — bốn suite và bản đồ sản phẩm XANH tại HEAD của mốc
 
@@ -184,6 +190,12 @@ công ty khác dùng kit thì không thuộc kit* — một script đọc `~/dev
 đúng như vậy. Số 182 đo một lần trên máy owner ngày 13/09, và nó lệch ngay khi bất kỳ
 kho nào trong tám kho thêm một hợp đồng.
 
+**Bài học lượt chấm 3, ghi để không lặp.** 14 trên 14 phát hiện của lượt ấy nằm trong
+BỘ MÁY hồ sơ này tự dựng, và 0 nằm ở vật được giao — ba con số phiên bản xanh từ lượt 1.
+Owner chọn lối TRỪ HẾT: gỡ `phan-lop-ha-tang.cjs` (7 phát hiện; nó thuộc ô
+`thuoc-khong-lat-verdict` ngả 5, không thuộc mốc) và `do-ba-dong-so.cjs` (mồ côi sau khi
+eval của nó bị bỏ). Một mốc THUẦN CẮT SỐ không nuôi dàn đo riêng; ba mốc trước đều không.
+
 **Ngưỡng đang đếm cho cả hai:** ≥1 mốc nữa mà ba dòng số bị phát hiện SAI sau khi ký.
 Khi đó lối vá đúng tầng không phải một eval trong hồ sơ mốc, mà là lệnh `signoff` ghi số
 ấy vào hồ sơ ngay lúc ký — xem §4.
@@ -194,8 +206,11 @@ Bốn khối bắt buộc của AC-4 nằm dưới đây.
 
 ### 1. Ba dòng số của luật (c) — MÁY TÍNH, người đếm tay một ô
 
-Sinh bằng `node _acceptance/release-2-12-0/do-ba-dong-so.cjs --neo 45e5f1d8`; bảng dưới
-đây dán nguyên đầu ra. Script là CÔNG CỤ, không phải phép đo — xem Known limits.
+Bảng dưới đây ĐẾM TAY, xem Known limits. Nó từng được sinh bằng một script trong hồ sơ;
+script ấy đã GỠ ở lượt chấm 3 vì sau khi eval của nó bị bỏ, nó thành tệp mồ côi — đúng
+hình dạng P0 mà phản biện context sạch của chính vòng này vừa chấm cho một tệp khác.
+Sửa một ca rồi mở lại đúng ca ấy cho tệp bên cạnh là «sửa một ca thay vì quét theo LỚP»,
+lớp tái phát mà §3 dưới đây tự ghi.
 
 | Vòng | Lượt chấm | làm-xong→quyết-được | Gọi người (cận dưới) | Gọi người (đếm tay) |
 |---|---:|---|---:|---:|

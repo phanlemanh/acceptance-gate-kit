@@ -42,10 +42,11 @@ evals:
     executor: script
     cmd: config:executors.script.moc_diagram_2_12
     expected: >-
-      Răng thoát 0 và in ĐÚNG chuỗi `giu 2.7.0 BANG so tai moc truoc 45e5f1d8`, kèm đối
+      Răng thoát 0 và in dòng PASS chứa `giu 2.7.0 BANG so tai moc truoc <sha>`, kèm đối
       chứng dương «cửa sổ mốc..HEAD KHÔNG rỗng» — tức xanh vì ĐO, không vì thiếu vật.
-      Mốc so của chân 1..3 suy TỪ KHO (commit gần nhất CẮT SỐ của `diagram-design`);
-      số so của chân 7 đọc từ manifest TẠI commit mốc phát hành trước, không gõ vào răng.
+      KHÔNG ghim sha vào câu này: cả mốc so của chân 1..3 lẫn mốc phát hành trước của
+      chân 7 đều SUY TỪ KHO, nên một sha gõ cứng ở đây sẽ lệch ngay lần cắt số kế và
+      biến `expected` thành lời khai không ai đối chiếu được (bắt ở lượt chấm 3).
       Năm lối hỏng có mã thoát riêng: 3 không tìm được lần cắt số · 4 cửa sổ rỗng ·
       5 `diagram-design/` CÓ đổi sau lần cắt số · 6 không đọc được số tại HEAD ·
       7 số tại HEAD KHÁC số tại mốc trước. Chiều đỏ của chân 7 đã chạy thật: trỏ
@@ -87,25 +88,6 @@ evals:
     executor: script
     cmd: config:executors.script.product_map
     expected: "`product-map.mjs --root . --check` thoát 0 — bản đồ khớp hồ sơ xưởng."
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E3f
-    criterion: AC-3
-    executor: script
-    cmd: config:executors.script.phan_lop_do_2_12
-    expected: >-
-      `phan-lop-ha-tang.cjs --quet` quét MỌI dòng máy đỏ trong `run-log.jsonl` của hồ sơ
-      và đòi mỗi dòng có một dòng `kind: infra-recheck` đi kèm phán quyết `ha-tang`.
-      Dòng đỏ chưa phân lớp → thoát 1 nêu tên dòng; phân lớp ra `vat` → thoát 1 nêu tên.
-      Nhờ eval này, câu «lệnh đỏ phải phân lớp bằng máy trước khi tin» thôi là lời dặn
-      trong `expected` và thành một phép đo — bản trước có script nằm sẵn trong hồ sơ mà
-      KHÔNG eval nào, khoá nào, dòng hợp đồng nào gọi nó.
-      Chiều đỏ đã chạy thật trên hai bản sao: một bản có dòng đỏ chưa phân lớp, một bản
-      có dòng phân lớp `vat` — cả hai thoát 1 với thông điệp riêng.
-      GIỚI HẠN của bộ phân lớp, chính nó tự khai: nó không phân biệt «hạ tầng» với «lệnh
-      chập chờn» (lệnh 50/50 bị gọi nhầm ≈1/4 ở `--lan 2`), nên một phán quyết `ha-tang`
-      chỉ đứng được khi có thêm dấu hiệu độc lập từ nhật ký workflow.
-    paths:
-      - "_acceptance/release-2-12-0/phan-lop-ha-tang.cjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
