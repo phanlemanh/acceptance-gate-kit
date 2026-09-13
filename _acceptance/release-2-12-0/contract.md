@@ -5,9 +5,9 @@ slug: release-2-12-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # KHÔNG chạm t3_paths — mốc này chỉ cắt số. Khác 2.10.0 và 2.11.0 vốn phải lên T3 vì vá lib/** TRONG mốc. Vì là T2 nên làn V mở.
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-09-13
 ---
 
 # Acceptance Contract: release-2-12-0
