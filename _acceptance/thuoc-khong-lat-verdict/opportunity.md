@@ -77,11 +77,21 @@ Và **hạ tầng tự sinh tín hiệu đỏ** hai lần trong cùng vòng: lư
    lập từ nhật ký workflow).
 6. **Trần ba lượt có răng:** sau lượt ba, lối ra chỉ còn ký-với-giới-hạn hoặc cắt.
 
-## Nhịp đề xuất
+## Nhịp đề xuất — SỬA 13/09 sau khi vòng đóng
 
-Ngả 1, 3, 5 là phép TRỪ nhỏ, có răng đo được ngay → gộp vào **mốc phát hành 2.12.0**.
-Ngả 2, 4, 6 cần thiết kế (khuôn bán kính, lối một-chạm, răng của trần) → vòng riêng
-SAU 2.12.0, đúng luật «meta-work đóng băng, mở sau mốc phát hành gần nhất».
+Bản đầu của mục này viết «gộp ngả 1, 3, 5 vào mốc 2.12.0». **Sai, tự mâu thuẫn với
+chính lý do vòng này dừng lại.** Hai cớ:
+
+1. **Vòng tròn.** Ngả 1 sửa luật tính verdict trong `acceptance-verify.js`. Dùng
+   chính luật đã sửa để chấm việc sửa đó là «máy tin nhầm chính nó» — lớp lỗi
+   nguyên tố 2 sinh ra để chặn. Vòng này phải được cổng CŨ chấm.
+2. **Mốc phát hành phải nhẹ.** 2.12.0 là T2 thuần cắt số, làn V, mục tiêu ≤1 lượt
+   gọi người. Nhét thay đổi luật cổng vào đó biến nó thành T3 và bắt giá trị
+   (253 tiêu chí tới kho tiêu thụ) chờ một cuộc thay luật.
+
+**Nhịp đúng:** mốc 2.12.0 đi trước, thuần cắt số. Rồi chiến dịch rollout. Rồi vòng
+này mở, CẢ SÁU ngả trong một vòng, chấm bằng cổng cũ. Đúng luật «meta-work đóng
+băng, mở sau mốc phát hành gần nhất».
 
 Phép đo hai chiều bắt buộc cho ngả 1: một hồ sơ mẫu có phép đo ĐỎ → verdict REJECT
 như cũ; một hồ sơ mẫu mọi phép đo XANH kèm một phát hiện `high` trong hợp đồng →
