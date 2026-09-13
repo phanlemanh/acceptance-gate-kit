@@ -27,19 +27,28 @@ và bản đồ · E4 hội đồng đọc `## Notes`.
 
 ## 2. Làm ngay khi vào
 
-```bash
-cd /Users/manh-macmini/dev/acceptance-gate-kit/.claude/worktrees/release-2-12-0
-for s in scripts hooks workflows plugins; do
-  printf "%-10s " "$s"; bash tests/$s/run-tests.sh >/tmp/$s.log 2>&1; echo "exit=$?"
-done
-node scripts/product-map.mjs --root . --check
-```
+**Lưới đã XANH trên đúng nội dung của `3f492e2e`** — lượt chạy nền kết thúc sau khi owner
+ngắt, kết quả đọc được:
 
-Bốn suite **CHƯA chạy lại** sau nhát trừ `3f492e2e`. Chạy chúng TRƯỚC khi tung lượt chấm
-— nếp này vừa làm CI xanh ngay lượt đầu ở PR #174, và nó đã bắt được một lỗi của hồ sơ
-này ở lượt trước (phép đo judgment thiếu trường `question`).
+| Lưới | Kết quả |
+|---|---|
+| `tests/scripts` | 868 đạt, 0 trượt |
+| `tests/hooks` | 70 đạt, 0 trượt |
+| `tests/workflows` | đủ |
+| `tests/plugins` | đủ |
+| `product-map --check` | khớp |
+| E1 ca cắt số · E2 răng giữ số · E3e bản đồ | đều thoát 0 |
+| lint độ phủ · `gap-probe classify` | sạch · `ok` |
 
-Xanh hết → sinh tham số và tung lượt 4:
+Đã kiểm `git diff 3f492e2e HEAD` trên `lib scripts tests feature-loop commands skills
+hooks _acceptance .claude-plugin` là RỖNG, nên lưới chạy đúng cây đã commit; commit sau
+đó chỉ thêm chính tệp bàn giao này.
+
+**Việc kế tiếp là tung thẳng lượt chấm 4.** Nếu muốn chắc thì chạy lại bốn suite trước —
+nếp ấy vừa làm CI xanh ngay lượt đầu ở PR #174 và đã bắt được một lỗi của chính hồ sơ này
+(phép đo judgment thiếu trường `question`).
+
+Sinh tham số và tung lượt 4:
 
 ```bash
 S=/private/tmp/claude-501/-Users-manh-macmini-dev-acceptance-gate-kit/<session>/scratchpad
