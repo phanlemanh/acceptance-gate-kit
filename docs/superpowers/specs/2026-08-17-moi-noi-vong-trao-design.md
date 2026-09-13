@@ -69,12 +69,12 @@ slug · ran_at · variant (ui|agent) · chan · lac · kho_chiu · vat ·
 chuyen_phien_nguoi` + mặt người: mục tiêu · bảng vấp · chuyển phiên người ·
 bằng chứng. §0 của uat-session gọi đúng tên khoá này — case round-trip rút
 khoá từ khuôn, đối chiếu SKILL. Đề bài `docs/plans/2026-08-13-…` giữ nguyên
-làm sử liệu; `docs/lai-thu-nguoi-la.md` trỏ tới khuôn.
+làm sử liệu; `docs/reference/lai-thu-nguoi-la.md` trỏ tới khuôn.
 
 ### 3.4 feature-loop S5 bàn giao (SKILL text — hành vi)
 
 Sau PR: có `_acceptance/<slug>/opportunity.md` → in ĐÚNG MỘT DÒNG «đã giao
-sau cờ · bước kế: lái-thử người-lạ (docs/lai-thu-nguoi-la.md) rồi phiên nghiệm
+sau cờ · bước kế: lái-thử người-lạ (docs/reference/lai-thu-nguoi-la.md) rồi phiên nghiệm
 thu — `uat-session <slug>`». Không có → một dòng «không hồ sơ cơ hội → ship
 thẳng, vòng đóng». S0: có `opportunity.md` → là input thứ nhất của brainstorm
 S1 (đọc trước khi hỏi). Không cổng mới, không hỏi.

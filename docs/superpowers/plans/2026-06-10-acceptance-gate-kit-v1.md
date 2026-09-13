@@ -8,7 +8,7 @@
 
 **Tech Stack:** Node.js (hook, no deps), Bash (test runners + pre-merge check), Markdown/YAML (skill, templates, commands). No build step.
 
-**Spec:** `docs/specs/2026-06-10-acceptance-gate-kit-design.md` (approved 2026-06-10)
+**Spec:** `docs/superpowers/specs/2026-06-10-acceptance-gate-kit-design.md` (approved 2026-06-10)
 
 ---
 
@@ -1731,7 +1731,7 @@ question): estimated acceptance minutes for the last 3 features →
 Success bar for the pilot: ≥50% less human time than that baseline,
 zero business-logic defects slipping past the gate.
 
-Design spec: `docs/specs/2026-06-10-acceptance-gate-kit-design.md`
+Design spec: `docs/superpowers/specs/2026-06-10-acceptance-gate-kit-design.md`
 ````
 
 - [ ] **Step 2: Run the full validation suite**

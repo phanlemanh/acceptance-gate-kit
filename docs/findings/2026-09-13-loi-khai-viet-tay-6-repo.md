@@ -30,6 +30,18 @@ tài-liệu-người | thường-trú | README.md · GUIDE.md · QUICKSTART.md �
 ```
 K2 sẽ nêu: `docs/lai-thu-nguoi-la.md` · `docs/tools/` (1) · `docs/diagrams/` (10) · `docs/specs/workflow-v2-spec.md` được viện dẫn từ `human-facing-language.md:3` — dời phải sửa dòng trỏ.
 
+**Đính chính + dọn nhà 13/09 (cùng ngày, sau P0):** «12 design doc» ở
+`docs/specs/` thực ra là **10** design doc theo-vòng + **2** đặc-tả thường-trú
+(`workflow-v2-spec.md` — hai handoff gọi là «nguồn sự thật duy nhất của quy
+trình», `tests/plugins/run-tests.sh` đọc ở 3 chỗ — và `2026-07-30-workflow-v2-overview.md`).
+Đã dời bằng `git mv`, kéo mọi dòng trỏ sống (sử liệu trong `_acceptance/`,
+findings/handoff cũ giữ nguyên): 10 design doc → `docs/superpowers/specs/`;
+16 plan theo-vòng → `docs/superpowers/plans/`; `lai-thu-nguoi-la.md` →
+`docs/reference/` (nó là bản định nghĩa chuẩn của nghi thức = tài-liệu-người).
+Khối kit sau dọn: hàng `đặc-tả | thường-trú | docs/specs/` thay hai dòng K1;
+`docs/plans/` chỉ còn hạt giống + `assets/`. K1 trên kit → 0; K2 còn
+`docs/tools/` · `docs/diagrams/` (chưa khai nhà — quyết ở A7).
+
 ## 2. OneFlow
 
 ```

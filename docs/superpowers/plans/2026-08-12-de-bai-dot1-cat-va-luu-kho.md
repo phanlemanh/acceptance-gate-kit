@@ -6,7 +6,7 @@ không chung sổ nhớ với phiên nào khác — mọi thứ cần biết n�
 
 ## Đọc trước (bắt buộc, theo thứ tự)
 
-1. **Bản neo:** `docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md` — owner đã
+1. **Bản neo:** `docs/superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md` — owner đã
    duyệt 12/08. Mọi quyết định trong lúc làm phải trace về nó; lệch thì append
    vào «Nhật ký lệch» của bản neo kèm lý do.
 2. `CLAUDE.md` của kit (bất biến maintainer — riêng khối ĐÓNG BĂNG LAB đã hết

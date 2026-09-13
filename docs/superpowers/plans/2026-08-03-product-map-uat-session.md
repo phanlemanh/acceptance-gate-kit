@@ -36,7 +36,7 @@
 | `scripts/start-scan.mjs` (modify) | Đọc `uat-session.md` + trạng thái bản đồ; bỏ 2 dòng skip |
 | `commands/start.md`, `codex/acceptance-gate/skills/start/SKILL.md` (modify) | Marker START-SCAN-KEYS + dòng bản đồ trên thẻ |
 | `commands/approve.md`, `commands/signoff.md`, `codex/.../approve/SKILL.md`, `codex/.../signoff/SKILL.md` (modify) | Bước làm mới bản đồ sau khi ghi field cổng |
-| `docs/specs/2026-08-03-start-command-design.md` (modify) | Bảng phân ô + khuôn JSON: hàng/khoá mới |
+| `docs/superpowers/specs/2026-08-03-start-command-design.md` (modify) | Bảng phân ô + khuôn JSON: hàng/khoá mới |
 | `_acceptance/config.yaml` (modify) | `executors.script.product_map` + `feature_loop.suite_keys` |
 | `tests/plugins/run-tests.sh` (modify) | P115–P122 mới; P98 thêm hàng mới |
 | `plugins/**` (generated) | Mirror, sinh bởi sync script |
@@ -886,7 +886,7 @@ git commit -m "feat(uat-session): nghi thức phiên nghiệm thu — chấm kí
 - Modify: `scripts/start-scan.mjs`
 - Modify: `commands/start.md` (khối START-SCAN-KEYS + dòng bản đồ ở bước 3)
 - Modify: `codex/acceptance-gate/skills/start/SKILL.md` (cùng hai chỗ)
-- Modify: `docs/specs/2026-08-03-start-command-design.md` (bảng phân ô + khuôn JSON)
+- Modify: `docs/superpowers/specs/2026-08-03-start-command-design.md` (bảng phân ô + khuôn JSON)
 - Modify: `tests/plugins/run-tests.sh` (P121 mới; P98 thêm hàng)
 
 **Interfaces:**
@@ -1071,7 +1071,7 @@ Thêm ô mới vào bảng tra nhóm "Chờ chữ ký của anh": `gia-tri` = C�
 
 - [ ] **Step 6: Cập nhật bảng phân ô + khuôn JSON trong spec**
 
-`docs/specs/2026-08-03-start-command-design.md` — thêm vào bảng phân ô:
+`docs/superpowers/specs/2026-08-03-start-command-design.md` — thêm vào bảng phân ô:
 
 ```markdown
 | `uat-session.md` verdict `release`/`iterate`/`kill` | đã-ký (`released`/`uat-iterate`/`uat-kill`) | — |
@@ -1095,7 +1095,7 @@ Expected: `Results: all plugin tests passed` (P98, P99, P121 đều xanh).
 - [ ] **Step 9: Commit**
 
 ```bash
-git add scripts/start-scan.mjs commands/start.md codex/acceptance-gate/skills/start/SKILL.md docs/specs/2026-08-03-start-command-design.md tests/plugins/run-tests.sh
+git add scripts/start-scan.mjs commands/start.md codex/acceptance-gate/skills/start/SKILL.md docs/superpowers/specs/2026-08-03-start-command-design.md tests/plugins/run-tests.sh
 git commit -m "feat(start-scan): đọc phiên nghiệm thu + trạng thái bản đồ, trả nợ 2 dòng skip (P121, P98/P99 mở rộng)"
 ```
 

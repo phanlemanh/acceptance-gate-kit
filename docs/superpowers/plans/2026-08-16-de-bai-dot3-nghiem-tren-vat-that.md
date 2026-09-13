@@ -3,10 +3,10 @@
 *Đề bài do máy soạn 16/08 theo lệnh owner «Mở đợt 3». Là bước cuối của bản neo
 [2026-08-12-nguoi-ve-bien-may-di-truoc.md](2026-08-12-nguoi-ve-bien-may-di-truoc.md)
 §3 «Đợt 3». Tổng kết điều kiện vào:
-[findings 16/08](../findings/2026-08-16-tong-ket-ngay-cat-khuon-va-cong-chan-nham-cho.md).*
+[findings 16/08](../../findings/2026-08-16-tong-ket-ngay-cat-khuon-va-cong-chan-nham-cho.md).*
 
 Hình đi kèm (chiếu của tài liệu này, không phải nguồn):
-[`assets/2026-08-16-dot3-lo-trinh.html`](assets/2026-08-16-dot3-lo-trinh.html).
+[`assets/2026-08-16-dot3-lo-trinh.html`](../../plans/assets/2026-08-16-dot3-lo-trinh.html).
 
 ## 0. Đợt 3 đo cái gì — nói một câu
 

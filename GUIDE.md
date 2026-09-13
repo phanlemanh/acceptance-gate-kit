@@ -578,7 +578,7 @@ Kết quả phiên ghi vào `_acceptance/<slug>/uat-session.md`; `/acceptance-ga
 dự, một phiên máy ngữ-cảnh-trắng lái thử sản phẩm như người lạ và bàn giao
 nhật-ký-vấp, để phiên nghiệm thu không cháy vì build vấp và phút của người chỉ
 tiêu vào việc của người: phán giá trị. Nghi thức, hai ổ cắm vào vòng, và luật
-dùng/không-dùng: [docs/lai-thu-nguoi-la.md](docs/lai-thu-nguoi-la.md).
+dùng/không-dùng: [docs/reference/lai-thu-nguoi-la.md](docs/reference/lai-thu-nguoi-la.md).
 
 ## 5. Cài đặt
 

@@ -77,7 +77,7 @@
     Hai chốt không mục tiêu số nào ghi đè: việc chạm KHÓ-ĐẢO luôn thắng
     (không được né gọi người vì KPI), và chữ quyết vẫn của người (ADR 0002).
 
-  Bản neo: [docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md](docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
+  Bản neo: [docs/superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md](docs/superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
   · nền: [2026-08-09](docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md)
   · [2026-08-10](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).
 

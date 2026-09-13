@@ -189,7 +189,7 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   Cổng Phạm-vi phải kèm ≥1 cảnh ngữ-cảnh hoặc entry descope có tên; ổ cắm
   `design_pass.host_embed` cấp đường-nhúng-rẻ per-repo (vắng = nấc thấp +
   cờ vàng, không chặn — đường đọc-cũ); thẻ Cổng Phạm-vi render nấc bằng
-  tiếng người. Chi tiết: `docs/specs/2026-08-04-context-ladder-design.md`.
+  tiếng người. Chi tiết: `docs/superpowers/specs/2026-08-04-context-ladder-design.md`.
 
   **Leo nấc giữa vòng (bổ sung 06/08):** vật leo nấc ngữ cảnh giữa vòng
   (`standalone` → `host-embedded`…) ⇒ frontmatter sổ phiên design-pass PHẢI
@@ -261,7 +261,7 @@ plugin/DS của repo · handbook đội · 2 key consumer:
   VẶT) + câu hỏi «Chuyển phiên người»; máy không phán đáng-giá. `uat-session`
   §0 đọc frontmatter nhật-ký (chan · slug · ran_at) làm bằng chứng điều kiện
   «bấm được» — vắng thì cờ vàng, có CHẶN thì dừng. Nghi thức, 2 ổ cắm, luật
-  dùng/không-dùng: [docs/lai-thu-nguoi-la.md](../lai-thu-nguoi-la.md).
+  dùng/không-dùng: [docs/reference/lai-thu-nguoi-la.md](../reference/lai-thu-nguoi-la.md).
 - **Phiên UAT** (sản phẩm THẬT sau flag): mời stakeholder/người dùng đại
   diện; **chấm kín trước thảo luận** (chống social-desirability) +
   **commitment device** ("anh gửi cho khách nào, khi nào?"); đo bằng

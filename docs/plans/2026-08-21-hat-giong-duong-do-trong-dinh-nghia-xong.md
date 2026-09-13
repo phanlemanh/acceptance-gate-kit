@@ -173,7 +173,7 @@ roadmap/portfolio ngưỡng vào kit (product context của repo tiêu thụ) ·
 
 ## Nguồn
 
-- North Star + ba nguyên tố: `CLAUDE.md`, `docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
+- North Star + ba nguyên tố: `CLAUDE.md`, `docs/superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
 - Chỗ lỗ: `skills/acceptance/references/opportunity-template.md` (§Ngưỡng chết),
   `skills/uat-session/SKILL.md` §4–§5, `skills/acceptance/references/uat-session-template.md`.
 - Khuôn giải chép từ: CT-S trong `feature-loop/skills/feature-loop/SKILL.md`

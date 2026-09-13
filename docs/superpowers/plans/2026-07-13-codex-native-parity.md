@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Follow `docs/specs/2026-07-13-codex-native-parity-design.md` exactly.
+- Follow `docs/superpowers/specs/2026-07-13-codex-native-parity-design.md` exactly.
 - Keep `.claude-plugin/**`, `feature-loop/**`, `design-loop/.claude-plugin/**`, `design-loop/commands/**`, `design-loop/skills/**`, and `feature-loop/workflows/**` behaviorally unchanged.
 - Codex versions are independent: Acceptance Gate 1.11.3, Feature Loop Codex 1.11.3, Design Loop 0.2.1.
 - Codex 0.139.0 is the compatibility floor; upgrade to 0.144.1 only after the 0.139.0 matrix passes.

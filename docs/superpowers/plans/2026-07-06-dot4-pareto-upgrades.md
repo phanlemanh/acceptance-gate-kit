@@ -9,8 +9,8 @@
 **Tech Stack:** Node ≥18 CommonJS (`gate-card.js`) / ESM (`.mjs`), bash test suites (`tests/scripts/run-tests.sh`, `tests/plugins/run-tests.sh`), SKILL.md prose VN.
 
 **Specs (nguồn yêu cầu — đọc trước khi làm task):**
-- `docs/specs/2026-07-06-decision-ledger-design.md` (ledger)
-- `docs/specs/2026-07-06-design-lane-switches-design.md` (lane)
+- `docs/superpowers/specs/2026-07-06-decision-ledger-design.md` (ledger)
+- `docs/superpowers/specs/2026-07-06-design-lane-switches-design.md` (lane)
 
 ## Global Constraints
 
@@ -40,7 +40,7 @@ Working tree đang có wave WIP chưa commit (~29 file, +569 dòng: port Codex d
 
 **Files:**
 - Modify: `scripts/gate-card.js` (239 dòng)
-- Modify: `docs/specs/2026-07-06-decision-ledger-design.md` (1 dòng §10 — sửa mâu thuẫn spec)
+- Modify: `docs/superpowers/specs/2026-07-06-decision-ledger-design.md` (1 dòng §10 — sửa mâu thuẫn spec)
 - Test: `tests/scripts/run-tests.sh` (thêm section sau block gate-card hiện có, ~dòng 330)
 
 **Interfaces:**
@@ -51,7 +51,7 @@ Working tree đang có wave WIP chưa commit (~29 file, +569 dòng: port Codex d
   - EXTRACT gate 2 thêm `decisions_approved` (trước seal), `decisions_provisional` (sau seal), `decisions_broken`.
   - Render nhận overlay `pl.decisions_plain[] → {id, p}` từ card-plain.json.
 
-- [ ] **Step 0: Sửa mâu thuẫn spec (1 dòng).** `docs/specs/2026-07-06-decision-ledger-design.md` §10 hiện viết "decisions.jsonl vắng → resume/card/grader hành xử y hệt hiện tại (no-op)" — mâu thuẫn §6b (card phải in ô-trống-hiện-hình). Sửa thành: "decisions.jsonl vắng → resume/grader no-op; card in 1 dòng info trung tính '(chưa ghi quyết định nào)' — chính là enforcement §6b." Commit: `docs(specs): decision-ledger — sửa mâu thuẫn §10 vs §6b (card ô-trống-hiện-hình)`.
+- [ ] **Step 0: Sửa mâu thuẫn spec (1 dòng).** `docs/superpowers/specs/2026-07-06-decision-ledger-design.md` §10 hiện viết "decisions.jsonl vắng → resume/card/grader hành xử y hệt hiện tại (no-op)" — mâu thuẫn §6b (card phải in ô-trống-hiện-hình). Sửa thành: "decisions.jsonl vắng → resume/grader no-op; card in 1 dòng info trung tính '(chưa ghi quyết định nào)' — chính là enforcement §6b." Commit: `docs(specs): decision-ledger — sửa mâu thuẫn §10 vs §6b (card ô-trống-hiện-hình)`.
 
 - [ ] **Step 1: Viết test FAIL.** Thêm vào `tests/scripts/run-tests.sh` ngay SAU block Gate-2 gate-card hiện có (sau dòng `hasout G10 ...`; đặt trước phần suite kế tiếp):
 

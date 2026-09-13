@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Tài liệu hóa nếp dùng `/goal` (Claude Code ≥ 2.1.139) cho đoạn máy S2→S4 của feature-loop — 1 mục GUIDE + 1 câu SKILL, đúng spec `docs/specs/2026-07-07-goal-integration-design.md`.
+**Goal:** Tài liệu hóa nếp dùng `/goal` (Claude Code ≥ 2.1.139) cho đoạn máy S2→S4 của feature-loop — 1 mục GUIDE + 1 câu SKILL, đúng spec `docs/superpowers/specs/2026-07-07-goal-integration-design.md`.
 
 **Architecture:** Docs-only, zero cơ chế: GUIDE mang toàn bộ tri thức (template + giới hạn), SKILL mang 1 câu nhắc-an-toàn tại điểm dùng (sau Gate 1). Package acceptance-gate sinh bằng sync script.
 

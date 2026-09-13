@@ -123,6 +123,11 @@ Dời (không xoá) 12 spec cũ ở `docs/specs/`, 16 plan-theo-vòng cũ trong
 `docs/plans/`, `docs/lai-thu-nguoi-la.md`. Sau A7 những chỗ này chính là ba
 chỗ K1/K2 phải kêu.
 
+**Đã làm 13/09** (cùng ngày, sau khi owner gọi): đính chính 12 → **10** design
+doc dời (2 file là đặc-tả thường-trú, ở lại `docs/specs/`); 16 plan dời;
+`lai-thu-nguoi-la.md` → `docs/reference/`. 27 `git mv`, mọi dòng trỏ sống đã
+kéo. Chiều đỏ của R8 chuyển sang bản chép cây tại `0a85ed12` (spec §8).
+
 ### Không làm — đã bác, có lý do trong spec và ô
 
 Kit tuyên cây thư mục chuẩn · migrate 6 repo · tạo `intent/` ở gốc · kit-hoá

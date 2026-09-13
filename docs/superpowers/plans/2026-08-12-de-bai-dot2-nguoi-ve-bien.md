@@ -2,7 +2,7 @@
 
 *2026-08-12 · Soạn: Phiên B. Người nhận: MỘT phiên A mới, worktree riêng.
 **ĐIỀU KIỆN VÀO: cả hai PR đợt 1 (1a, 1b) đã merge.** Trước khi bắt đầu: đọc
-bản neo `docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md` (owner duyệt
+bản neo `docs/superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md` (owner duyệt
 12/08) + «Nhật ký lệch» của nó + hai ADR đợt 1 — đối chiếu đề bài này với thực
 tế sau đợt 1, lệch thì hỏi B trước khi code.*
 

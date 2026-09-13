@@ -4,7 +4,7 @@
 
 **Goal:** Lệnh `/start` — người gõ một lệnh, `scripts/start-scan.mjs` quét `_acceptance/*/` xếp mỗi việc đúng một ô, thẻ 3 nhóm trình cho người chọn một chữ cái, bàn giao sang nghi thức đích; khoá model-invocation cả 2 harness.
 
-**Architecture:** Phân loại nằm trong script (JSON máy-đọc, test trên fixture code-sinh); prose nằm trong `commands/start.md` (Claude) + `codex/acceptance-gate/skills/start/SKILL.md` (Codex). Seam script↔lệnh giữ bằng khối marker `START-SCAN-KEYS` + case round-trip (mẫu P55). Nguồn sự thật phân ô: bảng trong spec `docs/specs/2026-08-03-start-command-design.md`.
+**Architecture:** Phân loại nằm trong script (JSON máy-đọc, test trên fixture code-sinh); prose nằm trong `commands/start.md` (Claude) + `codex/acceptance-gate/skills/start/SKILL.md` (Codex). Seam script↔lệnh giữ bằng khối marker `START-SCAN-KEYS` + case round-trip (mẫu P55). Nguồn sự thật phân ô: bảng trong spec `docs/superpowers/specs/2026-08-03-start-command-design.md`.
 
 **Tech Stack:** Node ESM (`.mjs`) + `lib/evidence-core.js` (CJS, qua `createRequire`) cho frontmatter; bash+python3+node heredoc trong `tests/plugins/run-tests.sh`.
 
@@ -168,7 +168,7 @@ JS
 ```js
 #!/usr/bin/env node
 // start-scan.mjs — bộ quét vào phiên của /start: đọc _acceptance/*/ và xếp mỗi
-// slug đúng MỘT ô theo bảng phân ô trong docs/specs/2026-08-03-start-command-design.md.
+// slug đúng MỘT ô theo bảng phân ô trong docs/superpowers/specs/2026-08-03-start-command-design.md.
 // CHỈ-ĐỌC tuyệt đối. Đầu ra: JSON một dòng (schema_version 1) — các key mà
 // commands/start.md đọc được ghim trong khối START-SCAN-KEYS của chính file đó;
 // case P99 round-trip giữ hai đầu khớp. Ô chưa có nguồn (PRODUCT-MAP, phiên

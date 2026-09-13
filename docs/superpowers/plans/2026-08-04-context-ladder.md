@@ -339,7 +339,7 @@ Kết phiên S1-D phải đủ 3 mục: ma trận capture + findings + nấc ng�
   Cổng Phạm-vi phải kèm ≥1 cảnh ngữ-cảnh hoặc descope có tên; ổ cắm
   `design_pass.host_embed` cấp đường-nhúng-rẻ per-repo (vắng = nấc thấp +
   cờ vàng, không chặn); thẻ Cổng Phạm-vi render nấc bằng tiếng người. Chi
-  tiết: `docs/specs/2026-08-04-context-ladder-design.md`.
+  tiết: `docs/superpowers/specs/2026-08-04-context-ladder-design.md`.
 ```
 
 CONTEXT.md — 2 term vào section Language (theo giọng term hiện có):

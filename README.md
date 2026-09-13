@@ -352,7 +352,7 @@ downstream, and revisited at each release:
   never `clean`. It is a machine FAIL (REJECT), so `human_override` cannot
   release it; re-run the round or descope/rewrite the eval, recording why.
 
-Design spec: `docs/specs/2026-06-10-acceptance-gate-kit-design.md`
+Design spec: `docs/superpowers/specs/2026-06-10-acceptance-gate-kit-design.md`
 
 ## Licence
 

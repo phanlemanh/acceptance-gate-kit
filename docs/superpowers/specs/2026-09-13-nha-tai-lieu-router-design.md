@@ -31,7 +31,7 @@ nhất; vòng đời thứ hai không ai sở hữu. Số đo 13/09 trên 5 repo
   file** mới tìm ra hàng kế (hạt giống 06/09 §1).
 - Chính kho kit: `docs/specs` 12 file cũ vs `docs/superpowers/specs` 67 (trôi quy
   ước); `docs/plans` 27 hạt giống thường-trú **trộn** 16 plan-theo-vòng cũ (trộn
-  vòng đời); `docs/lai-thu-nguoi-la.md` lạc ở gốc `docs/`.
+  vòng đời); `docs/lai-thu-nguoi-la.md` lạc ở gốc `docs/` (tình trạng trước 13/09 — đã dọn, xem cuối §8).
 - Đường đọc-cũ phải gánh: **630+ file** đang sống ở `docs/superpowers/` của 5
   repo — cấm ép migrate.
 
@@ -233,6 +233,14 @@ dời `docs/specs/workflow-v2-spec.md` phải sửa dòng trỏ ở
 hỏng nên khỏi phải phá — nhưng vẫn phải có cặp ca hai chiều trên fixture (mục
 Chiều đỏ), vì kit sạch rồi thì đối chứng này biến mất.
 
+**Dọn nhà đã làm 13/09, TRƯỚC vòng** (`workflow-v2-spec.md` + overview ở lại
+`docs/specs/` như đặc-tả thường-trú; 10 design doc + 16 plan + `lai-thu` dời).
+Vì thế R8 **không còn chạy được trên cây thật**: thay bằng ca trên bản chép cây
+kit tại commit `0a85ed12` lấy trọn thư mục (`git archive 0a85ed12 docs`), đúng
+luật base-trọn-thư-mục (P150). Kit sau dọn là **đối chứng dương** (K1 = 0, K2
+còn `docs/tools/` · `docs/diagrams/` chưa khai nhà); bản chép trước dọn là
+**chiều đỏ** (K1 = 2 cặp). Hai ca, cùng bộ đọc.
+
 ### 9. Từ điển
 
 `CONTEXT.md` thêm: **Nhà tài liệu (doc home)** — nơi một lớp vật ở một vòng đời
@@ -257,7 +265,7 @@ do trong `MIEN_MUI_TIEM`; ca meta đỏ nếu để rỗng):
 | R5 round-trip | khối viết bằng writer khuôn `DOC-HOMES-TEMPLATE` | reader đọc ra đúng 9 hàng, đúng giá trị |
 | R6 | thẻ start với/không khoá | có dòng «nhà tài liệu: …» / không có dòng |
 | R7 | router khai (đặc-tả, theo-vòng) = `docs/design/` · vắng router | `homeFor` trả `docs/design/` · trả `docs/superpowers/specs/` |
-| R8 | chạy trên **cây kit thật** trước khi dọn | K1 đỏ đúng **hai** cặp (`docs/specs · docs/superpowers/specs` · `docs/plans · docs/superpowers/plans`); K2 nêu `docs/lai-thu-nguoi-la.md` |
+| R8 | chạy trên **cây kit thật** trước khi dọn | K1 đỏ đúng **hai** cặp (`docs/specs · docs/superpowers/specs` · `docs/plans · docs/superpowers/plans`); K2 nêu `docs/lai-thu-nguoi-la.md` — **chạy trên bản chép `git archive 0a85ed12 docs`**, vì cây thật đã dọn 13/09 |
 | R9 | hàng có `lớp-vật` lạ (`sổ-cái`) | reader nhận, không lỗi; hai hàng `sổ-cái` cùng vòng-đời → K1 đỏ như lớp thường |
 | R10 | `nhà` = `docs/roadmap.md#plan-freeze` | reader tách `fragment`; `homeFor` trả đường file; **không** đọc nội dung khối |
 | R11 | header `quét: docs/ · *.md · adrs/` + thả `adrs/la.md` | K2 nêu `adrs/la.md`; bỏ `adrs/` khỏi header → không nêu |

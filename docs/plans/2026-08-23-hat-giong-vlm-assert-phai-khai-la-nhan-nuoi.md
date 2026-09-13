@@ -1,7 +1,7 @@
 # Hạt giống — chip: `vlm-assert` phải khai là BẢN NHẬN-NUÔI, không phải "đã ship"
 
 **Ngày:** 2026-08-23 · **Trạng thái:** `_acceptance/vlm-assert-khai-nhan-nuoi/opportunity.md` ·
-**Hạng dự kiến:** T1 (một dòng bảng trong `docs/lai-thu-nguoi-la.md`; không chạm `lib/**`, hook,
+**Hạng dự kiến:** T1 (một dòng bảng trong `docs/reference/lai-thu-nguoi-la.md`; không chạm `lib/**`, hook,
 `scripts/**`, hay lưới trước-merge).
 **Sinh từ:** một agent đọc kit 23/08 để quyết chỗ đứng cho một client VLM, đọc đúng dòng này, kết
 luận sai, rồi mở một hồ sơ cơ hội dựa trên kết luận sai đó (`acceptance-gate-kit` PR #96).
@@ -10,7 +10,7 @@ luận sai, rồi mở một hồ sơ cơ hội dựa trên kết luận sai đ�
 
 ## Lỗ
 
-`docs/lai-thu-nguoi-la.md:76`, bảng «Công cụ kết hợp», dòng bậc 3:
+`docs/reference/lai-thu-nguoi-la.md:76`, bảng «Công cụ kết hợp», dòng bậc 3:
 
 | Công cụ | Vai trong nghi thức | Cài |
 |---|---|---|
@@ -39,7 +39,7 @@ chip D vừa xử, chỉ khác chỗ đứng.
 
 | Đo | Số |
 |---|---|
-| Chỗ khai `vlm-assert` là "sẵn / đã ship / không cài thêm" | **1** (`docs/lai-thu-nguoi-la.md:76`) |
+| Chỗ khai `vlm-assert` là "sẵn / đã ship / không cài thêm" | **1** (`docs/reference/lai-thu-nguoi-la.md:76`) |
 | File `scripts/vlm-assert.mjs` trong kit | **0** |
 | File tham chiếu có thật | 1 (`skills/acceptance/references/vlm-assert.reference.mjs`, 100 dòng) |
 | Nguồn khai đúng đường nhận-nuôi | 2 (docblock dòng 12–20 · `eval-executors.md:231`) |

@@ -293,7 +293,7 @@ tài liệu song song (write-spec · roadmap-update · sprint-planning) là lớ
 
 ## Nguồn
 
-- North Star + ba nguyên tố: `CLAUDE.md`, `docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
+- North Star + ba nguyên tố: `CLAUDE.md`, `docs/superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
 - Ô đã có: `scripts/product-map.mjs:36,179` · `scripts/start-scan.mjs:241,245` ·
   `lib/workspace-record.cjs` (`navValues`, `readRecord`).
 - Con trỏ chết: `commands/start.md:60–70` (lối (a), «nghi thức grill»).

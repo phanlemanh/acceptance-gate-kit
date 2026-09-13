@@ -50,7 +50,7 @@ thay chấm kín của người, không điền verdict.
 
 ## 3 · Kiến trúc giải pháp
 
-Sơ đồ kiến trúc: [diagrams/lai-thu-nguoi-la-kien-truc.html](diagrams/lai-thu-nguoi-la-kien-truc.html)
+Sơ đồ kiến trúc: [diagrams/lai-thu-nguoi-la-kien-truc.html](../diagrams/lai-thu-nguoi-la-kien-truc.html)
 
 **Bảy thành phần:**
 
@@ -71,7 +71,7 @@ do loại ở đề bài §6):
 |---|---|---|
 | Playwright MCP (Microsoft) | xương sống biến thể UI: frame ra file, profile trắng (`--isolated`), bấm-theo-ảnh (`--caps=vision`) | `claude mcp add playwright -- npx @playwright/mcp@latest --isolated --caps=vision` |
 | Chrome DevTools MCP | soi đường dây (network/console có source-map), bóp mạng chậm/offline, đo trace | `claude mcp add chrome-devtools -- npx chrome-devtools-mcp@latest --isolated` |
-| Cầu nối MCP stdio | biến thể agent: script JSON-RPC mỏng `list` / `call`, người-lạ chỉ thấy giao thức | [docs/tools/mcp-drive.mjs](tools/mcp-drive.mjs) — `--cwd <repo> --server "<lệnh>"`; người điều phối cấp lệnh đã điền sẵn, đường dẫn kho không lộ trong đề bài. Trần chờ mỗi lời gọi: `MCP_DRIVE_TIMEOUT_MS` (mặc định 120000) — nâng lên khi sản phẩm có lời gọi dài, kẻo lời gọi hỏng vì cầu nối rồi bị ghi nhầm thành vấp sản phẩm. `MCP_DRIVE_DEBUG=1` in vết dọn tiến trình |
+| Cầu nối MCP stdio | biến thể agent: script JSON-RPC mỏng `list` / `call`, người-lạ chỉ thấy giao thức | [docs/tools/mcp-drive.mjs](../tools/mcp-drive.mjs) — `--cwd <repo> --server "<lệnh>"`; người điều phối cấp lệnh đã điền sẵn, đường dẫn kho không lộ trong đề bài. Trần chờ mỗi lời gọi: `MCP_DRIVE_TIMEOUT_MS` (mặc định 120000) — nâng lên khi sản phẩm có lời gọi dài, kẻo lời gọi hỏng vì cầu nối rồi bị ghi nhầm thành vấp sản phẩm. `MCP_DRIVE_DEBUG=1` in vết dọn tiến trình |
 | Deny-rules trong settings phiên lái | răng cho luật cấm-DOM ở bậc 2 (chặn `browser_snapshot`/`read_page`) | cấu hình, không phải lời hứa |
 | `vlm-assert.mjs` (sẵn trong kit) | bậc 3: VLM khác họ trả lời câu ĐÓNG trên frame — khử thiên vị cùng-họ | đã ship, không cài thêm |
 | Loại có chủ đích | Claude-in-Chrome (profile không trắng) · Stagehand/Browser-Use (self-healing che đúng tín hiệu vấp) · dịch vụ AI-QA thuê ngoài (đắt, thay cả vòng) | — |
@@ -105,7 +105,7 @@ Răng cho luật cấm-DOM ở bậc 2 (biến thể UI) — chép vào
    người»; verdict là chữ của người ký ở Cổng Giá trị.
 
 **Bậc thang 4 bậc** — chạy từ rẻ đến đắt, dừng được ở mọi bậc
-(sơ đồ: [diagrams/lai-thu-nguoi-la-bac-thang.html](diagrams/lai-thu-nguoi-la-bac-thang.html)):
+(sơ đồ: [diagrams/lai-thu-nguoi-la-bac-thang.html](../diagrams/lai-thu-nguoi-la-bac-thang.html)):
 
 | Bậc | Tên | Bắt được | Công cụ |
 |---|---|---|---|
@@ -120,7 +120,7 @@ Răng cho luật cấm-DOM ở bậc 2 (biến thể UI) — chép vào
 
 ## 4 · Vị trí trong Workflow v2 — dùng khi nào, không dùng khi nào
 
-Sơ đồ định vị: [diagrams/lai-thu-nguoi-la-vi-tri.html](diagrams/lai-thu-nguoi-la-vi-tri.html)
+Sơ đồ định vị: [diagrams/lai-thu-nguoi-la-vi-tri.html](../diagrams/lai-thu-nguoi-la-vi-tri.html)
 
 **Định vị một câu:** lái-thử **không phải một stage và không phải một cổng** —
 nó là nghi thức trinh sát **ngoài vòng lặp** `S0→S1→Gate1→S2→S3→S4→Gate2→S5`,
@@ -164,11 +164,11 @@ phẩm), không bao giờ là bản vá lén vào vòng đã ký.
 ## 5 · Tham chiếu
 
 - **Khuôn nhật-ký-vấp** (mặt máy — `uat-session` §0 đọc `chan`/`slug`/`ran_at`):
-  [skills/acceptance/references/stranger-drive-template.md](../skills/acceptance/references/stranger-drive-template.md)
+  [skills/acceptance/references/stranger-drive-template.md](../../skills/acceptance/references/stranger-drive-template.md)
 - **Đề bài thi hành** (nghi thức từng bước, khuôn nhật-ký-vấp, bản đồ 21 hạng
-  mục, thước codify): [plans/2026-08-13-de-bai-lai-thu-nguoi-la.md](plans/2026-08-13-de-bai-lai-thu-nguoi-la.md)
+  mục, thước codify): [plans/2026-08-13-de-bai-lai-thu-nguoi-la.md](../superpowers/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md)
 - **Ván 1 — bằng chứng sống** (biến thể agent, mcp-cost-guard):
-  [findings/2026-08-13-lai-thu-nguoi-la-van-1-mcp-cost-guard.md](findings/2026-08-13-lai-thu-nguoi-la-van-1-mcp-cost-guard.md)
+  [findings/2026-08-13-lai-thu-nguoi-la-van-1-mcp-cost-guard.md](../findings/2026-08-13-lai-thu-nguoi-la-van-1-mcp-cost-guard.md)
 - **Cổng Giá trị** (nơi nhận bàn giao): `skills/uat-session/SKILL.md`
 - Nâng cấp thành skill/engine: chỉ khi thước §5 của đề bài nói — tài liệu này
   là THAM CHIẾU, không phải giấy phép mở vòng meta.
