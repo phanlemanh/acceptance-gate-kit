@@ -118,7 +118,7 @@
   gọi người/vòng (T3 trần 4) và ≤1 chạm/lượt · khó-đảo LUÔN là câu hỏi cho
   người. Ô mở dưới luật nới phải **ghi rõ điều đó** trong hồ sơ.
   **ĐIỀU KIỆN THU HỒI:** owner gọi tên, **hoặc** lượt gọi người/vòng vượt trần
-  ở hai mốc phát hành liên tiếp (đọc từ ba dòng số của luật (c) — không dựng
+  ở hai mốc phát hành liên tiếp (đọc từ năm dòng số của luật (c) — không dựng
   phép đo mới) — khi đó vế «không CỘNG» sống lại và mọi ô đang mở dưới luật nới
   phải khai lại căn cứ. Bối cảnh đầy đủ:
   [handoff 07/09 §1.1](docs/handoff/2026-09-07-handoff-doi-may.md) · căn cứ:
