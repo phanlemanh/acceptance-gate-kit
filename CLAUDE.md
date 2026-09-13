@@ -8,9 +8,13 @@
   đường đảo rẻ cho mọi thứ còn lại. Người đứng ở **biên** của vòng, không đứng
   giữa.
 
-  **Thước đo của kit:** thời gian từ *làm-xong* đến *quyết-được*, và số lần
-  phải gọi người trên mỗi kết quả ship. **Giờ-kit là chi phí.** Cổng mà câu trả
-  lời hợp lý duy nhất là «ừ» là **trạm thu phí, không phải điểm quyết định**.
+  **Thước đo của kit:** thời gian từ *làm-xong* đến *quyết-được*, số lần
+  phải gọi người trên mỗi kết quả ship, **và chi phí máy (token · phút) trên
+  mỗi kết quả ship** (owner thêm 14/09 — đo được 83 % token S4 đi vào khối
+  tìm-lỗi mà 3/4 kết quả của nó không chạm phán quyết). **Giờ-kit là chi phí
+  — giờ người VÀ giờ máy; dòng người đứng trước dòng máy: token giảm mà lượt
+  gọi người tăng là thất bại.** Cổng mà câu trả lời hợp lý duy nhất là «ừ»
+  là **trạm thu phí, không phải điểm quyết định**.
 
   **Khung bổ sung (owner duyệt 30/08, rút từ first-principles phiên 29–30/08):**
   nguyên tử của mọi tái diễn là *một trí tưởng tượng viết cả VẬT lẫn THƯỚC lẫn
@@ -55,10 +59,20 @@
     của trần: ô khuon-rang-dung-chung park 30/08 — hai vòng S4 liên tiếp, bộ
     máy vi-phân mắc đúng lớp nó đi bắt (mã-đo không hội tụ về 0 phát hiện).
     (b) **Giữa hai release tối đa MỘT vòng meta**, chỉ khi owner gọi tên.
-    (c) **Mỗi mốc phát hành đếm tay 3 dòng số** vào hồ sơ release: thời gian
-    làm-xong→quyết-được mỗi vòng · số lần gọi người/vòng — TÁCH
-    trong-thiết-kế / ngoài-thiết-kế, kèm số CHẠM mỗi lần · số vòng bị
-    hạ-tầng-kit đốt lượt chấm. **ÁN CẮT KIT ĐÃ BỎ** (owner quyết 01/09 sau
+    (c) **Mỗi mốc phát hành đếm 5 dòng số** vào hồ sơ release (3 → 5, owner
+    quyết 14/09): thời gian làm-xong→quyết-được mỗi vòng · số lần gọi
+    người/vòng — TÁCH trong-thiết-kế / ngoài-thiết-kế, kèm số CHẠM mỗi lần ·
+    số vòng bị hạ-tầng-kit đốt lượt chấm · **token máy/vòng** — S4 máy đo
+    (`wf-usage` → `usage-report.md`), TÁCH ba khối chứng-minh-vật
+    (machine+ui+judge+baseline) / tìm-lỗi (review+refute) / tổng hợp; phiên
+    chính đếm tay như dòng 1 · **phút máy/lượt chấm** — đường găng S4 và tổng
+    phút S4/vòng. Ba dòng đầu đếm tay, hai dòng sau máy đo. **Điều kiện tin
+    cậy — ràng buộc, không phải chỉ số:** dòng 4–5 chỉ được cắt khi (i) đường
+    verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần,
+    hoặc đổi kèm răng CẢ HAI chiều (đỏ và im); (ii) số lượt chấm sai giữa hai
+    mốc không tăng — đã là ngưỡng (a), không dựng phép đo mới. Mỗi hồ sơ đổi
+    kit ghi bảng dự báo 5 dòng (↑ ↓ =) + điều kiện tin cậy; mốc 2.13 là mốc
+    đầu có đủ 5 dòng (thước: spec 2026-09-14-khoi-tim-loi-tra-phi-theo-vat). **ÁN CẮT KIT ĐÃ BỎ** (owner quyết 01/09 sau
     khi hai vòng dữ liệu định vị chỗ rò ở LỚP LỜI MỜI chứ không ở răng —
     docs/findings/2026-09-01-audit-loi-moi-cong-nang-hinh-thuc.md). Răng
     thay thế, để số đếm không hoá hình thức: **MỤC TIÊU ≤3 lượt gọi
