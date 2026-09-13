@@ -74,7 +74,7 @@ function contractText(slug, { status, tier = 'T2', veto = null, opened = null, a
 // khuôn bên đọc, nên bên viết đổi hình dạng thì mọi ca vẫn xanh trong khi hồ sơ thật đỏ
 // ở lưới (S4-r6 [8], đúng hình dạng (3) của «thước phải gắn vào vật được giao»).
 // sach: 'sach' | 'uncertain' | 'kl-co' | 'bypass' | 'enf-off'
-function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', verifiedCommit = '0'.repeat(40), findings = 0 } = {}) {
+function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', verifiedCommit = '0'.repeat(40) } = {}) {
   const tpl = readFileSync(EVID_TPL, 'utf8');
   // Hồ sơ THẬT phải bắt đầu ngay ở dòng `---`: dư một dòng trống là hàng rào lệch và mọi
   // bên đọc gọi là hồ sơ hỏng (đúng ca P115 của khuôn). Cắt xong phải trim đầu.
@@ -85,10 +85,7 @@ function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', ver
     .replace(/^bypass_used: .*$/m, `bypass_used: ${sach === 'bypass' ? 'true' : 'false'}`)
     .replace(/^verified_commit: .*$/m, `verified_commit: ${verifiedCommit}`)
     .replace(/^human_signoff:.*$/m, `human_signoff:${signoff ? ' ' + signoff : ''}`)
-    // findings_open — VẬT của điều kiện xanh-sạch THỨ BẢY. Khai ĐÚNG số mục mà
-    // mkGit dựng vào review-findings.md, nên fixture sạch vẫn sạch và fixture có
-    // mục thì lưới chặn vì mục, không vì lời khai lệch.
-    .replace(/^findings_open:.*$/m, `findings_open: ${findings}`);
+    ;
   // Một dòng eval thật vào bảng: điền 4 ô placeholder THEO THỨ TỰ CỘT của khuôn.
   const rowVals = ['E1', 'AC-1', 'test', 'PASS']; let ri = 0;
   t = t.replace(/^\|.*\{\{.*\|$/m, line => line.replace(/\{\{[^}]*\}\}/g, () => rowVals[ri++] ?? '…'));
@@ -205,14 +202,14 @@ if (want('RT1')) {
     if (u !== (s === 'signed-off' || s === 'machine-cleared')) errs.push(`usesUat(${s})=${u}`);
     if (e !== ['implemented', 'verified', 'machine-cleared'].includes(s)) errs.push(`usesEvidence(${s})=${e}`);
   }
-  const EXPECT_XS = ['verdict-pass', 'bypass', 'enforcement', 'tier', 'uncertain', 'sections', 'findings'];
+  const EXPECT_XS = ['verdict-pass', 'bypass', 'enforcement', 'tier', 'uncertain', 'sections'];
   if (JSON.stringify(XANH_SACH) !== JSON.stringify(EXPECT_XS)) errs.push(`khối xanh-sạch = ${JSON.stringify(XANH_SACH)}`);
   // Thứ tự sáu điều kiện trong HAI bản dựng phải khớp thứ tự khối (round-trip ba đầu).
   const mjsAll = readFileSync(path.join(ROOT, 'scripts', 'khong-can-nguoi.mjs'), 'utf8');
   // Cắt THÂN HÀM: khối chú thích đầu file cũng nhắc bypass_used/enforcement_mode, dò cả file
   // là đo văn xuôi chứ không đo mã (bắt được ở chính lượt chạy đầu).
   const mjs = mjsAll.slice(mjsAll.indexOf('export function xanhSach'), mjsAll.indexOf('export function khongCanNguoi'));
-  const orderMjs = ["!== 'PASS'", 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN_RE.test', "'Known limits', 'Ngoài hợp đồng'", 'dieuKienFindings'].map(n => mjs.indexOf(n));
+  const orderMjs = ["!== 'PASS'", 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN_RE.test', "'Known limits', 'Ngoài hợp đồng'"].map(n => mjs.indexOf(n));
   if (orderMjs.some(i => i < 0) || orderMjs.some((v, i) => i > 0 && v < orderMjs[i - 1])) errs.push(`thứ tự xanhSach (mjs) lệch khối: ${orderMjs}`);
   // Cắt ĐÚNG THÂN HÀM, không chạy tới hết file: `xanh_sach_check` không phải hàm cuối, nên
   // cắt-tới-EOF cho năm trong sáu needle cơ hội được thoả bởi mã NGOÀI hàm (S4-r8 [5]) — cùng
@@ -230,7 +227,7 @@ if (want('RT1')) {
   if (fn && fn.length >= sh.length * 0.9) errs.push(`phạm vi cắt xanh_sach_check gần bằng cả file (${fn.length}/${sh.length}) — cắt không có thật`);
   // SÁU needle, không phải năm: bỏ `enforcement_mode` khỏi vế bash là ca đo tự khoét đúng
   // chỗ vật thiếu — thước không thể đỏ cho điều kiện đó ở cả hai chiều (finding S4-r1).
-  const orderSh = ['= "PASS"', 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN', '"Known limits" "Ngoài hợp đồng"', 'dieuKienFindings'].map(n => fn.indexOf(n));
+  const orderSh = ['= "PASS"', 'bypass_used', 'enforcement_mode', 'risk_tier', 'UNCERTAIN', '"Known limits" "Ngoài hợp đồng"'].map(n => fn.indexOf(n));
   if (orderSh.some(i => i < 0) || orderSh.some((v, i) => i > 0 && v < orderSh[i - 1])) errs.push(`thứ tự xanh_sach_check (bash) lệch khối: ${orderSh}`);
   // Số needle PHẢI bằng số điều kiện khối: bớt một needle là ca đo tự khoét đúng chỗ vật thiếu.
   if (orderMjs.length !== EXPECT_XS.length || orderSh.length !== EXPECT_XS.length)
@@ -418,13 +415,6 @@ function mkGit(slug, o, { evidence = true } = {}) {
   if (evidence) {
     writeFileSync(path.join(R, '_acceptance', slug, 'evidence-report.md'), evidenceText(slug, { ...o, verifiedCommit: c2 }));
     writeFileSync(path.join(R, '_acceptance', slug, 'run-log.jsonl'), runLogText(slug));
-    // review-findings.md — VẬT của điều kiện thứ bảy (hồ sơ cong-nguoi-doc-du-nguon).
-    // Mặc định 0 mục, và báo cáo khai 0 → hồ sơ sạch y như trước bản vá.
-    const nF = o.findings || 0;
-    const mucF = i => `- **ngoai-${i}**\n  Người dùng thấy gì: người dùng thấy ngoai-${i}\n  file: \`src/x${i}.ts\`\n  severity: medium\n  Đề xuất: known-limits`;
-    writeFileSync(path.join(R, '_acceptance', slug, 'review-findings.md'),
-      ['## Trong hợp đồng', '', '## Ngoài hợp đồng — người quyết ở Gate 2', '',
-        ...Array.from({ length: nF }, (_, i) => mucF(i + 1)), ''].join('\n'));
     git('add', '-A'); git('commit', '-qm', 'c3');
   }
   return R;
@@ -453,9 +443,6 @@ if (want('RT2')) {
     // 'bypass' / 'enf-off' đã có sẵn từ đầu mà không ca nào dùng tới.
     ['(e) verdict khác PASS', 'verdict-pass', { ...BASE, verdict: 'REJECT' }, r => r.status !== 0 && /còn cần người — verdict=REJECT \(chỉ PASS mới xanh-sạch\)/.test(r.out), 'VIOLATION ghim verdict khác PASS'],
     ['(f) bypass_used: true', 'bypass', { ...BASE, sach: 'bypass' }, r => r.status !== 0 && /còn cần người — bypass_used=true/.test(r.out), 'VIOLATION ghim bypass_used'],
-    // (h) điều kiện THỨ BẢY: review-findings.md còn mục chưa ai quyết. Báo cáo khai
-    // ĐÚNG số (2) nên đây là ca «còn mục», không phải ca «lời khai lệch vật».
-    ['(h) còn mục chờ người', 'findings', { ...BASE, findings: 2 }, r => r.status !== 0 && /còn cần người — còn 2 mục chờ người/.test(r.out), 'VIOLATION ghim số mục chờ người'],
     ['(g) enforcement_mode: off', 'enforcement', { ...BASE, sach: 'enf-off' }, r => r.status !== 0 && /còn cần người — enforcement_mode=off/.test(r.out), 'VIOLATION ghim enforcement_mode=off'],
   ];
   // Ma trận hành vi phải phủ ĐỦ sáu điều kiện của khối — không phải «đủ needle trong mã».

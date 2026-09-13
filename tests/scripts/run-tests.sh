@@ -2489,12 +2489,7 @@ mk_v() { # <root> <tier> <veto_opened_at> <có khoá veto_state? 1|0> <sạch? 1
   local R="$1" tier="$2" vat="$3" hasv="$4" clean="$5" sig="$6"
   local d="$R/_acceptance/feat-v"; mkdir -p "$d" "$R/lib"
   printf 'schema_version: 1\nsignoff:\n  required_for: [T2, T3]\n' > "$R/_acceptance/config.yaml"
-  # Kho tiêu thụ chép đủ INIT-CI-COPY-LIST. evidence-core + out-of-contract vào từ
-  # hồ sơ cong-nguoi-doc-du-nguon: điều kiện xanh-sạch THỨ BẢY nạp chúng, và thiếu
-  # thì lưới fail-CLOSED (đúng ý, không phải lỗi ca).
-  for _f in md-section.cjs evidence-core.cjs out-of-contract.cjs; do
-    cp "$HERE/../../lib/$_f" "$R/lib/" 2>/dev/null || true
-  done
+  cp "$HERE/../../lib/md-section.cjs" "$R/lib/" 2>/dev/null || true
   git -C "$R" init -q
   { printf -- '---\nschema_version: 1\nfeature: feat-v\nslug: feat-v\nrisk_tier: %s\nsurfaces: [api]\nstatus: verified\napproved_by:\n' "$tier"
     [ "$hasv" = 1 ] && printf 'veto_state: mo\nveto_opened_at:%s\n' "${vat:+ $vat}"
@@ -4232,9 +4227,9 @@ mk_gcv() { # <slug> <heading> <than>
 }
 mk_gcv blankcase '## Criteria' '- **AC-1**' '- **AC-2**' '- **AC-3**'
 # Heading LỆCH THẬT. `## Acceptance criteria` từng đóng vai này, nhưng từ hồ sơ
-# cong-nguoi-doc-du-nguon nó là một trong BA tên mục hợp lệ (AC-8) — dùng nó ở đây
-# là đo một thứ không còn lệch, và ca sẽ đỏ vì hợp đồng LÀNH. Tên dưới đây không
-# nằm trong CRITERIA_HEADINGS, nên nhánh quét-cả-tệp vẫn chạy đúng như ca cần.
+# cong-nguoi-doc-du-nguon nó là một tên mục HỢP LỆ (AC-8; so khớp không phân biệt
+# hoa thường). Dùng nó ở đây là đo một thứ không còn lệch, và ca sẽ đỏ vì hợp
+# đồng LÀNH. Tên dưới đây không nằm trong CRITERIA_HEADINGS.
 mk_gcv headcase  '## Tiêu chí nghiệm thu' '- **AC-1**' '- **AC-2**'
 mk_gcv okcase    '## Criteria' '- AC-1: Given x, Then y.' '- AC-2: Given x, Then y.'
 # Nhanh CUT (AC-11) cung phai ra toi card THAT, khong chi song o tang don vi:

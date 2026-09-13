@@ -144,14 +144,6 @@ function edges(cTxt, oTxt) {
   return out.length ? ' · ' + out.join(' · ') : '';
 }
 
-// VẬT của điều kiện xanh-sạch thứ bảy. Đọc THẲNG ở đây: `consumedTexts` chỉ gom
-// contract/opportunity/uat/evidence, nên truyền `texts[...]` sẽ luôn là undefined
-// và vị từ lặng lẽ bỏ điều kiện (sửa sau lượt chấm 1).
-function phuCuaHoSo(dir) {
-  const doc = (f) => { try { return readFileSync(path.join(dir, f), 'utf8'); } catch (_) { return null; } };
-  return { findingsText: doc('review-findings.md'), ledgerText: doc('decisions.jsonl') || '' };
-}
-
 function classify(dir, slug) {
   // Đọc LƯỜI và phân biệt lỗi, đúng thứ tự bộ quét đi: mở file nào là câu hỏi
   // của luật chung. Đọc cả ba vô điều kiện thì (a) lỗi quyền ở một hồ sơ trạng
@@ -183,7 +175,6 @@ function classify(dir, slug) {
   // evidence-report.md tiêu thụ theo LUẬT CHUNG (implemented/verified) — trước
   // đây bản đồ không đọc file này lần nào, nên mọi luật về nó sống riêng ở bộ
   // quét và hai bên trôi nhau đúng trục đó (AC-1 workspace-reader-unification).
-  const phu = phuCuaHoSo(dir);
   const eR = usesEvidence(cTxt) ? readRecord(path.join(dir, 'evidence-report.md')) : { t: null, err: null };
   if (usesEvidence(cTxt) && eR.err)
     return { key: 'hong', slug, file: 'evidence-report.md', reason: ioReason(eR.err) };
@@ -225,11 +216,7 @@ function classify(dir, slug) {
       // nhánh `status === 'machine-cleared'` ở cuối là vô dụng: hồ sơ đường A thoát ra ở
       // `if (duongA) return …` TRƯỚC đó, nên bản đồ lại tin thẳng frontmatter trong khi bộ
       // quét gọi HỎNG — đúng lớp lỗi vừa định giết, chỉ đổi chỗ (S4-r12 [0][1]).
-      // Truyền VẬT vào (sửa sau lượt chấm 1): `phu` vắng thì vị từ bỏ hẳn điều kiện
-      // thứ bảy, nên bản đồ hiện XANH cho hồ sơ mà lưới trước-merge đang chặn —
-      // đúng lớp writer/reader-trôi mà chính vòng này đi đóng, chỉ dời sang vị từ.
-      if (status === 'machine-cleared' && !khongCanNguoi(cTxt, texts['evidence-report.md'] || '',
-            phu)) {
+      if (status === 'machine-cleared' && !khongCanNguoi(cTxt, texts['evidence-report.md'] || '')) {
         return { key: 'hong', slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật' };
       }
       // Đường A (cơ hội quyết build/iterate) còn một cổng người nữa: phiên

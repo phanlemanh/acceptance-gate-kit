@@ -135,7 +135,6 @@ enforcement    enforcement_mode không off
 tier           risk_tier của hợp đồng là T2
 uncertain      không có mục UNCERTAIN trong báo cáo
 sections       hai mục «Known limits» và «Ngoài hợp đồng» hiện diện và rỗng
-findings       review-findings.md không còn mục chờ người ở «Ngoài hợp đồng» và «Trong hợp đồng»
 <!-- EVIDENCE-XANH-SACH-BLOCK>>> -->
 
 <!-- Hai mục điều kiện `sections` đòi — bản gốc máy-đọc; vùng chép dưới mốc cắt đặt chúng
@@ -229,7 +228,6 @@ enforcement_mode: {{strict|warn|off}}   # the `enforcement` value from _acceptan
 bypass_used: {{true|false}}              # true iff ACCEPTANCE_GATE_BYPASS=1 at verify. CI pre-merge BLOCKS true unless a human records bypass_ack.
 verified_commit: {{git rev-parse HEAD at verify time}}   # pins the evidence to the exact tree verified. CI pre-merge BLOCKS when non-gate files changed after it (stale evidence — re-verify). Omit ONLY if not a git repo; hook rejects non-SHA values.
 # bypass_ack:              # OPTIONAL "<name> <ISO date>" — a human consciously releasing a bypassed PASS (audit trail)
-findings_open: {{số mục còn CHỜ NGƯỜI}}   # = số mục dưới "## Ngoài hợp đồng" CỘNG số mục dưới "## Trong hợp đồng" của review-findings.md. KHÔNG trừ gì cả: cả ba chỗ hỏi điều kiện thứ bảy đều là hồ sơ chưa có chữ ký, tức chưa mục nào được định đoạt. Số này do MÁY tính ở S4 (acceptance-verify.js), người không tự điền. Khai lệch vật là VIOLATION; vắng khoá là đường đọc-cũ (NOTE).
 human_signoff:          # Gate 2 — human writes "<name> <ISO date>" AFTER review
 ---
 

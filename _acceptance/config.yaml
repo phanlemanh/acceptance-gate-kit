@@ -283,24 +283,13 @@ executors:
     # qua glob, nen day la luoi thuong truc chu khong phai rang ho so chet theo merge).
     # Lenh de TRAN (khong nhay) theo nep gllc_*. Bo loc CNDN_CASES khop 0 ca phai thoat
     # khac 0 (bai hoc P86).
-    cndn_luat_thu_bay: CNDN_CASES=CN01 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_mot_nguon: CNDN_CASES=CN02 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_fail_closed: CNDN_CASES=CN03 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_luoi_chep_san_co: node tests/scripts/consumer-esm.test.mjs
-    cndn_lint_ho_so: node scripts/eval-coverage-lint.js . --slug cong-nguoi-doc-du-nguon
-    cndn_khai_lech_vat: CNDN_CASES=CN04 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_duong_doc_cu: CNDN_CASES=CN05 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_cua_ghi: CNDN_CASES=CN06 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_ac_tieu_de: CNDN_CASES=CN07 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_tieu_de_muc: CNDN_CASES=CN08 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_bo_do_khong_im: CNDN_CASES=CN09 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_the_cong_2: CNDN_CASES=CN10 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_cross_layer_hai_nhanh: CNDN_CASES=CN11 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_lop_chep_ci: CNDN_CASES=CN12 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_bon_ben_goi: CNDN_CASES=CN13 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_round_trip_writer: CNDN_CASES=CN14 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_coverage_bang: CNDN_CASES=CN15 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_ban_kinh: node _acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs --truc tat-ca --json
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

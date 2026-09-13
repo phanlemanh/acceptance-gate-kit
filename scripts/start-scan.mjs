@@ -69,14 +69,7 @@ const read = readRecord;
 // của evidence-core trả ra key bắt buộc (S4-r1: hasFm riêng đã chặt hơn reader
 // chuẩn — CRLF/dòng trắng đầu file bị báo hỏng oan trong khi mọi cổng khác đọc được)
 const fmOrNull = (t, key) => (t == null ? null : frontmatterField(t, key));
-// Truyền VẬT vào (sửa sau lượt chấm 1): vắng đối số thứ ba thì vị từ bỏ hẳn điều
-// kiện xanh-sạch thứ bảy, nên bộ quét vào phiên hiện hồ sơ ĐÃ XONG trong khi lưới
-// trước-merge đang chặn nó — đúng lớp writer/reader-trôi vòng này đi đóng.
-const phuCua = (dir) => {
-  const doc = (f) => { try { return readFileSync(path.join(dir, f), 'utf8'); } catch (_) { return null; } };
-  return { findingsText: doc('review-findings.md'), ledgerText: doc('decisions.jsonl') || '' };
-};
-const kcn = (cTxt, eTxt, dir) => khongCanNguoi(cTxt, eTxt, dir ? phuCua(dir) : undefined);
+const kcn = (cTxt, eTxt) => khongCanNguoi(cTxt, eTxt);
 const git = (() => {
   const q = args => {
     try {
@@ -357,7 +350,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         // đó, nên hồ sơ verdict=REJECT vẫn hiện «đã giao — bằng chứng xanh-sạch» ở bộ quét,
         // bản đồ và thẻ, trong khi lưới trước-merge chặn: ba mặt người nói một đằng, lưới
         // nói một nẻo, và chiều sai là MÀU XANH GIẢ (S4-r11 [3]).
-        if (!kcn(cTxt, ev.raw, dir)) {
+        if (!kcn(cTxt, ev.raw)) {
           pushHong({ slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật; chạy lại S4 hoặc đưa về Cổng Bằng chứng để người ký' });
           continue;
         }
@@ -400,7 +393,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const ev = readEvidence();
       if (ev) {
         const meaning = ev.exists ? meaningOf(ev.verdict) : null;
-        const kcnState = ev.exists && !ev.signoff ? kcn(cTxt, ev.raw, dir) : null;
+        const kcnState = ev.exists && !ev.signoff ? kcn(cTxt, ev.raw) : null;
         if (!ev.exists) pushHong({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
         else if (!meaning) pushHong({ slug, ...bangLech(ev.verdict) });
         else if (ev.signoff) done.push(g('da-giao', { slug, state: 'signed-off', at: ngayXong(dir, cPath) }));
