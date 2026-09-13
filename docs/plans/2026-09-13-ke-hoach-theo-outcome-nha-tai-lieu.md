@@ -94,7 +94,7 @@ n file lạc`. Chạy S1 của feature-loop → design doc rơi vào nhà repo k
    `docs/MAP.md` + khoá config; **không mkdir**; có MAP rồi → chỉ nhắc.
 8. Kit tự khai `docs/MAP.md` → K1 **đỏ đúng cặp** `docs/specs · docs/superpowers/specs`,
    K2 nêu `docs/lai-thu-nguoi-la.md` + 16 plan cũ → dọn (dời, không xoá) → xanh.
-   *(Dọn đã làm 13/09 trước vòng — chiều đỏ của mục này chạy trên bản chép `git archive 0a85ed12 docs`.)*
+   *(Dọn đã làm 13/09 trước vòng — chiều đỏ của mục này chạy trên bản chép `git archive 8a703c36 docs`.)*
 9. ADR 0017 «Engine bind vào nhà repo khai; engine không sở hữu đường dẫn nào
    trong `docs/`».
 10. `CONTEXT.md`: mục «Nhà tài liệu» · «Bản đồ tài liệu ≠ Bản đồ sản phẩm».

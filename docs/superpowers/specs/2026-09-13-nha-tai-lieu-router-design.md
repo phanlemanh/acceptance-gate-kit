@@ -236,7 +236,7 @@ Chiều đỏ), vì kit sạch rồi thì đối chứng này biến mất.
 **Dọn nhà đã làm 13/09, TRƯỚC vòng** (`workflow-v2-spec.md` + overview ở lại
 `docs/specs/` như đặc-tả thường-trú; 10 design doc + 16 plan + `lai-thu` dời).
 Vì thế R8 **không còn chạy được trên cây thật**: thay bằng ca trên bản chép cây
-kit tại commit `0a85ed12` lấy trọn thư mục (`git archive 0a85ed12 docs`), đúng
+kit tại commit `8a703c36` lấy trọn thư mục (`git archive 8a703c36 docs`), đúng
 luật base-trọn-thư-mục (P150). Kit sau dọn là **đối chứng dương** (K1 = 0, K2
 còn `docs/tools/` · `docs/diagrams/` chưa khai nhà); bản chép trước dọn là
 **chiều đỏ** (K1 = 2 cặp). Hai ca, cùng bộ đọc.
@@ -265,7 +265,7 @@ do trong `MIEN_MUI_TIEM`; ca meta đỏ nếu để rỗng):
 | R5 round-trip | khối viết bằng writer khuôn `DOC-HOMES-TEMPLATE` | reader đọc ra đúng 9 hàng, đúng giá trị |
 | R6 | thẻ start với/không khoá | có dòng «nhà tài liệu: …» / không có dòng |
 | R7 | router khai (đặc-tả, theo-vòng) = `docs/design/` · vắng router | `homeFor` trả `docs/design/` · trả `docs/superpowers/specs/` |
-| R8 | chạy trên **cây kit thật** trước khi dọn | K1 đỏ đúng **hai** cặp (`docs/specs · docs/superpowers/specs` · `docs/plans · docs/superpowers/plans`); K2 nêu `docs/lai-thu-nguoi-la.md` — **chạy trên bản chép `git archive 0a85ed12 docs`**, vì cây thật đã dọn 13/09 |
+| R8 | chạy trên **cây kit thật** trước khi dọn | K1 đỏ đúng **hai** cặp (`docs/specs · docs/superpowers/specs` · `docs/plans · docs/superpowers/plans`); K2 nêu `docs/lai-thu-nguoi-la.md` — **chạy trên bản chép `git archive 8a703c36 docs`**, vì cây thật đã dọn 13/09 |
 | R9 | hàng có `lớp-vật` lạ (`sổ-cái`) | reader nhận, không lỗi; hai hàng `sổ-cái` cùng vòng-đời → K1 đỏ như lớp thường |
 | R10 | `nhà` = `docs/roadmap.md#plan-freeze` | reader tách `fragment`; `homeFor` trả đường file; **không** đọc nội dung khối |
 | R11 | header `quét: docs/ · *.md · adrs/` + thả `adrs/la.md` | K2 nêu `adrs/la.md`; bỏ `adrs/` khỏi header → không nêu |
