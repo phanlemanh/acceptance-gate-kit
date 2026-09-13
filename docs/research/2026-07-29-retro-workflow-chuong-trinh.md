@@ -3,8 +3,8 @@
 *Retro GIỮA chương trình (checkpoint trước Pha 3), tầng trên của
 [retro vòng r1](2026-07-29-v1-retro-bai-hoc.md). Đối tượng: bản thân workflow
 và quá trình thiết kế nó — không phải feature. Nguồn: hội thoại maintainer
-27→29/07, [spec draft](../specs/2026-07-27-discovery-gate0-design.md),
-[plan rollout](../plans/2026-07-27-discovery-gate0-rollout.md), số liệu V1.*
+27→29/07, [spec draft](../superpowers/specs/2026-07-27-discovery-gate0-design.md),
+[plan rollout](../superpowers/plans/2026-07-27-discovery-gate0-rollout.md), số liệu V1.*
 
 ## 1. Ý định gốc vs nơi đã đến
 

@@ -4,7 +4,7 @@
 Graph Engineering và đối chiếu với Acceptance Gate Kit với ý định tăng tốc mở
 nhiều Feature Loop»). Nguồn đối chiếu:
 [bản chưng cất GE 29/07 + cập nhật 05/08](2026-07-29-graph-engineering-karpathy-anthropic.md)
-· [bản neo «người về biên» 12/08](../plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
+· [bản neo «người về biên» 12/08](../superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)
 · [tổng kết lớn đợt tái lập 12/08](../findings/2026-08-12-tong-ket-lon-dot-tai-lap.md)
 · hồ sơ xưởng tại HEAD. Đây là tài liệu PHÂN TÍCH, không phải đề bài — mọi
 khuyến nghị ở §6 đều phải qua phép thử North Star trước khi thành việc.*

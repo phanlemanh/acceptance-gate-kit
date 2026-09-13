@@ -59,7 +59,14 @@ trường; thấy crm phải chọn gì.
 ## P1 + P2 — một vòng feature-loop, ship ở mốc 2.13
 
 Gộp vì cùng chạm `lib/doc-homes.cjs` và cùng đối chứng dương (kit tự khai);
-tách thì phải ghim lại hai lần. Hạng dự kiến **T3** (chạm `pre-merge-check.sh`
+tách thì phải ghim lại hai lần.
+
+**Đối chiếu với 2.12 (kiểm 13/09, trước khi pull):** hạt giống H2 «thước sống
+theo đời model» dự kiến chạm `scripts/gate-card.js` · `lib/evidence-core.cjs` ·
+`feature-loop/workflows/acceptance-verify.js` · `feature-loop/scripts/s4-args.mjs`
+— **không trùng** file nào của P1/P2. Vòng này mở **sau khi pull 2.12 và rebase**;
+việc đã làm trước 2.12 không chạm engine: P0 · dọn nhà (nhóm C) · kit tự khai
+`docs/MAP.md` (A7 phần bản khai, chưa có bộ đọc). Hạng dự kiến **T3** (chạm `pre-merge-check.sh`
 + `start-scan.mjs`) → 4 cổng: Đáng · Phạm vi · 1.5 · Bằng chứng. Timebox
 **3 ngày làm việc**.
 

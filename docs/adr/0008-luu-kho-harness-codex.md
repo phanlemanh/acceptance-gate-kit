@@ -12,7 +12,7 @@ dùng Claude*, đồng ý bỏ, mở lại khi cần. Chúng tôi gỡ `codex/`,
 chúng nằm chết trong cây: cây còn thì luật «sửa hai lần» còn hiệu lực, và một
 bản sao không ai đọc vẫn bắt người sau phải hiểu nó trước khi dám sửa gì. Đây
 là đường đạt mục tiêu M4 của bản neo *người về biên, máy đi trước*
-([kế hoạch](../plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)): số nơi phải
+([kế hoạch](../superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md)): số nơi phải
 sửa-hai-lần về **0**. Trade-off nhận về: repo mất khả năng phát hành cho Codex
 NGAY LẬP TỨC — muốn có lại phải trả một lượt cập nhật theo diff kit tích luỹ từ
 ngày lưu kho, và cái giá đó tăng dần theo thời gian. Chấp nhận vì nó là chi phí

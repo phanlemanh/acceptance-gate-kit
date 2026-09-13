@@ -1,6 +1,6 @@
 # Lái-thử người-lạ — VÁN 1 (biến thể mặt agent) trên `mcp-cost-guard`
 
-*2026-08-13 · Pilot của [đề bài 13/08](../plans/2026-08-13-de-bai-lai-thu-nguoi-la.md).
+*2026-08-13 · Pilot của [đề bài 13/08](../superpowers/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md).
 Owner yêu cầu chạy thử ngay trên `mcp-cost-guard` (kho tiêu thụ floorplanstudio).*
 
 ## 0 · Lệch khỏi đề bài — khai trước, chờ owner veto

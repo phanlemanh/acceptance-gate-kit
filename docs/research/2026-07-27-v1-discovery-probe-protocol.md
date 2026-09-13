@@ -1,6 +1,6 @@
 # V1 — Protocol probe discovery tay (Artifact Platform) & scorecard DP-1
 
-*2026-07-27 · Thuộc [plan rollout](../plans/2026-07-27-discovery-gate0-rollout.md)
+*2026-07-27 · Thuộc [plan rollout](../superpowers/plans/2026-07-27-discovery-gate0-rollout.md)
 hạng mục V1. V1 chính là prototype của cơ chế discovery → theo đúng luật của
 nó: ngưỡng sống/chết khai TRƯỚC khi chạy, dưới đây.*
 
@@ -46,7 +46,7 @@ viết lại từ đầu · phải mở lại brainstorm nghiệp vụ trong ses
 | Bước | Làm | Vết bắt buộc |
 |---|---|---|
 | D1a | `/brainstorm` làm rõ → 2-3 hướng + riskiest assumption | journal: phút · friction |
-| D1b | Đúc slug, viết `opportunity.md` TAY theo template trong [spec §5](../specs/2026-07-27-discovery-gate0-design.md) — đủ frontmatter (`base_commit` ghi lúc vào D3, ngưỡng chết, disposition để trống) | `_acceptance/<slug>/opportunity.md` |
+| D1b | Đúc slug, viết `opportunity.md` TAY theo template trong [spec §5](../superpowers/specs/2026-07-27-discovery-gate0-design.md) — đủ frontmatter (`base_commit` ghi lúc vào D3, ngưỡng chết, disposition để trống) | `_acceptance/<slug>/opportunity.md` |
 | D2 | `strategy-red-team` lên opportunity; cập nhật bảng giả định | bản red-team lưu `_acceptance/<slug>/evidence/discovery/red-team.md` |
 | D3 | Ghi `prototype.base_commit` TRƯỚC commit đầu; dựng trong timebox; điền "Kết quả prototype" | branch prototype + journal |
 | Cổng 0 | Quyết tay: `decision` + `disposition` (+ bảng nợ nếu keep) + `decided_by/at` + phút gate0 | frontmatter opportunity + ledger entries |
@@ -80,6 +80,6 @@ viết lại từ đầu · phải mở lại brainstorm nghiệp vụ trong ses
 ## Kết quả về đâu
 
 Scorecard + verdict GO / NO-GO / VÙNG-GIỮA điền vào section **DP-1** của
-[plan rollout](../plans/2026-07-27-discovery-gate0-rollout.md), kèm chữ ký
+[plan rollout](../superpowers/plans/2026-07-27-discovery-gate0-rollout.md), kèm chữ ký
 Manh + ngày. Journal ở lại Artifact Platform (nó là vết của feature đó);
 plan kit chỉ nhận scorecard tổng hợp.

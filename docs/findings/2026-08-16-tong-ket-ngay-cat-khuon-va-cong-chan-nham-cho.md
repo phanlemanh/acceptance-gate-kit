@@ -73,7 +73,7 @@ của hôm nay. Chạy hai feature thật trên bản đó là đo luật cũ. V
 merge KHÔNG cần owner làm gì**. Nếu nó cần, đó là dữ liệu M1 đầu tiên và là
 lỗi phải sửa trước khi đo tiếp.
 
-Đề bài đợt 3: [`docs/plans/2026-08-16-de-bai-dot3-nghiem-tren-vat-that.md`](../plans/2026-08-16-de-bai-dot3-nghiem-tren-vat-that.md).
+Đề bài đợt 3: [`docs/plans/2026-08-16-de-bai-dot3-nghiem-tren-vat-that.md`](../superpowers/plans/2026-08-16-de-bai-dot3-nghiem-tren-vat-that.md).
 
 ## 6. Bài học ghi sổ (không mở hồ sơ, chỉ nhớ)
 
