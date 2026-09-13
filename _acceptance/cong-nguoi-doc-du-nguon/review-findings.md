@@ -1,97 +1,90 @@
 ## Trong hợp đồng
 
-- **parseACBlock quét-cả-tệp + xoá-sau-cùng làm TẮT răng cross-layer của pre-merge**
-  Người dùng thấy gì: Nếu một tiêu chí xuyên lớp (cross-layer) chỉ được NHẮC LẠI trong mục Giới hạn đã biết (không phải một khai báo tiêu chí mới), lưới kiểm trước khi gộp mã có thể coi tiêu chí đó KHÔNG còn cần bằng chứng xuyên lớp nữa và bỏ lọt một vi phạm thật lẽ ra phải chặn lại.
-  file: `scripts/pre-merge-check.sh`
-  severity: high
-  Đề xuất: Gộp theo id trước khi cộng/trừ tập cross-layer (OR mọi bản ghi cùng id, hoặc chỉ lấy bản ghi khai báo ĐẦU TIÊN quyết định) và chỉ áp dụng trong phạm vi mục Criteria; CHƯA vá trong lượt chấm này — chuyển sang vòng vá kế tiếp trước khi ký Cổng 2.
-  AC: AC-11
+Phân loại của MÁY không dùng được ở lượt này (bước triage khai hỏng, và bản thân
+nó xếp 0 mục vào trong hợp đồng). Chủ vòng phân loại lại từng mục theo bảy tiêu
+chí đã duyệt: cả mười đều nằm TRONG hợp đồng. Không mục nào ngoài phạm vi.
 
-- **AC_SUSPECT nới sang tiêu đề nhưng AC_XREF không — cờ mù giả ở Cổng 1**
-  Người dùng thấy gì: Một hợp đồng hoàn toàn lành, chỉ vì có một dòng tiêu đề nhắc chéo tới mã tiêu chí (không phải khai báo tiêu chí mới), có thể bị thẻ Cổng 1 báo nhầm là "đọc thiếu tiêu chí", khiến người duyệt nghi ngờ một hợp đồng vốn không có vấn đề gì.
-  file: `lib/ac-line.cjs`
-  severity: medium
-  Đề xuất: Nới `AC_XREF` để nhận cùng tiền tố tiêu đề vừa được thêm vào `AC_SUSPECT`, giữ hai regex sinh đôi đồng bộ trở lại; CHƯA vá trong lượt chấm này — chuyển sang vòng vá kế tiếp trước khi ký Cổng 2.
+- **Tiêu chí MA trên thẻ Cổng Phạm vi: hợp đồng không có mục tiêu chí thì bộ đọc quét cả tệp, và cờ điểm-mù hoá im**
+  Người dùng thấy gì: Với hợp đồng không đặt mục tiêu chí đúng tên, thẻ duyệt hiện thêm những dòng lấy từ mục «Known limits» như thể chúng là tiêu chí phải làm, cảnh báo «đừng duyệt» biến mất, và dòng một-chạm mở sẵn chữ duyệt — người bấm duyệt một danh sách máy tự bịa.
+  file: `lib/ac-line.cjs:131`
+  severity: high
+  Đề xuất: 
+  AC: AC-7, AC-9
+
+- **Cùng gốc với mục trên, nhìn từ phía bộ dò: `acBlindSpot` và `parseACBlock` dùng CHUNG một lần quét nên nhánh BLANK không bao giờ đạt tới**
+  Người dùng thấy gì: Bộ dò điểm mù được dựng để kêu đúng lúc thẻ đọc thiếu, nhưng nay nó đếm trên cùng một tập dòng với bên bóc tiêu chí, nên số đọc được luôn bằng số nghi ngờ và nó không còn kêu được nữa.
+  file: `lib/ac-line.cjs:39`
+  severity: high
+  Đề xuất: 
   AC: AC-9
 
-- **Hình dạng 3 — assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ giữa hai nhánh (CN11)**
-  Người dùng thấy gì: Bài kiểm tra tự động dùng để chứng minh hai đường kiểm (có Node và không có Node) luôn báo cùng một kết quả thực ra không so sánh đúng điều đó — nó chỉ tìm xem chữ "AC-1" có xuất hiện ở bất kỳ đâu trong toàn bộ log hay không, nên một dòng ghi chú in ra đúng chữ đó ở chỗ khác vẫn khiến bài kiểm tra báo ĐẠT dù răng kiểm xuyên lớp thật đã im hoàn toàn.
-  file: `tests/scripts/cong-nguoi-doc-du-nguon.test.mjs`
-  severity: high
-  Đề xuất: Đổi sang lọc đúng dòng `VIOLATION [<slug>]` bằng khuôn `dongCua` đã có sẵn trong cùng tệp (dùng ở CN01/CN05), so tập id hai nhánh thay vì hai chuỗi rời rạc, và thêm đối chứng dương (thêm eval `layer: backend-effect` để đòi cả hai nhánh IM); CHƯA vá trong lượt chấm này — chuyển sang vòng vá kế tiếp trước khi ký Cổng 2.
-  AC: AC-11
-
-- **Hình dạng 6 — hardcode môi trường của tác giả: PATH=/usr/bin:/bin không có tự kiểm (CN11)**
-  Người dùng thấy gì: Bài kiểm tra ép hệ thống chạy nhánh dự phòng (khi máy không có Node) chưa từng tự kiểm rằng Node thật sự vắng mặt trên đường dẫn giả lập đó; trên một môi trường CI chuẩn, nhánh dự phòng có thể chưa bao giờ thực sự được chạy dù bài kiểm tra vẫn báo ĐẠT.
-  file: `tests/scripts/cong-nguoi-doc-du-nguon.test.mjs`
+- **`AC_SUSPECT` nới sang tiêu đề mà `AC_XREF` sinh đôi thì không — báo «Đọc THIẾU … đừng duyệt» oan trên hợp đồng lành**
+  Người dùng thấy gì: Một hợp đồng viết đúng, chỉ có thêm một dòng nhắc chéo «AC-5, AC-9, AC-10 chưa có gì» đặt làm tiêu đề, bị thẻ báo đọc thiếu và khoá nút duyệt — người phải sửa hợp đồng lành để đi tiếp.
+  file: `lib/ac-line.cjs:23`
   severity: medium
-  Đề xuất: Thêm bước tự kiểm `command -v node`/`command -v bash` trên cùng PATH giả lập (theo đúng khuôn hàm `ve2VangNode` đã có sẵn trong cùng tệp) trước khi tin nhánh awk đã chạy, và đòi dòng NOTE tự xưng của nhánh awk làm bằng chứng nhánh nào đã thực thi; CHƯA vá trong lượt chấm này — chuyển sang vòng vá kế tiếp trước khi ký Cổng 2.
-  AC: AC-11
+  Đề xuất: 
+  AC: AC-9
 
-- **Hình dạng 5 — E13 tuyên bốn mũi tiêm độc lập / 9 tiêu chí; CN13 có một mũi tiêm dùng chung / 5 tiêu chí**
-  Người dùng thấy gì: Tài liệu mô tả bài kiểm tra tuyên bố đã thử bốn cách gọi riêng biệt trên một hợp đồng chín tiêu chí, nhưng bài kiểm tra thật chỉ thử một cách làm sai dùng chung trên năm tiêu chí — phần "mỗi cách gọi lỗi độc lập làm đúng bên đó sai" của lời hứa AC-13 chưa thực sự được xác nhận riêng biệt cho từng bên.
-  file: `_acceptance/cong-nguoi-doc-du-nguon/evals.yaml`
-  severity: low
-  Đề xuất: Viết lại CN13 thành bốn mũi tiêm độc lập trên đúng chín tiêu chí như evals.yaml đã khai, mỗi mũi chỉ hoàn nguyên đúng một bên gọi và phải làm đúng bên đó ra số khác 9 trong khi ba bên còn lại vẫn 9; CHƯA vá trong lượt chấm này — chuyển sang vòng vá kế tiếp trước khi ký Cổng 2.
+- **Khối «Lỗi TRONG hợp đồng» của thẻ Cổng Bằng chứng luôn in chỗ giữ, vì bên viết đặt `plain` rỗng cho đúng loại mục này**
+  Người dùng thấy gì: Khối mới sinh ra để người quyết đọc được lỗi ngay trên thẻ lại chỉ hiện một câu giữ chỗ và một đường dẫn tệp, đẩy người đọc về đúng tệp thô mà khối này sinh ra để khỏi phải mở.
+  file: `scripts/gate-card.js:972`
+  severity: high
+  Đề xuất: 
+  AC: AC-10, AC-14
+
+- **Cùng mâu thuẫn ấy ở phía bên viết: lời dặn synthesize bảo chép nguyên văn `plain`, còn schema triage ép `plain` về rỗng**
+  Người dùng thấy gì: Hai đầu của cùng một khuôn dặn ngược nhau, nên nội dung hiển thị cho người quyết phụ thuộc vào việc mô hình có bỏ qua lời dặn hay không — lượt này nó bỏ qua nên trông có vẻ chạy được, lượt sau chưa chắc.
+  file: `feature-loop/workflows/acceptance-verify.js:911`
+  severity: medium
+  Đề xuất: 
+  AC: AC-10, AC-14
+
+- **Bộ đọc thứ tư mà AC-13 gọi tên chưa từng chuyển sang `parseACBlock`; phép đo thay nó bằng chính thư viện bị tiêm**
+  Người dùng thấy gì: Răng chặn gộp nhánh về bằng chứng cross-layer vẫn đọc theo khuôn cũ nên với hợp đồng khai tiêu chí bằng tiêu đề, nó không thấy tiêu chí nào và bỏ qua toàn bộ phần kiểm tra — một cổng chặn tắt lặng lẽ.
+  file: `scripts/pre-merge-check.sh:891`
+  severity: high
+  Đề xuất: 
   AC: AC-13
 
-- **Hình dạng 4 — assert tự vô hiệu: nửa sau của AC-10 chỉ chạy nếu chuỗi còn tồn tại (CN10)**
-  Người dùng thấy gì: Một phần bài kiểm tra dùng để đảm bảo thẻ duyệt không tuyên bố "bằng chứng đã đầy đủ" một cách sai lệch có thể tự động ngừng kiểm trong im lặng nếu câu chữ hiển thị trên thẻ thay đổi (đổi cách diễn đạt, đổi dấu câu, dịch ngôn ngữ khác), mà bài kiểm tra vẫn báo ĐẠT như không có gì xảy ra.
-  file: `tests/scripts/cong-nguoi-doc-du-nguon.test.mjs`
+- **Năm trong bảy ca không có chiều đỏ, dù đầu tệp ca và `evals.yaml` đều khai có**
+  Người dùng thấy gì: Năm phép đo báo xanh mà chưa ai chứng minh chúng phân biệt được vật lành với vật hỏng; hồ sơ lại ghi rõ từng mũi tiêm và từng thông điệp ghim không tồn tại ở đâu trong mã.
+  file: `tests/scripts/cong-nguoi-doc-du-nguon.test.mjs:149`
+  severity: high
+  Đề xuất: 
+  AC: AC-7, AC-8, AC-9, AC-10, AC-15
+
+- **Đối chứng nền của cả bảy phép đo là `MODULE_NOT_FOUND`, được ghi vào báo cáo thành «đỏ = có phân biệt»**
+  Người dùng thấy gì: Báo cáo bằng chứng khẳng định mọi phép đo đều đỏ trên cây cũ, nhưng cây cũ chỉ đơn giản là không có tệp ca nên node thoát lỗi — đúng thứ hiến pháp kit gọi tên là «chưa bao giờ chạy» đội lốt màu xanh.
+  file: `_acceptance/cong-nguoi-doc-du-nguon/evidence-report.md:1`
+  severity: high
+  Đề xuất: 
+  AC: AC-7, AC-8, AC-9, AC-10, AC-13, AC-14, AC-15
+
+- **E13 khai bốn mũi tiêm độc lập / 9 tiêu chí / bốn bên đọc; CN13 làm một mũi tiêm dùng chung / 5 tiêu chí / ba bên độc lập**
+  Người dùng thấy gì: Vế «sửa ba bên quên bên thứ tư» mà phép đo tự khai là mục tiêu lại đúng là vế nó không phân biệt được, vì một mũi tiêm dùng chung làm cả bốn cùng đổi.
+  file: `_acceptance/cong-nguoi-doc-du-nguon/evals.yaml:85`
+  severity: medium
+  Đề xuất: 
+  AC: AC-13
+
+- **Chú thích còn khai một «điều kiện xanh-sạch thứ bảy» và một lớp vendored đã đổi mà nhát cắt không hề ship**
+  Người dùng thấy gì: Người bảo trì sau đọc chú thích sẽ tin có một răng chặn đang canh, và ghi chú hợp đồng sẽ dẫn người viết ghi chú phát hành bảo các kho tiêu thụ chép một tệp mà đường cưỡng chế không hề nạp.
+  file: `tests/plugins/lan-v.test.mjs:230`
+  severity: medium
+  Đề xuất: 
+  AC: AC-10
+
+- **Nửa sau của CN10 tự vô hiệu: nó chỉ chạy khi chuỗi «Bằng chứng đầy đủ» còn tồn tại**
+  Người dùng thấy gì: Nếu ai đó đổi cách diễn đạt trên thẻ, một nửa lời hứa của AC-10 lặng lẽ rời khỏi phép đo mà ca vẫn in đạt.
+  file: `tests/scripts/cong-nguoi-doc-du-nguon.test.mjs:438`
   severity: low
-  Đề xuất: Thêm nhánh đối chứng bắt buộc — nếu điều kiện tiền đề (`noiDu`) sai thì phải trả ĐỎ có tên, không để mệnh đề khẳng định thứ hai của AC-10 âm thầm biến mất khỏi phép kiểm; CHƯA vá trong lượt chấm này — chuyển sang vòng vá kế tiếp trước khi ký Cổng 2.
+  Đề xuất: 
   AC: AC-10
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **criteriaLines nới đường lùi quét-cả-tệp → tiêu chí MA lên thẻ Cổng 1, bộ dò mù im**
-  Người dùng thấy gì: Nếu mục Tiêu chí của hợp đồng được viết bằng bảng thay vì gạch đầu dòng, thẻ duyệt Cổng 1 có thể hiện các tiêu chí không có thật (lấy nhầm từ mục Giới hạn đã biết), khiến người duyệt đọc nhầm nội dung hợp đồng mà không có cảnh báo nào.
-  file: `lib/ac-line.cjs`
-  severity: high
-  Đề xuất: new-contract
+Không có mục nào ở lượt này.
 
-- **contentLines là bản sao nguyên văn của `bullets` trong gate-card — hai bản luật cùng tồn tại**
-  Người dùng thấy gì: Hai đoạn mã điều khiển cách hiển thị các mục trên thẻ duyệt đang viết trùng lặp thay vì dùng chung một chỗ; nếu sau này có người sửa cách hiển thị ở một chỗ mà quên chỗ kia, các mục khác nhau trên cùng một thẻ có thể hiện không nhất quán mà không ai nhận ra ngay.
-  file: `lib/md-section.cjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Sửa hợp đồng của hồ sơ ĐÃ KÝ để nối danh sách trắng — đúng lớp «bất biến nằm trong hồ sơ đã ký»**
-  Người dùng thấy gì: Một hồ sơ tính năng đã được duyệt và ký trước đó bị chỉnh sửa thêm nội dung sau khi đã ký, đi ngược quy định "hồ sơ đã ký là tài liệu lịch sử, không được sửa" — nếu việc này lặp lại ở các hồ sơ khác, hồ sơ đã ký sẽ không còn đáng tin làm bằng chứng cho quyết định trước đó.
-  file: `_acceptance/ra-co-ten-lam-va-trao/contract.md`
-  severity: medium
-  Đề xuất: new-contract
-
-- **CRITERIA_HEADINGS có mục chết: sectionLines khớp không phân biệt hoa thường**
-  Người dùng thấy gì: Một dòng cấu hình liệt kê tên gọi của mục tiêu chí có một biến thể không bao giờ thực sự cần dùng tới; điều này không gây sai kết quả cho người dùng, chỉ có thể khiến người viết sau thêm nhầm cấu hình thừa tương tự.
-  file: `lib/ac-line.cjs`
-  severity: low
-  Đề xuất: known-limits
-
-- **Lỗi ĐỌC review-findings.md bị nuốt thành «vắng tệp» → điều kiện thứ bảy trả SẠCH**
-  Người dùng thấy gì: Nếu tệp theo dõi rà soát của một hồ sơ bị lỗi quyền đọc (khác với việc tệp không tồn tại), công cụ có thể báo nhầm hồ sơ đó là "đã xong, không còn gì chờ người" dù thực ra chưa đọc được nội dung thật, khiến một hồ sơ cần chú ý bị bỏ sót.
-  file: `scripts/product-map.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **`status:` không cắt chú thích YAML, khác mọi bộ đọc evals.yaml còn lại**
-  Người dùng thấy gì: Nếu người viết ghi thêm lý do ngay trên cùng dòng khai một mục kiểm tra là "không cần chạy", hệ thống có thể hiểu nhầm đó là mục cần chạy thật, dẫn tới báo lỗi thiếu lệnh chạy hoặc chấm sai kết quả cho mục đó.
-  file: `lib/evidence-core.cjs`
-  severity: medium
-  Đề xuất: new-contract
-
-- **Hình dạng 6 — đường dẫn đo trỏ checkout của tác giả: corpus mặc định là ~/dev (eval E17)**
-  Người dùng thấy gì: Các con số minh chứng cho tính năng này (số hợp đồng, số tiêu chí bị thiếu, v.v.) được tính dựa trên thư mục cá nhân của máy người viết; chạy lại phép đo này trên máy khác hoặc trong quy trình kiểm tra tự động có thể cho ra số khác hẳn hoặc báo lỗi, khiến bằng chứng khó tái lập và khó tin khi cần đối chiếu sau này.
-  file: `_acceptance/cong-nguoi-doc-du-nguon/do-ban-kinh.cjs`
-  severity: high
-  Đề xuất: new-contract
-
-- **Hình dạng 5 — tuyên «ma trận 6 ô» nhưng ca chỉ có điểm-case, và ô đã tuyên nay khai NGƯỢC hành vi thật (E1/E4)**
-  Người dùng thấy gì: Tài liệu mô tả cách các bài kiểm tra tự động hoạt động ghi rằng chúng kiểm nhiều tình huống hơn thực tế, và một số mô tả đã lỗi thời so với quyết định mới nhất của dự án; điều này không ảnh hưởng người dùng cuối nhưng có thể khiến người xem xét sau tin nhầm mức độ đã được kiểm chứng.
-  file: `_acceptance/cong-nguoi-doc-du-nguon/evals.yaml`
-  severity: medium
-  Đề xuất: known-limits
-
-⚠ Cụm ngoài vùng phủ: 4/14 lỗi rơi vào file không bộ đo nào phủ (_acceptance/ra-co-ten-lam-va-trao/contract.md, scripts/product-map.mjs, _acceptance/cong-nguoi-doc-du-nguon/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 2/10 lỗi rơi vào file không bộ đo nào phủ (tests/plugins/lan-v.test.mjs, _acceptance/cong-nguoi-doc-du-nguon/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
