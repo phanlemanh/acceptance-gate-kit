@@ -31,7 +31,8 @@ engineer repo tiêu thụ (hai nguồn sự thật cho một vật). Bản đồ
 
 | # | Giả định | Nếu sai thì | Phép thử rẻ nhất | Trạng thái |
 |---|---|---|---|---|
-| 1 | Một khối bảng trong `docs/MAP.md` đủ khai «lớp × vòng đời → nhà» cho cả 5 hình dạng đang sống, không cần trường thứ năm | khối phình, mỗi repo một ngoại lệ → lại hai nguồn | viết tay khối cho 5 repo trước khi code (không dựng gì) | Chưa thử |
+| 1 | Một khối bảng trong `docs/MAP.md` đủ khai «lớp × vòng đời → nhà» cho cả 5 hình dạng đang sống, không cần trường thứ năm | khối phình, mỗi repo một ngoại lệ → lại hai nguồn | viết tay khối cho 5 repo trước khi code (không dựng gì) | **Đã thử 13/09 (P0)** — 7/7 repo khai được bằng ba cột; K1 đỏ đúng chỗ ở kit (2) và crm (2); tập lớp phải mở (12 tên tự mọc). `docs/findings/2026-09-13-loi-khai-viet-tay-6-repo.md` |
+| 5 | Ba khoá engine bind (`đặc-tả/theo-vòng` · `kế-hoạch/theo-vòng` · `ý-định/thường-trú`) là đủ — engine không cần biết lớp nào khác | cần khoá thứ tư = engine đang bò sang tầng repo | đếm khoá bind qua từng vòng; ngưỡng dừng = 4 | Chưa thử (ngưỡng đếm) |
 | 2 | Phép kiểm 2 để VÀNG (không chặn) vẫn đủ làm lộ hai `crm-plan.md` cho người quyết | vàng bị bỏ qua như residual → lỗ vẫn sống | chạy check trên crm-onehub, xem dòng thẻ start có nêu đúng file không | Chưa thử |
 | 3 | feature-loop đọc nhà từ router qua một hàm mà không đổi hành vi khi router vắng | hồ sơ đang giữa vòng ở 5 repo đổi chỗ vật → đỏ oan | ca R7 + chạy S1 trên repo không khai | Chưa thử |
 | 4 | Kit tự khai xong thì K1/K2 đỏ đúng 3 chỗ đã biết (`docs/specs` · `docs/plans` trộn · `lai-thu-nguoi-la.md`) — không hơn không kém | phép đo bắt sai lớp, hoặc kho kit có lỗ chưa thấy | ca R8 trên cây kit thật trước khi dọn | Chưa thử |
@@ -61,6 +62,7 @@ sống, không phải prototype của ô này.
 ## Cổng 0
 
 - **decision = …** Mở sau mốc 2.12 (luật chiều rộng (b): cửa sổ hiện tại đã tiêu hai vòng meta), hoặc sớm hơn nếu owner gọi tên và chấp nhận vượt (b) có chủ ý. Đi dưới luật nới 07/09 (đề xuất CỘNG, trace nguyên tố 2 + 1, 0 lượt gọi người thêm).
+- **Owner 13/09 (chưa phải chữ ký Cổng Đáng):** chốt hướng **repo khai, kit kiểm**; đồng ý **đổi thứ tự hàng đợi** 07/09 §3 — cửa sổ 2.12→2.13 cho vòng này (P1+P2), lát A của `y-dinh-co-nha-rieng` trượt một cửa sổ. Kế hoạch theo kết quả: `docs/plans/2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md`.
 - **disposition = …**
 - **Ngưỡng UAT chốt cùng lúc ký:** chép từ bullet `[đề xuất]` sau khi người gỡ tiền tố.
 

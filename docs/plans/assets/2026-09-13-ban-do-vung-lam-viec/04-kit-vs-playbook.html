@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kit đặt cạnh AI-Native SDLC playbook — sáu chặng</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper: #f5f5f5; --paper-2: #ececec; --ink: #2d3142; --muted: #4f5d75;
+      --soft: #636b80; --rule: rgba(45,49,66,0.12); --accent: #eb6c36;
+      --accent-text: #ba4513; --link: #2e5aa8;
+      --font-sans: 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body { font-family: var(--font-sans); background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 48px 32px; }
+    .frame { max-width: 1280px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    h1 { font-family: var(--font-serif); font-size: clamp(24px, 2.4vw + 12px, 32px); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 8px; }
+    .sub { color: var(--muted); font-size: 16px; line-height: 1.5; max-width: 880px; margin-bottom: 24px; }
+    svg { width: 100%; min-width: 1000px; display: block; }
+    .colophon { font-family: var(--font-mono); font-size: 12px; color: var(--soft); border-top: 1px solid var(--rule); padding-top: 12px; margin-top: 16px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Swimlane so sánh · bản đồ vùng-làm-việc · 13/09/2026</p>
+    <h1>Kit đặt cạnh «The AI-Native SDLC playbook» — sáu chặng</h1>
+    <p class="sub">Cùng sáu chặng, hai cách chia việc. Kit đặc ở giữa và đứt ở hai đầu: chặng 1 không có lệnh ký, chặng 6 không có bộ phát hiện. Chỗ lệch ở chặng 3 là cố ý, có giá đã khai.</p>
+
+    <svg viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="So sánh sáu chặng giữa playbook và kit">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2d3142"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ============ stage header ============ -->
+      <text x="152" y="28" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">1 · PLAN</text>
+      <text x="324" y="28" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">2 · DESIGN</text>
+      <text x="496" y="28" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">3 · BUILD</text>
+      <text x="668" y="28" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">4 · TEST</text>
+      <text x="840" y="28" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">5 · DEPLOY</text>
+      <text x="1012" y="28" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">6 · MAINTAIN</text>
+      <line x1="24" y1="40" x2="1176" y2="40" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- ============ lane connectors (drawn before boxes) ============ -->
+      <!-- 1 ĐỨT: broken, accent -->
+      <line x1="234" y1="160" x2="234" y2="180" stroke="#eb6c36" stroke-width="1.4"/>
+      <line x1="234" y1="228" x2="234" y2="248" stroke="#eb6c36" stroke-width="1.4"/>
+      <!-- 2 KHỚP -->
+      <line x1="406" y1="160" x2="406" y2="192" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="406" y1="216" x2="406" y2="248" stroke="#4f5d75" stroke-width="1"/>
+      <!-- 3 LỆCH: dashed -->
+      <line x1="578" y1="160" x2="578" y2="192" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="578" y1="216" x2="578" y2="248" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- 4 KIT XA HƠN: ink, strong -->
+      <line x1="750" y1="160" x2="750" y2="192" stroke="#2d3142" stroke-width="1.2"/>
+      <line x1="750" y1="216" x2="750" y2="248" stroke="#2d3142" stroke-width="1.2"/>
+      <!-- 5 KHỚP -->
+      <line x1="922" y1="160" x2="922" y2="192" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="922" y1="216" x2="922" y2="248" stroke="#4f5d75" stroke-width="1"/>
+      <!-- 6 ĐỨT: broken, accent -->
+      <line x1="1094" y1="160" x2="1094" y2="180" stroke="#eb6c36" stroke-width="1.4"/>
+      <line x1="1094" y1="228" x2="1094" y2="248" stroke="#eb6c36" stroke-width="1.4"/>
+
+      <!-- ============ LANE A — playbook ============ -->
+      <text x="24" y="100" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.14em">PLAYBOOK</text>
+      <text x="24" y="116" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">Anthropic · 08/26</text>
+
+      <!-- 1 -->
+      <rect x="152" y="64" width="164" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="152" y="64" width="164" height="96" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="164" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">intent.md</text>
+      <text x="164" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">nhà riêng trong repo</text>
+      <text x="164" y="124" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">ai cũng viết được</text>
+      <text x="164" y="146" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">duyệt bằng MERGE</text>
+      <!-- 2 -->
+      <rect x="324" y="64" width="164" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="324" y="64" width="164" height="96" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="336" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">spec.md</text>
+      <text x="336" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">luật nạp lúc VIẾT</text>
+      <text x="336" y="124" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">skill thương hiệu · bảo mật</text>
+      <text x="336" y="146" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">cờ có CHỦ LUẬT</text>
+      <!-- 3 -->
+      <rect x="496" y="64" width="164" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="496" y="64" width="164" height="96" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="508" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">plan.md</text>
+      <text x="508" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">bản ghi có thẩm quyền</text>
+      <text x="508" y="124" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">lệch → sửa cùng commit</text>
+      <text x="508" y="146" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">cửa ra đối chiếu DIFF</text>
+      <!-- 4 -->
+      <rect x="668" y="64" width="164" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="668" y="64" width="164" height="96" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="680" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Eval liên tục</text>
+      <text x="680" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">đầu ra thật dán vào «xong»</text>
+      <text x="680" y="124" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">test đỏ trước khi chữa</text>
+      <text x="680" y="146" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">hook cấm nới thước</text>
+      <!-- 5 -->
+      <rect x="840" y="64" width="164" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="840" y="64" width="164" height="96" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="852" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">REVIEW.md + hook</text>
+      <text x="852" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">ba lượt review có tên</text>
+      <text x="852" y="124" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">branch protection</text>
+      <text x="852" y="146" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">máy TỚI cổng, không qua</text>
+      <!-- 6 -->
+      <rect x="1012" y="64" width="164" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="1012" y="64" width="164" height="96" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="1024" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">bands.yaml</text>
+      <text x="1024" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">script tất định, KHÔNG model</text>
+      <text x="1024" y="124" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">vượt băng → intent mới</text>
+      <text x="1024" y="146" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">không ai khởi động</text>
+
+      <!-- ============ verdict chips ============ -->
+      <rect x="184" y="180" width="100" height="48" rx="6" fill="#f5f5f5"/>
+      <rect x="184" y="180" width="100" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="234" y="200" fill="#ba4513" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">ĐỨT</text>
+      <text x="234" y="216" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">0/44 ký bằng lệnh</text>
+
+      <rect x="372" y="192" width="68" height="24" rx="4" fill="#f5f5f5"/>
+      <rect x="372" y="192" width="68" height="24" rx="4" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="406" y="208" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHỚP</text>
+
+      <rect x="524" y="192" width="108" height="24" rx="4" fill="#f5f5f5"/>
+      <rect x="524" y="192" width="108" height="24" rx="4" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.20)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="578" y="208" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LỆCH CÓ CHỦ Ý</text>
+
+      <rect x="692" y="192" width="116" height="24" rx="4" fill="#f5f5f5"/>
+      <rect x="692" y="192" width="116" height="24" rx="4" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="750" y="208" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KIT ĐI XA HƠN</text>
+
+      <rect x="888" y="192" width="68" height="24" rx="4" fill="#f5f5f5"/>
+      <rect x="888" y="192" width="68" height="24" rx="4" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+      <text x="922" y="208" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHỚP</text>
+
+      <rect x="1044" y="180" width="100" height="48" rx="6" fill="#f5f5f5"/>
+      <rect x="1044" y="180" width="100" height="48" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="1094" y="200" fill="#ba4513" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">ĐỨT</text>
+      <text x="1094" y="216" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">0 bộ phát hiện</text>
+
+      <!-- ============ LANE B — kit ============ -->
+      <text x="24" y="292" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.14em">KIT</text>
+      <text x="24" y="308" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">acceptance-gate</text>
+      <text x="24" y="324" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">2.11.0 · 97 hồ sơ</text>
+
+      <!-- 1 -->
+      <rect x="152" y="248" width="164" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="152" y="248" width="164" height="112" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="164" y="272" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">opportunity.md</text>
+      <text x="164" y="292" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">Cổng Đáng · 44/97 hồ sơ</text>
+      <text x="164" y="308" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">ngưỡng chết khai TRƯỚC</text>
+      <text x="164" y="330" fill="#ba4513" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">chỉ sinh trong phiên</text>
+      <text x="164" y="346" fill="#ba4513" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">KHÔNG có lệnh ký</text>
+      <!-- 2 -->
+      <rect x="324" y="248" width="164" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="324" y="248" width="164" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="336" y="272" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">contract.md</text>
+      <text x="336" y="292" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">+ evals.yaml · gap-probe</text>
+      <text x="336" y="308" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">phản biện FAIL-CLOSED</text>
+      <text x="336" y="330" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">/approve · làn V</text>
+      <text x="336" y="346" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">ổ cắm ds_skill = cờ có chủ</text>
+      <!-- 3 -->
+      <rect x="496" y="248" width="164" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="496" y="248" width="164" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="508" y="272" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">plan.md + sổ</text>
+      <text x="508" y="292" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">lệch → ghi SỔ QUYẾT ĐỊNH</text>
+      <text x="508" y="308" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">worktree song song</text>
+      <text x="508" y="330" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">cửa ra neo HỢP ĐỒNG</text>
+      <text x="508" y="346" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">Gate 1.5 chỉ T3</text>
+      <!-- 4 -->
+      <rect x="668" y="248" width="164" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="668" y="248" width="164" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="680" y="272" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">evidence-report.md</text>
+      <text x="680" y="292" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">4 executor · hội đồng</text>
+      <text x="680" y="308" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">phiên tươi · trần 3 vòng</text>
+      <text x="680" y="330" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist Mono', monospace">XANH phải từng chạy ĐỎ</text>
+      <text x="680" y="346" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">playbook không có luật này</text>
+      <!-- 5 -->
+      <rect x="840" y="248" width="164" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="840" y="248" width="164" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="852" y="272" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">human_signoff</text>
+      <text x="852" y="292" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">/signoff · pre-merge-check</text>
+      <text x="852" y="308" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">staleness · cửa veto</text>
+      <text x="852" y="330" fill="#2d3142" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">ghim theo MỐC phát hành</text>
+      <text x="852" y="346" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace">làn V: máy thông, cửa veto</text>
+      <!-- 6 -->
+      <rect x="1012" y="248" width="164" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="1012" y="248" width="164" height="112" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="1024" y="272" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">uat-session.md</text>
+      <text x="1024" y="292" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">Cổng Giá trị · chấm kín</text>
+      <text x="1024" y="308" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">số đặt cạnh ngưỡng đã khai</text>
+      <text x="1024" y="330" fill="#ba4513" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">đo MỘT lần · 3/97</text>
+      <text x="1024" y="346" fill="#ba4513" font-size="9" font-weight="500" font-family="'Geist Mono', monospace">0 băng sau release</text>
+
+      <!-- ============ annotations (max 2) ============ -->
+      <text x="152" y="400" fill="#ba4513" font-size="14" font-style="italic" font-family="'Instrument Serif','Lora',serif">Cửa vào đòi owner ngồi sẵn trong phiên.</text>
+      <text x="152" y="418" fill="#ba4513" font-size="14" font-style="italic" font-family="'Instrument Serif','Lora',serif">Người nêu ý không phải người ký — và họ</text>
+      <text x="152" y="436" fill="#ba4513" font-size="14" font-style="italic" font-family="'Instrument Serif','Lora',serif">không có đường nào ngoài nhắn owner.</text>
+
+      <text x="1176" y="400" text-anchor="end" fill="#ba4513" font-size="14" font-style="italic" font-family="'Instrument Serif','Lora',serif">Vòng không tự đóng: bác kèm lý do rất đủ,</text>
+      <text x="1176" y="418" text-anchor="end" fill="#ba4513" font-size="14" font-style="italic" font-family="'Instrument Serif','Lora',serif">nhưng không nuôi lại bộ phát hiện nào —</text>
+      <text x="1176" y="436" text-anchor="end" fill="#ba4513" font-size="14" font-style="italic" font-family="'Instrument Serif','Lora',serif">vì kit chưa có bộ phát hiện.</text>
+
+      <!-- ============ legend ============ -->
+      <line x1="24" y1="472" x2="1176" y2="472" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="24" y="492" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <line x1="152" y1="508" x2="184" y2="508" stroke="#4f5d75" stroke-width="1"/>
+      <text x="192" y="512" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">KHỚP — cùng vật, cùng vai</text>
+
+      <line x1="416" y1="508" x2="448" y2="508" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="456" y="512" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">LỆCH CÓ CHỦ Ý — giá đã khai</text>
+
+      <line x1="704" y1="508" x2="736" y2="508" stroke="#2d3142" stroke-width="1.2"/>
+      <text x="744" y="512" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">KIT ĐI XA HƠN playbook</text>
+
+      <line x1="960" y1="508" x2="972" y2="508" stroke="#eb6c36" stroke-width="1.4"/>
+      <line x1="984" y1="508" x2="996" y2="508" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="1004" y="512" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace">ĐỨT — chuỗi không nối</text>
+    </svg>
+
+    <p class="colophon">
+      Chiếu của <strong>docs/findings/2026-09-13-ban-do-vung-lam-viec-hai-tang.md</strong> §2 và §5 · nguồn playbook: <strong>docs/research/2026-09-07-ai-native-sdlc-playbook.md</strong> (dòng 121–122 · 307–320 · 337–340 · 403 · 478 · 651–652).<br>
+      Ma trận so sánh 2 lane × 6 chặng — đọc theo khuôn ma trận, không theo trần 9 nút của đồ thị nút. Hình là chiếu, không phải nguồn (DIAGRAM-RULE §1, tầng 2).
+    </p>
+  </div>
+</body>
+</html>

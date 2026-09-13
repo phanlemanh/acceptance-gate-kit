@@ -153,3 +153,14 @@ Mọi thứ khác ở mục 1 hàng SỔ: không việc.
    bốn ô discovery mà chính PR này thêm cho bốn hạt giống). Đề xuất
    hôm nay **không thêm ô nào mới** trong cửa sổ này; nó xếp một ô kế thừa nợ,
    ghi bốn hạt giống có ngưỡng, và gộp hai ô discovery đang lẻ vào đúng họ.
+
+---
+
+**Đổi thứ tự hàng đợi §3 — owner chốt 13/09/2026.** Cửa sổ **2.12 → 2.13** dành
+cho vòng **router nhà tài liệu** (P1+P2 của
+`docs/plans/2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md`); **H1 lát A**
+trượt sang 2.13 → 2.14 (hoặc sớm hơn nếu ngưỡng đếm ở hạt giống 07/09 §5 chạm).
+Lý do: lát A cần «nhà ý định» đã khai để lệnh ký có chỗ đọc — router là tiền đề.
+Phần B của hạt giống 06/09 đóng bằng router ở P3 (cửa sổ 2.13 → 2.14), không
+còn là ô riêng. Căn cứ: khung quyết định
+`docs/findings/2026-09-13-khung-quyet-dinh-kien-truc-hai-tang.md`.
