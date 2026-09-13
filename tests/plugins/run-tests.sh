@@ -973,17 +973,20 @@ P62OUT="$(node -e '
   const lines=(arr)=>arr.join("\n");
   // (a) heading dung, khuon LA -> section co nhung parse ra 0
   const a=lines(["## Criteria","","- **AC-1**","- **AC-2**","- **AC-3**"]);
-  // (b) heading LECH -> section() rong, khong co section de quet
-  const b=lines(["## Acceptance criteria","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."]);
+  // (b) ten muc LA -> khong co muc de thu hep, bo DEM quet CA TEP
+  // (sua sau luot cham 7, cung lop voi GCV1b): `## Acceptance criteria` nay la
+  // mot ten muc HOP LE (CRITERIA_HEADINGS, so khop khong phan biet hoa thuong),
+  // nen o nay da thoi do nhanh quet-ca-tep. Ten duoi day KHONG nam trong danh sach.
+  const b=lines(["## Tieu chi nghiem thu","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."]);
   // (c) lanh
   const c=lines(["## Criteria","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."]);
   const ra=acBlindSpot(a,[]), rb=acBlindSpot(b,[]), rc=acBlindSpot(c,["AC-1","AC-2"]);
   console.log("A="+(ra?ra.kind+":"+ra.suspect:"null")+" B="+(rb?rb.kind+":"+rb.suspect+":"+(rb.heading||"-"):"null")+" C="+(rc?rc.kind:"null"));
 ' "$AC_LIB" 2>&1)"
 echo "     $P62OUT"
-if ! echo "$P62OUT" | grep -q 'A=blank:3 B=blank:2:## Acceptance criteria C=null'; then
+if ! echo "$P62OUT" | grep -q 'A=blank:3 B=blank:2:- C=null'; then
   fail "P69 canh bao RONG sai: $P62OUT"
-else pass "P69 ca (a) khuon la + ca (b) heading lech deu KEU va neu heading; contract lanh IM"; fi
+else pass "P69 ca (a) khuon la + ca (b) ten muc la deu KEU; contract lanh IM"; fi
 
 echo "P71 CUT phai KEU (ca ma P69 khong phu vi n>=1) + doi chung m==n"
 P64OUT="$(node -e '

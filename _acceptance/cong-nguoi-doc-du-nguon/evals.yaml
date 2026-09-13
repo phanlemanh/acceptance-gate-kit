@@ -36,7 +36,10 @@ evals:
       đầu dòng với tiêu đề theo CẢ HAI thứ tự · tham chiếu chéo trong thân (không sinh id
       mới) · tiêu chí thân rỗng (không tính). Hai ô HỒI QUY của nhát cắt lượt 5: mục
       `## Criteria` viết bằng BẢNG → bóc ra RỖNG; hợp đồng KHÔNG có mục bao ngoài → bóc ra
-      RỖNG và cờ điểm-mù phải kêu `blank`. Đối chứng dương: cả ma trận đạt trên cây thật.
+      RỖNG và cờ điểm-mù phải kêu `blank`. Ô RANH GIỚI của lượt 7: một dòng h1 trong
+      THÂN tiêu chí KHÔNG được đóng khối — thân phải giữ chữ sau nó và giữ tag
+      `(cross-layer)` đặt sau nó. Số ô ngoài bảng được ĐẾM THẬT (`oRieng`) rồi so với
+      hằng khai, không chỉ in ra bằng chữ. Đối chứng dương: cả ma trận đạt trên cây thật.
       CHIỀU ĐỎ (đúng một mũi, mã có thật): bản sao `lib/ac-line.cjs` thay
       `const h = l.match(AC_HEAD);` bằng `const h = null;` → trên CÙNG fixture ca thật crm,
       cây lành bóc ra 1 tiêu chí còn bản tiêm phải ra 0. Bằng nhau → ca ĐỎ, thông điệp ghim
@@ -120,7 +123,10 @@ evals:
       cây đang đo: hợp đồng có Coverage dạng GẠCH ĐẦU DÒNG → `--extract` trả
       coverage_missing = false. Rồi ba ô thật: (1) Coverage dạng BẢNG → coverage_missing
       phải là false, mảng coverage phải chứa chữ của ít nhất một hàng bảng, và HTML không
-      còn cờ vàng; (1b) Coverage viết bằng VĂN XUÔI → cùng vậy; (2) VẮNG HẲN mục Coverage →
+      còn cờ vàng; (1b) Coverage viết bằng VĂN XUÔI → cùng vậy; (1c) bốn ô QUAN HỆ đo
+      thẳng trên `contentLines`, vì hàm này hứa các dòng NÀO đi với nhau chứ không hứa
+      «có chữ»: dòng bọc trong cùng đoạn thì NỐI · tiêu đề con ĐÓNG đoạn và không lên
+      thẻ · đường kẻ ngang ĐÓNG đoạn · hàng của BẢNG thì KHÔNG nối; (2) VẮNG HẲN mục Coverage →
       coverage_missing vẫn true và cờ vàng vẫn còn nguyên văn "chưa có section Coverage"
       (đường cũ không bị nới theo).
       CHIỀU ĐỎ: bản sao `lib/md-section.cjs` cho `contentLines` trả rỗng ngay sau nhánh ô

@@ -101,7 +101,10 @@ def('CN07', () => {
   // một assert LẶNG LẼ và ca vẫn in «đủ» — đo được ở lượt chấm 6: xoá hai hàng
   // «ca thật» rồi chạy lại vẫn `PASS: CN07 … đủ`. Cùng lớp với L09/L10.
   const SO_O_BANG = 11;      // số hàng của bảng O
-  const SO_O_RIENG = 5;      // ô ngoài bảng: trộn ×2 · BẢNG · không-mục-bao-ngoài · thân-rỗng
+  // Ô NGOÀI bảng phải ĐẾM THẬT, không chỉ khai bằng chữ (lượt chấm 7): trộn ×2 ·
+  // mục BẢNG · không-mục-bao-ngoài · h1-trong-thân · tham-chiếu-chéo · thân-rỗng.
+  const SO_O_RIENG = 7;
+  let oRieng = 0;
   // [tên ô, thân, id mong đợi, chữ phải có trong gwt của id đó, judgment, crossLayer]
   const O = [
     ['tiêu đề · thân nhiều dòng', '### AC-1 — nhãn một\n\nGiven a\n\nWhen b\n\nThen c', 'AC-1', 'When b', false, false],
@@ -139,6 +142,7 @@ def('CN07', () => {
     ['gạch → tiêu đề', '- AC-1: Given a, When b, Then c\n\n### AC-2 — hai\nGiven d, When e, Then f', 'AC-1,AC-2'],
   ]) {
     const ra = lib.parseACBlock(hopDong(than)).map(a => a.id).join(',');
+    oRieng += 1;
     chi.push(`${ten} → ${ra}`);
     if (ra !== mong) return say('CN07', false, `tron khuon «${ten}» ra "${ra}", cho "${mong}"`, chi);
   }
@@ -150,6 +154,7 @@ def('CN07', () => {
   const bangMa = ['---', 'x: 1', '---', '', '## Criteria', '', 'Các tiêu chí ở bảng dưới.', '',
     '| id | mô tả |', '|---|---|', '| AC-1 | x |', '', '## Known limits', '',
     '- AC-4: giới hạn đã biết, KHÔNG phải tiêu chí.', '- AC-9: cũng vậy.', ''].join('\n');
+  oRieng += 1;
   const raMa = lib.parseACBlock(bangMa).map(a => a.id);
   chi.push(`mục Criteria dạng BẢNG → bóc ra [${raMa.join(',')}] (phải rỗng)`);
   if (raMa.length) return say('CN07', false, `tieu chi MA len the: ${raMa.join(',')}`, chi);
@@ -163,6 +168,7 @@ def('CN07', () => {
   const h2Doi = ['---', 'schema_version: 1', '---', '', '# Contract — x', '',
     '## AC-7 (nhãn bảy)', 'Given a, When b, Then c', '', '## Known limits', '',
     '- AC-4: giới hạn đã biết, KHÔNG phải tiêu chí.', ''].join('\n');
+  oRieng += 1;
   const raH2 = lib.parseACBlock(h2Doi).map(a => a.id);
   chi.push(`không mục bao ngoài → bóc ra [${raH2.join(',')}] (phải rỗng)`);
   if (raH2.length) return say('CN07', false, `khong muc bao ngoai ma van boc: ${raH2.join(',')}`, chi);
@@ -170,13 +176,26 @@ def('CN07', () => {
   chi.push(`  và cờ điểm-mù kêu: ${bH2 ? bH2.kind : 'IM'}`);
   if (!bH2 || bH2.kind !== 'blank') return say('CN07', false, 'khong doc duoc ma co diem-mu KHONG keu', chi);
 
+  // Ô RANH GIỚI (lượt chấm 7): dòng h1 trong THÂN không được đóng khối. Luật đóng
+  // khối sống ở md-section (h2..h6 đóng, h1 là nội dung); bản trước parseACBlock
+  // tự viết luật riêng đóng ở cả h1, nên một chú thích shell `# …` trong khối mã
+  // cắt cụt thân VÀ nuốt mất tag đặt sau đó — cờ điểm-mù IM vì số tiêu chí vẫn đúng.
+  oRieng += 1;
+  const mH1 = boc('### AC-1 — nhãn\nGiven a, When b,\n# chú thích trong thân\nThen c. (cross-layer)');
+  const aH1 = mH1.get('AC-1');
+  chi.push(`h1 trong thân: gwt giữ chữ sau nó = ${!!(aH1 && aH1.gwt.includes('Then c'))} · crossLayer = ${aH1 && aH1.crossLayer}`);
+  if (!aH1 || !aH1.gwt.includes('Then c')) return say('CN07', false, 'dong h1 trong than CAT CUT than tieu chi', chi);
+  if (!aH1.crossLayer) return say('CN07', false, 'dong h1 trong than lam MAT tag (cross-layer) dat sau no', chi);
+
   // Hai ô còn lại của ma trận: tham chiếu chéo trong thân, và tiêu chí thân RỖNG.
+  oRieng += 2;
   const mTc = boc('### AC-13 — nhãn\nGiven a, When b, Then c. Xem thêm **AC-5, AC-9** ở Notes.');
   if (mTc.size !== 1 || !mTc.has('AC-13')) lech.push(`tham chiếu chéo sinh id lạ: ${[...mTc.keys()].join(',')}`);
   const mRong = boc('### AC-14\n\n### AC-15 — có chữ\nGiven a, When b, Then c');
   if (mRong.has('AC-14')) lech.push('tiêu chí thân RỖNG vẫn được tính');
   if (!mRong.has('AC-15')) lech.push('tiêu chí sau tiêu chí rỗng bị mất');
-  chi.push(`ma trận ${SO_O_BANG} ô bảng + ${SO_O_RIENG} ô riêng: ${lech.length ? lech.length + ' lệch' : 'đủ'}`);
+  if (oRieng !== SO_O_RIENG) return say('CN07', false, `chay ${oRieng} o rieng, khai ${SO_O_RIENG} — mot o da bien mat`, chi);
+  chi.push(`ma trận ${SO_O_BANG} ô bảng + ${oRieng} ô riêng ĐÃ CHẠY: ${lech.length ? lech.length + ' lệch' : 'đủ'}`);
   for (const l of lech.slice(0, 4)) chi.push(`  ${l}`);
   if (lech.length) return say('CN07', false, `ma tran lech ${lech.length} o`, chi);
   // Ca thật thứ ba mang nhãn trong ngoặc — ghim riêng vì nó là hình dạng của kit.
@@ -197,6 +216,20 @@ def('CN07', () => {
   if (!lanh.ids || lanh.ids.length !== 1) return say('CN07', false, `doi chung duong qua tien trinh con hong: ${lanh.loi || JSON.stringify(lanh.ids)}`, chi);
   if (!tiem.ids) return say('CN07', false, `ban tiem chay khong duoc: ${tiem.loi}`, chi);
   if (tiem.ids.length !== 0) return say('CN07', false, `bo nhanh tieu de ma van boc ${tiem.ids.length} tieu chi — ca nay khong do nhanh do`, chi);
+
+  // CHIỀU ĐỎ (2) — RĂNG của ô ranh giới vừa thêm: hoàn nguyên luật đóng khối về
+  // `/^#{1,6}\s/` (đóng ở cả h1) trên một bản sao. Bản tiêm phải CẮT thân và LÀM
+  // MẤT tag; còn sạch nghĩa là ô kia không đo gì.
+  const t2 = banTiem('cn07-dong-khoi-ca-h1', [['lib/ac-line.cjs',
+    '    if (dongKhoi(l)) { chot(); continue; }',
+    '    if (/^#{1,6}\\s/.test(l)) { chot(); continue; }']]);
+  if (t2.loi) return say('CN07', false, t2.loi, chi);
+  const hdH1 = hopDong('### AC-1 — nhãn\nGiven a, When b,\n# chú thích trong thân\nThen c. (cross-layer)');
+  const tiem2 = bocTu(t2.root, hdH1);
+  if (!tiem2.ids) return say('CN07', false, `ban tiem chay khong duoc: ${tiem2.loi}`, chi);
+  const giuChu = (tiem2.gwt || []).some(g => String(g).includes('Then c'));
+  chi.push(`chiều đỏ 2: bản tiêm đóng-khối-ở-h1 → giữ chữ sau h1 = ${giuChu}`);
+  if (giuChu) return say('CN07', false, 'dong khoi o ca h1 ma than VAN du — o ranh gioi khong do gi', chi);
 
   say('CN07', true, '', chi);
 });
@@ -478,13 +511,47 @@ def('CN15', () => {
   const v = theCard({ coverage: 'vanxuoi', gate: '1' });
   chi.push(`văn xuôi: coverage_missing=${v.ex.coverage_missing}`);
   if (v.ex.coverage_missing !== false) return say('CN15', false, 'coverage_missing=true tren muc VAN XUOI', chi);
+
+  // Ô QUAN HỆ (lượt chấm 7). `contentLines` không hứa «có chữ», nó hứa các dòng
+  // NÀO đi với nhau. Ba mệnh đề, đo thẳng trên bộ đọc chứ không qua thẻ:
+  //  (a) dòng bọc 80 cột trong CÙNG một đoạn thì NỐI;
+  //  (b) tiêu đề con ĐÓNG đoạn và KHÔNG lên thẻ — bản trước nuốt `### Trục A` vào
+  //      giữa câu, tức thẻ trình bày một câu không có trong hợp đồng;
+  //  (c) hàng của BẢNG thì KHÔNG nối — nối hai hàng là bịa ra một hàng.
+  const md = req(path.join(ROOT, 'lib', 'md-section.cjs'));
+  const qh = [
+    ['nối dòng bọc', ['Câu một phần đầu,', 'phần sau cùng đoạn.'], ['Câu một phần đầu, phần sau cùng đoạn.']],
+    ['tiêu đề đóng đoạn', ['Câu mở đầu.', '### Trục A', 'Nội dung A.'], ['Câu mở đầu.', 'Nội dung A.']],
+    ['đường kẻ đóng đoạn', ['Đoạn một.', '---', 'Đoạn hai.'], ['Đoạn một.', 'Đoạn hai.']],
+    ['hàng bảng KHÔNG nối', ['| Trục | Giá trị |', '|:-:|:-:|', '| a | b |'], ['| Trục | Giá trị |', '| a | b |']],
+  ];
+  for (const [ten, vao, mong] of qh) {
+    const ra = md.contentLines(vao);
+    chi.push(`  ${ten}: ${JSON.stringify(ra)}`);
+    if (JSON.stringify(ra) !== JSON.stringify(mong)) return say('CN15', false, `quan he «${ten}» sai: ${JSON.stringify(ra)}`, chi);
+  }
   // Ô (2) VẮNG HẲN: đường cũ KHÔNG được nới theo.
   const k = theCard({ coverage: 'khong', gate: '1' });
   chi.push(`vắng hẳn: coverage_missing=${k.ex.coverage_missing}, còn cờ vàng=${/chưa có section Coverage/.test(k.html)}`);
   if (k.ex.coverage_missing !== true) return say('CN15', false, 'vang han muc ma khong bao thieu — da noi ca duong cu', chi);
   if (!/chưa có section Coverage/.test(k.html)) return say('CN15', false, 'vang han muc ma co vang bien mat', chi);
 
-  // CHIỀU ĐỎ — bản sao hoàn nguyên bộ đọc mục về CHỈ-GẠCH-ĐẦU-DÒNG. Mục Coverage
+  // CHIỀU ĐỎ (2) — RĂNG của bốn ô quan hệ: bản sao bỏ lưới tiêu đề khỏi nhánh văn
+  // xuôi (hoàn nguyên về bản lượt 6). Tiêu đề phải lọt lại vào nội dung; không lọt
+  // nghĩa là bốn ô kia không đo gì.
+  const t2 = banTiem('cn15-van-xuoi-khong-loc-tieu-de', [['lib/md-section.cjs',
+    "    if (!l.trim() || laTieuDe(l) || LA_PHAN_CACH.test(l)) { dangMo = false; continue; }",
+    "    if (!l.trim()) { dangMo = false; continue; }\n    if (LA_PHAN_CACH.test(l)) continue;"]]);
+  if (t2.loi) return say('CN15', false, t2.loi, chi);
+  const r2 = cp.spawnSync(process.execPath, ['-e',
+    'const m=require(process.argv[1]);process.stdout.write(JSON.stringify(m.contentLines(["Câu mở đầu.","### Trục A","Nội dung A."])))',
+    path.join(t2.root, 'lib', 'md-section.cjs')], { encoding: 'utf8' });
+  let raTiem = null; try { raTiem = JSON.parse(r2.stdout); } catch (_) { /* giữ null */ }
+  chi.push(`chiều đỏ 2: bản tiêm bỏ lưới tiêu đề → ${JSON.stringify(raTiem)}`);
+  if (!raTiem) return say('CN15', false, `ban tiem chay khong duoc: ${String(r2.stderr || '').trim().split('\n')[0].slice(0, 90)}`, chi);
+  if (!raTiem.some(x => /###/.test(x))) return say('CN15', false, 'bo luoi tieu de ma tieu de VAN khong lot — o quan he khong do gi', chi);
+
+  // CHIỀU ĐỎ (1) — bản sao hoàn nguyên bộ đọc mục về CHỈ-GẠCH-ĐẦU-DÒNG. Mục Coverage
   // viết bằng BẢNG khi đó lại ra rỗng và thẻ nổi cờ «chưa có section Coverage»
   // trên một mục CÓ THẬT — đúng lớp đo được ở 29 trên 244 hợp đồng. Bản tiêm mà
   // vẫn đọc được bảng thì ca này không đo nhánh ấy.

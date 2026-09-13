@@ -130,7 +130,30 @@ cây gốc, nên nhát cắt không sinh tiếng ồn mới — nó chỉ thôi 
 - **Sửa hợp đồng của hồ sơ ĐÃ KÝ để nối danh sách trắng.** Vòng này đã chạm hai lần
   rồi hoàn nguyên. Bảng `KHAC-BIET-DOC-CU` nằm trong một hợp đồng đã ký là đúng lớp
   «bất biến không được nằm trong hồ sơ đã ký»; đưa nó ra ngoài là việc của vòng khác.
+- **Bộ đọc THỨ NĂM: `feature-loop/scripts/carry-plan.mjs`.** Owner quyết 13/09 mở ô
+  riêng, KHÔNG gộp vào vòng này. `crossLayerACs()` giữ khuôn đọc tiêu chí riêng
+  (`/^\s*[-*]\s*(AC-\d+)\s*[:.]/`, chỉ gạch đầu dòng) trong khi chú thích ngay trên
+  nó khai «cùng ngữ nghĩa với parser chuẩn» — lời khai ấy nay sai. Hệ quả: luật
+  atomic-pair tắt lặng với hợp đồng khai bằng tiêu đề.
+  *Bán kính đo tay:* **9 trên 1 243 hợp đồng** (ap-media-roadmap 1 · artifact-platform
+  1 · crm 4 · và các hồ sơ khác) có tiêu chí xuyên lớp mà thư viện thấy còn nó không.
+  *Vì sao hoãn:* hành vi của tệp này KHÔNG đổi vì vòng này — với 9 hồ sơ ấy răng ghép
+  đôi vốn đã tắt từ trước, vòng này chỉ làm chỗ lệch hiện ra. Và chuyển thêm một bộ
+  đọc là NỚI, đúng loại thay đổi đã đẻ ba hồi quy liên tiếp.
 - **`parseEvals` giữ nháy trên `id`** — bán kính đo được 0 eval trên 8 kho.
+
+## Known limits
+
+- **Khối mã trong thân tiêu chí chứa một dòng tiêu đề cấp h2..h6 vẫn cắt thân.**
+  Luật đóng khối nay là MỘT nguồn với `lib/md-section.cjs`: h2..h6 đóng, h1 là nội
+  dung. Nhờ đó chú thích shell `# …` trong khối mã thôi cắt thân — đó là hình dạng
+  thường gặp. Nhưng một khối mã trích markdown có dòng `## …` thì vẫn đóng khối sớm,
+  vì không bên duyệt nào theo dõi hàng rào ```. Không vá ở vòng này: theo dõi khối
+  mã là logic MỚI, mà logic mới đúng là loại đã đẻ ba hồi quy liên tiếp ở vòng này
+  (lượt 3→4, 4→5, 6→7).
+  *Bán kính đo tay, 1 243 hợp đồng / 22 kho:* **0** — trong 35 hồ sơ khai tiêu chí
+  bằng tiêu đề, không hồ sơ nào có khối mã chứa dòng h2..h6 trong thân tiêu chí.
+  *Ngưỡng đang đếm:* ≥1 hợp đồng rơi vào hình dạng đó thì mở ô vá.
 
 ## Notes
 
