@@ -234,7 +234,11 @@ executors:
     # kho, nên hồ sơ đã ký còn ghim lại được ở mọi HEAD tương lai (AC-11).
     moc_diagram_khong_doi: "bash -c 'bash _acceptance/release-2-11-0/rang-moc.sh --chan \"diagram\"'"
     # --- release-2-12-0 (13/09, T2 thuần cắt số) ---
-    moc_diagram_2_12: "bash -c 'bash _acceptance/release-2-12-0/rang-moc.sh --chan \"diagram\"'"
+    moc_diagram_2_12: "bash _acceptance/release-2-12-0/rang-moc.sh --chan diagram --moc-truoc 45e5f1d8"
+    p200_cat_so_2_12: "bash _acceptance/release-2-12-0/rang-p200.sh"
+    phan_lop_do_2_12: "node _acceptance/release-2-12-0/phan-lop-ha-tang.cjs --slug release-2-12-0 --quet"
+    ba_dong_so_2_12: "node _acceptance/release-2-12-0/do-ba-dong-so.cjs --neo 45e5f1d8 --doi-chieu _acceptance/release-2-12-0/contract.md"
+    gia_tri_tieu_thu_2_12: "node _acceptance/release-2-12-0/do-gia-tri-tieu-thu.cjs --ghim 182"
     # --- ghim-lai-tren-lop-cu (11/09, T2) --- moi eval = MOT ca cua tep ca VINH VIEN
     # tests/scripts/repin-lane-lop-cu.test.mjs (suite scripts tu chay qua glob, nen day
     # la luoi thuong truc chu khong phai rang ho so). Lenh de TRAN (khong nhay) theo nep

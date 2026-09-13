@@ -1,11 +1,11 @@
 ---
 schema_version: 1
-feature: Phát hành kit 2.12.0 — đóng số cho cửa sổ 2.11→2.12, THUẦN CẮT SỐ. Hai vòng đã ký trong cửa sổ đưa 253 tiêu chí tới bốn kho tiêu thụ và đóng cửa veto sau chữ ký.
+feature: Phát hành kit 2.12.0 — đóng số cho cửa sổ 2.11→2.12, THUẦN CẮT SỐ. Năm vòng đóng trong cửa sổ đưa 182 tiêu chí tới ba kho tiêu thụ và đóng cửa veto sau chữ ký.
 slug: release-2-12-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # KHÔNG chạm t3_paths — mốc này chỉ cắt số. Khác 2.10.0 và 2.11.0 vốn phải lên T3 vì vá lib/** TRONG mốc. Vì là T2 nên làn V mở.
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-09-13
 ---
@@ -14,36 +14,42 @@ approved_at: 2026-09-13
 
 ## Context
 
-Cửa sổ `698badbf` (mốc 2.11.0) → `97e2d713`: **99 commit, HAI vòng đã ký.**
+Cửa sổ `45e5f1d8` (merge PR #166 — mốc 2.11.0) → `HEAD`: **130 commit, NĂM vòng đóng.**
 
-- `cua-veto-sau-chu-ky` (T3, PR #172) — chữ ký người ở Cổng Bằng chứng đóng cửa veto;
-  lưới trước-merge và máy quét `/start` thôi nói «owner chưa veto» về hồ sơ đã ký.
-  Lưới từng nói sai **27 trên 30** hồ sơ.
-- `cong-nguoi-doc-du-nguon` (T3, PR #174) — thẻ đọc được tiêu chí khai bằng TIÊU ĐỀ
-  `### AC-n` và cả ba cách đặt tên mục, ở cả ba bên gọi; mục `## Coverage` viết bằng
-  bảng hoặc văn xuôi thôi bị báo là vắng.
+Neo đầu SỬA sau lượt chấm 1: bản trước ghim `698badbf`, thật ra là một commit Cổng 1.5
+GIỮA vòng `cua-veto-sau-chu-ky`, nằm 28 commit SAU mốc. Bảng lớp vendored ở Notes §2 vì
+thế đo từ nền sai — lần này bốn số trùng nhau khi đo lại từ nền đúng, nhưng **đúng do
+may, không do phép đo**.
 
-**Mốc này THUẦN CẮT SỐ.** Không vá gì trong mốc. Đó là khác biệt có chủ ý so với hai
-mốc trước: 2.10.0 vá lỗ fail-open làn V và 2.11.0 vá bộ giải nháy, cả hai đều kéo hồ
-sơ mốc lên T3 và mất lối làn V. Cửa sổ này không có lỗ nào đòi vá gấp, nên mốc giữ T2.
+| Vòng | Hạng | Giao gì |
+|---|---|---|
+| `ma-so-quyet-dinh-duy-nhat` | T2, làn V | mã sổ quyết định theo khuôn `d-<UTC>-<n>` ở bên ghi, khoá overlay theo dòng ở bên đọc |
+| `ghim-lai-tren-lop-cu` | T2 | làn ghim lại gặp lớp acceptance-gate cũ thì dừng CÓ TÊN thay vì `TypeError` thô |
+| `cua-veto-sau-chu-ky` | T3 | chữ ký người ở Cổng Bằng chứng đóng cửa veto — lưới từng nói sai 27 trên 30 hồ sơ |
+| `lan-doc-status-not-run` | T3 | làn ghim lại và bên đọc pin cùng đọc `status: not-run` từ MỘT nguồn |
+| `cong-nguoi-doc-du-nguon` | T3 | thẻ đọc được tiêu chí khai bằng TIÊU ĐỀ và cả ba cách đặt tên mục, ở ba bên gọi |
 
-**Vì sao mốc là việc kế tiếp, không phải một vòng nữa.** Tám kho tiêu thụ đang chạy bộ
-bóc tiêu chí CŨ — `lib/ac-line.cjs` ở cả tám trùng byte với kit 2.11.0. Giá trị của hai
-vòng trên chỉ chạm người ở BẢN PHÁT HÀNH; tới lúc đó nó là mã nằm trên `main`.
+**Mốc này THUẦN CẮT SỐ.** Không vá gì trong mốc. Khác có chủ ý so với hai mốc trước:
+2.10.0 vá lỗ fail-open làn V và 2.11.0 vá bộ giải nháy, cả hai kéo hồ sơ mốc lên T3 và
+mất lối làn V. Cửa sổ này không có lỗ nào đòi vá gấp nên mốc giữ T2.
 
-Đo trên hồ sơ thật của tám kho, ngày 13/09:
+**Vì sao mốc là việc kế tiếp.** Kho tiêu thụ đang chạy bộ bóc tiêu chí CŨ. Giá trị của
+năm vòng trên chỉ chạm người ở BẢN PHÁT HÀNH; tới lúc đó nó là mã nằm trên `main`.
 
-| Kho | Hồ sơ | Đọc thêm | Tiêu chí cứu được |
-|---|---:|---:|---:|
-| crm | 31 | 10 | 80 |
-| artifact-platform | 192 | 7 | 71 |
-| ap-media-roadmap | 192 | 7 | 71 |
-| oneflow | 40 | 3 | 31 |
-| map · policy-graph-hub · media-library · floorplanstudio | 38 | 0 | 0 |
-| **TỔNG** | **493** | **27** | **253** |
+Đo bằng `_acceptance/release-2-12-0/do-gia-tri-tieu-thu.cjs` (gom theo KHO GỐC qua
+`git remote get-url origin`, vì nhiều cây dưới `~/dev` là bản sao của cùng một sản phẩm):
 
-Con số 1 110 từng nêu trong thân PR #174 đo trên 22 cây, gồm chính kho kit và các bản
-sao worktree. Số chạm kho tiêu thụ là **253**.
+| Kho gốc | cây đại diện | sha | Hồ sơ | Đọc thêm | Tiêu chí cứu được |
+|---|---|---|---:|---:|---:|
+| crm-onehub | crm | `389a6a7` | 31 | 10 | 80 |
+| artifact-platform | ap-media-roadmap | `16e43c66c` | 192 | 7 | 71 |
+| OneFlow | oneflow | `658b076` | 40 | 3 | 31 |
+| floorplanstudio · radar-realestate · MapPoster · media-library · policy-graph-hub | | | 40 | 0 | 0 |
+| **TỔNG (8 kho gốc)** | | | **303** | **20** | **182** |
+
+**Hai lần đính chính số này.** Thân PR #174 nêu 1 110 — đo trên 22 cây gồm chính kho kit
+và bản sao worktree. Bản Cổng 1 của hợp đồng này nêu 253 — đếm `artifact-platform` hai
+lần dưới hai tên cây. Số đúng là **182**, và nó có một lệnh sinh ra.
 
 ## Criteria
 
@@ -60,11 +66,17 @@ vòng soi lại tìm ra một cách nó không đo thật.
 ### AC-2 (cắt số) — `diagram-design` giữ 2.7.0, có bằng chứng đo được KHÔNG fail-open
 
 **Given** `diagram-design/` không đổi dòng nào trong cửa sổ
-**When** chạy răng `rang-moc.sh --chan diagram` của hồ sơ này
-**Then** răng xanh, và nó xanh vì ĐO chứ không vì thiếu vật: mốc so suy TỪ KHO (commit
-gần nhất chạm manifest của `diagram-design`), không gõ vào cấu hình; bốn lối hỏng đều
-có mã thoát riêng (không tìm được lần cắt số · cửa sổ rỗng · có đổi sau lần cắt số ·
-không đọc được số tại HEAD).
+**When** chạy `rang-moc.sh --chan diagram --moc-truoc <sha mốc trước>` của hồ sơ này
+**Then** răng xanh, in ra ĐÚNG chuỗi `giu 2.7.0`, và nó xanh vì ĐO chứ không vì thiếu
+vật. Năm lối hỏng có mã thoát riêng: 3 không tìm được lần cắt số · 4 cửa sổ rỗng ·
+5 có đổi sau lần cắt số · 6 không đọc được số tại HEAD · **7 số tại HEAD KHÁC số tại
+mốc phát hành trước**.
+
+Chân 7 thêm sau phản biện context sạch. Ba chân đầu chỉ kiểm một VỊ TỪ («không đổi kể
+từ lần cắt số của CHÍNH NÓ») rồi IN RA bất kỳ số nào đọc được, trong khi hợp đồng hứa
+một QUAN HỆ («giữ 2.7.0» — bằng số của mốc trước). Không có chân 7, ở mốc sau nữa khi
+`diagram-design` đã lên 2.8.0, răng vẫn PASS và in «giu 2.8.0» — ghim lại được bằng
+cách rỗng nghĩa. Số so KHÔNG gõ vào răng: nó đọc từ manifest TẠI commit mốc trước.
 
 ### AC-3 (không hồi quy) — bốn suite và bản đồ sản phẩm XANH tại HEAD của mốc
 
@@ -74,14 +86,36 @@ không đọc được số tại HEAD).
 **Then** cả năm đều thoát 0. Cắt số là sửa manifest, và manifest được đọc bởi bộ giải
 plugin lẫn ca thường trực — nên «chỉ đổi ba dòng số» KHÔNG phải lý do bỏ lưới.
 
-### AC-4 (hồ sơ mốc) — bốn khối bắt buộc, có nguồn rút cho từng số
+### AC-4 (hồ sơ mốc) — bốn khối bắt buộc, mỗi số ĐỐI CHIẾU ĐƯỢC bằng máy
 
 **Given** `## Notes` của hợp đồng này
-**When** người đọc ở Cổng Bằng chứng
-**Then** có đủ: **ba dòng số** của luật (c) · **bảng lớp vendored** 9 mục với số +/−
-đo tại sha nêu tên · **lớp lỗi tái phát** gọi tên kèm dẫn chứng · **nhát cắt kế** gọi
-tên. Mỗi số phải nói được nguồn rút. Khối nào cố ý để trống phải khai rõ lý do, không
-được là khối rỗng.
+**When** chạy `do-ba-dong-so.cjs --doi-chieu <contract>` rồi mới tới hội đồng
+**Then** hai chân tách bạch:
+
+- **chân MÁY** — script tính lại từ vật (`run-log.jsonl` + commit Cổng 2) rồi đối chiếu
+  với bảng đã dán: số commit cửa sổ, số vòng, và với TỪNG vòng là lượt chấm và
+  làm-xong→quyết-được. Lệch một ô → thoát 5 in cả hai số.
+- **chân NGƯỜI/HỘI ĐỒNG** — chỉ còn hỏi: khối nào cố ý để trống có khai rõ lý do không,
+  và bốn khối có mặt đủ không.
+
+Vì sao tách: lượt chấm 1 để lọt HAI số sai trong chính bảng này — `cong-nguoi-doc-du-nguon`
+khai 39h01 trong khi hiệu thật 14h11 (lệch đúng 24 giờ), `cua-veto-sau-chu-ky` khai 9h03
+trong khi thật 10h02 vì đo tới dòng run-log cuối chứ không tới chữ ký. Phép đo khi đó là
+một hội đồng ĐỌC CHÍNH VĂN ẤY, nên nó không thể thấy. Ba dòng số là thứ owner dùng để
+quyết thu hồi luật NỚI; hội đồng không được là bên duy nhất đọc một con số máy tính được.
+
+### AC-5 (người hưởng) — giá trị tới kho tiêu thụ có LỆNH sinh ra, không phải một dòng chữ
+
+**Given** hợp đồng khẳng định mốc này cứu được N tiêu chí ở kho tiêu thụ
+**When** chạy `do-gia-tri-tieu-thu.cjs --ghim <N>`
+**Then** script đọc hợp đồng THẬT của mọi cây có `_acceptance/` dưới `~/dev` trừ chính
+kho kit, gom theo KHO GỐC qua `git remote get-url origin`, in bảng theo kho kèm sha, và
+thoát 5 nếu tổng lệch số đã ghim.
+
+Vì sao là một tiêu chí chứ không phải một câu trong Context: ba số này là thứ DUY NHẤT
+nối mốc với nguyên tố «nêu được người hưởng cụ thể». Bản Cổng 1 khẳng định 493/27/253
+bằng một dòng chữ. Khi có lệnh, số đổi — 253 đếm `artifact-platform` hai lần dưới hai
+tên cây. Gom theo kho gốc là phần bắt buộc của phép đo, không phải trang trí.
 
 ## Coverage
 
@@ -102,14 +136,24 @@ di động làm mọi làn song song đỏ oan ngay sau khi mốc merge.
 
 ## Đường đo
 
+Hai cột TÁCH BẠCH, vì chúng đo hai thứ khác nhau và chỉ một trong hai thuộc mốc này.
+
+**Đo được TẠI mốc** (thuộc hồ sơ này):
+
 | Trục | Trước mốc | Sau mốc |
-|---|---|---|
-| Kho tiêu thụ chạy bộ bóc tiêu chí mới | 0 trên 8 | 8 sau chiến dịch rollout |
-| Tiêu chí cứu được ở kho tiêu thụ | 0 | 253 |
-| Hồ sơ tiêu thụ đọc thêm tiêu chí | 0 | 27 |
+|---|---:|---:|
+| Tiêu chí kho tiêu thụ SẼ đọc thêm khi chép lớp mới | 0 | 182 |
+| Hồ sơ tiêu thụ SẼ đọc thêm | 0 | 20 |
+| Kho tiêu thụ ĐÃ chép lớp mới | 0 trên 8 | **0 trên 8** |
 | `diagram-design` | 2.7.0 | 2.7.0, có răng chứng minh |
 
-Rollout là hồ sơ RIÊNG chạy sau khi mốc này gộp — xem Out of scope.
+Dòng thứ ba cố ý ghi 0: chép lớp mới là việc của **chiến dịch rollout**, nằm ở Out of
+scope. Bản Cổng 1 của hợp đồng này từng ghi «8 trên 8 sau mốc» — đó là khẳng định về
+kết quả của một việc đã descope, và nó sẽ vào sử liệu mà không ai bác được nếu rollout
+dừng giữa chừng như mốc 2.11.0 (3 trên 6 gộp). Đã sửa.
+
+**Chỉ đo được SAU rollout** (KHÔNG thuộc bằng chứng của mốc này): số kho thật sự chạy
+lớp mới, và số tiêu chí thật sự hiện trên thẻ ở các kho đó.
 
 ## Out of scope
 
@@ -132,37 +176,45 @@ Rollout là hồ sơ RIÊNG chạy sau khi mốc này gộp — xem Out of scope
 
 Bốn khối bắt buộc của AC-4 nằm dưới đây.
 
-### 1. Ba dòng số của luật (c) — ĐẾM TAY
+### 1. Ba dòng số của luật (c) — MÁY TÍNH, người đếm tay một ô
 
-| Vòng | làm-xong→quyết-được | Lượt chấm | Gọi người (trong / ngoài thiết kế) | Hạ tầng đốt lượt |
-|---|---|---:|---|---:|
-| `cua-veto-sau-chu-ky` | 9h03 (`04:03`→`13:06` 12/09) | 6 | chưa đếm tay được — xem ghi chú | 0 ghi được |
-| `cong-nguoi-doc-du-nguon` | 39h01 (`12/09 23:26`→`13/09 14:27`) | 8 | **2 trong / 12 ngoài** | **2** |
-| hồ sơ mốc này | điền sau chữ ký | — | — | — |
+Sinh bằng `node _acceptance/release-2-12-0/do-ba-dong-so.cjs --neo 45e5f1d8`; bảng dưới
+đây dán nguyên đầu ra. Eval E4a chạy lại script với `--doi-chieu` và đỏ nếu văn lệch số.
 
-*Nguồn rút:* cột thời gian và lượt chấm từ `run-log.jsonl` của từng hồ sơ (dòng `round`
-đầu → dòng cuối, và chữ ký từ commit `Gate 2 signoff`). Cột gọi người ĐẾM TAY từ sổ tay
-phiên: mỗi lần máy DỪNG chờ người phát ngôn, giữa lúc mở vòng và lúc ký.
+| Vòng | Lượt chấm | làm-xong→quyết-được | Gọi người (cận dưới) | Gọi người (đếm tay) |
+|---|---:|---|---:|---:|
+| `ma-so-quyet-dinh-duy-nhat` | 2 | 0h30 | 1 | — |
+| `ghim-lai-tren-lop-cu` | 1 | 9h50 | 5 | — |
+| `cua-veto-sau-chu-ky` | 6 | 10h02 | 19 | — |
+| `lan-doc-status-not-run` | 2 | 1h49 | 1 | — |
+| `cong-nguoi-doc-du-nguon` | 8 | 14h11 | 12 | 14 |
 
-**Trần thiết kế T3 là 4.** `cong-nguoi-doc-du-nguon` gọi **14** lượt — 3,5 lần trần.
-Hai lượt trong thiết kế là Cổng Phạm vi và Cổng Bằng chứng. Mười hai lượt ngoài gồm:
-mở vòng · duyệt lại Cổng Phạm vi sau khi nới phạm vi · «Tiếp tục» ×3 · xin xem lại
-khuyến nghị · duyệt kiến nghị sửa · «Vá» · hai lần DỪNG-VÁ · duyệt phân tích North Star
-· một lượt do hạ tầng.
+**Nguồn rút từng ô, không ô nào dựng phép đo mới:** danh sách vòng ← commit Cổng 2 trong
+`45e5f1d8..HEAD` · lượt chấm ← `max(round)` trong `run-log.jsonl` · làm-xong→quyết-được
+← dòng `round` ĐẦU của run-log → thời điểm commit Cổng 2 · gọi người ← đếm entry mang
+dấu người trong `decisions.jsonl` (`seal` · `escalate` · có `decided_by`).
 
-Ô `cua-veto-sau-chu-ky` để trống CÓ CHỦ Ý: phiên chạy vòng đó không phải phiên này, và
-sổ quyết định không ghi số lượt gọi người. Đếm lại bằng cách đọc transcript phiên kia là
-dựng phép đo mới, trái luật (c) («đọc từ ba dòng số — không dựng phép đo mới»).
+**Cột «cận dưới» là CẬN DƯỚI, khai rõ ở đây.** Một lượt gọi người sinh nhiều entry — ở
+`cong-nguoi-doc-du-nguon` một chữ «Ký» sinh 8 entry định đoạt — và một lượt «Tiếp tục»
+không sinh entry nào. Số THẬT chỉ đếm tay được từ phiên đã chạy vòng đó, và trong năm
+vòng chỉ `cong-nguoi-doc-du-nguon` chạy trong phiên này: **14 lượt, 2 trong thiết kế và
+12 ngoài**, so trần T3 là 4. Bốn ô còn lại để trống thay vì bịa, và cột cận-dưới tồn tại
+để chúng không phải là ô trống trơn.
 
-**Hai lượt hạ tầng đốt của `cong-nguoi-doc-du-nguon`, mỗi lượt có tên:**
-lượt 5 — tệp ca là tệp MỚI nên cây gốc trả `MODULE_NOT_FOUND`, tác tử ghi thành «đỏ =
-có phân biệt» cho cả bảy phép đo; lượt 8 — đầu ra suite plugins khớp khuôn
-`permissions-allow-deny` nên bị hạ tầng trung hoà, tác tử trả đỏ trong khi cùng chuỗi
-lệnh chạy tại chỗ thoát 0.
+**Tổng cửa sổ:** 19 lượt chấm trên 5 vòng (trung bình 3,8 so trần 3); tổng
+làm-xong→quyết-được 36h22.
+
+**Hạ tầng đốt lượt: 3, mỗi lượt có tên.** Vòng `cong-nguoi-doc-du-nguon` lượt 5 — tệp ca
+là tệp MỚI nên cây gốc trả `MODULE_NOT_FOUND`, tác tử ghi thành «đỏ = có phân biệt» cho
+cả bảy phép đo. Lượt 8 — đầu ra suite plugins khớp khuôn `permissions-allow-deny` nên bị
+hạ tầng trung hoà, tác tử trả đỏ trong khi cùng chuỗi lệnh chạy tại chỗ thoát 0. Và
+**lượt 1 của CHÍNH hồ sơ mốc này** — cùng lớp ấy lần thứ ba, phân lớp bằng máy
+(`phan-lop-ha-tang.cjs`, hai lần chạy lại đều xanh) và ghi vào `run-log.jsonl` dưới
+`kind: infra-recheck`.
 
 ### 2. Lớp vendored — bốn trên chín mục ĐỔI trong cửa sổ
 
-Đo bằng `git diff --numstat 698badbf..97e2d713 -- <tệp>`:
+Đo bằng `git diff --numstat 45e5f1d8..HEAD -- <tệp>` (neo ĐÚNG, sửa sau lượt chấm 1):
 
 | Mục của `INIT-CI-COPY-LIST` | +/− |
 |---|---|
@@ -174,6 +226,11 @@ lệnh chạy tại chỗ thoát 0.
 
 **Ghi chú phát hành phải nói:** kho tiêu thụ chép lại BỐN mục trên. Danh sách chín mục
 KHÔNG có mục mới.
+
+*Giới hạn đã khai:* câu «chín mục» là khẳng định về một danh sách MÁY GIỮ (marker
+`INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`), nhưng hồ sơ này không có eval
+nào đối chiếu bảng trên với marker ấy. Cửa sổ sau thêm mục thứ mười thì bảng này vẫn 9
+dòng và không ai thấy. Ô mở, xem §4.
 
 ### 3. Lớp lỗi TÁI PHÁT trong cửa sổ
 
@@ -192,9 +249,20 @@ KHÔNG có mục mới.
 ### 4. Nhát cắt cho cửa sổ kế — gọi tên
 
 **Nhát cắt đề xuất: gỡ nhánh lật verdict theo ý kiến tác tử** (`acceptance-verify.js`
-dòng 1042). Đó là dòng làm lượt 7 của `cong-nguoi-doc-du-nguon` đỏ trong khi mọi phép
-đo xanh, và là chỗ máy định nghĩa lại «tốt» sau khi owner đã chốt ở Cổng Phạm vi. Phép
-trừ, một dòng. Ô `thuoc-khong-lat-verdict` ngả 1.
+dòng 1042). Đó là dòng làm lượt 7 của `cong-nguoi-doc-du-nguon` đỏ trong khi mọi phép đo
+xanh, và là chỗ máy định nghĩa lại «tốt» sau khi owner đã chốt ở Cổng Phạm vi. Phép trừ,
+một dòng. Ô `thuoc-khong-lat-verdict` ngả 1.
+
+**Hai ô mới lộ ra ở lượt chấm 1 của chính mốc này**, cả hai thuộc lớp «lời khai không có
+vật», ghi ở đây thay vì mở vòng:
+
+- Bảng chín mục vendored trong hồ sơ mốc là khẳng định về một danh sách MÁY GIỮ (marker
+  `INIT-CI-COPY-LIST`) mà không eval nào đối chiếu. Đường vá: eval round-trip rút tập mục
+  từ marker và so BẰNG TẬP với các dòng bảng; đồng thời nâng `consumer-esm.test.mjs` từ
+  `>= 7` lên bằng đúng số mục rút được từ marker.
+- Số lượt gọi người chỉ đếm tay được từ phiên đã chạy vòng, nên bốn trong năm vòng của
+  cửa sổ này không có số. Đường vá rẻ nhất: lệnh `signoff` ghi số ấy vào hồ sơ ngay lúc
+  ký, khi phiên còn biết.
 
 ### 5. CÂU HỎI CHO NGƯỜI — luật thu hồi vế «có thể CỘNG»
 

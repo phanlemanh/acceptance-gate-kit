@@ -25,6 +25,7 @@
 #   4  cửa sổ mốc..HEAD RỖNG (mốc trùng HEAD)        → kết luận là hằng đúng
 #   5  diagram-design/ CÓ đổi sau lần cắt số gần nhất → số đang nói dối
 #   6  không đọc được số tại HEAD (vật không còn)  → không có vật để đo
+#   7  số tại HEAD KHÁC số tại mốc phát hành trước → lời hứa «giữ số» đã sai
 #   0  xanh
 #
 # Gốc kho suy TỪ VỊ TRÍ SCRIPT (bài học P150), không từ thư mục gọi.
@@ -32,9 +33,11 @@ set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 G() { git -C "$ROOT" "$@"; }
 CHAN=""
+MOC_TRUOC=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --chan) CHAN="${2:-}"; shift 2 ;;
+    --moc-truoc) MOC_TRUOC="${2:-}"; shift 2 ;;
     *) echo "rang-moc: tham so la: $1" >&2; exit 2 ;;
   esac
 done
@@ -96,5 +99,28 @@ if [ -n "$DOI" ]; then
   exit 5
 fi
 
+# Chân 4 — QUAN HỆ, không phải vị từ (thêm sau phản biện context sạch của hồ sơ
+# release-2-12-0). Ba chân trên chỉ nói «không đổi kể từ lần cắt số của CHÍNH NÓ»
+# rồi IN RA bất kỳ số nào đọc được. Lời hứa của hợp đồng mạnh hơn thế: số phải
+# GIỮ NGUYÊN so với mốc phát hành TRƯỚC. Không có chân này, ở mốc sau nữa (khi
+# diagram-design đã lên 2.8.0) răng vẫn PASS và in «giu 2.8.0» trong khi hợp đồng
+# nói 2.7.0 — răng ghim lại được bằng cách rỗng nghĩa.
+# Số so KHÔNG gõ vào đây: nó đọc từ manifest TẠI commit mốc trước, tức suy TỪ KHO.
+if [ -n "$MOC_TRUOC" ]; then
+  SO_TRUOC="$(ver_tai "$MOC_TRUOC")"
+  if [ -z "$SO_TRUOC" ]; then
+    echo "DO: khong doc duoc so tai moc truoc (${MOC_TRUOC}) — khong co nen de so quan he" >&2
+    exit 7
+  fi
+  if [ "$SO_HEAD" != "$SO_TRUOC" ]; then
+    echo "DO: so tai HEAD (${SO_HEAD}) KHAC so tai moc phat hanh truoc ${MOC_TRUOC} (${SO_TRUOC})" >&2
+    exit 7
+  fi
+fi
+
 SO="$SO_HEAD"
-echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} (doi chung duong: cua so moc..HEAD KHONG rong)"
+if [ -n "$MOC_TRUOC" ]; then
+  echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} BANG so tai moc truoc ${MOC_TRUOC} (doi chung duong: cua so moc..HEAD KHONG rong)"
+else
+  echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} (doi chung duong: cua so moc..HEAD KHONG rong)"
+fi
