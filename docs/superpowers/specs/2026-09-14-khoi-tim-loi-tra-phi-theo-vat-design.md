@@ -321,8 +321,11 @@ trong hợp đồng ≈ **26–40 %** số finding sau refute (55–109/262) →
 
 **Số «sau» đến từ kho tiêu thụ ở mốc 2.13, không từ S4 của chính vòng này:** vòng này
 được chấm bằng engine đang cài trong plugin cache (bản cũ) trừ khi đồng bộ trước —
-xem memory «đồng bộ kit chạm hai bản sao». Ba dòng số của mốc 2.13 đọc thêm hai dòng
-này từ `usage-report.md` của mỗi vòng — không dựng phép đo mới ngoài T0.
+xem memory «đồng bộ kit chạm hai bản sao». **Owner chốt 14/09: ba dòng số → năm dòng
+số** (CLAUDE.md luật (c): + token máy/vòng tách ba khối · + phút máy/lượt chấm, kèm
+điều kiện tin cậy) — T0 là thước của dòng 4–5; mốc 2.13 là mốc đầu có đủ năm dòng,
+không dựng phép đo mới ngoài T0. **R10 — owner chốt 14/09: không refute mục ngoài hợp
+đồng, chờ ngưỡng** (§Giới hạn).
 
 ## Soát đối kháng 14/09 — rủi ro sửa-ra-lỗi-khác
 
