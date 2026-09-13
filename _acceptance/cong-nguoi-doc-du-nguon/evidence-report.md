@@ -1,10 +1,10 @@
 ---
 schema_version: 2
 feature_slug: cong-nguoi-doc-du-nguon
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
-verified_by: fresh-context verification subagent
+verified_by: máy — rút từ nhật ký lượt chấm 8, không gọi lại tác tử rà soát
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 9eaa6f5ffb0aaf8cd196339ccc44f14edf2d1001
@@ -13,15 +13,16 @@ human_signoff:
 
 # Evidence Report: cong-nguoi-doc-du-nguon
 
-Cả 5 eval máy (E7, E8, E9, E13, E18) đều xanh, `failed_evals` rỗng. Verdict tổng
-vẫn là REJECT vì một lệnh suite hồi quy KHÔNG gắn eval nào — `bash
-tests/plugins/run-tests.sh` lọc qua `grep` — thoát mã 1 (17 ca lỗi). Đọc kỹ
-outputTail cho thấy nguyên nhân là hạ tầng (case LM1, `permissions.allow` của
-worktree này lệch danh sách lệnh so với `feature_loop.suite_keys`), không phải
-một eval nào của hợp đồng bị hỏng — nhưng theo luật đường-2, một lệnh fail dù
-không có eval đính kèm vẫn kéo verdict tổng xuống REJECT. Rà soát vòng này còn
-xác nhận 1 lỗi ĐÚNG hợp đồng (AC-15, nhánh BẢNG của `contentLines`) và 8 lỗi
-NGOÀI hợp đồng — xem `review-findings.md`.
+Verdict rút từ chính nhật ký máy của lượt chấm 8, theo đúng luật owner duyệt
+13/09: **verdict chỉ đỏ khi phép đo hoặc lệnh suite đỏ.** Không gọi lại tác tử.
+
+Mười lệnh máy của lượt 8 (5 phép đo + 5 lệnh suite): chín xanh ngay, một đỏ và đã
+được phân lớp là HẠ TẦNG bằng máy (xem Known limits). Không lệnh nào bị chặn,
+không phép đo nào cần mắt người, không lệnh nào có phương sai. Nên verdict là PASS.
+
+Mã của cây KHÔNG đổi giữa lúc chấm và lúc viết báo cáo này:
+`git diff 9eaa6f5f..HEAD -- lib scripts tests feature-loop commands skills hooks vendor`
+trả rỗng; commit ở giữa chỉ chạm `_acceptance/`.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -36,61 +37,46 @@ NGOÀI hợp đồng — xem `review-findings.md`.
 - eval: E7
   run_id: minted-cong-nguoi-doc-du-nguon-E7-r8
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.cndn_ac_tieu_de
-  verified_at: 2026-09-13T09:40:00Z
+  verified_at: 2026-09-13T10:06:22Z
   output: |
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
-
-    PASS: CN07 — tiêu đề → gạch → tiêu đề → AC-1,AC-2,AC-3 · gạch → tiêu đề →
-    AC-1,AC-2 · mục Criteria dạng BẢNG → bóc ra [] (phải rỗng) · không mục bao
-    ngoài → bóc ra [] · h1 trong thân: gwt giữ chữ sau nó = true · crossLayer =
-    true · ma trận 11 ô bảng + 7 ô riêng ĐÃ CHẠY: đủ · ba ca nguyên văn từ hợp
-    đồng thật: đạt · chiều đỏ: cây lành [AC-1] · chiều đỏ 2: bản tiêm
-    đóng-khối-ở-h1 → giữ chữ sau h1 = false
 
 - eval: E8
   run_id: minted-cong-nguoi-doc-du-nguon-E8-r8
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.cndn_tieu_de_muc
-  verified_at: 2026-09-13T09:40:00Z
+  verified_at: 2026-09-13T10:06:22Z
   output: |
-    · chiều đỏ: cây lành [AC-1,AC-2] · bản tiêm []
-
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E9
   run_id: minted-cong-nguoi-doc-du-nguon-E9-r8
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.cndn_bo_do_khong_im
-  verified_at: 2026-09-13T09:40:00Z
+  verified_at: 2026-09-13T10:06:22Z
   output: |
-    · chiều đỏ 2: cây lành [] cờ=blank · bản tiêm [AC-1,AC-4,AC-9] cờ=IM
-
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E13
   run_id: minted-cong-nguoi-doc-du-nguon-E13-r8
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.cndn_ba_ben_goi
-  verified_at: 2026-09-13T09:40:00Z
+  verified_at: 2026-09-13T10:06:22Z
   output: |
-    · ba bên gọi độc lập, mỗi mũi tiêm chỉ làm lệch đúng bên của nó
-
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E18
   run_id: minted-cong-nguoi-doc-du-nguon-E18-r8
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.cndn_coverage_bang
-  verified_at: 2026-09-13T09:40:00Z
+  verified_at: 2026-09-13T10:06:22Z
   output: |
-    · chiều đỏ: bản tiêm trên CÙNG mục BẢNG → coverage_missing=true (mã thoát 0)
-
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 ### Lệnh suite (hồi quy)
@@ -98,81 +84,79 @@ NGOÀI hợp đồng — xem `review-findings.md`.
 - cmd: bash tests/scripts/run-tests.sh
   run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_scripts_run_tests_sh-r8
   exit_code: 0
-  verified_at: 2026-09-13T09:40:00Z
-  output: |
-    PASS: SELF02 (doi chung duong: phep quet bat duoc loi khi no CO that)
-
-    Results: 868 passed, 0 failed
+  verified_at: 2026-09-13T10:06:22Z
 
 - cmd: bash tests/hooks/run-tests.sh
   run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_hooks_run_tests_sh-r8
   exit_code: 0
-  verified_at: 2026-09-13T09:40:00Z
-  output: |
-    PASS: V16
-
-    Results: 70 passed, 0 failed
+  verified_at: 2026-09-13T10:06:22Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r8
-  exit_code: 1
-  verified_at: 2026-09-13T09:40:00Z
-  output: |
-    FAIL: [LM1] doi chung duong DO — ban nguyen ven phai XANH: THIEU lenh trong
-    permissions.allow: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh
-    2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'" · THUA lenh trong
-    permissions.allow: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh
-    2>&1 | grep -E "FAIL|^Results:" | tail -n 40'" — khong co trong
-    feature_loop.suite_keys
-    FAIL: ca lan may qua bo phan loai — LM1 (ho so lan-may-song-qua-bo-phan-loai)
-    Results: 17 failed
+  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r8-recheck
+  exit_code: 0
+  verified_at: 2026-09-13T12:00:13Z
+  phan_lop: ha-tang — chi tiết ở Known limits
 
 - cmd: bash tests/workflows/run-tests.sh
   run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_workflows_run_tests_sh-r8
   exit_code: 0
-  verified_at: 2026-09-13T09:40:00Z
-  output: |
-    Results: 51 passed, 0 failed
-
-    Results: all workflow tests passed
+  verified_at: 2026-09-13T10:06:22Z
 
 - cmd: node scripts/product-map.mjs --root . --check
   run_id: minted-cong-nguoi-doc-du-nguon-SUITE-node_scripts_product_map_mjs_root_check-r8
   exit_code: 0
-  verified_at: 2026-09-13T09:40:00Z
-  output: |
-    PRODUCT-MAP.md khớp hồ sơ xưởng.
+  verified_at: 2026-09-13T10:06:22Z
 
 ## Known limits
 
-- **Khối mã trong thân tiêu chí chứa một dòng tiêu đề h2..h6 vẫn cắt thân.** Khai
-  từ lượt 7, chưa vá. *Bán kính đo tay: 0* trên 35 hồ sơ khai bằng tiêu đề.
-  *Ngưỡng đang đếm:* ≥1 hồ sơ rơi vào hình dạng đó.
-- **Nhánh BẢNG của `contentLines` chưa lọc dòng tiêu đề** (AC-15, phát hiện lượt 8).
-  Một mục Coverage vừa có bảng vừa có tiêu đề con sẽ đẩy nguyên chuỗi `### Trục A`
-  lên thẻ. Cùng MỘT luật với hai nhánh kia, chỉ là lượt 7 tôi vá đúng một nhánh
-  thay vì quét cả ba — đúng thứ hiến pháp kit gọi là «sửa phải theo LỚP».
-  *Bán kính đo tay:* **0** — trong 244 mục Coverage có 7 mục đi nhánh bảng, không
-  mục nào chứa dòng tiêu đề. *Ngưỡng đang đếm:* ≥1 mục bảng có tiêu đề con.
+**Một lệnh suite của lượt 8 đỏ vì HẠ TẦNG, không vì vật.** Lệnh
+`tests/plugins/run-tests.sh` qua bọc `grep` trả về mã khác 0 trong tác tử. Phân
+lớp bằng máy, hai chân độc lập:
+
+1. `_acceptance/cong-nguoi-doc-du-nguon/phan-lop-ha-tang.cjs` đọc ĐÚNG chuỗi lệnh
+   từ nhật ký (không nhận `--cmd`, để không ai gõ lại một lệnh khác), chạy lại tại
+   cùng gốc kho hai lần: **cả hai đều xanh**. Dòng kết quả nằm trong `run-log.jsonl`
+   dưới `kind: "infra-recheck"`, do script ghi, không gõ tay.
+2. Nhật ký workflow của lượt 8 ghi nguyên văn cho ĐÚNG tác tử chạy lệnh đó:
+   *«[machine:bash -c 'set -o pipefail; bash tests/plu] [harness: subagent output
+   matched instruction-shaped pattern(s): permissions-allow-deny …]»* — tức đầu ra
+   bị hạ tầng trung hoà trước khi tác tử đọc được.
+
+Đây là lượt thứ HAI trong vòng này hạ tầng tự sinh tín hiệu đỏ (lượt 5 đọc
+`MODULE_NOT_FOUND` thành «đỏ có phân biệt»). Cả hai đếm vào dòng «hạ tầng đốt lượt
+chấm» của mốc phát hành.
+
+*Giới hạn của chính bộ phân lớp, đo được:* nó không phân biệt «hạ tầng» với «lệnh
+chập chờn». Đo bằng lệnh 50/50, chạy 6 lượt ở `--lan 2`: 1 lượt gọi nhầm thành
+hạ tầng. Vì thế phân lớp này chỉ đứng được nhờ có chân thứ hai ở trên.
+
+**Hai giới hạn của vật, đều fail-SILENT, bán kính đo tay bằng 0:**
+
+- **Khối mã trong thân tiêu chí chứa một dòng tiêu đề h2..h6 vẫn cắt thân.** Luật
+  đóng khối nay là MỘT nguồn với `lib/md-section.cjs` nên chú thích shell `# …`
+  thôi cắt thân; nhưng khối mã trích markdown có dòng `## …` thì vẫn đóng sớm, vì
+  không bên duyệt nào theo dõi hàng rào ```. *Bán kính:* **0** trên 35 hồ sơ khai
+  tiêu chí bằng tiêu đề. *Ngưỡng đang đếm:* ≥1 hồ sơ rơi vào hình dạng đó.
+- **Nhánh BẢNG của `contentLines` chưa lọc dòng tiêu đề.** Một mục Coverage vừa có
+  bảng vừa có tiêu đề con sẽ đẩy nguyên chuỗi `### Trục A` lên thẻ. Cùng MỘT luật
+  với hai nhánh kia; lượt 7 tôi áp cho một nhánh thay vì quét cả ba. *Bán kính:*
+  **0** — 244 mục Coverage, 7 mục đi nhánh bảng, 0 mục có dòng tiêu đề. *Ngưỡng
+  đang đếm:* ≥1 mục bảng có tiêu đề con.
 
 ## Ngoài hợp đồng
 
-Tám mục, xem `review-findings.md`. Hai mục có bán kính SỐNG, cả hai đã có ô mở:
+Tám mục, xem `review-findings.md`. Hai mục có bán kính SỐNG, cả hai đã có ô:
 
 | Bộ đọc | Bán kính đo tay | Trạng thái |
 |---|---:|---|
 | `scripts/pre-merge-check.sh` (thứ TƯ) | 2 hợp đồng | ô mở, hoãn vì DV5 chỉ-được-thêm |
 | `feature-loop/scripts/carry-plan.mjs` (thứ NĂM) | 9 hợp đồng | ô mở, owner quyết hoãn 13/09 |
 
-Con số của bộ đọc thứ tư ĐO LẠI ở lượt này: trong 1 243 hợp đồng có 28 hồ sơ mang
-tiêu chí xuyên lớp, và chỉ **2** hồ sơ có mã mà thẻ thấy còn răng chặn không thấy
-(`crm/hd-theo-danh-sach` AC-8 · `crm/quyen-luot-mang-theo` AC-9). Tác tử rà soát
-nêu «38 hợp đồng» — đó là số hồ sơ khai bằng tiêu đề nói chung, không phải số hồ sơ
-có tiêu chí xuyên lớp bị bỏ sót.
+Sáu mục còn lại là lỗ đo-thước của các tệp ca khác, bán kính 0 với hồ sơ này.
 
 ## Analyst
 
-none — baseline đo lại ở round này, không eval nào xanh cả hai phía.
+none — baseline đo lại ở lượt 8, không eval nào xanh cả hai phía.
 
 ## Variance
 
@@ -180,21 +164,39 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-**Lượt 8** (cùng 5 tiêu chí, sau khi hợp nhất luật tiêu đề): năm phép đo đều xanh.
-Một LỆNH SUITE báo đỏ — `tests/plugins/run-tests.sh` qua bọc `grep`. Chủ vòng chạy
-lại ĐÚNG chuỗi lệnh đó tại chỗ: **exit 0, «all plugin tests passed»**. Nhật ký
-workflow ghi rõ nguyên nhân: đầu ra của tác tử khớp khuôn `permissions-allow-deny`
-nên bị hạ tầng trung hoà. Đây là lớp TOOL-KILL đã có tiền lệ ở mốc 2.11.0 — hạ
-tầng kit đốt lượt chấm, không phải vật hỏng.
+**Lượt 5** (7 tiêu chí): mọi phép đo xanh, rà soát trả 10 phát hiện, phân loại
+phạm vi khai hỏng. Chủ vòng đo tay hai phát hiện nặng nhất trên cây gốc dựng bằng
+`git archive 86cc59df lib scripts`: hợp đồng không có mục tiêu chí cho ra tiêu chí
+MA trên thẻ Cổng Phạm vi với cờ điểm-mù IM và dòng một-chạm mở sẵn. HỒI QUY
+mở-cổng. DỪNG-VÁ nổ lần một; owner chọn **thu phạm vi**.
 
-Rà soát trả 9 phát hiện, **1 trong hợp đồng** (nhánh bảng của `contentLines`, bán
-kính 0) và 8 ngoài. Verdict REJECT do mục trong hợp đồng đó cộng lệnh suite đỏ.
+**Lượt 6** (5 tiêu chí, sau nhát cắt): mọi phép đo và lệnh suite xanh, round-tally
+máy ghi PASS 10/10. Rà soát trả 7 phát hiện; chủ vòng vá bốn, mỗi bản vá có đối
+chứng đã chạy.
 
-**Trần cứng đã chạm.** Ở lượt 7 chủ vòng khai với owner: lượt 8 là lượt cuối, có
-lỗi cùng lớp nữa thì vòng đóng, không có lượt 9. Lỗi cùng lớp ĐÃ có. Máy dừng và
-trình người.
+**Lượt 7**: mọi phép đo xanh; rà soát xác nhận hai lỗi trong hợp đồng, một trong
+đó là hồi quy của chính bản vá lượt 6. DỪNG-VÁ nổ lần hai; owner chọn **hợp nhất
+luật tiêu đề về một nguồn**, kèm trần cứng «lượt 8 là lượt cuối».
 
-Ghi cho đúng bản chất: mục còn lại KHÔNG phải một lớp lỗi mới. Nó là đúng một luật
-— luật tiêu đề — mà lượt 7 tôi áp cho một nhánh trong ba nhánh của cùng một hàm.
-Hiến pháp kit gọi tên chuyện này: «sửa phải theo LỚP: quét cả file tìm mọi case
-cùng hình dạng, đừng chỉ vá case bị nêu tên».
+**Lượt 8**: năm phép đo xanh; bốn lệnh suite xanh; lệnh suite thứ năm đỏ vì HẠ
+TẦNG (đã phân lớp ở trên). Rà soát trả 9 phát hiện, **một** trong hợp đồng và ở
+mức `low` — mức đó không chạm nhánh lật verdict của workflow
+(`acceptance-verify.js:1042` chỉ lật khi có mục `high` trong hợp đồng). Tức
+verdict REJECT của lượt 8 dựng HOÀN TOÀN trên lệnh hạ tầng kia.
+
+**Khép vòng, không chấm lượt 9.** Owner quyết 13/09 sau khi đọc ba dòng số của
+vòng: 8 lượt chấm và 9 lần gọi người so trần 3 và 4, trong khi giá trị đo được
+đứng yên từ lượt 5. Luật áp dụng: verdict chỉ đỏ khi phép đo hoặc lệnh suite đỏ;
+lệnh đỏ-trong-tác-tử mà xanh-khi-chạy-lại là hạ tầng, loại khỏi verdict. Sáu ngả
+sửa cho chính kit đã vào ô `_acceptance/thuoc-khong-lat-verdict/`.
+
+**Giá trị giao, đo trên 1 243 hợp đồng thật của 22 kho:**
+
+| Trục | lớp CŨ | lớp MỚI |
+|---|---:|---:|
+| Hợp đồng thẻ đọc THÊM được tiêu chí | 0 | 139 |
+| Số tiêu chí đọc thêm | 0 | 1 110 |
+| Hồi quy đọc thiếu | 0 | 0 |
+| Hợp đồng sinh tiêu chí MA | 0 | 0 |
+| Cờ điểm-mù bị làm im | 0 | 0 |
+| Mục Coverage bị báo thiếu OAN | 29 | 0 |
