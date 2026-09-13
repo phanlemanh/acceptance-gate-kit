@@ -7,7 +7,7 @@ reason:
 verified_by: máy — rút từ nhật ký lượt chấm 8, không gọi lại tác tử rà soát
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9eaa6f5ffb0aaf8cd196339ccc44f14edf2d1001
+verified_commit: 3a77f000333c609c14adde17a24c784d5cfc87dd
 human_signoff: Phan Le Manh 2026-09-13
 ---
 
@@ -20,9 +20,15 @@ Mười lệnh máy của lượt 8 (5 phép đo + 5 lệnh suite): chín xanh n
 được phân lớp là HẠ TẦNG bằng máy (xem Known limits). Không lệnh nào bị chặn,
 không phép đo nào cần mắt người, không lệnh nào có phương sai. Nên verdict là PASS.
 
-Mã của cây KHÔNG đổi giữa lúc chấm và lúc viết báo cáo này:
-`git diff 9eaa6f5f..HEAD -- lib scripts tests feature-loop commands skills hooks vendor`
-trả rỗng; commit ở giữa chỉ chạm `_acceptance/`.
+Mã của cây KHÔNG đổi giữa lúc chấm (`9eaa6f5f`) và lúc viết báo cáo này
+(`53611a17`): `git diff 9eaa6f5f..53611a17 -- lib scripts tests feature-loop
+commands skills hooks vendor` trả rỗng; commit ở giữa chỉ chạm `_acceptance/`.
+
+Sau đó commit chữ ký `3a77f000` có chạm một tệp ngoài `_acceptance/` —
+`tests/scripts/fixtures/routing-baseline.txt`, dòng mốc định tuyến mà ca LM20 đòi
+cho một hồ sơ vừa ký. Lưới trước-merge gọi đúng tên chuyện đó là «evidence is
+stale», nên làn ghim lại đã chạy trên `3a77f000` và `verified_commit` ở trên là
+kết quả của làn ấy: năm lệnh suite và năm phép đo đều đạt. Xem `### Re-pin lần 1`.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -200,3 +206,7 @@ sửa cho chính kit đã vào ô `_acceptance/thuoc-khong-lat-verdict/`.
 | Hợp đồng sinh tiêu chí MA | 0 | 0 |
 | Cờ điểm-mù bị làm im | 0 | 0 |
 | Mục Coverage bị báo thiếu OAN | 29 | 0 |
+
+### Re-pin lần 1 — 2026-09-13, do hoá cũ do chính commit chữ ký
+run_id: repin-20260913T134934Z-50272
+sha: 3a77f000333c609c14adde17a24c784d5cfc87dd · suites: 5 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng
