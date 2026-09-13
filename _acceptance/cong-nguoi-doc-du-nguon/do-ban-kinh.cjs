@@ -16,7 +16,11 @@
  * trả lại con số CŨ. Số không đổi theo lớp đo nghĩa là script đang đo VĂN chứ
  * không đo VẬT — khi đó sửa script, đừng hạ ngưỡng.
  *
- * Mọi đường dẫn suy từ vị trí tệp này; không hằng nào trỏ checkout của tác giả.
+ * ĐƯỜNG DẪN, nói cho đúng: đường tới LỚP ĐANG ĐO suy từ vị trí tệp này, không
+ * hằng nào trỏ checkout của tác giả. Còn gốc CORPUS thì khác — nó là bộ kho trên
+ * máy đang chạy, không suy được từ đâu cả, nên mặc định `~/dev` và mở cờ `--root`
+ * / `--dev` để đổi. Hai thứ đó đừng gộp làm một câu (sửa sau lượt chấm 6): câu cũ
+ * khai «mọi đường dẫn» nên đọc thành lời hứa mà tệp không giữ.
  */
 const fs = require('fs');
 const os = require('os');

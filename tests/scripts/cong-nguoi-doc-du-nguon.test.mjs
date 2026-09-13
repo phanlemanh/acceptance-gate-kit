@@ -97,6 +97,11 @@ def('CN07', () => {
   const chi = [];
   const lib = req(path.join(ROOT, 'lib', 'ac-line.cjs'));
   if (typeof lib.parseACBlock !== 'function') return say('CN07', false, 'lib.parseACBlock chua ton tai', chi);
+  // SỐ Ô KHAI, ghim NGOÀI bảng. Không có dòng này thì xoá một hàng khỏi `O` là mất
+  // một assert LẶNG LẼ và ca vẫn in «đủ» — đo được ở lượt chấm 6: xoá hai hàng
+  // «ca thật» rồi chạy lại vẫn `PASS: CN07 … đủ`. Cùng lớp với L09/L10.
+  const SO_O_BANG = 11;      // số hàng của bảng O
+  const SO_O_RIENG = 5;      // ô ngoài bảng: trộn ×2 · BẢNG · không-mục-bao-ngoài · thân-rỗng
   // [tên ô, thân, id mong đợi, chữ phải có trong gwt của id đó, judgment, crossLayer]
   const O = [
     ['tiêu đề · thân nhiều dòng', '### AC-1 — nhãn một\n\nGiven a\n\nWhen b\n\nThen c', 'AC-1', 'When b', false, false],
@@ -111,6 +116,7 @@ def('CN07', () => {
     ['ca thật crm', THAT_CRM + '\nGiven commit đã đẩy, When chạy lệnh, Then số trả về là 0', 'AC-1', 'job không chạy', false, false],
     ['ca thật ap', THAT_AP + '\nGiven tenant đã nối, When bấm nhập, Then danh bạ kéo về', 'AC-2', 'một-cú-bấm', false, false],
   ];
+  if (O.length !== SO_O_BANG) return say('CN07', false, `bang O co ${O.length} hang, khai ${SO_O_BANG} — mot o da bien mat hoac them ma khong khai`, chi);
   const boc = (than) => {
     const m = new Map();
     for (const a of lib.parseACBlock(hopDong(than))) if (!m.has(a.id)) m.set(a.id, a);
@@ -170,7 +176,7 @@ def('CN07', () => {
   const mRong = boc('### AC-14\n\n### AC-15 — có chữ\nGiven a, When b, Then c');
   if (mRong.has('AC-14')) lech.push('tiêu chí thân RỖNG vẫn được tính');
   if (!mRong.has('AC-15')) lech.push('tiêu chí sau tiêu chí rỗng bị mất');
-  chi.push(`ma trận 14 ô: ${lech.length ? lech.length + ' lệch' : 'đủ'}`);
+  chi.push(`ma trận ${SO_O_BANG} ô bảng + ${SO_O_RIENG} ô riêng: ${lech.length ? lech.length + ' lệch' : 'đủ'}`);
   for (const l of lech.slice(0, 4)) chi.push(`  ${l}`);
   if (lech.length) return say('CN07', false, `ma tran lech ${lech.length} o`, chi);
   // Ca thật thứ ba mang nhãn trong ngoặc — ghim riêng vì nó là hình dạng của kit.
@@ -406,6 +412,10 @@ def('CN13', () => {
       "  if (acLine && typeof acLine.parseACBlock === 'function') {",
       "  if (false && acLine && typeof acLine.parseACBlock === 'function') {"],
   ];
+  // Số mũi khai NGOÀI bảng, cùng lý do như SO_O_BANG của CN07: xoá một phần tử
+  // MUI là mất một bên gọi khỏi phép đo mà ca vẫn xanh.
+  const SO_MUI = 3;
+  if (MUI.length !== SO_MUI) return say('CN13', false, `bang MUI co ${MUI.length} mui, khai ${SO_MUI} — mot ben goi da roi khoi phep do`, chi);
   for (const [ten, tep, moc, thay] of MUI) {
     const t = banTiem(`cn13-${tep.replace(/[^a-z]+/gi, '-')}`, [[tep, moc, thay]]);
     if (t.loi) return say('CN13', false, t.loi, chi);

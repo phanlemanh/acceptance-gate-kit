@@ -13,6 +13,9 @@
  *
  *   node do-nhat-cat.cjs [--ag-root <cây thư viện>] [--dev <thư mục kho>]
  *
+ * Đường tới LỚP ĐANG ĐO suy từ vị trí tệp này. Gốc CORPUS thì không suy được —
+ * nó là bộ kho trên máy đang chạy — nên mặc định `~/dev`, đổi bằng `--dev`.
+ *
  * Chạy với --ag-root trỏ vào một cây ĐÃ CẮT phải cho khongCoMuc = 0. Số không
  * đổi theo lớp nghĩa là script đang đo VĂN chứ không đo VẬT.
  */
