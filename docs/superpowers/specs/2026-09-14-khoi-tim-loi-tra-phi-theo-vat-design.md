@@ -4,8 +4,8 @@
 `risk_tiers` (dự kiến **T2** — chạm `feature-loop/workflows/acceptance-verify.js`,
 `feature-loop/scripts/s4-args.mjs`, `feature-loop/skills/feature-loop/SKILL.md`,
 `scripts/gate-card.js`, `tests/workflows/**`; không chạm `hooks/**`, `lib/**`) ·
-trạng thái: `discovery` · **bản 2 sau soát đối kháng 14/09** (bản 1: bảy nhát; bản 2:
-năm nhát + thước, xem §Soát).
+trạng thái: `discovery` · **bản 3 sau hai lượt soát 14/09** (bản 1: bảy nhát; bản 2:
+năm nhát + thước; bản 3: mã răng ở lại vùng vật, số «sau» hạ theo tỉ lệ refute giết 26 %, xem §Soát R9–R10).
 
 **Vòng meta duy nhất của cửa sổ 2.12 → 2.13** (CLAUDE.md, giới hạn chiều rộng (b)):
 owner gọi tên sáng 14/09 sau khi đọc hoá đơn vòng `release-2-12-0`. Hồ sơ mở
@@ -169,12 +169,21 @@ triage trả null hai lần) → refute chạy cho **cả 3**. Mutant: đảo l�
 
 ### T2 — Vùng vật: finder không soi thứ repo đã khai là không-phải-hành-vi
 
-Không thêm khoá config. **Vùng vật = diff ∖ `risk_tiers.t1_skip_globs` ∖ `_acceptance/*/**`.**
-`t1_skip_globs` đã là lời khai của từng repo về «file mà một thay đổi chỉ chạm nó thì
-không phải hành vi» (`crm-onehub`: `docs/**`, `**/*.md`; kit: `docs/**`, `README.md`,
-`.out-of-scope/**`…) — chính là phần bù của vùng vật. `_acceptance/<slug>/**` là hồ sơ
-vòng (kit biết); `_acceptance/config.yaml` **không** phải hồ sơ vòng — nó là hành vi
-của thước, ở lại vùng vật.
+Không thêm khoá config. **Vùng vật = diff ∖ `risk_tiers.t1_skip_globs` ∖ hồ-sơ-văn-bản
+của vòng.** `t1_skip_globs` đã là lời khai của từng repo về «file mà một thay đổi chỉ
+chạm nó thì không phải hành vi» (`crm-onehub`: `docs/**`, `**/*.md`; kit: `docs/**`,
+`README.md`, `.out-of-scope/**`…) — chính là phần bù của vùng vật. Hồ-sơ-văn-bản của
+vòng = `_acceptance/*/**/*.md` + `_acceptance/*/**/*.jsonl` (contract, gap-probe,
+evidence-report, review-findings, decisions, usage-report…).
+
+**Mã răng ở lại vùng vật** — `_acceptance/<slug>/rang/**`, `*.mjs`, `*.sh`, `evals.yaml`
+là hành vi của thước, và «thước tự dối» là lớp lỗi có tỉ lệ cao nhất kit đo được. Số
+14/09 trên `crm-onehub`: **17/94** finding trong hợp đồng nằm trên mã răng trong
+`_acceptance/<slug>/` (hồ sơ `thuoc-cua-lat-3a-co-rang` có vật *chính là* răng: 13 mục);
+chỉ 2 trong 17 mang tiêu đề «Hình N» của lens `measurement` — nghĩa là `bugs`/
+`conventions` đang bắt lỗi thật trên răng, loại răng khỏi hai lane đó là mất recall
+(lỗi bản 2 của spec này). Ngược lại, finding trong hợp đồng trên `docs/` hoặc `.md`:
+**0/94** — loại văn bản không mất gì. `_acceptance/config.yaml` cũng ở lại vùng vật.
 
 - Một hàm **`laNgoaiVat(path)`** trong `s4-args.mjs` (marker `<<<NGOAI-VAT`), dùng cho
   **cả** `vungVat` **lẫn** `deltaFiles` (hiện `deltaFiles` lọc `_acceptance/` thô ở
@@ -188,17 +197,17 @@ của thước, ở lại vùng vật.
   đổi trong vùng vật»*. Vùng vật rỗng → **không spawn** hai finder đó (0 token), `log()`
   nói rõ.
 - **JS lọc đầu ra theo LOẠI TRỪ, không theo bao gồm:** finding có `file` khớp
-  `ngoaiVatGlobs` hoặc `_acceptance/*/` → bỏ, `log()` số bị bỏ kèm file (no-silent-caps).
+  `ngoaiVatGlobs` (t1-skip + hồ-sơ-văn-bản) → bỏ, `log()` số bị bỏ kèm file (no-silent-caps).
   Finding ở file sản phẩm **ngoài diff** được giữ — đó là lớp «diff đổi chữ ký, caller ở
   file không đổi vỡ» mà hôm nay kit bắt được và không được đánh mất. Lọc bao gồm (chỉ
   giữ file ∈ vùng vật) là lỗi bản 1 của spec này.
-- Lens `measurement` **giữ nguyên** phạm vi (file đo trong diff, kể cả
-  `_acceptance/*/evals.yaml`, `rang*.sh`) — tầng một hợp pháp; JS lọc đầu ra **không**
+- Lens `measurement` **giữ nguyên** phạm vi — tầng một hợp pháp; JS lọc đầu ra **không**
   áp cho lane này. Nhưng JS kiểm **trước khi spawn**: diff không chạm file khớp glob đo
-  (`tests/**`, `**/*.test.*`, `**/*.spec.*`, `_acceptance/*/evals.yaml`,
-  `_acceptance/*/rang*.sh`) **và** không chạm file nào trong `eval.paths` có đuôi
-  test/spec → không spawn (hiện vẫn spawn một agent opus 3,5 M để nó tự trả rỗng).
-  Không chắc → spawn: fail-open về phía tốn tiền, không về phía bỏ sót.
+  (`tests/**`, `**/*.test.*`, `**/*.spec.*`, và **mọi file không phải `.md`/`.jsonl`
+  trong `_acceptance/*/`** — kho tiêu thụ đặt răng ở `_acceptance/<slug>/rang/*.mjs`,
+  một glob `rang*.sh` kiểu kit sẽ trượt) **và** không chạm file nào trong `eval.paths`
+  → không spawn (hiện vẫn spawn một agent opus 3,5 M để nó tự trả rỗng). Không chắc →
+  spawn: fail-open về phía tốn tiền, không về phía bỏ sót.
 - `coverageCluster` tính trên finding còn lại sau lọc — ngữ nghĩa «hợp đồng hụt» giữ
   nguyên, không còn nhiễu bởi finding trên hồ sơ.
 
@@ -295,14 +304,20 @@ chứng = **≤ 2**, dưới trần 3.
 
 ## Số trước / sau
 
+Cơ sở ước: refute hôm nay **giết 26 %** finding (17/65 trên 5 lượt có journal); finding
+trong hợp đồng ≈ **26–40 %** số finding sau refute (55–109/262) → refute chỉ-trong-hợp-đồng
+≈ 30 % refute hôm nay. T2 chỉ bớt phần finder đọc văn bản (răng ở lại), nên T2 là phụ.
+
 | Số | Trước (đo 10–14/09) | Sau (ước; đo lại bằng T0 ở mốc 2.13) |
 |---|---|---|
-| Token khối tìm-lỗi / lượt | 83 % của ~26,8 M ≈ 22 M | lượt 1 ≈ 7–9 M · lượt ≥ 2 ≈ 2–3 M |
-| Token phần chấm / vòng 3 lượt | 105 M | ≈ 15–22 M |
-| Wall / lượt 1 | 18,2 phút | ≈ 13–15 phút — finder `bugs` (9,7 m) là găng thật; T1 chỉ bớt ~1 m ở lượt 1, phần còn lại từ T2 (vùng vật hẹp → finder đọc ít) |
-| Wall / lượt ≥ 2 | ≈ 18 phút (chạy lại trọn) | ≈ 6–8 phút — T5: finder tập trung `deltaFiles` |
-| Refuter / lượt | 13 (266/20) | ≈ 2–4 (chỉ trong hợp đồng) |
-| Refuter soi hồ sơ vòng (kho kit) | 19/20 | 0 — răng T3 |
+| Token khối tìm-lỗi / lượt 1 | 83 % của ~26,8 M ≈ 22 M | ≈ 12–14 M (refute 44 % → ~13 %; review 39 % → ~33 %) |
+| Token khối tìm-lỗi / lượt ≥ 2 | ≈ 22 M (chạy lại trọn) | ≈ 3–5 M (T5: finder tập trung `deltaFiles`, OOC carry) |
+| Token phần chấm / vòng 3 lượt | 105 M | ≈ **30–40 M** (−60–70 %); vòng hồ-sơ-nặng như kit 14/09 (0 finding trong hợp đồng) thấp hơn: ≈ 10 M/lượt 1 |
+| Wall / lượt 1 | 18,2 phút | ≈ 14–16 phút — finder `bugs` (9,7 m) là găng thật; T1 bỏ đoạn chờ refute ngoài hợp đồng, không bỏ finder |
+| Wall / lượt ≥ 2 | ≈ 18 phút | ≈ 6–9 phút |
+| Refuter / lượt | 13 (266/20) | ≈ 2–5 (chỉ trong hợp đồng) |
+| Refuter soi văn bản hồ sơ (kho kit) | 4/20 (`gap-probe.md`, `contract.md`, `handoff`) | 0 — răng T3; 15/20 còn lại soi mã răng → T1 xếp ngoài hợp đồng, không refute |
+| Lượt gọi người / vòng | trần 3 (T3: 4) | **=** — đường verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần; xem R2 |
 
 **Số «sau» đến từ kho tiêu thụ ở mốc 2.13, không từ S4 của chính vòng này:** vòng này
 được chấm bằng engine đang cài trong plugin cache (bản cũ) trừ khi đồng bộ trước —
@@ -320,7 +335,9 @@ này từ `usage-report.md` của mỗi vòng — không dựng phép đo mới 
 | R5 | Plugin cache lệch bản (SKILL/s4-args mới, workflow cũ hoặc ngược lại) | Mọi args mới vắng → hành vi cũ + cờ vàng; field lạ → workflow cũ bỏ qua |
 | R6 | `t1_skip_globs` quá rộng ở một repo (`**/*.md`) → finder bỏ qua md-là-hành-vi | Nhất quán với tiering của chính repo đó: nếu vật là md thì vòng đã T1 thoát ở S0; sai ở đây là sai của lời khai, sửa ở `t1_skip_globs`, không thêm nguồn thứ hai |
 | R7 | Baseline promise trần reject → giết lượt | `.catch(() => null)` bắt buộc, răng: responder baseline throw → verdict không BLOCKED vì baseline, `baselineStatus` = n-a |
-| R8 | `deltaFiles` đổi bộ lọc (thô `_acceptance/` → `laNgoaiVat`) → `_acceptance/config.yaml` thành delta | Chiều FAIL-CLOSED (eval chạm config chạy lại thay vì carry) — chấp nhận, ghi ở T2 |
+| R8 | `deltaFiles` đổi bộ lọc (thô `_acceptance/` → `laNgoaiVat`) → `_acceptance/config.yaml` và mã răng thành delta | Chiều FAIL-CLOSED (eval chạm chúng chạy lại thay vì carry) — chấp nhận, ghi ở T2 |
+| R9 | Bản 2 loại cả `_acceptance/*/**` khỏi `bugs`/`conventions` → mất recall trên **mã răng** (17/94 finding trong hợp đồng, chỉ 2 từ lens `measurement`) | Bản 3: chỉ loại **văn bản** hồ sơ (`.md`, `.jsonl`); răng, `evals.yaml`, `config.yaml` ở lại vùng vật. Răng T3 chiều đỏ ghim finding trên `_acceptance/x/rang/a.mjs` đi tiếp |
+| R10 | Khối ngoài hợp đồng sau T1 chứa ≈ **26 %** mục mà refute hôm nay sẽ giết (17/65) — đó là giá tin-cậy đo được của danh sách chờ người; verdict không chịu giá này | Ngưỡng §Giới hạn; owner quyết có bật refute gộp cho mục high ngoài hợp đồng ngay từ đầu không |
 
 ## Giới hạn đã khai · ngưỡng đang đếm
 
