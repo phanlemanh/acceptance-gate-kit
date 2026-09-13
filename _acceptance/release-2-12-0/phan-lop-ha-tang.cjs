@@ -67,7 +67,33 @@ const F = path.join(o.root, '_acceptance', o.slug, 'run-log.jsonl');
 if (!fs.existsSync(F)) die(`không có ${F}`);
 const dong = fs.readFileSync(F, 'utf8').trim().split('\n').map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
 if (o.quet) {
-  const do_ = dong.filter(d => !d.kind && typeof d.exit_code === 'number' && d.exit_code !== 0);
+  // CHỈ lượt chấm MỚI NHẤT. Quét toàn sổ là sai: nhật ký chỉ-nối-thêm, nên một lần
+  // đỏ THẬT ở lượt n (đã sửa xong ở lượt n+1) nằm đó mãi và phép đo không bao giờ
+  // xanh lại — tạo áp lực khai một màu đỏ thật thành `ha-tang`, hoặc xoá dòng khỏi
+  // sổ. Nó còn tự quy chiếu: chính dòng đỏ của lần chạy này thành một dòng chưa
+  // phân lớp mới. Bắt được ở lượt chấm 2 của hồ sơ release-2-12-0.
+  const luotMax = Math.max(...dong.filter(d => d.round).map(d => d.round));
+  // Ô ĐÃ GỠ KHỎI evals.yaml không còn là việc của phép đo này: một phép đo bị xoá
+  // vì nó hỏng thì dòng đỏ của nó là sử liệu, không phải nợ. Nhưng KHÔNG bỏ qua
+  // lặng: id ấy PHẢI có tên trong sổ quyết định, nếu không thì đây là xoá-cho-xanh.
+  const ws = path.join(o.root, '_acceptance', o.slug);
+  let dangKhai = null;
+  try {
+    const y = fs.readFileSync(path.join(ws, 'evals.yaml'), 'utf8');
+    dangKhai = new Set([...y.matchAll(/^\s*-\s*id:\s*(\S+)/gm)].map(m => m[1]));
+  } catch { dangKhai = null; }
+  let so = '';
+  try { so = fs.readFileSync(path.join(ws, 'decisions.jsonl'), 'utf8'); } catch { so = ''; }
+  const daGo = [], goKhongTen = [];
+  const do_ = dong.filter(d => {
+    if (d.kind || typeof d.exit_code !== 'number' || d.exit_code === 0 || d.round !== luotMax) return false;
+    if (dangKhai && !dangKhai.has(d.evalId)) {
+      if (so.includes(d.evalId)) { daGo.push(d.evalId); return false; }
+      goKhongTen.push(d.evalId); return true;
+    }
+    return true;
+  });
+  if (goKhongTen.length) process.stderr.write(`CANH BAO: ${goKhongTen.join(', ')} khong con trong evals.yaml VA khong co ten trong so quyet dinh — xoa-cho-xanh?\n`);
   const recheck = dong.filter(d => d.kind === 'infra-recheck');
   const chuaPhanLop = [], laVat = [];
   for (const d of do_) {
@@ -75,11 +101,11 @@ if (o.quet) {
     if (!r) chuaPhanLop.push(`round ${d.round}/${d.evalId}`);
     else if (r.lop !== 'ha-tang') laVat.push(`round ${d.round}/${d.evalId} = ${r.lop}`);
   }
-  const ket = { dongDo: do_.length, daPhanLop: do_.length - chuaPhanLop.length, chuaPhanLop, laVat };
+  const ket = { luot: luotMax, daGoKhoiEvals: daGo, dongDo: do_.length, daPhanLop: do_.length - chuaPhanLop.length, chuaPhanLop, laVat };
   process.stdout.write(JSON.stringify(ket) + '\n');
   if (chuaPhanLop.length) { process.stderr.write(`DO: ${chuaPhanLop.length} dong may DO chua phan lop: ${chuaPhanLop.join(', ')}\n`); process.exit(1); }
   if (laVat.length) { process.stderr.write(`DO: ${laVat.length} dong do phan lop la VAT (khong phai ha tang): ${laVat.join(', ')}\n`); process.exit(1); }
-  process.stdout.write(`PASS: ${do_.length} dong may do, tat ca da phan lop va deu la ha-tang\n`);
+  process.stdout.write(`PASS: luot ${luotMax} co ${do_.length} dong may do, tat ca da phan lop va deu la ha-tang\n`);
   process.exit(0);
 }
 const goc = dong.filter(d => d.round === o.round && d.evalId === o.evalId);

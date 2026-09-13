@@ -107,52 +107,24 @@ evals:
     paths:
       - "_acceptance/release-2-12-0/phan-lop-ha-tang.cjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E4a
-    criterion: AC-4
-    executor: script
-    cmd: config:executors.script.ba_dong_so_2_12
-    expected: >-
-      `do-ba-dong-so.cjs --doi-chieu` tính lại ba dòng số TỪ VẬT (`run-log.jsonl` + commit
-      Cổng 2) rồi đối chiếu với bảng đã dán trong `## Notes`: số commit cửa sổ, số vòng,
-      và với TỪNG vòng là lượt chấm cùng làm-xong→quyết-được. Lệch một ô → thoát 5 in cả
-      hai số và tên ô. Chiều đỏ đã chạy thật: cùng lệnh trên bản hợp đồng TRƯỚC khi sửa
-      trả về bảy chỗ lệch, trong đó hai số thời gian sai — một số lệch đúng 24 giờ.
-    paths:
-      - "_acceptance/release-2-12-0/contract.md"
-      - "_acceptance/release-2-12-0/do-ba-dong-so.cjs"
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E4b
+  - id: E4
     criterion: AC-4
     executor: judgment
     question: >
-      Bốn khối bắt buộc của `## Notes` có MẶT ĐỦ không, và khối nào cố ý để TRỐNG có khai
-      rõ lý do không? Bốn khối: (1) ba dòng số của luật (c); (2) bảng lớp vendored 9 mục;
-      (3) lớp lỗi tái phát gọi tên kèm dẫn chứng; (4) nhát cắt cho cửa sổ kế gọi tên.
-      CHỈ chấm sự CÓ MẶT và LỜI KHAI LÝ DO. KHÔNG chấm tính đúng của các con số — chúng
-      do eval E4a đối chiếu bằng máy, và lượt chấm 1 đã chứng minh hội đồng đọc văn không
-      thấy được một con số lệch 24 giờ. Trả FAIL cho khối chỉ có tiêu đề, và cho ô trống
-      không kèm lý do.
+      Bốn khối bắt buộc của `## Notes` có MẶT ĐỦ không, mỗi khối có NỘI DUNG THẬT hay chỉ
+      có tiêu đề, và khối nào cố ý để TRỐNG có khai rõ lý do không? Bốn khối: (1) ba dòng
+      số của luật (c) — thời gian làm-xong→quyết-được mỗi vòng, lượt chấm, lượt gọi người
+      tách trong/ngoài thiết kế, số vòng bị hạ tầng đốt; (2) bảng lớp vendored đủ 9 mục
+      của `INIT-CI-COPY-LIST` với +/− đo tại sha nêu tên; (3) lớp lỗi tái phát gọi tên kèm
+      dẫn chứng; (4) nhát cắt cho cửa sổ kế gọi tên cụ thể. Trả FAIL cho khối chỉ có tiêu
+      đề mà không có số, và cho số nào không nói được nó đọc từ đâu.
     inputs: [_acceptance/release-2-12-0/contract.md]
     expected: >
-      Bốn khối có mặt. Ô «gọi người đếm tay» trống ở bốn trong năm vòng, và hợp đồng khai
-      rõ lý do: số thật chỉ đếm tay được từ phiên đã chạy vòng đó, và cột «cận dưới» tồn
-      tại để chúng không phải ô trống trơn.
+      Bốn khối có mặt, mỗi khối mang số đọc được từ nguồn có tên. Ba dòng số là VĂN ĐẾM
+      TAY và hợp đồng khai thẳng điều đó ở Known limits — đúng tiền lệ ba mốc 2.9.0,
+      2.10.0 và 2.11.0. Lượt chấm 2 của hồ sơ này đã GỠ một eval định chấm chúng bằng
+      máy: nó ghim hình dạng diff của chính PR vào hồ sơ sắp ký nên không có HEAD nào nó
+      xanh được lúc ký, và hai trong ba ô còn lại của nó fail-open. Ô «gọi người đếm tay»
+      trống ở bốn trong năm vòng vì số thật chỉ đếm tay được từ phiên đã chạy vòng đó;
+      hợp đồng khai lý do ấy và có thêm một cột «cận dưới» rút từ sổ quyết định.
     evidence_required: [run_id, verifier, verified_at]
-  - id: E5
-    criterion: AC-5
-    executor: script
-    cmd: config:executors.script.gia_tri_tieu_thu_2_12
-    expected: >-
-      `do-gia-tri-tieu-thu.cjs --ghim 182` đọc hợp đồng THẬT của mọi cây có `_acceptance/`
-      dưới `~/dev` (trừ chính kho kit), gom theo KHO GỐC bằng `git remote get-url origin`
-      vì nhiều cây là bản sao của cùng một sản phẩm, rồi in bảng theo kho kèm sha. Tổng
-      tiêu chí đọc thêm phải bằng ĐÚNG 182; lệch → thoát 5 in cả hai số.
-      Bên đọc CŨ dựng bằng đường hẹp `section(t,'Criteria')` + `parseAC` từng dòng — đúng
-      đường mọi bên gọi đi TRƯỚC vòng `cong-nguoi-doc-du-nguon`.
-      VÌ SAO CÓ: ba số 493/27/253 của bản Cổng 1 chỉ có một dòng chữ «đo trên hồ sơ thật
-      của tám kho» — không lệnh, không sha. Khi có lệnh, số đổi: 253 đếm `artifact-platform`
-      hai lần dưới hai tên cây; số đúng là 182 trên 8 kho gốc.
-    paths:
-      - "_acceptance/release-2-12-0/do-gia-tri-tieu-thu.cjs"
-      - "lib/ac-line.cjs"
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]

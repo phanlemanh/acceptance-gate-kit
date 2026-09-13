@@ -36,8 +36,8 @@ mất lối làn V. Cửa sổ này không có lỗ nào đòi vá gấp nên m�
 **Vì sao mốc là việc kế tiếp.** Kho tiêu thụ đang chạy bộ bóc tiêu chí CŨ. Giá trị của
 năm vòng trên chỉ chạm người ở BẢN PHÁT HÀNH; tới lúc đó nó là mã nằm trên `main`.
 
-Đo bằng `_acceptance/release-2-12-0/do-gia-tri-tieu-thu.cjs` (gom theo KHO GỐC qua
-`git remote get-url origin`, vì nhiều cây dưới `~/dev` là bản sao của cùng một sản phẩm):
+Đo trên hồ sơ THẬT của các kho tiêu thụ trên máy owner, 13/09, gom theo KHO GỐC bằng
+`git remote get-url origin` (nhiều cây dưới `~/dev` là bản sao của cùng một sản phẩm):
 
 | Kho gốc | cây đại diện | sha | Hồ sơ | Đọc thêm | Tiêu chí cứu được |
 |---|---|---|---:|---:|---:|
@@ -49,7 +49,12 @@ năm vòng trên chỉ chạm người ở BẢN PHÁT HÀNH; tới lúc đó n�
 
 **Hai lần đính chính số này.** Thân PR #174 nêu 1 110 — đo trên 22 cây gồm chính kho kit
 và bản sao worktree. Bản Cổng 1 của hợp đồng này nêu 253 — đếm `artifact-platform` hai
-lần dưới hai tên cây. Số đúng là **182**, và nó có một lệnh sinh ra.
+lần dưới hai tên cây. Số đúng là **182**.
+
+*Giới hạn đã khai:* bảng này KHÔNG có eval, và script sinh ra nó đã bị GỠ khỏi hồ sơ ở
+lượt chấm 2. Lý do ở Known limits — một script duyệt `~/dev` để đếm hợp đồng của tám sản
+phẩm khác là product context của repo tiêu thụ nằm trong engine, thứ hiến pháp kit cấm
+bằng đúng phép thử «vô nghĩa với một công ty khác dùng kit».
 
 ## Criteria
 
@@ -86,36 +91,17 @@ cách rỗng nghĩa. Số so KHÔNG gõ vào răng: nó đọc từ manifest T�
 **Then** cả năm đều thoát 0. Cắt số là sửa manifest, và manifest được đọc bởi bộ giải
 plugin lẫn ca thường trực — nên «chỉ đổi ba dòng số» KHÔNG phải lý do bỏ lưới.
 
-### AC-4 (hồ sơ mốc) — bốn khối bắt buộc, mỗi số ĐỐI CHIẾU ĐƯỢC bằng máy
+### AC-4 (hồ sơ mốc) — bốn khối bắt buộc, có nguồn rút cho từng số
 
 **Given** `## Notes` của hợp đồng này
-**When** chạy `do-ba-dong-so.cjs --doi-chieu <contract>` rồi mới tới hội đồng
-**Then** hai chân tách bạch:
+**When** hội đồng đọc ở Cổng Bằng chứng
+**Then** có đủ bốn khối và mỗi khối mang số THẬT, không phải tiêu đề suông: ba dòng số
+của luật (c) · bảng lớp vendored 9 mục với +/− đo tại sha nêu tên · lớp lỗi tái phát gọi
+tên kèm dẫn chứng · nhát cắt kế gọi tên. Khối nào cố ý để trống phải khai rõ lý do.
 
-- **chân MÁY** — script tính lại từ vật (`run-log.jsonl` + commit Cổng 2) rồi đối chiếu
-  với bảng đã dán: số commit cửa sổ, số vòng, và với TỪNG vòng là lượt chấm và
-  làm-xong→quyết-được. Lệch một ô → thoát 5 in cả hai số.
-- **chân NGƯỜI/HỘI ĐỒNG** — chỉ còn hỏi: khối nào cố ý để trống có khai rõ lý do không,
-  và bốn khối có mặt đủ không.
-
-Vì sao tách: lượt chấm 1 để lọt HAI số sai trong chính bảng này — `cong-nguoi-doc-du-nguon`
-khai 39h01 trong khi hiệu thật 14h11 (lệch đúng 24 giờ), `cua-veto-sau-chu-ky` khai 9h03
-trong khi thật 10h02 vì đo tới dòng run-log cuối chứ không tới chữ ký. Phép đo khi đó là
-một hội đồng ĐỌC CHÍNH VĂN ẤY, nên nó không thể thấy. Ba dòng số là thứ owner dùng để
-quyết thu hồi luật NỚI; hội đồng không được là bên duy nhất đọc một con số máy tính được.
-
-### AC-5 (người hưởng) — giá trị tới kho tiêu thụ có LỆNH sinh ra, không phải một dòng chữ
-
-**Given** hợp đồng khẳng định mốc này cứu được N tiêu chí ở kho tiêu thụ
-**When** chạy `do-gia-tri-tieu-thu.cjs --ghim <N>`
-**Then** script đọc hợp đồng THẬT của mọi cây có `_acceptance/` dưới `~/dev` trừ chính
-kho kit, gom theo KHO GỐC qua `git remote get-url origin`, in bảng theo kho kèm sha, và
-thoát 5 nếu tổng lệch số đã ghim.
-
-Vì sao là một tiêu chí chứ không phải một câu trong Context: ba số này là thứ DUY NHẤT
-nối mốc với nguyên tố «nêu được người hưởng cụ thể». Bản Cổng 1 khẳng định 493/27/253
-bằng một dòng chữ. Khi có lệnh, số đổi — 253 đếm `artifact-platform` hai lần dưới hai
-tên cây. Gom theo kho gốc là phần bắt buộc của phép đo, không phải trang trí.
+**Ba dòng số là VĂN ĐẾM TAY, khai thẳng ở Known limits** — đúng tiền lệ ba mốc 2.9.0,
+2.10.0 và 2.11.0. Lượt chấm 2 đã GỠ một eval định chấm chúng bằng máy; lý do ở Known
+limits, và nó là bài học đắt nhất của hồ sơ này.
 
 ## Coverage
 
@@ -172,6 +158,36 @@ lớp mới, và số tiêu chí thật sự hiện trên thẻ ở các kho đ�
 - **Vá bất cứ thứ gì TRONG mốc.** Cửa sổ không có lỗ nào fail-open đang cháy. Giữ mốc
   ở T2 là điều kiện để làn V mở và để mục tiêu ≤1 lượt gọi người còn với tới được.
 
+## Known limits
+
+**Ba dòng số của luật (c) là VĂN ĐẾM TAY, không phép đo máy nào chấm.** Đúng như ba mốc
+2.9.0, 2.10.0 và 2.11.0 đã khai. Lượt chấm 2 của hồ sơ này thử làm khác và hỏng theo ba
+cách đo được, nên eval ấy đã bị GỠ:
+
+1. Nó ghim **hình dạng diff của chính PR** vào hồ sơ sắp ký: ô «số commit» đếm tới HEAD,
+   nên commit chữ ký Cổng 2 và commit ghim-lại-sau-chữ-ký — hai commit BẮT BUỘC theo
+   thiết kế — đều làm nó đỏ. Đo được: nó đã đỏ tại HEAD của chính lượt sửa, «máy đo 131,
+   hợp đồng nêu 130». Không có HEAD nào nó xanh được lúc ký.
+2. Ô «số vòng» fail-open: khuôn `(NĂM|<n>)` nhận chữ, nên số máy đo không bao giờ được
+   dùng tới. Đo được: máy đo 3, 5 hay 9 đều khớp.
+3. Ô «lượt chấm» quét TOÀN VĂN hợp đồng bằng `\b<n>\b`; đo được: mọi chữ số 1..9 đều có
+   mặt ở đâu đó trong 280 dòng.
+
+Điểm 1 là ca thứ NĂM của lớp «bất biến không được nằm trong hồ sơ đã ký», và ghi chú của
+lớp ấy gọi đích danh «hình dạng diff của chính PR». Phép thử của nó — *«mệnh đề còn đúng
+sau 50 commit không?»* — trả lời KHÔNG ngay từ commit kế tiếp.
+
+**Bảng giá trị tới kho tiêu thụ (182 tiêu chí) không có eval.** Script sinh ra nó đã gỡ
+khỏi hồ sơ: nó duyệt `~/dev` để đếm hợp đồng của tám sản phẩm khác, tức product context
+của repo tiêu thụ nằm trong engine. Phép thử của hiến pháp: *thứ gì vô nghĩa với một
+công ty khác dùng kit thì không thuộc kit* — một script đọc `~/dev` của owner trả lời
+đúng như vậy. Số 182 đo một lần trên máy owner ngày 13/09, và nó lệch ngay khi bất kỳ
+kho nào trong tám kho thêm một hợp đồng.
+
+**Ngưỡng đang đếm cho cả hai:** ≥1 mốc nữa mà ba dòng số bị phát hiện SAI sau khi ký.
+Khi đó lối vá đúng tầng không phải một eval trong hồ sơ mốc, mà là lệnh `signoff` ghi số
+ấy vào hồ sơ ngay lúc ký — xem §4.
+
 ## Notes
 
 Bốn khối bắt buộc của AC-4 nằm dưới đây.
@@ -179,7 +195,7 @@ Bốn khối bắt buộc của AC-4 nằm dưới đây.
 ### 1. Ba dòng số của luật (c) — MÁY TÍNH, người đếm tay một ô
 
 Sinh bằng `node _acceptance/release-2-12-0/do-ba-dong-so.cjs --neo 45e5f1d8`; bảng dưới
-đây dán nguyên đầu ra. Eval E4a chạy lại script với `--doi-chieu` và đỏ nếu văn lệch số.
+đây dán nguyên đầu ra. Script là CÔNG CỤ, không phải phép đo — xem Known limits.
 
 | Vòng | Lượt chấm | làm-xong→quyết-được | Gọi người (cận dưới) | Gọi người (đếm tay) |
 |---|---:|---|---:|---:|

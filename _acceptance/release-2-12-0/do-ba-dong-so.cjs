@@ -12,12 +12,21 @@
  * sinh ra để chặn.
  *
  *   node do-ba-dong-so.cjs --neo <sha mốc trước> [--root <kho>] [--json]
- *   node do-ba-dong-so.cjs --neo <sha> --doi-chieu <contract.md>
  *
- * `--doi-chieu` là lối vào dùng làm PHÉP ĐO: nó tính lại bảng rồi ĐỐI CHIẾU với
- * bảng đã dán trong hợp đồng. Lệch một ô → thoát 5, in cả hai số. Không có nó,
- * phép đo của AC-4 là một hội đồng ĐỌC CHÍNH VĂN ẤY — và lượt chấm 1 chứng minh
- * đường đó mù: hai số thời gian tôi gõ tay đều sai, một số lệch đúng 24 giờ.
+ * ĐÂY LÀ CÔNG CỤ, KHÔNG PHẢI PHÉP ĐO. Lượt chấm 2 đã gỡ lối vào `--doi-chieu` vốn
+ * định biến nó thành eval. Ba lý do, cả ba đo được:
+ *   1. Nó ghim HÌNH DẠNG DIFF CỦA CHÍNH PR vào hồ sơ sắp ký: ô «số commit» đếm tới
+ *      HEAD, nên commit chữ ký Cổng 2 và commit ghim-lại-sau-chữ-ký — hai commit
+ *      BẮT BUỘC theo thiết kế — đều làm nó đỏ. Không có HEAD nào nó xanh được lúc
+ *      ký. Đây là ca thứ NĂM của lớp «bất biến không được nằm trong hồ sơ đã ký»,
+ *      và ghi chú của lớp ấy gọi đích danh «hình dạng diff của chính PR».
+ *   2. Ô «số vòng» fail-open: khuôn `(NĂM|<n>)` nhận chữ NĂM nên số máy đo không
+ *      bao giờ được dùng tới — đo được: máy đo 3, 5 hay 9 đều khớp.
+ *   3. Ô «lượt chấm» quét TOÀN VĂN hợp đồng 280 dòng bằng `\b<n>\b`, và mọi chữ
+ *      số 1..9 đều có mặt ở đâu đó — thước không gắn vào vật.
+ * Ba mốc 2.9.0, 2.10.0 và 2.11.0 đều khai thẳng ba dòng số là VĂN ĐẾM TAY ở Known
+ * limits. Hồ sơ này quay về đúng tiền lệ ấy, và script còn lại để SINH bảng chứ
+ * không để chấm.
  *
  * MỌI ô đều rút từ vật đã có trong kho, không dựng phép đo mới:
  *   danh sách vòng        ← commit Cổng 2 trong cửa sổ (`Gate 2 signoff:` / `gate2(`)
@@ -44,13 +53,12 @@ const CAY = path.resolve(HO_SO, '..', '..');
 function usage(m) { process.stderr.write(`do-ba-dong-so: ${m}\nusage: --neo <sha> [--root <kho>] [--tay <slug>=<n>]... [--json]\n`); process.exit(3); }
 function die(m) { process.stderr.write(`do-ba-dong-so: ${m}\n`); process.exit(2); }
 
-const o = { root: CAY, tay: {}, json: false, doiChieu: null };
+const o = { root: CAY, tay: {}, json: false };
 for (let i = 2; i < process.argv.length; i++) {
   const a = process.argv[i];
   if (a === '--neo') o.neo = process.argv[++i];
   else if (a === '--root') o.root = path.resolve(process.argv[++i]);
   else if (a === '--json') o.json = true;
-  else if (a === '--doi-chieu') o.doiChieu = path.resolve(process.argv[++i]);
   else if (a === '--tay') { const [s, n] = String(process.argv[++i]).split('='); o.tay[s] = Number(n); }
   else usage(`cờ lạ ${a}`);
 }
@@ -99,27 +107,6 @@ for (const v of [...vong.values()].sort((a, b) => a.ky.localeCompare(b.ky))) {
 
 const ket = { neo: neoSha, head, soCommit, soVong: hang.length, hang };
 if (o.json) { process.stdout.write(JSON.stringify(ket, null, 2) + '\n'); process.exit(0); }
-
-if (o.doiChieu) {
-  let van; try { van = fs.readFileSync(o.doiChieu, 'utf8'); } catch { die(`không đọc được ${o.doiChieu}`); }
-  const lech = [];
-  // Số cửa sổ: hợp đồng phải nêu ĐÚNG số commit và ĐÚNG số vòng.
-  if (!van.includes(`${soCommit} commit`)) lech.push(`số commit: máy đo ${soCommit}, hợp đồng không nêu đúng chuỗi "${soCommit} commit"`);
-  if (!new RegExp(`(NĂM|${hang.length})\\s*(vòng|hồ sơ)`, 'i').test(van)) lech.push(`số vòng: máy đo ${hang.length}, hợp đồng không nêu`);
-  // Từng vòng: mỗi ô máy tính được phải xuất hiện NGUYÊN VĂN ở đâu đó trong hợp đồng.
-  for (const h of hang) {
-    if (!van.includes(h.slug)) { lech.push(`vòng ${h.slug}: hợp đồng không nhắc tên`); continue; }
-    if (h.luotCham != null && !new RegExp(`\\b${h.luotCham}\\b`).test(van)) lech.push(`${h.slug}: lượt chấm ${h.luotCham} không có trong hợp đồng`);
-    if (h.lamXongQuyetDuoc && !van.includes(h.lamXongQuyetDuoc)) lech.push(`${h.slug}: làm-xong→quyết-được ${h.lamXongQuyetDuoc} không có trong hợp đồng`);
-  }
-  if (lech.length) {
-    process.stderr.write(`DO: hợp đồng lệch phép đo ở ${lech.length} chỗ:\n`);
-    for (const l of lech) process.stderr.write(`  - ${l}\n`);
-    process.exit(5);
-  }
-  process.stdout.write(`PASS: hợp đồng khớp phép đo — ${soCommit} commit, ${hang.length} vòng, mọi ô lượt-chấm và thời-gian đều có mặt nguyên văn\n`);
-  process.exit(0);
-}
 
 process.stdout.write(`cửa sổ ${neoSha.slice(0, 8)}..${head.slice(0, 8)} · ${soCommit} commit · ${hang.length} vòng đóng\n\n`);
 process.stdout.write('| Vòng | Lượt chấm | làm-xong→quyết-được | Gọi người (cận dưới) | Gọi người (đếm tay) |\n');

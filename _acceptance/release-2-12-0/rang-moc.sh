@@ -106,7 +106,27 @@ fi
 # diagram-design đã lên 2.8.0) răng vẫn PASS và in «giu 2.8.0» trong khi hợp đồng
 # nói 2.7.0 — răng ghim lại được bằng cách rỗng nghĩa.
 # Số so KHÔNG gõ vào đây: nó đọc từ manifest TẠI commit mốc trước, tức suy TỪ KHO.
-if [ -n "$MOC_TRUOC" ]; then
+# Mốc phát hành TRƯỚC suy TỪ KHO, không gõ vào config — chính header của tệp này
+# tuyên như vậy, mà bản lượt 2 lại nhận sha qua cờ. Thuật toán giống hệt chân 1:
+# đi ngược lịch sử manifest của acceptance-gate, dừng ở commit ĐẦU TIÊN mang số
+# KHÁC số tại HEAD. Đó là commit cuối cùng của bản phát hành trước.
+if [ -z "$MOC_TRUOC" ]; then
+  AG="\.claude-plugin/plugin.json"
+  SO_AG_HEAD="$(G show "HEAD:.claude-plugin/plugin.json" 2>/dev/null | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+  for sha in $(G log --format=%H -- ".claude-plugin/plugin.json" 2>/dev/null); do
+    v="$(G show "${sha}:.claude-plugin/plugin.json" 2>/dev/null | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+    if [ -n "$v" ] && [ "$v" != "$SO_AG_HEAD" ]; then MOC_TRUOC="$sha"; break; fi
+  done
+fi
+# FAIL-CLOSED. Bản lượt 2 bọc cả chân này trong `if [ -n "$MOC_TRUOC" ]`, nên cờ
+# rơi khỏi config (hoặc bộ giải nuốt giá trị thành rỗng) là răng vẫn thoát 0 với
+# một dòng PASS ngắn hơn — fail-open IM LẶNG, đúng lớp mà chân `--chan` ở trên bị
+# cưỡng chế cứng để tránh.
+if [ -z "$MOC_TRUOC" ]; then
+  echo "DO: khong suy duoc moc phat hanh truoc tu kho — khong co nen de so quan he" >&2
+  exit 7
+fi
+if true; then
   SO_TRUOC="$(ver_tai "$MOC_TRUOC")"
   if [ -z "$SO_TRUOC" ]; then
     echo "DO: khong doc duoc so tai moc truoc (${MOC_TRUOC}) — khong co nen de so quan he" >&2
@@ -119,8 +139,4 @@ if [ -n "$MOC_TRUOC" ]; then
 fi
 
 SO="$SO_HEAD"
-if [ -n "$MOC_TRUOC" ]; then
-  echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} BANG so tai moc truoc ${MOC_TRUOC} (doi chung duong: cua so moc..HEAD KHONG rong)"
-else
-  echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} (doi chung duong: cua so moc..HEAD KHONG rong)"
-fi
+echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} BANG so tai moc truoc ${MOC_TRUOC} (doi chung duong: cua so moc..HEAD KHONG rong)"
