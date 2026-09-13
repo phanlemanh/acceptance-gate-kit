@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # rang-moc.sh — răng của hồ sơ release-2-12-0, chân `diagram`.
 #
-# CHÉP từ release-2-11-0 NGUYÊN VẸN phần thân, chỉ đổi dòng tên hồ sơ này. Vì sao
+# CHÉP từ release-2-11-0, rồi thân MỞ RỘNG trong hồ sơ này: thêm chân 4 (quan hệ
+# với mốc phát hành trước) và cờ `--moc-truoc` để chạy chiều đỏ của chân đó — cộng
+# 48 dòng so bản gốc. Ba chân đầu giữ nguyên văn. Lời khai này từng viết «NGUYÊN
+# VẸN phần thân»; lượt chấm 4 bắt đúng nó, vì người soát lại dùng câu ấy để quyết
+# «không cần đọc thân» trong khi thân là chỗ lượt 2 và 3 sửa nhiều nhất. Vì sao
 # chép chứ không trỏ sang tệp của hồ sơ kia: hồ sơ đã KÝ là sử liệu, và một eval của
 # hồ sơ mới trỏ vào tệp của hồ sơ cũ biến hồ sơ cũ thành vật chịu lực vĩnh viễn —
 # sửa nó là chạm sử liệu, xoá nó là gãy hồ sơ mới. Bất biến bên dưới KHÔNG ghim số
@@ -26,7 +30,13 @@
 #   5  diagram-design/ CÓ đổi sau lần cắt số gần nhất → số đang nói dối
 #   6  không đọc được số tại HEAD (vật không còn)  → không có vật để đo
 #   7  số tại HEAD KHÁC số tại mốc phát hành trước → lời hứa «giữ số» đã sai
+#   8  không có NỀN để so quan hệ (không suy được mốc trước, hoặc không đọc
+#      được số của acceptance-gate tại HEAD / tại mốc trước) → chưa đo được
 #   0  xanh
+#
+# Vì sao 7 và 8 tách (lượt chấm 4): gộp chúng làm «lời hứa đã sai» trông y như
+# «chưa có nền để đo» — đúng cặp mà hiến pháp bắt phân biệt. 7 nói về VẬT, 8 nói
+# về HẠ TẦNG của phép đo.
 #
 # Gốc kho suy TỪ VỊ TRÍ SCRIPT (bài học P150), không từ thư mục gọi.
 set -u
@@ -36,14 +46,18 @@ CHAN=""
 MOC_TRUOC=""
 while [ $# -gt 0 ]; do
   case "$1" in
-    --chan) CHAN="${2:-}"; shift 2 ;;
-    --moc-truoc) MOC_TRUOC="${2:-}"; shift 2 ;;
+    --chan) [ $# -ge 2 ] || { echo "rang-moc: --chan thieu gia tri" >&2; exit 2; }
+      CHAN="$2"; shift 2 ;;
+    --moc-truoc) [ $# -ge 2 ] || { echo "rang-moc: --moc-truoc thieu gia tri" >&2; exit 2; }
+      MOC_TRUOC="$2"; shift 2 ;;
     *) echo "rang-moc: tham so la: $1" >&2; exit 2 ;;
   esac
 done
-# `--chan` CỐ Ý nhận giá trị bọc vỏ nháy trong config: bộ giải TRƯỚC 2.11.0 trả
-# chuỗi còn dấu chéo ngược nên giá trị tới đây là `\"diagram\"` và răng thoát 2
-# có tên — eval này không thể xanh trên bản chưa vá.
+# `--chan` cưỡng chế cứng để một cờ rơi khỏi config KHÔNG âm thầm thành xanh.
+# Lời khai cũ ở đây nói nó còn canh cả vỏ nháy của bộ giải TRƯỚC 2.11.0; lượt chấm
+# 4 bắt: khoá `moc_diagram_2_12` truyền giá trị TRẦN (`--chan diagram`) nên không
+# còn đường nào đưa vỏ nháy tới chốt này. Chốt vẫn sống (`--chan 'diagram"'` →
+# thoát 2), nhưng nó KHÔNG còn phân biệt bản đã vá bộ giải với bản chưa vá.
 [ "$CHAN" = "diagram" ] || { echo "rang-moc: --chan phai la 'diagram' (thay: '${CHAN}')" >&2; exit 2; }
 
 MANIFEST="diagram-design/.claude-plugin/plugin.json"
@@ -111,8 +125,17 @@ fi
 # đi ngược lịch sử manifest của acceptance-gate, dừng ở commit ĐẦU TIÊN mang số
 # KHÁC số tại HEAD. Đó là commit cuối cùng của bản phát hành trước.
 if [ -z "$MOC_TRUOC" ]; then
-  AG="\.claude-plugin/plugin.json"
   SO_AG_HEAD="$(G show "HEAD:.claude-plugin/plugin.json" 2>/dev/null | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+  # Chốt rỗng, ĐỐI XỨNG với chốt của SO_HEAD ở trên. Không có nó thì vòng dưới chỉ
+  # còn điều kiện `[ -n "$v" ]`, nên nó nhận ngay commit MỚI NHẤT chạm manifest —
+  # một commit NẰM TRONG chính cửa sổ đang đo — và phép so «quan hệ với mốc phát
+  # hành TRƯỚC» thoái hoá thành so mốc VỚI CHÍNH NÓ, thoát 0 không một dòng cảnh
+  # báo. Lượt chấm 4 chạy thật chiều đỏ đó: SO_AG_HEAD rỗng → mốc trước suy ra
+  # 3f492e2e, tức commit của chính mốc đang chấm.
+  if [ -z "$SO_AG_HEAD" ]; then
+    echo "DO: khong doc duoc so acceptance-gate tai HEAD — khong co nen de suy moc phat hanh truoc" >&2
+    exit 8
+  fi
   for sha in $(G log --format=%H -- ".claude-plugin/plugin.json" 2>/dev/null); do
     v="$(G show "${sha}:.claude-plugin/plugin.json" 2>/dev/null | sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
     if [ -n "$v" ] && [ "$v" != "$SO_AG_HEAD" ]; then MOC_TRUOC="$sha"; break; fi
@@ -124,18 +147,16 @@ fi
 # cưỡng chế cứng để tránh.
 if [ -z "$MOC_TRUOC" ]; then
   echo "DO: khong suy duoc moc phat hanh truoc tu kho — khong co nen de so quan he" >&2
-  exit 7
+  exit 8
 fi
-if true; then
-  SO_TRUOC="$(ver_tai "$MOC_TRUOC")"
-  if [ -z "$SO_TRUOC" ]; then
-    echo "DO: khong doc duoc so tai moc truoc (${MOC_TRUOC}) — khong co nen de so quan he" >&2
-    exit 7
-  fi
-  if [ "$SO_HEAD" != "$SO_TRUOC" ]; then
-    echo "DO: so tai HEAD (${SO_HEAD}) KHAC so tai moc phat hanh truoc ${MOC_TRUOC} (${SO_TRUOC})" >&2
-    exit 7
-  fi
+SO_TRUOC="$(ver_tai "$MOC_TRUOC")"
+if [ -z "$SO_TRUOC" ]; then
+  echo "DO: khong doc duoc so tai moc truoc (${MOC_TRUOC}) — khong co nen de so quan he" >&2
+  exit 8
+fi
+if [ "$SO_HEAD" != "$SO_TRUOC" ]; then
+  echo "DO: so tai HEAD (${SO_HEAD}) KHAC so tai moc phat hanh truoc ${MOC_TRUOC} (${SO_TRUOC})" >&2
+  exit 7
 fi
 
 SO="$SO_HEAD"

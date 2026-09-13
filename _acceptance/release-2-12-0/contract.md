@@ -14,7 +14,16 @@ approved_at: 2026-09-13
 
 ## Context
 
-Cửa sổ `45e5f1d8` (merge PR #166 — mốc 2.11.0) → `HEAD`: **130 commit, NĂM vòng đóng.**
+Cửa sổ `45e5f1d8` (merge PR #166 — mốc 2.11.0) → `HEAD`: **130 commit đo tại
+`3f492e2e`, NĂM vòng đóng.**
+
+*Giới hạn đã khai (sửa ở lượt chấm 4):* con số commit là ẢNH CHỤP tại một sha, không
+phải bất biến. Nó cộng thêm một sau mỗi commit sửa chính hồ sơ này — tại HEAD của lượt
+chấm 4 `rev-list --count 45e5f1d8..HEAD` cho 137 — và hai commit BẮT BUỘC theo thiết kế
+(chữ ký Cổng 2, ghim lại) còn cộng nữa. Bản lượt 2 từng dựng một eval đối chiếu số này
+và chính nó là ca «bất biến không được nằm trong hồ sơ đã ký» phải gỡ: không có HEAD nào
+nó xanh được lúc ký. Nên số này ghi kèm sha đo, KHÔNG có eval canh; **NĂM vòng đóng** là
+vế bất biến và đó là vế mọi kết luận của mốc dựa vào.
 
 Neo đầu SỬA sau lượt chấm 1: bản trước ghim `698badbf`, thật ra là một commit Cổng 1.5
 GIỮA vòng `cua-veto-sau-chu-ky`, nằm 28 commit SAU mốc. Bảng lớp vendored ở Notes §2 vì
@@ -196,6 +205,26 @@ Owner chọn lối TRỪ HẾT: gỡ `phan-lop-ha-tang.cjs` (7 phát hiện; nó
 `thuoc-khong-lat-verdict` ngả 5, không thuộc mốc) và `do-ba-dong-so.cjs` (mồ côi sau khi
 eval của nó bị bỏ). Một mốc THUẦN CẮT SỐ không nuôi dàn đo riêng; ba mốc trước đều không.
 
+**Bài học lượt chấm 4 — lối 1 chưa xong ở lớp LỜI.** Lượt 4 trả 19 phát hiện: **19 trên
+19 vẫn nằm trong bộ máy hồ sơ này, 0 ở vật được giao** — ba con số phiên bản xanh từ lượt
+1 và xanh cả ở lượt 4. Nhưng hình dạng đã đổi: lượt 3 là các SCRIPT tự dựng, lượt 4 là
+các LỜI KHAI mà nhát trừ của lượt 3 để lại sau lưng. Bảy phát hiện là câu khai trỏ vào
+vật đã gỡ (`E3f` trong `expected` của E3c · ba ô `fixed` của `gap-probe.md` · vế «E4a
+canh nên số commit không trôi nữa») hoặc khai quá điều chuỗi đo chứng minh (E1 hứa GIÁ
+TRỊ `2.12.0` mà chuỗi chỉ kiểm QUAN HỆ; hai eval tuyên một LỚP lối hỏng mà chỉ chạy
+điểm-case). Chín phát hiện là khiếm khuyết THẬT trong hai răng còn lại, mỗi cái có chiều
+đỏ chạy được: một fail-open im lặng ở chân 4 của `rang-moc.sh` (phát hiện in-contract
+DUY NHẤT — bản chưa vá suy mốc phát hành «trước» ra chính commit của cửa sổ đang đo), một
+`shift 2` làm script TREO VÔ HẠN thay vì thoát 2, và một lối thoát KHÔNG BAO GIỜ tới được
+trong `rang-p200.sh` khiến hạ tầng vỡ bị khai là «P200 đỏ».
+
+Rút ra, ghi để không lặp: **một nhát TRỪ chưa xong khi vật đã gỡ mà câu khai về nó còn
+đứng.** Câu khai còn lại nguy hơn script đã gỡ, vì nó là thứ người soát lại dùng để
+quyết «không cần đọc vật» — và ba trong số đó hiển thị trên THẺ CỔNG mà owner đọc ở Cổng
+Bằng chứng, tức ba P0 trông như đã đóng trong khi hai đã quay về trạng thái chỉ-khai-giới-
+hạn. Nghi thức cho nhát trừ kế: sau khi gỡ một vật, `grep` tên nó trong TRỌN hồ sơ và
+đối chiếu từng ô `fixed` với `decisions.jsonl`, đừng tin câu đã viết.
+
 **Ngưỡng đang đếm cho cả hai:** ≥1 mốc nữa mà ba dòng số bị phát hiện SAI sau khi ký.
 Khi đó lối vá đúng tầng không phải một eval trong hồ sơ mốc, mà là lệnh `signoff` ghi số
 ấy vào hồ sơ ngay lúc ký — xem §4.
@@ -235,13 +264,22 @@ vòng chỉ `cong-nguoi-doc-du-nguon` chạy trong phiên này: **14 lượt, 2 
 **Tổng cửa sổ:** 19 lượt chấm trên 5 vòng (trung bình 3,8 so trần 3); tổng
 làm-xong→quyết-được 36h22.
 
-**Hạ tầng đốt lượt: 3, mỗi lượt có tên.** Vòng `cong-nguoi-doc-du-nguon` lượt 5 — tệp ca
+**Hạ tầng đốt lượt: 4, mỗi lượt có tên.** Vòng `cong-nguoi-doc-du-nguon` lượt 5 — tệp ca
 là tệp MỚI nên cây gốc trả `MODULE_NOT_FOUND`, tác tử ghi thành «đỏ = có phân biệt» cho
 cả bảy phép đo. Lượt 8 — đầu ra suite plugins khớp khuôn `permissions-allow-deny` nên bị
 hạ tầng trung hoà, tác tử trả đỏ trong khi cùng chuỗi lệnh chạy tại chỗ thoát 0. Và
 **lượt 1 của CHÍNH hồ sơ mốc này** — cùng lớp ấy lần thứ ba, phân lớp bằng máy
 (`phan-lop-ha-tang.cjs`, hai lần chạy lại đều xanh) và ghi vào `run-log.jsonl` dưới
-`kind: infra-recheck`.
+`kind: infra-recheck`. Và **lượt 4 của hồ sơ mốc này — lần thứ TƯ**, lần đầu tiên cơ chế
+được định danh thay vì gọi là «flaky»: E3c đỏ với `FAIL: P93` trong fan-out, còn tại chỗ
+cùng SHA `3db8403b` thì xanh hai lần (trọn suite, và riêng khối P93). P93 quét toàn CÂY
+LÀM VIỆC bằng `rglob` với mẫu bắt-tất-cả rồi đếm cặp marker toàn kho, chỉ loại `{plugins,_acceptance,
+tests}` và `{.git,.claude,node_modules}` — nên bất kỳ tệp nháp không-được-theo-dõi nào
+chứa một cặp marker đều làm nó đỏ, mà một lượt chấm là 37 tác tử cùng ghi trong một
+worktree. Chiều đỏ chạy thật: cây nguyên vẹn XANH → tiêm một tệp tạm chứa cặp
+`HFL-LAW-TABLE` vào `docs/` → `FAIL: P93` kèm «cap marker HFL-LAW-TABLE co 3 khoi (mong
+doi 2)» → xoá tệp → XANH lại. Lượt này phân lớp bằng PHÉP ĐO (chạy lại tại chỗ, đối
+chứng dương) chứ không bằng lý lẽ, vì bộ phân lớp đã gỡ theo lối 1.
 
 ### 2. Lớp vendored — bốn trên chín mục ĐỔI trong cửa sổ
 
@@ -266,8 +304,10 @@ dòng và không ai thấy. Ô mở, xem §4.
 ### 3. Lớp lỗi TÁI PHÁT trong cửa sổ
 
 - **Hạ tầng tự sinh tín hiệu đỏ** — 2 lượt ở `cong-nguoi-doc-du-nguon`; mốc 2.11.0 ghi
-  5, mốc 2.10.0 ghi 5. **Ba cửa sổ liên tiếp.** Ô `thuoc-khong-lat-verdict` ngả 5 đi
-  đóng lớp này.
+  5, mốc 2.10.0 ghi 5; cộng **2 lượt của chính hồ sơ mốc này** (lượt 1 và lượt 4).
+  **BỐN cửa sổ liên tiếp.** Ô `thuoc-khong-lat-verdict` ngả 5 đi đóng lớp này. Đóng góp
+  của cửa sổ này: lớp giờ có MỘT cơ chế được định danh và một nhát cắt một-dòng
+  (§4) — trước đó nó chỉ được ghi là «tác tử khai đỏ trong khi tại chỗ xanh».
 - **DỪNG-VÁ nổ rồi lượt sửa lại đẻ lỗi cùng lớp** — 3 lần liên tiếp ở
   `cong-nguoi-doc-du-nguon` (lượt 3→4, 4→5, 6→7). Cả ba đều là NỚI một bộ đọc; hai bản
   vá cuối là HỢP NHẤT luật về một nguồn và không đẻ hồi quy.
@@ -283,6 +323,14 @@ dòng và không ai thấy. Ô mở, xem §4.
 dòng 1042). Đó là dòng làm lượt 7 của `cong-nguoi-doc-du-nguon` đỏ trong khi mọi phép đo
 xanh, và là chỗ máy định nghĩa lại «tốt» sau khi owner đã chốt ở Cổng Phạm vi. Phép trừ,
 một dòng. Ô `thuoc-khong-lat-verdict` ngả 1.
+
+**Nhát cắt thứ hai, lộ ra ở lượt chấm 4 và có chiều đỏ chạy thật: cho `scan()` của P93
+đi theo tệp GIT THEO DÕI thay vì `rglob` với mẫu bắt-tất-cả** (`tests/plugins/run-tests.sh`, hàm
+`scan`, ~dòng 2068). Đây là nhát cắt rẻ nhất cho lớp «hạ tầng tự sinh tín hiệu đỏ» đã
+đếm BỐN cửa sổ liên tiếp: phép đo hiện đo kiểm kê tệp của cây làm việc, trong khi vật
+được giao là cây NGUỒN — đúng dạng «thước phải gắn vào vật được giao». Một tệp nháp của
+bất kỳ tác tử nào trong fan-out 37 tác tử đủ làm nó đỏ. KHÔNG làm trong mốc này vì nó
+chạm chính vật mà E3a–E3e đang đo; vào ô `thuoc-khong-lat-verdict` ngả 5.
 
 **Hai ô mới lộ ra ở lượt chấm 1 của chính mốc này**, cả hai thuộc lớp «lời khai không có
 vật», ghi ở đây thay vì mở vòng:

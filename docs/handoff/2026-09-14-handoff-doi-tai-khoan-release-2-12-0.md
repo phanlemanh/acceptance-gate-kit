@@ -62,9 +62,14 @@ nếp ấy vừa làm CI xanh ngay lượt đầu ở PR #174 và đã bắt đ�
 Sinh tham số và tung lượt 4:
 
 ```bash
-S=/private/tmp/claude-501/-Users-manh-macmini-dev-acceptance-gate-kit/<session>/scratchpad
+S="<thư mục scratchpad của PHIÊN HIỆN TẠI — đọc từ system prompt của phiên, đừng chép lại>"
 node feature-loop/scripts/s4-args.mjs --slug release-2-12-0 --root . --round 4 --no-carry --out "$S/args.json"
 ```
+
+Bản đầu của tệp này ghim thẳng `/private/tmp/claude-501/-Users-manh-macmini-…`, tức uid
+và tên máy của phiên CŨ — trong chính một tệp tồn tại vì owner đổi tài khoản. Lượt chấm 4
+bắt: dán nguyên khối lệnh là ghi vào một đường không thuộc phiên mới. Đúng nếp P150 —
+mọi đường dẫn suy từ vị trí đang chạy, không hardcode.
 
 Rồi nhúng args thành hằng vào một BẢN SAO của `feature-loop/workflows/acceptance-verify.js`
 lấy TỪ CÂY (không lấy từ cache plugin), kiểm vòng tròn rút-lại-khớp, `node --check`, rồi
