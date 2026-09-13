@@ -1,1 +1,2 @@
 {"ts":"2026-09-12T23:26:30Z","kind":"round-tally","round":1,"verdict":"REJECT","evals":23,"failed":["E16"],"note":"lượt chấm 1, 45 agent, 0 lỗi agent"}
+{"ts":"2026-09-13T00:09:18Z","kind":"round-tally","round":2,"verdict":"REJECT","evals":18,"failed":[],"note":"18/18 phép đo xanh; 13 phát hiện, REJECT do phát hiện chứ không do phép đo"}

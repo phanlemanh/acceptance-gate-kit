@@ -2,13 +2,13 @@
 schema_version: 2
 feature_slug: cong-nguoi-doc-du-nguon
 verdict: REJECT
-failed_evals: [E16]
+failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6f57ccd8301e9e59fc6675c11afec7ed2c461641
-findings_open: 12
+verified_commit: 19c88febbbe25448ea2fe70c89fc6e50877e8f46
+findings_open: 13
 human_signoff:
 ---
 
@@ -31,14 +31,14 @@ human_signoff:
 | E13 | AC-13 | script | PASS |
 | E14 | AC-14 | script | PASS |
 | E15 | AC-12 | script | PASS |
-| E16 | AC-12 | script | FAIL |
+| E16 | AC-12 | script | PASS |
 | E17 | AC-12 | script | PASS |
 | E18 | AC-15 | script | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-cong-nguoi-doc-du-nguon-E1-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E1-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_luat_thu_bay
@@ -49,18 +49,16 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E2
-  run_id: minted-cong-nguoi-doc-du-nguon-E2-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E2-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_mot_nguon
   verified_at: 2026-09-13T00:00:00Z
   output: |
-    · mũi (c): bash tự duyệt = 1 lần
-
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E3
-  run_id: minted-cong-nguoi-doc-du-nguon-E3-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E3-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_fail_closed
@@ -71,7 +69,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E4
-  run_id: minted-cong-nguoi-doc-du-nguon-E4-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E4-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_khai_lech_vat
@@ -82,7 +80,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E5
-  run_id: minted-cong-nguoi-doc-du-nguon-E5-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E5-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_duong_doc_cu
@@ -93,7 +91,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E6
-  run_id: minted-cong-nguoi-doc-du-nguon-E6-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E6-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_cua_ghi
@@ -104,7 +102,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E7
-  run_id: minted-cong-nguoi-doc-du-nguon-E7-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E7-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_ac_tieu_de
@@ -115,18 +113,16 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E8
-  run_id: minted-cong-nguoi-doc-du-nguon-E8-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E8-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_tieu_de_muc
   verified_at: 2026-09-13T00:00:00Z
   output: |
-    · không mục nào → AC-1,AC-2
-
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E9
-  run_id: minted-cong-nguoi-doc-du-nguon-E9-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E9-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_bo_do_khong_im
@@ -137,7 +133,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E10
-  run_id: minted-cong-nguoi-doc-du-nguon-E10-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E10-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_the_cong_2
@@ -148,7 +144,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E11
-  run_id: minted-cong-nguoi-doc-du-nguon-E11-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E11-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_cross_layer_hai_nhanh
@@ -159,7 +155,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E12
-  run_id: minted-cong-nguoi-doc-du-nguon-E12-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E12-r2
   exit_code: 0
   baseline: green
   verifier: config:executors.script.cndn_luoi_chep_san_co
@@ -170,7 +166,7 @@ human_signoff:
     Results: 9 passed, 0 failed
 
 - eval: E13
-  run_id: minted-cong-nguoi-doc-du-nguon-E13-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E13-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_bon_ben_goi
@@ -181,7 +177,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E14
-  run_id: minted-cong-nguoi-doc-du-nguon-E14-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E14-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_round_trip_writer
@@ -192,7 +188,7 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E15
-  run_id: minted-cong-nguoi-doc-du-nguon-E15-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E15-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_lop_chep_ci
@@ -203,16 +199,16 @@ human_signoff:
     Results: 1 passed, 0 failed (cong-nguoi-doc-du-nguon)
 
 - eval: E16
-  run_id: minted-cong-nguoi-doc-du-nguon-E16-r1
-  exit_code: 1
-  baseline: red
-  verifier: config:executors.script.coverage_lint
+  run_id: minted-cong-nguoi-doc-du-nguon-E16-r2
+  exit_code: 0
+  baseline: green
+  verifier: config:executors.script.cndn_lint_ho_so
   verified_at: 2026-09-13T00:00:00Z
   output: |
-    W1 = a bounded/threshold criterion needs a just-below should-NOT-fire (boundary) eval; W3 = give the out-of-scope half real negative evals; W4 = a (cross-layer) criterion needs a paired layer: backend-effect eval; W5 = a mobile-surface contract needs a "Mobile backend target:" line; W6 = the contract uses a word this repo's CONTEXT.md ruled out under _Avoid_; W7 = a criterion-shaped line did not parse, so every warning above ran on an incomplete AC set — fix the contract line first, then re-read this output; W8 = a human-visible surface (ui/web/web-ui) needs ≥1 executor: ui-check eval per contract (label layer: ui-observed), or a named descope "bỏ ui-observed — …".
+    eval-coverage-lint: no coverage gaps detected.
 
 - eval: E17
-  run_id: minted-cong-nguoi-doc-du-nguon-E17-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E17-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_ban_kinh
@@ -223,7 +219,7 @@ human_signoff:
     }
 
 - eval: E18
-  run_id: minted-cong-nguoi-doc-du-nguon-E18-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-E18-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.cndn_coverage_bang
@@ -236,27 +232,27 @@ human_signoff:
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh
-  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_scripts_run_tests_sh-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_scripts_run_tests_sh-r2
   exit_code: 0
   verified_at: 2026-09-13T00:00:00Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
   verified_at: 2026-09-13T00:00:00Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r2
   exit_code: 0
   verified_at: 2026-09-13T00:00:00Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
   verified_at: 2026-09-13T00:00:00Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-cong-nguoi-doc-du-nguon-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
   verified_at: 2026-09-13T00:00:00Z
 
@@ -266,12 +262,12 @@ human_signoff:
 
 ## Analyst
 
-E12 — lưới quan hệ sẵn có `tests/scripts/consumer-esm.test.mjs` (chân thứ nhất của AC-12, đo tầng seam CE1/CE2 giữa marker chép và hai tệp cưỡng chế): baseline `green` — pass trên CẢ HEAD lẫn diffBase, tức phép đo không phân biệt được bằng feature này. Đây là regression-guard sẵn có bảo vệ một lớp đã ổn định từ trước vòng cong-nguoi-doc-du-nguon (không phải hành vi mới của vòng này), không phải một test cần viết lại — chân thứ hai của AC-12 (E15, đo bao đóng bắc cầu của danh sách chép CI) mới là phần mới sinh bởi vòng này và đã `red` đúng trên baseline (xem bảng).
+E12 (`node tests/scripts/consumer-esm.test.mjs`), E16 (`node scripts/eval-coverage-lint.js . --slug cong-nguoi-doc-du-nguon`) — cả hai baseline: green, tức pass trên CẢ head lẫn diffBase. Đây là lưới sẵn có của kit (consumer-esm) và lint phủ eval hẹp theo slug — cả hai là regression-guard có chủ đích (không phải harness giả), không phải eval mới sinh ra để phân biệt vật của vòng này; giữ nguyên, không cần viết lại.
 
 ## Variance
 
-none — every multi-run eval is uniform
+none — every multi-run eval is uniform (không eval nào khai `runs` > 1 trong vòng này).
 
 ## Iterations
 
-Round 1: E16 failed — `node scripts/eval-coverage-lint.js .` thoát 1. Bán kính bản vá (AC-12) làm ~1500 tiêu chí trở nên nhìn thấy với lint, sinh cảnh báo mới chưa được xử lý hết hoặc khai known-limits/new-contract đầy đủ (chi tiết + phân loại từng cảnh báo nằm ở review-findings.md). Trả về implementation.
+Round 2: mọi 18 eval script + 5 lệnh suite đều exit 0 (baseline phần lớn red, hai lệnh non-discriminating là E12/E16), nhưng review scope-triage phát hiện 4 lỗi TRONG hợp đồng severity high/medium (AC-9, AC-11, AC-13, AC-14 — bộ đếm `inContract` luôn ra 0, `AC_XREF` không nới theo `AC_SUSPECT`, CN13 thiếu chân đo bên gọi thứ tư, CN11 không so tập id hai nhánh) cộng 9 lỗi ngoài hợp đồng (findings_open: 13) — verdict REJECT, quay lại triển khai để vá các lỗ trong phạm vi đã duyệt trước khi verify lại.
