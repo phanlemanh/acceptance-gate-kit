@@ -4226,7 +4226,17 @@ mk_gcv() { # <slug> <heading> <than>
     echo "$2"; echo ''; shift 2; for l in "$@"; do echo "$l"; done; } > "$GCV/$1/contract.md"
 }
 mk_gcv blankcase '## Criteria' '- **AC-1**' '- **AC-2**' '- **AC-3**'
-mk_gcv headcase  '## Acceptance criteria' '- AC-1: Given x, Then y.' '- AC-2: Given x, Then y.'
+# Heading LỆCH THẬT. `## Acceptance criteria` từng đóng vai này, nhưng từ hồ sơ
+# cong-nguoi-doc-du-nguon nó là một tên mục HỢP LỆ (AC-8; so khớp không phân biệt
+# hoa thường). Dùng nó ở đây là đo một thứ không còn lệch, và ca sẽ đỏ vì hợp
+# đồng LÀNH. Tên dưới đây không nằm trong CRITERIA_HEADINGS.
+#
+# BULLET PHẢI BÓC ĐƯỢC (sửa sau lượt chấm 6). Bản trước dùng `- **AC-1**` không có
+# thân, nên bộ bóc trả 0 dù tên mục CÓ được nhận hay KHÔNG — assert mất khả năng
+# phân biệt. Đo được: thêm 'Tiêu chí nghiệm thu' vào CRITERIA_HEADINGS trên một
+# bản sao rồi chạy lại, cả hai cây in cùng một chuỗi. Với bullet bóc được thì cây
+# nới đọc ra 2 tiêu chí và cờ TẮT — assert dưới đây mới thật sự đo tên mục.
+mk_gcv headcase  '## Tiêu chí nghiệm thu' '- AC-1: Given x, When w, Then y.' '- AC-2: Given x, When w, Then y.'
 mk_gcv okcase    '## Criteria' '- AC-1: Given x, Then y.' '- AC-2: Given x, Then y.'
 # Nhanh CUT (AC-11) cung phai ra toi card THAT, khong chi song o tang don vi:
 # vai criterion khuon chuan xen giua khuon la -> parse duoc mot phan.
@@ -4236,7 +4246,7 @@ GCV_BLANK="$(node "$GCARD" --root "$T/gcv" --slug blankcase --gate 1 2>&1)"
 GCV_HEAD="$(node "$GCARD" --root "$T/gcv" --slug headcase --gate 1 2>&1)"
 GCV_OK="$(node "$GCARD" --root "$T/gcv" --slug okcase --gate 1 2>&1)"
 hasout "GCV1a khuon la -> card neu KHONG doc duoc criterion nao" "KHÔNG đọc được criterion nào" "$GCV_BLANK"
-hasout "GCV1b heading lech -> card neu ten heading sai" "## Acceptance criteria" "$GCV_HEAD"
+hasout "GCV1b ten muc LA -> card doc 0 criterion va neu dung so dong nghi ngo" "KHÔNG đọc được criterion nào, dù file có 2 dòng" "$GCV_HEAD"
 hasout "GCV1c card mu phai bao dung KHONG duyet" "đừng duyệt" "$GCV_BLANK"
 hasout "GCV1e nhanh CUT ra toi card that: card neu doc THIEU" "Đọc THIẾU" "$GCV_CUT"
 hasout "GCV1f card cut cung bao dung duyet" "đừng duyệt" "$GCV_CUT"

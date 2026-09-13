@@ -278,6 +278,16 @@ executors:
     lsnr_bo_loc_rong: LSNR_CASES=L08 node tests/scripts/lan-status-not-run.test.mjs
     lsnr_chuan_hoa: LSNR_CASES=L09 node tests/scripts/lan-status-not-run.test.mjs
     lsnr_cho_xuat_hien: LSNR_CASES=L10 node tests/scripts/lan-status-not-run.test.mjs
+    # Vat cua ho so cong-nguoi-doc-du-nguon — ca song VINH VIEN o
+    # tests/scripts/cong-nguoi-doc-du-nguon.test.mjs (suite scripts tu chay moi *.test.mjs
+    # qua glob, nen day la luoi thuong truc chu khong phai rang ho so chet theo merge).
+    # Lenh de TRAN (khong nhay) theo nep gllc_*. Bo loc CNDN_CASES khop 0 ca phai thoat
+    # khac 0 (bai hoc P86).
+    cndn_ac_tieu_de: CNDN_CASES=CN07 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
+    cndn_tieu_de_muc: CNDN_CASES=CN08 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
+    cndn_bo_do_khong_im: CNDN_CASES=CN09 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
+    cndn_ba_ben_goi: CNDN_CASES=CN13 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
+    cndn_coverage_bang: CNDN_CASES=CN15 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

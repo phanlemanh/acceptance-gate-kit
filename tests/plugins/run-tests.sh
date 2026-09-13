@@ -945,12 +945,15 @@ p61_probe() { # <thu-muc-goc> -> in cac sentinel VANG MAT o moi duong
 P61MISS="$(p61_probe "$ROOT")"
 # Dot bien: LAM LECH THAT duong critText (Cong 2) — bo moi criterion khuon `- **AC-n`
 P61MUT="$(mktemp -d)"; mkdir -p "$P61MUT/scripts" "$P61MUT/lib"
-cp "$ROOT"/lib/*.js "$P61MUT/lib/" 2>/dev/null
-cp "$ROOT"/lib/*.json "$P61MUT/lib/" 2>/dev/null
+# Chép TRỌN lib/ (mọi đuôi), không chỉ *.js: bộ đọc của thẻ nay là .cjs, và một
+# glob theo đuôi sẽ dựng bản đột biến THIẾU thư viện — bản ấy chết vì hạ tầng chứ
+# không vì mũi tiêm, mà câu báo lỗi lại nói về mũi tiêm (hồ sơ cong-nguoi-doc-du-nguon).
+cp -R "$ROOT"/lib/. "$P61MUT/lib/" 2>/dev/null
 cp "$ROOT/scripts/gate-card.js" "$P61MUT/scripts/gate-card.js"
-perl -0pi -e 's/\Qconst ac = parseAC(l); if (ac && !critText\E/const ac = MUTDROP(l) ? null : parseAC(l); if (ac \&\& !critText/' "$P61MUT/scripts/gate-card.js"
-perl -0pi -e 's/\Qconst { parseAC, acBlindSpot, blindSpotText }\E/const MUTDROP = l => \/^\\s*-\\s*\\*\/.test(l);\nconst { parseAC, acBlindSpot, blindSpotText }/' "$P61MUT/scripts/gate-card.js"
-if ! grep -q 'MUTDROP(l) ? null : parseAC(l)' "$P61MUT/scripts/gate-card.js" || ! node --check "$P61MUT/scripts/gate-card.js" 2>/dev/null; then
+# Mũi tiêm bám đường critText của Cổng 2, nay đi qua parseACBlock: cho nó trả rỗng.
+perl -0pi -e 's/\Qfor (const ac of parseACBlock(contract)) { if (!critText\E/for (const ac of MUTDROP(parseACBlock(contract))) { if (!critText/' "$P61MUT/scripts/gate-card.js"
+perl -0pi -e 's/\Qconst { parseAC, parseACBlock, acBlindSpot, blindSpotText }\E/const MUTDROP = () => [];\nconst { parseAC, parseACBlock, acBlindSpot, blindSpotText }/' "$P61MUT/scripts/gate-card.js"
+if ! grep -q 'MUTDROP(parseACBlock(contract))' "$P61MUT/scripts/gate-card.js" || ! node --check "$P61MUT/scripts/gate-card.js" 2>/dev/null; then
   fail "P68 dot bien KHONG ap duoc — doi chung duong vo hieu, khong the tin case nay"
 else
   P61MUTMISS="$(p61_probe "$P61MUT")"
@@ -970,17 +973,20 @@ P62OUT="$(node -e '
   const lines=(arr)=>arr.join("\n");
   // (a) heading dung, khuon LA -> section co nhung parse ra 0
   const a=lines(["## Criteria","","- **AC-1**","- **AC-2**","- **AC-3**"]);
-  // (b) heading LECH -> section() rong, khong co section de quet
-  const b=lines(["## Acceptance criteria","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."]);
+  // (b) ten muc LA -> khong co muc de thu hep, bo DEM quet CA TEP
+  // (sua sau luot cham 7, cung lop voi GCV1b): `## Acceptance criteria` nay la
+  // mot ten muc HOP LE (CRITERIA_HEADINGS, so khop khong phan biet hoa thuong),
+  // nen o nay da thoi do nhanh quet-ca-tep. Ten duoi day KHONG nam trong danh sach.
+  const b=lines(["## Tieu chi nghiem thu","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."]);
   // (c) lanh
   const c=lines(["## Criteria","","- AC-1: Given x, Then y.","- AC-2: Given x, Then y."]);
   const ra=acBlindSpot(a,[]), rb=acBlindSpot(b,[]), rc=acBlindSpot(c,["AC-1","AC-2"]);
   console.log("A="+(ra?ra.kind+":"+ra.suspect:"null")+" B="+(rb?rb.kind+":"+rb.suspect+":"+(rb.heading||"-"):"null")+" C="+(rc?rc.kind:"null"));
 ' "$AC_LIB" 2>&1)"
 echo "     $P62OUT"
-if ! echo "$P62OUT" | grep -q 'A=blank:3 B=blank:2:## Acceptance criteria C=null'; then
+if ! echo "$P62OUT" | grep -q 'A=blank:3 B=blank:2:- C=null'; then
   fail "P69 canh bao RONG sai: $P62OUT"
-else pass "P69 ca (a) khuon la + ca (b) heading lech deu KEU va neu heading; contract lanh IM"; fi
+else pass "P69 ca (a) khuon la + ca (b) ten muc la deu KEU; contract lanh IM"; fi
 
 echo "P71 CUT phai KEU (ca ma P69 khong phu vi n>=1) + doi chung m==n"
 P64OUT="$(node -e '

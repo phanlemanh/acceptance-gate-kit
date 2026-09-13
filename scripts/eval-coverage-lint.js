@@ -134,6 +134,15 @@ const AC_LINE_NARROW_FALLBACK = /^\s*[-*]\s*(AC-\d+)\s*[:.]\s*(.+)$/;
 
 function parseACs(contractText) {
   const acs = [];
+  // Một lối vào (hồ sơ cong-nguoi-doc-du-nguon): parseACBlock đọc cả dạng tiêu đề
+  // và cả ba cách đặt tên mục. Nhánh khuôn-hẹp phía dưới CHỈ còn là đường fail-open
+  // khi thiếu lib/ac-line.cjs.
+  if (acLine && typeof acLine.parseACBlock === 'function') {
+    for (const p of acLine.parseACBlock(contractText)) {
+      acs.push({ id: p.id, text: p.gwt, judgment: p.judgment, crossLayer: p.crossLayer });
+    }
+    return acs;
+  }
   for (const line of sectionLines(contractText, /^#{1,6}\s+Criteria\b/i)) {
     if (acLine) {
       // parseAC() tự loại cross-reference (`**AC-5, AC-9 chưa có gì**`) và tự
