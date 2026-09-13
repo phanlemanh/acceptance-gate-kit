@@ -177,10 +177,23 @@ def('CN04', () => {
   const sCu = core.dieuKienFindings({ findingsText: saiKhuon, ledgerText: '', reportText: baoCao(null) });
   chi.push(`sai khuôn · vắng khoá → clean=${sCu.clean} doiCu=${sCu.doiCu} ngoRong=${sCu.ngoRong}`);
   if (!sCu.clean || !sCu.doiCu || !sCu.ngoRong) return say('CN04', false, 'sai khuon + vang khoa phai la duong doc-cu CO CO', chi);
+  // Khoá CÓ mặt: cờ sai-khuôn chạy TRƯỚC phép đối chiếu và nói đúng nguyên nhân.
+  // So một con số vô nghĩa (bộ đọc không đọc được vật) với lời khai chỉ sinh
+  // thông điệp «lệch vật», tức chỉ người vận hành đi sửa nhầm chỗ.
   const sMoi = core.dieuKienFindings({ findingsText: saiKhuon, ledgerText: '', reportText: baoCao(1) });
   chi.push(`sai khuôn · khoá khai 1 → clean=${sMoi.clean} why="${String(sMoi.why).slice(0, 46)}"`);
-  if (sMoi.clean) return say('CN04', false, 'ben viet troi khuon ma khong lo o phep doi chieu', chi);
-  if (!/lệch vật/.test(String(sMoi.why))) return say('CN04', false, 'why khong neu lech vat', chi);
+  if (sMoi.clean) return say('CN04', false, 'ben viet troi khuon ma khong lo', chi);
+  if (!/sai khuôn/.test(String(sMoi.why))) return say('CN04', false, 'why khong neu sai khuon', chi);
+  // Và phép đối chiếu VẪN nổ khi vật đọc ĐƯỢC mà lời khai lệch — hai đường tách bạch.
+  const lech = core.dieuKienFindings({ findingsText: rfText(2, 0), ledgerText: '', reportText: baoCao(5) });
+  chi.push(`đọc được · khoá khai 5 · vật 2 → why="${String(lech.why).slice(0, 40)}"`);
+  if (lech.clean || !/lệch vật/.test(String(lech.why))) return say('CN04', false, 'phep doi chieu khong con no khi vat doc duoc', chi);
+  // Ô lượt chấm 3 bắt được vì ca THIẾU nó: sai khuôn + khoá khai 0. Bản trước
+  // chỉ áp cờ ở nhánh vắng khoá nên ô này ra SẠCH, tức fail-open im lặng.
+  const sKhong = core.dieuKienFindings({ findingsText: saiKhuon, ledgerText: '', reportText: baoCao(0) });
+  chi.push(`sai khuôn · khoá khai 0 → clean=${sKhong.clean} ngoRong=${sKhong.ngoRong}`);
+  if (sKhong.clean) return say('CN04', false, 'sai khuon + khoa 0 van ra SACH — fail-open', chi);
+  if (!/sai khuôn/.test(String(sKhong.why))) return say('CN04', false, 'why khong neu sai khuon', chi);
   const ooc2 = req(path.join(ROOT, 'lib', 'out-of-contract.cjs'));
   const co = ooc2.parse(saiKhuon).suspect_empty_in;
   chi.push(`bộ đọc bật cờ ngờ sai khuôn: ${co}`);
@@ -478,6 +491,18 @@ def('CN07', () => {
     if (a.judgment !== jg) lech.push(`${ten}: judgment=${a.judgment} cho ${jg}`);
     if (a.crossLayer !== xl) lech.push(`${ten}: crossLayer=${a.crossLayer} cho ${xl}`);
   }
+  // Trộn hai cách khai theo CẢ HAI THỨ TỰ. Ô cũ chỉ có «gạch trước, tiêu đề sau»
+  // nên lượt chấm 3 bắt được chiều ngược: gạch đầu dòng đứng SAU một tiêu đề bị
+  // nuốt vào thân của tiêu chí phía trên, mất hẳn khỏi mọi bề mặt.
+  for (const [ten, than, mong] of [
+    ['tiêu đề → gạch → tiêu đề', '### AC-1 — một\nGiven a, When b, Then c\n\n- AC-2: Given d, When e, Then f\n\n### AC-3 — ba\nGiven g, When h, Then i', 'AC-1,AC-2,AC-3'],
+    ['gạch → tiêu đề', '- AC-1: Given a, When b, Then c\n\n### AC-2 — hai\nGiven d, When e, Then f', 'AC-1,AC-2'],
+  ]) {
+    const ra = lib.parseACBlock(hopDong(than)).map(a => a.id).join(',');
+    chi.push(`${ten} → ${ra}`);
+    if (ra !== mong) return say('CN07', false, `tron khuon «${ten}» ra "${ra}", cho "${mong}"`, chi);
+  }
+
   // Ô cấp h2 — dựng ĐÚNG hình dạng đời thật: `## AC-n` là cấu trúc TOP-LEVEL,
   // KHÔNG có mục bao ngoài (media-library/embed-on-approve và 17 hồ sơ khác).
   const h2Doi = ['---', 'schema_version: 1', '---', '', '# Contract — x', '',

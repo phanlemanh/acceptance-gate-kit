@@ -5,7 +5,7 @@ slug: cong-nguoi-doc-du-nguon
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli, ci, docs]
-status: verified
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-09-13
 design_doc: docs/superpowers/specs/2026-09-12-cong-nguoi-doc-du-nguon-design.md
