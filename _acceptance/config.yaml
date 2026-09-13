@@ -233,6 +233,8 @@ executors:
     # sống của bản vá nằm ngay trong làn chấm. Mốc so KHÔNG ghim vào đây: răng tự suy từ
     # kho, nên hồ sơ đã ký còn ghim lại được ở mọi HEAD tương lai (AC-11).
     moc_diagram_khong_doi: "bash -c 'bash _acceptance/release-2-11-0/rang-moc.sh --chan \"diagram\"'"
+    # --- release-2-12-0 (13/09, T2 thuần cắt số) ---
+    moc_diagram_2_12: "bash -c 'bash _acceptance/release-2-12-0/rang-moc.sh --chan \"diagram\"'"
     # --- ghim-lai-tren-lop-cu (11/09, T2) --- moi eval = MOT ca cua tep ca VINH VIEN
     # tests/scripts/repin-lane-lop-cu.test.mjs (suite scripts tu chay qua glob, nen day
     # la luoi thuong truc chu khong phai rang ho so). Lenh de TRAN (khong nhay) theo nep

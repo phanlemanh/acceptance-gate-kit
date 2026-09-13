@@ -1,0 +1,94 @@
+# Eval cho hồ sơ release-2-12-0 — mốc THUẦN CẮT SỐ.
+#
+# Nguyên tắc của bộ đo này: KHÔNG dựng dàn đo dùng-một-lần. Ba mốc 2.0.0 · 2.1.0 ·
+# 2.2.0 mỗi lần tự dựng một dàn riêng, và mỗi vòng soi lại tìm ra một cách nó không đo
+# thật (fail-open · assertion âm-tính-một-mình · lời-khai-sai · mất lối thoát). Nên:
+#   - AC-1 dùng ca THƯỜNG TRỰC P200, đọc mọi số TỪ manifest, canh được cả mốc sau.
+#   - AC-2 dùng răng của hồ sơ, nhưng bất biến của nó KHÔNG ghim số mốc nào: mốc so
+#     suy TỪ KHO, nên bản chép chạy đúng ở mọi cửa sổ và hồ sơ đã ký còn ghim lại được.
+#   - AC-3 dùng đúng bốn suite + bản đồ mà mọi hồ sơ khác dùng.
+#
+# `baseline:` của hồ sơ này đọc là `n-a` cho E1 và E2: cả hai là ca/răng đã có từ trước
+# cửa sổ, chạy trên cây gốc cũng xanh. Chúng KHÔNG phân biệt cây trước/sau mốc — chúng
+# canh việc CẮT SỐ có nhất quán không, tức một bất biến, không phải một tính năng mới.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.p200_cat_so
+    expected: >-
+      Ca thường trực P200 xanh tại HEAD sau khi cắt số. Nó đọc TỪ manifest: hai plugin
+      `acceptance-gate` và `feature-loop` cùng mang `2.12.0`; `GUIDE.md` dẫn xuất số từ
+      manifest chứ không gõ tay; mục mô tả của chính số đó nói người dùng nhận gì và tự
+      khai cặp. Chiều đỏ của P200 là ca meta trong chính suite plugins (đổi một số ở một
+      bề mặt mà không đổi ở bề mặt kia → P200 ĐỎ); hồ sơ này KHÔNG dựng thêm mũi tiêm
+      cho nó, vì ca đã có chiều đỏ thường trực và thêm một bản sao là dựng bộ đo thứ hai.
+    paths:
+      - ".claude-plugin/plugin.json"
+      - "feature-loop/.claude-plugin/plugin.json"
+      - "GUIDE.md"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.moc_diagram_2_12
+    expected: >-
+      `rang-moc.sh --chan diagram` thoát 0 và in dòng PASS nêu SHA của lần cắt số gần
+      nhất của chính `diagram-design`, KÈM đối chứng dương «cửa sổ mốc..HEAD KHÔNG rỗng»
+      — tức răng xanh vì ĐO, không vì thiếu vật. Bốn lối hỏng có mã thoát riêng: 3 không
+      tìm được lần cắt số · 4 cửa sổ rỗng · 5 `diagram-design/` CÓ đổi sau lần cắt số ·
+      6 không đọc được số tại HEAD. Gốc kho suy TỪ VỊ TRÍ SCRIPT, không từ thư mục gọi.
+    paths:
+      - "diagram-design/.claude-plugin/plugin.json"
+      - "_acceptance/release-2-12-0/rang-moc.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3a
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "Suite scripts thoát 0, dòng `Results:` không có ca đỏ."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "Suite hooks thoát 0, dòng `Results:` không có ca đỏ."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >-
+      Suite plugins thoát 0. Lệnh đã bọc `pipefail` + lọc + `tail` từ mốc 2.11.0 vì
+      suite in ~70k ký tự và bốn trên năm lượt chấm của mốc đó bị công cụ cắt đầu ra
+      giữa chừng rồi tác tử khai đỏ. LƯU Ý lớp này còn sống: lượt 8 của
+      `cong-nguoi-doc-du-nguon` vẫn bị hạ tầng trung hoà đầu ra. Lệnh đỏ ở đây phải
+      phân lớp bằng máy trước khi tin — xem ô `thuoc-khong-lat-verdict` ngả 5.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "Suite workflows thoát 0."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3e
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "`product-map.mjs --root . --check` thoát 0 — bản đồ khớp hồ sơ xưởng."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: judgment
+    cmd: "đọc mục ## Notes của _acceptance/release-2-12-0/contract.md"
+    expected: >-
+      Bốn khối bắt buộc có mặt VÀ mang số thật, không phải tiêu đề suông: (1) ba dòng số
+      của luật (c) với thời gian làm-xong→quyết-được, lượt chấm, lượt gọi người tách
+      trong/ngoài thiết kế, và lượt bị hạ tầng đốt — mỗi số nêu được nguồn rút; (2) bảng
+      lớp vendored đủ 9 mục của `INIT-CI-COPY-LIST` với +/− đo tại sha nêu tên; (3) lớp
+      lỗi tái phát gọi tên kèm dẫn chứng; (4) nhát cắt cho cửa sổ kế gọi tên cụ thể.
+      Khối nào cố ý để trống phải KHAI RÕ lý do — ô «gọi người» của `cua-veto-sau-chu-ky`
+      để trống vì đếm lại từ transcript phiên khác là dựng phép đo mới, trái luật (c).
+      Chấm PASS chỉ khi cả bốn khối đạt; thiếu số hoặc thiếu nguồn rút là FAIL.
+    evidence_required: [run_id, verifier, verified_at]
