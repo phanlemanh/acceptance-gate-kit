@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 760" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+  <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/>
+        </marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/>
+        </marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/>
+        </marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- arrows first -->
+      <path d="M232,120 V140 a8,8 0 0 0 8,8 H432 a8,8 0 0 1 8,8 V176" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M768,120 V140 a8,8 0 0 1 -8,8 H568 a8,8 0 0 0 -8,8 V176" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="500" y1="232" x2="500" y2="288" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="536" y1="316" x2="752" y2="316" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4"/>
+      <circle cx="760" cy="316" r="4" fill="#2d3142"/>
+      <line x1="500" y1="344" x2="500" y2="392" stroke="#eb6c36" stroke-width="1" marker-end="url(#arrow-accent)"/>
+      <path d="M440,448 V468 a8,8 0 0 1 -8,8 H240 a8,8 0 0 0 -8,8 V504" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <path d="M560,448 V468 a8,8 0 0 0 8,8 H760 a8,8 0 0 1 8,8 V504" fill="none" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="232" y1="560" x2="232" y2="616" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+      <line x1="768" y1="560" x2="768" y2="616" stroke="#4f5d75" stroke-width="1" marker-end="url(#arrow)"/>
+
+      <!-- arrow labels (masked, 8px gap above the stroke) -->
+      <rect x="304" y="124" width="64" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="336" y="135" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">TỰ KHAI</text>
+      <rect x="628" y="124" width="72" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="664" y="135" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">MÁY DỰNG</text>
+      <rect x="608" y="292" width="88" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="652" y="303" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VẮNG → IM</text>
+      <rect x="512" y="360" width="28" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="526" y="371" fill="#636b80" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CÓ</text>
+
+      <!-- node 1 · repo cũ -->
+      <rect x="112" y="64" width="240" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="112" y="64" width="240" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <text x="232" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Repo cũ — tự dán khối</text>
+      <text x="232" y="106" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">artifact-platform: MAP.md đã có</text>
+
+      <!-- node 2 · repo mới -->
+      <rect x="648" y="64" width="240" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="648" y="64" width="240" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <text x="768" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Repo mới — cây mặc định</text>
+      <text x="768" y="106" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">acceptance-init bước 3c · không lệnh mới</text>
+
+      <!-- node 3 · khoá config -->
+      <rect x="380" y="176" width="240" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="380" y="176" width="240" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <text x="500" y="200" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ổ cắm trong config</text>
+      <text x="500" y="218" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">docs.router: docs/MAP.md</text>
+
+      <!-- decision · khoá có? -->
+      <polygon points="500,288 536,316 500,344 464,316" fill="#ffffff" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <text x="500" y="320" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">khoá?</text>
+
+      <!-- node 4 · khối DOC-HOMES (focal) -->
+      <rect x="380" y="392" width="240" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="380" y="392" width="240" height="56" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="500" y="416" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Khối DOC-HOMES trong docs/MAP.md</text>
+      <text x="500" y="434" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">lớp-vật | vòng-đời | nhà | chủ — người + máy cùng đọc</text>
+
+      <!-- node 5 · K1 -->
+      <rect x="112" y="504" width="240" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="112" y="504" width="240" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <text x="232" y="528" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">K1 · không lớp nào hai nhà</text>
+      <text x="232" y="546" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">tự mâu thuẫn trong lời khai → ĐỎ</text>
+
+      <!-- node 6 · K2 -->
+      <rect x="648" y="504" width="240" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="648" y="504" width="240" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <text x="768" y="528" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">K2 · không nhà ngoài lời khai</text>
+      <text x="768" y="546" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">file lạc → VÀNG, nêu tên, không chặn</text>
+
+      <!-- node 7 · hai chỗ đọc -->
+      <rect x="112" y="616" width="776" height="56" rx="6" fill="#f5f5f5"/>
+      <rect x="112" y="616" width="776" height="56" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.20)" stroke-width="1"/>
+      <text x="500" y="640" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ba chỗ dùng lời khai</text>
+      <text x="500" y="658" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">pre-merge-check (CI) · thẻ start: một dòng số · feature-loop homeFor() thay đường cứng SKILL.md:117/164</text>
+
+      <!-- legend -->
+      <line x1="32" y1="704" x2="968" y2="704" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="728" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+      <rect x="120" y="716" width="24" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="152" y="728" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">vật duy nhất máy và người cùng đọc — nguồn sự thật</text>
+      <line x1="476" y1="724" x2="516" y2="724" stroke="#4f5d75" stroke-width="1" stroke-dasharray="5,4"/>
+      <text x="524" y="728" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">lối im — không cờ, không bước CI</text>
+      <circle cx="760" cy="724" r="4" fill="#2d3142"/>
+      <text x="772" y="728" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">dừng, không phải lỗi</text>
+    </svg>
