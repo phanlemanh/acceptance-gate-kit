@@ -84,8 +84,7 @@ function evidenceText(slug, { verdict = 'PASS', signoff = '', sach = 'sach', ver
     .replace(/^enforcement_mode: .*$/m, `enforcement_mode: ${sach === 'enf-off' ? 'off' : 'strict'}`)
     .replace(/^bypass_used: .*$/m, `bypass_used: ${sach === 'bypass' ? 'true' : 'false'}`)
     .replace(/^verified_commit: .*$/m, `verified_commit: ${verifiedCommit}`)
-    .replace(/^human_signoff:.*$/m, `human_signoff:${signoff ? ' ' + signoff : ''}`)
-    ;
+    .replace(/^human_signoff:.*$/m, `human_signoff:${signoff ? ' ' + signoff : ''}`);
   // Một dòng eval thật vào bảng: điền 4 ô placeholder THEO THỨ TỰ CỘT của khuôn.
   const rowVals = ['E1', 'AC-1', 'test', 'PASS']; let ri = 0;
   t = t.replace(/^\|.*\{\{.*\|$/m, line => line.replace(/\{\{[^}]*\}\}/g, () => rowVals[ri++] ?? '…'));
@@ -401,9 +400,7 @@ function mkGit(slug, o, { evidence = true } = {}) {
   // Kho tiêu thụ chép đúng bộ này khi /acceptance-init. Thiếu lib/md-section.cjs thì lưới
   // KHÔNG BAO GIỜ thấy hồ sơ sạch (fail-closed) — đối chứng dương sẽ đỏ, y như đời thật.
   mkdirSync(path.join(R, 'lib'), { recursive: true }); mkdirSync(path.join(R, 'scripts'), { recursive: true });
-  // out-of-contract.cjs vào danh sách từ hồ sơ cong-nguoi-doc-du-nguon: điều kiện
-  // xanh-sạch THỨ BẢY nạp nó; thiếu nó lưới fail-CLOSED (đúng ý, không phải lỗi ca).
-  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs', 'out-of-contract.cjs'])
+  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs'])
     copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
   copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
   git('add', '-A'); git('commit', '-qm', 'c1'); git('branch', 'basepoint');
@@ -1315,7 +1312,7 @@ if (want('RT16')) {
   // Chiều đỏ: bản sao product-map GỠ nhánh mới → phép so phải ĐỎ nêu slug và hai ô lệch.
   {
     const mut = tmp('rt16-mut-');
-    for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs', 'lib/out-of-contract.cjs',
+    for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs',
                        'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'scripts/trang-thai-ho-so.cjs',
                        // bản đồ nay đọc khuôn LÚC CHẠY (fail-closed) — cây mutant thiếu khuôn thì
                        // chết vì hạ tầng chứ không vì vật, và chiều đỏ thành xanh-không-chạy

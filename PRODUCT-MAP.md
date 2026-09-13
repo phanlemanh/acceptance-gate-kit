@@ -57,7 +57,7 @@ flowchart TD
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
-- Cổng người đọc đủ nguồn — luật xanh-sạch đọc cả làn rà soát, thẻ đọc được tiêu chí khai bằng tiêu đề, thẻ Cổng 2 hiện lỗi trong hợp đồng chưa sửa (`cong-nguoi-doc-du-nguon`)
+- Cổng người đọc đủ nguồn — thẻ đọc được tiêu chí khai bằng tiêu đề, ba bên gọi cùng một bộ bóc, mục Coverage viết bằng bảng thôi bị báo thiếu oan (`cong-nguoi-doc-du-nguon`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
 

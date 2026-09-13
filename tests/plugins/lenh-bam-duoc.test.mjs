@@ -2,7 +2,7 @@
 // Bảng COMMAND-NAMES rút từ marker; vật thật đọc từ thư mục + plugin.json lúc chạy; quét token với ranh
 // giới khai tường minh (AC-2); đối chứng dương bằng vật TIÊM (không neo mốc git di động); gate-card thật.
 //   LB_CASES=LB1,LB2 node tests/plugins/lenh-bam-duoc.test.mjs
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync } from 'node:fs';
 import { spawnSync, execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -235,18 +235,9 @@ if (want('LB5')) {
   // SHA CỐ ĐỊNH (main trước chip D #93) — KHÔNG `origin/main`: mốc di động làm «bản cũ» hoá bản mới
   // ngay lần merge kế, đối chứng dương chết im lặng (S4-r1 hồ sơ lenh-tran-tai-lieu-dau-tay).
   const OLD_SHA = 'ba539284';
-  // Bản base lấy TRỌN scripts/ + lib/ của mốc, KHÔNG chép một tệp rồi ghép với lib
-  // MỚI — đó là bẫy «chép danh sách file tay» mà hiến pháp kit ghi (P150, 23/08):
-  // gate-card cũ require một tệp lib mà cây mới đã đổi tên thì ca đỏ vì HẠ TẦNG
-  // chứ không vì vật. Đo được ở hồ sơ cong-nguoi-doc-du-nguon, khi
-  // lib/out-of-contract.js thành .cjs.
-  {
-    const tar = path.join(copy, '..', `lb5-base-${OLD_SHA}.tar`);
-    execFileSync('git', ['-C', ROOT, 'archive', '-o', tar, OLD_SHA, 'scripts', 'lib']);
-    execFileSync('tar', ['-xf', tar, '-C', copy]);
-    rmSync(tar, { force: true });
-  }
-  const kinds = { baseline: 0, glossary: 0, trongHopDong: 0 };
+  const oldSrc = execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:scripts/gate-card.js`], { encoding: 'utf8' });
+  writeFileSync(path.join(copy, 'scripts', 'gate-card.js'), oldSrc);
+  const kinds = { baseline: 0, glossary: 0 };
   // Đối chứng dương cho cờ glossary: cờ này chỉ có ở thẻ Cổng 1 (A/B/C đều đã ký → Cổng 2), nên đo trên
   // fixture Cổng 1 bằng CHÍNH bản cũ: cũ phải bắn, mới không.
   const oldFx = flagsOf(cardHtml(r, 'x', path.join(copy, 'scripts', 'gate-card.js')));
@@ -260,22 +251,10 @@ if (want('LB5')) {
       else if (/--glossary-base/.test(t)) kinds.glossary++;
       else errs.push(`${s}: cờ mất ngoài hai loại TRỪ: «${t.slice(0, 60)}»`);
     }
-    // CỘNG cờ: mặc định vẫn CẤM. Mở đúng MỘT loại có tên (hồ sơ
-    // cong-nguoi-doc-du-nguon): cờ đỏ của khối «Lỗi TRONG hợp đồng CHƯA sửa». Nó
-    // không phải trang trí — trước bản vá thẻ KHÔNG có khối nào cho mục đó, nên
-    // lỗi có mã AC chưa sửa không hiện ở bất kỳ đâu. Đo trên 740 hồ sơ có tệp rà
-    // soát ở 11 kho: 35 hồ sơ mang mục đó, trong đó cả BA hồ sơ mẫu của ca này.
-    for (const t of added) {
-      if (/nằm TRONG phạm vi bạn đã duyệt/.test(t)) kinds.trongHopDong++;
-      else errs.push(`${s}: CỘNG cờ lén: ${t.slice(0, 60)}`);
-    }
+    if (added.length) errs.push(`${s}: CỘNG cờ lén: ${added.map(t => t.slice(0, 50)).join(' | ')}`);
   }
   if (!kinds.baseline) errs.push('đối chứng dương: bản cũ không phát cờ baseline nào trên ba hồ sơ');
-  // Đối chứng dương cho loại CỘNG vừa mở: ba hồ sơ mẫu PHẢI có ít nhất một cờ
-  // như thế. Không có thì loại miễn trừ này là dòng chết, và nó sẽ lặng lẽ tha
-  // cho một cờ lén thật ở vòng sau.
-  if (!kinds.trongHopDong) errs.push('đối chứng dương: không hồ sơ mẫu nào phát cờ «lỗi TRONG hợp đồng» — loại CỘNG vừa mở là dòng chết');
-  if (errs.length) fail('LB5', errs.join(' · ')); else pass('LB5', `0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(${kinds.baseline}) + glossary(${kinds.glossary}); mới∖cũ chỉ gồm cờ «lỗi TRONG hợp đồng»(${kinds.trongHopDong})`);
+  if (errs.length) fail('LB5', errs.join(' · ')); else pass('LB5', `0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(${kinds.baseline}) + glossary(${kinds.glossary}), mới∖cũ = ∅`);
 }
 
 // ---------- LB6: dòng bỏ lệch gạch nối (AC-6)

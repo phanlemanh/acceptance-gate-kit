@@ -286,9 +286,7 @@ executors:
     cndn_ac_tieu_de: CNDN_CASES=CN07 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_tieu_de_muc: CNDN_CASES=CN08 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_bo_do_khong_im: CNDN_CASES=CN09 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_the_cong_2: CNDN_CASES=CN10 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_bon_ben_goi: CNDN_CASES=CN13 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
-    cndn_round_trip_writer: CNDN_CASES=CN14 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
+    cndn_ba_ben_goi: CNDN_CASES=CN13 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_coverage_bang: CNDN_CASES=CN15 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
 risk_tiers:
   t1_skip_globs:

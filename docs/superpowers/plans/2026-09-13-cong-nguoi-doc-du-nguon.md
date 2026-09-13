@@ -1,5 +1,12 @@
 # Cổng người đọc đủ nguồn — Implementation Plan
 
+> ⚠ **BẢN KẾ HOẠCH GỐC, KHÔNG PHẢI MÔ TẢ MÃ HIỆN TẠI.** Phạm vi đã cắt HAI LẦN sau
+> khi viết tệp này: nửa cổng (AC-1…AC-6, AC-11, AC-12) cắt sau lượt chấm 4; nhánh
+> quét-cả-tệp của bộ bóc cùng AC-10 và AC-14 cắt sau lượt chấm 5. Mọi câu dưới đây
+> nói về `lib/out-of-contract.cjs`, `lib/evidence-core.cjs`, `scripts/pre-merge-check.sh`
+> hay điều kiện xanh-sạch thứ bảy đều KHÔNG còn đúng với cây mã — những tệp ấy đã
+> hoàn nguyên. Nguồn đúng là `_acceptance/cong-nguoi-doc-du-nguon/contract.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Nối hai cổng người của kit vào đủ nguồn đang có — luật xanh-sạch đọc cả `review-findings.md`, bộ bóc tiêu chí đọc được dạng tiêu đề, thẻ Cổng Bằng chứng hiện lỗi trong hợp đồng chưa sửa.

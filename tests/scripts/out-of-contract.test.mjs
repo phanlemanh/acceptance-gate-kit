@@ -10,7 +10,7 @@ import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
-const ooc = createRequire(import.meta.url)(path.join(ROOT, 'lib', 'out-of-contract.cjs'));
+const ooc = createRequire(import.meta.url)(path.join(ROOT, 'lib', 'out-of-contract.js'));
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const die = m => { throw new Error(m); };
@@ -50,7 +50,7 @@ const M = [
 for (const [n, text, ok] of M) check(n, () => { const r = ooc.parse(text); if (!ok(r)) die(JSON.stringify(r)); });
 
 check('PROPOSALS + GLOSS xuat qua marker (mot nguon)', () => {
-  const src = readFileSync(path.join(ROOT, 'lib', 'out-of-contract.cjs'), 'utf8');
+  const src = readFileSync(path.join(ROOT, 'lib', 'out-of-contract.js'), 'utf8');
   if (!/<<<OOC-PROPOSALS[\s\S]*OOC-PROPOSALS>>>/.test(src)) die('thieu marker OOC-PROPOSALS');
   if (JSON.stringify(ooc.PROPOSALS) !== JSON.stringify(['known-limits', 'new-contract', 'wont-fix'])) die('PROPOSALS lech: ' + JSON.stringify(ooc.PROPOSALS));
   // Từ vựng NGƯỜI phải phủ đủ ba token — thẻ in chữ này, thân lệnh signoff dạy chữ này.

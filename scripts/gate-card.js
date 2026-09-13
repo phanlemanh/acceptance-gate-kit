@@ -31,7 +31,7 @@
 const fs = require('fs');
 const path = require('path');
 const gapProbe = require('../lib/gap-probe.cjs');
-const outOfContract = require('../lib/out-of-contract.cjs');
+const outOfContract = require('../lib/out-of-contract.js');
 const evidenceCore = require('../lib/evidence-core.cjs');
 // Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.cjs
 // (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).
@@ -931,11 +931,7 @@ if (scanBroken) P.push(`<div class="flag fred">⚠ Bộ quét gọi hồ sơ nà
 // ký đó là thẻ tự cãi mình, đúng thứ AC-8 cấm (S4-r10 [1]).
 if (MAY_THONG && !scanBroken && scanState != null) P.push(`<div class="flag finfo">máy đã thông — hồ sơ này qua Cổng Bằng chứng bằng sáu điều kiện xanh-sạch, KHÔNG có chữ ký người; cửa veto ${(clean(cfm.veto_state) || '').toLowerCase() === 'mo' ? 'đang mở' : 'không mở'}.</div>`);
 if (MAY_DI_TIEP) P.push(`<div class="flag finfo">Hồ sơ này máy đã đi tiếp — ${esc(chuMDT().viecKe)}. Thẻ không có nút ký cho trạng thái này.</div>`);
-// Câu «Bằng chứng đầy đủ» là một KHẲNG ĐỊNH. Còn lỗi TRONG hợp đồng chưa sửa thì
-// nó sai, và nó sai ngay cạnh khối vừa liệt các lỗi ấy — thẻ tự cãi mình. Đổi chữ,
-// KHÔNG giấu đường dẫn: người vẫn cần mở trang bằng chứng (hồ sơ cong-nguoi-doc-du-nguon).
-const _bcCon = (ooc.inContract || []).length;
-P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>${_bcCon ? `Bằng chứng CHƯA trọn — còn ${_bcCon} lỗi trong hợp đồng chưa sửa` : 'Bằng chứng đầy đủ — ảnh chụp + chạy thật'}</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
+P.push(`<a href="evidence-page.html" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:9px 13px;margin:11px 0 2px;text-decoration:none;color:#0C447C;font-size:13px"><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b><span style="font-size:12px;color:#185FA5;white-space:nowrap">đã mở trong trình duyệt</span></a>`);
 // Khối "Ngoài hợp đồng" đứng TRƯỚC mọi việc-của-người khác: đây là thứ máy cố ý
 // KHÔNG tự sửa, nên nếu người duyệt bỏ qua thì không ai bắt lại.
 // Cờ hỏng-phân-loại CỘNG THÊM, không thay thế: nuốt cả khối thì các lỗi đã phân
@@ -957,23 +953,6 @@ if (ooc.unclassified) {
     + `<p class="li">Rà soát đối kháng: ${ooc.findings.length} mục ngoài hợp đồng${ooc.suspect_empty ? ' (⚠ khối nghi sai khuôn)' : ''} · ${decisions.length} mục cần mắt người</p></div>`);
 }
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
-// Vế thứ hai của cùng cờ, cho mục «Trong hợp đồng» (owner duyệt 13/09). Mục có
-// chữ mà bộ đọc ra 0 thì khối bên dưới KHÔNG render dòng nào — im lặng ở đúng
-// chỗ nặng nhất. Đo trên 22 kho: 43 hồ sơ ở tình trạng đó.
-if (ooc.suspect_empty_in) P.push(`<div class="flag fwarn">⚠ mục «Trong hợp đồng» có chữ nhưng máy không đọc ra mục nào — sai khuôn OOC-ITEM-TEMPLATE. Khối «Lỗi TRONG hợp đồng» bên dưới đang TRỐNG vì lý do đó, KHÔNG phải vì hồ sơ sạch: mở review-findings.md đọc tay trước khi quyết.</div>`);
-// Lỗi TRONG hợp đồng chưa sửa — đứng TRƯỚC khối «Ngoài hợp đồng» vì nó NẶNG hơn:
-// nó nằm trong phạm vi người đã duyệt ở Cổng 1. Ca thật: sau STOP-PATCHING máy dừng
-// với một lỗi có mã AC chưa sửa, verdict PENDING-JUDGMENT, và trước bản này lỗi đó
-// không xuất hiện ở bất kỳ đâu trên thẻ.
-if ((ooc.inContract || []).length) {
-  P.push(`<div class="lab">Lỗi TRONG hợp đồng CHƯA sửa — bạn quyết (${ooc.inContract.length})</div>`);
-  P.push(`<div class="flag fred">Các lỗi dưới đây nằm TRONG phạm vi bạn đã duyệt ở Cổng 1 và vẫn chưa được sửa. Ký ở trạng thái này là nhận chúng.</div>`);
-  ooc.inContract.forEach((f, fi) => {
-    const q = f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)';
-    const phu = [f.severity ? 'mức ' + f.severity : 'chưa khai mức', f.file].filter(Boolean).join(' · ');
-    P.push(`<div class="item"><p class="q">Trong-${fi + 1} · ${esc(q)}</p><p class="ai">${esc(phu)}</p></div>`);
-  });
-}
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   P.push(`<div class="flag fwarn">Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.</div>`);
