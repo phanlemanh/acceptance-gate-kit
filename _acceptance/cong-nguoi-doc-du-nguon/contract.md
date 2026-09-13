@@ -5,7 +5,7 @@ slug: cong-nguoi-doc-du-nguon
 owner: phanlemanh@gmail.com
 risk_tier: T3
 surfaces: [cli, ci, docs]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-09-13
 design_doc: docs/superpowers/specs/2026-09-12-cong-nguoi-doc-du-nguon-design.md
@@ -171,3 +171,20 @@ cây gốc, nên nhát cắt không sinh tiếng ồn mới — nó chỉ thôi 
   (tệp ca là tệp MỚI nên cây gốc không có nó) mà được ghi thành «đỏ = có phân biệt» —
   với hồ sơ có tệp ca mới, trường `baseline:` phải đọc là `n-a`, và chiều đỏ thật phải
   nằm TRONG thân ca.
+
+### Known limits định đoạt ở Cổng Bằng chứng (Phan Le Manh, 2026-09-13)
+
+Năm mục ngoài hợp đồng, người quyết «ghi Known limits». Ba mục còn lại đi hợp đồng
+mới, xem sổ quyết định.
+
+- **Ngoài-1 · `contentLines` nhánh gạch đầu dòng viết lại khuôn tiêu đề** thay vì gọi
+  `laTieuDe` — hành vi y hệt hôm nay, bán kính 0. Gộp vào lượt quét theo LỚP của ô
+  `thuoc-khong-lat-verdict`.
+- **Ngoài-2 · `contentLines` lặp `bullets()` của `gate-card.js`** — luật nối dòng 80
+  cột sống ở hai nơi, cùng render ba mục của một thẻ. Gộp một nơi sẽ ĐỔI hành vi hai
+  mục khác của thẻ, tức là NỚI; để ô.
+- **Ngoài-3 và Ngoài-4 · bộ đọc THỨ TƯ trong `scripts/pre-merge-check.sh`** — đã khai
+  ở Out of scope kèm bán kính đo tay **2 hợp đồng** trên 1 243. Tệp nằm dưới DV5
+  chỉ-được-thêm nên cần vòng riêng có răng riêng.
+- **Ngoài-7 · bảng quan hệ `qh` của CN15 thiếu hằng đếm ngoài bảng** — cùng lớp với
+  `SO_O_BANG` và `SO_MUI` đã ghim ở CN07/CN13. Gộp vào lượt quét theo LỚP.

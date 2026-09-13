@@ -8,7 +8,7 @@ verified_by: máy — rút từ nhật ký lượt chấm 8, không gọi lại 
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 9eaa6f5ffb0aaf8cd196339ccc44f14edf2d1001
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-13
 ---
 
 # Evidence Report: cong-nguoi-doc-du-nguon
