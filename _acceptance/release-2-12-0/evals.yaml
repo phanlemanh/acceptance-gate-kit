@@ -81,7 +81,17 @@ evals:
   - id: E4
     criterion: AC-4
     executor: judgment
-    cmd: "đọc mục ## Notes của _acceptance/release-2-12-0/contract.md"
+    question: >
+      Mục `## Notes` của hợp đồng có ĐỦ BỐN khối bắt buộc, và mỗi khối mang số THẬT hay
+      chỉ có tiêu đề? (1) ba dòng số của luật (c) — thời gian làm-xong→quyết-được mỗi
+      vòng, số lượt chấm, số lượt gọi người TÁCH trong-thiết-kế/ngoài-thiết-kế, số vòng
+      bị hạ-tầng-kit đốt; (2) bảng lớp vendored đủ 9 mục của `INIT-CI-COPY-LIST` với số
+      dòng thêm/bớt đo tại sha nêu tên; (3) lớp lỗi TÁI PHÁT gọi tên kèm dẫn chứng;
+      (4) nhát cắt cho cửa sổ kế, gọi tên MỘT chỗ cắt cụ thể. Trả FAIL cho khối chỉ có
+      tiêu đề mà không có số, và cho số nào không nói được nó đọc từ đâu. Khối nào cố ý
+      để TRỐNG phải khai rõ lý do — ô «gọi người» của `cua-veto-sau-chu-ky` để trống vì
+      đếm lại từ transcript phiên khác là dựng phép đo mới, trái chính luật (c).
+    inputs: [_acceptance/release-2-12-0/contract.md]
     expected: >-
       Bốn khối bắt buộc có mặt VÀ mang số thật, không phải tiêu đề suông: (1) ba dòng số
       của luật (c) với thời gian làm-xong→quyết-được, lượt chấm, lượt gọi người tách
