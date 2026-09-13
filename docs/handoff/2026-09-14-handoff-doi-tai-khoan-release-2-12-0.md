@@ -44,6 +44,17 @@ ngắt, kết quả đọc được:
 hooks _acceptance .claude-plugin` là RỖNG, nên lưới chạy đúng cây đã commit; commit sau
 đó chỉ thêm chính tệp bàn giao này.
 
+**`main` ĐÃ NHÍCH 4 commit** sau khi nhánh này lập (`origin/main` = `c82e7570`): một đợt
+dọn nhà tài liệu 27 lần `git mv` cộng hồ sơ thiết kế cho ô `nha-tai-lieu-router`. Chúng
+KHÔNG chạm mã, nhưng có chạm `docs/`, mà nhánh này vừa thêm chính tệp bàn giao vào
+`docs/handoff/`. Nhánh mốc **chưa gộp** main — gộp giữa chừng làm bằng chứng hoá cũ và
+phải ghim lại. Hai lối:
+
+- **Chấm trước, gộp sau** (nếp PR #174 đã dùng): tung lượt 4 trên nhánh như hiện tại, gộp
+  `origin/main` một lần trước khi mở PR, rồi ghim lại nếu lưới báo hoá cũ.
+- **Gộp trước, chấm sau**: chỉ chọn nếu đợt dọn tài liệu có đổi đường dẫn mà hồ sơ mốc
+  đang trỏ tới. Kiểm bằng `git diff --stat release/2.12.0...origin/main -- docs/`.
+
 **Việc kế tiếp là tung thẳng lượt chấm 4.** Nếu muốn chắc thì chạy lại bốn suite trước —
 nếp ấy vừa làm CI xanh ngay lượt đầu ở PR #174 và đã bắt được một lỗi của chính hồ sơ này
 (phép đo judgment thiếu trường `question`).
