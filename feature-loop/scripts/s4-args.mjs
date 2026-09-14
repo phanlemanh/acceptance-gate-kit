@@ -322,9 +322,17 @@ console.error(`s4-args: vùng vật ${vungVat.length}/${diffTatCa.length} tệp 
 //     về vật — fail-LOUD, người truyền --diff-base tường minh rồi chạy lại.
 //   · diff tổng KHÁC rỗng mà vùng vật rỗng → vòng chỉ chạm tài liệu/hồ sơ. Hợp lệ.
 if (!diffTatCa.length) {
-  console.error(`s4-args: DIFF RỖNG — «${diffBase}» trùng HEAD, nên không có vật nào để chấm.`);
-  console.error('s4-args: làm thẳng trên nhánh chính thì merge-base(nhánh-chính, HEAD) = HEAD — truyền --diff-base <mốc trước vòng> rồi chạy lại.');
-  process.exit(2);
+  // Phân biệt AI nói ra mốc so. Người KHAI tường minh `--diff-base` là hành động có chủ
+  // đích (ca thật: bộ đo chỉ cần tệp args để rút chuỗi lệnh, không cần vật) → nói một
+  // dòng rồi đi tiếp. Mốc TỰ TÍNH từ merge-base mà ra rỗng thì không ai chọn nó cả —
+  // đó là hạ tầng neo sai, fail-LOUD.
+  if (flags['diff-base']) {
+    console.error(`s4-args: diff rỗng — mốc so «${diffBase}» do người khai tường minh trùng HEAD; làn tìm-lỗi sẽ không có vật để soi.`);
+  } else {
+    console.error(`s4-args: DIFF RỖNG — mốc so TỰ TÍNH «${diffBase}» trùng HEAD, nên không có vật nào để chấm.`);
+    console.error('s4-args: làm thẳng trên nhánh chính thì merge-base(nhánh-chính, HEAD) = HEAD — truyền --diff-base <mốc trước vòng> rồi chạy lại.');
+    process.exit(2);
+  }
 }
 if (!vungVat.length) console.error(`s4-args: vùng vật rỗng nhưng diff có ${diffTatCa.length} tệp — vòng này chỉ chạm tài liệu/hồ sơ; làn tìm-lỗi sẽ không spawn (đúng thiết kế).`);
 // Nguồn giải được tên nhánh chính — vật để phép đo phân biệt đường remote với

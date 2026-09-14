@@ -161,12 +161,32 @@ const loi = e => String((e && e.stderr) || (e && e.message) || e).split('\n').fi
   const d = buildRepo();
   try {
     // (a) mốc so TRÙNG HEAD → fail-LOUD, exit khác 0, KHÔNG sinh tệp args
+    // Ca TỰ TÍNH: đứng trên chính nhánh chính và KHÔNG khai --diff-base → merge-base
+    // (main, HEAD) = HEAD. Đây là hình dạng gặp thật khi vòng commit thẳng nhánh chính.
     let raA = null;
-    try { run(d, '--diff-base', 'feat'); raA = 'KHONG NO'; }
-    catch (e) { raA = String((e && e.stderr) || ''); }
-    if (raA !== 'KHONG NO' && /DIFF RỖNG/.test(raA) && /--diff-base/.test(raA))
-      ok('VV6a mốc so trùng HEAD → fail-loud có tên, chỉ đúng cách sửa');
+    execFileSync('git', ['-C', d, 'checkout', '-q', 'main']);
+    try {
+      execFileSync(process.execPath, [S4ARGS, '--slug', 'demo', '--root', d, '--ag-root', KIT,
+        '--out', path.join(d, 'aA.json')], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+      raA = 'KHONG NO';
+    } catch (e) { raA = String((e && e.stderr) || ''); }
+    if (raA !== 'KHONG NO' && /DIFF RỖNG/.test(raA) && /TỰ TÍNH/.test(raA) && /--diff-base/.test(raA))
+      ok('VV6a mốc so TỰ TÍNH trùng HEAD → fail-loud có tên, chỉ đúng cách sửa');
     else bad('VV6a mốc so trùng HEAD KHÔNG nổ (hạ tầng neo sai trông như vòng sạch)', String(raA).slice(0, 160));
+    // VV6c — phân biệt AI nói ra mốc so: người KHAI tường minh là hành động có chủ đích
+    // (bộ đo chỉ cần tệp args, không cần vật), mốc TỰ TÍNH ra rỗng thì không ai chọn nó.
+    // Gộp hai ca là chặn oan chính bộ đo của kit (gặp thật: BG3/BG4 của bo-giai-nhay).
+    const d3 = buildRepo();
+    execFileSync('git', ['-C', d3, 'checkout', '-q', 'main']);
+    let ghiChu3 = '', a3 = null;
+    try {
+      execFileSync(process.execPath, [S4ARGS, '--slug', 'demo', '--root', d3, '--ag-root', KIT,
+        '--out', path.join(d3, 'a3.json'), '--diff-base', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+      a3 = JSON.parse(readFileSync(path.join(d3, 'a3.json'), 'utf8'));
+    } catch (e) { ghiChu3 = String(e.stderr || e.message).slice(-160); }
+    if (a3 && Array.isArray(a3.vungVat) && a3.vungVat.length === 0)
+      ok('VV6c người KHAI tường minh --diff-base HEAD → đi tiếp (sinh args), không chặn oan');
+    else bad('VV6c khai tường minh --diff-base HEAD lại bị chặn', ghiChu3 || 'khong sinh duoc args');
     // (b) đối chứng dương: diff có tệp nhưng TOÀN tài liệu → đi tiếp, nói rõ lý do
     const d2 = buildRepo();
     execFileSync('git', ['-C', d2, 'checkout', '-q', 'main']);
