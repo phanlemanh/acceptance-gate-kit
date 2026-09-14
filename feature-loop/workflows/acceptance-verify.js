@@ -589,9 +589,10 @@ if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
 // ---- Machine + UI-check + Judge + Review chạy đồng thời (không phụ thuộc nhau; Judge là blind) ----
 // ── T7 (khoi-tim-loi-tra-phi-theo-vat): baseline RỜI ĐƯỜNG GĂNG ─────────────
 // Baseline là tín hiệu PHỤ, nhưng nằm cùng barrier thì Triage và cả chuỗi sau nó phải
-// chờ. Đo 14/09: một lượt baseline 13,7 phút giữ đồng hồ thêm 2,6 phút sau khi mọi lane
-// khác xong; một lượt khác treo 128 phút → wall 157 phút trong khi phần còn lại xong ở
-// phút 34. Nay là promise riêng, `await` ở điểm MUỘN NHẤT cần — bỏ CỘNG DỒN, không bỏ
+// chờ. Đo 14/09 bằng `wf-usage --md` (cột wall, đơn vị GIÂY — kit không đo phút):
+// lượt wf_3e8f4e9b-29d có baseline wall 819s kết ở 22:12:29 và triage khởi động đúng
+// 22:12:29; một lượt khác baseline giữ đồng hồ ~7700s trong khi mọi lane còn lại kết ở
+// ~2000s. Nay là promise riêng, `await` ở điểm MUỘN NHẤT cần — bỏ CỘNG DỒN, không bỏ
 // chờ: harness không có trần thời gian cho agent(), nên ca treo là giới-hạn-đã-khai.
   // A/B baseline (đối chứng): chạy lại lệnh-CÓ-eval trên diffBase trong worktree CÔ LẬP — KHÔNG đụng
   // cwd chính (verifier HEAD đang chạy song song ở đó). Tín hiệu PHỤ: thiếu env → cannotRun, không sao.

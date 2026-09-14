@@ -84,7 +84,7 @@ function so(khong, co, ten) {
   const mk = (ten, themFinding) => {
     const root = path.join(T, ten);
     mkdirSync(path.join(root, '_acceptance', 'demo'), { recursive: true });
-    writeFileSync(path.join(root, '_acceptance', 'demo', 'contract.md'), '---\nschema_version: 1\nslug: demo\nrisk_tier: T2\nstatus: signed-off\n---\n');
+    writeFileSync(path.join(root, '_acceptance', 'demo', 'contract.md'), '---\nschema_version: 1\nslug: demo\nrisk_tier: T2\nstatus: verified\n---\n');
     writeFileSync(path.join(root, '_acceptance', 'demo', 'run-log.jsonl'),
       `${EVAL}\n${themFinding ? dongFinding() + '\n' : ''}${TALLY}\n`);
     return root;
