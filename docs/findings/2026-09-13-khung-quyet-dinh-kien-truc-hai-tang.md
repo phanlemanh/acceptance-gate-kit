@@ -190,6 +190,8 @@ mốc; yêu cầu lập lại theo kết quả người dùng kit thấy đượ
 (P0 làm ngay không chạm engine · P1+P2 một vòng ship 2.13 · P3 sau mốc 09/10
 OneFlow). Câu còn treo cho owner: đổi thứ tự hàng đợi 07/09 §3 (lát A trượt
 một cửa sổ).
+**Owner 13/09 (tối):** đồng ý đổi hàng đợi. **14/09:** cửa sổ 2.12→2.13 chuyển
+cho vòng tối ưu token `khoi-tim-loi-tra-phi-theo-vat`; router lùi 2.13→2.14.
 
 ## 7. Trạng thái
 

@@ -164,3 +164,9 @@ Lý do: lát A cần «nhà ý định» đã khai để lệnh ký có chỗ đ
 Phần B của hạt giống 06/09 đóng bằng router ở P3 (cửa sổ 2.13 → 2.14), không
 còn là ô riêng. Căn cứ: khung quyết định
 `docs/findings/2026-09-13-khung-quyet-dinh-kien-truc-hai-tang.md`.
+
+**Điều chỉnh 14/09/2026 (owner):** cửa sổ **2.12 → 2.13** thuộc vòng
+`khoi-tim-loi-tra-phi-theo-vat` (tối ưu token khối tìm-lỗi S4, owner gọi tên sau
+hoá đơn 212,3 M của `release-2-12-0`). Router lùi sang **2.13 → 2.14** (ngưỡng chọn
+ở kế hoạch `2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md`); lát A và P3 lùi
+theo. Ba chỗ cắt sau chữ ký (hạt giống 14/09) quyết vá-trong-mốc ở 2.13.

@@ -62,7 +62,8 @@ sống, không phải prototype của ô này.
 ## Cổng 0
 
 - **decision = …** Mở sau mốc 2.12 (luật chiều rộng (b): cửa sổ hiện tại đã tiêu hai vòng meta), hoặc sớm hơn nếu owner gọi tên và chấp nhận vượt (b) có chủ ý. Đi dưới luật nới 07/09 (đề xuất CỘNG, trace nguyên tố 2 + 1, 0 lượt gọi người thêm).
-- **Owner 13/09 (chưa phải chữ ký Cổng Đáng):** chốt hướng **repo khai, kit kiểm**; đồng ý **đổi thứ tự hàng đợi** 07/09 §3 — cửa sổ 2.12→2.13 cho vòng này (P1+P2), lát A của `y-dinh-co-nha-rieng` trượt một cửa sổ. Kế hoạch theo kết quả: `docs/plans/2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md`.
+- **Owner 13/09 (chưa phải chữ ký Cổng Đáng):** chốt hướng **repo khai, kit kiểm**; đồng ý **đổi thứ tự hàng đợi** 07/09 §3 — cửa sổ 2.12→2.13 cho vòng này (P1+P2), lát A của `y-dinh-co-nha-rieng` trượt một cửa sổ.
+- **Điều chỉnh 14/09:** owner gọi tên vòng meta của cửa sổ 2.12→2.13 là `khoi-tim-loi-tra-phi-theo-vat` (hoá đơn 2.12.0: 212,3 M token) → vòng này lùi sang **2.13→2.14**, chọn theo ngưỡng dòng 4 luật (c) tại mốc 2.13 (kế hoạch §Hàng đợi). Spec token §T2 khai `laNgoaiVat` sẽ đọc thêm nhà tầng theo-vòng từ router — người hưởng thứ hai: S4. Kế hoạch theo kết quả: `docs/plans/2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md`.
 - **disposition = …**
 - **Ngưỡng UAT chốt cùng lúc ký:** chép từ bullet `[đề xuất]` sau khi người gỡ tiền tố.
 

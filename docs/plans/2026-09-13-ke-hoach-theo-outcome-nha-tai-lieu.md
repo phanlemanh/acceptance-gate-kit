@@ -156,20 +156,42 @@ lệ ★. **CHẾT:** kit ghi vào roadmap của repo · hai bộ đọc lệch 
 
 ---
 
-## Hàng đợi phát hành — điều đổi so với 07/09 §3
+## Hàng đợi phát hành — điều đổi so với 07/09 §3, và điều chỉnh 14/09
 
-| Cửa sổ | Trước (07/09) | **Đề nghị mới** |
-|---|---|---|
-| 2.11 → 2.12 | H2 thước sống theo đời model | giữ H2 · **P0 làm ngay, không tính vòng** |
-| 2.12 → 2.13 | H1 lát A + B | **P1+P2 router** (một vòng) — lát A trượt |
-| 2.13 → 2.14 | — | **P3** (= B đóng bằng router) · lát A nếu ngưỡng chạm |
-| theo ngưỡng | H3 · lát C | không đổi |
+**Điều chỉnh 14/09 (owner):** 2.12.0 đã phát hành 13/09. Owner đọc hoá đơn vòng
+`release-2-12-0` — **212,3 M token**, ba lượt chấm S4 ăn 105 M cho một vật xanh từ
+lượt 1 — và gọi tên **vòng meta duy nhất của cửa sổ 2.12 → 2.13 là
+`khoi-tim-loi-tra-phi-theo-vat`** (spec 14/09, T2, đang ở lượt chấm 4 sau cổng
+DỪNG-VÁ «đổi khung theo miền»). Luật chiều rộng (b) chỉ cho một vòng meta mỗi cửa
+sổ → **router (P1+P2) trượt sang 2.13 → 2.14**, lát A và P3 trượt theo.
 
-Lý do trượt lát A: lát A cần «nhà ý định» đã khai để lệnh ký có chỗ đọc —
-router là tiền đề của nó, không phải đối thủ. Đây là **đổi thứ tự hàng đợi**,
-owner gạch.
+| Cửa sổ | 07/09 §3 | 13/09 (bản trước) | **14/09 — hiện hành** |
+|---|---|---|---|
+| 2.11 → 2.12 | H2 thước sống theo đời model | giữ H2 · P0 làm ngay | **đã ship 13/09** (2.12.0) |
+| 2.12 → 2.13 | H1 lát A + B | P1+P2 router | **`khoi-tim-loi-tra-phi-theo-vat`** (đang chạy) · P0 + dọn nhà + `docs/MAP.md` kit đã xong, không tính vòng |
+| mốc 2.13 | — | — | **vá-trong-mốc** (tiền lệ 2.11.0) cho hạt giống «ba chỗ cắt sau chữ ký» — re-pin theo diff · routing-baseline · dòng 1 đo tới lên-main; máy đề xuất, owner quyết ở hồ sơ mốc |
+| 2.13 → 2.14 | — | P3 | **P1+P2 router** — hoặc «chiến dịch phiên chính 104 M» nếu ngưỡng dưới đây chạm |
+| 2.14 → 2.15 | — | — | P3 (B đóng bằng router) · lát A nếu ngưỡng đếm chạm |
+| theo ngưỡng | H3 · lát C | không đổi | không đổi |
+
+**Ngưỡng chọn vòng cho 2.13 → 2.14 — đọc từ dòng 4 của luật (c) tại mốc 2.13, không
+dựng phép đo mới:** nếu sau vòng token, phần S4 trong hoá đơn vòng mốc còn **> 45 %**
+(tức nhát T1–T7 chưa ăn) → router lùi thêm, mở «phiên chính»; nếu S4 ≤ 45 % và phiên
+chính ≥ 55 % → **vẫn router trước**, vì (i) router là tiền đề của lát A, và (ii) spec
+token §T2 đã khai *«khi router cho repo khai nhà của tầng theo-vòng, `laNgoaiVat`
+đọc thêm từ đó»* — router có người hưởng thứ hai là S4: bớt finder soi thứ không
+phải vật. Owner veto được bằng một chữ.
+
+**Vì sao không làm gì thêm cho token ngay bây giờ ở tầng engine:** vòng token đang
+chạy là vòng meta duy nhất của cửa sổ; chèn việc engine thứ hai là vi phạm (b) và
+là đúng bệnh 5-vòng-meta-liên-tiếp luật đó sinh ra để chặn. Việc làm được ngay,
+không chạm engine: (a) đếm **dòng 4–5** cho `release-2-12-0` và cho chính vòng token
+bằng `wf-usage.mjs` — làm đối chứng cho số «sau» ở mốc 2.13; (b) mỗi phiên chính
+tự đo bằng `/explain-usage` trước khi đóng phiên — số đếm tay cho dòng 4 phần
+«phiên chính», thứ `wf-usage` không đo.
 
 ## Trạng thái
 
-Kế hoạch viết 13/09. P0 chưa làm. Ô `nha-tai-lieu-router` vẫn `discovery`;
-spec chưa sửa theo khung §2 (việc kế của máy sau khi owner gạch hàng đợi).
+Kế hoạch viết 13/09, điều chỉnh 14/09. P0 xong · dọn nhà xong · `docs/MAP.md` kit
+đã khai. Ô `nha-tai-lieu-router` vẫn `discovery`, chờ cửa sổ 2.13 → 2.14 và ngưỡng
+trên. Spec đã sửa theo khung §2.

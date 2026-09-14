@@ -3,7 +3,8 @@
 2026-09-13 · slug `nha-tai-lieu-router` · hạng: máy xếp ở S0 theo `risk_tiers`
 (dự kiến **T3** vì chạm `scripts/pre-merge-check.sh` + `scripts/start-scan.mjs`;
 T2 nếu tách bước CI ra lượt sau) · trạng thái: `discovery`, **vòng thi công chờ
-sau mốc 2.12** (owner quyết 13/09).
+cửa sổ 2.13 → 2.14** (owner quyết 13/09: sau 2.12; điều chỉnh 14/09: cửa sổ
+2.12 → 2.13 thuộc vòng `khoi-tim-loi-tra-phi-theo-vat`).
 
 Nguồn chữ của thiết kế này là bản đồ
 [`docs/findings/2026-09-13-ban-do-vung-lam-viec-hai-tang.md`](../../findings/2026-09-13-ban-do-vung-lam-viec-hai-tang.md);
