@@ -31,6 +31,11 @@
 # Gốc kho suy TỪ VỊ TRÍ SCRIPT (bài học P150), không từ thư mục gọi.
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+# Cờ lạ NỔ, đối xứng với chốt `--chan` cưỡng chế cứng của rang-moc.sh. Răng này
+# vốn đọc `$@` không một lần nào, nên `--khoi P199` hay `--chan diagram` đều chạy
+# như không có tham số rồi thoát 0 — một cờ rơi khỏi config âm thầm thành xanh,
+# đúng lớp fail-open mà kit đã đặt luật cho script của chính nó (bắt ở lượt chấm 5).
+[ $# -eq 0 ] || { echo "rang-p200: khong nhan tham so: $*" >&2; exit 2; }
 BLOCK="P200"
 OUT="$(cd "$ROOT" && ONLY_BLOCK="$BLOCK" bash tests/plugins/run-tests.sh 2>&1)"; RC=$?
 
@@ -66,9 +71,17 @@ if [ "$N" -gt 1 ]; then
   exit 4
 fi
 
-# ── Lối 5: chạy nhưng KHÔNG tới kết luận — không PASS, không FAIL ────────────
-if [ "$N" -eq 0 ]; then
-  echo "DO: P200 co chay ma khong in PASS lan FAIL — dau ra bi cat giua chung, chua ket luan duoc" >&2
+# ── Lối 5: KHẲNG ĐỊNH DƯƠNG, không để PASS làm nhánh mặc định ────────────────
+# `grep -c … || true` biến MỌI mã thoát của grep — kể cả các mã lỗi ≥2, không chỉ
+# mã 1 «không khớp» — thành một phép gán thành công với đầu ra RỖNG. Khi đó
+# `[ "" -gt 0 ]` và `[ "" -eq 0 ]` đều in «integer expression expected» rồi trả
+# FALSE, nên ba chốt trên rơi xuyên và `echo PASS` cuối tệp là nhánh MẶC ĐỊNH —
+# ngược hẳn thế fail-closed của cả tệp (bắt ở lượt chấm 5). Nên phán quyết xanh
+# viết ở dạng KHẲNG ĐỊNH: đúng một dòng PASS, không gì khác.
+if [ "$N" != "1" ]; then
+  echo "DO: so dong PASS: P200 khong phai 1 (doc duoc: '${N}') — chua ket luan duoc" >&2
   exit 5
 fi
-echo "PASS: P200 xanh (dung 1 dong PASS cua chinh no; phan quyet KHONG lay tu ma thoat tron suite)"
+# DẤU BẢN RĂNG, suy từ chính tệp đang chạy — xem chú thích cùng tên ở rang-moc.sh.
+DAU="$(git -C "$ROOT" hash-object "$0" 2>/dev/null | cut -c1-8)"
+echo "PASS: P200 xanh (dung 1 dong PASS cua chinh no; phan quyet KHONG lay tu ma thoat tron suite; rang ban ${DAU:-khong-doc-duoc})"

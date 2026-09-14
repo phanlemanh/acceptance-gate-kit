@@ -69,10 +69,11 @@ evals:
       KHÔNG ghim sha vào câu này: cả mốc so của chân 1..3 lẫn mốc phát hành trước của
       chân 7 đều SUY TỪ KHO, nên một sha gõ cứng ở đây sẽ lệch ngay lần cắt số kế và
       biến `expected` thành lời khai không ai đối chiếu được (bắt ở lượt chấm 3).
-      SÁU lối hỏng có mã thoát riêng: 2 cờ sai hoặc thiếu giá trị · 3 không tìm được
+      BẢY lối hỏng có mã thoát riêng: 2 cờ sai hoặc thiếu giá trị · 3 không tìm được
       lần cắt số · 4 cửa sổ rỗng · 5 `diagram-design/` CÓ đổi sau lần cắt số · 6 không
       đọc được số tại HEAD · 7 số tại HEAD KHÁC số tại mốc trước · 8 KHÔNG CÓ NỀN để
-      so quan hệ. Lượt chấm 4 tách 7 khỏi 8: bản trước cho cả ba ca «không suy được
+      đo — bốn vế: ROOT không phải kho git · pathspec `diagram-design/` không khớp tệp
+      nào · không suy được mốc trước · không đọc được số tại HEAD hoặc tại mốc trước. Lượt chấm 4 tách 7 khỏi 8: bản trước cho cả ba ca «không suy được
       mốc trước», «không đọc được số tại mốc trước» và «hai số khác nhau» cùng mã 7,
       nên một lời hứa ĐÃ SAI trông y như một phép đo CHƯA CÓ NỀN. Giờ 7 chỉ nói về
       VẬT, 8 nói về HẠ TẦNG của phép đo.

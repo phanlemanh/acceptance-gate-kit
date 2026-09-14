@@ -76,6 +76,22 @@ Và **hạ tầng tự sinh tín hiệu đỏ** hai lần trong cùng vòng: lư
    bị gọi nhầm ≈1/4 ở `--lan 2`, nên phân lớp `ha-tang` đòi thêm một dấu hiệu độc
    lập từ nhật ký workflow).
 6. **Trần ba lượt có răng:** sau lượt ba, lối ra chỉ còn ký-với-giới-hạn hoặc cắt.
+7. **Cho phép quét kiểm kê của P93 đi theo tệp GIT THEO DÕI, thôi quét cây làm
+   việc** (`tests/plugins/run-tests.sh`, hàm `scan`). Đây là MỘT cơ chế cụ thể của
+   lớp ở ngả 5, và là cơ chế duy nhất tới nay có chiều đỏ chạy được, nên nó tách
+   thành ngả riêng: ngả 5 là *phân lớp sau khi đỏ*, ngả 7 là *không đỏ giả nữa*.
+   Đo được: P93 đọc mọi tệp trong cây rồi đếm cặp marker toàn kho, chỉ loại ba mục
+   AC-10 khai cộng `{.git,.claude,node_modules}` — nên BẤT KỲ tệp nháp
+   không-được-theo-dõi nào chứa một cặp marker đều làm nó đỏ, mà một lượt chấm là
+   33–37 tác tử cùng ghi trong một worktree. Chiều đỏ đã chạy (14/09): cây nguyên
+   vẹn XANH → tiêm một tệp tạm chứa cặp `HFL-LAW-TABLE` vào `docs/` → `FAIL: P93`
+   kèm «co 3 khoi (mong doi 2)» → xoá tệp → XANH lại. Bằng chứng bán kính: lớp này
+   đốt lượt ở BỐN cửa sổ liên tiếp (2.10.0 ghi 5 lượt, 2.11.0 ghi 5, vòng
+   `cong-nguoi-doc-du-nguon` 2, mốc 2.12.0 lượt 1 · 4 · 5), và ở mốc 2.12.0 nó là
+   phép đo duy nhất giữ verdict ở REJECT trong khi cùng chuỗi lệnh cùng SHA chạy
+   tại chỗ thoát 0 — đo hai lần, hai lượt khác nhau. Phép TRỪ: một biểu thức.
+   *Ghi 14/09 từ lượt chấm 5 của mốc 2.12.0; ô này là vật mà sáu câu khai trong hồ
+   sơ mốc trỏ tới.*
 
 ## Nhịp đề xuất — SỬA 13/09 sau khi vòng đóng
 
@@ -87,7 +103,10 @@ chính lý do vòng này dừng lại.** Hai cớ:
    nguyên tố 2 sinh ra để chặn. Vòng này phải được cổng CŨ chấm.
 2. **Mốc phát hành phải nhẹ.** 2.12.0 là T2 thuần cắt số, làn V, mục tiêu ≤1 lượt
    gọi người. Nhét thay đổi luật cổng vào đó biến nó thành T3 và bắt giá trị
-   (253 tiêu chí tới kho tiêu thụ) chờ một cuộc thay luật.
+   (182 tiêu chí trên 8 kho gốc tới kho tiêu thụ) chờ một cuộc thay luật.
+   *Sửa 14/09 ở lượt chấm 5 của mốc 2.12.0: dòng này từng ghi 253, con số mà chính
+   mốc ấy đã bác bằng phép đo — 253 đếm `artifact-platform` hai lần dưới hai tên
+   cây. Script sinh số đã gỡ nên không phép đo nào canh chỗ này.*
 
 **Nhịp đúng:** mốc 2.12.0 đi trước, thuần cắt số. Rồi chiến dịch rollout. Rồi vòng
 này mở, CẢ SÁU ngả trong một vòng, chấm bằng cổng cũ. Đúng luật «meta-work đóng

@@ -30,8 +30,9 @@
 #   5  diagram-design/ CÓ đổi sau lần cắt số gần nhất → số đang nói dối
 #   6  không đọc được số tại HEAD (vật không còn)  → không có vật để đo
 #   7  số tại HEAD KHÁC số tại mốc phát hành trước → lời hứa «giữ số» đã sai
-#   8  không có NỀN để so quan hệ (không suy được mốc trước, hoặc không đọc
-#      được số của acceptance-gate tại HEAD / tại mốc trước) → chưa đo được
+#   8  không có NỀN để đo (ROOT không phải kho git · pathspec `diagram-design/`
+#      không khớp tệp nào · không suy được mốc trước · không đọc được số của
+#      acceptance-gate tại HEAD hoặc tại mốc trước) → chưa đo được
 #   0  xanh
 #
 # Vì sao 7 và 8 tách (lượt chấm 4): gộp chúng làm «lời hứa đã sai» trông y như
@@ -42,6 +43,15 @@
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 G() { git -C "$ROOT" "$@"; }
+# Chốt HẠ TẦNG trước mọi phép đo: `ver_tai` dìm stderr của git, nên nếu ROOT không
+# phải kho git (bản chép chạy ở thư mục khác, git vỡ, object store không đọc được)
+# thì mọi vế đều trả rỗng và răng báo mã 6 «vật không còn» — tức khai một thất bại
+# của THƯỚC thành một sự thật về VẬT. Răng bên cạnh (rang-p200.sh) phân đúng ca này
+# là lối «chưa từng chạy»; đây là vế đối ứng.
+if ! G rev-parse --git-dir >/dev/null 2>&1; then
+  echo "DO: ROOT (${ROOT}) khong phai kho git — thuoc khong chay duoc, khong co nen de do" >&2
+  exit 8
+fi
 CHAN=""
 MOC_TRUOC=""
 while [ $# -gt 0 ]; do
@@ -106,6 +116,18 @@ if ! G diff --name-only "${NEO}..HEAD" 2>/dev/null | grep -q .; then
 fi
 
 # Chân 3 — vật được đo.
+#
+# ĐỐI CHỨNG DƯƠNG CHO CHÍNH BỘ LỌC (thêm ở lượt chấm 5). `diff --name-only … --
+# <pathspec>` rỗng có HAI nguyên nhân không phân biệt được: (a) `diagram-design/`
+# thật sự không đổi, (b) pathspec không khớp gì — gõ sai một chữ
+# (`diagram-desgin/`) cũng in rỗng và thoát 0, không một dòng lỗi. Đối chứng dương
+# mà dòng PASS quảng cáo là của chân 2 (cửa sổ NEO..HEAD không rỗng); nó KHÔNG
+# chứng minh bộ lọc còn sống. Chốt dưới đây chứng minh chính literal ấy còn khớp
+# vật trong cây, nên «rỗng» chỉ còn một nghĩa.
+if ! G ls-files -- diagram-design/ 2>/dev/null | grep -q .; then
+  echo "DO: pathspec 'diagram-design/' KHONG khop tep nao trong cay — bo loc chet, «khong doi» la rong nghia" >&2
+  exit 8
+fi
 DOI="$(G diff --name-only "${NEO}..HEAD" -- diagram-design/ 2>/dev/null)"
 if [ -n "$DOI" ]; then
   echo "DO: diagram-design CO doi sau lan cat so gan nhat (${NEO}) ma so chua tang:" >&2
@@ -160,4 +182,9 @@ if [ "$SO_HEAD" != "$SO_TRUOC" ]; then
 fi
 
 SO="$SO_HEAD"
-echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} BANG so tai moc truoc ${MOC_TRUOC} (doi chung duong: cua so moc..HEAD KHONG rong)"
+# DẤU BẢN RĂNG, suy từ chính tệp đang chạy (không gõ tay, không trôi): lượt chấm 5
+# bắt được rằng hai bản răng khác nhau in dòng PASS y hệt nhau, nên trường `output`
+# đã ghim trong evidence-report KHÔNG phân biệt được bản nào đã chạy — bằng chứng
+# không tự phân biệt là bằng chứng không đọc được lúc ghim lại.
+DAU="$(G hash-object "$0" 2>/dev/null | cut -c1-8)"
+echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), giu ${SO} BANG so tai moc truoc ${MOC_TRUOC} (doi chung duong: cua so moc..HEAD KHONG rong; bo loc diagram-design/ con khop vat; rang ban ${DAU:-khong-doc-duoc})"

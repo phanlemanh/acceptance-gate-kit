@@ -14,12 +14,15 @@ approved_at: 2026-09-13
 
 ## Context
 
-Cửa sổ `45e5f1d8` (merge PR #166 — mốc 2.11.0) → `HEAD`: **130 commit đo tại
+Cửa sổ `45e5f1d8` (merge PR #166 — mốc 2.11.0) → `HEAD`: **134 commit đo tại
 `3f492e2e`, NĂM vòng đóng.**
 
-*Giới hạn đã khai (sửa ở lượt chấm 4):* con số commit là ẢNH CHỤP tại một sha, không
-phải bất biến. Nó cộng thêm một sau mỗi commit sửa chính hồ sơ này — tại HEAD của lượt
-chấm 4 `rev-list --count 45e5f1d8..HEAD` cho 137 — và hai commit BẮT BUỘC theo thiết kế
+*Giới hạn đã khai (sửa ở lượt chấm 4, SỐ sửa lại ở lượt chấm 5):* con số commit là ẢNH
+CHỤP tại một sha, không phải bất biến. Lượt 4 ghi «130 đo tại `3f492e2e`» — sai: 130 đo
+ở một HEAD sớm hơn, còn tại `3f492e2e` phép đếm cho **134**. Đúng lớp lời-khai-không-
+đối-chiếu-được mà lượt 4 vừa đi sửa, mắc lại ngay trong chính lượt sửa. Con số cộng thêm
+một sau mỗi commit sửa hồ sơ này — tại HEAD của lượt chấm 4 là 137, lượt chấm 5 là 138 —
+và hai commit BẮT BUỘC theo thiết kế
 (chữ ký Cổng 2, ghim lại) còn cộng nữa. Bản lượt 2 từng dựng một eval đối chiếu số này
 và chính nó là ca «bất biến không được nằm trong hồ sơ đã ký» phải gỡ: không có HEAD nào
 nó xanh được lúc ký. Nên số này ghi kèm sha đo, KHÔNG có eval canh; **NĂM vòng đóng** là
@@ -82,9 +85,13 @@ vòng soi lại tìm ra một cách nó không đo thật.
 **Given** `diagram-design/` không đổi dòng nào trong cửa sổ
 **When** chạy `rang-moc.sh --chan diagram` của hồ sơ này
 **Then** răng xanh, in ra ĐÚNG chuỗi `giu 2.7.0`, và nó xanh vì ĐO chứ không vì thiếu
-vật. Năm lối hỏng có mã thoát riêng: 3 không tìm được lần cắt số · 4 cửa sổ rỗng ·
-5 có đổi sau lần cắt số · 6 không đọc được số tại HEAD · **7 số tại HEAD KHÁC số tại
-mốc phát hành trước**.
+vật. BẢY lối hỏng có mã thoát riêng: 2 cờ sai hoặc thiếu giá trị · 3 không tìm được lần
+cắt số · 4 cửa sổ rỗng · 5 có đổi sau lần cắt số · 6 không đọc được số tại HEAD ·
+**7 số tại HEAD KHÁC số tại mốc phát hành trước** (VẬT nói dối) · **8 không có NỀN để
+đo** — ROOT không phải kho git · pathspec `diagram-design/` không khớp tệp nào · không
+suy được mốc trước · không đọc được số tại HEAD hoặc tại mốc trước (HẠ TẦNG của phép
+đo). Mã 2 và 8 thêm ở lượt chấm 4 và 5; 7 tách khỏi 8 để một lời hứa ĐÃ SAI không trông
+giống một phép đo CHƯA CÓ NỀN.
 
 Chân 7 thêm sau phản biện context sạch. Ba chân đầu chỉ kiểm một VỊ TỪ («không đổi kể
 từ lần cắt số của CHÍNH NÓ») rồi IN RA bất kỳ số nào đọc được, trong khi hợp đồng hứa
@@ -127,7 +134,7 @@ Quét bằng `morphological-scan`, preset test-matrix. Hai trục, không gian C
 | VẬT bị đo | manifest của ba plugin · `GUIDE.md` · `diagram-design/` · bốn suite · hồ sơ mốc |
 | CHIỀU | xanh (số nhất quán) · đỏ (số lệch / có đổi mà giữ số) · không-đo-được (vật vắng) |
 
-Ô Core có AC phủ: số nhất quán ở mọi bề mặt (AC-1) · giữ số CÓ căn cứ với bốn lối hỏng
+Ô Core có AC phủ: số nhất quán ở mọi bề mặt (AC-1) · giữ số CÓ căn cứ với bảy lối hỏng
 riêng (AC-2) · hồi quy bốn suite (AC-3) · hồ sơ mốc đủ bốn khối (AC-4).
 
 Ô Never: «số đã tăng so với base» — đã TRỪ khỏi P200 từ 18/08 vì nó kéo theo một mốc
