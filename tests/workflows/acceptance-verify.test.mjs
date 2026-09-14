@@ -519,17 +519,23 @@ console.log('WT-T5 eval FAIL + hon hop -> rejectFindings CHI co in-contract');
   check('WT-T5 KHONG co out-of-contract trong fix-list', !(result.rejectFindings || []).some(f => f.title === F_OUT.title));
 }
 
-console.log('WT-T6 finding unverified khong vao triage, van giu ngan rieng');
+// T1 (khoi-tim-loi-tra-phi-theo-vat) ĐỔI thứ tự: triage chạy TRƯỚC refute, nên finding
+// nào rồi sẽ mất refuter VẪN đi qua triage — đó là hành vi mới, cố ý. Bất biến 27/07
+// giữ nguyên và nay được nói bằng vị từ trong mã: unverified KHÔNG kéo REJECT, KHÔNG
+// vào fix-list, vẫn hiện ở ngăn riêng. Fixture đổi theo: triage nay PHẢI trả mục cho
+// finding (trả rỗng là triage-thiếu-mục → fail-toward-human, ca khác đo).
+console.log('WT-T6 refuter chet tren finding TRONG hop dong -> unverified, khong REJECT, khong vao fix-list');
 {
   const { result, calls } = await runWorkflow(WF, triArgs(), responder({
     'review:': { findings: [{ title: 'refuter chet o day', file: 'src/x.ts', severity: 'high', detail: 'x' }] },
     'refute:': null, // refuter chết → finding thành unverified
-    'triage': { triaged: [] },
+    'triage': { contractUnreadable: false, triaged: [{ title: 'refuter chet o day', file: 'src/x.ts', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' }] },
   }));
   const tp = byLabel(calls, 'triage').map(c => c.prompt).join('\n');
-  check('WT-T6 unverified KHONG vao prompt triage', !tp.includes('refuter chet o day'), tp.slice(0, 80));
+  check('WT-T6 T1: finding CO vao prompt triage (triage truoc refute)', tp.includes('refuter chet o day'), tp.slice(0, 80));
   check('WT-T6 unverified van trong confirmedFindings', (result.confirmedFindings || []).some(f => f.unverified));
-  check('WT-T6 unverified KHONG keo REJECT', result.verdict === 'PASS', result.verdict);
+  check('WT-T6 unverified KHONG keo REJECT du in-contract + high', result.verdict === 'PASS', result.verdict);
+  check('WT-T6 unverified KHONG vao fix-list', (result.rejectFindings || []).length === 0, JSON.stringify(result.rejectFindings));
 }
 
 console.log('WT-T9 BLOCKED thang ve REJECT-tu-finding');
@@ -2210,6 +2216,82 @@ console.log('W-EE13 AC-10 ap cho CA lan doi chung lan danh sach khong-phan-biet:
   const ndHeadConGioiHan = (rHeadConGioiHan.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));
   check('W-EE13c hoi quy that: HEAD CON gioi han (2, khop khai) so baseline HET gioi han (0) -> E1 KHONG non-discriminating',
     !ndHeadConGioiHan, JSON.stringify(rHeadConGioiHan.nonDiscriminating));
+}
+
+// ═══ khoi-tim-loi-tra-phi-theo-vat (14/09) ═══════════════════════════════════
+// T1 (AC-1, AC-2): triage đứng TRƯỚC refute — refute chỉ chạy cho finding TRONG
+// hợp đồng. Vì sao: đo 20 lượt chấm 10–14/09 — refute ăn 44 % token S4 mà 3/4 sản
+// phẩm của nó bị chính bước triage (0,19 M/tác tử) xếp ra ngoài hợp đồng. Trạm lọc
+// phạm vi đứng SAU trạm đắt nhất là gốc của rò.
+const T1_F = [
+  { title: 'A trong', file: '/repo/src/a.js', line: 1, severity: 'high', detail: 'x' },
+  { title: 'B ngoai', file: '/repo/src/b.js', line: 2, severity: 'high', detail: 'y' },
+  { title: 'C ngoai', file: '/repo/src/c.js', line: 3, severity: 'low', detail: 'z' },
+];
+const T1_TRIAGE = { contractUnreadable: false, triaged: [
+  { title: 'A trong', file: 'src/a.js', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' },
+  { title: 'B ngoai', file: 'src/b.js', inContract: false, acRef: '', rationale: 'r', proposal: 'known-limits', plain: 'nguoi dung thay B' },
+  { title: 'C ngoai', file: 'src/c.js', inContract: false, acRef: '', rationale: 'r', proposal: 'wont-fix', plain: 'nguoi dung thay C' },
+] };
+const t1Args = (over = {}) => baseArgs({ contractPath: '/repo/_acceptance/demo/contract.md', ...over });
+const t1Responder = (over = {}) => responder({
+  'review:bugs': { findings: T1_F },
+  'review:': { findings: [] },
+  triage: T1_TRIAGE,
+  'refute:': { refuted: false, reason: 'that' },
+  ...over,
+});
+
+console.log('W40 T1: triage dung TRUOC refute, chi finding trong hop dong duoc refute');
+{
+  const { result, calls } = await runWorkflow(WF, t1Args(), t1Responder());
+  const refutes = byLabel(calls, 'refute:');
+  check('W40 dung MOT refuter, cho finding trong hop dong (a.js)',
+    refutes.length === 1 && refutes[0].label === 'refute:a.js', refutes.map(c => c.label).join(',') || '(0 refuter)');
+  // Thứ tự đo bằng CHỈ SỐ CALL, không suy từ số lượng refuter: một bản sửa chỉ lọc
+  // danh sách mà vẫn refute trước triage sẽ qua assert số lượng (gap-probe F4).
+  const iT = calls.findIndex(c => c.label === 'triage');
+  const iR = calls.findIndex(c => c.label.startsWith('refute:'));
+  check('W40 chi so call: triage NHO HON moi chi so refute', iT >= 0 && iR > iT, `triage@${iT} refute@${iR}`);
+  const ooc = result.triaged.filter(f => !f.inContract);
+  check('W40 2 muc ngoai hop dong mang khongBacBo=true',
+    ooc.length === 2 && ooc.every(f => f.khongBacBo === true),
+    JSON.stringify(ooc.map(f => ({ t: f.title, k: f.khongBacBo }))));
+  // khongBacBo (theo thiết kế) ≠ unverified (refuter CHẾT). Trộn hai cờ là dán nhãn
+  // «hạ tầng hỏng» lên một quyết định cố ý — người ký đọc sai nguyên nhân.
+  check('W40 KHONG finding nao mang unverified (ngoai hop dong khong bi dan nhan refuter chet)',
+    result.triaged.every(f => !f.unverified),
+    JSON.stringify(result.triaged.map(f => ({ t: f.title, u: f.unverified }))));
+  check('W40 verdict REJECT vi finding trong hop dong muc high con song',
+    result.verdict === 'REJECT' && result.rejectFindings.length === 1 && result.rejectFindings[0].title === 'A trong',
+    `${result.verdict} / ${JSON.stringify(result.rejectFindings.map(f => f.title))}`);
+  const synth = byLabel(calls, 'synthesize:report')[0];
+  const sp = synth ? synth.prompt : '';
+  check('W40 khuon synthesize: cau mo dau noi CHUA qua bac bo', sp.includes('CHƯA qua bác bỏ đối kháng'), sp.slice(0, 120));
+  check('W40 khuon synthesize: KHONG con chuoi «la that»', !sp.includes('Các lỗi dưới đây là thật'), 'van con chuoi cu');
+  check('W40 prompt triage BO cau tuyen finding da duoc xac nhan la loi that',
+    (byLabel(calls, 'triage')[0] || { prompt: '' }).prompt.includes('CHUA qua bac bo doi khang'),
+    (byLabel(calls, 'triage')[0] || { prompt: '' }).prompt.slice(0, 140));
+}
+
+console.log('W40b T1: refuter bac bo finding trong hop dong -> khong REJECT tu finding');
+{
+  const { result, calls } = await runWorkflow(WF, t1Args(), t1Responder({ 'refute:': { refuted: true, reason: 'khong phai van de' } }));
+  check('W40b van chi 1 refuter', byLabel(calls, 'refute:').length === 1, String(byLabel(calls, 'refute:').length));
+  check('W40b bi bac bo -> rejectFindings rong, verdict PASS',
+    result.rejectFindings.length === 0 && result.verdict === 'PASS', `${result.verdict} ${JSON.stringify(result.rejectFindings)}`);
+  check('W40b hai muc ngoai hop dong van con (khong bi refute)',
+    result.triaged.filter(f => f.khongBacBo).length === 2, String(result.triaged.length));
+}
+
+console.log('W40c T1: triage hong -> roi ve duong cu (refute TAT CA, moi finding unclassified)');
+{
+  const { result, calls } = await runWorkflow(WF, t1Args(), t1Responder({ triage: null }));
+  check('W40c triage goi 2 lan (retry)', byLabel(calls, 'triage').length === 2, String(byLabel(calls, 'triage').length));
+  check('W40c refute chay cho CA 3 finding', byLabel(calls, 'refute:').length === 3, String(byLabel(calls, 'refute:').length));
+  check('W40c triageFailed, khong ai REJECT tu findings, verdict PENDING-JUDGMENT',
+    result.triageFailed === true && result.rejectFindings.length === 0 && result.verdict === 'PENDING-JUDGMENT', result.verdict);
+  check('W40c duong cu: khong finding nao mang khongBacBo', result.triaged.every(f => !f.khongBacBo));
 }
 
 summary('acceptance-verify');

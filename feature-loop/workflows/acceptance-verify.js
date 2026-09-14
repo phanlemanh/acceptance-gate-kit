@@ -569,20 +569,20 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
     )
   )),
 
-  () => pipeline(
-    REVIEWERS,
-    d => agentT(d.prompt, { label: `review:${d.key}`, phase: 'Review', schema: FINDINGS_SCHEMA, ...modelOpt('finder') }),
-    (res, d) => res
-      ? parallel(res.findings.map(f => () =>
-          agentT(
-            `Adversarially verify finding sau trong repo ${args.repoRoot} (diff ${args.diffBase}...HEAD):\n"${f.title}" tai ${f.file}${f.line ? ':' + f.line : ''} — ${f.detail}\nCo BAC BO no: doc code that (Read/Grep; KHONG git checkout/switch — repo phai o nguyen branch), tim bang chung no KHONG phai van de. refuted=true neu khong chac chan day la van de that.`,
-            { label: `refute:${(f.file || '').split('/').pop()}`, phase: 'Review', schema: REFUTE_SCHEMA, ...modelOpt('refute') }
-          ).then(v => v
-            ? (!v.refuted ? { ...f, source: d.key } : null)
-            : { ...f, source: d.key, unverified: true }) // refuter chet → giu finding, danh dau chua verify
-        )).then(arr => ({ key: d.key, dead: false, findings: arr.filter(Boolean) }))
-      : { key: d.key, dead: true, findings: [] } // finder chet → KHONG phai "0 findings"
-  ),
+  // T1 (khoi-tim-loi-tra-phi-theo-vat): lane review nay CHI TIM. Bước bác bỏ đã dời
+  // xuống SAU phase Triage — xem khối `phase('Refute')`. Vì sao: đo 20 lượt chấm
+  // 10–14/09, refute ăn 44 % token S4 (0,89 M/tác tử × ~13 tác tử) trong khi bước
+  // triage phân loại cùng danh sách hết 0,19 M cho MỘT tác tử; 3/4 sản phẩm của
+  // refute bị chính triage xếp ra ngoài hợp đồng. Trạm lọc phạm vi đứng SAU trạm
+  // đắt nhất là gốc của rò — luật ở tầng phán quyết vẫn đúng, thứ tự thi hành sai.
+  // Barrier ở đây chỉ chờ BA finder (không chờ machine/ui/judge/baseline): cần cả ba
+  // để dedupe liên-lane TRƯỚC bước đắt — hai lane cùng báo một lỗi là chuyện thường.
+  () => parallel(REVIEWERS.map(d => () =>
+    agentT(d.prompt, { label: `review:${d.key}`, phase: 'Review', schema: FINDINGS_SCHEMA, ...modelOpt('finder') })
+      .then(res => res
+        ? { key: d.key, dead: false, findings: (Array.isArray(res.findings) ? res.findings : []).map(f => ({ ...f, source: d.key })) }
+        : { key: d.key, dead: true, findings: [] }) // finder chet → KHONG phai "0 findings"
+  )),
 
   // A/B baseline (đối chứng): chạy lại lệnh-CÓ-eval trên diffBase trong worktree CÔ LẬP — KHÔNG đụng
   // cwd chính (verifier HEAD đang chạy song song ở đó). Tín hiệu PHỤ: thiếu env → cannotRun, không sao.
@@ -812,7 +812,13 @@ const relPath = v => {
   return p.replace(/^\.\//, '').replace(/^\/+/, '')
 }
 const relFile = f => relPath(f && f.file)
-const confirmedFindings = reviewResults.flatMap(r => r.findings).map(f => ({ ...f, file: relPath(f.file) }))
+// Khoá PHÂN BIỆT (file đã chuẩn hoá :: title) — MỘT chỗ cho triage, refute và vùng
+// phủ. T1 đưa nó lên ĐÂY: dedupe liên-lane phải xảy ra TRƯỚC triage (trước đây nó
+// nằm dưới khối vùng phủ, sau cả refute).
+const distinctKey = f => `${relFile(f)} :: ${f.title}`
+const dedupe = arr => [...new Map(arr.map(f => [distinctKey(f), f])).values()]
+// Finding THÔ đã dedupe — CHƯA qua bác bỏ. Refute chạy SAU triage (T1).
+const rawFindings = dedupe(reviewResults.flatMap(r => r.findings).map(f => ({ ...f, file: relPath(f.file) })))
 const reviewIncomplete = reviewResults.filter(r => r.dead).map(r => r.key)
 for (const k of REVIEWERS.map(r => r.key)) {
   if (!reviewResults.some(r => r.key === k) && !reviewIncomplete.includes(k)) reviewIncomplete.push(k)
@@ -824,7 +830,9 @@ for (const k of REVIEWERS.map(r => r.key)) {
 // không-đặc-tả mới, nên vòng lặp không thể hội tụ (ca OneFlow: 7 round, mọi
 // round eval xanh, 12/12 finding rơi ngoài vùng phủ).
 phase('Triage')
-const toTriage = confirmedFindings.filter(f => !f.unverified) // unverified chưa chắc là thật → không phân loại
+// T1: phân loại phạm vi TRƯỚC bác bỏ — câu hỏi «có làm một AC thất bại không» độc
+// lập với «có phải lỗi thật không», nên không cần refute trước để trả lời.
+const toTriage = rawFindings
 const hasContract = typeof args.contractPath === 'string' && !!args.contractPath.trim()
 let triageRaw = null
 let triageFailed = false
@@ -835,7 +843,7 @@ if (toTriage.length === 0) {
   log('Triage: thieu args.contractPath — moi finding ve unclassified, khong ai REJECT tu findings')
 } else {
   const triagePrompt =
-    `Ban la nguoi PHAN LOAI PHAM VI, khong phai nguoi tim loi. Cac finding duoi day DEU DA duoc xac nhan la loi THAT — dung tranh cai ve tinh dung sai cua chung.\n` +
+    `Ban la nguoi PHAN LOAI PHAM VI, khong phai nguoi tim loi va khong phai nguoi bac bo. Cac finding duoi day CHUA qua bac bo doi khang — dung tranh cai ve tinh dung sai cua chung, buoc bac bo di SAU buoc nay va chi chay cho finding trong hop dong.\n` +
     `Cau hoi duy nhat cho MOI finding: no co lam mot AC (acceptance criterion) trong hop dong that bai khong?\n\n` +
     `Doc hop dong tai ${args.contractPath} (Read). Doc CA section "Out of scope" — muc trong do la bang chung MANH cho inContract=false.\n\n` +
     `Findings: ${JSON.stringify(toTriage.map(f => ({ title: f.title, file: f.file, line: f.line, severity: f.severity, detail: f.detail })))}\n\n` +
@@ -898,7 +906,7 @@ const matchTriage = f => triageByKey.get(triageKey(f))
     ? triageRows.find(t => t.title === f.title)
     : undefined)
 // Finding gửi đi mà agent KHÔNG trả về → unclassified (không mặc định in/out).
-const triaged = toTriage.map(f => {
+const triagedRaw = toTriage.map(f => {
   const t = matchTriage(f)
   const ok = !triageFailed && !!t
   return {
@@ -917,12 +925,43 @@ const triaged = toTriage.map(f => {
 // Agent tra THIEU muc cho mot finding (bo sot / chep lech khoa) cung la triage
 // KHONG day du — keo ca round ve fail-toward-human, dung nhat quan voi luat
 // "khong chac chan thi khong ai duoc REJECT tu findings".
-if (!triageFailed && triaged.some(f => f.unclassified)) {
+if (!triageFailed && triagedRaw.some(f => f.unclassified)) {
   triageFailed = true
   log('Triage: agent tra thieu muc cho it nhat mot finding — coi nhu phan loai khong day du, khong ai REJECT tu findings')
 }
-const rejectFindings = triageFailed ? [] : triaged.filter(f => f.inContract)
-const triageHighInContract = triageFailed ? [] : triaged.filter(f => f.inContract && f.severity === 'high')
+// ---- T1: REFUTE — chỉ finding TRONG hợp đồng (khi triage lành) ----
+// Máy không tốn tiền chứng minh thứ máy KHÔNG ĐƯỢC SỬA: mục ngoài hợp đồng đi thẳng
+// sang người ở Cổng Bằng chứng, mang cờ `khongBacBo` (theo THIẾT KẾ) — khác hẳn
+// `unverified` (refuter CHẾT, hạ tầng hỏng). Trộn hai cờ là dán nhãn hỏng-hạ-tầng lên
+// một quyết định cố ý. Triage hỏng → rơi về ĐƯỜNG CŨ: refute tất cả, vì lúc đó máy
+// không biết cái nào trong hợp đồng, và người nhận việc xứng đáng có danh sách đã lọc.
+phase('Refute')
+const toRefute = triageFailed ? triagedRaw : triagedRaw.filter(f => f.inContract && !f.unclassified)
+log(`Refute: ${toRefute.length}/${triagedRaw.length} finding — ${triageFailed ? 'triage hong, refute TAT CA (duong cu)' : 'chi finding trong hop dong'}`)
+const refuteVotes = await parallel(toRefute.map(f => () =>
+  agentT(
+    `Adversarially verify finding sau trong repo ${args.repoRoot} (diff ${args.diffBase}...HEAD):\n"${f.title}" tai ${f.file}${f.line ? ':' + f.line : ''} — ${f.detail}\nCo BAC BO no: doc code that (Read/Grep; KHONG git checkout/switch — repo phai o nguyen branch), tim bang chung no KHONG phai van de. refuted=true neu khong chac chan day la van de that.`,
+    { label: `refute:${(f.file || '').split('/').pop()}`, phase: 'Review', schema: REFUTE_SCHEMA, ...modelOpt('refute') }
+  ).then(v => ({ key: distinctKey(f), v }))
+))
+const refuteByKey = new Map((refuteVotes || []).filter(Boolean).map(x => [x.key, x.v]))
+const refuteAttempted = new Set(toRefute.map(distinctKey))
+const triaged = triagedRaw.flatMap(f => {
+  const k = distinctKey(f)
+  if (!refuteAttempted.has(k)) return [{ ...f, khongBacBo: true }]   // ngoài hợp đồng: không chấm, nói ra
+  const v = refuteByKey.get(k)
+  if (!v || typeof v !== 'object') return [{ ...f, unverified: true }] // refuter chết → giữ, đánh dấu
+  return v.refuted === true ? [] : [f]
+})
+const confirmedFindings = triaged
+
+// T1 giữ bất biến 27/07: unverified (refuter CHẾT) KHÔNG BAO GIỜ kéo REJECT và
+// KHÔNG vào fix-list. Trước T1 điều đó tự đúng vì finding unverified chưa từng qua
+// triage nên không thể mang inContract; nay triage chạy TRƯỚC nên phải nói ra bằng
+// vị từ — nếu không, một refuter chết biến thành một round sửa trên một lỗi chưa ai
+// xác nhận. Chúng vẫn hiện ở mục «chưa adversarial-verify» cho người đọc.
+const rejectFindings = triageFailed ? [] : triaged.filter(f => f.inContract && !f.unverified)
+const triageHighInContract = triageFailed ? [] : triaged.filter(f => f.inContract && f.severity === 'high' && !f.unverified)
 
 // Tín hiệu cụm-ngoài-vùng-phủ: findings dồn vào file không eval nào đo = hợp đồng
 // đang hụt. Ngưỡng ≥2 — một finding lẻ không đẩy người vào quyết định mở-rộng-hay-rút.
@@ -947,8 +986,6 @@ const coverageRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : [
 // Khoá phân biệt dùng path ĐÃ chuẩn hoá (relFile khai ngay trên): hai lane
 // reviewer có thể báo cùng một lỗi bằng path tuyệt đối và path tương đối —
 // dedupe trên path thô sẽ nhân đôi nó thành "cụm" giả.
-const distinctKey = f => `${relFile(f)} :: ${f.title}`
-const dedupe = arr => [...new Map(arr.map(f => [distinctKey(f), f])).values()]
 const triagedDistinct = dedupe(triaged)
 const outsideCoverage = coverageRes.length === 0 ? [] // không eval nào khai paths → không tính được (n-a)
   : triagedDistinct.filter(f => relFile(f) && !coverageRes.some(re => re.test(relFile(f))))
@@ -1160,7 +1197,7 @@ run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI va
 EVAL CARRY-FORWARD (P1 — delta staleness khong cham paths cua cac eval nay, round nay KHONG chay lai): moi item van la MOT block eval PASS trong bang + Evidence, ghi run_id va verified_at NGUYEN VAN tu payload (id da nam trong run-log tu round goc), exit_code: 0, verifier = field ref, THEM dong "carried_from_round: <N>" va ghi chu 1 dong "carry-forward tu round <N> — delta khong cham paths cua eval". TUYET DOI KHONG ghi screenshot:/observed: cho block carried (frame goc xem round <N> trong Iterations): ${JSON.stringify(carriedForReport)}` : ''}
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.
 Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. ${runBaseline ? 'Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)".' : `BASELINE ROUND NAY KHONG DO LAI (P2 — evals.yaml khong doi tu lan baseline cuoi${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? `, round ${carriedAnalyst.fromRound}` : ''}): mo dau section Analyst bang dong "carried tu round ${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : 'truoc'} — baseline khong do lai round nay"; field "baseline:" cua tung block eval ghi "n-a" (round nay khong do).`} Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.
-VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai. Panel co "carried": true (P3) = inputs khong doi tu round "fromRound" (hash khop) nen KHONG cham lai: ghi ro "panel giu nguyen tu round <fromRound> — inputs khong doi, khong cham lai; rationale xem round do", votes carried chi co lens+verdict (ghi "- <lens>: <verdict> (r<fromRound>)"). Panel co "ungrounded": true = eval KHONG khai input nao nen KHONG hoi dong nao duoc cham (votes rong la DUNG, khong phai thieu du lieu): ghi ro "khong khai input — may khong co can cu, nguoi quyet o Cong 2" va de human_override TRONG; TUYET DOI khong ghi no nhu mot muc da dat: ${JSON.stringify(panels)}\n\nSau do soan NOI DUNG file thu hai review-findings.md — TRA VE trong field "findings", KHONG ghi file (informational, NGOAI hook — TUYET DOI khong them section/field nao cua no vao evidence-report.md).\nFile nay chia theo ket qua SCOPE-TRIAGE, moi finding ghi title, file:line, severity, detail, source:\n- "## Trong hợp đồng" — findings da map duoc vao AC; moi dong ghi them "AC: <acRef>". Findings: ${JSON.stringify(triaged.filter(f => f.inContract))}\n- "## Ngoài hợp đồng — người quyết ở Gate 2" — findings THAT nhung khong AC nao phu. Mo dau ngan bang DUNG mot cau: "Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa." Roi MOI MUC viet DUNG khuon duoi day, KHONG doi thu tu dong, KHONG bo dau gach dau dong hay hai dau sao (bo doc lai file nay bang may — sai khuon la khoi bien mat khoi the, khong bao loi):\n<<<OOC-ITEM-TEMPLATE\n- **{title}**\n  Người dùng thấy gì: {plain}\n  file: \`{file}\`\n  severity: {severity}\n  Đề xuất: {proposal}\nOOC-ITEM-TEMPLATE>>>\n{plain} chep NGUYEN VAN truong plain (day la chu DUY NHAT the Cong 2 in ra cho nguoi quyet doc); {proposal} chep NGUYEN VAN tu truong proposal cua finding — gia tri hop le: ${OOC_GLOSS}. TUYET DOI khong doi sang gia tri khac. Findings: ${JSON.stringify(triaged.filter(f => !f.inContract && !f.unclassified))}\n${triaged.some(f => f.unclassified) ? '- "## Chưa phân loại (triage-failed)" — buoc phan loai pham vi hong nen KHONG finding nao duoc coi la trong hop dong; mo dau bang dong "phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ". Findings: ' + JSON.stringify(triaged.filter(f => f.unclassified)) + '\n' : ''}- Finding co unverified=true liet ke RIENG duoi heading VIET DUNG NGUYEN VAN "## Chưa adversarial-verify (refuter chết)" (bat buoc muc ##: heading khac cap hoac dong tran se lam cac muc nay bi may doc nham thanh finding ngoai-hop-dong tren the): ${JSON.stringify(confirmedFindings.filter(f => f.unverified))}\n${coverageCluster ? `Cuoi file ghi DUNG mot dong co: "⚠ Cụm ngoài vùng phủ: ${coverageCluster.count}/${coverageCluster.total} lỗi rơi vào file không bộ đo nào phủ (${coverageCluster.files.join(', ')}) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi."\n` : 'Cuoi file ghi DUNG mot dong: "Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm)." TUYET DOI khong bia co canh bao.\n'}Tra ve {report, findings} — hai CHUOI NOI DUNG day du, khong phai duong dan.`,
+VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai. Panel co "carried": true (P3) = inputs khong doi tu round "fromRound" (hash khop) nen KHONG cham lai: ghi ro "panel giu nguyen tu round <fromRound> — inputs khong doi, khong cham lai; rationale xem round do", votes carried chi co lens+verdict (ghi "- <lens>: <verdict> (r<fromRound>)"). Panel co "ungrounded": true = eval KHONG khai input nao nen KHONG hoi dong nao duoc cham (votes rong la DUNG, khong phai thieu du lieu): ghi ro "khong khai input — may khong co can cu, nguoi quyet o Cong 2" va de human_override TRONG; TUYET DOI khong ghi no nhu mot muc da dat: ${JSON.stringify(panels)}\n\nSau do soan NOI DUNG file thu hai review-findings.md — TRA VE trong field "findings", KHONG ghi file (informational, NGOAI hook — TUYET DOI khong them section/field nao cua no vao evidence-report.md).\nFile nay chia theo ket qua SCOPE-TRIAGE, moi finding ghi title, file:line, severity, detail, source:\n- "## Trong hợp đồng" — findings da map duoc vao AC; moi dong ghi them "AC: <acRef>". Findings: ${JSON.stringify(triaged.filter(f => f.inContract))}\n- "## Ngoài hợp đồng — người quyết ở Gate 2" — findings THAT nhung khong AC nao phu. Mo dau ngan bang DUNG mot cau: "Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa." Roi MOI MUC viet DUNG khuon duoi day, KHONG doi thu tu dong, KHONG bo dau gach dau dong hay hai dau sao (bo doc lai file nay bang may — sai khuon la khoi bien mat khoi the, khong bao loi):\n<<<OOC-ITEM-TEMPLATE\n- **{title}**\n  Người dùng thấy gì: {plain}\n  file: \`{file}\`\n  severity: {severity}\n  Đề xuất: {proposal}\nOOC-ITEM-TEMPLATE>>>\n{plain} chep NGUYEN VAN truong plain (day la chu DUY NHAT the Cong 2 in ra cho nguoi quyet doc); {proposal} chep NGUYEN VAN tu truong proposal cua finding — gia tri hop le: ${OOC_GLOSS}. TUYET DOI khong doi sang gia tri khac. Findings: ${JSON.stringify(triaged.filter(f => !f.inContract && !f.unclassified))}\n${triaged.some(f => f.unclassified) ? '- "## Chưa phân loại (triage-failed)" — buoc phan loai pham vi hong nen KHONG finding nao duoc coi la trong hop dong; mo dau bang dong "phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ". Findings: ' + JSON.stringify(triaged.filter(f => f.unclassified)) + '\n' : ''}- Finding co unverified=true liet ke RIENG duoi heading VIET DUNG NGUYEN VAN "## Chưa adversarial-verify (refuter chết)" (bat buoc muc ##: heading khac cap hoac dong tran se lam cac muc nay bi may doc nham thanh finding ngoai-hop-dong tren the): ${JSON.stringify(confirmedFindings.filter(f => f.unverified))}\n${coverageCluster ? `Cuoi file ghi DUNG mot dong co: "⚠ Cụm ngoài vùng phủ: ${coverageCluster.count}/${coverageCluster.total} lỗi rơi vào file không bộ đo nào phủ (${coverageCluster.files.join(', ')}) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi."\n` : 'Cuoi file ghi DUNG mot dong: "Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm)." TUYET DOI khong bia co canh bao.\n'}Tra ve {report, findings} — hai CHUOI NOI DUNG day du, khong phai duong dan.`,
   { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA, ...modelOpt('synthesize') }
 )
 
