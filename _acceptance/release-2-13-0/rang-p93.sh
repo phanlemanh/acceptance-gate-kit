@@ -136,7 +136,11 @@ fi
 
 OUT="$(chay)"; RC=$?
 if chua_chay "$OUT" "$RC"; then echo "DO: P93 chua tung chay sau khi tiem (rc=${RC})" >&2; exit 2; fi
-printf '%s\n' "$OUT" | grep -F "$BLOCK" || true
+# Cac dong cua P93 di ra STDERR, khong ra stdout. Ly do do duoc o luot cham 1: chan `do`
+# DOI HOI P93 in `FAIL: P93` — do la ket qua DUNG — nhung dong ay nam tren stdout thi moi
+# bo doc quet chu FAIL (ke ca tac tu cham) doc thanh that bai, va E5b bi bao do trong khi
+# ma thoat that la 0. Rang van in chung de nguoi chan doan doc duoc, chi doi kenh.
+printf '%s\n' "$OUT" | grep -F "$BLOCK" >&2 || true
 NF="$(dem "$OUT" "FAIL: $BLOCK")"; NP="$(dem "$OUT" "PASS: $BLOCK")"
 CO_GHIM=1; printf '%s\n' "$OUT" | grep -qF "$GHIM" || CO_GHIM=0
 

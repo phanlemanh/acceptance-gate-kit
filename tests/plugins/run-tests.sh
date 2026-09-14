@@ -2191,10 +2191,9 @@ def dung_ban_sao(src_root, dst):
     nhat va: chan `im` cua rang-p93 van do sau khi da vá, va thong diep lai la cua
     chinh doi chung duong noi tai nay.
 
-    Nay ban sao chep DUNG tap `git ls-files` cua nguon, nen no chua dung thu
-    `scan(src_root)` dem — mot vi tu, hai cho. `git add -A` sau do dua tron tap ay
-    vao index. Moi cho TIEM ben duoi con phai tu `git add` chinh no: chung ghi SAU
-    lan add nay.
+    Nay ban sao chep DUNG tap `git ls-files` cua nguon, va bat bien «hai tap trung
+    khit» duoc KHANG DINH ngay duoi (khong con la mot loi hua trong docstring). Moi
+    cho TIEM ben duoi con phai tu `git add -f` chinh no: chung ghi SAU lan add nay.
     """
     if dst.exists():
         shutil.rmtree(dst)
@@ -2211,7 +2210,21 @@ def dung_ban_sao(src_root, dst):
         dst_p.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src_p, dst_p)
     subprocess.run(["git", "-C", str(dst), "init", "-q"], check=True)
-    subprocess.run(["git", "-C", str(dst), "add", "-A"], check=True)
+    # `-f`: `git add -A` TON TRONG .gitignore (ban sao mang theo chinh .gitignore da chep)
+    # va ca `core.excludesFile` toan cuc cua may chay, con `git ls-files` ben nguon liet
+    # ke tep DANG theo doi ke ca tep tung duoc force-add. Hai vi tu khac nhau, va lech im
+    # lang: `add -A` tra 0, khong mot dong canh bao. Do tren cay 14/09: nguon 1701 tep,
+    # ban sao dung lai con 1699 — hai tep roi la `s4-args.json` duoi `_acceptance/`.
+    # Hom nay vo hai vi ca hai nam trong SKIP_TOP, nhung «mot vi tu hai cho» la dung thu
+    # ban va nay ban, nen no phai DUNG chu khong phai tinh co dung.
+    subprocess.run(["git", "-C", str(dst), "add", "-A", "-f"], check=True)
+    # KHANG DINH bat bien thay vi chi hua trong docstring: hai tap phai TRUNG KHIT.
+    n_src, n_dst = len(scan(src_root)), len(scan(dst))
+    if n_src != n_dst:
+        thieu = {str(x.relative_to(src_root)) for x in scan(src_root)} - {str(x.relative_to(dst)) for x in scan(dst)}
+        raise AssertionError(
+            f"dung_ban_sao: ban sao KHONG phai anh cua vat — nguon {n_src} tep, ban sao "
+            f"{n_dst}; thieu: {sorted(thieu)[:5]}")
 
 assert verdict(root) == [], verdict(root)                         # doi chung DUONG
 
@@ -2228,7 +2241,7 @@ try:
         plant = dst / rel
         plant.parent.mkdir(parents=True, exist_ok=True)
         plant.write_text(src, encoding="utf-8")
-        subprocess.run(["git", "-C", str(dst), "add", str(plant.relative_to(dst))], check=True)
+        subprocess.run(["git", "-C", str(dst), "add", "-f", str(plant.relative_to(dst))], check=True)
     e = verdict(dst)
     for frag in ("khuon bang phai mot cho", "khuon so do phai mot cho",
                  "chi duoc 2 cho da biet", "cap marker PLAN-SUMMARY-TABLE-TEMPLATE",
@@ -2240,7 +2253,7 @@ try:
     only = dst / ".out-of-scope/ban-sao-thu.yaml"
     only.parent.mkdir(parents=True, exist_ok=True)
     only.write_text(src, encoding="utf-8")
-    subprocess.run(["git", "-C", str(dst), "add", str(only.relative_to(dst))], check=True)
+    subprocess.run(["git", "-C", str(dst), "add", "-f", str(only.relative_to(dst))], check=True)
     e2 = verdict(dst)
     assert any("khuon bang phai mot cho" in x for x in e2), \
         f"ban sao trong thu muc dau-cham voi duoi .yaml van lot luoi: {e2}"
