@@ -128,7 +128,7 @@ fi
 DOI="$(G diff --name-only "${NEO}..HEAD" -- diagram-design/ 2>/dev/null)"
 if [ -n "$DOI" ]; then
   echo "DO: diagram-design CO doi sau lan cat so gan nhat (${NEO}) ma so chua tang:" >&2
-  printf '  %s\n' $DOI >&2
+  printf '%s\n' "$DOI" | sed 's/^/  /' >&2
   exit 5
 fi
 
@@ -137,5 +137,13 @@ SO="$SO_HEAD"
 # bắt được rằng hai bản răng khác nhau in dòng PASS y hệt nhau, nên trường `output`
 # đã ghim trong evidence-report KHÔNG phân biệt được bản nào đã chạy — bằng chứng
 # không tự phân biệt là bằng chứng không đọc được lúc ghim lại.
-DAU="$(G hash-object "$0" 2>/dev/null | cut -c1-8)"
-echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), so doc duoc tai HEAD la ${SO} (doi chung duong: cua so moc..HEAD KHONG rong; bo loc diagram-design/ con khop vat; rang ban ${DAU:-khong-doc-duoc})"
+# Đường TUYỆT ĐỐI suy từ vị trí tệp (P150): `$0` tương đối với cwd người gọi, còn
+# `git -C ROOT` giải nó tương đối với ROOT — gọi từ `docs/` là dấu rỗng. Và rỗng thì
+# ĐỎ: một đối chứng dương không cưỡng chế là một đối chứng chỉ quảng cáo (lượt 6).
+TEP="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+DAU="$(G hash-object "$TEP" 2>/dev/null | cut -c1-8)"
+if [ -z "$DAU" ]; then
+  echo "DO: khong doc duoc dau ban rang cua ${TEP} — bang chung khong tu phan biet duoc ban" >&2
+  exit 8
+fi
+echo "PASS: diagram-design KHONG doi ke tu lan cat so gan nhat (${NEO}), so doc duoc tai HEAD la ${SO} (doi chung duong: cua so moc..HEAD KHONG rong; bo loc diagram-design/ con khop vat; rang ban ${DAU})"

@@ -83,5 +83,10 @@ if [ "$N" != "1" ]; then
   exit 5
 fi
 # DẤU BẢN RĂNG, suy từ chính tệp đang chạy — xem chú thích cùng tên ở rang-moc.sh.
-DAU="$(git -C "$ROOT" hash-object "$0" 2>/dev/null | cut -c1-8)"
-echo "PASS: P200 xanh (dung 1 dong PASS cua chinh no; phan quyet KHONG lay tu ma thoat tron suite; rang ban ${DAU:-khong-doc-duoc})"
+TEP="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+DAU="$(git -C "$ROOT" hash-object "$TEP" 2>/dev/null | cut -c1-8)"
+if [ -z "$DAU" ]; then
+  echo "DO: khong doc duoc dau ban rang cua ${TEP} — bang chung khong tu phan biet duoc ban" >&2
+  exit 2
+fi
+echo "PASS: P200 xanh (dung 1 dong PASS cua chinh no; phan quyet KHONG lay tu ma thoat tron suite; rang ban ${DAU})"

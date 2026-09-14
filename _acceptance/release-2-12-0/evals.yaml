@@ -83,9 +83,16 @@ evals:
       trừ → 2 · ROOT không phải kho git → 8 (bản trước báo mã 6, tức khai một thất bại
       của THƯỚC thành sự thật về VẬT) · pathspec gõ sai một chữ `diagram-desgin/` → 8,
       kèm PHÉP VI PHÂN: cùng đột biến trên bản CHƯA vá thoát 0 vì «rỗng» có hai nghĩa.
-      CHƯA chạy chiều đỏ: lối 3, 4, 5 (cần dựng kho giả có lịch sử riêng; không dựng vì
-      đó là thêm dàn đo, trái lối 1) — riêng lối 4 và 6 có chú thích trong răng khai đã
-      nổ thật lúc dựng ở cửa sổ trước. Khai là giới hạn, không khai là đã chứng minh.
+      Lối 4 và 5 (lối 5 là chính vế Then) chạy thật ở lượt 6 bằng `git clone` cục bộ kho
+      thật cộng MỘT commit — không cần kho giả, lời khai cũ «cần dựng kho giả» là quá
+      mức: clone nguyên vẹn → 0 · thêm một dòng vào SKILL.md của diagram-design, commit
+      không tăng số → 5 «diagram-design CO doi sau lan cat so gan nhat (06331ab2) ma so
+      chua tang» kèm tên tệp · sửa manifest 2.7.0→2.8.0, commit → 4 «cua so <sha>..HEAD
+      RONG (moc trung HEAD)». Dấu bản răng nay CƯỠNG CHẾ: đọc bằng đường tuyệt đối suy
+      từ vị trí tệp, rỗng → 8 (bản trước in «khong-doc-duoc» rồi vẫn PASS khi gọi từ cwd
+      khác ROOT — đối chứng dương quảng cáo mà không cưỡng chế, lượt 6 bắt).
+      CHƯA chạy chiều đỏ: lối 3 (cần lịch sử không có lần cắt số nào — kho giả thật sự).
+      Khai là giới hạn, không khai là đã chứng minh.
     paths:
       - "diagram-design/.claude-plugin/plugin.json"
       - "_acceptance/release-2-12-0/rang-moc.sh"
@@ -130,7 +137,8 @@ evals:
       «cap marker HFL-LAW-TABLE co 3 khoi (mong doi 2)» → xoá tệp → XANH lại.
       Nhát cắt đúng tầng là `scan()` đi theo tệp GIT THEO DÕI thay vì `rglob`. Nó chạm
       vật đang được E3a–E3e đo, nên KHÔNG làm trong mốc thuần-cắt-số này: ghi vào ô
-      `thuoc-khong-lat-verdict` ngả 5 và nêu ở Notes như nhát cắt cho cửa sổ kế.
+      `thuoc-khong-lat-verdict` NGẢ 7 (ngả 5 là phân-lớp-sau-khi-đỏ, khác bản chất) và
+      nêu ở Notes như nhát cắt cho cửa sổ kế.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3d
     criterion: AC-3

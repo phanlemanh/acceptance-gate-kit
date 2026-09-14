@@ -285,7 +285,7 @@ vòng chỉ `cong-nguoi-doc-du-nguon` chạy trong phiên này: **14 lượt, 2 
 **Tổng cửa sổ:** 19 lượt chấm trên 5 vòng (trung bình 3,8 so trần 3); tổng
 làm-xong→quyết-được 36h22.
 
-**Hạ tầng đốt lượt: 4, mỗi lượt có tên.** Vòng `cong-nguoi-doc-du-nguon` lượt 5 — tệp ca
+**Hạ tầng đốt lượt: 5, mỗi lượt có tên.** Vòng `cong-nguoi-doc-du-nguon` lượt 5 — tệp ca
 là tệp MỚI nên cây gốc trả `MODULE_NOT_FOUND`, tác tử ghi thành «đỏ = có phân biệt» cho
 cả bảy phép đo. Lượt 8 — đầu ra suite plugins khớp khuôn `permissions-allow-deny` nên bị
 hạ tầng trung hoà, tác tử trả đỏ trong khi cùng chuỗi lệnh chạy tại chỗ thoát 0. Và
@@ -300,7 +300,9 @@ chứa một cặp marker đều làm nó đỏ, mà một lượt chấm là 37
 worktree. Chiều đỏ chạy thật: cây nguyên vẹn XANH → tiêm một tệp tạm chứa cặp
 `HFL-LAW-TABLE` vào `docs/` → `FAIL: P93` kèm «cap marker HFL-LAW-TABLE co 3 khoi (mong
 doi 2)» → xoá tệp → XANH lại. Lượt này phân lớp bằng PHÉP ĐO (chạy lại tại chỗ, đối
-chứng dương) chứ không bằng lý lẽ, vì bộ phân lớp đã gỡ theo lối 1.
+chứng dương) chứ không bằng lý lẽ, vì bộ phân lớp đã gỡ theo lối 1. Và **lượt 5 — lần
+thứ NĂM**, cùng chữ ký `FAIL: P93`, cùng SHA `f5ac8ff0` xanh tại chỗ (run-log `kind:
+infra-recheck` round 5).
 
 ### 2. Lớp vendored — bốn trên chín mục ĐỔI trong cửa sổ
 
@@ -325,10 +327,11 @@ dòng và không ai thấy. Ô mở, xem §4.
 ### 3. Lớp lỗi TÁI PHÁT trong cửa sổ
 
 - **Hạ tầng tự sinh tín hiệu đỏ** — 2 lượt ở `cong-nguoi-doc-du-nguon`; mốc 2.11.0 ghi
-  5, mốc 2.10.0 ghi 5; cộng **2 lượt của chính hồ sơ mốc này** (lượt 1 và lượt 4).
-  **BỐN cửa sổ liên tiếp.** Ô `thuoc-khong-lat-verdict` ngả 5 đi đóng lớp này. Đóng góp
-  của cửa sổ này: lớp giờ có MỘT cơ chế được định danh và một nhát cắt một-dòng
-  (§4) — trước đó nó chỉ được ghi là «tác tử khai đỏ trong khi tại chỗ xanh».
+  5, mốc 2.10.0 ghi 5; cộng **3 lượt của chính hồ sơ mốc này** (lượt 1 · 4 · 5).
+  **BỐN cửa sổ liên tiếp.** Ô `thuoc-khong-lat-verdict` ngả 5 (phân lớp sau khi đỏ) và
+  ngả 7 (không đỏ giả nữa — nhát cắt §4) đi đóng lớp này. Đóng góp của cửa sổ này: lớp
+  giờ có MỘT cơ chế được định danh và một nhát cắt một-dòng — trước đó nó chỉ được ghi
+  là «tác tử khai đỏ trong khi tại chỗ xanh».
 - **DỪNG-VÁ nổ rồi lượt sửa lại đẻ lỗi cùng lớp** — 3 lần liên tiếp ở
   `cong-nguoi-doc-du-nguon` (lượt 3→4, 4→5, 6→7). Cả ba đều là NỚI một bộ đọc; hai bản
   vá cuối là HỢP NHẤT luật về một nguồn và không đẻ hồi quy.
@@ -351,7 +354,8 @@ một dòng. Ô `thuoc-khong-lat-verdict` ngả 1.
 đếm BỐN cửa sổ liên tiếp: phép đo hiện đo kiểm kê tệp của cây làm việc, trong khi vật
 được giao là cây NGUỒN — đúng dạng «thước phải gắn vào vật được giao». Một tệp nháp của
 bất kỳ tác tử nào trong fan-out 37 tác tử đủ làm nó đỏ. KHÔNG làm trong mốc này vì nó
-chạm chính vật mà E3a–E3e đang đo; vào ô `thuoc-khong-lat-verdict` ngả 5.
+chạm chính vật mà E3a–E3e đang đo; vào ô `thuoc-khong-lat-verdict` **ngả 7** (ghi
+14/09 — ngả 5 của ô là phân-lớp-sau-khi-đỏ, khác bản chất).
 
 **Hai ô mới lộ ra ở lượt chấm 1 của chính mốc này**, cả hai thuộc lớp «lời khai không có
 vật», ghi ở đây thay vì mở vòng:
