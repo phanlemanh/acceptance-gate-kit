@@ -27,21 +27,34 @@ const HO_SO_GLOBS = (() => {
   return m[1].split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(Boolean);
 })();
 
+const VUNG_VAT = ['src/a.js'];
+const NGOAI_VAT = ['_acceptance/demo/gap-probe.md'];
 const args = {
   slug: 'demo', round: 1, riskTier: 'T2', diffBase: 'main', repoRoot: '/repo',
   invokedAt: '2026-07-02T10:00:00Z',
   evals: [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass' }],
   suiteCommands: [], personasPath: '/refs/p.md', templatePath: '/refs/t.md',
   contractPath: '/repo/_acceptance/demo/contract.md',
-  vungVat: ['src/a.js'],
-  // ĐỔI KHUÔN 14/09: bên VIẾT truyền DANH SÁCH tệp bị loại, bên ĐỌC chỉ kiểm thuộc-tập.
-  ngoaiVatFiles: ['_acceptance/demo/gap-probe.md'],
+  vungVat: VUNG_VAT,
+  // SỬA KHUNG 14/09 (owner quyết sau DỪNG-VÁ lần hai): bên đọc chia theo MIỀN — tệp CÓ
+  // trong diff trả lời bằng KẾT QUẢ bên viết, mọi đường dẫn khác bằng MẪU. Ca phải mang
+  // cả ba thứ bên viết thật phát ra; `diffFiles` SUY từ hai danh sách kia, không gõ tay.
+  ngoaiVatFiles: NGOAI_VAT,
+  diffFiles: [...VUNG_VAT, ...NGOAI_VAT],
+  ngoaiVatGlobs: HO_SO_GLOBS,
   fileDoTrongDiff: [],
   toolKillRule: TOOL_KILL_RULE_SRC,
 };
-const khopMau = (f) => HO_SO_GLOBS.some(g => new RegExp('^' + g.split('**/')
-  .map(x => x.split('**').map(y => y.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\?/g, '[^/]').replace(/\*/g, '[^/]*')).join('.*'))
-  .join('(?:.*/)?') + '$').test(f));
+// Luot cham 3 (AC-5): ban truoc GO TAY lai than cua globToRe ngay duoi dong comment tuyen
+// muc dich la «de ca khong tu bia ra dinh nghia thu hai» — tao ra dung ban thu tu cua ham
+// da tung TROI that o ky tu `?`. Nay rut ham cua BEN DOC tu chinh nguon cua no, cung nghi
+// thuc ma tests/scripts/s4-args-vung-vat.test.mjs dung.
+const globToRe = (() => {
+  const m = SRC.match(/function globToRe\(g\) \{[\s\S]*?\n\}/);
+  if (!m) throw new Error('khong rut duoc globToRe tu acceptance-verify.js — ben doc doi khuon');
+  return new Function('return ' + m[0].replace(/^function globToRe/, 'function'))();
+})();
+const khopMau = (f) => HO_SO_GLOBS.some(g => globToRe(g).test(f));
 console.log('VVM-KHAI danh sach ngoai-vat cua ca khop dinh nghia cua ben VIET');
 check('VVM-KHAI _acceptance/demo/gap-probe.md la van ban ho so theo marker cua ben viet',
   args.ngoaiVatFiles.every(khopMau), JSON.stringify(args.ngoaiVatFiles));
@@ -114,7 +127,10 @@ console.log('VVM-CU duong doc-cu: ben viet doi cu KHONG truyen ngoaiVatFiles');
   // → KHÔNG lọc gì cả, LẶNG LẼ. Lượt chấm 2 bắt. Hai ca dưới đóng cả hai nhánh cũ.
   const { ngoaiVatFiles, ...argsCu } = args;
   void ngoaiVatFiles;
-  const argsGlob = { ...argsCu, ngoaiVatGlobs: ['_acceptance/*/**/*.md', '_acceptance/*/**/*.jsonl'] };
+  // Luot cham 3 (AC-5, hinh dang 2): ban truoc GO TAY hai mau nay trong khi HO_SO_GLOBS
+  // da rut tu khoi marker cua ben VIET ngay dau tep. Go tay = fixture viet tay dung khuon
+  // ben doc, tuc ca tu tra loi cau hoi cua chinh no.
+  const argsGlob = { ...argsCu, ngoaiVatGlobs: HO_SO_GLOBS };
   const { calls, logs } = await runWorkflow(WF, argsGlob, respond(F_HO_SO));
   check('VVM-CU ben viet doi cu (chi co ngoaiVatGlobs) VAN loc duoc van ban ho so',
     !triageThay(calls, 'gap-probe.md'),
@@ -129,8 +145,8 @@ console.log('VVM-CU duong doc-cu: ben viet doi cu KHONG truyen ngoaiVatFiles');
 
 console.log('VVM-CU2 khong co ca hai khoa -> fail-open nhung phai KHAI');
 {
-  const { ngoaiVatFiles, ...argsTron } = args;
-  void ngoaiVatFiles;
+  const { ngoaiVatFiles, ngoaiVatGlobs, ...argsTron } = args;
+  void ngoaiVatFiles; void ngoaiVatGlobs;
   const { calls, logs } = await runWorkflow(WF, argsTron, respond(F_HO_SO));
   check('VVM-CU2 vang ca hai khoa -> khong loc (fail-open, dung mac dinh an toan ve phia bo sot)',
     triageThay(calls, 'gap-probe.md'));

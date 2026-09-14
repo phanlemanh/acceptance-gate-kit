@@ -514,24 +514,36 @@ const ngoaiVatRes = (Array.isArray(args.ngoaiVatGlobs) ? args.ngoaiVatGlobs : []
 // Hệ quả đẹp: `ngoaiVatFiles` chỉ chứa tệp TRONG DIFF, nên finding ở tệp NGOÀI diff
 // (lớp liên-file) tự nhiên đi tiếp mà không cần vế miễn trừ nào.
 //
-// DUONG DOC-CU (bat buoc theo CLAUDE.md «doi schema artifact phai co duong doc-cu»):
-// mot ban s4-args truoc 14/09 truyen `vungVat` + `ngoaiVatGlobs` ma KHONG truyen
-// `ngoaiVatFiles`. Neu chi doc thuoc-tap thi tap rong → KHONG loc gi ca, va vong do
-// LANG LE mat bo loc ngoai-vat. Nen o day phan ba nhanh, nhanh nao cung noi ra minh la ai.
+// SUA KHUNG (owner quyet 14/09 sau DUNG-VA lan hai). Ban dau cua DOI KHUON chi doc
+// THUOC-TAP, va tap do chi chua tep TRONG DIFF — nen moi tep NGOAI diff roi khoi bo loc:
+// finding tren docs/**, CLAUDE.md, hay gap-probe.md chua commit di thang vao triage.
+// Goc: cau hoi «duong dan nay co phai vat khong» co mien MO (finder bao duoc bat ky
+// duong dan nao), ma mot TAP chi tra loi duoc tren mien DONG.
+//
+// Nay chia theo MIEN: tep CO trong diff tra loi bang KET QUA ben viet da tinh (khong
+// vi tu nao de troi); moi duong dan khac tra loi bang MAU. Rui ro troi writer/reader
+// ma DOI KHUON sinh ra de chan nay da co rang canh that (VV4 rut ham cua ben doc tu
+// nguon; VV4b so hai ban khop glob tren ma tran 9 o) — dieu kien khac han luc doi khuon.
 const coNgoaiVatFiles = Array.isArray(args.ngoaiVatFiles)
 const ngoaiVatSet = new Set(coNgoaiVatFiles ? args.ngoaiVatFiles : [])
-// Ve mien tru cua duong cu: tep khai trong `eval.paths` la DAU VAO CUA THUOC, khong bao
-// gio la ngoai-vat. Ban viet doi cu da co ve nay; bo no o day la fail-open lop khac.
-const pathsKhaiResCu = coNgoaiVatFiles ? [] :
-  (Array.isArray(args.evals) ? args.evals : []).flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
-const laNgoaiVat = coNgoaiVatFiles
-  ? pth => ngoaiVatSet.has(pth)
-  : ngoaiVatRes.length
-    ? pth => !pathsKhaiResCu.some(re => re.test(pth)) && ngoaiVatRes.some(re => re.test(pth))
-    : () => false
+// `diffFiles` noi mot duong dan thuoc mien nao. Ben viet doi cu khong truyen → coi nhu
+// KHONG biet mien nao, tuc moi duong dan di duong MAU (duong doc-cu, hanh vi truoc 14/09).
+const coDiffFiles = Array.isArray(args.diffFiles)
+const diffSet = new Set(coDiffFiles ? args.diffFiles : [])
+// Ve mien tru: tep khai trong `eval.paths` la DAU VAO CUA THUOC, khong bao gio la
+// ngoai-vat. Ap cho nhanh MAU (nhanh TAP da co ve nay nuong trong ket qua ben viet).
+const pathsKhaiResDoc = (Array.isArray(args.evals) ? args.evals : [])
+  .flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
+const khopMauNgoaiVat = pth => ngoaiVatRes.length > 0
+  && !pathsKhaiResDoc.some(re => re.test(pth))
+  && ngoaiVatRes.some(re => re.test(pth))
+const laNgoaiVat = pth => (coNgoaiVatFiles && coDiffFiles && diffSet.has(pth))
+  ? ngoaiVatSet.has(pth)
+  : khopMauNgoaiVat(pth)
 if (coVungVat && !coNgoaiVatFiles) log(ngoaiVatRes.length
-  ? 'CO VANG: args.ngoaiVatFiles vang (s4-args doi cu) — loc ngoai-vat chay bang MAU glob o ben doc (duong doc-cu)'
+  ? 'CO VANG: args.ngoaiVatFiles vang (s4-args doi cu) — loc ngoai-vat chay bang MAU glob cho MOI duong dan (duong doc-cu)'
   : 'CO VANG: args.ngoaiVatFiles VA args.ngoaiVatGlobs deu vang — KHONG loc dau ra theo ngoai-vat (duong doc-cu, fail-open co khai)')
+if (coVungVat && coNgoaiVatFiles && !coDiffFiles) log('CO VANG: args.diffFiles vang — khong phan biet duoc mien, moi duong dan di duong MAU (duong doc-cu)')
 if (!coVungVat) log('Vung vat khong khai (args.vungVat vang) — finder soi tron diff, khong loc dau ra (duong doc-cu)')
 // Lens `measurement` CHỈ spawn khi diff chạm phép đo. Tập file đo = glob tệp ca kiểm
 // thử + MỌI tệp không phải .md/.jsonl trong thư mục hồ sơ (kho tiêu thụ đặt răng ở
@@ -1126,10 +1138,16 @@ const coverageResCu = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths :
 // reviewer có thể báo cùng một lỗi bằng path tuyệt đối và path tương đối —
 // dedupe trên path thô sẽ nhân đôi nó thành "cụm" giả.
 const triagedDistinct = dedupe(triaged)
+// SỬA KHUNG 14/09 — CÙNG phép chia miền với `laNgoaiVat`. Bản trước hỏi thuộc-tập cho
+// MỌI đường dẫn, mà `coverageFiles` chỉ chứa tệp trong diff; nên một finding trên tệp
+// ĐÃ được `eval.paths` phủ nhưng ngoài diff bị đếm là ngoài vùng phủ, và cờ cụm bật
+// GIẢ. Lượt chấm 3 dính đúng ca đó: cụm 3/12, cả ba tệp đều ngoài diff — một lượt gọi
+// người giả ở Cổng Bằng chứng, tức chính thứ north star đếm là chi phí.
+const duocPhu = pth => (coverageFiles && diffSet.has(pth))
+  ? coverageFiles.has(pth)
+  : coverageResCu.some(re => re.test(pth))
 const outsideCoverage = !coEvalPaths ? [] // không eval nào khai paths → không tính được (n-a)
-  : coverageFiles
-    ? triagedDistinct.filter(f => relFile(f) && !coverageFiles.has(relFile(f)))
-    : triagedDistinct.filter(f => relFile(f) && !coverageResCu.some(re => re.test(relFile(f))))
+  : triagedDistinct.filter(f => relFile(f) && !duocPhu(relFile(f)))
 const coverageCluster = outsideCoverage.length >= 2
   ? { count: outsideCoverage.length, total: triagedDistinct.length, files: [...new Set(outsideCoverage.map(relFile))] }
   : null

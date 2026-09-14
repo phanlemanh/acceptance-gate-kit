@@ -322,8 +322,20 @@ const vungVat = diffTatCa.filter(f => !laNgoaiVat(f));
 // đây là một cơ hội bên kia không theo.
 //
 // Nay truyền KẾT QUẢ ĐÃ TÍNH: bên đọc chỉ kiểm thuộc-tập, không khớp glob nữa.
-// `ngoaiVatFiles` = tệp TRONG DIFF bị loại. Bên đọc lọc theo phép thuộc-tập nên finding
-// ở tệp NGOÀI diff (lớp liên-file) tự nhiên đi tiếp — không cần vế miễn trừ nào.
+// `ngoaiVatFiles` = tệp TRONG DIFF bị loại.
+//
+// SỬA KHUNG (owner quyết 14/09 sau DỪNG-VÁ lần hai, lượt chấm 3). Bản ĐỔI KHUÔN đầu
+// nói «finding ở tệp NGOÀI diff tự nhiên đi tiếp — không cần vế miễn trừ nào». Sai:
+// nó gộp hai lớp khác hẳn nhau. Tệp SẢN PHẨM ngoài diff PHẢI đi tiếp (lớp liên-file);
+// tệp KHÔNG-PHẢI-VẬT ngoài diff (docs/**, CLAUDE.md, gap-probe.md chưa commit) phải
+// IM — và một TẬP tính trên diff không trả lời được câu hỏi đó, vì miền câu hỏi là MỞ
+// (finder báo được bất kỳ đường dẫn nào).
+//
+// Nên chia theo MIỀN, không theo cơ chế: miền ĐÓNG (tệp có trong diff) trả lời bằng
+// KẾT QUẢ đã tính — không có vị từ nào để trôi; miền MỞ (mọi đường dẫn khác) trả lời
+// bằng MẪU. Rủi ro trôi writer/reader mà ĐỔI KHUÔN sinh ra để chặn nay đã có răng
+// canh: VV4b so hai bản khớp glob trên ma trận 9 ô, VV4 rút hàm của bên đọc từ nguồn.
+// `diffFiles` là thứ cho bên đọc biết mình đang ở miền nào.
 const ngoaiVatFiles = diffTatCa.filter(laNgoaiVat);
 // `fileDoTrongDiff` = tệp trong vùng vật được coi là MÃ ĐO. Định nghĩa sống ở ĐÂY, một
 // chỗ: mẫu tệp kiểm thử repo khai (hoặc mặc định engine) · mã trong thư mục hồ sơ ·
@@ -339,8 +351,11 @@ const laFileDo = f => doRes.some(re => re.test(f))
   || (/^_acceptance\/[^/]+\//.test(f) && !/\.(md|jsonl)$/.test(f))
   || pathsKhaiRes.some(re => re.test(f));
 const fileDoTrongDiff = vungVat.filter(laFileDo);
-// `coverageFiles` = tệp (trong diff) được ÍT NHẤT một eval khai `paths`. Bên đọc dùng nó
-// cho tín hiệu cụm-ngoài-vùng-phủ thay vì tự khớp glob lần nữa.
+// `coverageFiles` = tệp (trong diff) được ÍT NHẤT một eval khai `paths`. Cùng phép chia
+// miền như trên: bên đọc dùng tập này cho tệp TRONG diff và khớp `eval.paths` cho tệp
+// ngoài diff. Không chia miền thì một finding trên tệp ĐÃ được eval phủ nhưng ngoài
+// diff bị đếm là «ngoài vùng phủ», và cờ cụm bật GIẢ — một lượt gọi người giả ở Cổng
+// Bằng chứng (lượt chấm 3 dính đúng ca này: cụm 3/12, cả ba tệp đều ngoài diff).
 const coverageFiles = diffTatCa.filter(f => pathsKhaiRes.some(re => re.test(f)));
 const coEvalPaths = evals.some(e => Array.isArray(e.paths) && e.paths.length);
 console.error(`s4-args: vùng vật ${vungVat.length}/${diffTatCa.length} tệp (ngoài-vật: ${ngoaiVatGlobs.length} mẫu khớp, trong đó ${t1SkipGlobs.length} do repo khai)`);
@@ -479,6 +494,7 @@ const args = {
   vungVat,
   ngoaiVatGlobs,        // giữ để người đọc hồ sơ biết mẫu nào đang áp (KHÔNG còn là đầu vào phép khớp của bên đọc)
   ngoaiVatFiles,
+  diffFiles: diffTatCa,
   fileDoTrongDiff,
   coverageFiles,
   coEvalPaths,

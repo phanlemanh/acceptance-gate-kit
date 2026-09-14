@@ -2313,9 +2313,18 @@ const laVanBanHoSo = (f) => HO_SO_GLOBS.some(g => {
   return re.test(f);
 });
 const NGOAI_VAT_MAU = ['_acceptance/demo/gap-probe.md', 'docs/superpowers/specs/y.md'];
+// SỬA KHUNG 14/09 (owner quyết sau DỪNG-VÁ lần hai): bên đọc chia theo MIỀN. Tệp CÓ
+// trong diff trả lời bằng KẾT QUẢ bên viết; mọi đường dẫn khác trả lời bằng MẪU. Ca vì
+// thế phải mang CẢ HAI thứ bên viết thật phát ra — `diffFiles` và `ngoaiVatGlobs`.
+// `diffFiles` SUY từ hai danh sách kia chứ không gõ tay: ở bên viết nó đúng là
+// vungVat ∪ ngoaiVatFiles, nên gõ tay là mở đường cho ca trôi khỏi bên viết.
+const VV_VUNG_VAT = ['src/a.js'];
+const NGOAI_VAT_GLOBS_MAU = ['docs/**', ...HO_SO_GLOBS];
 const VV = {
-  vungVat: ['src/a.js'],
+  vungVat: VV_VUNG_VAT,
   ngoaiVatFiles: NGOAI_VAT_MAU,
+  diffFiles: [...VV_VUNG_VAT, ...NGOAI_VAT_MAU],
+  ngoaiVatGlobs: NGOAI_VAT_GLOBS_MAU,
   fileDoTrongDiff: [],
   contractPath: '/repo/_acceptance/demo/contract.md',
 };
@@ -2370,7 +2379,8 @@ console.log('W41a2 mien tru eval.paths o ben DOC: fixture .md khai trong paths D
     tri && tri.prompt.includes('mau-the.md'), tri ? '(bi nuot)' : '(khong co triage)');
   check('W41a2 boNgoaiVat rong', (result.boNgoaiVat || []).length === 0, JSON.stringify(result.boNgoaiVat));
   // Đối chứng dương: CÙNG tệp đó, khi KHÔNG eval nào khai nó → bị lọc như cũ.
-  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs({ ...VV, ngoaiVatFiles: [...NGOAI_VAT_MAU, '_acceptance/demo/mau-the.md'] }), vvResponder({ 'review:bugs': { findings: F }, triage: { contractUnreadable: false, triaged: [] } }));
+  const nvf2 = [...NGOAI_VAT_MAU, '_acceptance/demo/mau-the.md'];
+  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs({ ...VV, ngoaiVatFiles: nvf2, diffFiles: [...VV_VUNG_VAT, ...nvf2] }), vvResponder({ 'review:bugs': { findings: F }, triage: { contractUnreadable: false, triaged: [] } }));
   check('W41a2 doi chung duong: khong eval nao khai -> VAN bi loc',
     !((byLabel(c2, 'triage')[0] || { prompt: '' }).prompt.includes('mau-the.md')) && (r2.boNgoaiVat || []).length === 1,
     JSON.stringify(r2.boNgoaiVat));
@@ -2612,6 +2622,113 @@ console.log('W47 config.yaml la MA DO — sua chuoi lenh phai kich hoat lens mea
   const khac = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js'], fileDoTrongDiff: [] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
   check('W47 doi chung: diff khong cham ma do -> KHONG spawn measurement',
     byLabel(khac.calls, 'review:measurement').length === 0, String(byLabel(khac.calls, 'review:measurement').length));
+}
+
+console.log('W48 SUA KHUNG: mien MO — tep ngoai-vat NGOAI diff van phai bi loc');
+{
+  // Lượt chấm 3 bắt: ĐỔI KHUÔN đọc thuộc-tập, mà tập chỉ chứa tệp TRONG diff, nên
+  // finding trên docs/**, CLAUDE.md, hay gap-probe.md CHƯA COMMIT đi thẳng vào triage
+  // + refute. Không ca nào đỏ vì mọi ca đều đặt tệp thử SẴN trong `ngoaiVatFiles`.
+  // Đây là ô cho miền MỞ: tệp KHÔNG có trong `diffFiles`.
+  const NGOAI_DIFF = 'docs/ghi-chu-chua-commit.md';
+  check('W48 tien de: tep thu KHONG nam trong diffFiles cua ca (neu khong, ca do mien DONG)',
+    !VV.diffFiles.includes(NGOAI_DIFF) && !VV.ngoaiVatFiles.includes(NGOAI_DIFF), JSON.stringify(VV.diffFiles));
+  const F = [{ title: 'tren tai lieu ngoai diff', file: `/repo/${NGOAI_DIFF}`, line: 1, severity: 'high', detail: 'y' }];
+  const { result, calls, logs } = await runWorkflow(WF, baseArgs(VV), vvResponder({
+    'review:bugs': { findings: F }, triage: { contractUnreadable: false, triaged: [] },
+  }));
+  // Lọc SẠCH thì triage không spawn — đó là đúng, và cũng là tiền. Điều ca này tuyên là
+  // «đường dẫn đó KHÔNG tới được triage», nên assert phải nhận cả hai hình dạng: không
+  // có lượt triage nào, hoặc có mà không chứa đường dẫn. Đòi phải CÓ lượt triage là đo
+  // một thứ khác với điều đã tuyên.
+  const tri = byLabel(calls, 'triage')[0];
+  check('W48 finding tren tai lieu ngoai diff KHONG toi duoc triage',
+    !tri || !tri.prompt.includes(NGOAI_DIFF), tri ? tri.prompt.slice(0, 160) : '');
+  check('W48 boNgoaiVat liet dung 1 muc', (result.boNgoaiVat || []).length === 1, JSON.stringify(result.boNgoaiVat));
+  check('W48 khong im lang', logs.some(l => /bo 1 finding ngoai vat/i.test(l)), logs.join(' | ').slice(0, 200));
+}
+
+console.log('W48b doi chung DUONG: tep SAN PHAM ngoai diff van DI TIEP (lop lien-file)');
+{
+  // Vế phải của phép chia miền. Không có ô này, W48 không phân biệt được «lọc đúng thứ
+  // không phải vật» với «lọc sạch mọi thứ ngoài diff» — mà lọc sạch là mất lớp liên-file.
+  const F = [{ title: 'caller vo', file: '/repo/src/chua-doi.js', line: 9, severity: 'high', detail: 'vo vi a.js doi chu ky' }];
+  const { result, calls } = await runWorkflow(WF, baseArgs(VV), vvResponder({
+    'review:bugs': { findings: F },
+    triage: { contractUnreadable: false, triaged: [{ title: 'caller vo', file: 'src/chua-doi.js', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' }] },
+  }));
+  const tri = byLabel(calls, 'triage')[0];
+  check('W48b ma san pham ngoai diff DI TIEP toi triage', tri && tri.prompt.includes('chua-doi.js'),
+    tri ? '(bi nuot — mat lop lien-file)' : '(khong co triage)');
+  check('W48b boNgoaiVat rong', (result.boNgoaiVat || []).length === 0, JSON.stringify(result.boNgoaiVat));
+}
+
+console.log('W48c mutant: bo phep chia mien (chi thuoc-tap) -> W48 phai DO');
+{
+  const KIM = `const laNgoaiVat = pth => (coNgoaiVatFiles && coDiffFiles && diffSet.has(pth))
+  ? ngoaiVatSet.has(pth)
+  : khopMauNgoaiVat(pth)`;
+  check('W48c kim mutant CO trong nguon', WF_SRC.includes(KIM),
+    'khoi chia mien doi khuon — kim nay dang do mot thu khong ton tai');
+  const mutated = WF_SRC.replace(KIM, 'const laNgoaiVat = pth => ngoaiVatSet.has(pth)');
+  const F = [{ title: 'tren tai lieu ngoai diff', file: '/repo/docs/ghi-chu-chua-commit.md', line: 1, severity: 'high', detail: 'y' }];
+  const { calls } = await runWorkflow(WF, baseArgs(VV), vvResponder({
+    'review:bugs': { findings: F }, triage: { contractUnreadable: false, triaged: [] },
+  }), mutated);
+  const tri = byLabel(calls, 'triage')[0];
+  check('W48c mutant lam triage THAY tai lieu ngoai diff (rang song)',
+    tri && tri.prompt.includes('ghi-chu-chua-commit.md'),
+    'bo phep chia mien ma chieu im VAN xanh — W48 khong phan biet duoc ban lanh voi ban hong');
+}
+
+console.log('W49 SUA KHUNG: vung phu cung chia mien — tep duoc eval.paths phu nhung NGOAI diff KHONG phai "ngoai vung phu"');
+{
+  // Lượt chấm 3: cụm 3/12, cả ba tệp đều ngoài diff → cờ «cụm ngoài vùng phủ» bật GIẢ,
+  // tức một lượt gọi người GIẢ ở Cổng Bằng chứng. Ngưỡng cụm là 2, nên ca dùng 2 finding.
+  const EV = [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['scripts/**'] }];
+  const F = [
+    { title: 'p1', file: '/repo/scripts/ngoai-diff-1.js', line: 1, severity: 'high', detail: 'a' },
+    { title: 'p2', file: '/repo/scripts/ngoai-diff-2.js', line: 1, severity: 'high', detail: 'b' },
+  ];
+  const tri2 = { contractUnreadable: false, triaged: [
+    { title: 'p1', file: 'scripts/ngoai-diff-1.js', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' },
+    { title: 'p2', file: 'scripts/ngoai-diff-2.js', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' },
+  ] };
+  const A = baseArgs({ ...VV, evals: EV, coverageFiles: [], coEvalPaths: true });
+  check('W49 tien de: hai tep thu KHONG nam trong coverageFiles lan diffFiles',
+    !A.diffFiles.includes('scripts/ngoai-diff-1.js') && A.coverageFiles.length === 0, JSON.stringify(A.coverageFiles));
+  const { result } = await runWorkflow(WF, A, vvResponder({ 'review:bugs': { findings: F }, triage: tri2 }));
+  check('W49 KHONG bat co cum: hai finding deu o tep eval.paths phu (du ngoai diff)',
+    result.coverageCluster === null, JSON.stringify(result.coverageCluster));
+
+  // Đối chứng DƯƠNG: cùng hình dạng, nhưng tệp KHÔNG eval nào phủ → cờ cụm PHẢI bật.
+  const F2 = F.map(f => ({ ...f, file: f.file.replace('/scripts/', '/lib/') }));
+  const tri3 = { contractUnreadable: false, triaged: tri2.triaged.map(t => ({ ...t, file: t.file.replace('scripts/', 'lib/') })) };
+  const { result: r3 } = await runWorkflow(WF, A, vvResponder({ 'review:bugs': { findings: F2 }, triage: tri3 }));
+  check('W49 doi chung duong: tep KHONG eval nao phu -> co cum VAN bat',
+    r3.coverageCluster && r3.coverageCluster.count === 2, JSON.stringify(r3.coverageCluster));
+}
+
+console.log('W49b mutant: bo phep chia mien o vung phu -> co cum GIA quay lai');
+{
+  const KIM = `const duocPhu = pth => (coverageFiles && diffSet.has(pth))
+  ? coverageFiles.has(pth)
+  : coverageResCu.some(re => re.test(pth))`;
+  check('W49b kim mutant CO trong nguon', WF_SRC.includes(KIM), 'khoi duocPhu doi khuon');
+  const mutated = WF_SRC.replace(KIM, 'const duocPhu = pth => coverageFiles ? coverageFiles.has(pth) : coverageResCu.some(re => re.test(pth))');
+  const EV = [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['scripts/**'] }];
+  const F = [
+    { title: 'p1', file: '/repo/scripts/ngoai-diff-1.js', line: 1, severity: 'high', detail: 'a' },
+    { title: 'p2', file: '/repo/scripts/ngoai-diff-2.js', line: 1, severity: 'high', detail: 'b' },
+  ];
+  const tri2 = { contractUnreadable: false, triaged: [
+    { title: 'p1', file: 'scripts/ngoai-diff-1.js', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' },
+    { title: 'p2', file: 'scripts/ngoai-diff-2.js', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' },
+  ] };
+  const { result } = await runWorkflow(WF, baseArgs({ ...VV, evals: EV, coverageFiles: [], coEvalPaths: true }),
+    vvResponder({ 'review:bugs': { findings: F }, triage: tri2 }), mutated);
+  check('W49b mutant lam co cum bat GIA (rang song)', result.coverageCluster && result.coverageCluster.count === 2,
+    'bo phep chia mien ma co cum VAN im — W49 khong phan biet duoc ban lanh voi ban hong');
 }
 
 summary('acceptance-verify');

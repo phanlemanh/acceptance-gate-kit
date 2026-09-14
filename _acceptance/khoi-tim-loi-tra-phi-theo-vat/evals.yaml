@@ -110,13 +110,17 @@ evals:
     cmd: config:executors.script.ktl_w44_baseline_roi_gang
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
     expected: >
-      Exit 0 và đầu ra có «PASS: W44 triage duoc goi (baseline chi mo khoa KHI triage
-      goi) — khong deadlock» và «PASS: W44b verdict PASS, khong BLOCKED vi baseline».
-      Thêm W44c (chiều DƯƠNG cho vế «vẫn đợi»): baseline trả MUỘN với một eval xanh cả
-      hai phía → id eval đó CÓ trong nonDiscriminating và payload synthesize mang trạng
-      thái baseline của nó. Chiều đỏ ghim thông điệp: mutant bỏ lượt đợi baseline ở điểm
-      muộn → W44c đỏ với dòng nêu nonDiscriminating rỗng dù baseline đã trả về (không
-      dựa vào timeout để kết luận).
+      Exit 0 và bốn dòng dưới đây có mặt NGUYÊN VĂN trong đầu ra — chuỗi chép từ chính
+      tệp ca, không diễn đạt lại (lượt chấm 3 bắt: bản trước ghim «PASS: W44b verdict
+      PASS» trong khi tệp ca in «W44b verdict van la REJECT», và khai một mutant
+      chiều-đỏ không tồn tại): «PASS: W44 triage duoc goi TRUOC khi baseline tra ve» ·
+      «PASS: W44 ca hai lane deu that su chay (baseline spawn + triage chay)» ·
+      «PASS: W44b verdict van la REJECT (khong BLOCKED vi baseline)» ·
+      «PASS: W44c nonDiscriminating chua E1/E2 (baseline da duoc doi truoc khi tinh)».
+      W44c là chiều DƯƠNG cho vế «vẫn đợi»: baseline trả MUỘN mà eval xanh cả hai phía
+      vẫn vào nonDiscriminating, nên nó phân biệt được «đã đợi» với «bỏ qua baseline».
+      Giới hạn đã khai: tệp ca KHÔNG có mutant cho vế đợi-muộn này; chiều đỏ của nó dựa
+      vào W44b (baseline ném lỗi) và W44 (thứ tự gọi), không dựa vào một bản tiêm.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
