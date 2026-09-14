@@ -1,48 +1,50 @@
 # usage-report — khoi-tim-loi-tra-phi-theo-vat
 
-Nguồn: `wf-usage` đọc transcript của các lượt chấm (máy đo, không đếm tay).
+Nguồn: `wf-usage` đọc transcript các lượt chấm (máy đo, không đếm tay).
 
-## Lượt chấm 4 (run `wf_80d7c7be-57e`) — dòng 4 và 5 của luật (c)
+## Lượt chấm 5 — lượt PASS (run `wf_211fd30c-0ec`)
+
+Dòng 4 của luật (c) — token máy/vòng, tách ba khối:
 
 | khối | token | phần |
 |---|--:|--:|
-| tìm-lỗi (review·refute) | 28,514,479 | 88.9 % |
-| tổng hợp (triage·capture·synthesize) | 1,377,935 | 4.3 % |
-| chứng-minh-vật (machine·ui·judge·baseline) | 2,180,650 | 6.8 % |
-| **tổng** | **32,073,064** | 100 % |
+| tìm-lỗi (review·refute) | 13,347,514 | 79.9 % |
+| tổng hợp (triage·capture·synthesize) | 767,464 | 4.6 % |
+| chứng-minh-vật (machine·ui·judge·baseline) | 2,600,237 | 15.6 % |
+| **tổng** | **16,715,215** | 100 % |
 
-Tổng phút S4 của lượt: **25.4 phút** · 28 tác tử.
+Dòng 5 — phút máy/lượt chấm: **20.4 phút** · 20 tác tử.
 
 | vai trò | tác tử | phút | bắt đầu | kết thúc |
 |---|--:|--:|---|---|
-| baseline | 1 | 0.9 | 09:41:54 | 09:42:47 |
-| machine | 11 | 13.0 | 09:41:54 | 09:54:51 |
-| review | 3 | 12.4 | 09:41:54 | 09:54:19 |
-| triage | 1 | 2.5 | 09:54:51 | 09:57:24 |
-| refute | 10 | 3.9 | 09:57:24 | 10:01:16 |
-| capture | 1 | 0.1 | 10:01:16 | 10:01:26 |
-| synthesize | 1 | 5.8 | 10:01:26 | 10:07:15 |
+| baseline | 1 | 8.0 | 10:57:36 | 11:05:35 |
+| machine | 13 | 12.9 | 10:57:36 | 11:10:32 |
+| review | 3 | 7.9 | 10:57:36 | 11:05:31 |
+| triage | 1 | 3.5 | 11:10:32 | 11:14:04 |
+| capture | 1 | 0.2 | 11:14:04 | 11:14:14 |
+| synthesize | 1 | 3.8 | 11:14:14 | 11:17:59 |
 
-## So hai lượt
+## Ba lượt cuối, cùng một vật
 
-| | lượt 3 | lượt 4 |
-|---|--:|--:|
-| tác tử | 24 | 28 |
-| token | 16.887.264 | 32,073,064 |
-| phút | 23,7 | 25.4 |
-| tìm-lỗi | 83,2 % | 88.9 % |
-| tác tử refute | 5 | 10 |
+| | lượt 3 | lượt 4 | lượt 5 (PASS) |
+|---|--:|--:|--:|
+| verdict | REJECT | REJECT | **PASS** |
+| tác tử | 24 | 28 | 20 |
+| token | 16.887.264 | 32.073.064 | 16,715,215 |
+| phút | 23,7 | 25,4 | 20.4 |
+| tác tử refute | 5 | 10 | 0 |
+| triage lành | có | KHÔNG | có |
 
-## Đọc số — đừng đọc nhầm
+## Đọc số
 
-- Lượt 4 đắt HƠN lượt 3 vì **làn phân loại phạm vi trả thiếu một mục**. Luật
-  fail-toward-human khi đó bắt refute chạy trên TOÀN BỘ finding thay vì chỉ
-  finding trong hợp đồng, nên refute đi từ 5 lên 10 tác tử. Đó là cái giá của
-  đường an toàn, không phải nhát cắt T1 hỏng — khi triage lành (lượt 3), T1 đúng
-  là thứ đưa refute từ 20 tác tử (lượt chấm release-2-12-0) xuống 5.
-- Khối tìm-lỗi vẫn là khoản tiền lớn nhất ở cả hai lượt. Thành phần của nó đã
-  đổi: phần refute đã cắt được; phần còn lại là ba làn `review` đọc diff. Đó là
-  chỗ cắt kế tiếp.
-- Tiền và thời gian KHÔNG cùng một chỗ: đường găng vẫn là `machine` (13,0 phút)
-  trong khi khối đó chỉ chiếm 6.8 % token. Cắt token nhìn `review`; cắt phút
-  nhìn `machine`.
+- **Nhát cắt T1 đo được:** lượt chấm của release-2-12-0 chạy **20 tác tử refute**;
+  hai lượt có triage lành ở đây chạy **5** rồi **0**. Lượt 4 vọt lên 10 vì triage
+  trả thiếu một mục nên luật fail-toward-human bắt refute chạy trên TOÀN BỘ
+  finding — đó là giá của đường an toàn, không phải nhát cắt hỏng.
+- **Khối tìm-lỗi vẫn là khoản lớn nhất (79.9 %).** Thành phần đã đổi: phần refute
+  đã cắt; phần còn lại là ba làn `review` đọc diff. Đó là chỗ cắt kế tiếp.
+- **Tiền và thời gian KHÔNG cùng chỗ.** Khối chứng-minh-vật chỉ 15.6 % token
+  nhưng `machine` vẫn là đường găng. Cắt token nhìn `review`; cắt phút nhìn
+  `machine`. T7 đã đưa `baseline` rời đường găng (0,9 phút ở lượt 4).
+- **Ba lượt bị hạ tầng đốt** trong vòng này (lượt 1 SIGPIPE · lượt 2 E4 · lượt 4
+  P93 chập chờn) — số cho dòng 3 của luật (c). Cả ba đều xanh khi chạy tay.
