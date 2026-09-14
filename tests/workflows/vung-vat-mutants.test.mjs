@@ -17,8 +17,9 @@ const ROOT = path.join(HERE, '..', '..');
 const WF = path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js');
 const SRC = readFileSync(WF, 'utf8');
 
-// Mẫu ngoài-vật rút từ khối marker NGOAI-VAT của bên VIẾT (s4-args.mjs) — gõ tay ở
-// đây là dựng fixture đúng khuôn bên ĐỌC, đúng lớp lỗi hồ sơ này đi cắt.
+// Sau ĐỔI KHUÔN 14/09, bên ĐỌC nhận DANH SÁCH tệp chứ không nhận mẫu. Ca vẫn rút mẫu từ
+// khối marker của bên VIẾT — nhưng để CHỨNG rằng tệp ca khai là ngoài-vật thật sự khớp
+// định nghĩa của bên viết, chứ không phải ca tự bịa ra một định nghĩa thứ hai.
 const S4 = readFileSync(path.join(ROOT, 'feature-loop', 'scripts', 's4-args.mjs'), 'utf8');
 const HO_SO_GLOBS = (() => {
   const m = S4.match(/const HO_SO_VAN_BAN_GLOBS = \[([^\]]*)\]/);
@@ -33,9 +34,19 @@ const args = {
   suiteCommands: [], personasPath: '/refs/p.md', templatePath: '/refs/t.md',
   contractPath: '/repo/_acceptance/demo/contract.md',
   vungVat: ['src/a.js'],
-  ngoaiVatGlobs: [...HO_SO_GLOBS],
+  // ĐỔI KHUÔN 14/09: bên VIẾT truyền DANH SÁCH tệp bị loại, bên ĐỌC chỉ kiểm thuộc-tập.
+  ngoaiVatFiles: ['_acceptance/demo/gap-probe.md'],
+  fileDoTrongDiff: [],
   toolKillRule: TOOL_KILL_RULE_SRC,
 };
+const khopMau = (f) => HO_SO_GLOBS.some(g => new RegExp('^' + g.split('**/')
+  .map(x => x.split('**').map(y => y.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\?/g, '[^/]').replace(/\*/g, '[^/]*')).join('.*'))
+  .join('(?:.*/)?') + '$').test(f));
+console.log('VVM-KHAI danh sach ngoai-vat cua ca khop dinh nghia cua ben VIET');
+check('VVM-KHAI _acceptance/demo/gap-probe.md la van ban ho so theo marker cua ben viet',
+  args.ngoaiVatFiles.every(khopMau), JSON.stringify(args.ngoaiVatFiles));
+check('VVM-KHAI doi chung: ma rang KHONG khop mau van ban ho so', !khopMau('_acceptance/demo/rang/a.mjs'));
+
 const F_HO_SO = [{ title: 'ho so', file: '/repo/_acceptance/demo/gap-probe.md', line: 1, severity: 'high', detail: 'y' }];
 const F_VAT = [{ title: 'trong vat', file: '/repo/src/a.js', line: 1, severity: 'high', detail: 'x' }];
 

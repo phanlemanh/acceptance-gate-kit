@@ -2304,11 +2304,25 @@ const HO_SO_GLOBS = (() => {
   if (!m) throw new Error('khong rut duoc HO_SO_VAN_BAN_GLOBS tu s4-args.mjs (khoi marker NGOAI-VAT doi khuon)');
   return m[1].split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(Boolean);
 })();
+// ĐỔI KHUÔN 14/09: bên VIẾT truyền KẾT QUẢ (danh sách tệp), bên ĐỌC chỉ kiểm thuộc-tập.
+// Ca dựng args đúng như `s4-args` phát ra. HO_SO_GLOBS vẫn rút từ marker của bên viết để
+// ca không tự bịa ra định nghĩa «văn bản hồ sơ» — nhưng nó dùng để DỰNG danh sách, chứ
+// không còn là đầu vào phép khớp của bên đọc.
+const laVanBanHoSo = (f) => HO_SO_GLOBS.some(g => {
+  const re = new RegExp('^' + g.split('**/').map(x => x.split('**').map(y => y.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\?/g, '[^/]').replace(/\*/g, '[^/]*')).join('.*')).join('(?:.*/)?') + '$');
+  return re.test(f);
+});
+const NGOAI_VAT_MAU = ['_acceptance/demo/gap-probe.md', 'docs/superpowers/specs/y.md'];
 const VV = {
   vungVat: ['src/a.js'],
-  ngoaiVatGlobs: ['docs/**', '**/*.md', ...HO_SO_GLOBS],
+  ngoaiVatFiles: NGOAI_VAT_MAU,
+  fileDoTrongDiff: [],
   contractPath: '/repo/_acceptance/demo/contract.md',
 };
+// Đối chứng: mẫu rút từ marker của bên viết PHẢI nhận diện đúng hai tệp trên là văn bản
+// hồ sơ/tài liệu — nếu marker đổi khuôn mà danh sách ở đây đứng yên, ca này kêu.
+check('VV-mau danh sach ngoai-vat cua ca khop dinh nghia cua ben VIET',
+  NGOAI_VAT_MAU.every(f => laVanBanHoSo(f) || f.startsWith('docs/')), JSON.stringify(NGOAI_VAT_MAU));
 const VV_FIND = [
   { title: 'trong vat', file: '/repo/src/a.js', line: 1, severity: 'high', detail: 'x' },
   { title: 'lien file', file: '/repo/src/z.js', line: 9, severity: 'high', detail: 'caller vo vi a.js doi chu ky' },
@@ -2341,6 +2355,8 @@ console.log('W41a2 mien tru eval.paths o ben DOC: fixture .md khai trong paths D
   // Lượt chấm 1 của chính hồ sơ này bắt: bên VIẾT giữ tệp khai trong `paths` ở lại vùng
   // vật, bên ĐỌC lại nuốt nó vì khớp mẫu văn-bản-hồ-sơ — hai đầu một seam, hai nghĩa.
   const F = [{ title: 'loi tren fixture cua thuoc', file: '/repo/_acceptance/demo/mau-the.md', line: 3, severity: 'high', detail: 'fixture the sai khuon' }];
+  // Bên VIẾT giữ tệp khai trong eval.paths ở lại vùng vật → nó KHÔNG có trong
+  // ngoaiVatFiles. Bên đọc vì thế không cần vế miễn trừ nào: phép thuộc-tập là đủ.
   const args = baseArgs({
     ...VV,
     evals: [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['_acceptance/demo/mau-the.md'] }],
@@ -2354,7 +2370,7 @@ console.log('W41a2 mien tru eval.paths o ben DOC: fixture .md khai trong paths D
     tri && tri.prompt.includes('mau-the.md'), tri ? '(bi nuot)' : '(khong co triage)');
   check('W41a2 boNgoaiVat rong', (result.boNgoaiVat || []).length === 0, JSON.stringify(result.boNgoaiVat));
   // Đối chứng dương: CÙNG tệp đó, khi KHÔNG eval nào khai nó → bị lọc như cũ.
-  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs(VV), vvResponder({ 'review:bugs': { findings: F }, triage: { contractUnreadable: false, triaged: [] } }));
+  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs({ ...VV, ngoaiVatFiles: [...NGOAI_VAT_MAU, '_acceptance/demo/mau-the.md'] }), vvResponder({ 'review:bugs': { findings: F }, triage: { contractUnreadable: false, triaged: [] } }));
   check('W41a2 doi chung duong: khong eval nao khai -> VAN bi loc',
     !((byLabel(c2, 'triage')[0] || { prompt: '' }).prompt.includes('mau-the.md')) && (r2.boNgoaiVat || []).length === 1,
     JSON.stringify(r2.boNgoaiVat));
@@ -2382,16 +2398,16 @@ console.log('W41c vung vat RONG -> khong spawn bugs/conventions (0 token)');
 
 console.log('W41d measurement: khong spawn khi diff khong cham file do; spawn khi cham');
 {
-  const noTest = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  const noTest = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js'], fileDoTrongDiff: [] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
   check('W41d diff chi src/a.js -> 0 call review:measurement', byLabel(noTest.calls, 'review:measurement').length === 0, String(byLabel(noTest.calls, 'review:measurement').length));
-  const withTest = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js', 'tests/a.test.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  const withTest = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js', 'tests/a.test.js'], fileDoTrongDiff: ['tests/a.test.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
   check('W41d diff cham tests/a.test.js -> CO call review:measurement', byLabel(withTest.calls, 'review:measurement').length === 1);
   // Kho tiêu thụ đặt răng ở `_acceptance/<slug>/rang/*.mjs` — một mẫu khớp kiểu kit
   // (`rang*.sh`) sẽ trượt hết. Đo bằng hình dạng THẬT của kho tiêu thụ.
-  const withRang = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['_acceptance/demo/rang/a.mjs'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  const withRang = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['_acceptance/demo/rang/a.mjs'], fileDoTrongDiff: ['_acceptance/demo/rang/a.mjs'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
   check('W41d diff cham ma rang trong thu muc ho so -> CO call review:measurement', byLabel(withRang.calls, 'review:measurement').length === 1);
   const withEvalPath = await runWorkflow(WF, baseArgs({
-    ...VV, vungVat: ['lib/x.cjs'],
+    ...VV, vungVat: ['lib/x.cjs'], fileDoTrongDiff: ['lib/x.cjs'],
     evals: [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['lib/**'] }],
   }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
   check('W41d diff cham file trong eval.paths -> CO call review:measurement', byLabel(withEvalPath.calls, 'review:measurement').length === 1);
@@ -2580,7 +2596,7 @@ console.log('W46 lan finder CO Y bo qua de lai vet may-doc-duoc trong result');
   check('W46 vung vat rong -> finders.boQua liet lan bi bo',
     rong.result.finders && rong.result.finders.chay.length === 0 && rong.result.finders.boQua.length >= 2,
     JSON.stringify(rong.result.finders));
-  const day = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js', 'tests/a.test.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  const day = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js', 'tests/a.test.js'], fileDoTrongDiff: ['tests/a.test.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
   check('W46 doi chung duong: vung vat co vat -> finders.chay du ba lan, boQua rong',
     day.result.finders.chay.length === 3 && day.result.finders.boQua.length === 0, JSON.stringify(day.result.finders));
 }
@@ -2590,10 +2606,10 @@ console.log('W47 config.yaml la MA DO — sua chuoi lenh phai kich hoat lens mea
   // Mọi cmd của eval sống trong config.yaml (eval trỏ config:executors.*). Bên VIẾT giữ
   // nó trong vùng vật; bên ĐỌC từng bỏ quên nên một vòng chỉ sửa chuỗi lệnh sẽ không
   // spawn lens đo — đúng chiều bỏ sót mà chú thích tuyên ngược lại.
-  const { calls } = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['_acceptance/config.yaml'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  const { calls } = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['_acceptance/config.yaml'], fileDoTrongDiff: ['_acceptance/config.yaml'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
   check('W47 diff chi cham _acceptance/config.yaml -> CO call review:measurement',
     byLabel(calls, 'review:measurement').length === 1, String(byLabel(calls, 'review:measurement').length));
-  const khac = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  const khac = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js'], fileDoTrongDiff: [] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
   check('W47 doi chung: diff khong cham ma do -> KHONG spawn measurement',
     byLabel(khac.calls, 'review:measurement').length === 0, String(byLabel(khac.calls, 'review:measurement').length));
 }

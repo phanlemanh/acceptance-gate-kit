@@ -314,6 +314,35 @@ const laNgoaiVat = f => !pathsKhaiRes.some(re => re.test(f)) && ngoaiVatRes.some
 // NGOAI-VAT>>>
 const diffTatCa = git('diff', '--name-only', `${diffBase}..HEAD`).split('\n').filter(Boolean);
 const vungVat = diffTatCa.filter(f => !laNgoaiVat(f));
+// ── ĐỔI KHUÔN (owner quyết 14/09, STOP-PATCHING) ────────────────────────────
+// Lớp «writer/reader trôi» tái phát BA lần trong hai lượt sửa: `laNgoaiVat` thiếu vế
+// eval.paths ở bên đọc · hai bản `globToRe` trôi ở ký tự `?` · `laFileDo` bỏ quên
+// `_acceptance/config.yaml`. Gốc chung: bên VIẾT đã tính xong vùng vật rồi vẫn chỉ
+// truyền MẪU GLOB, buộc bên ĐỌC chép hàm khớp và DỰNG LẠI vị từ — mỗi vế mới thêm ở
+// đây là một cơ hội bên kia không theo.
+//
+// Nay truyền KẾT QUẢ ĐÃ TÍNH: bên đọc chỉ kiểm thuộc-tập, không khớp glob nữa.
+// `ngoaiVatFiles` = tệp TRONG DIFF bị loại. Bên đọc lọc theo phép thuộc-tập nên finding
+// ở tệp NGOÀI diff (lớp liên-file) tự nhiên đi tiếp — không cần vế miễn trừ nào.
+const ngoaiVatFiles = diffTatCa.filter(laNgoaiVat);
+// `fileDoTrongDiff` = tệp trong vùng vật được coi là MÃ ĐO. Định nghĩa sống ở ĐÂY, một
+// chỗ: mẫu tệp kiểm thử repo khai (hoặc mặc định engine) · mã trong thư mục hồ sơ ·
+// `_acceptance/config.yaml` (nơi mọi `cmd` của eval thật sự sống) · tệp trong eval.paths.
+const DO_GLOBS_MAC_DINH = ['tests/**', '**/*.test.*', '**/*.spec.*', '**/spec/**', '**/__tests__/**'];
+const doGlobs = (() => {
+  try { const v = resolveConfigList(configText, 'feature_loop.do_globs'); return (Array.isArray(v) && v.length) ? v : DO_GLOBS_MAC_DINH; }
+  catch { return DO_GLOBS_MAC_DINH; }
+})();
+const doRes = doGlobs.map(globToRe);
+const laFileDo = f => doRes.some(re => re.test(f))
+  || f === '_acceptance/config.yaml'
+  || (/^_acceptance\/[^/]+\//.test(f) && !/\.(md|jsonl)$/.test(f))
+  || pathsKhaiRes.some(re => re.test(f));
+const fileDoTrongDiff = vungVat.filter(laFileDo);
+// `coverageFiles` = tệp (trong diff) được ÍT NHẤT một eval khai `paths`. Bên đọc dùng nó
+// cho tín hiệu cụm-ngoài-vùng-phủ thay vì tự khớp glob lần nữa.
+const coverageFiles = diffTatCa.filter(f => pathsKhaiRes.some(re => re.test(f)));
+const coEvalPaths = evals.some(e => Array.isArray(e.paths) && e.paths.length);
 console.error(`s4-args: vùng vật ${vungVat.length}/${diffTatCa.length} tệp (ngoài-vật: ${ngoaiVatGlobs.length} mẫu khớp, trong đó ${t1SkipGlobs.length} do repo khai)`);
 // Hai ca «vùng vật rỗng» KHÁC HẲN nhau và phải nói ra khác nhau — nếu không, một mốc
 // so SAI trông y hệt một vòng chỉ-đổi-tài-liệu, và làn chấm bỏ finder vì lý do sai:
@@ -438,7 +467,11 @@ const args = {
   invokedAt,
   invokedSha,
   vungVat,
-  ngoaiVatGlobs,
+  ngoaiVatGlobs,        // giữ để người đọc hồ sơ biết mẫu nào đang áp (KHÔNG còn là đầu vào phép khớp của bên đọc)
+  ngoaiVatFiles,
+  fileDoTrongDiff,
+  coverageFiles,
+  coEvalPaths,
   evalsHash,
   runBaseline,
   ...(carriedAnalyst ? { carriedAnalyst } : {}),

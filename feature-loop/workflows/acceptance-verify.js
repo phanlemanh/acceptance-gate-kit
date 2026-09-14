@@ -506,35 +506,28 @@ const coVungVat = Array.isArray(args.vungVat)
 const vungVat = coVungVat ? args.vungVat.filter(f => typeof f === 'string' && f) : []
 const ngoaiVatRes = (Array.isArray(args.ngoaiVatGlobs) ? args.ngoaiVatGlobs : [])
   .filter(g => typeof g === 'string' && g).map(globToRe)
-const evalPathRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
-// Vị từ này phải CÙNG NGHĨA với bên VIẾT (`s4-args.mjs`, khối marker NGOAI-VAT): tệp
-// được khai trong `paths` của một eval là ĐẦU VÀO CỦA THƯỚC, nên ở lại vùng vật bất kể
-// đuôi. Thiếu vế đó thì bên đọc NUỐT im lặng finding trên chính tệp mà bên viết giữ
-// lại — hai đầu một seam trôi khỏi nhau, đúng lớp T2 sinh ra để đóng (lượt chấm 1 của
-// hồ sơ này bắt, hai lane độc lập cùng chỉ ra).
-const laNgoaiVat = pth => !evalPathRes.some(re => re.test(pth)) && ngoaiVatRes.some(re => re.test(pth))
+// ĐỔI KHUÔN (owner quyết 14/09 theo STOP-PATCHING): bên đọc KHÔNG còn khớp glob. Lớp
+// «writer/reader trôi» đã tái phát ba lần vì bên viết tính xong rồi vẫn chỉ truyền MẪU,
+// buộc bên đọc dựng lại vị từ. Nay bên viết truyền KẾT QUẢ; ở đây chỉ còn phép
+// thuộc-tập — không có vị từ nào để trôi.
+//
+// Hệ quả đẹp: `ngoaiVatFiles` chỉ chứa tệp TRONG DIFF, nên finding ở tệp NGOÀI diff
+// (lớp liên-file) tự nhiên đi tiếp mà không cần vế miễn trừ nào.
+const ngoaiVatSet = new Set(Array.isArray(args.ngoaiVatFiles) ? args.ngoaiVatFiles : [])
+const laNgoaiVat = pth => ngoaiVatSet.has(pth)
 if (!coVungVat) log('Vung vat khong khai (args.vungVat vang) — finder soi tron diff, khong loc dau ra (duong doc-cu)')
 // Lens `measurement` CHỈ spawn khi diff chạm phép đo. Tập file đo = glob tệp ca kiểm
 // thử + MỌI tệp không phải .md/.jsonl trong thư mục hồ sơ (kho tiêu thụ đặt răng ở
 // `_acceptance/<slug>/rang/*.mjs` — một mẫu kiểu kit `rang*.sh` sẽ trượt hết) + tệp
 // khai trong `eval.paths`. Không chắc → SPAWN: fail-open về phía tốn tiền, không về
 // phía bỏ sót. Hôm nay lens này vẫn chạy một tác tử opus ~3,5 M để tự trả rỗng.
-// Mẫu tệp-đo MẶC ĐỊNH của engine. Kho tiêu thụ đặt tệp kiểm thử ở đâu là việc của kho
-// đó, nên nó khai qua `feature_loop.do_globs` (s4-args truyền vào `args.doGlobs`); vắng
-// lời khai thì dùng mặc định này. Hardcode một bố cục thư mục vào engine là chứa product
-// context của kho tiêu thụ — kho dùng `spec/` hay `__tests__/` sẽ bị tắt lens đo IM LẶNG.
-const DO_GLOBS = (Array.isArray(args.doGlobs) && args.doGlobs.length
-  ? args.doGlobs
-  : ['tests/**', '**/*.test.*', '**/*.spec.*', '**/spec/**', '**/__tests__/**']).map(globToRe)
-// `_acceptance/config.yaml` là nơi MỌI `cmd` của eval thật sự sống (eval trỏ
-// `config:executors.*`) — tức MÃ ĐO. Bên VIẾT cố ý giữ nó trong vùng vật; bên ĐỌC bỏ
-// quên nó nên một vòng chỉ sửa chuỗi lệnh trong config sẽ KHÔNG spawn lens đo, đúng
-// chiều bỏ sót mà chú thích ngay dưới đây tuyên ngược lại (lượt chấm 1 bắt).
-const laFileDo = pth => DO_GLOBS.some(re => re.test(pth))
-  || /^_acceptance\/config\.yaml$/.test(pth)
-  || (/^_acceptance\/[^/]+\//.test(pth) && !/\.(md|jsonl)$/.test(pth))
-  || evalPathRes.some(re => re.test(pth))
-const chamFileDo = !coVungVat || vungVat.some(laFileDo)
+// «Tệp đo» cũng do bên VIẾT quyết và truyền sang — định nghĩa sống ở MỘT chỗ
+// (`s4-args.mjs`, khối NGOAI-VAT), gồm cả `_acceptance/config.yaml` nơi mọi `cmd` của
+// eval thật sự sống. Bên đọc chỉ hỏi «danh sách có rỗng không».
+const fileDoTrongDiff = Array.isArray(args.fileDoTrongDiff) ? args.fileDoTrongDiff : null
+// Không chắc → SPAWN: fail-open về phía tốn tiền, không về phía bỏ sót. Bên viết đời cũ
+// không truyền trường này → `null` → spawn như trước (đường đọc-cũ).
+const chamFileDo = fileDoTrongDiff === null ? true : fileDoTrongDiff.length > 0
 // Tiền tố phạm vi: finder được TẬP TRUNG vào vùng vật, nhưng KHÔNG bị cấm báo lỗi ở
 // file khác — lớp «diff đổi chữ ký, caller ở file không đổi vỡ» phải còn đường ra.
 const vungVatScope = coVungVat && vungVat.length
@@ -1101,7 +1094,13 @@ const triageHighInContract = triageFailed ? [] : triaged.filter(f => f.inContrac
 // đang hụt. Ngưỡng ≥2 — một finding lẻ không đẩy người vào quyết định mở-rộng-hay-rút.
 // Glob tối giản: ** = mọi thứ, * = trong một đoạn đường dẫn.
 
-const coverageRes = evalPathRes   // T2: cùng một tập glob với bộ lọc vùng vật — không tính hai lần
+// Vùng phủ cũng đọc KẾT QUẢ của bên viết: `coverageFiles` = tệp (trong diff) được ít
+// nhất một eval khai `paths`; `coEvalPaths` phân biệt «không eval nào khai» (n-a) với
+// «có khai nhưng finding rơi ngoài». Bên viết đời cũ không truyền → rơi về đường cũ.
+const coverageFiles = Array.isArray(args.coverageFiles) ? new Set(args.coverageFiles) : null
+const coEvalPaths = typeof args.coEvalPaths === 'boolean' ? args.coEvalPaths
+  : args.evals.some(e => Array.isArray(e.paths) && e.paths.length)
+const coverageResCu = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
 // Path đã chuẩn hoá bằng relFile khai ở đầu bước Triage — cùng một phép cho khoá
 // ghép, dedupe và vùng phủ, để ba chỗ không trôi khỏi nhau.
 // Đếm theo finding PHÂN BIỆT (file+title), không theo số lượt báo: hai reviewer
@@ -1110,8 +1109,10 @@ const coverageRes = evalPathRes   // T2: cùng một tập glob với bộ lọc
 // reviewer có thể báo cùng một lỗi bằng path tuyệt đối và path tương đối —
 // dedupe trên path thô sẽ nhân đôi nó thành "cụm" giả.
 const triagedDistinct = dedupe(triaged)
-const outsideCoverage = coverageRes.length === 0 ? [] // không eval nào khai paths → không tính được (n-a)
-  : triagedDistinct.filter(f => relFile(f) && !coverageRes.some(re => re.test(relFile(f))))
+const outsideCoverage = !coEvalPaths ? [] // không eval nào khai paths → không tính được (n-a)
+  : coverageFiles
+    ? triagedDistinct.filter(f => relFile(f) && !coverageFiles.has(relFile(f)))
+    : triagedDistinct.filter(f => relFile(f) && !coverageResCu.some(re => re.test(relFile(f))))
 const coverageCluster = outsideCoverage.length >= 2
   ? { count: outsideCoverage.length, total: triagedDistinct.length, files: [...new Set(outsideCoverage.map(relFile))] }
   : null
