@@ -111,7 +111,7 @@ Trình tự đã xảy ra, kể để không lặp:
 
 ## 5. Nội dung mốc — cửa sổ `45e5f1d8..HEAD`
 
-**130 commit, NĂM vòng đóng** (bản Cổng 1 khai nhầm là hai):
+**134 commit đo tại `3f492e2e`, NĂM vòng đóng** (bản Cổng 1 khai nhầm là hai; bản đầu tệp này ghi 130 — số đo ở một HEAD sớm hơn, lượt chấm 5 đối chiếu lại):
 
 | Vòng | Hạng | Lượt chấm | làm-xong→quyết-được |
 |---|---|---:|---|

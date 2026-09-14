@@ -1,56 +1,63 @@
 ## Trong hợp đồng
 
-- **Con trỏ «ngả 5» còn đứng sau khi d-29 đã dời nhát cắt scan() sang ngả 7**
-  file: `_acceptance/release-2-12-0/contract.md:354`
-  severity: high
-  detail: decisions.jsonl d-20260913T234746Z-29 khai: «Sáu chỗ trong hồ sơ mốc khai nhát cắt đã vào ô ngả 5, nhưng ô không có mục đó… Ghi NGẢ 7 vào ô» và opportunity.md (dòng 77–82) đã tách ngả 7 = cắt phép quét P93, ngả 5 = phân lớp sau khi đỏ. Nhưng hồ sơ vẫn trỏ nhát cắt scan() vào ngả 5 ở: contract.md:354 (Notes §4), contract.md:329 (Notes §3), evals.yaml:133 (expected E3c), gap-probe.md:27 (cột Xử lý P0 thứ ba), evidence-report.md:130 (Round 4). Chỉ run-log.jsonl:56 nói đúng NGA 7. Đây đúng lớp «lời khai trỏ vào vật không còn» mà chính contract Known limits đặt nghi thức «gỡ/khai một vật thì grep tên nó trong TRỌN hồ sơ» — d-29 tự nhận áp nghi thức đó nhưng không áp. Hệ quả: cửa sổ kế mở ô sẽ tìm nhát cắt ở ngả 5 (đã gỡ) thay vì ngả 7, và E3c expected (thứ tác tử lượt sau đọc) trỏ sai.
-  source: conventions
-  AC: AC-4
-
-- **Notes §1 «Hạ tầng đốt lượt: 4» đếm thiếu lượt 5 so với nguồn rút tự khai (run-log.jsonl)**
-  file: `_acceptance/release-2-12-0/contract.md:288`
+- **Manifest feature-loop v2.12.0 khai «No behaviour change in the loop itself» trong khi repin-lane.mjs và SKILL.md đổi trong cửa sổ — lời khai mặt người dùng trái với chính bảng vòng của hợp đồng**
+  file: `feature-loop/.claude-plugin/plugin.json:4`
   severity: medium
-  detail: Contract dòng 288–296 và §3 dòng 327–329 đếm lượt bị hạ tầng đốt của chính mốc là 2 (lượt 1 và 4), tổng 4. Nhưng run-log.jsonl:56 ghi `kind: infra-recheck` cho round 5 («DO GIA — ha tang… lan thu hai cua chinh ho so nay»), d-20260913T234746Z-30 ghi «E3c lại là ĐỎ GIẢ (lần thứ hai của hồ sơ, thứ năm của lớp)», và opportunity.md ngả 7 ghi «mốc 2.12.0 lượt 1 · 4 · 5». Đây là một trong năm dòng số của luật (c) mà AC-4 đòi «mỗi số nói được nó đọc từ đâu»; nguồn rút nêu tên (run-log) cho 3 của mốc / 5 tổng, hợp đồng ghi 2 / 4. E4 là judgment đọc chính văn nên không thấy — đúng lớp «lời khai đứng thay phép đo» mà gap-probe P0 thứ hai đã gọi tên.
+  AC: AC-1
   source: conventions
-  AC: AC-4
-
-- **Assertion âm-tính chưa từng chạy chiều đỏ ở lối lõi — E2 khai «cần dựng kho giả có lịch sử riêng» cho mã 3/4/5 nhưng mã 4 và mã 5 tái hiện được trong vài giây bằng clone + một commit**
-  file: `_acceptance/release-2-12-0/evals.yaml:86`
-  severity: low
-  detail: E2 `expected` (evals.yaml:86–88) khai «CHƯA chạy chiều đỏ: lối 3, 4, 5 (cần dựng kho giả có lịch sử riêng; không dựng vì đó là thêm dàn đo)». Mã 5 là chính vế Then của AC-2 («diagram-design/ CÓ đổi sau lần cắt số»), tức màu xanh của E2 chưa từng được chứng minh là biết đỏ ở đúng lối nó tồn tại để canh — chỉ các lối HẠ TẦNG (2, 8) có chiều đỏ ghim. Lý do khai là quá mức: không cần kho giả — `git clone` cục bộ kho thật rồi thêm MỘT commit là đủ. Đã chạy trong scratchpad: (a) clone nguyên vẹn → PASS, rc=0 (đối chứng dương); (b) thêm một dòng vào `diagram-design/skills/diagram-design/SKILL.md`, commit không tăng số → `DO: diagram-design CO doi sau lan cat so gan nhat (06331ab2…) ma so chua tang:` + tên tệp, rc=5; (c) sửa manifest 2.7.0→2.8.0, commit → `DO: cua so <sha>..HEAD RONG (moc trung HEAD) …`, rc=4. Răng ĐÚNG ở cả hai lối, nên đây không phải lỗi thước mà là lời khai giới hạn chưa chính xác: hoặc ghim hai lượt chạy này (mã + thông điệp) vào `expected` như đã làm cho lối 2/8, hoặc giữ giới hạn nhưng nêu đúng chi phí thật. Mã 3 (không tìm được lần cắt số) vẫn cần lịch sử riêng — khai giới hạn ở đó là chính xác.
-  source: measurement
-  AC: AC-2
+  detail: Mục v2.12.0 của description viết: «No behaviour change in the loop itself; the number moves with acceptance-gate because…». Đo tại HEAD: `git diff --stat 45e5f1d8..HEAD -- feature-loop/` cho `scripts/repin-lane.mjs +127` và `skills/feature-loop/SKILL.md +29` (commit eb7e400b «lớp acceptance-gate cũ dừng exit 2 có tên thay vì TypeError», 907347e5 «pin khai ra ô không đo ở dòng log và dòng sha», 7b9c0daa). Chính contract.md của mốc (bảng vòng ở Context) liệt kê hai vòng giao hành vi mới cho làn ghim lại của feature-loop: `ghim-lai-tren-lop-cu` («làn ghim lại gặp lớp acceptance-gate cũ thì dừng CÓ TÊN thay vì TypeError thô») và `lan-doc-status-not-run` («làn ghim lại và bên đọc pin cùng đọc status: not-run từ MỘT nguồn»). Hai mục v2.10.0/v2.11.0 ngay trước đều theo khuôn «In this package: …» kể đúng hành vi đổi. P200 chỉ kiểm mục v<số> CÓ MẶT và câu khai cặp `acceptance-gate >= V`, nên lời khai sai này đi qua cổng — đúng lớp «lời khai không đối chiếu được» mà hồ sơ mốc tự ghi là bài học lượt 4 (d-18 từng sửa manifest acceptance-gate vì lý do y hệt). Sửa: kể hai hành vi đổi của làn ghim lại thay cho câu «No behaviour change».
+  rationale: AC-1 Then đòi hỏi tường minh «mục mô tả của chính số đó nói người dùng nhận gì» đúng sự thật, và finding chứng minh mô tả này sai so với hai hành vi đổi thật trong cửa sổ.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Thiếu review-findings.md trong khi evidence-report viện dẫn triage ngoài hợp đồng**
-  Người dùng thấy gì: Người duyệt ở bước ký cuối có thể không thấy đủ danh sách các phát hiện đã được xếp là 'nằm ngoài phạm vi' trên thẻ quyết định, dù báo cáo khẳng định chúng vẫn còn tồn tại — dễ bỏ sót thông tin quan trọng lúc ký duyệt.
+- **Đo checkout khác cây đang kiểm (hình dạng 6): bằng chứng E1/E2 ghi dấu bản răng KHÔNG phải bản răng tại HEAD**
+  Người dùng thấy gì: Báo cáo bằng chứng dùng để ký duyệt phát hành có dấu hiệu được tạo ra từ một phiên bản kiểm tra cũ hơn phiên bản thực tế đang có trong bản phát hành, nên chưa chắc phản ánh đúng những gì sắp được phát hành.
   file: `_acceptance/release-2-12-0/evidence-report.md`
-  severity: medium
-  Đề xuất: new-contract
+  severity: high
+  Đề xuất: known-limits
 
-- **Evidence-report tại HEAD ghim đầu ra của răng đã bị trừ (chân 4) và verified_commit lùi 2 commit — pre-merge không bắt vì _acceptance/* miễn staleness**
-  Người dùng thấy gì: Báo cáo bằng chứng đang hiển thị có thể phản ánh một phiên bản công cụ kiểm tra cũ hơn phiên bản thật đang có trong kho tại thời điểm ký, khiến người ký khó chắc chắn bằng chứng khớp đúng bản mới nhất.
+- **evidence-report.md tại HEAD là bằng chứng của bản răng CŨ: dấu bản răng ghim 22a4ff60/ed45b215, răng tại HEAD hash 47ef1d63/70c62172; verified_commit lùi 1 commit, triage_failed còn true, verdict PENDING-JUDGMENT — pre-merge miễn staleness cho _acceptance/* nên không máy nào bắt**
+  Người dùng thấy gì: Báo cáo bằng chứng đính kèm quyết định phê duyệt có thể mô tả một phiên bản kiểm tra cũ hơn bản đang chạy thật, khiến người ký duyệt dựa trên thông tin không phản ánh đúng trạng thái hiện tại của bản phát hành.
   file: `_acceptance/release-2-12-0/evidence-report.md`
   severity: medium
   Đề xuất: known-limits
 
-- **printf với $DOI không bọc nháy — tách từ và mở rộng glob trên tên tệp**
-  Người dùng thấy gì: Trong một tình huống lỗi hiếm gặp, dòng thông báo chẩn đoán có thể hiển thị sai định dạng nếu tên đường dẫn có khoảng trắng — không ảnh hưởng tới kết quả đạt/không đạt của việc kiểm tra.
-  file: `_acceptance/release-2-12-0/rang-moc.sh`
+- **decisions.jsonl dùng `type: record` (3 dòng) ngoài schema sổ quyết định của SKILL — gate-card đếm mọi dòng không-phải-seal là quyết định phải phê, nên ba dòng ghi-chép lọt vào «phê hết quyết định ghi sau Cổng Phạm vi»**
+  Người dùng thấy gì: Thẻ quyết định ở cổng phê duyệt có thể hiển thị thêm vài mục ghi chú nội bộ như thể chúng là quyết định cần người xem xét, làm danh sách cần đọc dài hơn thực tế cần thiết.
+  file: `_acceptance/release-2-12-0/decisions.jsonl`
   severity: low
-  Đề xuất: wont-fix
+  Đề xuất: known-limits
 
-## Chưa phân loại (triage-failed)
+- **Hồ sơ bàn giao còn ghi «130 commit» tại 3f492e2e — con số mà contract.md của cùng mốc đã bác tường minh (đúng là 134 tại cùng sha)**
+  Người dùng thấy gì: Tài liệu bàn giao ghi sai một con số thống kê (số lượng thay đổi) so với số đúng đã được xác nhận ở nơi khác, có thể gây hiểu nhầm nhẹ cho người đọc sau này.
+  file: `docs/handoff/2026-09-14-handoff-doi-tai-khoan-release-2-12-0.md`
+  severity: low
+  Đề xuất: known-limits
 
-phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ
+- **Hai răng phân loại cùng một thất bại hạ tầng (không hash được chính tệp răng) vào hai mã khác nhau và bảng mã ở header không liệt kê lối đó**
+  Người dùng thấy gì: Hai công cụ kiểm tra tự động báo cùng một loại sự cố hạ tầng nhưng bằng hai tín hiệu khác nhau, khiến người theo dõi khó nhận ra đó là cùng một vấn đề khi so sánh kết quả giữa hai công cụ.
+  file: `_acceptance/release-2-12-0/rang-p200.sh`
+  severity: low
+  Đề xuất: known-limits
 
-- **Đường dẫn hardcode/không suy từ vị trí script — dấu bản răng đọc `$0` theo cwd người gọi và fail-open thành PASS khi không đọc được**
-  file: `_acceptance/release-2-12-0/rang-moc.sh:140`
-  severity: medium
-  detail: `DAU="$(G hash-object "$0" 2>/dev/null | cut -c1-8)"` (rang-moc.sh:140) và bản sao y hệt ở rang-p200.sh:86 (`git -C "$ROOT" hash-object "$0"`): `$0` là đường dẫn TƯƠNG ĐỐI với cwd của người gọi, nhưng `git -C ROOT` giải nó tương đối với ROOT — trái với header của chính tệp («Gốc kho suy TỪ VỊ TRÍ SCRIPT, bài học P150») và với chú thích «không gõ tay, không trôi». Đã chạy thật: từ ROOT in `rang ban 22a4ff60`; từ `docs/` (`bash ../_acceptance/release-2-12-0/rang-moc.sh --chan diagram`) in `rang ban khong-doc-duoc` và VẪN thoát 0. Hệ quả đo lường: evals.yaml E2 `expected` (dòng 67–69) liệt kê dấu bản răng là MỘT trong «BA đối chứng dương», nhưng răng không đỏ khi đối chứng ấy vắng — đối chứng dương quảng cáo mà không cưỡng chế. Đúng lớp lỗi mà dấu này được thêm để bắt: evidence-report ở HEAD (verified_commit f5ac8ff0) ghim output E2 của bản răng CŨ (câu «giu 2.7.0 BANG so tai moc truoc ef36d81f…» của chân 4 đã bị trừ ở 59955ae8, không có `rang ban …`), tức hai bản răng khác nhau đang cùng được đọc là «E2 PASS»; ở chiến dịch ghim lại nếu cwd khác ROOT thì dấu lại vắng và không ai thấy. Sửa tầng đúng: suy đường dẫn tệp răng từ `$(cd "$(dirname "$0")" && pwd)/$(basename "$0")` (hoặc `hash-object` với đường tuyệt đối) và thoát mã riêng khi DAU rỗng thay vì in `khong-doc-duoc` rồi PASS.
-  source: measurement
+- **rang-p200.sh xếp «không đọc được dấu bản răng» vào mã 2 «chưa từng chạy» — sai lớp so với chính bảng mã của tệp**
+  Người dùng thấy gì: Khi công cụ kiểm tra gặp sự cố đọc dữ liệu nội bộ của chính nó, nó báo nhầm thành 'chưa từng kiểm tra' dù thực tế bài kiểm tra đã chạy xong và đạt — có thể khiến người đọc kết quả hiểu nhầm rằng phép kiểm chưa được thực hiện.
+  file: `_acceptance/release-2-12-0/rang-p200.sh`
+  severity: low
+  Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 5/7 lỗi rơi vào file không bộ đo nào phủ (_acceptance/release-2-12-0/contract.md, _acceptance/release-2-12-0/evidence-report.md, _acceptance/release-2-12-0/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+- **evidence-report.md Round 4 vẫn trỏ nhát cắt scan() vào «ngả 5» dù d-29 đã dời sang ngả 7 và commit HEAD khai đã sửa hết con trỏ**
+  Người dùng thấy gì: Một tài liệu bằng chứng còn ghi vị trí xử lý cũ cho một mục đã được owner dời sang chỗ khác, dù commit liên quan tuyên bố đã sửa hết — người đọc tài liệu này có thể bị dẫn sai hướng.
+  file: `_acceptance/release-2-12-0/evidence-report.md`
+  severity: low
+  Đề xuất: known-limits
+
+- **Khuôn seam viết→đọc chép tay, không marker/round-trip (hình dạng 2): rang-p200.sh ghim literal thông điệp của suite**
+  Người dùng thấy gì: Một phần cơ chế kiểm tra tự động dựa vào so khớp đúng nguyên văn một thông điệp nội bộ; nếu thông điệp đó đổi chữ trong tương lai, phép kiểm vẫn báo đỏ khi có lỗi thật (không bỏ sót) nhưng có thể ghi nhầm loại nguyên nhân, gây khó khăn nhẹ khi chẩn đoán kết quả.
+  file: `_acceptance/release-2-12-0/rang-p200.sh`
+  severity: low
+  Đề xuất: known-limits
+
+⚠ Cụm ngoài vùng phủ: 5/9 lỗi rơi vào file không bộ đo nào phủ (_acceptance/release-2-12-0/evidence-report.md, _acceptance/release-2-12-0/decisions.jsonl, docs/handoff/2026-09-14-handoff-doi-tai-khoan-release-2-12-0.md) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.

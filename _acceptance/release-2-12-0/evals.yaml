@@ -43,7 +43,8 @@ evals:
       (không khởi chạy được suite · suite không in gì · `ONLY_BLOCK` không khớp khối
       nào · đầu ra không nhắc P200) · 3 P200 in dòng FAIL của chính nó, tức ĐỎ THẬT ·
       4 nhiều hơn một dòng PASS (bộ lọc hỏng) · 5 chạy mà không PASS cũng không FAIL
-      (đầu ra bị cắt giữa chừng).
+      (đầu ra bị cắt giữa chừng) · 8 P200 đã xanh nhưng không đọc được dấu bản răng
+      (hạ tầng sau-khi-đã-chạy, cùng mã với rang-moc.sh — lượt 7 thống nhất).
       CHIỀU ĐỎ ĐÃ CHẠY THẬT ở lượt 4, ghim cả mã thoát lẫn thông điệp: lối 0 bản
       nguyên vẹn → 0 · lối 2 bản chép ở thư mục khác nên ROOT giải sai, suite vắng →
       2 «ma thoat 127» · lối 2 `BLOCK` gõ sai tên → 2 «khong khop khoi nao» · lối 3

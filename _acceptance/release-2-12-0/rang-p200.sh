@@ -17,6 +17,8 @@
 #   3  P200 in dòng FAIL                            → ca ĐỎ THẬT
 #   4  P200 in nhiều hơn một dòng PASS              → bộ lọc hỏng, số không tin được
 #   5  P200 chạy nhưng không tới kết luận nào       → đầu ra bị cắt giữa chừng
+#   8  P200 đã xanh nhưng không đọc được DẤU BẢN RĂNG → bằng chứng không tự phân
+#      biệt được bản; mã HẠ TẦNG sau-khi-đã-chạy, thống nhất với rang-moc.sh
 #   0  xanh
 #
 # Vì sao 2/3/5 tách (lượt chấm 4 bắt): bản trước gộp cả ba vào 3 với thông điệp
@@ -87,6 +89,6 @@ TEP="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 DAU="$(git -C "$ROOT" hash-object "$TEP" 2>/dev/null | cut -c1-8)"
 if [ -z "$DAU" ]; then
   echo "DO: khong doc duoc dau ban rang cua ${TEP} — bang chung khong tu phan biet duoc ban" >&2
-  exit 2
+  exit 8
 fi
 echo "PASS: P200 xanh (dung 1 dong PASS cua chinh no; phan quyet KHONG lay tu ma thoat tron suite; rang ban ${DAU})"
