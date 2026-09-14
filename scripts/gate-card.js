@@ -955,7 +955,11 @@ if (ooc.unclassified) {
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
-  P.push(`<div class="flag fwarn">Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.</div>`);
+  // T1 (khoi-tim-loi-tra-phi-theo-vat, 14/09): mục ngoài hợp đồng KHÔNG còn đi qua
+  // bác bỏ đối kháng — máy không chấm thứ máy không được sửa. Câu cũ («là thật») nay
+  // nói SAI với người đọc thẻ. Bản chép thứ hai của câu này sống trong prompt
+  // synthesize của acceptance-verify.js; hai bên đổi CÙNG lượt, P53b canh bản render.
+  P.push(`<div class="flag fwarn">Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — bạn quyết; máy cố ý không sửa và không chấm thứ máy không được sửa.</div>`);
   ooc.findings.forEach((f, fi) => {
     const rec = f.proposal === 'new-contract' ? 'Máy đề xuất: tách thành một việc riêng.'
       : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'

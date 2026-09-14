@@ -237,7 +237,17 @@ if (want('LB5')) {
   const OLD_SHA = 'ba539284';
   const oldSrc = execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:scripts/gate-card.js`], { encoding: 'utf8' });
   writeFileSync(path.join(copy, 'scripts', 'gate-card.js'), oldSrc);
-  const kinds = { baseline: 0, glossary: 0 };
+  // Cặp ĐỔI VĂN đã khai: một cờ GIỮ NGUYÊN vai trò nhưng đổi câu. Không khai ở đây thì
+  // LB5 đọc nó thành (mất A + cộng B) và đỏ — đúng ý: đổi văn một cờ phải có chủ đích,
+  // không được lẫn vào diff. Khai bằng tiền tố ĐỦ DÀI để không nuốt cờ khác. Khai THỪA
+  // (cặp không xảy ra trên cây) cũng đỏ — một dòng luật chết là luật không ai canh.
+  const DOI_VAN = [
+    { cu: 'Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1',
+      moi: 'Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng',
+      viSao: 'T1 (khoi-tim-loi-tra-phi-theo-vat, 14/09): mục ngoài hợp đồng không còn đi qua bác bỏ — máy không chấm thứ máy không được sửa' },
+  ];
+  const doiVanDung = new Set();
+  const kinds = { baseline: 0, glossary: 0, doiVan: 0 };
   // Đối chứng dương cho cờ glossary: cờ này chỉ có ở thẻ Cổng 1 (A/B/C đều đã ký → Cổng 2), nên đo trên
   // fixture Cổng 1 bằng CHÍNH bản cũ: cũ phải bắn, mới không.
   const oldFx = flagsOf(cardHtml(r, 'x', path.join(copy, 'scripts', 'gate-card.js')));
@@ -246,15 +256,26 @@ if (want('LB5')) {
     const oldF = flagsOf(cardHtml(copy, s, path.join(copy, 'scripts', 'gate-card.js'))).map(f => f.text);
     const newF = flagsOf(cardHtml(ROOT, s)).map(f => f.text);
     const gone = oldF.filter(t => !newF.includes(t)), added = newF.filter(t => !oldF.includes(t));
+    // Khớp cặp đổi-văn TRƯỚC khi phân loại: một cặp chỉ được tính khi CẢ HAI vế có mặt
+    // (mất câu cũ VÀ có câu mới) — mất một mình vẫn là cờ biến khỏi thẻ, phải đỏ.
+    const doiVanCu = new Set(), doiVanMoi = new Set();
+    for (const d of DOI_VAN) {
+      const g = gone.find(t => t.includes(d.cu)), a = added.find(t => t.includes(d.moi));
+      if (g && a) { doiVanCu.add(g); doiVanMoi.add(a); doiVanDung.add(d.cu); kinds.doiVan++; }
+    }
     for (const t of gone) {
+      if (doiVanCu.has(t)) continue;
       if (/^n-a\b/i.test(t.trim())) kinds.baseline++;
       else if (/--glossary-base/.test(t)) kinds.glossary++;
       else errs.push(`${s}: cờ mất ngoài hai loại TRỪ: «${t.slice(0, 60)}»`);
     }
-    if (added.length) errs.push(`${s}: CỘNG cờ lén: ${added.map(t => t.slice(0, 50)).join(' | ')}`);
+    const addedLa = added.filter(t => !doiVanMoi.has(t));
+    if (addedLa.length) errs.push(`${s}: CỘNG cờ lén: ${addedLa.map(t => t.slice(0, 50)).join(' | ')}`);
   }
   if (!kinds.baseline) errs.push('đối chứng dương: bản cũ không phát cờ baseline nào trên ba hồ sơ');
-  if (errs.length) fail('LB5', errs.join(' · ')); else pass('LB5', `0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(${kinds.baseline}) + glossary(${kinds.glossary}), mới∖cũ = ∅`);
+  // Khai thừa = luật chết: mỗi cặp đổi-văn phải khớp thật trên cây, nếu không thì gỡ dòng khai.
+  for (const d of DOI_VAN) if (!doiVanDung.has(d.cu)) errs.push(`cặp đổi-văn khai THỪA (không xảy ra trên cây): «${d.cu.slice(0, 50)}» — gỡ dòng khai hoặc sửa tiền tố`);
+  if (errs.length) fail('LB5', errs.join(' · ')); else pass('LB5', `0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(${kinds.baseline}) + glossary(${kinds.glossary}) + đổi-văn-đã-khai(${kinds.doiVan}), mới∖cũ ngoài khai = ∅`);
 }
 
 // ---------- LB6: dòng bỏ lệch gạch nối (AC-6)

@@ -62,5 +62,33 @@ check('doi chung duong: file KHONG co heading -> present=false, khong ngo', () =
   if (r.present !== false || r.suspect_empty !== false) die(JSON.stringify(r));
 });
 
+// ── Đường đọc-cũ cho câu mở đầu (khoi-tim-loi-tra-phi-theo-vat, T1) ──────────
+// T1 đổi câu mở đầu khối «Ngoài hợp đồng» ở CẢ hai bên viết (khuôn synthesize +
+// thẻ). 60+ hồ sơ ĐÃ KÝ mang câu CŨ và phải đọc y nguyên: bộ đọc khớp HEADING và
+// KHUÔN MỤC, không khớp câu mở đầu. Điều đó đang «tự đúng» — và tự-đúng là thứ
+// vừa suýt mất ở WT-T6 khi một thứ tự đổi. Ghim bằng vị từ: cùng một thân mục,
+// ba câu mở đầu khác nhau phải cho CÙNG kết quả.
+const THAN = item('A', 'known-limits');
+const docVoi = (mo) => `# Review\n\n## Ngoài hợp đồng\n\n${mo}\n\n${THAN}\n\n## Known limits\n`;
+const MO_DAU = [
+  ['cau CU (ho so da ky truoc 14/09)', 'Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.'],
+  ['cau MOI (T1)', 'Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.'],
+  ['khong cau mo dau nao', ''],
+];
+for (const [ten, mo] of MO_DAU) {
+  check(`doc-cu: cung than muc, «${ten}» -> cung ket qua`, () => {
+    const r = ooc.parse(docVoi(mo));
+    if (r.findings.length !== 1) die(`findings = ${r.findings.length} (mong 1) voi mo dau: ${ten}`);
+    if (r.findings[0].proposal !== 'known-limits') die(`proposal = ${r.findings[0].proposal}`);
+    if (r.suspect_empty !== false) die(`suspect_empty = ${r.suspect_empty}`);
+  });
+}
+// Đối chứng dương cho chính ca này: bộ đọc KHÔNG phải luôn-xanh — thân mục hỏng
+// khuôn thì nó vẫn kêu, kể cả khi câu mở đầu đúng chuẩn mới.
+check('doc-cu doi chung duong: cau mo dau MOI + than HONG khuon -> suspect_empty', () => {
+  const r = ooc.parse(docVoi(MO_DAU[1][1]).replace(THAN, '**N1 — mot muc van xuoi dai hon bon muoi ky tu, khong theo khuon muc.**'));
+  if (r.findings.length !== 0 || r.suspect_empty !== true) die(JSON.stringify(r));
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed (out-of-contract)`);
 process.exit(failed ? 1 : 0);

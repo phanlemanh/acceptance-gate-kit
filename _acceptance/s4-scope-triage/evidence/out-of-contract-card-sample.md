@@ -5,7 +5,7 @@
 > sửa tay là làm suite đỏ. Judge E11 phải chấm đúng cái người quyết nhìn thấy —
 > round 2 bị bắt vì fixture cũ là văn viết tay mà không code path nào sinh ra.
 Ngoài hợp đồng — bạn quyết (2)
-Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — máy cố ý không tự sửa.
+Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — bạn quyết; máy cố ý không sửa và không chấm thứ máy không được sửa.
 Ngoài-1 · Bấm "Cập nhật" có thể làm mất tiện ích đang cài, nếu mạng hỏng giữa chừng thì kết quả là "đã gỡ cài" chứ không phải bản mới.
 Máy đề xuất: ghi vào hạn chế đã biết rồi ship.
 ghi Known limits

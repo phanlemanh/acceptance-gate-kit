@@ -654,6 +654,30 @@ else
   fail "P53 fixture judge E11 == ban render that + khong jargon"
 fi
 
+# ── P53b (khoi-tim-loi-tra-phi-theo-vat, T1): khoi «Ngoai hop dong» tren THE khong
+# con tuyen «la that». Sau T1 muc ngoai hop dong KHONG qua bac bo doi khang nua —
+# may khong cham thu may khong duoc sua — nen cau cu noi SAI voi nguoi doc the.
+# Do tren BAN RENDER THAT (cung script sinh voi P53), khong grep nguon gate-card.js:
+# grep nguon la do CHI DAN thay vi do DAU RA (hinh dang 1 cua «thuoc gan vao vat»).
+echo "P53b the: khoi ngoai hop dong noi CHUA qua bac bo, het noi «la that»"
+P53BOK=1
+P53BTMP="$(mktemp)"
+bash "$P53GEN" > "$P53BTMP" 2>/dev/null || P53BOK=0
+if [ "$P53BOK" -eq 1 ]; then
+  grep -q "CHƯA qua bác bỏ đối kháng" "$P53BTMP" || { echo "     ban render THIEU cau «CHUA qua bac bo doi khang»"; P53BOK=0; }
+  if grep -q "là thật" "$P53BTMP"; then echo "     ban render VAN tuyen «la that» ve muc chua bac bo"; P53BOK=0; fi
+  # Doi chung duong: khoi van phai co mat va van in duoc cau ngon ngu san pham cua
+  # tung muc — khong phai «xanh vi khoi bien mat».
+  grep -q "Ngoài hợp đồng — bạn quyết" "$P53BTMP" || { echo "     ban render mat nhan khoi ngoai hop dong"; P53BOK=0; }
+  grep -q "Người dùng thấy gì\|Bấm\|tiện ích" "$P53BTMP" || { echo "     ban render mat cau ngon ngu san pham cua muc"; P53BOK=0; }
+fi
+rm -f "$P53BTMP"
+if [ "$P53BOK" -eq 1 ]; then
+  pass "P53b the noi CHUA qua bac bo, khoi van con du muc"
+else
+  fail "P53b the noi CHUA qua bac bo, khoi van con du muc"
+fi
+
 
 # ── P55: ROUND-TRIP writer <-> reader cho review-findings.md ────────────────
 # Lop loi da tai dien BA round lien tiep ma khong eval nao do: ben VIET (prompt
