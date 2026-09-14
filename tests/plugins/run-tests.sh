@@ -2087,11 +2087,28 @@ SKIP_TOP = {"plugins", "_acceptance", "tests"}      # ba muc AC-10 khai
 SKIP_INFRA = {".git", ".claude", "node_modules"}    # ruot VCS / cache phien / phu thuoc — khong phai nguon
 
 def scan(base):
+    # Vat duoc do la cay NGUON — tap tep git THEO DOI — chu khong phai kiem ke tep
+    # cua cay LAM VIEC. `rglob` voi mau bat-tat-ca dem ca tep nhap khong-duoc-theo-doi
+    # cua bat ky tac tu nao trong bay, nen no do ve mot kho hoan toan lanh: lop
+    # «ha tang tu sinh tin hieu do» da dem SAU lan qua bon cua so (release-2-12-0 §4
+    # goi ten o luot cham 4 va 5 cua chinh no; luot cham 4 cua
+    # khoi-tim-loi-tra-phi-theo-vat do cung chu ky, khong tai hien duoc).
+    # Gioi han da khai (AC-5, ho so release-2-13-0): tep nguon MOI chua vao index la
+    # vo hinh voi P93 cho toi khi duoc add. Luoi truoc-merge chay tren cay da commit.
+    r = subprocess.run(["git", "-C", str(base), "ls-files", "-z"],
+                       capture_output=True, check=False)
+    if r.returncode != 0:
+        raise AssertionError(
+            f"scan: '{base}' khong phai kho git hoac git ls-files that bai "
+            f"(ma {r.returncode}) — khong co nen de do")
     out = []
-    for p in base.rglob("*"):
+    for name in r.stdout.decode("utf-8", "surrogateescape").split("\0"):
+        if not name:
+            continue
+        p = base / name
         if not p.is_file():
             continue
-        rel = p.relative_to(base).parts
+        rel = Path(name).parts
         if rel[0] in SKIP_TOP:
             continue
         if any(x in SKIP_INFRA for x in rel):
@@ -2163,15 +2180,46 @@ def verdict(base):
             errs.append(f"cap marker {name} co {pair[name]} khoi (mong doi {want}) — theo thu muc goc {per_dir}, chi tiet {pair_where[name]}")
     return errs
 
+def dung_ban_sao(src_root, dst):
+    """Ban sao cho chieu do NOI TAI cua P93: chep dung TAP TEP THEO DOI cua nguon.
+
+    Ban truoc dung `rsync` tron cay roi `git add -A`. Sau khi `scan()` di theo tep
+    git theo doi, cach ay HONG theo mot duong im lang: rsync chep ca tep KHONG duoc
+    theo doi cua cay lam viec, roi `add -A` bien chung thanh theo doi trong ban sao
+    — nen doi chung duong `verdict(dst) == []` do vi mot tep ma `scan(src)` khong he
+    dem. Do la lop «ban sao khong phai la anh cua vat». Do duoc 14/09 luc thi hanh
+    nhat va: chan `im` cua rang-p93 van do sau khi da vá, va thong diep lai la cua
+    chinh doi chung duong noi tai nay.
+
+    Nay ban sao chep DUNG tap `git ls-files` cua nguon, nen no chua dung thu
+    `scan(src_root)` dem — mot vi tu, hai cho. `git add -A` sau do dua tron tap ay
+    vao index. Moi cho TIEM ben duoi con phai tu `git add` chinh no: chung ghi SAU
+    lan add nay.
+    """
+    if dst.exists():
+        shutil.rmtree(dst)
+    dst.mkdir(parents=True)
+    r = subprocess.run(["git", "-C", str(src_root), "ls-files", "-z"],
+                       capture_output=True, check=True)
+    for name in r.stdout.decode("utf-8", "surrogateescape").split("\0"):
+        if not name:
+            continue
+        src_p = src_root / name
+        if not src_p.is_file():
+            continue
+        dst_p = dst / name
+        dst_p.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src_p, dst_p)
+    subprocess.run(["git", "-C", str(dst), "init", "-q"], check=True)
+    subprocess.run(["git", "-C", str(dst), "add", "-A"], check=True)
+
 assert verdict(root) == [], verdict(root)                         # doi chung DUONG
 
 # Doi chung AM: GHI FILE THAT vao CA BA vung tung bi bo lot qua ba vong.
 tmp = Path(tempfile.mkdtemp())
 try:
     dst = tmp / "repo"
-    subprocess.run(["rsync", "-a", "--exclude", ".git", "--exclude", ".claude",
-                    "--exclude", "plugins", "--exclude", "node_modules",
-                    f"{root}/", f"{dst}/"], check=True)
+    dung_ban_sao(root, dst)
     assert verdict(dst) == [], f"ban sao NGUYEN VEN phai XANH truoc: {verdict(dst)}"
     src = (dst / REF_REL).read_text(encoding="utf-8")
     for rel in ("vendor/impeccable/BAN-SAO-THU.md",                   # r1 bo lot
@@ -2180,6 +2228,7 @@ try:
         plant = dst / rel
         plant.parent.mkdir(parents=True, exist_ok=True)
         plant.write_text(src, encoding="utf-8")
+        subprocess.run(["git", "-C", str(dst), "add", str(plant.relative_to(dst))], check=True)
     e = verdict(dst)
     for frag in ("khuon bang phai mot cho", "khuon so do phai mot cho",
                  "chi duoc 2 cho da biet", "cap marker PLAN-SUMMARY-TABLE-TEMPLATE",
@@ -2187,12 +2236,11 @@ try:
                  "cap marker LOOP-PICTURE-CLAUSE", "cap marker DECISION-DRAW-MECHANISMS"):
         assert any(frag in x for x in e), f"trong ban sao that ma khong bat duoc '{frag}': {e}"
     # Chung minh RIENG rang vung dau-cham va duoi-file-la khong con la diem mu.
-    shutil.rmtree(dst); subprocess.run(["rsync", "-a", "--exclude", ".git",
-        "--exclude", ".claude", "--exclude", "plugins", "--exclude", "node_modules",
-        f"{root}/", f"{dst}/"], check=True)
+    dung_ban_sao(root, dst)
     only = dst / ".out-of-scope/ban-sao-thu.yaml"
     only.parent.mkdir(parents=True, exist_ok=True)
     only.write_text(src, encoding="utf-8")
+    subprocess.run(["git", "-C", str(dst), "add", str(only.relative_to(dst))], check=True)
     e2 = verdict(dst)
     assert any("khuon bang phai mot cho" in x for x in e2), \
         f"ban sao trong thu muc dau-cham voi duoi .yaml van lot luoi: {e2}"
