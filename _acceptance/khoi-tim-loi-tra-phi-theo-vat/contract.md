@@ -5,7 +5,7 @@ slug: khoi-tim-loi-tra-phi-theo-vat
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/workflows, feature-loop/scripts, scripts/gate-card.js, tests; KHÔNG chạm hooks, lib, pre-merge, recheck
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: docs/superpowers/specs/2026-09-14-khoi-tim-loi-tra-phi-theo-vat-design.md
 approved_by:
 approved_at:
