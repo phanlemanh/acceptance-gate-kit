@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: b2af84cd1d6bd5454111567b010778e8a8a1c5b4
-human_signoff:
+human_signoff: Mạnh 2026-09-14
 ---
 
 # Evidence Report: release-2-12-0

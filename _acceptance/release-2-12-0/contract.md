@@ -5,7 +5,7 @@ slug: release-2-12-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # KHÔNG chạm t3_paths — mốc này chỉ cắt số. Khác 2.10.0 và 2.11.0 vốn phải lên T3 vì vá lib/** TRONG mốc. Vì là T2 nên làn V mở.
 surfaces: [cli]
-status: implemented
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-09-13
 ---
@@ -303,6 +303,32 @@ doi 2)» → xoá tệp → XANH lại. Lượt này phân lớp bằng PHÉP Đ
 chứng dương) chứ không bằng lý lẽ, vì bộ phân lớp đã gỡ theo lối 1. Và **lượt 5 — lần
 thứ NĂM**, cùng chữ ký `FAIL: P93`, cùng SHA `f5ac8ff0` xanh tại chỗ (run-log `kind:
 infra-recheck` round 5).
+
+### 1b. Known limits owner định đoạt ở Cổng Bằng chứng (14/09)
+
+Sáu mục ngoài hợp đồng của lượt chấm 8; owner chọn **ghi Known limits rồi ship** cho cả
+sáu (`decisions.jsonl`, stage `gate2`). Bốn mục đầu nói về độ mới của chính hồ sơ và đã
+được làn ghim lại tại `b2af84cd` đóng; hai mục cuối là đo-thước thật:
+
+- known-limits — Bằng chứng từng ghim cây TRƯỚC HEAD (report của lượt chấm trước). Đóng
+  bằng làn ghim lại: `verified_commit` → `b2af84cd`, 5 suite + 7 eval máy exit 0.
+- known-limits — Kết quả ĐẠT có thể không lặp lại trên bản sắp phát hành. Cùng nguyên
+  nhân và cùng đường đóng như trên.
+- known-limits — `pre-merge-check` đọc REPORT («Ngoài hợp đồng rỗng») còn thẻ đọc
+  `review-findings.md` (6 mục), nên hai bên đọc cổng kết luận ngược nhau. Không đổi
+  quyết định mời ký: hai căn cứ của quyết định ấy độc lập với chỗ lệch này (d-38).
+- known-limits — `review-findings.md` mô tả một mục đã xử xong như còn mở, vì tệp ấy là
+  ảnh chụp của lượt chấm sinh ra nó, không có dấu sha/lượt.
+- known-limits — **Chốt pathspec của chân 3 dùng HAI literal `diagram-design/` tách rời**
+  (dòng chốt `ls-files` và dòng `diff` đang đo), nên một đột biến chỉ trúng dòng đo vẫn
+  cho đối chứng dương in «bộ lọc còn khớp vật». Chưa từng làm răng xanh sai trên cây
+  thật. Nhát sửa: một biến dùng cả ba chỗ.
+- known-limits — **`rang-p200.sh` đọc đầu ra suite bằng ba chuỗi CHÉP TAY** từ
+  `pass()`/`fail()`/dòng `ONLY_BLOCK` của `run-tests.sh`, không marker một-nguồn, không
+  round-trip. Hôm nay cả ba khớp writer nên răng đang đo đúng.
+
+Hai mục cuối vào nhát trừ cửa sổ kế; theo luật chiều rộng (a) mốc này KHÔNG mở lượt
+chấm thứ chín cho chúng.
 
 ### 2. Lớp vendored — bốn trên chín mục ĐỔI trong cửa sổ
 
