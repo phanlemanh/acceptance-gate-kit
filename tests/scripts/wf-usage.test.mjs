@@ -168,6 +168,22 @@ console.log('U06d T0: nhan vai tro la KHOA KE THUA (__proto__, constructor) khon
   check('U06d khong agent nao bi dem thieu thoi gian', j.agentsKhongCoThoiGian === 0, String(j.agentsKhongCoThoiGian));
 }
 
+console.log('U06e T0: mot agent dung HAI model van la MOT agent trong byRole');
+{
+  // rows có một dòng cho mỗi (agent × model). Đếm dòng rồi gọi là «agents» làm số phồng
+  // đúng chỗ owner đọc để quyết cắt (dòng 4-5 của năm dòng số).
+  const D = path.join(T, 'wf_hai-model');
+  fs.mkdirSync(D, { recursive: true });
+  fs.writeFileSync(path.join(D, 'agent-eeee1111.jsonl'),
+    user('[wf-label: review:bugs]\nx', '2026-07-23T03:00:00.000Z') +
+    asst('n1', 'claude-opus-5', { input_tokens: 1, output_tokens: 10, cache_read_input_tokens: 5 }, '2026-07-23T03:00:05.000Z') +
+    asst('n2', 'claude-sonnet-5', { input_tokens: 1, output_tokens: 20, cache_read_input_tokens: 5 }, '2026-07-23T03:00:12.000Z'));
+  const j = JSON.parse(runScript([D, '--json']).stdout);
+  check('U06e byRole.review.agents = 1 (khong phai 2 dong)', j.byRole.review.agents === 1, JSON.stringify(j.byRole.review));
+  check('U06e nhung out van cong du ca hai model (10+20)', j.byRole.review.out === 30, String(j.byRole.review.out));
+  check('U06e wall tinh tron agent (12s)', j.byRole.review.wallSeconds === 12, String(j.byRole.review.wallSeconds));
+}
+
 console.log('');
 console.log(`Results: ${pass} passed, ${fail} failed (wf-usage)`);
 if (fail > 0) process.exit(1);

@@ -141,21 +141,29 @@ const roleOf = l => String(l || '').split(':')[0] || '(none)';
 // `byRole[k] || (byRole[k] = {...})` cộng dồn vào HÀM Object và phép đếm hỏng IM LẶNG —
 // cùng nếp với `demTenSuite` trong acceptance-verify.js. Lượt chấm 1 của hồ sơ bắt.
 const byRole = Object.create(null);
-let agentsKhongCoThoiGian = 0;
+
+// `rows` có MỘT dòng cho MỖI (agent × model) — một agent đổi model giữa chừng cho hai
+// dòng. Đếm dòng rồi gọi là «agents» làm số phồng lên đúng chỗ owner đọc để quyết cắt
+// (dòng 4–5 của năm dòng số). Đếm agent PHÂN BIỆT bằng tập id.
+const agentTheoRole = Object.create(null);
+const agentThieuGio = new Set();
 for (const r of rows) {
-  if (!r.startAt) { agentsKhongCoThoiGian += 1; continue; }
+  if (!r.startAt) { agentThieuGio.add(r.agent); continue; }
   const k = roleOf(r.label);
   const b = byRole[k] || (byRole[k] = { agents: 0, calls: 0, out: 0, cacheRead: 0, startMs: Infinity, endMs: -Infinity });
-  b.agents += 1; b.calls += r.calls; b.out += r.out; b.cacheRead += r.cacheRead;
+  (agentTheoRole[k] || (agentTheoRole[k] = new Set())).add(r.agent);
+  b.calls += r.calls; b.out += r.out; b.cacheRead += r.cacheRead;
   b.startMs = Math.min(b.startMs, Date.parse(r.startAt));
   b.endMs = Math.max(b.endMs, Date.parse(r.endAt));
 }
-for (const b of Object.values(byRole)) {
+for (const [k, b] of Object.entries(byRole)) {
+  b.agents = agentTheoRole[k].size;   // agent PHÂN BIỆT, không phải số dòng (agent × model)
   b.wallSeconds = Math.round((b.endMs - b.startMs) / 1000);
   b.startAt = new Date(b.startMs).toISOString();
   b.endAt = new Date(b.endMs).toISOString();
   delete b.startMs; delete b.endMs;
 }
+const agentsKhongCoThoiGian = [...agentThieuGio].filter(a => !rows.some(r => r.agent === a && r.startAt)).length;
 const tMoc = rows.filter(r => r.startAt);
 const wallSeconds = tMoc.length
   ? Math.round((Math.max(...tMoc.map(r => Date.parse(r.endAt))) - Math.min(...tMoc.map(r => Date.parse(r.startAt)))) / 1000)

@@ -2557,4 +2557,45 @@ console.log('W44c T7 chieu DUONG: baseline tra MUON van duoc DOI — eval xanh-c
     `bo luot doi baseline o diem muon -> ve nay do: ${JSON.stringify(result.nonDiscriminating)}`);
 }
 
+// ═══ Răng cho ba finding của lượt chấm 1b ══════════════════════════════════
+console.log('W45 unverified (refuter chet) KHONG lot vao khoi «Trong hop dong»');
+{
+  // Trước T1, finding có refuter chết không bao giờ mang inContract (bị lọc khỏi
+  // toTriage). Sau T1 thì có — nên khối «Trong hợp đồng» phải loại nó, giống
+  // rejectFindings đã làm. Nếu không, bản findings nói «lỗi trong hợp đồng» trong khi
+  // verdict PASS và fix-list rỗng: ba nguồn nói ba chuyện.
+  const { result, calls } = await runWorkflow(WF, t1Args(), t1Responder({ 'refute:': null }));
+  const synth = byLabel(calls, 'synthesize:report')[0];
+  const sp = synth ? synth.prompt : '';
+  const khoi = sp.slice(sp.indexOf('## Trong hợp đồng'), sp.indexOf('## Ngoài hợp đồng'));
+  check('W45 khoi «Trong hop dong» KHONG chua finding unverified', !khoi.includes('A trong'), khoi.slice(0, 200));
+  check('W45 doi chung: finding do VAN o ngan «chua adversarial-verify»',
+    sp.includes('Chưa adversarial-verify') && sp.slice(sp.indexOf('Chưa adversarial-verify')).includes('A trong'), '(mat khoi ngan rieng)');
+  check('W45 verdict khong REJECT tu finding unverified', result.rejectFindings.length === 0 && result.verdict !== 'REJECT', result.verdict);
+}
+
+console.log('W46 lan finder CO Y bo qua de lai vet may-doc-duoc trong result');
+{
+  const rong = await runWorkflow(WF, baseArgs({ ...VV, vungVat: [] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W46 vung vat rong -> finders.boQua liet lan bi bo',
+    rong.result.finders && rong.result.finders.chay.length === 0 && rong.result.finders.boQua.length >= 2,
+    JSON.stringify(rong.result.finders));
+  const day = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js', 'tests/a.test.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W46 doi chung duong: vung vat co vat -> finders.chay du ba lan, boQua rong',
+    day.result.finders.chay.length === 3 && day.result.finders.boQua.length === 0, JSON.stringify(day.result.finders));
+}
+
+console.log('W47 config.yaml la MA DO — sua chuoi lenh phai kich hoat lens measurement');
+{
+  // Mọi cmd của eval sống trong config.yaml (eval trỏ config:executors.*). Bên VIẾT giữ
+  // nó trong vùng vật; bên ĐỌC từng bỏ quên nên một vòng chỉ sửa chuỗi lệnh sẽ không
+  // spawn lens đo — đúng chiều bỏ sót mà chú thích tuyên ngược lại.
+  const { calls } = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['_acceptance/config.yaml'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W47 diff chi cham _acceptance/config.yaml -> CO call review:measurement',
+    byLabel(calls, 'review:measurement').length === 1, String(byLabel(calls, 'review:measurement').length));
+  const khac = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W47 doi chung: diff khong cham ma do -> KHONG spawn measurement',
+    byLabel(khac.calls, 'review:measurement').length === 0, String(byLabel(khac.calls, 'review:measurement').length));
+}
+
 summary('acceptance-verify');
