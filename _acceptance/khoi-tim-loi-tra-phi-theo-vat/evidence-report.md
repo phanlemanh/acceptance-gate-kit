@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 67e57e339be55bcd5a6fc83b3788ee3f104d0209
+verified_commit: b2c4d0d6e9a5247a985f97dc573258c3acb8287e
 human_signoff: Mạnh 2026-09-14 — ký với 12 giới hạn đã khai, tất cả là nợ của THƯỚC, không mục nào chạm hành vi người dùng cuối
 ---
 
@@ -251,3 +251,7 @@ Phép chia MIỀN của SỬA KHUNG đứng vững ở lượt chạy sạch: c�
 Còn **12 mục ngoài hợp đồng** (mọi mục đều `known-limits`), nên gói không xanh-sạch theo sáu điều kiện — khối «Ngoài hợp đồng» có mặt và KHÔNG rỗng. Vòng dừng ở Cổng Bằng chứng cho owner quyết, đúng thiết kế. Máy cố ý KHÔNG tự sửa các mục này.
 
 Số của lượt (`usage-report.md`, máy đo): 20 tác tử · 16.715.215 token · 20,4 phút · refute 4 tác tử.
+
+### Re-pin lần 1 — 2026-09-14, do hoá cũ do chính commit chữ ký
+run_id: repin-20260914T124037Z-24762
+sha: b2c4d0d6e9a5247a985f97dc573258c3acb8287e · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
