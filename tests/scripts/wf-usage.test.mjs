@@ -101,6 +101,48 @@ console.log('U05 dir không tồn tại / thiếu arg → exit 2');
   check('U05 không arg -> exit 2', runScript([]).status === 2);
 }
 
+console.log('U06 T0: startAt/endAt + byRole wall — thuoc cho dong 4-5 cua nam dong so');
+{
+  const j = JSON.parse(runScript([RUN, '--json']).stdout);
+  const a = j.agents.find(x => x.agent === 'aaaa1111');
+  check('U06 agent co startAt/endAt ISO', a.startAt === '2026-07-23T01:00:00.000Z' && a.endAt === '2026-07-23T01:00:30.000Z', `${a.startAt} -> ${a.endAt}`);
+  check('U06 byRole.exec: 1 agent, wall 30s', !!(j.byRole && j.byRole.exec) && j.byRole.exec.agents === 1 && j.byRole.exec.wallSeconds === 30, JSON.stringify(j.byRole));
+  check('U06 wallSeconds tong = 69 (01:00:00 -> 01:01:09)', j.wallSeconds === 69, String(j.wallSeconds));
+  const md = runScript([RUN, '--md']).stdout;
+  check('U06 md co bang wall theo vai tro', md.includes('| vai tro |') && md.includes('| exec |'), md.slice(-300));
+}
+
+console.log('U06b T0: agent KHONG co timestamp -> khong nem loi, nhung KHONG im (co so dem)');
+{
+  // Chống «thước rỗng im lặng»: nếu tên trường thời gian ở harness đổi thì MỌI agent rơi
+  // vào nhánh này — script vẫn exit 0, nên phải có số đếm để nói ra.
+  const D = path.join(T, 'wf_khong-thoi-gian');
+  fs.mkdirSync(D, { recursive: true });
+  fs.writeFileSync(path.join(D, 'agent-cccc3333.jsonl'),
+    line({ type: 'user', message: { role: 'user', content: '[wf-label: machine:x]\nchay lenh' } }) +
+    line({ type: 'assistant', message: { id: 'm9', model: 'claude-haiku-4-5', role: 'assistant', usage: { input_tokens: 1, output_tokens: 2, cache_read_input_tokens: 3 } } }));
+  const r = runScript([D, '--json']);
+  check('U06b exit 0 (thieu truong phu KHONG lam do mot run)', r.status === 0, String(r.status));
+  const j = JSON.parse(r.stdout);
+  check('U06b startAt/endAt rong, khong vao byRole', j.agents[0].startAt === '' && Object.keys(j.byRole || {}).length === 0, JSON.stringify(j.byRole));
+  check('U06b CO so dem agent khong doc duoc thoi gian', j.agentsKhongCoThoiGian === 1, String(j.agentsKhongCoThoiGian));
+}
+
+console.log('U06c T0: tren transcript THAT (do harness Workflow sinh) — khong phai fixture tu dung');
+{
+  const THAT = path.join(HERE, 'fixtures', 'wf-transcript-that');
+  if (!fs.existsSync(THAT)) { check('U06c fixture transcript that CO mat', false, `thieu ${THAT}`); }
+  else {
+    const r = runScript([THAT, '--json']);
+    check('U06c exit 0 tren transcript that', r.status === 0, String(r.status));
+    const j = JSON.parse(r.stdout);
+    check('U06c it nhat mot agent co startAt hop le', j.agents.some(a => /^\d{4}-\d{2}-\d{2}T/.test(a.startAt)), JSON.stringify(j.agents.map(a => a.startAt)));
+    check('U06c wallSeconds > 0', j.wallSeconds > 0, String(j.wallSeconds));
+    check('U06c so dem agent thieu thoi gian = 0 (ten truong cua harness van dung)', j.agentsKhongCoThoiGian === 0, String(j.agentsKhongCoThoiGian));
+    check('U06c byRole co it nhat mot vai tro', Object.keys(j.byRole || {}).length > 0, JSON.stringify(Object.keys(j.byRole || {})));
+  }
+}
+
 console.log('');
 console.log(`Results: ${pass} passed, ${fail} failed (wf-usage)`);
 if (fail > 0) process.exit(1);

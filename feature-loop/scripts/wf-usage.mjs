@@ -103,10 +103,16 @@ function parseAgent(file) {
 
   const ts = lines.map(l => l.timestamp).filter(Boolean);
   const seconds = ts.length >= 2 ? Math.round((Date.parse(ts[ts.length - 1]) - Date.parse(ts[0])) / 1000) : 0;
+  // T0 (khoi-tim-loi-tra-phi-theo-vat): mốc thời gian TUYỆT ĐỐI, không chỉ khoảng —
+  // dòng 5 của năm dòng số (phút máy/lượt chấm) đọc đường găng, mà đường găng cần biết
+  // các lane CHỒNG nhau hay nối nhau. Thiếu timestamp → chuỗi rỗng và ĐẾM, không im.
+  const tsMs = ts.map(Date.parse).filter(n => !Number.isNaN(n));
+  const startAt = tsMs.length ? new Date(Math.min(...tsMs)).toISOString() : '';
+  const endAt = tsMs.length ? new Date(Math.max(...tsMs)).toISOString() : '';
   const agentId = path.basename(file).replace(/^agent-/, '').replace(/\.jsonl$/, '');
 
   return [...perModel.entries()].map(([model, u]) => ({
-    agent: agentId.slice(0, 8), label, model, seconds,
+    agent: agentId.slice(0, 8), label, model, seconds, startAt, endAt,
     calls: u.calls, in: u.input_tokens, out: u.output_tokens,
     cacheRead: u.cache_read_input_tokens, cacheCreate: u.cache_creation_input_tokens,
   }));
@@ -126,11 +132,36 @@ const total = [...byModel.values()].reduce(
   (s, t) => ({ agents: s.agents + t.agents, calls: s.calls + t.calls, in: s.in + t.in, out: s.out + t.out, cacheRead: s.cacheRead + t.cacheRead, cacheCreate: s.cacheCreate + t.cacheCreate }),
   { agents: 0, calls: 0, in: 0, out: 0, cacheRead: 0, cacheCreate: 0 });
 
+// ── T0: wall theo VAI TRÒ (phần trước dấu hai chấm của label) ────────────────
+// Thước cho dòng 5 (phút máy/lượt chấm) và cho phép tách ba khối của dòng 4:
+// chứng-minh-vật (machine/ui/judge/baseline) · tìm-lỗi (review/refute) · tổng hợp.
+const roleOf = l => String(l || '').split(':')[0] || '(none)';
+const byRole = {};
+let agentsKhongCoThoiGian = 0;
+for (const r of rows) {
+  if (!r.startAt) { agentsKhongCoThoiGian += 1; continue; }
+  const k = roleOf(r.label);
+  const b = byRole[k] || (byRole[k] = { agents: 0, calls: 0, out: 0, cacheRead: 0, startMs: Infinity, endMs: -Infinity });
+  b.agents += 1; b.calls += r.calls; b.out += r.out; b.cacheRead += r.cacheRead;
+  b.startMs = Math.min(b.startMs, Date.parse(r.startAt));
+  b.endMs = Math.max(b.endMs, Date.parse(r.endAt));
+}
+for (const b of Object.values(byRole)) {
+  b.wallSeconds = Math.round((b.endMs - b.startMs) / 1000);
+  b.startAt = new Date(b.startMs).toISOString();
+  b.endAt = new Date(b.endMs).toISOString();
+  delete b.startMs; delete b.endMs;
+}
+const tMoc = rows.filter(r => r.startAt);
+const wallSeconds = tMoc.length
+  ? Math.round((Math.max(...tMoc.map(r => Date.parse(r.endAt))) - Math.min(...tMoc.map(r => Date.parse(r.startAt)))) / 1000)
+  : 0;
+
 const runId = path.basename(dir);
 const fmt = (n) => n.toLocaleString('en-US');
 
 if (mode === 'json') {
-  process.stdout.write(JSON.stringify({ runDir: dir, runId, title: title || undefined, agents: rows, totalsByModel: Object.fromEntries(byModel), total }, null, 2) + '\n');
+  process.stdout.write(JSON.stringify({ runDir: dir, runId, title: title || undefined, agents: rows, totalsByModel: Object.fromEntries(byModel), total, byRole, wallSeconds, agentsKhongCoThoiGian }, null, 2) + '\n');
 } else if (mode === 'md') {
   const esc = (s) => s.replace(/\|/g, '\\|');
   const out = [];
@@ -139,6 +170,13 @@ if (mode === 'json') {
   out.push('| label | model | calls | out | in | cache_read | s |');
   out.push('|---|---|--:|--:|--:|--:|--:|');
   for (const r of rows) out.push(`| ${esc(r.label)} | ${r.model} | ${r.calls} | ${fmt(r.out)} | ${fmt(r.in)} | ${fmt(r.cacheRead)} | ${r.seconds} |`);
+  out.push('');
+  out.push('');
+  out.push(`wall: ${wallSeconds}s${agentsKhongCoThoiGian ? ` · ${agentsKhongCoThoiGian} agent khong doc duoc thoi gian` : ''}`);
+  out.push('| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |');
+  out.push('|---|--:|--:|--:|--:|---|---|');
+  for (const [k, b] of Object.entries(byRole).sort((x, y) => Date.parse(x[1].startAt) - Date.parse(y[1].startAt)))
+    out.push(`| ${k} | ${b.agents} | ${fmt(b.out)} | ${fmt(b.cacheRead)} | ${b.wallSeconds} | ${b.startAt.slice(11, 19)} | ${b.endAt.slice(11, 19)} |`);
   out.push('');
   for (const [m, t] of byModel) out.push(`- **${m}**: ${t.agents} agent · ${t.calls} calls · out ${fmt(t.out)} · in ${fmt(t.in)} · cache_read ${fmt(t.cacheRead)} · cache_create ${fmt(t.cacheCreate)}`);
   out.push('');
@@ -151,6 +189,9 @@ if (mode === 'json') {
   for (const r of rows) {
     console.log([pad(r.label.slice(0, W.label), W.label), pad(r.model.slice(0, W.model), W.model), pad(r.calls, W.calls, 1), pad(fmt(r.out), W.out, 1), pad(fmt(r.in), W.in, 1), pad(fmt(r.cacheRead), W.cacheRead, 1), pad(r.seconds, W.s, 1)].join(' '));
   }
+  console.log(`— wall ${wallSeconds}s theo vai trò${agentsKhongCoThoiGian ? ` (${agentsKhongCoThoiGian} agent không đọc được thời gian)` : ''} —`);
+  for (const [k, b] of Object.entries(byRole).sort((x, y) => Date.parse(x[1].startAt) - Date.parse(y[1].startAt)))
+    console.log(`  ${k.padEnd(12)} ${String(b.agents).padStart(3)} agent · out ${fmt(b.out).padStart(9)} · wall ${String(b.wallSeconds).padStart(5)}s · ${b.startAt.slice(11, 19)} → ${b.endAt.slice(11, 19)}`);
   console.log('— tổng theo model —');
   for (const [m, t] of byModel) console.log(`  ${m}: ${t.agents} agent · ${t.calls} calls · out ${fmt(t.out)} · in ${fmt(t.in)} · cache_read ${fmt(t.cacheRead)} · cache_create ${fmt(t.cacheCreate)}`);
   console.log(`  TỔNG: ${total.agents} agent · ${total.calls} calls · out ${fmt(total.out)} · in ${fmt(total.in)} · cache_read ${fmt(total.cacheRead)}`);
