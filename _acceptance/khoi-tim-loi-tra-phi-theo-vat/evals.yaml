@@ -41,16 +41,18 @@ evals:
     cmd: config:executors.script.ktl_vung_vat_s4args
     paths: [feature-loop/scripts/s4-args.mjs, feature-loop/scripts/carry-plan.mjs, tests/scripts/s4-args-vung-vat.test.mjs]
     expected: >
-      Exit 0 và đầu ra có ba dòng PASS VV1 (vungVat = mã sản phẩm + mã răng + config.yaml;
-      bỏ docs, md gốc, gap-probe.md) · VV2 (không t1_skip_globs → chỉ bỏ văn bản hồ sơ) ·
-      VV3 (deltaFiles cùng bộ lọc). Thêm VV4: tệp args do chính s4-args sinh phải mang
-      `ngoaiVatGlobs`, và khi đem khớp bằng CÙNG hàm khớp mà workflow dùng thì nó khớp
-      văn bản hồ sơ (gap-probe, decisions) và tài liệu, KHÔNG khớp mã răng hay
-      `_acceptance/config.yaml` — seam bên-viết-sang-bên-đọc rút từ writer thật, không
-      gõ tay. Thêm VV5: fixture đổi một tệp .md trong thư mục hồ sơ CÓ tên trong
-      `evals.yaml` → tệp đó CÓ trong `deltaFiles`; một .md không được khai → KHÔNG có.
-      Fixture git do code sinh trong lần chạy, đường dẫn suy từ vị trí tệp ca. Chiều đỏ:
-      tệp ca không tồn tại ở cây gốc → exit ≠ 0 (eval mới, phân biệt).
+      Exit 0. Đầu ra có VV1 (vùng vật = mã sản phẩm + mã răng + config.yaml; bỏ tài liệu,
+      md gốc, văn bản hồ sơ) · VV2 (không khai t1_skip_globs → chỉ bỏ văn bản hồ sơ) ·
+      VV3 (deltaFiles cùng bộ lọc) · VV4 + VV4b (seam bên-viết→bên-đọc: hàm khớp của bên
+      ĐỌC rút TỪ NGUỒN của nó, và ma trận 9 ô so hai bản chép — hai bản đã trôi thật ở
+      ký tự `?`) · VV5 (tệp khai trong eval.paths ở lại delta bất kể đuôi, kèm đối chứng).
+      Thêm ở lượt chấm 3: VV7 (fileDoTrongDiff là ĐẦU RA THẬT của bốn vế laFileDo, và
+      KHÔNG nuốt mã sản phẩm thường) · VV7-IM (diff chỉ chạm mã không ai đo → danh sách
+      RỖNG, tức bên đọc tắt lens measurement) · VV7b (bốn mũi tiêm, gỡ vế nào cũng làm
+      đúng tệp của vế đó rụng) · VV8 (coverageFiles) · VV8b (không eval nào khai paths →
+      coEvalPaths=false) · VV8c (gỡ bộ lọc vùng phủ → tệp không ai phủ lọt vào).
+      Fixture git do CODE SINH trong chính lần chạy; bản để tiêm chép TRỌN `feature-loop`,
+      không chép danh sách tệp tay (P150).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -58,14 +60,16 @@ evals:
     cmd: config:executors.script.ktl_w41_vung_vat
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
     expected: >
-      Exit 0 và đầu ra có dòng «PASS: W41 triage KHONG nhan finding ho so/docs» cùng
-      W41b (liên-file src/z.js đi tiếp, REJECT 2 finding), W41c (vùng vật rỗng → 0 call
-      bugs/conventions), W41d (measurement chỉ khi chạm file đo, kể cả mã răng trong thư
-      mục hồ sơ), W41e (không vùng vật → như cũ + cờ vàng), W41a2 (tệp khai trong
-      eval.paths KHÔNG bị lọc ở bên ĐỌC, kèm đối chứng .md không khai vẫn bị lọc). Mẫu
-      hồ-sơ-văn-bản trong ca RÚT từ khối marker NGOAI-VAT của bên VIẾT — một nguồn, không
-      gõ tay; phần round-trip trên TỆP ARGS THẬT do VV4/VV4b của AC-3 đảm nhiệm (ca
-      workflow chạy trong sandbox, không dựng cây git được). Chiều đỏ: AC-5.
+      Exit 0 và đầu ra có «PASS: W41 triage KHONG nhan finding ho so/tai lieu» cùng W41b
+      (liên-file src/z.js đi tiếp), W41c (vùng vật rỗng → 0 call bugs/conventions), W41d
+      (measurement chỉ khi chạm file đo), W41e (không vùng vật → cờ vàng), W41a2 (tệp
+      khai trong eval.paths KHÔNG bị lọc, kèm đối chứng).
+      Thêm ở lượt chấm 4 — SỬA KHUNG, phép chia MIỀN: «PASS: W48 finding tren tai lieu
+      ngoai diff KHONG toi duoc triage» (miền MỞ: tệp khớp mẫu ngoài-vật mà KHÔNG có
+      trong diffFiles vẫn phải bị lọc — lượt chấm 3 bắt lớp fail-open này) ·
+      «PASS: W48b ma san pham ngoai diff DI TIEP toi triage» (đối chứng dương: không được
+      lọc sạch mọi thứ ngoài diff, lớp liên-file phải sống) · «PASS: W48c mutant lam
+      triage THAY tai lieu ngoai diff (rang song)» (gỡ phép chia miền → ca đỏ).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -73,10 +77,17 @@ evals:
     cmd: config:executors.script.ktl_vung_vat_mutants
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/vung-vat-mutants.test.mjs]
     expected: >
-      Exit 0 và đầu ra có «PASS: VVM0» (đối chứng dương: bản thật IM) và «PASS: VVM1
-      mutant lam triage THAY gap-probe.md» (mutant bỏ bộ lọc → chiều im đỏ). Kim mutant
-      phải tìm thấy trong nguồn — kim không thấy là răng chết, FAIL. Chiều đỏ: tệp ca
-      không tồn tại ở cây gốc.
+      Exit 0 và đầu ra có VVM-KHAI (danh sách ngoài-vật của ca khớp ĐỊNH NGHĨA của bên
+      VIẾT, rút từ khối marker; kèm đối chứng mã răng KHÔNG khớp) · VVM0 (đối chứng
+      dương: bản thật vẫn cho finding trong vùng vật đi tiếp) · VVM-IM (chiều IM) ·
+      VVM1 (mutant gỡ bộ lọc → chiều im ĐỎ) · VVM2 (mutant đổi lọc loại-trừ thành lọc
+      bao-gồm → nuốt finding liên-file, răng sống).
+      Thêm ở lượt chấm 3: VVM-CU (bên viết đời cũ chỉ có ngoaiVatGlobs VẪN lọc được,
+      kèm cờ vàng trong log và đối chứng dương) · VVM-CU2 (vắng cả hai khoá → fail-open
+      nhưng phải KHAI ra, không im lặng).
+      Mọi kim mutant phải TÌM THẤY trong nguồn — kim không thấy là răng chết, FAIL. Hàm
+      khớp glob của ca RÚT từ nguồn bên đọc, không gõ tay (lượt chấm 3 bắt bản chép tay
+      thứ tư của globToRe ở đây).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6a
     criterion: AC-6
