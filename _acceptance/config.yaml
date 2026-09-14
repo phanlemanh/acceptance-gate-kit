@@ -299,6 +299,11 @@ executors:
     ktl_vung_vat_mutants: node tests/workflows/vung-vat-mutants.test.mjs
     ktl_carry_plan_dv10: "bash -c 'out=$(node tests/workflows/carry-plan.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: DV10\"'"
     ktl_wf_usage_u06: "bash -c 'out=$(node tests/scripts/wf-usage.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: U06 md co bang wall\"'"
+    p200_cat_so_2_13: bash _acceptance/release-2-13-0/rang-p200.sh
+    moc_diagram_2_13: bash _acceptance/release-2-13-0/rang-moc.sh --chan diagram
+    p93_theo_git_im: bash _acceptance/release-2-13-0/rang-p93.sh --chan im
+    p93_theo_git_do: bash _acceptance/release-2-13-0/rang-p93.sh --chan do
+    plugins_so_ca_2_13: bash _acceptance/release-2-13-0/rang-so-ca.sh
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

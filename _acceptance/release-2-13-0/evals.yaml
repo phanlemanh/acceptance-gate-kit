@@ -1,0 +1,139 @@
+schema_version: 1
+feature_slug: release-2-13-0
+# Khuôn theo 2.12.0: mỗi eval máy ghim MỘT dòng PASS KHÁC NHAU của chính răng nó gọi,
+# phán quyết không lấy từ mã thoát trọn suite. Mọi cmd đi qua config: ref.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.p200_cat_so_2_13
+    expected: >
+      Exit 0 và đầu ra có đúng một dòng «PASS: P200 xanh (dung 1 dong PASS cua chinh no;
+      phan quyet KHONG lay tu ma thoat tron suite; rang ban <8 hex>)». Răng là bản chép nguyên
+      thân của rang-p200.sh 2.12.0. Chiều đỏ ghim mã: 2 chưa từng chạy · 3 P200 in FAIL (số
+      hai gói không nhất quán, ca đỏ thật) · 4 nhiều hơn một dòng PASS · 5 không tới kết luận
+      · 8 không đọc được dấu bản răng. Vế giá trị «2.13.0» KHÔNG nằm trong eval — owner xác
+      nhận trên thẻ.
+    paths:
+      - .claude-plugin/plugin.json
+      - feature-loop/.claude-plugin/plugin.json
+      - GUIDE.md
+      - _acceptance/release-2-13-0/rang-p200.sh
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.moc_diagram_2_13
+    expected: >
+      Exit 0 và đầu ra có đúng một dòng «PASS: diagram-design KHONG doi ke tu lan cat so gan
+      nhat (<sha>), so doc duoc tai HEAD la 2.7.0 (doi chung duong: cua so moc..HEAD KHONG
+      rong; bo loc diagram-design/ con khop vat; rang ban <8 hex>)». Sha là mốc suy từ kho,
+      không ghim vào expected. Chiều đỏ ghim mã như 2.12.0: 2 · 3 · 4 · 5 (có đổi mà giữ số)
+      · 6 · 8.
+    paths:
+      - diagram-design/.claude-plugin/plugin.json
+      - _acceptance/release-2-13-0/rang-moc.sh
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3a
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "Exit 0, dòng cuối «Results: <n> passed, 0 failed»."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "Exit 0, dòng cuối «Results: <n> passed, 0 failed»."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3c
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.plugins_so_ca_2_13
+    expected: >
+      Exit 0 và dòng «PASS: suite plugins xanh va chay <n> ca (san 266, so mot phia — them
+      ca khong lam do; rang ban <8 hex>)» với n không nhỏ hơn 266.
+      KHÔNG dùng thẳng khoá suite như 2.12.0 làm: mốc này SỬA chính tệp suite, mà suite kết
+      bằng một câu KHÔNG kèm số và chỉ đếm `failures` — nên một sửa đổi làm bảng khối gãy
+      giữa chừng vẫn cho suite in đúng câu ấy và thoát 0 trong khi hàng chục khối im lặng
+      không chạy. Sàn 266 đo 14/09 trên cây lành trước nhát vá; so MỘT PHÍA nên thêm ca
+      không bao giờ làm đỏ. Chiều đỏ ghim mã: 2 chưa chạy được · 3 suite thoát khác 0 (hồi
+      quy thật, in các dòng FAIL) · 4 số ca ÍT HƠN sàn · 5 không đọc được số ca · 8 dấu bản
+      răng. Suite này chứa chính P93 đã vá và chiều đỏ NỘI TẠI của nó (ba chỗ tiêm vào bản
+      sao rsync) — xanh ở đây là bằng chứng chiều đỏ nội tại vẫn sống sau khi bản sao được
+      khởi tạo thành kho git.
+    paths:
+      - tests/plugins/run-tests.sh
+      - _acceptance/release-2-13-0/rang-so-ca.sh
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "Exit 0, dòng cuối «Results: all workflow tests passed»."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3e
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "Exit 0 và đầu ra «PRODUCT-MAP.md khớp hồ sơ xưởng.»"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: judgment
+    question: >
+      Đọc ## Notes của hợp đồng. Bốn khối (năm dòng số · lớp vendored · lớp lỗi tái phát ·
+      nhát cắt kế) có ĐỦ MẶT không; mỗi ô số có ghi NGUỒN RÚT không; khối 1 có nói rõ hai
+      dòng máy đo lấy từ usage-report của vòng nào và có khai giới hạn «cận dưới phồng» của
+      phép đếm lượt gọi người không. KHÔNG tính lại con số nào — đó là việc người ký làm bằng
+      mắt, và 2.12.0 đã gỡ một eval cố tính lại chúng. RIÊNG hai dòng MÁY ĐO (token và
+      phút): đối chiếu NHÃN với nguồn — hai dòng ấy có khớp từng chữ số với usage-report
+      nêu tên trong input thứ hai không. Đây là đối chiếu nhãn-với-nguồn, KHÔNG phải tính
+      lại: chính hồ sơ khai hai dòng đó là máy đo, nên nguồn của chúng kiểm được. Ba dòng
+      đếm tay giữ nguyên, không đối chiếu.
+    inputs:
+      - _acceptance/release-2-13-0/contract.md
+      - _acceptance/khoi-tim-loi-tra-phi-theo-vat/usage-report.md
+    expected: "PASS khi bốn khối có mặt, mọi ô có số thật và nguồn rút, khối 1 khai đủ ba điều trên."
+    evidence_required: [run_id, verifier, verified_at, output]
+  - id: E5a
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.p93_theo_git_im
+    expected: >
+      Exit 0 và đầu ra có dòng «PASS: P93 IM truoc fixture KHONG theo doi trong ban sao mang
+      vat (doi chung duong: ban sao chua tiem XANH; fixture rut tu nguon; vat <8 hex>; rang
+      ban <8 hex>)».
+      CHIỀU ĐỎ ĐÃ CHẠY THẬT, trước nhát vá, ngày 14/09 tại S1 — không phải lời hứa:
+      mã thoát 3 và dòng nguyên văn «DO: P93 DO vi mot tep KHONG theo doi trong ban sao —
+      phep quet van do cay LAM VIEC, khong do cay NGUON (vat 40b91d6c)». Dấu vật 40b91d6c là
+      băm của tests/plugins/run-tests.sh TRƯỚC vá; sau vá dấu ấy PHẢI khác, và chính răng in
+      nó ra để bằng chứng tự phân biệt được hai bản.
+      Mã khác: 2 chưa chạy được hoặc bản sao không mang đúng vật (băm lệch) · 4 đối chứng
+      dương hỏng · 5 P93 đỏ vì lý do khác hoặc không đúng một dòng PASS · 8 dấu bản răng.
+    paths:
+      - tests/plugins/run-tests.sh
+      - _acceptance/release-2-13-0/rang-p93.sh
+      - skills/acceptance/references/human-facing-language.md
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5b
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.p93_theo_git_do
+    expected: >
+      Exit 0 và đầu ra có dòng «PASS: P93 DO dung thong diep khi fixture vao index, cung ban
+      sao va cung vat voi chan im (doi chung duong: ban sao chua tiem XANH; vat <8 hex>; rang
+      ban <8 hex>)».
+      Hai chân dùng CÙNG bản sao git và CÙNG vật — bản sao clone cục bộ rồi CHÉP
+      tests/plugins/run-tests.sh từ cây làm việc vào, và răng KHẲNG ĐỊNH hai băm bằng nhau
+      (lệch thì mã 2). Chúng khác nhau ĐÚNG MỘT BIẾN: fixture có vào index hay không. Nhờ
+      thế phép đo phân biệt được bản đã vá với bản chưa vá — bản chưa vá đỏ ở CẢ HAI chân.
+      Dấu vật in trên dòng PASS của hai chân PHẢI trùng nhau.
+      Đối chứng dương: bản sao mang vật mà chưa có fixture phải in đúng một dòng PASS: P93
+      (mã 4 nếu không). Sau khi fixture vào index, P93 phải in FAIL kèm «cap marker
+      HFL-LAW-TABLE co 3 khoi» (mã 3 nếu vẫn xanh, mã 5 nếu đỏ vì chuỗi khác).
+    paths:
+      - tests/plugins/run-tests.sh
+      - _acceptance/release-2-13-0/rang-p93.sh
+      - skills/acceptance/references/human-facing-language.md
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
