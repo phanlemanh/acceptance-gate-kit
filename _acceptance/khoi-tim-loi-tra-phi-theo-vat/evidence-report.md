@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 67e57e339be55bcd5a6fc83b3788ee3f104d0209
-human_signoff:
+human_signoff: Mạnh 2026-09-14 — ký với 12 giới hạn đã khai, tất cả là nợ của THƯỚC, không mục nào chạm hành vi người dùng cuối
 ---
 
 # Evidence Report: khoi-tim-loi-tra-phi-theo-vat

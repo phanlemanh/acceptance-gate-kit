@@ -5,7 +5,7 @@ slug: khoi-tim-loi-tra-phi-theo-vat
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/workflows, feature-loop/scripts, scripts/gate-card.js, tests; KHÔNG chạm hooks, lib, pre-merge, recheck
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-09-14-khoi-tim-loi-tra-phi-theo-vat-design.md
 approved_by:
 approved_at:
@@ -159,6 +159,26 @@ lượt × 3 chi phí), hai nhát bị cắt khi soát bằng dữ liệu (entry
   không làm; hai thay đổi docs đi kèm vòng, răng `skill-claims` giữ SKILL.
 
 ## Notes
+
+### Giới hạn đã khai tại Cổng Bằng chứng (owner ký 14/09)
+
+Mười hai mục dưới đây do làn tìm-lỗi lượt chấm 5 xác nhận, scope-triage xếp
+NGOÀI hợp đồng, owner quyết ghi Known limits. Không mục nào chạm hành vi người
+dùng cuối — tất cả là nợ của THƯỚC. Chi tiết từng mục ở
+`evidence-report.md` mục «Known limits»; chúng đi vào hạt giống mốc 2.13.
+
+- known-limits (Ngoài-1, owner ghi tại Cổng Bằng chứng 14/09): **feature-loop/scripts/wf-usage.mjs** — wf-usage: sửa «đếm dòng thay vì đếm agent» chỉ áp cho byRole — total.agents và byModel[].agents vẫn đếm (agent × model), nên cùng một usage-report tự mâu thuẫn
+- known-limits (Ngoài-2, owner ghi tại Cổng Bằng chứng 14/09): **feature-loop/workflows/acceptance-verify.js** — Khoá `finders` mang HAI khuôn khác nhau trong cùng một hợp đồng kết quả của workflow (string[] ở dryRun, {chay,boQua} ở đường thành công)
+- known-limits (Ngoài-3, owner ghi tại Cổng Bằng chứng 14/09): **feature-loop/workflows/acceptance-verify.js** — Ba trường args mới (fileDoTrongDiff, coverageFiles, coEvalPaths) có nhánh đọc-cũ nhưng KHÔNG có cờ vàng — trái luật «đổi schema artifact phải có đường đọc-cũ + cờ vàng»
+- known-limits (Ngoài-4, owner ghi tại Cổng Bằng chứng 14/09): **tests/scripts/config-yaml-that.test.mjs** — Suite thường trực `executors.test.scripts` nay phụ thuộc cứng vào python3 + PyYAML mà không kho/tài liệu nào khai
+- known-limits (Ngoài-5, owner ghi tại Cổng Bằng chứng 14/09): **feature-loop/scripts/wf-usage.mjs** — wf-usage: số agent ở dòng tiêu đề vẫn đếm dòng (agent × model), mâu thuẫn với bảng byRole vừa được sửa trong chính diff này
+- known-limits (Ngoài-6, owner ghi tại Cổng Bằng chứng 14/09): **feature-loop/workflows/acceptance-verify.js** — acceptance-verify: khoá `finders` có HAI kiểu khác nhau trong cùng hợp đồng kết quả, và vắng hẳn ở hai đường BLOCKED
+- known-limits (Ngoài-7, owner ghi tại Cổng Bằng chứng 14/09): **feature-loop/scripts/s4-args.mjs** — Hai bản globToRe vẫn trôi ở dạng `**/<đoạn>/**`, mà ma trận VV4b được viện làm răng canh không có ô nào thuộc dạng đó
+- known-limits (Ngoài-8, owner ghi tại Cổng Bằng chứng 14/09): **tests/workflows/acceptance-verify.test.mjs** — Đo CHỈ DẪN thay vì ĐẦU RA — W47 tự truyền đáp án, tên `_acceptance/config.yaml` chỉ là trang trí
+- known-limits (Ngoài-9, owner ghi tại Cổng Bằng chứng 14/09): **tests/workflows/acceptance-verify.test.mjs** — Fixture/hàm khớp VIẾT TAY đúng khuôn bên đọc — bản chép thứ tư của `globToRe`, lại không có đối chứng âm
+- known-limits (Ngoài-10, owner ghi tại Cổng Bằng chứng 14/09): **tests/scripts/finding-line-bo-doc.test.mjs** — «Dấu sống» của phép so recheck-evidence là một chuỗi CHỈ xuất hiện khi bộ đọc BÁO LỖI
+- known-limits (Ngoài-11, owner ghi tại Cổng Bằng chứng 14/09): **tests/scripts/finding-line-bo-doc.test.mjs** — Tuyên quét LỚP nhưng chỉ assert một CON SỐ, không assert danh tính
+- known-limits (Ngoài-12, owner ghi tại Cổng Bằng chứng 14/09): **_acceptance/khoi-tim-loi-tra-phi-theo-vat/evals.yaml** — Expected của E7 hứa 4 dòng NGUYÊN VĂN nhưng cmd chỉ ghim 1, và bằng chứng ghi lại không chứa dòng nào
 
 - **Bảng dự báo năm dòng số (luật (c), 14/09) + điều kiện tin cậy:**
   | Dòng | Dự báo |
