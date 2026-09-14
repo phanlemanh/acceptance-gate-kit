@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ffa5c3a47eef320399df2850b332a8e7901d8173
+verified_commit: b2af84cd1d6bd5454111567b010778e8a8a1c5b4
 human_signoff:
 ---
 
@@ -124,3 +124,7 @@ none — every multi-run eval is uniform
 Round 6: E1/E2 (rang-p200.sh, rang-moc.sh) ghim dấu bản răng CŨ so với HEAD sau khi hai răng bị sửa — trả về S3 để đồng bộ dấu bản răng với vật đang đo.
 Round 7: verify tại 00af886e; review phát hiện commit sau đó (ffa5c3a4) sửa tiếp rang-p200.sh, evals.yaml (E1) và feature-loop/.claude-plugin/plugin.json → stale evidence, pre-merge-check chặn merge.
 Round 8: re-verify trên HEAD ffa5c3a4 (đã gồm mọi sửa hậu-round-7) — toàn bộ evals (E1, E2, E3a–E3e, E4) PASS, verified_commit khớp HEAD, đóng stale.
+
+### Re-pin lần 1 — 2026-09-14, do gộp origin/main (4 commit, dời docs) sau lượt chấm 8 PASS tại ffa5c3a4
+run_id: repin-20260914T023445Z-28270
+sha: b2af84cd1d6bd5454111567b010778e8a8a1c5b4 · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
