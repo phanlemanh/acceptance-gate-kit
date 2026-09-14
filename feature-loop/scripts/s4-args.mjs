@@ -18,6 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { globToRe } from './carry-plan.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
@@ -283,6 +284,36 @@ else if (mainBranch) diffBase = git('merge-base', mainBranch, 'HEAD');
 else if (remoteDeclared) die(`remote khai nhánh chính «${remoteDeclared}» nhưng cây này không giải được ref đó (thử cả «origin/${remoteDeclared}») — KHÔNG đoán sang tên khác; truyền --diff-base <ref>`);
 else die(`không nhận diện được nhánh chính (không remote, không ${MAIN_BRANCH_CANDIDATES.join('/')}) — truyền --diff-base <ref>`);
 const invokedSha = git('rev-parse', 'HEAD');
+
+// ── T2 (khoi-tim-loi-tra-phi-theo-vat): VÙNG VẬT — tên máy đọc cho «vật được giao» ──
+// <<<NGOAI-VAT
+// Ngoài-vật = lời khai `risk_tiers.t1_skip_globs` của repo («tệp mà một thay đổi chỉ
+// chạm nó thì không phải hành vi» — chính là phần bù của vùng vật) + VĂN BẢN hồ sơ
+// vòng (.md/.jsonl trong thư mục hồ sơ). KHÔNG thêm khoá config nào.
+//
+// Ở LẠI vùng vật, có chủ đích:
+//   · mã răng trong thư mục hồ sơ, evals.yaml, config.yaml — «thước tự dối» là lớp lỗi
+//     tỉ lệ cao nhất kit đo được; 17/94 finding trong hợp đồng của crm-onehub nằm trên
+//     mã răng, và chỉ 2 trong số đó đến từ lens đo.
+//   · MỌI tệp được khai trong `paths` của một eval, bất kể đuôi — một fixture văn bản
+//     là ĐẦU VÀO CỦA THƯỚC. Loại nó khỏi delta thì sửa fixture xong eval vẫn được carry
+//     màu xanh CŨ, và chiều đỏ mà eval tự hứa không bao giờ nổ (chiều FAIL-OPEN,
+//     gap-probe 14/09 bắt trên chính hồ sơ này).
+//
+// MỘT hàm cho CẢ `vungVat` LẪN `deltaFiles`: trước T2 hai chỗ lọc bằng hai mệnh đề
+// khác nhau (`deltaFiles` lọc thô theo tiền tố `_acceptance/`), và hai khuôn thì trôi.
+const HO_SO_VAN_BAN_GLOBS = ['_acceptance/*/**/*.md', '_acceptance/*/**/*.jsonl'];
+const t1SkipGlobs = (() => {
+  try { const v = resolveConfigList(configText, 'risk_tiers.t1_skip_globs'); return Array.isArray(v) ? v : []; }
+  catch { return []; }   // repo không khai → chỉ bỏ văn bản hồ sơ
+})();
+const ngoaiVatGlobs = [...t1SkipGlobs, ...HO_SO_VAN_BAN_GLOBS];
+const ngoaiVatRes = ngoaiVatGlobs.map(globToRe);
+const pathsKhaiRes = evals.flatMap(e => (Array.isArray(e.paths) ? e.paths : [])).map(globToRe);
+const laNgoaiVat = f => !pathsKhaiRes.some(re => re.test(f)) && ngoaiVatRes.some(re => re.test(f));
+// NGOAI-VAT>>>
+const vungVat = git('diff', '--name-only', `${diffBase}..HEAD`).split('\n').filter(f => f && !laNgoaiVat(f));
+console.error(`s4-args: vùng vật ${vungVat.length} tệp (ngoài-vật: ${ngoaiVatGlobs.length} mẫu khớp, trong đó ${t1SkipGlobs.length} do repo khai)`);
 // Nguồn giải được tên nhánh chính — vật để phép đo phân biệt đường remote với
 // đường dò tên quen (không có nó, hai đường cho cùng kết quả nên không đo được).
 // Nguồn giải được tên nhánh đi VÀO ĐẦU RA (args + một dòng khai trên stderr):
@@ -322,7 +353,10 @@ if (round >= 2 && !flags['carry-anchor'] && !flags['no-carry']) {
 }
 if (flags['carry-anchor']) {
   const anchor = git('rev-parse', flags['carry-anchor']);
-  const deltaFiles = git('diff', '--name-only', `${anchor}..HEAD`).split('\n').filter(f => f && !f.startsWith('_acceptance/'));
+  // T2: CÙNG bộ lọc với vungVat. Bản trước lọc thô theo tiền tố `_acceptance/` nên mã
+  // răng và fixture khai trong eval.paths rơi khỏi delta → eval của chúng được carry
+  // màu xanh cũ dù vật đo đã đổi (fail-open).
+  const deltaFiles = git('diff', '--name-only', `${anchor}..HEAD`).split('\n').filter(f => f && !laNgoaiVat(f));
   // K8 (gom-duc-ket-2-10-0, AC-10): danh sách này cũng là thứ làn review «conventions» cần —
   // file CHỮ không đổi so round trước thì không phải chấm lại (13/34 finding của một vòng là
   // góp ý về chữ lặp lại mỗi round). Cùng MỘT nguồn với carry-forward P1, không tính lần hai.
@@ -380,6 +414,8 @@ const args = {
   contractPath,
   invokedAt,
   invokedSha,
+  vungVat,
+  ngoaiVatGlobs,
   evalsHash,
   runBaseline,
   ...(carriedAnalyst ? { carriedAnalyst } : {}),

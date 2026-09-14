@@ -175,9 +175,19 @@
   fixture phải **suy từ vị trí script**, không hardcode; **bản base** dựng cho
   ca so-sánh phải lấy **trọn thư mục** (`git archive <sha> scripts lib`), không
   chép **danh sách file tay** — vật được đo gọi thêm một script mới là bản base
-  thiếu file, đỏ vì HẠ TẦNG chứ không vì vật (P150, 23/08). Nghi thức kiểm nhanh:
-  hỏi "nếu tôi phá vật thật trong một bản sao, phép đo này có đỏ không?" — rồi
-  phá thử một lần cho mỗi phép đo mới.
+  thiếu file, đỏ vì HẠ TẦNG chứ không vì vật (P150, 23/08).
+
+  **Nghi thức kiểm nhanh — HAI CHIỀU, phá thử cả hai cho mỗi phép đo mới:**
+  1. *Độ nhạy:* "phá vật thật trong một bản sao, phép đo này có **đỏ** không?"
+  2. *Độ đặc hiệu:* "chạm một thứ **KHÔNG phải vật** — hồ sơ của chính vòng, tài
+     liệu, thứ repo đã khai là không-phải-hành-vi — phép đo này có **IM** không?"
+
+  Chiều 2 thiếu cho tới 14/09, và vì thiếu nó **mọi luật về phạm vi của kit không
+  thể sai được trong bất kỳ phép đo nào đang chạy**: phá `rang-moc.sh` thì làn
+  review cũng đỏ, nên nó vẫn «qua» nghi thức một chiều — trong khi 20/20 refuter
+  của một lượt chấm soi hồ sơ và 0 soi vật. Hiện thân: `tests/workflows/vung-vat-mutants.test.mjs`
+  (chiều im + hai mutant: gỡ bộ lọc · đổi loại-trừ thành bao-gồm). Hồ sơ:
+  `_acceptance/khoi-tim-loi-tra-phi-theo-vat/`.
 
 - **Kit là engine — KHÔNG chứa**: product context của repo tiêu thụ, quy định
   đội (sống ở team handbook riêng), nội dung workspace `_acceptance/` của sản

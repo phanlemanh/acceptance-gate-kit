@@ -2294,4 +2294,137 @@ console.log('W40c T1: triage hong -> roi ve duong cu (refute TAT CA, moi finding
   check('W40c duong cu: khong finding nao mang khongBacBo', result.triaged.every(f => !f.khongBacBo));
 }
 
+// ═══ T2/T3: VÙNG VẬT — finder chỉ soi vật được giao ══════════════════════════
+// Mẫu ngoài-vật KHÔNG gõ tay: rút từ khối marker NGOAI-VAT của `s4-args.mjs` (bên
+// VIẾT). Gõ tay ở đây là dựng fixture đúng khuôn BÊN ĐỌC — đúng lớp lỗi gap-probe
+// nêu; rút từ nguồn thì s4-args đổi khuôn là ca này đỏ.
+const S4ARGS_SRC = readFileSync(path.join(HERE, '..', '..', 'feature-loop', 'scripts', 's4-args.mjs'), 'utf8');
+const HO_SO_GLOBS = (() => {
+  const m = S4ARGS_SRC.match(/const HO_SO_VAN_BAN_GLOBS = \[([^\]]*)\]/);
+  if (!m) throw new Error('khong rut duoc HO_SO_VAN_BAN_GLOBS tu s4-args.mjs (khoi marker NGOAI-VAT doi khuon)');
+  return m[1].split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(Boolean);
+})();
+const VV = {
+  vungVat: ['src/a.js'],
+  ngoaiVatGlobs: ['docs/**', '**/*.md', ...HO_SO_GLOBS],
+  contractPath: '/repo/_acceptance/demo/contract.md',
+};
+const VV_FIND = [
+  { title: 'trong vat', file: '/repo/src/a.js', line: 1, severity: 'high', detail: 'x' },
+  { title: 'lien file', file: '/repo/src/z.js', line: 9, severity: 'high', detail: 'caller vo vi a.js doi chu ky' },
+  { title: 'ho so', file: '/repo/_acceptance/demo/gap-probe.md', line: 1, severity: 'high', detail: 'y' },
+  { title: 'tai lieu', file: '/repo/docs/superpowers/specs/y.md', line: 1, severity: 'high', detail: 'z' },
+];
+const vvTriage = { contractUnreadable: false, triaged: [
+  { title: 'trong vat', file: 'src/a.js', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' },
+  { title: 'lien file', file: 'src/z.js', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' },
+] };
+const vvResponder = (over = {}) => responder({
+  'review:bugs': { findings: VV_FIND }, 'review:': { findings: [] },
+  triage: vvTriage, 'refute:': { refuted: false, reason: 'that' }, ...over,
+});
+
+console.log('W41 chieu IM: finding tren ho so/tai lieu bi bo TRUOC triage; prompt finder liet vung vat');
+{
+  const { result, calls, logs } = await runWorkflow(WF, baseArgs(VV), vvResponder());
+  const tri = byLabel(calls, 'triage')[0];
+  check('W41 triage KHONG nhan finding ho so/tai lieu',
+    tri && !tri.prompt.includes('gap-probe.md') && !tri.prompt.includes('specs/y.md'), tri ? tri.prompt.slice(0, 160) : '(khong co triage)');
+  check('W41 result.boNgoaiVat liet dung 2 muc', Array.isArray(result.boNgoaiVat) && result.boNgoaiVat.length === 2, JSON.stringify(result.boNgoaiVat));
+  check('W41 log noi ro so bi bo (khong im lang)', logs.some(l => /bo 2 finding ngoai vat/i.test(l)), logs.join(' | ').slice(0, 200));
+  const pb = (byLabel(calls, 'review:bugs')[0] || {}).prompt || '';
+  check('W41 prompt bugs liet vung vat src/a.js', pb.includes('src/a.js') && /vung vat/i.test(pb), pb.slice(0, 160));
+}
+
+console.log('W41b chieu DO (doi chung duong): finding LIEN-FILE o file san pham ngoai diff DI TIEP');
+{
+  const { result, calls } = await runWorkflow(WF, baseArgs(VV), vvResponder());
+  const tri = byLabel(calls, 'triage')[0];
+  check('W41b triage NHAN finding lien-file src/z.js', tri && tri.prompt.includes('src/z.js'));
+  check('W41b refute chay cho ca a.js lan z.js',
+    byLabel(calls, 'refute:').map(c => c.label).sort().join(',') === 'refute:a.js,refute:z.js',
+    byLabel(calls, 'refute:').map(c => c.label).join(','));
+  check('W41b REJECT vi 2 finding trong hop dong high', result.verdict === 'REJECT' && result.rejectFindings.length === 2, result.verdict);
+}
+
+console.log('W41c vung vat RONG -> khong spawn bugs/conventions (0 token)');
+{
+  const { calls, logs } = await runWorkflow(WF, baseArgs({ ...VV, vungVat: [] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W41c 0 call review:bugs va review:conventions',
+    byLabel(calls, 'review:bugs').length === 0 && byLabel(calls, 'review:conventions').length === 0,
+    byLabel(calls, 'review:').map(c => c.label).join(',') || '(0 finder)');
+  check('W41c log noi ro vi sao', logs.some(l => /vung vat rong/i.test(l)), logs.join(' | ').slice(0, 200));
+}
+
+console.log('W41d measurement: khong spawn khi diff khong cham file do; spawn khi cham');
+{
+  const noTest = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W41d diff chi src/a.js -> 0 call review:measurement', byLabel(noTest.calls, 'review:measurement').length === 0, String(byLabel(noTest.calls, 'review:measurement').length));
+  const withTest = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['src/a.js', 'tests/a.test.js'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W41d diff cham tests/a.test.js -> CO call review:measurement', byLabel(withTest.calls, 'review:measurement').length === 1);
+  // Kho tiêu thụ đặt răng ở `_acceptance/<slug>/rang/*.mjs` — một mẫu khớp kiểu kit
+  // (`rang*.sh`) sẽ trượt hết. Đo bằng hình dạng THẬT của kho tiêu thụ.
+  const withRang = await runWorkflow(WF, baseArgs({ ...VV, vungVat: ['_acceptance/demo/rang/a.mjs'] }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W41d diff cham ma rang trong thu muc ho so -> CO call review:measurement', byLabel(withRang.calls, 'review:measurement').length === 1);
+  const withEvalPath = await runWorkflow(WF, baseArgs({
+    ...VV, vungVat: ['lib/x.cjs'],
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['lib/**'] }],
+  }), vvResponder({ triage: { contractUnreadable: false, triaged: [] } }));
+  check('W41d diff cham file trong eval.paths -> CO call review:measurement', byLabel(withEvalPath.calls, 'review:measurement').length === 1);
+}
+
+console.log('W41e duong doc-cu: khong vungVat -> nhu cu (diff tron, khong loc, co vang)');
+{
+  const { calls, logs, result } = await runWorkflow(WF, baseArgs({ contractPath: '/repo/_acceptance/demo/contract.md' }), vvResponder());
+  const pb = byLabel(calls, 'review:bugs')[0].prompt;
+  check('W41e prompt bugs van main...HEAD, khong tien to vung vat', /main\.\.\.HEAD/.test(pb) && !/vung vat/i.test(pb), pb.slice(0, 120));
+  check('W41e khong loc dau ra: ca 4 finding toi triage',
+    (byLabel(calls, 'triage')[0].prompt.match(/"title":/g) || []).length === 4,
+    String((byLabel(calls, 'triage')[0].prompt.match(/"title":/g) || []).length));
+  check('W41e co vang trong log', logs.some(l => /vung vat khong khai/i.test(l)), logs.join(' | ').slice(0, 200));
+  check('W41e boNgoaiVat rong', Array.isArray(result.boNgoaiVat) && result.boNgoaiVat.length === 0, JSON.stringify(result.boNgoaiVat));
+}
+
+// ═══ T5: FINDING CÓ SỔ — mỗi finding sau triage để lại đúng một dòng run-log ═══
+// Vì sao: eval có id/paths/hash nên carry được, khoanh được; finding do LLM sinh tự do
+// thì KHÔNG có tên máy đọc, nên không luật nào của kit chạm được — chúng chạy lại trọn
+// mỗi lượt. Dòng này là cái tên đó. Trường khai bằng DANH SÁCH VIẾT TRƯỚC: thiếu một
+// trường là đỏ, để một trường bị bỏ quên không tàng hình.
+const FINDING_FIELDS = ['ts', 'round', 'kind', 'file', 'title', 'severity', 'source',
+  'inContract', 'acRef', 'plain', 'proposal', 'khongBacBo', 'unverified', 'unclassified'];
+
+console.log('W42 T5: moi finding sau triage co DUNG MOT dong run-log kind:finding');
+{
+  const { result } = await runWorkflow(WF, t1Args({ invokedSha: 'abc123' }), t1Responder());
+  const fl = result.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'finding');
+  check('W42 3 dong finding', fl.length === 3, String(fl.length));
+  const thieu = FINDING_FIELDS.filter(k => fl.some(l => !(k in l)));
+  check('W42 moi dong co DU danh sach truong viet truoc', fl.length === 3 && thieu.length === 0, `${fl.length} dong · thieu: ${thieu.join(',')}`);
+  const b = fl.find(l => l.title === 'B ngoai');
+  check('W42 dong ngoai hop dong: inContract=false, khongBacBo=true, plain + proposal',
+    b && b.inContract === false && b.khongBacBo === true && b.plain === 'nguoi dung thay B' && b.proposal === 'known-limits' && b.file === 'src/b.js',
+    JSON.stringify(b));
+  const a = fl.find(l => l.title === 'A trong');
+  check('W42 dong trong hop dong: inContract=true, acRef, KHONG khongBacBo',
+    a && a.inContract === true && a.acRef === 'AC-1' && a.khongBacBo === false, JSON.stringify(a));
+  check('W42 dong mang ts + sha + round, KHONG run_id',
+    fl.length === 3 && fl.every(l => l.ts === '2026-07-02T10:00:00Z' && l.sha === 'abc123' && l.round === 1 && !('run_id' in l)), `${fl.length} dong · ${JSON.stringify(fl[0])}`);
+  // Tính DUY NHẤT theo khoá: hai lane cùng báo một lỗi là chuyện thường — sổ không
+  // được nhân đôi nó, nếu không phép carry ở lượt sau đếm sai.
+  const khoa = fl.map(l => `${l.file} :: ${l.title}`);
+  check('W42 moi khoa file+tieu-de DUNG mot dong', khoa.length === 3 && new Set(khoa).size === khoa.length, JSON.stringify(khoa));
+}
+
+console.log('W42b T5: hai lane cung bao MOT loi -> van chi mot dong finding');
+{
+  const { result } = await runWorkflow(WF, t1Args(), t1Responder({
+    'review:bugs': { findings: [T1_F[0]] },
+    'review:conventions': { findings: [{ ...T1_F[0] }] },   // trùng khoá, khác lane
+    'review:': { findings: [] },
+    triage: { contractUnreadable: false, triaged: [T1_TRIAGE.triaged[0]] },
+  }));
+  const fl = result.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'finding');
+  check('W42b dedupe lien-lane: 1 dong finding', fl.length === 1, String(fl.length));
+}
+
 summary('acceptance-verify');

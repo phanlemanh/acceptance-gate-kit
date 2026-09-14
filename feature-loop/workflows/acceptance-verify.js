@@ -72,7 +72,7 @@ const tallyLine = (verdict, blockedCount, expected = 0, returned = 0) => JSON.st
 })
 const blockedEarly = (cmd, reason) => ({
   verdict: 'BLOCKED', blocked: [{ cmd, reason }], failedEvals: [], failedCommands: [], panels: [],
-  confirmedFindings: [], reviewIncomplete: [], runLog: [tallyLine('BLOCKED', 1)], runLogWriteFailed: true,
+  confirmedFindings: [], boNgoaiVat: [], reviewIncomplete: [], runLog: [tallyLine('BLOCKED', 1)], runLogWriteFailed: true,
 })
 
 if (!args || !Array.isArray(args.evals) || !Array.isArray(args.suiteCommands)) {
@@ -447,34 +447,6 @@ const baselineCmds = runBaseline ? distinctCmds.filter(c => (byCmd.get(c) || [])
 
 const LENSES = ['domain-correctness', 'operational-feasibility', 'spec-alignment']
 
-if (args.dryRun) {
-  return {
-    dryRun: true,
-    distinctCommands: distinctCmds,
-    evalsPerCommand: Object.fromEntries([...byCmd.entries()]),
-    judgePanels: freshJudgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
-    uiCheckEvals: uiEvals.map(e => e.id),
-    ungroundedJudgments: [...ungroundedIds],
-    runsPerCommand: Object.fromEntries([...cmdRuns.entries()]),
-    carriedEvals: carriedEvals.map(c => c.id),
-    carriedPanels: carriedPanels.map(p => p.evalId),
-    runBaseline,
-  }
-}
-
-// khong co gi de verify → khong duoc PASS rong. Carried KHÔNG tính là fresh: round toàn
-// carry-forward mà suite rỗng = không có gì xác nhận CÂY CODE MỚI → BLOCKED, không PASS chay.
-if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
-  const reason = (carriedEvals.length || carriedPanels.length)
-    ? 'toan bo eval/panel deu carry-forward va suite rong — khong co gi FRESH verify cay code moi cua round nay; them feature_loop.suite_keys hoac thu hep paths cua eval'
-    : ungroundedIds.size
-      // Nói ĐÚNG sự thật: judgment CÓ tồn tại, chỉ là không khai inputs nên máy
-      // không chấm được, và không còn eval máy/suite nào xác nhận cây code mới.
-      // Thông điệp cũ ("khong co judgment") sai sự thật và chỉ người sửa nhầm chỗ.
-      ? `${ungroundedIds.size} judgment eval (${[...ungroundedIds].join(', ')}) khong khai inputs nen may khong cham duoc, va khong co eval may/suite nao xac nhan cay code moi — khai inputs cho cac eval do, hoac them feature_loop.suite_keys`
-      : 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml'
-  return blockedEarly('(none)', reason)
-}
 
 log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEvals.length} eval + ${args.suiteCommands.length} suite), ${uiEvals.length} ui-check, ${freshJudgmentEvals.length} judgment x ${LENSES.length} judges`
   + (carriedEvals.length ? ` — carried ${carriedEvals.length} eval (P1)` : '')
@@ -510,6 +482,44 @@ const INFRA_EXITS = {
 const CD_GUARD = (dir) => `cd ${dir} || exit 97`
 // INFRA-EXIT-CODES>>>
 
+// Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen
+// `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
+// Tach `**` TRUOC khi doi `*`, neu khong `**` bi doi thanh hai lan `[^/]*` va het
+// khop qua dau `/`. Ky tu glob khac (`?`) duoc escape de khong thanh luong tu regex.
+function globToRe(g) {
+  const lit = t => t.replace(/[.+^${}()|[\]\\?]/g, '\\$&').replace(/\*/g, '[^/]*')
+  const body = String(g).split('**/')
+    .map(part => part.split('**').map(lit).join('.*'))
+    .join('(?:.*/)?')
+  return new RegExp('^' + body + '$')
+}
+
+// ── T2 (khoi-tim-loi-tra-phi-theo-vat): VÙNG VẬT — đọc từ s4-args, KHÔNG tự tính ──
+// `args.vungVat` vắng (SKILL/s4-args đời cũ) → đường đọc-cũ: diff trọn, không lọc,
+// cờ vàng trong log. Không bắt kho nào migrate.
+const coVungVat = Array.isArray(args.vungVat)
+const vungVat = coVungVat ? args.vungVat.filter(f => typeof f === 'string' && f) : []
+const ngoaiVatRes = (Array.isArray(args.ngoaiVatGlobs) ? args.ngoaiVatGlobs : [])
+  .filter(g => typeof g === 'string' && g).map(globToRe)
+const laNgoaiVat = pth => ngoaiVatRes.some(re => re.test(pth))
+if (!coVungVat) log('Vung vat khong khai (args.vungVat vang) — finder soi tron diff, khong loc dau ra (duong doc-cu)')
+// Lens `measurement` CHỈ spawn khi diff chạm phép đo. Tập file đo = glob tệp ca kiểm
+// thử + MỌI tệp không phải .md/.jsonl trong thư mục hồ sơ (kho tiêu thụ đặt răng ở
+// `_acceptance/<slug>/rang/*.mjs` — một mẫu kiểu kit `rang*.sh` sẽ trượt hết) + tệp
+// khai trong `eval.paths`. Không chắc → SPAWN: fail-open về phía tốn tiền, không về
+// phía bỏ sót. Hôm nay lens này vẫn chạy một tác tử opus ~3,5 M để tự trả rỗng.
+const DO_GLOBS = ['tests/**', '**/*.test.*', '**/*.spec.*'].map(globToRe)
+const evalPathRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
+const laFileDo = pth => DO_GLOBS.some(re => re.test(pth))
+  || (/^_acceptance\/[^/]+\//.test(pth) && !/\.(md|jsonl)$/.test(pth))
+  || evalPathRes.some(re => re.test(pth))
+const chamFileDo = !coVungVat || vungVat.some(laFileDo)
+// Tiền tố phạm vi: finder được TẬP TRUNG vào vùng vật, nhưng KHÔNG bị cấm báo lỗi ở
+// file khác — lớp «diff đổi chữ ký, caller ở file không đổi vỡ» phải còn đường ra.
+const vungVatScope = coVungVat && vungVat.length
+  ? `Tap trung cac file sau (vung vat — vat duoc giao cua vong nay): ${vungVat.join(', ')}. Doc file khac de hieu ngu canh thi duoc; DUOC bao finding o file KHAC neu no vo VI thay doi trong vung vat. `
+  : ''
+
 // K8: tiền tố phạm vi cho làn conventions — TÍNH TRƯỚC, không nhúng template lồng, để phần
 // thân cũ của prompt giữ NGUYÊN VĂN (răng MM6 của hồ sơ matrix-measure-law đọc quan hệ đó).
 // Lọc theo FILE ĐÃ ĐỔI so round trước — MỌI đuôi, không riêng .md. Bản đầu chỉ giữ .md
@@ -522,15 +532,52 @@ const conventionScope = Array.isArray(args.deltaFiles) && args.deltaFiles.length
 
 const REVIEWERS = [
   args.reviewSkillPath
-    ? { key: 'invariants', prompt: `Trong repo ${args.repoRoot}: doc ${args.reviewSkillPath} va lam DUNG quy trinh cua skill do tren diff ${args.diffBase}...HEAD. Tra ve danh sach violation lam findings (title=ten check/rule, detail=vi pham gi o dau). Khong tu fix.` }
+    ? { key: 'invariants', prompt: `${vungVatScope}Trong repo ${args.repoRoot}: doc ${args.reviewSkillPath} va lam DUNG quy trinh cua skill do tren diff ${args.diffBase}...HEAD. Tra ve danh sach violation lam findings (title=ten check/rule, detail=vi pham gi o dau). Khong tu fix.` }
     // K8: round ≥2 co deltaFiles (s4-args tinh tu --carry-anchor) → lan nay chi cham FILE CHU
     // da doi so round truoc. Do tren kho nay: 13/34 finding cua mot vong la gop y ve chu lap
     // lai o moi round vi lan doc lai TRON diff moi lan.
-    : { key: 'conventions', prompt: `${conventionScope}Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot} theo conventions cua repo (doc CLAUDE.md / CONTRIBUTING.md neu co): vi pham invariant kien truc, sai pattern co san, thieu validation o system boundary. CHI bao finding high-confidence. Khong tu fix.` },
-  { key: 'bugs', prompt: `Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot}, tim correctness bugs va silent failures (catch nuot loi, fallback an, error bi nuot). CHI bao finding high-confidence — khong style nit, khong suy dien.` },
+    : { key: 'conventions', prompt: `${vungVatScope}${conventionScope}Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot} theo conventions cua repo (doc CLAUDE.md / CONTRIBUTING.md neu co): vi pham invariant kien truc, sai pattern co san, thieu validation o system boundary. CHI bao finding high-confidence. Khong tu fix.` },
+  { key: 'bugs', prompt: `${vungVatScope}Review diff ${args.diffBase}...HEAD trong repo ${args.repoRoot}, tim correctness bugs va silent failures (catch nuot loi, fallback an, error bi nuot). CHI bao finding high-confidence — khong style nit, khong suy dien.` },
   // matrix-measure-law: lens do-luong — san loi trong chinh cac PHEP DO cua diff
-  { key: 'measurement', prompt: `Review CAC FILE KIEM THU/EVAL trong diff ${args.diffBase}...HEAD cua repo ${args.repoRoot} (cac file test/spec, tests/**, evals.yaml, fixtures — bo qua file khong phai phep do; diff khong cham phep do nao thi tra findings rong). San DUNG 6 hinh dang loi do-luong sau, CHI bao finding high-confidence (thay RO trong code, khong suy dien y dinh), khong style-nit, khong tu fix, khong phan xu pham-vi (viec cua triage):\n${MEASUREMENT_SHAPES.map((s, i) => `${i + 1}. ${s}`).join('\n')}\nMoi finding: title goi TEN hinh dang bi pham + detail chi dong/assert cu the va vi sao no la hinh dang do.` },
+  { key: 'measurement', prompt: `${vungVatScope}Review CAC FILE KIEM THU/EVAL trong diff ${args.diffBase}...HEAD cua repo ${args.repoRoot} (cac file test/spec, tests/**, evals.yaml, fixtures — bo qua file khong phai phep do; diff khong cham phep do nao thi tra findings rong). San DUNG 6 hinh dang loi do-luong sau, CHI bao finding high-confidence (thay RO trong code, khong suy dien y dinh), khong style-nit, khong tu fix, khong phan xu pham-vi (viec cua triage):\n${MEASUREMENT_SHAPES.map((s, i) => `${i + 1}. ${s}`).join('\n')}\nMoi finding: title goi TEN hinh dang bi pham + detail chi dong/assert cu the va vi sao no la hinh dang do.` },
 ]
+
+// T2: lane nào THẬT SỰ chạy lượt này. Vùng vật rỗng → `bugs`/`conventions`/`invariants`
+// không có vật để soi: không spawn (0 token) thay vì spawn để tự trả rỗng.
+const REVIEWERS_ACTIVE = REVIEWERS.filter(d => d.key === 'measurement' ? chamFileDo : (!coVungVat || vungVat.length > 0))
+if (coVungVat && vungVat.length === 0) log('Vung vat rong — khong spawn finder bugs/conventions (0 token)')
+if (coVungVat && !chamFileDo) log('Diff khong cham file do — khong spawn lens measurement (0 token)')
+
+if (args.dryRun) {
+  return {
+    dryRun: true,
+    distinctCommands: distinctCmds,
+    evalsPerCommand: Object.fromEntries([...byCmd.entries()]),
+    judgePanels: freshJudgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
+    uiCheckEvals: uiEvals.map(e => e.id),
+    finders: REVIEWERS_ACTIVE.map(d => d.key),
+    vungVat: coVungVat ? vungVat : null,
+    ungroundedJudgments: [...ungroundedIds],
+    runsPerCommand: Object.fromEntries([...cmdRuns.entries()]),
+    carriedEvals: carriedEvals.map(c => c.id),
+    carriedPanels: carriedPanels.map(p => p.evalId),
+    runBaseline,
+  }
+}
+
+// khong co gi de verify → khong duoc PASS rong. Carried KHÔNG tính là fresh: round toàn
+// carry-forward mà suite rỗng = không có gì xác nhận CÂY CODE MỚI → BLOCKED, không PASS chay.
+if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
+  const reason = (carriedEvals.length || carriedPanels.length)
+    ? 'toan bo eval/panel deu carry-forward va suite rong — khong co gi FRESH verify cay code moi cua round nay; them feature_loop.suite_keys hoac thu hep paths cua eval'
+    : ungroundedIds.size
+      // Nói ĐÚNG sự thật: judgment CÓ tồn tại, chỉ là không khai inputs nên máy
+      // không chấm được, và không còn eval máy/suite nào xác nhận cây code mới.
+      // Thông điệp cũ ("khong co judgment") sai sự thật và chỉ người sửa nhầm chỗ.
+      ? `${ungroundedIds.size} judgment eval (${[...ungroundedIds].join(', ')}) khong khai inputs nen may khong cham duoc, va khong co eval may/suite nao xac nhan cay code moi — khai inputs cho cac eval do, hoac them feature_loop.suite_keys`
+      : 'evals.yaml khong co eval may va khong co judgment — khong co gi de verify, kiem tra lai evals.yaml'
+  return blockedEarly('(none)', reason)
+}
 
 // ---- Machine + UI-check + Judge + Review chạy đồng thời (không phụ thuộc nhau; Judge là blind) ----
 const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
@@ -577,7 +624,7 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
   // đắt nhất là gốc của rò — luật ở tầng phán quyết vẫn đúng, thứ tự thi hành sai.
   // Barrier ở đây chỉ chờ BA finder (không chờ machine/ui/judge/baseline): cần cả ba
   // để dedupe liên-lane TRƯỚC bước đắt — hai lane cùng báo một lỗi là chuyện thường.
-  () => parallel(REVIEWERS.map(d => () =>
+  () => parallel(REVIEWERS_ACTIVE.map(d => () =>
     agentT(d.prompt, { label: `review:${d.key}`, phase: 'Review', schema: FINDINGS_SCHEMA, ...modelOpt('finder') })
       .then(res => res
         ? { key: d.key, dead: false, findings: (Array.isArray(res.findings) ? res.findings : []).map(f => ({ ...f, source: d.key })) }
@@ -818,9 +865,17 @@ const relFile = f => relPath(f && f.file)
 const distinctKey = f => `${relFile(f)} :: ${f.title}`
 const dedupe = arr => [...new Map(arr.map(f => [distinctKey(f), f])).values()]
 // Finding THÔ đã dedupe — CHƯA qua bác bỏ. Refute chạy SAU triage (T1).
-const rawFindings = dedupe(reviewResults.flatMap(r => r.findings).map(f => ({ ...f, file: relPath(f.file) })))
+// T2: lọc đầu ra theo LOẠI TRỪ, không theo bao gồm. Bỏ finding nằm trên thứ NGOÀI VẬT
+// (văn bản hồ sơ vòng, thứ repo khai là không-phải-hành-vi); GIỮ finding ở file sản
+// phẩm ngoài diff — đó là lớp liên-file, lọc-theo-bao-gồm sẽ đánh mất nó. Lens
+// `measurement` KHÔNG bị lọc: nó soi chính phép đo, đó là tầng một hợp pháp.
+const rawAll = dedupe(reviewResults.flatMap(r => r.findings).map(f => ({ ...f, file: relPath(f.file) })))
+const boNgoaiVat = coVungVat ? rawAll.filter(f => f.source !== 'measurement' && laNgoaiVat(relFile(f))) : []
+const boNgoaiVatSet = new Set(boNgoaiVat)
+const rawFindings = rawAll.filter(f => !boNgoaiVatSet.has(f))
+if (boNgoaiVat.length) log(`Vung vat: bo ${boNgoaiVat.length} finding ngoai vat (${boNgoaiVat.map(relFile).join(', ')})`)
 const reviewIncomplete = reviewResults.filter(r => r.dead).map(r => r.key)
-for (const k of REVIEWERS.map(r => r.key)) {
+for (const k of REVIEWERS_ACTIVE.map(r => r.key)) {   // T2: lane cố ý không spawn KHÔNG phải lane chết
   if (!reviewResults.some(r => r.key === k) && !reviewIncomplete.includes(k)) reviewIncomplete.push(k)
 }
 
@@ -955,6 +1010,25 @@ const triaged = triagedRaw.flatMap(f => {
 })
 const confirmedFindings = triaged
 
+// ── T5: FINDING CÓ SỔ ────────────────────────────────────────────────────────
+// Eval có id/paths/hash nên kit carry được, khoanh được, đếm được. Finding do LLM
+// sinh tự do thì KHÔNG có tên máy đọc — nên không cơ chế nào của kit chạm tới, và
+// `bugs`/`measurement`/`refute` chạy lại TRỌN mỗi lượt kể cả khi diff không đổi một
+// dòng. Dòng dưới đây là cái tên đó: lượt sau đọc nó để biết mục ngoài hợp đồng nào
+// đã phân loại rồi và file của nó có đổi không.
+// Dòng KHÔNG có `run_id` → mọi bộ đọc bằng chứng bỏ qua nó, cùng đường với dòng
+// `panel`/`baseline` (đã kiểm: round-tally-read lọc kind, loop-health đếm kind repin,
+// evidence-core/recheck chỉ đọc dòng có run_id).
+// <<<FINDING-LINE
+const findingLine = f => JSON.stringify({
+  ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'finding',
+  file: relFile(f), title: f.title, severity: f.severity || '', source: f.source || '',
+  inContract: f.inContract === true, acRef: f.acRef || '', plain: f.plain || '', proposal: f.proposal || '',
+  khongBacBo: f.khongBacBo === true, unverified: f.unverified === true, unclassified: f.unclassified === true,
+})
+// FINDING-LINE>>>
+for (const f of triaged) runLogLines.push(findingLine(f))
+
 // T1 giữ bất biến 27/07: unverified (refuter CHẾT) KHÔNG BAO GIỜ kéo REJECT và
 // KHÔNG vào fix-list. Trước T1 điều đó tự đúng vì finding unverified chưa từng qua
 // triage nên không thể mang inContract; nay triage chạy TRƯỚC nên phải nói ra bằng
@@ -966,19 +1040,8 @@ const triageHighInContract = triageFailed ? [] : triaged.filter(f => f.inContrac
 // Tín hiệu cụm-ngoài-vùng-phủ: findings dồn vào file không eval nào đo = hợp đồng
 // đang hụt. Ngưỡng ≥2 — một finding lẻ không đẩy người vào quyết định mở-rộng-hay-rút.
 // Glob tối giản: ** = mọi thứ, * = trong một đoạn đường dẫn.
-// Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen
-// `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
-// Tach `**` TRUOC khi doi `*`, neu khong `**` bi doi thanh hai lan `[^/]*` va het
-// khop qua dau `/`. Ky tu glob khac (`?`) duoc escape de khong thanh luong tu regex.
-function globToRe(g) {
-  const lit = t => t.replace(/[.+^${}()|[\]\\?]/g, '\\$&').replace(/\*/g, '[^/]*')
-  const body = String(g).split('**/')
-    .map(part => part.split('**').map(lit).join('.*'))
-    .join('(?:.*/)?')
-  return new RegExp('^' + body + '$')
-}
 
-const coverageRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
+const coverageRes = evalPathRes   // T2: cùng một tập glob với bộ lọc vùng vật — không tính hai lần
 // Path đã chuẩn hoá bằng relFile khai ở đầu bước Triage — cùng một phép cho khoá
 // ghép, dedupe và vùng phủ, để ba chỗ không trôi khỏi nhau.
 // Đếm theo finding PHÂN BIỆT (file+title), không theo số lượt báo: hai reviewer
@@ -1162,6 +1225,7 @@ if (!prov || typeof prov !== 'object') {
     carried: { evals: carriedEvals.map(c => c.id), panels: carriedPanels.map(p => p.evalId), baseline: !runBaseline },
     confirmedFindings,
     rejectFindings,
+    boNgoaiVat: boNgoaiVat.map(f => ({ file: relFile(f), title: f.title, source: f.source || '' })),
     nonDiscriminating,
     variance: varianceCmds.map(m => ({ cmd: m.cmd, evals: m.evals, runs: m.runs, passRate: `${m.passes}/${m.runs}` })),
     triaged,
@@ -1213,6 +1277,7 @@ return {
   triaged,
   triageFailed,
   rejectFindings,
+  boNgoaiVat: boNgoaiVat.map(f => ({ file: relFile(f), title: f.title, source: f.source || '' })),
   coverageCluster,
   reviewIncomplete,
   nonDiscriminating,

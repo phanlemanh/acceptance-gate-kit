@@ -78,7 +78,9 @@ function parseArgs(argv) {
 
 // glob → RegExp: cùng ngữ nghĩa với matcher paths của kit (** xuyên thư mục,
 // * trong một cấp, ? một ký tự) — anchor trọn chuỗi.
-function globToRe(g) {
+// XUẤT ra vì `s4-args.mjs` dùng CHÍNH hàm này cho bộ lọc vùng vật (T2): hai bản
+// khớp glob là hai khuôn sẽ trôi, và phép đo VV4 rút từ đây để đo round-trip.
+export function globToRe(g) {
   let re = '';
   for (let i = 0; i < g.length; i++) {
     const c = g[i];
