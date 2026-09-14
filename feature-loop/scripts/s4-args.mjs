@@ -312,8 +312,21 @@ const ngoaiVatRes = ngoaiVatGlobs.map(globToRe);
 const pathsKhaiRes = evals.flatMap(e => (Array.isArray(e.paths) ? e.paths : [])).map(globToRe);
 const laNgoaiVat = f => !pathsKhaiRes.some(re => re.test(f)) && ngoaiVatRes.some(re => re.test(f));
 // NGOAI-VAT>>>
-const vungVat = git('diff', '--name-only', `${diffBase}..HEAD`).split('\n').filter(f => f && !laNgoaiVat(f));
-console.error(`s4-args: vùng vật ${vungVat.length} tệp (ngoài-vật: ${ngoaiVatGlobs.length} mẫu khớp, trong đó ${t1SkipGlobs.length} do repo khai)`);
+const diffTatCa = git('diff', '--name-only', `${diffBase}..HEAD`).split('\n').filter(Boolean);
+const vungVat = diffTatCa.filter(f => !laNgoaiVat(f));
+console.error(`s4-args: vùng vật ${vungVat.length}/${diffTatCa.length} tệp (ngoài-vật: ${ngoaiVatGlobs.length} mẫu khớp, trong đó ${t1SkipGlobs.length} do repo khai)`);
+// Hai ca «vùng vật rỗng» KHÁC HẲN nhau và phải nói ra khác nhau — nếu không, một mốc
+// so SAI trông y hệt một vòng chỉ-đổi-tài-liệu, và làn chấm bỏ finder vì lý do sai:
+//   · diff TỔNG rỗng  → mốc so trùng HEAD (hay gặp khi làm thẳng trên nhánh chính,
+//     vì merge-base(main, HEAD) = HEAD). Đây là HẠ TẦNG neo sai, không phải sự thật
+//     về vật — fail-LOUD, người truyền --diff-base tường minh rồi chạy lại.
+//   · diff tổng KHÁC rỗng mà vùng vật rỗng → vòng chỉ chạm tài liệu/hồ sơ. Hợp lệ.
+if (!diffTatCa.length) {
+  console.error(`s4-args: DIFF RỖNG — «${diffBase}» trùng HEAD, nên không có vật nào để chấm.`);
+  console.error('s4-args: làm thẳng trên nhánh chính thì merge-base(nhánh-chính, HEAD) = HEAD — truyền --diff-base <mốc trước vòng> rồi chạy lại.');
+  process.exit(2);
+}
+if (!vungVat.length) console.error(`s4-args: vùng vật rỗng nhưng diff có ${diffTatCa.length} tệp — vòng này chỉ chạm tài liệu/hồ sơ; làn tìm-lỗi sẽ không spawn (đúng thiết kế).`);
 // Nguồn giải được tên nhánh chính — vật để phép đo phân biệt đường remote với
 // đường dò tên quen (không có nó, hai đường cho cùng kết quả nên không đo được).
 // Nguồn giải được tên nhánh đi VÀO ĐẦU RA (args + một dòng khai trên stderr):

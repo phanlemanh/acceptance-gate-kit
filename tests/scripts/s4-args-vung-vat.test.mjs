@@ -153,5 +153,36 @@ const loi = e => String((e && e.stderr) || (e && e.message) || e).split('\n').fi
   } catch (e) { bad('VV3/VV5 s4-args lỗi', loi(e)); }
 }
 
+// ── VV6: hai ca «vùng vật rỗng» phải nói ra KHÁC nhau ──────────────────────
+// Làm thẳng trên nhánh chính thì merge-base(nhánh-chính, HEAD) = HEAD → diff rỗng →
+// vùng vật rỗng → làn tìm-lỗi không spawn. Nếu im lặng, một mốc so SAI trông y hệt một
+// vòng chỉ-đổi-tài-liệu. Gặp thật khi chạy S4 cho chính hồ sơ này (14/09).
+{
+  const d = buildRepo();
+  try {
+    // (a) mốc so TRÙNG HEAD → fail-LOUD, exit khác 0, KHÔNG sinh tệp args
+    let raA = null;
+    try { run(d, '--diff-base', 'feat'); raA = 'KHONG NO'; }
+    catch (e) { raA = String((e && e.stderr) || ''); }
+    if (raA !== 'KHONG NO' && /DIFF RỖNG/.test(raA) && /--diff-base/.test(raA))
+      ok('VV6a mốc so trùng HEAD → fail-loud có tên, chỉ đúng cách sửa');
+    else bad('VV6a mốc so trùng HEAD KHÔNG nổ (hạ tầng neo sai trông như vòng sạch)', String(raA).slice(0, 160));
+    // (b) đối chứng dương: diff có tệp nhưng TOÀN tài liệu → đi tiếp, nói rõ lý do
+    const d2 = buildRepo();
+    execFileSync('git', ['-C', d2, 'checkout', '-q', 'main']);
+    execFileSync('git', ['-C', d2, 'checkout', '-qb', 'chi-tai-lieu']);
+    writeFileSync(path.join(d2, 'docs', 'note.md'), 'chi doi tai lieu\n');
+    git(d2, 'add', '-A'); git(d2, 'commit', '-qm', 'chi tai lieu');
+    let ghiChu = '';
+    try { execFileSync(process.execPath, [S4ARGS, '--slug', 'demo', '--root', d2, '--ag-root', KIT,
+      '--out', path.join(d2, 'a.json'), '--diff-base', 'main'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); }
+    catch (e) { ghiChu = 'NO: ' + String(e.stderr || '').slice(-160); }
+    const a2 = ghiChu ? null : JSON.parse(readFileSync(path.join(d2, 'a.json'), 'utf8'));
+    if (a2 && Array.isArray(a2.vungVat) && a2.vungVat.length === 0)
+      ok('VV6b đối chứng dương: diff toàn tài liệu → vùng vật rỗng nhưng VẪN sinh args (hợp lệ)');
+    else bad('VV6b diff toàn tài liệu lại không sinh được args', ghiChu || JSON.stringify(a2 && a2.vungVat));
+  } catch (e) { bad('VV6 s4-args lỗi', loi(e)); }
+}
+
 console.log(`\nResults: ${pass} passed, ${fail} failed (s4-args-vung-vat)`);
 process.exit(fail ? 1 : 0);
