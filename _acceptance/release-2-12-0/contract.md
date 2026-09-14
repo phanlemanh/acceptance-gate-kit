@@ -70,40 +70,50 @@ bằng đúng phép thử «vô nghĩa với một công ty khác dùng kit».
 
 ## Criteria
 
-### AC-1 (cắt số) — 2.12.0 nhất quán ở mọi bề mặt người dùng đọc
+### AC-1 (cắt số) — MỘT số, nhất quán ở mọi bề mặt người dùng đọc
 
 **Given** cây tại HEAD của hồ sơ mốc
 **When** chạy ca thường trực `P200`
-**Then** hai plugin `acceptance-gate` và `feature-loop` cùng mang `2.12.0`; `GUIDE.md`
-dẫn xuất số từ manifest chứ không gõ tay; và mục mô tả của chính số đó nói người dùng
-nhận gì. Ca `P200` là ca VĨNH VIỄN đọc mọi số TỪ manifest — hồ sơ này KHÔNG dựng dàn
+**Then** hai plugin `acceptance-gate` và `feature-loop` cùng mang **MỘT** số; cả ba số
+hợp semver; `GUIDE.md` dẫn xuất số ĐÓ từ manifest chứ không gõ tay; mục mô tả của chính
+số đó nói người dùng nhận gì; và `feature-loop` tự khai cặp `acceptance-gate >= <số đó>`.
+
+*Vế GIÁ TRỊ («số đó là `2.12.0`») KHÔNG thuộc vế Then này — owner quyết lượt chấm 5.*
+Then cũ khẳng định literal `2.12.0`, nhưng không mắt nào trong chuỗi đo đọc con số ấy:
+`P200` lấy `const V = A.v.version` rồi suy MỌI vế từ V và tự khai «cố ý không canh số đã
+tăng so với base», nên eval xanh ở mọi HEAD có ba manifest tự-nhất-quán — kể cả 2.11.0
+hay 2.13.0. Ghim literal vào răng thì đổi lại hồ sơ ĐÃ KÝ đỏ giả ở mọi HEAD sau 2.13.0.
+Không đường nào giữ cả hai, nên vế giá trị về đúng chủ: **`2.12.0` là điều owner khai ở
+Cổng Đáng và xác nhận MỘT dòng trên thẻ ở Cổng Bằng chứng**; máy giữ vế QUAN HỆ, thứ nó
+giữ được ở mọi HEAD tương lai. Đây là «điều-chỉ-người-biết» theo đúng luật lời mời cổng,
+không phải một giới hạn chưa vá được. Ca `P200` là ca VĨNH VIỄN đọc mọi số TỪ manifest — hồ sơ này KHÔNG dựng dàn
 đo dùng-một-lần, vì ba mốc 2.0.0 · 2.1.0 · 2.2.0 mỗi lần tự dựng một dàn riêng và mỗi
 vòng soi lại tìm ra một cách nó không đo thật.
 
-### AC-2 (cắt số) — `diagram-design` giữ 2.7.0, có bằng chứng đo được KHÔNG fail-open
+### AC-2 (cắt số) — `diagram-design` không đổi KỂ TỪ lần cắt số của chính nó, đo được và KHÔNG fail-open
 
 **Given** `diagram-design/` không đổi dòng nào trong cửa sổ
 **When** chạy `rang-moc.sh --chan diagram` của hồ sơ này
-**Then** răng xanh, in ra ĐÚNG chuỗi `giu 2.7.0`, và nó xanh vì ĐO chứ không vì thiếu
-vật. BẢY lối hỏng có mã thoát riêng: 2 cờ sai hoặc thiếu giá trị · 3 không tìm được lần
-cắt số · 4 cửa sổ rỗng · 5 có đổi sau lần cắt số · 6 không đọc được số tại HEAD ·
-**7 số tại HEAD KHÁC số tại mốc phát hành trước** (VẬT nói dối) · **8 không có NỀN để
-đo** — ROOT không phải kho git · pathspec `diagram-design/` không khớp tệp nào · không
-suy được mốc trước · không đọc được số tại HEAD hoặc tại mốc trước (HẠ TẦNG của phép
-đo). Mã 2 và 8 thêm ở lượt chấm 4 và 5; 7 tách khỏi 8 để một lời hứa ĐÃ SAI không trông
-giống một phép đo CHƯA CÓ NỀN.
+**Then** răng xanh và nó xanh vì ĐO chứ không vì thiếu vật: mốc so là lần CẮT SỐ gần
+nhất của chính `diagram-design`, suy TỪ KHO; cửa sổ mốc..HEAD phải KHÔNG rỗng; và
+pathspec `diagram-design/` phải còn khớp vật trong cây. SÁU lối hỏng có mã thoát riêng:
+2 cờ sai / thiếu giá trị / cờ lạ · 3 không tìm được lần cắt số · 4 cửa sổ rỗng ·
+**5 `diagram-design/` CÓ đổi sau lần cắt số** (VẬT nói dối) · 6 không đọc được số tại
+HEAD · **8 không có NỀN để đo** — ROOT không phải kho git, hoặc pathspec chết (HẠ TẦNG
+của phép đo). Mã 5 nói về VẬT; 2, 6 và 8 nói về HẠ TẦNG của phép đo.
 
-Chân 7 thêm sau phản biện context sạch. Ba chân đầu chỉ kiểm một VỊ TỪ («không đổi kể
-từ lần cắt số của CHÍNH NÓ») rồi IN RA bất kỳ số nào đọc được, trong khi hợp đồng hứa
-một QUAN HỆ («giữ 2.7.0» — bằng số của mốc trước). Không có chân 7, ở mốc sau nữa khi
-`diagram-design` đã lên 2.8.0, răng vẫn PASS và in «giu 2.8.0» — ghim lại được bằng
-cách rỗng nghĩa.
+*Chân 4 và mã 7 ĐÃ TRỪ — owner quyết lượt chấm 5.* Bản lượt 2–4 có thêm chân 4 so số
+tại HEAD với số tại mốc phát hành TRƯỚC, để vế Then «giữ 2.7.0» không rỗng nghĩa. Nhưng
+chân ấy tương đối với HEAD: ở chiến dịch ghim lại kế, khi `diagram-design` lên 2.8.0,
+mốc phát hành «trước» suy ra là đuôi của chính mốc 2.12.0 (nơi số còn 2.7.0) nên răng
+của hồ sơ ĐÃ KÝ đỏ vĩnh viễn vì một sự thật không liên quan đến nó — ĐÚNG lý do bản đầu
+tiên của răng bị bác ở lượt chấm 1. Vế giá trị `2.7.0` vì thế đi cùng đường với AC-1:
+owner khai ở Cổng Đáng, xác nhận một dòng trên thẻ; máy giữ vế «không đổi kể từ lần cắt
+số của CHÍNH NÓ», thứ đúng ở mọi HEAD tương lai nên hồ sơ đã ký còn ghim lại được.
 
-**Hai mốc so đều SUY TỪ KHO, không sha nào gõ vào cấu hình hay vào `expected`.** Chân
-1..3 tìm lần cắt số gần nhất của chính `diagram-design`; chân 7 đi ngược lịch sử manifest
-của `acceptance-gate` tới commit đầu tiên mang số khác số tại HEAD. Lượt chấm 3 bắt được
-hậu quả của việc gõ sha: `expected` ghim `45e5f1d8` trong khi răng in `ef36d81f`, tức
-một lời khai không bao giờ đối chiếu được.
+**Mốc so SUY TỪ KHO, không sha nào gõ vào cấu hình hay vào `expected`.** Lượt chấm 3 bắt
+được hậu quả của việc gõ sha: `expected` ghim `45e5f1d8` trong khi răng in `ef36d81f`,
+tức một lời khai không bao giờ đối chiếu được.
 
 ### AC-3 (không hồi quy) — bốn suite và bản đồ sản phẩm XANH tại HEAD của mốc
 
@@ -134,8 +144,8 @@ Quét bằng `morphological-scan`, preset test-matrix. Hai trục, không gian C
 | VẬT bị đo | manifest của ba plugin · `GUIDE.md` · `diagram-design/` · bốn suite · hồ sơ mốc |
 | CHIỀU | xanh (số nhất quán) · đỏ (số lệch / có đổi mà giữ số) · không-đo-được (vật vắng) |
 
-Ô Core có AC phủ: số nhất quán ở mọi bề mặt (AC-1) · giữ số CÓ căn cứ với bảy lối hỏng
-riêng (AC-2) · hồi quy bốn suite (AC-3) · hồ sơ mốc đủ bốn khối (AC-4).
+Ô Core có AC phủ: MỘT số nhất quán ở mọi bề mặt (AC-1) · không đổi kể từ lần cắt số
+của chính nó, với sáu lối hỏng riêng (AC-2) · hồi quy bốn suite (AC-3) · hồ sơ mốc đủ bốn khối (AC-4).
 
 Ô Never: «số đã tăng so với base» — đã TRỪ khỏi P200 từ 18/08 vì nó kéo theo một mốc
 di động làm mọi làn song song đỏ oan ngay sau khi mốc merge.
@@ -231,6 +241,10 @@ quyết «không cần đọc vật» — và ba trong số đó hiển thị tr
 Bằng chứng, tức ba P0 trông như đã đóng trong khi hai đã quay về trạng thái chỉ-khai-giới-
 hạn. Nghi thức cho nhát trừ kế: sau khi gỡ một vật, `grep` tên nó trong TRỌN hồ sơ và
 đối chiếu từng ô `fixed` với `decisions.jsonl`, đừng tin câu đã viết.
+
+**Vế GIÁ TRỊ của AC-1 và AC-2 là điều-chỉ-người-biết, không phải giới hạn chưa vá.**
+Owner quyết ở lượt chấm 5; căn cứ và hệ quả viết ngay trong AC-1 và AC-2, không nhắc lại
+ở đây. Hệ quả cho chiến dịch ghim lại: hồ sơ này xanh ở mọi HEAD tương lai.
 
 **Ngưỡng đang đếm cho cả hai:** ≥1 mốc nữa mà ba dòng số bị phát hiện SAI sau khi ký.
 Khi đó lối vá đúng tầng không phải một eval trong hồ sơ mốc, mà là lệnh `signoff` ghi số

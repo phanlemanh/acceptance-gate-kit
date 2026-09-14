@@ -64,33 +64,28 @@ evals:
     executor: script
     cmd: config:executors.script.moc_diagram_2_12
     expected: >-
-      Răng thoát 0 và in dòng PASS chứa `giu 2.7.0 BANG so tai moc truoc <sha>`, kèm đối
-      chứng dương «cửa sổ mốc..HEAD KHÔNG rỗng» — tức xanh vì ĐO, không vì thiếu vật.
-      KHÔNG ghim sha vào câu này: cả mốc so của chân 1..3 lẫn mốc phát hành trước của
-      chân 7 đều SUY TỪ KHO, nên một sha gõ cứng ở đây sẽ lệch ngay lần cắt số kế và
-      biến `expected` thành lời khai không ai đối chiếu được (bắt ở lượt chấm 3).
-      BẢY lối hỏng có mã thoát riêng: 2 cờ sai hoặc thiếu giá trị · 3 không tìm được
-      lần cắt số · 4 cửa sổ rỗng · 5 `diagram-design/` CÓ đổi sau lần cắt số · 6 không
-      đọc được số tại HEAD · 7 số tại HEAD KHÁC số tại mốc trước · 8 KHÔNG CÓ NỀN để
-      đo — bốn vế: ROOT không phải kho git · pathspec `diagram-design/` không khớp tệp
-      nào · không suy được mốc trước · không đọc được số tại HEAD hoặc tại mốc trước. Lượt chấm 4 tách 7 khỏi 8: bản trước cho cả ba ca «không suy được
-      mốc trước», «không đọc được số tại mốc trước» và «hai số khác nhau» cùng mã 7,
-      nên một lời hứa ĐÃ SAI trông y như một phép đo CHƯA CÓ NỀN. Giờ 7 chỉ nói về
-      VẬT, 8 nói về HẠ TẦNG của phép đo.
-      CHIỀU ĐỎ ĐÃ CHẠY THẬT ở lượt 4, ghim cả mã thoát lẫn thông điệp: lối 0 bản
-      nguyên vẹn → 0 · lối 2 `--chan` thiếu giá trị → 2 «--chan thieu gia tri» (bản
-      trước TREO VÔ HẠN vì `shift 2` thất bại, không thoát) · lối 2 `--moc-truoc`
-      thiếu giá trị → 2 · lối 7 trỏ `--moc-truoc 2ed1c3e4` (nơi `diagram-design` mang
-      2.5.0) → 7 in cả hai số · lối 8 đột biến trỏ manifest acceptance-gate vào một
-      đường không tồn tại → 8 «khong doc duoc so acceptance-gate tai HEAD».
-      PHÉP VI PHÂN của lối 8 — chốt rỗng này là phát hiện in-contract duy nhất của
-      lượt 4: cùng đột biến ấy chạy trên bản CHƯA vá thoát 0 và in «giu 2.7.0 BANG so
-      tai moc truoc 3f492e2e», tức suy mốc phát hành «trước» ra một commit NẰM TRONG
-      chính cửa sổ đang đo — phép so quan hệ thoái hoá thành so mốc với CHÍNH NÓ, không
-      một dòng cảnh báo. Đó là fail-open im lặng mà AC-2 cấm tường minh.
-      CHƯA chạy chiều đỏ: lối 3, 4, 5, 6 (cần dựng kho giả có lịch sử riêng; không dựng
-      vì đó là thêm dàn đo, trái lối 1) — riêng lối 4 và 6 có chú thích trong răng khai
-      đã nổ thật lúc dựng ở cửa sổ trước. Khai là giới hạn, không khai là đã chứng minh.
+      Răng thoát 0 và in dòng PASS nêu mốc so suy TỪ KHO, kèm BA đối chứng dương của
+      chính phép đo: «cửa sổ mốc..HEAD KHÔNG rỗng» · «bộ lọc `diagram-design/` còn khớp
+      vật» · dấu bản răng. Tức xanh vì ĐO, không vì thiếu vật.
+      KHÔNG ghim sha vào câu này: mốc so SUY TỪ KHO, nên một sha gõ cứng ở đây sẽ lệch
+      ngay lần cắt số kế và biến `expected` thành lời khai không ai đối chiếu được (bắt
+      ở lượt chấm 3).
+      SÁU lối hỏng có mã thoát riêng: 2 cờ sai / thiếu giá trị / cờ lạ · 3 không tìm
+      được lần cắt số · 4 cửa sổ rỗng · 5 `diagram-design/` CÓ đổi sau lần cắt số (VẬT
+      nói dối) · 6 không đọc được số tại HEAD · 8 KHÔNG CÓ NỀN để đo (ROOT không phải
+      kho git · pathspec chết). Mã 7 và chân 4 ĐÃ TRỪ ở lượt chấm 5 theo quyết định của
+      owner: chân ấy tương đối với HEAD nên hồ sơ ĐÃ KÝ sẽ đỏ giả ở chiến dịch ghim lại
+      kế — căn cứ đầy đủ ở AC-2. Số mã giữ chỗ trống, KHÔNG dồn lại, để hồ sơ cửa sổ
+      trước còn trỏ tới mã 7 theo nghĩa cũ không hoá sai.
+      CHIỀU ĐỎ ĐÃ CHẠY THẬT (lượt 4 và 5), ghim cả mã thoát lẫn thông điệp: bản nguyên
+      vẹn → 0 · `--chan` thiếu giá trị → 2 (bản trước TREO VÔ HẠN vì `shift 2` thất bại,
+      không thoát một dòng nào) · `--chan` sai giá trị → 2 · cờ lạ `--moc-truoc` sau khi
+      trừ → 2 · ROOT không phải kho git → 8 (bản trước báo mã 6, tức khai một thất bại
+      của THƯỚC thành sự thật về VẬT) · pathspec gõ sai một chữ `diagram-desgin/` → 8,
+      kèm PHÉP VI PHÂN: cùng đột biến trên bản CHƯA vá thoát 0 vì «rỗng» có hai nghĩa.
+      CHƯA chạy chiều đỏ: lối 3, 4, 5 (cần dựng kho giả có lịch sử riêng; không dựng vì
+      đó là thêm dàn đo, trái lối 1) — riêng lối 4 và 6 có chú thích trong răng khai đã
+      nổ thật lúc dựng ở cửa sổ trước. Khai là giới hạn, không khai là đã chứng minh.
     paths:
       - "diagram-design/.claude-plugin/plugin.json"
       - "_acceptance/release-2-12-0/rang-moc.sh"
