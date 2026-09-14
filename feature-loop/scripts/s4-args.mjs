@@ -328,12 +328,12 @@ const ngoaiVatFiles = diffTatCa.filter(laNgoaiVat);
 // `fileDoTrongDiff` = tệp trong vùng vật được coi là MÃ ĐO. Định nghĩa sống ở ĐÂY, một
 // chỗ: mẫu tệp kiểm thử repo khai (hoặc mặc định engine) · mã trong thư mục hồ sơ ·
 // `_acceptance/config.yaml` (nơi mọi `cmd` của eval thật sự sống) · tệp trong eval.paths.
-const DO_GLOBS_MAC_DINH = ['tests/**', '**/*.test.*', '**/*.spec.*', '**/spec/**', '**/__tests__/**'];
-const doGlobs = (() => {
-  try { const v = resolveConfigList(configText, 'feature_loop.do_globs'); return (Array.isArray(v) && v.length) ? v : DO_GLOBS_MAC_DINH; }
-  catch { return DO_GLOBS_MAC_DINH; }
-})();
-const doRes = doGlobs.map(globToRe);
+// KHONG co khoa config cho tap nay — hop dong vong nay khai dich danh «khoa config moi
+// cho vung vat» la Out of scope, va toi da mo lai no trong mot luot SUA (luot cham 2 bat).
+// Mau co dinh trong engine; kho tieu thu dat rang o cho la van duoc phu boi hai ve duoi
+// (moi tep khong .md/.jsonl trong thu muc ho so · tep khai trong eval.paths).
+const DO_GLOBS = ['tests/**', '**/*.test.*', '**/*.spec.*', '**/spec/**', '**/__tests__/**'];
+const doRes = DO_GLOBS.map(globToRe);
 const laFileDo = f => doRes.some(re => re.test(f))
   || f === '_acceptance/config.yaml'
   || (/^_acceptance\/[^/]+\//.test(f) && !/\.(md|jsonl)$/.test(f))
@@ -421,7 +421,17 @@ if (flags['carry-anchor']) {
     if (Array.isArray(plan.carriedFindings) && plan.carriedFindings.length) carriedFindings = plan.carriedFindings;  // T5
   } catch (e) {
     const code = e && typeof e.status === 'number' ? e.status : null;
-    if (code === 3) console.error('s4-args: carry-plan exit 3 — run-log cũ chưa có sha, full re-run (mặc định an toàn)');
+    if (code === 3) {
+      // Exit 3 = «EVAL không carry», KHÔNG phải «không có gì để đọc». carry-plan vẫn in
+      // JSON trên stdout vì carry FINDING (T5) không dựa vào sha — bản trước bỏ luôn cả
+      // hai, nên một sổ thiếu sha làm mọi finding ngoài hợp đồng bị chấm lại từ đầu.
+      let nFinding = 0;
+      try {
+        const p3 = JSON.parse(String(e.stdout || ''));
+        if (Array.isArray(p3.carriedFindings) && p3.carriedFindings.length) { carriedFindings = p3.carriedFindings; nFinding = p3.carriedFindings.length; }
+      } catch { /* stdout rỗng (carry-plan đời cũ) → không carry finding, đúng mặc định an toàn */ }
+      console.error(`s4-args: carry-plan exit 3 — run-log cũ chưa có sha, EVAL chạy lại toàn bộ (mặc định an toàn); carry finding vẫn giữ: ${nFinding}`);
+    }
     else die(`carry-plan.mjs lỗi (exit ${code}): ${String(e.stderr || e.message || '').split('\n')[0]}`);
   }
 }

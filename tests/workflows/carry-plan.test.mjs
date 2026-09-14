@@ -1,7 +1,7 @@
 // DV7/DV8/DV9 — carry-plan.mjs: ma trận P1 VIẾT-TRƯỚC cho round fix (khuôn
 // P105: số assert = số phần tử của lớp, không tuyên khống). Fixture code-sinh,
 // đường dẫn suy từ vị trí test.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync, appendFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -183,6 +183,54 @@ console.log('DV10 carriedFindings: ngoai hop dong + file khong doi (round-trip t
   const rCu = run(dCu, 'src/a/y.js');
   check('DV10 duong doc-cu: so khong co dong finding -> carriedFindings rong, khong loi',
     rCu.code === 0 && Array.isArray(rCu.json.carriedFindings) && rCu.json.carriedFindings.length === 0, JSON.stringify(rCu.json && rCu.json.carriedFindings));
+}
+
+console.log('DV11 noCarry (thieu sha) KHONG duoc keo theo carry FINDING');
+{
+  // Lượt chấm 2 bắt: `plan()` trả `{ noCarry: true }` ở cửa ngõ SHA, TRƯỚC khi tính
+  // `carriedFindings` — và CLI biến nó thành exit 3 không in gì. Hai đường carry độc
+  // lập nhau (dòng `finding` không mang sha), nên một sổ thiếu sha làm rụng luôn khoản
+  // tiền mà T5 sinh ra để cắt, và thông điệp chỉ nói về eval nên không ai thấy.
+  const WF = path.join(HERE, '..', '..', 'feature-loop', 'workflows', 'acceptance-verify.js');
+  const wfSrc = readFileSync(WF, 'utf8');
+  const a0 = wfSrc.indexOf('<<<FINDING-LINE'), b0 = wfSrc.indexOf('FINDING-LINE>>>');
+  const KHOA = [...new Set([...wfSrc.slice(a0, b0).matchAll(/(?:^|[{,]\s*)([a-zA-Z][a-zA-Z0-9]*):/gm)].map(m => m[1]))];
+  const dong = (over) => JSON.stringify({ ...Object.fromEntries(KHOA.map(k => [k,
+    k === 'kind' ? 'finding' : k === 'ts' ? '2026-08-05T00:00:00Z' : k === 'sha' ? SHA : k === 'round' ? 1
+    : k === 'severity' ? 'high' : k === 'source' ? 'bugs'
+    : ['inContract', 'unverified', 'unclassified'].includes(k) ? false : k === 'khongBacBo' ? true : ''])), ...over });
+  const themFinding = (d) => appendFileSync(path.join(d, 'run-log.jsonl'),
+    dong({ file: 'src/old/x.js', title: 'ngoai A', plain: 'nguoi dung thay A', proposal: 'known-limits' }) + '\n');
+  // Chạy có BẮT stdout cả khi mã thoát khác 0 — `run()` ở trên nuốt stdout của nhánh lỗi.
+  const chay = (d) => {
+    const r = spawnSync('node', [CP,
+      '--run-log', path.join(d, 'run-log.jsonl'), '--evals', path.join(d, 'evals.yaml'),
+      '--contract', path.join(d, 'contract.md'), '--delta-files', 'nowhere/z.js', '--round', '2',
+    ], { encoding: 'utf8' });
+    let json = null; try { json = JSON.parse(r.stdout); } catch (_) { /* rỗng */ }
+    return { code: r.status, json, err: String(r.stderr || '') };
+  };
+
+  const dKhongSha = mkFix({ withSha: false }); themFinding(dKhongSha);
+  const rK = chay(dKhongSha);
+  check('DV11 thieu sha van exit 3 (EVAL khong carry — hanh vi cu giu nguyen)', rK.code === 3, `code=${rK.code}`);
+  check('DV11 exit 3 VAN in JSON, va carriedFindings con nguyen 1 muc',
+    !!rK.json && Array.isArray(rK.json.carriedFindings) && rK.json.carriedFindings.length === 1
+    && rK.json.carriedFindings[0].title === 'ngoai A',
+    JSON.stringify(rK.json && rK.json.carriedFindings));
+  check('DV11 exit 3 khai carriedEvals RONG tuong minh (khong de ben doc doan)',
+    !!rK.json && Array.isArray(rK.json.carriedEvals) && rK.json.carriedEvals.length === 0,
+    JSON.stringify(rK.json && rK.json.carriedEvals));
+  check('DV11 thong diep noi DUNG pham vi: EVAL chay lai, finding van giu',
+    /EVAL/.test(rK.err) && /finding/i.test(rK.err), rK.err.trim().slice(0, 200));
+
+  // Đối chứng dương: CÙNG sổ finding, có sha → exit 0 và carry finding Y HỆT. Nếu hai
+  // nhánh cho kết quả finding khác nhau thì carry finding vẫn đang dính vào cửa ngõ sha.
+  const dCoSha = mkFix({ withSha: true }); themFinding(dCoSha);
+  const rC = chay(dCoSha);
+  check('DV11 doi chung duong: co sha -> exit 0 va carriedFindings Y HET nhanh exit 3',
+    rC.code === 0 && JSON.stringify(rC.json.carriedFindings) === JSON.stringify(rK.json && rK.json.carriedFindings),
+    `${rC.code} · ${JSON.stringify(rC.json && rC.json.carriedFindings)}`);
 }
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);

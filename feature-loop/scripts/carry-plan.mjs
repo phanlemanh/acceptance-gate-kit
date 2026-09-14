@@ -143,10 +143,24 @@ export function plan({ runLogText, evalsText, contractText, deltaFiles, round, a
   const lastOfPrev = new Map();
   for (const l of evalLines) if (l.round === prevRound) lastOfPrev.set(l.evalId, l);
 
+  // T5: finding NGOÀI hợp đồng ở lượt trước mà file KHÔNG chạm diff-fix → mang sang.
+  // Tính TRƯỚC cửa ngõ `noCarry` bên dưới, có chủ đích: hai đường carry độc lập nhau —
+  // `noCarry` nói về SHA của dòng eval, còn dòng `finding` không dùng sha. Bản trước
+  // trả về trước khi tính, nên một sổ thiếu sha làm rụng luôn cả carry finding (mọi
+  // finding ngoài hợp đồng bị triage+refute lại từ đầu, đúng khoản tiền T5 sinh ra để cắt).
+  // Trong hợp đồng thì KHÔNG carry: chúng kéo REJECT nên file của chúng chắc chắn đã đổi.
+  // Sổ đời cũ không có dòng `finding` → mảng rỗng, không lỗi (đường đọc-cũ).
+  const carriedFindings = lines
+    .filter(l => l.kind === 'finding' && l.round === prevRound && l.inContract === false
+      && !l.unclassified && l.file && !deltaFiles.includes(l.file))
+    .map(l => ({ file: l.file, title: l.title, severity: l.severity || '', plain: l.plain || '',
+      proposal: l.proposal || '', fromRound: typeof l.carried_from_round === 'number' ? l.carried_from_round : l.round }));
+
   // Mặc định an toàn (AC-8): BẤT KỲ dòng round trước nào thiếu sha, hoặc sha
-  // không thuần nhất → không carry gì hết.
+  // không thuần nhất → không carry EVAL nào. Finding vẫn đi theo đường riêng ở trên.
   const shas = new Set([...lastOfPrev.values()].map(l => l.sha));
-  if (lastOfPrev.size === 0 || shas.has(undefined) || shas.size !== 1) return { noCarry: true };
+  if (lastOfPrev.size === 0 || shas.has(undefined) || shas.size !== 1)
+    return { noCarry: true, carriedEvals: [], carriedFindings };
   const anchorSha = [...shas][0];
 
   const carried = []; const rerun = []; const reason = {};
@@ -180,16 +194,6 @@ export function plan({ runLogText, evalsText, contractText, deltaFiles, round, a
       }
     }
   }
-  // T5 (khoi-tim-loi-tra-phi-theo-vat): finding NGOÀI hợp đồng ở lượt trước mà file
-  // KHÔNG chạm diff-fix → mang sang, lượt này không triage/refute lại. Trong hợp đồng
-  // thì KHÔNG carry: chúng kéo REJECT nên file của chúng chắc chắn đã đổi. Sổ đời cũ
-  // không có dòng `finding` → mảng rỗng, không lỗi (đường đọc-cũ).
-  const carriedFindings = lines
-    .filter(l => l.kind === 'finding' && l.round === prevRound && l.inContract === false
-      && !l.unclassified && l.file && !deltaFiles.includes(l.file))
-    .map(l => ({ file: l.file, title: l.title, severity: l.severity || '', plain: l.plain || '',
-      proposal: l.proposal || '', fromRound: typeof l.carried_from_round === 'number' ? l.carried_from_round : l.round }));
-
   return { anchorSha, carriedEvals: carried, rerun, reason, carriedFindings };
 }
 
@@ -232,7 +236,11 @@ if (isMain) {
   const deltaFiles = (a['delta-files'] || '').split(',').map(s => s.trim()).filter(Boolean);
   const r = plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot: a['ag-root'] });
   if (r.noCarry) {
-    process.stderr.write('carry-plan: dòng run-log round trước thiếu field sha (hoặc sha không thuần nhất) — lịch sử cũ, full re-run là mặc định an toàn\n');
+    // Thông điệp phải nói ĐÚNG phạm vi: chỉ EVAL mất carry. Bản trước nói trống
+    // «full re-run», đọc như thể mọi đường carry đều tắt.
+    process.stderr.write(`carry-plan: dòng run-log round trước thiếu field sha (hoặc sha không thuần nhất) — EVAL chạy lại toàn bộ (mặc định an toàn); carry finding KHÔNG dùng sha nên vẫn giữ: ${r.carriedFindings.length} finding ngoài hợp đồng mang sang\n`);
+    // Vẫn in JSON: mã thoát 3 là tín hiệu «eval không carry», không phải «không có gì để đọc».
+    process.stdout.write(JSON.stringify(r, null, 2) + '\n');
     process.exit(3);
   }
   process.stdout.write(JSON.stringify(r, null, 2) + '\n');

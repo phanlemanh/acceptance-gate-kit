@@ -15,7 +15,7 @@
 // Fixture git do CODE SINH trong chính lần chạy; mọi đường dẫn suy từ vị trí tệp này.
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, appendFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, appendFileSync, cpSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -228,6 +228,174 @@ const loi = e => String((e && e.stderr) || (e && e.message) || e).split('\n').fi
       ok('VV6b đối chứng dương: diff toàn tài liệu → vùng vật rỗng nhưng VẪN sinh args (hợp lệ)');
     else bad('VV6b diff toàn tài liệu lại không sinh được args', ghiChu || JSON.stringify(a2 && a2.vungVat));
   } catch (e) { bad('VV6 s4-args lỗi', loi(e)); }
+}
+
+// ══ VV7/VV8 — «MÃ ĐO» và «VÙNG PHỦ» đo ở BÊN VIẾT, không ở bên đọc ══════════
+// Lượt chấm 2 của hồ sơ này bắt đúng một lớp: ĐỔI KHUÔN 14/09 dời cả hai phân loại
+// (`laFileDo` → `fileDoTrongDiff`, `pathsKhaiRes` → `coverageFiles`) sang bên VIẾT,
+// nhưng mọi ca canh chúng vẫn nằm ở bên ĐỌC (W41d, W47) và đều TỰ TRUYỀN đáp án —
+// `fileDoTrongDiff: ['<chuỗi muốn thử>']` rồi assert `length > 0`. Năm ca đó cho cùng
+// kết quả với BẤT KỲ chuỗi nào: thay `_acceptance/config.yaml` bằng `zzz` vẫn xanh.
+// Tức là đo CHỈ DẪN, không đo ĐẦU RA — đúng hình dạng (1) của luật «thước gắn vào vật».
+//
+// Ở đây đo ĐẦU RA THẬT của `s4-args.mjs` trên một repo git do code sinh, và đóng CẢ HAI
+// chiều theo nghi thức: chiều NHẠY (gỡ từng vế của `laFileDo` trong một BẢN SAO thì ca
+// phải ĐỎ) và chiều ĐẶC HIỆU (diff không chạm mã đo thì danh sách phải RỖNG — đây chính
+// là cái tắt lens measurement, tức là tiền).
+function buildRepoDo({ coPaths = true, doiGi } = {}) {
+  const d = path.join(TMP, 'do-' + String(pass + fail) + '-' + String(Date.now() % 100000));
+  mkdirSync(path.join(d, '_acceptance', 'demo', 'rang'), { recursive: true });
+  for (const sub of ['docs', 'src', 'lib', 'tests']) mkdirSync(path.join(d, sub), { recursive: true });
+  execFileSync('git', ['init', '-q', '-b', 'main', d]);
+  git(d, 'config', 'user.email', 't@t.t'); git(d, 'config', 'user.name', 'T');
+  writeFileSync(path.join(d, '_acceptance', 'config.yaml'),
+    'schema_version: 1\nexecutors:\n  test:\n    api: "echo x"\nfeature_loop:\n  suite_keys:\n    - executors.test.api\n'
+    + 'risk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n');
+  writeFileSync(path.join(d, '_acceptance', 'demo', 'contract.md'),
+    '---\nschema_version: 1\nslug: demo\nrisk_tier: T2\nstatus: implemented\n---\n');
+  // E1 khai `paths` trỏ mã sản phẩm. `lib/**` KHÔNG eval nào khai — nó là đối chứng ÂM
+  // cho cả hai phép: mã sản phẩm thật, trong vùng vật, nhưng không phải mã đo và không
+  // nằm trong vùng phủ.
+  writeFileSync(path.join(d, '_acceptance', 'demo', 'evals.yaml'),
+    'schema_version: 1\nfeature_slug: demo\nevals:\n'
+    + '  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.api\n'
+    + (coPaths ? '    paths: [src/**]\n' : '') + '    expected: x\n');
+  const tep = {
+    'src/a.js': 'a\n',
+    'lib/b.js': 'b\n',
+    'tests/x.test.mjs': 'x\n',
+    '_acceptance/demo/rang/a.mjs': 'r\n',
+    '_acceptance/demo/gap-probe.md': 'g\n',
+    'docs/note.md': 'n\n',
+  };
+  for (const [f, v] of Object.entries(tep)) writeFileSync(path.join(d, f), v);
+  git(d, 'add', '-A'); git(d, 'commit', '-qm', 'base');
+  git(d, 'checkout', '-qb', 'feat');
+  for (const f of doiGi) {
+    if (f === '_acceptance/config.yaml') appendFileSync(path.join(d, f), '# doi\n');
+    else writeFileSync(path.join(d, f), (tep[f] || '') + 'doi\n');
+  }
+  git(d, 'add', '-A'); git(d, 'commit', '-qm', 'feat');
+  return d;
+}
+
+// Bản sao để tiêm: chép TRỌN thư mục `feature-loop` (không chép danh sách tệp tay —
+// P150: bản base dựng bằng danh sách tay thiếu file thì đỏ vì HẠ TẦNG, không vì vật).
+// s4-args không chỉ import sibling trong `scripts/` — nó còn ĐỌC
+// `../workflows/acceptance-verify.js` để rút bảng trường bắt buộc, nên bản sao thiếu
+// `workflows/` sẽ chết vì thiếu môi trường và mọi mũi tiêm trông như «răng sống».
+function s4Mutant(before, after) {
+  const d = path.join(TMP, 'mut-' + String(pass + fail) + '-' + String(Date.now() % 100000));
+  mkdirSync(d, { recursive: true });
+  cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
+  const f = path.join(d, 'feature-loop', 'scripts', 's4-args.mjs');
+  const src = readFileSync(f, 'utf8');
+  const n = src.split(before).length - 1;
+  if (n !== 1) throw new Error(`mui tiem khop ${n} lan (can dung 1): ${before.slice(0, 70)}`);
+  writeFileSync(f, src.replace(before, after));
+  const c = execFileSync(process.execPath, ['--check', f], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  void c;
+  return f;
+}
+const runBang = (script, d, ...extra) => {
+  const out = path.join(d, 'args.json');
+  execFileSync(process.execPath, [script, '--slug', 'demo', '--root', d, '--ag-root', KIT,
+    '--out', out, '--diff-base', 'main', ...extra], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  return JSON.parse(readFileSync(out, 'utf8'));
+};
+
+const DOI_DU = ['src/a.js', 'lib/b.js', 'tests/x.test.mjs', '_acceptance/demo/rang/a.mjs',
+  '_acceptance/config.yaml', '_acceptance/demo/gap-probe.md', 'docs/note.md'];
+
+// ── VV7: `fileDoTrongDiff` là ĐẦU RA THẬT của bốn vế `laFileDo`, và KHÔNG nuốt mã
+//        sản phẩm thường (đối chứng âm `lib/b.js`)
+{
+  const d = buildRepoDo({ doiGi: DOI_DU });
+  try {
+    const a = runBang(S4ARGS, d);
+    const mong = ['tests/x.test.mjs', '_acceptance/demo/rang/a.mjs', '_acceptance/config.yaml', 'src/a.js'];
+    if (!Array.isArray(a.fileDoTrongDiff)) bad('VV7 args thiếu khoá fileDoTrongDiff', JSON.stringify(Object.keys(a)));
+    else if (sorted(a.fileDoTrongDiff) !== sorted(mong))
+      bad('VV7 fileDoTrongDiff sai — bốn vế của laFileDo không cho đúng tập này', JSON.stringify(a.fileDoTrongDiff));
+    else ok('VV7 fileDoTrongDiff = tệp ca + mã trong thư mục hồ sơ + config.yaml + eval.paths; KHÔNG gồm mã sản phẩm thường (lib/b.js)');
+  } catch (e) { bad('VV7 s4-args lỗi', loi(e)); }
+}
+
+// ── VV7-IM (chiều ĐẶC HIỆU): diff chỉ chạm mã sản phẩm KHÔNG ai đo → danh sách RỖNG.
+//    Đây là ca duy nhất tiết kiệm tiền (bên đọc tắt lens measurement). Không có nó,
+//    VV7 không phân biệt được «bốn vế đúng» với «vế nào cũng khớp».
+{
+  const d = buildRepoDo({ doiGi: ['lib/b.js'] });
+  try {
+    const a = runBang(S4ARGS, d);
+    if (sorted(a.vungVat) !== sorted(['lib/b.js']))
+      bad('VV7-IM đối chứng dương hỏng: vùng vật không phải đúng lib/b.js', JSON.stringify(a.vungVat));
+    else if (Array.isArray(a.fileDoTrongDiff) && a.fileDoTrongDiff.length === 0)
+      ok('VV7-IM diff chỉ chạm mã sản phẩm không ai đo → fileDoTrongDiff RỖNG (bên đọc tắt lens measurement)');
+    else bad('VV7-IM diff không chạm mã đo mà fileDoTrongDiff vẫn có phần tử', JSON.stringify(a.fileDoTrongDiff));
+  } catch (e) { bad('VV7-IM s4-args lỗi', loi(e)); }
+}
+
+// ── VV7b (chiều NHẠY): gỡ TỪNG vế của `laFileDo` trong một bản sao → ca phải ĐỎ.
+//    Finding lượt chấm 2 nói nguyên văn: «xoá vế `f === '_acceptance/config.yaml'` thì
+//    không ca nào đỏ». Bốn mũi tiêm dưới đây đóng đúng câu đó, mỗi vế một mũi.
+{
+  const MUI = [
+    ['vế tệp ca (DO_GLOBS)', 'const doRes = DO_GLOBS.map(globToRe);', 'const doRes = [];', 'tests/x.test.mjs'],
+    ['vế _acceptance/config.yaml', "|| f === '_acceptance/config.yaml'", '|| false', '_acceptance/config.yaml'],
+    ['vế mã trong thư mục hồ sơ', '|| (/^_acceptance\\/[^/]+\\//.test(f) && !/\\.(md|jsonl)$/.test(f))', '|| false', '_acceptance/demo/rang/a.mjs'],
+    ['vế eval.paths', '|| pathsKhaiRes.some(re => re.test(f))', '|| false', 'src/a.js'],
+  ];
+  for (const [ten, before, after, tepMat] of MUI) {
+    try {
+      const script = s4Mutant(before, after);
+      const d = buildRepoDo({ doiGi: DOI_DU });
+      const a = runBang(script, d);
+      const con = (a.fileDoTrongDiff || []).includes(tepMat);
+      if (con) bad(`VV7b gỡ ${ten} mà fileDoTrongDiff VẪN chứa ${tepMat} — vế này không có răng nào canh`,
+        JSON.stringify(a.fileDoTrongDiff));
+      else ok(`VV7b gỡ ${ten} → ${tepMat} rụng khỏi fileDoTrongDiff (vế có răng)`);
+    } catch (e) { bad(`VV7b mũi tiêm «${ten}» lỗi`, loi(e)); }
+  }
+}
+
+// ── VV8: `coverageFiles` / `coEvalPaths` — vùng phủ cũng là ĐẦU RA của bên viết
+{
+  const d = buildRepoDo({ doiGi: DOI_DU });
+  try {
+    const a = runBang(S4ARGS, d);
+    if (a.coEvalPaths !== true) bad('VV8 coEvalPaths phải true khi có eval khai paths', JSON.stringify(a.coEvalPaths));
+    else if (sorted(a.coverageFiles) !== sorted(['src/a.js']))
+      bad('VV8 coverageFiles sai — chỉ src/a.js được E1 khai paths', JSON.stringify(a.coverageFiles));
+    else ok('VV8 coverageFiles = đúng tệp trong diff được một eval khai paths; lib/b.js nằm ngoài vùng phủ');
+  } catch (e) { bad('VV8 s4-args lỗi', loi(e)); }
+}
+
+// ── VV8b (chiều ĐẶC HIỆU của coEvalPaths): KHÔNG eval nào khai paths → bên đọc phải
+//    biết là «không tính được» (n-a), không phải «mọi finding đều ngoài vùng phủ».
+{
+  const d = buildRepoDo({ coPaths: false, doiGi: DOI_DU });
+  try {
+    const a = runBang(S4ARGS, d);
+    if (a.coEvalPaths === false && sorted(a.coverageFiles) === sorted([]))
+      ok('VV8b không eval nào khai paths → coEvalPaths=false + coverageFiles rỗng (bên đọc đọc ra n-a, không báo cụm giả)');
+    else bad('VV8b không khai paths mà coEvalPaths/coverageFiles không nói ra',
+      `coEvalPaths=${JSON.stringify(a.coEvalPaths)} coverageFiles=${JSON.stringify(a.coverageFiles)}`);
+  } catch (e) { bad('VV8b s4-args lỗi', loi(e)); }
+}
+
+// ── VV8c (chiều NHẠY): gỡ bộ lọc vùng phủ ở bên viết → ca phải ĐỎ
+{
+  try {
+    const script = s4Mutant('const coverageFiles = diffTatCa.filter(f => pathsKhaiRes.some(re => re.test(f)));',
+      'const coverageFiles = diffTatCa;');
+    const d = buildRepoDo({ doiGi: DOI_DU });
+    const a = runBang(script, d);
+    if ((a.coverageFiles || []).includes('lib/b.js'))
+      ok('VV8c gỡ bộ lọc vùng phủ → lib/b.js lọt vào coverageFiles (ca VV8 có răng)');
+    else bad('VV8c gỡ bộ lọc mà coverageFiles không đổi — VV8 không phân biệt được bản lành với bản hỏng',
+      JSON.stringify(a.coverageFiles));
+  } catch (e) { bad('VV8c mũi tiêm lỗi', loi(e)); }
 }
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (s4-args-vung-vat)`);

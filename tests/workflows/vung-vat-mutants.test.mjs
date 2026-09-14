@@ -106,4 +106,36 @@ console.log('VVM2 mutant: doi loc LOAI TRU thanh loc BAO GOM -> mat finding lien
     'doi sang loc bao gom ma finding lien-file van qua — ca nay khong canh duoc lop do');
 }
 
+console.log('VVM-CU duong doc-cu: ben viet doi cu KHONG truyen ngoaiVatFiles');
+{
+  // CLAUDE.md: «đổi schema artifact phải có đường đọc-cũ». ĐỔI KHUÔN 14/09 đổi khoá
+  // `ngoaiVatGlobs` (mẫu) thành `ngoaiVatFiles` (kết quả) mà KHÔNG để lại nhánh đọc cũ,
+  // nên một s4-args đời trước vẫn truyền `vungVat` + `ngoaiVatGlobs`: tập thuộc-tập rỗng
+  // → KHÔNG lọc gì cả, LẶNG LẼ. Lượt chấm 2 bắt. Hai ca dưới đóng cả hai nhánh cũ.
+  const { ngoaiVatFiles, ...argsCu } = args;
+  void ngoaiVatFiles;
+  const argsGlob = { ...argsCu, ngoaiVatGlobs: ['_acceptance/*/**/*.md', '_acceptance/*/**/*.jsonl'] };
+  const { calls, logs } = await runWorkflow(WF, argsGlob, respond(F_HO_SO));
+  check('VVM-CU ben viet doi cu (chi co ngoaiVatGlobs) VAN loc duoc van ban ho so',
+    !triageThay(calls, 'gap-probe.md'),
+    'thieu ngoaiVatFiles thi bo loc ngoai-vat tat — day dung la fail-open lang le');
+  check('VVM-CU noi ra minh dang di duong doc-cu (co vang trong log)',
+    logs.some(l => /CO VANG.*ngoaiVatFiles vang/i.test(l)), logs.join(' | ').slice(0, 240));
+  // Đối chứng dương: đường cũ KHÔNG được nuốt finding trong vật.
+  const banVat = await runWorkflow(WF, argsGlob, respond(F_VAT));
+  check('VVM-CU doi chung duong: duong doc-cu van cho finding TRONG vat di tiep',
+    triageThay(banVat.calls, 'trong vat'));
+}
+
+console.log('VVM-CU2 khong co ca hai khoa -> fail-open nhung phai KHAI');
+{
+  const { ngoaiVatFiles, ...argsTron } = args;
+  void ngoaiVatFiles;
+  const { calls, logs } = await runWorkflow(WF, argsTron, respond(F_HO_SO));
+  check('VVM-CU2 vang ca hai khoa -> khong loc (fail-open, dung mac dinh an toan ve phia bo sot)',
+    triageThay(calls, 'gap-probe.md'));
+  check('VVM-CU2 fail-open phai duoc KHAI trong log, khong im lang',
+    logs.some(l => /CO VANG.*deu vang/i.test(l)), logs.join(' | ').slice(0, 240));
+}
+
 summary('vung-vat-mutants');

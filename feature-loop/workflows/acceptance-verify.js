@@ -513,8 +513,25 @@ const ngoaiVatRes = (Array.isArray(args.ngoaiVatGlobs) ? args.ngoaiVatGlobs : []
 //
 // Hệ quả đẹp: `ngoaiVatFiles` chỉ chứa tệp TRONG DIFF, nên finding ở tệp NGOÀI diff
 // (lớp liên-file) tự nhiên đi tiếp mà không cần vế miễn trừ nào.
-const ngoaiVatSet = new Set(Array.isArray(args.ngoaiVatFiles) ? args.ngoaiVatFiles : [])
-const laNgoaiVat = pth => ngoaiVatSet.has(pth)
+//
+// DUONG DOC-CU (bat buoc theo CLAUDE.md «doi schema artifact phai co duong doc-cu»):
+// mot ban s4-args truoc 14/09 truyen `vungVat` + `ngoaiVatGlobs` ma KHONG truyen
+// `ngoaiVatFiles`. Neu chi doc thuoc-tap thi tap rong → KHONG loc gi ca, va vong do
+// LANG LE mat bo loc ngoai-vat. Nen o day phan ba nhanh, nhanh nao cung noi ra minh la ai.
+const coNgoaiVatFiles = Array.isArray(args.ngoaiVatFiles)
+const ngoaiVatSet = new Set(coNgoaiVatFiles ? args.ngoaiVatFiles : [])
+// Ve mien tru cua duong cu: tep khai trong `eval.paths` la DAU VAO CUA THUOC, khong bao
+// gio la ngoai-vat. Ban viet doi cu da co ve nay; bo no o day la fail-open lop khac.
+const pathsKhaiResCu = coNgoaiVatFiles ? [] :
+  (Array.isArray(args.evals) ? args.evals : []).flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
+const laNgoaiVat = coNgoaiVatFiles
+  ? pth => ngoaiVatSet.has(pth)
+  : ngoaiVatRes.length
+    ? pth => !pathsKhaiResCu.some(re => re.test(pth)) && ngoaiVatRes.some(re => re.test(pth))
+    : () => false
+if (coVungVat && !coNgoaiVatFiles) log(ngoaiVatRes.length
+  ? 'CO VANG: args.ngoaiVatFiles vang (s4-args doi cu) — loc ngoai-vat chay bang MAU glob o ben doc (duong doc-cu)'
+  : 'CO VANG: args.ngoaiVatFiles VA args.ngoaiVatGlobs deu vang — KHONG loc dau ra theo ngoai-vat (duong doc-cu, fail-open co khai)')
 if (!coVungVat) log('Vung vat khong khai (args.vungVat vang) — finder soi tron diff, khong loc dau ra (duong doc-cu)')
 // Lens `measurement` CHỈ spawn khi diff chạm phép đo. Tập file đo = glob tệp ca kiểm
 // thử + MỌI tệp không phải .md/.jsonl trong thư mục hồ sơ (kho tiêu thụ đặt răng ở

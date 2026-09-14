@@ -112,6 +112,41 @@ console.log('U06 T0: startAt/endAt + byRole wall — thuoc cho dong 4-5 cua nam 
   check('U06 md co bang wall theo vai tro', md.includes('| vai tro |') && md.includes('| exec |'), md.slice(-300));
 }
 
+console.log('U06f T0: MOI bang trong --md phai RENDER duoc, khong chi "co mat"');
+{
+  // Lượt chấm 2 của hồ sơ khoi-tim-loi-tra-phi-theo-vat bắt: U06 ở trên chỉ hỏi
+  // «chuỗi `| vai tro |` có trong đầu ra không» — đúng còn khi bảng dính ngay sau một
+  // đoạn văn, và Markdown KHÔNG mở bảng ở vị trí đó. Nên `usage-report.md` (vật mà hai
+  // dòng số cuối của luật (c) đọc vào) render ra một cục chữ trong khi ca vẫn xanh.
+  // Đây đo ĐIỀU KIỆN RENDER thật: dòng ngay trước mỗi header bảng phải RỖNG.
+  const md = runScript([RUN, '--md']).stdout;
+  const dong = md.split('\n');
+  // Header bảng = dòng `|…|` mà dòng NGAY SAU là dòng phân cách `|---|`. Nhận theo hình
+  // dạng thật của bảng, không theo chữ trong ô — bản trước nhận cả dòng dữ liệu.
+  const laNgan = l => /^\|[\s:|-]+\|\s*$/.test(l);
+  const timHeader = ds => ds.map((l, i) => [l, i])
+    .filter(([l, i]) => /^\|/.test(l) && !laNgan(l) && laNgan(ds[i + 1] || ''));
+  const header = timHeader(dong);
+  check('U06f co it nhat HAI header bang (bang agent + bang vai tro)', header.length >= 2,
+    `thay ${header.length} header`);
+  const dinh = header.filter(([, i]) => i === 0 || dong[i - 1].trim() !== '');
+  check('U06f moi header bang deu co dong trong ngay truoc (bang render duoc)', dinh.length === 0,
+    dinh.map(([l, i]) => `dong ${i}: «${dong[i - 1]}» -> «${l.slice(0, 40)}»`).join(' · '));
+
+  // Chiều ĐỎ: bản TIÊM bỏ đúng dòng trống đó phải làm ca này ĐỎ. Không có nó, U06f
+  // không phân biệt được «đầu ra lành» với «phép đo chưa bao giờ chạy».
+  const mut = path.join(T, 'wf-usage-mut.mjs');
+  const src = fs.readFileSync(SCRIPT, 'utf8');
+  const KIM = "  out.push('');\n  out.push('| vai tro | agents |";
+  check('U06f kim tiem CO trong nguon', src.includes(KIM), 'khoi --md doi khuon — kim nay dang do mot thu khong ton tai');
+  fs.writeFileSync(mut, src.replace(KIM, "  out.push('| vai tro | agents |"));
+  const mdMut = spawnSync(process.execPath, [mut, RUN, '--md'], { encoding: 'utf8' }).stdout || '';
+  const dongMut = mdMut.split('\n');
+  const dinhMut = timHeader(dongMut).filter(([, i]) => i === 0 || dongMut[i - 1].trim() !== '');
+  check('U06f ban tiem (bo dong trong) lam ca nay DO — phep do song', dinhMut.length > 0,
+    'bo dong trong ma ca van xanh: U06f dang do chi dan chu khong do dau ra');
+}
+
 console.log('U06b T0: agent KHONG co timestamp -> khong nem loi, nhung KHONG im (co so dem)');
 {
   // Chống «thước rỗng im lặng»: nếu tên trường thời gian ở harness đổi thì MỌI agent rơi

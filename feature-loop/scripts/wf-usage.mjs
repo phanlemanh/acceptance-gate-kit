@@ -185,6 +185,10 @@ if (mode === 'json') {
   out.push('');
   out.push('');
   out.push(`wall: ${wallSeconds}s${agentsKhongCoThoiGian ? ` · ${agentsKhongCoThoiGian} agent khong doc duoc thoi gian` : ''}`);
+  // Dong trong BAT BUOC truoc header bang: Markdown khong mo bang ngay sau mot doan van,
+  // nen thieu no thi ca bang byRole render thanh mot cuc chu — dung cai `usage-report.md`
+  // ma nam dong so cua luat (c) doc vao.
+  out.push('');
   out.push('| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |');
   out.push('|---|--:|--:|--:|--:|---|---|');
   for (const [k, b] of Object.entries(byRole).sort((x, y) => Date.parse(x[1].startAt) - Date.parse(y[1].startAt)))
