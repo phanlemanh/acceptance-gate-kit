@@ -1,17 +1,18 @@
-# Hạt giống — ba chỗ cắt SAU CHỮ KÝ, cho cửa sổ 2.13
+# Hạt giống — bốn mục cho cửa sổ 2.13 (ba chỗ cắt sau chữ ký + chiến dịch ghim lại)
 
 **Ngày:** 2026-09-14 · **Trạng thái:** `_acceptance/ba-cho-cat-sau-chu-ky-cua-so-2-13/opportunity.md`
 (ổ «đang cân nhắc», răng VC8 «vào có ổ») · **Hạng dự kiến:** T2 (chạm `feature-loop/scripts/
 repin-lane.mjs`, `tests/scripts/`, SKILL S5; không chạm `lib/**`, hook) · **Owner gọi tên:**
 14/09, sau khi tự thấy phiên ship `release-2-12-0` mất > 60 phút từ chữ ký tới lên main.
 
-> **Việc phải làm ở mốc 2.13:** kéo ba mục dưới vào **§4 «Nhát cắt cho cửa sổ kế — gọi
+> **Việc phải làm ở mốc 2.13:** kéo bốn mục dưới vào **§4 «Nhát cắt cho cửa sổ kế — gọi
 > tên»** của `_acceptance/release-2-13-0/contract.md` (khuôn hồ sơ 2.12.0 §4). Ghi ở đây
 > vì hồ sơ mốc chưa mở — đừng để nó nằm trong log chat. Vòng meta duy nhất của cửa sổ
 > 2.12 → 2.13 đã là `khoi-tim-loi-tra-phi-theo-vat`; ba mục này **không mở vòng**, chờ
-> mốc quyết: vá-trong-mốc (tiền lệ 2.11.0) hay để cửa sổ 2.14.
+> mốc quyết: vá-trong-mốc (tiền lệ 2.11.0) hay để cửa sổ 2.14. Mục 4 thêm 14/09 sau
+> khi đẩy vòng `khoi-tim-loi-tra-phi-theo-vat` — owner gọi tên.
 
-> Chữ trong file này là NGUỒN. Không cần hình: ba mục, mỗi mục một số đo và một nhát.
+> Chữ trong file này là NGUỒN. Không cần hình: bốn mục, mỗi mục một số đo và một nhát.
 
 ## Số đo (phiên ship 2.12.0, 14/09, giờ VN — đọc từ transcript phiên + task output)
 
@@ -70,6 +71,56 @@ thứ hai của cùng một dòng, tách hai số); (b) SKILL feature-loop bư�
 chạy **một lần trước khi ký** để LM20 đỏ trước chữ ký, sửa fixture cùng commit với hồ
 sơ. Trace: (a) nguyên tố 1 — thước đo phải phủ tới nơi giá trị chạm người dùng;
 (b) nguyên tố 2. Người hưởng: owner (không chờ), máy.
+
+### 4. Chiến dịch ghim lại — 41/68 hồ sơ đang stale, mốc cũ nhất tụt 411 commit
+
+**Đo 14/09, ngay sau khi đẩy vòng `khoi-tim-loi-tra-phi-theo-vat` lên nhánh chính**
+(`pre-merge-check.sh . --base 7d12ffad --recheck-all`): **41 hồ sơ** có `verified_commit`
+đã hoá cũ, trên **68** hồ sơ có ghim (106 thư mục hồ sơ, phần còn lại chưa tới bước
+ghim). Mốc ghim cũ nhất là `7d12ffad` (08/09) — **tụt 411 commit** — và riêng nó gánh
+**21 hồ sơ**. Mốc gần nhất trong nhóm stale là `7e260d4b` (14/09), tụt 41 commit.
+
+Đây **không phải hồi quy của vòng vừa ship**: 30 commit của vòng không chạm tệp nào
+trong danh sách gây stale của `khoi-viec-cua-anh` và `s4-scope-triage` (hai hồ sơ tình
+cờ lộ ra khi lưới soi trọn `origin/main`). Chứng: dựng worktree ngay tại `origin/main`
+rồi chạy lưới ở đó — hàng loạt hồ sơ đã đỏ sẵn, không có việc của vòng này trong cây.
+Luật re-pin-theo-release gọi trạng thái này là **chấp nhận được giữa hai mốc** và dặn
+đừng đuổi theo; chỗ nó phải được xử là **chiến dịch ghim lại của mốc 2.13**.
+
+**Việc ở mốc:** chạy một lượt làn `repin-lane.mjs` gom nhiều slug cho trọn 41 hồ sơ
+(nghi thức «1 lượt lane, N chữ ký» — một `run_id` cho cả sự kiện). Ước phí theo số đo
+mục 1 ở trên: làn hiện chạy ≈ 12 phút cho **một** hồ sơ vì nó chạy trọn 5 suite; 41 hồ
+sơ dùng chung một lượt suite nhưng mỗi hồ sơ còn bộ eval riêng. **Mục 1 (re-pin theo
+diff) là điều kiện tiên quyết của mục này** — không cắt làn trước thì chiến dịch này tự
+nó là một khoản giờ máy lớn, và nó lặp lại mỗi release.
+
+**Rủi ro phải nhìn trước khi chạy:** làn ghim lại chỉ ghi khi MỌI suite và eval của hồ
+sơ đó xanh. Hồ sơ ghim ở mốc 411 commit trước có thể đỏ vì vật đã đổi thật — khi đó
+luật là DỪNG, không ký mù, và hồ sơ ấy thành một vấp thật phải xử riêng chứ không nằm
+trong chiến dịch. Nên bước đầu của chiến dịch là **chạy đo (không `--write`) để biết
+bao nhiêu hồ sơ đỏ**, rồi mới quyết.
+
+Danh sách theo mốc ghim (đọc từ lưới, không gõ tay):
+
+| mốc ghim | số hồ sơ | hồ sơ |
+|---|--:|---|
+| `7d12ffad` | 21 | card-text-fidelity · codex-script-packaging · duong-do-trong-dinh-nghia-xong · gap-probe-presence-hook · hinh-tai-cong-1 · judge-required-evidence · khoi-viec-cua-anh · measure-birth-certificate · measure-teeth-cleanup · premerge-rules-ledger · premerge-unjudged-pass · release-2-8-0 · repo-khai-plugin · s4-scope-triage · siet-rang-cau-ve-hinh · status-chua-arm-cong · stop-patching-law · suite-run-log-provenance · t1-escape-event-scope · vu-trang-goal-luc-goi-ten · workspace-reader-unification |
+| `80966954` | 3 | loi-moi-cong-may-sinh · lop-bang-chung-nhin-thay · matrix-measure-law |
+| `ffe138ac` | 3 | cong-dang-co-cua · lan-may-song-qua-bo-phan-loai · nhanh-chinh-khong-ten-main |
+| `3a77f000` | 1 | cong-nguoi-doc-du-nguon |
+| `72a571f7` | 1 | cua-veto-sau-chu-ky |
+| `53fe0b5c` | 1 | duong-lui-phai-song |
+| `45e5f1d8` | 1 | eval-khai-ma-thoat-mong-doi |
+| `a6fc84ad` | 1 | ghim-lai-tren-lop-cu |
+| `e00898a6` | 1 | glob-hai-sao-khop-goc-kho |
+| `096005c8` | 1 | gold-output-measure |
+| `85a2ecb9` | 1 | gom-duc-ket-2-10-0 |
+| `95da100c` | 1 | lan-doc-status-not-run |
+| `1d6f7e4a` | 1 | ma-so-quyet-dinh-duy-nhat |
+| `944dce5f` | 1 | ra-co-ten-lam-va-trao |
+| `0c28c597` | 1 | release-2-10-0 |
+| `4d61b2a3` | 1 | release-2-11-0 |
+| `7e260d4b` | 1 | release-2-12-0 |
 
 ## Không làm ở đây
 
