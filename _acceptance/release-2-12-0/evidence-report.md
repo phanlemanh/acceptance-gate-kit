@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b2af84cd1d6bd5454111567b010778e8a8a1c5b4
+verified_commit: 7e260d4b156af93f8766d416e05d32b44290b4b5
 human_signoff: Mạnh 2026-09-14
 ---
 
@@ -128,3 +128,7 @@ Round 8: re-verify trên HEAD ffa5c3a4 (đã gồm mọi sửa hậu-round-7) �
 ### Re-pin lần 1 — 2026-09-14, do gộp origin/main (4 commit, dời docs) sau lượt chấm 8 PASS tại ffa5c3a4
 run_id: repin-20260914T023445Z-28270
 sha: b2af84cd1d6bd5454111567b010778e8a8a1c5b4 · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-14, do hoá cũ do chính commit chữ ký (routing-baseline.txt ngoài T1)
+run_id: repin-20260914T034155Z-23305
+sha: 7e260d4b156af93f8766d416e05d32b44290b4b5 · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
