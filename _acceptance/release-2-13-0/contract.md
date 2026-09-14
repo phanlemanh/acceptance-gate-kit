@@ -5,7 +5,7 @@ slug: release-2-13-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest + tests/plugins/run-tests.sh; KHÔNG chạm t3_paths (hooks, lib, pre-merge, recheck). T2 nên làn V mở.
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Mạnh
 approved_at: 2026-09-14
 ---
