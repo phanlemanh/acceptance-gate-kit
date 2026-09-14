@@ -347,6 +347,7 @@ const runLogLines = fs.existsSync(runLogPath)
   ? fs.readFileSync(runLogPath, 'utf8').split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean)
   : [];
 let carriedEvals;
+let carriedFindings;
 let deltaForArgs;
 if (round >= 2 && !flags['carry-anchor'] && !flags['no-carry']) {
   die(`round ${round} (≥2) phải khai tường minh: --carry-anchor <sha dòng round trước> (tính carry P1) hoặc --no-carry (full re-run) — «quên carry» đốt round là lớp lỗi có đo`);
@@ -367,6 +368,7 @@ if (flags['carry-anchor']) {
     const out = execFileSync(process.execPath, [path.join(HERE, 'carry-plan.mjs'), ...cpArgs], { encoding: 'utf8' });
     const plan = JSON.parse(out);
     if (Array.isArray(plan.carriedEvals) && plan.carriedEvals.length) carriedEvals = plan.carriedEvals;
+    if (Array.isArray(plan.carriedFindings) && plan.carriedFindings.length) carriedFindings = plan.carriedFindings;  // T5
   } catch (e) {
     const code = e && typeof e.status === 'number' ? e.status : null;
     if (code === 3) console.error('s4-args: carry-plan exit 3 — run-log cũ chưa có sha, full re-run (mặc định an toàn)');
@@ -420,6 +422,7 @@ const args = {
   runBaseline,
   ...(carriedAnalyst ? { carriedAnalyst } : {}),
   ...(carriedEvals ? { carriedEvals } : {}),
+  ...(carriedFindings ? { carriedFindings } : {}),
   ...(deltaForArgs && deltaForArgs.length ? { deltaFiles: deltaForArgs } : {}),
   ...(carriedPanels ? { carriedPanels } : {}),
   ...(models ? { models } : {}),

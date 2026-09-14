@@ -180,7 +180,17 @@ export function plan({ runLogText, evalsText, contractText, deltaFiles, round, a
       }
     }
   }
-  return { anchorSha, carriedEvals: carried, rerun, reason };
+  // T5 (khoi-tim-loi-tra-phi-theo-vat): finding NGOÀI hợp đồng ở lượt trước mà file
+  // KHÔNG chạm diff-fix → mang sang, lượt này không triage/refute lại. Trong hợp đồng
+  // thì KHÔNG carry: chúng kéo REJECT nên file của chúng chắc chắn đã đổi. Sổ đời cũ
+  // không có dòng `finding` → mảng rỗng, không lỗi (đường đọc-cũ).
+  const carriedFindings = lines
+    .filter(l => l.kind === 'finding' && l.round === prevRound && l.inContract === false
+      && !l.unclassified && l.file && !deltaFiles.includes(l.file))
+    .map(l => ({ file: l.file, title: l.title, severity: l.severity || '', plain: l.plain || '',
+      proposal: l.proposal || '', fromRound: typeof l.carried_from_round === 'number' ? l.carried_from_round : l.round }));
+
+  return { anchorSha, carriedEvals: carried, rerun, reason, carriedFindings };
 }
 
 const isMain = (() => {

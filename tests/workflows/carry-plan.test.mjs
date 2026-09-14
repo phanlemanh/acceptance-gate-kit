@@ -2,7 +2,7 @@
 // P105: số assert = số phần tử của lớp, không tuyên khống). Fixture code-sinh,
 // đường dẫn suy từ vị trí test.
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, appendFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -134,6 +134,55 @@ console.log('DV9c parser cross-layer đồng bộ chuẩn (fix S4-r1: parser th�
   const r2 = run(d, 'nowhere/z.js');
   check('DV9c+ đối chứng dương: không chạm → cả cặp vẫn carried',
     r2.json.carriedEvals.some(x => x.id === 'E4') && r2.json.carriedEvals.some(x => x.id === 'E5'), JSON.stringify(r2.json));
+}
+
+// ── DV10 (khoi-tim-loi-tra-phi-theo-vat, T5): carry FINDING ngoài hợp đồng ──
+// Finding ngoài hợp đồng ở lượt trước, file KHÔNG chạm diff-fix → mang sang, không
+// triage/refute lại. Trong hợp đồng thì KHÔNG carry: chúng kéo REJECT nên file của
+// chúng chắc chắn đã đổi ở lượt sau.
+//
+// Dòng sổ KHÔNG gõ tay: rút khoá từ khối marker FINDING-LINE của bên VIẾT
+// (acceptance-verify.js) rồi cho bên ĐỌC (carry-plan) đọc lại — round-trip. Gõ tay ở
+// đây là dựng fixture theo khuôn bên đọc, và hai bên sẽ trôi khỏi nhau lặng lẽ.
+console.log('DV10 carriedFindings: ngoai hop dong + file khong doi (round-trip tu marker FINDING-LINE)');
+{
+  const WF = path.join(HERE, '..', '..', 'feature-loop', 'workflows', 'acceptance-verify.js');
+  const wfSrc = readFileSync(WF, 'utf8');
+  const a0 = wfSrc.indexOf('<<<FINDING-LINE'), b0 = wfSrc.indexOf('FINDING-LINE>>>');
+  check('DV10 rut duoc khoi marker FINDING-LINE tu ben viet', a0 !== -1 && b0 > a0,
+    'khong thay marker — ben viet doi khuon, ca nay dang do mot thu khong ton tai');
+  const KHOA = [...new Set([...wfSrc.slice(a0, b0).matchAll(/(?:^|[{,]\s*)([a-zA-Z][a-zA-Z0-9]*):/gm)].map(m => m[1]))];
+  check('DV10 khuon co du truong carry can', ['kind', 'file', 'title', 'inContract', 'round', 'unclassified'].every(k => KHOA.includes(k)), KHOA.join(','));
+  const dong = (over) => JSON.stringify({ ...Object.fromEntries(KHOA.map(k => [k,
+    k === 'kind' ? 'finding' : k === 'ts' ? '2026-08-05T00:00:00Z' : k === 'sha' ? SHA : k === 'round' ? 1
+    : k === 'severity' ? 'high' : k === 'source' ? 'bugs'
+    : ['inContract', 'unverified', 'unclassified'].includes(k) ? false : k === 'khongBacBo' ? true : ''])), ...over });
+
+  const d = mkFix();
+  appendFileSync(path.join(d, 'run-log.jsonl'), [
+    dong({ file: 'src/old/x.js', title: 'ngoai A', plain: 'nguoi dung thay A', proposal: 'known-limits' }),
+    dong({ file: 'src/a/y.js', title: 'ngoai B', plain: 'nguoi dung thay B', proposal: 'wont-fix' }),
+    dong({ file: 'src/old/z.js', title: 'trong C', inContract: true, acRef: 'AC-1', khongBacBo: false }),
+    dong({ file: 'src/old/w.js', title: 'chua phan loai D', unclassified: true, khongBacBo: false }),
+  ].join('\n') + '\n');
+
+  const r = run(d, 'src/a/y.js');
+  const cf = (r.json && r.json.carriedFindings) || [];
+  check('DV10 carry DUNG mot: ngoai A (file khong doi)', cf.length === 1 && cf[0].title === 'ngoai A', JSON.stringify(cf));
+  check('DV10 mang du truong cho the: plain + proposal + fromRound',
+    cf[0] && cf[0].plain === 'nguoi dung thay A' && cf[0].proposal === 'known-limits' && cf[0].fromRound === 1, JSON.stringify(cf[0]));
+  check('DV10 KHONG carry: ngoai B (file trong delta) · trong C (in-contract) · chua phan loai D',
+    !cf.some(x => ['ngoai B', 'trong C', 'chua phan loai D'].includes(x.title)), JSON.stringify(cf.map(x => x.title)));
+  // Đối chứng dương: đổi delta sang file khác → ngoai B cũng được carry (hai mục).
+  const r2 = run(d, 'nowhere/q.js');
+  const cf2 = (r2.json && r2.json.carriedFindings) || [];
+  check('DV10 doi chung duong: delta khong cham file nao -> carry ca hai muc ngoai hop dong',
+    cf2.length === 2 && cf2.map(x => x.title).sort().join(',') === 'ngoai A,ngoai B', JSON.stringify(cf2.map(x => x.title)));
+  // Sổ đời cũ (không có dòng finding) → carriedFindings rỗng, KHÔNG ném lỗi.
+  const dCu = mkFix();
+  const rCu = run(dCu, 'src/a/y.js');
+  check('DV10 duong doc-cu: so khong co dong finding -> carriedFindings rong, khong loi',
+    rCu.code === 0 && Array.isArray(rCu.json.carriedFindings) && rCu.json.carriedFindings.length === 0, JSON.stringify(rCu.json && rCu.json.carriedFindings));
 }
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`);

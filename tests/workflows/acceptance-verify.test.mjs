@@ -2427,4 +2427,36 @@ console.log('W42b T5: hai lane cung bao MOT loi -> van chi mot dong finding');
   check('W42b dedupe lien-lane: 1 dong finding', fl.length === 1, String(fl.length));
 }
 
+console.log('W43 T5: carriedFindings — khong triage/refute lai; K8 mo rong cho bugs + measurement');
+{
+  const carried = [{ file: 'src/b.js', title: 'B ngoai', severity: 'high', plain: 'nguoi dung thay B', proposal: 'known-limits', fromRound: 1 }];
+  const { result, calls } = await runWorkflow(WF, t1Args({
+    round: 2, deltaFiles: ['src/a.js'], carriedFindings: carried,
+    vungVat: ['src/a.js', 'tests/a.test.js'], ngoaiVatGlobs: [...HO_SO_GLOBS],
+  }), t1Responder({
+    triage: { contractUnreadable: false, triaged: T1_TRIAGE.triaged.filter(t => t.title !== 'B ngoai') },
+  }));
+  const tri = byLabel(calls, 'triage')[0];
+  check('W43 triage KHONG nhan B ngoai (da carry tu luot truoc)', tri && !tri.prompt.includes('B ngoai'), tri ? tri.prompt.slice(0, 160) : '(khong co triage)');
+  check('W43 refute KHONG chay cho B ngoai', !byLabel(calls, 'refute:').some(c => c.label === 'refute:b.js'), byLabel(calls, 'refute:').map(c => c.label).join(','));
+  check('W43 result.carried.findings liet khoa da carry',
+    JSON.stringify(result.carried.findings) === JSON.stringify(['src/b.js :: B ngoai']), JSON.stringify(result.carried));
+  const synth = byLabel(calls, 'synthesize:report')[0];
+  check('W43 synthesize nhan muc carried kem fromRound', synth && synth.prompt.includes('"fromRound":1') && /CARRIED/i.test(synth.prompt),
+    synth ? synth.prompt.slice(synth.prompt.indexOf('CARRIED'), synth.prompt.indexOf('CARRIED') + 120) : '(khong co)');
+  const pb = (byLabel(calls, 'review:bugs')[0] || {}).prompt || '';
+  const pm = (byLabel(calls, 'review:measurement')[0] || {}).prompt || '';
+  check('W43 K8 mo rong: bugs round>=2 mang tien to deltaFiles', /DA DOI so round truoc/i.test(pb) && pb.includes('src/a.js'), pb.slice(0, 200));
+  check('W43 K8 mo rong: measurement cung mang tien to deltaFiles', pm !== '' && /DA DOI so round truoc/i.test(pm) && pm.includes('src/a.js'), pm.slice(0, 200) || '(measurement khong spawn)');
+  // Không lọc ĐẦU RA theo deltaFiles: lớp liên-file vẫn phải qua (cùng lý do VVM2).
+  check('W43 finding o file NGOAI deltaFiles van di tiep (khong loc dau ra)', tri && tri.prompt.includes('src/c.js'), '(mat finding ngoai delta)');
+}
+
+console.log('W43b duong doc-cu: khong carriedFindings -> nhu luot dau');
+{
+  const { result, calls } = await runWorkflow(WF, t1Args({ round: 2, deltaFiles: ['src/a.js'] }), t1Responder());
+  check('W43b carried.findings rong, triage nhan ca ba',
+    result.carried.findings.length === 0 && byLabel(calls, 'triage')[0].prompt.includes('B ngoai'), JSON.stringify(result.carried.findings));
+}
+
 summary('acceptance-verify');
