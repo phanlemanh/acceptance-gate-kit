@@ -59,10 +59,14 @@ console.log('MM6 finder cũ nguyên vẹn từng chữ — pin neo git show ' + 
   check('MM6 REVIEWERS có ĐÚNG 3 phần tử (đếm phần tử mảng thật, không whitelist tên)',
     !!revBlock && countElems(revBlock[1]) === 3,
     revBlock ? String(countElems(revBlock[1])) : 'no block');
+  // Kim mutant neo vào CHÍNH khối REVIEWERS, không vào thứ đứng ngay sau nó: bản trước
+  // khớp `]` + comment «---- Machine» liền kề, nên khi T2 chèn REVIEWERS_ACTIVE vào giữa
+  // thì mutant không còn chỗ cắm và ca này đỏ vì HẠ TẦNG chứ không vì vật.
   check('MM6m2 mutant thêm reviewer thứ 4 key lạ → phép đếm đỏ', (() => {
-    const mutated = SRC.replace(/(\n)\]\n\n\/\/ ---- Machine/, "$1  { key: 'style', prompt: `nit` },\n]\n\n// ---- Machine");
+    if (!revBlock) return false;
+    const mutated = SRC.replace(revBlock[0], `const REVIEWERS = [${revBlock[1]}\n  { key: 'style', prompt: \`nit\` },\n]`);
     const mb = mutated.match(/const REVIEWERS = \[([\s\S]*?)\n\]/);
-    return !!mb && countElems(mb[1]) !== 3;
+    return !!mb && countElems(mb[1]) === 4;
   })(), 'thêm phần tử thứ 4 mà phép đếm vẫn ra 3');
   // mutant: sửa 1 chữ prompt cũ trên BẢN SAO → phép so phải đỏ
   const oldBugs = grab(pre, 'bugs');
