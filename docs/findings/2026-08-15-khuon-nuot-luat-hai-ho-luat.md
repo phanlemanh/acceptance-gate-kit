@@ -209,7 +209,7 @@ và dòng 41: *«re-rank sau red-team D2 (giữ vết re-rank)»*.
 `red-team` — tức bản mẫu chỉ trỏ tới chính nó, không tới thứ gì. Skill
 `strategy-red-team` từng được xếp lịch vendor vào plugin `discovery-pack` (mục
 **F-C** của
-[`docs/plans/2026-07-27-discovery-gate0-rollout.md:36`](../plans/2026-07-27-discovery-gate0-rollout.md))
+[`docs/plans/2026-07-27-discovery-gate0-rollout.md:36`](../superpowers/plans/2026-07-27-discovery-gate0-rollout.md))
 — việc đó chưa làm, và 7 pm-skills đã dọn 28/07. Thứ gần nhất còn sống là
 [`morphological-scan/references/risk-premortem.md`](../../skills/morphological-scan/references/risk-premortem.md),
 nhưng đó là **preset trục quét** cho một lần morphological-scan, không phải nghi

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // start-scan.mjs — bộ quét vào phiên của /start: đọc _acceptance/*/ và xếp mỗi
-// slug đúng MỘT ô theo bảng phân ô trong docs/specs/2026-08-03-start-command-design.md.
+// slug đúng MỘT ô theo bảng phân ô trong docs/superpowers/specs/2026-08-03-start-command-design.md.
 // CHỈ-ĐỌC tuyệt đối. Đầu ra: JSON một dòng (schema_version 1) — các key mà
 // commands/start.md đọc được ghim trong khối START-SCAN-KEYS của chính file đó;
 // case P99 round-trip giữ hai đầu khớp, P98 giữ bảng phân ô.

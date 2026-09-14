@@ -2,7 +2,7 @@
 
 *Chốt 2026-08-17 (owner gật bộ 4 hình + 1 bảng; rà lỗi logic cùng ngày — bỏ `route:`, chuyển mắt xích tự khai sang nhật-ký-vấp). Bộ này là **chiếu** của
 [`docs/specs/workflow-v2-spec.md`](../specs/workflow-v2-spec.md) và
-[`docs/lai-thu-nguoi-la.md`](../lai-thu-nguoi-la.md) cộng đề xuất hai mối nối
+[`docs/reference/lai-thu-nguoi-la.md`](../reference/lai-thu-nguoi-la.md) cộng đề xuất hai mối nối
 S0/S5 của feature-loop — chữ là nguồn, hình đi kèm; đổi thì sửa nguồn rồi vẽ
 lại (DIAGRAM-RULE §2). Tầng 2, `docs/diagrams/`.*
 
@@ -64,5 +64,5 @@ hợp lái-thử» chạm vào; hàng không dấu là hiện trạng, không đ
 ## Tham chiếu
 
 - Spec hợp nhất: [`docs/specs/workflow-v2-spec.md`](../specs/workflow-v2-spec.md)
-- Lái-thử Người-lạ: [`docs/lai-thu-nguoi-la.md`](../lai-thu-nguoi-la.md) + 3 hình `lai-thu-nguoi-la-*.html` cùng thư mục
+- Lái-thử Người-lạ: [`docs/reference/lai-thu-nguoi-la.md`](../reference/lai-thu-nguoi-la.md) + 3 hình `lai-thu-nguoi-la-*.html` cùng thư mục
 - Luật hình: [`docs/reference/DIAGRAM-RULE.md`](../reference/DIAGRAM-RULE.md)

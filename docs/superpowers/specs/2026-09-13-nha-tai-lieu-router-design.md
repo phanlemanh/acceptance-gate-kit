@@ -31,7 +31,7 @@ nhất; vòng đời thứ hai không ai sở hữu. Số đo 13/09 trên 5 repo
   file** mới tìm ra hàng kế (hạt giống 06/09 §1).
 - Chính kho kit: `docs/specs` 12 file cũ vs `docs/superpowers/specs` 67 (trôi quy
   ước); `docs/plans` 27 hạt giống thường-trú **trộn** 16 plan-theo-vòng cũ (trộn
-  vòng đời); `docs/lai-thu-nguoi-la.md` lạc ở gốc `docs/`.
+  vòng đời); `docs/lai-thu-nguoi-la.md` lạc ở gốc `docs/` (tình trạng trước 13/09 — đã dọn, xem cuối §8).
 - Đường đọc-cũ phải gánh: **630+ file** đang sống ở `docs/superpowers/` của 5
   repo — cấm ép migrate.
 
@@ -51,6 +51,19 @@ nhất; vòng đời thứ hai không ai sở hữu. Số đo 13/09 trên 5 repo
 Owner chốt 13/09: **một cơ chế, hai lối vào** — repo cũ tự khai; repo mới được
 `acceptance-init` dựng bản mặc định, *cũng qua router*.
 
+**Sửa 13/09 (chiều), sau khảo sát OneFlow và khung quyết định
+[`2026-09-13-khung-quyet-dinh-kien-truc-hai-tang.md`](../../findings/2026-09-13-khung-quyet-dinh-kien-truc-hai-tang.md):**
+owner chốt hướng **repo khai, kit kiểm**; spec tách rạch ròi **tầng ENGINE**
+(kit sở hữu, đóng: ba nhà cố định + ba khoá bind) và **tầng REPO** (repo sở
+hữu, mở). Cụ thể: khối bốn cột → **ba cột** (bỏ `chủ`); tập `lớp-vật` đóng →
+**mở**, chỉ ba cặp engine bind là đóng; thêm header `phiên-bản` · `quét:`; `nhà`
+nhận `#fragment`; `acceptance-init` ghi **bản khai**, không tạo thư mục; khoá
+`docs.router` **thay** `plan.block` của hạt giống 06/09. Phép thử giả định #1 đã
+chạy tay trên 7 repo ([P0](../../findings/2026-09-13-loi-khai-viet-tay-6-repo.md)):
+7/7 khai được bằng ba cột. Kế hoạch theo kết quả:
+[`2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md`](../../plans/2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md).
+Hình trước/sau: `docs/plans/assets/2026-09-13-ban-do-vung-lam-viec/05-truoc-sau-router.svg`.
+
 ## Thiết kế
 
 ### 1. Router — một file, người đọc được, máy đọc được
@@ -61,26 +74,40 @@ khối, cùng khuôn marker của `lib/md-section.cjs` (*bảng LÀ nguồn runt
 xuống hằng số là single-source giả*):
 
 ```
-<<<DOC-HOMES
-lớp-vật        | vòng-đời   | nhà                                          | chủ
-ý-định         | theo-vòng  | _acceptance/<slug>/opportunity.md            | kit
-ý-định         | thường-trú | docs/intent/ROADMAP.md · docs/intent/seeds/  | repo
-đặc-tả         | theo-vòng  | docs/superpowers/specs/                      | repo
-đặc-tả         | thường-trú | docs/spec/                                   | repo
-kế-hoạch       | theo-vòng  | docs/superpowers/plans/                      | repo
-bằng-chứng     | theo-vòng  | _acceptance/<slug>/                          | kit
-bằng-chứng     | thường-trú | PRODUCT-MAP.md                               | máy-sinh
-luật-máy       | thường-trú | CLAUDE.md · .claude/skills/                  | repo
-tài-liệu-người | thường-trú | docs/reference/ · docs/guides/               | repo
-DOC-HOMES>>>
+<!-- <<<DOC-HOMES -->
+phiên-bản: 1 · quét: docs/ · *.md
+lớp-vật        | vòng-đời   | nhà
+đặc-tả         | theo-vòng  | docs/superpowers/specs/
+kế-hoạch       | theo-vòng  | docs/superpowers/plans/
+ý-định         | thường-trú | docs/roadmap.md#plan-freeze · docs/strategy/vision.md
+trạng-thái     | thường-trú | STATUS.md
+luật-máy       | thường-trú | CLAUDE.md · .claude/skills/
+tài-liệu-người | thường-trú | docs/reference/ · docs/guides/
+<!-- DOC-HOMES>>> -->
 ```
 
-- `lớp-vật` ∈ 6 giá trị đóng; `vòng-đời` ∈ {theo-vòng, thường-trú}; `nhà` =
-  một hoặc nhiều đường dẫn tương đối phân cách «·» **trên cùng một dòng** = một
-  nhà lô-gic (nhiều dòng cho cùng cặp = hai nhà = vi phạm); `chủ` ∈ {kit, repo,
-  máy-sinh}. Hàng `chủ: kit` khai cả nhà kit sở hữu — để phép kiểm 2 tính được
-  «ngoài lời khai», và để ai đọc playbook (`intent/` ở gốc) mở repo vẫn tìm thấy
-  vai `intent.md` nằm ở đâu trong kit.
+- **Ba cột, không có cột `chủ`.** Mọi hàng là vật repo sở hữu. Vật kit sở hữu
+  (`_acceptance/<slug>/` · `PRODUCT-MAP.md` · `.out-of-scope/`) là hằng
+  `FIXED_HOMES` trong engine (mục 3) — **không đi qua lời khai**, vì engine đã
+  hardcode chúng; khai lại là hai nguồn cho một sự thật. Thẻ start in chúng dưới
+  nhãn «nhà kit» để ai đọc playbook vẫn thấy `intent.md` ↔ `opportunity.md`.
+- **`lớp-vật` là tập MỞ.** Engine chỉ hiểu — và bind — đúng **ba cặp** đóng:
+  `(đặc-tả, theo-vòng)` · `(kế-hoạch, theo-vòng)` · `(ý-định, thường-trú)`. Hàng
+  ngoài ba cặp đó (P0 đếm được 12 tên tự mọc: `sổ-cái`, `trạng-thái`,
+  `thiết-kế-nền`, `từ-điển`…) chỉ chịu K1/K2. `vòng-đời` ∈ {theo-vòng, thường-trú}.
+- `nhà` = một hoặc nhiều đường dẫn tương đối phân cách «·» **trên cùng một
+  dòng** = một nhà lô-gic; nhiều **dòng** cho cùng cặp = hai nhà = K1 đỏ. Đường
+  dẫn nhận hậu tố `#fragment` để trỏ một khối trong file — ở vòng này router
+  **chỉ giao con trỏ**, không đọc nội dung khối (đó là P3, hạt giống 06/09).
+- **Header** một dòng `khoá: giá trị · …` (mẫu OneFlow): `phiên-bản` (đường
+  đọc-cũ khi engine đổi khoá) và `quét:` — vùng K2 nhìn; vắng → mặc định
+  `docs/ · *.md`. Không có `quét:` thì `adrs/` ở gốc crm-onehub vô hình cả hai chiều.
+- **Giới hạn có tên (P0 #1):** K1 bắt hai *dòng*, không phân xử hai *file* cùng
+  vai khai chung một dòng (`CLAUDE.md · AGENTS.md` khác nội dung ở 2/7 repo).
+  Không thêm K3. Khuôn template gợi ý câu OneFlow đang dùng: *«CLAUDE.md là
+  nguồn duy nhất; file này chỉ thêm ghi chú»* — luật của repo, không của kit.
+- Marker `<!-- <<<DOC-HOMES -->` … `<!-- DOC-HOMES>>> -->` — tiền lệ đang sống
+  trong `commands/start.md`; HTML comment nên không hiện khi render.
 - Vì sao khối trong markdown chứ không file YAML riêng: một file cả người lẫn
   máy đọc là single-source thật; hai file là hai nguồn phải giữ đồng bộ — lớp
   lỗi kit chống suốt (ADR 0001/0008).
@@ -99,10 +126,24 @@ theo đúng chiều đỏ đã khai ở hạt giống 06/09 §5:
 
 Repo không khai là trạng thái **hợp lệ vĩnh viễn** — đường đọc-cũ, không cờ.
 
+Khoá này **thay** `plan.block` của hạt giống 06/09: câu «ý định thường-trú ở
+đâu» chỉ có một chỗ trả lời là hàng `(ý-định, thường-trú)`; bộ đọc khối của
+hạt giống đó (P3) bind vào hàng này, không thêm khoá config thứ hai.
+
 ### 3. Bộ đọc — writer và reader cùng rút một marker
 
-`lib/doc-homes.cjs`: `parseDocHomes(mdText) → [{lop, vongDoi, nha[], chu}]`,
-ném lỗi có tên khi thiếu cột hoặc giá trị ngoài tập đóng. Khuôn khối sống MỘT
+`lib/doc-homes.cjs` xuất bốn thứ:
+
+- `FIXED_HOMES` — ba nhà engine tuyên, hằng: `_acceptance/<slug>/` ·
+  `PRODUCT-MAP.md` · `.out-of-scope/`.
+- `ENGINE_KEYS` — ba cặp engine bind, đóng, kèm fallback = đường hôm nay.
+- `parseDocHomes(mdText) → {header: {phienBan, quet[]}, rows: [{lop, vongDoi,
+  nha[], fragment?}]}` — ném lỗi có tên khi thiếu cột, `vòng-đời` ngoài tập, hoặc
+  header thiếu `phiên-bản`; **không** ném khi `lớp-vật` lạ (tập mở).
+- `homeFor(rows, lop, vongDoi, fallback)`.
+
+Ngưỡng đếm cho chính hợp đồng engine (giả định #5 trong ô): nếu vòng sau cần
+**khoá bind thứ tư**, engine đang bò sang tầng repo — dừng và hỏi. Khuôn khối sống MỘT
 chỗ: `skills/acceptance/references/doc-homes-template.md` giữa marker
 `DOC-HOMES-TEMPLATE`; `acceptance-init` (bước 3c) và test round-trip đều rút từ
 đó — mẫu `OOC-ITEM-TEMPLATE` + case P55.
@@ -112,12 +153,12 @@ chỗ: `skills/acceptance/references/doc-homes-template.md` giữa marker
 `scripts/doc-homes-check.mjs --root <repo>`:
 
 - **K1 — «không lớp nào hai nhà»**: một cặp (lớp-vật × vòng-đời) xuất hiện >1
-  hàng → **ĐỎ**, exit 1, thông điệp ghim:
+  hàng — **kể cả lớp repo tự đặt tên** — → **ĐỎ**, exit 1, thông điệp ghim:
   `DOC-HOMES: lớp «đặc-tả» vòng-đời «theo-vòng» khai 2 nhà: docs/specs/ · docs/superpowers/specs/`.
   Đỏ là công bằng: đây là tự-mâu-thuẫn trong lời khai của chính repo.
-- **K2 — «không nhà nào ngoài lời khai»**: quét `*.md` ở gốc repo + `docs/**`
-  (loại `node_modules`, `.git`, `.claude/worktrees`, `_acceptance/`,
-  `.out-of-scope/`, và mọi nhà đã khai); file không rơi vào nhà nào → **VÀNG**,
+- **K2 — «không nhà nào ngoài lời khai»**: quét theo header `quét:` (mặc định
+  `docs/ · *.md`; loại `node_modules`, `.git`, `.claude/worktrees`, mọi
+  `FIXED_HOMES`, và mọi nhà đã khai); file không rơi vào nhà nào → **VÀNG**,
   exit 0 + NOTE, liệt tên:
   `DOC-HOMES: 14 file ngoài lời khai — docs/crm-plan.md · docs/list-building-roadmap.md · …`.
   **Không bao giờ đỏ** — 630+ file đang sống; vàng là cách duy nhất đúng luật
@@ -146,8 +187,12 @@ nó, không tự đọc khối.
 
 ### 7. Lối vào repo mới — `acceptance-init` bước 3c, không lệnh thứ bảy
 
-Cùng lượt gạch-một-lần đã có: sinh `docs/MAP.md` từ khuôn với cây mặc định dưới
-đây + khoá `docs.router`. Đã có `docs/MAP.md` → không đụng, chỉ nhắc dán khối.
+Cùng lượt gạch-một-lần đã có: sinh `docs/MAP.md` từ khuôn với **bản khai mặc
+định** (khối `DOC-HOMES` khai các nhà trong cây gợi ý dưới đây) + khoá
+`docs.router`. **Không tạo thư mục nào** — thư mục trống không tồn tại trong git,
+và tạo cây là engine quyết cấu trúc repo, thứ bất biến «kit là engine» cấm; khai
+trước, thư mục mọc khi repo có file đầu tiên. Đã có `docs/MAP.md` → không đụng,
+chỉ nhắc dán khối. Cây dưới đây là *gợi ý cho bản khai*, không phải lệnh mkdir:
 
 ```
 CLAUDE.md             ≤ 1 trang (playbook 337–340) · luật-máy thường-trú
@@ -177,12 +222,24 @@ Hai quyết định trong cây, nêu lý do để owner gạch nếu muốn:
 
 ### 8. Kit tự khai trước ai — đối chứng dương trên vật thật
 
-Kit viết `docs/MAP.md` của chính nó. Phép kiểm **phải đỏ trên kit** ở đúng chỗ
-đã biết trước khi được tin: K1 đỏ vì `docs/specs/` và `docs/superpowers/specs/`
-cùng cặp (đặc-tả, theo-vòng); K2 vàng nêu `docs/lai-thu-nguoi-la.md` + 16 plan
-cũ trong `docs/plans/`. Dọn xong (dời file, không xoá) → xanh. Vật thật đang sẵn
+Kit viết `docs/MAP.md` của chính nó — bản viết tay đã có ở P0 §1. Phép kiểm
+**phải đỏ trên kit** ở đúng chỗ đã biết trước khi được tin: K1 đỏ **hai** cặp —
+`docs/specs/ · docs/superpowers/specs/` cho (đặc-tả, theo-vòng) và
+`docs/plans/ · docs/superpowers/plans/` cho (kế-hoạch, theo-vòng), cặp thứ hai
+chính là «trộn vòng đời» (16 plan cũ nằm trong nhà của 27 hạt giống); K2 vàng
+nêu `docs/lai-thu-nguoi-la.md` · `docs/tools/` · `docs/diagrams/`. Dọn = dời, và
+dời `docs/specs/workflow-v2-spec.md` phải sửa dòng trỏ ở
+`skills/acceptance/references/human-facing-language.md:3` (P0 #3). Dọn xong (dời file, không xoá) → xanh. Vật thật đang sẵn
 hỏng nên khỏi phải phá — nhưng vẫn phải có cặp ca hai chiều trên fixture (mục
 Chiều đỏ), vì kit sạch rồi thì đối chứng này biến mất.
+
+**Dọn nhà đã làm 13/09, TRƯỚC vòng** (`workflow-v2-spec.md` + overview ở lại
+`docs/specs/` như đặc-tả thường-trú; 10 design doc + 16 plan + `lai-thu` dời).
+Vì thế R8 **không còn chạy được trên cây thật**: thay bằng ca trên bản chép cây
+kit tại commit `8a703c36` lấy trọn thư mục (`git archive 8a703c36 docs`), đúng
+luật base-trọn-thư-mục (P150). Kit sau dọn là **đối chứng dương** (K1 = 0, K2
+còn `docs/tools/` · `docs/diagrams/` chưa khai nhà); bản chép trước dọn là
+**chiều đỏ** (K1 = 2 cặp). Hai ca, cùng bộ đọc.
 
 ### 9. Từ điển
 
@@ -208,7 +265,12 @@ do trong `MIEN_MUI_TIEM`; ca meta đỏ nếu để rỗng):
 | R5 round-trip | khối viết bằng writer khuôn `DOC-HOMES-TEMPLATE` | reader đọc ra đúng 9 hàng, đúng giá trị |
 | R6 | thẻ start với/không khoá | có dòng «nhà tài liệu: …» / không có dòng |
 | R7 | router khai (đặc-tả, theo-vòng) = `docs/design/` · vắng router | `homeFor` trả `docs/design/` · trả `docs/superpowers/specs/` |
-| R8 | chạy trên **cây kit thật** trước khi dọn | K1 đỏ đúng cặp `docs/specs · docs/superpowers/specs`; K2 nêu `docs/lai-thu-nguoi-la.md` |
+| R8 | chạy trên **cây kit thật** trước khi dọn | K1 đỏ đúng **hai** cặp (`docs/specs · docs/superpowers/specs` · `docs/plans · docs/superpowers/plans`); K2 nêu `docs/lai-thu-nguoi-la.md` — **chạy trên bản chép `git archive 8a703c36 docs`**, vì cây thật đã dọn 13/09 |
+| R9 | hàng có `lớp-vật` lạ (`sổ-cái`) | reader nhận, không lỗi; hai hàng `sổ-cái` cùng vòng-đời → K1 đỏ như lớp thường |
+| R10 | `nhà` = `docs/roadmap.md#plan-freeze` | reader tách `fragment`; `homeFor` trả đường file; **không** đọc nội dung khối |
+| R11 | header `quét: docs/ · *.md · adrs/` + thả `adrs/la.md` | K2 nêu `adrs/la.md`; bỏ `adrs/` khỏi header → không nêu |
+| R12 | không khai gì cho `_acceptance/` `PRODUCT-MAP.md` `.out-of-scope/` | K2 **không** nêu chúng (FIXED_HOMES) |
+| R13 | xoá khoá `docs.router` sau khi đã có dòng thẻ | dòng thẻ biến mất, `homeFor` về fallback — đảo rẻ đo được |
 
 Mọi đường dẫn trong test suy từ vị trí script (luật P150), bản base cho ca
 so-sánh lấy trọn thư mục.
@@ -226,6 +288,20 @@ so-sánh lấy trọn thư mục.
 - Không kit-hoá trạng thái/tiến độ (`STATUS.md` kiểu artifact-platform) — đó là
   ô `viec-ke-theo-plan` (06/09): tiến độ là hiệu số máy in, không phải tài liệu.
 - Không sửa `CLAUDE.md` 193 dòng của kit trong vòng này; ghi là điểm-kit-biết.
+- Kit **không `mkdir`** trong repo tiêu thụ — kể cả ở lối vào repo mới.
+- Răng tầng repo (freeze, drift, sổ cái kiểu OneFlow) **ở lại repo**; kit không
+  nuốt, không chép.
+- Nối dòng dõi `iterate` **không thuộc router** — nghiệm ở hàng roadmap
+  (`kiểm: opportunity:<slug>`, OneFlow A1) hoặc khoá trong contract, quyết ở P3.
+- Vật chặng 6 xuyên slug (11 file lái-thử ở gốc `_acceptance/` mapposter) nằm
+  trong `FIXED_HOMES`, K2 không thấy — ngoài router, ghi sang hạt giống lát C.
+
+## ADR đi kèm
+
+**ADR 0017 — «Engine bind vào nhà repo khai; engine không sở hữu đường dẫn nào
+trong `docs/`».** Đủ ba điều kiện: khó đảo (7 repo khai theo), bất ngờ (kit
+*thôi* hardcode `docs/superpowers/`), đánh-đổi thật (tự do khai ↔ đồng nhất).
+Viết ở S1 của vòng P1+P2, không viết trước.
 
 ## Trace hiến pháp + luật nới 07/09
 

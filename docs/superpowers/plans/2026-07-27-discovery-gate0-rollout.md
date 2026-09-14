@@ -4,7 +4,7 @@
 + hội thoại máy A cùng ngày (phân tích pm-skills, PM brainstorm, phân tầng
 quản trị). Trạng thái: **ĐÃ DUYỆT — Manh Phan, 2026-07-27 (trong chat)**.
 Input đã chốt: V1 chạy trên repo **Artifact Platform** (Manh làm trực tiếp,
-theo [protocol V1](../research/2026-07-27-v1-discovery-probe-protocol.md));
+theo [protocol V1](../../research/2026-07-27-v1-discovery-probe-protocol.md));
 G2 handbook = **repo nhẹ mới**; R1/V2 giả định cùng repo Artifact Platform
 (Manh xác nhận lại khi chạy R1).*
 
@@ -213,7 +213,7 @@ DỪNG build, quay lại vá kit trước — không lặp lại lỗi đo-tại
 
 1. **Duyệt kế hoạch**: ✅ Manh Phan, trong chat.
 2. **V1**: repo Artifact Platform, Manh làm trực tiếp theo
-   [protocol + scorecard](../research/2026-07-27-v1-discovery-probe-protocol.md)
+   [protocol + scorecard](../../research/2026-07-27-v1-discovery-probe-protocol.md)
    (ngưỡng GO/NO-GO khai trước; luật context-sạch: S0/S1 chạy session mới).
 3. **Handbook (G2)**: repo nhẹ mới (scaffold tại `~/dev/team-handbook`,
    đổi tên/di chuyển tuỳ ý).
@@ -292,7 +292,7 @@ vòng vá nhỏ hoặc gộp vào F-A.
 | F-E | Máy tự nhận đường A/B/C/D/E từ artifact (hiện là quy ước người khai trong hồ sơ, người duyệt soi tại cổng) | `feature-loop/skills/` + mirror | T2 | spec v2 §2.4 |
 | F-F | Script kiểm kê kho linh kiện cho câu thực tế #4 + giai đoạn 0 design-pass | `scripts/` + mirror | T2 | — |
 | F-G | Máy soi mật độ chữ kỹ thuật ở vùng mặt-người (ratchet như census DS, chạy khi nâng bộ dựng thẻ) | `scripts/` + `commands/` + mirror | T2 | spec v2 §4.1 |
-| F-H | Lệnh `/start` — nghi thức vào phiên: người gõ một lệnh, máy quét `_acceptance/` + PRODUCT-MAP trình thẻ 3 nhóm (chờ ký · đang dở · bắt đầu mới), người chọn một chữ cái, bàn giao sang nghi thức đích; khoá model-invocation 2 harness (thao tác người thứ 6 — nợ P31/P32 mở rộng trả tại đây). Design đã duyệt hướng: `docs/specs/2026-08-03-start-command-design.md`. **ĐÃ SHIP 03/08 (1.30.0)** — 2 vòng signed-off cùng ngày: `start-command` (15 AC, gate1 12′ + gate2 5′) + `start-scan-hardening` (5 round S4 — round 4 REJECT dừng escalate người đúng nghi thức cap, round 5 PASS, ma trận phân ô 59 ô P105; 3 known-limits + 1 chuyển F-B); maintainer verify độc lập: mirror OK, suite xanh toàn phần, scan sống khớp 15/15 slug. Lỗ GATE1-EVAL-MAP (khuôn thẻ gói duyệt) vẫn MỞ — không thuộc vòng này | `commands/` + `codex/` + `tests/` + `GUIDE.md` + mirror | T2 | thi công qua feature-loop, 1-2 buổi | 
+| F-H | Lệnh `/start` — nghi thức vào phiên: người gõ một lệnh, máy quét `_acceptance/` + PRODUCT-MAP trình thẻ 3 nhóm (chờ ký · đang dở · bắt đầu mới), người chọn một chữ cái, bàn giao sang nghi thức đích; khoá model-invocation 2 harness (thao tác người thứ 6 — nợ P31/P32 mở rộng trả tại đây). Design đã duyệt hướng: `docs/superpowers/specs/2026-08-03-start-command-design.md`. **ĐÃ SHIP 03/08 (1.30.0)** — 2 vòng signed-off cùng ngày: `start-command` (15 AC, gate1 12′ + gate2 5′) + `start-scan-hardening` (5 round S4 — round 4 REJECT dừng escalate người đúng nghi thức cap, round 5 PASS, ma trận phân ô 59 ô P105; 3 known-limits + 1 chuyển F-B); maintainer verify độc lập: mirror OK, suite xanh toàn phần, scan sống khớp 15/15 slug. Lỗ GATE1-EVAL-MAP (khuôn thẻ gói duyệt) vẫn MỞ — không thuộc vòng này | `commands/` + `codex/` + `tests/` + `GUIDE.md` + mirror | T2 | thi công qua feature-loop, 1-2 buổi | 
 
 ## Bổ sung 2026-08-04
 
@@ -317,7 +317,7 @@ fixture repo-lạ (không phải artifact-platform) và ghim QUAN HỆ kit-đòi
 
 | ID | Việc | Nơi chạm | Tier | Phụ thuộc |
 |---|---|---|---|---|
-| F-I | Trục ngữ cảnh cho bản mẫu: khoá `context:` 3 nấc trong sổ phiên design-pass + câu hỏi giai đoạn 0 + luật cảnh-ngữ-cảnh + ổ cắm `design_pass.host_embed` (đường đọc-cũ) + thẻ Cổng Phạm-vi render nấc + test RED trên fixture repo-lạ. Design đã duyệt hướng: `docs/specs/2026-08-04-context-ladder-design.md` | `skills/` (design-pass) + bộ dựng thẻ + `feature-loop/skills/` + `GUIDE.md` + tests + mirror | T2 | gộp được với F-D đợt 2 (proto-init/lint) |
+| F-I | Trục ngữ cảnh cho bản mẫu: khoá `context:` 3 nấc trong sổ phiên design-pass + câu hỏi giai đoạn 0 + luật cảnh-ngữ-cảnh + ổ cắm `design_pass.host_embed` (đường đọc-cũ) + thẻ Cổng Phạm-vi render nấc + test RED trên fixture repo-lạ. Design đã duyệt hướng: `docs/superpowers/specs/2026-08-04-context-ladder-design.md` | `skills/` (design-pass) + bộ dựng thẻ + `feature-loop/skills/` + `GUIDE.md` + tests + mirror | T2 | gộp được với F-D đợt 2 (proto-init/lint) |
 
 ## DP-1 — Scorecard (điền sau V1)
 

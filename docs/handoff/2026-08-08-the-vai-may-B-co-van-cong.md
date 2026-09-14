@@ -6,7 +6,7 @@
 >
 > **Bối cảnh chiến lược bắt buộc đọc kèm:**
 > [handoff tái lập](2026-08-07-handoff-tai-lap-va-trien-khai-doi.md) ·
-> [kế hoạch 5 GĐ](../plans/2026-08-07-tai-lap-don-gian-va-trien-khai-doi.md) ·
+> [kế hoạch 5 GĐ](../superpowers/plans/2026-08-07-tai-lap-don-gian-va-trien-khai-doi.md) ·
 > [CLAUDE.md](../../CLAUDE.md) (mục ĐÓNG BĂNG LAB đứng đầu).
 
 ## 1 · Phân vai

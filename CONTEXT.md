@@ -100,7 +100,7 @@ sản phẩm thật, ghi vấp CHẶN/LẠC/KHÓ-CHỊU/VẶT, không phán đá
 `chuyen_phien_nguoi`) là phần `uat-session` §0 đọc để coi điều kiện «bấm được»
 là bằng chứng hay lời khai. Khuôn MỘT chỗ: `stranger-drive-template.md`, khối
 mốc `STRANGER-FRONTMATTER-TEMPLATE`; khoá §0 đọc khai ở marker
-`STRANGER-KEYS-READ`. Nghi thức: `docs/lai-thu-nguoi-la.md`.
+`STRANGER-KEYS-READ`. Nghi thức: `docs/reference/lai-thu-nguoi-la.md`.
 _Avoid_: «giả lập UAT» (máy không phán giá trị), test log, hồ sơ mục tiêu
 (tên cũ của đề bài); coi nó là bằng chứng của vòng khác hay bản cũ hơn lần chấm.
 

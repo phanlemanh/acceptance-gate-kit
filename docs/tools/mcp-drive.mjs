@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Cầu nối Lái-thử Người-lạ — biến thể MẶT AGENT (docs/lai-thu-nguoi-la.md §3).
+// Cầu nối Lái-thử Người-lạ — biến thể MẶT AGENT (docs/reference/lai-thu-nguoi-la.md §3).
 // Nói chuyện với một MCP server stdio bằng JSON-RPC thô, để phiên người-lạ chỉ
 // thấy đúng thứ một agent thật thấy: mô tả tool + phản hồi. Không đọc source.
 //

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Node stdlib (không npm dep), bash test suites fixture-driven, vm harness cho workflow tests.
 
-**Spec:** `docs/specs/2026-07-03-dot3-observed-evidence-design.md` (đã duyệt 2026-07-03).
+**Spec:** `docs/superpowers/specs/2026-07-03-dot3-observed-evidence-design.md` (đã duyệt 2026-07-03).
 
 ## Global Constraints
 

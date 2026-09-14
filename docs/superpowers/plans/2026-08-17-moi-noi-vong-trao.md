@@ -195,12 +195,12 @@ Lưu ý neo mutant: chuỗi `ut.section_present && ut.lines.length` phải xuấ
 **Files:**
 - Create: `skills/acceptance/references/stranger-drive-template.md`
 - Modify: `skills/uat-session/SKILL.md` (§0 L19–28, §1 L30–38, §3 L46–56)
-- Modify: `docs/lai-thu-nguoi-la.md` (§5 Tham chiếu, thêm dòng trỏ khuôn)
+- Modify: `docs/reference/lai-thu-nguoi-la.md` (§5 Tham chiếu, thêm dòng trỏ khuôn)
 - Create: `_acceptance/moi-noi-vong-trao/rang-mnvt.sh` (chân `khuon`, `uat-needle`; các task sau thêm chân)
 
 **Interfaces:**
 - Produces: khối marker `<!-- <<<STRANGER-FRONTMATTER-TEMPLATE -->…<!-- STRANGER-FRONTMATTER-TEMPLATE>>> -->` bọc ```` ```yaml ```` chứa frontmatter với khoá `schema_version slug ran_at variant chan lac kho_chiu vat chuyen_phien_nguoi`; §0 uat-session gọi khoá bằng backtick (`chan`, `slug`, `ran_at`).
-- Consumes: `docs/lai-thu-nguoi-la.md` §1 (khuôn nhật ký CHẶN/LẠC/KHÓ-CHỊU/VẶT).
+- Consumes: `docs/reference/lai-thu-nguoi-la.md` §1 (khuôn nhật ký CHẶN/LẠC/KHÓ-CHỊU/VẶT).
 
 `independent: false` (rang-mnvt.sh dùng chung) · phục vụ E3, E4b, E4.
 
@@ -228,7 +228,7 @@ function keysRead(sk){const s0=sk.split(/^## 0\./m)[1]||'';const s01=s0.split(/^
 function check(tpl,sk,label){const K=keysOfTemplate(tpl);if(!K)return label+': khuon thieu khoi STRANGER-FRONTMATTER-TEMPLATE';const R=[...keysRead(sk)].filter(k=>K.has(k)||['chan','blocked','slug','ran_at','lac','kho_chiu','vat','variant','chuyen_phien_nguoi'].includes(k));for(const k of R)if(!K.has(k))return label+': §0 doc khoa ngoai khuon: '+k;for(const k of['chan','slug','ran_at'])if(!R.includes(k))return label+': §0 khong doc khoa bat buoc: '+k;if(!/stranger-drive\.md/.test(sk))return label+': §0 khong nhac stranger-drive.md';return null;}
 const tpl=fs.readFileSync(tplP,'utf8'),sk=fs.readFileSync(skP,'utf8');
 const e=check(tpl,sk,'that');if(e)die(e);
-if(!fs.readFileSync(path.join(root,'docs/lai-thu-nguoi-la.md'),'utf8').includes('stranger-drive-template.md'))die('docs/lai-thu-nguoi-la.md khong tro toi khuon');
+if(!fs.readFileSync(path.join(root,'docs/reference/lai-thu-nguoi-la.md'),'utf8').includes('stranger-drive-template.md'))die('docs/reference/lai-thu-nguoi-la.md khong tro toi khuon');
 // chieu do hai phia
 const eA=check(tpl.replace(/^chan:/m,'blocked:'),sk,'mutA');if(!eA||!/ngoai khuon: chan/.test(eA))die('MUTANT khuon (chan->blocked) KHONG bi bat: '+eA);
 const eB=check(tpl,sk.replace(/`chan`/,'`blocked`'),'mutB');if(!eB||!/ngoai khuon: blocked/.test(eB))die('MUTANT SKILL (chan->blocked) KHONG bi bat: '+eB);
@@ -261,7 +261,7 @@ Chạy `bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan khuon` → ĐỎ 
 > Vị trí khi dùng: `_acceptance/<slug>/stranger-drive.md` của repo sản phẩm.
 > Frontmatter là phần MÁY ĐỌC (`uat-session` §0 đọc) — giữ nguyên tên khoá,
 > chỉ thay giá trị. Nghi thức, hai biến thể và luật dùng/không-dùng ở
-> `docs/lai-thu-nguoi-la.md`; đề bài thi hành ở `docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md`.
+> `docs/reference/lai-thu-nguoi-la.md`; đề bài thi hành ở `docs/superpowers/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md`.
 > Máy tường thuật, không phán đáng-giá: mọi câu «đáng không?» ghi vào «Chuyển
 > phiên người», không điền verdict.
 
@@ -314,7 +314,7 @@ chuyen_phien_nguoi: {n}     # số câu «Chuyển phiên người» ở cuối 
     `verified_at` của `evidence-report.md` → điều kiện THOẢ BẰNG BẰNG CHỨNG;
     nói một dòng (ván nào, biến thể nào) rồi đi tiếp.
   - `chan` > 0 → DỪNG, nêu từng vấp CHẶN, và chỉ đường quay lại: chạy lại
-    lái-thử (`docs/lai-thu-nguoi-la.md`) cho CHẶN về 0 — sửa là việc của vòng,
+    lái-thử (`docs/reference/lai-thu-nguoi-la.md`) cho CHẶN về 0 — sửa là việc của vòng,
     không phải của phiên này.
   - File vắng · frontmatter không đọc được · `slug` lệch · `ran_at` cũ hơn lần
     chấm máy cuối → đi tiếp với **cờ vàng nêu lý do có tên** («chưa lái-thử» /
@@ -331,9 +331,9 @@ làm câu gợi cho từng người dự — máy dọn bàn, người chấm; k
 đó là verdict.
 ```
 
-- [ ] **Step 4: `docs/lai-thu-nguoi-la.md` §5** thêm dòng đầu: `- **Khuôn nhật-ký-vấp** (mặt máy \`uat-session\` §0 đọc): \`skills/acceptance/references/stranger-drive-template.md\``.
+- [ ] **Step 4: `docs/reference/lai-thu-nguoi-la.md` §5** thêm dòng đầu: `- **Khuôn nhật-ký-vấp** (mặt máy \`uat-session\` §0 đọc): \`skills/acceptance/references/stranger-drive-template.md\``.
 - [ ] **Step 5: Chạy xanh** hai chân: `bash _acceptance/moi-noi-vong-trao/rang-mnvt.sh --chan khuon` và `--chan uat-needle` → XANH kèm dòng mutant.
-- [ ] **Step 6: Commit** — `git add skills/acceptance/references/stranger-drive-template.md skills/uat-session/SKILL.md docs/lai-thu-nguoi-la.md _acceptance/moi-noi-vong-trao/rang-mnvt.sh && git commit -m "feat(uat-session): §0 đọc nhật-ký-vấp làm bằng chứng bấm-được (chan·slug·ran_at) + khuôn stranger-drive có marker + răng khuon/uat-needle"`.
+- [ ] **Step 6: Commit** — `git add skills/acceptance/references/stranger-drive-template.md skills/uat-session/SKILL.md docs/reference/lai-thu-nguoi-la.md _acceptance/moi-noi-vong-trao/rang-mnvt.sh && git commit -m "feat(uat-session): §0 đọc nhật-ký-vấp làm bằng chứng bấm-được (chan·slug·ran_at) + khuôn stranger-drive có marker + răng khuon/uat-needle"`.
 
 ---
 
@@ -369,7 +369,7 @@ Chạy `--chan s5-needle` → ĐỎ «thieu dong ban giao S5».
 
 Invoke `superpowers:finishing-a-development-branch` → PR theo quy trình repo (không push thẳng nhánh chính nếu repo cấm). Update doc trạng thái của repo nếu có. CI pre-merge check của acceptance-gate kit (`scripts/pre-merge-check.sh`) là chốt chặn độc lập — không bypass; repo CHƯA wire nó vào CI → cảnh báo user rõ ràng (gate không enforce trước merge, xem README của kit cách wire).
 
-**Kết S5 — bàn giao sang Vòng TRAO, không kết bằng «xong».** Có `_acceptance/<slug>/opportunity.md` (vòng có ngưỡng nghiệm thu khai ở Cổng Đáng) → in ĐÚNG MỘT DÒNG: «đã giao sau cờ · bước kế: lái-thử người-lạ (docs/lai-thu-nguoi-la.md của kit) rồi phiên nghiệm thu — `uat-session <slug>`» — không hỏi, không tự chạy phiên nghiệm thu; lái-thử chạy trong lúc chờ mời người dự. Không có `opportunity.md` → một dòng «không hồ sơ cơ hội → ship thẳng, không phiên nghiệm thu; vòng đóng». Đường đi không lưu ở đâu — suy khi đọc từ có/không hồ sơ cơ hội.
+**Kết S5 — bàn giao sang Vòng TRAO, không kết bằng «xong».** Có `_acceptance/<slug>/opportunity.md` (vòng có ngưỡng nghiệm thu khai ở Cổng Đáng) → in ĐÚNG MỘT DÒNG: «đã giao sau cờ · bước kế: lái-thử người-lạ (docs/reference/lai-thu-nguoi-la.md của kit) rồi phiên nghiệm thu — `uat-session <slug>`» — không hỏi, không tự chạy phiên nghiệm thu; lái-thử chạy trong lúc chờ mời người dự. Không có `opportunity.md` → một dòng «không hồ sơ cơ hội → ship thẳng, không phiên nghiệm thu; vòng đóng». Đường đi không lưu ở đâu — suy khi đọc từ có/không hồ sơ cơ hội.
 ```
 
 - [ ] **Step 3: Sửa S0 mục 3** — thêm câu cuối: `Workspace đã có \`opportunity.md\` (vòng đi từ Cổng Đáng) → đó là INPUT THỨ NHẤT của brainstorm S1: đọc trước khi hỏi câu nào; ngưỡng nghiệm thu và khung người/việc/dữ liệu của nó chảy vào contract, không hỏi lại owner điều đã grill.`
@@ -390,7 +390,7 @@ Invoke `superpowers:finishing-a-development-branch` → PR theo quy trình repo 
 
 ```bash
 spec)
-  SP="$ROOT/docs/specs/workflow-v2-spec.md"; DB="$ROOT/docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md"
+  SP="$ROOT/docs/specs/workflow-v2-spec.md"; DB="$ROOT/docs/superpowers/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md"
   chk() { grep -q -- "$1" "$2" || fail "$3"; }
   awk '/^### 2.3/{f=1} /^### 2.4/{f=0} f' "$SP" | grep -q 'thì ĐO' || fail "§2.3 khong goi lai-thu la thi DO"
   grep '^| \*\*A\*\*' "$SP" | grep -q 'lái-thử' || fail "hang A thieu lai-thu"

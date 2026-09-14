@@ -1,7 +1,7 @@
 # Design: product-map-uat-session (F-B — PRODUCT-MAP + phiên nghiệm thu)
 
 Ngày: 2026-08-03 · Slug: `product-map-uat-session` · Tier: T2
-Nguồn intent: docs/plans/2026-07-27-discovery-gate0-rollout.md (hạng mục F-B) +
+Nguồn intent: docs/superpowers/plans/2026-07-27-discovery-gate0-rollout.md (hạng mục F-B) +
 docs/specs/workflow-v2-spec.md (mục "Vận hành PRODUCT-MAP (quyết 30/07)", bảng
 artifact, §2.3 Phiên UAT) + ghi chú Notes trong
 `_acceptance/start-command/contract.md`.
@@ -144,7 +144,7 @@ time_human_minutes:
   lỗi khi tính → null). Thẻ `/start` in một dòng trạng thái bản đồ; lệch →
   gợi ý đúng một lệnh regen.
 - **Phiên nghiệm thu:** bỏ dòng skip `phiên-nghiệm-thu`; ô mới theo bảng phân ô
-  (cập nhật docs/specs/2026-08-03-start-command-design.md — nguồn sự thật P98):
+  (cập nhật docs/superpowers/specs/2026-08-03-start-command-design.md — nguồn sự thật P98):
 
 | Artifact quan sát được | Ô | Bước kế |
 |---|---|---|

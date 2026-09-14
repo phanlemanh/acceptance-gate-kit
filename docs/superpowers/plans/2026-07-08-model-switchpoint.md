@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Tài liệu hóa "model theo giai đoạn" — mục GUIDE về `feature_loop.models` (syntax + cảnh báo alias + giới hạn phạm vi) + combo đổi-ca-tại-Gate-1 + 1 vế nối câu SKILL /goal, đúng spec `docs/specs/2026-07-08-model-switchpoint-design.md`.
+**Goal:** Tài liệu hóa "model theo giai đoạn" — mục GUIDE về `feature_loop.models` (syntax + cảnh báo alias + giới hạn phạm vi) + combo đổi-ca-tại-Gate-1 + 1 vế nối câu SKILL /goal, đúng spec `docs/superpowers/specs/2026-07-08-model-switchpoint-design.md`.
 
 **Architecture:** Docs-only, zero cơ chế. GUIDE mang source-of-truth (mục 4.7 mới + combo trong 4.6); SKILL nối 1 vế mềm vào câu /goal 1.11.1. Package acceptance-gate sinh bằng sync script.
 

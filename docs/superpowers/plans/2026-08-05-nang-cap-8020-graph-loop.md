@@ -1,7 +1,7 @@
 # Chương trình nâng cấp 80/20 theo Graph Engineering — mục đích, mục tiêu, kế hoạch
 
 *2026-08-05 · Owner: Manh Phan · Nguồn quyết định: mục "Đề xuất nâng cấp 05/08
-— ĐÃ DUYỆT" trong [research note](../research/2026-07-29-graph-engineering-karpathy-anthropic.md).
+— ĐÃ DUYỆT" trong [research note](../../research/2026-07-29-graph-engineering-karpathy-anthropic.md).
 Đây là tầng CHƯƠNG TRÌNH — mỗi vòng bên dưới vẫn tự có contract/evals riêng ở
 S1 của nó; ngưỡng ở đây là ngưỡng nghiệm thu chương trình, khai TRƯỚC, không
 sửa sau khi thấy số.*

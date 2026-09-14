@@ -118,3 +118,15 @@ Quan hệ: ADR 0007 (bản đồ miễn T1 vì máy sinh toàn phần — plan l
 miễn) · `start-scan.mjs` nhóm `considering` (nấc 2 đã có) · ổ cắm `discovery.brainstorm_skill`
 (khuôn ổ cắm trung tính) · OneFlow `docs/roadmap.md` khối plan-freeze và
 `scripts/roadmap/check-plan-freeze.mjs` (bản mẫu repo-local, guard chỉ builtins).
+
+---
+
+**Cập nhật 13/09/2026 — hạt giống này đổi bản chất, không đổi mục tiêu.** Khoá
+`plan.block` ở §3 **không còn**: câu «ý định thường-trú ở đâu» được trả lời bởi
+hàng `(ý-định, thường-trú)` của router nhà tài liệu (spec
+`docs/superpowers/specs/2026-09-13-nha-tai-lieu-router-design.md`, `nhà` nhận
+`#fragment`). Phần B trở thành **bộ đọc khối bind vào hàng đó** — P3 của kế
+hoạch `2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md`, vẫn chờ mốc 09/10 của
+OneFlow. Bộ đọc phải nhận hai marker (`<!-- x:start -->` kiểu OneFlow và
+`<!-- <<<X -->` kiểu kit) với cặp ca cho cả hai. Nối dòng dõi `iterate` (phát
+hiện 13/09) quyết cùng P3.

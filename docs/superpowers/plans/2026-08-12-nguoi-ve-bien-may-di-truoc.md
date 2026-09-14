@@ -214,4 +214,4 @@ trace. Chỉ sau đợt này mới bàn tiếp bất kỳ chip mới nào.
   nhất» nhờ hai hình tầng-2. Điều kiện vào đợt 3 đủ; thiếu duy nhất release
   2.1.0 để repo tiêu thụ nhận luật mới. Tổng kết:
   docs/findings/2026-08-16-tong-ket-ngay-cat-khuon-va-cong-chan-nham-cho.md
-  · đề bài đợt 3: docs/plans/2026-08-16-de-bai-dot3-nghiem-tren-vat-that.md
+  · đề bài đợt 3: docs/superpowers/plans/2026-08-16-de-bai-dot3-nghiem-tren-vat-that.md

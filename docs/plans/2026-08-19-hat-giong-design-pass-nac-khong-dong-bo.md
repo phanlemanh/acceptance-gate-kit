@@ -391,7 +391,7 @@ Bản phác tầng 1 của cả bảng (8 file tự-đủ + mục lục/cách đ
 
 ## Nguồn
 
-- North Star + ba nguyên tố: `CLAUDE.md` (kit), `docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
+- North Star + ba nguyên tố: `CLAUDE.md` (kit), `docs/superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
 - Nghi thức hiện tại: `skills/design-pass/SKILL.md` (§0–§5, «Ranh giới»),
   `feature-loop/skills/feature-loop/SKILL.md` (S1#4, S1#6, Nghi thức S1-D).
 - Luật hình: `docs/reference/DIAGRAM-RULE.md`.

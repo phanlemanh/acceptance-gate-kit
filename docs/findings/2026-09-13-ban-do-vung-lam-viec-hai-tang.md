@@ -67,6 +67,10 @@ scripts/ lib/ hooks/` · khảo sát 5 repo bằng một script duy nhất (§4)
 
 ## 2. Tầng ENGINE — kit phủ tới đâu
 
+Hình cùng khung sáu chặng: `docs/plans/assets/2026-09-13-ban-do-vung-lam-viec/04-kit-vs-playbook.svg`
+(kit hôm nay đặt cạnh playbook) · `06-kit-moi-vs-playbook.svg` (thêm lane kit +
+router). Hình là chiếu của mục này, không phải nguồn.
+
 ![Tầng engine](../plans/assets/2026-09-13-ban-do-vung-lam-viec/01-tang-engine.svg)
 
 *Cách đọc:* cột là loại bộ phận, hàng là chặng; ô tô đậm là chỗ kit đặc, ô trống

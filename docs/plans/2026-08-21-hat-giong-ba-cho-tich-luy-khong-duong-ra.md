@@ -226,7 +226,7 @@ dọn.
 ## Nguồn
 
 - North Star + ba nguyên tố + luật «chỉ TRỪ không CỘNG»: `CLAUDE.md`,
-  `docs/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
+  `docs/superpowers/plans/2026-08-12-nguoi-ve-bien-may-di-truoc.md`.
 - Luật sinh ra lỗ 1a: `skills/acceptance/SKILL.md` mục 3;
   `skills/acceptance/references/eval-executors.md` mục 6.
 - Máy đã chấp nhận đường dẫn: `lib/evidence-core.cjs` `isAuthenticVerifier`.

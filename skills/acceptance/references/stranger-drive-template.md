@@ -4,8 +4,8 @@
 > Frontmatter là phần MÁY ĐỌC (`uat-session` §0 đọc để quyết điều kiện «sản
 > phẩm bấm được» là bằng chứng hay lời khai) — giữ nguyên tên khoá, chỉ thay
 > giá trị. Nghi thức, hai biến thể (UI · agent) và luật dùng/không-dùng ở
-> `docs/lai-thu-nguoi-la.md`; đề bài thi hành ở
-> `docs/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md`.
+> `docs/reference/lai-thu-nguoi-la.md`; đề bài thi hành ở
+> `docs/superpowers/plans/2026-08-13-de-bai-lai-thu-nguoi-la.md`.
 > Máy tường thuật, không phán đáng-giá: mọi câu «đáng không?» ghi vào «Chuyển
 > phiên người», không điền verdict — verdict là chữ của người ký Cổng Giá trị.
 

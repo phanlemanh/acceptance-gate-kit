@@ -7,7 +7,7 @@
 > Vật nó đẻ ra giữ tên **nhật ký vấp**. Cách gọi trong câu: *«chạy Vòng Người
 > Lạ trước Cổng Giá trị»*.
 >
-> Kiến trúc một trang: [assets/vong-nguoi-la.html](assets/vong-nguoi-la.html)
+> Kiến trúc một trang: [assets/vong-nguoi-la.html](../../plans/assets/vong-nguoi-la.html)
 > — 4 làn (điều phối · người lạ · trọng tài khác họ · người ký) × 7 bậc, công
 > cụ ghi trên từng nút, ranh máy/người là nét đứt trước làn cuối.
 
