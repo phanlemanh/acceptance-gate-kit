@@ -5,7 +5,7 @@ slug: release-2-13-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest + tests/plugins/run-tests.sh; KHÔNG chạm t3_paths (hooks, lib, pre-merge, recheck). T2 nên làn V mở.
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Mạnh
 approved_at: 2026-09-14
 ---
@@ -177,29 +177,105 @@ token (hợp đồng của nó khai điều này), đọc ở mốc 2.14.
 
 ## Notes
 
-### 1. Năm dòng số của luật (c) — VĂN ĐẾM TAY, mỗi ô có nguồn rút
+### 1. Năm dòng số của luật (c) — mốc ĐẦU TIÊN đủ năm
 
-Điền ở S3 từ nguồn: dòng 1–3 đếm tay như 2.12.0 (danh sách vòng ← commit Cổng 2 trong
-cửa sổ · lượt chấm ← `max(round)` run-log · làm-xong→quyết-được ← dòng round đầu → commit
-Cổng 2 · gọi người ← đếm tay từ phiên, cận dưới từ sổ KÈM lời khai cận dưới phồng); dòng
-4–5 máy đo từ `usage-report.md` của vòng `khoi-tim-loi-tra-phi-theo-vat` (token tách ba khối
-· phút và đường găng), và của chính các lượt chấm mốc này.
+Cửa sổ 2.12 → 2.13 có đúng MỘT vòng: `khoi-tim-loi-tra-phi-theo-vat` (luật (b), owner gọi
+tên 14/09). Bảng dưới đây là VĂN ĐẾM TAY cho ba dòng đầu và MÁY ĐO cho hai dòng cuối.
 
-### 2. Lớp vendored — đo tại sha nêu tên
+| Dòng | Số | Nguồn rút |
+|---|---|---|
+| 1 làm-xong → quyết-được | **6h09** | ts dòng `round` ĐẦU của `run-log.jsonl` (`2026-09-14T06:17:15Z`) → thời điểm commit Cổng 2 (`b2c4d0d6`, `2026-09-14T19:26:59+07:00`) |
+| 2 lượt gọi người/vòng | **4** — trong thiết kế **1**, ngoài thiết kế **3** | đếm tay từ phiên đã chạy vòng; cận dưới đọc từ sổ là 15, xem lời khai bên dưới |
+| 3 vòng bị hạ-tầng-kit đốt lượt chấm | **3** trên 6 lượt | lượt 1 SIGPIPE trong khuôn khoá executor · lượt 2 E4 đỏ khi chấm mà `rc=0` khi chạy tay · lượt 4 P93 đỏ không tái hiện được (5 lần chạy lại đều xanh) |
+| 4 token máy/vòng | **16.715.215** — tìm-lỗi 79,9 % · chứng-minh-vật 15,6 % · tổng hợp 4,6 % | `usage-report.md` của `khoi-tim-loi-tra-phi-theo-vat`, mục «Lượt chấm 5 — lượt PASS (run `wf_211fd30c-0ec`)»; máy đo bằng `wf-usage`, không đếm tay |
+| 5 phút máy/lượt chấm | **20,4 phút** · đường găng là làn `machine` **12,9 phút** | cùng tệp, cùng mục; bảng vai trò |
 
-Điền ở S3: bảng chín mục như 2.12.0, +/− dòng trong cửa sổ `7e260d4b..HEAD` dưới `vendor/`.
+**Hai dòng máy đo lấy từ đâu:** cả dòng 4 và dòng 5 đọc từ
+`_acceptance/khoi-tim-loi-tra-phi-theo-vat/usage-report.md`, mục lượt chấm 5 — lượt PASS,
+run `wf_211fd30c-0ec`. Chép nguyên chữ số, không làm tròn, không tính lại.
+
+**Ba dòng đếm tay dùng phương pháp nào:** đúng phương pháp `release-2-12-0` đã khai, không
+dựng phép đo mới — danh sách vòng ← commit Cổng 2 trong cửa sổ; lượt chấm ← `max(round)`
+trong `run-log.jsonl` (bằng 5, cộng một lượt 1 chạy lại nên SÁU lượt thật); làm-xong →
+quyết-được ← dòng `round` đầu tới commit Cổng 2; gọi người ← đếm tay, kèm cận dưới từ sổ.
+
+**Giới hạn của phép đếm lượt gọi người — cận dưới PHỒNG, không phải thiếu.** Đếm entry
+mang dấu người trong `decisions.jsonl` cho **15** trên 32 entry, trong khi số thật đếm tay
+là **4**. Lý do: một chữ «Ký» ở Cổng Bằng chứng sinh 14 entry định đoạt cùng lúc. Đây đúng
+lớp mà `release-2-12-0` tự ghi ở cột «cận dưới» của nó («một chữ Ký sinh 8 entry»), nên
+con số từ sổ CAO hơn số thật chứ không thấp hơn. Bốn lượt thật: hai lượt DỪNG-VÁ, một lượt
+quyết sau lượt chấm 4, một lượt ký. Cổng Phạm vi tốn **0** lượt — làn V, máy chốt phạm vi.
+
+**Đọc số cho đúng:** bốn lượt so trần T2 là ba, tức **vượt một lượt**, và cả ba lượt ngoài
+thiết kế đến từ khung giải sai hai lần. Theo north star, token giảm mà lượt gọi người tăng
+là thất bại — nên dòng 4 đẹp KHÔNG bù được dòng 2. Đây là số phải mang sang cửa sổ sau.
+
+**Số «sau» chính thức CHƯA tới hạn.** Hợp đồng vòng token tự khai điều này: số sau đọc ở
+kho TIÊU THỤ qua T0, không phải trong kho kit. Con số 16,7 M ở trên là số đọc SỚM trong
+chính kho này, và mọi so sánh với cửa sổ trước (35 M mỗi lượt của `release-2-12-0`) là so
+CHÉO hai vòng khác hạng — T3 tám lượt so với T2 sáu lượt. Không dùng nó làm bằng chứng
+hiệu quả; dùng nó làm mốc để cửa sổ 2.14 đo tiếp.
+
+### 2. Lớp vendored — KHÔNG mục nào đổi trong cửa sổ
+
+`git diff --stat 7e260d4b..HEAD -- vendor/` trả về RỖNG: không tệp nào dưới `vendor/` đổi
+kể từ lần cắt số 2.12.0. Bảng chín mục vì thế không có dòng +/− nào để ghi.
+
+Khối này cố ý ngắn, và lý do là một sự thật đo được chứ không phải một chỗ bỏ trống: cửa
+sổ có đúng một vòng, và vòng ấy chạm `feature-loop/` cùng `scripts/gate-card.js`, không
+chạm cây vendor. Tree-hash trong `NOTICE` của cây vendor vì thế còn nguyên (P196 giữ).
 
 ### 3. Lớp lỗi TÁI PHÁT trong cửa sổ
 
-Điền ở S3. Đã biết trước hai lớp: «hạ tầng tự sinh tín hiệu đỏ» (P93, lần thứ sáu) và
-«args ghép tay trôi khỏi bản sinh» (lượt 4 vòng token: `evalsHash` cũ; gốc là Workflow
-không nhận đường dẫn tệp args).
+**Lớp một — «hạ tầng tự sinh tín hiệu đỏ», lần thứ SÁU, và mốc này vá nó.** Dẫn chứng:
+`release-2-12-0` §4 gọi tên P93 ở lượt chấm 4 và lượt 5 của chính nó, mô tả đúng cơ chế
+(quét trọn cây làm việc nên một tệp nháp không-được-theo-dõi đủ làm nó đỏ, mà một lượt
+chấm là hàng chục tác tử cùng ghi trong một cây). Lượt chấm 4 của `khoi-tim-loi-tra-phi-theo-vat`
+đỏ đúng chữ ký ấy, không tái hiện được qua năm lần chạy lại. Một lớp đã có tên, đã có
+đường vá, vẫn đốt thêm một lượt ở cửa sổ sau — đó là lý do mốc này vá nó thay vì gọi tên
+lần thứ hai.
 
-### 4. Nhát cắt cho cửa sổ kế — gọi tên
+**Lớp hai — «args ghép tay trôi khỏi bản sinh».** Lượt chấm 4 của vòng token truyền
+`evalsHash` lấy từ một bản sinh CŨ, trước khi `evals.yaml` được sửa. Điều khoản S4-ARGS
+cấm đúng việc đó. Gốc không nằm ở sự cẩu thả: công cụ Workflow không nhận đường dẫn tệp
+args, nên mỗi lượt phóng buộc phải chép tay hơn hai chục nghìn ký tự, và mỗi lần chép là
+một cơ hội trôi. Nhát cắt cho nó nằm ở khối 4.
 
-Điền ở S3 từ Out of scope, theo thứ tự phụ thuộc: ghim lại theo diff → độ tin trạm phân
-loại → chiến dịch ghim lại → còn lại. Thêm một mục mới: Workflow nhận args từ tệp thay vì
-chép tay (gốc của lớp lỗi ở khối 3).
+**Lớp ba, lộ ra khi thi hành chính mốc này — «bản sao không phải là ảnh của vật».** Kế
+hoạch dựng bản sao cho chiều đỏ NỘI TẠI của P93 bằng `rsync` trọn cây rồi `git add -A`.
+Sau khi hàm quét đi theo tệp git theo dõi, cách ấy hỏng theo đường im lặng: rsync chép cả
+tệp KHÔNG được theo dõi, `add -A` biến chúng thành theo dõi, nên đối chứng dương nội tại
+đỏ vì một tệp mà `scan(nguồn)` không hề đếm. Phép đo bắt ngay: chân `im` VẪN đỏ sau khi đã
+vá. Nay bản sao chép ĐÚNG tập `git ls-files` của nguồn — một vị từ cho cả hai chỗ.
+
+### 4. Nhát cắt cho cửa sổ kế — gọi tên, theo thứ tự PHỤ THUỘC
+
+Sáu mục tồn đọng của cửa sổ này cộng hai mục mới lộ ra. Xếp theo phụ thuộc, không theo độ
+hấp dẫn; mỗi mục nói vì sao nó đứng ở chỗ đó.
+
+1. **Ghim lại theo diff, không theo trọn corpus.** Làn hiện chạy năm suite tuần tự cho MỖI
+   hồ sơ, khoảng 12 phút một lượt. Đây là điều kiện tiên quyết của mục 3: chưa cắt làn thì
+   41 hồ sơ là một khoản giờ máy lớn, và nó lặp lại mỗi mốc. Đề bài đầy đủ ở
+   `docs/plans/2026-09-14-hat-giong-ba-cho-cat-sau-chu-ky-cua-so-2-13.md` mục 1.
+2. **Độ tin của trạm phân loại phạm vi.** Số đo của vòng token: triage trả THIẾU mục ở 3
+   trên 6 lượt, và mỗi lần như vậy luật fail-toward-human bắt bác bỏ chạy trên TOÀN BỘ
+   phát hiện — phần tiết kiệm của nhát cắt T1 bốc hơi (5 tác tử lên 10, rồi 15 ở lượt 1b).
+   Nhát: khi triage trả về ít khoá hơn số gửi đi, hỏi lại ĐÚNG MỘT lần chỉ các khoá thiếu,
+   rồi mới đặt cờ hỏng. Nhỏ, nằm trong engine, và nó bảo vệ trực tiếp khoản tiết kiệm lớn
+   nhất đang hỏng nửa số lượt. **Đây là nhát đáng làm nhất của cửa sổ 2.14.**
+3. **Chiến dịch ghim lại 41 trên 68 hồ sơ có ghim.** Mốc ghim cũ nhất tụt 411 commit và
+   một mình gánh 21 hồ sơ. Bước ĐẦU là chạy ĐO không ghi, để biết bao nhiêu hồ sơ đỏ thật:
+   hồ sơ ghim ở mốc xa có thể đỏ vì vật đã đổi, khi đó luật là DỪNG chứ không ký mù.
+4. **Workflow nhận args từ TỆP thay vì chép tay.** Gốc của lớp lỗi thứ hai ở khối 3.
+5. **Dòng 1 đo tới «lên nhánh chính», và nghi thức ship chạy nền.** Đoạn quyết-được →
+   trên-main hiện không nằm trong dòng nào của năm dòng số.
+6. **Chuỗi lệnh của làn chấm không được xoá lý do đỏ của chính nó.** Khoá suite plugins
+   trong `_acceptance/config.yaml` lọc bằng hai mẫu, nên thông điệp assert của một ca đỏ bị
+   xoá trước khi tới người đọc — đó là lý do lượt chấm 4 của vòng token không truy được
+   nguyên nhân. Vệ sinh cục bộ của kho này, không phải engine; sửa ở một commit thường.
+7. **Ba mục còn lại của `release-2-12-0` §4:** gỡ nhánh lật verdict theo ý kiến tác tử ·
+   thẻ render việc-người mà hợp đồng tuyên · `routing-baseline.txt` không được đỏ chỉ vì
+   có hồ sơ mới ký.
 
 - Thước tự dối: không dán glob-literal vào văn hồ sơ (P161 quét corpus); mọi mẫu ở đây nói
   bằng chữ.
