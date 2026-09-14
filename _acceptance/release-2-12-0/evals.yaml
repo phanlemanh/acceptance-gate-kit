@@ -1,0 +1,176 @@
+# Eval cho hồ sơ release-2-12-0 — mốc THUẦN CẮT SỐ.
+#
+# Nguyên tắc của bộ đo này: KHÔNG dựng dàn đo dùng-một-lần. Ba mốc 2.0.0 · 2.1.0 ·
+# 2.2.0 mỗi lần tự dựng một dàn riêng, và mỗi vòng soi lại tìm ra một cách nó không đo
+# thật (fail-open · assertion âm-tính-một-mình · lời-khai-sai · mất lối thoát). Nên:
+#   - AC-1 dùng ca THƯỜNG TRỰC P200, đọc mọi số TỪ manifest, canh được cả mốc sau.
+#   - AC-2 dùng răng của hồ sơ, nhưng bất biến của nó KHÔNG ghim số mốc nào: mốc so
+#     suy TỪ KHO, nên bản chép chạy đúng ở mọi cửa sổ và hồ sơ đã ký còn ghim lại được.
+#   - AC-3 dùng đúng bốn suite + bản đồ mà mọi hồ sơ khác dùng.
+#
+# ĐỌC TRƯỜNG `baseline:` CỦA BÁO CÁO THẾ NÀO (nó là trường của evidence-report, KHÔNG
+# phải của tệp này — bản trước đặt câu này sai vật). Răng của hồ sơ nằm trong chính thư
+# mục hồ sơ nên chúng KHÔNG tồn tại ở commit gốc; làn baseline của workflow quy định
+# script-của-feature vắng ở base thì ghi «có phân biệt». Đó là phân biệt SỰ TỒN TẠI CỦA
+# CHÍNH TỆP, không phải phân biệt cây trước/sau mốc. Với hồ sơ này, `baseline:` của mọi
+# khối eval phải đọc là `n-a`, và bằng chứng phân biệt thật nằm ở CHIỀU ĐỎ của từng răng
+# (mã thoát riêng cho từng lối hỏng), mô tả trong `expected` dưới đây.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.p200_cat_so_2_12
+    expected: >-
+      `rang-p200.sh` chạy ca thường trực P200 rồi rút phán quyết TỪ DÒNG CỦA CHÍNH NÓ
+      (`  PASS: P200 …`), đúng một dòng. P200 đọc mọi số TỪ manifest và kiểm QUAN HỆ
+      quanh số ấy: hai plugin cùng MỘT số, cả ba số hợp semver, `GUIDE.md` chứa đúng
+      câu dẫn xuất từ manifest, mục mô tả của chính số đó nói người dùng nhận gì, và
+      `feature-loop` tự khai cặp `acceptance-gate >= <số đó>`.
+      GIỚI HẠN ĐÃ KHAI (lượt chấm 4 bắt): chuỗi đo này KHÔNG kiểm số ấy bằng đúng
+      `2.12.0`. P200 lấy `const V = A.v.version` rồi suy mọi vế từ V, và tự khai «CỐ Ý
+      KHÔNG canh số đã tăng so với base» — nên E1 xanh ở mọi HEAD có ba manifest
+      tự-nhất-quán, kể cả 2.11.0 hay 2.13.0. Hệ quả chỉ lộ ở CHIẾN DỊCH GHIM LẠI (hạng
+      mục riêng ở Out of scope, chạy sau mốc): hồ sơ đã ký này chấm lại ở HEAD sau
+      2.13.0 vẫn cho E1 xanh. Chọn KHÔNG thêm chân giá trị trong mốc này vì owner đã
+      quyết lối 1 (trừ dàn đo, không cộng); ghi vào ô của chiến dịch ghim lại.
+      VÌ SAO KHÔNG gọi thẳng suite: `ONLY_BLOCK` chỉ lọc khối đi qua `run()`, còn ~46
+      khối viết thẳng bằng echo+if vẫn chạy và vẫn cộng vào `failures` — lấy mã thoát
+      trọn suite nghĩa là một khối rời đỏ sẽ báo «số không nhất quán» về một lần cắt
+      số hoàn toàn lành, đúng lớp hạ-tầng-tự-sinh-tín-hiệu-đỏ mà cửa sổ này ghi là ba
+      lần (lượt chấm 4 của chính hồ sơ này là lần thứ tư — xem Notes).
+      BỐN lối hỏng có mã thoát riêng, mỗi lối một thông điệp tự xưng: 2 chưa từng chạy
+      (không khởi chạy được suite · suite không in gì · `ONLY_BLOCK` không khớp khối
+      nào · đầu ra không nhắc P200) · 3 P200 in dòng FAIL của chính nó, tức ĐỎ THẬT ·
+      4 nhiều hơn một dòng PASS (bộ lọc hỏng) · 5 chạy mà không PASS cũng không FAIL
+      (đầu ra bị cắt giữa chừng) · 8 P200 đã xanh nhưng không đọc được dấu bản răng
+      (hạ tầng sau-khi-đã-chạy, cùng mã với rang-moc.sh — lượt 7 thống nhất).
+      CHIỀU ĐỎ ĐÃ CHẠY THẬT ở lượt 4, ghim cả mã thoát lẫn thông điệp: lối 0 bản
+      nguyên vẹn → 0 · lối 2 bản chép ở thư mục khác nên ROOT giải sai, suite vắng →
+      2 «ma thoat 127» · lối 2 `BLOCK` gõ sai tên → 2 «khong khop khoi nao» · lối 3
+      phá câu dẫn xuất trong `GUIDE.md` thành 9.9.9 → 3 «P200 in 1 dong FAIL», phục
+      hồi xong xanh lại. PHÉP VI PHÂN: cùng đột biến ROOT-sai chạy trên bản CHƯA vá
+      cho mã 3 «ca do hoac chua tung chay» — đúng lớp gộp mà lượt 4 bắt.
+      CHƯA chạy chiều đỏ: lối 4 và lối 5 (cần dựng suite giả; không dựng vì đó là
+      thêm dàn đo, trái lối 1). Khai là giới hạn, không khai là đã chứng minh.
+    paths:
+      - ".claude-plugin/plugin.json"
+      - "feature-loop/.claude-plugin/plugin.json"
+      - "diagram-design/.claude-plugin/plugin.json"
+      - "GUIDE.md"
+      - "_acceptance/release-2-12-0/rang-p200.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.moc_diagram_2_12
+    expected: >-
+      Răng thoát 0 và in dòng PASS nêu mốc so suy TỪ KHO, kèm BA đối chứng dương của
+      chính phép đo: «cửa sổ mốc..HEAD KHÔNG rỗng» · «bộ lọc `diagram-design/` còn khớp
+      vật» · dấu bản răng. Tức xanh vì ĐO, không vì thiếu vật.
+      KHÔNG ghim sha vào câu này: mốc so SUY TỪ KHO, nên một sha gõ cứng ở đây sẽ lệch
+      ngay lần cắt số kế và biến `expected` thành lời khai không ai đối chiếu được (bắt
+      ở lượt chấm 3).
+      SÁU lối hỏng có mã thoát riêng: 2 cờ sai / thiếu giá trị / cờ lạ · 3 không tìm
+      được lần cắt số · 4 cửa sổ rỗng · 5 `diagram-design/` CÓ đổi sau lần cắt số (VẬT
+      nói dối) · 6 không đọc được số tại HEAD · 8 KHÔNG CÓ NỀN để đo (ROOT không phải
+      kho git · pathspec chết). Mã 7 và chân 4 ĐÃ TRỪ ở lượt chấm 5 theo quyết định của
+      owner: chân ấy tương đối với HEAD nên hồ sơ ĐÃ KÝ sẽ đỏ giả ở chiến dịch ghim lại
+      kế — căn cứ đầy đủ ở AC-2. Số mã giữ chỗ trống, KHÔNG dồn lại, để hồ sơ cửa sổ
+      trước còn trỏ tới mã 7 theo nghĩa cũ không hoá sai.
+      CHIỀU ĐỎ ĐÃ CHẠY THẬT (lượt 4 và 5), ghim cả mã thoát lẫn thông điệp: bản nguyên
+      vẹn → 0 · `--chan` thiếu giá trị → 2 (bản trước TREO VÔ HẠN vì `shift 2` thất bại,
+      không thoát một dòng nào) · `--chan` sai giá trị → 2 · cờ lạ `--moc-truoc` sau khi
+      trừ → 2 · ROOT không phải kho git → 8 (bản trước báo mã 6, tức khai một thất bại
+      của THƯỚC thành sự thật về VẬT) · pathspec gõ sai một chữ `diagram-desgin/` → 8,
+      kèm PHÉP VI PHÂN: cùng đột biến trên bản CHƯA vá thoát 0 vì «rỗng» có hai nghĩa.
+      Lối 4 và 5 (lối 5 là chính vế Then) chạy thật ở lượt 6 bằng `git clone` cục bộ kho
+      thật cộng MỘT commit — không cần kho giả, lời khai cũ «cần dựng kho giả» là quá
+      mức: clone nguyên vẹn → 0 · thêm một dòng vào SKILL.md của diagram-design, commit
+      không tăng số → 5 «diagram-design CO doi sau lan cat so gan nhat (06331ab2) ma so
+      chua tang» kèm tên tệp · sửa manifest 2.7.0→2.8.0, commit → 4 «cua so <sha>..HEAD
+      RONG (moc trung HEAD)». Dấu bản răng nay CƯỠNG CHẾ: đọc bằng đường tuyệt đối suy
+      từ vị trí tệp, rỗng → 8 (bản trước in «khong-doc-duoc» rồi vẫn PASS khi gọi từ cwd
+      khác ROOT — đối chứng dương quảng cáo mà không cưỡng chế, lượt 6 bắt).
+      CHƯA chạy chiều đỏ: lối 3 (cần lịch sử không có lần cắt số nào — kho giả thật sự).
+      Khai là giới hạn, không khai là đã chứng minh.
+    paths:
+      - "diagram-design/.claude-plugin/plugin.json"
+      - "_acceptance/release-2-12-0/rang-moc.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3a
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: "Suite scripts thoát 0, dòng `Results:` không có ca đỏ."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "Suite hooks thoát 0, dòng `Results:` không có ca đỏ."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >-
+      Suite plugins thoát 0. Lệnh đã bọc `pipefail` + lọc + `tail` từ mốc 2.11.0 vì suite
+      in ~70k ký tự và bốn trên năm lượt chấm của mốc đó bị công cụ cắt đầu ra giữa chừng
+      rồi tác tử khai đỏ.
+      GIỚI HẠN ĐÃ KHAI, kèm cơ chế đã định danh ở lượt chấm 4: lệnh này ĐỎ thì hồ sơ
+      KHÔNG còn phép đo nào phân lớp hạ-tầng/vật. Câu cũ ở đây trỏ sang `E3f`, nhưng
+      E3f cùng `phan-lop-ha-tang.cjs` đã bị GỠ ở lượt 3 theo lối 1 của owner
+      (decisions.jsonl d-20260913T213941Z-17), nên con trỏ ấy treo — và một con trỏ
+      treo ở đây đẩy tác tử lượt sau vào đúng hai lối mà hiến pháp cấm: tự phân lớp
+      bằng lý lẽ, hoặc đẩy màu đỏ hạ tầng lên bàn owner.
+      Thay cho phép đo đã gỡ, nghi thức là MỘT PHÉP ĐO khác, không phải một lời dặn:
+      chạy lại đúng chuỗi lệnh TẠI CHỖ trên cùng SHA — bản nguyên vẹn phải XANH trước
+      khi tin bản trong fan-out là ĐỎ (đối chứng dương của hiến pháp).
+      Lượt chấm 4 đã làm đúng thế và cơ chế giờ CÓ TÊN, hết «flaky»: E3c đỏ trong
+      fan-out với `FAIL: P93`, còn tại chỗ cùng SHA `3db8403b` thì xanh hai lần (trọn
+      suite và riêng khối P93). P93 quét TOÀN CÂY LÀM VIỆC bằng `rglob` với mẫu bắt-tất-cả
+      (tests/plugins/run-tests.sh, hàm `scan`) và đếm cặp marker toàn kho, chỉ loại
+      `{plugins,_acceptance,tests}` và `{.git,.claude,node_modules}` — nên BẤT KỲ tệp
+      nháp không-được-theo-dõi nào chứa một cặp marker đều làm nó đỏ, và một lượt chấm
+      là 37 tác tử cùng ghi trong một worktree. Chiều đỏ đã chạy thật: cây nguyên vẹn
+      XANH → tiêm một tệp tạm chứa cặp `HFL-LAW-TABLE` vào `docs/` → `FAIL: P93` kèm
+      «cap marker HFL-LAW-TABLE co 3 khoi (mong doi 2)» → xoá tệp → XANH lại.
+      Nhát cắt đúng tầng là `scan()` đi theo tệp GIT THEO DÕI thay vì `rglob`. Nó chạm
+      vật đang được E3a–E3e đo, nên KHÔNG làm trong mốc thuần-cắt-số này: ghi vào ô
+      `thuoc-khong-lat-verdict` NGẢ 7 (ngả 5 là phân-lớp-sau-khi-đỏ, khác bản chất) và
+      nêu ở Notes như nhát cắt cho cửa sổ kế.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "Suite workflows thoát 0."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3e
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "`product-map.mjs --root . --check` thoát 0 — bản đồ khớp hồ sơ xưởng."
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: judgment
+    question: >
+      Bốn khối bắt buộc của `## Notes` có MẶT ĐỦ không, mỗi khối có NỘI DUNG THẬT hay chỉ
+      có tiêu đề, và khối nào cố ý để TRỐNG có khai rõ lý do không? Bốn khối: (1) ba dòng
+      số của luật (c) — thời gian làm-xong→quyết-được mỗi vòng, lượt chấm, lượt gọi người
+      tách trong/ngoài thiết kế, số vòng bị hạ tầng đốt; (2) bảng lớp vendored đủ 9 mục
+      của `INIT-CI-COPY-LIST` với +/− đo tại sha nêu tên; (3) lớp lỗi tái phát gọi tên kèm
+      dẫn chứng; (4) nhát cắt cho cửa sổ kế gọi tên cụ thể. Trả FAIL cho khối chỉ có tiêu
+      đề mà không có số, và cho số nào không nói được nó đọc từ đâu.
+    inputs: [_acceptance/release-2-12-0/contract.md]
+    expected: >
+      Bốn khối có mặt, mỗi khối mang số đọc được từ nguồn có tên. Ba dòng số là VĂN ĐẾM
+      TAY và hợp đồng khai thẳng điều đó ở Known limits — đúng tiền lệ ba mốc 2.9.0,
+      2.10.0 và 2.11.0. Lượt chấm 2 của hồ sơ này đã GỠ một eval định chấm chúng bằng
+      máy: nó ghim hình dạng diff của chính PR vào hồ sơ sắp ký nên không có HEAD nào nó
+      xanh được lúc ký, và hai trong ba ô còn lại của nó fail-open. Ô «gọi người đếm tay»
+      trống ở bốn trong năm vòng vì số thật chỉ đếm tay được từ phiên đã chạy vòng đó;
+      hợp đồng khai lý do ấy và có thêm một cột «cận dưới» rút từ sổ quyết định.
+    evidence_required: [run_id, verifier, verified_at]
