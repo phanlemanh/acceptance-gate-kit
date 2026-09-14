@@ -1,7 +1,9 @@
 # Hạt giống — ba chỗ cắt SAU CHỮ KÝ, cho cửa sổ 2.13
 
-**Ngày:** 2026-09-14 · **Trạng thái:** hạt giống (chưa có ô) · **Owner gọi tên:** 14/09,
-sau khi tự thấy phiên ship `release-2-12-0` mất > 60 phút từ chữ ký tới lên main.
+**Ngày:** 2026-09-14 · **Trạng thái:** `_acceptance/ba-cho-cat-sau-chu-ky-cua-so-2-13/opportunity.md`
+(ổ «đang cân nhắc», răng VC8 «vào có ổ») · **Hạng dự kiến:** T2 (chạm `feature-loop/scripts/
+repin-lane.mjs`, `tests/scripts/`, SKILL S5; không chạm `lib/**`, hook) · **Owner gọi tên:**
+14/09, sau khi tự thấy phiên ship `release-2-12-0` mất > 60 phút từ chữ ký tới lên main.
 
 > **Việc phải làm ở mốc 2.13:** kéo ba mục dưới vào **§4 «Nhát cắt cho cửa sổ kế — gọi
 > tên»** của `_acceptance/release-2-13-0/contract.md` (khuôn hồ sơ 2.12.0 §4). Ghi ở đây
