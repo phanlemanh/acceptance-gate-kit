@@ -291,6 +291,14 @@ executors:
     cndn_bo_do_khong_im: CNDN_CASES=CN09 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_ba_ben_goi: CNDN_CASES=CN13 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
     cndn_coverage_bang: CNDN_CASES=CN15 node tests/scripts/cong-nguoi-doc-du-nguon.test.mjs
+    ktl_w40_triage_truoc_refute: bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs 2>&1 | tee /dev/stderr | grep -q "PASS: W40 dung MOT refuter"'
+    ktl_w41_vung_vat: bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs 2>&1 | tee /dev/stderr | grep -q "PASS: W41 triage KHONG nhan finding ho so"'
+    ktl_w42_w43_finding_so: bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs 2>&1 | tee /dev/stderr | grep -q "PASS: W43 triage KHONG nhan B ngoai"'
+    ktl_w44_baseline_roi_gang: bash -c 'set -o pipefail; node tests/workflows/acceptance-verify.test.mjs 2>&1 | tee /dev/stderr | grep -q "PASS: W44b verdict PASS"'
+    ktl_vung_vat_s4args: node tests/scripts/s4-args-vung-vat.test.mjs
+    ktl_vung_vat_mutants: node tests/workflows/vung-vat-mutants.test.mjs
+    ktl_carry_plan_dv10: bash -c 'set -o pipefail; node tests/workflows/carry-plan.test.mjs 2>&1 | tee /dev/stderr | grep -q "PASS: DV10"'
+    ktl_wf_usage_u06: bash -c 'set -o pipefail; node tests/scripts/wf-usage.test.mjs 2>&1 | tee /dev/stderr | grep -q "PASS: U06 md co bang wall"'
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

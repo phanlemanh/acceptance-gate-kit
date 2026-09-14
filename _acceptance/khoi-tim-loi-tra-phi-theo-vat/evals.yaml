@@ -1,0 +1,136 @@
+# evals — khoi-tim-loi-tra-phi-theo-vat
+# Nếp release-2-11-0: mỗi eval ghim MỘT DÒNG PASS KHÁC NHAU của tệp ca (pipefail + grep),
+# nên «tệp xanh» và «ca này xanh» phân biệt được, và eval ĐỎ trên baseline (dòng chưa
+# tồn tại ở cây gốc) — có phân biệt, không green-on-both. Cùng tệp ca chạy lại theo
+# từng grep (vài giây mỗi lần) — chấp nhận, đổi lấy eval gắn đúng vật.
+# Không dựng răng riêng cho hồ sơ: thước của vòng này LÀ bộ test thường trực.
+schema_version: 1
+feature_slug: khoi-tim-loi-tra-phi-theo-vat
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ktl_w40_triage_truoc_refute
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có dòng «PASS: W40 dung MOT refuter, cho finding trong hop dong».
+      Cùng tệp ca còn W40b (refuter bác bỏ → không REJECT từ finding, hai mục ngoài hợp
+      đồng vẫn còn) và W40c (triage chết cả retry → refute cả 3, triageFailed, PENDING-
+      JUDGMENT, không cờ khongBacBo). Cùng W40 còn bốn assert ghim thông điệp: thứ tự
+      call (chỉ số triage nhỏ hơn mọi chỉ số refute, không suy từ số lượng); khuôn
+      synthesize chứa câu mở đầu mới và KHÔNG chứa chuỗi «là thật» trong khối ngoài hợp
+      đồng; hai mục ngoài hợp đồng KHÔNG nằm dưới heading «chưa adversarial-verify»;
+      prompt triage không còn câu tuyên finding đã được xác nhận là lỗi thật. Chiều đỏ:
+      đảo lại thứ tự cũ → W40 đỏ ở dòng «dung MOT refuter»; đổi cờ khongBacBo thành
+      unverified → assert heading đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.test.plugins
+    paths: [scripts/gate-card.js, tests/plugins/run-tests.sh, tests/plugins/fixtures/render-out-of-contract-block.sh, _acceptance/s4-scope-triage/evidence/out-of-contract-card-sample.md]
+    expected: >
+      Suite plugins exit 0; KHÔNG có dòng FAIL nào mang P53 hay P53b. P53 so byte fixture
+      với bản render thật (sinh lại bằng script); P53b ghim bản render có câu «CHƯA qua
+      bác bỏ đối kháng» và không còn «là thật». Chiều đỏ: bỏ sửa gate-card.js → P53b
+      FAIL; sửa fixture tay → P53 FAIL.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ktl_vung_vat_s4args
+    paths: [feature-loop/scripts/s4-args.mjs, feature-loop/scripts/carry-plan.mjs, tests/scripts/s4-args-vung-vat.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có ba dòng PASS VV1 (vungVat = mã sản phẩm + mã răng + config.yaml;
+      bỏ docs, md gốc, gap-probe.md) · VV2 (không t1_skip_globs → chỉ bỏ văn bản hồ sơ) ·
+      VV3 (deltaFiles cùng bộ lọc). Thêm VV4: tệp args do chính s4-args sinh phải mang
+      `ngoaiVatGlobs`, và khi đem khớp bằng CÙNG hàm khớp mà workflow dùng thì nó khớp
+      văn bản hồ sơ (gap-probe, decisions) và tài liệu, KHÔNG khớp mã răng hay
+      `_acceptance/config.yaml` — seam bên-viết-sang-bên-đọc rút từ writer thật, không
+      gõ tay. Thêm VV5: fixture đổi một tệp .md trong thư mục hồ sơ CÓ tên trong
+      `evals.yaml` → tệp đó CÓ trong `deltaFiles`; một .md không được khai → KHÔNG có.
+      Fixture git do code sinh trong lần chạy, đường dẫn suy từ vị trí tệp ca. Chiều đỏ:
+      tệp ca không tồn tại ở cây gốc → exit ≠ 0 (eval mới, phân biệt).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ktl_w41_vung_vat
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có dòng «PASS: W41 triage KHONG nhan finding ho so/docs» cùng
+      W41b (liên-file src/z.js đi tiếp, REJECT 2 finding), W41c (vùng vật rỗng → 0 call
+      bugs/conventions), W41d (measurement chỉ khi chạm file đo, kể cả mã răng trong thư
+      mục hồ sơ), W41e (không vungVat → như cũ + cờ vàng). W41 chiều im nạp `vungVat` và
+      `ngoaiVatGlobs` TỪ tệp args do s4-args thật sinh (fixture của VV4 tái dùng), không
+      gõ tay khuôn bên đọc. Chiều đỏ: AC-5.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ktl_vung_vat_mutants
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/vung-vat-mutants.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: VVM0» (đối chứng dương: bản thật IM) và «PASS: VVM1
+      mutant lam triage THAY gap-probe.md» (mutant bỏ bộ lọc → chiều im đỏ). Kim mutant
+      phải tìm thấy trong nguồn — kim không thấy là răng chết, FAIL. Chiều đỏ: tệp ca
+      không tồn tại ở cây gốc.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6a
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ktl_w42_w43_finding_so
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: W42 3 dong finding» (dòng kind:finding có ts/sha/round,
+      không run_id; ngoài hợp đồng mang khongBacBo, plain, proposal; đủ 12 trường khai ở
+      AC-6, đếm bằng danh sách trường viết trước — thiếu một trường là đỏ; mỗi khoá
+      file-cộng-tiêu-đề đúng một dòng) và «PASS: W43 triage KHONG nhan B ngoai (da
+      carry)» (carried.findings liệt khoá; synthesize nhận fromRound; CẢ bugs LẪN
+      measurement round ≥ 2 có tiền tố deltaFiles), W43b (không carriedFindings → như
+      Task 1).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6b
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ktl_carry_plan_dv10
+    paths: [feature-loop/scripts/carry-plan.mjs, tests/workflows/carry-plan.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: DV10» — carry đúng 1 finding ngoài hợp đồng round trước
+      có file không chạm delta; finding trên file trong delta và finding trong hợp đồng
+      bị loại. Sổ chạy của DV10 KHÔNG gõ tay: dòng finding rút từ chính bên VIẾT (khối
+      marker FINDING-LINE của workflow) rồi cho bên ĐỌC đọc lại — round-trip, để hai bên
+      không trôi khỏi nhau. DV7–DV9 cũ vẫn xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ktl_w44_baseline_roi_gang
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: W44 triage duoc goi (baseline chi mo khoa KHI triage
+      goi) — khong deadlock» và «PASS: W44b verdict PASS, khong BLOCKED vi baseline».
+      Thêm W44c (chiều DƯƠNG cho vế «vẫn đợi»): baseline trả MUỘN với một eval xanh cả
+      hai phía → id eval đó CÓ trong nonDiscriminating và payload synthesize mang trạng
+      thái baseline của nó. Chiều đỏ ghim thông điệp: mutant bỏ lượt đợi baseline ở điểm
+      muộn → W44c đỏ với dòng nêu nonDiscriminating rỗng dù baseline đã trả về (không
+      dựa vào timeout để kết luận).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.ktl_wf_usage_u06
+    paths: [feature-loop/scripts/wf-usage.mjs, tests/scripts/wf-usage.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: U06 agent co startAt/endAt ISO», «PASS: U06 byRole.exec:
+      1 agent, wall 30s», «PASS: U06 wallSeconds tong = 69», «PASS: U06 md co bang wall
+      theo vai tro»; U01–U05 cũ vẫn xanh (fixture transcript code-sinh của chính tệp ca).
+      Ca KHÔNG-nổ (U06b): transcript agent không có timestamp nào → startAt/endAt là chuỗi
+      rỗng, agent đó không vào byRole, wallSeconds tính trên các agent còn lại, script
+      KHÔNG ném lỗi và exit 0 — nhưng KHÔNG im: JSON mang số đếm agent không đọc được
+      thời gian. Ca U06c (chống thước-rỗng-im-lặng): chạy trên thư mục transcript THẬT do
+      harness Workflow sinh (mẫu cắt gọn commit vào fixtures, ghi rõ nguồn) → ít nhất một
+      agent có startAt hợp lệ, wallSeconds lớn hơn 0, và số đếm agent thiếu thời gian
+      bằng 0. Không có ca này thì tên trường thời gian đổi ở harness sẽ làm mọi agent rơi
+      vào nhánh U06b mà U06 vẫn xanh trên fixture tự dựng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
