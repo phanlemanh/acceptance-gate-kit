@@ -61,9 +61,11 @@ evals:
       Exit 0 và đầu ra có dòng «PASS: W41 triage KHONG nhan finding ho so/docs» cùng
       W41b (liên-file src/z.js đi tiếp, REJECT 2 finding), W41c (vùng vật rỗng → 0 call
       bugs/conventions), W41d (measurement chỉ khi chạm file đo, kể cả mã răng trong thư
-      mục hồ sơ), W41e (không vungVat → như cũ + cờ vàng). W41 chiều im nạp `vungVat` và
-      `ngoaiVatGlobs` TỪ tệp args do s4-args thật sinh (fixture của VV4 tái dùng), không
-      gõ tay khuôn bên đọc. Chiều đỏ: AC-5.
+      mục hồ sơ), W41e (không vùng vật → như cũ + cờ vàng), W41a2 (tệp khai trong
+      eval.paths KHÔNG bị lọc ở bên ĐỌC, kèm đối chứng .md không khai vẫn bị lọc). Mẫu
+      hồ-sơ-văn-bản trong ca RÚT từ khối marker NGOAI-VAT của bên VIẾT — một nguồn, không
+      gõ tay; phần round-trip trên TỆP ARGS THẬT do VV4/VV4b của AC-3 đảm nhiệm (ca
+      workflow chạy trong sandbox, không dựng cây git được). Chiều đỏ: AC-5.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5

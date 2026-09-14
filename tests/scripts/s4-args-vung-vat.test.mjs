@@ -29,9 +29,20 @@ const git = (cwd, ...a) => execFileSync('git', ['-C', cwd, ...a], { encoding: 'u
 const TMP = mkdtempSync(path.join(tmpdir(), 's4args-vungvat-'));
 const sorted = a => JSON.stringify([...(a || [])].sort());
 
-// Bộ khớp glob của bên ĐỌC — RÚT từ chính workflow, không chép tay: VV4 phải đo
-// bằng cùng một phép khớp mà reader dùng, nếu không thì hai bên vẫn trôi được.
-const { globToRe } = await import(path.join(KIT, 'feature-loop', 'scripts', 'carry-plan.mjs'));
+// Bên ĐỌC THẬT của `ngoaiVatGlobs` là `acceptance-verify.js`. Workflow chạy trong sandbox
+// không import được module nên nó giữ BẢN CHÉP `globToRe` — ràng buộc thật, không sửa
+// được. Nghi thức khi đó: phép đo phải rút bản của bên ĐỌC TỪ NGUỒN của nó rồi chạy,
+// chứ không lấy hàm của bên VIẾT rồi gọi là bên đọc (bản trước làm vậy nên VV4 xanh
+// vĩnh viễn với mọi divergence — lượt chấm 1 của hồ sơ này bắt, và hai bản ĐÃ trôi thật
+// ở ký tự `?`).
+const { globToRe: globVIET } = await import(path.join(KIT, 'feature-loop', 'scripts', 'carry-plan.mjs'));
+const globDOC = (() => {
+  const src = readFileSync(path.join(KIT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
+  const m = src.match(/function globToRe\(g\) \{[\s\S]*?\n\}/);
+  if (!m) throw new Error('khong rut duoc globToRe tu acceptance-verify.js — ben doc doi khuon');
+  return new Function('return ' + m[0].replace(/^function globToRe/, 'function'))();
+})();
+const globToRe = globDOC;   // VV4 khớp bằng hàm của BÊN ĐỌC
 
 function buildRepo({ t1 = true } = {}) {
   const d = path.join(TMP, 'r-' + String(pass + fail) + '-' + String(Date.now() % 100000));
@@ -120,6 +131,21 @@ const loi = e => String((e && e.stderr) || (e && e.message) || e).split('\n').fi
       else ok('VV4 round-trip: ngoaiVatGlobs do writer phát, khớp đúng qua hàm khớp của bên đọc');
     }
   } catch (e) { bad('VV4 s4-args lỗi', loi(e)); }
+}
+
+// ── VV4b: hai BẢN CHÉP của cùng một phép khớp glob không được trôi ─────────
+// Ràng buộc sandbox buộc phải có hai bản; luật thay thế là ma trận viết trước đòi hai
+// bản cho CÙNG kết quả trên mọi ô. Bản trước không có ca này nên chúng trôi thật ở `?`.
+{
+  const M = [
+    ['docs/?.md', 'docs/a.md'], ['docs/?.md', 'docs/ab.md'],
+    ['src/**/*.ts', 'src/a.ts'], ['src/**/*.ts', 'src/x/y.ts'],
+    ['_acceptance/*/**/*.md', '_acceptance/x/y.md'], ['_acceptance/*/**/*.md', '_acceptance/x/a/b.md'],
+    ['a*b', 'axxb'], ['a*b', 'ax/xb'], ['**', 'bat/ky/thu/gi'],
+  ];
+  const lech = M.filter(([g, f]) => globVIET(g).test(f) !== globDOC(g).test(f));
+  if (!lech.length) ok(`VV4b hai bản khớp glob (viết/đọc) cho CÙNG kết quả trên ${M.length} ô viết trước`);
+  else bad('VV4b hai bản khớp glob đã TRÔI', lech.map(([g, f]) => `«${g}» vs «${f}»`).join(' · '));
 }
 
 // ── VV3 + VV5: deltaFiles (round ≥2) cùng bộ lọc; tệp khai trong eval.paths Ở LẠI

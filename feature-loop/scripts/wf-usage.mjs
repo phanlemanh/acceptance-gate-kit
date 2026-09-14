@@ -136,7 +136,11 @@ const total = [...byModel.values()].reduce(
 // Thước cho dòng 5 (phút máy/lượt chấm) và cho phép tách ba khối của dòng 4:
 // chứng-minh-vật (machine/ui/judge/baseline) · tìm-lỗi (review/refute) · tổng hợp.
 const roleOf = l => String(l || '').split(':')[0] || '(none)';
-const byRole = {};
+// Object.create(null), KHÔNG `{}`: nhãn vai trò đến từ dữ liệu (phần trước dấu hai chấm
+// của label). Với `constructor`/`__proto__`, object trần trả thứ truthy từ prototype nên
+// `byRole[k] || (byRole[k] = {...})` cộng dồn vào HÀM Object và phép đếm hỏng IM LẶNG —
+// cùng nếp với `demTenSuite` trong acceptance-verify.js. Lượt chấm 1 của hồ sơ bắt.
+const byRole = Object.create(null);
 let agentsKhongCoThoiGian = 0;
 for (const r of rows) {
   if (!r.startAt) { agentsKhongCoThoiGian += 1; continue; }

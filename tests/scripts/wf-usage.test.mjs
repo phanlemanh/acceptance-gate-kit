@@ -143,6 +143,31 @@ console.log('U06c T0: tren transcript THAT (do harness Workflow sinh) — khong 
   }
 }
 
+console.log('U06d T0: nhan vai tro la KHOA KE THUA (__proto__, constructor) khong pha phep dem');
+{
+  // Nhãn đến từ dữ liệu; object trần trả thứ truthy từ prototype nên phép cộng dồn rơi
+  // vào hàm Object và hỏng IM LẶNG. Lượt chấm 1 của hồ sơ khoi-tim-loi bắt.
+  const D = path.join(T, 'wf_khoa-ke-thua');
+  fs.mkdirSync(D, { recursive: true });
+  const mk = (id, label, ts1, ts2) => fs.writeFileSync(path.join(D, `agent-${id}.jsonl`),
+    user(`[wf-label: ${label}]\nx`, ts1) + asst('m-' + id, 'claude-haiku-4-5', { input_tokens: 1, output_tokens: 7, cache_read_input_tokens: 2 }, ts2));
+  mk('dddd1111', 'constructor:x', '2026-07-23T02:00:00.000Z', '2026-07-23T02:00:10.000Z');
+  mk('dddd2222', '__proto__:y', '2026-07-23T02:00:00.000Z', '2026-07-23T02:00:20.000Z');
+  mk('dddd3333', 'machine:z', '2026-07-23T02:00:00.000Z', '2026-07-23T02:00:05.000Z');
+  const r = runScript([D, '--json']);
+  check('U06d exit 0', r.status === 0, String(r.status));
+  const j = JSON.parse(r.stdout);
+  check('U06d ca ba vai tro co mat, moi vai tro 1 agent',
+    j.byRole && j.byRole.constructor && j.byRole.constructor.agents === 1
+      && j.byRole['__proto__'] && j.byRole['__proto__'].agents === 1
+      && j.byRole.machine && j.byRole.machine.agents === 1,
+    JSON.stringify(Object.keys(j.byRole || {})));
+  check('U06d wall tung vai tro dung (10s / 20s / 5s)',
+    j.byRole.constructor.wallSeconds === 10 && j.byRole['__proto__'].wallSeconds === 20 && j.byRole.machine.wallSeconds === 5,
+    JSON.stringify(j.byRole));
+  check('U06d khong agent nao bi dem thieu thoi gian', j.agentsKhongCoThoiGian === 0, String(j.agentsKhongCoThoiGian));
+}
+
 console.log('');
 console.log(`Results: ${pass} passed, ${fail} failed (wf-usage)`);
 if (fail > 0) process.exit(1);

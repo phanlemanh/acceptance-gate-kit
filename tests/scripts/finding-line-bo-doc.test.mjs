@@ -4,8 +4,15 @@
 //   · round-tally-read.mjs — lọc theo `kind`
 //   · loop-health.mjs      — đếm dòng repin
 //   · recheck-evidence.cjs — đối chiếu run_id trong bản chấm với sổ
-// Luật: sổ CÓ dòng `kind: finding` phải cho KẾT QUẢ Y HỆT sổ không có nó, và không bộ
-// đọc nào ném lỗi. Đối chứng dương đi kèm: cùng bộ đọc vẫn ĐỎ trên một sổ hỏng thật.
+// Luật đo ở đây KHÔNG phải mức lớp «mọi bộ đọc»: lớp đó đếm được — 8 tệp chạm
+// `run-log.jsonl` (acceptance-gold · loop-health · recheck-evidence · pre-merge-check ·
+// evidence-core · s4-args · repin-lane · round-tally-read). Ca này đo BA bộ đọc chạy
+// được độc lập bằng một lệnh; năm bộ còn lại đọc qua lớp khác (evidence-core là thư viện
+// của recheck; pre-merge gọi recheck; s4-args/repin-lane/acceptance-gold cần cây git
+// dựng sẵn) và được phủ gián tiếp. Vế «đếm lớp» ở cuối tệp giữ cho phạm vi không lặng lẽ
+// phình ra ngoài tầm — lượt chấm 1 của hồ sơ khoi-tim-loi bắt đúng chỗ lời tuyên vượt vật.
+// Luật: sổ CÓ dòng `kind: finding` phải cho KẾT QUẢ Y HỆT sổ không có nó ở ba bộ đọc đó,
+// và không bộ nào ném lỗi. Đối chứng dương đi kèm: cùng bộ đọc vẫn ĐỎ trên sổ hỏng thật.
 //
 // Dòng finding do CODE SINH trong chính lần chạy — rút khuôn `FINDING-LINE` từ bên
 // VIẾT (acceptance-verify.js) rồi dựng dòng bằng đúng danh sách khoá của nó; gõ tay
@@ -57,8 +64,19 @@ const dongFinding = (over = {}) =>
 const TALLY = JSON.stringify({ ts: '2026-09-14T00:00:00Z', round: 1, kind: 'round-tally', verdict: 'PASS', expected: 1, returned: 1, blocked: 0 });
 const EVAL = JSON.stringify({ ts: '2026-09-14T00:00:00Z', round: 1, evalId: 'E1', run_id: 'demo-E1-r1', exit_code: 0, cmd: 'echo x', sha: 'a'.repeat(40) });
 
-function so(khong, co, ten) {
-  if (khong === co) ok(`${ten}: so CO dong finding cho ket qua Y HET so khong co`);
+// So BẰNG hai lần chạy là chưa đủ: nếu bộ đọc không chạy được thì cả hai lần cùng ngã
+// và chuỗi lỗi giống hệt nhau → PASS trên hư không. Mọi phép so phải khai TRƯỚC một
+// DẤU SỐNG — chuỗi chỉ xuất hiện khi bộ đọc CHẠY THẬT và ra kết quả — rồi đòi nó có mặt
+// ở cả hai vế. Không có dấu sống thì phép so không phân biệt được «giống nhau vì đúng»
+// với «giống nhau vì cùng chết».
+function so(khong, co, ten, dauSong) {
+  const songA = String(khong).includes(dauSong), songB = String(co).includes(dauSong);
+  if (!songA || !songB) {
+    bad(`${ten}: bo doc KHONG chay that (thieu dau song «${dauSong}»)`,
+      `khong-co: ${String(khong).slice(0, 100)} · co: ${String(co).slice(0, 100)}`);
+    return;
+  }
+  if (khong === co) ok(`${ten}: so CO dong finding cho ket qua Y HET so khong co (bo doc da chay that)`);
   else bad(`${ten}: dong finding LAM DOI ket qua bo doc`, `khong-co: ${String(khong).slice(0, 120)} · co: ${String(co).slice(0, 120)}`);
 }
 
@@ -69,14 +87,15 @@ function so(khong, co, ten) {
   writeFileSync(b, `${EVAL}\n${dongFinding()}\n${dongFinding({ title: 'loi thu hai', file: 'src/b.js' })}\n${TALLY}\n`);
   const chay = f => { try { return execFileSync(process.execPath, [path.join(ROOT, 'feature-loop', 'scripts', 'round-tally-read.mjs'), '--run-log', f], { encoding: 'utf8' }); } catch (e) { return `NEM LOI: ${String(e.stderr || e.message).slice(0, 100)}`; } };
   const ra = chay(a), rb = chay(b);
-  so(ra.replace(/"[^"]*a\.jsonl"/g, '"F"'), rb.replace(/"[^"]*b\.jsonl"/g, '"F"'), 'round-tally-read');
+  so(ra.replace(/"[^"]*a\.jsonl"/g, '"F"'), rb.replace(/"[^"]*b\.jsonl"/g, '"F"'), 'round-tally-read', '"tallies"');
   // Đối chứng dương: cùng bộ đọc PHẢI kêu khi sổ có dòng tally hỏng thật.
   const c = path.join(T, 'c.jsonl');
   writeFileSync(c, `${EVAL}\n${dongFinding()}\n{"kind":"round-tally","verdict":"PASS"}\n`);
   // Bộ đọc kêu bằng MÃ THOÁT + stderr (không phải stdout): `chay` gói cả hai vào chuỗi.
   const rc = chay(c);
-  if (/NEM LOI|sai khuôn|malformed/i.test(rc) && !/"malformed": \[\]/.test(rc)) ok('round-tally-read doi chung duong: dong tally HONG van bi keu');
-  else bad('round-tally-read doi chung duong: dong tally hong KHONG bi keu', rc.slice(0, 160));
+  if (/round-tally-read:/.test(rc) && /sai khuôn|malformed/i.test(rc) && !/"malformed": \[\]/.test(rc))
+    ok('round-tally-read doi chung duong: dong tally HONG van bi keu (dung bo doc, dung ly do)');
+  else bad('round-tally-read doi chung duong: khong phai tieng keu cua chinh bo doc', rc.slice(0, 160));
 }
 
 // ── 2. loop-health ──────────────────────────────────────────────────────────
@@ -92,7 +111,7 @@ function so(khong, co, ten) {
   const chay = r => { try { return execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'loop-health.mjs'), '--root', r], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch (e) { return `NEM LOI: ${String(e.stderr || e.message).slice(0, 140)}`; } };
   const ra = chay(mk('lh-khong', false)), rb = chay(mk('lh-co', true));
   const chuanHoa = s => String(s).replace(/lh-(khong|co)/g, 'R');
-  so(chuanHoa(ra), chuanHoa(rb), 'loop-health');
+  so(chuanHoa(ra), chuanHoa(rb), 'loop-health', '| T2 |');
 }
 
 // ── 3. recheck-evidence ─────────────────────────────────────────────────────
@@ -112,13 +131,29 @@ function so(khong, co, ten) {
   const chay = rp => { try { return `exit0 ${execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), rp], { encoding: 'utf8' })}`; } catch (e) { return `exit${e.status} ${String(e.stdout || '') + String(e.stderr || '')}`; } };
   const ra = chay(mk('rc-khong', false)), rb = chay(mk('rc-co', true));
   const chuanHoa = s => String(s).replace(/rc-(khong|co)/g, 'R');
-  so(chuanHoa(ra), chuanHoa(rb), 'recheck-evidence');
+  so(chuanHoa(ra), chuanHoa(rb), 'recheck-evidence', 'L2');
   // Đối chứng dương: run_id trong bản chấm KHÔNG có trong sổ → phải đỏ, kể cả khi sổ có dòng finding.
   const rpBia = mk('rc-bia', true);
   writeFileSync(rpBia, readFileSync(rpBia, 'utf8').replace('demo-E1-r1', 'demo-E1-BIA'));
   const rbia = chay(rpBia);
-  if (!/^exit0/.test(rbia)) ok('recheck-evidence doi chung duong: run_id bia van bi chan du so co dong finding');
-  else bad('recheck-evidence doi chung duong: run_id bia LOT', rbia.slice(0, 160));
+  if (!/^exit0/.test(rbia) && /PROVENANCE|run_id/.test(rbia))
+    ok('recheck-evidence doi chung duong: run_id bia bi chan DUNG LY DO (provenance), khong phai script vang');
+  else bad('recheck-evidence doi chung duong: khong phai tieng keu provenance cua chinh bo doc', rbia.slice(0, 160));
+}
+
+// ── Đếm LỚP: số tệp chạm run-log.jsonl phải bằng hằng khai trước ───────────
+// Một tệp mới đọc sổ mà không ai nhớ bổ sung phép đo thì lớp phình lặng lẽ; ca này buộc
+// nói ra. Đổi số = phải xem lại ba điểm-case ở trên có còn đại diện cho lớp không.
+{
+  const BO_DOC_KHAI = 8;
+  const goc = path.join(ROOT);
+  const quet = (d) => execFileSync('bash', ['-c',
+    `grep -rl "run-log.jsonl" "${d}/scripts" "${d}/lib" "${d}/hooks" "${d}/feature-loop/scripts" 2>/dev/null | wc -l`],
+    { encoding: 'utf8' }).trim();
+  const n = Number(quet(goc));
+  if (n === BO_DOC_KHAI) ok(`dem LOP: ${n} tep cham run-log.jsonl, khop hang khai truoc`);
+  else bad(`dem LOP: ${n} tep cham run-log.jsonl nhung hang khai la ${BO_DOC_KHAI}`,
+    'lop da doi — xem lai ba diem-case o tren co con dai dien khong, roi sua hang');
 }
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (finding-line-bo-doc)`);

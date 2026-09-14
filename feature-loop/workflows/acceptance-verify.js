@@ -486,8 +486,13 @@ const CD_GUARD = (dir) => `cd ${dir} || exit 97`
 // `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
 // Tach `**` TRUOC khi doi `*`, neu khong `**` bi doi thanh hai lan `[^/]*` va het
 // khop qua dau `/`. Ky tu glob khac (`?`) duoc escape de khong thanh luong tu regex.
+// `?` = ĐÚNG MỘT ký tự trong một đoạn (cùng ngữ nghĩa với matcher `paths` của kit và với
+// bản ở carry-plan.mjs mà s4-args dùng). Bản trước escape `?` thành ký tự literal, nên
+// một mẫu `t1_skip_globs` có `?` cho bên VIẾT loại tệp khỏi vùng vật trong khi bên ĐỌC
+// vẫn coi finding trên tệp đó là trong vật — hai đầu nói hai chuyện về cùng một trường
+// (lượt chấm 1 của hồ sơ này bắt; ca VV4b canh bằng ma trận).
 function globToRe(g) {
-  const lit = t => t.replace(/[.+^${}()|[\]\\?]/g, '\\$&').replace(/\*/g, '[^/]*')
+  const lit = t => t.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\?/g, '[^/]').replace(/\*/g, '[^/]*')
   const body = String(g).split('**/')
     .map(part => part.split('**').map(lit).join('.*'))
     .join('(?:.*/)?')
@@ -501,7 +506,13 @@ const coVungVat = Array.isArray(args.vungVat)
 const vungVat = coVungVat ? args.vungVat.filter(f => typeof f === 'string' && f) : []
 const ngoaiVatRes = (Array.isArray(args.ngoaiVatGlobs) ? args.ngoaiVatGlobs : [])
   .filter(g => typeof g === 'string' && g).map(globToRe)
-const laNgoaiVat = pth => ngoaiVatRes.some(re => re.test(pth))
+const evalPathRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
+// Vị từ này phải CÙNG NGHĨA với bên VIẾT (`s4-args.mjs`, khối marker NGOAI-VAT): tệp
+// được khai trong `paths` của một eval là ĐẦU VÀO CỦA THƯỚC, nên ở lại vùng vật bất kể
+// đuôi. Thiếu vế đó thì bên đọc NUỐT im lặng finding trên chính tệp mà bên viết giữ
+// lại — hai đầu một seam trôi khỏi nhau, đúng lớp T2 sinh ra để đóng (lượt chấm 1 của
+// hồ sơ này bắt, hai lane độc lập cùng chỉ ra).
+const laNgoaiVat = pth => !evalPathRes.some(re => re.test(pth)) && ngoaiVatRes.some(re => re.test(pth))
 if (!coVungVat) log('Vung vat khong khai (args.vungVat vang) — finder soi tron diff, khong loc dau ra (duong doc-cu)')
 // Lens `measurement` CHỈ spawn khi diff chạm phép đo. Tập file đo = glob tệp ca kiểm
 // thử + MỌI tệp không phải .md/.jsonl trong thư mục hồ sơ (kho tiêu thụ đặt răng ở
@@ -509,7 +520,6 @@ if (!coVungVat) log('Vung vat khong khai (args.vungVat vang) — finder soi tron
 // khai trong `eval.paths`. Không chắc → SPAWN: fail-open về phía tốn tiền, không về
 // phía bỏ sót. Hôm nay lens này vẫn chạy một tác tử opus ~3,5 M để tự trả rỗng.
 const DO_GLOBS = ['tests/**', '**/*.test.*', '**/*.spec.*'].map(globToRe)
-const evalPathRes = args.evals.flatMap(e => Array.isArray(e.paths) ? e.paths : []).map(globToRe)
 const laFileDo = pth => DO_GLOBS.some(re => re.test(pth))
   || (/^_acceptance\/[^/]+\//.test(pth) && !/\.(md|jsonl)$/.test(pth))
   || evalPathRes.some(re => re.test(pth))
@@ -1012,14 +1022,23 @@ const confirmedFindings = triaged
 // `panel`/`baseline` (đã kiểm: round-tally-read lọc kind, loop-health đếm kind repin,
 // evidence-core/recheck chỉ đọc dòng có run_id).
 // <<<FINDING-LINE
-const findingLine = f => JSON.stringify({
+const findingLine = (f, carriedFrom) => JSON.stringify({
   ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'finding',
   file: relFile(f), title: f.title, severity: f.severity || '', source: f.source || '',
   inContract: f.inContract === true, acRef: f.acRef || '', plain: f.plain || '', proposal: f.proposal || '',
   khongBacBo: f.khongBacBo === true, unverified: f.unverified === true, unclassified: f.unclassified === true,
+  ...(typeof carriedFrom === 'number' ? { carried_from_round: carriedFrom } : {}),
 })
 // FINDING-LINE>>>
 for (const f of triaged) runLogLines.push(findingLine(f))
+// Mục CARRY cũng phải để lại dòng sổ Ở LƯỢT NÀY — đúng nếp P1 làm cho eval carried
+// (dòng `carried_from_round` trỏ về gốc). Thiếu nó thì chuỗi carry đứt sau đúng một
+// lượt: lượt 3 không thấy mục đó trong sổ của lượt 2 nên triage lại từ đầu, và nhãn
+// «(r1)» biến mất khỏi bản findings. Lượt chấm 1 của hồ sơ này bắt (hai lane).
+for (const c of carriedFindings) runLogLines.push(findingLine(
+  { file: c.file, title: c.title, severity: c.severity, source: 'carried',
+    inContract: false, acRef: '', plain: c.plain, proposal: c.proposal, khongBacBo: true },
+  typeof c.fromRound === 'number' ? c.fromRound : args.round - 1))
 
 // T7: điểm MUỘN NHẤT cần baseline — sau Triage và Refute. Vẫn ĐỢI (W44c canh vế này):
 // bỏ lượt đợi thì nonDiscriminating rỗng và một eval xanh-cả-hai-phía được ký PASS.

@@ -2336,6 +2336,30 @@ console.log('W41 chieu IM: finding tren ho so/tai lieu bi bo TRUOC triage; promp
   check('W41 prompt bugs liet vung vat src/a.js', pb.includes('src/a.js') && /vung vat/i.test(pb), pb.slice(0, 160));
 }
 
+console.log('W41a2 mien tru eval.paths o ben DOC: fixture .md khai trong paths DI TIEP');
+{
+  // Lượt chấm 1 của chính hồ sơ này bắt: bên VIẾT giữ tệp khai trong `paths` ở lại vùng
+  // vật, bên ĐỌC lại nuốt nó vì khớp mẫu văn-bản-hồ-sơ — hai đầu một seam, hai nghĩa.
+  const F = [{ title: 'loi tren fixture cua thuoc', file: '/repo/_acceptance/demo/mau-the.md', line: 3, severity: 'high', detail: 'fixture the sai khuon' }];
+  const args = baseArgs({
+    ...VV,
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'test', cmd: 'pnpm test', ref: 'config:executors.test.api', expected: 'pass', paths: ['_acceptance/demo/mau-the.md'] }],
+  });
+  const { result, calls } = await runWorkflow(WF, args, vvResponder({
+    'review:bugs': { findings: F },
+    triage: { contractUnreadable: false, triaged: [{ title: 'loi tren fixture cua thuoc', file: '_acceptance/demo/mau-the.md', inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' }] },
+  }));
+  const tri = byLabel(calls, 'triage')[0];
+  check('W41a2 finding tren tep khai trong eval.paths KHONG bi loc (ben doc cung nghia ben viet)',
+    tri && tri.prompt.includes('mau-the.md'), tri ? '(bi nuot)' : '(khong co triage)');
+  check('W41a2 boNgoaiVat rong', (result.boNgoaiVat || []).length === 0, JSON.stringify(result.boNgoaiVat));
+  // Đối chứng dương: CÙNG tệp đó, khi KHÔNG eval nào khai nó → bị lọc như cũ.
+  const { result: r2, calls: c2 } = await runWorkflow(WF, baseArgs(VV), vvResponder({ 'review:bugs': { findings: F }, triage: { contractUnreadable: false, triaged: [] } }));
+  check('W41a2 doi chung duong: khong eval nao khai -> VAN bi loc',
+    !((byLabel(c2, 'triage')[0] || { prompt: '' }).prompt.includes('mau-the.md')) && (r2.boNgoaiVat || []).length === 1,
+    JSON.stringify(r2.boNgoaiVat));
+}
+
 console.log('W41b chieu DO (doi chung duong): finding LIEN-FILE o file san pham ngoai diff DI TIEP');
 {
   const { result, calls } = await runWorkflow(WF, baseArgs(VV), vvResponder());
@@ -2452,6 +2476,27 @@ console.log('W43 T5: carriedFindings — khong triage/refute lai; K8 mo rong cho
   check('W43 finding o file NGOAI deltaFiles van di tiep (khong loc dau ra)', tri && tri.prompt.includes('src/c.js'), '(mat finding ngoai delta)');
 }
 
+console.log('W43c T5: muc CARRY cung de lai dong so O LUOT NAY, mang carried_from_round');
+{
+  // Thiếu vế này thì chuỗi carry đứt sau đúng một lượt: lượt 3 không thấy mục đó trong sổ
+  // của lượt 2 nên triage lại từ đầu, và `carried_from_round` là trường không bên nào viết
+  // trong khi carry-plan đang đọc nó. Lượt chấm 1 của hồ sơ này bắt.
+  const carried = [{ file: 'src/b.js', title: 'B ngoai', severity: 'high', plain: 'nguoi dung thay B', proposal: 'known-limits', fromRound: 1 }];
+  const { result } = await runWorkflow(WF, t1Args({ round: 2, invokedSha: 'abc123', deltaFiles: ['src/a.js'], carriedFindings: carried }), t1Responder({
+    triage: { contractUnreadable: false, triaged: T1_TRIAGE.triaged.filter(t => t.title !== 'B ngoai') },
+  }));
+  const fl = result.runLog.map(l => JSON.parse(l)).filter(l => l.kind === 'finding');
+  const b = fl.find(l => l.title === 'B ngoai');
+  check('W43c muc carry CO dong so o luot nay', !!b, JSON.stringify(fl.map(l => l.title)));
+  check('W43c dong carry mang round HIEN TAI + carried_from_round tro ve goc',
+    b && b.round === 2 && b.carried_from_round === 1, JSON.stringify(b));
+  check('W43c dong carry giu inContract=false + khongBacBo (van la muc nguoi quyet)',
+    b && b.inContract === false && b.khongBacBo === true && b.plain === 'nguoi dung thay B', JSON.stringify(b));
+  // Đối chứng: finding TƯƠI của chính lượt này KHÔNG mang carried_from_round.
+  const a = fl.find(l => l.title === 'A trong');
+  check('W43c doi chung: finding tuoi KHONG co carried_from_round', a && !('carried_from_round' in a), JSON.stringify(a));
+}
+
 console.log('W43b duong doc-cu: khong carriedFindings -> nhu luot dau');
 {
   const { result, calls } = await runWorkflow(WF, t1Args({ round: 2, deltaFiles: ['src/a.js'] }), t1Responder());
@@ -2470,9 +2515,10 @@ console.log('W43b duong doc-cu: khong carriedFindings -> nhu luot dau');
 // bằng hết-giờ thì không phân biệt được «chờ nhau» với «máy chậm».
 const baselineChamResponder = (st, over = {}) => (call) => {
   if (call.label.startsWith('baseline:')) {
+    st.baselineDaSpawn = true;
     return new Promise(r => setTimeout(() => { st.baselineXong = true; r({ results: [{ cmd: 'pnpm test', baselineExit: 0, cannotRun: false }] }); }, 40));
   }
-  if (call.label === 'triage') { st.baselineXongLucTriage = st.baselineXong === true; }
+  if (call.label === 'triage') { st.triageDaChay = true; st.baselineXongLucTriage = st.baselineXong === true; }
   return t1Responder(over)(call);
 };
 
@@ -2480,6 +2526,11 @@ console.log('W44 T7: triage KHONG cho baseline (baseline cham 40ms van khong giu
 {
   const st = {};
   const { result } = await runWorkflow(WF, t1Args(), baselineChamResponder(st));
+  // Ba vế, không tách rời: cả hai lane phải THẬT SỰ chạy thì kết luận thứ tự mới có
+  // nghĩa. Thiếu vế đầu, ca này xanh cả khi baseline không hề spawn (cờ undefined).
+  check('W44 ca hai lane deu that su chay (baseline spawn + triage chay)',
+    st.baselineDaSpawn === true && st.triageDaChay === true,
+    `baselineDaSpawn=${st.baselineDaSpawn} triageDaChay=${st.triageDaChay}`);
   check('W44 triage duoc goi TRUOC khi baseline tra ve', st.baselineXongLucTriage === false,
     `baselineXongLucTriage=${st.baselineXongLucTriage} — con nam trong barrier thi triage phai doi`);
   check('W44 luot van hoan tat binh thuong', result.verdict === 'REJECT', result.verdict);
