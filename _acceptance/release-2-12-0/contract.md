@@ -357,6 +357,17 @@ bất kỳ tác tử nào trong fan-out 37 tác tử đủ làm nó đỏ. KHÔN
 chạm chính vật mà E3a–E3e đang đo; vào ô `thuoc-khong-lat-verdict` **ngả 7** (ghi
 14/09 — ngả 5 của ô là phân-lớp-sau-khi-đỏ, khác bản chất).
 
+**Nhát cắt thứ ba, lộ ra lúc dựng thẻ Cổng Bằng chứng (14/09): thẻ KHÔNG render
+việc-người mà hợp đồng tuyên.** AC-1 và AC-2 (sửa ở lượt chấm 5 theo quyết định owner)
+nói vế GIÁ TRỊ `2.12.0` · `2.7.0` là điều owner «xác nhận MỘT dòng trên thẻ ở Cổng Bằng
+chứng». Thẻ dựng ra không có ô nào cho dòng ấy: khối «Việc chỉ mình bạn quyết được» chỉ
+có mục xác nhận phạm vi cắt/hoãn, còn `GATE-ONESHOT-GRAMMAR` chỉ có chỗ trống cho
+`Ngoài-<số>`, `<mã eval>`, `cắt/hoãn`, `Treo`, `ký hay trả`. Hệ quả: một mục
+chỉ-người-biết do chính hợp đồng khai bị rơi khỏi bề mặt người đọc — máy phải nêu bằng
+chữ ngoài thẻ, tức đúng lớp «lời khai đứng thay cho vật» ở tầng thẻ. Đường vá: cho
+renderer rút các vế «owner xác nhận …» từ hợp đồng thành ô một-chạm trên thẻ (một nguồn:
+hợp đồng), thay vì để chúng chỉ sống trong văn AC. Vào ô `thuoc-khong-lat-verdict`.
+
 **Hai ô mới lộ ra ở lượt chấm 1 của chính mốc này**, cả hai thuộc lớp «lời khai không có
 vật», ghi ở đây thay vì mở vòng:
 
