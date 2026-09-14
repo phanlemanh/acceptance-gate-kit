@@ -2459,4 +2459,51 @@ console.log('W43b duong doc-cu: khong carriedFindings -> nhu luot dau');
     result.carried.findings.length === 0 && byLabel(calls, 'triage')[0].prompt.includes('B ngoai'), JSON.stringify(result.carried.findings));
 }
 
+// ═══ T7: BASELINE RỜI ĐƯỜNG GĂNG ═══════════════════════════════════════════
+// Baseline là tín hiệu PHỤ (đối chứng «eval có phân biệt không») nhưng đang nằm
+// trong cùng barrier với machine/ui/judge/review, nên Triage — và cả chuỗi sau nó —
+// chờ nó. Đo 14/09: một lượt có baseline 13,7 phút giữ đồng hồ thêm 2,6 phút sau khi
+// mọi lane khác xong; một lượt khác baseline treo 128 phút → wall 157 phút trong khi
+// phần còn lại xong ở phút 34.
+//
+// Đo bằng CỜ THỨ TỰ, không bằng cổng khoá: cổng khoá làm bản cũ DEADLOCK, mà kết luận
+// bằng hết-giờ thì không phân biệt được «chờ nhau» với «máy chậm».
+const baselineChamResponder = (st, over = {}) => (call) => {
+  if (call.label.startsWith('baseline:')) {
+    return new Promise(r => setTimeout(() => { st.baselineXong = true; r({ results: [{ cmd: 'pnpm test', baselineExit: 0, cannotRun: false }] }); }, 40));
+  }
+  if (call.label === 'triage') { st.baselineXongLucTriage = st.baselineXong === true; }
+  return t1Responder(over)(call);
+};
+
+console.log('W44 T7: triage KHONG cho baseline (baseline cham 40ms van khong giu dong ho)');
+{
+  const st = {};
+  const { result } = await runWorkflow(WF, t1Args(), baselineChamResponder(st));
+  check('W44 triage duoc goi TRUOC khi baseline tra ve', st.baselineXongLucTriage === false,
+    `baselineXongLucTriage=${st.baselineXongLucTriage} — con nam trong barrier thi triage phai doi`);
+  check('W44 luot van hoan tat binh thuong', result.verdict === 'REJECT', result.verdict);
+}
+
+console.log('W44b T7: baseline NEM LOI -> khong giet luot, baseline n-a');
+{
+  const { result, calls } = await runWorkflow(WF, t1Args(), (call) => {
+    if (call.label.startsWith('baseline:')) throw new Error('boom');
+    return t1Responder()(call);
+  });
+  check('W44b verdict van la REJECT (khong BLOCKED vi baseline)', result.verdict === 'REJECT', result.verdict);
+  const synth = byLabel(calls, 'synthesize:report')[0];
+  check('W44b payload synthesize mang baseline n-a', synth && synth.prompt.includes('"baseline":"n-a"'),
+    synth ? '(khong thay chuoi n-a)' : '(khong co synthesize)');
+}
+
+console.log('W44c T7 chieu DUONG: baseline tra MUON van duoc DOI — eval xanh-ca-hai-phia phai vao nonDiscriminating');
+{
+  const st = {};
+  const { result } = await runWorkflow(WF, t1Args(), baselineChamResponder(st));
+  check('W44c nonDiscriminating chua E1/E2 (baseline da duoc doi truoc khi tinh)',
+    (result.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1')),
+    `bo luot doi baseline o diem muon -> ve nay do: ${JSON.stringify(result.nonDiscriminating)}`);
+}
+
 summary('acceptance-verify');

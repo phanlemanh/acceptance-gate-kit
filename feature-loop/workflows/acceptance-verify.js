@@ -587,7 +587,29 @@ if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
 }
 
 // ---- Machine + UI-check + Judge + Review chạy đồng thời (không phụ thuộc nhau; Judge là blind) ----
-const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
+// ── T7 (khoi-tim-loi-tra-phi-theo-vat): baseline RỜI ĐƯỜNG GĂNG ─────────────
+// Baseline là tín hiệu PHỤ, nhưng nằm cùng barrier thì Triage và cả chuỗi sau nó phải
+// chờ. Đo 14/09: một lượt baseline 13,7 phút giữ đồng hồ thêm 2,6 phút sau khi mọi lane
+// khác xong; một lượt khác treo 128 phút → wall 157 phút trong khi phần còn lại xong ở
+// phút 34. Nay là promise riêng, `await` ở điểm MUỘN NHẤT cần — bỏ CỘNG DỒN, không bỏ
+// chờ: harness không có trần thời gian cho agent(), nên ca treo là giới-hạn-đã-khai.
+  // A/B baseline (đối chứng): chạy lại lệnh-CÓ-eval trên diffBase trong worktree CÔ LẬP — KHÔNG đụng
+  // cwd chính (verifier HEAD đang chạy song song ở đó). Tín hiệu PHỤ: thiếu env → cannotRun, không sao.
+const baselineP = Promise.resolve().then(() => baselineCmds.length === 0
+    ? { results: [] }
+    : agentT(
+        `Ban tinh BASELINE doi chung tren commit goc "${args.diffBase}" cho cac lenh may, de biet lenh nao xanh-ca-hai-phia (pass ca truoc lan sau = khong test gi moi cua feature).
+Lam trong repo ${args.repoRoot} NHUNG TUYET DOI KHONG git checkout/switch/stash o cwd chinh — verifier HEAD dang chay song song o do. Dung worktree CO LAP:
+1) WT="$(mktemp -d)/agk-baseline" ; git -C ${args.repoRoot} worktree add "$WT" ${args.diffBase}
+2) De lenh chay duoc: ln -s ${args.repoRoot}/node_modules "$WT/node_modules" ; cp ${args.repoRoot}/.env.local "$WT/" 2>/dev/null (neu co). Service/DB local (vd Supabase) dung chung voi HEAD.
+3) Chay TUNG lenh sau o dang \`${CD_GUARD('"$WT"')} && <lenh>\` — cho dung la WORKTREE, dat trong chinh lenh, giu nguyen ve || exit 97 (TUYET DOI khong cd ve ${args.repoRoot}: chay nham cay lam viec la baseline mat phan biet): ${baselineCmds.join(' , ')}
+4) Don dep BAT BUOC: git -C ${args.repoRoot} worktree remove --force "$WT".
+Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong chay tot tren baseline": (a) lenh/script CUA FEATURE chua ton tai o commit goc (npm "missing script", file-not-found cho chinh script eval) = eval MOI, dung ra phai FAIL tren code cu → ghi baselineExit = exit that (khac 0) va cannotRun=FALSE (day la tin hieu "phan biet", KHONG phai cannotRun); (b) moi truong/ha tang that bai khong lien quan feature (service/DB local chua chay, thieu env ma lenh can, worktree add fail) = cannotRun=TRUE. Baseline la tin hieu PHU, TUYET DOI KHONG bia exit.\n${TOOL_KILL_RULE}`,
+        { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, ...modelOpt('baseline') }
+      )
+).catch(() => null)   // BẮT BUỘC: parallel nuốt throw, promise trần thì KHÔNG — một lần reject giết cả lượt
+
+const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
   () => parallel(distinctCmds.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () =>
     agentT(
       `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n  ${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
@@ -638,20 +660,6 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw, baselineRaw] = await parallel([
         : { key: d.key, dead: true, findings: [] }) // finder chet → KHONG phai "0 findings"
   )),
 
-  // A/B baseline (đối chứng): chạy lại lệnh-CÓ-eval trên diffBase trong worktree CÔ LẬP — KHÔNG đụng
-  // cwd chính (verifier HEAD đang chạy song song ở đó). Tín hiệu PHỤ: thiếu env → cannotRun, không sao.
-  () => baselineCmds.length === 0
-    ? { results: [] }
-    : agentT(
-        `Ban tinh BASELINE doi chung tren commit goc "${args.diffBase}" cho cac lenh may, de biet lenh nao xanh-ca-hai-phia (pass ca truoc lan sau = khong test gi moi cua feature).
-Lam trong repo ${args.repoRoot} NHUNG TUYET DOI KHONG git checkout/switch/stash o cwd chinh — verifier HEAD dang chay song song o do. Dung worktree CO LAP:
-1) WT="$(mktemp -d)/agk-baseline" ; git -C ${args.repoRoot} worktree add "$WT" ${args.diffBase}
-2) De lenh chay duoc: ln -s ${args.repoRoot}/node_modules "$WT/node_modules" ; cp ${args.repoRoot}/.env.local "$WT/" 2>/dev/null (neu co). Service/DB local (vd Supabase) dung chung voi HEAD.
-3) Chay TUNG lenh sau o dang \`${CD_GUARD('"$WT"')} && <lenh>\` — cho dung la WORKTREE, dat trong chinh lenh, giu nguyen ve || exit 97 (TUYET DOI khong cd ve ${args.repoRoot}: chay nham cay lam viec la baseline mat phan biet): ${baselineCmds.join(' , ')}
-4) Don dep BAT BUOC: git -C ${args.repoRoot} worktree remove --force "$WT".
-Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong chay tot tren baseline": (a) lenh/script CUA FEATURE chua ton tai o commit goc (npm "missing script", file-not-found cho chinh script eval) = eval MOI, dung ra phai FAIL tren code cu → ghi baselineExit = exit that (khac 0) va cannotRun=FALSE (day la tin hieu "phan biet", KHONG phai cannotRun); (b) moi truong/ha tang that bai khong lien quan feature (service/DB local chua chay, thieu env ma lenh can, worktree add fail) = cannotRun=TRUE. Baseline la tin hieu PHU, TUYET DOI KHONG bia exit.\n${TOOL_KILL_RULE}`,
-        { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, ...modelOpt('baseline') }
-      ),
 ])
 
 // killedByTool ⇒ cannotRun: không tin một lời khai đơn lẻ — đúng ca sự cố
@@ -817,40 +825,6 @@ for (const c of carriedEvals) {
   }))
 }
 
-// ---- A/B baseline: map kết quả đối chứng theo cmd; status = green | red | n-a ----
-// Lane baseline nay CUNG mang cd guard, nen phai qua CUNG bo phan loai: cd hong
-// trong worktree ma doc thanh baselineExit != 0 se bao «eval CO phan biet» cho
-// mot cay khong ton tai — bang chung tu doi (S4-r2).
-const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
-  .map(normKill)
-  .map(b => normInfra({ ...b, exitCode: b.baselineExit }))
-  .map(b => [b.cmd, b]))
-// AC-6: 'green' nghia la lan doi chung tra DUNG KY VONG — hai duong:
-//   (1) baseline khop CHINH XAC ma da khai (b.baselineExit === expCmd(cmd)), HOAC
-//   (2) CA HAI phia (baseline VA HEAD) cung the hien DUNG mot hanh vi hetHan
-//       (gioi han da khai khong con) — currentExit BAT BUOC phai duoc truyen
-//       va cung hetHan, khong chi rieng baseline. Truoc ban vi nay chi doi
-//       isHetHan(baseline) ma KHONG doi HEAD cung hetHan, nen HEAD con gioi han
-//       (exitCode === expCmd(cmd), vd 2) so baseline HET gioi han (0) van bi
-//       doc la 'green' — mot hoi quy that (S4, eval-khai-ma-thoat-mong-doi,
-//       luot soi toan nhanh 2026-09-09/10) bi dan nhan sai thanh
-//       nonDiscriminating. currentExit thieu (khong truyen) -> chi con duong
-//       (1), khong tu suy dien hetHan.
-const baselineStatus = (cmd, currentExit) => {
-  const b = baselineByCmd.get(cmd)
-  if (!b || b.cannotRun) return 'n-a'
-  const bothHetHan = typeof currentExit === 'number' && isHetHan(b.baselineExit, cmd) && isHetHan(currentExit, cmd)
-  return (b.baselineExit === expCmd(cmd) || bothHetHan) ? 'green' : 'red'
-}
-// Eval không-phân-biệt: lệnh-CÓ-eval pass trên CẢ HEAD lẫn baseline (green-on-both) → chứng minh harness, không phải feature
-// P2: round không đo baseline → Analyst carry nguyên từ round có baseline gần nhất (carriedAnalyst).
-const carriedAnalyst = (!runBaseline && args.carriedAnalyst && Array.isArray(args.carriedAnalyst.nonDiscriminating))
-  ? args.carriedAnalyst : null
-const nonDiscriminating = runBaseline
-  ? machine
-      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)) && baselineStatus(m.cmd, m.exitCode) === 'green')
-      .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
-  : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
 const judges = (judgeRaw || []).filter(Boolean).map(normalizeVote)
 const reviewResults = (reviewRaw || []).filter(Boolean)
 // Chuẩn hoá path ở BIÊN — MỘT lần, ngay chỗ gom findings, trước mọi thứ đọc
@@ -1045,6 +1019,44 @@ const findingLine = f => JSON.stringify({
 })
 // FINDING-LINE>>>
 for (const f of triaged) runLogLines.push(findingLine(f))
+
+// T7: điểm MUỘN NHẤT cần baseline — sau Triage và Refute. Vẫn ĐỢI (W44c canh vế này):
+// bỏ lượt đợi thì nonDiscriminating rỗng và một eval xanh-cả-hai-phía được ký PASS.
+const baselineRaw = await baselineP
+// ---- A/B baseline: map kết quả đối chứng theo cmd; status = green | red | n-a ----
+// Lane baseline nay CUNG mang cd guard, nen phai qua CUNG bo phan loai: cd hong
+// trong worktree ma doc thanh baselineExit != 0 se bao «eval CO phan biet» cho
+// mot cay khong ton tai — bang chung tu doi (S4-r2).
+const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
+  .map(normKill)
+  .map(b => normInfra({ ...b, exitCode: b.baselineExit }))
+  .map(b => [b.cmd, b]))
+// AC-6: 'green' nghia la lan doi chung tra DUNG KY VONG — hai duong:
+//   (1) baseline khop CHINH XAC ma da khai (b.baselineExit === expCmd(cmd)), HOAC
+//   (2) CA HAI phia (baseline VA HEAD) cung the hien DUNG mot hanh vi hetHan
+//       (gioi han da khai khong con) — currentExit BAT BUOC phai duoc truyen
+//       va cung hetHan, khong chi rieng baseline. Truoc ban vi nay chi doi
+//       isHetHan(baseline) ma KHONG doi HEAD cung hetHan, nen HEAD con gioi han
+//       (exitCode === expCmd(cmd), vd 2) so baseline HET gioi han (0) van bi
+//       doc la 'green' — mot hoi quy that (S4, eval-khai-ma-thoat-mong-doi,
+//       luot soi toan nhanh 2026-09-09/10) bi dan nhan sai thanh
+//       nonDiscriminating. currentExit thieu (khong truyen) -> chi con duong
+//       (1), khong tu suy dien hetHan.
+const baselineStatus = (cmd, currentExit) => {
+  const b = baselineByCmd.get(cmd)
+  if (!b || b.cannotRun) return 'n-a'
+  const bothHetHan = typeof currentExit === 'number' && isHetHan(b.baselineExit, cmd) && isHetHan(currentExit, cmd)
+  return (b.baselineExit === expCmd(cmd) || bothHetHan) ? 'green' : 'red'
+}
+// Eval không-phân-biệt: lệnh-CÓ-eval pass trên CẢ HEAD lẫn baseline (green-on-both) → chứng minh harness, không phải feature
+// P2: round không đo baseline → Analyst carry nguyên từ round có baseline gần nhất (carriedAnalyst).
+const carriedAnalyst = (!runBaseline && args.carriedAnalyst && Array.isArray(args.carriedAnalyst.nonDiscriminating))
+  ? args.carriedAnalyst : null
+const nonDiscriminating = runBaseline
+  ? machine
+      .filter(m => (byCmd.get(m.cmd) || []).length > 0 && !m.cannotRun && !m.variance && (m.exitCode === expCmd(m.cmd) || isHetHan(m.exitCode, m.cmd)) && baselineStatus(m.cmd, m.exitCode) === 'green')
+      .map(m => ({ cmd: m.cmd, evals: byCmd.get(m.cmd) }))
+  : (carriedAnalyst ? carriedAnalyst.nonDiscriminating : [])
 
 // T1 giữ bất biến 27/07: unverified (refuter CHẾT) KHÔNG BAO GIỜ kéo REJECT và
 // KHÔNG vào fix-list. Trước T1 điều đó tự đúng vì finding unverified chưa từng qua
