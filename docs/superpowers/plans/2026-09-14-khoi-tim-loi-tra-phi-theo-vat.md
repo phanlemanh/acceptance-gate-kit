@@ -1119,3 +1119,22 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - [ ] `bash tests/workflows/run-tests.sh && bash tests/scripts/run-tests.sh && bash tests/plugins/run-tests.sh` — cả ba xanh.
 - [ ] `bash scripts/pre-merge-check.sh` (nếu repo dùng) — xanh.
 - [ ] Đối chiếu spec §Số trước/sau: chưa có số «sau» — đúng thiết kế; số đến ở mốc 2.13 qua T0.
+
+---
+
+## Cập nhật sau gap-probe (14/09) — 5 finding, áp vào task nào
+
+Bộ artifact đã sửa one-pass; plan giữ nguyên 10 task, mỗi task nhận thêm assert dưới đây.
+Mỗi mục là **thêm**, không thay — các Step đã viết ở trên vẫn đúng.
+
+| # | Task | Thêm gì |
+|---|---|---|
+| F4 | **Task 1** (W40) | Bốn assert ghim thông điệp: (i) thứ tự bằng **chỉ số call** (`calls.findIndex('triage') < min(chỉ số mọi refute)`) — không suy từ số lượng; (ii) prompt synthesize chứa câu mở đầu mới và KHÔNG chứa «là thật» trong khối ngoài hợp đồng; (iii) hai mục ngoài hợp đồng KHÔNG dưới heading «chưa adversarial-verify» (heading vắng hoặc rỗng); (iv) prompt `triage` không còn câu tuyên finding đã được xác nhận là lỗi thật. Mutant: đổi `khongBacBo` thành `unverified` → (iii) đỏ |
+| F2 | **Task 3** (s4-args) | `laNgoaiVat` nhận thêm tập **file được khai trong `paths` của mọi eval trong `evals.yaml` của vòng** — chúng Ở LẠI vùng vật/delta bất kể đuôi (chống fail-open: fixture .md đổi mà eval được carry xanh cũ). `s4-args` đã đọc `evals` nên danh sách có sẵn; truyền thêm vào `ngoaiVatGlobs`? KHÔNG — đây là tập LOẠI TRỪ khỏi loại trừ: hàm `laNgoaiVat(f)` trả false ngay khi `f` nằm trong tập `pathsKhai`. **VV5**: fixture đổi một .md trong thư mục hồ sơ CÓ tên trong evals.yaml → có trong `deltaFiles`; .md không khai → không có |
+| F1 | **Task 3 + Task 4** | **VV4** (trong `s4-args-vung-vat.test.mjs`): tệp args do `s4-args` THẬT sinh phải mang `ngoaiVatGlobs`; đem khớp bằng **cùng hàm `globToRe`** mà workflow dùng → khớp văn bản hồ sơ và tài liệu, không khớp mã răng / `_acceptance/config.yaml`. **W41 chiều im** nạp `vungVat`/`ngoaiVatGlobs` **từ tệp args đó** (đọc JSON trong test), không gõ tay khuôn bên đọc — round-trip writer→reader |
+| F3 | **Task 8** (baseline) | **W44c** chiều DƯƠNG: responder baseline trả **muộn** (deferred, mở khoá sau khi triage đã gọi) và trả một eval xanh-cả-hai-phía → `result.nonDiscriminating` chứa id eval đó **và** payload synthesize mang trạng thái baseline của nó. Mutant bỏ `await baselineP` ở điểm muộn → W44c đỏ với thông điệp ghim «nonDiscriminating rỗng dù baseline đã trả về». Không kết luận bằng hết-giờ |
+| F5 | **Task 9** (wf-usage) | JSON thêm `agentsKhongCoThoiGian` (đếm agent không đọc được thời gian). **U06b**: agent không có timestamp → `startAt`/`endAt` rỗng, không vào `byRole`, script exit 0 **nhưng** số đếm tăng. **U06c**: chạy trên thư mục transcript **THẬT** — mẫu cắt gọn commit vào `tests/scripts/fixtures/wf-transcript-that/` kèm dòng ghi nguồn `run_id` — ≥1 agent có `startAt` hợp lệ, `wallSeconds > 0`, `agentsKhongCoThoiGian === 0` |
+| cross-check | **Task 6** (run-log) | W42 ghim **đủ 12 trường** bằng danh sách viết trước (thiếu một trường là đỏ) + **tính duy nhất** theo khoá `file :: title`. Thêm ca: chạy `round-tally-read.mjs`, `loop-health.mjs`, `recheck-evidence.cjs` trên một sổ CÓ dòng `kind: finding` → không ném lỗi, kết quả không đổi so với sổ không có dòng đó |
+| cross-check | **Task 7** (carry) | W43 ghim **cả `bugs` lẫn `measurement`** có tiền tố deltaFiles (không chỉ `bugs`). DV10 dựng dòng `finding` bằng cách **rút từ khối marker FINDING-LINE của workflow** rồi cho `carry-plan` đọc lại — round-trip, không gõ tay khuôn bên đọc |
+
+**Thứ tự không đổi.** Cụm 2 (Task 3–5) nay phụ thuộc chặt hơn: VV4 phải chạy trước khi W41 nạp args thật, nên làm Task 3 trọn vẹn rồi mới Task 4.
