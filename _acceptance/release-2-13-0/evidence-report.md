@@ -101,15 +101,15 @@ human_signoff:
     PRODUCT-MAP.md khớp hồ sơ xưởng.
 
 - eval: E4
-  run_id: release-2-13-0-E4-2026-09-14
-  verifier: judge-subagent (fresh context) — 3-lens panel (domain-correctness, operational-feasibility, spec-alignment)
+  judged_by: judge-panel (3 lens: domain-correctness, operational-feasibility, spec-alignment)
   verified_at: 2026-09-14T17:20:00Z
+  verdict: PASS
+  rationale: panel doc ## Notes cua hop dong cung usage-report.md cua vong khoi-tim-loi-tra-phi-theo-vat; bon khoi du mat, moi o co nguon rut, va hai dong MAY DO khop tung chu so voi nguon neu ten (chi khac ky hieu thap phan theo vung mien). Dong panel trong run-log.jsonl: round 2, evalId E4, kind panel.
+  votes:
+    - domain-correctness: PASS
+    - operational-feasibility: PASS
+    - spec-alignment: PASS
   human_override:
-  output: |
-    proposal: PASS
-    - domain-correctness: PASS — Notes có đủ bốn khối, mỗi khối mang số thật kèm nguồn rút; khối 1 nêu rõ hai dòng máy đo lấy từ usage-report.md của vòng khoi-tim-loi-tra-phi-theo-vat, mục "Lượt chấm 5 — lượt PASS (run wf_211fd30c-0ec)", và khai rõ giới hạn cận dưới phồng của phép đếm lượt gọi người (15 so với 4). Đối chiếu nhãn-với-nguồn cho hai dòng máy đo: token 16.715.215 (tìm-lỗi 79,9%/chứng-minh-vật 15,6%/tổng hợp 4,6%) và phút 20,4 (machine 12,9) khớp từng chữ số với bảng trong usage-report.md (16,715,215; 79.9%; 15.6%; 4.6%; 20.4; 12.9), chỉ khác ký hiệu thập phân theo vùng miền.
-    - operational-feasibility: PASS — Notes có đủ bốn khối, mỗi khối mang số thật kèm nguồn rút: khối 1 (bảng 5 dòng, mỗi ô có cột Nguồn rút), khối 2 (sha 7e260d4b + lệnh git diff --stat, giải thích rõ vì sao rỗng), khối 3 (ba lớp lỗi tái phát, mỗi lớp có dẫn chứng cụ thể), khối 4 (7 mục nhát cắt kế cho 2.14, xếp theo phụ thuộc). Khối 1 nói rõ hai dòng máy đo lấy từ usage-report.md của vòng khoi-tim-loi-tra-phi-theo-vat, mục "Lượt chấm 5 — lượt PASS (run wf_211fd30c-0ec)", và khai đúng giới hạn cận dưới phồng của phép đếm lượt gọi người (15 so với 4). Đối chiếu nhãn-với-nguồn cho hai dòng máy đo: dòng 4 (16.715.215 tổng · 79,9%/15,6%/4,6%) và dòng 5 (20,4 phút · đường găng machine 12,9 phút) khớp từng chữ số với usage-report.md (16,715,215; 79.9%/15.6%/4.6%; 20.4 phút; machine 12.9 phút, gọi rõ là đường găng) — chỉ khác cách gõ dấu chấm/phẩy phân cách nghìn-thập phân theo locale, không lệch chữ số nào.
-    - spec-alignment: PASS — Notes có đủ 4 khối (năm dòng số · lớp vendored · lớp lỗi tái phát · nhát cắt kế), mỗi ô số đều ghi nguồn rút, khối 1 nói rõ hai dòng máy đo lấy từ usage-report.md mục "Lượt chấm 5 — lượt PASS (run wf_211fd30c-0ec)" và khai rõ giới hạn cận dưới phồng (15 so với 4 đếm tay). Đối chiếu nhãn-với-nguồn cho hai dòng máy đo: token 16.715.215 (79,9%/15,6%/4,6%) và phút 20,4 (đường găng machine 12,9) khớp từng chữ số với usage-report.md — không có sai lệch nào.
 
 - eval: E5a
   run_id: minted-release-2-13-0-E5a-r2
