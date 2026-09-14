@@ -41,6 +41,12 @@ function buildRepo(evalsYamlBody) {
   writeFileSync(path.join(d, '_acceptance', 'demo', 'evals.yaml'), evalsYamlBody);
   writeFileSync(path.join(d, 'README.md'), 'demo\n');
   git(d, 'add', '-A'); git(d, 'commit', '-qm', 'round1');
+  // Nhánh riêng cho vòng + một commit có vật: đời thật luôn có mốc so KHÁC HEAD. Fixture
+  // cũ đứng nguyên trên nhánh chính nên `--diff-base main` trùng HEAD — từ 14/09 s4-args
+  // gọi đó là hạ tầng neo sai và exit 2 (ca VV6a của s4-args-vung-vat).
+  git(d, 'checkout', '-qb', 'vong-nay');
+  writeFileSync(path.join(d, 'src-demo.js'), 'x\n');
+  git(d, 'add', '-A'); git(d, 'commit', '-qm', 'vat cua vong');
   return d;
 }
 

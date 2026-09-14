@@ -41,6 +41,10 @@ function buildRepo() {
   writeFileSync(path.join(d, 'docs', 'note.md'), 'ghi chu\n');
   git(d, 'add', '-A'); git(d, 'commit', '-qm', 'round1');
   const anchor = git(d, 'rev-parse', 'HEAD');
+  // Nhánh riêng cho vòng: đời thật luôn có mốc so KHÁC HEAD. Fixture cũ commit thẳng
+  // lên `main` nên `--diff-base main` trùng HEAD — từ 14/09 s4-args gọi đó là hạ tầng
+  // neo sai và exit 2 (ca VV6a). Dựng nhánh để fixture đo đúng thứ nó định đo.
+  git(d, 'checkout', '-qb', 'vong-nay');
   writeFileSync(path.join(d, 'docs', 'note.md'), 'ghi chu\nda sua\n');
   writeFileSync(path.join(d, 'src', 'a.js'), 'a\nb\n');
   git(d, 'add', '-A'); git(d, 'commit', '-qm', 'fix round2');

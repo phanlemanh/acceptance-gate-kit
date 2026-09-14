@@ -115,6 +115,13 @@ function dungKho({ cmdValue, expectedExit, themEval = '', themCauHinh = '' }) {
   execFileSync('git', ['-C', d, 'init', '-q'], { stdio: 'ignore' });
   execFileSync('git', ['-C', d, 'add', '-A'], { stdio: 'ignore' });
   execFileSync('git', ['-C', d, '-c', 'user.name=Ca Do', '-c', 'user.email=ca@do', 'commit', '-qm', 'nen'], { stdio: 'ignore' });
+  // Nhánh riêng + một commit có vật: đời thật luôn có mốc so KHÁC HEAD. Fixture cũ đứng
+  // nguyên trên nhánh đầu nên mốc so trùng HEAD — từ 14/09 s4-args gọi đó là hạ tầng neo
+  // sai và exit 2 (ca VV6a của s4-args-vung-vat), nên BG3/BG4 không lấy được chuỗi lệnh.
+  execFileSync('git', ['-C', d, 'checkout', '-qb', 'vong-nay'], { stdio: 'ignore' });
+  fs.writeFileSync(path.join(d, 'vat-cua-vong.js'), 'x\n');
+  execFileSync('git', ['-C', d, 'add', '-A'], { stdio: 'ignore' });
+  execFileSync('git', ['-C', d, '-c', 'user.name=Ca Do', '-c', 'user.email=ca@do', 'commit', '-qm', 'vat cua vong'], { stdio: 'ignore' });
   return { dir: d, slug };
 }
 
