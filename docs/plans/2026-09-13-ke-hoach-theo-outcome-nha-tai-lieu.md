@@ -174,13 +174,21 @@ sổ → **router (P1+P2) trượt sang 2.13 → 2.14**, lát A và P3 trượt 
 | 2.14 → 2.15 | — | — | P3 (B đóng bằng router) · lát A nếu ngưỡng đếm chạm |
 | theo ngưỡng | H3 · lát C | không đổi | không đổi |
 
-**Ngưỡng chọn vòng cho 2.13 → 2.14 — đọc từ dòng 4 của luật (c) tại mốc 2.13, không
-dựng phép đo mới:** nếu sau vòng token, phần S4 trong hoá đơn vòng mốc còn **> 45 %**
-(tức nhát T1–T7 chưa ăn) → router lùi thêm, mở «phiên chính»; nếu S4 ≤ 45 % và phiên
-chính ≥ 55 % → **vẫn router trước**, vì (i) router là tiền đề của lát A, và (ii) spec
-token §T2 đã khai *«khi router cho repo khai nhà của tầng theo-vòng, `laNgoaiVat`
-đọc thêm từ đó»* — router có người hưởng thứ hai là S4: bớt finder soi thứ không
-phải vật. Owner veto được bằng một chữ.
+**Ngưỡng chọn vòng — đọc từ dòng 4 của luật (c), không dựng phép đo mới.** *(Sửa
+15/09: bản 14/09 trỏ vào «S4 so với phiên chính» — dòng 4 KHÔNG đo phiên chính, nó
+đo token máy S4 tách ba khối tìm-lỗi · chứng-minh-vật · tổng hợp. Ngưỡng dưới đây
+đọc đúng thứ có thật.)* Spec token khai số «sau» của khối tìm-lỗi ≈ **46 %** (refute
+44 → 13 %, review 39 → 33 %). Tại mốc kế, nếu khối **tìm-lỗi còn > 60 %** dòng 4 →
+nhát T1–T7 chưa ăn, vòng token kế đi trước; nếu **≤ 60 %** → **router trước**, vì
+(i) router là tiền đề của lát A, và (ii) spec token §T2 đã khai *«khi router cho repo
+khai nhà của tầng theo-vòng, `laNgoaiVat` đọc thêm từ đó»* — router có người hưởng
+thứ hai là S4. Owner veto được bằng một chữ.
+
+**Đọc tại mốc 2.13.0 (15/09):** dòng 4 = **16 715 215** token/vòng, tìm-lỗi **79,9 %** —
+trên 60 %: nhát cắt chưa ăn (hồ sơ mốc ghi «phần tiết kiệm của T1 bốc hơi: 5 tác tử
+lên 10, rồi 15 ở lượt 1b»). Và cửa sổ 2.13 → 2.14 đã có **hai** vòng meta ký
+(`do-tin-tram-phan-loai` · `chu-ky-khong-tu-lam-hoa-cu`, vượt luật (b), mốc phải khai)
+→ router **sớm nhất 2.14 → 2.15**, và chỉ khi tìm-lỗi ≤ 60 % ở mốc 2.14.
 
 **Vì sao không làm gì thêm cho token ngay bây giờ ở tầng engine:** vòng token đang
 chạy là vòng meta duy nhất của cửa sổ; chèn việc engine thứ hai là vi phạm (b) và
