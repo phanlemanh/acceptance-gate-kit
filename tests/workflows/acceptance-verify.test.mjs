@@ -969,7 +969,8 @@ const MUTANTS = [
       return result.triageFailed === true && result.verdict !== 'REJECT';
     }],
   ['MT2 bo nhanh go-mo-ho bang title duy nhat -> WT-T17a do',
-    s => s.replace(/\n  \|\| \(\(unique\(rowsByTitle[\s\S]*?: undefined\)/, ''),
+    // Neo dời 15/09 (vòng do-tin-tram-phan-loai): nấc 3 nay nằm trong ghepTriage, một dòng.
+    s => s.replace("|| ((unique(rowsByTitle, f.title) && unique(sentByTitle, f.title)) ? rows.find(t => t.title === f.title) : undefined)", ''),
     async (src) => {
       const { result } = await runWorkflow(WF, triArgs(), triResp({
         findings: [F_HIGH], triage: triRow(F_HIGH.title, 'install.ts'),
