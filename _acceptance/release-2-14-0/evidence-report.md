@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ddb305f3d7a887ea52b448ca7d49283b241eba2b
+verified_commit: 87e1ccd816d1c8c5ac6abff3108a8da6bda72909
 human_signoff: Mạnh 2026-09-15 — ký mốc phát hành 2.14.0 với 9 known-limits đã khai; Ngoài-1 và Ngoài-2 mở hợp đồng mới, Ngoài-4/8 sửa ngay trong lượt ký; đồng ý phạm vi đã cắt; phê cả 7 quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -148,3 +148,7 @@ none — every multi-run eval is uniform
 Round 2: S4-r2 — ĐỔI KHUÔN sau DỪNG-VÁ (lời khai đổi đúng theo phép đo hiện có, không xoá răng).
 Round 3/3b: S4-r3 — enum sổ known-limits + dải token sai lan tới CHANGELOG; r3b — owner cho chạy tiếp sau khi hết trần T3, gỡ vòng chết P179, ghi đủ 11 giới hạn vào sổ theo-dõi.
 Round 5: chạy lại trọn bộ máy đo (E1, E1b, E2, E3a–E3e, E5) + hội đồng E4 (carried từ round 4, inputs không đổi) — tất cả xanh, verdict PASS.
+
+### Re-pin lần 1 — 2026-09-15, do pin thành phantom sau rebase 23 commit lên origin/main — sha cũ chưa từng lên origin nên CI clone sạch không giải được
+run_id: repin-20260915T143727Z-88437
+sha: 87e1ccd816d1c8c5ac6abff3108a8da6bda72909 · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
