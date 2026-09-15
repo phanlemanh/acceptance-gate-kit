@@ -165,7 +165,7 @@ moc_so: 7d12ffad
 
 ### Known limits
 
-Chín mục ngoài hợp đồng owner quyết ghi Known limits khi ký (15/09). Không mục nào đổi điều
+**Mười** mục ngoài hợp đồng owner quyết ghi Known limits (chín khi ký 15/09, thêm Ngoài-1 sau khi rà lại cùng ngày). Không mục nào đổi điều
 repo tiêu thụ nhìn thấy: tất cả nằm ở RĂNG của chính hồ sơ mốc hoặc ở phép đo văn xuôi.
 
 - known-limits (Ngoài-3 · Ngoài-5 · Ngoài-9 · Ngoài-10, owner ghi 15/09): **rang-ton-dong.sh và rang-so-tang.sh** — hai răng VIẾT MỚI không đọc `$@`, nên cờ `--chan ghim-lai` mà `config.yaml` truyền bị nuốt im: gõ sai cờ hay rơi cờ đều vẫn xanh. Hai răng CHÉP từ 2.13.0 đã đóng đúng lỗ này (`rang-p200.sh` chốt `[ $# -eq 0 ]`, `rang-moc.sh` cưỡng chế `--chan`), nên đây là bất đối xứng trong cùng một bộ bốn răng giao cùng lượt
@@ -176,11 +176,21 @@ repo tiêu thụ nhìn thấy: tất cả nằm ở RĂNG của chính hồ sơ 
 - known-limits (Ngoài-4 · Ngoài-8, owner quyết SỬA NGAY 15/09): số mục Known limits của `do-tin-tram-phan-loai` từng ghi «Sáu» ở Out of scope trong khi CHANGELOG và mô tả gói ghi «bảy» — đã sửa trong chính lượt ký, kèm nền của cả ba con số 6·7·8
 - known-limits (dòng 4–5 của luật (c), máy đo KHÔNG đọc được, owner ghi 15/09): **usage-report của vòng `chu-ky-khong-tu-lam-hoa-cu`** dùng khuôn tiêu đề riêng nên `loop-health.mjs` trả 0 round / 0 token cho nó — hai số 50.195.215 và 145.925.121 trong bảng năm dòng hiện chỉ dựng lại được bằng CỘNG TAY, dù luật (c) khai hai dòng ấy là máy đo. Hồ sơ mốc đã sửa khuôn cho chính nó; vòng kia chưa
 
-**Ngoài-1 và Ngoài-2 KHÔNG ghi ở đây — owner quyết mở hợp đồng mới.** Ngoài-1: hồ sơ đứng ở
-`status: approved` suốt năm lượt chấm nên bằng chứng «tàng hình» với `lib/workspace-record.cjs`
-và lưới chặn merge — lỗ vòng đời, không phải lỗi của mốc. Ngoài-2: `loop-health.mjs` khớp tiêu
-đề bằng literal nên một khuôn tiêu đề khác làm hai dòng máy-đo của luật (c) trả 0 mà không cờ
-nào kêu.
+- known-limits (Ngoài-1, owner ghi 15/09 sau khi rà lại tại chỗ): **vòng đời hồ sơ** — hồ sơ đứng ở `status: approved` suốt năm lượt chấm nên `lib/workspace-record.cjs` không tiêu thụ evidence, và `s4-args.mjs` vẫn sinh args cho một hồ sơ đang tàng hình. Lưới trước-merge ĐÃ bắt fail-closed có tên và chặn merge, nên không có lỗ hệ thống: lỗi là của phiên chạy S4 bằng tay và bỏ bước `implemented` mà SKILL đã dặn. Repo tiêu thụ đi qua `/feature-loop:feature-loop` thì skill tự đặt status
+
+**Ngoài-2 KHÔNG ghi ở đây — owner quyết mở hợp đồng mới (15/09).** `usage-report.md` có hai đầu
+không nối nhau: bên VIẾT `wf-usage.mjs` in tiêu đề từ `--title` **tự do người gõ**, bên ĐỌC
+`loop-health.mjs` khớp cứng khuôn «S4 round N». Ca `loop-health.test.mjs` TỰ DỰNG fixture đúng
+khuôn bên đọc nên xanh vĩnh viễn trong khi seam gãy thật — nguyên văn hình dạng (3) của
+`CLAUDE.md`. Hậu quả đo được: 2/3 hồ sơ gần nhất trả **0 token**, tức hai dòng mà luật (c) khai
+là MÁY ĐO đang hỏng LẶNG; con số 145.925.121 trong bảng năm dòng là số phiên **cộng tay**.
+
+**Vì sao chỉ một hồ sơ chứ không hai:** owner hỏi «làm thì người dùng kit được gì, không làm thì
+tác động gì» ngay sau chữ ký. Ngoài-2 trace nguyên tố 2 và có người hưởng cụ thể (owner đọc năm
+dòng số mỗi mốc · repo tiêu thụ đọc `loop-health` để biết chi phí vòng lặp). Ngoài-1 không: lưới
+đã chặn đúng lúc, không-làm thì người dùng kit gần như không chịu tác động nào. Máy đã khuyến
+nghị SAI ở lời mời cổng — xếp cả hai vào «mở hợp đồng mới» mà không hỏi người-hưởng-cụ-thể cho
+từng mục; lỗi ấy vào §4.
 
 ### 1. Năm dòng số của luật (c) — HAI vòng, đếm cùng luật, đối chiếu chéo hai phiên
 
