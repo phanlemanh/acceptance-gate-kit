@@ -6,9 +6,7 @@
 // đi thật — rút mảng Findings khỏi lời nhắc (AC-10) — không gõ tay mã.
 //
 // Chạy trọn: node triage-do-tin.test.mjs · một chân: --chan <tên> (mã thoát của chân).
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
-import os from 'node:os';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runWorkflow, check, summary } from './harness.mjs';
@@ -18,8 +16,6 @@ const ROOT = path.join(HERE, '..', '..');
 const WF = path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js');
 const SRC = readFileSync(WF, 'utf8');
 const CHAN = (() => { const i = process.argv.indexOf('--chan'); return i >= 0 ? process.argv[i + 1] : ''; })();
-const SCRATCH = path.join(os.tmpdir(), 'do-tin-tram-ca'); mkdirSync(SCRATCH, { recursive: true });
-const RUNLOG_TMP = path.join(SCRATCH, 'tram-run-log.jsonl');
 
 // Tên trường mã: rút từ khối marker của BÊN VIẾT — không gõ lại (AC-10).
 const ID_FIELD = (() => {
@@ -305,89 +301,44 @@ chay('hop-dong-khong-doc-duoc', async () => {
   return 0;
 });
 
-// ── chân dong-so (AC-7 vế đầu) ──────────────────────────────────────────────
-chay('dong-so', async () => {
-  const thieuT3 = (sent, luot) => luot === 1 ? sent.filter(f => f[ID_FIELD] !== 't3').map(f => row(f)) : du(sent);
-  const that = await runWorkflow(WF, args, respond({ findings: F3, triage: thieuT3 }));
-  const lines = (that.result.runLog || []).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
-  const tr = lines.filter(l => l.kind === 'triage');
-  const ok = tr.length === 1 && tr[0].sent === 3 && tr[0].matched_pass1 === 2 && tr[0].reasked === true && tr[0].matched_final === 3 && tr[0].failed === false && !('run_id' in tr[0]);
-  check('dong-so ban that: dung MOT dong kind triage, du nam so, khong run_id', ok, JSON.stringify(tr));
-  // Ghi run-log THẬT của lần chạy này cho chân bộ-đọc dùng lại (round-trip writer→reader).
-  writeFileSync(RUNLOG_TMP, (that.result.runLog || []).join('\n') + '\n');
-  const mut = mutant("runLogLines.push(JSON.stringify({ ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'triage',", "void (JSON.stringify({ ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'triage',");
-  const ban = await runWorkflow(WF, args, respond({ findings: F3, triage: thieuT3 }), mut);
-  const banTr = (ban.result.runLog || []).filter(l => /"kind":"triage"/.test(l));
-  check('dong-so mutant bo dong so -> khong con dong (rang song)', banTr.length === 0);
-  if (!ok) return ('run_id' in (tr[0] || {})) ? 4 : 5; if (banTr.length !== 0) return 3;
-  console.log('PASS: dung MOT dong kind triage trong runLog, du nam truong so, va KHONG co run_id (run-log cua lan chay nay duoc ghi ra tep cho chan bo-doc dung lai)');
-  return 0;
-});
-
-// ── chân bo-doc-bo-qua (AC-7 vế sau — ma trận bộ đọc TOÀN PHẦN bằng mã) ──────
-chay('bo-doc-bo-qua', async () => {
-  if (!existsSync(RUNLOG_TMP)) { console.log('  FAIL: chua co run-log cua chan dong-so — chay chan dong-so truoc'); return 6; }
-  const runLogText = readFileSync(RUNLOG_TMP, 'utf8');
-  // Đối chứng dương: thêm MỘT dòng repin có run_id để bộ đọc phải THẤY nó.
-  const RID = 'rid-doi-chung-1';
-  const SHA = 'a'.repeat(40);
-  const repinLine = JSON.stringify({ ts: 't', kind: 'repin', run_id: RID, sha: SHA, suites_exit: [0], evals_exit: { E1: 0 } });
-  const withRepin = runLogText + repinLine + '\n';
-  const khongTriage = withRepin.split('\n').filter(l => !/"kind":"triage"/.test(l)).join('\n');
-  const EVAL_RID = (runLogText.split('\n').map(l => { try { return JSON.parse(l); } catch { return null; } }).find(l => l && l.evalId && l.run_id) || {}).run_id;
-  if (!EVAL_RID) { console.log('  FAIL: run-log cua chan dong-so khong co dong eval mang run_id'); return 6; }
-  // (1) LỚP bộ đọc = tệp mã trong lib/ scripts/ feature-loop/scripts/ hooks/ nhắc MỘT trong ba tên kit dùng cho
-  //     nội dung run-log (tên tệp · runLogText · runLogLines) — quét bằng mã, không gõ danh sách.
-  const quet = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap(d => d.isDirectory() ? quet(path.join(dir, d.name)) : [path.join(dir, d.name)]);
-  const LOP = ['lib', 'scripts', 'feature-loop/scripts', 'hooks'].flatMap(d => quet(path.join(ROOT, d)))
-    .filter(f => /\.(cjs|mjs|js|sh)$/.test(f) && /run-log\.jsonl|runLogText|runLogLines/.test(readFileSync(f, 'utf8'))).map(f => path.relative(ROOT, f)).sort();
-  // (2) Workspace tổng hợp tối giản, run-log là dòng do trạm THẬT ghi ở chân dong-so.
-  const wsRoot = path.join(SCRATCH, 'ws'); const ws = path.join(wsRoot, '_acceptance', 'demo'); mkdirSync(ws, { recursive: true });
-  writeFileSync(path.join(ws, 'run-log.jsonl'), withRepin);
-  // config tối giản để recheck giải được verifier config:executors.test.x (L2 SUBSTANCE).
-  writeFileSync(path.join(wsRoot, '_acceptance', 'config.yaml'), 'schema_version: 1\nexecutors:\n  test:\n    x: "true"\n');
-  writeFileSync(path.join(ws, 'contract.md'), '---\nschema_version: 1\nfeature: f\nslug: demo\nowner: o\nrisk_tier: T2\nstatus: verified\napproved_by: Manh\napproved_at: 2026-09-15\n---\n\n# c\n');
-  writeFileSync(path.join(ws, 'evals.yaml'), 'schema_version: 1\nfeature_slug: demo\nevals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.x\n    expected: pass\n');
-  writeFileSync(path.join(ws, 'evidence-report.md'), `---\nschema_version: 2\nfeature_slug: demo\nverdict: PASS\nfailed_evals: []\nreason:\nverified_by: v\nenforcement_mode: strict\nbypass_used: false\nverified_commit: ${SHA}\nhuman_signoff: Manh 2026-09-15\n---\n\n# Evidence Report: demo\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| E1 | AC-1 | test | PASS |\n\n## Evidence\n\n- eval: E1\n  run_id: ${EVAL_RID}\n  exit_code: 0\n  baseline: n-a\n  verifier: config:executors.test.x\n  verified_at: 2026-09-15T10:00:00Z\n  output: |\n    ok\n\n## Known limits\n\n## Ngoài hợp đồng\n\n## Iterations\n\nRound 1: ok\n\n### Re-pin lần 1 — 2026-09-15, do x\nrun_id: ${RID}\nsha: ${SHA} · suites: 1 lệnh exit 0 · evals: 1/1 eval máy đạt kỳ vọng\n`);
-  // cli trả CẢ mã thoát lẫn đầu ra — lượt chấm 1 bắt: nuốt mã thoát thì bộ đọc vỡ giống nhau ở
-  // hai bên vẫn «giống», tức assertion âm-tính-một-mình.
-  const cli = (rel, argv) => { try { return { status: 0, out: execFileSync('node', [path.join(ROOT, rel), ...argv], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }) }; } catch (e) { return { status: e.status == null ? 1 : e.status, out: String(e.stdout || '') + String(e.stderr || '') }; } };
-  const ec = await import(path.join(ROOT, 'lib', 'evidence-core.cjs')).then(m => m.default || m);
-  const cp = await import(path.join(ROOT, 'feature-loop', 'scripts', 'carry-plan.mjs'));
-  const cpArgs = (rl) => ({ runLogText: rl, evalsText: readFileSync(path.join(ws, 'evals.yaml'), 'utf8'), contractText: readFileSync(path.join(ws, 'contract.md'), 'utf8'), deltaFiles: [], round: 2, agRoot: ROOT });
-  const wsB = path.join(SCRATCH, 'wsB', '_acceptance', 'demo'); mkdirSync(wsB, { recursive: true });
-  for (const f of ['contract.md', 'evals.yaml', 'evidence-report.md']) writeFileSync(path.join(wsB, f), readFileSync(path.join(ws, f), 'utf8'));
-  writeFileSync(path.join(SCRATCH, 'wsB', '_acceptance', 'config.yaml'), readFileSync(path.join(wsRoot, '_acceptance', 'config.yaml'), 'utf8'));
-  writeFileSync(path.join(wsB, 'run-log.jsonl'), khongTriage + '\n');
-  const wsRootB = path.join(SCRATCH, 'wsB');
-  // giong: cả hai bên mã thoát 0, đầu ra giống hệt (sau chuẩn hoá tên workspace), VÀ đầu ra mang
-  // mảnh nội dung `ghim` chứng bộ đọc đã đọc run-log thật (đối chứng dương) — thiếu một vế là null.
-  const giong = (rel, mk, ghim) => { const a = cli(rel, mk(wsRoot, ws)); const b = cli(rel, mk(wsRootB, wsB)); if (a.status !== 0 || b.status !== 0) return null; if (a.out.replace(/wsB?/g, 'ws') !== b.out.replace(/wsB?/g, 'ws')) return null; return ghim(a.out) ? a.out : null; };
-  const ids = ec.loadRunLogIds(ws); const idsB = ec.loadRunLogIds(wsB);
-  // (3) Bộ được CHẠY thật — mỗi bộ: bỏ qua dòng triage VÀ thấy dòng run_id (đối chứng dương).
-  const CHAY = {
-    'lib/evidence-core.cjs': ids instanceof Set && ids.has(RID) && ids.has(EVAL_RID) && [...ids].sort().join() === [...idsB].sort().join(),
-    'feature-loop/scripts/carry-plan.mjs': JSON.stringify(cp.plan(cpArgs(withRepin))) === JSON.stringify(cp.plan(cpArgs(khongTriage))),
-    'feature-loop/scripts/round-tally-read.mjs': giong('feature-loop/scripts/round-tally-read.mjs', (r, w) => ['--run-log', path.join(w, 'run-log.jsonl')], o => o.includes('"round": 1') && o.includes(args.invokedSha)) !== null,
-    'scripts/acceptance-gold.mjs': giong('scripts/acceptance-gold.mjs', (r) => ['--root', r, '--json'], o => { try { return JSON.parse(o).noPanel.includes('demo'); } catch { return false; } }) !== null,
-    'scripts/loop-health.mjs': giong('scripts/loop-health.mjs', (r) => ['--root', r], o => /\|\s*T2\s*\|\s*1\s*\|/.test(o) && /ghim lại/.test(o)) !== null,
-    'scripts/recheck-evidence.cjs': giong('scripts/recheck-evidence.cjs', (r, w) => [path.join(w, 'evidence-report.md')], o => !/REPIN x|L2 PROVENANCE|fails the evidence bar/.test(o)) !== null,
+// ── chân ky-tu-do-la (AC-11) ────────────────────────────────────────────────
+chay('ky-tu-do-la', async () => {
+  // Nội dung phát hiện mang đúng bốn mẫu mà String.replace diễn giải khi chuỗi thay thế là
+  // chuỗi: $& (đoạn khớp) · $' (phần SAU) · $` (phần TRƯỚC) · $$ (một đô-la). Kho này đầy
+  // script shell nên đây là dữ liệu thật, không phải ca bịa.
+  const DOLA = [
+    { title: 'quote sai trong shell', file: '/repo/src/a.js', line: 1, severity: 'high', detail: "dung $'\\n' thay vi printf; PID $$ bi lo; $& va $` cung the" },
+    { title: 'sai ma thoat',          file: '/repo/src/c.js', line: 3, severity: 'low',  detail: 'binh thuong' },
+  ];
+  // Vị từ: khối Findings trong lời nhắc tác tử NHẬN phải parse được VÀ bằng đúng tải đã gửi.
+  const nguyenVen = (res, calls, ds) => {
+    const tc = triageCalls(calls); if (!tc.length) return false;
+    for (const c of tc) {
+      let sent; try { sent = rutTaiGui(c.prompt); } catch { return false; }
+      if (!Array.isArray(sent) || !sent.length) return false;
+      for (const f of sent) { const goc = ds.find(x => x.title === f.title); if (!goc || f.detail !== goc.detail) return false; }
+    }
+    return true;
   };
-  // (4) Bộ KHÔNG chạy — mỗi mục một lý do máy kiểm được trên nguồn.
-  const KHONG_CHAY = {
-    'feature-loop/scripts/repin-lane.mjs': [s => /kind: 'repin'/.test(s) && !/kind === 'triage'/.test(s), 'bên VIẾT dòng repin, không đọc kind khác'],
-    'scripts/pre-merge-check.sh': [s => /"kind":"repin"/.test(s) && !/"kind":"triage"/.test(s), 'chỉ grep dòng có kind repin'],
-    'feature-loop/scripts/s4-args.mjs': [s => /l\.kind === 'baseline'/.test(s) && /l\.kind === 'panel'/.test(s) && /carry-plan/.test(s), 'đọc run-log chỉ qua bộ lọc kind baseline/panel và uỷ carry-plan (đã đo)'],
-  };
-  const chayDo = Object.entries(CHAY).filter(([, v]) => !v).map(([k]) => k);
-  const kcDo = Object.entries(KHONG_CHAY).filter(([k, [f]]) => !f(readFileSync(path.join(ROOT, k), 'utf8'))).map(([k]) => k);
-  const phu = new Set([...Object.keys(CHAY), ...Object.keys(KHONG_CHAY)]);
-  const thieuLop = LOP.filter(f => !phu.has(f)); const thua = [...phu].filter(f => !LOP.includes(f));
-  check(`bo-doc-bo-qua ma tran TOAN PHAN: quet ${LOP.length}, phu ${phu.size}`, thieuLop.length === 0 && thua.length === 0, JSON.stringify({ thieuLop, thua }));
-  check('bo-doc-bo-qua moi bo chay deu bo qua dong triage va thay dong run_id', chayDo.length === 0, chayDo.join(','));
-  check('bo-doc-bo-qua moi bo khong chay co ly do kiem duoc tren nguon', kcDo.length === 0, kcDo.join(','));
-  if (thieuLop.length || thua.length) return 5; if (chayDo.length) return 3; if (kcDo.length) return 4;
-  console.log(`PASS: ma tran bo doc TOAN PHAN — so bo doc chay BANG so bo doc quet duoc (${phu.size}/${LOP.length}, ten tung bo in ra: ${[...phu].sort().join(', ')}), moi bo bo qua dong kind triage va van doc dung dong co run_id`);
+  // Lượt 1 thiếu t2 → có lượt hỏi lại, nên ca phủ CẢ HAI lời nhắc.
+  const thieuT2 = (sent, luot) => luot === 1 ? sent.filter(f => f[ID_FIELD] !== 't2').map(f => row(f)) : du(sent);
+  const that = await runWorkflow(WF, args, respond({ findings: DOLA, triage: thieuT2 }));
+  const ok = nguyenVen(that.result, that.calls, DOLA) && triageCalls(that.calls).length === 2 && that.result.triageFailed === false;
+  check('ky-tu-do-la ban that: tai gui nguyen ven o ca hai loi nhac', ok, JSON.stringify({ n: triageCalls(that.calls).length, tf: that.result.triageFailed }));
+  // Đối chứng dương: phát hiện KHÔNG có ký tự đô-la phải xanh ở CẢ HAI bản (thật và mutant).
+  const SACH = DOLA.map(f => ({ ...f, detail: f.detail.replace(/\$/g, 'S') }));
+  const mut = mutant('const triagePromptFor = ds => triagePrompt.replace(taiGuiGoc, () => taiGui(ds))',
+                     'const triagePromptFor = ds => triagePrompt.replace(taiGuiGoc, taiGui(ds))');
+  const sachThat = await runWorkflow(WF, args, respond({ findings: SACH, triage: thieuT2 }));
+  const sachMut = await runWorkflow(WF, args, respond({ findings: SACH, triage: thieuT2 }), mut);
+  const dcDuong = nguyenVen(sachThat.result, sachThat.calls, SACH) && nguyenVen(sachMut.result, sachMut.calls, SACH);
+  check('ky-tu-do-la doi chung duong: khong co ky tu do-la thi CA HAI ban deu nguyen ven', dcDuong);
+  // Chiều đỏ: cùng ca, bản dùng chuỗi thay thế phải méo tải.
+  const ban = await runWorkflow(WF, args, respond({ findings: DOLA, triage: thieuT2 }), mut);
+  const banMeo = !nguyenVen(ban.result, ban.calls, DOLA);
+  check('ky-tu-do-la mutant dung chuoi thay the -> tai gui MEO (rang song)', banMeo);
+  if (!dcDuong) return 4; if (!ok) return 5; if (!banMeo) return 3;
+  console.log('PASS: tai gui di KHONG meo khi phat hien mang ky tu do-la — khoi Findings trong loi nhac tac tu NHAN parse duoc va BANG dung danh sach da gui, ca luot 1 lan luot hoi lai (doi chung duong: cung ca voi phat hien khong co ky tu do-la xanh o CA HAI ban)');
   return 0;
 });
 

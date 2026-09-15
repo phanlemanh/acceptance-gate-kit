@@ -962,7 +962,12 @@ if (toTriage.length === 0) {
   // sau đó làm replace trượt và lượt hỏi lại lặng lẽ gửi lại TRỌN danh sách (mutant
   // đúc-lại-mã của ca ma-giu-nguyen lộ ra đúng đường này).
   const taiGuiGoc = taiGui(toTriage)
-  const triagePromptFor = ds => triagePrompt.replace(taiGuiGoc, taiGui(ds))
+  // Replacer phải là HÀM: chuỗi thay thế bị JS diễn giải các mẫu $&, $', $` và $$ — mà tải
+  // là JSON của title/detail do reviewer viết, và kho này đầy script shell nên «$$», «$'»
+  // là dữ liệu THẬT. Dạng chuỗi làm khối Findings tự chèn đầu/đuôi lời nhắc vào giữa JSON,
+  // ngay LƯỢT 1 (lượt 1 cũng đi qua đây), và hỏng theo đường LẶNG: tác tử đọc tải méo, trả
+  // thiếu hoặc lệch, không dòng nào gọi tên nguyên nhân. Hai lượt chấm đều bắt (AC-11).
+  const triagePromptFor = ds => triagePrompt.replace(taiGuiGoc, () => taiGui(ds))
   triageOnce = (ds = toTriage) => agentT(triagePromptFor(ds), { label: 'triage', phase: 'Triage', schema: TRIAGE_SCHEMA, ...modelOpt('triage') })
   triageRaw = await triageOnce().catch(() => null)
   if (!triageRaw) triageRaw = await triageOnce().catch(() => null) // retry 1
@@ -1031,14 +1036,11 @@ const ghepTriage = (rowsRaw, sent) => {
 }
 const rowsOf = raw => ((raw && Array.isArray(raw.triaged)) ? raw.triaged : []).filter(t => t && typeof t.title === 'string')
 let { byFinding, thieu } = ghepTriage(rowsOf(triageRaw), toTriage)
-const matched1 = toTriage.length - thieu.length
 // Hỏi lại ĐÚNG MỘT lần, chỉ phần còn thiếu, mang MÃ CŨ (AC-4, AC-9): ghepTriage tính
 // tập mã hợp lệ từ chính `thieu`, nên một dòng lượt 2 mang mã ngoài tập đang hỏi tự
 // thành mã lạ. Tác tử chết hay vẫn thiếu → rơi về luật fail-toward-human bên dưới,
 // không thử lần ba (AC-6). Lượt 1 đủ thì không có lượt này (AC-5).
-let reasked = false
 if (thieu.length && !triageFailed) {
-  reasked = true
   log(`Triage: thieu ${thieu.length}/${toTriage.length} muc sau luot 1 — hoi lai MOT lan chi cac muc thieu`)
   let triageRaw2 = null
   triageRaw2 = await triageOnce(thieu).catch(() => null)
@@ -1048,13 +1050,6 @@ if (thieu.length && !triageFailed) {
   thieu = g2.thieu
 }
 const matchTriage = f => byFinding.get(distinctKey(f))
-// Dòng sổ của trạm (AC-7): mốc phát hành đọc dòng 3–5 của luật (c) cho nhát cắt này từ
-// đây, không đếm tay từ transcript. KHÔNG run_id → mọi bộ đọc bằng chứng bỏ qua, cùng
-// đường với dòng finding/panel/baseline; ma trận bộ đọc có ca riêng (E7b).
-// <<<TRIAGE-LINE
-const triageStat = { sent: toTriage.length, matched_pass1: matched1, reasked, matched_final: toTriage.length - thieu.length, failed: triageFailed || thieu.length > 0 }
-runLogLines.push(JSON.stringify({ ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'triage', ...triageStat }))
-// TRIAGE-LINE>>>
 // Finding gửi đi mà agent KHÔNG trả về → unclassified (không mặc định in/out).
 const triagedRaw = toTriage.map(f => {
   const t = matchTriage(f)

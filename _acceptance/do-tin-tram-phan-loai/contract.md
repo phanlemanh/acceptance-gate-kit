@@ -28,10 +28,12 @@ nhát cho vế thứ hai; chữa vế hai mà bỏ vế một là vá dưới t�
 định dạng nghiệm đúng tầng là biến bất biến từ đầu-người sang vật-máy-giữ, mà định danh
 do LLM chép lại chính là một bất biến đầu-người.
 
-Phần CỘNG của vòng (mã đúc, lượt hỏi lại, dòng sổ) đi theo luật 15/09 của CLAUDE.md:
-CỘNG không tự đi, owner phê duyệt đích danh tại Cổng Phạm vi của chính vòng này (ADR
-0018). AC-7 tồn tại vì luật năm-dòng-số: mốc 2.14 phải đọc được dòng 3–5 cho nhát cắt
-này từ sổ, không đếm tay từ transcript.
+Phần CỘNG của vòng (mã đúc, lượt hỏi lại) đi theo luật 15/09 của CLAUDE.md: CỘNG không tự
+đi, owner phê duyệt đích danh tại Cổng Phạm vi của chính vòng này (ADR 0018). Sau lượt chấm
+2, owner quyết hai điều nữa ở chốt DỪNG-VÁ (15/09): **thu phạm vi** — bỏ AC-7 cũ (dòng sổ
+`kind: "triage"` và ma trận bộ đọc), vì khuôn của nó tự sinh finding; và **nâng phạm vi** —
+kéo lỗi ký tự đô-la từ khối ngoài hợp đồng vào thành AC-11, vì nó hỏng theo đường lặng ở
+đúng cái khớp vòng này sinh ra để chữa.
 
 ## Criteria
 
@@ -87,18 +89,6 @@ cho phát hiện thiếu · tác tử hỏi-lại CHẾT
 **Then** ở CẢ HAI chân: `triageFailed` là true; phát hiện thiếu mang `unclassified`; bước
 bác bỏ chạy trên TOÀN BỘ phát hiện đúng như đường cũ; và KHÔNG có tác tử phân loại thứ ba.
 
-### AC-7 (dòng sổ để mốc 2.14 đọc được dòng 3–5 của luật (c) cho chính nhát cắt này)
-
-**Given** một lượt chấm chạy qua trạm phân loại
-**When** đọc `runLog` mà workflow trả về
-**Then** có đúng một dòng `kind: "triage"` mang: số gửi đi · số ghép được ở lượt 1 · có hỏi
-lại hay không · số ghép được sau cùng · cờ hỏng; dòng KHÔNG mang `run_id`. Và: ma trận bộ
-đọc bằng chứng của kho phải TOÀN PHẦN — danh sách bộ đọc suy bằng một phép quét từ vị trí
-tệp ca, số bộ đọc được chạy phải BẰNG số bộ đọc quét được, tên từng bộ in ra dòng kết
-luận; mỗi bộ bỏ qua dòng `triage` mà vẫn đọc đúng dòng có `run_id` (đối chứng dương). Đầu
-vào của phép đo này là run-log do chính lần chạy của phép đo AC-7 vế đầu sinh ra, không
-phải một tệp dựng tay theo khuôn bên đọc.
-
 ### AC-8 (ba đường hỏng cũ giữ nguyên hành vi)
 
 **Given** ba chân, mỗi chân một ca riêng và một dòng kết luận riêng: danh sách phát hiện
@@ -132,6 +122,19 @@ khuôn bên đọc. Chiều đỏ: gỡ mã khỏi lời nhắc, hoặc đổi t
 ca ĐỎ — nếu không thì mọi ca khác vẫn xanh trong khi tác tử thật không bao giờ trả mã và cả
 nhát cắt bằng không.
 
+### AC-11 (nâng phạm vi, owner quyết 15/09) — tải gửi đi KHÔNG méo vì ký tự đô-la
+
+**Given** một phát hiện mà `title` hoặc `detail` chứa các mẫu `$&`, `$'`, `` $` `` hoặc `$$`
+— chuyện thường ở kho đầy script shell, và đã có thật trong corpus hồ sơ của kit
+**When** trạm phân loại dựng lời nhắc cho lượt 1 và cho lượt hỏi lại
+**Then** khối `Findings` trong lời nhắc tác tử NHẬN parse được thành JSON và bằng ĐÚNG danh
+sách đã gửi — không mẫu nào bị JavaScript diễn giải thành đoạn khớp, phần đầu hay phần đuôi
+của chính lời nhắc. Chiều đỏ: bản sao trong bộ nhớ dùng chuỗi thay thế (thay vì replacer
+hàm) phải làm ca ĐỎ trên đúng phát hiện ấy, và ĐỐI CHỨNG DƯƠNG là cùng ca với phát hiện
+không chứa ký tự đô-la vẫn xanh ở cả hai bản. Đây là mục hai lượt chấm đều gọi tên ở khối
+ngoài hợp đồng (high), nay owner nâng vào phạm vi vì nó hỏng theo đường LẶNG ở đúng cái
+khớp máy-viết → LLM-đọc mà vòng này tồn tại để chữa.
+
 ## Coverage
 
 Quét hình thái preset `test-matrix`, trục dựng lại theo B1 vì trục preset là trục sản phẩm
@@ -151,7 +154,13 @@ người dùng còn vật ở đây là một trạm trong workflow. Chi tiết 
 gỡ-mơ-hồ cũ chịu thua) · trôi nội dung → AC-2 · thừa mục → AC-3 · thiếu rồi vá được → AC-4 ·
 đủ ngay lượt 1 → AC-5 · thiếu cả sau hỏi lại → AC-6 · ba nhánh cũ → AC-8. Trục B nhân với
 trục A ở lượt HỎI LẠI → AC-9 (phản biện context sạch P0-1). Khớp gửi-đi ↔ đọc-lại của chính
-mã → AC-10 (phản biện context sạch P0-2).
+mã → AC-10 (phản biện context sạch P0-2). Nội dung phát hiện mang ký tự đô-la — ô của trục C
+mà quét hình thái ban đầu KHÔNG kê ra (hình dạng tập chỉ tính số mục và trùng tiêu đề, không
+tính KÝ TỰ trong nội dung) → AC-11, thêm sau lượt chấm 2.
+
+**Số hiệu AC-7 bỏ trống có chủ ý.** Nó từng là dòng sổ `kind: "triage"`; owner thu phạm vi
+15/09 sau khi DỪNG-VÁ nổ. Giữ trống thay vì đánh số lại để mọi tham chiếu trong sổ quyết
+định, hai báo cáo bằng chứng và hai bản findings còn đọc được.
 
 ## Out of scope
 
@@ -163,6 +172,11 @@ mã → AC-10 (phản biện context sạch P0-2).
 - Chiến dịch ghim lại 41 hồ sơ và nhát «ghim lại theo diff» — việc của mốc phát hành 2.14,
   không phải của vòng này.
 - Dựng phép đo mới cho chính phép đo của vòng này — luật (a) cấm tầng đo-thước-của-thước.
+- **Dòng sổ `kind: "triage"` và ma trận bộ đọc (AC-7 cũ) — THU PHẠM VI 15/09.** Khuôn của nó
+  bắt chứng một tính chất phủ định trên chín bộ đọc khác giao diện, nên mỗi bộ cần một khẳng
+  định riêng tay và mỗi khẳng định ấy lại là một phép đo mới cần hai chiều: lượt 1 vá một
+  mục, lượt 2 lộ thêm bốn mục CÙNG LỚP. Ba dòng sổ có sẵn của kit (`finding`, `panel`,
+  `baseline`) chưa bao giờ phải chứng điều này. Đi vào hạt giống cửa sổ sau.
 
 ## Notes
 

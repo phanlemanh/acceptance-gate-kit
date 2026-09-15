@@ -78,15 +78,26 @@ Phép tính chi phí là lý do nhát này đáng: một tác tử `sonnet` phâ
 với N tác tử bác bỏ chạy trên toàn bộ danh sách. Ở lượt đã đo, đó là 1 lượt gọi thêm thay
 cho 5–10 lượt bác bỏ thừa.
 
-## Nhát 3 — dòng sổ để cửa sổ sau đọc được
+## Nhát 3 đã THU PHẠM VI (owner quyết 15/09 tại chốt DỪNG-VÁ)
 
-Trạm ghi một dòng `run-log.jsonl` mang `kind: "triage"` với số gửi đi · số ghép được ở
-lượt 1 · có hỏi lại không · số ghép được sau cùng · cờ hỏng. Không có `run_id`, nên mọi
-bộ đọc bằng chứng bỏ qua nó — cùng đường với dòng `finding`, `panel`, `baseline`; việc
-các bộ đọc THẬT SỰ bỏ qua là một tiêu chí có phép đo, không phải một lời hứa.
+Bản đầu có nhát thứ ba: một dòng sổ `kind: "triage"` cộng một ma trận chứng rằng mọi bộ đọc
+bằng chứng bỏ qua nó. Hai lượt chấm cho thấy khuôn ấy TỰ SINH finding — nó bắt chứng một
+tính chất phủ định trên chín bộ đọc khác giao diện, nên mỗi bộ cần một khẳng định riêng tay
+và mỗi khẳng định ấy lại là một phép đo mới cần hai chiều: lượt 1 vá được một mục, lượt 2 lộ
+thêm bốn mục CÙNG LỚP. Ba dòng sổ có sẵn của kit (`finding`, `panel`, `baseline`) chưa bao
+giờ phải chứng điều này. Owner thu phạm vi; đề bài đi vào hạt giống cửa sổ sau.
 
-Dòng này là cách mốc 2.14 đọc được dòng 3–5 của luật (c) cho chính nhát cắt này — từ sổ,
-không đếm tay từ transcript, đúng cái đã làm số của mốc 2.13 phải khai cận-dưới-phồng.
+## Nhát 3 (thay vào) — tải gửi đi không méo vì ký tự đô-la
+
+Lời nhắc cho một danh sách con dựng bằng `String.replace`. Tham số thứ hai là CHUỖI thì
+JavaScript diễn giải bốn mẫu trong đó: đoạn khớp, phần trước, phần sau, và một dấu đô-la
+đơn. Tải là JSON của tiêu đề và mô tả do người tìm lỗi viết, trong một kho đầy script shell
+— nên các mẫu ấy là dữ liệu THẬT. Hậu quả: khối phát hiện tự chèn đầu hoặc đuôi lời nhắc vào
+giữa chính nó, ngay LƯỢT 1, và hỏng theo đường lặng — tác tử đọc tải méo rồi trả thiếu hoặc
+lệch, không dòng nào gọi tên nguyên nhân.
+
+Nhát: replacer dạng HÀM, không diễn giải mẫu nào. Hai lượt chấm đều gọi tên mục này ở khối
+ngoài hợp đồng với mức high; owner nâng vào phạm vi tại chốt DỪNG-VÁ.
 
 ## Không làm trong vòng này
 
@@ -97,6 +108,7 @@ không đếm tay từ transcript, đúng cái đã làm số của mốc 2.13 p
 - Không đổi hành vi khi tác tử chết cả hai lần thử, khi tác tử tự khai không đọc được hợp
   đồng, hay khi danh sách phát hiện rỗng.
 - Không dựng phép đo mới cho chính phép đo này (luật (a)).
+- Dòng sổ của trạm và ma trận bộ đọc — đã thu phạm vi, xem khối trên.
 
 ## Độ phủ — quét hình thái (preset test-matrix, đã chất vấn trục)
 

@@ -86,29 +86,6 @@ evals:
       KHÔNG đỏ · 4 · 5.
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/triage-do-tin.test.mjs, _acceptance/do-tin-tram-phan-loai/rang-triage.sh]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E7a
-    criterion: AC-7
-    executor: script
-    cmd: config:executors.script.rang_triage_dong_so
-    expected: >
-      Exit 0 và đúng một dòng «PASS: dung MOT dong kind triage trong runLog, du nam truong so,
-      va KHONG co run_id (run-log cua lan chay nay duoc ghi ra tep cho chan bo-doc dung lai)».
-      Chiều đỏ ghim mã: 2 · 3 mutant bỏ dòng sổ mà ca KHÔNG đỏ · 4 dòng mang run_id · 5.
-    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/triage-do-tin.test.mjs, _acceptance/do-tin-tram-phan-loai/rang-triage.sh]
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E7b
-    criterion: AC-7
-    executor: script
-    cmd: config:executors.script.rang_triage_bo_doc_bo_qua
-    expected: >
-      Exit 0 và đúng một dòng «PASS: ma tran bo doc TOAN PHAN — so bo doc chay BANG so bo doc
-      quet duoc (<n>/<n>, ten tung bo in ra), moi bo bo qua dong kind triage va van doc dung
-      dong co run_id». Danh sách bộ đọc suy bằng phép quét từ vị trí tệp ca, KHÔNG gõ tay; đầu
-      vào là run-log do chân E7a THẬT sinh ra, không dựng tay theo khuôn bên đọc. Chiều đỏ ghim
-      mã: 2 · 3 một bộ đọc đếm nhầm dòng triage · 4 đối chứng dương đỏ · 5 số chạy khác số quét
-      được (có bộ đọc mới mà ca không biết) · 6 không đọc được run-log của E7a.
-    paths: [feature-loop/workflows/acceptance-verify.js, lib/evidence-core.cjs, scripts/recheck-evidence.cjs, feature-loop/scripts/**, _acceptance/do-tin-tram-phan-loai/rang-triage.sh]
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8a
     criterion: AC-8
     executor: script
@@ -163,6 +140,20 @@ evals:
       mutant đổi tên trường ở đúng MỘT phía mà ca KHÔNG đỏ · 5 không rút được khối marker · 6
       số mã khác số phát hiện. Phản biện context sạch P0-2: thiếu chân này thì mọi eval khác
       vẫn xanh trong khi tác tử thật không bao giờ trả mã và cả nhát cắt bằng không.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/triage-do-tin.test.mjs, _acceptance/do-tin-tram-phan-loai/rang-triage.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.rang_triage_ky_tu_do_la
+    expected: >
+      Exit 0 và đúng một dòng «PASS: tai gui di KHONG meo khi phat hien mang ky tu do-la —
+      khoi Findings trong loi nhac tac tu NHAN parse duoc va BANG dung danh sach da gui, ca
+      luot 1 lan luot hoi lai (doi chung duong: cung ca voi phat hien khong co ky tu do-la
+      xanh o CA HAI ban)». Chiều đỏ ghim mã: 2 chưa từng chạy · 3 mutant dùng chuỗi thay thế
+      mà ca KHÔNG đỏ · 4 đối chứng dương đỏ · 5 không rút được khối Findings từ lời nhắc.
+      Owner nâng phạm vi 15/09 tại chốt DỪNG-VÁ: hai lượt chấm đều gọi tên mục này ở khối
+      ngoài hợp đồng với mức high.
     paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/triage-do-tin.test.mjs, _acceptance/do-tin-tram-phan-loai/rang-triage.sh]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
