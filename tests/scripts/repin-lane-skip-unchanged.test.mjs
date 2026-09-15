@@ -170,13 +170,13 @@ check('SK5 lenh 7b rut tu SIGNOFF-LANE-CLAUSE chay o trang thai hau-buoc-6 -> sk
   // TRẠNG THÁI HẬU-BƯỚC-6 thật: chữ ký vừa ghi CHƯA commit + dòng bản ghi mốc
   // vừa sinh CHƯA commit. Đây là trạng thái ghép mà (d) và (c′) chỉ cùng nhau
   // mới tạo ra — fixture commit sạch sẽ bỏ lọt đúng ca này.
-  writeFileSync(REPORT, readFileSync(REPORT, 'utf8').replace(/^human_signoff:.*$/m, 'human_signoff: Manh 2026-09-15 — hau buoc 6'));
+  writeFileSync(REPORT, readFileSync(REPORT, 'utf8').replace(/^human_signoff:.*$/m, 'human_signoff: Manh 2026-09-15 — hau 7a-bis'));
   const FIXDIR = path.join(R, 'tests', 'scripts', 'fixtures');
   mkdirSync(FIXDIR, { recursive: true });
   const BASE = path.join(FIXDIR, 'routing-baseline.txt');
   writeFileSync(BASE, '# moc dinh tuyen\n');
   git('add', '-A'); git('commit', '-qm', 'them ban ghi moc');
-  // khai nó là T1 đúng như kho kit làm, rồi làm bẩn nó như bước 6b vừa ghi
+  // khai nó là T1 đúng như kho kit làm, rồi làm bẩn nó như bước 7a-bis vừa ghi
   writeFileSync(path.join(R, '_acceptance', 'config.yaml'),
     readFileSync(path.join(R, '_acceptance', 'config.yaml'), 'utf8').replace('    - "docs/**"\n', '    - "docs/**"\n    - "tests/scripts/fixtures/routing-baseline.txt"\n'));
   git('add', '-A'); git('commit', '-qm', 'khai T1 cho ban ghi moc');
@@ -187,7 +187,7 @@ check('SK5 lenh 7b rut tu SIGNOFF-LANE-CLAUSE chay o trang thai hau-buoc-6 -> sk
   // Dòng bản ghi mốc do WRITER THẬT sinh (không gõ tay đúng khuôn bên đọc —
   // đó là seam mà vòng này tồn tại để đóng; lượt chấm 2 bắt đúng chỗ này).
   // Chữ ký phải có TRƯỚC, đúng thứ tự 7a → 7a-bis của lệnh ký.
-  writeFileSync(REPORT, readFileSync(REPORT, 'utf8').replace(/^human_signoff:.*$/m, 'human_signoff: Manh 2026-09-15 — hau buoc 6'));
+  writeFileSync(REPORT, readFileSync(REPORT, 'utf8').replace(/^human_signoff:.*$/m, 'human_signoff: Manh 2026-09-15 — hau 7a-bis'));
   const sinh = spawnSync(process.execPath, [RB, '--root', R, '--slug', 'feat', '--write'], { encoding: 'utf8' });
   assert.equal(sinh.status, 0, `writer thật phải sinh được dòng bản ghi mốc:\n${sinh.stderr}`);
   assert.match(readFileSync(BASE, 'utf8'), /^feat\t/m, 'dòng của slug phải do writer thật ghi vào bản ghi mốc');

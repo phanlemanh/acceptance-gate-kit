@@ -180,9 +180,9 @@ check('RB2b DOI CHUNG DUONG: CA LM20 THAT chay tren kho fixture -> PASS: LM20', 
   assert.match(lm20[0], /^\s*PASS: LM20/, `sau khi sinh dòng, LM20 THẬT phải xanh:\n${lm20[0]}`);
 });
 
-check('RB3 signoff.md buoc 6 goi lenh sinh, 7c them tep; SKILL chep khoi SIGNOFF-LANE-CLAUSE bang tung ky tu', () => {
+check('RB3 signoff.md buoc 7a-bis goi lenh sinh, 7c them tep; SKILL chep khoi SIGNOFF-LANE-CLAUSE bang tung ky tu', () => {
   const so = readFileSync(SIGNOFF, 'utf8'), sk = readFileSync(SKILL, 'utf8');
-  assert.match(so, /routing-baseline\.mjs --root \. --slug <slug> --write/, 'bước 6 phải chạy lệnh sinh');
+  assert.match(so, /routing-baseline\.mjs --root \. --slug <slug> --write/, 'bước 7a-bis phải chạy lệnh sinh');
   assert.match(so, /LMCMS_ONLY=LM20 node tests\/scripts\/gate-card-lmcms\.test\.mjs/, 'bước sinh phải chạy ĐÚNG MỘT ca LM20 làm đối chứng dương trong luồng thật');
   // THỨ TỰ LÀ VẬT, không phải lời dặn: lệnh sinh đọc `human_signoff` làm tiền điều
   // kiện (exit 2 khi rỗng), nên nó phải đứng SAU 7a. Đo bằng QUAN HỆ vị trí trong
@@ -214,7 +214,7 @@ check('RB3 signoff.md buoc 6 goi lenh sinh, 7c them tep; SKILL chep khoi SIGNOFF
   assert.match(a, /cây BẰNG PIN|cây bằng pin/, 'khối gốc phải nói ca cây bằng pin tự bỏ qua');
 });
 
-check('RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 khong con ten «buoc 6b», A3 bo loc fail-CLOSED', () => {
+check('RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 het ten buoc cu (ke ca trong tep ca), A3 bo loc fail-CLOSED', () => {
   const so = readFileSync(SIGNOFF, 'utf8'), sk = readFileSync(SKILL, 'utf8');
   const pat = /<!-- <<<SIGNOFF-LANE-CLAUSE -->\n([\s\S]*?)<!-- SIGNOFF-LANE-CLAUSE>>> -->/;
   const blk = (so.match(pat) || [])[1] || '';
@@ -223,11 +223,21 @@ check('RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 khong con ten «buoc 6b»,
     'khối vẫn khẳng định vô điều kiện «commit chữ ký chạm file ngoài T1» — sau ADR 0017 tiền đề đó sai ở đúng ca vòng này nhắm');
   assert.match(blk, /CHỈ KHI/, 'khối phải nói ghim lại là CÓ ĐIỀU KIỆN');
   assert.equal(blk, (sk.match(pat) || [])[1], 'lệch bản chép sau khi sửa A1');
-  // A2 — một tên trỏ một bước, trên MỌI văn bản của kit nói về nó.
-  for (const [ten, txt] of [['commands/signoff.md', so],
-                            ['docs/adr/0017', readFileSync(path.join(ROOT, 'docs', 'adr', '0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md'), 'utf8')],
-                            ['GUIDE.md', readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8')]]) {
-    assert.doesNotMatch(txt, /bước 6b/, `${ten} còn trỏ «bước 6b» — bước đó không tồn tại, bên thi hành sẽ bỏ sót git add`);
+  // A2 — một tên trỏ một bước, trên MỌI văn bản của kit nói về nó, KỂ CẢ hai tệp ca
+  // (lượt chấm 4 bắt đúng chỗ này: luật loại trừ chính tệp đang vi phạm thì nó tự
+  // mâu thuẫn). Chuỗi cấm DỰNG BẰNG GHÉP MẢNH nên chính tệp này không chứa nó
+  // nguyên văn — không cần vùng tự-loại-trừ, và không có mảnh nào để trôi.
+  const TEN_CU = ['bu' + 'oc 6b', 'b\u01b0\u1edb' + 'c 6b', 'bu' + 'oc 6 ', 'b\u01b0\u1edb' + 'c 6 '];
+  const rel = q => path.join(ROOT, q);
+  const QUET = [['commands/signoff.md', so],
+                ['docs/adr/0017', readFileSync(rel('docs/adr/0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md'), 'utf8')],
+                ['GUIDE.md', readFileSync(rel('GUIDE.md'), 'utf8')],
+                ['tests/scripts/routing-baseline-t1.test.mjs', readFileSync(rel('tests/scripts/routing-baseline-t1.test.mjs'), 'utf8')],
+                ['tests/scripts/repin-lane-skip-unchanged.test.mjs', readFileSync(rel('tests/scripts/repin-lane-skip-unchanged.test.mjs'), 'utf8')]];
+  for (const [ten, txt] of QUET) {
+    for (const cam of TEN_CU) {
+      assert.ok(!txt.includes(cam), `${ten} còn trỏ tên bước cũ «${cam.trim()}» — bước sinh tên 7a-bis; tên cũ dẫn người sửa tới bước tái sinh bản đồ, sai chỗ`);
+    }
   }
   assert.match(so, /7a-bis/, 'signoff.md phải gọi bước sinh bằng đúng tên 7a-bis');
   // A3 — CHIỀU ĐỎ chạy thật: bộ lọc không khớp ca nào phải exit 2, không phải 0.
@@ -236,7 +246,7 @@ check('RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 khong con ten «buoc 6b»,
   assert.match(r0.stderr, /không khớp ca nào/);
 });
 
-check('RB3-IM: sua mot dong NGOAI khoi va ngoai buoc 6/7c -> RB3 van XANH (rang do QUAN HE, khong ghim chuoi co dinh)', () => {
+check('RB3-IM: sua mot dong NGOAI khoi va ngoai buoc 7a-bis/7c -> RB3 van XANH (rang do QUAN HE, khong ghim chuoi co dinh)', () => {
   const so = readFileSync(SIGNOFF, 'utf8');
   const pat = /<!-- <<<SIGNOFF-LANE-CLAUSE -->\n([\s\S]*?)<!-- SIGNOFF-LANE-CLAUSE>>> -->/;
   // bản sao có một dòng văn xuôi thêm ở cuối, ngoài mọi khối răng đọc
