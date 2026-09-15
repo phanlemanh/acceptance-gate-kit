@@ -307,7 +307,7 @@ executors:
     # --- chu-ky-khong-tu-lam-hoa-cu (15/09) --- moi eval ghim MOT dong PASS rieng
     ckh_rb_t1_stale: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB1 baseline trong T1\"'"
     ckh_rb_sinh_dong: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB2 sinh dong\"'"
-    ckh_rb_signoff_van_ban: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB3 signoff.md buoc 6\"'"
+    ckh_rb_signoff_van_ban: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB3 signoff.md buoc 7a-bis\"'"
     ckh_sk_bo_qua: "bash -c 'out=$(node tests/scripts/repin-lane-skip-unchanged.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: SK1 cay bang pin\"'"
     ckh_sk_fail_closed: "bash -c 'out=$(node tests/scripts/repin-lane-skip-unchanged.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: SK3\"'"
     ckh_sk_lenh_tu_khoi: "bash -c 'out=$(node tests/scripts/repin-lane-skip-unchanged.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: SK5 lenh 7b rut tu\"'"

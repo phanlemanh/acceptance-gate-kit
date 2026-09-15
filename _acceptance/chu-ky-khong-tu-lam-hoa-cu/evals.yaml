@@ -44,14 +44,14 @@ evals:
     cmd: config:executors.script.ckh_rb_signoff_van_ban
     paths: [commands/signoff.md, skills/acceptance/SKILL.md, tests/scripts/routing-baseline-t1.test.mjs]
     expected: >
-      Exit 0 và đầu ra có «PASS: RB3 signoff.md buoc 6 goi lenh sinh + doi chung LM20, 7c
-      them tep; SKILL chep khoi SIGNOFF-LANE-CLAUSE bang tung ky tu». Chiều đỏ: sửa một
+      Exit 0 và đầu ra có «PASS: RB3 signoff.md buoc 7a-bis goi lenh sinh, 7c them tep; SKILL chep khoi
+      SIGNOFF-LANE-CLAUSE bang tung ky tu». Chiều đỏ: sửa một
       ký tự trong bản chép ở SKILL.md → RB3 đỏ nêu «lệch bản chép»; khối gốc thiếu
-      «--skip-unchanged» → RB3 đỏ; bước 6 thiếu câu chạy tệp ca LM20 làm đối chứng dương
+      «--skip-unchanged» → RB3 đỏ; bước 7a-bis thiếu câu chạy tệp ca LM20 làm đối chứng dương
       trong luồng thật → RB3 đỏ.
       Chiều IM (dưới ngưỡng → KHÔNG nổ): sửa một ký tự ở khối GỐC rồi chép y hệt sang
       SKILL.md → RB3 vẫn XANH — răng đo QUAN HỆ bằng-nhau giữa hai bản, không ghim một
-      chuỗi cố định; và sửa một dòng của signoff.md NGOÀI khối + ngoài bước 6/7c → RB3
+      chuỗi cố định; và sửa một dòng của signoff.md NGOÀI khối + ngoài bước 7a-bis/7c → RB3
       vẫn XANH.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
@@ -114,11 +114,11 @@ evals:
     cmd: config:executors.script.ckh_rb_ba_cho_tu_phan
     paths: [commands/signoff.md, skills/acceptance/SKILL.md, docs/adr/0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, GUIDE.md, tests/scripts/gate-card-lmcms.test.mjs, tests/scripts/routing-baseline-t1.test.mjs]
     expected: >
-      Exit 0 và đầu ra có «PASS: RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 khong con
-      ten «buoc 6b», A3 bo loc fail-CLOSED». Ba vế đo ba cách khác nhau: A1 so QUAN HỆ hai
+      Exit 0 và đầu ra có «PASS: RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 het ten buoc cu (ke ca
+      trong tep ca), A3 bo loc fail-CLOSED». Ba vế đo ba cách khác nhau: A1 so QUAN HỆ hai
       bản chép + vắng câu tiền đề vô điều kiện + có chữ «CHỈ KHI»; A2 quét ba văn bản của
-      kit (signoff.md, ADR 0017, GUIDE) không còn chuỗi «bước 6b»; A3 CHẠY THẬT tệp ca LM
+      kit — signoff.md, ADR 0017, GUIDE VÀ CẢ HAI TỆP CA — không còn tên bước cũ; A3 CHẠY THẬT tệp ca LM
       với LMCMS_ONLY không khớp ca nào và đòi exit 2 kèm thông điệp — không phải exit 0.
       Ba mutant đã chạy và đều ĐỎ đúng ca này: trả lại câu vô điều kiện · GUIDE trỏ lại
-      «bước 6b» · gỡ sàn fail-closed.
+      GUIDE trỏ lại tên cũ · gỡ sàn fail-closed · trả tên cũ vào TỆP CA.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

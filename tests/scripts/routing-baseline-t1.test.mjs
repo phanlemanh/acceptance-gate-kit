@@ -257,6 +257,36 @@ check('RB3-IM: sua mot dong NGOAI khoi va ngoai buoc 7a-bis/7c -> RB3 van XANH (
   assert.equal((so.match(pat) || [])[1] + them, (readFileSync(SKILL, 'utf8').match(pat) || [])[1] + them);
 });
 
+check('RB5 moi neo grep cua ho so KHOP mot ten ca that khai trong tep ca (chong lop «doi ten ca, quen neo»)', () => {
+  // Lớp lỗi đã cắn ở lượt chấm 4: đổi tên ca RB3 → neo grep trong config.yaml trỏ
+  // chuỗi không còn tồn tại → eval ĐỎ dù tệp ca xanh, và làn 7b của lượt ký đỏ vì
+  // HẠ TẦNG chứ không vì vật. Vá một khoá là mời lớp ấy quay lại ở khoá kế, nên ca
+  // này quét MỌI executor `ckh_*` của hồ sơ.
+  //
+  // Đối chiếu với TÊN CA khai trong nguồn, KHÔNG chạy lại tệp ca: các khoá này trỏ
+  // chính tệp đang chạy, nên chạy chúng ở đây là đệ quy (đã vấp thật khi viết ca).
+  const core = require_(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const cfg = readFileSync(path.join(ROOT, '_acceptance', 'config.yaml'), 'utf8');
+  const ten = [...cfg.matchAll(/^\s{4}(ckh_[a-z0-9_]+):/gm)].map(m => m[1]);
+  assert.ok(ten.length >= 6, `phải thấy các khoá ckh_* của hồ sơ, thấy ${ten.length}`);
+  const caCua = new Map();   // tệp ca → danh sách tên ca khai trong nguồn
+  for (const k of ten) {
+    const cmd = core.resolveConfigKey(cfg, `executors.script.${k}`);
+    assert.ok(cmd, `khoá ${k} không giải được`);
+    const tep = (cmd.match(/node (tests\/scripts\/[\w.-]+\.test\.mjs)/) || [])[1];
+    assert.ok(tep, `khoá ${k} không trỏ tệp ca nào — neo không kiểm được`);
+    const neo = (cmd.match(/grep -q \\?"([^"\\]+)/) || [])[1];
+    assert.ok(neo, `khoá ${k} không có chuỗi grep để đối chiếu`);
+    if (!caCua.has(tep)) {
+      const src = readFileSync(path.join(ROOT, tep), 'utf8');
+      caCua.set(tep, [...src.matchAll(/^check\('([^']+)'/gm)].map(m => `PASS: ${m[1]}`));
+    }
+    const khop = caCua.get(tep).filter(x => x.startsWith(neo));
+    assert.equal(khop.length, 1,
+      `neo của ${k} («${neo}») khớp ${khop.length} tên ca trong ${tep} — phải khớp ĐÚNG MỘT; đổi tên ca mà quên neo thì eval đỏ vì hạ tầng, không vì vật`);
+  }
+});
+
 rmSync(R, { recursive: true, force: true });
 rmSync(R2, { recursive: true, force: true });
 console.log(`\nResults: ${passed} passed, ${failed} failed (routing-baseline-t1)`);
