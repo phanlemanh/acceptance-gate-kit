@@ -7,7 +7,7 @@
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>32 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>1 việc"]
-  GD --> XL["Xếp lại sau<br/>2 việc"]
+  GD --> XL["Xếp lại sau<br/>3 việc"]
   GD --> DB["Đã bác từ khám phá<br/>3 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
@@ -148,6 +148,7 @@ flowchart TD
 
 - Mã 127 ở làn đối chứng là tín hiệu phân biệt, không phải hạ tầng hỏng (`baseline-127-tin-hieu-phan-biet`)
 - Khuôn răng dùng chung — bộ đo của hồ sơ không được tự dối theo cùng ba hình dạng (`khuon-rang-dung-chung`)
+- Tải gửi cho trạm phân loại phạm vi dựng từ MỘT nguồn, bỏ cơ chế ghép đòi hai bản giống nhau từng byte (`mot-nguon-tai-gui-triage`)
 
 ## Đã bác từ khám phá
 
