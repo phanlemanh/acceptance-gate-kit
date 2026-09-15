@@ -26,7 +26,8 @@
 #   4  hồ sơ không khai đủ cặp «số» và «mốc so»
 #   5  lưới chạy nhưng không tới dòng kết luận nào
 #   6  lưới không soi hồ sơ nào (đối chứng dương hỏng)
-#   7  con số lặp trong văn hợp đồng LỆCH ô marker
+#   7  con số lặp trong văn hợp đồng LỆCH mọi nền đã khai ở marker
+#   8  chốt một-nguồn KHÔNG thấy con số nào (mẫu chết lặng — đối chứng dương hỏng)
 set -u
 WS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$WS/../.." && pwd)"
@@ -35,6 +36,10 @@ C="$WS/contract.md"
 
 KHOI="$(awk '/<!-- <<<TON-DONG-GHIM-LAI/{f=1;next} /TON-DONG-GHIM-LAI>>> -->/{f=0} f' "$C")"
 SO="$(printf '%s\n' "$KHOI"  | sed -n 's/^so_stale: *\([0-9][0-9]*\).*/\1/p' | head -1)"
+# Nền THỨ HAI, khai trong cùng khối marker: số hồ sơ tụt pin trên TOÀN KHO (không
+# giới hạn cửa sổ). Hợp đồng cố ý nói cả hai cạnh nhau, nên chốt một-nguồn phải
+# biết cả hai — bản trước chỉ biết một và sống sót nhờ dấu in đậm che con số kia.
+SO2="$(printf '%s\n' "$KHOI" | sed -n 's/^so_stale_toan_kho: *\([0-9][0-9]*\).*/\1/p' | head -1)"
 MOC="$(printf '%s\n' "$KHOI" | sed -n 's/^moc_so: *\([0-9a-f][0-9a-f]*\).*/\1/p' | head -1)"
 [ -n "$SO" ] && [ -n "$MOC" ] || { echo "FAIL: ho so khong khai du cap so_stale + moc_so trong khoi marker" >&2; exit 4; }
 
@@ -45,7 +50,7 @@ git -C "$ROOT" merge-base --is-ancestor "$MOC" HEAD 2>/dev/null || {
 
 HEADSHA="$(git -C "$ROOT" rev-parse --short HEAD)"
 BAN="$(git -C "$ROOT" status --porcelain | grep -c '' || true)"
-echo "       [khai] so_stale=$SO · moc_so=$MOC · do tren HEAD=$HEADSHA (cay ${BAN} muc chua commit)" >&2
+echo "       [khai] so_stale=$SO${SO2:+ · so_stale_toan_kho=$SO2} · moc_so=$MOC · do tren HEAD=$HEADSHA (cay ${BAN} muc chua commit)" >&2
 
 OUT="$(cd "$ROOT" && bash scripts/pre-merge-check.sh . --base "$MOC" --recheck-all 2>&1)"; RC=$?
 # (b) dòng KẾT LUẬN thật, không phải tiền tố
@@ -70,8 +75,19 @@ echo "       [luoi] soi $SOI dong per-slug · $THAT ho so DUY NHAT hoa cu tai mo
 # đa byte («sơ»), nên cả biểu thức trả RỖNG và chốt xanh vĩnh viễn vì chưa bao giờ
 # khớp gì. Thử tay dưới zsh thì khớp, nên lỗi này chỉ lộ khi chạy đúng bash — đã
 # dựng chiều đỏ để nó không tái diễn.
-LAC="$(grep -E 'ghim lại|hoá cũ' "$C" | grep -oE '[0-9]+ hồ sơ' | grep -vE "^$SO " | sort -u || true)"
-[ -z "$LAC" ] || { echo "FAIL: van hop dong con con so khac o marker: $(printf '%s' "$LAC" | tr '\n' ' ')" >&2; exit 7; }
+# GỠ ký tự định dạng markdown TRƯỚC khi so: bản trước để nguyên, nên «**71** hồ sơ»
+# lọt qua chỉ vì hai dấu sao chen giữa số và chữ — phép đo tuyên «mọi lần con số
+# xuất hiện» mà thực tế chỉ thấy số viết trần. Lượt chấm 1b gọi tên (hình dạng 5:
+# tuyên quét LỚP nhưng chỉ có điểm-case).
+TRAN="$(sed -E 's/[*_`]//g' "$C" | grep -E 'ghim lại|hoá cũ')"
+HOP="$(printf '%s\n' "$TRAN" | grep -oE '[0-9]+ hồ sơ' | sort -u || true)"
+# ĐỐI CHỨNG DƯƠNG (chống assertion âm-tính-một-mình): chốt chỉ có nghĩa khi nó
+# THẬT SỰ nhìn thấy ít nhất một con số. Rỗng = hoặc hợp đồng thôi nói về ghim lại,
+# hoặc mẫu lại chết lặng như bản dùng ký tự biên — cả hai đều KHÔNG phải đường xanh.
+[ -n "$HOP" ] || { echo "FAIL: chot mot-nguon khong thay con so nao trong van hop dong — mau chet lang, khong phai duong xanh" >&2; exit 8; }
+CHO="^$SO hồ sơ$"; [ -n "$SO2" ] && CHO="^($SO|$SO2) hồ sơ$"
+LAC="$(printf '%s\n' "$HOP" | grep -vE "$CHO" || true)"
+[ -z "$LAC" ] || { echo "FAIL: van hop dong con con so khac cac nen da khai ($SO${SO2:+ · $SO2}): $(printf '%s' "$LAC" | tr '\n' ' ')" >&2; exit 7; }
 
-echo "PASS: so ho so hoa cu ghi trong ho so ($THAT ho so duy nhat tai moc ${MOC:0:8}, do tren HEAD $HEADSHA) BANG so luoi dang noi hom nay, va moi lan con so ay xuat hien trong hop dong deu tro ve o marker"
+echo "PASS: so ho so hoa cu ghi trong ho so ($THAT ho so duy nhat tai moc ${MOC:0:8}, do tren HEAD $HEADSHA) BANG so luoi dang noi hom nay, va moi cum <so> ho so trong van hop dong (da go dinh dang) deu la mot trong cac nen da khai o marker"
 exit 0

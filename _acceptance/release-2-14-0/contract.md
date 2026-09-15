@@ -143,6 +143,7 @@ hai.
 
 <!-- <<<TON-DONG-GHIM-LAI -->
 so_stale: 45
+so_stale_toan_kho: 71
 moc_so: 7d12ffad
 <!-- TON-DONG-GHIM-LAI>>> -->
 

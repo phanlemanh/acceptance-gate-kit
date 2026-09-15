@@ -64,9 +64,14 @@ evals:
     executor: test
     cmd: config:executors.test.plugins
     expected: >
-      Exit 0 và «Results: all plugin tests passed», và đầu ra phải CHỨA dòng PASS của ca
-      thường trực P200 — vế dưới ngưỡng: suite xanh mà P200 không hề chạy thì con số của
-      mốc không có ai canh.
+      Exit 0 và «Results: all plugin tests passed». Vế dưới ngưỡng: đầu ra KHÔNG được chứa
+      dòng nào mang chữ FAIL — bộ lọc của lệnh giữ đúng hai loại dòng (FAIL và dòng tổng
+      kết), nên một suite đỏ luôn để lại vết đọc được.
+
+      KHÔNG đòi dòng PASS của P200 ở đây: bộ lọc `grep -E "FAIL|^Results:"` của chính lệnh
+      này cắt bỏ mọi dòng PASS, nên vế ấy không bao giờ thoả được — lượt chấm 1b gọi tên là
+      eval-không-thể-thoả. Việc canh P200 thuộc về E1, chạy `rang-p200.sh` riêng và ghim
+      đúng một dòng PASS của chính ca ấy; gỡ vế trùng ở đây KHÔNG hạ thước.
     paths: [tests/plugins/run-tests.sh, _acceptance/config.yaml, feature-loop/**, .claude-plugin/plugin.json]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3d
@@ -119,14 +124,20 @@ evals:
     executor: script
     cmd: config:executors.script.ton_dong_ghim_lai_2_14
     expected: >
-      Exit 0 và đầu ra có đúng một dòng «PASS: so ho so hoa cu ghi trong ho so (<n> tai moc
-      <sha>) BANG so luoi dang noi hom nay — khong phai so chep tay tu moc truoc». Chiều đỏ
-      ghim mã: 2 lưới GÃY hoặc mốc so không giải được (mã RIÊNG, không đội lốt «hai số
-      lệch») · 3 hai số LỆCH (đã bắt thật ở lượt chạy đầu: hồ sơ chép 42, lưới nói 43) · 4
-      hồ sơ không khai đủ cặp · 5 lưới không tới dòng kết luận · 6 lưới không soi hồ sơ nào
-      (đối chứng dương hỏng, để «0 = 0» không thành đường xanh) · 7 con số lặp trong văn hợp
-      đồng lệch ô marker. Đếm theo HỒ SƠ DUY NHẤT, không đếm dòng. Chiều đỏ mã 7 đã thử
-      thật — và lần thử ấy lộ ra chính răng này từng xanh oan vì mẫu dùng ký tự biên sau chữ
-      đa byte, dưới bash không khớp gì.
+      Exit 0 và đầu ra có đúng một dòng — CHÉP NGUYÊN khuôn `echo` cuối của
+      `rang-ton-dong.sh`, chỉ thay bốn ô suy từ kho: «PASS: so ho so hoa cu ghi trong ho so
+      (<n> ho so duy nhat tai moc <sha8>, do tren HEAD <head>) BANG so luoi dang noi hom
+      nay, va moi cum <so> ho so trong van hop dong (da go dinh dang) deu la mot trong cac
+      nen da khai o marker». Chiều đỏ ghim mã: 2 lưới GÃY hoặc mốc so không giải được (mã
+      RIÊNG, không đội lốt «hai số lệch») · 3 hai số LỆCH (đã bắt thật hai lần: hồ sơ chép
+      42 lưới nói 43; rồi hồ sơ chép 43 lưới nói 45 sau commit cắt số) · 4 hồ sơ không khai
+      đủ cặp · 5 lưới không tới dòng kết luận · 6 lưới không soi hồ sơ nào · 7 văn hợp đồng
+      còn con số hồ sơ LỆCH mọi nền đã khai · 8 chốt một-nguồn không thấy con số nào (mẫu
+      chết lặng). Đếm theo HỒ SƠ DUY NHẤT, không đếm dòng.
+
+      Vì sao expected dài và chép nguyên: lượt chấm 1b bắt được bản trước ghim một câu PASS
+      mà răng KHÔNG BAO GIỜ in (đuôi câu khác hẳn, thiếu cả hai vế «hồ sơ duy nhất» và «in
+      HEAD» vừa thêm) — verifier chấm chặt thì đỏ oan, chấm lỏng thì tụt về chỉ-đọc-mã-thoát.
+      Mã 7 và 8 đã thử thật cả hai chiều trên bản tiêm, đối chứng dương chạy trước VÀ sau.
     paths: [_acceptance/release-2-14-0/contract.md, _acceptance/release-2-14-0/rang-ton-dong.sh, scripts/pre-merge-check.sh]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
