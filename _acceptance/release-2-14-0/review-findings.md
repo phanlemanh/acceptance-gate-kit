@@ -1,118 +1,92 @@
 ## Trong hợp đồng
 
-### E5 ghim sai thông điệp: expected trích một dòng PASS mà răng không bao giờ in
-- AC: AC-5
-- file: `_acceptance/release-2-14-0/evals.yaml:122`
-- severity: high
-- source: conventions
+- **PRODUCT-MAP.md trỏ tới tệp CHƯA commit — `product-map --check` ĐỎ trên checkout sạch**
+  file: `PRODUCT-MAP.md:162`
+  severity: high
+  AC: AC-3
+  Commit 97952e60 (trong vùng diff) thêm dòng «- Bốn kho cắt token cho Claude Code — BÁC 15/09/2026 (`.out-of-scope/bon-kho-cat-token-rtk-headroom-ponytail-caveman.md`)» vào mục «Ngoài phạm vi đã ký», nhưng tệp `.out-of-scope/bon-kho-cat-token-rtk-headroom-ponytail-caveman.md` KHÔNG hề được commit — `git ls-files .out-of-scope/` không có nó, `git check-ignore` trả rc=1 (không phải bị ignore), `git status` vẫn liệt nó là `??`.
 
-E5 khai expected là «PASS: so ho so hoa cu ghi trong ho so (<n> tai moc <sha>) BANG so luoi dang noi hom nay — khong phai so chep tay tu moc truoc». Dòng răng thật sự in (rang-ton-dong.sh:76) là «PASS: so ho so hoa cu ghi trong ho so (<n> ho so duy nhat tai moc <sha8>, do tren HEAD <head>) BANG so luoi dang noi hom nay, va moi lan con so ay xuat hien trong hop dong deu tro ve o marker». Đuôi câu khác hẳn, và cả hai vế mới (đếm theo hồ sơ duy nhất · in HEAD) — đúng hai thứ gap-probe P2 ghi «fixed» — đều không có trong expected.
+  ĐÃ CHỨNG THỰC BẰNG BẢN SAO SẠCH (không đoán): `git archive HEAD | tar -x -C <tmp>` rồi `node scripts/product-map.mjs --root . --check` → **exit 1**, thông điệp «PRODUCT-MAP.md lệch với hồ sơ xưởng». Vẽ lại trong bản sạch rồi diff cho ra ĐÚNG một dòng lệch — chính dòng 162 ở trên.
 
-Kịch bản fail: verifier làm đúng luật CLAUDE.md «ghim đúng thông điệp mong đợi, không chỉ mã thoát» sẽ so literal và phán FAIL trên một vật lành; lối ra kia tệ hơn — verifier nới thành «exit 0 là được», và E5 tụt về assertion chỉ-đọc-mã-thoát, đúng lớp mà bốn eval còn lại (E1, E1b, E2 đều khớp literal từng chữ) cố ý tránh. Đây cũng là chỗ dễ trôi nhất khi ghim lại: `output` trong evidence-report sẽ không khớp expected của chính hồ sơ.
+  Vì sao đây là vi phạm invariant chứ không phải lỗi vặt:
+  1. E3e (AC-3, `config:executors.script.product_map`) được ghi PASS trong `evidence-report.md`. Màu xanh đó chỉ có vì một tệp KHÔNG-THEO-DÕI nằm trong cây của tác giả. Đúng hình dạng 4 mà CLAUDE.md gọi tên ở bài học 4 round s4-scope-triage: «phép-đo hardcode/neo vào checkout của tác giả nên so với cây của tác giả thay vì cây đang kiểm» (họ hàng P150). Vật được đo (PRODUCT-MAP.md ở HEAD) đỏ; thước chạy trên cây tác giả nên xanh.
+  2. `PRODUCT-MAP.md` nằm trong `t1_skip_globs` với lý do khai thẳng trong config: an toàn được «vì `product-map.mjs --check` trong CI canh bản-đồ == hồ-sơ độc lập». Tiền đề đó đang SAI ở HEAD: CI (checkout sạch) sẽ đỏ, còn phiên tác giả thì không bao giờ thấy.
+  3. PRODUCT-MAP là view máy sinh cho người đọc; ở HEAD nó có một liên kết chết tới tệp không tồn tại trong kho.
 
-### Chốt «một nguồn» (mã 7) của rang-ton-dong.sh bị dấu in đậm markdown vô hiệu hoá
-- AC: AC-5
-- file: `_acceptance/release-2-14-0/rang-ton-dong.sh:73`
-- severity: medium
-- source: conventions
+  Hai đường sửa (KHÔNG tự fix theo yêu cầu): commit `.out-of-scope/bon-kho-cat-token-rtk-headroom-ponytail-caveman.md` (và cân nhắc `docs/findings/2026-09-15-bon-kho-cat-token-doi-chieu-hoa-don-that.md` cũng đang `??`), hoặc vẽ lại PRODUCT-MAP.md ở cây không có tệp ấy. Đường một đúng hơn — hồ sơ BÁC là sử liệu, CLAUDE.md đòi nó sống ở `.out-of-scope/`.
+  source: conventions
 
-Chốt là `grep -E 'ghim lại|hoá cũ' "$C" | grep -oE '[0-9]+ hồ sơ' | grep -vE "^$SO "`. contract.md:250 chứa «5. **Chiến dịch ghim lại.** Hai nền, khai cạnh nhau: **71** hồ sơ có pin tụt sau vật…» — dòng này KHỚP từ khoá «ghim lại», mang một con số hồ sơ KHÁC ô marker (71 ≠ so_stale 45), nhưng thoát chốt chỉ vì `**` chen giữa `71` và khoảng trắng. Chạy tay xác nhận: pipeline hiện chỉ bắt được đúng `45 hồ sơ`; `71** hồ sơ` (và `69 hồ sơ`, `4 hồ sơ` ở các dòng không mang từ khoá) rơi ngoài tầm.
+- **PRODUCT-MAP.md trỏ vào file .out-of-scope CHƯA COMMIT — product-map --check (E3e + CI gate) sẽ ĐỎ trên cây sạch, xanh chỉ nhờ cây làm việc của tác giả**
+  file: `PRODUCT-MAP.md:162`
+  severity: high
+  AC: AC-3
+  Commit 97952e60 (trong dải review) thêm dòng `- Bốn kho cắt token cho Claude Code — BÁC 15/09/2026 (`.out-of-scope/bon-kho-cat-token-rtk-headroom-ponytail-caveman.md`)` vào mục «Ngoài phạm vi đã ký». File đó KHÔNG có trong git index: `git ls-files --error-unmatch .out-of-scope/bon-kho-cat-token-rtk-headroom-ponytail-caveman.md` → «did not match any file(s) known to git» (git status vẫn là `??`).
 
-Hai chiều đều hỏng: (a) dòng PASS quảng cáo «va moi lan con so ay xuat hien trong hop dong deu tro ve o marker» — lời khai rộng hơn thứ chốt thật sự đo, tức bằng chứng tự dối; (b) 71 là con số ĐÚNG của một nền khác mà hợp đồng cố ý khai cạnh nhau, nên ngày ai đó bỏ in đậm (hoặc đổi sang «71 hồ sơ» ở văn xuôi), chốt sẽ ĐỎ OAN mã 7 trên một hợp đồng lành — đúng bệnh «phép đo rộng hơn vật là phép đo đỏ oan» mà chú thích ngay trên nó tự cảnh báo. Chốt cần phân biệt được hai nền (45 trong cửa sổ · 71 toàn kho) thay vì dựa vào markup.
+  `scripts/product-map.mjs` sinh mục đó bằng cách QUÉT THƯ MỤC `.out-of-scope/` trên đĩa (scripts/product-map.mjs:270, :301), rồi `--check` so bản sinh với PRODUCT-MAP.md. Vì thế phép đo đọc cây làm việc của tác giả chứ không đọc cây đang được chấm — đúng lớp P150 mà CLAUDE.md đã ghi.
 
-### E3c đòi dòng PASS của P200 mà lệnh nó gọi đã lọc bỏ — eval không thể thoả, mãi mãi
-- AC: AC-3
-- file: `_acceptance/release-2-14-0/evals.yaml:66`
-- severity: high
-- source: bugs
+  Đã dựng chiều đỏ, không suy diễn:
+  - trên cây làm việc hiện tại: `node scripts/product-map.mjs --root . --check` → «PRODUCT-MAP.md khớp hồ sơ xưởng.», rc=0
+  - trên bản xuất SẠCH của chính HEAD (`git archive HEAD | tar -x -C <tmp>`, tức không có file untracked): rc=1, «PRODUCT-MAP.md lệch với hồ sơ xưởng — chạy: node scripts/product-map.mjs --root .»
 
-E3c dùng `cmd: config:executors.test.plugins`, mà khoá đó ở `_acceptance/config.yaml` là `bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'`. Bộ lọc chỉ giữ dòng chứa `FAIL` hoặc bắt đầu bằng `Results:`.
+  Hai hệ quả:
+  (a) `.github/workflows/gate.yml:37` chạy đúng lệnh này trên cây đã đẩy → CI sẽ đỏ ngay khi commit này lên remote, vì lý do hạ tầng-dữ-liệu chứ không vì vật.
+  (b) `_acceptance/release-2-14-0/evidence-report.md` ghim E3e PASS (run_id minted-release-2-14-0-E3e-r1, exit_code 0, output «PRODUCT-MAP.md khớp hồ sơ xưởng.»). Màu xanh đó chỉ tái lập được trên máy có file untracked — bằng chứng không tái lập được ở chiến dịch ghim lại kế.
 
-Dòng PASS của P200 do `pass()` in ra là `  PASS: P200 mot lan cat so nhat quan: …` — không chứa `FAIL`, không bắt đầu bằng `Results:`. Đã thử: `echo "  PASS: P200 mot lan cat so nhat quan: hai plugin cung so" | grep -E "FAIL|^Results:"` → rc=1, không khớp. Dòng tiêu đề mà `run()` echo trước khi chạy khối cũng không chứa `FAIL`; mọi dòng P200 in ra khi XANH (`P200 VE:`, `[chieu do] … -> DO «…»`, `P200 OK (…)`) đều bị lọc. Nghĩa là khi suite xanh, ĐÚNG 0 dòng nào nhắc P200 lọt ra đầu ra.
+  Sửa: `git add .out-of-scope/bon-kho-cat-token-rtk-headroom-ponytail-caveman.md` (và `docs/findings/2026-09-15-bon-kho-cat-token-doi-chieu-hoa-don-that.md` mà file đó link tới, cũng đang untracked), hoặc gỡ dòng 162 khỏi PRODUCT-MAP.md.
+  source: bugs
 
-Hệ quả: vế dưới ngưỡng mà chính expected khai («suite xanh mà P200 không hề chạy thì con số của mốc không có ai canh») không bao giờ đo được. Hai lối ra đều hỏng: verifier chấm chặt → E3c ĐỎ vĩnh viễn vì hạ tầng chứ không vì vật; verifier chấm lỏng → nuốt một lời hứa chưa bao giờ chạy — đúng cặp «bắt đúng lỗi» vs «chưa bao giờ chạy» mà hiến pháp bắt phân biệt.
+- **Hình dạng 5 ở tầng eval — AC-4 hứa «MỌI số máy-đo khớp từng chữ số với nguồn, CẢ HAI vòng» nhưng E4 chỉ liệt ba phép đối chiếu điểm**
+  file: `_acceptance/release-2-14-0/evals.yaml:96`
+  severity: medium
+  AC: AC-4
+  `contract.md:97` (AC-4 Then) phát biểu lớp: «MỌI số máy-đo khớp từng chữ số với nguồn — của CẢ HAI vòng». Question của E4 (dòng 96–111) lại mở đầu bằng «KHÔNG tính lại con số nào» rồi liệt đúng ba ca RIÊNG: (a) hai dòng máy đo của `do-tin-tram-phan-loai` vs input 2; (b) số lượt chấm + lượt hạ-tầng-đốt của `chu-ky-khong-tu-lam-hoa-cu` vs «## Iterations» ở input 3; (c) hai số token của vòng thứ hai (ô lượt PASS · tổng vòng) vs input 4. Không có vế nào phủ phần còn lại của cùng lớp.
 
-Đối chiếu sử liệu: mốc 2.13.0 KHÔNG dùng khoá suite trần cho E3c, nó dựng khoá riêng `plugins_so_ca_2_13` với dòng PASS của chính răng (`_acceptance/release-2-13-0/evals.yaml:52`). Mốc này lùi về khoá trần mà vẫn giữ lời hứa cũ trong expected.
-
-### expected của E5 ghim một câu PASS mà rang-ton-dong.sh không hề in
-- AC: AC-5
-- file: `_acceptance/release-2-14-0/evals.yaml:121`
-- severity: high
-- source: bugs
-
-E5 ghim: «PASS: so ho so hoa cu ghi trong ho so (<n> tai moc <sha>) BANG so luoi dang noi hom nay — khong phai so chep tay tu moc truoc».
-
-Đã chạy thật `bash _acceptance/release-2-14-0/rang-ton-dong.sh --chan ghim-lai` trên cây hiện tại (rc=0), dòng in ra là:
-
-  PASS: so ho so hoa cu ghi trong ho so (45 ho so duy nhat tai moc 7d12ffad, do tren HEAD 8b7be956) BANG so luoi dang noi hom nay, va moi lan con so ay xuat hien trong hop dong deu tro ve o marker
-
-Lệch hai chỗ: (a) phần trong ngoặc nay có thêm «ho so duy nhat» + «do tren HEAD <sha>»; (b) mệnh đề đuôi đổi hẳn từ «— khong phai so chep tay tu moc truoc» thành «, va moi lan con so ay xuat hien trong hop dong deu tro ve o marker». `expected` là bản cũ, chưa cập nhật theo bốn nhát vá mà gap-probe ghi là `fixed` (đếm theo hồ sơ duy nhất · in HEAD · chốt một-nguồn mã 7).
-
-Bằng chứng ghim sai câu là bằng chứng không phân biệt được bản răng nào đã chạy — đúng lớp mà `rang-moc.sh`/`rang-p200.sh` thêm DẤU BẢN RĂNG để chặn. Ba eval máy còn lại (E1, E1b, E2) đã đối chiếu và khớp từng chữ với đầu ra thật; chỉ E5 lệch.
-
-### Chốt «một nguồn» của rang-ton-dong.sh mù với số bọc đậm — đúng khuôn văn mà chính hợp đồng đang dùng
-- AC: AC-5
-- file: `_acceptance/release-2-14-0/rang-ton-dong.sh:73`
-- severity: medium
-- source: bugs
-
-Chốt mã 7: `LAC="$(grep -E 'ghim lại|hoá cũ' "$C" | grep -oE '[0-9]+ hồ sơ' | grep -vE "^$SO " | sort -u || true)"`.
-
-Mẫu `[0-9]+ hồ sơ` đòi chữ số DÍNH ngay khoảng trắng rồi tới «hồ sơ». Văn hợp đồng của chính mốc này viết số ở dạng đậm: `contract.md:250` — «**71** hồ sơ có pin tụt sau vật … **45** tụt trong cửa sổ». Dấu `**` chen vào giữa nên mẫu không khớp.
-
-Đã thử hai chiều trên bản sao contract.md, cùng `SO=45`:
-- thêm dòng `Chiến dịch ghim lại còn **43** hồ sơ đang chờ.` → `LAC=[]` → chốt XANH, số chép tay hoá cũ lọt.
-- thêm dòng `Chiến dịch ghim lại còn 43 hồ sơ đang chờ.` → `LAC=[43 hồ sơ]` → chốt ĐỎ đúng.
-
-Tức chốt chỉ canh được đúng một lần xuất hiện trần (`contract.md:132`), còn mọi lần viết theo khuôn đậm — khuôn mà chính tệp đang dùng cho hai con số 71 và 45 — thì trượt. Cùng hình dạng với lỗi ký-tự-biên vừa vá ở chính chốt này (gap-probe ghi «dưới bash không khớp gì nên chốt xanh vĩnh viễn»): phép đo hẹp hơn vật, xanh vì chưa bao giờ nhìn tới. Chốt cũng không có đối chứng dương nào buộc grep đầu tiên phải khớp ≥1 dòng, nên nếu hai cụm neo («ghim lại», «hoá cũ») trôi khỏi văn thì cả chốt tắt im.
-
-### Hình dạng 5 — tuyên quét LỚP «mọi lần con số xuất hiện» nhưng chỉ có điểm-case: mẫu mù với chữ đậm markdown
-- AC: AC-5
-- file: `_acceptance/release-2-14-0/rang-ton-dong.sh:73`
-- severity: high
-- source: measurement
-
-Dòng 73: LAC="$(grep -E 'ghim lại|hoá cũ' "$C" | grep -oE '[0-9]+ hồ sơ' | grep -vE "^$SO " | sort -u || true)", và dòng PASS (dòng 76) quảng cáo «...va moi lan con so ay xuat hien trong hop dong deu tro ve o marker». Đó là lời hứa LỚP, nhưng hiện thân là một điểm-case: (a) chỉ soi những DÒNG chứa literal 'ghim lại' hoặc 'hoá cũ', (b) chỉ khớp đúng hình dạng «<chữ số><khoảng trắng>hồ sơ». Chạy thử trên chính hợp đồng của vòng này: bộ lọc chỉ khớp ĐÚNG MỘT chỗ («45 hồ sơ», contract.md dòng 132). Ba chỗ khác của cùng con số/cùng chiến dịch rơi ra ngoài: contract.md dòng 250–251 viết «**71** hồ sơ có pin tụt sau vật ... · **45** tụt trong cửa sổ 7d12ffad..HEAD» — dấu ** chen giữa chữ số và từ «hồ sơ» nên regex không khớp; contract.md dòng 267 «danh sách 69 hồ sơ» nằm trên dòng không chứa hai literal lọc nên không được soi. Hệ quả: đúng lớp trôi mà răng sinh ra để bắt (một con số chép tay hoá cũ) vẫn xanh nếu người viết bôi đậm nó — mà bôi đậm chính là cách hợp đồng này đang viết con số. Đây là ma trận toàn phần bị thay bằng một assert điểm, trong khi dòng bằng chứng lại phát biểu ở dạng phủ định toàn xưng.
-
-### Hình dạng 4 — E5 ghim một thông điệp mà răng KHÔNG BAO GIỜ in, phán quyết rơi về mã thoát
-- AC: AC-5
-- file: `_acceptance/release-2-14-0/evals.yaml:122`
-- severity: medium
-- source: measurement
-
-E5 (dòng 121–123) ghim: «PASS: so ho so hoa cu ghi trong ho so (<n> tai moc <sha>) BANG so luoi dang noi hom nay — khong phai so chep tay tu moc truoc». Dòng thật mà rang-ton-dong.sh dòng 76 in ra (đã chạy, exit 0) là: «PASS: so ho so hoa cu ghi trong ho so (45 ho so duy nhat tai moc 7d12ffad, do tren HEAD 8b7be956) BANG so luoi dang noi hom nay, va moi lan con so ay xuat hien trong hop dong deu tro ve o marker». Vế đuôi được ghim («— khong phai so chep tay tu moc truoc») không tồn tại trong script, và hai vế thật («ho so duy nhat», «do tren HEAD <sha>», mệnh đề marker) không có trong expected. Ba eval còn lại của cùng hồ sơ (E1, E1b, E2) ghim đúng từng chữ dòng PASS của răng mình, nên đây là lệch riêng của E5: người/hội đồng đối chiếu theo literal sẽ không khớp, còn đối chiếu nới tay thì thứ duy nhất còn phân biệt được là mã thoát — đúng cái mà khuôn đầu evals.yaml (dòng 3–4) tuyên bố không lấy làm phán quyết.
+  Cụ thể những số máy-đo của vòng `chu-ky-khong-tu-lam-hoa-cu` KHÔNG có ai đối chiếu, dù nguồn đã nằm sẵn trong `inputs`: dòng 5 «22,8 ở lượt PASS; TB 26,1 (157 phút / 6)» (rút từ các dòng `wall:` của usage-report — kiểm tay: 1369s = 22,8 phút và tổng sáu dòng wall = 9390s ≈ 157 phút, tức số ĐÚNG, nhưng eval không đòi ai kiểm) và dòng 4b «tìm-lỗi 19,9 %» (rút từ bảng vai trò của cùng tệp). Với những ô này hội đồng chỉ chấm được «có ghi NGUỒN không» — tức đo LỜI GHI NGUỒN thay vì đo con số, đúng lỗ mà chính E4 (dòng 108) và `contract.md:100-104` kể là chỗ lượt chấm 1 để lọt lệch 26.837. Lỗ được vá cho một ô cụ thể bằng cách thêm một input và một câu hỏi điểm, chứ không vá theo lớp mà AC-4 đã tuyên.
+  source: measurement
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **rang-ton-dong.sh nuốt im cờ `--chan ghim-lai` mà config truyền — fail-open đúng lớp vừa vá ở răng bên cạnh**
-  Người dùng thấy gì: Cờ chọn loại kiểm tra ghim lại có thể bị đổi hoặc rơi mất khỏi cấu hình mà không ai nhận ra ngay, vì bước kiểm tra hiện chạy giống hệt nhau bất kể cờ đó ghi gì.
+- **Chốt «một nguồn» của rang-ton-dong.sh vẫn tuyên quét LỚP mà chỉ soi được vài dòng — «69 hồ sơ» lọt**
+  Người dùng thấy gì: Báo cáo phát hành có thể còn sót vài con số cũ chưa cập nhật trong hồ sơ, dù phần kiểm tra chính vẫn báo đạt.
   file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
   severity: high
   Đề xuất: known-limits
 
-- **Hai răng MỚI thiếu «dấu bản răng» mà hai răng chép đã có — output ghim lại không phân biệt được bản**
-  Người dùng thấy gì: Nếu bằng chứng của bước kiểm tra này được dùng lại sau khi mã nguồn kiểm tra đổi, người đọc sau này sẽ không biết chính xác phiên bản kiểm tra nào đã tạo ra kết quả PASS đang lưu.
-  file: `_acceptance/release-2-14-0/rang-so-tang.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **rang-ton-dong.sh nuốt im cờ `--chan ghim-lai` mà config, hợp đồng và evals đều khai**
-  Người dùng thấy gì: Cờ chọn loại kiểm tra ghim lại có thể bị đổi hoặc rơi mất khỏi cấu hình mà không ai nhận ra ngay, vì bước kiểm tra hiện chạy giống hệt nhau bất kể cờ đó ghi gì.
+- **rang-ton-dong.sh nuốt im `--chan ghim-lai` — fail-open, ngược hẳn hai răng cùng hồ sơ**
+  Người dùng thấy gì: Nếu ai đó gõ nhầm tên cấu hình khi chạy kiểm tra này (ví dụ chọn sai loại kiểm), hệ thống vẫn báo "đạt" thay vì báo lỗi cấu hình sai, nên có thể bỏ sót việc kiểm tra chưa thực sự chạy đúng ý.
   file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **opportunity.md mới thêm mang con số tồn đọng đã hoá cũ (42) mà không răng nào soi**
-  Người dùng thấy gì: Một tài liệu phụ ở hồ sơ khác còn ghi con số cũ về chiến dịch dọn dẹp đang hoãn; con số này không xuất hiện trong nội dung mà người dùng bản phát hành 2.14.0 nhận được.
-  file: `_acceptance/mot-nguon-tai-gui-triage/opportunity.md`
+- **evidence-report E5 ghim dòng PASS mà răng ở HEAD không còn in — bên viết và bên đọc lại trôi khỏi nhau**
+  Người dùng thấy gì: Báo cáo bằng chứng đã lưu có thể không khớp từng chữ với thông điệp mà công cụ kiểm tra hiện in ra, gây khó đối chiếu lại về sau.
+  file: `_acceptance/release-2-14-0/evidence-report.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **rang-so-tang.sh đọc số từ CÂY LÀM VIỆC còn neo lấy từ git — bằng chứng không dựng lại được từ verified_commit**
+  Người dùng thấy gì: Nếu số phiên bản mới chỉ được sửa trên máy mà chưa lưu vào kho, bước kiểm tra tăng số vẫn có thể báo đạt nhầm.
+  file: `_acceptance/release-2-14-0/rang-so-tang.sh`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4 — cờ trong config rơi vào hư không: răng không đọc tham số, không đối chứng, fail-open**
-  Người dùng thấy gì: Cờ chọn loại kiểm tra ghim lại có thể bị đổi hoặc rơi mất khỏi cấu hình mà không ai nhận ra ngay, vì bước kiểm tra hiện chạy giống hệt nhau bất kể cờ đó ghi gì.
-  file: `_acceptance/config.yaml`
+- **rang-ton-dong.sh nuốt im cờ `--chan ghim-lai` mà config truyền — fail-open, trái đúng chốt vừa thêm cho hai răng bên cạnh**
+  Người dùng thấy gì: Nếu tuỳ chọn cấu hình của bước kiểm tra chiến dịch bị gõ sai hoặc mất, hệ thống vẫn báo đạt mà không có cảnh báo nào.
+  file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 5 — tuyên quét LỚP «mọi cụm số trong văn hợp đồng» nhưng chỉ soi những DÒNG chứa hai literal neo**
+  Người dùng thấy gì: Báo cáo phát hành có thể còn sót vài con số cũ chưa cập nhật trong hồ sơ, dù phần kiểm tra chính vẫn báo đạt.
+  file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
+  severity: high
+  Đề xuất: known-limits
+
+- **Cờ `--chan ghim-lai` rơi vào hư không — răng không đọc $@, fail-open đúng lớp mà hai răng bên cạnh đã cưỡng chế**
+  Người dùng thấy gì: Nếu tuỳ chọn cấu hình của bước kiểm tra chiến dịch bị gõ sai hoặc mất, hệ thống vẫn báo đạt mà không cảnh báo.
+  file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
   severity: medium
   Đề xuất: known-limits
 
