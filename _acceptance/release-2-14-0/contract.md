@@ -226,8 +226,22 @@ một làn 12 phút ngay trước chữ ký. Vòng `chu-ky-khong-tu-lam-hoa-cu` 
 
 **Lớp ba — GIÁ CỦA VIỆC MẤT PHÂN LOẠI, đo được bằng token lần đầu.** Lượt chấm 3 của
 `chu-ky-khong-tu-lam-hoa-cu` hỏng ở trạm phân loại (args thiếu `diffFiles`) và rơi về đường cũ
-«bác bỏ TẤT CẢ», 19/19 phát hiện: **37 tác tử · 32,7 M token**, so với 20–23 tác tử · 13–17 M
-ở mọi lượt lành của cùng vòng — gần gấp đôi. Lượt ấy chạy tại `17009471`, **TRƯỚC** nhát cắt
+«bác bỏ TẤT CẢ», 19/19 phát hiện: **37 tác tử · 32.671.076 token**. Sáu lượt của vòng ấy, dựng
+lại từ `usage-report.md` bằng đúng nền hợp đồng khai: lượt 1 **16.425.202** · lượt 2
+**13.672.390** · **lượt 3 (hỏng) 32.671.076** · lượt 4 **16.727.172** · lượt 4b **16.234.066** ·
+**lượt 5 (PASS) 50.195.215**.
+
+**Đọc bảng ấy cho đúng — và bản trước của chính đoạn này đọc SAI.** Nó viết «13–17 M ở MỌI lượt
+lành», một lời khai toàn xưng mà chính nguồn phản chứng: lượt 5 là lượt lành nhất (trạm phân
+loại chạy đúng, verdict PASS) và tốn **50,2 M** — gấp hơn ba lần dải ấy, và so với nó thì lượt
+mất phân loại còn RẺ HƠN, tức «gần gấp đôi» đảo chiều. Hợp đồng đã tự biết điều đó ở §4 mục 8
+mà câu này vẫn phát biểu rộng. Làn tìm-lỗi lượt chấm 3 bắt; đây là lần thứ BA lớp «lời khai
+rộng hơn phép đo» nổ trong cùng cửa sổ (hai lần trước: chốt một-nguồn của răng, và AC-4).
+
+**Điều số thật sự nói:** trong bốn lượt có trạm phân loại chạy đúng mà KHÔNG chạy baseline đầy
+đủ (1 · 2 · 4 · 4b), dải là 13,7–16,7 M; lượt hỏng phân loại tốn 32,7 M, gấp đôi dải ấy. Lượt 5
+đứng ngoài phép so vì nó chạy `runBaseline` trên cây đã gộp main — chính nó là mục «việc-cần-đào»
+ở §4. Lượt ấy chạy tại `17009471`, **TRƯỚC** nhát cắt
 của `do-tin-tram-phan-loai` (bản workflow tại đó có 0 dấu vết mã máy đúc; `origin/main` có 10).
 Hồ sơ 2.13 §4 mục 2 mô tả lớp này bằng lời («5 tác tử lên 10 rồi 15»); đây là lần đầu có số.
 **Giới hạn phải ghi kèm, do chính phiên kia đặt:** con số đo giá của việc *mất* phân loại, KHÔNG

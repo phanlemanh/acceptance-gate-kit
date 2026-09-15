@@ -22,9 +22,13 @@ Cửa sổ 2.13 → 2.14 có **hai** vòng đã ký, trong khi luật (b) cho m�
 - **Trạm phân loại phạm vi thôi hỏng vì định danh do máy-nói chép sai** (vòng
   `do-tin-tram-phan-loai`). Trước đây kết quả phân loại được ghép về từng phát
   hiện bằng tiêu đề và đường dẫn do tác tử chép lại; chép lệch một ký tự là cả
-  lượt rơi về đường «bác bỏ tất cả». Đo trên một vòng thật: hỏng **3/6** lượt,
-  và lượt mất phân loại tốn **37 tác tử · 32,7 M token** so **20–23 · 13–17 M** ở
-  lượt lành cùng vòng. Nay mỗi phát hiện gửi đi mang một **mã do máy đúc**, kết
+  lượt rơi về đường «bác bỏ tất cả». Hai số đo, từ HAI vòng khác nhau — nói rõ để
+  không ai đọc thành một: vòng `khoi-tim-loi-tra-phi-theo-vat` hỏng **3/6** lượt
+  vì lớp này; và ở vòng `chu-ky-khong-tu-lam-hoa-cu`, lượt mất phân loại tốn
+  **37 tác tử · 32,7 M token** so **13,7–16,7 M** ở bốn lượt có phân loại chạy
+  đúng của cùng vòng. Lượt PASS của vòng ấy (50,2 M) đứng NGOÀI phép so vì nó
+  chạy đối chứng đầy đủ trên cây đã gộp — bản trước của mục này gộp nó vào «mọi
+  lượt lành» và vì thế nói quá. Nay mỗi phát hiện gửi đi mang một **mã do máy đúc**, kết
   quả ghép theo mã trước, mã lạ bị bỏ, và khi kết quả thiếu mã nào thì máy **hỏi
   lại đúng một lần** chỉ phần thiếu trước khi đặt cờ hỏng. Luật fail-toward-human
   không đổi: hỏi lại vẫn thiếu thì bác bỏ chạy toàn bộ như cũ.
