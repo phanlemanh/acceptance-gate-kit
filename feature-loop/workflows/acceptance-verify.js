@@ -998,9 +998,16 @@ if (triageRaw && triageRaw.contractUnreadable === true) {
 // Gỡ-mơ-hồ bằng title (nấc 3): CHỈ khi title duy nhất ở CẢ HAI phía; đếm theo khoá
 // PHÂN BIỆT chứ không theo số lượt — ba lane cùng báo một lỗi không phải "mơ hồ".
 const triageKey = t => `${relFile(t)} :: ${t.title}`
-const ghepTriage = (rows, sent) => {
+const ghepTriage = (rowsRaw, sent) => {
   const sentTids = new Set(sent.map(f => f.tid))
-  for (const r of rows) if (r[TRIAGE_ID_FIELD] && !sentTids.has(r[TRIAGE_ID_FIELD])) log(`Triage: ma la ${r[TRIAGE_ID_FIELD]} — bo dong thua, khong ghep sang ai`)
+  // Dòng mang mã LẠ là dòng THỪA: bỏ khỏi TOÀN BỘ bộ ghép — kể cả nấc 2/3 — chứ không chỉ
+  // khỏi nấc mã (lượt chấm 1 bắt: nó vẫn ghép qua khoá tệp::tiêu đề trong khi log nói «không
+  // ghép sang ai»). Dòng KHÔNG mang mã (bên gửi đời cũ) vẫn đi nấc 2/3 như trước.
+  const rows = rowsRaw.filter(r => {
+    if (!r[TRIAGE_ID_FIELD] || sentTids.has(r[TRIAGE_ID_FIELD])) return true
+    log(`Triage: ma la ${r[TRIAGE_ID_FIELD]} — bo dong thua, khong ghep sang ai`)
+    return false
+  })
   const byTid = new Map(rows.filter(r => sentTids.has(r[TRIAGE_ID_FIELD])).map(r => [r[TRIAGE_ID_FIELD], r]))
   const byKey = new Map(rows.map(t => [triageKey(t), t]))
   const distinctByTitle = arr => arr.reduce((m, x) => {
