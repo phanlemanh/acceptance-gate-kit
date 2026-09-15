@@ -107,37 +107,23 @@
      tố này**: máy giữ đường đảo thì máy được đi trước; hành động không có
      đường đảo tự động rơi về khoảnh khắc quyết thật.
 
-  **Không trace được = hình thức = cắt. Chỉ TRỪ, không CỘNG.**
+  **Không trace được = hình thức = cắt. TRỪ tự đi; CỘNG cần owner phê duyệt.**
 
-  **NỚI 2026-09-07 — vế «không CỘNG» tạm ngưng.** Owner tuyên sau đối chiếu
-  «The AI-Native SDLC playbook»: *«luôn giữ Kit đi về north star nhưng tại thời
-  điểm này Kit sẽ chấp nhận lắng nghe để mở luật có thể cộng, scope rộng hơn»*.
-  Nghĩa: một đề xuất **không còn bị bác chỉ vì nó là CỘNG** — nó bị bác khi
-  không trace được, hoặc làm tăng lượt gọi người mà không cắt gì. **Ba vế KHÔNG
-  đổi:** trace về một trong ba nguyên tố + nêu người hưởng · mục tiêu ≤3 lượt
-  gọi người/vòng (T3 trần 4) và ≤1 chạm/lượt · khó-đảo LUÔN là câu hỏi cho
-  người. Ô mở dưới luật nới phải **ghi rõ điều đó** trong hồ sơ.
-  **GIÁM SÁT BẮT BUỘC (owner quyết 15/09, khi mở cửa sổ 2.14 — ADR 0017):** mọi
-  chỗ nới phải **trả lời bằng chính bộ chỉ số đang chạy** — năm dòng số của luật
-  (c) và north star. Cụ thể: tại mốc phát hành gần nhất sau khi ô ấy ship, hồ sơ
-  mốc đối chiếu **bảng dự báo năm dòng của chính ô đó với số thật đã đếm** —
-  dòng nào đạt, dòng nào trượt, trượt vì gì. Ô không trả lời được bằng năm dòng
-  số, hoặc trả lời mà số đi ngược north star (điển hình: token giảm mà lượt gọi
-  người tăng), phải ĐÓNG hoặc THU PHẠM VI — không được chạy tiếp vì đã lỡ mở.
-  Đây là **ràng buộc, không phải chỉ số**: KHÔNG dựng phép đo mới cho nó (luật
-  (a) cấm mở tầng đo-thước-của-thước; bảng dự báo năm dòng + điều kiện tin cậy
-  đã là vật có sẵn ở mọi hồ sơ đổi kit).
-  **ĐIỀU KIỆN THU HỒI:** owner gọi tên, **hoặc** lượt gọi người/vòng vượt trần
-  ở hai mốc phát hành liên tiếp (đọc từ năm dòng số của luật (c) — không dựng
-  phép đo mới) — khi đó vế «không CỘNG» sống lại và mọi ô đang mở dưới luật nới
-  phải khai lại căn cứ. **Lần nổ 2.12.0 + 2.13.0 (14 so trần T3 4 · 4 so trần
-  T2 3): owner đọc số rồi GIỮ NGUYÊN luật nới 15/09** — 31 ô đang mở không phải
-  khai lại căn cứ; đổi lại là nghĩa vụ giám sát ở trên. Điều kiện vẫn nguyên chữ
-  và vẫn đang đếm cho lần nổ kế. Căn cứ và đánh đổi:
-  [ADR 0017](docs/adr/0017-noi-giu-nguyen-o-tra-loi-bang-nam-dong-so.md).
-  Bối cảnh đầy đủ:
-  [handoff 07/09 §1.1](docs/handoff/2026-09-07-handoff-doi-may.md) · căn cứ:
-  [tổng hợp hai đợt](docs/findings/2026-09-07-tong-hop-hat-giong-va-o.md).
+  **CỘNG — không cấm, nhưng phải phê duyệt; giữ đơn giản (owner quyết 15/09,
+  thay luật NỚI 07/09 — ADR 0018).** Đề xuất TRỪ đi như thường. Đề xuất CỘNG
+  không bị bác chỉ vì là CỘNG, nhưng KHÔNG tự đi: owner phê duyệt đích danh
+  từng ca (ở Cổng Phạm vi của chính vòng đó, hoặc bằng một ADR khi không có
+  vòng). Ba vế KHÔNG đổi: trace về một trong ba nguyên tố + nêu người hưởng ·
+  mục tiêu ≤3 lượt gọi người/vòng (T3 trần 4) và ≤1 chạm/lượt · khó-đảo LUÔN
+  là câu hỏi cho người. Không luật giám sát riêng, không điều kiện thu hồi tự
+  động — số vẫn đọc từ năm dòng của luật (c), không dựng gì thêm.
+  Sử liệu, để không ai đọc thành «chưa từng xảy ra»: NỚI 07/09 mở vế «có thể
+  CỘNG» không cần phê; điều kiện thu hồi tự động của nó đủ số ở 2.12.0 (14 so
+  trần T3 4) và 2.13.0 (4 so trần T2 3); ADR 0017 (15/09) giữ nguyên kèm một
+  luật giám sát; cùng ngày owner đọc lại và thay bằng luật này. Đo 15/09: 0 ô
+  đang mở khai dưới luật nới, 3 CỘNG đã ship trong 5 tuần — ba cái đó giữ
+  nguyên. Bối cảnh mở luật nới:
+  [handoff 07/09 §1.1](docs/handoff/2026-09-07-handoff-doi-may.md).
 
 - **MỘT cây nguồn, KHÔNG có bản sao nào phải giữ đồng bộ (từ 2026-08-12).**
   Kit từng nuôi hai bản dựng song sinh: mọi thay đổi lõi phải sửa hai lần rồi

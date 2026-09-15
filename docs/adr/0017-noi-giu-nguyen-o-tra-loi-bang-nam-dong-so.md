@@ -1,4 +1,4 @@
-# ADR 0017 — Điều kiện thu hồi luật NỚI đã đủ số nhưng owner giữ nguyên; đổi lại, mọi ô mở dưới luật nới phải trả lời bằng năm dòng số và north star
+# ADR 0017 (ĐÃ THAY bởi [ADR 0018](0018-cong-can-phe-duyet-khong-cam-giu-don-gian.md), cùng ngày 15/09 — giữ làm sử liệu) — Điều kiện thu hồi luật NỚI đã đủ số nhưng owner giữ nguyên; đổi lại, mọi ô mở dưới luật nới phải trả lời bằng năm dòng số và north star
 
 2026-09-15, lúc mở cửa sổ 2.14. Luật NỚI 07/09 (vế «không CỘNG» tạm ngưng) mang
 sẵn một điều kiện thu hồi tự động: *lượt gọi người/vòng vượt trần ở hai mốc phát
