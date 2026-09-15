@@ -85,7 +85,10 @@ console.log('W03 happy path: PASS + run-log may-tinh, main loop ghi file (khong 
   // GIỮ NGUYÊN tên ca — răng suite-case của hồ sơ srlp (đã ký) ghim đúng chuỗi
   // này; đổi tên là phá round-trip của hồ sơ người khác. Khẳng định nói sự thật
   // GỘP: mỗi eval một dòng + mỗi lệnh suite một dòng + một dòng round-tally.
-  check('W03 runLog: 1 dong moi eval + 1 moi lenh suite (+ 1 tally AC-9)', result.runLog.length === 4
+  // Dòng kind triage của trạm phân loại (vòng do-tin-tram-phan-loai, 15/09) KHÔNG nằm
+  // trong đếm này — nó là sổ của trạm, không phải dòng main loop cần để dựng báo cáo.
+  const runLog03 = result.runLog.filter(l => !/"kind":"triage"/.test(l))
+  check('W03 runLog: 1 dong moi eval + 1 moi lenh suite (+ 1 tally AC-9)', runLog03.length === 4
     && all03.filter(l => l.kind === 'round-tally').length === 1
     && all03.filter(l => String(l.evalId || '').startsWith('SUITE-')).length === 1, String(result.runLog.length));
   const lines = all03; // hợp đồng của các assert #117 phía dưới: TOÀN BỘ dòng
@@ -250,7 +253,8 @@ console.log('W12 run-log: main loop append la duong DUY NHAT (khong con scribe)'
   const { result, logs } = await runWorkflow(WF, baseArgs(), responder());
   check('W12 flag set khi co dong can ghi', result.runLogWriteFailed === true);
   check('W12 log nhac main loop tu append', logs.some(l => /TU append/.test(l)));
-  check('W12 runLog mang du dong cho main loop (2 eval + 1 suite + 1 tally)', result.runLog.length === 4, String(result.runLog.length));
+  const runLog12 = result.runLog.filter(l => !/"kind":"triage"/.test(l)) // dòng sổ của trạm phân loại không tính (xem W03)
+  check('W12 runLog mang du dong cho main loop (2 eval + 1 suite + 1 tally)', runLog12.length === 4, String(runLog12.length));
 }
 
 console.log('W13 ui-check merges into machine lane + run-log');
@@ -969,7 +973,8 @@ const MUTANTS = [
       return result.triageFailed === true && result.verdict !== 'REJECT';
     }],
   ['MT2 bo nhanh go-mo-ho bang title duy nhat -> WT-T17a do',
-    s => s.replace(/\n  \|\| \(\(unique\(rowsByTitle[\s\S]*?: undefined\)/, ''),
+    // Neo dời 15/09 (vòng do-tin-tram-phan-loai): nấc 3 nay nằm trong ghepTriage, một dòng.
+    s => s.replace("|| ((unique(rowsByTitle, f.title) && unique(sentByTitle, f.title)) ? rows.find(t => t.title === f.title) : undefined)", ''),
     async (src) => {
       const { result } = await runWorkflow(WF, triArgs(), triResp({
         findings: [F_HIGH], triage: triRow(F_HIGH.title, 'install.ts'),

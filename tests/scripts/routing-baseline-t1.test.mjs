@@ -1,5 +1,5 @@
 // RB — bản ghi mốc ĐỊNH TUYẾN là vật T1 máy sinh (hồ sơ chu-ky-khong-tu-lam-hoa-cu
-// 15/09/2026, ADR 0017 nới ADR 0007).
+// 15/09/2026, ADR 0019 nới ADR 0007).
 //
 // Hai chiều cho mỗi phép đo, trên kho git CODE-SINH trong chính lần chạy:
 //   RB1  — có glob T1 → commit chỉ chạm bản ghi mốc + _acceptance/ → pre-merge 0 stale
@@ -224,7 +224,7 @@ check('RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 het ten buoc cu (ke ca tro
   const blk = (so.match(pat) || [])[1] || '';
   // A1 — câu tiền đề vô điều kiện phải biến mất, thay bằng điều kiện đọc từ lưới.
   assert.doesNotMatch(blk, /Sau commit, lưới trước-merge báo `evidence is stale` cho CHÍNH slug \(commit chữ ký chạm file ngoài T1\)/,
-    'khối vẫn khẳng định vô điều kiện «commit chữ ký chạm file ngoài T1» — sau ADR 0017 tiền đề đó sai ở đúng ca vòng này nhắm');
+    'khối vẫn khẳng định vô điều kiện «commit chữ ký chạm file ngoài T1» — sau ADR 0019 tiền đề đó sai ở đúng ca vòng này nhắm');
   assert.match(blk, /CHỈ KHI/, 'khối phải nói ghim lại là CÓ ĐIỀU KIỆN');
   assert.equal(blk, (sk.match(pat) || [])[1], 'lệch bản chép sau khi sửa A1');
   // A2 — một tên trỏ một bước, trên MỌI văn bản của kit nói về nó, KỂ CẢ hai tệp ca
@@ -234,7 +234,7 @@ check('RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 het ten buoc cu (ke ca tro
   const TEN_CU = ['bu' + 'oc 6b', 'b\u01b0\u1edb' + 'c 6b', 'bu' + 'oc 6 ', 'b\u01b0\u1edb' + 'c 6 '];
   const rel = q => path.join(ROOT, q);
   const QUET = [['commands/signoff.md', so],
-                ['docs/adr/0017', readFileSync(rel('docs/adr/0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md'), 'utf8')],
+                ['docs/adr/0017', readFileSync(rel('docs/adr/0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md'), 'utf8')],
                 ['GUIDE.md', readFileSync(rel('GUIDE.md'), 'utf8')],
                 ['tests/scripts/routing-baseline-t1.test.mjs', readFileSync(rel('tests/scripts/routing-baseline-t1.test.mjs'), 'utf8')],
                 ['tests/scripts/repin-lane-skip-unchanged.test.mjs', readFileSync(rel('tests/scripts/repin-lane-skip-unchanged.test.mjs'), 'utf8')]];

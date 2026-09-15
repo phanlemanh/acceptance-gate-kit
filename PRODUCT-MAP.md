@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>2 việc"]
   GD --> DB["Đã bác từ khám phá<br/>3 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>4 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>56 việc"]
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>58 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>10 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
 ```
@@ -69,7 +69,6 @@ flowchart TD
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
-- Phát hành kit 2.13.0 — đóng số cho cửa sổ 2.12→2.13, cắt số HAI gói có đổi cộng đúng MỘT nhát vá (P93 quét cây nguồn), và là mốc đầu tiên đếm đủ NĂM dòng số. (`release-2-13-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -94,6 +93,7 @@ flowchart TD
 - Gói Codex mang đủ mọi công cụ mà chỉ dẫn của nó bảo người dùng chạy — hết con trỏ chết, và có chốt máy canh quan hệ đó cho mọi lần thêm công cụ về sau (`codex-script-packaging`)
 - Cổng người đọc đủ nguồn — thẻ đọc được tiêu chí khai bằng tiêu đề, ba bên gọi cùng một bộ bóc, mục Coverage viết bằng bảng thôi bị báo thiếu oan (`cong-nguoi-doc-du-nguon`)
 - Chữ ký người ở Cổng Bằng chứng đóng cửa veto — lưới trước-merge và máy quét /start thôi nói «owner chưa veto» về hồ sơ người đã ký (`cua-veto-sau-chu-ky`)
+- Trạm phân loại phạm vi thôi hỏng vì định danh do LLM chép — định danh do máy đúc, và một lượt hỏi lại đúng phần còn thiếu trước khi kéo cả lượt về fail-toward-human. (`do-tin-tram-phan-loai`)
 - Ba lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc (hạng mục T1 đã thu phạm vi 14/08) (`doi-hanh-vi-cong-nguoi`)
 - Đường đo nằm trong định-nghĩa-xong — contract có ô «Đường đo» khi hồ sơ có ngưỡng; thẻ Cổng Phạm vi cờ vàng khi thiếu, cửa bỏ có tên; gap-probe cross-check ngưỡng↔đường đo (`duong-do-trong-dinh-nghia-xong`) — đã giao — không đo, khai ở Cổng Đáng
 - Đường lùi phải sống — làn máy-đi-trước có đường lùi thật ở hai cửa: người veto bằng một chữ và ô kết máy-đã-thông có đường ghi; máy không coi «không đo được» là sạch, làn V vẫn bị kiểm hoá cũ, lệnh ký chạy làn máy trước chữ ký (`duong-lui-phai-song`) — đã giao — không đo, khai ở Cổng Đáng
@@ -121,6 +121,7 @@ flowchart TD
 - Phát hành kit 2.10.0 — đóng số cho cửa sổ 2.9→2.10 (PR 157 glob-hai-sao · 159 duong-lui-phai-song · 163 vòng T3 gom đúc kết 08/09), để repo tiêu thụ nhận bộ máy theo mốc có chủ đích (`release-2-10-0`)
 - Phát hành kit 2.11.0 — đóng số cho cửa sổ 2.10→2.11 và VÁ TRONG MỐC lỗ xanh-giả của bộ giải cấu hình (nháy không cân làm hỏng chuỗi lệnh, bash trả 2, luật expected_exit đọc 2 thành giới hạn đã khai) (`release-2-11-0`)
 - Phát hành kit 2.12.0 — đóng số cho cửa sổ 2.11→2.12, THUẦN CẮT SỐ. Năm vòng đóng trong cửa sổ đưa 182 tiêu chí tới ba kho tiêu thụ và đóng cửa veto sau chữ ký. (`release-2-12-0`)
+- Phát hành kit 2.13.0 — đóng số cho cửa sổ 2.12→2.13, cắt số HAI gói có đổi cộng đúng MỘT nhát vá (P93 quét cây nguồn), và là mốc đầu tiên đếm đủ NĂM dòng số. (`release-2-13-0`)
 - Phát hành kit 2.2.0 — đóng số cho ba hồ sơ 17–18/08 (hình tại Cổng 1 · mối nối Vòng TRAO · siết răng câu-về-hình) để repo tiêu thụ nhận engine mới có chủ đích trước khi mở vòng r4 bước 1 (`release-2-2-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)

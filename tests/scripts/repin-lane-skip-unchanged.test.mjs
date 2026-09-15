@@ -1,5 +1,5 @@
 // SK — làn re-pin BỎ QUA khi cây bằng pin (`--skip-unchanged`, hồ sơ
-// chu-ky-khong-tu-lam-hoa-cu 15/09/2026, ADR 0017).
+// chu-ky-khong-tu-lam-hoa-cu 15/09/2026, ADR 0019).
 //
 // Hai chiều cho mỗi phép đo, trên CÙNG kho fixture code-sinh:
 //   ĐỎ  — tệp vật bẩn / commit sau pin → làn KHÔNG bỏ qua, chạy trọn, LÀN ĐỎ có tên.
@@ -199,9 +199,9 @@ check('SK5 lenh 7b rut tu SIGNOFF-LANE-CLAUSE chay o trang thai hau-buoc-6 -> sk
   assert.equal(marker(), '', 'lượt bỏ qua mà suite vẫn chạy');
 });
 
-check('SK6 so sach: ADR 0017 neu ADR 0007, GUIDE 7.1 va CHANGELOG neu --skip-unchanged', () => {
-  const adr = readFileSync(path.join(ROOT, 'docs', 'adr', '0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md'), 'utf8');
-  assert.match(adr, /ADR 0007/, 'ADR 0017 phải nối vào ADR 0007');
+check('SK6 so sach: ADR 0019 neu ADR 0007, GUIDE 7.1 va CHANGELOG neu --skip-unchanged', () => {
+  const adr = readFileSync(path.join(ROOT, 'docs', 'adr', '0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md'), 'utf8');
+  assert.match(adr, /ADR 0007/, 'ADR 0019 phải nối vào ADR 0007');
   assert.match(adr, /ĐIỀU KIỆN THU HỒI/, 'miễn trừ T1 phải mang điều kiện thu hồi');
   assert.match(readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8'), /--skip-unchanged/);
   assert.match(readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8'), /hoá cũ|hoá cu/);

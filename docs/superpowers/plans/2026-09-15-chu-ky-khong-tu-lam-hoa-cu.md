@@ -103,13 +103,13 @@ từ vị trí script, không hardcode ROOT.
   (commit sau pin) · SK3 (`--skip-unchanged --write` → exit 3) · SK4 + SK4b
   (pin vắng / SHA ma → không bỏ qua) · SK5 (lệnh 7b **rút từ khối clause**,
   chạy ở trạng thái hậu-bước-6: chữ ký + baseline bẩn chưa commit) · SK6
-  (ADR 0017 + GUIDE §7.1 + CHANGELOG).
+  (ADR 0019 + GUIDE §7.1 + CHANGELOG).
 - **Verify:** `node tests/scripts/repin-lane-skip-unchanged.test.mjs`
 - **Phục vụ:** E4, E5, E6
 
-## T8 — Sổ sách: ADR 0017 · GUIDE §7.1 · CHANGELOG
+## T8 — Sổ sách: ADR 0019 · GUIDE §7.1 · CHANGELOG
 
-- **Files:** `docs/adr/0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md` (mới),
+- **Files:** `docs/adr/0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md` (mới),
   `GUIDE.md`, `CHANGELOG.md`
 - **Nội dung:** ADR một đoạn theo khuôn 0007 (ba điều kiện đủ: khó-đảo, bất
   ngờ, trade-off thật); GUIDE §7.1 thêm đoạn «làn bỏ qua khi cây bằng pin»;

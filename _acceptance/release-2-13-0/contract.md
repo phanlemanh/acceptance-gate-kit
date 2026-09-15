@@ -5,7 +5,7 @@ slug: release-2-13-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest + tests/plugins/run-tests.sh; KHÔNG chạm t3_paths (hooks, lib, pre-merge, recheck). T2 nên làn V mở.
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Mạnh
 approved_at: 2026-09-14
 ---
@@ -173,7 +173,17 @@ token (hợp đồng của nó khai điều này), đọc ở mốc 2.14.
 
 ## Known limits
 
-(Điền tại Cổng Bằng chứng. Giới hạn đã khai trước ở AC-5 sẽ chép vào đây khi ký.)
+Bốn mục dưới đây do làn tìm-lỗi lượt chấm 2 xác nhận, scope-triage xếp NGOÀI hợp đồng,
+owner quyết ghi Known limits khi ký (15/09). Cả bốn nói về chính hai nhát sửa của lượt
+chấm 1, không mục nào chạm hành vi người dùng cuối.
+
+- known-limits (Ngoài-1, owner ghi tại Cổng Bằng chứng 15/09): **_acceptance/release-2-13-0/rang-p93.sh** — Chân `do` in token `FAIL: P93` trên lối THÀNH CÔNG; đổi kênh sang stderr không cứu được người đọc thật, vì executor của E5b chạy qua Bash tool gộp stdout+stderr
+- known-limits (Ngoài-2, owner ghi tại Cổng Bằng chứng 15/09): **tests/plugins/run-tests.sh** — Khẳng định «bản sao là ảnh của vật» đo trên tập ĐÃ LỌC nên không canh được chính cái `-f` mà nó sinh ra để canh — gỡ `-f` hôm nay vẫn XANH
+- known-limits (Ngoài-3, owner ghi tại Cổng Bằng chứng 15/09): **_acceptance/release-2-13-0/rang-p93.sh** — Chuyển dòng P93 sang stderr không gỡ được nguyên nhân đỏ giả: đường chấm thật gộp hai luồng nên chuỗi «FAIL: P93» vẫn nằm trong output mà tác tử đọc
+- known-limits (Ngoài-5, owner ghi tại Cổng Bằng chứng 15/09): **tests/plugins/run-tests.sh** — Hình dạng 4 + 3 — khẳng định bất biến mới trong dung_ban_sao không có chiều đỏ (dựng xong rồi tự kiểm chính cách dựng), và đo SỐ ĐẾM trong khi lời hứa viết ngay trên nó là hai tập «TRÙNG KHÍT»
+
+- **Ngoài-4 KHÔNG ghi ở đây — owner quyết mở hợp đồng mới:** tests/plugins/run-tests.sh — Hình dạng 5 — tuyên quét LỚP «cặp marker duy nhất TOÀN KHO» (PAIRS 8 phần tử) nhưng chiều đỏ chỉ ghim 5/8; gỡ HFL-GLOSSARY-TERMS khỏi PAIRS, cả suite vẫn XANH (đã chạy mutant)
+  Nó là một ca kiểm sót một thuật ngữ, không thuộc nhát vá của mốc này.
 
 ## Notes
 

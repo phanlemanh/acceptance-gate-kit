@@ -48,7 +48,7 @@ pre-merge chặn không lối ra». Kit đã giải một lần cho bản đồ;
 - `commands/signoff.md` bước 6: sau khi ghi `human_signoff`, kho tự host kit chạy
   lệnh sinh; bước 7c `git add` kèm file — cùng nếp câu «bản ghi mốc mà làn đòi» đã
   có ở 7c. `skills/acceptance/SKILL.md` chép nguyên văn khối.
-- ADR 0017 một đoạn: nới danh sách ADR 0007 thêm đúng một tên, cùng điều kiện.
+- ADR 0019 một đoạn: nới danh sách ADR 0007 thêm đúng một tên, cùng điều kiện.
 
 Vì sao không chọn hai dạng của hạt giống: (a) «LM20 chỉ so hồ sơ đã ký trước
 `--base`» đòi LM20 biết mốc nhánh chính — suite không có khái niệm đó, giòn trong

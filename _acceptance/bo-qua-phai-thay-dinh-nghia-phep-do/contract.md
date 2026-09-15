@@ -72,7 +72,7 @@ vị từ thì ca phải ĐỎ, không im.
 **Then** hai giới hạn đã biết được khai kèm ngưỡng đang đếm: (a) **tệp untracked** vô
 hình với `git diff` nên một script mới chưa `git add` không làm làn chạy — `stale_files`
 được miễn vế này vì CI chạy trên cây đã commit, còn làn 7b chạy trên cây làm việc với
-`--allow-dirty`; (b) lệch glob bash/JS ở dạng `dir/*` (đã khai ở ADR 0017).
+`--allow-dirty`; (b) lệch glob bash/JS ở dạng `dir/*` (đã khai ở ADR 0019).
 
 ## Coverage
 
@@ -83,7 +83,7 @@ Trục: nguồn-định-nghĩa (`config.yaml` · `evals.yaml` · nguồn thứ b
 ## Out of scope
 
 - Tệp untracked (khai thành giới hạn ở AC-3, không sửa ở vòng này).
-- Đưa vị từ bash và JS về một nguồn (ADR 0017 đã khai ngưỡng riêng).
+- Đưa vị từ bash và JS về một nguồn (ADR 0019 đã khai ngưỡng riêng).
 - Mọi mục Known limits khác của `chu-ky-khong-tu-lam-hoa-cu`.
 
 ## Notes

@@ -47,7 +47,7 @@ evals:
     criterion: AC-3
     executor: script
     cmd: node tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs
-    paths: [feature-loop/scripts/repin-lane.mjs, docs/adr/0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs]
+    paths: [feature-loop/scripts/repin-lane.mjs, docs/adr/0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs]
     expected: >
       Đầu ra có dòng PASS của ca «DN5 hai gioi han con lai duoc khai kem nguong» — khối
       SKIP-UNCHANGED-PREDICATE và ADR nêu đủ (a) tệp untracked và (b) lệch glob bash/JS,

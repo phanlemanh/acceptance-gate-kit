@@ -24,7 +24,7 @@ gộp vào nhánh chính từ lúc 2.12.0 được ký (`7e260d4b`, 14/09) — 4
   bản ghi mốc thêm một dòng — mà tệp ấy là code, nên lưới trước-merge gọi bằng
   chứng hoá cũ và bắt ghim lại. Hai nhát: bản ghi mốc nay là **vật máy sinh**
   (dòng của nó do một lệnh sinh ra ngay trong lượt ký, cùng lớp với bản đồ sản
-  phẩm — ADR 0017), và **làn trước chữ ký tự bỏ qua khi cây không đổi so với
+  phẩm — ADR 0019), và **làn trước chữ ký tự bỏ qua khi cây không đổi so với
   mốc đã chứng** (`--skip-unchanged`). Cây đã đổi sau khi chứng thì làn vẫn
   chạy trọn và luật đỏ y nguyên.
 - **Ai bị ảnh hưởng:** kho tự host kit thấy lượt ký ra sẵn-sàng-merge trong vài

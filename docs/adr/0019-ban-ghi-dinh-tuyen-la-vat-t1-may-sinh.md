@@ -1,4 +1,4 @@
-# ADR 0017 — Bản ghi mốc định tuyến là vật T1 máy sinh; làn trước chữ ký bỏ qua khi cây bằng pin
+# ADR 0019 — Bản ghi mốc định tuyến là vật T1 máy sinh; làn trước chữ ký bỏ qua khi cây bằng pin
 
 2026-09-15 · owner gọi tên vòng meta duy nhất của cửa sổ 2.13 sau khi tự thấy đồng hồ.
 **Số đo:** chữ ký `khoi-tim-loi-tra-phi-theo-vat` (14/09) mất **54 phút · 87 lượt model ·

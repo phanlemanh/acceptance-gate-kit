@@ -204,6 +204,13 @@ const OOC_PROPOSALS = [
 const OOC_ENUM = OOC_PROPOSALS.map(([v]) => v)
 const OOC_GLOSS = OOC_PROPOSALS.map(([v, g]) => `"${v}" (${g})`).join(' hoac ')
 
+// Tên trường mã máy đúc — MỘT nguồn cho tải gửi, lược đồ và bộ ghép. Test rút từ
+// đây (AC-10). Mã do máy đúc, LLM chỉ chép lại một chuỗi ngắn; định danh không còn
+// là đường dẫn dài mà agent hay viết lại.
+// <<<TRIAGE-ID-FIELD
+const TRIAGE_ID_FIELD = 'tid'
+// TRIAGE-ID-FIELD>>>
+
 const TRIAGE_SCHEMA = {
   type: 'object',
   properties: {
@@ -212,6 +219,7 @@ const TRIAGE_SCHEMA = {
       items: {
         type: 'object',
         properties: {
+          [TRIAGE_ID_FIELD]: { type: 'string', description: 'chep NGUYEN VAN ma cua finding (vd t3) — day la KHOA ghep; khong duoc doi, khong duoc danh so lai' },
           title: { type: 'string', description: 'chep NGUYEN VAN title cua finding duoc phan loai' },
           file: { type: 'string', description: 'chep NGUYEN VAN file cua finding — title KHONG duy nhat, (file,title) moi la khoa' },
           inContract: { type: 'boolean', description: 'true CHI khi finding lam mot AC cua contract that bai' },
@@ -220,7 +228,7 @@ const TRIAGE_SCHEMA = {
           plain: { type: 'string', description: 'CHI khi inContract=false: 1-2 cau NGON NGU SAN PHAM mo ta hau qua cho nguoi dung — day la chu THE Cong 2 in ra cho nguoi quyet doc. Cam ten ham, duong dan file, ma thoat, thuat ngu regex/schema. Chuoi rong khi inContract=true' },
           proposal: { type: 'string', enum: [...OOC_ENUM, ''], description: `CHI khi inContract=false: de xuat cho nguoi o Gate 2 — ${OOC_GLOSS}; chuoi rong khi inContract=true` },
         },
-        required: ['title', 'file', 'inContract', 'acRef', 'rationale', 'proposal', 'plain'],
+        required: ['title', 'file', 'inContract', 'acRef', 'rationale', 'proposal', 'plain', TRIAGE_ID_FIELD],
       },
     },
     contractUnreadable: { type: 'boolean', description: 'true khi KHONG doc duoc contract — bat buoc bao that, tuyet doi khong doan phan loai tu tri nho' },
@@ -923,9 +931,12 @@ phase('Triage')
 // T1: phân loại phạm vi TRƯỚC bác bỏ — câu hỏi «có làm một AC thất bại không» độc
 // lập với «có phải lỗi thật không», nên không cần refute trước để trả lời.
 const toTriage = rawFindingsFresh
+toTriage.forEach((f, i) => { f.tid = `t${i + 1}` }) // đúc MỘT lần cho cả trạm (AC-9)
 const hasContract = typeof args.contractPath === 'string' && !!args.contractPath.trim()
 let triageRaw = null
 let triageFailed = false
+// Khai ngoài khối để lượt hỏi lại (bên dưới) gọi được; mặc định «không có gì để gọi».
+let triageOnce = () => Promise.resolve(null)
 if (toTriage.length === 0) {
   triageFailed = false // không có gì để phân loại — không phải thất bại
 } else if (!hasContract) {
@@ -936,7 +947,7 @@ if (toTriage.length === 0) {
     `Ban la nguoi PHAN LOAI PHAM VI, khong phai nguoi tim loi va khong phai nguoi bac bo. Cac finding duoi day CHUA qua bac bo doi khang — dung tranh cai ve tinh dung sai cua chung, buoc bac bo di SAU buoc nay va chi chay cho finding trong hop dong.\n` +
     `Cau hoi duy nhat cho MOI finding: no co lam mot AC (acceptance criterion) trong hop dong that bai khong?\n\n` +
     `Doc hop dong tai ${args.contractPath} (Read). Doc CA section "Out of scope" — muc trong do la bang chung MANH cho inContract=false.\n\n` +
-    `Findings: ${JSON.stringify(toTriage.map(f => ({ title: f.title, file: f.file, line: f.line, severity: f.severity, detail: f.detail })))}\n\n` +
+    `Findings: ${JSON.stringify(toTriage.map(f => ({ [TRIAGE_ID_FIELD]: f.tid, title: f.title, file: f.file, line: f.line, severity: f.severity, detail: f.detail })))}\n\n` +
     `Luat phan loai:\n` +
     `- inContract=true CHI khi chi duoc DICH DANH mot AC ma finding nay lam that bai → acRef = id AC do (vd "AC-3"), proposal = "".\n` +
     `- inContract=false khi finding that nhung khong AC nao phu → acRef = "", proposal = ${OOC_GLOSS}.\n` +
@@ -944,8 +955,20 @@ if (toTriage.length === 0) {
     `- inContract=false: BAT BUOC viet them plain = 1-2 cau NGON NGU SAN PHAM ke hau qua cho NGUOI DUNG (vd "Bam Cap nhat co the lam mat tien ich dang cai"). Day la chu DUY NHAT the Cong 2 in ra cho nguoi quyet doc — title ky thuat KHONG bao gio den duoc mat ho. Cam ten ham, duong dan file, ma thoat, tu ngu regex/schema.\n` +
     `- KHONG doc code repo, KHONG de xuat cach sua. Chi phan loai pham vi.\n` +
     `- KHONG doc duoc contract (Read that bai, file khong ton tai, rong) → tra contractUnreadable=true va triaged=[] . TUYET DOI khong doan phan loai tu tri nho: mot ket qua bia doc y het mot ket qua that.\n` +
-    `Tra ve contractUnreadable=false va triaged[] dung MOT muc cho MOI finding; title VA file chep NGUYEN VAN (title khong duy nhat — hai file khac nhau co the trung title).`
-  const triageOnce = () => agentT(triagePrompt, { label: 'triage', phase: 'Triage', schema: TRIAGE_SCHEMA, ...modelOpt('triage') })
+    `Tra ve contractUnreadable=false va triaged[] dung MOT muc cho MOI finding; ${TRIAGE_ID_FIELD} chep NGUYEN VAN ma da gui (day la KHOA ghep — khong doi, khong danh so lai); title VA file chep NGUYEN VAN (title khong duy nhat — hai file khac nhau co the trung title).`
+  // Lời nhắc cho một danh sách con: cùng luật phân loại, chỉ đổi mảng Findings.
+  const taiGui = ds => `Findings: ${JSON.stringify(ds.map(f => ({ [TRIAGE_ID_FIELD]: f.tid, title: f.title, file: f.file, line: f.line, severity: f.severity, detail: f.detail })))}`
+  // Ghim CHUỖI tải gốc một lần: tính lại từ toTriage mỗi lần gọi thì bất kỳ ai đụng tid
+  // sau đó làm replace trượt và lượt hỏi lại lặng lẽ gửi lại TRỌN danh sách (mutant
+  // đúc-lại-mã của ca ma-giu-nguyen lộ ra đúng đường này).
+  const taiGuiGoc = taiGui(toTriage)
+  // Replacer phải là HÀM: chuỗi thay thế bị JS diễn giải các mẫu $&, $', $` và $$ — mà tải
+  // là JSON của title/detail do reviewer viết, và kho này đầy script shell nên «$$», «$'»
+  // là dữ liệu THẬT. Dạng chuỗi làm khối Findings tự chèn đầu/đuôi lời nhắc vào giữa JSON,
+  // ngay LƯỢT 1 (lượt 1 cũng đi qua đây), và hỏng theo đường LẶNG: tác tử đọc tải méo, trả
+  // thiếu hoặc lệch, không dòng nào gọi tên nguyên nhân. Hai lượt chấm đều bắt (AC-11).
+  const triagePromptFor = ds => triagePrompt.replace(taiGuiGoc, () => taiGui(ds))
+  triageOnce = (ds = toTriage) => agentT(triagePromptFor(ds), { label: 'triage', phase: 'Triage', schema: TRIAGE_SCHEMA, ...modelOpt('triage') })
   triageRaw = await triageOnce().catch(() => null)
   if (!triageRaw) triageRaw = await triageOnce().catch(() => null) // retry 1
   if (!triageRaw || !Array.isArray(triageRaw.triaged)) {
@@ -972,29 +995,61 @@ if (triageRaw && triageRaw.contractUnreadable === true) {
 // còn sống. Đây là khớp LLM-viết→máy-đọc: bỏ LLM ra khỏi định danh của khoá,
 // đừng trông vào việc nó chép nguyên văn một đường dẫn dài.
 // (3/5 round của discovery-brainstorm-socket dính, sổ d-20260806T122000Z-10021.)
+// Vòng do-tin-tram-phan-loai (2.14): ghép BA NẤC, fail-closed từ trên xuống —
+// (1) theo mã máy đúc; (2) khoá tệp::tiêu đề như cũ; (3) lưới tiêu đề
+// duy-nhất-cả-hai-phía như cũ. Hai lưới chống tin mù cho nấc 1: mã LẠ (không trong
+// tập gửi) là dòng THỪA — bỏ và gọi tên, không ghép sang ai; mã khớp mà TIÊU ĐỀ lệch
+// thì không ghép — mã là định danh, tiêu đề là chữ ký kiểm (AC-1, AC-2, AC-3).
+// Gỡ-mơ-hồ bằng title (nấc 3): CHỈ khi title duy nhất ở CẢ HAI phía; đếm theo khoá
+// PHÂN BIỆT chứ không theo số lượt — ba lane cùng báo một lỗi không phải "mơ hồ".
 const triageKey = t => `${relFile(t)} :: ${t.title}`
-const triageRows = ((triageRaw && Array.isArray(triageRaw.triaged)) ? triageRaw.triaged : [])
-  .filter(t => t && typeof t.title === 'string')
-const triageByKey = new Map(triageRows.map(t => [triageKey(t), t]))
-// Gỡ-mơ-hồ bằng title: agent có thể viết lại path hẳn (rút gọn, đổi thư mục)
-// chứ không chỉ đổi dạng. CHỈ dùng khi title là duy nhất ở CẢ HAI phía — lúc đó
-// chỉ tồn tại đúng một cách ghép, không phải phỏng đoán. Title trùng (chuyện
-// thường giữa hai lane: "missing validation") → không đoán, để fail-toward-human.
-// Đếm theo khoá PHÂN BIỆT chứ không theo số lượt: ba lane reviewer cùng báo một
-// lỗi là chuyện thường và KHÔNG được đọc thành "title mơ hồ" (đọc vậy thì nhánh
-// gỡ-mơ-hồ tắt đúng lúc cần nhất — ca một-lỗi-ba-lane là ca phổ biến nhất).
-const distinctByTitle = arr => arr.reduce((m, x) => {
-  if (!m.has(x.title)) m.set(x.title, new Set())
-  m.get(x.title).add(triageKey(x))
-  return m
-}, new Map())
-const rowsByTitle = distinctByTitle(triageRows)
-const findingsByTitle = distinctByTitle(toTriage)
-const unique = (m, title) => (m.get(title) || new Set()).size === 1
-const matchTriage = f => triageByKey.get(triageKey(f))
-  || ((unique(rowsByTitle, f.title) && unique(findingsByTitle, f.title))
-    ? triageRows.find(t => t.title === f.title)
-    : undefined)
+const ghepTriage = (rowsRaw, sent) => {
+  const sentTids = new Set(sent.map(f => f.tid))
+  // Dòng mang mã LẠ là dòng THỪA: bỏ khỏi TOÀN BỘ bộ ghép — kể cả nấc 2/3 — chứ không chỉ
+  // khỏi nấc mã (lượt chấm 1 bắt: nó vẫn ghép qua khoá tệp::tiêu đề trong khi log nói «không
+  // ghép sang ai»). Dòng KHÔNG mang mã (bên gửi đời cũ) vẫn đi nấc 2/3 như trước.
+  const rows = rowsRaw.filter(r => {
+    if (!r[TRIAGE_ID_FIELD] || sentTids.has(r[TRIAGE_ID_FIELD])) return true
+    log(`Triage: ma la ${r[TRIAGE_ID_FIELD]} — bo dong thua, khong ghep sang ai`)
+    return false
+  })
+  const byTid = new Map(rows.filter(r => sentTids.has(r[TRIAGE_ID_FIELD])).map(r => [r[TRIAGE_ID_FIELD], r]))
+  const byKey = new Map(rows.map(t => [triageKey(t), t]))
+  const distinctByTitle = arr => arr.reduce((m, x) => {
+    if (!m.has(x.title)) m.set(x.title, new Set())
+    m.get(x.title).add(triageKey(x))
+    return m
+  }, new Map())
+  const rowsByTitle = distinctByTitle(rows)
+  const sentByTitle = distinctByTitle(sent)
+  const unique = (m, title) => (m.get(title) || new Set()).size === 1
+  const byFinding = new Map()
+  for (const f of sent) {
+    const r1 = byTid.get(f.tid)
+    const r = (r1 && String(r1.title || '').trim() === String(f.title || '').trim()) ? r1
+      : byKey.get(triageKey(f))
+      || ((unique(rowsByTitle, f.title) && unique(sentByTitle, f.title)) ? rows.find(t => t.title === f.title) : undefined)
+    if (r) byFinding.set(distinctKey(f), r)
+  }
+  const thieu = sent.filter(f => !byFinding.has(distinctKey(f)))
+  return { byFinding, thieu }
+}
+const rowsOf = raw => ((raw && Array.isArray(raw.triaged)) ? raw.triaged : []).filter(t => t && typeof t.title === 'string')
+let { byFinding, thieu } = ghepTriage(rowsOf(triageRaw), toTriage)
+// Hỏi lại ĐÚNG MỘT lần, chỉ phần còn thiếu, mang MÃ CŨ (AC-4, AC-9): ghepTriage tính
+// tập mã hợp lệ từ chính `thieu`, nên một dòng lượt 2 mang mã ngoài tập đang hỏi tự
+// thành mã lạ. Tác tử chết hay vẫn thiếu → rơi về luật fail-toward-human bên dưới,
+// không thử lần ba (AC-6). Lượt 1 đủ thì không có lượt này (AC-5).
+if (thieu.length && !triageFailed) {
+  log(`Triage: thieu ${thieu.length}/${toTriage.length} muc sau luot 1 — hoi lai MOT lan chi cac muc thieu`)
+  let triageRaw2 = null
+  triageRaw2 = await triageOnce(thieu).catch(() => null)
+  if (triageRaw2 && triageRaw2.contractUnreadable === true) triageFailed = true
+  const g2 = ghepTriage(rowsOf(triageRaw2), thieu)
+  for (const [k, r] of g2.byFinding) byFinding.set(k, r)
+  thieu = g2.thieu
+}
+const matchTriage = f => byFinding.get(distinctKey(f))
 // Finding gửi đi mà agent KHÔNG trả về → unclassified (không mặc định in/out).
 const triagedRaw = toTriage.map(f => {
   const t = matchTriage(f)

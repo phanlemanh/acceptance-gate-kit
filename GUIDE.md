@@ -1072,7 +1072,7 @@ nghĩa là lưới sẽ không gọi hồ sơ này stale. **Fail-CLOSED ba chỗ
 phép đo nào nên không có tư cách ghi pin); `verified_commit` vắng hoặc trỏ SHA
 không có trong kho → KHÔNG bỏ qua, in lý do, chạy trọn; cây đã đổi sau verify →
 chạy trọn và luật đỏ không đổi một li, nên vụ sinh ra bước 7b
-(`duong-lui-phai-song`) vẫn bị bắt. Cờ này đi cùng **ADR 0017** — bản ghi mốc
+(`duong-lui-phai-song`) vẫn bị bắt. Cờ này đi cùng **ADR 0019** — bản ghi mốc
 định tuyến của kho kit thành vật T1 máy sinh, dòng của nó sinh ở bước 7a-bis của
 `/acceptance-gate:signoff` — vì thiếu vế đó thì tệp baseline (là code) bẩn ở mọi lượt ký và
 không lượt nào bỏ qua được.

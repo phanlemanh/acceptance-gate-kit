@@ -85,13 +85,13 @@ evals:
     criterion: AC-6
     executor: script
     cmd: config:executors.script.ckh_sk_lenh_tu_khoi
-    paths: [commands/signoff.md, feature-loop/scripts/repin-lane.mjs, docs/adr/0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, GUIDE.md, CHANGELOG.md, tests/scripts/repin-lane-skip-unchanged.test.mjs]
+    paths: [commands/signoff.md, feature-loop/scripts/repin-lane.mjs, docs/adr/0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, GUIDE.md, CHANGELOG.md, tests/scripts/repin-lane-skip-unchanged.test.mjs]
     expected: >
       Exit 0 và đầu ra có «PASS: SK5 lenh 7b rut tu SIGNOFF-LANE-CLAUSE chay o trang thai
       hau-buoc-6 -> skipped». Kho fixture dựng ĐÚNG trạng thái ghép của một lượt ký thật:
       human_signoff vừa ghi CHƯA commit + dòng baseline vừa sinh bằng chính
       routing-baseline.mjs --write CHƯA commit (không gõ tay) — trạng thái mà (d) và (c′)
-      chỉ cùng nhau mới tạo ra. Cùng tệp ca SK6 (ADR 0017 tồn tại và nêu «ADR 0007»,
+      chỉ cùng nhau mới tạo ra. Cùng tệp ca SK6 (ADR 0019 tồn tại và nêu «ADR 0007»,
       GUIDE §7.1 và CHANGELOG có «--skip-unchanged»). Chiều đỏ: xoá cờ khỏi khối → SK5 đỏ
       vì làn chạy trọn thay vì bỏ qua (kết quả không skipped); gỡ baseline khỏi
       t1_skip_globs → SK5 đỏ vì tệp bẩn ấy làm vị từ khác rỗng.
@@ -112,12 +112,12 @@ evals:
     criterion: AC-7
     executor: script
     cmd: config:executors.script.ckh_rb_ba_cho_tu_phan
-    paths: [commands/signoff.md, skills/acceptance/SKILL.md, docs/adr/0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, GUIDE.md, tests/scripts/gate-card-lmcms.test.mjs, tests/scripts/routing-baseline-t1.test.mjs]
+    paths: [commands/signoff.md, skills/acceptance/SKILL.md, docs/adr/0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, GUIDE.md, tests/scripts/gate-card-lmcms.test.mjs, tests/scripts/routing-baseline-t1.test.mjs]
     expected: >
       Exit 0 và đầu ra có «PASS: RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 het ten buoc cu (ke ca
       trong tep ca), A3 bo loc fail-CLOSED». Ba vế đo ba cách khác nhau: A1 so QUAN HỆ hai
       bản chép + vắng câu tiền đề vô điều kiện + có chữ «CHỈ KHI»; A2 quét ba văn bản của
-      kit — signoff.md, ADR 0017, GUIDE VÀ CẢ HAI TỆP CA — không còn tên bước cũ; A3 CHẠY THẬT tệp ca LM
+      kit — signoff.md, ADR 0019, GUIDE VÀ CẢ HAI TỆP CA — không còn tên bước cũ; A3 CHẠY THẬT tệp ca LM
       với LMCMS_ONLY không khớp ca nào và đòi exit 2 kèm thông điệp — không phải exit 0.
       Ba mutant đã chạy và đều ĐỎ đúng ca này: trả lại câu vô điều kiện · GUIDE trỏ lại
       GUIDE trỏ lại tên cũ · gỡ sàn fail-closed · trả tên cũ vào TỆP CA.
