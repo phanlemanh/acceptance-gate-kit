@@ -13,7 +13,7 @@ chứng hoá cũ và bắt ghim lại — đúng vòng lặp «commit chữ ký 
 pre-merge chặn không lối ra» mà **ADR 0007** đã giải một lần cho `PRODUCT-MAP.md`; bản
 ghi định tuyến ra đời sau (03/09) nên chưa được xếp cùng lớp. **Quyết, hai vế:**
 (1) `tests/scripts/fixtures/routing-baseline.txt` vào `risk_tiers.t1_skip_globs`, và dòng
-của nó do `tests/scripts/routing-baseline.mjs --slug <s> --write` sinh ở **bước 6b** của
+của nó do `tests/scripts/routing-baseline.mjs --slug <s> --write` sinh ở **bước 7a-bis** (ngay sau 7a, vì nó đọc `human_signoff` làm tiền điều kiện) của
 `/signoff`, cùng lượt với bản đồ, kèm ca LM20 chạy ngay sau làm đối chứng dương — lệnh
 sinh **xuất** `routingLine` và `settled` mà chính LM20 **nhập**, nên writer và reader có
 một nguồn thay vì hai khuôn trôi khỏi nhau; (2) `repin-lane.mjs` nhận cờ tường minh

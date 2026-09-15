@@ -6,7 +6,7 @@
 //   RB1b — CHIỀU ĐỎ: gỡ glob → đúng VIOLATION stale, gọi tên tệp bản ghi mốc
 //   RB2* — lệnh sinh: đúng một dòng của slug; dòng khác + comment nguyên văn;
 //          đối chứng dương là CA LM20 THẬT chạy trên kho fixture, không phải bản chép.
-//   RB3  — hai văn bản lệnh cổng: bước 6b, 7c, và hai bản chép bằng nhau từng ký tự.
+//   RB3  — hai văn bản lệnh cổng: bước 7a-bis, 7c, và hai bản chép bằng nhau từng ký tự.
 // Pin của kho fixture do CHÍNH repin-lane.mjs --write ghi (writer thật).
 import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, existsSync } from 'node:fs';
@@ -202,9 +202,9 @@ check('RB3 signoff.md buoc 6 goi lenh sinh, 7c them tep; SKILL chep khoi SIGNOFF
   {
     const a = so.indexOf('**7a-bis — bản ghi mốc'), b = so.indexOf('**7b — làn máy TRƯỚC chữ ký');
     assert.ok(a > 0 && b > a, 'neo đoạn bước sinh trôi — assert dưới sẽ hoá rỗng im lặng');
-    assert.doesNotMatch(so.slice(a, b), /vài giây/, 'bước sinh không được khai «vài giây» — đo thật là ≈1 ph 45 s');
+    assert.doesNotMatch(so.slice(a, b), /vài giây/, 'bước 7a-bis không được khai «vài giây» — đo thật là ≈1 ph 45 s');
   }
-  assert.match(so, /1 ph 45 s/, 'bước 6b phải nêu số đo thật của chính nó');
+  assert.match(so, /1 ph 45 s/, 'bước 7a-bis phải nêu số đo thật của chính nó');
   assert.match(so, /git add[^\n]*routing-baseline\.txt|routing-baseline\.txt[^\n]*git add|thêm ` tests\/scripts\/fixtures\/routing-baseline\.txt`/, '7c phải đưa bản ghi mốc vào commit chữ ký');
   const pat = /<!-- <<<SIGNOFF-LANE-CLAUSE -->\n([\s\S]*?)<!-- SIGNOFF-LANE-CLAUSE>>> -->/;
   const a = (so.match(pat) || [])[1], b = (sk.match(pat) || [])[1];
@@ -212,6 +212,28 @@ check('RB3 signoff.md buoc 6 goi lenh sinh, 7c them tep; SKILL chep khoi SIGNOFF
   assert.equal(a, b, 'lệch bản chép: khối SIGNOFF-LANE-CLAUSE ở SKILL.md khác bản gốc ở signoff.md');
   assert.match(a, /--skip-unchanged/, 'khối gốc phải mang cờ --skip-unchanged');
   assert.match(a, /cây BẰNG PIN|cây bằng pin/, 'khối gốc phải nói ca cây bằng pin tự bỏ qua');
+});
+
+check('RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 khong con ten «buoc 6b», A3 bo loc fail-CLOSED', () => {
+  const so = readFileSync(SIGNOFF, 'utf8'), sk = readFileSync(SKILL, 'utf8');
+  const pat = /<!-- <<<SIGNOFF-LANE-CLAUSE -->\n([\s\S]*?)<!-- SIGNOFF-LANE-CLAUSE>>> -->/;
+  const blk = (so.match(pat) || [])[1] || '';
+  // A1 — câu tiền đề vô điều kiện phải biến mất, thay bằng điều kiện đọc từ lưới.
+  assert.doesNotMatch(blk, /Sau commit, lưới trước-merge báo `evidence is stale` cho CHÍNH slug \(commit chữ ký chạm file ngoài T1\)/,
+    'khối vẫn khẳng định vô điều kiện «commit chữ ký chạm file ngoài T1» — sau ADR 0017 tiền đề đó sai ở đúng ca vòng này nhắm');
+  assert.match(blk, /CHỈ KHI/, 'khối phải nói ghim lại là CÓ ĐIỀU KIỆN');
+  assert.equal(blk, (sk.match(pat) || [])[1], 'lệch bản chép sau khi sửa A1');
+  // A2 — một tên trỏ một bước, trên MỌI văn bản của kit nói về nó.
+  for (const [ten, txt] of [['commands/signoff.md', so],
+                            ['docs/adr/0017', readFileSync(path.join(ROOT, 'docs', 'adr', '0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md'), 'utf8')],
+                            ['GUIDE.md', readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8')]]) {
+    assert.doesNotMatch(txt, /bước 6b/, `${ten} còn trỏ «bước 6b» — bước đó không tồn tại, bên thi hành sẽ bỏ sót git add`);
+  }
+  assert.match(so, /7a-bis/, 'signoff.md phải gọi bước sinh bằng đúng tên 7a-bis');
+  // A3 — CHIỀU ĐỎ chạy thật: bộ lọc không khớp ca nào phải exit 2, không phải 0.
+  const r0 = spawnSync(process.execPath, [LMCMS], { encoding: 'utf8', env: { ...process.env, LMCMS_ONLY: 'ZZZ-khong-co-ca-nao' } });
+  assert.equal(r0.status, 2, `bộ lọc khớp 0 ca phải exit 2 (thấy ${r0.status}) — cổng ký dùng chính lệnh này làm đối chứng dương`);
+  assert.match(r0.stderr, /không khớp ca nào/);
 });
 
 check('RB3-IM: sua mot dong NGOAI khoi va ngoai buoc 6/7c -> RB3 van XANH (rang do QUAN HE, khong ghim chuoi co dinh)', () => {

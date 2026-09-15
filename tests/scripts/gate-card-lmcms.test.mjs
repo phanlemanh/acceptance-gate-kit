@@ -366,4 +366,13 @@ check('LM19 khoi VIEC-CUA-ANH tren THE dung dung bo o hoi cua routing', () => {
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-lmcms)`);
+// SÀN FAIL-CLOSED cho bộ lọc: `LMCMS_ONLY` khớp 0 ca mà vẫn exit 0 thì một cổng
+// dùng lệnh này làm ĐỐI CHỨNG DƯƠNG (bước 7a-bis của /signoff) sẽ xanh trên 0 ca —
+// đúng lớp «xanh không phân biệt được bắt-đúng-lỗi với chưa-bao-giờ-chạy». Cùng
+// hình dạng sàn đã có ở tests/scripts/run-tests.sh («có ít nhất một *.test.mjs
+// được chạy»). Ca đổi tên hay gõ nhầm ONLY → exit 2, không phải exit 0.
+if (ONLY && passed + failed === 0) {
+  console.error(`gate-card-lmcms: LMCMS_ONLY=«${ONLY}» không khớp ca nào — 0 ca chạy. Đây KHÔNG phải một lượt xanh: sửa tên ca hoặc bỏ biến, rồi chạy lại.`);
+  process.exit(2);
+}
 process.exit(failed ? 1 : 0);

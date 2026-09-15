@@ -108,3 +108,17 @@ evals:
       nhặt (đổi tên ngoài khuôn *.test.mjs) → E7 đỏ dù suite vẫn exit 0. Và không ca cũ
       nào đỏ (LM20 vẫn xanh trên xưởng thật: hồ sơ này chưa ký nên không vào baseline).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ckh_rb_ba_cho_tu_phan
+    paths: [commands/signoff.md, skills/acceptance/SKILL.md, docs/adr/0017-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, GUIDE.md, tests/scripts/gate-card-lmcms.test.mjs, tests/scripts/routing-baseline-t1.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 khong con
+      ten «buoc 6b», A3 bo loc fail-CLOSED». Ba vế đo ba cách khác nhau: A1 so QUAN HỆ hai
+      bản chép + vắng câu tiền đề vô điều kiện + có chữ «CHỈ KHI»; A2 quét ba văn bản của
+      kit (signoff.md, ADR 0017, GUIDE) không còn chuỗi «bước 6b»; A3 CHẠY THẬT tệp ca LM
+      với LMCMS_ONLY không khớp ca nào và đòi exit 2 kèm thông điệp — không phải exit 0.
+      Ba mutant đã chạy và đều ĐỎ đúng ca này: trả lại câu vô điều kiện · GUIDE trỏ lại
+      «bước 6b» · gỡ sàn fail-closed.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

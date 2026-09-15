@@ -117,6 +117,26 @@ tệp baseline bẩn không cản, vì nó đã là T1; đổi cờ ở khối l
 dặn. **And** ADR 0017 tồn tại (một đoạn, nới danh sách ADR 0007 đúng một tên kèm điều
 kiện thu hồi), GUIDE §7.1 và CHANGELOG mục chưa phát hành nêu hai nhát.
 
+### AC-7 — Ba chỗ mà chính hai nhát cắt tự phản lại mình (owner nâng phạm vi 15/09, lượt chấm 3)
+
+**Given** `commands/signoff.md`, bản chép trong `skills/acceptance/SKILL.md`, và
+`tests/scripts/gate-card-lmcms.test.mjs`
+**When** đọc khối `SIGNOFF-LANE-CLAUSE`, điều kiện `git add` ở 7c, và chạy tệp ca LM
+với một `LMCMS_ONLY` không khớp ca nào
+**Then** cả ba vế đúng:
+- **(A1) Ghim lại sau commit là CÓ ĐIỀU KIỆN.** Khối không còn khẳng định vô điều kiện
+  rằng commit chữ ký chạm tệp ngoài T1; nó nói rõ ghim lại **chỉ khi** lưới thật sự báo
+  `evidence is stale`, và nêu rằng sau ADR 0017 ca THƯỜNG là không stale nên bước ấy bỏ
+  qua — chạy `--write` lúc đó là trả lại đúng khoản phút `--skip-unchanged` vừa cắt.
+  Hai bản chép vẫn bằng nhau từng ký tự.
+- **(A2) Không văn bản nào của kit còn trỏ «bước 6b».** Bước sinh bản ghi mốc tên
+  **7a-bis** ở mọi nơi nói về nó: `commands/signoff.md` (thân bước và điều kiện 7c),
+  `docs/adr/0017-…md`, `GUIDE.md`, và comment/thông điệp của tệp ca — một tên trỏ một
+  bước, để bên thi hành không đi tìm một bước không tồn tại rồi bỏ sót `git add`.
+- **(A3) Bộ lọc ca fail-CLOSED.** `LMCMS_ONLY` khớp 0 ca → **exit 2** kèm thông điệp gọi
+  tên giá trị đã truyền, KHÔNG phải exit 0; đối chứng dương của bước 7a-bis không thể
+  xanh trên 0 ca. Đối chứng dương: `LMCMS_ONLY=LM20` vẫn chạy đúng một ca và exit 0.
+
 ## Coverage
 
 Bỏ coverage-scan — entry `descope` trong `decisions.jsonl` (d-…-1): không gian AC không

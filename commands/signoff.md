@@ -203,7 +203,7 @@ Steps:
    node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --allow-dirty --skip-unchanged
    ```
    `--skip-unchanged`: cây BẰNG PIN (0 tệp git-theo-dõi ngoài `_acceptance/` và `risk_tiers.t1_skip_globs` đổi so `verified_commit` — đúng vị từ `stale_files` của lưới trước-merge) → làn TỰ BỎ QUA, in một dòng «cây bằng pin … làn bỏ qua», exit 0, không chạy suite nào. Đó là ca của mọi lượt ký mà vật đã xanh từ lượt chấm: chữ ký chỉ chạm vật hồ sơ và bản ghi mốc T1, nên không có gì để chứng lại. Cây ĐÃ ĐỔI sau verify → làn chạy TRỌN và luật đỏ dưới đây không đổi một li.
-   Làn đỏ (exit ≠ 0) → KHÔNG commit chữ ký, in nguyên văn dòng đỏ, dừng lệnh — người sửa vật rồi gọi lại. Làn xanh (hoặc bỏ qua) → commit (7c). Sau commit, lưới trước-merge báo `evidence is stale` cho CHÍNH slug (commit chữ ký chạm file ngoài T1) → ghim lại trong CÙNG lượt rồi chạy lưới lại, TRƯỚC khi báo READY:
+   Làn đỏ (exit ≠ 0) → KHÔNG commit chữ ký, in nguyên văn dòng đỏ, dừng lệnh — người sửa vật rồi gọi lại. Làn xanh (hoặc bỏ qua) → commit (7c). Sau commit, ghim lại **CHỈ KHI** lưới trước-merge THẬT SỰ báo `evidence is stale` cho CHÍNH slug — đọc kết quả lưới, không suy từ lời dặn. Sau ADR 0017 ca THƯỜNG là KHÔNG stale: commit chữ ký chỉ chạm vật hồ sơ (`_acceptance/<slug>/*`) và tệp T1 (bản đồ sản phẩm, bản ghi mốc định tuyến), nên lưới im và bước này bỏ qua hoàn toàn — chạy `--write` lúc đó là trả lại đúng khoản phút mà `--skip-unchanged` vừa cắt. Có VIOLATION thật thì ghim lại trong CÙNG lượt rồi chạy lưới lại, TRƯỚC khi báo READY:
    ```bash
    node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --reason "hoá cũ do chính commit chữ ký" --write
    ```
@@ -225,7 +225,7 @@ Steps:
    Repo opted in (step 6 regenerated the map) → append ` PRODUCT-MAP.md` to that
    `git add`. Repo NOT opted in → leave it out: the file does not exist there and
    naming it makes `git add` fail with a pathspec error mid-signature. Kho TỰ HOST
-   kit (bước 6b đã chạy) → thêm ` tests/scripts/fixtures/routing-baseline.txt` vào
+   kit (bước **7a-bis** đã chạy) → thêm ` tests/scripts/fixtures/routing-baseline.txt` vào
    cùng `git add`: dòng vừa sinh phải đi CÙNG commit chữ ký, vì tách ra là đúng
    cái commit-sau-verify mà ADR 0017 gỡ.
 
