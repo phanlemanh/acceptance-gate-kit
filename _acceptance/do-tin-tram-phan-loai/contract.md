@@ -5,7 +5,7 @@ slug: do-tin-tram-phan-loai
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/workflows + tests/workflows; KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-09-15-do-tin-tram-phan-loai-design.md
 approved_by: Mạnh
 approved_at: 2026-09-15

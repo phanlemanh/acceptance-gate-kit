@@ -304,6 +304,20 @@ executors:
     p93_theo_git_im: bash _acceptance/release-2-13-0/rang-p93.sh --chan im
     p93_theo_git_do: bash _acceptance/release-2-13-0/rang-p93.sh --chan do
     plugins_so_ca_2_13: bash _acceptance/release-2-13-0/rang-so-ca.sh
+    rang_triage_ma_may_duc: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan ma-may-duc
+    rang_triage_chu_ky_kiem: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan chu-ky-kiem
+    rang_triage_ma_la: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan ma-la
+    rang_triage_hoi_lai: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan hoi-lai
+    rang_triage_im: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan im
+    rang_triage_van_thieu: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan van-thieu
+    rang_triage_hoi_lai_chet: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan hoi-lai-chet
+    rang_triage_dong_so: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan dong-so
+    rang_triage_bo_doc_bo_qua: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan bo-doc-bo-qua
+    rang_triage_tap_rong: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan tap-rong
+    rang_triage_tac_tu_chet: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan tac-tu-chet
+    rang_triage_hop_dong_khong_doc_duoc: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan hop-dong-khong-doc-duoc
+    rang_triage_ma_giu_nguyen: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan ma-giu-nguyen
+    rang_triage_seam_ma: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan seam-ma
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

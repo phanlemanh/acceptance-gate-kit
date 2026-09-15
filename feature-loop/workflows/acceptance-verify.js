@@ -1041,6 +1041,13 @@ if (thieu.length && !triageFailed) {
   thieu = g2.thieu
 }
 const matchTriage = f => byFinding.get(distinctKey(f))
+// Dòng sổ của trạm (AC-7): mốc phát hành đọc dòng 3–5 của luật (c) cho nhát cắt này từ
+// đây, không đếm tay từ transcript. KHÔNG run_id → mọi bộ đọc bằng chứng bỏ qua, cùng
+// đường với dòng finding/panel/baseline; ma trận bộ đọc có ca riêng (E7b).
+// <<<TRIAGE-LINE
+const triageStat = { sent: toTriage.length, matched_pass1: matched1, reasked, matched_final: toTriage.length - thieu.length, failed: triageFailed || thieu.length > 0 }
+runLogLines.push(JSON.stringify({ ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'triage', ...triageStat }))
+// TRIAGE-LINE>>>
 // Finding gửi đi mà agent KHÔNG trả về → unclassified (không mặc định in/out).
 const triagedRaw = toTriage.map(f => {
   const t = matchTriage(f)
