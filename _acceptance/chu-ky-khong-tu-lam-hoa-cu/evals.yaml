@@ -1,0 +1,124 @@
+# evals — chu-ky-khong-tu-lam-hoa-cu
+# Mỗi eval ghim MỘT DÒNG PASS riêng của tệp ca (pipefail + grep) — «tệp xanh» và «ca này
+# xanh» phân biệt được, eval đỏ trên baseline (dòng chưa tồn tại ở cây gốc).
+# Hai tệp ca mới, cả hai dựng kho git CODE-SINH trong chính lần chạy:
+#   tests/scripts/routing-baseline-t1.test.mjs        — RB*: nhát (d)
+#   tests/scripts/repin-lane-skip-unchanged.test.mjs  — SK*: nhát (c′)
+schema_version: 1
+feature_slug: chu-ky-khong-tu-lam-hoa-cu
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ckh_rb_t1_stale
+    paths: [_acceptance/config.yaml, tests/scripts/routing-baseline-t1.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: RB1 baseline trong T1: commit chi cham baseline + _acceptance
+      -> pre-merge 0 stale». Cùng tệp ca RB1b (chiều đỏ: config KHÔNG có glob → pre-merge
+      in «VIOLATION [<slug>]: evidence is stale» và nêu tên routing-baseline.txt). Kho
+      fixture code-sinh, pre-merge-check.sh chạy thật trên nó; config của kit thật cũng
+      được đọc bằng resolveConfigList để khẳng định glob có mặt (RB0).
+      Pin của hồ sơ fixture do CHÍNH repin-lane.mjs --write ghi trong lần chạy đó (writer
+      thật, không dựng tay theo khuôn bên đọc) — gap-probe F5.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ckh_rb_sinh_dong
+    paths: [tests/scripts/routing-baseline.mjs, tests/scripts/gate-card-lmcms.test.mjs, tests/scripts/routing-baseline-t1.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: RB2 sinh dong: them dung mot dong cua slug, dong khac
+      va comment nguyen van, idempotent». Cùng tệp ca: RB2b (đối chứng dương — gọi ĐÚNG
+      ca LM20 của tests/scripts/gate-card-lmcms.test.mjs trỏ vào kho fixture qua tham
+      số/env, KHÔNG hardcode ROOT và KHÔNG chép phép so; đầu ra phải có «PASS: LM20»),
+      RB2c (chiều im — dòng của hồ sơ khác bị sửa tay vẫn NGUYÊN sau khi sinh cho slug X),
+      RB2d (chưa settled → exit 2, thông điệp nêu slug + «chưa ký», tệp không đổi),
+      RB2e (round-trip: LM20 nhập CẢ routingLine LẪN settled từ routing-baseline.mjs —
+      kiểm bằng import thật, không grep), RB2f (gate-card --extract thoát khác 0 hoặc trả
+      JSON hỏng → lệnh exit khác 0 gọi tên slug, tệp byte-giống hệt trước, không dòng
+      «undefined»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ckh_rb_signoff_van_ban
+    paths: [commands/signoff.md, skills/acceptance/SKILL.md, tests/scripts/routing-baseline-t1.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: RB3 signoff.md buoc 7a-bis goi lenh sinh, 7c them tep; SKILL chep khoi
+      SIGNOFF-LANE-CLAUSE bang tung ky tu». Chiều đỏ: sửa một
+      ký tự trong bản chép ở SKILL.md → RB3 đỏ nêu «lệch bản chép»; khối gốc thiếu
+      «--skip-unchanged» → RB3 đỏ; bước 7a-bis thiếu câu chạy tệp ca LM20 làm đối chứng dương
+      trong luồng thật → RB3 đỏ.
+      Chiều IM (dưới ngưỡng → KHÔNG nổ): sửa một ký tự ở khối GỐC rồi chép y hệt sang
+      SKILL.md → RB3 vẫn XANH — răng đo QUAN HỆ bằng-nhau giữa hai bản, không ghim một
+      chuỗi cố định; và sửa một dòng của signoff.md NGOÀI khối + ngoài bước 7a-bis/7c → RB3
+      vẫn XANH.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ckh_sk_bo_qua
+    paths: [feature-loop/scripts/repin-lane.mjs, feature-loop/scripts/carry-plan.mjs, tests/scripts/repin-lane-skip-unchanged.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: SK1 cay bang pin: skipped=true, mot dong stderr, suite
+      KHONG chay, khong ghi gi». Cùng tệp ca: SK1b — ma trận 4 ô của loại-trừ-theo-phân-đoạn,
+      4 assert viết trước: (1) _acceptance/<slug>/evidence-report.md (sâu 2) bẩn ·
+      (2) pkg/a/_acceptance/<slug>/x.jsonl (monorepo) bẩn · (3) docs/x.md (T1) bẩn → cả ba
+      vẫn skipped=true; (4) _acceptance-x/y.md (tiền tố giả) bẩn → KHÔNG bỏ qua. Rồi SK2
+      (chiều đỏ — tệp vật đổi trong cây làm việc → không bỏ qua, LÀN ĐỎ gọi tên feat/E1,
+      dấu vết suite có), SK2b (commit sau pin chạm tệp vật → không bỏ qua). Pin do chính
+      repin-lane --write ghi trong cùng lần chạy; assert sha trong JSON skip == SHA writer
+      vừa ghi. Suite fixture ghi dấu vết (tệp marker) để «không chạy» đo được, không suy
+      từ thời gian.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ckh_sk_fail_closed
+    paths: [feature-loop/scripts/repin-lane.mjs, tests/scripts/repin-lane-skip-unchanged.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: SK3 --skip-unchanged + --write -> usage exit 3». Cùng
+      tệp ca SK4 (verified_commit vắng → không bỏ qua, log lý do, làn chạy) và SK4b (SHA
+      ma không có trong kho → không bỏ qua). Chiều đỏ: gỡ vế loại trừ hai cờ → SK3 đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ckh_sk_lenh_tu_khoi
+    paths: [commands/signoff.md, feature-loop/scripts/repin-lane.mjs, docs/adr/0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, GUIDE.md, CHANGELOG.md, tests/scripts/repin-lane-skip-unchanged.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: SK5 lenh 7b rut tu SIGNOFF-LANE-CLAUSE chay o trang thai
+      hau-buoc-6 -> skipped». Kho fixture dựng ĐÚNG trạng thái ghép của một lượt ký thật:
+      human_signoff vừa ghi CHƯA commit + dòng baseline vừa sinh bằng chính
+      routing-baseline.mjs --write CHƯA commit (không gõ tay) — trạng thái mà (d) và (c′)
+      chỉ cùng nhau mới tạo ra. Cùng tệp ca SK6 (ADR 0019 tồn tại và nêu «ADR 0007»,
+      GUIDE §7.1 và CHANGELOG có «--skip-unchanged»). Chiều đỏ: xoá cờ khỏi khối → SK5 đỏ
+      vì làn chạy trọn thay vì bỏ qua (kết quả không skipped); gỡ baseline khỏi
+      t1_skip_globs → SK5 đỏ vì tệp bẩn ấy làm vị từ khác rỗng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [tests/scripts/**]
+    expected: >
+      Suite tests/scripts exit 0 VÀ đầu ra suite chứa CẢ «PASS: RB1» LẪN «PASS: SK1» —
+      lệnh chạy theo nếp pipefail + grep hai chuỗi đó, nên «suite xanh» không thay được
+      «hai tệp ca mới đã thật sự chạy trong suite». Chiều đỏ: tệp ca không được runner
+      nhặt (đổi tên ngoài khuôn *.test.mjs) → E7 đỏ dù suite vẫn exit 0. Và không ca cũ
+      nào đỏ (LM20 vẫn xanh trên xưởng thật: hồ sơ này chưa ký nên không vào baseline).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ckh_rb_ba_cho_tu_phan
+    paths: [commands/signoff.md, skills/acceptance/SKILL.md, docs/adr/0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, GUIDE.md, tests/scripts/gate-card-lmcms.test.mjs, tests/scripts/routing-baseline-t1.test.mjs]
+    expected: >
+      Exit 0 và đầu ra có «PASS: RB4 A1 ghim lai sau commit la CO DIEU KIEN, A2 het ten buoc cu (ke ca
+      trong tep ca), A3 bo loc fail-CLOSED». Ba vế đo ba cách khác nhau: A1 so QUAN HỆ hai
+      bản chép + vắng câu tiền đề vô điều kiện + có chữ «CHỈ KHI»; A2 quét ba văn bản của
+      kit — signoff.md, ADR 0019, GUIDE VÀ CẢ HAI TỆP CA — không còn tên bước cũ; A3 CHẠY THẬT tệp ca LM
+      với LMCMS_ONLY không khớp ca nào và đòi exit 2 kèm thông điệp — không phải exit 0.
+      Ba mutant đã chạy và đều ĐỎ đúng ca này: trả lại câu vô điều kiện · GUIDE trỏ lại
+      GUIDE trỏ lại tên cũ · gỡ sàn fail-closed · trả tên cũ vào TỆP CA.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

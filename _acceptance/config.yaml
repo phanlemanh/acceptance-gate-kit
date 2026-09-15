@@ -317,6 +317,14 @@ executors:
     rang_triage_ma_giu_nguyen: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan ma-giu-nguyen
     rang_triage_seam_ma: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan seam-ma
     rang_triage_ky_tu_do_la: bash _acceptance/do-tin-tram-phan-loai/rang-triage.sh --chan ky-tu-do-la
+    # --- chu-ky-khong-tu-lam-hoa-cu (15/09) --- moi eval ghim MOT dong PASS rieng
+    ckh_rb_t1_stale: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB1 baseline trong T1\"'"
+    ckh_rb_sinh_dong: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB2 sinh dong\"'"
+    ckh_rb_signoff_van_ban: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB3 signoff.md buoc 7a-bis\"'"
+    ckh_sk_bo_qua: "bash -c 'out=$(node tests/scripts/repin-lane-skip-unchanged.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: SK1 cay bang pin\"'"
+    ckh_sk_fail_closed: "bash -c 'out=$(node tests/scripts/repin-lane-skip-unchanged.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: SK3\"'"
+    ckh_sk_lenh_tu_khoi: "bash -c 'out=$(node tests/scripts/repin-lane-skip-unchanged.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: SK5 lenh 7b rut tu\"'"
+    ckh_rb_ba_cho_tu_phan: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB4 A1 ghim lai sau commit\"'"
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
@@ -353,6 +361,15 @@ risk_tiers:
     # `product-map.mjs --check` trong CI canh `bản đồ == hồ sơ` độc lập, y như
     # P30 canh `mirror == nguồn`; case P126 là RED bắt buộc chứng minh điều đó.
     - "PRODUCT-MAP.md"
+    # Bản ghi mốc ĐỊNH TUYẾN (ADR 0019, 15/09 — cùng điều kiện ADR 0007). Nó là
+    # view MÁY SINH: `tests/scripts/routing-baseline.mjs --slug <s> --write` dựng
+    # dòng bằng chính `gate-card.js --extract`, và ca LM20 canh drift độc lập —
+    # sửa tay là LM20 đỏ. Không miễn trừ thì CHÍNH commit chữ ký (hồ sơ mới ký
+    # vào diện quét LM20 → baseline phải thêm dòng) làm bằng chứng hoá cũ và
+    # pre-merge chặn không lối ra — đúng vòng lặp mà ADR 0007 đã giải cho bản đồ.
+    # ĐIỀU KIỆN THU HỒI: ngày LM20 thôi canh tệp này, hoặc dòng của nó được viết
+    # tay trở lại, dòng dưới phải GỠ trong cùng PR.
+    - "tests/scripts/fixtures/routing-baseline.txt"
     # CHỈ gate.yml, KHÔNG phải ".github/**" — miễn trừ HẸP có chủ đích
     # (2026-08-15): việc bảo trì CI thuần (bump actions/checkout@vN khi runner
     # khai tử Node cũ) không đáng một vòng nghiệm thu — cổng mà câu trả lời hợp

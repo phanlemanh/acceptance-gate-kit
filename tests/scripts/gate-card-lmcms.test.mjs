@@ -31,7 +31,12 @@ const pick = name => {
   return m[1];
 };
 let passed = 0, failed = 0;
-const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
+// LMCMS_ONLY: chạy đúng một ca (khớp tiền tố tên). Sinh ra để ca RB2b của
+// routing-baseline-t1.test.mjs gọi được CHÍNH ca LM20 này trên một kho fixture
+// thay vì chép lại phép so ở phía nó — bản chép là thứ sẽ trôi (release-2-11-0#F1).
+// Vắng env: mọi ca chạy như cũ, không đổi hành vi suite.
+const ONLY = process.env.LMCMS_ONLY || '';
+const check = (n, f) => { if (ONLY && !n.startsWith(ONLY)) return; try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
 const die = m => { throw new Error(m); };
 
 
@@ -193,10 +198,19 @@ check('LM12 the KHONG-ky-duoc (REJECT) -> one_shot = null, khong moi ky', () => 
 // thái hợp lệ (draft→implemented→BLOCKED→PENDING→…) nên routing/cờ của nó đổi theo; ghim nó là
 // ghim thứ SẼ ĐỔI (lớp «thước ghim vào thứ sẽ đổi»). Hồ sơ đang mở được phủ bằng fixture code-sinh.
 // Hai file mốc sống ở tests/scripts/fixtures/ (không trong hồ sơ đã ký → hết thuế ghim lại).
-const FIX = path.join(ROOT, 'tests', 'scripts', 'fixtures');
+// LMCMS_ROOT: gốc XƯỞNG mà hai ca quét mốc (LM13, LM20) soi. Mặc định là kho kit;
+// đặt env để soi một kho fixture — đường vào của đối chứng dương cho lệnh sinh
+// bản ghi mốc (RB2b). Chỉ đổi gốc QUÉT, không đổi đường tới bộ dựng thẻ.
+const SCAN_ROOT = process.env.LMCMS_ROOT ? path.resolve(process.env.LMCMS_ROOT) : ROOT;
+const FIX = path.join(SCAN_ROOT, 'tests', 'scripts', 'fixtures');
 // «Đã chốt» đọc từ CHỮ KÝ NGƯỜI trong evidence-report (human_signoff khác rỗng) — không đọc bảng chữ status
 // (bộ đọc status là tập đóng do hồ sơ ra-co-ten-lam-va-trao canh; RT13 không cho mọc bộ đọc lạ).
-const settled = slug => { try { const m = readFileSync(path.join(ROOT, '_acceptance', slug, 'evidence-report.md'), 'utf8').match(/^human_signoff:[ \t]*(\S.*)$/m)   /* [ \t]* — KHÔNG \s*: \s nuốt xuống dòng, chữ ký rỗng khớp dòng kế */; return !!m && m[1].trim().length > 0; } catch { return false; } };
+// MỘT NGUỒN với bên VIẾT: `settled` và `routingLine` nhập từ routing-baseline.mjs —
+// chính lệnh sinh dòng mà /signoff chạy ở bước 6 (hồ sơ chu-ky-khong-tu-lam-hoa-cu,
+// 15/09). Trước đó bên đọc (ca này) và bên viết (thao tác tay sau chữ ký) dựng dòng
+// bằng hai khuôn, và đó đúng là seam mà luật «thước gắn vào vật» gọi tên.
+import { settled as settledOf, routingLine } from './routing-baseline.mjs';
+const settled = slug => settledOf(SCAN_ROOT, slug);
 // Baseline đã ĐỊNH ĐOẠT từng dòng (sweep-baseline.txt). Ca này giữ nó: một cờ
 // vàng MỚI ở bất kỳ hồ sơ nào — kể cả hồ sơ đã có tên trong baseline — đều
 // lệch, vì baseline ghi cả LOẠI cờ chứ không chỉ slug.
@@ -204,12 +218,12 @@ check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
   const base = readFileSync(path.join(FIX, 'sweep-baseline.txt'), 'utf8')
     .split('\n').filter(l => l.trim() && !l.startsWith('#'))
     .map(l => l.split('\t').slice(0, 2).join('\t')).sort();
-  const acc = path.join(ROOT, '_acceptance');
+  const acc = path.join(SCAN_ROOT, '_acceptance');
   const got = [];
   for (const slug of readdirSync(acc)) {
     if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
     if (!settled(slug)) continue;   // hồ sơ đang mở: không ghim (khuôn 03/09)
-    const r = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
+    const r = spawnSync('node', [GC, '--root', SCAN_ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
     if (r.status !== 0) continue;
     let j; try { j = JSON.parse(r.stdout); } catch { continue; }
     const o = j.out_of_contract || {};
@@ -231,17 +245,16 @@ check('LM13 quet xuong: tap (slug, loai co) == baseline da dinh doat', () => {
 check('LM20 quet xuong: routing (hoi|bao) tung ho so == routing-baseline da dinh doat', () => {
   const base = readFileSync(path.join(FIX, 'routing-baseline.txt'), 'utf8')
     .split('\n').filter(l => l.trim() && !l.startsWith('#')).sort();
-  const acc = path.join(ROOT, '_acceptance');
+  const acc = path.join(SCAN_ROOT, '_acceptance');
   const got = [], crashed = [];
   for (const slug of readdirSync(acc)) {
     if (!existsSync(path.join(acc, slug, 'contract.md'))) continue;
     if (!settled(slug)) continue;   // hồ sơ đang mở: không ghim (khuôn 03/09)
-    const r = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
+    const r = spawnSync('node', [GC, '--root', SCAN_ROOT, '--slug', slug, '--extract'], { encoding: 'utf8' });
     let j; try { j = JSON.parse(r.stdout); } catch { j = null; }
     // Hồ sơ làm bộ dựng thẻ sập KHÔNG được bỏ qua im lặng (Ngoài-hợp-đồng r1/r2/r3).
     if (r.status !== 0 || !j) { crashed.push(slug); continue; }
-    const rt = j.routing || { hoi: [], bao: [] };
-    got.push(slug + '\thoi=' + (rt.hoi || []).join('|') + '\tbao=' + (rt.bao || []).join('|'));
+    got.push(routingLine(slug, j.routing));   // khuôn dòng: MỘT nguồn với writer
   }
   if (crashed.length) die('bo dung the SAP tren ho so that: ' + crashed.join(', '));
   got.sort();
@@ -353,4 +366,13 @@ check('LM19 khoi VIEC-CUA-ANH tren THE dung dung bo o hoi cua routing', () => {
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-lmcms)`);
+// SÀN FAIL-CLOSED cho bộ lọc: `LMCMS_ONLY` khớp 0 ca mà vẫn exit 0 thì một cổng
+// dùng lệnh này làm ĐỐI CHỨNG DƯƠNG (bước 7a-bis của /signoff) sẽ xanh trên 0 ca —
+// đúng lớp «xanh không phân biệt được bắt-đúng-lỗi với chưa-bao-giờ-chạy». Cùng
+// hình dạng sàn đã có ở tests/scripts/run-tests.sh («có ít nhất một *.test.mjs
+// được chạy»). Ca đổi tên hay gõ nhầm ONLY → exit 2, không phải exit 0.
+if (ONLY && passed + failed === 0) {
+  console.error(`gate-card-lmcms: LMCMS_ONLY=«${ONLY}» không khớp ca nào — 0 ca chạy. Đây KHÔNG phải một lượt xanh: sửa tên ca hoặc bỏ biến, rồi chạy lại.`);
+  process.exit(2);
+}
 process.exit(failed ? 1 : 0);

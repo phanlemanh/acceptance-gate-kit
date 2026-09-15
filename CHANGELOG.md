@@ -17,6 +17,20 @@ và hồ sơ mốc `_acceptance/release-2-13-0/` chưa mở. Mục này ghi nh�
 gộp vào nhánh chính từ lúc 2.12.0 được ký (`7e260d4b`, 14/09) — 42 commit —
 để người đọc biết mình đang lấy gì khi kéo nhánh chính giữa hai mốc.
 
+- **Chữ ký thôi tự làm bằng chứng của chính nó hoá cũ.** Đo 14/09: từ lúc owner
+  gõ «Ký» tới lúc báo sẵn-sàng-merge mất **54 phút** và **≈ 42 M token**, và
+  **7/7** chữ ký của tuần đều chạy **ba** lượt làn máy ≈ 13 phút. Nguyên nhân
+  không phải xui: ca canh định tuyến chỉ soi hồ sơ ĐÃ ký, nên chính chữ ký buộc
+  bản ghi mốc thêm một dòng — mà tệp ấy là code, nên lưới trước-merge gọi bằng
+  chứng hoá cũ và bắt ghim lại. Hai nhát: bản ghi mốc nay là **vật máy sinh**
+  (dòng của nó do một lệnh sinh ra ngay trong lượt ký, cùng lớp với bản đồ sản
+  phẩm — ADR 0019), và **làn trước chữ ký tự bỏ qua khi cây không đổi so với
+  mốc đã chứng** (`--skip-unchanged`). Cây đã đổi sau khi chứng thì làn vẫn
+  chạy trọn và luật đỏ y nguyên.
+- **Ai bị ảnh hưởng:** kho tự host kit thấy lượt ký ra sẵn-sàng-merge trong vài
+  phút thay vì cả giờ. Repo tiêu thụ không phải làm gì — bước sinh bản ghi mốc
+  chỉ chạy ở kho tự host, và cờ mới là tường minh, mặc định không đổi hành vi.
+
 Trọn phần dưới đây đến từ MỘT vòng: `khoi-tim-loi-tra-phi-theo-vat` — vòng
 meta duy nhất của cửa sổ 2.12 → 2.13 (luật (b), owner gọi tên 14/09). Hồ sơ:
 `_acceptance/khoi-tim-loi-tra-phi-theo-vat/`.

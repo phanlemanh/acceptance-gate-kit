@@ -25,13 +25,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
+// globToRe: CÙNG hàm khớp glob mà S4 dùng cho vùng vật (feature-loop/scripts/
+// carry-plan.mjs) — hai bản khớp glob là hai khuôn sẽ trôi (đã trôi thật ở ký tự `?`).
+import { globToRe } from './carry-plan.mjs';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const KNOWN = new Set(['root', 'slug', 'reason', 'run-id', 'ag-root', 'write', 'allow-dirty']);
-const BOOL = new Set(['write', 'allow-dirty']);
+const KNOWN = new Set(['root', 'slug', 'reason', 'run-id', 'ag-root', 'write', 'allow-dirty', 'skip-unchanged']);
+const BOOL = new Set(['write', 'allow-dirty', 'skip-unchanged']);
 
-function usage(msg) { console.error(`repin-lane: ${msg}\nusage: repin-lane.mjs --root <repo> --slug <s> [--slug <s2> ...] [--reason "<lý do>"] [--run-id <id>] [--ag-root <path>] [--write] [--allow-dirty]`); process.exit(3); }
+function usage(msg) { console.error(`repin-lane: ${msg}\nusage: repin-lane.mjs --root <repo> --slug <s> [--slug <s2> ...] [--reason "<lý do>"] [--run-id <id>] [--ag-root <path>] [--write] [--allow-dirty] [--skip-unchanged]`); process.exit(3); }
 function die(msg) { console.error(`repin-lane: ${msg}`); process.exit(2); }
 const log = (s) => process.stderr.write(`[lane] ${s}\n`);
 
@@ -50,6 +53,9 @@ const flags = { slug: [] };
   }
 }
 if (!flags.root || !flags.slug.length) usage('thiếu --root hoặc --slug');
+// Bỏ qua KHÔNG BAO GIỜ là một pin: một lượt bỏ qua không chạy suite nào, nên nó
+// không có tư cách ghi dòng repin. Hai cờ loại trừ nhau, fail-CLOSED ở usage.
+if (flags['skip-unchanged'] && flags.write) usage('--skip-unchanged và --write loại trừ nhau: một lượt bỏ qua không chạy phép đo nào nên không được ghi pin. Chạy ĐO trước (--skip-unchanged), rồi ghim bằng một làn thật (--write) nếu cần');
 const slugs = [...new Set(flags.slug)];
 
 const root = (() => { try { return fs.realpathSync(flags.root); } catch { return die(`--root không tồn tại: ${flags.root}`); } })();
@@ -218,6 +224,55 @@ function runCmd(cmd, label) {
   }
   return exit;
 }
+// ── --skip-unchanged: cây BẰNG PIN thì không có gì để chứng lại ──────────────
+// <<<SKIP-UNCHANGED-PREDICATE
+// Vị từ là ĐÚNG ngữ nghĩa `stale_files()` của scripts/pre-merge-check.sh: tệp
+// git-theo-dõi đổi so `verified_commit` (cây làm việc tính luôn), TRỪ vật hồ sơ,
+// TRỪ tệp repo đã khai là không-phải-hành-vi (`risk_tiers.t1_skip_globs`). Rỗng
+// nghĩa là lưới trước-merge sẽ KHÔNG gọi hồ sơ này stale — nên một làn trọn
+// corpus ở đây chỉ chứng lại thứ không đổi (đo 14/09: 7/7 chữ ký, 13 phút/làn).
+//
+// Loại trừ hồ sơ tính theo PHÂN ĐOẠN đường dẫn, KHÔNG qua globToRe: `*` của nó
+// không xuyên `/`, nên `_acceptance/<slug>/evidence-report.md` (sâu 2 — đúng tệp
+// chữ ký vừa ghi) và `packages/x/_acceptance/...` sẽ lọt, tức không lượt ký nào
+// bỏ qua được. Tiền tố giả `_acceptance-x/` KHÔNG khớp (so bằng đoạn, không bằng
+// tiền tố chuỗi).
+const laVatHoSo = (f) => f.split('/').includes('_acceptance');
+const t1Res = (() => {
+  try { const v = core.resolveConfigList(configText, 'risk_tiers.t1_skip_globs'); return (Array.isArray(v) ? v : []).map(globToRe); }
+  catch { return []; }   // repo không khai → chỉ loại vật hồ sơ, fail-CLOSED về phía CHẠY
+})();
+const ngoaiVat = (f) => laVatHoSo(f) || t1Res.some(re => re.test(f));
+if (flags['skip-unchanged']) {
+  const pins = {};
+  let khongGiaiDuoc = null;
+  for (const s of perSlug) {
+    const vc = (s.report.match(/^verified_commit\s*:\s*(\S+)/m) || [])[1];
+    // Pin không giải được thì KHÔNG bỏ qua — thiếu pin là lý do để chạy, không
+    // phải lý do để im (cùng nếp fail-closed với bên đọc).
+    if (!vc) { khongGiaiDuoc = `${s.slug}: evidence-report.md không có verified_commit`; break; }
+    const co = spawnSync('git', ['-C', root, 'cat-file', '-e', `${vc}^{commit}`], { stdio: 'ignore' });
+    if (co.status !== 0) { khongGiaiDuoc = `${s.slug}: verified_commit ${vc.slice(0, 7)} không có trong kho này`; break; }
+    pins[s.slug] = vc;
+  }
+  if (khongGiaiDuoc) {
+    log(`--skip-unchanged KHÔNG áp dụng (${khongGiaiDuoc}) — làn chạy trọn`);
+  } else {
+    const doi = [];
+    for (const [slug, vc] of Object.entries(pins)) {
+      for (const f of gitRaw('diff', '--name-only', vc, '--').split('\n').filter(Boolean)) {
+        if (!ngoaiVat(f)) doi.push(`${slug}: ${f}`);
+      }
+    }
+    if (!doi.length) {
+      log(`cây bằng pin ${sha.slice(0, 7)} — 0 tệp ngoài _acceptance/ và t1_skip_globs đổi so verified_commit của ${perSlug.length} hồ sơ — làn bỏ qua (không suite, không eval, không ghi)`);
+      process.stdout.write(JSON.stringify({ skipped: true, sha, pins }, null, 2) + '\n');
+      process.exit(0);
+    }
+    log(`--skip-unchanged: ${doi.length} tệp vật đổi so pin — làn chạy trọn: ${doi.slice(0, 5).join(', ')}${doi.length > 5 ? ' …' : ''}`);
+  }
+}
+// SKIP-UNCHANGED-PREDICATE>>>
 log(`sha ${sha} · ${suiteCmds.length} suite · ${perSlug.length} hồ sơ · ${perSlug.reduce((n, s) => n + s.evals.length, 0)} eval máy`);
 const suitesExit = suiteCmds.map((c, i) => runCmd(c, `suite ${i + 1}/${suiteCmds.length}`));
 for (const s of perSlug) for (const e of s.evals) e.exit = runCmd(e.cmd, `${s.slug} ${e.id}`);
