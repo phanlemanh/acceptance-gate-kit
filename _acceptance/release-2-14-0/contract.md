@@ -93,9 +93,21 @@ nhất cho câu «không làm trôi cái gì».
 `evidence-report.md` **và** `usage-report.md` của vòng `chu-ky-khong-tu-lam-hoa-cu`
 **Then** đủ bốn khối bắt buộc (năm dòng số · lớp vendored · lớp lỗi tái phát · nhát cắt cho
 cửa sổ kế); bảng năm dòng đủ HAI CỘT cho hai vòng; mỗi ô có nguồn rút gọi tên; dòng 2 đếm
-bằng ba ngăn cho cả hai vòng; và MỌI số máy-đo khớp từng chữ số với nguồn — của CẢ HAI vòng.
+bằng ba ngăn cho cả hai vòng; và BA phép đối chiếu nhãn-với-nguồn dưới đây khớp từng chữ số.
 Và khối năm dòng phải nói thẳng điều số đang nói, kể cả khi nó bất lợi: token/lượt KHÔNG giảm
 so với mốc trước.
+
+**Ba phép đối chiếu, liệt kê ĐÓNG — không phải «mọi số».** (i) hai dòng máy-đo của
+`do-tin-tram-phan-loai` so `usage-report.md` của nó · (ii) số lượt chấm và lượt hạ-tầng-đốt
+của `chu-ky-khong-tu-lam-hoa-cu` so `## Iterations` trong báo cáo của nó · (iii) hai số token
+của vòng ấy (ô lượt PASS · tổng vòng) so `usage-report.md` của nó. Ba dòng đếm TAY (dòng 1,
+2, 3) KHÔNG đối chiếu được bằng máy — chúng là việc mắt người ở Cổng Bằng chứng, và hồ sơ
+nói thẳng thế thay vì hứa suông.
+
+Vì sao liệt kê đóng: bản trước viết «MỌI số máy-đo khớp từng chữ số», trong khi E4 chỉ liệt
+ba phép đối chiếu điểm — lượt chấm 2 gọi tên là «tuyên quét LỚP nhưng chỉ có điểm-case», cùng
+lớp với lỗi ở răng tồn đọng mà lượt 1b đã bắt. DỪNG-VÁ nổ ở đó; owner chọn đường ĐỔI KHUÔN
+15/09: lời khai phát biểu đúng phép đo, không rộng hơn.
 
 **Mỗi số máy-đo phải có nguồn NẰM TRONG `inputs`.** Lượt chấm 1 của chính mốc này chứng vì
 sao: ô lượt PASS của vòng thứ hai ghi 50.222.052 trong khi `usage-report.md` trên main cộng

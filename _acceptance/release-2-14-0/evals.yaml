@@ -105,7 +105,8 @@ evals:
       (ô lượt PASS · tổng vòng) có khớp usage-report.md ở input thứ TƯ không — cộng ba dòng
       tổng per-model (out + in + cache_read + cache_create) của khối lượt ấy, đúng nền hợp
       đồng khai. Vế thứ ba này là chỗ lượt chấm 1 bắt được lệch 26.837 vì nguồn chưa có
-      trong inputs: thiếu nó thì hội đồng chấm LỜI GHI NGUỒN chứ không chấm con số. Cuối cùng: khối năm dòng
+      trong inputs: thiếu nó thì hội đồng chấm LỜI GHI NGUỒN chứ không chấm con số. BA phép
+      trên là TẤT CẢ những gì máy đối chiếu — không suy rộng sang số khác. Cuối cùng: khối năm dòng
       có nói THẲNG bốn điều bất lợi không — token/lượt KHÔNG giảm so mốc trước · lượt gọi
       người vượt trần ở CẢ HAI vòng · cửa sổ có HAI vòng meta trong khi luật (b) cho một ·
       dòng 4 của vòng thứ hai rút từ tệp do phiên khác sinh, lên main bằng merge riêng, có ghi nguồn.
@@ -116,8 +117,12 @@ evals:
       - _acceptance/chu-ky-khong-tu-lam-hoa-cu/usage-report.md
     expected: >
       PASS khi bốn khối có mặt, bảng năm dòng đủ hai cột với nguồn rút từng ô, dòng 2 đếm ba
-      ngăn cho cả hai vòng, hai đối chiếu nhãn-với-nguồn khớp, và bốn điều bất lợi đều được
-      nói thẳng. Che bất kỳ điều nào trong bốn là FAIL.
+      ngăn cho cả hai vòng, BA phép đối chiếu nhãn-với-nguồn liệt kê trong question đều khớp,
+      và bốn điều bất lợi đều được nói thẳng. Che bất kỳ điều nào trong bốn là FAIL.
+
+      Ba phép ấy là danh sách ĐÓNG, không phải mẫu của «mọi số»: ba dòng đếm TAY không có
+      nguồn máy-đọc nào để đối chiếu, và hợp đồng khai thẳng chúng là việc mắt người ở Cổng
+      Bằng chứng. Hội đồng KHÔNG được suy rộng ra số khác.
     evidence_required: [judged_by, verdict, votes, rationale]
   - id: E5
     criterion: AC-5
@@ -127,8 +132,8 @@ evals:
       Exit 0 và đầu ra có đúng một dòng — CHÉP NGUYÊN khuôn `echo` cuối của
       `rang-ton-dong.sh`, chỉ thay bốn ô suy từ kho: «PASS: so ho so hoa cu ghi trong ho so
       (<n> ho so duy nhat tai moc <sha8>, do tren HEAD <head>) BANG so luoi dang noi hom
-      nay, va moi cum <so> ho so trong van hop dong (da go dinh dang) deu la mot trong cac
-      nen da khai o marker». Chiều đỏ ghim mã: 2 lưới GÃY hoặc mốc so không giải được (mã
+      nay, va cac dong VAN HOP DONG co chua «ghim lai» hoac «hoa cu» (da go dinh dang
+      markdown) khong mang con so ho so nao ngoai cac nen da khai o marker». Chiều đỏ ghim mã: 2 lưới GÃY hoặc mốc so không giải được (mã
       RIÊNG, không đội lốt «hai số lệch») · 3 hai số LỆCH (đã bắt thật hai lần: hồ sơ chép
       42 lưới nói 43; rồi hồ sơ chép 43 lưới nói 45 sau commit cắt số) · 4 hồ sơ không khai
       đủ cặp · 5 lưới không tới dòng kết luận · 6 lưới không soi hồ sơ nào · 7 văn hợp đồng
@@ -139,5 +144,10 @@ evals:
       mà răng KHÔNG BAO GIỜ in (đuôi câu khác hẳn, thiếu cả hai vế «hồ sơ duy nhất» và «in
       HEAD» vừa thêm) — verifier chấm chặt thì đỏ oan, chấm lỏng thì tụt về chỉ-đọc-mã-thoát.
       Mã 7 và 8 đã thử thật cả hai chiều trên bản tiêm, đối chứng dương chạy trước VÀ sau.
+
+      Phạm vi chốt mã 7 là HẸP và khai thẳng: chỉ soi những DÒNG mang literal «ghim lại» hoặc
+      «hoá cũ». Cụm «69 hồ sơ» ở §5 và «4 hồ sơ» ở bảng lượt ĐO nằm ngoài tầm — đúng hành vi,
+      vì hai số ấy nói về lượt đo chiến dịch chứ không về tồn đọng. Bản trước phát biểu toàn
+      xưng «mọi lần con số xuất hiện» nên lời khai rộng hơn phép đo; owner chọn ĐỔI KHUÔN.
     paths: [_acceptance/release-2-14-0/contract.md, _acceptance/release-2-14-0/rang-ton-dong.sh, scripts/pre-merge-check.sh]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

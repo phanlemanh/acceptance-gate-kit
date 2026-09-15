@@ -75,6 +75,16 @@ echo "       [luoi] soi $SOI dong per-slug · $THAT ho so DUY NHAT hoa cu tai mo
 # đa byte («sơ»), nên cả biểu thức trả RỖNG và chốt xanh vĩnh viễn vì chưa bao giờ
 # khớp gì. Thử tay dưới zsh thì khớp, nên lỗi này chỉ lộ khi chạy đúng bash — đã
 # dựng chiều đỏ để nó không tái diễn.
+# PHẠM VI CỦA CHỐT — khai hẹp đúng thứ nó đo, sau khi DỪNG-VÁ nổ ở lượt chấm 2.
+# Chốt này soi ĐÚNG những DÒNG chứa literal «ghim lại» hoặc «hoá cũ», KHÔNG quét
+# trọn văn hợp đồng: cụm «69 hồ sơ» ở §5 và «4 hồ sơ» ở bảng lượt ĐO nằm trên dòng
+# không mang literal nên chốt không thấy — và đó là hành vi ĐÚNG, vì hai số ấy nói
+# về lượt đo chiến dịch chứ không về tồn đọng. Bản trước phát biểu toàn xưng («mọi
+# lần con số xuất hiện») trong khi chỉ kiểm được bấy nhiêu; owner chọn đường «đổi
+# khuôn» 15/09: lời khai phải bằng đúng phép đo, phần còn lại là việc mắt người ở
+# Cổng Bằng chứng. Vá rộng mẫu ra trọn văn bản là đi ngược — nó biến chốt thành
+# phép đo đỏ oan trên mọi con số hợp đồng cố ý khai cạnh nhau.
+#
 # GỠ ký tự định dạng markdown TRƯỚC khi so: bản trước để nguyên, nên «**71** hồ sơ»
 # lọt qua chỉ vì hai dấu sao chen giữa số và chữ — phép đo tuyên «mọi lần con số
 # xuất hiện» mà thực tế chỉ thấy số viết trần. Lượt chấm 1b gọi tên (hình dạng 5:
@@ -89,5 +99,5 @@ CHO="^$SO hồ sơ$"; [ -n "$SO2" ] && CHO="^($SO|$SO2) hồ sơ$"
 LAC="$(printf '%s\n' "$HOP" | grep -vE "$CHO" || true)"
 [ -z "$LAC" ] || { echo "FAIL: van hop dong con con so khac cac nen da khai ($SO${SO2:+ · $SO2}): $(printf '%s' "$LAC" | tr '\n' ' ')" >&2; exit 7; }
 
-echo "PASS: so ho so hoa cu ghi trong ho so ($THAT ho so duy nhat tai moc ${MOC:0:8}, do tren HEAD $HEADSHA) BANG so luoi dang noi hom nay, va moi cum <so> ho so trong van hop dong (da go dinh dang) deu la mot trong cac nen da khai o marker"
+echo "PASS: so ho so hoa cu ghi trong ho so ($THAT ho so duy nhat tai moc ${MOC:0:8}, do tren HEAD $HEADSHA) BANG so luoi dang noi hom nay, va cac dong VAN HOP DONG co chua «ghim lai» hoac «hoa cu» (da go dinh dang markdown) khong mang con so ho so nao ngoai cac nen da khai o marker"
 exit 0
