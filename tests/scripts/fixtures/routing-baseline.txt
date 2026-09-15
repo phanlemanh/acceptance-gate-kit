@@ -94,3 +94,4 @@ cua-veto-sau-chu-ky	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=c�
 lan-doc-status-not-run	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
 cong-nguoi-doc-du-nguon	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
 khoi-tim-loi-tra-phi-theo-vat	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|ký hay trả	bao=cắt/hoãn|Treo
+chu-ky-khong-tu-lam-hoa-cu	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|ký hay trả	bao=cắt/hoãn|Treo

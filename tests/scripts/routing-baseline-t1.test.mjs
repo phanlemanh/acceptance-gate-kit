@@ -202,9 +202,13 @@ check('RB3 signoff.md buoc 7a-bis goi lenh sinh, 7c them tep; SKILL chep khoi SI
   {
     const a = so.indexOf('**7a-bis — bản ghi mốc'), b = so.indexOf('**7b — làn máy TRƯỚC chữ ký');
     assert.ok(a > 0 && b > a, 'neo đoạn bước sinh trôi — assert dưới sẽ hoá rỗng im lặng');
-    assert.doesNotMatch(so.slice(a, b), /vài giây/, 'bước 7a-bis không được khai «vài giây» — đo thật là ≈1 ph 45 s');
+    const doan = so.slice(a, b);
+    assert.doesNotMatch(doan, /vài giây/, 'bước 7a-bis không được khai «vài giây» — đo thật là ≈1 ph 45 s');
+    // CÙNG neo với assert trên (lượt chấm 5, AC-3): trước đây dòng này grep TRỌN
+    // tệp trong khi thông điệp hứa «bước 7a-bis nêu số đo CỦA CHÍNH NÓ» — chuyển
+    // con số sang một bước khác thì lời hứa gãy mà phép đo vẫn xanh.
+    assert.match(doan, /1 ph 45 s/, 'bước 7a-bis phải nêu số đo thật của chính nó, TRONG đoạn của nó');
   }
-  assert.match(so, /1 ph 45 s/, 'bước 7a-bis phải nêu số đo thật của chính nó');
   assert.match(so, /git add[^\n]*routing-baseline\.txt|routing-baseline\.txt[^\n]*git add|thêm ` tests\/scripts\/fixtures\/routing-baseline\.txt`/, '7c phải đưa bản ghi mốc vào commit chữ ký');
   const pat = /<!-- <<<SIGNOFF-LANE-CLAUSE -->\n([\s\S]*?)<!-- SIGNOFF-LANE-CLAUSE>>> -->/;
   const a = (so.match(pat) || [])[1], b = (sk.match(pat) || [])[1];

@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: e4e68423086637e14bb7c69d3bb6f1ab9751b7b1
-human_signoff:
+human_signoff: Mạnh 2026-09-15 — ký với 11 giới hạn đã khai. Mục ① (AC-3, RB3 bỏ neo) nâng phạm vi SỬA NGAY, đã sửa và chứng bằng mutant trong cùng lượt; mục ③ (--skip-unchanged loại trừ trọn _acceptance/** trong khi config.yaml và evals.yaml là nguồn định nghĩa lệnh) mở hợp đồng riêng cho 2.14.
 ---
 
 # Evidence Report: chu-ky-khong-tu-lam-hoa-cu

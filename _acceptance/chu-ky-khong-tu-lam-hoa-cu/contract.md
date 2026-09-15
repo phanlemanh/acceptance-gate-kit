@@ -5,7 +5,7 @@ slug: chu-ky-khong-tu-lam-hoa-cu
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/scripts/repin-lane.mjs, commands/signoff.md, skills/acceptance/SKILL.md, _acceptance/config.yaml, tests/scripts; KHÔNG chạm lib, hooks, pre-merge, recheck
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-09-15-chu-ky-khong-tu-lam-hoa-cu-design.md
 approved_by:
 approved_at:
@@ -197,6 +197,26 @@ răng vòng này viết, không nằm trong hai nhát cắt:
 xanh hai lượt liên tiếp, KHÔNG tựa vào các assert yếu kể trên. Nợ thước có tên ở đây và
 vào hạt giống 2.14; ngưỡng mở vòng sửa thước: ≥1 hồi quy của hai nhát cắt lọt qua bộ
 răng này giữa hai bản phát hành.
+
+**Bổ sung sau lượt chấm 5 (owner định đoạt 15/09 tại Cổng Bằng chứng).** Verdict PASS,
+12 phát hiện: 1 trong hợp đồng (đã SỬA NGAY, xem dưới), 11 ngoài. Định đoạt:
+
+- **Sửa ngay (mục ①, AC-3):** RB3 assert «1 ph 45 s» grep TRỌN `signoff.md` trong khi
+  thông điệp hứa «bước 7a-bis nêu số đo CỦA CHÍNH NÓ». Nay dùng CÙNG neo với assert
+  «vài giây» ngay trên nó. Mutant (dời con số sang cuối tệp, vẫn còn trong tệp) → RB3 đỏ.
+- **Mở hợp đồng mới (mục ③) — nợ có tên cho 2.14:** `--skip-unchanged` loại trừ trọn
+  `_acceptance/**`, nhưng `_acceptance/config.yaml` và `evals.yaml` LÀ nguồn định nghĩa
+  lệnh mà làn sẽ chạy. Sửa một executor sau verify → cây «bằng pin» → làn bỏ qua → lệnh
+  MỚI không bao giờ chạy trước chữ ký. Phân biệt đúng: `stale_files` hỏi «bằng chứng có
+  hoá cũ không», còn ở đây vị từ được dùng để hỏi «có cần chạy lại phép đo không» — hai
+  câu khác nhau, và `_acceptance/**` là ĐẦU VÀO của câu thứ hai. Không phải giả định:
+  chính vòng này thêm 7 khoá executor vào `config.yaml` giữa chừng.
+- **Known limits (9 mục còn lại):** RB2c là đột biến no-op · E7 khai chiều đỏ không tồn
+  tại · RB2e và RB3-IM là tautology · SK6 grep chuỗi đã có ở cây gốc · A2 quét danh sách
+  5 tệp gõ tay, thiếu `SKILL.md` · regex `\s*` làm nhánh «pin vắng» thành mã chết · số đo
+  phút MÁY viết tắt «1 ph 45 s» né lớp lint LOP-PHUT thay vì đi đường khai miễn trừ (và
+  dạng viết tắt nay bị RB3 ghim, nên sửa về dạng thường phải đi cùng một dòng `MIEN_TRU`)
+  · tệp untracked vô hình với vị từ bỏ qua.
 
 ## Notes
 
