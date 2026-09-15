@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: ddb305f3d7a887ea52b448ca7d49283b241eba2b
-human_signoff:
+human_signoff: Mạnh 2026-09-15 — ký mốc phát hành 2.14.0 với 9 known-limits đã khai; Ngoài-1 và Ngoài-2 mở hợp đồng mới, Ngoài-4/8 sửa ngay trong lượt ký; đồng ý phạm vi đã cắt; phê cả 7 quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: release-2-14-0

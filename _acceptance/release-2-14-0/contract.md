@@ -5,7 +5,7 @@ slug: release-2-14-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest + GUIDE; KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -141,12 +141,16 @@ hai.
 
 ## Out of scope
 
-- **Chạy chiến dịch ghim lại 45 hồ sơ** — hoãn mốc thứ hai liên tiếp, và hoãn CÔNG KHAI: AC-5
+- **Chạy chiến dịch ghim lại 44 hồ sơ** — hoãn mốc thứ hai liên tiếp, và hoãn CÔNG KHAI: AC-5
   bắt hồ sơ mang con số thật có răng canh, thay vì im lặng bỏ qua. Điều kiện tiên quyết
   («ghim lại theo diff», hồ sơ 2.13 §4 mục 1) vẫn chưa làm, nên chạy chiến dịch bây giờ là
   một khoản giờ máy lớn lặp lại ở mọi mốc.
-- Sáu mục Known limits của `do-tin-tram-phan-loai` — ở tệp ca và chẩn đoán nội bộ, không phải
-  việc của mốc.
+- **Bảy** mục Known limits của `do-tin-tram-phan-loai` — ở tệp ca và chẩn đoán nội bộ, không
+  phải việc của mốc. Nền của con số, khai thẳng vì lượt chấm bắt nó lệch: vòng ấy có **tám**
+  mục ngoài hợp đồng; owner ghi Known limits **bảy** (Ngoài-2…8) và cho Ngoài-1 đi đường hợp
+  đồng riêng. Sổ `docs/research/known-limits-ledger.tsv` mang **tám** dòng vì nó theo dõi MỌI
+  giới hạn đang tồn tại, kể cả cái đã có hồ sơ riêng — hai con số khác định nghĩa, không phải
+  hai con số cãi nhau. Bản trước ghi «Sáu» và không khớp nền nào.
 - Nhát vá cho hạt giống `mot-nguon-tai-gui-triage` — owner đã park; mốc này KHÔNG kéo vào.
 - Sáu mục còn lại của hồ sơ 2.13 §4 — chưa làm, giữ nguyên trong sổ tồn đọng.
 - Dựng phép đo mới cho chính phép đo của mốc — luật (a).
@@ -154,10 +158,29 @@ hai.
 ## Notes
 
 <!-- <<<TON-DONG-GHIM-LAI -->
-so_stale: 45
-so_stale_toan_kho: 71
+so_stale: 44
+so_stale_toan_kho: 70
 moc_so: 7d12ffad
 <!-- TON-DONG-GHIM-LAI>>> -->
+
+### Known limits
+
+Chín mục ngoài hợp đồng owner quyết ghi Known limits khi ký (15/09). Không mục nào đổi điều
+repo tiêu thụ nhìn thấy: tất cả nằm ở RĂNG của chính hồ sơ mốc hoặc ở phép đo văn xuôi.
+
+- known-limits (Ngoài-3 · Ngoài-5 · Ngoài-9 · Ngoài-10, owner ghi 15/09): **rang-ton-dong.sh và rang-so-tang.sh** — hai răng VIẾT MỚI không đọc `$@`, nên cờ `--chan ghim-lai` mà `config.yaml` truyền bị nuốt im: gõ sai cờ hay rơi cờ đều vẫn xanh. Hai răng CHÉP từ 2.13.0 đã đóng đúng lỗ này (`rang-p200.sh` chốt `[ $# -eq 0 ]`, `rang-moc.sh` cưỡng chế `--chan`), nên đây là bất đối xứng trong cùng một bộ bốn răng giao cùng lượt
+- known-limits (Ngoài-6, owner ghi 15/09): **rang-ton-dong.sh** — con số lưới phụ thuộc thời điểm chạy, nên một lượt ghim lại hàng loạt về sau có thể báo lệch dù không có gì đổi thật
+- known-limits (Ngoài-7 · Ngoài-12, owner ghi 15/09): **contract.md khối marker** — nền thứ hai `so_stale_toan_kho: 71` không được đối chiếu với phép đo nào; nó nới điều kiện của chốt mã 7 mà bản thân không có ai canh
+- known-limits (Ngoài-11, owner ghi 15/09): **rang-ton-dong.sh** — chốt phân biệt mã 2 với mã 3 dựa vào thông điệp của lưới trước-merge; lưới đổi cách diễn đạt thì răng báo sai loại lỗi
+- known-limits (Ngoài-13, owner ghi 15/09): **rang-ton-dong.sh** — văn đầu tệp và bảng mã thoát còn mô tả rộng hơn chốt thật sau khi ĐỔI KHUÔN; người đọc có thể tin là mọi con số trong hợp đồng đều được soi
+- known-limits (Ngoài-4 · Ngoài-8, owner quyết SỬA NGAY 15/09): số mục Known limits của `do-tin-tram-phan-loai` từng ghi «Sáu» ở Out of scope trong khi CHANGELOG và mô tả gói ghi «bảy» — đã sửa trong chính lượt ký, kèm nền của cả ba con số 6·7·8
+- known-limits (dòng 4–5 của luật (c), máy đo KHÔNG đọc được, owner ghi 15/09): **usage-report của vòng `chu-ky-khong-tu-lam-hoa-cu`** dùng khuôn tiêu đề riêng nên `loop-health.mjs` trả 0 round / 0 token cho nó — hai số 50.195.215 và 145.925.121 trong bảng năm dòng hiện chỉ dựng lại được bằng CỘNG TAY, dù luật (c) khai hai dòng ấy là máy đo. Hồ sơ mốc đã sửa khuôn cho chính nó; vòng kia chưa
+
+**Ngoài-1 và Ngoài-2 KHÔNG ghi ở đây — owner quyết mở hợp đồng mới.** Ngoài-1: hồ sơ đứng ở
+`status: approved` suốt năm lượt chấm nên bằng chứng «tàng hình» với `lib/workspace-record.cjs`
+và lưới chặn merge — lỗ vòng đời, không phải lỗi của mốc. Ngoài-2: `loop-health.mjs` khớp tiêu
+đề bằng literal nên một khuôn tiêu đề khác làm hai dòng máy-đo của luật (c) trả 0 mà không cờ
+nào kêu.
 
 ### 1. Năm dòng số của luật (c) — HAI vòng, đếm cùng luật, đối chiếu chéo hai phiên
 
@@ -274,12 +297,15 @@ mốc 2.13, một lần ở vòng này. Mỗi lần một lượt ngăn ③.
 4. **Ghim lại theo diff.** Vẫn chưa làm; ADR 0019 đã cắt phần «chữ ký làm hoá cũ» và «làn bỏ
    qua khi cây bằng pin» nên đề bài ở hạt giống 2.13 mục 1 cần đọc lại — có thể đã nhỏ đi.
    `--skip-unchanged` (mới) KHÔNG giúp chiến dịch: nó loại trừ `--write`.
-5. **Chiến dịch ghim lại.** Hai nền, khai cạnh nhau: **71** hồ sơ có pin tụt sau vật (thứ CI
-   thật sự chặn, phạm vi chiến dịch) · **45** tụt trong cửa sổ `7d12ffad..HEAD` (số so-sánh-qua-mốc,
-   răng AC-5 canh). Trước commit cắt số hai số là 69 và 43; chính commit cắt số (`2ce88a2b`, chạm
-   hai manifest — code, không phải T1) làm hai vòng vừa ký của cửa sổ tụt pin theo:
-   `do-tin-tram-phan-loai` và `chu-ky-khong-tu-lam-hoa-cu`. Răng AC-5 bắt đúng lúc: hồ sơ ghi 43,
-   lưới nói 45, đỏ mã 3 — sửa số theo lưới, không sửa lưới theo số. Lượt ĐO không ghi chạy trên
+5. **Chiến dịch ghim lại.** Hai nền, khai cạnh nhau: **70** hồ sơ có pin tụt sau vật (thứ CI
+   thật sự chặn, phạm vi chiến dịch) · **44** tụt trong cửa sổ `7d12ffad..HEAD` (số so-sánh-qua-mốc,
+   răng AC-5 canh). Ba lần con số này đổi trong chính mốc, và CẢ BA lần răng AC-5 bắt
+   trước khi hồ sơ kịp nói sai: 43 (trước cắt số) → **45** sau khi commit cắt số `2ce88a2b`
+   chạm hai manifest làm hai vòng vừa ký tụt pin theo → **44** sau khi làn ghim lại riêng gỡ
+   `chu-ky-khong-tu-lam-hoa-cu` khỏi diện hoá cũ (`repin-20260915T132212Z-62849`, chạy trong
+   chính lượt ký). Mỗi lần: sửa số theo lưới, không sửa lưới theo số. Đây là bằng chứng thực
+   nghiệm mạnh nhất của mốc cho câu «số chép tay hoá cũ lặng lẽ» — nó hoá cũ BA lần trong một
+   ngày, và không lần nào con người phát hiện trước răng. Lượt ĐO không ghi chạy trên
    danh sách 69 (sinh trước commit cắt số) — kết quả ở khối Notes 5 dưới đây.
 6. **Tải gửi trạm phân loại về MỘT nguồn** — hạt giống `docs/plans/2026-09-15-hat-giong-mot-nguon-tai-gui-triage.md`.
 7. **`bo-qua-phai-thay-dinh-nghia-phep-do`** — hồ sơ draft đã ở trên main (PR #177), 3 AC · 5

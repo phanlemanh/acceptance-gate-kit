@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 71d7d9c623be6a5bc24e06c009fbe160af72e647
+verified_commit: c0eef437cd6cce1a3be422ce8e563d1df7a8b68a
 human_signoff: Mạnh 2026-09-15 — ký với 11 giới hạn đã khai. Mục ① (AC-3, RB3 bỏ neo) nâng phạm vi SỬA NGAY, đã sửa và chứng bằng mutant trong cùng lượt; mục ③ (--skip-unchanged loại trừ trọn _acceptance/** trong khi config.yaml và evals.yaml là nguồn định nghĩa lệnh) mở hợp đồng riêng cho 2.14.
 ---
 
@@ -162,3 +162,7 @@ sha: 76879ac482f330990e5b7f0d335358114945abc3 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 2 — 2026-09-15, do ghim lại sau khi gộp origin/main mang mốc 2.13.0 + đổi số ADR 0019
 run_id: repin-20260915T075335Z-58520
 sha: 71d7d9c623be6a5bc24e06c009fbe160af72e647 · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
+
+### Re-pin lần 3 — 2026-09-15, do hoá cũ do commit cắt số 2.14.0 chạm hai manifest — ghim lại RIÊNG làn bị chặn, KHÔNG phải chiến dịch (đã hoãn công khai ở Out of scope)
+run_id: repin-20260915T132212Z-62849
+sha: c0eef437cd6cce1a3be422ce8e563d1df7a8b68a · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

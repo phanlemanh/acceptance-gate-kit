@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>3 việc"]
   GD --> DB["Đã bác từ khám phá<br/>3 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>4 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>58 việc"]
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>59 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>10 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
 ```
@@ -69,7 +69,6 @@ flowchart TD
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
-- Phát hành kit 2.14.0 — cắt số cho hai gói kit và định đoạt công khai chiến dịch ghim lại đang hoãn mốc thứ hai. Hạ về draft 15/09 chờ PR (`release-2-14-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -123,6 +122,7 @@ flowchart TD
 - Phát hành kit 2.11.0 — đóng số cho cửa sổ 2.10→2.11 và VÁ TRONG MỐC lỗ xanh-giả của bộ giải cấu hình (nháy không cân làm hỏng chuỗi lệnh, bash trả 2, luật expected_exit đọc 2 thành giới hạn đã khai) (`release-2-11-0`)
 - Phát hành kit 2.12.0 — đóng số cho cửa sổ 2.11→2.12, THUẦN CẮT SỐ. Năm vòng đóng trong cửa sổ đưa 182 tiêu chí tới ba kho tiêu thụ và đóng cửa veto sau chữ ký. (`release-2-12-0`)
 - Phát hành kit 2.13.0 — đóng số cho cửa sổ 2.12→2.13, cắt số HAI gói có đổi cộng đúng MỘT nhát vá (P93 quét cây nguồn), và là mốc đầu tiên đếm đủ NĂM dòng số. (`release-2-13-0`)
+- Phát hành kit 2.14.0 — cắt số cho hai gói kit và định đoạt công khai chiến dịch ghim lại đang hoãn mốc thứ hai. Hạ về draft 15/09 chờ PR (`release-2-14-0`)
 - Phát hành kit 2.2.0 — đóng số cho ba hồ sơ 17–18/08 (hình tại Cổng 1 · mối nối Vòng TRAO · siết răng câu-về-hình) để repo tiêu thụ nhận engine mới có chủ đích trước khi mở vòng r4 bước 1 (`release-2-2-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
