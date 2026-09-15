@@ -10,13 +10,24 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
-## Chưa phát hành — hướng tới 2.13
+## 2.14.0 — 15/09/2026
 
-**Chưa có bản phát hành nào mang số 2.13.** Cả ba manifest vẫn ghi `2.12.0`,
-và hồ sơ mốc `_acceptance/release-2-13-0/` chưa mở. Mục này ghi những gì ĐÃ
-gộp vào nhánh chính từ lúc 2.12.0 được ký (`7e260d4b`, 14/09) — 42 commit —
-để người đọc biết mình đang lấy gì khi kéo nhánh chính giữa hai mốc.
+Cửa sổ 2.13 → 2.14 có **hai** vòng đã ký, trong khi luật (b) cho một. Hồ sơ mốc
+`_acceptance/release-2-14-0/` ghi thẳng điều đó, cùng năm dòng số của cả hai vòng
+đếm bằng một luật và đối chiếu chéo giữa hai phiên. Hai gói cùng lên `2.14.0`;
+`diagram-design` giữ `2.7.0` vì không đổi một dòng.
 
+**Đổi gì:**
+
+- **Trạm phân loại phạm vi thôi hỏng vì định danh do máy-nói chép sai** (vòng
+  `do-tin-tram-phan-loai`). Trước đây kết quả phân loại được ghép về từng phát
+  hiện bằng tiêu đề và đường dẫn do tác tử chép lại; chép lệch một ký tự là cả
+  lượt rơi về đường «bác bỏ tất cả». Đo trên một vòng thật: hỏng **3/6** lượt,
+  và lượt mất phân loại tốn **37 tác tử · 32,7 M token** so **20–23 · 13–17 M** ở
+  lượt lành cùng vòng. Nay mỗi phát hiện gửi đi mang một **mã do máy đúc**, kết
+  quả ghép theo mã trước, mã lạ bị bỏ, và khi kết quả thiếu mã nào thì máy **hỏi
+  lại đúng một lần** chỉ phần thiếu trước khi đặt cờ hỏng. Luật fail-toward-human
+  không đổi: hỏi lại vẫn thiếu thì bác bỏ chạy toàn bộ như cũ.
 - **Chữ ký thôi tự làm bằng chứng của chính nó hoá cũ.** Đo 14/09: từ lúc owner
   gõ «Ký» tới lúc báo sẵn-sàng-merge mất **54 phút** và **≈ 42 M token**, và
   **7/7** chữ ký của tuần đều chạy **ba** lượt làn máy ≈ 13 phút. Nguyên nhân
@@ -27,9 +38,30 @@ gộp vào nhánh chính từ lúc 2.12.0 được ký (`7e260d4b`, 14/09) — 4
   phẩm — ADR 0019), và **làn trước chữ ký tự bỏ qua khi cây không đổi so với
   mốc đã chứng** (`--skip-unchanged`). Cây đã đổi sau khi chứng thì làn vẫn
   chạy trọn và luật đỏ y nguyên.
-- **Ai bị ảnh hưởng:** kho tự host kit thấy lượt ký ra sẵn-sàng-merge trong vài
-  phút thay vì cả giờ. Repo tiêu thụ không phải làm gì — bước sinh bản ghi mốc
-  chỉ chạy ở kho tự host, và cờ mới là tường minh, mặc định không đổi hành vi.
+
+**Ai bị ảnh hưởng / làm gì:**
+
+- **Repo tiêu thụ:** không có gì phải làm. Trạm phân loại đòi tác tử trả thêm
+  một trường mã; không trả thì rơi về khoá cũ. Cờ `--skip-unchanged` là tường
+  minh, mặc định làn vẫn chạy trọn.
+- **Kho tự host kit:** lượt ký ra sẵn-sàng-merge trong vài phút thay vì cả giờ
+  (ADR 0019).
+
+**Giới hạn đã khai:** bảy mục của vòng `do-tin-tram-phan-loai` đều ở tệp ca
+hoặc chẩn đoán nội bộ; tải gửi trạm phân loại còn viết ở hai chỗ — đã vào hạt
+giống cửa sổ kế (`docs/plans/2026-09-15-hat-giong-mot-nguon-tai-gui-triage.md`).
+Vị từ «cây bằng pin» phía bash và phía JS chỉ đồng nghĩa trên danh sách T1 hiện
+tại, ngưỡng đang đếm ở ADR 0019.
+
+**Chi phí của chính cửa sổ (máy đo, hai vòng):** ≈ 199,9 M token cho hai vòng
+meta; lượt gọi người **5 và 5** so trần 3 — mọi lượt vượt đều là lỗi hình thức
+của máy, không lượt nào là quyết định thật. Số đầy đủ và chín nhát cắt cho cửa sổ
+kế ở khối Notes của hồ sơ mốc.
+
+## 2.13.0 — 14/09/2026
+
+Cắt số tại `ea26fdfe` (14/09). Mục này ghi những gì đã gộp vào nhánh chính từ
+lúc 2.12.0 được ký (`7e260d4b`, 14/09) tới lần cắt đó.
 
 Trọn phần dưới đây đến từ MỘT vòng: `khoi-tim-loi-tra-phi-theo-vat` — vòng
 meta duy nhất của cửa sổ 2.12 → 2.13 (luật (b), owner gọi tên 14/09). Hồ sơ:

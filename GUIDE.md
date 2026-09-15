@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.13.0 · feature-loop 2.13.0 · diagram-design 2.7.0.
+> Khớp phiên bản: acceptance-gate 2.14.0 · feature-loop 2.14.0 · diagram-design 2.7.0.
 
 ## Mục lục
 
@@ -1058,7 +1058,7 @@ KHÔNG chứng lại chúng — hồ sơ mà diff chạm đúng phần `ui-check
 vòng S4 delta; ngưỡng mở vòng kế: **≥1 hồi quy UI lọt qua một lượt re-pin**
 giữa hai bản phát hành. Lý do và các lối bị loại: ADR 0014.
 
-**Làn bỏ qua khi cây BẰNG PIN — `--skip-unchanged` (2.13).** Đo 14/09: một chữ ký
+**Làn bỏ qua khi cây BẰNG PIN — `--skip-unchanged` (2.14).** Đo 14/09: một chữ ký
 mất **54 phút · ≈ 42 M token** từ lúc owner gõ «Ký» tới READY, và **7/7** chữ ký
 từ 08/09 đều chạy **ba** lượt làn ≈ 13 phút. Phần lớn số đó chứng lại một cây
 KHÔNG đổi: chữ ký chỉ chạm vật hồ sơ và một bản ghi mốc. Nay làn nhận cờ tường
