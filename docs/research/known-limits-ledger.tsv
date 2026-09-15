@@ -294,3 +294,14 @@ do-tin-tram-phan-loai#5	do-tin-tram-phan-loai	low	khac	song			Luot hoi lai khai 
 do-tin-tram-phan-loai#6	do-tin-tram-phan-loai	low	khac	song			Bo loc kind:triage trong acceptance-verify.test.mjs da CHET — ben sinh dong so bi go trong cung dai diff; loc con lai lam yeu vinh vien hai khang dinh dem run-log
 do-tin-tram-phan-loai#7	do-tin-tram-phan-loai	medium	khac	song			Doi chung duong cua chan chu-ky-kiem KHONG gan vao ma thoat — phan ay hong lang ma chan van bao dat
 do-tin-tram-phan-loai#8	do-tin-tram-phan-loai	low	khac	song			Assert dem run-log duoc noi cho dong kind:triage ma ban cai KHONG he sinh
+release-2-14-0#1	release-2-14-0	high	fail-open	song			rang-ton-dong.sh khong doc $@ nen co --chan ghim-lai ma config truyen bi nuot im — hai rang anh em (rang-p200 chot [ $# -eq 0 ], rang-moc cuong che --chan) da dong dung lo nay
+release-2-14-0#2	release-2-14-0	high	khac	song			So muc known-limits cua vong do-tin-tram-phan-loai noi BA con so o ba tep: contract.md Out of scope 6 · CHANGELOG 7 · so 8 dong
+release-2-14-0#3	release-2-14-0	medium	khac	song			opportunity.md cua ho so park mot-nguon-tai-gui-triage chep «42 ho so» trong khi cung cua so do duoc 45 (va 71 toan kho); ho so park khong co eval nao canh
+release-2-14-0#4	release-2-14-0	medium	khac	song			Hai rang VIET MOI (rang-ton-dong · rang-so-tang) thieu «dau ban rang» git hash-object ma hai rang CHEP deu co — output ghim trong evidence-report khong phan biet duoc ban nao da chay
+release-2-14-0#5	release-2-14-0	medium	fail-open	song			rang-so-tang.sh cung khong co chot tham so la — cung lop fail-open, ban kinh nho hon vi config hien goi tran
+release-2-14-0#6	release-2-14-0	medium	do-thuoc	song			Hinh dang 3: so_stale_toan_kho: 71 duoc assert bang «chuoi co mat» chu khong bang QUAN HE voi nguon dem duoc
+release-2-14-0#7	release-2-14-0	medium	do-thuoc	song			Hinh dang 5: header va bang ma thoat cua rang-ton-dong con mo ta pham vi rong hon chot that sau khi DOI KHUON
+release-2-14-0#8	release-2-14-0	medium	doi-chung-tu-sinh	song			Hinh dang 4: chot (c) cua rang-ton-dong khong ghim DUNG THONG DIEP ma phep dem phu thuoc
+release-2-14-0#9	release-2-14-0	low	khac	song			Ba dong dem TAY cua luat (c) — thoi gian, luot goi nguoi, luot ha-tang-dot — khong co nguon may-doc nao de doi chieu; la viec mat nguoi o Cong Bang chung
+release-2-14-0#10	release-2-14-0	low	khac	song			P179 dem ca «De xuat: known-limits» cua ho so DANG cham, nen mot vong co finding ngoai hop dong khong the PASS S4 truoc khi ghi so — do sai thoi diem, cung lop routing-baseline truoc ADR 0019
+release-2-14-0#11	release-2-14-0	low	khac	song			Suite plugins ~9 phut voi tran cong cu 10 phut: luot cham 1 cua chinh moc nay bi giet o 600 s khi co tien trinh nang chay song song

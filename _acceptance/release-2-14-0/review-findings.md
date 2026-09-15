@@ -1,86 +1,72 @@
 ## Trong hợp đồng
 
-Findings: []
-
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **rang-ton-dong.sh KHÔNG đọc $@ — cờ `--chan ghim-lai` mà config truyền bị nuốt im lặng (fail-open đúng lớp rang-p200.sh vừa vá)**
-  Người dùng thấy gì: Nếu sau này cấu hình đổi tùy chọn truyền cho phép kiểm tra hồ sơ cũ, hệ thống có thể vẫn báo 'đạt' một cách im lặng dù đang kiểm sai thứ được yêu cầu, khiến người ký duyệt tin nhầm vào bằng chứng.
-  file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hai răng MỚI thiếu «dấu bản răng» mà hai răng chép đều có — output ghim trong evidence-report KHÔNG phân biệt được bản nào đã chạy**
-  Người dùng thấy gì: Khi phép kiểm tra hồ sơ cũ được sửa lại nhiều lần, bằng chứng lưu lại không cho biết lần chạy nào dùng phiên bản kiểm tra nào, nên về sau khó xác minh bằng chứng cũ còn đúng với hệ thống hiện tại hay không.
-  file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Lời khai toàn xưng «13–17 M ở MỌI lượt lành của cùng vòng» bị chính nguồn được trích phản chứng (lượt PASS = 50,2 M), và đã lan sang CHANGELOG**
-  Người dùng thấy gì: Bản ghi thay đổi (CHANGELOG) và hồ sơ phát hành có một câu so sánh chi phí xử lý bị chọn lọc thiếu công bằng, có thể khiến người đọc hiểu nhầm mức tăng chi phí nhỏ hơn thực tế.
-  file: `_acceptance/release-2-14-0/contract.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **rang-ton-dong.sh nuốt trọn tham số — cờ `--chan ghim-lai` trong config là trang trí, rơi khỏi config vẫn xanh**
-  Người dùng thấy gì: Nếu cấu hình sau này đổi hoặc bỏ tùy chọn khi gọi phép kiểm tra hồ sơ cũ, hệ thống vẫn âm thầm báo 'đạt' dù đang kiểm sai thứ được yêu cầu, khiến người ký duyệt tin nhầm vào bằng chứng không đúng.
+- **rang-ton-dong.sh nuốt im cờ `--chan ghim-lai` mà config truyền — fail-open đúng lớp mà rang-p200.sh vừa vá**
+  Người dùng thấy gì: Bước kiểm 'đã ghim lại đúng số' có thể vẫn báo đạt (xanh) ngay cả khi tham số cấu hình truyền vào bị gõ sai hoặc bị rơi mất, khiến người xem báo cáo tin nhầm rằng bước kiểm đã chạy đúng theo cấu hình trong khi thực tế nó bỏ qua tham số đó.
   file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
   severity: high
   Đề xuất: known-limits
 
-- **`so_stale_toan_kho` không được đo với lưới — số sai vẫn xanh, và còn NỚI bộ lọc một-nguồn**
-  Người dùng thấy gì: Một trong hai con số thống kê hồ sơ cũ (tổng số toàn kho, 71) là số ghi tay chưa từng được máy đối chiếu lại — nếu con số đó sai thì hiện chưa có cách nào tự động phát hiện.
-  file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
-  severity: medium
+- **Số mục known-limits của `do-tin-tram-phan-loai` nói BA con số khác nhau ở ba tệp: 6 · 7 · 8**
+  Người dùng thấy gì: Tài liệu phát hành ghi số lượng hạn chế đã biết của một vòng làm việc không khớp nhau giữa các nơi (khi thì 6, khi thì 7, khi thì 8), khiến người đọc không biết nên tin theo con số nào.
+  file: `_acceptance/release-2-14-0/contract.md`
+  severity: high
   Đề xuất: known-limits
 
-- **rang-moc.sh chỉ đo lịch sử đã commit — sửa diagram-design/ chưa commit vẫn cho PASS**
-  Người dùng thấy gì: Nếu có thay đổi chưa lưu (chưa commit) trong phần thiết kế sơ đồ, phép kiểm 'không đổi gì' vẫn có thể báo đạt vì nó chỉ nhìn lịch sử đã lưu, bỏ sót thay đổi thật đang nằm trên máy người thao tác.
-  file: `_acceptance/release-2-14-0/rang-moc.sh`
-  severity: medium
-  Đề xuất: known-limits
-
-- **rang-so-tang.sh cũng không có chốt tham số — cùng lớp fail-open, chưa nổ vì config đang gọi trần**
-  Người dùng thấy gì: Giống một lỗi khác trong cùng đợt: nếu sau này cấu hình truyền thêm tùy chọn cho phép kiểm tra số phiên bản tăng, hệ thống có thể âm thầm bỏ qua tùy chọn đó mà vẫn báo đạt.
-  file: `_acceptance/release-2-14-0/rang-so-tang.sh`
-  severity: low
-  Đề xuất: known-limits
-
-- **opportunity.md chép «42 hồ sơ» trong khi răng của cùng cửa sổ đo được 45**
-  Người dùng thấy gì: Một tài liệu tham khảo nền (không thuộc phần việc của đợt phát hành này) đang ghi con số hồ sơ cũ đã lỗi thời (42 thay vì 45 hiện tại), có thể gây hiểu nhầm cho người đọc tài liệu đó sau này.
+- **opportunity.md mới thêm chép «42 hồ sơ» trong khi cùng cửa sổ đo được 45 (và 71 toàn kho)**
+  Người dùng thấy gì: Một tài liệu nội bộ ghi số hồ sơ đang tồn đọng là 42, trong khi số đo thực tế tại cùng thời điểm là 45 (và 71 tính toàn bộ kho); ai dựa vào tài liệu này sẽ dùng nhầm số cũ.
   file: `_acceptance/mot-nguon-tai-gui-triage/opportunity.md`
-  severity: low
+  severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 5 — lời khai của rang-ton-dong.sh vẫn tuyên quét LỚP ở header + bảng mã thoát, trong khi phép đo chỉ soi hai literal neo**
-  Người dùng thấy gì: Phần mô tả trong công cụ kiểm tra tuyên bố soi toàn bộ văn bản hồ sơ, nhưng thực tế chỉ soi một phần nhỏ; nếu số liệu sai xuất hiện ở chỗ khác trong văn bản, phép kiểm có thể không phát hiện được dù mô tả nói là có kiểm.
+- **Hai răng VIẾT MỚI thiếu «dấu bản răng» mà hai răng CHÉP đều có — output ghim trong evidence-report không phân biệt được bản**
+  Người dùng thấy gì: Hai công cụ kiểm tra mới không ghi lại phiên bản của chính mình trong kết quả xuất ra, nên nếu sau này công cụ được sửa, báo cáo cũ và mới có thể trông giống hệt nhau dù chạy bằng bản khác nhau, gây khó khi cần tra lại đúng bản đã chạy.
+  file: `_acceptance/release-2-14-0/rang-so-tang.sh`
+  severity: medium
+  Đề xuất: known-limits
+
+- **rang-ton-dong.sh không đọc $@ và không có chốt cờ lạ — `--chan ghim-lai` mà config truyền bị nuốt im lặng**
+  Người dùng thấy gì: Bước kiểm 'đã ghim lại đúng số' chấp nhận bất kỳ giá trị cấu hình nào được truyền vào, kể cả giá trị sai, mà không báo lỗi — nên một lần gõ nhầm cấu hình sẽ không bị phát hiện và báo cáo vẫn hiện đạt.
   file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 4 — đối chứng dương (c) không ghim THÔNG ĐIỆP mà phép đếm phụ thuộc; nhánh «0 = 0» vẫn là đường xanh**
-  Người dùng thấy gì: Phép kiểm 'phải phát hiện được lỗi' của công cụ chỉ chứng minh có dòng kết quả in ra, chứ không chứng minh đúng nội dung cần tìm — nếu hệ thống nền đổi cách báo lỗi, phép kiểm này có thể im lặng bỏ qua một trường hợp đáng lẽ phải báo lỗi mà không ai nhận ra.
+- **Số mục known-limits của vòng do-tin-tram-phan-loai lệch nhau ở ba bề mặt: contract nói 6, CHANGELOG nói 7, nguồn thật là 8**
+  Người dùng thấy gì: Số lượng hạn chế đã biết của cùng một vòng làm việc được ghi khác nhau ở tài liệu phát hành (6) và ở nhật ký thay đổi (7), trong khi nguồn dữ liệu gốc thực có 8 mục — không nơi nào khớp với con số thật.
+  file: `_acceptance/release-2-14-0/contract.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 1 (đo CHỈ DẪN thay vì ĐẦU RA) — rang-ton-dong.sh không đọc $@, cờ `--chan ghim-lai` config truyền là trang trí**
+  Người dùng thấy gì: Cấu hình khai báo tham số cho bước kiểm 'đã ghim lại đúng số', nhưng bước kiểm đó thực ra không đọc tham số ấy — nên tham số chỉ mang tính trang trí, không bảo vệ được điều người đọc tưởng nó đang bảo vệ.
+  file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
+  severity: high
+  Đề xuất: known-limits
+
+- **Hình dạng 3 (assert «chuỗi có mặt» thay vì QUAN HỆ giữa các giá trị) — `so_stale_toan_kho: 71` chỉ dùng để NỚI allowlist, không hề được đo**
+  Người dùng thấy gì: Trong cặp số mà hồ sơ khai (số trong cửa sổ và số toàn kho), chỉ số thứ nhất thực sự được đối chiếu với số đo thật; số thứ hai không hề được kiểm chứng, chỉ dùng để nới điều kiện cho qua — nên nếu số thứ hai sai, bước kiểm vẫn báo đạt.
   file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Thước neo vào HEAD di động — con số 45 ghim trong hợp đồng đo trên cửa sổ moc..HEAD, hồ sơ đã ký sẽ đỏ ở lượt ghim lại kế (đúng lớp owner đã TRỪ khỏi rang-moc.sh)**
-  Người dùng thấy gì: Cách đo cho hồ sơ này dùng mốc thời gian trôi theo hiện tại, nên một hồ sơ đã được duyệt xong có thể bị báo lỗi trở lại ở đợt kiểm tiếp theo dù không có gì sai thật với nội dung đã ký.
+- **Hình dạng 5 (tuyên quét LỚP nhưng chỉ có điểm-case) — header và bảng mã thoát của rang-ton-dong.sh vẫn phát biểu toàn xưng sau khi ĐỔI KHUÔN thu hẹp phép đo**
+  Người dùng thấy gì: Phần mô tả của bước kiểm 'đã ghim lại đúng số' vẫn tuyên bố nó rà soát toàn bộ tài liệu, dù sau một lần chỉnh sửa gần đây nó chỉ còn rà những dòng viết theo đúng một khuôn cụ thể — mô tả rộng hơn thực tế công cụ làm, dễ khiến người đọc tin nhầm phạm vi kiểm tra.
   file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Fail-open ở lớp cấu hình — rang-ton-dong.sh nuốt im cờ `--chan ghim-lai` mà config và hợp đồng đều khai**
-  Người dùng thấy gì: Nếu cấu hình sau này đổi tùy chọn truyền cho phép kiểm tra hồ sơ cũ, hệ thống vẫn có thể âm thầm báo 'đạt' mà không kiểm đúng thứ được yêu cầu.
+- **Hình dạng 4 (đối chứng dương không ghim ĐÚNG THÔNG ĐIỆP mà phép đếm phụ thuộc) — chốt (c) của rang-ton-dong.sh ghim một mẫu khác hẳn mẫu đếm**
+  Người dùng thấy gì: Bằng chứng dùng để chứng minh bước kiểm 'đã ghim lại đúng số' hoạt động đúng lại không thực sự khớp với cách bước kiểm đó tính ra kết quả cuối; nếu thông điệp mà công cụ dựa vào để đo bị đổi, bước kiểm có thể âm thầm báo đạt thay vì báo lỗi.
   file: `_acceptance/release-2-14-0/rang-ton-dong.sh`
   severity: medium
   Đề xuất: known-limits
 
-- **Bằng chứng không tự phân biệt bản — hai răng mới thiếu DẤU BẢN RĂNG, và output E5 đã ghim là của một thân script không còn tồn tại**
-  Người dùng thấy gì: Bằng chứng đã lưu cho một phép kiểm ghi lại đúng câu chữ của một phiên bản công cụ cũ, trong khi công cụ hiện tại đã đổi câu chữ — người đọc bằng chứng sau này có thể không biết mình đang xem kết quả của phiên bản nào.
-  file: `_acceptance/release-2-14-0/evidence-report.md`
+- **Hình dạng 1 (cùng lớp cờ fail-open) — rang-so-tang.sh cũng không có chốt tham số**
+  Người dùng thấy gì: Một bước đo khác (kiểm tra số phiên bản có tăng) cũng chấp nhận bất kỳ tham số nào được truyền vào mà không báo lỗi; hiện chưa gây hậu quả vì chưa có tham số nào được truyền, nhưng cùng dạng hở như đã nêu ở các mục trên.
+  file: `_acceptance/release-2-14-0/rang-so-tang.sh`
   severity: low
   Đề xuất: known-limits
 
