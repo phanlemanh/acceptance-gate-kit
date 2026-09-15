@@ -325,6 +325,12 @@ executors:
     ckh_sk_fail_closed: "bash -c 'out=$(node tests/scripts/repin-lane-skip-unchanged.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: SK3\"'"
     ckh_sk_lenh_tu_khoi: "bash -c 'out=$(node tests/scripts/repin-lane-skip-unchanged.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: SK5 lenh 7b rut tu\"'"
     ckh_rb_ba_cho_tu_phan: "bash -c 'out=$(node tests/scripts/routing-baseline-t1.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -q \"PASS: RB4 A1 ghim lai sau commit\"'"
+
+    # --- release-2-14-0 (15/09) --- bốn răng của hồ sơ mốc
+    p200_cat_so_2_14: bash _acceptance/release-2-14-0/rang-p200.sh
+    moc_diagram_2_14: bash _acceptance/release-2-14-0/rang-moc.sh --chan diagram
+    ton_dong_ghim_lai_2_14: bash _acceptance/release-2-14-0/rang-ton-dong.sh --chan ghim-lai
+    so_tang_2_14: bash _acceptance/release-2-14-0/rang-so-tang.sh
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
