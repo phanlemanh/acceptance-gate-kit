@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 944dce5fbe76b26f3210a8409946d15297a68695
+verified_commit: 9d0696c1569f6858753a7d53e393140bbd3cc2fe
 human_signoff: Manh 2026-08-25
 ---
 
@@ -286,3 +286,7 @@ sha: 809669544314a99ba3da40065778030860deaa83 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 8 — 2026-09-11, do vấp giữa hai release: PR #168 khai dòng RT13 vào khối KHAC-BIET-DOC-CU của hồ sơ này nên hồ sơ vào phạm vi diff và lộ pin cũ
 run_id: repin-20260911T102033Z-96098
 sha: 944dce5fbe76b26f3210a8409946d15297a68695 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 9 — 2026-09-15, do ghim lại RIÊNG làn — vòng đang chạy bị chặn thật giữa hai release (CLAUDE.md §re-pin)
+run_id: repin-20260915T081937Z-90048
+sha: 9d0696c1569f6858753a7d53e393140bbd3cc2fe · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
