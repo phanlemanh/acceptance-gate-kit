@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Phát hành kit 2.14.0 — cắt số cho hai gói kit và định đoạt công khai chiến dịch ghim lại đang hoãn mốc thứ hai. HẠ VỀ DRAFT 15/09 chờ PR #176 merge; bốn khối sự thật phải dựng lại từ cây sau merge.
+feature: Phát hành kit 2.14.0 — cắt số cho hai gói kit và định đoạt công khai chiến dịch ghim lại đang hoãn mốc thứ hai. Hạ về draft 15/09 chờ PR #176 merge, dựng lại bốn khối sự thật từ cây sau merge, trình lại Cổng Phạm vi.
 slug: release-2-14-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest + GUIDE; KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
@@ -119,7 +119,7 @@ hai.
 
 ## Out of scope
 
-- **Chạy chiến dịch ghim lại 43 hồ sơ** — hoãn mốc thứ hai liên tiếp, và hoãn CÔNG KHAI: AC-5
+- **Chạy chiến dịch ghim lại 45 hồ sơ** — hoãn mốc thứ hai liên tiếp, và hoãn CÔNG KHAI: AC-5
   bắt hồ sơ mang con số thật có răng canh, thay vì im lặng bỏ qua. Điều kiện tiên quyết
   («ghim lại theo diff», hồ sơ 2.13 §4 mục 1) vẫn chưa làm, nên chạy chiến dịch bây giờ là
   một khoản giờ máy lớn lặp lại ở mọi mốc.
@@ -132,7 +132,7 @@ hai.
 ## Notes
 
 <!-- <<<TON-DONG-GHIM-LAI -->
-so_stale: 43
+so_stale: 45
 moc_so: 7d12ffad
 <!-- TON-DONG-GHIM-LAI>>> -->
 
@@ -148,7 +148,7 @@ cộng trao đổi trực tiếp giữa hai phiên ngày 15/09.
 | 1 làm-xong → quyết-được | **3h59** | **5h52** | ts dòng `round` đầu của `run-log.jsonl` → commit Cổng 2 (`c47ae5f8` · `76879ac4`) |
 | 2 lượt gọi người/vòng | **5** — ①2 · ②1 · ③2 | **5** — ①1 · ②3 · ③1 | ba ngăn, xem bảng dưới; đếm tay hai phiên đối chiếu |
 | 3 lượt chấm bị hạ-tầng-kit đốt | **0** trên 3 | **2** trên 6 — lượt 3 args thiếu `diffFiles` (phiên gọi cắt tệp args) · lượt 4 một tác tử chết | `## Iterations` + log workflow; hai lần dispatch chết ngay cổng args (0 tác tử) KHÔNG tính là lượt chấm |
-| 4 token máy/lượt | **19.223.828** ở lượt PASS · vòng 3 lượt **53.974.767** (18,0 M/lượt) | **50.222.052** ở lượt PASS · vòng 6 lượt **145.925.121** (24,3 M/lượt) | `usage-report.md` của từng vòng; NỀN: ba dòng tổng per-model (out + in + cache_read + cache_create), cùng nền mốc 2.13.0. Vòng thứ hai: tệp ở nhánh `claude/usage-report-chu-ky` (`c225f75f`), phiên mốc đã tự tính lại ra đúng con số bằng script riêng; **chờ lên main trước khi chấm AC-4** |
+| 4 token máy/lượt | **19.223.828** ở lượt PASS · vòng 3 lượt **53.974.767** (18,0 M/lượt) | **50.222.052** ở lượt PASS · vòng 6 lượt **145.925.121** (24,3 M/lượt) | `usage-report.md` của từng vòng; NỀN: ba dòng tổng per-model (out + in + cache_read + cache_create), cùng nền mốc 2.13.0. Vòng thứ hai: `usage-report.md` sinh ở phiên kia, lên main bằng merge commit `8c5c01ac` (owner 15/09: «tập trung phiên này, phiên kia đóng lại»); phiên mốc đã tự tính lại ra đúng con số bằng script riêng trước khi merge |
 | 4b ba khối của lượt PASS | tìm-lỗi **75,4 %** · chứng-minh-vật **18,9 %** · tổng hợp **5,7 %** | tìm-lỗi **19,9 %** — lượt PASS chạy `runBaseline` cùng suite đầy đủ nên khối chứng-minh-vật nuốt phần lớn; ghi nguyên số, chưa tách được | NỀN KHÁC, khai rõ: bảng vai trò (out + in + cache_read, KHÔNG có cache_create). ÁNH XẠ: `review`+`refute` → tìm-lỗi · `machine`+`baseline`+`triage`+`capture` → chứng-minh-vật · `synthesize` → tổng hợp |
 | 5 phút máy/lượt chấm | **15,3** ở lượt PASS; TB **22,5** | **22,8** ở lượt PASS; TB **26,1** (157 phút / 6) | dòng `wall` từng mục |
 
@@ -237,9 +237,13 @@ mốc 2.13, một lần ở vòng này. Mỗi lần một lượt ngăn ③.
 4. **Ghim lại theo diff.** Vẫn chưa làm; ADR 0019 đã cắt phần «chữ ký làm hoá cũ» và «làn bỏ
    qua khi cây bằng pin» nên đề bài ở hạt giống 2.13 mục 1 cần đọc lại — có thể đã nhỏ đi.
    `--skip-unchanged` (mới) KHÔNG giúp chiến dịch: nó loại trừ `--write`.
-5. **Chiến dịch ghim lại.** Hai nền, khai cạnh nhau: **69** hồ sơ có pin tụt sau vật (thứ CI
-   thật sự chặn, phạm vi chiến dịch) · **43** tụt trong cửa sổ `7d12ffad..HEAD` (số so-sánh-qua-mốc,
-   răng AC-5 canh). Mốc này chạy lượt ĐO không ghi trên 69 — kết quả ở khối Notes 5 dưới đây.
+5. **Chiến dịch ghim lại.** Hai nền, khai cạnh nhau: **71** hồ sơ có pin tụt sau vật (thứ CI
+   thật sự chặn, phạm vi chiến dịch) · **45** tụt trong cửa sổ `7d12ffad..HEAD` (số so-sánh-qua-mốc,
+   răng AC-5 canh). Trước commit cắt số hai số là 69 và 43; chính commit cắt số (`2ce88a2b`, chạm
+   hai manifest — code, không phải T1) làm hai vòng vừa ký của cửa sổ tụt pin theo:
+   `do-tin-tram-phan-loai` và `chu-ky-khong-tu-lam-hoa-cu`. Răng AC-5 bắt đúng lúc: hồ sơ ghi 43,
+   lưới nói 45, đỏ mã 3 — sửa số theo lưới, không sửa lưới theo số. Lượt ĐO không ghi chạy trên
+   danh sách 69 (sinh trước commit cắt số) — kết quả ở khối Notes 5 dưới đây.
 6. **Tải gửi trạm phân loại về MỘT nguồn** — hạt giống `docs/plans/2026-09-15-hat-giong-mot-nguon-tai-gui-triage.md`.
 7. **`bo-qua-phai-thay-dinh-nghia-phep-do`** — hồ sơ draft đã ở trên main (PR #177), 3 AC · 5
    eval, chờ cửa sổ này.

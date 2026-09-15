@@ -99,7 +99,7 @@ evals:
       có khớp «## Iterations» trong báo cáo ở input thứ ba không. Cuối cùng: khối năm dòng
       có nói THẲNG bốn điều bất lợi không — token/lượt KHÔNG giảm so mốc trước · lượt gọi
       người vượt trần ở CẢ HAI vòng · cửa sổ có HAI vòng meta trong khi luật (b) cho một ·
-      dòng 4 của vòng thứ hai rút từ tệp CHƯA lên main, có ghi nguồn và chờ merge.
+      dòng 4 của vòng thứ hai rút từ tệp do phiên khác sinh, lên main bằng merge riêng, có ghi nguồn.
     inputs:
       - _acceptance/release-2-14-0/contract.md
       - _acceptance/do-tin-tram-phan-loai/usage-report.md
