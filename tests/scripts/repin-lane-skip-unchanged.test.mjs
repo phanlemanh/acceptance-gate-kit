@@ -184,8 +184,13 @@ check('SK5 lenh 7b rut tu SIGNOFF-LANE-CLAUSE chay o trang thai hau-buoc-6 -> sk
   const rp = lane('--slug', 'feat', '--reason', 'ghim truoc ca 7b', '--write');
   assert.equal(rp.status, 0, `ghim lại trước ca 7b phải xanh:\n${rp.stderr}`);
   git('add', '-A'); git('commit', '-qm', 'repin truoc 7b');
-  writeFileSync(BASE, '# moc dinh tuyen\nfeat\thoi=ký hay trả\tbao=cắt/hoãn\n');   // bước 6b vừa sinh, CHƯA commit
+  // Dòng bản ghi mốc do WRITER THẬT sinh (không gõ tay đúng khuôn bên đọc —
+  // đó là seam mà vòng này tồn tại để đóng; lượt chấm 2 bắt đúng chỗ này).
+  // Chữ ký phải có TRƯỚC, đúng thứ tự 7a → 7a-bis của lệnh ký.
   writeFileSync(REPORT, readFileSync(REPORT, 'utf8').replace(/^human_signoff:.*$/m, 'human_signoff: Manh 2026-09-15 — hau buoc 6'));
+  const sinh = spawnSync(process.execPath, [RB, '--root', R, '--slug', 'feat', '--write'], { encoding: 'utf8' });
+  assert.equal(sinh.status, 0, `writer thật phải sinh được dòng bản ghi mốc:\n${sinh.stderr}`);
+  assert.match(readFileSync(BASE, 'utf8'), /^feat\t/m, 'dòng của slug phải do writer thật ghi vào bản ghi mốc');
 
   clearMarker();
   const r = spawnSync(process.execPath, [LANE, ...argv, '--ag-root', ROOT], { encoding: 'utf8' });

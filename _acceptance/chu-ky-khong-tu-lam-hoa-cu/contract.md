@@ -61,11 +61,14 @@ exit khác 0 gọi tên slug, tệp giữ nguyên **từng byte** — không ghi
 ### AC-3 — `/signoff` sinh dòng baseline ở bước 6 và đưa tệp vào commit chữ ký; SKILL chép nguyên văn
 
 **Given** `commands/signoff.md`
-**When** đọc bước 6 và 7c
-**Then** bước 6 có câu chạy lệnh sinh cho kho tự host kit (sau khi `human_signoff` đã
-ghi, cùng lượt với bản đồ) **và ngay sau đó chạy ĐÚNG MỘT ca LM20 (`LMCMS_ONLY=LM20`)
-làm đối chứng dương trong luồng thật**, kèm **số đo thật** của bước đó trong chính lời
-dặn — không được khai «vài giây» khi đo được là ≈ 1 ph 45 s (trọn tệp: ≈ 2 ph 40 s);
+**When** đọc bước 7 và 7c
+**Then** bước sinh bản ghi mốc đứng **SAU 7a và TRƯỚC 7b** — đo bằng QUAN HỆ vị trí
+trong văn bản, không bằng lời dặn: lệnh sinh đọc `human_signoff` làm tiền điều kiện và
+thoát 2 khi rỗng, nên đặt nó trước 7a là tự chặn chính lượt ký (lỗi đã đo, lượt chấm 2).
+Bước đó chạy ĐÚNG MỘT ca LM20 (`LMCMS_ONLY=LM20`) làm đối chứng dương trong luồng thật,
+kèm **số đo thật** trong chính lời dặn — không được khai «vài giây» khi đo được là
+≈ 1 ph 45 s (trọn tệp: ≈ 2 ph 40 s), và neo đoạn văn phải được kiểm trước khi assert
+đọc nó (neo trôi → assert hoá rỗng im lặng);
 7c nêu tệp baseline trong `git add` của kho kit; khối
 `SIGNOFF-LANE-CLAUSE` trong `commands/signoff.md` và bản chép trong
 `skills/acceptance/SKILL.md` **bằng nhau từng ký tự**; khối gốc mang lệnh 7b có
@@ -102,9 +105,11 @@ KHÔNG bỏ qua, in một dòng nêu lý do, chạy trọn như không có cờ.
 ### AC-6 — Lệnh 7b rút từ khối clause bỏ qua đúng ở TRẠNG THÁI HẬU-BƯỚC-6 thật; sổ sách đủ
 
 **Given** khối `SIGNOFF-LANE-CLAUSE` của `commands/signoff.md` và kho fixture dựng đúng
-trạng thái cây ngay sau bước 6 của một lượt ký: `human_signoff` vừa ghi **chưa commit**
-và dòng baseline vừa sinh bằng chính `routing-baseline.mjs --write` **chưa commit** (hai
-thứ bẩn cùng lúc — đây là trạng thái ghép mà (d) và (c′) chỉ cùng nhau mới tạo ra)
+trạng thái cây ngay sau bước sinh của một lượt ký: `human_signoff` vừa ghi **chưa
+commit**, rồi dòng baseline do **CHÍNH `routing-baseline.mjs --write` chạy thật trong
+lần chạy ca đó** sinh ra, cũng **chưa commit** — KHÔNG gõ tay theo khuôn bên đọc (hai
+thứ bẩn cùng lúc là trạng thái ghép mà (d) và (c′) chỉ cùng nhau mới tạo ra; gõ tay thì
+writer đổi khuôn vẫn xanh — lỗi đã đo, lượt chấm 2)
 **When** răng rút nguyên văn dòng lệnh 7b từ khối (thay `<feature-loop>` = gốc gói,
 `<slug>` = hồ sơ fixture) và chạy
 **Then** exit 0 và JSON `skipped: true` — tức vị từ bỏ qua được xét trên cây làm việc và
@@ -128,6 +133,50 @@ chiều (đỏ · im) — bảng trong design doc, mục Thước.
 - Re-pin theo diff chọn suite theo `paths` (mục 1 nguyên bản của hạt giống).
 - Rút ngắn suite `tests/plugins` (402 s) hay `tests/scripts` (362 s).
 - Đổi vị từ staleness của `pre-merge-check.sh`/`lib` — vòng này chỉ TÁI DÙNG.
+
+## Known limits
+
+Mười ba mục NGOÀI hợp đồng của lượt chấm 2, owner định đoạt «ghi Known limits» ở cổng
+DỪNG-VÁ 15/09 (lối 2 — thu phạm vi). Chúng là lỗi THẬT nhưng nằm ngoài phạm vi đã duyệt
+ở Cổng Phạm vi, và **chưa qua bác bỏ đối kháng** (khối tìm-lỗi chỉ trả phí refute cho
+mục trong hợp đồng). Phần lớn cùng MỘT lớp — «thước không sống» — nằm trong chính bộ
+răng vòng này viết, không nằm trong hai nhát cắt:
+
+- **Lệnh ký nêu đích danh tệp kit-nội-bộ** (`high`) — bước sinh bản ghi mốc viết thẳng
+  `tests/scripts/routing-baseline.mjs`, mà `commands/signoff.md` chạy ở MỌI repo tiêu
+  thụ. Điều kiện áp dụng đang là LỜI («kho không tự host kit thì bỏ qua») thay vì VẬT
+  như bước bản đồ (giải `config:executors.script.product_map`). Lối đúng đã có tên:
+  khai `routing_baseline:` trong `executors.script` và chỉ chạy khi key giải được.
+- **`LMCMS_ONLY` sai tên → 0 ca chạy nhưng exit 0** (`high`) — cổng đối chứng dương của
+  bước sinh có thể xanh mà chưa kiểm gì. Kit đã có sàn đúng hình dạng này ở
+  `tests/scripts/run-tests.sh` («có ít nhất một *.test.mjs được chạy»); ở đây sàn vắng.
+- **RB2c là đột biến NO-OP** (`high`) — chuỗi sửa-tay không có trong dòng thật nên
+  «chiều im» không có đột biến nào chạy; thay `spliceLine` bằng sinh-lại-trọn-tệp thì
+  ca vẫn xanh.
+- **E7 khai grep mà lệnh không grep** (`medium`) — khoá config là lệnh trần, nên chiều
+  đỏ «tệp ca không được runner nhặt» chưa có răng.
+- **Nhánh «pin vắng» của `--skip-unchanged` là code chết** (`medium`) — `perSlug` đã
+  chặn cùng vị từ trước đó, và SK4 xanh qua đường khác nên không đo cái nó khai.
+- **Regex `verified_commit` dùng `\s*`** (`medium`) — `\s` nuốt xuống dòng, cùng lớp
+  bẫy mà `settled()` đã tránh bằng `[ \t]*`.
+- **«Chiều IM» của RB3 là tautology** (`medium`) — không đột biến nào được chấm lại
+  bằng chính phép đo.
+- **SK6 assert CHANGELOG đã xanh sẵn trên cây gốc** (`medium`) và không ghim chuỗi mà
+  eval hứa.
+- **RB2e chứng «một nguồn» bằng grep mã nguồn** (`medium`) dù eval khai «kiểm bằng
+  import thật» — vế import có chạy, nhưng vế ghim quan hệ thì đo bằng chuỗi.
+- **E3 khai một dòng PASS không tồn tại nguyên văn** (`low`) — executor chỉ grep tiền
+  tố nên eval vẫn xanh; người đọc hồ sơ đi tìm đúng chuỗi sẽ không thấy.
+- **`isMain` gọi `realpathSync` không bọc try/catch** (`low`) — ném lúc import nếu
+  `process.argv[1]` không giải được.
+- **Assert «không khai vài giây» có thể hoá rỗng nếu neo văn bản trôi** (`low`) — mục
+  này ĐÃ VÁ trong lượt sửa: neo được kiểm trước khi slice.
+- (mục thứ mười ba là biến thể thứ hai của `LMCMS_ONLY` xanh câm, cùng gốc với mục 2.)
+
+**Đánh đổi owner nhận khi ký:** hai nhát cắt tựa vào 5 mutant bị bắt + 7/7 eval máy
+xanh hai lượt liên tiếp, KHÔNG tựa vào các assert yếu kể trên. Nợ thước có tên ở đây và
+vào hạt giống 2.14; ngưỡng mở vòng sửa thước: ≥1 hồi quy của hai nhát cắt lọt qua bộ
+răng này giữa hai bản phát hành.
 
 ## Notes
 

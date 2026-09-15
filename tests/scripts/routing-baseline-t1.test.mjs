@@ -183,10 +183,27 @@ check('RB2b DOI CHUNG DUONG: CA LM20 THAT chay tren kho fixture -> PASS: LM20', 
 check('RB3 signoff.md buoc 6 goi lenh sinh, 7c them tep; SKILL chep khoi SIGNOFF-LANE-CLAUSE bang tung ky tu', () => {
   const so = readFileSync(SIGNOFF, 'utf8'), sk = readFileSync(SKILL, 'utf8');
   assert.match(so, /routing-baseline\.mjs --root \. --slug <slug> --write/, 'bước 6 phải chạy lệnh sinh');
-  assert.match(so, /LMCMS_ONLY=LM20 node tests\/scripts\/gate-card-lmcms\.test\.mjs/, 'bước 6 phải chạy ĐÚNG MỘT ca LM20 làm đối chứng dương trong luồng thật');
+  assert.match(so, /LMCMS_ONLY=LM20 node tests\/scripts\/gate-card-lmcms\.test\.mjs/, 'bước sinh phải chạy ĐÚNG MỘT ca LM20 làm đối chứng dương trong luồng thật');
+  // THỨ TỰ LÀ VẬT, không phải lời dặn: lệnh sinh đọc `human_signoff` làm tiền điều
+  // kiện (exit 2 khi rỗng), nên nó phải đứng SAU 7a. Đo bằng QUAN HỆ vị trí trong
+  // văn bản — đặt lại khối lên trước 7a là ca này đỏ (lỗi thật, lượt chấm 2).
+  {
+    const i7a = so.indexOf('**7a — ghi trường người');
+    const iSinh = so.indexOf('node tests/scripts/routing-baseline.mjs --root . --slug <slug> --write');
+    const i7b = so.indexOf('**7b — làn máy TRƯỚC chữ ký');
+    assert.ok(i7a > 0 && iSinh > 0 && i7b > 0, 'thiếu một trong ba mốc 7a / lệnh sinh / 7b');
+    assert.ok(i7a < iSinh, 'lệnh sinh bản ghi mốc đứng TRƯỚC 7a — nó đòi human_signoff nên sẽ exit 2 và tự chặn lượt ký');
+    assert.ok(iSinh < i7b, 'lệnh sinh phải đứng TRƯỚC làn 7b — dòng vừa sinh phải có mặt khi làn đo cây');
+  }
   // Lời dặn phải mang SỐ ĐO THẬT của bước nó bắt chạy — vòng này tồn tại để cắt
   // phút; một bước cộng ~2 phút mà khai «vài giây» là tự dối ngay trong văn bản.
-  assert.doesNotMatch(so.slice(so.indexOf('6b —'), so.indexOf('7. **Ghi và commit')), /vài giây/, 'bước 6b không được khai «vài giây» — đo thật là ≈1 ph 45 s');
+  // Neo đoạn: từ tiêu đề bước sinh tới mốc 7b. Neo trôi → slice rỗng → assert hoá
+  // vô nghĩa, nên kiểm neo TRƯỚC (lỗi đã đo, lượt chấm 2 hình dạng 4).
+  {
+    const a = so.indexOf('**7a-bis — bản ghi mốc'), b = so.indexOf('**7b — làn máy TRƯỚC chữ ký');
+    assert.ok(a > 0 && b > a, 'neo đoạn bước sinh trôi — assert dưới sẽ hoá rỗng im lặng');
+    assert.doesNotMatch(so.slice(a, b), /vài giây/, 'bước sinh không được khai «vài giây» — đo thật là ≈1 ph 45 s');
+  }
   assert.match(so, /1 ph 45 s/, 'bước 6b phải nêu số đo thật của chính nó');
   assert.match(so, /git add[^\n]*routing-baseline\.txt|routing-baseline\.txt[^\n]*git add|thêm ` tests\/scripts\/fixtures\/routing-baseline\.txt`/, '7c phải đưa bản ghi mốc vào commit chữ ký');
   const pat = /<!-- <<<SIGNOFF-LANE-CLAUSE -->\n([\s\S]*?)<!-- SIGNOFF-LANE-CLAUSE>>> -->/;
