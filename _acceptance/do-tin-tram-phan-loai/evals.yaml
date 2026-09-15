@@ -181,5 +181,8 @@ evals:
     expected: >
       Exit 0, «Results: all plugin tests passed». Hồi quy corpus: P161 và các ca quét văn hồ sơ
       không được đỏ vì hồ sơ mới của vòng này.
-    paths: [_acceptance/**, feature-loop/**, tests/plugins/run-tests.sh]
+    # KHÔNG khai _acceptance hai sao: paths của eval thắng mẫu ngoài-vật (đổi khuôn 14/09),
+    # khai vậy là kéo văn hồ sơ của chính vòng vào vùng vật cho bộ tìm-lỗi soi — đúng phần
+    # phí mà mốc 2.13 đã cắt. Corpus prose là thứ suite quét, không phải vật của vòng này.
+    paths: [tests/plugins/run-tests.sh, _acceptance/config.yaml, _acceptance/do-tin-tram-phan-loai/rang-triage.sh, feature-loop/**]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
