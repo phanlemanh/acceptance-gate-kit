@@ -89,11 +89,19 @@ nhất cho câu «không làm trôi cái gì».
 ### AC-4 (judgment) — bốn khối Notes đủ mặt, năm dòng số có nguồn rút
 
 **Given** khối `## Notes` của hợp đồng này
-**When** hội đồng đọc nó cùng `usage-report.md` của vòng `do-tin-tram-phan-loai`
+**When** hội đồng đọc nó cùng BA nguồn: `usage-report.md` của vòng `do-tin-tram-phan-loai` ·
+`evidence-report.md` **và** `usage-report.md` của vòng `chu-ky-khong-tu-lam-hoa-cu`
 **Then** đủ bốn khối bắt buộc (năm dòng số · lớp vendored · lớp lỗi tái phát · nhát cắt cho
-cửa sổ kế); mỗi ô có nguồn rút gọi tên; hai dòng MÁY ĐO khớp từng chữ số với nguồn. Và khối
-năm dòng phải nói thẳng điều số đang nói, kể cả khi nó bất lợi: token/lượt KHÔNG giảm so với
-mốc trước.
+cửa sổ kế); bảng năm dòng đủ HAI CỘT cho hai vòng; mỗi ô có nguồn rút gọi tên; dòng 2 đếm
+bằng ba ngăn cho cả hai vòng; và MỌI số máy-đo khớp từng chữ số với nguồn — của CẢ HAI vòng.
+Và khối năm dòng phải nói thẳng điều số đang nói, kể cả khi nó bất lợi: token/lượt KHÔNG giảm
+so với mốc trước.
+
+**Mỗi số máy-đo phải có nguồn NẰM TRONG `inputs`.** Lượt chấm 1 của chính mốc này chứng vì
+sao: ô lượt PASS của vòng thứ hai ghi 50.222.052 trong khi `usage-report.md` trên main cộng
+ra 50.195.215 — hội đồng vẫn đề xuất PASS, vì tệp ấy KHÔNG nằm trong `inputs` nên thứ duy
+nhất chấm được là LỜI GHI NGUỒN chứ không phải con số. Làn tìm-lỗi bắt, hồ sơ sửa số theo
+nguồn và thêm nguồn vào `inputs`; vế này ở đây để lần sau không lặp.
 
 ### AC-5 (chiến dịch ghim lại) — con số trong hồ sơ là số lưới đang nói, không phải số chép
 
@@ -150,7 +158,7 @@ cộng trao đổi trực tiếp giữa hai phiên ngày 15/09.
 | 1 làm-xong → quyết-được | **3h59** | **5h52** | ts dòng `round` đầu của `run-log.jsonl` → commit Cổng 2 (`c47ae5f8` · `76879ac4`) |
 | 2 lượt gọi người/vòng | **5** — ①2 · ②1 · ③2 | **5** — ①1 · ②3 · ③1 | ba ngăn, xem bảng dưới; đếm tay hai phiên đối chiếu |
 | 3 lượt chấm bị hạ-tầng-kit đốt | **0** trên 3 | **2** trên 6 — lượt 3 args thiếu `diffFiles` (phiên gọi cắt tệp args) · lượt 4 một tác tử chết | `## Iterations` + log workflow; hai lần dispatch chết ngay cổng args (0 tác tử) KHÔNG tính là lượt chấm |
-| 4 token máy/lượt | **19.223.828** ở lượt PASS · vòng 3 lượt **53.974.767** (18,0 M/lượt) | **50.222.052** ở lượt PASS · vòng 6 lượt **145.925.121** (24,3 M/lượt) | `usage-report.md` của từng vòng; NỀN: ba dòng tổng per-model (out + in + cache_read + cache_create), cùng nền mốc 2.13.0. Vòng thứ hai: `usage-report.md` sinh ở phiên kia, lên main bằng merge commit `8c5c01ac` (owner 15/09: «tập trung phiên này, phiên kia đóng lại»); phiên mốc đã tự tính lại ra đúng con số bằng script riêng trước khi merge |
+| 4 token máy/lượt | **19.223.828** ở lượt PASS · vòng 3 lượt **53.974.767** (18,0 M/lượt) | **50.195.215** ở lượt PASS · vòng 6 lượt **145.925.121** (24,3 M/lượt) | `usage-report.md` của từng vòng; NỀN: ba dòng tổng per-model (out + in + cache_read + cache_create), cùng nền mốc 2.13.0. Vòng thứ hai: `_acceptance/chu-ky-khong-tu-lam-hoa-cu/usage-report.md`, lên main bằng merge commit `8c5c01ac`. Ô lượt PASS từng ghi 50.222.052 — số phiên kia báo trước khi merge; làn tìm-lỗi của lượt chấm 1 bắt lệch 26.837 so với tệp trên main, đã sửa theo NGUỒN |
 | 4b ba khối của lượt PASS | tìm-lỗi **75,4 %** · chứng-minh-vật **18,9 %** · tổng hợp **5,7 %** | tìm-lỗi **19,9 %** — lượt PASS chạy `runBaseline` cùng suite đầy đủ nên khối chứng-minh-vật nuốt phần lớn; ghi nguyên số, chưa tách được | NỀN KHÁC, khai rõ: bảng vai trò (out + in + cache_read, KHÔNG có cache_create). ÁNH XẠ: `review`+`refute` → tìm-lỗi · `machine`+`baseline`+`triage`+`capture` → chứng-minh-vật · `synthesize` → tổng hợp |
 | 5 phút máy/lượt chấm | **15,3** ở lượt PASS; TB **22,5** | **22,8** ở lượt PASS; TB **26,1** (157 phút / 6) | dòng `wall` từng mục |
 
@@ -254,9 +262,49 @@ mốc 2.13, một lần ở vòng này. Mỗi lần một lượt ngăn ③.
    kết luận.
 9. **Ba mục còn lại của `release-2-12-0` §4** và các mục chưa làm của 2.13 §4.
 
-### 5. Chiến dịch ghim lại — lượt ĐO (không ghi)
+### 5. Chiến dịch ghim lại — lượt ĐO (không ghi), và điều nó lộ ra
 
-*(điền khi làn về)*
+Mốc này chạy một lượt làn ĐO (`repin-lane.mjs`, KHÔNG `--write`) trên danh sách 69 hồ sơ
+sinh bằng lưới trước-merge. Lượt bị **dừng tay ở hồ sơ thứ tư** vì nó chạy song song với
+lượt chấm của chính mốc và bắt đầu làm verifier bị công cụ giết; số dưới đây là số ĐÃ ĐO,
+không ngoại suy.
+
+| | số đo |
+|---|---|
+| hồ sơ đã qua | **4 / 69** |
+| eval máy đã chạy | **43 / 688** |
+| xanh · đỏ | **25 · 18** (42 % đỏ) |
+| 5 suite (chạy một lần cho cả lượt) | scripts 461 s · hooks 2 s · plugins 524 s · workflows 2 s · bản đồ 0 s |
+| thời gian | ≈ 37 phút cho 4 hồ sơ, trong đó ≈ 16,5 phút là suite |
+
+**Kết luận đắt hơn con số: chiến dịch ở dạng hiện tại KHÔNG chạy được, không phải «đắt».**
+Luật làn re-pin đòi **mọi** eval của hồ sơ xanh mới được ghi dòng pin (07/09: làn chỉ chứng
+suite là làn mất tiền đề). 18/43 eval đỏ ngay ở bốn hồ sơ đầu ⇒ làn dừng và **không ghi gì**.
+Ba lớp nguyên nhân, đều đã gọi tên bằng vết trong log:
+
+1. **Phép đo neo vào MỐC DI ĐỘNG.** Răng của các hồ sơ ấy dựng bản base từ `origin/main`
+   *hiện tại* (`CAT-BASE: origin/main -> 87a53ff5`), rồi tìm dấu hiệu ở base làm đối chứng
+   dương. Kit đổi văn bản thì dấu hiệu biến khỏi CẢ hai bên, nên răng tự khai đúng điều phải
+   khai: `base=0 — needle chua bao gio ton tai, phep do khong song` (5 ca). Đây là lớp P150
+   ở dạng khác: bản base không còn là bản base.
+2. **Đỏ THẬT vì văn bản đã đổi sau chữ ký** — `thieu dau hieu 'một chữ'`, `thieu luat am
+   'Máy không viết sẵn câu trả lời của người'`. Câu ấy đã sửa hoặc gỡ trong cửa sổ sau. Hồ sơ
+   cũ đo văn bản của cây lúc nó ký; ghim lại trên cây mới là đòi cây mới nói y câu cũ.
+3. **Eval trỏ CHÉO hồ sơ** — 4 eval của `cat-hinh-thuc` chạy răng nằm trong
+   `_acceptance/luu-kho-codex-va-nghi-le-design/`. Một hồ sơ hỏng kéo hồ sơ khác đỏ theo, và
+   làn không phân biệt được.
+
+**Hệ quả cho quyết định hoãn.** Hồ sơ này hoãn chiến dịch với lý do «điều kiện tiên quyết
+chưa làm + giờ máy lớn». Lượt ĐO đổi lý do ấy thành một điều mạnh hơn và đo được: **chạy
+chiến dịch bây giờ chỉ sinh ra một làn đỏ không ghi được dòng nào.** Nhát cắt «ghim lại theo
+diff» (§4 mục 4) vì thế không còn là tối ưu tốc độ — nó là **điều kiện tồn tại** của chiến
+dịch: chỉ khi làn biết hồ sơ nào KHÔNG bị diff chạm để bỏ qua, phần còn lại mới đủ nhỏ để
+người sửa từng eval chết một cách có nghĩa.
+
+**Giới hạn của chính số này (khai thẳng):** 4/69 hồ sơ là **5,8 %** mẫu, chọn theo thứ tự
+bảng chữ cái chứ không ngẫu nhiên; ba lớp nguyên nhân đúng cho bốn hồ sơ ấy, và KHÔNG được
+đọc thành tỉ lệ của 69. Con số dùng được là hướng, không phải ước lượng: ba lớp ấy đều là
+lớp cấu trúc, không phải sự cố riêng của một hồ sơ.
 
 - Thước tự dối: không dán glob-literal vào văn hồ sơ (P161 quét corpus); mọi mẫu ở đây nói
   bằng chữ.

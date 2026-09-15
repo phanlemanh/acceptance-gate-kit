@@ -94,9 +94,13 @@ evals:
       sổ không; mỗi ô số có ghi NGUỒN RÚT không; dòng 2 có đếm bằng BA NGĂN (cổng thiết kế ·
       luật đòi ngoài cổng · máy tự chèn) cho cả hai vòng không. KHÔNG tính lại con số nào —
       đó là việc người ký làm bằng mắt. RIÊNG đối chiếu NHÃN với nguồn: hai dòng máy đo của
-      vòng `do-tin-tram-phan-loai` có khớp từng chữ số với usage-report.md nêu tên ở input
-      thứ hai không; số lượt chấm và lượt hạ-tầng-đốt của vòng `chu-ky-khong-tu-lam-hoa-cu`
-      có khớp «## Iterations» trong báo cáo ở input thứ ba không. Cuối cùng: khối năm dòng
+      vòng `do-tin-tram-phan-loai` có khớp từng chữ số với usage-report.md ở input thứ hai
+      không; số lượt chấm và lượt hạ-tầng-đốt của vòng `chu-ky-khong-tu-lam-hoa-cu` có khớp
+      «## Iterations» trong báo cáo ở input thứ ba không; và HAI số token của vòng thứ hai
+      (ô lượt PASS · tổng vòng) có khớp usage-report.md ở input thứ TƯ không — cộng ba dòng
+      tổng per-model (out + in + cache_read + cache_create) của khối lượt ấy, đúng nền hợp
+      đồng khai. Vế thứ ba này là chỗ lượt chấm 1 bắt được lệch 26.837 vì nguồn chưa có
+      trong inputs: thiếu nó thì hội đồng chấm LỜI GHI NGUỒN chứ không chấm con số. Cuối cùng: khối năm dòng
       có nói THẲNG bốn điều bất lợi không — token/lượt KHÔNG giảm so mốc trước · lượt gọi
       người vượt trần ở CẢ HAI vòng · cửa sổ có HAI vòng meta trong khi luật (b) cho một ·
       dòng 4 của vòng thứ hai rút từ tệp do phiên khác sinh, lên main bằng merge riêng, có ghi nguồn.
@@ -104,6 +108,7 @@ evals:
       - _acceptance/release-2-14-0/contract.md
       - _acceptance/do-tin-tram-phan-loai/usage-report.md
       - _acceptance/chu-ky-khong-tu-lam-hoa-cu/evidence-report.md
+      - _acceptance/chu-ky-khong-tu-lam-hoa-cu/usage-report.md
     expected: >
       PASS khi bốn khối có mặt, bảng năm dòng đủ hai cột với nguồn rút từng ô, dòng 2 đếm ba
       ngăn cho cả hai vòng, hai đối chiếu nhãn-với-nguồn khớp, và bốn điều bất lợi đều được
