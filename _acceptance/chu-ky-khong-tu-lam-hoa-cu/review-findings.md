@@ -1,115 +1,121 @@
+# Review Findings: chu-ky-khong-tu-lam-hoa-cu (round 3)
+
 ## Trong hợp đồng
 
-### 1. Bước 6b đứng TRƯỚC 7a nhưng routing-baseline.mjs bắt buộc human_signoff phải có sẵn → quy trình ký tự chặn chính nó
-- file: `commands/signoff.md:159`
-- severity: medium
+### Hình dạng 1/3: assert số đo «1 ph 45 s» quét TRỌN tệp trong khi lời hứa là «bước 6b nêu số đo của CHÍNH NÓ»
+- file: `tests/scripts/routing-baseline-t1.test.mjs:207`
+- severity: low
 - AC: AC-3
-- source: bugs
-
-Thứ tự trong văn bản: bước 6b (dòng 159) chạy `node tests/scripts/routing-baseline.mjs --root . --slug <slug> --write`, rồi mới tới bước 7a (dòng 180) — chính là bước «ghi các dòng thuộc về người trong evidence-report.md (`human_signoff`, …)».
-
-Nhưng `tests/scripts/routing-baseline.mjs` CLI có tiền điều kiện cứng:
-  if (!settled(root, slug)) die(`hồ sơ «${slug}» chưa ký (human_signoff rỗng…) — … KHÔNG ghi gì`);  // exit 2
-và `settled()` đòi `^human_signoff:[ \t]*(\S.*)$` khác rỗng trong evidence-report.md.
-
-Chính 6b lại khai: «Lệnh sinh thoát ≠ 0 (hồ sơ chưa ký, …) → DỪNG, in nguyên văn, không commit chữ ký.» Nên một agent đi đúng thứ tự đánh số (…6 → 6b → 7a) sẽ luôn gặp exit 2 ở 6b và phải DỪNG — chữ ký không bao giờ commit được. Bước 6 (bản đồ) tránh được vì nó nói rõ «run … after `human_signoff` is written»; 6b chỉ nói «cùng lượt với bản đồ, TRƯỚC làn 7b» nên tiền điều kiện đó không được nêu lại.
-
-Ca SK5 và RB2* đều dựng fixture với `human_signoff` ĐÃ ghi sẵn, nên không ca nào phủ thứ tự thật của văn bản; RB3 chỉ assert signoff.md CÓ CHỨA chuỗi lệnh, không assert vị trí tương đối với 7a.
-
-Sửa: ghi rõ trong 6b «chạy SAU khi 7a đã ghi `human_signoff`» (hoặc dời khối xuống giữa 7a và 7b).
-
-Rationale (khớp AC): AC-3 nêu rõ bước 6 phải chạy lệnh sinh "sau khi human_signoff đã ghi"; nếu văn bản đặt 6b trước 7a (nơi ghi human_signoff), điều khoản này của AC-3 bị vi phạm trực tiếp.
-
-### 2. Hình dạng 2 — fixture VIẾT TAY đúng khuôn bên đọc trong ca SK5 (eval E6 khai là do writer sinh)
-- file: `tests/scripts/repin-lane-skip-unchanged.test.mjs:187`
-- severity: high
-- AC: AC-6
 - source: measurement
 
-Dòng 187: `writeFileSync(BASE, '# moc dinh tuyen\nfeat\thoi=ký hay trả\tbao=cắt/hoãn\n')` — dòng bản ghi mốc được GÕ TAY đúng khuôn mà bên đọc mong đợi. Eval E6 (_acceptance/chu-ky-khong-tu-lam-hoa-cu/evals.yaml:91-93) hứa ngược lại từng chữ: «dòng baseline vừa sinh bằng chính routing-baseline.mjs --write CHƯA commit (không gõ tay)». Bằng chứng trong chính tệp ca: `RB` được khai ở dòng 22 nhưng chỉ dùng ở SK6 dòng 203 cho `existsSync(RB)` — writer thật KHÔNG hề chạy trong SK5. Hệ quả đo lường: SK5 chứng «trạng thái hậu-bước-6 → skipped» trên một trạng thái do chính test dựng theo khuôn nó tưởng tượng, nên nếu `routing-baseline.mjs --write` sinh ra một khuôn khác (thêm cột, đổi thứ tự hoi/bao, ghi vào đường dẫn khác), SK5 vẫn XANH — đúng seam writer→reader mà CLAUDE.md gọi tên. Đối chiếu: các ca khác trong cùng tệp (SK0 dòng 64, và RB-pin ở routing-baseline-t1.test.mjs:62) đã làm đúng bằng cách cho writer thật ghi pin.
+Dòng 203–206 làm đúng nghi thức: neo đoạn từ `**7a-bis — bản ghi mốc` tới `**7b — làn máy TRƯỚC chữ ký`, kiểm neo trước rồi mới `assert.doesNotMatch(so.slice(a,b), /vài giây/)`. Nhưng dòng 207 kế bên — `assert.match(so, /1 ph 45 s/, 'bước 6b phải nêu số đo thật của chính nó')` — bỏ neo và grep trọn `commands/signoff.md`. Chuyển con số sang bất kỳ bước nào khác của tệp (hoặc để nó lại trong một ghi chú trong khi bước 6b bị viết lại không còn số) vẫn XANH, dù lời hứa trong thông điệp assert là về ĐOẠN của bước sinh. Cùng một lớp lỗi «neo trôi → assert hoá vô nghĩa» mà comment ngay trên đó tuyên đã đo được ở lượt chấm 2, chỉ chừa lại đúng một assert không neo.
 
-Rationale (khớp AC): AC-6 Given nêu rõ nguyên văn: 'dòng baseline vừa sinh bằng chính routing-baseline.mjs --write chưa commit'; finding cho thấy ca SK5 gõ tay dòng này thay vì để writer thật sinh ra, vi phạm trực tiếp điều khoản này.
+AC-3 yêu cầu rõ "neo đoạn văn phải được kiểm trước khi assert đọc nó (neo trôi → assert hoá rỗng im lặng)"; finding cho thấy đúng assert đo con số thời gian không áp dụng neo đó, khác với assert liền kề đã được neo.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Bước 6b nhét đường dẫn kit-nội-bộ vào lệnh SHIP cho repo tiêu thụ (vi phạm «Kit là engine»)**
-  Người dùng thấy gì: Lệnh hướng dẫn ký duyệt có thể chứa một bước chỉ dành cho kho nội bộ của kit nhưng áp dụng cho mọi dự án dùng kit, có nguy cơ khiến người ký ở dự án khác gặp một lệnh vô nghĩa hoặc thông báo lỗi khó hiểu.
+- **Tệp untracked vô hình với vị từ bỏ qua, trong khi 7b tự khai là đo CÂY LÀM VIỆC**
+  Người dùng thấy gì: Một tệp mới vừa thêm vào nhưng chưa được lưu vào hệ thống quản lý phiên bản có thể bị bỏ sót khi hệ thống quyết định có cần kiểm tra lại hay không.
+  file: `feature-loop/scripts/repin-lane.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Khối SIGNOFF-LANE-CLAUSE vẫn khẳng định vô điều kiện «commit chữ ký chạm file ngoài T1» và bắt chạy `--write` 13 phút sau commit**
+  Người dùng thấy gì: Hướng dẫn ký duyệt có thể vẫn yêu cầu chạy lại một bước tốn nhiều phút ngay sau khi đã ký — đúng phần chi phí mà thay đổi lần này định loại bỏ.
+  file: `commands/signoff.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **`signoff.md` tham chiếu «bước 6b» — bước đó không tồn tại trong lệnh (khối thật tên 7a-bis)**
+  Người dùng thấy gì: Hướng dẫn ký duyệt trỏ tới một bước không tồn tại, nên người thực hiện có thể hiểu nhầm điều kiện và bỏ sót một tệp cần đưa vào lần ký.
+  file: `commands/signoff.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Bước 7a-bis nhét đường dẫn kit-nội-bộ vào `commands/signoff.md` — lệnh SHIP cho mọi repo tiêu thụ**
+  Người dùng thấy gì: Lệnh ký có thể chạy hỏng hoặc bị dừng nhầm khi dùng ở một dự án khác, không phải chính kho chứa bộ công cụ này.
   file: `commands/signoff.md`
   severity: high
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **LMCMS_ONLY không khớp ca nào vẫn exit 0 — «đối chứng dương» của bước 6b có thể xanh mà chưa bao giờ chạy**
-  Người dùng thấy gì: Nếu tên ca kiểm tra đối chứng trước khi ký bị đổi hoặc gõ sai, hệ thống có thể báo 'đã kiểm tra xong' dù thực ra chưa kiểm tra gì, khiến người ký tin nhầm là đã có bằng chứng xác minh.
-  file: `tests/scripts/gate-card-lmcms.test.mjs`
+- **Hai vòng meta trong cùng cửa sổ chưa phát hành 2.12→2.13, và CHANGELOG mang hai câu «vòng meta duy nhất» chọi nhau**
+  Người dùng thấy gì: Ghi chú phát hành có thể đang mô tả không khớp số vòng làm nội bộ đã chạy trong cùng một kỳ, khiến người đọc khó biết chính xác điều gì đã thay đổi.
+  file: `CHANGELOG.md`
   severity: medium
   Đề xuất: known-limits
 
-- **Nhánh fail-closed «pin vắng» của --skip-unchanged là code chết, và ca SK4 xanh qua đường khác**
-  Người dùng thấy gì: Một nhánh xử lý dự phòng khi thiếu thông tin xác nhận phiên bản không bao giờ được kích hoạt trong thực tế; hệ thống vẫn dừng đúng nhưng báo thông điệp không khớp với lý do thật, có thể gây khó hiểu khi có sự cố.
-  file: `feature-loop/scripts/repin-lane.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **evals.yaml E3 khai một dòng PASS không tồn tại nguyên văn**
-  Người dùng thấy gì: Hồ sơ mô tả kết quả kiểm tra ghi một câu chữ không khớp đúng với câu thật mà hệ thống in ra, khiến người đọc hồ sơ đối chiếu bằng tay có thể không tìm thấy bằng chứng dù việc kiểm tra thực sự đã chạy đúng.
-  file: `_acceptance/chu-ky-khong-tu-lam-hoa-cu/evals.yaml`
-  severity: low
-  Đề xuất: known-limits
-
-- **LMCMS_ONLY biến cả suite gate-card-lmcms thành xanh câm (0 ca chạy → exit 0)**
-  Người dùng thấy gì: Nếu tên ca kiểm tra bị đổi hoặc biến môi trường đặt sai, cả bộ kiểm tra trước khi ký có thể báo 'qua' mà không chạy ca nào, làm giảm độ tin cậy của bước xác nhận trước khi ký duyệt.
+- **LMCMS_ONLY khớp 0 ca vẫn exit 0 — đối chứng dương của bước ký hoá rỗng im lặng**
+  Người dùng thấy gì: Bước kiểm tra trước khi ký có thể báo "đạt" dù thực chất chưa kiểm tra gì, nếu tên bộ lọc kiểm tra bị gõ sai.
   file: `tests/scripts/gate-card-lmcms.test.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **E7 khai «pipefail + grep PASS: RB1/PASS: SK1» nhưng lệnh thật không grep gì — chiều đỏ đã khai không tồn tại**
-  Người dùng thấy gì: Một dòng mô tả trong hồ sơ nói rằng hệ thống sẽ phát hiện khi tệp kiểm tra bị đặt sai tên quy cách, nhưng lệnh thật không làm việc đó — nếu tình huống ấy xảy ra, hồ sơ vẫn báo bình thường mà không cảnh báo gì.
+- **E7 khai grep hai chuỗi PASS nhưng cmd chỉ chạy suite trần — chiều đỏ đã khai không thể xảy ra**
+  Người dùng thấy gì: Một bài kiểm tra có thể báo đạt ngay cả khi các ca kiểm thử mới bị đổi tên và không còn được chạy, khiến lỗi thật bị bỏ lọt.
   file: `_acceptance/chu-ky-khong-tu-lam-hoa-cu/evals.yaml`
+  severity: high
+  Đề xuất: known-limits
+
+- **RB2c là assertion không sống: chuỗi thay thế không khớp nên `doi === KHAC`, ca không thể đỏ**
+  Người dùng thấy gì: Một bài kiểm tra dùng để phát hiện lỗi ghi đè dữ liệu của hồ sơ khác thực chất không có khả năng phát hiện lỗi đó, dù luôn báo đạt.
+  file: `tests/scripts/routing-baseline-t1.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Regex verified_commit dùng \s* nuốt xuống dòng — nhánh «không có verified_commit» chết, và --write làm hỏng dòng kế**
-  Người dùng thấy gì: Trong một số định dạng hồ sơ, công cụ ghim phiên bản có thể vô tình ghi đè và xoá mất dòng chữ ký của người phê duyệt ở ngay dòng kế bên khi cập nhật thông tin phiên bản — rủi ro làm mất chữ ký đã ký.
-  file: `feature-loop/scripts/repin-lane.mjs`
-  severity: medium
-  Đề xuất: new-contract
-
-- **isMain của routing-baseline.mjs gọi realpathSync không bọc try/catch — ném lúc import**
-  Người dùng thấy gì: Trong một tình huống hiếm gặp, công cụ nội bộ có thể dừng đột ngột với lỗi kỹ thuật khó hiểu thay vì báo lỗi rõ ràng — chỉ ảnh hưởng người vận hành kit, không ảnh hưởng người dùng sản phẩm.
+- **routing thiếu/đổi tên trong JSON của gate-card bị nuốt thành dòng rỗng thay vì exit 2**
+  Người dùng thấy gì: Nếu dữ liệu định tuyến bị thiếu hoặc đổi tên trường, công cụ có thể âm thầm ghi một dòng trống thay vì báo lỗi, khiến bước kiểm tra sau đó cũng xanh nhầm.
   file: `tests/scripts/routing-baseline.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **signoff.md trỏ «bước 6b» — bước đó không tồn tại (khối tên là 7a-bis)**
+  Người dùng thấy gì: Hướng dẫn ký duyệt trỏ tới một bước không tồn tại, nên người thực hiện có thể hiểu nhầm điều kiện và bỏ sót một tệp cần đưa vào lần ký.
+  file: `commands/signoff.md`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Vị từ --skip-unchanged mù với tệp untracked, trong khi nó chạy trên cây bẩn cục bộ**
+  Người dùng thấy gì: Một tệp mới vừa thêm vào nhưng chưa được lưu vào hệ thống quản lý phiên bản có thể bị bỏ sót khi hệ thống quyết định có cần kiểm tra lại hay không.
+  file: `feature-loop/scripts/repin-lane.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4 — đột biến của RB2c là NO-OP, «chiều im» không có đột biến nào chạy**
-  Người dùng thấy gì: Một phép kiểm tra được thiết kế để phát hiện lỗi 'ghi đè nhầm dòng của hồ sơ khác' thực ra không thử được đúng tình huống đó, nên nếu lỗi ấy xảy ra trong tương lai, phép kiểm tra sẽ không phát hiện ra.
+- **Hình dạng 3 + ca chiều-im rỗng: phép "sửa tay dòng hồ sơ khác" của RB2c là no-op, assert hoá tautology**
+  Người dùng thấy gì: Một bài kiểm tra dùng để phát hiện lỗi ghi đè dữ liệu của hồ sơ khác thực chất không có khả năng phát hiện lỗi đó, dù luôn báo đạt.
   file: `tests/scripts/routing-baseline-t1.test.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **Hình dạng 3 — «chiều IM» của RB3 là tautology: không đột biến nào được chấm lại bằng chính phép đo**
-  Người dùng thấy gì: Một phần của phép kiểm tra 'hai nơi văn bản phải giống hệt nhau' không thực sự thử trường hợp sai để xác nhận nó còn hoạt động, nên độ tin cậy của phép kiểm tra này chưa được chứng minh đầy đủ.
-  file: `tests/scripts/routing-baseline-t1.test.mjs`
-  severity: medium
+- **Hình dạng 4: `LMCMS_ONLY` fail-OPEN — 0 ca khớp vẫn exit 0, mà signoff dùng chính nó làm ĐỐI CHỨNG DƯƠNG**
+  Người dùng thấy gì: Bước kiểm tra trước khi ký có thể báo "đạt" dù thực chất chưa kiểm tra gì, nếu tên bộ lọc kiểm tra bị gõ sai.
+  file: `tests/scripts/gate-card-lmcms.test.mjs`
+  severity: high
   Đề xuất: known-limits
 
-- **Hình dạng 4 — assert CHANGELOG của SK6 đã XANH sẵn trên cây gốc, và không ghim chuỗi mà eval hứa**
-  Người dùng thấy gì: Phép kiểm tra xác nhận nhật ký thay đổi có ghi mục mới cho lần này thực ra khớp với một câu chữ đã có sẵn từ trước, nên nó không thực sự chứng minh mục ghi chú cho thay đổi lần này đã được thêm vào đúng.
+- **Hình dạng 3: eval E7 hứa «pipefail + grep hai dòng PASS» nhưng cmd chỉ là suite trần — chiều đỏ được khai là bịa**
+  Người dùng thấy gì: Một bài kiểm tra có thể báo đạt ngay cả khi các ca kiểm thử mới bị đổi tên và không còn được chạy, khiến lỗi thật bị bỏ lọt.
+  file: `_acceptance/chu-ky-khong-tu-lam-hoa-cu/evals.yaml`
+  severity: high
+  Đề xuất: known-limits
+
+- **Hình dạng 3: assert CHANGELOG của SK6 ghim chuỗi đã có sẵn ở cây gốc — không bao giờ đỏ được**
+  Người dùng thấy gì: Một bài kiểm tra về ghi chú phát hành luôn báo đạt dù nội dung ghi chú thật chưa chắc đã được cập nhật đúng.
   file: `tests/scripts/repin-lane-skip-unchanged.test.mjs`
-  severity: medium
+  severity: high
   Đề xuất: known-limits
 
-- **Hình dạng 1 — RB2e chứng «một nguồn writer/reader» bằng GREP mã nguồn, dù eval khai «kiểm bằng import thật, không grep»**
-  Người dùng thấy gì: Phép kiểm tra xác nhận hai nơi dùng chung một nguồn logic chỉ soi chữ trong mã nguồn thay vì thử thật, nên nếu sau này có người vô tình viết lại logic đó lần thứ hai, phép kiểm tra sẽ không phát hiện ra sự trôi lệch đó.
+- **Hình dạng 1: ca chiều-im RB3-IM đo một mảnh regex chép lại, không đo phán quyết của chính RB3**
+  Người dùng thấy gì: Một bài kiểm tra dùng để bắt lỗi sao chép sai không thực sự chạy lại phép so sánh gốc, nên loại lỗi đó có thể lọt qua mà không bị phát hiện.
   file: `tests/scripts/routing-baseline-t1.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 4 — assert «bước 6b không khai vài giây» hoá rỗng im lặng nếu neo văn bản trôi**
-  Người dùng thấy gì: Phép kiểm tra xác nhận lời hướng dẫn ký có ghi đúng số đo thời gian thật, thay vì ghi mơ hồ kiểu 'vài giây', có thể ngừng phát hiện lỗi này một cách âm thầm nếu tiêu đề của bước trong tài liệu bị đổi chữ sau này.
+- **Hình dạng 1: RB2e tự xưng «import thật, không grep» nhưng mắt xích duy nhất tới LM20 là một grep mã nguồn**
+  Người dùng thấy gì: Một bài kiểm tra tuyên bố đang xác nhận hai bộ phận dùng chung một nguồn logic, nhưng thực chất chỉ đang tìm một đoạn văn bản trong mã nguồn, nên có thể báo đạt nhầm.
   file: `tests/scripts/routing-baseline-t1.test.mjs`
   severity: low
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 2/15 lỗi rơi vào file không bộ đo nào phủ (_acceptance/chu-ky-khong-tu-lam-hoa-cu/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 2/18 lỗi rơi vào file không bộ đo nào phủ (_acceptance/chu-ky-khong-tu-lam-hoa-cu/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.

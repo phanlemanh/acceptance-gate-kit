@@ -5,7 +5,7 @@ slug: chu-ky-khong-tu-lam-hoa-cu
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/scripts/repin-lane.mjs, commands/signoff.md, skills/acceptance/SKILL.md, _acceptance/config.yaml, tests/scripts; KHÔNG chạm lib, hooks, pre-merge, recheck
 surfaces: [cli]
-status: implemented
+status: verified
 design_doc: docs/superpowers/specs/2026-09-15-chu-ky-khong-tu-lam-hoa-cu-design.md
 approved_by:
 approved_at:
