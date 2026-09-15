@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: f55e143b66da578b072bbec94b009c9b4bfb3ee3
-human_signoff:
+human_signoff: Mạnh 2026-09-15 — ký với 4 giới hạn đã khai; Ngoài-4 mở hợp đồng riêng. Vế giá trị của AC-1 và AC-2 (số cắt 2.13.0 · diagram-design giữ 2.7.0) nằm trong chính gói được ký; thẻ chưa có ô riêng cho chúng — đó là nhát cắt 2.12.0 §4 mục 3, còn nợ sang 2.14.
 ---
 
 # Evidence Report: release-2-13-0
