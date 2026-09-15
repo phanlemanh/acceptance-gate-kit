@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 1d8b5627b1fc5b71241649583fafa938de4c7b98
-human_signoff:
+human_signoff: Mạnh 2026-09-15 — ký với 7 giới hạn đã khai (Ngoài-2…Ngoài-8); Ngoài-1 mở hợp đồng riêng. Vòng đi ba lượt chấm, chốt DỪNG-VÁ giữa đường: owner thu phạm vi AC-7 và nâng phạm vi lỗi ký tự đô-la thành AC-11.
 ---
 
 # Evidence Report: do-tin-tram-phan-loai

@@ -5,7 +5,7 @@ slug: do-tin-tram-phan-loai
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/workflows + tests/workflows; KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-09-15-do-tin-tram-phan-loai-design.md
 approved_by: Mạnh
 approved_at: 2026-09-15
@@ -206,3 +206,24 @@ AC-7 dựng, cộng `usage-report.md` như mọi vòng.
 Luật (c) đòi mỗi mốc gọi tên ít nhất một chỗ cắt. Vòng này để lại: **«ghim lại theo diff»**
 (hồ sơ 2.13 §4 mục 1) vẫn chưa làm, và nó là điều kiện tiên quyết của chiến dịch ghim lại
 42 hồ sơ — số đo lại 15/09 bằng đúng lệnh và đúng mốc của lần đo 14/09: 41 → 42.
+
+### Known limits
+
+Bảy mục ngoài hợp đồng mà owner quyết ghi Known limits khi ký (15/09). Cả bảy đều ở tệp ca
+hoặc ở chẩn đoán nội bộ, không mục nào đổi điều repo tiêu thụ nhìn thấy. Bốn trong bảy là
+mảnh vụn của chính nhát thu phạm vi AC-7 làm ở lượt chấm 3.
+
+- known-limits (Ngoài-2, owner ghi tại Cổng Bằng chứng 15/09): **tests/workflows/acceptance-verify.test.mjs** — Bộ lọc dòng nhật ký loại `triage` còn sót sau khi thu phạm vi AC-7, nới vĩnh viễn khẳng định đếm-chính-xác của hai ca W03/W12
+- known-limits (Ngoài-3, owner ghi tại Cổng Bằng chứng 15/09): **tests/workflows/triage-do-tin.test.mjs** — Văn đầu tệp ca và bảng mã thoát của răng còn mô tả dòng sổ và chân đo đã bị gỡ; người đọc sau sẽ đi tìm một thứ không còn tồn tại
+- known-limits (Ngoài-4, owner ghi tại Cổng Bằng chứng 15/09): **feature-loop/workflows/acceptance-verify.js** — Mã định danh nội bộ của trạm phân loại rò vào lời nhắc soạn báo cáo, tốn token và mời tác tử chép một chuỗi vô nghĩa vào văn bản người đọc
+- known-limits (Ngoài-5, owner ghi tại Cổng Bằng chứng 15/09): **feature-loop/workflows/acceptance-verify.js** — Lượt hỏi lại tự khai không đọc được hợp đồng thì đặt cờ hỏng mà không có dòng chẩn đoán gọi tên; ba nguyên nhân khác nhau để lại cùng một vết
+- known-limits (Ngoài-6, owner ghi tại Cổng Bằng chứng 15/09): **tests/workflows/acceptance-verify.test.mjs** — Bộ lọc đã chết vì bên sinh dòng bị gỡ trong cùng dải thay đổi; nó sẽ nuốt loại dòng ấy nếu có ai đưa lại
+- known-limits (Ngoài-7, owner ghi tại Cổng Bằng chứng 15/09): **tests/workflows/triage-do-tin.test.mjs** — Đối chứng dương của chân chữ-ký-kiểm không gắn vào mã thoát, nên phần ấy hỏng lặng mà chân vẫn báo đạt; cùng lớp assertion-âm-tính-một-mình với hai lượt chấm đầu
+- known-limits (Ngoài-8, owner ghi tại Cổng Bằng chứng 15/09): **tests/workflows/acceptance-verify.test.mjs** — Khẳng định đếm run-log bị nới cho một loại dòng mà bản cài không hề sinh
+
+**Ngoài-1 KHÔNG ghi ở đây — owner quyết mở hợp đồng mới.** Tải gửi cho trạm phân loại được
+viết ở HAI chỗ; cơ chế hỏi-lại chỉ đúng chừng nào hai bản còn giống nhau từng byte và phép
+thay chuỗi không báo gì khi lệch. Tác tử chấm đã đo: thêm một trường vào bản này mà quên bản
+kia thì lượt hỏi lại lặng lẽ gửi lại trọn danh sách, trả tiền tác tử gấp ba, phán quyết vẫn
+xanh. Đây là luật MỘT NGUỒN mà chính vòng này viện làm nguyên tắc thiết kế, nên nó xứng một
+hợp đồng có răng riêng chứ không phải một gạch giới hạn.
