@@ -132,6 +132,8 @@ tests/scripts/run-tests.sh bộ-chạy-suite-không-rẽ-theo-status
 tests/scripts/additive-only.test.mjs ca-đo-tính-chỉ-thêm-không-rẽ-theo-status
 tests/scripts/lnt-no.test.mjs fixture-code-sinh-mang-status-không-rẽ-nhánh-theo-status
 tests/scripts/loop-health.test.mjs fixture-code-sinh-mang-status-không-rẽ-nhánh-theo-status
+tests/scripts/repin-lane-skip-unchanged.test.mjs fixture-code-sinh-mang-status-để-làn-đọc-pin-không-rẽ-nhánh-theo-status
+tests/scripts/routing-baseline-t1.test.mjs fixture-code-sinh-mang-status-để-pre-merge-đọc-không-rẽ-nhánh-theo-status
 scripts/loop-health.mjs đọc-giờ-commit-đổi-status-để-đếm-thời-gian-không-phân-loại-hồ-sơ
 .claude-plugin/plugin.json chuỗi-nằm-trong-mô-tả-gói-không-rẽ-nhánh
 tests/plugins/asserts-da-go.txt sổ-ca-đã-gỡ-văn-bản-lịch-sử-không-chạy

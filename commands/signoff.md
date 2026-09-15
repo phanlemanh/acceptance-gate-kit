@@ -159,12 +159,15 @@ Steps:
    **6b — bản ghi mốc ĐỊNH TUYẾN (chỉ kho TỰ HOST kit).** Cùng lớp với bản đồ và
    cùng lý do (ADR 0017 nới ADR 0007): ca LM20 chỉ ghim hồ sơ đã ký, nên CHÍNH
    chữ ký vừa ghi đưa hồ sơ này vào diện quét và bản ghi mốc phải có dòng của nó.
-   Sinh dòng NGAY ĐÂY — cùng lượt với bản đồ, TRƯỚC làn 7b — rồi chạy đúng tệp ca
-   LM20 làm **đối chứng dương** (vài giây, không phải một suite):
+   Sinh dòng NGAY ĐÂY — cùng lượt với bản đồ, TRƯỚC làn 7b — rồi chạy **đúng một ca**
+   LM20 làm **đối chứng dương**. `LMCMS_ONLY` giới hạn về một ca; **đo trên kho kit
+   15/09: ≈ 1 ph 45 s** — LM20 spawn bộ dựng thẻ cho MỌI hồ sơ đã ký, nên nó là một
+   phép đo có giá (chạy TRỌN tệp: ≈ 2 ph 40 s). Đây là khoản duy nhất vòng này CỘNG
+   vào đường ký, đổi lấy việc bản ghi mốc không bao giờ lệch sau chữ ký:
 
    ```bash
    node tests/scripts/routing-baseline.mjs --root . --slug <slug> --write
-   node tests/scripts/gate-card-lmcms.test.mjs
+   LMCMS_ONLY=LM20 node tests/scripts/gate-card-lmcms.test.mjs
    ```
 
    Lệnh sinh thoát ≠ 0 (hồ sơ chưa ký, `gate-card --extract` sập) → DỪNG, in

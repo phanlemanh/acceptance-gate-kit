@@ -1074,7 +1074,7 @@ không có trong kho → KHÔNG bỏ qua, in lý do, chạy trọn; cây đã đ
 chạy trọn và luật đỏ không đổi một li, nên vụ sinh ra bước 7b
 (`duong-lui-phai-song`) vẫn bị bắt. Cờ này đi cùng **ADR 0017** — bản ghi mốc
 định tuyến của kho kit thành vật T1 máy sinh, dòng của nó sinh ở bước 6b của
-`/signoff` — vì thiếu vế đó thì tệp baseline (là code) bẩn ở mọi lượt ký và
+`/acceptance-gate:signoff` — vì thiếu vế đó thì tệp baseline (là code) bẩn ở mọi lượt ký và
 không lượt nào bỏ qua được.
 
 **Ghim lại chấm theo kỳ vọng đã khai, không theo số 0 (2.11.0).** Một eval

@@ -63,8 +63,10 @@ exit khác 0 gọi tên slug, tệp giữ nguyên **từng byte** — không ghi
 **Given** `commands/signoff.md`
 **When** đọc bước 6 và 7c
 **Then** bước 6 có câu chạy lệnh sinh cho kho tự host kit (sau khi `human_signoff` đã
-ghi, cùng lượt với bản đồ) **và ngay sau đó chạy đúng tệp ca LM20 làm đối chứng dương
-trong luồng thật** (vài giây), 7c nêu tệp baseline trong `git add` của kho kit; khối
+ghi, cùng lượt với bản đồ) **và ngay sau đó chạy ĐÚNG MỘT ca LM20 (`LMCMS_ONLY=LM20`)
+làm đối chứng dương trong luồng thật**, kèm **số đo thật** của bước đó trong chính lời
+dặn — không được khai «vài giây» khi đo được là ≈ 1 ph 45 s (trọn tệp: ≈ 2 ph 40 s);
+7c nêu tệp baseline trong `git add` của kho kit; khối
 `SIGNOFF-LANE-CLAUSE` trong `commands/signoff.md` và bản chép trong
 `skills/acceptance/SKILL.md` **bằng nhau từng ký tự**; khối gốc mang lệnh 7b có
 `--skip-unchanged` và câu «cây bằng pin → làn tự bỏ qua».

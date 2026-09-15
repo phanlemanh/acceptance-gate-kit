@@ -183,7 +183,11 @@ check('RB2b DOI CHUNG DUONG: CA LM20 THAT chay tren kho fixture -> PASS: LM20', 
 check('RB3 signoff.md buoc 6 goi lenh sinh, 7c them tep; SKILL chep khoi SIGNOFF-LANE-CLAUSE bang tung ky tu', () => {
   const so = readFileSync(SIGNOFF, 'utf8'), sk = readFileSync(SKILL, 'utf8');
   assert.match(so, /routing-baseline\.mjs --root \. --slug <slug> --write/, 'bước 6 phải chạy lệnh sinh');
-  assert.match(so, /gate-card-lmcms\.test\.mjs/, 'bước 6 phải chạy ca LM20 làm đối chứng dương trong luồng thật');
+  assert.match(so, /LMCMS_ONLY=LM20 node tests\/scripts\/gate-card-lmcms\.test\.mjs/, 'bước 6 phải chạy ĐÚNG MỘT ca LM20 làm đối chứng dương trong luồng thật');
+  // Lời dặn phải mang SỐ ĐO THẬT của bước nó bắt chạy — vòng này tồn tại để cắt
+  // phút; một bước cộng ~2 phút mà khai «vài giây» là tự dối ngay trong văn bản.
+  assert.doesNotMatch(so.slice(so.indexOf('6b —'), so.indexOf('7. **Ghi và commit')), /vài giây/, 'bước 6b không được khai «vài giây» — đo thật là ≈1 ph 45 s');
+  assert.match(so, /1 ph 45 s/, 'bước 6b phải nêu số đo thật của chính nó');
   assert.match(so, /git add[^\n]*routing-baseline\.txt|routing-baseline\.txt[^\n]*git add|thêm ` tests\/scripts\/fixtures\/routing-baseline\.txt`/, '7c phải đưa bản ghi mốc vào commit chữ ký');
   const pat = /<!-- <<<SIGNOFF-LANE-CLAUSE -->\n([\s\S]*?)<!-- SIGNOFF-LANE-CLAUSE>>> -->/;
   const a = (so.match(pat) || [])[1], b = (sk.match(pat) || [])[1];
