@@ -1,18 +1,36 @@
 ---
 schema_version: 1
-feature: Phát hành kit 2.14.0 — cắt số cho hai gói kit sau một cửa sổ đổi đúng MỘT tệp engine, và định đoạt công khai chiến dịch ghim lại đang hoãn mốc thứ hai.
+feature: Phát hành kit 2.14.0 — cắt số cho hai gói kit và định đoạt công khai chiến dịch ghim lại đang hoãn mốc thứ hai. HẠ VỀ DRAFT 15/09 chờ PR #176 merge; bốn khối sự thật phải dựng lại từ cây sau merge.
 slug: release-2-14-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest + GUIDE; KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: approved
-approved_by: Mạnh
-approved_at: 2026-09-15
+status: draft
+approved_by:
+approved_at:
 ---
 
 # Acceptance Contract: release-2-14-0
 
 ## Context
+
+> **HẠ VỀ DRAFT 15/09 — chờ PR #176 merge.** Hồ sơ này từng được duyệt ở
+> `87355094`, rồi hạ lại cùng ngày khi phát hiện một phiên KHÁC («Tiêu thụ token và hiệu
+> suất ký») đang giữ PR #176 với hai hồ sơ nữa của cùng cửa sổ — một đã ký
+> (`chu-ky-khong-tu-lam-hoa-cu`, ADR 0019) và một draft. Bốn khối dưới đây dựng trên một
+> cây CHƯA có #176 nên sẽ sai khi nó vào:
+>
+> 1. **Context** khai cửa sổ đổi đúng MỘT tệp engine — #176 chạm `repin-lane.mjs`,
+>    `commands/signoff.md`, `skills/acceptance/SKILL.md`, tức cả hai gói.
+> 2. **Bảng năm dòng** đếm MỘT vòng — cửa sổ thật có ÍT NHẤT HAI vòng đã ký.
+> 3. **§4** xếp `routing-baseline` đầu bảng cho cửa sổ sau — #176 thêm
+>    `tests/scripts/routing-baseline.mjs` và ca T1 cho nó, tức nhát ấy đã làm.
+> 4. **Ô `so_stale`** ghim 43 — mục đích của #176 đúng là làm chữ ký thôi tạo hoá cũ, nên
+>    con số sẽ đổi; răng `rang-ton-dong.sh` sẽ ĐỎ, đúng như nó được dựng để làm.
+>
+> Việc khi #176 merge: dựng lại bốn khối từ cây sau merge bằng đúng các lệnh đã dùng, rồi
+> trình lại Cổng Phạm vi. KHÔNG bump số trước bước đó.
+
 
 Cửa sổ 2.13 → 2.14 dùng đúng MỘT vòng meta theo luật (b): `do-tin-tram-phan-loai` — độ tin
 của trạm phân loại phạm vi, ký 15/09 sau ba lượt chấm. Một vòng thứ hai (`mot-nguon-tai-gui-triage`,

@@ -9,8 +9,8 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>3 việc"]
   GD --> DB["Đã bác từ khám phá<br/>3 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>4 việc"] --> GB{"Cổng Bằng chứng"}
+  B --> CD["Chờ duyệt phạm vi<br/>2 việc"] --> GP{"Cổng Phạm vi"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>58 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>10 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
@@ -63,13 +63,13 @@ flowchart TD
 ## Chờ duyệt phạm vi
 
 - Vị từ bỏ qua phải THẤY định nghĩa phép đo — _acceptance/config.yaml và evals.yaml là ĐẦU VÀO của làn, không phải vật hồ sơ (`bo-qua-phai-thay-dinh-nghia-phep-do`)
+- Phát hành kit 2.14.0 — cắt số cho hai gói kit và định đoạt công khai chiến dịch ghim lại đang hoãn mốc thứ hai. HẠ VỀ DRAFT 15/09 chờ PR (`release-2-14-0`)
 
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
-- Phát hành kit 2.14.0 — cắt số cho hai gói kit sau một cửa sổ đổi đúng MỘT tệp engine, và định đoạt công khai chiến dịch ghim lại đang hoãn mốc thứ hai. (`release-2-14-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
