@@ -1,79 +1,75 @@
 ## Trong hợp đồng
 
-- **Dòng mã lạ KHÔNG bị bỏ như contract AC-3 và chính dòng log tuyên — vẫn ghép qua nấc 2/3**
-  file: `feature-loop/workflows/acceptance-verify.js:1005`
-  severity: medium
-  source: conventions
-  AC: AC-3
-  `ghepTriage` chỉ loại dòng mã-lạ khỏi `byTid`; `byKey = new Map(rows.map(...))` và pool nấc 3 `rows.find(...)` vẫn lấy TRỌN `rows`, nên dòng mang mã ngoài tập gửi vẫn ghép sang finding theo khoá tệp::tiêu đề. Contract AC-3 (contract.md dòng 57–63): «dòng ấy bị bỏ như một dòng THỪA — không thay thế, không ghép sang phát hiện nào»; dòng log in ra: «bo dong thua, khong ghep sang ai». Tái hiện: lượt 1 trả t1, t2 và {tid:'t7', file:'src/c.js', title:'sai ma thoat'} (không có dòng t3) → 1 lượt triage, triageFailed=false, t3 nhận phân loại từ dòng t7, trong khi log vẫn in «ma la t7 — bo dong thua, khong ghep sang ai». Chân ma-la (E3) không thấy vì dòng lạ mang title 'bia' nên không khớp khoá nào — răng đo dòng log chứ không đo hành vi ghép (đúng hình dạng (1) trong luật «thước phải gắn vào vật»). Cần chọn một: lọc `rows` bỏ dòng mã-lạ TRƯỚC khi dựng byKey/nấc 3 (khớp contract), hoặc sửa contract + log cho đúng hành vi «mã lạ chỉ mất quyền ghép theo mã» — nhưng không được để log nói một đằng mã làm một nẻo.
-
-- **Chân bo-doc-bo-qua: helper `cli()` nuốt lỗi thi hành và `giong` chỉ so BẰNG hai đầu ra — bộ đọc crash giống nhau ở cả hai workspace vẫn xanh**
-  file: `tests/workflows/triage-do-tin.test.mjs:339`
-  severity: low
-  source: bugs
-  AC: AC-7
-  `cli = … try { execFileSync(…) } catch (e) { return stdout+stderr }` rồi `giong(rel, mk)` trả non-null khi output(ws) === output(wsB) sau khi chuẩn hoá `wsB?`→`ws`. Với round-tally-read, acceptance-gold, loop-health, điều kiện CHAY chỉ là `giong(...) !== null` — một stack trace MODULE_NOT_FOUND/TypeError giống hệt ở hai bên (đường dẫn scratch đã được chuẩn hoá) cũng thoả, tức «bộ đọc bỏ qua dòng triage» được kết luận mà bộ đọc chưa từng đọc. Chỉ evidence-core (ids.has(RID)) và recheck (regex nội dung) có đối chứng dương thật. Đã chạy tay 4 CLI trên workspace của chân: hiện tại đều chạy sạch, nên đây là lưới thiếu chứ chưa phải lượt xanh giả — nhưng đúng lớp «assertion âm-tính-một-mình» của CLAUDE.md. Sửa rẻ: cli() trả thêm exit status và giong đòi status 0 ở cả hai bên, hoặc ghim một mảnh nội dung mong đợi (vd round-tally có `"round": 1`) cho từng bộ.
-
-- **Assertion âm-tính-một-mình: ma trận bộ đọc chỉ so «bằng nhau có/không dòng triage», không đối chứng dương, mã thoát bị nuốt**
-  file: `tests/workflows/triage-do-tin.test.mjs:335`
+- **Assertion âm-tính-một-mình: đối chứng dương của loop-health là chuỗi tĩnh, không chứng bộ đọc đã đọc run-log**
+  file: `tests/workflows/triage-do-tin.test.mjs:373`
   severity: high
   source: measurement
   AC: AC-7
-  Chân bo-doc-bo-qua, khối CHAY (dòng 335–343): ba mục round-tally-read / acceptance-gold / loop-health chỉ assert `giong(...) !== null`, tức đầu ra của CLI trên ws (có dòng triage) BẰNG đầu ra trên wsB (không có dòng triage). Không có assert nào chứng minh bộ đọc đã THẤY dòng run_id (RID / EVAL_RID) — dù chú thích ở dòng 334 tuyên «mỗi bộ: bỏ qua dòng triage VÀ thấy dòng run_id (đối chứng dương)». Hàm `cli` (dòng 323) còn catch lỗi và trả stdout+stderr, bỏ mã thoát: script exit 1/2/127, in usage, hoặc báo «không thấy thư mục _acceptance/» giống nhau ở cả hai phía thì `giong` vẫn ≠ null → xanh. Tôi chạy thử acceptance-gold với --root sai: in một dòng lỗi, rc=0 — nếu cả hai phía sai như nhau, phép đo này vẫn xanh. Mục recheck-evidence (dòng 341) cũng chỉ assert VẮNG ba chuỗi đỏ trên một đầu ra thực tế là chuỗi rỗng (recheck im lặng khi xanh) — vắng-chuỗi trên chuỗi-rỗng là vô nghĩa, lại không ghim mã thoát 0 hay thông điệp xanh. Mục carry-plan (dòng 337) so JSON hai plan bằng nhau nhưng không assert plan phản ánh dòng repin/run_id nào — bộ đọc bỏ hẳn runLogText cũng cho hai plan bằng nhau. Chỉ evidence-core (dòng 336) có đối chứng dương thật (`ids.has(RID) && ids.has(EVAL_RID)`). Với 4/6 bộ chạy, «bỏ qua dòng triage» không phân biệt được với «chưa bao giờ đọc run-log» hay «đỏ giống nhau ở cả hai phía».
+  Trong ma trận CHAY của chân bo-doc-bo-qua, ghim cho scripts/loop-health.mjs là `o => /\|\s*T2\s*\|\s*1\s*\|/.test(o) && /ghim lại/.test(o)`. «ghim lại» là tiêu đề cột cố định trong loop-health.mjs (dòng 184: `'| tier | hồ sơ | ... | ghim lại | fix S4 |'`) — có mặt trong MỌI đầu ra bất kể run-log; còn `| T2 | 1 |` là hai ô đầu (tier từ contract.md, số hồ sơ = 1) cũng không đến từ run-log. Cột thật sự đọc run-log là ô `repin` (dòng 106: đếm `"kind":"repin"`), ghim không chạm ô đó. Hệ quả: nếu loop-health không đọc được run-log (rd.read trả '' → repin=0) thì ghim vẫn true và hai bên ws/wsB vẫn «giống» → xanh. Chú thích dòng 367 hứa «mỗi bộ … thấy dòng run_id (đối chứng dương)» nhưng ghim này không phân biệt được «đọc thật» với «không đọc gì».
 
-- **Đo CHỈ DẪN thay vì ĐẦU RA: lược đồ triage được grep trong nguồn thay vì đọc từ opts.schema mà tác tử nhận**
-  file: `tests/workflows/triage-do-tin.test.mjs:134`
+- **Assertion âm-tính-một-mình: đối chứng dương của acceptance-gold là tín hiệu VẮNG (noPanel) — đúng cả khi run-log không được đọc**
+  file: `tests/workflows/triage-do-tin.test.mjs:372`
+  severity: high
+  source: measurement
+  AC: AC-7
+  Ghim cho scripts/acceptance-gold.mjs là `JSON.parse(o).noPanel.includes('demo')`. Trong acceptance-gold.mjs dòng 53–67, slug được đẩy vào `noPanel` khi `found === false`, và `found` chỉ thành true khi gặp dòng kind panel — tức run-log KHÔNG tồn tại, KHÔNG đọc được, hay bị lọc hết đều cho `noPanel.includes('demo') === true`. Đây là quan sát vắng-mặt được dùng làm đối chứng dương: bộ đọc bỏ hẳn bước đọc run-log thì ghim vẫn xanh và phép so ws/wsB vẫn giống. Không có tín hiệu «đã đọc dòng có run_id» nào cho bộ này, trái với điều chú thích dòng 367 hứa.
+
+- **Assertion âm-tính-một-mình: carry-plan chỉ so bằng hai đầu ra, không có ghim đối chứng dương**
+  file: `tests/workflows/triage-do-tin.test.mjs:370`
+  severity: high
+  source: measurement
+  AC: AC-7
+  Mục `'feature-loop/scripts/carry-plan.mjs': JSON.stringify(cp.plan(cpArgs(withRepin))) === JSON.stringify(cp.plan(cpArgs(khongTriage)))` là phép so «có triage = không triage» thuần âm tính: nếu plan() không đọc runLogText (hay đọc rồi bỏ toàn bộ dòng — ví dụ bộ lọc `l.evalId && !l.kind` ở carry-plan.mjs dòng 142 bị phá thành lọc-hết) thì hai vế bằng nhau trống rỗng và mục này vẫn true. Mọi mục khác trong CHAY đều đi qua `giong(rel, mk, ghim)` có vế ghim; riêng mục này không có vế nào chứng rằng plan đã thấy dòng E1 mang run_id/sha của chân dong-so (ví dụ carriedEvals chứa E1). Chú thích dòng 367 «mỗi bộ: bỏ qua dòng triage VÀ thấy dòng run_id (đối chứng dương)» không đúng với mục này.
+
+- **Assertion âm-tính-một-mình: đối chứng dương của recheck-evidence chỉ là VẮNG chuỗi lỗi, không ghim tín hiệu đã đọc**
+  file: `tests/workflows/triage-do-tin.test.mjs:374`
   severity: medium
   source: measurement
-  AC: AC-10
-  Chân seam-ma, assert «luoc do dung cung hang TRIAGE_ID_FIELD (mot nguon)» = `SRC.includes("[TRIAGE_ID_FIELD]: { type: 'string'") && SRC.includes("required: [...]")` — grep hai chuỗi literal trong nguồn acceptance-verify.js. Harness đã ghi lại vật thật: `triageCalls(that.calls)[0].opts.schema` là chính TRIAGE_SCHEMA workflow gửi cho agent, có thể đọc `.properties.triaged.items.required` và `.properties.triaged.items.properties[ID_FIELD]`. Grep nguồn đỏ khi ai đó chỉ đổi dấu cách/thứ tự trong mảng required (hành vi không đổi), và IM khi lược đồ đúng chữ nhưng không còn được truyền vào agent (vd `schema: FINDINGS_SCHEMA` nhầm) — tức đo chữ trong file, không đo cái bên đọc (agent) thực nhận. Hai mutant mut1/mut2 cùng chân chỉ chạm tải gửi (dòng Findings), không chạm lược đồ, nên lược đồ chỉ được bảo vệ bởi phép grep này.
+  AC: AC-7
+  Ghim cho scripts/recheck-evidence.cjs là `o => !/REPIN x|L2 PROVENANCE|fails the evidence bar/.test(o)` — toàn bộ là phủ định. Khối đọc run-log của recheck (dòng 66–113) chỉ chạy khi `cited.length > 0`, tức khi regex `secRe` (dòng 59) khớp được heading `### Re-pin` trong evidence-report viết tay ở dòng 351; nếu heading/khuôn không khớp thì `cited` rỗng, khối run-log bị bỏ qua hoàn toàn, exit 0, không có chuỗi lỗi nào → ghim true, hai bên «giống» → xanh. Không có vế dương nào (ví dụ chứng rằng section Re-pin đã được bóc và run_id RID được tra trong run-log) để phân biệt «đọc run-log và thấy dòng repin» với «không bao giờ đi tới bước đọc».
 
-- **Assert «có mặt/đếm» trong khi lời hứa là QUAN HỆ finding.tid ↔ dòng trả về: mọi dòng giả giống hệt nhau nên ghép-sai-nhưng-đủ không thể đỏ**
-  file: `tests/workflows/triage-do-tin.test.mjs:50`
-  severity: medium
+- **Đo CHỈ DẪN thay vì ĐẦU RA: bộ đọc «không chạy» được chứng bằng grep nguồn, gồm một điều kiện VẮNG chuỗi**
+  file: `tests/workflows/triage-do-tin.test.mjs:377`
+  severity: low
   source: measurement
-  AC: AC-1
-  `row(f)` (dòng 50) sinh dòng phản hồi với inContract:true, acRef:'AC-1', rationale:'r' GIỐNG NHAU cho mọi finding; chỉ tid/title/file khác. Các chân ma-may-duc (dòng 81: `triageFailed === false && triageCalls.length === 1`), hoi-lai, chu-ky-kiem, im chỉ assert cờ triageFailed và SỐ lượt gọi tác tử / số refute, không bao giờ soi finding nào nhận phân loại của dòng nào (result.findings / rejectFindings theo từng finding). AC-1 hứa «ghép ĐÚNG theo mã máy đúc kể cả hai phát hiện trùng tiêu đề» — một mutant ghép theo vị trí (`byFinding.set(distinctKey(sent[i]), rows[i])`) hay ghép chéo t1↔t2 vẫn cho «đủ 3, không hỏi lại, không triageFailed» → xanh. Muốn răng cắn được, dòng giả phải mang giá trị phân biệt theo tid (vd acRef/inContract khác nhau) và assert phải đối chiếu phân loại từng finding với dòng cùng tid.
+  AC: AC-7
+  KHONG_CHAY chứng ba bộ đọc bằng regex trên văn bản nguồn thay vì chạy chúng trên run-log thật: `pre-merge-check.sh` được coi là bỏ qua dòng triage vì nguồn có `"kind":"repin"` VÀ KHÔNG có `"kind":"triage"` — vắng một chuỗi trong nguồn không chứng minh hành vi (một `tail -1 run-log.jsonl` thêm vào sau này không nhắc «triage» vẫn qua, còn thêm xử lý triage ĐÚNG lại làm mục này đỏ). `s4-args.mjs` đọc run-log trực tiếp (dòng 410–413 `runLogLines`) và lọc `l.kind === 'baseline'` / `l.kind === 'panel'` — đây là bộ đọc chạy được bằng mã (import hoặc execFileSync như các mục CHAY) nhưng chỉ được grep. Chân tự khai giới hạn («lý do máy kiểm được trên nguồn») nhưng vẫn in PASS «ma tran bo doc TOAN PHAN … moi bo bo qua dong kind triage» gộp cả ba bộ chưa từng chạy.
+
+- **Assert đếm trong khi lời hứa là QUAN HỆ: «refute chỉ trong hợp đồng» không phân biệt được với «refute toàn bộ»**
+  file: `tests/workflows/triage-do-tin.test.mjs:188`
+  severity: low
+  source: measurement
+  AC: AC-4
+  Chân hoi-lai ghim `refuteCalls(that.calls).length === 3` và dòng PASS tuyên «bac bo chi chay tren phat hien trong hop dong». Nhưng phản hồi `du(sent)` cho cả ba finding `inContract: true` (row() mặc định, dòng 50), nên «chỉ trong hợp đồng» = 3 = «toàn bộ» — chân van-thieu (dòng 219) và hoi-lai-chet (dòng 233) cũng ghim cùng số 3 cho đường refute-TOÀN-BỘ. Cùng một con số cho hai hành vi trái ngược: phép đo không thể đỏ nếu refute chạy lên finding ngoài hợp đồng. Muốn đo quan hệ cần ít nhất một finding inContract=false trong tập và ghim tập refute là tập con đúng.
+
+- **Assert «chuỗi có mặt» trong khi lời hứa là quan hệ: «không ghép đè t1» chỉ đo dòng log**
+  file: `tests/workflows/triage-do-tin.test.mjs:254`
+  severity: low
+  source: measurement
+  AC: AC-9
+  Chú thích dòng 249 hứa «xử như mã lạ, không ghép đè t1, t3 vẫn thiếu», nhưng `ntOk = nt.result.triageFailed === true && nt.logs.some(l => /ma la t1/i.test(l))` chỉ đo chuỗi log và cờ thất bại; không có assert nào trên `nt.result.triaged` chứng rằng t1 (a.js) vẫn giữ phân loại lượt 1 (inContract:true, acRef AC-1) thay vì nhận dòng lượt 2 (inContract:false, known-limits). Phép đo cho vế «không ghép đè» vì thế không tồn tại — phá vế ấy (dòng lượt 2 ghi đè byFinding của t1) mà vẫn in log «ma la t1» thì ca vẫn xanh.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.
 
-- **Ghép lời nhắc bằng String.replace — ký tự `$` trong finding làm hỏng tải gửi đi (cả lượt 1)**
-  Người dùng thấy gì: Khi nội dung một phát hiện review chứa ký hiệu đặc biệt như dấu đô la, công cụ phân loại tự động có thể đọc nhầm dữ liệu đó và âm thầm coi cả lượt kiểm tra là hỏng, khiến toàn bộ kết quả phải bị xét duyệt lại dù không ai báo lỗi.
+- **triagePromptFor dùng String.replace với chuỗi thay thế chưa thoát `$` — tải Findings bị biến dạng lặng lẽ ngay lượt 1 khi detail/title chứa `$&`, `$'`, `` $` ``, `$$`**
+  Người dùng thấy gì: Nếu nội dung một phát hiện lỗi chứa một số ký tự đặc biệt, gói thông tin gửi cho bước phân loại có thể bị xáo trộn ngay từ đầu mà không có cảnh báo, khiến việc phân loại tự động cho ra kết quả sai hoặc thiếu.
   file: `feature-loop/workflows/acceptance-verify.js`
   severity: high
   Đề xuất: new-contract
 
-- **Fixture run-log/workspace ở đường tmp CỐ ĐỊNH dùng chung — ba eval chạy song song cùng ghi/đọc một tệp**
-  Người dùng thấy gì: Khi nhiều lượt kiểm tra tự động chạy cùng lúc, chúng có thể vô tình ghi đè dữ liệu tạm của nhau, khiến kết quả kiểm tra báo lỗi giả không phản ánh đúng chất lượng thật của tính năng.
+- **Fixture của chân bộ-đọc nằm ở đường tmp CỐ ĐỊNH dùng chung (os.tmpdir()/do-tin-tram-ca) trong khi config.yaml đấu 14 executor + E11 chạy song song ở S4 — race ghi/đọc cùng tệp, vi phạm luật «fixture do code sinh trong chính lần chạy»**
+  Người dùng thấy gì: Khi nhiều việc kiểm tra chạy cùng lúc, chúng có thể vô tình đọc nhầm dữ liệu tạm của nhau, khiến kết quả kiểm tra báo đạt hoặc không đạt không phản ánh đúng thực tế.
   file: `tests/workflows/triage-do-tin.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **triagePromptFor dùng String.replace với chuỗi thay thế chưa thoát `$` — tải Findings bị biến dạng ngay ở lượt 1 khi finding chứa `$$`, `$'`, `$&`, `` $` ``**
-  Người dùng thấy gì: Khi phát hiện review chứa các ký hiệu đặc biệt như $$ hoặc dấu nháy đặc biệt, nội dung gửi cho công cụ phân loại có thể bị biến dạng ngay từ lần đầu, khiến việc phân loại phát hiện đó sai lệch mà không có cảnh báo nào.
+- **Lời nhắc triage bị biến dạng khi finding chứa `$'`, `` $` ``, `$&` hoặc `$$` — String.replace diễn giải mẫu `$` trong chuỗi thay thế**
+  Người dùng thấy gì: Ngay ở lần phân loại đầu tiên, nếu một phát hiện lỗi chứa một số ký tự đặc biệt, dữ liệu gửi đi có thể bị hỏng âm thầm, khiến phân loại tự động sai lệch mà không ai nhận ra.
   file: `feature-loop/workflows/acceptance-verify.js`
   severity: medium
   Đề xuất: new-contract
-
-- **Lượt hỏi lại trả contractUnreadable=true đặt triageFailed nhưng không ghi log nguyên nhân**
-  Người dùng thấy gì: Khi lượt kiểm tra lại lần hai tự báo không đọc được yêu cầu, hệ thống không ghi lại lý do cụ thể, khiến người xem báo cáo sau này khó biết chính xác vì sao lượt đó bị đánh dấu hỏng.
-  file: `feature-loop/workflows/acceptance-verify.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **Đường dẫn cố định ngoài cây đang kiểm: run-log tiền đề đọc từ os.tmpdir() dùng chung, chỉ kiểm tồn tại — chạy lẻ có thể đo sổ của checkout khác**
-  Người dùng thấy gì: Nếu chạy kiểm tra này trong khi có nhiều bản sao mã nguồn khác đang chạy song song, kết quả có thể vô tình dựa trên dữ liệu cũ để lại từ một lần chạy khác thay vì lần chạy hiện tại, mà không có cảnh báo nào.
-  file: `tests/workflows/triage-do-tin.test.mjs`
-  severity: low
-  Đề xuất: known-limits
-
-- **Đo CHỈ DẪN thay vì hành vi: lý do «không phải bộ đọc» chứng bằng grep vắng token trong nguồn**
-  Người dùng thấy gì: Danh sách các phần được coi là không cần kiểm vì không đọc dữ liệu phân loại hiện được xác định bằng cách tìm từ khoá trong mã nguồn, nên một phần thực sự có đọc dữ liệu đó nhưng không chứa đúng từ khoá có thể bị bỏ sót khỏi việc kiểm tra mà không ai biết.
-  file: `tests/workflows/triage-do-tin.test.mjs`
-  severity: low
-  Đề xuất: known-limits
 
 ## Chưa adversarial-verify (refuter chết)
 

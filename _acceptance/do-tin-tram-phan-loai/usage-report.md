@@ -57,3 +57,62 @@ wall: 917s
 - **claude-sonnet-5**: 15 agent · 111 calls · out 145,520 · in 222 · cache_read 8,185,160 · cache_create 989,323
 - **claude-haiku-4-5-20251001**: 19 agent · 45 calls · out 20,518 · in 398 · cache_read 1,804,224 · cache_create 415,988
 
+### S4 round 2 — wf_3899cc20-351 (37 agent, 234,672 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 13 | 34,886 | 26 | 1,320,004 | 304 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 11 | 22,026 | 22 | 958,671 | 249 |
+| review:measurement | claude-fable-5-1 | 8 | 15,788 | 226 | 653,359 | 236 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 17 | 12,519 | 34 | 1,552,688 | 139 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 13 | 12,486 | 26 | 1,078,421 | 145 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 13 | 12,377 | 26 | 1,037,574 | 145 |
+| triage | claude-sonnet-5 | 2 | 12,333 | 4 | 73,710 | 124 |
+| review:conventions | claude-fable-5-1 | 8 | 11,544 | 226 | 607,482 | 182 |
+| review:bugs | claude-fable-5-1 | 12 | 11,430 | 354 | 1,096,859 | 170 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 14 | 11,350 | 28 | 1,150,718 | 125 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 19 | 10,678 | 38 | 1,521,639 | 123 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 8 | 9,179 | 16 | 680,219 | 109 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 11 | 8,456 | 22 | 814,410 | 101 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 11 | 8,410 | 22 | 863,894 | 95 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 11 | 7,953 | 22 | 837,983 | 86 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 10 | 7,506 | 20 | 714,466 | 89 |
+| baseline:diffBase | claude-sonnet-5 | 10 | 5,331 | 20 | 592,976 | 551 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 7 | 1,919 | 58 | 339,895 | 28 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 7 | 1,720 | 58 | 168,480 | 1770 |
+| capture:provenance | claude-sonnet-5 | 2 | 1,284 | 4 | 66,702 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,217 | 18 | 79,483 | 16 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,145 | 18 | 79,482 | 14 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,111 | 18 | 47,552 | 14 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,082 | 18 | 79,482 | 14 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,080 | 18 | 79,479 | 14 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,009 | 18 | 79,479 | 14 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 958 | 18 | 79,482 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 931 | 18 | 79,479 | 12 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 903 | 18 | 63,856 | 507 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 857 | 18 | 79,482 | 11 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 857 | 18 | 79,452 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 845 | 18 | 79,486 | 11 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 842 | 18 | 79,476 | 11 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 792 | 18 | 79,459 | 10 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 650 | 18 | 79,479 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 618 | 18 | 79,478 | 16 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 600 | 18 | 79,478 | 14 |
+
+
+wall: 2222s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 5,331 | 592,976 | 551 | 03:10:26 | 03:19:37 |
+| machine | 19 | 19,136 | 1,811,939 | 1782 | 03:10:26 | 03:40:08 |
+| review | 3 | 38,762 | 2,357,700 | 238 | 03:10:40 | 03:14:38 |
+| refute | 11 | 122,940 | 11,210,683 | 315 | 03:13:32 | 03:18:47 |
+| triage | 1 | 12,333 | 73,710 | 124 | 03:40:08 | 03:42:12 |
+| capture | 1 | 1,284 | 66,702 | 13 | 03:42:12 | 03:42:25 |
+| synthesize | 1 | 34,886 | 1,320,004 | 304 | 03:42:25 | 03:47:28 |
+
+- **claude-sonnet-5**: 15 agent · 165 calls · out 176,774 · in 330 · cache_read 13,264,075 · cache_create 1,150,698
+- **claude-fable-5-1**: 3 agent · 28 calls · out 38,762 · in 806 · cache_read 2,357,700 · cache_create 277,730
+- **claude-haiku-4-5-20251001**: 19 agent · 48 calls · out 19,136 · in 422 · cache_read 1,811,939 · cache_create 576,704
+
