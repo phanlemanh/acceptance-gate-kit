@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e4e68423086637e14bb7c69d3bb6f1ab9751b7b1
+verified_commit: 76879ac482f330990e5b7f0d335358114945abc3
 human_signoff: Mạnh 2026-09-15 — ký với 11 giới hạn đã khai. Mục ① (AC-3, RB3 bỏ neo) nâng phạm vi SỬA NGAY, đã sửa và chứng bằng mutant trong cùng lượt; mục ③ (--skip-unchanged loại trừ trọn _acceptance/** trong khi config.yaml và evals.yaml là nguồn định nghĩa lệnh) mở hợp đồng riêng cho 2.14.
 ---
 
@@ -154,3 +154,7 @@ Round 1: 7/7 eval exit 0, nhưng REJECT do hai suite hồi quy đỏ. Quay lại
 Round 2: REJECT, 15 finding phát hiện (2 trong hợp đồng) — DỪNG-VÁ. Quay lại triển khai: sửa hai finding trong hợp đồng (thứ tự bước sinh thành VẬT, SK5 dùng writer thật) + ghi sổ 11 mục ngoài hợp đồng vào Known limits của hợp đồng.
 Round 3: PENDING-JUDGMENT (triage_failed) — 7/7 eval máy + 5 suite exit 0, 0 finding trong hợp đồng, nhưng bước phân loại phạm vi hỏng (thiếu diffFiles) nên 19 finding không phân loại được, hết trần 3 vòng. Cổng Bằng chứng: owner định đoạt 17 mục ngoài hợp đồng — 3 mục (A1/A2/A3) nâng phạm vi sửa ngay ở AC-7, 14 mục Known limits — và mở lượt 4.
 Round 4: BLOCKED (agent chết giữa chừng, hạ tầng, không phải vật) — finding trong hợp đồng AC-7/A2 lộ ra: hai tệp ca vẫn gọi tên bước cũ nên luật A2 tự loại trừ đúng chỗ đang vi phạm. Sửa: đổi tên trong cả hai tệp ca + mở rộng phạm vi quét A2. Round 4b: REJECT — finding trong hợp đồng AC-3 (E3 đỏ: ca RB3 đổi tên nhưng quên neo grep trong config.yaml). Quay lại triển khai: sửa neo + thêm ca RB5 đóng cả lớp «đổi tên ca, quên neo».
+
+### Re-pin lần 1 — 2026-09-15, do hoá cũ do sửa mục ① tại Cổng Bằng chứng
+run_id: repin-20260915T072246Z-13563
+sha: 76879ac482f330990e5b7f0d335358114945abc3 · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
