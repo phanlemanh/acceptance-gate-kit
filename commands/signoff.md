@@ -156,6 +156,22 @@ Steps:
    after `human_signoff` is written; the map is machine-generated from records
    this gate just changed, so it belongs in the signature commit below.
 
+   **6b — bản ghi mốc ĐỊNH TUYẾN (chỉ kho TỰ HOST kit).** Cùng lớp với bản đồ và
+   cùng lý do (ADR 0017 nới ADR 0007): ca LM20 chỉ ghim hồ sơ đã ký, nên CHÍNH
+   chữ ký vừa ghi đưa hồ sơ này vào diện quét và bản ghi mốc phải có dòng của nó.
+   Sinh dòng NGAY ĐÂY — cùng lượt với bản đồ, TRƯỚC làn 7b — rồi chạy đúng tệp ca
+   LM20 làm **đối chứng dương** (vài giây, không phải một suite):
+
+   ```bash
+   node tests/scripts/routing-baseline.mjs --root . --slug <slug> --write
+   node tests/scripts/gate-card-lmcms.test.mjs
+   ```
+
+   Lệnh sinh thoát ≠ 0 (hồ sơ chưa ký, `gate-card --extract` sập) → DỪNG, in
+   nguyên văn, không commit chữ ký. Ca LM20 đỏ → DỪNG: bản ghi mốc và xưởng đang
+   lệch, sửa trước khi ký. Kho KHÔNG tự host kit → bỏ qua 6b hoàn toàn (tệp
+   không tồn tại ở đó).
+
 7. **Ghi và commit — một lượt, làn máy chạy TRƯỚC chữ ký. THỨ TỰ CÓ RĂNG.**
 
    **7a — ghi trường người.** Hồ sơ đang `machine-cleared` (máy đã thông, làn
@@ -177,9 +193,10 @@ Steps:
    <!-- <<<SIGNOFF-LANE-CLAUSE -->
    Làn trước chữ ký — chạy làn máy của CHÍNH hồ sơ trên cây làm việc, chỉ ĐO không ghim:
    ```bash
-   node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --allow-dirty
+   node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --allow-dirty --skip-unchanged
    ```
-   Làn đỏ (exit ≠ 0) → KHÔNG commit chữ ký, in nguyên văn dòng đỏ, dừng lệnh — người sửa vật rồi gọi lại. Làn xanh → commit (7c). Sau commit, lưới trước-merge báo `evidence is stale` cho CHÍNH slug (commit chữ ký chạm file ngoài T1) → ghim lại trong CÙNG lượt rồi chạy lưới lại, TRƯỚC khi báo READY:
+   `--skip-unchanged`: cây BẰNG PIN (0 tệp git-theo-dõi ngoài `_acceptance/` và `risk_tiers.t1_skip_globs` đổi so `verified_commit` — đúng vị từ `stale_files` của lưới trước-merge) → làn TỰ BỎ QUA, in một dòng «cây bằng pin … làn bỏ qua», exit 0, không chạy suite nào. Đó là ca của mọi lượt ký mà vật đã xanh từ lượt chấm: chữ ký chỉ chạm vật hồ sơ và bản ghi mốc T1, nên không có gì để chứng lại. Cây ĐÃ ĐỔI sau verify → làn chạy TRỌN và luật đỏ dưới đây không đổi một li.
+   Làn đỏ (exit ≠ 0) → KHÔNG commit chữ ký, in nguyên văn dòng đỏ, dừng lệnh — người sửa vật rồi gọi lại. Làn xanh (hoặc bỏ qua) → commit (7c). Sau commit, lưới trước-merge báo `evidence is stale` cho CHÍNH slug (commit chữ ký chạm file ngoài T1) → ghim lại trong CÙNG lượt rồi chạy lưới lại, TRƯỚC khi báo READY:
    ```bash
    node "<feature-loop>/scripts/repin-lane.mjs" --root . --slug <slug> --reason "hoá cũ do chính commit chữ ký" --write
    ```
@@ -200,9 +217,10 @@ Steps:
 
    Repo opted in (step 6 regenerated the map) → append ` PRODUCT-MAP.md` to that
    `git add`. Repo NOT opted in → leave it out: the file does not exist there and
-   naming it makes `git add` fail with a pathspec error mid-signature. Kho có bản
-   ghi mốc mà làn 7b đòi (vd bản ghi định tuyến của kho kit) → thêm file đó vào
-   cùng `git add`.
+   naming it makes `git add` fail with a pathspec error mid-signature. Kho TỰ HOST
+   kit (bước 6b đã chạy) → thêm ` tests/scripts/fixtures/routing-baseline.txt` vào
+   cùng `git add`: dòng vừa sinh phải đi CÙNG commit chữ ký, vì tách ra là đúng
+   cái commit-sau-verify mà ADR 0017 gỡ.
 
    Câu dưới đây là bản gốc DUY NHẤT của điều khoản ai-sở-hữu-chữ-ký.
    `skills/acceptance/SKILL.md` chép nguyên văn, không tự diễn đạt.

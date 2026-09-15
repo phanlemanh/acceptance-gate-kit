@@ -1058,6 +1058,25 @@ KHÔNG chứng lại chúng — hồ sơ mà diff chạm đúng phần `ui-check
 vòng S4 delta; ngưỡng mở vòng kế: **≥1 hồi quy UI lọt qua một lượt re-pin**
 giữa hai bản phát hành. Lý do và các lối bị loại: ADR 0014.
 
+**Làn bỏ qua khi cây BẰNG PIN — `--skip-unchanged` (2.13).** Đo 14/09: một chữ ký
+mất **54 phút · ≈ 42 M token** từ lúc owner gõ «Ký» tới READY, và **7/7** chữ ký
+từ 08/09 đều chạy **ba** lượt làn ≈ 13 phút. Phần lớn số đó chứng lại một cây
+KHÔNG đổi: chữ ký chỉ chạm vật hồ sơ và một bản ghi mốc. Nay làn nhận cờ tường
+minh `--skip-unchanged` (mặc định vẫn chạy trọn): cây bằng pin — 0 tệp
+git-theo-dõi ngoài `_acceptance/` (tính theo **phân đoạn** đường dẫn, mọi độ sâu)
+và ngoài `risk_tiers.t1_skip_globs` đổi so `verified_commit` — thì làn in một
+dòng rồi bỏ qua, exit 0, không chạy suite nào. Vị từ ấy **là** ngữ nghĩa
+`stale_files()` của lưới trước-merge, tái dùng chứ không dựng phép đo mới: rỗng
+nghĩa là lưới sẽ không gọi hồ sơ này stale. **Fail-CLOSED ba chỗ:**
+`--skip-unchanged` đi cùng `--write` → usage exit 3 (một lượt bỏ qua không chạy
+phép đo nào nên không có tư cách ghi pin); `verified_commit` vắng hoặc trỏ SHA
+không có trong kho → KHÔNG bỏ qua, in lý do, chạy trọn; cây đã đổi sau verify →
+chạy trọn và luật đỏ không đổi một li, nên vụ sinh ra bước 7b
+(`duong-lui-phai-song`) vẫn bị bắt. Cờ này đi cùng **ADR 0017** — bản ghi mốc
+định tuyến của kho kit thành vật T1 máy sinh, dòng của nó sinh ở bước 6b của
+`/signoff` — vì thiếu vế đó thì tệp baseline (là code) bẩn ở mọi lượt ký và
+không lượt nào bỏ qua được.
+
 **Ghim lại chấm theo kỳ vọng đã khai, không theo số 0 (2.11.0).** Một eval
 `test`/`script` có thể khai trước, ngay trong `evals.yaml`, rằng mã thoát mong
 đợi của nó khác 0 — ca thật đã xảy ra ở kho tiêu thụ: một hồ sơ đã ký đứng
