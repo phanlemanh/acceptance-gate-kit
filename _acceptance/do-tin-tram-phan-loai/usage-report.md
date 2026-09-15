@@ -116,3 +116,59 @@ wall: 2222s
 - **claude-fable-5-1**: 3 agent · 28 calls · out 38,762 · in 806 · cache_read 2,357,700 · cache_create 277,730
 - **claude-haiku-4-5-20251001**: 19 agent · 48 calls · out 19,136 · in 422 · cache_read 1,811,939 · cache_create 576,704
 
+### S4 round 3 — wf_c81a431a-252 (34 agent, 193,186 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| review:bugs | claude-opus-5 | 27 | 26,922 | 54 | 3,015,543 | 399 |
+| synthesize:report | claude-sonnet-5 | 10 | 23,638 | 20 | 968,336 | 210 |
+| review:conventions | claude-opus-5 | 19 | 23,033 | 38 | 2,017,913 | 342 |
+| review:measurement | claude-opus-5 | 18 | 18,174 | 36 | 1,760,626 | 280 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 10 | 13,709 | 20 | 799,267 | 151 |
+| triage | claude-sonnet-5 | 2 | 11,367 | 4 | 73,446 | 120 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 10 | 9,017 | 20 | 745,371 | 109 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 7 | 7,471 | 14 | 508,499 | 82 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 16 | 7,122 | 32 | 1,335,609 | 85 |
+| baseline:diffBase | claude-sonnet-5 | 21 | 6,699 | 42 | 1,416,708 | 578 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 10 | 6,282 | 20 | 809,686 | 77 |
+| refute:triage-do-tin.test.mjs | claude-sonnet-5 | 11 | 5,582 | 22 | 774,661 | 64 |
+| refute:acceptance-verify.test.mjs | claude-sonnet-5 | 5 | 5,474 | 10 | 360,944 | 64 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 9 | 4,771 | 18 | 690,990 | 59 |
+| refute:acceptance-verify.js | claude-sonnet-5 | 4 | 2,719 | 8 | 261,596 | 33 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,701 | 42 | 239,380 | 25 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,608 | 42 | 185,938 | 477 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,498 | 18 | 79,463 | 20 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,305 | 18 | 79,494 | 16 |
+| capture:provenance | claude-sonnet-5 | 3 | 1,189 | 6 | 136,755 | 12 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,188 | 18 | 79,493 | 14 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,180 | 18 | 79,493 | 15 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,087 | 18 | 79,493 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,079 | 18 | 79,489 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,060 | 18 | 79,490 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,012 | 18 | 79,490 | 12 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 1,000 | 18 | 47,563 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 976 | 18 | 79,493 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 960 | 18 | 79,490 | 13 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 925 | 18 | 79,487 | 12 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 921 | 18 | 79,497 | 12 |
+| machine:bash _acceptance/do-tin-tram-phan-loai/r | claude-haiku-4-5-20251001 | 2 | 888 | 18 | 79,490 | 12 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 887 | 18 | 63,856 | 520 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 742 | 18 | 79,470 | 9 |
+
+
+wall: 920s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 6,699 | 1,416,708 | 578 | 04:04:12 | 04:13:50 |
+| machine | 18 | 20,017 | 1,649,569 | 522 | 04:04:12 | 04:12:54 |
+| review | 3 | 68,129 | 6,794,082 | 400 | 04:04:25 | 04:11:06 |
+| refute | 9 | 62,147 | 6,286,623 | 270 | 04:09:07 | 04:13:37 |
+| triage | 1 | 11,367 | 73,446 | 120 | 04:13:50 | 04:15:50 |
+| capture | 1 | 1,189 | 136,755 | 12 | 04:15:50 | 04:16:02 |
+| synthesize | 1 | 23,638 | 968,336 | 210 | 04:16:02 | 04:19:32 |
+
+- **claude-opus-5**: 3 agent · 64 calls · out 68,129 · in 128 · cache_read 6,794,082 · cache_create 349,771
+- **claude-sonnet-5**: 13 agent · 118 calls · out 105,040 · in 236 · cache_read 8,881,868 · cache_create 920,008
+- **claude-haiku-4-5-20251001**: 18 agent · 42 calls · out 20,017 · in 372 · cache_read 1,649,569 · cache_create 434,608
+
