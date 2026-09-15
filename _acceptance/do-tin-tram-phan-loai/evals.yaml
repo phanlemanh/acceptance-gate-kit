@@ -5,6 +5,9 @@ feature_slug: do-tin-tram-phan-loai
 # lớp mỏng bọc ca chạy trên harness workflow (tests/workflows/harness.mjs nạp TỆP THẬT
 # trong kho, không nạp bản plugin cache). Chiều đỏ của mỗi chân là một MUTANT trên bản sao
 # trong bộ nhớ. Phản hồi giả của mọi chân SINH TỪ tải gửi đi thật (AC-10), không gõ tay.
+# paths: viết GLOB (hai sao), không viết thư mục trần có gạch cuối — carry-plan khớp
+# đường dẫn bằng regex neo hai đầu nên «thư mục/» chỉ khớp chính chuỗi ấy, và eval có
+# paths không bao giờ khớp sẽ bị CARRY im lặng (lượt 2 của vòng này bắt ở E12).
 evals:
   - id: E1
     criterion: AC-1
@@ -104,7 +107,7 @@ evals:
       vào là run-log do chân E7a THẬT sinh ra, không dựng tay theo khuôn bên đọc. Chiều đỏ ghim
       mã: 2 · 3 một bộ đọc đếm nhầm dòng triage · 4 đối chứng dương đỏ · 5 số chạy khác số quét
       được (có bộ đọc mới mà ca không biết) · 6 không đọc được run-log của E7a.
-    paths: [feature-loop/workflows/acceptance-verify.js, lib/evidence-core.cjs, scripts/recheck-evidence.cjs, feature-loop/scripts/, _acceptance/do-tin-tram-phan-loai/rang-triage.sh]
+    paths: [feature-loop/workflows/acceptance-verify.js, lib/evidence-core.cjs, scripts/recheck-evidence.cjs, feature-loop/scripts/**, _acceptance/do-tin-tram-phan-loai/rang-triage.sh]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8a
     criterion: AC-8
@@ -169,7 +172,7 @@ evals:
     expected: >
       Exit 0, «Results: all workflow tests passed». Hồi quy toàn làn workflow — ca cũ của
       acceptance-verify, vùng-vật, carry-plan, round-signal không được đỏ vì nhát này.
-    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/**]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-8
@@ -178,5 +181,5 @@ evals:
     expected: >
       Exit 0, «Results: all plugin tests passed». Hồi quy corpus: P161 và các ca quét văn hồ sơ
       không được đỏ vì hồ sơ mới của vòng này.
-    paths: [_acceptance/, feature-loop/, tests/plugins/run-tests.sh]
+    paths: [_acceptance/**, feature-loop/**, tests/plugins/run-tests.sh]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
