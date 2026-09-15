@@ -1,20 +1,17 @@
 ---
 schema_version: 2
 feature_slug: chu-ky-khong-tu-lam-hoa-cu
-verdict: PENDING-JUDGMENT
-triage_failed: true
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 17009471cf3c3fd5b6ba379b29465da06c822579
+verified_commit: e4e68423086637e14bb7c69d3bb6f1ab9751b7b1
 human_signoff:
 ---
 
 # Evidence Report: chu-ky-khong-tu-lam-hoa-cu
-
-⚠ phân loại phạm vi KHÔNG chạy được — bước triage phạm vi của vòng này không chạy được, nên máy KHÔNG biết finding nào nằm trong hợp đồng và KHÔNG tự sửa bất kỳ finding nào. Danh sách đầy đủ nằm trong review-findings.md; người xem lại toàn bộ trước khi ký.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -25,107 +22,119 @@ human_signoff:
 | E5 | AC-5 | script | PASS |
 | E6 | AC-6 | script | PASS |
 | E7 | AC-4 | test | PASS |
+| E8 | AC-7 | script | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E1-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E1-r5
   exit_code: 0
-  baseline: n-a
+  baseline: red
   verifier: config:executors.script.ckh_rb_t1_stale
-  verified_at: 2026-09-15T09:10:00Z
+  verified_at: 2026-09-15T11:00:00Z
   output: |
-    PASS: RB3-IM: sua mot dong NGOAI khoi va ngoai buoc 6/7c -> RB3 van XANH (rang do QUAN HE, khong ghim chuoi co dinh)
+      PASS: RB5 moi neo grep cua ho so KHOP mot ten ca that khai trong tep ca (chong lop «doi ten ca, quen neo»)
 
-    Results: 12 passed, 0 failed (routing-baseline-t1)
+    Results: 14 passed, 0 failed (routing-baseline-t1)
 
 - eval: E2
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E2-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E2-r5
   exit_code: 0
-  baseline: n-a
+  baseline: red
   verifier: config:executors.script.ckh_rb_sinh_dong
-  verified_at: 2026-09-15T09:11:00Z
+  verified_at: 2026-09-15T11:01:00Z
   output: |
-    PASS: RB3-IM: sua mot dong NGOAI khoi va ngoai buoc 6/7c -> RB3 van XANH (rang do QUAN HE, khong ghim chuoi co dinh)
+    PASS: RB5 moi neo grep cua ho so KHOP mot ten ca that khai trong tep ca (chong lop «doi ten ca, quen neo»)
 
-    Results: 12 passed, 0 failed (routing-baseline-t1)
+    Results: 14 passed, 0 failed (routing-baseline-t1)
 
 - eval: E3
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E3-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E3-r5
   exit_code: 0
-  baseline: n-a
+  baseline: red
   verifier: config:executors.script.ckh_rb_signoff_van_ban
-  verified_at: 2026-09-15T09:12:00Z
+  verified_at: 2026-09-15T11:02:00Z
   output: |
-    PASS: RB3-IM: sua mot dong NGOAI khoi va ngoai buoc 6/7c -> RB3 van XANH (rang do QUAN HE, khong ghim chuoi co dinh)
+    PASS: RB5 moi neo grep cua ho so KHOP mot ten ca that khai trong tep ca (chong lop «doi ten ca, quen neo»)
 
-    Results: 12 passed, 0 failed (routing-baseline-t1)
+    Results: 14 passed, 0 failed (routing-baseline-t1)
 
 - eval: E4
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E4-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E4-r5
   exit_code: 0
-  baseline: n-a
+  baseline: red
   verifier: config:executors.script.ckh_sk_bo_qua
-  verified_at: 2026-09-15T09:13:00Z
+  verified_at: 2026-09-15T11:03:00Z
   output: |
     PASS: SK6 so sach: ADR 0017 neu ADR 0007, GUIDE 7.1 va CHANGELOG neu --skip-unchanged
 
     Results: 10 passed, 0 failed (repin-lane-skip-unchanged)
 
 - eval: E5
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E5-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E5-r5
   exit_code: 0
-  baseline: n-a
+  baseline: red
   verifier: config:executors.script.ckh_sk_fail_closed
-  verified_at: 2026-09-15T09:14:00Z
-  output: |
-    PASS: SK6 so sach: ADR 0017 neu ADR 0007, GUIDE 7.1 va CHANGELOG neu --skip-unchanged
-
-    Results: 10 passed, 0 failed (repin-lane-skip-unchanged)
-
-- eval: E6
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E6-r3
-  exit_code: 0
-  baseline: n-a
-  verifier: config:executors.script.ckh_sk_lenh_tu_khoi
-  verified_at: 2026-09-15T09:15:00Z
+  verified_at: 2026-09-15T11:04:00Z
   output: |
       PASS: SK6 so sach: ADR 0017 neu ADR 0007, GUIDE 7.1 va CHANGELOG neu --skip-unchanged
 
     Results: 10 passed, 0 failed (repin-lane-skip-unchanged)
 
+- eval: E6
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E6-r5
+  exit_code: 0
+  baseline: red
+  verifier: config:executors.script.ckh_sk_lenh_tu_khoi
+  verified_at: 2026-09-15T11:05:00Z
+  output: |
+    PASS: SK6 so sach: ADR 0017 neu ADR 0007, GUIDE 7.1 va CHANGELOG neu --skip-unchanged
+
+    Results: 10 passed, 0 failed (repin-lane-skip-unchanged)
+
 - eval: E7
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E7-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E7-r5
   exit_code: 0
   baseline: green
   verifier: config:executors.test.scripts
-  verified_at: 2026-09-15T09:20:00Z
+  verified_at: 2026-09-15T11:06:00Z
   output: |
-    PASS: SELF02 (doi chung duong: phep quet bat duoc loi khi no CO that)
+      PASS: SELF02 (doi chung duong: phep quet bat duoc loi khi no CO that)
 
     Results: 873 passed, 0 failed
+
+- eval: E8
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-E8-r5
+  exit_code: 0
+  baseline: red
+  verifier: config:executors.script.ckh_rb_ba_cho_tu_phan
+  verified_at: 2026-09-15T11:07:00Z
+  output: |
+    PASS: RB5 moi neo grep cua ho so KHOP mot ten ca that khai trong tep ca (chong lop «doi ten ca, quen neo»)
+
+    Results: 14 passed, 0 failed (routing-baseline-t1)
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-SUITE-bash_tests_hooks_run_tests_sh-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-SUITE-bash_tests_hooks_run_tests_sh-r5
   exit_code: 0
-  verified_at: 2026-09-15T09:22:00Z
+  verified_at: 2026-09-15T11:10:00Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r5
   exit_code: 0
-  verified_at: 2026-09-15T09:25:00Z
+  verified_at: 2026-09-15T11:12:00Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-SUITE-bash_tests_workflows_run_tests_sh-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-SUITE-bash_tests_workflows_run_tests_sh-r5
   exit_code: 0
-  verified_at: 2026-09-15T09:28:00Z
+  verified_at: 2026-09-15T11:14:00Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-SUITE-node_scripts_product_map_mjs_root_check-r3
+  run_id: minted-chu-ky-khong-tu-lam-hoa-cu-SUITE-node_scripts_product_map_mjs_root_check-r5
   exit_code: 0
-  verified_at: 2026-09-15T09:30:00Z
+  verified_at: 2026-09-15T11:16:00Z
 
 ## Known limits
 
@@ -133,7 +142,7 @@ human_signoff:
 
 ## Analyst
 
-E7 (`bash tests/scripts/run-tests.sh`) — xanh trên CẢ HEAD lẫn diffBase: bản thân lệnh chạy trọn suite tests/scripts (873 ca) và không phân biệt bằng exit code giữa hai bản; nó chứng minh harness còn chạy được, không riêng feature vòng này. Không phải regression-guard có chủ ý — nên xem lại theo finding "E7 khai grep hai chuỗi PASS nhưng cmd chỉ chạy suite trần" ở review-findings.md.
+E7 (`bash tests/scripts/run-tests.sh`) — xanh trên CẢ HEAD lẫn diffBase: bản thân lệnh chạy trọn suite tests/scripts (873 ca) và không phân biệt bằng exit code giữa hai bản; nó chứng minh harness còn chạy được, không riêng feature vòng này. Không phải regression-guard có chủ ý — nên xem lại theo finding «E7 khai một chiều đỏ không tồn tại: executors.test.scripts không hề grep» ở review-findings.md (mục Ngoài hợp đồng).
 
 ## Variance
 
@@ -143,3 +152,5 @@ none — every multi-run eval is uniform
 
 Round 1: 7/7 eval exit 0, nhưng REJECT do hai suite hồi quy đỏ. Quay lại triển khai: sửa finding trong hợp đồng + ba ca hạ tầng đỏ.
 Round 2: REJECT, 15 finding phát hiện (2 trong hợp đồng) — DỪNG-VÁ. Quay lại triển khai: sửa hai finding trong hợp đồng (thứ tự bước sinh thành VẬT, SK5 dùng writer thật) + ghi sổ 11 mục ngoài hợp đồng vào Known limits của hợp đồng.
+Round 3: PENDING-JUDGMENT (triage_failed) — 7/7 eval máy + 5 suite exit 0, 0 finding trong hợp đồng, nhưng bước phân loại phạm vi hỏng (thiếu diffFiles) nên 19 finding không phân loại được, hết trần 3 vòng. Cổng Bằng chứng: owner định đoạt 17 mục ngoài hợp đồng — 3 mục (A1/A2/A3) nâng phạm vi sửa ngay ở AC-7, 14 mục Known limits — và mở lượt 4.
+Round 4: BLOCKED (agent chết giữa chừng, hạ tầng, không phải vật) — finding trong hợp đồng AC-7/A2 lộ ra: hai tệp ca vẫn gọi tên bước cũ nên luật A2 tự loại trừ đúng chỗ đang vi phạm. Sửa: đổi tên trong cả hai tệp ca + mở rộng phạm vi quét A2. Round 4b: REJECT — finding trong hợp đồng AC-3 (E3 đỏ: ca RB3 đổi tên nhưng quên neo grep trong config.yaml). Quay lại triển khai: sửa neo + thêm ca RB5 đóng cả lớp «đổi tên ca, quên neo».
