@@ -88,16 +88,26 @@ evals:
   - id: E4
     criterion: AC-4
     executor: judgment
+    question: >
+      Đọc ## Notes của hợp đồng. Bốn khối (năm dòng số · lớp vendored · lớp lỗi tái phát ·
+      nhát cắt kế) có ĐỦ MẶT không; bảng năm dòng có ĐỦ HAI CỘT cho hai vòng đã ký của cửa
+      sổ không; mỗi ô số có ghi NGUỒN RÚT không; dòng 2 có đếm bằng BA NGĂN (cổng thiết kế ·
+      luật đòi ngoài cổng · máy tự chèn) cho cả hai vòng không. KHÔNG tính lại con số nào —
+      đó là việc người ký làm bằng mắt. RIÊNG đối chiếu NHÃN với nguồn: hai dòng máy đo của
+      vòng `do-tin-tram-phan-loai` có khớp từng chữ số với usage-report.md nêu tên ở input
+      thứ hai không; số lượt chấm và lượt hạ-tầng-đốt của vòng `chu-ky-khong-tu-lam-hoa-cu`
+      có khớp «## Iterations» trong báo cáo ở input thứ ba không. Cuối cùng: khối năm dòng
+      có nói THẲNG bốn điều bất lợi không — token/lượt KHÔNG giảm so mốc trước · lượt gọi
+      người vượt trần ở CẢ HAI vòng · cửa sổ có HAI vòng meta trong khi luật (b) cho một ·
+      dòng 4 của vòng thứ hai rút từ tệp CHƯA lên main, có ghi nguồn và chờ merge.
     inputs:
       - _acceptance/release-2-14-0/contract.md
       - _acceptance/do-tin-tram-phan-loai/usage-report.md
+      - _acceptance/chu-ky-khong-tu-lam-hoa-cu/evidence-report.md
     expected: >
-      Hội đồng đọc khối «## Notes» của hợp đồng cùng usage-report.md của vòng
-      do-tin-tram-phan-loai và phán: đủ BỐN khối bắt buộc (năm dòng số · lớp vendored · lớp
-      lỗi tái phát · nhát cắt cho cửa sổ kế); mỗi ô của bảng năm dòng có nguồn rút gọi tên;
-      hai dòng MÁY ĐO khớp từng chữ số với usage-report.md. Và khối năm dòng phải nói THẲNG
-      điều số đang nói kể cả khi bất lợi — token/lượt KHÔNG giảm so với mốc trước, và lượt
-      gọi người vượt trần một lượt do máy tự dừng. Che một trong hai điều đó là FAIL.
+      PASS khi bốn khối có mặt, bảng năm dòng đủ hai cột với nguồn rút từng ô, dòng 2 đếm ba
+      ngăn cho cả hai vòng, hai đối chiếu nhãn-với-nguồn khớp, và bốn điều bất lợi đều được
+      nói thẳng. Che bất kỳ điều nào trong bốn là FAIL.
     evidence_required: [judged_by, verdict, votes, rationale]
   - id: E5
     criterion: AC-5
