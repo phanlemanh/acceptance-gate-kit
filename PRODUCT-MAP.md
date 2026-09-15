@@ -5,7 +5,7 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>32 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>33 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>3 việc"]
   GD --> DB["Đã bác từ khám phá<br/>3 việc"]
@@ -14,7 +14,6 @@ flowchart TD
   GB --> DG["Đã giao<br/>59 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>10 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
-  HS["Hồ sơ hỏng<br/>1 việc"]
 ```
 
 > **Bốn cổng người** — mỗi cổng là một câu hỏi chỉ người trả lời được:
@@ -41,6 +40,7 @@ flowchart TD
 - Khuôn ghi sổ quyết định tự tính cả trường `at` — người/máy chỉ điền phần chữ, mọi trường thời gian do shell sinh (`khuon-so-tu-tinh-at`)
 - Mọi liệt kê trong hợp đồng phải máy-đọc (`liet-ke-may-doc`)
 - Luật lái máy đổi thì phải được kiểm hồi quy như code — harness-lite chạy evals/ khi cấu hình đổi, hook cấm nới thước lúc chữa mã, vật-hoá thứ tự ghi run-log, ADR làn V và tách nhiệm vụ (`luat-lai-may-duoc-hoi-quy`)
+- usage-report về MỘT nguồn — khuôn tiêu đề do bên VIẾT và bên ĐỌC cùng rút, để hai dòng máy-đo của luật (c) thôi hỏng lặng (`mot-nguon-usage-report`)
 - Ngày «việc vừa xong» lấy sai nấc cho hồ sơ đã qua phiên nghiệm thu — vòng đóng hôm nay bị đóng dấu bảy tháng tuổi và rơi khỏi thẻ (`ngay-viec-vua-xong-lay-sai-nac`)
 - Nhà tài liệu khai một chỗ — repo khai «lớp vật × vòng đời → một nhà» trong khối máy đọc của docs/MAP.md, máy kiểm không hai nhà / không nhà lạ; repo mới được acceptance-init dựng bản mặc định cũng qua router; feature-loop đọc nhà thay vì đường cứng (`nha-tai-lieu-router`)
 - Ba hồ sơ đã ký còn nợ khoá `executors.script.mirror_sync` đã gỡ — nợ cuối cùng của corpus sau ADR 0014/0015, chờ một lối ra có tên (`no-mirror-sync-ba-ho-so`)
@@ -166,7 +166,3 @@ flowchart TD
 - Siết răng T1-escape: chỉ `_acceptance/<slug>/` THẬT mới bảo lãnh cho PR — ĐÃ TỪ CHỐI (`.out-of-scope/t1-escape-slug-only-thu-hep-mien-tru.md`)
 - Miễn trừ `.github/**` và `.claude-plugin/plugin.json` khỏi `t1_skip_globs` — ĐÃ TỪ CHỐI (`.out-of-scope/t1-skip-globs-github-and-manifests.md`)
 - Đo-thước-của-thước sâu hơn MỘT tầng — PARK 30/08 («cắt đuôi, giữ lõi») (`.out-of-scope/thuoc-cua-thuoc-mot-tang.md`)
-
-## Hồ sơ hỏng
-
-- `mot-nguon-usage-report` — không đọc được hồ sơ (`opportunity.md`): frontmatter không đọc được hoặc thiếu stage

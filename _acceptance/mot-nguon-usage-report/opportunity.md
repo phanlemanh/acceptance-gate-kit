@@ -1,3 +1,11 @@
+---
+schema_version: 1
+slug: mot-nguon-usage-report
+feature: usage-report về MỘT nguồn — khuôn tiêu đề do bên VIẾT và bên ĐỌC cùng rút, để hai dòng máy-đo của luật (c) thôi hỏng lặng
+owner: phanlemanh@gmail.com
+stage: discovery
+---
+
 # Cơ hội: usage-report về MỘT nguồn — hai dòng máy-đo của luật (c) thôi hỏng lặng
 
 **Mở:** 2026-09-15, từ Ngoài-2 của mốc `release-2-14-0` (owner quyết tại Cổng Bằng chứng,
