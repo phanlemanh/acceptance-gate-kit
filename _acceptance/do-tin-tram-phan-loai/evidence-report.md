@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1d8b5627b1fc5b71241649583fafa938de4c7b98
+verified_commit: c47ae5f8d4fa2298a1a3b7467dfee3572e2860c0
 human_signoff: Mạnh 2026-09-15 — ký với 7 giới hạn đã khai (Ngoài-2…Ngoài-8); Ngoài-1 mở hợp đồng riêng. Vòng đi ba lượt chấm, chốt DỪNG-VÁ giữa đường: owner thu phạm vi AC-7 và nâng phạm vi lỗi ký tự đô-la thành AC-11.
 ---
 
@@ -232,3 +232,7 @@ none — every multi-run eval is uniform
 Round 1: Cả 16 eval máy + 3 lệnh suite hồi quy đều PASS (exit 0, không phương sai), nhưng review đối kháng (scope-triage) xác nhận 5 finding ánh xạ được vào hợp đồng — trong đó có 1 lỗi hành vi thật trái AC-3 (dòng mã lạ vẫn ghép qua khoá tệp::tiêu đề dù contract và log tuyên nó bị bỏ) và 4 lỗ hổng đo lường ở AC-1/AC-7/AC-10 (assertion âm-tính-một-mình, đo chỉ-dẫn thay vì đầu-ra, đo có-mặt/đếm thay vì quan-hệ) mà răng hiện tại không bắt được — verdict REJECT, trả về implementation.
 Round 2: Cả 16 eval máy + 3 lệnh suite hồi quy vẫn PASS (exit 0, không phương sai) sau khi vá vòng 1, nhưng review đối kháng xác nhận thêm 7 finding trong hợp đồng — 4 lỗ hổng «assertion âm-tính-một-mình» mới lộ ở AC-7 (đối chứng dương của loop-health/acceptance-gold/carry-plan/recheck-evidence không chứng minh bộ đọc thật sự đọc dòng run_id), 1 «đo chỉ dẫn thay vì đầu ra» cũng ở AC-7 (ba bộ đọc chỉ được grep nguồn, chưa từng chạy), 1 «assert đếm thay quan hệ» ở AC-4 (refute-chỉ-trong-hợp-đồng không phân biệt được với refute-toàn-bộ) và 1 «assert chuỗi-có-mặt thay quan hệ» ở AC-9 (không có assert nào chứng minh t1 không bị ghép đè) — verdict REJECT, trả về implementation.
 Round 3: Sau chốt DỪNG-VÁ (15/09) — owner THU phạm vi AC-7 cũ (dòng sổ kind:"triage" + ma trận bộ đọc, E7a/E7b bị gỡ khỏi evals.yaml) và NÂNG phạm vi AC-11 mới (ký tự đô-la trong tải gửi triage, E13). Cả 13 eval script (E1-E10, E13) + 2 eval test hồi quy (E11, E12) + 3 lệnh suite hồi quy đều PASS (exit 0, không phương sai, E11/E12 non-discriminating — xem Analyst). Review đối kháng (scope-triage) xác nhận 8 finding thật (tải gửi viết hai lần / bộ lọc kind:"triage" chết ở ba chỗ / văn đầu tệp trôi / trường tid rò vào lời nhắc / log nuốt nguyên nhân hỏi-lại / assertion âm-tính-một-mình ở đối chứng dương chu-ky-kiem) nhưng TẤT CẢ đều phân loại NGOÀI hợp đồng (không AC nào bị vi phạm) — không còn lỗi hành vi thật nào trong phạm vi đã duyệt ở Cổng 1. Verdict PASS, 8 finding chuyển sang review-findings.md mục «Ngoài hợp đồng» (known-limits) cho người quyết ở Gate 2.
+
+### Re-pin lần 1 — 2026-09-15, do hoá cũ do chính commit chữ ký
+run_id: repin-20260915T064427Z-37713
+sha: c47ae5f8d4fa2298a1a3b7467dfee3572e2860c0 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
