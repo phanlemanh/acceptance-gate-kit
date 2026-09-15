@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f55e143b66da578b072bbec94b009c9b4bfb3ee3
+verified_commit: a018560c1a081065a008cea084afddd236937914
 human_signoff: Mạnh 2026-09-15 — ký với 4 giới hạn đã khai; Ngoài-4 mở hợp đồng riêng. Vế giá trị của AC-1 và AC-2 (số cắt 2.13.0 · diagram-design giữ 2.7.0) nằm trong chính gói được ký; thẻ chưa có ô riêng cho chúng — đó là nhát cắt 2.12.0 §4 mục 3, còn nợ sang 2.14.
 ---
 
@@ -156,3 +156,7 @@ none — every multi-run eval is uniform
 
 Round 1: E5b failed — `rang-p93.sh --chan do` thoát mã 1 thay vì exit 0 kỳ vọng; dòng in ra là "FAIL: P93 mot-nguon..." thay vì dòng "PASS: P93 DO dung thong diep..." mà AC-5/E5b đòi. Đây là lệnh thất bại duy nhất của vòng này và đã gắn đúng vào eval E5b (không có lệnh fail nào đứng ngoài ánh xạ eval). Trả về S3 để sửa lại chỗ tiêm/thông điệp của chân `--chan do` trong `rang-p93.sh` hoặc trong `tests/plugins/run-tests.sh` mà nó bọc.
 Round 2: Tất cả eval PASS (E1, E2, E3a–E3e, E4, E5a, E5b). Nhát vá f55e143b đổi kênh in dòng chẩn đoán của `rang-p93.sh` (chân `--chan do`) sang stderr — mã thoát của E5b nay đúng 0 và dòng kết luận đúng thông điệp AC-5 đòi; E5a/P200/mốc diagram/bốn suite hồi quy/product-map đều giữ nguyên PASS. Không có lệnh fail nào đứng ngoài ánh xạ eval.
+
+### Re-pin lần 1 — 2026-09-15, do hoá cũ do chính commit chữ ký
+run_id: repin-20260915T005147Z-66682
+sha: a018560c1a081065a008cea084afddd236937914 · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
