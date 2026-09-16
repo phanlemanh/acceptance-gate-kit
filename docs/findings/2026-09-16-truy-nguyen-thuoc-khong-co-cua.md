@@ -171,6 +171,10 @@ hàng như một ô và phải giành chỗ bằng số. Owner phê 16/09 sau kh
 - **Chip 1 (kho kit)** — `start-scan`: nhóm «vật đã ở nhánh gốc» thay «viết code», kiểm
   ba chiều, đặt vào hồ sơ mốc `release-2-15-0` theo tiền lệ vá-trong-mốc 2.11.0 (T2,
   không mở vòng meta; CỘNG đã phê đích danh — ADR 0018).
+  *Trạng thái 16/09:* code + ca kiểm hai chiều xong, suite xanh, hồ sơ mốc mở ở `draft`
+  — nằm trên nhánh `claude/objective-bhabha-5ae50a`, **chưa vào main**: lưới trước-merge
+  chặn code chịu cổng đi kèm hồ sơ mốc chưa arm. Owner chọn giữ nhánh tới lượt chấm S4
+  của mốc 2.15.0 (sổ `release-2-15-0`). Phiên cắt mốc: rebase nhánh này trước khi chấm.
 - **Chip 2 (crm-onehub)** — phép đo ngừng ghi `evidence/ve-that.json` của hồ sơ đã ký.
 - **Chip 3 (oneflow)** — R1 `skill-system-v1`: thử ① và ② **bằng tay** trong hợp đồng
   của vòng, không đổi kit; `wf-usage` đủ mọi lượt.
