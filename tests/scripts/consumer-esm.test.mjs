@@ -43,15 +43,61 @@ check('CE1 danh sách chép trích được từ marker (sanity ≥ 7 mục, m�
   }
 });
 
-// Dùng chung cho CE2 (bản thật) và CE2m (mutant trong-lần-chạy): trích tập file
+// Dùng chung cho CE2 (bản thật), CE2m/CE2g/CE2gm (mutant trong-lần-chạy): trích tập file
 // pre-merge/recheck DÙNG, rồi so với một danh-sách-khai bất kỳ.
-function usedVsDeclared(declaredSrcs) {
-  const pm = readFileSync(path.join(ROOT, 'scripts', 'pre-merge-check.sh'), 'utf8');
-  const rc = readFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), 'utf8');
+//
+// Ba chỗ gap-probe 16/09 bắt được ở bản đầu, vá theo LỚP chứ không vá từng ca:
+//   P1#2 — regex cũ `[a-z-]+\.cjs` chỉ thấy kebab-thường-đuôi-cjs, trong khi lib/ của
+//          chính kho đã có .mjs/.js/.json: thêm `lib/x2.cjs` hay `lib/design-detect.mjs`
+//          vào pre-merge rồi quên khai là XANH. Nay charset rộng + 4 đuôi.
+//   P1#3 — quan hệ chỉ đi MỘT bước: ac-line→md-section, lop-nhin-thay→eval-yaml,
+//          evidence-core→eval-yaml nằm trong danh sách chỉ vì pre-merge TÌNH CỜ cũng
+//          nhắc tên chúng. Nay đóng BAO ĐÓNG require/__dirname, nên gỡ lời nhắc ở
+//          pre-merge cũng không làm mắt xích biến mất.
+//   P2#7 — `scripts/recheck-evidence.cjs` vào tập nhờ một dấu NHÁY KÉP; đổi kiểu nháy
+//          là mắt xích biến mất. Nay nhận theo vị trí `$HERE/<file>` (thư mục của chính
+//          script) — cùng thứ shell thật sự chạy.
+const DUOI = String.raw`(?:cjs|mjs|js|json)`;
+const TEN_TEP = new RegExp(String.raw`^[A-Za-z0-9][A-Za-z0-9._-]*\.${DUOI}$`);
+
+// Các đường nạp mà MỘT tệp JS kéo theo, trả về đường dẫn tính từ gốc kho.
+function nap(relPath) {
+  if (!/\.(cjs|mjs|js)$/.test(relPath)) return [];
+  const abs = path.join(ROOT, relPath);
+  if (!existsSync(abs)) return [];
+  const src = readFileSync(abs, 'utf8');
+  const dir = path.dirname(relPath);
+  const out = [];
+  for (const m of src.matchAll(/(?:require|import)\(\s*['"](\.[^'"]+)['"]\s*\)/g)) out.push(path.join(dir, m[1]));
+  for (const m of src.matchAll(/from\s+['"](\.[^'"]+)['"]/g)) out.push(path.join(dir, m[1]));
+  for (const m of src.matchAll(/path\.join\(\s*__dirname\s*,([^)]*)\)/g)) {
+    const phan = m[1].split(',').map(x => x.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+    if (phan.length && TEN_TEP.test(phan[phan.length - 1])) out.push(path.join(dir, ...phan));
+  }
+  return out;
+}
+
+// Tập tệp mà cổng THẬT SỰ nạp, tính từ hai điểm vào; `pmText` cho phép mutant
+// tiêm vào BẢN SAO văn bản pre-merge mà không chạm tệp thật.
+function tapDung(pmText) {
+  const pm = pmText ?? readFileSync(path.join(ROOT, 'scripts', 'pre-merge-check.sh'), 'utf8');
   const used = new Set(['scripts/pre-merge-check.sh']);
-  for (const m of pm.matchAll(/lib\/([a-z-]+\.cjs)/g)) used.add(`lib/${m[1]}`);
-  for (const m of pm.matchAll(/([a-z-]+\.cjs)"/g)) { if (m[1] === 'recheck-evidence.cjs') used.add('scripts/recheck-evidence.cjs'); }
-  for (const m of rc.matchAll(/'([a-z-]+\.cjs)'/g)) used.add(`lib/${m[1]}`);
+  // lib/: nhận rộng — mọi tệp lib nhắc trong cổng đều phải theo cổng sang consumer.
+  for (const m of pm.matchAll(new RegExp(String.raw`lib\/([A-Za-z0-9][A-Za-z0-9._-]*\.${DUOI})`, 'g'))) used.add(`lib/${m[1]}`);
+  // scripts/: chỉ thứ cổng NẠP theo vị trí thư mục của chính nó, không phải mọi tên
+  // .mjs/.js được nhắc trong chú thích (gate-card.js, config-patch.mjs là lời khuyên
+  // cho người, consumer không cần chép).
+  for (const m of pm.matchAll(new RegExp(String.raw`\$HERE\/([A-Za-z0-9][A-Za-z0-9._-]*\.${DUOI})`, 'g'))) used.add(`scripts/${m[1]}`);
+  // Bao đóng: đi tới điểm bất động.
+  for (let doi = true; doi; ) {
+    doi = false;
+    for (const u of [...used]) for (const n of nap(u)) if (!used.has(n)) { used.add(n); doi = true; }
+  }
+  return used;
+}
+
+function usedVsDeclared(declaredSrcs, pmText) {
+  const used = tapDung(pmText);
   const declared = new Set(declaredSrcs);
   return { used, missing: [...used].filter(u => !declared.has(u)) };
 }
@@ -67,6 +113,103 @@ check('CE2m mutant trong-lần-chạy: bỏ 1 mục khỏi danh-sách-khai → q
   assert.equal(mutated.length, COPIES.length - 1, 'mutant không bỏ được mục nào — tên mục trong danh sách đã đổi?');
   const { missing } = usedVsDeclared(mutated);
   assert.ok(missing.includes('lib/gap-probe.cjs'), `phép đo quan hệ không đỏ khi thiếu lib/gap-probe.cjs (missing=${JSON.stringify(missing)})`);
+});
+
+// Mutant trên BẢN SAO văn bản pre-merge: chứng minh chân «gắn vào writer» thật sự
+// nhận diện được thứ nó hứa nhận (gap-probe 16/09 P1#2, P1#3).
+check('CE2w chân writer: tên lib có chữ số/đuôi .mjs vẫn vào tập DÙNG, và mắt xích bắc cầu sống khi gỡ hết lời nhắc trực tiếp', () => {
+  const pm = readFileSync(path.join(ROOT, 'scripts', 'pre-merge-check.sh'), 'utf8');
+  const that = usedVsDeclared(COPIES.map(c => c.src));
+  assert.deepEqual(that.missing, [], 'đối chứng dương hỏng: bản pre-merge thật đã lệch danh sách chép');
+
+  for (const ten of ['lib/lop-nhin-thay-v2.cjs', 'lib/eval_yaml2.cjs', 'lib/design-detect.mjs', 'lib/Bang-Chu-Hoa.js']) {
+    const tiem = pm.replace('GP_LIB=', `# ${ten}\nGP_LIB=`);
+    assert.notEqual(tiem, pm, 'mutant không tiêm được — neo GP_LIB= đã đổi?');
+    const { used, missing } = usedVsDeclared(COPIES.map(c => c.src), tiem);
+    assert.ok(used.has(ten), `phép nhận diện KHÔNG thấy ${ten} — lib mới vào cổng mà quên khai sẽ xanh`);
+    assert.ok(missing.includes(ten), `thấy ${ten} nhưng không báo thiếu khai (missing=${JSON.stringify(missing)})`);
+  }
+
+  // Bao đóng: gỡ MỌI lời nhắc trực tiếp `lib/eval-yaml.cjs` khỏi văn bản cổng.
+  // Nó vẫn phải ở trong tập DÙNG, vì evidence-core.cjs và lop-nhin-thay.cjs require nó.
+  const khongNhac = pm.split('lib/eval-yaml.cjs').join('lib/KHONG-CON-NHAC.cjs');
+  assert.ok(!khongNhac.includes('lib/eval-yaml.cjs'), 'mutant bao đóng không gỡ được lời nhắc nào');
+  const { used: u2 } = usedVsDeclared(COPIES.map(c => c.src), khongNhac);
+  assert.ok(u2.has('lib/eval-yaml.cjs'),
+    'mắt xích bắc cầu chết: gỡ lời nhắc ở pre-merge là eval-yaml.cjs biến khỏi tập DÙNG, dù evidence-core vẫn require nó lúc chạy');
+});
+
+// GUIDE §5.3 là bản khai THỨ HAI của cùng danh sách (người wire CI đọc nó, không
+// đọc commands/). Bản đó trôi khỏi nguồn chuẩn ít nhất một lần — 2026-09-16 nó
+// còn ghi 7 file trong khi cổng nạp 9, nên ai wire theo GUIDE thì tắt im lặng
+// lớp «bề mặt người nhìn thấy» + đường đọc expected_exit mà CI vẫn xanh.
+// Buộc cả hai bản khai vào CÙNG một writer thay vì bắt người nhớ đồng bộ.
+const GUIDE_MD = readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8');
+
+// Cắt ĐÚNG §5.3. Con số «đủ N file» nằm NGOÀI cặp marker, nên nếu quét toàn tệp
+// thì một câu cùng dạng ở mục khác làm phép đo hoá vô hiệu (gap-probe 16/09 P1#1).
+function mucNamBa(md) {
+  const src = md ?? GUIDE_MD;
+  const i = src.indexOf('### 5.3 ');
+  if (i < 0) return '';
+  const con = src.slice(i + 4).search(/\n#{2,4} /);
+  return con < 0 ? src.slice(i) : src.slice(i, i + 4 + con);
+}
+
+function guideCopyList(md) {
+  const muc = mucNamBa(md);
+  const block = (muc.split('<!-- <<<GUIDE-CI-COPY-LIST -->')[1] || '').split('<!-- GUIDE-CI-COPY-LIST>>> -->')[0];
+  const list = [...block.matchAll(/^- `([^`]+)`/gm)].map(m => m[1]);
+  const so = [...muc.matchAll(/Copy \*\*đủ (\d+) file\*\*/g)].map(m => Number(m[1]));
+  return { list, soTrongMuc: so, declaredCount: so.length === 1 ? so[0] : null };
+}
+
+// MỘT vị từ cho cả CE2g lẫn đối chứng dương của CE2gm — để «xanh» trong hai ca
+// đó là cùng một chữ xanh (gap-probe 16/09 P2#5).
+function viPhamGuide(md) {
+  const { list, soTrongMuc, declaredCount } = guideCopyList(md);
+  const loi = [];
+  if (list.length < 7) loi.push(`danh sách §5.3 rút được ${list.length} mục — marker/khuôn hỏng hoặc khối nằm ngoài §5.3`);
+  const { missing } = usedVsDeclared(list);
+  if (missing.length) loi.push(`GUIDE §5.3 thiếu file cổng thật sự nạp: ${missing.join(', ')}`);
+  const g = [...new Set(list)].sort(), i = [...new Set(COPIES.map(c => c.src))].sort();
+  if (g.join('|') !== i.join('|')) loi.push(`GUIDE §5.3 và INIT-CI-COPY-LIST khai khác tập file: GUIDE=[${g}] INIT=[${i}]`);
+  if (soTrongMuc.length !== 1) loi.push(`câu «đủ N file» xuất hiện ${soTrongMuc.length} lần TRONG §5.3 — con số không neo được vào danh sách`);
+  else if (declaredCount !== list.length) loi.push(`§5.3 viết «đủ ${declaredCount} file» nhưng danh sách có ${list.length}`);
+  return loi;
+}
+
+check('CE2g GUIDE §5.3: cùng writer, cùng tập với INIT-CI-COPY-LIST, con số «đủ N file» neo trong §5.3 và khớp độ dài', () => {
+  assert.deepEqual(viPhamGuide(), []);
+});
+
+check('CE2gm sáu mutant SINH TRONG LẦN CHẠY trên chính văn bản GUIDE — ba chiều nhạy ghim đúng thông điệp, ba chiều đặc hiệu phải IM', () => {
+  assert.deepEqual(viPhamGuide(), [], 'đối chứng dương: bản GUIDE thật phải xanh theo ĐÚNG chuỗi vị từ của CE2g trước khi tin mutant');
+  const nhay = (ten, md, cum) => {
+    assert.notEqual(md, GUIDE_MD, `mutant ${ten} không chạm được văn bản nào — khuôn GUIDE đã đổi?`);
+    const loi = viPhamGuide(md);
+    assert.ok(loi.some(l => l.includes(cum)), `mutant ${ten} không đỏ đúng thông điệp «${cum}» (lỗi=${JSON.stringify(loi)})`);
+  };
+  const im = (ten, md) => {
+    assert.notEqual(md, GUIDE_MD, `mutant ${ten} không chạm được văn bản nào — khuôn GUIDE đã đổi?`);
+    assert.deepEqual(viPhamGuide(md), [], `mutant ${ten} làm phép đo ĐỎ — nó đang bắt cả thứ KHÔNG phải danh sách`);
+  };
+
+  // ── chiều NHẠY ──
+  nhay('(a) bỏ một dòng khỏi danh sách',
+    GUIDE_MD.replace(/^- `lib\/lop-nhin-thay\.cjs`[^\n]*\n/m, ''), 'lib/lop-nhin-thay.cjs');
+  nhay('(b) lệch số — đúng lỗi lịch sử 16/09',
+    GUIDE_MD.replace('Copy **đủ 9 file**', 'Copy **đủ 7 file**'), 'viết «đủ 7 file»');
+  nhay('(c) đổi tên một tệp trong danh sách',
+    GUIDE_MD.replace('- `lib/md-section.cjs`', '- `lib/md-section-v2.cjs`'), 'khai khác tập file');
+
+  // ── chiều ĐẶC HIỆU ──
+  im('(d) câu «đủ N file» thứ hai ở MỤC KHÁC (ngay SAU tiêu đề kế, tức ngoài §5.3)',
+    GUIDE_MD.replace(/(\n### Sổ luật-đã-chạy[^\n]*\n)/, '$1\nCopy **đủ 3 file** (ví dụ ở mục khác)\n'));
+  im('(e) thêm một bullet NGOÀI cặp marker',
+    GUIDE_MD.replace('<!-- <<<GUIDE-CI-COPY-LIST -->', '- `khong-phai-danh-sach.txt` — bullet ngoài khối\n\n<!-- <<<GUIDE-CI-COPY-LIST -->'));
+  im('(f) đảo thứ tự hai dòng trong khối',
+    GUIDE_MD.replace(/(- `lib\/md-section\.cjs`[^\n]*\n)(- `lib\/eval-yaml\.cjs`[^\n]*\n)/, '$2$1'));
 });
 
 // ── 2. Dựng consumer giả-lập type:module theo đúng danh sách chép ───────────

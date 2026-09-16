@@ -1,0 +1,69 @@
+schema_version: 1
+feature_slug: guide-chep-ci-buoc-vao-writer
+# Ca đo sống ở tests/scripts/consumer-esm.test.mjs (suite scripts tự chạy qua glob *.test.mjs;
+# suite đếm MỘT check cho mỗi tệp .test.mjs, nên tổng 873 không đổi khi thêm case bên trong).
+# Không fixture viết tay: hai danh sách rút qua marker ngay trong lần chạy, tập đối chiếu rút
+# từ chính scripts/pre-merge-check.sh + scripts/recheck-evidence.cjs, mọi mutant sinh bằng code
+# từ chính văn bản vật. Mỗi eval ghim ĐÚNG dòng "PASS: CExx" trong stdout suite — suite xanh
+# mà thiếu dòng ghim là eval ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts
+    paths:
+      - GUIDE.md
+      - commands/acceptance-init.md
+      - scripts/pre-merge-check.sh
+      - scripts/recheck-evidence.cjs
+      - tests/scripts/consumer-esm.test.mjs
+    expected: >
+      exit 0; stdout có "PASS: CE2g" — vị từ viPhamGuide() trả [] trên cả bốn chốt: danh sách rút
+      từ marker GUIDE-CI-COPY-LIST (cắt TRONG §5.3) chứa trọn tập tệp cổng thật sự nạp; bằng đúng
+      tập của INIT-CI-COPY-LIST (đẳng thức tập đã sort, không phép chứa một chiều); câu «đủ N file»
+      xuất hiện đúng MỘT lần trong §5.3; con số đó == độ dài danh sách. Marker bị dời ra ngoài §5.3
+      → danh sách rỗng → cùng eval đỏ ở chốt "marker/khuôn hỏng hoặc khối nằm ngoài §5.3".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [GUIDE.md, tests/scripts/consumer-esm.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CE2gm" — sáu mutant sinh trong lần chạy từ chính văn bản GUIDE.md.
+      Nhạy, ghim đúng thông điệp: (a) bỏ dòng lib/lop-nhin-thay.cjs → lỗi chứa "lib/lop-nhin-thay.cjs";
+      (b) «đủ 9 file»→«đủ 7 file» → lỗi chứa "viết «đủ 7 file»"; (c) đổi tên lib/md-section.cjs →
+      lỗi chứa "khai khác tập file". Đặc hiệu, phải IM (viPhamGuide == []): (d) câu «đủ N file» thứ
+      hai ở mục SAU §5.3; (e) bullet thêm NGOÀI cặp marker; (f) đảo thứ tự hai dòng trong khối.
+      Đối chứng dương chạy TRƯỚC sáu mutant bằng đúng chuỗi vị từ của CE2g.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [scripts/pre-merge-check.sh, lib/evidence-core.cjs, tests/scripts/consumer-esm.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: CE2w" — tiêm vào BẢN SAO văn bản pre-merge: bốn tên lib có chữ số /
+      gạch dưới / chữ hoa / đuôi .mjs đều vào tập DÙNG và đều bị báo thiếu-khai đúng tên; và sau khi
+      gỡ MỌI lời nhắc trực tiếp "lib/eval-yaml.cjs" khỏi văn bản cổng, tệp đó VẪN ở trong tập DÙNG
+      nhờ bao đóng require/__dirname (evidence-core.cjs và lop-nhin-thay.cjs require nó).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts
+    paths: [tests/scripts/consumer-esm.test.mjs]
+    expected: >
+      exit 0; dòng tổng kết "Results: 873 passed, 0 failed" của suite scripts — không hồi quy ở
+      CE1/CE2/CE2m, vốn dùng chung hàm usedVsDeclared vừa bị thay ruột trong vòng này.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.plugins
+    paths: [GUIDE.md]
+    expected: >
+      exit 0; "Results: all plugin tests passed" — lưới từ vựng/tài liệu của suite plugins đọc
+      GUIDE.md (lint _Avoid_ theo CONTEXT.md, lệnh-bấm-được, so bản cũ theo sha) không đỏ vì
+      phần văn mới của §5.3.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
