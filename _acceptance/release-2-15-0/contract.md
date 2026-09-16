@@ -36,10 +36,10 @@ khác nhánh `approved`.
 Đo trên cây vá, chỉ-đọc, ngày 16/09: bộ quét chạy trên crm-onehub đưa **cả bốn** hồ sơ kể
 trên vào nhóm mới; chạy trên chính kho kit không đổi một dòng nào của nhóm «Đang dở».
 
-Nguồn chữ: `docs/findings/2026-09-16-truy-nguyen-thuoc-khong-co-cua.md` — nhát vá này là
-chip 1 của §7; phần lớn của gói (trục đỉnh-có-sẵn, thước có cửa) nằm ở ô `thuoc-co-cua`,
-chờ số từ R1, KHÔNG thuộc hồ sơ này. Tệp lên main giữa lúc làm; bối cảnh trên viết từ lời
-giao của owner và đã đối chiếu lại với tệp.
+Nguồn chữ: `docs/findings/2026-09-16-truy-nguyen-thuoc-khong-co-cua.md` — số của phiên ở
+§1, chuỗi nhân quả ở §2 (mắt 3: xếp lại bằng cách đặt `approved` · mắt 4: bộ quét chỉ đọc
+trạng thái hợp đồng). Nhát vá này là chip 1 của §7; phần còn lại của gói (trục
+đỉnh-có-sẵn, thước có cửa) nằm ở ô `thuoc-co-cua`, chờ số từ R1, KHÔNG thuộc hồ sơ này.
 
 **Việc mốc mang theo, CHƯA có tiêu chí** (owner dịch sẵn 16/09, ghi vào đây khi mở hồ sơ):
 
@@ -116,9 +116,11 @@ thật do code sinh trong chính lần chạy (`tests/scripts/vat-da-o-nhanh-goc
 
 ## Out of scope
 
-- **Trạng thái hồ sơ cho lối «đóng theo quan sát».** Kit chưa có trạng thái hợp đồng nào
-  nghĩa là «đóng, không chấm lại». Người ghi quyết định vào sổ xong thì bộ quét VẪN đọc
-  `approved` và dòng vẫn hiện ở nhóm này. Dựng trạng thái ấy là một CỘNG khác, chờ owner.
+- **Trạng thái `park` cho *vòng* (không chỉ cho ô).** Lối «đóng theo quan sát» chưa có
+  trạng thái hợp đồng để ghi: người ghi quyết định vào sổ xong thì bộ quét VẪN đọc
+  `approved` và dòng vẫn hiện ở nhóm này. Lỗ này đã có tên ở mục «Out of scope từ khám
+  phá» của ô `_acceptance/thuoc-co-cua/opportunity.md` — nguyên thuỷ thiếu ở mắt xích
+  06/09, ghi nhận, chưa xếp hàng. Không mở ô thứ hai cho cùng lỗ.
 - **Vòng lặp tính năng tự nhận ra vật đã merge.** Chặn chỉ đặt ở thẻ mở phiên; ai gõ
   thẳng lệnh resume vào hồ sơ như vậy thì vòng lặp vẫn vào bước viết code.
 - **Bản đồ sản phẩm.** Không đổi: khoá mới chiếu về cùng ô «đang dựng» với «đang viết
