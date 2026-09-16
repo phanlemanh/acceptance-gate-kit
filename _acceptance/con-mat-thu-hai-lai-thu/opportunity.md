@@ -9,7 +9,7 @@ decided_by: Mạnh
 decided_at: 2026-09-16T01:58:04Z
 prototype:
   base_commit:      # KHÔNG có: nhánh nguồn đã xoá — mã sống ở ./prototype/
-  disposition: keep # mã mang theo trong hồ sơ, chưa qua cổng nào
+  disposition: archive # ô đã bác 16/09 — mã KHÔNG mang theo; 5 tệp trong prototype/ giữ lại làm sử liệu
 ---
 
 ## ĐÍNH CHÍNH bản đầu (2026-08-23) — đề bài đã viết SAI
