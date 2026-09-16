@@ -5,7 +5,7 @@ slug: guide-chep-ci-buoc-vao-writer
 owner: manh@mstar.vn
 risk_tier: T2               # chỉ tests/scripts/consumer-esm.test.mjs + GUIDE.md — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs (t3_paths)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo

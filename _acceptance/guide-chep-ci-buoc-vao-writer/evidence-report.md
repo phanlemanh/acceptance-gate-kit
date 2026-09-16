@@ -8,7 +8,7 @@ verified_by: phiên chính (vòng T2 làn V, không có phiên VERIFY riêng —
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 4434f51cd2fc3055c15dd9e6b87248ad59dec6c6
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-16
 ---
 
 # Evidence Report: guide-chep-ci-buoc-vao-writer
