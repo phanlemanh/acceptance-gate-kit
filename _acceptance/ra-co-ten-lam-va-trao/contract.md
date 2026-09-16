@@ -140,6 +140,8 @@ tests/plugins/asserts-da-go.txt sổ-ca-đã-gỡ-văn-bản-lịch-sử-không-
 tests/plugins/fixtures/luu-kho-2026-09-08/delta-verify-repin/contract.md artifact-đông-lạnh-của-hồ-sơ-lưu-kho-ADR-0015-làm-fixture-P146-P147-không-phải-bộ-đọc
 tests/scripts/repin-lane.test.mjs ca-của-làn-ghim-lại-bằng-eval-trên-kho-git-code-sinh-không-rẽ-theo-status-của-hồ-sơ-này
 tests/hooks/run-tests.sh ca-V12-signed-off-kèm-da-veto-của-lưới-ghi-duong-lui-phai-song-không-rẽ-theo-status-máy-thông
+feature-loop/scripts/chup-ho-so-da-thong.mjs đọc-status-để-chụp-cây-mọi-hồ-sơ-DA_THONG_CONG_2-đã-gồm-machine-cleared-ca-CH0-so-khối-với-lib
+tests/scripts/chup-ho-so-da-thong.test.mjs fixture-code-sinh-mang-status-để-làn-chụp-không-rẽ-nhánh-theo-status-máy-thông
 BO-DOC-KHAI-GACH>>> -->
 
 
