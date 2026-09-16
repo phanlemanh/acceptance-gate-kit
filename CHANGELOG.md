@@ -45,9 +45,26 @@ Cửa sổ 2.13 → 2.14 có **hai** vòng đã ký, trong khi luật (b) cho m�
 
 **Ai bị ảnh hưởng / làm gì:**
 
-- **Repo tiêu thụ:** không có gì phải làm. Trạm phân loại đòi tác tử trả thêm
-  một trường mã; không trả thì rơi về khoá cũ. Cờ `--skip-unchanged` là tường
-  minh, mặc định làn vẫn chạy trọn.
+- **Repo tiêu thụ — HÀNH VI của engine: không có gì phải làm.** Trạm phân loại
+  đòi tác tử trả thêm một trường mã; không trả thì rơi về khoá cũ. Cờ
+  `--skip-unchanged` là tường minh, mặc định làn vẫn chạy trọn.
+- **Repo tiêu thụ — LỚP CI VENDORED: PHẢI chép lại.** Câu trên chỉ nói về hành
+  vi engine; nó KHÔNG miễn cho bạn bước chép. Bản đầu của mục này để mỗi câu
+  «không có gì phải làm» nên đọc thành cả hai, và đợt rollout 16/09 cho thấy
+  điều đó sai: so với **2.11.0** có **4/9** tệp đổi (`pre-merge-check.sh`,
+  `evidence-core.cjs`, `ac-line.cjs`, `md-section.cjs`); kho còn ở 2.8.0/2.9.0
+  thì thiếu hẳn `eval-yaml.cjs` và `lop-nhin-thay.cjs`, mà thiếu tệp nào là
+  **tắt lặng một lớp cưỡng chế** trong khi CI vẫn xanh. Chép **đủ 9 tệp** theo
+  khối `INIT-CI-COPY-LIST` của `commands/acceptance-init.md`.
+- **Repo tiêu thụ — hai cái bẫy đo được trong đợt rollout đó:**
+  - **PR nâng lớp vendored đỏ ở luật T1-escape** nếu kho chưa khai 9 tệp
+    kit-owned trong `t1_skip_globs` (chúng là THƯỚC, không phải product code).
+    Kho khai chúng trong `t3_paths` thì phải **rút khỏi t3_paths** — cổng kiểm
+    `t3_paths` TRƯỚC `t1_skip_globs`, nên chỉ thêm vào skip là vô ích.
+  - **Chạy `pre-merge-check` trước khi commit là phép đo nói dối:** luật
+    T1-escape đọc diff ĐÃ COMMIT, nên bản vừa chép còn nằm ngoài commit là vô
+    hình với nó. Bảy kho báo `clean` ở local rồi ba kho đỏ trên CI vì đúng lớp
+    này. Kiểm sau commit, trên worktree dựng từ chính nhánh đó.
 - **Kho tự host kit:** lượt ký ra sẵn-sàng-merge trong vài phút thay vì cả giờ
   (ADR 0019).
 
