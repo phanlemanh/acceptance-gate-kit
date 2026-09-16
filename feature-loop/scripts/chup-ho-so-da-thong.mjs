@@ -2,7 +2,7 @@
 // Cổng Bằng chứng, để một làn chạy executor biết nó có chạm sử liệu đã thông cổng không.
 //
 // Vì sao tồn tại (crm-onehub, 16/09/2026): `evidence/ve-that.json` của một hồ sơ
-// signed-off bị ghi đè sau MỖI lượt chạy phép đo — mất ~450 dòng so với bản đã
+// đã ký bị ghi đè sau MỖI lượt chạy phép đo — mất ~450 dòng so với bản đã
 // ký, ở mọi worktree — vì script đo ghi tạo phẩm thẳng vào `evidence/` của hồ sơ
 // và spec đó nằm trong suite của mọi vòng. Không răng nào của kit thấy: làn ghim
 // lại chỉ đòi cây SẠCH NGOÀI `_acceptance/`, recheck chỉ đọc báo cáo. Luật (mục
@@ -17,18 +17,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 
-// <<<DA-THONG-CONG-2
-// Hai trạng thái «đã thông Cổng Bằng chứng». Nguồn: DA_THONG_CONG_2 trong
-// lib/workspace-record.cjs. Không nạp thẳng được — lib/ thuộc gói acceptance-gate,
-// tệp này thuộc gói feature-loop (hai gốc plugin) và làn nạp bộ máy qua bảng
-// AG-ENGINE của nó — nên ca CH0 của tests/scripts/chup-ho-so-da-thong.test.mjs so
-// khối này với mảng nguồn: lệch là đỏ, không phải trôi lặng.
-export const DA_THONG_CONG_2 = ['signed-off', 'machine-cleared'];
-// DA-THONG-CONG-2>>>
-
+// Hai trạng thái «đã thông Cổng Bằng chứng» KHÔNG viết ở đây. Nguồn duy nhất là
+// DA_THONG_CONG_2 của lib/workspace-record.cjs (gói acceptance-gate); tệp này thuộc
+// gói feature-loop nên không nạp thẳng — làn ghim lại nạp bộ máy qua bảng AG-ENGINE
+// rồi TRUYỀN mảng vào, cùng khuôn với frontmatterField. Chép mảng ra đây là hai bản
+// phải giữ đồng bộ (owner veto 17/09, sổ ra-co-ten-lam-va-trao); thiếu mảng thì
+// hàm dừng có tên, không lặng lẽ chụp 0 hồ sơ rồi báo «0 tệp bị chạm».
+//
 // frontmatterField: hàm đọc frontmatter của bộ máy (lib/evidence-core.cjs) — làn
 // truyền vào để bên đọc status là MỘT, không viết bộ đọc YAML thứ hai ở đây.
-export function hoSoDaThong(root, frontmatterField) {
+export function hoSoDaThong(root, frontmatterField, daThongCong2) {
+  if (!Array.isArray(daThongCong2) || daThongCong2.length === 0)
+    throw new Error('hoSoDaThong: thiếu mảng trạng thái đã thông cổng — làn phải truyền DA_THONG_CONG_2 của lib/workspace-record.cjs, không chép');
   const acc = path.join(root, '_acceptance');
   let names;
   try { names = fs.readdirSync(acc, { withFileTypes: true }); } catch { return []; }
@@ -38,7 +38,7 @@ export function hoSoDaThong(root, frontmatterField) {
     let txt;
     try { txt = fs.readFileSync(path.join(acc, d.name, 'contract.md'), 'utf8'); } catch { continue; }
     const st = String(frontmatterField(txt, 'status') || '').trim().toLowerCase();
-    if (DA_THONG_CONG_2.includes(st)) out.push(d.name);
+    if (daThongCong2.includes(st)) out.push(d.name);
   }
   return out.sort();
 }

@@ -70,7 +70,7 @@ const configText = readOr(path.join(root, '_acceptance', 'config.yaml'), 'config
 // --ag-root chỉ cấp BỘ MÁY (lib/ + scripts/ của acceptance-gate); --root là cây
 // đang đo. Hai thứ tách nhau, nên một cây mang lớp vendored cũ vẫn đo được bằng
 // một bộ máy đủ đời.
-const AG_REQUIRES = ['lib/evidence-core.cjs', 'lib/eval-yaml.cjs', 'scripts/recheck-evidence.cjs'];
+const AG_REQUIRES = ['lib/evidence-core.cjs', 'lib/eval-yaml.cjs', 'lib/workspace-record.cjs', 'scripts/recheck-evidence.cjs'];
 const RESOLVER = path.join(HERE, 'resolve-plugin.mjs');
 let agRoot = flags['ag-root'];
 if (!agRoot) {
@@ -108,6 +108,7 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'findAcceptanceConfig', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'readSignedReportFor', kind: 'function', since: '2.11.0', why: 'sàn ngữ nghĩa bên đọc' },
   { file: 'lib/evidence-core.cjs', name: 'frontmatterField', kind: 'function', since: '2.9.0', why: 'làn gọi (chụp hồ sơ đã thông cổng)' },
+  { file: 'lib/workspace-record.cjs', name: 'DA_THONG_CONG_2', kind: 'array', since: '2.3.0', why: 'làn gọi (chụp hồ sơ đã thông cổng — hai trạng thái đã thông Cổng Bằng chứng, hỏi lib không chép)' },
 ];
 // AG-ENGINE-TABLE>>>
 const verNum = (v) => String(v).split('.').map(Number).reduce((n, x) => n * 1000 + (x || 0), 0);
@@ -134,12 +135,13 @@ const require_ = createRequire(import.meta.url);
 function loadEngine(rel) {
   try { return require_(path.join(agRoot, rel)); } catch (e) { return engineStop(`không nạp được ${rel} (root: ${agRoot}): ${String((e && e.message) || e).split('\n')[0]}`); }
 }
-const mods = { 'lib/evidence-core.cjs': loadEngine('lib/evidence-core.cjs'), 'lib/eval-yaml.cjs': loadEngine('lib/eval-yaml.cjs') };
+const mods = { 'lib/evidence-core.cjs': loadEngine('lib/evidence-core.cjs'), 'lib/eval-yaml.cjs': loadEngine('lib/eval-yaml.cjs'), 'lib/workspace-record.cjs': loadEngine('lib/workspace-record.cjs') };
 const lacks = (r) => { const v = mods[r.file] ? mods[r.file][r.name] : undefined; return r.kind === 'array' ? !Array.isArray(v) : typeof v !== 'function'; };
 const missing = AG_ENGINE.filter(lacks);
 if (missing.length) engineStop(`acceptance-gate quá cũ cho làn ghim lại (root: ${agRoot}) — thiếu ${missing.length} mục:\n${missing.map(r => `  - ${r.file}: ${r.name} (cần ≥ ${r.since})`).join('\n')}`);
 const core = mods['lib/evidence-core.cjs'];
 const { parseEvals, expectedExits } = mods['lib/eval-yaml.cjs'];
+const { DA_THONG_CONG_2 } = mods['lib/workspace-record.cjs'];
 
 // ── git: sha = HEAD, cây phải sạch ngoài _acceptance/ (pin phải là cây đã đo) ──
 const gitRaw = (...a) => { try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch (e) { return die(`git ${a[0]} thất bại tại ${root}: ${String(e.stderr || e.message).trim().split('\n')[0]}`); } };
@@ -282,7 +284,7 @@ log(`sha ${sha} · ${suiteCmds.length} suite · ${perSlug.length} hồ sơ · ${
 // Chụp MỌI hồ sơ đã thông cổng, không chỉ slug đang ghim: suite của một hồ sơ
 // ghi đè được bằng chứng của hồ sơ khác. Chụp SAU bước bỏ-qua (lượt bỏ qua không
 // chạy executor nào) và so TRƯỚC mọi lần ghi của chính làn (run-log/report).
-const daThong = hoSoDaThong(root, core.frontmatterField);
+const daThong = hoSoDaThong(root, core.frontmatterField, DA_THONG_CONG_2);
 const anhTruoc = chup(root, daThong);
 const suitesExit = suiteCmds.map((c, i) => runCmd(c, `suite ${i + 1}/${suiteCmds.length}`));
 for (const s of perSlug) for (const e of s.evals) e.exit = runCmd(e.cmd, `${s.slug} ${e.id}`);
