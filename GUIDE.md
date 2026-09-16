@@ -683,24 +683,28 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 
 ### 5.3 Wire CI (bắt buộc để gate có răng ở PR)
 
-Copy **đủ 7 file** từ plugin vào repo, giữ đúng layout (re-check `require
+Copy **đủ 9 file** từ plugin vào repo, giữ đúng layout (re-check `require
 ../lib`; đuôi `.cjs` là cố ý — repo khai `"type": "module"` sẽ đọc file `.js`
 chép sang thành ESM và `require()` bên trong nổ ReferenceError, lớp cưỡng chế
-chết câm):
+chết câm). Thiếu một tên nào dưới đây thì lớp tương ứng **tắt im lặng** — CI
+vẫn xanh:
 
-```
-scripts/pre-merge-check.sh
-scripts/recheck-evidence.cjs
-lib/evidence-core.cjs
-lib/gap-probe.cjs
-lib/workspace-record.cjs
-lib/ac-line.cjs
-lib/md-section.cjs
-```
+<!-- <<<GUIDE-CI-COPY-LIST -->
+- `scripts/pre-merge-check.sh` — chính cổng merge
+- `scripts/recheck-evidence.cjs` — chấm lại evidence đã commit; thiếu → cổng chỉ in NOTE
+- `lib/evidence-core.cjs` — thước bằng chứng dùng chung với hook; thiếu → re-check không nạp nổi
+- `lib/gap-probe.cjs` — luật phản biện context sạch; thiếu → mọi lần chạy in `GAP-PROBE: NOT ENFORCED`
+- `lib/workspace-record.cjs` — bộ đọc danh sách config dùng chung; thiếu → rơi về nhánh `sed` yếu hơn
+- `lib/ac-line.cjs` — bộ đọc dòng tiêu chí cho răng xuyên tầng; thiếu → rơi về `awk` rộng hơn, có thể chặn oan
+- `lib/md-section.cjs` — ranh giới mục, `ac-line` `require` nó
+- `lib/eval-yaml.cjs` — bộ đọc `evals.yaml` mà luật làn-eval của re-pin dùng để liệt kê eval máy; cũng là MỘT nguồn `checkRepinEvals` và luật nhất-quán L1 của `evaluateEvidence` đọc `expected_exit`; thiếu → luật làn-eval fail-closed trên mọi làn khuôn mới, và cả hai đường đọc `expected_exit` fail-closed trên eval khai giới hạn
+- `lib/lop-nhin-thay.cjs` — MỘT nguồn cho «bề mặt người nhìn thấy» (`ui`/`web`/`web-ui`) và nghĩa vụ ui-observed; làn NOTE của pre-merge đọc nó qua `classify`; thiếu → làn đó in «không kiểm được» và không bao giờ chặn
+<!-- GUIDE-CI-COPY-LIST>>> -->
 
-> Chỉ copy mỗi `pre-merge-check.sh` là repo âm thầm **mất lớp re-check** evidence đã
-> commit — nó chỉ còn in NOTE. Thiếu `lib/gap-probe.cjs` thì luật phản biện
-> context sạch in `GAP-PROBE: NOT ENFORCED` trên mọi lần chạy.
+> Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;
+> danh sách ở đây là bản chiếu của nó. Hai bản khai lệch nhau một tên là repo
+> tiêu thụ dựng cổng thiếu lớp mà CI vẫn xanh — đã xảy ra thật với
+> `lib/eval-yaml.cjs` và `lib/lop-nhin-thay.cjs`.
 
 GitHub Actions mẫu:
 
