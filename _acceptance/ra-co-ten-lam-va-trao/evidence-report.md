@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9d0696c1569f6858753a7d53e393140bbd3cc2fe
+verified_commit: 9ddcd021db8e6cc272ed056bf680c3ded2d6f8b5
 human_signoff: Manh 2026-08-25
 ---
 
@@ -290,3 +290,7 @@ sha: 944dce5fbe76b26f3210a8409946d15297a68695 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 9 — 2026-09-15, do ghim lại RIÊNG làn — vòng đang chạy bị chặn thật giữa hai release (CLAUDE.md §re-pin)
 run_id: repin-20260915T081937Z-90048
 sha: 9d0696c1569f6858753a7d53e393140bbd3cc2fe · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 10 — 2026-09-16, do hợp đồng thêm hai dòng khai gạch cho răng chụp hồ sơ đã thông cổng (d-20260916T163210Z-35)
+run_id: repin-20260916T165731Z-77184
+sha: 9ddcd021db8e6cc272ed056bf680c3ded2d6f8b5 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
