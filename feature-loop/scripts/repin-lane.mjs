@@ -28,6 +28,10 @@ import { createRequire } from 'node:module';
 // globToRe: CÙNG hàm khớp glob mà S4 dùng cho vùng vật (feature-loop/scripts/
 // carry-plan.mjs) — hai bản khớp glob là hai khuôn sẽ trôi (đã trôi thật ở ký tự `?`).
 import { globToRe } from './carry-plan.mjs';
+// Chụp cây hồ sơ đã thông Cổng Bằng chứng trước/sau khi chạy executor — sau cổng,
+// `_acceptance/<slug>/` là sử liệu chỉ đọc (crm-onehub 16/09/2026: một spec trong
+// suite chung ghi đè evidence/ đã ký sau mỗi lượt chạy mà không làn nào đỏ).
+import { hoSoDaThong, chup, soChup } from './chup-ho-so-da-thong.mjs';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -103,6 +107,7 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'checkRepinEvals', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'findAcceptanceConfig', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'readSignedReportFor', kind: 'function', since: '2.11.0', why: 'sàn ngữ nghĩa bên đọc' },
+  { file: 'lib/evidence-core.cjs', name: 'frontmatterField', kind: 'function', since: '2.9.0', why: 'làn gọi (chụp hồ sơ đã thông cổng)' },
 ];
 // AG-ENGINE-TABLE>>>
 const verNum = (v) => String(v).split('.').map(Number).reduce((n, x) => n * 1000 + (x || 0), 0);
@@ -274,8 +279,15 @@ if (flags['skip-unchanged']) {
 }
 // SKIP-UNCHANGED-PREDICATE>>>
 log(`sha ${sha} · ${suiteCmds.length} suite · ${perSlug.length} hồ sơ · ${perSlug.reduce((n, s) => n + s.evals.length, 0)} eval máy`);
+// Chụp MỌI hồ sơ đã thông cổng, không chỉ slug đang ghim: suite của một hồ sơ
+// ghi đè được bằng chứng của hồ sơ khác. Chụp SAU bước bỏ-qua (lượt bỏ qua không
+// chạy executor nào) và so TRƯỚC mọi lần ghi của chính làn (run-log/report).
+const daThong = hoSoDaThong(root, core.frontmatterField);
+const anhTruoc = chup(root, daThong);
 const suitesExit = suiteCmds.map((c, i) => runCmd(c, `suite ${i + 1}/${suiteCmds.length}`));
 for (const s of perSlug) for (const e of s.evals) e.exit = runCmd(e.cmd, `${s.slug} ${e.id}`);
+const cham = soChup(anhTruoc, chup(root, daThong));
+log(`chụp ${daThong.length} hồ sơ đã thông Cổng Bằng chứng (${anhTruoc.size} tệp) trước suite · sau eval: ${cham.length} tệp bị chạm`);
 
 // ── kết quả ─────────────────────────────────────────────────────────────
 const now = new Date();
@@ -284,7 +296,8 @@ const runId = flags['run-id'] || `repin-${iso.replace(/[-:]/g, '')}-${Math.floor
 const day = iso.slice(0, 10);
 const reason = flags.reason || 'ghim lại bằng làn eval';
 const out = { run_id: runId, sha, ts: iso, suites: suiteCmds.map((cmd, i) => ({ cmd, exit: suitesExit[i] })), slugs: {} };
-let red = suitesExit.some(x => x !== 0);
+if (cham.length) out.cham_ho_so_da_thong = cham;
+let red = suitesExit.some(x => x !== 0) || cham.length > 0;
 for (const s of perSlug) {
   const evalsExit = {};
   const gioiHan = [];    // đạt đúng một mã khác 0 đã khai
@@ -317,7 +330,11 @@ for (const s of perSlug) {
 if (red) {
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
   const lech = (e) => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0);
-  console.error(`repin-lane: LÀN ĐỎ — không ghi gì (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lech).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.`);
+  const veCham = cham.length
+    ? `\nexecutor chạm hồ sơ đã thông Cổng Bằng chứng — ${cham.length} tệp:\n${cham.map(c => `  - ${c.tep} (${c.doi})`).join('\n')}\n`
+      + 'Sau cổng, cây _acceptance/<slug>/ là sử liệu chỉ đọc: tạo phẩm của lượt chạy lại đi ra .acceptance-runs/<slug>/ hoặc thư mục tạm (eval-executors.md, mục «Where a run writes its artifacts»); sửa bằng chứng đã thông cổng là một dòng revisit trong decisions.jsonl trước, không phải tác dụng phụ. Trả các tệp trên về bản đã commit, sửa executor ghi chúng, rồi chạy làn MỚI.'
+    : '';
+  console.error(`repin-lane: LÀN ĐỎ — không ghi gì (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lech).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.${veCham}`);
   process.exit(1);
 }
 if (flags.write) {

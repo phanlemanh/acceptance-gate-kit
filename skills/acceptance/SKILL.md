@@ -147,6 +147,15 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    same dossier, which a ui-check of the same round may produce — it is
    resolved with a notice, and a judge that still finds it missing returns
    UNCERTAIN.
+3c. A `test`/`script` eval `cmd` (and every suite command) runs again after
+   the round — re-pin lane, other rounds' suites, CI — so it writes its
+   artifacts to the run directory `.acceptance-runs/<slug>/` (gitignored) or a
+   temp dir, never under `_acceptance/`. Only this dossier's S4 round writes
+   `_acceptance/<slug>/evidence/**`; past `signed-off`/`machine-cleared` that
+   tree is read-only history, and changing it is a `revisit` line in
+   `decisions.jsonl` first, never a side effect. The re-pin lane snapshots
+   those trees and goes red on any touched file. Full law:
+   `references/eval-executors.md` «Where a run writes its artifacts».
 4. Coverage check — three rules:
    (a) every AC-n appears in ≥1 eval's `criterion` field. Print the mapping
        table (criterion → eval ids → executor).
@@ -264,6 +273,7 @@ Entry: implementation complete, contract `status: implemented`.
      available browser tool (Claude Preview, Chrome MCP, Playwright/Puppeteer,
      or equivalent); save a frame at EACH step to
      `_acceptance/{slug}/evidence/E{id}-step{n}.png` via `config:capture.ui`
+     (this round only — a re-run never writes the dossier tree, step 3c)
      (preview_screenshot is inline-only; the Gate-2 page plays `E{id}-*.png` as a
      slideshow); `screenshot:` = the first frame. Read each saved frame and record observed: in its report block (schema-v2 reports without it are hook-blocked). Record network evidence per the instruction above when the driver allows;
      copy `network_observed:` verbatim into the block (missing → `n-a (driver)`).

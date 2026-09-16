@@ -68,7 +68,8 @@ directory; a judge that reads an empty file grades nothing. One exception:
 `_acceptance/{slug}/evidence/**` of the dossier being verified may not exist
 yet, because a ui-check of the same round produces it (E4 above reads E3's
 frame) — it is resolved anyway with one notice line, and a judge that still
-finds it missing returns UNCERTAIN.
+finds it missing returns UNCERTAIN. That `evidence/**` is written only by the
+dossier's own S4 round — see «Where a run writes its artifacts».
 
 Optional `runs: N` (int > 1) on a `test`/`script` eval marks it **stochastic** —
 its command crosses `ctx.providers.invoke` (an LLM generator) so the output is a
@@ -91,6 +92,43 @@ created", "anon INSERT denied by RLS" — no new executor. The `eval-coverage-li
 script flags threshold criteria whose evals never assert this (W1),
 out-of-scope items with zero negative evals (W3), and `(cross-layer)` criteria
 with no `layer: backend-effect` eval (W4); advisory, surfaced at Gate 1.
+
+## Where a run writes its artifacts
+
+A command that can run more than once — every `test`/`script` eval `cmd`, every
+`suite_keys` command — writes its artifacts to the **run directory**
+`.acceptance-runs/{slug}/` at the repo root (add `.acceptance-runs/` to
+`.gitignore`) or to a temp dir, **never under `_acceptance/`**. The same command
+runs again in the re-pin lane, inside another dossier's S4 round whose suite
+includes it, in CI, in a developer's `test` — a path under `_acceptance/` is
+overwritten on every one of those runs. `_acceptance/{slug}/evidence/**` is
+written only by the S4 round of that dossier while its contract is
+`implemented`: the verifier saves ui-check frames there with explicit paths
+(`config:capture.ui`), and copies a run-directory artifact there when the round
+wants it as evidence — an act of the round, not of the command.
+
+- Once a dossier is past the Evidence Gate (either status in
+  `DA_THONG_CONG_2`, `lib/workspace-record.cjs`), its whole tree
+  `_acceptance/{slug}/**` — `evidence/**` above all — is **read-only history**:
+  it is what the Evidence Gate read. A measure that overwrites it after the fact
+  silently replaces signed evidence with whatever today's run produced (crm-onehub,
+  16/09/2026: a spec in the shared `test` suite rewrote a signed
+  `evidence/ve-that.json` on every run, ~450 lines lost, in every worktree).
+- Updating the evidence of a dossier past the Evidence Gate is an **explicit
+  step, not a side effect**: first append a `revisit` line to that dossier's
+  `decisions.jsonl` whose `decision` starts with `sửa bằng chứng đã thông cổng —`
+  and names every file and why (the line's `impact` says what the signer read
+  vs what replaces it), then write the files and commit them together. Like any
+  line after the seal it is provisional until a human approves it — a later
+  line naming who approved, never an edit of this one. Re-verifying through a
+  new S4 round is the other legitimate path.
+- Tooth: `repin-lane.mjs` snapshots `_acceptance/<slug>/` of EVERY dossier past
+  the Evidence Gate (content hash + mtime + size, via
+  `feature-loop/scripts/chup-ho-so-da-thong.mjs`) before the first suite and
+  after the last eval; any touched file — changed, rewritten with the same bytes,
+  added or removed — turns the lane red, names each file, and nothing is
+  written. Known limit: the S4 round and plain CI runs are not snapshotted, so a
+  writer there is caught at the next re-pin lane, not at the run that wrote it.
 
 ## Executor selection rules (used by Phase 2 EVAL-GEN)
 
@@ -193,7 +231,9 @@ baseline, run-log and carry-forward all apply automatically.
 
 ## ui-check mechanics
 
-- **Capture a frame per state transition** — screenshot to
+- **Capture a frame per state transition** — in the dossier's own S4 round
+  (a re-run writes to the run directory, see «Where a run writes its
+  artifacts»), screenshot to
   `evidence/E{id}-step{n}.png` (n = 1, 2, 3…) at each meaningful step, not just
   the final state. The Gate-2 evidence page plays an eval's `evidence/E{id}-*.png`
   frames as a slideshow, so the human SEES the flow run, not one still. The

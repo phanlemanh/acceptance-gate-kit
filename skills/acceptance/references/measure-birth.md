@@ -75,6 +75,27 @@ PM13 là chiều bắt-được (nhãn chen giữa id và `:` → violation ghim
 tham-chiếu-chéo phải exit 0) — và PM14 pass đồng thời CHỨNG MINH đường lib
 chạy thật, vì dưới đường lùi awk nó sẽ đỏ.
 
+## Phép đo không ghi ra ngoài vật nó đo
+
+Một phép đo chạy lại được — eval `test`/`script`, lệnh trong `suite_keys` — sẽ
+chạy lại thật: ở làn ghim lại, trong suite của vòng khác, ở CI. Tạo phẩm nó ghi
+vào đâu thì chỗ đó bị ghi đè ở MỌI lượt ấy. Vì vậy tạo phẩm của phép đo đi ra
+**thư mục lượt chạy** `.acceptance-runs/<slug>/` (gitignore) hoặc thư mục tạm,
+không bao giờ vào `_acceptance/`; `evidence/**` chỉ do vòng S4 của chính hồ sơ
+ghi. Khi hồ sơ đã thông Cổng Bằng chứng (hai trạng thái của `DA_THONG_CONG_2`
+trong `lib/workspace-record.cjs`), cây `_acceptance/<slug>/` là sử liệu chỉ
+đọc — sửa nó là dòng `revisit` trong `decisions.jsonl` trước, không phải tác dụng
+phụ (luật đủ: `eval-executors.md` mục «Where a run writes its artifacts»).
+
+Đây là mục 1 mở rộng ra NGOÀI vật: đối chứng dương không chỉ hỏi «thước có IM
+trên vật lành» mà còn «lượt chạy lành có để nguyên những thứ không phải vật».
+Răng máy giữ: `repin-lane.mjs` chụp cây mọi hồ sơ đã thông cổng (băm nội dung +
+mtime + cỡ) trước suite đầu và sau eval cuối; tệp bị chạm → làn đỏ, ghim đường
+tệp, không ghi gì. Cặp hai chiều cùng fixture ở
+`tests/scripts/chup-ho-so-da-thong.test.mjs`: CH1 executor ghi ra thư mục lượt
+chạy → xanh; CH2 chỉ đổi đích sang `evidence/` của hồ sơ đã ký → đỏ đúng
+đường tệp. Phần dư khai ở sổ (`ghi-ho-so-da-thong#1`): vòng S4 và CI không chụp.
+
 ## Bảng lớp lỗi — khuôn phải chặn được đúng những ca này
 
 Nguồn: `docs/research/known-limits-ledger.tsv` (sổ vòng đời corpus
@@ -102,6 +123,7 @@ dấu ngoặc** — bên viết và bên đọc dùng đúng khuôn ấy, khai m
 | doi-chung-tu-sinh (chèn rồi grep lại chính nó) | cat-hinh-thuc#2 — E9b "đối chứng dương tự sinh", định lý về grep | 1 (đối chứng dương đo vật KHÔNG do phép đo tự đặt vào) |
 | mut-khong-qua-chan-that (đột biến đi vòng qua chân canh) | cat-hinh-thuc#3 — mutation chạy bản sao của phép kiểm, không chạy chân canh | 2 (đột biến phải gọi CHÍNH hàm mà đường xanh gọi) |
 | pinned-khong-dem-duoc (ghim chuỗi cho một lời hứa SỐ) | cat-hinh-thuc#4 — "đúng sáu dòng" ghim bằng một câu tiêu đề | 3 (số phải nằm trong chuỗi được in, hoặc khai là số người-đối-chiếu) |
+| ghi-ngoai-vat (phép đo ghi vào cây ngoài vật nó đo) | ghi-ho-so-da-thong#1 — spec trong suite chung ghi đè `evidence/` của hồ sơ đã ký sau mỗi lượt chạy | 1 (đối chứng dương đo cả cây NGOÀI vật: lượt chạy trên vật lành phải để hồ sơ đã thông cổng nguyên dấu vết — mục dưới) |
 
 **Miễn trừ khai trước** — lớp CÓ dòng sống trong sổ mà CỐ Ý không lên bảng.
 Bánh cóc đo cả danh sách này: miễn trừ một lớp không còn dòng sống là ĐỎ.
