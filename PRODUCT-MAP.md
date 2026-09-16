@@ -9,7 +9,7 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>11 việc"]
   GD --> DB["Đã bác từ khám phá<br/>10 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
+  B --> CD["Chờ duyệt phạm vi<br/>2 việc"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>60 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>10 việc"] --> GG{"Cổng Giá trị"}
@@ -52,6 +52,7 @@ flowchart TD
 ## Chờ duyệt phạm vi
 
 - Vị từ bỏ qua phải THẤY định nghĩa phép đo — _acceptance/config.yaml và evals.yaml là ĐẦU VÀO của làn, không phải vật hồ sơ (`bo-qua-phai-thay-dinh-nghia-phep-do`)
+- Phát hành kit 2.15.0 — mở hồ sơ mốc 16/09 cùng một nhát VÁ TRONG MỐC cho thẻ mở phiên (hồ sơ treo ở «đã duyệt» mà vật đã nằm trong nhánh gốc thôi bị in «viết code») (`release-2-15-0`)
 
 ## Đang làm
 

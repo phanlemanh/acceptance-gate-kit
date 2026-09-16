@@ -52,8 +52,9 @@ if (want('BDK2')) {
       'dang-sua-theo-bang-chung', 'nghiem-thu-bi-chan', 'cho-cong-bang-chung',
       'may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach', 'da-giao', 'cho-cong-gia-tri',
       'da-nghiem-thu-release', 'da-nghiem-thu-iterate', 'da-nghiem-thu-kill', 'ho-so-hong',
-      'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach', 'da-giao-khong-do', 'da-dong-ho-so'];
-    const N = 24; BDK2_N = KHOA.length;
+      'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach', 'da-giao-khong-do', 'da-dong-ho-so',
+      'vat-da-o-nhanh-goc'];   // release-2-15-0: «đã duyệt» mà vật đã nằm trong nhánh gốc
+    const N = 25; BDK2_N = KHOA.length;
     if (KHOA.length !== N) errs.push(`danh sách ca ${KHOA.length} != ${N}`);
     if (Object.keys(BANG.TRANG_THAI).length !== N)
       errs.push(`bảng khai ${Object.keys(BANG.TRANG_THAI).length} khoá != ${N} — thêm khoá thì thêm ca`);

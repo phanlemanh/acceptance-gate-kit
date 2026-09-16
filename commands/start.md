@@ -65,6 +65,16 @@ worktree/nhánh đọc từ git của `<path>`.
      BẰNG CHỮ, mã máy trong ngoặc — tra bảng: chốt thiết kế và tiêu chí (`S1`)
      · lập kế hoạch (`S2`) · viết code (`S3`) · sửa theo bằng chứng (`S3-fix`)
      · nghiệm thu máy (`S4`). Lần đầu một mã hiện trên thẻ phải kèm nghĩa.
+     <!-- <<<START-VAT-DA-O-NHANH-GOC -->
+     Phần tử có `stateKey` là `vat-da-o-nhanh-goc` (vật đã nằm trong nhánh gốc
+     nhưng hồ sơ còn treo ở «đã duyệt») KHÔNG có bước máy kế — `nextStep` là
+     `null`, KHÔNG in «viết code» hay «lập kế hoạch» cho nó. In nguyên văn `label`,
+     rồi ngay dưới là HAI dòng chọn riêng, mỗi dòng một chữ cái: «đóng theo quan
+     sát — ghi quyết định, không chấm lại» · «chấm lại — đưa về code xong, chạy
+     nghiệm thu máy». Hai lối nằm trong CÙNG câu hỏi chọn ở bước 4, không thêm
+     câu hỏi và không thêm cổng. Máy không chọn hộ: đây là đánh đổi của người
+     (tin vật đang chạy hay trả giờ máy chấm lại).
+     <!-- START-VAT-DA-O-NHANH-GOC>>> -->
      Phần tử có `flags` → in thêm ngay dòng đó, mỗi cờ một câu, cùng câu chữ với
      nhóm chờ chữ ký ở trên (`qua-timebox` → «quá hạn tự khai — xem lại: xếp lại
      hay kéo dài»). Cờ là thứ người quyết, máy KHÔNG tự xử.
@@ -183,6 +193,14 @@ worktree/nhánh đọc từ git của `<path>`.
    - Chọn một vòng dở → `/feature-loop:feature-loop <slug>` — NHƯNG nếu `git.dirty` là
      `true` hoặc phiên đang đứng cây chung với vòng khác: nhắc mở worktree/
      phiên riêng TRƯỚC, chưa đưa lệnh resume (cạm bẫy một-worktree-một-phiên).
+   - Chọn một lối của dòng `vat-da-o-nhanh-goc` → KHÔNG đưa lệnh resume trơn:
+     vòng lặp đọc «đã duyệt» là viết code lại, đúng ca một phiên tám giờ chấm lại
+     thứ đã ở prod (16/09). Lối «đóng theo quan sát» → nhắc lại lối đã chọn một
+     dòng rồi KẾT THÚC `/acceptance-gate:start`; người ra lệnh ghi quyết định vào
+     sổ quyết định của hồ sơ ở lượt kế, ngoài nghi thức này. Lối «chấm lại» →
+     `/feature-loop:feature-loop <slug>` kèm đúng một câu dặn: đặt `status:
+     implemented` trước rồi vào nghiệm thu máy (`S4`), không viết lại code. Nhắc
+     worktree/phiên riêng như dòng trên vẫn áp.
    - Chọn việc mới → đi đúng lối (a)/(b)/(c) ở bước 3.
 
 5. Lệnh KHÔNG tự làm nội dung. Bàn giao xong là hết vai.

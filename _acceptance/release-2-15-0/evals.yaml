@@ -1,0 +1,73 @@
+schema_version: 1
+feature_slug: release-2-15-0
+# Khuôn theo 2.13.0/2.14.0: mỗi eval máy ghim MỘT dòng PASS KHÁC NHAU của chính ca nó
+# gọi, phán quyết không lấy từ mã thoát trọn suite. Mọi cmd đi qua config: ref.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.vdg_nhom_moi_2_15
+    expected: >
+      Exit 0, và đầu ra có dòng «PASS: VDG1 a-vat-da-vao» cùng hai dòng PASS của VDG4 (bằng
+      chứng đổi tên xep-lai) và VDG6 (chưa có kế hoạch). Ca ghim nhãn và việc kế GÕ TAY
+      trong tệp ca, không rút từ bảng chữ — sửa bảng sai thì đỏ.
+    paths: [scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, tests/scripts/vat-da-o-nhanh-goc.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.vdg_im_2_15
+    expected: >
+      Exit 0, và đầu ra có dòng PASS của VDG2 (không bằng chứng), VDG3 (nhánh không merge),
+      VDG5 (sha không có trong kho), VDG7 (nhánh implemented không đổi) và VDG8 (bảy hồ sơ
+      đều ở nhóm đang dở, không hồ sơ nào hỏng).
+    paths: [scripts/start-scan.mjs, tests/scripts/vat-da-o-nhanh-goc.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.vdg_chieu_do_2_15
+    expected: >
+      Exit 0, và đầu ra có dòng PASS của VDG9 (đúng một neo đột biến), VDG10a (bản sao chưa
+      phá cho nhóm mới) và VDG10 (bản sao đã phá đưa hồ sơ về «đang viết code»).
+    paths: [scripts/start-scan.mjs, tests/scripts/vat-da-o-nhanh-goc.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: judgment
+    inputs: [commands/start.md, scripts/trang-thai-ho-so.cjs, skills/acceptance/references/human-facing-language.md]
+    steps:
+      - "Đọc khối START-VAT-DA-O-NHANH-GOC và điều khoản bàn giao cho dòng vat-da-o-nhanh-goc ở bước 4 của commands/start.md."
+      - "Đối chiếu với điều khoản MỘT câu hỏi chọn ở bước 4 và luật N1–N6."
+    expected: >
+      PASS khi: (1) dòng này không in bước máy kế; (2) hai lối nằm trong cùng câu hỏi chọn,
+      không thêm câu hỏi, không thêm cổng; (3) lối «chấm lại» bàn giao kèm câu dặn đưa hồ sơ
+      về implemented trước S4, và không có đường nào đưa lệnh resume trơn; (4) lối «đóng theo
+      quan sát» kết thúc lệnh mở phiên, không tự ghi gì; (5) nhãn và việc kế trong bảng chữ
+      qua được phép thử xoá-tên-máy. REJECT khi thiếu một trong năm.
+    evidence_required: [verdict, rationale]
+  - id: E5a
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Exit 0 và dòng tổng kết «Results: <n> passed, 0 failed» với <n> LỚN HƠN 0.
+    paths: [scripts/, tests/scripts/**, lib/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5b
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Exit 0 và «Results: all plugin tests passed»; đầu ra KHÔNG có dòng nào mang chữ FAIL.
+    paths: [tests/plugins/**, commands/start.md, scripts/trang-thai-ho-so.cjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5c
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: >
+      Exit 0 — bản đồ sản phẩm khớp hồ sơ. Khoá mới chiếu về cùng ô «đang dựng» nên hồ sơ mới
+      của mốc là thứ duy nhất được phép làm bản đồ đổi.
+    paths: [PRODUCT-MAP.md, scripts/product-map.mjs, scripts/trang-thai-ho-so.cjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

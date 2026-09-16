@@ -331,6 +331,11 @@ executors:
     moc_diagram_2_14: bash _acceptance/release-2-14-0/rang-moc.sh --chan diagram
     ton_dong_ghim_lai_2_14: bash _acceptance/release-2-14-0/rang-ton-dong.sh --chan ghim-lai
     so_tang_2_14: bash _acceptance/release-2-14-0/rang-so-tang.sh
+
+    # --- release-2-15-0 (16/09) --- vá-trong-mốc: vật đã ở nhánh gốc; mỗi eval ghim dòng PASS riêng
+    vdg_nhom_moi_2_15: "bash -c 'out=$(node tests/scripts/vat-da-o-nhanh-goc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG1 a-vat-da-vao\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG4 d-doi-ten-xep-lai\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG6 f-chua-ke-hoach\"'"
+    vdg_im_2_15: "bash -c 'out=$(node tests/scripts/vat-da-o-nhanh-goc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG2 b-khong-bang-chung\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG3 c-nhanh-khong-merge\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG5 e-sha-la\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG7 \" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG8 \"'"
+    vdg_chieu_do_2_15: "bash -c 'out=$(node tests/scripts/vat-da-o-nhanh-goc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG9 \" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG10a \" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG10 chiều đỏ\"'"
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
