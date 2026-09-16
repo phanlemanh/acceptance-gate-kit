@@ -116,7 +116,7 @@ thật do code sinh trong chính lần chạy (`tests/scripts/vat-da-o-nhanh-goc
 
 ## Out of scope
 
-- **Trạng thái `park` cho *vòng* (không chỉ cho ô).** Lối «đóng theo quan sát» chưa có
+- **Trạng thái xếp lại cho vòng, không chỉ cho ô** (`park`). Lối «đóng theo quan sát» chưa có
   trạng thái hợp đồng để ghi: người ghi quyết định vào sổ xong thì bộ quét VẪN đọc
   `approved` và dòng vẫn hiện ở nhóm này. Lỗ này đã có tên ở mục «Out of scope từ khám
   phá» của ô `_acceptance/thuoc-co-cua/opportunity.md` — nguyên thuỷ thiếu ở mắt xích
