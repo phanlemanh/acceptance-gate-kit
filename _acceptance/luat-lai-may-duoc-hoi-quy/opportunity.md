@@ -1,7 +1,7 @@
 ---
 schema_version: 1
 slug: luat-lai-may-duoc-hoi-quy
-feature: Luật lái máy đổi thì phải được kiểm hồi quy như code — harness-lite chạy evals/ khi cấu hình đổi, hook cấm nới thước lúc chữa mã, vật-hoá thứ tự ghi run-log, ADR làn V và tách nhiệm vụ
+feature: Luật lái máy đổi thì phải được kiểm hồi quy như code — hook cấm nới thước lúc chữa mã, vật-hoá thứ tự ghi run-log, ADR làn V và tách nhiệm vụ
 owner: phanlemanh@gmail.com
 stage: discovery              # discovery | decided | archived
 decision:         # build | iterate | park | kill — người ký Cổng 0 điền
@@ -14,52 +14,61 @@ prototype:
 
 ## Vấn đề & ai gặp
 
-Sản phẩm thật của kit là 23 file lời dặn (SKILL.md, lệnh, hook). Mỗi mốc phát hành đổi chúng mà
-không thước nào chạm: `.github/workflows/gate.yml` chạy sáu suite tất định trên script, không bộ nào
-chạy một skill rồi chấm đầu ra. Hệ quả đo được: ≥6 lượt gọi người ngoài thiết kế do hạ tầng phiên
-ở mốc 2.7.0, 2 ở 2.8.0. Kit đã viết sẵn ba ca theo khuôn `claude plugin eval` (`evals/`, #120)
-nhưng harness đó org chưa được bật; owner quyết 30/08 không xin, không chờ, không dựng harness-lite
-(món CỘNG). Luật cộng 07/09 gỡ vế «món CỘNG». Cùng họ: không hook nào cấm nới thước trong vòng sửa
-mã; thứ tự ghi `run-log.jsonl` trước `evidence-report.md` sống bằng lời dặn; lý do làn V hợp lệ dù
-tác giả tự qua cổng chưa được viết ở đâu (playbook dòng 694). Người trả giá: owner mỗi lần hạ tầng
-phiên đốt lượt chấm. Đề bài đầy đủ: `docs/plans/2026-09-07-hat-giong-luat-lai-may-duoc-hoi-quy.md`.
+Sản phẩm thật của kit là 23 file lời dặn (SKILL.md, lệnh, hook). Ba bất biến trong đó đang sống
+bằng LỜI DẶN, không bằng vật máy giữ: không hook nào cấm nới thước trong vòng sửa mã; thứ tự ghi
+`run-log.jsonl` trước `evidence-report.md` chỉ là một câu dặn; lý do làn V hợp lệ dù tác giả tự qua
+cổng chưa được viết ở đâu (playbook dòng 694). Người trả giá: owner mỗi lần một bất biến trôi mà
+không phép đo nào chạm. Đề bài đầy đủ: `docs/plans/2026-09-07-hat-giong-luat-lai-may-duoc-hoi-quy.md`.
+
+> **THU HẸP 2026-09-16 (Mạnh) — cắt vế harness-lite, giữ ba vế một-tầng.**
+>
+> Ô này ban đầu mang bốn vế. Vế đầu — dựng **harness-lite chạy một skill rồi
+> chấm đầu ra** — đã bị cắt khi rà 28 ô theo North Star ngày 16/09: đó là
+> **đo-thước-bằng-thước**, đúng tầng hai mà luật chiều rộng (a) của `CLAUDE.md`
+> đóng («lưới thường trực là trần; KHÔNG mở vòng đo-thước-của-thước»). Owner đã
+> giết vế này một lần ngày 30/08; đường sống duy nhất nó có là luật NỚI 07/09,
+> mà luật đó đã bị thay ngày 15/09 (ADR 0018 — CỘNG cần phê duyệt đích danh).
+> Lý do đầy đủ + ngưỡng mở lại ở
+> [.out-of-scope/thuoc-cua-thuoc-mot-tang.md](../../.out-of-scope/thuoc-cua-thuoc-mot-tang.md).
+>
+> Ba vế còn lại KHÔNG cùng lớp: mỗi vế là một phép *biến bất biến từ đầu-người
+> sang vật-máy-giữ*, ở đúng MỘT tầng. Chúng ở lại trong ô này.
 
 ## Giả định chốt sinh tử
 
 | # | Giả định | Nếu sai thì | Phép thử rẻ nhất | Trạng thái |
 |---|---|---|---|---|
-| 1 | Harness thật (`claude plugin eval`) vẫn early access ở lần dò kế | harness-lite là việc thừa — chỉ cắm ca có sẵn vào harness thật | chạy `claude plugin eval` trong thư mục rỗng, một dòng | Chưa thử lại từ 30/08 |
-| 2 | Ba ca hiện có chạy được y nguyên qua `claude -p` + grader tất định | phải viết lại ca → hai khuôn | chạy một ca tay, so đầu ra với `graders/*.md` | Chưa thử |
-| 3 | Một đổi SKILL.md cố ý phá hành vi (vd bỏ dòng «không hỏi tiếp chứ») bị ca bắt trước merge | suite chạy mà không phân biệt — thước tự dối | ca cố ý đỏ, đối chứng dương ba ca xanh | Chưa thử |
-| 4 | Hook cấm nới `evals.yaml` sau vòng REJECT có lối ra rẻ (entry sổ `fix` gọi tên eval) | hook thành cổng người thứ bảy trá hình | fixture hai chiều: có entry qua, không entry chặn | Chưa thử |
+| 1 | Hook cấm nới `evals.yaml` sau vòng REJECT có lối ra rẻ (entry sổ `fix` gọi tên eval) | hook thành cổng người thứ bảy trá hình | fixture hai chiều: có entry qua, không entry chặn | Chưa thử |
+| 2 | Thứ tự ghi sổ chạy trước báo cáo bằng chứng vật-hoá được mà không đổi bên đọc nào | không còn là một phép TRỪ — phải nuôi thêm một khuôn | dựng ngược thứ tự trong bản sao → ca ĐỎ, ghim đúng thông điệp; chạm tệp khác → ca IM | Chưa thử |
+| 3 | Lý do làn V hợp lệ viết được thành một ADR mà không nới điều kiện làn V | ADR thành cửa hậu cho tác giả tự qua cổng | đối chiếu ADR với sáu điều kiện xanh-sạch đang chạy | Chưa thử |
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đổi luật lái máy có được đo trước merge như đổi code không, và người sửa mã có nới được thước của chính mã đó mà không ai thấy không?
-- Kết quả nào là SỐNG: [đề xuất] một đổi SKILL.md cố ý phá hành vi → CI đỏ trước merge, gọi đúng ca; ba ca hiện có xanh qua harness-lite; hook chặn bản sao nới `expected` không có entry sổ, cho qua bản có entry; ADR làn V ký; ≤10 phút/lượt; 0 lượt gọi người thêm
-- Kết quả nào là CHẾT: [đề xuất] xương sống là grader llm không seed; suite chạy trên mọi PR; một vấp hạ tầng phiên nữa mà ca không bắt được sau khi đã có ca; thêm lượt gọi người
+- Câu hỏi phép đo trả lời: [đề xuất] người sửa mã có nới được thước của chính mã đó mà không ai thấy không, và hai bất biến còn lại có còn sống bằng lời dặn không?
+- Kết quả nào là SỐNG: [đề xuất] hook chặn bản sao nới `expected` không có entry sổ và cho qua bản có entry; đảo thứ tự ghi sổ chạy/báo cáo trong bản sao → ca đỏ ghim đúng thông điệp, chạm tệp không phải hai tệp đó → ca im; ADR làn V ký; 0 lượt gọi người thêm
+- Kết quả nào là CHẾT: [đề xuất] hook đẻ thêm một lượt gọi người; ca thứ tự chỉ đỏ được bằng exit khác 0 mà không ghim thông điệp; ADR phải nới điều kiện làn V mới viết được
 - Timebox: …
 
 ## Kết quả prototype
 
-Chưa dựng. Ba ca ở `evals/` là tài sản đã đóng (30/08), không phải prototype của ô này.
+Chưa dựng. Ba ca ở `evals/` là tài sản đã đóng (30/08) thuộc vế đã cắt, không phải prototype của ô này.
 
 ## Nguồn ngoài & phạm vi kế thừa
 
 | Món vật liệu | Nguồn (đường dẫn/tên gói) | Phân loại | Kế thừa? | Người ký |
 |---|---|---|---|---|
-| Play «Continuous evals in CI» (566–569), «Give Claude a feedback loop» (527), «AI in the PR review loop» (694–695) | The AI-Native SDLC playbook, `docs/research/2026-09-07-ai-native-sdlc-playbook.md` | triết-lý/logic + YAML mẫu job CI | có | — |
-| Ba ca đo skill + README | kit `evals/` (PR #120, 30/08) | vật liệu, khuôn ca | có, giữ nguyên khuôn | — |
-| Quyết định owner 30/08 (không xin, không chờ, không harness-lite) | memory `plugin-eval-thuoc-cho-skill` | quyết định, điều kiện mở: xin không hồi âm + có vòng cần thước ngay | có — hai vế còn lại vẫn phải chạm | — |
+| Play «Give Claude a feedback loop» (527), «AI in the PR review loop» (694–695) | The AI-Native SDLC playbook, `docs/research/2026-09-07-ai-native-sdlc-playbook.md` | triết-lý/logic | có | — |
+| Play «Continuous evals in CI» (566–569) + ba ca đo skill (PR #120, 30/08) | cùng nguồn trên, và kit `evals/` | vật liệu cho vế harness-lite | **không** — vế đã cắt 16/09 | — |
+| Quyết định owner 30/08 (không xin, không chờ, không harness-lite) | memory `plugin-eval-thuoc-cho-skill` | quyết định | có — và đã thành án cắt 16/09 | — |
 
 ## Cổng 0
 
-- **decision = …** Mở khi ngưỡng đếm chạm (≥2 lượt ngoài thiết kế do hạ tầng phiên trong một mốc — đã chạm hai mốc liên tiếp) VÀ harness thật vẫn đóng ở lần dò kế; xếp sau ô «Đường lùi phải sống» theo thứ tự gật 07/09.
+- **decision = …** Ba vế còn lại đều là phép TRỪ hoặc vật-hoá một-tầng, không phải CỘNG; mở khi owner ký, xếp sau ô «Đường lùi phải sống» theo thứ tự gật 07/09.
 - **disposition = …**
 - **Ngưỡng UAT chốt cùng lúc ký:** chép từ bullet `[đề xuất]` sau khi người gỡ tiền tố.
 
 ## Out of scope từ khám phá
 
+- **Harness-lite chạy skill rồi chấm đầu ra — CẮT 16/09** (tầng hai; hồ sơ ở `.out-of-scope/thuoc-cua-thuoc-mot-tang.md`).
 - Không dùng grader `llm` làm xương sống (nhiễu, không seed — ghi 30/08).
-- Không chạy suite skill trên mọi PR — chỉ khi đường dẫn cấu hình đổi, trần 10 phút.
-- Không viết khuôn ca thứ hai; harness-lite đọc đúng khuôn `evals/` để bỏ được khi harness thật mở.
+- Không viết khuôn ca thứ hai.

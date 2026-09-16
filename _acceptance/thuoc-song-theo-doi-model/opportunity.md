@@ -3,10 +3,10 @@ schema_version: 1
 slug: thuoc-song-theo-doi-model
 feature: Thước sống theo đời model — bằng chứng ghi model sinh ra nó, cờ «cũ theo model», cờ nhạt có việc kế, hình dạng lỗi đo-lường thứ 7 «thước bị nới sau khi đã đỏ»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided
+decision: kill
+decided_by: Mạnh
+decided_at: 2026-09-16T01:58:04Z
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -23,6 +23,26 @@ về phép đo hoá vô hại theo thời gian. Vật cần đã sinh sẵn chư
 `evals.yaml`, `acceptance-verify.js` ghi `non_discriminating` + `evals_hash`). Đề bài đầy đủ:
 `docs/plans/2026-09-07-hat-giong-thuoc-song-theo-doi-model.md` (từ playbook AI-Native SDLC, play
 «Recurring codebase scans» và «Continuous evals», 07/09).
+
+
+> **ĐÃ BÁC 2026-09-16 (Mạnh) — chi phí chắc chắn, đổi lấy lợi ích chưa đo được
+> lần nào.**
+>
+> Lợi: chặn một hồ sơ ký dưới model đời cũ đọc y như hồ sơ đời nay. Số ca đo
+> được tới 16/09: **0**.
+>
+> Chi phí: cờ «cũ theo model» bắn theo trục THỜI GIAN chứ không theo diff mã,
+> nên nó nhân lên đúng thứ [GUIDE §7.1](../../GUIDE.md) sinh ra để chặn —
+> ghim lại nhân theo số vòng chạy song song, và nhịp merge là trần của N. Đây
+> là mua bảo hiểm cho một sự cố chưa xảy ra bằng một cơn bão ghim-lại chắc chắn
+> xảy ra.
+>
+> Lý do đi kèm: đây là món CỘNG (ADR 0018), và nó cộng **hình dạng lỗi đo-lường
+> thứ 7** vào bộ phân loại của kit — tức nới chính cái thước mà luật chiều rộng
+> giữ ở MỘT tầng.
+>
+> Ô này có nguy cơ quay lại nên có hồ sơ riêng:
+> [.out-of-scope/thuoc-song-theo-doi-model.md](../../.out-of-scope/thuoc-song-theo-doi-model.md).
 
 ## Giả định chốt sinh tử
 

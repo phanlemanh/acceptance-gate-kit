@@ -22,6 +22,10 @@ ghi sổ, không mở vòng.
 
 - 29/08: đề bài «4 luật hội tụ» → điều tra, thu về 1 ô (cham-dung-cay, đã ship).
 - 30/08: ô khuon-rang-dung-chung ký build → 2 vòng S4 → dừng-vá → park.
+- 16/09: rà 28 ô theo North Star → **cắt vế harness-lite** (chạy một skill rồi
+  chấm đầu ra) khỏi ô `luat-lai-may-duoc-hoi-quy`; ba vế một-tầng còn lại ở
+  lại trong ô. Vế ấy sống được một thời gian nhờ luật NỚI 07/09; ADR 0018
+  (15/09) thay luật đó nên nó về lại dưới án này.
 - Ai muốn mở lại lớp này: đọc hồ sơ S4-r2 trên nhánh kho TRƯỚC, và phải chỉ
   ra ngưỡng mở lại đã chạm — không mở lại vì «tìm thấy thêm lỗi trong mã-đo»
   (điều đó luôn đúng, không phân biệt được gì).

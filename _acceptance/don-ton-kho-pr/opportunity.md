@@ -3,10 +3,10 @@ schema_version: 1
 slug: don-ton-kho-pr
 feature: Dọn tồn kho PR — danh sách PR mở phải nói đúng việc đang chạy, không phải kho hàng cũ
 owner: manh@mstar.vn
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: kill
+decided_by: Mạnh
+decided_at: 2026-09-16T01:58:04Z
 prototype:
   base_commit:
   disposition: archive
@@ -29,6 +29,20 @@ nhóm khác hẳn nhau**, và danh sách không phân biệt được:
 Cái giá không phải ở dung lượng mà ở **lời nói dối của danh sách**: nhìn vào tưởng
 có tám việc đang chạy, thật ra có hai. Và một trong tám nếu gộp nhầm sẽ phá đúng
 thứ nghi thức ghim-lại sinh ra để giữ.
+
+
+> **ĐÃ BÁC 2026-09-16 (Mạnh) — căn cứ đã chết, và dọn hàng đợi PR không phải bộ
+> phận của engine.**
+>
+> Ô mô tả «**tám** PR mở, tuổi 1 đến 21 ngày, bốn nhóm khác hẳn nhau». Đo lại
+> 16/09: kho có **đúng một** PR mở (số 173, mở 12/09). Vấn đề tự tan trước khi
+> ai làm gì — ô đang mô tả một buổi sáng của 26/08, không mô tả kho.
+>
+> Lý do thứ hai, độc lập với lý do trên: dọn hàng đợi PR của chính kho này
+> trượt phép thử «kit là engine» — nó vô nghĩa với một công ty khác dùng kit,
+> và không có gì để phát hành tới repo tiêu thụ.
+>
+> Không xếp lại: hàng đợi PR là việc vặt, làm khi thấy, không cần ô.
 
 ## Vì sao bây giờ
 

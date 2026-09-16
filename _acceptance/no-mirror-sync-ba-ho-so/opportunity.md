@@ -3,7 +3,7 @@ schema_version: 1
 slug: no-mirror-sync-ba-ho-so
 feature: Ba hồ sơ đã ký còn nợ khoá `executors.script.mirror_sync` đã gỡ — nợ cuối cùng của corpus sau ADR 0014/0015, chờ một lối ra có tên
 owner: phanlemanh@gmail.com
-stage: discovery
+stage: decided
 decision: kill
 decided_by: Manh Phan
 decided_at: 2026-09-08T09:08:13Z

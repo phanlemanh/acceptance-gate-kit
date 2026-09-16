@@ -3,10 +3,10 @@ schema_version: 1
 slug: con-mat-thu-hai-lai-thu
 feature: Bậc 3 của lái-thử cho bề mặt AGENT — bản tham chiếu `vlm-assert` chỉ phục vụ frame UI, ván agent không có con mắt thứ hai
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided
+decision: kill
+decided_by: Mạnh
+decided_at: 2026-09-16T01:58:04Z
 prototype:
   base_commit:      # KHÔNG có: nhánh nguồn đã xoá — mã sống ở ./prototype/
   disposition: keep # mã mang theo trong hồ sơ, chưa qua cổng nào
@@ -51,6 +51,23 @@ file, mà luật cấm."*
 **Người trả giá là owner ở Cổng Giá trị**: anh nhận một danh sách trộn hai loại câu —
 câu chỉ-người-trả-lời-được, và câu ai-mở-ảnh-ra-cũng-trả-lời-được. Loại thứ hai ăn
 thời gian của khoảnh khắc quyết thật.
+
+
+> **ĐÃ BÁC 2026-09-16 (Mạnh) — dựng bậc 3 cho bề mặt thứ HAI khi bậc 3 của bề
+> mặt thứ NHẤT chưa có ai nhận nuôi.**
+>
+> Rà cả 28 ô đang cân nhắc theo North Star, 16/09. Ô này là một món CỘNG, nên
+> theo ADR 0018 nó cần owner phê duyệt đích danh — và nền nó đứng lên chưa ai
+> kiểm. Đo trên chính kho này cùng ngày: **không một khoá
+> `executors.ui.vlm_assert` nào tồn tại**. Bậc 3 cho bề mặt UI có bản tham
+> chiếu từ 15/08; kể cả kit cũng chưa nhận nuôi nó.
+>
+> Bằng chứng đau của ô: **3 trên 7** câu chuyển-phiên-người, của MỘT ván, trên
+> MỘT kho. Đổi lấy một bộ phận mới phải nuôi mãi — không đứng.
+>
+> **Ngưỡng mở lại (đang đếm):** bậc 3 của bề mặt UI có ≥1 repo nhận nuôi thật
+> (khoá `executors.ui.vlm_assert` khai trong một `_acceptance/config.yaml`
+> đang chạy). Dưới ngưỡng đó, phát hiện thuộc lớp này chỉ ghi sổ, không mở vòng.
 
 ## Trace về ba nguyên tố
 

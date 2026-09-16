@@ -3,10 +3,10 @@ schema_version: 1
 slug: vlm-assert-khai-nhan-nuoi
 feature: Dòng bậc-3 của lái-thử khai `vlm-assert` là "đã ship" trong khi nó là bản tham chiếu phải nhận nuôi
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided
+decision: kill
+decided_by: Mạnh
+decided_at: 2026-09-16T01:58:04Z
 prototype:
   base_commit:      # không có prototype — đây là một phép TRỪ trên chữ
   disposition:
@@ -26,6 +26,20 @@ khác nói một nẻo.**
 **Người gặp:** bất kỳ ai đọc bảng bậc-thang để quyết có dùng bậc 3 hay không — tức đúng
 người đang chuẩn bị một ván lái-thử. Đề bài đầy đủ:
 `docs/plans/2026-08-23-hat-giong-vlm-assert-phai-khai-la-nhan-nuoi.md`.
+
+
+> **ĐÃ BÁC 2026-09-16 (Mạnh) — một dòng tài liệu sai không đáng một ô, một Cổng
+> Đáng và một vòng.**
+>
+> Bác CÁI Ô, không bác cái lỗi. Phát hiện vẫn đúng và vẫn còn:
+> `docs/reference/lai-thu-nguoi-la.md:76` khai `vlm-assert` là «sẵn trong
+> kit · đã ship, không cài thêm», trong khi thứ có thật là một bản tham chiếu
+> phải nhận nuôi qua ba bước.
+>
+> Sửa đúng tầng: **miễn trừ T1** — một dòng chữ, không chạm hành vi, không sinh
+> bằng chứng. Sửa ở đợt tài liệu của mốc phát hành kế.
+>
+> Không có gì để quay lại: chữ sửa xong là hết.
 
 ## Thiệt hại đã xảy ra, không phải giả định
 
