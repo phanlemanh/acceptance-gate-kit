@@ -36,9 +36,10 @@ khác nhánh `approved`.
 Đo trên cây vá, chỉ-đọc, ngày 16/09: bộ quét chạy trên crm-onehub đưa **cả bốn** hồ sơ kể
 trên vào nhóm mới; chạy trên chính kho kit không đổi một dòng nào của nhóm «Đang dở».
 
-Nguồn chữ lời giao dẫn `docs/findings/2026-09-16-truy-nguyen-thuoc-khong-co-cua.md` —
-tệp ấy **chưa có trong kho** ở mọi nhánh lúc mở hồ sơ; bối cảnh trên lấy từ lời giao đã
-xác minh của owner, không từ tệp đó.
+Nguồn chữ: `docs/findings/2026-09-16-truy-nguyen-thuoc-khong-co-cua.md` — nhát vá này là
+chip 1 của §7; phần lớn của gói (trục đỉnh-có-sẵn, thước có cửa) nằm ở ô `thuoc-co-cua`,
+chờ số từ R1, KHÔNG thuộc hồ sơ này. Tệp lên main giữa lúc làm; bối cảnh trên viết từ lời
+giao của owner và đã đối chiếu lại với tệp.
 
 **Việc mốc mang theo, CHƯA có tiêu chí** (owner dịch sẵn 16/09, ghi vào đây khi mở hồ sơ):
 
