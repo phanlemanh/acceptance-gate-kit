@@ -1,9 +1,12 @@
 ---
 schema_version: 1
 slug: mot-nguon-usage-report
+decided_at: 2026-09-16T02:19:29Z
+decided_by: Mạnh
+decision: park
 feature: usage-report về MỘT nguồn — khuôn tiêu đề do bên VIẾT và bên ĐỌC cùng rút, để hai dòng máy-đo của luật (c) thôi hỏng lặng
 owner: phanlemanh@gmail.com
-stage: discovery
+stage: decided
 ---
 
 # Cơ hội: usage-report về MỘT nguồn — hai dòng máy-đo của luật (c) thôi hỏng lặng
@@ -34,6 +37,15 @@ release-2-14-0               roundsUsage=0  tokenS4=0   (trước khi sửa tay 
 ```
 
 2/3 trả 0. Cái đúng khuôn chỉ đúng vì người gõ tình cờ trúng chữ, không vì luật nào bắt.
+
+
+> **ĐÃ GỘP 2026-09-16 (Mạnh) — đề bài dời trọn vào ô `mot-khuon-cho-ben-viet-va-ben-doc`.**
+>
+> Bốn ô cùng MỘT lớp — nguyên văn hình dạng (3) trong `CLAUDE.md`: *«bên VIẾT
+> và bên ĐỌC của một artifact trôi khỏi nhau vì mọi test tự dựng fixture đúng
+> khuôn bên đọc»*. Luật đó đã chỉ sẵn dạng nghiệm: một marker, hai bên cùng rút,
+> ca round-trip. Bốn cổng riêng cho một dạng nghiệm là bốn lần hỏi người cho một
+> lần quyết. Nội dung ô này giữ nguyên làm sử liệu.
 
 ## Vì sao đáng làm — người hưởng cụ thể
 

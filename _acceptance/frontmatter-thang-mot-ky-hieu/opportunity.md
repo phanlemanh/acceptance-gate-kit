@@ -3,10 +3,10 @@ schema_version: 1
 slug: frontmatter-thang-mot-ky-hieu
 feature: Bộ đọc frontmatter cắt phần sau « #» làm ghi chú — tên hồ sơ có dấu thăng hiện cụt trên bản đồ và thẻ mà phép kiểm bản đồ vẫn xanh
 owner: phanlemanh@gmail.com
-stage: discovery            # discovery | decided | archived
-decision:              # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: decided
+decision: park
+decided_by: Mạnh
+decided_at: 2026-09-16T02:19:29Z
 prototype:
   base_commit:
   disposition:
@@ -27,6 +27,15 @@ ký — đọc một cái tên cụt trên đúng thẻ mình sắp ký; và m�
 số PR/issue trong `feature:`. Mốc 2.9.0 đã sửa CHỮ (viết «PR 146»), chưa sửa
 bộ đọc. Lớp lỗi: bên VIẾT và bên ĐỌC trôi khỏi nhau (CLAUDE.md, «thước phải gắn
 vào vật được giao», hình dạng 3).
+
+
+> **ĐÃ GỘP 2026-09-16 (Mạnh) — đề bài dời trọn vào ô `mot-khuon-cho-ben-viet-va-ben-doc`.**
+>
+> Bốn ô cùng MỘT lớp — nguyên văn hình dạng (3) trong `CLAUDE.md`: *«bên VIẾT
+> và bên ĐỌC của một artifact trôi khỏi nhau vì mọi test tự dựng fixture đúng
+> khuôn bên đọc»*. Luật đó đã chỉ sẵn dạng nghiệm: một marker, hai bên cùng rút,
+> ca round-trip. Bốn cổng riêng cho một dạng nghiệm là bốn lần hỏi người cho một
+> lần quyết. Nội dung ô này giữ nguyên làm sử liệu.
 
 ## Giả định chốt sinh tử
 

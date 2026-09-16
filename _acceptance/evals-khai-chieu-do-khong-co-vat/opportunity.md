@@ -3,10 +3,10 @@ schema_version: 1
 slug: evals-khai-chieu-do-khong-co-vat
 feature: evals.yaml khai chiều đỏ mà tệp ca không có mũi tiêm nào — lời khai không có vật
 owner: phanlemanh@gmail.com
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: park
+decided_by: Mạnh
+decided_at: 2026-09-16T02:19:29Z
 ---
 
 ## Vấn đề & ai gặp
@@ -24,6 +24,16 @@ này nói mạnh hơn sự thật.
 
 **Phát hiện ở:** vòng `cong-nguoi-doc-du-nguon` lượt chấm 8, định đoạt Ngoài-8 tại
 Cổng Bằng chứng 13/09/2026.
+
+
+> **ĐÃ GỘP 2026-09-16 (Mạnh) — đề bài dời trọn vào ô `chieu-do-xanh-vi-ban-tiem-sap`.**
+>
+> Hai ô là hai mặt của một lớp «lời khai mạnh hơn vật»: ở đây `evals.yaml` hứa
+> một mũi tiêm mà tệp ca không có; ở ô kia mũi tiêm có nhưng bản tiêm SẬP. Cả
+> hai chữa bằng cùng một phép — quét cả tệp, đối chiếu lời khai với vật.
+>
+> Ô này không cần ô cụm mới: `chieu-do-xanh-vi-ban-tiem-sap` vốn đã tự khai là
+> ô LỚP. Nội dung ô này giữ nguyên làm sử liệu.
 
 ## Ngả sửa (chưa quyết)
 

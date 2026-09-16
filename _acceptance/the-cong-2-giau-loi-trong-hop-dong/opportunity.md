@@ -3,10 +3,10 @@ schema_version: 1
 slug: the-cong-2-giau-loi-trong-hop-dong
 feature: Thẻ Cổng 2 không có làn nào cho lỗi TRONG hợp đồng chưa sửa — nó im lặng, và thẻ vẫn ghi "Bằng chứng đầy đủ"
 owner: phanlemanh@gmail.com
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: park
+decided_by: Mạnh
+decided_at: 2026-09-16T02:19:29Z
 ---
 
 ## Vấn đề & ai gặp
@@ -37,6 +37,14 @@ thì không có gì bắt.
 **Ca thật đo được:** kho `crm-onehub`, hồ sơ `tiep-thi-tuyen-doi-tac`, thẻ dựng
 2026-09-05 ở commit `6abfc19` bằng kit 2.8.0. Lỗi bị giấu: «Lỗi giữa lô nạp trả 500
 trắng và để lại phần đã ghi», `severity: medium`, `AC: AC-3`.
+
+
+> **ĐÃ GỘP 2026-09-16 (Mạnh) — đề bài dời trọn vào ô `phat-hien-den-duoc-nguoi-ky`.**
+>
+> Ba ô cùng MỘT lớp: làn rà soát nói một đằng, thứ người ký đọc nói một nẻo.
+> Hiến pháp kit đòi sửa theo LỚP («quét cả file tìm mọi case cùng hình dạng,
+> đừng chỉ vá case bị nêu tên»), nên chẻ nó thành ba cổng là ba lần hỏi người
+> cho một lần quyết. Nội dung ô này giữ nguyên làm sử liệu.
 
 ## Ngả sửa (chưa quyết)
 

@@ -3,10 +3,10 @@ schema_version: 1
 slug: de-xuat-tieng-viet-khong-doc-duoc
 feature: Thẻ Cổng 2 in nút bằng tiếng Việt nhưng chỉ đọc được từ khoá tiếng Anh trong «Đề xuất:» — người viết đúng chữ trên nút thì thẻ báo không đọc được
 owner: phanlemanh@gmail.com
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: park
+decided_by: Mạnh
+decided_at: 2026-09-16T02:19:29Z
 ---
 
 ## Vấn đề & ai gặp
@@ -44,6 +44,14 @@ một việc riêng» và điền sẵn «Ngoài-1: mở hợp đồng mới».
 Cũng vướng: `sửa ngay` — chữ khớp nút «nâng phạm vi sửa ngay» — không nằm trong bộ
 từ nhận. Ba mục dùng nó trong cùng hồ sơ, nhưng đều ở section `## Trong hợp đồng`
 nên thẻ không render, và lỗi ẩn luôn.
+
+
+> **ĐÃ GỘP 2026-09-16 (Mạnh) — đề bài dời trọn vào ô `phat-hien-den-duoc-nguoi-ky`.**
+>
+> Ba ô cùng MỘT lớp: làn rà soát nói một đằng, thứ người ký đọc nói một nẻo.
+> Hiến pháp kit đòi sửa theo LỚP («quét cả file tìm mọi case cùng hình dạng,
+> đừng chỉ vá case bị nêu tên»), nên chẻ nó thành ba cổng là ba lần hỏi người
+> cho một lần quyết. Nội dung ô này giữ nguyên làm sử liệu.
 
 ## Ngả sửa (chưa quyết)
 

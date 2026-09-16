@@ -3,10 +3,10 @@ schema_version: 1
 slug: xanh-sach-doc-nham-mat
 feature: Luật xanh-sạch đọc mục «Ngoài hợp đồng» của BÁO CÁO, không đọc làn phản biện — hồ sơ có 13 phát hiện vẫn qua như sạch
 owner: phanlemanh@gmail.com
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: park
+decided_by: Mạnh
+decided_at: 2026-09-16T02:19:29Z
 ---
 
 ## Vấn đề & ai gặp
@@ -40,6 +40,14 @@ chứng tự đứng vững. Ở đây bằng chứng KHÔNG tự đứng vững
 Đối xứng với chip `the-cong-2-giau-loi-trong-hop-dong` (thẻ không có làn cho lỗi
 TRONG hợp đồng chưa sửa). Chip này là mặt kia: **báo cáo rỗng trong khi làn phản
 biện đầy**, và hậu quả nặng hơn vì nó chạm chính điều kiện đi-tiếp-không-người.
+
+
+> **ĐÃ GỘP 2026-09-16 (Mạnh) — đề bài dời trọn vào ô `phat-hien-den-duoc-nguoi-ky`.**
+>
+> Ba ô cùng MỘT lớp: làn rà soát nói một đằng, thứ người ký đọc nói một nẻo.
+> Hiến pháp kit đòi sửa theo LỚP («quét cả file tìm mọi case cùng hình dạng,
+> đừng chỉ vá case bị nêu tên»), nên chẻ nó thành ba cổng là ba lần hỏi người
+> cho một lần quyết. Nội dung ô này giữ nguyên làm sử liệu.
 
 ## Ngả sửa (chưa quyết)
 

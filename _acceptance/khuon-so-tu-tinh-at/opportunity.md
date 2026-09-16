@@ -3,10 +3,10 @@ schema_version: 1
 slug: khuon-so-tu-tinh-at
 feature: Khuôn ghi sổ quyết định tự tính cả trường `at` — người/máy chỉ điền phần chữ, mọi trường thời gian do shell sinh
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided
+decision: kill
+decided_by: Mạnh
+decided_at: 2026-09-16T02:19:29Z
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -26,6 +26,20 @@ thời gian làm-xong→quyết-được của luật (c)) — số sai mà khô
 
 **Trace:** nguyên tố 2 (bằng chứng không tự dối). Không CỘNG bộ phận mới — sửa khuôn
 đang có để trường thời gian đi cùng đường với `id`.
+
+
+> **ĐÃ BÁC 2026-09-16 (Mạnh) — đúng, nhưng nghi thức đắt gấp nhiều lần vật.**
+>
+> Bác CÁI Ô, không bác cái lỗi. Phát hiện vẫn đúng: khuôn `DEC-ID-RECIPE` tự
+> tính `id` nhưng vẫn bắt gõ tay `at`, và bằng chứng thực địa (hai dòng sổ
+> S4-r1 của `ma-so-quyet-dinh-duy-nhat` lệch giây thật) vẫn đứng.
+>
+> Nhưng đặt hai câu của lượt rà 16/09: **người dùng kit được gì** — mốc trong sổ
+> của chính họ đúng; **mất gì nếu không làm** — lệch vài phút, trong một trường
+> ít ai đọc. Đổi lấy một Cổng Đáng, một vòng, ba lượt gọi người.
+>
+> Sửa đúng tầng: **miễn trừ T1** — sửa một khuôn chữ trong SKILL, không chạm
+> hành vi máy nào khác. Làm ở đợt kế.
 
 ## Giả định chốt sinh tử
 

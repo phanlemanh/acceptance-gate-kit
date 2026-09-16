@@ -3,10 +3,10 @@ schema_version: 1
 slug: bo-giai-nuot-chu-thich-yaml
 feature: Bộ giải evals.yaml nuốt chú thích YAML trên `status: not-run` — lời khai của tác giả bị bỏ lặng
 owner: phanlemanh@gmail.com
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: park
+decided_by: Mạnh
+decided_at: 2026-09-16T02:19:29Z
 ---
 
 ## Vấn đề & ai gặp
@@ -35,6 +35,15 @@ với thông điệp về một eval trượt, không phải về lời khai b�
 
 **Phát hiện ở:** vòng `cong-nguoi-doc-du-nguon` lượt chấm 8, định đoạt Ngoài-5 tại
 Cổng Bằng chứng 13/09/2026.
+
+
+> **ĐÃ GỘP 2026-09-16 (Mạnh) — đề bài dời trọn vào ô `mot-khuon-cho-ben-viet-va-ben-doc`.**
+>
+> Bốn ô cùng MỘT lớp — nguyên văn hình dạng (3) trong `CLAUDE.md`: *«bên VIẾT
+> và bên ĐỌC của một artifact trôi khỏi nhau vì mọi test tự dựng fixture đúng
+> khuôn bên đọc»*. Luật đó đã chỉ sẵn dạng nghiệm: một marker, hai bên cùng rút,
+> ca round-trip. Bốn cổng riêng cho một dạng nghiệm là bốn lần hỏi người cho một
+> lần quyết. Nội dung ô này giữ nguyên làm sử liệu.
 
 ## Ngả sửa (chưa quyết)
 
