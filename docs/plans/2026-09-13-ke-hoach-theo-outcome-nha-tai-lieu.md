@@ -193,7 +193,7 @@ lên 10, rồi 15 ở lượt 1b»). Và cửa sổ 2.13 → 2.14 đã có **hai
 **Đọc tại mốc 2.14.0 (15/09):** tìm-lỗi **75,4 %** (vòng A) — vẫn > 60 %; cửa sổ hai
 vòng meta, ≈ 199,9 M token, 0 vòng sản phẩm ở kho tiêu thụ. Đề xuất cửa sổ
 2.14 → 2.15 = **0 vòng meta mới, đo ở kho tiêu thụ trước** — router chờ số 4b từ đó
-(`docs/findings/2026-09-15-dieu-chinh-sau-2-14-token-va-vong-meta.md`).
+(`docs/findings/2026-09-15-dieu-chinh-sau-2-14-token-va-vong-meta.md`). **Owner chốt R 16/09.** Router: sớm nhất **2.15 → 2.16**, điều kiện tìm-lỗi ≤ 60 % đo ở kho tiêu thụ.
 
 **Vì sao không làm gì thêm cho token ngay bây giờ ở tầng engine:** vòng token đang
 chạy là vòng meta duy nhất của cửa sổ; chèn việc engine thứ hai là vi phạm (b) và

@@ -71,8 +71,21 @@ không lệnh; biến «tối đa một» từ lời dặn thành số trên th�
 (nhiều ô đã chín, phiên đang chạy còn đà) ↔ *sản phẩm ship* (0 tính năng tới tay
 người dùng hai cửa sổ qua). Khuyến nghị **R**. Trả lời một chữ; máy dịch thành hồ sơ.
 
+**Owner trả lời 16/09: đồng ý R.** Hệ quả máy dịch:
+
+- Cửa sổ 2.14 → 2.15: **0 vòng meta mới**. Ba ô (`nha-tai-lieu-router` ·
+  `bo-qua-phai-thay-dinh-nghia-phep-do` · `mot-nguon-usage-report`) giữ discovery/draft;
+  phiên «Token consumption optimization» được nhắn theo sessionId.
+- R1 cần một quyết định chỉ owner có: **repo và tính năng nào** chạy vòng sản phẩm
+  đầu trên 2.14.0 — khuyến nghị OneFlow hàng ★ kế (`skill-system-v1`, B5 của plan-freeze),
+  vì nó có sẵn khối kế hoạch máy đọc và hai phiên nghiệm thu đã `held`.
+- R2 (hai mục T1) và R3 (khai 70 hồ sơ tụt pin là sử liệu) ghi vào hồ sơ mốc
+  `release-2-15-0` khi mở — không làm lẻ giữa cửa sổ.
+- Hạt giống §4 («vòng meta đang mở: N» trên thẻ start) tạo khi cây rảnh — răng VC8
+  đòi kèm ô + vẽ lại bản đồ, mà bản đồ đang bị phiên khác sửa dở.
+
 ## Trạng thái
 
-Viết 15/09 sau khi 2.14.0 ký. Chưa hành động. Phiên «Token consumption optimization»
+Viết 15/09 sau khi 2.14.0 ký; owner chốt R 16/09. Phiên «Token consumption optimization»
 đang chạy trên cùng cây (mở ô `mot-nguon-usage-report`, sửa dở `PRODUCT-MAP.md`) — file
 này không chạm gì của phiên đó.
