@@ -5,7 +5,7 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>20 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>21 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>11 việc"]
   GD --> DB["Đã bác từ khám phá<br/>10 việc"]
@@ -40,6 +40,7 @@ flowchart TD
 - Chạy lưới trước-merge đúng như CI — trên cây đã gộp nhánh chính, có base — TRƯỚC khi mở PR, để CI không là nơi đầu tiên phát hiện (`premerge-nhu-ci-truoc-khi-mo-pr`)
 - T1 tuyên-kèm-căn-cứ — máy tuyên T1 với bảng căn cứ, không dừng hỏi (`t1-tuyen-kem-can-cu`)
 - Thẻ Cổng Phạm vi phải nói đúng «hệ thống sẽ làm gì» — hôm nay nó xếp tiêu chí bằng cách dò chữ «không» trong vế Then, nên hồ sơ càng viết đúng luật khai-chiều-đỏ càng bị đọc thành «hệ thống không làm gì» (`the-xep-nham-o-se-lam`)
+- Thước có cửa — đổi thước trong vòng có tên, có đếm, có trần như «Ngoài hợp đồng» đã có; thêm trục đỉnh-có-sẵn ở S0 (vật trước vòng · tiền đề tách khỏi tiêu chí) để giá trị mới trên vật có sẵn không thành vòng sửa thước mặc áo hợp đồng vật (`thuoc-co-cua`)
 - Phát hiện rà soát KHÔNG lật verdict — verdict chỉ đỏ khi phép đo hoặc lệnh suite đỏ; phát hiện lên thẻ kèm bán kính, người quyết (`thuoc-khong-lat-verdict`)
 - Việc kế theo plan và hạt giống — kit đọc ý định của repo, không giữ, không sửa (`viec-ke-theo-plan`)
 - Ý định có nhà riêng — cửa vào và cửa ra không cần người ngồi phiên; tách viết ý định khỏi ký; Cổng Đáng có lệnh ký; ngưỡng UAT thành băng sau phát hành; ba số cho nguyên tố 1 (`y-dinh-co-nha-rieng`)
