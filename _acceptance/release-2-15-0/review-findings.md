@@ -1,12 +1,12 @@
 ## Trong hợp đồng
 
-_Không có phát hiện nào khớp trực tiếp với một AC trong vòng này._
+(không có phát hiện trong hợp đồng ở round này.)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Shape 6 (đo cây khác cây đang kiểm): chốt cây bẩn bỏ qua cả `_acceptance/`, nhưng răng lại đọc suite_keys và tập hồ sơ đã thông cổng từ `_acceptance/` của worktree tại HEAD**
+- **Shape 6 (đo cây khác cây đang kiểm): chốt cây bẩn bỏ qua cả `_acceptance/`, nhưng răng lại đọc suite_keys và tập hồ sơ đã thông cổng từ `_acceptance/` của worktree tại HEAD (r2)**
   Người dùng thấy gì: Nếu ai đó sửa file cấu hình _acceptance/config.yaml mà chưa commit, phép kiểm 'cây đang chấm có sạch không' sẽ không nhận ra, khiến kết quả có thể được tính từ một bộ cấu hình khác với bộ đang thực sự được đánh giá.
   file: `_acceptance/release-2-15-0/rang-chup-cay-that.mjs`
   severity: medium
