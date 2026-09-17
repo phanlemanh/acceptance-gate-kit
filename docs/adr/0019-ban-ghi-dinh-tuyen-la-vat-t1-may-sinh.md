@@ -38,3 +38,30 @@ bước 7b — hồ sơ `duong-lui-phai-song`, hai mốc liên tiếp trả 5 CI
 trước soi sau — **không mất răng**: cây đổi thì vị từ khác rỗng và làn chạy trọn như cũ.
 **ĐIỀU KIỆN THU HỒI:** ngày LM20 thôi canh tệp này, hoặc dòng của nó được viết tay trở
 lại, thì dòng glob phải GỠ trong cùng PR — điều kiện ghi kèm ngay tại `config.yaml`.
+
+**Bổ sung 17/09 (hồ sơ `thuoc-co-cua` AC-3…AC-5, gộp hồ sơ draft
+`bo-qua-phai-thay-dinh-nghia-phep-do`).** Vị từ bỏ qua nay KHÔNG còn trùng khít
+`stale_files`: hai câu hỏi khác nhau. `stale_files` hỏi «bằng chứng có hoá cũ không»,
+nên loại trừ vật hồ sơ là đúng; làn hỏi «có cần chạy lại phép đo không», nên
+`_acceptance/config.yaml` và `evals.yaml` của từng slug đang ghim là ĐẦU VÀO — đổi một
+trong hai thì làn KHÔNG bỏ qua và gọi tên tệp. Tập tệp ấy suy từ chính đường làn đã đọc,
+không gõ tay. Hai giới hạn còn lại được khai dưới đây, mỗi cái kèm một ngưỡng đang đếm;
+phép đo `DN5` (`tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs`) đỏ khi một lời khai
+mất tiêu đề hoặc mất dòng ngưỡng.
+
+### Giới hạn đã khai: tệp chưa theo dõi
+
+`git diff --name-only <pin>` không thấy tệp chưa `git add`: một script mới mà suite hay
+eval gọi tới, nằm trong cây làm việc nhưng chưa theo dõi, không làm vị từ khác rỗng, nên
+làn vẫn bỏ qua. `stale_files` được miễn vế này vì CI chạy trên cây đã commit; làn trước
+chữ ký thì chạy trên cây làm việc với `--allow-dirty`, nên vế này là của riêng nó.
+
+Ngưỡng đang đếm: ≥1 lần làn bỏ qua trong khi cây làm việc có tệp chưa theo dõi mà một lệnh suite hoặc eval của hồ sơ gọi tới, giữa hai bản phát hành — thì mở vòng đưa tệp chưa theo dõi vào vị từ.
+
+### Giới hạn đã khai: lệch glob bash/JS
+
+Vị từ T1 phía bash (`case`, dấu sao xuyên `/`) và phía JS (`globToRe`, dấu sao không
+xuyên `/`) chỉ đồng nghĩa trên danh sách T1 hiện tại; lệch chỉ có thể xuất hiện ở glob
+một tầng dạng `dir/` theo sau một dấu sao.
+
+Ngưỡng đang đếm: ≥1 lần làn bỏ qua sai vì một glob một tầng như vậy, giữa hai bản phát hành — thì mở vòng đưa hai vị từ về một nguồn.

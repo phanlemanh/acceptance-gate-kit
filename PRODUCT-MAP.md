@@ -8,8 +8,8 @@ flowchart TD
   A["Đang cân nhắc cơ hội<br/>21 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>1 việc"]
   GD --> XL["Xếp lại sau<br/>11 việc"]
-  GD --> DB["Đã bác từ khám phá<br/>10 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
+  GD --> DB["Đã bác từ khám phá<br/>11 việc"]
+  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>4 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>61 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>10 việc"] --> GG{"Cổng Giá trị"}
@@ -48,10 +48,6 @@ flowchart TD
 ## Sắp mở vòng
 
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
-
-## Chờ duyệt phạm vi
-
-- Vị từ bỏ qua phải THẤY định nghĩa phép đo — _acceptance/config.yaml và evals.yaml là ĐẦU VÀO của làn, không phải vật hồ sơ (`bo-qua-phai-thay-dinh-nghia-phep-do`)
 
 ## Đang làm
 
@@ -154,6 +150,7 @@ flowchart TD
 ## Đã bác từ khám phá
 
 - Bản đồ dính commit chữ ký, không đi sau (`ban-do-dinh-chu-ky`)
+- Vị từ bỏ qua phải THẤY định nghĩa phép đo — _acceptance/config.yaml và evals.yaml là ĐẦU VÀO của làn, không phải vật hồ sơ (`bo-qua-phai-thay-dinh-nghia-phep-do`) — đã đóng có hồ sơ
 - Bậc 3 của lái-thử cho bề mặt AGENT — bản tham chiếu `vlm-assert` chỉ phục vụ frame UI, ván agent không có con mắt thứ hai (`con-mat-thu-hai-lai-thu`)
 - Dọn tồn kho PR — danh sách PR mở phải nói đúng việc đang chạy, không phải kho hàng cũ (`don-ton-kho-pr`)
 - Hỏi-theo-mặt-phẳng — câu hỏi là thứ người bấm được, không phải khuôn chữ (`hoi-theo-mat-phang`)
