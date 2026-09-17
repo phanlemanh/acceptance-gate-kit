@@ -189,6 +189,29 @@ function khoHaiLuot() {
   } catch (e) { bad('TV8 loi', loi(e)); }
 }
 
+// ── TV9 (S4-r2, finding trong hợp đồng AC-11, owner trả lại 17/09): mốc sàn đọc trường status
+//    bằng CÙNG bộ đọc frontmatter của các cổng (lib/evidence-core.cjs frontmatterField) — hợp đồng
+//    xuống dòng CRLF, hoặc có dòng trống trước `---`, vẫn cho mốc sàn là commit lật và nhát đúng.
+//    Bộ đọc tự viết của nhát sửa lượt 1 trả «chưa có mốc sàn», nhát 0 — trần im lặng.
+for (const [ten, bienDoi] of [['CRLF', t => t.replace(/\r?\n/g, '\r\n')], ['dong trong dau tep', t => '\n' + t]]) {
+  try {
+    const { d } = moiKho(['vat']);
+    const hd = path.join(d, TEP.hopDong);
+    writeFileSync(hd, bienDoi(readFileSync(hd, 'utf8')));
+    git(d, 'add', '-A'); git(d, 'commit', '-qm', `hop dong ${ten}`);
+    const f = readFileSync(hd, 'utf8');
+    if (!f.includes('status: draft')) throw new Error('fixture: hop dong mat status: draft');
+    writeFileSync(hd, f.replace('status: draft', 'status: implemented'));
+    git(d, 'add', '-A'); git(d, 'commit', '-qm', 'lat implemented');
+    const lat = git(d, 'rev-parse', 'HEAD');
+    buoc(d, 'thuoc'); buoc(d, 'thuoc'); buoc(d, 'thuoc');
+    const dem = demJson(SCRIPT, d);
+    if (dem.san !== lat) bad(`TV9 ${ten}: moc san phai la commit lat, khong phai ${dem.san}`, dem.ghiChu || '');
+    else if (dem.nhat !== 3) bad(`TV9 ${ten}: ba commit thuoc sau moc san phai la 3 nhat`, `nhat ${dem.nhat}`);
+    else ok(`TV9 ${ten} — moc san la commit lat, nhat 3 (cung bo doc frontmatter voi cong)`);
+  } catch (e) { bad(`TV9 ${ten} loi`, loi(e)); }
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (thuoc-vat)`);
 process.exit(fail ? 1 : 0);

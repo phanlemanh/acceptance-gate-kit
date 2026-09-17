@@ -434,7 +434,7 @@ function thongDiepTran(dem, slug) {
   ].join('\n');
 }
 const dem = (() => {
-  try { return demThuocVat({ root, slug: flags.slug, t1SkipGlobs }); }
+  try { return demThuocVat({ root, slug: flags.slug, t1SkipGlobs, frontmatterField }); }
   catch (e) { return die(`bộ đếm nhát sửa thước lỗi: ${String((e && (e.stderr || e.message)) || e).split('\n')[0]}`); }
 })();
 if (dem.nhat >= TRAN_NHAT) { console.error(thongDiepTran(dem, flags.slug)); process.exit(4); }

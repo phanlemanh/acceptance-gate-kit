@@ -45,17 +45,15 @@ function laToTien(root, a, b) {   // a có phải tổ tiên (hoặc bằng) b k
 }
 
 // Mốc sàn: null khi hợp đồng chưa từng implemented.
-function timMocSan(root, slug) {
+// `docTruong` = frontmatterField của lib/evidence-core.cjs — CÙNG bộ đọc frontmatter mà các cổng
+// dùng (dòng trống đầu tệp, CRLF, nháy theo cặp). Bộ đọc tự viết của nhát sửa lượt 1 lệch nó ở
+// CRLF và dòng trống đầu tệp, trả «chưa có mốc sàn» và trần im lặng (S4-r2, owner trả lại 17/09).
+function timMocSan(root, slug, docTruong) {
+  if (typeof docTruong !== 'function') throw new Error('demThuocVat can frontmatterField cua lib/evidence-core.cjs — KHONG tu doc frontmatter');
   const hopDongRel = `_acceptance/${slug}/contract.md`;
-  // Đọc TRƯỜNG `status` của frontmatter ở từng commit chạm hợp đồng, theo thứ tự thời gian —
-  // không `git log -S` trên cả văn: hợp đồng hay nhắc chuỗi «status: implemented» trong tiêu chí
-  // từ S1, và khi đó mốc sàn rơi về S1, mọi commit TDD thành nhát (S4-r1, finding AC-11).
-  const truongStatus = txt => {
-    const m = String(txt || '').match(/^---\n([\s\S]*?)\n---/);
-    if (!m) return '';
-    const d = m[1].match(/^status:[ \t]*([^#\n]*)/m);
-    return d ? d[1].trim().replace(/^["']|["']$/g, '').toLowerCase() : '';
-  };
+  // Đọc TRƯỜNG `status` ở từng commit chạm hợp đồng, theo thứ tự thời gian — không `git log -S`
+  // trên cả văn: hợp đồng hay nhắc chuỗi trạng thái trong tiêu chí từ S1 (S4-r1, finding AC-11).
+  const truongStatus = txt => String(docTruong(String(txt || ''), 'status') || '').toLowerCase();
   const implemented = gitLines(root, ['log', '--reverse', '--format=%H', '--', hopDongRel])
     .find(h => truongStatus(gitTry(root, ['show', `${h}:${hopDongRel}`])) === 'implemented') || null;
   if (!implemented) return null;
@@ -74,9 +72,9 @@ function timMocSan(root, slug) {
   return laToTien(root, implemented, van) ? van : implemented;
 }
 
-export function demThuocVat({ root, slug, t1SkipGlobs = [] }) {
+export function demThuocVat({ root, slug, t1SkipGlobs = [], frontmatterField }) {
   const lop = f => phanLoai(f, { t1SkipGlobs });
-  const san = timMocSan(root, slug);
+  const san = timMocSan(root, slug, frontmatterField);
   if (!san) {
     return { san: null, ghiChu: 'chua co moc san (hop dong chua tung implemented)', vat: [0, 0], thuoc: [0, 0], hoSo: [0, 0], nhat: 0, lan: 0, tepThuoc: [] };
   }
@@ -163,11 +161,9 @@ if (isMain) {
   const ws = path.join(root, '_acceptance', slug);
   const runLogPath = path.join(ws, 'run-log.jsonl');
 
-  // t1_skip_globs qua CÙNG bộ đọc config với s4-args (resolveConfigList của acceptance-gate).
-  const t1SkipGlobs = (() => {
-    let configText;
-    try { configText = fs.readFileSync(path.join(root, '_acceptance', 'config.yaml'), 'utf8'); }
-    catch { return []; }   // repo không có config → không lời khai ngoài
+  // MỘT lần nạp lib/evidence-core.cjs cho cả hai việc: t1_skip_globs (resolveConfigList, cùng bộ
+  // đọc config với s4-args) và trường status của hợp đồng (frontmatterField, cùng bộ đọc với cổng).
+  const core = (() => {
     let agRoot = flags['ag-root'];
     if (!agRoot) {
       const tuHost = path.resolve(HERE, '..', '..');
@@ -180,9 +176,16 @@ if (isMain) {
       }
     }
     const corePath = path.join(agRoot, 'lib', 'evidence-core.cjs');
-    let core;
-    try { core = createRequire(import.meta.url)(corePath); } catch (e) { die(`không nạp được ${corePath}: ${String(e.message).split('\n')[0]}`); }
-    if (typeof core.resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0)');
+    let c;
+    try { c = createRequire(import.meta.url)(corePath); } catch (e) { die(`không nạp được ${corePath}: ${String(e.message).split('\n')[0]}`); }
+    if (typeof c.resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0)');
+    if (typeof c.frontmatterField !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có frontmatterField');
+    return c;
+  })();
+  const t1SkipGlobs = (() => {
+    let configText;
+    try { configText = fs.readFileSync(path.join(root, '_acceptance', 'config.yaml'), 'utf8'); }
+    catch { return []; }   // repo không có config → không lời khai ngoài
     try { const v = core.resolveConfigList(configText, 'risk_tiers.t1_skip_globs'); return Array.isArray(v) ? v : []; }
     catch { return []; }
   })();
@@ -224,7 +227,7 @@ if (isMain) {
   }
 
   let dem;
-  try { dem = demThuocVat({ root, slug, t1SkipGlobs }); }
+  try { dem = demThuocVat({ root, slug, t1SkipGlobs, frontmatterField: core.frontmatterField }); }
   catch (e) { die(`lệnh git thất bại: ${String(e.stderr || e.message).split('\n')[0]}`); }
 
   if (flags.write) {
