@@ -44,6 +44,22 @@
 
 Làn A = Task 1 → 3 → 4 → 5 (cùng chạm `s4-args.mjs`, tuần tự TRONG làn). Làn B = Task 2 → 6 (cùng chạm `acceptance-verify.js`). Làn C = Task 7. Làn D = Task 8. Bốn làn không chung tệp nào.
 
+### Làn A: bộ sinh args, module phân loại, bộ đếm, trần
+
+Làm LẦN LƯỢT bốn section «Task 1», «Task 3», «Task 4», «Task 5» ở dưới, đúng thứ tự ấy, mỗi task một commit với thông điệp ghi trong task. Đọc trước mục «Global Constraints». Xong cả bốn mới báo done; `commitSha` là commit của Task 5.
+
+### Làn B: workflow lượt chấm
+
+Làm LẦN LƯỢT hai section «Task 2» rồi «Task 6» ở dưới, mỗi task một commit. Đọc trước mục «Global Constraints». `commitSha` là commit của Task 6.
+
+### Làn C: đường nền hạ tầng
+
+Làm section «Task 7» ở dưới. Đọc trước mục «Global Constraints».
+
+### Làn D: làn ghim lại thấy định nghĩa phép đo
+
+Làm section «Task 8» ở dưới. Đọc trước mục «Global Constraints».
+
 ### Task 1: Bộ sinh args nghe lời khai không-chạy — làn A · `independent: true` · phục vụ E1
 
 **Files:**
