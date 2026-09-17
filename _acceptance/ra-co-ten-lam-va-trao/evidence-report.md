@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9ddcd021db8e6cc272ed056bf680c3ded2d6f8b5
+verified_commit: bcd0f16637698b795fee63fe565af3941a325552
 human_signoff: Manh 2026-08-25
 ---
 
@@ -294,3 +294,7 @@ sha: 9d0696c1569f6858753a7d53e393140bbd3cc2fe · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 10 — 2026-09-16, do hợp đồng thêm hai dòng khai gạch cho răng chụp hồ sơ đã thông cổng (d-20260916T163210Z-35)
 run_id: repin-20260916T165731Z-77184
 sha: 9ddcd021db8e6cc272ed056bf680c3ded2d6f8b5 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 11 — 2026-09-16, do ghim lại sau veto d-20260916T163210Z-35: hợp đồng về bản đã ký, sổ thêm dòng veto
+run_id: repin-20260916T185105Z-10142
+sha: bcd0f16637698b795fee63fe565af3941a325552 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
