@@ -363,6 +363,20 @@ Mang kết quả xanh của lượt trước sang lượt sau thay vì chạy l�
 trong báo cáo và gói trình người.
 _Avoid_: "cache" (gợi ý máy tự lo, giấu người).
 
+**Nhát sửa thước**:
+Một commit SAU khi hợp đồng đã sang `implemented` chạm phép đo (ca kiểm, `evals.yaml`,
+executors, script đo) mà KHÔNG chạm vật. Commit chạm cả hai (sửa vật kèm ca hồi quy) là
+«lẫn», không phải nhát; commit S3 trước mốc `implemented` không bao giờ là nhát. Git đếm,
+sổ chỉ ghi lớp; từ 3 nhát bộ sinh args dừng với ba lối (thuoc-co-cua, 17/09).
+_Avoid_: "lần vá", "patch" (không phân biệt thước với vật).
+
+**Đường nền hạ tầng**:
+Phép kiểm hạ tầng đo chạy ở đầu vòng, trên cây chưa đụng, bằng script không LLM: công cụ
+của executor có trên máy · các lệnh suite chạy một lần tuần tự và cây còn sạch · lưới
+trước-merge như CI · ba bản bộ máy. Đỏ ở đây không phải lỗi của vòng; kết quả vào gói Cổng
+Phạm vi (`duong-nen.md`).
+_Avoid_: "baseline" trần (chữ ấy đã chỉ dòng `kind: baseline` của run-log).
+
 **kind:panel**:
 Dòng biên bản hội đồng trong sổ chạy của máy — ghi mỗi giám khảo bỏ phiếu gì và
 đòi thêm bằng chứng nào. Nguồn của báo cáo "các giám khảo đồng thuận tới đâu".
