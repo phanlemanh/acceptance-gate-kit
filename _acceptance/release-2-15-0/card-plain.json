@@ -1,0 +1,167 @@
+{
+  "feature_plain": "Người dùng kit nhận bản 2.15.0: thẻ mở phiên thôi mời viết lại code cho việc đã chạy trên nhánh gốc, lượt ghim lại dừng khi một phép đo ghi đè bằng chứng đã ký, dòng /goal thôi chặn hai kiểu dừng hợp lệ, và kho kit thấy số vòng meta đang mở ngay trên thẻ.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ phát hành hai gói cùng một số 2.15.0, nhất quán ở mọi chỗ người dùng đọc số, và số chắc chắn đã tăng."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ xếp hồ sơ «đã duyệt» mà việc đã nằm trong nhánh gốc vào một dòng riêng, không mời viết code."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ giữ nguyên nhãn cũ khi máy chưa đủ căn cứ nói việc đã ở nhánh gốc — chưa biết không in thành đã biết."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ chứng phép đo sống: gỡ phép hỏi lịch sử trong bản sao thì kết luận lật lại."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ làm lượt ghim lại đỏ và gọi tên tệp khi một phép đo chạm bằng chứng đã ký, và chứng nó im trên chính kho kit."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ giữ hai trạng thái «đã thông cổng» ở đúng một chỗ trong bộ máy, không bản chép, không miễn trừ trong hồ sơ đã ký."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ in trên thẻ mở phiên của kho kit số vòng meta đang mở kèm tên, và gắn cờ khi từ hai vòng trở lên."
+    },
+    {
+      "id": "AC-13",
+      "p": "Sẽ sửa dòng /goal để máy dừng chờ người gỡ một tiền đề, hoặc chờ người chọn lối, không còn bị chặn lặp lại — dừng không nêu lý do vẫn bị chặn."
+    },
+    {
+      "id": "AC-10",
+      "p": "Sẽ chạy lại trọn bốn bộ kiểm thử và bản đồ sản phẩm để chắc không làm trôi thứ gì."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-2",
+      "p": "Sẽ KHÔNG đổi số gói vẽ sơ đồ — nó không đổi một dòng, máy chứng bằng cửa sổ thay đổi."
+    },
+    {
+      "id": "AC-12",
+      "p": "Sẽ KHÔNG để hai lời khai về cửa sổ (lớp CI không đổi · danh sách vòng meta) dựa vào trí nhớ — máy đếm theo kho."
+    }
+  ],
+  "scope_plain": "Không chạy chiến dịch ghim lại, không mở vòng thước có cửa, chưa có trạng thái xếp lại cho vòng, chưa chụp cây hồ sơ ở lượt chấm và CI.",
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Mọi chỗ người dùng đọc số phiên bản đều được soi, cộng vế số phải tăng (AC-1 cắt số)."
+    },
+    {
+      "i": 1,
+      "p": "Hai gói lên số, gói thứ ba giữ số có căn cứ (AC-1, AC-2 giữ số)."
+    },
+    {
+      "i": 2,
+      "p": "Bốn việc đã vào cửa sổ mỗi việc có tiêu chí riêng, và danh sách vòng meta được máy đối chiếu với kho (AC-3 đến AC-9, AC-12)."
+    },
+    {
+      "i": 3,
+      "p": "Nhát vá thẻ mở phiên được thử đủ ba chiều: có hay không tệp bằng chứng, việc đã merge hay chưa, hồ sơ ở nấc nào (AC-3, AC-4)."
+    },
+    {
+      "i": 4,
+      "p": "Răng chụp hồ sơ được thử đủ các kiểu chạm trên hai loại hồ sơ đã thông cổng, cộng chiều im trên kho thật (AC-7)."
+    },
+    {
+      "i": 5,
+      "p": "Dòng đếm vòng meta được thử đủ bốn điều kiện đếm và ca máy chưa biết (AC-9)."
+    },
+    {
+      "i": 6,
+      "p": "Việc của chính mốc: hồi quy, năm dòng số, hai lời khai về cửa sổ (AC-10, AC-11, AC-12)."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Phép chấm năm dòng số có những con số tự mâu thuẫn với nguồn: 142 so 146 là hai nền khác nhau, 7 so 8 là trước và sau chữ ký. Đã giải thích trong hồ sơ, thêm nguồn mốc 2.14.0 và một phép đối chiếu thứ năm."
+    },
+    {
+      "i": 1,
+      "p": "Câu «lớp CI không đổi, repo tiêu thụ không phải chép lại» chưa có thước. Đã thêm răng máy đếm chín tệp chép theo kho, phá thử đỏ đúng tệp."
+    },
+    {
+      "i": 2,
+      "p": "Danh sách việc đã vào cửa sổ không có thước — và thật sự sai: một vòng meta đã ký sáng 16/09, trước khi R được chốt, bị bỏ sót. Đã khai vòng đó, thêm cột số liệu, và thêm răng đối chiếu danh sách với kho."
+    },
+    {
+      "i": 3,
+      "p": "Phép đo chiều im có thể đo một phiên bản khác thứ đang chấm nếu còn thay đổi chưa commit. Đã thêm chốt dừng khi cây chấm còn tệp chưa commit."
+    },
+    {
+      "i": 4,
+      "p": "Hai dòng sổ quyết định cũ còn trỏ số tiêu chí trước khi đánh số lại. Đã ghi thêm một dòng sổ ánh xạ đúng."
+    }
+  ],
+  "decisions_plain": [
+    {
+      "id": "d-20260916T111844Z-1",
+      "p": "Đã chọn vá thẻ mở phiên trong mốc thay vì mở vòng riêng — đổi lại lối «đóng theo quan sát» chưa có chỗ ghi trạng thái."
+    },
+    {
+      "id": "d-20260916T114303Z-2",
+      "p": "Đã chọn giữ nhát vá trên nhánh tới lượt chấm mốc — đổi lại nhánh phải bắt kịp bản chung trước khi chấm."
+    },
+    {
+      "id": "d-20260917T012035Z-3",
+      "p": "Đã chọn đếm đủ ba việc chip trong hồ sơ mốc thay vì mở hồ sơ riêng — đổi lại lượt chấm mốc gánh bốn việc cùng lúc."
+    },
+    {
+      "id": "d-20260917T012035Z-4",
+      "p": "Đã chọn đếm vòng «sinh sau mốc» bằng việc hồ sơ không có ở lần cắt số, không bằng ngày commit — đổi lại việc không mở hồ sơ vẫn vô hình."
+    },
+    {
+      "id": "d-20260917T012035Z-5",
+      "p": "Đã chọn đo chiều im trên một bản sao riêng của kho — đổi lại lượt chấm mốc tốn thêm một lần chạy trọn các bộ kiểm thử."
+    },
+    {
+      "id": "d-20260917T012035Z-6",
+      "p": "Đã thu hẹp lời khai của răng một nguồn cho bằng đúng điều owner đã veto — không rộng hơn."
+    },
+    {
+      "id": "d-20260917T012035Z-7",
+      "p": "KHÔNG làm hai việc nhỏ của R trong mốc (báo khi không đo chi phí · lệnh cổng in trần) — đổi lại hai lỗi ấy còn có thể lặp, lý do ghi ở nhát cắt kế."
+    },
+    {
+      "id": "d-20260917T012657Z-8",
+      "p": "Đã ghi thêm một dòng sổ ánh xạ lại hai quyết định cũ sang số tiêu chí mới — nội dung không đổi."
+    },
+    {
+      "id": "d-20260917T012657Z-9",
+      "p": "Đã khai một vòng meta đã ký trước R mà bản đầu hồ sơ bỏ sót — cửa sổ ở đúng trần một vòng, không phải «0 vòng»."
+    },
+    {
+      "id": "d-20260917T025314Z-10",
+      "p": "Đã chọn sửa chữ của dòng /goal trong mốc (owner phê) — đổi lại hiệu lực thật chỉ đo được ở vòng sản phẩm kế."
+    },
+    {
+      "id": "d-20260917T025314Z-11",
+      "p": "KHÔNG dựng bộ giả lập hook để đo nghĩa của dòng /goal — bộ chấm dựng thử cho cùng kết quả với dòng cũ và dòng mới, nên sẽ là thước giả."
+    },
+    {
+      "id": "d-20260917T030601Z-13",
+      "p": "Đã đưa hồ sơ mốc thẳng sang «code xong» sau khi duyệt phạm vi — mọi vật đã làm xong trước đó, không cần lập kế hoạch lại."
+    },
+    {
+      "id": "d-20260917T033000Z-14",
+      "p": "Đã sinh lại một thẻ lưu trong hồ sơ đã ký cũ khi dòng /goal đổi, đi đúng luật sửa sử liệu và ghim lại riêng hồ sơ đó — đổi lại một làn máy 13 phút trước lượt chấm."
+    },
+    {
+      "id": "d-20260917T040500Z-15",
+      "p": "Đã sửa phép đo «cây chấm có sạch không» chỉ soi tệp đã theo dõi, vì lượt chấm 1 đỏ oan do tệp tạm của bộ kiểm thử chạy song song — đổi lại tệp mới chưa commit không bị phép đo này thấy."
+    },
+    {
+      "id": "d-20260917T045000Z-16",
+      "p": "Đã thêm lý do vào bốn ô «không đo được» và ghi thêm chữ nhát cắt kế theo lượt rà hạ tầng, rồi chấm lại riêng phần Notes — đổi lại một lượt chấm, không phải hỏi anh."
+    }
+  ],
+  "analyst_plain": "Không có phép đo nào xanh ở cả hai phía — mọi eval của mốc đều phân biệt được bản cũ với bản mới."
+}

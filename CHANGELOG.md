@@ -10,6 +10,80 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.15.0 — 17/09/2026
+
+Cửa sổ 2.14 → 2.15 chạy dưới quyết định R của owner (16/09): không mở vòng meta
+mới, đo cái đã ship trên một vòng sản phẩm thật. Vòng đó là `skill-system-v1` ở
+OneFlow, ký 17/09 — lần đầu sau hai cửa sổ có một tính năng tới tay người dùng
+trên kit mới. Cửa sổ vẫn có một vòng meta đã ký, `guide-chep-ci-buoc-vao-writer`,
+ký buổi sáng trước khi R được chốt — đúng trần một vòng của luật. Ba việc nhỏ của
+kit vào cửa sổ qua chip sau R; owner quyết đếm chúng là vá-trong-mốc và đếm đủ. Hồ sơ mốc `_acceptance/release-2-15-0/` có tiêu chí
+cho cả ba, cùng năm dòng số lần đầu có cột từ repo tiêu thụ. Hai gói cùng lên
+`2.15.0`; `diagram-design` giữ `2.7.0` vì không đổi một dòng.
+
+**Đổi gì:**
+
+- **Thẻ `/start` thôi mời viết code cho thứ đã ở nhánh gốc.** Ca thật ở
+  crm-onehub 16/09: một hồ sơ đã merge từ 04/09 bị đặt ngược về «đã duyệt» để
+  xếp lại, thẻ đọc thành «viết code», và một phiên 8 giờ 25 phút chấm lại thứ
+  đang chạy trên prod. Nay hồ sơ «đã duyệt» có bằng chứng mang commit đã nằm
+  trong lịch sử của cây — kể cả bản bằng chứng đã đổi tên khi xếp lại — hiện
+  thành dòng riêng «vật đã nằm trong nhánh gốc», không có bước máy kế. Người chọn
+  một trong hai lối ngay trong câu hỏi chọn sẵn có: đóng theo quan sát, hoặc chấm
+  lại. Không thêm câu hỏi, không thêm cổng. Đo trên crm-onehub: cả bốn hồ sơ cùng
+  hình dạng rơi vào dòng mới.
+- **Lượt ghim lại dừng khi một phép đo ghi đè bằng chứng đã ký.** Cũng ở
+  crm-onehub 16/09: một phép đo trong suite chung ghi lại tệp bằng chứng của một
+  hồ sơ đã ký sau mỗi lượt chạy, ở mọi worktree, mất khoảng 450 dòng so bản đã
+  ký, và không răng nào thấy. Nay làn ghim lại chụp cây của mọi hồ sơ đã thông
+  Cổng Bằng chứng trước suite và sau eval; có tệp bị chạm thì làn đỏ, in đường
+  từng tệp, không ghi gì. Luật đi kèm: lệnh chạy lại ghi tạo phẩm ra
+  `.acceptance-runs/<slug>/` hoặc thư mục tạm, không bao giờ vào `_acceptance/`.
+  Hai trạng thái «đã thông cổng» của răng hỏi đúng một nguồn trong bộ máy, không
+  chép — owner đã veto lối khai gạch hai tệp trong một hồ sơ đã ký.
+- **Dòng `/goal` thôi chặn hai kiểu dừng hợp lệ.** Ở vòng R1, hook `/goal`
+  chặn 11 lần máy dừng đúng luật: 2 lần khi máy chờ người cài một công cụ còn
+  thiếu trước bước nghiệm thu, 9 lần khi máy dừng ở trần sửa thước chờ người chọn
+  lối — và máy trả lời lại cùng một câu 7 lượt. Bộ chấm của hook hiểu «chờ người»
+  là chỉ ở tầng cả vòng. Khuôn mới nói rõ hai kiểu dừng giữa vòng ấy cũng là «chờ
+  người», với điều kiện máy nêu đích danh tiền đề hoặc các lối để chọn; dừng không
+  nêu gì vẫn bị chặn. Hiệu lực thật chỉ đo được ở vòng sản phẩm kế.
+- **Kho kit: thẻ `/start` đếm vòng meta đang mở.** Luật cho tối đa một vòng meta
+  giữa hai mốc, nhưng cửa sổ 2.13 → 2.14 có hai vòng chạy song song ở hai phiên
+  và con số chỉ lộ khi mốc đếm. Ở chính kho kit, thẻ nay in «vòng meta đang mở
+  trong cửa sổ: N» kèm tên, và cờ khi N từ 2 trở lên. Không cổng, không lệnh.
+  Repo tiêu thụ không thấy dòng này.
+
+- **Danh sách chép lớp CI ở GUIDE §5.3 khai đủ chín tệp**, và một phép đo buộc
+  hai bản khai danh sách ấy vào các tệp mà cổng merge thật sự nạp. Trước đó GUIDE
+  thiếu hai tệp; kho chép theo GUIDE sẽ tắt lặng một lớp cưỡng chế.
+
+**Ai bị ảnh hưởng / làm gì:**
+
+- **Repo tiêu thụ — làn ghim lại có thể ĐỎ sau khi update.** Script đo nào còn
+  ghi tạo phẩm vào thư mục bằng chứng của một hồ sơ đã ký sẽ làm làn dừng, kèm
+  đường tệp bị chạm. Việc phải làm: chuyển đích ghi của script đó sang
+  `.acceptance-runs/<slug>/` (thêm thư mục này vào `.gitignore`). crm-onehub là ca
+  đã biết, ở phép đo lai-ra-man của vòng chan-lai-component-ra-man.
+- **Repo tiêu thụ — thẻ `/start`:** không có gì phải làm. Hồ sơ «đã duyệt» mà vật
+  đã merge sẽ tự hiện ở dòng mới ở lần quét kế.
+- **Repo tiêu thụ — lớp CI vendored:** không tệp nào trong bộ chín tệp đổi ở mốc
+  này, không phải chép lại.
+- **Kho kit:** thẻ mở phiên có thêm một dòng đếm vòng meta.
+
+**Giới hạn đã khai:** phép hỏi «vật đã ở nhánh gốc» so với HEAD của cây đang
+quét, không với nhánh gốc có tên. Lối «đóng theo quan sát» chưa có trạng thái hồ
+sơ để ghi, nên dòng vẫn hiện sau khi ghi quyết định — nguyên thuỷ «xếp lại cho
+vòng» còn thiếu, đã có tên ở ô `thuoc-co-cua`. Vòng S4 và CI chưa chụp cây hồ sơ,
+chỉ làn ghim lại chụp. Dòng đếm vòng meta nhận hồ sơ mốc theo tên
+`release-<x>-<y>-<z>`.
+
+**Chi phí của chính cửa sổ:** vòng sản phẩm R1 tốn 147,8 M token cho bốn lượt S4,
+cùng cỡ vòng meta nặng nhất của 2.14. Khối tìm-lỗi rơi về 9,5 %, nhưng làn `ui`
+chiếm 91 % lượt cuối. Lượt gọi người 7 cộng 1 so trần 4, vòng thứ tư liên tiếp vượt trần.
+Việc meta của cửa sổ không có số token nào: vòng đã ký không có báo cáo chi phí, các phiên chip không chạy `wf-usage`.
+Số đầy đủ và nhát cắt cho cửa sổ kế ở khối Notes của hồ sơ mốc.
+
 ## 2.14.0 — 15/09/2026
 
 Cửa sổ 2.13 → 2.14 có **hai** vòng đã ký, trong khi luật (b) cho một. Hồ sơ mốc

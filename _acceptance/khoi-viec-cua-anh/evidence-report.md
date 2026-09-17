@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
+verified_commit: 7d540a3d0e07acd4dd1b95c22781e3e46db6ab1d
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -173,3 +173,11 @@ sha: e8f6caa9e09eba9895caf9b02383f91f042bd063 · suites: 4 lệnh exit 0 (script
 ### Re-pin lần 9 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
 run_id: repin-20260908T035246Z-95429
 sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0
+
+### Re-pin lần 10 — 2026-09-17, do sinh lại thẻ Cổng 1 lưu trong bằng chứng sau khi khuôn /goal đổi (release-2-15-0 AC-13)
+run_id: repin-20260917T032342Z-84122
+sha: 7a94cecd1a6fba6c40446950bc129b33289eec4e · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
+
+### Re-pin lần 11 — 2026-09-17, do pin cũ 7a94cecd mất khỏi lịch sử sau rebase — ghim lại trên nhánh mốc 2.15.0 trước khi merge
+run_id: repin-20260917T050325Z-98307
+sha: 7d540a3d0e07acd4dd1b95c22781e3e46db6ab1d · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng

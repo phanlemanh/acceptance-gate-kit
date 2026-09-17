@@ -190,6 +190,32 @@ const UAT_KEY = { release: 'da-nghiem-thu-release', iterate: 'da-nghiem-thu-iter
 const planSlug = f => { const m = f.match(/^\d{4}-\d{2}-\d{2}-(.+)\.md$/); return m ? m[1] : null; };
 const planExists = slug => [path.join(root, 'docs', 'superpowers', 'plans'), path.join(root, 'docs', 'plans')]
   .some(d => existsSync(d) && readdirSync(d).some(f => planSlug(f) === slug));
+// VẬT ĐÃ Ở NHÁNH GỐC (hồ sơ mốc release-2-15-0). Ca thật 16/09 ở repo tiêu thụ:
+// hồ sơ merge từ 04/09 bị đặt ngược về `approved` và đổi tên bằng chứng thành
+// `evidence-report.xep-lai-<ngày>.md`; thẻ in «viết code», và một phiên 8 giờ chấm
+// lại thứ đã ở prod. Đọc MỌI `evidence-report*.md` (kể cả bản đổi tên), rút
+// `verified_commit`; commit nào là tổ tiên của HEAD → true. Mọi thứ khác — tệp đọc
+// không được, sha sai khuôn, sha không có trong kho đối tượng, không phải kho git,
+// không phải tổ tiên — đều là «chưa biết» và trả false: giữ nhãn cũ, KHÔNG đẩy hồ
+// sơ sang hỏng. Chỉ hỏi git bằng sha đã qua khuôn hex, nên không có đối số lạ nào
+// tới được dòng lệnh.
+const SHA_KHUON = /^[0-9a-f]{7,40}$/i;
+const vatDaONhanhGoc = dir => {
+  let tep;
+  try { tep = readdirSync(dir).filter(f => /^evidence-report.*\.md$/.test(f)); } catch { return false; }
+  for (const f of tep) {
+    const r = read(path.join(dir, f));
+    if (r.err || r.t == null) continue;
+    const sha = fmOrNull(r.t, 'verified_commit') || '';
+    if (!SHA_KHUON.test(sha)) continue;
+    try {
+      execFileSync('git', ['-C', root, 'merge-base', '--is-ancestor', sha, 'HEAD'],
+        { stdio: 'ignore', env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
+      return true;
+    } catch { /* thoát 1 = không phải tổ tiên · mã khác = chưa biết — cả hai giữ nhãn cũ */ }
+  }
+  return false;
+};
 // since: timestamp frontmatter thắng mtime — cổng chờ lâu nhất không được trôi
 // xuống cuối nhóm chỉ vì file bị format/sync chạm lại (AC-6, đối chứng P98)
 const since = (file, fmTs) => fmTs || statSync(file).mtime.toISOString();
@@ -425,7 +451,13 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         }
       }
     }
-    else if (status === 'approved') inProgress.push(g(planExists(slug) ? 'dang-viet-code' : 'dang-lap-ke-hoach', { slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier }));
+    else if (status === 'approved') {
+      // Vật đã nằm trong nhánh gốc → KHÔNG in «viết code»: bước kế là người chọn
+      // đóng theo quan sát hay chấm lại, nên không có bước máy (`nextStep: null`).
+      // Không phải cổng mới — hồ sơ vẫn ở nhóm «Đang dở».
+      if (vatDaONhanhGoc(dir)) inProgress.push(g('vat-da-o-nhanh-goc', { slug, status, nextStep: null, tier }));
+      else inProgress.push(g(planExists(slug) ? 'dang-viet-code' : 'dang-lap-ke-hoach', { slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier }));
+    }
     else if (status === 'draft') {
       // Đọc lười ô cơ hội: chỉ để trả lời «lối không-đo-được có bị dùng sai chỗ không».
       const oD = read(oPath);
@@ -578,4 +610,45 @@ if (map.present) {
 // Danh sách DỰNG SẴN cho thân lệnh CHÉP — thẻ không tự lọc `vetoOpen`, nhờ vậy
 // phép đo máy chấm đúng danh sách tên mà thẻ in ra (hồ sơ cua-veto-sau-chu-ky).
 const vetoOpenUnsigned = vetoOpen.filter(v => !v.humanSignoff).map(v => v.slug);
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, broken });
+
+// ── VÒNG META ĐANG MỞ TRONG CỬA SỔ (hồ sơ mốc release-2-15-0) ─────────────────
+// Luật (b) cho TỐI ĐA MỘT vòng meta giữa hai mốc, nhưng không vật máy giữ nào đếm:
+// cửa sổ 2.13 → 2.14 có hai vòng chạy song song ở hai phiên, mỗi phiên tự thấy mình
+// là vòng duy nhất, con số chỉ lộ khi mốc đếm. Ở đây biến «tối đa một» từ lời dặn
+// thành số trên thẻ — không cổng, không lệnh.
+// Chỉ áp cho KHO KIT (mọi vòng ở đó là vòng meta): gốc có `.claude-plugin/plugin.json`
+// mang tên acceptance-gate. Lớp vendored ở repo tiêu thụ không mang manifest đó.
+// Mốc = commit gần nhất đổi dòng version của manifest (lần cắt số gần nhất).
+// «Mở» = contract.md có status hợp lệ NGOÀI DA_THONG_CONG_2 — hỏi lib, không chép.
+// «Sinh sau mốc» = contract.md KHÔNG có trong cây của commit mốc: đúng cả với nhánh
+// rẽ trước mốc rồi merge sau, với rebase, và với tệp chưa commit — ngày commit thì sai
+// ở cả ba. Hồ sơ mốc `release-<x>-<y>-<z>` không phải vòng meta, không đếm.
+// «Chưa biết» (không phải kho git, không tìm được mốc) → moc/n null, không cờ.
+const metaOpen = (() => {
+  const kq = { applies: false, moc: null, slugs: [], n: null, flag: false };
+  const r = read(path.join(root, '.claude-plugin', 'plugin.json'));
+  if (r.err || r.t == null) return kq;
+  try { if (JSON.parse(r.t).name !== 'acceptance-gate') return kq; } catch { return kq; }
+  kq.applies = true;
+  const gq = a => {
+    try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).trim(); }
+    catch { return null; }
+  };
+  const moc = gq(['log', '-1', '--format=%H', '-G', '"version":', '--', '.claude-plugin/plugin.json']);
+  if (!moc || !/^[0-9a-f]{40}$/.test(moc)) return kq;
+  kq.moc = moc;
+  const RELEASE = /^release-\d+-\d+-\d+$/;
+  for (const e of readdirSync(acc, { withFileTypes: true })) {
+    if (!e.isDirectory() || RELEASE.test(e.name)) continue;
+    const c = read(path.join(acc, e.name, 'contract.md'));
+    if (c.err || c.t == null || fieldProblem('contract.md', c.t, 'status')) continue;
+    if (DA_THONG_CONG_2.includes(frontmatterField(c.t, 'status').toLowerCase())) continue;
+    if (gq(['cat-file', '-e', `${moc}:_acceptance/${e.name}/contract.md`]) !== null) continue;
+    kq.slugs.push(e.name);
+  }
+  kq.slugs.sort();
+  kq.n = kq.slugs.length;
+  kq.flag = kq.n >= 2;
+  return kq;
+})();
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken });
