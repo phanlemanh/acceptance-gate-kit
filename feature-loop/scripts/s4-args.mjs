@@ -11,7 +11,8 @@
 //        [--ag-root <path>] [--out <file>]
 //
 // exit 0 = tệp args (hoặc stdout) sinh xong · exit 2 = nguồn thiếu/hỏng ·
-// exit 3 = usage. Chuỗi lệnh trong args giữ SẠCH (không nướng `cd` — ghim chỗ
+// exit 3 = usage · exit 4 = chạm trần nhát sửa thước (thuoc-co-cua AC-12), không
+// sinh tệp. Chuỗi lệnh trong args giữ SẠCH (không nướng `cd` — ghim chỗ
 // đứng là việc của từng LANE trong acceptance-verify.js; nướng vào lệnh sẽ phá
 // lane baseline chạy worktree — xem design doc 2026-08-29, quyết định 2).
 import fs from 'node:fs';
@@ -20,6 +21,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { globToRe } from './carry-plan.mjs';
 import { DO_GLOBS, HO_SO_VAN_BAN_GLOBS } from './lib/phan-loai.mjs';
+import { demThuocVat } from './thuoc-vat.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
@@ -413,6 +415,29 @@ else {
     round = Math.max(...nums) + 1;
   }
 }
+
+// ── trần nhát sửa thước (thuoc-co-cua AC-12): máy giữ, không dặn bằng lời ──
+// Nhát = commit SAU mốc sàn chạm thước mà không chạm vật (bộ đếm thuoc-vat.mjs, suy từ
+// git). Chạm trần thì KHÔNG sinh tệp args — không có tệp thì không dispatch được lượt
+// chấm — và nói ra ba lối cho người. Van duy nhất: dòng sổ «trần thước — » đã commit.
+// Hồ sơ chưa từng implemented → bộ đếm trả 0, đi tiếp (đường đọc-cũ).
+const TRAN_NHAT = 3;
+function thongDiepTran(dem, slug) {
+  return [
+    `s4-args: tran nhat sua thuoc: ${dem.nhat} nhat o implemented (tran ${TRAN_NHAT}) — KHONG sinh args.`,
+    '  Ba loi, nguoi chon mot:',
+    '  (1) khai gioi han co ten — ghi Known limits cho phep do dang va, lan cham ke chap nhan no',
+    '  (2) doi cach do — thay phep do, khong va tiep phep do cu',
+    '  (3) mo vong co chu ngu la thuoc — dan dung mot dong:',
+    `      /feature-loop:feature-loop "thước của ${slug}: ${dem.tepThuoc.join(', ')}"`,
+    '  Chon (1) hoac (2): ghi mot dong so quyet dinh mo dau bang «trần thước — » roi commit; moc san doi toi do.',
+  ].join('\n');
+}
+const dem = (() => {
+  try { return demThuocVat({ root, slug: flags.slug, t1SkipGlobs }); }
+  catch (e) { return die(`bộ đếm nhát sửa thước lỗi: ${String((e && (e.stderr || e.message)) || e).split('\n')[0]}`); }
+})();
+if (dem.nhat >= TRAN_NHAT) { console.error(thongDiepTran(dem, flags.slug)); process.exit(4); }
 
 // ── carry-forward: bước GỌI nằm trong máy, không còn là bước tay ───────────
 // round ≥2 phải KHAI đường carry tường minh — «quên» không phải trạng thái lặng.
