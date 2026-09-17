@@ -5,7 +5,7 @@ slug: thuoc-co-cua
 owner: phanlemanh@gmail.com
 risk_tier: T3      # chạm lib/ (nguồn not-run dùng chung, bộ đọc mã thoát đã khai) — lõi cưỡng chế
 surfaces: [cli]
-status: verified         # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off       # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Mạnh
 approved_at: 2026-09-17
 design_doc: docs/superpowers/specs/2026-09-17-thuoc-co-cua-design.md
@@ -93,6 +93,8 @@ Viết tay — vòng tự áp thuốc của mình trước khi khuôn có mục 
 
 ### Known limits
 
+- known-limits (Ngoài-1, owner ghi 17/09): **feature-loop/scripts/duong-nen.mjs** — SKILL bảo chạy đường nền ở chế độ nền trong khi S1 viết tệp song song; tệp của chính vòng chưa commit lúc chân suite chụp lại cây bị báo «cây bẩn sau suite», và hồ sơ mới viết dở có thể làm ca quét corpus đỏ «đỏ sẵn». Ngưỡng đang đếm: từ 1 lần đường nền báo đỏ do tệp của chính vòng, ở bất kỳ repo nào giữa hai mốc
+- known-limits (Ngoài-2, owner ghi 17/09): **feature-loop/scripts/duong-nen.mjs** — lệnh SKILL không truyền `--ag-root` nên trong kho kit gốc bộ máy giải về plugin cache; cây kit bị coi là bản chép và chân engine báo lệch khi vòng đổi một tệp của danh sách chép CI hoặc cache tụt sau nhánh chính. Ngưỡng đang đếm: từ 1 lần chân engine đỏ giả trên kho kit giữa hai mốc
 - Suite tuần tự chỉ chống suite-đè-suite. Lệnh suite vẫn chạy chồng lên lệnh eval, làn ui, hội đồng và làn tìm-lỗi; ca REJECT lượt 1 của mốc 2.15.0 (eval chiều-im đụng suite hooks) chỉ chữa trọn khi có «tài nguyên của lượt» ở phần đuôi. Ngưỡng đang đếm: từ 1 lượt chấm REJECT hoặc BLOCKED vì eval đè suite, ở bất kỳ repo nào giữa hai mốc.
 - Bộ đếm nhát đếm COMMIT thuần thước. Gộp nhiều chỗ sửa thước vào một commit, hoặc kèm một dòng vật vào commit thước, qua mặt được số nhát; lớp hai là cờ giữa-hai-lượt liệt kê tệp và ô «lẫn» in cạnh, không phải một trần thứ hai.
 - Số 3 của trần đọc theo thước «commit thuần thước sau mốc sàn», KHÔNG theo tiền tố dòng sổ. Cùng dữ liệu R1: theo tiền tố 3 · theo tệp chạm 5 · theo thước này 4. Phép thử rẻ của giả định 2 chạy 17/09 trên ba vòng đã ký gần nhất của kho kit có mốc sàn (release-2-15-0 · chu-ky-khong-tu-lam-hoa-cu · khoi-tim-loi-tra-phi-theo-vat): commit chạm thước TRƯỚC mốc sàn 4 · 2 · 9 — không bị đếm, giả định đứng; commit thuần thước SAU mốc sàn 2 · 3 · 4, commit lẫn 0 · 3 · 7. Tức trần 3 sẽ nổ ở 2 trên 3 vòng ấy — cả hai đều là vòng bốn lượt chấm có owner dừng giữa chừng. Ở kho kit ca kiểm vừa là thước vừa đi cùng vật, nên số này là cận trên cho repo sản phẩm.

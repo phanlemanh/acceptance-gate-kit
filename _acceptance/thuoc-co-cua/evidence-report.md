@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: thuoc-co-cua
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: f53fc76f44fc6dd5e4cbfd4c7d2f36fcfd9bc35d
-human_signoff:
+human_signoff: Mạnh 2026-09-17 — ký lượt chấm 3 (lượt 2 trả lại để sửa CRLF); E25 Đạt; 2 known-limits (Ngoài-1/2); Ngoài-3/4/5 mở hợp đồng mới (ô phep-do-o-doc-lap-thuoc-co-cua); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: thuoc-co-cua
@@ -267,7 +267,7 @@ human_signoff:
     - domain-correctness: PASS (r2)
     - operational-feasibility: PASS (r2)
     - spec-alignment: PASS (r2)
-  human_override:        # T3 — mọi judgment item đều chờ người xác nhận trực tiếp ở Gate 2, bất kể đề xuất của panel
+  human_override: Mạnh 2026-09-17 — Đạt
 
 ### Lệnh suite (hồi quy)
 
