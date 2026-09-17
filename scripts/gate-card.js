@@ -779,11 +779,19 @@ for (const r of rows) {
 }
 const decisions = Object.values(decById);
 const machineRows = rows.filter(r => r.exec === 'test' || r.exec === 'script' || r.exec === 'ui-check');
-const machinePass = machineRows.filter(r => r.verdict === 'PASS').length;
+// Mã thoát ĐÃ KHAI (`expected_exit`) đọc qua bộ đọc dùng chung của lib — cùng nguồn với
+// làn ghim lại, bên đọc pin và bộ sinh args (thuoc-co-cua AC-2). Trước bản này thẻ so cứng
+// mã 0 nên một eval trả ĐÚNG giới hạn đã khai bị gọi «CHƯA đủ trường», nói ngược
+// `failed_evals` của chính báo cáo (crm 16/09). Bản khai sai luật → coi như không khai,
+// như evidence-core. Mã 0 luôn đạt: giới hạn đã khai không còn thì không bị phạt.
+const maDaKhai = (() => { try { const r = evalYamlLib.expectedExits(read(path.join(dir, 'evals.yaml'))); return r.errs.length ? new Map() : r.byId; } catch (_) { return new Map(); } })();
+const maDat = (id, code) => { const c = String(code == null ? '' : code).trim(); return c === '0' || c === String(maDaKhai.get(id) || 0); };
+// Eval có mã trong báo cáo mà mã ấy KHÔNG đạt thì không tính là đạt, dù bảng ghi PASS.
+const machinePass = machineRows.filter(r => r.verdict === 'PASS' && !(evid[r.id] && evid[r.id].exit_code && !maDat(r.id, evid[r.id].exit_code))).length;
 const allPass = machineRows.length > 0 && machinePass === machineRows.length;
 const red = Object.values(evid).filter(e => e.baseline === 'red').length;
 const green = Object.values(evid).filter(e => e.baseline === 'green').length;
-const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = evid[r.id] || {}; return e.run_id && e.run_id.length >= 4 && e.exit_code === '0' && e.verifier; });
+const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = evid[r.id] || {}; return e.run_id && e.run_id.length >= 4 && e.exit_code && maDat(r.id, e.exit_code) && e.verifier; });
 
 // Scope-triage: lỗi THẬT nhưng ngoài phạm vi đã duyệt. Đọc thẳng từ artifact —
 // KHÔNG qua key overlay, cùng luật với gap-probe: cái gì phải hiện trên thẻ thì
@@ -899,7 +907,7 @@ const P = [STYLE];
 // --- non-approvable: REJECT / BLOCKED / unknown — no signoff affordance, no green reassurance ---
 if (!approvable) {
   const ch = verdict === 'REJECT' ? { t: 'có eval fail — trả lại code', c: 'coral' } : verdict === 'BLOCKED' ? { t: 'không chạy được — chưa thể ký', c: 'coral' } : { t: 'verdict không xác định — không ký', c: 'gray' };
-  const failed = machineRows.filter(r => r.verdict !== 'PASS').map(r => r.id + (critText[r.crit] ? ' (' + r.crit + ')' : ''));
+  const failed = machineRows.filter(r => r.verdict !== 'PASS' || (evid[r.id] && evid[r.id].exit_code && !maDat(r.id, evid[r.id].exit_code))).map(r => r.id + (critText[r.crit] ? ' (' + r.crit + ')' : ''));
   const notes = [];
   if (verdict === 'REJECT') notes.push(['fred', (failed.length ? 'Eval chưa đạt: ' + esc(failed.join(', ')) + ' — ' : '') + 'quay lại sửa code, chưa ký.']);
   else if (verdict === 'BLOCKED') notes.push(['fred', 'Không chạy được' + (reason ? ': ' + esc(stripMd(reason)) : '') + ' — sửa môi trường rồi chạy lại, chưa ký.']);
