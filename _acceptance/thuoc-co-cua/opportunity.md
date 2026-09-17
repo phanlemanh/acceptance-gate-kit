@@ -116,6 +116,15 @@ tay: hai mục hợp đồng và một luật ghi sổ, không đổi kit.
 - Diff `rang/` giữa hai lượt chấm do script liệt kê — không đưa làn phản bác soi hồ sơ.
 - Khuôn giao diện đường đo cấp repo: `--chay`, mã 2 khi hỏng tiền đề, đặt/trả, DB của
   lượt, máy chủ tự xưng cây và SHA — răng từ chối đo khi máy chủ trỏ cây khác.
+- **Tài nguyên của lượt** (owner phê 17/09, mở rộng ④): mỗi eval khai tài nguyên nó
+  cần — máy chủ · thư mục build · DB · cổng — và làn chấm tách riêng hoặc xếp hàng theo
+  tài nguyên, không chạy chung. Bằng chứng lớp lặp ở ba repo: oneflow R1 (E14 đỏ hai
+  lượt vì máy chủ không lên kịp dưới tải làn ui; bộ test đỏ vì hai lượt cùng dựng vào
+  một thư mục build của SDK; config khai sẵn «build và typecheck đua nhau») · crm (các
+  chân giẫm trạng thái của nhau khi chạy song song; hai lệnh cổng đua cây build) ·
+  artifact-platform (bài học radar-m1). Hai chiều: hai eval khai cùng tài nguyên → làn
+  xếp hàng, cả hai xanh; bỏ lời khai trong bản sao → ca đỏ đúng tên tài nguyên. Không
+  có nó, ① và ④ gỡ được tường trước cổng mà S4 vẫn tự dựng tường mới bằng cách chạy đè.
 
 ## Out of scope từ khám phá
 

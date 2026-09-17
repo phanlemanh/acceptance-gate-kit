@@ -211,6 +211,13 @@ chứng cho *hình dạng*, chưa phải cho *tỉ lệ*.
   với hai vi phạm nợ cũ bỏ qua có ghi nhận · `normalize-text-vi` nghỉ hẳn · hai chiến
   dịch ghim lại (oneflow: 2 hồ sơ + `UV_PYTHON`; crm #47: 2 hồ sơ + `.acceptance-runs/`).
 
+**Bổ sung 17/09 (owner phê, sau khi hỏi «bài học hạ tầng của oneflow đã vào kế hoạch
+chưa»):** bốn lớp hạ tầng — A công cụ/môi trường trước S4 (đã ở ①) · B máy chủ/cây/DB
+(đã ở ④) · **C tranh tài nguyên khi S4 chạy song song** (mới chỉ ghi nhận) · **D hook
+`/goal` chặn lần dừng hợp lệ** (chưa có chỗ). Quyết: C vào ④ thành «tài nguyên của
+lượt» (ô `thuoc-co-cua`, mục thước đo thành công); D thành vá-trong-mốc 2.15.0 (sửa
+`GOAL-TEMPLATE`, đã nhắn phiên cắt mốc).
+
 Trước khi mở chip, owner hỏi thêm: *người dùng kit được gì sau vòng meta này?* — trả lời
 ở `_acceptance/thuoc-co-cua/opportunity.md` mục «Vấn đề & ai gặp» và trong hồ sơ Cổng Đáng
 của vòng, bằng số của R1 và crm-onehub (§4 trên).
