@@ -3,10 +3,10 @@ schema_version: 1
 slug: thuoc-co-cua
 feature: Thước có cửa — đổi thước trong vòng có tên, có đếm, có trần như «Ngoài hợp đồng» đã có; thêm trục đỉnh-có-sẵn ở S0 (vật trước vòng · tiền đề tách khỏi tiêu chí) để giá trị mới trên vật có sẵn không thành vòng sửa thước mặc áo hợp đồng vật
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Mạnh
+decided_at: 2026-09-17T07:56:38Z   # ISO UTC — owner chọn «build» một chạm trong phiên mở vòng 17/09, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -50,16 +50,23 @@ thước không có đường vào».
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] trên một vòng có vật có sẵn, tường có bị bắt
+- Câu hỏi phép đo trả lời: trên một vòng có vật có sẵn, tường có bị bắt
   TRƯỚC Cổng Phạm vi không, và sửa thước trong S4 có hiện thành số trong gói Cổng
   Bằng chứng không?
-- Kết quả nào là SỐNG: [đề xuất] R1 có entry «tiền đề dry-run: n/m đứng được» trước
-  Cổng Phạm vi; nhát «thước:» ở S4 đếm được và gói Cổng Bằng chứng có dòng vật/thước;
-  sau một cửa sổ, số hồ sơ khai giới hạn theo luật chặt ở crm và oneflow không tăng.
-- Kết quả nào là CHẾT: [đề xuất] thêm lượt gọi người ngoài thiết kế ở bất kỳ vòng
+- Kết quả nào là SỐNG: ở vòng sản phẩm kế trên kit 2.16, đường nền hạ tầng chạy trước
+  Cổng Phạm vi và tường nó bắt nằm trong gói cổng; lượt chấm bị hạ tầng chặn dưới 2/3
+  và câu hỏi hạ tầng dưới 4 mỗi vòng (số R1: 2/3 · 4/8; crm 4/9); nhát «thước:» ở S4
+  đếm được và gói Cổng Bằng chứng có dòng vật/thước; sau một cửa sổ, số hồ sơ khai giới
+  hạn theo luật chặt ở crm và oneflow không tăng.
+- Kết quả nào là CHẾT: thêm lượt gọi người ngoài thiết kế ở bất kỳ vòng
   nào; phép kiểm sự-thật-git chặn một vòng greenfield (đặc hiệu hỏng); dòng thước
   tăng mà số hồ sơ khai giới hạn không giảm sau một cửa sổ; cần lệnh cổng người mới.
-- Timebox: [đề xuất] một cửa sổ phát hành.
+- Timebox: một cửa sổ phát hành.
+
+> Tinh chỉnh lần cuối lúc ký (17/09): bản đề xuất viết «R1 có entry tiền đề dry-run» —
+> R1 đã chạy xong bằng tay trước khi ô được ký, nên vế SỐNG đầu chuyển sang «vòng sản
+> phẩm kế trên kit 2.16» và mang hai số so sánh của bảng lợi ích. Ba vế còn lại và cả
+> dòng CHẾT giữ nguyên chữ, chỉ gỡ tiền tố đề xuất.
 
 ## Kết quả prototype
 
@@ -79,7 +86,12 @@ tay: hai mục hợp đồng và một luật ghi sổ, không đổi kit.
 
 ## Cổng 0
 
-- **decision = …**
+- **decision = build** (owner ký 17/09, một chạm). Căn cứ: điều kiện mở có số dương ở cả
+  hai vế (nhân chứng độc lập, dòng dưới); ngưỡng mở lại của luật (a) đã chạm; owner trả
+  lời Q1 17/09 chọn ô này làm vòng meta duy nhất của cửa sổ 2.15 → 2.16. Người dùng kit
+  được gì / mất gì: lượt chấm bị hạ tầng chặn (R1 2/3) · câu hỏi hạ tầng mỗi vòng (R1 4/8,
+  crm 4/9) · tỉ lệ thước/vật trong S4 (cua-vao 35:1, R1 5:1) · hồ sơ phải tự dựng `rang/`
+  (crm 21/37, 30 548 dòng) — đổi lấy router trượt lần thứ tư và suất meta của cửa sổ.
 - **Owner 16/09 chốt R** (`docs/findings/2026-09-15-dieu-chinh-sau-2-14-token-va-vong-meta.md`):
   cửa sổ 2.14 → 2.15 không vòng meta mới. Ô này **không nhảy hàng**: nó chờ số từ R1
   (OneFlow `skill-system-v1`, thử ① và ② bằng tay) và một phiên quan sát độc lập ghi
@@ -98,8 +110,9 @@ tay: hai mục hợp đồng và một luật ghi sổ, không đổi kit.
   thiết kế 5 (hạ tầng 4). Cả hai vế đều vượt ngưỡng → **«có căn cứ xếp hàng ở
   2.15 → 2.16, cạnh router/token theo luật R»**. Số của một vòng, chưa nói xu hướng;
   nhân chứng không khuyến nghị nhát nào.
-- **disposition = …**
-- **Ngưỡng UAT chốt cùng lúc ký:** chép từ bullet `[đề xuất]` sau khi người gỡ tiền tố.
+- **disposition = không áp dụng** — không dựng prototype; vật liệu sống là khuôn của crm.
+- **Ngưỡng UAT chốt cùng lúc ký:** như mục «Ngưỡng chết / ngưỡng UAT» ở trên — đã gỡ
+  tiền tố đề xuất, một vế tinh chỉnh có ghi vết.
 
 ## Thước đo thành công → ứng viên criterion
 
