@@ -919,7 +919,21 @@ if (decsProvisional.length) { oneParts.push('Treo: phê hết'); routingBao.push
 const oneShotG2 = approvable ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
 if (!approvable) { routingHoi.length = 0; routingBao.length = 0; }
 
-if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2 }, null, 2)); process.exit(0); }
+// ── Dòng đếm vật · thước · nhát (thuoc-co-cua AC-13): dòng `kind: thuoc-vat` CUỐI CÙNG của
+// run-log, do feature-loop/scripts/thuoc-vat.mjs --write ghi sau mỗi lượt chấm. Dòng BÁO, không
+// phải ô hỏi — không chạm routing. Không có dòng → không in gì; dòng cuối hỏng → cờ, không in số.
+const thuocVat = (() => {
+  const raw = read(path.join(dir, 'run-log.jsonl'));
+  const dongTV = raw.split('\n').filter(l => /"kind"\s*:\s*"thuoc-vat"/.test(l));
+  if (!dongTV.length) return null;
+  try {
+    const o = JSON.parse(dongTV[dongTV.length - 1]);
+    const cap = v => Array.isArray(v) && v.length === 2 && v.every(n => Number.isInteger(n));
+    if (!cap(o.vat) || !cap(o.thuoc) || !Number.isInteger(o.nhat)) return { hong: true };
+    return { vat: o.vat, thuoc: o.thuoc, nhat: o.nhat, lan: Number.isInteger(o.lan) ? o.lan : 0, round: o.round, san: o.san || null };
+  } catch (_) { return { hong: true }; }
+})();
+if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, thuoc_vat: thuocVat }, null, 2)); process.exit(0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -980,7 +994,9 @@ if (ooc.unclassified) {
   const n = k => clean(gpF2[k]) || '0';
   P.push(`<div class="lab">${esc(LBL_DOI_KHANG)}</div><div class="grp gnot">`
     + `<p class="li">Phản biện context sạch: <b>${esc(v3)}</b> · P0 ${esc(n('p0'))} · P1 ${esc(n('p1'))} · P2 ${esc(n('p2'))} · đã sửa ${gpFixed}/${gpRows2.length}</p>`
-    + `<p class="li">Rà soát đối kháng: ${ooc.findings.length} mục ngoài hợp đồng${ooc.suspect_empty ? ' (⚠ khối nghi sai khuôn)' : ''} · ${decisions.length} mục cần mắt người</p></div>`);
+    + `<p class="li">Rà soát đối kháng: ${ooc.findings.length} mục ngoài hợp đồng${ooc.suspect_empty ? ' (⚠ khối nghi sai khuôn)' : ''} · ${decisions.length} mục cần mắt người</p>`
+    + (thuocVat && !thuocVat.hong ? `<p class="li">Vật +${thuocVat.vat[0]}/−${thuocVat.vat[1]} · thước +${thuocVat.thuoc[0]}/−${thuocVat.thuoc[1]} · nhát sửa thước ${thuocVat.nhat} (lẫn ${thuocVat.lan})</p>` : '')
+    + `</div>`);
 }
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
 if (ooc.findings.length) {
@@ -1032,6 +1048,7 @@ if (decsProvisional.length) {
 if (decsApproved.length) P.push(`<div class="lab">Đã duyệt từ Gate 1</div><div class="grp gnot">${decSort(decsApproved).map(e => `<p class="li">${decLine(e)}</p>`).join('')}</div>`);
 if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
 const flags = [];
+if (thuocVat && thuocVat.hong) flags.push(['fwarn', esc(THUOC_VAT_HONG_FLAG)]);
 if (uiObserved2.applicable) {
   if (uiObserved2.present) flags.push(['finfo', `${UI_OBS_G2_OK} ${uiPassed.length} eval ui-check đạt (${esc(uiPassed.join(', '))}) — xem frame ở trang bằng chứng.`]);
   else if (uiObserved2.descoped) flags.push(['fwarn', `${UI_OBS_G2_NONE} — đã bỏ theo ${esc(uiObserved2.descoped)}; người ký đọc tên ca máy, không nhìn frame.`]);
