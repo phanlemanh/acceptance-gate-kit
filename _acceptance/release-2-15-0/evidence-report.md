@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: bcec33a4d22c510070fbe34a4c6f5fd4a271e59a
-human_signoff:
+human_signoff: Mạnh 2026-09-17 — ký với 5 known-limits (Ngoài-1/2/3/4/6); Ngoài-5 chấp nhận không sửa; Ngoài-7 mở hợp đồng mới (ô rang-moc-neo-theo-ho-so); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: release-2-15-0 (round 3)

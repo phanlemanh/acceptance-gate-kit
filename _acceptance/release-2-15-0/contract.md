@@ -5,7 +5,7 @@ slug: release-2-15-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm scripts/start-scan.mjs, commands/start.md, hai manifest, GUIDE, CHANGELOG; ba việc meta đã trên main chạm feature-loop/scripts và skills/. KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Mạnh
 approved_at: 2026-09-17
 ---
@@ -289,6 +289,11 @@ không theo tổ hợp.
 
 ### Known limits
 
+- known-limits (Ngoài-1, owner ghi 17/09): **rang-chup-cay-that.mjs** — chốt «cây chấm sạch» bỏ qua mọi tệp dưới `_acceptance/`, trong khi răng đọc `feature_loop.suite_keys` và tập hồ sơ đã thông cổng từ `_acceptance/` của worktree tại HEAD; sửa `_acceptance/config.yaml` mà chưa commit thì răng chạy suite của bản HEAD chứ không phải bản đang chấm
+- known-limits (Ngoài-2, owner ghi 17/09): **scripts/start-scan.mjs** — nhóm «vật đã ở nhánh gốc» không đọc `verdict` của tệp bằng chứng; một vòng REJECT hay BLOCKED bị xếp lại về «đã duyệt» cũng được mời «đóng theo quan sát»
+- known-limits (Ngoài-3, owner ghi 17/09): **commands/start.md** — lối «chấm lại» dựa vào một câu dặn đưa hồ sơ về `implemented`; vòng lặp tính năng vẫn đưa «đã duyệt» sang viết code nếu câu dặn bị bỏ qua. Ngưỡng đang đếm: ≥ 1 phiên chọn «chấm lại» mà vòng lặp vào viết code, ở bất kỳ repo tiêu thụ nào giữa hai mốc
+- known-limits (Ngoài-4, owner ghi 17/09): **commands/start.md** — lối «đóng theo quan sát» không có trường đích để ghi, nên người phải tự ghi sổ ở lượt kế và dòng trên thẻ vẫn hiện sau đó; cùng lỗ «park cho vòng» ở Notes §4
+- known-limits (Ngoài-6, owner ghi 17/09): **scripts/start-scan.mjs** — phép hỏi «đã ở nhánh gốc» là «tổ tiên của HEAD»: một vòng được duyệt lại rồi chấm trên nhánh riêng của nó có thể bị gọi là «vật đã ở nhánh gốc» khi quét ngay trên nhánh ấy
 - **Phép hỏi tổ tiên so với HEAD của cây đang quét**, không với nhánh gốc có tên. Chạy thẻ
   trên một nhánh tính năng đã chứa commit ấy cũng cho nhóm «vật đã ở nhánh gốc».
 - **Dòng đếm vòng meta nhận hồ sơ mốc theo tên** `release-<x>-<y>-<z>`. Hồ sơ mốc đặt tên
