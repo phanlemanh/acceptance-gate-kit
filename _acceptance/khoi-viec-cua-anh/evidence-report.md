@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7d540a3d0e07acd4dd1b95c22781e3e46db6ab1d
+verified_commit: 237d95c1d9fbc432f13d1036fb8aded77875c503
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -181,3 +181,7 @@ sha: 7a94cecd1a6fba6c40446950bc129b33289eec4e · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 11 — 2026-09-17, do pin cũ 7a94cecd mất khỏi lịch sử sau rebase — ghim lại trên nhánh mốc 2.15.0 trước khi merge
 run_id: repin-20260917T050325Z-98307
 sha: 7d540a3d0e07acd4dd1b95c22781e3e46db6ab1d · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
+
+### Re-pin lần 12 — 2026-09-17, do thuoc-co-cua S3: thẻ Cổng Phạm vi thêm cờ nền hạ tầng (sinh lại p185) · khai khác biệt cho hồ sơ nháp cho nghỉ (RT13)
+run_id: repin-20260917T132910Z-92760
+sha: 237d95c1d9fbc432f13d1036fb8aded77875c503 · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
