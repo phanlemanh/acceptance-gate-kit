@@ -94,7 +94,7 @@ function ws({ khai = true, ma2, runId2 } = {}) {
 const the = (root, gc = GC) => {
   const r = spawnSync('node', [gc, '--root', root, '--slug', 's'], { encoding: 'utf8' });
   if (r.status !== 0) die(`gate-card thoat ${r.status}: ${(r.stderr || '').slice(0, 300)}`);
-  return r.stdout;
+  return r.stdout.replace(/\x1b\[[0-9;]*m/g, '');
 };
 // Số «chưa đạt» mà thẻ in: «<đạt>/<tổng> phép kiểm máy đạt · <n> CHƯA đạt», hoặc dòng tất-cả-đạt.
 const chuaDat = html => {

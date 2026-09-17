@@ -15,9 +15,13 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.join(HERE, '..', '..');              // suy từ vị trí tệp ca
+// Trạng thái đã thông Cổng Bằng chứng rút từ MỘT nguồn của lib (lib/workspace-record.cjs), không gõ
+// tay chuỗi: fixture chỉ cần một hồ sơ đã thông cổng để làn ghim lại đọc pin (ca RT13 vế hai).
+const { DA_THONG_CONG_2 } = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
 const LANE = path.join(KIT, 'feature-loop', 'scripts', 'repin-lane.mjs');
 const ADR = path.join(KIT, 'docs', 'adr', '0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md');
 const TMP = mkdtempSync(path.join(tmpdir(), 'dn-lane-'));
@@ -45,7 +49,7 @@ function dungKho(ten, { sub = '', slugs = ['demo'] } = {}) {
   for (const s of slugs) {
     const ws = path.join(L, '_acceptance', s);
     mkdirSync(ws, { recursive: true });
-    writeFileSync(path.join(ws, 'contract.md'), `---\nschema_version: 1\nfeature: ${s}\nslug: ${s}\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\n---\n`);
+    writeFileSync(path.join(ws, 'contract.md'), `---\nschema_version: 1\nfeature: ${s}\nslug: ${s}\nrisk_tier: T2\nsurfaces: [api]\nstatus: ${DA_THONG_CONG_2[0]}\napproved_by: Manh Phan\n---\n`);
     writeFileSync(path.join(ws, 'evals.yaml'), `schema_version: 1\nfeature_slug: ${s}\nevals:\n${EV('E1')}`);
   }
   git('init', '-q', '-b', 'main'); git('add', '-A'); git('commit', '-qm', 'impl');

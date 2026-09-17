@@ -194,7 +194,10 @@ function so(khong, co, ten, dauSong) {
 {
   // 9 từ 17/09: thêm feature-loop/scripts/thuoc-vat.mjs (bên đọc sha của lượt + bên ghi dòng
   // kind thuoc-vat) — ba bộ đọc trên đã được đo lại với loại dòng mới ở khối 4.
-  const BO_DOC_KHAI = 9;
+  // 10 từ 17/09 (cùng hồ sơ): thêm scripts/gate-card.js — thẻ Cổng Bằng chứng chỉ đọc dòng
+  // `kind: thuoc-vat` (lọc theo kind), nên dòng finding và mọi loại dòng khác không đổi thẻ;
+  // hai chiều của nó đo ở tests/scripts/gate-card-thuoc-vat.test.mjs (GT2 im · GT3 dòng hỏng).
+  const BO_DOC_KHAI = 10;
   const goc = path.join(ROOT);
   const quet = (d) => execFileSync('bash', ['-c',
     `grep -rl "run-log.jsonl" "${d}/scripts" "${d}/lib" "${d}/hooks" "${d}/feature-loop/scripts" 2>/dev/null | wc -l`],

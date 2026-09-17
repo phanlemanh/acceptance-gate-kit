@@ -75,7 +75,7 @@ function kho(signoff = '') {
 }
 const ghi = d => { const r = spawnSync(process.execPath, [TV, '--root', d, '--slug', SLUG, '--write', '--ag-root', KIT], { encoding: 'utf8' }); if (r.status !== 0) die('thuoc-vat --write loi: ' + r.stderr); };
 const soDocLap = d => { const r = spawnSync(process.execPath, [TV, '--root', d, '--slug', SLUG, '--json', '--ag-root', KIT], { encoding: 'utf8' }); return JSON.parse(r.stdout); };
-const the = d => { const r = spawnSync(process.execPath, [GC, '--root', d, '--slug', SLUG], { encoding: 'utf8' }); if (r.status !== 0) die('gate-card loi: ' + r.stderr); return r.stdout; };
+const the = d => { const r = spawnSync(process.execPath, [GC, '--root', d, '--slug', SLUG], { encoding: 'utf8' }); if (r.status !== 0) die('gate-card loi: ' + r.stderr); return r.stdout.replace(/\x1b\[[0-9;]*m/g, ''); };
 const extract = d => JSON.parse(spawnSync(process.execPath, [GC, '--root', d, '--slug', SLUG, '--extract'], { encoding: 'utf8' }).stdout);
 
 check('GT1 round-trip — dong do chinh bo dem ghi duoc the in thanh dung MOT dong vat · thuoc · nhat voi dung so', () => {

@@ -56,7 +56,7 @@ const hoSo = dir => {
 const the = (dir, extra = []) => {
   const r = spawnSync(process.execPath, [GC, '--root', dir, '--slug', 'demo', ...extra], { encoding: 'utf8' });
   if (r.status !== 0) die(`gate-card thoat ${r.status}: ${(r.stderr || '').slice(0, 300)}`);
-  return r.stdout;
+  return r.stdout.replace(/\x1b\[[0-9;]*m/g, '');
 };
 
 const CACHE = dungCache();
