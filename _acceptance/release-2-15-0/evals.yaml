@@ -260,3 +260,52 @@ evals:
       Bản đầu hồ sơ này KHÔNG có răng này, và phép đếm theo kho lúc dựng nó lộ vòng bị bỏ sót.
     paths: [_acceptance/release-2-15-0/contract.md, _acceptance/release-2-15-0/rang-cua-so.mjs, scripts/start-scan.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13a
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.khuon_goal_2_15
+    expected: >
+      Exit 0 và đúng một dòng «PASS: khuon-goal khac khuon tai lan cat so <số> (<sha8>) o <n> dong ·
+      mau-goal/khuon-cu.txt bang khuon rut tu neo» với n LỚN HƠN 0. Neo suy từ kho. Chiều đỏ ghim
+      mã: 2 không có nền · 3 khuôn ở cây BẰNG khuôn ở neo · 4 tệp khuôn cũ khác khuôn rút từ neo ·
+      8 thiếu cờ. Đã thử thật: trả SKILL về bản HEAD trước nhát sửa → mã 3; thêm một ký tự vào tệp
+      khuôn cũ → mã 4; khôi phục → 0. Ba bản chép khớp và đúng 6 dòng thuộc ca P85 trong suite
+      plugins (E10c) và ca gate-card-goal (E13b), không lặp ở đây.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, _acceptance/release-2-15-0/rang-goal.mjs, _acceptance/release-2-15-0/mau-goal/khuon-cu.txt]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13b
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.goal_the_2_15
+    expected: >
+      Exit 0, dòng tổng kết «Results: <n> passed, 0 failed (gate-card-goal)» với n LỚN HƠN 0, và
+      đầu ra có dòng mở đầu bằng «PASS: GL00 » — khuôn trong gate-card.js đúng 6 dòng, đúng hai chỗ
+      slug, kỳ vọng dựng độc lập từ khối trong SKILL. Lúc dựng hồ sơ, sửa SKILL và GUIDE mà chưa sửa
+      gate-card.js thì ca này ra 3 passed, 4 failed «gate-card.js lech SKILL» và P85 FAIL — chiều
+      đỏ đã xảy ra thật, không dựng.
+    paths: [scripts/gate-card.js, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/gate-card-goal.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13c
+    criterion: AC-13
+    executor: judgment
+    inputs:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - _acceptance/release-2-15-0/mau-goal/khuon-cu.txt
+      - _acceptance/release-2-15-0/mau-goal/a-cho-go-tien-de.md
+      - _acceptance/release-2-15-0/mau-goal/b-tran-nhat-thuoc.md
+      - _acceptance/release-2-15-0/mau-goal/c-tu-dung.md
+      - _acceptance/release-2-15-0/mau-goal/d-dung-lay-le.md
+    question: >
+      So khối GOAL-TEMPLATE trong SKILL feature-loop (khuôn mới) với khuôn cũ trong khuon-cu.txt.
+      Đọc bốn mẫu lần dừng: A và B là hai lần dừng hợp lệ rút gọn từ vòng thật, C và D là hai lần tự
+      dừng viết tay. Khuôn mới có (1) đặt dừng-chờ-người-gỡ-tiền-đề và dừng-ở-trần-nhát-sửa-thước
+      vào ĐÚNG vế «chờ input người», nói rõ vế ấy gồm cả dừng GIỮA vòng, trước hoặc trong S4;
+      (2) giữ điều kiện hẹp — máy phải nêu đích danh tiền đề chỉ người gỡ được, hoặc nêu các lối
+      để người chọn; (3) có câu nói thẳng dừng không nêu tiền đề hay lối nào là CHƯA hoàn thành;
+      (4) KHÔNG nới thêm lối dừng nào khác và không nhắm tới signed-off? Đọc theo khuôn mới, A và
+      B có rõ ràng thoả, còn C và D có rõ ràng không thoả không? Hội đồng KHÔNG được coi việc mình
+      đọc thoả là bằng chứng hook thật sẽ thôi chặn — hợp đồng khai giới hạn đó.
+    expected: >
+      PASS khi đủ bốn vế và A, B thoả còn C, D không thoả theo khuôn mới. REJECT khi thiếu một vế,
+      hoặc khi khuôn mới nới rộng tới mức C hoặc D cũng thoả.
+    evidence_required: [judged_by, verdict, votes, rationale]

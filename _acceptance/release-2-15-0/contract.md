@@ -1,6 +1,6 @@
 ---
 schema_version: 1
-feature: Phát hành kit 2.15.0 — cắt số cho hai gói kit sau cửa sổ chạy dưới R (0 vòng meta mới, một vòng sản phẩm thật ở OneFlow), khai MỘT vòng meta đã ký trước R, mang tiêu chí cho ba việc meta đã vào cửa sổ qua chip mà owner đếm là vá-trong-mốc, cộng hạt giống «vòng meta đang mở trong cửa sổ» trên thẻ mở phiên của kho kit
+feature: Phát hành kit 2.15.0 — cắt số cho hai gói kit sau cửa sổ chạy dưới R (0 vòng meta mới, một vòng sản phẩm thật ở OneFlow), khai MỘT vòng meta đã ký trước R, mang tiêu chí cho ba việc meta đã vào cửa sổ qua chip mà owner đếm là vá-trong-mốc, sửa khuôn /goal để hook nhận hai lần dừng hợp lệ, cộng hạt giống «vòng meta đang mở trong cửa sổ» trên thẻ mở phiên của kho kit
 slug: release-2-15-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm scripts/start-scan.mjs, commands/start.md, hai manifest, GUIDE, CHANGELOG; ba việc meta đã trên main chạm feature-loop/scripts và skills/. KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
@@ -43,12 +43,16 @@ VIEC-META-CUA-SO>>> -->
 | **răng chụp hồ sơ đã thông cổng** | main `fc1f0f22`, không hồ sơ riêng | `feature-loop/scripts/chup-ho-so-da-thong.mjs` · `repin-lane.mjs` · luật ở `skills/acceptance/` | crm-onehub 16/09: một phép đo ghi đè bằng chứng của hồ sơ đã ký sau mỗi lượt chạy, không răng nào thấy |
 | **veto một nguồn** | main `bcd0f166` + ghim lại `3ad5608e` | cùng hai tệp trên + bảng AG-ENGINE | owner veto lối khai gạch hai tệp của răng trong hồ sơ đã ký `ra-co-ten-lam-va-trao`; thay bằng hỏi `DA_THONG_CONG_2` của bộ máy |
 | **hạt giống vòng meta đang mở** | nhánh này | `scripts/start-scan.mjs` · `commands/start.md` | luật (b) cho tối đa một vòng meta giữa hai mốc mà không vật máy giữ nào đếm |
+| **khuôn `/goal` nhận hai lần dừng hợp lệ** | nhánh này | ba bản chép `GOAL-TEMPLATE`: `feature-loop/skills/feature-loop/SKILL.md` · `GUIDE.md` · `scripts/gate-card.js` | R1: hook chặn **11** lần dừng hợp lệ — 2 lần khi máy dừng chờ người cài `uv`, 9 lần khi máy dừng ở trần nhát sửa thước chờ chọn lối; bộ chấm hook đọc «chờ input người» là chỉ ở tầng cả vòng |
 | *(đã ký, không phải vá-trong-mốc)* `guide-chep-ci-buoc-vao-writer` | main `b0aaa515`, hồ sơ riêng | không — `tests/scripts/consumer-esm.test.mjs` | hai bản khai danh sách chép CI trôi khỏi nhau; đợt rollout 2.14 cho thấy thiếu một tệp là tắt lặng một lớp cưỡng chế |
 
-Bốn việc bảng trên (trừ vòng đã ký) đi đường ADR 0018: CỘNG được owner phê đích danh (chip 16/09 cho ba việc đầu, Q2
-17/09 cho hạt giống). **Chín tệp engine đổi kể từ lần cắt số `45b72057`**, chưa kể hai manifest:
-sáu tệp đã trên main từ răng chụp hồ sơ và veto, ba tệp trên nhánh này từ start-scan và hạt giống
-(`scripts/start-scan.mjs` · `scripts/trang-thai-ho-so.cjs` · `commands/start.md`). Lớp CI vendored
+Năm việc bảng trên (trừ vòng đã ký) đi đường ADR 0018: CỘNG được owner phê đích danh (chip 16/09 cho ba việc đầu, Q2
+17/09 cho hạt giống; mục D của finding bối cảnh, 17/09, cho khuôn `/goal`). **Mười một tệp
+đổi kể từ lần cắt số `45b72057`**, chưa kể hai manifest: sáu tệp đã trên main từ răng chụp hồ sơ
+và veto (trong đó có SKILL feature-loop); ba tệp trên nhánh này từ start-scan và hạt giống
+(`scripts/start-scan.mjs` · `scripts/trang-thai-ho-so.cjs` · `commands/start.md`); và hai tệp
+khuôn `/goal` thêm vào (`scripts/gate-card.js` · `GUIDE.md`), vì bản chép thứ ba nằm trong SKILL
+đã đếm. Lớp CI vendored
 không đổi tệp nào — AC-12 đo.
 
 Hai gói cùng lên **2.15.0**; `diagram-design` giữ 2.7.0.
@@ -190,12 +194,35 @@ thích vì sao finding bối cảnh ghi 142 M so 146 M là hai nền. Hồ sơ g
 của R1 và phiên crm nằm ở hai repo tiêu thụ, không nằm trong kho này; nên phép đối chiếu
 máy là với NHÂN CHỨNG đã đọc chúng, và hồ sơ nói thẳng thế.
 
-**Và nói thẳng bảy điều bất lợi:** cửa sổ «0 vòng meta mới» có một vòng meta đã ký trước R
+**Và nói thẳng tám điều bất lợi:** hiệu lực của khuôn `/goal` mới không đo được trước khi ship · cửa sổ «0 vòng meta mới» có một vòng meta đã ký trước R
 mà hai tài liệu tổng kết bỏ sót · token một vòng sản phẩm KHÔNG rẻ hơn vòng meta nặng nhất
 của 2.14 · lượt gọi người vượt trần bốn vòng liền, qua ba cửa sổ · tìm-lỗi rơi về 9,5 % nhưng làn
 `ui` chiếm 91 % lượt cuối · việc meta của cửa sổ không có số token nào · ngưỡng mở lại của luật (a) đã
 chạm · router trượt lần thứ tư. Che bất kỳ điều nào là FAIL. §4 phải gọi tên đủ năm nhát
 cắt owner dịch 17/09 và định đoạt hai mục T1 của R2 kèm lý do.
+
+### AC-13 (khuôn `/goal`) — hook nhận hai lần dừng hợp lệ là hoàn thành, vẫn chặn lần dừng lười
+
+**Given** khuôn `GOAL-TEMPLATE` ở ba bản chép, và bốn mẫu lần dừng trong `mau-goal/`: hai mẫu
+hợp lệ rút gọn từ hai lần dừng thật của R1 (dừng trước S4 chờ người gỡ tiền đề `uv` · dừng giữa
+S4 ở trần nhát sửa thước chờ người chọn một trong ba lối), hai mẫu tự dừng viết tay
+**When** chạy `rang-goal.mjs --chan khuon-goal`, ca `gate-card-goal` và ca thường trực P85; và hội
+đồng đọc khuôn mới, khuôn cũ cùng bốn mẫu
+**Then** máy: ba bản chép khớp, đúng 6 dòng, thẻ Cổng 1 in đúng dòng rút từ SKILL; khuôn ở cây
+KHÁC khuôn ở lần cắt số trước; tệp khuôn cũ bằng khuôn rút từ kho. Hội đồng: khuôn mới đặt hai lần
+dừng hợp lệ vào ĐÚNG vế «chờ input người», nói rõ vế ấy gồm cả dừng GIỮA vòng, trước hoặc trong
+S4; điều kiện hẹp — máy phải nêu đích danh tiền đề chỉ người gỡ được, hoặc nêu các lối để người
+chọn; có câu nói thẳng dừng không nêu tiền đề hay lối nào là CHƯA hoàn thành; và không nới thêm lối
+dừng nào khác, không nhắm tới `signed-off`.
+
+**Giới hạn của tiêu chí này, khai thẳng:** hiệu lực thật — hook THẬT có thôi chặn hay không —
+không đo được trước khi ship. Lúc dựng hồ sơ, một bộ chấm dựng lại (model nhỏ, hai kiểu đầu vào:
+tin nhắn trần · kèm ngữ cảnh vòng và lệnh đọc chặt) cho **cùng phán quyết với khuôn cũ và khuôn
+mới ở cả 16 lượt chấm**: hai mẫu hợp lệ qua, hai mẫu lười bị chặn, ở cả hai khuôn. Tức nó không tái
+hiện được chiều đỏ mà hook thật đã gây ra 11 lần ở R1, và một cặp ca «gỡ vế mới thì đỏ» dựng trên
+nó là thước giả. Căn cứ của nhát sửa là lý do hook thật tự ghi: «dừng giữa vòng lặp S4 … không phải
+escalation ở tầng feature-loop». Ngưỡng đang đếm: **≥ 1 lần hook chặn một lần dừng có nêu tiền đề
+hoặc lối** ở vòng sản phẩm đầu tiên chạy trên 2.15.0 → mở lại.
 
 ### AC-12 (sự thật của cửa sổ) — hai lời khai về cửa sổ suy từ kho, không chép tay
 
@@ -222,7 +249,7 @@ không theo tổ hợp.
 - **Trục việc-đã-vào-cửa-sổ** `[thước CE: bảng Context — bốn việc owner gọi tên, liệt kê
   đóng, và tập hồ sơ vòng đối chiếu bằng máy ở AC-12]`: start-scan vật-đã-ở-nhánh-gốc →
   AC-3, AC-4, AC-5, AC-6 · răng chụp hồ sơ → AC-7 · veto một nguồn → AC-8 · hạt giống vòng
-  meta → AC-9 · vòng đã ký `guide-chep-ci-buoc-vao-writer` → có hồ sơ và chữ ký riêng, mốc chỉ
+  meta → AC-9 · khuôn `/goal` → AC-13 · vòng đã ký `guide-chep-ci-buoc-vao-writer` → có hồ sơ và chữ ký riêng, mốc chỉ
   khai và đếm nó (AC-11, AC-12).
 - **Trục của nhát vá start-scan** `[thước CE: ca thật crm-onehub 16/09 + ba lối thoát của
   merge-base]`: tệp bằng chứng vắng · tên chuẩn · tên đổi `xep-lai` × commit tổ tiên ·
@@ -267,6 +294,11 @@ không theo tổ hợp.
   khác sẽ bị đếm là một vòng meta. Ngưỡng đang đếm: ≥ 1 lần cờ bật sai vì tên giữa hai mốc.
 - **Dòng đếm vòng meta nhận kho kit theo tên manifest** `acceptance-gate` ở gốc. Một fork
   đổi tên plugin sẽ không thấy dòng này.
+- **Khuôn `/goal` mới chưa có bằng chứng hiệu lực** — xem giới hạn khai ở AC-13; ngưỡng mở lại
+  đang đếm ở đó. Mẫu hợp lệ rút gọn và gỡ chi tiết sản phẩm, nên đầu vào hội đồng không phải
+  transcript nguyên văn.
+- **Tiêu chí AC-13 thêm SAU phản biện context sạch** — không qua lượt phản biện nào; lượt chấm S4
+  là lượt soi đầu tiên của nó.
 - **Việc meta không mở hồ sơ vô hình với mọi phép đếm máy** — cả dòng thẻ mở phiên lẫn vế
   (b) của AC-12. Hai trong ba việc chip của cửa sổ này có đúng hình dạng đó. Ngưỡng đang đếm:
   ≥ 1 việc chạm engine lên nhánh gốc không qua hồ sơ nào giữa hai mốc — cửa sổ này đã 2.
@@ -283,7 +315,7 @@ ba là vòng meta đã ký của cửa sổ. Cột bốn là ba việc chip, đ�
 | Dòng | R1 `skill-system-v1` (OneFlow, T3) | phiên `cua-vao-noi-tieng-viet` (crm-onehub, T2) | vòng meta `guide-chep-ci-buoc-vao-writer` (kho kit, T2) | ba việc chip (kho kit) | Nguồn rút |
 |---|---|---|---|---|---|
 | 1 làm-xong → quyết-được | **5 h 49**: `implemented` 16/09 19:55 → chữ ký Cổng Bằng chứng 17/09 01:45 (+07); trong đó **3 h 49** chờ ở một lượt gọi hạ tầng | **không đo được** — vòng không tới Cổng Bằng chứng; phiên kéo **8 h 25** và kết ở việc duyệt lại Cổng Phạm vi | **17 phút**: dòng eval đầu của lượt 1 (16/09 02:00Z) → commit chữ ký 09:17 (+07) | start-scan: đóng ở chữ ký mốc này · răng chụp hồ sơ: **không có khoảnh khắc quyết** — lên main không qua cổng nào · veto: **2 h 05** từ commit khai gạch tới commit veto | R1: giờ tác giả của `cca41a6` · `51b7112` ở OneFlow, finding R1 §4 mục e · crm: finding truy nguyên §1 · vòng meta: `run-log.jsonl` của nó và commit `b0aaa515` · chip: git `9ddcd021` → `bcd0f166` |
-| 2 lượt gọi người | **8** so trần T3 **4**: 7 đã xảy ra lúc nhân chứng đo + 1 chữ ký sau đó. Trong thiết kế **3** (Phạm vi · 1.5 · Bằng chứng) · ngoài thiết kế **5**, trong đó **hạ tầng 4** (API chết · agent treo · `uv` · tranh tài nguyên làn chấm) và phạm vi đo 1. Chạm: trong 2 · ngoài 10 — chạm của lượt ký không đếm được | **9** = **hạ tầng 4** · phạm vi đo 4 · Cổng Phạm vi 1; tức trong thiết kế 1 · ngoài 8. Chạm không đếm | sàn **2** đếm từ sổ: Bằng chứng (trong thiết kế) · chọn tách commit sau khi cổng T1 đỏ (ngoài thiết kế); Phạm vi đi làn V | sàn **3** đếm từ sổ, không từ transcript: phê CỘNG start-scan · chọn giữ nhánh tới lượt chấm mốc · veto lối khai gạch. Mức cửa sổ, ghi riêng: R (16/09) · câu trả lời Q1–Q3 (17/09) | R1: finding R1 §4 dòng «Tổng» cộng commit `51b7112` · crm: finding truy nguyên §1 · vòng meta: `decisions.jsonl` của nó, dòng 1 · chip: `decisions.jsonl` của hồ sơ này và của `ra-co-ten-lam-va-trao` |
+| 2 lượt gọi người | **8** so trần T3 **4**: 7 đã xảy ra lúc nhân chứng đo + 1 chữ ký sau đó. Trong thiết kế **3** (Phạm vi · 1.5 · Bằng chứng) · ngoài thiết kế **5**, trong đó **hạ tầng 4** (API chết · agent treo · `uv` · tranh tài nguyên làn chấm) và phạm vi đo 1. Chạm: trong 2 · ngoài 10 — chạm của lượt ký không đếm được. **Cộng một lượt máy tiêu vô ích không tính là lượt gọi người:** hook `/goal` chặn **11** lần dừng hợp lệ — 2 ở ca chờ `uv`, 9 ở ca trần nhát sửa thước, trong đó máy trả lời lại cùng một câu **7** lượt | **9** = **hạ tầng 4** · phạm vi đo 4 · Cổng Phạm vi 1; tức trong thiết kế 1 · ngoài 8. Chạm không đếm | sàn **2** đếm từ sổ: Bằng chứng (trong thiết kế) · chọn tách commit sau khi cổng T1 đỏ (ngoài thiết kế); Phạm vi đi làn V | sàn **3** đếm từ sổ, không từ transcript: phê CỘNG start-scan · chọn giữ nhánh tới lượt chấm mốc · veto lối khai gạch. Mức cửa sổ, ghi riêng: R (16/09) · câu trả lời Q1–Q3 (17/09) | R1: finding R1 §4 dòng «Tổng» cộng commit `51b7112`; số lần hook chặn đếm từ transcript phiên R1 (dòng «Stop hook feedback»: 12:56:32Z và 12:56:50Z · chín dòng 13:50:18Z–13:51:29Z) — finding R1 ghi 9, finding bối cảnh ghi «bảy», cả hai đúng một phần · crm: finding truy nguyên §1 · vòng meta: `decisions.jsonl` của nó, dòng 1 · chip: `decisions.jsonl` của hồ sơ này và của `ra-co-ten-lam-va-trao` |
 | 3 lượt chấm bị hạ tầng đốt | **2 / 3** lượt trọn — lượt 1 (`uv` vắng · ô `not-run` vẫn bị thi hành) · lượt 3 (E14 dưới tải · hai lượt cùng ghi bản dựng); cộng **1** lượt huỷ vì args soạn tay | **0 / 3** lượt BLOCKED; cả ba lượt đỏ vì THƯỚC của repo, không vì vật; cộng 1 lượt chấm tuần tự tự ứng biến rồi vứt; phép đo ghi đè hồ sơ đã ký, khôi phục tay **3** lần | **0 / 1** — lượt 1 PASS | **0** lượt chấm S4 (start-scan chờ lượt mốc; hai việc kia không hồ sơ) · **2** làn ghim lại riêng cho hồ sơ đã ký bị chạm (`7ebfe3de` · `3ad5608e`) | R1: finding R1 §5 · crm: commit `53d6b8f` · `9f9d042` ở crm và finding truy nguyên §2 · vòng meta: commit `22f89822` · chip: git kho kit |
 | 4 token máy | lượt 1 **42,83 M** · lượt 2 **34,82 M** · lượt 3 **69,43 M** · huỷ 0,69 M · **S4 gộp 147,77 M** (36,9 M/lượt trọn). Lượt cho verdict là lượt chạy lại hạ tầng không có `wf-usage` → **không đo được** | **không đo được** — không `wf-usage`. Đếm theo loại từ transcript: cache-read 179,2 M · tạo cache 4,4 M · ra 0,34 M | **không đo được** — hồ sơ không có `usage-report.md` | **không đo được** — phiên chip không có `wf-usage` | R1: finding R1 §5, NỀN per-model có cache_create như mốc 2.14.0; phiên này đã cộng lại `usage-report.md` của OneFlow và khớp từng lượt · crm: finding truy nguyên §1 |
 | 4b ba khối | tìm-lỗi lượt 1 **20,2 %** · lượt 2 **10,0 %** · lượt 3 **2,7 %** · gộp **9,5 %**; làn `ui` lượt 3 **91,2 %** | không đo được | không đo được | không đo được | finding R1 §3, NỀN bảng vai trò (không cache_create), ánh xạ như mốc 2.14.0; `ui` và `judge` xếp vào chứng-minh-vật |
@@ -402,7 +434,9 @@ có hồ sơ; việc không mở hồ sơ vẫn vô hình với cả hai.
    là «dặn-bằng-lời làm nghiệm», thứ north star cấm. Cần một răng ở tầng trình bày trước.
 8. **Đếm token cho việc meta ngoài Workflow.** Ba việc của cửa sổ không có số vì phiên chip
    không có `wf-usage`; luật (b) cần đúng số đó.
-9. **Chiến dịch ghim lại** — R3 giữ nguyên: không chạy dạng hiện tại, điều kiện tồn tại là
+9. **Đo hiệu lực khuôn `/goal` ở vòng sản phẩm kế** — ngưỡng ở AC-13. Nếu hook vẫn chặn, nhát sửa
+   bằng chữ đã hết đường; lối kế là một vật máy giữ (trạng thái dừng ghi vào hồ sơ để hook đọc).
+10. **Chiến dịch ghim lại** — R3 giữ nguyên: không chạy dạng hiện tại, điều kiện tồn tại là
    «ghim lại theo diff».
 
 - Thước tự dối: không dán cụm hình glob vào văn hồ sơ; mọi mẫu ở đây nói bằng chữ.

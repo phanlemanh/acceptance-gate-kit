@@ -41,6 +41,13 @@ cho cả ba, cùng năm dòng số lần đầu có cột từ repo tiêu thụ.
   `.acceptance-runs/<slug>/` hoặc thư mục tạm, không bao giờ vào `_acceptance/`.
   Hai trạng thái «đã thông cổng» của răng hỏi đúng một nguồn trong bộ máy, không
   chép — owner đã veto lối khai gạch hai tệp trong một hồ sơ đã ký.
+- **Dòng `/goal` thôi chặn hai kiểu dừng hợp lệ.** Ở vòng R1, hook `/goal`
+  chặn 11 lần máy dừng đúng luật: 2 lần khi máy chờ người cài một công cụ còn
+  thiếu trước bước nghiệm thu, 9 lần khi máy dừng ở trần sửa thước chờ người chọn
+  lối — và máy trả lời lại cùng một câu 7 lượt. Bộ chấm của hook hiểu «chờ người»
+  là chỉ ở tầng cả vòng. Khuôn mới nói rõ hai kiểu dừng giữa vòng ấy cũng là «chờ
+  người», với điều kiện máy nêu đích danh tiền đề hoặc các lối để chọn; dừng không
+  nêu gì vẫn bị chặn. Hiệu lực thật chỉ đo được ở vòng sản phẩm kế.
 - **Kho kit: thẻ `/start` đếm vòng meta đang mở.** Luật cho tối đa một vòng meta
   giữa hai mốc, nhưng cửa sổ 2.13 → 2.14 có hai vòng chạy song song ở hai phiên
   và con số chỉ lộ khi mốc đếm. Ở chính kho kit, thẻ nay in «vòng meta đang mở

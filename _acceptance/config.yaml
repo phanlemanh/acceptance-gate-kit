@@ -346,6 +346,8 @@ executors:
     vong_meta_2_15: "bash -c 'out=$(node tests/scripts/vong-meta-dang-mo.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in VM1 VM2 VM3 VM4 VM5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     cua_so_vendored_2_15: node _acceptance/release-2-15-0/rang-cua-so.mjs --chan vendored
     cua_so_viec_meta_2_15: node _acceptance/release-2-15-0/rang-cua-so.mjs --chan viec-meta
+    khuon_goal_2_15: node _acceptance/release-2-15-0/rang-goal.mjs --chan khuon-goal
+    goal_the_2_15: "bash -c 'out=$(node tests/scripts/gate-card-goal.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: GL00 \" && printf \"%s\\n\" \"$out\" | grep -qE \"^Results: [1-9][0-9]* passed, 0 failed\"'"
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

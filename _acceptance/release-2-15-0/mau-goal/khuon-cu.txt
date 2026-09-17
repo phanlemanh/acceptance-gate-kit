@@ -1,0 +1,6 @@
+/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
+S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
+_acceptance/<slug>/contract.md sang status: verified. Loop đã escalate cho
+user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH
+— để dừng. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
+sau 15 turns.
