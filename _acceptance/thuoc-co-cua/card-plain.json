@@ -56,6 +56,18 @@
   {
    "id": "d-20260917T140822Z-13",
    "p": "Máy tự phát hiện: gọi bộ đếm tay với đường gốc tương đối thì lỗi nạp thư viện; đường chính không vướng — KHÔNG sửa trong lượt sửa, chờ anh quyết."
+  },
+  {
+   "id": "d-20260917T143551Z-14",
+   "p": "Anh trả lại ở Cổng Bằng chứng lượt 2: «sửa CRLF lượt chấm 3» — không ghi chữ ký nào."
+  },
+  {
+   "id": "d-20260917T143747Z-15",
+   "p": "Sửa sau lượt chấm 2: bộ đếm đọc trạng thái hợp đồng bằng đúng bộ đọc chung của các cổng; đổi lại bộ đếm cần thư viện có bộ đọc ấy (thiếu thì dừng, không tự đọc)."
+  },
+  {
+   "id": "d-20260917T150554Z-16",
+   "p": "Máy phát hiện: phần lịch sử lượt chấm trong báo cáo do máy viết kể sai lượt 1 (thật ra là trả lại) — KHÔNG tự sửa văn báo cáo, nguồn đúng là sổ chạy; anh quyết."
   }
  ]
 }
