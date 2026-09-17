@@ -88,7 +88,16 @@ tay: hai mục hợp đồng và một luật ghi sổ, không đổi kit.
 - **Điều kiện mở** (nhân chứng độc lập điền sau R1, không phải phiên chạy R1): nhát
   sửa thước S4 ≥ 3 *hoặc* tiền đề dry-run bắt ≥ 1 tường trước Cổng Phạm vi → «có căn
   cứ xếp hàng ở 2.15 → 2.16, cạnh router/token theo luật R»; cả hai bằng 0 → «park —
-  bài riêng của cua-vao». Số R1: *(chưa có)*.
+  bài riêng của cua-vao». **Số R1 (nhân chứng độc lập đọc 17/09 tại HEAD `7a6bfa8`,
+  hợp đồng `verified`, Cổng Bằng chứng chưa ký — nguồn từng số:
+  `docs/findings/2026-09-17-quan-sat-r1-ba-dinh.md`):** tiền đề dry-run 8/10 đứng
+  được, **bắt 2 tường trước Cổng 1** (TD-8 một phần · TD-10, entry
+  `d-20260916T115631Z-10`); nhát sửa thước S4 **3 theo tiền tố «thước:»** (entry
+  `-17`, `-19`, `-21`), 5 theo tệp chạm; dòng S4 thước +121/−22 so vật +24/−9; dòng
+  4b 2,7 % ở lượt cuối · 9,5 % gộp bốn lượt; lượt gọi người 7 đã xảy ra + 1 chờ, ngoài
+  thiết kế 5 (hạ tầng 4). Cả hai vế đều vượt ngưỡng → **«có căn cứ xếp hàng ở
+  2.15 → 2.16, cạnh router/token theo luật R»**. Số của một vòng, chưa nói xu hướng;
+  nhân chứng không khuyến nghị nhát nào.
 - **disposition = …**
 - **Ngưỡng UAT chốt cùng lúc ký:** chép từ bullet `[đề xuất]` sau khi người gỡ tiền tố.
 
