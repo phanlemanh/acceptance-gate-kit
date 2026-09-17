@@ -275,5 +275,80 @@ check('DK12 ma trung vat qua dau niem Cong 1: da duyet #1 #2, Treo #3; dem Treo 
   eq(extract(mg, r, 's').decisions_approved.map(d => d.key), [`${DUP}#2`, `${DUP}#3`], 'dot bien dem Treo truoc');
 });
 
+// ---- ô `target` tuỳ chọn của dòng sổ (thuoc-co-cua AC-13) ----
+// Bên VIẾT: khuôn lệnh DEC-ID-RECIPE + đoạn chèn DEC-TARGET-SLOT, cả hai rút qua marker của SKILL.
+// Bên ĐỌC: ba bộ đọc sổ THẬT chạy trên fixture code-sinh — thẻ (--extract), bộ quét bài học,
+// bộ đếm sức khoẻ vòng. Không dựng dòng sổ theo khuôn bên đọc.
+const slotOf = t => {
+  const m = t.match(/<!-- <<<DEC-TARGET-SLOT -->\n([^\n]+)\n<!-- DEC-TARGET-SLOT>>> -->/);
+  if (!m) die('SKILL feature-loop thieu khoi marker DEC-TARGET-SLOT (mot dong)');
+  return m[1];
+};
+const IMPACT_HOLE = '"impact":"<đổi lại gì>"';
+const lenhVoiO = (recipe, slot) => {
+  if (recipe.split(IMPACT_HOLE).length !== 2) die('khoi DEC-ID-RECIPE khong con dung mot o impact de chen target sau no');
+  return recipe.split(IMPACT_HOLE).join(IMPACT_HOLE + slot);
+};
+const ghiSo = (cmd, shell, lop) => {
+  const d = mkdtempSync(path.join(tmpdir(), 'dectarget-'));
+  mkdirSync(path.join(d, '_acceptance', 'x'), { recursive: true });
+  const line = cmd.split('<slug>').join('x').split('<type>').join('fix').split('<stage>').join('S4-r1')
+    .split('<ISO>').join('2026-09-17T00:00:00Z').split('<1 câu>').join(REAL_JSON)
+    .split('<đổi lại gì>').join('doi lai y').split('<lớp>').join(lop);
+  const r = spawnSync(shell, ['-c', line], { cwd: d, encoding: 'utf8' });
+  if (r.status !== 0) die(`lenh ghi so co o target khong chay duoi ${shell}: ` + String(r.stderr).split('\n')[0]);
+  const raw = readFileSync(path.join(d, '_acceptance', 'x', 'decisions.jsonl'), 'utf8').trim();
+  let e; try { e = JSON.parse(raw); } catch (_) { return die('dong so khong phai JSON: ' + raw); }
+  return { d, e, raw };
+};
+const loopFix = root => {
+  writeFileSync(path.join(root, '_acceptance', 'x', 'contract.md'), '---\nslug: x\nrisk_tier: T2\nstatus: implemented\n---\n');
+  const r = spawnSync('node', [path.join(ROOT, 'scripts', 'loop-health.mjs'), '--root', root, '--json'], { encoding: 'utf8' });
+  let j; try { j = JSON.parse(r.stdout); } catch (_) { return die('loop-health khong in JSON: ' + (r.stderr || r.stdout).slice(0, 200)); }
+  const row = (j.rows || []).find(x => x.slug === 'x');
+  return row ? row.fix_s4 : die('loop-health khong co hang cho ho so x');
+};
+
+check('DK14 dong so co o target (khuon SKILL + DEC-TARGET-SLOT): JSON hop le bash + zsh, bo dem suc khoe vong van dem; bo dau phay cua o -> DO', () => {
+  const recipe = recipeOf(SKILL); const slot = slotOf(SKILL);
+  for (const sh of HAS_ZSH ? ['bash', 'zsh'] : ['bash']) {
+    const { d, e } = ghiSo(lenhVoiO(recipe, slot), sh, 'thuoc');
+    eq([e.target, e.decision, e.type, e.stage], ['thuoc', REAL_TEXT, 'fix', 'S4-r1'], `dong so co o target (${sh})`);
+    eq(loopFix(d), 1, `loop-health dem dong fix S4 co o target (${sh})`);
+  }
+  const mut = slot.replace(/^,/, '');
+  if (mut === slot) die('dot bien khong bo duoc dau phay dau cua o target');
+  let msg = null;
+  try { ghiSo(lenhVoiO(recipe, mut), 'bash', 'thuoc'); } catch (err) { msg = err.message; }
+  if (!msg || !msg.startsWith('dong so khong phai JSON:')) die('bo dau phay cua o target ma dong so van doc duoc — phep do khong phan biet: ' + msg);
+});
+
+check('DK15 doc-cu, chieu im: dong so KHONG co o target doc duoc y het dong co o o the, bo quet bai hoc va bo dem suc khoe vong', () => {
+  const recipe = recipeOf(SKILL); const slot = slotOf(SKILL);
+  const co = ghiSo(lenhVoiO(recipe, slot), 'bash', 'vat');
+  const khong = ghiSo(recipe, 'bash', 'vat');
+  if ('target' in khong.e) die('doi chung hong: dong khong o van co target');
+  eq(loopFix(khong.d), loopFix(co.d), 'loop-health fix_s4 co o vs khong o');
+  const scan = raw => {
+    const d = mkdtempSync(path.join(tmpdir(), 'dectarget-scan-'));
+    mkdirSync(path.join(d, '_acceptance', 'a'), { recursive: true }); mkdirSync(path.join(d, '_acceptance', 'b'), { recursive: true });
+    writeFileSync(path.join(d, '_acceptance', 'a', 'decisions.jsonl'), raw + '\n');
+    const r = spawnSync('node', [path.join(ROOT, 'feature-loop', 'scripts', 'claim-scan.mjs'), '--root', d, '--slug', 'b'], { encoding: 'utf8' });
+    if (r.status !== 0) die('claim-scan loi: ' + r.stderr);
+    return r.stdout;
+  };
+  const sCo = scan(co.raw), sKhong = scan(khong.raw);
+  if (!sKhong.includes('doi lai y')) die('doi chung duong hong: bo quet bai hoc khong doc dong so khong o');
+  eq(sCo, sKhong, 'claim-scan co o vs khong o');
+  const the = raw => {
+    const r = wsG1({});
+    writeFileSync(path.join(r, '_acceptance', 'g', 'decisions.jsonl'), raw + '\n');
+    return extract(GC, r, 'g').decisions.map(x => [x.type, x.stage, x.decision, x.impact]);
+  };
+  const tKhong = the(khong.raw);
+  if (tKhong.length !== 1) die('doi chung duong hong: the khong doc dong so khong o');
+  eq(the(co.raw), tKhong, 'the --extract co o vs khong o');
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-dec-key)`);
 process.exit(failed ? 1 : 0);

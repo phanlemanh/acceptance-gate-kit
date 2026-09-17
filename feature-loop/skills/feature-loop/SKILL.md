@@ -67,6 +67,11 @@ JSON
 ```
 <!-- DEC-ID-RECIPE>>> -->
 
+**Lớp của nhát sửa (dòng `fix` ở S4, thuoc-co-cua AC-13):** thêm ĐÚNG đoạn dưới vào dòng giữa của khối lệnh trên, NGAY SAU `"impact":"<đổi lại gì>"` — không chen giữa `type` và `stage` (bộ đếm sức khoẻ vòng khớp hai khoá ấy trên chuỗi thô). `<lớp>` chép nguyên văn từ `node "$WORKFLOWS_DIR/../scripts/thuoc-vat.mjs" --root . --slug <slug> --target HEAD` sau khi commit nhát sửa. Ô này TUỲ CHỌN và chỉ để người đọc sổ: số nhát sửa thước do git đếm, không bao giờ đọc từ sổ — dòng thiếu ô vẫn đọc được ở mọi bộ đọc.
+<!-- <<<DEC-TARGET-SLOT -->
+,"target":"<lớp>"
+<!-- DEC-TARGET-SLOT>>> -->
+
 **Rule đáng-log (chống nhiễu):** CHỈ khi (a) loại một phương án khả dĩ ∨ (b) cố tình nhận downside ∨ (c) có điều kiện revisit. Không có phương án thay thế → KHÔNG log; feature đơn giản 0 entry là hợp lệ. `descope` = ưu tiên 1 — quyết định "không làm" vô hình trong code, đắt nhất khi bị lật lại.
 
 **Điểm ghi (friction ≈ 0, cuối stage):** cuối S1 (approach/descope chưng cất từ brainstorm — design-doc giữ văn xuôi) · cuối S2 (lựa chọn load-bearing của plan) · giữa S3 khi buộc đổi hướng so với plan · mỗi S4 REJECT→fix: `stage:"S4-r<N>"`, ghi cách-sửa-đã-chọn + vì sao · Gate 2 nếu human để lại revisit/override. **Seal:** khi Gate 1 duyệt, append `{"id":"d-...","type":"seal","gate":1,"at":"<ISO>"}` CÙNG LÚC set `approved_by` — mọi dòng SAU seal là provisional bất kể `stage` tự khai, card Gate 2 trình riêng khối "CHƯA duyệt" cho human phê. **Lật quyết định:** entry mới `supersedes:"<id>"` + human phê ở gate kế — không sửa/xóa dòng cũ.
