@@ -41,8 +41,8 @@ function readers(agRoot) {
     try { core = req(c); break; } catch (e) { vet.push(`${c} (${String(e.message).split('\n')[0]})`); }
   }
   if (!core) die3(`không nạp được lib/evidence-core.cjs — đã thử: ${vet.join(' · ')}; truyền --ag-root <gốc plugin acceptance-gate>`);
-  for (const n of ['parseFlowValue'])
-    if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} (cần >= 2.11.0) — truyền --ag-root trỏ bản >= 2.11.0`);
+  for (const n of ['parseFlowValue', 'machineEvalIdsSkipped'])
+    if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} (cần >= 2.12.0) — truyền --ag-root trỏ bản >= 2.12.0`);
   SHARED = core;
   return SHARED;
 }
@@ -135,7 +135,11 @@ function crossLayerACs(contract) {
 
 export function plan({ runLogText, evalsText, contractText, deltaFiles, round, agRoot }) {
   const R = readers(agRoot);
-  const evals = parseEvals(evalsText, R).filter(e => e.executor !== 'judgment');
+  // Ô tự khai `status: not-run` không vào kế hoạch carry: CÙNG hàm với s4-args và làn
+  // ghim lại (lib/evidence-core.cjs), không chép luật. null = eval-yaml.cjs vắng → dừng có tên.
+  const khongChay = R.machineEvalIdsSkipped(evalsText);
+  if (khongChay === null) die3('không đọc được lời khai not-run: lib/eval-yaml.cjs vắng cạnh evidence-core.cjs — KHÔNG đoán');
+  const evals = parseEvals(evalsText, R).filter(e => e.executor !== 'judgment' && !khongChay.includes(e.id));
   const xACs = crossLayerACs(contractText);
   const prevRound = round - 1;
   const lines = runLogText.split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch (_) { return null; } }).filter(Boolean);

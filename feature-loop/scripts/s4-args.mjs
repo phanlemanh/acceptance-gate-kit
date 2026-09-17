@@ -71,8 +71,9 @@ agRoot = (() => { try { return fs.realpathSync(agRoot); } catch { return die(`--
 for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acceptance-gate root thiếu ${r} (root: ${agRoot})`);
 
 const require_ = createRequire(import.meta.url);
-const { resolveConfigKey, resolveConfigList, frontmatterField, parseFlowValue } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
+const { resolveConfigKey, resolveConfigList, frontmatterField, parseFlowValue, machineEvalIdsSkipped } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
 if (typeof resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0) — cập nhật plugin');
+if (typeof machineEvalIdsSkipped !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có machineEvalIdsSkipped (cần ≥ 2.12.0) — cập nhật plugin');
 // MỘT bộ bóc nháy dùng chung cho mọi đường giá-trị-bị-thi-hành (hồ sơ
 // release-2-11-0). Thiếu hàm = plugin cũ hơn 2.11.0: fail-CLOSED có tên, KHÔNG
 // rơi về mệnh đề cũ — rơi về nó chính là đường xanh-giả vòng này đóng.
@@ -112,6 +113,16 @@ const REQ_ARR = uniq(Object.values(EVAL_REQUIRED).flatMap(v => v.arr));
 // ── evals: scalar qua parser dùng chung + list fields quét cục bộ ──────────
 const evals = parseEvals(evalsText, uniq([...REQ_STR, 'executor', 'expected', 'runs']));
 if (!evals.length) die('evals.yaml không có eval nào (hoặc không parse được)');
+// ── ô tự khai `status: not-run`: CÙNG hàm với làn ghim lại và bên đọc pin
+// (lib/evidence-core.cjs). Lượt chấm không thi hành ô ấy; tệp args GỌI TÊN nó để
+// báo cáo nói ra, không im. Khoá vắng hẳn khi không ô nào khai (cùng luật evals_not_run).
+const evalsNotRun = machineEvalIdsSkipped(evalsText);
+if (evalsNotRun === null) die('không đọc được lời khai not-run: lib/eval-yaml.cjs vắng ở gốc acceptance-gate — KHÔNG đoán');
+if (evalsNotRun.length) {
+  for (let i = evals.length - 1; i >= 0; i--) if (evalsNotRun.includes(evals[i].id)) evals.splice(i, 1);
+  if (!evals.length) die('mọi eval đều khai status: not-run — không còn gì để chấm');
+  console.error(`s4-args: không chạy theo hồ sơ: ${evalsNotRun.join(', ')}`);
+}
 
 // ── kỳ vọng mã thoát: nguồn DUY NHẤT là expectedExits (lib/eval-yaml.cjs).
 // Workflow chạy không có filesystem nên không tự đọc evals.yaml được — script
@@ -482,6 +493,7 @@ const args = {
   round,
   riskTier,
   evals,
+  ...(evalsNotRun.length ? { evalsNotRun } : {}),
   suiteCommands,
   diffBase,
   repoRoot: root,
