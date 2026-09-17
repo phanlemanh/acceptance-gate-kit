@@ -145,6 +145,23 @@
     {
       "id": "d-20260917T025314Z-11",
       "p": "KHÔNG dựng bộ giả lập hook để đo nghĩa của dòng /goal — bộ chấm dựng thử cho cùng kết quả với dòng cũ và dòng mới, nên sẽ là thước giả."
+    },
+    {
+      "id": "d-20260917T030601Z-13",
+      "p": "Đã đưa hồ sơ mốc thẳng sang «code xong» sau khi duyệt phạm vi — mọi vật đã làm xong trước đó, không cần lập kế hoạch lại."
+    },
+    {
+      "id": "d-20260917T033000Z-14",
+      "p": "Đã sinh lại một thẻ lưu trong hồ sơ đã ký cũ khi dòng /goal đổi, đi đúng luật sửa sử liệu và ghim lại riêng hồ sơ đó — đổi lại một làn máy 13 phút trước lượt chấm."
+    },
+    {
+      "id": "d-20260917T040500Z-15",
+      "p": "Đã sửa phép đo «cây chấm có sạch không» chỉ soi tệp đã theo dõi, vì lượt chấm 1 đỏ oan do tệp tạm của bộ kiểm thử chạy song song — đổi lại tệp mới chưa commit không bị phép đo này thấy."
+    },
+    {
+      "id": "d-20260917T045000Z-16",
+      "p": "Đã thêm lý do vào bốn ô «không đo được» và ghi thêm chữ nhát cắt kế theo lượt rà hạ tầng, rồi chấm lại riêng phần Notes — đổi lại một lượt chấm, không phải hỏi anh."
     }
-  ]
+  ],
+  "analyst_plain": "Không có phép đo nào xanh ở cả hai phía — mọi eval của mốc đều phân biệt được bản cũ với bản mới."
 }
