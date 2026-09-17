@@ -141,11 +141,60 @@ function so(khong, co, ten, dauSong) {
   else bad('recheck-evidence doi chung duong: khong phai tieng keu provenance cua chinh bo doc', rbia.slice(0, 160));
 }
 
+// ── 4. dòng `kind: thuoc-vat` (thuoc-co-cua AC-11/AC-13) — loại dòng thứ hai, cùng luật ──
+// Bộ đếm vật · thước · nhát nối một dòng vào sổ sau mỗi lượt chấm. Dòng dựng bằng CHÍNH hàm
+// của bên viết (`dongThuocVat`, rút khuôn marker THUOC-VAT-LINE) — không gõ tay khuôn.
+{
+  const { dongThuocVat } = await import(path.join(ROOT, 'feature-loop', 'scripts', 'thuoc-vat.mjs'));
+  const TV = dongThuocVat({ san: 'b'.repeat(40), vat: [3, 1], thuoc: [9, 2], hoSo: [40, 0], nhat: 2, lan: 1, tepThuoc: ['tests/a.test.mjs'] }, { round: 1, ts: '2026-09-17T00:00:00Z' });
+  if (JSON.parse(TV).kind !== 'thuoc-vat') { bad('thuoc-vat: ben viet khong dung dong kind thuoc-vat'); }
+  // round-tally-read
+  {
+    const a = path.join(T, 'tv-a.jsonl'), b = path.join(T, 'tv-b.jsonl');
+    writeFileSync(a, `${EVAL}\n${TALLY}\n`);
+    writeFileSync(b, `${EVAL}\n${TALLY}\n${TV}\n`);
+    const chay = f => { try { return execFileSync(process.execPath, [path.join(ROOT, 'feature-loop', 'scripts', 'round-tally-read.mjs'), '--run-log', f], { encoding: 'utf8' }); } catch (e) { return `NEM LOI: ${String(e.stderr || e.message).slice(0, 100)}`; } };
+    so(chay(a).replace(/"[^"]*tv-a\.jsonl"/g, '"F"'), chay(b).replace(/"[^"]*tv-b\.jsonl"/g, '"F"'), 'thuoc-vat round-tally-read', '"tallies"');
+  }
+  // loop-health
+  {
+    const mk = (ten, them) => {
+      const root = path.join(T, ten);
+      mkdirSync(path.join(root, '_acceptance', 'demo'), { recursive: true });
+      writeFileSync(path.join(root, '_acceptance', 'demo', 'contract.md'), '---\nschema_version: 1\nslug: demo\nrisk_tier: T2\nstatus: verified\n---\n');
+      writeFileSync(path.join(root, '_acceptance', 'demo', 'run-log.jsonl'), `${EVAL}\n${TALLY}\n${them ? TV + '\n' : ''}`);
+      return root;
+    };
+    const chay = r => { try { return execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'loop-health.mjs'), '--root', r], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch (e) { return `NEM LOI: ${String(e.stderr || e.message).slice(0, 140)}`; } };
+    const chuanHoa = s => String(s).replace(/tvlh-(khong|co)/g, 'R');
+    so(chuanHoa(chay(mk('tvlh-khong', false))), chuanHoa(chay(mk('tvlh-co', true))), 'thuoc-vat loop-health', '| T2 |');
+  }
+  // recheck-evidence
+  {
+    const mk = (ten, them) => {
+      const root = path.join(T, ten);
+      mkdirSync(path.join(root, '_acceptance', 'demo'), { recursive: true });
+      writeFileSync(path.join(root, '_acceptance', 'demo', 'run-log.jsonl'), `${EVAL}\n${TALLY}\n${them ? TV + '\n' : ''}`);
+      const rp = path.join(root, '_acceptance', 'demo', 'evidence-report.md');
+      writeFileSync(rp, ['---', 'schema_version: 1', 'feature_slug: demo', 'verdict: PASS',
+        'enforcement_mode: strict', 'bypass_used: false', `verified_commit: ${'a'.repeat(40)}`, '---', '',
+        '## Results', '', '- eval: E1', '  run_id: demo-E1-r1', '  exit_code: 0',
+        '  verifier: config:executors.test.api', '  verified_at: 2026-09-14T00:00:00Z', ''].join('\n'));
+      return rp;
+    };
+    const chay = rp => { try { return `exit0 ${execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), rp], { encoding: 'utf8' })}`; } catch (e) { return `exit${e.status} ${String(e.stdout || '') + String(e.stderr || '')}`; } };
+    const chuanHoa = s => String(s).replace(/tvrc-(khong|co)/g, 'R');
+    so(chuanHoa(chay(mk('tvrc-khong', false))), chuanHoa(chay(mk('tvrc-co', true))), 'thuoc-vat recheck-evidence', 'L2');
+  }
+}
+
 // ── Đếm LỚP: số tệp chạm run-log.jsonl phải bằng hằng khai trước ───────────
 // Một tệp mới đọc sổ mà không ai nhớ bổ sung phép đo thì lớp phình lặng lẽ; ca này buộc
 // nói ra. Đổi số = phải xem lại ba điểm-case ở trên có còn đại diện cho lớp không.
 {
-  const BO_DOC_KHAI = 8;
+  // 9 từ 17/09: thêm feature-loop/scripts/thuoc-vat.mjs (bên đọc sha của lượt + bên ghi dòng
+  // kind thuoc-vat) — ba bộ đọc trên đã được đo lại với loại dòng mới ở khối 4.
+  const BO_DOC_KHAI = 9;
   const goc = path.join(ROOT);
   const quet = (d) => execFileSync('bash', ['-c',
     `grep -rl "run-log.jsonl" "${d}/scripts" "${d}/lib" "${d}/hooks" "${d}/feature-loop/scripts" 2>/dev/null | wc -l`],
