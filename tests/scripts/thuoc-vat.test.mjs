@@ -81,8 +81,9 @@ let tv2Xanh = false;
     else { tv2Xanh = true; ok('TV2 chieu im — ba commit thuoc truoc moc san KHONG vao nhat'); }
 
     // TV4: bản sao lấy mốc sàn là commit đầu của hồ sơ.
-    const KIM = "'-S', 'status: implemented', '--', hopDongRel";
-    const mut = banSao(KIM, "'--', `_acceptance/${slug}/`");
+    // Kim bám bộ đọc trường status (S4-r1); đột biến lấy commit ĐẦU chạm hợp đồng — commit đầu của hồ sơ.
+    const KIM = ".find(h => truongStatus(gitTry(root, ['show', `${h}:${hopDongRel}`])) === 'implemented')";
+    const mut = banSao(KIM, ".find(() => true)");
     const rm = demJson(mut, d);
     if (!tv2Xanh) bad('TV4 doi chung duong TV2 khong xanh — khong tin duoc chieu do');
     else if (rm.nhat === r.nhat) bad('TV4 dot bien moc san ma so nhat khong doi — TV2 khong co rang', JSON.stringify(rm));
@@ -167,6 +168,25 @@ function khoHaiLuot() {
     else if (r.stdout.includes(TEP.thuoc)) bad('TV6 khong duoc doan danh sach tep', r.stdout);
     else ok('TV6 sha khong thuan nhat trong mot luot — khong liet ke duoc, ma 3, khong doan');
   } catch (e) { bad('TV6 loi', loi(e)); }
+}
+
+// ── TV8 (S4-r1, finding trong hợp đồng AC-11): mốc sàn đọc TRƯỜNG status của frontmatter,
+//    không đọc chuỗi ở bất kỳ đâu trong hợp đồng. Hợp đồng nhắc «status: implemented» trong văn
+//    ngay từ S1; ba commit TDD chỉ chạm ca; rồi mới lật frontmatter. Đúng: mốc sàn = commit lật,
+//    nhát 0. Bản cũ (git log -S trên cả văn) lấy commit S1 làm mốc sàn → nhát 3 → trần nổ oan.
+{
+  try {
+    const { d } = moiKho(['vat']);
+    const hd = path.join(d, TEP.hopDong);
+    writeFileSync(hd, readFileSync(hd, 'utf8') + '\n## Criteria\n\n- AC-1: Given hồ sơ, When đặt status: implemented, Then cổng chấm.\n');
+    git(d, 'add', '-A'); git(d, 'commit', '-qm', 'S1 van nhac chuoi trang thai');
+    for (let i = 0; i < 3; i++) buoc(d, 'thuoc');
+    const lat = buoc(d, 'implemented');
+    const dem = demJson(SCRIPT, d);
+    if (dem.san !== lat) bad('TV8 moc san phai la commit lat frontmatter, khong phai commit S1 nhac chuoi trong van', `san ${dem.san} · lat ${lat}`);
+    else if (dem.nhat !== 0) bad('TV8 ba commit TDD truoc moc san khong duoc dem', `nhat ${dem.nhat}`);
+    else ok('TV8 hop dong nhac chuoi trang thai trong van — moc san la commit lat frontmatter, nhat 0');
+  } catch (e) { bad('TV8 loi', loi(e)); }
 }
 
 rmSync(TMP, { recursive: true, force: true });

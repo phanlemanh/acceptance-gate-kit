@@ -47,7 +47,17 @@ function laToTien(root, a, b) {   // a có phải tổ tiên (hoặc bằng) b k
 // Mốc sàn: null khi hợp đồng chưa từng implemented.
 function timMocSan(root, slug) {
   const hopDongRel = `_acceptance/${slug}/contract.md`;
-  const implemented = gitLines(root, ['log', '--reverse', '--format=%H', '-S', 'status: implemented', '--', hopDongRel])[0] || null;
+  // Đọc TRƯỜNG `status` của frontmatter ở từng commit chạm hợp đồng, theo thứ tự thời gian —
+  // không `git log -S` trên cả văn: hợp đồng hay nhắc chuỗi «status: implemented» trong tiêu chí
+  // từ S1, và khi đó mốc sàn rơi về S1, mọi commit TDD thành nhát (S4-r1, finding AC-11).
+  const truongStatus = txt => {
+    const m = String(txt || '').match(/^---\n([\s\S]*?)\n---/);
+    if (!m) return '';
+    const d = m[1].match(/^status:[ \t]*([^#\n]*)/m);
+    return d ? d[1].trim().replace(/^["']|["']$/g, '').toLowerCase() : '';
+  };
+  const implemented = gitLines(root, ['log', '--reverse', '--format=%H', '--', hopDongRel])
+    .find(h => truongStatus(gitTry(root, ['show', `${h}:${hopDongRel}`])) === 'implemented') || null;
   if (!implemented) return null;
   const soRel = `_acceptance/${slug}/decisions.jsonl`;
   const soHead = gitTry(root, ['show', `HEAD:${soRel}`]);
