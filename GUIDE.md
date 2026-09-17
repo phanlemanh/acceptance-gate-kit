@@ -357,8 +357,8 @@ ghim qua `feature_loop.models` (xem mục "Model theo giai đoạn" ngay dưới
 /goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
 S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
 _acceptance/<slug>/contract.md sang status: verified. Loop đã escalate cho
-user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH
-— để dừng. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
+user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH — «chờ input người» gồm cả dừng GIỮA vòng, trước hoặc trong S4, khi máy nêu đích danh một tiền đề chỉ người gỡ được, hoặc nêu các lối để người chọn (vd chạm trần nhát sửa thước)
+— để dừng. Dừng mà không nêu tiền đề hay lối nào để người chọn = CHƯA hoàn thành. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
 sau 15 turns.
 ```
 <!-- GOAL-TEMPLATE>>> -->
