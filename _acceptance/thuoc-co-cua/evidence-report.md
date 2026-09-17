@@ -7,11 +7,13 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ecb6d30f3be7a8cd9b4a4e55f5a4ad988c52c80b
+verified_commit: f53fc76f44fc6dd5e4cbfd4c7d2f36fcfd9bc35d
 human_signoff:
 ---
 
 # Evidence Report: thuoc-co-cua
+
+⚠ PENDING-JUDGMENT: mọi eval máy đều xanh; lý do duy nhất chưa lên PASS là E25 (AC-15) — judgment item trên hợp đồng T3, luôn chờ human_override trực tiếp tại Gate 2 bất kể đề xuất của panel.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -39,17 +41,20 @@ human_signoff:
 | E22 | AC-14 | test | PASS |
 | E23 | AC-14 | test | PASS |
 | E24 | AC-14 | script | PASS |
-| E25 | AC-15 | judgment | PASS |
+| E25 | AC-15 | judgment | PASS (chờ human_override) |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-thuoc-co-cua-E1-r1
+  run_id: minted-thuoc-co-cua-E1-r3
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.script.tcc_s4args_not_run
-  verified_at: 2026-09-17T13:30:21Z
-  carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  verified_at: 2026-09-17T15:00:00Z
+  output: |
+      PASS: NRS4 mot nguon — thay ham cua lib thi ket luan lat
+
+    Results: 4 passed, 0 failed (s4-args-not-run)
 
 - eval: E2
   run_id: minted-thuoc-co-cua-E2-r1
@@ -57,7 +62,7 @@ human_signoff:
   verifier: config:executors.script.tcc_wf_not_run
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E3
   run_id: minted-thuoc-co-cua-E3-r1
@@ -65,7 +70,7 @@ human_signoff:
   verifier: config:executors.script.tcc_the_ma_da_khai
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E4
   run_id: minted-thuoc-co-cua-E4-r1
@@ -73,7 +78,7 @@ human_signoff:
   verifier: config:executors.script.tcc_bo_qua_do
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E5
   run_id: minted-thuoc-co-cua-E5-r1
@@ -81,7 +86,7 @@ human_signoff:
   verifier: config:executors.script.tcc_bo_qua_im
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E6
   run_id: minted-thuoc-co-cua-E6-r1
@@ -89,7 +94,7 @@ human_signoff:
   verifier: config:executors.script.tcc_bo_qua_suy
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E7
   run_id: minted-thuoc-co-cua-E7-r1
@@ -97,7 +102,7 @@ human_signoff:
   verifier: config:executors.script.tcc_bo_qua_gioi_han
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E8
   run_id: minted-thuoc-co-cua-E8-r1
@@ -105,7 +110,7 @@ human_signoff:
   verifier: config:executors.script.tcc_nen_cong_cu_suite
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E9
   run_id: minted-thuoc-co-cua-E9-r1
@@ -113,7 +118,7 @@ human_signoff:
   verifier: config:executors.script.tcc_nen_luoi_engine
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E10
   run_id: minted-thuoc-co-cua-E10-r1
@@ -121,7 +126,7 @@ human_signoff:
   verifier: config:executors.script.tcc_the_nen
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E11
   run_id: minted-thuoc-co-cua-E11-r1
@@ -129,73 +134,77 @@ human_signoff:
   verifier: config:executors.script.tcc_suite_tuan_tu
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E12
-  run_id: minted-thuoc-co-cua-E12-r1
+  run_id: minted-thuoc-co-cua-E12-r3
   exit_code: 0
+  baseline: n-a
   verifier: config:executors.script.tcc_phan_loai
-  verified_at: 2026-09-17T13:30:21Z
-  carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  verified_at: 2026-09-17T15:00:00Z
+  output: |
+      PASS: PL3 mot nguon — bo sinh args nap chinh module: doi module thi vung vat va tep do cua tep args doi theo
+
+    Results: 4 passed, 0 failed (phan-loai)
 
 - eval: E13
-  run_id: minted-thuoc-co-cua-E13-r1
+  run_id: minted-thuoc-co-cua-E13-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.ktl_vung_vat_s4args
-  verified_at: 2026-09-17T13:30:21Z
-  carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  verified_at: 2026-09-17T15:00:00Z
+  output: |
+    PASS: VV8c gỡ bộ lọc vùng phủ → lib/b.js lọt vào coverageFiles (ca VV8 có răng)
+
+    Results: 19 passed, 0 failed (s4-args-vung-vat)
 
 - eval: E14
   run_id: minted-thuoc-co-cua-E14-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.script.ktl_vung_vat_mutants
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E15
-  run_id: minted-thuoc-co-cua-E15-r2
+  run_id: minted-thuoc-co-cua-E15-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.tcc_dem_nhat
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
   output: |
-      PASS: TV8 hop dong nhac chuoi trang thai trong van — moc san la commit lat frontmatter, nhat 0
-
-    Results: 8 passed, 0 failed (thuoc-vat)
+    PASS: TV4 dot bien moc san — TV2 do (nhat 2 -> 5)
+    PASS: TV7 commit cham ca vat lan tep ca — nhat giu 2, lan 1; dot bien dem moi commit cham thuoc thi nhat 3 (ket luan lat)
+    Results: 10 passed, 0 failed (thuoc-vat)
 
 - eval: E16
-  run_id: minted-thuoc-co-cua-E16-r2
+  run_id: minted-thuoc-co-cua-E16-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.tcc_giua_hai_luot
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
   output: |
-    PASS: TV8 hop dong nhac chuoi trang thai trong van — moc san la commit lat frontmatter, nhat 0
+    PASS: TV9 dong trong dau tep — moc san la commit lat, nhat 3 (cung bo doc frontmatter voi cong)
 
-    Results: 8 passed, 0 failed (thuoc-vat)
+    Results: 10 passed, 0 failed (thuoc-vat)
 
 - eval: E17
-  run_id: minted-thuoc-co-cua-E17-r2
+  run_id: minted-thuoc-co-cua-E17-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.tcc_tran_thuoc
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
   output: |
+    PASS: TT4 dong so «tran thuoc — » chua commit — tran van dong, ma 4, khong tep
     PASS: TT5 chieu im — ba commit ghi run-log va so, ba commit lan: ma 0, co tep args
-
     Results: 5 passed, 0 failed (s4-args-tran-thuoc)
 
 - eval: E18
-  run_id: minted-thuoc-co-cua-E18-r2
+  run_id: minted-thuoc-co-cua-E18-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.tcc_the_thuoc_vat
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
   output: |
       PASS: GT4 dong bao khong thanh o hoi — routingLine cua ho so da ky giong het: khong dong · co dong · go dong
 
@@ -207,88 +216,85 @@ human_signoff:
   verifier: config:executors.script.tcc_so_target
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E20
   run_id: minted-thuoc-co-cua-E20-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.scripts
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E21
   run_id: minted-thuoc-co-cua-E21-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.hooks
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E22
   run_id: minted-thuoc-co-cua-E22-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.plugins
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E23
   run_id: minted-thuoc-co-cua-E23-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.test.workflows
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E24
   run_id: minted-thuoc-co-cua-E24-r1
   exit_code: 0
-  baseline: n-a
   verifier: config:executors.script.product_map
   verified_at: 2026-09-17T13:30:21Z
   carried_from_round: 1
-  note: carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E25
-  judged_by: judge panel (fresh context) — domain-correctness, operational-feasibility, spec-alignment
-  verdict: PASS
-  rationale:
-    - domain-correctness: PASS — Notes của contract.md (mục "Dự báo năm dòng số — luật (c)", "CỘNG — đích danh", "Vòng tự ăn thuốc") cùng §6-§7 của design doc trình đủ cả năm mục AC-15 đòi: bảng dự báo 5 dòng có cột Chiều rõ ràng; đoạn "Điều kiện tin cậy" nêu thẳng (i) đường verdict finder→bác bỏ→REJECT không đổi thành phần và (ii) vì sao dòng 4-5 không được cắt dựa trên số vòng này; bảng CỘNG C1-C8 đích danh từng mục kèm cột Nguyên tố và Người hưởng; phần đuôi sáu tiêu chí bị cắt được liệt kê tên cụ thể trong "Out of scope" (và §7 thiết kế); và điều bất lợi được nói thẳng không né tránh — dòng 5 bảng dự báo ghi rõ phút máy/lượt chấm ↑, và một đoạn Notes riêng xác nhận "Lần dừng ở trần nhát sửa thước là một lượt gọi người NGOÀI thiết kế" đối chiếu thẳng với ngưỡng CHẾT ở Cổng Đáng.
-    - operational-feasibility: PASS — Notes của contract.md có đủ 5 mục hỏi: bảng "Dự báo năm dòng số — luật (c)" 5 dòng kèm cột Chiều (↓/↑); "Điều kiện tin cậy" (i)(ii) nói rõ đường verdict finder→bác bỏ→REJECT không đổi thành phần vì đường nền/trần chặn TRƯỚC lượt chấm, suite tuần tự chỉ đổi thứ tự, phần D chỉ đếm; bảng CỘNG C1–C8 đích danh kèm cột Nguyên tố và Người hưởng đúng khuôn luật CỘNG; mục "Out of scope" gọi tên rõ "PHẦN ĐUÔI của phạm vi owner chốt — sáu tiêu chí" liệt kê từng mục, khớp số 21−15=6 ở Context và khớp §7 của design doc và opportunity.md; điều bất lợi được nói thẳng ở dòng 5 bảng dự báo (↑ phút máy/lượt chấm) và ở Known limits ("Lần dừng ở trần nhát sửa thước là một lượt gọi người NGOÀI thiết kế"), không bị giấu hay diễn giải né tránh. Không thấy mục nào hàm hồ hay thiếu so với khuôn owner chốt trong opportunity.md.
-    - spec-alignment: PASS — Notes của contract.md có đủ cả 5 mục và nói thẳng: bảng "Dự báo năm dòng số — luật (c)" 5 dòng kèm cột Chiều (↓/↑) đúng khuôn luật (c); "Điều kiện tin cậy" giải thích rõ (i) đường verdict không đổi thành phần (đường nền/trần chặn TRƯỚC lượt chấm, suite tuần tự chỉ đổi thứ tự, phần D chỉ đếm, riêng AC-1 có răng cả hai chiều) và (ii) ngưỡng (a) đã chạm nên dòng 4–5 không được cắt; bảng "CỘNG — đích danh" C1–C8 có cột Nguyên tố + Người hưởng cho từng mục (khớp yêu cầu ADR 0018), kèm câu chốt "AC-2 đến AC-5 là SỬA, không CỘNG"; phần đuôi bị cắt được nêu tên cụ thể ở "Out of scope" (và design §7 gọi thẳng là "Phần đuôi — có tên") khớp đúng 6 tiêu chí + thứ tự ưu tiên owner giao trong opportunity.md; điều bất lợi nói thẳng qua "Lần dừng ở trần nhát sửa thước là một lượt gọi người NGOÀI thiết kế" và dòng 5 "phút máy/lượt chấm ↑" — đúng cả hai vế AC-15 tự nêu.
-  human_override:
+  criterion: AC-15
+  judged_by: judge panel (fresh context)
+  proposal: PASS
+  panel: giữ nguyên từ round 2 — inputs không đổi, không chấm lại; rationale xem round 2
+  votes:
+    - domain-correctness: PASS (r2)
+    - operational-feasibility: PASS (r2)
+    - spec-alignment: PASS (r2)
+  human_override:        # T3 — mọi judgment item đều chờ người xác nhận trực tiếp ở Gate 2, bất kể đề xuất của panel
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh
-  run_id: minted-thuoc-co-cua-SUITE-bash_tests_scripts_run_tests_sh-r2
+  run_id: minted-thuoc-co-cua-SUITE-bash_tests_scripts_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-thuoc-co-cua-SUITE-bash_tests_hooks_run_tests_sh-r2
+  run_id: minted-thuoc-co-cua-SUITE-bash_tests_hooks_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-thuoc-co-cua-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r2
+  run_id: minted-thuoc-co-cua-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r3
   exit_code: 0
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-thuoc-co-cua-SUITE-bash_tests_workflows_run_tests_sh-r2
+  run_id: minted-thuoc-co-cua-SUITE-bash_tests_workflows_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-thuoc-co-cua-SUITE-node_scripts_product_map_mjs_root_check-r2
+  run_id: minted-thuoc-co-cua-SUITE-node_scripts_product_map_mjs_root_check-r3
   exit_code: 0
-  verified_at: 2026-09-17T15:20:00Z
+  verified_at: 2026-09-17T15:00:00Z
 
 ## Known limits
 
@@ -296,21 +302,16 @@ human_signoff:
 
 ## Analyst
 
-carried tu round 1 — baseline khong do lai round nay
+carried tu round 1 — baseline khong do lai round nay.
 
-- E13 (`node tests/scripts/s4-args-vung-vat.test.mjs`)
-- E14 (`node tests/workflows/vung-vat-mutants.test.mjs`)
-- E20 (`bash tests/scripts/run-tests.sh`)
-- E21 (`bash tests/hooks/run-tests.sh`)
-- E22 (`bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'`)
-- E23 (`bash tests/workflows/run-tests.sh`)
-- E24 (`node scripts/product-map.mjs --root . --check`)
+Non-discriminating (pass trên cả HEAD lẫn baseline diffBase — chứng minh harness, không phải feature; cần viết lại để assert hành vi mới hoặc xác nhận là regression-guard có chủ ý): E13, E14, E20, E21, E22, E23, E24. Các lệnh suite xanh-cả-hai-phía là regression-guard bình thường, không liệt kê riêng.
 
 ## Variance
 
-none — every multi-run eval is uniform
+none — every multi-run eval is uniform (không eval nào khai runs > 1 trong vòng này).
 
 ## Iterations
 
-Round 1: E15/E16 (AC-11 mốc sàn) REJECT — bộ đếm nhát thước dùng `git log -S 'status: implemented'`, không nhận đúng hợp đồng khi thước đổi; hợp đồng chuyển sang implemented ở S3 (53aa1f08) rồi bị REJECT tại lượt chấm 1 (ad9da01b) vì một finding trong hợp đồng (AC-11 mốc sàn). Trở về implementation.
-Round 2 (hiện tại): fix dc9eb1b7 đổi mốc sàn sang đọc trường `status` của frontmatter thay vì quét chuỗi trên cả văn hợp đồng. E15-E18 chạy lại — toàn bộ PASS. E1-E14, E19-E24 carry-forward từ round 1 (delta không chạm paths của các eval đó). Verdict PENDING-JUDGMENT: E25 (AC-15, judgment) có đề xuất PASS từ hội đồng ba lăng kính (đồng thuận, không dissent) nhưng chờ `human_override` tại Gate 2 trước khi tính là đã chốt.
+Round 1: full sweep 24 evals máy/test + E25 (AC-15, judgment); mốc sàn AC-11 (E15/E16) khi đó dùng bộ đọc tự viết thay vì bộ đọc dùng chung của lib — nguy cơ lệch một nguồn. Trả PENDING-JUDGMENT (E25 chờ người).
+Round 2: vá thuoc-vat — mốc sàn dùng frontmatterField của lib thay bộ đọc tự viết (S4-r2, AC-11; commit 8742c7f8); judge panel chấm lại E25 (3/3 lens PASS).
+Round 3: chạy lại các eval chạm bởi delta (E1, E12, E13, E15–E18 — AC-1, AC-10, AC-11, AC-12, AC-13) sau lượt vá — tất cả xanh; các eval khác và panel E25 carry-forward vì delta không chạm paths của chúng. Verdict PENDING-JUDGMENT (E25 vẫn chờ human_override theo T3).

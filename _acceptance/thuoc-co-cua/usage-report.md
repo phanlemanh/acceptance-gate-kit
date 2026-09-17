@@ -141,3 +141,39 @@ wall: 1262s
 - **claude-opus-5**: 3 agent · 21 calls · out 14,291 · in 42 · cache_read 1,399,911 · cache_create 192,698
 - **claude-haiku-4-5-20251001**: 9 agent · 24 calls · out 10,949 · in 210 · cache_read 822,952 · cache_create 317,020
 
+### S4 round 3 — wf_1b3d8648-2aa (17 agent, 50,064 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 2 | 25,605 | 4 | 85,646 | 229 |
+| review:bugs | claude-opus-5 | 5 | 3,493 | 10 | 312,613 | 51 |
+| review:conventions | claude-opus-5 | 6 | 2,892 | 12 | 355,726 | 42 |
+| review:measurement | claude-opus-5 | 4 | 2,582 | 8 | 237,840 | 39 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 8 | 2,280 | 66 | 251,998 | 915 |
+| machine:bash -c 'out=$(node tests/scripts/s4-arg | claude-haiku-4-5-20251001 | 2 | 1,666 | 18 | 70,677 | 21 |
+| machine:bash -c 'out=$(node tests/scripts/thuoc- | claude-haiku-4-5-20251001 | 2 | 1,579 | 18 | 70,663 | 29 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 1,544 | 34 | 181,504 | 21 |
+| machine:bash -c 'out=$(node tests/scripts/s4-arg | claude-haiku-4-5-20251001 | 2 | 1,245 | 18 | 70,683 | 21 |
+| machine:bash -c 'out=$(node tests/scripts/phan-l | claude-haiku-4-5-20251001 | 2 | 1,209 | 18 | 70,674 | 15 |
+| machine:bash -c 'out=$(node tests/scripts/thuoc- | claude-haiku-4-5-20251001 | 2 | 1,192 | 18 | 70,672 | 25 |
+| machine:bash -c 'out=$(node tests/scripts/gate-c | claude-haiku-4-5-20251001 | 2 | 1,116 | 18 | 70,673 | 21 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 1,095 | 18 | 26,867 | 441 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 973 | 18 | 70,573 | 14 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 878 | 18 | 70,580 | 11 |
+| capture:provenance | claude-sonnet-5 | 2 | 418 | 4 | 62,541 | 5 |
+| machine:node tests/scripts/s4-args-vung-vat.test | claude-haiku-4-5-20251001 | 2 | 297 | 18 | 70,590 | 19 |
+
+
+wall: 1636s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 12 | 15,074 | 1,096,154 | 1401 | 14:38:03 | 15:01:24 |
+| review | 3 | 8,967 | 906,179 | 53 | 14:38:03 | 14:38:56 |
+| capture | 1 | 418 | 62,541 | 5 | 15:01:24 | 15:01:29 |
+| synthesize | 1 | 25,605 | 85,646 | 229 | 15:01:29 | 15:05:18 |
+
+- **claude-sonnet-5**: 2 agent · 4 calls · out 26,023 · in 8 · cache_read 148,187 · cache_create 161,872
+- **claude-opus-5**: 3 agent · 15 calls · out 8,967 · in 30 · cache_read 906,179 · cache_create 180,379
+- **claude-haiku-4-5-20251001**: 12 agent · 32 calls · out 15,074 · in 280 · cache_read 1,096,154 · cache_create 427,576
+
