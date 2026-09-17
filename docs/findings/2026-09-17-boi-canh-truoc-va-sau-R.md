@@ -191,7 +191,29 @@ chứng cho *hình dạng*, chưa phải cho *tỉ lệ*.
 3. Router trượt lần thứ tư có chấp nhận được không; nếu có, ghi gì vào hàng đợi để nó
    không phải lời hứa suông?
 
-**Owner trả lời:** *(chưa)*
+**Owner trả lời 17/09: đồng ý cả bốn** (ba câu trên + «cắt 2.15.0 ngay»). Hệ quả máy dịch:
+
+- **Q1 — vòng meta 2.15 → 2.16 là `thuoc-co-cua` thu hẹp**: ① tiền đề tách khỏi tiêu chí,
+  dry-run trước Cổng Phạm vi, **kèm bước gỡ tường trước khi mời chấm** · ② cửa cho thước
+  (sổ gắn đích `thuoc|vat|ho-so` suy từ đường dẫn · một dòng đếm vật/thước/nhát trong gói
+  Cổng Bằng chứng · trần gộp nhát sửa thước ở `implemented` → ba lối, lối «mở vòng có chủ
+  ngữ là thước» là một lệnh) · ④ khuôn đường đo cấp repo (`--chay` · mã 2 khi hỏng tiền đề
+  · đặt/trả · DB của lượt · máy chủ tự xưng cây + SHA; code thuộc repo). Không router,
+  không vòng token. Chỗ cắt gọi tên cho cửa sổ sau: **làn `ui`**.
+- **Q2 — ba việc meta đã vào cửa sổ 2.14 → 2.15 đếm là vá-trong-mốc, đếm đủ**: hồ sơ mốc
+  2.15.0 mang tiêu chí cho cả ba (start-scan · răng chụp hồ sơ · veto một nguồn), dòng 4
+  cộng token các phiên chip hoặc ghi «không đo được», và **hạt giống «vòng meta đang mở:
+  N» trên thẻ start thành việc của mốc** — vật máy giữ cho luật (b).
+- **Q3 — router trượt lần thứ tư: chấp nhận**; bỏ công thức 4b (đã trả lời xong); hồ sơ
+  mốc ghi *router là vòng meta mặc định của 2.16 → 2.17, chỉ lùi nếu vòng sản phẩm kế cho
+  số khác*.
+- **Cắt 2.15.0 ngay.** Việc sản phẩm chạy song song, không chờ mốc: merge OneFlow #120
+  với hai vi phạm nợ cũ bỏ qua có ghi nhận · `normalize-text-vi` nghỉ hẳn · hai chiến
+  dịch ghim lại (oneflow: 2 hồ sơ + `UV_PYTHON`; crm #47: 2 hồ sơ + `.acceptance-runs/`).
+
+Trước khi mở chip, owner hỏi thêm: *người dùng kit được gì sau vòng meta này?* — trả lời
+ở `_acceptance/thuoc-co-cua/opportunity.md` mục «Vấn đề & ai gặp» và trong hồ sơ Cổng Đáng
+của vòng, bằng số của R1 và crm-onehub (§4 trên).
 
 ## 7. Nguồn
 
