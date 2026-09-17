@@ -64,7 +64,10 @@ const slugs = [...new Set(flags.slug)];
 
 const root = (() => { try { return fs.realpathSync(flags.root); } catch { return die(`--root không tồn tại: ${flags.root}`); } })();
 const readOr = (p, what) => { try { return fs.readFileSync(p, 'utf8'); } catch { return die(`${what} không đọc được: ${p}`); } };
-const configText = readOr(path.join(root, '_acceptance', 'config.yaml'), 'config.yaml');
+// configPath/evalsPath là BIẾN, không phải chuỗi dựng lại chỗ khác: vị ngữ bỏ-qua
+// (khối SKIP-UNCHANGED-PREDICATE) suy tập tệp định nghĩa phép đo từ CHÍNH chúng.
+const configPath = path.join(root, '_acceptance', 'config.yaml');
+const configText = readOr(configPath, 'config.yaml');
 
 // ── acceptance-gate root: --ag-root (tự host) hoặc resolve-plugin ─────────
 // --ag-root chỉ cấp BỘ MÁY (lib/ + scripts/ của acceptance-gate); --root là cây
@@ -172,7 +175,8 @@ const perSlug = slugs.map(slug => {
   if (!fs.existsSync(reportPath)) die(`${slug}: không có evidence-report.md — không có pin nào để ghim lại`);
   const report = fs.readFileSync(reportPath, 'utf8');
   if (!/^verified_commit\s*:\s*\S+/m.test(report)) die(`${slug}: evidence-report.md không có verified_commit (khuôn cũ) — không ghim được, verify lại`);
-  const evalsText = readOr(path.join(ws, 'evals.yaml'), `${slug}: evals.yaml`);
+  const evalsPath = path.join(ws, 'evals.yaml');
+  const evalsText = readOr(evalsPath, `${slug}: evals.yaml`);
   const { byId: expById, errs: expErrs } = expectedExits(evalsText);
   if (expErrs.length) die(`${slug}: evals.yaml khai mã thoát mong đợi sai luật —\n  ${expErrs.join('\n  ')}`);
   // MỘT lượt rút cho cả hai vế (minor ghi-lai-tren-lop-cu 12/09/2026): trước
@@ -197,7 +201,7 @@ const perSlug = slugs.map(slug => {
     .filter(e => core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))
     .filter(e => !core.isRepinMachineEval(e))
     .map(e => e.id);
-  return { slug, ws, reportPath, report, evalsText, evals, skipped };
+  return { slug, ws, reportPath, report, evalsPath, evalsText, evals, skipped };
 });
 
 // ── luật hai vế (hồ sơ lan-doc-status-not-run, 2026-09-12): một ô khai
@@ -233,11 +237,23 @@ function runCmd(cmd, label) {
 }
 // ── --skip-unchanged: cây BẰNG PIN thì không có gì để chứng lại ──────────────
 // <<<SKIP-UNCHANGED-PREDICATE
-// Vị từ là ĐÚNG ngữ nghĩa `stale_files()` của scripts/pre-merge-check.sh: tệp
+// Vị từ là ngữ nghĩa `stale_files()` của scripts/pre-merge-check.sh: tệp
 // git-theo-dõi đổi so `verified_commit` (cây làm việc tính luôn), TRỪ vật hồ sơ,
 // TRỪ tệp repo đã khai là không-phải-hành-vi (`risk_tiers.t1_skip_globs`). Rỗng
 // nghĩa là lưới trước-merge sẽ KHÔNG gọi hồ sơ này stale — nên một làn trọn
 // corpus ở đây chỉ chứng lại thứ không đổi (đo 14/09: 7/7 chữ ký, 13 phút/làn).
+//
+// CỘNG MỘT vế mà `stale_files` không có (hồ sơ thuoc-co-cua AC-3, AC-4) — hai câu
+// hỏi khác nhau. `stale_files` hỏi «bằng chứng có hoá cũ không»: với câu đó vật hồ
+// sơ đúng là loại trừ. Làn này hỏi «có cần chạy lại phép đo không»: với câu đó
+// `config.yaml` (giải executors, suite_keys) và `evals.yaml` của từng slug đang
+// ghim là ĐẦU VÀO — đổi chúng mà bỏ qua thì lệnh MỚI không bao giờ chạy trước chữ
+// ký. Tập tệp định nghĩa SUY từ chính biến làn đã đọc (configPath, s.evalsPath),
+// quy về đường so gốc git bằng `rev-parse --show-prefix` (gốc làn có thể là thư
+// mục con của một kho lớn hơn) — không gõ tay chuỗi đường dẫn; một nguồn định
+// nghĩa mới đọc qua biến khác thì phải thêm biến ấy vào tập.
+// Hai giới hạn còn lại khai ở ADR 0019, mỗi cái kèm ngưỡng đang đếm: tệp chưa
+// theo dõi vô hình với `git diff` · lệch glob bash/JS ở dạng `dir/*`.
 //
 // Loại trừ hồ sơ tính theo PHÂN ĐOẠN đường dẫn, KHÔNG qua globToRe: `*` của nó
 // không xuyên `/`, nên `_acceptance/<slug>/evidence-report.md` (sâu 2 — đúng tệp
@@ -251,6 +267,10 @@ const t1Res = (() => {
 })();
 const ngoaiVat = (f) => laVatHoSo(f) || t1Res.some(re => re.test(f));
 if (flags['skip-unchanged']) {
+  const tienToGit = gitRaw('rev-parse', '--show-prefix').trim();   // '' ở gốc kho · 'pkg/a/' khi --root là thư mục con
+  const quyVeGit = (p) => tienToGit + path.relative(root, p).split(path.sep).join('/');
+  const tepDinhNghia = new Set([configPath, ...perSlug.map(s => s.evalsPath)].map(quyVeGit));
+  const laDinhNghia = (f) => tepDinhNghia.has(f);
   const pins = {};
   let khongGiaiDuoc = null;
   for (const s of perSlug) {
@@ -266,17 +286,20 @@ if (flags['skip-unchanged']) {
     log(`--skip-unchanged KHÔNG áp dụng (${khongGiaiDuoc}) — làn chạy trọn`);
   } else {
     const doi = [];
+    const dinhNghia = new Set();
     for (const [slug, vc] of Object.entries(pins)) {
       for (const f of gitRaw('diff', '--name-only', vc, '--').split('\n').filter(Boolean)) {
-        if (!ngoaiVat(f)) doi.push(`${slug}: ${f}`);
+        if (laDinhNghia(f)) dinhNghia.add(f);          // xét TRƯỚC ngoaiVat: tệp định nghĩa nằm dưới _acceptance/
+        else if (!ngoaiVat(f)) doi.push(`${slug}: ${f}`);
       }
     }
-    if (!doi.length) {
+    for (const f of dinhNghia) process.stderr.write(`repin-lane: KHÔNG bỏ qua — tệp định nghĩa phép đo đổi so với pin: ${f}\n`);
+    if (!doi.length && !dinhNghia.size) {
       log(`cây bằng pin ${sha.slice(0, 7)} — 0 tệp ngoài _acceptance/ và t1_skip_globs đổi so verified_commit của ${perSlug.length} hồ sơ — làn bỏ qua (không suite, không eval, không ghi)`);
       process.stdout.write(JSON.stringify({ skipped: true, sha, pins }, null, 2) + '\n');
       process.exit(0);
     }
-    log(`--skip-unchanged: ${doi.length} tệp vật đổi so pin — làn chạy trọn: ${doi.slice(0, 5).join(', ')}${doi.length > 5 ? ' …' : ''}`);
+    if (doi.length) log(`--skip-unchanged: ${doi.length} tệp vật đổi so pin — làn chạy trọn: ${doi.slice(0, 5).join(', ')}${doi.length > 5 ? ' …' : ''}`);
   }
 }
 // SKIP-UNCHANGED-PREDICATE>>>
