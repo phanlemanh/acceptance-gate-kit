@@ -11,7 +11,8 @@
 //        [--ag-root <path>] [--out <file>]
 //
 // exit 0 = tệp args (hoặc stdout) sinh xong · exit 2 = nguồn thiếu/hỏng ·
-// exit 3 = usage. Chuỗi lệnh trong args giữ SẠCH (không nướng `cd` — ghim chỗ
+// exit 3 = usage · exit 4 = chạm trần nhát sửa thước (thuoc-co-cua AC-12), không
+// sinh tệp. Chuỗi lệnh trong args giữ SẠCH (không nướng `cd` — ghim chỗ
 // đứng là việc của từng LANE trong acceptance-verify.js; nướng vào lệnh sẽ phá
 // lane baseline chạy worktree — xem design doc 2026-08-29, quyết định 2).
 import fs from 'node:fs';
@@ -19,6 +20,8 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { globToRe } from './carry-plan.mjs';
+import { DO_GLOBS, HO_SO_VAN_BAN_GLOBS } from './lib/phan-loai.mjs';
+import { demThuocVat } from './thuoc-vat.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
@@ -71,8 +74,9 @@ agRoot = (() => { try { return fs.realpathSync(agRoot); } catch { return die(`--
 for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acceptance-gate root thiếu ${r} (root: ${agRoot})`);
 
 const require_ = createRequire(import.meta.url);
-const { resolveConfigKey, resolveConfigList, frontmatterField, parseFlowValue } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
+const { resolveConfigKey, resolveConfigList, frontmatterField, parseFlowValue, machineEvalIdsSkipped } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
 if (typeof resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0) — cập nhật plugin');
+if (typeof machineEvalIdsSkipped !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có machineEvalIdsSkipped (cần ≥ 2.12.0) — cập nhật plugin');
 // MỘT bộ bóc nháy dùng chung cho mọi đường giá-trị-bị-thi-hành (hồ sơ
 // release-2-11-0). Thiếu hàm = plugin cũ hơn 2.11.0: fail-CLOSED có tên, KHÔNG
 // rơi về mệnh đề cũ — rơi về nó chính là đường xanh-giả vòng này đóng.
@@ -112,6 +116,16 @@ const REQ_ARR = uniq(Object.values(EVAL_REQUIRED).flatMap(v => v.arr));
 // ── evals: scalar qua parser dùng chung + list fields quét cục bộ ──────────
 const evals = parseEvals(evalsText, uniq([...REQ_STR, 'executor', 'expected', 'runs']));
 if (!evals.length) die('evals.yaml không có eval nào (hoặc không parse được)');
+// ── ô tự khai `status: not-run`: CÙNG hàm với làn ghim lại và bên đọc pin
+// (lib/evidence-core.cjs). Lượt chấm không thi hành ô ấy; tệp args GỌI TÊN nó để
+// báo cáo nói ra, không im. Khoá vắng hẳn khi không ô nào khai (cùng luật evals_not_run).
+const evalsNotRun = machineEvalIdsSkipped(evalsText);
+if (evalsNotRun === null) die('không đọc được lời khai not-run: lib/eval-yaml.cjs vắng ở gốc acceptance-gate — KHÔNG đoán');
+if (evalsNotRun.length) {
+  for (let i = evals.length - 1; i >= 0; i--) if (evalsNotRun.includes(evals[i].id)) evals.splice(i, 1);
+  if (!evals.length) die('mọi eval đều khai status: not-run — không còn gì để chấm');
+  console.error(`s4-args: không chạy theo hồ sơ: ${evalsNotRun.join(', ')}`);
+}
 
 // ── kỳ vọng mã thoát: nguồn DUY NHẤT là expectedExits (lib/eval-yaml.cjs).
 // Workflow chạy không có filesystem nên không tự đọc evals.yaml được — script
@@ -302,7 +316,6 @@ const invokedSha = git('rev-parse', 'HEAD');
 //
 // MỘT hàm cho CẢ `vungVat` LẪN `deltaFiles`: trước T2 hai chỗ lọc bằng hai mệnh đề
 // khác nhau (`deltaFiles` lọc thô theo tiền tố `_acceptance/`), và hai khuôn thì trôi.
-const HO_SO_VAN_BAN_GLOBS = ['_acceptance/*/**/*.md', '_acceptance/*/**/*.jsonl'];
 const t1SkipGlobs = (() => {
   try { const v = resolveConfigList(configText, 'risk_tiers.t1_skip_globs'); return Array.isArray(v) ? v : []; }
   catch { return []; }   // repo không khai → chỉ bỏ văn bản hồ sơ
@@ -344,7 +357,6 @@ const ngoaiVatFiles = diffTatCa.filter(laNgoaiVat);
 // cho vung vat» la Out of scope, va toi da mo lai no trong mot luot SUA (luot cham 2 bat).
 // Mau co dinh trong engine; kho tieu thu dat rang o cho la van duoc phu boi hai ve duoi
 // (moi tep khong .md/.jsonl trong thu muc ho so · tep khai trong eval.paths).
-const DO_GLOBS = ['tests/**', '**/*.test.*', '**/*.spec.*', '**/spec/**', '**/__tests__/**'];
 const doRes = DO_GLOBS.map(globToRe);
 const laFileDo = f => doRes.some(re => re.test(f))
   || f === '_acceptance/config.yaml'
@@ -403,6 +415,29 @@ else {
     round = Math.max(...nums) + 1;
   }
 }
+
+// ── trần nhát sửa thước (thuoc-co-cua AC-12): máy giữ, không dặn bằng lời ──
+// Nhát = commit SAU mốc sàn chạm thước mà không chạm vật (bộ đếm thuoc-vat.mjs, suy từ
+// git). Chạm trần thì KHÔNG sinh tệp args — không có tệp thì không dispatch được lượt
+// chấm — và nói ra ba lối cho người. Van duy nhất: dòng sổ «trần thước — » đã commit.
+// Hồ sơ chưa từng implemented → bộ đếm trả 0, đi tiếp (đường đọc-cũ).
+const TRAN_NHAT = 3;
+function thongDiepTran(dem, slug) {
+  return [
+    `s4-args: tran nhat sua thuoc: ${dem.nhat} nhat o implemented (tran ${TRAN_NHAT}) — KHONG sinh args.`,
+    '  Ba loi, nguoi chon mot:',
+    '  (1) khai gioi han co ten — ghi Known limits cho phep do dang va, lan cham ke chap nhan no',
+    '  (2) doi cach do — thay phep do, khong va tiep phep do cu',
+    '  (3) mo vong co chu ngu la thuoc — dan dung mot dong:',
+    `      /feature-loop:feature-loop "thước của ${slug}: ${dem.tepThuoc.join(', ')}"`,
+    '  Chon (1) hoac (2): ghi mot dong so quyet dinh mo dau bang «trần thước — » roi commit; moc san doi toi do.',
+  ].join('\n');
+}
+const dem = (() => {
+  try { return demThuocVat({ root, slug: flags.slug, t1SkipGlobs }); }
+  catch (e) { return die(`bộ đếm nhát sửa thước lỗi: ${String((e && (e.stderr || e.message)) || e).split('\n')[0]}`); }
+})();
+if (dem.nhat >= TRAN_NHAT) { console.error(thongDiepTran(dem, flags.slug)); process.exit(4); }
 
 // ── carry-forward: bước GỌI nằm trong máy, không còn là bước tay ───────────
 // round ≥2 phải KHAI đường carry tường minh — «quên» không phải trạng thái lặng.
@@ -482,6 +517,7 @@ const args = {
   round,
   riskTier,
   evals,
+  ...(evalsNotRun.length ? { evalsNotRun } : {}),
   suiteCommands,
   diffBase,
   repoRoot: root,
