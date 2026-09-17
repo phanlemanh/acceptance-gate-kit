@@ -5,7 +5,7 @@ slug: release-2-15-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm scripts/start-scan.mjs, commands/start.md, hai manifest, GUIDE, CHANGELOG; ba việc meta đã trên main chạm feature-loop/scripts và skills/. KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Mạnh
 approved_at: 2026-09-17
 ---
