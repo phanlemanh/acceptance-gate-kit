@@ -2303,10 +2303,11 @@ console.log('W40c T1: triage hong -> roi ve duong cu (refute TAT CA, moi finding
 // Mẫu ngoài-vật KHÔNG gõ tay: rút từ khối marker NGOAI-VAT của `s4-args.mjs` (bên
 // VIẾT). Gõ tay ở đây là dựng fixture đúng khuôn BÊN ĐỌC — đúng lớp lỗi gap-probe
 // nêu; rút từ nguồn thì s4-args đổi khuôn là ca này đỏ.
-const S4ARGS_SRC = readFileSync(path.join(HERE, '..', '..', 'feature-loop', 'scripts', 's4-args.mjs'), 'utf8');
+// thuoc-co-cua AC-10: hằng sống ở MỘT nguồn `lib/phan-loai.mjs`, s4-args nhập từ đó.
+const S4ARGS_SRC = readFileSync(path.join(HERE, '..', '..', 'feature-loop', 'scripts', 'lib', 'phan-loai.mjs'), 'utf8');
 const HO_SO_GLOBS = (() => {
   const m = S4ARGS_SRC.match(/const HO_SO_VAN_BAN_GLOBS = \[([^\]]*)\]/);
-  if (!m) throw new Error('khong rut duoc HO_SO_VAN_BAN_GLOBS tu s4-args.mjs (khoi marker NGOAI-VAT doi khuon)');
+  if (!m) throw new Error('khong rut duoc HO_SO_VAN_BAN_GLOBS tu lib/phan-loai.mjs (mot nguon cua s4-args doi khuon)');
   return m[1].split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(Boolean);
 })();
 // ĐỔI KHUÔN 14/09: bên VIẾT truyền KẾT QUẢ (danh sách tệp), bên ĐỌC chỉ kiểm thuộc-tập.

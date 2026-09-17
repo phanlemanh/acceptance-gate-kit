@@ -20,10 +20,11 @@ const SRC = readFileSync(WF, 'utf8');
 // Sau ĐỔI KHUÔN 14/09, bên ĐỌC nhận DANH SÁCH tệp chứ không nhận mẫu. Ca vẫn rút mẫu từ
 // khối marker của bên VIẾT — nhưng để CHỨNG rằng tệp ca khai là ngoài-vật thật sự khớp
 // định nghĩa của bên viết, chứ không phải ca tự bịa ra một định nghĩa thứ hai.
-const S4 = readFileSync(path.join(ROOT, 'feature-loop', 'scripts', 's4-args.mjs'), 'utf8');
+// thuoc-co-cua AC-10: hằng sống ở MỘT nguồn `lib/phan-loai.mjs`, s4-args nhập từ đó.
+const S4 = readFileSync(path.join(ROOT, 'feature-loop', 'scripts', 'lib', 'phan-loai.mjs'), 'utf8');
 const HO_SO_GLOBS = (() => {
   const m = S4.match(/const HO_SO_VAN_BAN_GLOBS = \[([^\]]*)\]/);
-  if (!m) throw new Error('khong rut duoc HO_SO_VAN_BAN_GLOBS tu s4-args.mjs — khoi marker NGOAI-VAT doi khuon');
+  if (!m) throw new Error('khong rut duoc HO_SO_VAN_BAN_GLOBS tu lib/phan-loai.mjs — mot nguon cua s4-args doi khuon');
   return m[1].split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(Boolean);
 })();
 

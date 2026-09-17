@@ -19,6 +19,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { globToRe } from './carry-plan.mjs';
+import { DO_GLOBS, HO_SO_VAN_BAN_GLOBS } from './lib/phan-loai.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
@@ -313,7 +314,6 @@ const invokedSha = git('rev-parse', 'HEAD');
 //
 // MỘT hàm cho CẢ `vungVat` LẪN `deltaFiles`: trước T2 hai chỗ lọc bằng hai mệnh đề
 // khác nhau (`deltaFiles` lọc thô theo tiền tố `_acceptance/`), và hai khuôn thì trôi.
-const HO_SO_VAN_BAN_GLOBS = ['_acceptance/*/**/*.md', '_acceptance/*/**/*.jsonl'];
 const t1SkipGlobs = (() => {
   try { const v = resolveConfigList(configText, 'risk_tiers.t1_skip_globs'); return Array.isArray(v) ? v : []; }
   catch { return []; }   // repo không khai → chỉ bỏ văn bản hồ sơ
@@ -355,7 +355,6 @@ const ngoaiVatFiles = diffTatCa.filter(laNgoaiVat);
 // cho vung vat» la Out of scope, va toi da mo lai no trong mot luot SUA (luot cham 2 bat).
 // Mau co dinh trong engine; kho tieu thu dat rang o cho la van duoc phu boi hai ve duoi
 // (moi tep khong .md/.jsonl trong thu muc ho so · tep khai trong eval.paths).
-const DO_GLOBS = ['tests/**', '**/*.test.*', '**/*.spec.*', '**/spec/**', '**/__tests__/**'];
 const doRes = DO_GLOBS.map(globToRe);
 const laFileDo = f => doRes.some(re => re.test(f))
   || f === '_acceptance/config.yaml'
