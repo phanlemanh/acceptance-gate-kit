@@ -104,10 +104,11 @@ evals:
       tai HEAD <sha8> · sau: 0 tep bi cham» với n LỚN HƠN 0 và k BẰNG số khoá của
       feature_loop.suite_keys (năm ở config hiện tại). Mỗi lệnh in một dòng «[chup] lệnh i/k
       exit 0». sha8 in ra BẰNG HEAD mà lượt chấm ghi nhận. Chiều đỏ ghim mã: 2 không có nền (không
-      git · cây chấm có tệp chưa commit ngoài _acceptance/ — worktree tại HEAD không phải vật đang
-      chấm · không dựng được worktree · suite_keys không giải được · chụp rỗng) · 3 có tệp bị
-      chạm, in từng đường tệp · 4 một lệnh đỏ · 5 thiếu cờ. Chốt cây bẩn đã thử thật: trên cây
-      chưa commit bước nâng số → mã 2 gọi tên tệp. Đã thử thật trong phiên dựng hồ sơ bằng cờ thay lệnh: lệnh không chạm gì →
+      git · tệp đã theo dõi ngoài _acceptance/ đổi chưa commit — worktree tại HEAD không phải vật
+      đang chấm · không dựng được worktree · suite_keys không giải được · chụp rỗng) · 3 có tệp bị
+      chạm, in từng đường tệp · 4 một lệnh đỏ · 5 thiếu cờ. Chốt cây bẩn đã thử thật hai chiều:
+      sửa GUIDE.md chưa commit → mã 2 gọi tên tệp; thư mục fixture tạm chưa theo dõi trong
+      tests/hooks → im. Lượt chấm 1 đỏ mã 2 oan vì bản đầu soi cả tệp chưa theo dõi. Đã thử thật trong phiên dựng hồ sơ bằng cờ thay lệnh: lệnh không chạm gì →
       0 · ghi thêm vào hợp đồng đã ký của mốc 2.14.0 → mã 3 gọi đúng tệp «đổi nội dung» · lệnh
       đỏ → mã 4 · ghi vào hồ sơ draft và thư mục lượt chạy → 0 (chiều im). Lệnh chạy trong
       worktree tách, KHÔNG trên cây của lượt chấm; thời gian ≈ thời gian chạy trọn các suite.

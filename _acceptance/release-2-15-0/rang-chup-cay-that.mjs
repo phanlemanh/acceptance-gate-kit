@@ -18,8 +18,8 @@
 // răng này, không dùng trong eval.
 //
 //   0  xanh: suite chạy xong exit 0 và 0 tệp bị chạm
-//   2  không có nền để đo: không phải kho git · cây chấm có tệp chưa commit ngoài
-//      _acceptance/ · không dựng được worktree · suite_keys
+//   2  không có nền để đo: không phải kho git · tệp đã theo dõi ngoài _acceptance/ đổi chưa
+//      commit · không dựng được worktree · suite_keys
 //      rỗng/không giải được · 0 hồ sơ đã thông cổng (chụp rỗng là phép đo chưa sống)
 //   3  có tệp của hồ sơ đã thông cổng bị chạm — in từng đường tệp
 //   4  một suite đỏ — hồi quy không sạch nên chiều im chưa kết luận được
@@ -50,12 +50,16 @@ const git = (...a) => execFileSync('git', ['-C', ROOT, ...a], { encoding: 'utf8'
 let head;
 try { head = git('rev-parse', 'HEAD'); } catch { stop(2, `FAIL(2): ${ROOT} không phải kho git — không có HEAD để đo`); }
 
-// Cây của lượt chấm phải sạch ngoài `_acceptance/` và thư mục lượt chạy: worktree dựng tại
-// HEAD không mang thay đổi chưa commit, nên cây bẩn nghĩa là đo một phiên bản KHÁC vật đang
-// chấm (phản biện context sạch của mốc, P2). Dừng có tên, không đo.
-const ban = execFileSync('git', ['-C', ROOT, 'status', '--porcelain'], { encoding: 'utf8' })
+// Không tệp ĐÃ THEO DÕI nào ngoài `_acceptance/` được đổi mà chưa commit: worktree dựng tại
+// HEAD không mang thay đổi ấy, nên đo nó là đo một phiên bản KHÁC vật đang chấm (phản biện
+// context sạch của mốc, P2). Dừng có tên, không đo.
+// Chỉ soi tệp đã theo dõi, có chủ đích: lượt chấm S4 chạy răng này SONG SONG với các suite
+// trên cùng cây, và suite hooks sinh tạm thư mục fixture chưa theo dõi — bản đầu soi cả tệp
+// chưa theo dõi nên đỏ mã 2 oan ở lượt chấm 1. Giới hạn khai ở hợp đồng: một tệp MỚI chưa
+// commit không bị chốt này thấy; lớp đó giữ bằng luật tệp args hết hạn theo HEAD.
+const ban = execFileSync('git', ['-C', ROOT, 'status', '--porcelain', '--untracked-files=no'], { encoding: 'utf8' })
   .split('\n').filter(Boolean).map(l => l.slice(3)).filter(f => !f.startsWith('_acceptance/') && !f.startsWith('.acceptance-runs/'));
-if (ban.length) stop(2, `FAIL(2): cây chấm có ${ban.length} tệp chưa commit ngoài _acceptance/ — worktree tại HEAD ${head.slice(0, 8)} không phải vật đang chấm:\n${ban.slice(0, 10).map(f => `  - ${f}`).join('\n')}`);
+if (ban.length) stop(2, `FAIL(2): cây chấm có ${ban.length} tệp đã theo dõi đổi chưa commit ngoài _acceptance/ — worktree tại HEAD ${head.slice(0, 8)} không phải vật đang chấm:\n${ban.slice(0, 10).map(f => `  - ${f}`).join('\n')}`);
 
 const WT = mkdtempSync(path.join(tmpdir(), 'chup-cay-that-'));
 let coWorktree = false;

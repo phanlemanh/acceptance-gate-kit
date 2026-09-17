@@ -134,9 +134,10 @@ xong thì cùng lệnh xanh và tự kiểm xanh.
 **VÀ chiều im trên cây thật.** **Given** worktree tách tại HEAD của kho kit **When** chụp
 mọi hồ sơ đã thông cổng bằng chính module của làn, chạy tuần tự các suite trong
 `feature_loop.suite_keys`, rồi chụp lại **Then** mọi suite exit 0 và **0 tệp bị chạm**, trên
-một tập chụp KHÔNG rỗng, và sha in ra là HEAD của lượt chấm. Cây của lượt chấm phải sạch ngoài
-`_acceptance/` và thư mục lượt chạy — nếu không, worktree tại HEAD đo một phiên bản khác vật
-đang chấm, và răng dừng mã 2 gọi tên tệp chưa commit. Chiều im mới là thứ phải đúng trên cây này: răng kêu oan thì mọi
+một tập chụp KHÔNG rỗng, và sha in ra là HEAD của lượt chấm. Không tệp đã theo dõi nào ngoài
+`_acceptance/` được đổi mà chưa commit — nếu có, worktree tại HEAD đo một phiên bản khác vật
+đang chấm, và răng dừng mã 2 gọi tên tệp. Tệp chưa theo dõi không bị soi, vì các suite chạy
+song song trên cùng cây sinh fixture tạm (lượt chấm 1 đỏ oan đúng vì thế). Chiều im mới là thứ phải đúng trên cây này: răng kêu oan thì mọi
 lượt ghim lại của kit dừng.
 
 ### AC-8 (một nguồn) — hai trạng thái đã thông cổng chỉ sống ở bộ máy
