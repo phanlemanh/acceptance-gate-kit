@@ -52,7 +52,7 @@ flowchart TD
 ## Chờ duyệt phạm vi
 
 - Vị từ bỏ qua phải THẤY định nghĩa phép đo — _acceptance/config.yaml và evals.yaml là ĐẦU VÀO của làn, không phải vật hồ sơ (`bo-qua-phai-thay-dinh-nghia-phep-do`)
-- Phát hành kit 2.15.0 — mở hồ sơ mốc 16/09 cùng một nhát VÁ TRONG MỐC cho thẻ mở phiên (hồ sơ treo ở «đã duyệt» mà vật đã nằm trong nhánh gốc thôi bị in «viết code») (`release-2-15-0`)
+- Phát hành kit 2.15.0 — cắt số cho hai gói kit sau cửa sổ chạy dưới R (0 vòng meta mới, một vòng sản phẩm thật ở OneFlow), khai MỘT vòng meta đã ký trước R, mang tiêu chí cho ba việc meta đã vào cửa sổ qua chip mà owner đếm là vá-trong-mốc, cộng hạt giống «vòng meta đang mở trong cửa sổ» trên thẻ mở phiên của kho kit (`release-2-15-0`)
 
 ## Đang làm
 

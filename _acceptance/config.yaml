@@ -336,6 +336,16 @@ executors:
     vdg_nhom_moi_2_15: "bash -c 'out=$(node tests/scripts/vat-da-o-nhanh-goc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG1 a-vat-da-vao\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG4 d-doi-ten-xep-lai\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG6 f-chua-ke-hoach\"'"
     vdg_im_2_15: "bash -c 'out=$(node tests/scripts/vat-da-o-nhanh-goc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG2 b-khong-bang-chung\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG3 c-nhanh-khong-merge\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG5 e-sha-la\" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG7 \" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG8 \"'"
     vdg_chieu_do_2_15: "bash -c 'out=$(node tests/scripts/vat-da-o-nhanh-goc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG9 \" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG10a \" && printf \"%s\\n\" \"$out\" | grep -qF \"PASS: VDG10 chiều đỏ\"'"
+    # --- release-2-15-0 (17/09) --- răng cắt số (chép từ 2.14.0) + ba việc meta đếm vá-trong-mốc
+    p200_cat_so_2_15: bash _acceptance/release-2-15-0/rang-p200.sh
+    so_tang_2_15: bash _acceptance/release-2-15-0/rang-so-tang.sh
+    moc_diagram_2_15: bash _acceptance/release-2-15-0/rang-moc.sh --chan diagram
+    chup_ca_2_15: "bash -c 'out=$(node tests/scripts/chup-ho-so-da-thong.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CH0 CH1 CH2 CH3 CH4 CH5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    chup_cay_that_2_15: node _acceptance/release-2-15-0/rang-chup-cay-that.mjs --chan cay-that
+    mot_nguon_2_15: node _acceptance/release-2-15-0/rang-mot-nguon.mjs --chan da-thong-cong-2
+    vong_meta_2_15: "bash -c 'out=$(node tests/scripts/vong-meta-dang-mo.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in VM1 VM2 VM3 VM4 VM5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    cua_so_vendored_2_15: node _acceptance/release-2-15-0/rang-cua-so.mjs --chan vendored
+    cua_so_viec_meta_2_15: node _acceptance/release-2-15-0/rang-cua-so.mjs --chan viec-meta
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

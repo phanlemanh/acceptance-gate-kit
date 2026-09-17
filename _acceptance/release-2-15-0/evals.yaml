@@ -1,10 +1,45 @@
 schema_version: 1
 feature_slug: release-2-15-0
-# Khuôn theo 2.13.0/2.14.0: mỗi eval máy ghim MỘT dòng PASS KHÁC NHAU của chính ca nó
-# gọi, phán quyết không lấy từ mã thoát trọn suite. Mọi cmd đi qua config: ref.
+# Khuôn theo 2.13.0/2.14.0: mỗi eval máy ghim dòng PASS của chính ca hoặc răng nó gọi,
+# phán quyết không lấy từ mã thoát trọn suite. Mọi cmd đi qua config: ref.
 evals:
   - id: E1
     criterion: AC-1
+    executor: script
+    cmd: config:executors.script.p200_cat_so_2_15
+    expected: >
+      Exit 0 và đầu ra có đúng một dòng «PASS: P200 xanh (dung 1 dong PASS cua chinh no;
+      phan quyet KHONG lay tu ma thoat tron suite; rang ban <8 hex>)». Răng chép nguyên thân
+      từ 2.14.0. Chiều đỏ ghim mã như 2.14.0: 2 chưa từng chạy · 3 P200 in FAIL · 4 nhiều hơn
+      một dòng PASS · 5 không tới kết luận · 8 không đọc được dấu bản răng. Vế giá trị
+      «2.15.0» KHÔNG nằm trong eval — owner xác nhận trên thẻ.
+    paths: [.claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, GUIDE.md, _acceptance/release-2-15-0/rang-p200.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E1b
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.so_tang_2_15
+    expected: >
+      Exit 0 và đúng một dòng «PASS: so trong cay (<số>) TANG theo semver so voi so tai
+      commit dua ho so moc vao kho (<sha>) = <số cũ> — neo suy TU KHO, khong ghim sha».
+      Chiều đỏ ghim mã: 2 không có nền · 3 số KHÔNG tăng · 4 không đọc được số tại neo · 5
+      không tới kết luận. Đã thử thật trong phiên dựng hồ sơ: cây chưa nâng số → mã 3 «BANG
+      so tai neo»; sau khi nâng → 0.
+    paths: [.claude-plugin/plugin.json, _acceptance/release-2-15-0/rang-so-tang.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.moc_diagram_2_15
+    expected: >
+      Exit 0 và đúng một dòng «PASS: diagram-design KHONG doi ke tu lan cat so gan nhat
+      (<sha>), so doc duoc tai HEAD la 2.7.0 (doi chung duong: cua so moc..HEAD KHONG rong;
+      bo loc diagram-design/ con khop vat; rang ban <8 hex>)». Chiều đỏ ghim mã như 2.14.0:
+      2 · 3 · 4 · 5 (có đổi mà giữ số) · 6 · 8.
+    paths: [diagram-design/.claude-plugin/plugin.json, _acceptance/release-2-15-0/rang-moc.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
     executor: script
     cmd: config:executors.script.vdg_nhom_moi_2_15
     expected: >
@@ -13,8 +48,8 @@ evals:
       trong tệp ca, không rút từ bảng chữ — sửa bảng sai thì đỏ.
     paths: [scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, tests/scripts/vat-da-o-nhanh-goc.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E2
-    criterion: AC-2
+  - id: E4
+    criterion: AC-4
     executor: script
     cmd: config:executors.script.vdg_im_2_15
     expected: >
@@ -23,8 +58,8 @@ evals:
       đều ở nhóm đang dở, không hồ sơ nào hỏng).
     paths: [scripts/start-scan.mjs, tests/scripts/vat-da-o-nhanh-goc.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E3
-    criterion: AC-3
+  - id: E5
+    criterion: AC-5
     executor: script
     cmd: config:executors.script.vdg_chieu_do_2_15
     expected: >
@@ -32,13 +67,16 @@ evals:
       phá cho nhóm mới) và VDG10 (bản sao đã phá đưa hồ sơ về «đang viết code»).
     paths: [scripts/start-scan.mjs, tests/scripts/vat-da-o-nhanh-goc.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E4
-    criterion: AC-4
+  - id: E6
+    criterion: AC-6
     executor: judgment
     inputs: [commands/start.md, scripts/trang-thai-ho-so.cjs, skills/acceptance/references/human-facing-language.md]
-    steps:
-      - "Đọc khối START-VAT-DA-O-NHANH-GOC và điều khoản bàn giao cho dòng vat-da-o-nhanh-goc ở bước 4 của commands/start.md."
-      - "Đối chiếu với điều khoản MỘT câu hỏi chọn ở bước 4 và luật N1–N6."
+    question: >
+      Đọc khối START-VAT-DA-O-NHANH-GOC và điều khoản bàn giao cho dòng vat-da-o-nhanh-goc ở
+      bước 4 của commands/start.md, cùng hai chữ của khoá ấy trong bảng chữ trạng thái; đối
+      chiếu với điều khoản MỘT câu hỏi chọn ở bước 4 và luật N1–N6 của bản luật ngôn ngữ mặt
+      người. Thẻ có mời resume trơn vào một hồ sơ «đã duyệt» có vật đã merge ở bất kỳ đường nào
+      không?
     expected: >
       PASS khi: (1) dòng này không in bước máy kế; (2) hai lối nằm trong cùng câu hỏi chọn,
       không thêm câu hỏi, không thêm cổng; (3) lối «chấm lại» bàn giao kèm câu dặn đưa hồ sơ
@@ -46,28 +84,179 @@ evals:
       quan sát» kết thúc lệnh mở phiên, không tự ghi gì; (5) nhãn và việc kế trong bảng chữ
       qua được phép thử xoá-tên-máy. REJECT khi thiếu một trong năm.
     evidence_required: [verdict, rationale]
-  - id: E5a
-    criterion: AC-5
+  - id: E7a
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.chup_ca_2_15
+    expected: >
+      Exit 0, và đầu ra có sáu dòng PASS mở đầu bằng «PASS: CH0 », «PASS: CH1 », «PASS: CH2 »,
+      «PASS: CH3 », «PASS: CH4 », «PASS: CH5 » — mỗi ca một dòng riêng, không lấy từ dòng tổng
+      kết. CH2–CH4 là chiều đỏ trên CÙNG fixture của CH1, chỉ đổi đích ghi; CH0 gồm mutant
+      tiêm một mảng chuỗi vào bản sao mã nguồn của module.
+    paths: [feature-loop/scripts/chup-ho-so-da-thong.mjs, feature-loop/scripts/repin-lane.mjs, tests/scripts/chup-ho-so-da-thong.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7b
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.chup_cay_that_2_15
+    expected: >
+      Exit 0 và dòng cuối «PASS: chup-cay-that <n> ho so da thong cong (<m> tep) truoc <k> lenh
+      tai HEAD <sha8> · sau: 0 tep bi cham» với n LỚN HƠN 0 và k BẰNG số khoá của
+      feature_loop.suite_keys (năm ở config hiện tại). Mỗi lệnh in một dòng «[chup] lệnh i/k
+      exit 0». sha8 in ra BẰNG HEAD mà lượt chấm ghi nhận. Chiều đỏ ghim mã: 2 không có nền (không
+      git · cây chấm có tệp chưa commit ngoài _acceptance/ — worktree tại HEAD không phải vật đang
+      chấm · không dựng được worktree · suite_keys không giải được · chụp rỗng) · 3 có tệp bị
+      chạm, in từng đường tệp · 4 một lệnh đỏ · 5 thiếu cờ. Chốt cây bẩn đã thử thật: trên cây
+      chưa commit bước nâng số → mã 2 gọi tên tệp. Đã thử thật trong phiên dựng hồ sơ bằng cờ thay lệnh: lệnh không chạm gì →
+      0 · ghi thêm vào hợp đồng đã ký của mốc 2.14.0 → mã 3 gọi đúng tệp «đổi nội dung» · lệnh
+      đỏ → mã 4 · ghi vào hồ sơ draft và thư mục lượt chạy → 0 (chiều im). Lệnh chạy trong
+      worktree tách, KHÔNG trên cây của lượt chấm; thời gian ≈ thời gian chạy trọn các suite.
+    paths: [feature-loop/scripts/chup-ho-so-da-thong.mjs, _acceptance/release-2-15-0/rang-chup-cay-that.mjs, _acceptance/config.yaml]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.mot_nguon_2_15
+    expected: >
+      Exit 0 và đúng một dòng «PASS: mot-nguon DA_THONG_CONG_2 — hang AG-ENGINE co (<n>
+      hang) · GL03 xanh · khoi gach ho so da ky <m> dong, khong dong nao cho rang chup ho so ·
+      module khong go tay trang thai, 2 tep khong chua chuoi RT13 quet (doi chung: lib va tep
+      ca RT13 co) · RT13 xanh». Chiều đỏ ghim mã: 2 không có nền · 3 GL03 đỏ · 4 RT13 đỏ · 5
+      hồ sơ đã ký còn khai gạch · 6 module gõ tay trạng thái hoặc tệp chứa chuỗi RT13 quét · 7
+      thiếu hàng bảng · 8 thiếu cờ. Đã thử thật trên cây làm việc rồi khôi phục: tiêm một dòng
+      gạch → mã 5 · tiêm một mảng trạng thái vào module → mã 6 · gỡ hàng bảng → mã 7. Bản đầu
+      của vế 6 khai rộng hơn sự thật và đỏ mã 6 ngay lần chạy đầu — xem Notes §3 lớp bốn.
+    paths: [feature-loop/scripts/repin-lane.mjs, feature-loop/scripts/chup-ho-so-da-thong.mjs, tests/scripts/chup-ho-so-da-thong.test.mjs, _acceptance/ra-co-ten-lam-va-trao/contract.md, _acceptance/release-2-15-0/rang-mot-nguon.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9a
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.vong_meta_2_15
+    expected: >
+      Exit 0, và đầu ra có năm dòng PASS mở đầu bằng «PASS: VM1 », «PASS: VM2 », «PASS: VM3 »,
+      «PASS: VM4 », «PASS: VM5 ». VM5 chạy bản sao TRỌN scripts/ và lib/, đối chứng dương
+      xanh trước, rồi gỡ đúng một dòng đếm (neo đúng một lần) và đòi phán của VM2 đỏ ở n và cờ.
+      Ngoài ca, trong phiên dựng hồ sơ đã thử ba đột biến khác trên bản sao — bỏ lọc hồ sơ mốc ·
+      bỏ phép «sinh sau mốc» · bỏ lọc dòng version — cả ba làm VM1, VM2, VM5 đỏ.
+    paths: [scripts/start-scan.mjs, tests/scripts/vong-meta-dang-mo.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9b
+    criterion: AC-9
+    executor: judgment
+    inputs: [commands/start.md, skills/acceptance/references/human-facing-language.md]
+    question: >
+      Đọc khối START-VONG-META trong bước 3 của commands/start.md và dòng khoá metaOpen trong
+      khối START-SCAN-KEYS; đối chiếu với luật N1–N6 của bản luật ngôn ngữ mặt người và điều
+      khoản MỘT câu hỏi chọn ở bước 4. Dòng đếm vòng meta có biến thành một câu hỏi, một cổng,
+      hay một lời máy chọn hộ ở đường nào không, và «chưa biết» có bị in thành số 0 không?
+    expected: >
+      PASS khi: (1) dòng chỉ in khi metaOpen.applies là true, không in ở repo tiêu thụ; (2) in số
+      kèm tên từng hồ sơ, không cắt; (3) cờ là một câu, không thêm câu hỏi, không thêm cổng, không
+      lệnh, máy không chọn hộ; (4) n null in thành «chưa đếm được», không in 0; (5) câu chữ qua
+      phép thử xoá-tên-máy. REJECT khi thiếu một trong năm.
+    evidence_required: [verdict, rationale]
+  - id: E10a
+    criterion: AC-10
     executor: test
     cmd: config:executors.test.scripts
     expected: >
       Exit 0 và dòng tổng kết «Results: <n> passed, 0 failed» với <n> LỚN HƠN 0.
-    paths: [scripts/, tests/scripts/**, lib/]
+    paths: [scripts/, tests/scripts/, lib/]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E5b
-    criterion: AC-5
+  - id: E10b
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: >
+      Exit 0 và dòng tổng kết «Results: <n> passed, 0 failed» với <n> LỚN HƠN 0.
+    paths: [hooks/, tests/hooks/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10c
+    criterion: AC-10
     executor: test
     cmd: config:executors.test.plugins
     expected: >
       Exit 0 và «Results: all plugin tests passed»; đầu ra KHÔNG có dòng nào mang chữ FAIL.
-    paths: [tests/plugins/**, commands/start.md, scripts/trang-thai-ho-so.cjs]
+      Không đòi dòng PASS của ca nào ở đây: bộ lọc của chính lệnh này cắt mọi dòng PASS.
+    paths: [tests/plugins/, commands/start.md, scripts/start-scan.mjs, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E5c
-    criterion: AC-5
+  - id: E10d
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Exit 0 và «Results: all workflow tests passed».
+    paths: [feature-loop/workflows/, tests/workflows/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10e
+    criterion: AC-10
     executor: script
     cmd: config:executors.script.product_map
-    expected: >
-      Exit 0 — bản đồ sản phẩm khớp hồ sơ. Khoá mới chiếu về cùng ô «đang dựng» nên hồ sơ mới
-      của mốc là thứ duy nhất được phép làm bản đồ đổi.
+    expected: "Exit 0, «PRODUCT-MAP.md khớp hồ sơ xưởng.»"
     paths: [PRODUCT-MAP.md, scripts/product-map.mjs, scripts/trang-thai-ho-so.cjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: judgment
+    question: >
+      Đọc ## Notes của hợp đồng. Bốn khối (năm dòng số · lớp vendored · lớp lỗi tái phát ·
+      nhát cắt kế) có ĐỦ MẶT không; bảng năm dòng có ĐỦ BA CỘT (vòng R1 · phiên crm · ba việc
+      meta) không; mỗi ô có NGUỒN RÚT hoặc «không đo được» kèm lý do không; dòng 2 có tách
+      trong/ngoài thiết kế và gọi tên lớp hạ tầng không. KHÔNG tính lại con số nào ngoài BỐN
+      phép đối chiếu: (i) dòng 4 cột R1 — 42,83 · 34,82 · 69,43 · 147,77 M — so §5 finding R1 ·
+      (ii) dòng 4b cột R1 — 20,2 · 10,0 · 2,7 · 9,5 % và làn ui 91,2 % — so bảng §3 finding R1 ·
+      (iii) dòng 2 cột R1 so dòng «Tổng» §4 finding R1 · (iv) dòng 2 cột crm so bảng §1 finding
+      truy nguyên · (v) số 145,93 M của vòng meta nặng nhất 2.14 so dòng 4 Notes §1 của hợp đồng mốc
+      2.14.0, cùng câu giải thích 142 M và 146 M của finding bối cảnh là hai nền. NĂM phép ấy là
+      danh sách ĐÓNG. Bảng phải có BỐN cột (R1 · phiên crm · vòng meta đã ký · ba việc chip). Rồi:
+      khối năm dòng có nói THẲNG bảy điều bất lợi không — cửa sổ «0 vòng meta mới» có một vòng
+      meta đã ký trước R mà tài liệu tổng kết bỏ sót · token một vòng sản phẩm không rẻ hơn vòng meta nặng nhất 2.14 · lượt gọi
+      người vượt trần bốn vòng liền · tìm-lỗi 9,5 % nhưng làn ui 91 % · việc meta của cửa sổ không
+      có token · ngưỡng mở lại luật (a) đã chạm · router trượt lần thứ tư. Cuối cùng: §4 có gọi tên
+      đủ năm nhát cắt owner dịch 17/09 (thuoc-co-cua thu hẹp là vòng meta 2.15→2.16 với ① ② ④ ·
+      router mặc định 2.16→2.17 và bỏ công thức 4b · làn ui · park cho vòng · S4 và CI chưa
+      chụp cây) và định đoạt HAI mục T1 của R2 kèm lý do, và giữ R3 không chạy chiến dịch.
+    inputs:
+      - _acceptance/release-2-15-0/contract.md
+      - docs/findings/2026-09-17-quan-sat-r1-ba-dinh.md
+      - docs/findings/2026-09-16-truy-nguyen-thuoc-khong-co-cua.md
+      - docs/findings/2026-09-17-boi-canh-truoc-va-sau-R.md
+      - _acceptance/release-2-14-0/contract.md
+    expected: >
+      PASS khi bốn khối có mặt, bảng đủ bốn cột với nguồn từng ô, dòng 2 tách trong/ngoài và gọi
+      tên hạ tầng, NĂM phép đối chiếu khớp, bảy điều bất lợi nói thẳng, §4 đủ năm nhát cắt và hai
+      định đoạt R2 có lý do. Che bất kỳ điều bất lợi nào là FAIL.
+
+      Nguồn gốc của R1 và phiên crm nằm ở hai repo tiêu thụ, không trong kho này; đối chiếu là
+      với nhân chứng đã đọc chúng, và hợp đồng khai thẳng thế. Hội đồng KHÔNG suy rộng ra số khác.
+    evidence_required: [judged_by, verdict, votes, rationale]
+  - id: E12a
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.cua_so_vendored_2_15
+    expected: >
+      Exit 0 và đúng một dòng «PASS: vendored <n> tep chep CI (rut tu INIT-CI-COPY-LIST) KHONG doi
+      ke tu lan cat so <số> (<sha8>) toi cay lam viec (doi chung: cua so tren toan kho co <m> tep
+      doi)» với n BẰNG số tệp trong khối chép (chín hôm nay) và m LỚN HƠN 0. Neo suy từ kho — lần
+      cắt số trước — không ghim sha. Chiều đỏ ghim mã: 2 không có nền (không rút được khối · danh
+      sách dưới năm tệp · tệp vắng · cửa sổ toàn kho rỗng) · 3 có tệp chép đổi, in từng tệp · 8
+      thiếu cờ. Đã thử thật: thêm một dòng chú thích vào lib/md-section.cjs → mã 3 gọi đúng tệp;
+      khôi phục → 0.
+    paths: [commands/acceptance-init.md, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, lib/, _acceptance/release-2-15-0/rang-cua-so.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12b
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.cua_so_viec_meta_2_15
+    expected: >
+      Exit 0 và đúng một dòng «PASS: viec-meta <k> ho so vong sinh sau lan cat so <số> (<sha8>)
+      BANG khoi khai [<danh sách>] · the mo phien tren cay that: vong meta dang mo n=<n>
+      [<danh sách>]», với danh sách hồ sơ vòng bằng đúng khối VIEC-META-CUA-SO của hợp đồng
+      (guide-chep-ci-buoc-vao-writer hôm nay) và n là SỐ, không null. Chiều đỏ ghim mã: 2 không có
+      nền (không rút được khối · chính hồ sơ mốc có ở neo — neo sai) · 4 tập KHÁC khối khai, gọi
+      tên thiếu hoặc thừa · 5 bộ quét trên cây thật không nhận kho kit hoặc n null · 8 thiếu cờ. Đã
+      thử thật: thêm một thư mục hồ sơ có contract.md chưa theo dõi → mã 4 «có ở kho mà hợp đồng
+      không khai» gọi đúng tên; gỡ dòng của vòng đã ký khỏi khối → mã 4 gọi đúng tên; khôi phục → 0.
+      Bản đầu hồ sơ này KHÔNG có răng này, và phép đếm theo kho lúc dựng nó lộ vòng bị bỏ sót.
+    paths: [_acceptance/release-2-15-0/contract.md, _acceptance/release-2-15-0/rang-cua-so.mjs, scripts/start-scan.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
