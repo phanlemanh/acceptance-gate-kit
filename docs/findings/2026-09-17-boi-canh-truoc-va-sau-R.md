@@ -218,6 +218,15 @@ chưa»):** bốn lớp hạ tầng — A công cụ/môi trường trước S4 
 lượt» (ô `thuoc-co-cua`, mục thước đo thành công); D thành vá-trong-mốc 2.15.0 (sửa
 `GOAL-TEMPLATE`, đã nhắn phiên cắt mốc).
 
+**Bổ sung thứ hai 17/09 (owner gật lượt rà 23 lớp hạ tầng —
+`2026-09-17-ra-ha-tang-23-lop.md`):** kit hôm nay chỉ kiểm phụ thuộc cài đặt trước khi
+chạy, không kiểm hạ tầng đo; 23 lớp đã gặp thì 4 đã có nhát chữa, 6 một nửa, 12 chưa có
+chỗ nào. Vòng `thuoc-co-cua` gom về hai câu + một cửa (*đứng được trước khi chấm* — lõi là
+«đường nền hạ tầng ở S1», máy chạy, không LLM · *chạy không đè nhau* · cửa cho thước); ba lỗi
+đúng/sai nhỏ (S4 nghe `not-run` · thẻ cổng đếm `expected_exit` · `bo-qua-phai-thay`) là nhát
+mở đầu cửa sổ kế vì mốc 2.15.0 đã qua Cổng Phạm vi khi lời phê tới; phần còn lại gọi tên ở
+§4 hồ sơ mốc.
+
 Trước khi mở chip, owner hỏi thêm: *người dùng kit được gì sau vòng meta này?* — trả lời
 ở `_acceptance/thuoc-co-cua/opportunity.md` mục «Vấn đề & ai gặp» và trong hồ sơ Cổng Đáng
 của vòng, bằng số của R1 và crm-onehub (§4 trên).

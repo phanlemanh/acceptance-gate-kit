@@ -103,6 +103,24 @@ tay: hai mục hợp đồng và một luật ghi sổ, không đổi kit.
 
 ## Thước đo thành công → ứng viên criterion
 
+**Phạm vi gom về hai câu + một cửa (owner gật 17/09, sau lượt rà 23 lớp hạ tầng —
+`docs/findings/2026-09-17-ra-ha-tang-23-lop.md`):** *đứng được trước khi chấm* ·
+*chạy không đè nhau* · cửa cho thước.
+
+- **Đường nền hạ tầng ở S1 — máy chạy, không LLM, trước Cổng Phạm vi, trên cây chưa
+  đụng:** (a) lệnh đầu của mọi executor trong vòng có trên máy; (b) các lệnh suite
+  chạy một lần, TUẦN TỰ, rồi kiểm cây còn sạch — bẩn nghĩa là có phép đo ghi vào hồ
+  sơ; (c) lưới trước-merge chạy đúng như CI (không thu phạm vi theo slug, có base là
+  nhánh gốc) và in vi phạm CÓ SẴN; (d) in ba bản engine (vendored · plugin cache · kit)
+  và cờ khi lệch. Thứ gì đỏ ở đây theo định nghĩa không phải lỗi của vòng — quyết
+  trước cổng, trong gói Cổng Phạm vi. Hai chiều: cây lành → khối «nền: xanh»; gỡ một
+  công cụ / tiêm một vi phạm có sẵn trong bản sao → khối gọi đúng tên. Diễn lại: R1
+  bắt `uv`, Python 3.9, ba hồ sơ nợ cũ (3/4 câu hạ tầng + 41 M lượt 1); crm bắt tệp
+  bằng chứng bị ghi đè và bốn hồ sơ treo.
+- **Tiền đề kiểm lại ngay trước MỖI lượt S4, và S4 không dispatch khi còn tiền đề
+  đỏ** (R1: tường `uv` biết từ S1 mà lượt 1 vẫn chạy). Mục đường đo kiểm máy chủ còn
+  sống trước MỖI eval, hỏng thì mã 2 «từ chối đo», không phải đỏ của vật.
+
 - `## Vật trước vòng` và `## Tiền đề` có trong khuôn hợp đồng; W9 đỏ khi vật đã ở nhánh
   gốc ∧ kế hoạch không chạm đường dẫn sản phẩm, im với hồ sơ greenfield; W10 đỏ khi
   tiền đề trỏ mục đường đo không tồn tại.
@@ -116,9 +134,12 @@ tay: hai mục hợp đồng và một luật ghi sổ, không đổi kit.
 - Diff `rang/` giữa hai lượt chấm do script liệt kê — không đưa làn phản bác soi hồ sơ.
 - Khuôn giao diện đường đo cấp repo: `--chay`, mã 2 khi hỏng tiền đề, đặt/trả, DB của
   lượt, máy chủ tự xưng cây và SHA — răng từ chối đo khi máy chủ trỏ cây khác.
-- **Tài nguyên của lượt** (owner phê 17/09, mở rộng ④): mỗi eval khai tài nguyên nó
-  cần — máy chủ · thư mục build · DB · cổng — và làn chấm tách riêng hoặc xếp hàng theo
-  tài nguyên, không chạy chung. Bằng chứng lớp lặp ở ba repo: oneflow R1 (E14 đỏ hai
+- **Tài nguyên của lượt** (owner phê 17/09, mở rộng ④): mỗi eval VÀ mỗi lệnh suite khai
+  tài nguyên nó cần — máy chủ · thư mục build · DB · cổng — và làn chấm tách riêng hoặc
+  xếp hàng theo tài nguyên, không chạy chung. Hôm nay làn chấm chạy MỌI lệnh máy song
+  song kể cả lệnh suite (`acceptance-verify.js`, khối machine); mặc định mới: lệnh suite
+  chạy tuần tự. Ràng buộc: thời gian CHỜ khoá không tính vào trần thời gian của lệnh —
+  xếp hàng không được biến thành «bị công cụ giết» (crm: chân cuối hàng bị bỏ đói). Bằng chứng lớp lặp ở ba repo: oneflow R1 (E14 đỏ hai
   lượt vì máy chủ không lên kịp dưới tải làn ui; bộ test đỏ vì hai lượt cùng dựng vào
   một thư mục build của SDK; config khai sẵn «build và typecheck đua nhau») · crm (các
   chân giẫm trạng thái của nhau khi chạy song song; hai lệnh cổng đua cây build) ·
@@ -143,4 +164,18 @@ tay: hai mục hợp đồng và một luật ghi sổ, không đổi kit.
   `implemented`.
 - Trạng thái `park` cho *vòng* (không chỉ cho ô) — ngoài ô này nhưng là nguyên thuỷ
   thiếu ở mắt xích 06/09; ghi nhận, chưa xếp hàng.
+- **Chỗ cắt kế, gọi tên — chưa làm trong vòng này** (lượt rà 23 lớp, owner gật 17/09):
+  mã thoát của lệnh đi qua lời khai của agent thay vì máy đọc (lỗ «bằng chứng tự dối»
+  ở lõi; crm: REJECT giả ở E6) — đứng đầu hàng · tham số S4 truyền bằng đường dẫn tệp
+  thay vì model dán hàng chục nghìn ký tự (R1: một lượt huỷ vì sai bốn trường) · «cây
+  của lượt» — cách dựng worktree của repo khai trong config thay vì sống trong sổ nhớ
+  phiên · máy tự thử lại MỘT lần khi agent nền chết vì lỗi phiên, không gọi người (R1:
+  2/4 câu hạ tầng) · sàn thiết kế báo P0 giả trên nền tối · đánh thức hai ô đang ngủ:
+  `cong-chan-theo-ho-so-khong-theo-diff` (mắt đầu chuỗi nhân quả ở cả crm lẫn oneflow)
+  và `premerge-nhu-ci-truoc-khi-mo-pr`.
+- **Ba lỗi đúng/sai nhỏ owner đã phê 17/09 làm vá-trong-mốc 2.15.0** — S4 không nghe
+  `status: not-run` (crm 16/09, R1 E15) · thẻ cổng đếm `expected_exit` đã khai thành
+  trượt · ô draft `bo-qua-phai-thay-dinh-nghia-phep-do`. Mốc 2.15.0 đã qua Cổng Phạm
+  vi và đang ở S4 khi lời phê tới, nên **không mở lại phạm vi mốc**: ba mục này là
+  nhát mở đầu của cửa sổ 2.15 → 2.16 (hoặc bản vá 2.15.1), trừ khi owner nói khác.
 - Thêm cổng người — không (ADR 0002).
