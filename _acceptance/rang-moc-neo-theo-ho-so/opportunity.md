@@ -42,7 +42,10 @@ không tốn một lượt điều tra mỗi mốc. Gây ra bởi phản biện 
 
 ## Ngưỡng chết / ngưỡng UAT
 
-Không đo được — việc nội bộ của bộ công cụ, không có người dùng cuối; đo bằng lượt ghim lại của hồ sơ mốc 2.15.0 sau khi mốc 2.16.0 cắt số.
+- Câu hỏi phép đo trả lời: [đề xuất] sau khi mốc kế cắt số, lượt ghim lại của hồ sơ mốc 2.15.0 có còn xanh mà không sửa gì không?
+- Kết quả nào là SỐNG: [đề xuất] răng của hồ sơ mốc 2.15.0 xanh trên cây sau mốc 2.16.0; phép thử trên cây dựng giả có thêm một lần cắt số cũng xanh.
+- Kết quả nào là CHẾT: [đề xuất] răng đổi lời hứa chứ không chỉ đổi neo; hoặc thêm một lượt gọi người ở bất kỳ mốc nào.
+- Timebox: [đề xuất] trước lần cắt số 2.16.0.
 
 ## Out of scope từ khám phá
 
