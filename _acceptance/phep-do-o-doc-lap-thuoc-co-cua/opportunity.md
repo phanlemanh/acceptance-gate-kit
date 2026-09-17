@@ -3,10 +3,10 @@ schema_version: 1
 slug: phep-do-o-doc-lap-thuoc-co-cua
 feature: Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Mạnh
+decided_at: 2026-09-17T17:33:29Z   # ISO UTC — owner chọn «build, 2.16→2.17» một chạm, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -39,11 +39,17 @@ khối nền trên thẻ có thể sai cột mà không ca nào đỏ.
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đột biến đổi chỗ hai giá trị trên thẻ, hoặc chỉ nới đúng một ô của vị ngữ, có làm đỏ đúng ca và đúng ô không?
-- Kết quả nào là SỐNG: [đề xuất] ba đột biến (đổi cột vật/thước · đổi chân nền · nới một ô DN3-IM) mỗi cái làm đỏ đúng một ca, chạy riêng ô vẫn lật.
-- Kết quả nào là CHẾT: [đề xuất] phải thêm khoá config hay lượt gọi người để làm được; hoặc sửa làm đổi hành vi của vật.
-- Timebox: [đề xuất] một vá-trong-mốc ở cửa sổ 2.16 → 2.17, không mở vòng meta riêng.
+- Câu hỏi phép đo trả lời: đột biến đổi chỗ hai giá trị trên thẻ, hoặc chỉ nới đúng một ô của vị ngữ, có làm đỏ đúng ca và đúng ô không?
+- Kết quả nào là SỐNG: ba đột biến (đổi cột vật/thước · đổi chân nền · nới một ô DN3-IM) mỗi cái làm đỏ đúng một ca, chạy riêng ô vẫn lật.
+- Kết quả nào là CHẾT: phải thêm khoá config hay lượt gọi người để làm được; hoặc sửa làm đổi hành vi của vật.
+- Timebox: một vá-trong-mốc ở cửa sổ 2.16 → 2.17, cạnh router; không mở vòng meta riêng, không làm trong cửa sổ 2.15 → 2.16 (suất meta của cửa sổ ấy đã dùng cho thuoc-co-cua — luật b).
 
 ## Out of scope từ khám phá
 
-- Hai finding ngoài hợp đồng khác của lượt chấm 1 (bộ đếm không giới hạn theo slug · dòng `fatal:` của git lọt ra đầu ra) — rơi khỏi thẻ Cổng Bằng chứng do luật carry, chưa có quyết định; không thuộc ô này.
+- Hai finding ngoài hợp đồng khác của lượt chấm 1 (bộ đếm không giới hạn theo slug · dòng `fatal:` của git lọt ra đầu ra) — rơi khỏi thẻ Cổng Bằng chứng do luật carry; owner ghi Known limits 18/09 (sổ known-limits, dòng thuoc-co-cua#3 và #4); không thuộc ô này.
+
+## Cổng 0
+
+- **decision = build** (owner ký một chạm). Căn cứ: ba finding ngoài hợp đồng của vòng `thuoc-co-cua` cùng một lớp — phép đo tuyên từng ô mà ô không độc lập hoặc giá trị mẫu trùng; owner quyết «mở hợp đồng mới» ở Cổng Bằng chứng 17/09. Người dùng kit được: dòng vật · thước · nhát và khối nền trên thẻ không thể sai cột mà ca vẫn xanh. Mất: một vá-trong-mốc (ba tệp ca, không chạm vật).
+- **disposition = không áp dụng** — không dựng prototype.
+- **Ngưỡng UAT chốt cùng lúc ký:** như mục «Ngưỡng chết / ngưỡng UAT» ở trên, đã gỡ tiền tố đề xuất; timebox ghi rõ cửa sổ.
