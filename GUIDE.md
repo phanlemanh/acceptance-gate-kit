@@ -497,6 +497,31 @@ ngành" mà bỏ, cũng không bịa tên. Repo mới chưa có thước CE nộ
 chính đối chiếu ngành làm thước, coverage là "đủ-để-bắt-đầu" — dữ liệu thật đầu tiên đưa
 ngược vào trục (đóng vòng).
 
+## Đường nền hạ tầng và cửa cho thước (2.16 · hồ sơ thuoc-co-cua)
+
+**Đường nền hạ tầng — đầu S1, trước khi vòng viết tệp nào.** `feature-loop/scripts/duong-nen.mjs`
+chạy nền, không LLM, bốn chân: từ đầu của mọi lệnh executor có trên máy · các lệnh suite chạy
+một lần, lần lượt, rồi cây còn sạch · lưới trước-merge chạy như CI (có base, không thu phạm vi
+theo slug) · ba bản bộ máy (chép trong repo · plugin cache · bản đang chạy). Kết quả vào
+`_acceptance/<slug>/duong-nen.md` và khối «Nền hạ tầng» trên thẻ Cổng Phạm vi. Đỏ ở đây theo
+định nghĩa không phải lỗi của vòng: máy tự gỡ thứ gỡ được, thứ chỉ người gỡ được gom một lần
+vào lời mời cổng. Khuôn tệp và khuôn dòng đỏ: `skills/acceptance/references/duong-nen-template.md`.
+
+**Trong lượt chấm:** lệnh eval tự khai `status: not-run` không bị thi hành (bộ sinh args dùng
+cùng hàm của `lib/evidence-core.cjs` với làn ghim lại), báo cáo nói ra chúng bằng một dòng; các
+lệnh suite chạy lần lượt, lệnh eval vẫn song song.
+
+**Cửa cho thước.** `feature-loop/scripts/thuoc-vat.mjs` xếp mỗi tệp đổi vào một lớp (ngoài ·
+thước · hồ sơ · vật, bằng `feature-loop/scripts/lib/phan-loai.mjs` — cùng tập mẫu với vùng vật
+của bộ sinh args) và đếm **nhát sửa thước**: commit sau mốc `implemented` chỉ chạm phép đo.
+Commit S3 trước mốc không bao giờ bị đếm; commit chạm cả vật lẫn thước là «lẫn». Từ 3 nhát,
+`s4-args.mjs` thoát mã 4 và không sinh args — ba lối: khai giới hạn có tên · đổi cách đo · mở
+vòng có chủ ngữ là thước (một dòng lệnh in sẵn). Người chọn lối một hoặc hai → dòng sổ
+`revisit` mở đầu `trần thước — ` được commit, mốc đếm dời tới đó. Sau mỗi lượt chấm,
+`thuoc-vat.mjs --write` nối một dòng đếm vào run-log; thẻ Cổng Bằng chứng in nó thành một dòng
+«vật · thước · nhát». `--giua-hai-luot` liệt kê tệp thước đổi giữa hai lượt chấm theo sha của
+run-log — script, không làn LLM nào soi hồ sơ.
+
 ## Gap-probe S1 — phản biện context sạch (feature-loop 1.14.0 · acceptance-gate 1.18.0)
 
 CT-S quét *không gian* AC (liệt kê có hệ thống); gap-probe bổ khuyết chiều còn

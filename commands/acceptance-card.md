@@ -73,6 +73,11 @@ Steps:
    - `đề xuất không đọc được` → cờ vàng trên một mục Ngoài-<số>: phiên soi ghi đề xuất bằng chữ người thay vì một trong ba token máy đọc; thẻ in nguyên văn chữ đó kèm ba token hợp lệ, ô ấy trong dòng lệnh để trống — người chọn một trong ba ở câu gộp, máy KHÔNG đoán thay.
    - `Đối kháng máy KHÔNG chạy được — phần vượt-nhận-thức RƠI VỀ ANH: thẻ này không điền sẵn ô nào, và chữ ký ở đây KHÔNG có nghĩa «đối kháng đã hội tụ». Anh tự đọc vật, hoặc chạy lại bước phản biện context sạch rồi dựng thẻ lại.` → khối rơi bậc trên thẻ Cổng 1: gap-probe vắng khi repo khai `required`, hỏng, hay verdict lạ, nên phần lẽ ra máy soi thay mắt người nay rơi về người; dòng lệnh không điền sẵn gì, và người ký lúc này là ký trên vật tự đọc — nói rõ điều đó, đừng mời ký như thẻ thường; việc kế rẻ nhất là chạy lại phản biện context sạch rồi dựng thẻ lại.
 
+   Từ 2.16 (hồ sơ thuoc-co-cua) thêm ba cờ, cũng mã thoát 0, mỗi cờ một lời thuật:
+   - `Nền hạ tầng có chân ĐỎ — đỏ ở đây không phải lỗi của vòng này; quyết nó trong gói này trước khi duyệt.` → cờ vàng trên thẻ Cổng Phạm vi: đường nền chạy đầu vòng thấy thứ hỏng từ TRƯỚC khi vòng viết gì (công cụ thiếu, bộ kiểm đỏ sẵn, lưới nợ vi phạm cũ, bộ máy chép lệch); khối «Nền hạ tầng» in nguyên văn từng dòng đỏ; việc kế là người quyết ngay tại cổng này — gỡ trước, hay chấp nhận có tên — chứ không để nó lộ ra giữa lượt chấm.
+   - `Chưa có số liệu nền hạ tầng — hồ sơ sinh trước bản này, hoặc đường nền chưa chạy xong.` → cờ vàng trên thẻ Cổng Phạm vi, KHÔNG chặn: hồ sơ không có tệp đường nền; với hồ sơ cũ thì bỏ qua được, với hồ sơ mới thì việc kế là đợi đường nền chạy xong rồi dựng thẻ lại.
+   - `Không đọc được dòng đếm vật/thước trong run-log — thẻ không in số.` → cờ vàng trên thẻ Cổng Bằng chứng: dòng đếm sửa sản phẩm / sửa phép đo cuối cùng của sổ chạy bị hỏng, nên thẻ không in số thay vì in số bịa; việc kế là chạy lại bộ đếm (`thuoc-vat.mjs --write`) rồi dựng thẻ lại.
+
 3. **Extract** the bits to translate (gate auto-detected: `evidence-report.md`
    present → Gate 2, else Gate 1):
    `node <gate-card.js> --root . --slug <slug> --extract`
