@@ -319,8 +319,8 @@ ba là vòng meta đã ký của cửa sổ. Cột bốn là ba việc chip, đ�
 | 2 lượt gọi người | **8** so trần T3 **4**: 7 đã xảy ra lúc nhân chứng đo + 1 chữ ký sau đó. Trong thiết kế **3** (Phạm vi · 1.5 · Bằng chứng) · ngoài thiết kế **5**, trong đó **hạ tầng 4** (API chết · agent treo · `uv` · tranh tài nguyên làn chấm) và phạm vi đo 1. Chạm: trong 2 · ngoài 10 — chạm của lượt ký không đếm được. **Cộng một lượt máy tiêu vô ích không tính là lượt gọi người:** hook `/goal` chặn **11** lần dừng hợp lệ — 2 ở ca chờ `uv`, 9 ở ca trần nhát sửa thước, trong đó máy trả lời lại cùng một câu **7** lượt | **9** = **hạ tầng 4** · phạm vi đo 4 · Cổng Phạm vi 1; tức trong thiết kế 1 · ngoài 8. Chạm không đếm | sàn **2** đếm từ sổ: Bằng chứng (trong thiết kế) · chọn tách commit sau khi cổng T1 đỏ (ngoài thiết kế); Phạm vi đi làn V | sàn **3** đếm từ sổ, không từ transcript: phê CỘNG start-scan · chọn giữ nhánh tới lượt chấm mốc · veto lối khai gạch. Mức cửa sổ, ghi riêng: R (16/09) · câu trả lời Q1–Q3 (17/09) | R1: finding R1 §4 dòng «Tổng» cộng commit `51b7112`; số lần hook chặn đếm từ transcript phiên R1 (dòng «Stop hook feedback»: 12:56:32Z và 12:56:50Z · chín dòng 13:50:18Z–13:51:29Z) — finding R1 ghi 9, finding bối cảnh ghi «bảy», cả hai đúng một phần · crm: finding truy nguyên §1 · vòng meta: `decisions.jsonl` của nó, dòng 1 · chip: `decisions.jsonl` của hồ sơ này và của `ra-co-ten-lam-va-trao` |
 | 3 lượt chấm bị hạ tầng đốt | **2 / 3** lượt trọn — lượt 1 (`uv` vắng · ô `not-run` vẫn bị thi hành) · lượt 3 (E14 dưới tải · hai lượt cùng ghi bản dựng); cộng **1** lượt huỷ vì args soạn tay | **0 / 3** lượt BLOCKED; cả ba lượt đỏ vì THƯỚC của repo, không vì vật; cộng 1 lượt chấm tuần tự tự ứng biến rồi vứt; phép đo ghi đè hồ sơ đã ký, khôi phục tay **3** lần | **0 / 1** — lượt 1 PASS | **0** lượt chấm S4 (start-scan chờ lượt mốc; hai việc kia không hồ sơ) · **2** làn ghim lại riêng cho hồ sơ đã ký bị chạm (`7ebfe3de` · `3ad5608e`) | R1: finding R1 §5 · crm: commit `53d6b8f` · `9f9d042` ở crm và finding truy nguyên §2 · vòng meta: commit `22f89822` · chip: git kho kit |
 | 4 token máy | lượt 1 **42,83 M** · lượt 2 **34,82 M** · lượt 3 **69,43 M** · huỷ 0,69 M · **S4 gộp 147,77 M** (36,9 M/lượt trọn). Lượt cho verdict là lượt chạy lại hạ tầng không có `wf-usage` → **không đo được** | **không đo được** — không `wf-usage`. Đếm theo loại từ transcript: cache-read 179,2 M · tạo cache 4,4 M · ra 0,34 M | **không đo được** — hồ sơ không có `usage-report.md` | **không đo được** — phiên chip không có `wf-usage` | R1: finding R1 §5, NỀN per-model có cache_create như mốc 2.14.0; phiên này đã cộng lại `usage-report.md` của OneFlow và khớp từng lượt · crm: finding truy nguyên §1 |
-| 4b ba khối | tìm-lỗi lượt 1 **20,2 %** · lượt 2 **10,0 %** · lượt 3 **2,7 %** · gộp **9,5 %**; làn `ui` lượt 3 **91,2 %** | không đo được | không đo được | không đo được | finding R1 §3, NỀN bảng vai trò (không cache_create), ánh xạ như mốc 2.14.0; `ui` và `judge` xếp vào chứng-minh-vật |
-| 5 phút máy/lượt chấm | **23,3 · 21,6 · 30,0**; S4 gộp **75,0**; đường găng cả ba lượt là làn `ui` | không đo được | không đo được — sổ chạy không ghi thời lượng | làn ghim lại `3ad5608e`: hai suite nặng **371 s + 416 s**; làn `7ebfe3de` không ghi thời gian | R1: finding R1 §5 · chip: thông điệp commit `3ad5608e` |
+| 4b ba khối | tìm-lỗi lượt 1 **20,2 %** · lượt 2 **10,0 %** · lượt 3 **2,7 %** · gộp **9,5 %**; làn `ui` lượt 3 **91,2 %** | không đo được — không có `wf-usage`, nên không có bảng vai trò để chia khối | không đo được — hồ sơ không có `usage-report.md`, nên không có bảng vai trò | không đo được — phiên chip không có `wf-usage`, nên không có bảng vai trò | finding R1 §3, NỀN bảng vai trò (không cache_create), ánh xạ như mốc 2.14.0; `ui` và `judge` xếp vào chứng-minh-vật |
+| 5 phút máy/lượt chấm | **23,3 · 21,6 · 30,0**; S4 gộp **75,0**; đường găng cả ba lượt là làn `ui` | không đo được — không có `wf-usage` ghi thời lượng từng lượt; finding truy nguyên chỉ có thời lượng cả phiên | không đo được — sổ chạy không ghi thời lượng | làn ghim lại `3ad5608e`: hai suite nặng **371 s + 416 s**; làn `7ebfe3de` không ghi thời gian | R1: finding R1 §5 · chip: thông điệp commit `3ad5608e` |
 
 **Hai con số khác với finding bối cảnh, và vì sao.** Finding ấy viết «S4 142 M» cho R1 và so
 với «146 M» của vòng meta nặng nhất 2.14. Hai số đó ở HAI NỀN: 142,27 M là nền bảng vai trò,
@@ -395,6 +395,14 @@ nguồn khai «hai tệp của răng chụp hồ sơ không gõ tay trạng thá
 tệp ca vẫn gõ tay tên trạng thái máy-thông. Veto chỉ chốt hai điều hẹp hơn — module không
 chép mảng, và không tệp nào chứa chuỗi RT13 quét. Răng đã thu hẹp về đúng hai điều ấy.
 
+**Lớp sáu — làn chấm chạy MỌI lệnh máy song song, kể cả lệnh suite.** Lượt chấm 1 của chính mốc
+này REJECT vì răng chiều im chạy cùng lúc với suite hooks trên một cây, và chốt «cây bẩn» bắt
+nhầm thư mục fixture tạm của suite ấy. Cùng lớp với build đua typecheck ở artifact-platform,
+OneFlow và crm-onehub (REJECT giả ở vòng 2 của `tran-mot-lan-uy-thac`), và với E14 đỏ dưới tải
+cùng `sdk/build` bị hai lượt ghi đè ở R1. Lớp 10 của
+`docs/findings/2026-09-17-ra-ha-tang-23-lop.md`; hôm nay «tài nguyên của lượt» ở nhát ④ của ô
+`thuoc-co-cua` mới nói eval, chưa gồm lệnh suite.
+
 **Lớp năm — «mỗi phiên tự thấy mình nhỏ», và tổng kết bằng trí nhớ.** Ba việc meta vào cửa
 sổ qua ba chip, hai trong số đó không có hồ sơ riêng, đúng hình dạng chẩn đoán số hai của R.
 Vòng meta đã ký trước R thì có hồ sơ đầy đủ, vậy mà finding bối cảnh và bản đầu hồ sơ này vẫn
@@ -404,7 +412,19 @@ có hồ sơ; việc không mở hồ sơ vẫn vô hình với cả hai.
 
 ### 4. Nhát cắt cho cửa sổ kế — gọi tên
 
-1. **Vòng meta của cửa sổ 2.15 → 2.16 là `thuoc-co-cua` thu hẹp** (owner Q1 17/09):
+0. **Nhát mở đầu cửa sổ 2.15 → 2.16, hoặc bản vá 2.15.1** — owner phê 17/09 sau lượt rà 23 lớp
+   hạ tầng; đúng/sai và nhỏ, KHÔNG thuộc mốc này vì lời phê tới khi mốc đã qua Cổng Phạm vi:
+   (i) S4 phải nghe `status: not-run` — hôm nay chỉ làn ghim lại và bên đọc pin nghe, bộ sinh
+   args S4 không lọc, nên crm 16/09 phải đổi sang `expected_exit` và E15 của R1 bị thi hành rồi
+   BLOCKED · (ii) thẻ Cổng Bằng chứng đếm eval đã khai `expected_exit` thành trượt, nói ngược
+   `failed_evals` (crm 16/09); nguồn đúng là `expectedExits` của bộ đọc evals · (iii) ô draft
+   `bo-qua-phai-thay-dinh-nghia-phep-do` — R ghi «đi cùng mốc nếu owner phê»; owner đã phê.
+1. **Vòng meta của cửa sổ 2.15 → 2.16 là `thuoc-co-cua` thu hẹp** (owner Q1 17/09), từ lượt rà
+   23 lớp gom về **hai câu và một cửa**: «đứng được trước khi chấm» — đường nền hạ tầng ở S1, máy
+   chạy chứ không LLM: công cụ của executor · suite tuần tự trên cây chưa đụng và cây còn sạch ·
+   lưới trước-merge như CI in vi phạm có sẵn · ba bản engine; tiền đề kiểm lại trước MỖI lượt S4
+   · «chạy không đè nhau» — tài nguyên của lượt, gồm cả lệnh suite, mặc định tuần tự; thời gian
+   chờ khoá không tính vào trần · cửa cho thước. Theo cách chia ban đầu:
    ① tiền đề tách khỏi tiêu chí, dry-run trước Cổng Phạm vi, **kèm bước gỡ tường trước khi
    mời chấm** · ② cửa cho thước — sổ gắn đích thước / vật / hồ sơ suy từ đường dẫn, một
    dòng đếm trong gói Cổng Bằng chứng, trần gộp nhát sửa thước ở `implemented` với ba lối,
@@ -435,6 +455,11 @@ có hồ sơ; việc không mở hồ sơ vẫn vô hình với cả hai.
    là «dặn-bằng-lời làm nghiệm», thứ north star cấm. Cần một răng ở tầng trình bày trước.
 8. **Đếm token cho việc meta ngoài Workflow.** Ba việc của cửa sổ không có số vì phiên chip
    không có `wf-usage`; luật (b) cần đúng số đó.
+8b. **Gọi tên, chưa làm** (lượt rà 23 lớp): mã thoát đi qua lời khai của agent — workflow tin
+   trường `exitCode`, crm REJECT giả ở E6 — đứng đầu · tham số S4 bằng đường dẫn tệp (mốc này
+   phải chèn args máy sinh vào bản bọc của workflow để khỏi dán 39 KB) · cây của lượt · tự thử
+   lại một lần khi agent nền chết · sàn thiết kế P0 giả trên nền tối · đánh thức hai ô
+   `cong-chan-theo-ho-so-khong-theo-diff` và `premerge-nhu-ci-truoc-khi-mo-pr`.
 9. **Đo hiệu lực khuôn `/goal` ở vòng sản phẩm kế** — ngưỡng ở AC-13. Nếu hook vẫn chặn, nhát sửa
    bằng chữ đã hết đường; lối kế là một vật máy giữ (trạng thái dừng ghi vào hồ sơ để hook đọc).
 10. **Chiến dịch ghim lại** — R3 giữ nguyên: không chạy dạng hiện tại, điều kiện tồn tại là
