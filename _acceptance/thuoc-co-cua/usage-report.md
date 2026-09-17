@@ -99,3 +99,45 @@ wall: 2089s
 - **claude-sonnet-5**: 10 agent · 72 calls · out 99,709 · in 144 · cache_read 5,069,366 · cache_create 997,990
 - **claude-haiku-4-5-20251001**: 24 agent · 56 calls · out 29,537 · in 496 · cache_read 1,932,721 · cache_create 655,989
 
+### S4 round 2 — wf_107c9a98-5f2 (20 agent, 82,176 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 2 | 27,623 | 4 | 89,590 | 247 |
+| judge:E25:spec-alignment | claude-sonnet-5 | 2 | 6,815 | 4 | 99,161 | 66 |
+| judge:E25:domain-correctness | claude-sonnet-5 | 2 | 6,580 | 4 | 63,400 | 64 |
+| review:conventions | claude-opus-5 | 10 | 6,090 | 20 | 683,504 | 70 |
+| judge:E25:operational-feasibility | claude-sonnet-5 | 2 | 4,541 | 4 | 99,163 | 44 |
+| review:measurement | claude-opus-5 | 5 | 4,316 | 10 | 315,183 | 62 |
+| refute:thuoc-vat.mjs | claude-sonnet-5 | 7 | 4,131 | 14 | 458,986 | 41 |
+| review:bugs | claude-opus-5 | 6 | 3,885 | 12 | 401,224 | 44 |
+| refute:thuoc-vat.mjs | claude-sonnet-5 | 11 | 3,358 | 22 | 720,868 | 40 |
+| triage | claude-sonnet-5 | 2 | 3,226 | 4 | 65,500 | 36 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 2,519 | 50 | 190,624 | 457 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 4 | 1,576 | 34 | 181,443 | 23 |
+| machine:bash -c 'out=$(node tests/scripts/thuoc- | claude-haiku-4-5-20251001 | 2 | 1,448 | 18 | 70,692 | 24 |
+| machine:bash -c 'out=$(node tests/scripts/s4-arg | claude-haiku-4-5-20251001 | 2 | 1,270 | 18 | 70,712 | 20 |
+| machine:bash -c 'out=$(node tests/scripts/gate-c | claude-haiku-4-5-20251001 | 2 | 1,205 | 18 | 70,702 | 21 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 992 | 18 | 26,867 | 428 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 790 | 18 | 70,602 | 12 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 763 | 18 | 70,609 | 9 |
+| capture:provenance | claude-sonnet-5 | 2 | 662 | 4 | 62,574 | 7 |
+| machine:bash -c 'out=$(node tests/scripts/thuoc- | claude-haiku-4-5-20251001 | 2 | 386 | 18 | 70,701 | 23 |
+
+
+wall: 1262s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 9 | 10,949 | 822,952 | 929 | 14:08:47 | 14:24:17 |
+| judge | 3 | 17,936 | 261,724 | 68 | 14:08:47 | 14:09:55 |
+| review | 3 | 14,291 | 1,399,911 | 70 | 14:08:47 | 14:09:57 |
+| triage | 1 | 3,226 | 65,500 | 36 | 14:24:17 | 14:24:53 |
+| refute | 2 | 7,489 | 1,179,854 | 42 | 14:24:53 | 14:25:35 |
+| capture | 1 | 662 | 62,574 | 7 | 14:25:35 | 14:25:42 |
+| synthesize | 1 | 27,623 | 89,590 | 247 | 14:25:42 | 14:29:50 |
+
+- **claude-sonnet-5**: 8 agent · 30 calls · out 56,936 · in 60 · cache_read 1,659,242 · cache_create 615,284
+- **claude-opus-5**: 3 agent · 21 calls · out 14,291 · in 42 · cache_read 1,399,911 · cache_create 192,698
+- **claude-haiku-4-5-20251001**: 9 agent · 24 calls · out 10,949 · in 210 · cache_read 822,952 · cache_create 317,020
+
