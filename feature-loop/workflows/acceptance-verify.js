@@ -22,6 +22,8 @@ export const meta = {
 //             question, inputs,           // judgment only; inputs = abs paths
 //             runs }],                     // OPTIONAL int>1: eval ngẫu nhiên (LLM) chạy N lần → pass_rate + variance
 //   suiteCommands: ['npm run build', 'npm run typecheck', ...],
+//                                      // thuoc-co-cua AC-9: lệnh có tên trong danh sách này chạy TUẦN TỰ (theo thứ tự
+//                                      // xuất hiện) — kể cả khi trùng lệnh của một eval; lệnh máy khác giữ song song.
 //   diffBase: 'main',
 //   repoRoot: '<abs repo root>',
 //   invokedAt: '2026-07-02T10:00:00Z',   // ISO, do skill lấy bằng `date -u` (script bị cấm Date) — ts cho run-log.jsonl
@@ -453,6 +455,16 @@ const cmdRuns = new Map(distinctCmds.map(cmd => {
   return [cmd, ns.length ? Math.min(10, Math.max(...ns)) : 1]
 }))
 
+// thuoc-co-cua AC-9: lệnh SUITE chạy TUẦN TỰ, lệnh eval giữ song song. Hai suite của cùng một
+// lượt chồng lên nhau là đè tài nguyên chung (thư mục tạm, cổng, tiến trình nặng) — lượt chấm
+// bị hạ tầng đốt chứ không vì vật. Hàng đợi sống trong bộ nhớ của MỘT lượt: không tệp khoá.
+// Tư cách SUITE xét theo danh sách lệnh suite của args (so chuỗi lệnh), KHÔNG theo
+// «lệnh không có eval đi kèm»: lệnh suite trùng lệnh của một eval bị gộp ở byCmd nên
+// mảng eval của nó không rỗng (thuoc-co-cua, phản biện F1).
+const SUITE_SET = new Set(args.suiteCommands || []);
+const cmdTuanTu = distinctCmds.filter(c => SUITE_SET.has(c));
+const cmdSongSong = distinctCmds.filter(c => !SUITE_SET.has(c));
+
 // A/B baseline: chỉ chạy lại trên diffBase các lệnh CÓ eval (eval của feature) — để biết lệnh nào
 // xanh-cả-hai-phía (không phân biệt). Suite-only cmd bỏ qua (đắt + green-on-both là regression-guard bình thường).
 // P2: runBaseline=false (evals.yaml không đổi từ lần baseline cuối) → không đo lại — tín hiệu
@@ -616,6 +628,7 @@ if (args.dryRun) {
   return {
     dryRun: true,
     distinctCommands: distinctCmds,
+    commandGroups: { songSong: cmdSongSong, tuanTu: cmdTuanTu },
     evalsPerCommand: Object.fromEntries([...byCmd.entries()]),
     judgePanels: freshJudgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
     uiCheckEvals: uiEvals.map(e => e.id),
@@ -668,13 +681,25 @@ Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong 
       )
 ).catch(() => null)   // BẮT BUỘC: parallel nuốt throw, promise trần thì KHÔNG — một lần reject giết cả lượt
 
+// AC-9: MỘT lời gọi agent cho MỘT lần chạy của một lệnh máy — hai nhánh (song song cho lệnh
+// eval, tuần tự cho lệnh suite) dùng CHUNG hàm này để prompt không bị chép thành hai bản.
+const agentCuaLenh = (cmd, __i) => agentT(
+  `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n  ${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
+  { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
+).then(r => r && { ...r, cmd, runIndex: __i + 1 })
+
 const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
-  () => parallel(distinctCmds.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () =>
-    agentT(
-      `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n  ${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
-      { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
-    ).then(r => r && { ...r, cmd, runIndex: __i + 1 })
-  ))),
+  // AC-9: nhánh song song (lệnh eval) và nhánh tuần tự (lệnh suite) chạy ĐỒNG THỜI với nhau;
+  // trong nhánh tuần tự mỗi lệnh (và mỗi lần lặp) chờ lệnh trước xong. Một agent ném lỗi ở
+  // nhánh tuần tự → null như parallel làm — không giết các lệnh suite còn lại.
+  () => Promise.all([
+    parallel(cmdSongSong.flatMap(cmd => Array.from({ length: cmdRuns.get(cmd) || 1 }, (_, __i) => () => agentCuaLenh(cmd, __i)))),
+    (async () => {
+      const out = []
+      for (const cmd of cmdTuanTu) for (let n = 0; n < (cmdRuns.get(cmd) || 1); n++) out.push(await Promise.resolve().then(() => agentCuaLenh(cmd, n)).catch(() => null))
+      return out
+    })(),
+  ]).then(([ss, tt]) => [...ss, ...tt]),
 
   // ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file
   () => parallel(uiEvals.map(e => () =>
