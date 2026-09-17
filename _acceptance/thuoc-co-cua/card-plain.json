@@ -1,130 +1,61 @@
 {
- "feature_plain": "Vòng làm việc thôi đốt lượt chấm vì hạ tầng, thôi để các bộ kiểm chạy đè nhau, và lần đầu cho người ký thấy máy đã sửa phép đo bao nhiêu lần so với sửa sản phẩm.",
- "will_do": [
+ "feature_plain": "Vòng làm việc thôi đốt lượt chấm vì hạ tầng, các bộ kiểm nặng thôi chạy đè nhau, và người ký lần đầu thấy máy đã sửa phép đo bao nhiêu lần so với sửa sản phẩm.",
+ "scope_plain": "Sáu tiêu chí phần đuôi (hai mục khuôn hợp đồng, W9, W10, tiền đề kiểm lại trước mỗi lượt chấm, khuôn đường đo cấp repo, khai tài nguyên) để lại cho cửa sổ sau.",
+ "decisions": [
   {
-   "id": "AC-2",
-   "p": "Sẽ thôi báo «chưa đủ» trên thẻ Cổng Bằng chứng cho một phép kiểm trả đúng mã lỗi mà hồ sơ đã khai trước (AC-2, thẻ đọc mã đã khai)."
-  },
-  {
-   "id": "AC-4",
-   "p": "Sẽ nhận ra tệp định nghĩa phép đo ở cả ba chỗ dễ sót: kho nằm trong một kho lớn hơn, hồ sơ thứ hai của cùng lượt, và hồ sơ có tên lồng tên hồ sơ khác (AC-4, suy từ cái làn thật đọc)."
-  },
-  {
-   "id": "AC-5",
-   "p": "Sẽ ghi rõ hai giới hạn còn lại của làn ghim lại, mỗi cái kèm một ngưỡng đang đếm (AC-5, giới hạn có tên)."
-  },
-  {
-   "id": "AC-7",
-   "p": "Sẽ cho người duyệt thấy TRƯỚC khi duyệt: nhánh chính đang nợ vi phạm gì, và bản bộ máy chép trong kho có lệch bản đang chạy không (AC-7, lưới như CI và ba bản bộ máy)."
-  },
-  {
-   "id": "AC-8",
-   "p": "Sẽ in một khối «Nền hạ tầng» trên thẻ Cổng Phạm vi; hồ sơ cũ không có số liệu này vẫn mở được thẻ, chỉ thêm một cờ vàng (AC-8, khối nền trên thẻ)."
-  },
-  {
-   "id": "AC-10",
-   "p": "Sẽ xếp mỗi tệp đổi trong vòng vào đúng một lớp: phép đo, sản phẩm, hồ sơ, hay ngoài cuộc — bằng một bộ phân loại dùng chung (AC-10, một nguồn phân loại)."
-  },
-  {
-   "id": "AC-11",
-   "p": "Sẽ đếm số lần máy sửa riêng phép đo sau khi đã báo «làm xong», không đếm oan các ca kiểm viết cùng lúc với sản phẩm (AC-11, bộ đếm nhát sửa thước)."
-  },
-  {
-   "id": "AC-13",
-   "p": "Sẽ in đúng một dòng trên thẻ Cổng Bằng chứng: sản phẩm đổi bao nhiêu dòng, phép đo đổi bao nhiêu dòng, mấy lần sửa phép đo (AC-13, dòng vật-thước-nhát)."
-  },
-  {
-   "id": "AC-14",
-   "p": "Sẽ giữ bốn bộ kiểm và bản đồ sản phẩm xanh sau toàn bộ thay đổi (AC-14, hồi quy)."
-  }
- ],
- "wont_do": [
-  {
-   "id": "AC-1",
-   "p": "Chặn lượt chấm thi hành một phép kiểm mà hồ sơ đã khai là không chạy; báo cáo nói ra ô ấy bằng một dòng (AC-1, lượt chấm nghe lời khai không-chạy)."
-  },
-  {
-   "id": "AC-3",
-   "p": "Chặn làn ghim lại bỏ qua khi chính định nghĩa phép đo vừa đổi; bốn ca được phép bỏ qua giữ nguyên (AC-3, bỏ qua phải thấy định nghĩa phép đo)."
-  },
-  {
-   "id": "AC-6",
-   "p": "Chặn tường hạ tầng lọt tới lượt chấm: ngay đầu vòng máy tự kiểm công cụ có trên máy, chạy các bộ kiểm lần lượt trên cây chưa đụng, và kiểm cây còn sạch (AC-6, đường nền hạ tầng)."
-  },
-  {
-   "id": "AC-9",
-   "p": "Chặn hai bộ kiểm nặng chạy đè lên nhau trong một lượt chấm; các phép kiểm lẻ vẫn chạy song song (AC-9, bộ kiểm chạy lần lượt)."
-  },
-  {
-   "id": "AC-12",
-   "p": "Chặn lượt chấm kế khi máy đã sửa riêng phép đo từ ba lần: máy dừng và đưa ba lối cho người chọn (AC-12, trần nhát sửa thước)."
-  }
- ],
- "scope_plain": "Sáu tiêu chí phần đuôi để lại cho cửa sổ sau — anh kéo lại được từng mục ngay tại cổng này.",
- "coverage_plain": [
-  {
-   "i": 0,
-   "p": "Không quét lại không gian tiêu chí: lượt rà 23 lớp hạ tầng anh đã gật 17/09 chính là lượt quét; vòng nhận nguyên ngăn một và ngăn hai."
-  },
-  {
-   "i": 1,
-   "p": "Mỗi tiêu chí được soát theo ba mặt: có ca bắt lỗi, có ca phải im, và hồ sơ đời trước vẫn đọc được (AC-1 lời khai không-chạy, AC-8 khối nền, AC-13 dòng trên thẻ mang mặt thứ ba)."
-  }
- ],
- "gap_probe_plain": [
-  {
-   "i": 0,
-   "p": "Thiếu: cách tách «bộ kiểm» khỏi «phép kiểm lẻ» sai đúng ở hồ sơ này, nên hai bộ kiểm nặng vẫn chạy đè nhau mà phép đo vẫn xanh. Đã sửa: tách theo danh sách bộ kiểm, thêm ca cho lệnh đóng cả hai vai, thêm ca đỏ cho phép đo «chạy lần lượt»."
-  },
-  {
-   "i": 1,
-   "p": "Thiếu: phép đo «ba bản bộ máy» đọc trạng thái của máy đang chạy nên sẽ đỏ oan sau khi vòng sửa code. Đã sửa: phép đo tự dựng bản so của nó; máy không có bản cài sẵn thì ghi bỏ qua; tiền đề số 4 viết lại."
-  },
-  {
-   "i": 2,
-   "p": "Thiếu: không ca nào lấy dòng đỏ do chính bên ghi in ra rồi đọc lại trên thẻ — người duyệt có thể không thấy tường. Đã sửa: mọi tệp trong ca do bên ghi sinh, xanh lẫn đỏ, thêm ca đột biến; cờ «chưa có số liệu nền» nói cả hai lý do."
-  },
-  {
-   "i": 3,
-   "p": "Thiếu: bộ đếm sẽ đếm oan — ba lượt ghi sổ, hoặc ba lần sửa sản phẩm kèm ca kiểm, đều làm trần nổ sai chỗ; và số 3 được hình dung theo cách đếm khác. Đã sửa: tệp máy ghi là hồ sơ, chỉ đếm lần sửa RIÊNG phép đo, thêm ba ca; đã đo thử trên ba vòng đã ký: 2 · 3 · 4."
-  },
-  {
-   "i": 4,
-   "p": "Thiếu: một tiêu chí nói «đường khác thường» mà không gọi tên, và một vế «không chép luật» không có ca nào đo. Đã sửa: gọi tên ba đường thành ba ca; thêm ca một-nguồn và số đếm trên thẻ."
+   "id": "E25",
+   "q": "Hồ sơ đã nói đủ và nói thẳng cái lợi, cái giá của vòng chưa?",
+   "why": "Ba giám khảo đều đề xuất đạt: đủ bảng dự báo năm dòng, điều kiện tin cậy, danh sách CỘNG, phần đuôi có tên và điều bất lợi."
   }
  ],
  "decisions_plain": [
   {
    "id": "d-20260917T081515Z-1",
-   "p": "KHÔNG quét lại không gian tiêu chí — lượt rà 23 lớp đã làm việc đó; đổi lại độ phủ dựa vào tài liệu rà chứ không do vòng tự sinh."
+   "p": "KHÔNG quét lại không gian tiêu chí — lượt rà 23 lớp đã làm việc đó; đổi lại độ phủ dựa vào tài liệu rà."
   },
   {
    "id": "d-20260917T081515Z-2",
-   "p": "KHÔNG viết đặc tả màn hình — vòng không chạm màn nào; hai khối chữ mới trên thẻ được soi bằng ca kiểm."
+   "p": "KHÔNG viết đặc tả màn hình — vòng không chạm màn nào."
   },
   {
    "id": "d-20260917T081515Z-3",
-   "p": "KHÔNG làm sáu tiêu chí phần đuôi trong vòng này — phạm vi anh chốt là 21, hợp đồng trần 15, cắt đúng thứ tự ưu tiên anh giao; đổi lại việc «repo phải tự dựng giàn đo» chưa được chữa ở cửa sổ này."
+   "p": "KHÔNG làm sáu tiêu chí phần đuôi — cắt theo thứ tự ưu tiên anh giao; đổi lại việc repo tự dựng giàn đo chưa được chữa ở cửa sổ này."
   },
   {
    "id": "d-20260917T081515Z-4",
-   "p": "Đã chọn cho các bộ kiểm xếp hàng ngay trong bộ điều phối lượt chấm, không dùng tệp khoá; đổi lại không chống được hai lượt chấm khác nhau đè nhau trên cùng máy."
+   "p": "Đã chọn xếp hàng bộ kiểm ngay trong bộ điều phối lượt chấm, không dùng tệp khoá; đổi lại không chống hai lượt chấm khác nhau đè nhau."
   },
   {
    "id": "d-20260917T081515Z-5",
-   "p": "Đã chọn để bộ sinh tham số lượt chấm giữ trần, số lần sửa phép đo đếm từ lịch sử kho chứ không từ sổ; đổi lại gộp nhiều chỗ sửa vào một lần ghi thì qua mặt được số đếm."
+   "p": "Đã chọn để máy giữ trần sửa phép đo và đếm từ lịch sử kho; đổi lại gộp nhiều chỗ sửa vào một lần ghi thì qua mặt được."
   },
   {
    "id": "d-20260917T081515Z-6",
-   "p": "Đã chọn gộp hồ sơ nháp «bỏ qua phải thấy định nghĩa phép đo» vào vòng này — một vòng, một chữ ký; đổi lại hồ sơ nháp cho nghỉ dưới dạng một ý đã đóng."
+   "p": "Đã chọn gộp hồ sơ nháp «bỏ qua phải thấy định nghĩa phép đo» vào vòng này; hồ sơ nháp cho nghỉ như một ý đã đóng."
   },
   {
    "id": "d-20260917T081515Z-7",
-   "p": "Đã chọn nhận diện tệp phép đo bằng ba quy ước sẵn có, repo không phải khai gì; đổi lại phép đo nằm ngoài quy ước (như thư mục làn đo của crm) bị đếm là sản phẩm."
+   "p": "Đã chọn nhận diện tệp phép đo bằng ba quy ước sẵn có; đổi lại phép đo ngoài quy ước (như thư mục làn đo của crm) bị đếm là sản phẩm."
   },
   {
    "id": "d-20260917T082551Z-8",
-   "p": "Đã chọn chỉ đếm lần sửa RIÊNG phép đo, trần giữ ở 3; đổi lại theo số đo thử, trần này sẽ nổ ở 2 trên 3 vòng gần nhất của kho kit."
+   "p": "Đã chọn chỉ đếm lần sửa RIÊNG phép đo, trần giữ ở 3; đổi lại theo số đo thử, trần này sẽ nổ ở 2 trên 3 vòng gần nhất."
+  },
+  {
+   "id": "d-20260917T090508Z-10",
+   "p": "Đã chọn module phân loại chỉ thay hai dòng khai mẫu trong bộ sinh tham số lượt chấm; đổi lại «một nguồn» mới ở mức tập mẫu, chưa ở mức hàm."
+  },
+  {
+   "id": "d-20260917T090508Z-11",
+   "p": "Đã chọn thi công bốn làn song song rồi làn thẻ tuần tự; đổi lại một bước gộp nhánh (gộp sạch, không xung đột)."
+  },
+  {
+   "id": "d-20260917T140822Z-12",
+   "p": "Sửa sau lượt chấm 1: bộ đếm tìm mốc «làm xong» bằng trường trạng thái của hợp đồng thay vì tìm chuỗi trong cả văn; đổi lại mỗi lần đếm đọc lại hợp đồng ở vài chục commit."
+  },
+  {
+   "id": "d-20260917T140822Z-13",
+   "p": "Máy tự phát hiện: gọi bộ đếm tay với đường gốc tương đối thì lỗi nạp thư viện; đường chính không vướng — KHÔNG sửa trong lượt sửa, chờ anh quyết."
   }
  ]
 }
