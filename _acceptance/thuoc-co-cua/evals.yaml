@@ -1,0 +1,315 @@
+schema_version: 1
+feature_slug: thuoc-co-cua
+# Khuôn theo các hồ sơ mốc 2.13–2.15: mỗi eval máy chạy MỘT tệp ca và ghim dòng PASS của
+# đúng các ca nó gọi tên — phán quyết không lấy từ mã thoát trọn suite. Mọi cmd đi qua
+# config: ref. Mỗi tệp ca tự dựng kho git tạm bằng code trong lượt chạy; ca đỏ và ca im
+# dùng CHUNG một fixture, chỉ khác đúng biến đang đo; đường dẫn suy từ vị trí tệp ca.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.tcc_s4args_not_run
+    expected: >
+      Exit 0 và bốn dòng PASS. NRS1 (đối chứng dương): hồ sơ có một eval script khai
+      status not-run — tệp args sinh ra KHÔNG chứa id ấy trong evals, và evalsNotRun gọi đúng
+      id ấy. NRS2 (chiều đỏ, cùng fixture): gỡ đúng dòng status khỏi bản sao thì id ấy CÓ MẶT
+      trong evals và evalsNotRun vắng — kết luận lật. NRS3 (chiều im): hồ sơ không khai ô nào
+      thì khoá evalsNotRun VẮNG HẲN khỏi tệp, không phải mảng rỗng. NRS4 (một nguồn): thay
+      hàm của lib bằng một bản trả rỗng trong bản sao của cây thì NRS1 đỏ — tức bộ sinh args
+      thật sự gọi hàm dùng chung, không chép luật.
+    paths: [feature-loop/scripts/s4-args.mjs, feature-loop/scripts/carry-plan.mjs, lib/evidence-core.cjs, tests/scripts/s4-args-not-run.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.tcc_wf_not_run
+    expected: >
+      Exit 0 và ba dòng PASS. NRW1: args mang evalsNotRun thì không lời gọi agent nào mang
+      lệnh của ô ấy, và prompt của bước tổng hợp có đúng một dòng «không chạy theo hồ sơ» gọi
+      tên id. NRW2 (chiều đỏ): bỏ khoá ấy khỏi args trong cùng fixture thì dòng ấy KHÔNG xuất
+      hiện. NRW3 (đọc-cũ, chiều im): args đời trước không có khoá thì lượt chấm cho cùng
+      verdict và cùng số lời gọi như trước khi đổi.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/not-run-luot-cham.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.tcc_the_ma_da_khai
+    expected: >
+      Exit 0 và năm dòng PASS. GX1 (đối chứng dương): báo cáo mọi eval mã 0 — thẻ in «bằng
+      chứng máy đầy đủ». GX2: eval khai expected_exit 3 và báo cáo ghi mã 3 — thẻ vẫn in đầy
+      đủ, KHÔNG in «CHƯA đủ trường». GX3 (chiều đỏ, cùng fixture): đổi mã trong báo cáo thành
+      1 thì thẻ in «CHƯA đủ trường». GX4: eval thiếu run_id thật vẫn bị cờ như trước — sửa
+      này không nới ca đối chứng có sẵn. Số «chưa đạt» trên thẻ: bằng 0 ở GX2, bằng 1 ở GX3.
+      GX5 (một nguồn): thay hàm expectedExits của lib bằng bản trả rỗng trong bản sao của cây
+      thì GX2 lật — thẻ thật sự gọi bộ đọc dùng chung, không chép luật.
+    paths: [scripts/gate-card.js, lib/eval-yaml.cjs, tests/scripts/gate-card-expected-exit.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.tcc_bo_qua_do
+    expected: >
+      Exit 0 và hai dòng PASS. DN1: đổi một giá trị executors trong config của fixture từ lệnh
+      xanh sang lệnh đỏ — làn KHÔNG bỏ qua, chạy lệnh MỚI và ĐỎ (ghim bằng hành vi, không
+      bằng chuỗi), thông điệp gọi tên tệp định nghĩa. DN2: thêm một eval vào evals.yaml — làn
+      chạy trọn và id mới có mặt trong evals_exit. Đối chứng dương của cả hai: cây bằng pin
+      thì làn bỏ qua.
+    paths: [feature-loop/scripts/repin-lane.mjs, tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.tcc_bo_qua_im
+    expected: >
+      Exit 0 và dòng PASS của DN3-IM: bốn ô im của ca SK1b (báo cáo bằng chứng sâu hai tầng ·
+      hồ sơ trong monorepo · tệp miễn trừ T1 · thư mục tiền tố giả) vẫn là bỏ qua, KHÔNG ô nào
+      mất. Chiều đỏ: một bản đột biến nới vị ngữ thành «mọi thứ dưới thư mục hồ sơ đều là định
+      nghĩa» làm lật ba ô đầu.
+    paths: [feature-loop/scripts/repin-lane.mjs, tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.tcc_bo_qua_suy
+    expected: >
+      Exit 0 và ba dòng PASS — ma trận viết-trước ba phần tử, ba khẳng định. DN4a: gốc kho
+      là thư mục con của một kho git lớn hơn. DN4b: lượt ghim hai slug, tệp đổi là evals.yaml
+      của slug thứ hai. DN4c: slug có tên chứa chuỗi tên của slug kia. Ở cả ba, vị ngữ thấy
+      tệp định nghĩa và làn KHÔNG bỏ qua. Chiều đỏ: bản đột biến thay tập suy-ra bằng hai
+      chuỗi đường dẫn gõ tay phải đỏ ở TỪNG phần tử, không phần tử nào im.
+    paths: [feature-loop/scripts/repin-lane.mjs, tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.tcc_bo_qua_gioi_han
+    expected: >
+      Exit 0 và dòng PASS của DN5: ADR 0019 khai cả hai giới hạn, mỗi cái kèm ngưỡng đang
+      đếm. Chiều đỏ: gỡ một lời khai trong bản sao thì đỏ gọi tên giới hạn bị gỡ. Chiều im:
+      thêm lời khai thứ ba cùng khuôn, hoặc sửa văn xuôi, KHÔNG làm đỏ — phép đo theo sự có
+      mặt, không theo số đếm hay chuỗi cố định.
+    paths: [docs/adr/0019-ban-ghi-dinh-tuyen-la-vat-t1-may-sinh.md, tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.tcc_nen_cong_cu_suite
+    expected: >
+      Exit 0 và bảy dòng PASS. NEN0 (đối chứng dương): kho fixture lành — script thoát 0, ghi
+      duong-nen.md với nen xanh và bốn chân xanh, không dòng đỏ nào. NEN1: đổi một executor
+      sang một lệnh KHÔNG có trên máy — chân công cụ đỏ, thông điệp «nen cong-cu: THIEU» gọi
+      đúng từ đầu lệnh và khoá executor. NEN2: một suite đỏ sẵn — «nen suite: DO SAN» gọi đúng
+      khoá và mã. NEN3: một suite ghi tệp vào cây — «nen suite: CAY BAN SAU SUITE» gọi đúng
+      tệp. NEN4 (tuần tự): hai suite của fixture ghi dấu bắt đầu và kết thúc vào thư mục tạm
+      của lượt — ca ghim ĐỦ BỐN dấu có mặt trước, rồi mới kết luận không cặp nào lồng nhau.
+      NEN4b (chiều đỏ): bản đột biến cho script chạy các suite cùng lúc thì NEN4 đỏ với thông
+      điệp ghim «suite long nhau». NEN8: thư mục không phải kho git — mã 2 và KHÔNG có tệp nào được ghi.
+      Mọi ca đỏ dùng chung fixture với NEN0, chỉ khác một biến.
+    paths: [feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.tcc_nen_luoi_engine
+    expected: >
+      Exit 0 và sáu dòng PASS. NEN5: nhánh gốc của fixture mang một hồ sơ vi phạm lưới — chân
+      lưới in nguyên văn dòng vi phạm ấy dưới nhãn có sẵn và lời gọi lưới KHÔNG mang cờ thu
+      phạm vi theo slug, CÓ base. NEN5-IM: nhánh gốc không nợ — chân lưới xanh, không dòng
+      nào. NEN6: sửa một byte ở một tệp engine vendored của fixture — «nen engine: LECH» gọi
+      đúng tệp. NEN6-IM: bản vendored khớp — chân engine xanh; kho tự host — «tu-host», không
+      cờ. NEN7: danh sách chín tệp được RÚT từ marker của lệnh khởi tạo — bỏ một dòng khỏi
+      marker trong bản sao thì số tệp được băm giảm đúng một. NEN9 (chiều im): không có
+      plugin cache — vế so ấy ghi bỏ-qua, chân engine KHÔNG đỏ. Mọi ca của eval này trỏ cờ vị
+      trí cache vào một thư mục do CHÍNH ca dựng trong lượt chạy; không ca nào đọc plugin
+      cache thật của máy.
+    paths: [feature-loop/scripts/duong-nen.mjs, commands/acceptance-init.md, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.tcc_the_nen
+    expected: >
+      Exit 0 và năm dòng PASS. Mọi tệp duong-nen.md trong eval này do CHÍNH script đường nền
+      ghi trong lượt chạy, xanh lẫn đỏ — không tệp nào viết tay theo khuôn bên đọc. GN1: nền
+      xanh — thẻ Cổng Phạm vi có khối «Nền hạ tầng» với bốn chân, không cờ. GN2 (chiều đỏ,
+      cùng fixture đổi một executor sang lệnh không có trên máy): khối in NGUYÊN VĂN dòng đỏ
+      mà bên viết đã in, và có cờ nói đỏ ở đây không phải lỗi của vòng. GN3 (đọc-cũ): hồ sơ
+      KHÔNG có tệp — thẻ vẫn dựng, mã 0, đúng một cờ vàng nói cả hai khả năng, không chặn.
+      GN4 (round-trip): bốn giá trị chân thẻ đọc ra bằng đúng bốn giá trị script ghi. GN5
+      (chiều đỏ của seam): bản đột biến đổi khuôn dòng đỏ ở bên viết thì GN2 đỏ.
+    paths: [scripts/gate-card.js, feature-loop/scripts/duong-nen.mjs, skills/acceptance/references/duong-nen-template.md, tests/scripts/gate-card-duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.tcc_suite_tuan_tu
+    expected: >
+      Exit 0 và sáu dòng PASS. ST0 (đối chứng dương): cả lệnh eval lẫn lệnh suite đều được
+      dispatch — đủ số lời gọi. ST1: với ba lệnh suite, cờ thứ tự ghi bởi agent giả cho thấy
+      lệnh suite sau chỉ BẮT ĐẦU khi lệnh trước đã KẾT THÚC. ST2: hai lệnh eval vẫn chồng
+      nhau — tuần tự không lan sang eval. ST3: chạy khô in hai nhóm, mỗi lệnh thuộc đúng một
+      nhóm; và cùng bộ kết quả lệnh thì verdict, failedEvals, blocked giống hệt bản trước khi
+      đổi. ST4 (chiều đỏ): khôi phục mảng phẳng trong bản sao trong bộ nhớ thì ST1 đỏ với
+      thông điệp ghim «suite chong nhau»; kim đột biến phải còn trong nguồn thật. ST5: một
+      lệnh vừa thuộc danh sách lệnh suite vừa là lệnh của một eval — nó nằm ở nhóm tuần-tự
+      của kế hoạch chạy khô và không chồng lệnh suite nào khác; bản đột biến phân nhóm theo
+      «lệnh không có eval đi kèm» làm ST5 đỏ.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/suite-tuan-tu.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.tcc_phan_loai
+    expected: >
+      Exit 0 và bốn dòng PASS. PL1: ma trận viết-trước — mỗi vế của từng lớp một đường mẫu, số
+      khẳng định bằng số phần tử ma trận — trả đúng lớp. PL4: các tệp máy ghi của hồ sơ, gọi
+      tên đích danh trong ma trận (run-log · sổ quyết định · tệp args · một tệp dưới thư mục
+      bằng chứng · thẻ · một hình · tệp đường nền · báo cáo dùng token), trả «hồ sơ»; bản ghi
+      mốc định tuyến máy sinh nằm dưới thư mục ca trả «ngoài», không trả «thước». PL2 (chiều đỏ): gỡ từng vế của lớp
+      thước trong bản sao thì đúng ô của vế ấy lật, KHÔNG ô nào khác lật. PL3 (một nguồn): bộ
+      sinh args nạp CHÍNH module này — thay module bằng bản trả «vật» cho mọi đường trong bản
+      sao của cây thì vùng vật của tệp args đổi theo.
+    paths: [feature-loop/scripts/lib/phan-loai.mjs, feature-loop/scripts/s4-args.mjs, tests/scripts/phan-loai.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.ktl_vung_vat_s4args
+    expected: >
+      Exit 0 — các ca vùng vật của bộ sinh args giữ nguyên màu sau khi tách module; đầu ra
+      KHÔNG có dòng FAIL nào.
+    paths: [feature-loop/scripts/s4-args.mjs, feature-loop/scripts/lib/phan-loai.mjs, tests/scripts/s4-args-vung-vat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.ktl_vung_vat_mutants
+    expected: >
+      Exit 0 — chiều im và hai bản đột biến của bộ lọc vùng vật giữ nguyên màu: làn tìm-lỗi
+      vẫn KHÔNG nhận hồ sơ; đầu ra không có dòng FAIL nào.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/vung-vat-mutants.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E15
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.tcc_dem_nhat
+    expected: >
+      Exit 0 và năm dòng PASS. TV1 (đối chứng dương): kho fixture có commit đưa hợp đồng sang
+      implemented rồi hai commit chạm tệp thước và một commit chỉ chạm vật — bộ đếm in nhát 2
+      và số dòng vật, thước khớp numstat. TV2 (TDD, chiều im): ba commit thước đứng TRƯỚC mốc
+      sàn KHÔNG bị đếm. TV3: hồ sơ chưa từng implemented — nhát 0 kèm ghi chú chưa có mốc sàn,
+      mã 0. TV4 (chiều đỏ): bản đột biến lấy mốc sàn là commit đầu của hồ sơ thì TV2 đỏ. TV7:
+      một commit chạm cả tệp vật lẫn tệp ca — số nhát KHÔNG tăng, ô «lẫn» tăng đúng một; bản
+      đột biến đếm mọi commit chạm thước làm TV7 đỏ.
+    paths: [feature-loop/scripts/thuoc-vat.mjs, feature-loop/scripts/lib/phan-loai.mjs, tests/scripts/thuoc-vat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E16
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.tcc_giua_hai_luot
+    expected: >
+      Exit 0 và hai dòng PASS. TV5: run-log của fixture có hai dòng tổng kết lượt với hai sha
+      — cờ giữa-hai-lượt liệt kê đúng các tệp thước đổi giữa hai sha, KHÔNG liệt kê tệp vật
+      hay tệp hồ sơ. TV6: một lượt có sha không thuần nhất — script nói «khong liet ke duoc»
+      và thoát mã 3, không đoán.
+    paths: [feature-loop/scripts/thuoc-vat.mjs, tests/scripts/thuoc-vat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E17
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.tcc_tran_thuoc
+    expected: >
+      Exit 0 và năm dòng PASS. TT1 (đối chứng dương, chiều im): hai nhát ở implemented — bộ
+      sinh args thoát 0 và sinh tệp. TT2 (chiều đỏ, cùng fixture thêm một commit thước): ba
+      nhát — thoát mã 4, KHÔNG có tệp args, thông điệp «tran nhat sua thuoc: 3 nhat» kèm đủ ba
+      lối và đúng một dòng lệnh mở vòng thước mang slug. TT3 (van): thêm dòng sổ mở đầu bằng
+      «trần thước — » rồi commit — script lại sinh tệp. TT4: dòng sổ ấy chưa commit thì trần
+      vẫn đóng. TT5 (chiều im): sau mốc sàn có ba commit chỉ ghi run-log và sổ quyết định, cộng
+      ba commit lẫn vật và ca — script vẫn thoát 0 và sinh tệp; ba lượt ghi sổ của ba lượt
+      chấm không bao giờ tự làm nổ trần.
+    paths: [feature-loop/scripts/s4-args.mjs, feature-loop/scripts/thuoc-vat.mjs, tests/scripts/s4-args-tran-thuoc.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E18
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.tcc_the_thuoc_vat
+    expected: >
+      Exit 0 và bốn dòng PASS. GT1 (round-trip): dòng đếm do CHÍNH bộ đếm ghi vào run-log của
+      fixture được thẻ Cổng Bằng chứng in thành đúng MỘT dòng vật · thước · nhát với đúng các
+      số. GT2 (chiều im): run-log không có dòng ấy — thẻ không in dòng nào thêm, không cờ. GT3
+      (chiều đỏ): làm hỏng JSON của dòng ấy — thẻ không in số bịa, in một cờ «không đọc được
+      dòng đếm». GT4: bản trích máy-đọc của thẻ cho một hồ sơ đã ký không có dòng đếm giống
+      hệt trước khi đổi ở hai khoá định tuyến.
+    paths: [scripts/gate-card.js, feature-loop/scripts/thuoc-vat.mjs, tests/scripts/gate-card-thuoc-vat.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E19
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.tcc_so_target
+    expected: >
+      Exit 0 và hai dòng PASS. DK14: khuôn dòng sổ rút từ marker, điền ô target đứng sau
+      impact, chạy dưới bash và zsh — dòng ghi ra là JSON hợp lệ và bộ đếm sức khoẻ vòng vẫn
+      đếm nó. DK15 (đọc-cũ, chiều im): dòng KHÔNG có ô target đọc được bởi thẻ, bộ quét bài
+      học và bộ đếm sức khoẻ vòng y như trước.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/gate-card.js, feature-loop/scripts/claim-scan.mjs, scripts/loop-health.mjs, tests/scripts/gate-card-dec-key.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E20
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Exit 0 và dòng tổng kết «Results: <n> passed, 0 failed» với <n> LỚN HƠN 0; KHÔNG có
+      dòng FAIL.
+    paths: [scripts/, tests/scripts/, lib/, feature-loop/scripts/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E21
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: >
+      Exit 0 và dòng tổng kết «Results: <n> passed, 0 failed» với <n> LỚN HƠN 0; KHÔNG có
+      dòng FAIL.
+    paths: [hooks/, tests/hooks/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E22
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Exit 0 và «Results: all plugin tests passed»; đầu ra KHÔNG có dòng nào mang chữ FAIL.
+    paths: [tests/plugins/, feature-loop/skills/, skills/, commands/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E23
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Exit 0 và «Results: all workflow tests passed»; KHÔNG có dòng FAIL.
+    paths: [feature-loop/workflows/, tests/workflows/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E24
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "Exit 0, «PRODUCT-MAP.md khớp hồ sơ xưởng.» — KHÔNG có dòng lệch nào."
+    paths: [PRODUCT-MAP.md, scripts/product-map.mjs, scripts/trang-thai-ho-so.cjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E25
+    criterion: AC-15
+    executor: judgment
+    inputs: [_acceptance/thuoc-co-cua/contract.md, docs/superpowers/specs/2026-09-17-thuoc-co-cua-design.md, _acceptance/thuoc-co-cua/opportunity.md, CLAUDE.md]
+    question: >
+      Đọc mục Notes của hợp đồng và thiết kế, đối chiếu với luật (c) và luật CỘNG trong
+      CLAUDE.md và với phạm vi owner chốt trong ô cơ hội. Hồ sơ có nói ĐỦ và nói THẲNG không:
+      bảng dự báo năm dòng kèm chiều · điều kiện tin cậy giải thích vì sao đường verdict không
+      đổi thành phần · danh sách CỘNG đích danh kèm nguyên tố và người hưởng · phần đuôi bị cắt
+      có tên · điều bất lợi? Không tính lại con số nào.
+    expected: >
+      PASS khi đủ năm: (1) bảng năm dòng có chiều cho cả năm dòng và dòng 5 ghi TĂNG; (2) điều
+      kiện tin cậy nêu riêng AC-1 là chỗ duy nhất đổi tập ô được chấm, kèm lý do; (3) mỗi dòng
+      CỘNG có nguyên tố và người hưởng, và không mục CỘNG nào của diff vắng khỏi bảng; (4) sáu
+      mục phần đuôi nằm ở Out of scope, không mục nào lặng lẽ biến mất so với ô cơ hội; (5)
+      Known limits nói rõ lần dừng ở trần là lượt gọi người ngoài thiết kế và suite tuần tự
+      KHÔNG chữa ca eval đè suite. REJECT khi thiếu một trong năm.
+    evidence_required: [verdict, rationale]
