@@ -37,6 +37,7 @@ worktree/nhánh đọc từ git của `<path>`.
    groups.done[].slug groups.done[].state groups.done[].at groups.done[].stateKey groups.done[].label groups.done[].viecKe groups.done[].flags
    map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
+   metaOpen.applies metaOpen.moc metaOpen.slugs metaOpen.n metaOpen.flag
    vetoOpen[].slug vetoOpen[].status vetoOpen[].humanSignoff vetoOpen[].signoffWarn
    vetoOpenUnsigned
    broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
@@ -151,6 +152,17 @@ worktree/nhánh đọc từ git của `<path>`.
      đang in trạng thái cũ»; `git.compareRef` là `null` → «chưa so được với bản
      chung nên chưa biết cây có cũ không» (ĐỪNG nói là đã khớp — chưa biết khác
      hẳn đã khớp); `behind` là 0 → không in dòng nào.
+   <!-- <<<START-VONG-META -->
+   - Cũng dưới thẻ, một dòng về vòng meta — CHỈ khi `metaOpen.applies` là `true`
+     (kho đang quét là chính kho kit; mọi vòng ở đó là vòng meta). `applies` là
+     `false` → không in dòng nào. `metaOpen.n` là số → «vòng meta đang mở trong
+     cửa sổ: N» kèm tên từng hồ sơ trong `metaOpen.slugs`, nguyên văn, không cắt.
+     `metaOpen.flag` là `true` → thêm ngay dưới một câu: «⚠ luật cho tối đa một
+     vòng meta giữa hai mốc — người chọn vòng nào đi tiếp, vòng nào xếp lại». Máy
+     KHÔNG chọn hộ và không chặn gì: dòng này không phải cổng. `metaOpen.n` là
+     `null` → «chưa đọc được mốc gần nhất nên chưa đếm được vòng meta đang mở»
+     (ĐỪNG in 0 — chưa biết khác hẳn không có).
+   <!-- START-VONG-META>>> -->
    - `groups.done` chỉ đếm gộp một dòng cuối thẻ (đã xong/đã xếp lại: N việc).
      Hai trạng thái «máy đã đi tiếp, không cần chữ ký» — máy quét chỉ gán
      chúng khi hồ sơ trả lời được ĐÚNG câu lưới trước-merge hỏi (sáu điều kiện

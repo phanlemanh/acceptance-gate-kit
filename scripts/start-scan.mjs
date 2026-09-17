@@ -610,4 +610,45 @@ if (map.present) {
 // Danh sách DỰNG SẴN cho thân lệnh CHÉP — thẻ không tự lọc `vetoOpen`, nhờ vậy
 // phép đo máy chấm đúng danh sách tên mà thẻ in ra (hồ sơ cua-veto-sau-chu-ky).
 const vetoOpenUnsigned = vetoOpen.filter(v => !v.humanSignoff).map(v => v.slug);
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, broken });
+
+// ── VÒNG META ĐANG MỞ TRONG CỬA SỔ (hồ sơ mốc release-2-15-0) ─────────────────
+// Luật (b) cho TỐI ĐA MỘT vòng meta giữa hai mốc, nhưng không vật máy giữ nào đếm:
+// cửa sổ 2.13 → 2.14 có hai vòng chạy song song ở hai phiên, mỗi phiên tự thấy mình
+// là vòng duy nhất, con số chỉ lộ khi mốc đếm. Ở đây biến «tối đa một» từ lời dặn
+// thành số trên thẻ — không cổng, không lệnh.
+// Chỉ áp cho KHO KIT (mọi vòng ở đó là vòng meta): gốc có `.claude-plugin/plugin.json`
+// mang tên acceptance-gate. Lớp vendored ở repo tiêu thụ không mang manifest đó.
+// Mốc = commit gần nhất đổi dòng version của manifest (lần cắt số gần nhất).
+// «Mở» = contract.md có status hợp lệ NGOÀI DA_THONG_CONG_2 — hỏi lib, không chép.
+// «Sinh sau mốc» = contract.md KHÔNG có trong cây của commit mốc: đúng cả với nhánh
+// rẽ trước mốc rồi merge sau, với rebase, và với tệp chưa commit — ngày commit thì sai
+// ở cả ba. Hồ sơ mốc `release-<x>-<y>-<z>` không phải vòng meta, không đếm.
+// «Chưa biết» (không phải kho git, không tìm được mốc) → moc/n null, không cờ.
+const metaOpen = (() => {
+  const kq = { applies: false, moc: null, slugs: [], n: null, flag: false };
+  const r = read(path.join(root, '.claude-plugin', 'plugin.json'));
+  if (r.err || r.t == null) return kq;
+  try { if (JSON.parse(r.t).name !== 'acceptance-gate') return kq; } catch { return kq; }
+  kq.applies = true;
+  const gq = a => {
+    try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).trim(); }
+    catch { return null; }
+  };
+  const moc = gq(['log', '-1', '--format=%H', '-G', '"version":', '--', '.claude-plugin/plugin.json']);
+  if (!moc || !/^[0-9a-f]{40}$/.test(moc)) return kq;
+  kq.moc = moc;
+  const RELEASE = /^release-\d+-\d+-\d+$/;
+  for (const e of readdirSync(acc, { withFileTypes: true })) {
+    if (!e.isDirectory() || RELEASE.test(e.name)) continue;
+    const c = read(path.join(acc, e.name, 'contract.md'));
+    if (c.err || c.t == null || fieldProblem('contract.md', c.t, 'status')) continue;
+    if (DA_THONG_CONG_2.includes(frontmatterField(c.t, 'status').toLowerCase())) continue;
+    if (gq(['cat-file', '-e', `${moc}:_acceptance/${e.name}/contract.md`]) !== null) continue;
+    kq.slugs.push(e.name);
+  }
+  kq.slugs.sort();
+  kq.n = kq.slugs.length;
+  kq.flag = kq.n >= 2;
+  return kq;
+})();
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken });
