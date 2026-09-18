@@ -7,7 +7,7 @@
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>21 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>2 việc"]
-  GD --> XL["Xếp lại sau<br/>11 việc"]
+  GD --> XL["Xếp lại sau<br/>12 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
@@ -143,6 +143,7 @@ flowchart TD
 - Bộ đọc frontmatter cắt phần sau « (`frontmatter-thang-mot-ky-hieu`)
 - Khuôn răng dùng chung — bộ đo của hồ sơ không được tự dối theo cùng ba hình dạng (`khuon-rang-dung-chung`)
 - Mọi liệt kê trong hợp đồng phải máy-đọc (`liet-ke-may-doc`)
+- Marker descope của các nghi thức bỏ-được có bộ đọc ở lib và cặp cờ trên thẻ Cổng Phạm vi, thay vì chỉ có đầu viết trong SKILL (`marker-descope-khong-co-bo-doc`)
 - Tải gửi cho trạm phân loại phạm vi dựng từ MỘT nguồn, bỏ cơ chế ghép đòi hai bản giống nhau từng byte (`mot-nguon-tai-gui-triage`)
 - usage-report về MỘT nguồn — khuôn tiêu đề do bên VIẾT và bên ĐỌC cùng rút, để hai dòng máy-đo của luật (c) thôi hỏng lặng (`mot-nguon-usage-report`)
 - Thẻ Cổng 2 không có làn nào cho lỗi TRONG hợp đồng chưa sửa — nó im lặng, và thẻ vẫn ghi "Bằng chứng đầy đủ" (`the-cong-2-giau-loi-trong-hop-dong`)
