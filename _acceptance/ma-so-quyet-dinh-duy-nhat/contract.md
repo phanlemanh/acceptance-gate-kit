@@ -5,7 +5,7 @@ slug: ma-so-quyet-dinh-duy-nhat
 owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/gate-card.js + SKILL feature-loop + 3 commands + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
-status: machine-cleared
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo

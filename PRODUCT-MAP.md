@@ -100,7 +100,7 @@ flowchart TD
 - Ba tài liệu đầu-tay (QUICKSTART · README · GUIDE) vào vũ trụ quét lệnh — 52 token trần đổi sang dạng bấm được, cùng bảng COMMAND-NAMES và cùng ca LB2 (`lenh-tran-tai-lieu-dau-tay`)
 - Lớp bằng chứng nhìn-thấy — hợp đồng có mặt người nhìn phải có ≥1 eval ui-check (`layer: ui-observed`); răng W8 ba tầng (lint · thẻ · pre-merge NOTE), một nguồn cho surfaces, đường bỏ có tên (`lop-bang-chung-nhin-thay`)
 - Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`)
-- Mã sổ quyết định duy nhất — khuôn mã d-<UTC>-<n> ở bên ghi, khoá overlay theo dòng ở bên đọc để thẻ không lặp một câu dịch lên mọi dòng chung mã (`ma-so-quyet-dinh-duy-nhat`) — đã giao — máy thông, cửa veto còn mở
+- Mã sổ quyết định duy nhất — khuôn mã d-<UTC>-<n> ở bên ghi, khoá overlay theo dòng ở bên đọc để thẻ không lặp một câu dịch lên mọi dòng chung mã (`ma-so-quyet-dinh-duy-nhat`)
 - lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu chéo) + review lens measurement S4 (6 hình dạng, một chỗ, mutation-covered); không nới finder cũ (`matrix-measure-law`)
 - Khuôn khai sinh phép đo — mọi phép đo mới phải tự chứng minh biết báo đỏ (đối chứng dương xanh + phá-vật-thật đổi kết luận + thông điệp ghim) ngay lúc viết, trước khi được tính là xong (`measure-birth-certificate`)
 - Trả răng cho năm phép đo đã bị ghi là mất răng — chúng phải phân biệt được bản đúng với bản hỏng, và có một chốt canh để lần sau không lặp lại (`measure-teeth-cleanup`)

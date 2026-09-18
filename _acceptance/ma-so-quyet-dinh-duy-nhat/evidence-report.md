@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (đường VERIFY độc lập,
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 1d6f7e4a50acabf05006ad6f1db49e4a8a2fc164
-human_signoff:
+human_signoff: Mạnh 2026-09-18 — ký trong cửa veto của làn V (hồ sơ máy thông 11/09); đồng ý phần cắt/hoãn; phê hết Treo-1…Treo-3
 ---
 
 # Evidence Report: ma-so-quyet-dinh-duy-nhat
