@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f53fc76f44fc6dd5e4cbfd4c7d2f36fcfd9bc35d
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Mạnh 2026-09-17 — ký lượt chấm 3 (lượt 2 trả lại để sửa CRLF); E25 Đạt; 2 known-limits (Ngoài-1/2); Ngoài-3/4/5 mở hợp đồng mới (ô phep-do-o-doc-lap-thuoc-co-cua); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -315,3 +315,7 @@ none — every multi-run eval is uniform (không eval nào khai runs > 1 trong v
 Round 1: full sweep 24 evals máy/test + E25 (AC-15, judgment); mốc sàn AC-11 (E15/E16) khi đó dùng bộ đọc tự viết thay vì bộ đọc dùng chung của lib — nguy cơ lệch một nguồn. Trả PENDING-JUDGMENT (E25 chờ người).
 Round 2: vá thuoc-vat — mốc sàn dùng frontmatterField của lib thay bộ đọc tự viết (S4-r2, AC-11; commit 8742c7f8); judge panel chấm lại E25 (3/3 lens PASS).
 Round 3: chạy lại các eval chạm bởi delta (E1, E12, E13, E15–E18 — AC-1, AC-10, AC-11, AC-12, AC-13) sau lượt vá — tất cả xanh; các eval khác và panel E25 carry-forward vì delta không chạm paths của chúng. Verdict PENDING-JUDGMENT (E25 vẫn chờ human_override theo T3).
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ad, 13 hồ sơ
+run_id: repin-20260918T130346Z-62162
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 24/24 eval máy đạt kỳ vọng

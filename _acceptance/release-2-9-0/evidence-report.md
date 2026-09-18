@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 65b30d19a0fc2339cfd41f87d9906455cfbe6296
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-09-07 — ký phát hành 2.9.0 với 8 known-limits đã khai; Ngoài-1 mở hợp đồng mới (ô cửa sổ kế), Ngoài-2 ghi Known limits; đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi · ký lần 2 2026-09-07 sau khi mốc gom fix(re-pin) 0b5c5b37 (ADR 0014) từ main: chữ mốc + manifest vế (5) + 3 known-limits gộp lần 2, ghim lại bằng làn eval
 ---
 
@@ -177,3 +177,7 @@ Round 1: E1, E2, E3, E3b, E3c, E3d, E3e, E6 tất cả PASS ngay từ vòng đ�
 ### Re-pin lần 1 — 2026-09-07, do gộp fix(re-pin) 0b5c5b37 từ main (bộ máy đổi sau pin) và khai gạch RT13 kéo ra-co-ten vào diff PR — làn eval theo luật mới ADR 0014
 run_id: repin-20260907T161058Z-40516
 sha: 65b30d19a0fc2339cfd41f87d9906455cfbe6296 · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ad, 13 hồ sơ
+run_id: repin-20260918T130346Z-62162
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

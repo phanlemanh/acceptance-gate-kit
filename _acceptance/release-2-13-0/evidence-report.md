@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a018560c1a081065a008cea084afddd236937914
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Mạnh 2026-09-15 — ký với 4 giới hạn đã khai; Ngoài-4 mở hợp đồng riêng. Vế giá trị của AC-1 và AC-2 (số cắt 2.13.0 · diagram-design giữ 2.7.0) nằm trong chính gói được ký; thẻ chưa có ô riêng cho chúng — đó là nhát cắt 2.12.0 §4 mục 3, còn nợ sang 2.14.
 ---
 
@@ -160,3 +160,7 @@ Round 2: Tất cả eval PASS (E1, E2, E3a–E3e, E4, E5a, E5b). Nhát vá f55e1
 ### Re-pin lần 1 — 2026-09-15, do hoá cũ do chính commit chữ ký
 run_id: repin-20260915T005147Z-66682
 sha: a018560c1a081065a008cea084afddd236937914 · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng

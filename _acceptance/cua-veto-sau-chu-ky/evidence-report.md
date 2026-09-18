@@ -8,7 +8,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 72a571f7b4e050421774b7443c8c0553d2fd65c1
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Phan Le Manh 2026-09-12
 ---
 
@@ -215,3 +215,7 @@ Round 6: 12/12 eval máy (E1–E12) PASS cơ học (exit 0); 5/5 lệnh suite h�
 ### Re-pin lần 1 — 2026-09-12, do hoá cũ do chính commit chữ ký
 run_id: repin-20260912T142208Z-69841
 sha: 72a571f7b4e050421774b7443c8c0553d2fd65c1 · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
+run_id: repin-20260918T121643Z-87929
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng

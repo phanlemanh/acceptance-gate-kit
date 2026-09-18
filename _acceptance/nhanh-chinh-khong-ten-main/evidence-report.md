@@ -172,6 +172,10 @@ Round 6: thu phạm vi rút AC-9/E9 (remote-hỏi-không-được) khỏi hợp 
 run_id: repin-20260909T001251Z-82742
 sha: ffe138acbf4009855e5b874d6957a5976477c854 · suites: 5 lệnh exit 0 · evals: 7 eval máy exit 0
 
-### Re-pin lần 2 — 2026-09-18, do chữ ký Cổng Giá trị 18/09 — làn riêng cho ba hồ sơ bị chặn thật giữa hai mốc (GUIDE §7.1); làn trước đỏ ở E8, đã sửa nhát tiêm ở 83bd26f6
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
+
+### Re-pin lần 3 — 2026-09-18, do chữ ký Cổng Giá trị 18/09 — làn riêng cho ba hồ sơ bị chặn thật giữa hai mốc (GUIDE §7.1); làn trước đỏ ở E8, đã sửa nhát tiêm ở 83bd26f6
 run_id: repin-20260918T133712Z-82839
 sha: 83bd26f6b4faa6503c601b360a66c366d2830eb6 · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng

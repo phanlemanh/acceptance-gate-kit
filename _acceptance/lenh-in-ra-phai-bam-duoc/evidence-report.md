@@ -196,6 +196,10 @@ Round 1: đường verify độc lập — 6 lệnh tuần tự trên `24eec78c`
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
 
-### Re-pin lần 1 — 2026-09-18, do chữ ký Cổng Giá trị 18/09 — làn riêng cho ba hồ sơ bị chặn thật giữa hai mốc (GUIDE §7.1); làn trước đỏ ở E8, đã sửa nhát tiêm ở 83bd26f6
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
+run_id: repin-20260918T123126Z-49883
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-18, do chữ ký Cổng Giá trị 18/09 — làn riêng cho ba hồ sơ bị chặn thật giữa hai mốc (GUIDE §7.1); làn trước đỏ ở E8, đã sửa nhát tiêm ở 83bd26f6
 run_id: repin-20260918T133712Z-82839
 sha: 83bd26f6b4faa6503c601b360a66c366d2830eb6 · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng

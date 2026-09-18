@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh tuần tự + 1 phép đếm độc lập — d-4608)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1c163c71d234b46dc73571a70cf6083cd223e808
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-23 — ký với known-limits đã khai (neo sha cố định · vũ trụ khai tay · ngưỡng đo chung chip D)
 ---
 
@@ -161,3 +161,7 @@ merge đầu của chip D) sửa theo LỚP (d-4606); P101 ghim `/start` trần 
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
+run_id: repin-20260918T123126Z-49883
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

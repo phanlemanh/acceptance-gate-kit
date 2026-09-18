@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — d-4407)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 73eee3d1a3041383d6e7269b7af87ced70d2a9b1
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-22 — ký mốc phát hành với known-limits đã khai; ba điều nói thật nằm trong changelog v2.3.0 để người cài đọc được
 ---
 
@@ -176,3 +176,7 @@ Round 1: đường verify độc lập — 6 lệnh tuần tự trên `73eee3d1`
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0c28c597ca57cb6be3589d23decbb1e39b6ef454
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-09-10
 ---
 
@@ -156,3 +156,7 @@ thất bại hay treo UNCERTAIN. Verdict tổng = PASS.
 ### Re-pin lần 1 — 2026-09-09, do ghim dòng định tuyến LM20 của chính hồ sơ mốc sau chữ ký (P0 của gap-probe) — lưới hoá cũ là cả cây vì K4 đã rút
 run_id: repin-20260909T235815Z-93571
 sha: 0c28c597ca57cb6be3589d23decbb1e39b6ef454 · suites: 5 lệnh exit 0 · evals: 9 eval máy exit 0
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng

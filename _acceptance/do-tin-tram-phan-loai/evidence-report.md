@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c47ae5f8d4fa2298a1a3b7467dfee3572e2860c0
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Mạnh 2026-09-15 — ký với 7 giới hạn đã khai (Ngoài-2…Ngoài-8); Ngoài-1 mở hợp đồng riêng. Vòng đi ba lượt chấm, chốt DỪNG-VÁ giữa đường: owner thu phạm vi AC-7 và nâng phạm vi lỗi ký tự đô-la thành AC-11.
 ---
 
@@ -236,3 +236,7 @@ Round 3: Sau chốt DỪNG-VÁ (15/09) — owner THU phạm vi AC-7 cũ (dòng s
 ### Re-pin lần 1 — 2026-09-15, do hoá cũ do chính commit chữ ký
 run_id: repin-20260915T064427Z-37713
 sha: c47ae5f8d4fa2298a1a3b7467dfee3572e2860c0 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
+run_id: repin-20260918T121643Z-87929
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

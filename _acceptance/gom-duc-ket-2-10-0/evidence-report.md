@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 85a2ecb92f8f2227b43ff2cca9966ac7ff72d97a
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-09-09
 ---
 
@@ -164,3 +164,7 @@ sha: f78a77618037a63b9632842acfd0644dd581cff4 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 2 — 2026-09-09, do vá SD1/SD2 phụ thuộc bản cài (CI PR #163 đỏ) — ghim lại sau khi phép đo hết đọc môi trường người chạy
 run_id: repin-20260909T115453Z-95194
 sha: 85a2ecb92f8f2227b43ff2cca9966ac7ff72d97a · suites: 5 lệnh exit 0 · evals: 8 eval máy exit 0
+
+### Re-pin lần 3 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
+run_id: repin-20260918T121643Z-87929
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
