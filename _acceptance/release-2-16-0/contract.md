@@ -455,6 +455,42 @@ Làn một lượt trên trọn 72 hồ sơ đã thông Cổng Bằng chứng, t
   chạm sau 215 lệnh. Vật mà mốc 2.15.0 ship có lượt đo đầu tiên ở quy mô đầy đủ, và nó im
   đúng chiều.
 
+### 6. Ba lượt chấm của CHÍNH mốc này — một lớp lỗi, ba lần
+
+Mốc đi hết trần ba vòng và dừng ở REJECT. Lượt 2 và lượt 3 KHÔNG có eval máy nào đỏ;
+REJECT do phát hiện trong hợp đồng.
+
+| lượt | eval đỏ | phát hiện trong hợp đồng | token | phút |
+|---|---|---|---|---|
+| 1 | E1b, E5 | 4 | 22,83 M | 28,8 |
+| 2 | không | 2 | 17,26 M | 27,1 |
+| 3 | không | 6 | 14,11 M | 31,9 |
+| **gộp** | | | **54,20 M** | **87,9** |
+
+Khối tìm-lỗi: 74,4 · 82,9 · 74,4 % — cao hơn cả vòng `thuoc-co-cua` (71,2 %).
+
+**Một LỚP lỗi, ba lần, mỗi lần một thể hiện mới.** Lớp: *răng của hồ sơ tự dựng lại một
+vị ngữ mà bộ máy đã sở hữu, rồi hợp đồng khai là đã hỏi bộ máy.*
+
+- Lượt 1: chân `viec-va` chép DANH SÁCH — một mảng tiền tố gõ tay.
+- Lượt 2: chép KHUÔN — tự tìm khoá, tự dịch mẫu; trôi khi khoá hoặc mục mang chú thích.
+- Lượt 3: ba thể hiện cùng lúc — đọc `expectedExits` sai API nên kỳ vọng đã khai luôn
+  thành 0 · vị ngữ «eval máy» gõ tay thay vì gọi `isRepinMachineEval` · đọc danh sách
+  bằng `configList` trong khi làn thật dùng `resolveConfigList`.
+
+Mỗi nhát sửa thay một bản chép và đẻ ra bản chép kế. Đó là định nghĩa của khuôn-giải-sai
+trong luật dừng-vá, và luật ấy nổ cùng lúc với trần ba vòng.
+
+**Ba phát hiện lượt 3 là TIỀM ẨN, đo được:** số của chiến dịch không đổi khi tính bằng
+API đúng — 14 hồ sơ đỏ, 60 eval đỏ ở cả hai cách — vì hiện KHÔNG eval nào trong kho khai
+mã thoát mong đợi khác 0. Chúng sai về nguyên tắc, không sai về số hôm nay.
+
+**Và một phát hiện ngoài hợp đồng CHẶN chính chữ ký.** Quan hệ (2) của răng chiến dịch so
+ảnh chụp 72 hồ sơ với trạng thái SỐNG của kho. Lúc owner ký, hồ sơ mốc này thành hồ sơ đã
+thông cổng thứ 73, và eval E5 đỏ mã 4 ngay tại lượt ký. Đã thử thật. Đây đúng lớp mà §5
+mục 0 của chính hồ sơ này gọi tên — răng của một hồ sơ đã ký phải đo một sự thật LỊCH SỬ,
+không đo một đại lượng di động — và nó quay lại cắn đúng hồ sơ đã đặt tên cho nó.
+
 ### 5. Nhát cắt cho cửa sổ kế — gọi tên
 
 0. **CHỖ CẮT CHÍNH, số của mốc này chỉ thẳng vào: răng của một hồ sơ đã ký phải đo một sự
