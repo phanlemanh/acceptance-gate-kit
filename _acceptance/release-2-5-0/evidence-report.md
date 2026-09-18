@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 30865e2f059d2e9184ba27e7f165132321f75614
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-30 — ký mốc phát hành 2.5.0 với bốn known-limits đã khai (phát ngôn «Ký» trong hội thoại 30/08) 
 ---
 
@@ -133,3 +133,7 @@ none — every multi-run eval is uniform
 
 Round 1: PASS ghi trên verified_commit 06a5973e; ngay sau đó .claude-plugin/plugin.json đổi (câu kiểm-bằng-nội-dung AC-6/E6 lệch cây được giao) — mở lại để chấm.
 Round 2: Toàn bộ eval xanh lại trên verified_commit 30865e2f059d2e9184ba27e7f165132321f75614 (đã gồm bản sửa neo AC-6); PASS.
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

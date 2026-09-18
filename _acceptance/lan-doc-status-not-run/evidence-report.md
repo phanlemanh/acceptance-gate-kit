@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 95da100c2a933bfc325bb6ef166a9cff98b71a9e
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Phan Le Manh 2026-09-12
 ---
 
@@ -199,3 +199,7 @@ Round 2: chạy lại toàn bộ 11 eval + 5 lệnh suite trên verified_commit 
 ### Re-pin lần 1 — 2026-09-12, do gộp main mang vòng cua-veto-sau-chu-ky + dòng định tuyến LM20
 run_id: repin-20260912T153423Z-23052
 sha: 95da100c2a933bfc325bb6ef166a9cff98b71a9e · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
+run_id: repin-20260918T123126Z-49883
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng

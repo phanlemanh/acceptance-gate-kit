@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7e260d4b156af93f8766d416e05d32b44290b4b5
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Mạnh 2026-09-14
 ---
 
@@ -132,3 +132,7 @@ sha: b2af84cd1d6bd5454111567b010778e8a8a1c5b4 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 2 — 2026-09-14, do hoá cũ do chính commit chữ ký (routing-baseline.txt ngoài T1)
 run_id: repin-20260914T034155Z-23305
 sha: 7e260d4b156af93f8766d416e05d32b44290b4b5 · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
+
+### Re-pin lần 3 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng

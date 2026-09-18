@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 81911bccdddccbf1f38b0fd144679160516373a1
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-24
 ---
 
@@ -136,3 +136,7 @@ Round 7: E1–E4 vẫn PASS nhưng không phân biệt (baseline green — cùng
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
+run_id: repin-20260918T121643Z-87929
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 4/4 eval máy đạt kỳ vọng

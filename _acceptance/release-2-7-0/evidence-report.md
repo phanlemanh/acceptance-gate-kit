@@ -7,7 +7,7 @@ reason:
 verified_by: implementing session (gap-probe context sạch do phiên tươi độc lập làm — xem Known limits #1)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 175999b964b34bb3812bf9b6c16fcf8669c77d26
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-09-03 — ký mốc phát hành 2.7.0 với 7 known-limits đã khai; Ngoài-1 mở hợp đồng mới; đồng ý phạm vi đã cắt; phê cả 5 quyết định ghi sau Cổng Phạm vi; trần T3 đọc theo nguyên tắc, = 4
 ---
 
@@ -178,3 +178,7 @@ kế **4 > 3** là câu hỏi đọc luật, không phải đếm sai: luật (c
 (Đáng · Phạm vi · Bằng chứng) và T3 có thêm Gate 1.5 theo thiết kế. Ký mốc này
 là nhận bản đọc trên đi vào hồ sơ phát hành; cách đọc trần T3 (nguyên văn 3, hay
 theo nguyên tắc «= số cổng thiết kế» = 4) là điều người ký khai ở dòng ký.
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

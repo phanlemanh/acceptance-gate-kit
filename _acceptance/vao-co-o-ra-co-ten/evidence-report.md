@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — quyết định d-20260821T182527Z-4208)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f40392d178c02ae898ad3273b8e300b233509f84
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-22 — ký với 4 known-limits đã khai và 5 mục ngoài hợp đồng ghi sổ (review-findings.md)
 ---
 
@@ -222,3 +222,7 @@ Trước đó trong S3: suite plugins đỏ 4 ca cũ (P98/P105/P123/P166) do hà
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ad, 13 hồ sơ
+run_id: repin-20260918T130346Z-62162
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng

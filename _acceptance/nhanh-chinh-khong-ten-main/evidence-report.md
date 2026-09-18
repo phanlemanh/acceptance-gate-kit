@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ffe138acbf4009855e5b874d6957a5976477c854
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-29
 ---
 
@@ -171,3 +171,7 @@ Round 6: thu phạm vi rút AC-9/E9 (remote-hỏi-không-được) khỏi hợp 
 ### Re-pin lần 1 — 2026-09-09, do ghim lại sau đường đọc-cũ cho EC (vật đo lưu kho 08/09) và thêm uat-session.md — PR 162
 run_id: repin-20260909T001251Z-82742
 sha: ffe138acbf4009855e5b874d6957a5976477c854 · suites: 5 lệnh exit 0 · evals: 7 eval máy exit 0
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng

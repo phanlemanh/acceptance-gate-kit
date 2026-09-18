@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 11e5f172c7971584d8b5f35346268b54863cbba1
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh 2026-08-18
 ---
 
@@ -136,3 +136,7 @@ Round 5 (vòng này): P200 refactor thành bản TRỪ tại commit 15af234 — 
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng

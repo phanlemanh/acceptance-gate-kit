@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e00898a6cf88beec1884495aeb42c6ae04908423
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-09-08
 ---
 
@@ -188,3 +188,7 @@ sha: 89b3afde22c493e2b212b0261ec5b70d3eafc1bb · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 2 — 2026-09-08, do ghim lại tại HEAD sau gộp origin/main 59f4a9f1 (#156/#158/#159 đổi pre-merge-check.sh, gate-card.js) — PR #157
 run_id: repin-20260908T143359Z-53494
 sha: e00898a6cf88beec1884495aeb42c6ae04908423 · suites: 5 lệnh exit 0 · evals: 10 eval máy exit 0
+
+### Re-pin lần 3 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
+run_id: repin-20260918T121643Z-87929
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
