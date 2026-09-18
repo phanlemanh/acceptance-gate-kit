@@ -7,7 +7,7 @@
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>20 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>2 việc"]
-  GD --> XL["Xếp lại sau<br/>13 việc"]
+  GD --> XL["Xếp lại sau<br/>14 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
@@ -139,6 +139,7 @@ flowchart TD
 - Mã 127 ở làn đối chứng là tín hiệu phân biệt, không phải hạ tầng hỏng (`baseline-127-tin-hieu-phan-biet`)
 - Bộ giải evals.yaml nuốt chú thích YAML trên `status: not-run` — lời khai của tác giả bị bỏ lặng (`bo-giai-nuot-chu-thich-yaml`)
 - Thẻ Cổng 2 in nút bằng tiếng Việt nhưng chỉ đọc được từ khoá tiếng Anh trong «Đề xuất:» — người viết đúng chữ trên nút thì thẻ báo không đọc được (`de-xuat-tieng-viet-khong-doc-duoc`)
+- Eval gọi máy chủ qua mạng có thể đo NHẦM CÂY mà vẫn xanh — kit chưa có lưới nào nhìn thấy; đề xuất một lời khai cấp eval (tree_pin) kèm cờ vàng và dòng đếm trên thẻ (`eval-khai-chot-cay`)
 - evals.yaml khai chiều đỏ mà tệp ca không có mũi tiêm nào — lời khai không có vật (`evals-khai-chieu-do-khong-co-vat`)
 - Bộ đọc frontmatter cắt phần sau « (`frontmatter-thang-mot-ky-hieu`)
 - Khuôn răng dùng chung — bộ đo của hồ sơ không được tự dối theo cùng ba hình dạng (`khuon-rang-dung-chung`)

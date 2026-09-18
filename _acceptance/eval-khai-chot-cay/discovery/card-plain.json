@@ -1,0 +1,42 @@
+{
+  "feature_plain": "Bộ nghiệm thu bắt một phép đo gọi máy chủ phải nói ra nó đang đo đúng bản làm việc nào — hoặc nói thẳng là nó không biết; người ký đọc con số thay vì tin.",
+  "will_do": [
+    { "id": "AC-1", "p": "Sẽ có đúng MỘT chỗ trong bộ máy hiểu lời khai này, để lời khai không bị hai chỗ hiểu hai kiểu (AC-1 — một nguồn)." },
+    { "id": "AC-2", "p": "Sẽ từ chối một lời khai viết cho có: nói «không chốt» mà không nói vì sao thì bị gọi tên, không được lặng lẽ cho qua (AC-2 — khai sai thì có tiếng)." },
+    { "id": "AC-4", "p": "Sẽ cảnh báo vàng ở Cổng Phạm vi khi một phép đo gọi máy chủ mà chưa ai nói nó đo bản nào (AC-4 — cảnh báo, không chặn)." },
+    { "id": "AC-5", "p": "Sẽ im ngay khi đã có lời khai — kể cả lời khai «không chốt, vì lý do này»; nói không chốt là một lựa chọn hợp lệ, không phải lỗi (AC-5 — đối chứng dương)." },
+    { "id": "AC-6", "p": "Sẽ nhắc khi lời khai đặt nhầm chỗ: một phép đo không chạy lệnh nào thì không có bản làm việc nào để chốt (AC-6 — nhãn lạc chỗ)." },
+    { "id": "AC-8", "p": "Sẽ chứng minh lưới này CÓ RĂNG trên chính kho công cụ — nơi không có phép đo nào gọi máy chủ, nên một lưới chết trông y hệt một lưới sạch (AC-8 — chiều im ở quy mô kho)." },
+    { "id": "AC-9", "p": "Sẽ in một dòng CON SỐ ở Cổng Bằng chứng: bao nhiêu phép đo gọi máy chủ, bao nhiêu đã nói đo bản nào, bao nhiêu chưa nói (AC-9 — số thay cho niềm tin)." },
+    { "id": "AC-11", "p": "Sẽ không làm đỏ một hồ sơ đã ký nào: 357 hồ sơ cũ trên mọi kho chạy y như trước, không ai phải sửa gì (AC-11 — sàn hồi quy)." },
+    { "id": "AC-12", "p": "Sẽ giữ bản mẫu hướng dẫn và bộ đọc khớp nhau bằng một phép kiểm tự động, để tài liệu không trôi khỏi máy (AC-12 — khuôn một chỗ)." }
+  ],
+  "wont_do": [
+    { "id": "AC-3", "p": "Sẽ KHÔNG đi quét các kho khác lúc chấm: danh sách lệnh được đóng băng thành một tệp nằm trong hồ sơ, nên phép đo chạy được ở máy khác và trên máy chủ kiểm tra (AC-3 — đo theo bản nhãn, không theo con số cứng)." },
+    { "id": "AC-7", "p": "Sẽ KHÔNG im lặng bỏ qua khi chạy ở chế độ chỉ-có-hai-tệp: máy nói thẳng là nó không soi được và vì sao (AC-7 — rơi bậc có tiếng)." },
+    { "id": "AC-10", "p": "Sẽ KHÔNG bắt người đọc thẻ phải hiểu từ kỹ thuật: cảnh báo hiện bằng tiếng sản phẩm, và phép đo soi đúng trang người mở chứ không soi bản trung gian (AC-10 — mặt người)." },
+    { "id": "AC-13", "p": "Sẽ KHÔNG để một lời khai sai nằm im trong bụng máy: cả cảnh báo lẫn thẻ đều phải nói ra nó (AC-13 — lỗi phải có người đọc)." }
+  ],
+  "scope_plain": "Năm thứ cố ý để ngoài: kit không tự dựng sẵn bộ chốt cây dùng chung (mới đúng một kho cần) · không chặn merge, chỉ cảnh báo · không sửa hộ điểm mù của kho khách · không đụng khung chạy phép đo · và không kiểm nội dung lời khai — máy kiểm dòng có mặt, người soi ở cổng.",
+  "coverage_plain": [
+    { "i": 0, "p": "Trạng thái lời khai: có chốt · không chốt · chưa nói — ba trạng thái là toàn bộ ảnh của một ô tuỳ chọn, thước là hai lần kit đã làm đúng khuôn này trước đây." },
+    { "i": 1, "p": "Máy có nhìn thấy không: thấy rõ · không thấy · không đọc được cấu hình — thước là số đo thật trên 3 737 phép đo của 10 kho, kèm 4 ca báo nhầm có tên." },
+    { "i": 2, "p": "Ai đọc lời khai: cảnh báo Cổng Phạm vi · hai thẻ · làn ghim lại · khung chạy — danh sách đóng, rút bằng lệnh quét chứ không phỏng đoán." },
+    { "i": 3, "p": "Tuổi hồ sơ: hồ sơ mới ↔ hồ sơ đã ký — thước là 357 hồ sơ đã ký đếm được, 11 trong đó dính chuyện này." }
+  ],
+  "gap_probe_plain": [
+    { "i": 0, "p": "Con số trên thẻ tự chứng minh chính nó — nếu tổng được tính bằng chính ba số cộng lại thì phép kiểm không bao giờ sai được, và thẻ có thể in «0 chưa khai» trên một hồ sơ đầy chỗ chưa khai. ĐÃ SỬA: ca đo nay đặt sẵn thành phần và đòi đúng từng số, kèm ba cách phá khác nhau." },
+    { "i": 1, "p": "Cách phá thử của ca đo kia đã chết trước khi viết: kho công cụ không có phép đo nào gọi máy chủ, nên nới lỏng lưới cũng cho cùng con số không. ĐÃ SỬA: thay bằng hai cách phá có tác dụng thật, và nói thẳng chuyện này trong phần hạn chế đã biết." },
+    { "i": 2, "p": "Ca đo lớn nhất tự mâu thuẫn và ghim vào máy của người viết — chạy ở máy khác là hỏng, và chỉ cần kho khách thêm một phép đo là nó đỏ oan. ĐÃ SỬA: đóng băng danh sách lệnh thành vật nằm trong hồ sơ, kèm xuất xứ, và chấm theo bản nhãn." },
+    { "i": 3, "p": "Lời khai sai có thể nằm im: máy phát hiện ra nhưng không ai đọc, nên «không chốt» viết trống lý do vẫn đi lọt cả hai cổng. ĐÃ SỬA: thêm một tiêu chí buộc cả cảnh báo lẫn thẻ phải nói ra nó." },
+    { "i": 4, "p": "Hồ sơ khai vòng này không có mặt người nhìn, trong khi hai tiêu chí đổi đúng thứ người đọc trên thẻ. ĐÃ SỬA nửa đo: hai tiêu chí nay soi trang đã dựng chứ không soi bản trung gian, và phần hạn chế khai rõ chỗ hụt. Nửa còn lại LÀ CÂU HỎI CHO ANH: nếp khai của kit chạm 122 hồ sơ nên máy không tự đổi." }
+  ],
+  "decisions_plain": [
+    { "id": "d-20260918T131923Z-1", "p": "Chọn lối nhẹ nhất có tiếng: bắt khai, cảnh báo vàng, đếm ở thẻ — đổi lại không có răng cứng, và loại hai lối khác (chỉ đếm thì hồ sơ im lặng vẫn vô hình; chặn merge thì 11 hồ sơ đã ký đỏ ngay và người sẽ gõ cho qua)." },
+    { "id": "d-20260918T131941Z-2", "p": "Máy đi tìm, người trả lời: máy chỉ ra chỗ cần khai, người viết lời khai — đổi lại chỗ máy không tìm ra thì phải nói là không tìm ra, chứ không giả vờ đã đủ." },
+    { "id": "d-20260918T131941Z-3", "p": "Lưới cố ý bắt hẹp để không báo nhầm lần nào trong 3 737 phép đo — đổi lại bỏ sót những chỗ giấu địa chỉ trong cấu hình con; mở lại khi có một ca thật lọt lưới." },
+    { "id": "d-20260918T131957Z-4", "p": "KHÔNG làm sẵn bộ chốt cây dùng chung trong vòng này — đổi lại kho thứ hai gặp chuyện vẫn phải tự làm; mở lại khi có kho thứ hai cần." },
+    { "id": "d-20260918T131957Z-5", "p": "KHÔNG viết đặc tả giao diện — vòng này không có màn hình nào; đổi lại cấu trúc không khai trước, anh thấy nó lần đầu trong bản làm." },
+    { "id": "d-20260918T133112Z-6", "p": "Đóng băng danh sách lệnh thành vật trong hồ sơ và chấm theo bản nhãn — đổi lại bản nhãn là một phán đoán anh phải soi được, nhưng phép đo chạy được ở mọi máy và không đỏ oan khi kho khách đổi." }
+  ]
+}

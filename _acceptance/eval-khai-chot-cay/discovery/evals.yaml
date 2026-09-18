@@ -1,0 +1,271 @@
+# Eval cho hồ sơ eval-khai-chot-cay.
+#
+# Một răng hồ sơ `rang.sh` với 12 chân, mỗi chân một AC. Mỗi chân dựng fixture
+# CODE-SINH trong chính lượt chạy, chạy CHÍNH bộ đọc thật (không chép khuôn bên
+# đọc), và mang cặp hai chiều: bản lành XANH trước (đối chứng dương), rồi tiêm
+# vào BẢN SAO và đòi ĐỎ với THÔNG ĐIỆP GHIM. Cùng nếp không-vào-suite-vĩnh-viễn
+# với các bộ răng hồ sơ khác: chúng chết theo hồ sơ khi mốc phát hành khép.
+#
+# HAI chân đặc biệt, vì CLAUDE.md ghi 14/09 rằng chiều ĐẶC HIỆU đã thiếu:
+#   E3  — vị từ dò chấm 3 737 chuỗi lệnh THẬT rút từ 10 kho; chiều đỏ là NỚI
+#         vị từ (thêm \bfetch\b) phải ĐỎ, chứ không phải chỉ kêu nhiều hơn.
+#   E8  — chạy lint trên chính 122 hồ sơ của kit (0 eval gọi mạng) và đòi
+#         W9 = 0; một bộ dò hỏng theo chiều rộng nổ ở đây trước khi ra khỏi kho.
+#
+# Khoá executor `ekcc_*` được cắm vào _acceptance/config.yaml ở S3 bằng
+# feature-loop/../scripts/config-patch.mjs (không sửa tay), cùng nếp emmd_*.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ekcc_mot_nguon
+    expected: >-
+      MỘT nguồn lời khai — đo QUAN HỆ, không chỉ đo giá trị.
+      (a) Ma trận TOÀN PHẦN 3 trạng thái (khai CÓ chốt · khai none KÈM lý do · VẮNG
+      trường) × 3 executor có cây (test · script · ui-check), fixture code-sinh trong
+      chính lượt chạy. Số assert phải BẰNG 9 — chân tự đếm và ĐỎ nếu số assert khác
+      số ô, thông điệp ghim "so o lech".
+      (b) Ràng buộc TĨNH: chỉ lib/eval-yaml.cjs được khớp tên trường tree_pin; mọi
+      tệp tiêu thụ (scripts/eval-coverage-lint.js, scripts/gate-card.js) khớp ĐÚNG 0
+      lần. Chiều ĐỎ: thêm một lần khớp ở một tệp bất kỳ → ĐỎ, thông điệp ghim GỌI
+      TÊN tệp mọc lối đọc thứ hai.
+      Đối chứng dương: cây lành → 9/9 ô khớp và 0 lần khớp tĩnh, chân xanh.
+    paths:
+      - "lib/eval-yaml.cjs"
+      - "scripts/eval-coverage-lint.js"
+      - "scripts/gate-card.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ekcc_khai_sai
+    expected: >-
+      Khai sai thì fail-CLOSED, gọi tên eval. BA hình dạng hỏng, mỗi cái một fixture
+      code-sinh: (a) none trơn không lý do — bốn biến thể `none`, `"none"`, `NONE`,
+      `none —`; (b) khai trên executor judgment; (c) giá trị rỗng sau khi bóc nháy.
+      Với cả ba: bộ đọc phải trả lỗi có TÊN EVAL trong thông điệp; ca (a) nêu "khai
+      khong chot phai kem ly do", ca (b) nêu tên executor. TUYỆT ĐỐI không rơi thầm
+      về trạng thái VẮNG — chân ĐỎ nếu bộ đọc trả «vắng» mà không lỗi, thông điệp
+      ghim "roi tham ve vang".
+      HAI đối chứng dương CÙNG fixture, để ba nhánh trên không phải hằng-đúng:
+      `tree_pin: rang/canh-cay.mjs — <mô tả>` → 0 lỗi VÀ đọc ra "có chốt";
+      `tree_pin: none — <lý do>` → 0 lỗi VÀ đọc ra "không chốt", KHÔNG phải "vắng".
+      Chiều ĐỎ thứ hai: bản sao coi «có trường» là đã-khai-đúng → ĐỎ nêu
+      "none tron duoc coi la hop le".
+    paths:
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ekcc_bo_do_hai_chieu
+    expected: >-
+      Vị từ laGoiMayChu() chấm một CORPUS ĐÓNG BĂNG nằm trong hồ sơ — chân chỉ đọc hai
+      tệp của hồ sơ (corpus-lenh.jsonl + corpus-nhan.jsonl), TUYỆT ĐỐI không đọc ~/dev
+      lúc chấm, nên ca đo tái lập được trên CI và trên máy khác.
+      (a) ĐỘ NHẠY: khớp đúng tập dòng mang nhãn khop true; sai một dòng là đỏ GỌI TÊN
+      dòng đó (repo/slug/eval_id), không chỉ báo lệch số.
+      (b) ĐỘ ĐẶC HIỆU: IM trên MỌI dòng nhãn khop false, trong đó 4 dòng dương-giả CÓ
+      TÊN — `npm run smoke:news-fetch` (x3) và `check-no-dormant-fetch.sh`.
+      (c) KHÔNG TRÔI RA VÙNG CHƯA NHÃN: tổng khớp trên TRỌN corpus BẰNG số dòng nhãn
+      khop true, nên một khớp mới ở vùng chưa soi tay cũng đỏ.
+      Đo theo NHÃN chứ không theo hằng số: thêm eval gọi mạng ở crm ngày mai KHÔNG làm
+      thước đỏ oan (đó là chiều đặc hiệu ngược mà phản biện context sạch đã nêu).
+      Chiều ĐỎ: bản sao NỚI vị từ về khuôn RỘNG (thêm fetch) → chân ĐỎ với thông
+      điệp ghim "duong-gia: check-no-dormant-fetch.sh".
+    paths:
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ekcc_w9_no
+    expected: >-
+      Hồ sơ fixture code-sinh có eval test/script/ui-check mà lệnh ĐÃ GIẢI khớp bộ dò
+      và KHÔNG có tree_pin → `node scripts/eval-coverage-lint.js <root> --slug <slug>`
+      in cảnh báo W9 gọi tên slug + id eval, và exit 1 (advisory, đúng nếp W1–W8).
+      Chân ghim ĐÚNG chuỗi "W9" và ĐÚNG id eval trong đầu ra, không chỉ ghim mã thoát.
+      Chiều ĐỎ cùng fixture: gỡ tay W9 khỏi lintFeature trong BẢN SAO → ĐỎ, thông điệp
+      ghim "W9 khong no tren eval goi mang chua khai".
+    paths:
+      - "scripts/eval-coverage-lint.js"
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ekcc_w9_im_khi_khai
+    expected: >-
+      ĐỐI CHỨNG DƯƠNG của E4, hai bản trên CÙNG fixture: bản khai `tree_pin: <cơ chế>`
+      và bản khai `tree_pin: none — <lý do>`. Cả hai: W9 IM (khai none là lựa chọn
+      HỢP LỆ, không phải lỗi). Thêm một đẳng thức chống hiệu-ứng-lề: tập cảnh báo
+      W1–W8 của chính fixture đó phải GIỐNG HỆT bản chưa có trường tree_pin — so bằng
+      chuỗi đầu ra đã lọc, không so bằng số lượng.
+      Chiều ĐỎ: bản sao coi none là chưa-khai → ĐỎ nêu "khai none bi tinh la chua khai".
+    paths:
+      - "scripts/eval-coverage-lint.js"
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ekcc_nhan_lac_cho
+    expected: >-
+      Eval `executor: judgment` mang tree_pin → lint in cảnh báo W9 dạng NHÃN LẠC CHỖ
+      gọi tên eval (gương của nhanLacCho trong W8), và KHÔNG in cảnh báo dạng
+      thiếu-khai cho chính eval đó. Chân ghim cả hai vế: chuỗi nhãn-lạc-chỗ CÓ MẶT,
+      chuỗi thiếu-khai VẮNG cho id đó.
+      Chiều ĐỎ cùng fixture: gỡ nhánh nhãn-lạc-chỗ trong BẢN SAO → ĐỎ nêu
+      "nhan lac cho khong co tieng".
+    paths:
+      - "scripts/eval-coverage-lint.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ekcc_che_do_files
+    expected: >-
+      `--files <contract.md> <evals.yaml>` không có gốc kho nên không giải được
+      config: ref. W9 KHÔNG được im lặng biến mất: đầu ra phải chứa ĐÚNG MỘT dòng nói
+      rõ W9 ngoài phạm vi ở chế độ này VÀ vì sao (tiền lệ W6 «rơi bậc»); mã thoát của
+      lệnh KHÔNG đổi vì dòng đó.
+      Đối chứng dương cùng fixture: chạy cùng cặp tệp ở chế độ --slug (có gốc kho) →
+      W9 nổ bình thường, chứng minh cặp tệp THẬT SỰ có ca đáng nổ.
+      Chiều ĐỎ: gỡ dòng nói-ra trong BẢN SAO → ĐỎ nêu "che do --files im lang bo qua W9".
+    paths:
+      - "scripts/eval-coverage-lint.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.ekcc_chieu_im_corpus
+    expected: >-
+      CHIỀU ĐẶC HIỆU Ở QUY MÔ CORPUS trên chính các hồ sơ của kho kit (đo được 0 eval
+      gọi máy chủ). Chiều đỏ NGÂY THƠ đã chết trước khi viết — nới bộ dò cho cùng con
+      số 0 với bản lành — nên chân dùng BA phép đo trên CÙNG ảnh chụp corpus, cùng bản lib:
+      (a) bản lành → số cảnh báo W9 BẰNG 0;
+      (b) MUTANT KHỚP-TẤT-CẢ (vị từ trả true mọi lúc) → W9 BẰNG đúng số eval
+      test/script/ui-check của corpus. Đây là vế chứng minh lưới CÓ RĂNG trên chính
+      corpus này, chứ không im vì đã chết;
+      (c) CORPUS CÓ TIÊM: bản sao corpus chèn k hồ sơ gọi máy chủ code-sinh, chạy bản
+      lint LÀNH → W9 BẰNG đúng k;
+      (d) tổng cảnh báo W1-W8 KHÔNG đổi so với bản base dựng bằng
+      `git archive <sha-truoc-vong> lib scripts` — TRỌN thư mục, không chép danh sách
+      tệp tay (bài học P150).
+      Chiều ĐỎ: gỡ W9 khỏi lint trong BẢN SAO → (b) và (c) cùng ĐỎ, thông điệp ghim
+      "luoi khong co rang tren corpus kit".
+    paths:
+      - "scripts/eval-coverage-lint.js"
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ekcc_the_dem_so
+    expected: >-
+      Fixture code-sinh có THÀNH PHẦN KHAI TRƯỚC: 3 eval khai có chốt, 2 eval khai none
+      kèm lý do, 1 eval vắng trường, 2 eval KHÔNG gọi máy chủ.
+      Thẻ Cổng Bằng chứng in ĐÚNG MỘT dòng đếm, và chân assert TỪNG SỐ nguyên văn
+      "6 — 3 · 2 · 1" — KHÔNG assert tổng: k+m+j == N là nhánh HẰNG ĐÚNG khi N được
+      tính bằng chính tổng ba số (lớp lỗi [release-2-16-0#F1]).
+      Dòng phải có mặt trong PHẦN NGƯỜI ĐỌC của thẻ ĐÃ RENDER (HTML trên stdout, đúng
+      vật ghi ra card.html), đúng MỘT lần — không đo đầu ra --extract thay cho nó.
+      BA chiều ĐỎ riêng biệt trên BẢN SAO, mỗi chiều một thông điệp ghim:
+      ép cả bốn số về 0 → "bo bon so bang 0";
+      gộp nhóm none vào nhóm chưa-khai → "gop none vao chua-khai";
+      đếm cả 2 eval không gọi máy chủ vào N → "dem ca eval khong goi may chu".
+    paths:
+      - "scripts/gate-card.js"
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.ekcc_the_cong_1
+    expected: >-
+      Hồ sơ fixture có eval gọi máy chủ CHƯA khai → thẻ Cổng Phạm vi, đo trên HTML ĐÃ
+      RENDER (không đo --extract): cờ vàng hiện cùng chỗ với W1-W8; mã thoát của lệnh
+      render KHÔNG đổi (không chặn cổng); phần văn bản người đọc — lấy bằng cách bóc
+      thẻ HTML — KHÔNG chứa chuỗi tree_pin hay W9.
+      ĐỐI CHỨNG DƯƠNG cùng fixture: bản đã khai đủ → cờ đó VẮNG.
+      Chiều ĐỎ thứ hai, đúng lớp đã dẫm ở "Thẻ Cổng 1 đọc 0 tiêu chí": giữ dòng trong
+      --extract nhưng bỏ khỏi phần người đọc của HTML → ĐỎ nêu
+      "co trong extract, vang trong ban nguoi doc".
+    paths:
+      - "scripts/gate-card.js"
+      - "skills/acceptance/references/human-facing-language.md"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.ekcc_san_hoi_quy
+    expected: >-
+      SÀN HỒI QUY cho 357 hồ sơ đã ký (không hồ sơ nào có tree_pin).
+      (a) Ràng buộc TĨNH, đo được không cần chạy hết 10 kho: bốn tệp tầng cưỡng chế —
+      feature-loop/scripts/repin-lane.mjs · lib/evidence-core.cjs (checkRepinEvals) ·
+      feature-loop/scripts/s4-args.mjs · scripts/recheck-evidence.cjs — khớp tên trường
+      tree_pin ĐÚNG 0 lần, và diff của vòng này với HEAD trước vòng KHÔNG chạm bốn tệp
+      đó (đếm dòng đổi == 0).
+      (b) Chạy `scripts/recheck-evidence.cjs` trên TRỌN _acceptance/ của kho kit và so
+      đầu ra với bản base dựng bằng `git archive <sha-truoc-vong> lib scripts` — GIỐNG
+      HỆT theo CHUỖI, không chỉ theo mã thoát.
+      Chiều ĐỎ: tiêm một vế tree_pin vào checkRepinEvals của BẢN SAO → ĐỎ nêu
+      "lan ghim lai doi hanh vi tren ho so cu".
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/recheck-evidence.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/s4-args.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.ekcc_round_trip
+    expected: >-
+      Seam bên-VIẾT → bên-ĐỌC round-trip từ MỘT marker (mẫu OOC-ITEM-TEMPLATE, case P55).
+      Chân RÚT khối marker TREE-PIN-TEMPLATE ra khỏi skills/acceptance/SKILL.md bằng
+      code (không chép khuôn vào chân), rồi đưa nguyên văn cho treePins() đọc: cả HAI ví
+      dụ trong khuôn (có chốt · không chốt) phải đọc ra đúng trạng thái khuôn hứa, và
+      0 lỗi.
+      Chiều ĐỎ, hai chiều thật sự: (a) sửa khuôn trong BẢN SAO tài liệu mà không sửa bộ
+      đọc → ĐỎ nêu "khuon ben viet va ben doc troi khoi nhau"; (b) gỡ marker khỏi tài
+      liệu → ĐỎ nêu "khong rut duoc khuon" (chứ không im như thể đã kiểm).
+    paths:
+      - "skills/acceptance/SKILL.md"
+      - "lib/eval-yaml.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.ekcc_errs_co_bo_doc
+    expected: >-
+      errs của treePins() KHÔNG được chết ở tầng hàm. Trên CÙNG một fixture có eval khai
+      tree_pin SAI luật (ba hình dạng của AC-2), chân đòi tiếng ở CẢ HAI bộ đọc:
+      (a) lint in một dòng GỌI TÊN id eval và nêu luật bị phạm — và chân kiểm rằng eval
+      đó KHÔNG rơi vào nhánh thiếu-khai (nó CÓ trường, chỉ là khai sai);
+      (b) thẻ Cổng Bằng chứng đếm eval lỗi thành SỐ THỨ TƯ trong dòng đếm
+      ("… · <x> khai sai"), không im lặng bỏ nó khỏi cả ba nhóm;
+      (c) byId trả trạng thái "loi" cho eval đó, KHÔNG rơi thầm về "vắng".
+      Vì sao cần chân riêng: nếu chỉ AC-2 đo, một eval khai `none` trơn vẫn đi lọt cả
+      lint (có trường nên W9 im) lẫn thẻ (bị bỏ khỏi ba nhóm nên k+m+j vẫn khớp) —
+      lời khai hoá thủ tục, đúng bệnh mà lối C bị loại vì mắc phải.
+      BA chiều ĐỎ, một cho mỗi bộ đọc: nuốt errs ở lint → "lint nuot errs";
+      nuốt ở thẻ → "the nuot errs"; byId trả vắng cho eval lỗi → "roi tham ve vang".
+    paths:
+      - "lib/eval-yaml.cjs"
+      - "scripts/eval-coverage-lint.js"
+      - "scripts/gate-card.js"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
