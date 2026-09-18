@@ -101,7 +101,7 @@ worktree/nhánh đọc từ git của `<path>`.
    `${CLAUDE_PLUGIN_ROOT}/skills/acceptance/references/opportunity-template.md`:
    ① `stage: discovery` · ② `decision: ` để trống (người ký Cổng Đáng điền) ·
    ③ file BẮT ĐẦU ở dòng `---` — không tiêu đề, không hàng rào yaml trước nó ·
-   ④ section «Vấn đề & ai gặp» ≥ 1 câu, MỞ bằng dòng `Gốc:` (khối `OPP-GOC-LINE` — chưa neo thì ghi hạt giống, KHÔNG mở ô) · ⑤ section «Ngưỡng chết / ngưỡng UAT»:
+   ④ section «Vấn đề & ai gặp» ≥ 1 câu, MỞ bằng dòng `Gốc:` — ĐÚNG MỘT dạng: `<kho>/_acceptance/<slug-khác>` kèm chữ giải thích tuỳ ý, không trỏ chính ô (khuôn: `OPP-GOC-LINE` + `OPP-GOC-RULE` + `OPP-GOC-TU-TRO`); chưa có hồ sơ nào để trỏ thì ghi hạt giống, KHÔNG mở ô · ⑤ section «Ngưỡng chết / ngưỡng UAT»:
    máy ĐƯỢC đề xuất ngưỡng khi có căn cứ — mỗi bullet mang tiền tố `[đề xuất]`
    ngay sau dấu `:` (khối `OPP-DE-XUAT-PREFIX` của khuôn), người ký Cổng Đáng gỡ
    tiền tố là chốt; ý còn mờ thật thì giữ `…` như cũ. Vòng KHÔNG có người dùng

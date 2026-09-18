@@ -3,18 +3,21 @@ schema_version: 1
 slug: nha-tai-lieu-router
 feature: Nhà tài liệu khai một chỗ — repo khai «lớp vật × vòng đời → một nhà» trong khối máy đọc của docs/MAP.md, máy kiểm không hai nhà / không nhà lạ; repo mới được acceptance-init dựng bản mặc định cũng qua router; feature-loop đọc nhà thay vì đường cứng
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: park   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Mạnh
+decided_at: 2026-09-18    # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
 ---
 
+> **Xếp lại (park) 18/09 — luật neo thu phạm vi (owner chọn đường B).** ca thật là khảo sát 5 kho và một phiên start, không gắn hồ sơ nào. Chữ giữ
+> nguyên, không xoá: khi có một hồ sơ cụ thể `<kho>/_acceptance/<slug>` để trỏ thì thêm dòng
+> `Gốc:` dạng ấy và đổi `stage:` về `discovery` là ô mở lại.
+
 ## Vấn đề & ai gặp
 
-Gốc: kho oneflow — Mạnh gọi tên 2026-09-13 (khảo sát 5 kho, 5 hình dạng tầng thường-trú)
 
 Mỗi lớp vật của một repo có hai vòng đời — theo-một-vòng (sinh cho một slug) và thường-trú
 (sống suốt đời repo) — và kit chỉ lo nhà cho vòng đời thứ nhất. Khảo sát 13/09 trên 5 repo tiêu

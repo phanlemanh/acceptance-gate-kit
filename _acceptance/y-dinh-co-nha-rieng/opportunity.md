@@ -14,7 +14,7 @@ prototype:
 
 ## Vấn đề & ai gặp
 
-Gốc: kho acceptance-gate-kit — Mạnh gọi tên 2026-09-07
+Gốc: acceptance-gate-kit/_acceptance/vong-la-mot-ket-qua — hồ sơ ấy ghi «ký trong hội thoại, máy ghi hộ» 04/09, tức ý định sinh ra chỉ khi owner ngồi trong phiên
 
 Hai đầu vòng của kit chỉ chạy khi owner ngồi trong phiên: ý định sinh ra trong phiên (0/31 ô cơ hội
 được ký bằng lệnh — `commands/approve.md` không có chữ Cổng Đáng; `vong-la-mot-ket-qua` 04/09 ghi

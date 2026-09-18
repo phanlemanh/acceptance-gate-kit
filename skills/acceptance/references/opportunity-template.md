@@ -37,13 +37,16 @@ prototype:
 > khai tiếp ở section "Nguồn ngoài & phạm vi kế thừa", không vào nguyên khối ở đây.
 
 > Dòng đầu tiên của section là NEO NGOÀI — ô chỉ đứng được ở hàng chờ Cổng Đáng khi có nó
-> (luật 18/09, ô o-chi-mo-khi-co-neo-ngoai). Hai dạng hợp lệ, là hai regex ở khối RULE:
-> (1) một hồ sơ cụ thể `<kho>/_acceptance/<slug-khác>` (kho có thể là chính kit) ·
-> (2) `kho <tên> — <người> gọi tên <YYYY-MM-DD>`. «Suy từ đọc mã» không phải neo — ý chưa
-> có neo sống ở hạt giống `docs/plans/<ngày>-hat-giong-<slug>.md`, không mở ô.
-> Khối TU-TRO là luật thứ ba, BÁC: neo trỏ chính ô của nó không phải neo ngoài (ô tự biện
-> minh). Nó đứng riêng vì luật «không tự trỏ» phải đúng ở MỌI cách viết — kể cả khi sau slug
-> còn chữ giải thích — nên không nhét được vào lookahead của dạng (1). Mọi bên đọc rút CẢ BA.
+> (luật 18/09, ô o-chi-mo-khi-co-neo-ngoai). ĐÚNG MỘT dạng hợp lệ, là regex ở khối RULE:
+> **một hồ sơ cụ thể `<kho>/_acceptance/<slug-khác>`** (kho có thể là chính kit), kèm chữ
+> giải thích tuỳ ý phía sau. Ví dụ: `Gốc: crm-onehub/_acceptance/cua-vao-noi-tieng-viet — PR #2
+> bị chặn 06/09`. «Suy từ đọc mã» không phải neo; **«kho X — người Y gọi tên ngày Z» cũng
+> không** (owner thu phạm vi 18/09: đó là LỜI KHAI, không có vật nào đứng sau — đúng thứ luật
+> này sinh ra để chống). Ý chưa có hồ sơ nào để trỏ thì sống ở hạt giống
+> `docs/plans/<ngày>-hat-giong-<slug>.md`, KHÔNG mở ô.
+> Khối TU-TRO là luật thứ hai, BÁC: neo trỏ chính ô của nó không phải neo ngoài (ô tự biện
+> minh). Nó đứng riêng vì luật «không tự trỏ» phải đúng ở mọi cách viết — kể cả khi sau slug
+> còn chữ giải thích — nên không nhét được vào lookahead của dạng hợp lệ. Bên đọc rút CẢ HAI.
 
 <!-- <<<OPP-GOC-LINE -->
 Gốc: {goc}
@@ -51,8 +54,11 @@ Gốc: {goc}
 
 <!-- <<<OPP-GOC-RULE -->
 ^Gốc:\s*\S+/_acceptance/[\w-]+
-^Gốc:\s*kho\s+\S+\s+—\s+.+?\s+gọi tên\s+\d{4}-\d{2}-\d{2}
 <!-- OPP-GOC-RULE>>> -->
+
+<!-- <<<OPP-GOC-VIDU -->
+<kho>/_acceptance/<slug-khác>
+<!-- OPP-GOC-VIDU>>> -->
 
 <!-- <<<OPP-GOC-TU-TRO -->
 /_acceptance/{slug}(?![\w-])

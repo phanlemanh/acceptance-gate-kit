@@ -30,17 +30,21 @@ một lượt Cổng Đáng), máy (ghim lại 2 h 25 → 0), kho tiêu thụ (m
 ## Criteria
 
 - AC-1: Given khuôn `opportunity-template.md`, When đọc section «Vấn đề & ai gặp», Then có đúng một
-  dòng `Gốc:` nằm giữa marker `OPP-GOC-LINE` (bên viết duy nhất), và `commands/start.md` khối
-  `START-HIEU-KET` dặn điền dòng đó với hai dạng hợp lệ (hồ sơ `<kho>/_acceptance/<slug>` ≠ chính
-  ô · `kho <tên> — <người> gọi tên <ngày>`); răng rút khuôn dòng từ marker, không gõ tay.
+  dòng `Gốc:` giữa marker `OPP-GOC-LINE`, ĐÚNG MỘT dạng hợp lệ giữa `OPP-GOC-RULE`
+  (`<kho>/_acceptance/<slug-khác>`, chữ giải thích tuỳ ý phía sau) và luật bác giữa
+  `OPP-GOC-TU-TRO`; và `commands/start.md` khối `START-HIEU-KET` dặn điền dòng đó NÊU ĐÚNG hình
+  dạng ấy — không chỉ nhắc chữ «Gốc:» — kèm câu «chưa có hồ sơ để trỏ thì ghi hạt giống, KHÔNG mở
+  ô». Răng rút cả ba khối từ marker, không gõ tay; gỡ marker nào → đỏ có tên.
 - AC-2: Given cây có ô ở hàng chờ (`stage: discovery`, hoặc `decided` + `decision: build` chưa có
   `contract.md`), When chạy VC8, Then: ô thiếu dòng `Gốc:` → đỏ gọi tên slug + «thiếu Gốc»; dòng
-  có mặt nhưng trỏ chính slug → đỏ + «trỏ chính nó»; dòng có mặt nhưng KHÔNG khớp hai dạng hợp lệ
-  (rỗng sau dấu hai chấm · còn nguyên placeholder rút từ marker `OPP-GOC-LINE` · văn tự do như «suy
-  từ đọc mã») → đỏ + «không khớp dạng» / «chưa điền»; ô có dòng hợp lệ → im; hạt giống
-  `docs/plans/*-hat-giong-*` không có ô → IM (đảo chiều VC8 cũ); ô `park`/`kill`/`archived` không
-  Gốc → IM. Hai dạng hợp lệ là HAI regex đặt cạnh marker trong khuôn, bên viết và bên đọc cùng rút.
-  Mọi chiều trên MỘT fixture code-sinh từ khuôn, chỉ khác biến đang đo.
+  có mặt nhưng trỏ chính slug → đỏ + «trỏ chính nó»; dòng có mặt nhưng KHÔNG khớp dạng hợp lệ DUY
+  NHẤT (rỗng sau dấu hai chấm · còn nguyên placeholder rút từ `OPP-GOC-LINE` · văn tự do như «suy
+  từ đọc mã» · dạng ĐÃ BỎ «kho <tên> — <người> gọi tên <ngày>») → đỏ + «không khớp dạng» / «chưa
+  điền»; ô có dòng hợp lệ → im; hạt giống `docs/plans/*-hat-giong-*` không có ô → IM (đảo chiều VC8
+  cũ); ô `park`/`kill`/`archived` không Gốc → IM. Luật tự-trỏ bác ở MỌI cách viết của dạng hợp lệ:
+  trần · có chữ giải thích phía sau · dạng đầy đủ `…/<slug>/opportunity.md`. Dạng hợp lệ và luật
+  bác đều rút từ marker trong khuôn — một nguồn cho bên viết lẫn bên đọc — và đột biến khuôn phải
+  lật kết luận. Mọi chiều trên MỘT fixture code-sinh từ khuôn, chỉ khác biến đang đo.
 - AC-3: Given khuôn `contract-template.md` có dòng `Kho chờ nhận:` giữa marker `KHO-CHO-NHAN-LINE`
   (bên viết duy nhất; chỉ hồ sơ mốc `release-*` điền), When chạy VC9 trên cây, Then mốc `status` ≠
   `signed-off` mà thiếu dòng, hoặc dòng còn placeholder / giá trị bác («chưa có», «không», «—», «…»)

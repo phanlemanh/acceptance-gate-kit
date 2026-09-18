@@ -73,11 +73,13 @@ const gocRule = (tpl) => {
     rules = blockFromTemplate(tpl, 'OPP-GOC-RULE').trim().split('\n');
     tuTro = blockFromTemplate(tpl, 'OPP-GOC-TU-TRO').trim();
   } catch (e) { throw new Error('khuôn thiếu marker OPP-GOC-LINE/OPP-GOC-RULE/OPP-GOC-TU-TRO'); }
-  if (rules.length !== 2) throw new Error('khuôn OPP-GOC-RULE phải đúng hai dòng');
+  // Owner thu phạm vi 18/09 (đường B): CHỈ CÒN MỘT dạng neo — một hồ sơ cụ thể. Dạng
+  // «kho <tên> — <người> gọi tên <ngày>» đã bỏ: nó là lời khai không có vật đứng sau, và
+  // vế bác không phủ được nó (t4, lượt chấm 2).
+  if (rules.length !== 1) throw new Error('khuôn OPP-GOC-RULE phải đúng MỘT dòng');
   return {
     line,
     hoSo: slug => new RegExp(rules[0].split('{slug}').join(slug), 'm'),
-    nguoi: new RegExp(rules[1], 'm'),
     // Luật BÁC rút từ khuôn, KHÔNG hardcode ở đây: bản trước để nó ở bên đọc nên khuôn tự
     // khai «hai dạng hợp lệ» mà thiếu vế bác, và mọi bên đọc thứ hai sẽ nhận neo tự trỏ (t8).
     tuTro: slug => new RegExp(tuTro.split('{slug}').join(slug)),
@@ -105,7 +107,7 @@ const neoErrs = (accDir, tpl) => {
     // «<kho>/_acceptance/<slug> — <giải thích>», nên chốt cũ đòi slug đứng cuối hoặc theo sau
     // «/» đã trượt đúng dạng phổ biến nhất (t5, lượt chấm 1).
     if (r.tuTro(slug).test(val)) { errs.push(`${slug}: trỏ chính nó`); continue; }
-    if (!r.hoSo(slug).test(m[0]) && !r.nguoi.test(m[0])) errs.push(`${slug}: không khớp dạng`);
+    if (!r.hoSo(slug).test(m[0])) errs.push(`${slug}: không khớp dạng`);
   }
   return errs.sort();
 };
@@ -320,15 +322,36 @@ if (want('VC8')) {
   // (i) cây thật
   errs.push(...neoErrs(path.join(ROOT, '_acceptance'), TEMPLATE).map(e => 'cây thật: ' + e));
   // (ii) bên VIẾT dặn điền
-  const sm = readFileSync(START_MD, 'utf8').match(/<<<START-HIEU-KET -->([\s\S]*?)<!-- START-HIEU-KET>>>/);
-  if (!sm) errs.push('start.md thiếu khối START-HIEU-KET');
-  else if (!sm[1].includes('Gốc:')) errs.push('start.md khối START-HIEU-KET không dặn điền Gốc:');
+  // Đo NỘI DUNG luật, không grep một chữ: bản trước chỉ hỏi includes('Gốc:') nên vế «nêu đúng
+  // hình dạng» của AC-1 không sai được trong bất kỳ phép đo nào (t7, lượt chấm 2). Chuỗi hình
+  // dạng rút TỪ KHUÔN để hai bên không trôi khỏi nhau.
+  const startBlk = md => { const m = md.match(/<<<START-HIEU-KET -->([\s\S]*?)<!-- START-HIEU-KET>>>/); return m ? m[1] : null; };
+  // Ví dụ hình dạng sống trong KHUÔN (OPP-GOC-VIDU) — start.md và ca này cùng rút một nguồn.
+  const dangNeo = blockFromTemplate(TEMPLATE, 'OPP-GOC-VIDU').trim();
+  const startCheck = (md, tag) => {
+    const b = startBlk(md);
+    if (!b) return [`${tag}: thiếu khối START-HIEU-KET`];
+    const e = [];
+    if (!b.includes('Gốc:')) e.push(`${tag}: không dặn điền Gốc:`);
+    if (!dangNeo || !b.includes(dangNeo)) e.push(`${tag}: không nêu hình dạng neo «${dangNeo}» — chỉ nhắc chữ Gốc:`);
+    if (!/hạt giống/.test(b)) e.push(`${tag}: không nói lối ra khi chưa có hồ sơ để trỏ (hạt giống)`);
+    return e;
+  };
+  errs.push(...startCheck(readFileSync(START_MD, 'utf8'), 'start.md'));
+  // chiều đỏ: bản sao gỡ hình dạng khỏi khối → phải bắt, và bắt ĐÚNG vế đó
+  {
+    const mutated = readFileSync(START_MD, 'utf8').replace(/`<kho>\/_acceptance\/<slug-khác>`/, '`<một nguồn nào đó>`');
+    const em = startCheck(mutated, 'mutant');
+    if (!em.some(x => /không nêu hình dạng neo/.test(x))) errs.push('gỡ hình dạng neo khỏi bản sao start.md mà phép đo KHÔNG bắt');
+  }
   // (iii) ma trận trên MỘT fixture code-sinh — số ca = số ô
   const r = tmp();
   const body = g => `\n## Vấn đề & ai gặp\n\n${g}\nMột câu.\n`;
   const put = (slug, values, g) => W(r, `_acceptance/${slug}/opportunity.md`, stub({ slug, ...values }, { filled: true, body: body(g) }));
   put('duong-hoso', { stage: 'discovery' }, 'Gốc: crm/_acceptance/vong-khac');
-  put('duong-nguoi', { stage: 'decided', decision: 'build' }, 'Gốc: kho oneflow — Mạnh gọi tên 2026-09-18');
+  put('duong-hoso-2', { stage: 'decided', decision: 'build' }, 'Gốc: oneflow/_acceptance/vong-khac — chữ giải thích phía sau');
+  // Dạng ĐÃ BỎ (owner thu phạm vi 18/09) phải rơi về «không khớp dạng», không được im.
+  put('do5-dang-da-bo', { stage: 'discovery' }, 'Gốc: kho oneflow — Mạnh gọi tên 2026-09-18');
   put('do1-thieu', { stage: 'discovery' }, '');
   put('do2-tu-tro', { stage: 'discovery' }, 'Gốc: kit/_acceptance/do2-tu-tro');
   // Dạng VIẾT THẬT trên cây: slug rồi chữ giải thích. Chốt cũ trượt đúng dạng này (t5).
@@ -344,12 +367,14 @@ if (want('VC8')) {
   const got = neoErrs(path.join(r, '_acceptance'), TEMPLATE);
   const want8 = ['do1-thieu: thiếu Gốc', 'do2-tu-tro: trỏ chính nó',
     'do2b-tu-tro-ghi-chu: trỏ chính nó', 'do2c-tu-tro-day-du: trỏ chính nó', 'do3a-rong: chưa điền',
-    'do3b-placeholder: chưa điền', 'do3c-van-tu-do: không khớp dạng', 'do4-build-thieu: thiếu Gốc'].sort();
+    'do3b-placeholder: chưa điền', 'do3c-van-tu-do: không khớp dạng', 'do4-build-thieu: thiếu Gốc',
+    'do5-dang-da-bo: không khớp dạng'].sort();
   if (JSON.stringify(got) !== JSON.stringify(want8)) errs.push(`ma trận fixture: có ${JSON.stringify(got)} — mong ${JSON.stringify(want8)}`);
   // (iv) KHUÔN là nguồn: đổi regex trong bản sao khuôn → ca dương đổi màu
-  const copyR = pluginCopy({ template: t => t.replace('^Gốc:\\s*kho\\s+', '^Gốc:\\s*KHOO\\s+') });
-  if (!neoErrs(path.join(r, '_acceptance'), copyR.template).includes('duong-nguoi: không khớp dạng'))
-    errs.push('đổi regex trong bản sao khuôn mà ca dương KHÔNG đổi màu — bên đọc không rút luật từ khuôn');
+  const copyR = pluginCopy({ template: t => t.replace('/_acceptance/[\\w-]+', '/KHONG-TON-TAI/[\\w-]+') });
+  const gotR = neoErrs(path.join(r, '_acceptance'), copyR.template);
+  for (const d of ['duong-hoso', 'duong-hoso-2'])
+    if (!gotR.includes(`${d}: không khớp dạng`)) errs.push(`đổi regex dạng hợp lệ trong bản sao khuôn mà ca dương «${d}» KHÔNG đổi màu — bên đọc không rút luật từ khuôn`);
   const copyM = pluginCopy({ template: t => t.replace('<<<OPP-GOC-RULE', '<<<OPP-GOC-RULEX') });
   try { neoErrs(path.join(r, '_acceptance'), copyM.template); errs.push('gỡ marker OPP-GOC-RULE mà phép đo không đỏ'); }
   catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker: thông điệp lạ: ' + e.message); }
@@ -391,7 +416,7 @@ if (want('VC8')) {
     if (n !== 1) errs.push(`${sl} phải nằm đúng MỘT ô, đang ở ${n} ô`);
   }
   if (errs.length) fail('VC8', errs.join(' · '));
-  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô; khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im; ${NEW.length} stub đúng một ngăn`);
+  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im; ${NEW.length} stub đúng một ngăn`);
 }
 
 // ---------- VC9 (18/09): mốc phát hành CHƯA KÝ phải khai «Kho chờ nhận:» với ≥1 tên kho

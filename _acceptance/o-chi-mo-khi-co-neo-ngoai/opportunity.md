@@ -14,7 +14,7 @@ prototype:
 
 ## Vấn đề & ai gặp
 
-Gốc: kho acceptance-gate-kit — Mạnh gọi tên 2026-09-18
+Gốc: acceptance-gate-kit/_acceptance/release-2-16-0 — mốc có cửa sổ một ngày và 5 lượt gọi người so trần 4, ca thật của lớp «hàng đợi tự nuôi»
 
 Owner hỏi 18/09: «Sao tôi có cảm giác kit dọn mãi không hoàn tất được?» Đo ra: kit **không
 dọn chậm** — 10 ngày, 14 chữ ký, 7 mốc phát hành. Nó không cạn vì **hàng đợi tự nuôi**: 35 ô
