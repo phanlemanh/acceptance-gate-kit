@@ -36,6 +36,21 @@ prototype:
 > Nêu cả vật liệu nền (spec/PRD/gói thiết kế cũ) — nhưng vật liệu NGOÀI repo thì
 > khai tiếp ở section "Nguồn ngoài & phạm vi kế thừa", không vào nguyên khối ở đây.
 
+> Dòng đầu tiên của section là NEO NGOÀI — ô chỉ đứng được ở hàng chờ Cổng Đáng khi có nó
+> (luật 18/09, ô o-chi-mo-khi-co-neo-ngoai). Hai dạng hợp lệ, là hai regex ở khối RULE:
+> (1) một hồ sơ cụ thể `<kho>/_acceptance/<slug-khác>` (kho có thể là chính kit) ·
+> (2) `kho <tên> — <người> gọi tên <YYYY-MM-DD>`. «Suy từ đọc mã» không phải neo — ý chưa
+> có neo sống ở hạt giống `docs/plans/<ngày>-hat-giong-<slug>.md`, không mở ô.
+
+<!-- <<<OPP-GOC-LINE -->
+Gốc: {goc}
+<!-- OPP-GOC-LINE>>> -->
+
+<!-- <<<OPP-GOC-RULE -->
+^Gốc:\s*\S+/_acceptance/(?!{slug}/)[\w-]+
+^Gốc:\s*kho\s+\S+\s+—\s+.+?\s+gọi tên\s+\d{4}-\d{2}-\d{2}
+<!-- OPP-GOC-RULE>>> -->
+
 ## Giả định chốt sinh tử
 
 > Xếp hạng, re-rank sau red-team D2 (giữ vết re-rank). Trạng thái cập nhật khi

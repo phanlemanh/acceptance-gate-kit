@@ -104,3 +104,10 @@ does NOT do. Empty section = red flag at Gate 1.}}
 ## Notes
 
 {{Optional: constraints, links to ADRs, data dependencies.}}
+
+> Hồ sơ MỐC PHÁT HÀNH (`release-*`) phải có dòng dưới đây khi còn chưa ký: tên ≥1 kho tiêu thụ đang
+> chờ bản mới (luật 18/09 — mốc chỉ cắt khi có kho chờ nhận; răng VC9 đọc, bác «chưa có»/placeholder).
+
+<!-- <<<KHO-CHO-NHAN-LINE -->
+Kho chờ nhận: {kho}
+<!-- KHO-CHO-NHAN-LINE>>> -->
