@@ -3,10 +3,10 @@ schema_version: 1
 slug: o-chi-mo-khi-co-neo-ngoai
 feature: Ô chỉ được mở khi có neo ngoài — một hồ sơ cụ thể ở một kho đang chạy kit gọi tên nó; ba nghi thức đang tự đẻ ô (chỗ-cắt-của-mốc · mở-hợp-đồng-mới-tại-cổng · hạt-giống-phải-có-ô) thôi đẻ
 owner: phanlemanh@gmail.com
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: build
+decided_by: Mạnh
+decided_at: 2026-09-18T13:57:38Z   # owner gõ «build» một chạm trong phiên 18/09, máy ghi hộ
 prototype:
   base_commit:
   disposition: archive
@@ -79,12 +79,12 @@ Không mở vòng meta mới ngoài ô này trong cửa sổ 2.16 → 2.17.
 Vòng nội bộ của bộ công cụ, nhưng đo được — đọc từ kho bằng chính lệnh trong finding.
 
 - Câu hỏi phép đo trả lời: sau luật, hàng đợi có thôi tự nuôi không?
-- Kết quả nào là SỐNG: [đề xuất] tính từ chữ ký ô này tới mốc kế **được một kho tiêu thụ nhận**:
+- Kết quả nào là SỐNG: tính từ chữ ký ô này tới mốc kế **được một kho tiêu thụ nhận**:
   ô mới ≤ ô đóng · ≥ 80 % ô mới có dòng `Gốc:` trỏ tới hồ sơ thật · tồn kho chưa hợp đồng ≤ 15 ·
   mốc cắt số đi làn V với ≤ 1 lượt người và 0 lượt chấm S4.
-- Kết quả nào là CHẾT: [đề xuất] một lỗi thật ở kho tiêu thụ không có chỗ ghi vì thiếu ô, hoặc
+- Kết quả nào là CHẾT: một lỗi thật ở kho tiêu thụ không có chỗ ghi vì thiếu ô, hoặc
   Known limits/vòng tăng gấp đôi — neo quá chặt, nới định nghĩa «neo» chứ không bỏ luật.
-- Timebox: [đề xuất] một cửa sổ có kho nhận; không có kho nhận sau 21 ngày tự nó là tín hiệu.
+- Timebox: một cửa sổ có kho nhận; không có kho nhận sau 21 ngày tự nó là tín hiệu.
 
 ## Kết quả prototype
 
@@ -100,10 +100,10 @@ Không có vật liệu ngoài repo.
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: owner đọc bảng bốn nhát và số ở finding; ký = chấp nhận cả bốn, veto
+- **decision = build** (Mạnh, 18/09, một chạm «build», không veto vế nào). Căn cứ: bảng bốn nhát + số ở finding; veto sau này
   từng dòng bằng một dòng sổ.
 - **disposition = archive** Căn cứ: không có code prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** gỡ tiền tố `[đề xuất]` ở mục Ngưỡng.
+- **Ngưỡng UAT chốt cùng lúc ký:** như mục Ngưỡng, tiền tố `[đề xuất]` đã gỡ lúc ký.
 
 ## Thước đo thành công → ứng viên criterion
 
