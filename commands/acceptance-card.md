@@ -146,7 +146,7 @@ Steps:
      này** — `gate-card.js` tự đọc `_acceptance/<slug>/review-findings.md` và tự
      render (cùng luật với `gap_probe`: cái gì phải hiện trên thẻ thì script
      render, để không thể quên hay điền sai). Ba nhãn lựa chọn giữ NGUYÊN VĂN:
-     (a) **ghi Known limits** — chấp nhận, ghi vào phần hạn chế đã biết, ship bản này; (b) **mở hợp đồng mới** — tách thành một việc riêng có tiêu chí nghiệm thu của nó; (c) **nâng phạm vi sửa ngay** — bổ sung tiêu chí vào hợp đồng hiện tại rồi duyệt lại Cổng 1.
+     (a) **ghi Known limits** — chấp nhận, ghi vào phần hạn chế đã biết, ship bản này; (b) **mở hợp đồng mới** — <!-- <<<OOC-LOI-B -->hành động: ghi HẠT GIỐNG `docs/plans/<ngày>-hat-giong-<slug>.md` có dòng `Gốc:` trỏ hồ sơ vòng này + phát hiện; KHÔNG tạo `_acceptance/<slug>/` — ô chỉ mở khi một kho gọi tên (luật 18/09)<!-- OOC-LOI-B>>> -->; (c) **nâng phạm vi sửa ngay** — bổ sung tiêu chí vào hợp đồng hiện tại rồi duyệt lại Cổng 1.
      File không có section "## Ngoài hợp đồng" (thế hệ cũ, hoặc round không có
      lỗi nào) → thẻ render như cũ, không cờ, không lỗi. Có "## Chưa phân loại (triage-failed)" → script THÊM một cờ vàng phía trên khối (không thay thế — các lỗi đã phân loại được vẫn hiện cho người quyết). Cờ cụm-ngoài-vùng-phủ
      cũng do script render, và cố ý KHÔNG nêu đường dẫn file: thẻ là chỗ quyết

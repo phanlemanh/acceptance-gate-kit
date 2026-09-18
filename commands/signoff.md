@@ -32,6 +32,7 @@ phân cách bằng `;` — ngữ pháp đầy đủ ở khối `GATE-ONESHOT-GRA
 chỉ khai QUYẾT ĐỊNH; danh tính và ngày là điều máy biết:
 - «Ngoài-<số>: ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay»
   → định đoạt từng mục ngoài hợp đồng (bước 3-4).
+  <!-- <<<OOC-LOI-B -->hành động: ghi HẠT GIỐNG `docs/plans/<ngày>-hat-giong-<slug>.md` có dòng `Gốc:` trỏ hồ sơ vòng này + phát hiện; KHÔNG tạo `_acceptance/<slug>/` — ô chỉ mở khi một kho gọi tên (luật 18/09)<!-- OOC-LOI-B>>> -->
 - «<mã eval>: Đạt» hoặc «<mã eval>: Chưa đạt vì <lý do>» → dòng
   `human_override` của đúng mục judgment đó (khuôn mã: `E\w+`).
 - «cắt/hoãn: đồng ý cắt» hoặc «cắt/hoãn: kéo vào <mục>» → xác nhận phạm vi.
