@@ -1,0 +1,84 @@
+schema_version: 1
+feature_slug: o-chi-mo-khi-co-neo-ngoai
+# Mỗi eval máy chạy MỘT tệp ca và ghim dòng PASS của đúng các ca nó gọi tên. Mọi cmd đi qua
+# config: ref. Fixture code-sinh từ khuôn trong lượt chạy; ca đỏ và ca im dùng chung fixture.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.neo_vc8
+    expected: >
+      Exit 0 và dòng PASS: [VC8]. VC8 rút khuôn dòng Gốc từ marker OPP-GOC-LINE của
+      opportunity-template (đổi marker trong bản sao khuôn → VC8 đỏ nêu «khuôn thiếu marker»), và
+      start.md khối START-HIEU-KET nhắc «Gốc:» (gỡ trong bản sao → đỏ nêu start.md).
+    paths: [skills/acceptance/references/opportunity-template.md, commands/start.md, tests/plugins/vao-co-o.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.neo_vc8
+    expected: >
+      Cùng lượt VC8, ma trận viết trước trên MỘT fixture code-sinh (số ca = số ô): (dương) ô discovery
+      có Gốc dạng hồ sơ → im; ô decided build có Gốc dạng «kho — người gọi tên ngày» → im; (đỏ 1) bỏ
+      dòng → «thiếu Gốc» + slug; (đỏ 2) trỏ chính slug → «trỏ chính nó»; (đỏ 3a) rỗng sau dấu hai chấm
+      → «chưa điền»; (đỏ 3b) placeholder rút nguyên văn từ marker → «chưa điền»; (đỏ 3c) «Gốc: suy từ
+      đọc mã» → «không khớp dạng»; (đỏ 4) ô decided build thiếu Gốc → đỏ; (im 1) hạt giống mồ côi →
+      im; (im 2) ô park không Gốc → im; (im 3) ô archived không Gốc → im. Hai regex hợp lệ rút từ cạnh
+      marker OPP-GOC-LINE — đổi regex trong bản sao khuôn thì ca dương đổi màu.
+    paths: [tests/plugins/vao-co-o.test.mjs, skills/acceptance/references/opportunity-template.md]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.neo_vc9
+    expected: >
+      Exit 0 và dòng PASS: [VC9]. Fixture rút từ khuôn contract-template qua marker KHO-CHO-NHAN-LINE
+      (fileFromTemplate, không dựng tay), năm hồ sơ mốc: chưa ký + «Kho chờ nhận: media-library» → im;
+      chưa ký + thiếu dòng → đỏ «thiếu Kho chờ nhận» + tên mốc; chưa ký + «Kho chờ nhận: chưa có» → đỏ
+      «giá trị bác»; chưa ký + placeholder nguyên văn → đỏ «chưa điền»; đã ký + thiếu → im. Đổi marker
+      trong bản sao khuôn → VC9 đỏ «khuôn thiếu marker». Cây thật: 0 mốc chưa ký thiếu dòng.
+    paths: [tests/plugins/vao-co-o.test.mjs, skills/acceptance/references/contract-template.md, _acceptance/release-2-0-0/contract.md]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.neo_vc8
+    expected: >
+      VC8 chạy trên ROOT (cây thật) không nêu slug nào thiếu Gốc; sổ quyết định của vòng có một
+      dòng «rà tồn kho» nêu hai số: ô thêm Gốc · ô về archived. Cùng lượt với E1/E2.
+    paths: [_acceptance]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.neo_loi_b
+    expected: >
+      Exit 0 và ba dòng PASS. LB1 (dương): render gate-card với một finding proposal new-contract
+      → câu khuyên đúng hằng MSG_OOC_HAT_GIONG «ghi hạt giống có Gốc, chờ kho gọi tên — không mở ô»;
+      LB2 (đỏ): đổi hằng trong bản sao gate-card → LB1 đỏ ghim câu mong đợi; LB3 (ba bề mặt, đo KHỐI
+      không đo tệp): rút khối giữa marker OOC-LOI-B của SKILL feature-loop, acceptance-card.md,
+      signoff.md; trong khối phải có chuỗi rút từ MSG_OOC_HAT_GIONG, đường docs/plans/<ngày>-hat-giong-
+      <slug>.md, câu «KHÔNG tạo `_acceptance/<slug>/`», nhãn «mở hợp đồng mới» nguyên văn, và KHÔNG có
+      «tách thành một việc riêng» / «tạo thư mục»; thiếu marker → đỏ; chèn câu cũ vào khối của một
+      bản sao → đỏ gọi tên tệp.
+    paths: [scripts/gate-card.js, feature-loop/skills/feature-loop/SKILL.md, commands/acceptance-card.md, commands/signoff.md, tests/scripts/loi-b-hat-giong.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: judgment
+    inputs: [CLAUDE.md, docs/superpowers/specs/2026-09-18-o-chi-mo-khi-co-neo-ngoai-design.md]
+    expected: >
+      Luật Giới hạn CHIỀU RỘNG sau sửa: (i) vế «PHẢI gọi tên ít nhất MỘT chỗ cắt» không còn bắt buộc,
+      thay bằng «được phép ghi vào Notes; chỗ cắt chỉ thành ô khi có Gốc»; (ii) luật (b) đếm giữa hai
+      mốc ĐƯỢC KHO TIÊU THỤ NHẬN; (iii) có câu mốc chỉ cắt khi có kho chờ nhận, đi làn V; (iv) sử liệu
+      và các câu khác giữ nguyên nghĩa. Thiếu một trong bốn → FAIL nêu vế thiếu.
+    evidence_required: [run_id, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: >
+      Exit 0, in «PRODUCT-MAP.md khớp hồ sơ xưởng.». Vế tự-ăn-thuốc của AC-7 đo bằng E1/E2 (VC8): ô này
+      là decided build nên nằm TRONG phạm vi răng, và ca (đỏ 4) của E2 là chiều đỏ cho đúng lớp đó.
+    paths: [PRODUCT-MAP.md, _acceptance/o-chi-mo-khi-co-neo-ngoai/opportunity.md]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

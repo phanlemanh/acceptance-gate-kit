@@ -6,11 +6,11 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>20 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>3 việc"]
+  GD --> B["Sắp mở vòng<br/>2 việc"]
   GD --> XL["Xếp lại sau<br/>13 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>4 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>62 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>11 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
@@ -46,7 +46,6 @@ flowchart TD
 
 ## Sắp mở vòng
 
-- Ô chỉ được mở khi có neo ngoài — một hồ sơ cụ thể ở một kho đang chạy kit gọi tên nó; ba nghi thức đang tự đẻ ô (chỗ-cắt-của-mốc · mở-hợp-đồng-mới-tại-cổng · hạt-giống-phải-có-ô) thôi đẻ (`o-chi-mo-khi-co-neo-ngoai`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
 
@@ -54,6 +53,7 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
+- Ô chỉ mở khi có neo ngoài — dòng Gốc máy đọc ở hàng chờ Cổng Đáng, lối «mở hợp đồng mới» ghi hạt giống thay vì tạo ô, vế «phải gọi tên chỗ cắt» hạ xuống «được phép», mẫu số trần vòng meta neo vào mốc được kho nhận (`o-chi-mo-khi-co-neo-ngoai`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
