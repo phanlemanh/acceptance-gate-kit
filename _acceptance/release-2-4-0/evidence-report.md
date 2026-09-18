@@ -7,7 +7,7 @@ reason:
 verified_by: verify tuần tự trong worktree riêng (lệnh chạy lần lượt — nếp lan-may-song-qua-bo-phan-loai)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: bf3455b1  # cây sau khi gộp main 5ad8e88d — bốn bộ kiểm chạy trên đúng cây này
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda  # cây sau khi gộp main 5ad8e88d — bốn bộ kiểm chạy trên đúng cây này
 human_signoff: Manh Phan 2026-08-26 — ký mốc phát hành 2.4.0 với bốn known-limits đã khai
 ---
 
@@ -148,3 +148,7 @@ chụp ở `evidence/suite-*.txt`.
 ## Ngoài hợp đồng
 
 - (không có)
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b2c4d0d6e9a5247a985f97dc573258c3acb8287e
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Mạnh 2026-09-14 — ký với 12 giới hạn đã khai, tất cả là nợ của THƯỚC, không mục nào chạm hành vi người dùng cuối
 ---
 
@@ -255,3 +255,7 @@ Số của lượt (`usage-report.md`, máy đo): 20 tác tử · 16.715.215 tok
 ### Re-pin lần 1 — 2026-09-14, do hoá cũ do chính commit chữ ký
 run_id: repin-20260914T124037Z-24762
 sha: b2c4d0d6e9a5247a985f97dc573258c3acb8287e · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
+run_id: repin-20260918T123126Z-49883
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng

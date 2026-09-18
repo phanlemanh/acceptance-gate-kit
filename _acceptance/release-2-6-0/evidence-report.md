@@ -7,7 +7,7 @@ reason:
 verified_by: implementing session (rà soát đối kháng do phiên tươi độc lập làm — xem Known limits #1)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6c44ac24208d11602fa06e43d35138d22f257c05
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-09-01 — ký mốc phát hành 2.6.0 với 7 known-limits đã khai và 2 mục ngoài hợp đồng cùng chọn ghi Known limits; đồng ý phạm vi đã cắt; phê cả 5 quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -140,3 +140,7 @@ Phép đo duy nhất của mốc là ca **VĨNH VIỄN P200** — mọi số đ�
 | trung bình >3 lần gọi người/vòng | **6** | **VƯỢT** — gấp đôi |
 
 Vế thứ hai vượt **không kèm miễn trừ**. Ký mốc này là chấp nhận bản đọc đó đi vào hồ sơ phát hành. Việc *có mở phiên quyết cắt kit hay không* là lịch của owner, không phải hệ quả tự động của chữ ký.
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

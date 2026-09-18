@@ -7,7 +7,7 @@ reason:
 verified_by: verify doc lap tuan tu (phien tuoi, lenh chay lan luot) + cac phien hoi dong doc lap
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8fabc8c9a80696244129be9da7085570df6661ad
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-26 — ky voi 6 gioi han da khai; gioi han 1 (khong chung nghi thuc chay tot voi nguoi that) chuyen sang Cong Gia tri doc bang van thu o kho tieu thu
 ---
 
@@ -184,3 +184,7 @@ kết bằng một lượt **TRỪ CHỮ** thay vì thêm thước.
       người thật. Bằng chứng đó là ván thử kế ở kho tiêu thụ.
 - [ ] Mọi eval `baseline: n-a` — chấp nhận lý do ở giới hạn 6 chứ?
 - [ ] Hội đồng là các phiên độc lập, không phải bầy 3-lens của engine — chấp nhận chứ?
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
+run_id: repin-20260918T121643Z-87929
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

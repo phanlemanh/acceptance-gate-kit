@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4d61b2a332e6cb8c4f7824946c0679b814c005e4
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-09-11
 ---
 
@@ -211,3 +211,7 @@ Round 6: Lệnh E8c được bọc lại `bash -c 'set -o pipefail; bash tests/p
 ### Re-pin lần 1 — 2026-09-11, do hoá cũ do chính commit chữ ký
 run_id: repin-20260911T065627Z-20732
 sha: 4d61b2a332e6cb8c4f7824946c0679b814c005e4 · suites: 5 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
+run_id: repin-20260918T125024Z-93405
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng

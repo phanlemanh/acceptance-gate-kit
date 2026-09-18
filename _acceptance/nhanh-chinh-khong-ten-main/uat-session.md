@@ -3,10 +3,10 @@ schema_version: 1
 slug: nhanh-chinh-khong-ten-main
 feature: Bước chuẩn bị dữ liệu chấm phải dò được nhánh chính không tên main
 owner: phanlemanh@gmail.com
-stage: scheduled
-verdict:
-decided_by:
-decided_at:
+stage: held
+verdict: release
+decided_by: Mạnh
+decided_at: 2026-09-18T12:47:36Z
 ---
 
 ## Ngưỡng đã khai tại Cổng Đáng (CHÉP NGUYÊN VĂN — cấm sửa sau khi thấy số)

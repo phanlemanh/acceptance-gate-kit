@@ -7,7 +7,7 @@ reason:
 verified_by: phiên chính (vòng T2 làn V, không có phiên VERIFY riêng — khai thẳng); phản biện context sạch do MỘT phiên tươi chạy, ghi ở gap-probe.md
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 4434f51cd2fc3055c15dd9e6b87248ad59dec6c6
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Phan Le Manh 2026-09-16
 ---
 
@@ -88,3 +88,7 @@ với dòng ghim `PASS: CExx` hoặc dòng tổng kết của chính lệnh.
 
 - Không có. Mọi mục phản biện context sạch nêu (3 P1 + 5 P2) đều vá TRONG vòng; bảng
   xử lý từng mục ở `gap-probe.md`.
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
+run_id: repin-20260918T121643Z-87929
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng
