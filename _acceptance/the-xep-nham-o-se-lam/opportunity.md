@@ -3,10 +3,10 @@ schema_version: 1
 slug: the-xep-nham-o-se-lam
 feature: Thẻ Cổng Phạm vi phải nói đúng «hệ thống sẽ làm gì» — hôm nay nó xếp tiêu chí bằng cách dò chữ «không» trong vế Then, nên hồ sơ càng viết đúng luật khai-chiều-đỏ càng bị đọc thành «hệ thống không làm gì»
 owner: phanlemanh@gmail.com
-stage: discovery            # discovery | decided | archived
-decision:                   # build | iterate | park | kill — người ký Cổng Đáng điền
-decided_by:
-decided_at:
+stage: decided              # discovery | decided | archived
+decision: park              # build | iterate | park | kill — người ký Cổng Đáng điền
+decided_by: Mạnh
+decided_at: 2026-09-18T12:17:39Z
 prototype:
   base_commit:
   disposition: archive      # keep | archive
@@ -172,9 +172,44 @@ Không có vật liệu ngoài repo. Không kế thừa hình thái.
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
-- **disposition = …** Căn cứ: … *(không có prototype → `archive`)*
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **decision = `park`** — Mạnh, 2026-09-18. Căn cứ: đo lại bằng chính ngưỡng ô này
+  tự khai, trên cây `5be27b67`. Luật xếp hai khối theo **mệnh đề đầu** của vế Then
+  (`HEAD_NEG_RE`, `scripts/gate-card.js`) đã vào `main` ngày 02/09 qua hồ sơ
+  `loi-moi-cong-may-sinh`, owner chọn tại Cổng 1.5 trên số đo 566 tiêu chí thật.
+  Nó **không sinh ra từ ô này**, nhưng ăn thẳng vào đề bài ở đây và kéo đúng ca mà
+  ô gọi tên — `ra-co-ten-lam-va-trao` — từ `0 «sẽ làm» / 15` lên `12 / 3`.
+  Ngưỡng SỐNG **chưa đạt**: nó đòi *mọi* tiêu chí «sẽ làm» về đúng khối. Ngưỡng
+  CHẾT cũng **chưa chạm**: điều kiện (a) đòi «cách chữa duy nhất là nới danh sách
+  chữ», mà phần dư có chung một tính chất **cấu trúc**, không phải từ vựng. Nên
+  không ký `kill` — ký thế là tuyên lớp lỗi đã chết trong khi nó còn sống; và cũng
+  không mở vòng ngay — phần còn lại không còn chặn owner đọc thẻ. Đúng lối timebox
+  ô tự khai (muộn nhất 2026-09-30 → `park`).
+- **disposition = `archive`.** Căn cứ: không dựng prototype — mọi số đo lấy trên
+  chính kit, đúng như section «Kết quả prototype» đã khai từ đầu.
+- **Ngưỡng UAT chốt cùng lúc ký:** không mở. `park` không sinh vòng, nên không có
+  bản phát hành nào để nghiệm thu.
+
+### Số đo lúc đóng ô — 2026-09-18, cây `5be27b67`
+
+| Phép đo | 23/08 lúc mở ô | 18/09 lúc đóng |
+|---|---|---|
+| `ra-co-ten-lam-va-trao` — «sẽ làm» / «không làm» | 0 / 15 | **12 / 3** |
+| Toàn xưởng — tiêu chí rơi khối «không làm» | — | 118 |
+| …trong đó chữ phủ định nằm trong span mã, «…» hoặc (…) | — | **19 — 16 %** |
+
+**Phần dư có tên, không mờ.** Cả 19 ca cùng một hình dạng: token phủ định nằm
+**bên trong dấu nháy, ngoặc kép hoặc ngoặc đơn** ở mệnh đề đầu của Then, nên nó
+không nói về hành vi sản phẩm. Ba ca trên `ra-co-ten-lam-va-trao`:
+AC-9 `` `gates[]` `gia-tri` không `flags` `` · AC-11 cờ đỏ ghim câu «khai **không**
+đo được…» · AC-12 `` `done[]` (không `considering` ``. Nhát sửa ứng viên là một
+luật **vị trí**, cùng họ với luật mệnh-đề-đầu đang chạy: khi xếp khối thì bỏ qua
+phủ định nằm trong span mã / «…» / (…). Mở lại ô này — hoặc một ô kế — khi lớp đó
+lại chặn một lượt trình.
+
+**Không gộp vào đây:** `cong-dang-co-cua` bóc ra **0 tiêu chí** vì đánh số
+`AC-A/B/C` thay vì `AC-1`. Đó là lớp «0 tiêu chí» mà section *Out of scope từ khám
+phá* đã khai là ô KHÁC, nay có thêm một hình dạng nữa (chữ cái, bên cạnh heading).
+Cả xưởng chỉ một hồ sơ dính.
 
 ## Thước đo thành công → ứng viên criterion
 
