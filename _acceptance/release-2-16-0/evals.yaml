@@ -1,0 +1,184 @@
+schema_version: 1
+feature_slug: release-2-16-0
+# Khuôn theo 2.14.0/2.15.0: mỗi eval máy ghim dòng PASS của chính ca hoặc răng nó gọi,
+# phán quyết không lấy từ mã thoát trọn suite. Mọi cmd đi qua config: ref.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.p200_cat_so_2_16
+    expected: >
+      Exit 0 và đầu ra có đúng một dòng «PASS: P200 xanh (dung 1 dong PASS cua chinh no;
+      phan quyet KHONG lay tu ma thoat tron suite; rang ban <8 hex>)». Răng chép nguyên thân
+      từ 2.15.0. Chiều đỏ ghim mã như 2.15.0: 2 chưa từng chạy · 3 P200 in FAIL · 4 nhiều hơn
+      một dòng PASS · 5 không tới kết luận · 8 không đọc được dấu bản răng. Vế giá trị
+      «2.16.0» KHÔNG nằm trong eval — owner xác nhận trên thẻ.
+    paths: [.claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, GUIDE.md, _acceptance/release-2-16-0/rang-p200.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E1b
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.so_tang_2_16
+    expected: >
+      Exit 0 và đúng một dòng mở đầu «PASS: so trong cay (<số>) TANG theo semver so voi so tai
+      <mô tả neo> = <số cũ> — neo suy TU KHO, khong ghim sha». Neo là commit đưa hồ sơ mốc vào
+      kho; trước khi hồ sơ được commit, răng rơi về HEAD đã commit và tự nói ra điều đó.
+      Chiều đỏ ghim mã: 2 không có nền · 3 số KHÔNG tăng · 4 không đọc được số tại neo · 5
+      không tới kết luận. Đã thử thật trong phiên dựng hồ sơ: cây chưa nâng số → mã 3
+      «BANG so tai neo»; sau khi nâng → 0.
+    paths: [.claude-plugin/plugin.json, _acceptance/release-2-16-0/rang-so-tang.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.moc_diagram_2_16
+    expected: >
+      Exit 0 và đúng một dòng «PASS: diagram-design KHONG doi ke tu lan cat so gan nhat
+      (<sha>), so doc duoc tai HEAD la 2.7.0 (doi chung duong: cua so moc..HEAD KHONG rong;
+      bo loc diagram-design/ con khop vat; rang ban <8 hex>)». Chiều đỏ ghim mã như 2.15.0:
+      3 · 4 · 5 (có đổi mà giữ số) · 6 · 8.
+    paths: [diagram-design/.claude-plugin/plugin.json, _acceptance/release-2-16-0/rang-moc.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.cua_so_vendored_2_16
+    expected: >
+      Exit 0 và đúng một dòng «PASS: vendored <n> tep chep CI + chinh tep mang khoi chep (danh
+      sach BANG danh sach tai neo) KHONG doi ke tu lan cat so <số> (<sha8>) toi cay lam viec
+      (doi chung: cua so tren toan kho co <m> tep doi)» với n BẰNG số tệp trong khối chép (chín
+      hôm nay) và m LỚN HƠN 0. Neo suy từ kho — lần cắt số trước — không ghim sha. Chiều đỏ
+      ghim mã: 2 không có nền (không rút được khối ở cây hoặc ở neo · danh sách dưới năm tệp ·
+      tệp vắng · cửa sổ toàn kho rỗng) · 3 DANH SÁCH đổi so với neo, in mục thêm và mục bớt,
+      HOẶC có tệp chép đổi nội dung, in từng tệp · 8 thiếu cờ. Phép so danh sách hai đầu là vế
+      mà phản biện context sạch của mốc này đòi: sàn «không dưới năm tệp» một mình là fail-open
+      — gỡ ba mục khỏi khối thì sáu tệp còn lại vẫn không đổi và răng vẫn xanh.
+    paths: [commands/acceptance-init.md, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, lib/, _acceptance/release-2-16-0/rang-cua-so.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.cua_so_viec_meta_2_16
+    expected: >
+      Exit 0 và đúng một dòng «PASS: viec-meta <k> ho so vong sinh sau lan cat so <số> (<sha8>)
+      BANG khoi khai [<danh sách>] · the mo phien tren cay that: vong meta dang mo n=<n>
+      [<danh sách>]», với danh sách hồ sơ vòng bằng đúng khối VIEC-META-CUA-SO của hợp đồng
+      (thuoc-co-cua hôm nay) và n là SỐ, không null. Chiều đỏ ghim mã: 2 không có nền (không
+      rút được khối · chính hồ sơ mốc có ở neo — neo sai) · 4 tập KHÁC khối khai, gọi tên
+      thiếu hoặc thừa · 5 bộ quét trên cây thật không nhận kho kit hoặc n null · 8 thiếu cờ.
+    paths: [_acceptance/release-2-16-0/contract.md, _acceptance/release-2-16-0/rang-cua-so.mjs, scripts/start-scan.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.chien_dich_ghim_lai_2_16
+    expected: >
+      Exit 0 và đúng một dòng «PASS: chien-dich lan <run_id> exit <n> tai sha <sha8> — <k> ho
+      so da ky mang dong ghim lai moi nhat cua luot BANG khoi khai [<danh sách>] (doi chung:
+      <n> ho so da ky, <m> ho so co dong ghim lai)», với danh sách bằng đúng khối
+      CHIEN-DICH-GHIM-LAI của hợp đồng, và hai số đối chứng đều LỚN HƠN 0. Khối khai phải có
+      ba dòng đầu — sha 40 hex, «run_id: <mã>», «exit: <số>» — rồi mới tới danh sách; khối
+      trống hẳn hoặc thiếu một trong ba dòng ấy là mã 2, không phải lời khai hợp lệ. Danh
+      sách RỖNG là lời khai hợp lệ CHỈ khi exit khác 0. Chiều đỏ ghim mã: 2 không có nền
+      (không rút được khối · khối dưới ba dòng · dòng sai khuôn · sha khai không có trong kho
+      · không hồ sơ đã ký nào · không hồ sơ nào có dòng ghim lại) · 4 tập theo run_id KHÁC
+      khối khai, gọi tên thiếu hoặc thừa · 5 sha dòng ghim lại hoặc verified_commit của một hồ
+      sơ khai khác sha của lượt · 6 vế hai chiều gãy (exit 0 mà danh sách rỗng, hoặc exit khác
+      0 mà vẫn có hồ sơ mang run_id ấy) · 8 thiếu cờ. Mã 6 là vế giết hằng-đúng mà phản biện
+      context sạch của mốc này đòi: bản đầu của răng cho lượt đỏ khai chữ «không có» rồi bỏ
+      qua chính phép so.
+    paths: [_acceptance/release-2-16-0/contract.md, _acceptance/release-2-16-0/rang-ghim-lai.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.cua_so_viec_va_2_16
+    expected: >
+      Exit 0 và đúng một dòng «PASS: viec-va 0 tep engine doi sau chu ky <sha8> ngoai <k> tep
+      cua chinh moc (doi chung: cua so <neo8>..<sha8> co <m> tep engine; cua so sau chu ky co
+      <n> tep doi)» với m LỚN HƠN 0 và n LỚN HƠN 0. Chiều đỏ ghim mã: 2 không có nền (không
+      rút được khối · khối dưới hai dòng · dòng chữ-ký sai khuôn · sha không có trong kho ·
+      cửa sổ sau chữ ký rỗng) · 6 có tệp engine đổi sau chữ ký ngoài tệp mốc khai, in từng
+      tệp · 7 đối chứng dương hỏng — cửa sổ neo tới chữ ký không chứa tệp engine nào, nên bộ
+      lọc chưa chứng minh được là nó thấy tệp engine · 8 thiếu cờ. Mã 7 là chiều thứ hai của
+      nghi thức hai chiều: một kết luận «không tệp nào» trên một bộ lọc chưa từng thấy tệp
+      engine là hằng đúng.
+    paths: [_acceptance/release-2-16-0/contract.md, _acceptance/release-2-16-0/rang-cua-so.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6a
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts
+    expected: >
+      Exit 0 và dòng tổng kết «Results: <n> passed, 0 failed» với <n> LỚN HƠN 0.
+    paths: [scripts/, tests/scripts/, lib/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6b
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: >
+      Exit 0 và dòng tổng kết «Results: <n> passed, 0 failed» với <n> LỚN HƠN 0.
+    paths: [hooks/, tests/hooks/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6c
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins
+    expected: >
+      Exit 0 và «Results: all plugin tests passed»; đầu ra KHÔNG có dòng nào mang chữ FAIL.
+      Không đòi dòng PASS của ca nào ở đây: bộ lọc của chính lệnh này cắt mọi dòng PASS.
+    paths: [tests/plugins/, .claude-plugin/plugin.json, feature-loop/.claude-plugin/plugin.json, _acceptance/release-2-16-0/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6d
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >
+      Exit 0 và «Results: all workflow tests passed».
+    paths: [feature-loop/workflows/, tests/workflows/]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6e
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "Exit 0, «PRODUCT-MAP.md khớp hồ sơ xưởng.»"
+    paths: [PRODUCT-MAP.md, scripts/product-map.mjs, scripts/trang-thai-ho-so.cjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    question: >
+      Đọc khối ## Notes của hợp đồng. Bốn khối (năm dòng số · lớp vendored · lớp lỗi tái
+      phát · nhát cắt kế) có ĐỦ MẶT không; bảng năm dòng có ĐỦ HAI CỘT (vòng meta
+      thuoc-co-cua · ba việc vá-trong-mốc) không; mỗi ô có NGUỒN RÚT hoặc «không đo được»
+      kèm lý do không; dòng 2 có tách trong/ngoài thiết kế và gọi tên lý do của lượt ngoài
+      không. KHÔNG tính lại con số nào ngoài BỐN phép đối chiếu: (i) dòng 4 — 1,53 · 23,25 ·
+      21,96 · 5,09 · 2,97 M, S4 gộp 30,02 M, vòng gộp 54,80 M — so bảng per-model của
+      usage-report.md, cộng cả out, in, cache_read và cache_create · (ii) dòng 4b — 22,5/75,6/1,9
+      · 28,1/65,6/6,3 · 50,5/41,6/7,9 và gộp 25,7/71,2/3,1 phần trăm, tìm-lỗi 18,49 M — so bảng
+      vai trò của cùng tệp, KHÔNG cộng cache_create, với refute và review vào khối tìm-lỗi và
+      machine, judge, baseline vào khối chứng-minh-vật · (iii) dòng 1 và dòng 2 so giờ tác giả
+      các commit được gọi tên · (iv) tỉ lệ tìm-lỗi gộp 71,2 phần trăm so số 9,5 phần trăm của
+      vòng R1 ở Notes mục 1 hợp đồng mốc 2.15.0, cùng câu giải thích vì sao hai số ấy không so
+      thẳng được. BỐN phép ấy là danh sách ĐÓNG. Rồi: khối năm dòng có nói THẲNG sáu điều bất
+      lợi không — tìm-lỗi 71,2 phần trăm ngược chiều spec token · lượt gọi người 5 so trần 4,
+      vòng thứ năm liên tiếp vượt trần · một lượt thi công chết trọn vì hạn mức phiên · owner
+      phải tự bắt một phát hiện trong hợp đồng mà lượt chấm 2 cho qua · số chạm không đo được ·
+      hiệu lực khuôn goal vẫn chưa có số. Cuối cùng: mục 4 có gọi tên ít nhất MỘT chỗ cắt cho
+      cửa sổ kế và có định đoạt router không.
+    inputs:
+      - _acceptance/release-2-16-0/contract.md
+      - _acceptance/thuoc-co-cua/contract.md
+      - _acceptance/thuoc-co-cua/decisions.jsonl
+      - _acceptance/thuoc-co-cua/usage-report.md
+      - _acceptance/release-2-15-0/contract.md
+      - docs/findings/2026-09-17-boi-canh-truoc-va-sau-R.md
+    expected: >
+      PASS khi bốn khối có mặt, bảng đủ hai cột với nguồn từng ô, dòng 2 tách trong/ngoài và
+      gọi tên lý do của lượt ngoài, BỐN phép đối chiếu khớp, sáu điều bất lợi nói thẳng, mục 4
+      có ít nhất một chỗ cắt gọi tên và định đoạt router. Che bất kỳ điều bất lợi nào là FAIL.
+
+      Hội đồng KHÔNG suy rộng ra số khác và KHÔNG đòi cột repo tiêu thụ: hợp đồng khai thẳng
+      rằng cửa sổ một ngày này không có vòng sản phẩm nào phiên cắt mốc có nhân chứng.
+    evidence_required: [judged_by, verdict, votes, rationale]

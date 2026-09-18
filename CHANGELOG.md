@@ -10,6 +10,74 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.16.0 — 18/09/2026
+
+Cửa sổ 2.15 → 2.16 kéo khoảng **một ngày** — ngắn nhất từ khi kit đếm năm dòng số.
+Trong ngày đó kho chạy đúng **một** vòng meta, `thuoc-co-cua` (T3, ký 17/09), đúng
+vòng mà mốc trước đã gọi tên sẵn. Nó lấy ba câu hỏi từ bảng 23 lớp hạ tầng — đứng
+được trước khi chấm · chạy không đè nhau · cửa cho thước — và biến cả ba thành vật
+máy giữ. Ba việc còn lại của cửa sổ là vá và sổ sách, không việc nào chạm engine.
+Mốc này cũng chạy **chiến dịch ghim lại**, thứ hai cửa sổ trước đã hoãn. Hai gói
+cùng lên `2.16.0`; `diagram-design` giữ `2.7.0` vì không đổi một dòng.
+
+**Đổi gì:**
+
+- **Tường hạ tầng lộ ở đầu vòng, không lộ giữa lượt chấm.** Trước đây một công cụ
+  thiếu hay một lưới chưa cắm chỉ lộ khi lượt chấm đã chạy được nửa đường, và lượt
+  ấy trả BLOCKED — ở vòng sản phẩm gần nhất, 2 trên 3 lượt chấm mất vì lớp này và 4
+  trên 8 lần gọi người là hạ tầng. Nay đầu S1 có một **đường nền hạ tầng** chạy bằng
+  máy, không LLM, bốn chân: mọi lệnh executor có trên máy chưa · các lệnh suite chạy
+  một lần lần lượt rồi cây còn sạch không · lưới trước-merge chạy được như trên CI
+  không · ba bản bộ máy có khớp nhau không. Kết quả thành một khối «Nền hạ tầng» trên
+  thẻ Cổng Phạm vi, nên thứ chỉ người gỡ được gom đúng một lần vào lời mời cổng thay
+  vì rải ra từng lượt. Hồ sơ cũ không có khối này thì thẻ treo một cờ vàng, không chặn.
+- **Lệnh suite trong lượt chấm chạy lần lượt.** Làn chấm vẫn chạy mọi lệnh song song,
+  kể cả những lệnh chạy trọn một bộ test trên cùng một cây. Hệ quả đã đo ở bốn kho: hai
+  suite giẫm lên nhau, một chốt «cây sạch» bắt nhầm thư mục tạm của suite kia, và lượt
+  chấm đỏ vì hạ tầng chứ không vì vật — chính lượt chấm 1 của mốc trước mất vì thế. Nay
+  lệnh suite xếp một hàng tuần tự; lệnh eval vẫn song song như cũ.
+- **Thẻ Cổng Bằng chứng thôi gọi một giới hạn đã khai là trượt.** Một eval được phép
+  khai trước rằng mã thoát mong đợi của nó khác 0. Làn ghim lại đã hiểu điều đó từ
+  2.11.0, nhưng thẻ thì không: nó đọc mọi mã khác 0 là trượt và nói ngược danh sách
+  eval đỏ. Nay thẻ đọc cùng một nguồn với làn.
+- **Lượt chấm nghe lời khai «không chạy».** Một eval tự khai `status: not-run` vẫn bị
+  bộ sinh args đưa vào lượt chấm rồi chết ở đó — ca thật: một hồ sơ ở repo tiêu thụ
+  phải đổi sang khai mã thoát để né, và một eval của vòng sản phẩm gần nhất bị thi
+  hành rồi BLOCKED. Nay bên viết args và làn ghim lại rút danh sách từ **cùng một hàm**,
+  và báo cáo nói ra ô bị loại bằng một dòng thay vì im.
+- **Sửa thước có cửa.** Kit vốn đếm và chặn được «ngoài hợp đồng», nhưng việc sửa chính
+  phép đo thì không có tên, không được đếm, không có trần — ở hai kho tiêu thụ, một
+  phiên có 9 chỗ hỏng thước so 1 chỗ hỏng vật và 701 dòng thước so 20 dòng vật. Nay một
+  bộ đếm suy từ git xếp mỗi tệp đổi vào một lớp và đếm số **nhát sửa thước** kể từ lúc
+  hợp đồng sang «code xong»; thẻ Cổng Bằng chứng in một dòng «vật · thước · nhát»; và
+  từ nhát thứ ba, bộ sinh args **từ chối sinh** rồi trình ba lối cho người: khai giới
+  hạn có tên, đổi cách đo, hay mở một vòng có chủ ngữ là thước. Người chọn thì một dòng
+  sổ mở van và mốc đếm dời tới đó.
+
+**Ai bị ảnh hưởng / làm gì:**
+
+- **Repo tiêu thụ — không có bước migrate.** Mọi khoá mới đều có đường đọc-cũ.
+- **Repo tiêu thụ — lượt chấm có thể DÀI hơn.** Lệnh suite nay tuần tự, nên đường găng
+  dài ra ở repo có nhiều suite nặng chạy song song được. Đổi lại là lượt chấm thôi đỏ
+  giả vì hai suite giẫm nhau.
+- **Repo tiêu thụ — eval khai không-chạy thôi bị thi hành.** Repo nào đã lách bằng cách
+  khai một mã thoát mong đợi có thể khai lại cho đúng.
+- **Repo tiêu thụ — lớp CI vendored:** không tệp nào trong bộ chín tệp đổi ở mốc này,
+  không phải chép lại.
+
+**Giới hạn đã khai:** đường nền hạ tầng chạy nền song song với lúc S1 còn viết tệp có
+thể báo cây bẩn vì tệp của chính vòng; kho tự host kit không tự nhận ra điều đó với
+lệnh mà tài liệu dặn, nên chân kiểm ba bản bộ máy có thể lệch giả. Ba phép đo của chính
+vòng — hai ca thẻ và một ca chiều đỏ — chưa độc lập với nhau, đã tách thành một ô riêng
+cho cửa sổ sau.
+
+**Chi phí của chính cửa sổ:** vòng meta duy nhất tốn 54,8 triệu token cho hai lượt thi
+công và ba lượt chấm, trong đó 30,0 triệu ở lượt chấm. Khối tìm-lỗi chiếm 71 % token
+lượt chấm — vòng này không chạm giao diện nên không có làn nào khác chia mẫu số. Lượt
+gọi người 5 so trần 4, vòng thứ năm liên tiếp vượt trần; lượt vượt là một lần owner phải
+tự bắt lỗi mà bộ chấm cho qua. Một lượt thi công chết trọn vì hạn mức phiên. Số đầy đủ
+và nhát cắt cho cửa sổ kế ở khối Notes của hồ sơ mốc.
+
 ## 2.15.0 — 17/09/2026
 
 Cửa sổ 2.14 → 2.15 chạy dưới quyết định R của owner (16/09): không mở vòng meta
