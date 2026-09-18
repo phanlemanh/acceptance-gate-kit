@@ -4,9 +4,9 @@ slug: start-bang-dieu-khien
 feature: «/start» là bảng điều khiển của owner, không phải bộ định tuyến — hiện hết ý đang cân nhắc, nêu tên việc máy vừa làm và thứ còn veto được, và mọi bộ đọc nói cùng một chữ
 owner: phanlemanh@gmail.com
 stage: decided                # discovery | decided | archived
-decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: Manh Phan
-decided_at: 2026-08-23T04:12:00Z     # ISO UTC
+decision: park            # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Mạnh
+decided_at: 2026-09-18T12:49:09Z    # ISO UTC — owner đổi build→park 18/09: cửa sổ ba phiên /start thật trôi qua hạn 15/09 mà không đủ phiên — chính ô khai lối này sẵn
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition: archive     # keep | archive

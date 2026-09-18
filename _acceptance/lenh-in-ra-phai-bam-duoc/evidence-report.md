@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — d-4512)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 24eec78ce4823260b1b4656b66ed8d7ec867ed55
+verified_commit: 83bd26f6b4faa6503c601b360a66c366d2830eb6
 human_signoff: Manh Phan 2026-08-22 — ký với known-limits đã khai; việc kế owner gật ngay tại cổng: hồ sơ nhỏ quét nốt QUICKSTART/README/GUIDE (45 token trần)
 ---
 
@@ -195,3 +195,7 @@ Round 1: đường verify độc lập — 6 lệnh tuần tự trên `24eec78c`
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-09-18, do chữ ký Cổng Giá trị 18/09 — làn riêng cho ba hồ sơ bị chặn thật giữa hai mốc (GUIDE §7.1); làn trước đỏ ở E8, đã sửa nhát tiêm ở 83bd26f6
+run_id: repin-20260918T133712Z-82839
+sha: 83bd26f6b4faa6503c601b360a66c366d2830eb6 · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
