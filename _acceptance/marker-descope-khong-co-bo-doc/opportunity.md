@@ -68,3 +68,45 @@ P93 ở mốc 2.13.0 — một AC, một chân răng, không tốn một vòng m
 Lớp nhìn-thấy hỏi «Cổng Bằng chứng có eval nào nhìn màn hình không», không hỏi «đã ai nhìn
 bản bấm được TRƯỚC khi duyệt chưa». Ca CRM chứng minh hai câu đó khác nhau:
 `ui_observed: {present: true, declared: 4}` — lớp nhìn-thấy XANH, mà S1-D chưa từng chạy.
+
+## Hạt giống thêm 18/09, cùng ngày park
+
+**NGƯỠNG «SỐNG» CỦA CHÍNH Ô NÀY ĐÃ NỔ.** Mục Ngưỡng ở trên đặt điều kiện mở lại:
+«một vòng chạm UI đi qua Cổng Phạm vi rồi phát hiện ra lỗi thẩm mỹ/UX mà một phiên
+S1-D đã bắt được». Vòng `crm/truong-tu-tao-o-cai-dat` — chính ca khơi ra ô này —
+đã thoả đúng từng chữ, trong cùng ngày:
+
+- Cổng Phạm vi chốt ở làn V, dòng `d-20260918T012859Z-7` bỏ S1-D, không thẻ nào
+  được trình, không mắt người nào đọc dòng đó.
+- Chủ kho hỏi «sao design pass không xuất hiện», veto dòng 7 (`…Z-24`), rồi cho
+  chạy S1-D nấc-1.
+- Phiên S1-D bắt **một lỗi thật**: ô sửa trường KHÔNG đóng bằng Esc, dù đặc tả UX
+  mục 4 khai là có. **Hai mươi mốt thước trước đó không đo chiều này.** Đã vá,
+  thành AC-20 + thước E22 chạy hai khổ 375 và 1280.
+
+Tức lỗ này KHÔNG chỉ «làm người ký thiếu một dòng» như mục *Vì sao park* viết.
+Nó đã để một khuyết tật bàn phím đi tới sát chữ ký. Ai mở lại đọc câu «hại chậm,
+không hại ngay» thì đọc kèm đoạn này.
+
+**Lớp lân cận, CHƯA phải ô này — cần owner quyết có tách ô riêng.** Cùng vòng CRM
+lộ ra một lớp khác họ nhưng cùng hình dạng *bên viết có, bên đọc không có*:
+**thân bài hồ sơ hoá cũ qua các vòng chấm trong khi frontmatter và sổ đi tiếp.**
+Năm ca đo được trong một hồ sơ, **bốn nằm trong bản đã ký**:
+
+1. §Ngoài hợp đồng: «lượt chấm này không sinh mục ngoài hợp đồng mới» — thật ra bốn, một mức high.
+2. §Known limits: «chưa có mục nào» — sổ đã có ba mục.
+3. Giới hạn đã khai #2: «hai mươi mốt thước», «một khổ duy nhất 1280×900» — thật ra 22 thước, E22 chạy 375 và 1280.
+4. Giới hạn đã khai #3: dòng bỏ S1-D «chưa ai đọc», hình thái «chưa ai duyệt» — chủ kho đã đọc, veto và phê tường minh.
+5. Chuỗi nhãn `Ngoài-n`: **hai phiên máy cùng phục vụ một hồ sơ đánh số khác nhau**
+   cho cùng bốn phát hiện; chủ kho nhận hai chuỗi vênh và gõ theo một trong hai.
+   Ý muốn không bị hiểu sai lần này, nhưng ai khớp chuỗi số với thẻ sau này sẽ mở
+   hợp đồng mới cho SAI phát hiện. Ghi ở `crm` sổ `…Z-38` và `…Z-40`.
+
+Hình dạng răng đáng cân nhắc, do phiên CRM đề xuất và tôi thấy đúng trọng tâm:
+**so mọi con số viết bằng chữ trong thân bài với chính nguồn máy đếm được** — cả
+ba ca số ở trên đều là một con số hoặc một câu phủ định hoá cũ, không phải một
+lập luận sai. Rẻ hơn hẳn một bộ đối chiếu ngữ nghĩa.
+
+Cảnh báo cho ai dựng răng đó: nghi thức HAI CHIỀU của CLAUDE.md, và chiều IM là
+chiều dễ trượt — con số trong *hồ sơ của chính vòng đang chạy* phải không làm
+phép đo kêu, nếu không nó lại là một ống kính đo-thước-của-thước.
