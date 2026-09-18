@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c6e63699364588e1bb700c1c487a66739cae1f66
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-19
 ---
 
@@ -116,3 +116,7 @@ Bốn mục ngoài hợp đồng (xem review-findings.md các vòng) — owner c
 - [ ] If verdict was PENDING-JUDGMENT: upgrade it to PASS (this write is when
       the hook re-validates evidence + overrides)
 - [ ] Fill `human_signoff` in frontmatter
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ad, 13 hồ sơ
+run_id: repin-20260918T130346Z-62162
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng

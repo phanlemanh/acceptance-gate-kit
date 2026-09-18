@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b9f8766eaa519fa46ef7750211e475aa4b4a73d0
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -189,3 +189,7 @@ sha: 237d95c1d9fbc432f13d1036fb8aded77875c503 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 13 — 2026-09-17, do hoá cũ do hai lượt sửa bộ đếm thuoc-co-cua sau lần ghim 237d95c1
 run_id: repin-20260917T162023Z-19491
 sha: b9f8766eaa519fa46ef7750211e475aa4b4a73d0 · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
+
+### Re-pin lần 14 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
+run_id: repin-20260918T123126Z-49883
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng

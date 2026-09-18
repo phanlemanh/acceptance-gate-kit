@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 809669544314a99ba3da40065778030860deaa83
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Phan Le Manh 2026-09-08
 ---
 
@@ -146,3 +146,7 @@ sha: 37cbf58a4c65812f07f65354eefb8dd65860fd37 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 5 — 2026-09-09, do vá SD1/SD2 phụ thuộc bản cài (CI PR #163 đỏ) chạm tests/scripts/s4-args-delta.test.mjs
 run_id: repin-20260909T120653Z-96471
 sha: 809669544314a99ba3da40065778030860deaa83 · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0
+
+### Re-pin lần 6 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
+run_id: repin-20260918T123126Z-49883
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng

@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9745743f61e503abcd7e5c56c3604df0288f1e68
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-14
 ---
 
@@ -196,3 +196,7 @@ về ca cũ, không nói eval mới có phân biệt được hay không. Sức 
 chúng được chứng bằng **mười lượt phá vật thật** ở bảng trên, mỗi lượt qua chính
 hàm mà đường xanh gọi, mỗi lượt ghim một thông điệp riêng — đó là đối chứng
 mạnh hơn baseline A/B cho lớp phép đo này.
+
+### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
+run_id: repin-20260918T121643Z-87929
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

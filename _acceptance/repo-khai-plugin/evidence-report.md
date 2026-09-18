@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, chạy tuần tự)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7d12ffad4010829598ded702b80a2ff8d12eb189
+verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
 human_signoff: Manh Phan 2026-08-21 — ký với 4 known-limits và E10 UNCERTAIN đã override có điều kiện
 ---
 
@@ -354,3 +354,7 @@ sha: 6764502707c54b0c38152352c73db6370124027f · suites: 4 lệnh exit 0
 ### Re-pin lần 2 — 2026-09-08, do chiến dịch ghim lại bằng làn eval sau ADR 0014 (owner 08/09, xử ngược không mốc)
 run_id: repin-20260908T035246Z-95429
 sha: 7d12ffad4010829598ded702b80a2ff8d12eb189 · suites: 5 lệnh exit 0 · evals: 16 eval máy exit 0
+
+### Re-pin lần 3 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ad, 13 hồ sơ
+run_id: repin-20260918T130346Z-62162
+sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng
