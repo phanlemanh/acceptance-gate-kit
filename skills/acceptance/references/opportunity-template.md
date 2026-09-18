@@ -41,15 +41,22 @@ prototype:
 > (1) một hồ sơ cụ thể `<kho>/_acceptance/<slug-khác>` (kho có thể là chính kit) ·
 > (2) `kho <tên> — <người> gọi tên <YYYY-MM-DD>`. «Suy từ đọc mã» không phải neo — ý chưa
 > có neo sống ở hạt giống `docs/plans/<ngày>-hat-giong-<slug>.md`, không mở ô.
+> Khối TU-TRO là luật thứ ba, BÁC: neo trỏ chính ô của nó không phải neo ngoài (ô tự biện
+> minh). Nó đứng riêng vì luật «không tự trỏ» phải đúng ở MỌI cách viết — kể cả khi sau slug
+> còn chữ giải thích — nên không nhét được vào lookahead của dạng (1). Mọi bên đọc rút CẢ BA.
 
 <!-- <<<OPP-GOC-LINE -->
 Gốc: {goc}
 <!-- OPP-GOC-LINE>>> -->
 
 <!-- <<<OPP-GOC-RULE -->
-^Gốc:\s*\S+/_acceptance/(?!{slug}/)[\w-]+
+^Gốc:\s*\S+/_acceptance/[\w-]+
 ^Gốc:\s*kho\s+\S+\s+—\s+.+?\s+gọi tên\s+\d{4}-\d{2}-\d{2}
 <!-- OPP-GOC-RULE>>> -->
+
+<!-- <<<OPP-GOC-TU-TRO -->
+/_acceptance/{slug}(?![\w-])
+<!-- OPP-GOC-TU-TRO>>> -->
 
 ## Giả định chốt sinh tử
 

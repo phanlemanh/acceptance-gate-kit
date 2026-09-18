@@ -8,9 +8,10 @@ evals:
     executor: script
     cmd: config:executors.script.neo_vc8
     expected: >
-      Exit 0 và dòng PASS: [VC8]. VC8 rút khuôn dòng Gốc từ marker OPP-GOC-LINE của
-      opportunity-template (đổi marker trong bản sao khuôn → VC8 đỏ nêu «khuôn thiếu marker»), và
-      start.md khối START-HIEU-KET nhắc «Gốc:» (gỡ trong bản sao → đỏ nêu start.md).
+      Exit 0 và dòng PASS: [VC8]. VC8 rút CẢ BA khối luật từ khuôn opportunity-template —
+      OPP-GOC-LINE (dòng), OPP-GOC-RULE (hai dạng hợp lệ), OPP-GOC-TU-TRO (luật bác neo tự trỏ);
+      gỡ marker nào trong bản sao khuôn → VC8 đỏ nêu «khuôn thiếu marker». start.md khối
+      START-HIEU-KET nhắc «Gốc:» (gỡ trong bản sao → đỏ nêu start.md).
     paths: [skills/acceptance/references/opportunity-template.md, commands/start.md, tests/plugins/vao-co-o.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
@@ -23,8 +24,10 @@ evals:
       dòng → «thiếu Gốc» + slug; (đỏ 2) trỏ chính slug → «trỏ chính nó»; (đỏ 3a) rỗng sau dấu hai chấm
       → «chưa điền»; (đỏ 3b) placeholder rút nguyên văn từ marker → «chưa điền»; (đỏ 3c) «Gốc: suy từ
       đọc mã» → «không khớp dạng»; (đỏ 4) ô decided build thiếu Gốc → đỏ; (im 1) hạt giống mồ côi →
-      im; (im 2) ô park không Gốc → im; (im 3) ô archived không Gốc → im. Hai regex hợp lệ rút từ cạnh
-      marker OPP-GOC-LINE — đổi regex trong bản sao khuôn thì ca dương đổi màu.
+      im; (im 2) ô park không Gốc → im; (im 3) ô archived không Gốc → im. Ba ca tự-trỏ phủ cả ba
+      cách viết thật: trần «kit/_acceptance/<slug>», có chữ giải thích sau slug, và dạng đầy đủ
+      «…/<slug>/opportunity.md» — cả ba → «trỏ chính nó». Luật rút từ khuôn, hai mutant chứng:
+      đổi regex dạng-người → ca dương đổi màu; nới khối TU-TRO → ba ca tự-trỏ THÔI đỏ.
     paths: [tests/plugins/vao-co-o.test.mjs, skills/acceptance/references/opportunity-template.md]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
@@ -57,10 +60,11 @@ evals:
       → câu khuyên đúng hằng MSG_OOC_HAT_GIONG «ghi hạt giống có Gốc, chờ kho gọi tên — không mở ô»;
       LB2 (đỏ): đổi hằng trong bản sao gate-card → LB1 đỏ ghim câu mong đợi; LB3 (ba bề mặt, đo KHỐI
       không đo tệp): rút khối giữa marker OOC-LOI-B của SKILL feature-loop, acceptance-card.md,
-      signoff.md; trong khối phải có chuỗi rút từ MSG_OOC_HAT_GIONG, đường docs/plans/<ngày>-hat-giong-
-      <slug>.md, câu «KHÔNG tạo `_acceptance/<slug>/`», nhãn «mở hợp đồng mới» nguyên văn, và KHÔNG có
-      «tách thành một việc riêng» / «tạo thư mục»; thiếu marker → đỏ; chèn câu cũ vào khối của một
-      bản sao → đỏ gọi tên tệp.
+      signoff.md; khối phải mang LÕI câu RÚT TỪ hằng MSG_OOC_HAT_GIONG (bỏ tiền tố «Máy đề xuất:»),
+      đường docs/plans/<ngày>-hat-giong-<slug>.md, câu «KHÔNG tạo `_acceptance/<slug>/`», nhãn «mở hợp
+      đồng mới» nguyên văn, và KHÔNG có «tách thành một việc riêng» / «tạo thư mục»; đối chứng nhánh
+      known-limits rút từ hằng MSG_OOC_KNOWN_LIMITS, không gõ lại. Hai chiều đỏ: chèn câu cũ vào khối
+      → bắt; đổi lõi câu trong bản sao tài liệu → bắt (bên máy và bên tài liệu thôi trôi khỏi nhau).
     paths: [scripts/gate-card.js, feature-loop/skills/feature-loop/SKILL.md, commands/acceptance-card.md, commands/signoff.md, tests/scripts/loi-b-hat-giong.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
@@ -84,7 +88,9 @@ evals:
     executor: script
     cmd: config:executors.script.product_map
     expected: >
-      Exit 0, in «PRODUCT-MAP.md khớp hồ sơ xưởng.». Vế tự-ăn-thuốc của AC-7 đo bằng E1/E2 (VC8): ô này
-      là decided build nên nằm TRONG phạm vi răng, và ca (đỏ 4) của E2 là chiều đỏ cho đúng lớp đó.
+      Exit 0, in «PRODUCT-MAP.md khớp hồ sơ xưởng.». Vế tự-ăn-thuốc của AC-7 đo bằng chân riêng
+      trong VC8 (E1/E2): chân ấy chạy vị từ neo THẲNG trên `_acceptance/o-chi-mo-khi-co-neo-ngoai/
+      opportunity.md` — không đi qua bộ lọc hàng chờ, vì ô này đã có contract.md nên bị loại khỏi
+      hàng chờ — kèm chiều đỏ: gỡ dòng Gốc trong bản sao thì chân ấy đỏ nêu đúng slug.
     paths: [PRODUCT-MAP.md, _acceptance/o-chi-mo-khi-co-neo-ngoai/opportunity.md]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

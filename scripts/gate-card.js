@@ -90,6 +90,7 @@ const MSG_PROPOSAL_LA = 'đề xuất không đọc được';
 // Lối (b) «mở hợp đồng mới» đổi HÀNH ĐỘNG 18/09 (ô o-chi-mo-khi-co-neo-ngoai): hạt giống,
 // không phải một ô mới. Nhãn nút giữ nguyên văn (chữ người ở lib/out-of-contract.js, T3).
 const MSG_OOC_HAT_GIONG = 'Máy đề xuất: ghi hạt giống có Gốc, chờ kho gọi tên — không mở ô.';
+const MSG_OOC_KNOWN_LIMITS = 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.';
 // Hai cờ khối «Nền hạ tầng» trên thẻ Cổng Phạm vi (thuoc-co-cua AC-8) — chữ thuật ở commands/acceptance-card.md.
 const NEN_DO_FLAG = 'Nền hạ tầng có chân ĐỎ — đỏ ở đây không phải lỗi của vòng này; quyết nó trong gói này trước khi duyệt.';
 const NEN_VANG_FLAG = 'Chưa có số liệu nền hạ tầng — hồ sơ sinh trước bản này, hoặc đường nền chưa chạy xong.';
@@ -1011,7 +1012,7 @@ if (ooc.findings.length) {
   P.push(`<div class="flag fwarn">Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — bạn quyết; máy cố ý không sửa và không chấm thứ máy không được sửa.</div>`);
   ooc.findings.forEach((f, fi) => {
     const rec = f.proposal === 'new-contract' ? MSG_OOC_HAT_GIONG
-      : f.proposal === 'known-limits' ? 'Máy đề xuất: ghi vào hạn chế đã biết rồi ship.'
+      : f.proposal === 'known-limits' ? MSG_OOC_KNOWN_LIMITS
       // ngăn thứ ba (hồ sơ cham-dung-cay-dung-cho-dung, AC-10): lỗi thật nhưng
       // không đáng sửa — máy khuyên chấp nhận có ghi vết; file đời cũ không có
       // giá trị này rơi xuống nhánh mặc định như trước (đường đọc-cũ).

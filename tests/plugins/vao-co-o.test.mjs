@@ -67,11 +67,21 @@ const slugsIn = arr => (arr || []).map(x => x.slug);
 // ---- Neo ngoài (hồ sơ o-chi-mo-khi-co-neo-ngoai): bên đọc rút LUẬT từ khuôn, không gõ lại.
 const fmv = (t, k) => { const m = t.match(new RegExp(`^${k}:\\s*(.*?)\\s*(#.*)?$`, 'm')); return m ? m[1].trim() : ''; };
 const gocRule = (tpl) => {
-  let line, rules;
-  try { line = blockFromTemplate(tpl, 'OPP-GOC-LINE').trim(); rules = blockFromTemplate(tpl, 'OPP-GOC-RULE').trim().split('\n'); }
-  catch (e) { throw new Error('khuôn thiếu marker OPP-GOC-LINE/OPP-GOC-RULE'); }
+  let line, rules, tuTro;
+  try {
+    line = blockFromTemplate(tpl, 'OPP-GOC-LINE').trim();
+    rules = blockFromTemplate(tpl, 'OPP-GOC-RULE').trim().split('\n');
+    tuTro = blockFromTemplate(tpl, 'OPP-GOC-TU-TRO').trim();
+  } catch (e) { throw new Error('khuôn thiếu marker OPP-GOC-LINE/OPP-GOC-RULE/OPP-GOC-TU-TRO'); }
   if (rules.length !== 2) throw new Error('khuôn OPP-GOC-RULE phải đúng hai dòng');
-  return { line, hoSo: slug => new RegExp(rules[0].split('{slug}').join(slug), 'm'), nguoi: new RegExp(rules[1], 'm') };
+  return {
+    line,
+    hoSo: slug => new RegExp(rules[0].split('{slug}').join(slug), 'm'),
+    nguoi: new RegExp(rules[1], 'm'),
+    // Luật BÁC rút từ khuôn, KHÔNG hardcode ở đây: bản trước để nó ở bên đọc nên khuôn tự
+    // khai «hai dạng hợp lệ» mà thiếu vế bác, và mọi bên đọc thứ hai sẽ nhận neo tự trỏ (t8).
+    tuTro: slug => new RegExp(tuTro.split('{slug}').join(slug)),
+  };
 };
 // Hàng chờ Cổng Đáng = discovery, HOẶC decided+build chưa có contract (ô mở thẳng ở decided
 // vẫn phải chịu răng — gap-probe F3: không thì «tự ăn thuốc» là hằng đúng). park/kill/archived miễn.
@@ -91,7 +101,10 @@ const neoErrs = (accDir, tpl) => {
     if (!m) { errs.push(`${slug}: thiếu Gốc`); continue; }
     const val = m[0].replace(/^Gốc:\s*/, '').trim();
     if (!val || m[0].trim() === r.line) { errs.push(`${slug}: chưa điền`); continue; }
-    if (new RegExp(`/_acceptance/${slug}(/|$)`).test(val)) { errs.push(`${slug}: trỏ chính nó`); continue; }
+    // Bác tự-trỏ TRƯỚC khi hỏi dạng hợp lệ, và bác trên MỌI cách viết: dạng thật trên cây là
+    // «<kho>/_acceptance/<slug> — <giải thích>», nên chốt cũ đòi slug đứng cuối hoặc theo sau
+    // «/» đã trượt đúng dạng phổ biến nhất (t5, lượt chấm 1).
+    if (r.tuTro(slug).test(val)) { errs.push(`${slug}: trỏ chính nó`); continue; }
     if (!r.hoSo(slug).test(m[0]) && !r.nguoi.test(m[0])) errs.push(`${slug}: không khớp dạng`);
   }
   return errs.sort();
@@ -318,6 +331,9 @@ if (want('VC8')) {
   put('duong-nguoi', { stage: 'decided', decision: 'build' }, 'Gốc: kho oneflow — Mạnh gọi tên 2026-09-18');
   put('do1-thieu', { stage: 'discovery' }, '');
   put('do2-tu-tro', { stage: 'discovery' }, 'Gốc: kit/_acceptance/do2-tu-tro');
+  // Dạng VIẾT THẬT trên cây: slug rồi chữ giải thích. Chốt cũ trượt đúng dạng này (t5).
+  put('do2b-tu-tro-ghi-chu', { stage: 'discovery' }, 'Gốc: acceptance-gate-kit/_acceptance/do2b-tu-tro-ghi-chu — phát hiện từ chính vòng này');
+  put('do2c-tu-tro-day-du', { stage: 'discovery' }, 'Gốc: kit/_acceptance/do2c-tu-tro-day-du/opportunity.md');
   put('do3a-rong', { stage: 'discovery' }, 'Gốc:');
   put('do3b-placeholder', { stage: 'discovery' }, blockFromTemplate(TEMPLATE, 'OPP-GOC-LINE').trim());
   put('do3c-van-tu-do', { stage: 'discovery' }, 'Gốc: suy từ đọc mã');
@@ -326,7 +342,8 @@ if (want('VC8')) {
   put('im3-archived', { stage: 'archived', decision: 'kill' }, '');
   W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi.md', '# hạt giống không ô — hợp lệ từ 18/09\n');
   const got = neoErrs(path.join(r, '_acceptance'), TEMPLATE);
-  const want8 = ['do1-thieu: thiếu Gốc', 'do2-tu-tro: trỏ chính nó', 'do3a-rong: chưa điền',
+  const want8 = ['do1-thieu: thiếu Gốc', 'do2-tu-tro: trỏ chính nó',
+    'do2b-tu-tro-ghi-chu: trỏ chính nó', 'do2c-tu-tro-day-du: trỏ chính nó', 'do3a-rong: chưa điền',
     'do3b-placeholder: chưa điền', 'do3c-van-tu-do: không khớp dạng', 'do4-build-thieu: thiếu Gốc'].sort();
   if (JSON.stringify(got) !== JSON.stringify(want8)) errs.push(`ma trận fixture: có ${JSON.stringify(got)} — mong ${JSON.stringify(want8)}`);
   // (iv) KHUÔN là nguồn: đổi regex trong bản sao khuôn → ca dương đổi màu
@@ -336,6 +353,33 @@ if (want('VC8')) {
   const copyM = pluginCopy({ template: t => t.replace('<<<OPP-GOC-RULE', '<<<OPP-GOC-RULEX') });
   try { neoErrs(path.join(r, '_acceptance'), copyM.template); errs.push('gỡ marker OPP-GOC-RULE mà phép đo không đỏ'); }
   catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker: thông điệp lạ: ' + e.message); }
+  const copyT = pluginCopy({ template: t => t.replace('<<<OPP-GOC-TU-TRO', '<<<OPP-GOC-TU-TROX') });
+  try { neoErrs(path.join(r, '_acceptance'), copyT.template); errs.push('gỡ marker OPP-GOC-TU-TRO mà phép đo không đỏ'); }
+  catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker TU-TRO: thông điệp lạ: ' + e.message); }
+  // Khuôn là nguồn của luật BÁC: nới nó trong bản sao thì ba ca tự-trỏ phải THÔI đỏ.
+  const copyT2 = pluginCopy({ template: t => t.replace('/_acceptance/{slug}(?![\\w-])', '/_acceptance/KHONG-BAO-GIO-{slug}') });
+  const gotT2 = neoErrs(path.join(r, '_acceptance'), copyT2.template);
+  if (gotT2.some(e => /trỏ chính nó/.test(e))) errs.push('nới luật bác trong bản sao khuôn mà vẫn còn ca «trỏ chính nó» — bên đọc không rút luật từ khuôn');
+
+  // (v-b) TỰ ĂN THUỐC: chính ô của vòng này phải qua đúng vị từ đó. Không đo qua `hangCho`
+  // (ô đã có contract.md nên bị loại khỏi hàng chờ — t15), mà đo THẲNG tệp của nó, kèm chiều đỏ.
+  {
+    const SELF = 'o-chi-mo-khi-co-neo-ngoai';
+    const selfDir = path.join(ROOT, '_acceptance', SELF);
+    const selfTxt = existsSync(path.join(selfDir, 'opportunity.md')) ? readFileSync(path.join(selfDir, 'opportunity.md'), 'utf8') : null;
+    if (selfTxt === null) errs.push('tự ăn thuốc: không thấy opportunity.md của chính vòng');
+    else {
+      const selfRoot = tmp();
+      W(selfRoot, `_acceptance/${SELF}/opportunity.md`, selfTxt);
+      const e1 = neoErrs(path.join(selfRoot, '_acceptance'), TEMPLATE);
+      if (e1.length) errs.push(`tự ăn thuốc: ô của chính vòng không qua vị từ — ${JSON.stringify(e1)}`);
+      const broken = tmp();
+      W(broken, `_acceptance/${SELF}/opportunity.md`, selfTxt.replace(/^Gốc:.*$/m, ''));
+      const e2 = neoErrs(path.join(broken, '_acceptance'), TEMPLATE);
+      if (!e2.includes(`${SELF}: thiếu Gốc`)) errs.push(`tự ăn thuốc chiều đỏ: gỡ dòng Gốc mà không đỏ — ${JSON.stringify(e2)}`);
+    }
+  }
+
   // (v) stub sống đúng MỘT ngăn — bất biến cũ của luật «vào có ô», KHÔNG ghim chặng.
   // Bom đã nổ HAI lần khi ca này ghim chặng của hồ sơ khác (22/08 duong-do, 23/08 ban-do-dinh-chu-ky):
   // vá theo TÊN là hẹn nổ lần ba. Điều còn đo được trên cây thật: mỗi stub nằm đúng MỘT ngăn.
@@ -347,7 +391,7 @@ if (want('VC8')) {
     if (n !== 1) errs.push(`${sl} phải nằm đúng MỘT ô, đang ở ${n} ô`);
   }
   if (errs.length) fail('VC8', errs.join(' · '));
-  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 10 ô, khuôn là nguồn luật); hạt giống mồ côi im; ${NEW.length} stub đúng một ngăn`);
+  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô; khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im; ${NEW.length} stub đúng một ngăn`);
 }
 
 // ---------- VC9 (18/09): mốc phát hành CHƯA KÝ phải khai «Kho chờ nhận:» với ≥1 tên kho

@@ -18,6 +18,10 @@ const pick = name => {
   return m[1];
 };
 const MSG = pick('MSG_OOC_HAT_GIONG');
+// LÕI câu — rút TỪ HẰNG, không gõ lại: ba tài liệu phải mang chính chuỗi này, nên đổi hằng ở
+// gate-card.js mà quên đổi tài liệu là LB3 đỏ. Bản trước ghim ba literal viết tay nên hai bên
+// trôi khỏi nhau vẫn xanh (t13, lượt chấm 1).
+const LOI = MSG.replace(/^Máy đề xuất:\s*/, '').replace(/\.$/, '');
 const CAU_CU = ['tách thành một việc riêng', 'tạo thư mục'];
 const DOCS = ['feature-loop/skills/feature-loop/SKILL.md', 'commands/acceptance-card.md', 'commands/signoff.md'];
 const blk = txt => { const m = txt.match(/<<<OOC-LOI-B -->([\s\S]*?)<!-- OOC-LOI-B>>>/); return m ? m[1] : null; };
@@ -29,7 +33,7 @@ check('LB1 the Cong 2 voi finding new-contract in cau hat giong (doi chung duong
   for (const cu of CAU_CU) if (out.includes(cu)) die('thẻ còn câu cũ: ' + cu);
   // đối chứng: mục known-limits KHÔNG bị đổi lây
   const r2 = mkWs('s', G2(OOC(ITEM('known-limits'))));
-  if (!card(r2, 's').stdout.includes('Máy đề xuất: ghi vào hạn chế đã biết rồi ship.')) die('nhánh known-limits bị đổi lây');
+  if (!card(r2, 's').stdout.includes(pick('MSG_OOC_KNOWN_LIMITS'))) die('nhánh known-limits bị đổi lây');
 });
 
 check('LB2 chieu do: ban sao gate-card doi hang -> LB1 do', () => {
@@ -50,6 +54,7 @@ check('LB3 ba tai lieu: khoi OOC-LOI-B co cau moi, KHONG co cau cu', () => {
     const txt = readFileSync(path.join(ROOT, f), 'utf8');
     const b = blk(txt);
     if (b === null) die(`${f}: thiếu marker OOC-LOI-B`);
+    if (!b.includes(LOI)) die(`${f}: khối KHÔNG mang lõi câu rút từ hằng — «${LOI}»`);
     for (const need of ['hat-giong-<slug>.md', 'Gốc:', 'KHÔNG tạo `_acceptance/<slug>/`'])
       if (!b.includes(need)) die(`${f}: khối thiếu «${need}»`);
     for (const cu of CAU_CU) if (b.includes(cu)) die(`${f}: khối còn câu cũ «${cu}»`);
@@ -63,6 +68,12 @@ check('LB3 ba tai lieu: khoi OOC-LOI-B co cau moi, KHONG co cau cu', () => {
   const mutant = blk(readFileSync(f, 'utf8'));
   if (mutant === null) die('bản tiêm mất marker — phép tiêm hỏng');
   if (!CAU_CU.some(cu => mutant.includes(cu))) die('chèn câu cũ vào khối mà bộ rút khối KHÔNG thấy — phép đo mù');
+  // chiều đỏ thứ hai: tài liệu THÔI mang lõi câu (bên máy đổi, bên tài liệu quên đổi) → phải bắt
+  const f2 = path.join(d, 'y.md');
+  writeFileSync(f2, readFileSync(path.join(ROOT, DOCS[0]), 'utf8').replace(LOI, 'một câu khác hẳn'));
+  const m2 = blk(readFileSync(f2, 'utf8'));
+  if (m2 === null) die('bản tiêm 2 mất marker');
+  if (m2.includes(LOI)) die('đổi lõi câu trong bản sao mà bộ rút khối vẫn thấy lõi cũ — phép đo mù');
 });
 
 console.log(`Results: ${passed} passed, ${failed} failed`);
