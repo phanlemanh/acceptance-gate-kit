@@ -1,0 +1,18 @@
+---
+slug: eval-khai-chot-cay
+at: 2026-09-18T13:24:10Z
+verdict: findings
+p0: 3
+p1: 2
+p2: 0
+---
+
+## Findings
+
+| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |
+|---|---|---|---|---|---|
+| P0 | evals (E9) · contract (AC-9) | Dòng đếm ở thẻ chỉ bị ràng bằng đẳng thức TỰ THOẢ `k+m+j == N`. Nếu N tính bằng tổng ba số thì đẳng thức không bao giờ sai — nhánh HẰNG ĐÚNG, đúng lớp [release-2-16-0#F1] | S3 nối dây đếm vào sai danh sách hoặc quên nối. Thẻ in «0 — 0 · 0 · 0». E9 XANH vì 0+0+0 == 0. Người ký đọc «0 chưa khai» trên hồ sơ có 12 eval chưa khai rồi ký | Fixture có thành phần KHAI TRƯỚC (3 có chốt · 2 none · 1 vắng · 2 không gọi mạng); assert bộ bốn số nguyên văn 6 — 3 · 2 · 1; ba chiều đỏ có thông điệp ghim riêng | **fixed**: AC-9 + E9 viết lại đúng thước đề xuất |
+| P0 | evals (E8) · contract (AC-8) | Chiều đỏ của ô Core 12 CHẾT theo chính số đo: kit khớp hẹp 0 và bộ dò rộng trên corpus kit cũng 0, nên bản tiêm «nới bộ dò» không đổi con số nào | Bản tiêm ra W9 = 0 y hệt bản lành. Hoặc E8 tự đỏ vì hạ tầng và đốt một lượt chấm, hoặc S3 nới lỏng chiều đỏ cho qua — chiều ĐẶC HIỆU mà CLAUDE.md ghi là thiếu tới 14/09 không còn assertion sống nào | Mutant khớp-tất-cả phải ra W9 bằng số eval máy của corpus; corpus có tiêm k hồ sơ phải ra W9 bằng k; cả hai trên cùng ảnh chụp corpus và cùng bản lib | **fixed**: AC-8 + E8 thay hai mutant sống, và nói THẲNG trong Notes rằng chiều đỏ ngây thơ đã chết |
+| P0 | evals (E3) · design mục 2 · contract (AC-3) | Ca đo lớn nhất không tái lập và không có vật. E3 vừa đòi đóng băng trong lượt chạy vừa đòi không đọc ~/dev — hai vế loại trừ nhau. Không đường dẫn, không xuất xứ, và hai hằng 3737 · 97 assert nguyên văn | Chấm trên CI hoặc máy thứ hai: 10 kho không tồn tại → BLOCKED, đốt lượt chấm. Chấm lại sau vài ngày: crm thêm 3 eval gọi mạng → tổng thành 100, E3 ĐỎ dù vị từ không đổi một ký tự — chiều đặc hiệu ngược | Đóng băng corpus thành tệp trong hồ sơ, mỗi dòng mang nhãn, kèm xuất xứ (sha từng kho, script sinh suy từ vị trí script). Chân ĐỌC TỆP, assert theo NHÃN chứ không theo hằng. Khai tệp vào paths | **fixed**: AC-3 + E3 viết lại; thêm corpus-lenh.jsonl, corpus-nhan.jsonl, corpus-xuat-xu.md, sinh-corpus.mjs vào phạm vi S3 |
+| P1 | contract (AC-2, AC-4..AC-10) · design mục 5.2 | `errs` của treePins() không có bộ ĐỌC nào. Không AC nào buộc lint hay thẻ phải làm gì với errs, cũng không nói byId trả gì cho eval đang lỗi. Fail-CLOSED dừng ở tầng hàm | Eval khai `none` trơn: treePins trả err; lint im vì eval CÓ trường nên không rơi nhánh thiếu-khai; thẻ bỏ eval đó khỏi cả ba nhóm nên k+m+j vẫn đúng. E2..E10 đều XANH. Ô Core 5 «none trơn là từ-thần-chú» không có tiếng ở bất kỳ mặt nào người nhìn thấy | AC mới bắt mỗi hình dạng lỗi hiện ở CẢ HAI bộ đọc trên cùng fixture; chiều đỏ riêng cho từng bộ đọc; khai luôn byId trả gì cho eval lỗi | **fixed**: thêm AC-13 + E13, gồm cả số thứ tư «khai sai» trên dòng đếm |
+| P1 | contract frontmatter · AC-9 · AC-10 | Khai `surfaces: [cli]` trong khi hai AC đổi đúng thứ NGƯỜI ĐỌC trên thẻ đã render, và 0 eval nào thuộc lớp ui-check — E9 và E10 soi văn bản trung gian, không soi tạo phẩm người mở | Dòng đếm và cờ vàng rơi ở tầng render cho người đọc (khối bị gập, escape nuốt dấu, dòng ra ngoài phần người đọc) — đúng lớp đã dẫm ở «Thẻ Cổng 1 đọc 0 tiêu chí». 13 eval XANH, người ký không bao giờ thấy con số | Sửa surfaces cho khớp vật, hoặc giữ [cli] thì khai thẳng ở Known limits; và ít nhất một phép đo đọc tạo phẩm thẻ ĐÃ RENDER, với chiều đỏ «có trong extract, vắng trong bản người đọc» | **fixed** nửa đo: AC-9 và AC-10 nay đo HTML ĐÃ RENDER, AC-10 có đúng chiều đỏ đó, và Known limits khai chỗ hụt · **human-gate1** nửa nếp: đổi nếp `surfaces` của kit chạm 122 hồ sơ — đưa owner quyết ở Cổng Phạm vi, KHÔNG tự đổi |

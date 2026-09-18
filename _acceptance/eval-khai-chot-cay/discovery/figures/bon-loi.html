@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bốn lối và cái giá cho hồ sơ đã ký</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper:        #f5f5f5;
+      --white:        #ffffff;
+      --ink:          #2d3142;
+      --muted:        #4f5d75;
+      --soft:         #636b80;
+      --rule:         rgba(45,49,66,0.12);
+      --accent:       #eb6c36;
+      --accent-text:  #ba4513;
+      --accent-tint:  rgba(235,108,54,0.08);
+      --font-sans:  'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Lora', serif;
+      --font-mono:  'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1240px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+    }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .colophon {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      line-height: 1.6;
+      color: var(--muted);
+      border-top: 1px solid var(--rule);
+      margin-top: 1.5rem;
+      padding-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Bảng quyết định · Cổng Phạm vi · điểm 1 và điểm 2</p>
+    <h1>Bốn lối — và cái giá mỗi lối bắt hồ sơ đã ký phải trả</h1>
+
+    <svg viewBox="0 0 1040 672" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ======================= HEADER ======================= -->
+      <text x="32"  y="44" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">ĐƯỜNG LÙI</text>
+      <text x="216" y="44" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LỐI</text>
+      <text x="472" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">ĐƯỢC GÌ</text>
+      <text x="744" y="44" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">MẤT GÌ</text>
+      <line x1="32" y1="56" x2="1008" y2="56" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- =============== TRỤC DỌC — BĂNG 1: CỜ VÀNG =============== -->
+      <line x1="64" y1="72"  x2="80" y2="72"  stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <line x1="64" y1="72"  x2="64" y2="440" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <line x1="64" y1="440" x2="80" y2="440" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="88" y="228" fill="#2d3142" font-size="9"  font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.12em">CỜ VÀNG</text>
+      <text x="88" y="256" fill="#2d3142" font-size="22" font-weight="600" font-family="'Geist Mono', monospace">0</text>
+      <text x="88" y="272" fill="#636b80" font-size="9"  font-family="'Geist Mono', monospace">hồ sơ đã ký</text>
+      <text x="88" y="286" fill="#636b80" font-size="9"  font-family="'Geist Mono', monospace">phải sửa</text>
+
+      <!-- =============== TRỤC DỌC — BĂNG 2: VIOLATION (CORAL 2/2) =============== -->
+      <line x1="64" y1="464" x2="80" y2="464" stroke="#eb6c36" stroke-width="1.4"/>
+      <line x1="64" y1="464" x2="64" y2="576" stroke="#eb6c36" stroke-width="1.4"/>
+      <line x1="64" y1="576" x2="80" y2="576" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="88" y="492" fill="#ba4513" font-size="9"  font-weight="600" font-family="'Geist Mono', monospace" letter-spacing="0.12em">VIOLATION</text>
+      <text x="88" y="520" fill="#ba4513" font-size="22" font-weight="600" font-family="'Geist Mono', monospace">11</text>
+      <text x="88" y="536" fill="#ba4513" font-size="9"  font-family="'Geist Mono', monospace">hồ sơ đã ký</text>
+      <text x="88" y="550" fill="#ba4513" font-size="9"  font-family="'Geist Mono', monospace">đỏ ngay</text>
+
+      <!-- ======================= LỐI A (CORAL 1/2 — KHUYẾN NGHỊ) ======================= -->
+      <rect x="200" y="72" width="808" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="200" y="72" width="808" height="112" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="216" y="88" width="28" height="20" rx="4" fill="none" stroke="#eb6c36" stroke-width="1"/>
+      <text x="230" y="102" fill="#ba4513" font-size="11" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">A</text>
+      <text x="252" y="98"  fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Lời khai + lưới hẹp</text>
+      <text x="252" y="114" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">+ đếm ở thẻ</text>
+      <text x="216" y="138" fill="#636b80" font-size="9"  font-family="'Geist Mono', monospace">thiết kế §6 — lối A</text>
+      <rect x="216" y="150" width="112" height="20" rx="4" fill="none" stroke="#eb6c36" stroke-width="1.2"/>
+      <text x="272" y="164" fill="#ba4513" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">KHUYẾN NGHỊ</text>
+
+      <text x="472" y="102" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Hồ sơ không khai thì có tiếng.</text>
+      <text x="472" y="120" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">0 báo nhầm — đo trên 3 737 eval máy.</text>
+      <text x="472" y="138" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">0 hồ sơ cũ phải sửa.</text>
+
+      <text x="744" y="102" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Không thấy eval giấu địa chỉ máy</text>
+      <text x="744" y="120" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">chủ trong cấu hình con.</text>
+      <text x="744" y="138" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif">→ khai thành giới hạn, có ngưỡng mở lại.</text>
+
+      <!-- ======================= LỐI B ======================= -->
+      <rect x="200" y="200" width="808" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="200" y="200" width="808" height="112" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="216" y="216" width="28" height="20" rx="4" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="230" y="230" fill="#4f5d75" font-size="11" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">B</text>
+      <text x="252" y="226" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Chỉ đếm ở thẻ,</text>
+      <text x="252" y="242" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">KHÔNG cảnh báo</text>
+      <text x="216" y="266" fill="#636b80" font-size="9"  font-family="'Geist Mono', monospace">thiết kế §6 — lối B</text>
+      <rect x="216" y="278" width="112" height="20" rx="4" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="272" y="292" fill="#4f5d75" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">LOẠI</text>
+
+      <text x="472" y="230" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Rẻ nhất.</text>
+      <text x="472" y="248" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Tuyệt đối không báo nhầm.</text>
+
+      <text x="744" y="230" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Eval không bao giờ khai thì vô hình —</text>
+      <text x="744" y="248" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">hỏng đúng mục đích «hồ sơ nào KHÔNG</text>
+      <text x="744" y="266" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">làm thì không ai biết».</text>
+
+      <!-- ======================= LỐI D ======================= -->
+      <rect x="200" y="328" width="808" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="200" y="328" width="808" height="112" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="216" y="344" width="28" height="20" rx="4" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="230" y="358" fill="#4f5d75" font-size="11" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">D</text>
+      <text x="252" y="354" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Kit ship sẵn bộ chốt</text>
+      <text x="252" y="370" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">cây dùng chung</text>
+      <text x="216" y="394" fill="#636b80" font-size="9"  font-family="'Geist Mono', monospace">thiết kế §6 — lối D · ADR 0018</text>
+      <rect x="216" y="406" width="112" height="20" rx="4" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="272" y="420" fill="#4f5d75" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">PARK</text>
+
+      <text x="472" y="358" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Kho khỏi tự phát minh lại.</text>
+
+      <text x="744" y="358" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Đúng 1 kho cần — chưa tới lúc.</text>
+      <text x="744" y="376" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Giả định kho có thư mục tĩnh công khai.</text>
+      <text x="744" y="394" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Là CỘNG — cần owner phê đích danh.</text>
+
+      <!-- ======================= LỐI C ======================= -->
+      <rect x="200" y="464" width="808" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="200" y="464" width="808" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1.2"/>
+      <rect x="216" y="480" width="28" height="20" rx="4" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="230" y="494" fill="#4f5d75" font-size="11" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">C</text>
+      <text x="252" y="490" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Bắt buộc khai, CHẶN</text>
+      <text x="252" y="506" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">ở tầng cưỡng chế</text>
+      <text x="216" y="530" fill="#636b80" font-size="9"  font-family="'Geist Mono', monospace">thiết kế §6 — lối C · phá AC-11</text>
+      <rect x="216" y="542" width="112" height="20" rx="4" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="272" y="556" fill="#4f5d75" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.10em">LOẠI</text>
+
+      <text x="472" y="494" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Răng thật.</text>
+
+      <text x="744" y="494" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">11 hồ sơ đã ký đỏ ngay.</text>
+      <text x="744" y="512" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Chạm tầng cưỡng chế; ép người gõ cho</text>
+      <text x="744" y="530" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">qua cổng → lời khai hoá thủ tục,</text>
+      <text x="744" y="548" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">đúng bệnh «trạm thu phí».</text>
+
+      <!-- ======================= CHÚ GIẢI ======================= -->
+      <line x1="32" y1="616" x2="1008" y2="616" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="640" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="120" y="628" width="32" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="160" y="640" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">khuyến nghị của máy</text>
+
+      <rect x="304" y="628" width="32" height="16" rx="4" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <text x="344" y="640" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">lối đã cân — loại / park</text>
+
+      <text x="520" y="640" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">trục dọc = đường lùi cho hồ sơ đã ký: cờ vàng (0) ↔ VIOLATION (11)</text>
+    </svg>
+
+    <p class="colophon">
+      Nguồn chữ: <strong>_acceptance/eval-khai-chot-cay/figures/index.md</strong> (đề bài hình 1) ·
+      thiết kế §6 «Bốn lối» + §8 điểm 1–2 trong docs/superpowers/specs/2026-09-18-eval-khai-chot-cay-design.md ·
+      contract AC-11 (sàn hồi quy) · số 11 và 3 737 đo ở thiết kế §2<br>
+      Nhánh claude/strange-tereshkova-60a0e0 @ 380c1081 · vẽ bằng skill diagram-design 2.7.0 · hình là chiếu, nguồn là chữ
+    </p>
+  </div>
+</body>
+</html>
