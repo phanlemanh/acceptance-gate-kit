@@ -11,9 +11,9 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>62 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>11 việc"] --> GG{"Cổng Giá trị"}
-  GG --> NT["Đã nghiệm thu giá trị<br/>chưa có"]
+  GB --> DG["Đã giao<br/>64 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>8 việc"] --> GG{"Cổng Giá trị"}
+  GG --> NT["Đã nghiệm thu giá trị<br/>1 việc"]
 ```
 
 > **Bốn cổng người** — mỗi cổng là một câu hỏi chỉ người trả lời được:
@@ -61,11 +61,8 @@ flowchart TD
 - Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết) (`dac-ta-ux-vat-hoa-cau-truc`)
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
-- Lệnh in ra phải bấm được — một nguồn tên lệnh (bảng COMMAND-NAMES, bảng ⊆ vật thật, điểm bàn giao ⊆ bảng) + TRỪ ba cờ nhiễu trên thẻ + bốn sửa đúng từ finding B/C (`lenh-in-ra-phai-bam-duoc`)
 - Lời mời cổng thành vật máy sinh — thẻ in câu gộp khuyến nghị bấm được, khối VIỆC-CỦA-ANH chỉ chứa điều-chỉ-người-biết, vá các đường fail-quiet của thẻ (`loi-moi-cong-may-sinh`)
-- Nhánh chính không tên main — phép dò phải dò được, không chết ở tên đầu (`nhanh-chinh-khong-ten-main`)
 - Ra có tên ở Vòng LÀM và TRAO — trạng thái «máy đã thông» cho làn V; Cổng Đáng ký qua /approve một lượt một PR; Cổng Giá trị có lối «không đo được» + archived/timebox có bộ đọc (`ra-co-ten-lam-va-trao`)
-- «/start» là bảng điều khiển của owner, không phải bộ định tuyến — hiện hết ý đang cân nhắc, nêu tên việc máy vừa làm và thứ còn veto được, và mọi bộ đọc nói cùng một chữ (`start-bang-dieu-khien`)
 - Thước có cửa — đổi thước trong vòng có tên, có đếm, có trần như «Ngoài hợp đồng» đã có; thêm trục đỉnh-có-sẵn ở S0 (vật trước vòng · tiền đề tách khỏi tiêu chí) để giá trị mới trên vật có sẵn không thành vòng sửa thước mặc áo hợp đồng vật (`thuoc-co-cua`)
 - Vũ trang /goal ở mọi lượt người đứng ngay trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in = mỗi câu xin duyệt thiết kế của brainstorm · Cổng 1 · Gate 1.5 (`vu-trang-goal-luc-goi-ten`)
 
@@ -96,6 +93,7 @@ flowchart TD
 - Khối "👉 VIỆC CỦA ANH" — thành phần cứng máy-sinh của khuôn trình-người (thẻ cổng + lời-mời-cổng) (`khoi-viec-cua-anh`)
 - Làn ghim lại và bên đọc pin cùng loại eval khai `status: not-run` từ MỘT nguồn — pin nói ra ô nào không đo, và hồ sơ lành thôi bị đọc thành nợ (`lan-doc-status-not-run`)
 - Máy quét vào phiên hỏi đúng câu lưới trước-merge hỏi — hồ sơ không còn cần người thì thôi hiện «chờ ký», hồ sơ chưa sạch thì luôn còn ở cổng (`lan-v-khong-phai-cho-ky`)
+- Lệnh in ra phải bấm được — một nguồn tên lệnh (bảng COMMAND-NAMES, bảng ⊆ vật thật, điểm bàn giao ⊆ bảng) + TRỪ ba cờ nhiễu trên thẻ + bốn sửa đúng từ finding B/C (`lenh-in-ra-phai-bam-duoc`)
 - Ba tài liệu đầu-tay (QUICKSTART · README · GUIDE) vào vũ trụ quét lệnh — 52 token trần đổi sang dạng bấm được, cùng bảng COMMAND-NAMES và cùng ca LB2 (`lenh-tran-tai-lieu-dau-tay`)
 - Lớp bằng chứng nhìn-thấy — hợp đồng có mặt người nhìn phải có ≥1 eval ui-check (`layer: ui-observed`); răng W8 ba tầng (lint · thẻ · pre-merge NOTE), một nguồn cho surfaces, đường bỏ có tên (`lop-bang-chung-nhin-thay`)
 - Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`)
@@ -123,6 +121,7 @@ flowchart TD
 - Repo khai plugin — acceptance-init ghi .claude/settings.json (marketplace + 4 plugin) bằng script hợp nhất JSON, tên plugin lấy từ marketplace.json ship cùng plugin; GUIDE §5.1 từ 5 lệnh còn 1 cho máy sau; diagram-design bắt buộc (`repo-khai-plugin`)
 - Scope-triage cho review findings ở S4 — ngăn thứ ba "thật nhưng ngoài hợp đồng" (`s4-scope-triage`)
 - Siết răng của phép đo câu-về-hình — P90 canh mọi bản chép, răng đọc bảng thông điệp từ P197, chiều đỏ tách-đoạn cho quan hệ cùng-đoạn, ma trận nhãn nở đủ, đối chứng P90 dùng chung (`siet-rang-cau-ve-hinh`)
+- «/start» là bảng điều khiển của owner, không phải bộ định tuyến — hiện hết ý đang cân nhắc, nêu tên việc máy vừa làm và thứ còn veto được, và mọi bộ đọc nói cùng một chữ (`start-bang-dieu-khien`)
 - Hồ sơ có bằng chứng nhưng status chưa arm cổng không được tàng hình — pre-merge thôi `continue` im lặng ở draft/approved khi đã có evidence-report.md hoặc PR đổi code chịu cổng; giữ đường đọc-cũ cho hồ sơ không có bằng chứng (`status-chua-arm-cong`)
 - Vòng lặp biết tự nhận ra khi cách sửa sai khuôn — vòng thứ hai còn sinh lỗi cùng loại thì dừng và hỏi người, thay vì chạy tiếp vòng ba rồi hỏng cùng kiểu (`stop-patching-law`)
 - Lệnh suite phải sinh dòng sổ chạy — không thì mọi vòng đỏ đối chiếu sau khi ký (`suite-run-log-provenance`)
@@ -133,6 +132,10 @@ flowchart TD
 - Vào có ô, ra có tên — ý khai thác xong có ô máy đọc (stub opportunity.md), bộ quét /start tách «đang cân nhắc» khỏi «chờ Cổng Đáng» theo ngưỡng đã điền, thẻ nói số ý và tuổi; 7 hạt giống kit nhận ô, trạng thái sống một chỗ (`vao-co-o-ra-co-ten`)
 - Đợt 2 «người về biên» — trạng thái veto-có-dấu-vết cho Cổng Phạm vi T2 và Cổng Bằng chứng xanh-sạch thôi mời ký; sửa đồng bộ ba tầng luật-văn-bản + hook chặn-lúc-ghi + lưới trước-merge (`veto-co-dau-vet`)
 - Gom luật đọc hồ sơ xưởng về một chỗ — mọi bên đọc phải cho cùng một kết luận (`workspace-reader-unification`) · liên quan: product-map-uat-session
+
+## Đã nghiệm thu giá trị
+
+- Nhánh chính không tên main — phép dò phải dò được, không chết ở tên đầu (`nhanh-chinh-khong-ten-main`) — giao rộng (release)
 
 ## Xếp lại sau
 

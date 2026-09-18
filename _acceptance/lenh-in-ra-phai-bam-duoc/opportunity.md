@@ -4,9 +4,9 @@ slug: lenh-in-ra-phai-bam-duoc
 feature: Lệnh in ra phải bấm được — một nguồn tên lệnh (/<plugin>:<tên>) cho mọi điểm bàn giao, cộng bốn mục TRỪ nhiễu thẻ và finding B/C
 owner: phanlemanh@gmail.com
 stage: decided              # discovery | decided | archived
-decision: build        # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: Manh Phan
-decided_at: 2026-08-22T14:55:20Z    # ISO UTC
+decision: park            # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Mạnh
+decided_at: 2026-09-18T12:49:09Z    # ISO UTC — owner đổi build→park 18/09: ván lái-thử kế ở artifact-platform không xảy ra trong hạn 30/08, nên nửa chỉ-người-biết của ngưỡng không có số
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
