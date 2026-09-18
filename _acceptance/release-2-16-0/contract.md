@@ -5,7 +5,7 @@ slug: release-2-16-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest, GUIDE, CHANGELOG, PRODUCT-MAP, _acceptance/config.yaml. KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -194,6 +194,33 @@ không theo tổ hợp.
 ## Notes
 
 ### Known limits
+
+- known-limits (Ngoài-1/5/9, owner ghi 18/09): **contract.md** — sau khi owner thu phạm vi,
+  hai câu cũ trong Context và Known limits còn nói «tiêu chí AC-5 đo đúng kết quả ấy» và
+  «AC-5 vì thế chỉ chứng được…», trong khi `## Criteria` không còn AC-5. Người đọc hồ sơ ở
+  cửa sổ sau có thể tin nhầm là chiến dịch vẫn có thước. Ship như hiện tại; §6 và Coverage
+  nói đúng.
+- known-limits (Ngoài-2/6/8, owner ghi 18/09): **rang-cua-so.mjs** — khối chú thích đầu tệp
+  còn liệt mã thoát 6 và 7 cùng cờ `viec-va` mà thân đã gỡ, và chú thích trong
+  `_acceptance/config.yaml` còn hứa «một răng mới cho chiến dịch ghim lại». Chỉ dẫn nói khác
+  đầu ra; thân cưỡng chế đúng hai chân.
+- known-limits (Ngoài-3, owner ghi 18/09, KHÔNG sửa): **rang-so-tang.sh** — nhánh «commit gốc,
+  không có cha» là mã chết: `git rev-parse <sha>^` thoát 128 nhưng vẫn in lại chuỗi ra đầu ra,
+  nên phép kiểm rỗng luôn đúng và nhánh lui không bao giờ chạy. Ca một-commit chưa xảy ra ở
+  kho nào đang dùng kit.
+- known-limits (Ngoài-4/10, owner ghi 18/09): **rang-so-tang.sh** — neo là cha của commit sinh
+  hồ sơ, nên nó chỉ mang số CŨ khi hồ sơ vào kho TRƯỚC hoặc CÙNG commit nâng số. Mốc sau commit
+  bước nâng số trước rồi mới thêm hồ sơ sẽ đỏ giả mã 3 vĩnh viễn. Lời khai «mang số cũ ở cả hai
+  thứ tự» trong AC-1 hẹp hơn sự thật: đúng hai thứ tự đã gặp, không đúng thứ tự thứ ba.
+- known-limits (Ngoài-7, owner ghi 18/09, KHÔNG sửa): **evidence-report.md** — mục Iterations
+  còn nhắc E5 và E8 như sử liệu của ba lượt trước. Đó là lịch sử đúng, không phải bảng eval;
+  bảng eval chỉ có 11 dòng của hợp đồng cuối.
+- known-limits (Ngoài-11, owner ghi 18/09): **evals.yaml** — `paths` của E4 không phủ hết đầu
+  vào phán quyết của nó, nên carry-forward ở một lượt sau có thể giữ kết quả cũ dù đầu vào đã
+  đổi.
+- known-limits (Ngoài-12, owner ghi 18/09): **rang-so-tang.sh** — răng DUY NHẤT bị sửa thân ở
+  mốc này lại không in dấu bản của chính nó, khác hai răng cùng bộ. Báo cáo sau không tự phân
+  biệt được bản nào đã chạy.
 
 - **Việc meta không mở hồ sơ vô hình với phép đếm máy** — AC-4 đếm hồ sơ vòng, không đếm
   commit. Ba việc vá của cửa sổ này đều có commit và không có hồ sơ, nên chúng chỉ sống

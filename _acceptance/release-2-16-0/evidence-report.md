@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 85e922e944f1d9a3fa4f6fe5fe6b504e1aee2d15
-human_signoff:
+human_signoff: Mạnh 2026-09-18 — ký lượt chấm 4 (PASS, 0 phát hiện trong hợp đồng); 12 mục ngoài hợp đồng ghi Known limits, Ngoài-3 và Ngoài-7 không sửa; đồng ý phạm vi đã cắt; phê hết 13 quyết định ghi sau Cổng Phạm vi, gồm quyết định B thu phạm vi (gỡ AC-5 và AC-8)
 ---
 
 # Evidence Report: release-2-16-0
