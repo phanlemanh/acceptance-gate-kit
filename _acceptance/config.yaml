@@ -355,8 +355,6 @@ executors:
     moc_diagram_2_16: bash _acceptance/release-2-16-0/rang-moc.sh --chan diagram
     cua_so_vendored_2_16: node _acceptance/release-2-16-0/rang-cua-so.mjs --chan vendored
     cua_so_viec_meta_2_16: node _acceptance/release-2-16-0/rang-cua-so.mjs --chan viec-meta
-    cua_so_viec_va_2_16: node _acceptance/release-2-16-0/rang-cua-so.mjs --chan viec-va
-    chien_dich_ghim_lai_2_16: node _acceptance/release-2-16-0/rang-ghim-lai.mjs --chan chien-dich
     # --- thuoc-co-cua (17/09) --- vòng meta 2.15 → 2.16: mỗi khoá chạy MỘT tệp ca rồi ghim dòng PASS của đúng các ca nó gọi tên
     tcc_s4args_not_run: "bash -c 'out=$(node tests/scripts/s4-args-not-run.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NRS1 NRS2 NRS3 NRS4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_wf_not_run: "bash -c 'out=$(node tests/workflows/not-run-luot-cham.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NRW1 NRW2 NRW3; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"

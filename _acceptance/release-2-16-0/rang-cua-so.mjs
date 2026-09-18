@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// rang-cua-so.mjs — răng của hồ sơ release-2-16-0 (CHÉP nguyên thân từ release-2-15-0), ba chân `vendored` · `viec-meta` · `viec-va`.
+// rang-cua-so.mjs — răng của hồ sơ release-2-16-0 (CHÉP nguyên thân từ release-2-15-0), hai chân `vendored` · `viec-meta`.
 //
 // Vì sao tồn tại (phản biện context sạch của mốc này, hai P1): hồ sơ mốc khai hai sự
 // thật về cửa sổ mà không thước nào đo — «lớp CI vendored không đổi tệp nào» và «danh
@@ -36,7 +36,6 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -45,7 +44,7 @@ const out = (s) => process.stdout.write(s + '\n');
 const stop = (code, msg) => { out(msg); process.exit(code); };
 const argv = process.argv.slice(2);
 const chan = argv.length === 2 && argv[0] === '--chan' ? argv[1] : null;
-if (chan !== 'vendored' && chan !== 'viec-meta' && chan !== 'viec-va') stop(8, 'FAIL(8): cần đúng --chan vendored, --chan viec-meta hoặc --chan viec-va');
+if (chan !== 'vendored' && chan !== 'viec-meta') stop(8, 'FAIL(8): cần đúng --chan vendored hoặc --chan viec-meta');
 
 const git = (...a) => { const r = spawnSync('git', ['-C', ROOT, ...a], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); return { code: r.status, out: String(r.stdout || '').trim() }; };
 if (git('rev-parse', 'HEAD').code !== 0) stop(2, `FAIL(2): ${ROOT} không phải kho git`);
@@ -93,67 +92,6 @@ if (chan === 'vendored') {
   if (doi.code !== 0) stop(2, `FAIL(2): git diff trên danh sách chép thất bại`);
   if (doi.out) stop(3, `FAIL(3): tệp chép CI đổi kể từ lần cắt số ${soNeo} (${neo8}):\n${doi.out.split('\n').map(f => `  - ${f}`).join('\n')}`);
   out(`PASS: vendored ${tep.length - 1} tep chep CI + chinh tep mang khoi chep (danh sach BANG danh sach tai neo) KHONG doi ke tu lan cat so ${soNeo} (${neo8}) toi cay lam viec (doi chung: cua so tren toan kho co ${toanKho.out.split('\n').length} tep doi)`);
-  process.exit(0);
-}
-
-// chân viec-va — lời khai «ba việc vá của cửa sổ, không việc nào chạm engine»
-//
-// Vì sao tồn tại (phản biện context sạch của mốc này, P1): hợp đồng khai ba việc sau
-// chữ ký của vòng meta đều là vá hoặc sổ sách. Không thước nào đo lời khai ấy, và nó
-// là LỚP THỨ BA của cùng một bệnh mà mốc 2.15.0 đã đóng hai lần.
-//
-// Phép đo: từ chữ ký của vòng meta tới CÂY LÀM VIỆC, không tệp engine nào được đổi,
-// TRỪ các tệp mà chính mốc này khai là của nó. Cửa sổ của vòng meta thì không soi —
-// vòng ấy có hồ sơ và chữ ký riêng.
-//
-// Đối chứng dương hai vế, cùng lượt: (1) cửa sổ neo..chữ-ký PHẢI chứa tệp engine —
-// nếu không thì bộ lọc engine chưa chứng minh được là nó thấy tệp engine, và một
-// kết luận «không tệp nào» là hằng đúng; (2) cửa sổ chữ-ký..cây KHÔNG rỗng.
-if (chan === 'viec-va') {
-  const hd = readFileSync(path.join(HERE, 'contract.md'), 'utf8');
-  const k = hd.match(/<<<VIEC-VA-SAU-CHU-KY\n([\s\S]*?)VIEC-VA-SAU-CHU-KY>>>/);
-  if (!k) stop(2, `FAIL(2): không rút được khối VIEC-VA-SAU-CHU-KY của _acceptance/${SLUG}/contract.md`);
-  const d = k[1].split('\n').map((l) => l.trim()).filter(Boolean);
-  if (d.length < 2) stop(2, `FAIL(2): khối VIEC-VA-SAU-CHU-KY phải có dòng chữ-ký rồi ít nhất một dòng tệp-của-mốc, thấy ${d.length}`);
-  const mKy = /^chu-ky:\s*([0-9a-f]{7,40})$/.exec(d[0]);
-  if (!mKy) stop(2, `FAIL(2): dòng 1 của khối phải là «chu-ky: <sha>», thấy: ${d[0]}`);
-  const ky = mKy[1];
-  if (git('cat-file', '-e', `${ky}^{commit}`).code !== 0) stop(2, `FAIL(2): sha chữ ký ${ky} không có trong kho này`);
-  const cuaMoc = d.slice(1).map((l) => l.split(/\s+/)[0]);
-
-  // «Engine» hỏi ĐÚNG MỘT NGUỒN của kho, và hỏi bằng CHÍNH hai hàm mà làn ghim lại
-  // dùng cho vị từ bỏ-qua (khối SKIP-UNCHANGED-PREDICATE của repin-lane.mjs):
-  // `configList` của lib đọc danh sách, `globToRe` của carry-plan khớp mẫu. Tệp
-  // git-theo-dõi NGOÀI `_acceptance/` và KHÔNG khớp `risk_tiers.t1_skip_globs` thì
-  // là hành vi.
-  //
-  // Hai bản trước đều CHÉP, mỗi bản một tầng: bản 1 chép DANH SÁCH (mảng tiền tố gõ
-  // tay) và trôi ngay ở lượt chấm 1 — thư mục manifest ở gốc kho vô hình; bản 2 bỏ
-  // danh sách nhưng còn chép KHUÔN (tự regex ra khoá, tự dịch glob) và lượt chấm 2
-  // chứng nó trôi hai chiều: khoá mang chú thích đuôi thì bản chép trả rỗng, mục
-  // mang chú thích đuôi thì bản chép cắt im lặng danh sách. Bản này không còn khuôn
-  // nào của riêng nó.
-  const lib = createRequire(path.join(ROOT, 'x.cjs'))(path.join(ROOT, 'lib', 'workspace-record.cjs'));
-  if (typeof lib.configList !== 'function') stop(2, 'FAIL(2): lib/workspace-record.cjs không cấp configList — không có nguồn đọc danh sách mẫu');
-  const { globToRe } = await import(path.join(ROOT, 'feature-loop', 'scripts', 'carry-plan.mjs'));
-  if (typeof globToRe !== 'function') stop(2, 'FAIL(2): feature-loop/scripts/carry-plan.mjs không cấp globToRe — không có nguồn khớp mẫu');
-  const t1 = lib.configList(readFileSync(path.join(ROOT, '_acceptance', 'config.yaml'), 'utf8'), 't1_skip_globs');
-  if (!t1.length) stop(2, 'FAIL(2): risk_tiers.t1_skip_globs của _acceptance/config.yaml rỗng — không có nguồn để hỏi «cái gì là hành vi»');
-  const reT1 = t1.map(globToRe);
-  const laEngine = (f) => !f.startsWith('_acceptance/') && !reT1.some((r) => r.test(f));
-
-  const truoc = git('diff', '--name-only', neo, ky);
-  if (truoc.code !== 0) stop(2, `FAIL(2): không so được cửa sổ ${neo8}..${ky.slice(0, 8)}`);
-  const engineTruoc = truoc.out.split('\n').filter(Boolean).filter(laEngine);
-  if (!engineTruoc.length) stop(7, `FAIL(7): cửa sổ ${neo8}..${ky.slice(0, 8)} KHÔNG có tệp engine nào — bộ lọc engine chưa chứng minh được là nó thấy tệp engine, kết luận dưới là hằng đúng`);
-
-  const sau = git('diff', '--name-only', ky);
-  if (sau.code !== 0) stop(2, `FAIL(2): không so được cửa sổ ${ky.slice(0, 8)}..cây làm việc`);
-  const tepSau = sau.out.split('\n').filter(Boolean);
-  if (!tepSau.length) stop(2, `FAIL(2): cửa sổ ${ky.slice(0, 8)}..cây làm việc RỖNG — phép so chưa sống`);
-  const pham = tepSau.filter(laEngine).filter((f) => !cuaMoc.includes(f));
-  if (pham.length) stop(6, `FAIL(6): có tệp engine đổi SAU chữ ký ${ky.slice(0, 8)} của vòng meta mà hợp đồng không khai là tệp của mốc:\n${pham.map((f) => `  - ${f}`).join('\n')}`);
-  out(`PASS: viec-va 0 tep engine doi sau chu ky ${ky.slice(0, 8)} ngoai ${cuaMoc.length} tep cua chinh moc (doi chung: cua so ${neo8}..${ky.slice(0, 8)} co ${engineTruoc.length} tep engine; cua so sau chu ky co ${tepSau.length} tep doi)`);
   process.exit(0);
 }
 

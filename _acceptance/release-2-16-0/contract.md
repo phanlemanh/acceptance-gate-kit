@@ -38,15 +38,9 @@ hoặc sổ sách, không việc nào chạm engine:
 | ghi hai finding rơi khỏi thẻ Cổng Bằng chứng vào Known limits | main `b4fbec9b` | không | hai mục Ngoài-1 và Ngoài-2 của vòng, owner định đoạt ở cổng |
 | mở ô `phep-do-o-doc-lap-thuoc-co-cua` ở Cổng Đáng | main `e3563671` | không | ba finding ngoài hợp đồng của vòng gom về một ô; owner chấm build, vá-trong-mốc ở cửa sổ 2.16 → 2.17 |
 
-Ba việc ấy nằm SAU chữ ký của vòng meta, và lời khai «không việc nào chạm engine» do
-răng `rang-cua-so.mjs --chan viec-va` đo — khối dưới khai chữ ký ấy rồi liệt các tệp mà
-chính mốc này đổi:
-
-<!-- <<<VIEC-VA-SAU-CHU-KY
-chu-ky: b9f8766e
-.claude-plugin/plugin.json
-feature-loop/.claude-plugin/plugin.json
-VIEC-VA-SAU-CHU-KY>>> -->
+Ba việc ấy nằm SAU chữ ký của vòng meta `b9f8766e`. Lời khai «không việc nào chạm
+engine» ở đây **KHÔNG có thước** — xem Known limits và Notes §6; owner thu phạm vi ở
+Cổng Bằng chứng sau ba lượt chấm.
 
 Tập hồ sơ vòng sinh sau lần cắt số trước, do răng `rang-cua-so.mjs` đối chiếu với kho:
 
@@ -54,7 +48,10 @@ Tập hồ sơ vòng sinh sau lần cắt số trước, do răng `rang-cua-so.m
 thuoc-co-cua
 VIEC-META-CUA-SO>>> -->
 
-**Chiến dịch ghim lại chạy ở mốc này, và nó ĐỎ.** Hai cửa sổ trước hoãn nó (R3 ở 2.15.0:
+**Chiến dịch ghim lại chạy ở mốc này, và nó ĐỎ.** Kết quả của nó là lời kể có vật kèm
+theo — `chien-dich-ghim-lai.json`, nguyên văn đầu ra của làn, nằm trong hồ sơ — nhưng
+KHÔNG có tiêu chí nào đo nó: owner thu phạm vi ở Cổng Bằng chứng sau ba lượt chấm (Notes
+§6). Hai cửa sổ trước hoãn nó (R3 ở 2.15.0:
 «không chạy ở dạng hiện tại»). Owner gọi tên nó cho mốc này. Làn chạy trọn tại
 `26bf12fe`: 5 lệnh suite xanh, 215 lệnh phân biệt, 2 giờ 25 phút máy, 0 tệp hồ sơ đã ký
 bị chạm — rồi dừng mã 1 vì **14 trên 72 hồ sơ có eval đỏ**, tổng **60 eval**. Làn đỏ
@@ -122,85 +119,6 @@ chứng dương: chính hồ sơ mốc này phải được thấy là sinh sau 
 chạy trên cây thật nhận kho kit, đếm được số vòng meta đang mở. Việc chỉ có commit,
 không mở hồ sơ, vô hình với phép đo này — khai ở Known limits.
 
-### AC-5 (chiến dịch ghim lại) — lời kể về chiến dịch gắn vào chính ĐẦU RA của làn
-
-**Given** vật `_acceptance/release-2-16-0/chien-dich-ghim-lai.json` — nguyên văn JSON mà
-làn ghim lại in ra khi nó dừng — cùng mọi hồ sơ đã thông Cổng Bằng chứng trong kho, và
-khối khai `CHIEN-DICH-GHIM-LAI` của hợp đồng này (sáu dòng: `sha` · `run_id` · `exit` ·
-`ho-so-do` · `eval-do` · `ho-so-ghim`)
-**When** chạy `rang-ghim-lai.mjs --chan chien-dich`
-**Then** bốn quan hệ đứng, cộng một vế hai chiều:
-
-1. **Lời khai BẰNG vật** — `sha` và `run_id` trong hợp đồng trùng đúng hai trường ấy của
-   vật. Hợp đồng thôi là nguồn; nó là bản sao phải khớp.
-2. **Vật phủ ĐÚNG kho** — tập hồ sơ trong vật bằng tập hồ sơ đã thông cổng, không thiếu
-   không thừa, gọi tên khi lệch.
-3. **Từng hồ sơ, tập id eval trong vật BẰNG tập id eval máy của chính `evals.yaml` hồ sơ
-   ấy** (trừ ô tự khai không-chạy). Đây là quan hệ giết hằng-đúng: một tệp bịa phải tái
-   tạo đúng 741 mã eval trên 72 tệp khai.
-4. **Ba số hợp đồng kể ở Notes §4 — hồ sơ đỏ · eval đỏ · hồ sơ được ghim — TÍNH TỪ VẬT**
-   và bằng ba số khai. «Đỏ» đọc theo kỳ vọng đã khai, không theo số 0, cùng luật với làn.
-
-Vế hai chiều: `exit` 0 thì phải có hồ sơ mang dòng ghim lại của lượt; `exit` khác 0 thì
-KHÔNG hồ sơ đã ký nào mang `run_id` ấy, và vật phải có ít nhất một hồ sơ đỏ.
-
-**Vì sao đổi khuôn ở lượt chấm 3 — hai bản trước đều HẰNG ĐÚNG.** Bản 1 cho lượt đỏ khai
-chữ «không có» rồi bỏ qua chính phép so; phản biện context sạch bắt. Bản 2 đòi sha, run_id
-và mã thoát, nhưng ở nhánh làn-đỏ KHÔNG vật nào trong kho mang `run_id` ấy — làn đỏ theo
-thiết kế không ghi gì — nên phép so chạy trên tập rỗng: bộ chấm lượt 2 thử thật, bịa
-`run_id` và đổi `sha` sang HEAD, răng vẫn PASS cả hai lần. Cái sai chung của hai bản là đi
-tìm vật ở nơi làn đỏ không bao giờ ghi. Bản này đổi chỗ đứng: **đầu ra của làn LÀ vật**,
-nằm trong hồ sơ, và nó bị buộc vào kho bằng ba quan hệ mà một tệp bịa không thoả được. Cả
-hai phép bịa mà bộ chấm dùng nay đều đỏ mã 3.
-
-Khối khai — sáu dòng, là bản sao phải khớp vật:
-
-<!-- <<<CHIEN-DICH-GHIM-LAI
-26bf12fed2fc71e6b1e21375645f299f144ce34a
-run_id: repin-20260918T025435Z-51649
-exit: 1
-ho-so-do: 14
-eval-do: 60
-ho-so-ghim: 0
-CHIEN-DICH-GHIM-LAI>>> -->
-
-**Khai thẳng cái tiêu chí này KHÔNG hứa:** nó không hứa chiến dịch XANH, và nó KHÔNG chứng
-được rằng làn đã thật sự chạy các lệnh — không vật nào trong kho ghi điều đó cho một làn
-đỏ. Nó chứng rằng lời kể trong hợp đồng khớp một đầu ra có cấu trúc khớp chính kho ở 72 hồ
-sơ và 741 mã eval. Giới hạn ấy khai ở Known limits.
-
-### AC-8 (lời khai về ba việc vá) — «không việc nào chạm engine» là kết luận của phép đo
-
-**Given** khối khai `VIEC-VA-SAU-CHU-KY` của hợp đồng này — dòng đầu là chữ ký Cổng
-Bằng chứng của vòng meta trong cửa sổ, các dòng sau là các tệp mà chính mốc này đổi
-**When** chạy `rang-cua-so.mjs --chan viec-va`
-**Then** từ chữ ký ấy tới cây làm việc, KHÔNG tệp engine nào đổi ngoài các tệp mốc đã
-khai — có thì đỏ, in từng tệp. «Engine» hỏi ĐÚNG MỘT NGUỒN của kho, và hỏi bằng CHÍNH
-hai hàm mà làn ghim lại dùng cho vị từ bỏ-qua: `configList` của `lib/workspace-record.cjs`
-đọc danh sách, `globToRe` của `feature-loop/scripts/carry-plan.mjs` khớp mẫu. Tệp
-git-theo-dõi NGOÀI `_acceptance/` và KHÔNG khớp `risk_tiers.t1_skip_globs` thì là hành vi.
-Thiếu một trong hai hàm là mã 2, không phải đường đọc-cũ. Cửa sổ của chính vòng meta KHÔNG bị soi: vòng ấy có hồ sơ và chữ ký
-riêng.
-
-**Hai bản trước đều CHÉP, mỗi bản một tầng.** Bản 1 chép DANH SÁCH — một mảng tiền tố gõ
-tay — và trôi ngay ở lượt chấm 1: `.claude-plugin/` không có tiền tố nào nên hai manifest ở
-gốc vô hình, trong khi cùng tệp ấy dưới `feature-loop/` lại là engine, nên dòng khai
-`.claude-plugin/plugin.json` chỉ là trang trí. Bản 2 bỏ danh sách nhưng còn chép KHUÔN — tự
-tìm khoá bằng biểu thức, tự dịch mẫu — và lượt chấm 2 chứng nó trôi hai chiều: khoá mang
-chú thích đuôi thì bản chép trả rỗng, mục mang chú thích đuôi thì bản chép cắt im lặng
-danh sách. Bản này không còn khuôn nào của riêng nó; hai hình dạng ấy đã thử thật và đều
-im đúng.
-
-**Đối chứng dương hai vế, cùng lượt:** cửa sổ từ neo tới chữ ký PHẢI chứa tệp engine —
-không có thì bộ lọc chưa chứng minh được là nó thấy tệp engine, và kết luận «không tệp
-nào» là hằng đúng, răng dừng mã 7; và cửa sổ sau chữ ký KHÔNG rỗng.
-
-**Vì sao tiêu chí này tồn tại:** đây là LỚP THỨ BA của cùng một bệnh. Mốc 2.15.0 đóng
-hai lời khai về cửa sổ không có thước (lớp vendored · danh sách việc); phản biện context
-sạch của mốc này tìm ra lời khai thứ ba — bảng Context nói «ba việc vá, không việc nào
-chạm engine», và cả `risk_tier` của hồ sơ lẫn ngưỡng «cửa sổ này là 0» ở Known limits
-đều đứng trên nó.
-
 ### AC-6 (hồi quy) — bốn suite và bản đồ sản phẩm
 
 **Given** cây tại HEAD
@@ -253,16 +171,12 @@ không theo tổ hợp.
   và chữ ký riêng, mốc chỉ khai và đếm nó (AC-4, AC-7) · ba việc vá → không việc nào chạm
   engine, nên không tiêu chí hành vi nào; chúng vào bảng Context và dòng 2 của §1.
 - **Trục việc-của-mốc** `[thước CE: luật re-pin-theo-release và luật (c) của CLAUDE.md]`:
-  hồi quy → AC-6 · lớp vendored → AC-3 · chiến dịch ghim lại → AC-5 · năm khối Notes và
-  năm dòng số → AC-7.
+  hồi quy → AC-6 · lớp vendored → AC-3 · năm khối Notes và năm dòng số → AC-7 · chiến
+  dịch ghim lại → **không thước**, kể ở Notes §4 kèm vật, Known limits nói thẳng.
 - **Trục lời-khai-về-cửa-sổ** `[thước CE: ba lời khai mà một hồ sơ mốc nói về cửa sổ]`:
   lớp vendored không đổi → AC-3 · danh sách vòng của cửa sổ → AC-4 · ba việc vá không
-  chạm engine → AC-8. Ba lời khai, ba thước; trước mốc 2.15.0 cả ba đều không có thước
-  nào.
-- **Trục của chiến dịch ghim lại** `[thước CE: ba trạng thái một hồ sơ đã ký có thể ở sau
-  một lượt chiến dịch]`: đã ghim ở sha của lượt · chưa ghim vì làn đỏ · chưa ghim vì không
-  nằm trong phạm vi lượt. → AC-5. Tổ hợp KHÔNG đo, khai thẳng: hồ sơ có dòng ghim lại ở
-  một sha KHÁC sha của lượt (ghim lại riêng lẻ trước đó) — răng chỉ đọc dòng mới nhất.
+  chạm engine → **không thước** sau khi thu phạm vi. Hai trên ba lời khai có thước; lời
+  khai thứ ba lùi về chỗ nó đứng trước mốc 2.15.0, và Notes §6 nói vì sao.
 
 ## Out of scope
 
@@ -295,14 +209,20 @@ không theo tổ hợp.
 - **Răng chiến dịch đọc dòng ghim lại MỚI NHẤT của mỗi hồ sơ.** Hồ sơ từng ghim lại ở một
   lượt riêng lẻ trước đó, rồi không vào lượt chiến dịch, sẽ hiện là «chưa ghim ở sha này»
   — đúng, nhưng không phân biệt được với hồ sơ chưa từng ghim lại bao giờ.
-- **HAI chân răng của CHÍNH hồ sơ này chắc chắn đỏ ở chiến dịch ghim lại kế.** Chân
-  `viec-meta` neo vào «lần cắt số trước suy từ kho»: khi mốc sau cắt số, neo dời tới commit
-  nâng số của mốc này, và đối chứng dương «hồ sơ mốc phải sinh sau neo» sẽ dừng mã 2 — đúng
-  ca mà `release-2-15-0` vừa đỏ ở chiến dịch này. Chân `viec-va` so từ chữ ký vòng meta tới
-  CÂY LÀM VIỆC, nên mọi tệp engine đổi ở cửa sổ sau đều rơi vào tập cấm và nó dừng mã 6. Hồ
-  sơ khai thẳng thay vì vá riêng cho mình: vá một bản sao là để nguyên lớp sống ở mọi bản
-  còn lại, và lớp ấy là nhát cắt có tên ở §5. Ngưỡng đang đếm: đã 2 hồ sơ mốc đỏ vì lớp này
-  (`release-2-14-0`, `release-2-15-0`), mốc này sẽ là thứ ba.
+- **Chân `viec-meta` của hồ sơ này chắc chắn đỏ ở chiến dịch ghim lại kế.** Nó neo vào
+  «lần cắt số trước suy từ kho»: khi mốc sau cắt số, neo dời tới commit nâng số của mốc
+  này, và đối chứng dương «hồ sơ mốc phải sinh sau neo» sẽ dừng mã 2 — đúng ca mà
+  `release-2-15-0` vừa đỏ ở chiến dịch này. Hồ sơ khai thẳng thay vì vá riêng cho mình: vá
+  một bản sao là để nguyên lớp sống ở mọi bản còn lại, và lớp ấy là nhát cắt có tên ở §5.
+  Ngưỡng đang đếm: đã 2 hồ sơ mốc đỏ vì lớp này (`release-2-14-0`, `release-2-15-0`), mốc
+  này sẽ là thứ ba.
+- **Hai lời khai của mốc này KHÔNG có thước, do owner thu phạm vi ở Cổng Bằng chứng**
+  (quyết định B, sau ba lượt chấm — Notes §6): (i) ba số của chiến dịch ghim lại — 14 hồ
+  sơ đỏ, 60 eval đỏ, 0 hồ sơ được ghim; (ii) «ba việc vá của cửa sổ không việc nào chạm
+  engine», và cùng nó là dòng `risk_tier: T2` của hồ sơ. Vật của (i) nằm trong hồ sơ
+  (`chien-dich-ghim-lai.json`, nguyên văn đầu ra của làn) nên ai cũng tính lại được; (ii)
+  chỉ có nhật ký git đọc tay. Lời khai thứ hai lùi về đúng chỗ nó đứng trước mốc 2.15.0.
+  Ngưỡng đang đếm: ≥ 1 lần một con số hoặc một lời khai trong hai mục ấy sai ở mốc sau.
 - **Chiến dịch ĐỎ không để lại vật nào trong kho, nên «đã chạy» không chứng được.** Làn
   đỏ theo thiết kế không ghi một dòng nào; AC-5 vì thế chỉ chứng được rằng lời kể trong
   hợp đồng khớp một đầu ra có cấu trúc khớp chính kho ở 72 hồ sơ và 741 mã eval, chứ
@@ -485,6 +405,20 @@ trong luật dừng-vá, và luật ấy nổ cùng lúc với trần ba vòng.
 API đúng — 14 hồ sơ đỏ, 60 eval đỏ ở cả hai cách — vì hiện KHÔNG eval nào trong kho khai
 mã thoát mong đợi khác 0. Chúng sai về nguyên tắc, không sai về số hôm nay.
 
+**Owner chọn lối B ở Cổng Bằng chứng, 18/09: THU PHẠM VI.** Hai tiêu chí AC-5 (chiến
+dịch ghim lại) và AC-8 (ba việc vá không chạm engine) GỠ khỏi mốc, cùng hai eval và
+`rang-ghim-lai.mjs`; chân `viec-va` gỡ khỏi răng cửa sổ. Hai lời khai lùi xuống Notes,
+kèm Known limits nói thẳng chúng không có thước. Vật của chiến dịch —
+`chien-dich-ghim-lai.json`, nguyên văn đầu ra của làn — GIỮ trong hồ sơ, nên ba số vẫn
+tính lại được, chỉ là không máy nào canh.
+
+**Vì sao B chứ không phải sửa tiếp.** Ba lượt đã chứng một răng cấp hồ sơ không tự dựng
+lại được ngữ nghĩa của bộ máy mà không trôi; nhát sửa đúng nằm trong engine và đã có tên
+ở hai chỗ cắt của cửa sổ kế (§5 mục 0 và 5b). Sửa tiếp là đặt cược rằng lần thứ tư tìm
+được bản chép cuối — ba lần trước mỗi lần đều lòi thêm một bản. Mốc này việc của nó là
+cắt số và kể đúng chuyện cửa sổ; cả hai đều xong, và mọi tiêu chí còn lại đã xanh từ lượt
+chấm 2.
+
 **Và một phát hiện ngoài hợp đồng CHẶN chính chữ ký.** Quan hệ (2) của răng chiến dịch so
 ảnh chụp 72 hồ sơ với trạng thái SỐNG của kho. Lúc owner ký, hồ sơ mốc này thành hồ sơ đã
 thông cổng thứ 73, và eval E5 đỏ mã 4 ngay tại lượt ký. Đã thử thật. Đây đúng lớp mà §5
@@ -493,8 +427,11 @@ không đo một đại lượng di động — và nó quay lại cắn đúng 
 
 ### 5. Nhát cắt cho cửa sổ kế — gọi tên
 
-0. **CHỖ CẮT CHÍNH, số của mốc này chỉ thẳng vào: răng của một hồ sơ đã ký phải đo một sự
-   thật LỊCH SỬ, không đo một đại lượng di động.** Ba hồ sơ mốc liên tiếp mắc cùng lớp —
+0. **CHỖ CẮT CHÍNH, số của mốc này chỉ thẳng vào HAI lần: răng của một hồ sơ đã ký phải
+   đo một sự thật LỊCH SỬ, không đo một đại lượng di động — và nó phải MƯỢN vị ngữ của bộ
+   máy, không dựng lại.** Ba lượt chấm của chính mốc này là bằng chứng thứ hai: mỗi lượt
+   bắt một bản chép mới của cùng một vị ngữ, và mốc phải thu phạm vi mới ship được (§6).
+   Kit chưa có bề mặt nào cho răng của hồ sơ mượn vị ngữ, nên mỗi hồ sơ tự dựng lại. Ba hồ sơ mốc liên tiếp mắc cùng lớp —
    `release-2-14-0` chép tay một con số sẽ trôi, `release-2-15-0` neo vào «lần cắt số trước
    suy từ kho» nên neo dời là đối chứng dương của nó sập, và `release-2-16-0` sẽ là thứ ba
    vì nó chép đúng khuôn ấy. Nhát sửa rẻ nhất: khi hồ sơ được KÝ, neo mà răng suy từ kho
