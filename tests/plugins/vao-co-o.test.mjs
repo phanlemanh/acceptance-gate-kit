@@ -9,13 +9,14 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
-import { fileFromTemplate } from '../fixtures/from-template.mjs';
+import { fileFromTemplate, blockFromTemplate } from '../fixtures/from-template.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..', '..');
 const SCAN = path.join(ROOT, 'scripts', 'start-scan.mjs');
 const TEMPLATE = path.join(ROOT, 'skills', 'acceptance', 'references', 'opportunity-template.md');
 const START_MD = path.join(ROOT, 'commands', 'start.md');
+const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
 const require = createRequire(import.meta.url);
 const { section } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
 const HEADING = 'Ngưỡng chết / ngưỡng UAT';
@@ -23,7 +24,7 @@ const MARKER = 'OPP-FRONTMATTER-TEMPLATE';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
-const ALL_IDS = ['VC1', 'VC2', 'VC3', 'VC4', 'VC6', 'VC7', 'VC8'];
+const ALL_IDS = ['VC1', 'VC2', 'VC3', 'VC4', 'VC6', 'VC7', 'VC8', 'VC9'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.VC_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -59,6 +60,56 @@ const pluginCopy = ({ script, template } = {}) => {
   return { scan: sp, template: tp };
 };
 const slugsIn = arr => (arr || []).map(x => x.slug);
+
+// ---- Neo ngoài (hồ sơ o-chi-mo-khi-co-neo-ngoai): bên đọc rút LUẬT từ khuôn, không gõ lại.
+const fmv = (t, k) => { const m = t.match(new RegExp(`^${k}:\\s*(.*?)\\s*(#.*)?$`, 'm')); return m ? m[1].trim() : ''; };
+const gocRule = (tpl) => {
+  let line, rules;
+  try { line = blockFromTemplate(tpl, 'OPP-GOC-LINE').trim(); rules = blockFromTemplate(tpl, 'OPP-GOC-RULE').trim().split('\n'); }
+  catch (e) { throw new Error('khuôn thiếu marker OPP-GOC-LINE/OPP-GOC-RULE'); }
+  if (rules.length !== 2) throw new Error('khuôn OPP-GOC-RULE phải đúng hai dòng');
+  return { line, hoSo: slug => new RegExp(rules[0].split('{slug}').join(slug), 'm'), nguoi: new RegExp(rules[1], 'm') };
+};
+// Hàng chờ Cổng Đáng = discovery, HOẶC decided+build chưa có contract (ô mở thẳng ở decided
+// vẫn phải chịu răng — gap-probe F3: không thì «tự ăn thuốc» là hằng đúng). park/kill/archived miễn.
+const hangCho = dir => {
+  const o = path.join(dir, 'opportunity.md');
+  if (!existsSync(o) || existsSync(path.join(dir, 'contract.md'))) return null;
+  const t = readFileSync(o, 'utf8'); const st = fmv(t, 'stage'), de = fmv(t, 'decision');
+  return (st === 'discovery' || (st === 'decided' && de === 'build')) ? t : null;
+};
+const neoErrs = (accDir, tpl) => {
+  const r = gocRule(tpl); const errs = [];
+  for (const slug of readdirSync(accDir)) {
+    const dir = path.join(accDir, slug);
+    let t; try { t = hangCho(dir); } catch { continue; }
+    if (t === null) continue;
+    const m = t.match(/^Gốc:.*$/m);
+    if (!m) { errs.push(`${slug}: thiếu Gốc`); continue; }
+    const val = m[0].replace(/^Gốc:\s*/, '').trim();
+    if (!val || m[0].trim() === r.line) { errs.push(`${slug}: chưa điền`); continue; }
+    if (new RegExp(`/_acceptance/${slug}(/|$)`).test(val)) { errs.push(`${slug}: trỏ chính nó`); continue; }
+    if (!r.hoSo(slug).test(m[0]) && !r.nguoi.test(m[0])) errs.push(`${slug}: không khớp dạng`);
+  }
+  return errs.sort();
+};
+const BAC_KHO = new Set(['', 'chưa có', '(chưa có)', 'không', '—', '…']);
+const khoErrs = (accDir, tpl) => {
+  let line; try { line = blockFromTemplate(tpl, 'KHO-CHO-NHAN-LINE').trim(); }
+  catch (e) { throw new Error('khuôn thiếu marker KHO-CHO-NHAN-LINE'); }
+  const errs = [];
+  for (const d of readdirSync(accDir).filter(x => x.startsWith('release-'))) {
+    const c = path.join(accDir, d, 'contract.md'); if (!existsSync(c)) continue;
+    const t = readFileSync(c, 'utf8'); if (fmv(t, 'status') === 'signed-off') continue;
+    const m = t.match(/^Kho chờ nhận:.*$/m);
+    if (!m) { errs.push(`${d}: thiếu Kho chờ nhận`); continue; }
+    if (m[0].trim() === line) { errs.push(`${d}: chưa điền`); continue; }
+    const val = m[0].replace(/^Kho chờ nhận:\s*/, '').trim();
+    const ok = !BAC_KHO.has(val) && val.split(/[,\s·]+/).filter(Boolean).some(k => /^[a-z0-9][a-z0-9._-]+$/.test(k));
+    if (!ok) errs.push(`${d}: giá trị bác`);
+  }
+  return errs.sort();
+};
 
 // ---------- VC1: ý chưa ngưỡng → considering; khuôn là nguồn nhãn (AC-1)
 if (want('VC1')) {
@@ -243,86 +294,81 @@ if (want('VC7')) {
   if (errs.length) fail('VC7', errs.join(' · ')); else pass('VC7', 'bản đồ «cân nhắc» == considering + dang; gỡ một → cùng giảm; N = 0 là mảng rỗng');
 }
 
-// ---------- VC8: kit tự áp — mọi hạt giống có ô; 7 stub sống; trạng thái sống một chỗ (AC-8)
+// ---------- VC8 (đảo chiều 18/09, ô o-chi-mo-khi-co-neo-ngoai): mọi ô ở HÀNG CHỜ phải có Gốc
+// hợp lệ; hạt giống mồ côi IM (luật cũ «mọi hạt giống phải có ô» đã bỏ — nó đẻ ô); 7 stub sống
+// vẫn phải nằm đúng MỘT ngăn (bất biến cũ giữ nguyên, xem ghi chú lịch sử dưới).
 if (want('VC8')) {
   const errs = [];
-  const NEW = ['hoi-theo-mat-phang', 'ban-do-dinh-chu-ky', 'o-nuot-luat', 'ba-cho-tich-luy-khong-duong-ra', 'duong-do-trong-dinh-nghia-xong', 'liet-ke-may-doc', 't1-tuyen-kem-can-cu'];
-  const OLD = ['1c-doi-hanh-vi-cong-nguoi', 'bai-hoc-tuan-do-luong', 'go-lop-chung-minh-chu-ky', 'tool-kill-duong-doc-lap', 'lan-v-khong-phai-cho-ky', 'repo-khai-plugin'];
-  const SEED_RE = /^\d{4}-\d{2}-\d{2}-hat-giong-(.+)\.md$/;
-  // Ba chân khớp — MỘT hàm, dùng cho cây thật lẫn fixture
-  const discover = plansDir => readdirSync(plansDir).filter(f => SEED_RE.test(f));
-  const orphans = (plansDir, accDir) => {
-    const contracts = existsSync(accDir) ? readdirSync(accDir).map(d => path.join(accDir, d, 'contract.md')).filter(existsSync).map(p => readFileSync(p, 'utf8')) : [];
-    const recordCites = (dir, f) => ['contract.md', 'opportunity.md'].some(n => existsSync(path.join(dir, n)) && readFileSync(path.join(dir, n), 'utf8').includes(`docs/plans/${f}`));
-    return discover(plansDir).filter(f => {
-      const slug = f.match(SEED_RE)[1], dir = path.join(accDir, slug);
-      const leg1 = existsSync(path.join(dir, 'contract.md')) || existsSync(path.join(dir, 'opportunity.md'));
-      const leg2 = contracts.some(c => c.includes(`docs/plans/${f}`));
-      const txt = readFileSync(path.join(plansDir, f), 'utf8');
-      // chân ③ CHẶT: con trỏ tới thư mục CÙNG slug, hoặc thư mục mà hồ sơ bên trong trích lại chính file
-      // hạt giống — nhắc tới một thư mục lạ đang tồn tại KHÔNG phải là «có ô» (review S4: 3/4 stub xoá vẫn xanh)
-      const leg3 = [...txt.matchAll(/_acceptance\/([\w-]+)\//g)].some(m => existsSync(path.join(accDir, m[1])) && (m[1] === slug || recordCites(path.join(accDir, m[1]), f)));
-      return !(leg1 || leg2 || leg3);
-    });
-  };
-  const plans = path.join(ROOT, 'docs', 'plans'), acc = path.join(ROOT, '_acceptance');
-  const seeds = discover(plans), slugs = seeds.map(f => f.match(SEED_RE)[1]);
-  if (seeds.length < 13) errs.push(`vũ trụ: chỉ thấy ${seeds.length} hạt giống (mong ≥ 13)`);
-  const missing = [...NEW, ...OLD].filter(s => !slugs.includes(s));
-  if (missing.length) errs.push(`vũ trụ thiếu slug: ${missing.join(',')}`);
-  const o = orphans(plans, acc); if (o.length) errs.push(`hạt giống không ô: ${o.join(',')}`);
-  // chiều đỏ 1: fixture một hồ sơ mỗi chân + một mồ côi → đúng một tên
+  // (i) cây thật
+  errs.push(...neoErrs(path.join(ROOT, '_acceptance'), TEMPLATE).map(e => 'cây thật: ' + e));
+  // (ii) bên VIẾT dặn điền
+  const sm = readFileSync(START_MD, 'utf8').match(/<<<START-HIEU-KET -->([\s\S]*?)<!-- START-HIEU-KET>>>/);
+  if (!sm) errs.push('start.md thiếu khối START-HIEU-KET');
+  else if (!sm[1].includes('Gốc:')) errs.push('start.md khối START-HIEU-KET không dặn điền Gốc:');
+  // (iii) ma trận trên MỘT fixture code-sinh — số ca = số ô
   const r = tmp();
-  W(r, 'docs/plans/2026-01-01-hat-giong-chan-1.md', '# a\n'); W(r, '_acceptance/chan-1/opportunity.md', stub({ slug: 'chan-1' }));
-  W(r, 'docs/plans/2026-01-01-hat-giong-chan-2.md', '# b\n'); W(r, '_acceptance/khac/contract.md', '---\nstatus: draft\n---\nSource input: `docs/plans/2026-01-01-hat-giong-chan-2.md`\n');
-  W(r, 'docs/plans/2026-01-01-hat-giong-chan-3.md', '# c — trạng thái ở `_acceptance/chan-3/`\n'); W(r, '_acceptance/chan-3/gap-probe.md', '# chỉ có hồ sơ phụ\n');
-  W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi.md', '# d\n');
-  W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi-tro-la.md', '# e — nhắc `_acceptance/khac/` (thư mục lạ, không trích file này)\n');
-  const of = orphans(path.join(r, 'docs', 'plans'), path.join(r, '_acceptance')).sort();
-  if (of.join(',') !== '2026-01-01-hat-giong-mo-coi-tro-la.md,2026-01-01-hat-giong-mo-coi.md') errs.push(`fixture ba chân: mồ côi = ${JSON.stringify(of)} (mong đúng hai file mo-coi + tro-la)`);
-  // chiều đỏ 2: đổi tên MỘT FILE THẬT ra khỏi pattern trên bản sao docs/plans → khám phá lại → tập-con đỏ nêu đúng slug
-  const rp = tmp(); cpSync(plans, path.join(rp, 'plans'), { recursive: true });
-  const real = seeds.find(f => f.match(SEED_RE)[1] === 'o-nuot-luat');
-  if (!real) errs.push('không thấy file thật o-nuot-luat để đổi tên');
-  else {
-    renameSync(path.join(rp, 'plans', real), path.join(rp, 'plans', real.replace('hat-giong-', 'hatgiong-')));
-    const slugs2 = discover(path.join(rp, 'plans')).map(f => f.match(SEED_RE)[1]);
-    const miss2 = [...NEW, ...OLD].filter(s => !slugs2.includes(s));
-    if (miss2.join(',') !== 'o-nuot-luat') errs.push(`đổi tên file thật o-nuot-luat mà tập-con không nêu đúng nó: ${miss2.join(',')}`);
+  const body = g => `\n## Vấn đề & ai gặp\n\n${g}\nMột câu.\n`;
+  const put = (slug, values, g) => W(r, `_acceptance/${slug}/opportunity.md`, stub({ slug, ...values }, { filled: true, body: body(g) }));
+  put('duong-hoso', { stage: 'discovery' }, 'Gốc: crm/_acceptance/vong-khac');
+  put('duong-nguoi', { stage: 'decided', decision: 'build' }, 'Gốc: kho oneflow — Mạnh gọi tên 2026-09-18');
+  put('do1-thieu', { stage: 'discovery' }, '');
+  put('do2-tu-tro', { stage: 'discovery' }, 'Gốc: kit/_acceptance/do2-tu-tro');
+  put('do3a-rong', { stage: 'discovery' }, 'Gốc:');
+  put('do3b-placeholder', { stage: 'discovery' }, blockFromTemplate(TEMPLATE, 'OPP-GOC-LINE').trim());
+  put('do3c-van-tu-do', { stage: 'discovery' }, 'Gốc: suy từ đọc mã');
+  put('do4-build-thieu', { stage: 'decided', decision: 'build' }, '');
+  put('im2-park', { stage: 'decided', decision: 'park' }, '');
+  put('im3-archived', { stage: 'archived', decision: 'kill' }, '');
+  W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi.md', '# hạt giống không ô — hợp lệ từ 18/09\n');
+  const got = neoErrs(path.join(r, '_acceptance'), TEMPLATE);
+  const want8 = ['do1-thieu: thiếu Gốc', 'do2-tu-tro: trỏ chính nó', 'do3a-rong: chưa điền',
+    'do3b-placeholder: chưa điền', 'do3c-van-tu-do: không khớp dạng', 'do4-build-thieu: thiếu Gốc'].sort();
+  if (JSON.stringify(got) !== JSON.stringify(want8)) errs.push(`ma trận fixture: có ${JSON.stringify(got)} — mong ${JSON.stringify(want8)}`);
+  // (iv) KHUÔN là nguồn: đổi regex trong bản sao khuôn → ca dương đổi màu
+  const copyR = pluginCopy({ template: t => t.replace('^Gốc:\\s*kho\\s+', '^Gốc:\\s*KHOO\\s+') });
+  if (!neoErrs(path.join(r, '_acceptance'), copyR.template).includes('duong-nguoi: không khớp dạng'))
+    errs.push('đổi regex trong bản sao khuôn mà ca dương KHÔNG đổi màu — bên đọc không rút luật từ khuôn');
+  const copyM = pluginCopy({ template: t => t.replace('<<<OPP-GOC-RULE', '<<<OPP-GOC-RULEX') });
+  try { neoErrs(path.join(r, '_acceptance'), copyM.template); errs.push('gỡ marker OPP-GOC-RULE mà phép đo không đỏ'); }
+  catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker: thông điệp lạ: ' + e.message); }
+  // (v) stub sống đúng MỘT ngăn — bất biến cũ của luật «vào có ô», KHÔNG ghim chặng.
+  // Bom đã nổ HAI lần khi ca này ghim chặng của hồ sơ khác (22/08 duong-do, 23/08 ban-do-dinh-chu-ky):
+  // vá theo TÊN là hẹn nổ lần ba. Điều còn đo được trên cây thật: mỗi stub nằm đúng MỘT ngăn.
+  const NEW = ['hoi-theo-mat-phang', 'ban-do-dinh-chu-ky', 'o-nuot-luat', 'ba-cho-tich-luy-khong-duong-ra', 'duong-do-trong-dinh-nghia-xong', 'liet-ke-may-doc', 't1-tuyen-kem-can-cu'];
+  const j2 = scan(ROOT);
+  for (const sl of NEW) {
+    const n = ['gates', 'inProgress', 'considering', 'done'].filter(k => slugsIn(j2.groups[k]).includes(sl)).length
+      + (slugsIn(j2.broken).includes(sl) ? 1 : 0);
+    if (n !== 1) errs.push(`${sl} phải nằm đúng MỘT ô, đang ở ${n} ô`);
   }
-  // (ii)+(iii) stub thật: bắt đầu «---», không hỏng; duong-do ở inProgress S1, 6 còn lại considering; 10 dòng đầu hạt giống
-  const j = scan(ROOT);
-  for (const s of NEW) {
-    const p = path.join(acc, s, 'opportunity.md');
-    if (!existsSync(p)) { errs.push(`thiếu stub ${s}`); continue; }
-    if (!readFileSync(p, 'utf8').startsWith('---\n')) errs.push(`stub ${s} không bắt đầu ở ---`);
-    if ((j.broken || []).some(x => x.slug === s)) errs.push(`stub ${s} ở broken[]`);
-    const seed = seeds.find(f => f.match(SEED_RE)[1] === s);
-    const tenFirst = seed ? readFileSync(path.join(plans, seed), 'utf8').split('\n').slice(0, 10).join('\n') : '';
-    if (/chờ Cổng 0|HẠT GIỐNG|ĐỀ XUẤT/.test(tenFirst)) errs.push(`${s}: 10 dòng đầu còn lời khai trạng thái`);
-    if (!tenFirst.includes(`_acceptance/${s}/opportunity.md`)) errs.push(`${s}: 10 dòng đầu thiếu con trỏ tới stub`);
-  }
-  // Stub ĐÃ QUYẾT (duong-do: decided/build) — KHÔNG ghim chặng của hồ sơ KHÁC: vòng của nó tự chạy
-  // tiếp (S1 → ký Cổng Phạm vi → ký Cổng Bằng chứng → chờ nghiệm thu), mỗi lần đổi chặng lại làm ca
-  // này đỏ oan (CI đỏ 22/08 ngay sau chữ ký chip C — bom đã nổ một lần). Và từ lúc nó có contract.md,
-  // «không ở considering» là hằng-đúng (nhánh opportunity không còn được đọc) — assertion chết.
-  // Điều còn ĐO ĐƯỢC trên cây thật: slug phải nằm ở ĐÚNG MỘT ô, không biến mất, không hỏng.
-  // Phần phân biệt «stub đã quyết KHÔNG rơi về đang-cân-nhắc» sống ở VC3 (fixture w-build, cô lập).
-  // SỬA THEO LỚP, không vá theo TÊN. Bất biến thật của luật «vào có ô» là: mọi
-  // stub nằm ĐÚNG MỘT ô, không biến mất, không hỏng — KHÔNG phải «ở considering».
-  // «Ở considering» là ghim CHẶNG của hồ sơ khác: mỗi lần một ý được quyết
-  // (build/park/kill) hay đi tiếp một chặng thì ca này đỏ oan trên một cây ĐÚNG.
-  // Bom đã nổ HAI lần: 22/08 với duong-do (bản vá cũ carve-out riêng nó — đúng
-  // thứ CLAUDE.md cấm: «đừng chỉ vá case bị nêu tên»), 23/08 với
-  // ban-do-dinh-chu-ky khi owner bác nó ở Cổng Đáng. Vá theo tên lần nữa là hẹn
-  // nổ lần ba. Phần phân biệt «stub đã quyết KHÔNG rơi về đang-cân-nhắc» sống ở
-  // VC3 trên fixture cô lập, nơi nó đo được mà không ghim chặng của ai.
-  for (const s of NEW) {
-    const n = ['gates', 'inProgress', 'considering', 'done'].filter(k => slugsIn(j.groups[k]).includes(s)).length
-      + (slugsIn(j.broken).includes(s) ? 1 : 0);
-    if (n !== 1) errs.push(`${s} phải nằm đúng MỘT ô, đang ở ${n} ô`);
-  }
-  if (errs.length) fail('VC8', errs.join(' · ')); else pass('VC8', `mọi hạt giống có ô (ba chân, vũ trụ ≥ 13); ${NEW.length} stub sống, mỗi stub đúng MỘT ô (không ghim chặng)`);
+  if (errs.length) fail('VC8', errs.join(' · '));
+  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 10 ô, khuôn là nguồn luật); hạt giống mồ côi im; ${NEW.length} stub đúng một ngăn`);
+}
+
+// ---------- VC9 (18/09): mốc phát hành CHƯA KÝ phải khai «Kho chờ nhận:» với ≥1 tên kho
+if (want('VC9')) {
+  const errs = [];
+  errs.push(...khoErrs(path.join(ROOT, '_acceptance'), CONTRACT_TPL).map(e => 'cây thật: ' + e));
+  const r = tmp();
+  const line = blockFromTemplate(CONTRACT_TPL, 'KHO-CHO-NHAN-LINE').trim();
+  const rec = (name, status, kho) => W(r, `_acceptance/${name}/contract.md`,
+    fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
+      { feature: 'mốc', slug: name, owner: 'o@x', risk_tier: 'T2', surfaces: 'ci', status },
+      `\n# ${name}\n\n## Notes\n\n${kho}\n`));
+  rec('release-im-1', 'draft', 'Kho chờ nhận: media-library');
+  rec('release-im-2', 'signed-off', '');
+  rec('release-do-thieu', 'draft', '');
+  rec('release-do-bac', 'approved', 'Kho chờ nhận: chưa có');
+  rec('release-do-placeholder', 'draft', line);
+  const got = khoErrs(path.join(r, '_acceptance'), CONTRACT_TPL);
+  const want9 = ['release-do-bac: giá trị bác', 'release-do-placeholder: chưa điền', 'release-do-thieu: thiếu Kho chờ nhận'].sort();
+  if (JSON.stringify(got) !== JSON.stringify(want9)) errs.push(`fixture: có ${JSON.stringify(got)} — mong ${JSON.stringify(want9)}`);
+  const ctp = path.join(tmp(), 'contract-template.md');
+  writeFileSync(ctp, readFileSync(CONTRACT_TPL, 'utf8').replace('<<<KHO-CHO-NHAN-LINE', '<<<KHO-CHO-NHAN-LINEX'));
+  try { khoErrs(path.join(r, '_acceptance'), ctp); errs.push('gỡ marker KHO-CHO-NHAN-LINE mà phép đo không đỏ'); }
+  catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker: thông điệp lạ: ' + e.message); }
+  if (errs.length) fail('VC9', errs.join(' · '));
+  else pass('VC9', 'mốc chưa ký khai Kho chờ nhận (cây thật + 5 hồ sơ fixture rút từ khuôn; marker là nguồn)');
 }
 
 // VC_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)
