@@ -16,6 +16,40 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT" || exit 1
 FAILS=0
 do_fail() { echo "DO: $1"; FAILS=$((FAILS+1)); }
+
+# Tiem vao mot tep JS cua BAN SAO roi CHUNG nhat tiem la that — hai chan:
+#   (1) tep phai DOI    — chong «dot bien khong doi duoc dong nao»
+#   (2) tep phai con DICH DUOC — chong «mutant lam hong cu phap»
+# Vi sao co (2) (bat 18/09/2026, chan bon-bo-doc chieu do 2): nhat tiem ghim vao
+# HINH DANG DONG (`const X = ...` mot dong). Engine doi X thanh bieu thuc BA
+# dong, nen thay dong dau de lai hai dong con lo lung -> tep vo cu phap -> the
+# khong chay -> assert phia duoi do voi thong diep «phep do khong song». Mot tep
+# VO CU PHAP va mot hanh vi DOI THAT cho CUNG mot mau do, va thong diep do loi
+# cho phep do thay vi cho nhat tiem. GIOI HAN CON LAI (khai ro, khong vá bằng lời):
+# neo van la chuoi `const X = ` + dau `;` dau tien; bieu thuc co `;` ben trong
+# se lam truot lai — luc do chan (2) noi dung ten nguyen nhan thay vi do lac.
+tiem_js() {
+  local f="$1" expr="$2" nhan="$3" truoc
+  truoc="$(cat "$f")"
+  perl -0pi -e "$expr" "$f"
+  if [ "$truoc" = "$(cat "$f")" ]; then
+    do_fail "$nhan: dot bien khong doi duoc dong nao (nhat tiem truot khuon)"
+    return 1
+  fi
+  if ! node --check "$f" >/dev/null 2>&1; then
+    do_fail "$nhan: mutant lam HONG CU PHAP $(basename "$f") — nhat tiem ghim vao hinh dang dong da doi; sua nhat tiem, dung doc ket qua nhu 'phep do khong song'"
+    return 1
+  fi
+  return 0
+}
+
+# Chan cu phap roi cho cac nhat tiem DA co san chan «dot bien khong doi duoc dong
+# nao». Cung lop voi tiem_js: mot tep vo cu phap va mot hanh vi doi that cho cung
+# mot mau do o assert phia duoi, nen phai tach ten hai nguyen nhan ra.
+kiem_cu_phap() {
+  node --check "$1" >/dev/null 2>&1 \
+    || do_fail "$2: mutant lam HONG CU PHAP $(basename "$1") — nhat tiem ghim vao hinh dang dong da doi, khong phai hanh vi doi"
+}
 CHAN=""
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -97,6 +131,7 @@ at)
   M="$(mk)"; plugin_copy "$M"
   perl -0pi -e "s/^const ngayXong = \(dir, anchorPath\) => \{/const ngayXong = (dir, anchorPath) => { if (1) return null;/m" "$M/scripts/start-scan.mjs"
   grep -qF 'if (1) return null;' "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
+  kiem_cu_phap "$M/scripts/start-scan.mjs" "nhat tiem dong 132"
   [ "$(nac "$M/scripts/start-scan.mjs")" = "null" ] || do_fail "go thang ma van ra ngay ($(nac "$M/scripts/start-scan.mjs")) — co loi bia moc"
   [ "$FAILS" -eq 0 ] && echo "OK [at] — cay that $TONG ho so, 0 null; ba nac dung tren fixture; go thang -> null, khong bia moc"
   ;;
@@ -132,6 +167,7 @@ veto-ten)
   # khong vi vat, va ca do hoa xanh-khong-chay.
   perl -0pi -e "s/if \(\(frontmatterField\(cTxt, 'veto_state'\) \|\| ''\)\.trim\(\)\.toLowerCase\(\) === 'mo'\)/if ((frontmatterField(cTxt, 'status') || '').toLowerCase() === 'verified' \&\& (frontmatterField(cTxt, 'veto_state') || '').trim().toLowerCase() === 'mo')/" "$M/scripts/start-scan.mjs"
   grep -qF "=== 'verified' &&" "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
+  kiem_cu_phap "$M/scripts/start-scan.mjs" "nhat tiem dong 167"
   NMUT="$(node -e '
     const {execFileSync}=require("child_process");
     const j=JSON.parse(execFileSync("node",[process.argv[1],"--root",process.argv[2]],{encoding:"utf8",maxBuffer:1e8}));
@@ -183,6 +219,7 @@ dang-thuc)
   M="$(mk)"; plugin_copy "$M"
   perl -0pi -e "s/^      vetoOpen\.push\(/      if (slug !== 'b-signed') vetoOpen.push(/m" "$M/scripts/start-scan.mjs"
   grep -qF "if (slug !== 'b-signed') vetoOpen.push(" "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
+  kiem_cu_phap "$M/scripts/start-scan.mjs" "nhat tiem dong 218"
   SM="$(node -e '
     const {execFileSync}=require("child_process");
     const j=JSON.parse(execFileSync("node",[process.argv[1],"--root",process.argv[2]],{encoding:"utf8",maxBuffer:1e8}));
@@ -331,10 +368,12 @@ bon-bo-doc)
     || do_fail "chieu do 1: go khoa khoi khuon writer ma khong do neu ten khoa (duoc: $OUT1)"
 
   # ── CHIEU DO 2: the cong khoi phuc chip vo dieu kien -> moi ky lai ──
-  perl -0pi -e "s/const MAY_DI_TIEP = .*/const MAY_DI_TIEP = false;/" "$M/scripts/gate-card.js"
-  grep -qF 'const MAY_DI_TIEP = false;' "$M/scripts/gate-card.js" || do_fail "chieu do 2: dot bien khong doi duoc dong nao"
-  printf '%s' "$(doc_card "$M/scripts/gate-card.js")" | grep -qF 'Ký duyệt' \
-    || do_fail "chieu do 2: khoi phuc chip vo dieu kien ma the van khong moi ky — phep do khong song"
+  # Nhat tiem nuot CA bieu thuc (co the nhieu dong) toi dau ';' dau tien — `/s` cho
+  # `.` khop ca xuong dong. tiem_js chung: tep DOI that + con DICH DUOC.
+  if tiem_js "$M/scripts/gate-card.js" 's/const MAY_DI_TIEP = .*?;/const MAY_DI_TIEP = false;/s' "chieu do 2"; then
+    printf '%s' "$(doc_card "$M/scripts/gate-card.js")" | grep -qF 'Ký duyệt' \
+      || do_fail "chieu do 2: khoi phuc chip vo dieu kien ma the van khong moi ky — phep do khong song"
+  fi
 
   # ── CHIEU DO 3: may quet chet -> the giu hanh vi cu KEM co vang ──
   M3="$(mk)"; plugin_copy "$M3"
@@ -413,6 +452,7 @@ ahead-behind)
   M="$(mk)"; plugin_copy "$M"
   perl -0pi -e "s/for \(const cand of \[head, 'origin\/main', 'origin\/master', '\@\{u\}'\]\)/for (const cand of ['\@{u}', head, 'origin\/main', 'origin\/master'])/" "$M/scripts/start-scan.mjs"
   grep -qF "for (const cand of ['@{u}'," "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
+  kiem_cu_phap "$M/scripts/start-scan.mjs" "nhat tiem dong 450"
   C2="$(mk)"; git clone -q "$U" "$C2"; git -C "$C2" checkout -qb feat2
   git -C "$C2" push -q origin feat2 2>/dev/null; git -C "$C2" branch --set-upstream-to=origin/feat2 feat2 >/dev/null 2>&1
   gcommit "$U" u4; git -C "$C2" fetch -q origin
@@ -486,6 +526,7 @@ sort-tuoi)
   M="$(mk)"; plugin_copy "$M"
   perl -0pi -e 's/gates\.sort\(\(a, b\) => \{\n  const ea = .*?\n  if \(ea !== eb\).*?\n  return String\(a\.since\)\.localeCompare\(String\(b\.since\)\);\n\}\);/gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));/s' "$M/scripts/start-scan.mjs"
   grep -qF 'gates.sort((a, b) => String(a.since).localeCompare(String(b.since)));' "$M/scripts/start-scan.mjs" || do_fail "dot bien khong doi duoc dong nao"
+  kiem_cu_phap "$M/scripts/start-scan.mjs" "nhat tiem dong 523"
   ORDM="$(node -e '
     const {execFileSync}=require("child_process");
     const j=JSON.parse(execFileSync("node",[process.argv[1],"--root",process.argv[2]],{encoding:"utf8",maxBuffer:1e8}));
@@ -498,6 +539,7 @@ sort-tuoi)
   # CHIEU DO 2: ban sao go ageTied -> khoa vang
   M2="$(mk)"; plugin_copy "$M2"
   perl -0pi -e 's/for \(const c of considering\) c\.ageTied = dem\.get\(c\.since\) > 1;//' "$M2/scripts/start-scan.mjs"
+  kiem_cu_phap "$M2/scripts/start-scan.mjs" "nhat tiem dong 536"
   TM="$(node -e '
     const {execFileSync}=require("child_process");
     const j=JSON.parse(execFileSync("node",[process.argv[1],"--root",process.argv[2]],{encoding:"utf8",maxBuffer:1e8}));
