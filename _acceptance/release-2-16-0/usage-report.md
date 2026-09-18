@@ -54,3 +54,53 @@ wall: 1730s
 - **claude-opus-5**: 3 agent · 74 calls · out 62,109 · in 148 · cache_read 7,873,870 · cache_create 500,437
 - **claude-haiku-4-5-20251001**: 12 agent · 31 calls · out 12,967 · in 272 · cache_read 1,074,657 · cache_create 363,421
 
+### S4 round 2 — wf_c9328847-607 (27 agent, 255,849 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5 | 5 | 39,736 | 10 | 403,043 | 386 |
+| review:measurement | claude-opus-5 | 20 | 28,538 | 40 | 2,308,615 | 445 |
+| review:bugs | claude-opus-5 | 26 | 26,672 | 52 | 3,044,742 | 399 |
+| review:conventions | claude-opus-5 | 18 | 25,055 | 36 | 1,909,804 | 378 |
+| judge:E7:operational-feasibility | claude-sonnet-5 | 2 | 24,349 | 4 | 99,887 | 231 |
+| judge:E7:domain-correctness | claude-sonnet-5 | 2 | 22,020 | 4 | 64,368 | 207 |
+| triage | claude-sonnet-5 | 2 | 16,365 | 4 | 72,984 | 161 |
+| judge:E7:spec-alignment | claude-sonnet-5 | 3 | 11,329 | 6 | 246,529 | 99 |
+| refute:rang-ghim-lai.mjs | claude-sonnet-5 | 14 | 11,266 | 28 | 1,188,665 | 131 |
+| refute:rang-cua-so.mjs | claude-sonnet-5 | 10 | 8,581 | 20 | 784,282 | 94 |
+| refute:rang-cua-so.mjs | claude-sonnet-5 | 10 | 7,966 | 20 | 733,207 | 87 |
+| refute:rang-cua-so.mjs | claude-sonnet-5 | 9 | 6,017 | 18 | 640,067 | 64 |
+| refute:rang-cua-so.mjs | claude-sonnet-5 | 11 | 5,982 | 22 | 803,977 | 75 |
+| refute:rang-cua-so.mjs | claude-sonnet-5 | 10 | 4,915 | 20 | 735,316 | 59 |
+| refute:rang-ghim-lai.mjs | claude-sonnet-5 | 7 | 4,355 | 14 | 474,294 | 51 |
+| baseline:diffBase | claude-sonnet-5 | 10 | 2,655 | 20 | 626,293 | 33 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 1,746 | 50 | 262,084 | 23 |
+| machine:bash tests/scripts/run-tests.sh | claude-haiku-4-5-20251001 | 5 | 1,719 | 42 | 144,222 | 466 |
+| machine:bash _acceptance/release-2-16-0/rang-so- | claude-haiku-4-5-20251001 | 2 | 1,035 | 18 | 70,480 | 13 |
+| machine:node _acceptance/release-2-16-0/rang-cua | claude-haiku-4-5-20251001 | 2 | 1,029 | 18 | 70,486 | 13 |
+| machine:node _acceptance/release-2-16-0/rang-cua | claude-haiku-4-5-20251001 | 2 | 927 | 18 | 70,488 | 11 |
+| machine:node _acceptance/release-2-16-0/rang-cua | claude-haiku-4-5-20251001 | 2 | 841 | 18 | 70,488 | 12 |
+| capture:provenance | claude-sonnet-5 | 2 | 697 | 4 | 62,552 | 7 |
+| machine:node _acceptance/release-2-16-0/rang-ghi | claude-haiku-4-5-20251001 | 2 | 598 | 18 | 70,489 | 14 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 562 | 18 | 70,472 | 7 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 495 | 18 | 70,465 | 17 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 399 | 18 | 26,700 | 427 |
+
+
+wall: 1628s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 2,655 | 626,293 | 33 | 03:46:51 | 03:47:24 |
+| machine | 10 | 9,351 | 926,374 | 941 | 03:46:51 | 04:02:32 |
+| judge | 3 | 57,698 | 410,784 | 233 | 03:46:51 | 03:50:44 |
+| review | 3 | 80,265 | 7,263,161 | 446 | 03:46:51 | 03:54:18 |
+| triage | 1 | 16,365 | 72,984 | 161 | 04:02:32 | 04:05:14 |
+| refute | 7 | 49,082 | 5,359,808 | 133 | 04:05:14 | 04:07:26 |
+| capture | 1 | 697 | 62,552 | 7 | 04:07:26 | 04:07:34 |
+| synthesize | 1 | 39,736 | 403,043 | 386 | 04:07:34 | 04:13:59 |
+
+- **claude-sonnet-5**: 14 agent · 97 calls · out 166,233 · in 194 · cache_read 6,935,464 · cache_create 1,160,058
+- **claude-opus-5**: 3 agent · 64 calls · out 80,265 · in 128 · cache_read 7,263,161 · cache_create 395,725
+- **claude-haiku-4-5-20251001**: 10 agent · 27 calls · out 9,351 · in 236 · cache_read 926,374 · cache_create 318,653
+

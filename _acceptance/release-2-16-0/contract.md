@@ -122,39 +122,52 @@ chứng dương: chính hồ sơ mốc này phải được thấy là sinh sau 
 chạy trên cây thật nhận kho kit, đếm được số vòng meta đang mở. Việc chỉ có commit,
 không mở hồ sơ, vô hình với phép đo này — khai ở Known limits.
 
-### AC-5 (chiến dịch ghim lại) — kết quả THẬT, đếm được, gọi tên từng hồ sơ
+### AC-5 (chiến dịch ghim lại) — lời kể về chiến dịch gắn vào chính ĐẦU RA của làn
 
-**Given** mọi hồ sơ đã thông Cổng Bằng chứng trong kho, và khối khai
-`CHIEN-DICH-GHIM-LAI` của hợp đồng này — ba dòng đầu là `sha` mà làn chạy tại đó,
-`run_id` làn tự đúc, và `exit` của làn; các dòng sau là hồ sơ đã ghim lại ở lượt đó
+**Given** vật `_acceptance/release-2-16-0/chien-dich-ghim-lai.json` — nguyên văn JSON mà
+làn ghim lại in ra khi nó dừng — cùng mọi hồ sơ đã thông Cổng Bằng chứng trong kho, và
+khối khai `CHIEN-DICH-GHIM-LAI` của hợp đồng này (sáu dòng: `sha` · `run_id` · `exit` ·
+`ho-so-do` · `eval-do` · `ho-so-ghim`)
 **When** chạy `rang-ghim-lai.mjs --chan chien-dich`
-**Then** (a) tập hồ sơ đã ký mà dòng `kind:repin` MỚI NHẤT của nó mang đúng `run_id` đã
-khai BẰNG danh sách trong khối — thiếu hay thừa đều đỏ, gọi tên từng hồ sơ; (b) mỗi hồ
-sơ trong danh sách có dòng ghim lại ở đúng `sha` ấy VÀ `verified_commit` BẰNG chính `sha`
-ấy (bất biến của nghi thức ghim lại); (c) `exit` 0 thì danh sách KHÔNG rỗng, và `exit`
-khác 0 thì KHÔNG hồ sơ đã ký nào mang `run_id` ấy ở BẤT KỲ dòng nào. Đối chứng dương
-trong cùng lượt: tập hồ sơ đã ký KHÔNG rỗng, và phép đọc dòng ghim lại thấy ít nhất một
-hồ sơ mang dòng `kind:repin` nào đó — phép so không được xanh vì không đọc được gì.
+**Then** bốn quan hệ đứng, cộng một vế hai chiều:
 
-**Vế (c) là thứ giết hằng-đúng.** Bản đầu của tiêu chí này cho lượt đỏ khai chữ
-«không có» ở dòng sha rồi bỏ qua chính phép so; phản biện context sạch chỉ ra ngay: một
-lượt ghim được ba hồ sơ rồi chết giữa chừng cho ĐÚNG cùng một dòng PASS với một lượt chưa
-ai chạy. Nay `run_id` là vật nói «đã chạy» — nó do làn tự đúc và nằm trong sổ chạy — nên
-làn đỏ mà vẫn có pin mang mã ấy là lời khai LỆCH vật, và răng gọi tên.
+1. **Lời khai BẰNG vật** — `sha` và `run_id` trong hợp đồng trùng đúng hai trường ấy của
+   vật. Hợp đồng thôi là nguồn; nó là bản sao phải khớp.
+2. **Vật phủ ĐÚNG kho** — tập hồ sơ trong vật bằng tập hồ sơ đã thông cổng, không thiếu
+   không thừa, gọi tên khi lệch.
+3. **Từng hồ sơ, tập id eval trong vật BẰNG tập id eval máy của chính `evals.yaml` hồ sơ
+   ấy** (trừ ô tự khai không-chạy). Đây là quan hệ giết hằng-đúng: một tệp bịa phải tái
+   tạo đúng 741 mã eval trên 72 tệp khai.
+4. **Ba số hợp đồng kể ở Notes §4 — hồ sơ đỏ · eval đỏ · hồ sơ được ghim — TÍNH TỪ VẬT**
+   và bằng ba số khai. «Đỏ» đọc theo kỳ vọng đã khai, không theo số 0, cùng luật với làn.
 
-**Khai thẳng cái tiêu chí này KHÔNG hứa:** nó không hứa chiến dịch XANH. Làn đỏ thì
-danh sách rỗng và răng vẫn phải xanh trên một lời khai rỗng-và-đúng — nhưng chỉ khi vế
-(c) đứng vững. Cái nó chặn là lời khai LỆCH vật theo cả hai chiều: khai đã ghim mà sổ
-chạy không có dòng, và ghim mà hợp đồng không kể.
+Vế hai chiều: `exit` 0 thì phải có hồ sơ mang dòng ghim lại của lượt; `exit` khác 0 thì
+KHÔNG hồ sơ đã ký nào mang `run_id` ấy, và vật phải có ít nhất một hồ sơ đỏ.
 
-Khối khai — ba dòng đầu là `sha` · `run_id` · `exit` của lượt chiến dịch, các dòng sau
-là hồ sơ đã ghim lại ở lượt đó:
+**Vì sao đổi khuôn ở lượt chấm 3 — hai bản trước đều HẰNG ĐÚNG.** Bản 1 cho lượt đỏ khai
+chữ «không có» rồi bỏ qua chính phép so; phản biện context sạch bắt. Bản 2 đòi sha, run_id
+và mã thoát, nhưng ở nhánh làn-đỏ KHÔNG vật nào trong kho mang `run_id` ấy — làn đỏ theo
+thiết kế không ghi gì — nên phép so chạy trên tập rỗng: bộ chấm lượt 2 thử thật, bịa
+`run_id` và đổi `sha` sang HEAD, răng vẫn PASS cả hai lần. Cái sai chung của hai bản là đi
+tìm vật ở nơi làn đỏ không bao giờ ghi. Bản này đổi chỗ đứng: **đầu ra của làn LÀ vật**,
+nằm trong hồ sơ, và nó bị buộc vào kho bằng ba quan hệ mà một tệp bịa không thoả được. Cả
+hai phép bịa mà bộ chấm dùng nay đều đỏ mã 3.
+
+Khối khai — sáu dòng, là bản sao phải khớp vật:
 
 <!-- <<<CHIEN-DICH-GHIM-LAI
 26bf12fed2fc71e6b1e21375645f299f144ce34a
 run_id: repin-20260918T025435Z-51649
 exit: 1
+ho-so-do: 14
+eval-do: 60
+ho-so-ghim: 0
 CHIEN-DICH-GHIM-LAI>>> -->
+
+**Khai thẳng cái tiêu chí này KHÔNG hứa:** nó không hứa chiến dịch XANH, và nó KHÔNG chứng
+được rằng làn đã thật sự chạy các lệnh — không vật nào trong kho ghi điều đó cho một làn
+đỏ. Nó chứng rằng lời kể trong hợp đồng khớp một đầu ra có cấu trúc khớp chính kho ở 72 hồ
+sơ và 741 mã eval. Giới hạn ấy khai ở Known limits.
 
 ### AC-8 (lời khai về ba việc vá) — «không việc nào chạm engine» là kết luận của phép đo
 
@@ -162,16 +175,21 @@ CHIEN-DICH-GHIM-LAI>>> -->
 Bằng chứng của vòng meta trong cửa sổ, các dòng sau là các tệp mà chính mốc này đổi
 **When** chạy `rang-cua-so.mjs --chan viec-va`
 **Then** từ chữ ký ấy tới cây làm việc, KHÔNG tệp engine nào đổi ngoài các tệp mốc đã
-khai — có thì đỏ, in từng tệp. «Engine» hỏi ĐÚNG MỘT NGUỒN của kho, không chép tay: vị
-từ của lưới trước-merge — tệp git-theo-dõi NGOÀI `_acceptance/` và KHÔNG khớp
-`risk_tiers.t1_skip_globs` thì là hành vi. Rút không được danh sách mẫu ấy là mã 2, không
-phải đường đọc-cũ. Cửa sổ của chính vòng meta KHÔNG bị soi: vòng ấy có hồ sơ và chữ ký
+khai — có thì đỏ, in từng tệp. «Engine» hỏi ĐÚNG MỘT NGUỒN của kho, và hỏi bằng CHÍNH
+hai hàm mà làn ghim lại dùng cho vị từ bỏ-qua: `configList` của `lib/workspace-record.cjs`
+đọc danh sách, `globToRe` của `feature-loop/scripts/carry-plan.mjs` khớp mẫu. Tệp
+git-theo-dõi NGOÀI `_acceptance/` và KHÔNG khớp `risk_tiers.t1_skip_globs` thì là hành vi.
+Thiếu một trong hai hàm là mã 2, không phải đường đọc-cũ. Cửa sổ của chính vòng meta KHÔNG bị soi: vòng ấy có hồ sơ và chữ ký
 riêng.
 
-**Bản đầu gõ tay một mảng tiền tố và nó trôi ngay ở lượt chấm 1:** `.claude-plugin/` không
-có tiền tố nào nên hai manifest ở gốc vô hình, trong khi cùng một tệp dưới `feature-loop/`
-lại là engine — bất đối xứng khiến dòng khai `.claude-plugin/plugin.json` chỉ là trang
-trí. Cùng bài học với mảng trạng thái ở răng chị em.
+**Hai bản trước đều CHÉP, mỗi bản một tầng.** Bản 1 chép DANH SÁCH — một mảng tiền tố gõ
+tay — và trôi ngay ở lượt chấm 1: `.claude-plugin/` không có tiền tố nào nên hai manifest ở
+gốc vô hình, trong khi cùng tệp ấy dưới `feature-loop/` lại là engine, nên dòng khai
+`.claude-plugin/plugin.json` chỉ là trang trí. Bản 2 bỏ danh sách nhưng còn chép KHUÔN — tự
+tìm khoá bằng biểu thức, tự dịch mẫu — và lượt chấm 2 chứng nó trôi hai chiều: khoá mang
+chú thích đuôi thì bản chép trả rỗng, mục mang chú thích đuôi thì bản chép cắt im lặng
+danh sách. Bản này không còn khuôn nào của riêng nó; hai hình dạng ấy đã thử thật và đều
+im đúng.
 
 **Đối chứng dương hai vế, cùng lượt:** cửa sổ từ neo tới chữ ký PHẢI chứa tệp engine —
 không có thì bộ lọc chưa chứng minh được là nó thấy tệp engine, và kết luận «không tệp
@@ -285,6 +303,12 @@ không theo tổ hợp.
   sơ khai thẳng thay vì vá riêng cho mình: vá một bản sao là để nguyên lớp sống ở mọi bản
   còn lại, và lớp ấy là nhát cắt có tên ở §5. Ngưỡng đang đếm: đã 2 hồ sơ mốc đỏ vì lớp này
   (`release-2-14-0`, `release-2-15-0`), mốc này sẽ là thứ ba.
+- **Chiến dịch ĐỎ không để lại vật nào trong kho, nên «đã chạy» không chứng được.** Làn
+  đỏ theo thiết kế không ghi một dòng nào; AC-5 vì thế chỉ chứng được rằng lời kể trong
+  hợp đồng khớp một đầu ra có cấu trúc khớp chính kho ở 72 hồ sơ và 741 mã eval, chứ
+  không chứng được rằng các lệnh đã thật sự chạy. Hai bản răng trước sập vì đúng lỗ này.
+  Đường vá nằm ở ENGINE — làn đỏ cũng phải ghi một dòng mang mã lượt và mã thoát — nên nó
+  là nhát cắt của cửa sổ kế, không phải của mốc.
 - **Hiệu lực khuôn `/goal` vẫn chưa có số.** Ngưỡng mở lại đặt ở AC-13 của mốc 2.15.0 (≥ 1
   lần hook chặn một lần dừng CÓ nêu tiền đề hoặc lối) chưa đọc được: vòng `thuoc-co-cua`
   chạy trong kho kit và không tệp nào trong kho ghi số lần hook chặn. Ngưỡng vẫn đang đếm.
@@ -454,6 +478,11 @@ Làn một lượt trên trọn 72 hồ sơ đã thông Cổng Bằng chứng, t
    ai đo lại.
 5. **Vật máy giữ cho số chạm.** Mục tiêu «≤1 chạm/lượt» không có thước; nó sẽ còn là lời
    hứa cho tới khi có một vật ghi lại.
+5b. **Làn ghim lại ĐỎ phải để lại một dòng.** Hôm nay nó không ghi gì, nên không vật nào
+   trong kho nói «lượt này đã chạy và hỏng». Mốc này phải đặt chính đầu ra của làn vào hồ
+   sơ rồi buộc nó vào kho bằng ba quan hệ mới có thước — hai bản răng trước đều hằng đúng
+   vì đi tìm vật ở nơi làn đỏ không bao giờ ghi. Một dòng `kind:repin-fail` mang mã lượt,
+   sha và mã thoát là nhát rẻ nhất, và nó chạm engine nên phải là một vòng có tên.
 6. **Ghim lại theo diff, hoặc chí ít theo LÔ** — nay có số: một lượt trọn tốn 2 giờ 25
    phút máy và ghim được 0 hồ sơ, vì luật «làn đỏ thì không ghi gì» biến 14 hồ sơ hỏng
    thành 72 hồ sơ không được ghim. Lối rẻ nhất mà không đụng luật ấy: chia thành nhiều

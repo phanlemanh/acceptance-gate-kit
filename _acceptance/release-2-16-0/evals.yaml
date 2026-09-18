@@ -76,24 +76,25 @@ evals:
     executor: script
     cmd: config:executors.script.chien_dich_ghim_lai_2_16
     expected: >
-      Exit 0 và đúng một dòng «PASS: chien-dich lan <run_id> ma-thoat-lan <n> tai sha <sha8> —
-      <k> ho so da ky mang dong ghim lai moi nhat cua luot BANG khoi khai [<danh sách>] (doi
-      chung: <n> ho so da ky, <m> ho so co dong ghim lai)». Dòng PASS KHÔNG được chứa chuỗi
-      «exit <số>»: lượt chấm 1 của mốc này đỏ GIẢ đúng vì thế — tác tử máy khai mã thoát của
-      lệnh bằng một trường, và nó đọc chữ «exit 1» trong dòng PASS (mã thoát của LÀN chiến
-      dịch) thành mã thoát của lệnh. Với danh sách bằng đúng khối
-      CHIEN-DICH-GHIM-LAI của hợp đồng, và hai số đối chứng đều LỚN HƠN 0. Khối khai phải có
-      ba dòng đầu — sha 40 hex, «run_id: <mã>», «exit: <số>» — rồi mới tới danh sách; khối
-      trống hẳn hoặc thiếu một trong ba dòng ấy là mã 2, không phải lời khai hợp lệ. Danh
-      sách RỖNG là lời khai hợp lệ CHỈ khi exit khác 0. Chiều đỏ ghim mã: 2 không có nền
-      (không rút được khối · khối dưới ba dòng · dòng sai khuôn · sha khai không có trong kho
-      · không hồ sơ đã ký nào · không hồ sơ nào có dòng ghim lại) · 4 tập theo run_id KHÁC
-      khối khai, gọi tên thiếu hoặc thừa · 5 sha dòng ghim lại hoặc verified_commit của một hồ
-      sơ khai khác sha của lượt · 6 vế hai chiều gãy (exit 0 mà danh sách rỗng, hoặc exit khác
-      0 mà vẫn có hồ sơ mang run_id ấy) · 8 thiếu cờ. Mã 6 là vế giết hằng-đúng mà phản biện
-      context sạch của mốc này đòi: bản đầu của răng cho lượt đỏ khai chữ «không có» rồi bỏ
-      qua chính phép so.
-    paths: [_acceptance/release-2-16-0/contract.md, _acceptance/release-2-16-0/rang-ghim-lai.mjs]
+      Exit 0 và đúng một dòng «PASS: chien-dich lan <run_id> tai sha <sha8> — vat phu dung <n>
+      ho so da thong cong, <m> id eval khop tung evals.yaml; ba so khop vat: <a> ho so do · <b>
+      eval do · <c> ho so duoc ghim», với n bằng số hồ sơ đã thông cổng của kho và m LỚN HƠN 0.
+      Vật là `_acceptance/release-2-16-0/chien-dich-ghim-lai.json`, nguyên văn JSON làn in ra.
+      Chiều đỏ ghim mã: 2 không có nền (không git · không đọc được vật · vật thiếu trường · sha
+      của vật không có trong kho · không rút được khối · khối dưới sáu dòng · dòng sai khuôn ·
+      không hồ sơ đã ký nào) · 3 lời khai trong hợp đồng LỆCH vật, hoặc hai lời khai cãi nhau
+      về việc làn xanh hay hỏng · 4 tập hồ sơ của vật KHÁC tập hồ sơ đã thông cổng · 5 một hồ
+      sơ có tập mã eval trong vật KHÁC tập mã eval máy của evals.yaml · 6 vế hai chiều gãy · 7
+      ba số khai LỆCH ba số tính từ vật · 8 thiếu cờ.
+
+      Năm chiều đỏ đã thử thật trên cây này ở lượt sửa 2, gồm ĐÚNG hai phép mà bộ chấm lượt 2
+      dùng để chứng bản trước là hằng đúng: bịa run_id trong hợp đồng → mã 3 · đổi sha khai
+      sang HEAD → mã 3 · khai sai số hồ sơ đỏ → mã 7 · gỡ một mã eval khỏi vật → mã 5 · gỡ một
+      hồ sơ khỏi vật → mã 4. Khôi phục → 0.
+
+      Quan hệ giết hằng-đúng là số 3: một tệp bịa phải tái tạo đúng 741 mã eval trên 72 tệp
+      khai của kho.
+    paths: [_acceptance/release-2-16-0/contract.md, _acceptance/release-2-16-0/rang-ghim-lai.mjs, _acceptance/release-2-16-0/chien-dich-ghim-lai.json]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -102,17 +103,20 @@ evals:
     expected: >
       Exit 0 và đúng một dòng «PASS: viec-va 0 tep engine doi sau chu ky <sha8> ngoai <k> tep
       cua chinh moc (doi chung: cua so <neo8>..<sha8> co <m> tep engine; cua so sau chu ky co
-      <n> tep doi)» với m LỚN HƠN 0 và n LỚN HƠN 0. «Engine» rút từ MỘT nguồn của kho —
-      `risk_tiers.t1_skip_globs` của `_acceptance/config.yaml`, cùng vị từ lưới trước-merge
-      dùng — không phải một mảng tiền tố gõ tay. Chiều đỏ ghim mã: 2 không có nền (không
+      <n> tep doi)» với m LỚN HƠN 0 và n LỚN HƠN 0. «Engine» rút từ MỘT nguồn của kho bằng CHÍNH hai hàm
+      mà làn ghim lại dùng cho vị từ bỏ-qua: `configList` của `lib/workspace-record.cjs` đọc
+      danh sách `risk_tiers.t1_skip_globs`, `globToRe` của `feature-loop/scripts/carry-plan.mjs`
+      khớp mẫu — không mảng gõ tay, và cũng không khuôn đọc/khớp của riêng răng. Chiều đỏ ghim mã: 2 không có nền (không
       rút được khối · khối dưới hai dòng · dòng chữ-ký sai khuôn · sha không có trong kho ·
       cửa sổ sau chữ ký rỗng · rút không được danh sách mẫu t1) · 6 có tệp engine đổi sau chữ
       ký ngoài tệp mốc khai, in từng
       tệp · 7 đối chứng dương hỏng — cửa sổ neo tới chữ ký không chứa tệp engine nào, nên bộ
       lọc chưa chứng minh được là nó thấy tệp engine · 8 thiếu cờ. Mã 7 là chiều thứ hai của
       nghi thức hai chiều: một kết luận «không tệp nào» trên một bộ lọc chưa từng thấy tệp
-      engine là hằng đúng. Đã thử thật ở lượt sửa 1: thêm một tệp dưới cây thư viện → mã 6 gọi
-      đúng tệp; đổi tên khoá t1 trong bản sao config → mã 2; khôi phục → 0.
+      engine là hằng đúng. Đã thử thật: thêm một tệp dưới cây thư viện → mã 6 gọi đúng tệp ·
+      đổi tên khoá t1 trong bản sao config → mã 2 · đặt `configList` thành rỗng trong bản sao
+      lib → mã 2 gọi tên hàm thiếu · khôi phục → 0. Và hai hình dạng TRÔI mà lượt chấm 2 nêu
+      — khoá mang chú thích đuôi, mục mang chú thích đuôi — nay đều IM đúng.
     paths: [_acceptance/release-2-16-0/contract.md, _acceptance/release-2-16-0/rang-cua-so.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6a

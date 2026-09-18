@@ -6,40 +6,45 @@
 // không có thước thì nó là tin-suông — đúng lớp mà răng cửa sổ của mốc 2.15.0
 // sinh ra để đóng cho hai lời khai khác. Răng này đóng lời khai thứ ba.
 //
-// KHÔNG CÓ NHÁNH «làn đỏ thì bỏ qua». Bản đầu của răng nhận chữ `khong-co` ở dòng
-// sha làm lối tắt cho ca làn đỏ, và phản biện context sạch chỉ ra ngay: lối ấy bỏ
-// qua chính phép so, nên nó là HẰNG ĐÚNG — một lượt ghim được ba hồ sơ rồi chết
-// giữa chừng cho cùng một dòng PASS với một lượt chưa ai chạy. Nay lượt chiến dịch
-// LUÔN khai ba thứ, và ba thứ ấy ràng nhau hai chiều:
+// ĐỔI KHUÔN Ở LƯỢT CHẤM 3 — hai bản trước đều HẰNG ĐÚNG, mỗi bản một kiểu:
+//   · bản 1 cho lượt đỏ khai chữ «khong-co» rồi bỏ qua chính phép so;
+//   · bản 2 đòi sha, run_id và mã thoát, nhưng ở nhánh làn-đỏ KHÔNG vật nào
+//     trong kho mang run_id ấy (làn đỏ theo thiết kế không ghi gì), nên phép so
+//     chạy trên tập rỗng: bộ chấm lượt 2 thử thật — bịa run_id, đổi sha sang
+//     HEAD — và răng vẫn PASS cả hai lần.
+// Cái sai chung của hai bản: chúng đi tìm vật ở nơi làn đỏ KHÔNG BAO GIỜ ghi.
+// Bản này đổi chỗ đứng: lấy chính ĐẦU RA của làn làm vật, đặt nó trong hồ sơ
+// (`chien-dich-ghim-lai.json`, nguyên văn JSON làn in ra stdout), rồi buộc vật
+// ấy vào KHO bằng những quan hệ mà một tệp bịa không thoả được.
 //
-//   sha    — HEAD mà làn chạy tại đó (làn đỏ cũng có sha; làn đỏ không có pin)
-//   run_id — mã lượt làn tự đúc; đây là vật nói «đã chạy», thay cho lời khai
-//   exit   — mã thoát của làn
+// Bốn quan hệ, tất cả đo được:
+//   (1) Lời khai trong hợp đồng — sha · run_id · exit — BẰNG đúng ba trường ấy
+//       trong vật. Hợp đồng thôi là nguồn; nó là bản sao phải khớp.
+//   (2) Vật phủ ĐÚNG tập hồ sơ đã thông cổng của kho — không thiếu, không thừa.
+//   (3) Với TỪNG hồ sơ, tập id eval trong vật BẰNG tập id eval máy của chính
+//       `evals.yaml` hồ sơ ấy (trừ ô tự khai không-chạy). Đây là ràng buộc giết
+//       hằng-đúng: một tệp bịa phải tái tạo đúng 741 id trên 72 tệp evals.
+//   (4) Ba số mà hợp đồng kể ở Notes — số hồ sơ đỏ · số eval đỏ · số hồ sơ được
+//       ghim — TÍNH TỪ VẬT, so với ba số khai trong khối. «Đỏ» đọc theo kỳ vọng
+//       đã khai (`expectedExits`), không theo số 0, cùng luật với làn.
+//   Cộng vế hai chiều cũ: exit 0 ⇒ có hồ sơ được ghim; exit khác 0 ⇒ KHÔNG hồ sơ
+//   đã ký nào mang run_id ấy trong sổ chạy.
 //
-// Bất biến đo được, cả hai chiều:
-//   (a) tập hồ sơ ĐÃ THÔNG CỔNG mà dòng ghim lại MỚI NHẤT mang đúng `run_id` ấy
-//       BẰNG danh sách khai — thiếu hay thừa đều đỏ, gọi tên;
-//   (b) mỗi hồ sơ trong danh sách có dòng ghim lại mang đúng `sha` ấy VÀ có
-//       `verified_commit` BẰNG chính `sha` ấy (bất biến của nghi thức ghim lại);
-//   (c) exit 0 ⇒ danh sách KHÔNG rỗng (một làn xanh có ghi pin), và
-//       exit khác 0 ⇒ KHÔNG hồ sơ đã ký nào mang `run_id` ấy ở bất kỳ dòng nào.
-// Vế (c) là thứ giết hằng-đúng: một làn đỏ mà vẫn có pin mang run_id của nó là
-// lời khai LỆCH vật, và răng gọi tên.
+// Hai trạng thái «đã thông cổng» và danh sách eval máy hỏi ĐÚNG MỘT NGUỒN —
+// `DA_THONG_CONG_2` của `lib/workspace-record.cjs`, `parseEvals`/`expectedExits`
+// của `lib/eval-yaml.cjs` — không gõ tay. Bài học 2.15.0 AC-8.
 //
-// Hai trạng thái «đã thông cổng» hỏi ĐÚNG MỘT NGUỒN — `DA_THONG_CONG_2` của
-// `lib/workspace-record.cjs`, qua `hoSoDaThong` của làn ghim lại — không gõ tay.
-// Bài học 2.15.0 AC-8: một bản chép mảng trạng thái là một khuôn sẽ trôi.
-//
-// NEO: không có. Răng đọc sha TỪ LỜI KHAI rồi đối chiếu với kho, nên nó đúng ở mọi
-// HEAD tương lai và hồ sơ đã ký còn ghim lại được.
+// NEO: không có. Răng đọc mọi thứ từ vật và từ kho, nên nó đúng ở mọi HEAD.
 //
 //   0  xanh
-//   2  không có nền: không git · không rút được khối · khối thiếu dòng · sha khai
-//      không có trong kho · không hồ sơ đã ký nào · không hồ sơ nào mang dòng ghim
-//      lại nào (bộ đọc sổ chạy chưa sống)
-//   4  tập hồ sơ mang run_id ấy KHÁC khối khai — in thiếu/thừa
-//   5  hồ sơ trong khối khai có sha dòng ghim lại hoặc verified_commit khác sha khai
-//   6  vế (c) gãy: làn xanh mà khai 0 hồ sơ, hoặc làn đỏ mà vẫn có hồ sơ mang run_id
+//   2  không có nền: không git · không đọc được vật · không rút được khối ·
+//      khối thiếu dòng · sha trong vật không có trong kho · không hồ sơ đã ký nào
+//   3  lời khai trong hợp đồng LỆCH vật (sha / run_id / exit)
+//   4  tập hồ sơ của vật KHÁC tập hồ sơ đã thông cổng của kho — in thiếu/thừa
+//   5  một hồ sơ có tập id eval trong vật KHÁC tập id eval máy của evals.yaml
+//   6  vế hai chiều gãy: exit 0 mà 0 hồ sơ được ghim, hoặc exit khác 0 mà vẫn có
+//      hồ sơ mang run_id ấy trong sổ chạy
+//   7  ba số khai trong khối LỆCH ba số tính từ vật
 //   8  thiếu cờ `--chan chien-dich`
 import { spawnSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
@@ -59,93 +64,109 @@ if (chan !== 'chien-dich') stop(8, 'FAIL(8): cần đúng --chan chien-dich');
 const git = (...a) => { const r = spawnSync('git', ['-C', ROOT, ...a], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); return { code: r.status, out: String(r.stdout || '').trim() }; };
 if (git('rev-parse', 'HEAD').code !== 0) stop(2, `FAIL(2): ${ROOT} không phải kho git`);
 
-// ── bộ máy: một nguồn cho «đã thông cổng» ────────────────────────────────────
+// ── bộ máy: một nguồn cho trạng thái và cho danh sách eval máy ────────────────
 const require_ = createRequire(path.join(ROOT, 'x.cjs'));
-let core, wsRec, hoSoDaThong;
+let core, wsRec, evalYaml, hoSoDaThong;
 try {
   core = require_(path.join(ROOT, 'lib', 'evidence-core.cjs'));
   wsRec = require_(path.join(ROOT, 'lib', 'workspace-record.cjs'));
+  evalYaml = require_(path.join(ROOT, 'lib', 'eval-yaml.cjs'));
   ({ hoSoDaThong } = await import(path.join(ROOT, 'feature-loop', 'scripts', 'chup-ho-so-da-thong.mjs')));
 } catch (e) { stop(2, `FAIL(2): không nạp được bộ máy (lib + làn ghim lại): ${e.message}`); }
 if (!Array.isArray(wsRec.DA_THONG_CONG_2) || !wsRec.DA_THONG_CONG_2.length) stop(2, 'FAIL(2): lib/workspace-record.cjs không cấp DA_THONG_CONG_2 — không có nguồn trạng thái');
+if (typeof evalYaml.parseEvals !== 'function' || typeof evalYaml.expectedExits !== 'function') stop(2, 'FAIL(2): lib/eval-yaml.cjs không cấp parseEvals/expectedExits — không có nguồn danh sách eval máy');
 
 let daKy;
 try { daKy = hoSoDaThong(ROOT, core.frontmatterField, wsRec.DA_THONG_CONG_2); }
 catch (e) { stop(2, `FAIL(2): không liệt kê được hồ sơ đã thông cổng: ${e.message}`); }
 if (!daKy.length) stop(2, 'FAIL(2): không hồ sơ đã thông cổng nào trong kho — phép so chưa sống');
 
-// ── khối khai của hợp đồng ───────────────────────────────────────────────────
+// ── VẬT: đầu ra nguyên văn của làn, nằm trong hồ sơ ──────────────────────────
+const VAT = path.join(HERE, 'chien-dich-ghim-lai.json');
+let vat;
+try { vat = JSON.parse(readFileSync(VAT, 'utf8')); }
+catch (e) { stop(2, `FAIL(2): không đọc được vật _acceptance/${SLUG}/chien-dich-ghim-lai.json: ${e.message}`); }
+for (const k of ['run_id', 'sha', 'slugs']) if (!vat[k]) stop(2, `FAIL(2): vật thiếu trường «${k}» — không phải đầu ra của làn`);
+if (!/^[0-9a-f]{40}$/.test(String(vat.sha))) stop(2, `FAIL(2): trường sha của vật không phải 40 hex: ${vat.sha}`);
+if (git('cat-file', '-e', `${vat.sha}^{commit}`).code !== 0) stop(2, `FAIL(2): sha của vật ${String(vat.sha).slice(0, 8)} không có trong kho này`);
+const suitesExit = Array.isArray(vat.suites) ? vat.suites.map((s) => s.exit) : [];
+
+// ── khối khai của hợp đồng — nay là BẢN SAO phải khớp vật ────────────────────
 const hd = readFileSync(path.join(HERE, 'contract.md'), 'utf8');
 const khoi = hd.match(/<<<CHIEN-DICH-GHIM-LAI\n([\s\S]*?)CHIEN-DICH-GHIM-LAI>>>/);
 if (!khoi) stop(2, `FAIL(2): không rút được khối CHIEN-DICH-GHIM-LAI của _acceptance/${SLUG}/contract.md`);
 const dong = khoi[1].split('\n').map((l) => l.trim()).filter(Boolean);
-if (dong.length < 3) stop(2, `FAIL(2): khối CHIEN-DICH-GHIM-LAI phải có ít nhất ba dòng đầu (sha · run_id · exit), thấy ${dong.length}`);
+if (dong.length < 6) stop(2, `FAIL(2): khối CHIEN-DICH-GHIM-LAI phải có sáu dòng (sha · run_id · exit · ho-so-do · eval-do · ho-so-ghim), thấy ${dong.length}`);
+const lay = (i, ten, re) => { const m = re.exec(dong[i]); if (!m) stop(2, `FAIL(2): dòng ${i + 1} của khối khai phải là «${ten}», thấy: ${dong[i]}`); return m[1]; };
 const shaKhai = dong[0];
-const mRun = /^run_id:\s*(\S+)$/.exec(dong[1]);
-const mExit = /^exit:\s*(\d+)$/.exec(dong[2]);
 if (!/^[0-9a-f]{40}$/.test(shaKhai)) stop(2, `FAIL(2): dòng 1 của khối khai không phải sha 40 hex: ${shaKhai}`);
-if (!mRun) stop(2, `FAIL(2): dòng 2 của khối khai phải là «run_id: <mã>», thấy: ${dong[1]}`);
-if (!mExit) stop(2, `FAIL(2): dòng 3 của khối khai phải là «exit: <số>», thấy: ${dong[2]}`);
-const runKhai = mRun[1];
-const exitKhai = Number(mExit[1]);
-const khai = dong.slice(3).map((l) => l.split(/\s+/)[0]).sort();
-if (git('cat-file', '-e', `${shaKhai}^{commit}`).code !== 0) stop(2, `FAIL(2): sha khai ${shaKhai.slice(0, 8)} không có trong kho này`);
+const runKhai = lay(1, 'run_id: <mã>', /^run_id:\s*(\S+)$/);
+const exitKhai = Number(lay(2, 'exit: <số>', /^exit:\s*(\d+)$/));
+const doKhai = Number(lay(3, 'ho-so-do: <số>', /^ho-so-do:\s*(\d+)$/));
+const evalDoKhai = Number(lay(4, 'eval-do: <số>', /^eval-do:\s*(\d+)$/));
+const ghimKhai = Number(lay(5, 'ho-so-ghim: <số>', /^ho-so-ghim:\s*(\d+)$/));
 
-// ── đọc mọi dòng ghim lại của từng hồ sơ đã ký ───────────────────────────────
-const docGhim = (slug) => {
-  const p = path.join(ROOT, '_acceptance', slug, 'run-log.jsonl');
-  if (!existsSync(p)) return [];
-  const ds = [];
-  for (const l of readFileSync(p, 'utf8').split('\n')) {
-    const s = l.trim();
-    if (!s) continue;
-    let o; try { o = JSON.parse(s); } catch { continue; }
-    if (o && o.kind === 'repin') ds.push(o);
-  }
-  return ds;
-};
-const coGhim = [];        // hồ sơ có dòng ghim lại BẤT KỲ — đối chứng dương của bộ đọc
-const mangRun = [];       // hồ sơ có dòng ghim lại BẤT KỲ mang run_id của lượt
-const cuoiLaRun = [];     // hồ sơ có dòng ghim lại MỚI NHẤT mang run_id của lượt
-const shaTheoSlug = new Map();
-for (const s of daKy) {
-  const ds = docGhim(s);
-  if (!ds.length) continue;
-  coGhim.push(s);
-  if (ds.some((d) => d.run_id === runKhai)) mangRun.push(s);
-  const cuoi = ds[ds.length - 1];
-  if (cuoi.run_id === runKhai) { cuoiLaRun.push(s); shaTheoSlug.set(s, String(cuoi.sha || '')); }
-}
-if (!coGhim.length) stop(2, 'FAIL(2): không hồ sơ đã ký nào mang dòng ghim lại nào — bộ đọc sổ chạy chưa sống, phép so không đo được gì');
-cuoiLaRun.sort(); mangRun.sort();
+// (1) lời khai BẰNG vật
+const exitVat = suitesExit.some((x) => x !== 0) ? 1 : (vat.exit !== undefined ? Number(vat.exit) : null);
+if (shaKhai !== String(vat.sha)) stop(3, `FAIL(3): hợp đồng khai sha ${shaKhai.slice(0, 8)} nhưng vật mang ${String(vat.sha).slice(0, 8)}`);
+if (runKhai !== String(vat.run_id)) stop(3, `FAIL(3): hợp đồng khai run_id ${runKhai} nhưng vật mang ${vat.run_id}`);
 
-// (a) tập theo run_id BẰNG khối khai
-const thieu = cuoiLaRun.filter((s) => !khai.includes(s));
-const thua = khai.filter((s) => !cuoiLaRun.includes(s));
+// ── tính TỪ VẬT: hồ sơ đỏ · eval đỏ · hồ sơ được ghim ────────────────────────
+const slugVat = Object.keys(vat.slugs).sort();
+const thieu = slugVat.filter((s) => !daKy.includes(s));
+const thua = daKy.filter((s) => !slugVat.includes(s));
 if (thieu.length || thua.length) {
-  stop(4, `FAIL(4): tập hồ sơ mang dòng ghim lại mới nhất của lượt ${runKhai} KHÁC khối khai —`
-    + `${thieu.length ? ` có trong sổ chạy mà hợp đồng không khai: ${thieu.join(', ')};` : ''}`
-    + `${thua.length ? ` hợp đồng khai mà sổ chạy không có: ${thua.join(', ')}` : ''}`);
+  stop(4, `FAIL(4): tập hồ sơ của vật KHÁC tập hồ sơ đã thông cổng của kho —`
+    + `${thieu.length ? ` vật có mà kho không: ${thieu.join(', ')};` : ''}`
+    + `${thua.length ? ` kho có mà vật không: ${thua.join(', ')}` : ''}`);
 }
 
-// (c) hai chiều giữa mã thoát của làn và việc có pin — vế giết hằng-đúng
-if (exitKhai === 0 && khai.length === 0) stop(6, `FAIL(6): khối khai nói làn XANH (exit 0) mà không ghim hồ sơ nào — một làn xanh luôn ghi pin cho hồ sơ trong phạm vi lượt`);
-if (exitKhai !== 0 && mangRun.length) stop(6, `FAIL(6): khối khai nói làn ĐỎ (exit ${exitKhai}) nhưng ${mangRun.length} hồ sơ vẫn mang dòng ghim lại của lượt ${runKhai}: ${mangRun.join(', ')} — làn đỏ không được ghi gì`);
-
-// (b) bất biến của nghi thức: sha dòng ghim lại và verified_commit đều BẰNG sha khai
-for (const s of khai) {
-  const shaDong = shaTheoSlug.get(s) || '';
-  if (shaDong !== shaKhai) stop(5, `FAIL(5): ${s} có dòng ghim lại ở sha ${shaDong.slice(0, 8) || '(rỗng)'} khác sha khai ${shaKhai.slice(0, 8)}`);
-  const rp = path.join(ROOT, '_acceptance', s, 'evidence-report.md');
-  if (!existsSync(rp)) stop(5, `FAIL(5): ${s} khai đã ghim lại nhưng không có evidence-report.md để đối chiếu verified_commit`);
-  const vc = String(core.frontmatterField(readFileSync(rp, 'utf8'), 'verified_commit') || '').trim();
-  if (vc !== shaKhai) stop(5, `FAIL(5): ${s} có verified_commit ${vc.slice(0, 8) || '(rỗng)'} khác sha của lượt chiến dịch ${shaKhai.slice(0, 8)} — nghi thức ghim lại đòi hai giá trị BẰNG nhau`);
+let hoSoDo = 0, evalDo = 0;
+for (const s of slugVat) {
+  const p = path.join(ROOT, '_acceptance', s, 'evals.yaml');
+  let txt; try { txt = readFileSync(p, 'utf8'); } catch { stop(5, `FAIL(5): ${s} có trong vật mà không đọc được evals.yaml`); }
+  const evs = evalYaml.parseEvals(txt, ['executor', 'cmd', 'status']);
+  const idKho = evs.filter((e) => (e.executor === 'test' || e.executor === 'script') && String(e.status).trim() !== 'not-run').map((e) => e.id).sort();
+  const idVat = Object.keys(vat.slugs[s].evals_exit).sort();
+  const tA = idKho.filter((i) => !idVat.includes(i)), tB = idVat.filter((i) => !idKho.includes(i));
+  if (tA.length || tB.length) {
+    stop(5, `FAIL(5): ${s} — tập id eval trong vật KHÁC tập id eval máy của evals.yaml:`
+      + `${tA.length ? ` kho có mà vật không: ${tA.join(', ')};` : ''}`
+      + `${tB.length ? ` vật có mà kho không: ${tB.join(', ')}` : ''}`);
+  }
+  const exp = evalYaml.expectedExits(txt) || {};
+  let n = 0;
+  for (const [id, x] of Object.entries(vat.slugs[s].evals_exit)) {
+    const e = exp[id] || 0;
+    if (x !== e && !(e !== 0 && x === 0)) n += 1;   // AC-10 2.11.0: cải thiện không phạt
+  }
+  if (n) { hoSoDo += 1; evalDo += n; }
 }
 
-// Dòng PASS KHÔNG được chứa chuỗi «exit <số>». Lượt chấm 1 của mốc này đỏ giả đúng vì
-// thế: tác tử máy đọc mã thoát của lệnh bằng cách khai một trường, và dòng PASS cũ mang
-// chữ «exit 1» (mã thoát của LÀN chiến dịch, không phải của lệnh này), nên nó khai
-// exitCode 1 cho một lệnh đã thoát 0. Đây là lớp «mã thoát đi qua lời khai của tác tử»
-// mà mốc 2.15.0 đặt đầu danh sách gọi-tên-chưa-làm; răng không chữa được lớp ấy, nhưng
-// nó không được TỰ MỜI lớp ấy vào.
-out(`PASS: chien-dich lan ${runKhai} ma-thoat-lan ${exitKhai} tai sha ${shaKhai.slice(0, 8)} — ${khai.length} ho so da ky mang dong ghim lai moi nhat cua luot BANG khoi khai [${khai.join(', ') || 'rong'}] (doi chung: ${daKy.length} ho so da ky, ${coGhim.length} ho so co dong ghim lai)`);
+// (6) hai chiều giữa mã thoát của làn và pin trong sổ chạy
+const mangRun = [];
+let daGhim = 0;
+for (const s of daKy) {
+  const p = path.join(ROOT, '_acceptance', s, 'run-log.jsonl');
+  if (!existsSync(p)) continue;
+  let cuoi = null;
+  for (const l of readFileSync(p, 'utf8').split('\n')) {
+    const t = l.trim(); if (!t) continue;
+    let o; try { o = JSON.parse(t); } catch { continue; }
+    if (o && o.kind === 'repin') { if (o.run_id === runKhai) mangRun.push(s); cuoi = o; }
+  }
+  if (cuoi && cuoi.run_id === runKhai && cuoi.sha === shaKhai) daGhim += 1;
+}
+if (exitKhai === 0 && daGhim === 0) stop(6, 'FAIL(6): khối khai nói làn XANH nhưng KHÔNG hồ sơ nào mang dòng ghim lại của lượt — một làn xanh luôn ghi pin');
+if (exitKhai !== 0 && mangRun.length) stop(6, `FAIL(6): khối khai nói làn hỏng (ma-thoat-lan ${exitKhai}) nhưng ${mangRun.length} hồ sơ vẫn mang dòng ghim lại của lượt ${runKhai}: ${[...new Set(mangRun)].join(', ')} — làn hỏng không được ghi gì`);
+if (exitKhai !== 0 && hoSoDo === 0) stop(3, `FAIL(3): khối khai nói làn hỏng (ma-thoat-lan ${exitKhai}) nhưng vật không có hồ sơ nào đỏ — hai lời khai cãi nhau`);
+if (exitKhai === 0 && hoSoDo !== 0) stop(3, `FAIL(3): khối khai nói làn XANH nhưng vật có ${hoSoDo} hồ sơ đỏ — hai lời khai cãi nhau`);
+
+// (7) ba số khai BẰNG ba số tính từ vật
+const lech = [];
+if (doKhai !== hoSoDo) lech.push(`ho-so-do khai ${doKhai}, vật cho ${hoSoDo}`);
+if (evalDoKhai !== evalDo) lech.push(`eval-do khai ${evalDoKhai}, vật cho ${evalDo}`);
+if (ghimKhai !== daGhim) lech.push(`ho-so-ghim khai ${ghimKhai}, sổ chạy cho ${daGhim}`);
+if (lech.length) stop(7, `FAIL(7): ba số của chiến dịch khai LỆCH số tính từ vật — ${lech.join(' · ')}`);
+
+out(`PASS: chien-dich lan ${runKhai} tai sha ${shaKhai.slice(0, 8)} — vat phu dung ${slugVat.length} ho so da thong cong, ${Object.values(vat.slugs).reduce((n, o) => n + Object.keys(o.evals_exit).length, 0)} id eval khop tung evals.yaml; ba so khop vat: ${hoSoDo} ho so do · ${evalDo} eval do · ${daGhim} ho so duoc ghim`);

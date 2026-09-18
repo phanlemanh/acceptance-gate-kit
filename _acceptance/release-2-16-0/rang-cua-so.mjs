@@ -36,6 +36,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..', '..');
@@ -120,30 +121,25 @@ if (chan === 'viec-va') {
   if (git('cat-file', '-e', `${ky}^{commit}`).code !== 0) stop(2, `FAIL(2): sha chữ ký ${ky} không có trong kho này`);
   const cuaMoc = d.slice(1).map((l) => l.split(/\s+/)[0]);
 
-  // «Engine» hỏi ĐÚNG MỘT NGUỒN của kho, không chép tay: vị từ của lưới trước-merge —
-  // tệp git-theo-dõi NGOÀI `_acceptance/` và KHÔNG khớp `risk_tiers.t1_skip_globs` thì
-  // là hành vi. Bản đầu của chân này gõ tay một mảng tiền tố và nó trôi ngay ở lượt
-  // chấm 1 của chính mốc: `.claude-plugin/` không có tiền tố nào nên hai manifest ở gốc
-  // vô hình, trong khi `feature-loop/.claude-plugin/plugin.json` lại là engine qua tiền
-  // tố `feature-loop/` — bất đối xứng khiến dòng khai `.claude-plugin/plugin.json` chỉ
-  // là trang trí. Cùng bài học với `DA_THONG_CONG_2` ở răng chị em: một bản chép danh
-  // sách là một khuôn sẽ trôi.
-  const cfg = readFileSync(path.join(ROOT, '_acceptance', 'config.yaml'), 'utf8');
-  const t1 = (() => {
-    const m = cfg.match(/^\s*t1_skip_globs:\s*$/m);
-    if (!m) return null;
-    const sau = cfg.slice(cfg.indexOf(m[0]) + m[0].length).split('\n');
-    const gl = [];
-    for (const l of sau) {
-      if (/^\s*#/.test(l) || !l.trim()) continue;
-      const g = l.match(/^\s+-\s*"?([^"\n]+?)"?\s*$/);
-      if (!g) break;
-      gl.push(g[1]);
-    }
-    return gl;
-  })();
-  if (!t1 || t1.length < 5) stop(2, `FAIL(2): không rút được risk_tiers.t1_skip_globs của _acceptance/config.yaml (thấy ${t1 ? t1.length : 0} mẫu) — không có nguồn để hỏi «cái gì là hành vi»`);
-  const reT1 = t1.map((g) => new RegExp('^' + g.split('**').map((x) => x.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*').replace(/\?/g, '[^/]')).join('.*') + '$'));
+  // «Engine» hỏi ĐÚNG MỘT NGUỒN của kho, và hỏi bằng CHÍNH hai hàm mà làn ghim lại
+  // dùng cho vị từ bỏ-qua (khối SKIP-UNCHANGED-PREDICATE của repin-lane.mjs):
+  // `configList` của lib đọc danh sách, `globToRe` của carry-plan khớp mẫu. Tệp
+  // git-theo-dõi NGOÀI `_acceptance/` và KHÔNG khớp `risk_tiers.t1_skip_globs` thì
+  // là hành vi.
+  //
+  // Hai bản trước đều CHÉP, mỗi bản một tầng: bản 1 chép DANH SÁCH (mảng tiền tố gõ
+  // tay) và trôi ngay ở lượt chấm 1 — thư mục manifest ở gốc kho vô hình; bản 2 bỏ
+  // danh sách nhưng còn chép KHUÔN (tự regex ra khoá, tự dịch glob) và lượt chấm 2
+  // chứng nó trôi hai chiều: khoá mang chú thích đuôi thì bản chép trả rỗng, mục
+  // mang chú thích đuôi thì bản chép cắt im lặng danh sách. Bản này không còn khuôn
+  // nào của riêng nó.
+  const lib = createRequire(path.join(ROOT, 'x.cjs'))(path.join(ROOT, 'lib', 'workspace-record.cjs'));
+  if (typeof lib.configList !== 'function') stop(2, 'FAIL(2): lib/workspace-record.cjs không cấp configList — không có nguồn đọc danh sách mẫu');
+  const { globToRe } = await import(path.join(ROOT, 'feature-loop', 'scripts', 'carry-plan.mjs'));
+  if (typeof globToRe !== 'function') stop(2, 'FAIL(2): feature-loop/scripts/carry-plan.mjs không cấp globToRe — không có nguồn khớp mẫu');
+  const t1 = lib.configList(readFileSync(path.join(ROOT, '_acceptance', 'config.yaml'), 'utf8'), 't1_skip_globs');
+  if (!t1.length) stop(2, 'FAIL(2): risk_tiers.t1_skip_globs của _acceptance/config.yaml rỗng — không có nguồn để hỏi «cái gì là hành vi»');
+  const reT1 = t1.map(globToRe);
   const laEngine = (f) => !f.startsWith('_acceptance/') && !reT1.some((r) => r.test(f));
 
   const truoc = git('diff', '--name-only', neo, ky);
