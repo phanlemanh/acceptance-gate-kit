@@ -2,81 +2,87 @@
 
 ## Trong hợp đồng
 
-### Hình dạng 1 (đo vật KHÁC vật được hứa): E4 hứa một dòng trong sổ quyết định mà lệnh đo không hề đọc sổ
-- file: `_acceptance/o-chi-mo-khi-co-neo-ngoai/evals.yaml:51`
+### Bộ đọc frontmatter viết tay trong VC8/VC9 chép lại lib và tái sinh hai lớp lỗi lib đã vá
+- file: `tests/plugins/vao-co-o.test.mjs:68`
 - severity: medium
-- source: measurement
-- AC: AC-4
+- source: conventions
+- AC: AC-3
 
-E4 (criterion AC-4) khai `cmd: config:executors.script.neo_vc8` — tức `VC_CASES=VC8 node tests/plugins/vao-co-o.test.mjs` — nhưng `expected` gồm HAI vế: (a) «VC8 chạy trên ROOT không nêu slug nào thiếu Gốc» và (b) «sổ quyết định của vòng có một dòng «rà tồn kho» nêu hai số: ô thêm Gốc · ô về archived». Vế (b) không có assert nào đứng sau: thân VC8 (tests/plugins/vao-co-o.test.mjs:96-127 `neoErrs` + phần (ii)-(v) của ca) chỉ đọc `opportunity.md` và `contract.md` trong `_acceptance/<slug>/`, cộng `commands/start.md` và khuôn — nó KHÔNG mở `decisions.jsonl` ở bất kỳ nhánh nào. Executor là `script`, verdict lấy từ exit code, nên không có judge nào đọc hộ vế (b). Hệ quả cụ thể: xoá dòng d-20260918T142502Z-12 («Rà tồn kho theo luật mới: 17 ô thêm dòng Gốc…») khỏi `_acceptance/o-chi-mo-khi-co-neo-ngoai/decisions.jsonl` thì E4 vẫn XANH — nửa AC-4 nói về sổ quyết định là hằng-đúng, không phân biệt được «đã ghi sổ» với «chưa bao giờ ghi». Đây đúng lớp «thước không gắn vào vật được giao»: lời hứa ở vật A (sổ), phép đo chạy trên vật B (khuôn + ô).
+`const fmv = (t, k) => t.match(new RegExp(\`^${k}:\\s*(.*?)\\s*(#.*)?$\`, 'm'))…` là bộ đọc frontmatter tự dựng, dùng cho CẢ HAI răng mới: `hangCho` (line 93, đọc `stage`/`decision`) và `khoErrs` (line 122, đọc `status` để quyết grandfather).
 
-Vì sao trong hợp đồng: AC-4 đòi hỏi sổ quyết định của vòng phải nêu số ô thêm Gốc và số ô về archived, nhưng eval E4 chỉ chạy VC8/VC9 và không mở decisions.jsonl để xác nhận vế này, nên phần Then đó của AC-4 chưa có phép đo nào bảo đảm.
+Kit đã có MỘT nguồn cho seam này: `frontmatterField` export ở `lib/evidence-core.cjs:1204`, và chú thích ngay trên nó (lib/evidence-core.cjs:110-122) tuyên đúng ca này — «kit giải lớp MỘT LẦN rồi không lan sang bộ đọc kế bên — đó là lý do lần này đi bằng một hàm dùng chung thay vì lại sửa một chỗ». Trớ trêu là chính file này, ở line 22-24, viết «Trạng thái «đã thông Cổng Bằng chứng» HỎI lib, không chép» rồi 45 dòng sau chép bộ đọc.
 
-### Hình dạng 3 (assert «chuỗi có mặt» thay vì quan hệ): LB3 kiểm nhãn lối (b) bằng `includes` trên CẢ TỆP, không trong khối
-- file: `tests/scripts/loi-b-hat-giong.test.mjs:62`
-- severity: low
-- source: measurement
-- AC: AC-5
+Hai chỗ trôi đã đo được (chạy trực tiếp `fmv`):
+1. `\s*` sau dấu hai chấm khớp cả xuống dòng — đúng lỗi S4-r2 mà `frontmatterField` dùng `[ \t]*` để chặn. Với `---\nslug: x\nstage:\ndecision: build\n---`, `fmv(t,'stage')` trả `"decision: build"` chứ không phải `""`.
+2. Không neo vào khối `---` đầu tệp — `frontmatterField` cố ý chỉ đọc khối dẫn đầu để «a body excerpt (pasted log) cannot poison the read». Với một contract có frontmatter thiếu `status:` và trong thân có dòng `status: signed-off` (trích log, ví dụ, bảng), `fmv(t,'status')` trả `"signed-off"` → `khoErrs` cho mốc đó qua cửa grandfather và VC9 IM trên một mốc chưa ký thiếu «Kho chờ nhận:». Đó là fail-open của chính răng vừa dựng.
 
-LB3 đo phần thân lối (b) đúng cách — rút KHỐI giữa marker `OOC-LOI-B` rồi assert trên `b` — nhưng riêng vế nhãn lại tụt về grep toàn tệp: `const nhan = f.endsWith('SKILL.md') ? 'mở contract mới' : 'mở hợp đồng mới'; if (!txt.includes(nhan)) die(...)`. Lời hứa của AC-5 là QUAN HỆ «nhãn của LỰA CHỌN (b) giữ nguyên văn», tức nhãn phải đứng ngay trước khối `OOC-LOI-B`; assert lại chỉ hỏi cụm chữ có xuất hiện ở đâu đó trong tệp. Kịch bản fail: đổi nhãn tại vị trí (b) thành «mở việc mới» nhưng còn một lần nhắc «mở hợp đồng mới» ở chỗ khác của tệp (ở `commands/signoff.md` cụm này đã xuất hiện trong dòng ngữ pháp «Ngoài-<số>: ghi Known limits / mở hợp đồng mới / nâng phạm vi sửa ngay», ngoài khối) — LB3 vẫn xanh dù nhãn lối (b) đã trôi. Hiện mỗi tệp chỉ có đúng 1 lần xuất hiện nên ca còn may, nhưng phép đo không phân biệt được hai tình huống đó.
+Sửa: `require('lib/evidence-core.cjs').frontmatterField` thay cho `fmv`, giống cách file đã hỏi `DA_THONG_CONG_2`.
 
-Vì sao trong hợp đồng: AC-5 nêu rõ mọi phần kiểm khối lối (b) phải rút từ KHỐI giữa marker OOC-LOI-B, không được grep cả tệp; LB3 lại grep nhãn 'mở hợp đồng mới' trên toàn tệp, đúng điều bị cấm trong Then của AC-5.
+Vì sao trong hợp đồng: AC-3 đòi mốc chưa ký (status ≠ signed-off) phải bị gọi đỏ khi thiếu dòng Kho chờ nhận; bộ đọc trạng thái có thể lấy nhầm giá trị 'signed-off' từ một đoạn văn khác trong hồ sơ khiến mốc đó lọt qua thành im, vi phạm trực tiếp yêu cầu này.
+
+### Chân «hạt giống mồ côi IM» của VC8 là assertion rỗng — không phép đo nào đọc docs/plans
+- file: `tests/plugins/vao-co-o.test.mjs:366`
+- severity: medium
+- source: bugs
+- AC: AC-2
+
+Đảo chiều lớn nhất của vòng này là bỏ luật cũ «mọi hạt giống phải có ô»; chiều ĐẶC HIỆU của nó (hạt giống mồ côi → máy phải IM) được AC-2 gọi tên («hạt giống `docs/plans/*-hat-giong-*` không có ô → IM (đảo chiều VC8 cũ)»), được E2 kể trong ma trận («(im 1) hạt giống mồ côi → im») và được in ra trong dòng PASS của VC8 («hạt giống mồ côi im»).
+
+Nhưng dòng 366 `W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi.md', …)` ghi file vào fixture rồi KHÔNG ai đọc: phép đo duy nhất của VC8 sau đó là `neoErrs(accDir, tpl)` (dòng 96-110), và `neoErrs` chỉ `readdirSync(accDir)` — nó không bao giờ chạm `docs/plans`. Chân (v) cuối ca chạy `scan(ROOT)` trên cây thật, cũng không liên quan fixture `r`.
+
+Failure scenario: xoá hẳn dòng 366, hoặc ngược lại thêm lại một bộ đếm «hạt giống mồ côi» vào bất kỳ bên đọc nào — VC8 vẫn XANH và vẫn in «hạt giống mồ côi im». Đúng lớp lỗi «assertion âm-tính-một-mình / hằng-đúng» mà CLAUDE.md và nghi thức hai chiều 14/09 sinh ra để chặn: chiều 2 (độ đặc hiệu) của luật mới hoàn toàn không có vật.
+
+Vì sao trong hợp đồng: AC-2 liệt kê rõ ràng hành vi «hạt giống mồ côi → IM» là một tiêu chí phải được xác minh, nhưng phép thử được viết ra không có đường nào thực sự chạm tới dữ liệu đó nên tiêu chí này chưa từng được chứng minh giữ đúng.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Luật (b) đổi mẫu số nhưng bộ đếm vòng meta vẫn neo vào mốc CẮT SỐ**
-  Người dùng thấy gì: Con số vòng công việc phụ hiển thị trên thẻ có thể sai ngay sau khi đổi số phiên bản, dù chưa có kho nào thực sự nhận bản phát hành mới — dễ khiến người đọc thẻ hiểu nhầm giới hạn đã được nới ra sớm hơn thực tế.
-  file: `scripts/start-scan.mjs`
+- **neoErrs mặc định IM khi không đọc được hồ sơ — ngược luật «đảo chiều mặc định»**
+  Người dùng thấy gì: Khi một hồ sơ đang chờ duyệt bị lỗi định dạng hoặc không đọc được, máy có thể âm thầm bỏ qua việc kiểm tra ô đó thay vì báo cho người biết, nên một ô thiếu thông tin nguồn gốc có thể lọt qua mà không ai hay.
+  file: `tests/plugins/vao-co-o.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Răng không kiểm VỊ TRÍ dòng Gốc dù khuôn và start.md đều khai «mở đầu section»**
+  Người dùng thấy gì: Dòng khai nguồn gốc có thể được đặt sai vị trí trong hồ sơ mà máy vẫn chấp nhận, nên không có gì bảo đảm dòng đó thực sự mở đầu đúng mục cần thiết như tài liệu hướng dẫn mô tả.
+  file: `tests/plugins/vao-co-o.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **neoErrs nuốt mọi lỗi đọc hồ sơ và miễn lặng ô đó (fail-open)**
+  Người dùng thấy gì: Khi một hồ sơ đang chờ duyệt bị hỏng hoặc không đọc được, ô đó có thể bị bỏ qua hoàn toàn khỏi việc kiểm tra mà không có cảnh báo nào, khiến người ký tưởng lầm mọi thứ đã sạch.
+  file: `tests/plugins/vao-co-o.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Luật «section MỞ bằng dòng Gốc:» không có phép đo; bên đọc nhận Gốc ở bất kỳ đâu và chỉ đọc dòng ĐẦU TIÊN**
+  Người dùng thấy gì: Máy hiện chấp nhận dòng khai nguồn gốc ở bất kỳ đâu trong hồ sơ và chỉ nhìn dòng đầu tiên tìm thấy, nên một hồ sơ có nhiều dòng khai nguồn gốc mâu thuẫn nhau vẫn được coi là hợp lệ.
+  file: `tests/plugins/vao-co-o.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 3 — assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ (dòng Gốc phải MỞ section «Vấn đề & ai gặp»)**
+  Người dùng thấy gì: Yêu cầu rằng dòng khai nguồn gốc phải mở đầu đúng mục vấn đề chưa được máy kiểm tra thật sự — một hồ sơ đặt dòng đó sai chỗ, kể cả một hồ sơ đang có thật trong kho hiện nay, vẫn được máy coi là hợp lệ dù tài liệu hướng dẫn viết khác.
+  file: `tests/plugins/vao-co-o.test.mjs`
   severity: high
-  Đề xuất: known-limits
+  Đề xuất: new-contract
 
-- **Neo trỏ hồ sơ NGAY TRONG KHO NÀY cũng không được kiểm tra tồn tại**
-  Người dùng thấy gì: Một dòng khai 'nguồn gốc' trỏ tới hồ sơ không tồn tại vẫn được chấp nhận mà không báo lỗi, kể cả khi hồ sơ đó lẽ ra kiểm tra được ngay trong cùng dự án.
-  file: `skills/acceptance/references/opportunity-template.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **«Hồ sơ mốc» có hai định nghĩa máy trong cùng kho**
-  Người dùng thấy gì: Hai chỗ khác nhau trong hệ thống có thể hiểu khác nhau về việc gì được tính là 'hồ sơ phát hành', khiến có trường hợp một hồ sơ được nơi này tính vào còn nơi khác lại bỏ qua.
+- **Bộ lọc hàng chờ FAIL-OPEN — đọc frontmatter vắt qua dòng, ô đọc không ra lặng lẽ được miễn răng**
+  Người dùng thấy gì: Khi một trường trạng thái trong hồ sơ được để trống theo một cách viết tay thông thường, máy có thể đọc nhầm sang giá trị của dòng kế bên, để lại rủi ro cho những cách viết khác chưa được kiểm hết.
   file: `tests/plugins/vao-co-o.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Răng VC9 không có chân «bên VIẾT dặn điền» — lời dặn `Kho chờ nhận:` không được phép đo nào ghim**
-  Người dùng thấy gì: Người viết hồ sơ phát hành mới có thể không biết cần điền dòng khai 'kho chờ nhận' vì không tài liệu hướng dẫn nào nhắc tới yêu cầu này, và chỉ phát hiện ra khi bị từ chối.
-  file: `skills/acceptance/references/contract-template.md`
-  severity: medium
-  Đề xuất: known-limits
-
-- **decision: iterate thoát trọn răng neo — cùng ngăn «Sắp mở vòng» với build mà không phải khai Gốc**
-  Người dùng thấy gì: Một hồ sơ được đánh dấu 'thử lại thêm' thay vì 'triển khai' có thể bỏ qua hoàn toàn yêu cầu khai nguồn gốc, dù nó cũng sắp bước vào cùng giai đoạn tiếp theo như hồ sơ được duyệt triển khai.
-  file: `tests/plugins/vao-co-o.test.mjs`
-  severity: high
-  Đề xuất: known-limits
-
-- **neoErrs nuốt lỗi đọc hồ sơ — opportunity.md không đọc được thì im lặng qua cổng**
-  Người dùng thấy gì: Nếu một hồ sơ gặp lỗi khi đọc (ví dụ mất quyền truy cập trên máy chủ kiểm tra), nó có thể âm thầm biến mất khỏi danh sách cần kiểm tra thay vì báo lỗi, khiến việc kiểm tra trông như đã hoàn tất dù chưa từng chạy trên hồ sơ đó.
+- **Hình dạng 5 — tuyên quét LỚP «đã thông Cổng Bằng chứng» nhưng chỉ có điểm-case (1 ca / 2 phần tử)**
+  Người dùng thấy gì: Một trong hai cách đánh dấu 'đã hoàn tất kiểm chứng' của hồ sơ mốc phát hành chưa được thử nghiệm riêng, nên chưa có bằng chứng độc lập rằng nhánh đó thực sự được máy nhận diện đúng.
   file: `tests/plugins/vao-co-o.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 3 (assert «chuỗi có mặt» trong khi lời hứa là QUAN HỆ vị trí): dòng `Gốc:` được nhận ở BẤT KỲ đâu trong tệp**
-  Người dùng thấy gì: Dòng khai nguồn gốc có thể được đặt sai chỗ trong hồ sơ (ví dụ ở một phần không liên quan) mà hệ thống vẫn chấp nhận, khiến yêu cầu 'khai rõ nguồn ngay từ đầu mục' mất tác dụng dù đúng câu chữ.
-  file: `tests/plugins/vao-co-o.test.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hình dạng 3 + fail-open: `fmv` để trường rỗng nuốt dòng kế, ô có `stage:` trống lặng lẽ rời hàng chờ**
-  Người dùng thấy gì: Một hồ sơ điền thiếu thông tin (để trống một trường quan trọng) có thể vô tình thoát khỏi việc bị đòi khai nguồn gốc, thay vì bị từ chối như một hồ sơ chưa hoàn chỉnh.
-  file: `tests/plugins/vao-co-o.test.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hình dạng 5 (số trong lời khai không khớp ma trận thật): dòng PASS của VC8 khai «ma trận 12 ô» trong khi fixture dựng 13**
-  Người dùng thấy gì: Một dòng thông báo kết quả kiểm tra ghi sai số lượng trường hợp thử nghiệm đã chạy, có thể khiến người đọc tưởng phạm vi đã kiểm rộng hơn thực tế.
-  file: `tests/plugins/vao-co-o.test.mjs`
+- **Hình dạng 5 — eval E1 khai một chiều đỏ («khuôn hai dòng thì VC8 đỏ») mà không ca nào chạy nó**
+  Người dùng thấy gì: Bộ kiểm tra tuyên bố sẽ báo lỗi khi khuôn mẫu bị viết sai dạng, nhưng chưa có phép thử nào thực sự tạo ra tình huống sai đó để xác nhận lời tuyên là đúng.
+  file: `_acceptance/o-chi-mo-khi-co-neo-ngoai/evals.yaml`
   severity: low
   Đề xuất: known-limits
 
@@ -104,4 +110,4 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 2/11 lỗi rơi vào file không bộ đo nào phủ (scripts/start-scan.mjs, _acceptance/o-chi-mo-khi-co-neo-ngoai/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
