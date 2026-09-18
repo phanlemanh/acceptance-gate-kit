@@ -120,10 +120,31 @@ if (chan === 'viec-va') {
   if (git('cat-file', '-e', `${ky}^{commit}`).code !== 0) stop(2, `FAIL(2): sha chữ ký ${ky} không có trong kho này`);
   const cuaMoc = d.slice(1).map((l) => l.split(/\s+/)[0]);
 
-  // Tiền tố engine — mọi cây mã và mọi cây thước của kit. Văn (docs, README…) và
-  // hồ sơ xưởng KHÔNG phải engine, nên không nằm ở đây.
-  const ENGINE = ['hooks/', 'lib/', 'scripts/', 'commands/', 'skills/', 'feature-loop/', 'diagram-design/', 'vendor/', 'tests/', '.github/'];
-  const laEngine = (f) => ENGINE.some((e) => f.startsWith(e));
+  // «Engine» hỏi ĐÚNG MỘT NGUỒN của kho, không chép tay: vị từ của lưới trước-merge —
+  // tệp git-theo-dõi NGOÀI `_acceptance/` và KHÔNG khớp `risk_tiers.t1_skip_globs` thì
+  // là hành vi. Bản đầu của chân này gõ tay một mảng tiền tố và nó trôi ngay ở lượt
+  // chấm 1 của chính mốc: `.claude-plugin/` không có tiền tố nào nên hai manifest ở gốc
+  // vô hình, trong khi `feature-loop/.claude-plugin/plugin.json` lại là engine qua tiền
+  // tố `feature-loop/` — bất đối xứng khiến dòng khai `.claude-plugin/plugin.json` chỉ
+  // là trang trí. Cùng bài học với `DA_THONG_CONG_2` ở răng chị em: một bản chép danh
+  // sách là một khuôn sẽ trôi.
+  const cfg = readFileSync(path.join(ROOT, '_acceptance', 'config.yaml'), 'utf8');
+  const t1 = (() => {
+    const m = cfg.match(/^\s*t1_skip_globs:\s*$/m);
+    if (!m) return null;
+    const sau = cfg.slice(cfg.indexOf(m[0]) + m[0].length).split('\n');
+    const gl = [];
+    for (const l of sau) {
+      if (/^\s*#/.test(l) || !l.trim()) continue;
+      const g = l.match(/^\s+-\s*"?([^"\n]+?)"?\s*$/);
+      if (!g) break;
+      gl.push(g[1]);
+    }
+    return gl;
+  })();
+  if (!t1 || t1.length < 5) stop(2, `FAIL(2): không rút được risk_tiers.t1_skip_globs của _acceptance/config.yaml (thấy ${t1 ? t1.length : 0} mẫu) — không có nguồn để hỏi «cái gì là hành vi»`);
+  const reT1 = t1.map((g) => new RegExp('^' + g.split('**').map((x) => x.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*').replace(/\?/g, '[^/]')).join('.*') + '$'));
+  const laEngine = (f) => !f.startsWith('_acceptance/') && !reT1.some((r) => r.test(f));
 
   const truoc = git('diff', '--name-only', neo, ky);
   if (truoc.code !== 0) stop(2, `FAIL(2): không so được cửa sổ ${neo8}..${ky.slice(0, 8)}`);

@@ -34,9 +34,26 @@ MOI="$(doc_so < "$ROOT/$MANIFEST")"
 [ -n "$MOI" ] || { echo "DO: khong doc duoc so trong cay lam viec tu $MANIFEST" >&2; exit 2; }
 
 HS="_acceptance/$(basename "$WS")/contract.md"
-NEO="$(G log --diff-filter=A --format=%H -- "$HS" 2>/dev/null | tail -1)"
-if [ -n "$NEO" ]; then
-  NGUON="so tai commit dua ho so moc vao kho (${NEO:0:8})"
+SINH="$(G log --diff-filter=A --format=%H -- "$HS" 2>/dev/null | tail -1)"
+# NEO = CHA của commit sinh hồ sơ, không phải chính nó (sửa ở lượt chấm 2 của mốc
+# 2.16.0). Vì sao: bản trước neo vào chính commit sinh hồ sơ, và điều đó chỉ đúng khi
+# hồ sơ vào kho TRƯỚC bước nâng số — hai mốc trước tình cờ commit theo thứ tự ấy. Gộp
+# hồ sơ và bước nâng số vào MỘT commit thì số tại neo đã là số MỚI, và răng đỏ mã 3 về
+# một lần cắt số hoàn toàn lành, vĩnh viễn: neo là một commit lịch sử, chạy lại không
+# chữa được. Cha của commit sinh là cây NGAY TRƯỚC khi hồ sơ tồn tại, nên nó mang số
+# CŨ ở cả hai thứ tự commit.
+#
+# Chiều đỏ KHÔNG đổi một li: quên hẳn bước nâng số thì cha vẫn mang số cũ và cây cũng
+# mang số cũ → BANG → mã 3, đúng ca răng này sinh ra để bắt. Đã thử thật hai chiều ở
+# lượt sửa 1, xem khối expected của E1b.
+if [ -n "$SINH" ]; then
+  NEO="$(G rev-parse "${SINH}^" 2>/dev/null)"
+  if [ -n "$NEO" ]; then
+    NGUON="so tai CHA cua commit sinh ho so moc (${NEO:0:8}, con ${SINH:0:8})"
+  else
+    NEO="$SINH"
+    NGUON="so tai commit sinh ho so moc (${NEO:0:8}) — commit goc, khong co cha"
+  fi
 else
   NEO="$(G rev-parse HEAD)"
   NGUON="so tai HEAD da commit (${NEO:0:8}) — ho so moc chua vao kho"

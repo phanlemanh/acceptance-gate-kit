@@ -21,11 +21,14 @@ evals:
     cmd: config:executors.script.so_tang_2_16
     expected: >
       Exit 0 và đúng một dòng mở đầu «PASS: so trong cay (<số>) TANG theo semver so voi so tai
-      <mô tả neo> = <số cũ> — neo suy TU KHO, khong ghim sha». Neo là commit đưa hồ sơ mốc vào
-      kho; trước khi hồ sơ được commit, răng rơi về HEAD đã commit và tự nói ra điều đó.
-      Chiều đỏ ghim mã: 2 không có nền · 3 số KHÔNG tăng · 4 không đọc được số tại neo · 5
-      không tới kết luận. Đã thử thật trong phiên dựng hồ sơ: cây chưa nâng số → mã 3
-      «BANG so tai neo»; sau khi nâng → 0.
+      CHA cua commit sinh ho so moc (<sha8>, con <sha8>) = <số cũ> — neo suy TU KHO, khong ghim
+      sha». Neo là CHA của commit sinh hồ sơ mốc, tức cây ngay TRƯỚC khi hồ sơ tồn tại; hồ sơ
+      chưa vào kho thì răng rơi về HEAD đã commit và tự nói ra điều đó. Chiều đỏ ghim mã: 2
+      không có nền · 3 số KHÔNG tăng · 4 không đọc được số tại neo · 5 không tới kết luận. Đã
+      thử thật trên cây này ở lượt sửa 1, HAI chiều đỏ trên cùng một neo: hạ số ở cây về đúng
+      số của neo → mã 3 «BANG so tai neo»; hạ thêm một bậc → mã 3 «LUI so voi neo»; khôi phục
+      → 0. Bản chép từ 2.15.0 neo vào CHÍNH commit sinh hồ sơ và vì thế đỏ mã 3 vĩnh viễn khi
+      hồ sơ và bước nâng số nằm chung một commit — lượt chấm 1 của mốc này bắt đúng ca ấy.
     paths: [.claude-plugin/plugin.json, _acceptance/release-2-16-0/rang-so-tang.sh]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
@@ -73,9 +76,12 @@ evals:
     executor: script
     cmd: config:executors.script.chien_dich_ghim_lai_2_16
     expected: >
-      Exit 0 và đúng một dòng «PASS: chien-dich lan <run_id> exit <n> tai sha <sha8> — <k> ho
-      so da ky mang dong ghim lai moi nhat cua luot BANG khoi khai [<danh sách>] (doi chung:
-      <n> ho so da ky, <m> ho so co dong ghim lai)», với danh sách bằng đúng khối
+      Exit 0 và đúng một dòng «PASS: chien-dich lan <run_id> ma-thoat-lan <n> tai sha <sha8> —
+      <k> ho so da ky mang dong ghim lai moi nhat cua luot BANG khoi khai [<danh sách>] (doi
+      chung: <n> ho so da ky, <m> ho so co dong ghim lai)». Dòng PASS KHÔNG được chứa chuỗi
+      «exit <số>»: lượt chấm 1 của mốc này đỏ GIẢ đúng vì thế — tác tử máy khai mã thoát của
+      lệnh bằng một trường, và nó đọc chữ «exit 1» trong dòng PASS (mã thoát của LÀN chiến
+      dịch) thành mã thoát của lệnh. Với danh sách bằng đúng khối
       CHIEN-DICH-GHIM-LAI của hợp đồng, và hai số đối chứng đều LỚN HƠN 0. Khối khai phải có
       ba dòng đầu — sha 40 hex, «run_id: <mã>», «exit: <số>» — rồi mới tới danh sách; khối
       trống hẳn hoặc thiếu một trong ba dòng ấy là mã 2, không phải lời khai hợp lệ. Danh
@@ -96,13 +102,17 @@ evals:
     expected: >
       Exit 0 và đúng một dòng «PASS: viec-va 0 tep engine doi sau chu ky <sha8> ngoai <k> tep
       cua chinh moc (doi chung: cua so <neo8>..<sha8> co <m> tep engine; cua so sau chu ky co
-      <n> tep doi)» với m LỚN HƠN 0 và n LỚN HƠN 0. Chiều đỏ ghim mã: 2 không có nền (không
+      <n> tep doi)» với m LỚN HƠN 0 và n LỚN HƠN 0. «Engine» rút từ MỘT nguồn của kho —
+      `risk_tiers.t1_skip_globs` của `_acceptance/config.yaml`, cùng vị từ lưới trước-merge
+      dùng — không phải một mảng tiền tố gõ tay. Chiều đỏ ghim mã: 2 không có nền (không
       rút được khối · khối dưới hai dòng · dòng chữ-ký sai khuôn · sha không có trong kho ·
-      cửa sổ sau chữ ký rỗng) · 6 có tệp engine đổi sau chữ ký ngoài tệp mốc khai, in từng
+      cửa sổ sau chữ ký rỗng · rút không được danh sách mẫu t1) · 6 có tệp engine đổi sau chữ
+      ký ngoài tệp mốc khai, in từng
       tệp · 7 đối chứng dương hỏng — cửa sổ neo tới chữ ký không chứa tệp engine nào, nên bộ
       lọc chưa chứng minh được là nó thấy tệp engine · 8 thiếu cờ. Mã 7 là chiều thứ hai của
       nghi thức hai chiều: một kết luận «không tệp nào» trên một bộ lọc chưa từng thấy tệp
-      engine là hằng đúng.
+      engine là hằng đúng. Đã thử thật ở lượt sửa 1: thêm một tệp dưới cây thư viện → mã 6 gọi
+      đúng tệp; đổi tên khoá t1 trong bản sao config → mã 2; khôi phục → 0.
     paths: [_acceptance/release-2-16-0/contract.md, _acceptance/release-2-16-0/rang-cua-so.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6a

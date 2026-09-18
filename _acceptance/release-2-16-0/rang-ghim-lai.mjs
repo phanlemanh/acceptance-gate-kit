@@ -142,4 +142,10 @@ for (const s of khai) {
   if (vc !== shaKhai) stop(5, `FAIL(5): ${s} có verified_commit ${vc.slice(0, 8) || '(rỗng)'} khác sha của lượt chiến dịch ${shaKhai.slice(0, 8)} — nghi thức ghim lại đòi hai giá trị BẰNG nhau`);
 }
 
-out(`PASS: chien-dich lan ${runKhai} exit ${exitKhai} tai sha ${shaKhai.slice(0, 8)} — ${khai.length} ho so da ky mang dong ghim lai moi nhat cua luot BANG khoi khai [${khai.join(', ') || 'rong'}] (doi chung: ${daKy.length} ho so da ky, ${coGhim.length} ho so co dong ghim lai)`);
+// Dòng PASS KHÔNG được chứa chuỗi «exit <số>». Lượt chấm 1 của mốc này đỏ giả đúng vì
+// thế: tác tử máy đọc mã thoát của lệnh bằng cách khai một trường, và dòng PASS cũ mang
+// chữ «exit 1» (mã thoát của LÀN chiến dịch, không phải của lệnh này), nên nó khai
+// exitCode 1 cho một lệnh đã thoát 0. Đây là lớp «mã thoát đi qua lời khai của tác tử»
+// mà mốc 2.15.0 đặt đầu danh sách gọi-tên-chưa-làm; răng không chữa được lớp ấy, nhưng
+// nó không được TỰ MỜI lớp ấy vào.
+out(`PASS: chien-dich lan ${runKhai} ma-thoat-lan ${exitKhai} tai sha ${shaKhai.slice(0, 8)} — ${khai.length} ho so da ky mang dong ghim lai moi nhat cua luot BANG khoi khai [${khai.join(', ') || 'rong'}] (doi chung: ${daKy.length} ho so da ky, ${coGhim.length} ho so co dong ghim lai)`);

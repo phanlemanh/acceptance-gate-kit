@@ -72,12 +72,22 @@ và hợp đồng mốc `_acceptance/release-2-15-0/contract.md`.
 ### AC-1 (cắt số) — MỘT số, nhất quán ở mọi bề mặt người dùng đọc, và số phải TĂNG
 
 **Given** cây tại HEAD của hồ sơ mốc
-**When** chạy `rang-p200.sh` và `rang-so-tang.sh` của hồ sơ này (chép nguyên thân từ 2.15.0)
+**When** chạy `rang-p200.sh` và `rang-so-tang.sh` của hồ sơ này (chép thân từ 2.15.0;
+`rang-so-tang.sh` đổi MỘT chỗ ở lượt chấm 2 — xem đoạn dưới)
 **Then** hai plugin `acceptance-gate` và `feature-loop` cùng mang MỘT số hợp semver;
 `GUIDE.md` dẫn xuất số đó từ manifest; mục mô tả của số đó nói người dùng nhận gì;
 `feature-loop` tự khai cặp `acceptance-gate >= <số đó>`; và số ở cây LỚN HƠN theo semver
-số tại commit đưa hồ sơ mốc này vào kho. Vế giá trị — số ấy là **2.16.0**, một nhịp
+số tại **cha của commit sinh hồ sơ mốc này** — tức cây ngay TRƯỚC khi hồ sơ tồn tại. Vế giá trị — số ấy là **2.16.0**, một nhịp
 minor vì cửa sổ ship tính năng mới chứ không chỉ sửa lỗi — owner xác nhận trên thẻ.
+
+**Vì sao neo là CHA chứ không phải chính commit sinh hồ sơ.** Bản chép từ 2.15.0 neo vào
+chính commit đưa `contract.md` vào kho, và điều đó chỉ đúng khi hồ sơ vào kho TRƯỚC bước
+nâng số — hai mốc trước tình cờ commit theo thứ tự ấy. Mốc này gộp hồ sơ và bước nâng số
+vào MỘT commit, nên số tại neo đã là số MỚI và răng đỏ mã 3 về một lần cắt số hoàn toàn
+lành, VĨNH VIỄN: neo là commit lịch sử, chạy lại không chữa được. Lượt chấm 1 bắt đúng
+điều đó. Cha của commit sinh là cây ngay trước khi hồ sơ tồn tại, nên nó mang số CŨ ở cả
+hai thứ tự commit. Chiều đỏ KHÔNG đổi một li — quên hẳn bước nâng số thì cha và cây cùng
+mang số cũ, răng đỏ mã 3 — và cả hai chiều đã thử thật trên cây này.
 
 ### AC-2 (gói không đổi thì GIỮ số) — diagram-design ở 2.7.0, chứng bằng cửa sổ diff
 
@@ -152,9 +162,16 @@ CHIEN-DICH-GHIM-LAI>>> -->
 Bằng chứng của vòng meta trong cửa sổ, các dòng sau là các tệp mà chính mốc này đổi
 **When** chạy `rang-cua-so.mjs --chan viec-va`
 **Then** từ chữ ký ấy tới cây làm việc, KHÔNG tệp engine nào đổi ngoài các tệp mốc đã
-khai — có thì đỏ, in từng tệp. Engine ở đây là mọi cây mã và mọi cây thước của kit;
-văn và hồ sơ xưởng không tính. Cửa sổ của chính vòng meta KHÔNG bị soi: vòng ấy có hồ sơ
-và chữ ký riêng.
+khai — có thì đỏ, in từng tệp. «Engine» hỏi ĐÚNG MỘT NGUỒN của kho, không chép tay: vị
+từ của lưới trước-merge — tệp git-theo-dõi NGOÀI `_acceptance/` và KHÔNG khớp
+`risk_tiers.t1_skip_globs` thì là hành vi. Rút không được danh sách mẫu ấy là mã 2, không
+phải đường đọc-cũ. Cửa sổ của chính vòng meta KHÔNG bị soi: vòng ấy có hồ sơ và chữ ký
+riêng.
+
+**Bản đầu gõ tay một mảng tiền tố và nó trôi ngay ở lượt chấm 1:** `.claude-plugin/` không
+có tiền tố nào nên hai manifest ở gốc vô hình, trong khi cùng một tệp dưới `feature-loop/`
+lại là engine — bất đối xứng khiến dòng khai `.claude-plugin/plugin.json` chỉ là trang
+trí. Cùng bài học với mảng trạng thái ở răng chị em.
 
 **Đối chứng dương hai vế, cùng lượt:** cửa sổ từ neo tới chữ ký PHẢI chứa tệp engine —
 không có thì bộ lọc chưa chứng minh được là nó thấy tệp engine, và kết luận «không tệp
@@ -198,9 +215,10 @@ mọi lượt đo gần đây và ngược chiều lời hứa của spec token 
 4, vòng thứ năm liên tiếp vượt trần · một lượt thi công S3 chết trọn vì hạn mức phiên ·
 owner phải tự bắt một phát hiện TRONG hợp đồng ở Cổng Bằng chứng mà lượt chấm 2 đã cho
 qua · số chạm mỗi lượt gọi người không có vật máy giữ nào ghi, nên không đo được · hiệu
-lực khuôn `/goal` sửa ở 2.15.0 vẫn chưa có số. Che bất kỳ điều nào là FAIL. §4 phải gọi
-tên ít nhất MỘT chỗ cắt cho cửa sổ kế và định đoạt router — mặc định owner đã chốt cho
-cửa sổ 2.16 → 2.17.
+lực khuôn `/goal` sửa ở 2.15.0 vẫn chưa có số · chiến dịch ghim lại tốn 2 giờ 25 phút máy
+và ghim được 0 hồ sơ. Che bất kỳ điều nào là FAIL. **§5** phải gọi tên ít nhất MỘT chỗ cắt
+cho cửa sổ kế và định đoạt router — mặc định owner đã chốt cho cửa sổ 2.16 → 2.17 — và
+**§4** phải nói đúng ba số của chiến dịch: 14 trên 72 hồ sơ, 60 eval đỏ, 0 hồ sơ được ghim.
 
 ## Coverage
 
@@ -217,7 +235,7 @@ không theo tổ hợp.
   và chữ ký riêng, mốc chỉ khai và đếm nó (AC-4, AC-7) · ba việc vá → không việc nào chạm
   engine, nên không tiêu chí hành vi nào; chúng vào bảng Context và dòng 2 của §1.
 - **Trục việc-của-mốc** `[thước CE: luật re-pin-theo-release và luật (c) của CLAUDE.md]`:
-  hồi quy → AC-6 · lớp vendored → AC-3 · chiến dịch ghim lại → AC-5 · bốn khối Notes và
+  hồi quy → AC-6 · lớp vendored → AC-3 · chiến dịch ghim lại → AC-5 · năm khối Notes và
   năm dòng số → AC-7.
 - **Trục lời-khai-về-cửa-sổ** `[thước CE: ba lời khai mà một hồ sơ mốc nói về cửa sổ]`:
   lớp vendored không đổi → AC-3 · danh sách vòng của cửa sổ → AC-4 · ba việc vá không
