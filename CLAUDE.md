@@ -49,6 +49,19 @@
     nó là ca-rỗng của luật này. Lưới cho phân loại sai: mọi thứ máy tự quyết
     đều có sổ + đường đảo + hiện ở khối «CHƯA duyệt» của Cổng Bằng chứng, và
     khó-đảo LUÔN là câu hỏi cho người bất kể phân loại.
+  - **Ô chỉ mở khi có NEO NGOÀI (owner quyết 18/09).** Hàng chờ Cổng Đáng — ô
+    `stage: discovery`, hoặc `decided`+`build` chưa có hợp đồng — phải mang dòng
+    `Gốc:`: một hồ sơ cụ thể ở một kho (`<kho>/_acceptance/<slug-khác>`, kho có
+    thể là chính kit), hoặc `kho <tên> — <người> gọi tên <ngày>`. «Suy từ đọc mã»
+    KHÔNG phải neo. Ý chưa có neo sống ở hạt giống `docs/plans/*-hat-giong-*.md`
+    — hạt giống là SỔ, ô là CAM KẾT; hạt giống mồ côi là hợp lệ. Lối «mở hợp đồng
+    mới» ở Cổng Bằng chứng ghi hạt giống, KHÔNG tạo ô. Vì sao: đơn vị kế toán của
+    kit là ô và không ô nào có giá âm — mở miễn phí, đóng đắt — nên mọi phanh
+    chiều sâu đều xả vào một sổ không trần (đo 08–18/09: 35 ô mở / 14 đóng, 22/35
+    sinh từ chính nghi thức kit). Răng: VC8 · VC9 trong
+    `tests/plugins/vao-co-o.test.mjs`. Hồ sơ: `_acceptance/o-chi-mo-khi-co-neo-ngoai/`
+    · số đo: `docs/findings/2026-09-18-o-sinh-tu-nghi-thuc-va-gia-cat-so.md`.
+
   - **Giới hạn CHIỀU RỘNG (owner quyết 30/08, «cắt đuôi giữ lõi»).** Kit từng
     chỉ có phanh chiều sâu (dừng-vá · trần 3 vòng · timebox) mà mọi phanh đều
     xả vào sổ hạng mục không trần → 5 vòng meta liên tiếp sau 2.4.0, 0 giá trị
@@ -58,7 +71,11 @@
     phép-đo-tự-dối trên vòng SẢN PHẨM giữa hai release. Bằng chứng thực nghiệm
     của trần: ô khuon-rang-dung-chung park 30/08 — hai vòng S4 liên tiếp, bộ
     máy vi-phân mắc đúng lớp nó đi bắt (mã-đo không hội tụ về 0 phát hiện).
-    (b) **Giữa hai release tối đa MỘT vòng meta**, chỉ khi owner gọi tên.
+    (b) **Giữa hai mốc ĐƯỢC MỘT KHO TIÊU THỤ NHẬN tối đa MỘT vòng meta**, chỉ khi
+    owner gọi tên. Mẫu số là mốc KHO NHẬN, không phải mốc cắt số: đo 18/09 cho thấy
+    bảy lần cắt số trong mười ngày nới trần này thành bảy mà 0 kho nhận. Mốc chỉ cắt
+    khi có kho chờ nhận (dòng `Kho chờ nhận:` trong hồ sơ mốc — răng VC9), và đi làn V
+    như tiền lệ 2.5.0/2.7.0.
     (c) **Mỗi mốc phát hành đếm 5 dòng số** vào hồ sơ release (3 → 5, owner
     quyết 14/09): thời gian làm-xong→quyết-được mỗi vòng · số lần gọi
     người/vòng — TÁCH trong-thiết-kế / ngoài-thiết-kế, kèm số CHẠM mỗi lần ·
@@ -85,9 +102,12 @@
     Và **≤1 chạm/lượt**: máy soạn sẵn trọn gói khuyến nghị + căn cứ đọc
     trong một phút, người chỉ phát ngôn quyết định — cái người gõ là Ý MUỐN
     (một chạm, một chữ), không phải cú pháp; máy chịu trách nhiệm dịch ý
-    muốn thành trường hồ sơ. Mỗi mốc phát hành PHẢI gọi tên ít nhất MỘT chỗ
-    cắt cho cửa sổ kế, hoặc tuyên bố đã-tối-ưu kèm số — số đếm không dẫn tới
-    một nhát cắt có tên là đo-hình-thức, đúng bệnh luật này sinh ra để chặn.
+    muốn thành trường hồ sơ. Mỗi mốc phát hành ĐƯỢC PHÉP ghi chỗ cắt cho cửa
+    sổ kế vào Notes của hồ sơ mốc, hoặc tuyên bố đã-tối-ưu kèm số; chỗ cắt chỉ
+    thành Ô khi có `Gốc:` (18/09: vế «PHẢI gọi tên» cũ đẻ 12 trong 35 ô của mười
+    ngày — hồ sơ `o-chi-mo-khi-co-neo-ngoai`). Số đếm phải ĐỌC ĐƯỢC, không phải
+    đẻ việc: số không dẫn tới hành động nào vẫn là đo-hình-thức, bệnh luật này
+    sinh ra để chặn.
     Hai chốt không mục tiêu số nào ghi đè: việc chạm KHÓ-ĐẢO luôn thắng
     (không được né gọi người vì KPI), và chữ quyết vẫn của người (ADR 0002).
 
