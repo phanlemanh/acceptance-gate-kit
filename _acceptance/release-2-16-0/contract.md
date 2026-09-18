@@ -5,7 +5,7 @@ slug: release-2-16-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest, GUIDE, CHANGELOG, PRODUCT-MAP, _acceptance/config.yaml. KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
