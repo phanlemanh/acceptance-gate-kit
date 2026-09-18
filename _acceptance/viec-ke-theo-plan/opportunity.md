@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: kho oneflow — Mạnh gọi tên 2026-09-06 (phiên 05/09 mất bốn lượt đọc file mới tìm ra hàng kế)
+
 Repo có plan dài hơi nhiều phiên (OneFlow: khối plan-freeze 16 ★, 04/09 → 08/11) thì đầu mỗi
 phiên máy không biết việc kế: thẻ `/acceptance-gate:start` quét hồ sơ nhưng không đọc plan, nên
 phiên 05/09 mất bốn lượt đọc file mới tìm ra hàng kế (B2) và hạn làn owner (A6). Hạt giống nấc 1

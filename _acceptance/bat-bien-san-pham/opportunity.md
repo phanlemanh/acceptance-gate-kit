@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: kho media-library — Mạnh gọi tên 2026-09-02
+
 Kit có bản đồ của VIỆC (`PRODUCT-MAP.md`) nhưng chưa có bản đồ của SẢN PHẨM: cấu trúc sản phẩm
 (bề mặt công khai, khuôn IA, hợp đồng dữ liệu, tenant/quyền) là thứ khó-đảo, theo hiến pháp kit
 phải là mục cho người — nhưng máy đang quyết ngầm từng mẩu ở S1 mà không cổng nào thấy. Bảy repo

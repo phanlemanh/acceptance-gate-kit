@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: kho acceptance-gate-kit — Mạnh gọi tên 2026-09-18
+
 Owner hỏi 18/09: «Sao tôi có cảm giác kit dọn mãi không hoàn tất được?» Đo ra: kit **không
 dọn chậm** — 10 ngày, 14 chữ ký, 7 mốc phát hành. Nó không cạn vì **hàng đợi tự nuôi**: 35 ô
 mới mở so 14 ô đóng, tồn kho 46 ô chưa có hợp đồng (24 ô không ghi nguồn), và **22/35 ô mới

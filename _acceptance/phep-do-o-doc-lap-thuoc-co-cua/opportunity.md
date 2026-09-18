@@ -19,6 +19,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: acceptance-gate-kit/_acceptance/thuoc-co-cua — ba finding ngoài hợp đồng của vòng, owner chấm build 18/09
+
 Ba ca kiểm của vòng tuyên đo quan hệ từng ô nhưng không đứng được trên từng ô:
 
 - Ca DN3-IM trong `tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs` cộng dồn các ô trong cùng một

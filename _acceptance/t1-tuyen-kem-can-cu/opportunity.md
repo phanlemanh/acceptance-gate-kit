@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: kho acceptance-gate-kit — Mạnh gọi tên 2026-08-12
+
 Hai nhánh T1 vẫn dừng hỏi người xác nhận; mỗi lượt là một lần chặn người cho việc máy suy được (owner gạch 12/08). Đề bài đầy đủ: `docs/plans/2026-08-14-hat-giong-t1-tuyen-kem-can-cu.md`.
 
 ## Ngưỡng chết / ngưỡng UAT

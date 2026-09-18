@@ -3,7 +3,7 @@ schema_version: 1
 slug: ngay-viec-vua-xong-lay-sai-nac
 feature: Ngày «việc vừa xong» lấy sai nấc cho hồ sơ đã qua phiên nghiệm thu — vòng đóng hôm nay bị đóng dấu bảy tháng tuổi và rơi khỏi thẻ
 owner: manh.phan@onemount.com
-stage: discovery
+stage: archived
 decision:
 decided_by:
 decided_at:
@@ -11,6 +11,10 @@ prototype:
   base_commit:
   disposition:
 ---
+
+> **Về hạt giống 18/09 (luật «ô chỉ mở khi có neo ngoài»).** Chưa kho nào gọi tên ô này —
+> chữ giữ nguyên, không xoá. Mở lại = thêm dòng `Gốc:` vào section «Vấn đề & ai gặp» và
+> đổi `stage:` về `discovery`.
 
 ## Vấn đề & ai gặp
 

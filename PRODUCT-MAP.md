@@ -5,10 +5,10 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>20 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>14 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>2 việc"]
   GD --> XL["Xếp lại sau<br/>13 việc"]
-  GD --> DB["Đã bác từ khám phá<br/>11 việc"]
+  GD --> DB["Đã bác từ khám phá<br/>17 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>4 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>62 việc"]
@@ -24,15 +24,9 @@ flowchart TD
 ## Đang cân nhắc cơ hội
 
 - Bốn mục cho cửa sổ 2.13 — re-pin theo diff · routing-baseline không đỏ vì hồ sơ mới · dòng 1 đo tới lên-main + ship chạy nền · chiến dịch ghim lại 41 hồ sơ stale (`ba-cho-cat-sau-chu-ky-cua-so-2-13`)
-- Ba chỗ tích luỹ không có đường ra — khoá config · dòng file kiểm · con số suite (`ba-cho-tich-luy-khong-duong-ra`)
 - Bất biến sản phẩm — PRODUCT-INVARIANTS.md ở gốc repo tiêu thụ, luật sản phẩm nạp lúc viết đặc tả, thứ khó-đảo tự nổi lên thẻ như mục người (`bat-bien-san-pham`)
-- Lời khai không mạnh hơn vật — chiều đỏ phải có mũi tiêm THẬT và bản tiêm phải CHẠY; quét theo LỚP, không vá ca bị nêu tên (`chieu-do-xanh-vi-ban-tiem-sap`)
 - Chốt chặn trước-merge chấm MỌI hồ sơ đã arm cổng, kể cả hồ sơ PR không chạm — một vòng dở làm kẹt mọi PR khác của kho (`cong-chan-theo-ho-so-khong-theo-diff`)
 - Danh sách chép CI của acceptance-init dặn repo tiêu thụ chạy product-map --check nhưng không chép product-map lẫn đồ nó kéo theo — CI của consumer đỏ ngay khi kit dùng khuôn ô cơ hội (`danh-sach-chep-ci-thieu-product-map`)
-- Nghi thức hình áp cho MỌI cổng dừng-chờ-người — không riêng Cổng Phạm vi; mở nguồn kê sang vật của vòng nghiệm thu và điểm dừng-vá (`hinh-o-moi-cong-dung-cho-nguoi`)
-- Luật lái máy đổi thì phải được kiểm hồi quy như code — hook cấm nới thước lúc chữa mã, vật-hoá thứ tự ghi run-log, ADR làn V và tách nhiệm vụ (`luat-lai-may-duoc-hoi-quy`)
-- Một khuôn cho bên VIẾT và bên ĐỌC — bốn chỗ nối đang trôi khỏi nhau vì mỗi bên tự rút khuôn, và test tự dựng đồ giả đúng khuôn bên đọc (`mot-khuon-cho-ben-viet-va-ben-doc`)
-- Ngày «việc vừa xong» lấy sai nấc cho hồ sơ đã qua phiên nghiệm thu — vòng đóng hôm nay bị đóng dấu bảy tháng tuổi và rơi khỏi thẻ (`ngay-viec-vua-xong-lay-sai-nac`)
 - Nhà tài liệu khai một chỗ — repo khai «lớp vật × vòng đời → một nhà» trong khối máy đọc của docs/MAP.md, máy kiểm không hai nhà / không nhà lạ; repo mới được acceptance-init dựng bản mặc định cũng qua router; feature-loop đọc nhà thay vì đường cứng (`nha-tai-lieu-router`)
 - Ô nuốt luật — đổi hai ô hỏi-khẩu-vị thành ô hỏi-phép-đối-chiếu (`o-nuot-luat`)
 - Phát hiện của làn rà soát đến được người ký — thẻ Cổng 2 và luật xanh-sạch đọc cùng một nguồn, và đọc được đúng chữ in trên nút (`phat-hien-den-duoc-nguoi-ky`)
@@ -153,14 +147,20 @@ flowchart TD
 
 ## Đã bác từ khám phá
 
+- Ba chỗ tích luỹ không có đường ra — khoá config · dòng file kiểm · con số suite (`ba-cho-tich-luy-khong-duong-ra`) — đã đóng có hồ sơ
 - Bản đồ dính commit chữ ký, không đi sau (`ban-do-dinh-chu-ky`)
 - Vị từ bỏ qua phải THẤY định nghĩa phép đo — _acceptance/config.yaml và evals.yaml là ĐẦU VÀO của làn, không phải vật hồ sơ (`bo-qua-phai-thay-dinh-nghia-phep-do`) — đã đóng có hồ sơ
+- Lời khai không mạnh hơn vật — chiều đỏ phải có mũi tiêm THẬT và bản tiêm phải CHẠY; quét theo LỚP, không vá ca bị nêu tên (`chieu-do-xanh-vi-ban-tiem-sap`) — đã đóng có hồ sơ
 - Bậc 3 của lái-thử cho bề mặt AGENT — bản tham chiếu `vlm-assert` chỉ phục vụ frame UI, ván agent không có con mắt thứ hai (`con-mat-thu-hai-lai-thu`)
 - Dọn tồn kho PR — danh sách PR mở phải nói đúng việc đang chạy, không phải kho hàng cũ (`don-ton-kho-pr`)
+- Nghi thức hình áp cho MỌI cổng dừng-chờ-người — không riêng Cổng Phạm vi; mở nguồn kê sang vật của vòng nghiệm thu và điểm dừng-vá (`hinh-o-moi-cong-dung-cho-nguoi`) — đã đóng có hồ sơ
 - Hỏi-theo-mặt-phẳng — câu hỏi là thứ người bấm được, không phải khuôn chữ (`hoi-theo-mat-phang`)
 - Khuôn ghi sổ quyết định tự tính cả trường `at` — người/máy chỉ điền phần chữ, mọi trường thời gian do shell sinh (`khuon-so-tu-tinh-at`)
 - Bật đường ghi cho ô kết «máy đã thông» của làn V (`lan-may-thong-duong-ghi`) — đã đóng có hồ sơ
 - Làn máy thoát phép kiểm bằng-chứng-cũ ở cổng trước-merge (`lan-v-thoat-kiem-stale`) — đã đóng có hồ sơ
+- Luật lái máy đổi thì phải được kiểm hồi quy như code — hook cấm nới thước lúc chữa mã, vật-hoá thứ tự ghi run-log, ADR làn V và tách nhiệm vụ (`luat-lai-may-duoc-hoi-quy`) — đã đóng có hồ sơ
+- Một khuôn cho bên VIẾT và bên ĐỌC — bốn chỗ nối đang trôi khỏi nhau vì mỗi bên tự rút khuôn, và test tự dựng đồ giả đúng khuôn bên đọc (`mot-khuon-cho-ben-viet-va-ben-doc`) — đã đóng có hồ sơ
+- Ngày «việc vừa xong» lấy sai nấc cho hồ sơ đã qua phiên nghiệm thu — vòng đóng hôm nay bị đóng dấu bảy tháng tuổi và rơi khỏi thẻ (`ngay-viec-vua-xong-lay-sai-nac`) — đã đóng có hồ sơ
 - Ba hồ sơ đã ký còn nợ khoá `executors.script.mirror_sync` đã gỡ — nợ cuối cùng của corpus sau ADR 0014/0015, chờ một lối ra có tên (`no-mirror-sync-ba-ho-so`)
 - Thước sống theo đời model — bằng chứng ghi model sinh ra nó, cờ «cũ theo model», cờ nhạt có việc kế, hình dạng lỗi đo-lường thứ 7 «thước bị nới sau khi đã đỏ» (`thuoc-song-theo-doi-model`)
 - Dòng bậc-3 của lái-thử khai `vlm-assert` là "đã ship" trong khi nó là bản tham chiếu phải nhận nuôi (`vlm-assert-khai-nhan-nuoi`)

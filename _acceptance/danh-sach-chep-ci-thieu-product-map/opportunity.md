@@ -11,6 +11,8 @@ decided_at:
 
 ## Vấn đề & ai gặp
 
+Gốc: kho crm-onehub — Mạnh gọi tên 2026-09-05 (CI đỏ 8 lượt liên tiếp ở bước Product map)
+
 **Ca thật:** kho `phanlemanh/crm-onehub`, job `acceptance gate` trong
 `.github/workflows/acceptance.yml` đỏ **8 lượt liên tiếp** từ 2026-09-04 ở bước
 `Product map`, exit 2:

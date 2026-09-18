@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: kho oneflow — Mạnh gọi tên 2026-09-13 (khảo sát 5 kho, 5 hình dạng tầng thường-trú)
+
 Mỗi lớp vật của một repo có hai vòng đời — theo-một-vòng (sinh cho một slug) và thường-trú
 (sống suốt đời repo) — và kit chỉ lo nhà cho vòng đời thứ nhất. Khảo sát 13/09 trên 5 repo tiêu
 thụ cùng một thước: **5 hình dạng tầng thường-trú khác nhau**; crm-onehub có `docs/crm-plan.md`

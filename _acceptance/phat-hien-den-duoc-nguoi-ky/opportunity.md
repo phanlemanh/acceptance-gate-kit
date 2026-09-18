@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: crm-onehub/_acceptance/nang-tran-trang-danh-ba — 08/09, báo cáo khai rỗng trong khi làn rà soát có mục
+
 **Người trả giá: người ký Cổng Bằng chứng** — ở cả ba ngả, thứ họ đọc nói khác thứ làn rà
 soát tìm ra. Ô này gộp ba ô mở riêng (16/09, rà 28 ô theo North Star) vì cả ba là MỘT lớp,
 và hiến pháp kit đòi sửa lớp chứ không vá từng ca.

@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: kho acceptance-gate-kit — Mạnh gọi tên 2026-09-11 (PR #168, ba lượt push đỏ ở check gate)
+
 PR #168 (gộp 11/09/2026 `6aec9c12`) có **3 lượt push đỏ ở check `gate`** mà cả ba
 đều đo được tại máy trước khi push nếu máy chạy đúng như CI:
 

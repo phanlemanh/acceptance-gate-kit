@@ -84,6 +84,13 @@ chính sách release ở GUIDE §7.1.
 
 ## Notes
 
+
+Kho chờ nhận: media-library
+
+> Dòng trên là SỬ LIỆU, ghi 18/09 khi luật «mốc chỉ cắt khi có kho chờ nhận» ra đời
+> (răng VC9). Mốc 2.0.0 phát hành 15/08 và media-library đã nhận nó; hồ sơ này chưa
+> mang chữ ký Cổng Bằng chứng nên vẫn trong phạm vi răng.
+
 - Cửa veto của hồ sơ này MỞ từ 2026-08-15T04:30:00Z — owner veto bằng cách
   đổi `veto_state: da-veto` + một entry sổ quyết định, bất kỳ lúc nào trước
   hoặc sau merge; đường đảo là revert merge + hạ số (một lệnh).

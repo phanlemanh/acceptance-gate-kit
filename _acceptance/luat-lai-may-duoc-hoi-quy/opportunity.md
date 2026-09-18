@@ -3,7 +3,7 @@ schema_version: 1
 slug: luat-lai-may-duoc-hoi-quy
 feature: Luật lái máy đổi thì phải được kiểm hồi quy như code — hook cấm nới thước lúc chữa mã, vật-hoá thứ tự ghi run-log, ADR làn V và tách nhiệm vụ
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
+stage: archived              # discovery | decided | archived
 decision:         # build | iterate | park | kill — người ký Cổng 0 điền
 decided_by: 
 decided_at:     # ISO UTC
@@ -11,6 +11,10 @@ prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
 ---
+
+> **Về hạt giống 18/09 (luật «ô chỉ mở khi có neo ngoài»).** Chưa kho nào gọi tên ô này —
+> chữ giữ nguyên, không xoá. Mở lại = thêm dòng `Gốc:` vào section «Vấn đề & ai gặp» và
+> đổi `stage:` về `discovery`.
 
 ## Vấn đề & ai gặp
 

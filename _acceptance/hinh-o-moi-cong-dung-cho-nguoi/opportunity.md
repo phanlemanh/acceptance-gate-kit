@@ -3,7 +3,7 @@ schema_version: 1
 slug: hinh-o-moi-cong-dung-cho-nguoi
 feature: Nghi thức hình áp cho MỌI cổng dừng-chờ-người — không riêng Cổng Phạm vi; mở nguồn kê sang vật của vòng nghiệm thu và điểm dừng-vá
 owner: phanlemanh@gmail.com
-stage: discovery
+stage: archived
 decision: 
 decided_by: 
 decided_at: 
@@ -11,6 +11,10 @@ prototype:
   base_commit: 
   disposition: archive
 ---
+
+> **Về hạt giống 18/09 (luật «ô chỉ mở khi có neo ngoài»).** Chưa kho nào gọi tên ô này —
+> chữ giữ nguyên, không xoá. Mở lại = thêm dòng `Gốc:` vào section «Vấn đề & ai gặp» và
+> đổi `stage:` về `discovery`.
 
 ## Vấn đề & ai gặp
 
