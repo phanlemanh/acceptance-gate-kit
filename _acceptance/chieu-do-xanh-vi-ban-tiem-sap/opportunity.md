@@ -3,15 +3,15 @@ schema_version: 1
 slug: chieu-do-xanh-vi-ban-tiem-sap
 feature: Lời khai không mạnh hơn vật — chiều đỏ phải có mũi tiêm THẬT và bản tiêm phải CHẠY; quét theo LỚP, không vá ca bị nêu tên
 owner: phanlemanh@gmail.com
-stage: archived
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: park
+decided_by: Mạnh
+decided_at: 2026-09-18
 ---
 
-> **Về hạt giống 18/09 (luật «ô chỉ mở khi có neo ngoài»).** Chưa kho nào gọi tên ô này —
+> **Xếp lại (park) 18/09 (luật «ô chỉ mở khi có neo ngoài»).** Chưa kho nào gọi tên ô này —
 > chữ giữ nguyên, không xoá. Mở lại = thêm dòng `Gốc:` vào section «Vấn đề & ai gặp» và
-> đổi `stage:` về `discovery`.
+> đổi `decision:` về rỗng và `stage:` về `discovery`.
 
 ## Vấn đề & ai gặp
 

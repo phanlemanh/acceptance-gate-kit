@@ -19,6 +19,9 @@ const START_MD = path.join(ROOT, 'commands', 'start.md');
 const CONTRACT_TPL = path.join(ROOT, 'skills', 'acceptance', 'references', 'contract-template.md');
 const require = createRequire(import.meta.url);
 const { section } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
+// Trạng thái «đã thông Cổng Bằng chứng» HỎI lib, không chép: mảng đó tự khai «export để các
+// bên đọc HỎI, đừng chép — chép là hai bản trôi» (lib/workspace-record.cjs).
+const { DA_THONG_CONG_2 } = require(path.join(ROOT, 'lib', 'workspace-record.cjs'));
 const HEADING = 'Ngưỡng chết / ngưỡng UAT';
 const MARKER = 'OPP-FRONTMATTER-TEMPLATE';
 
@@ -100,7 +103,9 @@ const khoErrs = (accDir, tpl) => {
   const errs = [];
   for (const d of readdirSync(accDir).filter(x => x.startsWith('release-'))) {
     const c = path.join(accDir, d, 'contract.md'); if (!existsSync(c)) continue;
-    const t = readFileSync(c, 'utf8'); if (fmv(t, 'status') === 'signed-off') continue;
+    const t = readFileSync(c, 'utf8');
+    // Đã thông Cổng Bằng chứng (ký NGƯỜI hoặc máy thông ở làn V) → miễn, không hồi tố.
+    if (DA_THONG_CONG_2.includes((fmv(t, 'status') || '').toLowerCase())) continue;
     const m = t.match(/^Kho chờ nhận:.*$/m);
     if (!m) { errs.push(`${d}: thiếu Kho chờ nhận`); continue; }
     if (m[0].trim() === line) { errs.push(`${d}: chưa điền`); continue; }
@@ -356,7 +361,7 @@ if (want('VC9')) {
       { feature: 'mốc', slug: name, owner: 'o@x', risk_tier: 'T2', surfaces: 'ci', status },
       `\n# ${name}\n\n## Notes\n\n${kho}\n`));
   rec('release-im-1', 'draft', 'Kho chờ nhận: media-library');
-  rec('release-im-2', 'signed-off', '');
+  rec('release-im-2', DA_THONG_CONG_2[0], '');   // hồ sơ đã ký — miễn (grandfather)
   rec('release-do-thieu', 'draft', '');
   rec('release-do-bac', 'approved', 'Kho chờ nhận: chưa có');
   rec('release-do-placeholder', 'draft', line);

@@ -67,6 +67,12 @@ evals:
     criterion: AC-6
     executor: judgment
     inputs: [CLAUDE.md, docs/superpowers/specs/2026-09-18-o-chi-mo-khi-co-neo-ngoai-design.md]
+    question: >
+      Đọc luật Giới hạn CHIỀU RỘNG và mục «Ô chỉ mở khi có NEO NGOÀI» trong CLAUDE.md, đối chiếu
+      với thiết kế §3. Bốn vế của luật có nói ĐỦ và nói ĐÚNG không: vế «phải gọi tên một chỗ cắt»
+      đã thôi bắt buộc · luật (b) đếm giữa hai mốc ĐƯỢC KHO NHẬN · có câu mốc chỉ cắt khi có kho
+      chờ nhận và đi làn V · sử liệu cùng các câu khác của luật giữ nguyên nghĩa? Không tính lại
+      con số nào; không phán về mã.
     expected: >
       Luật Giới hạn CHIỀU RỘNG sau sửa: (i) vế «PHẢI gọi tên ít nhất MỘT chỗ cắt» không còn bắt buộc,
       thay bằng «được phép ghi vào Notes; chỗ cắt chỉ thành ô khi có Gốc»; (ii) luật (b) đếm giữa hai

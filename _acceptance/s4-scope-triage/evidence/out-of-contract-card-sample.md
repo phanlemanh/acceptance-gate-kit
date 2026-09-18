@@ -12,7 +12,7 @@ ghi Known limits
 mở hợp đồng mới
 nâng phạm vi sửa ngay
 Ngoài-2 · Tiện ích cài đúng theo hướng dẫn trong tài liệu vẫn bị nhận nhầm là đã dời chỗ, nên lần cập nhật sau có thể bị gỡ đi.
-Máy đề xuất: tách thành một việc riêng.
+Máy đề xuất: ghi hạt giống có Gốc, chờ kho gọi tên — không mở ô.
 ghi Known limits
 mở hợp đồng mới
 nâng phạm vi sửa ngay

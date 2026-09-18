@@ -81,7 +81,7 @@ Không mở vòng meta mới ngoài ô này trong cửa sổ 2.16 → 2.17.
 Vòng nội bộ của bộ công cụ, nhưng đo được — đọc từ kho bằng chính lệnh trong finding.
 
 - Câu hỏi phép đo trả lời: sau luật, hàng đợi có thôi tự nuôi không?
-- Kết quả nào là SỐNG: tính từ chữ ký ô này tới mốc kế **được một kho tiêu thụ nhận**:
+- Kết quả nào là SỐNG: tính từ chữ ký ô này tới mốc kế được một kho tiêu thụ nhận:
   ô mới ≤ ô đóng · ≥ 80 % ô mới có dòng `Gốc:` trỏ tới hồ sơ thật · tồn kho chưa hợp đồng ≤ 15 ·
   mốc cắt số đi làn V với ≤ 1 lượt người và 0 lượt chấm S4.
 - Kết quả nào là CHẾT: một lỗi thật ở kho tiêu thụ không có chỗ ghi vì thiếu ô, hoặc
