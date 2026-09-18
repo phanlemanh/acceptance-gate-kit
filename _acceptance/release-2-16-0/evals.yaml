@@ -149,8 +149,8 @@ evals:
     criterion: AC-7
     executor: judgment
     question: >
-      Đọc khối ## Notes của hợp đồng. Bốn khối (năm dòng số · lớp vendored · lớp lỗi tái
-      phát · nhát cắt kế) có ĐỦ MẶT không; bảng năm dòng có ĐỦ HAI CỘT (vòng meta
+      Đọc khối ## Notes của hợp đồng. Năm khối (năm dòng số · lớp vendored · lớp lỗi tái
+      phát · kết quả chiến dịch ghim lại · nhát cắt kế) có ĐỦ MẶT không; bảng năm dòng có ĐỦ HAI CỘT (vòng meta
       thuoc-co-cua · ba việc vá-trong-mốc) không; mỗi ô có NGUỒN RÚT hoặc «không đo được»
       kèm lý do không; dòng 2 có tách trong/ngoài thiết kế và gọi tên lý do của lượt ngoài
       không. KHÔNG tính lại con số nào ngoài BỐN phép đối chiếu: (i) dòng 4 — 1,53 · 23,25 ·
@@ -161,12 +161,13 @@ evals:
       machine, judge, baseline vào khối chứng-minh-vật · (iii) dòng 1 và dòng 2 so giờ tác giả
       các commit được gọi tên · (iv) tỉ lệ tìm-lỗi gộp 71,2 phần trăm so số 9,5 phần trăm của
       vòng R1 ở Notes mục 1 hợp đồng mốc 2.15.0, cùng câu giải thích vì sao hai số ấy không so
-      thẳng được. BỐN phép ấy là danh sách ĐÓNG. Rồi: khối năm dòng có nói THẲNG sáu điều bất
+      thẳng được. BỐN phép ấy là danh sách ĐÓNG. Rồi: khối năm dòng có nói THẲNG bảy điều bất
       lợi không — tìm-lỗi 71,2 phần trăm ngược chiều spec token · lượt gọi người 5 so trần 4,
       vòng thứ năm liên tiếp vượt trần · một lượt thi công chết trọn vì hạn mức phiên · owner
       phải tự bắt một phát hiện trong hợp đồng mà lượt chấm 2 cho qua · số chạm không đo được ·
-      hiệu lực khuôn goal vẫn chưa có số. Cuối cùng: mục 4 có gọi tên ít nhất MỘT chỗ cắt cho
-      cửa sổ kế và có định đoạt router không.
+      hiệu lực khuôn goal vẫn chưa có số · chiến dịch ghim lại tốn 2 giờ 25 phút máy và ghim được
+      0 hồ sơ. Cuối cùng: mục 5 có gọi tên ít nhất MỘT chỗ cắt cho cửa sổ kế và có định đoạt
+      router không; và mục 4 có nói đúng ba số 14 trên 72 hồ sơ, 60 eval đỏ, 0 hồ sơ được ghim.
     inputs:
       - _acceptance/release-2-16-0/contract.md
       - _acceptance/thuoc-co-cua/contract.md
@@ -175,8 +176,8 @@ evals:
       - _acceptance/release-2-15-0/contract.md
       - docs/findings/2026-09-17-boi-canh-truoc-va-sau-R.md
     expected: >
-      PASS khi bốn khối có mặt, bảng đủ hai cột với nguồn từng ô, dòng 2 tách trong/ngoài và
-      gọi tên lý do của lượt ngoài, BỐN phép đối chiếu khớp, sáu điều bất lợi nói thẳng, mục 4
+      PASS khi năm khối có mặt, bảng đủ hai cột với nguồn từng ô, dòng 2 tách trong/ngoài và
+      gọi tên lý do của lượt ngoài, BỐN phép đối chiếu khớp, bảy điều bất lợi nói thẳng, mục 5
       có ít nhất một chỗ cắt gọi tên và định đoạt router. Che bất kỳ điều bất lợi nào là FAIL.
 
       Hội đồng KHÔNG suy rộng ra số khác và KHÔNG đòi cột repo tiêu thụ: hợp đồng khai thẳng

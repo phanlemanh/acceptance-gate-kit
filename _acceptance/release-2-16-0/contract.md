@@ -5,7 +5,7 @@ slug: release-2-16-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm hai manifest, GUIDE, CHANGELOG, PRODUCT-MAP, _acceptance/config.yaml. KHÔNG chạm t3_paths (hooks, lib, pre-merge-check.sh, recheck-evidence.cjs)
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -54,10 +54,12 @@ Tập hồ sơ vòng sinh sau lần cắt số trước, do răng `rang-cua-so.m
 thuoc-co-cua
 VIEC-META-CUA-SO>>> -->
 
-**Chiến dịch ghim lại chạy ở mốc này.** Hai cửa sổ trước hoãn nó (R3 ở 2.15.0: «không
-chạy ở dạng hiện tại»). Owner gọi tên nó cho mốc này, nên hồ sơ mang tiêu chí cho kết
-quả THẬT của chiến dịch — xanh hay đỏ, đếm được, gọi tên từng hồ sơ — chứ không mang
-một lời hứa đã chạy.
+**Chiến dịch ghim lại chạy ở mốc này, và nó ĐỎ.** Hai cửa sổ trước hoãn nó (R3 ở 2.15.0:
+«không chạy ở dạng hiện tại»). Owner gọi tên nó cho mốc này. Làn chạy trọn tại
+`26bf12fe`: 5 lệnh suite xanh, 215 lệnh phân biệt, 2 giờ 25 phút máy, 0 tệp hồ sơ đã ký
+bị chạm — rồi dừng mã 1 vì **14 trên 72 hồ sơ có eval đỏ**, tổng **60 eval**. Làn đỏ
+không ghi gì, nên **0 hồ sơ được ghim lại**, kể cả 58 hồ sơ xanh. Số và danh sách ở
+Notes §4; tiêu chí AC-5 đo đúng kết quả ấy, không đo một lời hứa.
 
 Hai gói cùng lên **2.16.0**; `diagram-design` giữ **2.7.0**.
 
@@ -139,9 +141,9 @@ Khối khai — ba dòng đầu là `sha` · `run_id` · `exit` của lượt ch
 là hồ sơ đã ghim lại ở lượt đó:
 
 <!-- <<<CHIEN-DICH-GHIM-LAI
-CHO-KET-QUA
-run_id: CHO-KET-QUA
-exit: 0
+26bf12fed2fc71e6b1e21375645f299f144ce34a
+run_id: repin-20260918T025435Z-51649
+exit: 1
 CHIEN-DICH-GHIM-LAI>>> -->
 
 ### AC-8 (lời khai về ba việc vá) — «không việc nào chạm engine» là kết luận của phép đo
@@ -172,14 +174,14 @@ chạm engine», và cả `risk_tier` của hồ sơ lẫn ngưỡng «cửa s�
 ca đỏ; suite plugins in dòng «all plugin tests passed» và không dòng nào mang chữ FAIL;
 bản đồ sản phẩm khớp hồ sơ xưởng.
 
-### AC-7 (judgment) — bốn khối Notes đủ mặt, năm dòng số có nguồn, điều bất lợi nói thẳng
+### AC-7 (judgment) — năm khối Notes đủ mặt, năm dòng số có nguồn, điều bất lợi nói thẳng
 
 **Given** khối `## Notes` của hợp đồng này
 **When** hội đồng đọc nó cùng BA nguồn: hồ sơ `_acceptance/thuoc-co-cua/` (hợp đồng, sổ
 quyết định, báo cáo chi phí) · hợp đồng mốc `_acceptance/release-2-15-0/contract.md` ·
 finding bối cảnh trước và sau R
-**Then** đủ bốn khối (năm dòng số · lớp vendored · lớp lỗi tái phát · nhát cắt cho cửa sổ
-kế); bảng năm dòng có HAI CỘT (vòng meta `thuoc-co-cua` · ba việc vá-trong-mốc); mỗi ô có
+**Then** đủ NĂM khối (năm dòng số · lớp vendored · lớp lỗi tái phát · kết quả chiến dịch
+ghim lại · nhát cắt cho cửa sổ kế); bảng năm dòng có HAI CỘT (vòng meta `thuoc-co-cua` · ba việc vá-trong-mốc); mỗi ô có
 nguồn rút gọi tên hoặc ghi «không đo được» kèm lý do; dòng 2 tách trong/ngoài thiết kế và
 gọi tên lớp của lượt ngoài; và BỐN phép đối chiếu dưới đây khớp từng chữ số.
 
@@ -191,7 +193,7 @@ bảng vai trò của cùng tệp, nền KHÔNG cache_create như hai mốc trư
 số 9,5 % của vòng R1 ghi ở Notes §1 hợp đồng mốc 2.15.0, cùng câu giải thích vì sao hai
 số ấy KHÔNG so thẳng được.
 
-**Và nói thẳng sáu điều bất lợi:** khối tìm-lỗi chiếm 71,2 % token S4 của vòng — cao hơn
+**Và nói thẳng bảy điều bất lợi:** khối tìm-lỗi chiếm 71,2 % token S4 của vòng — cao hơn
 mọi lượt đo gần đây và ngược chiều lời hứa của spec token · lượt gọi người 5 so trần T3
 4, vòng thứ năm liên tiếp vượt trần · một lượt thi công S3 chết trọn vì hạn mức phiên ·
 owner phải tự bắt một phát hiện TRONG hợp đồng ở Cổng Bằng chứng mà lượt chấm 2 đã cho
@@ -257,6 +259,14 @@ không theo tổ hợp.
 - **Răng chiến dịch đọc dòng ghim lại MỚI NHẤT của mỗi hồ sơ.** Hồ sơ từng ghim lại ở một
   lượt riêng lẻ trước đó, rồi không vào lượt chiến dịch, sẽ hiện là «chưa ghim ở sha này»
   — đúng, nhưng không phân biệt được với hồ sơ chưa từng ghim lại bao giờ.
+- **HAI chân răng của CHÍNH hồ sơ này chắc chắn đỏ ở chiến dịch ghim lại kế.** Chân
+  `viec-meta` neo vào «lần cắt số trước suy từ kho»: khi mốc sau cắt số, neo dời tới commit
+  nâng số của mốc này, và đối chứng dương «hồ sơ mốc phải sinh sau neo» sẽ dừng mã 2 — đúng
+  ca mà `release-2-15-0` vừa đỏ ở chiến dịch này. Chân `viec-va` so từ chữ ký vòng meta tới
+  CÂY LÀM VIỆC, nên mọi tệp engine đổi ở cửa sổ sau đều rơi vào tập cấm và nó dừng mã 6. Hồ
+  sơ khai thẳng thay vì vá riêng cho mình: vá một bản sao là để nguyên lớp sống ở mọi bản
+  còn lại, và lớp ấy là nhát cắt có tên ở §5. Ngưỡng đang đếm: đã 2 hồ sơ mốc đỏ vì lớp này
+  (`release-2-14-0`, `release-2-15-0`), mốc này sẽ là thứ ba.
 - **Hiệu lực khuôn `/goal` vẫn chưa có số.** Ngưỡng mở lại đặt ở AC-13 của mốc 2.15.0 (≥ 1
   lần hook chặn một lần dừng CÓ nêu tiền đề hoặc lối) chưa đọc được: vòng `thuoc-co-cua`
   chạy trong kho kit và không tệp nào trong kho ghi số lần hook chặn. Ngưỡng vẫn đang đếm.
@@ -348,9 +358,72 @@ crm-onehub và OneFlow lớp hạ tầng cũng là lớp gọi người lớn nh
 này liệt kê việc của cửa sổ từ nhật ký git đọc tay; chỉ răng AC-4 mới đối chiếu được với
 kho. Cửa sổ này may vì ngắn — một ngày, một vòng. Cửa sổ dài thì lớp này lại đắt.
 
-### 4. Nhát cắt cho cửa sổ kế — gọi tên
+### 4. Chiến dịch ghim lại — số thật, lần đầu
 
+Làn một lượt trên trọn 72 hồ sơ đã thông Cổng Bằng chứng, tại `26bf12fe`.
+
+| số đo | giá trị |
+|---|---|
+| lệnh suite | 5, tất cả exit 0 |
+| lệnh eval phân biệt | 215 (từ 741 eval máy, làn dùng lại lệnh trùng) |
+| thời gian máy | 2 giờ 25 phút |
+| tệp hồ sơ đã ký bị executor chạm | 0 trên 861 tệp của 72 hồ sơ |
+| hồ sơ có eval đỏ | 14 trên 72 |
+| eval đỏ | 60 |
+| hồ sơ được ghim lại | **0** — làn đỏ thì không ghi gì, kể cả cho 58 hồ sơ xanh |
+
+**Mười bốn hồ sơ đỏ**, theo số eval đỏ trên tổng eval máy của hồ sơ:
+`luu-kho-codex-va-nghi-le-design` 23/24 · `cat-hinh-thuc` 12/14 ·
+`cat-khoi-viec-cua-anh-tren-tin` 4/6 · `eval-khai-ma-thoat-mong-doi` 4/13 ·
+`thuoc-khai-mot-dang-do-mot-neo` 4/10 · `doi-hanh-vi-cong-nguoi` 3/9 ·
+`duong-lui-phai-song` 3/15 · `cong-dang-co-cua` 1/3 · `inputs-tinh-tu-goc-kho` 1/8 ·
+`release-2-14-0` 1/9 · `release-2-15-0` 1/19 · `start-bang-dieu-khien` 1/14 ·
+`thuoc-nhan-de-khoi` 1/9 · `veto-co-dau-vet` 1/11.
+
+**Ba lớp nguyên nhân, mỗi lớp một ca đã đọc tận thông điệp.**
+
+- **Lớp một — răng đo một ĐẠI LƯỢNG DI ĐỘNG theo HEAD, nên KHÔNG BAO GIỜ ghim lại được.**
+  `release-2-14-0` đỏ ở răng đếm tồn đọng ghim lại: hồ sơ chép tay số 44, lưới hôm nay nói
+  49. `release-2-15-0` đỏ ở chân đếm việc của cửa sổ: neo dời sang lần cắt số mới, nên
+  chính hồ sơ mốc ấy nay CÓ SẴN ở neo và đối chứng dương của nó dừng mã 2. Hai ca này
+  không phải «mất tiền đề» — chúng đúng ở ngày ký và sai mãi mãi sau đó, theo thiết kế.
+- **Lớp hai — răng dựng bản sao cây rồi trỏ tới tệp đã đổi chỗ hoặc biến mất.**
+  `cat-hinh-thuc` là ca nặng nhất còn đọc được: bản sao tạm không có tệp SKILL mà răng
+  cần, nên 25 phép đo của nó đỏ cùng lượt. Đây là lớp mà GUIDE §7.1 đã gọi tên từ 07/09.
+- **Lớp ba — vật đã đổi sau chữ ký, răng còn đo văn bản cũ.**
+  `cat-khoi-viec-cua-anh-tren-tin` đỏ vì khối lệnh một-dòng nay thiếu một luật âm mà răng
+  đòi và cấu trúc ô đã đổi; `duong-lui-phai-song` đỏ vì khối đổi cờ nên chiều đỏ của nó
+  không còn chạy được; `eval-khai-ma-thoat-mong-doi` đỏ ở chân đọc tài liệu.
+
+**Điều số này nói.**
+
+- **Chiến dịch dạng hiện tại KHÔNG dùng được, và nay có số thay cho phán đoán.** R3 của
+  hai cửa sổ trước hoãn nó bằng lý lẽ; lượt này trả 2 giờ 25 phút máy để đổi lấy 0 hồ sơ
+  được ghim. Tỉ lệ hỏng không nhỏ và lẻ tẻ mà tập trung: 35 trên 60 eval đỏ nằm ở hai hồ
+  sơ.
+- **Luật «làn đỏ thì không ghi gì» đúng về nguyên tắc và đắt về thực tế.** Nó giữ cho
+  không ai ký mù, nhưng ở quy mô 72 hồ sơ nó biến một hồ sơ hỏng thành 71 hồ sơ không
+  được ghim. Đây là lý do «ghim lại theo diff» — hoặc chí ít là ghim lại theo LÔ — không
+  còn là tối ưu hoá mà là điều kiện tồn tại.
+- **Lớp một chạm chính hồ sơ mốc, kể cả hồ sơ này.** Xem Known limits: hai chân răng của
+  `release-2-16-0` chắc chắn sẽ đỏ ở chiến dịch kế, cùng lớp với `release-2-15-0`. Hồ sơ
+  khai thẳng thay vì vá riêng cho mình — vá một bản sao là để nguyên lớp sống ở mọi bản
+  còn lại.
+- **Chốt chụp cây hồ sơ đã ký chạy sạch ở quy mô thật:** 861 tệp của 72 hồ sơ, 0 tệp bị
+  chạm sau 215 lệnh. Vật mà mốc 2.15.0 ship có lượt đo đầu tiên ở quy mô đầy đủ, và nó im
+  đúng chiều.
+
+### 5. Nhát cắt cho cửa sổ kế — gọi tên
+
+0. **CHỖ CẮT CHÍNH, số của mốc này chỉ thẳng vào: răng của một hồ sơ đã ký phải đo một sự
+   thật LỊCH SỬ, không đo một đại lượng di động.** Ba hồ sơ mốc liên tiếp mắc cùng lớp —
+   `release-2-14-0` chép tay một con số sẽ trôi, `release-2-15-0` neo vào «lần cắt số trước
+   suy từ kho» nên neo dời là đối chứng dương của nó sập, và `release-2-16-0` sẽ là thứ ba
+   vì nó chép đúng khuôn ấy. Nhát sửa rẻ nhất: khi hồ sơ được KÝ, neo mà răng suy từ kho
+   được GHIM vào hợp đồng, và từ đó răng đọc neo đã ghim thay vì suy lại. Nhát ấy không
+   thuộc mốc này — nó chạm khuôn răng của mọi hồ sơ mốc, nên phải là một vòng có tên.
 1. **Router là vòng meta của cửa sổ 2.16 → 2.17** — owner đã chốt (Q3 17/09), giữ nguyên.
+   Chỗ cắt số 0 ở trên là ứng viên cạnh nó, owner chọn.
 2. **Chỗ cắt gọi tên cho cửa sổ kế: ngưỡng REJECT của phát hiện trong hợp đồng.** Đây là
    nhát cắt rẻ nhất mà số của cửa sổ này chỉ thẳng vào: một phát hiện mức TRUNG trong hợp
    đồng trôi tới thẻ và tốn đúng một lượt gọi người ngoài thiết kế. Hai lối: bộ chấm
@@ -363,8 +436,10 @@ kho. Cửa sổ này may vì ngắn — một ngày, một vòng. Cửa sổ dà
    ai đo lại.
 5. **Vật máy giữ cho số chạm.** Mục tiêu «≤1 chạm/lượt» không có thước; nó sẽ còn là lời
    hứa cho tới khi có một vật ghi lại.
-6. **Ghim lại theo diff** — điều kiện tồn tại lâu dài của chiến dịch, vẫn chưa làm. Kết
-   quả chiến dịch của mốc này (AC-5) là dữ liệu đầu tiên cho câu hỏi ấy.
+6. **Ghim lại theo diff, hoặc chí ít theo LÔ** — nay có số: một lượt trọn tốn 2 giờ 25
+   phút máy và ghim được 0 hồ sơ, vì luật «làn đỏ thì không ghi gì» biến 14 hồ sơ hỏng
+   thành 72 hồ sơ không được ghim. Lối rẻ nhất mà không đụng luật ấy: chia thành nhiều
+   lượt làn nhỏ, lượt nào xanh thì ghim lượt đó. 58 trên 72 hồ sơ lẽ ra đã ghim được.
 7. **Đo hiệu lực khuôn `/goal`** — ngưỡng đặt ở 2.15.0, hai cửa sổ chưa đọc được.
 
 - Thước tự dối: không dán cụm hình glob vào văn hồ sơ; mọi mẫu ở đây nói bằng chữ.

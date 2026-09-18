@@ -17,8 +17,11 @@ Trong ngày đó kho chạy đúng **một** vòng meta, `thuoc-co-cua` (T3, ký
 vòng mà mốc trước đã gọi tên sẵn. Nó lấy ba câu hỏi từ bảng 23 lớp hạ tầng — đứng
 được trước khi chấm · chạy không đè nhau · cửa cho thước — và biến cả ba thành vật
 máy giữ. Ba việc còn lại của cửa sổ là vá và sổ sách, không việc nào chạm engine.
-Mốc này cũng chạy **chiến dịch ghim lại**, thứ hai cửa sổ trước đã hoãn. Hai gói
-cùng lên `2.16.0`; `diagram-design` giữ `2.7.0` vì không đổi một dòng.
+Mốc này cũng chạy **chiến dịch ghim lại**, thứ hai cửa sổ trước đã hoãn — và nó
+đỏ, nên nay có số thay cho phán đoán: một lượt làn trên trọn 72 hồ sơ đã ký tốn
+2 giờ 25 phút máy, gặp 14 hồ sơ mất tiền đề, và vì luật «làn đỏ thì không ghi gì»
+nên ghim lại được 0 hồ sơ. Hai gói cùng lên `2.16.0`; `diagram-design` giữ
+`2.7.0` vì không đổi một dòng.
 
 **Đổi gì:**
 
@@ -72,7 +75,8 @@ vòng — hai ca thẻ và một ca chiều đỏ — chưa độc lập với n
 cho cửa sổ sau.
 
 **Chi phí của chính cửa sổ:** vòng meta duy nhất tốn 54,8 triệu token cho hai lượt thi
-công và ba lượt chấm, trong đó 30,0 triệu ở lượt chấm. Khối tìm-lỗi chiếm 71 % token
+công và ba lượt chấm, trong đó 30,0 triệu ở lượt chấm. Chiến dịch ghim lại của mốc
+thêm 2 giờ 25 phút máy và không ghim được hồ sơ nào. Khối tìm-lỗi chiếm 71 % token
 lượt chấm — vòng này không chạm giao diện nên không có làn nào khác chia mẫu số. Lượt
 gọi người 5 so trần 4, vòng thứ năm liên tiếp vượt trần; lượt vượt là một lần owner phải
 tự bắt lỗi mà bộ chấm cho qua. Một lượt thi công chết trọn vì hạn mức phiên. Số đầy đủ
