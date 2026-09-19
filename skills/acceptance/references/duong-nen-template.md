@@ -55,7 +55,7 @@ tra khuôn theo mã; mã vắng → thoát mã 2.
 
 | Chân | Đo gì | Đỏ khi |
 |---|---|---|
-| `cong_cu` | từ đầu (bỏ các phép gán `TEN=gia-tri` đứng trước) của mọi lệnh `executors.<loại>.<tên>`, hỏi máy bằng `command -v` | một từ đầu không có trên máy |
+| `cong_cu` | từ đầu (bỏ các phép gán `TEN=gia-tri` đứng trước) của mọi lệnh `executors.<loại>.<tên>` — hỏi máy bằng `command -v` CHỈ KHI từ đầu là một tên chương trình; từ đầu mang thay thế của shell (`$` `` ` ``) hoặc mở nhóm (`(` `{`) thì không tra, không đỏ, và in một dòng lý do kèm khoá ra stderr | một từ đầu **là tên chương trình** mà không có trên máy — luật xét đúng từ đầu, nên `lenh-thieu \| head` vẫn đỏ |
 | `suite` | chụp `git status --porcelain`, chạy từng lệnh của `feature_loop.suite_keys` MỘT lần, TUẦN TỰ, mỗi lệnh một tiến trình con, chụp lại | suite thoát khác 0 · cây có dòng mới sau suite |
 | `luoi` | `pre-merge-check.sh <root> --base <merge-base nhánh gốc> --no-t1-escape` — không bao giờ thu phạm vi theo slug; ưu tiên bản vendored của repo | có dòng `VIOLATION` (in nguyên văn dưới nhãn «có sẵn») · lưới chạy lỗi |
 | `engine` | băm sha256 các tệp của khối `INIT-CI-COPY-LIST` (rút từ marker của `commands/acceptance-init.md`) ở bản vendored · bản plugin cache · bản đang chạy | hai bản bất kỳ lệch nhau |

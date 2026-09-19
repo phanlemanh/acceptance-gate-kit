@@ -1,6 +1,7 @@
 // duong-nen.test.mjs — đường nền hạ tầng bốn chân (feature-loop/scripts/duong-nen.mjs),
 // hồ sơ thuoc-co-cua AC-6 (E8: NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN8) và AC-7
-// (E9: NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9).
+// (E9: NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9); hồ sơ nen-cong-cu-lenh-shell AC-1 AC-3
+// AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»).
 //
 // Mọi ca chạy trên kho do `dungKho()` SINH trong lượt (tests/scripts/duong-nen-fixture.mjs),
 // cùng một fixture lành, mỗi ca đỏ chỉ đổi MỘT biến. Đối chứng dương NEN0 chạy trước.
@@ -258,6 +259,147 @@ const r0 = chayNen(k0, { cache: CACHE });
   else if (!r.stderr.includes('engine: cache bo-qua')) bad('NEN9 khong cache ma khong in «engine: cache bo-qua»', r.stderr.slice(-300));
   else if (fm(r.tep, 'engine') !== 'xanh' || r.code !== 0) bad('NEN9 khong cache ma chan engine do', tomTat(r));
   else ok('NEN9 khong co plugin cache — «engine: cache bo-qua», chan engine xanh');
+}
+
+// ── NEN-TD* — chân công cụ: chỉ tra khi TỪ ĐẦU là một TÊN CHƯƠNG TRÌNH ──────────
+// Hồ sơ nen-cong-cu-lenh-shell. Mọi ca dùng CHUNG fixture lành của NEN0, mỗi ca đổi
+// ĐÚNG một biến (chuỗi lệnh của `executors.test.a`). Hai chiều luôn đi cặp: ca IM
+// (không được đỏ) đứng cạnh ca ĐỎ (phải đỏ, ghim đúng tên) — một mình chiều nào
+// cũng không phân biệt được «bắt đúng» với «chưa bao giờ chạy».
+
+// Bullet chân công cụ mang khoá đã cho — dùng chung cho mọi ca dưới.
+const bulletCongCu = (tep, khoa) =>
+  (bullets(tep) || []).filter(x => x.startsWith('nen cong-cu:') && x.includes(`(khoa ${khoa})`));
+// Số dòng lý do bỏ-tra trên stderr mang khoá đã cho.
+const dongBoQua = (stderr, khoa) =>
+  String(stderr || '').split('\n').filter(l => l.includes('cong-cu') && l.includes(khoa) && /bo qua|bỏ qua/.test(l));
+
+const cfgVoi = lenh => CONFIG_LANH.replace('a: "bash suite-a.sh"', `a: ${JSON.stringify(lenh)}`);
+
+// Ba chuỗi lệnh đo trong nhóm này. TD6 là chuỗi NGUYÊN VĂN của `executors.design.ui_check`
+// ở ~/dev/crm nhánh onehub (dòng 425 của _acceptance/config.yaml, đo 2026-09-19) — ca buộc
+// bản vá vào TRIỆU CHỨNG người dùng báo, không chỉ vào hàm vừa sửa.
+const LENH_TD1 = '${BIEN_KHONG_CO_TREN_MAY:-$(echo /bin)}/echo chay-duoc';
+const LENH_TD3 = '(cd . && echo trong-nhom)';
+const LENH_CRM = '${CLAUDE_PLUGIN_ROOT:-$(node scripts/resolve-plugin.mjs --plugin acceptance-gate --require scripts/design-gate.mjs --require scripts/design-scan.js)}/scripts/design-scan.js';
+
+// kTD1/kTD3 dùng lại ở NEN-TD4 (chiều stderr), nên dựng một lần ở đây.
+const kTD1 = dungKho({ config: cfgVoi(LENH_TD1) });
+const rTD1 = chayNen(kTD1, { cache: CACHE });
+const kTD3 = dungKho({ config: cfgVoi(LENH_TD3) });
+const rTD3 = chayNen(kTD3, { cache: CACHE });
+
+// ── NEN-TD1 — từ đầu dựng bằng thay thế shell, lệnh CHẠY ĐƯỢC → chân công cụ IM ──
+{
+  const b = bulletCongCu(rTD1.tep, 'executors.test.a');
+  if (fm(rTD1.tep, 'cong_cu') !== 'xanh') bad('NEN-TD1 chan cong_cu phai xanh', tomTat(rTD1));
+  else if (b.length) bad('NEN-TD1 van co bullet cong-cu cho khoa lanh', JSON.stringify(b));
+  else ok('NEN-TD1 tu dau dung thay the shell, lenh chay duoc — chan cong_cu xanh, 0 bullet');
+}
+
+// ── NEN-TD2 — từ đầu là TÊN chương trình thiếu, phần sau có ống dẫn → VẪN ĐỎ ──────
+// Ca phân biệt hai bản của lối vá: một bản quét cú pháp shell trên CẢ chuỗi lệnh sẽ
+// làm ca này IM, tức tắt một cái đèn đang sáng đúng.
+{
+  const k = dungKho({ config: cfgVoi('khong-co-lenh-nay-xyz --x | head -n 1') });
+  const r = chayNen(k, { cache: CACHE });
+  const can = 'nen cong-cu: THIEU khong-co-lenh-nay-xyz (khoa executors.test.a)';
+  const b = bullets(r.tep) || [];
+  if (fm(r.tep, 'cong_cu') !== 'do') bad('NEN-TD2 chan cong_cu phai do', tomTat(r));
+  else if (!b.includes(can)) bad('NEN-TD2 thieu dong ghim', JSON.stringify(b));
+  else if (r.code !== 1) bad('NEN-TD2 nen do phai ma 1', tomTat(r));
+  else ok(`NEN-TD2 ten thieu + ong dan — van do, ghim «${can}»`);
+}
+
+// ── NEN-TD3 — từ đầu mở một NHÓM của shell → chân công cụ IM ─────────────────────
+{
+  const b = bulletCongCu(rTD3.tep, 'executors.test.a');
+  if (fm(rTD3.tep, 'cong_cu') !== 'xanh') bad('NEN-TD3 chan cong_cu phai xanh', tomTat(rTD3));
+  else if (b.length) bad('NEN-TD3 van co bullet cong-cu cho khoa mo nhom', JSON.stringify(b));
+  else ok('NEN-TD3 tu dau mo nhom «(cd . && …)» — chan cong_cu xanh, 0 bullet');
+}
+
+// ── NEN-TD4 — «đèn tắt vẫn có tiếng», HAI CHIỀU trên stderr ──────────────────────
+// Chiều NHẠY: TD1 và TD3 mỗi lượt đúng MỘT dòng lý do gọi đúng khoá.
+// Chiều ĐẶC HIỆU: NEN0 (kho lành) và NEN1 (lệnh thiếu thật, CÓ tra và CÓ đỏ) không
+// dòng nào — số dòng lý do bằng ĐÚNG số khoá bị bỏ tra, nên một bản in-cho-chắc-mọi-khoá
+// sẽ làm ca này đỏ.
+{
+  const kNEN1 = dungKho({ config: cfgVoi('NEN_X=1 khong-co-lenh-nay-xyz --x') });
+  const rNEN1 = chayNen(kNEN1, { cache: CACHE });
+  const n = (r) => dongBoQua(r.stderr, 'executors.test.a').length;
+  if (n(rTD1) !== 1) bad('NEN-TD4 luot TD1 phai co dung 1 dong ly do', `${n(rTD1)} · ${rTD1.stderr.slice(-300)}`);
+  else if (n(rTD3) !== 1) bad('NEN-TD4 luot TD3 phai co dung 1 dong ly do', `${n(rTD3)} · ${rTD3.stderr.slice(-300)}`);
+  else if (n(r0) !== 0) bad('NEN-TD4 kho lanh KHONG duoc co dong ly do', `${n(r0)} · ${r0.stderr.slice(-300)}`);
+  else if (n(rNEN1) !== 0) bad('NEN-TD4 lenh thieu that KHONG duoc co dong ly do', `${n(rNEN1)} · ${rNEN1.stderr.slice(-300)}`);
+  else if (fm(rNEN1.tep, 'cong_cu') !== 'do') bad('NEN-TD4 doi chung: lenh thieu that phai van do', tomTat(rNEN1));
+  else ok('NEN-TD4 stderr hai chieu — 1 dong ly do o TD1 va TD3, 0 dong o NEN0 va lenh-thieu-that');
+}
+
+/**
+ * banDotBien() — bản sao `feature-loop` với khối marker CONG-CU-TU-DAU bị thay bằng một
+ * bản luôn nhận MỌI từ đầu là tên chương trình (tức gỡ đúng luật vòng này thêm).
+ * Trả đường dẫn script đột biến. Marker khớp khác 1/1 lần → ném, ca tự đỏ.
+ */
+function banDotBien() {
+  const d = tamDir('duong-nen-td-mut-');
+  cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
+  const f = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+  const src = readFileSync(f, 'utf8');
+  const MO = '// <<<CONG-CU-TU-DAU\n', DONG = '// CONG-CU-TU-DAU>>>\n';
+  const nMo = src.split(MO).length - 1, nDong = src.split(DONG).length - 1;
+  if (nMo !== 1 || nDong !== 1) throw new Error(`marker CONG-CU-TU-DAU khop ${nMo}/${nDong} lan (can dung 1/1)`);
+  const i = src.indexOf(MO) + MO.length, j = src.indexOf(DONG);
+  const thay = 'const tenChuongTrinh = () => true;\n';
+  writeFileSync(f, src.slice(0, i) + thay + src.slice(j));
+  if (readFileSync(f, 'utf8') === src) throw new Error('ban dot bien TRUNG ban goc — buoc tiem chua chay');
+  return f;
+}
+
+// ── NEN-TD5 — đột biến: gỡ luật thì ca NEN-TD1 phải ĐỎ trở lại ───────────────────
+// Hai lượt trên CÙNG bản chép. Lượt chưa tiêm phải XANH, nếu không thì «đỏ» của lượt
+// tiêm không phân biệt được với bản chép hỏng (thiếu tệp, sai đường dẫn, exit 127).
+{
+  try {
+    const d = tamDir('duong-nen-td-base-');
+    cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
+    const fSach = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+    const kSach = dungKho({ config: cfgVoi(LENH_TD1) });
+    const rSach = chayNen(kSach, { cache: CACHE, script: fSach });
+    if (fm(rSach.tep, 'cong_cu') !== 'xanh') {
+      bad('NEN-TD5 ban chep hong — luot CHUA TIEM khong xanh, ket luan do cua luot tiem vo nghia', tomTat(rSach));
+    } else {
+      const fMut = banDotBien();
+      const kMut = dungKho({ config: cfgVoi(LENH_TD1) });
+      const rMut = chayNen(kMut, { cache: CACHE, script: fMut });
+      const b = bulletCongCu(rMut.tep, 'executors.test.a');
+      if (fm(rMut.tep, 'cong_cu') !== 'do') bad('NEN-TD5 ban dot bien KHONG do — phep do khong treo vao luat vua them', tomTat(rMut));
+      else if (!b.some(x => x.includes('THIEU ${BIEN_KHONG_CO_TREN_MAY:-$('))) bad('NEN-TD5 do nhung khong ghim chuoi cut mong doi', JSON.stringify(b));
+      else ok('NEN-TD5 dot bien — luot chua tiem xanh, luot tiem do ghim «THIEU ${BIEN_KHONG_CO_TREN_MAY:-$(»');
+    }
+  } catch (e) { bad('NEN-TD5 khong dung duoc ban dot bien', String(e.message || e)); }
+}
+
+// ── NEN-TD6 — chuỗi lệnh NGUYÊN VĂN của kho tiêu thụ đang đỏ (crm@onehub) ────────
+// Ca buộc bản vá vào TRIỆU CHỨNG: sau vá 0 bullet cho khoá ấy; trên bản đột biến
+// (gỡ luật) thì ≥1 bullet, ghim đúng chuỗi cụt owner báo.
+{
+  try {
+    const k = dungKho({ config: cfgVoi(LENH_CRM) });
+    const r = chayNen(k, { cache: CACHE });
+    const b = bulletCongCu(r.tep, 'executors.test.a');
+    if (b.length) {
+      bad('NEN-TD6 chuoi that cua crm VAN sinh bullet cong-cu', JSON.stringify(b));
+    } else {
+      const fMut = banDotBien();
+      const kMut = dungKho({ config: cfgVoi(LENH_CRM) });
+      const rMut = chayNen(kMut, { cache: CACHE, script: fMut });
+      const bMut = bulletCongCu(rMut.tep, 'executors.test.a');
+      if (!bMut.length) bad('NEN-TD6 doi chung: ban dot bien cung IM — kho nay chua bao gio do', tomTat(rMut));
+      else if (!bMut.some(x => x.includes('THIEU ${CLAUDE_PLUGIN_ROOT:-$(node'))) bad('NEN-TD6 ban dot bien do nhung khong ghim chuoi cut owner bao', JSON.stringify(bMut));
+      else ok('NEN-TD6 chuoi nguyen van crm@onehub — sau va 0 bullet, ban dot bien ghim «THIEU ${CLAUDE_PLUGIN_ROOT:-$(node»');
+    }
+  } catch (e) { bad('NEN-TD6 khong dung duoc ban dot bien', String(e.message || e)); }
 }
 
 donDep();

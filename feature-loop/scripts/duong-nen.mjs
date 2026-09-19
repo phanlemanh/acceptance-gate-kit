@@ -136,6 +136,9 @@ function khoaExecutor(text) {
   return out;
 }
 // Từ đầu của lệnh sau khi bỏ các phép gán `TEN=gia-tri` đứng trước (tôn trọng nháy).
+// CHÚ Ý: bộ tách này chỉ biết khoảng trắng và nháy — nó KHÔNG hiểu phép thay thế của
+// shell, nên với `${VAR:-$(lenh con)}/duong/dan` nó trả về mảnh cụt `${VAR:-$(lenh`.
+// Vị từ `tenChuongTrinh` dưới đây là chỗ mảnh cụt ấy bị chặn lại trước `command -v`.
 function tuDau(cmd) {
   const toks = []; let cur = ''; let q = null; let co = false;
   for (const ch of String(cmd)) {
@@ -148,6 +151,18 @@ function tuDau(cmd) {
   const t = toks.find(x => !/^[A-Za-z_][A-Za-z0-9_]*=/.test(x));
   return t || null;
 }
+// <<<CONG-CU-TU-DAU
+// Một TỪ ĐẦU chỉ tra được bằng `command -v` khi nó là TÊN CHƯƠNG TRÌNH (hoặc đường dẫn
+// tới một chương trình). Từ đầu mang phép thay thế của shell — `${…}` `$(…)` `` `…` ``
+// `$VAR` — hoặc mở một nhóm/subshell — `(` `{` — thì nó KHÔNG phải một cái tên, và hỏi
+// máy về nó là hỏi sai câu: câu trả lời «không có» nói về chuỗi cụt, không nói gì về
+// lệnh. Đó là báo động giả đo được ở `~/dev/crm` nhánh onehub (executors.design.ui_check).
+//
+// Luật xét đúng TỪ ĐẦU, KHÔNG quét cả chuỗi lệnh: `khong-co-lenh | head` vẫn phải đỏ và
+// ghim đúng tên — một bản quét cả chuỗi sẽ tắt luôn cái đèn đang sáng đúng đó (ca NEN-TD2).
+const tenChuongTrinh = (tu) => !/[$`({]/.test(tu);
+// CONG-CU-TU-DAU>>>
+
 const chan = { cong_cu: 'xanh', suite: 'xanh', luoi: 'xanh', engine: 'xanh' };
 const DO = [];
 {
@@ -157,6 +172,13 @@ const DO = [];
     if (!cmd) continue;
     const tu = tuDau(cmd);
     if (!tu) continue;
+    // Bỏ qua KHÔNG im lặng: chân không đỏ, nhưng stderr nói ra khoá nào không được tra —
+    // cùng nếp `bo-qua`-in-stderr của chân `luoi` và chân `engine`. Đúng MỘT dòng cho
+    // MỘT khoá bị bỏ tra, không in cho chắc (ca NEN-TD4 đếm chiều này).
+    if (!tenChuongTrinh(tu)) {
+      console.error(`cong-cu: bo qua ${khoa} — tu dau «${tu}» dung cu phap shell, khong phai ten chuong trinh`);
+      continue;
+    }
     if (!coTrenMay.has(tu)) {
       const r = spawnSync('bash', ['-lc', 'command -v "$1"', '_', tu], { cwd: root, stdio: ['ignore', 'ignore', 'ignore'] });
       coTrenMay.set(tu, r.status === 0);
