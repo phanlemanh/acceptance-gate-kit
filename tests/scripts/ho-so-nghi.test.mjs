@@ -81,7 +81,7 @@ function khoFixture({ luat = 'eval', nghi = null, them = null, status = 'signed-
   else if (luat === 'cu-hoa') lan.evals_exit = { E1: 0 };
   writeFileSync(path.join(d, 'run-log.jsonl'), `${JSON.stringify(lan)}\n`);
   writeFileSync(path.join(d, 'evidence-report.md'),
-    `---\nslug: hsn\nverified_commit: ${sha}\nhuman_signoff: Mạnh 2026-09-01\n---\n\n## Evidence\n\n### Re-pin lần 1 — 01/09, do nền\nrun_id: r-1\nsha: ${sha} · suites: 1 lệnh exit 0\n`);
+    `---\nslug: hsn\nverdict: PASS\nverified_commit: ${sha}\nhuman_signoff: Mạnh 2026-09-01\n---\n\n## Evidence\n\n### Re-pin lần 1 — 01/09, do nền\nrun_id: r-1\nsha: ${sha} · suites: 1 lệnh exit 0\n`);
   const so = [nghi, them].filter(Boolean);
   if (so.length) writeFileSync(path.join(d, 'decisions.jsonl'), `${so.join('\n')}\n`);
   git('add', '-A'); git('commit', '-q', '-m', 'ho so');
@@ -157,8 +157,12 @@ const CHUOI = { 'cu-hoa': 'evidence is stale', lan: 'none of the cited re-pin la
 console.log('\nHSN0/HSN1 cổng — ba luật, đối chứng dương rồi dòng nghỉ');
 {
   const LUAT = ['cu-hoa', 'lan', 'eval'];
-  const src = readFileSync(path.join(ROOT, 'scripts', 'pre-merge-check.sh'), 'utf8');
-  check('HSN0 ba chuỗi ghim CÓ THẬT trong script cổng',
+  // Chuỗi ghim phải CÓ THẬT ở nguồn luật. Hai luật đầu do chính script cổng phát;
+  // luật làn eval do `lib/evidence-core.cjs` phát (cổng gọi checkRepinEvals) —
+  // tra cả hai nguồn, vì gõ tay một câu đã chết là phép đo không bao giờ khớp.
+  const src = readFileSync(path.join(ROOT, 'scripts', 'pre-merge-check.sh'), 'utf8')
+    + readFileSync(path.join(ROOT, 'lib', 'evidence-core.cjs'), 'utf8');
+  check('HSN0 ba chuỗi ghim CÓ THẬT ở nguồn luật',
     LUAT.every((k) => src.includes(CHUOI[k])), LUAT.filter((k) => !src.includes(CHUOI[k])));
 
   const truoc = LUAT.map((luat) => {
