@@ -19,6 +19,8 @@ Cổng Bằng chứng.
 
 ## Vấn đề & ai gặp
 
+Gốc: acceptance-gate-kit/_acceptance/release-2-15-0 — răng cửa sổ đỏ giả sau khi mốc 2.16.0 cắt số
+
 Răng `_acceptance/release-2-15-0/rang-cua-so.mjs` (hai chân `vendored` và `viec-meta`) và
 `rang-goal.mjs` suy neo là «lần cắt số trước» — commit mới nhất đổi dòng version mà số tại đó
 khác số ở cây. Neo ấy tương đối với số ở cây. Sau khi mốc 2.16.0 cắt số, neo trượt sang lần cắt

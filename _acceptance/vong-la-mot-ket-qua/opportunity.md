@@ -13,6 +13,8 @@ prototype:
 ---
 ## Vấn đề & ai gặp
 
+Gốc: media-library/_acceptance/ban-dieu-khien-curator — một trong 13 hồ sơ cắt theo gốc kỹ thuật 04/09, không hồ sơ nào tự giao được một cửa
+
 Người lập kế hoạch bằng kit (owner media-library, 04/09/2026) cắt một kế hoạch bàn giao thành
 **13 hồ sơ theo GỐC KỸ THUẬT** — cụm chìa & người, cụm cây thực thể, cụm thước đo… — và chính owner
 phải chỉ ra: *không hồ sơ nào tự giao được một cửa*, và 13 lần cổng là 13 lần trả phí cố định

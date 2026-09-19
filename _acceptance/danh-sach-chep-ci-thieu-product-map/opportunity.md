@@ -3,13 +3,18 @@ schema_version: 1
 slug: danh-sach-chep-ci-thieu-product-map
 feature: Danh sách chép CI của acceptance-init dặn repo tiêu thụ chạy product-map --check nhưng không chép product-map lẫn đồ nó kéo theo — CI của consumer đỏ ngay khi kit dùng khuôn ô cơ hội
 owner:
-stage: discovery
-decision:
-decided_by:
-decided_at:
+stage: decided
+decision: park   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Mạnh
+decided_at: 2026-09-18    
 ---
 
+> **Xếp lại (park) 18/09 — luật neo thu phạm vi (owner chọn đường B).** ca thật là job CI của crm-onehub, không gắn hồ sơ nào. Chữ giữ
+> nguyên, không xoá: khi có một hồ sơ cụ thể `<kho>/_acceptance/<slug>` để trỏ thì thêm dòng
+> `Gốc:` dạng ấy và đổi `stage:` về `discovery` là ô mở lại.
+
 ## Vấn đề & ai gặp
+
 
 **Ca thật:** kho `phanlemanh/crm-onehub`, job `acceptance gate` trong
 `.github/workflows/acceptance.yml` đỏ **8 lượt liên tiếp** từ 2026-09-04 ở bước

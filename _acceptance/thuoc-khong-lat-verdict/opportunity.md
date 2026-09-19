@@ -11,6 +11,8 @@ decided_at:
 
 ## Vấn đề & ai gặp
 
+Gốc: acceptance-gate-kit/_acceptance/cong-nguoi-doc-du-nguon — 8 lượt chấm, 9 lần gọi người, giá trị đứng yên từ lượt 5
+
 Vòng `cong-nguoi-doc-du-nguon` chạy **8 lượt chấm** và gọi người **9 lần**, so trần
 thiết kế là 3 lượt và 4 lần. Giá trị đo được ĐỨNG YÊN từ lượt 5: 139 hồ sơ, 1 110
 tiêu chí, 29 mục Coverage. Ba lượt cuối không đưa thêm một tiêu chí nào tới kho

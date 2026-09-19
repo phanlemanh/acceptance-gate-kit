@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: acceptance-gate-kit/_acceptance/ma-so-quyet-dinh-duy-nhat — hồ sơ đi trong PR #168 (gộp 11/09), ba lượt push đỏ ở check gate
+
 PR #168 (gộp 11/09/2026 `6aec9c12`) có **3 lượt push đỏ ở check `gate`** mà cả ba
 đều đo được tại máy trước khi push nếu máy chạy đúng như CI:
 

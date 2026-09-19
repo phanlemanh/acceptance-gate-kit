@@ -49,6 +49,61 @@
     nó là ca-rỗng của luật này. Lưới cho phân loại sai: mọi thứ máy tự quyết
     đều có sổ + đường đảo + hiện ở khối «CHƯA duyệt» của Cổng Bằng chứng, và
     khó-đảo LUÔN là câu hỏi cho người bất kể phân loại.
+  - **Ô chỉ mở khi có NEO NGOÀI (owner quyết 18/09).** Hàng chờ Cổng Đáng — ô
+    `stage: discovery`, hoặc `decided`+`build` chưa có hợp đồng — phải mang dòng
+    `Gốc:`, một CON TRỎ vào tầng dưới mà người đọc lần được trong mười giây.
+    «Suy từ đọc mã» KHÔNG phải neo; neo trỏ chính ô của nó cũng không (ô tự biện
+    minh). Ý chưa có neo sống ở hạt giống `docs/plans/*-hat-giong-*.md` — hạt
+    giống là SỔ, ô là CAM KẾT; hạt giống mồ côi là hợp lệ. Lối «mở hợp đồng mới»
+    ở Cổng Bằng chứng ghi hạt giống, KHÔNG tạo ô. Vì sao: đơn vị kế toán của kit
+    là ô và không ô nào có giá âm — mở miễn phí, đóng đắt — nên mọi phanh chiều
+    sâu đều xả vào một sổ không trần (đo 08–18/09: 35 ô mở / 14 đóng, 22/35 sinh
+    từ chính nghi thức kit).
+
+    **Hình dạng neo là luật CỦA KHO NÀY, sống ở đây — không đi theo engine.**
+    Khuôn ô giao cho kho tiêu thụ chỉ mang KHÁI NIỆM neo; hình dạng hẹp dưới đây
+    là của kit, và răng của kit rút từ chính hai khối marker dưới đây (răng ấy
+    đang park — giới hạn thứ ba bên dưới). Lý do là một lớp lỗi đã
+    đo được hai lần trong một vòng (19/09): luật của người-sửa-kit rò vào khuôn
+    giao đi thì một kho TRỐNG được dặn một việc không thể làm — ô đầu tiên của
+    nó không có hồ sơ nào để trỏ.
+
+<!-- <<<KIT-GOC-RULE -->
+^Gốc:\s*\S+/_acceptance/[\w-]+
+<!-- KIT-GOC-RULE>>> -->
+
+<!-- <<<KIT-GOC-TU-TRO -->
+/_acceptance/{slug}(?![\w-])
+<!-- KIT-GOC-TU-TRO>>> -->
+
+    **Giới hạn đã khai, kèm ngưỡng đang đếm** (hiến pháp cấm dặn-bằng-lời làm
+    nghiệm, nên khai thay vì giả vờ có răng):
+    · *Dạng neo hiện HẸP* — chỉ nhận con trỏ tới một hồ sơ `_acceptance/`, nên
+      một ca thật không gắn hồ sơ (lượt CI đỏ, khảo sát nhiều kho, một khối kế
+      hoạch) không mở được ô; 5 ô đã xếp lại vì đúng lý do đó 18/09. Ngưỡng mở
+      lại: ≥1 lần owner phải mở tay một ô mà luật này chặn.
+    · *Vế 4 của luật (b) — «mốc chỉ cắt khi có kho chờ nhận» — CHƯA CÓ RĂNG.*
+      Răng đúng tầng là «mốc N+1 phải dẫn được một commit ở kho tiêu thụ đã cài
+      mốc N»; bản chiếu yếu của nó (một dòng tự khai trong hồ sơ mốc) đã dựng và
+      GỠ 19/09 vì nó rò vào khuôn giao đi và kiểm bằng danh sách đóng. Ngưỡng mở
+      ô: một mốc cắt số mà sau 21 ngày không kho nào cài nó.
+    · *Răng của luật này CHƯA GỘP vào `main`* (owner quyết 19/09, «cắt đuôi giữ
+      lõi» lần cuối: luật và hàng chờ đã rà là lõi, răng là đuôi). Răng VC8 mới —
+      ma trận 9 ca đỏ so bằng nhau + 4 mutant trên bản sao luật + lối (b) ghi hạt
+      giống (LB1–LB3) — sống ở nhánh `cong-dang/o-chi-mo-khi-co-neo-ngoai`, park
+      ở lượt chấm 6 vì chân ranh-giới của AC-1 hỏng; bàn giao ở
+      `docs/handoff/2026-09-19-park-o-chi-mo-khi-co-neo-ngoai.md`. Hệ quả trên
+      `main` hôm nay, khai thẳng: (i) luật neo là LỜI + hàng chờ đã rà tay; (ii)
+      răng VC8 cũ vẫn đòi mọi hạt giống trỏ được về một ô (ba chân) — CHẶT hơn
+      luật này; tới khi răng mới gộp, hạt giống mới trỏ `_acceptance/<ô>/` mà ô
+      ấy trích lại tên tệp là đủ, ô đã xếp lại cũng tính; (iii) thẻ Cổng Bằng
+      chứng vẫn in lối «mở hợp đồng mới» — người ký đọc luật này mà ghi hạt
+      giống thay vì tạo ô. Ngưỡng mở lại nhánh răng: ≥1 ô mới vào hàng chờ sau
+      ngày luật lên `main` mà không có dòng `Gốc:` (đếm bằng lệnh ở finding §7).
+
+    Hồ sơ: `_acceptance/o-chi-mo-khi-co-neo-ngoai/` (park, hồ sơ đầy đủ ở nhánh
+    trên) · số đo: `docs/findings/2026-09-18-o-sinh-tu-nghi-thuc-va-gia-cat-so.md`.
+
   - **Giới hạn CHIỀU RỘNG (owner quyết 30/08, «cắt đuôi giữ lõi»).** Kit từng
     chỉ có phanh chiều sâu (dừng-vá · trần 3 vòng · timebox) mà mọi phanh đều
     xả vào sổ hạng mục không trần → 5 vòng meta liên tiếp sau 2.4.0, 0 giá trị
@@ -58,7 +113,11 @@
     phép-đo-tự-dối trên vòng SẢN PHẨM giữa hai release. Bằng chứng thực nghiệm
     của trần: ô khuon-rang-dung-chung park 30/08 — hai vòng S4 liên tiếp, bộ
     máy vi-phân mắc đúng lớp nó đi bắt (mã-đo không hội tụ về 0 phát hiện).
-    (b) **Giữa hai release tối đa MỘT vòng meta**, chỉ khi owner gọi tên.
+    (b) **Giữa hai mốc ĐƯỢC MỘT KHO TIÊU THỤ NHẬN tối đa MỘT vòng meta**, chỉ khi
+    owner gọi tên. Mẫu số là mốc KHO NHẬN, không phải mốc cắt số: đo 18/09 cho thấy
+    bảy lần cắt số trong mười ngày nới trần này thành bảy mà 0 kho nhận. Mốc chỉ cắt
+    khi có kho chờ nhận — vế này CHƯA CÓ RĂNG (giới hạn khai ở khối «Ô chỉ mở khi có
+    NEO NGOÀI»), và đi làn V như tiền lệ 2.5.0/2.7.0.
     (c) **Mỗi mốc phát hành đếm 5 dòng số** vào hồ sơ release (3 → 5, owner
     quyết 14/09): thời gian làm-xong→quyết-được mỗi vòng · số lần gọi
     người/vòng — TÁCH trong-thiết-kế / ngoài-thiết-kế, kèm số CHẠM mỗi lần ·
@@ -85,9 +144,12 @@
     Và **≤1 chạm/lượt**: máy soạn sẵn trọn gói khuyến nghị + căn cứ đọc
     trong một phút, người chỉ phát ngôn quyết định — cái người gõ là Ý MUỐN
     (một chạm, một chữ), không phải cú pháp; máy chịu trách nhiệm dịch ý
-    muốn thành trường hồ sơ. Mỗi mốc phát hành PHẢI gọi tên ít nhất MỘT chỗ
-    cắt cho cửa sổ kế, hoặc tuyên bố đã-tối-ưu kèm số — số đếm không dẫn tới
-    một nhát cắt có tên là đo-hình-thức, đúng bệnh luật này sinh ra để chặn.
+    muốn thành trường hồ sơ. Mỗi mốc phát hành ĐƯỢC PHÉP ghi chỗ cắt cho cửa
+    sổ kế vào Notes của hồ sơ mốc, hoặc tuyên bố đã-tối-ưu kèm số; chỗ cắt chỉ
+    thành Ô khi có `Gốc:` (18/09: vế «PHẢI gọi tên» cũ đẻ 12 trong 35 ô của mười
+    ngày — hồ sơ `o-chi-mo-khi-co-neo-ngoai`). Số đếm phải ĐỌC ĐƯỢC, không phải
+    đẻ việc: số không dẫn tới hành động nào vẫn là đo-hình-thức, bệnh luật này
+    sinh ra để chặn.
     Hai chốt không mục tiêu số nào ghi đè: việc chạm KHÓ-ĐẢO luôn thắng
     (không được né gọi người vì KPI), và chữ quyết vẫn của người (ADR 0002).
 
