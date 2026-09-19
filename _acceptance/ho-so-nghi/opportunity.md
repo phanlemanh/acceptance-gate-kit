@@ -48,8 +48,8 @@ status hay khai không-chạy để hợp thức hoá); cổng · thẻ · bản
 |---|---|---|---|---|
 | 1 | «Nghỉ» ghi được như một sự thật MỚI (dòng sổ có người + lý do, trường ghi thêm) mà không đổi `status` đã ký | Phải sửa chữ ký cũ → vi phạm luật sử liệu | Dựng fixture: hồ sơ signed-off + dòng nghỉ → ba bộ đọc cùng nói «nghỉ», `git log` hợp đồng không đổi dòng status | Chưa thử |
 | 2 | Cổng rút được trạng thái từ CÙNG hàm với thẻ/bản đồ (bash gọi node như luật làn eval đã làm) mà không chậm hơn đáng kể | Cổng giữ bộ đọc riêng → hai sự thật tiếp diễn | Đo thời gian cổng trên kho kit (122 hồ sơ) trước/sau | Chưa thử |
-| 3 | Hồ sơ nghỉ kiểu `su-lieu/` (kit) và kiểu OneFlow (status giữ nguyên + dòng descope) đọc được bằng đường đọc-cũ, cờ vàng, không bắt sửa | Kho cũ đỏ ngay khi nhận 2.17.0 | Chạy cổng mới trên bản sao kho kit và OneFlow | Chưa thử |
-| 4 | Nghỉ là việc NGƯỜI quyết, đảo được (mở lại bằng một dòng sổ), nên không cần khoá model-invocation riêng ngoài nếp của sổ quyết định | Máy tự cho nghỉ để xanh → bằng chứng tự dối | Răng: dòng nghỉ thiếu `actor: human` hoặc thiếu lý do → cổng vẫn chấm như chưa nghỉ | Chưa thử |
+| 3 | Hồ sơ nghỉ kiểu `su-lieu/` (kit) đọc được bằng đường đọc-cũ, cờ vàng, không bắt sửa; kiểu OneFlow (status giữ nguyên + dòng descope văn xuôi) KHÔNG đọc được — kho ấy viết thêm một dòng nghỉ | Kho cũ đỏ ngay khi nhận 2.17.0 | Chạy cổng mới trên bản sao kho kit; OneFlow phải thêm dòng — phản biện S1 sửa | Sửa 19/09 sau phản biện |
+| 4 | Nghỉ là việc NGƯỜI quyết, đảo được (mở lại bằng một dòng `supersedes`), nên không cần khoá model-invocation riêng ngoài nếp của sổ quyết định | Máy tự cho nghỉ để xanh → bằng chứng tự dối | Răng: dòng nghỉ thiếu `by` (tên người) hoặc thiếu lý do → cổng vẫn chấm như chưa nghỉ; mở lại đo bằng AC-10 | Chưa thử |
 
 ## Ngưỡng chết / ngưỡng UAT
 
