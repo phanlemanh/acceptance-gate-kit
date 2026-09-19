@@ -28,39 +28,43 @@ const dong = (o) => JSON.stringify({
 });
 
 // ─── HSN-LIB: vị từ, chín hình dạng, ma trận so BẰNG NHAU ────────────────────
-console.log('HSN-LIB vị từ hoSoNghi — chín hình dạng, so BẰNG NHAU');
+console.log('HSN-LIB vị từ hoSoNghi — mười hai hình dạng, so BẰNG NHAU');
 {
+  const KY = '---\nhuman_signoff: Mạnh 2026-09-01\n---\n';
   const CA = [
-    ['dòng hợp lệ', { ledgerText: dong({}), contractAtRoot: true, suLieuContract: false }, 'dong-so'],
-    ['thiếu by', { ledgerText: dong({ by: '' }), contractAtRoot: true, suLieuContract: false }, 'dong-so-thieu'],
-    ['thiếu decision', { ledgerText: dong({ decision: '  ' }), contractAtRoot: true, suLieuContract: false }, 'dong-so-thieu'],
-    ['at không parse được', { ledgerText: dong({ at: 'hôm qua' }), contractAtRoot: true, suLieuContract: false }, 'dong-so-thieu'],
-    ['văn xuôi descope', { ledgerText: JSON.stringify({ id: 'd-1', type: 'descope', decision: 'hồ sơ nghỉ hẳn' }), contractAtRoot: true, suLieuContract: false }, null],
-    ['sổ vắng', { ledgerText: null, contractAtRoot: true, suLieuContract: false }, null],
+    ['dòng hợp lệ', { ledgerText: dong({}), reportText: KY, contractAtRoot: true, suLieuContract: false }, 'dong-so'],
+    ['hợp lệ nhưng CHƯA ký', { ledgerText: dong({}), reportText: '---\nverdict: PASS\n---\n', contractAtRoot: true, suLieuContract: false }, 'chua-ky'],
+    ['hợp lệ, chữ ký là chỗ-giữ', { ledgerText: dong({}), reportText: '---\nhuman_signoff: <!-- tên người ký -->\n---\n', contractAtRoot: true, suLieuContract: false }, 'chua-ky'],
+    ['hợp lệ, KHÔNG có báo cáo', { ledgerText: dong({}), reportText: null, contractAtRoot: true, suLieuContract: false }, 'chua-ky'],
+    ['thiếu by', { ledgerText: dong({ by: '' }), reportText: KY, contractAtRoot: true, suLieuContract: false }, 'dong-so-thieu'],
+    ['thiếu decision', { ledgerText: dong({ decision: '  ' }), reportText: KY, contractAtRoot: true, suLieuContract: false }, 'dong-so-thieu'],
+    ['at không parse được', { ledgerText: dong({ at: 'hôm qua' }), reportText: KY, contractAtRoot: true, suLieuContract: false }, 'dong-so-thieu'],
+    ['văn xuôi descope', { ledgerText: JSON.stringify({ id: 'd-1', type: 'descope', decision: 'hồ sơ nghỉ hẳn' }), reportText: KY, contractAtRoot: true, suLieuContract: false }, null],
+    ['sổ vắng', { ledgerText: null, reportText: KY, contractAtRoot: true, suLieuContract: false }, null],
     ['thư mục sử liệu cũ', { ledgerText: null, contractAtRoot: false, suLieuContract: true }, 'su-lieu-cu'],
-    ['dòng nghỉ + supersedes', { ledgerText: `${dong({})}\n${JSON.stringify({ id: 'd-2', type: 'revisit', supersedes: 'd-20260919T120000Z-9' })}`, contractAtRoot: true, suLieuContract: false }, null],
-    ['supersedes trỏ id khác', { ledgerText: `${dong({})}\n${JSON.stringify({ id: 'd-2', type: 'revisit', supersedes: 'd-khac' })}`, contractAtRoot: true, suLieuContract: false }, 'dong-so'],
+    ['dòng nghỉ + supersedes', { ledgerText: `${dong({})}\n${JSON.stringify({ id: 'd-2', type: 'revisit', supersedes: 'd-20260919T120000Z-9' })}`, reportText: KY, contractAtRoot: true, suLieuContract: false }, null],
+    ['supersedes trỏ id khác', { ledgerText: `${dong({})}\n${JSON.stringify({ id: 'd-2', type: 'revisit', supersedes: 'd-khac' })}`, reportText: KY, contractAtRoot: true, suLieuContract: false }, 'dong-so'],
   ];
   const got = CA.map(([ten, inp]) => { const r = hoSoNghi(inp); return `${ten}=${r === null ? 'null' : r.kieu}`; });
   const mong = CA.map(([ten, , k]) => `${ten}=${k === null ? 'null' : k}`);
-  check('HSN-LIB ma trận chín ca so bằng nhau', got.join(' | ') === mong.join(' | '), { got, mong });
+  check('HSN-LIB ma trận mười hai ca so bằng nhau', got.join(' | ') === mong.join(' | '), { got, mong });
 
-  const t = hoSoNghi({ ledgerText: dong({ by: '', at: 'hôm qua' }), contractAtRoot: true, suLieuContract: false });
+  const t = hoSoNghi({ ledgerText: dong({ by: '', at: 'hôm qua' }), reportText: KY, contractAtRoot: true, suLieuContract: false });
   check('HSN-LIB nêu ĐÚNG tập vế thiếu, đã sort', t.kieu === 'dong-so-thieu' && t.thieu.join(',') === 'at,by', t);
 
-  const ok = hoSoNghi({ ledgerText: dong({}), contractAtRoot: true, suLieuContract: false });
+  const ok = hoSoNghi({ ledgerText: dong({}), reportText: KY, contractAtRoot: true, suLieuContract: false });
   check('HSN-LIB dòng hợp lệ trả đủ bốn trường',
     ok.by === 'Mạnh' && ok.at === '2026-09-19T12:00:00Z' && ok.ly_do.includes('26/08') && ok.id === 'd-20260919T120000Z-9', ok);
 
   check('HSN-LIB dòng hỏng JSON KHÔNG làm vỡ, bỏ qua như mọi bộ đọc sổ',
-    hoSoNghi({ ledgerText: `{hỏng\n${dong({})}`, contractAtRoot: true, suLieuContract: false }).kieu === 'dong-so');
+    hoSoNghi({ ledgerText: `{hỏng\n${dong({})}`, reportText: KY, contractAtRoot: true, suLieuContract: false }).kieu === 'dong-so');
 }
 
 // ─── Kho fixture dùng chung ──────────────────────────────────────────────────
 // `luat` chọn luật nào của cổng sẽ đỏ — cổng `continue` sau vi phạm ĐẦU TIÊN,
 // nên một kho chỉ chứng được MỘT luật (đó là lý do ba kho, không phải một).
 const RAC = [];
-function khoFixture({ luat = 'eval', nghi = null, them = null, status = 'signed-off' } = {}) {
+function khoFixture({ luat = 'eval', nghi = null, them = null, status = 'signed-off', chuKy = 'that' } = {}) {
   const r = mkdtempSync(path.join(os.tmpdir(), 'hsn-'));
   RAC.push(r);
   const d = path.join(r, '_acceptance', 'hsn');
@@ -81,7 +85,7 @@ function khoFixture({ luat = 'eval', nghi = null, them = null, status = 'signed-
   else if (luat === 'cu-hoa') lan.evals_exit = { E1: 0 };
   writeFileSync(path.join(d, 'run-log.jsonl'), `${JSON.stringify(lan)}\n`);
   writeFileSync(path.join(d, 'evidence-report.md'),
-    `---\nslug: hsn\nverdict: PASS\nverified_commit: ${sha}\nhuman_signoff: Mạnh 2026-09-01\n---\n\n## Evidence\n\n### Re-pin lần 1 — 01/09, do nền\nrun_id: r-1\nsha: ${sha} · suites: 1 lệnh exit 0\n`);
+    `---\nslug: hsn\nverdict: PASS\nverified_commit: ${sha}\n${chuKy === 'that' ? 'human_signoff: Mạnh 2026-09-01\n' : chuKy === 'giu-cho' ? 'human_signoff: <!-- tên người ký -->\n' : ''}---\n\n## Evidence\n\n### Re-pin lần 1 — 01/09, do nền\nrun_id: r-1\nsha: ${sha} · suites: 1 lệnh exit 0\n`);
   const so = [nghi, them].filter(Boolean);
   if (so.length) writeFileSync(path.join(d, 'decisions.jsonl'), `${so.join('\n')}\n`);
   git('add', '-A'); git('commit', '-q', '-m', 'ho so');
@@ -118,6 +122,11 @@ const the = (r) => (spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gat
 // dựng thẻ (ca HSN-THE kiểm), nếu không phép đo «thẻ có mời ký» không bao giờ khớp.
 const MOI_KY_HANG = 'Ký duyệt';
 
+// SHA NỀN — điểm cắt nhánh của vòng này, GHI THẲNG. Không dùng `origin/main` hay
+// merge-base: sau khi nhánh vào nhánh chính, ref ấy trỏ chính commit ĐÃ mang bản
+// vá, nên mọi đối chứng neo vào nó chết vĩnh viễn (lớp «thước ghim vào thứ SẼ ĐỔI»).
+const SHA_NEN = 'dc47c55496cc75b373f5715741f61ebdd10534c8';
+
 // Chuỗi ghim của TỪNG luật — phải CÓ THẬT trong script cổng; gõ tay một câu đã
 // chết là phép đo xanh vì không bao giờ khớp được gì.
 const CHUOI = { 'cu-hoa': 'evidence is stale', lan: 'none of the cited re-pin lane', eval: 'recorded no evals_exit' };
@@ -126,7 +135,7 @@ const CHUOI = { 'cu-hoa': 'evidence is stale', lan: 'none of the cited re-pin la
 console.log('\nHSN5 bộ quét — ba hình dạng, so BẰNG NHAU');
 {
   const a = khoFixture({ nghi: dong({}) });
-  const b = khoFixture({ nghi: dong({}), status: 'approved' });
+  const b = khoFixture({ nghi: dong({}), status: 'approved', chuKy: 'khong' });
   const c = khoFixture({});
   mkdirSync(path.join(c.d, 'su-lieu'), { recursive: true });
   cpSync(path.join(c.d, 'contract.md'), path.join(c.d, 'su-lieu', 'contract.md'));
@@ -134,7 +143,9 @@ console.log('\nHSN5 bộ quét — ba hình dạng, so BẰNG NHAU');
   writeFileSync(path.join(c.d, 'opportunity.md'),
     '---\nschema_version: 1\nslug: hsn\nfeature: x\nowner: x@y.z\nstage: archived\ndecision: kill\ndecided_by: Mạnh\ndecided_at: 2026-09-01\n---\n\n# o\n');
   const got = [a, b, c].map(({ r }) => { const x = oSlug(scan(r)); return `${x && x.stateKey}/${((x && x.flags) || []).join('+') || '-'}`; });
-  const mong = ['da-nghi/-', 'da-dong-ho-so/-', 'da-dong-ho-so/nghi-kieu-cu'];
+  // Ca thứ hai đổi kết cục sau khi THU PHẠM VI: hồ sơ `approved` chưa ai ký thì
+  // dòng nghỉ KHÔNG có hiệu lực — giữ ô của hồ sơ đang sống, kèm cờ nói ra.
+  const mong = ['da-nghi/-', 'vat-da-o-nhanh-goc/nghi-chua-ky', 'da-dong-ho-so/nghi-kieu-cu'];
   check('HSN5 ba hình dạng cho đúng bộ ba trạng thái + cờ', got.join(' | ') === mong.join(' | '), { got, mong });
 
   // BẢN ĐỒ — chạy bộ dựng THẬT, không tin rằng «bộ quét đúng thì bản đồ đúng».
@@ -158,20 +169,29 @@ console.log('\nHSN5 bộ quét — ba hình dạng, so BẰNG NHAU');
   // «Không đẻ khối mới» đo bằng QUAN HỆ với danh sách khối ĐÓNG của chính bộ
   // dựng, không so hai bản đồ với nhau: bản đồ chỉ in khối CÓ thành viên, nên
   // một kho một hồ sơ luôn có đúng một khối và phép so hai bản đồ là vô nghĩa.
-  const pmSrc = readFileSync(path.join(ROOT, 'scripts', 'product-map.mjs'), 'utf8');
-  const secBlock = (pmSrc.match(/const SECTIONS = \[([\s\S]*?)\];/) || [])[1] || '';
-  const TEN_KHOI = new Set([...secBlock.matchAll(/'([^']+)'\]/g)].map((m) => m[1]));
-  check('HSN5-map rút được danh sách khối đóng từ chính bộ dựng', TEN_KHOI.size >= 8, [...TEN_KHOI]);
-  const la = [mdNen, mdA, mdB].flatMap(khoi).filter((k) => !TEN_KHOI.has(k));
-  check('HSN5-map KHÔNG khối nào ngoài danh sách đóng (trạng thái nghỉ không đẻ khối mới)',
-    la.length === 0, la);
+  // Kỳ vọng rút từ bản `product-map.mjs` ở SHA NỀN — KHÔNG từ chính bản đang đo:
+  // lấy hằng của vật bị đo làm kỳ vọng thì phép so luôn đúng, kể cả khi vòng này
+  // đẻ thêm một khối (lượt chấm 2 bắt đúng lỗ ấy).
+  const tenKhoi = (src) => {
+    const b = (src.match(/const SECTIONS = \[([\s\S]*?)\];/) || [])[1] || '';
+    return new Set([...b.matchAll(/'([^']+)'\]/g)].map((m) => m[1]));
+  };
+  const KHOI_NEN = tenKhoi(execFileSync('git', ['-C', ROOT, 'show', `${SHA_NEN}:scripts/product-map.mjs`], { encoding: 'utf8' }));
+  const KHOI_NAY = tenKhoi(readFileSync(path.join(ROOT, 'scripts', 'product-map.mjs'), 'utf8'));
+  check('HSN5-map rút được danh sách khối ở CẢ HAI bản (nền và nay)',
+    KHOI_NEN.size >= 8 && KHOI_NAY.size >= 8, { nen: KHOI_NEN.size, nay: KHOI_NAY.size });
+  check('HSN5-map tập tên khối KHÔNG đổi so với sha NỀN (nghỉ không đẻ khối mới)',
+    [...KHOI_NAY].sort().join('|') === [...KHOI_NEN].sort().join('|'),
+    { them: [...KHOI_NAY].filter((k) => !KHOI_NEN.has(k)), mat: [...KHOI_NEN].filter((k) => !KHOI_NAY.has(k)) });
+  const la = [mdNen, mdA, mdB].flatMap(khoi).filter((k) => !KHOI_NEN.has(k));
+  check('HSN5-map mọi khối bản đồ in ra đều nằm trong tập của sha NỀN', la.length === 0, la);
   const oMap = [
     `đã-thông=${duoiKhoi(mdA, 'Đã giao').includes('hsn') ? 'Đã giao' : 'KHÁC'}`,
-    `chưa-thông=${duoiKhoi(mdB, 'Đã bác từ khám phá').includes('hsn') ? 'Đã bác từ khám phá' : 'KHÁC'}`,
+    `chưa-ký=${duoiKhoi(mdB, 'Đang làm').includes('hsn') ? 'Đang làm' : 'KHÁC'}`,
     `đối-chứng=${duoiKhoi(mdNen, 'Đã giao').includes('hsn') ? 'Đã giao' : 'KHÁC'}`,
   ];
   check('HSN5-map bản đồ và bộ quét xếp hồ sơ nghỉ vào CÙNG nhóm, hai hình dạng',
-    oMap.join(' | ') === 'đã-thông=Đã giao | chưa-thông=Đã bác từ khám phá | đối-chứng=Đã giao', oMap);
+    oMap.join(' | ') === 'đã-thông=Đã giao | chưa-ký=Đang làm | đối-chứng=Đã giao', oMap);
 
   // Ma trận TOÀN PHẦN: 3 vế thiếu × 3 bộ đọc = 9 ô, SINH bằng vòng lặp. Bản
   // trước viết tay một vế cho bộ quét và một vế cho thẻ (5/9 ô) trong khi E2
@@ -217,11 +237,23 @@ console.log('\nHSN9 cây kit thật — cờ kiểu cũ có, tập hồ sơ hỏ
   // Đối chứng neo vào ĐIỂM CẮT NHÁNH, không neo vào HEAD: HEAD dịch theo từng
   // commit của chính vòng này, nên neo vào nó là thước tự dối ngay sau lượt ghi
   // đầu tiên (lớp «thước ghim vào thứ SẼ ĐỔI»).
-  const goc = execFileSync('git', ['-C', ROOT, 'merge-base', 'HEAD', 'origin/main'], { encoding: 'utf8' }).trim();
-  const truoc = execFileSync('git', ['-C', ROOT, 'show', `${goc}:scripts/start-scan.mjs`], { encoding: 'utf8' });
-  check('HSN9 đối chứng: bản trước vòng KHÔNG có cờ này (cờ đến từ chính bản vá)',
+  const truoc = execFileSync('git', ['-C', ROOT, 'show', `${SHA_NEN}:scripts/start-scan.mjs`], { encoding: 'utf8' });
+  check('HSN9 đối chứng: bản ở sha NỀN KHÔNG có cờ này (cờ đến từ chính bản vá)',
     !truoc.includes('nghi-kieu-cu'));
-  check('HSN9 tập hồ sơ hỏng rỗng như hôm nay', (j.broken || []).length === 0, (j.broken || []).map((b) => b.slug));
+  // QUAN HỆ, không phải hằng: lời hứa của AC-9 là «không hồ sơ nào hỏng THÊM so
+  // với trước vòng». Ghim hằng 0 thì một hồ sơ khác hỏng về sau làm ca này đỏ và
+  // trỏ nhầm vào tính năng này.
+  const hongNen = (() => {
+    const d = mkdtempSync(path.join(os.tmpdir(), 'hsn-nen-'));
+    RAC.push(d);
+    execFileSync('bash', ['-c', `git -C ${JSON.stringify(ROOT)} archive ${SHA_NEN} scripts lib _acceptance | tar -x -C ${JSON.stringify(d)}`]);
+    const out = spawnSync(process.execPath, [path.join(d, 'scripts', 'start-scan.mjs'), '--root', d],
+      { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout;
+    return new Set(((out ? JSON.parse(out).broken : []) || []).map((b) => b.slug));
+  })();
+  const hongNay = new Set((j.broken || []).map((b) => b.slug));
+  check('HSN9 tập hồ sơ hỏng là TẬP CON của tập ở sha NỀN (quan hệ, không phải hằng 0)',
+    [...hongNay].every((x) => hongNen.has(x)), { nay: [...hongNay], nen: [...hongNen] });
 }
 
 // ─── Cổng, kiểm lại, thẻ ─────────────────────────────────────────────────────
@@ -248,7 +280,7 @@ console.log('\nHSN0/HSN1 cổng — ba luật, đối chứng dương rồi dòn
     const { r } = khoFixture({ luat, nghi: dong({}) });
     const x = congThoat(r);
     const soVi = (x.out.match(/^VIOLATION \[hsn\]/gm) || []).length;
-    const note = /NOTE \[hsn\]: hồ sơ nghỉ — Mạnh .*bỏ ba luật/.test(x.out);
+    const note = /NOTE \[hsn\]: hồ sơ nghỉ — Mạnh .*thôi bị chấm ở phần còn lại của lưới/.test(x.out);
     return `${luat}=${x.ma === 0 && soVi === 0 && note ? 'xanh+note' : `KHÁC(ma=${x.ma},vi=${soVi},note=${note})`}`;
   });
   check('HSN1 ba kho + dòng nghỉ → xanh, 0 vi phạm, đúng một dòng NOTE',
@@ -320,17 +352,61 @@ console.log('\nHSN6 vi phân byte — dòng nghỉ do CHÍNH khối lệnh của
     const soDong = readFileSync(path.join(d, 'decisions.jsonl'), 'utf8').trim().split('\n').length;
     check('HSN6 khối lệnh ghi ĐÚNG một dòng', soDong === 1, soDong);
     check('HSN6 ba tệp đã ký KHÔNG đổi một byte', bam() === truoc);
-    const n = hoSoNghi({ ledgerText: readFileSync(path.join(d, 'decisions.jsonl'), 'utf8'), contractAtRoot: true, suLieuContract: false });
+    const n = hoSoNghi({ ledgerText: readFileSync(path.join(d, 'decisions.jsonl'), 'utf8'),
+      reportText: readFileSync(path.join(d, 'evidence-report.md'), 'utf8'), contractAtRoot: true, suLieuContract: false });
     check('HSN6 bên ĐỌC nhận đúng dòng bên VIẾT sinh (round-trip)', !!n && n.kieu === 'dong-so' && n.by === 'Mạnh', n);
 
     const lenhMeo = lenh.replace('"by"', '"nguoi"');
     check('HSN6 mũi tiêm đổi được lệnh', lenhMeo !== lenh);
     const { r: r2, d: d2 } = khoFixture({ luat: 'eval' });
     execFileSync('bash', ['-c', `cd ${JSON.stringify(r2)} && ${lenhMeo}`], { encoding: 'utf8' });
-    const n2 = hoSoNghi({ ledgerText: readFileSync(path.join(d2, 'decisions.jsonl'), 'utf8'), contractAtRoot: true, suLieuContract: false });
+    const n2 = hoSoNghi({ ledgerText: readFileSync(path.join(d2, 'decisions.jsonl'), 'utf8'),
+      reportText: readFileSync(path.join(d2, 'evidence-report.md'), 'utf8'), contractAtRoot: true, suLieuContract: false });
     check('HSN6 mutant đổi tên trường → KHÔNG còn là nghỉ hợp lệ',
       !!n2 && n2.kieu === 'dong-so-thieu' && n2.thieu.includes('by'), n2);
   }
+}
+
+console.log('\nHSN11 chưa ký — dòng nghỉ KHÔNG có hiệu lực, bốn bộ đọc cùng nói ra');
+{
+  // Mỗi biến vướng một luật chữ ký KHÁC NHAU của cổng — ghim đúng câu của luật
+  // nó kích, không gộp thành một chuỗi chung (gộp là mất chiều phân biệt).
+  const BIEN = [['vắng chữ ký', 'khong', 'human_signoff is empty'],
+    ['chữ ký là chỗ-giữ', 'giu-cho', 'is a placeholder, not a signature']];
+  const oKy = [];
+  for (const [ten, ck, cauCong] of BIEN) {
+    const k = khoFixture({ luat: 'eval', nghi: dong({}), chuKy: ck });
+    const g = congThoat(k.r), rc = recheck(k.d), x = oSlug(scan(k.r)), h = the(k.r);
+    // Hồ sơ chưa ký vướng LUẬT CHỮ KÝ trước luật làn — ghim đúng câu cổng thật in
+    // ra, không ghim câu của một luật khác (phép đo sẽ không bao giờ khớp).
+    oKy.push(`${ten}/cổng=${g.ma !== 0 && g.out.includes(cauCong) && g.out.includes('CHƯA có chữ ký người') ? 'đỏ+nói-ra' : `KHÁC(${g.ma})`}`);
+    oKy.push(`${ten}/kiểm-lại=${rc.ma !== 0 && rc.out.includes('REPIN x') && !rc.out.includes('bỏ kiểm lại') ? 'đỏ' : `KHÁC(${rc.ma})`}`);
+    oKy.push(`${ten}/quét=${x && x.stateKey !== 'da-nghi' && (x.flags || []).includes('nghi-chua-ky') ? 'sống+cờ' : `KHÁC(${x && x.stateKey}/${x && (x.flags || []).join('+')})`}`);
+    oKy.push(`${ten}/thẻ=${!h.includes('đã nghỉ') && h.includes(MOI_KY_HANG) ? 'mời-ký' : `KHÁC(${h.includes('đã nghỉ')},${h.includes(MOI_KY_HANG)})`}`);
+  }
+  const mongKy = BIEN.flatMap(([t]) => [`${t}/cổng=đỏ+nói-ra`, `${t}/kiểm-lại=đỏ`, `${t}/quét=sống+cờ`, `${t}/thẻ=mời-ký`]);
+  check('HSN11 ma trận 2 biến × 4 bộ đọc so BẰNG NHAU — chưa ký thì dòng nghỉ không ăn',
+    oKy.length === 8 && oKy.join(' | ') === mongKy.join(' | '), { oKy, mongKy });
+
+  // ĐỐI CHỨNG DƯƠNG trong CÙNG ca: thêm chữ ký THẬT vào chính báo cáo ấy thì cả
+  // bốn lật sang nghỉ. Thiếu vế này thì «bốn bộ đọc đều đỏ» không phân biệt được
+  // «luật chữ ký đang chạy» với «fixture hỏng nên mọi thứ đỏ».
+  const k2 = khoFixture({ luat: 'eval', nghi: dong({}), chuKy: 'khong' });
+  const rep = path.join(k2.d, 'evidence-report.md');
+  const truocKy = readFileSync(rep, 'utf8');
+  const sauKy = truocKy.replace('verdict: PASS', 'verdict: PASS\nhuman_signoff: Mạnh 2026-09-01');
+  check('HSN11 mũi tiêm chữ ký CHỨNG MINH đổi được báo cáo', sauKy !== truocKy);
+  writeFileSync(rep, sauKy);
+  execFileSync('git', ['-C', k2.r, 'commit', '-qam', 'ky'], { encoding: 'utf8' });
+  const g2 = congThoat(k2.r), rc2 = recheck(k2.d), x2b = oSlug(scan(k2.r)), h2 = the(k2.r);
+  const oSau = [
+    `cổng=${g2.ma === 0 && g2.out.includes('hồ sơ nghỉ') ? 'xanh+nghỉ' : `KHÁC(${g2.ma})`}`,
+    `kiểm-lại=${rc2.ma === 0 && rc2.out.includes('bỏ kiểm lại') ? 'xanh+nghỉ' : `KHÁC(${rc2.ma})`}`,
+    `quét=${x2b && x2b.stateKey === 'da-nghi' ? 'da-nghi' : `KHÁC(${x2b && x2b.stateKey})`}`,
+    `thẻ=${h2.includes('đã nghỉ') && !h2.includes(MOI_KY_HANG) ? 'nói-nghỉ' : `KHÁC(${h2.includes('đã nghỉ')})`}`,
+  ];
+  check('HSN11 đối chứng dương: thêm chữ ký thật → CẢ BỐN lật sang nghỉ',
+    oSau.join(' | ') === 'cổng=xanh+nghỉ | kiểm-lại=xanh+nghỉ | quét=da-nghi | thẻ=nói-nghỉ', oSau);
 }
 
 console.log('\nHSN10 mở lại — supersedes trỏ đúng id thì hồ sơ sống lại ở cả bốn bộ đọc');

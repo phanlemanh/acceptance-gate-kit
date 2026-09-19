@@ -56,7 +56,7 @@ if (!core.determineEnforce(payload)) process.exit(0);
     const slug = path.basename(dir);
     let ledger = null;
     try { ledger = fs.readFileSync(path.join(dir, 'decisions.jsonl'), 'utf8'); } catch { /* vắng: bình thường */ }
-    const n = wr.hoSoNghi({ ledgerText: ledger, contractAtRoot: true, suLieuContract: false });
+    const n = wr.hoSoNghi({ ledgerText: ledger, reportText: payload, contractAtRoot: true, suLieuContract: false });
     if (n && n.kieu === 'dong-so') {
       console.log(`NOTE [${slug}]: hồ sơ nghỉ — ${n.by} ${n.at}: ${n.ly_do}; bỏ kiểm lại, chữ ký giữ làm sử liệu`);
       process.exit(0);

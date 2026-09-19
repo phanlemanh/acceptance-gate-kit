@@ -769,14 +769,18 @@ for dir in "$ACC"/*/; do
       const dir = process.argv[2], slug = process.argv[3];
       if (typeof core.hoSoNghi !== "function") { process.stdout.write(`NOTE [${slug}]: luật nghỉ NOT ENFORCED — lib/workspace-record.cjs cũ hơn luật nghỉ (không có hoSoNghi)\n`); process.exit(0); }
       const rd = p => { try { return fs.readFileSync(p, "utf8"); } catch { return null; } };
-      const n = core.hoSoNghi({ ledgerText: rd(dir + "/decisions.jsonl"), contractAtRoot: true, suLieuContract: false });
+      const n = core.hoSoNghi({ ledgerText: rd(dir + "/decisions.jsonl"), reportText: rd(dir + "/evidence-report.md"), contractAtRoot: true, suLieuContract: false });
       if (!n) process.exit(0);
+      if (n.kieu === "chua-ky") {
+        process.stdout.write(`NOTE [${slug}]: có dòng cho nghỉ nhưng hồ sơ CHƯA có chữ ký người — dòng nghỉ chưa có hiệu lực, chấm như hồ sơ đang sống. Nghỉ chỉ dành cho lời hứa đã ký; hồ sơ chưa qua Cổng Bằng chứng thì bác hoặc xếp lại ở tầng cơ hội.\n`);
+        process.exit(0);
+      }
       if (n.kieu === "dong-so-thieu") {
         for (const v of n.thieu) process.stdout.write(`NOTE [${slug}]: dòng nghỉ thiếu ${v} — chấm như hồ sơ đang sống\n`);
         process.exit(0);
       }
       if (n.kieu === "dong-so") {
-        process.stdout.write(`NOTE [${slug}]: hồ sơ nghỉ — ${n.by} ${n.at}: ${n.ly_do}; bỏ ba luật: cũ hoá · làn ghim lại · làn eval; chữ ký giữ làm sử liệu\n`);
+        process.stdout.write(`NOTE [${slug}]: hồ sơ nghỉ — ${n.by} ${n.at}: ${n.ly_do}; hồ sơ ĐÃ KÝ này thôi bị chấm ở phần còn lại của lưới (gồm cũ hoá · làn ghim lại · làn eval); chữ ký giữ làm sử liệu\n`);
         process.exit(9);
       }
       process.exit(0);

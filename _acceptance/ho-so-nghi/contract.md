@@ -32,7 +32,7 @@ Source input: `_acceptance/ho-so-nghi/opportunity.md` (build 19/09) · báo cáo
 ## Criteria
 
 ### AC-1 — Dòng nghỉ hợp lệ đưa hồ sơ đã ký ra khỏi ba luật của cổng, chữ ký giữ nguyên
-**Given** BA kho fixture do code sinh, mỗi kho một hồ sơ `signed-off` kích đúng MỘT luật (cổng `continue` sau vi phạm đầu, nên mỗi luật cần fixture riêng): (a) mã đổi sau `verified_commit` → luật cũ hoá; (b) báo cáo cite làn ghim lại mà run-log không có dòng khớp `verified_commit` → luật làn ghim lại; (c) làn khớp nhưng thiếu `evals_exit` → luật làn eval
+**Given** BA kho fixture do code sinh, mỗi kho một hồ sơ `signed-off` CÓ CHỮ KÝ NGƯỜI trong báo cáo (thu phạm vi 19/09: dòng nghỉ chỉ có hiệu lực trên hồ sơ đã ký) kích đúng MỘT luật (cổng `continue` sau vi phạm đầu, nên mỗi luật cần fixture riêng): (a) mã đổi sau `verified_commit` → luật cũ hoá; (b) báo cáo cite làn ghim lại mà run-log không có dòng khớp `verified_commit` → luật làn ghim lại; (c) làn khớp nhưng thiếu `evals_exit` → luật làn eval
 **When** chạy `scripts/pre-merge-check.sh` trên mỗi kho TRƯỚC khi thêm dòng nghỉ, rồi chạy lại SAU khi sổ quyết định có một dòng `type: nghi` đủ `by`, `decision`, `at`, viết bằng chính khối lệnh rút từ GUIDE
 **Then** ba lượt trước thoát khác 0, mỗi lượt ghim đúng chuỗi VIOLATION của luật nó kích (ba chuỗi viết trước rút từ chính script cổng, so bằng nhau 3/3); ba lượt sau thoát 0, 0 VIOLATION cho slug, và mỗi lượt in đúng một dòng `NOTE [<slug>]: hồ sơ nghỉ — <by> <at>: <lý do>`.
 
@@ -52,9 +52,9 @@ Source input: `_acceptance/ho-so-nghi/opportunity.md` (build 19/09) · báo cáo
 **Then** hồ sơ nghỉ: thoát 0 và in `NOTE … hồ sơ nghỉ … bỏ kiểm lại`; hồ sơ đối chứng: đỏ nguyên văn như hôm nay.
 
 ### AC-5 — Bộ quét và thẻ nói một sự thật, bản đồ không thêm khối
-**Given** ba fixture: nghỉ hợp lệ trên hợp đồng đã thông Cổng 2 · nghỉ hợp lệ trên hợp đồng `approved` · kiểu thư mục `su-lieu/` (không có `contract.md` ở gốc, có `su-lieu/contract.md`, ô cơ hội `stage: archived`)
+**Given** ba fixture: nghỉ hợp lệ trên hợp đồng đã thông Cổng 2 CÓ chữ ký · dòng nghỉ trên hợp đồng `approved` KHÔNG chữ ký · kiểu thư mục `su-lieu/` (không có `contract.md` ở gốc, có `su-lieu/contract.md`, ô cơ hội `stage: archived`)
 **When** chạy `start-scan.mjs --json` và `product-map.mjs`, và render thẻ cho hồ sơ thứ nhất
-**Then** thứ nhất: trạng thái `da-nghi`, nhãn «đã giao — đã nghỉ, giữ sử liệu», nằm khối «Đã giao»; thứ hai: `da-dong-ho-so`, khối «Đã bác từ khám phá»; thứ ba: `da-dong-ho-so` kèm cờ `nghi-kieu-cu`; tập khối của bản đồ bằng tập khối hôm nay; thẻ hồ sơ thứ nhất in dòng «đã nghỉ … chữ ký giữ làm sử liệu» và KHÔNG có lời mời ký.
+**Then** thứ nhất: trạng thái `da-nghi`, nhãn «đã giao — đã nghỉ, giữ sử liệu», nằm khối «Đã giao»; thứ hai: KHÔNG nghỉ — giữ nguyên ô của hồ sơ đang sống, kèm cờ `nghi-chua-ky`; thứ ba: `da-dong-ho-so` kèm cờ `nghi-kieu-cu`; tập tên khối của bản đồ BẰNG tập tên khối của bản đồ ở sha nền của vòng (rút từ bản `product-map.mjs` TRƯỚC vòng qua git, KHÔNG rút từ chính bản đang đo); thẻ hồ sơ thứ nhất in dòng «đã nghỉ … chữ ký giữ làm sử liệu» và KHÔNG có lời mời ký.
 
 ### AC-6 — Một hàm: phá hàm thì cả ba bộ đọc đổi
 **Given** bản sao cây kit mà `hoSoNghi` trong `lib/workspace-record.cjs` bị đổi thành luôn trả `null` (mũi tiêm phải chứng minh đổi được tệp)
@@ -74,12 +74,17 @@ Source input: `_acceptance/ho-so-nghi/opportunity.md` (build 19/09) · báo cáo
 ### AC-9 — Cây thật của kit đọc được ngay
 **Given** cây kit tại HEAD
 **When** chạy `start-scan.mjs --json` và `product-map.mjs --check`
-**Then** `bo-qua-phai-thay-dinh-nghia-phep-do` mang cờ `nghi-kieu-cu`; bản đồ khớp; không hồ sơ nào rơi vào «hồ sơ hỏng» mà hôm nay không hỏng.
+**Then** `bo-qua-phai-thay-dinh-nghia-phep-do` mang cờ `nghi-kieu-cu`; bản đồ khớp; và tập slug ở «hồ sơ hỏng» là TẬP CON của tập ấy ở **một sha cố định trước vòng** (quan hệ, không phải hằng số 0; sha ghi thẳng trong ca, không dùng ref dịch theo lần gộp — neo vào `origin/main` chết ngay sau khi nhánh vào nhánh chính).
 
 ### AC-10 — Mở lại: dòng `supersedes` trỏ đúng dòng nghỉ làm hồ sơ sống lại ở cả bốn bộ đọc
 **Given** fixture AC-1(c) có dòng nghỉ hợp lệ, rồi thêm một dòng sổ `supersedes: <id dòng nghỉ>`
 **When** chạy cổng, kiểm lại, bộ quét và thẻ
 **Then** cả bốn cho kết quả y hệt đối chứng không nghỉ (VIOLATION · đỏ · `da-giao` · thẻ mời ký); dòng `supersedes` trỏ id KHÁC thì hồ sơ vẫn nghỉ (đối chứng trong cùng ca).
+
+### AC-11 — Dòng nghỉ trên hồ sơ CHƯA KÝ không có hiệu lực, và bốn bộ đọc cùng nói ra
+**Given** fixture AC-1(c) với một dòng `type: nghi` đủ ba vế, nhưng báo cáo KHÔNG có `human_signoff` (hai biến: vắng hẳn · chỗ-giữ của khuôn)
+**When** chạy cổng, kiểm lại bằng chứng, bộ quét và thẻ
+**Then** cả bốn cho kết quả y hệt đối chứng không nghỉ (VIOLATION · đỏ · ô của hồ sơ đang sống · thẻ mời ký); cổng in đúng một dòng `NOTE [<slug>]: có dòng cho nghỉ nhưng hồ sơ CHƯA có chữ ký người`; bộ quét mang cờ `nghi-chua-ky`. Đối chứng dương trong cùng ca: thêm chữ ký thật vào báo cáo thì CẢ BỐN lật sang nghỉ.
 
 ## Coverage
 
@@ -87,7 +92,7 @@ Ba trục độc lập, quét bằng morphological-scan (preset test-matrix), 40
 
 - **Trục bộ đọc** `[thước CE: bốn tệp thật — scripts/pre-merge-check.sh · scripts/recheck-evidence.cjs · scripts/start-scan.mjs (bản đồ chiếu từ đây) · scripts/gate-card.js (hỏi bộ quét, gate-card.js:845)]`: cổng → AC-1, AC-2, AC-3, AC-7 · kiểm lại → AC-4, AC-3 · bộ quét/bản đồ → AC-5, AC-9 · thẻ → AC-5, AC-8.
 - **Trục hình thức nghỉ** `[thước CE: ba ca thật — dòng sổ OneFlow 17/09 · thư mục su-lieu của kit · khuôn sổ quyết định trong SKILL feature-loop]`: dòng hợp lệ → AC-1 · dòng thiếu vế (ba biến) → AC-2 · văn xuôi → AC-3 · su-lieu cũ → AC-5, AC-9 · không nghỉ (đối chứng) → AC-1, AC-3, AC-4.
-- **Trục trạng thái trước nghỉ** `[thước CE: DA_THONG_CONG_2, lib/workspace-record.cjs:97]`: đã thông → AC-1, AC-5 · chưa thông → AC-5.
+- **Trục trạng thái trước nghỉ** `[thước CE: DA_THONG_CONG_2, lib/workspace-record.cjs:97 · chuKyThat, lib/evidence-core.cjs:1127]`: đã ký → AC-1, AC-5 · chưa ký (vắng chữ ký · chỗ-giữ) → AC-11 · kiểu sử liệu cũ → AC-5, AC-9.
 - **Cắt ngang mọi ô**: một hàm (bốn bộ đọc) → AC-6 · vi phân byte → AC-7 · lib vắng fail-closed → AC-7 · tiếng người → AC-8 · mở lại → AC-10 · dòng nghỉ trong ca đo do KHỐI LỆNH GUIDE sinh (round-trip bên viết → bên đọc) → AC-1, AC-7.
 - `[NGÀNH: GitHub archived repository — lưu trữ chỉ-đọc giữ trọn lịch sử, không chạy CI]` và `[NGÀNH: Bazel tags=["manual"] — phép đo còn đó, khai không chạy trong lượt chung]` là hai ứng viên đã gật thành hình dạng của AC-1 và AC-5; không dòng `[GIẢ ĐỊNH]` nào còn treo.
 
@@ -103,6 +108,7 @@ Ngưỡng ở `opportunity.md` đo ở kho sau khi nhận 2.17.0, không ở vò
 
 ## Out of scope
 
+- **Hồ sơ CHƯA có chữ ký người không được nghỉ** (thu phạm vi, owner quyết 19/09 sau lượt chấm 2). Gồm cả hồ sơ `machine-cleared` — làn V không có chữ ký nên không nghỉ được; muốn nghỉ thì ký trước, hoặc bác/xếp lại ở tầng cơ hội. Căn cứ: đo tay cho thấy một dòng sổ biến hồ sơ `verdict: REJECT` chưa ai ký thành cổng xanh.
 - Không đổi `status`/`verdict`/`verified_commit` của hồ sơ nghỉ — owner từ chối 17/09; đường A trong spec bị bác.
 - Không công nhận thư mục `su-lieu/` làm nghi thức chính (đường C) — chỉ đường đọc-cũ có cờ.
 - Không gắn luật làn eval hay luật cũ hoá vào diff PR — ô `cong-chan-theo-ho-so-khong-theo-diff`.

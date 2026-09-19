@@ -614,6 +614,11 @@ vật sau chữ ký. Cổng vẫn đòi ghim lại, và không ai ghim được.
 phải sửa chữ ký cũ — chữ ký là sử liệu. Lối ra là cho hồ sơ **nghỉ**: một dòng
 trong sổ quyết định, có tên người và một câu lý do.
 
+**Chỉ hồ sơ ĐÃ CÓ CHỮ KÝ NGƯỜI mới nghỉ được.** «Nghỉ» là lối ra cho một lời hứa
+đã ký nay không kiểm lại được; hồ sơ chưa ai ký thì chưa có lời hứa nào để cho
+nghỉ — bác hoặc xếp lại nó ở tầng cơ hội. Hồ sơ «máy đã thông» (làn V, không chữ
+ký) cũng vậy: ký trước, rồi mới nghỉ được.
+
 Chạy ở gốc kho, thay bốn chỗ trong ngoặc nhọn:
 
 <!-- <<<NGHI-LINE-RECIPE -->
@@ -627,9 +632,14 @@ JSON
 Sau đó:
 
 - Lưới trước-merge in một dòng ghi chú nêu tên người, ngày và lý do, rồi thôi
-  chấm hồ sơ ấy ở ba luật: bằng chứng cũ hoá · làn ghim lại · làn eval.
+  chấm hồ sơ ấy ở phần còn lại của lưới — gồm ba luật hay chặn hồ sơ chết tiền
+  đề: bằng chứng cũ hoá · làn ghim lại · làn eval. Miễn trừ là **toàn phần** cho
+  hồ sơ ấy, và vì thế nó chỉ mở cho hồ sơ đã qua Cổng Bằng chứng có chữ ký.
 - `contract.md`, `evidence-report.md`, `run-log.jsonl` **không đổi một byte**.
 - Thẻ và bản đồ xếp hồ sơ vào «đã giao — đã nghỉ, giữ sử liệu».
+
+**Chưa có chữ ký thì dòng nghỉ không có hiệu lực** — lưới in một dòng nói rõ, và
+hồ sơ vẫn bị chấm như đang sống.
 
 **Thiếu tên người hoặc thiếu lý do thì không tính là nghỉ** — lưới chấm như hồ sơ
 đang sống và nói ra vế nào thiếu. Một câu văn xuôi trong một dòng loại khác cũng

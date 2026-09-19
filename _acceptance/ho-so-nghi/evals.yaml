@@ -63,8 +63,10 @@ evals:
     cmd: config:executors.script.hsn_rang
     expected: >
       Exit 0 và dòng PASS của HSN5: ba fixture → bộ quét trả đúng bộ ba (da-nghi · da-dong-ho-so ·
-      da-dong-ho-so + cờ nghi-kieu-cu) so bằng nhau; bản đồ sinh ra có tập tiêu đề khối BẰNG tập
-      khối của bản đồ fixture HSN0 (không thêm khối) và hồ sơ da-nghi nằm dưới «Đã giao»; thẻ
+      da-dong-ho-so + cờ nghi-kieu-cu) so bằng nhau; tập tên khối của bản đồ BẰNG tập tên khối
+      rút từ bản `product-map.mjs` ở SHA NỀN của vòng qua git — KHÔNG rút từ chính bản đang đo
+      (tập mong đợi lấy từ hằng của vật bị đo là phép so tự dối); và hồ sơ da-nghi nằm dưới
+      khối «Đã giao» của bản đồ THẬT do bộ dựng sinh ra; thẻ
       Cổng 2 của hồ sơ da-nghi chứa «đã nghỉ» và «chữ ký giữ làm sử liệu», KHÔNG chứa chuỗi mời
       ký (rút từ hằng của gate-card, không gõ tay).
     paths: [scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, scripts/product-map.mjs, scripts/gate-card.js, tests/scripts/ho-so-nghi.test.mjs]
@@ -113,8 +115,10 @@ evals:
     cmd: config:executors.script.hsn_rang
     expected: >
       Exit 0 và dòng PASS của HSN9: trên cây kit thật, start-scan --json có slug
-      bo-qua-phai-thay-dinh-nghia-phep-do mang cờ nghi-kieu-cu; tập slug ở «hồ sơ hỏng» bằng tập
-      trước vòng (so bằng nhau với danh sách rút từ HEAD~ qua git, không gõ tay).
+      bo-qua-phai-thay-dinh-nghia-phep-do mang cờ nghi-kieu-cu; và tập slug ở «hồ sơ hỏng» là
+      TẬP CON của tập ấy tại một SHA CỐ ĐỊNH trước vòng (quan hệ, không phải hằng số 0; sha ghi
+      thẳng trong ca — neo vào một ref dịch theo lần gộp thì ca chết ngay sau khi nhánh vào
+      nhánh chính, đúng lớp «thước ghim vào thứ SẼ ĐỔI»).
     paths: [scripts/start-scan.mjs, tests/scripts/ho-so-nghi.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
@@ -123,6 +127,20 @@ evals:
     cmd: config:executors.script.product_map
     expected: Exit 0 — bản đồ sản phẩm khớp hồ sơ xưởng sau khi bộ quét biết trạng thái nghỉ.
     paths: [PRODUCT-MAP.md, scripts/product-map.mjs, scripts/start-scan.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN11 — thu phạm vi 19/09. Hai biến của ca «chưa ký» (báo cáo
+      vắng hẳn `human_signoff` · mang chỗ-giữ của khuôn) × bốn bộ đọc: cổng ĐỎ nguyên văn như
+      đối chứng cộng đúng một dòng ghim «có dòng cho nghỉ nhưng hồ sơ CHƯA có chữ ký người»;
+      kiểm lại ĐỎ «REPIN x»; bộ quét giữ ô của hồ sơ đang sống kèm cờ `nghi-chua-ky`; thẻ CÓ
+      chuỗi mời ký và KHÔNG chứa «đã nghỉ». Đối chứng dương trong CÙNG ca: thêm chữ ký thật
+      vào chính báo cáo ấy thì cả bốn lật sang nghỉ. Ma trận 2 biến × 4 bộ đọc + 4 ô đối chứng
+      so BẰNG NHAU với bộ viết trước.
+    paths: [lib/workspace-record.cjs, scripts/pre-merge-check.sh, scripts/start-scan.mjs, scripts/product-map.mjs, tests/scripts/ho-so-nghi.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-10

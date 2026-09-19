@@ -316,6 +316,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     // «đã duyệt» đều nghỉ được, chỉ khác ô nó đậu.
     const nghi = hoSoNghi({
       ledgerText: read(path.join(dir, 'decisions.jsonl')).t,
+      reportText: read(path.join(dir, 'evidence-report.md')).t,
       contractAtRoot: true, suLieuContract: false,
     });
     if (nghi && nghi.kieu === 'dong-so') {
@@ -330,8 +331,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     // Dòng nghỉ thiếu vế KHÔNG phải nghỉ (fail-closed) — nhưng im lặng ở đây thì
     // người viết dòng ấy không bao giờ biết mình thiếu gì, nên nó thành một cờ
     // cắt ngang mọi ô, đúng nếp `qua-timebox`.
-    const nghiFlags = nghi && nghi.kieu === 'dong-so-thieu'
-      ? nghi.thieu.map(v => `nghi-thieu-ve:${v}`) : [];
+    const nghiFlags = [];
+    if (nghi && nghi.kieu === 'dong-so-thieu') nghiFlags.push(...nghi.thieu.map(v => `nghi-thieu-ve:${v}`));
+    // Dòng nghỉ trên hồ sơ CHƯA KÝ: không có hiệu lực (thu phạm vi 19/09), nhưng
+    // NÓI RA — im lặng ở đây là người viết dòng ấy tưởng hồ sơ đã nghỉ trong khi
+    // cổng vẫn chặn, và không có gì trên mặt người chỉ ra vì sao.
+    if (nghi && nghi.kieu === 'chua-ky') nghiFlags.push('nghi-chua-ky');
     // evidence-report.md CHỈ được đọc trong hai nhánh tiêu thụ nó (verified,
     // implemented). Chốt lỗi đặt TRƯỚC chỗ rẽ trạng thái là lớp lỗi đã dẫm 4
     // round (r1: opportunity, r4: chính file này) — lỗi của hồ sơ mà trạng thái

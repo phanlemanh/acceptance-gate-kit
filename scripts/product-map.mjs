@@ -158,6 +158,10 @@ function classify(dir, slug) {
   // Sổ quyết định — chỉ để hỏi vị từ NGHỈ; lỗi đọc KHÔNG quyết định ô của slug
   // (sổ không phải hồ sơ điều hướng), nên nuốt về null như mọi bộ đọc sổ.
   const ledgerTxt = readRecord(path.join(dir, 'decisions.jsonl')).t;
+  // Báo cáo đọc KHÔNG điều kiện CHỈ để hỏi vị từ nghỉ: `usesEvidence` loại
+  // `signed-off` khỏi tập tiêu thụ, mà hồ sơ đã ký lại đúng là hồ sơ duy nhất
+  // được quyền nghỉ sau khi thu phạm vi — dùng `eR.t` ở đây là mù với ca chính.
+  const nghiReport = readRecord(path.join(dir, 'evidence-report.md')).t;
 
   // HAI câu hỏi khác nhau, đừng trộn:
   //   PHÂN Ô — hồ sơ nào được quyền quyết định ô của slug, và lỗi của hồ sơ nào
@@ -216,7 +220,11 @@ function classify(dir, slug) {
   // tự suy ô từ status là bộ đọc thứ hai của cùng một sự thật, và nó đã trôi:
   // hợp đồng chưa thông Cổng 2 mang dòng nghỉ thì bộ quét xếp «đã đóng có hồ sơ»
   // còn bản đồ xếp «đang làm» — hai NHÓM khác nhau cho cùng một hồ sơ (S4-r1 t3).
-  if (status && hoSoNghi({ ledgerText: ledgerTxt, contractAtRoot: true, suLieuContract: false })) {
+  // So ĐÚNG LOẠI như ba bộ đọc kia. Bản trước dùng giá trị trả về như đúng/sai,
+  // mà vị từ còn trả `dong-so-thieu` và `chua-ky` — hai hình dạng KHÔNG phải
+  // nghỉ — nên một dòng viết thiếu vẫn được bản đồ xếp vào ô nghỉ (lượt chấm 2).
+  if (status && hoSoNghi({ ledgerText: ledgerTxt, reportText: nghiReport,
+                           contractAtRoot: true, suLieuContract: false })?.kieu === 'dong-so') {
     const kNghi = DA_THONG_CONG_2.includes(status) ? 'da-nghi' : 'da-dong-ho-so';
     return { ...o(kNghi), note: chu(kNghi).nhan };
   }
