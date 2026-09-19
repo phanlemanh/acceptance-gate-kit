@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ac4b85ccfd5cae88dfe34204b8f68e6ff071c49c
+verified_commit: a1db83e34a6b82d4984b7e7bb7251d6580920534
 human_signoff: Manh 2026-08-25
 ---
 
@@ -318,3 +318,7 @@ sha: 9d022b2c654146c6735710a33eda2e4af86ebfa1 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 16 — 2026-09-19, do vòng ho-so-nghi ký xong: mã chịu cổng đổi sau lần ghim trước, và hồ sơ này ở trong diff vì sổ khai-gạch
 run_id: repin-20260919T150833Z-36789
 sha: ac4b85ccfd5cae88dfe34204b8f68e6ff071c49c · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 17 — 2026-09-19, do mốc 2.17.0: khai lệnh đo rel-cua-so.sh vào sổ khai-gạch của hồ sơ này
+run_id: repin-20260919T164051Z-63333
+sha: a1db83e34a6b82d4984b7e7bb7251d6580920534 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
