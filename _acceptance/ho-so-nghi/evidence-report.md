@@ -1,19 +1,17 @@
 ---
 schema_version: 2
 feature_slug: ho-so-nghi
-verdict: REJECT
+verdict: PENDING-JUDGMENT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 881e54ec4d77bb5a8cb21404006bac07c4245a75
+verified_commit: c152a24d4b133020030620c32595d11aa01078aa
 human_signoff:
 ---
 
 # Evidence Report: ho-so-nghi
-
-Round 1 chạy trên `881e54ec4d77bb5a8cb21404006bac07c4245a75`. Mười eval máy (E1–E7, E9–E11) đều exit 0 — `node tests/scripts/ho-so-nghi.test.mjs` (29 passed, 0 failed) và `node scripts/product-map.mjs --root . --check` — và bốn suite hồi quy (scripts/hooks/plugins/workflows) đều xanh. Judge panel E8 (AC-8, GUIDE «Cho một hồ sơ nghỉ») không đồng thuận: domain-correctness và spec-alignment PASS, operational-feasibility FAIL vì GUIDE/thẻ không cảnh báo recipe vô tác dụng trên một kho pin kit < 2.17.0 — item này còn UNCERTAIN, chờ Gate 2. Review round này tìm 15 finding: 6 map được vào hợp đồng (AC-2, AC-5 ×2, AC-6, AC-10) — phần lớn là assertion-âm-tính-một-mình và đo-chỉ-dẫn-thay-vì-đầu-ra khiến các ca HSN liên quan chưa thật sự verify đúng Then mà AC hứa, cộng một khoảng trống thật (`product-map.mjs` chưa được dạy nhận biết `hoSoNghi`, xếp cùng một hồ sơ nghỉ khác ô với `start-scan.mjs`). Vì vậy dù mọi lệnh máy thoát 0, verdict round này là REJECT — trả lại implementation theo 6 finding trong hợp đồng (xem `review-findings.md`, mục "Trong hợp đồng"); 9 finding còn lại nằm ngoài phạm vi đã duyệt, chờ người quyết ở Gate 2.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -24,170 +22,160 @@ Round 1 chạy trên `881e54ec4d77bb5a8cb21404006bac07c4245a75`. Mười eval m�
 | E5 | AC-5 | script | PASS |
 | E6 | AC-6 | script | PASS |
 | E7 | AC-7 | script | PASS |
-| E8 | AC-8 | judgment | UNCERTAIN |
 | E9 | AC-9 | script | PASS |
 | E10 | AC-9 | script | PASS |
 | E11 | AC-10 | script | PASS |
+| E8 | AC-8 | judgment | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-ho-so-nghi-E1-r1
+  run_id: minted-ho-so-nghi-E1-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:00Z
-  note: đầu ra máy trả về chỉ có tail chung của cả lệnh (E1–E7, E9, E11 đều chạy chung một lượt `node tests/scripts/ho-so-nghi.test.mjs`); log không tách riêng dòng PASS theo từng HSN, nên output dưới đây là tail thật của cả lượt chạy, không phải dòng PASS riêng của HSN0/HSN1.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 - eval: E2
-  run_id: minted-ho-so-nghi-E2-r1
+  run_id: minted-ho-so-nghi-E2-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:05Z
-  note: tail chung của cùng lượt chạy `node tests/scripts/ho-so-nghi.test.mjs` — xem note ở E1.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 - eval: E3
-  run_id: minted-ho-so-nghi-E3-r1
+  run_id: minted-ho-so-nghi-E3-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:10Z
-  note: tail chung của cùng lượt chạy `node tests/scripts/ho-so-nghi.test.mjs` — xem note ở E1.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 - eval: E4
-  run_id: minted-ho-so-nghi-E4-r1
+  run_id: minted-ho-so-nghi-E4-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:15Z
-  note: tail chung của cùng lượt chạy `node tests/scripts/ho-so-nghi.test.mjs` — xem note ở E1.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 - eval: E5
-  run_id: minted-ho-so-nghi-E5-r1
+  run_id: minted-ho-so-nghi-E5-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:20Z
-  note: tail chung của cùng lượt chạy `node tests/scripts/ho-so-nghi.test.mjs` — xem note ở E1. Xem thêm review-findings.md finding t12: bộ kiểm HSN5 không hề gọi `scripts/product-map.mjs`, nên phần bản đồ mà AC-5 hứa không được đo trong lượt này.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 - eval: E6
-  run_id: minted-ho-so-nghi-E6-r1
+  run_id: minted-ho-so-nghi-E6-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:25Z
-  note: tail chung của cùng lượt chạy `node tests/scripts/ho-so-nghi.test.mjs` — dòng PASS: HSN7 dưới đây chính là dòng của HSN7 mà E6 hứa đo. Xem review-findings.md finding t10 — chân "thẻ" và "cổng"/"kiểm-lại" của ca này là assertion vắng-mặt-một-mình, không ghim thông điệp.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 - eval: E7
-  run_id: minted-ho-so-nghi-E7-r1
+  run_id: minted-ho-so-nghi-E7-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:30Z
-  note: tail chung của cùng lượt chạy `node tests/scripts/ho-so-nghi.test.mjs` — xem note ở E1.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 - eval: E9
-  run_id: minted-ho-so-nghi-E9-r1
+  run_id: minted-ho-so-nghi-E9-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:35Z
-  note: tail chung của cùng lượt chạy `node tests/scripts/ho-so-nghi.test.mjs` — xem note ở E1. Xem review-findings.md finding t14/t15 — đối chứng và tập so sánh của HSN9 dùng hằng số/grep văn bản thay vì rút qua git hoặc chạy bản cũ.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 - eval: E10
-  run_id: minted-ho-so-nghi-E10-r1
+  run_id: minted-ho-so-nghi-E10-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.script.product_map
-  verified_at: 2026-09-19T11:06:00Z
+  verified_at: 2026-09-19T09:20:00Z
   output: |
     PRODUCT-MAP.md khớp hồ sơ xưởng.
 
 - eval: E11
-  run_id: minted-ho-so-nghi-E11-r1
+  run_id: minted-ho-so-nghi-E11-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hsn_rang
-  verified_at: 2026-09-19T11:05:40Z
-  note: tail chung của cùng lượt chạy `node tests/scripts/ho-so-nghi.test.mjs` — xem note ở E1. Xem review-findings.md finding t13 — ca HSN10 không gọi bộ đọc thứ tư (thẻ), nên vế "cả bốn bộ đọc" của AC-10 chưa được verify trọn vẹn.
+  verified_at: 2026-09-19T09:15:00Z
   output: |
-    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá
+    PASS: HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)
 
-    Results: 29 passed, 0 failed (ho-so-nghi)
-
-- eval: E8
-  judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
-  proposal: PASS
-  verdict: UNCERTAIN
-  votes:
-    - domain-correctness: PASS — Mục GUIDE nêu rõ vấn đề (chữ ký cũ hứa điều không kiểm lại được), nói thẳng lối ra KHÔNG phải sửa chữ ký ("chữ ký là sử liệu"), cho khối lệnh chạy tại gốc kho với 4 chỗ cần điền cụ thể, và liệt kê hệ quả (lưới ngưng chấm ba luật, contract/evidence-report/run-log không đổi byte, thẻ/bản đồ đổi nhãn). Dòng thẻ Cổng Bằng chứng ("Hồ sơ đã nghỉ — {by} {ngày}: {lý do}. Chữ ký giữ làm sử liệu, không mời ký lại.") khớp đúng và củng cố lại đúng câu "không sửa chữ ký cũ" của GUIDE. Đối chiếu với spec thiết kế (mục 4 bảng ba bộ đọc, mục 6 bất biến, mục 7 ma trận HSN0–HSN10), mọi phát biểu trong GUIDE đều nằm trong phạm vi đã có ca đo tương ứng — không thấy lời hứa nào trong đoạn GUIDE mà spec liệt kê ở "Ngoài phạm vi" (mục 9) lại bị GUIDE ngầm hứa.
-    - operational-feasibility: FAIL — Mục GUIDE «Cho một hồ sơ nghỉ» tự nó đọc rõ: chạy recipe ở gốc kho, ba luật thôi chấm, ba tệp đã ký không đổi byte nào, và dòng thẻ khớp đúng lời hứa đó ("Chữ ký giữ làm sử liệu, không mời ký lại") — không có khoảng trống nào giữa lời hứa và cái thẻ in ra. Nhưng cả mục GUIDE lẫn dòng thẻ đều không nói cho người đọc biết recipe chỉ có tác dụng NẾU repo của họ đã pin kit ≥2.17.0 — chính bản thiết kế xác nhận repo chưa lên 2.17.0 thì "bộ đọc cũ bỏ qua" dòng nghỉ, tức người chạy xong recipe vẫn bị cổng chặn y như cũ mà không biết vì sao. Đây đúng là tình huống người trong câu hỏi (kho tiêu thụ có hồ sơ chết tiền đề) — và hồ sơ gốc dẫn tới tính năng này (OneFlow) khi báo cáo còn đang ở kit 2.16.0, tức đúng nhóm người có nguy cơ dính gap này đầu tiên.
-      required_evidence:
-        - "GUIDE.md dòng 609-644 (mục «Cho một hồ sơ nghỉ»): đọc toàn bộ đoạn — không có câu nào nhắc kiểm tra hay yêu cầu pin kit ≥2.17.0 trước khi chạy recipe; nếu thêm một câu điều kiện tiên quyết kiểu 'xác nhận repo đã pin kit ≥2.17.0, nếu chưa hãy update trước' thì verdict đổi thành PASS."
-        - "docs/superpowers/specs/2026-09-19-ho-so-nghi-design.md §5 dòng 'Kho tiêu thụ chưa nhận 2.17.0: dòng nghỉ là một dòng JSON trong sổ, bộ đọc cũ bỏ qua.' — xác nhận recipe là no-op im lặng trên pin cũ, đúng khoảng trống nêu trên."
-        - "docs/superpowers/specs/2026-09-19-ho-so-nghi-design.md dòng 4 (Gốc): 'OneFlow/_acceptance/normalize-text-vi (owner 17/09) · kit release-2-16-0 (14/72 đỏ)' — ca thật khởi phát tính năng này chính là một kho đang ở pin trước 2.17.0, tức persona trong câu hỏi rất có thể rơi đúng vào lỗ chưa được cảnh báo."
-    - spec-alignment: PASS — Mục "Cho một hồ sơ nghỉ" (GUIDE.md dòng 609-644) nêu đúng kịch bản (kho nguồn phần phụ thuộc biến mất), cho lệnh chạy tại gốc kho với 4 chỗ điền, nói rõ hệ quả (lưới thôi chấm ba luật) và khai rõ điều KHÔNG đổi ("contract.md, evidence-report.md, run-log.jsonl không đổi một byte" + chữ ký giữ làm sử liệu) — đủ để quyết trong một phút mà không cần đọc mã. Dòng thẻ gate-card.js (`Hồ sơ đã nghỉ — … Chữ ký giữ làm sử liệu, không mời ký lại`) khớp đúng lời hứa đó. Đoạn "Giới hạn đã khai" tự khai phần chưa làm (khoá chống máy tự gọi) là việc vòng sau, không phải lời hứa bị bỏ sót — không thấy lời hứa nào vượt phạm vi đo của vòng này trong ba file được cấp.
-  rationale: Panel không đồng nhất — domain-correctness và spec-alignment cho PASS dựa trên việc GUIDE nêu đúng kịch bản, lệnh bấm được, hệ quả rõ và dòng thẻ khớp đúng lời hứa "chữ ký là sử liệu"; operational-feasibility cho FAIL vì cả GUIDE lẫn dòng thẻ không hề cảnh báo rằng recipe chỉ có tác dụng khi kho tiêu thụ đã pin kit ≥2.17.0 — một kho pin cũ chạy xong recipe vẫn bị cổng chặn như cũ mà không biết vì sao, và chính hồ sơ gốc khởi phát tính năng này (OneFlow, lúc kit còn ở 2.16.0) là đúng nhóm người có nguy cơ dính gap đó đầu tiên. Người quyết Gate 2 cần xem đây là khoảng-mơ-hồ cần thêm một câu điều kiện tiên quyết trong GUIDE, hay chấp nhận known-limits.
-  required_evidence:
-    - "GUIDE.md dòng 609-644 (mục «Cho một hồ sơ nghỉ»): không có câu nào nhắc kiểm tra hay yêu cầu pin kit ≥2.17.0 trước khi chạy recipe — thêm một câu điều kiện tiên quyết thì verdict đổi PASS."
-    - "docs/superpowers/specs/2026-09-19-ho-so-nghi-design.md §5: 'Kho tiêu thụ chưa nhận 2.17.0: dòng nghỉ là một dòng JSON trong sổ, bộ đọc cũ bỏ qua.' — xác nhận recipe là no-op im lặng trên pin cũ."
-    - "docs/superpowers/specs/2026-09-19-ho-so-nghi-design.md dòng 4 (Gốc): ca thật khởi phát tính năng này là một kho ở pin trước 2.17.0 (OneFlow, kit release-2-16-0)."
-  human_override:
+    Results: 34 passed, 0 failed (ho-so-nghi)
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh
-  run_id: minted-ho-so-nghi-SUITE-bash_tests_scripts_run_tests_sh-r1
+  run_id: minted-ho-so-nghi-SUITE-bash_tests_scripts_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-09-19T11:07:00Z
+  verified_at: 2026-09-19T09:25:00Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-ho-so-nghi-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-ho-so-nghi-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-09-19T11:08:00Z
+  verified_at: 2026-09-19T09:26:00Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-ho-so-nghi-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r1
+  run_id: minted-ho-so-nghi-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r2
   exit_code: 0
-  verified_at: 2026-09-19T11:09:00Z
+  verified_at: 2026-09-19T09:27:00Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-ho-so-nghi-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-ho-so-nghi-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-09-19T11:10:00Z
+  verified_at: 2026-09-19T09:28:00Z
+
+- eval: E8
+  run_id: minted-ho-so-nghi-E8-r2
+  verifier: judge-subagent (fresh context) — 3 lens: domain-correctness, operational-feasibility, spec-alignment
+  verified_at: 2026-09-19T09:40:00Z
+  judged_by: judge panel (fresh context)
+  verdict: PASS
+  panel:
+    - lens: domain-correctness
+      verdict: PASS — GUIDE §"Cho một hồ sơ nghỉ" trùng khớp gần như nguyên văn với kịch bản (chính nó nêu ví dụ "kho nguồn của một phần phụ thuộc biến mất"), và trả lời đủ ba câu hỏi trong một phút: làm gì (chạy khối lệnh bash NGHI-LINE-RECIPE, điền 4 chỗ), làm ở đâu ("Chạy ở gốc kho"), và điều gì không xảy ra với chữ ký cũ (nêu rõ "chữ ký là sử liệu", "contract.md, evidence-report.md, run-log.jsonl không đổi một byte", và mô tả cổng chỉ thôi chấm ba luật chứ không sửa hồ sơ đã ký). Dòng thẻ gate-card.js in khi NGHI khớp: "Chữ ký giữ làm sử liệu, không mời ký lại." — nhất quán với GUIDE, không mâu thuẫn. Giới hạn (thiếu vế → vẫn cần ký; chưa có khoá chống máy tự gọi) được khai rõ như limitation, không phải lời hứa ngầm; đối chiếu ma trận thước ở spec (HSN0–HSN10) không thấy lời hứa nào trong hai vật liệu này thiếu ca đo tương ứng.
+    - lens: operational-feasibility
+      verdict: PASS — Mục GUIDE §"Cho một hồ sơ nghỉ" tự đủ trong một phút: nêu đúng nỗi đau (cổng chặn mọi PR vì hồ sơ chết tiền đề, không ai ghim được), cho công thức bash chạy-được-ngay tại gốc kho với đúng bốn chỗ cần thay (`<slug>`, `<tên người>`, `<lý do một câu>`, `<hồ sơ thôi hứa gì>`), và khai rõ điều KHÔNG xảy ra với chữ ký cũ: "chữ ký là sử liệu", "contract.md, evidence-report.md, run-log.jsonl không đổi một byte", "thôi chấm hồ sơ ấy" ở ba luật liệt kê tên. Dòng thẻ Cổng 2 (gate-card.js:1075) khớp đúng lời hứa đó — in thẳng "Chữ ký giữ làm sử liệu, không mời ký lại" — và đối chiếu với mã cho thấy hồ sơ NGHỈ được xếp vào nhánh MAY_DI_TIEP (không hiện nút ký) nên lời hứa "không mời ký lại" có thật trong chính file được giao, không phải lời hứa suông. GUIDE cũng tự khai giới hạn (chưa có khoá chống máy tự gọi) thay vì giấu, và thiếu tên/lý do được nói rõ là "không tính là nghỉ" kèm hệ quả. Không thấy khoảng trống giữa điều GUIDE hứa và điều bản thiết kế liệt kê sẽ đo (ma trận HSN0–HSN10 phủ đúng các nhánh GUIDE mô tả: thiếu vế, văn xuôi không tính, mở lại bằng supersedes, vi phân byte).
+    - lens: spec-alignment
+      verdict: PASS — GUIDE mục «Cho một hồ sơ nghỉ» mở đúng bằng kịch bản "kho nguồn phụ thuộc biến mất", cho lệnh chạy-được tại gốc kho với đúng 4 chỗ điền, và nói rõ "chữ ký giữ làm sử liệu, không mời ký lại" — dòng cờ trong gate-card.js (`Hồ sơ đã nghỉ — {by} {at}: {ly_do}. Chữ ký giữ làm sử liệu, không mời ký lại.`) lặp lại đúng cam kết đó, nên người đọc trong một phút biết làm gì (chạy recipe), làm ở đâu (gốc kho), và điều KHÔNG xảy ra (không sửa/không mời ký lại chữ ký cũ). Các lời hứa khác trong mục này (lưới trước-merge dừng 3 luật, contract/evidence/run-log không đổi byte, thiếu vế thì không tính nghỉ, mở lại bằng supersedes) đều có ca đo tương ứng trong spec (HSN1/HSN2/HSN6/HSN10), và giới hạn chưa làm (khoá model-invocation) được khai rõ là việc của vòng sau — không thấy chỗ nào hứa mà vòng này không đo.
+  rationale: Cả ba lens đồng thuận PASS — GUIDE §"Cho một hồ sơ nghỉ" cùng dòng thẻ gate-card.js trả lời đủ ba câu hỏi trong một phút (làm gì / ở đâu / điều gì KHÔNG xảy ra với chữ ký cũ), lời hứa "chữ ký giữ làm sử liệu, không mời ký lại" khớp với hành vi mã (nhánh MAY_DI_TIEP không hiện nút ký), và không lens nào tìm thấy lời hứa nào trong hai vật liệu mà ma trận HSN0–HSN10 không đo. Xem đầy đủ rationale từng lens ở mục `panel:` phía trên — không tóm tắt, không lược bớt bất đồng (không có bất đồng: 3/3 PASS).
+  required_evidence:
+    - (panel đồng thuận PASS cả ba lens; T3 vẫn đòi người tự đọc GUIDE §"Cho một hồ sơ nghỉ" + dòng thẻ gate-card.js:1075 và tự xác nhận ba câu hỏi trong một phút trước khi ký human_override — hợp đồng này ở risk_tier T3 nên PASS của panel không tự động thay chữ ký người trên MỌI judgment item)
+  human_override:
 
 ## Known limits
 
@@ -195,12 +183,15 @@ Round 1 chạy trên `881e54ec4d77bb5a8cb21404006bac07c4245a75`. Mười eval m�
 
 ## Analyst
 
-E10 — baseline: green. `node scripts/product-map.mjs --root . --check` pass trên cả nhánh này lẫn diffBase, vì bản vá vòng này chỉ chạm `lib/workspace-record.cjs` + `scripts/start-scan.mjs`/`scripts/gate-card.js`/`scripts/pre-merge-check.sh`/`scripts/recheck-evidence.cjs` — không chạm `scripts/product-map.mjs`. Lệnh `--check` chỉ tự so bản đồ với chính đầu ra nó vừa sinh ra, không so với kết quả của `start-scan.mjs`, nên eval này không phân biệt được feature (không đo đúng quan hệ mà AC-5 hứa). Xem review-findings.md finding t3/t7: hai bộ đọc (`start-scan.mjs` và `product-map.mjs`) xếp cùng một hồ sơ nghỉ vào hai nhóm khác nhau trên hợp đồng chưa qua Cổng 2, mà E10 không hề chạm tới quan hệ đó.
+carried tu round 1 — baseline khong do lai round nay
+
+E10 (`node scripts/product-map.mjs --root . --check`)
 
 ## Variance
 
-none — không eval nào mang trường `runs` > 1 vòng này; không có kết quả chạy đa lượt.
+none — mọi eval round này đều `runs: 1` (không có eval ngẫu nhiên, không có phương sai để chấm).
 
 ## Iterations
 
-Round 1: 10 eval máy (E1–E7, E9–E11) PASS qua `node tests/scripts/ho-so-nghi.test.mjs` (29 passed) + `node scripts/product-map.mjs --check`, cộng 4 suite hồi quy đều xanh. E8 (judgment, AC-8) — panel 2/3 PASS, operational-feasibility FAIL vì GUIDE/thẻ không khai điều kiện tiên quyết pin kit ≥2.17.0 — item còn UNCERTAIN. Review xác nhận 6/15 finding map vào hợp đồng (AC-2, AC-5 ×2, AC-6, AC-10): phần lớn là assertion-âm-tính-một-mình (t10, t13), ma trận đo thiếu ô (t11), đo-chỉ-dẫn-thay-đầu-ra (t12), và product-map.mjs chưa được dạy nhận biết hoSoNghi (t3/t7) — nên các eval E2/E5/E6/E10/E11 tuy exit 0 nhưng chưa thật sự verify Then của AC tương ứng. Verdict: REJECT, trả lại implementation.
+Round 1: REJECT — 15 phát hiện (6 trong hợp đồng: hai lỗi sản phẩm, bốn phép đo yếu). Returned to implementation.
+Round 2: Chín eval script (E1–E7, E9, E11) + E10 (product-map) + năm lệnh suite hồi quy đều xanh; panel judgment E8 đồng thuận PASS 3/3 lens. Verdict tổng PENDING-JUDGMENT vì hợp đồng ở risk_tier T3 đòi `human_override` trên MỌI judgment item bất kể verdict của judge.

@@ -5,7 +5,7 @@ slug: ho-so-nghi
 owner: phanlemanh@gmail.com
 risk_tier: T3      # scripts/pre-merge-check.sh + lib/workspace-record.cjs + scripts/recheck-evidence.cjs — lõi cưỡng chế
 surfaces: [cli, ci, docs]
-status: implemented      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: verified        # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Mạnh
 approved_at: 2026-09-19T10:29:00Z
 design_doc: docs/superpowers/specs/2026-09-19-ho-so-nghi-design.md
