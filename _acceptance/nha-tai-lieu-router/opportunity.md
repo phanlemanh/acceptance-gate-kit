@@ -3,21 +3,22 @@ schema_version: 1
 slug: nha-tai-lieu-router
 feature: Nhà tài liệu khai một chỗ — repo khai «lớp vật × vòng đời → một nhà» trong khối máy đọc của docs/MAP.md, máy kiểm không hai nhà / không nhà lạ; repo mới được acceptance-init dựng bản mặc định cũng qua router; feature-loop đọc nhà thay vì đường cứng
 owner: phanlemanh@gmail.com
-stage: decided              # discovery | decided | archived
-decision: park   # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: Mạnh
-decided_at: 2026-09-18    # ISO UTC
+stage: discovery              # discovery | decided | archived
+decision:         # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by:
+decided_at:     # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
 ---
 
-> **Xếp lại (park) 18/09 — luật neo thu phạm vi (owner chọn đường B).** ca thật là khảo sát 5 kho và một phiên start, không gắn hồ sơ nào. Chữ giữ
-> nguyên, không xoá: khi có một hồ sơ cụ thể `<kho>/_acceptance/<slug>` để trỏ thì thêm dòng
-> `Gốc:` dạng ấy và đổi `stage:` về `discovery` là ô mở lại.
+> Sử liệu: xếp lại 18/09 vì thiếu neo; mở lại 19/09 — neo là hồ sơ mốc 2.16.0 gọi tên ở Notes §5
+> mục 1 (owner chốt Q3 17/09). Là vòng META (không có kho chờ), nên theo luật (b) chỉ chạy ở
+> cửa sổ sau khi 2.17.0 được một kho nhận.
 
 ## Vấn đề & ai gặp
 
+Gốc: acceptance-gate-kit/_acceptance/release-2-16-0 — Notes §5 mục 1: «Router là vòng meta của cửa sổ 2.16→2.17 — owner đã chốt (Q3 17/09)»
 
 Mỗi lớp vật của một repo có hai vòng đời — theo-một-vòng (sinh cho một slug) và thường-trú
 (sống suốt đời repo) — và kit chỉ lo nhà cho vòng đời thứ nhất. Khảo sát 13/09 trên 5 repo tiêu

@@ -13,6 +13,9 @@ decided_at: 2026-09-18
 > nguyên, không xoá: khi có một hồ sơ cụ thể `<kho>/_acceptance/<slug>` để trỏ thì thêm dòng
 > `Gốc:` dạng ấy và đổi `stage:` về `discovery` là ô mở lại.
 
+> Gộp 19/09 vào ô `lop-vendored-tu-xung` (owner gật mục tiêu 2.17.0): bộ chép thiếu bộ đọc bản đồ
+> là một mặt của lớp vendored không tự xưng. Ô này giữ nguyên xếp lại làm sử liệu.
+
 ## Vấn đề & ai gặp
 
 
