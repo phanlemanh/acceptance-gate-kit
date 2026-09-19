@@ -5,7 +5,7 @@ slug: ho-so-nghi
 owner: phanlemanh@gmail.com
 risk_tier: T3      # scripts/pre-merge-check.sh + lib/workspace-record.cjs + scripts/recheck-evidence.cjs — lõi cưỡng chế
 surfaces: [cli, ci, docs]
-status: verified        # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Mạnh
 approved_at: 2026-09-19T10:29:00Z
 design_doc: docs/superpowers/specs/2026-09-19-ho-so-nghi-design.md
@@ -131,3 +131,55 @@ và fixture chung · phút máy/lượt chấm: =. Điều kiện tin cậy: đ�
 **Vế không có thước máy:** «máy không tự ghi dòng nghỉ» — cùng tầng tin cậy với `decided_by`
 và `human_signoff` hôm nay (khoá model-invocation chỉ có trên lệnh, không có trên tệp sổ). Ghi
 Known limits khi ký nếu vòng không dựng thêm.
+
+### Known limits (người ký nhận, Cổng Bằng chứng 2026-09-19)
+
+Owner chọn «ký với giới hạn» ở lượt chấm 3 (hết ngân sách ba lượt, verdict REJECT). Bảng ba
+kết cục viết trước lượt 1 đã lường ca này: «không đạt chỉ vì thước → khai giới hạn có tên rồi
+ký». Vật sản phẩm qua 12 phép đo máy và 5 lệnh suite ở CẢ BA lượt; hai mục dưới đây là phép
+đo, không phải hành vi.
+
+**TRONG hợp đồng — hai mục, người ký nhận:**
+
+- **GH-1 (AC-5, mức cao) — bản đồ và bộ quét còn lệch nhóm ở hai hình dạng.** Vị từ nghỉ đặt
+  ở hai vị trí khác nhau trong hai đường: bộ quét hỏi ngay sau khi đọc trạng thái; bản đồ hỏi
+  SAU chốt hồ-sơ-hỏng và SAU nhánh phán quyết nghiệm thu. Hệ quả: hồ sơ nghỉ có phiên nghiệm
+  thu thì bản đồ in «đã nghiệm thu giá trị» trong khi thẻ nói «đã nghỉ»; hồ sơ nghỉ có ô cơ
+  hội hỏng thì bản đồ gọi «không đọc được hồ sơ» còn bộ quét vẫn nói nghỉ. Ca HSN5-map chỉ phủ
+  hai hình dạng mà hai bên tình cờ đồng ý. Tái lập: dựng fixture hồ sơ đã ký + `uat-session.md`
+  `verdict: release` + một dòng nghỉ hợp lệ, rồi so `start-scan.mjs --root` với `product-map.mjs
+  --root`. Đường rẻ khi mở lại: gọi vị từ ở CÙNG một điểm trong cả hai đường.
+- **GH-2 (AC-10, mức thấp) — chân «thẻ» của chiều mở-lại là một assert vắng-mặt.** HSN10 kiểm
+  thẻ KHÔNG chứa «đã nghỉ»; thẻ vỡ hay rỗng vì bất kỳ lý do nào cũng đọc thành «đã lật». Chiều
+  ngược (thẻ phải CÓ chuỗi mời ký) không được đo ở chân ấy.
+
+**Phép đo của chính vòng này — ba mục, khai thẳng:**
+
+- **GH-3 (mức cao) — đối chứng nền của HSN9 CHƯA BAO GIỜ CHẠY.** Ca dựng bản nền bằng
+  `git archive` rồi chạy bộ quét trên đó, nhưng bộ quét bản nền thoát mã 2 («khuôn
+  opportunity-template không đọc được» — bản archive thiếu `skills/`), stdout 0 byte, nên tập
+  so là rỗng và phép so tập-con luôn đúng. Đo tay 19/09, thoát mã 2 xác nhận. Đường rẻ: thêm
+  `skills` vào `git archive`, và assert bản nền thoát 0 TRƯỚC khi tin kết quả.
+- **GH-4 (mức cao) — phép đo bản đồ không có chiều đỏ.** Gỡ trọn nhánh nghỉ khỏi
+  `product-map.mjs` thì ca HSN5-map vẫn xanh. Đường rẻ: thêm một mũi tiêm gỡ nhánh ấy trên bản
+  sao và đòi ca đỏ.
+- **GH-5 (mức trung) — mười eval dùng CHUNG một lệnh trần.** Khoá `hsn_rang` chỉ chạy tệp ca
+  và đọc mã thoát; tên ca mà từng eval gọi trong `expected` là văn xuôi, không phần máy nào
+  ghim. Bỏ hẳn một khối ca thì eval tương ứng vẫn xanh. Khác nếp ~18 khoá láng giềng trong
+  cùng khối `executors.script`, vốn ghim dòng PASS đích danh.
+
+**Hai vế đã khai từ trước, giữ nguyên:**
+
+- «Máy không tự ghi dòng nghỉ» không có thước máy — cùng tầng tin cậy với chữ ký duyệt. Lưới
+  hiện tại: sổ để lại vết · cửa veto · điều kiện hồ sơ phải đã có chữ ký người (thu phạm vi).
+- Hồ sơ `machine-cleared` (làn V, không chữ ký) không nghỉ được — đánh đổi có chủ ý của nhát
+  cắt; muốn nghỉ thì ký trước.
+
+**Lộ thêm lúc ký — ghi hạt giống, không mở ô:** bộ tổng hợp của làn chấm viết khối eval hội
+đồng theo khuôn mà chính bộ kiểm lại bằng chứng từ chối (mã lượt tự đúc + trường người-kiểm là
+văn xuôi), nên báo cáo bộ máy sinh đỏ ở lượt ký và phải sửa khuôn khối bằng tay. Hồ sơ đã ký
+trước đó dùng khuôn khác và qua sạch. Sổ: `ho-so-nghi#22` · hạt giống:
+`docs/plans/2026-09-19-hat-giong-khuon-judgment-bo-may-sinh-bi-recheck-tu-choi.md`.
+
+**Hội đồng chia phiếu:** E8 ở lượt 3 là 2 đạt / 1 trượt ở góc bám-đặc-tả — bất đồng thật, người
+ký đọc phán quyết kèm cả ba lá phiếu trong báo cáo rồi quyết.

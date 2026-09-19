@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: ho-so-nghi
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 11e98c4708840b7e9c1027637f7d4c9c9802ddd3
-human_signoff:
+human_signoff: Mạnh 2026-09-19 — ký với giới hạn ở lượt chấm 3 (hết ngân sách ba lượt, verdict máy REJECT; bảng ba kết cục viết trước lượt 1 đã lường: không đạt chỉ vì thước → khai giới hạn có tên rồi ký). Nhận GH-1 và GH-2 (trong hợp đồng) cùng GH-3, GH-4, GH-5 (phép đo của vòng) làm Known limits, xem mục Known limits của hợp đồng; đồng ý nhát thu phạm vi «dòng nghỉ chỉ có hiệu lực trên hồ sơ đã có chữ ký người»; 11 mục ngoài hợp đồng ghi Known limits và sổ known-limits; phê hết quyết định ghi sau Cổng Phạm vi.
 ---
 
 # Evidence Report: ho-so-nghi
@@ -172,11 +172,9 @@ human_signoff:
   verified_at: 2026-09-19T10:28:00Z
 
 - eval: E8
-  run_id: minted-ho-so-nghi-E8-r3
-  verifier: judge-subagent (fresh context) — 3 lens: domain-correctness, operational-feasibility, spec-alignment
   verified_at: 2026-09-19T10:40:00Z
   judged_by: judge panel (fresh context)
-  verdict: PASS
+  proposal: PASS
   panel:
     - domain-correctness: PASS — Mục GUIDE «Cho một hồ sơ nghỉ» mở đúng bằng kịch bản của persona (kho nguồn phụ thuộc biến mất, cổng chặn mỗi PR), cho lệnh bash cụ thể + đường dẫn file cụ thể (_acceptance/<slug>/decisions.jsonl, chạy ở gốc kho) nên biết làm gì/ở đâu; nêu rõ điều KHÔNG xảy ra với chữ ký cũ (contract.md/evidence-report.md/run-log.jsonl không đổi byte nào, "chữ ký là sử liệu"). Dòng thẻ do gate-card.js in cho hồ sơ nghỉ (`if (NGHI) flags.push(['fok', 'Hồ sơ đã nghỉ — ... Chữ ký giữ làm sử liệu, không mời ký lại.'])`, dòng 1075) khớp đúng lời hứa đó và MAY_DI_TIEP đã tắt hẳn nút "Ký duyệt"/one-shot signoff khi NGHI có mặt (không mời ký lại thật). Đoạn «Giới hạn đã khai» trong GUIDE tự khai rõ điều vòng này KHÔNG làm (không có khoá chống máy tự gọi), nên không thấy chỗ hứa quá phần đã đo trong phạm vi ba file được phép đọc.
     - operational-feasibility: PASS — Đọc trong một phút, mục "Cho một hồ sơ nghỉ" (GUIDE.md dòng 609+) khớp thẳng vào kịch bản: nó nêu đúng ví dụ "kho nguồn của một phần phụ thuộc biến mất" là lý do cho nghỉ, chỉ rõ NƠI làm (chạy ở gốc kho, ghi một dòng vào `_acceptance/<slug>/decisions.jsonl` bằng recipe có sẵn, điền 4 chỗ), và nói rõ điều KHÔNG xảy ra với chữ ký cũ hai lần độc lập ("Lối ra không phải sửa chữ ký cũ — chữ ký là sử liệu"; "`contract.md`, `evidence-report.md`, `run-log.jsonl` không đổi một byte"). Dòng thẻ Cổng Bằng chứng (`gate-card.js` dòng 1075 + dòng flag MAY_DI_TIEP) lặp lại đúng thông điệp đó bằng chữ khác: "Chữ ký giữ làm sử liệu, không mời ký lại" và "Thẻ không có nút ký cho trạng thái này" — hai mặt không mâu thuẫn nhau. Đối chiếu với bảng thước ở spec thiết kế (mục 4 và 7), mọi điều GUIDE/thẻ hứa (gate im lặng, thẻ đổi nhãn, 0 byte đổi, mở lại bằng `supersedes`) đều có ca đo tương ứng (HSN1, HSN6, HSN10); phần chưa làm (lệnh `/acceptance-gate:nghi`) bị khai rõ là "Ngoài phạm vi" ở spec và KHÔNG xuất hiện như một lời hứa nào trong GUIDE hay thẻ — nên không có chỗ nào hứa việc mà vòng không đo.
@@ -188,11 +186,15 @@ human_signoff:
   rationale: Hai lens (domain-correctness, operational-feasibility) chấm PASS; lens spec-alignment chấm FAIL — đây là một bất đồng thật, không phải sai sót định dạng, và được giữ nguyên đầy đủ ở mục `panel:` phía trên, không tóm tắt, không lược bớt. Đề xuất tổng của hội đồng (proposal): PASS. Vì hợp đồng ở risk_tier T3, `human_override` bắt buộc trên MỌI judgment item bất kể verdict của judge — người ký nên tự đọc ba mục `required_evidence` của lens spec-alignment trước khi quyết, vì bất đồng chạm đúng câu hỏi "cổng pre-merge-check.sh có nhánh NOTE riêng cho ca chưa-ký hay không", một câu có thể kiểm bằng cách đọc trực tiếp GUIDE.md và spec.
   required_evidence:
     - (xem required_evidence riêng của lens spec-alignment ở mục `panel:` phía trên — ba mục đó là bằng chứng cụ thể mà lens bất đồng đã nêu, không lặp lại ở đây)
-  human_override:
+  human_override: Mạnh 2026-09-19 — Đạt, ký với giới hạn. Hội đồng 2 đạt / 1 trượt: lá phiếu bám-đặc-tả trượt vì nghi sổ tay hứa «lưới in một dòng nói rõ» mà nó không đọc được mã cổng (chỉ được đọc ba tệp). Người ký đã cho chạy tay: lưới in đúng dòng «có dòng cho nghỉ nhưng hồ sơ CHƯA có chữ ký người», nên lời hứa ấy CÓ vật. Bất đồng còn lại ghi Known limits GH-1.
 
 ## Known limits
 
+Năm mục GH-1…GH-5 + hai vế đã khai — nguyên văn ở mục «Known limits» của `contract.md`.
+
 ## Ngoài hợp đồng
+
+11 mục lượt chấm 3 (xem `review-findings.md`): người ký nhận TẤT CẢ làm Known limits, ghi vào `docs/research/known-limits-ledger.tsv`. Không mục nào mở hợp đồng mới trong vòng này; hai mục đề xuất `new-contract` (recheck-evidence.cjs nạp lib không bọc) ghi hạt giống, không tạo ô — luật «ô chỉ mở khi có neo ngoài».
 
 ## Analyst
 
