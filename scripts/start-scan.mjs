@@ -320,7 +320,11 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     });
     if (nghi && nghi.kieu === 'dong-so') {
       const oNghi = DA_THONG_CONG_2.includes(status) ? 'da-nghi' : 'da-dong-ho-so';
-      done.push(g(oNghi, { slug, state: status, at: nghi.at, by: nghi.by, ly_do: nghi.ly_do }));
+      // `nghi` là KHOÁ ĐẦU RA, không phải tên ô: một hồ sơ chưa ký mà nghỉ đậu
+      // ô «đã đóng có hồ sơ» — thẻ đoán theo tên ô sẽ vẫn mời ký nó. Bên đọc hỏi
+      // khoá này, ô chỉ để xếp chỗ trên bản đồ.
+      done.push(g(oNghi, { slug, state: status, at: nghi.at,
+        nghi: { by: nghi.by, at: nghi.at, ly_do: nghi.ly_do, id: nghi.id } }));
       continue;
     }
     // Dòng nghỉ thiếu vế KHÔNG phải nghỉ (fail-closed) — nhưng im lặng ở đây thì

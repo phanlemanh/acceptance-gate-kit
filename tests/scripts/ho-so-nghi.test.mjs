@@ -131,8 +131,13 @@ console.log('\nHSN9 cây kit thật — cờ kiểu cũ có, tập hồ sơ hỏ
   const x = oSlug(j, 'bo-qua-phai-thay-dinh-nghia-phep-do');
   check('HSN9 hồ sơ nghỉ kiểu cũ của kit mang cờ nghi-kieu-cu',
     !!x && (x.flags || []).includes('nghi-kieu-cu'), x);
-  const truoc = execFileSync('git', ['-C', ROOT, 'show', 'HEAD:scripts/start-scan.mjs'], { encoding: 'utf8' });
-  check('HSN9 đối chứng: bản HEAD KHÔNG có cờ này (mũi tiêm đổi được vật)', !truoc.includes('nghi-kieu-cu'));
+  // Đối chứng neo vào ĐIỂM CẮT NHÁNH, không neo vào HEAD: HEAD dịch theo từng
+  // commit của chính vòng này, nên neo vào nó là thước tự dối ngay sau lượt ghi
+  // đầu tiên (lớp «thước ghim vào thứ SẼ ĐỔI»).
+  const goc = execFileSync('git', ['-C', ROOT, 'merge-base', 'HEAD', 'origin/main'], { encoding: 'utf8' }).trim();
+  const truoc = execFileSync('git', ['-C', ROOT, 'show', `${goc}:scripts/start-scan.mjs`], { encoding: 'utf8' });
+  check('HSN9 đối chứng: bản trước vòng KHÔNG có cờ này (cờ đến từ chính bản vá)',
+    !truoc.includes('nghi-kieu-cu'));
   check('HSN9 tập hồ sơ hỏng rỗng như hôm nay', (j.broken || []).length === 0, (j.broken || []).map((b) => b.slug));
 }
 
@@ -280,18 +285,22 @@ console.log('\nHSN10 mở lại — supersedes trỏ đúng id thì hồ sơ s�
 
 console.log('\nHSN-THE thẻ — một sự thật với bộ quét');
 {
-  const a = khoFixture({ luat: 'eval', nghi: dong({}) });
-  const b = khoFixture({ luat: 'eval', nghi: dong({ by: '' }) });
+  // Hồ sơ CHƯA ký (verified) là ca phân biệt: ở signed-off thẻ vốn không mời ký
+  // nên một bản vá hỏng vẫn xanh. Cùng trạng thái, chỉ khác đúng một biến.
+  const a = khoFixture({ luat: 'eval', nghi: dong({}), status: 'verified' });
+  const b = khoFixture({ luat: 'eval', nghi: dong({ by: '' }), status: 'verified' });
   const ha = the(a.r), hb = the(b.r);
+  // Chuỗi mời ký phải CÓ THẬT trong bộ dựng thẻ — thẻ đổi chữ thì ca này đỏ,
+  // thay vì lặng lẽ đo một câu không ai in nữa.
   const cardSrc = readFileSync(path.join(ROOT, 'scripts', 'gate-card.js'), 'utf8');
-  const moiKy = (cardSrc.match(/>([^<>]*[Kk]ý duyệt[^<>]*)</) || [])[1];
-  check('HSN-THE rút được chuỗi mời ký từ chính bộ dựng thẻ', !!moiKy, moiKy);
-  check('HSN-THE hồ sơ nghỉ: in «đã nghỉ», giữ sử liệu, KHÔNG mời ký',
-    ha.includes('đã nghỉ') && ha.includes('chữ ký giữ làm sử liệu') && (!moiKy || !ha.includes(moiKy)),
-    { nghi: ha.includes('đã nghỉ'), suLieu: ha.includes('chữ ký giữ làm sử liệu'), moiKy: !!moiKy && ha.includes(moiKy) });
-  check('HSN-THE dòng thiếu vế: cờ vàng nêu đúng vế và VẪN mời ký',
-    hb.includes('thiếu by') && (!moiKy || hb.includes(moiKy)),
-    { co: hb.includes('thiếu by'), moiKy: !!moiKy && hb.includes(moiKy) });
+  const MOI_KY = 'Ký duyệt';
+  check('HSN-THE chuỗi mời ký CÓ THẬT trong bộ dựng thẻ', cardSrc.includes(MOI_KY));
+  const got = [
+    `nghỉ=${ha.includes('đã nghỉ') && ha.includes('ký giữ làm sử liệu') && !ha.includes(MOI_KY) ? 'nói-nghỉ+không-mời' : `KHÁC(${ha.includes('đã nghỉ')},${ha.includes('ký giữ làm sử liệu')},${ha.includes(MOI_KY)})`}`,
+    `thiếu-vế=${hb.includes('thiếu by') && !hb.includes('đã nghỉ') && hb.includes(MOI_KY) ? 'cờ-vàng+vẫn-mời' : `KHÁC(${hb.includes('thiếu by')},${hb.includes('đã nghỉ')},${hb.includes(MOI_KY)})`}`,
+  ];
+  check('HSN-THE hai ca so BẰNG NHAU: nghỉ thì không mời ký · thiếu vế thì vẫn mời',
+    got.join(' | ') === 'nghỉ=nói-nghỉ+không-mời | thiếu-vế=cờ-vàng+vẫn-mời', got);
 }
 
 console.log('\nHSN7 mutant — phá hàm thì CẢ BỐN bộ đọc lật');
