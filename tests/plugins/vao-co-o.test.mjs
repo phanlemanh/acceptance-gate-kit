@@ -22,6 +22,7 @@ const { section } = require(path.join(ROOT, 'lib', 'md-section.cjs'));
 // Trạng thái «đã thông Cổng Bằng chứng» HỎI lib, không chép: mảng đó tự khai «export để các
 // bên đọc HỎI, đừng chép — chép là hai bản trôi» (lib/workspace-record.cjs).
 const { DA_THONG_CONG_2 } = require(path.join(ROOT, 'lib', 'workspace-record.cjs'));
+const { frontmatterField } = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
 const HEADING = 'Ngưỡng chết / ngưỡng UAT';
 const MARKER = 'OPP-FRONTMATTER-TEMPLATE';
 
@@ -65,7 +66,11 @@ const pluginCopy = ({ script, template } = {}) => {
 const slugsIn = arr => (arr || []).map(x => x.slug);
 
 // ---- Neo ngoài (hồ sơ o-chi-mo-khi-co-neo-ngoai): bên đọc rút LUẬT từ khuôn, không gõ lại.
-const fmv = (t, k) => { const m = t.match(new RegExp(`^${k}:\\s*(.*?)\\s*(#.*)?$`, 'm')); return m ? m[1].trim() : ''; };
+// Bộ đọc frontmatter HỎI lib, không chép: bản chép của vòng này đã tái sinh đúng hai lỗi
+// `frontmatterField` từng vá — `\s*` nuốt dòng kế khi khoá để trống, và không neo vào khối
+// `---` đầu tệp nên một dòng `status:` trong THÂN BÀI đầu độc được cửa grandfather của VC9
+// (t1, lượt chấm 3b). Cùng nếp với `DA_THONG_CONG_2` ở trên.
+const fmv = (t, k) => frontmatterField(t, k) || '';
 const gocRule = (tpl) => {
   let line, rules, tuTro;
   try {
@@ -364,6 +369,21 @@ if (want('VC8')) {
   put('im2-park', { stage: 'decided', decision: 'park' }, '');
   put('im3-archived', { stage: 'archived', decision: 'kill' }, '');
   W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi.md', '# hạt giống không ô — hợp lệ từ 18/09\n');
+  // Chiều ĐẶC HIỆU của đảo chiều 18/09, đo trên CÂY THẬT chứ không trên fixture: luật cũ
+  // «mọi hạt giống phải có ô» đã bỏ, nên hạt giống mồ côi THẬT phải im. Bản trước ghi một tệp
+  // vào fixture rồi không ai đọc — assertion rỗng, hằng-đúng (t4, lượt chấm 3b). Nay nếu ai
+  // cắm lại luật cũ vào bất kỳ bên đọc nào thì ca này đỏ, vì cây thật đang có hạt giống mồ côi.
+  {
+    const SEED_RE = /^\d{4}-\d{2}-\d{2}-hat-giong-(.+)\.md$/;
+    const plansDir = path.join(ROOT, 'docs', 'plans'), accDir = path.join(ROOT, '_acceptance');
+    const moCoi = readdirSync(plansDir).filter(f => SEED_RE.test(f))
+      .map(f => f.match(SEED_RE)[1]).filter(sl => !existsSync(path.join(accDir, sl)));
+    if (!moCoi.length) errs.push('cây thật không còn hạt giống mồ côi — chiều đặc hiệu của đảo chiều mất vật, dựng lại ca này trước khi tin dòng PASS');
+    else {
+      const neu = neoErrs(accDir, TEMPLATE).filter(e => moCoi.some(sl => e.startsWith(sl + ':')));
+      if (neu.length) errs.push(`hạt giống mồ côi bị gọi tên (luật cũ sống lại?): ${JSON.stringify(neu)}`);
+    }
+  }
   const got = neoErrs(path.join(r, '_acceptance'), TEMPLATE);
   const want8 = ['do1-thieu: thiếu Gốc', 'do2-tu-tro: trỏ chính nó',
     'do2b-tu-tro-ghi-chu: trỏ chính nó', 'do2c-tu-tro-day-du: trỏ chính nó', 'do3a-rong: chưa điền',
@@ -416,7 +436,7 @@ if (want('VC8')) {
     if (n !== 1) errs.push(`${sl} phải nằm đúng MỘT ô, đang ở ${n} ô`);
   }
   if (errs.length) fail('VC8', errs.join(' · '));
-  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im; ${NEW.length} stub đúng một ngăn`);
+  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im (đo trên cây thật); ${NEW.length} stub đúng một ngăn`);
 }
 
 // ---------- VC9 (18/09): mốc phát hành CHƯA KÝ phải khai «Kho chờ nhận:» với ≥1 tên kho

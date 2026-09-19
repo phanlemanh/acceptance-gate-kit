@@ -25,7 +25,10 @@ evals:
       dòng → «thiếu Gốc» + slug; (đỏ 2) trỏ chính slug → «trỏ chính nó»; (đỏ 3a) rỗng sau dấu hai chấm
       → «chưa điền»; (đỏ 3b) placeholder rút nguyên văn từ marker → «chưa điền»; (đỏ 3c) «Gốc: suy từ
       đọc mã» → «không khớp dạng»; (đỏ 3d) dạng ĐÃ BỎ «kho <tên> — <người> gọi tên <ngày>» → «không khớp dạng»; (đỏ 4) ô decided build thiếu Gốc → đỏ; (im 1) hạt giống mồ côi →
-      im; (im 2) ô park không Gốc → im; (im 3) ô archived không Gốc → im. Ba ca tự-trỏ phủ cả ba
+      im — chiều này đo trên CÂY THẬT (6 hạt giống mồ côi có thật, không tên nào bị gọi), không
+      phải trên fixture; (im 2) ô park không Gốc → im; (im 3) ô archived không Gốc → im. Bộ đọc
+      frontmatter HỎI lib `frontmatterField`, không chép: khoá để trống thôi nuốt dòng kế, và
+      dòng `status:` trong thân bài thôi đầu độc cửa miễn trừ. Ba ca tự-trỏ phủ cả ba
       cách viết thật: trần «kit/_acceptance/<slug>», có chữ giải thích sau slug, và dạng đầy đủ
       «…/<slug>/opportunity.md» — cả ba → «trỏ chính nó». Luật rút từ khuôn, hai mutant chứng:
       đổi regex dạng hợp lệ trong bản sao khuôn → CẢ HAI ca dương đổi màu; nới khối TU-TRO → ba ca tự-trỏ THÔI đỏ.

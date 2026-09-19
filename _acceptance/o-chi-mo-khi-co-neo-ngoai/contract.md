@@ -44,7 +44,7 @@ một lượt Cổng Đáng), máy (ghim lại 2 h 25 → 0), kho tiêu thụ (m
   cũ); ô `park`/`kill`/`archived` không Gốc → IM. Luật tự-trỏ bác ở MỌI cách viết của dạng hợp lệ:
   trần · có chữ giải thích phía sau · dạng đầy đủ `…/<slug>/opportunity.md`. Dạng hợp lệ và luật
   bác đều rút từ marker trong khuôn — một nguồn cho bên viết lẫn bên đọc — và đột biến khuôn phải
-  lật kết luận. Mọi chiều trên MỘT fixture code-sinh từ khuôn, chỉ khác biến đang đo.
+  lật kết luận. Mọi lần đọc frontmatter đi qua `frontmatterField` của lib, không chép lại. Mọi chiều trên MỘT fixture code-sinh từ khuôn, chỉ khác biến đang đo.
 - AC-3: Given khuôn `contract-template.md` có dòng `Kho chờ nhận:` giữa marker `KHO-CHO-NHAN-LINE`
   (bên viết duy nhất; chỉ hồ sơ mốc `release-*` điền), When chạy VC9 trên cây, Then mốc `status` ≠
   `signed-off` mà thiếu dòng, hoặc dòng còn placeholder / giá trị bác («chưa có», «không», «—», «…»)
