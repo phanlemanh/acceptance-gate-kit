@@ -152,8 +152,10 @@ const recheck = (d) => {
     { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   return { ma: p.status, out: `${p.stdout || ''}${p.stderr || ''}` };
 };
-const the = (r) => spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gate-card.js'), '--root', r, '--slug', 'hsn'],
-  { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '';
+// Bỏ mã màu trước khi so cụm chữ — luật NO4 của kho: một chuỗi ANSI xen giữa
+// làm phép so «có câu này không» trượt lặng lẽ.
+const the = (r) => (spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gate-card.js'), '--root', r, '--slug', 'hsn'],
+  { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '').replace(/\x1b\[[0-9;]*m/g, '');
 
 // Chuỗi ghim của TỪNG luật — phải CÓ THẬT trong script cổng; gõ tay một câu đã
 // chết là phép đo xanh vì không bao giờ khớp được gì.
@@ -325,7 +327,7 @@ console.log('\nHSN7 mutant — phá hàm thì CẢ BỐN bộ đọc lật');
   const g = chay('scripts/pre-merge-check.sh', [r, '--no-t1-escape']);
   const rc = chay('scripts/recheck-evidence.cjs', [path.join(r, '_acceptance', 'hsn', 'evidence-report.md')]);
   const sc = JSON.parse(chay('scripts/start-scan.mjs', ['--root', r]).stdout);
-  const tc = chay('scripts/gate-card.js', ['--root', r, '--slug', 'hsn']).stdout || '';
+  const tc = (chay('scripts/gate-card.js', ['--root', r, '--slug', 'hsn']).stdout || '').replace(/\x1b\[[0-9;]*m/g, '');
   const x = oSlug(sc);
   const got = [
     `cổng=${g.status !== 0 ? 'đỏ' : 'KHÁC'}`,
