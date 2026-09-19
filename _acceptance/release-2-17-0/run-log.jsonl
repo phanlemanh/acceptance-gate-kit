@@ -1,0 +1,6 @@
+{"ts":"2026-09-19T16:53:43Z","kind":"eval","run_id":"rel217-20260919T165343Z-E1E2E3cE6","sha":"abc1d4f7d00941fb16b5369d1637fa174a90145f","cmd":"bash tests/plugins/run-tests.sh","exit_code":0,"secs":365,"evals":["E1","E2","E3c","E6"]}
+{"ts":"2026-09-19T16:53:43Z","kind":"eval","run_id":"rel217-20260919T165343Z-E3","sha":"abc1d4f7d00941fb16b5369d1637fa174a90145f","cmd":"bash tests/scripts/run-tests.sh","exit_code":0,"secs":334,"evals":["E3"]}
+{"ts":"2026-09-19T16:53:43Z","kind":"eval","run_id":"rel217-20260919T165343Z-E3b","sha":"abc1d4f7d00941fb16b5369d1637fa174a90145f","cmd":"bash tests/hooks/run-tests.sh","exit_code":0,"secs":2,"evals":["E3b"]}
+{"ts":"2026-09-19T16:53:43Z","kind":"eval","run_id":"rel217-20260919T165343Z-E3d","sha":"abc1d4f7d00941fb16b5369d1637fa174a90145f","cmd":"bash tests/workflows/run-tests.sh","exit_code":0,"secs":3,"evals":["E3d"]}
+{"ts":"2026-09-19T16:53:43Z","kind":"eval","run_id":"rel217-20260919T165343Z-E3e","sha":"abc1d4f7d00941fb16b5369d1637fa174a90145f","cmd":"node scripts/product-map.mjs --root . --check","exit_code":0,"secs":0,"evals":["E3e"]}
+{"ts":"2026-09-19T16:53:43Z","kind":"eval","run_id":"rel217-20260919T165343Z-E4","sha":"abc1d4f7d00941fb16b5369d1637fa174a90145f","cmd":"bash scripts/rel-cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat","exit_code":0,"secs":0,"evals":["E4"]}
