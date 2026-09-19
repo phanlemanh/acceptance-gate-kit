@@ -380,6 +380,7 @@ executors:
     tcc_the_thuoc_vat: "bash -c 'out=$(node tests/scripts/gate-card-thuoc-vat.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT1 GT2 GT3 GT4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_so_target: "bash -c 'out=$(node tests/scripts/gate-card-dec-key.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DK14 DK15; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     hsn_rang: node tests/scripts/ho-so-nghi.test.mjs
+    rel217_cua_so: bash scripts/rel-cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

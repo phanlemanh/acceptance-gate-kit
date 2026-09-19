@@ -10,6 +10,53 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.17.0 — 19/09/2026
+
+Cửa sổ 2.16 → 2.17 kéo **một ngày**, có đúng **một vòng** chạm engine (`ho-so-nghi`, T3, ký
+với giới hạn) cộng một bản vá đã ký từ cửa sổ trước (`nen-cong-cu-lenh-shell`). Mốc đi **làn
+V**: một lượt người ở Cổng Phạm vi, không dựng răng mới, năm dòng số đếm tay. Hai gói cùng lên
+`2.17.0`; `diagram-design` giữ `2.7.0` vì không đổi một dòng.
+
+**Đổi gì:**
+
+- **Một hồ sơ đã ký mà lời hứa của nó chết thì thôi chặn mọi PR.** Trước mốc này, một hồ sơ đã
+  ký xong rồi mất tiền đề — kho nguồn của một phần phụ thuộc biến mất, nhà cung cấp gỡ một mô
+  hình, hay chính đội cố ý đổi vật sau chữ ký — không có lối ra nào: luật đòi ghim lại, mà
+  không ai ghim được. Người vận hành phải bỏ qua bằng tay ở mỗi lần mở PR. Nay có lối ra: một
+  người viết **một dòng** vào sổ quyết định của hồ sơ, mang tên mình và một câu lý do. Khối
+  lệnh bấm được nằm ở mục «Cho một hồ sơ nghỉ» trong sổ tay. Hồ sơ ấy rời khỏi lưới, và
+  **không tệp đã ký nào đổi một byte** — chữ ký là sử liệu. Bốn nơi đọc cùng hỏi một hàm, nên
+  lưới, bộ kiểm lại bằng chứng, bản đồ và thẻ nói cùng một chuyện. Mở lại bằng một dòng nữa.
+- **Chỉ hồ sơ đã có chữ ký người mới nghỉ được.** Đây là nhát thu phạm vi có căn cứ đo được:
+  trước khi thu, một hồ sơ bị bác và chưa ai ký, thêm đúng một dòng, là cổng thoát xanh.
+  «Nghỉ» nghĩa là một lời hứa **đã ký** nay không kiểm lại được; hồ sơ chưa qua cổng thì bác
+  hoặc xếp lại ở tầng cơ hội. Hồ sơ đi làn máy-đi-tiếp không có chữ ký nên phải ký trước.
+  Dòng viết thiếu, một câu văn xuôi, hay thư viện vắng: tất cả chấm như hồ sơ đang sống, và
+  lưới **nói ra** vì sao thay vì im.
+- **Cảnh báo sai trên thẻ duyệt phạm vi đã tắt.** Đường nền hạ tầng đọc từ đầu của mỗi lệnh
+  khai trong cấu hình rồi hỏi máy xem chương trình ấy có không. Lệnh dựng bằng cú pháp shell
+  bị cắt cụt thành một chuỗi vô nghĩa, nên nó báo «thiếu công cụ» cho một công cụ vẫn chạy
+  tốt. Một kho tiêu thụ vì thế mang cờ vàng trên **mọi** thẻ Cổng Phạm vi vì lý do sai — mà cờ
+  luôn bật là cờ người ta học cách bỏ qua. Nay nó chỉ tra khi lệnh thật sự bắt đầu bằng một
+  tên chương trình, và nói ra khoá nào nó cố ý không tra.
+
+**Ai bị ảnh hưởng / làm gì:**
+
+- **Kho đang bị một hồ sơ chết tiền đề chặn:** nâng engine, rồi viết một dòng nghỉ cho hồ sơ
+  ấy theo khối lệnh trong sổ tay. Không cần migrate gì, không đụng hồ sơ nào khác.
+- **Kho khai executor dựng bằng cú pháp shell:** cờ vàng thường trực trên thẻ Cổng Phạm vi sẽ
+  tắt sau khi nâng. Không phải làm gì thêm.
+- **Mọi kho:** lớp tệp chép vào CI có **ba** tệp đổi (`scripts/pre-merge-check.sh`,
+  `scripts/recheck-evidence.cjs`, `lib/workspace-record.cjs`) — chép lại ba tệp ấy cùng lượt
+  nâng. Bộ kiểm lại bằng chứng nay nạp `lib/workspace-record.cjs`; tệp ấy vốn đã nằm trong
+  danh sách chép, và cả năm kho đang chạy bộ kiểm lại đều đã có nó (đo 19/09).
+
+**Giới hạn đi cùng bản này** (nguyên văn ở `_acceptance/ho-so-nghi/contract.md` mục Known
+limits, mỗi mục kèm lệnh tái lập): bản đồ và bộ quét còn lệch nhóm ở hai hình dạng hiếm (hồ sơ
+nghỉ có phiên nghiệm thu, hoặc có ô cơ hội hỏng); ba phép đo của chính vòng chưa đủ chặt, trong
+đó một đối chứng chưa bao giờ chạy. Cả năm là **phép đo**, không phải hành vi; vật sản phẩm qua
+mọi phép đo máy và năm lệnh suite ở cả ba lượt chấm.
+
 ## 2.16.0 — 18/09/2026
 
 Cửa sổ 2.15 → 2.16 kéo khoảng **một ngày** — ngắn nhất từ khi kit đếm năm dòng số.
