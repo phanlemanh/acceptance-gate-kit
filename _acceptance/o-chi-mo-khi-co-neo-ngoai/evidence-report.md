@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 36f47814ae82834198dfe6d91f8cae43085cb03a
+verified_commit: 58ba3177f17295450960903b75497208d17ad71d
 human_signoff:
 ---
 
@@ -22,115 +22,125 @@ human_signoff:
 | E6 | AC-6 | judgment | PASS |
 | E7 | AC-7 | script | PASS |
 
-Mọi eval kịch bản đều xanh, nhưng verdict tổng là REJECT vì hai lý do độc lập với bảng trên:
-(1) review xác nhận hai lỗi THẬT nằm trong hợp đồng (AC-2, AC-3) mà không eval nào trong bảng
-chạm tới — xem `review-findings.md` mục "## Trong hợp đồng"; và (2) lệnh suite
-`bash tests/scripts/run-tests.sh` — không gắn eval nào — thoát mã khác 0 (khối trong mục
-"### Lệnh suite (hồi quy)" bên dưới).
+Mọi eval kịch bản đều xanh, và cả năm lệnh suite cũng xanh (kể cả `bash tests/scripts/run-tests.sh`
+— đỏ ở round 3 vì lỗi điều phối, nay 886 passed / 0 failed) — nhưng verdict tổng vẫn là REJECT:
+review lượt này xác nhận BẢY finding THẬT nằm trong hợp đồng (4 chạm AC-2, 2 chạm AC-3, 1 chạm
+AC-4 — xem `review-findings.md` mục "## Trong hợp đồng") mà không eval nào trong bảng trên bắt
+được. Bản vá đường A (commit `58ba3177`, "bộ đọc frontmatter hỏi lib; chiều «hạt giống mồ côi» có
+vật thật") đổi bộ đọc frontmatter và cơ chế fixture nhưng KHÔNG đóng được lớp lỗi «assertion
+âm-tính-một-mình / hằng-đúng» mà review round 3b đã nêu tên: chiều «hạt giống mồ côi IM» của VC8
+vẫn là hai tập hợp rời nhau theo định nghĩa (`moCoi` so với `neoErrs`) nên `neu` luôn `[]` bất kể
+cây có hạt giống mồ côi hay không — ba finding độc lập (nguồn conventions, bugs, measurement) đều
+đo ra cùng kết quả này trên cây thật (t1, t3, t5, cả ba chạm AC-2). Song song đó, cửa «giá trị bác»
+của VC9 vẫn nhận lời khai phủ định tự nhiên làm tên kho hợp lệ («chưa có kho tiêu thụ nào» → IM),
+đo được ở cả hai chiều review (t4, t7, chạm AC-3). Và E4 vẫn không đọc `decisions.jsonl` như vế thứ
+hai của AC-4 đòi (t6).
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-o-chi-mo-khi-co-neo-ngoai-E1-r3
+  run_id: minted-o-chi-mo-khi-co-neo-ngoai-E1-r4
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.script.neo_vc8
-  verified_at: 2026-09-18T18:25:00Z
+  verified_at: 2026-09-19T00:51:47Z
   output: |
-    PASS: [VC8] mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im; 7 stub đúng một ngăn
+    PASS: [VC8] mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im (đo trên cây thật); 7 stub đúng một ngăn
 
 - eval: E2
-  run_id: minted-o-chi-mo-khi-co-neo-ngoai-E2-r3
+  run_id: minted-o-chi-mo-khi-co-neo-ngoai-E2-r4
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.script.neo_vc8
-  verified_at: 2026-09-18T18:25:00Z
+  verified_at: 2026-09-19T00:51:47Z
   output: |
-    PASS: [VC8] mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im; 7 stub đúng một ngăn
+    PASS: [VC8] mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im (đo trên cây thật); 7 stub đúng một ngăn
 
 - eval: E3
-  run_id: minted-o-chi-mo-khi-co-neo-ngoai-E3-r3
+  run_id: minted-o-chi-mo-khi-co-neo-ngoai-E3-r4
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.neo_vc9
-  verified_at: 2026-09-18T18:25:00Z
+  verified_at: 2026-09-19T00:51:47Z
   output: |
     PASS: [VC9] mốc chưa ký khai Kho chờ nhận (cây thật + 5 hồ sơ fixture rút từ khuôn; marker là nguồn)
 
 - eval: E4
   run_id: minted-o-chi-mo-khi-co-neo-ngoai-E4-r3
   exit_code: 0
-  baseline: green
   verifier: config:executors.script.neo_vc8
-  verified_at: 2026-09-18T18:25:00Z
-  output: |
-    PASS: [VC8] mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im; 7 stub đúng một ngăn
+  verified_at: 2026-09-18T17:09:58Z
+  carried_from_round: 3
+  note: carry-forward từ round 3 — delta không chạm paths của eval.
 
 - eval: E5
   run_id: minted-o-chi-mo-khi-co-neo-ngoai-E5-r3
   exit_code: 0
-  baseline: red
   verifier: config:executors.script.neo_loi_b
-  verified_at: 2026-09-18T18:25:00Z
-  output: |
-    PASS: LB2 chieu do: ban sao gate-card doi hang -> LB1 do
-    PASS: LB3 ba tai lieu: khoi OOC-LOI-B co cau moi, KHONG co cau cu
-    Results: 3 passed, 0 failed
+  verified_at: 2026-09-18T17:09:58Z
+  carried_from_round: 3
+  note: carry-forward từ round 3 — delta không chạm paths của eval.
 
 - eval: E6
   judged_by: judge panel (fresh-context) — domain-correctness, operational-feasibility, spec-alignment
   proposal: PASS
+  carried_from_round: 3
+  note: panel giữ nguyên từ round 3 — inputs không đổi, không chấm lại; rationale xem round đó.
   votes:
-    - domain-correctness: PASS — Đối chiếu trực tiếp: (1) CLAUDE.md đổi "PHẢI gọi tên ít nhất MỘT chỗ cắt" thành "ĐƯỢC PHÉP ghi chỗ cắt... vào Notes", đúng khớp vế 1 của bảng §3 thiết kế; (2) luật (b) đổi "Giữa hai release" thành "Giữa hai mốc ĐƯỢC MỘT KHO TIÊU THỤ NHẬN", đúng khớp vế 4; (3) câu "Mốc chỉ cắt khi có kho chờ nhận (dòng Kho chờ nhận:...), và đi làn V như tiền lệ 2.5.0/2.7.0" có mặt nguyên văn, khớp vế 4; (4) các câu còn lại (a), phần "Ô chỉ mở khi có NEO NGOÀI" khớp định nghĩa neo và phạm vi ở §2/§3 thiết kế, không phát hiện mâu thuẫn hay sai lệch nghĩa nào giữa hai văn bản trong phạm vi hai file được cấp.
-    - operational-feasibility: PASS — CLAUDE.md phản ánh đủ và đúng cả bốn vế của thiết kế §3: (1) vế "PHẢI gọi tên chỗ cắt" đã đổi thành "ĐƯỢC PHÉP ghi... ; chỗ cắt chỉ thành Ô khi có Gốc:" (dòng ~105-108), tham chiếu quy tắc cũ chỉ còn ở dạng trích dẫn lịch sử trong ngoặc; (2) luật (b) nói rõ "Giữa hai mốc ĐƯỢC MỘT KHO TIÊU THỤ NHẬN... Mẫu số là mốc KHO NHẬN, không phải mốc cắt số" (dòng 74-76); (3) có câu "Mốc chỉ cắt khi có kho chờ nhận (dòng Kho chờ nhận:... răng VC9), và đi làn V như tiền lệ 2.5.0/2.7.0" (dòng 77-78) khớp thiết kế; (4) các câu sử liệu/lịch sử khác (án cắt kit đã bỏ, mục tiêu ≤3 lượt, hai chốt không mục tiêu số nào ghi đè...) không bị đụng chạm và không mâu thuẫn với phần vừa sửa. Không tìm thấy chỗ nào còn sót khẳng định "PHẢI gọi tên chỗ cắt" như quy tắc hiện hành.
-    - spec-alignment: PASS — CLAUDE.md luật (c) đã hạ đúng như thiết kế §3 vế 1: "PHẢI gọi tên" → "ĐƯỢC PHÉP ghi chỗ cắt cho cửa sổ kế... chỗ cắt chỉ thành Ô khi có `Gốc:`". Luật (b) đã đổi mẫu số đúng vế 4: "Giữa hai mốc ĐƯỢC MỘT KHO TIÊU THỤ NHẬN tối đa MỘT vòng meta... Mẫu số là mốc KHO NHẬN, không phải mốc cắt số" và có câu "Mốc chỉ cắt khi có kho chờ nhận (dòng `Kho chờ nhận:`... — răng VC9), và đi làn V như tiền lệ 2.5.0/2.7.0" — khớp nguyên văn ý thiết kế. Mục «Ô chỉ mở khi có NEO NGOÀI» cũng khớp định nghĩa neo, phạm vi VC8, và hành động ghi hạt giống thay vì tạo ô ở §2–§3 thiết kế. Các câu khác của luật (a), (c) phần 5-dòng-số, mục tiêu ≤3 lượt/≤1 chạm, hai chốt không mục tiêu số ghi đè — không thấy mâu thuẫn với hai vế vừa đổi, đọc mạch lạc và nhất quán nội bộ với hai file trong phạm vi.
+    - domain-correctness: PASS (r3)
+    - operational-feasibility: PASS (r3)
+    - spec-alignment: PASS (r3)
   run_id: minted-o-chi-mo-khi-co-neo-ngoai-E6-r3
-  verifier: judgment: judge panel (fresh-context)
-  verified_at: 2026-09-18T18:25:00Z
-  output: |
-    3/3 lens đồng thuận PASS trên đối chiếu CLAUDE.md sau sửa với 4 vế thiết kế (luật (a) không còn bắt buộc gọi tên chỗ cắt, luật (b) đổi mẫu số sang mốc-kho-nhận, câu "mốc chỉ cắt khi có kho chờ nhận" có mặt nguyên văn, phần còn lại giữ nguyên nghĩa) — không có dissent.
+  verified_at: 2026-09-18T17:09:58Z
   human_override:
 
 - eval: E7
   run_id: minted-o-chi-mo-khi-co-neo-ngoai-E7-r3
   exit_code: 0
-  baseline: green
   verifier: config:executors.script.product_map
-  verified_at: 2026-09-18T18:25:00Z
-  output: |
-    PRODUCT-MAP.md khớp hồ sơ xưởng.
+  verified_at: 2026-09-18T17:09:58Z
+  carried_from_round: 3
+  note: carry-forward từ round 3 — delta không chạm paths của eval.
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh
-  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-bash_tests_scripts_run_tests_sh-r3
-  exit_code: 1
-  verified_at: 2026-09-18T18:25:00Z
+  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-bash_tests_scripts_run_tests_sh-r4
+  exit_code: 0
+  verified_at: 2026-09-19T00:51:47Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-bash_tests_hooks_run_tests_sh-r3
+  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-bash_tests_hooks_run_tests_sh-r4
   exit_code: 0
-  verified_at: 2026-09-18T18:25:00Z
+  verified_at: 2026-09-19T00:51:47Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r3
+  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r4
   exit_code: 0
-  verified_at: 2026-09-18T18:25:00Z
+  verified_at: 2026-09-19T00:51:47Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-bash_tests_workflows_run_tests_sh-r3
+  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-bash_tests_workflows_run_tests_sh-r4
   exit_code: 0
-  verified_at: 2026-09-18T18:25:00Z
+  verified_at: 2026-09-19T00:51:47Z
+
+- cmd: node scripts/product-map.mjs --root . --check
+  run_id: minted-o-chi-mo-khi-co-neo-ngoai-SUITE-node_scripts_product_map_mjs_root_check-r4
+  exit_code: 0
+  verified_at: 2026-09-19T00:51:47Z
 
 ## Known limits
 
 ## Ngoài hợp đồng
 
-Xem `review-findings.md` (mục "## Ngoài hợp đồng — người quyết ở Gate 2") — 12 finding ngoài phạm vi hợp đồng đã duyệt của vòng này (8 mới + 4 carried từ round trước), chưa qua đối kháng — người quyết ở Gate 2, máy không tự sửa.
+Xem `review-findings.md` (mục "## Ngoài hợp đồng — người quyết ở Gate 2") — 6 finding ngoài phạm
+vi hợp đồng đã duyệt của vòng này, TOÀN BỘ carried từ các round trước (3 từ round 3, 1 từ round 2,
+2 từ round 1); round này không sinh finding ngoài hợp đồng mới. Chưa qua đối kháng — người quyết ở
+Gate 2, máy không tự sửa.
 
 ## Analyst
 
-E1, E2, E4 (VC8 chạy trên cây thật) và E7 (`product-map --check`) đều xanh trên CẢ nhánh lẫn diffBase — không phân biệt được tính năng vòng này với code cũ. Phần "cây thật" của ba eval VC8 đo trên một cây vốn đã sạch từ các vòng trước (không ô nào đang thiếu Gốc ngay lúc này), nên đây là regression-guard có chủ ý; phần phân biệt thật của VC8 nằm ở ma trận fixture chạy trong cùng tiến trình test (không có cmd riêng nên không có baseline riêng để so). `product-map --check` tương tự luôn xanh khi bản đồ khớp hồ sơ xưởng, bất kể vòng nào. Giữ nguyên như regression-guard, không viết lại ở vòng này.
+none — mọi eval feature đều red trên baseline (có phân biệt)
 
 ## Variance
 
@@ -138,6 +148,6 @@ none — không có eval nào khai `runs > 1` trong vòng này.
 
 ## Iterations
 
-Round 1: REJECT — 4 lỗi trong hợp đồng (luật bác tự-trỏ về khuôn, LB3 round-trip từ hằng, tự-ăn-thuốc thiếu chiều đỏ, và một lỗi khác). Trả về implementation.
-Round 2: PASS ở tầng máy nhưng còn 2 lỗi trong hợp đồng — chốt DỪNG-VÁ (thu phạm vi thay vì vá thêm), trả về implementation theo đường B.
-Round 3: đường B thi hành (neo còn MỘT dạng — bỏ «kho — người gọi tên», đóng t4 và t7 của round trước) — nhưng lượt tổng hợp trước bị lỗi điều phối (args ráp tay làm mất dòng panel + một evalsHash bịa); soạn lại cho đúng thì review xác nhận 2 lỗi MỚI trong hợp đồng (AC-2, AC-3 — chưa eval nào bắt) và lệnh suite `bash tests/scripts/run-tests.sh` thoát mã khác 0 → verdict REJECT, đã chạm trần 3 vòng, escalate cho người.
+Round 2: PASS ở tầng máy nhưng còn lỗi trong hợp đồng — chốt DỪNG-VÁ (thu phạm vi thay vì vá thêm), trả về implementation theo đường B.
+Round 3: đường B thi hành (neo còn MỘT dạng — bỏ «kho — người gọi tên», đóng t4 và t7 của round trước) — lượt tổng hợp đầu bị lỗi điều phối (args ráp tay làm mất dòng panel + evalsHash bịa); soạn lại thì review xác nhận 2 lỗi MỚI trong hợp đồng (AC-2, AC-3) và suite `bash tests/scripts/run-tests.sh` thoát mã khác 0 → REJECT, chạm trần 3 vòng, escalate cho người.
+Round 4: đường A thi hành (bộ đọc frontmatter hỏi lib `frontmatterField`; chiều «hạt giống mồ côi» đổi sang đo trên cây thật) — mọi eval + cả 5 lệnh suite đều xanh, nhưng review xác nhận BẢY finding trong hợp đồng (4×AC-2, 2×AC-3, 1×AC-4), cùng lớp «assertion hằng-đúng» mà round 3b đã nêu tên vẫn chưa đóng được → REJECT.
