@@ -1,0 +1,156 @@
+schema_version: 1
+feature_slug: ho-so-nghi
+# Một tệp ca `tests/scripts/ho-so-nghi.test.mjs`, fixture kho do code sinh trong lượt (git init,
+# hợp đồng signed-off, báo cáo ghim verified_commit, run-log có làn suite-only thiếu evals_exit —
+# ca OneFlow thu nhỏ). Mọi ca dùng CHUNG fixture lành HSN0, mỗi ca đổi đúng một biến; ma trận so
+# BẰNG NHAU với danh sách viết trước; mỗi mũi tiêm assert đổi được tệp. E1…E7, E9 chung một lệnh
+# (bộ chạy dedupe), mỗi eval ghim dòng PASS của ca nó gọi tên. Đường dẫn suy từ vị trí tệp ca.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0, đầu ra có dòng PASS của HSN0 và HSN1. HSN0 (đối chứng dương, chạy trước): ba fixture
+      con (a) cũ hoá · (b) làn ghim lại không khớp · (c) thiếu evals_exit → mỗi kho cổng thoát khác
+      0 và ghim ĐÚNG chuỗi của luật nó kích («evidence is stale» · «none of the cited re-pin lane»
+      · «recorded no evals_exit»), so bằng nhau 3/3 — thiếu chuỗi nào là ĐỎ vì fixture, không phải
+      xanh. HSN1: ba kho ấy + một dòng type nghi do CHÍNH khối lệnh rút từ marker trong GUIDE sinh
+      (grep marker, exec, assert decisions.jsonl tăng đúng một dòng) → cổng thoát 0, 0 VIOLATION
+      cho slug, đúng một dòng ghim «NOTE [hsn]: hồ sơ nghỉ —». Mutant đổi tên trường trong khối
+      lệnh GUIDE (by → nguoi) → HSN1 đỏ. Bản chưa vá làm HSN1 thoát khác 0.
+    paths: [scripts/pre-merge-check.sh, lib/workspace-record.cjs, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN2 — ma trận ba ca × ba bộ đọc so BẰNG NHAU với danh sách viết
+      trước: dòng nghỉ thiếu by · thiếu decision · at không parse được. Cổng: VẪN thoát khác 0 với
+      VIOLATION làn eval nguyên văn như HSN0(c) cộng đúng một NOTE ghim «dòng nghỉ thiếu by» /
+      «thiếu decision» / «thiếu at». Bộ quét: da-giao + cờ «nghi-thieu-ve:by» / «:decision» / «:at».
+      Thẻ: có cờ vàng nêu đúng vế và CÓ chuỗi mời ký (rút từ hằng gate-card). Thiếu ô nào là đỏ.
+    paths: [scripts/pre-merge-check.sh, lib/workspace-record.cjs, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN3: fixture (c) + một dòng type descope có decision «hồ sơ nghỉ
+      hẳn, plugin đã rút», không dòng type nghi → cổng, recheck, bộ quét cho ĐÚNG kết quả của
+      HSN0(c) (VIOLATION · đỏ · da-giao) và bộ quét KHÔNG có cờ nào (so mảng cờ bằng rỗng). Ca
+      chứng chiều đặc hiệu: văn xuôi không phải sự thật, cũng không được cờ vàng.
+    paths: [lib/workspace-record.cjs, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN4: `scripts/recheck-evidence.cjs --recheck-all` trên fixture
+      nghỉ hợp lệ thoát 0 và in dòng ghim «NOTE» có «hồ sơ nghỉ» và «bỏ kiểm lại». Hai chiều
+      KHÔNG-được-kích-hoạt trong cùng ca: (i) đối chứng dương — fixture HSN0(c) không nghỉ vẫn
+      đỏ với chuỗi «REPIN x» nguyên văn như hôm nay; (ii) biên — fixture có dòng nghỉ thiếu `by`
+      thì kiểm lại KHÔNG bỏ qua, vẫn đỏ «REPIN x» và KHÔNG in dòng «hồ sơ nghỉ». Ba kết quả so
+      bằng nhau với bộ viết trước.
+    paths: [scripts/recheck-evidence.cjs, lib/workspace-record.cjs, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN5: ba fixture → bộ quét trả đúng bộ ba (da-nghi · da-dong-ho-so ·
+      da-dong-ho-so + cờ nghi-kieu-cu) so bằng nhau; tập tên khối của bản đồ BẰNG tập tên khối
+      rút từ bản `product-map.mjs` ở SHA NỀN của vòng qua git — KHÔNG rút từ chính bản đang đo
+      (tập mong đợi lấy từ hằng của vật bị đo là phép so tự dối); và hồ sơ da-nghi nằm dưới
+      khối «Đã giao» của bản đồ THẬT do bộ dựng sinh ra; thẻ
+      Cổng 2 của hồ sơ da-nghi chứa «đã nghỉ» và «chữ ký giữ làm sử liệu», KHÔNG chứa chuỗi mời
+      ký (rút từ hằng của gate-card, không gõ tay).
+    paths: [scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, scripts/product-map.mjs, scripts/gate-card.js, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN7: bản sao cây kit, mũi tiêm đổi thân hàm hoSoNghi thành `return
+      null` (assert tệp đổi), chạy lại HSN1(c) trên bản sao → cổng VIOLATION, recheck đỏ, bộ quét
+      da-giao, thẻ KHÔNG chứa «đã nghỉ» và CÓ chuỗi mời ký — cả BỐN lật, so bằng nhau với bộ bốn
+      viết trước. Bản sao là trọn `scripts lib` (git archive), không chép danh sách tay.
+    paths: [lib/workspace-record.cjs, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN6 và HSN8. HSN6: sha256 của contract.md, evidence-report.md,
+      run-log.jsonl trước và sau khi ghi dòng nghỉ bằng CHÍNH khối lệnh rút từ marker GUIDE (cùng
+      đường với HSN1) bằng nhau, và decisions.jsonl tăng đúng một dòng. HSN8: bản sao xoá lib/workspace-record.cjs (assert
+      tệp mất) → cổng in «luật nghỉ NOT ENFORCED» và VIOLATION như HSN0.
+    paths: [scripts/pre-merge-check.sh, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs: [GUIDE.md, scripts/gate-card.js, docs/superpowers/specs/2026-09-19-ho-so-nghi-design.md]
+    question: >
+      Đọc mục GUIDE «Cho một hồ sơ nghỉ» và dòng thẻ Cổng Bằng chứng mà bộ dựng thẻ in cho hồ
+      sơ nghỉ, như một người ở kho tiêu thụ vừa gặp một hồ sơ chết tiền đề (kho nguồn của một
+      phần phụ thuộc biến mất) và đang bị cổng chặn mỗi lần mở PR. Người ấy đọc trong một phút:
+      có biết phải làm gì, làm ở đâu, và điều gì KHÔNG xảy ra với chữ ký cũ không? Có chỗ nào
+      hứa một việc mà vòng này không đo không? Không đọc mã nguồn, không tính lại con số nào.
+    expected: >
+      Hội đồng đọc mục GUIDE «Cho một hồ sơ nghỉ» và dòng thẻ: một người ở kho tiêu thụ biết viết
+      dòng nghỉ bằng một khối lệnh bấm được, biết chữ ký không bị sửa, biết cách mở lại; dòng thẻ
+      không có thuật ngữ mã; không câu nào hứa điều vòng này không đo (lệnh riêng, supersedes).
+      Vote FAIL phải nêu câu sai và bằng chứng thiếu.
+    evidence_required: [run_id, verifier, verified_at, panel]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN9: trên cây kit thật, start-scan --json có slug
+      bo-qua-phai-thay-dinh-nghia-phep-do mang cờ nghi-kieu-cu; và tập slug ở «hồ sơ hỏng» là
+      TẬP CON của tập ấy tại một SHA CỐ ĐỊNH trước vòng (quan hệ, không phải hằng số 0; sha ghi
+      thẳng trong ca — neo vào một ref dịch theo lần gộp thì ca chết ngay sau khi nhánh vào
+      nhánh chính, đúng lớp «thước ghim vào thứ SẼ ĐỔI»).
+    paths: [scripts/start-scan.mjs, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: Exit 0 — bản đồ sản phẩm khớp hồ sơ xưởng sau khi bộ quét biết trạng thái nghỉ.
+    paths: [PRODUCT-MAP.md, scripts/product-map.mjs, scripts/start-scan.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN11 — thu phạm vi 19/09. Hai biến của ca «chưa ký» (báo cáo
+      vắng hẳn `human_signoff` · mang chỗ-giữ của khuôn) × bốn bộ đọc: cổng ĐỎ nguyên văn như
+      đối chứng cộng đúng một dòng ghim «có dòng cho nghỉ nhưng hồ sơ CHƯA có chữ ký người»;
+      kiểm lại ĐỎ «REPIN x»; bộ quét giữ ô của hồ sơ đang sống kèm cờ `nghi-chua-ky`; thẻ CÓ
+      chuỗi mời ký và KHÔNG chứa «đã nghỉ». Đối chứng dương trong CÙNG ca: thêm chữ ký thật
+      vào chính báo cáo ấy thì cả bốn lật sang nghỉ. Ma trận 2 biến × 4 bộ đọc + 4 ô đối chứng
+      so BẰNG NHAU với bộ viết trước.
+    paths: [lib/workspace-record.cjs, scripts/pre-merge-check.sh, scripts/start-scan.mjs, scripts/product-map.mjs, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.hsn_rang
+    expected: >
+      Exit 0 và dòng PASS của HSN10: fixture (c) + dòng nghỉ hợp lệ + một dòng sổ có
+      `supersedes` trỏ ĐÚNG id dòng nghỉ → bốn bộ đọc cho đúng kết quả HSN0(c) (VIOLATION · đỏ ·
+      da-giao · thẻ mời ký); đối chứng dương trong cùng ca (chiều KHÔNG được kích hoạt):
+      `supersedes` trỏ một id khác thì hàm KHÔNG gỡ nghỉ — bốn bộ đọc vẫn nói nghỉ y HSN1, cổng
+      thoát 0. Hai vế so bằng nhau với bộ kết quả viết trước.
+    paths: [lib/workspace-record.cjs, tests/scripts/ho-so-nghi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

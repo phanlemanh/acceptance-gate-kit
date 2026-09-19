@@ -606,6 +606,53 @@ nhật-ký-vấp, để phiên nghiệm thu không cháy vì build vấp và ph�
 tiêu vào việc của người: phán giá trị. Nghi thức, hai ổ cắm vào vòng, và luật
 dùng/không-dùng: [docs/reference/lai-thu-nguoi-la.md](docs/reference/lai-thu-nguoi-la.md).
 
+## Cho một hồ sơ nghỉ (2.17 · hồ sơ ho-so-nghi)
+
+Một hồ sơ đã ký đôi khi hứa một điều không còn kiểm lại được: kho nguồn của một
+phần phụ thuộc biến mất, nhà cung cấp gỡ một mô hình, hoặc chính đội đã cố ý đổi
+vật sau chữ ký. Cổng vẫn đòi ghim lại, và không ai ghim được. Lối ra **không**
+phải sửa chữ ký cũ — chữ ký là sử liệu. Lối ra là cho hồ sơ **nghỉ**: một dòng
+trong sổ quyết định, có tên người và một câu lý do.
+
+**Chỉ hồ sơ ĐÃ CÓ CHỮ KÝ NGƯỜI mới nghỉ được.** «Nghỉ» là lối ra cho một lời hứa
+đã ký nay không kiểm lại được; hồ sơ chưa ai ký thì chưa có lời hứa nào để cho
+nghỉ — bác hoặc xếp lại nó ở tầng cơ hội. Hồ sơ «máy đã thông» (làn V, không chữ
+ký) cũng vậy: ký trước, rồi mới nghỉ được.
+
+Chạy ở gốc kho, thay bốn chỗ trong ngoặc nhọn:
+
+<!-- <<<NGHI-LINE-RECIPE -->
+```bash
+L=_acceptance/<slug>/decisions.jsonl; { printf '{"id":"d-%s-%s",' "$(date -u +%Y%m%dT%H%M%SZ)" "$(( $(cat "$L" 2>/dev/null | grep -c '') + 1 ))"; tr -d '\n' <<JSON; printf '}\n'; } >> "$L"
+"type":"nghi","stage":"gate2","at":"$(date -u +%Y-%m-%dT%H:%M:%SZ)","by":"<tên người>","decision":"<lý do một câu>","impact":"<hồ sơ thôi hứa gì>"
+JSON
+```
+<!-- NGHI-LINE-RECIPE>>> -->
+
+Sau đó:
+
+- Lưới trước-merge in một dòng ghi chú nêu tên người, ngày và lý do, rồi thôi
+  chấm hồ sơ ấy ở phần còn lại của lưới — gồm ba luật hay chặn hồ sơ chết tiền
+  đề: bằng chứng cũ hoá · làn ghim lại · làn eval. Miễn trừ là **toàn phần** cho
+  hồ sơ ấy, và vì thế nó chỉ mở cho hồ sơ đã qua Cổng Bằng chứng có chữ ký.
+- `contract.md`, `evidence-report.md`, `run-log.jsonl` **không đổi một byte**.
+- Thẻ và bản đồ xếp hồ sơ vào «đã giao — đã nghỉ, giữ sử liệu».
+
+**Chưa có chữ ký thì dòng nghỉ không có hiệu lực** — lưới in một dòng nói rõ, và
+hồ sơ vẫn bị chấm như đang sống.
+
+**Thiếu tên người hoặc thiếu lý do thì không tính là nghỉ** — lưới chấm như hồ sơ
+đang sống và nói ra vế nào thiếu. Một câu văn xuôi trong một dòng loại khác cũng
+không tính: sự thật phải ở dạng máy đọc được, không phải một câu để người diễn
+giải.
+
+**Mở lại** khi tiền đề sống lại: thêm một dòng sổ mang `"supersedes":"<id dòng
+nghỉ>"`. Hồ sơ quay về đúng luật cũ, và phải ghim lại như thường.
+
+**Giới hạn đã khai:** dòng nghỉ nằm cùng tầng tin cậy với chữ ký duyệt — kit tin
+sổ quyết định do người viết. Một lệnh có khoá chống máy tự gọi là việc của vòng
+sau; lưới hiện tại là sổ để lại vết và cửa veto.
+
 ## 5. Cài đặt
 
 ### 5.1 Mỗi máy dev (một lần)

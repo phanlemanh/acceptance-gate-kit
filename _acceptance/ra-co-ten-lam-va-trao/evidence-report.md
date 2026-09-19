@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
+verified_commit: ac4b85ccfd5cae88dfe34204b8f68e6ff071c49c
 human_signoff: Manh 2026-08-25
 ---
 
@@ -310,3 +310,11 @@ sha: b9f8766eaa519fa46ef7750211e475aa4b4a73d0 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 14 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
 run_id: repin-20260918T125024Z-93405
 sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 15 — 2026-09-19, do khai một dòng vào sổ khai-gạch của hồ sơ này cho tệp ca ho-so-nghi — kéo hồ sơ đã ký vào diff, thuế ghim theo thiết kế
+run_id: repin-20260919T113401Z-20042
+sha: 9d022b2c654146c6735710a33eda2e4af86ebfa1 · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 16 — 2026-09-19, do vòng ho-so-nghi ký xong: mã chịu cổng đổi sau lần ghim trước, và hồ sơ này ở trong diff vì sổ khai-gạch
+run_id: repin-20260919T150833Z-36789
+sha: ac4b85ccfd5cae88dfe34204b8f68e6ff071c49c · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

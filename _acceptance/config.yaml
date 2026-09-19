@@ -379,6 +379,7 @@ executors:
     tcc_tran_thuoc: "bash -c 'out=$(node tests/scripts/s4-args-tran-thuoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in TT1 TT2 TT3 TT4 TT5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_the_thuoc_vat: "bash -c 'out=$(node tests/scripts/gate-card-thuoc-vat.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT1 GT2 GT3 GT4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_so_target: "bash -c 'out=$(node tests/scripts/gate-card-dec-key.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DK14 DK15; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    hsn_rang: node tests/scripts/ho-so-nghi.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

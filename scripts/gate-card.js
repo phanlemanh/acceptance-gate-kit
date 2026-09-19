@@ -834,7 +834,7 @@ const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
 // Máy quét chết → GIỮ NGUYÊN hành vi cũ + một cờ vàng; không bao giờ im lặng
 // tuyên sạch (fail-visible, không fail-quiet).
 const trangThai = require('./trang-thai-ho-so.cjs');
-let scanState = null, scanErr = null, scanBroken = null;
+let scanState = null, scanErr = null, scanBroken = null, scanHit = null;
 // Chỉ quét khi thẻ CÓ THỂ ký: nhánh REJECT/BLOCKED không đọc MAY_DI_TIEP, mà
 // start-scan là lượt chạy tiến trình con đắt nhất của bộ dựng (S4-r1 đo:
 // --extract 0,03s → 0,45s sau khi khối bị dời lên trước extract).
@@ -858,6 +858,7 @@ if (approvable) try {
     // với machine-cleared + human_signoff).
     scanBroken = (j.broken || []).find(x => x.slug === slug) || null;
     scanState = hit ? hit.stateKey : (scanBroken ? (scanBroken.stateKey || 'ho-so-hong') : null);
+    scanHit = hit || null;
   }
 } catch (e) { scanErr = String(e.message).slice(0, 200); }
 // Hồ sơ đã có ô kết `machine-cleared` cũng là «máy đã đi tiếp» — bộ quét gọi nó bằng hai
@@ -879,7 +880,11 @@ const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
 // (mời ký) + một cờ vàng — đúng câu chú thích ngay trên. Bản S4-r10 để `MAY_THONG` đứng một
 // mình nên repo không có config.yaml vừa MẤT nút ký vừa in lời khai sáu-điều-kiện mà không ai
 // kiểm: im lặng tuyên sạch, đúng thứ bị cấm (S4-r12 [2]).
-const MAY_DI_TIEP = !scanBroken && scanState != null && (MAY_THONG
+// Hồ sơ NGHỈ — thẻ CHỈ đọc bộ quét, KHÔNG tự đọc sổ: bản sao thứ hai của luật
+// là đúng lớp lỗi hồ sơ này sinh ra để đóng. Nghỉ nghĩa là hồ sơ thôi chờ ai —
+// mời ký một hồ sơ đã cho nghỉ là mời người ký lại chính điều họ đã quyết dừng.
+const NGHI = (scanHit && scanHit.nghi) || null;
+const MAY_DI_TIEP = !scanBroken && scanState != null && (MAY_THONG || !!NGHI
   || ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
       'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState));
 // Chữ cho trạng thái này: bộ quét trả khoá thì HỎI BẢNG; bộ quét mù (scanState null) thì
@@ -1067,6 +1072,10 @@ if (ooc.cluster) flags.push(['fwarn', '⚠ Nhiều lỗi rơi ngoài vùng các 
   else if (naReason && !naMixed) flags.push(['fred', 'Analyst n-a không nêu lý do — baseline không chạy mà không nói vì sao; ghi lý do (≥ 20 ký tự) hoặc chạy baseline.']);
   else if (analyst && !/^none/i.test(analyst) && !/^\{\{/.test(analyst)) flags.push(['fred', esc(pl.analyst_plain || stripMd(analyst))]); }
 { const varr = cleanLines(section(report, 'Variance')).join(' ').trim(); if (varr && !/^none/i.test(varr) && !/^\{\{/.test(varr)) flags.push(['fred', 'Có eval ngẫu nhiên (pass-rate hỗn hợp) — ' + esc(stripMd(varr))]); }
+if (NGHI) flags.push(['fok', `Hồ sơ đã nghỉ — ${esc(String(NGHI.by || ''))} ${esc(String(NGHI.at || '').slice(0, 10))}: ${esc(String(NGHI.ly_do || ''))}. Chữ ký giữ làm sử liệu, không mời ký lại.`]);
+for (const f of (scanHit && scanHit.flags) || []) {
+  if (String(f).startsWith('nghi-thieu-ve:')) flags.push(['fwarn', `Dòng cho nghỉ thiếu ${esc(String(f).split(':')[1])} — chưa tính là nghỉ, hồ sơ vẫn cần người ký.`]);
+}
 if (tier === 'T3') flags.push(['fok', 'Đụng phần nhạy cảm → tier T3, đúng là cần bạn duyệt kỹ.']);
 if (evComplete) flags.push(['fok', 'Cổng chạy thật, bằng chứng máy đầy đủ (run_id · exit 0 · verifier).']);
 else flags.push(['fwarn', 'Bằng chứng máy CHƯA đủ trường (run_id · exit 0 · verifier) — kiểm trước khi ký.']);

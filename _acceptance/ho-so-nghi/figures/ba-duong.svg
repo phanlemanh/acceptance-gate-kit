@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 552" role="img" aria-labelledby="bd-title bd-desc" xmlns="http://www.w3.org/2000/svg">
+      <title id="bd-title">Ba đường đã cân, chọn đường B</title>
+      <desc id="bd-desc">Ba cột A, B, C so trên ba hàng: chữ ký là sử liệu, kho chạy bản cũ, cổng đọc được. B được chọn; A và C gạch kèm lý do một dòng.</desc>
+      <defs><style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Lora:ital,wght@0,400;1,400&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');</style>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== tiêu đề cột: ba đường ===== -->
+      <!-- A -->
+      <rect x="248" y="40" width="232" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="248" y="40" width="232" height="80" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="256" y="48" width="64" height="16" rx="2" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="288" y="60" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">ĐƯỜNG A</text>
+      <text x="364" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle">status: retired</text>
+      <line x1="304" y1="84" x2="424" y2="84" stroke="#4f5d75" stroke-width="1.2"/>
+      <text x="364" y="106" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">trong hợp đồng</text>
+      <!-- B (chọn) -->
+      <rect x="496" y="40" width="232" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="496" y="40" width="232" height="80" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <rect x="504" y="48" width="64" height="16" rx="2" fill="none" stroke="rgba(235,108,54,0.50)" stroke-width="0.8"/>
+      <text x="536" y="60" fill="#ba4513" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">ĐƯỜNG B</text>
+      <text x="612" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Dòng sổ «nghỉ»</text>
+      <text x="612" y="106" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">hợp đồng bất biến, một hàm</text>
+      <!-- C -->
+      <rect x="744" y="40" width="232" height="80" rx="6" fill="#f5f5f5"/>
+      <rect x="744" y="40" width="232" height="80" rx="6" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <rect x="752" y="48" width="64" height="16" rx="2" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="784" y="60" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">ĐƯỜNG C</text>
+      <text x="860" y="88" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Thư mục su-lieu/</text>
+      <line x1="800" y1="84" x2="920" y2="84" stroke="#4f5d75" stroke-width="1.2"/>
+      <text x="860" y="106" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">công nhận làm nghi thức</text>
+
+      <line x1="32" y1="132" x2="976" y2="132" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- ===== hàng 1: chữ ký là sử liệu (y 140..212) ===== -->
+      <text x="32" y="172" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Chữ ký là sử liệu</text>
+      <text x="32" y="190" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">AC-7 · vi phân byte</text>
+      <text x="364" y="172" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">Sửa tệp đã ký,</text>
+      <text x="364" y="190" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">sáu bộ đọc enum đổi</text>
+      <text x="612" y="172" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Không chạm một byte</text>
+      <text x="612" y="190" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">hợp đồng · báo cáo</text>
+      <text x="860" y="172" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">Không chạm,</text>
+      <text x="860" y="190" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">nhưng di chuyển tệp</text>
+      <line x1="32" y1="212" x2="976" y2="212" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- ===== hàng 2: kho chạy bản cũ (y 220..292) ===== -->
+      <text x="32" y="252" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Kho chạy bản cũ</text>
+      <text x="32" y="270" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">đường đọc-cũ</text>
+      <text x="364" y="252" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">Status lạ → «hồ sơ hỏng»,</text>
+      <text x="364" y="270" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">cổng cũ chặn</text>
+      <text x="612" y="252" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Dòng sổ trơ với bộ đọc cũ:</text>
+      <text x="612" y="270" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">không vỡ gì</text>
+      <text x="860" y="262" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">Đã chạy được hôm nay</text>
+      <line x1="32" y1="292" x2="976" y2="292" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <!-- ===== hàng 3: cổng đọc được (y 300..372) ===== -->
+      <text x="32" y="332" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Cổng đọc được</text>
+      <text x="32" y="350" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">AC-1 · cổng trước-merge</text>
+      <text x="364" y="342" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">Có</text>
+      <text x="612" y="332" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Có, qua node</text>
+      <text x="612" y="350" fill="#2d3142" font-size="11" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">như luật làn eval</text>
+      <text x="860" y="332" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">Không — mù vì đường dẫn,</text>
+      <text x="860" y="350" fill="#4f5d75" font-size="11" font-family="'Geist', sans-serif" text-anchor="middle">fail-open</text>
+
+      <line x1="32" y1="380" x2="976" y2="380" stroke="#2d3142" stroke-width="1"/>
+
+      <!-- ===== hàng chọn (y 388..460) ===== -->
+      <text x="32" y="420" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Chọn</text>
+      <!-- A: gạch -->
+      <rect x="332" y="400" width="64" height="20" rx="4" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <text x="364" y="414" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">✗ GẠCH</text>
+      <text x="364" y="444" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">sửa tệp đã ký · kho cũ chặn «hồ sơ hỏng»</text>
+      <!-- B: chọn -->
+      <rect x="580" y="400" width="64" height="20" rx="4" fill="#eb6c36"/>
+      <text x="612" y="414" fill="#f5f5f5" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">✓ CHỌN</text>
+      <text x="612" y="444" fill="#2d3142" font-size="10" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">AC-1 cổng đọc · AC-7 chữ ký 0 byte đổi</text>
+      <!-- C: gạch -->
+      <rect x="828" y="400" width="64" height="20" rx="4" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <text x="860" y="414" fill="#4f5d75" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">✗ GẠCH</text>
+      <text x="860" y="444" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif" text-anchor="middle">cổng mù vì đường dẫn · chỉ giữ đọc-cũ</text>
+
+      <!-- ===== legend ===== -->
+      <line x1="32" y1="484" x2="976" y2="484" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="504" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+      <rect x="32" y="520" width="28" height="16" rx="4" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="68" y="532" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Đường được chọn</text>
+      <rect x="192" y="520" width="28" height="16" rx="4" fill="#ffffff" stroke="#4f5d75" stroke-width="1"/>
+      <line x1="200" y1="528" x2="212" y2="528" stroke="#4f5d75" stroke-width="1.2"/>
+      <text x="228" y="532" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">Đường gạch, lý do một dòng ở hàng Chọn</text>
+      <text x="472" y="532" fill="#636b80" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">AC-n</text>
+      <text x="508" y="532" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">tiêu chí trong hợp đồng đo hàng đó</text>
+    </svg>

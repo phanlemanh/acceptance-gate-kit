@@ -29,7 +29,7 @@ const { frontmatterField, resolveConfigKey, chuKyThat } = require(path.join(__di
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
 const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
         configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked,
-        DA_THONG_CONG_2, conflictProblem } =
+        DA_THONG_CONG_2, conflictProblem, hoSoNghi } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
@@ -310,6 +310,33 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
     if (statusProblem) { pushHong({ slug, ...statusProblem }); continue; }
     const status = frontmatterField(cTxt, 'status').toLowerCase();
     const tier = frontmatterField(cTxt, 'risk_tier') || null;
+    // Hồ sơ NGHỈ — HỎI vị từ dùng chung, đừng đọc sổ ở đây: bản sao thứ hai của
+    // luật là đúng lớp lỗi lib kia sinh ra để đóng. Đặt TRƯỚC mọi nhánh trạng
+    // thái vì nghỉ cắt ngang chúng: một hồ sơ đã thông Cổng 2 và một hồ sơ còn
+    // «đã duyệt» đều nghỉ được, chỉ khác ô nó đậu.
+    const nghi = hoSoNghi({
+      ledgerText: read(path.join(dir, 'decisions.jsonl')).t,
+      reportText: read(path.join(dir, 'evidence-report.md')).t,
+      contractAtRoot: true, suLieuContract: false,
+    });
+    if (nghi && nghi.kieu === 'dong-so') {
+      const oNghi = DA_THONG_CONG_2.includes(status) ? 'da-nghi' : 'da-dong-ho-so';
+      // `nghi` là KHOÁ ĐẦU RA, không phải tên ô: một hồ sơ chưa ký mà nghỉ đậu
+      // ô «đã đóng có hồ sơ» — thẻ đoán theo tên ô sẽ vẫn mời ký nó. Bên đọc hỏi
+      // khoá này, ô chỉ để xếp chỗ trên bản đồ.
+      done.push(g(oNghi, { slug, state: status, at: nghi.at,
+        nghi: { by: nghi.by, at: nghi.at, ly_do: nghi.ly_do, id: nghi.id } }));
+      continue;
+    }
+    // Dòng nghỉ thiếu vế KHÔNG phải nghỉ (fail-closed) — nhưng im lặng ở đây thì
+    // người viết dòng ấy không bao giờ biết mình thiếu gì, nên nó thành một cờ
+    // cắt ngang mọi ô, đúng nếp `qua-timebox`.
+    const nghiFlags = [];
+    if (nghi && nghi.kieu === 'dong-so-thieu') nghiFlags.push(...nghi.thieu.map(v => `nghi-thieu-ve:${v}`));
+    // Dòng nghỉ trên hồ sơ CHƯA KÝ: không có hiệu lực (thu phạm vi 19/09), nhưng
+    // NÓI RA — im lặng ở đây là người viết dòng ấy tưởng hồ sơ đã nghỉ trong khi
+    // cổng vẫn chặn, và không có gì trên mặt người chỉ ra vì sao.
+    if (nghi && nghi.kieu === 'chua-ky') nghiFlags.push('nghi-chua-ky');
     // evidence-report.md CHỈ được đọc trong hai nhánh tiêu thụ nó (verified,
     // implemented). Chốt lỗi đặt TRƯỚC chỗ rẽ trạng thái là lớp lỗi đã dẫm 4
     // round (r1: opportunity, r4: chính file này) — lỗi của hồ sơ mà trạng thái
@@ -391,7 +418,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // the text for the flag only, and let a read error stay silent here — an unused
       // file's error must not decide the slug's bucket (doctrine of the lazy read).
       const oFlagTxt = oTxt ?? (() => { const r = read(oPath); return r.err ? null : r.t; })();
-      const flags = [];
+      const flags = [...nghiFlags];
       if (oFlagTxt && quaTimebox(oFlagTxt)) flags.push('qua-timebox');
       if (mienDoCoNguoiDung(cTxt, oTxt)) flags.push('mien-do-co-nguoi-dung');
       if (verdict) { done.push(g(UAT_KEY[verdict], { slug, state: UAT_STATE[verdict], at: ngayXong(dir, cPath), flags })); continue; }
@@ -422,16 +449,16 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         const kcnState = ev.exists && !ev.signoff ? kcn(cTxt, ev.raw) : null;
         if (!ev.exists) pushHong({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
         else if (!meaning) pushHong({ slug, ...bangLech(ev.verdict) });
-        else if (ev.signoff) done.push(g('da-giao', { slug, state: 'signed-off', at: ngayXong(dir, cPath) }));
+        else if (ev.signoff) done.push(g('da-giao', { slug, state: 'signed-off', at: ngayXong(dir, cPath), flags: nghiFlags }));
         // KCN-NHANH: hồ sơ KHÔNG còn cần người — cùng câu lưới trước-merge hỏi
         // (da-veto · Cổng 1 đúng vết · sáu điều kiện xanh-sạch). Trả về tên
         // trạng thái «đã giao»: lan-v-mo (cửa veto mở) hay xanh-sach (người duyệt
         // Cổng 1). Hồ sơ chưa sạch rơi xuống nhánh dưới và VẪN là cổng — đó là
         // lỗi vòng một của hồ sơ lan-v-khong-phai-cho-ky (khoá vào veto_state).
-        else if (kcnState) done.push(g(kcnState === 'lan-v-mo' ? 'may-di-tiep-veto-mo' : 'may-di-tiep-xanh-sach', { slug, state: kcnState, at: ngayXong(dir, cPath) }));
-        else if (meaning.settled) gates.push(g('cho-cong-bang-chung', { slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier }));
+        else if (kcnState) done.push(g(kcnState === 'lan-v-mo' ? 'may-di-tiep-veto-mo' : 'may-di-tiep-xanh-sach', { slug, state: kcnState, at: ngayXong(dir, cPath), flags: nghiFlags }));
+        else if (meaning.settled) gates.push(g('cho-cong-bang-chung', { slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier, flags: nghiFlags }));
         // Còn việc của MÁY: REJECT -> đang sửa theo bằng chứng · BLOCKED -> nghiệm thu bị chặn.
-        else inProgress.push(g(meaning.nextStep === 'S3-fix' ? 'dang-sua-theo-bang-chung' : 'nghiem-thu-bi-chan', { slug, status, nextStep: meaning.nextStep, tier }));
+        else inProgress.push(g(meaning.nextStep === 'S3-fix' ? 'dang-sua-theo-bang-chung' : 'nghiem-thu-bi-chan', { slug, status, nextStep: meaning.nextStep, tier, flags: nghiFlags }));
       }
     }
     else if (status === 'implemented') {
@@ -447,7 +474,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
           const k = !ev.exists ? 'cho-nghiem-thu-may'
             : ev.verdict === 'REJECT' ? 'dang-sua-theo-bang-chung'
             : ev.verdict === 'BLOCKED' ? 'nghiem-thu-bi-chan' : 'cho-nghiem-thu-may';
-          inProgress.push(g(k, { slug, status, nextStep: meaning.nextStep, tier }));
+          inProgress.push(g(k, { slug, status, nextStep: meaning.nextStep, tier, flags: nghiFlags }));
         }
       }
     }
@@ -455,13 +482,13 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // Vật đã nằm trong nhánh gốc → KHÔNG in «viết code»: bước kế là người chọn
       // đóng theo quan sát hay chấm lại, nên không có bước máy (`nextStep: null`).
       // Không phải cổng mới — hồ sơ vẫn ở nhóm «Đang dở».
-      if (vatDaONhanhGoc(dir)) inProgress.push(g('vat-da-o-nhanh-goc', { slug, status, nextStep: null, tier }));
-      else inProgress.push(g(planExists(slug) ? 'dang-viet-code' : 'dang-lap-ke-hoach', { slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier }));
+      if (vatDaONhanhGoc(dir)) inProgress.push(g('vat-da-o-nhanh-goc', { slug, status, nextStep: null, tier, flags: nghiFlags }));
+      else inProgress.push(g(planExists(slug) ? 'dang-viet-code' : 'dang-lap-ke-hoach', { slug, status, nextStep: planExists(slug) ? 'S3' : 'S2', tier, flags: nghiFlags }));
     }
     else if (status === 'draft') {
       // Đọc lười ô cơ hội: chỉ để trả lời «lối không-đo-được có bị dùng sai chỗ không».
       const oD = read(oPath);
-      const flags = !oD.err && oD.t && mienDoCoNguoiDung(cTxt, oD.t) ? ['mien-do-co-nguoi-dung'] : [];
+      const flags = [...nghiFlags, ...(!oD.err && oD.t && mienDoCoNguoiDung(cTxt, oD.t) ? ['mien-do-co-nguoi-dung'] : [])];
       gates.push(g('cho-cong-pham-vi', { slug, gate: 'pham-vi', since: since(cPath, null), tier, flags }));
     }
     else pushHong({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
@@ -485,6 +512,11 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
   // included: an idea parked past its own timebox is exactly what the start card's
   // «Vừa xong» block is taught to print (co-qua-timebox-nhom-da-xong).
   const oFlags = quaTimebox(oRead.t) ? ['qua-timebox'] : [];
+  // Kiểu sử liệu cũ (kit tự cho nghỉ 17/09): hợp đồng ĐÃ KÝ nằm trong `su-lieu/`,
+  // gốc không còn tệp nào cho cổng thấy. Cờ để người đọc phân biệt nó với một ý
+  // bị bác lúc khám phá — hai chuyện rất khác nhau cùng đậu một ô.
+  if (hoSoNghi({ ledgerText: null, contractAtRoot: false,
+                 suLieuContract: existsSync(path.join(dir, 'su-lieu', 'contract.md')) })) oFlags.push('nghi-kieu-cu');
   if (stage === 'archived') { done.push(g('da-dong-ho-so', { slug, state: decision || 'archived', at: ngayXong(dir, oPath), flags: oFlags })); continue; }
   if (stage !== 'decided' || !decision) {
     // Chưa có ngưỡng thì chưa có gì để ký: xếp «đang cân nhắc», không phải cổng.
