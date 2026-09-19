@@ -349,6 +349,26 @@ if (want('VC8')) {
   put('im2-park', { stage: 'decided', decision: 'park' }, '');
   put('im3-archived', { stage: 'archived', decision: 'kill' }, '');
   W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi.md', '# hạt giống không ô — hợp lệ từ 18/09\n');
+  // (iii-b) CHẤM ma trận dưới LUẬT THẬT, so BẰNG NHAU — phép chấm chính của VC8.
+  // Bản 19/09 xoá nhầm dòng này khi thay khối mutant, và hậu quả đo được: giết vị từ tự-trỏ
+  // (`if (false && r.tuTro(...))`) mà VC8 vẫn XANH — luật «neo không trỏ chính nó» chết lặng
+  // (t3, lượt chấm 5). So BẰNG NHAU giữ cả hai chiều trong một phép: ca đỏ phải đỏ ĐÚNG lý do,
+  // ca im (hai ca dương · park · archived) phải VẮNG khỏi danh sách.
+  const CA_DO = [
+    'do1-thieu: thiếu Gốc',
+    'do2-tu-tro: trỏ chính nó',
+    'do2b-tu-tro-ghi-chu: trỏ chính nó',
+    'do2c-tu-tro-day-du: trỏ chính nó',
+    'do3a-rong: chưa điền',
+    'do3b-placeholder: chưa điền',
+    'do3c-van-tu-do: không khớp dạng',
+    'do4-build-thieu: thiếu Gốc',
+    'do5-dang-da-bo: không khớp dạng',
+  ].sort();
+  const got = neoErrs(path.join(r, '_acceptance'), TEMPLATE);
+  if (JSON.stringify(got) !== JSON.stringify(CA_DO))
+    errs.push(`ma trận dưới luật thật: có ${JSON.stringify(got)} — mong ${JSON.stringify(CA_DO)}`);
+
   // Luật kit là nguồn: đột biến CLAUDE.md trong bản sao thì kết luận phải lật.
   const luatCopy = f => { const d = tmp(); const q = path.join(d, 'CLAUDE.md'); writeFileSync(q, f(readFileSync(LUAT_KIT, 'utf8'))); return q; };
   const l1 = luatCopy(t => t.replace('/_acceptance/[\\w-]+', '/KHONG-TON-TAI/[\\w-]+'));
@@ -365,10 +385,24 @@ if (want('VC8')) {
   if (neoErrs(path.join(r, '_acceptance'), TEMPLATE, l4).some(e => /trỏ chính nó/.test(e)))
     errs.push('nới KIT-GOC-TU-TRO trong bản sao luật mà vẫn còn ca «trỏ chính nó»');
   // Ranh giới: khuôn giao cho kho tiêu thụ KHÔNG được mang hình dạng của kit (19/09).
-  for (const [f, ten] of [[TEMPLATE, 'khuôn ô'], [CONTRACT_TPL, 'khuôn hợp đồng'], [START_MD, 'start.md']]) {
-    const t = readFileSync(f, 'utf8');
-    for (const cam of ['_acceptance/<slug-khác>', 'KIT-GOC-RULE', 'Kho chờ nhận'])
-      if (t.includes(cam)) errs.push(`${ten} mang luật riêng của kit («${cam}») — nó đi theo engine sang kho tiêu thụ`);
+  // Vị từ rút từ NGUỒN — chính hai khối luật trong CLAUDE.md — chứ không gõ danh sách đen:
+  // mọi chuỗi ≥8 ký tự của luật kit mà xuất hiện trong một vật giao đi đều là rò rỉ.
+  const manhLuat = [khoiLuat(LUAT_KIT, 'KIT-GOC-RULE'), khoiLuat(LUAT_KIT, 'KIT-GOC-TU-TRO')]
+    .flatMap(x => x.split(/[\s|]+/)).map(x => x.trim()).filter(x => x.length >= 8);
+  const roRi = (txt, ten) => {
+    const e = [];
+    for (const m of manhLuat) if (txt.includes(m)) e.push(`${ten} mang mảnh luật riêng của kit («${m}») — nó đi theo engine sang kho tiêu thụ`);
+    for (const marker of ['KIT-GOC-RULE', 'KIT-GOC-TU-TRO']) if (txt.includes(marker)) e.push(`${ten} nhắc marker luật kit («${marker}»)`);
+    return e;
+  };
+  const VAT_GIAO_DI = [[TEMPLATE, 'khuôn ô'], [CONTRACT_TPL, 'khuôn hợp đồng'], [START_MD, 'start.md']];
+  for (const [f, ten] of VAT_GIAO_DI) errs.push(...roRi(readFileSync(f, 'utf8'), ten));
+  // chiều đỏ: tiêm một mảnh luật vào BẢN SAO của từng vật → phải bắt, và bắt ĐÚNG tên vật
+  for (const [f, ten] of VAT_GIAO_DI) {
+    const tiem = readFileSync(f, 'utf8') + '\n' + khoiLuat(LUAT_KIT, 'KIT-GOC-RULE') + '\n';
+    const e = roRi(tiem, ten);
+    if (!e.length) errs.push(`tiêm mảnh luật vào bản sao «${ten}» mà chân ranh giới KHÔNG bắt`);
+    else if (!e[0].includes(ten)) errs.push(`chân ranh giới bắt nhưng không gọi đúng tên vật «${ten}»`);
   }
 
   // (v-b) TỰ ĂN THUỐC: chính ô của vòng này phải qua đúng vị từ đó. Không đo qua `hangCho`
@@ -401,7 +435,7 @@ if (want('VC8')) {
     if (n !== 1) errs.push(`${sl} phải nằm đúng MỘT ô, đang ở ${n} ô`);
   }
   if (errs.length) fail('VC8', errs.join(' · '));
-  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô; luật kit là nguồn, bốn mutant; khuôn giao đi không mang luật kit); tự ăn thuốc hai chiều trên ô của chính vòng; ${NEW.length} stub đúng một ngăn`);
+  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận ${CA_DO.length} ca đỏ chấm dưới luật thật; luật kit là nguồn, bốn mutant; ba vật giao đi không mang mảnh luật kit, có chiều đỏ); tự ăn thuốc hai chiều trên ô của chính vòng; ${NEW.length} stub đúng một ngăn`);
 }
 
 // VC_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)
