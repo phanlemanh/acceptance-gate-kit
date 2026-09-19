@@ -365,6 +365,12 @@ executors:
     tcc_bo_qua_gioi_han: "bash -c 'out=$(node tests/scripts/bo-qua-dinh-nghia-phep-do.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DN5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_nen_cong_cu_suite: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN8; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_nen_luoi_engine: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # Vật của hồ sơ nen-cong-cu-lenh-shell — hai răng chạy ngoài suite vĩnh viễn, chết
+    # theo hồ sơ khi merge. Khoá đầu ghim đúng các ca của vòng (đối chứng dương NEN0 và
+    # ca đỏ cũ NEN1 đi cùng, để «xanh» không thể là «ca chưa bao giờ chạy»).
+    ncc_cong_cu_tu_dau: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ncc_khuon_bon_chan: "bash _acceptance/nen-cong-cu-lenh-shell/rang-khuon.sh"
+    ncc_hoi_quy_nen: "bash _acceptance/nen-cong-cu-lenh-shell/rang-hoi-quy.sh"
     tcc_the_nen: "bash -c 'out=$(node tests/scripts/gate-card-duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GN1 GN2 GN3 GN4 GN5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_suite_tuan_tu: "bash -c 'out=$(node tests/workflows/suite-tuan-tu.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in ST0 ST1 ST2 ST3 ST4 ST5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_phan_loai: "bash -c 'out=$(node tests/scripts/phan-loai.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in PL1 PL2 PL3 PL4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"

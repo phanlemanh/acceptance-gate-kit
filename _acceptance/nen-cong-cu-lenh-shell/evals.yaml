@@ -1,0 +1,133 @@
+schema_version: 1
+feature_slug: nen-cong-cu-lenh-shell
+# Khuôn theo hồ sơ mốc 2.13–2.16: eval máy chạy MỘT tệp ca và ghim dòng PASS của đúng các
+# ca nó gọi tên — phán quyết không lấy từ mã thoát trọn suite. Mọi cmd đi qua config: ref.
+# E1…E6 dùng CHUNG một lệnh (bộ chạy dedupe lệnh trùng, tệp ca chạy đúng một lượt); mỗi
+# eval ghim ca phục vụ đúng tiêu chí của nó. Ca đỏ và ca im dùng CHUNG fixture lành của
+# NEN0, mỗi ca chỉ đổi đúng một biến; fixture do code sinh trong lượt, đường dẫn suy từ
+# vị trí tệp ca, không ca nào đọc plugin cache thật của máy.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ncc_cong_cu_tu_dau
+    expected: >
+      Exit 0, và trong đầu ra có dòng PASS của NEN-TD1 cùng NEN0. NEN0 (đối chứng dương,
+      chạy trước): kho fixture lành — script thoát 0, bốn chân xanh, đúng một bullet «không
+      có». NEN-TD1 (chiều im của vòng này): cùng fixture ấy, đổi ĐÚNG MỘT biến — executor
+      `a` thành một lệnh có từ đầu dựng bằng thay thế shell và CHẠY ĐƯỢC
+      (`${BIEN_KHONG_CO:-$(…)}/echo …`) — chân cong_cu XANH và KHÔNG bullet `nen cong-cu:`
+      nào mang khoá `executors.test.a`. Trên bản chưa vá ca này ĐỎ với chuỗi cụt
+      `THIEU ${BIEN_KHONG_CO:-$(` — đó là chiều lật đã đo tay 19/09 trước khi viết vá.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ncc_cong_cu_tu_dau
+    expected: >
+      Exit 0 và dòng PASS của NEN1 — ca ĐỎ đã có từ trước vòng này, giữ nguyên: executor là
+      một lệnh mà từ đầu là tên chương trình KHÔNG có trên máy (kèm một phép gán biến đứng
+      trước), chân cong_cu ĐỎ, dòng ghim đúng `nen cong-cu: THIEU khong-co-lenh-nay-xyz
+      (khoa executors.test.a)`, và không dòng cong-cu nào gọi tên thứ không hỏng. Ca này là
+      chiều NHẠY của bản vá: nó phải còn sống sau khi luật bỏ-qua được thêm vào.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ncc_cong_cu_tu_dau
+    expected: >
+      Exit 0 và dòng PASS của NEN-TD2 — ca phân biệt hai bản của lối vá: cùng fixture, đổi
+      một biến thành lệnh mà từ đầu là tên chương trình KHÔNG có trên máy NHƯNG phần sau có
+      ống dẫn (`khong-co-lenh-nay-xyz --x | head -n 1`). Chân cong_cu vẫn ĐỎ và ghim đúng
+      tên chương trình ấy. Một bản vá quét cú pháp shell trên CẢ chuỗi lệnh sẽ làm ca này
+      IM — tức bản vá ấy tắt một cái đèn đang sáng đúng, và ca này bắt sống điều đó.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ncc_cong_cu_tu_dau
+    expected: >
+      Exit 0 và dòng PASS của NEN-TD3 — cùng fixture, executor mở đầu bằng một nhóm của
+      shell (`(cd . && echo …)`): chân cong_cu XANH, không bullet cong-cu nào cho khoá ấy.
+      Trên bản chưa vá, từ đầu là `(cd` nên ca này ĐỎ.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ncc_cong_cu_tu_dau
+    expected: >
+      Exit 0 và dòng PASS của NEN-TD4 — ca hai chiều cho lời hứa «đèn tắt vẫn có tiếng».
+      Chiều NHẠY: ở lượt chạy của NEN-TD1 và của NEN-TD3, stderr mang ĐÚNG MỘT dòng lý do
+      gọi ĐÚNG khoá `executors.test.a`. Chiều ĐẶC HIỆU (thiếu thì lời hứa mất nghĩa): ở
+      lượt của NEN0 (kho lành) và của NEN1 (lệnh thiếu thật, có tra và có đỏ), stderr
+      KHÔNG chứa dòng lý do nào — số dòng lý do bằng ĐÚNG số khoá bị bỏ tra, nên một bản
+      in-cho-chắc mọi khoá sẽ làm ca này đỏ. Ca đọc stderr do fixture trả về, không đọc
+      duong-nen.md — dòng lý do theo thiết kế KHÔNG vào tệp và KHÔNG làm chân đỏ.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ncc_cong_cu_tu_dau
+    expected: >
+      Exit 0 và dòng PASS của NEN-TD5 — ca đột biến (cùng nếp NEN4b), chạy HAI lượt trên
+      CÙNG một bản chép để assertion âm tính không đứng một mình. Lượt 1 (đối chứng dương):
+      chép `feature-loop` sang thư mục tạm, CHƯA tiêm gì, chạy kịch bản của NEN-TD1 trên
+      bản chép — phải XANH; không xanh thì ca tự đỏ với thông điệp ghim «ban chep hong»,
+      vì lúc ấy «đỏ» của lượt 2 không phân biệt được với bản chép thiếu tệp. Lượt 2: kiểm
+      marker `CONG-CU-TU-DAU` khớp ĐÚNG 1/1 lần (khác 1/1 thì ca tự đỏ), thay khối luật
+      bằng một bản luôn nhận mọi từ đầu là tên chương trình, chạy lại cùng kịch bản — phải
+      ĐỎ và bullet phải ghim đúng chuỗi cụt `THIEU ${BIEN_KHONG_CO:-$(`, không chỉ đúng
+      màu. Ca này chứng phép đo mới treo vào chính luật vừa thêm, không vào môi trường máy.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ncc_khuon_bon_chan
+    expected: >
+      Exit 0 và hai dòng PASS: KH1 và KH2. Phép đo BÓC đúng hàng `cong_cu` của bảng «Bốn
+      chân» trong `skills/acceptance/references/duong-nen-template.md` rồi mới khớp — không
+      grep toàn tệp, vì chữ «stderr» đã có sẵn ở mô tả chân `luoi` và chân `engine` nên một
+      phép grep toàn tệp sẽ xanh ngay cả khi ô `cong_cu` không được sửa một chữ. KH1 (chiều
+      xanh, vật thật): ô ấy mang đủ hai vế — chỉ tra khi từ đầu là tên chương trình, và bỏ
+      qua thì in lý do ra stderr. KH2 (chiều đỏ, chạy TRONG CÙNG LƯỢT, không phải lời khai
+      trong báo cáo): bản sao gỡ hai vế khỏi ĐÚNG hàng ấy phải làm CHÍNH hàm kiểm thoát
+      khác 0 với thông điệp gọi tên vế vắng, VÀ bản đột biến phải khác bản gốc theo `cmp` —
+      vế sau chặn ca «awk không khớp dòng nào» cho màu xanh giả. Đường dẫn suy từ vị trí
+      script, không hardcode gốc kho.
+    paths: [skills/acceptance/references/duong-nen-template.md]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.ncc_hoi_quy_nen
+    expected: >
+      Exit 0 — ma trận hồi quy TOÀN PHẦN viết trước, số assert bằng số phần tử: đúng 13 ca
+      cũ của đường nền (NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN8
+      NEN9) phải CÓ MẶT bằng tên trong đầu ra, và số dòng PASS mang tiền tố NEN phải bằng
+      ĐÚNG 13 cộng số ca mới của vòng. Không lấy phán quyết từ mã thoát trọn suite: một ca
+      cũ bị đổi tên, bị return sớm nuốt, hay rơi khỏi vòng quét `*.test.mjs` vẫn cho suite
+      thoát 0, và chính đó là lớp lỗi ca này canh. Suite đầy đủ vẫn chạy mỗi lượt qua
+      `feature_loop.suite_keys`, nên eval này không thêm lượt chạy nào cho cùng tệp ca.
+    paths: [tests/scripts/duong-nen.test.mjs, feature-loop/scripts/duong-nen.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ncc_cong_cu_tu_dau
+    expected: >
+      Exit 0 và dòng PASS của NEN-TD6 — ca buộc bản vá vào TRIỆU CHỨNG, không chỉ vào hàm.
+      Kho fixture mang NGUYÊN VĂN chuỗi lệnh đang làm `~/dev/crm` nhánh `onehub` đỏ hôm nay
+      (`executors.design.ui_check`, dòng 425 của `_acceptance/config.yaml` — chuỗi được ghim
+      hằng trong tệp ca, không diễn đạt lại). Hai chiều trên CÙNG kho ấy: bản `duong-nen.mjs`
+      hiện tại cho 0 bullet `nen cong-cu:` mang khoá ấy; bản đột biến gỡ luật `CONG-CU-TU-DAU`
+      cho ≥1 bullet mang khoá ấy, và bullet ghim chuỗi cụt `THIEU ${CLAUDE_PLUGIN_ROOT:-$(node`
+      — đúng thông điệp owner báo. Chiều thứ hai là thứ phân biệt «đã tắt đúng cờ» với «kho
+      fixture này chưa bao giờ đỏ».
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
