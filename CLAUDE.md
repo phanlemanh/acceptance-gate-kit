@@ -51,16 +51,45 @@
     khó-đảo LUÔN là câu hỏi cho người bất kể phân loại.
   - **Ô chỉ mở khi có NEO NGOÀI (owner quyết 18/09).** Hàng chờ Cổng Đáng — ô
     `stage: discovery`, hoặc `decided`+`build` chưa có hợp đồng — phải mang dòng
-    `Gốc:`: một hồ sơ cụ thể ở một kho (`<kho>/_acceptance/<slug-khác>`, kho có
-    thể là chính kit), hoặc `kho <tên> — <người> gọi tên <ngày>`. «Suy từ đọc mã»
-    KHÔNG phải neo. Ý chưa có neo sống ở hạt giống `docs/plans/*-hat-giong-*.md`
-    — hạt giống là SỔ, ô là CAM KẾT; hạt giống mồ côi là hợp lệ. Lối «mở hợp đồng
-    mới» ở Cổng Bằng chứng ghi hạt giống, KHÔNG tạo ô. Vì sao: đơn vị kế toán của
-    kit là ô và không ô nào có giá âm — mở miễn phí, đóng đắt — nên mọi phanh
-    chiều sâu đều xả vào một sổ không trần (đo 08–18/09: 35 ô mở / 14 đóng, 22/35
-    sinh từ chính nghi thức kit). Răng: VC8 · VC9 trong
-    `tests/plugins/vao-co-o.test.mjs`. Hồ sơ: `_acceptance/o-chi-mo-khi-co-neo-ngoai/`
-    · số đo: `docs/findings/2026-09-18-o-sinh-tu-nghi-thuc-va-gia-cat-so.md`.
+    `Gốc:`, một CON TRỎ vào tầng dưới mà người đọc lần được trong mười giây.
+    «Suy từ đọc mã» KHÔNG phải neo; neo trỏ chính ô của nó cũng không (ô tự biện
+    minh). Ý chưa có neo sống ở hạt giống `docs/plans/*-hat-giong-*.md` — hạt
+    giống là SỔ, ô là CAM KẾT; hạt giống mồ côi là hợp lệ. Lối «mở hợp đồng mới»
+    ở Cổng Bằng chứng ghi hạt giống, KHÔNG tạo ô. Vì sao: đơn vị kế toán của kit
+    là ô và không ô nào có giá âm — mở miễn phí, đóng đắt — nên mọi phanh chiều
+    sâu đều xả vào một sổ không trần (đo 08–18/09: 35 ô mở / 14 đóng, 22/35 sinh
+    từ chính nghi thức kit).
+
+    **Hình dạng neo là luật CỦA KHO NÀY, sống ở đây — không đi theo engine.**
+    Khuôn ô giao cho kho tiêu thụ chỉ mang KHÁI NIỆM neo; hình dạng hẹp dưới đây
+    là của kit, và răng của kit rút từ chính khối này. Lý do là một lớp lỗi đã
+    đo được hai lần trong một vòng (19/09): luật của người-sửa-kit rò vào khuôn
+    giao đi thì một kho TRỐNG được dặn một việc không thể làm — ô đầu tiên của
+    nó không có hồ sơ nào để trỏ.
+
+<!-- <<<KIT-GOC-RULE -->
+^Gốc:\s*\S+/_acceptance/[\w-]+
+<!-- KIT-GOC-RULE>>> -->
+
+<!-- <<<KIT-GOC-TU-TRO -->
+/_acceptance/{slug}(?![\w-])
+<!-- KIT-GOC-TU-TRO>>> -->
+
+    **Giới hạn đã khai, kèm ngưỡng đang đếm** (hiến pháp cấm dặn-bằng-lời làm
+    nghiệm, nên khai thay vì giả vờ có răng):
+    · *Dạng neo hiện HẸP* — chỉ nhận con trỏ tới một hồ sơ `_acceptance/`, nên
+      một ca thật không gắn hồ sơ (lượt CI đỏ, khảo sát nhiều kho, một khối kế
+      hoạch) không mở được ô; 5 ô đã xếp lại vì đúng lý do đó 18/09. Ngưỡng mở
+      lại: ≥1 lần owner phải mở tay một ô mà luật này chặn.
+    · *Vế 4 của luật (b) — «mốc chỉ cắt khi có kho chờ nhận» — CHƯA CÓ RĂNG.*
+      Răng đúng tầng là «mốc N+1 phải dẫn được một commit ở kho tiêu thụ đã cài
+      mốc N»; bản chiếu yếu của nó (một dòng tự khai trong hồ sơ mốc) đã dựng và
+      GỠ 19/09 vì nó rò vào khuôn giao đi và kiểm bằng danh sách đóng. Ngưỡng mở
+      ô: một mốc cắt số mà sau 21 ngày không kho nào cài nó.
+
+    Răng: VC8 trong `tests/plugins/vao-co-o.test.mjs`. Hồ sơ:
+    `_acceptance/o-chi-mo-khi-co-neo-ngoai/` · số đo:
+    `docs/findings/2026-09-18-o-sinh-tu-nghi-thuc-va-gia-cat-so.md`.
 
   - **Giới hạn CHIỀU RỘNG (owner quyết 30/08, «cắt đuôi giữ lõi»).** Kit từng
     chỉ có phanh chiều sâu (dừng-vá · trần 3 vòng · timebox) mà mọi phanh đều

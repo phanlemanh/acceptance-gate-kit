@@ -8,11 +8,12 @@ evals:
     executor: script
     cmd: config:executors.script.neo_vc8
     expected: >
-      Exit 0 và dòng PASS: [VC8]. VC8 rút CẢ BA khối luật từ khuôn opportunity-template —
-      OPP-GOC-LINE (dòng), OPP-GOC-RULE (ĐÚNG MỘT dạng hợp lệ — khuôn hai dòng thì VC8 đỏ),
-      OPP-GOC-TU-TRO (luật bác neo tự trỏ);
-      gỡ marker nào trong bản sao khuôn → VC8 đỏ nêu «khuôn thiếu marker». start.md khối
-      START-HIEU-KET nêu đúng hình dạng neo (gỡ trong bản sao → đỏ nêu start.md).
+      Exit 0 và dòng PASS: [VC8]. Khuôn ô mang KHÁI NIỆM neo (khối OPP-GOC-LINE) và start.md
+      khối START-HIEU-KET dặn điền nó cùng lối ra hạt giống — gỡ lối ra trong bản sao → đỏ nêu
+      start.md. HÌNH DẠNG hẹp rút từ CLAUDE.md giữa KIT-GOC-RULE / KIT-GOC-TU-TRO; gỡ marker nào
+      → đỏ «luật kit thiếu marker». Chân RANH GIỚI: để hình dạng kit («_acceptance/<slug-khác>»,
+      tên marker, «Kho chờ nhận») rò vào một trong ba vật giao cho kho tiêu thụ — khuôn ô, khuôn
+      hợp đồng, start.md — thì đỏ gọi tên vật.
     paths: [skills/acceptance/references/opportunity-template.md, commands/start.md, tests/plugins/vao-co-o.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
@@ -20,39 +21,24 @@ evals:
     executor: script
     cmd: config:executors.script.neo_vc8
     expected: >
-      Cùng lượt VC8, ma trận viết trước trên MỘT fixture code-sinh (số ca = số ô): (dương) ô discovery
-      có Gốc dạng hồ sơ → im; ô decided build có Gốc dạng hồ sơ kèm chữ giải thích → im; (đỏ 1) bỏ
-      dòng → «thiếu Gốc» + slug; (đỏ 2) trỏ chính slug → «trỏ chính nó»; (đỏ 3a) rỗng sau dấu hai chấm
-      → «chưa điền»; (đỏ 3b) placeholder rút nguyên văn từ marker → «chưa điền»; (đỏ 3c) «Gốc: suy từ
-      đọc mã» → «không khớp dạng»; (đỏ 3d) dạng ĐÃ BỎ «kho <tên> — <người> gọi tên <ngày>» → «không khớp dạng»; (đỏ 4) ô decided build thiếu Gốc → đỏ; (im 1) hạt giống mồ côi →
-      im — chiều này đo trên CÂY THẬT (6 hạt giống mồ côi có thật, không tên nào bị gọi), không
-      phải trên fixture; (im 2) ô park không Gốc → im; (im 3) ô archived không Gốc → im. Bộ đọc
-      frontmatter HỎI lib `frontmatterField`, không chép: khoá để trống thôi nuốt dòng kế, và
-      dòng `status:` trong thân bài thôi đầu độc cửa miễn trừ. Ba ca tự-trỏ phủ cả ba
-      cách viết thật: trần «kit/_acceptance/<slug>», có chữ giải thích sau slug, và dạng đầy đủ
-      «…/<slug>/opportunity.md» — cả ba → «trỏ chính nó». Luật rút từ khuôn, hai mutant chứng:
-      đổi regex dạng hợp lệ trong bản sao khuôn → CẢ HAI ca dương đổi màu; nới khối TU-TRO → ba ca tự-trỏ THÔI đỏ.
+      Cùng lượt VC8, ma trận viết trước trên MỘT fixture code-sinh (số ca = số ô): (dương) ô
+      discovery có Gốc dạng hồ sơ → im; ô decided build có Gốc kèm chữ giải thích → im; (đỏ 1) bỏ
+      dòng → «thiếu Gốc» + slug; (đỏ 2) trỏ chính slug → «trỏ chính nó»; (đỏ 3a) rỗng sau dấu hai
+      chấm → «chưa điền»; (đỏ 3b) placeholder rút nguyên văn từ marker → «chưa điền»; (đỏ 3c)
+      «Gốc: suy từ đọc mã» → «không khớp dạng»; (đỏ 3d) dạng đã bỏ «kho <tên> — <người> gọi tên
+      <ngày>» → «không khớp dạng»; (đỏ 4) ô decided build thiếu Gốc → đỏ; (im) ô park và ô
+      archived không Gốc → im. Ba ca tự-trỏ phủ cả ba cách viết thật. BỐN mutant trên bản sao
+      CLAUDE.md chứng luật là nguồn: đổi dạng hợp lệ → cả hai ca dương đổi màu; gỡ KIT-GOC-RULE
+      → đỏ; gỡ KIT-GOC-TU-TRO → đỏ; nới luật bác → ba ca tự-trỏ thôi đỏ.
     paths: [tests/plugins/vao-co-o.test.mjs, skills/acceptance/references/opportunity-template.md]
-    evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E3
-    criterion: AC-3
-    executor: script
-    cmd: config:executors.script.neo_vc9
-    expected: >
-      Exit 0 và dòng PASS: [VC9]. Fixture rút từ khuôn contract-template qua marker KHO-CHO-NHAN-LINE
-      (fileFromTemplate, không dựng tay), năm hồ sơ mốc: chưa ký + «Kho chờ nhận: media-library» → im;
-      chưa ký + thiếu dòng → đỏ «thiếu Kho chờ nhận» + tên mốc; chưa ký + «Kho chờ nhận: chưa có» → đỏ
-      «giá trị bác»; chưa ký + placeholder nguyên văn → đỏ «chưa điền»; đã ký + thiếu → im. Đổi marker
-      trong bản sao khuôn → VC9 đỏ «khuôn thiếu marker». Cây thật: 0 mốc chưa ký thiếu dòng.
-    paths: [tests/plugins/vao-co-o.test.mjs, skills/acceptance/references/contract-template.md, _acceptance/release-2-0-0/contract.md]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
     executor: script
     cmd: config:executors.script.neo_vc8
     expected: >
-      VC8 chạy trên ROOT (cây thật) không nêu slug nào thiếu Gốc; sổ quyết định của vòng có một
-      dòng «rà tồn kho» nêu hai số: ô thêm Gốc · ô về archived. Cùng lượt với E1/E2.
+      VC8 chạy trên ROOT (cây thật) không nêu slug nào ở hàng chờ thiếu Gốc hợp lệ — đo bằng
+      chính vị từ của răng, không bằng lời khai ở nơi khác. Cùng lượt với E1/E2.
     paths: [_acceptance]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
@@ -92,9 +78,7 @@ evals:
     executor: script
     cmd: config:executors.script.product_map
     expected: >
-      Exit 0, in «PRODUCT-MAP.md khớp hồ sơ xưởng.». Vế tự-ăn-thuốc của AC-7 đo bằng chân riêng
-      trong VC8 (E1/E2): chân ấy chạy vị từ neo THẲNG trên `_acceptance/o-chi-mo-khi-co-neo-ngoai/
-      opportunity.md` — không đi qua bộ lọc hàng chờ, vì ô này đã có contract.md nên bị loại khỏi
-      hàng chờ — kèm chiều đỏ: gỡ dòng Gốc trong bản sao thì chân ấy đỏ nêu đúng slug.
+      Exit 0, in «PRODUCT-MAP.md khớp hồ sơ xưởng.» — bản đồ sản phẩm khớp hồ sơ sau khi vòng
+      đổi trạng thái 10 ô.
     paths: [PRODUCT-MAP.md, _acceptance/o-chi-mo-khi-co-neo-ngoai/opportunity.md]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

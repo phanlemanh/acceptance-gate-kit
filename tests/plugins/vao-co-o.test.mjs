@@ -28,7 +28,7 @@ const MARKER = 'OPP-FRONTMATTER-TEMPLATE';
 
 let failures = 0;
 // MỘT nguồn danh sách ca: file này. `--ids` in ra để run-tests.sh lặp theo, không chép tay.
-const ALL_IDS = ['VC1', 'VC2', 'VC3', 'VC4', 'VC6', 'VC7', 'VC8', 'VC9'];
+const ALL_IDS = ['VC1', 'VC2', 'VC3', 'VC4', 'VC6', 'VC7', 'VC8'];
 if (process.argv.includes('--ids')) { console.log(ALL_IDS.join(' ')); process.exit(0); }
 const only = (process.env.VC_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const ran = new Set();
@@ -71,22 +71,26 @@ const slugsIn = arr => (arr || []).map(x => x.slug);
 // `---` đầu tệp nên một dòng `status:` trong THÂN BÀI đầu độc được cửa grandfather của VC9
 // (t1, lượt chấm 3b). Cùng nếp với `DA_THONG_CONG_2` ở trên.
 const fmv = (t, k) => frontmatterField(t, k) || '';
-const gocRule = (tpl) => {
-  let line, rules, tuTro;
-  try {
-    line = blockFromTemplate(tpl, 'OPP-GOC-LINE').trim();
-    rules = blockFromTemplate(tpl, 'OPP-GOC-RULE').trim().split('\n');
-    tuTro = blockFromTemplate(tpl, 'OPP-GOC-TU-TRO').trim();
-  } catch (e) { throw new Error('khuôn thiếu marker OPP-GOC-LINE/OPP-GOC-RULE/OPP-GOC-TU-TRO'); }
-  // Owner thu phạm vi 18/09 (đường B): CHỈ CÒN MỘT dạng neo — một hồ sơ cụ thể. Dạng
-  // «kho <tên> — <người> gọi tên <ngày>» đã bỏ: nó là lời khai không có vật đứng sau, và
-  // vế bác không phủ được nó (t4, lượt chấm 2).
-  if (rules.length !== 1) throw new Error('khuôn OPP-GOC-RULE phải đúng MỘT dòng');
+// HAI NGUỒN, ĐÚNG TẦNG (19/09): khuôn ô giao cho kho tiêu thụ chỉ mang KHÁI NIỆM neo (khối
+// OPP-GOC-LINE); HÌNH DẠNG hẹp là luật của riêng kho này, sống trong CLAUDE.md giữa marker
+// KIT-GOC-RULE / KIT-GOC-TU-TRO. Bản trước để hình dạng trong khuôn nên một kho TRỐNG cài kit
+// bị dặn một việc không thể làm — ô đầu tiên của nó không có hồ sơ nào để trỏ.
+const LUAT_KIT = path.join(ROOT, 'CLAUDE.md');
+const khoiLuat = (file, marker) => {
+  const m = readFileSync(file, 'utf8').match(new RegExp(`<<<${marker} -->\\n([\\s\\S]*?)<!-- ${marker}>>>`));
+  if (!m) throw new Error(`luật kit thiếu marker ${marker}`);
+  return m[1].trim();
+};
+const gocRule = (tpl, luat = LUAT_KIT) => {
+  let line;
+  try { line = blockFromTemplate(tpl, 'OPP-GOC-LINE').trim(); }
+  catch (e) { throw new Error('khuôn thiếu marker OPP-GOC-LINE'); }
+  const rules = khoiLuat(luat, 'KIT-GOC-RULE').split('\n');
+  const tuTro = khoiLuat(luat, 'KIT-GOC-TU-TRO');
+  if (rules.length !== 1) throw new Error('KIT-GOC-RULE phải đúng MỘT dòng');
   return {
     line,
     hoSo: slug => new RegExp(rules[0].split('{slug}').join(slug), 'm'),
-    // Luật BÁC rút từ khuôn, KHÔNG hardcode ở đây: bản trước để nó ở bên đọc nên khuôn tự
-    // khai «hai dạng hợp lệ» mà thiếu vế bác, và mọi bên đọc thứ hai sẽ nhận neo tự trỏ (t8).
     tuTro: slug => new RegExp(tuTro.split('{slug}').join(slug)),
   };
 };
@@ -98,8 +102,8 @@ const hangCho = dir => {
   const t = readFileSync(o, 'utf8'); const st = fmv(t, 'stage'), de = fmv(t, 'decision');
   return (st === 'discovery' || (st === 'decided' && de === 'build')) ? t : null;
 };
-const neoErrs = (accDir, tpl) => {
-  const r = gocRule(tpl); const errs = [];
+const neoErrs = (accDir, tpl, luat = LUAT_KIT) => {
+  const r = gocRule(tpl, luat); const errs = [];
   for (const slug of readdirSync(accDir)) {
     const dir = path.join(accDir, slug);
     let t; try { t = hangCho(dir); } catch { continue; }
@@ -116,26 +120,6 @@ const neoErrs = (accDir, tpl) => {
   }
   return errs.sort();
 };
-const BAC_KHO = new Set(['', 'chưa có', '(chưa có)', 'không', '—', '…']);
-const khoErrs = (accDir, tpl) => {
-  let line; try { line = blockFromTemplate(tpl, 'KHO-CHO-NHAN-LINE').trim(); }
-  catch (e) { throw new Error('khuôn thiếu marker KHO-CHO-NHAN-LINE'); }
-  const errs = [];
-  for (const d of readdirSync(accDir).filter(x => x.startsWith('release-'))) {
-    const c = path.join(accDir, d, 'contract.md'); if (!existsSync(c)) continue;
-    const t = readFileSync(c, 'utf8');
-    // Đã thông Cổng Bằng chứng (ký NGƯỜI hoặc máy thông ở làn V) → miễn, không hồi tố.
-    if (DA_THONG_CONG_2.includes((fmv(t, 'status') || '').toLowerCase())) continue;
-    const m = t.match(/^Kho chờ nhận:.*$/m);
-    if (!m) { errs.push(`${d}: thiếu Kho chờ nhận`); continue; }
-    if (m[0].trim() === line) { errs.push(`${d}: chưa điền`); continue; }
-    const val = m[0].replace(/^Kho chờ nhận:\s*/, '').trim();
-    const ok = !BAC_KHO.has(val) && val.split(/[,\s·]+/).filter(Boolean).some(k => /^[a-z0-9][a-z0-9._-]+$/.test(k));
-    if (!ok) errs.push(`${d}: giá trị bác`);
-  }
-  return errs.sort();
-};
-
 // ---------- VC1: ý chưa ngưỡng → considering; khuôn là nguồn nhãn (AC-1)
 if (want('VC1')) {
   const root = fx(); W(root, '_acceptance/w-idea/opportunity.md', stub());
@@ -327,28 +311,24 @@ if (want('VC8')) {
   // (i) cây thật
   errs.push(...neoErrs(path.join(ROOT, '_acceptance'), TEMPLATE).map(e => 'cây thật: ' + e));
   // (ii) bên VIẾT dặn điền
-  // Đo NỘI DUNG luật, không grep một chữ: bản trước chỉ hỏi includes('Gốc:') nên vế «nêu đúng
-  // hình dạng» của AC-1 không sai được trong bất kỳ phép đo nào (t7, lượt chấm 2). Chuỗi hình
-  // dạng rút TỪ KHUÔN để hai bên không trôi khỏi nhau.
+  // start.md dặn KHÁI NIỆM: có dòng `Gốc:` và có lối ra khi chưa có neo. Hình dạng hẹp KHÔNG
+  // còn ở đây (19/09) — nó là luật của riêng kho này, sống ở CLAUDE.md; khuôn và lệnh giao đi
+  // chỉ mang khái niệm, nếu không một kho TRỐNG bị dặn một việc không thể làm.
   const startBlk = md => { const m = md.match(/<<<START-HIEU-KET -->([\s\S]*?)<!-- START-HIEU-KET>>>/); return m ? m[1] : null; };
-  // Ví dụ hình dạng sống trong KHUÔN (OPP-GOC-VIDU) — start.md và ca này cùng rút một nguồn.
-  const dangNeo = blockFromTemplate(TEMPLATE, 'OPP-GOC-VIDU').trim();
   const startCheck = (md, tag) => {
     const b = startBlk(md);
     if (!b) return [`${tag}: thiếu khối START-HIEU-KET`];
     const e = [];
     if (!b.includes('Gốc:')) e.push(`${tag}: không dặn điền Gốc:`);
-    if (!dangNeo || !b.includes(dangNeo)) e.push(`${tag}: không nêu hình dạng neo «${dangNeo}» — chỉ nhắc chữ Gốc:`);
-    if (!/hạt giống/.test(b)) e.push(`${tag}: không nói lối ra khi chưa có hồ sơ để trỏ (hạt giống)`);
+    if (!/hạt giống/.test(b)) e.push(`${tag}: không nói lối ra khi chưa có neo (hạt giống)`);
     return e;
   };
   errs.push(...startCheck(readFileSync(START_MD, 'utf8'), 'start.md'));
-  // chiều đỏ: bản sao gỡ hình dạng khỏi khối → phải bắt, và bắt ĐÚNG vế đó
   {
-    const mutated = readFileSync(START_MD, 'utf8').replace(/`<kho>\/_acceptance\/<slug-khác>`/, '`<một nguồn nào đó>`');
-    const em = startCheck(mutated, 'mutant');
-    if (!em.some(x => /không nêu hình dạng neo/.test(x))) errs.push('gỡ hình dạng neo khỏi bản sao start.md mà phép đo KHÔNG bắt');
+    const mutated = readFileSync(START_MD, 'utf8').replace(/hạt giống/g, 'chỗ khác');
+    if (!startCheck(mutated, 'mutant').some(x => /lối ra/.test(x))) errs.push('gỡ lối ra hạt giống khỏi bản sao start.md mà phép đo KHÔNG bắt');
   }
+
   // (iii) ma trận trên MỘT fixture code-sinh — số ca = số ô
   const r = tmp();
   const body = g => `\n## Vấn đề & ai gặp\n\n${g}\nMột câu.\n`;
@@ -369,42 +349,27 @@ if (want('VC8')) {
   put('im2-park', { stage: 'decided', decision: 'park' }, '');
   put('im3-archived', { stage: 'archived', decision: 'kill' }, '');
   W(r, 'docs/plans/2026-01-01-hat-giong-mo-coi.md', '# hạt giống không ô — hợp lệ từ 18/09\n');
-  // Chiều ĐẶC HIỆU của đảo chiều 18/09, đo trên CÂY THẬT chứ không trên fixture: luật cũ
-  // «mọi hạt giống phải có ô» đã bỏ, nên hạt giống mồ côi THẬT phải im. Bản trước ghi một tệp
-  // vào fixture rồi không ai đọc — assertion rỗng, hằng-đúng (t4, lượt chấm 3b). Nay nếu ai
-  // cắm lại luật cũ vào bất kỳ bên đọc nào thì ca này đỏ, vì cây thật đang có hạt giống mồ côi.
-  {
-    const SEED_RE = /^\d{4}-\d{2}-\d{2}-hat-giong-(.+)\.md$/;
-    const plansDir = path.join(ROOT, 'docs', 'plans'), accDir = path.join(ROOT, '_acceptance');
-    const moCoi = readdirSync(plansDir).filter(f => SEED_RE.test(f))
-      .map(f => f.match(SEED_RE)[1]).filter(sl => !existsSync(path.join(accDir, sl)));
-    if (!moCoi.length) errs.push('cây thật không còn hạt giống mồ côi — chiều đặc hiệu của đảo chiều mất vật, dựng lại ca này trước khi tin dòng PASS');
-    else {
-      const neu = neoErrs(accDir, TEMPLATE).filter(e => moCoi.some(sl => e.startsWith(sl + ':')));
-      if (neu.length) errs.push(`hạt giống mồ côi bị gọi tên (luật cũ sống lại?): ${JSON.stringify(neu)}`);
-    }
-  }
-  const got = neoErrs(path.join(r, '_acceptance'), TEMPLATE);
-  const want8 = ['do1-thieu: thiếu Gốc', 'do2-tu-tro: trỏ chính nó',
-    'do2b-tu-tro-ghi-chu: trỏ chính nó', 'do2c-tu-tro-day-du: trỏ chính nó', 'do3a-rong: chưa điền',
-    'do3b-placeholder: chưa điền', 'do3c-van-tu-do: không khớp dạng', 'do4-build-thieu: thiếu Gốc',
-    'do5-dang-da-bo: không khớp dạng'].sort();
-  if (JSON.stringify(got) !== JSON.stringify(want8)) errs.push(`ma trận fixture: có ${JSON.stringify(got)} — mong ${JSON.stringify(want8)}`);
-  // (iv) KHUÔN là nguồn: đổi regex trong bản sao khuôn → ca dương đổi màu
-  const copyR = pluginCopy({ template: t => t.replace('/_acceptance/[\\w-]+', '/KHONG-TON-TAI/[\\w-]+') });
-  const gotR = neoErrs(path.join(r, '_acceptance'), copyR.template);
+  // Luật kit là nguồn: đột biến CLAUDE.md trong bản sao thì kết luận phải lật.
+  const luatCopy = f => { const d = tmp(); const q = path.join(d, 'CLAUDE.md'); writeFileSync(q, f(readFileSync(LUAT_KIT, 'utf8'))); return q; };
+  const l1 = luatCopy(t => t.replace('/_acceptance/[\\w-]+', '/KHONG-TON-TAI/[\\w-]+'));
+  const gotR = neoErrs(path.join(r, '_acceptance'), TEMPLATE, l1);
   for (const d of ['duong-hoso', 'duong-hoso-2'])
-    if (!gotR.includes(`${d}: không khớp dạng`)) errs.push(`đổi regex dạng hợp lệ trong bản sao khuôn mà ca dương «${d}» KHÔNG đổi màu — bên đọc không rút luật từ khuôn`);
-  const copyM = pluginCopy({ template: t => t.replace('<<<OPP-GOC-RULE', '<<<OPP-GOC-RULEX') });
-  try { neoErrs(path.join(r, '_acceptance'), copyM.template); errs.push('gỡ marker OPP-GOC-RULE mà phép đo không đỏ'); }
-  catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker: thông điệp lạ: ' + e.message); }
-  const copyT = pluginCopy({ template: t => t.replace('<<<OPP-GOC-TU-TRO', '<<<OPP-GOC-TU-TROX') });
-  try { neoErrs(path.join(r, '_acceptance'), copyT.template); errs.push('gỡ marker OPP-GOC-TU-TRO mà phép đo không đỏ'); }
+    if (!gotR.includes(`${d}: không khớp dạng`)) errs.push(`đổi KIT-GOC-RULE trong bản sao luật mà ca dương «${d}» KHÔNG đổi màu — bên đọc không rút luật từ CLAUDE.md`);
+  const l2 = luatCopy(t => t.replace('<<<KIT-GOC-RULE', '<<<KIT-GOC-RULEX'));
+  try { neoErrs(path.join(r, '_acceptance'), TEMPLATE, l2); errs.push('gỡ marker KIT-GOC-RULE mà phép đo không đỏ'); }
+  catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker RULE: thông điệp lạ: ' + e.message); }
+  const l3 = luatCopy(t => t.replace('<<<KIT-GOC-TU-TRO', '<<<KIT-GOC-TU-TROX'));
+  try { neoErrs(path.join(r, '_acceptance'), TEMPLATE, l3); errs.push('gỡ marker KIT-GOC-TU-TRO mà phép đo không đỏ'); }
   catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker TU-TRO: thông điệp lạ: ' + e.message); }
-  // Khuôn là nguồn của luật BÁC: nới nó trong bản sao thì ba ca tự-trỏ phải THÔI đỏ.
-  const copyT2 = pluginCopy({ template: t => t.replace('/_acceptance/{slug}(?![\\w-])', '/_acceptance/KHONG-BAO-GIO-{slug}') });
-  const gotT2 = neoErrs(path.join(r, '_acceptance'), copyT2.template);
-  if (gotT2.some(e => /trỏ chính nó/.test(e))) errs.push('nới luật bác trong bản sao khuôn mà vẫn còn ca «trỏ chính nó» — bên đọc không rút luật từ khuôn');
+  const l4 = luatCopy(t => t.replace('/_acceptance/{slug}(?![\\w-])', '/_acceptance/KHONG-BAO-GIO-{slug}'));
+  if (neoErrs(path.join(r, '_acceptance'), TEMPLATE, l4).some(e => /trỏ chính nó/.test(e)))
+    errs.push('nới KIT-GOC-TU-TRO trong bản sao luật mà vẫn còn ca «trỏ chính nó»');
+  // Ranh giới: khuôn giao cho kho tiêu thụ KHÔNG được mang hình dạng của kit (19/09).
+  for (const [f, ten] of [[TEMPLATE, 'khuôn ô'], [CONTRACT_TPL, 'khuôn hợp đồng'], [START_MD, 'start.md']]) {
+    const t = readFileSync(f, 'utf8');
+    for (const cam of ['_acceptance/<slug-khác>', 'KIT-GOC-RULE', 'Kho chờ nhận'])
+      if (t.includes(cam)) errs.push(`${ten} mang luật riêng của kit («${cam}») — nó đi theo engine sang kho tiêu thụ`);
+  }
 
   // (v-b) TỰ ĂN THUỐC: chính ô của vòng này phải qua đúng vị từ đó. Không đo qua `hangCho`
   // (ô đã có contract.md nên bị loại khỏi hàng chờ — t15), mà đo THẲNG tệp của nó, kèm chiều đỏ.
@@ -436,33 +401,7 @@ if (want('VC8')) {
     if (n !== 1) errs.push(`${sl} phải nằm đúng MỘT ô, đang ở ${n} ô`);
   }
   if (errs.length) fail('VC8', errs.join(' · '));
-  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô (một dạng neo); khuôn là nguồn CẢ BA luật, hai mutant); tự ăn thuốc hai chiều trên ô của chính vòng; hạt giống mồ côi im (đo trên cây thật); ${NEW.length} stub đúng một ngăn`);
-}
-
-// ---------- VC9 (18/09): mốc phát hành CHƯA KÝ phải khai «Kho chờ nhận:» với ≥1 tên kho
-if (want('VC9')) {
-  const errs = [];
-  errs.push(...khoErrs(path.join(ROOT, '_acceptance'), CONTRACT_TPL).map(e => 'cây thật: ' + e));
-  const r = tmp();
-  const line = blockFromTemplate(CONTRACT_TPL, 'KHO-CHO-NHAN-LINE').trim();
-  const rec = (name, status, kho) => W(r, `_acceptance/${name}/contract.md`,
-    fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
-      { feature: 'mốc', slug: name, owner: 'o@x', risk_tier: 'T2', surfaces: 'ci', status },
-      `\n# ${name}\n\n## Notes\n\n${kho}\n`));
-  rec('release-im-1', 'draft', 'Kho chờ nhận: media-library');
-  rec('release-im-2', DA_THONG_CONG_2[0], '');   // hồ sơ đã ký — miễn (grandfather)
-  rec('release-do-thieu', 'draft', '');
-  rec('release-do-bac', 'approved', 'Kho chờ nhận: chưa có');
-  rec('release-do-placeholder', 'draft', line);
-  const got = khoErrs(path.join(r, '_acceptance'), CONTRACT_TPL);
-  const want9 = ['release-do-bac: giá trị bác', 'release-do-placeholder: chưa điền', 'release-do-thieu: thiếu Kho chờ nhận'].sort();
-  if (JSON.stringify(got) !== JSON.stringify(want9)) errs.push(`fixture: có ${JSON.stringify(got)} — mong ${JSON.stringify(want9)}`);
-  const ctp = path.join(tmp(), 'contract-template.md');
-  writeFileSync(ctp, readFileSync(CONTRACT_TPL, 'utf8').replace('<<<KHO-CHO-NHAN-LINE', '<<<KHO-CHO-NHAN-LINEX'));
-  try { khoErrs(path.join(r, '_acceptance'), ctp); errs.push('gỡ marker KHO-CHO-NHAN-LINE mà phép đo không đỏ'); }
-  catch (e) { if (!/thiếu marker/.test(e.message)) errs.push('gỡ marker: thông điệp lạ: ' + e.message); }
-  if (errs.length) fail('VC9', errs.join(' · '));
-  else pass('VC9', 'mốc chưa ký khai Kho chờ nhận (cây thật + 5 hồ sơ fixture rút từ khuôn; marker là nguồn)');
+  else pass('VC8', `mọi ô hàng chờ có Gốc hợp lệ (cây thật + ma trận 12 ô; luật kit là nguồn, bốn mutant; khuôn giao đi không mang luật kit); tự ăn thuốc hai chiều trên ô của chính vòng; ${NEW.length} stub đúng một ngăn`);
 }
 
 // VC_CASES nêu id không tồn tại → không được xanh im lặng (xanh-không-chạy)

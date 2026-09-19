@@ -29,12 +29,13 @@ một lượt Cổng Đáng), máy (ghim lại 2 h 25 → 0), kho tiêu thụ (m
 
 ## Criteria
 
-- AC-1: Given khuôn `opportunity-template.md`, When đọc section «Vấn đề & ai gặp», Then có đúng một
-  dòng `Gốc:` giữa marker `OPP-GOC-LINE`, ĐÚNG MỘT dạng hợp lệ giữa `OPP-GOC-RULE`
-  (`<kho>/_acceptance/<slug-khác>`, chữ giải thích tuỳ ý phía sau) và luật bác giữa
-  `OPP-GOC-TU-TRO`; và `commands/start.md` khối `START-HIEU-KET` dặn điền dòng đó NÊU ĐÚNG hình
-  dạng ấy — không chỉ nhắc chữ «Gốc:» — kèm câu «chưa có hồ sơ để trỏ thì ghi hạt giống, KHÔNG mở
-  ô». Răng rút cả ba khối từ marker, không gõ tay; gỡ marker nào → đỏ có tên.
+- AC-1: Given khuôn `opportunity-template.md` và lệnh `commands/start.md` — hai vật GIAO cho kho
+  tiêu thụ — When đọc chúng, Then chúng mang đúng KHÁI NIỆM neo (dòng `Gốc:` giữa marker
+  `OPP-GOC-LINE`; khối `START-HIEU-KET` dặn điền nó và nói lối ra hạt giống khi chưa có neo) và
+  KHÔNG mang hình dạng riêng của kho này; HÌNH DẠNG hẹp sống trong `CLAUDE.md` giữa marker
+  `KIT-GOC-RULE` / `KIT-GOC-TU-TRO`. Răng rút khái niệm từ khuôn và hình dạng từ luật kit, không
+  gõ tay; gỡ marker nào → đỏ có tên; để hình dạng kit rò vào một trong ba vật giao đi → đỏ gọi
+  tên vật.
 - AC-2: Given cây có ô ở hàng chờ (`stage: discovery`, hoặc `decided` + `decision: build` chưa có
   `contract.md`), When chạy VC8, Then: ô thiếu dòng `Gốc:` → đỏ gọi tên slug + «thiếu Gốc»; dòng
   có mặt nhưng trỏ chính slug → đỏ + «trỏ chính nó»; dòng có mặt nhưng KHÔNG khớp dạng hợp lệ DUY
@@ -45,15 +46,8 @@ một lượt Cổng Đáng), máy (ghim lại 2 h 25 → 0), kho tiêu thụ (m
   trần · có chữ giải thích phía sau · dạng đầy đủ `…/<slug>/opportunity.md`. Dạng hợp lệ và luật
   bác đều rút từ marker trong khuôn — một nguồn cho bên viết lẫn bên đọc — và đột biến khuôn phải
   lật kết luận. Mọi lần đọc frontmatter đi qua `frontmatterField` của lib, không chép lại. Mọi chiều trên MỘT fixture code-sinh từ khuôn, chỉ khác biến đang đo.
-- AC-3: Given khuôn `contract-template.md` có dòng `Kho chờ nhận:` giữa marker `KHO-CHO-NHAN-LINE`
-  (bên viết duy nhất; chỉ hồ sơ mốc `release-*` điền), When chạy VC9 trên cây, Then mốc `status` ≠
-  `signed-off` mà thiếu dòng, hoặc dòng còn placeholder / giá trị bác («chưa có», «không», «—», «…»)
-  → đỏ gọi tên mốc + lý do; mốc chưa ký có ≥1 tên kho dạng `[a-z0-9][a-z0-9._-]+` → im; mốc đã ký
-  không có dòng → im (grandfather). Fixture rút từ khuôn bằng `fileFromTemplate`, không dựng tay.
-  Giới hạn khai: răng không kiểm tên kho có tồn tại — kit không chứa danh mục kho tiêu thụ.
-- AC-4: Given cây thật sau vòng, When chạy VC8 và VC9 trên `ROOT`, Then 0 ô `discovery` thiếu
-  `Gốc:` và 0 mốc chưa ký thiếu `Kho chờ nhận:`; số ô được thêm `Gốc:` và số ô về `archived` in
-  trong sổ quyết định của vòng (một dòng mỗi nhóm, không một dòng mỗi ô).
+- AC-4: Given cây thật sau vòng, When chạy VC8 trên `ROOT`, Then 0 ô ở hàng chờ thiếu `Gốc:` hợp
+  lệ — đo bằng chính vị từ của răng, không bằng lời khai ở nơi khác.
 - AC-5: Given thẻ Cổng Bằng chứng có một mục ngoài hợp đồng `proposal: new-contract`, When render,
   Then câu khuyên là «Máy đề xuất: ghi hạt giống có Gốc, chờ kho gọi tên — không mở ô.» (hằng
   `MSG_OOC_HAT_GIONG` trong `gate-card.js`), và ba tài liệu (`feature-loop` SKILL khối Ngoài hợp
@@ -77,9 +71,10 @@ một lượt Cổng Đáng), máy (ghim lại 2 h 25 → 0), kho tiêu thụ (m
 ## Coverage
 
 Trục A nguồn sinh ô [thước CE: cột «nguồn sinh» finding §3, 35 ô thật] × Trục B trạng thái ô
-[thước CE: giá trị `stage`/`decision` của khuôn]. Core: mọi nguồn × discovery (AC-2) · release-mở
-(AC-3) · lối (b) (AC-5) · luật (AC-6). Later: decided-build không neo. Never: park/kill/archived
-(sử liệu) · release đã ký (grandfather). Không có `[CE chưa kiểm chứng]`.
+[thước CE: giá trị `stage`/`decision` của khuôn]. Core: mọi nguồn × hàng chờ (AC-2) · lối (b) (AC-5) · luật (AC-6) · ranh giới kit↔kho tiêu thụ
+(AC-1). Later: decided-build không neo. Never: park/kill/archived (sử liệu) · mốc phát hành —
+vế «kho chờ nhận» CẮT khỏi vòng 19/09, khai giới hạn kèm ngưỡng trong `CLAUDE.md`. Không có
+`[CE chưa kiểm chứng]`.
 
 ## Đường đo
 
@@ -90,7 +85,8 @@ Ngưỡng ở `opportunity.md` (đọc tới mốc kế được một kho nhậ
   bảo đảm bởi: AC-2, AC-4.
 - tồn kho chưa hợp đồng ≤ 15 — số từ: lệnh finding §2 · bảo đảm bởi: AC-4 (rà).
 - mốc cắt số ≤ 1 lượt người, 0 lượt chấm S4 — số từ: hồ sơ mốc kế, dòng 2 và 5 · bảo đảm bởi:
-  AC-3 + AC-6(iii); vòng này không dựng răng cho «0 lượt chấm» — đó là lời luật, đo ở mốc kế.
+  KHÔNG có răng trong vòng này (vế «kho chờ nhận» đã cắt); khai giới hạn kèm ngưỡng đang đếm
+  trong `CLAUDE.md` — mốc cắt số mà 21 ngày không kho nào cài là ngưỡng mở ô.
 - ngưỡng CHẾT «Known limits/vòng tăng gấp đôi» — số nền hôm nay (5 hồ sơ ký trong cửa sổ 2.16, đếm
   bullet dưới `### Known limits`): 8 · 0 · 12 · 15 · 0 → **7/vòng**; gấp đôi = ≥ 14/vòng trung bình
   trên cửa sổ kế · số từ: cùng lệnh awk trong sổ chạy · bảo đảm bởi: không AC — ngưỡng đọc.
@@ -102,8 +98,14 @@ Ngưỡng ở `opportunity.md` (đọc tới mốc kế được một kho nhậ
 ## Out of scope
 
 - Đổi tên nhãn «mở hợp đồng mới» (chữ người ở `lib/out-of-contract.js`, T3) — ô sau nếu owner gọi.
-- Răng kiểm hồ sơ đích của `Gốc:` tồn tại ở kho khác, và kiểm tên kho ở `Kho chờ nhận:` có thật —
-  máy này không có mọi kho, kit không chứa danh mục kho.
+- Răng kiểm hồ sơ đích của `Gốc:` có tồn tại — máy này không có mọi kho; sự tồn tại là điều
+  NGƯỜI kiểm ở Cổng Đáng trong mười giây, máy chỉ kiểm hình dạng và «không trỏ chính mình».
+- Răng cho vế «mốc chỉ cắt khi có kho chờ nhận» — cắt khỏi vòng 19/09; răng đúng tầng là «mốc
+  N+1 dẫn được commit cài mốc N», là CỘNG, cần owner phê duyệt ở một vòng riêng.
+- Chiều «hạt giống mồ côi thì máy im» — không đo được ở tầng này: không bộ đọc nào nhìn
+  `docs/plans`, nên mọi phép so đều rỗng theo cấu trúc. Hành vi đúng, lời tuyên gỡ.
+- Thước giữ «mọi lần đọc frontmatter qua lib» — mã đã sửa, nhưng không ca nào phân biệt được
+  bản hỏi lib với bản chép; gỡ lời tuyên thay vì tuyên suông.
 - Thẻ Cổng Đáng in dòng Gốc — không bề mặt mới.
 - Trần số ô cứng — là ngưỡng đọc, không phải răng.
 - Hồi tố `Gốc:` cho ô `decided`/`archived`.
