@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 6d637956ff4fca8e97733c80bf31eef3ee430d22
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-19 — ký với 6 known-limits đã khai (Ngoài-1/2/3/5/8/9) và 3 mục mở hợp đồng mới (Ngoài-4/6/7: răng rang-khuon.sh kết luận chiều đỏ chỉ từ exit khác 0); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: nen-cong-cu-lenh-shell
@@ -152,6 +152,9 @@ human_signoff:
   verified_at: 2026-09-19T03:00:00Z
 
 ## Known limits
+
+- Ngoài-1 · Ngoài-2 · Ngoài-3 · Ngoài-5 · Ngoài-8 · Ngoài-9 — người ký nhận là giới hạn đã biết, ship như hiện tại; chi tiết từng mục ở `## Notes` của contract.md.
+- Ngoài-4 · Ngoài-6 · Ngoài-7 — KHÔNG ghi Known limits: người ký chọn mở hợp đồng mới cho lớp «răng kết luận đỏ chỉ từ mã thoát».
 
 ## Ngoài hợp đồng
 

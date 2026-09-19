@@ -5,7 +5,7 @@ slug: nen-cong-cu-lenh-shell
 owner: manh@mstar.vn
 risk_tier: T2      # feature-loop/scripts + tests/scripts — không chạm hooks/ lib/ pre-merge/recheck
 surfaces: [cli]
-status: verified         # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off       # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
@@ -64,3 +64,13 @@ Source input: prompt (owner báo lỗi kèm tái hiện, 2026-09-18) · tái hi�
 - Giới hạn đã biết (khai, không giấu): executor mà từ đầu dựng bằng thay thế shell thì chân công cụ không còn chứng gì về nó; chân `suite` bù lại bằng cách chạy lệnh thật cho mọi khoá trong `feature_loop.suite_keys`.
 - Lớp lỗi chỉ xuất hiện ở đúng một chỗ trong kho (`duong-nen.mjs:139`); mọi lời gọi `command -v` khác tra tên cố định (`node`, `git`), không tách từ chuỗi cấu hình.
 - Bản repo `feature-loop/scripts/duong-nen.mjs` và bản plugin cache 2.16.0 giống hệt nhau tại thời điểm mở vòng — lỗi nằm ở nguồn, bản vá đi theo mốc phát hành tới các kho tiêu thụ.
+
+### Known limits (người ký nhận, Cổng Bằng chứng 2026-09-19)
+
+- **Ngoài-1** — chân `cong_cu` bỏ tra thì KHÔNG đổi trạng thái chân: một kho mà MỌI executor dựng đường bằng thay thế shell sẽ thấy `cong_cu: xanh` trong khi chưa tra khoá nào. Nếp của chân `luoi`/`engine` là ghi `bo-qua` vào vật; bản này chưa theo.
+- **Ngoài-2** — vị từ `tenChuongTrinh` bỏ sót dấu ngã: executor khai `~/bin/cong-cu --x` vẫn cho `nen cong-cu: THIEU ~/bin/cong-cu` dù tệp có thật (`command -v` nhận chuỗi đã có nháy nên `~` không nở).
+- **Ngoài-3 / Ngoài-5** — `expected` của E8 khai «không thêm lượt chạy nào cho cùng tệp ca», nhưng dedupe là theo CHUỖI LỆNH nên `duong-nen.test.mjs` chạy ba lượt mỗi lần chấm. Lời khai lệch đúng dòng số mà luật (c) của CLAUDE.md đang đếm.
+- **Ngoài-8** — đối chứng dương của `NEN-TD5` chạy trên BẢN CHÉP KHÁC với bản bị tiêm, nên nó loại trừ lỗi hạ tầng chung chứ không loại trừ lỗi riêng của bản tiêm. Thiên về báo oan hơn bỏ sót.
+- **Ngoài-9** — chiều xanh của `NEN-TD6` kết luận từ «0 bullet» mà không kiểm lượt chạy có thật sự ra tệp; chiều đỏ của chính ca ấy vẫn đứng nên kết luận không rỗng nghĩa.
+
+Ba mục còn lại (**Ngoài-4 · Ngoài-6 · Ngoài-7** — răng `rang-khuon.sh` kết luận chiều đỏ chỉ từ `exit≠0`, vứt thông điệp, và ma trận «đủ hai vế» chỉ có một bản đột biến gỡ cả hai) đi **hợp đồng mới**, không ghi Known limits.
