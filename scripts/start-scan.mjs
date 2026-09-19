@@ -450,7 +450,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         // trạng thái «đã giao»: lan-v-mo (cửa veto mở) hay xanh-sach (người duyệt
         // Cổng 1). Hồ sơ chưa sạch rơi xuống nhánh dưới và VẪN là cổng — đó là
         // lỗi vòng một của hồ sơ lan-v-khong-phai-cho-ky (khoá vào veto_state).
-        else if (kcnState) done.push(g(kcnState === 'lan-v-mo' ? 'may-di-tiep-veto-mo' : 'may-di-tiep-xanh-sach', { slug, state: kcnState, at: ngayXong(dir, cPath) }));
+        else if (kcnState) done.push(g(kcnState === 'lan-v-mo' ? 'may-di-tiep-veto-mo' : 'may-di-tiep-xanh-sach', { slug, state: kcnState, at: ngayXong(dir, cPath), flags: nghiFlags }));
         else if (meaning.settled) gates.push(g('cho-cong-bang-chung', { slug, gate: 'bang-chung', since: since(cPath, frontmatterField(cTxt, 'approved_at')), tier, flags: nghiFlags }));
         // Còn việc của MÁY: REJECT -> đang sửa theo bằng chứng · BLOCKED -> nghiệm thu bị chặn.
         else inProgress.push(g(meaning.nextStep === 'S3-fix' ? 'dang-sua-theo-bang-chung' : 'nghiem-thu-bi-chan', { slug, status, nextStep: meaning.nextStep, tier, flags: nghiFlags }));

@@ -98,6 +98,30 @@ const oSlug = (j, slug = 'hsn') => {
     ...(j.broken || [])].find((x) => x.slug === slug) || null;
 };
 
+// ─── Ba bộ đọc chạy được, dùng chung từ HSN5 trở đi ─────────────────────────
+const congThoat = (r) => {
+  const p = spawnSync('bash', [path.join(ROOT, 'scripts', 'pre-merge-check.sh'), r, '--no-t1-escape'],
+    { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  return { ma: p.status, out: `${p.stdout || ''}${p.stderr || ''}` };
+};
+const recheck = (d) => {
+  const p = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(d, 'evidence-report.md')],
+    { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  return { ma: p.status, out: `${p.stdout || ''}${p.stderr || ''}` };
+};
+// Bỏ mã màu trước khi so cụm chữ — luật NO4 của kho: một chuỗi ANSI xen giữa
+// làm phép so «có câu này không» trượt lặng lẽ.
+const the = (r) => (spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gate-card.js'), '--root', r, '--slug', 'hsn'],
+  { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '').replace(/\x1b\[[0-9;]*m/g, '');
+
+// Chuỗi mời ký của thẻ — dùng chung cho HSN-THE và HSN7; phải CÓ THẬT trong bộ
+// dựng thẻ (ca HSN-THE kiểm), nếu không phép đo «thẻ có mời ký» không bao giờ khớp.
+const MOI_KY_HANG = 'Ký duyệt';
+
+// Chuỗi ghim của TỪNG luật — phải CÓ THẬT trong script cổng; gõ tay một câu đã
+// chết là phép đo xanh vì không bao giờ khớp được gì.
+const CHUOI = { 'cu-hoa': 'evidence is stale', lan: 'none of the cited re-pin lane', eval: 'recorded no evals_exit' };
+
 // ─── HSN5: bộ quét ───────────────────────────────────────────────────────────
 console.log('\nHSN5 bộ quét — ba hình dạng, so BẰNG NHAU');
 {
@@ -113,10 +137,69 @@ console.log('\nHSN5 bộ quét — ba hình dạng, so BẰNG NHAU');
   const mong = ['da-nghi/-', 'da-dong-ho-so/-', 'da-dong-ho-so/nghi-kieu-cu'];
   check('HSN5 ba hình dạng cho đúng bộ ba trạng thái + cờ', got.join(' | ') === mong.join(' | '), { got, mong });
 
-  const d2 = khoFixture({ nghi: dong({ by: '' }) });
-  const x2 = oSlug(scan(d2.r));
-  check('HSN5b dòng thiếu vế → vẫn da-giao, cờ nêu đúng vế',
-    !!x2 && x2.stateKey === 'da-giao' && (x2.flags || []).includes('nghi-thieu-ve:by'), x2);
+  // BẢN ĐỒ — chạy bộ dựng THẬT, không tin rằng «bộ quét đúng thì bản đồ đúng».
+  // Hợp đồng hứa hai điều ở đây và trước đây không phép đo nào gọi bộ dựng bản
+  // đồ: (i) không đẻ khối mới; (ii) hồ sơ nghỉ đậu đúng khối. Bản đồ là bộ đọc
+  // thứ hai của cùng sự thật, và nó ĐÃ trôi khỏi bộ quét (lượt chấm 1, t3).
+  const banDo = (r) => {
+    spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'product-map.mjs'), '--root', r],
+      { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    return readFileSync(path.join(r, 'PRODUCT-MAP.md'), 'utf8');
+  };
+  const khoi = (md) => md.split('\n').filter((l) => l.startsWith('## ')).map((l) => l.slice(3).trim());
+  const duoiKhoi = (md, ten) => {
+    const ls = md.split('\n'); const i = ls.findIndex((l) => l.trim() === `## ${ten}`);
+    if (i < 0) return '';
+    const j = ls.findIndex((l, k) => k > i && l.startsWith('## '));
+    return ls.slice(i + 1, j < 0 ? undefined : j).join('\n');
+  };
+  const nen = khoFixture({});                       // đối chứng: cùng khuôn, KHÔNG dòng nghỉ
+  const mdNen = banDo(nen.r), mdA = banDo(a.r), mdB = banDo(b.r);
+  // «Không đẻ khối mới» đo bằng QUAN HỆ với danh sách khối ĐÓNG của chính bộ
+  // dựng, không so hai bản đồ với nhau: bản đồ chỉ in khối CÓ thành viên, nên
+  // một kho một hồ sơ luôn có đúng một khối và phép so hai bản đồ là vô nghĩa.
+  const pmSrc = readFileSync(path.join(ROOT, 'scripts', 'product-map.mjs'), 'utf8');
+  const secBlock = (pmSrc.match(/const SECTIONS = \[([\s\S]*?)\];/) || [])[1] || '';
+  const TEN_KHOI = new Set([...secBlock.matchAll(/'([^']+)'\]/g)].map((m) => m[1]));
+  check('HSN5-map rút được danh sách khối đóng từ chính bộ dựng', TEN_KHOI.size >= 8, [...TEN_KHOI]);
+  const la = [mdNen, mdA, mdB].flatMap(khoi).filter((k) => !TEN_KHOI.has(k));
+  check('HSN5-map KHÔNG khối nào ngoài danh sách đóng (trạng thái nghỉ không đẻ khối mới)',
+    la.length === 0, la);
+  const oMap = [
+    `đã-thông=${duoiKhoi(mdA, 'Đã giao').includes('hsn') ? 'Đã giao' : 'KHÁC'}`,
+    `chưa-thông=${duoiKhoi(mdB, 'Đã bác từ khám phá').includes('hsn') ? 'Đã bác từ khám phá' : 'KHÁC'}`,
+    `đối-chứng=${duoiKhoi(mdNen, 'Đã giao').includes('hsn') ? 'Đã giao' : 'KHÁC'}`,
+  ];
+  check('HSN5-map bản đồ và bộ quét xếp hồ sơ nghỉ vào CÙNG nhóm, hai hình dạng',
+    oMap.join(' | ') === 'đã-thông=Đã giao | chưa-thông=Đã bác từ khám phá | đối-chứng=Đã giao', oMap);
+
+  // Ma trận TOÀN PHẦN: 3 vế thiếu × 3 bộ đọc = 9 ô, SINH bằng vòng lặp. Bản
+  // trước viết tay một vế cho bộ quét và một vế cho thẻ (5/9 ô) trong khi E2
+  // tuyên quét cả lớp — số assert phải bằng số phần tử của lớp được tuyên.
+  const VE = [['by', { by: '' }], ['decision', { decision: '  ' }], ['at', { at: 'hôm qua' }]];
+  const oMat = [];
+  for (const [ve, bien] of VE) {
+    const k = khoFixture({ luat: 'eval', nghi: dong(bien), status: 'verified' });
+    const x = oSlug(scan(k.r));
+    const h = the(k.r);
+    const g = congThoat(k.r);
+    oMat.push(`${ve}/cổng=${g.ma !== 0 && g.out.includes(`dòng nghỉ thiếu ${ve}`) ? 'đỏ+nêu-vế' : `KHÁC(${g.ma})`}`);
+    oMat.push(`${ve}/quét=${x && x.stateKey !== 'da-nghi' && (x.flags || []).includes(`nghi-thieu-ve:${ve}`) ? 'cờ-đúng-vế' : `KHÁC(${x && x.stateKey}/${x && (x.flags || []).join('+')})`}`);
+    oMat.push(`${ve}/thẻ=${h.includes(`thiếu ${ve}`) && h.includes(MOI_KY_HANG) ? 'cờ-vàng+mời-ký' : `KHÁC(${h.includes(`thiếu ${ve}`)},${h.includes(MOI_KY_HANG)})`}`);
+  }
+  const mongMat = VE.flatMap(([ve]) => [`${ve}/cổng=đỏ+nêu-vế`, `${ve}/quét=cờ-đúng-vế`, `${ve}/thẻ=cờ-vàng+mời-ký`]);
+  check('HSN5b ma trận TOÀN PHẦN 3 vế × 3 bộ đọc (9 ô) so BẰNG NHAU',
+    oMat.length === 9 && oMat.join(' | ') === mongMat.join(' | '), { oMat, mongMat });
+
+  // Nhánh «máy đi tiếp» (làn V) là ô thứ mười của cùng lớp: hồ sơ đã thông Cổng 2
+  // KHÔNG do chữ ký mà do xanh-sạch. Bản trước đánh rơi cờ ở đúng nhánh này.
+  const dv = khoFixture({ luat: 'eval', nghi: dong({ by: '' }), status: 'verified' });
+  writeFileSync(path.join(dv.d, 'contract.md'),
+    readFileSync(path.join(dv.d, 'contract.md'), 'utf8').replace('approved_by: Mạnh', 'approved_by:\nveto_state: mo\nveto_opened_at: 2026-09-01T00:00:00Z'));
+  execFileSync('git', ['-C', dv.r, 'commit', '-qam', 'lan V'], { encoding: 'utf8' });
+  const xdv = oSlug(scan(dv.r));
+  check('HSN5b-lanV nhánh máy-đi-tiếp cũng mang cờ thiếu vế (không nhánh nào đánh rơi)',
+    !!xdv && (xdv.flags || []).includes('nghi-thieu-ve:by'), xdv);
 
   const d3 = khoFixture({ nghi: JSON.stringify({ id: 'd-1', type: 'descope', decision: 'nghỉ hẳn' }) });
   const x3 = oSlug(scan(d3.r));
@@ -142,25 +225,6 @@ console.log('\nHSN9 cây kit thật — cờ kiểu cũ có, tập hồ sơ hỏ
 }
 
 // ─── Cổng, kiểm lại, thẻ ─────────────────────────────────────────────────────
-const congThoat = (r) => {
-  const p = spawnSync('bash', [path.join(ROOT, 'scripts', 'pre-merge-check.sh'), r, '--no-t1-escape'],
-    { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  return { ma: p.status, out: `${p.stdout || ''}${p.stderr || ''}` };
-};
-const recheck = (d) => {
-  const p = spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(d, 'evidence-report.md')],
-    { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  return { ma: p.status, out: `${p.stdout || ''}${p.stderr || ''}` };
-};
-// Bỏ mã màu trước khi so cụm chữ — luật NO4 của kho: một chuỗi ANSI xen giữa
-// làm phép so «có câu này không» trượt lặng lẽ.
-const the = (r) => (spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'gate-card.js'), '--root', r, '--slug', 'hsn'],
-  { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '').replace(/\x1b\[[0-9;]*m/g, '');
-
-// Chuỗi ghim của TỪNG luật — phải CÓ THẬT trong script cổng; gõ tay một câu đã
-// chết là phép đo xanh vì không bao giờ khớp được gì.
-const CHUOI = { 'cu-hoa': 'evidence is stale', lan: 'none of the cited re-pin lane', eval: 'recorded no evals_exit' };
-
 console.log('\nHSN0/HSN1 cổng — ba luật, đối chứng dương rồi dòng nghỉ');
 {
   const LUAT = ['cu-hoa', 'lan', 'eval'];
@@ -274,14 +338,21 @@ console.log('\nHSN10 mở lại — supersedes trỏ đúng id thì hồ sơ s�
   const idNghi = 'd-20260919T120000Z-9';
   const a = khoFixture({ luat: 'eval', nghi: dong({}), them: JSON.stringify({ id: 'd-2', type: 'revisit', at: '2026-09-20T00:00:00Z', supersedes: idNghi }) });
   const b = khoFixture({ luat: 'eval', nghi: dong({}), them: JSON.stringify({ id: 'd-2', type: 'revisit', at: '2026-09-20T00:00:00Z', supersedes: 'd-khac' }) });
+  // Mã thoát trần KHÔNG đủ: mọi đường đỏ khác (lib ném lỗi, fixture hỏng, node
+  // vắng) cũng cho «khác 0». Ghim thông điệp của ĐÚNG luật đang đo, như HSN0/HSN2/
+  // HSN4/HSN8 đã làm trên cùng loại fixture. Và đo CẢ BỐN bộ đọc như E11 tuyên —
+  // thẻ là bộ đọc thứ tư, trước đây vắng hẳn khỏi ca này.
   const ga = congThoat(a.r), gb = congThoat(b.r);
   const ra = recheck(a.d), rb = recheck(b.d);
   const sa = oSlug(scan(a.r)), sb = oSlug(scan(b.r));
+  const ha10 = the(a.r), hb10 = the(b.r);
   const got = [
-    `mở-lại=${ga.ma !== 0 && ra.ma !== 0 && sa && sa.stateKey === 'da-giao' ? 'sống-lại' : `KHÁC(${ga.ma},${ra.ma},${sa && sa.stateKey})`}`,
-    `id-khác=${gb.ma === 0 && rb.ma === 0 && sb && sb.stateKey === 'da-nghi' ? 'vẫn-nghỉ' : `KHÁC(${gb.ma},${rb.ma},${sb && sb.stateKey})`}`,
+    `mở-lại=${ga.ma !== 0 && ga.out.includes(CHUOI.eval) && ra.ma !== 0 && ra.out.includes('REPIN x')
+      && sa && sa.stateKey === 'da-giao' && !ha10.includes('đã nghỉ') ? 'sống-lại' : `KHÁC(${ga.ma},${ga.out.includes(CHUOI.eval)},${ra.ma},${sa && sa.stateKey},${!ha10.includes('đã nghỉ')})`}`,
+    `id-khác=${gb.ma === 0 && gb.out.includes('hồ sơ nghỉ') && rb.ma === 0 && rb.out.includes('bỏ kiểm lại')
+      && sb && sb.stateKey === 'da-nghi' && hb10.includes('đã nghỉ') ? 'vẫn-nghỉ' : `KHÁC(${gb.ma},${rb.ma},${sb && sb.stateKey},${hb10.includes('đã nghỉ')})`}`,
   ];
-  check('HSN10 hai chiều: mở lại sống lại · trỏ id khác KHÔNG gỡ nghỉ',
+  check('HSN10 hai chiều × bốn bộ đọc, thông điệp ghim: mở lại sống lại · trỏ id khác KHÔNG gỡ nghỉ',
     got.join(' | ') === 'mở-lại=sống-lại | id-khác=vẫn-nghỉ', got);
 }
 
@@ -295,7 +366,7 @@ console.log('\nHSN-THE thẻ — một sự thật với bộ quét');
   // Chuỗi mời ký phải CÓ THẬT trong bộ dựng thẻ — thẻ đổi chữ thì ca này đỏ,
   // thay vì lặng lẽ đo một câu không ai in nữa.
   const cardSrc = readFileSync(path.join(ROOT, 'scripts', 'gate-card.js'), 'utf8');
-  const MOI_KY = 'Ký duyệt';
+  const MOI_KY = MOI_KY_HANG;
   check('HSN-THE chuỗi mời ký CÓ THẬT trong bộ dựng thẻ', cardSrc.includes(MOI_KY));
   const got = [
     `nghỉ=${ha.includes('đã nghỉ') && ha.includes('ký giữ làm sử liệu') && !ha.includes(MOI_KY) ? 'nói-nghỉ+không-mời' : `KHÁC(${ha.includes('đã nghỉ')},${ha.includes('ký giữ làm sử liệu')},${ha.includes(MOI_KY)})`}`,
@@ -319,24 +390,38 @@ console.log('\nHSN7 mutant — phá hàm thì CẢ BỐN bộ đọc lật');
   const sau = truoc.replace('function hoSoNghi({ ledgerText = null',
     'function hoSoNghi(_bo) { return null; }\nfunction hoSoNghiCu({ ledgerText = null');
   check('HSN7 mũi tiêm CHỨNG MINH đổi được tệp', sau !== truoc);
-  writeFileSync(libP, sau);
 
   const { r } = khoFixture({ luat: 'eval', nghi: dong({}) });
   const chay = (rel, args) => spawnSync(rel.endsWith('.sh') ? 'bash' : process.execPath,
     [path.join(sao, rel), ...args], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  const g = chay('scripts/pre-merge-check.sh', [r, '--no-t1-escape']);
-  const rc = chay('scripts/recheck-evidence.cjs', [path.join(r, '_acceptance', 'hsn', 'evidence-report.md')]);
-  const sc = JSON.parse(chay('scripts/start-scan.mjs', ['--root', r]).stdout);
-  const tc = (chay('scripts/gate-card.js', ['--root', r, '--slug', 'hsn']).stdout || '').replace(/\x1b\[[0-9;]*m/g, '');
-  const x = oSlug(sc);
-  const got = [
-    `cổng=${g.status !== 0 ? 'đỏ' : 'KHÁC'}`,
-    `kiểm-lại=${rc.status !== 0 ? 'đỏ' : 'KHÁC'}`,
-    `bộ-quét=${x && x.stateKey === 'da-giao' ? 'da-giao' : `KHÁC(${x && x.stateKey})`}`,
-    `thẻ=${!tc.includes('đã nghỉ') ? 'không-nói-nghỉ' : 'KHÁC'}`,
-  ];
-  check('HSN7 cả bốn bộ đọc lật khi hàm bị phá',
-    got.join(' | ') === 'cổng=đỏ | kiểm-lại=đỏ | bộ-quét=da-giao | thẻ=không-nói-nghỉ', got);
+  // ĐỐI CHỨNG DƯƠNG trên CHÍNH bản sao, TRƯỚC khi tiêm: bốn bộ đọc phải nói
+  // «nghỉ». Thiếu vế này thì mọi đường chết (thẻ vỡ vì lib, sai slug, exit 127)
+  // đều đọc thành «đã lật» — assertion vắng-mặt một mình.
+  const chayO = (goc, rel, args) => {
+    const x = spawnSync(rel.endsWith('.sh') ? 'bash' : process.execPath,
+      [path.join(goc, rel), ...args], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    return { status: x.status, stdout: x.stdout || '', out2: `${x.stdout || ''}${x.stderr || ''}` };
+  };
+  const bonBoDoc = (goc, kho) => {
+    const g = chayO(goc, 'scripts/pre-merge-check.sh', [kho, '--no-t1-escape']);
+    const rc = chayO(goc, 'scripts/recheck-evidence.cjs', [path.join(kho, '_acceptance', 'hsn', 'evidence-report.md')]);
+    const scOut = chayO(goc, 'scripts/start-scan.mjs', ['--root', kho]).stdout;
+    const x = scOut ? oSlug(JSON.parse(scOut)) : null;
+    const tc = (chayO(goc, 'scripts/gate-card.js', ['--root', kho, '--slug', 'hsn']).stdout || '').replace(/\x1b\[[0-9;]*m/g, '');
+    return [
+      `cổng=${g.status === 0 && g.out2.includes('hồ sơ nghỉ') ? 'xanh+nghỉ' : g.status !== 0 && g.out2.includes(CHUOI.eval) ? 'đỏ-đúng-luật' : `KHÁC(${g.status})`}`,
+      `kiểm-lại=${rc.status === 0 && rc.out2.includes('bỏ kiểm lại') ? 'xanh+nghỉ' : rc.status !== 0 && rc.out2.includes('REPIN x') ? 'đỏ-đúng-luật' : `KHÁC(${rc.status})`}`,
+      `bộ-quét=${x ? x.stateKey : 'KHÔNG-ĐỌC-ĐƯỢC'}`,
+      `thẻ=${tc.includes('đã nghỉ') ? 'nói-nghỉ' : tc.includes(MOI_KY_HANG) ? 'mời-ký' : 'RỖNG-HOẶC-LẠ'}`,
+    ];
+  };
+  const truocTiem = bonBoDoc(sao, r);
+  check('HSN7 đối chứng dương: bản CHƯA tiêm, bốn bộ đọc đều nói nghỉ',
+    truocTiem.join(' | ') === 'cổng=xanh+nghỉ | kiểm-lại=xanh+nghỉ | bộ-quét=da-nghi | thẻ=nói-nghỉ', truocTiem);
+  writeFileSync(libP, sau);
+  const got = bonBoDoc(sao, r);
+  check('HSN7 cả bốn bộ đọc lật khi hàm bị phá (thông điệp ghim, thẻ phải MỜI KÝ chứ không rỗng)',
+    got.join(' | ') === 'cổng=đỏ-đúng-luật | kiểm-lại=đỏ-đúng-luật | bộ-quét=da-giao | thẻ=mời-ký', got);
 }
 
 for (const r of RAC) { try { rmSync(r, { recursive: true, force: true }); } catch { /* dọn best-effort */ } }
