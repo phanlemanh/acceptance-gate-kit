@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: acceptance-gate-kit/_acceptance/ra-co-ten-lam-va-trao — 23–24/08, hai hồ sơ làn V «sạch» vì né chữ
+
 Điều kiện «0 mục không chắc» của bộ chấm xanh-sạch (cả bản lưới lẫn bản bộ quét) quét TRỌN
 file báo cáo tìm một chữ. Đó là blacklist trên không gian mở — lớp lỗi đã có tên trong sổ
 của kit: mọi khuôn, checklist, ví dụ, hay câu văn nhắc tới chữ đó đều đầu độc phép kiểm.

@@ -3,16 +3,21 @@ schema_version: 1
 slug: viec-ke-theo-plan
 feature: Việc kế theo plan và hạt giống — kit đọc ý định của repo, không giữ, không sửa
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: park   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Mạnh
+decided_at: 2026-09-18    # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
 ---
 
+> **Xếp lại (park) 18/09 — luật neo thu phạm vi (owner chọn đường B).** ca thật là khối plan-freeze của OneFlow, không gắn hồ sơ nào. Chữ giữ
+> nguyên, không xoá: khi có một hồ sơ cụ thể `<kho>/_acceptance/<slug>` để trỏ thì thêm dòng
+> `Gốc:` dạng ấy và đổi `stage:` về `discovery` là ô mở lại.
+
 ## Vấn đề & ai gặp
+
 
 Repo có plan dài hơi nhiều phiên (OneFlow: khối plan-freeze 16 ★, 04/09 → 08/11) thì đầu mỗi
 phiên máy không biết việc kế: thẻ `/acceptance-gate:start` quét hồ sơ nhưng không đọc plan, nên

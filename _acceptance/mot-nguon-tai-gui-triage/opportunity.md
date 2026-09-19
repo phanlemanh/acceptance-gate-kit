@@ -16,7 +16,7 @@ prototype:
 
 Khuôn tải gửi cho tác tử phân loại viết hai lần trong `feature-loop/workflows/acceptance-verify.js`; cơ chế hỏi-lại ghép lời nhắc lượt hai bằng phép thay chuỗi, chỉ đúng khi hai bản còn giống nhau từng byte, và phép thay chuỗi im lặng khi không khớp. Người trả giá: máy, ở dạng tiếng ồn chẩn đoán — không phải người dùng kit, và không phải tính đúng đắn của phán quyết.
 
-Gốc: Ngoài-1 của hồ sơ `do-tin-tram-phan-loai`, owner quyết «mở hợp đồng mới» tại Cổng Bằng chứng 15/09. Hồ sơ đã mở, soạn trọn ba artifact, chạy phản biện context sạch (1 P0 + 3 P1 + 1 P2, đã sửa cả năm vào đề bài) — rồi đóng lại cùng ngày sau khi đo.
+Gốc: acceptance-gate-kit/_acceptance/do-tin-tram-phan-loai — Ngoài-1 của hồ sơ đó, owner quyết «mở hợp đồng mới» tại Cổng Bằng chứng 15/09
 
 ## Ngưỡng chết / ngưỡng UAT
 

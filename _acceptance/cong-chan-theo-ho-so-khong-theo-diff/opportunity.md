@@ -11,6 +11,8 @@ decided_at:
 
 ## Vấn đề & ai gặp
 
+Gốc: crm-onehub/_acceptance/cua-vao-noi-tieng-viet — PR #2 bị chặn 06/09 vì ba hồ sơ không nằm trong diff
+
 `scripts/pre-merge-check.sh` có hai luật cho hồ sơ. Luật «bằng chứng chưa arm cổng» được
 gắn với diff PR (`slug_in_diff`). Nhưng luật «hồ sơ ở implemented/verified/signed-off thì
 verdict phải PASS» **không gắn với diff**: mọi hồ sơ đã arm trong kho đều bị chấm ở mọi PR.

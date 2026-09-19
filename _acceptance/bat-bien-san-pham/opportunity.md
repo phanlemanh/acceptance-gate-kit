@@ -3,16 +3,21 @@ schema_version: 1
 slug: bat-bien-san-pham
 feature: Bất biến sản phẩm — PRODUCT-INVARIANTS.md ở gốc repo tiêu thụ, luật sản phẩm nạp lúc viết đặc tả, thứ khó-đảo tự nổi lên thẻ như mục người
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: park   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Mạnh
+decided_at: 2026-09-18    # ISO UTC
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
 ---
 
+> **Xếp lại (park) 18/09 — luật neo thu phạm vi (owner chọn đường B).** chưa hồ sơ cụ thể nào ở kho tiêu thụ để trỏ — bản đồ sản phẩm là lớp tài liệu, chưa thành hồ sơ. Chữ giữ
+> nguyên, không xoá: khi có một hồ sơ cụ thể `<kho>/_acceptance/<slug>` để trỏ thì thêm dòng
+> `Gốc:` dạng ấy và đổi `stage:` về `discovery` là ô mở lại.
+
 ## Vấn đề & ai gặp
+
 
 Kit có bản đồ của VIỆC (`PRODUCT-MAP.md`) nhưng chưa có bản đồ của SẢN PHẨM: cấu trúc sản phẩm
 (bề mặt công khai, khuôn IA, hợp đồng dữ liệu, tenant/quyền) là thứ khó-đảo, theo hiến pháp kit

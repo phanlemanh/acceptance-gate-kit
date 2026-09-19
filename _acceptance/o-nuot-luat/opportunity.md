@@ -14,6 +14,8 @@ prototype:
 
 ## Vấn đề & ai gặp
 
+Gốc: artifact-platform/_acceptance/trang-tu-van-v2 — ca r4, luật viết bằng chữ không có ô
+
 Khuôn Cổng Đáng viết luật bằng chữ nhưng không có ô cho luật, nên áp mặc định trông giống bỏ trống (ca trang-tu-van-v2-r4 của artifact-platform). Đề bài đầy đủ: `docs/plans/2026-08-15-hat-giong-o-nuot-luat.md`.
 
 ## Ngưỡng chết / ngưỡng UAT
