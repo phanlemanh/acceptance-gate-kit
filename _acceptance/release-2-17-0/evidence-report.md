@@ -8,7 +8,7 @@ verified_by: implementing session (làn V — mốc phát hành không chạy l�
 enforcement_mode: strict
 bypass_used: false
 verified_commit: abc1d4f7d00941fb16b5369d1637fa174a90145f
-human_signoff:
+human_signoff: Mạnh 2026-09-20 — ký mốc phát hành 2.17.0 với bốn known-limits đã khai: (1) người chấm là chính phiên thi công, làn V không chạy lượt chấm S4 (nếp release-2-7-0); (2) nội dung các vế «người dùng nhận gì» trong mô tả hai gói là văn cho người, đọc trong diff; (3) vế 4 của luật (b) chưa có răng, mốc khai ba kho chờ nhận bằng lời kèm lý do đo được; (4) phiên trả ba lượt ghim lại vì chạm sổ khai-gạch của một hồ sơ đã ký. Đồng ý phạm vi đã cắt (không chiến dịch ghim lại, không sửa năm giới hạn của ho-so-nghi, không làm lớp vendored tự xưng); phê hai quyết định ghi sau Cổng Phạm vi.
 ---
 
 # Evidence — release-2-17-0
