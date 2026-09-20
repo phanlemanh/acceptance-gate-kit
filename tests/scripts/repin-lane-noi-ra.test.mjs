@@ -109,18 +109,18 @@ executors:
   ui:
     x: "echo ui"
 `;
-const REPORT = (slug, vc) => `---
+// Khuôn báo cáo theo repin-fixture.mjs (bên đọc đòi verdict + khối Evidence có
+// đủ trường); khối eval dựng cho ĐÚNG các eval máy của hồ sơ.
+const REPORT = (slug, vc, verifier, machineIds) => `---
 schema_version: 1
-slug: ${slug}
+feature_slug: ${slug}
+verdict: PASS
 verified_commit: ${vc}
 human_signoff: Nguoi Ky 2026-09-19
 ---
 
-# Evidence — ${slug}
-
-| Eval | Criterion | Executor | Verdict |
-|---|---|---|---|
-| E1 | AC-a | test | PASS |
+## Evidence
+${machineIds.map(id => `- eval: ${id}\n  run_id: ${slug}-${id}-001\n  exit_code: 0\n  verifier: ${verifier}\n  verified_at: 2026-09-19`).join('\n')}
 
 ## Iterations
 `;
@@ -149,8 +149,9 @@ function mkKho({ toanMay = false, evals = null } = {}) {
   fs.writeFileSync(path.join(ws, 'evals.yaml'), body.replaceAll('feat-gn', slug));
   git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'impl');
   const head0 = git('rev-parse', 'HEAD').trim();
-  fs.writeFileSync(path.join(ws, 'run-log.jsonl'), JSON.stringify({ ts: '2026-09-19T00:00:00Z', kind: 'eval', run_id: 'r1-E1', sha: head0, eval: 'E1', exit_code: 0 }) + '\n');
-  fs.writeFileSync(path.join(ws, 'evidence-report.md'), REPORT(slug, head0));
+  const machineIds = toanMay ? ['E1'] : ['E1', 'E13'];
+  fs.writeFileSync(path.join(ws, 'run-log.jsonl'), machineIds.map(id => JSON.stringify({ ts: '2026-09-19T00:00:00Z', round: 1, evalId: id, run_id: `${slug}-${id}-001`, exit_code: 0, cmd: 'bash suite.sh' })).join('\n') + '\n');
+  fs.writeFileSync(path.join(ws, 'evidence-report.md'), REPORT(slug, head0, path.join(root, 'suite.sh'), machineIds));
   git('add', '-A'); git('commit', '-qm', 'evidence');
   return { root, ws, slug, git, head: git('rev-parse', 'HEAD').trim(), logPath: path.join(ws, 'run-log.jsonl'), reportPath: path.join(ws, 'evidence-report.md') };
 }
@@ -478,6 +479,51 @@ CASES.push({
     { pin: 'khop tien to thay glob', make: () => mutLane('res.some(re => re.test(f))', 'gl.some(g => f.startsWith(String(g).replace(/[*?].*$/, "")))') },
     { pin: 'paths dang flow khong doc duoc', make: () => mutLane("if (v.startsWith('[')) { const pv = core.parseFlowValue(v); return pv.kind === 'seq' ? pv.items : []; }", "if (v.startsWith('[')) { return []; }") },
   ],
+});
+
+// ── GN08 ────────────────────────────────────────────────────────────────────
+// Bên đọc ĐỜI 2.17.0 = lớp vendored đang chạy ở kho tiêu thụ hôm nay.
+const docMoc = (sha) => ({
+  recheck: path.join(cayMoc(sha), 'scripts', 'recheck-evidence.cjs'),
+  premerge: path.join(cayMoc(sha), 'scripts', 'pre-merge-check.sh'),
+});
+
+CASES.push({
+  id: 'GN08',
+  title: 'dòng ghim mang khoá mới: bên đọc hiện tại VÀ bên đọc 2.17.0 đều xanh, không VIOLATION',
+  real() {
+    const errs = [];
+    const f = mkKho();
+    fs.writeFileSync(path.join(f.root, 'apps', 'x', 'a.ts'), 'v2\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'cham');
+    const r = chayLan(f.root, f.slug, ['--write']);
+    if (r.status !== 0) return [`lan exit ${r.status}: ${cut(r.stderr, 220)}`];
+    const d = dongRepinCuoi(f.logPath);
+    if (!d.evals_not_machine_touched) errs.push('fixture hong: dong ghim khong mang khoa moi');
+    const cu = docMoc(MOC);
+    const doc = [
+      ['recheck nay', () => spawnSync(process.execPath, [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), f.reportPath], { encoding: 'utf8' })],
+      [`recheck ${MOC}`, () => spawnSync(process.execPath, [cu.recheck, f.reportPath], { encoding: 'utf8' })],
+      ['premerge nay', () => spawnSync('bash', [path.join(ROOT, 'scripts', 'pre-merge-check.sh'), f.root], { encoding: 'utf8' })],
+      [`premerge ${MOC}`, () => spawnSync('bash', [cu.premerge, f.root], { encoding: 'utf8' })],
+    ];
+    for (const [ten, chay] of doc) {
+      const x = chay();
+      const out = String(x.stdout || '') + String(x.stderr || '');
+      if (/VIOLATION|REPIN x/.test(out)) errs.push(`${ten} bao VIOLATION tren dong moi: ${cut(out.split('\n').filter(l => /VIOLATION|REPIN x/.test(l)).join(' | '), 200)}`);
+    }
+    // Đối chứng ĐỎ: gỡ evals_exit khỏi dòng → CẢ HAI lớp phải đỏ đúng thông điệp.
+    const raw = fs.readFileSync(f.logPath, 'utf8').split('\n').filter(Boolean);
+    const cuoi = JSON.parse(raw.pop()); delete cuoi.evals_exit;
+    fs.writeFileSync(f.logPath, raw.concat(JSON.stringify(cuoi)).join('\n') + '\n');
+    for (const [ten, chay] of [doc[0], doc[1]]) {
+      const x = chay();
+      const out = String(x.stdout || '') + String(x.stderr || '');
+      if (x.status === 0 || !/recorded no evals_exit/.test(out)) errs.push(`doi chung do hong o ${ten}: exit ${x.status}, ${cut(out, 200)}`);
+    }
+    return errs;
+  },
+  mutants: [],   // chiều đỏ nằm TRONG ca (đối chứng gỡ evals_exit trên CẢ HAI lớp)
 });
 
 // ── chạy ────────────────────────────────────────────────────────────────────
