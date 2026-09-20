@@ -51,7 +51,7 @@ evals:
     cmd: config:executors.script.gnro_section
     expected: >-
       Ca GN03; stdout có đúng một dòng kết quả, mang "GN03". Section Re-pin của hồ sơ ma
-      trận có hậu tố " · ngoài làn máy: E6, E7, E12 (E12 không khai paths)" và " · AC không
+      trận có hậu tố " · ngoài làn máy: E6, E7 (E7 không khai paths), E12 (E12 không khai paths)" và " · AC không
       có chốt máy: AC-b, AC-c" — danh sách kỳ vọng VIẾT TRƯỚC (∀ eval phủ AC đều không phải
       eval máy đáng ghim; AC-a/AC-d có chốt vì có test). Chiều im: hồ sơ toàn eval máy, section
       so BYTE với section do writer mốc 2826f807 (git archive 2826f807 feature-loop lib

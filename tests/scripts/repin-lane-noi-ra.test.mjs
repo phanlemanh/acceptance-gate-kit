@@ -190,6 +190,31 @@ const mutLane = (tim, thay) => mutant(LANE, tim, thay, ['feature-loop/scripts'])
 // Bản sao của thẻ: chép trọn scripts + lib (thẻ require ../lib/*.cjs).
 const mutCard = (tim, thay) => mutant(CARD, tim, thay, ['scripts', 'lib']);
 
+// Chuẩn hoá section để so BYTE: run_id, sha và ngày là giá trị của lượt chạy.
+const chuanHoa = (s) => String(s)
+  .replace(/repin-\d{8}T\d{6}Z-\d+/g, '<RUN>')
+  .replace(/\b[0-9a-f]{40}\b/g, '<SHA>')
+  .replace(/\d{4}-\d{2}-\d{2}/g, '<NGAY>');
+
+// Writer/bên đọc ĐỜI TRƯỚC hồ sơ này: git archive TRỌN thư mục (chép danh sách
+// tệp tay thì vật gọi thêm một module là bản cũ đỏ vì HẠ TẦNG — bài học P150).
+const mocCache = new Map();
+function cayMoc(sha) {
+  if (mocCache.has(sha)) return mocCache.get(sha);
+  const ok = spawnSync('git', ['-C', ROOT, 'cat-file', '-e', `${sha}^{commit}`], { encoding: 'utf8' });
+  if (ok.status !== 0) throw new Error(`thieu moc ${sha} — can lich su git day du (fetch-depth: 0)`);
+  const d = mk(`moc-${sha}-`);
+  const tar = path.join(TMP, `moc-${sha}.tar`);
+  execFileSync('git', ['-C', ROOT, 'archive', '-o', tar, sha, 'feature-loop', 'lib', 'scripts']);
+  execFileSync('tar', ['-xf', tar, '-C', d]);
+  for (const rel of ['feature-loop/scripts/repin-lane.mjs', 'scripts/gate-card.js', 'scripts/recheck-evidence.cjs', 'scripts/pre-merge-check.sh', 'scripts/eval-coverage-lint.js']) {
+    if (!fs.existsSync(path.join(d, rel))) throw new Error(`lop ${sha} thieu ${rel} sau git archive`);
+  }
+  mocCache.set(sha, d);
+  return d;
+}
+const laneMoc = (sha) => path.join(cayMoc(sha), 'feature-loop', 'scripts', 'repin-lane.mjs');
+
 const CASES = [];
 
 // ── GN01 ────────────────────────────────────────────────────────────────────
@@ -236,6 +261,50 @@ CASES.push({
   },
   mutants: [
     { pin: 'mang rong thay vi vang', make: () => mutLane('s.ngoaiMay.length ? { evals_not_machine: s.ngoaiMay } : {},', '{ evals_not_machine: s.ngoaiMay },') },
+  ],
+});
+
+// ── GN03 ────────────────────────────────────────────────────────────────────
+CASES.push({
+  id: 'GN03',
+  title: 'section Re-pin nêu ô ngoài làn máy + AC không có chốt máy; hồ sơ toàn máy thì im',
+  real(lane) {
+    const errs = [];
+    const f = mkKho();
+    const r = chayLan(f.root, f.slug, ['--write'], lane);
+    if (r.status !== 0) return [`lan exit ${r.status}: ${cut(r.stderr, 220)}`];
+    const sec = sectionCuoi(f.reportPath);
+    if (!sec.includes('· ngoài làn máy: E6, E7 (E7 không khai paths), E12 (E12 không khai paths)')) errs.push(`section thieu hau to ngoai lan may: ${cut(sec, 240)}`);
+    const mAC = sec.match(/· AC không có chốt máy: ([^\n·]+)/);
+    if (!mAC) errs.push(`section thieu AC khong chot may: ${cut(sec, 240)}`);
+    else {
+      const got = mAC[1].trim().split(/,\s*/);
+      if (JSON.stringify(got) !== JSON.stringify(AC_KHONG)) {
+        errs.push(got.includes('AC-d') || got.includes('AC-a') ? `got AC bang ton tai: ${got.join(',')}`
+          : (!got.includes('AC-b') ? `not-run tinh la chot: ${got.join(',')}` : `AC khong chot may sai: ${got.join(',')}`));
+      }
+    }
+    // CHIỀU IM: hồ sơ toàn eval máy — so BYTE với section do WRITER mốc 2.17.0 ghi.
+    const g = mkKho({ toanMay: true });
+    const rg = chayLan(g.root, g.slug, ['--write'], lane);
+    if (rg.status !== 0) return errs.concat(`ho so toan may exit ${rg.status}: ${cut(rg.stderr, 220)}`);
+    const nay = chuanHoa(sectionCuoi(g.reportPath));
+    const g2 = mkKho({ toanMay: true });
+    const rc = chayLan(g2.root, g2.slug, ['--write'], laneMoc(MOC));
+    if (rc.status !== 0) return errs.concat(`writer moc ${MOC} exit ${rc.status}: ${cut(rc.stderr, 220)}`);
+    const cu = chuanHoa(sectionCuoi(g2.reportPath));
+    if (nay !== cu) errs.push(`section troi so voi lan 2.17.0: nay="${cut(nay, 160)}" cu="${cut(cu, 160)}"`);
+    // Đối chứng dương của phép so byte: trên hồ sơ ma trận hai bản PHẢI khác.
+    const h = mkKho(); const h2 = mkKho();
+    chayLan(h.root, h.slug, ['--write'], lane);
+    chayLan(h2.root, h2.slug, ['--write'], laneMoc(MOC));
+    if (chuanHoa(sectionCuoi(h.reportPath)) === chuanHoa(sectionCuoi(h2.reportPath))) errs.push('phep so byte khong phan biet duoc: ho so ma tran cho section y het ban 2.17.0');
+    return errs;
+  },
+  mutants: [
+    { pin: 'section thieu AC khong chot may', make: () => mutLane('${veAcKhong}', '') },
+    { pin: 'got AC bang ton tai', make: () => mutLane('evs.every(e => !core.isRepinMachineEval(e))', 'evs.some(e => !core.isRepinMachineEval(e))') },
+    { pin: 'not-run tinh la chot', make: () => mutLane('evs.every(e => !core.isRepinMachineEval(e))', "evs.every(e => !core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))") },
   ],
 });
 

@@ -383,6 +383,23 @@ function chamTuPin(s) {
   return cham;
 }
 
+// «AC không có chốt máy» — MỌI eval phủ AC đó đều không phải eval máy đáng ghim
+// (∀, KHÔNG phải ∃): một AC có cả ui-check lẫn test VẪN có chốt, và đó đúng là
+// lối mà lint W8 khuyên khi đòi thêm ui-check. Ô tự khai `status: not-run` KHÔNG
+// phải chốt — `isRepinMachineEval` đã loại nó; cùng MỘT vị từ với bên đọc pin.
+// Thẻ Cổng Bằng chứng dựng lại phép gộp này và ca GN09 so hai bản (round-trip),
+// nên hai bản không trôi khỏi nhau.
+function acKhongChotMay(evalRecords) {
+  const theoAc = new Map();   // Map giữ thứ tự chèn = thứ tự xuất hiện trong evals.yaml
+  for (const e of evalRecords) {
+    const ac = String(e.criterion || '').trim();
+    if (!ac) continue;
+    if (!theoAc.has(ac)) theoAc.set(ac, []);
+    theoAc.get(ac).push(e);
+  }
+  return [...theoAc.entries()].filter(([, evs]) => evs.every(e => !core.isRepinMachineEval(e))).map(([ac]) => ac);
+}
+
 log(`sha ${sha} · ${suiteCmds.length} suite · ${perSlug.length} hồ sơ · ${perSlug.reduce((n, s) => n + s.evals.length, 0)} eval máy`);
 // Chụp MỌI hồ sơ đã thông cổng, không chỉ slug đang ghim: suite của một hồ sơ
 // ghi đè được bằng chứng của hồ sơ khác. Chụp SAU bước bỏ-qua (lượt bỏ qua không
@@ -436,7 +453,16 @@ for (const s of perSlug) {
   const veGioiHan = gioiHan.length ? ` · đạt-có-giới-hạn: ${gioiHan.join(', ')}` : '';
   const veHet = hetGioiHan.length ? ` · giới hạn đã khai không còn: ${hetGioiHan.join(', ')}` : '';
   const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${boQua.join(', ')}` : '';
-  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}\n`;
+  // Ba hậu tố của hồ sơ ghim-lai-noi-ra-o-khong-do: ô ngoài làn máy · ô trong số
+  // đó có vật đo đã đổi · AC vì thế không có chốt máy. Ô ngoài làn máy KHÔNG khai
+  // `paths` thì nói rõ, để «vắng khỏi danh sách đã chạm» không đọc thành «không chạm».
+  const acKhong = acKhongChotMay(s.evalRecords);
+  const veNgoaiMay = s.ngoaiMay.length
+    ? ` · ngoài làn máy: ${s.ngoaiMay.map(id => (pathsCuaEval(s.evalsText, id).length ? id : `${id} (${id} không khai paths)`)).join(', ')}`
+    : '';
+  const veCham = chamNgoaiMay.length ? ` · diff chạm vật đo ngoài làn máy: ${chamNgoaiMay.join(', ')} — chưa chứng lại, đi vòng S4 delta` : '';
+  const veAcKhong = acKhong.length ? ` · AC không có chốt máy: ${acKhong.join(', ')}` : '';
+  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veNgoaiMay}${veCham}${veAcKhong}\n`;
   out.slugs[s.slug] = { evals_exit: evalsExit, line, section };
 }
 if (red) {
