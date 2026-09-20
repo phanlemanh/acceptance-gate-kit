@@ -235,6 +235,66 @@ function cayMoc(sha) {
 }
 const laneMoc = (sha) => path.join(cayMoc(sha), 'feature-loop', 'scripts', 'repin-lane.mjs');
 
+// ── RÚT kỳ vọng TỪ VẬT, không gõ lại (đổi khuôn, owner quyết 20/09 ở STOP-PATCHING)
+// Lớp lỗi đã bắt ba lượt liên tiếp: mỗi ca tự viết lại lời hứa bằng chuỗi của
+// RIÊNG nó, nên «đo gần đúng lời hứa» là trạng thái mặc định chứ không phải tai
+// nạn — ca xanh trong khi dòng chữ người đọc biến mất. Ba hàm dưới rút chuỗi kỳ
+// vọng từ ba vật ĐỘC LẬP với thứ đang bị đo, và mỗi hàm NỔ khi rút được rỗng:
+// một phép so với vế kỳ vọng rỗng là hằng đúng, đúng bệnh GN11 đã dẫm.
+
+// (1) Hợp đồng giữ nguyên văn các hậu tố đã hứa — nguồn duy nhất, cả làn lẫn ca
+// đều phải khớp nó. Hồ sơ lưu kho về sau → ca ĐỎ có tên, không xanh lặng.
+const HOP_DONG = path.join(ROOT, '_acceptance', 'ghim-lai-noi-ra-o-khong-do', 'contract.md');
+function huaTuHopDong(acId) {
+  if (!fs.existsSync(HOP_DONG)) throw new Error(`thieu hop dong ${HOP_DONG} — ca nay rut loi hua tu hop dong, khong go tay`);
+  const dong = fs.readFileSync(HOP_DONG, 'utf8').split('\n').find(l => l.startsWith(`- ${acId}:`));
+  if (!dong) throw new Error(`hop dong khong co dong "- ${acId}:"`);
+  const hua = [...dong.matchAll(/`(\s*·[^`]*)`/g)].map(m => m[1]);
+  if (!hua.length) throw new Error(`rut 0 hau to tu ${acId} — ve ky vong rong thi phep so hang dung`);
+  return hua;
+}
+
+// (2) Bộ đọc evals.yaml ĐỘC LẬP với lib sản phẩm: thẻ và bộ đọc này trôi khỏi
+// nhau là phải ĐỎ, đó chính là việc của ca. Trả về chuỗi diễn giải kỳ vọng
+// («AC-b (E2 script not-run)») dựng từ CHÍNH tệp thẻ đọc, không gõ lại.
+function moMongDoi(evalsText) {
+  const recs = evalsText.split(/^ {2}- id:[ \t]*/m).slice(1).map(b => ({
+    id: b.split('\n')[0].trim(),
+    executor: (b.match(/^ {4}executor:[ \t]*(\S+)/m) || [])[1] || '',
+    status: (b.match(/^ {4}status:[ \t]*(\S+)/m) || [])[1] || '',
+    criterion: (b.match(/^ {4}criterion:[ \t]*(\S+)/m) || [])[1] || '',
+  }));
+  const theoAc = new Map();
+  for (const e of recs) {
+    if (!e.criterion) continue;
+    if (!theoAc.has(e.criterion)) theoAc.set(e.criterion, []);
+    theoAc.get(e.criterion).push(e);
+  }
+  const may = (e) => ['test', 'script'].includes(e.executor) && e.status !== 'not-run';
+  const mo = [...theoAc.entries()].filter(([, evs]) => evs.every(e => !may(e)))
+    .map(([ac, evs]) => `${ac} (${evs.map(e => `${e.id} ${e.executor}${e.status === 'not-run' ? ' not-run' : ''}`).join(', ')})`);
+  if (!mo.length) throw new Error('ma tran fixture khong con AC nao thieu chot may — ve ky vong rong, phep so vo luc');
+  return mo;
+}
+
+// (3) Khoá MỚI do chính writer khai = hiệu tập khoá (làn nay − làn mốc 2.17.0)
+// trên CÙNG một fixture. Tài liệu phải gọi tên đúng những khoá này; thêm khoá
+// thứ ba về sau thì phép đo tự vũ trang, không ai phải nhớ sửa ca.
+function khoaMoiSoVoiMoc(lane) {
+  const khoa = (kho) => Object.keys(dongRepinCuoi(kho.logPath));
+  const nay = mkKho();
+  fs.writeFileSync(path.join(nay.root, 'apps', 'x', 'a.ts'), 'v2\n');
+  nay.git('add', '-A'); nay.git('commit', '-qm', 'cham');
+  if (chayLan(nay.root, nay.slug, ['--write'], lane).status !== 0) throw new Error('lan nay do khi rut khoa moi');
+  const cu = mkKho();
+  fs.writeFileSync(path.join(cu.root, 'apps', 'x', 'a.ts'), 'v2\n');
+  cu.git('add', '-A'); cu.git('commit', '-qm', 'cham');
+  if (chayLan(cu.root, cu.slug, ['--write'], laneMoc(MOC)).status !== 0) throw new Error(`lan moc ${MOC} do khi rut khoa moi`);
+  const moi = khoa(nay).filter(k => !khoa(cu).includes(k));
+  if (!moi.length) throw new Error(`rut 0 khoa moi so voi ${MOC} — ve ky vong rong, phep so hang dung`);
+  return moi;
+}
+
 const CASES = [];
 
 // ── GN01 ────────────────────────────────────────────────────────────────────
@@ -294,7 +354,10 @@ CASES.push({
     const r = chayLan(f.root, f.slug, ['--write'], lane);
     if (r.status !== 0) return [`lan exit ${r.status}: ${cut(r.stderr, 220)}`];
     const sec = sectionCuoi(f.reportPath);
-    if (!sec.includes('· ngoài làn máy: E6, E7 (E7 không khai paths), E12 (E12 không khai paths)')) errs.push(`section thieu hau to ngoai lan may: ${cut(sec, 240)}`);
+    // Hậu tố kỳ vọng RÚT TỪ HỢP ĐỒNG (AC-2), không gõ lại trong ca.
+    for (const hua of huaTuHopDong('AC-2')) {
+      if (!sec.includes(hua)) errs.push(`section thieu hau to hop dong hua: "${cut(hua, 90)}" · section=${cut(sec, 200)}`);
+    }
     const mAC = sec.match(/· AC không có chốt máy: ([^\n·]+)/);
     if (!mAC) errs.push(`section thieu AC khong chot may: ${cut(sec, 240)}`);
     else {
@@ -388,7 +451,18 @@ CASES.push({
       /section Re-pin nêu thêm `AC không có chốt máy`/,
     ];
     if (!cauGH || !menhDe.every(re => re.test(cauGH[0]))) errs.push('SKILL thieu cau touched');
-    if (!/evals_not_machine_touched/.test(guide)) errs.push('GUIDE thieu cau touched');
+    // Vế GUIDE: neo vào ĐOẠN VĂN giới hạn của §7.1 và CẮT khối lệnh ra khỏi nó —
+    // quét tên khoá trên toàn tệp thì chính dòng lệnh đếm ở dưới tự thoả điều
+    // kiện (finding lượt chấm 3). Danh sách khoá phải gọi tên KHÔNG gõ tay: nó là
+    // hiệu tập khoá giữa làn nay và làn mốc 2.17.0 trên cùng fixture.
+    const mDoan = guide.match(/\*\*Giới hạn khai, một ngưỡng ĐẾM ĐƯỢC:\*\*([\s\S]*?)```/);
+    if (!mDoan) errs.push('GUIDE thieu doan gioi han §7.1');
+    else {
+      const vanXuoi = mDoan[1];
+      for (const k of khoaMoiSoVoiMoc(ref.lane || LANE)) {
+        if (!vanXuoi.includes(k)) errs.push(`GUIDE thieu cau touched: doan §7.1 khong goi ten khoa moi "${k}"`);
+      }
+    }
     const mL = guide.match(/```bash\n(grep -l '"evals_not_machine_touched"'[^\n]*)\n```/);
     if (!mL) return errs.concat('GUIDE khong con lenh dem');
     const lenh = mL[1];
@@ -412,6 +486,16 @@ CASES.push({
     { pin: 'SKILL thieu cau touched',
       judge: (p) => CASES.find(c => c.id === 'GN05').real({ skill: p }),
       make: () => mutant(SKILL, 'liệt những id mà diff từ pin cũ tới HEAD chạm `paths`', 'liệt vài thứ') },
+    // Neo của đoạn văn §7.1 mất → ca ĐỎ: chứng phép đo đứng trên ĐOẠN VĂN, không
+    // trên cả tệp (quét cả tệp thì chính dòng lệnh đếm dưới fence tự thoả).
+    { pin: 'GUIDE thieu doan gioi han',
+      judge: (p) => CASES.find(c => c.id === 'GN05').real({ guide: p }),
+      make: () => mutant(GUIDE, '**Giới hạn khai, một ngưỡng ĐẾM ĐƯỢC:**', '**Khong noi gi ca:**') },
+    // Writer đổi tên khoá → đoạn văn không còn gọi đúng tên → ca ĐỎ. Đây là vế
+    // round-trip: danh sách khoá phải đo đòi hỏi là do LÀN khai, không do ca gõ.
+    { pin: 'GUIDE thieu cau touched',
+      judge: (p) => CASES.find(c => c.id === 'GN05').real({ lane: p }),
+      make: () => mutLane('{ evals_not_machine_touched: chamNgoaiMay }', '{ evals_not_machine_cham: chamNgoaiMay }') },
   ],
 });
 
@@ -434,6 +518,12 @@ CASES.push({
     if (JSON.stringify(d.evals_not_machine_touched) !== JSON.stringify(['E6'])) {
       errs.push(`touched vang du diff cham / moc diff khong phai pin cu: ${JSON.stringify(d.evals_not_machine_touched)}`);
     }
+    // AC-4 hứa một HẬU TỐ TRONG SECTION cho NGƯỜI đọc, không chỉ một khoá JSON
+    // cho máy: đo khoá là đo proxy — xoá trắng hậu tố thì mọi ca cũ vẫn xanh
+    // (finding lượt chấm 3). Chuỗi kỳ vọng RÚT TỪ HỢP ĐỒNG, không gõ lại.
+    const hua4 = huaTuHopDong('AC-4');
+    const sec1 = sectionCuoi(f.reportPath);
+    for (const h of hua4) if (!sec1.includes(h)) errs.push(`section thieu hau to diff cham vat: "${cut(h, 90)}" · section=${cut(sec1, 200)}`);
     // Lượt ghim kế: chỉ commit tệp không khớp glob → khoá VẮNG HẲN.
     fs.writeFileSync(path.join(f.root, 'khong-lien-quan.txt'), 'y\n');
     f.git('add', '-A'); f.git('commit', '-qm', 'lai khong cham');
@@ -441,6 +531,10 @@ CASES.push({
     if (r2.status !== 0) return errs.concat(`luot 2 exit ${r2.status}: ${cut(r2.stderr, 220)}`);
     const d2 = dongRepinCuoi(f.logPath);
     if (Object.keys(d2).includes('evals_not_machine_touched')) errs.push(`luot sach van co touched: ${JSON.stringify(d2.evals_not_machine_touched)}`);
+    // Đối chứng cùng hậu tố: lượt sạch thì section KHÔNG mang nó (phép so có lực
+    // vì vế trên đã chứng nó CÓ mặt khi chạm).
+    const sec2 = sectionCuoi(f.reportPath);
+    for (const h of hua4) if (sec2.includes(h)) errs.push(`luot sach van co hau to diff cham vat: ${cut(sec2, 200)}`);
     // Vật hồ sơ dưới _acceptance/<slug>/rang/ cũng khớp glob → VẪN tính chạm.
     fs.writeFileSync(path.join(f.ws, 'rang', 'r.mjs'), '// v2\n');
     f.git('add', '-A'); f.git('commit', '-qm', 'cham rang');
@@ -453,6 +547,9 @@ CASES.push({
   mutants: [
     { pin: 'touched vang du diff cham', make: () => mutLane('const chamNgoaiMay = chamTuPin(s);', 'const chamNgoaiMay = [];') },
     { pin: 'moc diff khong phai pin cu', make: () => mutLane("gitRaw('diff', '--name-only', vcCu, '--')", "gitRaw('diff', '--name-only', 'HEAD~1', '--')") },
+    // Dòng chữ NGƯỜI đọc biến mất trong khi khoá JSON còn nguyên — đúng lỗ mà
+    // phép đo cũ không thấy.
+    { pin: 'section thieu hau to diff cham vat', make: () => mutLane('${veNgoaiMay}${veCham}${veAcKhong}', '${veNgoaiMay}${veAcKhong}') },
   ],
 });
 
@@ -587,6 +684,16 @@ CASES.push({
     const html = theHtml(f.root, f.slug, 2, card);
     if (!html.includes('AC không có chốt máy khi ghim lại')) errs.push('the thieu co AC khong chot may: HTML khong co cau');
     if (!html.includes('diff đã chạm vật')) errs.push('HTML thieu co pin da cham');
+    // NỘI DUNG cờ, không chỉ NHÃN: diễn giải AC→eval→kiểu phải đúng, và phải nằm
+    // TRONG thẻ người đọc. Kỳ vọng dựng từ CHÍNH evals.yaml thẻ đọc (bộ đọc độc
+    // lập), nên hỏng khâu phân loại kiểu là ĐỎ — nhãn suông thì không bắt được.
+    const moKy = moMongDoi(EVALS_MA_TRAN);
+    const moGot = x.chot_may.ac_khong_mo || [];
+    if (JSON.stringify([...moGot].sort()) !== JSON.stringify([...moKy].sort())) errs.push(`the dien giai sai kieu/eval: ${JSON.stringify(moGot)} (mong ${JSON.stringify(moKy)})`);
+    for (const s of moKy) if (!html.includes(s)) errs.push(`the thieu noi dung co: HTML khong mang "${s}"`);
+    for (const id of (x.chot_may.touched || [])) {
+      if (!new RegExp(`diff đã chạm vật[^<]*\\b${id}\\b`).test(html)) errs.push(`co fwarn khong neu id: HTML khong neu ${id}`);
+    }
     // routing KHÔNG đổi so mốc 2.17.0 (LM20 baseline không được trôi).
     const cu = theExtract(f.root, f.slug, 2, cardMoc(MOC));
     if (JSON.stringify(x.routing) !== JSON.stringify(cu.routing)) errs.push(`routing doi so ${MOC}: ${JSON.stringify(x.routing)} vs ${JSON.stringify(cu.routing)}`);
@@ -610,6 +717,10 @@ CASES.push({
     { pin: 'the thieu co AC khong chot may', make: () => mutCard('const cm = chotMay(dir);', "const cm = { ac_khong: [], ac_khong_mo: [], touched: [] };") },
     { pin: 'got AC bang ton tai', make: () => mutCard('.filter(([, evs]) => evs.every(e => !evidenceCore.isRepinMachineEval(e)))', '.filter(([, evs]) => evs.some(e => !evidenceCore.isRepinMachineEval(e)))') },
     { pin: 'fwarn tu dong repin khong chong lung', make: () => mutCard('dongRepin.filter(o => o.sha === vc).pop()', 'dongRepin.filter(o => Array.isArray(o.evals_not_machine_touched)).pop()') },
+    // Hỏng khâu phân loại kiểu eval: cờ vẫn hiện, NHÃN vẫn đúng, nội dung sai.
+    { pin: 'the dien giai sai kieu/eval', make: () => mutCard("return `${e.executor}${st === 'not-run' ? ' not-run' : ''}`;", "return 'XXBROKENXX';") },
+    // Cờ vàng cắt cụt: không còn nêu eval nào gây ra nó.
+    { pin: 'co fwarn khong neu id', make: () => mutCard("diff đã chạm vật ${esc(cm.touched.join(', '))} đo", 'diff đã chạm vật gì đó đo') },
   ],
 });
 
@@ -623,7 +734,13 @@ CASES.push({
     const x = theExtract(f.root, f.slug, 1, card);
     if (!x.chot_may) return ['the cong 1 thieu co: --extract gate 1 khong co chot_may'];
     if (JSON.stringify(x.chot_may.ac_khong) !== JSON.stringify(AC_KHONG)) errs.push(sai(x.chot_may.ac_khong || [], AC_KHONG));
-    if (!theHtml(f.root, f.slug, 1, card).includes('AC không có chốt máy khi ghim lại')) errs.push('the cong 1 thieu co: HTML khong co cau');
+    const html1 = theHtml(f.root, f.slug, 1, card);
+    if (!html1.includes('AC không có chốt máy khi ghim lại')) errs.push('the cong 1 thieu co: HTML khong co cau');
+    // NỘI DUNG cờ ở Cổng Phạm vi — cùng luật với Cổng Bằng chứng (GN09).
+    const moKy1 = moMongDoi(EVALS_MA_TRAN);
+    const moGot1 = x.chot_may.ac_khong_mo || [];
+    if (JSON.stringify([...moGot1].sort()) !== JSON.stringify([...moKy1].sort())) errs.push(`the cong 1 dien giai sai kieu/eval: ${JSON.stringify(moGot1)} (mong ${JSON.stringify(moKy1)})`);
+    for (const s of moKy1) if (!html1.includes(s)) errs.push(`the cong 1 thieu noi dung co: HTML khong mang "${s}"`);
     const cu = theExtract(f.root, f.slug, 1, cardMoc(MOC));
     if (JSON.stringify(x.routing) !== JSON.stringify(cu.routing)) errs.push(`routing doi so ${MOC}: ${JSON.stringify(x.routing)} vs ${JSON.stringify(cu.routing)}`);
     const g = mkKho({ toanMay: true });
@@ -636,6 +753,7 @@ CASES.push({
   mutants: [
     { pin: 'the cong 1 thieu co', make: () => mutCard("if (cmG1.ac_khong.length) flags.push(['finfo',", "if (false && cmG1.ac_khong.length) flags.push(['finfo',") },
     { pin: 'not-run tinh la chot', make: () => mutCard('evidenceCore.isRepinMachineEval(e)))\n    .map(([ac, evs])', "evidenceCore.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase())))\n    .map(([ac, evs])") },
+    { pin: 'the cong 1 dien giai sai kieu/eval', make: () => mutCard("return `${e.executor}${st === 'not-run' ? ' not-run' : ''}`;", "return 'XXBROKENXX';") },
   ],
 });
 
@@ -750,10 +868,30 @@ function tepTheoDoi() {
   return execFileSync('git', ['-C', ROOT, 'ls-files', '--', ...VUNG_NGUON], { encoding: 'utf8' })
     .split('\n').filter(Boolean);
 }
-function chupNguon(dsach) {
+// Cây DÙNG MỘT LẦN cho chiều đỏ. Chiều đỏ của ca này cố tình GHI ĐÈ một tệp
+// nguồn, nên nó KHÔNG được chạy trên cây dùng chung: đo 20/09 bằng cách lấy mẫu
+// băm liên tục trong lượt chạy — `SKILL.md` mang băm khác trong ~0,44 s
+// (3 781/457 649 mẫu). Cửa sổ đó đủ để một suite chạy song song đọc nhầm SKILL,
+// và đủ để một làn ghim lại từ chối vì «cây bẩn» — đúng cơ chế sinh lượt đỏ
+// không tái lập được của E12. Bản sao phải có LỊCH SỬ GIT (`cayMoc` gọi
+// `git archive <mốc>`), và clone một mình chỉ mang HEAD nên phải phủ TRẠNG THÁI
+// LÀM VIỆC của mọi tệp git-theo-dõi lên trên — không thì ca đo bản đã commit
+// thay vì cây đang sửa.
+function cayDungMotLan() {
+  const d = mk('cay-');
+  execFileSync('git', ['clone', '--local', '--quiet', ROOT, d]);
+  for (const rel of tepTheoDoi()) {
+    const src = path.join(ROOT, rel); const dst = path.join(d, rel);
+    if (!fs.existsSync(src)) { fs.rmSync(dst, { force: true }); continue; }
+    fs.mkdirSync(path.dirname(dst), { recursive: true });
+    fs.copyFileSync(src, dst);
+  }
+  return d;
+}
+function chupNguon(dsach, goc = ROOT) {
   const m = new Map();
   for (const rel of dsach) {
-    const f = path.join(ROOT, rel);
+    const f = path.join(goc, rel);
     let st; try { st = fs.statSync(f); } catch { continue; }
     m.set(rel, { sha: createHash('sha256').update(fs.readFileSync(f)).digest('hex'), size: st.size, mtime: String(st.mtimeNs ?? st.mtimeMs) });
   }
@@ -772,20 +910,27 @@ CASES.push({
     const coMutant = CASES.filter(c => (c.mutants || []).length && c.id !== 'GN13').map(c => c.id);
     if (coMutant.length < 3) errs.push(`danh sach ca suy tu vat qua it: ${coMutant.join(',')}`);
     const dsach = tepTheoDoi();
-    const truoc = chupNguon(dsach);
+    const cay = cayDungMotLan();
+    const truoc = chupNguon(dsach, cay);
+    // Lưới thứ hai: cây DÙNG CHUNG phải không suy suyển dù ca được trao gốc khác
+    // — bắt ca nào phớt lờ GNRO_ROOT mà ghi thẳng cây thật, và sửa lại được.
+    const truocThat = chupNguon(dsach);
+    const noiDungThat = new Map(dsach.map(rel => { try { return [rel, fs.readFileSync(path.join(ROOT, rel))]; } catch { return [rel, null]; } }));
     const r = spawnSync(process.execPath, [tepCa], {
       encoding: 'utf8',
-      env: { ...process.env, GNRO_CASES: coMutant.join(','), GNRO_ROOT: ROOT },
+      env: { ...process.env, GNRO_CASES: coMutant.join(','), GNRO_ROOT: cay },
     });
-    const cham = soChupNguon(truoc, chupNguon(dsach));
-    if (cham.length) {
+    const cham = soChupNguon(truoc, chupNguon(dsach, cay));
+    if (cham.length) errs.push(`ca ghi de tep nguon that: ${cham.join(', ')}`);
+    const chamThat = soChupNguon(truocThat, chupNguon(dsach));
+    if (chamThat.length) {
       // Trả ĐÚNG các tệp bị chạm về bản đã chụp — không `git checkout` cả nhóm,
       // vì cây thường đang có sửa đổi chưa commit của chính người đang làm.
-      for (const rel of cham) {
-        const bak = ref.noiDung && ref.noiDung.get(rel);
-        if (bak !== undefined) fs.writeFileSync(path.join(ROOT, rel), bak);
+      for (const rel of chamThat) {
+        const bak = noiDungThat.get(rel);
+        if (bak !== null && bak !== undefined) fs.writeFileSync(path.join(ROOT, rel), bak);
       }
-      errs.push(`ca ghi de tep nguon that: ${cham.join(', ')}`);
+      errs.push(`ca ghi de CAY DUNG CHUNG (da tra lai): ${chamThat.join(', ')}`);
     }
     if (!errs.length && r.status !== 0) errs.push(`cac ca co mutant chay that bai (khong phai loi ghi): ${cut(r.stdout, 200)}`);
     return errs;
@@ -794,15 +939,14 @@ CASES.push({
     // Lớp THẬT: ghi đè rồi khôi phục Y HỆT byte trong `finally` — đúng hình dạng
     // owner trả lại. Residue bằng 0, nên chỉ mtime tố cáo.
     { pin: 'ca ghi de tep nguon that',
-      judge: (p) => {
-        const dsach = tepTheoDoi();
-        const noiDung = new Map(dsach.map(rel => [rel, fs.readFileSync(path.join(ROOT, rel), 'utf8')]));
-        return CASES.find(c => c.id === 'GN13').real({ src: p, noiDung });
-      },
+      judge: (p) => CASES.find(c => c.id === 'GN13').real({ src: p }),
+      // Neo vào judge của GN04 — ca chỉ có MỘT mutant, nên mũi tiêm không đụng
+      // độ collide khi GN05 mọc thêm chiều đỏ (đã dẫm 20/09: thêm một judge
+      // `{ guide: p }` thứ hai làm mũi tiêm cũ khớp hai lần, GN13 đỏ vì HẠ TẦNG).
       make: () => mutant(
         SELF,
-        "judge: (p) => CASES.find(c => c.id === " + "'GN05'" + ").real({ guide: p })",
-        "judge: (p) => { const bak = fs.readFileSync(GUIDE, 'utf8'); try { fs.writeFileSync(GUIDE, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN05').real(); } finally { fs.writeFileSync(GUIDE, bak); } }",
+        "judge: (p) => CASES.find(c => c.id === " + "'GN04'" + ").real({ skill: p })",
+        "judge: (p) => { const bak = fs.readFileSync(SKILL, 'utf8'); try { fs.writeFileSync(SKILL, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN04').real(); } finally { fs.writeFileSync(SKILL, bak); } }",
       ) },
   ],
 });
