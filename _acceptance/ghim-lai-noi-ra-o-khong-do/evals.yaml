@@ -199,7 +199,7 @@ evals:
       Ca GN11; stdout có đúng một dòng kết quả, mang "GN11". eval-coverage-lint.js trên hợp
       đồng surfaces [ui] không ui-check: dòng W8 giữ tiền tố "W8 surfaces include a
       human-visible" và chứa "không có chốt máy khi ghim lại", "GUIDE §7.1", "test/script cho
-      cùng AC"; hợp đồng surfaces [api] → số dòng W bằng bản mốc 2826f807 (chiều im). Chiều
+      cùng tiêu chí"; hợp đồng surfaces [api] → số dòng W bằng bản mốc 2826f807 (chiều im). Chiều
       đỏ: bản sao lint bỏ câu giá → ĐỎ ghim "W8 thieu cau gia".
     paths:
       - "scripts/eval-coverage-lint.js"
