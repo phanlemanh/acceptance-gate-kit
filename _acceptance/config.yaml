@@ -193,6 +193,8 @@ executors:
     # chạy nào. Chiều đỏ của từng ca chạy TRONG ca (bản sao đã tiêm), không ở đây.
     gnro_khoa_kieu: "GNRO_CASES=GN01 node tests/scripts/repin-lane-noi-ra.test.mjs"
     gnro_vang_han: "GNRO_CASES=GN02 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_diff_cham: "GNRO_CASES=GN06 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_glob_mot_nguon: "GNRO_CASES=GN07 node tests/scripts/repin-lane-noi-ra.test.mjs"
     # --- thuoc-khai-mot-dang-do-mot-neo (06/09) --- hai thuoc da va (khoi rieng, cuoi executors.script)
     # KHONG sinh khoa song song cho nhom lane: o do tro thang itgk_lane_doc_khong_doi
     # (chinh khoa dang do) — gap-probe P0, khoa moi viet dung se che loi tang giai chuoi.

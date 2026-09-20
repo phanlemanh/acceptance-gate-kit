@@ -239,6 +239,88 @@ CASES.push({
   ],
 });
 
+// ── GN06 ────────────────────────────────────────────────────────────────────
+CASES.push({
+  id: 'GN06',
+  title: 'diff từ PIN CŨ chạm paths của ô ngoài làn máy → khoá touched, không chặn',
+  real(lane) {
+    const errs = [];
+    const f = mkKho();
+    // HAI commit sau pin: commit 1 chạm glob, commit 2 không — mốc phải là pin cũ,
+    // không phải HEAD~1 (giữa hai lần ghim ở kho tiêu thụ là hàng trăm commit).
+    fs.writeFileSync(path.join(f.root, 'apps', 'x', 'a.ts'), 'v2\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'cham glob');
+    fs.writeFileSync(path.join(f.root, 'khong-lien-quan.txt'), 'x\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'khong cham');
+    const r = chayLan(f.root, f.slug, ['--write'], lane);
+    if (r.status !== 0) return [`lan exit ${r.status} (phai 0, khong chan): ${cut(r.stderr, 220)}`];
+    const d = dongRepinCuoi(f.logPath);
+    if (JSON.stringify(d.evals_not_machine_touched) !== JSON.stringify(['E6'])) {
+      errs.push(`touched vang du diff cham / moc diff khong phai pin cu: ${JSON.stringify(d.evals_not_machine_touched)}`);
+    }
+    // Lượt ghim kế: chỉ commit tệp không khớp glob → khoá VẮNG HẲN.
+    fs.writeFileSync(path.join(f.root, 'khong-lien-quan.txt'), 'y\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'lai khong cham');
+    const r2 = chayLan(f.root, f.slug, ['--write'], lane);
+    if (r2.status !== 0) return errs.concat(`luot 2 exit ${r2.status}: ${cut(r2.stderr, 220)}`);
+    const d2 = dongRepinCuoi(f.logPath);
+    if (Object.keys(d2).includes('evals_not_machine_touched')) errs.push(`luot sach van co touched: ${JSON.stringify(d2.evals_not_machine_touched)}`);
+    // Vật hồ sơ dưới _acceptance/<slug>/rang/ cũng khớp glob → VẪN tính chạm.
+    fs.writeFileSync(path.join(f.ws, 'rang', 'r.mjs'), '// v2\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'cham rang');
+    const r3 = chayLan(f.root, f.slug, ['--write'], lane);
+    if (r3.status !== 0) return errs.concat(`luot 3 exit ${r3.status}: ${cut(r3.stderr, 220)}`);
+    const d3 = dongRepinCuoi(f.logPath);
+    if (JSON.stringify(d3.evals_not_machine_touched) !== JSON.stringify(['E6'])) errs.push(`vat ho so khop glob khong tinh cham: ${JSON.stringify(d3.evals_not_machine_touched)}`);
+    return errs;
+  },
+  mutants: [
+    { pin: 'touched vang du diff cham', make: () => mutLane('const chamNgoaiMay = chamTuPin(s);', 'const chamNgoaiMay = [];') },
+    { pin: 'moc diff khong phai pin cu', make: () => mutLane("gitRaw('diff', '--name-only', vcCu, '--')", "gitRaw('diff', '--name-only', 'HEAD~1', '--')") },
+  ],
+});
+
+// ── GN07 ────────────────────────────────────────────────────────────────────
+CASES.push({
+  id: 'GN07',
+  title: 'khớp glob bằng globToRe của carry-plan (* không xuyên /); đọc cả paths flow lẫn block-seq',
+  real(lane) {
+    const errs = [];
+    // paths HẸP, dạng block-seq: apps/x/*.ts — tệp sâu hơn KHÔNG khớp.
+    const hep = EVALS_MA_TRAN.replace('      - "apps/x/**"\n      - "_acceptance/feat-gn/rang/**"\n', '      - "apps/x/*.ts"\n');
+    const f = mkKho({ evals: hep });
+    fs.mkdirSync(path.join(f.root, 'apps', 'x', 'sub'), { recursive: true });
+    fs.writeFileSync(path.join(f.root, 'apps', 'x', 'sub', 'a.ts'), 'v1\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'sau hon');
+    const r = chayLan(f.root, f.slug, ['--write'], lane);
+    if (r.status !== 0) return [`lan exit ${r.status}: ${cut(r.stderr, 220)}`];
+    const d = dongRepinCuoi(f.logPath);
+    if (Object.keys(d).includes('evals_not_machine_touched')) errs.push(`khop tien to thay glob: apps/x/sub/a.ts khong duoc khop apps/x/*.ts (${JSON.stringify(d.evals_not_machine_touched)})`);
+    // Đối chứng dương: tệp ĐÚNG một tầng → khớp.
+    fs.writeFileSync(path.join(f.root, 'apps', 'x', 'a.ts'), 'v2\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'dung tang');
+    const r2 = chayLan(f.root, f.slug, ['--write'], lane);
+    if (r2.status !== 0) return errs.concat(`luot 2 exit ${r2.status}: ${cut(r2.stderr, 220)}`);
+    const d2 = dongRepinCuoi(f.logPath);
+    if (JSON.stringify(d2.evals_not_machine_touched) !== JSON.stringify(['E6'])) errs.push(`doi chung duong hong (block-seq): ${JSON.stringify(d2.evals_not_machine_touched)}`);
+    // DẠNG FLOW: cùng lời hứa, cách viết khác — cả hai phải đọc được (đo ở crm:
+    // 393 eval block-seq / 49 flow; bộ đọc chỉ nhận flow sẽ mù 89% ở đó).
+    const flow = EVALS_MA_TRAN.replace('    paths:\n      - "apps/x/**"\n      - "_acceptance/feat-gn/rang/**"\n', '    paths: ["apps/x/**"]\n');
+    const g = mkKho({ evals: flow });
+    fs.writeFileSync(path.join(g.root, 'apps', 'x', 'a.ts'), 'v2\n');
+    g.git('add', '-A'); g.git('commit', '-qm', 'cham');
+    const rg = chayLan(g.root, g.slug, ['--write'], lane);
+    if (rg.status !== 0) return errs.concat(`ho so paths flow exit ${rg.status}: ${cut(rg.stderr, 220)}`);
+    const dg = dongRepinCuoi(g.logPath);
+    if (JSON.stringify(dg.evals_not_machine_touched) !== JSON.stringify(['E6'])) errs.push(`paths dang flow khong doc duoc: ${JSON.stringify(dg.evals_not_machine_touched)}`);
+    return errs;
+  },
+  mutants: [
+    { pin: 'khop tien to thay glob', make: () => mutLane('res.some(re => re.test(f))', 'gl.some(g => f.startsWith(String(g).replace(/[*?].*$/, "")))') },
+    { pin: 'paths dang flow khong doc duoc', make: () => mutLane("if (v.startsWith('[')) { const pv = core.parseFlowValue(v); return pv.kind === 'seq' ? pv.items : []; }", "if (v.startsWith('[')) { return []; }") },
+  ],
+});
+
 // ── chạy ────────────────────────────────────────────────────────────────────
 const want = (process.env.GNRO_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const chosen = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;
