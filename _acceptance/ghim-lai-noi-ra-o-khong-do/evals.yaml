@@ -58,7 +58,12 @@ evals:
       đều không phải eval máy đáng ghim; AC-a/AC-d có chốt vì có test). Chiều im: hồ sơ toàn eval máy, section
       so BYTE với section do writer mốc 2826f807 (git archive 2826f807 feature-loop lib
       scripts, trọn thư mục) ghi trên cùng hồ sơ trong cùng kho tạm, sau chuẩn hoá
-      run_id/ts/ngày; đối chứng dương: trên hồ sơ ma trận hai section khác đúng ở hậu tố.
+      run_id/ts/ngày; đối chứng dương: trên hồ sơ ma trận hai section khác đúng ở hậu tố —
+      và đối chứng ấy chỉ được tin khi CẢ HAI làn thoát 0 VÀ cả hai section khác rỗng
+      (nâng phạm vi 20/09, Ngoài-10: `sectionCuoi` trả '' khi báo cáo không có section,
+      nên «khác nhau» một mình không phân biệt được hai-bản-render-khác với
+      một-bản-chưa-chạy). Chiều đỏ của chính vế này: bản sao tệp ca trỏ làn mốc sang một
+      đường không tồn tại → ĐỎ ghim "doi chung duong khong chay duoc".
       Chiều đỏ (bản sao làn): gộp ∃ thay ∀ → AC-d lọt → ĐỎ ghim "got AC bang ton tai"; đếm
       not-run là chốt → AC-b mất → ĐỎ ghim "not-run tinh la chot"; bỏ hậu tố AC → ĐỎ ghim
       "section thieu AC khong chot may"; đổi khuôn section trên hồ sơ toàn máy → ĐỎ ghim
@@ -96,13 +101,18 @@ evals:
       dòng lệnh đếm tự thoả): neo vào ĐOẠN VĂN "**Giới hạn khai, một ngưỡng ĐẾM ĐƯỢC:**" và
       CẮT ở khối ```bash, rồi đòi đoạn văn ấy gọi tên mọi khoá MỚI — danh sách khoá không gõ
       tay mà là HIỆU TẬP KHOÁ giữa dòng repin do làn nay ghi và dòng do làn mốc 2826f807 ghi
-      trên cùng fixture; hiệu rỗng thì ca NỔ có tên ("rut 0 khoa moi"). GUIDE mang một lệnh
+      trên cùng fixture; hiệu rỗng thì ca NỔ có tên ("rut 0 khoa moi"). Phép khớp phải có
+      RANH GIỚI (tên khoá trong dấu huyền), KHÔNG `includes` trần — `evals_not_machine_touched`
+      bao `evals_not_machine` nên containment làm khoá ngắn không bao giờ được kiểm thật
+      (nâng phạm vi 20/09, Ngoài-11: đã chứng khuôn cũ MÙ — gỡ khoá ngắn khỏi đoạn văn mà
+      giữ khoá dài thì bản `includes` trần vẫn PASS). GUIDE mang một lệnh
       đếm ngưỡng (grep khoá trên _acceptance/*/run-log.jsonl); ca RÚT lệnh từ GUIDE lúc chạy,
       chạy thật trong kho tạm có đúng 1 hồ sơ mang khoá → in "1"; kho không hồ sơ nào → "0".
       Chiều đỏ: bản sao GUIDE gỡ lệnh đếm → ĐỎ ghim "GUIDE khong con lenh dem"; bản sao GUIDE
       đổi neo đoạn văn → ĐỎ ghim "GUIDE thieu doan gioi han"; bản sao SKILL gỡ câu → ĐỎ ghim
       "SKILL thieu cau touched"; bản sao LÀN đổi tên khoá (round-trip: tài liệu phải theo
-      writer) → ĐỎ ghim "GUIDE thieu cau touched".
+      writer) → ĐỎ ghim "GUIDE thieu cau touched"; bản sao GUIDE gỡ riêng khoá NGẮN mà giữ
+      khoá DÀI → ĐỎ ghim "GUIDE thieu cau touched" (chiều đỏ của phép khớp-có-ranh-giới).
     paths:
       - "feature-loop/skills/feature-loop/SKILL.md"
       - "GUIDE.md"

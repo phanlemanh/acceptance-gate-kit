@@ -378,16 +378,37 @@ CASES.push({
     const cu = chuanHoa(sectionCuoi(g2.reportPath));
     if (nay !== cu) errs.push(`section troi so voi lan 2.17.0: nay="${cut(nay, 160)}" cu="${cut(cu, 160)}"`);
     // Đối chứng dương của phép so byte: trên hồ sơ ma trận hai bản PHẢI khác.
+    // «Khác nhau» một mình KHÔNG phân biệt được «hai bản render khác» với «một
+    // bản chưa từng chạy»: sectionCuoi trả '' khi báo cáo không có section, nên
+    // một làn đỏ (mốc khuyết, cây bẩn, bản tiêm) cho '' vs '<thật>' và đối chứng
+    // «qua» mà chưa so gì (finding Ngoài-10). Vì thế kiểm CẢ mã thoát lẫn
+    // section-khác-rỗng của hai làn trước khi tin phép so có lực.
     const h = mkKho(); const h2 = mkKho();
-    chayLan(h.root, h.slug, ['--write'], lane);
-    chayLan(h2.root, h2.slug, ['--write'], laneMoc(MOC));
-    if (chuanHoa(sectionCuoi(h.reportPath)) === chuanHoa(sectionCuoi(h2.reportPath))) errs.push('phep so byte khong phan biet duoc: ho so ma tran cho section y het ban 2.17.0');
+    const rh = chayLan(h.root, h.slug, ['--write'], lane);
+    const rh2 = chayLan(h2.root, h2.slug, ['--write'], laneMoc(MOC));
+    const sh = sectionCuoi(h.reportPath); const sh2 = sectionCuoi(h2.reportPath);
+    if (rh.status !== 0 || rh2.status !== 0) errs.push(`doi chung duong khong chay duoc: lan nay exit ${rh.status}, lan ${MOC} exit ${rh2.status}`);
+    else if (!sh.trim() || !sh2.trim()) errs.push(`doi chung duong khong chay duoc: section rong (nay ${sh.length} ky tu, ${MOC} ${sh2.length} ky tu)`);
+    else if (chuanHoa(sh) === chuanHoa(sh2)) errs.push('phep so byte khong phan biet duoc: ho so ma tran cho section y het ban 2.17.0');
     return errs;
   },
   mutants: [
     { pin: 'section thieu AC khong chot may', make: () => mutLane('${veAcKhong}', '') },
     { pin: 'got AC bang ton tai', make: () => mutLane('evs.every(e => !core.isRepinMachineEval(e))', 'evs.some(e => !core.isRepinMachineEval(e))') },
     { pin: 'not-run tinh la chot', make: () => mutLane('evs.every(e => !core.isRepinMachineEval(e))', "evs.every(e => !core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))") },
+    // Một làn của ĐỐI CHỨNG DƯƠNG không chạy được → ca phải NÓI RA, không được
+    // «qua» nhờ '' khác '<section thật>' (finding Ngoài-10). Tiêm vào chính tệp
+    // ca vì mốc 2.17.0 chỉ dùng ở đây; needle ghép động để không tự khớp.
+    { pin: 'doi chung duong khong chay duoc',
+      judge: (p) => {
+        const r = spawnSync(process.execPath, [p], { encoding: 'utf8', env: { ...process.env, GNRO_CASES: 'GN03', GNRO_ROOT: ROOT, GNRO_SKIP_MUTANTS: BAT_TAY } });
+        return /doi chung duong khong chay duoc/.test(r.stdout) ? ['doi chung duong khong chay duoc'] : [`ban sao khong do: ${cut(r.stdout, 200)}`];
+      },
+      make: () => mutant(
+        SELF,
+        "const rh2 = chayLan(h2.root, h2.slug, ['--write'], laneMoc(" + "MOC));",
+        "const rh2 = chayLan(h2.root, h2.slug, ['--write'], laneMoc(MOC) + '-khong-ton-tai');",
+      ) },
   ],
 });
 
@@ -459,8 +480,13 @@ CASES.push({
     if (!mDoan) errs.push('GUIDE thieu doan gioi han §7.1');
     else {
       const vanXuoi = mDoan[1];
+      // Khớp theo RANH GIỚI, không `includes` trần: `evals_not_machine_touched`
+      // BAO `evals_not_machine`, nên containment làm khoá ngắn không bao giờ
+      // được kiểm thật — gỡ hẳn câu nêu khoá ngắn mà giữ khoá dài thì phép đo
+      // vẫn xanh (hằng đúng, finding Ngoài-11 lượt chấm 2). Tài liệu của kit
+      // luôn đặt tên khoá trong dấu huyền, nên dấu huyền chính là ranh giới.
       for (const k of khoaMoiSoVoiMoc(ref.lane || LANE)) {
-        if (!vanXuoi.includes(k)) errs.push(`GUIDE thieu cau touched: doan §7.1 khong goi ten khoa moi "${k}"`);
+        if (!vanXuoi.includes('`' + k + '`')) errs.push(`GUIDE thieu cau touched: doan §7.1 khong goi ten khoa moi "${k}"`);
       }
     }
     const mL = guide.match(/```bash\n(grep -l '"evals_not_machine_touched"'[^\n]*)\n```/);
@@ -496,6 +522,12 @@ CASES.push({
     { pin: 'GUIDE thieu cau touched',
       judge: (p) => CASES.find(c => c.id === 'GN05').real({ lane: p }),
       make: () => mutLane('{ evals_not_machine_touched: chamNgoaiMay }', '{ evals_not_machine_cham: chamNgoaiMay }') },
+    // Khoá NGẮN bị gỡ khỏi đoạn văn mà khoá DÀI còn nguyên: `includes` trần cho
+    // xanh vì khoá dài bao khoá ngắn. Mũi tiêm này là chiều đỏ của chính phép
+    // khớp-có-ranh-giới (finding Ngoài-11).
+    { pin: 'GUIDE thieu cau touched',
+      judge: (p) => CASES.find(c => c.id === 'GN05').real({ guide: p }),
+      make: () => mutant(GUIDE, '`evals_not_machine` (mọi id ngoài làn máy) và ', '') },
   ],
 });
 
