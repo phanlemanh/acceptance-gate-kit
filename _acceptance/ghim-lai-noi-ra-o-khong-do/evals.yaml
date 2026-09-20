@@ -241,9 +241,11 @@ evals:
     expected: >-
       docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md tồn tại, chứa chuỗi
       "_acceptance/ghim-lai-noi-ra-o-khong-do/", và khối VC8 của suite plugins thoát 0
-      (ONLY_BLOCK=VC8 — hạt giống trỏ được về ô). Chiều đỏ trong cùng lệnh: bản sao cây với hạt
-      giống trỏ "_acceptance/o-khong-ton-tai/" → VC8 đỏ; thiếu chiều đỏ → lệnh thoát khác 0
-      ghim "VC8 khong do".
+      (ONLY_BLOCK=VC8 — hạt giống trỏ được về ô). Chiều đỏ KHÔNG dựng lại ở đây: VC8 là ca
+      THƯỜNG TRỰC và đã mang mutant của chính nó (P201 «ngăn không-sửa có tên + đường đọc-cũ
+      + mutant») — dựng thêm một bản sao cây ở khoá này là bản thứ hai của cùng phép đo.
+      Hai vế của eval: (a) vật hạt giống có mặt và trỏ đúng ô — đối chứng đỏ là gỡ/đổi chuỗi
+      thì `grep -qF` thoát khác 0; (b) luật «vào có ô» của VC8 xanh trên cây có hạt giống mới.
     paths:
       - "docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md"
       - "tests/plugins/run-tests.sh"

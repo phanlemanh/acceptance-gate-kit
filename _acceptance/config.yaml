@@ -201,6 +201,12 @@ executors:
     gnro_ben_doc_cu: "GNRO_CASES=GN08 node tests/scripts/repin-lane-noi-ra.test.mjs"
     gnro_the_cong_2: "GNRO_CASES=GN09 node tests/scripts/repin-lane-noi-ra.test.mjs"
     gnro_the_cong_1: "GNRO_CASES=GN10 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_w8_gia: "GNRO_CASES=GN11 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_bo_chon: "GNRO_CASES=GN12 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    # Bốn suite của feature_loop.suite_keys + bản đồ, VÀ chốt tệp ca mới thật sự được
+    # suite scripts nhặt qua glob (grep chọn dòng; pipefail giữ mã thoát của suite).
+    gnro_suite_con_lai: "bash -c 'set -o pipefail; bash tests/scripts/run-tests.sh | grep -qF \"PASS: GN01\" && bash tests/hooks/run-tests.sh >/dev/null && bash tests/workflows/run-tests.sh >/dev/null && bash tests/plugins/run-tests.sh >/dev/null && node scripts/product-map.mjs --root . --check'"
+    gnro_hat_giong: 'test -f docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md && grep -qF "_acceptance/ghim-lai-noi-ra-o-khong-do/" docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md && ONLY_BLOCK=VC8 bash tests/plugins/run-tests.sh'
     # --- thuoc-khai-mot-dang-do-mot-neo (06/09) --- hai thuoc da va (khoi rieng, cuoi executors.script)
     # KHONG sinh khoa song song cho nhom lane: o do tro thang itgk_lane_doc_khong_doi
     # (chinh khoa dang do) — gap-probe P0, khoa moi viet dung se che loi tang giai chuoi.

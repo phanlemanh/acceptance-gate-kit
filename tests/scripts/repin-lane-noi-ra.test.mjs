@@ -619,6 +619,69 @@ CASES.push({
   ],
 });
 
+// ── GN11 / GN12 ─────────────────────────────────────────────────────────────
+const lintMoc = (sha) => path.join(cayMoc(sha), 'scripts', 'eval-coverage-lint.js');
+
+CASES.push({
+  id: 'GN11',
+  title: 'W8 giữ tiền tố cũ và NỐI câu giá; hợp đồng không có mặt người nhìn thì im',
+  real() {
+    const errs = [];
+    const f = mkKho();
+    // Gỡ ui-check khỏi evals để W8 (nghĩa vụ lớp nhìn-thấy) nổ.
+    fs.writeFileSync(path.join(f.ws, 'evals.yaml'), EVALS_TOAN_MAY.replace('slug: feat-may', `slug: ${f.slug}`));
+    const chay = (root, lint = LINT) => String(spawnSync(process.execPath, [lint, root], { encoding: 'utf8' }).stdout || '');
+    const out = chay(f.root);
+    const w8 = out.split('\n').filter(l => /W8 surfaces include a human-visible/.test(l));
+    if (!w8.length) return [`fixture hong: W8 khong no tren hop dong surfaces [ui] khong ui-check: ${cut(out, 200)}`];
+    const d = w8.join(' ');
+    for (const chuoi of ['không có chốt máy khi ghim lại', 'GUIDE §7.1', 'test/script cho cùng tiêu chí']) {
+      if (!d.includes(chuoi)) errs.push(`W8 thieu cau gia: khong thay "${chuoi}"`);
+    }
+    // CHIỀU IM: surfaces [api] → số dòng cảnh báo BẰNG bản mốc 2.17.0 trên cùng fixture.
+    const g = mkKho();
+    fs.writeFileSync(path.join(g.ws, 'evals.yaml'), EVALS_TOAN_MAY.replace('slug: feat-may', `slug: ${g.slug}`));
+    const gc = path.join(g.ws, 'contract.md');
+    fs.writeFileSync(gc, fs.readFileSync(gc, 'utf8').replace('surfaces: [ui]', 'surfaces: [api]'));
+    const dem = (o) => o.split('\n').filter(l => /^\[/.test(l)).length;
+    const nay = dem(chay(g.root));
+    const cu = dem(chay(g.root, lintMoc(MOC)));
+    if (nay !== cu) errs.push(`chieu im hong: surfaces [api] ra ${nay} dong canh bao, ban ${MOC} ra ${cu}`);
+    return errs;
+  },
+  mutants: [
+    { pin: 'W8 thieu cau gia',
+      judge: (p) => { const bak = fs.readFileSync(LINT, 'utf8'); try { fs.writeFileSync(LINT, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN11').real(); } finally { fs.writeFileSync(LINT, bak); } },
+      // Tiêm vào MỆNH ĐỀ mà ca đo (một trong ba chuỗi), không vào nhãn dẫn — đổi nhãn
+      // thì câu giá vẫn nguyên và phép đo đúng khi im.
+      make: () => mutant(LINT, 'sẽ không có chốt máy khi ghim lại', 'sẽ ổn thôi') },
+  ],
+});
+
+CASES.push({
+  id: 'GN12',
+  title: 'bộ chọn GNRO_CASES: một ca in đúng một dòng; khớp 0 ca thì đỏ có tên',
+  real() {
+    const errs = [];
+    const mot = spawnSync(process.execPath, [SELF], { encoding: 'utf8', env: { ...process.env, GNRO_CASES: 'GN02' } });
+    const dong = String(mot.stdout).split('\n').filter(l => /^\s*(PASS|FAIL): GN\d\d/.test(l));
+    if (dong.length !== 1) errs.push(`bo chon sai: GNRO_CASES=GN02 in ${dong.length} dong ket qua`);
+    else if (!dong[0].includes('GN02')) errs.push(`bo chon sai: dong ket qua khong mang GN02 (${cut(dong[0], 80)})`);
+    const khong = spawnSync(process.execPath, [SELF], { encoding: 'utf8', env: { ...process.env, GNRO_CASES: 'GN99' } });
+    if (khong.status === 0 || !String(khong.stdout).includes('GNRO_CASES khop 0 ca')) {
+      errs.push(`bo chon 0 ca khong do: exit ${khong.status}, ${cut(khong.stdout, 140)}`);
+    }
+    return errs;
+  },
+  mutants: [
+    { pin: 'bo chon 0 ca khong do',
+      judge: (p) => { const r = spawnSync(process.execPath, [p], { encoding: 'utf8', env: { ...process.env, GNRO_CASES: 'GN99' } }); return (r.status === 0 || !String(r.stdout).includes('GNRO_CASES khop 0 ca')) ? ['bo chon 0 ca khong do'] : []; },
+      // Neo gồm dòng `const chosen` phía trước: chuỗi `if (!chosen.length)` một mình
+      // khớp HAI lần (bộ chạy + chính dòng mũi tiêm này).
+      make: () => mutant(SELF, "const chosen = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;\nif (!chosen.length) {", 'const chosen = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;\nif (!chosen.length) { process.exit(0); }\nif (false) {') },
+  ],
+});
+
 // ── chạy ────────────────────────────────────────────────────────────────────
 const want = (process.env.GNRO_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const chosen = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;

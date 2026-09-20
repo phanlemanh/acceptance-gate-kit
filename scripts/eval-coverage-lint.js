@@ -247,7 +247,12 @@ function lintFeature(slug, contractText, evalsText, glossary, ledgerText) {
     const lac = lnt.nhanLacCho(evals);
     if (lac.length) warns.push(`[${slug}] W8 ${lac.join(', ')} declare(s) layer: ui-observed on a non-ui-check executor — nhãn lạc chỗ: chỉ executor ui-check mới sinh frame + observed; bỏ nhãn hoặc đổi executor.`);
     if (lnt.laMatNguoiNhin(surf) && !lnt.coUiObserved(evals) && !lnt.descopeId(ledgerText)) {
-      warns.push(`[${slug}] W8 surfaces include a human-visible UI (${surf}) but evals.yaml không có eval executor: ui-check — bằng chứng lớp mã thay lớp nhìn-thấy; thêm ≥1 ui-check (layer: ui-observed) theo hợp đồng, hoặc ghi entry descope "${lnt.UI_OBSERVED_DESCOPE}<lý do>".`);
+      // Giá của lời khuyên nói CÙNG CHỖ với lời khuyên (hồ sơ ghim-lai-noi-ra-o-khong-do,
+      // 20/09): câu trên vừa đòi thêm một eval ui-check, mà eval ui-check KHÔNG chạy
+      // trong làn ghim lại — làm đúng nghĩa vụ lớp nhìn-thấy thì mất chốt máy ở làn
+      // ghim lại, và trước hồ sơ này không chỗ nào nói ra cái giá đó. Tiền tố
+      // `W8 surfaces include a human-visible` GIỮ NGUYÊN (ca PV4 ghim nó).
+      warns.push(`[${slug}] W8 surfaces include a human-visible UI (${surf}) but evals.yaml không có eval executor: ui-check — bằng chứng lớp mã thay lớp nhìn-thấy; thêm ≥1 ui-check (layer: ui-observed) theo hợp đồng, hoặc ghi entry descope "${lnt.UI_OBSERVED_DESCOPE}<lý do>". Giá đã khai: eval ui-check KHÔNG chạy trong làn ghim lại (GUIDE §7.1), nên tiêu chí chỉ được ui-check phủ sẽ không có chốt máy khi ghim lại — muốn có chốt thì ghép thêm ≥1 eval test/script cho cùng tiêu chí.`);
     }
   }
 
