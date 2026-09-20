@@ -516,7 +516,11 @@ CASES.push({
     const raw = fs.readFileSync(f.logPath, 'utf8').split('\n').filter(Boolean);
     const cuoi = JSON.parse(raw.pop()); delete cuoi.evals_exit;
     fs.writeFileSync(f.logPath, raw.concat(JSON.stringify(cuoi)).join('\n') + '\n');
-    for (const [ten, chay] of [doc[0], doc[1]]) {
+    // Đối chứng đỏ chạy CẢ BỐN bộ đọc, không riêng hai recheck: một khẳng định
+    // «không VIOLATION» chỉ sống khi chính bộ đọc ấy đã chứng minh nó BIẾT kêu.
+    // Bỏ hai pre-merge ở đây là assertion âm-tính-một-mình — chúng có thể đang
+    // không chạy, hoặc chạy mà không soi dòng ghim, và ca vẫn xanh (S4-r1).
+    for (const [ten, chay] of doc) {
       const x = chay();
       const out = String(x.stdout || '') + String(x.stderr || '');
       if (x.status === 0 || !/recorded no evals_exit/.test(out)) errs.push(`doi chung do hong o ${ten}: exit ${x.status}, ${cut(out, 200)}`);

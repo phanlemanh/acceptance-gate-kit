@@ -205,7 +205,10 @@ executors:
     gnro_bo_chon: "GNRO_CASES=GN12 node tests/scripts/repin-lane-noi-ra.test.mjs"
     # Bốn suite của feature_loop.suite_keys + bản đồ, VÀ chốt tệp ca mới thật sự được
     # suite scripts nhặt qua glob (grep chọn dòng; pipefail giữ mã thoát của suite).
-    gnro_suite_con_lai: "bash -c 'set -o pipefail; bash tests/scripts/run-tests.sh | grep -qF \"PASS: GN01\" && bash tests/hooks/run-tests.sh >/dev/null && bash tests/workflows/run-tests.sh >/dev/null && bash tests/plugins/run-tests.sh >/dev/null && node scripts/product-map.mjs --root . --check'"
+    # KHÔNG đưa suite qua ống vào `grep -q`: grep thoát ngay khi khớp, suite nhận
+    # SIGPIPE và pipefail trả 141 — lượt chấm S4-r1 đỏ đúng vì thế, trong khi vật
+    # xanh. Hứng vào biến rồi khớp bằng `case` (không ống nào cả).
+    gnro_suite_con_lai: "bash -c 'set -e; out=$(bash tests/scripts/run-tests.sh); case \"$out\" in *\"PASS: GN01\"*) ;; *) echo \"suite scripts khong nhat ca GN01 qua glob\"; exit 1;; esac; bash tests/hooks/run-tests.sh >/dev/null; bash tests/workflows/run-tests.sh >/dev/null; bash tests/plugins/run-tests.sh >/dev/null; node scripts/product-map.mjs --root . --check'"
     gnro_hat_giong: 'test -f docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md && grep -qF "_acceptance/ghim-lai-noi-ra-o-khong-do/" docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md && ONLY_BLOCK=VC8 bash tests/plugins/run-tests.sh'
     # --- thuoc-khai-mot-dang-do-mot-neo (06/09) --- hai thuoc da va (khoi rieng, cuoi executors.script)
     # KHONG sinh khoa song song cho nhom lane: o do tro thang itgk_lane_doc_khong_doi
