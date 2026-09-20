@@ -1,0 +1,311 @@
+# Eval cho hồ sơ ghim-lai-noi-ra-o-khong-do.
+#
+# Ca sống VĨNH VIỄN ở tests/scripts/repin-lane-noi-ra.test.mjs (suite scripts tự chạy
+# qua glob *.test.mjs) — lưới thường trực cho lớp «pin phải nói ra ô nó không đo».
+# Mỗi eval gọi ĐÚNG MỘT ca qua GNRO_CASES và ghim: stdout có ĐÚNG MỘT dòng kết quả
+# khớp /^\s*(PASS|FAIL): GN\d\d/ và dòng đó mang chính mã ca của eval. Bộ lọc khớp
+# 0 ca → thoát khác 0 in "GNRO_CASES khop 0 ca" — chiều đỏ này chạy ở E13.
+# Fixture do code sinh trong chính lượt chạy: kho git tạm theo khuôn repin-lane.test.mjs
+# với một hồ sơ đủ BỐN loại ô (test · script not-run · ui-check có paths · judgment không
+# paths) và một hồ sơ toàn eval máy (chiều im); bên đọc cũ = git archive 2826f807 lib
+# scripts (mốc 2.17.0, trọn thư mục); mọi đường dẫn suy từ vị trí tệp ca.
+# Chiều đỏ của mỗi ca chạy TRONG ca: cùng phép phán trên vật thật rồi trên bản sao đã
+# tiêm (mũi tiêm khớp đúng một lần, qua node --check). Mốc vắng → ca ĐỎ "thieu moc".
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.gnro_khoa_kieu
+    expected: >-
+      Ca GN01; stdout có đúng một dòng kết quả, mang "GN01". Hồ sơ ma trận AC-a{E1 test} ·
+      AC-b{E2 script not-run} · AC-c{E6 ui-check paths, E7 ui-check not-run} · AC-d{E12
+      judgment, E13 test}, cây sạch, làn --write exit 0: dòng repin có evals_not_machine =
+      ["E6","E7","E12"] (đúng thứ tự; kiểu thắng trạng thái), evals_not_run = ["E2"],
+      keys(evals_exit) = ["E1","E13"]; mỗi id xuất hiện ĐÚNG MỘT lần trong hợp ba tập và
+      hợp = tập id evals.yaml (đẳng thức tập). Chiều đỏ trên bản sao repin-lane.mjs: bỏ bộ
+      lọc kiểu → ĐỎ ghim "khoa evals_not_machine vang"; bộ lọc not-run bỏ điều kiện kiểu →
+      E7 vào hai mảng → ĐỎ ghim "id xuat hien hai mang".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.gnro_vang_han
+    expected: >-
+      Ca GN02; stdout có đúng một dòng kết quả, mang "GN02". Hồ sơ toàn eval máy: dòng repin
+      KHÔNG có khoá evals_not_machine (Object.keys không chứa), cũng không có
+      evals_not_machine_touched. Chiều đỏ: bản sao ghi mảng rỗng thay vì bỏ khoá → ĐỎ ghim
+      "mang rong thay vi vang".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.gnro_section
+    expected: >-
+      Ca GN03; stdout có đúng một dòng kết quả, mang "GN03". Hai hậu tố kỳ vọng KHÔNG gõ
+      lại trong ca (đổi khuôn 20/09): ca RÚT chúng từ HỢP ĐỒNG — mọi chuỗi trong dấu huyền
+      mở đầu bằng " · " trên dòng "- AC-2:" của contract.md — rồi đòi section Re-pin chứa
+      từng chuỗi; rút được 0 hậu tố thì ca NỔ có tên ("rut 0 hau to"), vì một vế kỳ vọng
+      rỗng làm phép so hằng đúng. Danh sách AC vẫn so với hằng VIẾT TRƯỚC (∀ eval phủ AC
+      đều không phải eval máy đáng ghim; AC-a/AC-d có chốt vì có test). Chiều im: hồ sơ toàn eval máy, section
+      so BYTE với section do writer mốc 2826f807 (git archive 2826f807 feature-loop lib
+      scripts, trọn thư mục) ghi trên cùng hồ sơ trong cùng kho tạm, sau chuẩn hoá
+      run_id/ts/ngày; đối chứng dương: trên hồ sơ ma trận hai section khác đúng ở hậu tố —
+      và đối chứng ấy chỉ được tin khi CẢ HAI làn thoát 0 VÀ cả hai section khác rỗng
+      (nâng phạm vi 20/09, Ngoài-10: `sectionCuoi` trả '' khi báo cáo không có section,
+      nên «khác nhau» một mình không phân biệt được hai-bản-render-khác với
+      một-bản-chưa-chạy). Chiều đỏ của chính vế này: bản sao tệp ca trỏ làn mốc sang một
+      đường không tồn tại → ĐỎ ghim "doi chung duong khong chay duoc".
+      Chiều đỏ (bản sao làn): gộp ∃ thay ∀ → AC-d lọt → ĐỎ ghim "got AC bang ton tai"; đếm
+      not-run là chốt → AC-b mất → ĐỎ ghim "not-run tinh la chot"; bỏ hậu tố AC → ĐỎ ghim
+      "section thieu AC khong chot may"; đổi khuôn section trên hồ sơ toàn máy → ĐỎ ghim
+      "section troi so voi lan 2.17.0". Mốc vắng → ĐỎ "thieu moc 2826f807".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.gnro_khuon_skill
+    expected: >-
+      Ca GN04; stdout có đúng một dòng kết quả, mang "GN04". Rút dòng "kind":"repin" giữa
+      marker REPIN-TEMPLATE của SKILL (điền chỗ trống như LN5): tập khoá khuôn BẰNG tập khoá
+      dòng làn ghi trên hồ sơ bốn loại ô + diff chạm paths E6 (đủ ba khoá tuỳ chọn); trên
+      hồ sơ toàn eval máy tập khoá thật = khuôn trừ đúng {evals_not_run, evals_not_machine,
+      evals_not_machine_touched}. Chiều đỏ: bản sao SKILL gỡ khoá evals_not_machine khỏi khuôn
+      → ĐỎ ghim "khuon SKILL thieu".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/skills/feature-loop/SKILL.md"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.gnro_guide_nguong
+    expected: >-
+      Ca GN05; stdout có đúng một dòng kết quả, mang "GN05". Vế SKILL: neo vào câu "Giới hạn
+      khai: eval `ui-check`/`judgment`…" của nghi thức re-pin và đòi BA mệnh đề nằm trong
+      CHÍNH câu đó. Vế GUIDE (đổi khuôn 20/09 — khuôn cũ quét tên khoá trên cả tệp nên chính
+      dòng lệnh đếm tự thoả): neo vào ĐOẠN VĂN "**Giới hạn khai, một ngưỡng ĐẾM ĐƯỢC:**" và
+      CẮT ở khối ```bash, rồi đòi đoạn văn ấy gọi tên mọi khoá MỚI — danh sách khoá không gõ
+      tay mà là HIỆU TẬP KHOÁ giữa dòng repin do làn nay ghi và dòng do làn mốc 2826f807 ghi
+      trên cùng fixture; hiệu rỗng thì ca NỔ có tên ("rut 0 khoa moi"). Phép khớp phải có
+      RANH GIỚI (tên khoá trong dấu huyền), KHÔNG `includes` trần — `evals_not_machine_touched`
+      bao `evals_not_machine` nên containment làm khoá ngắn không bao giờ được kiểm thật
+      (nâng phạm vi 20/09, Ngoài-11: đã chứng khuôn cũ MÙ — gỡ khoá ngắn khỏi đoạn văn mà
+      giữ khoá dài thì bản `includes` trần vẫn PASS). GUIDE mang một lệnh
+      đếm ngưỡng (grep khoá trên _acceptance/*/run-log.jsonl); ca RÚT lệnh từ GUIDE lúc chạy,
+      chạy thật trong kho tạm có đúng 1 hồ sơ mang khoá → in "1"; kho không hồ sơ nào → "0".
+      Chiều đỏ: bản sao GUIDE gỡ lệnh đếm → ĐỎ ghim "GUIDE khong con lenh dem"; bản sao GUIDE
+      đổi neo đoạn văn → ĐỎ ghim "GUIDE thieu doan gioi han"; bản sao SKILL gỡ câu → ĐỎ ghim
+      "SKILL thieu cau touched"; bản sao LÀN đổi tên khoá (round-trip: tài liệu phải theo
+      writer) → ĐỎ ghim "GUIDE thieu cau touched"; bản sao GUIDE gỡ riêng khoá NGẮN mà giữ
+      khoá DÀI → ĐỎ ghim "GUIDE thieu cau touched" (chiều đỏ của phép khớp-có-ranh-giới).
+    paths:
+      - "feature-loop/skills/feature-loop/SKILL.md"
+      - "GUIDE.md"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.gnro_diff_cham
+    expected: >-
+      Ca GN06; stdout có đúng một dòng kết quả, mang "GN06". paths E6 = ["apps/x/**",
+      "_acceptance/<slug>/rang/**"], pin cũ = HEAD0. Sau pin HAI commit: commit 1 đổi
+      apps/x/a.ts (khớp), commit 2 chỉ đổi tệp không khớp glob; làn --write chạy MỘT lần →
+      exit 0, ghi; dòng repin evals_not_machine_touched = ["E6"] (mốc diff = pin cũ, không
+      phải HEAD~1); và SECTION mang hậu tố đã hứa — chuỗi kỳ vọng KHÔNG gõ lại mà RÚT từ
+      HỢP ĐỒNG (dòng "- AC-4:" của contract.md, chuỗi trong dấu huyền mở đầu " · "), rút
+      được 0 thì ca NỔ có tên. Khuôn cũ chỉ đọc khoá JSON nên xoá trắng hậu tố vẫn xanh —
+      đó là finding lượt chấm 3. Lượt ghim kế sau khi chỉ commit tệp không khớp glob → khoá
+      VẮNG HẲN và section KHÔNG mang hậu tố ấy (đối chứng cùng chuỗi rút). Tệp đổi dưới
+      _acceptance/<slug>/rang/ khớp glob → vẫn tính chạm. E12 không paths → không bao giờ
+      vào khoá. Chiều đỏ (bản sao làn): bỏ bước so diff → ĐỎ ghim "touched vang du diff
+      cham"; đổi mốc diff thành HEAD~1 → ĐỎ ghim "moc diff khong phai pin cu"; bỏ ${veCham}
+      khỏi khuôn section (khoá JSON còn nguyên) → ĐỎ ghim "section thieu hau to diff cham
+      vat".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.gnro_glob_mot_nguon
+    expected: >-
+      Ca GN07; stdout có đúng một dòng kết quả, mang "GN07". paths E6 = ["apps/x/*.ts"]; tệp
+      đổi apps/x/sub/a.ts → E6 KHÔNG vào khoá (globToRe của carry-plan.mjs: * không xuyên /);
+      đối chứng dương cùng kho: tệp đổi apps/x/a.ts → E6 vào khoá. Ca kiểm làn import
+      globToRe từ ./carry-plan.mjs (đọc nguồn) chứ không tự viết regex. Chiều đỏ: bản sao khớp
+      bằng tiền tố chuỗi → E6 vào khoá oan → ĐỎ ghim "khop tien to thay glob".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/carry-plan.mjs"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.gnro_ben_doc_cu
+    expected: >-
+      Ca GN08; stdout có đúng một dòng kết quả, mang "GN08". Hồ sơ đã ghim với dòng repin mang
+      cả hai khoá mới: recheck-evidence.cjs + pre-merge-check.sh của cây đang đo → 0/0, không
+      VIOLATION, không NOTE mới; lớp git archive 2826f807 lib scripts (trọn thư mục) → cùng
+      0/0. Đối chứng đỏ cùng kho: gỡ evals_exit khỏi dòng → cả hai lớp đỏ ghim
+      "recorded no evals_exit". Mốc vắng → ĐỎ "thieu moc 2826f807".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.gnro_the_cong_2
+    expected: >-
+      Ca GN09; stdout có đúng một dòng kết quả, mang "GN09". Hồ sơ AC-4 ở trạng thái SAU
+      lượt ghim 1 (repin chống lưng verified_commit mang touched ["E6"]); gate-card.js
+      --gate 2: HTML có cờ finfo "AC không có chốt máy khi ghim lại:" với danh sách AC BẰNG
+      [AC-b, AC-c] viết trước VÀ BẰNG danh sách trong section Re-pin làn ghi (round-trip,
+      đẳng thức tập); cờ fwarn "pin hiện tại: diff đã chạm vật E6 đo"; --extract có
+      chot_may.ac_khong = ["AC-b","AC-c"], chot_may.touched = ["E6"]; routing.hoi/bao BẰNG kết
+      quả gate-card của mốc 2826f807 trên cùng fixture. NỘI DUNG cờ, không chỉ NHÃN (đổi
+      khuôn 20/09 — khuôn cũ chỉ ghim tiền tố nhãn nên hỏng khâu phân loại kiểu vẫn xanh):
+      `chot_may.ac_khong_mo` phải BẰNG danh sách diễn giải dựng bởi một BỘ ĐỌC evals.yaml
+      ĐỘC LẬP trong chính ca (không gọi lib sản phẩm — hai bản trôi khỏi nhau là phải đỏ),
+      và HTML phải mang từng chuỗi diễn giải ấy nguyên văn; cờ fwarn phải NÊU từng id trong
+      `chot_may.touched`. Bộ đọc trả rỗng thì ca NỔ có tên ("ky vong rong, phep so vo luc").
+      Ca đặc hiệu: run-log repin#1 (touched) + repin#2 (sạch), verified_commit = sha repin#2
+      → KHÔNG fwarn, touched = []. Hồ sơ toàn máy → không cờ, ac_khong = []. Chiều đỏ (bản
+      sao thẻ): bỏ vị từ AC → ĐỎ ghim "the thieu co AC khong chot may"; gộp ∃ → ĐỎ ghim "got
+      AC bang ton tai"; đọc dòng đầu có khoá thay vì dòng khớp sha → ĐỎ ghim "fwarn tu dong
+      repin khong chong lung"; kieuCua trả hằng → ĐỎ ghim "the dien giai sai kieu/eval"; cắt
+      cụt nội dung fwarn → ĐỎ ghim "co fwarn khong neu id".
+    paths:
+      - "scripts/gate-card.js"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.gnro_the_cong_1
+    expected: >-
+      Ca GN10; stdout có đúng một dòng kết quả, mang "GN10". Hợp đồng draft với evals ma
+      trận AC-a..AC-d: gate-card.js --gate 1 có cờ finfo "AC không có chốt máy khi ghim lại:"
+      với danh sách BẰNG [AC-b, AC-c] và --extract có chot_may.ac_khong = ["AC-b","AC-c"];
+      hợp đồng toàn eval máy → không cờ, mảng rỗng; routing không đổi so mốc 2826f807.
+      NỘI DUNG cờ như GN09 (đổi khuôn 20/09): `chot_may.ac_khong_mo` BẰNG danh sách do bộ
+      đọc evals.yaml độc lập dựng, và HTML mang từng chuỗi ấy nguyên văn.
+      Chiều đỏ (bản sao thẻ): bỏ cờ gate 1 → ĐỎ ghim "the cong 1 thieu co"; đếm not-run là
+      chốt → ĐỎ ghim "not-run tinh la chot"; kieuCua trả hằng → ĐỎ ghim "the cong 1 dien
+      giai sai kieu/eval".
+    paths:
+      - "scripts/gate-card.js"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.gnro_w8_gia
+    expected: >-
+      Ca GN11; stdout có đúng một dòng kết quả, mang "GN11". eval-coverage-lint.js trên hợp
+      đồng surfaces [ui] không ui-check: dòng W8 giữ tiền tố "W8 surfaces include a
+      human-visible" và chứa "không có chốt máy khi ghim lại", "GUIDE §7.1", "test/script cho
+      cùng tiêu chí"; hợp đồng surfaces [api] → số dòng W bằng bản mốc 2826f807 (chiều im). Chiều
+      đỏ: bản sao lint bỏ câu giá → ĐỎ ghim "W8 thieu cau gia".
+    paths:
+      - "scripts/eval-coverage-lint.js"
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.gnro_suite_con_lai
+    expected: >-
+      Bốn suite của feature_loop.suite_keys (scripts · hooks · plugins · workflows) + product-map
+      --check đều thoát 0 trên cây sau hồ sơ; suite scripts chạy tệp ca mới qua glob (stdout
+      suite chứa "PASS: GN01"). Chiều đỏ đã chạy trong từng ca GN (mutant); ở đây là đối chứng
+      dương của lưới thường trực — LN5/RE/PV4/LM20 không đỏ vì khoá mới, tiền tố W8, baseline.
+    paths:
+      - "tests/**"
+      - "scripts/**"
+      - "feature-loop/**"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.gnro_bo_chon
+    expected: >-
+      Ca GN12 chạy SELF hai lần: GNRO_CASES=GN01 → stdout đúng một dòng /^\s*(PASS|FAIL): GN01/;
+      GNRO_CASES=GN99 → thoát khác 0 và in "GNRO_CASES khop 0 ca". Chiều đỏ: bản sao tệp ca
+      bỏ nhánh khớp-0 → GN99 thoát 0 → ĐỎ ghim "bo chon 0 ca khong do".
+    paths:
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E14
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.gnro_hat_giong
+    expected: >-
+      docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md tồn tại, chứa chuỗi
+      "_acceptance/ghim-lai-noi-ra-o-khong-do/", và khối VC8 của suite plugins thoát 0
+      (ONLY_BLOCK=VC8 — hạt giống trỏ được về ô). Chiều đỏ KHÔNG dựng lại ở đây: VC8 là ca
+      THƯỜNG TRỰC và đã mang mutant của chính nó (P201 «ngăn không-sửa có tên + đường đọc-cũ
+      + mutant») — dựng thêm một bản sao cây ở khoá này là bản thứ hai của cùng phép đo.
+      Hai vế của eval: (a) vật hạt giống có mặt và trỏ đúng ô — đối chứng đỏ là gỡ/đổi chuỗi
+      thì `grep -qF` thoát khác 0; (b) luật «vào có ô» của VC8 xanh trên cây có hạt giống mới.
+    paths:
+      - "docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md"
+      - "tests/plugins/run-tests.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E15
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.gnro_khong_ghi_de
+    expected: >-
+      Ca GN13; stdout có đúng một dòng kết quả, mang "GN13". Đo HÀNH VI GHI, không đo residue
+      và không grep khuôn viết: chụp bộ ba (sha256, size, mtime_ns) của MỌI tệp git-theo-dõi
+      dưới scripts/ · lib/ · feature-loop/ · tests/ · GUIDE.md (danh sách từ `git ls-files`,
+      KHÔNG gõ tay), chạy chính tệp ca cho MỌI ca có mutant (danh sách suy từ
+      `CASES.filter(c => c.mutants?.length && c.id !== 'GN13')`) CÓ chạy mutant, chụp lại —
+      hai bản phải BẰNG nhau. mtime là thứ bắt được lần ghi rồi khôi phục Y HỆT byte, thứ mà
+      `git status` không thấy. Phép đo chạy trong CÂY DÙNG-MỘT-LẦN (`git clone --local` để
+      có lịch sử cho `git archive <mốc>`, rồi phủ trạng thái làm việc của mọi tệp
+      `git ls-files` lên trên vì clone chỉ mang HEAD), và ca chụp THÊM cây dùng chung làm
+      lưới thứ hai. Vì sao đổi khuôn 20/09: chiều đỏ cố tình ghi đè tệp nguồn, và lấy mẫu
+      băm liên tục cho thấy nó làm SKILL.md mang băm khác ~0,44 s (3781/457649 mẫu) — đủ để
+      suite song song đọc nhầm và đủ để một làn ghim từ chối vì «cây bẩn»; sau khi đổi:
+      0/471819 mẫu lệch. Chiều đỏ: bản sao tệp ca hoàn nguyên MỘT judge về lối
+      `finally write(<tệp nguồn>, bak)` — khôi phục y hệt, residue bằng 0 — vẫn phải ĐỎ ghim
+      "ca ghi de tep nguon that" (chuỗi mũi tiêm ghép động nên không khớp chính dòng mô tả
+      nó, và neo vào judge của ca chỉ-một-mutant để không khớp hai lần khi ca khác mọc thêm
+      chiều đỏ). Ca ghi lại ĐÚNG tệp bị chạm từ bản đã chụp, KHÔNG `git checkout` cả nhóm —
+      lối ấy nay là lưới cho CÂY DÙNG CHUNG (bắt ca phớt lờ GNRO_ROOT), ghim
+      "ca ghi de CAY DUNG CHUNG (da tra lai)".
+    paths:
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

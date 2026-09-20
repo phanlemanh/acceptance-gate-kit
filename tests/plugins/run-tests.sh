@@ -6023,8 +6023,13 @@ run "P150 required_evidence tren the + report cu render y het ban base" \
     #   (6) khoi "PHAN QUYET DOI KHANG" + dong "Dong lenh da dien san" tren THE
     #       (ho so loi-moi-cong-may-sinh, 02/09) -> luoi tests/scripts/
     #       gate-card-lmcms.test.mjs ca LM07-LM12 (noi dung + chieu do)
+    #   (7) co BAO "AC khong co chot may khi ghim lai" tren CA HAI cong (ho so
+    #       ghim-lai-noi-ra-o-khong-do, 20/09) -> luoi tests/scripts/
+    #       repin-lane-noi-ra.test.mjs ca GN09/GN10 (noi dung + round-trip + 5 mutant).
+    #       Co BAO, khong doi routing; fixture feat-jr5 chi co mot eval judgment nen
+    #       no bat o day.
     # Khi base vuot qua chip (2), cac phep loc thanh no-op vo hai.
-    norm() { grep -v "VIỆC CỦA ANH" | grep -v "PHÁN QUYẾT ĐỐI KHÁNG" | grep -v "Phản biện context sạch:" | grep -v "Rà soát đối kháng:" | grep -v "Dòng lệnh đã điền sẵn" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
+    norm() { grep -v "VIỆC CỦA ANH" | grep -v "PHÁN QUYẾT ĐỐI KHÁNG" | grep -v "Phản biện context sạch:" | grep -v "Rà soát đối kháng:" | grep -v "Dòng lệnh đã điền sẵn" | sed -E "s#<div class=\"flag finfo\">AC không có chốt máy khi ghim lại:[^<]*</div>##g" | sed -E "s/E[A-Za-z0-9]+ \(câu hỏi cần mắt người\) · //g; s/Treo-[0-9]+ · //g; s/Ngoài-[0-9]+ · //g; s/ · ~5 phút//g"; }
     A_CMP=$(printf "%s" "$A" | norm)
     B_CMP=$(printf "%s" "$B" | norm)
     [ "$A_CMP" = "$B_CMP" ] || { echo "report cu render KHAC ban base (ngoai 3 thay doi da khai) — duong doc-cu vo"; exit 1; }

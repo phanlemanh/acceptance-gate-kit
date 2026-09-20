@@ -187,6 +187,30 @@ executors:
     # --- co-qua-timebox-nhom-da-xong (06/09) --- RT13 chay rieng + bat bien o (khoi rieng, cuoi executors.script)
     cqt_rt13: "RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs"
     cqt_o_khong_doi: 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs && node scripts/product-map.mjs --root . --check && test -z "$(git status --porcelain PRODUCT-MAP.md)"'
+    # --- ghim-lai-noi-ra-o-khong-do (20/09) --- mỗi eval gọi ĐÚNG MỘT ca qua GNRO_CASES.
+    # Ca sống vĩnh viễn ở tests/scripts/repin-lane-noi-ra.test.mjs (suite scripts chạy qua
+    # glob *.test.mjs); khoá ở đây chỉ KHOANH một ca để eval ghim đúng vật, không thêm lượt
+    # chạy nào. Chiều đỏ của từng ca chạy TRONG ca (bản sao đã tiêm), không ở đây.
+    gnro_khoa_kieu: "GNRO_CASES=GN01 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_vang_han: "GNRO_CASES=GN02 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_diff_cham: "GNRO_CASES=GN06 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_glob_mot_nguon: "GNRO_CASES=GN07 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_section: "GNRO_CASES=GN03 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_khuon_skill: "GNRO_CASES=GN04 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_guide_nguong: "GNRO_CASES=GN05 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_ben_doc_cu: "GNRO_CASES=GN08 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_the_cong_2: "GNRO_CASES=GN09 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_the_cong_1: "GNRO_CASES=GN10 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_w8_gia: "GNRO_CASES=GN11 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_bo_chon: "GNRO_CASES=GN12 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_khong_ghi_de: "GNRO_CASES=GN13 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    # Bốn suite của feature_loop.suite_keys + bản đồ, VÀ chốt tệp ca mới thật sự được
+    # suite scripts nhặt qua glob (grep chọn dòng; pipefail giữ mã thoát của suite).
+    # KHÔNG đưa suite qua ống vào `grep -q`: grep thoát ngay khi khớp, suite nhận
+    # SIGPIPE và pipefail trả 141 — lượt chấm S4-r1 đỏ đúng vì thế, trong khi vật
+    # xanh. Hứng vào biến rồi khớp bằng `case` (không ống nào cả).
+    gnro_suite_con_lai: "bash -c 'set -e; out=$(bash tests/scripts/run-tests.sh); case \"$out\" in *\"PASS: GN01\"*) ;; *) echo \"suite scripts khong nhat ca GN01 qua glob\"; exit 1;; esac; bash tests/hooks/run-tests.sh >/dev/null; bash tests/workflows/run-tests.sh >/dev/null; bash tests/plugins/run-tests.sh >/dev/null; node scripts/product-map.mjs --root . --check'"
+    gnro_hat_giong: 'test -f docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md && grep -qF "_acceptance/ghim-lai-noi-ra-o-khong-do/" docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md && ONLY_BLOCK=VC8 bash tests/plugins/run-tests.sh'
     # --- thuoc-khai-mot-dang-do-mot-neo (06/09) --- hai thuoc da va (khoi rieng, cuoi executors.script)
     # KHONG sinh khoa song song cho nhom lane: o do tro thang itgk_lane_doc_khong_doi
     # (chinh khoa dang do) — gap-probe P0, khoa moi viet dung se che loi tang giai chuoi.

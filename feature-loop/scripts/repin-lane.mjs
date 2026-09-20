@@ -105,6 +105,7 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'isRepinMachineEval', kind: 'function', since: '2.12.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'machineEvalIdsSkipped', kind: 'function', since: '2.12.0', why: 'notRunConflicts gọi (làn gọi gián tiếp)' },
   { file: 'lib/evidence-core.cjs', name: 'notRunConflicts', kind: 'function', since: '2.12.0', why: 'làn gọi' },
+  { file: 'lib/evidence-core.cjs', name: 'parseFlowValue', kind: 'function', since: '2.11.0', why: 'làn gọi (rút paths của ô ngoài làn máy)' },
   { file: 'lib/evidence-core.cjs', name: 'determineEnforce', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'evaluateEvidence', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'checkRepinEvals', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
@@ -188,7 +189,7 @@ const perSlug = slugs.map(slug => {
   // của nhau trên cùng dữ liệu, đúng bằng xây dựng chứ không phải hai luật gõ
   // tay đi song song. core.REPIN_MACHINE_EXECUTORS đã có hàng trong
   // AG-ENGINE-TABLE (2.9.0), nay mới thật sự được làn gọi.
-  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'status']);
+  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'status', 'criterion']);
   const evals = evalRecords
     .filter(e => core.isRepinMachineEval(e))
     .map(e => {
@@ -201,7 +202,19 @@ const perSlug = slugs.map(slug => {
     .filter(e => core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))
     .filter(e => !core.isRepinMachineEval(e))
     .map(e => e.id);
-  return { slug, ws, reportPath, report, evalsPath, evalsText, evals, skipped };
+  // Ô NGOÀI LÀN MÁY (ui-check/judgment): làn không chạy chúng bao giờ — giới hạn
+  // đã khai (GUIDE §7.1, ADR 0014). Trước hồ sơ này pin IM về chúng, nên một hợp
+  // đồng làm đúng nghĩa vụ lớp nhìn-thấy mất chốt máy mà không dòng nào nói (đo ở
+  // crm 20/09: 6 hồ sơ vừa có ui-check vừa từng ghim; `tiep-thi-tuyen-doi-tac`
+  // ghim 6 lần, E6/E9 vắng cả 6 lượt).
+  // KIỂU thắng TRẠNG THÁI: ô ngoài làn máy khai `status: not-run` chỉ vào mảng
+  // NÀY, không vào `skipped` — `skipped` đã lọc kiểu máy TRƯỚC, nên ba tập
+  // (khoá evals_exit · skipped · ngoaiMay) rời nhau đúng bằng xây dựng, không
+  // bằng hai luật gõ tay đi song song.
+  const ngoaiMay = evalRecords
+    .filter(e => !core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))
+    .map(e => e.id);
+  return { slug, ws, reportPath, report, evalsPath, evalsText, evals, skipped, ngoaiMay, evalRecords };
 });
 
 // ── luật hai vế (hồ sơ lan-doc-status-not-run, 2026-09-12): một ô khai
@@ -303,6 +316,90 @@ if (flags['skip-unchanged']) {
   }
 }
 // SKIP-UNCHANGED-PREDICATE>>>
+
+// ── Ô ngoài làn máy mà VẬT ĐO đã đổi (hồ sơ ghim-lai-noi-ra-o-khong-do) ─────
+// Câu «hồ sơ mà diff chạm đúng phần ui-check đo phải đi vòng S4 delta» sống bằng
+// CHỮ từ 07/09 — không máy nào cưỡng chế. Đo ở crm 20/09: 3 trong 6 khoảng ghim
+// của `tiep-thi-tuyen-doi-tac` đổi tệp nằm trong `paths` của E6, hồ sơ vẫn ghim
+// xanh cả 6 lần. Làn KHÔNG chặn (owner quyết ở Cổng Phạm vi 20/09): nó NÓI RA,
+// và ngưỡng đếm được ở GUIDE §7.1 quyết có mở vòng chặn hay không.
+//
+// Mốc diff là `verified_commit` TRƯỚC khi làn ghi — KHÔNG phải HEAD~1: giữa hai
+// lần ghim ở kho tiêu thụ là hàng trăm commit. Diff tính THÔ (không loại
+// `_acceptance/`, không loại t1_skip_globs): `paths` của một eval UI trỏ cả răng
+// của chính nó dưới `_acceptance/<slug>/rang/**`, và răng đổi LÀ vật đổi.
+const tienToGitPin = gitRaw('rev-parse', '--show-prefix').trim();
+// Rút `paths` của MỘT eval, nhận CẢ HAI cách viết: flow `paths: [a, b]` và block
+// seq (`paths:` rồi các dòng `- "a"`). Vì sao không dùng bộ đọc của
+// `carry-plan.mjs`: bộ đó chỉ nhận dạng flow, và đo ở crm 20/09 thì 393 eval khai
+// block-seq so với 49 flow — dùng nó ở đây thì phép đo mù 89% eval tại chính kho
+// sinh ra nó. Vì sao không SỬA bộ đó cho nhận cả hai: nó quyết carry-forward P1
+// của S4, tức một thành phần của đường verdict, và hồ sơ này đã khai điều kiện
+// tin cậy «đường verdict không đổi thành phần». Hợp nhất hai bộ đọc là một vòng
+// riêng phải có răng cho carry P1 — hạt giống, ngưỡng: lần đầu hai bên cho hai
+// kết luận khác nhau trên cùng một `evals.yaml`. `globToRe` vẫn dùng CHUNG.
+function pathsCuaEval(evalsText, id) {
+  const dong = String(evalsText).split('\n');
+  let trong = false;
+  let seq = null;
+  for (const raw of dong) {
+    const idM = raw.match(/^\s*-\s+id:\s*(\S+)/);
+    if (idM) {
+      if (seq) return seq;                       // đã gom xong block seq của đúng eval
+      trong = idM[1].trim() === String(id);
+      continue;
+    }
+    if (!trong) continue;
+    if (seq) {
+      const it = raw.match(/^\s+-\s+(\S.*)$/);
+      if (it) { seq.push(core.parseFlowValue(it[1]).value); continue; }
+      return seq;                                // dedent → hết block
+    }
+    const f = raw.match(/^\s+paths:\s*(.*)$/);
+    if (!f) continue;
+    const v = f[1].trim();
+    if (v.startsWith('[')) { const pv = core.parseFlowValue(v); return pv.kind === 'seq' ? pv.items : []; }
+    if (!v) { seq = []; continue; }              // block seq mở
+    return [core.parseFlowValue(v).value];       // một glob viết trần trên cùng dòng
+  }
+  return seq || [];
+}
+function chamTuPin(s) {
+  if (!s.ngoaiMay.length) return [];
+  const vcCu = (s.report.match(/^verified_commit\s*:\s*(\S+)/m) || [])[1];
+  if (!vcCu) { log(`${s.slug}: không đọc được verified_commit — không tính được ô ngoài làn máy có vật đổi`); return []; }
+  const co = spawnSync('git', ['-C', root, 'cat-file', '-e', `${vcCu}^{commit}`], { stdio: 'ignore' });
+  if (co.status !== 0) { log(`${s.slug}: pin cũ ${vcCu.slice(0, 7)} không có trong kho — không tính được ô ngoài làn máy có vật đổi`); return []; }
+  // git in đường tương đối GỐC KHO GIT; `paths` tương đối gốc kho của hồ sơ (--root).
+  const doi = gitRaw('diff', '--name-only', vcCu, '--').split('\n').filter(Boolean)
+    .map(f => (tienToGitPin && f.startsWith(tienToGitPin) ? f.slice(tienToGitPin.length) : f));
+  const cham = [];
+  for (const id of s.ngoaiMay) {
+    const gl = pathsCuaEval(s.evalsText, id);
+    if (!gl.length) continue;                    // không khai paths → không biết vật nào, không kết luận
+    const res = gl.map(globToRe);
+    if (doi.some(f => res.some(re => re.test(f)))) cham.push(id);
+  }
+  return cham;
+}
+
+// «AC không có chốt máy» — MỌI eval phủ AC đó đều không phải eval máy đáng ghim
+// (∀, KHÔNG phải ∃): một AC có cả ui-check lẫn test VẪN có chốt, và đó đúng là
+// lối mà lint W8 khuyên khi đòi thêm ui-check. Ô tự khai `status: not-run` KHÔNG
+// phải chốt — `isRepinMachineEval` đã loại nó; cùng MỘT vị từ với bên đọc pin.
+// Thẻ Cổng Bằng chứng dựng lại phép gộp này và ca GN09 so hai bản (round-trip),
+// nên hai bản không trôi khỏi nhau.
+function acKhongChotMay(evalRecords) {
+  const theoAc = new Map();   // Map giữ thứ tự chèn = thứ tự xuất hiện trong evals.yaml
+  for (const e of evalRecords) {
+    const ac = String(e.criterion || '').trim();
+    if (!ac) continue;
+    if (!theoAc.has(ac)) theoAc.set(ac, []);
+    theoAc.get(ac).push(e);
+  }
+  return [...theoAc.entries()].filter(([, evs]) => evs.every(e => !core.isRepinMachineEval(e))).map(([ac]) => ac);
+}
+
 log(`sha ${sha} · ${suiteCmds.length} suite · ${perSlug.length} hồ sơ · ${perSlug.reduce((n, s) => n + s.evals.length, 0)} eval máy`);
 // Chụp MỌI hồ sơ đã thông cổng, không chỉ slug đang ghim: suite của một hồ sơ
 // ghi đè được bằng chứng của hồ sơ khác. Chụp SAU bước bỏ-qua (lượt bỏ qua không
@@ -343,13 +440,29 @@ for (const s of perSlug) {
   // rỗng) — hồ sơ không khai ô nào thì cả hai chỗ phải sạch, không phải một
   // khoá luôn có mặt mang giá trị rỗng.
   const boQua = s.skipped;
-  const line = JSON.stringify(boQua.length
-    ? { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit, evals_not_run: boQua }
-    : { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit });
+  const chamNgoaiMay = chamTuPin(s);
+  // Ba khoá tuỳ chọn cùng LUẬT HIỆN DIỆN: rỗng thì VẮNG HẲN. Object.assign giữ
+  // thứ tự chèn, nên thứ tự khoá khớp khuôn REPIN-TEMPLATE của SKILL với MỌI tổ
+  // hợp có/không — ternary lồng nhau cho 8 nhánh là chỗ khuôn sẽ trôi.
+  const line = JSON.stringify(Object.assign(
+    { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit },
+    boQua.length ? { evals_not_run: boQua } : {},
+    s.ngoaiMay.length ? { evals_not_machine: s.ngoaiMay } : {},
+    chamNgoaiMay.length ? { evals_not_machine_touched: chamNgoaiMay } : {},
+  ));
   const veGioiHan = gioiHan.length ? ` · đạt-có-giới-hạn: ${gioiHan.join(', ')}` : '';
   const veHet = hetGioiHan.length ? ` · giới hạn đã khai không còn: ${hetGioiHan.join(', ')}` : '';
   const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${boQua.join(', ')}` : '';
-  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}\n`;
+  // Ba hậu tố của hồ sơ ghim-lai-noi-ra-o-khong-do: ô ngoài làn máy · ô trong số
+  // đó có vật đo đã đổi · AC vì thế không có chốt máy. Ô ngoài làn máy KHÔNG khai
+  // `paths` thì nói rõ, để «vắng khỏi danh sách đã chạm» không đọc thành «không chạm».
+  const acKhong = acKhongChotMay(s.evalRecords);
+  const veNgoaiMay = s.ngoaiMay.length
+    ? ` · ngoài làn máy: ${s.ngoaiMay.map(id => (pathsCuaEval(s.evalsText, id).length ? id : `${id} (${id} không khai paths)`)).join(', ')}`
+    : '';
+  const veCham = chamNgoaiMay.length ? ` · diff chạm vật đo ngoài làn máy: ${chamNgoaiMay.join(', ')} — chưa chứng lại, đi vòng S4 delta` : '';
+  const veAcKhong = acKhong.length ? ` · AC không có chốt máy: ${acKhong.join(', ')}` : '';
+  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veNgoaiMay}${veCham}${veAcKhong}\n`;
   out.slugs[s.slug] = { evals_exit: evalsExit, line, section };
 }
 if (red) {

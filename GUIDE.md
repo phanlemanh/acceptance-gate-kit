@@ -1128,11 +1128,22 @@ hồ sơ cuối trỏ khoá `mirror_sync` đã gỡ (ADR 0010) cũng lưu kho c�
 recheck/staleness vốn thu theo diff PR (ADR 0010) — pin chưa chứng không được
 nằm im chỉ vì PR không chạm nó. Hệ quả nhận: pre-merge của chính kit đỏ 49 vi
 phạm cho tới khi chiến dịch ghim lại xong; repo tiêu thụ đỏ mọi PR kể từ mốc nhận
-luật cho tới khi ghim lại mọi hồ sơ đã ký bằng làn eval — không có cờ nới. **Giới hạn khai, một ngưỡng đang
-đếm:** eval `ui-check`/`judgment` không chạy được trong làn máy nên re-pin
-KHÔNG chứng lại chúng — hồ sơ mà diff chạm đúng phần `ui-check` đo phải đi
-vòng S4 delta; ngưỡng mở vòng kế: **≥1 hồi quy UI lọt qua một lượt re-pin**
-giữa hai bản phát hành. Lý do và các lối bị loại: ADR 0014.
+luật cho tới khi ghim lại mọi hồ sơ đã ký bằng làn eval — không có cờ nới. **Giới hạn khai, một ngưỡng ĐẾM ĐƯỢC:**
+eval `ui-check`/`judgment` không chạy được trong làn máy nên re-pin KHÔNG chứng
+lại chúng. Từ 2.18 làn nói ra thay vì im: dòng `kind:repin` mang
+`evals_not_machine` (mọi id ngoài làn máy) và `evals_not_machine_touched` (những
+id mà `git diff <pin cũ> HEAD` chạm `paths` của chính chúng), section Re-pin nêu
+thêm `AC không có chốt máy`, và thẻ Cổng Bằng chứng in cả hai. Hồ sơ mang
+`evals_not_machine_touched` phải đi vòng S4 delta — làn vẫn ghi pin, nó KHÔNG
+chặn. Ngưỡng mở vòng CHẶN, đếm giữa hai bản phát hành:
+
+```bash
+grep -l '"evals_not_machine_touched"' _acceptance/*/run-log.jsonl 2>/dev/null | wc -l | tr -d ' '
+```
+
+≥1 hồi quy UI lọt qua một lượt ghim mang khoá đó → mở vòng. Lý do và các lối bị
+loại: ADR 0014; ba lối tách hai nghĩa của `ui-check`:
+`docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md`.
 
 **Làn bỏ qua khi cây BẰNG PIN — `--skip-unchanged` (2.14).** Đo 14/09: một chữ ký
 mất **54 phút · ≈ 42 M token** từ lúc owner gõ «Ký» tới READY, và **7/7** chữ ký
