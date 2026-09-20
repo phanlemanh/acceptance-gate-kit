@@ -103,4 +103,11 @@ judgment `inputs` coi như `paths` → Never, hai trường hai nghĩa theo eval
 - Hạt giống C1: `docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md` (VC8: hạt giống trỏ về ô này; ô này trích lại tên tệp ở đây).
 - Hạt giống sinh trong lúc làm (cùng luật VC8, ô này trích lại tên tệp): `docs/plans/2026-09-20-hat-giong-lan-ghim-phan-biet-bi-giet.md` — `repin-lane.mjs:242` gộp «bị tín hiệu giết» và «không khởi động được» thành «eval thoát 1»; fail-closed nên không xanh giả, nhưng thông điệp làn nói sai về một lượt chưa hề chạy. Một phiên kit khác nêu 20/09 khi rà cùng tệp, đã xác minh tại chỗ; KHÔNG sửa trong vòng này vì hồ sơ đã qua lượt chấm và bản vá sẽ làm bằng chứng hoá cũ.
 - Từ vựng: «làn» là term chuẩn (CONTEXT.md); «chốt máy» = eval máy đáng ghim phủ AC — dùng nguyên chữ owner (20/09), chưa vào glossary; nếu vòng kế còn dùng thì thêm term.
+- **Known limits (khai ở trần nhát sửa thước, owner chọn lối (1) ngày 20/09):** ba commit sau
+  `implemented` chỉ chạm phép đo (`_acceptance/config.yaml` · `evals.yaml` ·
+  `tests/scripts/repin-lane-noi-ra.test.mjs`) nên bộ đếm nhát-sửa-thước nổ đúng luật. Ba nhát
+  ấy là NỘI DUNG của vòng nâng phạm vi owner yêu cầu khi trả lại ở Cổng Bằng chứng — AC-10 và
+  AC-8 mở rộng tự chúng là phép đo, nên sửa chúng tất yếu là chạm thước. Lần chấm này chấp
+  nhận ba nhát đó mà không đòi chứng thêm. Ngưỡng: vòng kế chạm trần lần nữa với CÙNG lý do
+  thì không được khai lại lối (1) — đó là dấu hiệu thật (entry d-20260920T092117Z-26).
 - Bảng dự báo 5 dòng số (luật (c) CLAUDE.md): làm-xong→quyết-được **=** · lượt gọi người/vòng **=** (mục tiêu ≤3, T2) · vòng bị hạ tầng đốt **=** · token máy/vòng **↓ nhẹ** (không có ma trận lớp cũ nhiều mốc như vòng 11/09) · phút máy/lượt chấm **=**. Điều kiện tin cậy: đường verdict không đổi thành phần (không chạm S4/finder/refute).
