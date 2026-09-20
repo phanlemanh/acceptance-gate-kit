@@ -256,13 +256,16 @@ evals:
     executor: script
     cmd: config:executors.script.gnro_khong_ghi_de
     expected: >-
-      Ca GN13; stdout có đúng một dòng kết quả, mang "GN13". Đo HÀNH VI, không grep khuôn
-      viết: chụp `git status --porcelain` của năm tệp nguồn theo dõi (SKILL.md · GUIDE.md ·
-      eval-coverage-lint.js · gate-card.js · repin-lane.mjs), chạy chính tệp ca cho
-      GN04,GN05,GN11 CÓ mutant, chụp lại — hai bản phải BẰNG nhau. Chiều đỏ: bản sao tệp ca
-      hoàn nguyên MỘT judge về lối ghi-đè-rồi-khôi-phục (chuỗi mũi tiêm ghép động nên không
-      khớp chính dòng mô tả nó) → ĐỎ ghim "ca ghi de tep nguon that"; ca tự `git checkout`
-      trả cây về trạng thái trước đo.
+      Ca GN13; stdout có đúng một dòng kết quả, mang "GN13". Đo HÀNH VI GHI, không đo residue
+      và không grep khuôn viết: chụp bộ ba (sha256, size, mtime_ns) của MỌI tệp git-theo-dõi
+      dưới scripts/ · lib/ · feature-loop/ · tests/ · GUIDE.md (danh sách từ `git ls-files`,
+      KHÔNG gõ tay), chạy chính tệp ca cho MỌI ca có mutant (danh sách suy từ
+      `CASES.filter(c => c.mutants?.length && c.id !== 'GN13')`) CÓ chạy mutant, chụp lại —
+      hai bản phải BẰNG nhau. mtime là thứ bắt được lần ghi rồi khôi phục Y HỆT byte, thứ mà
+      `git status` không thấy. Chiều đỏ: bản sao tệp ca hoàn nguyên MỘT judge về lối
+      `finally write(GUIDE, bak)` — khôi phục y hệt, residue bằng 0 — vẫn phải ĐỎ ghim
+      "ca ghi de tep nguon that" (chuỗi mũi tiêm ghép động nên không khớp chính dòng mô tả
+      nó); ca ghi lại ĐÚNG tệp bị chạm từ bản đã chụp, KHÔNG `git checkout` cả nhóm.
     paths:
       - "tests/scripts/repin-lane-noi-ra.test.mjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
