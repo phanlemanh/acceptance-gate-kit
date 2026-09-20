@@ -50,10 +50,12 @@ evals:
     executor: script
     cmd: config:executors.script.gnro_section
     expected: >-
-      Ca GN03; stdout có đúng một dòng kết quả, mang "GN03". Section Re-pin của hồ sơ ma
-      trận có hậu tố " · ngoài làn máy: E6, E7 (E7 không khai paths), E12 (E12 không khai paths)" và " · AC không
-      có chốt máy: AC-b, AC-c" — danh sách kỳ vọng VIẾT TRƯỚC (∀ eval phủ AC đều không phải
-      eval máy đáng ghim; AC-a/AC-d có chốt vì có test). Chiều im: hồ sơ toàn eval máy, section
+      Ca GN03; stdout có đúng một dòng kết quả, mang "GN03". Hai hậu tố kỳ vọng KHÔNG gõ
+      lại trong ca (đổi khuôn 20/09): ca RÚT chúng từ HỢP ĐỒNG — mọi chuỗi trong dấu huyền
+      mở đầu bằng " · " trên dòng "- AC-2:" của contract.md — rồi đòi section Re-pin chứa
+      từng chuỗi; rút được 0 hậu tố thì ca NỔ có tên ("rut 0 hau to"), vì một vế kỳ vọng
+      rỗng làm phép so hằng đúng. Danh sách AC vẫn so với hằng VIẾT TRƯỚC (∀ eval phủ AC
+      đều không phải eval máy đáng ghim; AC-a/AC-d có chốt vì có test). Chiều im: hồ sơ toàn eval máy, section
       so BYTE với section do writer mốc 2826f807 (git archive 2826f807 feature-loop lib
       scripts, trọn thư mục) ghi trên cùng hồ sơ trong cùng kho tạm, sau chuẩn hoá
       run_id/ts/ngày; đối chứng dương: trên hồ sơ ma trận hai section khác đúng ở hậu tố.
@@ -88,13 +90,19 @@ evals:
     executor: script
     cmd: config:executors.script.gnro_guide_nguong
     expected: >-
-      Ca GN05; stdout có đúng một dòng kết quả, mang "GN05". SKILL (nghi thức re-pin) và GUIDE
-      §7.1 mang câu: làn ghi evals_not_machine_touched khi diff chạm paths của eval ngoài làn
-      máy — pin không chứng lại chúng, S4 delta là lối đúng. GUIDE mang một lệnh đếm ngưỡng
-      (grep khoá trên _acceptance/*/run-log.jsonl); ca RÚT lệnh từ GUIDE lúc chạy, chạy thật
-      trong kho tạm có đúng 1 hồ sơ mang khoá → in "1"; kho không hồ sơ nào mang khoá → "0".
-      Chiều đỏ: bản sao GUIDE gỡ lệnh đếm → ĐỎ ghim "GUIDE khong con lenh dem"; bản sao SKILL
-      gỡ câu → ĐỎ ghim "SKILL thieu cau touched".
+      Ca GN05; stdout có đúng một dòng kết quả, mang "GN05". Vế SKILL: neo vào câu "Giới hạn
+      khai: eval `ui-check`/`judgment`…" của nghi thức re-pin và đòi BA mệnh đề nằm trong
+      CHÍNH câu đó. Vế GUIDE (đổi khuôn 20/09 — khuôn cũ quét tên khoá trên cả tệp nên chính
+      dòng lệnh đếm tự thoả): neo vào ĐOẠN VĂN "**Giới hạn khai, một ngưỡng ĐẾM ĐƯỢC:**" và
+      CẮT ở khối ```bash, rồi đòi đoạn văn ấy gọi tên mọi khoá MỚI — danh sách khoá không gõ
+      tay mà là HIỆU TẬP KHOÁ giữa dòng repin do làn nay ghi và dòng do làn mốc 2826f807 ghi
+      trên cùng fixture; hiệu rỗng thì ca NỔ có tên ("rut 0 khoa moi"). GUIDE mang một lệnh
+      đếm ngưỡng (grep khoá trên _acceptance/*/run-log.jsonl); ca RÚT lệnh từ GUIDE lúc chạy,
+      chạy thật trong kho tạm có đúng 1 hồ sơ mang khoá → in "1"; kho không hồ sơ nào → "0".
+      Chiều đỏ: bản sao GUIDE gỡ lệnh đếm → ĐỎ ghim "GUIDE khong con lenh dem"; bản sao GUIDE
+      đổi neo đoạn văn → ĐỎ ghim "GUIDE thieu doan gioi han"; bản sao SKILL gỡ câu → ĐỎ ghim
+      "SKILL thieu cau touched"; bản sao LÀN đổi tên khoá (round-trip: tài liệu phải theo
+      writer) → ĐỎ ghim "GUIDE thieu cau touched".
     paths:
       - "feature-loop/skills/feature-loop/SKILL.md"
       - "GUIDE.md"
@@ -110,12 +118,16 @@ evals:
       "_acceptance/<slug>/rang/**"], pin cũ = HEAD0. Sau pin HAI commit: commit 1 đổi
       apps/x/a.ts (khớp), commit 2 chỉ đổi tệp không khớp glob; làn --write chạy MỘT lần →
       exit 0, ghi; dòng repin evals_not_machine_touched = ["E6"] (mốc diff = pin cũ, không
-      phải HEAD~1); section có " · diff chạm vật đo ngoài làn máy: E6 — chưa chứng lại, đi
-      vòng S4 delta". Lượt ghim kế sau khi chỉ commit tệp không khớp glob → khoá VẮNG HẲN,
-      không hậu tố. Tệp đổi dưới _acceptance/<slug>/rang/ khớp glob → vẫn tính chạm. E12
-      không paths → không bao giờ vào khoá. Chiều đỏ (bản sao làn): bỏ bước so diff → ĐỎ ghim
-      "touched vang du diff cham"; đổi mốc diff thành HEAD~1 → khoá vắng ở kịch bản hai
-      commit → ĐỎ ghim "moc diff khong phai pin cu".
+      phải HEAD~1); và SECTION mang hậu tố đã hứa — chuỗi kỳ vọng KHÔNG gõ lại mà RÚT từ
+      HỢP ĐỒNG (dòng "- AC-4:" của contract.md, chuỗi trong dấu huyền mở đầu " · "), rút
+      được 0 thì ca NỔ có tên. Khuôn cũ chỉ đọc khoá JSON nên xoá trắng hậu tố vẫn xanh —
+      đó là finding lượt chấm 3. Lượt ghim kế sau khi chỉ commit tệp không khớp glob → khoá
+      VẮNG HẲN và section KHÔNG mang hậu tố ấy (đối chứng cùng chuỗi rút). Tệp đổi dưới
+      _acceptance/<slug>/rang/ khớp glob → vẫn tính chạm. E12 không paths → không bao giờ
+      vào khoá. Chiều đỏ (bản sao làn): bỏ bước so diff → ĐỎ ghim "touched vang du diff
+      cham"; đổi mốc diff thành HEAD~1 → ĐỎ ghim "moc diff khong phai pin cu"; bỏ ${veCham}
+      khỏi khuôn section (khoá JSON còn nguyên) → ĐỎ ghim "section thieu hau to diff cham
+      vat".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
       - "tests/scripts/repin-lane-noi-ra.test.mjs"
@@ -163,12 +175,18 @@ evals:
       [AC-b, AC-c] viết trước VÀ BẰNG danh sách trong section Re-pin làn ghi (round-trip,
       đẳng thức tập); cờ fwarn "pin hiện tại: diff đã chạm vật E6 đo"; --extract có
       chot_may.ac_khong = ["AC-b","AC-c"], chot_may.touched = ["E6"]; routing.hoi/bao BẰNG kết
-      quả gate-card của mốc 2826f807 trên cùng fixture. Ca đặc hiệu: run-log repin#1 (touched)
-      + repin#2 (sạch), verified_commit = sha repin#2 → KHÔNG fwarn, touched = []. Hồ sơ toàn
-      máy → không cờ, ac_khong = []. Chiều đỏ (bản sao thẻ): bỏ vị từ AC → ĐỎ ghim "the thieu
-      co AC khong chot may"; gộp ∃ → ĐỎ ghim "got AC bang ton tai"; đếm not-run là chốt → ĐỎ
-      ghim "not-run tinh la chot"; đọc dòng đầu có khoá thay vì dòng khớp sha → ĐỎ ghim
-      "fwarn tu dong repin khong chong lung".
+      quả gate-card của mốc 2826f807 trên cùng fixture. NỘI DUNG cờ, không chỉ NHÃN (đổi
+      khuôn 20/09 — khuôn cũ chỉ ghim tiền tố nhãn nên hỏng khâu phân loại kiểu vẫn xanh):
+      `chot_may.ac_khong_mo` phải BẰNG danh sách diễn giải dựng bởi một BỘ ĐỌC evals.yaml
+      ĐỘC LẬP trong chính ca (không gọi lib sản phẩm — hai bản trôi khỏi nhau là phải đỏ),
+      và HTML phải mang từng chuỗi diễn giải ấy nguyên văn; cờ fwarn phải NÊU từng id trong
+      `chot_may.touched`. Bộ đọc trả rỗng thì ca NỔ có tên ("ky vong rong, phep so vo luc").
+      Ca đặc hiệu: run-log repin#1 (touched) + repin#2 (sạch), verified_commit = sha repin#2
+      → KHÔNG fwarn, touched = []. Hồ sơ toàn máy → không cờ, ac_khong = []. Chiều đỏ (bản
+      sao thẻ): bỏ vị từ AC → ĐỎ ghim "the thieu co AC khong chot may"; gộp ∃ → ĐỎ ghim "got
+      AC bang ton tai"; đọc dòng đầu có khoá thay vì dòng khớp sha → ĐỎ ghim "fwarn tu dong
+      repin khong chong lung"; kieuCua trả hằng → ĐỎ ghim "the dien giai sai kieu/eval"; cắt
+      cụt nội dung fwarn → ĐỎ ghim "co fwarn khong neu id".
     paths:
       - "scripts/gate-card.js"
       - "feature-loop/scripts/repin-lane.mjs"
@@ -184,8 +202,11 @@ evals:
       trận AC-a..AC-d: gate-card.js --gate 1 có cờ finfo "AC không có chốt máy khi ghim lại:"
       với danh sách BẰNG [AC-b, AC-c] và --extract có chot_may.ac_khong = ["AC-b","AC-c"];
       hợp đồng toàn eval máy → không cờ, mảng rỗng; routing không đổi so mốc 2826f807.
-      Chiều đỏ (bản sao thẻ): bỏ cờ gate 1 → ĐỎ ghim "the cong 1 thieu co"; gộp ∃ → ĐỎ ghim
-      "got AC bang ton tai"; đếm not-run là chốt → ĐỎ ghim "not-run tinh la chot".
+      NỘI DUNG cờ như GN09 (đổi khuôn 20/09): `chot_may.ac_khong_mo` BẰNG danh sách do bộ
+      đọc evals.yaml độc lập dựng, và HTML mang từng chuỗi ấy nguyên văn.
+      Chiều đỏ (bản sao thẻ): bỏ cờ gate 1 → ĐỎ ghim "the cong 1 thieu co"; đếm not-run là
+      chốt → ĐỎ ghim "not-run tinh la chot"; kieuCua trả hằng → ĐỎ ghim "the cong 1 dien
+      giai sai kieu/eval".
     paths:
       - "scripts/gate-card.js"
       - "tests/scripts/repin-lane-noi-ra.test.mjs"
@@ -262,10 +283,19 @@ evals:
       KHÔNG gõ tay), chạy chính tệp ca cho MỌI ca có mutant (danh sách suy từ
       `CASES.filter(c => c.mutants?.length && c.id !== 'GN13')`) CÓ chạy mutant, chụp lại —
       hai bản phải BẰNG nhau. mtime là thứ bắt được lần ghi rồi khôi phục Y HỆT byte, thứ mà
-      `git status` không thấy. Chiều đỏ: bản sao tệp ca hoàn nguyên MỘT judge về lối
-      `finally write(GUIDE, bak)` — khôi phục y hệt, residue bằng 0 — vẫn phải ĐỎ ghim
+      `git status` không thấy. Phép đo chạy trong CÂY DÙNG-MỘT-LẦN (`git clone --local` để
+      có lịch sử cho `git archive <mốc>`, rồi phủ trạng thái làm việc của mọi tệp
+      `git ls-files` lên trên vì clone chỉ mang HEAD), và ca chụp THÊM cây dùng chung làm
+      lưới thứ hai. Vì sao đổi khuôn 20/09: chiều đỏ cố tình ghi đè tệp nguồn, và lấy mẫu
+      băm liên tục cho thấy nó làm SKILL.md mang băm khác ~0,44 s (3781/457649 mẫu) — đủ để
+      suite song song đọc nhầm và đủ để một làn ghim từ chối vì «cây bẩn»; sau khi đổi:
+      0/471819 mẫu lệch. Chiều đỏ: bản sao tệp ca hoàn nguyên MỘT judge về lối
+      `finally write(<tệp nguồn>, bak)` — khôi phục y hệt, residue bằng 0 — vẫn phải ĐỎ ghim
       "ca ghi de tep nguon that" (chuỗi mũi tiêm ghép động nên không khớp chính dòng mô tả
-      nó); ca ghi lại ĐÚNG tệp bị chạm từ bản đã chụp, KHÔNG `git checkout` cả nhóm.
+      nó, và neo vào judge của ca chỉ-một-mutant để không khớp hai lần khi ca khác mọc thêm
+      chiều đỏ). Ca ghi lại ĐÚNG tệp bị chạm từ bản đã chụp, KHÔNG `git checkout` cả nhóm —
+      lối ấy nay là lưới cho CÂY DÙNG CHUNG (bắt ca phớt lờ GNRO_ROOT), ghim
+      "ca ghi de CAY DUNG CHUNG (da tra lai)".
     paths:
       - "tests/scripts/repin-lane-noi-ra.test.mjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
