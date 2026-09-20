@@ -5,7 +5,7 @@ slug: ghim-lai-noi-ra-o-khong-do
 owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/repin-lane.mjs · scripts/gate-card.js · scripts/eval-coverage-lint.js · SKILL feature-loop · tests/scripts/ — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-09-20
 design_doc: docs/superpowers/specs/2026-09-20-ghim-lai-noi-ra-o-khong-do-design.md
@@ -151,3 +151,41 @@ mục 17 và 29 đi hạt giống riêng.
   phẩm trong cây.
 - **Chấp nhận, không sửa** (Ngoài-22): section Re-pin lặp id trong câu «không khai
   paths» — dư thừa nhưng không sai, và đúng khuôn đã duyệt.
+
+### Known limits — owner định đoạt tại Cổng Bằng chứng round 3 (20/09/2026, ký)
+
+Bảy mục ngoài hợp đồng của lượt chấm round 3 (0 lỗi trong hợp đồng hai lượt liên tiếp).
+Số Ngoài-N là đánh số của thẻ round 3.
+
+- **`--skip-unchanged` dập tắt đúng tín hiệu `evals_not_machine_touched`** (Ngoài-1,
+  high): vị ngữ bỏ-qua xếp mọi tệp dưới `_acceptance/` là «không phải vật», còn
+  `chamTuPin` đếm chúng là vật khi `paths` trỏ vào — hai vị từ mâu thuẫn trong cùng tệp;
+  tái lập thật. Đo tần suất: crm 202 dòng `paths` trỏ vào `_acceptance/`. Sửa = đổi hành vi
+  chặn → mở hợp đồng mới: `docs/plans/2026-09-20-hat-giong-skip-unchanged-dap-tat-touched.md`.
+- **E12 chép lại năm lệnh của `feature_loop.suite_keys` dưới một chuỗi khác** (Ngoài-2):
+  dedupe theo chuỗi của làn không gộp được, năm suite chạy hai lần mỗi lượt; GN13 ~60 s
+  vào mọi lượt suite scripts của kit (clone dùng-một-lần + spawn lại 11 ca có mutant).
+- **Cờ «đã chạm» tắt bởi lượt ghim kế** (Ngoài-3) — cùng lỗ Ngoài-6·19·26 round 2, nay
+  finder nêu thêm: đây là lỗ trong CHÍNH ĐẶC TẢ (AC-7 khai ca đặc hiệu), nghiệm đúng tầng
+  là ghim mốc «lần cuối eval ngoài làn máy thật sự được chứng» thay vì pin lượt trước.
+- **Thẻ gộp AC theo `criterion` THÔ** (Ngoài-4): không strip nháy/chú thích nên một AC có
+  thể bị tách làm hai — cùng lỗ Ngoài-21 round 2, nêu lại với hình dạng cụ thể.
+- **GN08 chỉ kiểm chuỗi `VIOLATION`, không kiểm mã thoát và không so tập `NOTE:` với bên
+  đọc mốc** (Ngoài-5, high): hai trong ba vế của AC-6 («thoát 0 · không NOTE mới») KHÔNG có
+  phép đo; finder chứng: `pre-merge-check.sh` thoát 1 + in NOTE mới → GN08 vẫn PASS. Owner
+  ghi Known limits để ship; đây là lỗ đo trên AC bảo vệ kho tiêu thụ, nên ghi rõ.
+- **GN09/GN10 ghim chuỗi nội dung, không ghim HẠNG cờ** (Ngoài-6): đổi `finfo`↔`fwarn` ở
+  cả hai cổng mà ca không kêu; hạng chỉ được canh gián tiếp ở Cổng 2 bởi `norm()` của suite
+  plugins, Cổng 1 không có lưới.
+- **E7 khai một phép kiểm CẤU TRÚC mà GN07 chỉ đo ĐẦU RA** (Ngoài-7) — cùng lỗ Ngoài-12/24
+  round 2.
+- **Cụm ngoài vùng phủ** (2/7 lỗi rơi vào `_acceptance/config.yaml` và `evals.yaml` của
+  chính hồ sơ): owner quyết RÚT — hai tệp là cấu hình/lời khai, không phải hành vi, và đã
+  nằm trong `ngoaiVatGlobs` của vòng.
+
+Hai điều phiên lái tự tìm ra, không lượt chấm nào bắt, đã thành hạt giống có ngưỡng:
+làn V (`khong-can-nguoi.mjs`) chỉ đọc hai mục của `evidence-report.md` mà bộ tổng hợp để
+rỗng, nên in «sẽ machine-cleared» trên hồ sơ còn 29 rồi 7 mục chưa định đoạt — **đã KHÔNG đi
+làn V, hồ sơ này ký tay** (`docs/plans/2026-09-20-hat-giong-lan-v-mu-voi-review-findings.md`);
+và args S4 lắp tay sót một trường khác nhau ở hai lượt liên tiếp
+(`docs/plans/2026-09-20-hat-giong-args-s4-lap-tay-sot-truong.md`).
