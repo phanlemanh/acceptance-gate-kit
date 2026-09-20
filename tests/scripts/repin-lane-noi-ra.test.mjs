@@ -126,6 +126,12 @@ human_signoff: Nguoi Ky 2026-09-19
 `;
 
 // Kho git tạm với MỘT hồ sơ. toanMay=true → hồ sơ chỉ có eval máy (chiều im).
+// `status: implemented` chứ không phải trạng thái đã ký: tệp ca KHÔNG phải bộ đọc
+// trạng thái ký (làn và recheck không đọc `contract.md` để quyết gì ở đây), nên
+// chuỗi ấy trong tệp ca chỉ làm lưới RT13 kêu. Cùng lối với repin-fixture.mjs và
+// tiền lệ ghim-lai-tren-lop-cu (entry d-20260911T162950Z-14) — KHÔNG khai gạch
+// BO-DOC-KHAI-GACH, vì sửa khối đó kéo hồ sơ đã ký ra-co-ten-lam-va-trao vào
+// phạm vi diff và lộ pin cũ của nó.
 function mkKho({ toanMay = false, evals = null } = {}) {
   const root = mk('kho-');
   const git = (...a) => execFileSync('git', ['-C', root, '-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -138,7 +144,7 @@ function mkKho({ toanMay = false, evals = null } = {}) {
   fs.writeFileSync(path.join(root, 'rang.sh'), 'exit 0\n');
   fs.writeFileSync(path.join(root, 'apps', 'x', 'a.ts'), 'v1\n');
   fs.writeFileSync(path.join(ws, 'rang', 'r.mjs'), '// v1\n');
-  fs.writeFileSync(path.join(ws, 'contract.md'), `---\nschema_version: 1\nfeature: ${slug}\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [ui]\nstatus: signed-off\napproved_by: Nguoi Ky\napproved_at: 2026-09-19\n---\n\n# Contract ${slug}\n\n## Criteria\n\n- AC-a: Given x, When y, Then z.\n`);
+  fs.writeFileSync(path.join(ws, 'contract.md'), `---\nschema_version: 1\nfeature: ${slug}\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [ui]\nstatus: implemented\napproved_by: Nguoi Ky\napproved_at: 2026-09-19\n---\n\n# Contract ${slug}\n\n## Criteria\n\n- AC-a: Given x, When y, Then z.\n`);
   const body = evals !== null ? evals : (toanMay ? EVALS_TOAN_MAY : EVALS_MA_TRAN);
   fs.writeFileSync(path.join(ws, 'evals.yaml'), body.replaceAll('feat-gn', slug));
   git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'impl');
@@ -305,6 +311,90 @@ CASES.push({
     { pin: 'section thieu AC khong chot may', make: () => mutLane('${veAcKhong}', '') },
     { pin: 'got AC bang ton tai', make: () => mutLane('evs.every(e => !core.isRepinMachineEval(e))', 'evs.some(e => !core.isRepinMachineEval(e))') },
     { pin: 'not-run tinh la chot', make: () => mutLane('evs.every(e => !core.isRepinMachineEval(e))', "evs.every(e => !core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))") },
+  ],
+});
+
+// ── GN04 ────────────────────────────────────────────────────────────────────
+CASES.push({
+  id: 'GN04',
+  title: 'khoá dòng ghim của script == khoá khuôn REPIN-TEMPLATE, cả ca đủ ba khoá tuỳ chọn',
+  real(lane) {
+    const errs = [];
+    const skill = fs.readFileSync(SKILL, 'utf8');
+    const m = skill.match(/<!-- <<<REPIN-TEMPLATE -->\s*```\n([\s\S]*?)```\s*<!-- REPIN-TEMPLATE>>> -->/);
+    if (!m) return ['khuon SKILL thieu: khong thay marker REPIN-TEMPLATE'];
+    const tl = m[1].split('\n').find(l => l.includes('"kind":"repin"'));
+    const filled = tl.replaceAll('<ISO>', '2026-09-20T00:00:00Z').replaceAll('<id>', 'x').replaceAll('<40-hex>', 'a'.repeat(40)).replaceAll('"<E>"', '"E1"');
+    const tKeys = Object.keys(JSON.parse(filled));
+    for (const k of ['evals_not_machine', 'evals_not_machine_touched']) {
+      if (!tKeys.includes(k)) errs.push(`khuon SKILL thieu khoa ${k}`);
+    }
+    // Hồ sơ đủ BA khoá tuỳ chọn: ma trận + diff chạm paths E6.
+    const f = mkKho();
+    fs.writeFileSync(path.join(f.root, 'apps', 'x', 'a.ts'), 'v2\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'cham');
+    const r = chayLan(f.root, f.slug, ['--write'], lane);
+    if (r.status !== 0) return errs.concat(`lan exit ${r.status}: ${cut(r.stderr, 220)}`);
+    const dKeys = Object.keys(dongRepinCuoi(f.logPath));
+    if (JSON.stringify(dKeys) !== JSON.stringify(tKeys)) errs.push(`khuon SKILL thieu hoac lech: script viet ${dKeys.join(',')} · khuon ${tKeys.join(',')}`);
+    // Hồ sơ toàn máy: tập khoá = khuôn TRỪ đúng ba khoá tuỳ chọn.
+    const g = mkKho({ toanMay: true });
+    const rg = chayLan(g.root, g.slug, ['--write'], lane);
+    if (rg.status !== 0) return errs.concat(`ho so toan may exit ${rg.status}`);
+    const gKeys = Object.keys(dongRepinCuoi(g.logPath));
+    const mong = tKeys.filter(k => !['evals_not_run', 'evals_not_machine', 'evals_not_machine_touched'].includes(k));
+    if (JSON.stringify(gKeys) !== JSON.stringify(mong)) errs.push(`ho so toan may: script viet ${gKeys.join(',')} · mong ${mong.join(',')}`);
+    return errs;
+  },
+  mutants: [
+    { pin: 'khuon SKILL thieu',
+      judge: (p) => { const bak = fs.readFileSync(SKILL, 'utf8'); try { fs.writeFileSync(SKILL, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN04').real(LANE); } finally { fs.writeFileSync(SKILL, bak); } },
+      make: () => mutant(SKILL, ',"evals_not_machine":["<E>"]', '') },
+  ],
+});
+
+// ── GN05 ────────────────────────────────────────────────────────────────────
+CASES.push({
+  id: 'GN05',
+  title: 'SKILL + GUIDE §7.1 khai khoá touched; lệnh đếm ngưỡng của GUIDE chạy thật',
+  real() {
+    const errs = [];
+    const skill = fs.readFileSync(SKILL, 'utf8');
+    const guide = fs.readFileSync(GUIDE, 'utf8');
+    // Đo ĐÚNG câu giới hạn của nghi thức re-pin, không chỉ «tên khoá có xuất hiện
+    // đâu đó»: khuôn REPIN-TEMPLATE cũng mang tên khoá, nên phép đo lỏng sẽ xanh
+    // ngay cả khi câu giới hạn bị gỡ (mutant bắt được đúng lỗ này).
+    const cauGH = skill.match(/Giới hạn khai: eval `ui-check`\/`judgment`[^\n]*/);
+    const menhDe = [
+      /`evals_not_machine` liệt mọi id ngoài làn máy/,
+      /liệt những id mà diff từ pin cũ tới HEAD chạm `paths`/,
+      /section Re-pin nêu thêm `AC không có chốt máy`/,
+    ];
+    if (!cauGH || !menhDe.every(re => re.test(cauGH[0]))) errs.push('SKILL thieu cau touched');
+    if (!/evals_not_machine_touched/.test(guide)) errs.push('GUIDE thieu cau touched');
+    const mL = guide.match(/```bash\n(grep -l '"evals_not_machine_touched"'[^\n]*)\n```/);
+    if (!mL) return errs.concat('GUIDE khong con lenh dem');
+    const lenh = mL[1];
+    // Chạy THẬT: kho có đúng 1 hồ sơ mang khoá → "1"; kho không hồ sơ nào → "0".
+    const f = mkKho();
+    fs.writeFileSync(path.join(f.root, 'apps', 'x', 'a.ts'), 'v2\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'cham');
+    chayLan(f.root, f.slug, ['--write']);
+    const co = spawnSync('bash', ['-c', lenh], { cwd: f.root, encoding: 'utf8' });
+    if (co.stdout.trim() !== '1') errs.push(`GUIDE khong con lenh dem dung: kho co 1 ho so mang khoa nhung lenh in "${co.stdout.trim()}"`);
+    const g = mkKho({ toanMay: true });
+    chayLan(g.root, g.slug, ['--write']);
+    const khong = spawnSync('bash', ['-c', lenh], { cwd: g.root, encoding: 'utf8' });
+    if (khong.stdout.trim() !== '0') errs.push(`lenh dem sai o kho sach: in "${khong.stdout.trim()}"`);
+    return errs;
+  },
+  mutants: [
+    { pin: 'GUIDE khong con lenh dem',
+      judge: (p) => { const bak = fs.readFileSync(GUIDE, 'utf8'); try { fs.writeFileSync(GUIDE, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN05').real(); } finally { fs.writeFileSync(GUIDE, bak); } },
+      make: () => mutant(GUIDE, "grep -l '\"evals_not_machine_touched\"'", "grep -l 'KHONG-CO-KHOA-NAY'") },
+    { pin: 'SKILL thieu cau touched',
+      judge: (p) => { const bak = fs.readFileSync(SKILL, 'utf8'); try { fs.writeFileSync(SKILL, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN05').real(); } finally { fs.writeFileSync(SKILL, bak); } },
+      make: () => mutant(SKILL, 'liệt những id mà diff từ pin cũ tới HEAD chạm `paths`', 'liệt vài thứ') },
   ],
 });
 

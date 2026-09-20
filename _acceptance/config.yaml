@@ -196,6 +196,8 @@ executors:
     gnro_diff_cham: "GNRO_CASES=GN06 node tests/scripts/repin-lane-noi-ra.test.mjs"
     gnro_glob_mot_nguon: "GNRO_CASES=GN07 node tests/scripts/repin-lane-noi-ra.test.mjs"
     gnro_section: "GNRO_CASES=GN03 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_khuon_skill: "GNRO_CASES=GN04 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_guide_nguong: "GNRO_CASES=GN05 node tests/scripts/repin-lane-noi-ra.test.mjs"
     # --- thuoc-khai-mot-dang-do-mot-neo (06/09) --- hai thuoc da va (khoi rieng, cuoi executors.script)
     # KHONG sinh khoa song song cho nhom lane: o do tro thang itgk_lane_doc_khong_doi
     # (chinh khoa dang do) — gap-probe P0, khoa moi viet dung se che loi tang giai chuoi.
