@@ -5,7 +5,7 @@ slug: ghim-lai-noi-ra-o-khong-do
 owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/repin-lane.mjs · scripts/gate-card.js · scripts/eval-coverage-lint.js · SKILL feature-loop · tests/scripts/ — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs
 surfaces: [cli]
-status: verified
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-09-20
 design_doc: docs/superpowers/specs/2026-09-20-ghim-lai-noi-ra-o-khong-do-design.md
@@ -111,3 +111,43 @@ judgment `inputs` coi như `paths` → Never, hai trường hai nghĩa theo eval
   nhận ba nhát đó mà không đòi chứng thêm. Ngưỡng: vòng kế chạm trần lần nữa với CÙNG lý do
   thì không được khai lại lối (1) — đó là dấu hiệu thật (entry d-20260920T092117Z-26).
 - Bảng dự báo 5 dòng số (luật (c) CLAUDE.md): làm-xong→quyết-được **=** · lượt gọi người/vòng **=** (mục tiêu ≤3, T2) · vòng bị hạ tầng đốt **=** · token máy/vòng **↓ nhẹ** (không có ma trận lớp cũ nhiều mốc như vòng 11/09) · phút máy/lượt chấm **=**. Điều kiện tin cậy: đường verdict không đổi thành phần (không chạm S4/finder/refute).
+
+### Known limits — owner định đoạt tại Cổng Bằng chứng round 2 (20/09/2026)
+
+Hai mươi chín mục ngoài hợp đồng gộp về các lỗ dưới đây; số Ngoài-N là đánh số của thẻ
+lượt chấm round 2. Mục 10 và 11 owner cho NÂNG PHẠM VI SỬA NGAY (không nằm ở đây);
+mục 17 và 29 đi hạt giống riêng.
+
+- **`pathsCuaEval` đọc `evals.yaml` bằng tay, thiếu chốt block-scalar và không biết thụt
+  dòng** (Ngoài-1 · 7 · 8 · 14 · 20 · 25). Bốn hình dạng YAML hợp lệ cho kết quả sai
+  LẶNG. Latent chứ không live: dò 283 `evals.yaml` thật ở 6 kho → 0 lệch hôm nay. Việc
+  hợp nhất ba bộ đọc: `docs/plans/2026-09-20-hat-giong-hop-nhat-bo-doc-paths.md`.
+- **Cờ vàng «pin đã chạm vật ngoài làn máy» bị lượt ghim KẾ xoá, không phải bị chứng lại
+  xoá** (Ngoài-6 · 19 · 26). Chạy thêm một lượt ghim sạch là đường tắt tắt cờ. Ngưỡng mở
+  vòng CHẶN đã khai ở Out of scope và GUIDE §7.1.
+- **`chotMay` của thẻ fail-OPEN lặng khi `evals.yaml` thiếu/hỏng** (Ngoài-3 · 18 · 27):
+  thẻ render y như mọi AC đều có chốt máy, trong khi chính tệp ấy có tiền lệ ngược
+  (cờ vàng «thẻ không đọc được `lib/lop-nhin-thay.cjs`»).
+- **`criterion` không chuẩn hoá trong phép gộp AC của thẻ** (Ngoài-21) — lệch với hai bộ
+  đọc khác trong cùng tệp khi `criterion` mang nháy hoặc chú thích.
+- **`chamTuPin` fail-IM khi không giải được pin cũ** (Ngoài-2) — xem hạt giống
+  `docs/plans/2026-09-20-hat-giong-pin-phan-biet-khong-cham-voi-khong-tinh-duoc.md`.
+- **Chú thích trên `pathsCuaEval` khai một giới hạn kèm ngưỡng mà hạt giống chưa tồn
+  tại** (Ngoài-4) — nay đã có chỗ trỏ (hạt giống hợp-nhất-bộ-đọc ở trên).
+- **Tên khoá `evals_not_machine` tính bằng «không phải test/script» trong khi SKILL và
+  GUIDE mô tả là «ui-check/judgment»** (Ngoài-5) — trùng nhau với bảng executor hiện
+  tại, lệch nếu kit thêm loại executor mới.
+- **Lệnh đếm ngưỡng ở GUIDE §7.1 đếm hồ sơ ĐANG mang khoá, không đếm «hồi quy đã lọt»,
+  và không bao giờ giảm** (Ngoài-9 · 16) — người đọc dễ tưởng ngưỡng đã đạt.
+- **Vị từ «AC không có chốt máy» viết HAI BẢN** (Ngoài-15) — làn ghi và thẻ đọc dựng lại
+  riêng; round-trip của GN09 giữ hai bản khớp trên ma trận hiện có, không phủ ca ngoài.
+- **Lời khai trong `evals.yaml` hứa nhiều hơn ca thật đo** (Ngoài-12 · 23 · 24): E7 khai
+  một phép kiểm CẤU TRÚC («làn import `globToRe`») mà ca chỉ đo ĐẦU RA; vài chiều đỏ khai
+  trong `expected` không tồn tại thành mutant.
+- **Chiều đặc hiệu của GN11 đo PROXY (số dòng) chứ không đo NỘI DUNG** (Ngoài-13) — câu
+  giá W8 rò sang cảnh báo khác vẫn giữ nguyên số dòng nên ca im.
+- **`evals_not_machine_touched` so diff tới CÂY LÀM VIỆC sau khi executor chạy, không tới
+  HEAD như SKILL/GUIDE khai** (Ngoài-28) — lệch trong ca hiếm khi executor để lại tạo
+  phẩm trong cây.
+- **Chấp nhận, không sửa** (Ngoài-22): section Re-pin lặp id trong câu «không khai
+  paths» — dư thừa nhưng không sai, và đúng khuôn đã duyệt.
