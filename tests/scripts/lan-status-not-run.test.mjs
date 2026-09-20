@@ -363,8 +363,8 @@ const TIEM_HAU_TO_SAP_LAI = [[LANE_REL, THAN_HAU_TO,
 //     làn không còn mang trường trạng-thái, nên làn CHẠY ô đã khai không-chạy.
 //     Ca chỉ gọi hàm bên đọc sẽ XANH; ca đi qua cả hai đường phải ĐỎ.
 const TIEM_BEN_GHI_MAT_TRUONG = [[LANE_REL,
-  "  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'status']);",
-  "  const evalRecords = parseEvals(evalsText, ['executor', 'cmd']);"]];
+  "  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'status', 'criterion']);",
+  "  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'criterion']);"]];
 // Hoàn nguyên fail-OPEN của vế hai (rà cuối 12/09/2026, Important 2).
 const TIEM_FAIL_OPEN = [[CORE_REL,
   '  if (reportText == null) return { xungDot: [], khongDoiChieuDuoc: skipped.slice() };',

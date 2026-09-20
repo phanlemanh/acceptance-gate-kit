@@ -188,7 +188,7 @@ const perSlug = slugs.map(slug => {
   // của nhau trên cùng dữ liệu, đúng bằng xây dựng chứ không phải hai luật gõ
   // tay đi song song. core.REPIN_MACHINE_EXECUTORS đã có hàng trong
   // AG-ENGINE-TABLE (2.9.0), nay mới thật sự được làn gọi.
-  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'status']);
+  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'status', 'criterion']);
   const evals = evalRecords
     .filter(e => core.isRepinMachineEval(e))
     .map(e => {
@@ -201,7 +201,19 @@ const perSlug = slugs.map(slug => {
     .filter(e => core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))
     .filter(e => !core.isRepinMachineEval(e))
     .map(e => e.id);
-  return { slug, ws, reportPath, report, evalsPath, evalsText, evals, skipped };
+  // Ô NGOÀI LÀN MÁY (ui-check/judgment): làn không chạy chúng bao giờ — giới hạn
+  // đã khai (GUIDE §7.1, ADR 0014). Trước hồ sơ này pin IM về chúng, nên một hợp
+  // đồng làm đúng nghĩa vụ lớp nhìn-thấy mất chốt máy mà không dòng nào nói (đo ở
+  // crm 20/09: 6 hồ sơ vừa có ui-check vừa từng ghim; `tiep-thi-tuyen-doi-tac`
+  // ghim 6 lần, E6/E9 vắng cả 6 lượt).
+  // KIỂU thắng TRẠNG THÁI: ô ngoài làn máy khai `status: not-run` chỉ vào mảng
+  // NÀY, không vào `skipped` — `skipped` đã lọc kiểu máy TRƯỚC, nên ba tập
+  // (khoá evals_exit · skipped · ngoaiMay) rời nhau đúng bằng xây dựng, không
+  // bằng hai luật gõ tay đi song song.
+  const ngoaiMay = evalRecords
+    .filter(e => !core.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase()))
+    .map(e => e.id);
+  return { slug, ws, reportPath, report, evalsPath, evalsText, evals, skipped, ngoaiMay, evalRecords };
 });
 
 // ── luật hai vế (hồ sơ lan-doc-status-not-run, 2026-09-12): một ô khai
@@ -343,9 +355,14 @@ for (const s of perSlug) {
   // rỗng) — hồ sơ không khai ô nào thì cả hai chỗ phải sạch, không phải một
   // khoá luôn có mặt mang giá trị rỗng.
   const boQua = s.skipped;
-  const line = JSON.stringify(boQua.length
-    ? { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit, evals_not_run: boQua }
-    : { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit });
+  // Ba khoá tuỳ chọn cùng LUẬT HIỆN DIỆN: rỗng thì VẮNG HẲN. Object.assign giữ
+  // thứ tự chèn, nên thứ tự khoá khớp khuôn REPIN-TEMPLATE của SKILL với MỌI tổ
+  // hợp có/không — ternary lồng nhau cho 8 nhánh là chỗ khuôn sẽ trôi.
+  const line = JSON.stringify(Object.assign(
+    { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit },
+    boQua.length ? { evals_not_run: boQua } : {},
+    s.ngoaiMay.length ? { evals_not_machine: s.ngoaiMay } : {},
+  ));
   const veGioiHan = gioiHan.length ? ` · đạt-có-giới-hạn: ${gioiHan.join(', ')}` : '';
   const veHet = hetGioiHan.length ? ` · giới hạn đã khai không còn: ${hetGioiHan.join(', ')}` : '';
   const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${boQua.join(', ')}` : '';

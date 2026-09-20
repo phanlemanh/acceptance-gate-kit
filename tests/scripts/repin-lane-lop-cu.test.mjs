@@ -416,7 +416,7 @@ function judgeGL07(lane) {
 }
 ca('GL07', 'lối đi tiếp rút từ stderr: lệnh dò chạy từ --root → --ag-root in ra → bên đọc cũ nhận', judgeGL07, [
   { pin: 'lenh do khong chay duoc tu --root', make: () => mutantLane('shq(RESOLVER)', "'feature-loop/scripts/resolve-plugin.mjs'") },
-  { pin: 'recorded no evals_exit', make: () => mutantLane(', evals_exit: evalsExit })', ' })') },
+  { pin: 'recorded no evals_exit', make: () => mutantLane(', evals_exit: evalsExit },', ' },') },
 ]);
 
 const RESULT_RE = /^\s*(PASS|FAIL): GL\d\d/;
