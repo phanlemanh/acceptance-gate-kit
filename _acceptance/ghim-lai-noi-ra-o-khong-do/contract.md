@@ -5,7 +5,7 @@ slug: ghim-lai-noi-ra-o-khong-do
 owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/repin-lane.mjs · scripts/gate-card.js · scripts/eval-coverage-lint.js · SKILL feature-loop · tests/scripts/ — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-09-20
 design_doc: docs/superpowers/specs/2026-09-20-ghim-lai-noi-ra-o-khong-do-design.md
