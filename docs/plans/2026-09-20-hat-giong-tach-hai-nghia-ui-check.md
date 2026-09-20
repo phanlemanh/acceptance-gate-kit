@@ -20,6 +20,26 @@ Làm đúng (1) thì mất chốt máy ở (2). Vòng gốc chỉ làm pin NÓI 
 | (ii) trường `lane: machine` trên eval ngoài máy | kiểu executor giữ nghĩa (1) | thêm một lời khai người gõ — lớp ADR 0016 phải dựng luật hai vế |
 | (iii) nghĩa (1) đổi neo sang `layer: ui-observed` | một trường một nghĩa | 4 bộ đọc đổi cùng lúc, hồ sơ cũ đi đường đọc-cũ |
 
+## Hai số đo thêm (20/09, từ một phiên kit khác đang làm ở kho crm)
+
+**Lối (iii) — «bắt kho đổi nhãn» — đắt hơn bảng trên nói.** Đổi nhãn `ui-check` → `script`
+ở MỘT hồ sơ kéo theo hồ sơ **đã đóng**: ở crm, hai eval của vòng đang chấm chạy lại thước
+của `nhan-ung-dung-noi-tieng-viet` (đã ký, chủ kho cấm mở lại), và chính thước ấy mang
+khuyết tật cần sửa. Lối (i) và (ii) không chạm hồ sơ đóng. Đây là lý do thứ hai để A/B đi
+trước C, ngoài lý do «rẻ nhất và độc lập».
+
+**«Tươi theo đường» và «chạy theo executor» là HAI câu hỏi tách được.** Kho crm đã có một
+hiện thân chạy thật, không phụ thuộc executor:
+`_acceptance/thuoc-khai-dung-tieng/rang/ghim-lai-da-xong.mjs` — rút mọi đường trong khối
+`paths:` của `evals.yaml` (KHÔNG lọc theo executor), băm nội dung tại `verified_commit` và
+tại cây, gọi tên từng đường lệch. Nó bắt đúng một ca thật 20/09 (bằng chứng `nen-chat` hoá
+cũ vì `.githooks/gate-shape.json` đổi; sau khi ghim lại: 0/14 đường lệch).
+
+Hệ quả cho thiết kế: pin có thể nói một câu MẠNH HƠN `evals_not_machine_touched` hôm nay —
+«ô này không chạy lại, **và** `paths` của nó không đổi từ lần ký» — tức phân biệt
+«không chứng lại nhưng vật đứng yên» với «không chứng lại và vật đã đổi». Khoá
+`evals_not_machine_touched` của vòng 20/09 mới nói được vế sau.
+
 ## Ngưỡng mở ô
 
 - ≥1 hồi quy UI lọt qua một lượt ghim mà dòng pin mang `evals_not_machine_touched` (đếm bằng
