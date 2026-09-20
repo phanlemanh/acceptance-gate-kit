@@ -203,6 +203,7 @@ executors:
     gnro_the_cong_1: "GNRO_CASES=GN10 node tests/scripts/repin-lane-noi-ra.test.mjs"
     gnro_w8_gia: "GNRO_CASES=GN11 node tests/scripts/repin-lane-noi-ra.test.mjs"
     gnro_bo_chon: "GNRO_CASES=GN12 node tests/scripts/repin-lane-noi-ra.test.mjs"
+    gnro_khong_ghi_de: "GNRO_CASES=GN13 node tests/scripts/repin-lane-noi-ra.test.mjs"
     # Bốn suite của feature_loop.suite_keys + bản đồ, VÀ chốt tệp ca mới thật sự được
     # suite scripts nhặt qua glob (grep chọn dòng; pipefail giữ mã thoát của suite).
     # KHÔNG đưa suite qua ống vào `grep -q`: grep thoát ngay khi khớp, suite nhận

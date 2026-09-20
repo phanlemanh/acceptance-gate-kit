@@ -194,3 +194,29 @@ clean. Chiều im của section (hồ sơ toàn eval máy) so byte với **write
 ## 6. Ngoài phạm vi
 
 Xem `## Out of scope` của contract — nguồn sự thật phạm vi.
+
+## 7. Nâng phạm vi sau lượt chấm 2 (owner trả lại ở Cổng Bằng chứng 20/09)
+
+Hai lớp do chính lượt chấm tìm ra, nằm trong PHÉP ĐO của hồ sơ này chứ không trong
+sản phẩm. Owner chọn sửa trước khi vật rời tay, nên chúng thành tiêu chí:
+
+**AC-8 mở rộng — bộ đếm của chiều im phải có đối chứng dương.** Phép so «`surfaces: [api]`
+ra cùng số dòng cảnh báo với bản 2.17.0» đếm bằng `/^\[/`, mà dòng cảnh báo của lint THỤT
+ĐẦU DÒNG (`      [slug] W6 …`) — neo ấy khớp 0 dòng, nên phép so là `0 === 0`: một câu xanh
+chưa từng có khả năng đỏ, đúng trong hồ sơ dựng ra để chặn bằng-chứng-tự-dối. Sửa: neo
+`/^\s*\[/`, cộng hai vế mới — hồ sơ `surfaces: [ui]` phải đếm > 0, và hai hồ sơ phải cho
+số KHÁC nhau — cộng một mutant hoàn nguyên neo cũ.
+
+**AC-10 mới — bộ ca không được ghi đè cây làm việc.** GN04/GN05/GN11 tiêm vào tệp văn bản
+và bản đầu làm theo lối `bak = read(X); write(X, mutant); … finally write(X, bak)` — tức
+ghi thẳng vào `SKILL.md`, `GUIDE.md`, `eval-coverage-lint.js` đang theo dõi git. Hai đường
+hỏng: E12 chạy lại trọn suite scripts **song song** với E4/E5/E11 nên hai ca cùng ghi một
+tệp là đua thật; và `finally` không chạy khi tiến trình bị giết, nên một lượt chấm bị cắt
+để lại bản tiêm trong cây. Sửa: mọi mutant đi qua `mutant()` (bản sao trong thư mục tạm) và
+ca nhận đường dẫn bản sao qua tham số `ref`, cùng lối GN09/GN10 đã dùng. Phép đo là HÀNH VI
+(`git status` trước/sau khi chạy ba ca CÓ mutant), không phải grep khuôn viết — bản đầu của
+GN13 grep `writeFileSync(GUIDE` và tự bắt chính chuỗi mô tả mutant của nó.
+
+Hai thứ phụ trợ cho bản sao chạy được: tệp ca nhận gốc kho qua `GNRO_ROOT` (bản sao ở thư
+mục tạm không suy ra gốc từ vị trí nó), và `GNRO_SKIP_MUTANTS` để một bản sao chạy chiều
+thật không tự tiêm tiếp.

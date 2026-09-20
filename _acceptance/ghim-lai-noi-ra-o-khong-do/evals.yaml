@@ -250,3 +250,19 @@ evals:
       - "docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md"
       - "tests/plugins/run-tests.sh"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E15
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.gnro_khong_ghi_de
+    expected: >-
+      Ca GN13; stdout có đúng một dòng kết quả, mang "GN13". Đo HÀNH VI, không grep khuôn
+      viết: chụp `git status --porcelain` của năm tệp nguồn theo dõi (SKILL.md · GUIDE.md ·
+      eval-coverage-lint.js · gate-card.js · repin-lane.mjs), chạy chính tệp ca cho
+      GN04,GN05,GN11 CÓ mutant, chụp lại — hai bản phải BẰNG nhau. Chiều đỏ: bản sao tệp ca
+      hoàn nguyên MỘT judge về lối ghi-đè-rồi-khôi-phục (chuỗi mũi tiêm ghép động nên không
+      khớp chính dòng mô tả nó) → ĐỎ ghim "ca ghi de tep nguon that"; ca tự `git checkout`
+      trả cây về trạng thái trước đo.
+    paths:
+      - "tests/scripts/repin-lane-noi-ra.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

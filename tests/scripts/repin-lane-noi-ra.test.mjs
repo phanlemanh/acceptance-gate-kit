@@ -12,6 +12,7 @@
 //  - Mọi đường dẫn suy từ vị trí tệp này. Mốc git vắng → ca ĐỎ có tên, không xanh lặng.
 //  - Mỗi ca in ĐÚNG MỘT dòng `PASS: GNxx …` / `FAIL: GNxx … (DO: …)`.
 import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -19,7 +20,10 @@ import { fileURLToPath } from 'node:url';
 
 const SELF = fileURLToPath(import.meta.url);
 const HERE = path.dirname(SELF);
-const ROOT = path.resolve(HERE, '..', '..');
+// GNRO_ROOT: bản sao CỦA CHÍNH tệp ca chạy từ thư mục tạm, nên `HERE` của nó
+// không suy ra gốc kho — mutant truyền gốc thật vào. Lượt chạy bình thường
+// không có biến này và vẫn suy từ vị trí tệp (bất biến: không hardcode ROOT).
+const ROOT = process.env.GNRO_ROOT || path.resolve(HERE, '..', '..');
 const LANE = path.join(ROOT, 'feature-loop', 'scripts', 'repin-lane.mjs');
 const CARD = path.join(ROOT, 'scripts', 'gate-card.js');
 const LINT = path.join(ROOT, 'scripts', 'eval-coverage-lint.js');
@@ -33,6 +37,15 @@ process.on('exit', () => { try { fs.rmSync(TMP, { recursive: true, force: true }
 let seq = 0;
 const mk = (p) => { const d = path.join(TMP, `${p}${++seq}`); fs.mkdirSync(d, { recursive: true }); return d; };
 const cut = (s, n) => (String(s).length > n ? String(s).slice(0, n) + '…' : String(s));
+
+// Bỏ chiều đỏ là một trạng thái phải LỘ RA, không phải một công tắc lặng. Chỉ
+// chính tệp ca đặt được nó (bắt tay nội bộ), và lượt bỏ chiều đỏ luôn nối hậu tố
+// vào dòng kết quả rồi thoát KHÁC 0 — nếu không, xuất một biến môi trường ở khoá
+// executor hay ở CI là mọi ca in PASS với 0 mutant chạy (gap-probe P0, lượt nâng
+// phạm vi 20/09).
+const BAT_TAY = 'gnro-noi-bo-' + '5f3a9c21';
+const BO_CHIEU_DO = process.env.GNRO_SKIP_MUTANTS === BAT_TAY;
+const BO_CHIEU_DO_LA = !!process.env.GNRO_SKIP_MUTANTS && !BO_CHIEU_DO;
 
 // ── fixture: evals.yaml theo ma trận ────────────────────────────────────────
 // `paths` viết dạng BLOCK SEQ — đúng dạng kho tiêu thụ dùng (đo ở crm 20/09:
@@ -319,9 +332,12 @@ CASES.push({
 CASES.push({
   id: 'GN04',
   title: 'khoá dòng ghim của script == khoá khuôn REPIN-TEMPLATE, cả ca đủ ba khoá tuỳ chọn',
-  real(lane) {
+  // `ref` = các đường dẫn tệp văn bản ca đọc; mutant truyền BẢN SAO vào đây thay
+  // vì ghi đè cây thật (lượt chấm 2, finding «đua với làn eval song song»).
+  real(ref = {}) {
+    const lane = ref.lane || LANE;
     const errs = [];
-    const skill = fs.readFileSync(SKILL, 'utf8');
+    const skill = fs.readFileSync(ref.skill || SKILL, 'utf8');
     const m = skill.match(/<!-- <<<REPIN-TEMPLATE -->\s*```\n([\s\S]*?)```\s*<!-- REPIN-TEMPLATE>>> -->/);
     if (!m) return ['khuon SKILL thieu: khong thay marker REPIN-TEMPLATE'];
     const tl = m[1].split('\n').find(l => l.includes('"kind":"repin"'));
@@ -349,7 +365,7 @@ CASES.push({
   },
   mutants: [
     { pin: 'khuon SKILL thieu',
-      judge: (p) => { const bak = fs.readFileSync(SKILL, 'utf8'); try { fs.writeFileSync(SKILL, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN04').real(LANE); } finally { fs.writeFileSync(SKILL, bak); } },
+      judge: (p) => CASES.find(c => c.id === 'GN04').real({ skill: p }),
       make: () => mutant(SKILL, ',"evals_not_machine":["<E>"]', '') },
   ],
 });
@@ -358,10 +374,10 @@ CASES.push({
 CASES.push({
   id: 'GN05',
   title: 'SKILL + GUIDE §7.1 khai khoá touched; lệnh đếm ngưỡng của GUIDE chạy thật',
-  real() {
+  real(ref = {}) {
     const errs = [];
-    const skill = fs.readFileSync(SKILL, 'utf8');
-    const guide = fs.readFileSync(GUIDE, 'utf8');
+    const skill = fs.readFileSync(ref.skill || SKILL, 'utf8');
+    const guide = fs.readFileSync(ref.guide || GUIDE, 'utf8');
     // Đo ĐÚNG câu giới hạn của nghi thức re-pin, không chỉ «tên khoá có xuất hiện
     // đâu đó»: khuôn REPIN-TEMPLATE cũng mang tên khoá, nên phép đo lỏng sẽ xanh
     // ngay cả khi câu giới hạn bị gỡ (mutant bắt được đúng lỗ này).
@@ -391,10 +407,10 @@ CASES.push({
   },
   mutants: [
     { pin: 'GUIDE khong con lenh dem',
-      judge: (p) => { const bak = fs.readFileSync(GUIDE, 'utf8'); try { fs.writeFileSync(GUIDE, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN05').real(); } finally { fs.writeFileSync(GUIDE, bak); } },
+      judge: (p) => CASES.find(c => c.id === 'GN05').real({ guide: p }),
       make: () => mutant(GUIDE, "grep -l '\"evals_not_machine_touched\"'", "grep -l 'KHONG-CO-KHOA-NAY'") },
     { pin: 'SKILL thieu cau touched',
-      judge: (p) => { const bak = fs.readFileSync(SKILL, 'utf8'); try { fs.writeFileSync(SKILL, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN05').real(); } finally { fs.writeFileSync(SKILL, bak); } },
+      judge: (p) => CASES.find(c => c.id === 'GN05').real({ skill: p }),
       make: () => mutant(SKILL, 'liệt những id mà diff từ pin cũ tới HEAD chạm `paths`', 'liệt vài thứ') },
   ],
 });
@@ -629,12 +645,13 @@ const lintMoc = (sha) => path.join(cayMoc(sha), 'scripts', 'eval-coverage-lint.j
 CASES.push({
   id: 'GN11',
   title: 'W8 giữ tiền tố cũ và NỐI câu giá; hợp đồng không có mặt người nhìn thì im',
-  real() {
+  real(ref = {}) {
     const errs = [];
+    const LINT_X = ref.lint || LINT;
     const f = mkKho();
     // Gỡ ui-check khỏi evals để W8 (nghĩa vụ lớp nhìn-thấy) nổ.
     fs.writeFileSync(path.join(f.ws, 'evals.yaml'), EVALS_TOAN_MAY.replace('slug: feat-may', `slug: ${f.slug}`));
-    const chay = (root, lint = LINT) => String(spawnSync(process.execPath, [lint, root], { encoding: 'utf8' }).stdout || '');
+    const chay = (root, lint = LINT_X) => String(spawnSync(process.execPath, [lint, root], { encoding: 'utf8' }).stdout || '');
     const out = chay(f.root);
     const w8 = out.split('\n').filter(l => /W8 surfaces include a human-visible/.test(l));
     if (!w8.length) return [`fixture hong: W8 khong no tren hop dong surfaces [ui] khong ui-check: ${cut(out, 200)}`];
@@ -644,21 +661,54 @@ CASES.push({
     }
     // CHIỀU IM: surfaces [api] → số dòng cảnh báo BẰNG bản mốc 2.17.0 trên cùng fixture.
     const g = mkKho();
-    fs.writeFileSync(path.join(g.ws, 'evals.yaml'), EVALS_TOAN_MAY.replace('slug: feat-may', `slug: ${g.slug}`));
+    // Fixture [api] phải sinh ≥1 cảnh báo, nếu không phép so chiều im lại là
+    // 0 === 0 theo cách khác (gap-probe P1 của lượt nâng phạm vi). `parseACs` chỉ
+    // nhận id dạng `AC-<số>`, nên ma trận id-chữ làm MỌI W im — ở đây dùng một
+    // tiêu chí NGƯỠNG id số mà eval của nó không khai ca dưới-ngưỡng → W1 nổ.
+    fs.writeFileSync(path.join(g.ws, 'evals.yaml'), 'evals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.suite\n    expected: >\n      Xanh: dưới 200ms.\n');
     const gc = path.join(g.ws, 'contract.md');
-    fs.writeFileSync(gc, fs.readFileSync(gc, 'utf8').replace('surfaces: [ui]', 'surfaces: [api]'));
-    const dem = (o) => o.split('\n').filter(l => /^\[/.test(l)).length;
+    fs.writeFileSync(gc, fs.readFileSync(gc, 'utf8')
+      .replace('surfaces: [ui]', 'surfaces: [api]')
+      .replace('- AC-a: Given x, When y, Then z.', '- AC-1: Given tải bình thường, When gọi API, Then thời gian phản hồi < 200ms.'));
+    // Dòng cảnh báo của lint THỤT ĐẦU DÒNG («      [slug] W6 …»), nên bộ đếm neo
+    // `^\[` khớp 0 dòng và phép so «chiều im» hoá 0 === 0 — hằng đúng, chưa từng
+    // có khả năng đỏ (lượt chấm 2 bắt được; sửa ở vòng nâng phạm vi).
+    const dem = (o) => o.split('\n').filter(l => /^\s*\[/.test(l)).length;
+    // ĐỐI CHỨNG DƯƠNG của chính bộ đếm: hồ sơ surfaces [ui] không ui-check PHẢI
+    // ra > 0 dòng. Không có vế này thì một bộ đếm hỏng lại cho 0 === 0 lần nữa.
+    // (Không so `nay` với `demUi`: hai hồ sơ tình cờ cùng số là chuyện thường,
+    //  vế ấy kêu oan mà không nói thêm gì về lực của phép đo.)
+    const demUi = dem(chay(f.root));
+    if (demUi === 0) errs.push(`bo dem chieu im hang dung: hop dong surfaces [ui] khong ui-check ma dem duoc 0 dong canh bao`);
     const nay = dem(chay(g.root));
     const cu = dem(chay(g.root, lintMoc(MOC)));
+    // Phép so chỉ có LỰC khi bản mốc thật sự in ra cái gì đó để so.
+    if (cu === 0) errs.push(`phep so chieu im khong co luc: ban ${MOC} in 0 dong tren ho so [api]`);
     if (nay !== cu) errs.push(`chieu im hong: surfaces [api] ra ${nay} dong canh bao, ban ${MOC} ra ${cu}`);
     return errs;
   },
   mutants: [
+    // Mutant của CHÍNH BỘ ĐẾM: hoàn nguyên neo `^\\[` (bản trước lượt chấm 2).
+    // Bản sao chạy chiều thật của GN11; nếu nó vẫn PASS thì phép đo không phân
+    // biệt được bộ đếm hỏng — đó đúng là lỗ đã lọt một lượt.
+    { pin: 'bo dem chieu im hang dung',
+      judge: (p) => {
+        const r = spawnSync(process.execPath, [p], { encoding: 'utf8', env: { ...process.env, GNRO_CASES: 'GN11', GNRO_SKIP_MUTANTS: BAT_TAY, GNRO_ROOT: ROOT } });
+        const out = String(r.stdout || '') + String(r.stderr || '');
+        // Bản sao PHẢI đỏ vì chính vế đối chứng dương mới thêm. Nó xanh nghĩa là
+        // phép đo lại không phân biệt được bộ đếm hỏng — lỗ cũ chưa đóng.
+        // Lượt bỏ chiều đỏ luôn thoát 1, nên mã thoát không phân biệt được gì —
+        // phán bằng CHÍNH dòng kết quả của ca.
+        return /FAIL: GN11/.test(out) && out.includes('bo dem chieu im hang dung') ? ['bo dem chieu im hang dung'] : [];
+      },
+      make: () => mutant(SELF, '/^\\s*\\[/.test(l)', '/^\\[/.test(l)') },
     { pin: 'W8 thieu cau gia',
-      judge: (p) => { const bak = fs.readFileSync(LINT, 'utf8'); try { fs.writeFileSync(LINT, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN11').real(); } finally { fs.writeFileSync(LINT, bak); } },
+      judge: (p) => CASES.find(c => c.id === 'GN11').real({ lint: p }),
       // Tiêm vào MỆNH ĐỀ mà ca đo (một trong ba chuỗi), không vào nhãn dẫn — đổi nhãn
       // thì câu giá vẫn nguyên và phép đo đúng khi im.
-      make: () => mutant(LINT, 'sẽ không có chốt máy khi ghim lại', 'sẽ ổn thôi') },
+      // Chép TRỌN scripts + lib: lint require ../lib/eval-yaml.cjs, thiếu nó thì
+      // bản sao fail-open advisory và ca đỏ vì HẠ TẦNG chứ không vì vật (P150).
+      make: () => mutant(LINT, 'sẽ không có chốt máy khi ghim lại', 'sẽ ổn thôi', ['scripts', 'lib']) },
   ],
 });
 
@@ -686,6 +736,77 @@ CASES.push({
   ],
 });
 
+// ── GN13 ────────────────────────────────────────────────────────────────────
+// Đo HÀNH VI GHI, không đo residue: lối bị cấm khôi phục Y HỆT byte, nên
+// `git status` trước/sau giống nhau và một phép đo residue sẽ XANH trong khi lỗi
+// còn nguyên (gap-probe P0 của lượt nâng phạm vi). Chụp (sha256, size, mtime_ns):
+// mtime bắt được cả lần ghi rồi khôi phục y hệt.
+//
+// Danh sách canh SUY TỪ VẬT, không gõ tay: mọi ca CÓ mutant (trừ chính GN13) ×
+// mọi tệp git-theo-dõi dưới các thư mục nguồn — «đừng ghim con số thành danh
+// sách đóng» (CLAUDE.md).
+const VUNG_NGUON = ['scripts', 'lib', 'feature-loop', 'tests', 'GUIDE.md'];
+function tepTheoDoi() {
+  return execFileSync('git', ['-C', ROOT, 'ls-files', '--', ...VUNG_NGUON], { encoding: 'utf8' })
+    .split('\n').filter(Boolean);
+}
+function chupNguon(dsach) {
+  const m = new Map();
+  for (const rel of dsach) {
+    const f = path.join(ROOT, rel);
+    let st; try { st = fs.statSync(f); } catch { continue; }
+    m.set(rel, { sha: createHash('sha256').update(fs.readFileSync(f)).digest('hex'), size: st.size, mtime: String(st.mtimeNs ?? st.mtimeMs) });
+  }
+  return m;
+}
+const soChupNguon = (truoc, sau) => [...truoc.entries()]
+  .filter(([rel, a]) => { const b = sau.get(rel); return !b || b.sha !== a.sha || b.size !== a.size || b.mtime !== a.mtime; })
+  .map(([rel]) => rel);
+
+CASES.push({
+  id: 'GN13',
+  title: 'không ca nào GHI vào tệp nguồn theo dõi git — kể cả ghi rồi khôi phục y hệt',
+  real(ref = {}) {
+    const errs = [];
+    const tepCa = ref.src || SELF;
+    const coMutant = CASES.filter(c => (c.mutants || []).length && c.id !== 'GN13').map(c => c.id);
+    if (coMutant.length < 3) errs.push(`danh sach ca suy tu vat qua it: ${coMutant.join(',')}`);
+    const dsach = tepTheoDoi();
+    const truoc = chupNguon(dsach);
+    const r = spawnSync(process.execPath, [tepCa], {
+      encoding: 'utf8',
+      env: { ...process.env, GNRO_CASES: coMutant.join(','), GNRO_ROOT: ROOT },
+    });
+    const cham = soChupNguon(truoc, chupNguon(dsach));
+    if (cham.length) {
+      // Trả ĐÚNG các tệp bị chạm về bản đã chụp — không `git checkout` cả nhóm,
+      // vì cây thường đang có sửa đổi chưa commit của chính người đang làm.
+      for (const rel of cham) {
+        const bak = ref.noiDung && ref.noiDung.get(rel);
+        if (bak !== undefined) fs.writeFileSync(path.join(ROOT, rel), bak);
+      }
+      errs.push(`ca ghi de tep nguon that: ${cham.join(', ')}`);
+    }
+    if (!errs.length && r.status !== 0) errs.push(`cac ca co mutant chay that bai (khong phai loi ghi): ${cut(r.stdout, 200)}`);
+    return errs;
+  },
+  mutants: [
+    // Lớp THẬT: ghi đè rồi khôi phục Y HỆT byte trong `finally` — đúng hình dạng
+    // owner trả lại. Residue bằng 0, nên chỉ mtime tố cáo.
+    { pin: 'ca ghi de tep nguon that',
+      judge: (p) => {
+        const dsach = tepTheoDoi();
+        const noiDung = new Map(dsach.map(rel => [rel, fs.readFileSync(path.join(ROOT, rel), 'utf8')]));
+        return CASES.find(c => c.id === 'GN13').real({ src: p, noiDung });
+      },
+      make: () => mutant(
+        SELF,
+        "judge: (p) => CASES.find(c => c.id === " + "'GN05'" + ").real({ guide: p })",
+        "judge: (p) => { const bak = fs.readFileSync(GUIDE, 'utf8'); try { fs.writeFileSync(GUIDE, fs.readFileSync(p, 'utf8')); return CASES.find(c => c.id === 'GN05').real(); } finally { fs.writeFileSync(GUIDE, bak); } }",
+      ) },
+  ],
+});
+
 // ── chạy ────────────────────────────────────────────────────────────────────
 const want = (process.env.GNRO_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const chosen = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;
@@ -696,7 +817,7 @@ for (const c of chosen) {
   let errs;
   try {
     errs = c.real(c.obj || LANE).map(e => `vat that: ${e}`);
-    for (const m of c.mutants || []) {
+    for (const m of (BO_CHIEU_DO ? [] : c.mutants || [])) {
       let got;
       try { got = (m.judge || c.real)(m.make()); } catch (e) { got = null; errs.push(`chieu do "${m.pin}" khong dung duoc: ${e.message}`); }
       if (got === null) continue;
@@ -705,7 +826,11 @@ for (const c of chosen) {
     }
   } catch (e) { errs = [`ha tang: ${e.message}`]; }
   const dt = ((Date.now() - t0) / 1000).toFixed(1);
-  if (!errs.length) { passed++; console.log(`  PASS: ${c.id} ${c.title} (${dt}s)`); } else { failed++; console.log(`  FAIL: ${c.id} ${c.title} (DO: ${errs.join(' | ')})`); }
+  const hauTo = BO_CHIEU_DO ? ' [KHONG CHIEU DO]' : '';
+  if (!errs.length) { passed++; console.log(`  PASS: ${c.id} ${c.title}${hauTo} (${dt}s)`); } else { failed++; console.log(`  FAIL: ${c.id} ${c.title}${hauTo} (DO: ${errs.join(' | ')})`); }
 }
-console.log(`\nResults: ${passed} passed, ${failed} failed`);
-process.exit(failed ? 1 : 0);
+if (BO_CHIEU_DO_LA) { console.log('GNRO_SKIP_MUTANTS dat sai gia tri — chi chinh tep ca dat duoc bat tay noi bo'); process.exit(3); }
+console.log(`\nResults: ${passed} passed, ${failed} failed${BO_CHIEU_DO ? ' (KHONG CHIEU DO)' : ''}`);
+// Lượt bỏ chiều đỏ KHÔNG BAO GIỜ được thoát 0: nó là lượt chạy con của một mutant,
+// không phải một lượt chấm hợp lệ.
+process.exit(failed || BO_CHIEU_DO ? 1 : 0);

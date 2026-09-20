@@ -20,6 +20,10 @@
     {
       "id": "AC-9",
       "p": "Sẽ có lưới thường trực (tệp ca mới), hạt giống cho câu hỏi tách hai nghĩa, và bốn suite xanh."
+    },
+    {
+      "id": "AC-10",
+      "p": "Sẽ buộc bộ kiểm không được GHI vào tệp nguồn của kho khi chạy — kể cả ghi rồi trả lại y nguyên; đo bằng dấu vân tay và thời điểm sửa của mọi tệp kho đang theo dõi."
     }
   ],
   "wont_do": [
@@ -61,23 +65,23 @@
   "gap_probe_plain": [
     {
       "i": 0,
-      "p": "Thiếu ma trận viết trước cho «tiêu chí không có chốt máy» (tiêu chí vừa có test vừa có ca màn hình = CÓ chốt; chỉ có ca tự khai không chạy = KHÔNG) — đã bổ sung 4 tiêu chí mẫu, danh sách kỳ vọng [AC-b, AC-c], hai mutant mỗi bên."
+      "p": "Phép kiểm mới chỉ nhìn «cây có khác không sau khi chạy», nên lối sai kinh điển — sửa rồi trả lại nguyên vẹn — vẫn lọt. Đã đổi sang so dấu vân tay và thời điểm sửa của tệp, và phép thử-phá nay dùng đúng lối sai ấy."
     },
     {
       "i": 1,
-      "p": "Ca nhìn màn hình tự khai không chạy chưa biết thuộc mảng nào — đã chốt: loại ca thắng trạng thái, chỉ vào mảng ngoài làn máy; mỗi ca đúng một chỗ."
+      "p": "Có một biến môi trường tắt được toàn bộ phần thử-phá mà không để lại dấu. Đã khoá bằng mã bắt tay nội bộ; đặt sai thì báo lỗi có tên, và lượt chạy không-thử-phá luôn bị đánh dấu và coi là thất bại."
     },
     {
       "i": 2,
-      "p": "Kịch bản diff chỉ một commit nên không phân biệt được «từ pin cũ» với «từ commit trước» — đã đổi thành hai commit và thêm mutant HEAD~1."
+      "p": "Phép kiểm cũ dựa vào trạng thái sạch của kho nên sẽ mù khi người đang sửa dở, và nhánh khôi phục có thể xoá mất sửa đổi chưa lưu của họ. Nay so bằng nội dung và chỉ trả lại đúng tệp bị chạm."
     },
     {
       "i": 3,
-      "p": "Cờ vàng trên thẻ có thể đọc nhầm dòng ghim cũ — đã ghim: chỉ đọc dòng đang chống lưng pin; thêm ca hai lượt ghim, cờ phải tắt."
+      "p": "Vế «trường hợp phải im lặng» lại so không-với-không lần nữa vì hồ sơ mẫu không sinh cảnh báo nào. Đã cho hồ sơ mẫu sinh cảnh báo thật và đòi bản đối chiếu phải in ra thứ gì đó."
     },
     {
       "i": 4,
-      "p": "Chiều im của mục Re-pin chưa có đối chứng thật — đã chốt: so byte với làn 2.17.0 chạy trên cùng hồ sơ."
+      "p": "Danh sách ca và danh sách tệp cần canh bị gõ tay nên thêm ca mới là lọt. Nay cả hai suy ra từ chính bộ ca và từ danh sách tệp kho đang theo dõi."
     }
   ],
   "scope_plain": "Không chặn ghim khi diff chạm vật ca màn hình (ngưỡng đếm được sẽ quyết) · không tách hai nghĩa của ui-check (hạt giống, anh quyết) · không đổi bộ đọc/pre-merge/lib · không sửa NOTE pre-merge · không coi inputs của ca phán xét là vật đo · không nâng version · không chạm kho tiêu thụ.",
@@ -153,6 +157,14 @@
     {
       "id": "d-20260920T055344Z-19",
       "p": "Lượt chấm một trả lại hai lỗi thật: lệnh gộp bộ kiểm bị đứt ống nên báo đỏ giả, và một phép đo khẳng định 'không có vi phạm' mà chưa chứng minh nó biết kêu — đã sửa cả hai."
+    },
+    {
+      "id": "d-20260920T075350Z-20",
+      "p": "Anh trả lại ở Cổng Bằng chứng: nâng phạm vi bốn mục — phép đo chiều-im hằng đúng và phép thử-phá ghi đè tệp thật — sửa trước rồi mới ký."
+    },
+    {
+      "id": "d-20260920T080145Z-21",
+      "p": "Nâng phạm vi: thêm đối chứng dương cho bộ đếm chiều im, và thêm một tiêu chí buộc bộ kiểm không chạm tệp nguồn thật — đổi lại một lượt duyệt phạm vi nữa và một vòng chấm."
     }
   ]
 }

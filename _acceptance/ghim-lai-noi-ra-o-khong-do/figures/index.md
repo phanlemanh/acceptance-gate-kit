@@ -1,18 +1,18 @@
-# Hình tại điểm quyết định — Cổng Phạm vi
+# Hình tại điểm quyết định — Cổng Phạm vi (lượt 2, sau khi owner trả lại)
 
-Kê từ artifact cuối S1 (sổ quyết định chờ seal · lệch design · `[GIẢ ĐỊNH]` · finding `human-gate1`).
+Kê từ artifact cuối S1 của lượt nâng phạm vi. Các điểm của lượt 1 đã seal và không
+kê lại; chỉ kê điểm MỚI.
 
 | Điểm | Đếm | Hình |
 |---|---|---|
-| d-1 thu gọn brainstorm về một lượt máy | 1 nhánh (làm / không) | dưới ngưỡng |
-| d-2 nói ra không chặn, hai khoá tuỳ chọn, không chạm lib | 2 bước (ghi khoá → thẻ đọc), 1 nhánh | dưới ngưỡng |
-| d-3 một vị từ lib, gộp AC ở hai chỗ + round-trip | 2 bước | dưới ngưỡng |
-| d-4 descope: không từ chối ghim khi diff chạm | 1 nhánh có ngưỡng | dưới ngưỡng |
-| d-5 descope: không tách hai nghĩa — hạt giống C1 | quyết định tại cổng là HOÃN (1 nhánh); ba lối là nội dung hạt giống, không phải điểm quyết định của cổng này | dưới ngưỡng |
-| d-6 · d-7 descope reader/pre-merge | 1 nhánh | dưới ngưỡng |
-| d-8 · d-9 bỏ đặc-tả-UX / design-pass | rỗng (cli) | dưới ngưỡng |
-| d-10 tệp ca vĩnh viễn + bên đọc cũ 2826f807 | 1 nhánh | dưới ngưỡng |
+| d-20 trả lại ở Cổng Bằng chứng, nâng phạm vi 4 mục | 1 nhánh (sửa trước / ship rồi sửa) — người đã quyết | dưới ngưỡng |
+| d-21 AC-8 thêm đối chứng dương cho bộ đếm chiều im | 2 bước (đếm đúng → đòi cả hai vế có lực) | dưới ngưỡng |
+| d-21 AC-10 mới: bộ ca không ghi vào cây nguồn | 2 bước (chụp băm+mtime → chạy ca có mutant → so), 1 nhánh khôi phục | dưới ngưỡng |
+| gap-probe lượt 2: 2 P0 · 2 P1 · 1 P2, tất cả `fixed` | 0 mục `human-gate1` | — |
 | `[GIẢ ĐỊNH]` trong Coverage | 0 | — |
-| gap-probe `human-gate1` | 0 (5/5 fixed) | — |
 
 0 điểm vượt ngưỡng N5 → không vẽ hình.
+
+Ghi chú cho người đọc: hai P0 của lượt này đều là «phép đo tự dối» trong chính bộ ca —
+một phép đo residue không thấy lối khôi-phục-y-hệt, và một cờ môi trường có thể làm mọi
+chiều đỏ im. Cả hai đã đóng bằng vật (băm+mtime · bắt tay nội bộ + mã thoát khác 0).
