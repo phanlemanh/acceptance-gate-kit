@@ -1,43 +1,158 @@
 {
   "feature_plain": "Khi máy ghim lại bằng chứng cho một hồ sơ đã ký, dòng ghim và thẻ phải NÓI RA những ca nó không đo được (ca nhìn màn hình, ca phán xét), ca nào trong số đó có vật đo đã đổi, và tiêu chí nào vì thế không có chốt máy — thay vì im như hôm nay.",
   "will_do": [
-    {"id":"AC-1","p":"Sẽ ghi vào dòng ghim danh sách ca ngoài làn máy (E6, E7, E12) — mỗi ca của hồ sơ nằm đúng một chỗ: đã chạy, tự khai không chạy, hoặc ngoài làn máy."},
-    {"id":"AC-2","p":"Sẽ viết vào mục Re-pin hai dòng đọc được: ca nào ngoài làn máy, và tiêu chí nào không có chốt máy (AC-b, AC-c) — hồ sơ toàn ca máy thì không thêm chữ nào."},
-    {"id":"AC-3","p":"Sẽ cập nhật khuôn dòng ghim trong SKILL và GUIDE §7.1, kèm một lệnh đếm ngưỡng chạy được thật."},
-    {"id":"AC-6","p":"Sẽ giữ nguyên bộ đọc hiện tại và bộ đọc 2.17.0 ở kho tiêu thụ: dòng ghim mới không làm hồ sơ nào đỏ thêm."},
-    {"id":"AC-9","p":"Sẽ có lưới thường trực (tệp ca mới), hạt giống cho câu hỏi tách hai nghĩa, và bốn suite xanh."}
+    {
+      "id": "AC-1",
+      "p": "Sẽ ghi vào dòng ghim danh sách ca ngoài làn máy (E6, E7, E12) — mỗi ca của hồ sơ nằm đúng một chỗ: đã chạy, tự khai không chạy, hoặc ngoài làn máy."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ viết vào mục Re-pin hai dòng đọc được: ca nào ngoài làn máy, và tiêu chí nào không có chốt máy (AC-b, AC-c) — hồ sơ toàn ca máy thì không thêm chữ nào."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ cập nhật khuôn dòng ghim trong SKILL và GUIDE §7.1, kèm một lệnh đếm ngưỡng chạy được thật."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ giữ nguyên bộ đọc hiện tại và bộ đọc 2.17.0 ở kho tiêu thụ: dòng ghim mới không làm hồ sơ nào đỏ thêm."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ có lưới thường trực (tệp ca mới), hạt giống cho câu hỏi tách hai nghĩa, và bốn suite xanh."
+    }
   ],
   "wont_do": [
-    {"id":"AC-4","p":"Sẽ KHÔNG chặn ghim khi diff chạm vật của ca nhìn màn hình — chỉ ghi tên ca đó vào dòng ghim (E6) và nói «chưa chứng lại, đi vòng S4 delta»; mốc so là pin cũ, không phải commit trước."},
-    {"id":"AC-5","p":"Sẽ KHÔNG khớp đường dẫn bằng tiền tố chuỗi — dùng đúng bộ khớp glob mà S4 dùng cho vùng vật."},
-    {"id":"AC-7","p":"Sẽ KHÔNG treo cờ «chưa chứng lại» vĩnh viễn: thẻ Cổng Bằng chứng chỉ đọc dòng ghim đang chống lưng pin hiện tại; pin sau đó sạch thì cờ tắt."},
-    {"id":"AC-8","p":"Sẽ KHÔNG khuyên thêm ca nhìn màn hình mà không nói giá: W8 và thẻ Cổng Phạm vi nói kèm «tiêu chí này sẽ không có chốt máy khi ghim lại» và lối ghép thêm ca máy."}
+    {
+      "id": "AC-4",
+      "p": "Sẽ KHÔNG chặn ghim khi diff chạm vật của ca nhìn màn hình — chỉ ghi tên ca đó vào dòng ghim (E6) và nói «chưa chứng lại, đi vòng S4 delta»; mốc so là pin cũ, không phải commit trước."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ KHÔNG khớp đường dẫn bằng tiền tố chuỗi — dùng đúng bộ khớp glob mà S4 dùng cho vùng vật."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ KHÔNG treo cờ «chưa chứng lại» vĩnh viễn: thẻ Cổng Bằng chứng chỉ đọc dòng ghim đang chống lưng pin hiện tại; pin sau đó sạch thì cờ tắt."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ KHÔNG khuyên thêm ca nhìn màn hình mà không nói giá: W8 và thẻ Cổng Phạm vi nói kèm «tiêu chí này sẽ không có chốt máy khi ghim lại» và lối ghép thêm ca máy."
+    }
   ],
   "coverage_plain": [
-    {"i":0,"p":"Sáu NƠI phải nói ra (dòng ghim · mục Re-pin · thẻ Cổng Bằng chứng · thẻ Cổng Phạm vi · W8 · GUIDE/SKILL) — 6/6 có tiêu chí (AC-1/4 · AC-2 · AC-7 · AC-8 · AC-8 · AC-3)."},
-    {"i":1,"p":"Bốn LOẠI ca không đo (tự khai không chạy · ngoài làn máy · ngoài làn máy mà vật đổi · ngoài làn máy không khai vật) — đủ là khi mỗi ca của hồ sơ nằm đúng một chỗ (AC-1/4/5)."},
-    {"i":2,"p":"Hai MỨC: ca (AC-1) và tiêu chí (AC-2/7/8) — nối bằng trường criterion."},
-    {"i":3,"p":"Ba HÌNH DẠNG hồ sơ: đủ loại ca (AC-1..5) · toàn ca máy — phải im (AC-1/2/7/8) · dòng mới đọc bởi bộ đọc 2.17.0 (AC-6)."}
+    {
+      "i": 0,
+      "p": "Sáu NƠI phải nói ra (dòng ghim · mục Re-pin · thẻ Cổng Bằng chứng · thẻ Cổng Phạm vi · W8 · GUIDE/SKILL) — 6/6 có tiêu chí (AC-1/4 · AC-2 · AC-7 · AC-8 · AC-8 · AC-3)."
+    },
+    {
+      "i": 1,
+      "p": "Bốn LOẠI ca không đo (tự khai không chạy · ngoài làn máy · ngoài làn máy mà vật đổi · ngoài làn máy không khai vật) — đủ là khi mỗi ca của hồ sơ nằm đúng một chỗ (AC-1/4/5)."
+    },
+    {
+      "i": 2,
+      "p": "Hai MỨC: ca (AC-1) và tiêu chí (AC-2/7/8) — nối bằng trường criterion."
+    },
+    {
+      "i": 3,
+      "p": "Ba HÌNH DẠNG hồ sơ: đủ loại ca (AC-1..5) · toàn ca máy — phải im (AC-1/2/7/8) · dòng mới đọc bởi bộ đọc 2.17.0 (AC-6)."
+    }
   ],
   "gap_probe_plain": [
-    {"i":0,"p":"Thiếu ma trận viết trước cho «tiêu chí không có chốt máy» (tiêu chí vừa có test vừa có ca màn hình = CÓ chốt; chỉ có ca tự khai không chạy = KHÔNG) — đã bổ sung 4 tiêu chí mẫu, danh sách kỳ vọng [AC-b, AC-c], hai mutant mỗi bên."},
-    {"i":1,"p":"Ca nhìn màn hình tự khai không chạy chưa biết thuộc mảng nào — đã chốt: loại ca thắng trạng thái, chỉ vào mảng ngoài làn máy; mỗi ca đúng một chỗ."},
-    {"i":2,"p":"Kịch bản diff chỉ một commit nên không phân biệt được «từ pin cũ» với «từ commit trước» — đã đổi thành hai commit và thêm mutant HEAD~1."},
-    {"i":3,"p":"Cờ vàng trên thẻ có thể đọc nhầm dòng ghim cũ — đã ghim: chỉ đọc dòng đang chống lưng pin; thêm ca hai lượt ghim, cờ phải tắt."},
-    {"i":4,"p":"Chiều im của mục Re-pin chưa có đối chứng thật — đã chốt: so byte với làn 2.17.0 chạy trên cùng hồ sơ."}
+    {
+      "i": 0,
+      "p": "Thiếu ma trận viết trước cho «tiêu chí không có chốt máy» (tiêu chí vừa có test vừa có ca màn hình = CÓ chốt; chỉ có ca tự khai không chạy = KHÔNG) — đã bổ sung 4 tiêu chí mẫu, danh sách kỳ vọng [AC-b, AC-c], hai mutant mỗi bên."
+    },
+    {
+      "i": 1,
+      "p": "Ca nhìn màn hình tự khai không chạy chưa biết thuộc mảng nào — đã chốt: loại ca thắng trạng thái, chỉ vào mảng ngoài làn máy; mỗi ca đúng một chỗ."
+    },
+    {
+      "i": 2,
+      "p": "Kịch bản diff chỉ một commit nên không phân biệt được «từ pin cũ» với «từ commit trước» — đã đổi thành hai commit và thêm mutant HEAD~1."
+    },
+    {
+      "i": 3,
+      "p": "Cờ vàng trên thẻ có thể đọc nhầm dòng ghim cũ — đã ghim: chỉ đọc dòng đang chống lưng pin; thêm ca hai lượt ghim, cờ phải tắt."
+    },
+    {
+      "i": 4,
+      "p": "Chiều im của mục Re-pin chưa có đối chứng thật — đã chốt: so byte với làn 2.17.0 chạy trên cùng hồ sơ."
+    }
   ],
   "scope_plain": "Không chặn ghim khi diff chạm vật ca màn hình (ngưỡng đếm được sẽ quyết) · không tách hai nghĩa của ui-check (hạt giống, anh quyết) · không đổi bộ đọc/pre-merge/lib · không sửa NOTE pre-merge · không coi inputs của ca phán xét là vật đo · không nâng version · không chạm kho tiêu thụ.",
   "decisions_plain": [
-    {"id":"d-20260920T022658Z-1","p":"Gom brainstorm về một lượt máy vì đề bài đã đóng — câu hỏi thật duy nhất (tách hai nghĩa) đặt ở cổng này."},
-    {"id":"d-20260920T022658Z-2","p":"Chỉ nói ra, không chặn: hai khoá tuỳ chọn trên dòng ghim, bộ đọc giữ nguyên — đổi lại một dòng ghim viết tay thiếu khoá vẫn lọt."},
-    {"id":"d-20260920T022658Z-3","p":"Dùng một vị từ có sẵn trong lib cho «ca máy đáng ghim»; mức tiêu chí gộp ở làn và thẻ, giữ khớp bằng phép so vòng tròn — đổi lại không phải chạm lib."},
-    {"id":"d-20260920T022658Z-4","p":"KHÔNG chặn ghim khi diff chạm vật ca màn hình — chờ ngưỡng đếm được (≥1 hồi quy UI lọt) rồi mới mở vòng chặn."},
-    {"id":"d-20260920T022658Z-5","p":"KHÔNG tách hai nghĩa của ui-check trong vòng này — ba lối ghi ở hạt giống, anh quyết."},
-    {"id":"d-20260920T022658Z-6","p":"KHÔNG cho bộ đọc đòi khoá mới — sẽ đổi hành vi chặn và làm đỏ mọi pin cũ ở mọi kho."},
-    {"id":"d-20260920T022658Z-7","p":"KHÔNG sửa NOTE của pre-merge — thuộc T3, và NOTE đó đã có ngưỡng riêng."},
-    {"id":"d-20260920T022658Z-8","p":"KHÔNG viết đặc tả UX — việc này không có mặt người nhìn."},
-    {"id":"d-20260920T022658Z-9","p":"KHÔNG chạy design-pass — không chạm giao diện."},
-    {"id":"d-20260920T022658Z-10","p":"Phép đo là tệp ca vĩnh viễn, bộ đọc cũ dựng từ mốc 2.17.0 — đổi lại suite dài thêm ~12 ca."},
-    {"id":"d-20260920T023529Z-11","p":"Phản biện context sạch tìm 5 lỗ (4 vừa, 1 nhẹ), đã sửa cả 5 vào hợp đồng/eval — phạm vi không đổi."}
+    {
+      "id": "d-20260920T022658Z-1",
+      "p": "Gom brainstorm về một lượt máy vì đề bài đã đóng — câu hỏi thật duy nhất (tách hai nghĩa) đặt ở cổng này."
+    },
+    {
+      "id": "d-20260920T022658Z-2",
+      "p": "Chỉ nói ra, không chặn: hai khoá tuỳ chọn trên dòng ghim, bộ đọc giữ nguyên — đổi lại một dòng ghim viết tay thiếu khoá vẫn lọt."
+    },
+    {
+      "id": "d-20260920T022658Z-3",
+      "p": "Dùng một vị từ có sẵn trong lib cho «ca máy đáng ghim»; mức tiêu chí gộp ở làn và thẻ, giữ khớp bằng phép so vòng tròn — đổi lại không phải chạm lib."
+    },
+    {
+      "id": "d-20260920T022658Z-4",
+      "p": "KHÔNG chặn ghim khi diff chạm vật ca màn hình — chờ ngưỡng đếm được (≥1 hồi quy UI lọt) rồi mới mở vòng chặn."
+    },
+    {
+      "id": "d-20260920T022658Z-5",
+      "p": "KHÔNG tách hai nghĩa của ui-check trong vòng này — ba lối ghi ở hạt giống, anh quyết."
+    },
+    {
+      "id": "d-20260920T022658Z-6",
+      "p": "KHÔNG cho bộ đọc đòi khoá mới — sẽ đổi hành vi chặn và làm đỏ mọi pin cũ ở mọi kho."
+    },
+    {
+      "id": "d-20260920T022658Z-7",
+      "p": "KHÔNG sửa NOTE của pre-merge — thuộc T3, và NOTE đó đã có ngưỡng riêng."
+    },
+    {
+      "id": "d-20260920T022658Z-8",
+      "p": "KHÔNG viết đặc tả UX — việc này không có mặt người nhìn."
+    },
+    {
+      "id": "d-20260920T022658Z-9",
+      "p": "KHÔNG chạy design-pass — không chạm giao diện."
+    },
+    {
+      "id": "d-20260920T022658Z-10",
+      "p": "Phép đo là tệp ca vĩnh viễn, bộ đọc cũ dựng từ mốc 2.17.0 — đổi lại suite dài thêm ~12 ca."
+    },
+    {
+      "id": "d-20260920T023529Z-11",
+      "p": "Phản biện context sạch tìm 5 lỗ (4 vừa, 1 nhẹ), đã sửa cả 5 vào hợp đồng/eval — phạm vi không đổi."
+    },
+    {
+      "id": "d-20260920T031303Z-13",
+      "p": "Bộ đọc đường-dẫn-theo-dõi dùng chung chỉ hiểu một cách viết, mà kho crm viết cách kia ở 393/442 chỗ — nên làn ghim lại có bộ đọc riêng hiểu cả hai; đổi lại có hai bộ đọc, đã ghi việc hợp nhất vào sổ ý tưởng."
+    },
+    {
+      "id": "d-20260920T034514Z-14",
+      "p": "Sửa một chi tiết sai trong tiêu chí đã duyệt: ô E7 cũng không khai đường dẫn, nên câu kỳ vọng phải nêu cả nó — lời khai chạy theo vật, không hạ chuẩn."
+    },
+    {
+      "id": "d-20260920T040358Z-15",
+      "p": "Lưới cũ kêu vì tệp kiểm mới chứa chữ trạng thái ký — đổi dữ liệu mẫu, không khai miễn trừ, để không kéo hồ sơ đã ký của việc khác vào phạm vi."
+    },
+    {
+      "id": "d-20260920T045558Z-16",
+      "p": "Ba lưới cũ đỏ vì thẻ có thêm một dòng báo — mỗi cái khai theo đúng cơ chế sẵn có của nó, kèm chiều đỏ để dòng khai không thành tấm khiên."
+    },
+    {
+      "id": "d-20260920T050921Z-17",
+      "p": "Một eval hứa chiều đỏ mà lệnh của nó không thực hiện — sửa lời hứa cho khớp việc lệnh làm, vì chiều đỏ ấy đã có ở lưới thường trực."
+    },
+    {
+      "id": "d-20260920T051046Z-18",
+      "p": "Một eval khai chạy bốn bộ kiểm mà lệnh chỉ chạy ba — sửa LỆNH cho đủ bốn, không hạ lời khai."
+    },
+    {
+      "id": "d-20260920T055344Z-19",
+      "p": "Lượt chấm một trả lại hai lỗi thật: lệnh gộp bộ kiểm bị đứt ống nên báo đỏ giả, và một phép đo khẳng định 'không có vi phạm' mà chưa chứng minh nó biết kêu — đã sửa cả hai."
+    }
   ]
 }
