@@ -151,14 +151,19 @@ check('LN5 khoá dòng repin của SCRIPT == khoá khuôn REPIN-TEMPLATE trong S
   const rNR = spawnSync(process.execPath, [LANE, '--root', f.root, '--ag-root', ROOT, '--slug', 'feat-nr', '--reason', 'khuôn nói-ra', '--write'], { encoding: 'utf8' });
   assert.equal(rNR.status, 0, rNR.stderr);
   const dongNR = JSON.parse(readFileSync(f.logPath, 'utf8').split('\n').filter(l => l.includes('"kind":"repin"')).pop());
-  assert.deepEqual(Object.keys(dongNR), tKeys, 'script viết khoá khác khuôn SKILL trên hồ sơ CÓ ô khai không-chạy');
+  // Khuôn mang BA khoá tuỳ chọn (evals_not_run 2.12.0 · evals_not_machine +
+  // evals_not_machine_touched 2.18); mỗi hồ sơ chỉ kích hoạt những khoá áp dụng
+  // cho nó, và khoá không áp dụng phải VẮNG HẲN. feat-nr có ô khai không-chạy
+  // nhưng không có ô ngoài làn máy, nên tập khoá = khuôn TRỪ hai khoá kia.
+  const TUY_CHON = ['evals_not_run', 'evals_not_machine', 'evals_not_machine_touched'];
+  assert.deepEqual(Object.keys(dongNR), tKeys.filter(k => !['evals_not_machine', 'evals_not_machine_touched'].includes(k)), 'script viết khoá khác khuôn SKILL trên hồ sơ CÓ ô khai không-chạy');
   assert.deepEqual(dongNR.evals_not_run, ['NR2'], 'khoá nói-ra phải mang đúng id bị loại');
   assert.deepEqual(dongNR.evals_exit, { NR1: 0 }, 'ô khai không-chạy không được có khoá trong evals_exit');
   rmSync(f.root, { recursive: true, force: true });
   // Hình dạng KHÔNG ô nào khai: khoá `evals_not_run` VẮNG HẲN (không phải mảng
   // rỗng) — tập khoá = khuôn TRỪ đúng khoá đó, không hơn không kém.
   const sKeys = Object.keys(JSON.parse(repinLines()[0]));
-  assert.deepEqual(sKeys, tKeys.filter(k => k !== 'evals_not_run'), 'script viết khoá khác khuôn SKILL (hồ sơ không khai ô nào)');
+  assert.deepEqual(sKeys, tKeys.filter(k => !TUY_CHON.includes(k)), 'script viết khoá khác khuôn SKILL (hồ sơ không khai ô nào)');
 });
 
 check('LN6 usage/nguồn hỏng: cờ lạ → exit 3; config thiếu suite_keys → exit 2 gọi tên; hồ sơ không evals.yaml → exit 2', () => {

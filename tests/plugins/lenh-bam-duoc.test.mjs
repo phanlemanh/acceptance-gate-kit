@@ -246,8 +246,16 @@ if (want('LB5')) {
       moi: 'Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng',
       viSao: 'T1 (khoi-tim-loi-tra-phi-theo-vat, 14/09): mục ngoài hợp đồng không còn đi qua bác bỏ — máy không chấm thứ máy không được sửa' },
   ];
+  // Cờ CỘNG đã khai: một cờ MỚI hoàn toàn, có chủ đích, kèm lý do. Cùng bánh cóc
+  // hai chiều với DOI_VAN — khai THỪA (cờ không xuất hiện trên cây) cũng đỏ, nên
+  // một dòng khai chết không nằm lại làm tấm khiên.
+  const CONG = [
+    { moi: 'AC không có chốt máy khi ghim lại',
+      viSao: 'ghim-lai-noi-ra-o-khong-do (20/09): thẻ nói ra AC mà mọi eval phủ nó đều ngoài làn ghim lại — cờ BÁO, không đổi routing' },
+  ];
+  const congDung = new Set();
   const doiVanDung = new Set();
-  const kinds = { baseline: 0, glossary: 0, doiVan: 0 };
+  const kinds = { baseline: 0, glossary: 0, doiVan: 0, cong: 0 };
   // Đối chứng dương cho cờ glossary: cờ này chỉ có ở thẻ Cổng 1 (A/B/C đều đã ký → Cổng 2), nên đo trên
   // fixture Cổng 1 bằng CHÍNH bản cũ: cũ phải bắn, mới không.
   const oldFx = flagsOf(cardHtml(r, 'x', path.join(copy, 'scripts', 'gate-card.js')));
@@ -269,13 +277,18 @@ if (want('LB5')) {
       else if (/--glossary-base/.test(t)) kinds.glossary++;
       else errs.push(`${s}: cờ mất ngoài hai loại TRỪ: «${t.slice(0, 60)}»`);
     }
-    const addedLa = added.filter(t => !doiVanMoi.has(t));
+    const addedLa = added.filter(t => !doiVanMoi.has(t)).filter(t => {
+      const k = CONG.find(c => t.includes(c.moi));
+      if (!k) return true;
+      congDung.add(k.moi); kinds.cong++; return false;
+    });
     if (addedLa.length) errs.push(`${s}: CỘNG cờ lén: ${addedLa.map(t => t.slice(0, 50)).join(' | ')}`);
   }
   if (!kinds.baseline) errs.push('đối chứng dương: bản cũ không phát cờ baseline nào trên ba hồ sơ');
   // Khai thừa = luật chết: mỗi cặp đổi-văn phải khớp thật trên cây, nếu không thì gỡ dòng khai.
   for (const d of DOI_VAN) if (!doiVanDung.has(d.cu)) errs.push(`cặp đổi-văn khai THỪA (không xảy ra trên cây): «${d.cu.slice(0, 50)}» — gỡ dòng khai hoặc sửa tiền tố`);
-  if (errs.length) fail('LB5', errs.join(' · ')); else pass('LB5', `0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(${kinds.baseline}) + glossary(${kinds.glossary}) + đổi-văn-đã-khai(${kinds.doiVan}), mới∖cũ ngoài khai = ∅`);
+  for (const c of CONG) if (!congDung.has(c.moi)) errs.push(`cờ CỘNG khai THỪA (không xảy ra trên cây): «${c.moi.slice(0, 50)}» — gỡ dòng khai hoặc sửa tiền tố`);
+  if (errs.length) fail('LB5', errs.join(' · ')); else pass('LB5', `0 cờ glossary-base; cũ∖mới trên A/B/C chỉ gồm baseline(${kinds.baseline}) + glossary(${kinds.glossary}) + đổi-văn-đã-khai(${kinds.doiVan}), mới∖cũ chỉ gồm CỘNG-đã-khai(${kinds.cong})`);
 }
 
 // ---------- LB6: dòng bỏ lệch gạch nối (AC-6)

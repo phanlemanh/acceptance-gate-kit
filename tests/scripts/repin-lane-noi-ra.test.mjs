@@ -526,6 +526,99 @@ CASES.push({
   mutants: [],   // chiều đỏ nằm TRONG ca (đối chứng gỡ evals_exit trên CẢ HAI lớp)
 });
 
+// ── GN09 / GN10 (thẻ hai cổng) ──────────────────────────────────────────────
+const theExtract = (root, slug, gate, card = CARD) => {
+  const r = spawnSync(process.execPath, [card, '--root', root, '--slug', slug, '--gate', String(gate), '--extract'], { encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`gate-card --gate ${gate} exit ${r.status}: ${cut(r.stderr, 220)}`);
+  return JSON.parse(r.stdout);
+};
+const theHtml = (root, slug, gate, card = CARD) => {
+  const r = spawnSync(process.execPath, [card, '--root', root, '--slug', slug, '--gate', String(gate)], { encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`gate-card html --gate ${gate} exit ${r.status}: ${cut(r.stderr, 220)}`);
+  return r.stdout;
+};
+const cardMoc = (sha) => path.join(cayMoc(sha), 'scripts', 'gate-card.js');
+// Hợp đồng về `draft` để render được thẻ Cổng Phạm vi.
+const veDraft = (f) => {
+  const c = path.join(f.ws, 'contract.md');
+  fs.writeFileSync(c, fs.readFileSync(c, 'utf8').replace('status: implemented', 'status: draft').replace('approved_by: Nguoi Ky\napproved_at: 2026-09-19\n', ''));
+};
+const sai = (got, ky) => (got.includes('AC-d') || got.includes('AC-a') ? `got AC bang ton tai: ${got.join(',')}`
+  : (!got.includes('AC-b') ? `not-run tinh la chot: ${got.join(',')}` : `ac_khong sai: ${got.join(',')} (mong ${ky.join(',')})`));
+
+CASES.push({
+  id: 'GN09',
+  title: 'thẻ Cổng Bằng chứng: cờ AC không có chốt máy + cờ pin đã chạm, round-trip với section',
+  real(card) {
+    const errs = [];
+    const f = mkKho();
+    fs.writeFileSync(path.join(f.root, 'apps', 'x', 'a.ts'), 'v2\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'cham');
+    const r = chayLan(f.root, f.slug, ['--write']);      // LƯỢT GHIM 1: pin chống lưng mang touched
+    if (r.status !== 0) return [`lan exit ${r.status}: ${cut(r.stderr, 220)}`];
+    const x = theExtract(f.root, f.slug, 2, card);
+    if (!x.chot_may) return ['the thieu co AC khong chot may: --extract khong co chot_may'];
+    if (JSON.stringify(x.chot_may.ac_khong) !== JSON.stringify(AC_KHONG)) errs.push(sai(x.chot_may.ac_khong || [], AC_KHONG));
+    if (JSON.stringify(x.chot_may.touched) !== JSON.stringify(['E6'])) errs.push(`chot_may.touched sai: ${JSON.stringify(x.chot_may.touched)}`);
+    // ROUND-TRIP: danh sách AC của thẻ == danh sách trong section làn vừa ghi.
+    const mAC = sectionCuoi(f.reportPath).match(/· AC không có chốt máy: ([^\n·]+)/);
+    const secAC = mAC ? mAC[1].trim().split(/,\s*/) : [];
+    if (JSON.stringify([...secAC].sort()) !== JSON.stringify([...(x.chot_may.ac_khong || [])].sort())) errs.push(`round-trip lech: section ${secAC.join(',')} · the ${(x.chot_may.ac_khong || []).join(',')}`);
+    const html = theHtml(f.root, f.slug, 2, card);
+    if (!html.includes('AC không có chốt máy khi ghim lại')) errs.push('the thieu co AC khong chot may: HTML khong co cau');
+    if (!html.includes('diff đã chạm vật')) errs.push('HTML thieu co pin da cham');
+    // routing KHÔNG đổi so mốc 2.17.0 (LM20 baseline không được trôi).
+    const cu = theExtract(f.root, f.slug, 2, cardMoc(MOC));
+    if (JSON.stringify(x.routing) !== JSON.stringify(cu.routing)) errs.push(`routing doi so ${MOC}: ${JSON.stringify(x.routing)} vs ${JSON.stringify(cu.routing)}`);
+    // CA ĐẶC HIỆU: lượt ghim 2 SẠCH → cờ tắt, touched rỗng (cờ đọc dòng CHỐNG LƯNG).
+    fs.writeFileSync(path.join(f.root, 'khong-lien-quan.txt'), 'z\n');
+    f.git('add', '-A'); f.git('commit', '-qm', 'khong cham');
+    const r2 = chayLan(f.root, f.slug, ['--write']);
+    if (r2.status !== 0) return errs.concat(`luot 2 exit ${r2.status}: ${cut(r2.stderr, 220)}`);
+    const x2 = theExtract(f.root, f.slug, 2, card);
+    if ((x2.chot_may.touched || []).length) errs.push(`fwarn tu dong repin khong chong lung: pin sach van bao touched ${JSON.stringify(x2.chot_may.touched)}`);
+    if (theHtml(f.root, f.slug, 2, card).includes('diff đã chạm vật')) errs.push('fwarn tu dong repin khong chong lung: HTML van co co vang');
+    // CHIỀU IM: hồ sơ toàn eval máy.
+    const g = mkKho({ toanMay: true });
+    chayLan(g.root, g.slug, ['--write']);
+    const xg = theExtract(g.root, g.slug, 2, card);
+    if ((xg.chot_may.ac_khong || []).length) errs.push(`chieu im hong: ho so toan may bao ac_khong ${JSON.stringify(xg.chot_may.ac_khong)}`);
+    return errs;
+  },
+  obj: CARD,
+  mutants: [
+    { pin: 'the thieu co AC khong chot may', make: () => mutCard('const cm = chotMay(dir);', "const cm = { ac_khong: [], ac_khong_mo: [], touched: [] };") },
+    { pin: 'got AC bang ton tai', make: () => mutCard('.filter(([, evs]) => evs.every(e => !evidenceCore.isRepinMachineEval(e)))', '.filter(([, evs]) => evs.some(e => !evidenceCore.isRepinMachineEval(e)))') },
+    { pin: 'fwarn tu dong repin khong chong lung', make: () => mutCard('dongRepin.filter(o => o.sha === vc).pop()', 'dongRepin.filter(o => Array.isArray(o.evals_not_machine_touched)).pop()') },
+  ],
+});
+
+CASES.push({
+  id: 'GN10',
+  title: 'thẻ Cổng Phạm vi: cùng vị từ AC không có chốt máy, chiều im khi toàn eval máy',
+  real(card) {
+    const errs = [];
+    const f = mkKho();
+    veDraft(f);
+    const x = theExtract(f.root, f.slug, 1, card);
+    if (!x.chot_may) return ['the cong 1 thieu co: --extract gate 1 khong co chot_may'];
+    if (JSON.stringify(x.chot_may.ac_khong) !== JSON.stringify(AC_KHONG)) errs.push(sai(x.chot_may.ac_khong || [], AC_KHONG));
+    if (!theHtml(f.root, f.slug, 1, card).includes('AC không có chốt máy khi ghim lại')) errs.push('the cong 1 thieu co: HTML khong co cau');
+    const cu = theExtract(f.root, f.slug, 1, cardMoc(MOC));
+    if (JSON.stringify(x.routing) !== JSON.stringify(cu.routing)) errs.push(`routing doi so ${MOC}: ${JSON.stringify(x.routing)} vs ${JSON.stringify(cu.routing)}`);
+    const g = mkKho({ toanMay: true });
+    veDraft(g);
+    const xg = theExtract(g.root, g.slug, 1, card);
+    if ((xg.chot_may.ac_khong || []).length) errs.push(`chieu im hong: ${JSON.stringify(xg.chot_may.ac_khong)}`);
+    return errs;
+  },
+  obj: CARD,
+  mutants: [
+    { pin: 'the cong 1 thieu co', make: () => mutCard("if (cmG1.ac_khong.length) flags.push(['finfo',", "if (false && cmG1.ac_khong.length) flags.push(['finfo',") },
+    { pin: 'not-run tinh la chot', make: () => mutCard('evidenceCore.isRepinMachineEval(e)))\n    .map(([ac, evs])', "evidenceCore.REPIN_MACHINE_EXECUTORS.includes(String(e.executor || '').trim().toLowerCase())))\n    .map(([ac, evs])") },
+  ],
+});
+
 // ── chạy ────────────────────────────────────────────────────────────────────
 const want = (process.env.GNRO_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const chosen = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;
