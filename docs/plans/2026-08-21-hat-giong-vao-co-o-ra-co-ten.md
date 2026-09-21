@@ -1,6 +1,9 @@
 # Hạt giống — Vào có ô, ra có tên
 
-**Ngày:** 2026-08-21 · **Trạng thái:** hạt giống, chờ Cổng 0 · **Hạng dự kiến:**
+> **Việc này ĐÃ LÀM.** Ô `_acceptance/vao-co-o-ra-co-ten/` — đã ký và giao (2026-08-22). Hạt giống giữ lại
+> làm sổ của lúc nghĩ ra; đừng mở vòng mới từ đây.
+
+**Ngày:** 2026-08-21 · **Trạng thái:** đã thực thi · **Hạng dự kiến:**
 T2 (một nghi thức ngắn thay một con trỏ chết + một nhóm hiển thị trong thẻ
 `/start` + một dòng tuổi; không chạm lưới, không chạm hồ sơ đã ký, không skill mới).
 **Sinh từ:** owner nêu vấn đề 21/08 — *«brainstorm xong thì để trong repo tiêu

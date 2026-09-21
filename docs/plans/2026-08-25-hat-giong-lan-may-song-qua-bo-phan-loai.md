@@ -1,5 +1,8 @@
 # Hạt giống — Làn máy sống qua bộ phân loại (ô A+B, mở 25/08)
 
+> **Việc này ĐÃ LÀM.** Ô `_acceptance/lan-may-song-qua-bo-phan-loai/` — đã ký, đang chờ Cổng Giá trị (2026-08-26). Hạt giống giữ lại
+> làm sổ của lúc nghĩ ra; đừng mở vòng mới từ đây.
+
 **Xuất xứ:** retro 3 tuần
 `docs/findings/2026-08-25-retro-classifier-va-nghi-thuc-khong-hoc.md` — lớp lỗi
 «bộ phân loại an toàn chặn làn máy» dính **~15 vòng nghiệm thu trên 5 hồ sơ,

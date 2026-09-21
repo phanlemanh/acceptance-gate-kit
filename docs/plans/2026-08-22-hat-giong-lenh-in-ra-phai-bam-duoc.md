@@ -1,5 +1,8 @@
 # Hạt giống — chip D: lệnh in ra phải bấm được, cộng bốn mục TRỪ
 
+> **Việc này ĐÃ LÀM.** Ô `_acceptance/lenh-in-ra-phai-bam-duoc/` — đã ký và giao (2026-08-22). Hạt giống giữ lại
+> làm sổ của lúc nghĩ ra; đừng mở vòng mới từ đây.
+
 **Ngày:** 2026-08-22 · **Trạng thái:** `_acceptance/lenh-in-ra-phai-bam-duoc/opportunity.md` · **Hạng dự kiến:**
 T2 (bản luật ngôn ngữ mặt người + `commands/*.md` + hai SKILL + `scripts/gate-card.js` + `scripts/start-scan.mjs`
 + tests; không chạm `lib/**`, hook, lưới trước-merge).

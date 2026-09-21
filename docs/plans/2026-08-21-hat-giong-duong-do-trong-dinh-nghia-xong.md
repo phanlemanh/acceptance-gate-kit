@@ -1,5 +1,8 @@
 # Hạt giống — đường đo nằm trong định-nghĩa-xong
 
+> **Việc này ĐÃ LÀM.** Ô `_acceptance/duong-do-trong-dinh-nghia-xong/` — đã giao — khai «không đo được» ở Cổng Đáng (2026-08-22). Hạt giống giữ lại
+> làm sổ của lúc nghĩ ra; đừng mở vòng mới từ đây.
+
 **Ngày:** 2026-08-21 · **Trạng thái:** `_acceptance/duong-do-trong-dinh-nghia-xong/opportunity.md` · **Hạng dự kiến:**
 T2 (một ô cấu trúc trong contract + một cờ vàng trên thẻ + một dòng cross-check
 của gap-probe; không chạm workflow, không chạm lưới trước-merge).

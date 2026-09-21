@@ -1,6 +1,9 @@
 # Hạt giống — repo khai plugin
 
-**Ngày:** 2026-08-21 · **Trạng thái:** hạt giống, chờ Cổng 0 · **Hạng dự kiến:**
+> **Việc này ĐÃ LÀM.** Ô `_acceptance/repo-khai-plugin/` — đã ký và giao (2026-08-21). Hạt giống giữ lại
+> làm sổ của lúc nghĩ ra; đừng mở vòng mới từ đây.
+
+**Ngày:** 2026-08-21 · **Trạng thái:** đã thực thi · **Hạng dự kiến:**
 T2 (một bước mới trong `acceptance-init` ghi một file JSON + sửa GUIDE §5.1 + hai
 ca kiểm; không chạm lưới, không chạm hồ sơ, không chạm workflow).
 **Sinh từ:** owner hỏi 21/08 *«đóng gói dạng gì để dùng đồng bộ trên nhiều máy và
