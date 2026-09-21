@@ -5,7 +5,7 @@ slug: nhan-trang-thai-va-reality
 owner: phanlemanh@gmail.com
 risk_tier: T3      # lib/workspace-record.cjs + scripts/pre-merge-check.sh + scripts/recheck-evidence.cjs — lõi cưỡng chế; đổi enum + thêm thao tác cổng người = khó-đảo
 surfaces: [cli, ci, docs]
-status: approved      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Phan Le Manh
 approved_at: 2026-09-21T06:12:41Z
 design_doc: docs/superpowers/specs/2026-09-21-nhan-trang-thai-va-reality-design.md
@@ -78,7 +78,7 @@ Ngưỡng ở `opportunity.md` đo ở `crm` SAU khi cài 2.18.0 (lệnh ở §7
 
 ## Notes
 
-- **Hồ sơ đã ký đo hành vi bị thu hồi:** `thuoc-co-cua` AC-12 (khoá `executors.script.tcc_tran_thuoc`) và vế `DO_GLOBS` của AC-10 (`tests/scripts/phan-loai.test.mjs`) đo đúng thứ vòng này gỡ, nên lượt ghim lại 2.18.0 sẽ đỏ trên chúng. Vòng này đổi test kho theo vật mới và KHÔNG chạm hồ sơ đã ký; cách để hồ sơ ấy rời luật ghim lại là câu hỏi ở Cổng Phạm vi (tiền lệ: hồ sơ nghỉ 2.17.0 · ADR 0015). Danh sách đủ chốt ở S3 bằng lượt chạy suite, không đoán ở S1.
+- **Hồ sơ đã ký đo hành vi bị thu hồi — chốt ở S3 bằng lượt chạy trọn năm suite (xanh cả năm):** đúng MỘT eval, `thuoc-co-cua` E17 (AC-12, trần nhát, khoá `executors.script.tcc_tran_thuoc`): tệp ca `tests/scripts/s4-args-tran-thuoc.test.mjs` rời suite cùng trần, nên lượt ghim lại 2.18.0 sẽ đỏ trên eval ấy. `thuoc-co-cua` AC-10 (E12) KHÔNG bị thu hồi — lời hứa của nó là «một nguồn, bốn lớp», và nó xanh dưới luật mới. Vòng này KHÔNG chạm hồ sơ đã ký; người quyết cho `thuoc-co-cua` nghỉ ở đợt ghim lại (khuôn hồ sơ nghỉ 2.17.0, sổ `d-20260921T055016Z-7`). Kèm theo: một lượt chạy trước 231 khoá executor riêng của mọi hồ sơ đã ký (mỗi khoá tối đa 120 giây) đang chạy nền lúc chuyển `implemented`; kết quả của nó thuộc chiến dịch ghim lại, không phải điều kiện của vòng.
 - **So sánh thước/vật đứt đời:** từ vòng này test kho là `vat`; dòng `thuoc-vat` của hồ sơ trước và sau không so thẳng được.
 - **Hai giới hạn khai của mảnh B/C.** (i) Lý do classifier/rate-limit/«Dừng nó» là văn tự do agent thuật: không rút được từ nguồn engine nên KHÔNG phân loại — nếu agent khai `cannotRun` cho một eval, nó rơi vào «không đọc được ở đây» (mở ô ký, nhãn chưa đúng tên), nếu không thì khoá như cũ; ngưỡng đếm: một lượt chấm `crm` bị đốt với lý do này sau 2.18.0 thì mở hạt giống. (ii) `commands/observed.md` là prompt: răng chỉ có ở khuôn dòng (round-trip) và ở lưới đọc dòng; lệnh bỏ bước kiểm tiền đề thì lưới vẫn bắt dòng thiếu vế.
 - **Chạm/lượt ở Cổng 2 có thể tăng** vì mọi cạnh gãy là câu hỏi (chưa có trọng số) — đo ở hai vòng `crm` đầu (kế hoạch §5 mục 5).
