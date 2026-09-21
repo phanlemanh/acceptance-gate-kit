@@ -1,0 +1,204 @@
+schema_version: 1
+feature_slug: nhan-trang-thai-va-reality
+# Sáu tệp ca dưới tests/, tên ca mang mã AC (khối ĐỊNH VỊ: tên test = tên AC). Mọi fixture là
+# kho git do CODE SINH trong lượt (git init, hợp đồng, báo cáo, run-log dựng bằng chính writer
+# của engine khi writer tồn tại — dòng round-tally rút từ khối marker của acceptance-verify.js,
+# dòng thuoc-vat/thuoc-lech rút từ khối marker của thuoc-vat.mjs, dòng sổ từ DEC-ID-RECIPE của
+# SKILL). Đường dẫn suy từ vị trí tệp ca. Bản «trước vòng» để so bằng nhau lấy TRỌN thư mục bằng
+# `git archive <cha của commit đầu tiên đưa marker NHAN-CANH-GAY vào scripts/gate-card.js> scripts
+# lib skills` — sha là đầu ra lệnh, không gõ tay; tìm không ra → ca ĐỎ có tên, không xanh.
+# Mỗi cặp hai-chiều dùng CÙNG fixture: vật lành → xanh, phá vật thật trong bản sao → đỏ với
+# thông điệp ghim. Mỗi eval ghim dòng PASS của các ca nó gọi tên (bộ chạy dedupe lệnh).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ntr_thuoc
+    expected: >
+      Exit 0, có dòng PASS của NT-AC1 và NT-AC1-dot-bien. NT-AC1: ma trận 8 đường viết trước
+      (4 tệp khớp DO_GLOBS → vat; config.yaml, evals.yaml, rang/r.mjs, do.sh dưới hồ sơ → thuoc)
+      so BẰNG NHAU với phanLoai của feature-loop/scripts/lib/phan-loai.mjs, số assert = 8.
+      NT-AC1-dot-bien: bản sao `git archive HEAD feature-loop` gỡ vế evals.yaml khỏi laThuoc →
+      đúng MỘT ô (_acceptance/s/evals.yaml) lật sang ho-so, bảy ô kia giữ; bản sao gắn lại vế
+      DO_GLOBS → bốn ô test lật về thuoc. Chiều đỏ trước vòng: HEAD cũ cho bốn ô test = thuoc.
+    paths: [feature-loop/scripts/lib/phan-loai.mjs, tests/scripts/ntr-thuoc.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ntr_thuoc
+    expected: >
+      Exit 0, có dòng PASS của NT-AC2 và NT-AC2-dem-loi. NT-AC2: kho fixture code sinh, hợp đồng
+      qua implemented, ba commit sau chỉ chạm evals.yaml → s4-args.mjs thoát 0, tệp args tồn
+      tại, stderr không chứa «tran nhat sua thuoc» và không chứa «Ba loi»; thuoc-vat.mjs --json
+      cùng kho trả nhat 3 (đối chứng: bộ đếm vẫn thấy ba nhát). NT-AC2-dem-loi: cùng kho làm hỏng
+      git (xoá .git/HEAD trong bản sao) → s4-args thoát khác 0, stderr ghim «bộ đếm nhát sửa
+      thước lỗi». Chiều đỏ trước vòng: s4-args cũ trên cùng kho thoát 4.
+    paths: [feature-loop/scripts/s4-args.mjs, feature-loop/scripts/thuoc-vat.mjs, tests/scripts/ntr-thuoc.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ntr_thuoc
+    expected: >
+      Exit 0, có dòng PASS của NT-AC3-lanh, NT-AC3-do, NT-AC3-im. Cùng một kho fixture, s4-args
+      sinh args (tệp .acceptance-runs/<slug>/thuoc-truoc.json có mặt, args mang thuocChup).
+      NT-AC3-lanh: không đổi gì → thuoc-vat --write thoát 0, run-log 0 dòng thuoc-lech.
+      NT-AC3-do: ma trận 4 mũi tiêm viết trước, mỗi mũi trên một bản sao riêng — đổi byte
+      evals.yaml · một tệp rang/ · _acceptance/config.yaml · một tệp tracked khớp DO_GLOBS →
+      mỗi mũi thoát 5, stderr ghim «thuoc lech trong luot cham», đúng một dòng kind thuoc-lech
+      có trường khớp khối marker THUOC-LECH-LINE và `tep` chứa ĐÚNG đường bị tiêm; 4/4. Mỗi mũi
+      assert tệp đã đổi byte trước khi tin màu đỏ. NT-AC3-im: ghi lại cùng byte vào evals.yaml
+      (mtime đổi) và đổi contract.md của hồ sơ → thoát 0, 0 dòng thuoc-lech.
+    paths: [feature-loop/scripts/chup-ho-so-da-thong.mjs, feature-loop/scripts/s4-args.mjs, feature-loop/scripts/thuoc-vat.mjs, tests/scripts/ntr-thuoc.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ntr_the
+    expected: >
+      Exit 0, có dòng PASS của NC-AC4 và NC-AC4-cu. NC-AC4: hồ sơ fixture PASS, run-log có dòng
+      thuoc-lech (sinh bằng thuoc-vat.mjs --write thật sau một mũi tiêm, không viết tay) cùng
+      round → gate-card --extract trả approvable false và one_shot null; HTML chứa nhãn «thước
+      lệch» và đường tệp bị tiêm; không chứa chuỗi ONE_SHOT_CMD_SIGNOFF. NC-AC4-cu: cùng hồ sơ
+      bỏ dòng thuoc-lech → HTML bằng đúng HTML của bản gate-card trước vòng (git archive).
+    paths: [scripts/gate-card.js, lib/nhan-canh-gay.cjs, tests/scripts/ntr-the-canh-gay.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    layer: backend-effect
+    cmd: config:executors.script.ntr_the
+    expected: >
+      Exit 0, có dòng PASS của NC-AC5 và NC-AC5-nen. Ma trận 4 ca viết trước, mỗi ca một báo cáo BLOCKED với
+      blocked[].reason do CHÍNH hàm chuẩn hoá của acceptance-verify.js sinh (exit 97 · exit 127 ·
+      TOOL_KILL_REASON · cannotRun của E2 trong hợp đồng fixture) → mỗi ca: --extract approvable
+      true, one_shot chứa «Mù-1» và kết thúc bằng «ký hay trả: ___»; HTML có nhãn «không đọc được
+      ở đây», tên eval + AC, đủ ba chuỗi lối («ghi hạn chế rồi ship», «dựng bàn đo rồi chấm lại»,
+      «trả lại») và ba dòng giá; frontmatter verdict của báo cáo sau khi dựng thẻ vẫn BLOCKED
+      (băm tệp trước/sau bằng nhau). 4/4, so bằng nhau với danh sách viết trước.
+      Kèm NC-AC5-nen: ca exit 127 + duong-nen.md (sinh bằng duong-nen.mjs thật trên kho fixture có
+      chân đỏ cùng lệnh) → khối cạnh gãy có «đỏ từ trước vòng»; cùng ca không có duong-nen.md →
+      không có câu ấy.
+    paths: [scripts/gate-card.js, lib/nhan-canh-gay.cjs, feature-loop/workflows/acceptance-verify.js, tests/scripts/ntr-the-canh-gay.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ntr_the
+    expected: >
+      Exit 0, có dòng PASS của NC-AC6. Ba fixture: REJECT (E1 exit 1) · BLOCKED lý do «evals.yaml
+      khai thieu» · BLOCKED lý do args sai. Mỗi fixture dựng thẻ bằng gate-card HEAD và bằng bản
+      trước vòng (git archive trọn scripts lib skills từ cha commit đầu đưa marker NHAN-CANH-GAY)
+      → HTML bằng nhau từng byte, --extract approvable false ở cả hai; 3/3. Đối chứng dương: một
+      fixture BLOCKED exit 127 cho HTML KHÁC nhau giữa hai bản (chứng phép so không hằng đúng).
+      Không tìm ra commit marker → ca ĐỎ ghim «khong tim thay commit dua NHAN-CANH-GAY».
+    paths: [scripts/gate-card.js, lib/nhan-canh-gay.cjs, tests/scripts/ntr-the-canh-gay.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ntr_the
+    expected: >
+      Exit 0, có dòng PASS của NC-AC7-mot và NC-AC7-hai. Cùng hồ sơ BLOCKED «agent bi skip/chet»
+      (chuỗi rút từ nguồn acceptance-verify.js, không gõ literal). Dòng round-tally do CHÍNH hàm
+      tallyLine của acceptance-verify.js sinh (nạp bằng harness vm như tests/workflows), không dựng
+      tay. NC-AC7-mot: một lần gọi tallyLine('BLOCKED', …) cho round 1 → approvable false, HTML có
+      «hệ thống chết» và «thử lại một lần». NC-AC7-hai: gọi lần thứ hai cho CÙNG round 1 (đúng
+      đường SKILL chạy lại BLOCKED ở cùng round) → approvable true, HTML có «hệ thống chết» và đủ
+      ba lối. Đối chứng: lần thứ hai ghi round 2 → vẫn khoá (thử lại chỉ tính cùng round).
+    paths: [scripts/gate-card.js, lib/nhan-canh-gay.cjs, tests/scripts/ntr-the-canh-gay.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    layer: backend-effect
+    cmd: config:executors.script.ntr_luoi
+    expected: >
+      Exit 0, có dòng PASS của NL-AC8-lanh, NL-AC8-thieu, NL-AC8-reject, NL-AC8-mot-nguon. Kho
+      fixture: hồ sơ T2 signed-off, báo cáo BLOCKED hai mục (E2 exit 127, E3 tool-kill). Dòng
+      revisit của từng mục do khuôn RÚT từ khối marker CANH-GAY-REVISIT-LINE của commands/signoff.md
+      (điền eval + AC), id từ DEC-ID-RECIPE — không gõ tiền tố decision trong ca. Lành →
+      pre-merge-check.sh --base thoát 0 với NOTE ghim «ký trên cạnh gãy có tên» nêu E2 và E3;
+      recheck-evidence.cjs --recheck-all thoát 0 cùng NOTE. Thiếu: bỏ dòng của E3 → cả hai thoát
+      khác 0, VIOLATION nêu E3 và không nêu E2. Reject: báo cáo REJECT có chữ ký → VIOLATION chuỗi
+      «verdict=REJECT» như bản trước vòng. Một nguồn: (a) bản sao làm vị từ của lib/nhan-canh-gay.cjs
+      luôn trả false → CẢ HAI bên đọc đỏ ở ca lành; (b) bản sao đổi tiền tố trong khối marker của
+      signoff.md, dòng sinh lại từ khuôn đã đổi → cả hai bên đọc đỏ nêu E2.
+    paths: [scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, lib/nhan-canh-gay.cjs, commands/signoff.md, tests/scripts/ntr-luoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ntr_trang_thai
+    expected: >
+      Exit 0, có dòng PASS của NS-AC9-moi, NS-AC9-cu, NS-AC9-sai. NS-AC9-moi: fixture hồ sơ
+      status da-cham-boi-thuc-te + dòng thuc-te đủ vế (by · at · build_sha · decision) → fieldProblem null; start-scan.mjs đặt
+      slug trong groups.done với stateKey da-cham-thuc-te và nhãn «đã chấm bởi thực tế»;
+      product-map.mjs không liệt slug ở nhóm đang dở. NS-AC9-cu: chạy start-scan và product-map
+      của HEAD và của bản trước vòng trên CÂY THẬT của kit (mọi hồ sơ hiện có) → JSON quét bằng
+      nhau sau khi bỏ trường thời gian, bản đồ bằng nhau từng byte. NS-AC9-sai: status
+      da-cham-boi-thuc-t → fieldProblem nêu «status không nhận diện được: da-cham-boi-thuc-t».
+    paths: [lib/workspace-record.cjs, scripts/start-scan.mjs, scripts/trang-thai-ho-so.cjs, scripts/product-map.mjs, tests/scripts/ntr-trang-thai.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    layer: backend-effect
+    cmd: config:executors.script.ntr_luoi
+    expected: >
+      Exit 0, có dòng PASS của NL-AC10-lanh, NL-AC10-thieu, NL-AC10-sha-la, NL-AC10-khoa, NL-AC10-mo-lai. Kho
+      fixture: hồ sơ T2 status da-cham-boi-thuc-te, báo cáo BLOCKED, chữ ký rỗng. Dòng thuc-te sinh
+      từ khuôn RÚT từ khối marker THUC-TE-LINE của commands/observed.md (điền build_sha = sha một
+      commit có thật của kho fixture), không dựng tay. Ma trận hai bên đọc (pre-merge-check.sh --base · recheck-evidence.cjs --recheck-all) × năm
+      ca = 10 assert, so bằng nhau với danh sách viết trước: lành → thoát 0, NOTE ghim «chạy trên prod từ bản dựng» kèm
+      sha7, ngày, tên · thiếu (bỏ build_sha) → VIOLATION nêu «build_sha» · sha lạ (40-hex không có
+      trong kho) → VIOLATION ghim «bản dựng không có trong kho» · khoá (commit đổi
+      evals.yaml sau dòng quan sát) → VIOLATION ghim «khoá việc thước» · mở lại (dòng supersedes trỏ
+      id dòng thuc-te) → VIOLATION «verdict=BLOCKED» như luật cũ. Một nguồn: bản sao làm thucTe luôn
+      trả null → cả hai bên cùng đỏ ở ca lành. Đối chứng dương: cùng kho khi status là approved →
+      VIOLATION chưa arm như bản trước vòng.
+    paths: [scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs, lib/workspace-record.cjs, commands/observed.md, tests/scripts/ntr-luoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.ntr_observed
+    expected: >
+      Exit 0, có dòng PASS của NO-AC11-khoa, NO-AC11-danh-sach, NO-AC11-do, NO-AC11-than.
+      Khoá: commands/observed.md có dòng «disable-model-invocation: true» trong frontmatter.
+      Danh sách: bảy tên rút từ mục thao tác cổng người của CLAUDE.md bằng đúng danh sách LOCKED
+      của ca P32 (rút từ tests/plugins/run-tests.sh), so bằng nhau, thứ tự không quan trọng.
+      Đỏ: bản sao gỡ dòng khoá khỏi observed.md, chạy khối P32 trên bản sao → thoát khác 0 ghim
+      «commands/observed.md lacks lock»; đối chứng dương cùng khối trên cây nguyên vẹn thoát 0.
+      Thân (round-trip): rút khuôn khối marker THUC-TE-LINE, điền build_sha 40-hex, đưa vào thucTe() của
+      lib → kiểu dong-so; bản sao đổi tên vế build_sha trong khối marker → thucTe trả dong-so-thieu
+      nêu «build_sha». KHÔNG kiểm chuỗi thân lệnh có mặt (lệnh là prompt — giới hạn khai ở Notes).
+    paths: [commands/observed.md, CLAUDE.md, lib/workspace-record.cjs, tests/plugins/run-tests.sh, tests/plugins/ntr-observed.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.ntr_the
+    expected: >
+      Exit 0, có dòng PASS của NC-AC12-co, NC-AC12-dai và NC-AC12-khong. Mọi kỳ vọng rút từ
+      chính tệp fixture lúc chạy, không gõ literal. NC-AC12-co: opportunity.md thân «Vấn đề & ai
+      gặp» 5 dòng → HTML chứa giá trị feature: và cả 5 dòng (esc HTML). NC-AC12-dai: thân 13 dòng →
+      đúng 12 dòng đầu có mặt, dòng 13 vắng, có «xem opportunity.md». NC-AC12-khong: cùng hồ sơ bỏ
+      opportunity.md → HTML không chứa nhãn khối ý định và không thêm cờ nào so với bản có tệp trừ
+      khối ấy.
+    paths: [scripts/gate-card.js, tests/scripts/ntr-the-canh-gay.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.ntr_hieu_chuan
+    expected: >
+      Exit 0, có dòng PASS của NH-AC13-so, NH-AC13-vo-hieu, NH-AC13-guide. NH-AC13-so: kho fixture
+      ba hồ sơ có dòng thuc-te hợp lệ, một có revisit «prod đỏ — » sau dòng quan sát, một có revisit
+      ấy TRƯỚC dòng quan sát (không đếm) → stdout đúng «ĐẠT đã ký → prod đỏ: 1 / 3». NH-AC13-vo-hieu:
+      kho không hồ sơ nào có dòng thuc-te → stdout đúng «ĐẠT đã ký → prod đỏ: vô hiệu (N = 0)»,
+      không chứa «0 / 0» và «0 sự cố». NH-AC13-guide: GUIDE.md mục năm dòng số có dòng trỏ
+      scripts/hieu-chuan-moc.mjs.
+    paths: [scripts/hieu-chuan-moc.mjs, GUIDE.md, tests/scripts/ntr-hieu-chuan.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
