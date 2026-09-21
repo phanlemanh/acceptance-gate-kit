@@ -21,15 +21,13 @@ const loi = e => String((e && (e.stderr || e.message)) || e).split('\n').slice(0
 const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const want = name => !process.env.NTR_CASES || process.env.NTR_CASES.split(',').includes(name);
 
-// Bản sao TRỌN một thư mục của cây đang kiểm (không chép danh sách tệp tay — bài học P150).
+// Bản sao TRỌN một thư mục của CÂY ĐANG KIỂM (không chép danh sách tệp tay — bài học P150;
+// chép cây làm việc chứ không `git archive HEAD` để bản sao mang cả vật chưa commit).
 function banSao(dirs) {
   const d = mkdtempSync(path.join(TMP, 'bs-'));
-  const tar = execFileSync('git', ['-C', KIT, 'archive', 'HEAD', ...dirs], { maxBuffer: 512 * 1024 * 1024 });
-  execFileSync('tar', ['-x', '-C', d], { input: tar });
+  for (const r of dirs) cpSync(path.join(KIT, r), path.join(d, r), { recursive: true });
   return d;
 }
-// Tệp đang sửa có thể CHƯA commit (TDD) — chép đè bản cây làm việc lên bản sao.
-function chepCayLamViec(d, rels) { for (const r of rels) cpSync(path.join(KIT, r), path.join(d, r)); }
 
 // ── AC-1 ────────────────────────────────────────────────────────────────────
 const MT = [
@@ -51,7 +49,7 @@ if (want('NT-AC1')) {
 
 if (want('NT-AC1-dot-bien')) {
   try {
-    const d = banSao(['feature-loop']); chepCayLamViec(d, [PL_REL]);
+    const d = banSao(['feature-loop']);
     const f = path.join(d, PL_REL);
     const goc = readFileSync(f, 'utf8');
     const KIM_EVALS = "  if (path.posix.basename(p) === 'evals.yaml') return true;\n";
@@ -103,7 +101,7 @@ if (want('NT-AC2')) {
 if (want('NT-AC2-dem-loi')) {
   try {
     const { d } = khoBaNhat();
-    const bs = banSao(['feature-loop']); chepCayLamViec(bs, ['feature-loop/scripts/s4-args.mjs']);
+    const bs = banSao(['feature-loop']);
     const tv = path.join(bs, 'feature-loop', 'scripts', 'thuoc-vat.mjs');
     const KIM = 'export function demThuocVat({ root, slug, t1SkipGlobs = [], frontmatterField }) {\n';
     const src = readFileSync(tv, 'utf8');
@@ -118,7 +116,91 @@ if (want('NT-AC2-dem-loi')) {
   } catch (e) { bad('NT-AC2-dem-loi', loi(e)); }
 }
 
-// @@AC3@@
+// ── AC-3 ────────────────────────────────────────────────────────────────────
+// Kho: vật + hợp đồng implemented + một test kho tracked. s4-args sinh args vào <ws>/s4-args.json
+// (đúng đường SKILL dùng), rồi một mũi tiêm, rồi thuoc-vat --write như bước sau-lượt của SKILL.
+const WS = d => path.join(d, '_acceptance', SLUG);
+function khoAC3() {
+  const { d } = dungKho(mkdtempSync(path.join(TMP, 'k3-')), ['vat', 'implemented']);
+  mkdirSync(path.join(d, 'tests'), { recursive: true });
+  writeFileSync(path.join(d, 'tests', 'k.test.mjs'), '// test kho\n');
+  git(d, 'add', '-A'); git(d, 'commit', '-qm', 'test kho');
+  const r = spawnSync(process.execPath, [S4ARGS, '--slug', SLUG, '--root', d, '--ag-root', KIT, '--out', path.join(WS(d), 's4-args.json'), '--diff-base', 'main'], { encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`s4-args thoat ${r.status}: ${String(r.stderr).split('\n')[0]}`);
+  return d;
+}
+const chayTV = d => spawnSync(process.execPath, [THUOC_VAT, '--root', d, '--slug', SLUG, '--ag-root', KIT, '--write'], { encoding: 'utf8' });
+const dongLech = d => readFileSync(path.join(WS(d), 'run-log.jsonl'), 'utf8').split('\n').filter(l => /"kind"\s*:\s*"thuoc-lech"/.test(l)).map(l => JSON.parse(l));
+// Khoá dòng RÚT từ khối marker của bên viết — không gõ literal.
+const khoaMarker = () => {
+  const src = readFileSync(THUOC_VAT, 'utf8');
+  const m = src.match(/<<<THUOC-LECH-LINE\n([\s\S]*?)THUOC-LECH-LINE>>>/);
+  if (!m) throw new Error('khong rut duoc khoi marker THUOC-LECH-LINE tu thuoc-vat.mjs');
+  return [...m[1].matchAll(/"([a-z_]+)":/g)].map(x => x[1]).filter((k, i, a) => a.indexOf(k) === i && k !== 'doi');
+};
+const doiByte = (f, them) => { const t = readFileSync(f, 'utf8'); writeFileSync(f, t + them); if (readFileSync(f, 'utf8') === t) throw new Error(`tiem khong doi byte: ${f}`); };
+
+if (want('NT-AC3-lanh')) {
+  try {
+    const d = khoAC3();
+    const args = JSON.parse(readFileSync(path.join(WS(d), 's4-args.json'), 'utf8'));
+    const r = chayTV(d);
+    if (!args.thuocChup || !args.thuocChup.tep || !Object.keys(args.thuocChup.tep).length) bad('NT-AC3-lanh', 'tep args khong mang thuocChup co ban do bam');
+    else if (!Object.keys(args.thuocChup.tep).includes('tests/k.test.mjs')) bad('NT-AC3-lanh', `anh chup thieu test kho: ${Object.keys(args.thuocChup.tep).join(',')}`);
+    else if (r.status !== 0) bad('NT-AC3-lanh', `khong doi gi ma thoat ${r.status}: ${r.stderr}`);
+    else if (dongLech(d).length) bad('NT-AC3-lanh', 'khong doi gi ma co dong thuoc-lech');
+    else ok('NT-AC3-lanh', `— anh chup ${Object.keys(args.thuocChup.tep).length} tep, khong doi gi: thoat 0, 0 dong lech`);
+  } catch (e) { bad('NT-AC3-lanh', loi(e)); }
+}
+
+if (want('NT-AC3-do')) {
+  // Ma trận viết trước: [tên mũi, hàm tiêm, đường mong gọi, đường mong KHÔNG gọi]
+  const MUI = [
+    ['evals.yaml', d => doiByte(path.join(WS(d), 'evals.yaml'), '# tiem\n'), `_acceptance/${SLUG}/evals.yaml`],
+    ['rang', d => doiByte(path.join(d, TEP.thuoc), '// tiem\n'), TEP.thuoc],
+    ['config', d => doiByte(path.join(d, '_acceptance', 'config.yaml'), '# tiem\n'), '_acceptance/config.yaml'],
+    ['test kho', d => doiByte(path.join(d, 'tests', 'k.test.mjs'), '// tiem\n'), 'tests/k.test.mjs'],
+    // Hình dạng ca thật crm dieu-phoi lượt D 21/09 (508ed3f7): tác nhân chấm COMMIT giữa lượt,
+    // chạm test kho lẫn vật → gọi đúng tệp test, KHÔNG gọi tệp vật (vật ngoài tập thước).
+    ['commit giua luot', d => { doiByte(path.join(d, 'tests', 'k.test.mjs'), '// tac nhan\n'); doiByte(path.join(d, TEP.vat), '// tac nhan\n'); git(d, 'add', '-A'); git(d, 'commit', '-qm', 'tac nhan cham'); }, 'tests/k.test.mjs', TEP.vat],
+  ];
+  const sai = [];
+  let n = 0;
+  let khoa;
+  try { khoa = khoaMarker(); } catch (e) { sai.push(loi(e)); }
+  for (const [ten, tiem, mong, khong] of MUI) {
+    n += 1;
+    try {
+      const d = khoAC3(); tiem(d);
+      const r = chayTV(d); const L = dongLech(d);
+      if (r.status !== 5) { sai.push(`${ten}: thoat ${r.status}, mong 5`); continue; }
+      if (!r.stderr.includes('thuoc lech trong luot cham')) { sai.push(`${ten}: thieu thong diep ghim`); continue; }
+      if (L.length !== 1) { sai.push(`${ten}: ${L.length} dong thuoc-lech, mong 1`); continue; }
+      const thieuKhoa = (khoa || []).filter(k => !(k in L[0]));
+      if (thieuKhoa.length) { sai.push(`${ten}: dong thieu khoa marker ${thieuKhoa.join(',')}`); continue; }
+      const tep = L[0].tep.map(x => x.tep);
+      if (!tep.includes(mong)) sai.push(`${ten}: tep ${JSON.stringify(tep)} khong goi ${mong}`);
+      else if (khong && tep.includes(khong)) sai.push(`${ten}: goi ca tep vat ${khong}`);
+    } catch (e) { sai.push(`${ten}: ${loi(e)}`); }
+  }
+  if (n !== MUI.length) bad('NT-AC3-do', `so mui ${n} khac ${MUI.length}`);
+  else if (sai.length) bad('NT-AC3-do', sai.join(' ; '));
+  else ok('NT-AC3-do', `— ${n}/${MUI.length} mui: thoat 5, thong diep ghim, dong dung khuon, goi dung tep`);
+}
+
+if (want('NT-AC3-im')) {
+  try {
+    const d = khoAC3();
+    const f = path.join(WS(d), 'evals.yaml');
+    writeFileSync(f, readFileSync(f));
+    const t = new Date(Date.now() + 3600e3); utimesSync(f, t, t);
+    doiByte(path.join(WS(d), 'contract.md'), '\n<!-- ghi chu -->\n');
+    const r = chayTV(d);
+    if (r.status !== 0) bad('NT-AC3-im', `ghi lai cung byte + doi contract.md ma thoat ${r.status}: ${r.stderr}`);
+    else if (dongLech(d).length) bad('NT-AC3-im', 'co dong thuoc-lech khi chi cham thu khong phai thuoc');
+    else ok('NT-AC3-im', '— mtime doi cung byte + contract.md doi: thoat 0, 0 dong lech');
+  } catch (e) { bad('NT-AC3-im', loi(e)); }
+}
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (ntr-thuoc)`);

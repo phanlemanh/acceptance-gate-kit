@@ -22,6 +22,7 @@ import { execFileSync } from 'node:child_process';
 import { globToRe } from './carry-plan.mjs';
 import { DO_GLOBS, HO_SO_VAN_BAN_GLOBS } from './lib/phan-loai.mjs';
 import { demThuocVat } from './thuoc-vat.mjs';
+import { chupThuoc } from './chup-ho-so-da-thong.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
@@ -528,6 +529,14 @@ const args = {
   ...(carriedPanels ? { carriedPanels } : {}),
   ...(models ? { models } : {}),
 };
+
+// ── ảnh chụp thước chỉ-đọc (nhan-trang-thai-va-reality AC-3) ──────────────
+// Sống TRONG tệp args (không tệp riêng: kho tiêu thụ chưa gitignore .acceptance-runs/
+// sẽ có cây bẩn và làn ghim lại từ chối). thuoc-vat.mjs --write chụp lại sau lượt và so.
+try {
+  const tep = chupThuoc(root, flags.slug, DO_GLOBS.map(globToRe));
+  args.thuocChup = { sha: invokedSha, n: Object.keys(tep).length, digest: sha256(JSON.stringify(tep)), tep };
+} catch (e) { die(`không chụp được thước: ${String((e && (e.stderr || e.message)) || e).split('\n')[0]}`); }
 
 const json = JSON.stringify(args, null, 2);
 if (flags.out) { fs.writeFileSync(flags.out, json); console.error(`s4-args: đã sinh ${flags.out} (round ${round}, ${evals.length} eval, ${suiteCommands.length} suite)`); }

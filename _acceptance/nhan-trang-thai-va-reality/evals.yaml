@@ -42,7 +42,7 @@ evals:
     cmd: config:executors.script.ntr_thuoc
     expected: >
       Exit 0, có dòng PASS của NT-AC3-lanh, NT-AC3-do, NT-AC3-im. Cùng một kho fixture, s4-args
-      sinh args (tệp .acceptance-runs/<slug>/thuoc-truoc.json có mặt, args mang thuocChup).
+      sinh args (tệp args mang khoá thuocChup có bản đồ băm các tệp thước).
       NT-AC3-lanh: không đổi gì → thuoc-vat --write thoát 0, run-log 0 dòng thuoc-lech.
       NT-AC3-do: ma trận 4 mũi tiêm viết trước, mỗi mũi trên một bản sao riêng — đổi byte
       evals.yaml · một tệp rang/ · _acceptance/config.yaml · một tệp tracked khớp DO_GLOBS →

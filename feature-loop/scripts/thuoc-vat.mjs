@@ -17,12 +17,15 @@
 //
 // exit 0 = xong (kể cả «chưa có mốc sàn») · exit 2 = usage / nguồn hỏng ·
 // exit 3 = --giua-hai-luot không liệt kê được (thiếu lượt, sha không thuần nhất) — KHÔNG đoán.
+// exit 5 = --write thấy THƯỚC LỆCH trong lượt chấm (ảnh chụp trong s4-args.json ≠ cây lúc này).
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { phanLoai } from './lib/phan-loai.mjs';
+import { phanLoai, DO_GLOBS } from './lib/phan-loai.mjs';
+import { chupThuoc, soThuoc } from './chup-ho-so-da-thong.mjs';
+import { globToRe } from './carry-plan.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SELF = fileURLToPath(import.meta.url);
@@ -30,6 +33,12 @@ const SELF = fileURLToPath(import.meta.url);
 // <<<THUOC-VAT-LINE
 // {"kind":"thuoc-vat","ts":"<ISO>","round":<n>,"san":"<sha>","vat":[<a>,<b>],"thuoc":[<c>,<d>],"ho_so":[<e>,<f>],"nhat":<k>,"lan":<m>,"tep_thuoc":["<đường>"]}
 // THUOC-VAT-LINE>>>
+
+// Dòng «thước lệch trong lượt chấm» (nhan-trang-thai-va-reality AC-3). Bên đọc (thẻ Cổng 2,
+// ca đo) rút khoá từ CHÍNH khối này.
+// <<<THUOC-LECH-LINE
+// {"kind":"thuoc-lech","ts":"<ISO>","round":<n>,"sha":"<sha lúc sinh args>","tep":[{"tep":"<đường>","doi":"<đổi nội dung|thêm|xoá>"}]}
+// THUOC-LECH-LINE>>>
 
 const TIEN_TO_VAN = 'trần thước — ';
 
@@ -126,6 +135,20 @@ export function dongThuocVat(dem, { round, ts }) {
   return JSON.stringify(o);
 }
 
+export function dongThuocLech(tep, { round, ts, sha }) {
+  const src = fs.readFileSync(SELF, 'utf8');
+  const m = src.match(/<<<THUOC-LECH-LINE\n([\s\S]*?)THUOC-LECH-LINE>>>/);
+  if (!m) throw new Error('khong rut duoc khoi marker THUOC-LECH-LINE');
+  const khoa = [...m[1].matchAll(/"([a-z_]+)":/g)].map(x => x[1]).filter((k, i, a) => a.indexOf(k) === i && k !== 'doi');
+  const giaTri = { kind: 'thuoc-lech', ts, round, sha: sha || null, tep };
+  const thieu = khoa.filter(k => !(k in giaTri));
+  const thua = Object.keys(giaTri).filter(k => !khoa.includes(k));
+  if (thieu.length || thua.length) throw new Error(`khuon THUOC-LECH-LINE lech ben viet — thieu: ${thieu.join(',')} · thua: ${thua.join(',')}`);
+  const o = {};
+  for (const k of khoa) o[k] = giaTri[k];
+  return JSON.stringify(o);
+}
+
 function docRunLog(p) {
   if (!fs.existsSync(p)) return [];
   return fs.readFileSync(p, 'utf8').split('\n').filter(Boolean)
@@ -138,10 +161,10 @@ const isMain = (() => {
 })();
 
 if (isMain) {
-  const USAGE = 'usage: thuoc-vat.mjs --root <repo> --slug <slug> [--ag-root <dir>] [--json] [--write] [--giua-hai-luot] [--target <sha>]';
+  const USAGE = 'usage: thuoc-vat.mjs --root <repo> --slug <slug> [--ag-root <dir>] [--args <s4-args.json>] [--json] [--write] [--giua-hai-luot] [--target <sha>]';
   const die = (msg, code = 2) => { console.error(`thuoc-vat: ${msg}`); process.exit(code); };
   const BOOL = new Set(['json', 'write', 'giua-hai-luot']);
-  const VAL = new Set(['root', 'slug', 'ag-root', 'target']);
+  const VAL = new Set(['root', 'slug', 'ag-root', 'target', 'args']);
   const flags = {};
   {
     const argv = process.argv.slice(2);
@@ -239,6 +262,27 @@ if (isMain) {
     fs.mkdirSync(ws, { recursive: true });
     fs.appendFileSync(runLogPath, line + '\n');
     console.error(`thuoc-vat: da noi dong thuoc-vat vao ${runLogPath} (round ${round})`);
+    // Thước chỉ-đọc (AC-3): so ảnh chụp trong tệp args với cây lúc này. Lệch = lượt ấy
+    // chấm bằng thước khác thước lúc sinh args → không dùng được; chấm lại lượt mới.
+    const argsPath = flags.args ? path.resolve(flags.args) : path.join(ws, 's4-args.json');
+    let chup = null;
+    try { chup = JSON.parse(fs.readFileSync(argsPath, 'utf8')).thuocChup || null; } catch { chup = null; }
+    if (!chup || !chup.tep) console.error(`thuoc-vat: không có ảnh chụp thước (${path.relative(root, argsPath) || argsPath}) — hồ sơ đời cũ, bỏ qua so`);
+    else {
+      let lech;
+      try { lech = soThuoc(chup.tep, chupThuoc(root, slug, DO_GLOBS.map(globToRe))); }
+      catch (e) { die(`không chụp lại được thước: ${String(e.message).split('\n')[0]}`); }
+      if (lech.length) {
+        let dl;
+        try { dl = dongThuocLech(lech, { round, ts: new Date().toISOString().slice(0, 19) + 'Z', sha: chup.sha }); }
+        catch (e) { die(String(e.message)); }
+        fs.appendFileSync(runLogPath, dl + '\n');
+        console.error('thuoc-vat: thuoc lech trong luot cham — luot nay khong dung duoc, cham lai luot moi');
+        for (const x of lech) console.error(`  ${x.doi}: ${x.tep}`);
+        if (flags.json) console.log(JSON.stringify(dem));
+        process.exit(5);
+      }
+    }
   }
 
   if (flags.json) console.log(JSON.stringify(dem));
