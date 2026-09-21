@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 5b90977903b5077b7bbc9e9aa53154c059bda5f2
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-21 — ký lượt chấm 2; Ngoài-1…Ngoài-8 ghi Known limits; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: nhan-trang-thai-va-reality

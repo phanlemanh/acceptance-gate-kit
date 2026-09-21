@@ -5,7 +5,7 @@ slug: nhan-trang-thai-va-reality
 owner: phanlemanh@gmail.com
 risk_tier: T3      # lib/workspace-record.cjs + scripts/pre-merge-check.sh + scripts/recheck-evidence.cjs — lõi cưỡng chế; đổi enum + thêm thao tác cổng người = khó-đảo
 surfaces: [cli, ci, docs]
-status: verified      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Phan Le Manh
 approved_at: 2026-09-21T06:12:41Z
 design_doc: docs/superpowers/specs/2026-09-21-nhan-trang-thai-va-reality-design.md
@@ -84,3 +84,5 @@ Ngưỡng ở `opportunity.md` đo ở `crm` SAU khi cài 2.18.0 (lệnh ở §7
 - **Chạm/lượt ở Cổng 2 có thể tăng** vì mọi cạnh gãy là câu hỏi (chưa có trọng số) — đo ở hai vòng `crm` đầu (kế hoạch §5 mục 5).
 - **Ngoài phạm vi, vào hạt giống:** tác nhân chấm commit vào cây giữa lượt (ca crm `dieu-phoi` lượt D 21/09) — AC-3 chỉ bắt phần chạm thước; phần chạm vật và báo cáo ở `docs/plans/2026-09-21-hat-giong-tac-nhan-cham-ghi-vao-cay.md`.
 - Khuôn hợp đồng (`contract-template.md`) và comment `status:` của mọi khuôn liệt thêm `da-cham-boi-thuc-te`; hồ sơ cũ không phải sửa.
+- **Known limits — owner ghi ở Cổng Bằng chứng 21/09 (sổ `d-20260921T115445Z-14` … `-21`):**
+  (1) nhánh «không tìm thấy commit ghi dòng quan sát → THIEU» trong `checkThucTe` chưa có ca đỏ nào chạm tới (Ngoài-1, Ngoài-5); (2) ca ấy dùng lại mã 1 «thiếu vế», nên lưới trước-merge và `recheck-evidence` in lời «thiếu vế commit-ghi-dong-quan-sat» và gợi ý ghi lại dòng, trong khi việc đúng là commit dòng đã có (Ngoài-2, Ngoài-4); (3) phần kỳ vọng của E10 còn ghi «năm ca = 10 assert», thực tế sáu ca = 12 (Ngoài-3); (4) hồ sơ `draft` nhảy thẳng sang `da-cham-boi-thuc-te` được — hook tự khai «never from draft» nhưng không mã nào chặn, và lưới trước-merge không áp luật Cổng 1 (Ngoài-6, Ngoài-7; mức cao nhất là high); (5) `thuoc-vat --write` bỏ qua phép so thước khi tệp args đọc/parse lỗi, kể cả khi `--args` truyền tường minh (Ngoài-8).
