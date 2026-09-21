@@ -1,5 +1,8 @@
 # Hạt giống — design-pass nấc không đồng bộ + bước phân kỳ bằng canvas
 
+> **Việc này ĐÃ LÀM.** Ô `_acceptance/design-pass-nac-khong-dong-bo/` — đã ký, đang chờ Cổng Giá trị (2026-08-26). Hạt giống giữ lại
+> làm sổ của lúc nghĩ ra; đừng mở vòng mới từ đây.
+
 **Ngày:** 2026-08-19 · **Trạng thái:** `_acceptance/design-pass-nac-khong-dong-bo/opportunity.md`
 (ô cơ hội mở 22/08 — đang cân nhắc, ngưỡng chờ owner điền; ván thử b1 đã DỪNG
 19/08, xem 4.3) · **Hạng dự kiến:** T2 (đổi lời một skill + docs; không chạm

@@ -139,6 +139,34 @@ bảng trên là lối cắt; nếu owner muốn tách thành ô riêng thì m�
 - `docs/plans/2026-09-19-hat-giong-vong-meta-vat-la-rang-ngan-sach-luot-cham.md` — vòng meta
   có vật là răng phải chốt ngân sách lượt chấm trước; ca mẫu là chính vòng này.
 
+## Hạt giống 21/09 — từ retro kho TIÊU THỤ (crm), không sinh từ vòng này
+
+Neo ngoài: `crm/_acceptance/thuoc-khai-dung-tieng` và `crm/_acceptance/ho-so-khai-dung-tieng` —
+hạng mục «khai đúng tiếng» 19–20/09: 44 giờ, 96 commit, 12 lượt chấm S4, ≥6,6 M token, tỉ lệ bộ
+đo trên sản phẩm **57:1**, và **chưa xong**. Retro:
+`crm:docs/findings/2026-09-20-retro-hang-muc-khai-dung-tieng.md`, đề xuất K1–K8 cho kit.
+
+Ghi ở đây vì ô này là ô đúng chủ đề — «ý có neo ngoài mà CHƯA mở ô sống ở hạt giống». Bảy tệp
+dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **chân VC8 cơ học**, không phải neo.
+
+- `docs/plans/2026-09-21-hat-giong-tach-instrument-sha-khoi-verified-commit.md` — K1: sửa thước
+  làm hoá cũ bằng chứng của vật; ghim chung một sha thì «hoá cũ» là trạng thái thường trực.
+- `docs/plans/2026-09-21-hat-giong-dem-vong-tu-run-log-khong-tu-bao-cao.md` — K2: bộ đếm vòng
+  đọc tệp chỉ sinh khi THẮNG; 12 lượt thật, 6 dòng `round-tally`, 0 lần carry-forward.
+- `docs/plans/2026-09-21-hat-giong-cong-1-chan-ac-ghim-co-che.md` — K3: AC ghim byte của một tệp
+  làm tiêu chí, nên cải thiện thước = vi phạm hợp đồng.
+- `docs/plans/2026-09-21-hat-giong-nguoi-cham-chi-doc-tren-cay-duoc-do.md` — K4: agent chấm ghi
+  vào cây được đo, phép đo khác báo sai nguyên nhân; luật «ra `.acceptance-runs/`» chỉ là lời dặn.
+- `docs/plans/2026-09-21-hat-giong-vi-tu-tran-thuoc-dem-vong-chua-duyet.md` — K5: trần nổ 5 lần,
+  miễn 5 lần; vị từ «chạm thước không chạm vật» luôn báo động với vòng sửa thước ĐÃ duyệt.
+- `docs/plans/2026-09-21-hat-giong-o-do-khai-tuan-tu.md` — K6: eval cần chạy một mình không khai
+  được, nên vỡ trần (E12b 3 583 s so trần 600 s).
+- `docs/plans/2026-09-21-hat-giong-khai-ca-dung-cua-de-quy-dung-bac.md` — K8: **nặng nhất** —
+  không bậc nào của chuỗi đo được khai là tiên đề, và lối thoát số 3 trỏ ngược vào vòng vừa đóng.
+
+K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
+20/09 (PR #190). Không mở lại.
+
 ## Out of scope từ khám phá
 
 - Không đặt trần số ô tồn kho bằng một con số cứng — trần bằng neo, không bằng đếm; con số cứng

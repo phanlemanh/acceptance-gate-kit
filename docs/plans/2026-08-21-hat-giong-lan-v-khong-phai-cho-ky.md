@@ -1,6 +1,9 @@
 # Hạt giống — hồ sơ làn V không phải «chờ ký»
 
-**Ngày:** 2026-08-21 · **Trạng thái:** hạt giống, chờ Cổng 0 · **Hạng dự kiến:**
+> **Việc này ĐÃ LÀM.** Ô `_acceptance/lan-v-khong-phai-cho-ky/` — đã ký và giao (2026-08-21). Hạt giống giữ lại
+> làm sổ của lúc nghĩ ra; đừng mở vòng mới từ đây.
+
+**Ngày:** 2026-08-21 · **Trạng thái:** đã thực thi · **Hạng dự kiến:**
 T2 (hai bộ đọc hồ sơ: máy quét vào phiên + bản đồ sản phẩm; không chạm lưới
 trước-merge, không chạm lưới ghi-lúc-viết, không thêm trường nào vào hồ sơ).
 **Sinh từ:** phiên 21/08 — owner hỏi «hạng mục nào ở chờ-chữ-ký đã lỗi thời»;

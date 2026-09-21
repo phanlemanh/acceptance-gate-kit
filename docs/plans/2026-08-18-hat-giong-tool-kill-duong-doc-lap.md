@@ -1,6 +1,9 @@
 # Hạt giống — luật «hết giờ không phải trượt» cho đường kiểm chạy độc lập
 
-**Ngày:** 2026-08-18 · **Trạng thái:** hạt giống, chờ Cổng 1 · **Hạng dự kiến:** T2
+> **Việc này ĐÃ LÀM.** Ô `_acceptance/tool-kill-duong-doc-lap/` — đã ký và giao (2026-08-19). Hạt giống giữ lại
+> làm sổ của lúc nghĩ ra; đừng mở vòng mới từ đây.
+
+**Ngày:** 2026-08-18 · **Trạng thái:** đã thực thi · **Hạng dự kiến:** T2
 **Sinh từ:** việc-của-người tại Cổng 2 của `het-gio-khong-phai-truot` (owner chốt
 18/08: tách thành việc riêng, không nâng phạm vi bản đang ký).
 
