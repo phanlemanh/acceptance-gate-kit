@@ -40,7 +40,7 @@ slug: {slug}
 owner: {owner}
 risk_tier: {risk_tier}      # T2 (chuẩn) | T3 (auth/dữ liệu/API phá vỡ)
 surfaces: [{surfaces}]      # api | cli | sdk | ui | mobile | docs | ci | config — alias web, web-ui → ui; ngăn cách bằng dấu phẩy
-status: {status}            # draft | approved | implemented | verified | signed-off | machine-cleared — LUÔN `draft` lúc tạo; Cổng 1 → approved; vòng làm → implemented/verified; Cổng 2 → signed-off (người ký) hoặc machine-cleared (máy đã thông, xanh-sạch, không chữ ký)
+status: {status}            # draft | approved | implemented | verified | signed-off | machine-cleared | da-cham-boi-thuc-te — LUÔN `draft` lúc tạo; Cổng 1 → approved; vòng làm → implemented/verified; Cổng 2 → signed-off (người ký) hoặc machine-cleared (máy đã thông, xanh-sạch, không chữ ký)
 approved_by:
 approved_at:
 ---

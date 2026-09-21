@@ -29,7 +29,7 @@ const { frontmatterField, resolveConfigKey, chuKyThat } = require(path.join(__di
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
 const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
         configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked,
-        DA_THONG_CONG_2, conflictProblem, hoSoNghi } =
+        DA_THONG_CONG_2, conflictProblem, hoSoNghi, DA_DONG_THUC_TE, thucTe } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 // Argv hỏng CHẾT TO (exit 2), không âm thầm rơi về cwd: một cờ được KHAI mà
@@ -326,6 +326,16 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // khoá này, ô chỉ để xếp chỗ trên bản đồ.
       done.push(g(oNghi, { slug, state: status, at: nghi.at,
         nghi: { by: nghi.by, at: nghi.at, ly_do: nghi.ly_do, id: nghi.id } }));
+      continue;
+    }
+    // Trạng thái thứ bảy `da-cham-boi-thuc-te` (ADR 0020 Đ8): reality đã chấm — ô CUỐI,
+    // rời nhóm đang dở. HỎI vị từ dùng chung. Dòng quan sát vắng/thiếu vế → vẫn ô cuối
+    // (status là lời người) nhưng mang cờ gọi đúng vế; lưới trước-merge chặn cùng lý do.
+    if (DA_DONG_THUC_TE && DA_DONG_THUC_TE.includes(status)) {
+      const tt = thucTe(read(path.join(dir, 'decisions.jsonl')).t);
+      const ttFlags = !tt ? ['thuc-te-vang'] : tt.kieu === 'dong-so-thieu' ? tt.thieu.map(v => `thuc-te-thieu-ve:${v}`) : [];
+      done.push(g('da-cham-thuc-te', { slug, state: status, at: tt && tt.at ? String(tt.at).slice(0, 10) : '', flags: ttFlags,
+        thucTe: tt && tt.kieu === 'dong-so' ? { by: tt.by, at: tt.at, build_sha: tt.build_sha, id: tt.id } : null }));
       continue;
     }
     // Dòng nghỉ thiếu vế KHÔNG phải nghỉ (fail-closed) — nhưng im lặng ở đây thì
