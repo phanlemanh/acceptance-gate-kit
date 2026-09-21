@@ -144,10 +144,10 @@ chấm. Không dựng phép đo mới cho năm dòng này.
 |---|---|---|---|---|
 | **M1** | **Tiếng nói của vật** — % out-token vai `machine` trên tổng lượt chấm | `usage-report.md` | **7,4 %** (33 lượt) | ↑ |
 | **M2** | **Đồng hồ mù** — % eval ĐẠT không có `baseline: red` / không frame | `evidence-report.md` | ui-check: 46 % không frame · 97,4 % PASS | ↓ về 0 *hiện thành nhãn*, không thành PASS |
-| **M3** | **Hiệu chuẩn** — ĐẠT-đã-ký → prod đỏ: k / N | hồ sơ mốc + sổ sự cố | **không đo** (0 dòng trong `docs/`) | dòng duy nhất định nghĩa «đủ» |
-| **M4** | **Thước : Vật** — dòng diff thước / dòng diff vật mỗi vòng | `git diff --stat` theo `phan-loai` | 57 : 1 (xấu nhất) · dieu-phoi 1,3 : 1 | ↓ |
-| **M5** | **Hồ sơ có ý định ghi** | `opportunity.md` hiện diện | **9 %** (28/310) | 100 % vòng mới |
-| **M6** | **Vòng có chủ ngữ là thước** | slug/hợp đồng | crm: 2 đang mở, ≥ 11 hồ sơ họ thước | **0** |
+| **M3** | **Hiệu chuẩn** — ĐẠT-đã-ký → prod đỏ: k / **N**, N = số hồ sơ đã ký có dòng quan sát prod | hồ sơ mốc + sổ sự cố | **không đo** (không tìm thấy ca nào được ghi) | dòng duy nhất định nghĩa «đủ»; **N không tăng thì M3 chết**, không phải «0 sự cố» |
+| **M4** | **Thước : Vật** — dòng diff thước / dòng diff vật mỗi vòng | `git diff --stat` theo `phan-loai` | 57 : 1 (xấu nhất) · dieu-phoi 1,3 : 1 | ≈ **ngân sách khai ở Cổng Đáng** theo cỡ vật (R1 retro) — không đọc «càng thấp càng tốt»: 0 thước cũng là 0 |
+| **M5** | **Hồ sơ có ý định ghi** | `opportunity.md` hiện diện | **9 %** (28/310) | 100 % vòng T2/T3 mới; T1 miễn |
+| **M6** | **Vòng có chủ ngữ là thước** | slug/hợp đồng | crm: `thuoc-khai-dung-tieng` (đã ký) + `ho-so-khai-dung-tieng` (đang mở); kit: 22/35 ô 08–18/09 sinh từ nghi thức | **0** |
 
 Chỉ **M1** và **M3** là số *định vị* (nói kit đang ở đâu so North Star); M2, M4–M6
 là số *chẩn đoán* để biết nên cắt gì. Đề nghị: M1 + M3 vào hồ sơ mốc; còn lại đọc
@@ -212,8 +212,10 @@ khi cần, không thành nghi thức.
   chỉ nổ khi *cùng* lớp; ở đây mỗi lượt một lớp.
 - `TRAN_NHAT = 3` nổ 5 lần, miễn 5 lần. Lối (3) của `s4-args` = «mở vòng có chủ
   ngữ là thước» — chính vòng đang thoát.
-- **0 dòng** trong `docs/` ghi một ca «ký xanh → prod đỏ». Không hiệu chuẩn → «đủ»
-  không định nghĩa → mặc định của máy đối kháng là «chưa đủ».
+- Không tìm thấy một ca «ký xanh → prod đỏ» nào được ghi trong `docs/` (quét hai
+  regex rộng/hẹp; 2 dòng khớp đều là nguyên tắc chung trong playbook 07/09, không
+  phải ca của kit; `release-2-15-0` chỉ khai *thiếu trạng thái* đóng-theo-quan-sát).
+  Không hiệu chuẩn → «đủ» không định nghĩa → mặc định của máy đối kháng là «chưa đủ».
 
 ### 5.5 Thẻ Cổng 2 khoá người lái khi đồng hồ không đọc được
 
@@ -310,11 +312,11 @@ owner phê đích danh (ADR 0018).
 
 | # | Loại | Việc | Trace | Người hưởng | Số đổi |
 |---|---|---|---|---|---|
-| **Đ1** | TRỪ | `DO_GLOBS` thôi xếp test của kho là thước; gỡ trần nhát + ba lối; thay bằng câu Ý ↔ Thước «nhát này làm thước gần cơn đau hơn không?»; tác nhân chấm sửa thước = **lỗi làn**, không phải nhát | 3 | phiên Claude Code, owner (0 lượt gọi ngoài thiết kế do trần) | lượt gọi ↓, M4 đọc đúng |
-| **Đ2** | DỜI | Thẻ Cổng 2 phân biệt **đỏ-bàn-đo / đỏ-vật**: dời logic `NEN_DO_FLAG` từ Cổng 1 sang Cổng 2; mở lối `1077` cho eval *trong* hợp đồng không đọc được; ô ký **mở** với cạnh gãy có tên + ba lối + giá; ghi bằng `revisit` có điều kiện (schema sẵn); con số không đổi | 3 | người ký | vòng bị hạ tầng đốt ↓, thời gian quyết ↓ |
+| **Đ1** | TRỪ | `DO_GLOBS` thôi xếp test của kho là thước; gỡ trần nhát + ba lối. Phanh thay thế là **vật-máy-giữ, không phải câu hỏi**: thước của hồ sơ đang chấm **chỉ-đọc trong S4** — băm `evals.yaml` + `rang/` + tệp `DO_GLOBS` trước/sau lượt chấm (như 2.15 làm với hồ sơ đã ký), lệch = lỗi làn, dừng; tác nhân chấm sửa thước vì thế **không thể** thành «nhát». Câu Ý ↔ Thước «nhát này làm thước gần cơn đau hơn không?» dành cho **người** ở Cổng Đáng khi mở ngân sách | 3 | phiên Claude Code, owner (0 lượt gọi ngoài thiết kế do trần) | lượt gọi ↓, M4 đọc đúng |
+| **Đ2** | DỜI | Thẻ Cổng 2 phân biệt **đỏ-bàn-đo / đỏ-vật**: dời logic `NEN_DO_FLAG` từ Cổng 1 sang Cổng 2; mở lối `1077` cho eval *trong* hợp đồng không đọc được; ô ký **mở** với cạnh gãy có tên + ba lối + giá; ghi bằng `revisit` có điều kiện (schema sẵn); con số không đổi. **Định tuyến theo ý định:** cạnh gãy trên AC **lõi** → câu hỏi thật (1 phút · 1 khuyến nghị · 1 chạm); trên AC **phụ** → làn V: máy đi tiếp, cửa veto mở, một dòng báo — không hỏi | 3 | người ký | vòng bị hạ tầng đốt ↓, thời gian quyết ↓ |
 | **Đ3** | TRỪ | Bỏ lối (3) «mở vòng chủ ngữ là thước» của `s4-args`; BLOCKED chỉ còn cho hệ thống chết chưa thử lại | 3 | phiên | M6 → 0 |
 | **Đ4** | TRỪ cơ chế, GIỮ ý định | W8 giữ **ý định** (người ký phải biết đã thấy màn hay chưa) — thẻ nói «AC-n: chưa ai thấy màn»; bỏ **cơ chế** ép sinh eval + cờ; `ui-check` = **lệnh** (test Playwright trong kho) hoặc nhãn «quan sát, không tái lập»; **ĐẠT-MÙ do máy suy** (không `baseline: red` / không frame) | 2 | owner đọc thẻ thật | M2 ↓, token ui 8 % ↓ |
-| **Đ5** | DỜI | Judgment mặc định là **ô người đọc trên thẻ** (`human_override` + rationale giữ); hội đồng 3 lens **theo yêu cầu** — Cổng Đáng gọi tên AC cần đối kháng (T3, khó-đảo), có giá; synthesize → **render máy** từ sáu thứ §3.2 (evidence-report giữ khuôn, nội dung sinh, không soạn) | 2, 3 | owner (đỡ đọc văn), token | token ≈ −20 % (judge phần lớn + synthesize 13,4 %) |
+| **Đ5** | DỜI | Judgment mặc định là **ô người đọc trên thẻ** (`human_override` + rationale giữ); hội đồng 3 lens **theo yêu cầu** — Cổng Đáng gọi tên AC cần đối kháng (T3, khó-đảo), có giá; synthesize → **render máy** từ sáu thứ §3.2 (evidence-report giữ khuôn, nội dung sinh, không soạn). **Đo chạm/lượt** ở hai vòng đầu: tăng → giữ **một** lens tóm tắt căn cứ cho ô judgment (≈ 1/3 giá) thay vì bỏ hẳn | 2, 3 | owner (đỡ đọc văn), token | token ≈ −20 % (judge phần lớn + synthesize 13,4 %) — với điều kiện chạm/lượt không tăng |
 | **Đ6** | DỜI | Review + bác bỏ **giữ mặc định trên diff vật** (nơi bắt lỗi thật: AC-6 `dieu-phoi`, E8, E13j), một lần mỗi lần vật đổi (carry-forward đã có); **cắt** phần soi thước · hồ sơ · tài liệu (2.13 «vùng vật» đã bắt đầu; ca 20/20 refuter soi hồ sơ 0 soi vật là phần cắt) | 2 | token | cắt đúng khoản phi-vật, đo bằng `vungVat` |
 | **Đ7** | DỜI | **Ý định đi suốt**: thẻ Cổng 2 mở bằng dòng ý định + AC nào chở cơn đau nào; khối verdict trích; mọi vòng mới có `opportunity.md` hoặc khối 3 dòng «Ý định» trong contract; máy không sửa nó giữa vòng | 1 | người ký (biết mình ship gì) | M5 → 100 %, giới-hạn-mặc-định bị chặn |
 | **Đ8** | **CỘNG một chữ** | Trạng thái thứ 7 `da-cham-boi-thuc-te`: **người** ghi một dòng (sha prod + ngày, như `112c4f5a`); máy nhận là **cuối**, khoá mọi việc thước trên hồ sơ | 1, 3 | owner (đóng được thứ đã xong) | M6 → 0, `thuoc-`/`ho-so-` không tái sinh |
@@ -341,6 +343,24 @@ mặc định) → phải có răng cả hai chiều: **chiều đỏ ngoài = M
 ký), **chiều im = M2** (đồng hồ mù không được thành PASS). Số lượt chấm sai giữa hai
 mốc không tăng — vẫn là ngưỡng (a), không dựng phép đo mới.
 
+### 7.2 Điều kiện thi hành — để chính đề xuất này không đi ngược North Star
+
+Đề xuất này là việc-kit; luật chiều rộng (b), luật neo ngoài và ADR 0002 áp lên nó
+y như mọi việc-kit khác. Rà từng vế:
+
+| Vế North Star / hiến pháp | Chỗ đề xuất có thể đi ngược | Điều kiện thi hành |
+|---|---|---|
+| «giữa hai mốc một kho nhận tối đa MỘT vòng meta» (b) | thi hành Đ1–Đ11 như một chiến dịch «định vị lại» = đúng mẫu 5 vòng meta liên tiếp sau 2.4.0 | **Không có vòng «định vị lại».** Đ1–Đ3 đi như TRỪ *bên trong* vòng sản phẩm đang vấp (crm `dieu-phoi`; hồ sơ «chín khung»). Chỉ Đ7 + Đ8 là cấu trúc → tối đa **một** vòng meta, owner gọi tên, buộc vào mốc mà crm sẽ cài. Đ4–Đ6, Đ9–Đ11: mỗi cái chờ một ca thật gọi tên, vào hạt giống trước |
+| «chữ quyết vẫn của người» — 6 thao tác cổng khoá model-invocation (ADR 0002) | Đ8: máy tự «đóng theo quan sát» | ghi `da-cham-boi-thuc-te` là thao tác cổng người **thứ 7**, khoá model-invocation như `signoff`; P32 mở rộng theo |
+| «token giảm mà lượt gọi người tăng là thất bại» | Đ5 bỏ hội đồng → người đọc căn cứ thô; Đ2 mở ô ký với cạnh gãy → người quyết nhiều hơn | số **lượt** không đổi (một thẻ ở cổng đã có) nhưng **chạm/lượt** có thể tăng → đo trước–sau ở hai vòng đầu; tăng → giữ một lens (Đ5) và chỉ hỏi cạnh gãy trên AC lõi (Đ2) |
+| «cổng mà câu trả lời hợp lý duy nhất là ừ là trạm thu phí» | Đ2: máy luôn khuyên «chấp nhận chưa đọc», người luôn gật | khuyến nghị rút từ **trọng số ý định** (Đ7 đi trước Đ2 về logic); AC phụ không hỏi; sau hai mốc tỉ lệ «chấp nhận» ≈ 100 % → cắt câu hỏi, để làn V |
+| «màu xanh phải từng chạy chiều đỏ» (nguyên tố 2) | Đ4 hạ chiều đỏ từ cổng xuống nhãn → ship ĐẠT-MÙ hàng loạt, người quen ký mù | **chiều đỏ là CỔNG cho AC lõi** (theo ý định), là **nhãn** cho AC phụ — giữ nguyên sức mạnh cũ đúng chỗ nó quan trọng |
+| phanh chiều sâu (dừng-vá · trần · timebox) | Đ1 gỡ trần = gỡ một phanh | thay bằng vật-máy-giữ: thước chỉ-đọc trong S4 (Đ1) — không dặn bằng lời |
+| «đổi schema artifact phải có đường đọc-cũ» | Đ8 thêm enum; Đ2 đổi thẻ | hồ sơ cũ không có trạng thái/quyết định mới render như hôm nay; cờ vàng, không bắt migrate |
+| «kit là engine — không chứa product context» | Đ7 chở ý định qua S4 | kit chở **con trỏ + trích nguyên văn** từ `opportunity.md` của kho tiêu thụ; không khuôn ý định nào của kit mang nội dung sản phẩm |
+| Cổng Đáng không thành trạm thu phí cho vòng nhỏ | Đ7 «mọi vòng mới có ý định» | T1 miễn (thoát ở S0 như nay); T2 dùng ngay nội dung Cổng Đáng đã có; chỉ vòng *không có* `opportunity.md` mới cần khối 3 dòng |
+| số đọc một mình thì gian được | M1 ↑ bằng cách bỏ đo; M4 ↓ bằng cách bỏ test | M1 chỉ đọc cạnh M3; M4 đọc so ngân sách Cổng Đáng; M3 mang N — N không tăng thì M3 chết |
+
 ## 8. Lớp lỗi MỚI của khung mới — khai trước
 
 **Giới-hạn-mặc-định**: máy dán nhãn «không đọc được» cho thứ khó. Khác căn bản với
@@ -359,7 +379,8 @@ chạm — số cạnh gãy không đổi số lượt gọi.
 ## 9. Áp ngay vào hai phiên `crm` (21/09)
 
 - **`dieu-phoi-30-ngay-dau`** — vật chưa ship. E11 → AC-11 (bước quá hạn thấy được
-  trên màn) chở **cơn đau #3 «đối tác nguội mà không ai kịp thấy»** — không chấp
+  trên màn) chở **cơn đau #3 «đối tác nguội mà không ai kịp thấy»** (suy từ chữ
+  AC-11 ↔ chữ cơn đau trong `opportunity.md`; owner xác nhận khi đọc) — không chấp
   nhận chưa đọc; cổng đã rảnh → **đọc**. E15 → AC-3 (lọc bộ phận) → thử lại một
   lần. Trần thước: 2/3 nhát là tác nhân chấm sửa spec (đã revert), 1/3 sửa thật
   AC-6 → vật *có* tiến về bốn cơn đau → đi tiếp. Hôm nay để phiên chạy: chọn
@@ -390,6 +411,24 @@ chạm — số cạnh gãy không đổi số lượt gọi.
    (một ADR một đoạn nếu đủ ba điều kiện: khó đảo · gây bất ngờ · trade-off thật).
 2. Phê hoặc bác Đ8, Đ9 (hai CỘNG).
 3. Đ1–Đ3 đi như TRỪ thường, trong một vòng sản phẩm đang chạm (không mở vòng meta).
+
+## 12. Tác động sau khi thực hiện — theo từng người dùng kit
+
+| Người dùng | Nhận được gì | Nỗi đau hôm nay (đã đo) | Số đổi |
+|---|---|---|---|
+| **Owner / người ký** | thẻ nói thật — ĐẠT-MÙ, chưa đọc, hệ thống chết là ba màu khác nhau; quyết được ngay khi bàn đo hỏng thay vì «không cần làm gì»; biết mình ship gì chưa đọc; đóng được thứ đã ở prod; ý định hiện trên thẻ | `dieu-phoi` chờ 4 giờ vì trần; «chín khung» không ai ký được; `112c4f5a` phải đi bằng `chore` | thời gian quyết ↓ · lượt ngoài thiết kế ↓ · M2 · M5 |
+| **Phiên Claude Code** | không bị chặn bởi thứ không phải vật; TDD trên test kho không bị phạt; không phải dựng bàn đo để thoả cổng; bàn giao sinh từ vật; khuôn một dòng cho cạnh gãy; thước chỉ-đọc nên không thể «bẻ cho qua» | tác nhân chấm sửa spec E12; 3 lượt chấm lặp cùng 3 ui-check ở 91 % cache | token ↓ ≈ 30 % chắc · vòng bị hạ tầng đốt ↓ |
+| **Kho tiêu thụ** (crm, oneflow…) | thước sống trong kho, chạy ở CI của kho; hết ghép nối qua thước chung; tháp nhỏ → ít hoá cũ | crm 59 % tháp; AC-11 vỡ vì một chữ ở thước chung; 23 hồ sơ hoá cũ vì một chữ trong `scripts/` | M4 về ngân sách · M6 → 0 |
+| **Người đọc sau** (bàn giao giữa phiên / người) | bàn giao là sáu thứ máy sinh, không trôi khỏi vật; giới hạn có tên, có người gỡ, có giá | «hứa gạch bỏ mà không gạch» ở evidence-report của `thuoc-`; HANDOFF 136 dòng văn | — |
+| **Người dùng cuối** (nguyên tử A) | vật đến tay sớm hơn; vòng không quay trên thứ họ đã dùng | `nhan-ung-dung` ở prod từ 18/09 vẫn kéo 13 lượt chấm | làm-xong → quyết-được ↓ |
+
+**Điều không mong muốn có thể xảy ra** — ngoài hai cược ở §6.1, đã có lưới ở §7.2:
+1. Giới-hạn-mặc-định (§8).
+2. Chạm/lượt tăng khi bỏ hội đồng — đo; giữ một lens nếu cần.
+3. Thẻ dài hơn một phút khi nhiều AC — xếp theo trọng số ý định; AC phụ không hỏi.
+4. M3 = 0 vì không ai ghi quan sát prod → giả an tâm — N là chiều đỏ của M3.
+5. **Chính đề xuất này hoá thành vòng meta thứ sáu** — §7.2 dòng đầu là lưới; nếu nó
+   vẫn xảy ra thì tài liệu này là một phần của bệnh, không phải thuốc.
 
 ---
 
