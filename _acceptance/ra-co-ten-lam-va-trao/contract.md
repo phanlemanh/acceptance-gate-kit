@@ -111,7 +111,21 @@ duong-do-trong-dinh-nghia-xong cho-cong-gia-tri da-giao-khong-do
 lan-may-thong-duong-ghi cho-cong-dang da-dong-ho-so
 lan-v-thoat-kiem-stale y-can-nhac da-dong-ho-so
 bo-qua-phai-thay-dinh-nghia-phep-do y-can-nhac da-dong-ho-so
-duong-lui-phai-song cho-cong-gia-tri da-giao-khong-do
+duong-lui-phai-song cho-cong-gia-tri da-nghi
+cong-dang-co-cua cho-cong-gia-tri da-nghi
+thuoc-co-cua cho-cong-gia-tri da-nghi
+cat-hinh-thuc da-giao da-nghi
+cat-khoi-viec-cua-anh-tren-tin da-giao da-nghi
+doi-hanh-vi-cong-nguoi da-giao da-nghi
+eval-khai-ma-thoat-mong-doi da-giao da-nghi
+inputs-tinh-tu-goc-kho da-giao da-nghi
+luu-kho-codex-va-nghi-le-design da-giao da-nghi
+release-2-14-0 da-giao da-nghi
+release-2-15-0 da-giao da-nghi
+release-2-16-0 da-giao da-nghi
+release-2-17-0 da-giao da-nghi
+thuoc-khai-mot-dang-do-mot-neo da-giao da-nghi
+veto-co-dau-vet da-giao da-nghi
 KHAC-BIET-DOC-CU>>> -->
 
 Khối máy-đọc cho AC-18 — file NGOÀI lib được phép mang chuỗi luật ngưỡng, mỗi dòng `đường-dẫn lý-do`; thêm bản chép mới là quyết định người, khai ở đây cùng lượt:
