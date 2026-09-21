@@ -189,7 +189,7 @@ if (want('NC-AC6')) {
     const CA = [
       ['REJECT exit 1', async () => cham({ exitCode: 1, outputTail: 'fail', runId: '', cannotRun: false })],
       ['BLOCKED evals khai thieu', async () => cham(null, { evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', ref: 'config:executors.script.e1', expected: 'x' }] })],
-      ['BLOCKED hai ma thoat mong doi', async () => cham(null, { evals: [{ ...EVALS[0], cmd: 'cmd-x', expected_exit: 2 }, { ...EVALS[1], cmd: 'cmd-x', expected_exit: 3 }] })],
+      ['BLOCKED hai ma thoat mong doi', async () => cham(null, { evals: [{ ...EVALS[0], cmd: 'cmd-x', expectedExit: 2 }, { ...EVALS[1], cmd: 'cmd-x', expectedExit: 3 }] })],
     ];
     for (const [ten, fn] of CA) {
       n += 1;
