@@ -9,6 +9,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dungKho, buoc, TEP, SLUG } from './thuoc-vat-fixture.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.resolve(HERE, '..', '..');
@@ -76,7 +77,48 @@ if (want('NT-AC1-dot-bien')) {
   } catch (e) { bad('NT-AC1-dot-bien', loi(e)); }
 }
 
-// @@AC2@@
+// ── AC-2 ────────────────────────────────────────────────────────────────────
+const S4ARGS = path.join(KIT, 'feature-loop', 'scripts', 's4-args.mjs');
+const THUOC_VAT = path.join(KIT, 'feature-loop', 'scripts', 'thuoc-vat.mjs');
+const chayS4 = (d, script = S4ARGS) => {
+  const out = path.join(d, '.args-' + Math.random().toString(36).slice(2) + '.json');
+  const r = spawnSync(process.execPath, [script, '--slug', SLUG, '--root', d, '--ag-root', KIT, '--out', out, '--diff-base', 'main'], { encoding: 'utf8' });
+  return { ...r, out };
+};
+const khoBaNhat = () => dungKho(mkdtempSync(path.join(TMP, 'kho-')), ['vat', 'implemented', 'thuoc', 'thuoc', 'thuoc']);
+
+if (want('NT-AC2')) {
+  try {
+    const { d } = khoBaNhat();
+    const r = chayS4(d);
+    const dem = JSON.parse(execFileSync(process.execPath, [THUOC_VAT, '--root', d, '--slug', SLUG, '--json'], { encoding: 'utf8' }));
+    if (dem.nhat !== 3) bad('NT-AC2', `doi chung: bo dem phai thay 3 nhat, thay ${dem.nhat} — fixture khong dung hinh`);
+    else if (r.status !== 0) bad('NT-AC2', `s4-args thoat ${r.status}, mong 0 — ${String(r.stderr).split('\n').slice(0, 3).join(' | ')}`);
+    else if (!existsSync(r.out)) bad('NT-AC2', 'thoat 0 ma khong sinh tep args');
+    else if (/tran nhat sua thuoc/.test(r.stderr) || /Ba loi/.test(r.stderr)) bad('NT-AC2', 'stderr van in tran/ba loi');
+    else ok('NT-AC2', '— 3 nhat o implemented: args sinh, thoat 0, khong tran; bo dem van dem 3');
+  } catch (e) { bad('NT-AC2', loi(e)); }
+}
+
+if (want('NT-AC2-dem-loi')) {
+  try {
+    const { d } = khoBaNhat();
+    const bs = banSao(['feature-loop']); chepCayLamViec(bs, ['feature-loop/scripts/s4-args.mjs']);
+    const tv = path.join(bs, 'feature-loop', 'scripts', 'thuoc-vat.mjs');
+    const KIM = 'export function demThuocVat({ root, slug, t1SkipGlobs = [], frontmatterField }) {\n';
+    const src = readFileSync(tv, 'utf8');
+    if (src.split(KIM).length !== 2) throw new Error('kim demThuocVat khong khop dung 1 lan');
+    writeFileSync(tv, src.replace(KIM, KIM + "  throw new Error('dot bien bo dem');\n"));
+    const r = chayS4(d, path.join(bs, 'feature-loop', 'scripts', 's4-args.mjs'));
+    const lanh = chayS4(d, path.join(bs, 'feature-loop', 'scripts', 's4-args.mjs').replace(bs, KIT));
+    if (lanh.status !== 0) bad('NT-AC2-dem-loi', `doi chung: ban lanh tren cung kho thoat ${lanh.status}`);
+    else if (r.status === 0) bad('NT-AC2-dem-loi', 'bo dem nem loi ma s4-args van thoat 0 — hong lang');
+    else if (!r.stderr.includes('bộ đếm nhát sửa thước lỗi')) bad('NT-AC2-dem-loi', `thoat ${r.status} nhung thieu thong diep ghim: ${String(r.stderr).slice(0, 200)}`);
+    else ok('NT-AC2-dem-loi', `— bo dem nem loi: s4-args thoat ${r.status}, thong diep «bộ đếm nhát sửa thước lỗi»; ban lanh thoat 0`);
+  } catch (e) { bad('NT-AC2-dem-loi', loi(e)); }
+}
+
+// @@AC3@@
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (ntr-thuoc)`);

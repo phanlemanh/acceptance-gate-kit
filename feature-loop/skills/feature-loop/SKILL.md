@@ -222,7 +222,6 @@ Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không v�
    đứng, trường chép sót, carry bị quên); ca script chưa phủ là việc sửa
    SCRIPT trong một vòng mới, không phải đường tay lặng lẽ.
    <!-- S4-ARGS-CLAUSE>>> -->
-   **Mã 4 của script sinh-args = trần nhát sửa thước** (thuoc-co-cua AC-12): hợp đồng đã ở `implemented` mà từ 3 commit sau đó chỉ chạm phép đo. Đây là lần dừng hợp lệ, KHÔNG phải lỗi để vá: trình NGUYÊN VĂN ba lối script in (khai giới hạn có tên · đổi cách đo · mở vòng có chủ ngữ là thước — lối ba là đúng một dòng lệnh in sẵn) rồi DỪNG chờ người chọn. Không tự chọn, không commit gộp để né số đếm. Người chọn lối một hoặc hai → máy ghi một dòng sổ `type: revisit` có `decision` mở đầu đúng chuỗi `trần thước — ` rồi commit; mốc đếm dời tới commit đó và script lại sinh args.
    <!-- <<<S4-ARGS-FRESHNESS -->
    **Tệp args có hạn dùng theo cây:** tệp do `s4-args.mjs` sinh mang
    `generated_sha`; TRƯỚC khi invoke Workflow, so `git rev-parse HEAD` với

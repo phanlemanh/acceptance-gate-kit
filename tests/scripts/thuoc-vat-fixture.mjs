@@ -1,5 +1,5 @@
 // thuoc-vat-fixture.mjs — dựng kho git cho bộ đếm vật · thước · nhát (thuoc-co-cua
-// AC-11, AC-12, AC-13). Dùng chung cho `thuoc-vat.test.mjs`, `s4-args-tran-thuoc.test.mjs`
+// AC-11, AC-12, AC-13). Dùng chung cho `thuoc-vat.test.mjs`, `ntr-thuoc.test.mjs` (tệp ca trần `s4-args-tran-thuoc` đã gỡ cùng trần, 21/09)
 // và ca thẻ đọc dòng đếm — MỘT hàm dựng, không ba bản fixture viết tay.
 //
 // Kho do CODE sinh trong chính lượt chạy. Mỗi bước của kịch bản là một commit:

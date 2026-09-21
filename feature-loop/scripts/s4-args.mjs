@@ -11,8 +11,8 @@
 //        [--ag-root <path>] [--out <file>]
 //
 // exit 0 = tệp args (hoặc stdout) sinh xong · exit 2 = nguồn thiếu/hỏng ·
-// exit 3 = usage · exit 4 = chạm trần nhát sửa thước (thuoc-co-cua AC-12), không
-// sinh tệp. Chuỗi lệnh trong args giữ SẠCH (không nướng `cd` — ghim chỗ
+// exit 3 = usage (mã 4 «trần nhát sửa thước» đã gỡ 21/09 — nhan-trang-thai-va-reality
+// AC-2; thay bằng thước chỉ-đọc trong lượt chấm). Chuỗi lệnh trong args giữ SẠCH (không nướng `cd` — ghim chỗ
 // đứng là việc của từng LANE trong acceptance-verify.js; nướng vào lệnh sẽ phá
 // lane baseline chạy worktree — xem design doc 2026-08-29, quyết định 2).
 import fs from 'node:fs';
@@ -416,28 +416,13 @@ else {
   }
 }
 
-// ── trần nhát sửa thước (thuoc-co-cua AC-12): máy giữ, không dặn bằng lời ──
-// Nhát = commit SAU mốc sàn chạm thước mà không chạm vật (bộ đếm thuoc-vat.mjs, suy từ
-// git). Chạm trần thì KHÔNG sinh tệp args — không có tệp thì không dispatch được lượt
-// chấm — và nói ra ba lối cho người. Van duy nhất: dòng sổ «trần thước — » đã commit.
-// Hồ sơ chưa từng implemented → bộ đếm trả 0, đi tiếp (đường đọc-cũ).
-const TRAN_NHAT = 3;
-function thongDiepTran(dem, slug) {
-  return [
-    `s4-args: tran nhat sua thuoc: ${dem.nhat} nhat o implemented (tran ${TRAN_NHAT}) — KHONG sinh args.`,
-    '  Ba loi, nguoi chon mot:',
-    '  (1) khai gioi han co ten — ghi Known limits cho phep do dang va, lan cham ke chap nhan no',
-    '  (2) doi cach do — thay phep do, khong va tiep phep do cu',
-    '  (3) mo vong co chu ngu la thuoc — dan dung mot dong:',
-    `      /feature-loop:feature-loop "thước của ${slug}: ${dem.tepThuoc.join(', ')}"`,
-    '  Chon (1) hoac (2): ghi mot dong so quyet dinh mo dau bang «trần thước — » roi commit; moc san doi toi do.',
-  ].join('\n');
-}
-const dem = (() => {
-  try { return demThuocVat({ root, slug: flags.slug, t1SkipGlobs, frontmatterField }); }
-  catch (e) { return die(`bộ đếm nhát sửa thước lỗi: ${String((e && (e.stderr || e.message)) || e).split('\n')[0]}`); }
-})();
-if (dem.nhat >= TRAN_NHAT) { console.error(thongDiepTran(dem, flags.slug)); process.exit(4); }
+// ── bộ đếm vật · thước · nhát: CHẠY, không CHẶN (nhan-trang-thai-va-reality AC-2, Đ3) ──
+// Trần 3 nhát + ba lối (thuoc-co-cua AC-12) đã gỡ 21/09: nổ 5 lần, miễn 5 lần, và lối (3)
+// chỉ đường quay lại chính vòng đang thoát. Phanh thay thế là vật-máy-giữ: thước của hồ sơ
+// CHỈ-ĐỌC trong lượt chấm (ảnh chụp ngay dưới, so ở thuoc-vat.mjs --write). Bộ đếm vẫn chạy
+// để lỗi của nó dừng có tên — không để hỏng lặng — và số của nó vẫn lên thẻ qua thuoc-vat.
+try { demThuocVat({ root, slug: flags.slug, t1SkipGlobs, frontmatterField }); }
+catch (e) { die(`bộ đếm nhát sửa thước lỗi: ${String((e && (e.stderr || e.message)) || e).split('\n')[0]}`); }
 
 // ── carry-forward: bước GỌI nằm trong máy, không còn là bước tay ───────────
 // round ≥2 phải KHAI đường carry tường minh — «quên» không phải trạng thái lặng.
