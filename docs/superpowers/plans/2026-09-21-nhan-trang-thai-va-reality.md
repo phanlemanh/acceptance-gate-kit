@@ -8,6 +8,8 @@
 
 **Tech Stack:** Node ≥ 20 (ESM `.mjs` + CJS `.cjs`), bash (`pre-merge-check.sh`), bộ ca tự viết (`PASS:`/`FAIL:` + `Results:`), git trong fixture code sinh.
 
+**Gate 1.5:** duyệt — Phan Le Manh, 2026-09-21 (owner gõ «Duyệt» một chạm).
+
 **Spec:** `docs/superpowers/specs/2026-09-21-nhan-trang-thai-va-reality-design.md` · hợp đồng `_acceptance/nhan-trang-thai-va-reality/contract.md` (13 AC) · `evals.yaml` (E1–E13).
 
 ## Global Constraints
