@@ -17,7 +17,8 @@ import path from 'node:path';
 export const SLUG = 'demo';
 export const TEP = {
   vat: 'src/a.js',
-  thuoc: 'tests/a.test.mjs',
+  // Thước = răng của hồ sơ (test KHO là vật từ vòng nhan-trang-thai-va-reality, 21/09).
+  thuoc: `_acceptance/${SLUG}/rang/a.mjs`,
   runLog: `_acceptance/${SLUG}/run-log.jsonl`,
   so: `_acceptance/${SLUG}/decisions.jsonl`,
   hopDong: `_acceptance/${SLUG}/contract.md`,
@@ -57,7 +58,7 @@ export function dungKho(dir, kichBan = KICH_BAN_CHUAN) {
   const d = dir;
   mkdirSync(path.join(d, '_acceptance', SLUG), { recursive: true });
   mkdirSync(path.join(d, 'src'), { recursive: true });
-  mkdirSync(path.join(d, 'tests'), { recursive: true });
+  mkdirSync(path.join(d, '_acceptance', SLUG, 'rang'), { recursive: true });
   execFileSync('git', ['init', '-q', '-b', 'main', d]);
   git(d, 'config', 'user.email', 't@t.t'); git(d, 'config', 'user.name', 'T');
   writeFileSync(path.join(d, '_acceptance', 'config.yaml'),
