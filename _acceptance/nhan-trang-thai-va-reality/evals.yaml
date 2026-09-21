@@ -120,7 +120,7 @@ evals:
       revisit của từng mục do khuôn RÚT từ khối marker CANH-GAY-REVISIT-LINE của commands/signoff.md
       (điền eval + AC), id từ DEC-ID-RECIPE — không gõ tiền tố decision trong ca. Lành →
       pre-merge-check.sh --base thoát 0 với NOTE ghim «ký trên cạnh gãy có tên» nêu E2 và E3;
-      recheck-evidence.cjs --recheck-all thoát 0 cùng NOTE. Thiếu: bỏ dòng của E3 → cả hai thoát
+      recheck-evidence.cjs <báo cáo> thoát 0 cùng NOTE. Thiếu: bỏ dòng của E3 → cả hai thoát
       khác 0, VIOLATION nêu E3 và không nêu E2. Reject: báo cáo REJECT có chữ ký → VIOLATION chuỗi
       «verdict=REJECT» như bản trước vòng. Một nguồn: (a) bản sao làm vị từ của lib/nhan-canh-gay.cjs
       luôn trả false → CẢ HAI bên đọc đỏ ở ca lành; (b) bản sao đổi tiền tố trong khối marker của
@@ -150,7 +150,7 @@ evals:
       Exit 0, có dòng PASS của NL-AC10-lanh, NL-AC10-thieu, NL-AC10-sha-la, NL-AC10-khoa, NL-AC10-mo-lai. Kho
       fixture: hồ sơ T2 status da-cham-boi-thuc-te, báo cáo BLOCKED, chữ ký rỗng. Dòng thuc-te sinh
       từ khuôn RÚT từ khối marker THUC-TE-LINE của commands/observed.md (điền build_sha = sha một
-      commit có thật của kho fixture), không dựng tay. Ma trận hai bên đọc (pre-merge-check.sh --base · recheck-evidence.cjs --recheck-all) × năm
+      commit có thật của kho fixture), không dựng tay. Ma trận hai bên đọc (pre-merge-check.sh --base · recheck-evidence.cjs <báo cáo>) × năm
       ca = 10 assert, so bằng nhau với danh sách viết trước: lành → thoát 0, NOTE ghim «chạy trên prod từ bản dựng» kèm
       sha7, ngày, tên · thiếu (bỏ build_sha) → VIOLATION nêu «build_sha» · sha lạ (40-hex không có
       trong kho) → VIOLATION ghim «bản dựng không có trong kho» · khoá (commit đổi

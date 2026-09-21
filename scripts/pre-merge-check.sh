@@ -1104,7 +1104,23 @@ XLACS
     echo "VIOLATION [$slug]: chữ ký người trên hồ sơ máy-thông — ký thì status phải sang signed-off (human_signoff=\"$signoff\", status=machine-cleared). /signoff đổi status cùng lượt ghi chữ ký."
     violations=$((violations+1)); continue
   fi
-  if [ "$verdict" != "PASS" ]; then
+  # ── Ký trên CẠNH GÃY có tên (hồ sơ nhan-trang-thai-va-reality, AC-8) ──
+  # BLOCKED chỉ vì bàn đo (hoặc hệ thống chết đã thử lại) + chữ ký người + MỖI mục chặn có
+  # một dòng sổ `revisit` đúng khuôn → qua, verdict và con số KHÔNG đổi. Vị từ sống ở
+  # lib/nhan-canh-gay.cjs — MỘT nguồn với thẻ Cổng 2 và recheck-evidence.cjs. Lib vắng /
+  # node vắng → rơi xuống luật cũ (VIOLATION): thiếu lớp thì ĐÓNG, không mở.
+  NCG_LIB="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)/lib/nhan-canh-gay.cjs"
+  if [ "$verdict" = "BLOCKED" ] && [ -n "$signoff" ] && [ -f "$NCG_LIB" ] && command -v node >/dev/null 2>&1; then
+    _ncg="$(node "$NCG_LIB" --check --root "$ROOT" --slug "$slug" 2>/dev/null)"; _ncg_rc=$?
+    case "$_ncg_rc" in
+      0) echo "NOTE [$slug]: ký trên cạnh gãy có tên — ${_ncg#OK } (verdict BLOCKED giữ nguyên; người ký chấp nhận chưa đọc)"
+         verdict="PASS-CANH-GAY" ;;
+      1) echo "VIOLATION [$slug]: ký trên cạnh gãy thiếu dòng sổ revisit cho ${_ncg#THIEU } — ghi dòng theo khối CANH-GAY-REVISIT-LINE của /acceptance-gate:signoff rồi chạy lại"
+         violations=$((violations+1)); continue ;;
+    esac
+  fi
+  if [ "$verdict" = "PASS-CANH-GAY" ]; then :
+  elif [ "$verdict" != "PASS" ]; then
     echo "VIOLATION [$slug]: verdict=$verdict (must be PASS to merge)"
     violations=$((violations+1)); continue
   fi

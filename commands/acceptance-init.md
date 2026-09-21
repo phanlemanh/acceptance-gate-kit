@@ -158,6 +158,7 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/lib/md-section.cjs` → `lib/` (section boundary `require`d by ac-line)
    - `${CLAUDE_PLUGIN_ROOT}/lib/eval-yaml.cjs` → `lib/` (evals.yaml parser the re-pin eval-lane rule uses to list machine evals; missing → that rule fails closed on every new-form lane; ALSO the one source `checkRepinEvals` and the `evaluateEvidence` L1-consistency rule both read `expected_exit` from — missing it, both fail closed on a declared-limit eval)
    - `${CLAUDE_PLUGIN_ROOT}/lib/lop-nhin-thay.cjs` → `lib/` (the ONE source for «human-visible surface» — ui/web/web-ui — and the ui-observed obligation; pre-merge's NOTE lane reads it via `classify`; missing → that lane prints «không kiểm được» and never blocks)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/nhan-canh-gay.cjs` → `lib/` (the ONE source for a Gate-2 broken edge — measuring-bench red vs product red vs dead system — and for «signed on a named edge»; pre-merge and the re-check both call it; missing → a signed BLOCKED report stays a VIOLATION, the gate closes rather than opens)
    <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence
    re-check layer (it degrades to a NOTE) and mutes the gap-probe rule.

@@ -96,7 +96,7 @@ Verdict, bảng per-eval và con số KHÔNG đổi — thẻ chỉ đổi lối
 sổ theo khuôn ở ĐÚNG MỘT khối marker `CANH-GAY-REVISIT-LINE` của `commands/signoff.md`
 (bên đọc và ca đo rút cùng khuôn — round-trip), `type: "revisit"` với `decision` mở đầu đúng `không đọc được ở đây — <E> (<AC>)` (hoặc
 `hệ thống chết — …`) + `impact` = giá, rồi `human_signoff` như thường. Lưới trước-merge +
-`recheck-evidence.cjs --recheck-all` đổi luật `verdict != PASS → VIOLATION` thành: verdict
+`recheck-evidence.cjs <báo cáo>` đổi luật `verdict != PASS → VIOLATION` thành: verdict
 BLOCKED + `human_signoff` thật + MỌI mục chặn phân loại được VÀ có dòng `revisit` khớp →
 NOTE «ký trên cạnh gãy có tên: …»; thiếu một dòng → VIOLATION gọi tên eval; REJECT →
 VIOLATION y hôm nay. Vị từ sống ở `lib/nhan-canh-gay.cjs`, cả hai bên đọc gọi — không chép.

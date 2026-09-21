@@ -813,7 +813,7 @@ const reason = unquote(rfm.reason);
 // trước-merge và recheck). Nguồn chuỗi engine không rút được → nguon null → mọi mục không
 // phân loại → khoá như trước vòng (fail-closed); dòng «thước lệch» vẫn đọc được.
 const NCG = require('../lib/nhan-canh-gay.cjs');
-const cgNguon = (() => { try { return NCG.nguonNhan(path.join(__dirname, '..')); } catch (_) { return null; } })();
+const cgNguon = NCG.nguonNhan();
 const cgExpected = (() => { try { const r = evalYamlLib.expectedExits(read(path.join(dir, 'evals.yaml'))); return r.errs.length ? {} : Object.fromEntries(r.byId); } catch (_) { return {}; } })();
 const cg = NCG.canhGay({ runLogText: read(path.join(dir, 'run-log.jsonl')), verdict, expectedExit: cgExpected, nguon: cgNguon });
 const CANH_MO = verdict === 'BLOCKED' && cg.trangThai === 'mo';

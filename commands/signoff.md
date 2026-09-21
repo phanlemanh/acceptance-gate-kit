@@ -16,7 +16,10 @@ suy máy — ca máy dùng chung). Arg: optional `<slug>`. Without it, scan `_ac
 empty `human_signoff` (one → use — hồ-sơ là điều máy biết:
 đúng MỘT ứng viên thì KHÔNG hỏi, chỉ hiển thị lại tên hồ sơ trong cùng
 lượt trả lời; several → table + ask; none → `/acceptance-gate:acceptance-status`). Verdict `REJECT`/`BLOCKED` → not signable: show
-`failed_evals`/`reason` and stop.
+`failed_evals`/`reason` and stop — TRỪ một ca: `BLOCKED` mà thẻ Cổng 2 mở ô ký trên cạnh gãy
+có tên (`--extract` trả `approvable: true` cùng `canh_gay.trangThai: "mo"` — lượt chấm kẹt CHỈ
+vì bàn đo, hoặc hệ thống chết đã thử lại; hồ sơ nhan-trang-thai-va-reality AC-5, AC-8). Ca ấy
+ký được theo mục «Chỗ mù» ở bước 3.
 
 Một-lượt-gõ + `--repo` (điều khoản chung, chép nguyên văn từ bản luật):
 
@@ -126,6 +129,23 @@ Steps:
      kể cả khi hồ sơ đang `machine-cleared`: người ký trong cửa veto thì status
      phải sang `signed-off` CÙNG lượt, để chữ ký không nằm trên một hồ sơ đang
      tự khai là «máy thông, không có chữ ký người».
+   - **Chỗ mù** (chỉ khi thẻ mở ô ký trên cạnh gãy): mỗi `Mù-<n>` một lối —
+     `ghi hạn chế` (ship, AC ấy không có bằng chứng máy) · `dựng bàn đo` (không ký;
+     máy dựng bàn đo rồi chấm lại) · `trả lại` (không ký; vòng dừng). Chỉ khi MỌI
+     `Mù-<n>` là `ghi hạn chế` thì hồ sơ ký được; mỗi mục ghi đúng một dòng sổ
+     `decisions.jsonl` theo khuôn dưới (id bằng khối DEC-ID-RECIPE của SKILL
+     feature-loop, một lần chạy một dòng), TRƯỚC khi ghi `human_signoff`. Verdict
+     `BLOCKED` và bảng per-eval GIỮ NGUYÊN — không nâng thành PASS. Lưới trước-merge
+     và kiểm lại bằng chứng đọc CÙNG khuôn (`lib/nhan-canh-gay.cjs`): thiếu một dòng
+     là VIOLATION gọi tên eval ấy.
+
+     <!-- <<<CANH-GAY-REVISIT-LINE -->
+     "type":"revisit","stage":"gate2","at":"<ISO>","decision":"<nhãn> — <E> (<AC>): ghi hạn chế rồi ship","impact":"<giá>","serves":["<AC>"]
+     <!-- CANH-GAY-REVISIT-LINE>>> -->
+
+     `<nhãn>` chép nguyên văn nhãn thẻ in cho mục ấy («không đọc được ở đây» hoặc
+     «hệ thống chết»), `<E>` mã eval, `<AC>` mã tiêu chí, `<giá>` câu giá thẻ in cho
+     lối «ghi hạn chế rồi ship».
    Danh tính và ngày KHÔNG nằm trong danh sách này: máy suy theo bậc ở trên
    rồi hiển thị lại chờ xác nhận một chạm khi người chưa khai.
 4. **Collect decisions in chat, item by item** — SKIP every item the

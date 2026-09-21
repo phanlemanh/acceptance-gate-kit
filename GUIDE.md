@@ -755,7 +755,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 
 ### 5.3 Wire CI (bắt buộc để gate có răng ở PR)
 
-Copy **đủ 9 file** từ plugin vào repo, giữ đúng layout (re-check `require
+Copy **đủ 10 file** từ plugin vào repo, giữ đúng layout (re-check `require
 ../lib`; đuôi `.cjs` là cố ý — repo khai `"type": "module"` sẽ đọc file `.js`
 chép sang thành ESM và `require()` bên trong nổ ReferenceError, lớp cưỡng chế
 chết câm). Thiếu một tên nào dưới đây thì lớp tương ứng **tắt im lặng** — CI
@@ -771,6 +771,7 @@ vẫn xanh:
 - `lib/md-section.cjs` — ranh giới mục, `ac-line` `require` nó
 - `lib/eval-yaml.cjs` — bộ đọc `evals.yaml` mà luật làn-eval của re-pin dùng để liệt kê eval máy; cũng là MỘT nguồn `checkRepinEvals` và luật nhất-quán L1 của `evaluateEvidence` đọc `expected_exit`; thiếu → luật làn-eval fail-closed trên mọi làn khuôn mới, và cả hai đường đọc `expected_exit` fail-closed trên eval khai giới hạn
 - `lib/lop-nhin-thay.cjs` — MỘT nguồn cho «bề mặt người nhìn thấy» (`ui`/`web`/`web-ui`) và nghĩa vụ ui-observed; làn NOTE của pre-merge đọc nó qua `classify`; thiếu → làn đó in «không kiểm được» và không bao giờ chặn
+- `lib/nhan-canh-gay.cjs` — MỘT nguồn cho cạnh gãy ở Cổng Bằng chứng (đỏ vì bàn đo · đỏ vì vật · hệ thống chết) và cho «ký trên cạnh gãy có tên»; lưới trước-merge và re-check cùng gọi; thiếu → báo cáo BLOCKED có chữ ký vẫn là VIOLATION (cổng đóng, không mở)
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;
