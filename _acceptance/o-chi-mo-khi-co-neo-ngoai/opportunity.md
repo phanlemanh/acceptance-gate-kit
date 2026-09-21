@@ -163,6 +163,15 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   được, nên vỡ trần (E12b 3 583 s so trần 600 s).
 - `docs/plans/2026-09-21-hat-giong-khai-ca-dung-cua-de-quy-dung-bac.md` — K8: **nặng nhất** —
   không bậc nào của chuỗi đo được khai là tiên đề, và lối thoát số 3 trỏ ngược vào vòng vừa đóng.
+- `docs/plans/2026-09-21-hat-giong-vong-nho-thuoc-la-toolchain-kho.md` — 21/09 chiều: hai mục
+  điều hướng ở crm (`loi-vao-dieu-phoi-30-ngay`) trả giá một lượt chấm 15 tác nhân — kit không có
+  hình dạng vòng nhỏ; bộ làn S4 cố định theo số eval, không theo cỡ vật.
+- `docs/plans/2026-09-21-hat-giong-tac-nhan-con-khong-doc-cau-nhan-cua-nguoi.md` — 21/09: ba
+  lượt chấm trong một ngày ở crm đốt vì tác nhân con đọc câu nhắn gần nhất của người thành lệnh
+  («Dừng nó» ×2, «Kiểm tra lại docker» ×1) — hệ thống chết chưa có răng, mới có lời dặn.
+- `docs/plans/2026-09-21-hat-giong-draft-khong-duoc-nhay-sang-thuc-te.md` — Ngoài-6/7 của vòng
+  `nhan-trang-thai-va-reality` (ký 21/09): `draft` vẫn nhảy thẳng sang `da-cham-boi-thuc-te`; hook tự
+  xưng chặn mà không có mã — cùng hình với Ngoài-1/5 và Ngoài-8 (nhánh phòng vệ không chiều đỏ).
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
