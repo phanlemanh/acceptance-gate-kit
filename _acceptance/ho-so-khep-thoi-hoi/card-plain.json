@@ -1,0 +1,37 @@
+{
+  "feature_plain": "Hồ sơ đã khép thôi bị kit hỏi hay đếm như đang mở, làn máy-đi-trước thôi bỏ sót mục ngoài hợp đồng, và kho cài kit 2.18.1 không phải tự chép thêm tệp nào.",
+  "will_do": [
+    {"id":"AC-1","p":"Sẽ có MỘT cách hỏi «hồ sơ này đã khép chưa» (đã nghỉ, hoặc đã chấm bởi thực tế với dòng quan sát đủ), dùng chung cho mọi bên đọc."},
+    {"id":"AC-2","p":"Sẽ thôi in tên hồ sơ đã khép trong dòng «cửa veto đang mở», ở cả thẻ mở phiên lẫn lưới trước khi gộp."},
+    {"id":"AC-3","p":"Sẽ liệt đủ mọi tệp kho tiêu thụ phải chép để ba lệnh CI chạy được (máy tự tính, hôm nay ra 15 tệp), và thử thật trên một kho giả lập."},
+    {"id":"AC-4","p":"Sẽ coi hồ sơ là còn cần người khi tệp phát hiện của lượt chấm có mục ngoài hợp đồng mà chưa ai quyết, dù báo cáo để trống mục đó; thẻ khi ấy hỏi «ký hay trả»."},
+    {"id":"AC-5","p":"Sẽ chứng minh trên toàn bộ hồ sơ thật của kit rằng không hồ sơ nào đổi chỗ mà không có lý do đọc được từ chính hồ sơ."},
+    {"id":"AC-6","p":"Sẽ thôi in ô hỏi nào trên thẻ của hồ sơ đã khép (15 hồ sơ đã nghỉ và hồ sơ mốc 2.0.0)."},
+    {"id":"AC-7","p":"Sẽ sửa hai bộ kiểm của kit đang đỏ trên nhánh chính vì hồ sơ chấm-bởi-thực-tế thật đầu tiên."}
+  ],
+  "wont_do": [
+    {"id":"AC-8","p":"Chặn trường hợp một bên đọc (bản đồ, thẻ, bộ quét, lệnh ghi) quên đọc tệp phát hiện rồi lại gọi hồ sơ là sạch."}
+  ],
+  "coverage_plain": [
+    {"i":0,"p":"Mọi nơi trả lời «hồ sơ này còn mở không» đều có tiêu chí: thẻ mở phiên, lưới trước gộp, thẻ ký, bản đồ và lệnh ghi (AC-2, AC-4, AC-8)."},
+    {"i":1,"p":"Năm trạng thái khép/sống đều được thử: nghỉ đủ, nghỉ chưa ký, thực tế đủ, thực tế thiếu dòng, đang sống (AC-1)."},
+    {"i":2,"p":"Năm dạng tệp phát hiện đều được thử: chưa ai quyết, quyết một phần, quyết đủ theo kiểu viết ở crm, không có mục, viết sai khuôn (AC-4)."},
+    {"i":3,"p":"Hai loại kho: chính kit, và một kho tiêu thụ kiểu module như crm (AC-3)."},
+    {"i":4,"p":"Mỗi phép đo có cả chiều đỏ lẫn chiều im; chiều im chạy trên toàn bộ hồ sơ thật (AC-5)."},
+    {"i":5,"p":"Giả định: lượt chấm ngày nay luôn ghi tệp phát hiện; hồ sơ đời cũ không có tệp thì luật mới im."}
+  ],
+  "gap_probe_plain": [
+    {"i":0,"p":"Chưa có phép đo bắt một bên đọc quên truyền tệp phát hiện — đã thêm tiêu chí AC-8 thử lần lượt từng bên đọc, danh sách bên đọc do máy tự tìm."},
+    {"i":1,"p":"Ngưỡng «CI crm xanh lượt đầu» chưa có đường đo, và lối chặt sẽ làm CI crm đỏ — đã đổi sang cách đọc sổ quyết định, nên hồ sơ crm đã được owner quyết giữ xanh; thêm hai dòng đo."},
+    {"i":2,"p":"Kiểm thẻ hồ sơ khép chỉ một chiều — đã đổi thành hai chiều: mọi hồ sơ khép phải 0 ô hỏi, và mọi dòng đổi phải là hồ sơ khép."},
+    {"i":3,"p":"Đổi đuôi một tệp đọc phát hiện chưa có phép kiểm — đã thêm phép quét: không còn chỗ nào gọi tên cũ."},
+    {"i":4,"p":"Chưa chạy lưới trước gộp trên hồ sơ thật — đã thêm: tên trong dòng cửa veto không được là hồ sơ khép, đối chứng bằng bản cũ."}
+  ],
+  "decisions_plain": [
+    {"id":"d-20260921T235402Z-1","p":"Vòng thành hạng cao (T3) vì chạm lưới trước gộp; trình kế hoạch cùng thẻ này để anh duyệt hai thứ trong một lần — đổi lại thẻ dài hơn."},
+    {"id":"d-20260921T235402Z-2","p":"Mục ngoài hợp đồng đã có dòng quyết của anh trong sổ thì coi là đã xử, không bắt ký lại — đổi lại một giới hạn: nếu chấm lại sau khi quyết mà danh sách mục đổi, dòng cũ có thể trỏ nhầm."},
+    {"id":"d-20260921T235402Z-3","p":"KHÔNG viết đặc tả giao diện — vòng không chạm màn hình nào, thẻ chỉ bớt một ô hỏi."},
+    {"id":"d-20260921T235402Z-4","p":"Không hỏi anh thêm câu nào ở bước thiết kế — máy đọc mã, đo trên kit và crm, và nhờ một người soi độc lập thay; mọi điều anh chưa thấy nằm trên thẻ này."}
+  ],
+  "scope_plain": "Không đổi trạng thái, không thêm lệnh cổng người, không làm lại cách thẻ chọn câu hỏi; rollout ra kho khác ngoài crm để mốc sau."
+}
