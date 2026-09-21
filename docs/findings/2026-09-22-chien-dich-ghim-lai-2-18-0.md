@@ -58,3 +58,14 @@ khai: mọi dòng đỏ là phép đo neo vào trạng thái cây cũ, hoặc t�
 (năm hồ sơ mốc — một trong đó đếm số chép tay — và hai bộ đếm số ca của suite). Đây là hình dạng «bất biến nằm trong
 hồ sơ đã ký» — phép thử «mệnh đề còn đúng sau 50 commit không?». Ghi ở đây, không mở ô.
 
+
+## Quyết định của owner — 22/09
+
+Owner nói «nghỉ cả 16». Máy ghi 15 dòng `type: nghi` mang tên Phan Le Manh, mỗi dòng kèm lý do
+lấy từ bảng trên và danh sách eval thôi hứa. `contract.md`, `evidence-report.md`, `run-log.jsonl`
+của 15 hồ sơ không đổi một byte. Sau đó `--recheck-all` chỉ còn `release-2-0-0` hoá cũ.
+
+**`release-2-0-0` KHÔNG được ghi dòng nghỉ:** hồ sơ làn V, cửa veto mở, chưa có chữ ký người —
+luật 2.17.0 chỉ cho nghỉ hồ sơ đã ký, nên dòng nghỉ ở đây sẽ bị lưới gắn cờ `nghi-chua-ky` và
+không có hiệu lực. Hồ sơ vẫn hoá cũ trên `main`; lưới trước-merge thu theo diff PR nên nó không
+chặn PR nào không chạm nó. Lối ra là của owner: ký hồ sơ rồi cho nghỉ, hoặc veto.
