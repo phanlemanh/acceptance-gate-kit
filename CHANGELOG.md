@@ -10,6 +10,56 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.18.0 — 21/09/2026
+
+Cửa sổ 2.17 → 2.18 kéo **hai ngày**, có **hai vòng** chạm engine, cả hai do owner gọi tên:
+`ghim-lai-noi-ra-o-khong-do` (T2, ký 20/09) và `nhan-trang-thai-va-reality` (T3, ký 21/09,
+ADR 0020). Đây là mốc đầu tiên có **kho chờ nhận đo được trước khi cắt**: ba hồ sơ ở `crm`
+đang chờ đúng ba thứ bản này mang tới. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng
+lên `2.18.0`; `diagram-design` giữ `2.7.0` vì không đổi một dòng.
+
+**Đổi gì:**
+
+- **Test của kho thôi bị đếm là thước.** Trước bản này, kho làm TDD bị phạt: mỗi lần sửa một
+  tệp test bị đếm là một «nhát sửa thước», và ba nhát là lượt chấm bị chặn. Ở `crm`, ba nhát
+  vào `apps/api/test/*.spec.ts` đã làm trần nổ đúng như thế. Nay test của kho là vật. Để
+  không mất lưới, thước chuyển thành **chỉ-đọc trong lượt chấm**: máy chụp băm các tệp thước
+  trước lượt và so lại sau lượt. Lệch thì thẻ khoá với nhãn «thước lệch» và nêu đúng tệp.
+- **Thẻ Cổng Bằng chứng gọi đúng tên thứ đang gãy.** Trước đây mọi BLOCKED trông giống
+  nhau: thẻ không có dòng lệnh, và người lái không có ô nào để chấp nhận một đồng hồ chưa
+  đọc. Nay thẻ tách ba nhãn. **«Không đọc được ở đây»** là bàn đo không chạy được: thẻ mở ô
+  ký có tên, kèm ba lối và ba giá. **«Hệ thống chết»** khoá lần đầu và mở sau đúng một lần
+  thử lại. **«Thước lệch»** luôn khoá. Đỏ vì sản phẩm sai thì vẫn khoá như cũ. Ký trên cạnh
+  gãy không hạ verdict: báo cáo giữ BLOCKED, và mỗi mục mang một dòng sổ có tên.
+- **Reality có quyền đóng hồ sơ.** Một hồ sơ mà vật đã chạy trên prod từ lâu không còn phải
+  dựng thêm thước chỉ để đóng. Lệnh mới `/acceptance-gate:observed` cho **người** ghi bản dựng
+  đang phục vụ prod, ngày quan sát và tên. Hồ sơ chuyển sang «đã chấm bởi thực tế», rời nhóm
+  đang dở, và mọi việc thước trên nó bị khoá. Lệnh này khoá với máy như sáu thao tác cổng
+  người kia.
+- **Thẻ in nguyên văn ý định.** Câu «vì sao làm việc này» từ ô cơ hội đi suốt tới lúc ký.
+- **Một dòng hiệu chuẩn cho chữ «đủ».** `scripts/hieu-chuan-moc.mjs` in «ĐẠT đã ký → prod
+  đỏ: k / N». Khi chưa hồ sơ nào có dòng quan sát prod, dòng in «vô hiệu» chứ không in «0 sự
+  cố».
+- **Ghim lại nói ra ô nó không đo.** Dòng ghim và thẻ cả hai cổng nêu các ô ngoài làn máy,
+  ô mà diff đã chạm vật đo, và AC không có chốt máy. Không đổi hành vi chặn nào.
+
+**Ai bị ảnh hưởng / làm gì:**
+
+- **`crm`:** nâng engine, rồi đóng hoặc chấm ba hồ sơ đang chờ bằng các lối mới. Không phải
+  dựng thêm bàn đo nào.
+- **Mọi kho:** lớp tệp chép vào CI tăng từ **9 lên 10**. Chép lại
+  `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.cjs`, `lib/workspace-record.cjs`,
+  và **thêm** `lib/nhan-canh-gay.cjs`, cùng một lượt. Thiếu tệp mới thì hai bộ đọc của lưới
+  không nạp được.
+- **Kho có hồ sơ đã ký dùng trần nhát sửa thước:** eval của trần ấy mất tiền đề. Ở kit, đó
+  là `thuoc-co-cua` E17. Cho hồ sơ ấy nghỉ bằng một dòng sổ ở chiến dịch ghim lại.
+
+**Giới hạn đi cùng bản này** (nguyên văn ở mục Notes của
+`_acceptance/nhan-trang-thai-va-reality/contract.md`): hồ sơ còn ở nháp vẫn nhảy thẳng sang
+«đã chấm bởi thực tế» được, vì hook tự nhận là chặn nhưng không có mã nào chặn. Nhánh «không
+tìm thấy lần lưu dòng quan sát» chưa có ca đỏ, và thông điệp của nó gợi ý sai cách sửa. Bộ
+đếm thước bỏ qua phép so khi tệp tham số hỏng.
+
 ## 2.17.0 — 19/09/2026
 
 Cửa sổ 2.16 → 2.17 kéo **một ngày**, có đúng **một vòng** chạm engine (`ho-so-nghi`, T3, ký
