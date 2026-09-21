@@ -172,6 +172,9 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
 - `docs/plans/2026-09-21-hat-giong-draft-khong-duoc-nhay-sang-thuc-te.md` — Ngoài-6/7 của vòng
   `nhan-trang-thai-va-reality` (ký 21/09): `draft` vẫn nhảy thẳng sang `da-cham-boi-thuc-te`; hook tự
   xưng chặn mà không có mã — cùng hình với Ngoài-1/5 và Ngoài-8 (nhánh phòng vệ không chiều đỏ).
+- `docs/plans/2026-09-22-hat-giong-bon-loi-nho-2-18-0-tu-crm.md` — bốn lỗi nhỏ của 2.18.0 lộ
+  trong ngày crm cài (veto không đóng sau observed · observed không vẽ bản đồ · lớp CI thiếu
+  product-map.mjs · fail-open làn V tái phát) — gom MỘT vòng 2.18.1, thay ba chip.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
