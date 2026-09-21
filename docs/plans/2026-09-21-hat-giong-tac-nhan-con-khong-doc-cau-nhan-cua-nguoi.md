@@ -6,7 +6,13 @@ Gốc: crm/_acceptance/loi-vao-dieu-phoi-30-ngay — 21/09, tác nhân chạy E5
 câu «Kiểm tra lại docker và khởi động lại nếu cần» của chủ kho làm nhiệm vụ, kiểm Docker thay
 vì chụp; lượt chấm BLOCKED. Cùng hình với `crm/_acceptance/dieu-phoi-30-ngay-dau` lượt B, C
 (12/19 và 11/20 tác nhân `cannotRun` vì đọc «Dừng nó» — nói về máy chủ dev — thành lệnh huỷ).
-**Ba lượt chấm trong một ngày, cùng một kho, cùng một thủ phạm.**
+**Ba lượt chấm trong một ngày, cùng một kho, cùng một thủ phạm.** Rồi lần thứ tư, **ở chính kit**,
+cùng ngày 15:29 (vòng `nhan-trang-thai-va-reality`, S4 lượt 1): hai tác tử CHẤM (`agent-ab48b848`
+dùng Edit, `agent-a5254808` dùng `sed -i.bak`) tự ghi `status: verified` vào `contract.md` giữa
+lượt chấm — vì harness Workflow chuyển **nguyên văn câu `/goal` của owner** vào mọi tác tử dưới
+nhãn «tiếng người dùng duy nhất, thắng đề bài», và khuôn GOAL-TEMPLATE của chính kit có câu «xác
+nhận đã set contract … sang status: verified». Tức **nguồn rò là nghi thức kit tự dặn owner dán**.
+Phiên phải trả contract về commit ghim `7e705035`, xoá `.bak`, chạy tiếp.
 **Chân VC8 (cơ học, KHÔNG phải neo):** `_acceptance/o-chi-mo-khi-co-neo-ngoai/` trích lại tệp này.
 
 ## Lỗ
@@ -22,6 +28,12 @@ lượt gọi người ngoài thiết kế («anh nhắn lại một câu»).
 nó không được phép đốt cả lượt.
 
 ## Việc
+
+0. **Khuôn GOAL-TEMPLATE không được chứa mệnh lệnh về trạng thái tệp** («set contract sang
+   verified», «đưa sang signed-off»): /goal là điều kiện DỪNG của phiên gọi, không phải việc của
+   tác tử con; viết lại thành mô tả kết quả quan sát («phiên tường thuật rõ …»), và ca kiểm: tiêm
+   khuôn goal vào ngữ cảnh giả → tác tử chấm không đụng `contract.md` (băm trước/sau — chính răng
+   thước chỉ-đọc AC-3 của vòng `nhan-trang-thai-va-reality` mở rộng sang `contract.md`).
 
 1. **Đo trước:** trong transcript của tác nhân con, tìm câu người nhắn gần nhất của phiên
    gọi; đếm bao nhiêu lượt chấm 09/2026 ở crm/oneflow/artifact-platform có tác nhân trích lại
