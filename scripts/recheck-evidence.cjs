@@ -40,6 +40,23 @@ try {
   process.exit(2);
 }
 
+// ── Trạng thái thứ bảy: REALITY ĐÃ CHẤM (hồ sơ nhan-trang-thai-va-reality, AC-10) ──────
+// Hợp đồng cùng thư mục khai `da-cham-boi-thuc-te` → CÙNG hàm checkThucTe với lưới
+// trước-merge. Dòng hợp lệ → NOTE, không chấm bằng chứng (reality là cuối); thiếu vế /
+// bản dựng lạ / thước đổi sau dòng quan sát → đỏ; dòng vắng hoặc đã mở lại → luật cũ.
+{
+  const dir = path.dirname(path.resolve(reportPath));
+  let st = '';
+  try { st = String(core.frontmatterField(fs.readFileSync(path.join(dir, 'contract.md'), 'utf8'), 'status') || '').trim().toLowerCase(); } catch { st = ''; }
+  let wr = null;
+  try { wr = require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs')); } catch { wr = null; }
+  if (wr && typeof wr.checkThucTe === 'function' && Array.isArray(wr.DA_DONG_THUC_TE) && wr.DA_DONG_THUC_TE.includes(st)) {
+    const r = wr.checkThucTe(path.dirname(path.dirname(dir)), path.basename(dir));
+    if (r.code === 0) { process.stderr.write(`recheck-evidence: NOTE ${reportPath} — đã chấm bởi thực tế: ${r.out.replace(/^OK /, '')}\n`); process.exit(0); }
+    if (r.code !== 2) { process.stderr.write(`recheck-evidence: ${reportPath} — đã chấm bởi thực tế nhưng ${r.out}\n`); process.exit(1); }
+  }
+}
+
 // ── Ký trên CẠNH GÃY có tên (hồ sơ nhan-trang-thai-va-reality, AC-8) ────────────
 // Báo cáo BLOCKED mang chữ ký người là bằng chứng hợp lệ CHỈ khi thẻ đã mở ô ký trên cạnh gãy
 // (bàn đo / hệ thống chết đã thử lại) và MỖI mục chặn có dòng sổ `revisit` đúng khuôn. MỘT

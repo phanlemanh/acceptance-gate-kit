@@ -141,7 +141,60 @@ if (want('NL-AC8-lanh') || want('NL-AC8-thieu') || want('NL-AC8-reject') || want
   }
 }
 
-// @@AC10@@
+// ── AC-10 ───────────────────────────────────────────────────────────────────
+// Dòng quan sát do khuôn RÚT từ khối THUC-TE-LINE của commands/observed.md (bên viết).
+const OBSERVED = readFileSync(path.join(KIT, 'commands', 'observed.md'), 'utf8');
+const khuonTT = (t) => {
+  const m = String(t).match(/<!-- <<<THUC-TE-LINE -->\n\s*([^\n]+)\n\s*<!-- THUC-TE-LINE>>> -->/);
+  if (!m) throw new Error('khong rut duoc khoi THUC-TE-LINE tu commands/observed.md');
+  return m[1].trim();
+};
+const ID_TT = 'd-20260921T110000Z-7';
+const dongTT = (khuon, sha) => `{"id":"${ID_TT}",` + khuon.replace('<ISO ngày quan sát>', '2026-09-21T09:00:00Z').replace('<tên>', 'Manh')
+  .replace('<40-hex bản dựng đang phục vụ prod>', sha).replace('<một câu người nói>', 'production dựng từ bản này') + '}';
+async function khoTT({ mau = (k, sha) => [dongTT(k, sha)], status = 'da-cham-boi-thuc-te', sau = null } = {}) {
+  const K = khuonTT(OBSERVED);
+  const k = await kho({ status, chuKy: '', soDong: [] });
+  writeFileSync(path.join(k.d, 'decisions.jsonl'), mau(K, k.sha).join('\n') + '\n');
+  k.g('add', '-A'); k.g('commit', '-qm', 'observed: s — Manh');
+  if (sau) { sau(k); k.g('add', '-A'); k.g('commit', '-qm', 'sau quan sat'); }
+  return k;
+}
+const MA_TT = [
+  ['lanh', {}, { pm: [0, /NOTE \[s\]: đã chấm bởi thực tế — chạy trên prod từ bản dựng [0-9a-f]{7} \(quan sát 2026-09-21, Manh\)/], rc: [0, /đã chấm bởi thực tế: [0-9a-f]{7} 2026-09-21 Manh/] }],
+  ['thieu', { mau: (k, sha) => [dongTT(k, sha).replace(/"build_sha":"[0-9a-f]{40}",/, '')] }, { pm: [1, /VIOLATION \[s\]: dòng quan sát thiếu vế build_sha/], rc: [1, /THIEU build_sha/] }],
+  ['sha-la', { mau: k => [dongTT(k, 'e'.repeat(40))] }, { pm: [1, /VIOLATION \[s\]: bản dựng không có trong kho — e{40}/], rc: [1, /LA e{40}/] }],
+  ['khoa', { sau: k => writeFileSync(path.join(k.d, 'evals.yaml'), readFileSync(path.join(k.d, 'evals.yaml'), 'utf8') + '# sua thuoc\n') }, { pm: [1, /VIOLATION \[s\]: khoá việc thước — .*evals\.yaml/], rc: [1, /KHOA .*evals\.yaml/] }],
+  ['mo-lai', { mau: (k, sha) => [dongTT(k, sha), JSON.stringify({ id: 'd-20260921T120000Z-8', type: 'revisit', stage: 'gate2', at: '2026-09-21T12:00:00Z', decision: 'prod đỏ — mở lại', supersedes: ID_TT })] }, { pm: [1, /VIOLATION \[s\]: verdict=BLOCKED \(must be PASS to merge\)/], rc: [0, null] }],
+];
+for (const [ten, opt, mong] of MA_TT) {
+  const tenCa = `NL-AC10-${ten}`;
+  if (!want(tenCa)) continue;
+  try {
+    const k = await khoTT(opt);
+    const a = luoi(k.r); const b = kiemLai(k.d);
+    const sai = [];
+    const hop = (x, [ma, re], ben) => { if ((ma === 0) !== (x.ma === 0)) sai.push(`${ben} thoat ${x.ma}, mong ${ma === 0 ? '0' : 'khac 0'}`); if (re && !re.test(x.out)) sai.push(`${ben} thieu thong diep ${re}`); };
+    hop(a, mong.pm, 'pre-merge'); hop(b, mong.rc, 'recheck');
+    if (ten === 'mo-lai' && /đã chấm bởi thực tế/.test(b.out)) sai.push('recheck van NOTE da cham sau khi mo lai');
+    if (ten === 'lanh') {
+      // Đối chứng dương: cùng kho khi status approved → luật chưa-arm như trước vòng.
+      const dc = await khoTT({ status: 'approved' });
+      const x = luoi(dc.r);
+      if (x.ma === 0 || !/VIOLATION \[s\]: hồ sơ có bằng chứng nhưng status chưa arm cổng/.test(x.out)) sai.push('doi chung approved khong ra VIOLATION chua arm');
+      // Một nguồn: bản sao làm thucTe luôn null → cả hai bên đọc mất NOTE ở ca lành.
+      const sao = banSaoKit(); const f = path.join(sao, 'lib', 'workspace-record.cjs');
+      const src = readFileSync(f, 'utf8'); const KIM = "  const tt = [...dong].reverse().find(e => e.type === 'thuc-te');\n";
+      if (src.split(KIM).length !== 2) throw new Error('kim thucTe khong khop dung 1 lan');
+      writeFileSync(f, src.replace(KIM, KIM + '  if (tt) return null;\n'));
+      if (luoi(k.r, sao).ma === 0) sai.push('mot nguon: thucTe luon null ma pre-merge ban sao van 0');
+      if (/đã chấm bởi thực tế/.test(kiemLai(k.d, sao).out)) sai.push('mot nguon: thucTe luon null ma recheck ban sao van NOTE');
+    }
+    if (sai.length) bad(tenCa, sai.join(' ; '));
+    else ok(tenCa, `— pre-merge ${a.ma} · recheck ${b.ma}, đúng thông điệp ghim${ten === 'lanh' ? '; đối chứng approved chưa arm; một nguồn: thucTe hỏng thì cả hai bên đổi' : ''}`);
+  } catch (e) { bad(tenCa, loi(e)); }
+}
+
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (ntr-luoi)`);
