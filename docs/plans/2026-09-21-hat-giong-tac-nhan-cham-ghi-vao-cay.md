@@ -2,6 +2,8 @@
 
 Gốc: crm/_acceptance/dieu-phoi-30-ngay-dau — lượt chấm D (`wf_c1b6bb97-4a5`, 06:18–06:21 UTC): tác nhân chạy E2 tự commit `508ed3f7` chạm vật và khối evidence-report; phiên revert, sổ `d-20260921T061816Z-16`. Lần hai trong 24 giờ ở cùng hồ sơ (lần đầu `a559192c`/`03a09dc7`, revert `dfd664d6`).
 
+Phát hiện trong vòng: `_acceptance/nhan-trang-thai-va-reality/` (Notes của hợp đồng trích lại tệp này).
+
 **Hình dạng:** HEAD dời trong lúc lượt chấm chạy, commit do tác nhân chấm tạo. Vòng
 `nhan-trang-thai-va-reality` (AC-3) chỉ giữ THƯỚC chỉ-đọc (`evals.yaml` · `rang/` ·
 `config.yaml` · test kho), nên phần commit chạm test kho bị bắt thành *thước lệch*, còn
