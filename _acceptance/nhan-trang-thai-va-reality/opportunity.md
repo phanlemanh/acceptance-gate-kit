@@ -52,7 +52,13 @@ gọi tên 21/09 (luật chiều rộng (b)); kế hoạch điều phối:
 
 ## Ngưỡng chết / ngưỡng UAT
 
-Đo ở `crm` sau khi cài 2.18.0 (T3 của kế hoạch), lệnh ở §7 kế hoạch:
+- Câu hỏi phép đo trả lời: [đề xuất] Ba hồ sơ ở `crm` có đóng được hoặc chấm được bằng riêng bản 2.18.0, không dựng thêm một dòng thước nào?
+- Kết quả nào là SỐNG: [đề xuất] Sau khi `crm` cài 2.18.0 — hồ sơ tàng hình 0, PR crm #65 merge được, 0 lượt chấm `dieu-phoi` bị hạ tầng hay hệ thống đốt, hồ sơ mốc mang dòng `k / 3`.
+- Kết quả nào là CHẾT: [đề xuất] Sau khi cài vẫn còn hồ sơ tàng hình, hoặc #65 vẫn bị hồ sơ chặn, hoặc từ một lượt chấm trở lên bị đốt với lý do đã có nhãn, hoặc dòng M3 thiếu, hoặc N bằng 0.
+- Timebox: [đề xuất] 2026-09-28 — quá hạn mà `crm` chưa cài 2.18.0 thì chính việc số không về là tín hiệu.
+
+Bốn dòng trên là bản máy-đọc của bảng dưới; người ký Cổng Đáng gỡ tiền tố `[đề xuất]`
+là chốt. Đo ở `crm` sau khi cài 2.18.0 (T3 của kế hoạch), lệnh ở §7 kế hoạch:
 
 | Số | Trước 21/09 | Ngưỡng UAT | Chết |
 |---|---|---|---|
