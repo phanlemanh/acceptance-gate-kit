@@ -5,9 +5,9 @@ slug: nhan-trang-thai-va-reality
 owner: phanlemanh@gmail.com
 risk_tier: T3      # lib/workspace-record.cjs + scripts/pre-merge-check.sh + scripts/recheck-evidence.cjs — lõi cưỡng chế; đổi enum + thêm thao tác cổng người = khó-đảo
 surfaces: [cli, ci, docs]
-status: draft      # draft | approved | implemented | verified | signed-off | machine-cleared
-approved_by:
-approved_at:
+status: approved      # draft | approved | implemented | verified | signed-off | machine-cleared
+approved_by: Phan Le Manh
+approved_at: 2026-09-21T06:12:41Z
 design_doc: docs/superpowers/specs/2026-09-21-nhan-trang-thai-va-reality-design.md
 ---
 
