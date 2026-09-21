@@ -46,6 +46,14 @@ nó không được phép đốt cả lượt.
 - Lệnh tái lập: `grep -l 'Workflow harness — user request' <thư mục transcript>/subagents/workflows/*/agent-*.jsonl`
   rồi đếm tác tử có tin đầu chứa câu goal — mọi lượt chấm gọi từ phiên có /goal đều mang nó.
 
+**Lần 5, cùng vòng, cùng lượt (09:xx UTC):** tác tử chạy suite `scripts` **kẹt vòng lặp** — chạy ≥ 5
+lần, lần nào cũng 891/891 xanh, không kết thúc, còn tự mở thêm lượt chạy nền (có lúc ba suite song
+song trên cùng cây). Cơ chế: câu `/goal` bảo «chỉ HOÀN THÀNH khi contract đã sang verified»; tác tử
+chỉ chạy lệnh không bao giờ thấy điều đó → chạy mãi. Phiên phải dừng lượt chấm giữa chừng (kết quả
+E1–E13, baseline, ba lens review giữ trong bộ nhớ đệm; băm ba tệp hồ sơ khớp mốc) và xin owner gỡ
+`/goal` — **một lượt gọi người ngoài thiết kế** sinh trực tiếp từ nghi thức kit. Hai mặt của cùng câu:
+tác tử có quyền ghi thì *sửa tệp cho khớp goal*; tác tử chỉ có quyền chạy thì *lặp tới khi goal đúng*.
+
 ## Việc
 
 0. **Khuôn GOAL-TEMPLATE không được chứa mệnh lệnh về trạng thái tệp** («set contract sang
