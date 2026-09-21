@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5b90977903b5077b7bbc9e9aa53154c059bda5f2
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Phan Le Manh 2026-09-21 — ký lượt chấm 2; Ngoài-1…Ngoài-8 ghi Known limits; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -189,3 +189,7 @@ none — không có eval nào khai runs > 1 (không có eval ngẫu nhiên trong
 
 Round 1: BLOCKED — tác tử kiểm bản đồ bị nhiễm tin chuyển tiếp «gỡ goal», không xác minh được lệnh suite product-map; sau đó S3 thêm `id` bắt buộc cho dòng quan sát (AC-10) trước khi verify lại.
 Round 2 (báo cáo này): toàn bộ 13 eval gắn AC (E1–E13, carry-forward E1–E7/E12/E13 từ round 1, chạy mới E8–E11 với ca NL-AC10-thieu-id) và cả 5 lệnh suite hồi quy đều PASS.
+
+### Re-pin lần 1 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 13/13 eval máy đạt kỳ vọng

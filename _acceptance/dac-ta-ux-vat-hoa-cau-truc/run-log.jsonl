@@ -67,3 +67,4 @@
 {"ts":"2026-08-24T11:56:00Z","sha":"81911bccdddccbf1f38b0fd144679160516373a1","round":7,"evalId":"E4","run_id":"minted-dac-ta-ux-vat-hoa-cau-truc-E4-r7","exit_code":0,"cmd":"bash tests/plugins/run-tests.sh"}
 {"ts":"2026-08-24T11:56:00Z","sha":"81911bccdddccbf1f38b0fd144679160516373a1","round":7,"kind":"baseline","evals_hash":"faf003e8cf4eab661d5c33040ff9c2bf72cbd925f65f8010ea2bc8d339188b37","non_discriminating":[{"cmd":"bash tests/plugins/run-tests.sh","evals":["E1","E2","E3","E4"]}]}
 {"ts":"2026-09-18T12:16:43Z","kind":"repin","run_id":"repin-20260918T121643Z-87929","sha":"b950f6643e253a691021612b5c5cabfe86cc4dda","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0}}
+{"ts":"2026-09-21T17:50:37Z","kind":"repin","run_id":"repin-20260921T175037Z-33397","sha":"41b949dec2245c147ff1460ba6e70e41e5fbb6df","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0},"evals_not_machine":["E5","E6"]}

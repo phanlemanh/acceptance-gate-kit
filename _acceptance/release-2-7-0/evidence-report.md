@@ -7,7 +7,7 @@ reason:
 verified_by: implementing session (gap-probe context sạch do phiên tươi độc lập làm — xem Known limits #1)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Manh Phan 2026-09-03 — ký mốc phát hành 2.7.0 với 7 known-limits đã khai; Ngoài-1 mở hợp đồng mới; đồng ý phạm vi đã cắt; phê cả 5 quyết định ghi sau Cổng Phạm vi; trần T3 đọc theo nguyên tắc, = 4
 ---
 
@@ -182,3 +182,7 @@ theo nguyên tắc «= số cổng thiết kế» = 4) là điều người ký 
 ### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ac, 15 hồ sơ
 run_id: repin-20260918T125024Z-93405
 sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh tuần tự + 1 phép đếm độc lập — d-4608)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Manh Phan 2026-08-23 — ký với known-limits đã khai (neo sha cố định · vũ trụ khai tay · ngưỡng đo chung chip D)
 ---
 
@@ -165,3 +165,7 @@ merge đầu của chip D) sửa theo LỚP (d-4606); P101 ghim `/start` trần 
 ### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
 run_id: repin-20260918T123126Z-49883
 sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng

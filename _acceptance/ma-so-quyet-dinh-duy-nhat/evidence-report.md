@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 4 lệnh chạy tuần tự — entry d-20260911T092728Z-10)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Mạnh 2026-09-18 — ký trong cửa veto của làn V (hồ sơ máy thông 11/09); đồng ý phần cắt/hoãn; phê hết Treo-1…Treo-3
 ---
 
@@ -177,3 +177,7 @@ sha: b51acab4bc1d3f729f8e21d4b49bdcd5b3869f6c · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 3 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
 run_id: repin-20260918T123126Z-49883
 sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
+
+### Re-pin lần 4 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng

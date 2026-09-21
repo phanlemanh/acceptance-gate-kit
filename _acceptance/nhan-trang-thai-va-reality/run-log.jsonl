@@ -55,3 +55,4 @@
 {"ts":"2026-09-21T10:46:48Z","sha":"5b90977903b5077b7bbc9e9aa53154c059bda5f2","round":2,"kind":"baseline","evals_hash":"9d439aadcef37dd2c8cc499ca00bde91294a17de0037c2bc3061a69d56e59677","non_discriminating":[]}
 {"ts":"2026-09-21T10:46:48Z","sha":"5b90977903b5077b7bbc9e9aa53154c059bda5f2","round":2,"kind":"round-tally","verdict":"PASS","expected":8,"returned":8,"blocked":0}
 {"kind":"thuoc-vat","ts":"2026-09-21T11:13:37Z","round":2,"san":"7e70503518051ae7f17cda389e19f11283e22433","vat":[11,3],"thuoc":[3,3],"ho_so":[352,0],"nhat":0,"lan":1,"tep_thuoc":["_acceptance/config.yaml","_acceptance/nhan-trang-thai-va-reality/evals.yaml"]}
+{"ts":"2026-09-21T17:50:37Z","kind":"repin","run_id":"repin-20260921T175037Z-33397","sha":"41b949dec2245c147ff1460ba6e70e41e5fbb6df","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E7":0,"E8":0,"E9":0,"E10":0,"E11":0,"E12":0,"E13":0}}

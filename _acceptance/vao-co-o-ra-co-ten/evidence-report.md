@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 6 lệnh chạy tuần tự — quyết định d-20260821T182527Z-4208)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Manh Phan 2026-08-22 — ký với 4 known-limits đã khai và 5 mục ngoài hợp đồng ghi sổ (review-findings.md)
 ---
 
@@ -226,3 +226,7 @@ Trước đó trong S3: suite plugins đỏ 4 ca cũ (P98/P105/P123/P166) do hà
 ### Re-pin lần 1 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ad, 13 hồ sơ
 run_id: repin-20260918T130346Z-62162
 sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng

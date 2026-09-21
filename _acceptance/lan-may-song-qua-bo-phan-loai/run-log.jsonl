@@ -28,3 +28,4 @@
 {"ts":"2026-09-08T03:52:46Z","kind":"repin","run_id":"repin-20260908T035246Z-95429","sha":"7d12ffad4010829598ded702b80a2ff8d12eb189","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E8":0}}
 {"ts":"2026-09-09T00:12:51Z","kind":"repin","run_id":"repin-20260909T001251Z-82742","sha":"ffe138acbf4009855e5b874d6957a5976477c854","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E8":0}}
 {"ts":"2026-09-18T12:31:26Z","kind":"repin","run_id":"repin-20260918T123126Z-49883","sha":"b950f6643e253a691021612b5c5cabfe86cc4dda","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E8":0}}
+{"ts":"2026-09-21T17:50:37Z","kind":"repin","run_id":"repin-20260921T175037Z-33397","sha":"41b949dec2245c147ff1460ba6e70e41e5fbb6df","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E8":0},"evals_not_machine":["E7"]}

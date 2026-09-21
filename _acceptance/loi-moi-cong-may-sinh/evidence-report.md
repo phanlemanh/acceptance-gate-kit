@@ -7,7 +7,7 @@ reason: 11/11 eval máy XANH trên cây cuối 873db3de. Bảy finding TRONG h�
 verified_by: implementing session (đối kháng vòng 1–3 do ba phiên tươi độc lập; KHÔNG có phiên soi độc lập trên cây cuối — Known limits #1)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Manh Phan 2026-09-02
 ---
 
@@ -272,3 +272,7 @@ sha: 809669544314a99ba3da40065778030860deaa83 · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 6 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-ab, 15 hồ sơ
 run_id: repin-20260918T123126Z-49883
 sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
+
+### Re-pin lần 7 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng

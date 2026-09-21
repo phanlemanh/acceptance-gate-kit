@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d5ba4e7187fbe896f1fcccf6ff608108d15a6662
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff:
 ---
 
@@ -152,3 +152,7 @@ Round 3: Sửa khoá `cqt_o_khong_doi` trong `_acceptance/config.yaml` sang chu�
 ### Re-pin lần 1 — 2026-09-07, do chiến dịch ghim lại mốc 2.9.0 (§7.1): bốn hồ sơ pin-tươi trong cửa sổ có đường khai bị diff cd94d004..d5ba4e71 chạm — một làn eval theo ADR 0014
 run_id: repin-20260907T211331Z-70593
 sha: d5ba4e7187fbe896f1fcccf6ff608108d15a6662 · suites: 5 lệnh exit 0 · evals: 6 eval máy exit 0
+
+### Re-pin lần 2 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
