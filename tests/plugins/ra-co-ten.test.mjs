@@ -191,7 +191,8 @@ function checkMenhDe(rows) {
 if (want('RT1')) {
   const errs = [];
   const WR = require(path.join(ROOT, 'lib', 'workspace-record.cjs'));
-  const EXPECT = ['draft', 'approved', 'implemented', 'verified', 'signed-off', 'machine-cleared'];
+  // Giá trị thứ bảy `da-cham-boi-thuc-te` từ hồ sơ nhan-trang-thai-va-reality (ADR 0020 Đ8).
+  const EXPECT = ['draft', 'approved', 'implemented', 'verified', 'signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'];
   const got = WR.NAV_RULES['contract.md'].status.enum;
   if (JSON.stringify(got) !== JSON.stringify(EXPECT)) errs.push(`enum lib = ${JSON.stringify(got)}`);
   if (JSON.stringify(STATUS_ENUM_FROM_TPL) !== JSON.stringify(EXPECT)) errs.push(`enum khuôn = ${JSON.stringify(STATUS_ENUM_FROM_TPL)}`);
@@ -270,7 +271,7 @@ if (want('RT1')) {
     else if (!/UNCERTAIN/.test(r2.why)) errs.push(`chiều đỏ: đỏ vì «${r2.why}», mong «có mục UNCERTAIN»`);
   }
   if (errs.length) fail('RT1', errs.join(' · '));
-  else pass('RT1', 'enum 6 giá trị round-trip khuôn↔lib; usesUat/usesEvidence; khối xanh-sạch ba đầu; chiều đỏ nêu mục');
+  else pass('RT1', 'enum 7 giá trị round-trip khuôn↔lib; usesUat/usesEvidence; khối xanh-sạch ba đầu; chiều đỏ nêu mục');
 }
 
 // ── hook: ghi hồ sơ qua PreToolUse payload ───────────────────────────────────

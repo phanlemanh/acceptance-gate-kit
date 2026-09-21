@@ -45,7 +45,9 @@ const TRA = {
   lanh: { 'cmd-2': { exitCode: 127, outputTail: '', runId: '', cannotRun: false }, 'cmd-3': { exitCode: 1, outputTail: '', runId: '', cannotRun: false, killedByTool: true } },
   reject: { 'cmd-2': { exitCode: 1, outputTail: 'fail', runId: '', cannotRun: false } },
 };
-async function kho({ tra = TRA.lanh, soDong = [], status = 'signed-off', chuKy = 'M 2026-09-21' } = {}) {
+// Trạng thái «đã ký» lấy từ NGUỒN DUY NHẤT của lib (DA_THONG_CONG_2), không gõ chuỗi.
+const DA_KY = require(path.join(KIT, 'lib', 'workspace-record.cjs')).DA_THONG_CONG_2.find(s => s !== 'machine-cleared');
+async function kho({ tra = TRA.lanh, soDong = [], status = DA_KY, chuKy = 'M 2026-09-21' } = {}) {
   const r = mkdtempSync(path.join(TMP, 'k-'));
   const g = (...a) => execFileSync('git', ['-C', r, ...a], { encoding: 'utf8' }).trim();
   g('init', '-q', '-b', 'main'); g('config', 'user.email', 'x@y.z'); g('config', 'user.name', 'x');

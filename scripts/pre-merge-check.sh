@@ -1136,13 +1136,14 @@ XLACS
     _ncg="$(node "$NCG_LIB" --check --root "$ROOT" --slug "$slug" 2>/dev/null)"; _ncg_rc=$?
     case "$_ncg_rc" in
       0) echo "NOTE [$slug]: ký trên cạnh gãy có tên — ${_ncg#OK } (verdict BLOCKED giữ nguyên; người ký chấp nhận chưa đọc)"
-         verdict="PASS-CANH-GAY" ;;
+         # Biến CỤC BỘ của lưới: từ đây hồ sơ đi các chốt còn lại như một PASS có chữ ký.
+         # Báo cáo trên đĩa KHÔNG đổi — con số giữ nguyên (AC-5).
+         verdict="PASS" ;;
       1) echo "VIOLATION [$slug]: ký trên cạnh gãy thiếu dòng sổ revisit cho ${_ncg#THIEU } — ghi dòng theo khối CANH-GAY-REVISIT-LINE của /acceptance-gate:signoff rồi chạy lại"
          violations=$((violations+1)); continue ;;
     esac
   fi
-  if [ "$verdict" = "PASS-CANH-GAY" ]; then :
-  elif [ "$verdict" != "PASS" ]; then
+  if [ "$verdict" != "PASS" ]; then
     echo "VIOLATION [$slug]: verdict=$verdict (must be PASS to merge)"
     violations=$((violations+1)); continue
   fi

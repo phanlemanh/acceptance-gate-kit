@@ -167,6 +167,7 @@ process.stdin.on('end', () => {
         '                                          or the V lane (veto_state: mo + veto_opened_at, T2 only)',
         '  draft -> implemented / verified / machine-cleared -> requires the approved step (Gate 1) first',
         '  User explicitly skipped Gate 1       -> record gate1_skipped: true (audited; pre-merge NOTEs it)',
+        '  status: da-cham-boi-thuc-te           -> reality đã chấm: only /acceptance-gate:observed writes it (build_sha + date + name), never from draft',
         'Legacy bypass: ACCEPTANCE_GATE_BYPASS=1',
         '',
       ];

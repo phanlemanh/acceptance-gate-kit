@@ -40,8 +40,11 @@ nào mà vẫn là đúng bản đang chạy.
 3. **Đặt `status: da-cham-boi-thuc-te`** trong frontmatter `contract.md` bằng công cụ sửa tệp
    (hook ghi-lúc-viết kiểm chuyển trạng thái). KHÔNG đụng `human_signoff`, verdict hay bảng
    eval của báo cáo — chúng giữ nguyên làm sử liệu.
-4. **Vẽ lại bản đồ sản phẩm** nếu kho đã bật (`PRODUCT-MAP.md` có trong
-   `risk_tiers.t1_skip_globs`): `node <acceptance-gate>/scripts/product-map.mjs --root .`.
+4. **Vẽ lại bản đồ sản phẩm — chỉ khi kho đã bật.** Đọc `risk_tiers.t1_skip_globs` trong
+   `_acceptance/config.yaml`. `PRODUCT-MAP.md` KHÔNG có trong đó → **BỎ QUA** bước vẽ, không
+   đưa bản đồ vào commit, và in ghi chú: «Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai
+   dòng trong `_acceptance/config.yaml` (xem `/acceptance-gate:approve` bước 5).» Có → chạy
+   `node <acceptance-gate>/scripts/product-map.mjs --root .` rồi đưa `PRODUCT-MAP.md` vào commit.
 5. **Một commit** gồm dòng sổ + hợp đồng (+ bản đồ nếu vẽ lại): `observed: <slug> — <tên>`.
    Dòng sổ và trạng thái đi CÙNG commit: lưới đếm «thước đổi sau dòng quan sát» từ chính
    commit ghi dòng.

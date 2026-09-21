@@ -54,8 +54,9 @@ if (want('BDK2')) {
       'da-nghiem-thu-release', 'da-nghiem-thu-iterate', 'da-nghiem-thu-kill', 'ho-so-hong',
       'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach', 'da-giao-khong-do', 'da-dong-ho-so',
       'vat-da-o-nhanh-goc',   // release-2-15-0: «đã duyệt» mà vật đã nằm trong nhánh gốc
-      'da-nghi'];            // ho-so-nghi: đã ký rồi cho nghỉ — chữ ký giữ làm sử liệu
-    const N = 26; BDK2_N = KHOA.length;
+      'da-nghi',             // ho-so-nghi: đã ký rồi cho nghỉ — chữ ký giữ làm sử liệu
+      'da-cham-thuc-te'];    // nhan-trang-thai-va-reality: reality đã chấm (ADR 0020 Đ8)
+    const N = 27; BDK2_N = KHOA.length;
     if (KHOA.length !== N) errs.push(`danh sách ca ${KHOA.length} != ${N}`);
     if (Object.keys(BANG.TRANG_THAI).length !== N)
       errs.push(`bảng khai ${Object.keys(BANG.TRANG_THAI).length} khoá != ${N} — thêm khoá thì thêm ca`);
