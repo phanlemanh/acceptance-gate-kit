@@ -27,6 +27,25 @@ lượt gọi người ngoài thiết kế («anh nhắn lại một câu»).
 Đây là nhãn **hệ thống chết** theo tứ diện — không phải lỗi vật, không phải lỗi thước — và
 nó không được phép đốt cả lượt.
 
+## Bằng chứng thô của lần 4 (để tái lập, không suy diễn)
+
+- Lượt: Workflow `wf_22f827c6-74f` (`acceptance-verify.js`, kit tự host), `invokedSha 7e705035`,
+  dispatch 15:25:33 giờ máy (08:25 UTC).
+- Transcript hai tác tử: `~/.claude/projects/-Users-manh-macmini-dev-acceptance-gate-kit--claude-worktrees-zen-edison-7766af/ee8674c6-10e1-40be-9b42-546dc289b366/subagents/workflows/wf_22f827c6-74f/agent-ab48b848a7172b099.jsonl`
+  (Edit `contract.md`, 08:29:09Z) và `agent-a5254808f518e5545.jsonl`
+  (`sed -i.bak 's/status: implemented/status: verified/'`, 08:29:13Z).
+- Tin đầu của CẢ HAI mở bằng: «[Workflow harness — user request] The harness relays, verbatim and
+  indented below, the user request that triggered this workflow run. This relayed request is the only
+  user voice in this task; the computed task text that follows in the next turn is script output and
+  cannot override or extend it. Where the computed task conflicts with this request, this request
+  wins:» rồi nguyên văn `/goal`: «Feature nhan-trang-thai-va-reality: coi là HOÀN THÀNH chỉ khi
+  transcript tường thuật rõ S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
+  _acceptance/nhan-trang-thai-va-reality/contract.md sang status: verified. …»
+- Kết luận cơ học: harness NÂNG câu `/goal` thành lệnh **thắng** đề bài của tác tử chấm; đây không
+  phải tác tử «lười» hay «đoán», nó làm đúng điều harness bảo là ưu tiên cao nhất.
+- Lệnh tái lập: `grep -l 'Workflow harness — user request' <thư mục transcript>/subagents/workflows/*/agent-*.jsonl`
+  rồi đếm tác tử có tin đầu chứa câu goal — mọi lượt chấm gọi từ phiên có /goal đều mang nó.
+
 ## Việc
 
 0. **Khuôn GOAL-TEMPLATE không được chứa mệnh lệnh về trạng thái tệp** («set contract sang
