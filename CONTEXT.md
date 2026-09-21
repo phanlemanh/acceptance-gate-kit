@@ -323,6 +323,16 @@ Kết quả của một eval máy trả ĐÚNG mã thoát khác 0 mà `evals.yam
 một dòng ở mục Known limits, nên hồ sơ hết xanh-sạch và về Cổng Bằng chứng cho
 người quyết. Khác **cannotRun** — cannotRun là hạ tầng chấm hỏng, đạt-có-giới-hạn
 là tiền đề của sản phẩm thiếu và điều đó đã được khai trước.
+
+**Nhãn trạng thái**:
+Trạng thái MÁY-ĐỌC mà thẻ gắn cho một cạnh của tứ diện Ý·Hạng mục·Thước·Vật, mỗi
+nhãn mang kèm **người gỡ** và **giá** — *ĐẠT* · *ĐẠT-MÙ* (đọc xanh mà thước chưa
+từng đỏ) · *chưa đo* · *không đọc được ở đây* (bàn đo thiếu) · *thước lệch* ·
+*hệ thống chết* · *bản đồ cũ N commit* · *sai hợp đồng* · *ngoài hợp đồng*. Từ
+21/09 (khối ĐỊNH VỊ của `CLAUDE.md`): một nhãn giới hạn là **câu trả lời hợp lệ**,
+không phải lỗi, và tự nó KHÔNG sinh việc.
+_Avoid_: **Nhãn** trần (đã dành cho chú thích trong ngoặc của criterion, không đổi
+hành vi máy) · **Dấu** (hậu tố contract) · status, label, cờ.
 _Avoid_: pass có điều kiện, soft fail, «trượt nhưng chấp nhận được».
 
 **dogfood**:

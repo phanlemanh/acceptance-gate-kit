@@ -157,10 +157,65 @@
   · nền: [2026-08-09](docs/findings/2026-08-09-ban-chat-that-vong-lap-kit.md)
   · [2026-08-10](docs/findings/2026-08-10-ra-soat-luat-theo-north-star.md).
 
+- **⭐ ĐỊNH VỊ (owner duyệt 21/09): kit là BẢNG ĐỒNG HỒ + DẪN ĐƯỜNG, không phải
+  toà án.** Người dùng kit là **phiên Claude Code**, và qua nó là owner. Điều
+  owner cần không phải một chứng minh sống sót mọi đối kháng, mà một bản đồ
+  trạng thái THẬT: **đã xong gì · chưa xong gì · giới hạn đo lường · giới hạn hệ
+  thống · sai hợp đồng** — *giới hạn là câu trả lời hợp lệ, không phải lỗi*.
+  Toà án là **owner + reality**.
+
+  **Tứ diện Ý · HẠNG MỤC · THƯỚC · VẬT.** Ba đỉnh đáy ĐỘNG và đều có giới hạn;
+  kit không ưu ái đỉnh nào (hôm nay nó ưu ái hạng mục và gọi mọi thay đổi ở
+  thước là «trôi»). **Ý ĐỊNH là đỉnh trên và CỐ ĐỊNH trong vòng** — đổi nó = một
+  Cổng Đáng mới, bởi người (nguyên tố 1). Ý định cấp hai thứ không đỉnh đáy nào
+  có: **trọng số** (AC nào chở cơn đau nào) và **chính sách** (khẩu vị rủi ro
+  của chính vòng này); chốt MỘT lần ở Cổng Đáng rồi máy áp cho mọi cạnh gãy sau
+  đó mà không hỏi lại — đó là đường duy nhất tới mục tiêu ≤3 lượt gọi người. Sáu
+  cạnh, mỗi cạnh gãy phải có **TÊN · NGƯỜI GỠ · GIÁ** (bảng đủ ở bản neo):
+  Hạng mục↔Vật = *sai hợp đồng* / *chưa làm* (máy sửa vật) · Thước↔Vật = *không
+  đọc được ở đây* / *mù* (máy chạy lại khi bàn đo về · người chấp nhận chưa đọc,
+  trả giá dựng bàn, hay đổi thước) · Hạng mục↔Thước = *thước lệch* (người) ·
+  Ý↔Hạng mục và Ý↔Thước = người · **Ý↔Vật = reality đọc** (prod N ngày · phiên
+  nghiệm thu theo ngưỡng đã khai).
+
+  **CA DỪNG (K8 — quan trọng hơn mọi cải thiện khác cộng lại):** giới hạn là một
+  **nhãn trạng thái** (term ở [CONTEXT.md](CONTEXT.md) — không lẫn với «Nhãn» của
+  criterion), không phải một việc. Việc chỉ tự sinh từ *sai hợp đồng* (máy sửa
+  vật) và *hệ thống chết* (thử lại MỘT lần). Mọi nhãn khác lên thẻ ở cổng ĐÃ CÓ —
+  không thêm lượt gọi — và chỉ thành việc khi người mở ngân sách ở Cổng Đáng, có
+  ghi giá, cân bằng hình chiếu của cạnh gãy lên ý định.
+
+  **VẬT TẠO RA BÀN GIAO.** Bàn giao là sáu thứ vật tự phát ra, giá 0: `git diff`
+  · test của kho (**tên test = tên AC**) · ô bỏ qua có tên (`test.skip('AC-9 —
+  cần dữ liệu prod')`) · sha · suite của kho · sha đang chạy trên prod. Kit
+  **render**, không **soạn**. Luật thiết kế đi kèm: thước ở CÙNG NHÀ với vật thì
+  cạnh Thước↔Vật ngắn — thước chạy ở bất cứ đâu vật chạy; và chiều đỏ nằm trong
+  **LỊCH SỬ** (TDD: commit test đứng trước commit vật, CI đỏ rồi xanh), không
+  cần một tháp đo tháp.
+
+  **Reality là đồng hồ cuối.** Trạng thái `da-cham-boi-thuc-te` do **người** ghi
+  đóng hồ sơ bất kể ô đỏ ở đáy; và **một dòng hiệu chuẩn** ở hồ sơ mốc —
+  `ĐẠT đã ký → prod đỏ: k / N` — là số duy nhất định nghĩa được «đủ», với N (số
+  hồ sơ đã ký có dòng quan sát prod) là **chiều đỏ của chính nó**: N không tăng
+  thì dòng vô hiệu, cấm đọc thành «0 sự cố». Cả hai vế: **ADR 0020**.
+
+  **Điều kiện thi hành — KHÔNG có vòng «định vị lại».** Luật chiều rộng (b) áp
+  lên chính khối này: phần TRỪ đi *bên trong* vòng sản phẩm đang vấp; chỉ phần
+  cấu trúc (ý định đi suốt tới Cổng Bằng chứng + trạng thái reality) được tối đa
+  **MỘT** vòng meta có tên, buộc vào mốc một kho tiêu thụ sẽ cài. Số đo 21/09
+  làm nền: vật nói **7,4 %** token S4 · ui-check **97,4 % PASS** mà chỉ 1,3 % đi
+  qua `executors.ui*` · hội đồng **240/293** bị người quyết lại · ý định ghi ở
+  **9 %** hồ sơ và S4 không đọc nó · một vật 81 dòng kéo **4 622** dòng thước
+  (57 : 1) trong khi nó đã ở prod.
+
+  Bản neo: [docs/findings/2026-09-21-dinh-vi-lai-kit-vat-tao-ra-ban-giao.md](docs/findings/2026-09-21-dinh-vi-lai-kit-vat-tao-ra-ban-giao.md)
+  · [ADR 0020](docs/adr/0020-reality-co-quyen-dong-ho-so-mot-dong-hieu-chuan.md).
+
 - **Ba nguyên tố (hiến pháp trace).** Mọi bộ phận hiện có và mọi đề xuất mới
   phải trace về **một** trong ba, và nêu được **người hưởng cụ thể**:
   1. **Ý định chốt trước khi làm.** Chỉ owner biết "tốt" nghĩa là gì; chốt
-     sau khi làm xong thì mọi kết quả tự biện minh được.
+     sau khi làm xong thì mọi kết quả tự biện minh được. Từ 21/09 nó là **đỉnh
+     CỐ ĐỊNH** và phải đi suốt tới Cổng Bằng chứng — xem khối ĐỊNH VỊ ở trên.
   2. **Bằng chứng không tự dối.** Món này cho **MÁY**: "máy tin nhầm chính
      nó" là lớp lỗi có tỉ lệ đo được cao nhất; nhờ nó máy mới được chạy nhanh
      mà người khỏi kiểm lại.
@@ -210,6 +265,9 @@
   `acceptance-card` cố tình để mở (feature-loop và approve/signoff
   model-invoke nó). Đừng "sửa" sự bất đối xứng này — test P32 giữ nó,
   lý do ở [docs/adr/0002](docs/adr/0002-human-gate-invocation-lock.md).
+  **ADR 0020 đã phê một thao tác THỨ BẢY** — người ghi trạng thái
+  `da-cham-boi-thuc-te` — nhưng nó **CHƯA DỰNG**: con số 6 ở đây nói đúng về cây
+  hôm nay. Khi dựng, nó vào cùng danh sách khoá và P32 mở rộng theo.
 
 - **Assertion âm-tính-một-mình là assertion không sống.** Mọi case dựng bản
   sao/fixture rồi kết luận từ "exit khác 0" PHẢI có (a) **đối chứng dương** —
