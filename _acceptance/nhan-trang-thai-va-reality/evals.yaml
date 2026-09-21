@@ -147,12 +147,12 @@ evals:
     layer: backend-effect
     cmd: config:executors.script.ntr_luoi
     expected: >
-      Exit 0, có dòng PASS của NL-AC10-lanh, NL-AC10-thieu, NL-AC10-sha-la, NL-AC10-khoa, NL-AC10-mo-lai. Kho
+      Exit 0, có dòng PASS của NL-AC10-lanh, NL-AC10-thieu, NL-AC10-thieu-id, NL-AC10-sha-la, NL-AC10-khoa, NL-AC10-mo-lai. Kho
       fixture: hồ sơ T2 status da-cham-boi-thuc-te, báo cáo BLOCKED, chữ ký rỗng. Dòng thuc-te sinh
       từ khuôn RÚT từ khối marker THUC-TE-LINE của commands/observed.md (điền build_sha = sha một
       commit có thật của kho fixture), không dựng tay. Ma trận hai bên đọc (pre-merge-check.sh --base · recheck-evidence.cjs <báo cáo>) × năm
       ca = 10 assert, so bằng nhau với danh sách viết trước: lành → thoát 0, NOTE ghim «chạy trên prod từ bản dựng» kèm
-      sha7, ngày, tên · thiếu (bỏ build_sha) → VIOLATION nêu «build_sha» · sha lạ (40-hex không có
+      sha7, ngày, tên · thiếu (bỏ build_sha) → VIOLATION nêu «build_sha» · thiếu id rồi thước đổi sau dòng quan sát → VIOLATION nêu «id» (không OK im — S4-r1 t2/t3) · sha lạ (40-hex không có
       trong kho) → VIOLATION ghim «bản dựng không có trong kho» · khoá (commit đổi
       evals.yaml sau dòng quan sát) → VIOLATION ghim «khoá việc thước» · mở lại (dòng supersedes trỏ
       id dòng thuc-te) → VIOLATION «verdict=BLOCKED» như luật cũ. Một nguồn: bản sao làm thucTe luôn

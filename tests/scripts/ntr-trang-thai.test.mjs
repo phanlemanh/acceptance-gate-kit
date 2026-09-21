@@ -26,7 +26,7 @@ const SLUG = 'hs-thuc-te';
 const hopDong = st => `---\nschema_version: 1\nslug: ${SLUG}\nfeature: vat da o prod\nowner: x@y.z\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${st}\napproved_by: M\napproved_at: 2026-09-01T00:00:00Z\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n`;
 // Dòng quan sát: đủ đúng các vế lib khai (THUC_TE_VE) — rút danh sách vế từ lib, không gõ tay.
 const dongTT = (o = {}) => JSON.stringify({ id: 'd-20260921T100000Z-1', type: 'thuc-te', stage: 'thuc-te',
-  ...Object.fromEntries(WR.THUC_TE_VE.map(k => [k, { by: 'M', at: '2026-09-21T09:00:00Z', build_sha: 'f'.repeat(40), decision: 'chay tren prod' }[k]])), ...o });
+  ...Object.fromEntries(WR.THUC_TE_VE.map(k => [k, { id: 'd-20260921T100000Z-1', by: 'M', at: '2026-09-21T09:00:00Z', build_sha: 'f'.repeat(40), decision: 'chay tren prod' }[k]])), ...o });
 function kho(st) {
   const r = mkdtempSync(path.join(TMP, 'k-'));
   execFileSync('git', ['init', '-q', '-b', 'main', r]); git(r, 'config', 'user.email', 'x@y.z'); git(r, 'config', 'user.name', 'x');

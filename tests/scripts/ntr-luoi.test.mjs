@@ -165,6 +165,9 @@ async function khoTT({ mau = (k, sha) => [dongTT(k, sha)], status = 'da-cham-boi
 const MA_TT = [
   ['lanh', {}, { pm: [0, /NOTE \[s\]: đã chấm bởi thực tế — chạy trên prod từ bản dựng [0-9a-f]{7} \(quan sát 2026-09-21, Manh\)/], rc: [0, /đã chấm bởi thực tế: [0-9a-f]{7} 2026-09-21 Manh/] }],
   ['thieu', { mau: (k, sha) => [dongTT(k, sha).replace(/"build_sha":"[0-9a-f]{40}",/, '')] }, { pm: [1, /VIOLATION \[s\]: dòng quan sát thiếu vế build_sha/], rc: [1, /THIEU build_sha/] }],
+  // Ô thêm sau lượt chấm 1 (phát hiện t2/t3 trong hợp đồng AC-10): dòng quan sát KHÔNG có id,
+  // rồi thước đổi sau dòng ấy → bản trước sửa trả OK im lặng (git -S '' lỗi bị nuốt). Phải đóng.
+  ['thieu-id', { mau: (k, sha) => [dongTT(k, sha).replace(`"id":"${ID_TT}",`, '')], sau: k => writeFileSync(path.join(k.d, 'evals.yaml'), readFileSync(path.join(k.d, 'evals.yaml'), 'utf8') + '# sua thuoc\n') }, { pm: [1, /VIOLATION \[s\]: dòng quan sát thiếu vế id/], rc: [1, /THIEU id/] }],
   ['sha-la', { mau: k => [dongTT(k, 'e'.repeat(40))] }, { pm: [1, /VIOLATION \[s\]: bản dựng không có trong kho — e{40}/], rc: [1, /LA e{40}/] }],
   ['khoa', { sau: k => writeFileSync(path.join(k.d, 'evals.yaml'), readFileSync(path.join(k.d, 'evals.yaml'), 'utf8') + '# sua thuoc\n') }, { pm: [1, /VIOLATION \[s\]: khoá việc thước — .*evals\.yaml/], rc: [1, /KHOA .*evals\.yaml/] }],
   ['mo-lai', { mau: (k, sha) => [dongTT(k, sha), JSON.stringify({ id: 'd-20260921T120000Z-8', type: 'revisit', stage: 'gate2', at: '2026-09-21T12:00:00Z', decision: 'prod đỏ — mở lại', supersedes: ID_TT })] }, { pm: [1, /VIOLATION \[s\]: verdict=BLOCKED \(must be PASS to merge\)/], rc: [0, null] }],
