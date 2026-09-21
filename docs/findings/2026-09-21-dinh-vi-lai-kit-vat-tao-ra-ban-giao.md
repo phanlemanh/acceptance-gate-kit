@@ -9,8 +9,11 @@ north star, chỉ số; viết tài liệu; đề xuất cải thiện».
 **Cửa sổ đo:** 21/09/2026, máy của owner, `main` tại `85364dc2`; kho tiêu thụ
 `crm` (`feat/dieu-phoi-30-ngay-dau` @ `e2335431`, worktree `busy-chatterjee`),
 `oneflow`, `artifact-platform` (+3 worktree cùng `origin`), `map`.
-**Trạng thái tài liệu:** BẢN NHÁP ĐỀ XUẤT — đổi north star là quyết định của owner;
-mọi mục CỘNG cần phê đích danh (ADR 0018). Chưa chạm `CLAUDE.md`.
+**Trạng thái tài liệu:** owner **duyệt §1–§3** và **phê Đ8, Đ9** ngày 21/09/2026
+(trong phiên, ghi bằng **ADR 0020** theo vế «không có vòng» của ADR 0018). §1–§3 từ đây
+là bản neo cho đoạn «Điều C» + «đỉnh cố định» của `CLAUDE.md` — việc chép sang
+`CLAUDE.md` là bước riêng, chưa làm trong PR này. Đ1–Đ7, Đ10–Đ11 vẫn là đề xuất, đi theo
+điều kiện §7.2.
 
 > Chữ trong tệp này là NGUỒN. Mọi số có lệnh tái lập ở Phụ lục A — đừng đo lại trừ
 > khi nghi số đã cũ. Hình ở §3 là phác chiếu từ chữ, không phải nguồn thứ hai.
@@ -407,10 +410,12 @@ chạm — số cạnh gãy không đổi số lượt gọi.
 
 ## 11. Bước kế (owner quyết)
 
-1. Duyệt/sửa §1–§3 → đó là bản nháp đoạn «Điều C» + «đỉnh cố định» cho `CLAUDE.md`
-   (một ADR một đoạn nếu đủ ba điều kiện: khó đảo · gây bất ngờ · trade-off thật).
-2. Phê hoặc bác Đ8, Đ9 (hai CỘNG).
+1. ~~Duyệt/sửa §1–§3~~ — **đã duyệt 21/09**; chép thành đoạn «Điều C» + «đỉnh cố định»
+   cho `CLAUDE.md` là bước riêng (chưa làm).
+2. ~~Phê hoặc bác Đ8, Đ9~~ — **đã phê 21/09**, ghi ở
+   [ADR 0020](../adr/0020-reality-co-quyen-dong-ho-so-mot-dong-hieu-chuan.md).
 3. Đ1–Đ3 đi như TRỪ thường, trong một vòng sản phẩm đang chạm (không mở vòng meta).
+4. Đ7 + Đ8 — tối đa **một** vòng meta có tên, buộc vào mốc `crm` sẽ cài (§7.2).
 
 ## 12. Tác động sau khi thực hiện — theo từng người dùng kit
 
