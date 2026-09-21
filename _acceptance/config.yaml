@@ -412,6 +412,7 @@ executors:
     ntr_observed: "bash -c 'out=$(node tests/plugins/ntr-observed.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NO-AC11-khoa NO-AC11-danh-sach NO-AC11-do NO-AC11-than; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     ntr_hieu_chuan: "bash -c 'out=$(node tests/scripts/ntr-hieu-chuan.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NH-AC13-so NH-AC13-vo-hieu NH-AC13-guide; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     rel217_cua_so: bash scripts/rel-cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat
+    rel218_cua_so: bash scripts/rel-cua-so.sh 2826f807 ghim-lai-noi-ra-o-khong-do nhan-trang-thai-va-reality
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
