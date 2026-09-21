@@ -30,9 +30,10 @@ const { phanLoai } = await import(pathToFileURL(MODULE).href);
 
 // ── Ma trận viết-trước: [đường, lớp mong đợi, t1SkipGlobs] ─────────────────
 const PL1_MATRAN = [
-  ['tests/scripts/a.test.mjs', 'thuoc'],
-  ['src/x.spec.ts', 'thuoc'],
-  ['pkg/__tests__/b.js', 'thuoc'],
+  // Test của KHO là vật từ vòng nhan-trang-thai-va-reality (21/09, Đ1).
+  ['tests/scripts/a.test.mjs', 'vat'],
+  ['src/x.spec.ts', 'vat'],
+  ['pkg/__tests__/b.js', 'vat'],
   ['_acceptance/config.yaml', 'thuoc'],
   ['_acceptance/demo/evals.yaml', 'thuoc'],
   ['_acceptance/demo/rang/a.mjs', 'thuoc'],
@@ -87,7 +88,6 @@ function chayMaTran(fn, maTran) {
   const TAT_CA = [...PL1_MATRAN, ...PL4_MATRAN];
   // [tên vế, kim trong nguồn module, ô phải lật]
   const VE = [
-    ['ve tep ca (DO_GLOBS)', 'doRes.some(re => re.test(p))', ['tests/scripts/a.test.mjs', 'src/x.spec.ts', 'pkg/__tests__/b.js']],
     ['ve _acceptance/config.yaml', "p === '_acceptance/config.yaml'", ['_acceptance/config.yaml']],
     ['ve evals.yaml', "path.posix.basename(p) === 'evals.yaml'", ['_acceptance/demo/evals.yaml']],
     ['ve thu muc rang', "p.includes('/rang/')", ['_acceptance/demo/rang/mau.json']],

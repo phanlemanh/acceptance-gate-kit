@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 
 // Hai trạng thái «đã thông Cổng Bằng chứng» KHÔNG viết ở đây. Nguồn duy nhất là
 // DA_THONG_CONG_2 của lib/workspace-record.cjs (gói acceptance-gate); tệp này thuộc
@@ -79,5 +80,49 @@ export function soChup(truoc, sau) {
     out.push({ tep, doi: v.split(' ')[0] === w.split(' ')[0] ? 'ghi lại, cùng nội dung' : 'đổi nội dung' });
   }
   for (const tep of sau.keys()) if (!truoc.has(tep)) out.push({ tep, doi: 'thêm' });
+  return out.sort((a, b) => (a.tep < b.tep ? -1 : a.tep > b.tep ? 1 : 0));
+}
+
+// ── Thước CHỈ-ĐỌC trong lượt chấm (nhan-trang-thai-va-reality AC-3, Đ1) ─────────
+// Phanh thay cho trần nhát: thước của hồ sơ đang chấm không được đổi NỘI DUNG giữa
+// lúc sinh args và lúc lượt chấm xong. Tập thước = `_acceptance/config.yaml` ·
+// `_acceptance/<slug>/evals.yaml` · mọi tệp dưới `_acceptance/<slug>/rang/` · mọi tệp
+// git đang theo dõi khớp mẫu test của kho (`doRes`, từ DO_GLOBS của lib/phan-loai.mjs —
+// bên gọi truyền vào, không chép mẫu ở đây). Chỉ BĂM NỘI DUNG, không mtime: bộ chạy
+// test có quyền chạm mtime, không có quyền đổi byte của thước. Tệp vắng thì bỏ — vắng
+// trước, có sau là «thêm».
+export function chupThuoc(root, slug, doRes) {
+  if (!Array.isArray(doRes)) throw new Error('chupThuoc: thiếu mẫu test kho (doRes) — bên gọi truyền DO_GLOBS đã biên dịch');
+  const tep = new Set();
+  const co = rel => fs.existsSync(path.join(root, rel));
+  if (co('_acceptance/config.yaml')) tep.add('_acceptance/config.yaml');
+  if (co(`_acceptance/${slug}/evals.yaml`)) tep.add(`_acceptance/${slug}/evals.yaml`);
+  const walk = (abs, rel) => {
+    let es; try { es = fs.readdirSync(abs, { withFileTypes: true }); } catch { return; }
+    for (const e of es) { if (e.isDirectory()) walk(path.join(abs, e.name), `${rel}/${e.name}`); else tep.add(`${rel}/${e.name}`); }
+  };
+  walk(path.join(root, '_acceptance', slug, 'rang'), `_acceptance/${slug}/rang`);
+  const ls = execFileSync('git', ['-C', root, 'ls-files', '-z'], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
+  for (const f of ls.split('\0')) if (f && doRes.some(re => re.test(f))) tep.add(f);
+  const out = {};
+  for (const rel of [...tep].sort()) {
+    const abs = path.join(root, rel);
+    let h;
+    try { const st = fs.lstatSync(abs); h = createHash('sha256').update(st.isSymbolicLink() ? `symlink:${fs.readlinkSync(abs)}` : fs.readFileSync(abs)).digest('hex'); }
+    catch (e) { h = `vang ${e.code || e.message}`; }
+    if (!h.startsWith('vang ENOENT')) out[rel] = h;
+  }
+  return out;
+}
+
+// So hai ảnh chụp thước (object {rel: băm}). Trả [{ tep, doi }] sắp theo đường;
+// doi ∈ 'đổi nội dung' | 'thêm' | 'xoá'. Cùng băm = không đổi, dù mtime đổi.
+export function soThuoc(truoc, sau) {
+  const out = [];
+  for (const [tep, h] of Object.entries(truoc)) {
+    if (!(tep in sau)) out.push({ tep, doi: 'xoá' });
+    else if (sau[tep] !== h) out.push({ tep, doi: 'đổi nội dung' });
+  }
+  for (const tep of Object.keys(sau)) if (!(tep in truoc)) out.push({ tep, doi: 'thêm' });
   return out.sort((a, b) => (a.tep < b.tep ? -1 : a.tep > b.tep ? 1 : 0));
 }

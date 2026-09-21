@@ -404,6 +404,13 @@ executors:
     tcc_the_thuoc_vat: "bash -c 'out=$(node tests/scripts/gate-card-thuoc-vat.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT1 GT2 GT3 GT4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_so_target: "bash -c 'out=$(node tests/scripts/gate-card-dec-key.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DK14 DK15; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     hsn_rang: node tests/scripts/ho-so-nghi.test.mjs
+    # Hồ sơ nhan-trang-thai-va-reality (21/09): sáu tệp ca, tên ca mang mã AC.
+    ntr_thuoc: "bash -c 'out=$(node tests/scripts/ntr-thuoc.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NT-AC1 NT-AC1-dot-bien NT-AC2 NT-AC2-dem-loi NT-AC3-lanh NT-AC3-do NT-AC3-im; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ntr_the: "bash -c 'out=$(node tests/scripts/ntr-the-canh-gay.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NC-AC4 NC-AC4-cu NC-AC5 NC-AC5-nen NC-AC6 NC-AC7-mot NC-AC7-hai NC-AC7-tron NC-AC12-co NC-AC12-dai NC-AC12-khong; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ntr_luoi: "bash -c 'out=$(node tests/scripts/ntr-luoi.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NL-AC8-lanh NL-AC8-thieu NL-AC8-reject NL-AC8-mot-nguon NL-AC10-lanh NL-AC10-thieu NL-AC10-thieu-id NL-AC10-sha-la NL-AC10-khoa NL-AC10-mo-lai; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ntr_trang_thai: "bash -c 'out=$(node tests/scripts/ntr-trang-thai.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NS-AC9-moi NS-AC9-cu NS-AC9-sai; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ntr_observed: "bash -c 'out=$(node tests/plugins/ntr-observed.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NO-AC11-khoa NO-AC11-danh-sach NO-AC11-do NO-AC11-than; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    ntr_hieu_chuan: "bash -c 'out=$(node tests/scripts/ntr-hieu-chuan.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NH-AC13-so NH-AC13-vo-hieu NH-AC13-guide; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     rel217_cua_so: bash scripts/rel-cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat
 risk_tiers:
   t1_skip_globs:

@@ -243,7 +243,10 @@ const r0 = chayNen(k0, { cache: CACHE });
     const k = dungKho();
     const r = chayNen(k, { cache: CACHE, agRoot: ag });
     const n0 = soBam(r0), n1 = soBam(r);
-    if (n0 !== 9) bad('NEN7 ban lanh phai bam chin tep cua danh sach chep CI', `n0=${n0} stderr=${r0.stderr.slice(-300)}`);
+    // Số mong đợi RÚT từ chính khối marker (mỗi mục một dòng «→ `…/`»), không gõ con số:
+    // danh sách chép CI tăng 9 → 10 ở hồ sơ nhan-trang-thai-va-reality (lib/nhan-canh-gay.cjs).
+    const soMuc = (khoi.match(/→ `(lib|scripts)\/`/g) || []).length;
+    if (!soMuc || n0 !== soMuc) bad('NEN7 ban lanh phai bam du tep cua danh sach chep CI', `n0=${n0} soMuc=${soMuc} stderr=${r0.stderr.slice(-300)}`);
     else if (n1 !== n0 - 1) bad('NEN7 bo mot dong marker ma so tep bam khong giam dung mot', `n0=${n0} n1=${n1} ${tomTat(r)}`);
     else ok(`NEN7 danh sach rut tu marker — ban lanh bam ${n0} tep, bo mot dong marker con ${n1}`);
   } catch (e) { bad('NEN7 khong dung duoc ban sao ag-root', String(e.message || e)); }

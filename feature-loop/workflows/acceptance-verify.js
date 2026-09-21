@@ -883,7 +883,7 @@ for (const m of machine) {
       ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round,
       evalId: `SUITE-${ten}`, run_id: rid,
       exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
-      ...(m.cannotRun ? { cannot_run: true } : {}),
+      ...(m.cannotRun ? { cannot_run: true, reason: m.reason || '' } : {}),   // lý do: thẻ + lưới phân nhãn cạnh gãy (lib/nhan-canh-gay.cjs)
     }))
     continue
   }
@@ -894,7 +894,7 @@ for (const m of machine) {
       ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId, run_id: rid,
       exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
       ...(m.runs > 1 ? { runs: m.runs, passes: m.passes } : {}),
-      ...(m.cannotRun ? { cannot_run: true } : {}),
+      ...(m.cannotRun ? { cannot_run: true, reason: m.reason || '' } : {}),   // lý do: thẻ + lưới phân nhãn cạnh gãy (lib/nhan-canh-gay.cjs)
     }))
   }
 }

@@ -1,0 +1,152 @@
+{
+  "feature_plain": "Người ký thôi bị khoá ngoài thẻ khi bàn đo hỏng, hồ sơ đã chạy trên prod đóng được bằng một dòng quan sát, và test của kho thôi bị đếm là sửa thước.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ xếp test của kho vào phần sản phẩm, chỉ tính thước là bộ tiêu chí và mã đo của hồ sơ (AC-1 phân lớp tệp)."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ thôi dừng lượt chấm khi đếm đủ ba lần sửa thước; bộ đếm vẫn chạy và vẫn in số lên thẻ (AC-2 gỡ trần)."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ chụp thước ngay trước lượt chấm và so lại ngay sau; nội dung đổi là lỗi của lượt, máy dừng và gọi tên tệp (AC-3 thước chỉ-đọc)."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ mở ô ký khi lượt chấm kẹt chỉ vì bàn đo, kèm tên chỗ mù, ba lối và giá từng lối; kết quả chấm giữ nguyên (AC-5 không đọc được ở đây)."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ khoá thẻ khi tác tử chết lần đầu để máy thử lại một lần, và mở ô ký nếu lần thử lại cũng chết (AC-7 hệ thống chết)."
+    },
+    {
+      "id": "AC-10",
+      "p": "Sẽ cho lưới trước khi gộp nhận hồ sơ đã chấm bởi thực tế, và khoá mọi việc sửa thước trên hồ sơ ấy (AC-10 lưới nhận trạng thái mới)."
+    },
+    {
+      "id": "AC-11",
+      "p": "Sẽ có lệnh cổng người thứ bảy để người ghi sha prod, ngày và tên; máy không tự gọi được lệnh này (AC-11 lệnh ghi quan sát)."
+    },
+    {
+      "id": "AC-12",
+      "p": "Sẽ in lại nguyên văn ý định từ Cổng Đáng lên thẻ ký, tối đa mười hai dòng (AC-12 dòng ý định)."
+    },
+    {
+      "id": "AC-13",
+      "p": "Sẽ in dòng hiệu chuẩn «đã ký đạt rồi prod đỏ» ở hồ sơ mốc; khi chưa có hồ sơ nào được quan sát thì in «vô hiệu» (AC-13 dòng hiệu chuẩn)."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-4",
+      "p": "Chặn ký khi thước đổi giữa lượt chấm: thẻ gọi tên «thước lệch» và máy chấm lại lượt mới (AC-4)."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ KHÔNG đổi thẻ khi đỏ do sản phẩm hoặc do lý do máy không phân loại được: khối khoá giữ đúng từng byte như hôm nay (AC-6)."
+    },
+    {
+      "id": "AC-8",
+      "p": "Chặn gộp khi hồ sơ ký trên chỗ mù mà thiếu dòng sổ ghi lối đã chọn cho một eval; kết quả đỏ vì sản phẩm vẫn bị chặn như hôm nay (AC-8)."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ KHÔNG đổi cách hiện của bất kỳ hồ sơ cũ nào; hồ sơ mới mang trạng thái thứ bảy rời nhóm đang dở (AC-9)."
+    }
+  ],
+  "scope_plain": "Để sau: ưu tiên chỗ mù theo trọng số ý định, hội đồng chấm, rà soát, dời tháp thước của crm, và phát hành ra kho khác ngoài crm.",
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Mọi bên đọc bị đổi đều có tiêu chí riêng: phân lớp tệp, sinh tham số chấm, so sau lượt, thẻ ký, bộ quét trạng thái, lưới trước khi gộp, lệnh cổng người, dòng mốc."
+    },
+    {
+      "i": 1,
+      "p": "Mỗi bên đọc có chiều xanh, chiều đỏ; bốn tiêu chí đo riêng việc hồ sơ cũ hiện y như trước, một tiêu chí đo việc chạm tệp không phải thước thì im."
+    },
+    {
+      "i": 2,
+      "p": "Năm gốc đỏ của lượt chấm đều có tiêu chí: sản phẩm (AC-6), bàn đo (AC-5), tác tử chết lần đầu và lần hai (AC-7), thước lệch (AC-3, AC-4)."
+    },
+    {
+      "i": 3,
+      "p": "Giả định cần anh gạch: «đã thử lại» nghĩa là hai lần kẹt ghi cùng một số lượt, đúng cách máy chạy lại hôm nay."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Lệnh ký chưa có khuôn chung cho dòng sổ ghi lối đã chọn, nên có thể ghi sai mà phép đo không thấy. Đã sửa: khuôn nằm một chỗ trong lệnh ký, phép đo rút khuôn ấy đưa vào lưới, đổi khuôn là đỏ."
+    },
+    {
+      "i": 1,
+      "p": "Phép đo lệnh ghi quan sát chỉ kiểm chữ có mặt trong chính lệnh. Đã sửa: khuôn dòng quan sát nằm một chỗ, phép đo đưa nó qua bộ đọc thật; phần lệnh là văn cho máy đọc thì khai là giới hạn."
+    },
+    {
+      "i": 2,
+      "p": "Trạng thái mới chỉ được đo ở lưới trước khi gộp, chưa đo ở bước kiểm lại toàn kho. Đã sửa: đo cả hai bên, tám ô."
+    },
+    {
+      "i": 3,
+      "p": "Hai lần kẹt dựng bằng tay, và lý do «bộ phân loại chặn» không có tiêu chí. Đã sửa: dùng đúng hàm ghi của máy; lý do tự thuật của tác tử khai là giới hạn."
+    },
+    {
+      "i": 4,
+      "p": "Thiết kế cắt ý định ở mười hai dòng mà hợp đồng đòi in trọn. Đã sửa: giữ cắt, thêm ca mười ba dòng."
+    }
+  ],
+  "decisions_plain": [
+    {
+      "id": "d-20260921T054040Z-1",
+      "p": "Đã chọn so thước ở bước ngay sau lượt chấm thay vì trong lượt; đổi lại nếu phiên bỏ bước ấy thì lệch không được ghi."
+    },
+    {
+      "id": "d-20260921T054040Z-2",
+      "p": "Đã chọn giữ kết quả kẹt và ghi lối người chọn vào sổ, không đổi kết quả thành đạt; đổi lại lưới trước khi gộp có luật mới."
+    },
+    {
+      "id": "d-20260921T054040Z-3",
+      "p": "Đã chọn ghi trạng thái ở hợp đồng và dòng quan sát ở sổ, không đòi chữ ký Cổng 2; đổi lại hai tệp phải đổi cùng một lần ghi."
+    },
+    {
+      "id": "d-20260921T054040Z-4",
+      "p": "KHÔNG phân chỗ mù thành chính hay phụ vì chưa có trọng số ý định; mọi chỗ mù là câu hỏi cho anh, có thể tăng số lần chạm ở thẻ ký."
+    },
+    {
+      "id": "d-20260921T054040Z-5",
+      "p": "KHÔNG viết đặc tả giao diện vì vòng này không có giao diện web."
+    },
+    {
+      "id": "d-20260921T054040Z-6",
+      "p": "KHÔNG chạy buổi soi thiết kế; hình dạng khối mới của thẻ ký được soi trên dữ liệu mẫu ở lượt chấm."
+    },
+    {
+      "id": "d-20260921T055016Z-7",
+      "p": "Đã chọn không sửa hồ sơ đã ký «thuoc-co-cua»; nó sẽ đỏ ở đợt ghim lại 2.18.0 và người cho nó nghỉ bằng một dòng sổ có tên."
+    },
+    {
+      "id": "d-20260921T061609Z-9",
+      "p": "Đã chọn: sổ chạy ghi lý do cho từng bài kiểm không chạy được, để thẻ biết bài nào hỏng vì bàn đo — đổi lại một dòng trong bộ chấm; hồ sơ cũ không có lý do thì vẫn khoá như trước."
+    },
+    {
+      "id": "d-20260921T062929Z-10",
+      "p": "Đã chọn: khi vừa có bàn đo chết vừa có sản phẩm sai, thẻ vẫn khoá và gọi tên cả hai — đổi lại người không ký vượt được một lỗi sản phẩm thật."
+    },
+    {
+      "id": "d-20260921T064419Z-11",
+      "p": "Đã chọn: ảnh chụp thước nằm ngay trong tệp tham số của lượt chấm, không tách tệp riêng — đổi lại một chỗ đọc duy nhất, ít đường hỏng hơn."
+    },
+    {
+      "id": "d-20260921T065936Z-12",
+      "p": "Đã chọn: bên đọc thứ hai của lưới là bộ kiểm lại từng báo cáo (hợp đồng từng ghi nhầm tên cờ) — đổi lại câu chữ hợp đồng được sửa trước khi chấm."
+    },
+    {
+      "id": "d-20260921T104628Z-13",
+      "p": "Đã chọn: dòng ghi «đã chạy trên prod» bắt buộc có mã, và không tìm thấy lần lưu dòng ấy thì lưới chặn thay vì cho qua — đổi lại một lượt chấm thứ hai."
+    }
+  ],
+  "decisions": [],
+  "analyst_plain": ""
+}

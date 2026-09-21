@@ -3,10 +3,10 @@ schema_version: 1
 slug: nhan-trang-thai-va-reality
 feature: Thẻ Cổng Bằng chứng gọi đúng tên cạnh gãy (đỏ-bàn-đo ≠ đỏ-vật, hệ thống chết) và mở ô ký kèm giá; reality có quyền đóng hồ sơ bằng thao tác cổng người thứ bảy; test của kho thôi bị đếm là thước — để ba hồ sơ ở crm đóng được hoặc chấm được mà không dựng thêm một dòng thước nào
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Phan Le Manh
+decided_at: 2026-09-21T05:30:52Z   # owner gõ «build» một chạm trong phiên 21/09, máy ghi hộ
 prototype:
   base_commit:
   disposition: archive
@@ -52,7 +52,12 @@ gọi tên 21/09 (luật chiều rộng (b)); kế hoạch điều phối:
 
 ## Ngưỡng chết / ngưỡng UAT
 
-Đo ở `crm` sau khi cài 2.18.0 (T3 của kế hoạch), lệnh ở §7 kế hoạch:
+- Câu hỏi phép đo trả lời: Ba hồ sơ ở `crm` có đóng được hoặc chấm được bằng riêng bản 2.18.0, không dựng thêm một dòng thước nào?
+- Kết quả nào là SỐNG: Sau khi `crm` cài 2.18.0 — hồ sơ tàng hình 0, PR crm #65 merge được, 0 lượt chấm `dieu-phoi` bị hạ tầng hay hệ thống đốt, hồ sơ mốc mang dòng `k / 3`.
+- Kết quả nào là CHẾT: Sau khi cài vẫn còn hồ sơ tàng hình, hoặc #65 vẫn bị hồ sơ chặn, hoặc từ một lượt chấm trở lên bị đốt với lý do đã có nhãn, hoặc dòng M3 thiếu, hoặc N bằng 0.
+- Timebox: 2026-09-28 — quá hạn mà `crm` chưa cài 2.18.0 thì chính việc số không về là tín hiệu.
+
+Bốn dòng trên là bản máy-đọc của bảng dưới; owner chốt ở Cổng Đáng 21/09. Đo ở `crm` sau khi cài 2.18.0 (T3 của kế hoạch), lệnh ở §7 kế hoạch:
 
 | Số | Trước 21/09 | Ngưỡng UAT | Chết |
 |---|---|---|---|

@@ -1,5 +1,5 @@
 // thuoc-vat-fixture.mjs — dựng kho git cho bộ đếm vật · thước · nhát (thuoc-co-cua
-// AC-11, AC-12, AC-13). Dùng chung cho `thuoc-vat.test.mjs`, `s4-args-tran-thuoc.test.mjs`
+// AC-11, AC-12, AC-13). Dùng chung cho `thuoc-vat.test.mjs`, `ntr-thuoc.test.mjs` (tệp ca trần `s4-args-tran-thuoc` đã gỡ cùng trần, 21/09)
 // và ca thẻ đọc dòng đếm — MỘT hàm dựng, không ba bản fixture viết tay.
 //
 // Kho do CODE sinh trong chính lượt chạy. Mỗi bước của kịch bản là một commit:
@@ -17,7 +17,8 @@ import path from 'node:path';
 export const SLUG = 'demo';
 export const TEP = {
   vat: 'src/a.js',
-  thuoc: 'tests/a.test.mjs',
+  // Thước = răng của hồ sơ (test KHO là vật từ vòng nhan-trang-thai-va-reality, 21/09).
+  thuoc: `_acceptance/${SLUG}/rang/a.mjs`,
   runLog: `_acceptance/${SLUG}/run-log.jsonl`,
   so: `_acceptance/${SLUG}/decisions.jsonl`,
   hopDong: `_acceptance/${SLUG}/contract.md`,
@@ -57,7 +58,7 @@ export function dungKho(dir, kichBan = KICH_BAN_CHUAN) {
   const d = dir;
   mkdirSync(path.join(d, '_acceptance', SLUG), { recursive: true });
   mkdirSync(path.join(d, 'src'), { recursive: true });
-  mkdirSync(path.join(d, 'tests'), { recursive: true });
+  mkdirSync(path.join(d, '_acceptance', SLUG, 'rang'), { recursive: true });
   execFileSync('git', ['init', '-q', '-b', 'main', d]);
   git(d, 'config', 'user.email', 't@t.t'); git(d, 'config', 'user.name', 'T');
   writeFileSync(path.join(d, '_acceptance', 'config.yaml'),

@@ -1,9 +1,13 @@
 // phan-loai.mjs — MỘT nguồn phân một đường dẫn (tính từ gốc kho) vào bốn lớp:
 //
 //   'ngoai'  — repo khai trong `risk_tiers.t1_skip_globs`: chạm nó không phải hành vi.
-//   'thuoc'  — mã đo: tệp ca (DO_GLOBS) · `_acceptance/config.yaml` (nơi mọi `cmd` của
-//              eval sống) · dưới `_acceptance/<slug>/`: `evals.yaml`, mọi thứ trong thư
-//              mục `rang/`, mọi tệp đuôi script.
+//   'thuoc'  — mã đo CỦA HỒ SƠ: `_acceptance/config.yaml` (nơi mọi `cmd` của eval sống) ·
+//              dưới `_acceptance/<slug>/`: `evals.yaml`, mọi thứ trong thư mục `rang/`, mọi
+//              tệp đuôi script. Test của KHO (khớp DO_GLOBS) KHÔNG còn là thước từ vòng
+//              nhan-trang-thai-va-reality (21/09, Đ1): nó là vật — chiều đỏ của nó nằm trong
+//              lịch sử TDD của kho, và đếm nó là «nhát sửa thước» phạt đúng đường TDD.
+//              `DO_GLOBS` vẫn xuất khẩu: ảnh chụp thước chỉ-đọc trong lượt chấm
+//              (chup-ho-so-da-thong.mjs) và `fileDoTrongDiff` của s4-args dùng nó.
 //   'ho-so'  — mọi đường khác dưới `_acceptance/`: văn bản hồ sơ và tệp máy ghi (run-log,
 //              sổ quyết định, tệp args, bằng chứng, thẻ, hình, đường nền, báo cáo token).
 //   'vat'    — còn lại: vật được giao.
@@ -19,12 +23,10 @@ export const DO_GLOBS = ['tests/**', '**/*.test.*', '**/*.spec.*', '**/spec/**',
 export const HO_SO_VAN_BAN_GLOBS = ['_acceptance/*/**/*.md', '_acceptance/*/**/*.jsonl'];
 export const SCRIPT_DO_RE = /\.(sh|mjs|cjs|js|py)$/;
 
-const doRes = DO_GLOBS.map(globToRe);
 const HO_SO_RE = /^_acceptance\/[^/]+\//;
 
 // Mỗi vế một dòng: phép đo PL2 gỡ TỪNG vế trong bản sao và đòi đúng ô của vế ấy lật.
 function laThuoc(p) {
-  if (doRes.some(re => re.test(p))) return true;
   if (p === '_acceptance/config.yaml') return true;
   if (!HO_SO_RE.test(p)) return false;
   if (path.posix.basename(p) === 'evals.yaml') return true;

@@ -260,14 +260,14 @@
   engine cho consumer vẫn là N5 + `DECISION-DIAGRAM-SURFACES` trong bản luật
   ngôn ngữ mặt người — file kia không phải nguồn thứ hai.
 
-- **6 thao tác cổng người** (`approve`, `signoff`, `acceptance-init`,
+- **7 thao tác cổng người** (`approve`, `signoff`, `observed`, `acceptance-init`,
   `acceptance-status`, `acceptance-report`, `start`) bị khoá model-invocation;
   `acceptance-card` cố tình để mở (feature-loop và approve/signoff
   model-invoke nó). Đừng "sửa" sự bất đối xứng này — test P32 giữ nó,
   lý do ở [docs/adr/0002](docs/adr/0002-human-gate-invocation-lock.md).
-  **ADR 0020 đã phê một thao tác THỨ BẢY** — người ghi trạng thái
-  `da-cham-boi-thuc-te` — nhưng nó **CHƯA DỰNG**: con số 6 ở đây nói đúng về cây
-  hôm nay. Khi dựng, nó vào cùng danh sách khoá và P32 mở rộng theo.
+  Thao tác thứ bảy `observed` (ADR 0020, dựng ở hồ sơ `nhan-trang-thai-va-reality`)
+  là người ghi trạng thái `da-cham-boi-thuc-te`: bản dựng đang phục vụ prod + ngày
+  + tên. Ca NO-AC11 rút danh sách tên ở dòng trên và so với danh sách khoá của P32.
 
 - **Assertion âm-tính-một-mình là assertion không sống.** Mọi case dựng bản
   sao/fixture rồi kết luận từ "exit khác 0" PHẢI có (a) **đối chứng dương** —

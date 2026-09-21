@@ -25,7 +25,7 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // cùng hồ sơ cho hai kết luận trái nhau).
 const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence,
         missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS,
-        mapTracked, DA_THONG_CONG_2, conflictProblem, hoSoNghi } =
+        mapTracked, DA_THONG_CONG_2, conflictProblem, hoSoNghi, DA_DONG_THUC_TE } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 export { NAV_RULES };
@@ -228,6 +228,8 @@ function classify(dir, slug) {
     const kNghi = DA_THONG_CONG_2.includes(status) ? 'da-nghi' : 'da-dong-ho-so';
     return { ...o(kNghi), note: chu(kNghi).nhan };
   }
+  // Trạng thái thứ bảy (ADR 0020 Đ8): reality đã chấm — ô cuối, cùng khoá với bộ quét.
+  if (status && DA_DONG_THUC_TE && DA_DONG_THUC_TE.includes(status)) return { ...o('da-cham-thuc-te'), note: chu('da-cham-thuc-te').nhan };
   if (status) {
     if (DA_THONG_CONG_2.includes(status)) {
       // LỜI KHAI PHẢI CÓ VẬT — hỏi TRƯỚC mọi nhánh rẽ, đúng vị trí start-scan đặt nó

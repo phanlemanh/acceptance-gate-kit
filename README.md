@@ -115,6 +115,7 @@ ln -s <kit>/commands/acceptance-status.md .claude/commands/acceptance-status.md
 ln -s <kit>/commands/acceptance-card.md   .claude/commands/acceptance-card.md
 ln -s <kit>/commands/approve.md           .claude/commands/approve.md
 ln -s <kit>/commands/signoff.md           .claude/commands/signoff.md
+ln -s <kit>/commands/observed.md          .claude/commands/observed.md
 ln -s <kit>/commands/acceptance-report.md .claude/commands/acceptance-report.md
 ln -s <kit>/commands/start.md             .claude/commands/start.md
 # hook: register in .claude/settings.local.json (machine-local, not committed)

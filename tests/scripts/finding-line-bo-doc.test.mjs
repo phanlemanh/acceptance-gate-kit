@@ -197,7 +197,10 @@ function so(khong, co, ten, dauSong) {
   // 10 từ 17/09 (cùng hồ sơ): thêm scripts/gate-card.js — thẻ Cổng Bằng chứng chỉ đọc dòng
   // `kind: thuoc-vat` (lọc theo kind), nên dòng finding và mọi loại dòng khác không đổi thẻ;
   // hai chiều của nó đo ở tests/scripts/gate-card-thuoc-vat.test.mjs (GT2 im · GT3 dòng hỏng).
-  const BO_DOC_KHAI = 10;
+  // 11 từ 21/09 (hồ sơ nhan-trang-thai-va-reality): thêm lib/nhan-canh-gay.cjs — bộ phân nhãn
+  // cạnh gãy đọc dòng round-tally · vang-mat · thuoc-lech theo `kind`, và dòng eval (không kind);
+  // dòng `kind: finding` không vào nhánh nào của nó. Hai chiều đo ở ntr-the-canh-gay / ntr-luoi.
+  const BO_DOC_KHAI = 11;
   const goc = path.join(ROOT);
   const quet = (d) => execFileSync('bash', ['-c',
     `grep -rl "run-log.jsonl" "${d}/scripts" "${d}/lib" "${d}/hooks" "${d}/feature-loop/scripts" 2>/dev/null | wc -l`],

@@ -268,7 +268,7 @@ run "P32 Claude gate commands locked from model invocation; card stays open" \
 import sys
 from pathlib import Path
 root = Path(sys.argv[1])
-LOCKED = ["approve", "signoff", "acceptance-init", "acceptance-status", "acceptance-report", "start"]
+LOCKED = ["approve", "signoff", "observed", "acceptance-init", "acceptance-status", "acceptance-report", "start"]
 for name in LOCKED:
     t = (root / "commands" / f"{name}.md").read_text()
     assert "disable-model-invocation: true" in t, f"commands/{name}.md lacks lock"
@@ -10888,6 +10888,11 @@ for _lv in LV1 LV2 LV3 LV4 LV5 LV6; do
   run "ca lan V — $_lv (ho so lan-v-khong-phai-cho-ky)" \
     env LV_CASES="$_lv" node "$ROOT/tests/plugins/lan-v.test.mjs"
 done
+
+# ─── Hồ sơ nhan-trang-thai-va-reality: NO-AC11 (thao tác cổng người thứ bảy) ────
+# Tên dòng run KHÔNG chứa «PASS: NO-AC11»: chính file ca in bốn dòng đó.
+run "ca thao tac cong nguoi thu bay observed (ho so nhan-trang-thai-va-reality)" \
+  node "$ROOT/tests/plugins/ntr-observed.test.mjs"
 
 # ─── Hồ sơ vao-co-o-ra-co-ten: VC1..VC8 (file ca riêng; VC5 = P99) ───────────
 # Danh sách ca do CHÍNH file ca xuất (--ids); tên dòng run KHÔNG chứa "PASS: [VC".

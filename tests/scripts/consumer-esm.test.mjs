@@ -199,7 +199,7 @@ check('CE2gm sáu mutant SINH TRONG LẦN CHẠY trên chính văn bản GUIDE �
   nhay('(a) bỏ một dòng khỏi danh sách',
     GUIDE_MD.replace(/^- `lib\/lop-nhin-thay\.cjs`[^\n]*\n/m, ''), 'lib/lop-nhin-thay.cjs');
   nhay('(b) lệch số — đúng lỗi lịch sử 16/09',
-    GUIDE_MD.replace('Copy **đủ 9 file**', 'Copy **đủ 7 file**'), 'viết «đủ 7 file»');
+    GUIDE_MD.replace(/Copy \*\*đủ \d+ file\*\*/, 'Copy **đủ 7 file**'), 'viết «đủ 7 file»');
   nhay('(c) đổi tên một tệp trong danh sách',
     GUIDE_MD.replace('- `lib/md-section.cjs`', '- `lib/md-section-v2.cjs`'), 'khai khác tập file');
 
