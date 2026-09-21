@@ -3,10 +3,10 @@ schema_version: 1
 slug: ho-so-khep-thoi-hoi
 feature: Hồ sơ đã khép (chấm bởi thực tế · đã nghỉ) thôi bị đối xử như đang mở — bộ đếm cửa veto, thẻ, làn V đọc đủ nguồn — và lớp CI vendored chép đủ hai tệp bản đồ; để kho tiêu thụ cài 2.18.1 không phải tự vá một tệp nào
 owner: phanlemanh@gmail.com
-stage: discovery            # discovery | decided | archived
-decision:                   # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: decided              # discovery | decided | archived
+decision: build             # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Phan Le Manh
+decided_at: 2026-09-21T23:31:29Z   # owner gõ «build» một chạm trong phiên 22/09, máy ghi hộ
 prototype:
   base_commit:
   disposition: archive
