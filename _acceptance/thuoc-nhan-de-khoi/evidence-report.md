@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f791f57ca160ca726940d2d6fffcc9e3a3b21fc2
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Manh Phan 2026-08-27
 ---
 
@@ -173,3 +173,7 @@ none — không eval nào có runs > 1 (tất cả deterministic, runs=1, không
 Round 1–3: chuỗi vá harness (chi tiết ở lịch sử round cũ); round 3 từng đóng với 9/9 xanh tại commit a0257bfd, nhưng bị vượt qua bởi 3 commit sửa tiếp (b948fd4b, 0e1d0dbb "dao chieu mac dinh", f791f57c) làm bằng chứng đó hoá stale.
 Round 4–5: đảo ngược mặc định khi gặp giá trị KHÔNG HIỂU — từ âm thầm coi là trong suốt sang SÓT-CÓ-TIẾNG kèm WARN (0e1d0dbb), và sửa bug crash giả trên file nhị phân (UnicodeDecodeError thoát khỏi except OSError → exit 1 giả thay vì exit 2 fail-closed đúng đặc tả AC-1) (f791f57c).
 Round 6 (vòng này): mint lại evidence-report + run-log tại HEAD f791f57ca160ca726940d2d6fffcc9e3a3b21fc2 để đóng khoảng lệch bằng-chứng-cũ đã ghi sổ ở review-findings.md (hạt giống lan-v-thoat-kiem-stale); cả 9 eval xanh, có phân biệt trên baseline đỏ (trừ E6 — non-discriminating, được E7 bù độc lập).
+
+### Re-pin lần 1 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng

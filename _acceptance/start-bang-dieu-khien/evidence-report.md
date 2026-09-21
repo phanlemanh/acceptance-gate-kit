@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 83bd26f6b4faa6503c601b360a66c366d2830eb6
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Manh Phan 2026-08-23 — ký với 15 known-limits đã khai trong contract ## Notes; mục thứ 16 (ngày hồ sơ đã nghiệm thu lấy sai nấc) tách thành ô riêng vì nó chạm HỢP ĐỒNG chứ không chạm mã; 9 quyết định ghi sau dấu niêm Cổng Phạm vi đã phê
 ---
 
@@ -195,3 +195,7 @@ Round 1: E1, E4, E5, E8, E11 bị review nêu tên — E1 dùng phép hoặc che
 ### Re-pin lần 1 — 2026-09-18, do chữ ký Cổng Giá trị 18/09 — làn riêng cho ba hồ sơ bị chặn thật giữa hai mốc (GUIDE §7.1); làn trước đỏ ở E8, đã sửa nhát tiêm ở 83bd26f6
 run_id: repin-20260918T133712Z-82839
 sha: 83bd26f6b4faa6503c601b360a66c366d2830eb6 · suites: 5 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng

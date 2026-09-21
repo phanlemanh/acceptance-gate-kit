@@ -7,7 +7,7 @@ reason:
 verified_by: máy — rút từ nhật ký lượt chấm 8, không gọi lại tác tử rà soát
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b950f6643e253a691021612b5c5cabfe86cc4dda
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Phan Le Manh 2026-09-13
 ---
 
@@ -214,3 +214,7 @@ sha: 3a77f000333c609c14adde17a24c784d5cfc87dd · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 2 — 2026-09-18, do chiến dịch ghim lại theo LÔ sau mốc 2.16.0 — lô lo-aa, 15 hồ sơ
 run_id: repin-20260918T121643Z-87929
 sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng
+
+### Re-pin lần 3 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng

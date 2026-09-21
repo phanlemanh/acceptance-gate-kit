@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cd672d862341f117f09ac71ab32f4bf594f84cc4
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Phan Le Manh 2026-09-20
 ---
 
@@ -241,3 +241,7 @@ none — không có eval nào chạy nhiều lần (mọi eval deterministic, ru
 Round 1: E12 failed — làn ghim lại (repin-lane) tự khai "LÀN ĐỎ — không ghi gì" (suite scripts_con_lai không nhất được cụm PASS/GN qua glob, tiếp đó lộ eval nội bộ s1/E14 đỏ 4 lần trong chính cơ chế repin), nên bốn suite còn lại + product-map --check không được xác nhận chạy hết qua đúng lệnh hợp đồng đã khai. Trả về giai đoạn implementation để khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới), không ký mù trên làn đỏ này.
 Round 2: Đổi khuôn theo yêu cầu round này — mọi chuỗi kỳ vọng trong các ca GN (paths, hậu tố AC, khoá mới) nay RÚT trực tiếp từ vật (evals.yaml, contract.md, SKILL/GUIDE, dòng repin thật) thay vì gõ lại hằng tay (commit 0c8e9dc3, 20a6b5d5, 0381a94e). Lệnh tổng hợp E12 (đối chiếu cụm GN01 qua glob + bốn suite còn lại + product-map --check) nay thoát 0; suite scripts nhất được ca mới, không còn kẹt ở nhánh LÀN ĐỎ nội bộ như round 1. Cả 15 eval + 5 lệnh suite hồi quy đều PASS/exit 0.
 Round 3: Sau khi owner định đoạt 29 mục ngoài hợp đồng ở Gate 2 round trước (TRẢ LẠI) và vá Ngoài-10 + Ngoài-11 (hai hằng-đúng do chính bản đổi khuôn round 2 tự sinh ra, verified_commit cd672d86), 15 eval + 5 lệnh suite hồi quy đều PASS/exit 0 lại trên cây đã vá. Review scope-triage vòng này phân loại thêm 7 lỗi phát hiện được là NGOÀI hợp đồng (5 known-limits, 2 new-contract) — không lỗi nào rơi vào một AC nào của hợp đồng.
+
+### Re-pin lần 1 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

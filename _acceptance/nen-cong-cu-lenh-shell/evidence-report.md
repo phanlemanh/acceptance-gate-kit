@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6d637956ff4fca8e97733c80bf31eef3ee430d22
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Phan Le Manh 2026-09-19 — ký với 6 known-limits đã khai (Ngoài-1/2/3/5/8/9) và 3 mục mở hợp đồng mới (Ngoài-4/6/7: răng rang-khuon.sh kết luận chiều đỏ chỉ từ exit khác 0); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -206,3 +206,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: E1-E9 và toàn bộ lệnh suite hồi quy PASS ngay từ lượt chấm đầu tiên — không có vòng vá lại nào trong round này.
+
+### Re-pin lần 1 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng

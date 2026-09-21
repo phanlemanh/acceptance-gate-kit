@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 11e98c4708840b7e9c1027637f7d4c9c9802ddd3
+verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
 human_signoff: Mạnh 2026-09-19 — ký với giới hạn ở lượt chấm 3 (hết ngân sách ba lượt, verdict máy REJECT; bảng ba kết cục viết trước lượt 1 đã lường: không đạt chỉ vì thước → khai giới hạn có tên rồi ký). Nhận GH-1 và GH-2 (trong hợp đồng) cùng GH-3, GH-4, GH-5 (phép đo của vòng) làm Known limits, xem mục Known limits của hợp đồng; đồng ý nhát thu phạm vi «dòng nghỉ chỉ có hiệu lực trên hồ sơ đã có chữ ký người»; 11 mục ngoài hợp đồng ghi Known limits và sổ known-limits; phê hết quyết định ghi sau Cổng Phạm vi.
 ---
 
@@ -209,3 +209,7 @@ none — mọi eval round này đều `runs: 1` (không có eval ngẫu nhiên, 
 Round 1: REJECT — 15 phát hiện (6 trong hợp đồng: hai lỗi sản phẩm, bốn phép đo yếu). Returned to implementation.
 Round 2: Mười eval script + E10 (product-map) + bốn lệnh suite hồi quy đều xanh; panel judgment E8 đồng thuận PASS 3/3 lens. 13 phát hiện review, DỪNG-VÁ kích hoạt (thu phạm vi) → verdict PENDING-JUDGMENT. Returned to implementation (11e98c47: dòng nghỉ chỉ có hiệu lực trên hồ sơ đã có chữ ký người).
 Round 3: Mười một eval script (E1–E7, E9, E11, E12) + E10 (product-map) + bốn lệnh suite hồi quy đều xanh; panel E8 chia phiếu 2 PASS / 1 FAIL (spec-alignment, bất đồng thật). Review xác nhận 2 phát hiện TRONG hợp đồng (t7 severity high, AC-5 — hai bộ đọc nghỉ [product-map.mjs vs start-scan.mjs] xếp cùng một hồ sơ vào hai nhóm khác nhau; t13 severity low, AC-10 — chiều «mở-lại» của HSN10 đo thẻ bằng một assert vắng-mặt nên thẻ vỡ đọc thành «đã lật») cộng 11 phát hiện ngoài hợp đồng. Verdict REJECT.
+
+### Re-pin lần 1 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
+run_id: repin-20260921T175037Z-33397
+sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E8 (E8 không khai paths) · AC không có chốt máy: AC-8
