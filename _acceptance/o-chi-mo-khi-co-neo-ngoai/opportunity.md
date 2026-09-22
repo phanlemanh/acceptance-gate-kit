@@ -175,6 +175,11 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
 - `docs/plans/2026-09-22-hat-giong-bon-loi-nho-2-18-0-tu-crm.md` — bốn lỗi nhỏ của 2.18.0 lộ
   trong ngày crm cài (veto không đóng sau observed · observed không vẽ bản đồ · lớp CI thiếu
   product-map.mjs · fail-open làn V tái phát) — gom MỘT vòng 2.18.1, thay ba chip.
+- `docs/plans/2026-09-22-hat-giong-nhan-ngoai-n-neo-theo-noi-dung.md` — vòng `ho-so-khep-thoi-hoi`
+  round 3: nhãn «Ngoài-N» là vị trí mục, lượt chấm mới đánh số lại nên dòng sổ gate2 cũ trỏ nhầm mục
+  mới — ở hồ sơ làn V là fail-open; nghiệm: nhãn rút từ nội dung mục.
+- `docs/plans/2026-09-22-hat-giong-co-qua-timebox-ba-muc-ngoai-hop-dong.md` — ba mục «mở hợp đồng
+  mới» của `co-qua-timebox-nhom-da-xong` (executor itgk_lane_doc_khong_doi · ngân sách 3/4/1).
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
