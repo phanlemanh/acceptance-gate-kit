@@ -107,3 +107,12 @@ ngày không kho nào cài nó.
 **Chỗ cắt cho cửa sổ kế (được phép ghi, không thành ô):** suite scripts sát trần 600 s của công
 cụ (dòng 3) — trên cây của chính mốc này nó chạy 601 s, đã qua trần; nhãn «Ngoài-N» neo theo nội dung
 (`docs/plans/2026-09-22-hat-giong-nhan-ngoai-n-neo-theo-noi-dung.md`).
+
+**Số của phiên tổng kết cửa sổ 2.18 (thêm 22/09 sau chữ ký, chỉ thêm dòng)** — bản đầy đủ:
+`docs/findings/2026-09-22-tong-ket-cach-moi-cua-so-2-18.md` (PR #206). Đọc từ vật máy ghi, bỏ dòng
+`kind: repin`, số hồ sơ hoá cũ là số trước chiến dịch ghim lại 2.18.1.
+- Dòng 1, mười vòng crm: trung vị code xong→quyết 42 phút · bằng chứng xong→quyết 7,5 phút. Đối chứng `thuoc-khai-dung-tieng`: 1 485 phút.
+- Dòng 2, mười vòng crm: 25 chạm cổng trong thiết kế · 30 chạm máy hỏi ngoài thiết kế (dồn về S1; 28 câu trả lời, 0 lệch khuyến nghị) · 10 chạm hạ tầng. Kit: 0 máy hỏi · 10 chạm hạ tầng.
+- Dòng 3: 5 lượt bị đốt có dòng run-log, ít nhất 2 lượt không có (`loi-vao`, `noi-bon-nut`) — số run-log là cận dưới.
+- Dòng 4: 7/10 vòng crm không đo được (3 thiếu `usage-report.md`, 5 mất nhãn vai); khung chuyển tiếp của harness nuốt 38,8 % out-token cửa sổ.
+- Dòng hiệu chuẩn `0 / 8` tách theo bằng chứng: 3 ĐẠT có chữ ký người · 1 ĐẠT máy thông · 4 chưa từng ĐẠT-ký (một khai sẵn chỗ đỏ ở prod trong dòng quan sát). Hạt giống `2026-09-22-hat-giong-dong-hieu-chuan-dem-ho-so-chua-tung-dat.md`.
