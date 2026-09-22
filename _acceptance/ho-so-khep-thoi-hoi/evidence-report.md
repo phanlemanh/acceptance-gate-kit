@@ -1,13 +1,12 @@
 ---
 schema_version: 2
 feature_slug: ho-so-khep-thoi-hoi
-verdict: BLOCKED
+verdict: PASS
 failed_evals: []
-reason: "bash tests/scripts/run-tests.sh — bị công cụ giết ở 600 giây trước khi in dòng tổng kết (timeout); không phải lỗi mã, cần chạy lại với timeout dài hơn"
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 3cc26b162caf49f4952370ce782a7dcddc108f0d
+verified_commit: 45e4a0b8f96f0ba77745885669f158ed2cb1e566
 human_signoff:
 ---
 
@@ -27,22 +26,22 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-ho-so-khep-thoi-hoi-E1-r1
+  run_id: minted-ho-so-khep-thoi-hoi-E1-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hskt
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
   output: |
     PASS: HK-AC8-dot-bien — bỏ truyền tệp phát hiện ở từng bên gọi (3) → ca của bên ấy đỏ
 
     Results: 18 passed, 0 failed (hskt)
 
 - eval: E2
-  run_id: minted-ho-so-khep-thoi-hoi-E2-r1
+  run_id: minted-ho-so-khep-thoi-hoi-E2-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hskt
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
   output: |
     PASS: HK-AC8-dot-bien — bỏ truyền tệp phát hiện ở từng bên gọi (3) → ca của bên ấy đỏ
 
@@ -51,64 +50,61 @@ human_signoff:
 - eval: E3
   run_id: minted-ho-so-khep-thoi-hoi-E3-r1
   exit_code: 0
-  baseline: red
   verifier: config:executors.script.hskt_ce
-  verified_at: 2026-09-22T09:00:00+07:00
-  output: |
-    PASS: CE5-map lệnh bản đồ chạy trọn trong consumer type:module từ ĐÚNG danh sách chép; gỡ trang-thai-ho-so.cjs → đỏ gọi tên
-    PASS: CE6-ooc không còn tham chiếu đuôi cũ .js của lib/out-of-contract trong bộ máy; bản sao khôi phục một require đuôi cũ → đỏ gọi tên
-    Results: 16 passed, 0 failed
+  verified_at: 2026-09-22T02:45:57Z
+  carried_from_round: 1
+  note: carry-forward từ round 1 — delta không chạm paths của eval
 
 - eval: E4
-  run_id: minted-ho-so-khep-thoi-hoi-E4-r1
+  run_id: minted-ho-so-khep-thoi-hoi-E4-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hskt
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
   output: |
     PASS: HK-AC8-dot-bien — bỏ truyền tệp phát hiện ở từng bên gọi (3) → ca của bên ấy đỏ
 
     Results: 18 passed, 0 failed (hskt)
 
 - eval: E5
-  run_id: minted-ho-so-khep-thoi-hoi-E5-r1
+  run_id: minted-ho-so-khep-thoi-hoi-E5-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hskt
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
   output: |
     PASS: HK-AC8-dot-bien — bỏ truyền tệp phát hiện ở từng bên gọi (3) → ca của bên ấy đỏ
 
     Results: 18 passed, 0 failed (hskt)
 
 - eval: E6
-  run_id: minted-ho-so-khep-thoi-hoi-E6-r1
+  run_id: minted-ho-so-khep-thoi-hoi-E6-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hskt
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
   output: |
     PASS: HK-AC8-dot-bien — bỏ truyền tệp phát hiện ở từng bên gọi (3) → ca của bên ấy đỏ
 
     Results: 18 passed, 0 failed (hskt)
 
 - eval: E7
-  run_id: minted-ho-so-khep-thoi-hoi-E7-r1
+  run_id: minted-ho-so-khep-thoi-hoi-E7-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.script.hskt_bo_do
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
   output: |
+    lan-status-not-run: 13/13 ca xanh
     PASS: HK-AC7-dot-bien — gỡ bộ lọc khép: NS-AC9-cu đỏ «… bản sau vòng khác bản trước vòng», L05 đỏ «bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ (release-2-0-0)»
-
     Results: 1 passed, 0 failed (hskt)
 
 - eval: E8
-  run_id: minted-ho-so-khep-thoi-hoi-E8-r1
+  run_id: minted-ho-so-khep-thoi-hoi-E8-r2
   exit_code: 0
-  baseline: red
+  baseline: n-a
   verifier: config:executors.script.hskt
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
   output: |
     PASS: HK-AC8-dot-bien — bỏ truyền tệp phát hiện ở từng bên gọi (3) → ca của bên ấy đỏ
 
@@ -116,43 +112,48 @@ human_signoff:
 
 ### Lệnh suite (hồi quy)
 
-- cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-ho-so-khep-thoi-hoi-SUITE-bash_tests_hooks_run_tests_sh-r1
+- cmd: bash tests/scripts/run-tests.sh
+  run_id: minted-ho-so-khep-thoi-hoi-SUITE-bash_tests_scripts_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
+  output: |
+    Results: 892 passed, 0 failed
+
+    [exited with code 0]
+
+- cmd: bash tests/hooks/run-tests.sh
+  run_id: minted-ho-so-khep-thoi-hoi-SUITE-bash_tests_hooks_run_tests_sh-r2
+  exit_code: 0
+  verified_at: 2026-09-22T04:03:50Z
+  output: |
+      PASS: V16
+
+    Results: 70 passed, 0 failed
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-ho-so-khep-thoi-hoi-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r1
+  run_id: minted-ho-so-khep-thoi-hoi-SUITE-bash_tests_plugins_run_tests_sh_2_1_grep-r2
   exit_code: 0
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
+  output: |
+    MUTANT-6 bi bat: doc_manifest() FAIL-LOUD ghim 'site thieu so ban: feature-loop/skills/feature-loop/SKILL.md'
+    Results: 4 passed, 0 failed (ntr-observed)
+    Results: all plugin tests passed
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-ho-so-khep-thoi-hoi-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-ho-so-khep-thoi-hoi-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-09-22T09:00:00+07:00
+  verified_at: 2026-09-22T04:03:50Z
+  output: |
+    Results: 15 passed, 0 failed (vung-vat-mutants)
+
+    Results: all workflow tests passed
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-ho-so-khep-thoi-hoi-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-ho-so-khep-thoi-hoi-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-09-22T09:00:00+07:00
-
-Lệnh suite KHÔNG hoàn tất trong vòng này (không đưa vào bảng trên vì không có exit sạch để ghi):
-
-- cmd: bash tests/scripts/run-tests.sh
-  run_id: minted-ho-so-khep-thoi-hoi-SUITE-bash_tests_scripts_run_tests_sh-r1
-  trạng thái: bị công cụ giết ở 600 giây, đầu ra bị cắt TRƯỚC dòng tổng kết "Results: ..."
-  đuôi đầu ra quan sát được trước khi bị cắt: |
-    UJ10 scaffold bo hoang -> IM LANG (doi chung duong cua nhom tang hinh)
-      PASS: UJ10a
-      PASS: UJ10b
-      PASS: UJ10c
-    UJ3 chu ky giu-cho trong commit NGUOI dung nghi thuc -> VAN VIOLATION
-      PASS: UJ3ctrl
-      PASS: UJ3ctrl2
-      PASS: UJ3a
-      PASS: UJ3b
-    UJ5 KHONG khai approvers -> luoi den bat, MOT dong NOTE cho ca lan chay
-  Đây là lý do verdict tổng = BLOCKED (không phải REJECT): công cụ giết tiến trình, không phải một khẳng định sai của bài kiểm thử. Khắc phục: chạy lại đúng lệnh này với timeout dài hơn 600 giây, không cần sửa mã.
+  verified_at: 2026-09-22T04:03:50Z
+  output: |
+    PRODUCT-MAP.md khớp hồ sơ xưởng.
 
 ## Known limits
 
@@ -160,12 +161,15 @@ Lệnh suite KHÔNG hoàn tất trong vòng này (không đưa vào bảng trên
 
 ## Analyst
 
-E7 (cmd: `bash -c '{ node tests/scripts/ntr-trang-thai.test.mjs && node tests/scripts/lan-status-not-run.test.mjs && node tests/scripts/hskt.test.mjs HK-AC7-dot-bien; }'`) — baseline: green, tức PASS trên cả HEAD lẫn diffBase, không phân biệt được feature này với code cũ. Nguyên nhân (xem thêm finding t9 trong review-findings.md): NS-AC9-cu so hai mốc lịch sử đã đóng băng (`git archive` của sha trước vòng và của `verified_commit` đã ký ở hồ sơ nhan-trang-thai-va-reality), không chạy scripts/start-scan.mjs hay scripts/product-map.mjs hiện tại của cây đang kiểm. Theo đúng chữ AC-7 (so "bản trước vòng" với "verified_commit của hồ sơ nhan-trang-thai-va-reality"), đây là regression-guard có chủ ý trên dữ liệu lịch sử, không phải lỗi đo — nhưng người cần xác nhận việc này không thay thế một ca chạm mã nguồn hiện tại.
+carried tu round 1 — baseline khong do lai round nay.
+
+- E7 — lệnh `ntr-trang-thai.test.mjs && lan-status-not-run.test.mjs && hskt.test.mjs HK-AC7-dot-bien` pass trên cả HEAD lẫn baseline (non-discriminating theo phép đo round 1); cần viết lại để assert hành vi mới, hoặc xác nhận đây là regression-guard có chủ ý.
 
 ## Variance
 
-none — không có eval nào khai `runs` > 1 trong vòng này (không có eval ngẫu nhiên/stochastic).
+none — không có eval nào runs > 1 trong round này (mọi eval chạy tất định, deterministic).
 
 ## Iterations
 
-Round 1: 8/8 eval tiêu chí (E1–E8) đạt PASS, bốn lệnh suite hồi quy (hooks, plugins, workflows, product-map) đạt exit 0; riêng `bash tests/scripts/run-tests.sh` bị công cụ giết ở 600 giây trước khi in dòng tổng kết → verdict tổng = BLOCKED. Không có lỗi mã được xác nhận; việc cần làm là chạy lại đúng lệnh đó với timeout dài hơn.
+Round 1: BLOCKED — suite `tests/scripts/run-tests.sh` bị công cụ ngắt ở mốc 600 giây (timeout), 7/8 eval máy trả về nhưng round không đóng được; quay lại re-run với timeout dài hơn.
+Round 2: 8/8 eval máy PASS (E1,E2,E4,E5,E6,E8 qua hskt; E7 qua bộ ba script trạng thái; E3 carry-forward từ round 1) và 5/5 lệnh suite PASS — verdict PASS.
