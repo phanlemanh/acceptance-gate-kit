@@ -125,3 +125,17 @@ evals:
       bản sao bỏ truyền findings/sổ → ca đỏ gọi tên bên gọi ấy.
     paths: [scripts/start-scan.mjs, scripts/product-map.mjs, scripts/khong-can-nguoi.mjs, scripts/gate-card.js, scripts/trang-thai-ho-so.cjs, tests/scripts/hskt.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.hskt
+    expected: >
+      Exit 0, có dòng PASS của HK-AC9-vang, HK-AC9-thieu, HK-AC9-dot-bien. Kho fixture bốn hồ sơ
+      cùng review-findings (1 mục): thực tế đủ vế · thực tế VẮNG dòng quan sát · thực tế dòng thiếu
+      build_sha · sống. gate-card --extract: hai hồ sơ thực tế lỗi → routing.hoi chứa «ký hay trả»,
+      HTML không có «không còn câu hỏi nào cho người»; đối chứng cùng kho — thực tế đủ vế → hoi rỗng.
+      HK-AC9-dot-bien: bản sao gate-card.js đổi vế thực tế của DA_KHEP về «scanState ===
+      'da-cham-thuc-te'» → HK-AC9-thieu đỏ gọi tên hồ sơ thiếu vế. Chiều đỏ trước vòng: HEAD round 2
+      cho hai hồ sơ lỗi hoi = [].
+    paths: [scripts/gate-card.js, scripts/start-scan.mjs, tests/scripts/hskt.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

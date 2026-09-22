@@ -5,7 +5,7 @@ slug: ho-so-khep-thoi-hoi
 owner: phanlemanh@gmail.com
 risk_tier: T3      # scripts/pre-merge-check.sh + lib/workspace-record.cjs + lib/out-of-contract.cjs — lõi cưỡng chế (t3_paths); vá điểm, không đổi enum, không CỘNG
 surfaces: [cli, ci, docs]
-status: verified      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Phan Le Manh
 approved_at: 2026-09-22T00:07:53Z
 design_doc: docs/superpowers/specs/2026-09-22-ho-so-khep-thoi-hoi-design.md
@@ -47,7 +47,7 @@ Source input: `_acceptance/ho-so-khep-thoi-hoi/opportunity.md` (Cổng Đáng `b
 Quét Zwicky rút gọn (preset test-matrix), đầy đủ ở design doc §3.
 
 - **Trục A — bên đọc «hồ sơ này còn mở không»** [thước CE: `grep -rln "vetoOpen\|VETO_OPEN\|MAY_DI_TIEP\|xanhSach\|xanh_sach_check" scripts lib` — SUY-TỪ-REPO]: bộ quét (AC-2, AC-5) · lưới trước-merge (AC-2, AC-4) · thẻ Cổng 2 (AC-4, AC-6) · bản đồ sản phẩm qua `khongCanNguoi` (AC-8) · CLI `khong-can-nguoi --write|--check` (AC-8) — danh sách bên gọi rút bằng grep ở AC-8, không gõ tay.
-- **Trục B — trạng thái khép**: nghỉ đủ vế · nghỉ chưa ký · thực tế đủ vế · thực tế thiếu vế · sống (AC-1 toàn phần; AC-2, AC-6 lấy mẫu).
+- **Trục B — trạng thái khép**: nghỉ đủ vế · nghỉ chưa ký · thực tế đủ vế · thực tế thiếu vế · thực tế vắng dòng · sống (AC-1 toàn phần ở vị từ; AC-6 toàn phần ở thẻ — E9 thêm ca vắng dòng và thiếu vế; AC-2 lấy mẫu).
 - **Trục C — nguồn ngoài hợp đồng × sổ**: findings có mục chưa định tuyến · định tuyến một phần · định tuyến đủ (dạng khoảng không dấu) · 0 mục/vắng · có chữ sai khuôn (AC-4 toàn phần).
 - **Trục D — kho**: kit tự host · kho tiêu thụ ESM (AC-3).
 - **Trục E — chiều**: nhạy (mọi AC có bản sao đỏ) · im (AC-5 cây thật; AC-4, AC-6 đối chứng).
@@ -78,3 +78,9 @@ Quét Zwicky rút gọn (preset test-matrix), đầy đủ ở design doc §3.
 - **Vị từ «mục đã được người định tuyến» (định hướng phiên điều phối 22/09, thay lối ân xá theo ngày — danh sách đóng bị hiến pháp cấm):** mục thứ N trong khối «Ngoài hợp đồng» của `review-findings.md` coi là đã định tuyến khi sổ quyết định có dòng `stage: gate2` mà câu quyết định nhắc «Ngoài-N» (có dấu hoặc không, đơn lẻ hoặc khoảng «Ngoài-a đến/den Ngoài-b»). Đo 22/09: `ghim-lai-tren-lop-cu` (kit) và `quyen-luot-mang-theo` (crm) có đủ dòng → giữ làn V; `co-qua-timebox-nhom-da-xong` có 0 dòng cho 7 mục → lật, và đó là câu hỏi thật ở Cổng Phạm vi.
 - **Giới hạn đã khai, kèm ngưỡng đang đếm:** số thứ tự «Ngoài-N» là vị trí mục trong tệp findings lúc thẻ được dựng; một lượt S4 sau dòng gate2 mà đổi thứ tự/nội dung các mục sẽ làm dòng cũ định tuyến nhầm mục mới. Ngưỡng mở lại: ≥ 1 hồ sơ có lượt chấm mới SAU dòng gate2 nhắc «Ngoài-N» mà tệp findings đổi.
 - Đổi đuôi `lib/out-of-contract.js` → `.cjs` là đổi TÊN tệp ở kho tiêu thụ: GUIDE §5.3 và Notes hồ sơ mốc 2.18.1 ghi rõ để rollout chép đúng và xoá tệp cũ.
+- **Known limits (owner quyết ở Cổng Bằng chứng 22/09, lượt trả lại):**
+  - HK-AC5-note chọn hồ sơ `veto_state: mo` bằng regex tự viết (phân biệt hoa thường, quét cả thân tệp) thay vì bộ đọc frontmatter của lưới; vế HEAD của ca chỉ khẳng định âm tính. Ngưỡng mở lại: một hồ sơ ghi `veto_state` khác dạng `mo` trần, hoặc lưới HEAD không in dòng NOTE mà ca vẫn xanh (Ngoài-1 đến Ngoài-4).
+  - Khối `EVIDENCE-XANH-SACH-BLOCK` của khuôn báo cáo chưa khai vế «tệp phát hiện chưa định tuyến» của điều kiện «Ngoài hợp đồng». Ngưỡng mở lại: một người soạn báo cáo hiểu nhầm điều kiện sạch (Ngoài-6).
+  - Chữ ký `xanhSach(c, e, ctx)` làm mutant 2 của `_acceptance/lan-v-khong-phai-cho-ky/rang.sh` không còn đổi được dòng nào; hồ sơ đã ký ấy sẽ đỏ ở làn ghim lại. Xử ở chiến dịch ghim lại mốc 2.18.1 — sửa răng hoặc cho nghỉ, owner quyết lúc đó (Ngoài-8).
+  - Vế «Ngoài hợp đồng» coi lỗi đọc khác ENOENT của `review-findings.md` như tệp vắng (mở cửa). Ngưỡng mở lại: một lỗi đọc thật ở kho nào (Ngoài-9).
+  - NS-AC9-cu so hai bản đông lạnh (trước vòng · mã chữ ký chứng), không chạy bộ quét của cây hiện tại. Ngưỡng mở lại: một hồi quy của trạng thái thứ bảy lọt qua mà ca này lẽ ra bắt (Ngoài-10).
