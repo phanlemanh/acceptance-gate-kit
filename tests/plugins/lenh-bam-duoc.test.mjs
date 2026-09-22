@@ -237,6 +237,11 @@ if (want('LB5')) {
   const OLD_SHA = 'ba539284';
   const oldSrc = execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:scripts/gate-card.js`], { encoding: 'utf8' });
   writeFileSync(path.join(copy, 'scripts', 'gate-card.js'), oldSrc);
+  // Bản cũ nạp các tệp lib theo TÊN của chính mốc đó (out-of-contract đổi đuôi .js → .cjs ở vòng
+  // ho-so-khep-thoi-hoi): chép kèm đúng tệp lib cũ mà bản cũ `require`, rút từ chính mã nguồn cũ.
+  for (const m of oldSrc.matchAll(/require\('\.\.\/lib\/([^']+)'\)/g))
+    if (!existsSync(path.join(copy, 'lib', m[1])))
+      writeFileSync(path.join(copy, 'lib', m[1]), execFileSync('git', ['-C', ROOT, 'show', `${OLD_SHA}:lib/${m[1]}`], { encoding: 'utf8' }));
   // Cặp ĐỔI VĂN đã khai: một cờ GIỮ NGUYÊN vai trò nhưng đổi câu. Không khai ở đây thì
   // LB5 đọc nó thành (mất A + cộng B) và đỏ — đúng ý: đổi văn một cờ phải có chủ đích,
   // không được lẫn vào diff. Khai bằng tiền tố ĐỦ DÀI để không nuốt cờ khác. Khai THỪA

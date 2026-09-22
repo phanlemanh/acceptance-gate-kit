@@ -682,17 +682,17 @@ fi
 
 # ── P55: ROUND-TRIP writer <-> reader cho review-findings.md ────────────────
 # Lop loi da tai dien BA round lien tiep ma khong eval nao do: ben VIET (prompt
-# synthesize trong acceptance-verify.js) va ben DOC (lib/out-of-contract.js) troi
+# synthesize trong acceptance-verify.js) va ben DOC (lib/out-of-contract.cjs) troi
 # khoi nhau, vi MOI test deu tu tay dung fixture DUNG KHUON READER. Case nay RUT
 # khuon tu chinh file writer roi cho reader that doc — hai dau khong the troi nua.
-echo "P55 round-trip: khuon prompt synthesize phai parse duoc bang lib/out-of-contract.js"
+echo "P55 round-trip: khuon prompt synthesize phai parse duoc bang lib/out-of-contract.cjs"
 run "P55 round-trip writer<->reader (khuon rut tu writer, doc bang reader that)" \
   node - "$ROOT" <<'JS'
 const fs = require('fs');
 const path = require('path');
 const root = process.argv[2];
 const wf = fs.readFileSync(path.join(root, 'feature-loop/workflows/acceptance-verify.js'), 'utf8');
-const parser = require(path.join(root, 'lib/out-of-contract.js'));
+const parser = require(path.join(root, 'lib/out-of-contract.cjs'));
 
 // 1. Rut khuon tu WRITER (khong hardcode o day).
 const m = wf.match(/<<<OOC-ITEM-TEMPLATE\\n([\s\S]*?)OOC-ITEM-TEMPLATE>>>/);
@@ -7074,7 +7074,8 @@ with tempfile.TemporaryDirectory() as d:
     def copy_lib_now(dst):
         # chép TRỌN lib hiện tại — KHÔNG lọc theo đuôi. Lọc đuôi chính là lớp
         # lỗi vòng này: `.js` bỏ sót cả bộ sau đợt .cjs, còn `.cjs` bỏ sót
-        # `out-of-contract.js` (file không chép sang consumer nên giữ đuôi cũ).
+        # mọi tệp lib mang đuôi khác (`.js`, `.mjs`, `.json`). (out-of-contract
+        # đổi sang `.cjs` ở vòng ho-so-khep-thoi-hoi, khi làn V bắt đầu nạp nó.)
         n = 0
         for f in (root / "lib").iterdir():
             if f.is_file(): (dst / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8"); n += 1

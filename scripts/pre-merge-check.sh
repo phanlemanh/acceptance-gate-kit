@@ -380,6 +380,27 @@ xanh_sach_check() { # <report path>
     esac
     done
   fi
+  # Vế hai của điều kiện «Ngoài hợp đồng» (hồ sơ ho-so-khep-thoi-hoi AC-4): tệp phát hiện
+  # cạnh báo cáo có mục nào CHƯA có dòng sổ gate2 của người → còn cần người. CÙNG hàm
+  # mucChuaDinhTuyen mà bản mjs (khong-can-nguoi.mjs) gọi; tệp vắng → vế này im; lib vắng
+  # hoặc đọc lỗi → fail-closed như khối section ngay trên.
+  if [ "$clean_ok" -eq 1 ] && [ -f "$_cdir/review-findings.md" ]; then
+    local _ooc
+    _ooc="$(node -e '
+      const {mucChuaDinhTuyen}=require(process.argv[1]);
+      const fs=require("fs");
+      const rd=p=>{try{return fs.readFileSync(p,"utf8")}catch{return null}};
+      const m=mucChuaDinhTuyen(rd(process.argv[2]),rd(process.argv[3]));
+      if(m.suspect){process.stdout.write("__NGO__");process.exit(0);}
+      process.stdout.write(m.chua.length?m.chua.length+"|"+m.chua.join(", "):"");
+    ' "$ROOT/lib/out-of-contract.cjs" "$_cdir/review-findings.md" "$_cdir/decisions.jsonl" 2>/dev/null || printf '__LOI__')"
+    case "$_ooc" in
+      "") ;;
+      __NGO__) clean_ok=0; clean_why="review-findings.md có chữ trong mục «Ngoài hợp đồng» nhưng không đọc ra mục nào (sai khuôn OOC-ITEM-TEMPLATE)" ;;
+      __LOI__) clean_ok=0; clean_why="không đọc được review-findings.md × sổ quyết định (fail-closed)" ;;
+      *)       clean_ok=0; clean_why="review-findings.md có ${_ooc%%|*} mục ngoài hợp đồng chưa người định tuyến: ${_ooc#*|}" ;;
+    esac
+  fi
   CLEAN_WHY="$clean_why"
   [ "$clean_ok" -eq 1 ]
 }

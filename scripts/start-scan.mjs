@@ -69,7 +69,11 @@ const read = readRecord;
 // của evidence-core trả ra key bắt buộc (S4-r1: hasFm riêng đã chặt hơn reader
 // chuẩn — CRLF/dòng trắng đầu file bị báo hỏng oan trong khi mọi cổng khác đọc được)
 const fmOrNull = (t, key) => (t == null ? null : frontmatterField(t, key));
-const kcn = (cTxt, eTxt) => khongCanNguoi(cTxt, eTxt);
+// Luật làn V đọc cả tệp phát hiện + sổ cạnh báo cáo (ho-so-khep-thoi-hoi AC-4); tệp vắng → null.
+const kcn = (cTxt, eTxt, dir) => khongCanNguoi(cTxt, eTxt, {
+  findings: read(path.join(dir, 'review-findings.md')).t ?? null,
+  ledger: read(path.join(dir, 'decisions.jsonl')).t ?? null,
+});
 const git = (() => {
   const q = args => {
     try {
@@ -417,7 +421,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
         // đó, nên hồ sơ verdict=REJECT vẫn hiện «đã giao — bằng chứng xanh-sạch» ở bộ quét,
         // bản đồ và thẻ, trong khi lưới trước-merge chặn: ba mặt người nói một đằng, lưới
         // nói một nẻo, và chiều sai là MÀU XANH GIẢ (S4-r11 [3]).
-        if (!kcn(cTxt, ev.raw)) {
+        if (!kcn(cTxt, ev.raw, dir)) {
           pushHong({ slug, file: 'evidence-report.md', reason: 'status machine-cleared nhưng bằng chứng KHÔNG đạt sáu điều kiện xanh-sạch — hồ sơ tự khai «máy đã thông» mà không có vật; chạy lại S4 hoặc đưa về Cổng Bằng chứng để người ký' });
           continue;
         }
@@ -460,7 +464,7 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       const ev = readEvidence();
       if (ev) {
         const meaning = ev.exists ? meaningOf(ev.verdict) : null;
-        const kcnState = ev.exists && !ev.signoff ? kcn(cTxt, ev.raw) : null;
+        const kcnState = ev.exists && !ev.signoff ? kcn(cTxt, ev.raw, dir) : null;
         if (!ev.exists) pushHong({ slug, ...missingArtifact({ 'contract.md': cTxt, 'evidence-report.md': null }) });
         else if (!meaning) pushHong({ slug, ...bangLech(ev.verdict) });
         else if (ev.signoff) done.push(g('da-giao', { slug, state: 'signed-off', at: ngayXong(dir, cPath), flags: nghiFlags }));

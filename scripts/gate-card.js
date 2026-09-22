@@ -31,7 +31,7 @@
 const fs = require('fs');
 const path = require('path');
 const gapProbe = require('../lib/gap-probe.cjs');
-const outOfContract = require('../lib/out-of-contract.js');
+const outOfContract = require('../lib/out-of-contract.cjs');
 const evidenceCore = require('../lib/evidence-core.cjs');
 // Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.cjs
 // (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).

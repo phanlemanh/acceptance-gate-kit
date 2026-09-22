@@ -13,7 +13,7 @@
 //
 // Chạy một phần: LV_CASES=LV1,LV4 node tests/plugins/lan-v.test.mjs
 // Bộ lọc có SÀN ĐẾM: tên không khớp ca nào → exit 1 (không xanh với 0 assertion).
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, copyFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, copyFileSync, readFileSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -208,6 +208,17 @@ if (want('LV4')) {
   else pass('LV4', `bang su-that ${oDem} o: ${oDone} o done khop ham ky vong`);
 }
 
+// Mục ngoài hợp đồng RÚT từ khuôn bên viết (cùng cách P55) — ho-so-khep-thoi-hoi AC-4.
+const OOC_TPL = (() => {
+  const wf = readFileSync(path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
+  const m = wf.match(/<<<OOC-ITEM-TEMPLATE\\n([\s\S]*?)OOC-ITEM-TEMPLATE>>>/);
+  if (!m) throw new Error('khong rut duoc OOC-ITEM-TEMPLATE');
+  return m[1].replace(/\\n/g, '\n').replace(/\\`/g, '`');
+})();
+const mucOoc = i => OOC_TPL.replace(/\{(\w+)\}/g, (_, k) => ({ title: `loi ${i}`, plain: `Người dùng thấy ${i}.`, file: `src/a${i}.js`, severity: 'low', proposal: 'known-limits' }[k]));
+const OOC_2 = '## Ngoài hợp đồng — người quyết ở Gate 2\n\n' + mucOoc(1) + '\n' + mucOoc(2) + '\n';
+const gate2Line = q => JSON.stringify({ id: 'd-20260922T010000Z-1', type: 'descope', stage: 'gate2', at: '2026-09-22T01:00:00Z', decision: q, impact: 'x' });
+
 // ─── LV5 — đẳng thức với CHÍNH lưới trước-merge ───────────────────────────────
 // Kho git fixture: c1 (config · code · verify.sh) → nhánh basepoint → c2 (code
 // đổi + hợp đồng verified) → c3 (bằng chứng ghim verified_commit = c2). Lưới
@@ -226,7 +237,7 @@ function mkGitRepo(slug, o) {
   // Thiếu lib/md-section.cjs thì lưới KHÔNG BAO GIỜ thấy hồ sơ sạch (fail-closed) —
   // LV5 từng đỏ ở chính đối chứng dương vì fixture chưa chép, đúng như đời thật.
   mkdirSync(path.join(R, 'lib'), { recursive: true }); mkdirSync(path.join(R, 'scripts'), { recursive: true });
-  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs'])
+  for (const f of ['evidence-core.cjs', 'gap-probe.cjs', 'workspace-record.cjs', 'ac-line.cjs', 'md-section.cjs', 'out-of-contract.cjs'])
     copyFileSync(path.join(ROOT, 'lib', f), path.join(R, 'lib', f));
   copyFileSync(path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
   git('add', '-A'); git('commit', '-qm', 'c1');
@@ -237,6 +248,9 @@ function mkGitRepo(slug, o) {
   git('add', '-A'); git('commit', '-qm', 'c2');
   const c2 = git('rev-parse', 'HEAD').trim();
   writeFileSync(path.join(R, '_acceptance', slug, 'evidence-report.md'), evidenceText(slug, { ...o, verifiedCommit: c2 }));
+  // Tệp phát hiện + sổ cạnh báo cáo (hồ sơ ho-so-khep-thoi-hoi AC-4): hai bản dựng phải đọc CÙNG.
+  if (o.findings != null) writeFileSync(path.join(R, '_acceptance', slug, 'review-findings.md'), o.findings);
+  if (o.ledger != null) writeFileSync(path.join(R, '_acceptance', slug, 'decisions.jsonl'), o.ledger + '\n');
   git('add', '-A'); git('commit', '-qm', 'c3');
   return R;
 }
@@ -274,8 +288,13 @@ if (want('LV5')) {
     ['khong-ai-duyet',    { ...NGUOI_SACH, approvedBy: '' }],
     ['da-veto-sach',      { ...NGUOI_SACH, veto: 'da-veto', opened: '2026-08-21T09:00:00Z' }],
     ['V-kl-h1-co',        { ...V_SACH, sach: 'kl-h1-co' }],
+    // ho-so-khep-thoi-hoi AC-4: tệp phát hiện × sổ gate2 (mục rút từ khuôn bên viết).
+    ['V-ooc-chua',        { ...V_SACH, findings: OOC_2 }],
+    ['V-ooc-mot-phan',    { ...V_SACH, findings: OOC_2, ledger: gate2Line('Ngoài-1: ghi Known limits') }],
+    ['V-ooc-du',          { ...V_SACH, findings: OOC_2, ledger: gate2Line('Ngoai-1 den Ngoai-2: ghi Known limits') }],
+    ['V-ooc-ngo',         { ...V_SACH, findings: '## Ngoài hợp đồng — người quyết ở Gate 2\n\n- **sai khuon** khong truong\n' }],
   ];
-  const SO_MAT_CAT = 22;  // khai trước — bớt phần tử là đỏ, không xanh im lặng
+  const SO_MAT_CAT = 26;  // khai trước — bớt phần tử là đỏ, không xanh im lặng
   if (MAT_CAT.length !== SO_MAT_CAT) { fail('LV5', `MAT_CAT co ${MAT_CAT.length} phan tu, khai truoc ${SO_MAT_CAT}`); }
   const errs = []; let n = 0; let doiChung = false;
   for (const [ten, o] of MAT_CAT) {
