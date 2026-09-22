@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 288090243c5d2e3b14efafbe848e1aee418b66dd
+verified_commit: ccabea22159944a10d5f768d5b67bd2b5d095d7c
 human_signoff:
 ---
 
@@ -160,3 +160,7 @@ sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 3 — 2026-09-22, do vòng ho-so-khep-thoi-hoi chạm hồ sơ (sổ gate2 · khối KHAC-BIET-DOC-CU) và mã lõi
 run_id: repin-20260922T065544Z-95175
 sha: 288090243c5d2e3b14efafbe848e1aee418b66dd · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
+
+### Re-pin lần 4 — 2026-09-22, do chiến dịch ghim lại theo mốc 2.18.1 (GUIDE §7.1)
+run_id: repin-20260922T110053Z-46306
+sha: ccabea22159944a10d5f768d5b67bd2b5d095d7c · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng

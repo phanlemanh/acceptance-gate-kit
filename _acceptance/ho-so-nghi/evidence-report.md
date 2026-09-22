@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
+verified_commit: ccabea22159944a10d5f768d5b67bd2b5d095d7c
 human_signoff: Mạnh 2026-09-19 — ký với giới hạn ở lượt chấm 3 (hết ngân sách ba lượt, verdict máy REJECT; bảng ba kết cục viết trước lượt 1 đã lường: không đạt chỉ vì thước → khai giới hạn có tên rồi ký). Nhận GH-1 và GH-2 (trong hợp đồng) cùng GH-3, GH-4, GH-5 (phép đo của vòng) làm Known limits, xem mục Known limits của hợp đồng; đồng ý nhát thu phạm vi «dòng nghỉ chỉ có hiệu lực trên hồ sơ đã có chữ ký người»; 11 mục ngoài hợp đồng ghi Known limits và sổ known-limits; phê hết quyết định ghi sau Cổng Phạm vi.
 ---
 
@@ -213,3 +213,7 @@ Round 3: Mười một eval script (E1–E7, E9, E11, E12) + E10 (product-map) +
 ### Re-pin lần 1 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
 run_id: repin-20260921T175037Z-33397
 sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E8 (E8 không khai paths) · AC không có chốt máy: AC-8
+
+### Re-pin lần 2 — 2026-09-22, do chiến dịch ghim lại theo mốc 2.18.1 (GUIDE §7.1)
+run_id: repin-20260922T110053Z-46306
+sha: ccabea22159944a10d5f768d5b67bd2b5d095d7c · suites: 5 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E8 (E8 không khai paths) · AC không có chốt máy: AC-8

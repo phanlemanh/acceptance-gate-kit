@@ -19,3 +19,4 @@
 {"ts":"2026-08-27T11:13:00Z","sha":"f791f57ca160ca726940d2d6fffcc9e3a3b21fc2","round":6,"evalId":"E9","run_id":"minted-thuoc-nhan-de-khoi-E9-r6","exit_code":0,"cmd":"bash _acceptance/thuoc-nhan-de-khoi/rang.sh --chan quet-vung-ngoai"}
 {"ts":"2026-08-27T11:13:00Z","sha":"f791f57ca160ca726940d2d6fffcc9e3a3b21fc2","round":6,"kind":"baseline","evals_hash":"tnk-r6","non_discriminating":[{"cmd":"bash tests/scripts/run-tests.sh","evals":["E6"]}]}
 {"ts":"2026-09-21T17:50:37Z","kind":"repin","run_id":"repin-20260921T175037Z-33397","sha":"41b949dec2245c147ff1460ba6e70e41e5fbb6df","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E7":0,"E8":0,"E9":0}}
+{"ts":"2026-09-22T11:00:53Z","kind":"repin","run_id":"repin-20260922T110053Z-46306","sha":"ccabea22159944a10d5f768d5b67bd2b5d095d7c","suites_exit":[0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E7":0,"E8":0,"E9":0}}
