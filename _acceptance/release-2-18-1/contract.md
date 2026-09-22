@@ -5,7 +5,7 @@ slug: release-2-18-1
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản GUIDE + CHANGELOG + workspace hồ sơ + bản đồ — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
@@ -27,6 +27,9 @@ PR crm #70); làn V gọi `khai-lang-gioi-thieu` là xanh-sạch trong khi tệp
   và thẻ Cổng Bằng chứng thôi đối xử hồ sơ đã khép như đang mở; làn máy-đi-trước đọc
   `review-findings.md` × sổ gate2; lớp CI vendored 15 tệp theo bao đóng nạp; hai bộ kiểm thôi vỡ
   trên hồ sơ chấm-bởi-thực-tế thật. Gộp kèm `observed release-2-0-0` (owner ghi 22/09).
+  Kèm #203 (22/09): CI main đỏ sau #202 vì tệp ca `hskt` neo «bản trước vòng» vào
+  `merge-base` — sau khi gộp, merge-base thành chính bản đã vá. Neo lại vào cha của commit đầu
+  đưa `hoSoDaKhep` vào lib (rút bằng lệnh) và ghim lại hồ sơ; không đổi mã cổng.
 
 Ngoài hồ sơ ấy, cửa sổ còn bốn PR tài liệu và sổ sách của chính kit (#196 ghim lại 2.18.0, #197
 và #198 hạt giống, #200 và #201 kế hoạch/audit) — **không đi theo bản phát hành**.
@@ -34,7 +37,7 @@ và #198 hạt giống, #200 và #201 kế hoạch/audit) — **không đi theo 
 Mốc này **không đổi một dòng mã cổng** — chỉ đóng số, nói người dùng nhận gì (mục `v2.18.1` trong
 mô tả hai gói và `CHANGELOG.md`), và đi **làn V** như tiền lệ 2.5.0/2.7.0/2.17.0/2.18.0.
 
-Source input: `git log 41b949de..eea818b1` · nếp phát hành `_acceptance/release-2-18-0/` · lệnh
+Source input: `git log 41b949de..5ebe8401` · nếp phát hành `_acceptance/release-2-18-0/` · lệnh
 owner 22/09 «Kiểm tra CI và merge #202» nối tiếp «Tiếp tục tuần tự».
 
 ## Năm dòng số của luật (c) — cửa sổ một ngày
@@ -102,5 +105,5 @@ ngày không kho nào cài nó.
 `lib/out-of-contract.js` (đổi tên thành `.cjs`).
 
 **Chỗ cắt cho cửa sổ kế (được phép ghi, không thành ô):** suite scripts sát trần 600 s của công
-cụ (dòng 3); nhãn «Ngoài-N» neo theo nội dung
+cụ (dòng 3) — trên cây của chính mốc này nó chạy 601 s, đã qua trần; nhãn «Ngoài-N» neo theo nội dung
 (`docs/plans/2026-09-22-hat-giong-nhan-ngoai-n-neo-theo-noi-dung.md`).
