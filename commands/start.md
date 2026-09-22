@@ -38,7 +38,7 @@ worktree/nhánh đọc từ git của `<path>`.
    map.present map.fresh map.enabled map.state map.label
    discovery.brainstormSkill
    metaOpen.applies metaOpen.moc metaOpen.slugs metaOpen.n metaOpen.flag
-   vetoOpen[].slug vetoOpen[].status vetoOpen[].humanSignoff vetoOpen[].signoffWarn
+   vetoOpen[].slug vetoOpen[].status vetoOpen[].humanSignoff vetoOpen[].signoffWarn vetoOpen[].daKhep
    vetoOpenUnsigned
    broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
    START-SCAN-KEYS>>> -->
@@ -194,7 +194,8 @@ worktree/nhánh đọc từ git của `<path>`.
      phép đo máy chấm. Đây là cùng tập tên lưới trước-merge in ra; veto-default
      chỉ sống nếu người THẤY TÊN — không ai veto được thứ mình không thấy.
      Hồ sơ đã có chữ ký người KHÔNG hiện ở mục này: chữ ký Cổng Bằng chứng đã
-     đóng cửa veto (`vetoOpen[].humanSignoff: true`). Phần tử nào có
+     đóng cửa veto (`vetoOpen[].humanSignoff: true`). Hồ sơ ĐÃ KHÉP (đã nghỉ, hoặc đã chấm bởi
+     thực tế) cũng không hiện: không còn gì để veto (`vetoOpen[].daKhep: true`). Phần tử nào có
      `signoffWarn` khác rỗng thì in thêm câu đó — máy không đọc được chữ ký nên
      để cửa MỞ, và người cần biết vì sao.
 

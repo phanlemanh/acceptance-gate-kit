@@ -29,11 +29,14 @@ const CHON = [...process.argv.slice(2), ...(process.env.HSKT_CASES ? process.env
 const want = name => !CHON.length || CHON.includes(name);
 const git = (d, ...a) => execFileSync('git', ['-C', d, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const WR = require(path.join(KIT, 'lib', 'workspace-record.cjs'));
+// Trạng thái «đã ký» rút từ lib (MỘT nguồn — nếp owner chọn 17/09 ở hồ sơ ra-co-ten-lam-va-trao):
+// tệp ca không mang chuỗi trạng thái của riêng nó, nên không phải khai gạch ở RT13.
+const DA_KY = WR.DA_THONG_CONG_2[0];
 
 // ── Khuôn fixture ─────────────────────────────────────────────────────────────
 const hopDong = (slug, o = {}) => {
   const f = { schema_version: 1, slug, feature: `viec ${slug}`, owner: 'x@y.z', risk_tier: 'T2', surfaces: '[cli]',
-    status: 'signed-off', approved_by: 'M', approved_at: '2026-09-01T00:00:00Z', ...o };
+    status: DA_KY, approved_by: 'M', approved_at: '2026-09-01T00:00:00Z', ...o };
   return `---\n${Object.entries(f).filter(([, v]) => v !== undefined).map(([k, v]) => `${k}: ${v}`).join('\n')}\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n`;
 };
 const baoCao = (slug, o = {}) => {
@@ -64,11 +67,11 @@ function hoSo(r, slug, { contract, report, ledger, findings } = {}) {
 
 // Ma trận năm hồ sơ của AC-1 (viết trước): [tên, văn bản, kỳ vọng vi].
 const MA_TRAN_AC1 = [
-  ['nghi-du', { status: 'signed-off', ledger: dongNghi(), report: baoCao('a', { human_signoff: KY }) }, 'nghi'],
+  ['nghi-du', { status: DA_KY, ledger: dongNghi(), report: baoCao('a', { human_signoff: KY }) }, 'nghi'],
   ['nghi-chua-ky', { status: 'verified', ledger: dongNghi(), report: baoCao('b') }, null],
   ['thuc-te-du', { status: 'da-cham-boi-thuc-te', ledger: dongTT(), report: baoCao('c') }, 'thuc-te'],
   ['thuc-te-thieu', { status: 'da-cham-boi-thuc-te', ledger: dongTT({ build_sha: '' }), report: baoCao('d') }, null],
-  ['song', { status: 'signed-off', ledger: '', report: baoCao('e', { human_signoff: KY }) }, null],
+  ['song', { status: DA_KY, ledger: '', report: baoCao('e', { human_signoff: KY }) }, null],
 ];
 const hoiKhep = (fn, x) => { const k = fn({ status: x.status, ledgerText: x.ledger, reportText: x.report }); return k ? k.vi : null; };
 function kiemAC1(fn) {

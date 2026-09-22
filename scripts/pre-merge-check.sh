@@ -1498,6 +1498,14 @@ fi
 #       So với BASE của diff; đường xử hợp lệ (có entry sổ quyết định khớp
 #       slug) KHÔNG bị chặn oan.
 VETO_OPEN_N=0; VETO_OPEN_SLUGS=""
+# Hồ sơ ĐÃ KHÉP (nghỉ · chấm bởi thực tế — vị từ hoSoDaKhep của lib/workspace-record.cjs, MỘT lần
+# gọi cho cả vòng) không còn là cửa veto đang mở (hồ sơ ho-so-khep-thoi-hoi AC-2). Thiếu node/lib
+# → danh sách rỗng: đếm như cũ (lệch về phía BÁO thừa, không giấu).
+KHEP_SLUGS=""
+if command -v node >/dev/null 2>&1 && [ -f "$HERE/../lib/workspace-record.cjs" ]; then
+  KHEP_SLUGS="$(node "$HERE/../lib/workspace-record.cjs" --da-khep --root "$ROOT" 2>/dev/null || true)"
+fi
+khep_slug() { [ -n "$KHEP_SLUGS" ] && printf '%s\n' "$KHEP_SLUGS" | grep -qxF -- "$1"; }
 if [ -d "$ACC" ]; then
   for dir in "$ACC"/*/; do
     [ -d "$dir" ] || continue
@@ -1510,6 +1518,7 @@ if [ -d "$ACC" ]; then
     # Nhãn `mo-da-ky` cố ý KHÔNG rỗng: nhánh ghi-ngược bên dưới đọc `$vstate`, và
     # một chuỗi rỗng ở đó nghĩa là «đã gỡ khoá» — nói dối về một hồ sơ còn khoá.
     if [ "$vstate" = "mo" ] && signoff_that "$dir"; then vstate="mo-da-ky"; fi
+    if [ "$vstate" = "mo" ] && khep_slug "$slug"; then vstate="mo-da-khep"; fi
     case "$vstate" in
       mo)
         VETO_OPEN_N=$((VETO_OPEN_N+1))
@@ -1523,6 +1532,7 @@ if [ -d "$ACC" ]; then
     # mo-da-ky» — một nhãn nội bộ rò ra câu nói với người, và đó là ĐỔI một câu
     # chặn chứ không còn là đổi lời của cửa veto (chân luat-lan-can bắt sống).
     if [ "$vstate" = "mo-da-ky" ]; then vstate="mo"; fi
+    if [ "$vstate" = "mo-da-khep" ]; then vstate="mo"; fi
     # chiều ghi-ngược — chỉ xét được khi dựng nổi phạm vi diff
     if [ "$DIFF_READY" -eq 1 ] && slug_in_diff "$slug"; then
       base_c="$(git -C "$ROOT" show "$BASE_SHA:_acceptance/$slug/contract.md" 2>/dev/null || true)"
