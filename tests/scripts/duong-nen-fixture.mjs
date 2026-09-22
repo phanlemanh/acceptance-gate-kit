@@ -70,9 +70,15 @@ export function dungKho(opts = {}) {
   writeFileSync(path.join(dir, 'suite-a.sh'), suite('a', opts.giuaA, ''));
   writeFileSync(path.join(dir, 'suite-b.sh'), suite('b', '', opts.cuoiB));
   writeFileSync(path.join(dir, 'README.md'), 'kho fixture duong-nen\n');
-  // Bản vendored: chép TRỌN `lib/` và hai tệp `scripts/` của danh sách chép CI.
+  // Bản vendored: chép TRỌN `lib/` và mọi tệp `scripts/` của danh sách chép CI — RÚT từ khối
+  // INIT-CI-COPY-LIST (danh sách tay hai tệp từng làm chân engine đỏ oan khi danh sách lên 15
+  // tệp ở vòng ho-so-khep-thoi-hoi).
   mkdirSync(path.join(dir, 'scripts'), { recursive: true });
-  for (const f of ['pre-merge-check.sh', 'recheck-evidence.cjs']) {
+  const initTxt = readFileSync(path.join(KIT, 'commands', 'acceptance-init.md'), 'utf8');
+  const khoi = (initTxt.split('<<<INIT-CI-COPY-LIST')[1] || '').split('INIT-CI-COPY-LIST>>>')[0];
+  const tepScripts = [...khoi.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/([^`]+)`/g)].map(m => m[1]);
+  if (tepScripts.length < 2) throw new Error(`duong-nen-fixture: rut duoc ${tepScripts.length} tep scripts/ tu INIT-CI-COPY-LIST`);
+  for (const f of tepScripts) {
     cpSync(path.join(KIT, 'scripts', f), path.join(dir, 'scripts', f));
   }
   cpSync(path.join(KIT, 'lib'), path.join(dir, 'lib'), { recursive: true });
