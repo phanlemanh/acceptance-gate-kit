@@ -5,7 +5,7 @@ slug: ho-so-khep-thoi-hoi
 owner: phanlemanh@gmail.com
 risk_tier: T3      # scripts/pre-merge-check.sh + lib/workspace-record.cjs + lib/out-of-contract.cjs — lõi cưỡng chế (t3_paths); vá điểm, không đổi enum, không CỘNG
 surfaces: [cli, ci, docs]
-status: approved      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Phan Le Manh
 approved_at: 2026-09-22T00:07:53Z
 design_doc: docs/superpowers/specs/2026-09-22-ho-so-khep-thoi-hoi-design.md
