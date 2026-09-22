@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 41b949dec2245c147ff1460ba6e70e41e5fbb6df
+verified_commit: ccabea22159944a10d5f768d5b67bd2b5d095d7c
 human_signoff: Mạnh 2026-09-15 — ký với 7 giới hạn đã khai (Ngoài-2…Ngoài-8); Ngoài-1 mở hợp đồng riêng. Vòng đi ba lượt chấm, chốt DỪNG-VÁ giữa đường: owner thu phạm vi AC-7 và nâng phạm vi lỗi ký tự đô-la thành AC-11.
 ---
 
@@ -244,3 +244,7 @@ sha: b950f6643e253a691021612b5c5cabfe86cc4dda · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 3 — 2026-09-21, do chiến dịch ghim lại theo mốc 2.18.0
 run_id: repin-20260921T175037Z-33397
 sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 4 — 2026-09-22, do chiến dịch ghim lại theo mốc 2.18.1 (GUIDE §7.1)
+run_id: repin-20260922T110053Z-46306
+sha: ccabea22159944a10d5f768d5b67bd2b5d095d7c · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

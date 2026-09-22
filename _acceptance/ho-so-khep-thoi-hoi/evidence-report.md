@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ba2a3446b546d73909cd95a824db208f5a14089d
+verified_commit: ccabea22159944a10d5f768d5b67bd2b5d095d7c
 human_signoff: Phan Le Manh 2026-09-22
 ---
 
@@ -170,3 +170,7 @@ Round 3: PASS — `7f29b834` vá gate-card đọc đúng khoá `thucTe` mà bộ
 ### Re-pin lần 1 — 2026-09-22, do tệp ca hskt đổi sau chữ ký: neo bản trước vòng vào mốc cố định (main đỏ sau #202)
 run_id: repin-20260922T075412Z-27774
 sha: ba2a3446b546d73909cd95a824db208f5a14089d · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-09-22, do chiến dịch ghim lại theo mốc 2.18.1 (GUIDE §7.1)
+run_id: repin-20260922T110053Z-46306
+sha: ccabea22159944a10d5f768d5b67bd2b5d095d7c · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
