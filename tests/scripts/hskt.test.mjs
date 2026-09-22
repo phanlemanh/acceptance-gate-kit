@@ -289,6 +289,56 @@ if (want('HK-AC4-dot-bien')) {
   } catch (e) { bad('HK-AC4-dot-bien', loi(e)); }
 }
 
+// ── AC-6: thẻ hồ sơ đã khép in 0 ô hỏi ─────────────────────────────────────────
+// Ba hồ sơ CÙNG tệp phát hiện (1 mục) và cùng báo cáo đã ký: nghỉ đủ vế · thực tế đủ vế · sống.
+const FINDINGS_1 = '# Review findings\n\n## Trong hợp đồng\n\n' + HEAD_OOC + mucOoc(1) + '\n';
+function khoKhep() {
+  const r = khoMoi();
+  hoSo(r, 'hs-nghi', { contract: hopDong('hs-nghi'), report: baoCao('hs-nghi', { human_signoff: KY }), ledger: dongNghi(), findings: FINDINGS_1 });
+  hoSo(r, 'hs-thuc-te', { contract: hopDong('hs-thuc-te', { status: 'da-cham-boi-thuc-te' }), report: baoCao('hs-thuc-te', { human_signoff: KY }), ledger: dongTT(), findings: FINDINGS_1 });
+  hoSo(r, 'hs-song', { contract: hopDong('hs-song'), report: baoCao('hs-song', { human_signoff: KY }), findings: FINDINGS_1 });
+  git(r, 'add', '-A'); git(r, 'commit', '-qm', 'fixture');
+  return r;
+}
+const theHtml = (R, slug) => execFileSync(process.execPath, [path.join(KIT, 'scripts', 'gate-card.js'), '--root', R, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const CAU_KHEP = 'không còn câu hỏi nào cho người';
+let _khoKhep = null; const khoK = () => (_khoKhep ||= khoKhep());
+for (const [ca, slug] of [['HK-AC6-nghi', 'hs-nghi'], ['HK-AC6-thuc-te', 'hs-thuc-te']]) {
+  if (!want(ca)) continue;
+  try {
+    const R = khoK(); const j = theExtract(R, slug); const h = theHtml(R, slug);
+    const sai = [];
+    if ((j.routing.hoi || []).length) sai.push(`routing.hoi=${JSON.stringify(j.routing.hoi)}`);
+    if (j.one_shot != null) sai.push(`one_shot=${JSON.stringify(j.one_shot)}`);
+    if (!h.includes(CAU_KHEP)) sai.push(`HTML thieu «${CAU_KHEP}»`);
+    if (sai.length) bad(ca, sai.join(' ; ')); else ok(ca, `— ${slug}: 0 ô hỏi, không câu gộp, thẻ nói «${CAU_KHEP}»`);
+  } catch (e) { bad(ca, loi(e)); }
+}
+if (want('HK-AC6-song')) {
+  try {
+    const R = khoK(); const hoi = theExtract(R, 'hs-song').routing.hoi || [];
+    if (!hoi.includes('Ngoài-1') || theHtml(R, 'hs-song').includes(CAU_KHEP)) bad('HK-AC6-song', `hoi=${JSON.stringify(hoi)}`);
+    else ok('HK-AC6-song', `— đối chứng: hồ sơ sống cùng tệp phát hiện vẫn hỏi ${JSON.stringify(hoi)}`);
+  } catch (e) { bad('HK-AC6-song', loi(e)); }
+}
+if (want('HK-AC6-baseline')) {
+  try {
+    const REL = 'tests/scripts/fixtures/routing-baseline.txt';
+    const dong = t => new Map(t.split('\n').filter(l => l && !l.startsWith('#')).map(l => [l.split('\t')[0], l]));
+    const moi = dong(readFileSync(path.join(KIT, REL), 'utf8'));
+    const base = git(KIT, 'merge-base', 'HEAD', 'origin/main');
+    const cu = dong(git(KIT, 'show', `${base}:${REL}`));
+    const khep = new Set(execFileSync(process.execPath, [path.join(KIT, 'lib', 'workspace-record.cjs'), '--da-khep', '--root', KIT], { encoding: 'utf8' }).split('\n').filter(Boolean));
+    const sai = []; let nKhep = 0, nRong = 0;
+    for (const [slug, l] of moi) {
+      if (khep.has(slug)) { nKhep++; if (/\thoi=\t/.test(l + '\t') || /\thoi=(\t|$)/.test(l)) nRong++; else sai.push(`${slug} khép mà hoi khác rỗng: ${l}`); }
+      if (cu.has(slug) && cu.get(slug) !== l && !khep.has(slug)) sai.push(`${slug} đổi dòng mà không khép`);
+    }
+    if (nKhep < 15) sai.push(`chỉ ${nKhep} hồ sơ khép trong bản ghi mốc (kỳ vọng ≥ 15)`);
+    if (sai.length) bad('HK-AC6-baseline', sai.join(' ; ')); else ok('HK-AC6-baseline', `— khép: ${nKhep} · hoi rỗng: ${nRong}; mọi dòng đổi đều là hồ sơ khép`);
+  } catch (e) { bad('HK-AC6-baseline', loi(e)); }
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (hskt)`);
 process.exit(fail ? 1 : 0);
