@@ -188,6 +188,10 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   4/4 · bỏ design-pass bằng lời 6/6 · ý định 4/8 · chiều đỏ ở làn baseline, không ở lịch sử commit crm.
 - `docs/plans/2026-09-22-hat-giong-the-cong-1-ho-so-khep-van-hoi.md` — ngày crm cài 2.18.1: hồ sơ khép không có
   evidence-report.md rơi nhánh Cổng 1 của thẻ, vẫn hỏi «duyệt hay sửa» (2/7); vị từ «đã khép» phải hỏi trước khi chọn nhánh.
+- `docs/plans/2026-09-22-hat-giong-dong-hieu-chuan-dem-ho-so-chua-tung-dat.md` — dòng hiệu chuẩn `0 / 8` tự xưng
+  «ĐẠT đã ký» mà 4/8 hồ sơ chưa từng ĐẠT-ký; chỗ đỏ khai trong dòng quan sát không vào k.
+- `docs/plans/2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md` — lượt máy hỏi ngoài thiết kế dồn về S1
+  (28 chạm / 3 vòng crm, 0 câu lệch khuyến nghị): áp luật lời mời cho bước lên thiết kế.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
