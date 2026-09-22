@@ -756,7 +756,7 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 
 ### 5.3 Wire CI (bắt buộc để gate có răng ở PR)
 
-Copy **đủ 10 file** từ plugin vào repo, giữ đúng layout (re-check `require
+Copy **đủ 15 file** từ plugin vào repo, giữ đúng layout (re-check `require
 ../lib`; đuôi `.cjs` là cố ý — repo khai `"type": "module"` sẽ đọc file `.js`
 chép sang thành ESM và `require()` bên trong nổ ReferenceError, lớp cưỡng chế
 chết câm). Thiếu một tên nào dưới đây thì lớp tương ứng **tắt im lặng** — CI
@@ -773,6 +773,11 @@ vẫn xanh:
 - `lib/eval-yaml.cjs` — bộ đọc `evals.yaml` mà luật làn-eval của re-pin dùng để liệt kê eval máy; cũng là MỘT nguồn `checkRepinEvals` và luật nhất-quán L1 của `evaluateEvidence` đọc `expected_exit`; thiếu → luật làn-eval fail-closed trên mọi làn khuôn mới, và cả hai đường đọc `expected_exit` fail-closed trên eval khai giới hạn
 - `lib/lop-nhin-thay.cjs` — MỘT nguồn cho «bề mặt người nhìn thấy» (`ui`/`web`/`web-ui`) và nghĩa vụ ui-observed; làn NOTE của pre-merge đọc nó qua `classify`; thiếu → làn đó in «không kiểm được» và không bao giờ chặn
 - `lib/nhan-canh-gay.cjs` — MỘT nguồn cho cạnh gãy ở Cổng Bằng chứng (đỏ vì bàn đo · đỏ vì vật · hệ thống chết) và cho «ký trên cạnh gãy có tên»; lưới trước-merge và re-check cùng gọi; thiếu → báo cáo BLOCKED có chữ ký vẫn là VIOLATION (cổng đóng, không mở)
+- `scripts/product-map.mjs` — bước CI `product_map:` của khuôn config chạy THẲNG tệp này; thiếu → bước đó không chạy được
+- `scripts/trang-thai-ho-so.cjs` — bảng nhãn trạng thái MỘT nguồn mà `product-map.mjs` `require`; chép bản đồ mà thiếu nó là `MODULE_NOT_FOUND` ngay lượt CI đầu của kho tiêu thụ (crm, 22/09/2026)
+- `scripts/khong-can-nguoi.mjs` — vị từ làn V «không cần người» mà `product-map.mjs` nạp để từ chối hồ sơ tự khai máy-thông không có vật
+- `lib/nguong-o-co-hoi.cjs` — bộ đọc ngưỡng ô cơ hội mà `product-map.mjs` `require` cho ô Cổng Giá trị
+- `lib/out-of-contract.cjs` — bộ đọc DUY NHẤT của `review-findings.md`; luật làn V ở lưới trước-merge và `khong-can-nguoi.mjs` cùng hỏi nó mục ngoài hợp đồng nào chưa được người định tuyến. **Đổi tên từ `.js` ở 2.18.1** — kho tiêu thụ chép lại thì XOÁ tệp đuôi cũ
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;

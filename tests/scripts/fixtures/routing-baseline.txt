@@ -22,13 +22,13 @@
 # hồ sơ đang mở đổi trạng thái hợp lệ nên không ghim. File sống ở tests/scripts/fixtures/, không trong hồ sơ đã ký.
 bai-hoc-do-luong-vao-engine	hoi=ký hay trả	bao=cắt/hoãn|Treo
 card-text-fidelity	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
-cat-hinh-thuc	hoi=veto hay để yên	bao=cắt/hoãn|Treo
-cat-khoi-viec-cua-anh-tren-tin	hoi=Ngoài-1|veto hay để yên	bao=cắt/hoãn|Treo
+cat-hinh-thuc	hoi=	bao=cắt/hoãn|Treo
+cat-khoi-viec-cua-anh-tren-tin	hoi=	bao=cắt/hoãn|Treo
 codex-script-packaging	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
-cong-dang-co-cua	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|veto hay để yên	bao=cắt/hoãn|Treo
+cong-dang-co-cua	hoi=	bao=cắt/hoãn|Treo
 dac-ta-ux-vat-hoa-cau-truc	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
 design-pass-nac-khong-dong-bo	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
-doi-hanh-vi-cong-nguoi	hoi=veto hay để yên	bao=cắt/hoãn|Treo
+doi-hanh-vi-cong-nguoi	hoi=	bao=cắt/hoãn|Treo
 duong-do-trong-dinh-nghia-xong	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
 gap-probe-presence-hook	hoi=ký hay trả	bao=cắt/hoãn|Treo
 gold-output-measure	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|ký hay trả	bao=cắt/hoãn|Treo
@@ -40,7 +40,7 @@ lan-v-khong-phai-cho-ky	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-
 lenh-in-ra-phai-bam-duoc	hoi=ký hay trả	bao=cắt/hoãn|Treo
 lenh-tran-tai-lieu-dau-tay	hoi=ký hay trả	bao=cắt/hoãn|Treo
 loi-moi-cong-may-sinh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
-luu-kho-codex-va-nghi-le-design	hoi=veto hay để yên	bao=cắt/hoãn|Treo
+luu-kho-codex-va-nghi-le-design	hoi=	bao=cắt/hoãn|Treo
 matrix-measure-law	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
 measure-birth-certificate	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 measure-teeth-cleanup	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
@@ -65,7 +65,7 @@ t1-escape-event-scope	hoi=ký hay trả	bao=cắt/hoãn|Treo
 thuoc-nhan-de-khoi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
 tool-kill-duong-doc-lap	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 vao-co-o-ra-co-ten	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
-veto-co-dau-vet	hoi=veto hay để yên	bao=cắt/hoãn|Treo
+veto-co-dau-vet	hoi=	bao=cắt/hoãn|Treo
 workspace-reader-unification	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
 # CẬP NHẬT 03/09 sau chữ ký Cổng 2 của vu-trang-goal-luc-goi-ten: hồ sơ vào tập
 # «đã chốt» (có human_signoff) nên ghim lần đầu — 6 ô Ngoài + «ký hay trả».
@@ -73,21 +73,21 @@ vu-trang-goal-luc-goi-ten	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoà
 # CẬP NHẬT 03/09 sau chữ ký Cổng 2 của mốc 2.8.0: hồ sơ mốc vào tập «đã chốt»
 # nên ghim lần đầu — 6 ô Ngoài + «ký hay trả» (thuế một dòng mỗi chữ ký).
 release-2-8-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
-inputs-tinh-tu-goc-kho	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|veto hay để yên	bao=cắt/hoãn|Treo
+inputs-tinh-tu-goc-kho	hoi=	bao=cắt/hoãn|Treo
 # CẬP NHẬT 06/09 sau chữ ký Cổng 2 của thuoc-khai-mot-dang-do-mot-neo: hồ sơ vào tập
 # «đã chốt» nên ghim lần đầu — 9 ô Ngoài (bảy vòng S4, mỗi vòng hội đồng thêm mục) +
 # «ký hay trả» (thuế một dòng mỗi chữ ký).
-thuoc-khai-mot-dang-do-mot-neo	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|veto hay để yên	bao=cắt/hoãn|Treo
+thuoc-khai-mot-dang-do-mot-neo	hoi=	bao=cắt/hoãn|Treo
 # CẬP NHẬT 07/09 sau chữ ký Cổng 2 của mốc 2.9.0: hồ sơ mốc vào tập «đã chốt» nên ghim
 # lần đầu — 2 ô Ngoài + «ký hay trả». Thêm CÙNG commit chữ ký, ghim lại một lượt lane
 # TRƯỚC khi push (bài học 3 CI đỏ hậu-chữ-ký của #146/#151).
 release-2-9-0	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
-duong-lui-phai-song	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|veto hay để yên	bao=cắt/hoãn|Treo
+duong-lui-phai-song	hoi=	bao=cắt/hoãn|Treo
 lop-bang-chung-nhin-thay	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
 glob-hai-sao-khop-goc-kho	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 gom-duc-ket-2-10-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|ký hay trả	bao=cắt/hoãn|Treo
 release-2-10-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
-eval-khai-ma-thoat-mong-doi	hoi=veto hay để yên	bao=cắt/hoãn|Treo
+eval-khai-ma-thoat-mong-doi	hoi=	bao=cắt/hoãn|Treo
 release-2-11-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|ký hay trả	bao=cắt/hoãn|Treo
 release-2-12-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|ký hay trả	bao=cắt/hoãn|Treo
 cua-veto-sau-chu-ky	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
@@ -97,15 +97,16 @@ khoi-tim-loi-tra-phi-theo-vat	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|N
 release-2-13-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|ký hay trả	bao=cắt/hoãn|Treo
 do-tin-tram-phan-loai	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
 chu-ky-khong-tu-lam-hoa-cu	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|ký hay trả	bao=cắt/hoãn|Treo
-release-2-14-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|veto hay để yên	bao=cắt/hoãn|Treo
+release-2-14-0	hoi=	bao=cắt/hoãn|Treo
 guide-chep-ci-buoc-vao-writer	hoi=ký hay trả	bao=cắt/hoãn|Treo
-release-2-15-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|veto hay để yên	bao=cắt/hoãn|Treo
-thuoc-co-cua	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|veto hay để yên	bao=cắt/hoãn|Treo
-release-2-16-0	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|veto hay để yên	bao=cắt/hoãn|Treo
+release-2-15-0	hoi=	bao=cắt/hoãn|Treo
+thuoc-co-cua	hoi=	bao=cắt/hoãn|Treo
+release-2-16-0	hoi=	bao=cắt/hoãn|Treo
 ma-so-quyet-dinh-duy-nhat	hoi=ký hay trả	bao=cắt/hoãn|Treo
 nen-cong-cu-lenh-shell	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
 ho-so-nghi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|ký hay trả	bao=cắt/hoãn|Treo
-release-2-17-0	hoi=veto hay để yên	bao=cắt/hoãn|Treo
+release-2-17-0	hoi=	bao=cắt/hoãn|Treo
 ghim-lai-noi-ra-o-khong-do	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
 nhan-trang-thai-va-reality	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|ký hay trả	bao=cắt/hoãn|Treo
 release-2-18-0	hoi=ký hay trả	bao=cắt/hoãn|Treo
+ho-so-khep-thoi-hoi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo

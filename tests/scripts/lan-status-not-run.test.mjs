@@ -743,6 +743,11 @@ test('L05', 'pin CŨ do writer thật (bản trước vá) ghi vẫn xanh với 
   // đo một đường khác với bản gốc (không cùng luật).
   const corpusSao = path.join(corpusSaoCha, '_acceptance');
   fs.cpSync(accDir, corpusSao, { recursive: true });
+  // Bản sao nằm ngoài kho git nên hồ sơ đã chấm bởi thực tế không kiểm được bản dựng (git cat-file):
+  // loại hồ sơ KHÉP theo vị từ hoSoDaKhep — lời hứa của L05 là về pin, hồ sơ khép không còn bị chấm
+  // pin (hồ sơ ho-so-khep-thoi-hoi AC-7). Loại theo vị từ, KHÔNG theo danh sách tên.
+  for (const k of require(path.join(SELF_ROOT, 'lib', 'workspace-record.cjs')).slugDaKhep(corpusSaoCha))
+    fs.rmSync(path.join(corpusSao, k), { recursive: true, force: true });
   const quetSaoTruoc = quetKho(path.join(SELF_ROOT, 'scripts', 'recheck-evidence.cjs'), corpusSao);
   if (quetSaoTruoc.viPham.length) fail(`L05 bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ (${quetSaoTruoc.viPham.join(', ')}) — không dùng làm nền so sánh được`);
   const ung = timUngVienDeTiem(corpusSao);

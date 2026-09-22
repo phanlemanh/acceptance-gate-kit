@@ -159,6 +159,11 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/lib/eval-yaml.cjs` → `lib/` (evals.yaml parser the re-pin eval-lane rule uses to list machine evals; missing → that rule fails closed on every new-form lane; ALSO the one source `checkRepinEvals` and the `evaluateEvidence` L1-consistency rule both read `expected_exit` from — missing it, both fail closed on a declared-limit eval)
    - `${CLAUDE_PLUGIN_ROOT}/lib/lop-nhin-thay.cjs` → `lib/` (the ONE source for «human-visible surface» — ui/web/web-ui — and the ui-observed obligation; pre-merge's NOTE lane reads it via `classify`; missing → that lane prints «không kiểm được» and never blocks)
    - `${CLAUDE_PLUGIN_ROOT}/lib/nhan-canh-gay.cjs` → `lib/` (the ONE source for a Gate-2 broken edge — measuring-bench red vs product red vs dead system — and for «signed on a named edge»; pre-merge and the re-check both call it; missing → a signed BLOCKED report stays a VIOLATION, the gate closes rather than opens)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs` → `scripts/` (the product-map CI step `product_map:` in the config template runs THIS file directly; missing → that CI step cannot run at all)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/trang-thai-ho-so.cjs` → `scripts/` (the ONE state-label table product-map.mjs `require`s; copying the map without it is `MODULE_NOT_FOUND` on the consumer's first CI run — crm, 2026-09-22)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/khong-can-nguoi.mjs` → `scripts/` (the lane-V «no human needed» predicate product-map.mjs imports to refuse a self-declared machine-cleared record without evidence)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/nguong-o-co-hoi.cjs` → `lib/` (opportunity-threshold reader product-map.mjs `require`s for the value-gate cell)
+   - `${CLAUDE_PLUGIN_ROOT}/lib/out-of-contract.cjs` → `lib/` (the ONE reader of `review-findings.md` — the lane-V rule in pre-merge AND khong-can-nguoi.mjs asks it which out-of-contract items a human has not yet routed; renamed from `.js` in 2.18.1, delete the old file when re-copying)
    <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence
    re-check layer (it degrades to a NOTE) and mutes the gap-probe rule.

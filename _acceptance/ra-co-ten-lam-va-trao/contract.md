@@ -126,6 +126,7 @@ release-2-16-0 da-giao da-nghi
 release-2-17-0 da-giao da-nghi
 thuoc-khai-mot-dang-do-mot-neo da-giao da-nghi
 veto-co-dau-vet da-giao da-nghi
+release-2-0-0 ho-so-hong da-cham-thuc-te
 KHAC-BIET-DOC-CU>>> -->
 
 Khối máy-đọc cho AC-18 — file NGOÀI lib được phép mang chuỗi luật ngưỡng, mỗi dòng `đường-dẫn lý-do`; thêm bản chép mới là quyết định người, khai ở đây cùng lượt:

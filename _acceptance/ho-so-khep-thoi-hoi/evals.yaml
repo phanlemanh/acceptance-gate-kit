@@ -1,0 +1,141 @@
+schema_version: 1
+feature_slug: ho-so-khep-thoi-hoi
+# Tệp ca mới tests/scripts/hskt.test.mjs, tên ca mang mã AC (khối ĐỊNH VỊ: tên test = tên AC).
+# Mọi fixture là kho git do CODE SINH trong lượt: hợp đồng từ khuôn hợp đồng của plugin, dòng sổ
+# nghỉ/thực tế từ DEC-ID-RECIPE, mục ngoài hợp đồng từ khối marker OOC-ITEM-TEMPLATE của
+# feature-loop/workflows/acceptance-verify.js (round-trip writer → reader, mẫu P55). Đường dẫn
+# suy từ vị trí tệp ca. Bản «trước vòng» lấy TRỌN thư mục bằng
+# `git archive $(git merge-base HEAD origin/main) scripts lib skills` — sha là đầu ra lệnh.
+# Mỗi cặp hai-chiều dùng CÙNG fixture: vật lành → xanh, bản sao phá vật → đỏ với thông điệp ghim.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.hskt
+    expected: >
+      Exit 0, có dòng PASS của HK-AC1 và HK-AC1-cli. HK-AC1: ma trận năm hồ sơ viết trước (nghỉ đủ
+      vế trên hồ sơ đã ký · nghỉ trên hồ sơ chưa ký · da-cham-boi-thuc-te dòng quan sát đủ vế ·
+      da-cham-boi-thuc-te dòng thiếu build_sha · signed-off sống) so BẰNG NHAU với hoSoDaKhep —
+      [nghi, null, thuc-te, null, null]; số assert = 5. HK-AC1-cli: `node lib/workspace-record.cjs
+      --da-khep --root <kho>` in đúng hai slug khép, thoát 0. Chiều đỏ: bản sao lib đổi vế thực tế
+      thành «status thôi» (bỏ đòi dòng đủ vế) → ô thứ tư lật, thông điệp ghim «o 4».
+    paths: [lib/workspace-record.cjs, tests/scripts/hskt.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.hskt
+    expected: >
+      Exit 0, có dòng PASS của HK-AC2-quet, HK-AC2-luoi, HK-AC2-dot-bien. Kho fixture: hồ sơ khép
+      (thực tế, veto mo, không ký) + hồ sơ sống (verified, veto mo, không ký, cùng frontmatter).
+      HK-AC2-quet: start-scan vetoOpenUnsigned = [sống], vetoOpen có cả hai, daKhep đúng từng hồ
+      sơ. HK-AC2-luoi: pre-merge-check.sh dòng «NOTE: cửa veto đang mở — 1 hồ sơ» có tên sống,
+      không có tên khép. HK-AC2-dot-bien: hai bản sao (gỡ bộ lọc ở start-scan; gỡ bộ lọc ở
+      pre-merge) → tên hồ sơ khép quay lại đúng dòng tương ứng, ghim tên. Chiều đỏ trước vòng:
+      bản base đếm 2.
+    paths: [scripts/start-scan.mjs, scripts/pre-merge-check.sh, lib/workspace-record.cjs, commands/start.md, tests/scripts/hskt.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.hskt_ce
+    expected: >
+      Exit 0, có dòng PASS của CE2, CE2m, CE2g, CE2gm và các ca mới CE2p, CE2p-dot-bien, CE5-map, CE6-ooc.
+      CE2p: điểm vào thứ ba rút từ dòng `product_map:` của khuôn config trong
+      commands/acceptance-init.md (không gõ tay tên tệp); bao đóng ba điểm vào ⊆ INIT-CI-COPY-LIST,
+      GUIDE §5.3 cùng tập, câu «đủ N file» khớp độ dài. CE2p-dot-bien: danh sách bỏ
+      scripts/trang-thai-ho-so.cjs → missing gọi đúng tên ấy. CE5-map: kho tiêu thụ giả lập
+      `"type": "module"` chép ĐÚNG danh sách, `node scripts/product-map.mjs --root . --check` không
+      có MODULE_NOT_FOUND/ReferenceError trong stderr; bản chép gỡ trang-thai-ho-so.cjs → stderr
+      chứa «trang-thai-ho-so.cjs». CE6-ooc: grep `out-of-contract` trên scripts lib skills
+      feature-loop commands tests → 0 tham chiếu đuôi `.js`; bản sao khôi phục một require `.js`
+      → đỏ gọi tên tệp. Chiều đỏ trước vòng: danh sách 10 tệp → CE2p đỏ với bốn tên.
+    paths: [commands/acceptance-init.md, GUIDE.md, tests/scripts/consumer-esm.test.mjs, lib/out-of-contract.cjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.hskt
+    expected: >
+      Exit 0, có dòng PASS của HK-AC4-ma-tran, HK-AC4-bash, HK-AC4-the, HK-AC4-dot-bien. Fixture:
+      báo cáo PASS sáu điều kiện, mục «Ngoài hợp đồng» hiện diện-và-rỗng; review-findings.md có
+      2 mục dựng từ OOC-ITEM-TEMPLATE; sổ dựng bằng DEC-ID-RECIPE. HK-AC4-ma-tran: sáu hàng viết
+      trước × xanhSach — (1) sổ không dòng gate2 → clean=false, why chứa «chưa người định tuyến:
+      Ngoài-1, Ngoài-2» · (2) gate2 «Ngoài-1: ghi Known limits» → clean=false, why chỉ nêu
+      «Ngoài-2» · (3) gate2 «Ngoai-1 den Ngoai-2: ghi Known limits» → clean=true · (4) findings 0
+      mục → clean=true · (5) findings vắng → clean=true · (6) khối có chữ in đậm mà parse 0 mục →
+      clean=false; số assert = 6. HK-AC4-bash: pre-merge-check.sh trên cùng sáu kho cho VIOLATION
+      đúng ở hàng 1, 2, 6 và NOTE «làn V — máy đi trước» ở hàng 3, 4, 5. HK-AC4-the: gate-card
+      --extract hàng 1 → routing.hoi chứa «ký hay trả», không chứa «veto hay để yên»; hàng 3 →
+      ngược lại. HK-AC4-dot-bien: bản sao lib/out-of-contract.cjs cho vị từ luôn trả rỗng → hàng 1
+      đỏ ghim «clean=true». Và tests/plugins/lan-v.test.mjs LV5 xanh với các hàng mới.
+    paths: [lib/out-of-contract.cjs, scripts/khong-can-nguoi.mjs, scripts/pre-merge-check.sh, scripts/gate-card.js, tests/scripts/hskt.test.mjs, tests/plugins/lan-v.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.hskt
+    expected: >
+      Exit 0, có dòng PASS của HK-AC5-im và HK-AC5-note. Bản sao cây `_acceptance/` thật; bộ quét
+      và pre-merge-check.sh của bản base (git archive merge-base scripts lib) và HEAD chạy trên CÙNG
+      bản sao. HK-AC5-im: mỗi slug đổi stateKey hoặc rời vetoOpenUnsigned phải thoả (a) hoSoDaKhep
+      ≠ null hoặc (b) có ≥ 1 mục chưa định tuyến và báo cáo chưa ký; ca in «đổi: N khép · M chưa
+      định tuyến · 0 không giải thích»; sanity ≥ 50 hồ sơ. HK-AC5-note: tên trong dòng «NOTE: cửa
+      veto đang mở» của HEAD ∩ tập --da-khep = ∅; đối chứng: dòng ấy của bản base chứa
+      release-2-0-0. Chiều đỏ: bản sao HEAD ép một hồ sơ signed-off sạch sang may-di-tiep → đỏ gọi
+      tên slug với «không giải thích».
+    paths: [scripts/start-scan.mjs, scripts/pre-merge-check.sh, scripts/khong-can-nguoi.mjs, lib/workspace-record.cjs, lib/out-of-contract.cjs, tests/scripts/hskt.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.hskt
+    expected: >
+      Exit 0, có dòng PASS của HK-AC6-nghi, HK-AC6-thuc-te, HK-AC6-song. Kho fixture ba hồ sơ cùng
+      review-findings (1 mục) và cùng sổ: nghỉ đủ vế (đã ký) · thực tế đủ vế · sống signed-off.
+      gate-card --extract: nghỉ và thực tế → routing.hoi = [], one_shot = null, HTML chứa «không còn
+      câu hỏi nào cho người»; sống → routing.hoi chứa «Ngoài-1». HK-AC6-baseline: quan hệ HAI chiều
+      giữa routing-baseline.txt sinh lại và tập --da-khep rút trên cây thật — mọi slug khép có
+      hoi= rỗng, mọi dòng khác bản base thuộc tập khép; in «khép: N · hoi rỗng: N»; tập < 16 thì
+      đỏ. Và LM20 xanh. Chiều đỏ trước vòng: bản base cho hồ sơ nghỉ hoi=«veto hay để yên».
+    paths: [scripts/gate-card.js, tests/scripts/fixtures/routing-baseline.txt, tests/scripts/hskt.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.hskt_bo_do
+    expected: >
+      Exit 0: ntr-trang-thai.test.mjs có PASS NS-AC9-moi, NS-AC9-cu, NS-AC9-sai; lan-status-not-run
+      .test.mjs có dòng «✓ L05» (khuôn in của tệp ca ấy); hskt.test.mjs có PASS HK-AC7-dot-bien — bản sao hai tệp ca gỡ bộ lọc
+      khép → NS-AC9-cu đỏ «bo quet … khac ban truoc vong», L05 đỏ «bản sao TRƯỚC khi tiêm đã có hồ
+      sơ đỏ» (thông điệp cũ của ca). Tiền đề: cây có release-2-0-0 ở da-cham-boi-thuc-te (commit
+      observed đã gộp vào nhánh).
+    paths: [tests/scripts/ntr-trang-thai.test.mjs, tests/scripts/lan-status-not-run.test.mjs, tests/scripts/hskt.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.hskt
+    expected: >
+      Exit 0, có dòng PASS của HK-AC8-ben-goi và HK-AC8-dot-bien. Danh sách bên gọi rút bằng grep
+      `xanhSach|khongCanNguoi` trên scripts/ (trừ chính khong-can-nguoi.mjs), rút rỗng → đỏ. Trên
+      fixture hàng 1 của AC-4: start-scan không xếp hồ sơ vào may-di-tiep-*; product-map không
+      xếp vào ô máy-thông; `khong-can-nguoi.mjs --check` thoát 2 với «chưa người định tuyến»;
+      gate-card như HK-AC4-the. Số assert = số bên gọi rút được. HK-AC8-dot-bien: với MỖI bên gọi,
+      bản sao bỏ truyền findings/sổ → ca đỏ gọi tên bên gọi ấy.
+    paths: [scripts/start-scan.mjs, scripts/product-map.mjs, scripts/khong-can-nguoi.mjs, scripts/gate-card.js, scripts/trang-thai-ho-so.cjs, tests/scripts/hskt.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.hskt
+    expected: >
+      Exit 0, có dòng PASS của HK-AC9-vang, HK-AC9-thieu, HK-AC9-dot-bien. Kho fixture bốn hồ sơ
+      cùng review-findings (1 mục): thực tế đủ vế · thực tế VẮNG dòng quan sát · thực tế dòng thiếu
+      build_sha · sống. gate-card --extract: hai hồ sơ thực tế lỗi → routing.hoi chứa «ký hay trả»,
+      HTML không có «không còn câu hỏi nào cho người»; đối chứng cùng kho — thực tế đủ vế → hoi rỗng.
+      HK-AC9-dot-bien: bản sao gate-card.js đổi vế thực tế của DA_KHEP về «scanState ===
+      'da-cham-thuc-te'» → HK-AC9-thieu đỏ gọi tên hồ sơ thiếu vế. Chiều đỏ trước vòng: HEAD round 2
+      cho hai hồ sơ lỗi hoi = [].
+    paths: [scripts/gate-card.js, scripts/start-scan.mjs, tests/scripts/hskt.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

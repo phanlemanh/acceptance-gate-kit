@@ -263,10 +263,10 @@ if (want('RT1')) {
     // «có mục UNCERTAIN»; đó là cách chứng minh vị trí khối có thật sự quan trọng.
     const cSach = contractText('zz', { status: 'machine-cleared', tier: 'T2', veto: 'mo', opened: '2026-08-23T00:00:00Z' });
     const eSach = evidenceText('zz', { verdict: 'PASS', signoff: '', sach: 'sach' });
-    const r1 = XS.xanhSach(cSach, eSach);
+    const r1 = XS.xanhSach(cSach, eSach, { findings: null, ledger: null });
     if (!r1.clean) errs.push(`báo cáo dựng từ khuôn KHÔNG sạch: ${r1.why} — làn máy-thông không ghi được`);
     const khoi = tplRaw.match(/<!-- <<<EVIDENCE-XANH-SACH-BLOCK -->[\s\S]*?<!-- EVIDENCE-XANH-SACH-BLOCK>>> -->/)[0];
-    const r2 = XS.xanhSach(cSach, eSach + '\n' + khoi + '\n');
+    const r2 = XS.xanhSach(cSach, eSach + '\n' + khoi + '\n', { findings: null, ledger: null });
     if (r2.clean) errs.push('chiều đỏ: chèn khối xanh-sạch vào báo cáo mà vị từ vẫn nói sạch — vị trí khối không được đo');
     else if (!/UNCERTAIN/.test(r2.why)) errs.push(`chiều đỏ: đỏ vì «${r2.why}», mong «có mục UNCERTAIN»`);
   }

@@ -31,7 +31,7 @@
 const fs = require('fs');
 const path = require('path');
 const gapProbe = require('../lib/gap-probe.cjs');
-const outOfContract = require('../lib/out-of-contract.js');
+const outOfContract = require('../lib/out-of-contract.cjs');
 const evidenceCore = require('../lib/evidence-core.cjs');
 // Ranh giới section: luật PER-SECTION nằm ở bảng marker trong lib/md-section.cjs
 // (Findings=any-heading chặn hàng ma; văn xuôi=same-or-higher giữ AC sau sub-heading).
@@ -1005,8 +1005,17 @@ if (decsProvisional.length) { oneParts.push('Treo: phê hết'); routingBao.push
 // không có việc — hai mặt đọc của CÙNG một thẻ khai khác nhau về số việc của
 // người, đúng lớp hai-nguồn-cho-một-luật (S4-r2).
 const cm = chotMay(dir);
-const oneShotG2 = approvable ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
+// Hồ sơ ĐÃ KHÉP (nghỉ · chấm bởi thực tế — khoá đầu ra của bộ quét, KHÔNG tự đọc sổ): không còn
+// câu hỏi nào cho người, kể cả «veto hay để yên» (ho-so-khep-thoi-hoi AC-6). Mục Ngoài-N vẫn
+// hiện ở khối riêng làm sử liệu; dòng BÁO giữ nguyên.
+// Vế thực tế hỏi KHOÁ đầu ra `thucTe` của bộ quét — khác null CHỈ khi dòng quan sát đủ vế (vị từ
+// hoSoDaKhep, AC-1). Suy từ tên ô `da-cham-thuc-te` là sai: bộ quét xếp MỌI hồ sơ status ấy vào ô
+// đó, kể cả khi dòng vắng/thiếu vế (Ngoài-5/7 lượt chấm 2 — thẻ giấu câu hỏi, lưới vẫn chặn).
+const DA_KHEP = !!NGHI || !!(scanHit && scanHit.thucTe);
+const DA_KHEP_VI = NGHI ? 'đã nghỉ' : 'đã chấm bởi thực tế';
+const oneShotG2 = approvable && !DA_KHEP ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
 if (!approvable) { routingHoi.length = 0; routingBao.length = 0; }
+if (DA_KHEP) routingHoi.length = 0;
 
 // ── Dòng đếm vật · thước · nhát (thuoc-co-cua AC-13): dòng `kind: thuoc-vat` CUỐI CÙNG của
 // run-log, do feature-loop/scripts/thuoc-vat.mjs --write ghi sau mỗi lượt chấm. Dòng BÁO, không
@@ -1217,7 +1226,9 @@ P.push(`</details>`);
 // — tức viết sẵn câu TRẢ LỜI của người tại cổng, vòng qua chính khoá ADR 0002.
 // Mã trong câu mẫu phải là mã THÔ (esc một lần lúc render, không esc hai lần),
 // nếu không người dán lại một chuỗi entity HTML không khớp mã họ thấy. ----
-{
+if (DA_KHEP) {
+  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Hồ sơ đã khép (${DA_KHEP_VI}) — không còn câu hỏi nào cho người.</b> Mục ngoài hợp đồng ở trên giữ làm sử liệu; mở lại hồ sơ là một quyết định riêng.</p></div>`);
+} else {
   const ymItems = []; const ymSlots = [];
   ooc.findings.forEach((f, fi) => {
     const lbl = 'Ngoài-' + (fi + 1);
@@ -1246,7 +1257,9 @@ P.push(`</details>`);
   }
   P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «${esc(ymSlots.join('; '))}»</p></div>${oneShotG2 ? `<div class="mach">Dòng lệnh đã điền sẵn khuyến nghị — sửa ô nào anh nghĩ khác: <b>${esc(oneShotG2)}</b></div>` : ''}`);
 }
-P.push(MAY_DI_TIEP
+P.push(DA_KHEP
+  ? `<div class="foot"><span class="rev">↻ Hồ sơ đã khép — mở lại bằng một dòng sổ có người và lý do.</span></div></div>`
+  : MAY_DI_TIEP
   ? `<div class="foot"><span class="rev">↻ ${esc(chuMDT().viecKe)}</span><div class="btns"><button class="b no">Veto</button></div></div>
 </div></div>`
   : `<div class="foot"><span class="rev">↻ Đảo ngược dễ: trả lại → quay về code, không mất gì.</span><div class="btns"><button class="b no">Trả lại</button><button class="b yes">Ký duyệt</button></div></div>
