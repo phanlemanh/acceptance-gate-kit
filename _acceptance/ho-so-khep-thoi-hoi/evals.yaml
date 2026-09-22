@@ -106,7 +106,7 @@ evals:
     cmd: config:executors.script.hskt_bo_do
     expected: >
       Exit 0: ntr-trang-thai.test.mjs có PASS NS-AC9-moi, NS-AC9-cu, NS-AC9-sai; lan-status-not-run
-      .test.mjs có PASS L05; hskt.test.mjs có PASS HK-AC7-dot-bien — bản sao hai tệp ca gỡ bộ lọc
+      .test.mjs có dòng «✓ L05» (khuôn in của tệp ca ấy); hskt.test.mjs có PASS HK-AC7-dot-bien — bản sao hai tệp ca gỡ bộ lọc
       khép → NS-AC9-cu đỏ «bo quet … khac ban truoc vong», L05 đỏ «bản sao TRƯỚC khi tiêm đã có hồ
       sơ đỏ» (thông điệp cũ của ca). Tiền đề: cây có release-2-0-0 ở da-cham-boi-thuc-te (commit
       observed đã gộp vào nhánh).
