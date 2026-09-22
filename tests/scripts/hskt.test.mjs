@@ -259,6 +259,10 @@ if (want('HK-AC4-bash')) {
       if (o.status == null || o.status === 2) sai.push(`${ten}: luoi exit ${o.status}`);
       else if (sach && (chan || !noteV)) sai.push(`${ten}: ky vong NOTE lan V, nhan chan=${chan} note=${noteV} — ${out.split('\n').filter(l => l.includes(slug)).slice(0, 2).join(' | ')}`);
       else if (!sach && !chan) sai.push(`${ten}: ky vong VIOLATION, luoi khong chan`);
+      // Dòng NOTE xanh-sạch đọc TỪ kết quả vị từ: mục đã định tuyến thì in số mục, không gọi «rỗng».
+      const note = out.split('\n').find(l => l.startsWith(`NOTE [${slug}]: xanh-sạch`)) || '';
+      if (ten === 'quyet-du-khoang' && (!note.includes('Ngoài hợp đồng: 2 mục, đã người định tuyến qua sổ') || note.includes('Ngoài hợp đồng rỗng'))) sai.push(`${ten}: NOTE «${note}»`);
+      if (ten === 'khong-muc' && !note.includes('Ngoài hợp đồng rỗng')) sai.push(`${ten}: NOTE «${note}»`);
       // Đẳng thức với bộ quét (bản dựng mjs): hồ sơ lưới chặn thì bộ quét KHÔNG xếp «máy đi tiếp».
       const j = quet(R); const d = (j.groups.done || []).find(x => x.slug === slug);
       if (chan === !!d) sai.push(`${ten}: lech hai ban dung — luoi ${chan ? 'chan' : 'qua'}, bo quet ${d ? d.stateKey : 'khong o done'}`);
