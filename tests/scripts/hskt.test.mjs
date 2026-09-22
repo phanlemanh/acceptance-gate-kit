@@ -427,7 +427,19 @@ if (want('HK-AC5-im')) {
 }
 if (want('HK-AC5-note')) {
   try {
-    const tenNote = may => (dongVeto(KIT, may).split(':').slice(2).join(':').trim().split(/\s+/).filter(Boolean));
+    // Dòng NOTE cửa veto chỉ phụ thuộc hồ sơ mang `veto_state: mo` — chạy lưới trên bản sao CHỈ gồm
+    // các hồ sơ ấy (rút bằng đúng khoá lưới đọc) thay vì trọn cây: cùng đầu ra, 50s → vài giây, để
+    // suite scripts còn dưới trần 600s của công cụ (S4 round 1 BLOCKED vì trần đó).
+    const kho = khoMoi();
+    for (const e of readdirSync(path.join(KIT, '_acceptance'), { withFileTypes: true })) {
+      if (!e.isDirectory()) continue;
+      const c = path.join(KIT, '_acceptance', e.name, 'contract.md');
+      if (existsSync(c) && /^veto_state:[ \t]*mo\b/m.test(readFileSync(c, 'utf8')))
+        cpSync(path.join(KIT, '_acceptance', e.name), path.join(kho, '_acceptance', e.name), { recursive: true });
+    }
+    const soMo = readdirSync(path.join(kho, '_acceptance')).filter(x => x !== 'config.yaml').length;
+    if (soMo < 3) throw new Error(`ban sao chi co ${soMo} ho so veto mo — phep rut hong`);
+    const tenNote = may => (dongVeto(kho, may).split(':').slice(2).join(':').trim().split(/\s+/).filter(Boolean));
     const khep = new Set(WR.slugDaKhep(KIT));
     const h = tenNote(KIT), b = tenNote(banBase());
     const giao = h.filter(x => khep.has(x));
