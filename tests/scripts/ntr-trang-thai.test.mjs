@@ -1,8 +1,14 @@
 // ntr-trang-thai.test.mjs — hồ sơ nhan-trang-thai-va-reality, AC-9 (E9): trạng thái thứ bảy
 // `da-cham-boi-thuc-te` ở các bộ đọc (lib · bộ quét xưởng · bản đồ sản phẩm) + đường đọc-cũ.
-// NS-AC9-cu so bộ quét và bản đồ của HEAD với bản «trước vòng» trên CÂY THẬT của kit (mọi hồ sơ
-// hiện có). Bản trước vòng = `git archive` TRỌN scripts lib skills ở cha của commit đầu đưa
-// chuỗi `da-cham-boi-thuc-te` vào lib/workspace-record.cjs — sha là đầu ra lệnh.
+// NS-AC9-cu so bộ quét và bản đồ của bản «SAU vòng» với bản «trước vòng» trên CÂY THẬT của kit.
+// Bản trước vòng = `git archive` TRỌN scripts lib skills ở cha của commit đầu đưa chuỗi
+// `da-cham-boi-thuc-te` vào lib/workspace-record.cjs. Bản SAU vòng = `verified_commit` mà báo cáo
+// của hồ sơ nhan-trang-thai-va-reality mang lúc CHỮ KÝ được ghi (mã chữ ký chứng) — KHÔNG phải HEAD:
+// lời hứa của ca là về DELTA của vòng ấy, và mọi vòng sau đổi bộ quét hợp lệ (vd ho-so-khep-thoi-hoi
+// cộng khoá vetoOpen[].daKhep) sẽ làm phép so với HEAD đỏ oan. Cả hai sha là đầu ra lệnh.
+// Dữ liệu = bản sao cây thật ĐÃ LOẠI hồ sơ khép theo vị từ hoSoDaKhep (không theo danh sách tên):
+// bản trước vòng không biết trạng thái thứ bảy, nên hồ sơ thực tế thật đầu tiên (release-2-0-0,
+// 22/09) là khác biệt ĐÚNG THIẾT KẾ, không phải hồi quy (hồ sơ ho-so-khep-thoi-hoi AC-7).
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, cpSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -69,19 +75,29 @@ if (want('NS-AC9-cu')) {
     if (!shas.length) throw new Error('khong tim thay commit dua da-cham-boi-thuc-te vao lib/workspace-record.cjs');
     const cu = mkdtempSync(path.join(TMP, 'cu-'));
     execFileSync('tar', ['-x', '-C', cu], { input: execFileSync('git', ['-C', KIT, 'archive', `${shas[0]}^`, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
-    // Dữ liệu: bản sao cây thật của kit (mọi hồ sơ hiện có), một chỗ cho cả hai bản code.
+    // Bản SAU vòng: verified_commit của báo cáo ở lần đầu tiên chữ ký người được ghi.
+    const RPT = '_acceptance/nhan-trang-thai-va-reality/evidence-report.md';
+    const kyC = git(KIT, 'log', '--reverse', '--format=%H', '-G', '^human_signoff:[[:space:]]*[^[:space:]]', '--', RPT).split('\n')[0];
+    if (!kyC) throw new Error('khong tim thay lan ghi chu ky cua nhan-trang-thai-va-reality');
+    const sauSha = (/^verified_commit:[ \t]*([0-9a-f]{40})/m.exec(git(KIT, 'show', `${kyC}:${RPT}`)) || [])[1];
+    if (!sauSha) throw new Error(`bao cao o ${kyC.slice(0, 8)} khong mang verified_commit`);
+    const sau = mkdtempSync(path.join(TMP, 'sau-'));
+    execFileSync('tar', ['-x', '-C', sau], { input: execFileSync('git', ['-C', KIT, 'archive', sauSha, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
+    // Dữ liệu: bản sao cây thật của kit, LOẠI hồ sơ khép theo vị từ — một chỗ cho cả hai bản code.
     const du = mkdtempSync(path.join(TMP, 'du-'));
     cpSync(path.join(KIT, '_acceptance'), path.join(du, '_acceptance'), { recursive: true });
     if (!readFileSync(path.join(du, '_acceptance', 'config.yaml'), 'utf8')) throw new Error('ban sao cay that rong');
+    const khep = WR.slugDaKhep(du);
+    for (const k of khep) rmSync(path.join(du, '_acceptance', k), { recursive: true, force: true });
     const bo = j => JSON.stringify(j, (k, v) => (k === 'since' || k === 'ageDays' ? undefined : v));
-    const a = bo(quet(du)); const b = bo(quet(du, cu));
-    const { renderProductMap: rMoi } = await import(pathToFileURL(path.join(KIT, 'scripts', 'product-map.mjs')).href);
+    const a = bo(quet(du, sau)); const b = bo(quet(du, cu));
+    const { renderProductMap: rMoi } = await import(pathToFileURL(path.join(sau, 'scripts', 'product-map.mjs')).href);
     const { renderProductMap: rCu } = await import(pathToFileURL(path.join(cu, 'scripts', 'product-map.mjs')).href);
     const soHoSo = (JSON.parse(a).groups ? Object.values(JSON.parse(a).groups).flat().length : 0);
     if (soHoSo < 50) bad('NS-AC9-cu', `doi chung: cay that chi co ${soHoSo} ho so — ban sao hong?`);
-    else if (a !== b) bad('NS-AC9-cu', 'bo quet HEAD khac ban truoc vong tren cay that');
-    else if (rMoi(du) !== rCu(du)) bad('NS-AC9-cu', 'ban do HEAD khac ban truoc vong tren cay that');
-    else ok('NS-AC9-cu', `— ${soHoSo} hồ sơ thật: bộ quét và bản đồ của HEAD bằng bản trước vòng (${shas[0].slice(0, 8)}^)`);
+    else if (a !== b) bad('NS-AC9-cu', 'bo quet ban sau vong khac ban truoc vong tren cay that');
+    else if (rMoi(du) !== rCu(du)) bad('NS-AC9-cu', 'ban do ban sau vong khac ban truoc vong tren cay that');
+    else ok('NS-AC9-cu', `— ${soHoSo} hồ sơ thật (loại ${khep.length} khép theo vị từ): bộ quét và bản đồ bản sau vòng (${sauSha.slice(0, 8)}) bằng bản trước vòng (${shas[0].slice(0, 8)}^)`);
   } catch (e) { bad('NS-AC9-cu', loi(e)); }
 }
 

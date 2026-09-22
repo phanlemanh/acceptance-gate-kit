@@ -342,6 +342,36 @@ if (want('HK-AC6-baseline')) {
   } catch (e) { bad('HK-AC6-baseline', loi(e)); }
 }
 
+// ── AC-7: hai bộ đo đổi khuôn — gỡ bộ lọc khép khỏi BẢN SAO tệp ca → đỏ đúng thông điệp ─────────
+// Bản sao nằm CẠNH tệp gốc (cùng thư mục, đuôi không phải .test.mjs nên suite không nhặt) để
+// KIT/SELF_ROOT của nó suy ra đúng kho này; xoá ngay sau lượt chạy.
+function chayBanSaoCa(ten, neo, env) {
+  const goc = path.join(HERE, ten); const src = readFileSync(goc, 'utf8');
+  const n = src.split(neo).length - 1;
+  if (n !== 1) throw new Error(`neo mutant khop ${n} lan trong ${ten}`);
+  const sao = path.join(HERE, `.hskt-mutant-${process.pid}-${ten.replace('.test.mjs', '.mjs')}`);
+  writeFileSync(sao, src.replace(neo, ''));
+  try { return spawnSync(process.execPath, [sao], { encoding: 'utf8', env: { ...process.env, ...env }, maxBuffer: 64 * 1024 * 1024 }); }
+  finally { rmSync(sao, { force: true }); }
+}
+if (want('HK-AC7-dot-bien')) {
+  try {
+    const sai = [];
+    const a = chayBanSaoCa('ntr-trang-thai.test.mjs',
+      "    for (const k of khep) rmSync(path.join(du, '_acceptance', k), { recursive: true, force: true });\n",
+      { NTR_CASES: 'NS-AC9-cu' });
+    const outA = (a.stdout || '') + (a.stderr || '');
+    if (a.status === 0 || !/FAIL: NS-AC9-cu — (bo quet|ban do) ban sau vong khac ban truoc vong/.test(outA)) sai.push(`NS-AC9-cu mutant: exit ${a.status}, «${outA.split('\n').find(l => l.includes('NS-AC9-cu')) || ''}»`);
+    const b = chayBanSaoCa('lan-status-not-run.test.mjs',
+      "  for (const k of require(path.join(SELF_ROOT, 'lib', 'workspace-record.cjs')).slugDaKhep(corpusSaoCha))\n    fs.rmSync(path.join(corpusSao, k), { recursive: true, force: true });\n",
+      { LSNR_CASES: 'L05' });
+    const outB = (b.stdout || '') + (b.stderr || '');
+    if (b.status === 0 || !/bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ \(release-2-0-0\)/.test(outB)) sai.push(`L05 mutant: exit ${b.status}, «${outB.split('\n').filter(l => l.includes('L05')).slice(-1)[0] || ''}»`);
+    if (sai.length) bad('HK-AC7-dot-bien', sai.join(' ; '));
+    else ok('HK-AC7-dot-bien', '— gỡ bộ lọc khép: NS-AC9-cu đỏ «… bản sau vòng khác bản trước vòng», L05 đỏ «bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ (release-2-0-0)»');
+  } catch (e) { bad('HK-AC7-dot-bien', loi(e)); }
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (hskt)`);
 process.exit(fail ? 1 : 0);
