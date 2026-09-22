@@ -180,6 +180,12 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   mới — ở hồ sơ làn V là fail-open; nghiệm: nhãn rút từ nội dung mục.
 - `docs/plans/2026-09-22-hat-giong-co-qua-timebox-ba-muc-ngoai-hop-dong.md` — ba mục «mở hợp đồng
   mới» của `co-qua-timebox-nhom-da-xong` (executor itgk_lane_doc_khong_doi · ngân sách 3/4/1).
+- `docs/plans/2026-09-22-hat-giong-suite-scripts-qua-tran-cong-cu.md` — suite scripts 601 s trên cây mốc
+  2.18.1, qua trần 600 s của công cụ; round 1 `ho-so-khep-thoi-hoi` BLOCKED vì hạ tầng — việc đầu cửa sổ kế.
+- `docs/plans/2026-09-22-hat-giong-ca-do-neo-ref-tuong-doi-chet-khi-gop.md` — `main` đỏ hậu-gộp 2/2 mốc
+  (LM20 sau nghỉ · HK-AC5-note merge-base): ca đo neo ref tương đối chết khi gộp; neo = sha rút bằng lệnh.
+- `docs/plans/2026-09-22-hat-giong-audit-s4-bon-diem-nguoc-north-star.md` — audit 22/09: Treo «phê hết»
+  4/4 · bỏ design-pass bằng lời 6/6 · ý định 4/8 · chiều đỏ ở làn baseline, không ở lịch sử commit crm.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
