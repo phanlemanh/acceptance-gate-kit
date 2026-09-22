@@ -35,13 +35,18 @@ hạt giống, KHÔNG mở ô. Người: owner ký hai verdict (2 chạm) và đ
 | crm | `noi-bon-nut-dieu-phoi` | T2 | ký, PR #71 | như trên |
 | crm | `khai-lang-gioi-thieu` | vòng nhỏ đầu tiên: 3 cổng + 1 P0, 1 lượt chấm, 0 bàn đo | ký, PR #72, `observed` | như trên |
 | crm | `sua-luu-tru-dieu-phoi` | T3, ký → lưới đòi E29 → chấm lại → ký lại | PR #74 | như trên |
-| crm | `khuon-mat-bo-phan` | T2/T3, đang chạy 22/09 | (đóng nếu kịp) | như trên |
+| crm | `khuon-mat-bo-phan` | T2 làn V, 1 lượt chấm | machine-cleared, PR #75 | như trên |
+| crm | `chi-quan-tri-sua-duoc-truong` | T3, S1 → ký ≈ 90 phút, 3 lượt gọi người | ký, PR #76 | như trên |
+| crm | `ke-hoach-la-mot-ban-ghi` | T3 (vòng kéo UX màn điều phối về khuôn chung — hệ quả của bỏ design-pass), 20/20 lượt đầu | ký, PR #77; uat-session HOÃN sang lượt 2 | như trên |
+| crm | `moi-phia-deu-thay-ke-hoach` (lượt 2) | T3, có bản bấm được 13 trạng thái (S1-D chạy thật) | (đang S3 22/09) | như trên |
 | crm | 3 hồ sơ cũ đóng bằng `observed` (`cua-vao-noi-tieng-viet`, `tieng-viet-cho-crm`, `nhan-ung-dung-noi-tieng-viet`) | reality đóng | PR #70 | `decisions.jsonl` dòng `thuc-te` |
 | crm | **đối chứng** `thuoc-khai-dung-tieng` (9 lượt) · `ho-so-khai-dung-tieng` (4 lượt, REJECT) | cách cũ | tháp 57 : 1 | như trên |
 | kit | `nhan-trang-thai-va-reality` | T3, vòng meta duy nhất cửa sổ 2.17→2.18 | ký, PR #194 | như trên + `wf-usage` |
 | kit | `release-2-18-0` · chiến dịch ghim lại 65 + nghỉ 15 | làn V | #195, #196 | hồ sơ mốc, `docs/findings/2026-09-22-chien-dich-ghim-lai-2-18-0.md` |
-| kit | `ho-so-khep-thoi-hoi` | T3, vòng meta duy nhất cửa sổ 2.18→2.18.1 | (ký) | như trên |
-| kit | `release-2-18-1` | làn V | (cắt) | hồ sơ mốc |
+| kit | `ho-so-khep-thoi-hoi` | T3, 4 lượt gọi người (trả lại 1 lần → nâng phạm vi), 3 lượt chấm (BLOCKED hạ tầng · PASS · PASS) | ký `28809024`, PR #202 | như trên + `wf-usage` (1,47 M · 1,25 M · 1,34 M) |
+| kit | `release-2-18-1` | làn V, 1 lượt gọi người, 4 Known limits (suite 601 s) | #204 `ccabea22` | hồ sơ mốc: 5 dòng số + M3 `0 / 8` |
+| kit | sự cố `main` đỏ hậu-gộp ×2 (#196 LM20 · #202→#203 merge-base) | — | vá trong ngày | hạt giống `ca-do-neo-ref-tuong-doi` |
+| kit | audit S4 22/09 (`docs/findings/2026-09-22-audit-s4-cach-moi-thong-le-co-bi-bo-qua.md`, #201) | đầu vào §5 câu 2, 6 | — | hạt giống `audit-s4-bon-diem` |
 | kit | `release-2-0-0` | đóng bằng `observed` (PR #199 → qua vòng) | reality | `decisions.jsonl` |
 
 Transcript phiên (đếm lượt gọi người và chạm): `~/.claude/projects/-Users-manh-macmini-dev-crm-.claude-worktrees-zen-brattain-ac74d0/*.jsonl`
