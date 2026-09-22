@@ -330,7 +330,8 @@ date_parseable() { # <chuỗi>
 # Đặt CLEAN_WHY khi không sạch; trả 0 = sạch, 1 = không.
 xanh_sach_check() { # <report path>
   local report="$1" clean_ok=1 clean_why="" _cdir _tier _sec _body _v _bp _ack
-  CLEAN_WHY=""; CLEAN_OOC_DINH_TUYEN=0
+  CLEAN_WHY=""
+  CLEAN_OOC_DINH_TUYEN=0
   [ -f "$report" ] || { CLEAN_WHY="không có evidence-report.md"; return 1; }
   # SÁU điều kiện, khai đủ ở ĐÂY (không dựa vào chốt nào chạy trước): hai chỗ
   # gọi hàm này đứng ở hai vị trí khác nhau trong luồng, nên hàm phải tự đủ.
@@ -1200,8 +1201,12 @@ XLACS
       # provenance commit chữ ký) đều nói về một chuỗi không tồn tại ở đây.
       # Vế «Ngoài hợp đồng» đọc TỪ kết quả vị từ, không khẳng định cố định (ho-so-khep-thoi-hoi AC-4):
       # mục đã có dòng sổ gate2 của người thì nói ra số mục, không gọi là «rỗng» (crm khuon-mat-bo-phan).
-      if [ "${CLEAN_OOC_DINH_TUYEN:-0}" -gt 0 ] 2>/dev/null; then _nhd="Ngoài hợp đồng: ${CLEAN_OOC_DINH_TUYEN} mục, đã người định tuyến qua sổ"; else _nhd="Ngoài hợp đồng rỗng"; fi
-      echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · $_nhd · hạng T2). Cửa veto vẫn mở."
+      # Dòng cũ giữ NGUYÊN VĂN ở nhánh else — luật chỉ-thêm DV5.
+      if [ "${CLEAN_OOC_DINH_TUYEN:-0}" -gt 0 ] 2>/dev/null; then
+      echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · Ngoài hợp đồng: ${CLEAN_OOC_DINH_TUYEN} mục, đã người định tuyến qua sổ · hạng T2). Cửa veto vẫn mở."
+      else
+      echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · Ngoài hợp đồng rỗng · hạng T2). Cửa veto vẫn mở."
+      fi
       # DLPS-LAN-V-MOT-DUONG (duong-lui-phai-song, đổi khuôn — owner 08/09/2026): KHÔNG `continue`.
       # Làn V rơi xuống CÙNG chuỗi kiểm với hồ sơ có chữ ký — hoá cũ · pin ma · re-pin
       # provenance · làn eval · soi lại — đúng chữ «soi MỌI hồ sơ ở MỌI lượt» (ADR 0014).
