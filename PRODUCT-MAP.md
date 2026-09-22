@@ -9,7 +9,7 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>25 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>71 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>9 việc"] --> GG{"Cổng Giá trị"}
@@ -39,6 +39,10 @@ flowchart TD
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
+
+## Chờ duyệt phạm vi
+
+- Phát hành kit 2.18.1 — đóng số cho cửa sổ 2.18.0 → 2.18.1 (một vòng chạm engine đã ký «ho-so-khep-thoi-hoi»), để kho crm — nơi mọi lỗ của bản này lộ ra trong ngày cài 2.18.0 — nhận engine theo mốc có chủ đích; làn V, không dựng răng (`release-2-18-1`)
 
 ## Đang làm
 
