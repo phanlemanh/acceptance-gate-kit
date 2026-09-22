@@ -417,6 +417,7 @@ executors:
     hskt_bo_do: "bash -c 'out=$({ node tests/scripts/ntr-trang-thai.test.mjs && node tests/scripts/lan-status-not-run.test.mjs && node tests/scripts/hskt.test.mjs HK-AC7-dot-bien; } 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NS-AC9-moi NS-AC9-cu NS-AC9-sai HK-AC7-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done; printf \"%s\\n\" \"$out\" | grep -qF \"✓ L05 \" || exit 1'"
     rel217_cua_so: bash scripts/rel-cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat
     rel218_cua_so: bash scripts/rel-cua-so.sh 2826f807 ghim-lai-noi-ra-o-khong-do nhan-trang-thai-va-reality
+    rel2181_cua_so: bash scripts/rel-cua-so.sh 41b949de ho-so-khep-thoi-hoi
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

@@ -10,6 +10,33 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.18.1 — 22/09/2026
+
+Cửa sổ 2.18.0 → 2.18.1 kéo **một ngày**, có **một vòng** chạm engine do owner gọi tên:
+`ho-so-khep-thoi-hoi` (T3, ký 22/09). Mọi lỗ vá ở đây lộ ra trong đúng ngày `crm` cài 2.18.0 —
+kho chờ nhận của mốc này vẫn là `crm`. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên
+`2.18.1`; `diagram-design` giữ `2.7.0`.
+
+**Đổi gì:**
+
+- **Hồ sơ đã khép thôi bị đếm là «cửa veto đang mở».** Hồ sơ đã nghỉ, hoặc đã chấm bởi thực tế
+  với dòng quan sát đủ vế, không còn hiện trong dòng NOTE của lưới trước-merge lẫn thẻ mở phiên.
+  Cả hai hỏi CHUNG một vị từ `hoSoDaKhep`.
+- **Thẻ của hồ sơ đã khép không còn ô hỏi nào.** Trước bản này, 15 hồ sơ nghỉ vẫn mang câu «veto
+  hay để yên». Hồ sơ thực tế thiếu dòng quan sát KHÔNG được gọi là khép — thẻ vẫn hỏi «ký hay trả».
+- **Làn máy-đi-trước đọc cả tệp phát hiện.** Báo cáo để trống «Ngoài hợp đồng» mà
+  `review-findings.md` còn mục chưa ai quyết thì hồ sơ không còn là xanh-sạch. Mục đã có dòng sổ
+  gate2 của người («Ngoài-N») thì coi là đã định tuyến, không bắt ký lại.
+- **Lớp CI vendored lên 15 tệp**, tính bằng bao đóng nạp của ba lệnh CI. `crm` từng đỏ CI ngày
+  cài vì thiếu `product-map.mjs` và `trang-thai-ho-so.cjs`.
+
+**Kho tiêu thụ phải làm khi cài:** chép thêm năm tệp (danh sách ở GUIDE §5.3) và **xoá**
+`lib/out-of-contract.js` — tệp đổi tên thành `lib/out-of-contract.cjs`.
+
+**Giới hạn đã khai:** nhãn «Ngoài-N» là vị trí mục trong tệp phát hiện, nên một lượt chấm mới có
+thể làm dòng sổ cũ trỏ nhầm mục (hạt giống `docs/plans/2026-09-22-hat-giong-nhan-ngoai-n-neo-theo-noi-dung.md`);
+mutant 2 trong bộ đo của hồ sơ đã ký `lan-v-khong-phai-cho-ky` hỏng vì chữ ký hàm mới.
+
 ## 2.18.0 — 21/09/2026
 
 Cửa sổ 2.17 → 2.18 kéo **hai ngày**, có **hai vòng** chạm engine, cả hai do owner gọi tên:
