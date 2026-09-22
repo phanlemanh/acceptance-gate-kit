@@ -111,3 +111,7 @@ S1 rút thành AC Given/When/Then, mỗi AC một chiều đỏ:
 - Không đổi enum trạng thái, không thêm thao tác cổng người.
 - Rollout 2.18.1 ra kho khác ngoài crm — chiến dịch ghim lại theo release, cửa sổ kế.
 - Lỗ 2 của hạt giống (đã rút) — không tái mở nếu không có commit `observed` nào thiếu bản đồ.
+
+## Kết quả đo sau ship (Cổng Giá trị 2026-09-22)
+
+Verdict **iterate** — số cạnh ngưỡng ở `uat-session.md` cùng thư mục; bản tổng kết `docs/findings/2026-09-22-tong-ket-cach-moi-cua-so-2-18.md` §1.

@@ -119,3 +119,7 @@ Từ §3 kế hoạch điều phối — S1 rút thành AC Given/When/Then, mỗ
   ô** trong cửa sổ này.
 - Rollout 2.18.0 ra kho khác ngoài `crm` — chiến dịch re-pin theo release, cửa sổ kế.
 - Dựng bàn đo cho E9/E12 của `ho-so-khai-dung-tieng` — vật ở prod, đóng theo AC-3.
+
+## Kết quả đo sau ship (Cổng Giá trị 2026-09-22)
+
+Verdict **release** — số cạnh ngưỡng ở `uat-session.md` cùng thư mục; bản tổng kết `docs/findings/2026-09-22-tong-ket-cach-moi-cua-so-2-18.md` §1.
