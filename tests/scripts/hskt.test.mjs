@@ -334,6 +334,9 @@ if (want('HK-AC6-baseline')) {
       if (khep.has(slug)) { nKhep++; if (/\thoi=\t/.test(l + '\t') || /\thoi=(\t|$)/.test(l)) nRong++; else sai.push(`${slug} khép mà hoi khác rỗng: ${l}`); }
       if (cu.has(slug) && cu.get(slug) !== l && !khep.has(slug)) sai.push(`${slug} đổi dòng mà không khép`);
     }
+    // Tập khép rút trên cây thật phải ≥ 16 (15 nghỉ + release-2-0-0); bản ghi mốc chỉ ghim hồ sơ
+    // ĐÃ KÝ (LM20), nên release-2-0-0 (làn V, không chữ ký) đứng ngoài bản ghi — đúng thiết kế.
+    if (khep.size < 16) sai.push(`tập --da-khep chỉ ${khep.size} (kỳ vọng ≥ 16)`);
     if (nKhep < 15) sai.push(`chỉ ${nKhep} hồ sơ khép trong bản ghi mốc (kỳ vọng ≥ 15)`);
     if (sai.length) bad('HK-AC6-baseline', sai.join(' ; ')); else ok('HK-AC6-baseline', `— khép: ${nKhep} · hoi rỗng: ${nRong}; mọi dòng đổi đều là hồ sơ khép`);
   } catch (e) { bad('HK-AC6-baseline', loi(e)); }
