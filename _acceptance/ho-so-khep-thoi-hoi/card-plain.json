@@ -112,6 +112,66 @@
   {
    "id": "d-20260922T015738Z-8",
    "p": "Ba chỗ đo lệch nhỏ so với bản duyệt (dòng in của L05, ngưỡng 15 hồ sơ trong bản ghi mốc, dòng sổ fixture) — đo đúng đầu ra thật thay vì chữ khai."
+  },
+  {
+   "id": "d-20260922T052503Z-9",
+   "p": "Ngoài-1 cũ (ca HK-AC5-note chọn hồ sơ bằng mẫu chữ tự viết): ghi Known limits."
+  },
+  {
+   "id": "d-20260922T052503Z-10",
+   "p": "Ngoài-2 cũ (vế HEAD của HK-AC5-note thiếu đối chứng dương): ghi Known limits."
+  },
+  {
+   "id": "d-20260922T052503Z-11",
+   "p": "Ngoài-3 cũ (HK-AC5-note xanh khi lưới không in dòng NOTE): ghi Known limits."
+  },
+  {
+   "id": "d-20260922T052503Z-12",
+   "p": "Ngoài-4 cũ (bộ lọc chép hồ sơ viết lại bên đọc bằng tay): ghi Known limits."
+  },
+  {
+   "id": "d-20260922T052503Z-13",
+   "p": "Ngoài-5 cũ (thẻ gọi hồ sơ thực tế thiếu dòng quan sát là đã khép): anh chọn sửa ngay — đã sửa ở round 3."
+  },
+  {
+   "id": "d-20260922T052503Z-14",
+   "p": "Ngoài-6 cũ (khuôn báo cáo chưa khai vế mới của «Ngoài hợp đồng»): ghi Known limits."
+  },
+  {
+   "id": "d-20260922T052503Z-15",
+   "p": "Ngoài-7 cũ (cùng lỗi với Ngoài-5 cũ): anh chọn sửa ngay — đã sửa ở round 3."
+  },
+  {
+   "id": "d-20260922T052503Z-16",
+   "p": "Ngoài-8 cũ (mutant 2 của hồ sơ đã ký lan-v-khong-phai-cho-ky hỏng): ghi Known limits, xử ở chiến dịch mốc."
+  },
+  {
+   "id": "d-20260922T052503Z-17",
+   "p": "Ngoài-9 cũ (lỗi đọc tệp phát hiện hiếm gặp coi như tệp vắng): ghi Known limits."
+  },
+  {
+   "id": "d-20260922T052503Z-18",
+   "p": "Ngoài-10 cũ (NS-AC9-cu so hai bản đông lạnh): ghi Known limits."
+  },
+  {
+   "id": "d-20260922T052503Z-19",
+   "p": "Anh đồng ý giữ nguyên phạm vi đã cắt."
+  },
+  {
+   "id": "d-20260922T052503Z-20",
+   "p": "Anh phê hết các quyết định ghi sau Cổng 1 ở lượt trước."
+  },
+  {
+   "id": "d-20260922T052503Z-21",
+   "p": "Anh trả lại ở lượt trước để sửa Ngoài-5/7 ngay."
+  },
+  {
+   "id": "d-20260922T052612Z-22",
+   "p": "Ngoài-5/7 là sai hợp đồng theo AC-1 nên máy sửa ngay trong vòng (thêm ca E9 dưới AC-6), không quay Cổng 1 — tránh lượt gọi thứ 5."
+  },
+  {
+   "id": "d-20260922T061926Z-23",
+   "p": "Giới hạn «số thứ tự Ngoài-N là vị trí mục» đã xảy ra lần đầu trên chính hồ sơ này; hồ sơ T3 luôn cần chữ ký nên không ảnh hưởng, ghi vào hạt giống để neo nhãn theo nội dung mục."
   }
  ],
  "scope_plain": "Không đổi trạng thái, không thêm lệnh cổng người, không làm lại cách thẻ chọn câu hỏi; rollout ra kho khác ngoài crm để mốc sau.",
