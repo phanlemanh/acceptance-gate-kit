@@ -293,6 +293,17 @@ if (want('HK-AC4-dot-bien')) {
   } catch (e) { bad('HK-AC4-dot-bien', loi(e)); }
 }
 
+// Bản «trước vòng» neo vào MỐC CỐ ĐỊNH: cha của commit ĐẦU TIÊN đưa `hoSoDaKhep` vào lib (rút bằng
+// lệnh, không gõ tay sha). Bản đầu dùng `merge-base HEAD origin/main` — đúng khi vòng còn trên nhánh,
+// SAI ngay khi PR gộp: merge-base thành chính bản đã vá, đối chứng dương của HK-AC5-note đỏ trên
+// main và HK-AC5-im/HK-AC6-baseline xanh suông (lớp «mệnh đề không còn đúng sau khi gộp»).
+const BASE_SHA = (() => {
+  try {
+    const dau = git(KIT, 'log', '--reverse', '--format=%H', '-S', 'hoSoDaKhep', '--', 'lib/workspace-record.cjs').split('\n')[0];
+    return dau ? git(KIT, 'rev-parse', `${dau}^`) : null;
+  } catch { return null; }
+})();
+
 // ── AC-6: thẻ hồ sơ đã khép in 0 ô hỏi ─────────────────────────────────────────
 // Ba hồ sơ CÙNG tệp phát hiện (1 mục) và cùng báo cáo đã ký: nghỉ đủ vế · thực tế đủ vế · sống.
 const FINDINGS_1 = '# Review findings\n\n## Trong hợp đồng\n\n' + HEAD_OOC + mucOoc(1) + '\n';
@@ -330,7 +341,8 @@ if (want('HK-AC6-baseline')) {
     const REL = 'tests/scripts/fixtures/routing-baseline.txt';
     const dong = t => new Map(t.split('\n').filter(l => l && !l.startsWith('#')).map(l => [l.split('\t')[0], l]));
     const moi = dong(readFileSync(path.join(KIT, REL), 'utf8'));
-    const base = git(KIT, 'merge-base', 'HEAD', 'origin/main');
+    if (!BASE_SHA) throw new Error('khong rut duoc moc truoc vong');
+    const base = BASE_SHA;
     const cu = dong(git(KIT, 'show', `${base}:${REL}`));
     const khep = new Set(execFileSync(process.execPath, [path.join(KIT, 'lib', 'workspace-record.cjs'), '--da-khep', '--root', KIT], { encoding: 'utf8' }).split('\n').filter(Boolean));
     const sai = []; let nKhep = 0, nRong = 0;
@@ -381,9 +393,8 @@ if (want('HK-AC7-dot-bien')) {
 // (cây thật, chỉ đọc). Mỗi khác biệt phải giải thích được bằng vật: khép theo vị từ, hoặc có mục
 // ngoài hợp đồng chưa định tuyến trên hồ sơ chưa ký. Tập kỳ vọng rút từ vật, không danh sách tên.
 const OOC = require(path.join(KIT, 'lib', 'out-of-contract.cjs'));
-const BASE_SHA = (() => { try { return git(KIT, 'merge-base', 'HEAD', 'origin/main'); } catch { return null; } })();
 function banBase() {
-  if (!BASE_SHA) throw new Error('khong tinh duoc merge-base HEAD origin/main');
+  if (!BASE_SHA) throw new Error('khong rut duoc moc truoc vong (commit dau dua hoSoDaKhep vao lib)');
   const d = mkdtempSync(path.join(TMP, 'base-'));
   execFileSync('tar', ['-x', '-C', d], { input: execFileSync('git', ['-C', KIT, 'archive', BASE_SHA, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
   return d;
