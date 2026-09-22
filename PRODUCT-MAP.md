@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>25 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>71 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>72 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>9 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>1 việc"]
 ```
@@ -44,7 +44,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Phát hành kit 2.18.1 — đóng số cho cửa sổ 2.18.0 → 2.18.1 (một vòng chạm engine đã ký «ho-so-khep-thoi-hoi»), để kho crm — nơi mọi lỗ của bản này lộ ra trong ngày cài 2.18.0 — nhận engine theo mốc có chủ đích; làn V, không dựng răng (`release-2-18-1`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -108,6 +107,7 @@ flowchart TD
 - Phát hành kit 2.16.0 — cắt số cho hai gói kit sau cửa sổ một ngày có ĐÚNG MỘT vòng meta đã ký (thuoc-co-cua, T3), mang năm dòng số của vòng ấy đếm từ vật trong kho, và chạy chiến dịch ghim lại theo mốc mà hai cửa sổ trước đã hoãn (`release-2-16-0`) — đã giao — đã nghỉ, giữ sử liệu
 - Phát hành kit 2.17.0 — đóng số cho cửa sổ 2.16 → 2.17 (một vòng chạm engine đã ký «ho-so-nghi» + bản vá «nen-cong-cu-lenh-shell»), để ba kho tiêu thụ đang chờ nhận engine mới theo mốc có chủ đích; làn V, không dựng răng (`release-2-17-0`) — đã giao — đã nghỉ, giữ sử liệu
 - Phát hành kit 2.18.0 — đóng số cho cửa sổ 2.17 → 2.18 (hai vòng chạm engine đã ký «ghim-lai-noi-ra-o-khong-do» + «nhan-trang-thai-va-reality»), để kho crm — đang chờ đúng ba thứ bản này mang tới — nhận engine theo mốc có chủ đích; làn V, không dựng răng (`release-2-18-0`)
+- Phát hành kit 2.18.1 — đóng số cho cửa sổ 2.18.0 → 2.18.1 (một vòng chạm engine đã ký «ho-so-khep-thoi-hoi»), để kho crm — nơi mọi lỗ của bản này lộ ra trong ngày cài 2.18.0 — nhận engine theo mốc có chủ đích; làn V, không dựng răng (`release-2-18-1`)
 - Phát hành kit 2.2.0 — đóng số cho ba hồ sơ 17–18/08 (hình tại Cổng 1 · mối nối Vòng TRAO · siết răng câu-về-hình) để repo tiêu thụ nhận engine mới có chủ đích trước khi mở vòng r4 bước 1 (`release-2-2-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
