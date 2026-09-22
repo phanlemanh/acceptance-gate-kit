@@ -56,3 +56,9 @@ Bỏ coverage-scan — vòng vá một quan hệ trong một hàm, không gian A
 - `tests/plugins/ra-co-ten.test.mjs` và `scripts/start-scan.mjs` nằm trong `paths` của E13 hồ sơ ra-co-ten-lam-va-trao: hồ sơ ấy chạy lại ô đo ở lần re-pin sau merge.
 - Hệ quả phụ có chủ ý: mục `da-nghiem-thu-*` nay có thể mang `mien-do-co-nguoi-dung` khi điều kiện đúng — cùng khối tính với cổng Giá trị, đúng ý «cờ cắt ngang mọi ô».
 - Lỗi này chỉ hiện khi có hồ sơ thật vượt hạn, tức phép đo (iii) là «xanh-không-chạy» cho tới ngày 06/09; (iii-b) sinh ra để nó đỏ được ở mọi ngày.
+- **Known limits (owner quyết ở Cổng Phạm vi của vòng `ho-so-khep-thoi-hoi` 22/09, «theo đề xuất»):**
+  - Vế thứ ba của `cqt_o_khong_doi` không thể đỏ cho điều nó khai — `product-map.mjs --check` không bao giờ ghi bản đồ. Ngưỡng mở lại: bản đồ bị ghi sai đúng hướng đó mà ca vẫn xanh.
+  - Ghi chú hợp đồng nói mục `da-nghiem-thu-*` mang được `mien-do-co-nguoi-dung`, nhưng đường mã truyền `oTxt=null` sau phán quyết nên không bao giờ mang được. Ngưỡng mở lại: một mục đã nghiệm thu cần cờ ấy.
+  - Eval ghim chuỗi HẰNG trong câu PASS của RT13 thay vì kết quả ma trận. Ngưỡng mở lại: một ca bị bỏ khỏi ma trận mà ca vẫn xanh.
+  - Chấp nhận, không sửa: phép kiểm `"copy" in r_t` quét cả README.
+  - Mở hợp đồng mới (ghi hạt giống `docs/plans/2026-09-22-hat-giong-co-qua-timebox-ba-muc-ngoai-hop-dong.md`): Ngoài-1, Ngoài-4 (`itgk_lane_doc_khong_doi`), Ngoài-5 (ngân sách 3/4/1).
