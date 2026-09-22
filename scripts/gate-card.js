@@ -1008,7 +1008,10 @@ const cm = chotMay(dir);
 // Hồ sơ ĐÃ KHÉP (nghỉ · chấm bởi thực tế — khoá đầu ra của bộ quét, KHÔNG tự đọc sổ): không còn
 // câu hỏi nào cho người, kể cả «veto hay để yên» (ho-so-khep-thoi-hoi AC-6). Mục Ngoài-N vẫn
 // hiện ở khối riêng làm sử liệu; dòng BÁO giữ nguyên.
-const DA_KHEP = !!NGHI || scanState === 'da-cham-thuc-te';
+// Vế thực tế hỏi KHOÁ đầu ra `thucTe` của bộ quét — khác null CHỈ khi dòng quan sát đủ vế (vị từ
+// hoSoDaKhep, AC-1). Suy từ tên ô `da-cham-thuc-te` là sai: bộ quét xếp MỌI hồ sơ status ấy vào ô
+// đó, kể cả khi dòng vắng/thiếu vế (Ngoài-5/7 lượt chấm 2 — thẻ giấu câu hỏi, lưới vẫn chặn).
+const DA_KHEP = !!NGHI || !!(scanHit && scanHit.thucTe);
 const DA_KHEP_VI = NGHI ? 'đã nghỉ' : 'đã chấm bởi thực tế';
 const oneShotG2 = approvable && !DA_KHEP ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
 if (!approvable) { routingHoi.length = 0; routingBao.length = 0; }
