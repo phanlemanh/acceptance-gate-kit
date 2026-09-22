@@ -498,6 +498,46 @@ if (want('HK-AC8-ben-goi') || want('HK-AC8-dot-bien')) {
   }
 }
 
+// ── E9 (dưới AC-6, Ngoài-5/7 của lượt chấm 2): thẻ hỏi KHOÁ đầu ra của bộ quét, không hỏi tên ô ──
+// Hồ sơ `da-cham-boi-thuc-te` mà dòng quan sát VẮNG hoặc THIẾU vế không khép (AC-1 ô 4) → thẻ vẫn
+// phải hỏi «ký hay trả». Đối chứng cùng kho: thực tế đủ vế → 0 ô hỏi.
+function khoThucTe() {
+  const r = khoMoi();
+  const tt = (slug, ledger) => hoSo(r, slug, { contract: hopDong(slug, { status: 'da-cham-boi-thuc-te' }), report: baoCao(slug, { human_signoff: KY }), ledger, findings: FINDINGS_1 });
+  tt('tt-du', dongTT()); tt('tt-vang', null); tt('tt-thieu', dongTT({ build_sha: '' }));
+  git(r, 'add', '-A'); git(r, 'commit', '-qm', 'fixture');
+  return r;
+}
+const NEO_DA_KHEP = "const DA_KHEP = !!NGHI || !!(scanHit && scanHit.thucTe);";
+function kiemE9(the = theExtract, html = theHtml) {
+  const R = khoThucTe(); const sai = [];
+  if ((the(R, 'tt-du').routing.hoi || []).length) sai.push('tt-du: hoi khac rong');
+  for (const slug of ['tt-vang', 'tt-thieu']) {
+    const hoi = the(R, slug).routing.hoi || [];
+    if (!hoi.includes('ký hay trả')) sai.push(`${slug}: hoi=${JSON.stringify(hoi)}`);
+    if (html(R, slug).includes(CAU_KHEP)) sai.push(`${slug}: HTML noi «${CAU_KHEP}»`);
+  }
+  return sai;
+}
+for (const [ca, slug] of [['HK-AC9-vang', 'tt-vang'], ['HK-AC9-thieu', 'tt-thieu']]) {
+  if (!want(ca)) continue;
+  try {
+    const sai = kiemE9().filter(x => x.startsWith(slug) || x.startsWith('tt-du'));
+    if (sai.length) bad(ca, sai.join(' ; ')); else ok(ca, `— ${slug}: thẻ vẫn hỏi «ký hay trả», không nói «${CAU_KHEP}»; đối chứng tt-du 0 ô hỏi`);
+  } catch (e) { bad(ca, loi(e)); }
+}
+if (want('HK-AC9-dot-bien')) {
+  try {
+    const may = banSaoMay([['scripts/gate-card.js', NEO_DA_KHEP, "const DA_KHEP = !!NGHI || scanState === 'da-cham-thuc-te';"]]);
+    const GC = path.join(may, 'scripts', 'gate-card.js');
+    const the = (R, slug) => JSON.parse(execFileSync(process.execPath, [GC, '--root', R, '--slug', slug, '--extract'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+    const html = (R, slug) => execFileSync(process.execPath, [GC, '--root', R, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    const sai = kiemE9(the, html);
+    if (!sai.some(x => x.startsWith('tt-thieu'))) bad('HK-AC9-dot-bien', `mutant «ten o» khong lam tt-thieu do: ${JSON.stringify(sai)}`);
+    else ok('HK-AC9-dot-bien', `— thẻ suy «đã khép» từ tên ô → ${sai.filter(x => x.startsWith('tt-thieu'))[0]}`);
+  } catch (e) { bad('HK-AC9-dot-bien', loi(e)); }
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (hskt)`);
 process.exit(fail ? 1 : 0);
