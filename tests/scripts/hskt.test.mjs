@@ -107,6 +107,69 @@ if (want('HK-AC1-cli')) {
   } catch (e) { bad('HK-AC1-cli', loi(e)); }
 }
 
+// ── AC-2: bộ đếm cửa veto bỏ hồ sơ khép ────────────────────────────────────────
+// Hai hồ sơ CÙNG frontmatter veto (mo + vết), không chữ ký: một khép (thực tế đủ vế), một sống.
+function khoVeto() {
+  const r = khoMoi();
+  const vet = { veto_state: 'mo', veto_opened_at: '2026-09-01T00:00:00Z', approved_by: '' };
+  hoSo(r, 'hs-khep', { contract: hopDong('hs-khep', { status: 'da-cham-boi-thuc-te', ...vet }), report: baoCao('hs-khep'), ledger: dongTT() });
+  hoSo(r, 'hs-song', { contract: hopDong('hs-song', { status: 'verified', ...vet }), report: baoCao('hs-song') });
+  git(r, 'add', '-A'); git(r, 'commit', '-qm', 'fixture');
+  return r;
+}
+// Bản sao bộ máy (scripts + lib) để tiêm mutant; trả gốc bản sao.
+function banSaoMay(tiem = []) {
+  const cp = mkdtempSync(path.join(TMP, 'may-'));
+  for (const d of ['scripts', 'lib']) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
+  for (const [rel, neo, thay] of tiem) {
+    const p = path.join(cp, rel); const src = readFileSync(p, 'utf8');
+    const n = src.split(neo).length - 1;
+    if (n !== 1) throw new Error(`neo mutant khop ${n} lan trong ${rel}: «${neo.slice(0, 60)}»`);
+    writeFileSync(p, src.replace(neo, thay));
+  }
+  return cp;
+}
+const quet = (r, may = KIT) => JSON.parse(execFileSync(process.execPath, [path.join(may, 'scripts', 'start-scan.mjs'), '--root', r], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+const dongVeto = (r, may = KIT) => {
+  const o = spawnSync('bash', [path.join(may, 'scripts', 'pre-merge-check.sh'), r], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  return ((o.stdout || '') + (o.stderr || '')).split('\n').find(l => l.startsWith('NOTE: cửa veto đang mở')) || '';
+};
+const NEO_QUET = 'vetoOpen.filter(v => !v.humanSignoff && !v.daKhep)';
+const NEO_LUOI = 'if [ "$vstate" = "mo" ] && khep_slug "$slug"; then vstate="mo-da-khep"; fi';
+
+if (want('HK-AC2-quet')) {
+  try {
+    const j = quet(khoVeto());
+    const vo = Object.fromEntries((j.vetoOpen || []).map(v => [v.slug, v]));
+    const sai = [];
+    if (JSON.stringify(j.vetoOpenUnsigned) !== JSON.stringify(['hs-song'])) sai.push(`vetoOpenUnsigned=${JSON.stringify(j.vetoOpenUnsigned)}`);
+    if (!vo['hs-khep'] || vo['hs-khep'].daKhep !== true) sai.push(`vetoOpen hs-khep=${JSON.stringify(vo['hs-khep'])}`);
+    if (!vo['hs-song'] || vo['hs-song'].daKhep !== false) sai.push(`vetoOpen hs-song=${JSON.stringify(vo['hs-song'])}`);
+    if (sai.length) bad('HK-AC2-quet', sai.join(' ; ')); else ok('HK-AC2-quet', '— vetoOpenUnsigned chỉ còn hồ sơ sống; vetoOpen giữ cả hai, daKhep đúng');
+  } catch (e) { bad('HK-AC2-quet', loi(e)); }
+}
+
+if (want('HK-AC2-luoi')) {
+  try {
+    const l = dongVeto(khoVeto());
+    if (!/— 1 hồ sơ/.test(l) || !l.includes('hs-song') || l.includes('hs-khep')) bad('HK-AC2-luoi', `dong NOTE: «${l}»`);
+    else ok('HK-AC2-luoi', `— «${l.trim()}»`);
+  } catch (e) { bad('HK-AC2-luoi', loi(e)); }
+}
+
+if (want('HK-AC2-dot-bien')) {
+  try {
+    const r = khoVeto(); const sai = [];
+    const mq = banSaoMay([['scripts/start-scan.mjs', NEO_QUET, 'vetoOpen.filter(v => !v.humanSignoff)']]);
+    const jq = quet(r, mq);
+    if (!(jq.vetoOpenUnsigned || []).includes('hs-khep')) sai.push(`mutant bo quet: hs-khep khong quay lai (${JSON.stringify(jq.vetoOpenUnsigned)})`);
+    const ml = banSaoMay([['scripts/pre-merge-check.sh', NEO_LUOI, ':']]);
+    const ll = dongVeto(r, ml);
+    if (!ll.includes('hs-khep')) sai.push(`mutant luoi: hs-khep khong quay lai dong NOTE («${ll}»)`);
+    if (sai.length) bad('HK-AC2-dot-bien', sai.join(' ; ')); else ok('HK-AC2-dot-bien', '— gỡ bộ lọc ở mỗi bên → tên hs-khep quay lại đúng dòng ấy');
+  } catch (e) { bad('HK-AC2-dot-bien', loi(e)); }
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (hskt)`);
 process.exit(fail ? 1 : 0);
