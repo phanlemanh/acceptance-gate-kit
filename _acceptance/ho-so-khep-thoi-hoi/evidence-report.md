@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7f29b834176b741efbfdfe416e4c4c35f9bd5e16
+verified_commit: ba2a3446b546d73909cd95a824db208f5a14089d
 human_signoff: Phan Le Manh 2026-09-22
 ---
 
@@ -166,3 +166,7 @@ none — không có eval nào mang field `runs` > 1 trong vòng này.
 Round 1: BLOCKED — hộp tìm-lỗi dừng giữa chừng (round-tally: 1/8 blocked); refuter phát hiện `scripts/gate-card.js` dùng riêng một định nghĩa «đã khép» cho vế thực tế, lệch với vị từ `hoSoDaKhep` của bộ quét, mở lỗ fail-open (severity high, đề xuất new-contract).
 Round 2: PASS máy trên 7 eval, nhưng owner trả lại ở Gate 2 (`b56b7b33`) vì hai finding HIGH về fail-open của gate-card chưa sửa — nâng phạm vi sửa ngay thay vì known-limits.
 Round 3: PASS — `7f29b834` vá gate-card đọc đúng khoá `thucTe` mà bộ quét đã xuất (hỏi khoá đầu ra, không hỏi tên ô); `adec11fb` thêm E9 kiểm hồ sơ `da-cham-boi-thuc-te` vắng hoặc thiếu vế dòng quan sát vẫn được thẻ mời «ký hay trả» đúng thiết kế. Toàn bộ 9 eval (E3 carry-forward từ round 1, không đổi paths) + 5 lệnh suite hồi quy đều xanh.
+
+### Re-pin lần 1 — 2026-09-22, do tệp ca hskt đổi sau chữ ký: neo bản trước vòng vào mốc cố định (main đỏ sau #202)
+run_id: repin-20260922T075412Z-27774
+sha: ba2a3446b546d73909cd95a824db208f5a14089d · suites: 5 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
