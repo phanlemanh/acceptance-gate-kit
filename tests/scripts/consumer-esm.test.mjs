@@ -17,7 +17,7 @@
 //      phải nổ ReferenceError "require is not defined" — đối chứng dương là
 //      chính bản .cjs cùng nội dung, cùng repo, đã xanh ở (3).
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, copyFileSync, existsSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, copyFileSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -79,9 +79,17 @@ function nap(relPath) {
 
 // Tập tệp mà cổng THẬT SỰ nạp, tính từ hai điểm vào; `pmText` cho phép mutant
 // tiêm vào BẢN SAO văn bản pre-merge mà không chạm tệp thật.
-function tapDung(pmText) {
+// Điểm vào THỨ BA của CI kho tiêu thụ (ho-so-khep-thoi-hoi AC-3): lệnh `product_map:` mà khuôn
+// config của acceptance-init dựng — rút từ CHÍNH dòng ấy, không gõ tay tên tệp. Hai điểm vào đầu
+// (pre-merge + $HERE/recheck) đã có; thiếu điểm này là crm chép đủ 10 tệp mà CI đỏ ngày cài
+// (MODULE_NOT_FOUND ở trang-thai-ho-so.cjs — PR crm #70, 22/09).
+function diemVaoBanDo(initText) {
+  const m = /product_map:\s*"node \$\{CLAUDE_PLUGIN_ROOT\}\/([^\s"]+)/.exec(initText ?? initMd);
+  return m ? m[1] : null;
+}
+function tapDung(pmText, diemVao = diemVaoBanDo()) {
   const pm = pmText ?? readFileSync(path.join(ROOT, 'scripts', 'pre-merge-check.sh'), 'utf8');
-  const used = new Set(['scripts/pre-merge-check.sh']);
+  const used = new Set(['scripts/pre-merge-check.sh', ...(diemVao ? [diemVao] : [])]);
   // lib/: nhận rộng — mọi tệp lib nhắc trong cổng đều phải theo cổng sang consumer.
   for (const m of pm.matchAll(new RegExp(String.raw`lib\/([A-Za-z0-9][A-Za-z0-9._-]*\.${DUOI})`, 'g'))) used.add(`lib/${m[1]}`);
   // scripts/: chỉ thứ cổng NẠP theo vị trí thư mục của chính nó, không phải mọi tên
@@ -96,8 +104,8 @@ function tapDung(pmText) {
   return used;
 }
 
-function usedVsDeclared(declaredSrcs, pmText) {
-  const used = tapDung(pmText);
+function usedVsDeclared(declaredSrcs, pmText, diemVao) {
+  const used = tapDung(pmText, diemVao);
   const declared = new Set(declaredSrcs);
   return { used, missing: [...used].filter(u => !declared.has(u)) };
 }
@@ -113,6 +121,25 @@ check('CE2m mutant trong-lần-chạy: bỏ 1 mục khỏi danh-sách-khai → q
   assert.equal(mutated.length, COPIES.length - 1, 'mutant không bỏ được mục nào — tên mục trong danh sách đã đổi?');
   const { missing } = usedVsDeclared(mutated);
   assert.ok(missing.includes('lib/gap-probe.cjs'), `phép đo quan hệ không đỏ khi thiếu lib/gap-probe.cjs (missing=${JSON.stringify(missing)})`);
+});
+
+check('CE2p điểm vào thứ ba rút từ dòng product_map: của khuôn config; bao đóng của nó ⊆ danh sách chép', () => {
+  const dv = diemVaoBanDo();
+  assert.ok(dv, 'không rút được dòng product_map: từ khuôn config trong commands/acceptance-init.md');
+  assert.ok(existsSync(path.join(ROOT, dv)), `điểm vào ${dv} không tồn tại ở kho`);
+  const { used, missing } = usedVsDeclared(COPIES.map(c => c.src));
+  assert.ok(used.has(dv), `bao đóng không chứa chính điểm vào ${dv}`);
+  const chiCuaBanDo = [...tapDung(undefined, dv)].filter(u => !tapDung(undefined, null).has(u));
+  assert.ok(chiCuaBanDo.length >= 2, `điểm vào thứ ba không kéo thêm tệp nào (${JSON.stringify(chiCuaBanDo)}) — phép nhận diện import/require của .mjs hỏng?`);
+  assert.deepEqual(missing, [], `danh sách chép thiếu tệp mà lệnh bản đồ nạp: ${missing.join(', ')}`);
+});
+
+check('CE2p-dot-bien bỏ scripts/trang-thai-ho-so.cjs khỏi danh-sách-khai → quan hệ ĐỎ ghim đúng tên', () => {
+  const TEN = 'scripts/trang-thai-ho-so.cjs';
+  const mutated = COPIES.map(c => c.src).filter(x => x !== TEN);
+  assert.equal(mutated.length, COPIES.length - 1, `mutant không bỏ được ${TEN} — tên mục trong danh sách đã đổi?`);
+  const { missing } = usedVsDeclared(mutated);
+  assert.ok(missing.includes(TEN), `phép đo quan hệ không đỏ khi thiếu ${TEN} (missing=${JSON.stringify(missing)})`);
 });
 
 // Mutant trên BẢN SAO văn bản pre-merge: chứng minh chân «gắn vào writer» thật sự
@@ -289,6 +316,41 @@ check('CE5b vendored gap-probe CHẤM thật ở consumer: xoá gap-probe.md →
   } finally {
     writeFileSync(gp, saved);
   }
+});
+
+check('CE5-map lệnh bản đồ chạy trọn trong consumer type:module từ ĐÚNG danh sách chép; gỡ trang-thai-ho-so.cjs → đỏ gọi tên', () => {
+  const dv = diemVaoBanDo();
+  const lenh = () => run('node', [path.join(SIM, dv), '--root', SIM]);
+  const w = lenh(); assert.equal(w.status, 0, `vẽ bản đồ ở consumer thất bại (${w.status}): ${w.stderr.slice(0, 400)}`);
+  const c = run('node', [path.join(SIM, dv), '--root', SIM, '--check']);
+  assert.equal(c.status, 0, `--check thất bại (${c.status}): ${(c.stdout + c.stderr).slice(0, 400)}`);
+  assert.ok(!/MODULE_NOT_FOUND|ReferenceError|Cannot find module/.test(c.stderr), `lỗi nạp còn nguyên: ${c.stderr.slice(0, 300)}`);
+  // Mutant: bản chép thiếu đúng tệp crm từng thiếu.
+  const SIM2 = mkdtempSync(path.join(tmpdir(), 'agk-consumer-thieu-'));
+  execFileSync('cp', ['-R', SIM + '/.', SIM2]);
+  rmSync(path.join(SIM2, 'scripts', 'trang-thai-ho-so.cjs'));
+  const r = run('node', [path.join(SIM2, dv), '--root', SIM2, '--check']);
+  assert.notEqual(r.status, 0, 'bản chép thiếu trang-thai-ho-so.cjs mà lệnh bản đồ vẫn xanh');
+  assert.match(r.stderr, /trang-thai-ho-so\.cjs/, `đỏ nhưng không nêu tên tệp thiếu: ${r.stderr.slice(0, 300)}`);
+  rmSync(SIM2, { recursive: true, force: true });
+});
+
+check('CE6-ooc không còn tham chiếu đuôi cũ .js của lib/out-of-contract trong bộ máy; bản sao khôi phục một require đuôi cũ → đỏ gọi tên', () => {
+  const DIRS = ['scripts', 'lib', 'skills', 'feature-loop', 'commands', 'tests'];
+  const RE = /out-of-contract\.js\b/;
+  const quet = (docTep) => {
+    const hit = [];
+    const di = d => { for (const e of readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) { if (e.name !== 'node_modules') di(p); } else if (RE.test(docTep(p))) hit.push(path.relative(ROOT, p)); } };
+    for (const d of DIRS) if (existsSync(path.join(ROOT, d))) di(path.join(ROOT, d));
+    return hit;
+  };
+  const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return ''; } };
+  assert.deepEqual(quet(doc), [], 'còn tham chiếu đuôi cũ .js của lib/out-of-contract');
+  const GC = path.join(ROOT, 'scripts', 'gate-card.js');
+  // Chuỗi tiêm GHÉP từ hai mảnh để chính tệp ca này không mang tên đuôi cũ (phép quét sẽ tự bắt nó).
+  const tiem = p => p === GC ? doc(p).replace("out-of-contract.cjs')", 'out-of-contract' + ".js')") : doc(p);
+  assert.notEqual(tiem(GC), doc(GC), 'mutant không tiêm được — neo require của gate-card đã đổi?');
+  assert.deepEqual(quet(tiem), ['scripts/gate-card.js'], 'phép quét không gọi tên tệp mang require .js vừa tiêm');
 });
 
 // ── 4. Chiều ĐỎ: đúng layout TRƯỚC vá (.js) phải nổ ReferenceError ──────────
