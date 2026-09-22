@@ -173,6 +173,122 @@ if (want('HK-AC2-dot-bien')) {
   } catch (e) { bad('HK-AC2-dot-bien', loi(e)); }
 }
 
+// ── AC-4: làn V đọc review-findings.md × sổ gate2 ──────────────────────────────
+const { fileFromTemplate } = await import(pathToFileURL(path.join(KIT, 'tests', 'fixtures', 'from-template.mjs')).href);
+const CONTRACT_TPL = path.join(KIT, 'skills', 'acceptance', 'references', 'contract-template.md');
+// Khuôn mục ngoài hợp đồng RÚT từ bên VIẾT (prompt synthesize) — cùng cách P55.
+const OOC_TPL = (() => {
+  const wf = readFileSync(path.join(KIT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
+  const m = wf.match(/<<<OOC-ITEM-TEMPLATE\\n([\s\S]*?)OOC-ITEM-TEMPLATE>>>/);
+  if (!m) throw new Error('khong rut duoc OOC-ITEM-TEMPLATE tu acceptance-verify.js');
+  return m[1].replace(/\\n/g, '\n').replace(/\\`/g, '`');
+})();
+const HEAD_OOC = '## Ngoài hợp đồng — người quyết ở Gate 2\n\nCác lỗi dưới đây nằm ngoài phạm vi đã duyệt.\n\n';
+const mucOoc = i => OOC_TPL.replace(/\{(\w+)\}/g, (_, k) => ({ title: `loi that so ${i}`, plain: `Người dùng thấy lỗi ${i}.`, file: `src/a${i}.js:1`, severity: 'low', proposal: 'known-limits' }[k]));
+const FINDINGS_2 = '# Review findings\n\n## Trong hợp đồng\n\n' + HEAD_OOC + mucOoc(1) + '\n' + mucOoc(2) + '\n';
+const FINDINGS_0 = '# Review findings\n\n## Trong hợp đồng\n\n' + HEAD_OOC.replace('Các lỗi dưới đây nằm ngoài phạm vi đã duyệt.\n\n', '(rỗng — không có lỗi ngoài phạm vi)\n');
+const FINDINGS_NGO = '# Review findings\n\n' + HEAD_OOC + '- **mot muc viet sai khuon** khong co dong truong nao\n';
+const dongGate2 = (quyet, n = 1) => JSON.stringify({ id: `d-20260922T010000Z-${n}`, type: 'descope', stage: 'gate2', at: '2026-09-22T01:00:00Z', decision: quyet, impact: 'x' });
+// Ma trận sáu hàng (viết trước): [tên, findings, sổ, sạch?, cụm phải có trong why | null]
+const MA_TRAN_AC4 = [
+  ['chua-ai-quyet', FINDINGS_2, '', false, 'chưa người định tuyến: Ngoài-1, Ngoài-2'],
+  ['quyet-mot-phan', FINDINGS_2, dongGate2('Ngoài-1: ghi Known limits'), false, 'chưa người định tuyến: Ngoài-2'],
+  ['quyet-du-khoang', FINDINGS_2, dongGate2('Ngoai-1 den Ngoai-2: ghi Known limits, ship ban nay'), true, null],
+  ['khong-muc', FINDINGS_0, '', true, null],
+  ['vang', null, '', true, null],
+  ['sai-khuon', FINDINGS_NGO, '', false, 'không đọc ra mục nào'],
+];
+const hopDongV = slug => {
+  let t = fileFromTemplate(CONTRACT_TPL, 'CONTRACT-FRONTMATTER-TEMPLATE',
+    { feature: `${slug} — fixture`, slug, owner: 'fixture@example.com', risk_tier: 'T2', surfaces: 'cli', status: 'verified' },
+    `# Contract: ${slug}\n\n## Criteria\n\n- AC-1: fixture\n\n## Out of scope\n\n- khong co\n`);
+  return t.replace(/^approved_at:.*$/m, m => [m, 'veto_state: mo', 'veto_opened_at: 2026-08-21T09:00:00Z'].join('\n'));
+};
+const baoCaoV = (slug, vc) => `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: PASS\nverified_commit: ${vc}\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff:\n---\n\n# Evidence Report: ${slug}\n\n## Evidence\n- eval: E1\n  run_id: ${slug}-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-08-21\n\n## Known limits\n\n## Ngoài hợp đồng\n\n`;
+// Kho git làn V đủ vết cho lưới (cùng hình dạng LV5): c1 → basepoint → c2 (hợp đồng) → c3 (bằng chứng).
+function khoLanV(slug, findings, ledger) {
+  const R = khoMoi();
+  writeFileSync(path.join(R, '_acceptance', 'config.yaml'), 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "docs/**"\n    - "*.md"\n');
+  writeFileSync(path.join(R, 'verify.sh'), '#!/bin/sh\nexit 0\n');
+  mkdirSync(path.join(R, 'src'), { recursive: true }); writeFileSync(path.join(R, 'src', 'app.js'), 'v1\n');
+  // Kho tiêu thụ mang lớp CI vendored (lưới đọc lib theo gốc kho — cùng lý do LV5 chép).
+  cpSync(path.join(KIT, 'lib'), path.join(R, 'lib'), { recursive: true });
+  mkdirSync(path.join(R, 'scripts'), { recursive: true });
+  cpSync(path.join(KIT, 'scripts', 'recheck-evidence.cjs'), path.join(R, 'scripts', 'recheck-evidence.cjs'));
+  git(R, 'add', '-A'); git(R, 'commit', '-qm', 'c1'); git(R, 'branch', 'basepoint');
+  writeFileSync(path.join(R, 'src', 'app.js'), 'v2\n');
+  hoSo(R, slug, { contract: hopDongV(slug) });
+  git(R, 'add', '-A'); git(R, 'commit', '-qm', 'c2');
+  const c2 = git(R, 'rev-parse', 'HEAD');
+  hoSo(R, slug, { report: baoCaoV(slug, c2), findings: findings ?? undefined, ledger: ledger ? ledger : undefined });
+  git(R, 'add', '-A'); git(R, 'commit', '-qm', 'c3');
+  return R;
+}
+const docTep = (R, slug, f) => { try { return readFileSync(path.join(R, '_acceptance', slug, f), 'utf8'); } catch { return null; } };
+async function kiemMjs(may = KIT) {
+  const KCN = await import(pathToFileURL(path.join(may, 'scripts', 'khong-can-nguoi.mjs')).href + `?v=${Math.random()}`);
+  const sai = []; let n = 0;
+  for (const [ten, fd, so, sach, cum] of MA_TRAN_AC4) {
+    const r = KCN.xanhSach(hopDongV('x'), baoCaoV('x', '0'.repeat(40)), { findings: fd, ledger: so || null });
+    n++;
+    if (r.clean !== sach) sai.push(`${ten}: clean=${r.clean} (${r.why})`);
+    else if (cum && !String(r.why).includes(cum)) sai.push(`${ten}: why «${r.why}» thieu «${cum}»`);
+    else if (ten === 'quyet-mot-phan' && String(r.why).includes('Ngoài-1,')) sai.push(`${ten}: why con neu Ngoài-1`);
+  }
+  return { sai, n };
+}
+
+if (want('HK-AC4-ma-tran')) {
+  try {
+    const { sai, n } = await kiemMjs();
+    if (n !== 6) bad('HK-AC4-ma-tran', `so hang ${n}, khai truoc 6`);
+    else if (sai.length) bad('HK-AC4-ma-tran', sai.join(' ; '));
+    else ok('HK-AC4-ma-tran', '— 6/6 hàng đúng: chưa ai quyết / quyết một phần / sai khuôn → còn cần người; quyết đủ (khoảng, không dấu) / 0 mục / vắng → sạch');
+  } catch (e) { bad('HK-AC4-ma-tran', loi(e)); }
+}
+
+if (want('HK-AC4-bash')) {
+  try {
+    const sai = [];
+    for (const [ten, fd, so, sach] of MA_TRAN_AC4) {
+      const slug = 'lv-' + ten; const R = khoLanV(slug, fd, so);
+      const o = spawnSync('bash', [path.join(KIT, 'scripts', 'pre-merge-check.sh'), R, '--base', 'basepoint'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+      const out = (o.stdout || '') + (o.stderr || '');
+      const chan = new RegExp(`^VIOLATION \\[${slug}\\]`, 'm').test(out);
+      const noteV = new RegExp(`^NOTE \\[${slug}\\]: làn V — máy đi trước`, 'm').test(out);
+      if (o.status == null || o.status === 2) sai.push(`${ten}: luoi exit ${o.status}`);
+      else if (sach && (chan || !noteV)) sai.push(`${ten}: ky vong NOTE lan V, nhan chan=${chan} note=${noteV} — ${out.split('\n').filter(l => l.includes(slug)).slice(0, 2).join(' | ')}`);
+      else if (!sach && !chan) sai.push(`${ten}: ky vong VIOLATION, luoi khong chan`);
+      // Đẳng thức với bộ quét (bản dựng mjs): hồ sơ lưới chặn thì bộ quét KHÔNG xếp «máy đi tiếp».
+      const j = quet(R); const d = (j.groups.done || []).find(x => x.slug === slug);
+      if (chan === !!d) sai.push(`${ten}: lech hai ban dung — luoi ${chan ? 'chan' : 'qua'}, bo quet ${d ? d.stateKey : 'khong o done'}`);
+    }
+    if (sai.length) bad('HK-AC4-bash', sai.join(' ; ')); else ok('HK-AC4-bash', '— lưới chặn đúng hàng 1, 2, 6; NOTE làn V ở hàng 3, 4, 5; bộ quét khớp lưới trên cả sáu');
+  } catch (e) { bad('HK-AC4-bash', loi(e)); }
+}
+
+const theExtract = (R, slug) => JSON.parse(execFileSync(process.execPath, [path.join(KIT, 'scripts', 'gate-card.js'), '--root', R, '--slug', slug, '--extract'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+if (want('HK-AC4-the')) {
+  try {
+    const sai = [];
+    const h1 = theExtract(khoLanV('lv-a', FINDINGS_2, ''), 'lv-a').routing.hoi;
+    if (!h1.includes('ký hay trả') || h1.includes('veto hay để yên')) sai.push(`chua-ai-quyet: hoi=${JSON.stringify(h1)}`);
+    const h3 = theExtract(khoLanV('lv-b', FINDINGS_2, dongGate2('Ngoai-1 den Ngoai-2: ghi Known limits')), 'lv-b').routing.hoi;
+    if (!h3.includes('veto hay để yên') || h3.includes('ký hay trả')) sai.push(`quyet-du: hoi=${JSON.stringify(h3)}`);
+    if (sai.length) bad('HK-AC4-the', sai.join(' ; ')); else ok('HK-AC4-the', '— chưa ai quyết → «ký hay trả»; đã quyết đủ → «veto hay để yên»');
+  } catch (e) { bad('HK-AC4-the', loi(e)); }
+}
+
+if (want('HK-AC4-dot-bien')) {
+  try {
+    const NEO = '  return { chua, tong: f.findings.length, suspect: !!f.suspect_empty };';
+    const may = banSaoMay([['lib/out-of-contract.cjs', NEO, "  return { chua: [], tong: f.findings.length, suspect: false };"]]);
+    const { sai } = await kiemMjs(may);
+    if (!sai.some(x => x.startsWith('chua-ai-quyet: clean=true'))) bad('HK-AC4-dot-bien', `mutant vi tu luon rong khong lam hang 1 do: ${JSON.stringify(sai)}`);
+    else ok('HK-AC4-dot-bien', `— vị từ luôn rỗng → ${sai[0]}`);
+  } catch (e) { bad('HK-AC4-dot-bien', loi(e)); }
+}
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (hskt)`);
 process.exit(fail ? 1 : 0);
