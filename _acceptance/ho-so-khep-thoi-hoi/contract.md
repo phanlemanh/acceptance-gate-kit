@@ -5,7 +5,7 @@ slug: ho-so-khep-thoi-hoi
 owner: phanlemanh@gmail.com
 risk_tier: T3      # scripts/pre-merge-check.sh + lib/workspace-record.cjs + lib/out-of-contract.cjs — lõi cưỡng chế (t3_paths); vá điểm, không đổi enum, không CỘNG
 surfaces: [cli, ci, docs]
-status: verified      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Phan Le Manh
 approved_at: 2026-09-22T00:07:53Z
 design_doc: docs/superpowers/specs/2026-09-22-ho-so-khep-thoi-hoi-design.md
@@ -84,3 +84,7 @@ Quét Zwicky rút gọn (preset test-matrix), đầy đủ ở design doc §3.
   - Chữ ký `xanhSach(c, e, ctx)` làm mutant 2 của `_acceptance/lan-v-khong-phai-cho-ky/rang.sh` không còn đổi được dòng nào; hồ sơ đã ký ấy sẽ đỏ ở làn ghim lại. Xử ở chiến dịch ghim lại mốc 2.18.1 — sửa răng hoặc cho nghỉ, owner quyết lúc đó (Ngoài-8).
   - Vế «Ngoài hợp đồng» coi lỗi đọc khác ENOENT của `review-findings.md` như tệp vắng (mở cửa). Ngưỡng mở lại: một lỗi đọc thật ở kho nào (Ngoài-9).
   - NS-AC9-cu so hai bản đông lạnh (trước vòng · mã chữ ký chứng), không chạy bộ quét của cây hiện tại. Ngưỡng mở lại: một hồi quy của trạng thái thứ bảy lọt qua mà ca này lẽ ra bắt (Ngoài-10).
+- **Known limits (owner quyết ở Cổng Bằng chứng 22/09, lượt ký):**
+  - Mô tả eval E9 nói kho fixture bốn hồ sơ (có «sống»), ca kiểm dựng ba; lệnh chấm chỉ ghim dòng PASS nên phán quyết không đổi. Ngưỡng mở lại: một người đọc bằng chứng tin có đối chứng không tồn tại (Ngoài-1, Ngoài-3).
+  - Thẻ Cổng 2 của hồ sơ chấm-bởi-thực-tế mà dòng quan sát vắng/thiếu vế hỏi «ký hay trả» nhưng không in cờ `thuc-te-vang`/`thuc-te-thieu-ve:*` của bộ quét; lưới trước-merge vẫn chặn và gọi tên vế thiếu. Ngưỡng mở lại: một lần người ký theo thẻ rồi bị lưới chặn vì đúng dòng ấy (Ngoài-2).
+
