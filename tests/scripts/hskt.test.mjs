@@ -123,7 +123,7 @@ function khoVeto() {
 // Bản sao bộ máy (scripts + lib) để tiêm mutant; trả gốc bản sao.
 function banSaoMay(tiem = []) {
   const cp = mkdtempSync(path.join(TMP, 'may-'));
-  for (const d of ['scripts', 'lib']) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
+  for (const d of ['scripts', 'lib', 'skills']) cpSync(path.join(KIT, d), path.join(cp, d), { recursive: true });
   for (const [rel, neo, thay] of tiem) {
     const p = path.join(cp, rel); const src = readFileSync(p, 'utf8');
     const n = src.split(neo).length - 1;
@@ -370,6 +370,116 @@ if (want('HK-AC7-dot-bien')) {
     if (sai.length) bad('HK-AC7-dot-bien', sai.join(' ; '));
     else ok('HK-AC7-dot-bien', '— gỡ bộ lọc khép: NS-AC9-cu đỏ «… bản sau vòng khác bản trước vòng», L05 đỏ «bản sao TRƯỚC khi tiêm đã có hồ sơ đỏ (release-2-0-0)»');
   } catch (e) { bad('HK-AC7-dot-bien', loi(e)); }
+}
+
+// ── AC-5: chiều im trên cây `_acceptance/` thật ───────────────────────────────────────────────
+// Bản base = `git archive <merge-base>` scripts lib skills; HEAD = kho này. Cùng một dữ liệu
+// (cây thật, chỉ đọc). Mỗi khác biệt phải giải thích được bằng vật: khép theo vị từ, hoặc có mục
+// ngoài hợp đồng chưa định tuyến trên hồ sơ chưa ký. Tập kỳ vọng rút từ vật, không danh sách tên.
+const OOC = require(path.join(KIT, 'lib', 'out-of-contract.cjs'));
+const BASE_SHA = (() => { try { return git(KIT, 'merge-base', 'HEAD', 'origin/main'); } catch { return null; } })();
+function banBase() {
+  if (!BASE_SHA) throw new Error('khong tinh duoc merge-base HEAD origin/main');
+  const d = mkdtempSync(path.join(TMP, 'base-'));
+  execFileSync('tar', ['-x', '-C', d], { input: execFileSync('git', ['-C', KIT, 'archive', BASE_SHA, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
+  return d;
+}
+const oCuaTat = j => { const m = new Map(); for (const g of ['gates', 'inProgress', 'considering', 'done']) for (const x of (j.groups[g] || [])) m.set(x.slug, x.stateKey); for (const b of (j.broken || [])) m.set(b.slug, 'ho-so-hong'); return m; };
+function giaiThich(slug) {
+  const d = path.join(KIT, '_acceptance', slug);
+  const rd = f => { try { return readFileSync(path.join(d, f), 'utf8'); } catch { return null; } };
+  const c = rd('contract.md') || '';
+  const st = (/^status:[ \t]*(\S+)/m.exec(c) || [])[1] || '';
+  if (WR.hoSoDaKhep({ status: st, ledgerText: rd('decisions.jsonl'), reportText: rd('evidence-report.md') })) return 'khep';
+  const ky = /^human_signoff:[ \t]*\S/m.test(rd('evidence-report.md') || '');
+  if (!ky && rd('review-findings.md') != null && OOC.mucChuaDinhTuyen(rd('review-findings.md'), rd('decisions.jsonl')).chua.length) return 'chua-dinh-tuyen';
+  return null;
+}
+function soSanhIm(may) {
+  const b = quet(KIT, banBase()), h = quet(KIT, may);
+  const mb = oCuaTat(b), mh = oCuaTat(h);
+  const doi = new Set();
+  for (const [slug, k] of mh) if (mb.get(slug) !== k) doi.add(slug);
+  for (const slug of mb.keys()) if (!mh.has(slug)) doi.add(slug);
+  const vb = new Set(b.vetoOpenUnsigned || []), vh = new Set(h.vetoOpenUnsigned || []);
+  for (const x of vb) if (!vh.has(x)) doi.add(x);
+  for (const x of vh) if (!vb.has(x)) doi.add(x);
+  const dem = { khep: 0, 'chua-dinh-tuyen': 0 }, la = [];
+  for (const slug of doi) { const g = giaiThich(slug); if (g) dem[g]++; else la.push(slug); }
+  return { n: mh.size, dem, la };
+}
+if (want('HK-AC5-im')) {
+  try {
+    const r = soSanhIm(KIT);
+    // Chiều đỏ: bản sao HEAD làm danh sách veto rỗng vô cớ → các hồ sơ làn V sống rời danh sách mà
+    // không lý do nào đọc được từ vật → ca phải gọi tên chúng «không giải thích».
+    const mut = banSaoMay([['scripts/start-scan.mjs', NEO_QUET, 'vetoOpen.filter(v => false)']]);
+    const rm = soSanhIm(mut);
+    if (r.n < 50) bad('HK-AC5-im', `sanity: chi ${r.n} ho so`);
+    else if (r.la.length) bad('HK-AC5-im', `doi khong giai thich: ${r.la.join(', ')}`);
+    else if (!rm.la.length) bad('HK-AC5-im', 'mutant ep danh sach veto rong ma ca van im');
+    else ok('HK-AC5-im', `— ${r.n} hồ sơ thật; đổi: ${r.dem.khep} khép · ${r.dem['chua-dinh-tuyen']} chưa định tuyến · 0 không giải thích; mutant → không giải thích: ${rm.la.join(', ')}`);
+  } catch (e) { bad('HK-AC5-im', loi(e)); }
+}
+if (want('HK-AC5-note')) {
+  try {
+    const tenNote = may => (dongVeto(KIT, may).split(':').slice(2).join(':').trim().split(/\s+/).filter(Boolean));
+    const khep = new Set(WR.slugDaKhep(KIT));
+    const h = tenNote(KIT), b = tenNote(banBase());
+    const giao = h.filter(x => khep.has(x));
+    if (giao.length) bad('HK-AC5-note', `NOTE HEAD con ho so khep: ${giao.join(', ')}`);
+    else if (!b.some(x => khep.has(x))) bad('HK-AC5-note', `doi chung: NOTE ban base khong co ho so khep nao (${b.join(' ')})`);
+    else ok('HK-AC5-note', `— NOTE HEAD: ${h.join(' ') || '(không)'} · 0 hồ sơ khép; bản base có ${b.filter(x => khep.has(x)).join(', ')}`);
+  } catch (e) { bad('HK-AC5-note', loi(e)); }
+}
+
+// ── AC-8: mọi bên gọi luật xanh-sạch truyền tệp phát hiện + sổ ───────────────────────────────
+// Danh sách bên gọi RÚT bằng quét scripts/ (không gõ tay). Mỗi bên gọi có một ca trên fixture
+// hàng một của AC-4 và một mutant «bỏ truyền findings»; bên gọi mới chưa có ca → ĐỎ.
+const BEN_GOI_RE = /\b(xanhSach|khongCanNguoi)\(/;
+const benGoi = () => readdirSync(path.join(KIT, 'scripts')).filter(f => /\.(mjs|cjs|js)$/.test(f))
+  .filter(f => BEN_GOI_RE.test(readFileSync(path.join(KIT, 'scripts', f), 'utf8'))).sort();
+const hopDongMC = slug => hopDongV(slug).replace(/^status:[ \t]*verified/m, 'status: machine-cleared');
+function khoMC(slug) {
+  const R = khoLanV(slug, FINDINGS_2, '');
+  writeFileSync(path.join(R, '_acceptance', slug, 'contract.md'), hopDongMC(slug));
+  git(R, 'add', '-A'); git(R, 'commit', '-qm', 'machine-cleared');
+  return R;
+}
+const CA_BEN_GOI = {
+  'start-scan.mjs': {
+    neo: "  findings: read(path.join(dir, 'review-findings.md')).t ?? null,", thay: '  findings: null,',
+    kiem: may => { const j = quet(khoLanV('bg-q', FINDINGS_2, ''), may); const d = (j.groups.done || []).find(x => x.slug === 'bg-q');
+      return d && /^may-di-tiep/.test(d.stateKey) ? `bo quet xep bg-q vao ${d.stateKey}` : null; } },
+  'product-map.mjs': {
+    neo: "{ findings: readRecord(path.join(dir, 'review-findings.md')).t ?? null, ledger: ledgerTxt ?? null }", thay: '{ findings: null, ledger: null }',
+    kiem: async may => { const R = khoMC('bg-m'); const { renderProductMap } = await import(pathToFileURL(path.join(may, 'scripts', 'product-map.mjs')).href + `?v=${Math.random()}`);
+      return /`bg-m` — không đọc được hồ sơ/.test(renderProductMap(R)) ? null : 'ban do khong goi bg-m la ho so hong'; } },
+  'khong-can-nguoi.mjs': {
+    neo: "  const ctx = { findings: docCanh('review-findings.md'), ledger: docCanh('decisions.jsonl') };", thay: "  const ctx = { findings: null, ledger: docCanh('decisions.jsonl') };",
+    kiem: may => { const R = khoLanV('bg-c', FINDINGS_2, ''); const o = spawnSync(process.execPath, [path.join(may, 'scripts', 'khong-can-nguoi.mjs'), '--check', '--root', R, '--slug', 'bg-c'], { encoding: 'utf8' });
+      return o.status === 2 && /chưa người định tuyến/.test(o.stderr) ? null : `CLI --check exit ${o.status}: ${(o.stderr || '').trim()}`; } },
+};
+if (want('HK-AC8-ben-goi') || want('HK-AC8-dot-bien')) {
+  const ds = benGoi(); const thieuCa = ds.filter(f => !CA_BEN_GOI[f]);
+  if (want('HK-AC8-ben-goi')) {
+    try {
+      const sai = [];
+      if (!ds.length) sai.push('quet scripts/ ra 0 ben goi — phep rut hong');
+      if (thieuCa.length) sai.push(`ben goi chua co ca: ${thieuCa.join(', ')}`);
+      for (const f of ds) if (CA_BEN_GOI[f]) { const e = await CA_BEN_GOI[f].kiem(KIT); if (e) sai.push(`${f}: ${e}`); }
+      if (sai.length) bad('HK-AC8-ben-goi', sai.join(' ; ')); else ok('HK-AC8-ben-goi', `— ${ds.length} bên gọi rút từ quét (${ds.join(', ')}), cả ${ds.length} ra «còn cần người» trên fixture chưa định tuyến`);
+    } catch (e) { bad('HK-AC8-ben-goi', loi(e)); }
+  }
+  if (want('HK-AC8-dot-bien')) {
+    try {
+      const sai = [];
+      for (const f of ds) { const c = CA_BEN_GOI[f]; if (!c) continue;
+        const may = banSaoMay([[`scripts/${f}`, c.neo, c.thay]]);
+        if (!(await c.kiem(may))) sai.push(`${f}: mutant bo truyen findings ma ca van xanh`); }
+      if (sai.length) bad('HK-AC8-dot-bien', sai.join(' ; ')); else ok('HK-AC8-dot-bien', `— bỏ truyền tệp phát hiện ở từng bên gọi (${ds.length}) → ca của bên ấy đỏ`);
+    } catch (e) { bad('HK-AC8-dot-bien', loi(e)); }
+  }
 }
 
 rmSync(TMP, { recursive: true, force: true });
