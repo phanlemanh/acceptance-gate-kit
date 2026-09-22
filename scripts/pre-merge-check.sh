@@ -330,7 +330,7 @@ date_parseable() { # <chuỗi>
 # Đặt CLEAN_WHY khi không sạch; trả 0 = sạch, 1 = không.
 xanh_sach_check() { # <report path>
   local report="$1" clean_ok=1 clean_why="" _cdir _tier _sec _body _v _bp _ack
-  CLEAN_WHY=""
+  CLEAN_WHY=""; CLEAN_OOC_DINH_TUYEN=0
   [ -f "$report" ] || { CLEAN_WHY="không có evidence-report.md"; return 1; }
   # SÁU điều kiện, khai đủ ở ĐÂY (không dựa vào chốt nào chạy trước): hai chỗ
   # gọi hàm này đứng ở hai vị trí khác nhau trong luồng, nên hàm phải tự đủ.
@@ -392,10 +392,10 @@ xanh_sach_check() { # <report path>
       const rd=p=>{try{return fs.readFileSync(p,"utf8")}catch{return null}};
       const m=mucChuaDinhTuyen(rd(process.argv[2]),rd(process.argv[3]));
       if(m.suspect){process.stdout.write("__NGO__");process.exit(0);}
-      process.stdout.write(m.chua.length?m.chua.length+"|"+m.chua.join(", "):"");
+      process.stdout.write(m.chua.length?m.chua.length+"|"+m.chua.join(", "):"OK:"+m.tong);
     ' "$ROOT/lib/out-of-contract.cjs" "$_cdir/review-findings.md" "$_cdir/decisions.jsonl" 2>/dev/null || printf '__LOI__')"
     case "$_ooc" in
-      "") ;;
+      OK:*) CLEAN_OOC_DINH_TUYEN="${_ooc#OK:}" ;;
       __NGO__) clean_ok=0; clean_why="review-findings.md có chữ trong mục «Ngoài hợp đồng» nhưng không đọc ra mục nào (sai khuôn OOC-ITEM-TEMPLATE)" ;;
       __LOI__) clean_ok=0; clean_why="không đọc được review-findings.md × sổ quyết định (fail-closed)" ;;
       *)       clean_ok=0; clean_why="review-findings.md có ${_ooc%%|*} mục ngoài hợp đồng chưa người định tuyến: ${_ooc#*|}" ;;
@@ -1198,7 +1198,10 @@ XLACS
     if [ "$clean_ok" -eq 1 ]; then
       # Đường xanh-sạch KHÔNG có chữ ký để kiểm tiếp — các chốt dưới (giữ-chỗ,
       # provenance commit chữ ký) đều nói về một chuỗi không tồn tại ở đây.
-      echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · Ngoài hợp đồng rỗng · hạng T2). Cửa veto vẫn mở."
+      # Vế «Ngoài hợp đồng» đọc TỪ kết quả vị từ, không khẳng định cố định (ho-so-khep-thoi-hoi AC-4):
+      # mục đã có dòng sổ gate2 của người thì nói ra số mục, không gọi là «rỗng» (crm khuon-mat-bo-phan).
+      if [ "${CLEAN_OOC_DINH_TUYEN:-0}" -gt 0 ] 2>/dev/null; then _nhd="Ngoài hợp đồng: ${CLEAN_OOC_DINH_TUYEN} mục, đã người định tuyến qua sổ"; else _nhd="Ngoài hợp đồng rỗng"; fi
+      echo "NOTE [$slug]: xanh-sạch — máy đi tiếp, KHÔNG mời ký (verdict PASS · 0 UNCERTAIN · không bypass · Known limits rỗng · $_nhd · hạng T2). Cửa veto vẫn mở."
       # DLPS-LAN-V-MOT-DUONG (duong-lui-phai-song, đổi khuôn — owner 08/09/2026): KHÔNG `continue`.
       # Làn V rơi xuống CÙNG chuỗi kiểm với hồ sơ có chữ ký — hoá cũ · pin ma · re-pin
       # provenance · làn eval · soi lại — đúng chữ «soi MỌI hồ sơ ở MỌI lượt» (ADR 0014).
