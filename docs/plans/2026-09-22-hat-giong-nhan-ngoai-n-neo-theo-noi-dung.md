@@ -29,3 +29,10 @@ trí như hôm nay, kèm cờ vàng trên thẻ.
 
 Không làm trong vòng 2.18.1 (luật chiều rộng (b) — đã một vòng meta). Ngưỡng mở ô: ≥ 1 hồ sơ làn V
 có lượt chấm mới SAU dòng gate2 nhắc «Ngoài-N» mà tệp phát hiện đổi.
+
+## Ngưỡng ĐÃ CHẠM — 22/09, ngày crm cài 2.18.1
+
+Gốc: crm/_acceptance/quyen-luot-mang-theo — hồ sơ làn V `machine-cleared`; dòng gate2 «Ngoài-1..5» ghi 09/09 05:59
+cho NĂM mục KHÁC, lượt chấm 6 lúc 09:23 sinh lại SÁU mục mới; vị từ theo vị trí coi 1..5 là đã định tuyến, chỉ báo
+Ngoài-6 → CI crm #78 đỏ đúng một mục trong khi cả sáu chưa người nào thấy; mục 5 chạm người dùng. Đường ra: owner
+định tuyến sáu mục bằng một dòng ký. Ngưỡng «≥ 1 hồ sơ làn V» đã chạm: ô mở khi owner gọi tên, cửa sổ kế.

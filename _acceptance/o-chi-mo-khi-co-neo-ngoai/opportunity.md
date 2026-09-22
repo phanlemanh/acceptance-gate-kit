@@ -186,6 +186,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   (LM20 sau nghỉ · HK-AC5-note merge-base): ca đo neo ref tương đối chết khi gộp; neo = sha rút bằng lệnh.
 - `docs/plans/2026-09-22-hat-giong-audit-s4-bon-diem-nguoc-north-star.md` — audit 22/09: Treo «phê hết»
   4/4 · bỏ design-pass bằng lời 6/6 · ý định 4/8 · chiều đỏ ở làn baseline, không ở lịch sử commit crm.
+- `docs/plans/2026-09-22-hat-giong-the-cong-1-ho-so-khep-van-hoi.md` — ngày crm cài 2.18.1: hồ sơ khép không có
+  evidence-report.md rơi nhánh Cổng 1 của thẻ, vẫn hỏi «duyệt hay sửa» (2/7); vị từ «đã khép» phải hỏi trước khi chọn nhánh.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
