@@ -1,52 +1,34 @@
 ## Trong hợp đồng
 
-(không có phát hiện nào ánh xạ được vào một AC ở round này.)
+(không có phát hiện nào map được vào một AC ở vòng này.)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **HK-AC5-note chọn hồ sơ bằng regex viết tay, không dùng bộ đọc của lưới, trong khi chú thích nói «đúng khoá lưới đọc»**
-    Người dùng thấy gì: Nếu một hồ sơ đã ghi trạng thái veto theo cách viết khác thường (chữ hoa, có ngoặc kép, hoặc kèm chú thích), bài kiểm tra tốc độ nhanh có thể bỏ sót hồ sơ đó — khiến việc xác minh tự động không thực sự chạy trên đúng hồ sơ cần kiểm, dù hôm nay chưa có hồ sơ nào viết như vậy.
-    file: `tests/scripts/hskt.test.mjs`
-    severity: medium
-    Đề xuất: known-limits
-
-- **Vế HEAD của HK-AC5-note chỉ khẳng định âm tính, thiếu đối chứng dương rằng lưới HEAD thật sự chạy tới dòng NOTE trên bản sao**
-    Người dùng thấy gì: Nếu bước kiểm tra tự động bị thoát sớm hoặc gặp lỗi ở đúng công đoạn kiểm hồ sơ đã đóng, bài kiểm có thể vẫn báo "ổn" dù thực ra nó chưa chạy xong việc cần chạy — tạo cảm giác yên tâm giả trong khi chưa thật sự xác nhận được điều đó.
-    file: `tests/scripts/hskt.test.mjs`
+- **E9 expected describes a four-record fixture, but the test builds only three**
+    Người dùng thấy gì: Mô tả bộ kiểm nói dùng bốn hồ sơ mẫu, nhưng thực tế nó chỉ dựng ba — người đọc báo cáo có thể tưởng nhầm có thêm một phép kiểm không tồn tại.
+    file: `_acceptance/ho-so-khep-thoi-hoi/evals.yaml`
     severity: low
     Đề xuất: known-limits
 
-- **Hình dạng 4, assertion chỉ âm tính: HK-AC5-note vẫn xanh khi HEAD không in dòng NOTE nào**
-    Người dùng thấy gì: Nếu bước kiểm tra tự động bị thoát sớm hoặc gặp lỗi ở đúng công đoạn kiểm hồ sơ đã đóng, bài kiểm có thể vẫn báo "ổn" dù thực ra nó chưa chạy xong việc cần chạy — tạo cảm giác yên tâm giả trong khi chưa thật sự xác nhận được điều đó.
-    file: `tests/scripts/hskt.test.mjs`
-    severity: medium
-    Đề xuất: known-limits
-
-- **Hình dạng 2, bên đọc bị viết lại bằng tay: bộ lọc chép hồ sơ dùng regex riêng dù chú thích nói «đúng khoá lưới đọc»**
-    Người dùng thấy gì: Nếu một hồ sơ đã ghi trạng thái veto theo cách viết khác thường (chữ hoa, có ngoặc kép, hoặc kèm chú thích), bài kiểm tra tốc độ nhanh có thể bỏ sót hồ sơ đó — khiến việc xác minh tự động không thực sự chạy trên đúng hồ sơ cần kiểm, dù hôm nay chưa có hồ sơ nào viết như vậy.
-    file: `tests/scripts/hskt.test.mjs`
-    severity: low
-    Đề xuất: known-limits
-
-- **Gate-card dung rieng mot dinh nghia «da khep» cho thuc-te, lech voi vi tu hoSoDaKhep va mo lo fail-open (r1)**
-    Người dùng thấy gì: Thẻ hồ sơ cho người ký có thể báo 'đã xong, hết câu hỏi' ngay cả khi hồ sơ đó thực ra còn thiếu thông tin quan sát, khiến người xem không thấy câu hỏi cần trả lời.
+- **gate-card bỏ qua cờ thuc-te-vang / thuc-te-thieu-ve của bộ quét: thẻ mời «ký hay trả» nhưng không nói dòng quan sát bị vắng hay thiếu vế**
+    Người dùng thấy gì: Khi một hồ sơ có dữ liệu thực tế bị thiếu hoặc vắng, thẻ chỉ báo chung chung là cần người ký hay trả lại mà không nói rõ lý do, nên người ký có thể ký duyệt rồi vẫn bị chặn lại ở bước kiểm sau vì đúng lỗi đó.
     file: `scripts/gate-card.js`
-    severity: high
-    Đề xuất: new-contract
+    severity: medium
+    Đề xuất: known-limits
+
+- **Mô tả E9 khai kho fixture bốn hồ sơ (kể cả «sống»), nhưng khoThucTe chỉ dựng ba**
+    Người dùng thấy gì: Mô tả bộ kiểm nói có bốn hồ sơ mẫu bao gồm một hồ sơ đang hoạt động bình thường, nhưng hồ sơ đó không thực sự được tạo ra khi kiểm tra chạy, nên tài liệu không khớp với những gì thực sự được kiểm.
+    file: `_acceptance/ho-so-khep-thoi-hoi/evals.yaml`
+    severity: low
+    Đề xuất: known-limits
 
 - **Bang nguon duy nhat EVIDENCE-XANH-SACH-BLOCK khong khai ve moi cua dieu kien «Ngoai hop dong» (r1)**
     Người dùng thấy gì: Tài liệu hướng dẫn cách viết báo cáo bằng chứng chưa nói rõ một điều kiện mới, có thể khiến người soạn báo cáo hiểu nhầm khi nào báo cáo được coi là đạt.
     file: `skills/acceptance/references/evidence-report-template.md`
     severity: medium
     Đề xuất: known-limits
-
-- **gate-card treats a record as closed from the scanner's cell name alone, even when the observation line is missing or incomplete (r1)**
-    Người dùng thấy gì: Thẻ hồ sơ cho người ký có thể ẩn mất câu hỏi cần trả lời khi một hồ sơ chưa có đủ thông tin quan sát, vì hệ thống đọc nhầm nó là đã xong.
-    file: `scripts/gate-card.js`
-    severity: high
-    Đề xuất: new-contract
 
 - **The new `ctx` signature of xanhSach breaks mutant 2 in the signed record lan-v-khong-phai-cho-ky (its evals list khong-can-nguoi.mjs in paths) (r1)**
     Người dùng thấy gì: Một tính năng khác đã được duyệt trước đây (lan-v-khong-phai-cho-ky) có thể báo lỗi giả khi chạy lại kiểm tra định kỳ, do thay đổi lần này chưa cập nhật hết những nơi cũ còn dùng cách gọi kiểu trước.
@@ -66,8 +48,4 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
     severity: low
     Đề xuất: known-limits
 
-## Chưa adversarial-verify (refuter chết)
-
-(không có)
-
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+⚠ Cụm ngoài vùng phủ: 2/3 lỗi rơi vào file không bộ đo nào phủ (_acceptance/ho-so-khep-thoi-hoi/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
