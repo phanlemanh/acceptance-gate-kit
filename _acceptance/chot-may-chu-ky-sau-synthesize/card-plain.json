@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Chữ ký trên hồ sơ nghiệm thu chỉ còn là chữ ký của người: máy chấm tự xoá mọi chữ ký và giờ đo mà tác tử viết báo cáo tự điền, trước khi báo cáo được ghi ra.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ xoá trắng chữ ký người, lời chấp thuận thay và lời xác nhận bỏ qua cổng nếu tác tử viết báo cáo tự điền — giữ nguyên dòng, chỉ bỏ giá trị."},
+    {"id": "AC-2", "p": "Sẽ ghi lại giờ đo của mọi mục bằng đúng giờ máy chấm đã ghi trong sổ chạy — giờ lượt này cho mục đo mới, giờ gốc cho mục giữ từ lượt trước."},
+    {"id": "AC-3", "p": "Sẽ để báo cáo đúng y nguyên từng ký tự, và báo cáo bị tiêm sai sau khi chốt trùng khít báo cáo đúng — kể cả phần trích đầu ra của test không bị chạm."},
+    {"id": "AC-4", "p": "Sẽ dừng lượt chấm có gọi tên khi máy không có giờ đo để ghi, thay vì để lại giờ do tác tử bịa."},
+    {"id": "AC-6", "p": "Sẽ chứng minh trên toàn bộ hồ sơ thật của kit rằng phép chốt chỉ đụng bốn trường ấy, không một dòng nào khác."},
+    {"id": "AC-7", "p": "Sẽ chứng minh điều đó trên hồ sơ đã ký của crm, gồm hai hồ sơ nơi lỗi được bắt, chỉ đọc chứ không ghi gì vào crm."},
+    {"id": "AC-8", "p": "Sẽ phá thử phép chốt bốn kiểu và thấy từng kiểu làm đúng ca kiểm tương ứng báo đỏ có tên."}
+  ],
+  "wont_do": [
+    {"id": "AC-5", "p": "Sẽ KHÔNG sửa lặng: mỗi lần chốt đổi gì thì sổ chạy có đúng một dòng đếm từng trường bị sửa, còn không đổi gì thì không thêm dòng nào."}
+  ],
+  "scope_plain": "Răng bên đọc (vế 2) chờ anh quyết ở cổng này; chữa ngược giờ bịa đã nằm trong hồ sơ cũ và sửa lời dặn cho tác tử để việc khác.",
+  "coverage_plain": [
+    {"i": 0, "p": "Phủ đủ bốn trường không thuộc quyền tác tử — ba chữ của người và giờ đo (AC-1, AC-2 phủ trọn; AC-8 phá thử từng trường)."},
+    {"i": 1, "p": "Phủ mọi chỗ trường có thể nằm trong báo cáo, và hai chỗ KHÔNG được chạm: phần trích đầu ra và văn xuôi (AC-1, AC-2, AC-3)."},
+    {"i": 2, "p": "Hồ sơ đã ký chạy lại lượt chấm thì chữ ký cũ mất là đúng; ghim lại theo phiên bản không đi đường này nên không mất chữ ký."},
+    {"i": 3, "p": "Phủ mọi dạng giá trị: trống, chỉ có ghi chú, có giá trị, giờ đúng, giờ lệch (AC-1, AC-2, AC-3)."},
+    {"i": 4, "p": "Phủ ba nguồn giờ: có giờ lượt này, thiếu giờ lượt này, giờ gốc của mục giữ lại (AC-2, AC-4)."},
+    {"i": 5, "p": "Mỗi phép đo có cả chiều báo đỏ khi vật hỏng và chiều im khi vật lành, trên hồ sơ thật của kit và crm (AC-3, AC-6, AC-7, AC-8)."},
+    {"i": 6, "p": "Chuẩn ngành đối chiếu: nguồn gốc bằng chứng do nền tảng ghi, bên được chấm không giả được (SLSA mức 3)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Bản đầu sẽ xoá cả chữ «chữ ký» nằm trong phần trích đầu ra của test, tức làm giả bằng chứng; đã sửa: chỉ chạm đúng chỗ trường, có ca chứng minh phần trích giữ nguyên."},
+    {"i": 1, "p": "Chưa nói hồ sơ đã ký chạy lại thì chữ ký ra sao; đã ghi rõ có nguồn: chỉ mất khi chấm lại thật, ghim lại theo phiên bản không mất."},
+    {"i": 2, "p": "Câu «đường cũ vẫn chạy» dễ hiểu nhầm là tương thích ngược; đã sửa lời và thêm ca kiểm bên dựng tham số luôn có giờ."},
+    {"i": 3, "p": "Kiểm giờ đo mới phủ một dạng mục; đã thành bảng đủ mọi dạng mục × mới/giữ lại, có ca phá thử riêng."},
+    {"i": 4, "p": "Phép kiểm trên crm hứa bốn nhánh mà chỉ đo một; đã thêm ca cho từng nhánh trên kho tạm."}
+  ],
+  "decisions_plain": [
+    {"id": "d-20260923T035531Z-1", "p": "KHÔNG viết đặc tả màn hình — việc này không có màn hình nào cho người nhìn."},
+    {"id": "d-20260923T035531Z-2", "p": "Đặt phép chốt ngay trong máy chấm, ca kiểm đọc đúng đoạn ấy — một nguồn, đổi lại không dùng lại được ở chỗ khác."},
+    {"id": "d-20260923T035531Z-3", "p": "Mỗi lần chốt sửa gì thì ghi một dòng đếm vào sổ chạy — vẫn đếm được tác tử bịa bao nhiêu sau khi đã chặn."},
+    {"id": "d-20260923T035531Z-4", "p": "KHÔNG đưa răng bên đọc vào hợp đồng đề xuất; trình anh quyết, phê thì thêm tiêu chí và nâng hạng."},
+    {"id": "d-20260923T035531Z-5", "p": "KHÔNG sửa ngược giờ bịa trong 25 hồ sơ cũ — vòng này chỉ chặn từ nay."}
+  ]
+}
