@@ -209,6 +209,21 @@ phải đoán, trích nguyên dòng, để hạt giống sau đọc:
 Cùng lớp với hạt giống `2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md` (mục 2, 3: máy phải tự chế đường
 đi cho lệnh kit) và với `2026-09-22-hat-giong-bon-loi-nho-2-18-0-tu-crm.md` (mục 4: lời dặn đá luật). Không mở ô.
 
+**Bổ sung sau khi `cua-van-hanh` xanh (vòng 12, ký «manh 2026-09-23»; PR #66 clean, 9/9):** 4 lượt gọi
+người cho hồ sơ này (dán khoá Sentry · «chạy tiếp» · «theo khuyến nghị» · dán lệnh ký). Chốt bắt được một
+va chạm giàn đo có từ trước chữ ký 05/09 (ba lượt itest song song đếm lẫn asset stock) — sản phẩm không rò.
+Ba chỗ đoán thêm:
+9. SKILL: «triaged có mục inContract: false → TUYỆT ĐỐI KHÔNG sửa trong round này» — lỗi ngoài hợp đồng nằm
+   trong chính mã phép đo vừa viết ở vòng đó (E1 nuốt lỗi truy vấn) cũng bị cấm sửa → lên thẻ. Luật viết cho
+   vật, không lường mã-đo.
+10. `--skip-unchanged` chạy trọn vì tệp môi trường chưa commit (mục 8) → chạy lại cả E4 (workflow GitHub
+    thật) và E13 (Sentry thật) ngay lúc ký, dù S4 vừa carry hai eval đó.
+11. Luật stale chỉ soi hồ sơ trong diff (ADR 0010, đánh đổi đã khai): đổi `scripts/itest-l3.ts` dùng chung
+    thì hai hồ sơ đã ký NGOÀI PR (`l3-search-media-card`, `itest-teardown-residue`) thối im lặng — phiên phải tự
+    grep `paths`/`itest_ci` rồi chạy làn chỉ đo. Đây đúng là ca mà fork `feature_scope` của oneflow (hồ sơ
+    ngoài diff có khai `paths` vẫn bị soi theo scope) sinh ra để bắt; kit đã có khoá `paths:` (P1) nhưng chưa
+    dùng nó cho luật stale. Ghi để đếm, không mở lại ADR 0010.
+
 ## 3f. Hai kho đầu rời đường chép (23/09)
 
 | Kho | PR | TRƯỚC→SAU | Dòng khác | CI | Phút |
