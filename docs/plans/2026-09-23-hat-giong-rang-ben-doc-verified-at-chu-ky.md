@@ -48,3 +48,16 @@ chữ ký máy. Dòng một là giá trị tác tử đặt (ví dụ `ho-so-ngh
 **0 hồ sơ đỏ trên corpus kit + crm** dưới ba luật trên, đo SAU chiến dịch ở bước 1. Còn hồ sơ đỏ
 thì răng chưa bật — không mốc ngày, không ân xá theo ngày; hồ sơ nào không sửa được (ví dụ chữ
 ký trước nghi thức commit ký) phải được gọi tên trong răng như nợ hai chiều, không im.
+
+## Ghi thêm từ Cổng Bằng chứng của vòng chốt máy (owner chọn «mở hợp đồng mới», 23/09)
+
+Luật «Ô chỉ mở khi có NEO NGOÀI»: hai lối «mở hợp đồng mới» ghi vào đây, không tạo ô.
+
+- **Ngoài-3 — L3 đếm chữ ký giả ở hình dạng chốt không nhận.** Biểu thức L3 không neo dòng, nên
+  `* human_override: X`, `+ …`, `> …`, `1. …`, `- - …`, `**human_override: X**` được đếm là một lời
+  chấp thuận trước VÀ sau chốt (đo trên a993e401). Trục B của bảng vi phân là danh sách chọn tay,
+  không sinh từ ngôn ngữ L3. Nghiệm đúng tầng: neo L3 vào dòng trường — cùng răng bên đọc ở trên.
+- **Ngoài-4 — phép im trên corpus thật hết độc lập.** Sau đổi khuôn, `kiemIm` dùng đúng ngữ pháp
+  dòng của chốt, nên nó không còn thấy việc chốt chạm vào nội dung khối vô hướng trên báo cáo thật
+  (thước viết cùng khuôn với vật). Cần một định nghĩa «vị trí trường» rút từ bên viết (khuôn báo
+  cáo) hoặc từ bộ đọc thật, không từ chốt.

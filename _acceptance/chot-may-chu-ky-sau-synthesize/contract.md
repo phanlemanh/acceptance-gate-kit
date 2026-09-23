@@ -5,7 +5,7 @@ slug: chot-may-chu-ky-sau-synthesize
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/workflows/acceptance-verify.js + tests/workflows — không chạm t3_paths; vế 2 (lib/, recheck-evidence.cjs) sẽ nâng T3 nếu owner phê
 surfaces: [cli, ci]
-status: verified      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: Mạnh
 approved_at: 2026-09-23T04:34:45Z
 design_doc: docs/superpowers/specs/2026-09-23-chot-may-chu-ky-sau-synthesize-design.md
@@ -67,3 +67,6 @@ Quét hình thái rút gọn (preset test-matrix), đầy đủ ở design doc m
 - Giới hạn đã khai, kèm ngưỡng: chốt không xoá chuỗi hình khoá trong khối vô hướng (xoá là làm giả output), mà bộ đọc L3 đếm `human_override` có giá trị ở bất kỳ đâu. Lỗ của bên đọc — vế 2. Ngưỡng mở lại: ≥ 1 báo cáo có `human_override` có giá trị trong khối vô hướng mà không phải output của một test.
 - Đổi khuôn 23/09 (owner, tại điểm dừng-vá sau S4 lượt 2): chốt nhận đúng ngữ pháp bên đọc thay vì tự liệt kê vị trí trường; `human_override` rỗng viết `human_override:  # chi nguoi ghi` vì L3 của bên đọc đếm dòng rỗng trần là đã chấp thuận. Chi tiết ở design doc mục «Đổi khuôn 23/09».
 - Giới hạn đã khai, kèm ngưỡng: chốt chỉ giữ đường S4 của workflow. Vòng chính vẫn tự tay ghi được `human_signoff` vào báo cáo (đó là đường ký thật của `/signoff`), nên chữ ký do PHIÊN viết ngoài `/signoff` không bị vòng này chặn — đó là việc của vế 2. Ngưỡng mở lại: ≥ 1 hồ sơ có chữ ký không đi qua commit `Gate 2 signoff:` sau ngày vòng này lên `main`.
+- **Known limits (owner quyết ở Cổng Bằng chứng 23/09):**
+  - Bản ghi carry lồng TRONG frontmatter đóng rào (`judgments:` → `- eval:` → `run_id` → `verified_at`) bị ép giờ `invokedAt` thay vì giờ carry, vì bản ghi chỉ được dựng ở thân báo cáo. Ngưỡng mở lại: ≥ 1 báo cáo thật đặt khối bằng chứng trong frontmatter (Ngoài-1).
+  - Vòng đột biến CTN-AC8-vi-phan dựa vào ba ca vi phân chạy trước nó để có đối chứng dương; chạy riêng bằng `CTN_CASES=CTN-AC8-vi-phan` thì không tự kiểm bản gốc xanh. Ngưỡng mở lại: một lần sửa hàm chốt làm đỏ ô mà đột biến nhắm tới mà ca đột biến vẫn xanh (Ngoài-2).

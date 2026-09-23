@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>25 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>72 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>73 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>7 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
 ```
@@ -42,7 +42,6 @@ flowchart TD
 
 ## Đang làm
 
-- Chốt máy trường-của-người sau bước tổng hợp S4 — workflow tự ép rỗng human_signoff / human_override / bypass_ack và ép verified_at bằng giờ engine trước khi trả báo cáo; tác tử tổng hợp hết quyền viết bốn trường ấy (`chot-may-chu-ky-sau-synthesize`)
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
 
@@ -62,6 +61,7 @@ flowchart TD
 - Thẻ quyết định in đúng thứ hồ sơ viết — đường dẫn có dấu sao không còn bị cụt khi lột định dạng, và mọi hình dạng dấu sao khác đều có kỳ vọng đã khai trước thay vì tuỳ hệ quả (`card-text-fidelity`)
 - Kit thôi đo phút người ở mọi cổng — gỡ cả lớp HỎI lẫn lớp KHẲNG ĐỊNH về phút, giữ đường đọc-cũ cho hồ sơ đã ký và giữ nguyên mọi răng bằng chứng (`cat-hinh-thuc`) — đã giao — đã nghỉ, giữ sử liệu
 - Cắt khối 👉 VIỆC CỦA ANH khỏi TIN mời cổng — thay khuôn N-mục-3-vế bằng một câu «mời cổng như đồng nghiệp hỏi»; thẻ HTML giữ nguyên; chỉ TRỪ (`cat-khoi-viec-cua-anh-tren-tin`) — đã giao — đã nghỉ, giữ sử liệu
+- Chốt máy trường-của-người sau bước tổng hợp S4 — workflow tự ép rỗng human_signoff / human_override / bypass_ack và ép verified_at bằng giờ engine trước khi trả báo cáo; tác tử tổng hợp hết quyền viết bốn trường ấy (`chot-may-chu-ky-sau-synthesize`)
 - Chữ ký không tự làm bằng chứng hoá cũ (bản ghi định tuyến là vật T1 máy sinh) và làn trước chữ ký bỏ qua khi cây bằng pin (`chu-ky-khong-tu-lam-hoa-cu`)
 - Gói Codex mang đủ mọi công cụ mà chỉ dẫn của nó bảo người dùng chạy — hết con trỏ chết, và có chốt máy canh quan hệ đó cho mọi lần thêm công cụ về sau (`codex-script-packaging`)
 - Cổng Đáng có cửa — thẻ cổng thứ ba + ký một lượt bằng lệnh duyệt sẵn có (`cong-dang-co-cua`) — đã giao — đã nghỉ, giữ sử liệu
