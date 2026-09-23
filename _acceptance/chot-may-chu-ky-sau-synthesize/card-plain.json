@@ -109,6 +109,40 @@
     {
       "id": "d-20260923T035531Z-5",
       "p": "KHÔNG sửa ngược giờ bịa trong 25 hồ sơ cũ — vòng này chỉ chặn từ nay."
+    },
+    {
+      "id": "d-20260923T043458Z-7",
+      "p": "KHÔNG làm răng bên đọc ở vòng này (anh quyết ở Cổng Phạm vi) — ghi thành hạt giống, đi sau chiến dịch ghim lại, bật khi 0 hồ sơ đỏ."
+    },
+    {
+      "id": "d-20260923T053704Z-8",
+      "p": "Sau lượt chấm 1: sửa ba chỗ chốt đọc hẹp hơn bộ đọc (phần đầu có dòng trống, khoá viết hoa, mã chạy có nháy)."
+    },
+    {
+      "id": "d-20260923T060614Z-9",
+      "p": "Sau lượt chấm 2 dừng theo luật dừng-vá: lỗi cùng lớp lặp lại hai lượt, máy không tự chạy tiếp."
+    },
+    {
+      "id": "d-20260923T060813Z-10",
+      "p": "Anh chọn đổi khuôn: chốt đọc đúng như bộ đọc thật, kiểm bằng so vi phân với chính bộ đọc."
+    },
+    {
+      "id": "d-20260923T061316Z-11",
+      "p": "Thi hành đổi khuôn — bảng so vi phân với bộ đọc thật và chín kiểu phá thử."
+    },
+    {
+      "id": "d-20260923T065350Z-12",
+      "p": "Sau lượt chấm 3 dừng ở trần ba lượt: hai lỗi là hồi quy do chính khuôn mới gây ra."
+    },
+    {
+      "id": "d-20260923T092253Z-13",
+      "p": "Anh trả lời «tiếp tục» — máy hiểu là lượt 4 hẹp vượt trần, đường máy khuyên."
+    },
+    {
+      "id": "d-20260923T092431Z-14",
+      "p": "Lượt 4: sửa hồi quy, trục đo rút từ biểu thức bộ đọc; năm hình dạng bộ đọc đếm mà chốt không được chạm được khai là giới hạn."
     }
-  ]
+  ],
+  "analyst_plain": "",
+  "decisions": []
 }
