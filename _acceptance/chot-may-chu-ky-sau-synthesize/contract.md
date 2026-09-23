@@ -5,9 +5,9 @@ slug: chot-may-chu-ky-sau-synthesize
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/workflows/acceptance-verify.js + tests/workflows — không chạm t3_paths; vế 2 (lib/, recheck-evidence.cjs) sẽ nâng T3 nếu owner phê
 surfaces: [cli, ci]
-status: draft      # draft | approved | implemented | verified | signed-off | machine-cleared
-approved_by:
-approved_at:
+status: approved      # draft | approved | implemented | verified | signed-off | machine-cleared
+approved_by: Mạnh
+approved_at: 2026-09-23T04:34:45Z
 design_doc: docs/superpowers/specs/2026-09-23-chot-may-chu-ky-sau-synthesize-design.md
 ---
 
