@@ -1,0 +1,9 @@
+{
+  "feature_plain": "Kho tiêu thụ nhận bản kit 2.18.2: máy thôi ký thay người trong báo cáo bằng chứng, CI chạy cổng từ bản kit ghim sha, và kho lấy kit được bằng tag v2.18.2.",
+  "scope_plain": "Không đổi mã cổng; gắn tag bằng tay sau khi gộp; xoá lớp chép, ghim lại hồ sơ và đổi sha ở từng kho là việc sau mốc.",
+  "decisions": [],
+  "decisions_plain": [
+    {"id":"d-20260923T142641Z-1","p":"Mốc đi đường máy-đi-trước như các mốc trước, không thêm phép đo mới; đổi lại năm dòng số và lời kể người dùng nhận gì chỉ đọc bằng mắt."},
+    {"id":"d-20260923T142641Z-2","p":"KHÔNG chạy phản biện context sạch — mốc không có thiết kế mới; đổi lại không có mắt thứ hai trước khi ký."}
+  ]
+}
