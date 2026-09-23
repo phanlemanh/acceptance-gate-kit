@@ -8,7 +8,7 @@ verified_by: implementing session (làn V — mốc phát hành không chạy l�
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 30622970c243b9fbe95d92f8e45910f4ac091684
-human_signoff:
+human_signoff: manh 2026-09-23 — ký mốc phát hành 2.18.2 với bốn known-limits đã khai; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence — release-2-18-2
