@@ -209,6 +209,31 @@ phải đoán, trích nguyên dòng, để hạt giống sau đọc:
 Cùng lớp với hạt giống `2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md` (mục 2, 3: máy phải tự chế đường
 đi cho lệnh kit) và với `2026-09-22-hat-giong-bon-loi-nho-2-18-0-tu-crm.md` (mục 4: lời dặn đá luật). Không mở ô.
 
+## 3f. Hai kho đầu rời đường chép (23/09)
+
+| Kho | PR | TRƯỚC→SAU | Dòng khác | CI | Phút |
+|---|---|---|---|---|---|
+| oneflow (kèm bỏ fork 508 dòng) | #129 → merged `9fbe0d60` | 0→0 | 0/51 (bỏ 9 NOTE «narrow scope» của fork) | 6/6 | ~6 |
+| artifact-platform | #392 → merged `c9067c06` | 0→0; `--recheck-all` 490/490 | 0/275 | 3/3 | ~15 |
+
+Cả hai ghim `KIT_SHA=8a4ea881` = HEAD marketplace máy dev. 0 lượt gọi người ở cả hai.
+
+Ma sát tài liệu, trích nguyên dòng (đã sửa GUIDE §5.3 cùng ngày cho 1–4):
+1. «`CLAUDE_PLUGIN_ROOT` là bản plugin đã cài» — không rõ marketplace hay `cache/…/2.18.1`.
+2. `--base "origin/$GITHUB_BASE_REF"` — lượt `push` base rỗng.
+3. «gỡ các dòng `t1_skip_globs` khai tệp kit» — không nói tên `.js` cũ có gồm không.
+4. Khuôn `VAR=… bash "$VAR/…"` một dòng không chạy — shell mở rộng trước khi gán; phải `export`.
+5. `lib/context-glossary.cjs` — tệp kit đời cũ nằm ngoài danh sách 16, hook vocab-guard của kho vẫn đọc; kho giữ lại. Cùng lớp «danh sách chép không khép».
+
+Phát hiện đo được, đã có án: PR #392 xoá 16 tệp non-T1 mà T1-escape **im**, vì cùng PR chạm
+`_acceptance/config.yaml` và luật coi mọi đường dưới `_acceptance/` là «mang bằng chứng»
+(`pre-merge-check.sh` ≈ dòng 1617, ghi rõ trong chú thích). Đây là lần đo sống thứ hai của lỗ mà owner
+đã bác siết ở 15/08 (`.out-of-scope/t1-escape-slug-only-thu-hep-mien-tru.md`) — đã ghi vào mục Prior
+requests của tệp đó, không mở lại.
+
+Nợ có tên ở artifact-platform: eval E2 của hồ sơ đã ký `gate-slug-visibility` chép đè
+`scripts/pre-merge-check.sh` — tệp không còn; chờ lần ghim kế đỏ rồi xử cùng lớp với nợ oneflow.
+
 ## 4. Việc kế
 
 Cả bốn chỗ ở §2 đều có neo ngoài: đó là PR cài kit của kho tiêu thụ, đúng vế 4 luật (b).

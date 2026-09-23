@@ -809,7 +809,15 @@ chúng sẽ không tìm thấy cổng, đổi sang `"$CLAUDE_PLUGIN_ROOT/scripts
 hoặc ghi nợ có tên. Kho có hồ sơ `status: machine-cleared` (grep `contract.md`) chờ mốc kế
 vì hai dòng 376/397 nêu dưới.
 
-Chạy ở máy dev: cùng lệnh, với `CLAUDE_PLUGIN_ROOT` là bản plugin đã cài.
+Chạy ở máy dev: cùng lệnh, với `CLAUDE_PLUGIN_ROOT` = **bản clone marketplace**
+(`~/.claude/plugins/marketplaces/acceptance-gate-kit`, chính nơi lấy sha ở bước 1 —
+không phải thư mục `cache/…/<phiên bản>`), và phải **`export`** trước: viết
+`CLAUDE_PLUGIN_ROOT=… bash "$CLAUDE_PLUGIN_ROOT/…"` trên một dòng thì shell mở
+rộng `$CLAUDE_PLUGIN_ROOT` TRƯỚC khi gán, lệnh rỗng. Job chạy trên `push` không có
+`GITHUB_BASE_REF`: giữ khuôn cũ của kho (`--base HEAD~1 --no-t1-escape`, xem dưới)
+hoặc `${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"}`. Khi gỡ `t1_skip_globs`,
+gỡ cả tên đuôi `.js` cũ (`recheck-evidence.js`, `out-of-contract.js`) — chúng là
+tệp kit đã đổi tên, không phải tệp của kho.
 Giới hạn khai thẳng: CI phụ thuộc việc tải kit từ GitHub (kho public, cùng loại
 phụ thuộc với mọi action); kit chưa có tag nên ghim theo sha; hai dòng
 `pre-merge-check.sh:376` và `:397` còn đọc lib theo đường của kho — chỉ chạm hồ sơ
