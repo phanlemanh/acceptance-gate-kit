@@ -34,3 +34,14 @@ dòng 248 (cùng round) · bộ đếm round theo Iterations · GOAL-TEMPLATE (B
 vì hạ tầng (nhãn `chet`/`mu` theo `nhan-canh-gay.cjs`) KHÔNG đếm vào trần — `s4-args.mjs` đọc `round-tally` và bỏ
 qua lượt `blocked` khi đánh số; khi lượt BLOCKED còn finding trong hợp đồng thì nó là REJECT về bản chất và đếm bình
 thường. Trong lúc chưa sửa, quyết ở trần là của người (đúng thiết kế phanh dừng-vá), không phải lượt ngoài thiết kế.
+
+## Đối chiếu với vòng `nhan-trang-thai-va-reality` (2.18.0) — KHÔNG đi ngược, mà bù chỗ chưa nối
+
+Vòng ấy đã thiết kế đúng ca này: AC-7 «BLOCKED vì agent chết → máy thử lại MỘT lần», và `lib/nhan-canh-gay.cjs:105`
+đọc `daThuLai` = có ≥ 2 dòng `round-tally` BLOCKED **cùng round** — tức lần thử lại ghi thêm dòng cho CÙNG round, khớp
+luật S4 dòng 248. Hai mảnh chưa được nối vào thiết kế đó: (1) khối GOAL-TEMPLATE có từ 30/07 (`dcc6058f`), vòng
+2.18.0 không chạm, vẫn coi BLOCKED là điểm dừng; (2) `s4-args.mjs` đánh số round theo mục Iterations nên lần thử lại
+thành round mới thay vì cùng round. Hệ quả đo được: cả hai lượt BLOCKED thật sau 2.18.0 (kit `ho-so-khep-thoi-hoi`
+round 1 → «round 2»; crm `kiem-auth` round 3 → hỏi người) đều KHÔNG đi qua đường thử-lại-cùng-round; đường ấy mới
+chỉ được chứng bằng fixture (ca C7-mot/C7-hai với dòng tally dựng sẵn), chưa bằng một lượt chạy thật. Nghiệm ở đây
+nối hai mảnh về đúng thiết kế đã ký, không đổi thiết kế.
