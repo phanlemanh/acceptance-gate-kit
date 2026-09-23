@@ -30,8 +30,16 @@ kho chờ nhận của mốc này vẫn là `crm`. Mốc đi **làn V**, không 
 - **Lớp CI vendored lên 15 tệp**, tính bằng bao đóng nạp của ba lệnh CI. `crm` từng đỏ CI ngày
   cài vì thiếu `product-map.mjs` và `trang-thai-ho-so.cjs`.
 
-**Kho tiêu thụ phải làm khi cài:** chép thêm năm tệp (danh sách ở GUIDE §5.3) và **xoá**
-`lib/out-of-contract.js` — tệp đổi tên thành `lib/out-of-contract.cjs`.
+**Kho tiêu thụ phải làm khi cài:** đồng bộ lớp CI theo **danh sách** ở GUIDE §5.3 (không theo
+con số: kho ở 2.18.0 thêm 5 tệp, kho ở 2.17 thêm 6, kho ở 2.16 thêm 7 — đo 23/09 trên sáu kho) và
+**xoá** `lib/out-of-contract.js` — tệp đổi tên thành `lib/out-of-contract.cjs`.
+
+**Đính chính 23/09/2026:** danh sách 15 tệp còn thiếu `skills/acceptance/references/opportunity-template.md`
+mà `product-map.mjs` đọc; chép 15 tệp thì lệnh bản đồ thoát 2 (ENOENT). **Kho nâng từ bản dưới
+2.13:** bản này thôi miễn cho làn ghim lại chỉ-chạy-suite (ADR 0014, 0015) — hồ sơ ghim bằng làn
+ấy sẽ đỏ `[cua-van-hanh]` ngay lượt CI đầu (media-library: 9 hồ sơ); chạy chiến dịch ghim lại
+(GUIDE §7.1) trước khi merge PR nâng. Từ 23/09 GUIDE §5.3 đổi đường mặc định sang **chạy cổng từ bản
+kit ghim sha, không chép tệp** — hồ sơ: `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`.
 
 **Giới hạn đã khai:** nhãn «Ngoài-N» là vị trí mục trong tệp phát hiện, nên một lượt chấm mới có
 thể làm dòng sổ cũ trỏ nhầm mục (hạt giống `docs/plans/2026-09-22-hat-giong-nhan-ngoai-n-neo-theo-noi-dung.md`);

@@ -756,11 +756,66 @@ Tham chiếu đầy đủ `config.yaml` — mục 8 có phần tinh chỉnh:
 
 ### 5.3 Wire CI (bắt buộc để gate có răng ở PR)
 
-Copy **đủ 15 file** từ plugin vào repo, giữ đúng layout (re-check `require
-../lib`; đuôi `.cjs` là cố ý — repo khai `"type": "module"` sẽ đọc file `.js`
-chép sang thành ESM và `require()` bên trong nổ ReferenceError, lớp cưỡng chế
-chết câm). Thiếu một tên nào dưới đây thì lớp tương ứng **tắt im lặng** — CI
-vẫn xanh:
+**Đường mặc định (owner quyết 23/09/2026): CI chạy cổng từ MỘT bản kit ghim sha,
+KHÔNG chép tệp nào vào repo.** Lý do đo được ở
+`docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`: sáu kho nâng cùng ngày,
+danh sách chép thiếu tệp lần thứ ba cùng một lớp, bốn kho chạy CI với 7–8/15 lớp
+mà không tín hiệu nào nói ra, một kho giữ bản fork 508 dòng. Mọi bộ đọc của cổng
+(`pre-merge-check.sh`, `recheck-evidence.cjs`, `product-map.mjs`) tìm `lib/` theo
+thư mục của **chính nó**, nên chạy từ bản kit là đủ.
+
+Ba bước, mỗi bước một dòng cấu hình của kho:
+
+1. **Ghim sha.** Lấy đúng sha mà máy dev đang chạy, để bản ở máy và bản ở CI là
+   một: `git -C ~/.claude/plugins/marketplaces/acceptance-gate-kit rev-parse HEAD`.
+   Nâng kit = đổi một dòng sha này trong tệp workflow, bằng PR có chủ đích mỗi
+   mốc — không auto-follow, vì đổi engine dưới chân một vòng đang chạy là điều
+   kit cấm (§7.1).
+2. **Trong job CI**, lấy kit về NGOÀI cây repo (để `_acceptance/` của kit không bị
+   quét lẫn với hồ sơ của kho), rồi trỏ `CLAUDE_PLUGIN_ROOT` vào đó — mọi lệnh
+   trong khuôn `_acceptance/config.yaml` vốn đã viết theo biến này:
+
+   ```yaml
+   acceptance-gate:
+     runs-on: ubuntu-latest
+     env:
+       KIT_SHA: <sha ghim>                       # đổi dòng này mỗi mốc
+     steps:
+       - uses: actions/checkout@v4
+         with: { fetch-depth: 0 }                # cần lịch sử để kiểm verified_commit + chữ ký
+       - name: Lấy kit ở sha ghim
+         run: |
+           git init -q "$RUNNER_TEMP/kit"
+           git -C "$RUNNER_TEMP/kit" fetch -q --depth 1 https://github.com/phanlemanh/acceptance-gate-kit "$KIT_SHA"
+           git -C "$RUNNER_TEMP/kit" checkout -q FETCH_HEAD
+           echo "CLAUDE_PLUGIN_ROOT=$RUNNER_TEMP/kit" >> "$GITHUB_ENV"
+       - run: bash "$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh" . --base "origin/$GITHUB_BASE_REF"
+       - run: node "$CLAUDE_PLUGIN_ROOT/scripts/product-map.mjs" --root . --check
+   ```
+
+3. **Khai tệp workflow ấy là T1** trong `risk_tiers.t1_skip_globs` — ĐÍCH DANH tên
+   tệp (ví dụ `.github/workflows/acceptance-gate.yml`), KHÔNG phải `.github/**`
+   (án bác ở `.out-of-scope/t1-skip-globs-github-and-manifests.md`). Tiền lệ là
+   chính kit: `.github/workflows/gate.yml` nằm trong `t1_skip_globs` của kit.
+   Không có dòng này thì mỗi PR đổi sha đỏ T1-escape.
+
+Chạy ở máy dev: cùng lệnh, với `CLAUDE_PLUGIN_ROOT` là bản plugin đã cài.
+Giới hạn khai thẳng: CI phụ thuộc việc tải kit từ GitHub (kho public, cùng loại
+phụ thuộc với mọi action); kit chưa có tag nên ghim theo sha; hai dòng
+`pre-merge-check.sh:376` và `:397` còn đọc lib theo đường của kho — chỉ chạm hồ sơ
+`machine-cleared`, kho có hồ sơ ấy chờ mốc kế (hạt giống
+`docs/plans/2026-09-23-hat-giong-lop-chep-tu-xoa-2-18-3.md`). Kho đang giữ bản
+sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
+gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
+
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 15 file**
+từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
+ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
+`require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
+ĐÃ BIẾT thiếu `skills/acceptance/references/opportunity-template.md` mà
+`product-map.mjs` đọc (đo 23/09) — chép thêm nó nếu vẫn đi đường này; nâng theo
+DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu một tên nào dưới
+đây thì lớp tương ứng **tắt im lặng** — CI vẫn xanh:
 
 <!-- <<<GUIDE-CI-COPY-LIST -->
 - `scripts/pre-merge-check.sh` — chính cổng merge

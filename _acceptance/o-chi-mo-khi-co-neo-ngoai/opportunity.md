@@ -194,6 +194,9 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   «ĐẠT đã ký» mà 4/8 hồ sơ chưa từng ĐẠT-ký; chỗ đỏ khai trong dòng quan sát không vào k.
 - `docs/plans/2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md` — lượt máy hỏi ngoài thiết kế dồn về S1
   (28 chạm / 3 vòng crm, 0 câu lệch khuyến nghị): áp luật lời mời cho bước lên thiết kế.
+- `docs/plans/2026-09-23-hat-giong-lop-chep-tu-xoa-2-18-3.md` — 23/09: sáu kho nâng 2.18.1, danh sách
+  chép thiếu tệp lần thứ ba, oneflow fork 508 dòng bỏ răng P184; owner đổi đường mặc định sang chạy
+  cổng từ bản kit ghim sha (GUIDE §5.3) — vòng TRỪ xoá đường chép, đi sau vòng S1.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.
