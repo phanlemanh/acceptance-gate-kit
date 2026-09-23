@@ -80,6 +80,93 @@ const blockedEarly = (cmd, reason) => ({
   confirmedFindings: [], boNgoaiVat: [], reviewIncomplete: [], runLog: [tallyLine('BLOCKED', 1)], runLogWriteFailed: true,
 })
 
+// <<<CHOT-TRUONG-NGUOI
+// Chốt máy trường-của-người (hồ sơ chot-may-chu-ky-sau-synthesize, mốc 2.18.2). Báo cáo
+// bằng chứng là MỘT CHUỖI do tác tử tổng hợp viết; bốn trường trong đó không thuộc quyền tác
+// tử: ba chữ của NGƯỜI (ADR 0002) và giờ đo mà ENGINE đã có. Dặn trong prompt không phải
+// nghiệm (đo 23/09: 13/84 báo cáo kit, 12/56 crm mang verified_at tác tử đặt; một chữ ký máy
+// trên hồ sơ crm tới bước ghi tệp) — nên JS viết lần cuối, tác tử hết quyền.
+// Luật CHỈ áp ở VỊ TRÍ TRƯỜNG theo khuôn bên viết (evidence-report-template.md): khoá cấp 0
+// của frontmatter, và dòng trường của một khối evidence (mở bằng `- <khoá>:`, dòng thụt đúng
+// cột nội dung). Nội dung khối vô hướng (`output: |`…) và văn xuôi KHÔNG chạm — xoá chuỗi ở đó
+// là làm giả output. Khối rút nguyên văn bởi tests/workflows/chot-truong-nguoi-corpus.mjs.
+const KHOA_NGUOI = ['human_signoff', 'human_override', 'bypass_ack']
+const GIO_ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
+function chotTruongNguoi(report, opts) {
+  const invokedAt = opts && typeof opts.invokedAt === 'string' && GIO_ISO_RE.test(opts.invokedAt) ? opts.invokedAt : ''
+  const gioTheoRunId = (opts && opts.gioTheoRunId) || {}
+  const doi = { human_signoff: 0, human_override: 0, bypass_ack: 0, verified_at: 0 }
+  const text = typeof report === 'string' ? report : ''
+  const tho = text.split('\n')
+  const cr = tho.map(l => l.endsWith('\r'))
+  const dong = tho.map((l, i) => (cr[i] ? l.slice(0, -1) : l))
+  const MO_VO_HUONG = /^[^:=]*[:=]\s*[|>][-+0-9]*\s*(#.*)?$/
+  // Lượt 1: đánh dấu vị trí trường, khối của từng dòng, run_id của từng khối.
+  const viTri = new Array(dong.length).fill(false)
+  const khoiCua = new Array(dong.length).fill(-1)
+  const runIdKhoi = []
+  let fmHet = -1
+  if (dong[0] === '---') {
+    for (let j = 1; j < dong.length; j += 1) if (dong[j] === '---') { fmHet = j; break }
+  }
+  let voHuongCot = -1
+  for (let j = 1; j < fmHet; j += 1) {
+    const l = dong[j]; const cot = l.search(/\S/)
+    if (cot === -1) continue
+    if (voHuongCot >= 0) { if (cot > voHuongCot) continue; voHuongCot = -1 }
+    if (cot === 0 && !l.startsWith('#')) { viTri[j] = true; if (MO_VO_HUONG.test(l)) voHuongCot = 0 }
+  }
+  let khoi = -1, cotNoiDung = -1
+  voHuongCot = -1
+  for (let j = fmHet + 1; j < dong.length; j += 1) {
+    const l = dong[j]; const cot = l.search(/\S/)
+    if (cot === -1) continue
+    if (voHuongCot >= 0) { if (cot > voHuongCot) continue; voHuongCot = -1 }
+    if (/^\s*- [A-Za-z_][\w-]*\s*:/.test(l) && (khoi === -1 || cot < cotNoiDung)) {
+      khoi = runIdKhoi.length; runIdKhoi.push(null); cotNoiDung = cot + 2
+      viTri[j] = true; khoiCua[j] = khoi
+      continue
+    }
+    if (khoi === -1) continue
+    if (cot < cotNoiDung) { khoi = -1; cotNoiDung = -1; continue }
+    const nd = l.slice(cot)
+    if (cot === cotNoiDung && !nd.startsWith('#') && !nd.startsWith('- ')) {
+      viTri[j] = true; khoiCua[j] = khoi
+      const m = nd.match(/^run_id\s*[:=]\s*(\S+)/)
+      if (m && runIdKhoi[khoi] === null) runIdKhoi[khoi] = m[1]
+      if (MO_VO_HUONG.test(l)) voHuongCot = cot
+    }
+  }
+  // Lượt 2: viết lại đúng hai loại dòng, ở đúng vị trí trường.
+  const RE_NGUOI = /^(\s*(?:- )?)(human_signoff|human_override|bypass_ack)(\s*[:=])(.*)$/
+  const RE_GIO = /^(\s*(?:- )?)(verified_at)(\s*[:=])(\s*)(.*)$/
+  let loi = null
+  const ra = dong.map((l, i) => {
+    if (!viTri[i]) return l
+    let m = l.match(RE_NGUOI)
+    if (m && KHOA_NGUOI.includes(m[2])) {
+      const v = m[4].trim()
+      if (v === '' || v.startsWith('#')) return l
+      doi[m[2]] += 1
+      return m[1] + m[2] + m[3]
+    }
+    m = l.match(RE_GIO)
+    if (m) {
+      const rid = khoiCua[i] >= 0 ? runIdKhoi[khoiCua[i]] : null
+      const gio = rid && Object.prototype.hasOwnProperty.call(gioTheoRunId, rid) && gioTheoRunId[rid] ? gioTheoRunId[rid] : invokedAt
+      if (!gio) { loi = 'chot-truong-nguoi: khong co gio engine (invokedAt vang) — khong ep duoc verified_at'; return l }
+      const moi = m[1] + m[2] + m[3] + (m[4] || ' ') + gio
+      if (moi === l) return l
+      doi.verified_at += 1
+      return moi
+    }
+    return l
+  })
+  if (loi) return { text, doi, loi }
+  return { text: ra.map((l, i) => (cr[i] ? l + '\r' : l)).join('\n'), doi, loi: null }
+}
+// CHOT-TRUONG-NGUOI>>>
+
 if (!args || !Array.isArray(args.evals) || !Array.isArray(args.suiteCommands)) {
   return blockedEarly('(args)', 'args.evals / args.suiteCommands phai la array — skill feature-loop build args sai')
 }
@@ -1448,6 +1535,29 @@ VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop l
   { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA, ...modelOpt('synthesize') }
 )
 
+// Chốt máy trường-của-người NGAY sau synthesize, TRƯỚC khi trả report cho vòng chính (hồ sơ
+// chot-may-chu-ky-sau-synthesize). Giờ engine của khối carry = đúng giá trị prompt đã đưa
+// (carriedForReport); mọi khối khác = invokedAt. Thiếu giờ mà báo cáo có verified_at →
+// BLOCKED có tên (không để lại giờ tác tử đặt). Chốt đổi dòng nào thì NÓI RA: một dòng run-log.
+const gioTheoRunId = {}
+for (const c of carriedEvals) gioTheoRunId[c.runId] = c.verifiedAt || invokedAt
+const chot = chotTruongNguoi(String((report && report.report) || ''), { invokedAt, gioTheoRunId })
+if (chot.loi) {
+  blocked.push({ cmd: 'chot-truong-nguoi', reason: chot.loi })
+  verdict = 'BLOCKED'
+  const tIdx = runLogLines.map(l => { try { return JSON.parse(l).kind } catch (_) { return null } }).lastIndexOf('round-tally')
+  const tCu = tIdx >= 0 ? (() => { try { return JSON.parse(runLogLines[tIdx]) } catch (_) { return null } })() : null
+  const tMoi = tallyLine('BLOCKED', blocked.length, tCu ? tCu.expected : 0, tCu ? tCu.returned : 0)
+  if (tIdx >= 0) runLogLines[tIdx] = tMoi
+  else runLogLines.push(tMoi)
+  log('Chot truong nguoi: ' + chot.loi + ' — BLOCKED, report rong')
+} else if (Object.values(chot.doi).some(n => n > 0)) {
+  runLogLines.push(JSON.stringify({
+    ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'chot-truong-nguoi', ...chot.doi,
+  }))
+  log('Chot truong nguoi: tac tu tong hop da viet vao truong khong thuoc quyen no — ' + JSON.stringify(chot.doi) + ' (da ep lai, ghi mot dong run-log)')
+}
+
 return {
   verdict,
   failedEvals: failedEvalIds,
@@ -1474,6 +1584,6 @@ return {
   // run_id trong report với log, nên log phải nằm trên đĩa trước report.
   runLog: runLogLines,
   runLogWriteFailed,
-  report: (report && report.report) || '',
-  findings: (report && report.findings) || '',
+  report: chot.loi ? '' : chot.text,
+  findings: chot.loi ? '' : ((report && report.findings) || ''),
 }
