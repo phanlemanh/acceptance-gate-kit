@@ -107,6 +107,36 @@ là việc tài liệu, TRỪ-trung-tính.
 - **Linter của kho** quét tệp vendored: biome của oneflow đỏ; oxlint của floorplanstudio và mapposter chỉ thêm cảnh báo. Mỗi kho loại trừ theo lệ riêng.
 - **Phiên điều phối tự dẫm một lần:** bảng lệch đầu tiên đo crm trên checkout cục bộ tụt sau `origin/onehub`, nên báo sai «thiếu 2». Đây là cùng bài học với «worktree đi sau origin/main».
 
+## 3b. Đo sâu cùng ngày (owner hỏi «phân tích kỹ trước khi quyết»)
+
+Mọi số dưới đây đo bằng `git worktree` dựng từ ref gốc của chính kho, chép lớp từ kit `8a4ea881`.
+
+- **§2.1 dựng lại được.** Có 15 tệp: `product-map --check` thoát 2 (ENOENT) trên cây crm và oneflow.
+  Có 16 tệp: crm thoát 0; oneflow thoát 1 vì bản đồ vẽ dưới 2.16, khớp báo cáo F.
+- **§2.2 lật một tiền đề.** Cả sáu kho đã có `scripts/pre-merge-check.sh` trong `t1_skip_globs`
+  (lời khuyên của CHANGELOG 2.13.0). Mà trong mô hình chép, CI chạy bản cổng của CHÍNH PR, nên
+  T1-escape không canh được tệp cổng dù có miễn hay không. Lỗ mà `.out-of-scope/t1-skip-globs-github-and-manifests.md`
+  sợ («đổi CI có thể TẮT cổng») đã mở ở cả sáu kho từ 14/09. Thứ duy nhất canh được nó nằm ở forge:
+  CODEOWNERS và branch protection trên `scripts/`, `lib/`, `.github/workflows/`.
+- **§2.3: bỏ từng tệp một** (cây oneflow, `--base origin/main`).
+  - **Năm tệp lên tiếng:** chính cổng (127), `recheck-evidence` (40 VIOLATION), `workspace-record`, `eval-yaml` (34), `ac-line` (NOTE).
+  - **`evidence-core` lên tiếng khi có hồ sơ trong phạm vi:** 56 VIOLATION trên crm `--recheck-all`. Ghi chú đính chính: nó không fail-open.
+  - **Chín tệp IM LẶNG, `clean` giống hệt bản đủ:** `gap-probe`, `md-section`, `lop-nhin-thay`, `nhan-canh-gay`, `product-map`, `trang-thai-ho-so`, `khong-can-nguoi`, `nguong-o-co-hoi`, `out-of-contract`.
+  - **Im tới ngày có ca.** Hôm đó phần lớn fail-closed nhưng thông điệp đổ lỗi cho hồ sơ. Ví dụ «không đọc được mục Known limits» hay «verdict=BLOCKED must be PASS», trong khi nguyên nhân là thiếu lib.
+  - **Riêng `lop-nhin-thay` chỉ in NOTE**, không bao giờ chặn.
+- **Chạy cổng từ bản kit, không chép:** `bash <kit>/scripts/pre-merge-check.sh . --base …` trên cây đã gỡ lớp chép.
+  - mapposter và artifact-platform: `clean`, product-map thoát 0.
+  - crm: 3 VIOLATION «không đọc được mục Known limits», vì `pre-merge-check.sh:376` và `:397` đọc lib theo `$ROOT` thay vì theo thư mục của cổng như mọi chỗ khác.
+  - Hai chỗ lệch này không test nào thấy, vì ở kit và ở kho chép hai đường trùng nhau.
+- **Ghim lại media-library** (14,3 phút, 146 eval):
+  - **8/9 hồ sơ đỏ-hạ-tầng:** DB chung đã nhận migration 0029 của nhánh khác; thiếu env.
+  - **1/9 đỏ-vật:** `cua-nguon-thong-nhat` có insert ngoài danh sách trắng từ 27/08 và chặn 429 từ 05/09. Làn suite-only 04/09 đã che lỗi này.
+  - **Bốn chỗ của công cụ ghim lại:**
+    1. Dòng tóm tắt in `suites: 3 lệnh exit 0` trong khi `suites_exit` là `[0,0,1]`: bằng chứng tự dối.
+    2. Làn tất-cả-hoặc-không: một hồ sơ đỏ chặn tám hồ sơ còn lại.
+    3. BLOCKED/CANNOT-RUN gộp chung vào «LÀN ĐỎ».
+    4. Executor E7 ghi vào `evidence/` của hồ sơ đã ký.
+
 ## 4. Việc kế
 
 Cả bốn chỗ ở §2 đều có neo ngoài: đó là PR cài kit của kho tiêu thụ, đúng vế 4 luật (b).
