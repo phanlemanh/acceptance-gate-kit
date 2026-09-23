@@ -10,6 +10,97 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.18.2 — 23/09/2026
+
+Cửa sổ 2.18.1 → 2.18.2 kéo **một ngày**, có **một vòng** chạm engine do owner gọi tên:
+`chot-may-chu-ky-sau-synthesize` (T2, ký 23/09). Kho chờ nhận là sáu kho vừa nâng 2.18.1: hai
+kho đã ghim sha `8a4ea881` (oneflow #129, artifact-platform #392), ba kho đang chờ PR ghim sha
+(media-library, floorplanstudio, MapPoster) và `crm` còn đi đường chép, chờ 2.18.3. Mốc đi
+**làn V**, không dựng răng mới. Hai gói cùng lên `2.18.2`; `diagram-design` giữ `2.7.0`. Đây là
+mốc đầu tiên có **tag** `v2.18.2`, gắn tại commit ký mốc.
+
+**Đổi gì:**
+
+- **Máy thôi được ký thay người trong báo cáo bằng chứng.** Tác tử tổng hợp của lượt chấm S4
+  từng tự điền chữ ký người và tự đặt giờ đo. Đo 23/09: 13/84 báo cáo kit và 12/56 báo cáo crm
+  mang giờ đo do tác tử đặt, 6 báo cáo crm mang giờ ở tương lai, và một chữ ký máy trên hồ sơ
+  crm đã tới bước ghi tệp. Nay workflow tự ép rỗng `human_signoff`, `human_override`,
+  `bypass_ack` và ép mọi `verified_at` bằng giờ engine trước khi trả báo cáo. Khối mang sang từ
+  lượt trước giữ giờ gốc của nó. Chốt đổi dòng nào thì run-log có một dòng
+  `kind: chot-truong-nguoi` nói số dòng đổi theo từng khoá, nên tần suất tác tử bịa vẫn đếm được.
+  Người ký vẫn ký bằng `/acceptance-gate:signoff` như cũ.
+- **Đường mặc định của CI là chạy cổng từ bản kit ghim sha, không chép tệp** (GUIDE §5.3, đổi từ
+  23/09 trong cửa sổ này). Kho ghi `KIT_SHA` trong tệp workflow CI, job lấy kit về ngoài cây kho
+  rồi chạy cổng từ đó. Từ mốc này kho cũng có thể lấy kit bằng tag:
+  `git fetch --depth 1 origin refs/tags/v2.18.2`.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Kho đã ghim sha** (oneflow, artifact-platform, và ba kho khi PR ghim sha gộp): đổi `KIT_SHA`
+  từ `8a4ea881` sang commit ký mốc 2.18.2, hoặc lấy theo tag `v2.18.2`. Một PR, một dòng.
+- **Kho còn đường chép** (`crm`): chép lại lớp CI theo **danh sách** ở GUIDE §5.3 cộng
+  `skills/acceptance/references/opportunity-template.md`, tổng 16 tệp. Không tệp nào trong lớp
+  chép đổi ở mốc này, nên kho đã đủ 16 tệp từ đính chính 2.18.1 không phải chép gì. Đường chép
+  sẽ bị xoá ở 2.18.3.
+- **Máy dev:** cập nhật plugin như mọi mốc. Không cần làm gì với hồ sơ đang mở. Bản engine mới
+  chỉ đổi cách lượt chấm S4 ghi báo cáo.
+
+**Giới hạn đã khai:**
+
+- Chốt không chạm năm hình dạng override mà bộ đọc L3 vẫn đếm: giữa dòng bảng, trong chú thích,
+  khoá có tiền tố trùng đuôi, bản ghi một dòng kiểu `{…}`, nội dung khối vô hướng. Danh sách một
+  nguồn là khối `GIOI-HAN-CHOT` trong `acceptance-verify.js`. Nghiệm đúng tầng là neo dòng cho
+  L3 của bên đọc. Owner không phê vế đó ở vòng này; nó nằm ở hạt giống
+  `docs/plans/2026-09-23-hat-giong-rang-ben-doc-verified-at-chu-ky.md`.
+- Chữ ký do phiên tự viết ngoài `/signoff` chưa bị chặn. Đó cũng là việc của răng bên đọc.
+- Vòng đột biến `CTN-AC8-vi-phan` chạy riêng thì không tự kiểm đối chứng dương (Known limits
+  Ngoài-2 của hồ sơ vòng).
+- Giờ đo bịa đang nằm trong 25 hồ sơ đã ký (13 kit, 12 crm) chưa được chữa. Chúng chờ chiến dịch
+  ghim lại theo run-log thật.
+- `pre-merge-check.sh` dòng 376 và 397 còn đọc `lib/` theo đường của kho. Kho chạy cổng từ bản
+  kit mà có hồ sơ `machine-cleared` thì chờ 2.18.3.
+
+**Năm dòng số của luật (c) — vòng `chot-may-chu-ky-sau-synthesize`:**
+
+| Dòng | Số | Nguồn |
+|---|---|---|
+| Làm-xong→quyết-được | Cổng Phạm vi ≈ 21 phút · dừng-vá ≈ 2 phút · trần 3 lượt ≈ 27 phút theo giờ tự khai trong sổ, dòng sổ ghi muộn hơn 2 giờ · ký lần 1 ≈ 16 phút · xác nhận nâng phạm vi ≈ 38 phút · ký lần 2 ≈ 18 phút. Code xong → chữ ký cuối: 7 giờ 8 phút | giờ commit + sổ quyết định |
+| Lượt gọi người / vòng | **7** lượt, **7** chạm, mỗi lượt một lệnh. Trong thiết kế **4**: hai cổng (Cổng Phạm vi, ký lần 1) và hai điểm dừng SKILL liệt kê tường minh (dừng-vá, trần 3 lượt). Ngoài thiết kế **3**: xác nhận nâng phạm vi, «nâng phạm vi» sau chữ ký, ký lần 2. Mục tiêu T2 là ≤3 | sổ quyết định + git log |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **0**. Năm lượt đều trả 14/14 phép đo, 0 BLOCKED. Lượt 3 REJECT vì vật | `run-log.jsonl` round-tally |
+| Token máy / vòng | 5 lượt: **564 k** out-token, **6,78 M** token không-cache. Tách ba khối theo out-token: chứng-minh-vật 106 k (19 %) · tìm-lỗi 345 k (61 %) · tổng hợp 113 k (20 %). Phiên chính không đo | `usage-report.md` |
+| Phút máy / lượt chấm | 30 · 28 · 40 · 30 · 24 phút, tổng 152 phút. Đường găng lượt 2 là khối máy 1 223 s trên 1 678 s, trong đó suite scripts 777 s | `wall` + bảng vai |
+
+Dòng 4 chỉ lượt 2 còn nhãn vai. Bốn lượt còn lại tách theo model và số lượt gọi: tác tử máy chạy
+haiku, rà soát chạy opus, còn triage, bác bỏ, chụp và tổng hợp chạy sonnet. Lượt 3 có hai tác tử
+sonnet hai lượt gọi không phân được vai, nên khối tìm-lỗi và tổng hợp của lượt ấy lệch tối đa 5 k.
+
+**Điều kiện tin cậy:** đường verdict không đổi thành phần. Chốt chạy SAU tổng hợp và chỉ đổi bốn
+khoá, không đổi ai phán. Nó có răng hai chiều: đột biến AC-8 cho chiều đỏ, chiều im trên toàn
+corpus báo cáo kit và crm (AC-6, AC-7). Số lượt chấm sai không tăng: lượt 3 REJECT đúng vật. Dòng
+4–5 vì thế cắt được.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở kho tiêu thụ | người ký thôi phải gỡ tay chữ ký máy và giờ bịa trước khi commit |
+| 2 | = | không cổng nào thêm bớt |
+| 3 | = ở đường `s4-args.mjs` · ↑ ở kho tự dựng args thiếu `invokedAt` | args thiếu `invokedAt` mà báo cáo có `verified_at` thì lượt chấm BLOCKED có tên |
+| 4 | = | chốt là một hàm JS, không thêm tác tử |
+| 5 | = | chốt chạy trong vài mili-giây sau tổng hợp |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc trên kit bằng
+`scripts/hieu-chuan-moc.mjs --root .`. N không tăng so với mốc trước ở phần kit.
+
+**Nhát cắt có tên cho cửa sổ kế** (thứ tự owner xếp 23/09 trong `docs/plans/`):
+
+1. **2.18.3 — lớp chép tự xoá**
+   (`docs/plans/2026-09-23-hat-giong-lop-chep-tu-xoa-2-18-3.md`). Sửa hai dòng `$ROOT/lib` của
+   `pre-merge-check.sh`, xoá danh sách chép ở `acceptance-init` và GUIDE, xoá ca `CE2`. Việc thứ ba
+   của hạt giống, gắn tag, làm tay ở mốc này. Còn lại là đưa nó thành bước của `/signoff`.
+2. **2.19 — máy hỏi ngoài thiết kế ở S1**
+   (`docs/plans/2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md`).
+
 ## 2.18.1 — 22/09/2026
 
 Cửa sổ 2.18.0 → 2.18.1 kéo **một ngày**, có **một vòng** chạm engine do owner gọi tên:

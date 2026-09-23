@@ -26,6 +26,10 @@ Số đo: `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md` §2, §3b–3d.
 | 2 | XOÁ khối `INIT-CI-COPY-LIST` (`commands/acceptance-init.md`), khối `GUIDE-CI-COPY-LIST` + đoạn «Đường cũ» (GUIDE §5.3), ca `CE2*` (`tests/scripts/consumer-esm.test.mjs`), lời nhắc «re-copy pre-merge-check.sh» ở `commands/signoff.md:259` và `acceptance-init.md:184` | grep toàn kho không còn `COPY-LIST`; suite scripts xanh; `acceptance-init` viết khuôn workflow §5.3 thay bước chép |
 | 3 | Gắn tag `v<phiên bản>` tại commit ký mốc (bước của `/signoff` cho hồ sơ `release-*`), để kho ghim theo tag thay sha | mốc kế có tag; `git ls-remote --tags` thấy |
 
+**Cập nhật 23/09 (mốc 2.18.2):** việc #3 làm TAY ở mốc này — tag `v2.18.2` gắn tại commit ký mốc sau khi gộp, đẩy lên
+remote; GUIDE §5.3 nói kho lấy kit bằng tag được. Phần còn lại của #3 là đưa bước gắn tag vào `/signoff`
+cho hồ sơ `release-*`.
+
 Điều kiện mở: owner gọi tên sau khi mốc S1 (2.18.2) đã cắt. Ngưỡng thay thế nếu S1 chậm: thêm một
 kho cài đỏ vì hạ tầng kit ở đường chép.
 

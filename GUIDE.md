@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.18.1 · feature-loop 2.18.1 · diagram-design 2.7.0.
+> Khớp phiên bản: acceptance-gate 2.18.2 · feature-loop 2.18.2 · diagram-design 2.7.0.
 
 ## Mục lục
 
@@ -824,7 +824,9 @@ rộng `$CLAUDE_PLUGIN_ROOT` TRƯỚC khi gán, lệnh rỗng. Job chạy trên 
 hoặc `${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"}`. Các dòng `t1_skip_globs`
 khai tệp kit (kể cả tên đuôi `.js` cũ) GIỮ NGUYÊN như đã nói ở mục (3).
 Giới hạn khai thẳng: CI phụ thuộc việc tải kit từ GitHub (kho public, cùng loại
-phụ thuộc với mọi action); kit chưa có tag nên ghim theo sha; hai dòng
+phụ thuộc với mọi action); từ 2.18.2 kit gắn tag mốc tại commit ký mốc, nên kho có
+thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --depth 1 origin refs/tags/v2.18.2`
+(ở bước «Lấy kit» thay `"$KIT_SHA"` bằng `refs/tags/v2.18.2`); hai dòng
 `pre-merge-check.sh:376` và `:397` còn đọc lib theo đường của kho — chỉ chạm hồ sơ
 `machine-cleared`, kho có hồ sơ ấy chờ mốc kế (hạt giống
 `docs/plans/2026-09-23-hat-giong-lop-chep-tu-xoa-2-18-3.md`). Kho đang giữ bản
