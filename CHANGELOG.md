@@ -64,8 +64,8 @@ mốc đầu tiên có **tag** `v2.18.2`, gắn tại commit ký mốc.
 
 | Dòng | Số | Nguồn |
 |---|---|---|
-| Làm-xong→quyết-được | Cổng Phạm vi ≈ 21 phút · dừng-vá ≈ 2 phút · trần 3 lượt ≈ 27 phút theo giờ tự khai trong sổ, dòng sổ ghi muộn hơn 2 giờ · ký lần 1 ≈ 16 phút · xác nhận nâng phạm vi ≈ 38 phút · ký lần 2 ≈ 18 phút. Code xong → chữ ký cuối: 7 giờ 8 phút | giờ commit + sổ quyết định |
-| Lượt gọi người / vòng | **7** lượt, **7** chạm, mỗi lượt một lệnh. Trong thiết kế **4**: hai cổng (Cổng Phạm vi, ký lần 1) và hai điểm dừng SKILL liệt kê tường minh (dừng-vá, trần 3 lượt). Ngoài thiết kế **3**: xác nhận nâng phạm vi, «nâng phạm vi» sau chữ ký, ký lần 2. Mục tiêu T2 là ≤3 | sổ quyết định + git log |
+| Làm-xong→quyết-được | Cổng Phạm vi ≈ 21 phút · dừng-vá ≈ 2 phút · trần 3 lượt ≈ 27 phút theo giờ tự khai trong sổ, dòng sổ ghi muộn hơn 2 giờ · ký lần 1 ≈ 16 phút · nâng phạm vi ≈ 38 phút từ lúc máy hỏi · ký lần 2 ≈ 18 phút. Code xong → chữ ký cuối: 7 giờ 8 phút | giờ commit + sổ quyết định |
+| Lượt gọi người / vòng | **6** lượt, **6** chạm, mỗi lượt một lệnh. Trong thiết kế **4**: hai cổng (Cổng Phạm vi, ký lần 1) và hai điểm dừng SKILL liệt kê tường minh (dừng-vá, trần 3 lượt). Ngoài thiết kế **2**: «nâng phạm vi» sau chữ ký, ký lần 2. Mục tiêu T2 là ≤3. Đếm theo lệnh owner gõ: câu máy hỏi xác nhận và câu owner trả lời «nâng phạm vi» là MỘT lượt | sổ quyết định + git log |
 | Vòng bị hạ-tầng-kit đốt lượt chấm | **0**. Năm lượt đều trả 14/14 phép đo, 0 BLOCKED. Lượt 3 REJECT vì vật | `run-log.jsonl` round-tally |
 | Token máy / vòng | 5 lượt: **564 k** out-token, **6,78 M** token không-cache. Tách ba khối theo out-token: chứng-minh-vật 106 k (19 %) · tìm-lỗi 345 k (61 %) · tổng hợp 113 k (20 %). Phiên chính không đo | `usage-report.md` |
 | Phút máy / lượt chấm | 30 · 28 · 40 · 30 · 24 phút, tổng 152 phút. Đường găng lượt 2 là khối máy 1 223 s trên 1 678 s, trong đó suite scripts 777 s | `wall` + bảng vai |
