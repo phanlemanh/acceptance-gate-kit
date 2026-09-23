@@ -231,6 +231,16 @@ Phát hiện đo được, đã có án: PR #392 xoá 16 tệp non-T1 mà T1-esc
 đã bác siết ở 15/08 (`.out-of-scope/t1-escape-slug-only-thu-hep-mien-tru.md`) — đã ghi vào mục Prior
 requests của tệp đó, không mở lại.
 
+**Đính chính sau merge (artifact-platform, 05:05Z):** câu «gỡ `t1_skip_globs` cùng PR không đổi verdict» ở
+GUIDE §5.3 (rút từ oneflow #129) là SAI — nó chỉ đúng ở chế độ `--base` (cổng soi hồ sơ trong diff).
+Lượt `push` không `--base` trên main artifact-platform: 144 → 146 hồ sơ hết hạn; hai hồ sơ mới
+(`chat-ux-chuan-hoa`, `deal-preview-link-reload`) có «Changed:» chứa chính các tệp kit vừa xoá. Khai lại
+19 tên (kể cả `.js` cũ) → về 144. Cơ chế: luật stale đếm tệp đổi từ `verified_commit` ngoài
+`t1_skip_globs`; gỡ dòng khai biến việc xoá tệp kit thành «code đổi sau verify». Oneflow #129 cũng đã
+gỡ các dòng ấy — main oneflow chưa đỏ vì job `push` vẫn truyền `--base origin/main` (diff rỗng), nhưng
+hồ sơ ký trước 23/09 sẽ stale ở PR kế chạm nó. GUIDE §5.3 đã sửa: GIỮ dòng khai làm lịch sử; đo
+TRƯỚC↔SAU thêm một lượt không `--base`. Việc khôi phục ở hai kho giao lại cho phiên/chip của kho.
+
 Nợ có tên ở artifact-platform: eval E2 của hồ sơ đã ký `gate-slug-visibility` chép đè
 `scripts/pre-merge-check.sh` — tệp không còn; chờ lần ghim kế đỏ rồi xử cùng lớp với nợ oneflow.
 

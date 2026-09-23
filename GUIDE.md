@@ -802,8 +802,13 @@ Ba bước, mỗi bước một dòng cấu hình của kho:
 **Kho đang ở đường chép muốn rời** (đo trên oneflow #129, 23/09 — verdict 51/51 dòng
 giống hệt trước/sau): trong MỘT PR — (1) xoá mọi tệp kit-owned đã chép (`cmp` với bản
 kit ở sha ghim để chắc là tệp kit, không phải tệp của kho); (2) sửa workflow như trên;
-(3) gỡ các dòng `t1_skip_globs` khai tệp kit và loại-trừ vendored trong linter của kho —
-gỡ cùng PR không đổi verdict; (4) khoá `paths:` trong `evals.yaml` GIỮ NGUYÊN (kit vẫn
+(3) **GIỮ NGUYÊN** các dòng `t1_skip_globs` khai tệp kit đã chép — chúng là lịch sử:
+luật stale đếm «tệp đổi từ `verified_commit` tới nay ngoài `t1_skip_globs`», nên gỡ dòng
+khai là biến chính việc XOÁ tệp kit thành «code đổi sau lượt verify» cho mọi hồ sơ ký
+trước đó (artifact-platform #392: 144 → 146 hồ sơ hết hạn trên lượt `push`; khai lại
+19 tên → về 144). Chỉ gỡ loại-trừ vendored trong linter của kho. Lượt đo TRƯỚC↔SAU
+phải có thêm MỘT lần **không `--base`** (cả cây): có `--base` cổng chỉ soi hồ sơ trong
+diff nên không thấy lớp này; (4) khoá `paths:` trong `evals.yaml` GIỮ NGUYÊN (kit vẫn
 đọc cho P1); (5) grep các script riêng của kho còn gọi `scripts/pre-merge-check.sh` —
 chúng sẽ không tìm thấy cổng, đổi sang `"$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh"`
 hoặc ghi nợ có tên. Kho có hồ sơ `status: machine-cleared` (grep `contract.md`) chờ mốc kế
@@ -815,9 +820,8 @@ không phải thư mục `cache/…/<phiên bản>`), và phải **`export`** tr
 `CLAUDE_PLUGIN_ROOT=… bash "$CLAUDE_PLUGIN_ROOT/…"` trên một dòng thì shell mở
 rộng `$CLAUDE_PLUGIN_ROOT` TRƯỚC khi gán, lệnh rỗng. Job chạy trên `push` không có
 `GITHUB_BASE_REF`: giữ khuôn cũ của kho (`--base HEAD~1 --no-t1-escape`, xem dưới)
-hoặc `${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"}`. Khi gỡ `t1_skip_globs`,
-gỡ cả tên đuôi `.js` cũ (`recheck-evidence.js`, `out-of-contract.js`) — chúng là
-tệp kit đã đổi tên, không phải tệp của kho.
+hoặc `${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"}`. Các dòng `t1_skip_globs`
+khai tệp kit (kể cả tên đuôi `.js` cũ) GIỮ NGUYÊN như đã nói ở mục (3).
 Giới hạn khai thẳng: CI phụ thuộc việc tải kit từ GitHub (kho public, cùng loại
 phụ thuộc với mọi action); kit chưa có tag nên ghim theo sha; hai dòng
 `pre-merge-check.sh:376` và `:397` còn đọc lib theo đường của kho — chỉ chạm hồ sơ
