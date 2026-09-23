@@ -15,6 +15,7 @@ import { readFileSync, readdirSync, existsSync, mkdtempSync, mkdirSync, writeFil
 import { execFileSync, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { runWorkflow } from './harness.mjs';
 import { napChot, kiemIm, KHOA_BON } from './chot-truong-nguoi-corpus.mjs';
 
@@ -144,7 +145,7 @@ function dungKhoi(o, gioVerified, kyTen) {
     // sau dòng verdict — đúng vị trí trường của khối (cột nội dung).
     k = k.split('\n').flatMap(l => (/^\s+verdict:/.test(l) ? [l, `  verified_at: ${gioVerified}`] : [l])).join('\n');
     k = datTruong(k, 'verdict', 'PASS');
-    if (kyTen !== null) k = datTruong(k, 'human_override', kyTen);
+    if (kyTen !== null) k = kyTen === '' ? k.replace(/^(\s*)human_override:.*$/m, '$1human_override:  # chi nguoi ghi') : datTruong(k, 'human_override', kyTen);
   }
   if (o.carry) k += `\n  carried_from_round: 2`;
   return k;
@@ -202,7 +203,8 @@ function doAC1(out) {
     const re = new RegExp(`^(\\s*)${k}\\s*[:=](.*)$`);
     const dong = viTriTruong(out).filter(l => re.test(l));
     if (dong.length === 0) loi.push(`${k} mat dong`);
-    for (const l of dong) if (l.match(re)[2].trim() !== '') loi.push(`${k} con gia tri: «${l.trim()}»`);
+    // Rỗng theo bên đọc: trống hoặc chỉ chú thích.
+    for (const l of dong) { const v = l.match(re)[2].trim(); if (v !== '' && !v.startsWith('#')) loi.push(`${k} con gia tri: «${l.trim()}»`); }
   }
   return loi;
 }
@@ -428,6 +430,126 @@ if (chay('CTN-AC6-kit') || chay('CTN-AC6-dot-bien')) {
   }
 }
 
+// ─── Vi phân với BỘ ĐỌC THẬT (khuôn owner chọn 23/09 sau hai lượt vá cùng lớp) ───────────
+// Lớp lỗi «chốt nhận hình dạng HẸP hơn bên đọc» chỉ đóng được khi phép đo hỏi chính bên đọc:
+// mỗi ô là một hình dạng dòng mà lib/evidence-core.cjs NHẬN (đối chứng dương: bộ đọc thấy giá
+// trị bịa trên bản trước), và sau chốt bộ đọc phải thấy rỗng / đúng giờ engine. Bảng viết trước
+// từ ngữ pháp bên đọc: frontmatterField + chuKyThat (hàng rào, hoa thường, dấu tách, nháy) ·
+// L3 đếm human_override ở mọi nơi (biểu thức RÚT từ nguồn lib, không chép) · extractRunIds +
+// walkEvalExits (run_id mọi dòng của bản ghi kể cả dòng mở, nháy, chú thích, hoa thường, bản
+// ghi `-\s+`). Số assert phải bằng tích các trục, tính độc lập trước khi chạy.
+const LIB = path.join(KIT, 'lib', 'evidence-core.cjs');
+const core = createRequire(import.meta.url)(LIB);
+const L3_KHOP = readFileSync(LIB, 'utf8').match(/const overrideCount = \(payload\.match\((\/[^\n]+?\/[gimsuy]*)\) \|\| \[\]\)\.length/);
+const L3_RE = L3_KHOP ? new Function(`return ${L3_KHOP[1]}`)() : null;
+const demL3 = s => (String(s).match(new RegExp(L3_RE.source, L3_RE.flags)) || []).length;
+const chuanDoc = v => String(v).replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim();
+const GIA = 'Bot Tu Ky 2026-09-23';
+const RID4 = 'run-goc-E4';
+const hoa = (k, c) => (c === 'thuong' ? k : c === 'HOA' ? k.toUpperCase() : k.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join('_'));
+
+function bangViPhan() {
+  const o = [];
+  // A — khoá chữ ký ở frontmatter (bên đọc: frontmatterField; rào không đóng: chuKyThat).
+  const RAO = { thuong: [b => `---\n${b}\n---\n\n# R\n`], 'dong-trong': [b => `\n\n---\n${b}\n---\n\n# R\n`], 'rao-cach': [b => `--- \n${b}\n---  \n\n# R\n`], 'khong-dong': [b => `---\n${b}\n\n# R\n`] };
+  for (const k of ['human_signoff', 'bypass_ack']) for (const r of Object.keys(RAO)) {
+    if (k === 'bypass_ack' && r === 'khong-dong') continue; // không bộ đọc nào đọc bypass_ack khi rào không đóng
+    for (const c of ['thuong', 'HOA', 'Tron']) for (const sep of [':', '=']) for (const val of ['tran', 'nhay']) {
+      const v = val === 'tran' ? GIA : `"${GIA}"`;
+      const bc = RAO[r][0](['schema_version: 2', 'verdict: PASS', `${hoa(k, c)}${sep} ${v}`, 'enforcement_mode: strict'].join('\n'));
+      const doc = s => (r === 'khong-dong' ? core.chuKyThat(s).value : (core.frontmatterField(s, k) || ''));
+      o.push({ id: `A:${k}:${r}:${c}:${sep}:${val}`, truc: 'AC1', bc, truoc: s => doc(s) === GIA, sau: s => doc(s) === '' });
+    }
+  }
+  // B — human_override ở mọi nơi bên đọc L3 đếm.
+  const VT = {
+    'fm-cot0': k => `---\nverdict: PASS\n${k}: ${GIA}\n---\n`,
+    'khoi-cot2': k => `---\nverdict: PASS\n---\n\n- eval: E3\n  verdict: UNCERTAIN\n  ${k}: ${GIA}\n`,
+    'khoi-cot4': k => `---\nverdict: PASS\n---\n\n- eval: E3\n    verdict: UNCERTAIN\n    ${k}: ${GIA}\n`,
+    'khoi-hai-cach': k => `---\nverdict: PASS\n---\n\n-  eval: E3\n   ${k}: ${GIA}\n`,
+    'khoi-long': k => `---\nverdict: PASS\n---\n\n  - eval: E3\n    ${k}: ${GIA}\n`,
+    'than-cot0': k => `---\nverdict: PASS\n---\n\n${k}: ${GIA}\n`,
+  };
+  for (const vt of Object.keys(VT)) for (const c of ['thuong', 'HOA']) {
+    o.push({ id: `B:${vt}:${c}`, truc: 'AC1', bc: VT[vt](hoa('human_override', c)), truoc: s => demL3(s) >= 1, sau: s => demL3(s) === 0 });
+  }
+  // C — giờ carry theo run_id của bản ghi (bên đọc: extractRunIds + walkEvalExits).
+  const RIDV = { tran: RID4, kep: `"${RID4}"`, don: `'${RID4}'`, 'chu-thich': `${RID4}  # giu tu luot 2` };
+  for (const mo of ['eval', 'eval-hai-cach', 'run_id-mo']) for (const rf of Object.keys(RIDV)) for (const ind of [2, 4])
+    for (const vk of ['verified_at', 'VERIFIED_AT']) for (const rk of ['run_id', 'RUN_ID']) for (const thu of ['rid-truoc', 'gio-truoc']) {
+      if (mo === 'run_id-mo' && thu === 'gio-truoc') continue; // run_id ở dòng mở thì luôn đứng trước
+      const sp = ' '.repeat(ind);
+      const dongRid = `${sp}${rk}: ${RIDV[rf]}`, dongGio = `${sp}${vk}: 2099-01-01T00:00:00Z`;
+      const khoi = mo === 'run_id-mo'
+        ? [`- ${rk}: ${RIDV[rf]}`, `${sp}eval: E4`, dongGio, `${sp}exit_code: 0`]
+        : [mo === 'eval' ? '- eval: E4' : '-  eval: E4', ...(thu === 'rid-truoc' ? [dongRid, dongGio] : [dongGio, dongRid]), `${sp}exit_code: 0`];
+      const bc = `---\nverdict: PASS\n---\n\n## Evidence\n\n${khoi.join('\n')}\n`;
+      const gio = s => { const m = s.split('\n').map(l => l.match(/^\s*verified_at\s*[:=]\s*(.*)$/i)).find(Boolean); return m ? chuanDoc(m[1]) : null; };
+      o.push({ id: `C:${mo}:${rf}:${ind}:${vk}:${rk}:${thu}`, truc: 'AC2', bc, truoc: s => core.extractRunIds(s).includes(RID4) && gio(s) === '2099-01-01T00:00:00Z', sau: s => gio(s) === CARRY_AT });
+    }
+  // D — nội dung khối vô hướng: không chạm một byte (chốt không làm giả output).
+  for (const k of ['human_signoff', 'human_override', 'bypass_ack', 'verified_at']) for (const ch of ['|', '>', '|-']) for (const noi of ['fm', 'ban-ghi']) {
+    const gt = k === 'verified_at' ? '2099-01-01T00:00:00Z' : GIA;
+    const bc = noi === 'fm'
+      ? `---\nverdict: PASS\nghi_chu: ${ch}\n  ${k}: ${gt}\n---\n`
+      : `---\nverdict: PASS\n---\n\n- eval: E1\n  output: ${ch}\n    ${k}: ${gt}\n  exit_code: 0\n`;
+    o.push({ id: `D:vo-huong:${k}:${ch}:${noi}`, truc: 'AC3', bc, truoc: s => s.includes(`${k}: ${gt}`), sau: (s, truoc) => s === truoc });
+  }
+  // E — giờ đã đúng nhưng viết có nháy / chú thích: bên đọc coi là bằng nhau → không đổi, không đếm.
+  for (const [ten, v] of [['nhay', `"${INVOKED}"`], ['chu-thich', `${INVOKED}  # engine`]]) {
+    const bc = `---\nverdict: PASS\n---\n\n- eval: E1\n  run_id: minted-x-E1-r1\n  verified_at: ${v}\n`;
+    o.push({ id: `E:gio-dung:${ten}`, truc: 'AC3', bc, truoc: s => s.includes(v), sau: (s, truoc, r) => s === truoc && r.doi.verified_at === 0 });
+  }
+  return o;
+}
+// Số ô tính ĐỘC LẬP từ kích thước trục (viết trước khi chạy):
+//   A = 2 khoá × 4 rào × 3 hoa × 2 tách × 2 giá trị − (bypass_ack × khong-dong: 12) = 84
+//   B = 6 vị trí × 2 hoa = 12 · C = 2 mở-eval × 4 × 2 × 2 × 2 × 2 + 1 mở-run_id × 4 × 2 × 2 × 2 = 160
+//   D = 4 khoá × 3 chỉ báo × 2 nơi = 24 · E = 2  → tổng 282
+const SO_O = { AC1: 84 + 12, AC2: 160, AC3: 24 + 2 };
+function chayBang(chotFn, truc) {
+  const loi = []; let so = 0;
+  for (const c of bangViPhan().filter(x => x.truc === truc)) {
+    so += 1;
+    if (!c.truoc(c.bc)) { loi.push(`${c.id}: doi chung duong hong — ben doc khong thay gia tri bia tren ban truoc`); continue; }
+    const r = chotFn(c.bc, { invokedAt: INVOKED, gioTheoRunId: { [RID4]: CARRY_AT } });
+    if (r.loi) { loi.push(`${c.id}: chot bao loi ${r.loi}`); continue; }
+    if (!c.sau(r.text, c.bc, r)) loi.push(`${c.id}: ben doc van thay gia tri tac tu sau chot`);
+  }
+  if (so !== SO_O[truc]) loi.push(`so assert ${so} != so o ${SO_O[truc]}`);
+  return loi;
+}
+const CHOT_THAT = napChot(WF_SRC);
+if (!L3_RE) bad('CTN-TIEN-DE rut bieu thuc L3 tu lib/evidence-core.cjs', 'khong thay dong overrideCount');
+else {
+  if (chay('CTN-AC1-vi-phan')) ca('CTN-AC1-vi-phan', chayBang(CHOT_THAT, 'AC1'), `vi phan voi ben doc that: ${SO_O.AC1} o chu ky/override`);
+  if (chay('CTN-AC2-vi-phan')) ca('CTN-AC2-vi-phan', chayBang(CHOT_THAT, 'AC2'), `vi phan voi ben doc that: ${SO_O.AC2} o gio carry`);
+  if (chay('CTN-AC3-vi-phan')) ca('CTN-AC3-vi-phan', chayBang(CHOT_THAT, 'AC3'), `vi phan: ${SO_O.AC3} o khoi vo huong + gio dung dang khac`);
+  if (chay('CTN-AC8-vi-phan')) {
+    // Tám đột biến của CHÍNH khuôn này (sáu cái đầu là sáu hình dạng lượt chấm 2 tìm ra trên
+    // khuôn cũ). Bản nguyên vẹn đã xanh ở ba ca trên; mỗi bản sao phải làm đỏ đúng ô của trục nó phá.
+    const DB = [
+      ['M1 bo i cua khoa', '(.*)$/i\n  let loi = null', '(.*)$/\n  let loi = null', 'AC1', ':HOA'],
+      ['M2 bo cat chu thich run_id', "String(v).replace(/\\s+#.*$/, '').trim()", 'String(v).trim()', 'AC2', ':chu-thich:'],
+      ['M3 chi boc nhay kep', `.replace(/^["']+|["']+$/g, '')`, '.replace(/^"+|"+$/g, \'\')', 'AC2', ':don:'],
+      ['M4 rao khong dong = khong frontmatter', 'fmHet = n\n', 'fmHet = fmDau\n', 'AC1', ':khong-dong:'],
+      ['M5 bo i cua run_id', '(?:-\\s+)?run_id\\s*[:=]\\s*(.+?)\\s*$/i)', '(?:-\\s+)?run_id\\s*[:=]\\s*(.+?)\\s*$/)', 'AC2', ':RUN_ID:'],
+      ['M6 ban ghi chi nhan mot dau cach', "/^\\s*-\\s+\\S/.test(l)", "/^\\s*- \\S/.test(l)", 'AC2', ':eval-hai-cach:'],
+      ['M7 bo run_id o dong mo', 'if (bg !== -1) {\n      const m = l.match(', 'if (bg !== -1 && c > cotBg) {\n      const m = l.match(', 'AC2', ':run_id-mo:'],
+      ['M8 bo loai tru khoi vo huong', 'if (voHuong[j]) return l', 'if (false) return l', 'AC3', 'D:vo-huong:'],
+      ['M9 override rong tran', "(khoa === 'human_override' ? RONG_OVERRIDE : '')", "''", 'AC1', 'B:fm-cot0:'],
+    ];
+    const loi = [];
+    for (const [ten, tim, thay, truc, ghim] of DB) {
+      if (!WF_SRC.includes(tim)) { loi.push(`${ten}: khong tim thay cho tiem`); continue; }
+      const fn = napChot(WF_SRC.split(tim).join(thay));
+      const v = chayBang(fn, truc);
+      if (!v.some(m => m.includes(ghim))) loi.push(`${ten}: khong do o truc «${ghim}» (${v.length} loi)`);
+    }
+    ca('CTN-AC8-vi-phan', loi, `${DB.length} dot bien cua khuon doc — moi cai do dung truc no pha`);
+  }
+}
+
 // ─── Độ nhạy (AC-8): bốn bản sao trong bộ nhớ, bản nguyên vẹn đã xanh ở trên ────────────
 async function dotBien(id, tim, thay, doFn, bc, ghim, moTa) {
   if (!chay(id)) return;
@@ -452,7 +574,7 @@ await dotBien('CTN-AC8-bo-khoa', "const KHOA_NGUOI = ['human_signoff', 'human_ov
 await dotBien('CTN-AC8-carry', 'gioTheoRunId[c.runId] = c.verifiedAt || invokedAt',
   'gioTheoRunId[c.runId] = invokedAt',
   doAC2, TIEM, 'o may-carry (E4)', 'khoi carry lay invokedAt -> phep AC-2 goi id eval carry');
-await dotBien('CTN-AC8-moi-cot', 'if (!viTri[i]) return l',
+await dotBien('CTN-AC8-moi-cot', 'if (voHuong[j]) return l',
   'if (false) return l',
   doVoHuong, TIEM, 'dong output bi doi', 'khop khoa o moi cot -> phep AC-3 bao dong output bi doi');
 

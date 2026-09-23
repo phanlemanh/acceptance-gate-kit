@@ -91,6 +91,29 @@ nó bị chặn.
 Prompt synthesize KHÔNG đổi (dặn-bằng-lời không phải nghiệm; bỏ dặn cũng không cần — chốt máy
 đứng sau nó).
 
+## Đổi khuôn 23/09 (owner chọn tại điểm dừng-vá sau S4 lượt 2)
+
+Hai lượt chấm liên tiếp tìm lỗi cùng lớp «chốt nhận hình dạng HẸP hơn bên đọc» (lượt 1: rào
+frontmatter, run_id có nháy; lượt 2: run_id ở dòng mở khối, sáu đột biến cùng lớp vẫn xanh).
+Khuôn «tự liệt kê vị trí trường theo khuôn bên viết» ở trên bị THAY bằng: chốt nhận đúng những
+gì BÊN ĐỌC (`lib/evidence-core.cjs`) nhận.
+
+- `human_signoff` / `bypass_ack`: chỉ trong frontmatter, khoá cấp 0, rào `---[ \t]*` sau dòng trống
+  đầu, rào không đóng thì tới hết tệp (`frontmatterField` · `chuKyThat`).
+- `human_override` / `verified_at`: mọi dòng `^\s*(-\s+)?khoá\s*[:=]`, mọi cột, không phân biệt hoa
+  thường (L3 đếm override ở mọi nơi).
+- run_id của một bản ghi: mọi dòng `^\s*(-\s+)?run_id\s*[:=]` trong bản ghi kể cả dòng mở, bỏ chú
+  thích và nháy (`extractRunIds`); bản ghi mở bằng `^\s*-\s+` (`walkEvalExits`).
+- `human_override` rỗng được viết `human_override:  # chi nguoi ghi`: biểu thức L3 của bên đọc
+  (`\s*` vượt dòng) đếm một dòng rỗng TRẦN là «đã có người chấp thuận» khi dòng kế không mở bằng
+  `#` — ca vi phân lộ ra điều này; lỗi của bên đọc ghi vào hạt giống vế 2.
+- Ngoại lệ duy nhất vẫn giữ: nội dung khối vô hướng không bao giờ chạm.
+
+Phép đo mới: bảng vi phân viết trước 282 ô (A chữ ký frontmatter 84 · B override mọi nơi 12 ·
+C giờ carry theo run_id 160 · D khối vô hướng 24 · E giờ đúng dạng khác 2), mỗi ô đối chứng dương
+bằng chính bộ đọc trên bản trước, rồi hỏi lại bộ đọc sau chốt; chín đột biến của khuôn mới, mỗi
+cái phải làm đỏ đúng trục nó phá.
+
 ## Đo (vế 3 — cặp hai chiều + chiều im)
 
 Tệp mới `tests/workflows/chot-truong-nguoi.test.mjs`, chạy trong suite workflows.

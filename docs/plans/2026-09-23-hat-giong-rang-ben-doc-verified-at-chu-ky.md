@@ -18,6 +18,12 @@ trả báo cáo. Bên ĐỌC vẫn không có răng:
 Hệ quả: chữ ký do PHIÊN tự viết ngoài `/signoff`, và giá trị bịa đã nằm trong hồ sơ cũ, vẫn đi
 qua lưới.
 
+Thêm một lỗi của chính bên đọc, lộ ra ở ca vi phân của vòng chốt máy (S4 lượt 3, 23/09): biểu thức
+L3 `human_override\s*[:=]\s*[^#\s]` có `\s*` vượt dòng, nên một dòng `human_override:` rỗng TRẦN
+bị đếm là «đã có người chấp thuận» khi dòng kế không mở bằng `#` (đo: `human_override:` rồi dòng
+trống rồi `- eval: E2` → đếm 1). Chốt máy tự phòng bằng dạng rỗng có chú thích; răng bên đọc nên
+neo biểu thức vào một dòng.
+
 ## Căn cứ (đo 23/09, `origin/main` kit · `origin/fix/tieu-de-cot-doc-tron` crm)
 
 | Luật đọc đề xuất | Hồ sơ kit đỏ | Hồ sơ crm đỏ |

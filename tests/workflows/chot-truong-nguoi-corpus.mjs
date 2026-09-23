@@ -4,10 +4,10 @@
 // Hai việc, một nguồn:
 //   napChot(src)        rút khối hàm chốt NGUYÊN VĂN từ tệp workflow theo marker
 //                       CHOT-TRUONG-NGUOI (sandbox workflow không có import — test rút, không chép).
-//   kiemIm(truoc, sau)  phép chiều im: dòng khác nhau chỉ được là dòng trường của bốn khoá, ở
-//                       vị trí trường theo KHUÔN BÊN VIẾT (cột 0 hoặc cột 2 — frontmatter và
-//                       dòng trường của khối evidence trong evidence-report-template.md), cùng
-//                       số dòng. Định nghĩa độc lập với luật vị trí của chính hàm chốt.
+//   kiemIm(truoc, sau)  phép chiều im: dòng khác nhau chỉ được là dòng trường của bốn khoá,
+//                       cùng số dòng — theo NGỮ PHÁP DÒNG của
+//                       bên đọc (lib/evidence-core.cjs: `^\s*(-\s+)?khoá\s*[:=]`, mọi cột,
+//                       không phân biệt hoa thường). Khuôn đổi 23/09 (owner chọn «đổi khuôn»).
 //
 // CLI (chiều im trên kho khác, chỉ ĐỌC bằng git show — không ghi byte nào vào kho đó):
 //   node chot-truong-nguoi-corpus.mjs --root <kho> --ref <ref>... [--can <slug>]... [--doi-cham] [--nhan <tên>]
@@ -29,7 +29,7 @@ export function napChot(src) {
   return new Function(`${than}\nreturn chotTruongNguoi`)();
 }
 
-const RE_TRUONG = /^( {0,2})(- )?(human_signoff|human_override|bypass_ack|verified_at)(\s*[:=])/;
+const RE_TRUONG = /^(\s*)(-\s+)?(human_signoff|human_override|bypass_ack|verified_at)(\s*[:=])/i;
 export function kiemIm(truoc, sau) {
   const a = String(truoc).split('\n'), b = String(sau).split('\n');
   if (a.length !== b.length) return [`so dong doi ${a.length} -> ${b.length}`];

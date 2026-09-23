@@ -84,13 +84,22 @@ const blockedEarly = (cmd, reason) => ({
 // Chốt máy trường-của-người (hồ sơ chot-may-chu-ky-sau-synthesize, mốc 2.18.2). Báo cáo
 // bằng chứng là MỘT CHUỖI do tác tử tổng hợp viết; bốn trường trong đó không thuộc quyền tác
 // tử: ba chữ của NGƯỜI (ADR 0002) và giờ đo mà ENGINE đã có. Dặn trong prompt không phải
-// nghiệm (đo 23/09: 13/84 báo cáo kit, 12/56 crm mang verified_at tác tử đặt; một chữ ký máy
-// trên hồ sơ crm tới bước ghi tệp) — nên JS viết lần cuối, tác tử hết quyền.
-// Luật CHỈ áp ở VỊ TRÍ TRƯỜNG theo khuôn bên viết (evidence-report-template.md): khoá cấp 0
-// của frontmatter, và dòng trường của một khối evidence (mở bằng `- <khoá>:`, dòng thụt đúng
-// cột nội dung). Nội dung khối vô hướng (`output: |`…) và văn xuôi KHÔNG chạm — xoá chuỗi ở đó
-// là làm giả output. Khối rút nguyên văn bởi tests/workflows/chot-truong-nguoi-corpus.mjs.
+// nghiệm (đo 23/09: 13/84 báo cáo kit, 12/56 crm mang verified_at tác tử đặt; S4-r2 của chính
+// hồ sơ này: tác tử ghi 07:40:00Z tương lai trên 14 dòng) — nên JS viết lần cuối.
+// KHUÔN (owner chọn «đổi khuôn» 23/09 sau hai lượt vá cùng lớp «chốt hẹp hơn bên đọc»): chốt
+// KHÔNG tự đặt ngữ pháp — nó nhận đúng những gì BÊN ĐỌC (lib/evidence-core.cjs) nhận:
+//   · human_signoff / bypass_ack: chỉ trong frontmatter, khoá cấp 0, hàng rào `---[ \t]*` sau
+//     dòng trống đầu, thiếu rào đóng thì tới hết tệp (frontmatterField · chuKyThat);
+//   · human_override / verified_at: mọi dòng `^\s*(-\s+)?khoá\s*[:=]`, mọi cột (L3 đếm override
+//     ở mọi nơi); khoá so không phân biệt hoa thường;
+//   · run_id của một bản ghi: mọi dòng `^\s*(-\s+)?run_id\s*[:=]` trong bản ghi, kể cả dòng mở,
+//     bỏ chú thích và nháy (extractRunIds); bản ghi mở bằng `^\s*-\s+` (walkEvalExits);
+//   · human_override rỗng viết thành `khoá:  # chi nguoi ghi` — L3 đếm cả dòng rỗng trần.
+// Ngoại lệ DUY NHẤT: nội dung khối vô hướng (`output: |`…) không bao giờ chạm — xoá chuỗi ở đó
+// là làm giả output. Ca vi phân tests/workflows/chot-truong-nguoi.test.mjs so chốt với bộ đọc
+// thật trên bảng hình dạng viết trước; khối này rút nguyên văn bởi chot-truong-nguoi-corpus.mjs.
 const KHOA_NGUOI = ['human_signoff', 'human_override', 'bypass_ack']
+const RONG_OVERRIDE = '  # chi nguoi ghi'
 const GIO_ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 function chotTruongNguoi(report, opts) {
   const invokedAt = opts && typeof opts.invokedAt === 'string' && GIO_ISO_RE.test(opts.invokedAt) ? opts.invokedAt : ''
@@ -100,78 +109,72 @@ function chotTruongNguoi(report, opts) {
   const tho = text.split('\n')
   const cr = tho.map(l => l.endsWith('\r'))
   const dong = tho.map((l, i) => (cr[i] ? l.slice(0, -1) : l))
-  const MO_VO_HUONG = /^[^:=]*[:=]\s*[|>][-+0-9]*\s*(#.*)?$/
-  // Lượt 1: đánh dấu vị trí trường, khối của từng dòng, run_id của từng khối.
-  const viTri = new Array(dong.length).fill(false)
-  const khoiCua = new Array(dong.length).fill(-1)
-  const runIdKhoi = []
-  // Nhận frontmatter theo ĐÚNG luật bên đọc (lib/evidence-core.cjs frontmatterField): bỏ dòng
-  // trống đầu, hàng rào `---[ \t]*`. Hẹp hơn bên đọc là để một chữ ký đi lọt (S4-r1, t3). Không
-  // có hàng rào đóng thì vùng frontmatter kéo tới hết tệp — bộ đọc chữ ký ở trước-merge đọc vậy.
+  const n = dong.length
+  const chuanHoa = v => String(v).replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim()
+  // Frontmatter theo frontmatterField / chuKyThat.
   const RAO = /^---[ \t]*$/
   let fmDau = 0
-  while (fmDau < dong.length && dong[fmDau].trim() === '') fmDau += 1
+  while (fmDau < n && dong[fmDau].trim() === '') fmDau += 1
   let fmHet = -1, thanDau = 0
-  if (fmDau < dong.length && RAO.test(dong[fmDau])) {
-    fmHet = dong.length
-    for (let j = fmDau + 1; j < dong.length; j += 1) if (RAO.test(dong[j])) { fmHet = j; break }
-    thanDau = fmHet < dong.length ? fmHet + 1 : fmDau + 1
+  if (fmDau < n && RAO.test(dong[fmDau])) {
+    fmHet = n
+    for (let j = fmDau + 1; j < n; j += 1) if (RAO.test(dong[j])) { fmHet = j; break }
+    thanDau = fmHet < n ? fmHet + 1 : fmDau + 1
   }
-  let voHuongCot = -1
-  for (let j = fmDau + 1; j < fmHet; j += 1) {
-    const l = dong[j]; const cot = l.search(/\S/)
-    if (cot === -1) continue
-    if (voHuongCot >= 0) { if (cot > voHuongCot) continue; voHuongCot = -1 }
-    if (cot === 0 && !l.startsWith('#')) { viTri[j] = true; if (MO_VO_HUONG.test(l)) voHuongCot = 0 }
+  // Nội dung khối vô hướng: dòng sau một `khoá: |` / `khoá: >` thụt sâu hơn dòng mở của nó.
+  const MO_VO_HUONG = /^[^:=]*[:=]\s*[|>][-+0-9]*\s*(#.*)?$/
+  const voHuong = new Array(n).fill(false)
+  let cotVh = -1
+  for (let j = 0; j < n; j += 1) {
+    const c = dong[j].search(/\S/)
+    if (c === -1) { if (cotVh >= 0) voHuong[j] = true; continue }
+    if (cotVh >= 0) { if (c > cotVh) { voHuong[j] = true; continue } cotVh = -1 }
+    if (MO_VO_HUONG.test(dong[j])) cotVh = c
   }
-  let khoi = -1, cotNoiDung = -1
-  voHuongCot = -1
-  for (let j = thanDau; j < dong.length; j += 1) {
-    const l = dong[j]; const cot = l.search(/\S/)
-    if (cot === -1) continue
-    if (voHuongCot >= 0) { if (cot > voHuongCot) continue; voHuongCot = -1 }
-    if (/^\s*- [A-Za-z_][\w-]*\s*:/.test(l) && (khoi === -1 || cot < cotNoiDung)) {
-      khoi = runIdKhoi.length; runIdKhoi.push(null); cotNoiDung = cot + 2
-      viTri[j] = true; khoiCua[j] = khoi
-      continue
-    }
-    if (khoi === -1) continue
-    if (cot < cotNoiDung) { khoi = -1; cotNoiDung = -1; continue }
-    const nd = l.slice(cot)
-    if (cot === cotNoiDung && !nd.startsWith('#') && !nd.startsWith('- ')) {
-      viTri[j] = true; khoiCua[j] = khoi
-      // run_id chuẩn hoá ĐÚNG như bên đọc (extractRunIds): bỏ chú thích, bỏ nháy (S4-r1, t4).
-      const m = nd.match(/^run_id\s*[:=]\s*(.+?)\s*$/i)
-      const rid = m ? m[1].replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim() : ''
-      if (rid && runIdKhoi[khoi] === null) runIdKhoi[khoi] = rid
-      if (MO_VO_HUONG.test(l)) voHuongCot = cot
+  // Bản ghi ở thân: mở bằng `^\s*-\s+`, kéo tới dòng không trống đầu tiên thụt ≤ dòng mở.
+  const banGhi = new Array(n).fill(-1)
+  const ridBanGhi = []
+  let bg = -1, cotBg = -1
+  for (let j = thanDau; j < n; j += 1) {
+    if (voHuong[j]) { banGhi[j] = bg; continue }
+    const l = dong[j]; const c = l.search(/\S/)
+    if (c === -1) continue
+    if (/^\s*-\s+\S/.test(l) && (bg === -1 || c <= cotBg)) { bg = ridBanGhi.length; ridBanGhi.push(null); cotBg = c }
+    else if (bg !== -1 && c <= cotBg) { bg = -1; cotBg = -1 }
+    banGhi[j] = bg
+    if (bg !== -1) {
+      const m = l.match(/^\s*(?:-\s+)?run_id\s*[:=]\s*(.+?)\s*$/i)
+      const rid = m ? chuanHoa(m[1]) : ''
+      if (rid && ridBanGhi[bg] === null) ridBanGhi[bg] = rid
     }
   }
-  // Lượt 2: viết lại đúng hai loại dòng, ở đúng vị trí trường.
-  // Khoá so KHÔNG phân biệt hoa thường — bên đọc so như vậy (frontmatterField cờ `i`).
-  const RE_NGUOI = /^(\s*(?:- )?)(human_signoff|human_override|bypass_ack)(\s*[:=])(.*)$/i
-  const RE_GIO = /^(\s*(?:- )?)(verified_at)(\s*[:=])(\s*)(.*)$/i
+  const RE_TRUONG = /^(\s*(?:-\s+)?)(human_signoff|human_override|bypass_ack|verified_at)(\s*[:=])(.*)$/i
   let loi = null
-  const ra = dong.map((l, i) => {
-    if (!viTri[i]) return l
-    let m = l.match(RE_NGUOI)
-    if (m && KHOA_NGUOI.includes(m[2].toLowerCase())) {
+  const ra = dong.map((l, j) => {
+    if (voHuong[j]) return l
+    const trongFm = fmHet > 0 && j > fmDau && j < fmHet
+    if (!trongFm && j < thanDau) return l
+    const m = l.match(RE_TRUONG)
+    if (!m) return l
+    const khoa = m[2].toLowerCase()
+    if (trongFm && m[1] !== '') return l
+    if (!trongFm && (khoa === 'human_signoff' || khoa === 'bypass_ack')) return l
+    if (KHOA_NGUOI.includes(khoa)) {
       const v = m[4].trim()
-      if (v === '' || v.startsWith('#')) return l
-      doi[m[2].toLowerCase()] += 1
-      return m[1] + m[2] + m[3]
+      if (v.startsWith('#')) return l
+      // human_override rỗng TRẦN vẫn bị L3 đếm là «đã có người chấp thuận» khi dòng kế không mở
+      // bằng `#` (biểu thức `\s*` của bên đọc vượt dòng) — nên dạng rỗng chuẩn của khoá này mang
+      // chú thích; hai khoá kia bên đọc đọc theo dòng, rỗng trần là rỗng.
+      if (v === '' && khoa !== 'human_override') return l
+      doi[khoa] += 1
+      return m[1] + m[2] + m[3] + (khoa === 'human_override' ? RONG_OVERRIDE : '')
     }
-    m = l.match(RE_GIO)
-    if (m) {
-      const rid = khoiCua[i] >= 0 ? runIdKhoi[khoiCua[i]] : null
-      const gio = rid && Object.prototype.hasOwnProperty.call(gioTheoRunId, rid) && gioTheoRunId[rid] ? gioTheoRunId[rid] : invokedAt
-      if (!gio) { loi = 'chot-truong-nguoi: khong co gio engine (invokedAt vang) — khong ep duoc verified_at'; return l }
-      const moi = m[1] + m[2] + m[3] + (m[4] || ' ') + gio
-      if (moi === l) return l
-      doi.verified_at += 1
-      return moi
-    }
-    return l
+    const rid = !trongFm && banGhi[j] >= 0 ? ridBanGhi[banGhi[j]] : null
+    const gio = rid && Object.prototype.hasOwnProperty.call(gioTheoRunId, rid) && gioTheoRunId[rid] ? gioTheoRunId[rid] : invokedAt
+    if (!gio) { loi = 'chot-truong-nguoi: khong co gio engine (invokedAt vang) — khong ep duoc verified_at'; return l }
+    if (chuanHoa(m[4]) === gio) return l
+    doi.verified_at += 1
+    return m[1] + m[2] + m[3] + (m[4].match(/^\s*/)[0] || ' ') + gio
   })
   if (loi) return { text, doi, loi }
   return { text: ra.map((l, i) => (cr[i] ? l + '\r' : l)).join('\n'), doi, loi: null }
