@@ -30,8 +30,9 @@ Số đo: `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md` §2, §3b–3d.
 remote; GUIDE §5.3 nói kho lấy kit bằng tag được. Phần còn lại của #3 là đưa bước gắn tag vào `/signoff`
 cho hồ sơ `release-*`.
 
-Điều kiện mở: owner gọi tên sau khi mốc S1 (2.18.2) đã cắt. Ngưỡng thay thế nếu S1 chậm: thêm một
-kho cài đỏ vì hạ tầng kit ở đường chép.
+Điều kiện mở: owner gọi tên sau mốc 2.18.2 (chốt máy chữ ký) — **mốc đã cắt 23/09, tag `v2.18.2` tại
+`0e414a02`**; theo thứ tự owner xếp thì S1 (2.19) đi trước hạt giống này, trừ khi crm/media-library cần
+bỏ chép sớm (vướng hai dòng 376/397). Ngưỡng thay thế: thêm một kho cài đỏ vì hạ tầng kit ở đường chép.
 
 ## Không làm (và vì sao)
 
