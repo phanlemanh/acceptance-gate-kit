@@ -191,6 +191,24 @@ Owner: (1) kho **theo sát từng mốc**; (2)–(4) yêu cầu giải thích + 
 - **Hai PR cũ (#114/#115) của oneflow:** kit 2.17 báo 22–24 VIOLATION làn suite-only; fork cũng đỏ 33–34.
   Không liên quan `feature_scope`.
 
+## 3e. Ma sát nghi thức kit ghi từ phiên media-library #66 (S4 delta hai hồ sơ đã ký, 23/09)
+
+Kết quả: 9 → 3 → 1 vi phạm; `ban-dieu-khien-curator` vòng 14 PASS 21/21, `cua-nguon-thong-nhat` vòng 9 PASS;
+3 lượt gọi người (1 quyết định thật + 2 lượt dán lệnh ký do khoá ADR 0002) — đúng trần T2. Tám chỗ phiên
+phải đoán, trích nguyên dòng, để hạt giống sau đọc:
+
+1. `s4-args`: «section "## Iterations" không chứa dòng "Round <n>" nào — không đếm được round; truyền --round tường minh» → đếm tay.
+2. SKILL S4: «Invoke: Workflow({ scriptPath: …, args: { … } })» — args 58 KB, không có đường truyền theo tệp → bọc bằng bản sao script (đã là bộ nhớ kit «bọc args S4 bằng script»; lần thứ hai, vẫn chưa là lệnh).
+3. SKILL: «Write `_acceptance/<slug>/evidence-report.md` = `result.report`» — báo cáo 15 KB → ghi bằng node rồi recheck thay hook Write.
+4. `eval-executors.md`: «add `.acceptance-runs/` to `.gitignore`» — nhưng `.gitignore` không thuộc `t1_skip_globs`, sửa nó làm cũ-hoá mọi hồ sơ vừa ghim → tạm dùng `.git/info/exclude`. **Lời dặn tự mâu thuẫn với luật stale.**
+5. SKILL: «descope một AC = sửa contract + re-approve» — không nói gì cho một dòng bảng mà hợp đồng khai «thêm một dòng là quyết định của người» → đi đường «Treo» ở Cổng 2.
+6. Schema sổ («descope|approach|fix|revisit») không có type cho «chờ bí mật của người» → ghi vào PR body.
+7. Cùng một người hai cách viết chữ ký («manh» nấc cổng-trước · «Mạnh» nấc git user.name) vì `approved_by` của hồ sơ do tác giả «phanlemanh» commit.
+8. SIGNOFF-LANE-CLAUSE «--skip-unchanged: cây BẰNG PIN (0 tệp git-theo-dõi đổi so verified_commit)» tính cả tệp môi trường chưa commit (`supabase/config.toml`) → làn chạy trọn; pre-merge sau chữ ký báo stale tới khi trả tệp.
+
+Cùng lớp với hạt giống `2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md` (mục 2, 3: máy phải tự chế đường
+đi cho lệnh kit) và với `2026-09-22-hat-giong-bon-loi-nho-2-18-0-tu-crm.md` (mục 4: lời dặn đá luật). Không mở ô.
+
 ## 4. Việc kế
 
 Cả bốn chỗ ở §2 đều có neo ngoài: đó là PR cài kit của kho tiêu thụ, đúng vế 4 luật (b).
