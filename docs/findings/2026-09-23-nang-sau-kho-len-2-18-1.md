@@ -160,6 +160,37 @@ Mọi số dưới đây đo bằng `git worktree` dựng từ ref gốc của c
 - **Kết luận rà lại:** khuyến nghị «bỏ bản chép» ở bản đầu vượt ranh giới chiều rộng (b) và chưa đặt
   mình vào hàng đợi — rút về hạt giống có ngưỡng. Xem lời trình cho owner cùng ngày.
 
+## 3d. Owner trả lời (23/09) và số đo bổ sung
+
+Owner: (1) kho **theo sát từng mốc**; (2)–(4) yêu cầu giải thích + đề xuất; nguyên tắc **bỏ tốt hơn thêm**.
+
+- **Đính chính §2.3/§3c về `lop-nhin-thay`:** đo lại theo ref `origin/*` (bash, không zsh): trước PR hôm nay
+  chỉ **media-library** thiếu tệp này (gate chép 08/09, đúng ngày tệp vào kit). Năm kho kia có. Câu «vắng ở
+  4 kho ~2 tuần» là sai, do đo trên checkout cục bộ tụt hậu. Làn của nó là NOTE có ngưỡng đếm (2 hợp đồng
+  ký không frame trong một mốc → siết), thiếu lib thì in «không kiểm được»: không có răng nào mất.
+- **Fork gate của oneflow, đo trên cây thật:** so với kit `11e98c47` (2.17.0): +508/−27 dòng trên 2103.
+  - 27 dòng kit bị bỏ gồm **răng pin ma P184** (clone đầy đủ + `verified_commit` không tồn tại → VIOLATION);
+    fork giữ bản NOTE cũ → yếu hơn kit ở đúng lớp «cổng tàng hình». Oneflow merge bằng merge-commit
+    (40/40 commit gần nhất) nên răng này chưa có ca để bắt — yếu tiềm ẩn, chưa gây hại.
+  - 508 dòng thêm = `feature_scope`: dùng khoá `paths:` của evals.yaml (kit khai là **nút hiệu năng P1
+    carry-forward**, khai thiếu vô hại) làm **phạm vi đúng-sai** của luật stale ở cổng merge: hồ sơ trong
+    diff chỉ stale khi đổi tệp thuộc scope (lỏng hơn kit); hồ sơ ngoài diff có khai `paths` vẫn bị soi
+    theo scope (chặt hơn kit). Parser grep-YAML, tự khai «sáu vòng vá liên tiếp».
+  - **Chạy hai gate cạnh nhau ở chế độ PR trên 4 merge gần nhất của oneflow (#119, #120, #121, #126):
+    verdict và số VIOLATION GIỐNG HỆT.** `feature_scope` chỉ in NOTE «narrow staleness scope applied» và
+    một lần «declared paths do not cover this PR's gated diff — whole-tree applied». Hai merge cũ hơn
+    (#114, #115) cả hai gate đều đỏ vì cùng một lý do khác (làn suite-only, luật 2.13+).
+  - Nhu cầu gốc của fork (hồ sơ cũ không liên quan chặn mọi PR) kit đã giải ở 1.39.2 + ADR 0010
+    (`slug_in_diff`). Phần còn lại của fork chưa từng đổi một verdict nào trong mẫu đo.
+- **Bỏ bản chép — đo lại kích cỡ thật:** `hooks/` và `commands/` của kit không gọi tệp chép nào (chỉ
+  tài liệu nhắc). Gate, recheck, product-map đều giải lib theo thư mục của chính nó, trừ hai dòng 376/397
+  (chỉ chạm hồ sơ machine-cleared; oneflow có 0, crm có). Chính kit đã đặt `.github/workflows/gate.yml`
+  vào `t1_skip_globs` của mình — tiền lệ cho kho tiêu thụ đặt dòng ghim trong tệp workflow có tên mà không
+  đỏ T1-escape. Vậy phần kit cần: tài liệu (T1) + hai dòng + xoá danh sách chép và ca CE2 (TRỪ). Định cỡ T3
+  ở §3c là quá tay.
+- **Hai PR cũ (#114/#115) của oneflow:** kit 2.17 báo 22–24 VIOLATION làn suite-only; fork cũng đỏ 33–34.
+  Không liên quan `feature_scope`.
+
 ## 4. Việc kế
 
 Cả bốn chỗ ở §2 đều có neo ngoài: đó là PR cài kit của kho tiêu thụ, đúng vế 4 luật (b).
