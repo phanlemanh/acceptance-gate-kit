@@ -24,3 +24,13 @@ lần trong 3 ngày (câu «set contract … status: verified» kẹt Stop hook 
    «status:» ; chiều im: khuôn mới vẫn dán được vào `/goal` (đường đọc-cũ: goal cũ vẫn chạy).
 
 TRỪ (bớt một điều kiện dừng). Xếp vào vòng đầu cửa sổ kế cùng ba hạt giống đã có. Ngưỡng mở ô: đã đủ.
+
+## Bổ sung từ chính phiên crm (23/09, sau khi được nhắc luật dòng 248)
+
+Phiên trả lời đúng: «chạy lại CÙNG round» không thực hiện được bằng máy — `s4-args.mjs` đếm round từ mục
+Iterations của báo cáo (chạy thử ra «round 4»), và S4-ARGS-CLAUSE cấm sửa tay args. Round 3 lại mang cả một finding
+TRONG hợp đồng (AC-7), nên lượt kế là sửa-rồi-chấm-lại, tức một round thật theo trần dừng-vá. Vậy ba chỗ cãi nhau:
+dòng 248 (cùng round) · bộ đếm round theo Iterations · GOAL-TEMPLATE (BLOCKED = xong). Nghiệm bổ sung: lượt BLOCKED
+vì hạ tầng (nhãn `chet`/`mu` theo `nhan-canh-gay.cjs`) KHÔNG đếm vào trần — `s4-args.mjs` đọc `round-tally` và bỏ
+qua lượt `blocked` khi đánh số; khi lượt BLOCKED còn finding trong hợp đồng thì nó là REJECT về bản chất và đếm bình
+thường. Trong lúc chưa sửa, quyết ở trần là của người (đúng thiết kế phanh dừng-vá), không phải lượt ngoài thiết kế.
