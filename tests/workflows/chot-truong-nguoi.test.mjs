@@ -262,6 +262,30 @@ if (chay('CTN-AC1-giu')) {
   if (!luotChuThich.result.report.includes('# bypass_ack:')) loi.push('dong chu thich # bypass_ack bi cham');
   ca('CTN-AC1-giu', loi, 'dong khoa rong / chi chu thich / dong # giu nguyen byte');
 }
+// Lớp «chốt nhận hình dạng HẸP hơn bên đọc» (S4-r1, finding t3/t4): bên đọc
+// (lib/evidence-core.cjs frontmatterField / extractRunIds) bỏ dòng trống đầu, nhận `---[ \t]*`,
+// so khoá không phân biệt hoa thường, bỏ nháy quanh run_id. Mỗi biến thể áp CÙNG phép biến
+// đổi lên bản nền và bản tiêm: chốt(tiêm') phải bằng từng byte nền'.
+const hangRao = s => { let n = 0; return '\n' + s.split('\n').map(l => (l === '---' && n++ < 2 ? '--- ' : l)).join('\n'); };
+const hoaKhoa = s => s.replace(/^human_signoff:/m, 'HUMAN_SIGNOFF:').replace(/^bypass_ack:/m, 'Bypass_Ack:');
+const ngoacRid = s => s.replace('run_id: run-goc-E4', 'run_id: "run-goc-E4"');
+for (const [id, bien, moTa] of [
+  ['CTN-AC1-mo-dau', hangRao, 'dong trong dau + hang rao «--- » -> van nhan frontmatter, chu ky rong'],
+  ['CTN-AC1-hoa-thuong', hoaKhoa, 'khoa viet hoa (ben doc khong phan biet) -> van ep rong'],
+  ['CTN-AC2-ngoac', ngoacRid, 'run_id carry co ngoac kep -> giu verifiedAt goc'],
+]) {
+  if (!chay(id)) continue;
+  const loi = [];
+  const tiem = bien(TIEM), nen = bien(NEN);
+  if (tiem === TIEM || nen === NEN) loi.push('bien the khong doi fixture');
+  const { result } = await chayVoi(tiem);
+  if (result.report !== nen) {
+    const a = result.report.split('\n'), b = nen.split('\n');
+    const i = a.findIndex((l, k) => l !== b[k]);
+    loi.push(`lech dong ${i + 1}: «${a[i]}» vs «${b[i]}»`);
+  }
+  ca(id, loi, moTa);
+}
 if (chay('CTN-AC2-carry-khac')) ca('CTN-AC2-carry-khac', CARRY_AT !== INVOKED ? [] : ['trung'], 'gio carry cua fixture khac invokedAt truoc khi so');
 if (chay('CTN-AC2-ma-tran')) ca('CTN-AC2-ma-tran', doAC2(luotTiem.result.report), `ma tran ${O.length} o: moi verified_at = gio engine cua o`);
 if (chay('CTN-AC3-lanh')) ca('CTN-AC3-lanh', luotNen.result.report === NEN ? [] : ['bao cao dung bi doi'], 'doi chung duong: bao cao dung ra y nguyen tung byte');

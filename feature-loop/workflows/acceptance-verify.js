@@ -105,12 +105,20 @@ function chotTruongNguoi(report, opts) {
   const viTri = new Array(dong.length).fill(false)
   const khoiCua = new Array(dong.length).fill(-1)
   const runIdKhoi = []
-  let fmHet = -1
-  if (dong[0] === '---') {
-    for (let j = 1; j < dong.length; j += 1) if (dong[j] === '---') { fmHet = j; break }
+  // Nhận frontmatter theo ĐÚNG luật bên đọc (lib/evidence-core.cjs frontmatterField): bỏ dòng
+  // trống đầu, hàng rào `---[ \t]*`. Hẹp hơn bên đọc là để một chữ ký đi lọt (S4-r1, t3). Không
+  // có hàng rào đóng thì vùng frontmatter kéo tới hết tệp — bộ đọc chữ ký ở trước-merge đọc vậy.
+  const RAO = /^---[ \t]*$/
+  let fmDau = 0
+  while (fmDau < dong.length && dong[fmDau].trim() === '') fmDau += 1
+  let fmHet = -1, thanDau = 0
+  if (fmDau < dong.length && RAO.test(dong[fmDau])) {
+    fmHet = dong.length
+    for (let j = fmDau + 1; j < dong.length; j += 1) if (RAO.test(dong[j])) { fmHet = j; break }
+    thanDau = fmHet < dong.length ? fmHet + 1 : fmDau + 1
   }
   let voHuongCot = -1
-  for (let j = 1; j < fmHet; j += 1) {
+  for (let j = fmDau + 1; j < fmHet; j += 1) {
     const l = dong[j]; const cot = l.search(/\S/)
     if (cot === -1) continue
     if (voHuongCot >= 0) { if (cot > voHuongCot) continue; voHuongCot = -1 }
@@ -118,7 +126,7 @@ function chotTruongNguoi(report, opts) {
   }
   let khoi = -1, cotNoiDung = -1
   voHuongCot = -1
-  for (let j = fmHet + 1; j < dong.length; j += 1) {
+  for (let j = thanDau; j < dong.length; j += 1) {
     const l = dong[j]; const cot = l.search(/\S/)
     if (cot === -1) continue
     if (voHuongCot >= 0) { if (cot > voHuongCot) continue; voHuongCot = -1 }
@@ -132,22 +140,25 @@ function chotTruongNguoi(report, opts) {
     const nd = l.slice(cot)
     if (cot === cotNoiDung && !nd.startsWith('#') && !nd.startsWith('- ')) {
       viTri[j] = true; khoiCua[j] = khoi
-      const m = nd.match(/^run_id\s*[:=]\s*(\S+)/)
-      if (m && runIdKhoi[khoi] === null) runIdKhoi[khoi] = m[1]
+      // run_id chuẩn hoá ĐÚNG như bên đọc (extractRunIds): bỏ chú thích, bỏ nháy (S4-r1, t4).
+      const m = nd.match(/^run_id\s*[:=]\s*(.+?)\s*$/i)
+      const rid = m ? m[1].replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim() : ''
+      if (rid && runIdKhoi[khoi] === null) runIdKhoi[khoi] = rid
       if (MO_VO_HUONG.test(l)) voHuongCot = cot
     }
   }
   // Lượt 2: viết lại đúng hai loại dòng, ở đúng vị trí trường.
-  const RE_NGUOI = /^(\s*(?:- )?)(human_signoff|human_override|bypass_ack)(\s*[:=])(.*)$/
-  const RE_GIO = /^(\s*(?:- )?)(verified_at)(\s*[:=])(\s*)(.*)$/
+  // Khoá so KHÔNG phân biệt hoa thường — bên đọc so như vậy (frontmatterField cờ `i`).
+  const RE_NGUOI = /^(\s*(?:- )?)(human_signoff|human_override|bypass_ack)(\s*[:=])(.*)$/i
+  const RE_GIO = /^(\s*(?:- )?)(verified_at)(\s*[:=])(\s*)(.*)$/i
   let loi = null
   const ra = dong.map((l, i) => {
     if (!viTri[i]) return l
     let m = l.match(RE_NGUOI)
-    if (m && KHOA_NGUOI.includes(m[2])) {
+    if (m && KHOA_NGUOI.includes(m[2].toLowerCase())) {
       const v = m[4].trim()
       if (v === '' || v.startsWith('#')) return l
-      doi[m[2]] += 1
+      doi[m[2].toLowerCase()] += 1
       return m[1] + m[2] + m[3]
     }
     m = l.match(RE_GIO)
