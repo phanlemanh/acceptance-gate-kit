@@ -131,11 +131,34 @@ Mọi số dưới đây đo bằng `git worktree` dựng từ ref gốc của c
 - **Ghim lại media-library** (14,3 phút, 146 eval):
   - **8/9 hồ sơ đỏ-hạ-tầng:** DB chung đã nhận migration 0029 của nhánh khác; thiếu env.
   - **1/9 đỏ-vật:** `cua-nguon-thong-nhat` có insert ngoài danh sách trắng từ 27/08 và chặn 429 từ 05/09. Làn suite-only 04/09 đã che lỗi này.
-  - **Bốn chỗ của công cụ ghim lại:**
-    1. Dòng tóm tắt in `suites: 3 lệnh exit 0` trong khi `suites_exit` là `[0,0,1]`: bằng chứng tự dối.
-    2. Làn tất-cả-hoặc-không: một hồ sơ đỏ chặn tám hồ sơ còn lại.
-    3. BLOCKED/CANNOT-RUN gộp chung vào «LÀN ĐỎ».
-    4. Executor E7 ghi vào `evidence/` của hồ sơ đã ký.
+  - **Bốn chỗ tác nhân con nêu về công cụ ghim lại — đã kiểm lại từng chỗ trên `repin-lane.mjs` 2.18.1:**
+    1. Dòng `suites: N lệnh exit 0` là chuỗi cố định ở dòng 465, nhưng chỉ được GHI khi làn xanh
+       (`red = suitesExit.some(x => x !== 0)` → «LÀN ĐỎ — không ghi gì», dòng 468–475). Làn xanh thì
+       mọi suite đúng là exit 0. Vậy đây là một dòng stdout gây hiểu nhầm trong làn đỏ, KHÔNG phải
+       bản ghi tự dối. Đính chính: bản đầu của tệp này xếp nó nặng nhất — sai.
+    2. Một hồ sơ đỏ chặn tám hồ sơ còn lại: đây là mặt sau của lựa chọn «một làn máy — nhiều chữ ký»
+       ở GUIDE §7.1, đổi lấy việc chạy suite MỘT lần cho N hồ sơ. Là đánh đổi đã quyết, không phải lỗi.
+    3. BLOCKED/CANNOT-RUN gộp vào «LÀN ĐỔ»: đúng là chưa tách; nhãn cạnh gãy của 2.18.0 mới có ở thẻ
+       Cổng 2, chưa có ở làn ghim lại. Vá điểm, nhỏ.
+    4. Executor E7 ghi vào `evidence/` của hồ sơ đã ký: làn BẮT được và từ chối ghi (dòng 473) — đó là
+       lưới «chặn phép đo ghi vào evidence/ đã ký» đang làm đúng việc, không phải lỗi công cụ.
+
+## 3c. Rà lại theo North Star và ranh giới kit/kho (owner hỏi 23/09)
+
+- **Lượt gọi người do bốn chỗ rò gây ra hôm nay: 0.** Chi phí đo được là phút máy (≈17 phút cho 6 kho)
+  và RỦI RO (một lớp lọt lưới im lặng, thông điệp đỏ đổ lỗi sai chỗ). Dòng người đứng trước dòng máy,
+  nên bốn chỗ này KHÔNG cạnh tranh được với hạt giống «máy hỏi ngoài thiết kế ở S1» (21 câu hỏi/3 vòng crm)
+  cho suất vòng meta duy nhất của cửa sổ này, trừ khi owner cân rủi ro khác.
+- **Bản sửa riêng của oneflow lớn hơn tưởng:** so với bản kit gần nhất (`11e98c47`, 2.17.0), gate của
+  oneflow THÊM 508 dòng và BỎ 27 dòng của kit, trên 2103 dòng (≈24 %). Bỏ bản chép đồng nghĩa kit phải
+  nhận `feature_scope` (CỘNG) hoặc oneflow ở lại đường chép vĩnh viễn — câu hỏi ranh giới, chỉ owner quyết.
+- **Bỏ bản chép còn thiếu ba thiết kế** chưa ai đo: chỗ đặt dòng ghim (đặt trong `.github/` thì mỗi lần
+  nâng lại đỏ T1-escape đúng theo luật đã bác ở `.out-of-scope`; đặt trong `_acceptance/config.yaml`
+  thì không đỏ nhưng mọi PR đổi được phiên bản cổng — giới hạn được vì chỉ trỏ vào sha của kit); bản
+  chạy ở máy và ở CI phải cùng một sha (hôm nay bản chép bảo đảm điều đó miễn phí); kit chưa có tag phát
+  hành. Vì thế nó là T3, không phải nhát cắt rẻ.
+- **Kết luận rà lại:** khuyến nghị «bỏ bản chép» ở bản đầu vượt ranh giới chiều rộng (b) và chưa đặt
+  mình vào hàng đợi — rút về hạt giống có ngưỡng. Xem lời trình cho owner cùng ngày.
 
 ## 4. Việc kế
 
