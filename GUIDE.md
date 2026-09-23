@@ -799,7 +799,30 @@ Ba bước, mỗi bước một dòng cấu hình của kho:
    chính kit: `.github/workflows/gate.yml` nằm trong `t1_skip_globs` của kit.
    Không có dòng này thì mỗi PR đổi sha đỏ T1-escape.
 
-Chạy ở máy dev: cùng lệnh, với `CLAUDE_PLUGIN_ROOT` là bản plugin đã cài.
+**Kho đang ở đường chép muốn rời** (đo trên oneflow #129, 23/09 — verdict 51/51 dòng
+giống hệt trước/sau): trong MỘT PR — (1) xoá mọi tệp kit-owned đã chép (`cmp` với bản
+kit ở sha ghim để chắc là tệp kit, không phải tệp của kho); (2) sửa workflow như trên;
+(3) **GIỮ NGUYÊN** các dòng `t1_skip_globs` khai tệp kit đã chép — chúng là lịch sử:
+luật stale đếm «tệp đổi từ `verified_commit` tới nay ngoài `t1_skip_globs`», nên gỡ dòng
+khai là biến chính việc XOÁ tệp kit thành «code đổi sau lượt verify» cho mọi hồ sơ ký
+trước đó (artifact-platform #392: 144 → 146 hồ sơ hết hạn trên lượt `push`; khai lại
+19 tên → về 144). Tệp kit đã chép mà **chưa từng khai** trong `t1_skip_globs` (oneflow: `lib/lop-nhin-thay.cjs`
+chép ở a282fed, không khai) → KHAI THÊM khi xoá, cùng lý do. Chỉ gỡ loại-trừ vendored trong
+linter của kho. Lượt đo TRƯỚC↔SAU phải có thêm MỘT lần **không `--base`** (cả cây): có `--base` cổng chỉ soi hồ sơ trong
+diff nên không thấy lớp này; (4) khoá `paths:` trong `evals.yaml` GIỮ NGUYÊN (kit vẫn
+đọc cho P1); (5) grep các script riêng của kho còn gọi `scripts/pre-merge-check.sh` —
+chúng sẽ không tìm thấy cổng, đổi sang `"$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh"`
+hoặc ghi nợ có tên. Kho có hồ sơ `status: machine-cleared` (grep `contract.md`) chờ mốc kế
+vì hai dòng 376/397 nêu dưới.
+
+Chạy ở máy dev: cùng lệnh, với `CLAUDE_PLUGIN_ROOT` = **bản clone marketplace**
+(`~/.claude/plugins/marketplaces/acceptance-gate-kit`, chính nơi lấy sha ở bước 1 —
+không phải thư mục `cache/…/<phiên bản>`), và phải **`export`** trước: viết
+`CLAUDE_PLUGIN_ROOT=… bash "$CLAUDE_PLUGIN_ROOT/…"` trên một dòng thì shell mở
+rộng `$CLAUDE_PLUGIN_ROOT` TRƯỚC khi gán, lệnh rỗng. Job chạy trên `push` không có
+`GITHUB_BASE_REF`: giữ khuôn cũ của kho (`--base HEAD~1 --no-t1-escape`, xem dưới)
+hoặc `${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"}`. Các dòng `t1_skip_globs`
+khai tệp kit (kể cả tên đuôi `.js` cũ) GIỮ NGUYÊN như đã nói ở mục (3).
 Giới hạn khai thẳng: CI phụ thuộc việc tải kit từ GitHub (kho public, cùng loại
 phụ thuộc với mọi action); kit chưa có tag nên ghim theo sha; hai dòng
 `pre-merge-check.sh:376` và `:397` còn đọc lib theo đường của kho — chỉ chạm hồ sơ

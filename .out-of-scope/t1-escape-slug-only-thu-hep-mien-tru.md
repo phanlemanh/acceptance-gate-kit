@@ -60,6 +60,7 @@ số 1 của kit, và giờ-kit là chi phí.
   Làm trọn vòng, ký Cổng 2 cùng ngày (`f3093c1`), nhưng không push.
 - **2026-08-15** — merge 2.0.0 vào nhánh, mở **PR #54**, CI đỏ đúng 2 nhóm
   (staleness + `mirror_sync` của AC-8). Owner từ chối; PR đóng.
+- **2026-09-23** — đo sống lần thứ hai, không ai cố ý: artifact-platform PR #392 xoá 16 tệp kit chép (non-T1) và sửa `_acceptance/config.yaml` trong cùng PR → T1-escape im (`gate_touched=1`). Phiên làm PR ghi: «Mọi PR chạm _acceptance/ đều thoát luật này». Vẫn chưa mở lại — quyết định 15/08 giữ; ghi để đếm.
 
 ## Nếu đề xuất này quay lại
 

@@ -191,6 +191,94 @@ Owner: (1) kho **theo sát từng mốc**; (2)–(4) yêu cầu giải thích + 
 - **Hai PR cũ (#114/#115) của oneflow:** kit 2.17 báo 22–24 VIOLATION làn suite-only; fork cũng đỏ 33–34.
   Không liên quan `feature_scope`.
 
+## 3e. Ma sát nghi thức kit ghi từ phiên media-library #66 (S4 delta hai hồ sơ đã ký, 23/09)
+
+Kết quả: 9 → 3 → 1 vi phạm; `ban-dieu-khien-curator` vòng 14 PASS 21/21, `cua-nguon-thong-nhat` vòng 9 PASS;
+3 lượt gọi người (1 quyết định thật + 2 lượt dán lệnh ký do khoá ADR 0002) — đúng trần T2. Tám chỗ phiên
+phải đoán, trích nguyên dòng, để hạt giống sau đọc:
+
+1. `s4-args`: «section "## Iterations" không chứa dòng "Round <n>" nào — không đếm được round; truyền --round tường minh» → đếm tay.
+2. SKILL S4: «Invoke: Workflow({ scriptPath: …, args: { … } })» — args 58 KB, không có đường truyền theo tệp → bọc bằng bản sao script (đã là bộ nhớ kit «bọc args S4 bằng script»; lần thứ hai, vẫn chưa là lệnh).
+3. SKILL: «Write `_acceptance/<slug>/evidence-report.md` = `result.report`» — báo cáo 15 KB → ghi bằng node rồi recheck thay hook Write.
+4. `eval-executors.md`: «add `.acceptance-runs/` to `.gitignore`» — nhưng `.gitignore` không thuộc `t1_skip_globs`, sửa nó làm cũ-hoá mọi hồ sơ vừa ghim → tạm dùng `.git/info/exclude`. **Lời dặn tự mâu thuẫn với luật stale.**
+5. SKILL: «descope một AC = sửa contract + re-approve» — không nói gì cho một dòng bảng mà hợp đồng khai «thêm một dòng là quyết định của người» → đi đường «Treo» ở Cổng 2.
+6. Schema sổ («descope|approach|fix|revisit») không có type cho «chờ bí mật của người» → ghi vào PR body.
+7. Cùng một người hai cách viết chữ ký («manh» nấc cổng-trước · «Mạnh» nấc git user.name) vì `approved_by` của hồ sơ do tác giả «phanlemanh» commit.
+8. SIGNOFF-LANE-CLAUSE «--skip-unchanged: cây BẰNG PIN (0 tệp git-theo-dõi đổi so verified_commit)» tính cả tệp môi trường chưa commit (`supabase/config.toml`) → làn chạy trọn; pre-merge sau chữ ký báo stale tới khi trả tệp.
+
+Cùng lớp với hạt giống `2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md` (mục 2, 3: máy phải tự chế đường
+đi cho lệnh kit) và với `2026-09-22-hat-giong-bon-loi-nho-2-18-0-tu-crm.md` (mục 4: lời dặn đá luật). Không mở ô.
+
+**Bổ sung sau khi `cua-van-hanh` xanh (vòng 12, ký «manh 2026-09-23»; PR #66 clean, 9/9):** 4 lượt gọi
+người cho hồ sơ này (dán khoá Sentry · «chạy tiếp» · «theo khuyến nghị» · dán lệnh ký). Chốt bắt được một
+va chạm giàn đo có từ trước chữ ký 05/09 (ba lượt itest song song đếm lẫn asset stock) — sản phẩm không rò.
+Ba chỗ đoán thêm:
+9. SKILL: «triaged có mục inContract: false → TUYỆT ĐỐI KHÔNG sửa trong round này» — lỗi ngoài hợp đồng nằm
+   trong chính mã phép đo vừa viết ở vòng đó (E1 nuốt lỗi truy vấn) cũng bị cấm sửa → lên thẻ. Luật viết cho
+   vật, không lường mã-đo.
+10. `--skip-unchanged` chạy trọn vì tệp môi trường chưa commit (mục 8) → chạy lại cả E4 (workflow GitHub
+    thật) và E13 (Sentry thật) ngay lúc ký, dù S4 vừa carry hai eval đó.
+11. Luật stale chỉ soi hồ sơ trong diff (ADR 0010, đánh đổi đã khai): đổi `scripts/itest-l3.ts` dùng chung
+    thì hai hồ sơ đã ký NGOÀI PR (`l3-search-media-card`, `itest-teardown-residue`) thối im lặng — phiên phải tự
+    grep `paths`/`itest_ci` rồi chạy làn chỉ đo. Đây đúng là ca mà fork `feature_scope` của oneflow (hồ sơ
+    ngoài diff có khai `paths` vẫn bị soi theo scope) sinh ra để bắt; kit đã có khoá `paths:` (P1) nhưng chưa
+    dùng nó cho luật stale. Ghi để đếm, không mở lại ADR 0010.
+
+## 3f. Hai kho đầu rời đường chép (23/09)
+
+| Kho | PR | TRƯỚC→SAU | Dòng khác | CI | Phút |
+|---|---|---|---|---|---|
+| oneflow (kèm bỏ fork 508 dòng) | #129 → merged `9fbe0d60` | 0→0 | 0/51 (bỏ 9 NOTE «narrow scope» của fork) | 6/6 | ~6 |
+| artifact-platform | #392 → merged `c9067c06` | 0→0; `--recheck-all` 490/490 | 0/275 | 3/3 | ~15 |
+
+Cả hai ghim `KIT_SHA=8a4ea881` = HEAD marketplace máy dev. 0 lượt gọi người ở cả hai.
+
+Ma sát tài liệu, trích nguyên dòng (đã sửa GUIDE §5.3 cùng ngày cho 1–4):
+1. «`CLAUDE_PLUGIN_ROOT` là bản plugin đã cài» — không rõ marketplace hay `cache/…/2.18.1`.
+2. `--base "origin/$GITHUB_BASE_REF"` — lượt `push` base rỗng.
+3. «gỡ các dòng `t1_skip_globs` khai tệp kit» — không nói tên `.js` cũ có gồm không.
+4. Khuôn `VAR=… bash "$VAR/…"` một dòng không chạy — shell mở rộng trước khi gán; phải `export`.
+5. `lib/context-glossary.cjs` — tệp kit đời cũ nằm ngoài danh sách 16, hook vocab-guard của kho vẫn đọc; kho giữ lại. Cùng lớp «danh sách chép không khép».
+
+Phát hiện đo được, đã có án: PR #392 xoá 16 tệp non-T1 mà T1-escape **im**, vì cùng PR chạm
+`_acceptance/config.yaml` và luật coi mọi đường dưới `_acceptance/` là «mang bằng chứng»
+(`pre-merge-check.sh` ≈ dòng 1617, ghi rõ trong chú thích). Đây là lần đo sống thứ hai của lỗ mà owner
+đã bác siết ở 15/08 (`.out-of-scope/t1-escape-slug-only-thu-hep-mien-tru.md`) — đã ghi vào mục Prior
+requests của tệp đó, không mở lại.
+
+**Đính chính sau merge (artifact-platform, 05:05Z):** câu «gỡ `t1_skip_globs` cùng PR không đổi verdict» ở
+GUIDE §5.3 (rút từ oneflow #129) là SAI — nó chỉ đúng ở chế độ `--base` (cổng soi hồ sơ trong diff).
+Lượt `push` không `--base` trên main artifact-platform: 144 → 146 hồ sơ hết hạn; hai hồ sơ mới
+(`chat-ux-chuan-hoa`, `deal-preview-link-reload`) có «Changed:» chứa chính các tệp kit vừa xoá. Khai lại
+19 tên (kể cả `.js` cũ) → về 144. Cơ chế: luật stale đếm tệp đổi từ `verified_commit` ngoài
+`t1_skip_globs`; gỡ dòng khai biến việc xoá tệp kit thành «code đổi sau verify». Oneflow #129 cũng đã
+gỡ các dòng ấy — main oneflow chưa đỏ vì job `push` vẫn truyền `--base origin/main` (diff rỗng), nhưng
+hồ sơ ký trước 23/09 sẽ stale ở PR kế chạm nó. GUIDE §5.3 đã sửa: GIỮ dòng khai làm lịch sử; đo
+TRƯỚC↔SAU thêm một lượt không `--base`. Việc khôi phục ở hai kho giao lại cho phiên/chip của kho.
+
+Nợ có tên ở artifact-platform: eval E2 của hồ sơ đã ký `gate-slug-visibility` chép đè
+`scripts/pre-merge-check.sh` — tệp không còn; chờ lần ghim kế đỏ rồi xử cùng lớp với nợ oneflow.
+
+## 3g. Oneflow trả nợ sau khi bỏ thước riêng và bản chép (PR #130, merged)
+
+Stale không `--base` (kit 8a4ea881): 8ca36b5 (trước #129) **39** → 9fbe0d6 (sau #129) **40** (+`roadmap-drift-guard`)
+→ sau khôi phục dòng khai **39**, cùng tập slug → cuối PR **31**, tập con thật của mốc. Phải khai thêm
+`lib/lop-nhin-thay.cjs` — tệp chép ở a282fed nhưng chưa từng được khai. Owner chọn lối A (1 lượt gọi người):
+nghỉ `cong-tu-canh-minh` + nhóm canh cổng fork (`gate-tooling-t1`, `stale-scope-by-paths`, `gate-scope-anchors`);
+ghim lại 4 hồ sơ sống (18/18 · 11/11 · 9/9 · 17/17) và `roadmap-drift-guard`; xoá 2 thước riêng, 8 guard chỉ canh
+cổng fork, 35 khoá config; −3065/+107 dòng. `--base` và `--recheck-all` đều clean.
+
+Chỗ nghi thức kit bắt đoán:
+12. GUIDE «Cho một hồ sơ nghỉ»: «Miễn trừ là **toàn phần** cho hồ sơ ấy» — không có nghỉ MỘT PHẦN; `gate-scope-anchors`
+    mất tư cách đã ký cho 9 AC own-range còn xanh vì phần còn lại canh cổng fork.
+13. GUIDE §7.1: «chạy `feature_loop.suite_keys` và mọi eval test/script của từng hồ sơ tại HEAD» — không nói có được
+    đổi LỆNH sau một khoá config mà eval đã ký trỏ vào không. Phiên đã trỏ `lcm_pmap`, `mhb_existing_guards` sang bộ đọc
+    kit rồi ghim lại xanh. Đây là đổi vật đo của hồ sơ đã ký ngoài nghi thức amendment — ghi để kit quyết khuôn.
+14. Công thức dòng nghỉ chỉ đòi «một câu lý do»; với `stale-scope-by-paths` lý do «thước = kit» không đúng (kit không
+    canh thay lời hứa scope-hẹp) — sự thật nằm ở vế impact. Cùng lớp với mục 11 (ADR 0010).
+15. GUIDE §5.3 (3) có ở kit 8f662829 nhưng CHƯA có ở sha ghim 8a4ea881 — kho đọc tài liệu theo sha ghim thì không thấy
+    bài học mới. Tài liệu đi theo main, engine đi theo sha: hai nhịp.
+
 ## 4. Việc kế
 
 Cả bốn chỗ ở §2 đều có neo ngoài: đó là PR cài kit của kho tiêu thụ, đúng vế 4 luật (b).
