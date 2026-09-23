@@ -259,6 +259,26 @@ TRƯỚC↔SAU thêm một lượt không `--base`. Việc khôi phục ở hai 
 Nợ có tên ở artifact-platform: eval E2 của hồ sơ đã ký `gate-slug-visibility` chép đè
 `scripts/pre-merge-check.sh` — tệp không còn; chờ lần ghim kế đỏ rồi xử cùng lớp với nợ oneflow.
 
+## 3g. Oneflow trả nợ sau khi bỏ thước riêng và bản chép (PR #130, merged)
+
+Stale không `--base` (kit 8a4ea881): 8ca36b5 (trước #129) **39** → 9fbe0d6 (sau #129) **40** (+`roadmap-drift-guard`)
+→ sau khôi phục dòng khai **39**, cùng tập slug → cuối PR **31**, tập con thật của mốc. Phải khai thêm
+`lib/lop-nhin-thay.cjs` — tệp chép ở a282fed nhưng chưa từng được khai. Owner chọn lối A (1 lượt gọi người):
+nghỉ `cong-tu-canh-minh` + nhóm canh cổng fork (`gate-tooling-t1`, `stale-scope-by-paths`, `gate-scope-anchors`);
+ghim lại 4 hồ sơ sống (18/18 · 11/11 · 9/9 · 17/17) và `roadmap-drift-guard`; xoá 2 thước riêng, 8 guard chỉ canh
+cổng fork, 35 khoá config; −3065/+107 dòng. `--base` và `--recheck-all` đều clean.
+
+Chỗ nghi thức kit bắt đoán:
+12. GUIDE «Cho một hồ sơ nghỉ»: «Miễn trừ là **toàn phần** cho hồ sơ ấy» — không có nghỉ MỘT PHẦN; `gate-scope-anchors`
+    mất tư cách đã ký cho 9 AC own-range còn xanh vì phần còn lại canh cổng fork.
+13. GUIDE §7.1: «chạy `feature_loop.suite_keys` và mọi eval test/script của từng hồ sơ tại HEAD» — không nói có được
+    đổi LỆNH sau một khoá config mà eval đã ký trỏ vào không. Phiên đã trỏ `lcm_pmap`, `mhb_existing_guards` sang bộ đọc
+    kit rồi ghim lại xanh. Đây là đổi vật đo của hồ sơ đã ký ngoài nghi thức amendment — ghi để kit quyết khuôn.
+14. Công thức dòng nghỉ chỉ đòi «một câu lý do»; với `stale-scope-by-paths` lý do «thước = kit» không đúng (kit không
+    canh thay lời hứa scope-hẹp) — sự thật nằm ở vế impact. Cùng lớp với mục 11 (ADR 0010).
+15. GUIDE §5.3 (3) có ở kit 8f662829 nhưng CHƯA có ở sha ghim 8a4ea881 — kho đọc tài liệu theo sha ghim thì không thấy
+    bài học mới. Tài liệu đi theo main, engine đi theo sha: hai nhịp.
+
 ## 4. Việc kế
 
 Cả bốn chỗ ở §2 đều có neo ngoài: đó là PR cài kit của kho tiêu thụ, đúng vế 4 luật (b).

@@ -806,8 +806,9 @@ kit ở sha ghim để chắc là tệp kit, không phải tệp của kho); (2)
 luật stale đếm «tệp đổi từ `verified_commit` tới nay ngoài `t1_skip_globs`», nên gỡ dòng
 khai là biến chính việc XOÁ tệp kit thành «code đổi sau lượt verify» cho mọi hồ sơ ký
 trước đó (artifact-platform #392: 144 → 146 hồ sơ hết hạn trên lượt `push`; khai lại
-19 tên → về 144). Chỉ gỡ loại-trừ vendored trong linter của kho. Lượt đo TRƯỚC↔SAU
-phải có thêm MỘT lần **không `--base`** (cả cây): có `--base` cổng chỉ soi hồ sơ trong
+19 tên → về 144). Tệp kit đã chép mà **chưa từng khai** trong `t1_skip_globs` (oneflow: `lib/lop-nhin-thay.cjs`
+chép ở a282fed, không khai) → KHAI THÊM khi xoá, cùng lý do. Chỉ gỡ loại-trừ vendored trong
+linter của kho. Lượt đo TRƯỚC↔SAU phải có thêm MỘT lần **không `--base`** (cả cây): có `--base` cổng chỉ soi hồ sơ trong
 diff nên không thấy lớp này; (4) khoá `paths:` trong `evals.yaml` GIỮ NGUYÊN (kit vẫn
 đọc cho P1); (5) grep các script riêng của kho còn gọi `scripts/pre-merge-check.sh` —
 chúng sẽ không tìm thấy cổng, đổi sang `"$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh"`
