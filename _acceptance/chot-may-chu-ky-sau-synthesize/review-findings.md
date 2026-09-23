@@ -1,50 +1,26 @@
 ## Trong hợp đồng
 
-- **Chốt bỏ qua cả frontmatter khi báo cáo mở bằng dòng trống hoặc «--- » có khoảng trắng cuối, nhưng bên đọc vẫn nhận đó là chữ ký**
-  AC: AC-1
-  file: `feature-loop/workflows/acceptance-verify.js:109`
-  severity: medium
-  detail: chotTruongNguoi chỉ nhận ra frontmatter khi `dong[0] === '---'` và dòng đóng đúng bằng `'---'`. Bên đọc thì dễ hơn: `lib/evidence-core.cjs` frontmatterField (dòng 277–279) bỏ các dòng trống ở đầu và chấp nhận `---[ \t]*`; chuKyThat (dòng ~1128–1135) cũng bỏ dòng trống đầu, chấp nhận `---[ \t]*`, và khi không có dòng đóng thì đọc tới hết tệp. Hệ quả: nếu tác tử tổng hợp trả báo cáo mở bằng `\n---\n...human_signoff: Manh 2026-09-23\n---`, hoặc dòng mở/đóng là `--- `, thì `fmHet = -1` và vòng lặp frontmatter không chạy, cũng không coi `human_signoff:` ở cột 0 là vị trí trường. human_signoff, bypass_ack và verified_at cấp 0 giữ nguyên giá trị tác tử viết — đổi bằng 0 hết, không dòng run-log nào, không BLOCKED. Đã tái hiện bằng napChot: cả hai ca (dòng trống đầu, `--- ` có dấu cách cuối) đều ra doi={0,0,0,0} và chữ ký còn nguyên, trong khi frontmatterField trên cùng chuỗi trả đúng `human_signoff: Manh 2026-09-23`. Một chữ ký do máy viết đi lọt chốt mà không ai được báo.
-  source: bugs
-
-- **run_id có ngoặc kép làm khối carry lặng lẽ mất giờ gốc, verified_at bị ép thành invokedAt**
+- **Khối evidence mở bằng `- run_id:` bị mất giờ carry — bản vá t4 chưa quét hết lớp «chốt hẹp hơn bên đọc»**
   AC: AC-2
-  file: `feature-loop/workflows/acceptance-verify.js:136`
+  file: `feature-loop/workflows/acceptance-verify.js:131`
   severity: medium
-  detail: run_id của khối được lấy bằng `/^run_id\s*[:=]\s*(\S+)/`, giữ nguyên ngoặc kép. Bên đọc thì bỏ ngoặc: `lib/evidence-core.cjs` extractRunIds (dòng 314–318) dùng `.replace(/^["']+|["']+$/g,'')`, nên `run_id: "run-goc-E4"` hợp lệ và đối chiếu được với run-log. Với khối carry viết `run_id: "run-goc-E4"`, rid thành `'"run-goc-E4"'` và tra gioTheoRunId không trúng; dòng 156 lặng lẽ rơi về invokedAt, không báo lỗi. Đã tái hiện: khối carry có verified_at 2026-07-01T00:00:00Z (giờ gốc) bị đổi thành 2026-07-02T10:00:00Z, doi.verified_at=1 — engine tự khai một eval KHÔNG chạy lại vòng này được đo ở giờ của vòng này, đúng hình dạng «giả timestamp mới» mà AC-2 định chặn.
-  source: bugs
+  detail: Bản vá S4-r1 sửa cách chuẩn hoá run_id cho «đúng như bên đọc (extractRunIds)», nhưng chỉ sửa ở các dòng thân khối (cot === cotNoiDung). Dòng MỞ khối (`/^\s*- [A-Za-z_][\w-]*\s*:/`) thì `continue` ngay, không bao giờ rút run_id. Bên đọc thì khác: extractRunIds dùng `^\s*(?:-\s+)?run_id`, nên `- run_id: X` là run_id hợp lệ. Tôi đã chạy lại trên bản HEAD bằng hàm rút nguyên văn giữa hai marker CHOT-TRUONG-NGUOI, với gioTheoRunId={'run-goc-E4':'2026-07-01T00:00:00Z'} và invokedAt='2026-09-23T10:00:00Z'. Khi khối ghi `- eval: E4 / run_id: run-goc-E4 / verified_at: 2026-07-01…` thì doi.verified_at=0, giữ giờ gốc (đúng). Khi CÙNG khối đó đổi thứ tự thành `- run_id: run-goc-E4 / eval: E4 / verified_at: 2026-07-01…` thì extractRunIds vẫn trả ['run-goc-E4'], nhưng chốt lại ra verified_at=2026-09-23T10:00:00Z và doi.verified_at=1. Như vậy engine tự khai rằng một eval carry (không chạy lại) được đo ở giờ của vòng này, đúng hình dạng mà finding t4/AC-2 định chặn, chỉ khác lối vào. CLAUDE.md đòi «sửa phải theo LỚP: quét cả file tìm mọi case cùng hình dạng», và commit 75e24401 tự gọi tên lớp này là «chốt nhận hình dạng HẸP hơn bên đọc», nên đây là lỗ còn sót trong chính bản vá. Test mới CTN-AC2-ngoac chỉ phủ run_id có nháy ở dòng thân, không có ca run_id nằm ở dòng mở khối. Một lệch hẹp hơn cùng lớp: dòng mở khối chỉ nhận đúng `- ` (một dấu cách), còn bên đọc nhận `-\s+`. Với `-  eval:` (hai dấu cách) cả khối không được coi là vị trí trường, nên `human_override: Bot …` trong khối đó giữ nguyên, doi toàn 0. Phần thụt lề này gần với mục known-limits «thụt khác 2 cột» đã có.
+  source: conventions
+
+- **Hình dạng 5 — tuyên quét LỚP «chốt nhận hình dạng HẸP hơn bên đọc» nhưng chỉ có 3 điểm-case; 6 mutant cùng lớp trong chính bản sửa S4-r1 vẫn xanh**
+  AC: AC-2
+  file: `tests/workflows/chot-truong-nguoi.test.mjs:265`
+  severity: medium
+  detail: Chú thích ở dòng 265–268 và commit 75e24401 gọi tên một LỚP («chốt nhận hình dạng HẸP hơn bên đọc», bên đọc là lib/evidence-core.cjs frontmatterField/extractRunIds), và bản sửa trong acceptance-verify.js (dòng ~108–161) nới RỘNG theo nhiều trục của bên đọc cùng lúc. Test chỉ có ba biến thể điểm (hangRao, hoaKhoa, ngoacRid ở dòng 269–275), không có ma trận viết trước rút từ luật bên đọc. Không có ca nào cho: khoá verified_at viết hoa (RE_GIO được thêm cờ /i), khoá run_id viết hoa (cờ /i), run_id kèm chú thích `# ...` (bên đọc bỏ `\s+#.*$`), run_id trong nháy đơn, frontmatter không có hàng rào đóng (nhánh mới `fmHet = dong.length`), human_override viết hoa trong khối evidence (hoaKhoa chỉ đổi human_signoff/bypass_ack ở frontmatter). Tôi chạy thử trên một bản sao `git archive HEAD` ở scratchpad. Trước hết là đối chứng: gỡ phần chuẩn hoá run_id thì CTN-AC2-ngoac ĐỎ đúng như mong đợi, tức cách tiêm có tác dụng. Sau đó từng mutant sau đều cho '26 passed, 0 failed': (M1) bỏ /i ở RE_GIO; (M2) bỏ `.replace(/\s+#.*$/, '')` ở run_id; (M3) bộ bóc nháy chỉ bóc `"`, không bóc `'`; (M4) `fmHet = dong.length` → `fmHet = fmDau` (frontmatter không đóng thì coi như rỗng); (M5) bỏ /i ở `nd.match(/^run_id.../i)`; (M6) chỉ ép rỗng khoá người viết hoa khi nằm ở frontmatter. Như vậy ctn_ac1/ctn_ac2 (config.yaml, dòng ~422–423, thêm CTN-AC1-mo-dau/CTN-AC1-hoa-thuong/CTN-AC2-ngoac) xanh mà không phân biệt được bản sửa đủ với bản sửa thiếu nửa lớp. Theo mẫu P105, lớp cần một ma trận rút từ luật bên đọc, mỗi trục một ô, và số assert phải bằng số ô.
+  source: measurement
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **E7 (ctn_ac7) gặp «không đọc được ở đây» thì bị xếp thành lỗi vật (REJECT), vì mã thoát 3 riêng không nằm trong INFRA-EXIT-CODES**
-    Người dùng thấy gì: Khi môi trường chạy thiếu quyền truy cập kho liên quan, máy có thể báo sai là kết quả không đạt thay vì báo đúng là không kiểm tra được ở đây, khiến người đọc dễ nhầm thành lỗi thật của tính năng.
-    file: `_acceptance/config.yaml`
-    severity: medium
-    Đề xuất: known-limits
-
-- **Giờ carry lấy invokedAt thô chưa kiểm, trong khi hàm chốt kiểm ISO; invokedAt sai dạng thì thông báo lại nói là «vắng»**
-    Người dùng thấy gì: Nếu ai đó tự soạn dữ liệu đầu vào cho bước kiểm mà ghi sai định dạng giờ, thông báo lỗi có thể nói giờ bị thiếu dù thực ra nó có mặt, làm người đọc thông báo hiểu nhầm nguyên nhân.
+- **Rewriting verified_at counts a correct but quoted or commented value as a violation, producing a false chot-truong-nguoi audit line**
+    Người dùng thấy gì: Nếu báo cáo đã ghi đúng giờ nhưng dưới dạng có ngoặc kép hoặc kèm chú thích, hệ thống có thể vẫn viết lại dòng đó và ghi nhận sai rằng có người đã sửa vào chỗ không được phép sửa, dù giờ đó vốn đã đúng.
     file: `feature-loop/workflows/acceptance-verify.js`
-    severity: low
-    Đề xuất: known-limits
-
-- **Dòng trường thụt khác 2 cột (vd 4) không bị chốt, trong khi hook L3 đếm human_override ở mọi vị trí**
-    Người dùng thấy gì: Nếu báo cáo tự động lệch định dạng thụt lề tiêu chuẩn, một chữ ký hoặc ghi đè do máy tạo ra vẫn có thể lọt qua bước chặn mà không có cảnh báo nào.
-    file: `feature-loop/workflows/acceptance-verify.js`
-    severity: low
-    Đề xuất: known-limits
-
-- **Hình dạng 5 (ma trận khai toàn phần nhưng có ô ma): ô judgment-carry không hề là carry**
-    Người dùng thấy gì: Một phần của bộ kiểm tự động không thực sự kiểm tra tình huống nó tuyên bố kiểm tra, nên một lỗi tiềm ẩn ở đúng tình huống đó có thể không bị phát hiện dù mọi thứ vẫn báo đạt.
-    file: `tests/workflows/chot-truong-nguoi.test.mjs`
-    severity: medium
-    Đề xuất: known-limits
-
-- **Hình dạng 5 (chốt «số assert = số phần tử» kiểu P105 là tautology) kèm một ca AC-2 chỉ so hằng số**
-    Người dùng thấy gì: Một vài phép kiểm trong bộ test luôn báo đạt bất kể máy làm đúng hay sai, nên con số đạt không phản ánh đầy đủ độ tin cậy thật của việc kiểm tra.
-    file: `tests/workflows/chot-truong-nguoi.test.mjs`
     severity: low
     Đề xuất: known-limits
 
