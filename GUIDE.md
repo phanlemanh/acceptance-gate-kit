@@ -799,6 +799,16 @@ Ba bước, mỗi bước một dòng cấu hình của kho:
    chính kit: `.github/workflows/gate.yml` nằm trong `t1_skip_globs` của kit.
    Không có dòng này thì mỗi PR đổi sha đỏ T1-escape.
 
+**Kho đang ở đường chép muốn rời** (đo trên oneflow #129, 23/09 — verdict 51/51 dòng
+giống hệt trước/sau): trong MỘT PR — (1) xoá mọi tệp kit-owned đã chép (`cmp` với bản
+kit ở sha ghim để chắc là tệp kit, không phải tệp của kho); (2) sửa workflow như trên;
+(3) gỡ các dòng `t1_skip_globs` khai tệp kit và loại-trừ vendored trong linter của kho —
+gỡ cùng PR không đổi verdict; (4) khoá `paths:` trong `evals.yaml` GIỮ NGUYÊN (kit vẫn
+đọc cho P1); (5) grep các script riêng của kho còn gọi `scripts/pre-merge-check.sh` —
+chúng sẽ không tìm thấy cổng, đổi sang `"$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh"`
+hoặc ghi nợ có tên. Kho có hồ sơ `status: machine-cleared` (grep `contract.md`) chờ mốc kế
+vì hai dòng 376/397 nêu dưới.
+
 Chạy ở máy dev: cùng lệnh, với `CLAUDE_PLUGIN_ROOT` là bản plugin đã cài.
 Giới hạn khai thẳng: CI phụ thuộc việc tải kit từ GitHub (kho public, cùng loại
 phụ thuộc với mọi action); kit chưa có tag nên ghim theo sha; hai dòng
