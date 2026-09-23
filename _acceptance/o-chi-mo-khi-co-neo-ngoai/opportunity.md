@@ -190,6 +190,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   evidence-report.md rơi nhánh Cổng 1 của thẻ, vẫn hỏi «duyệt hay sửa» (2/7); vị từ «đã khép» phải hỏi trước khi chọn nhánh.
 - `docs/plans/2026-09-23-hat-giong-tac-tu-tong-hop-ghi-truong-cua-nguoi.md` — 23/09 crm: agent synthesize:report tự ghi
   `human_signoff` và bịa `verified_at` tương lai ở 4 run; không chốt máy nào sau synthesize, lưới không có răng — ADR 0002 sống bằng lời.
+- `docs/plans/2026-09-23-hat-giong-rang-ben-doc-verified-at-chu-ky.md` — vế 2 owner không phê ở vòng chốt máy 2.18.2:
+  răng bên đọc đi SAU chiến dịch ghim lại 13 kit + 12 crm; ngưỡng bật = 0 hồ sơ đỏ trên corpus.
 - `docs/plans/2026-09-22-hat-giong-dong-hieu-chuan-dem-ho-so-chua-tung-dat.md` — dòng hiệu chuẩn `0 / 8` tự xưng
   «ĐẠT đã ký» mà 4/8 hồ sơ chưa từng ĐẠT-ký; chỗ đỏ khai trong dòng quan sát không vào k.
 - `docs/plans/2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md` — lượt máy hỏi ngoài thiết kế dồn về S1

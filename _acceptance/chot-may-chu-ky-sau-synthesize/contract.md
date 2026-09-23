@@ -54,7 +54,7 @@ Quét hình thái rút gọn (preset test-matrix), đầy đủ ở design doc m
 
 ## Out of scope
 
-- **Vế 2 của hạt giống — răng bên đọc trong `lib/evidence-core.cjs` / `scripts/recheck-evidence.cjs`** (CỘNG một luật đọc; owner phê đích danh ở Cổng Phạm vi, ADR 0018). Số đo cho quyết: luật «`verified_at` sớm hơn ts run-log» đỏ 13 hồ sơ kit + 12 crm; luật «muộn hơn giờ commit» đỏ 0 kit + 6 crm; luật «chữ ký không có commit `Gate 2 signoff:`» đỏ 37/81 kit + 6/51 crm; chạm `t3_paths` → vòng thành T3.
+- **Vế 2 của hạt giống — răng bên đọc trong `lib/evidence-core.cjs` / `scripts/recheck-evidence.cjs`** (CỘNG một luật đọc; owner phê đích danh ở Cổng Phạm vi, ADR 0018). Số đo cho quyết: luật «`verified_at` sớm hơn ts run-log» đỏ 13 hồ sơ kit + 12 crm; luật «muộn hơn giờ commit» đỏ 0 kit + 6 crm; luật «chữ ký không có commit `Gate 2 signoff:`» đỏ 37/81 kit + 6/51 crm; chạm `t3_paths` → vòng thành T3. Owner không phê ở vòng này (23/09); ghi thành hạt giống `docs/plans/2026-09-23-hat-giong-rang-ben-doc-verified-at-chu-ky.md` — đi sau chiến dịch ghim lại theo run-log thật, ngưỡng bật răng = 0 hồ sơ đỏ trên corpus kit + crm.
 - Chữa ngược giá trị `verified_at` bịa đang nằm trong 13 hồ sơ kit + 12 hồ sơ crm — chiến dịch ghim lại theo run-log thật, không thuộc vòng này.
 - Đổi prompt `synthesize:report` — dặn-bằng-lời không phải nghiệm; chốt máy đứng sau prompt.
 - Suite-qua-trần, thẻ Cổng 1 hồ sơ khép, hạt giống S1, hạt giống lớp chép — owner tách riêng 23/09.
