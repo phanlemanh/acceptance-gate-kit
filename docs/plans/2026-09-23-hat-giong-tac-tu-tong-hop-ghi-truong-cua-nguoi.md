@@ -29,3 +29,14 @@ rỗng và khớp `status`. Hệ quả: một chữ ký do máy viết trên h�
 Vế 1 và 3 là TRỪ (bớt quyền của agent). Vế 2 là CỘNG một luật đọc, owner phê đích danh (ADR 0018). Xếp vào
 vòng ĐẦU cửa sổ kế cùng suite-qua-trần và thẻ Cổng 1 hồ sơ khép — không mở vòng riêng (luật chiều rộng (b)).
 Ngưỡng mở ô: đã chạm (2 hồ sơ, 4 run trong một ngày; một chữ ký máy đã lọt tới bước ghi tệp).
+
+## Owner quyết 23/09 (phiên điều phối «Cập nhật kit mới nhất từ github»)
+
+- **Đây là vòng meta ĐẦU của cửa sổ sau 2.18.1 → mốc 2.18.2.** Owner chọn nó trước hạt giống S1
+  (`2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md`) vì nguyên tố 2 (bằng chứng không tự dối) đứng
+  trên trạm thu phí ở S1 (nguyên tố 3): chữ ký máy lọt lưới là false-green ở lời hứa cốt lõi của cổng.
+- **Vòng đi RIÊNG hạt giống này** — KHÔNG gộp suite-qua-trần hay thẻ Cổng 1 hồ sơ khép như đoạn trên đề
+  nghị: ba lớp khác nhau, gộp vì «chỉ được một vòng» là đúng bệnh luật chiều rộng sinh ra để chặn; nhịp
+  mốc 1–2 ngày nên làm tuần tự không tốn gì.
+- Vế 1 và 3 (TRỪ) đi mặc định; **vế 2 (CỘNG một luật đọc) trình ở Cổng Phạm vi để owner phê đích danh.**
+- Chip đã mở cùng ngày: «Kit 2.18.2: chốt máy chữ ký sau synthesize (vòng meta)».

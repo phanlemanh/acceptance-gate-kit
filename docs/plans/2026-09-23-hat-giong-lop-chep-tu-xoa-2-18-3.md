@@ -1,7 +1,9 @@
 # Hạt giống — Lớp CI chép tay tự xoá: hai dòng lệch đường, xoá danh sách chép, gắn tag mốc
 
-**Ngày:** 2026-09-23 · **Trạng thái:** hạt giống (SỔ, chưa là ô) · **Hạng dự kiến:** T2, vòng TRỪ,
-đi SAU vòng S1 (`2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md`, owner xếp trước 23/09)
+**Ngày:** 2026-09-23 · **Trạng thái:** hạt giống (SỔ, chưa là ô) · **Hạng dự kiến:** T2, vòng TRỪ.
+**Thứ tự owner xếp 23/09 («Đổi»):** 2.18.2 = chốt máy chữ ký (`2026-09-23-hat-giong-tac-tu-tong-hop-ghi-truong-cua-nguoi.md`)
+→ 2.19 = S1 (`2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md`) → hạt giống này sau đó, hoặc sớm hơn
+nếu crm/media-library cần bỏ chép mà còn vướng hai dòng 376/397.
 Gốc: oneflow PR #127, artifact-platform #391, media-library #66, floorplanstudio #34, MapPoster #58 — sáu
 kho nâng 2.18.1 cùng ngày, danh sách chép thiếu `opportunity-template.md` (lần thứ ba cùng lớp), bốn
 kho chạy CI với 7–8/15 lớp không tín hiệu, oneflow giữ fork 508 dòng bỏ răng P184.
