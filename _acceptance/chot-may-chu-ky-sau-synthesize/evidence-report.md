@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: b7fbed29f4cdbe2f5420982dee4b30d392b5efb0
-human_signoff:
+human_signoff: manh 2026-09-23
 ---
 
 # Evidence Report: chot-may-chu-ky-sau-synthesize

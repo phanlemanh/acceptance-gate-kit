@@ -111,4 +111,4 @@ nhan-trang-thai-va-reality	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngo�
 release-2-18-0	hoi=	bao=cắt/hoãn|Treo
 ho-so-khep-thoi-hoi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
 release-2-18-1	hoi=ký hay trả	bao=cắt/hoãn|Treo
-chot-may-chu-ky-sau-synthesize	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|ký hay trả	bao=cắt/hoãn|Treo
+chot-may-chu-ky-sau-synthesize	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
