@@ -1,0 +1,116 @@
+schema_version: 1
+feature_slug: chot-may-chu-ky-sau-synthesize
+# Tệp ca mới tests/workflows/chot-truong-nguoi.test.mjs, tên ca mang mã AC (tên test = tên AC).
+# Workflow chạy THẬT qua tests/workflows/harness.mjs (không chép hàm); khối hàm chốt rút từ
+# tệp workflow theo marker CHOT-TRUONG-NGUOI cho các ca corpus. Báo cáo nền do CODE sinh từ
+# vùng chép của skills/acceptance/references/evidence-report-template.md (khối SUITE / UI-CHECK /
+# JUDGMENT rút theo marker), run_id rút từ result.runLog của chính lượt chạy. Đường dẫn suy từ
+# vị trí tệp ca. Mỗi cặp hai-chiều dùng CÙNG fixture: vật lành → xanh, bản sao phá vật
+# (srcOverride trong bộ nhớ) → đỏ, thông điệp ghim.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ctn_ac1
+    expected: >
+      Có dòng PASS của CTN-AC1 và CTN-AC1-giu. CTN-AC1: tác tử tổng hợp giả trả báo cáo nền có
+      human_signoff «Phan Le Manh 2026-09-23» ở frontmatter, human_override có giá trị ở khối
+      judgment và bypass_ack có giá trị ở frontmatter → result.report có đúng ba dòng khoá, giá
+      trị rỗng, mỗi dòng so BẰNG dòng mong đợi. CTN-AC1-giu: dòng khoá rỗng, dòng chỉ-chú-thích
+      và dòng «# bypass_ack:» giữ nguyên byte. Chiều đỏ: CTN-AC8-go-goi trên cùng fixture.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/chot-truong-nguoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ctn_ac2
+    expected: >
+      Có dòng PASS của CTN-AC2-ma-tran và CTN-AC2-carry-khac. CTN-AC2-carry-khac: fixture carry
+      có verifiedAt khác invokedAt (assert trước khi so). CTN-AC2-ma-tran: ma trận viết trước —
+      (khối eval máy, ui-check, judgment, suite) × (tươi, carry) cộng frontmatter, bỏ ô vô nghĩa
+      (suite không carry) — mỗi ô mang verified_at 2099 hoặc 2001; sau workflow mỗi dòng so BẰNG
+      giờ engine của ô (invokedAt; verifiedAt gốc cho carry). Ca in số assert và đòi số assert
+      bằng số ô của ma trận.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/chot-truong-nguoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ctn_ac3
+    expected: >
+      Có dòng PASS của CTN-AC3-lanh, CTN-AC3-bang và CTN-AC3-vo-huong. CTN-AC3-lanh (đối chứng
+      dương): báo cáo nền đúng → result.report === chuỗi tác tử trả. CTN-AC3-bang: báo cáo nền bị
+      tiêm chữ ký + giờ lệch → result.report === báo cáo nền; số dòng bằng nhau ở cả hai.
+      CTN-AC3-vo-huong: khối output có dòng «human_signoff: X» và «verified_at: 2099-…», cùng một
+      dòng văn xuôi thân báo cáo có chuỗi ấy → giữ nguyên byte.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/chot-truong-nguoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ctn_ac4
+    expected: >
+      Có dòng PASS của CTN-AC4, CTN-AC4-cu và CTN-AC4-ben-goi. CTN-AC4: args không có invokedAt,
+      tác tử trả báo cáo có verified_at → verdict BLOCKED, một mục blocked có reason chứa
+      «chot-truong-nguoi» và «invokedAt», report rỗng. CTN-AC4-cu: args không có invokedAt, báo
+      cáo không có dòng verified_at → verdict PASS như W14. CTN-AC4-ben-goi: chạy s4-args.mjs trên
+      kho fixture do code sinh → tệp args có invokedAt khớp dạng ISO.
+    paths: [feature-loop/workflows/acceptance-verify.js, feature-loop/scripts/s4-args.mjs, tests/workflows/chot-truong-nguoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ctn_ac5
+    expected: >
+      Có dòng PASS của CTN-AC5 và CTN-AC5-im. CTN-AC5: ca tiêm của AC-3 → đúng một dòng runLog
+      kind chot-truong-nguoi, bốn số bằng số dòng đã đổi từng khoá (đếm độc lập bằng so dòng
+      trước/sau trên fixture), ts = invokedAt. CTN-AC5-im: ca đúng → 0 dòng kind ấy.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/chot-truong-nguoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ctn_ac6
+    expected: >
+      Có dòng PASS của CTN-AC6-kit và CTN-AC6-dot-bien. CTN-AC6-kit: khối hàm rút theo marker áp
+      lên mọi _acceptance/*/evidence-report.md của kit (đường suy từ vị trí tệp ca) → mọi dòng
+      khác nhau nằm ở vị trí trường và mang một trong bốn khoá, số dòng bằng; in số báo cáo quét
+      (≥ 80) và số bị chạm (≥ 1). CTN-AC6-dot-bien: bản sao hàm chạm thêm dòng verdict → phép im
+      báo «cham dong ngoai bon khoa» kèm tên hồ sơ; ca xanh chỉ khi thấy đúng thông điệp ấy.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/chot-truong-nguoi.test.mjs, tests/workflows/chot-truong-nguoi-corpus.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ctn_ac7
+    expected: >
+      Lệnh thật trên kho crm, đọc bằng git show ở các ref khai, không ghi byte nào vào kho crm.
+      Thoát 0, in dòng «im: <n> bao cao crm, <k> bi cham, 0 dong ngoai bon khoa» với n ≥ 40 và
+      k ≥ 1, và hai dòng «co mat: bo-dung-chung-nhan-chuoi», «co mat: tieu-de-cot-doc-tron».
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/chot-truong-nguoi-corpus.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ctn_ac7_nhanh
+    expected: >
+      Có dòng PASS của CTN-AC7-lanh, CTN-AC7-ref-le, CTN-AC7-moi-ref, CTN-AC7-can-vang và
+      CTN-AC7-khong-git, trên kho git tạm do code sinh (hai ref, một báo cáo đã ký mỗi ref).
+      CTN-AC7-lanh (đối chứng dương): đủ ref, đủ --can → thoát 0. Ref lẻ vắng → thoát 0 kèm
+      đúng một dòng khai tên ref. Mọi ref vắng · hồ sơ --can vắng ở mọi ref đọc được · --root
+      không phải kho git → mã khác 0 và «khong doc duoc o day».
+    paths: [tests/workflows/chot-truong-nguoi-corpus.mjs, tests/workflows/chot-truong-nguoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.ctn_ac8
+    expected: >
+      Có dòng PASS của CTN-AC8-go-goi, CTN-AC8-bo-khoa, CTN-AC8-carry và CTN-AC8-moi-cot. Mỗi
+      ca chạy bản nguyên vẹn XANH trước trên cùng fixture, rồi bản sao srcOverride: gỡ lời gọi
+      chốt → phép AC-1 báo dòng human_signoff còn giá trị; bỏ bypass_ack khỏi danh sách khoá →
+      phép AC-1 báo đúng tên khoá bypass_ack; khối carry lấy invokedAt → phép AC-2 báo id eval
+      carry; khớp khoá ở mọi cột → phép AC-3 báo dòng output bị đổi. Ca xanh chỉ khi thấy đúng
+      thông điệp ghim.
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/workflows/chot-truong-nguoi.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
