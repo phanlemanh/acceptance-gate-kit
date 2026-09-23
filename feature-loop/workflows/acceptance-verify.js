@@ -147,11 +147,14 @@ function chotTruongNguoi(report, opts) {
     const cKhoa = c + ((dong[j].slice(c).match(/^-\s+/) || [''])[0].length)
     if (MO_VO_HUONG.test(dong[j])) cotVh = cKhoa
   }
-  // Bản ghi ở thân: mở bằng `^\s*-\s+`, kéo tới dòng không trống đầu tiên thụt ≤ dòng mở.
+  // Bản ghi: mở bằng `^\s*-\s+`, kéo tới dòng không trống đầu tiên thụt ≤ dòng mở. Dựng trên
+  // CẢ frontmatter lẫn thân — bên đọc (extractRunIds) quét run_id trên toàn payload, nên một khối
+  // carry lồng trong frontmatter vẫn phải giữ giờ carry (Ngoài-1 lượt 4). Dòng rào không mở bản ghi.
   const banGhi = new Array(n).fill(-1)
   const ridBanGhi = []
   let bg = -1, cotBg = -1
-  for (let j = thanDau; j < n; j += 1) {
+  const ghiDau = fmHet > 0 ? fmDau + 1 : thanDau
+  for (let j = ghiDau; j < n; j += 1) {
     if (voHuong[j]) { banGhi[j] = bg; continue }
     const l = dong[j]; const c = l.search(/\S/)
     if (c === -1) continue

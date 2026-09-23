@@ -501,6 +501,13 @@ function bangViPhan() {
       const gio = s => { const m = s.split('\n').map(l => l.match(/^\s*verified_at\s*[:=]\s*(.*)$/i)).find(Boolean); return m ? chuanDoc(m[1]) : null; };
       o.push({ id: `C:${rao}:${mo}:${rf}:${ind}:${vk}:${rk}:${thu}`, truc: 'AC2', bc, truoc: s => core.extractRunIds(s).includes(RID4) && gio(s) === '2099-01-01T00:00:00Z', sau: s => gio(s) === CARRY_AT });
     }
+  // C' — bản ghi carry lồng TRONG frontmatter đóng rào (Ngoài-1 lượt 4 — bên đọc extractRunIds
+  // quét cả frontmatter, nên run_id ở đó vẫn là run_id của bản ghi và giờ phải là giờ carry).
+  for (const rf of Object.keys(RIDV)) for (const rk of ['run_id', 'RUN_ID']) {
+    const bc = `---\nverdict: PASS\njudgments:\n  - eval: E4\n    ${rk}: ${RIDV[rf]}\n    verified_at: 2099-01-01T00:00:00Z\n    exit_code: 0\n---\n\n# R\n`;
+    const gio = s => { const m = s.split('\n').map(l => l.match(/^\s*verified_at\s*[:=]\s*(.*)$/i)).find(Boolean); return m ? chuanDoc(m[1]) : null; };
+    o.push({ id: `C:fm-long:${rf}:${rk}`, truc: 'AC2', bc, truoc: s => core.extractRunIds(s).includes(RID4) && gio(s) === '2099-01-01T00:00:00Z', sau: s => gio(s) === CARRY_AT });
+  }
   // D — nội dung khối vô hướng: không chạm một byte (chốt không làm giả output).
   for (const k of ['human_signoff', 'human_override', 'bypass_ack', 'verified_at']) for (const ch of ['|', '>', '|-']) for (const noi of ['fm', 'ban-ghi', 'ban-ghi-gach']) {
     const gt = k === 'verified_at' ? '2099-01-01T00:00:00Z' : GIA;
@@ -521,9 +528,9 @@ function bangViPhan() {
 // Số ô tính ĐỘC LẬP từ kích thước trục (viết trước khi chạy):
 //   A = 2 khoá × 4 rào × 3 hoa × 2 tách × 2 giá trị − (bypass_ack × khong-dong: 12) = 84
 //   B = 15 hình dạng L3 đếm (10 thuộc lời hứa + 5 giới hạn đã khai) × 2 hoa = 30
-//   C = 2 rào × (2 mở-eval × 4 × 2 × 2 × 2 × 2 + 1 mở-run_id × 4 × 2 × 2 × 2) = 320
-//   D = 4 khoá × 3 chỉ báo × 3 nơi = 36 · E = 2  → tổng 472
-const SO_O = { AC1: 84 + 30, AC2: 320, AC3: 36 + 2 };
+//   C = 2 rào × (2 mở-eval × 4 × 2 × 2 × 2 × 2 + 1 mở-run_id × 4 × 2 × 2 × 2) = 320 · C' carry lồng frontmatter = 4 × 2 = 8
+//   D = 4 khoá × 3 chỉ báo × 3 nơi = 36 · E = 2  → tổng 480
+const SO_O = { AC1: 84 + 30, AC2: 320 + 8, AC3: 36 + 2 };
 // Giới hạn đã khai — MỘT nguồn: khối GIOI-HAN-CHOT trong tệp workflow (bên viết). Ô `gioi-han:*`
 // của trục B phải có tên trong khối, và khối không được khai tên nào mà bảng không có ô.
 const GIOI_HAN = (() => {
@@ -569,6 +576,7 @@ else {
       ['M8 bo loai tru khoi vo huong', 'if (voHuong[j]) return l', 'if (false) return l', 'AC3', 'D:vo-huong:'],
       ['M10 cot 0 ap cho moi khoa trong frontmatter', "if (KHOA_CHI_FM.includes(khoa) && (!trongFm || m[1] !== '')) return l", "if ((KHOA_CHI_FM.includes(khoa) && !trongFm) || (trongFm && m[1] !== '')) return l", 'AC1', 'B:rao-khong-dong-khoi:'],
       ['M11 cot khoi vo huong tinh tu dau gach', 'cotVh = cKhoa', 'cotVh = c', 'AC1', 'B:sau-mo-gach-vo-huong:'],
+      ['M12 ban ghi chi dung o than', 'for (let j = ghiDau; j < n; j += 1) {', 'for (let j = thanDau; j < n; j += 1) {', 'AC2', 'C:fm-long:'],
       ['M9 override rong tran', "(khoa === 'human_override' ? RONG_OVERRIDE : '')", "''", 'AC1', 'B:fm-cot0:'],
     ];
     const loi = [];
