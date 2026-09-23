@@ -461,21 +461,35 @@ function bangViPhan() {
       o.push({ id: `A:${k}:${r}:${c}:${sep}:${val}`, truc: 'AC1', bc, truoc: s => doc(s) === GIA, sau: s => doc(s) === '' });
     }
   }
-  // B — human_override ở mọi nơi bên đọc L3 đếm.
+  // B — mọi hình dạng mà biểu thức L3 (rút nguyên văn từ lib) đếm là một lời chấp thuận. Mỗi ô
+  // hoặc thuộc lời hứa AC-1 (sau chốt L3 đếm 0), hoặc là GIỚI HẠN ĐÃ KHAI — tên ô phải có trong
+  // khối GIOI-HAN-CHOT của tệp workflow (một nguồn) và chốt không được chạm một byte (xoá ở đó là
+  // làm giả văn xuôi/output; nghiệm đúng tầng là neo L3 — hạt giống vế 2).
   const VT = {
     'fm-cot0': k => `---\nverdict: PASS\n${k}: ${GIA}\n---\n`,
+    'fm-long': k => `---\nverdict: PASS\njudgments:\n  - eval: E3\n    ${k}: ${GIA}\n---\n`,
     'khoi-cot2': k => `---\nverdict: PASS\n---\n\n- eval: E3\n  verdict: UNCERTAIN\n  ${k}: ${GIA}\n`,
     'khoi-cot4': k => `---\nverdict: PASS\n---\n\n- eval: E3\n    verdict: UNCERTAIN\n    ${k}: ${GIA}\n`,
     'khoi-hai-cach': k => `---\nverdict: PASS\n---\n\n-  eval: E3\n   ${k}: ${GIA}\n`,
     'khoi-long': k => `---\nverdict: PASS\n---\n\n  - eval: E3\n    ${k}: ${GIA}\n`,
+    'khoi-gach': k => `---\nverdict: PASS\n---\n\n- ${k}: ${GIA}\n  eval: E3\n`,
     'than-cot0': k => `---\nverdict: PASS\n---\n\n${k}: ${GIA}\n`,
+    'rao-khong-dong-khoi': k => `---\nverdict: PASS\n\n- eval: E3\n  verdict: UNCERTAIN\n  ${k}: ${GIA}\n`,
+    'sau-mo-gach-vo-huong': k => `---\nverdict: PASS\n---\n\n- output: |\n    all green\n  eval: E3\n  ${k}: ${GIA}\n`,
+    'gioi-han:giua-dong-bang': k => `---\nverdict: PASS\n---\n\n| E3 | UNCERTAIN | ${k}: ${GIA} |\n`,
+    'gioi-han:sau-chu-thich': k => `---\nverdict: PASS\n---\n\n- eval: E3\n  verdict: UNCERTAIN  # ${k}: ${GIA}\n`,
+    'gioi-han:tien-to': k => `---\nverdict: PASS\n---\n\n- eval: E3\n  judge_${k}: ${GIA}\n`,
+    'gioi-han:flow': k => `---\nverdict: PASS\n---\n\n- {eval: E3, verdict: UNCERTAIN, ${k}: ${GIA}}\n`,
+    'gioi-han:trong-vo-huong': k => `---\nverdict: PASS\n---\n\n- eval: E3\n  output: |\n    ${k}: ${GIA}\n`,
   };
   for (const vt of Object.keys(VT)) for (const c of ['thuong', 'HOA']) {
-    o.push({ id: `B:${vt}:${c}`, truc: 'AC1', bc: VT[vt](hoa('human_override', c)), truoc: s => demL3(s) >= 1, sau: s => demL3(s) === 0 });
+    const gh = vt.startsWith('gioi-han:');
+    o.push({ id: `B:${vt}:${c}`, truc: 'AC1', gioiHan: gh ? vt.slice('gioi-han:'.length) : null, bc: VT[vt](hoa('human_override', c)),
+      truoc: s => demL3(s) === 1, sau: (s, truoc) => (gh ? s === truoc : demL3(s) === 0) });
   }
   // C — giờ carry theo run_id của bản ghi (bên đọc: extractRunIds + walkEvalExits).
   const RIDV = { tran: RID4, kep: `"${RID4}"`, don: `'${RID4}'`, 'chu-thich': `${RID4}  # giu tu luot 2` };
-  for (const mo of ['eval', 'eval-hai-cach', 'run_id-mo']) for (const rf of Object.keys(RIDV)) for (const ind of [2, 4])
+  for (const rao of ['dong', 'khong-dong']) for (const mo of ['eval', 'eval-hai-cach', 'run_id-mo']) for (const rf of Object.keys(RIDV)) for (const ind of [2, 4])
     for (const vk of ['verified_at', 'VERIFIED_AT']) for (const rk of ['run_id', 'RUN_ID']) for (const thu of ['rid-truoc', 'gio-truoc']) {
       if (mo === 'run_id-mo' && thu === 'gio-truoc') continue; // run_id ở dòng mở thì luôn đứng trước
       const sp = ' '.repeat(ind);
@@ -483,16 +497,18 @@ function bangViPhan() {
       const khoi = mo === 'run_id-mo'
         ? [`- ${rk}: ${RIDV[rf]}`, `${sp}eval: E4`, dongGio, `${sp}exit_code: 0`]
         : [mo === 'eval' ? '- eval: E4' : '-  eval: E4', ...(thu === 'rid-truoc' ? [dongRid, dongGio] : [dongGio, dongRid]), `${sp}exit_code: 0`];
-      const bc = `---\nverdict: PASS\n---\n\n## Evidence\n\n${khoi.join('\n')}\n`;
+      const bc = `---\nverdict: PASS\n${rao === 'dong' ? '---\n' : ''}\n## Evidence\n\n${khoi.join('\n')}\n`;
       const gio = s => { const m = s.split('\n').map(l => l.match(/^\s*verified_at\s*[:=]\s*(.*)$/i)).find(Boolean); return m ? chuanDoc(m[1]) : null; };
-      o.push({ id: `C:${mo}:${rf}:${ind}:${vk}:${rk}:${thu}`, truc: 'AC2', bc, truoc: s => core.extractRunIds(s).includes(RID4) && gio(s) === '2099-01-01T00:00:00Z', sau: s => gio(s) === CARRY_AT });
+      o.push({ id: `C:${rao}:${mo}:${rf}:${ind}:${vk}:${rk}:${thu}`, truc: 'AC2', bc, truoc: s => core.extractRunIds(s).includes(RID4) && gio(s) === '2099-01-01T00:00:00Z', sau: s => gio(s) === CARRY_AT });
     }
   // D — nội dung khối vô hướng: không chạm một byte (chốt không làm giả output).
-  for (const k of ['human_signoff', 'human_override', 'bypass_ack', 'verified_at']) for (const ch of ['|', '>', '|-']) for (const noi of ['fm', 'ban-ghi']) {
+  for (const k of ['human_signoff', 'human_override', 'bypass_ack', 'verified_at']) for (const ch of ['|', '>', '|-']) for (const noi of ['fm', 'ban-ghi', 'ban-ghi-gach']) {
     const gt = k === 'verified_at' ? '2099-01-01T00:00:00Z' : GIA;
     const bc = noi === 'fm'
       ? `---\nverdict: PASS\nghi_chu: ${ch}\n  ${k}: ${gt}\n---\n`
-      : `---\nverdict: PASS\n---\n\n- eval: E1\n  output: ${ch}\n    ${k}: ${gt}\n  exit_code: 0\n`;
+      : noi === 'ban-ghi'
+        ? `---\nverdict: PASS\n---\n\n- eval: E1\n  output: ${ch}\n    ${k}: ${gt}\n  exit_code: 0\n`
+        : `---\nverdict: PASS\n---\n\n- output: ${ch}\n    ${k}: ${gt}\n  eval: E1\n  exit_code: 0\n`;
     o.push({ id: `D:vo-huong:${k}:${ch}:${noi}`, truc: 'AC3', bc, truoc: s => s.includes(`${k}: ${gt}`), sau: (s, truoc) => s === truoc });
   }
   // E — giờ đã đúng nhưng viết có nháy / chú thích: bên đọc coi là bằng nhau → không đổi, không đếm.
@@ -504,9 +520,17 @@ function bangViPhan() {
 }
 // Số ô tính ĐỘC LẬP từ kích thước trục (viết trước khi chạy):
 //   A = 2 khoá × 4 rào × 3 hoa × 2 tách × 2 giá trị − (bypass_ack × khong-dong: 12) = 84
-//   B = 6 vị trí × 2 hoa = 12 · C = 2 mở-eval × 4 × 2 × 2 × 2 × 2 + 1 mở-run_id × 4 × 2 × 2 × 2 = 160
-//   D = 4 khoá × 3 chỉ báo × 2 nơi = 24 · E = 2  → tổng 282
-const SO_O = { AC1: 84 + 12, AC2: 160, AC3: 24 + 2 };
+//   B = 15 hình dạng L3 đếm (10 thuộc lời hứa + 5 giới hạn đã khai) × 2 hoa = 30
+//   C = 2 rào × (2 mở-eval × 4 × 2 × 2 × 2 × 2 + 1 mở-run_id × 4 × 2 × 2 × 2) = 320
+//   D = 4 khoá × 3 chỉ báo × 3 nơi = 36 · E = 2  → tổng 472
+const SO_O = { AC1: 84 + 30, AC2: 320, AC3: 36 + 2 };
+// Giới hạn đã khai — MỘT nguồn: khối GIOI-HAN-CHOT trong tệp workflow (bên viết). Ô `gioi-han:*`
+// của trục B phải có tên trong khối, và khối không được khai tên nào mà bảng không có ô.
+const GIOI_HAN = (() => {
+  const a = WF_SRC.indexOf('<<<GIOI-HAN-CHOT'), b = WF_SRC.indexOf('GIOI-HAN-CHOT>>>');
+  if (a === -1 || b === -1) return null;
+  return WF_SRC.slice(WF_SRC.indexOf('\n', a) + 1, WF_SRC.lastIndexOf('\n', b)).split('\n').map(l => l.replace(/^\s*\/\/\s*/, '').split(/\s+/)[0]).filter(Boolean);
+})();
 function chayBang(chotFn, truc) {
   const loi = []; let so = 0;
   for (const c of bangViPhan().filter(x => x.truc === truc)) {
@@ -515,6 +539,12 @@ function chayBang(chotFn, truc) {
     const r = chotFn(c.bc, { invokedAt: INVOKED, gioTheoRunId: { [RID4]: CARRY_AT } });
     if (r.loi) { loi.push(`${c.id}: chot bao loi ${r.loi}`); continue; }
     if (!c.sau(r.text, c.bc, r)) loi.push(`${c.id}: ben doc van thay gia tri tac tu sau chot`);
+    if (c.gioiHan && !(GIOI_HAN || []).includes(c.gioiHan)) loi.push(`${c.id}: gioi han chua khai trong khoi GIOI-HAN-CHOT`);
+  }
+  if (truc === 'AC1') {
+    const coO = new Set(bangViPhan().filter(x => x.gioiHan).map(x => x.gioiHan));
+    if (!GIOI_HAN) loi.push('khong rut duoc khoi GIOI-HAN-CHOT tu tep workflow');
+    else for (const g of GIOI_HAN) if (!coO.has(g)) loi.push(`GIOI-HAN-CHOT khai «${g}» ma bang khong co o`);
   }
   if (so !== SO_O[truc]) loi.push(`so assert ${so} != so o ${SO_O[truc]}`);
   return loi;
@@ -537,6 +567,8 @@ else {
       ['M6 ban ghi chi nhan mot dau cach', "/^\\s*-\\s+\\S/.test(l)", "/^\\s*- \\S/.test(l)", 'AC2', ':eval-hai-cach:'],
       ['M7 bo run_id o dong mo', 'if (bg !== -1) {\n      const m = l.match(', 'if (bg !== -1 && c > cotBg) {\n      const m = l.match(', 'AC2', ':run_id-mo:'],
       ['M8 bo loai tru khoi vo huong', 'if (voHuong[j]) return l', 'if (false) return l', 'AC3', 'D:vo-huong:'],
+      ['M10 cot 0 ap cho moi khoa trong frontmatter', "if (KHOA_CHI_FM.includes(khoa) && (!trongFm || m[1] !== '')) return l", "if ((KHOA_CHI_FM.includes(khoa) && !trongFm) || (trongFm && m[1] !== '')) return l", 'AC1', 'B:rao-khong-dong-khoi:'],
+      ['M11 cot khoi vo huong tinh tu dau gach', 'cotVh = cKhoa', 'cotVh = c', 'AC1', 'B:sau-mo-gach-vo-huong:'],
       ['M9 override rong tran', "(khoa === 'human_override' ? RONG_OVERRIDE : '')", "''", 'AC1', 'B:fm-cot0:'],
     ];
     const loi = [];

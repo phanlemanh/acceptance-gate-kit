@@ -95,11 +95,24 @@ const blockedEarly = (cmd, reason) => ({
 //   · run_id của một bản ghi: mọi dòng `^\s*(-\s+)?run_id\s*[:=]` trong bản ghi, kể cả dòng mở,
 //     bỏ chú thích và nháy (extractRunIds); bản ghi mở bằng `^\s*-\s+` (walkEvalExits);
 //   · human_override rỗng viết thành `khoá:  # chi nguoi ghi` — L3 đếm cả dòng rỗng trần.
-// Ngoại lệ DUY NHẤT: nội dung khối vô hướng (`output: |`…) không bao giờ chạm — xoá chuỗi ở đó
-// là làm giả output. Ca vi phân tests/workflows/chot-truong-nguoi.test.mjs so chốt với bộ đọc
+// Ngoại lệ: nội dung khối vô hướng (`output: |`…) không bao giờ chạm — xoá chuỗi ở đó là làm
+// giả output. L3 của bên đọc KHÔNG neo dòng (`human_override\s*[:=]\s*[^#\s]` trên cả payload),
+// nên các hình dạng dưới đây L3 vẫn đếm mà chốt KHÔNG được chạm (văn xuôi/output/chú thích) —
+// GIỚI HẠN ĐÃ KHAI, nghiệm đúng tầng là neo L3 (hạt giống vế 2); ngưỡng mở lại: ≥ 1 báo cáo thật
+// mang override ở một hình dạng dưới đây. Ca vi phân đòi mỗi tên có một ô và mỗi ô có tên.
+// <<<GIOI-HAN-CHOT
+//   giua-dong-bang     `| E3 | … | human_override: X |` — giữa dòng bảng
+//   sau-chu-thich      `verdict: UNCERTAIN  # human_override: X` — trong chú thích
+//   tien-to            `judge_human_override: X` — khoá khác có đuôi trùng
+//   flow               `- {eval: E3, human_override: X}` — bản ghi một dòng
+//   trong-vo-huong     nội dung `output: |` — không bao giờ chạm
+// GIOI-HAN-CHOT>>> Ca vi phân tests/workflows/chot-truong-nguoi.test.mjs so chốt với bộ đọc
 // thật trên bảng hình dạng viết trước; khối này rút nguyên văn bởi chot-truong-nguoi-corpus.mjs.
 const KHOA_NGUOI = ['human_signoff', 'human_override', 'bypass_ack']
 const RONG_OVERRIDE = '  # chi nguoi ghi'
+// Hai khoá bên đọc CHỈ đọc ở frontmatter cấp 0 (frontmatterField · chuKyThat); override và giờ
+// bên đọc đọc ở mọi nơi (L3 · HAS_VERIFIED_AT).
+const KHOA_CHI_FM = ['human_signoff', 'bypass_ack']
 const GIO_ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 function chotTruongNguoi(report, opts) {
   const invokedAt = opts && typeof opts.invokedAt === 'string' && GIO_ISO_RE.test(opts.invokedAt) ? opts.invokedAt : ''
@@ -129,7 +142,10 @@ function chotTruongNguoi(report, opts) {
     const c = dong[j].search(/\S/)
     if (c === -1) { if (cotVh >= 0) voHuong[j] = true; continue }
     if (cotVh >= 0) { if (c > cotVh) { voHuong[j] = true; continue } cotVh = -1 }
-    if (MO_VO_HUONG.test(dong[j])) cotVh = c
+    // Nội dung khối vô hướng thụt sâu hơn CỘT KHOÁ, không phải cột dấu gạch: `- output: |` có
+    // khoá ở cột c+2, các trường anh em ở cột đó KHÔNG phải nội dung (S4-r3, t4).
+    const cKhoa = c + ((dong[j].slice(c).match(/^-\s+/) || [''])[0].length)
+    if (MO_VO_HUONG.test(dong[j])) cotVh = cKhoa
   }
   // Bản ghi ở thân: mở bằng `^\s*-\s+`, kéo tới dòng không trống đầu tiên thụt ≤ dòng mở.
   const banGhi = new Array(n).fill(-1)
@@ -157,8 +173,10 @@ function chotTruongNguoi(report, opts) {
     const m = l.match(RE_TRUONG)
     if (!m) return l
     const khoa = m[2].toLowerCase()
-    if (trongFm && m[1] !== '') return l
-    if (!trongFm && (khoa === 'human_signoff' || khoa === 'bypass_ack')) return l
+    // Cột 0 và «chỉ trong frontmatter» là ngữ pháp của RIÊNG hai khoá bên đọc đọc bằng
+    // frontmatterField/chuKyThat; override và giờ bên đọc đọc ở mọi nơi — kể cả khi rào không đóng
+    // làm cả tệp thành frontmatter (S4-r3, t1/t3: hồi quy của lượt đổi khuôn).
+    if (KHOA_CHI_FM.includes(khoa) && (!trongFm || m[1] !== '')) return l
     if (KHOA_NGUOI.includes(khoa)) {
       const v = m[4].trim()
       if (v.startsWith('#')) return l
@@ -169,7 +187,7 @@ function chotTruongNguoi(report, opts) {
       doi[khoa] += 1
       return m[1] + m[2] + m[3] + (khoa === 'human_override' ? RONG_OVERRIDE : '')
     }
-    const rid = !trongFm && banGhi[j] >= 0 ? ridBanGhi[banGhi[j]] : null
+    const rid = banGhi[j] >= 0 ? ridBanGhi[banGhi[j]] : null
     const gio = rid && Object.prototype.hasOwnProperty.call(gioTheoRunId, rid) && gioTheoRunId[rid] ? gioTheoRunId[rid] : invokedAt
     if (!gio) { loi = 'chot-truong-nguoi: khong co gio engine (invokedAt vang) — khong ep duoc verified_at'; return l }
     if (chuanHoa(m[4]) === gio) return l

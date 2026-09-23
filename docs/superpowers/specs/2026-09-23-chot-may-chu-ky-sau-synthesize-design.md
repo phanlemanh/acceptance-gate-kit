@@ -114,6 +114,15 @@ C giờ carry theo run_id 160 · D khối vô hướng 24 · E giờ đúng dạ
 bằng chính bộ đọc trên bản trước, rồi hỏi lại bộ đọc sau chốt; chín đột biến của khuôn mới, mỗi
 cái phải làm đỏ đúng trục nó phá.
 
+## Lượt 4 (owner «tiếp tục» ở trần 3 lượt, 23/09)
+
+Lượt 3 tìm hai hồi quy của chính lượt đổi khuôn và một lệch đo. Sửa: giới hạn «cột 0 · chỉ trong
+frontmatter» chỉ áp cho `human_signoff`/`bypass_ack` (override và giờ đọc ở mọi nơi, kể cả khi rào
+không đóng làm cả tệp thành frontmatter); cột nội dung khối vô hướng tính từ cột khoá chứ không
+từ dấu gạch (`- output: |`); trục B của bảng vi phân rút từ chính biểu thức L3 — mười hình dạng
+thuộc lời hứa và năm hình dạng là giới hạn đã khai (khối `GIOI-HAN-CHOT` trong workflow, một
+nguồn). Bảng thành 472 ô, 11 đột biến.
+
 ## Đo (vế 3 — cặp hai chiều + chiều im)
 
 Tệp mới `tests/workflows/chot-truong-nguoi.test.mjs`, chạy trong suite workflows.
