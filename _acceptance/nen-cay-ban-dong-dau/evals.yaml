@@ -1,0 +1,64 @@
+schema_version: 1
+feature_slug: nen-cay-ban-dong-dau
+# Mọi eval chạy CHUNG một lệnh (dedupe), lệnh ghim dòng PASS của đúng các ca gọi tên. Mọi ca
+# dùng fixture lành của NEN0 (code sinh trong lượt), mỗi ca đổi đúng một biến.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ncb_cay_ban
+    expected: >
+      Exit 0 và dòng PASS của NEN-CB1 và NEN-CB4. Tiền điều kiện trong ca: `git status
+      --porcelain` (đọc thô, không trim) của kho TRƯỚC lượt chạy == [] — sai thì ca đỏ
+      «fixture khong sach». CB1: suite-a chạy `echo x >> README.md`; CB4: suite-a chạy
+      `rm README.md`. Mỗi ca: sau lượt, dòng porcelain đầu tiên (đọc thô) là ` M README.md`
+      / ` D README.md` (chứng dòng đích ĐỨNG ĐẦU); đường nền mã 1, chân suite đỏ, tập dòng
+      `nen suite: CAY BAN SAU SUITE …` BẰNG ĐÚNG [`nen suite: CAY BAN SAU SUITE README.md`].
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ncb_cay_ban
+    expected: >
+      Exit 0 và dòng PASS của NEN-CB2: sau khi dựng kho và TRƯỚC khi chạy đường nền, ca nối
+      một dòng vào `vat.txt` (bẩn sẵn); suite-a sửa `README.md`. Tiền điều kiện: porcelain
+      thô trước lượt BẰNG ĐÚNG [` M vat.txt`] (dòng DUY NHẤT, nên nó là dòng đầu lúc chụp
+      trước), và sau lượt dòng đầu là ` M README.md` (vat.txt thôi đứng đầu) — sai thì ca
+      đỏ «fixture khong ban san». Tập dòng cây bẩn BẰNG ĐÚNG
+      [`nen suite: CAY BAN SAU SUITE README.md`]; không dòng nào mang `vat.txt`.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ncb_cay_ban
+    expected: >
+      Exit 0 và dòng PASS của NEN-CB3 — chiều im, cùng tiền điều kiện bẩn sẵn của CB2 nhưng
+      suite không ghi gì: chân suite `xanh`, 0 dòng `nen suite:`. Một bản vá «gọi tên mọi
+      tệp bẩn» sẽ làm ca này đỏ.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ncb_cay_ban
+    expected: >
+      Exit 0: tệp ca chạy TRỌN, `Results: N passed, 0 failed`, và có dòng PASS của NEN0 NEN1
+      NEN2 NEN3 NEN4 NEN4b NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN8 NEN9 NEN-TD1…NEN-TD6 — các ca
+      cũ vẫn sống, gồm NEN3 (tệp chưa theo dõi vẫn được gọi tên).
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ncb_cay_ban
+    expected: >
+      Exit 0 và dòng PASS của NEN-CB5 — chiều đỏ TRONG lượt (cùng nếp NEN-TD5). Chép
+      `feature-loop` sang thư mục tạm; lượt 1 chạy kịch bản CB1 và CB2 trên bản chép CHƯA
+      tiêm — phải XANH (không thì ca đỏ «ban chep hong»). Lượt 2 thay khối marker
+      `SUITE-TRANG-THAI` bằng bản đọc qua `gitTry()` (có trim — đúng lỗi hôm nay; khớp marker
+      khác 1/1 → ca đỏ): CB1 phải đỏ với một dòng mang `EADME.md`, CB2 phải đỏ với một dòng
+      mang `vat.txt`. Mutant xanh → ca đỏ «phep do khong treo vao ban va».
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

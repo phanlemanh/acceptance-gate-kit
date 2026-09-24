@@ -260,7 +260,18 @@ async function chaySuite(root, lenh) {
 }
 // SUITE-TUAN-TU>>>
 {
-  const trangThai = () => new Set((gitTry('status', '--porcelain', '--untracked-files=all') || '').split('\n').filter(Boolean));
+  // <<<SUITE-TRANG-THAI
+  // Trạng thái cây ĐỌC THÔ, KHÔNG qua gitTry(): dòng porcelain mở bằng dấu cách khi cột X trống
+  // (` M a.txt`, ` D a.txt`), và trim() cắt dấu cách ấy ở ĐÚNG dòng đầu — tên tệp mất một ký tự
+  // và một tệp bẩn sẵn bị đổ cho suite khi thứ tự dòng đổi (hồ sơ nen-cay-ban-dong-dau).
+  const trangThai = () => {
+    try {
+      const o = execFileSync('git', ['-C', root, 'status', '--porcelain', '--untracked-files=all'],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+      return new Set(o.split('\n').filter(Boolean));
+    } catch { return new Set(); }
+  };
+  // SUITE-TRANG-THAI>>>
   const truoc = trangThai();
   const lenh = [];
   for (const khoa of suiteKeys) {
