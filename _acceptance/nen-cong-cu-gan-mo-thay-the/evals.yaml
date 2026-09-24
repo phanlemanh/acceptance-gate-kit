@@ -1,0 +1,106 @@
+schema_version: 1
+feature_slug: nen-cong-cu-gan-mo-thay-the
+# Khuôn theo hồ sơ nen-cong-cu-lenh-shell: eval máy chạy MỘT tệp ca và ghim dòng PASS của
+# đúng các ca nó gọi tên — phán quyết không lấy từ mã thoát trọn suite. Mọi eval trừ E6 dùng CHUNG
+# một lệnh (bộ chạy dedupe lệnh trùng, tệp ca chạy đúng một lượt); lệnh ghim đủ 14 tên và
+# đếm dòng «PASS: GM» bằng ĐÚNG 6. Ca đỏ và ca im dùng CHUNG fixture lành của NEN0, mỗi ca
+# đổi đúng một biến; fixture do code sinh trong lượt, đường dẫn suy từ vị trí tệp ca.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ngm_gan_mo
+    expected: >
+      Exit 0, và trong đầu ra có dòng PASS của NEN0 (đối chứng dương, kho lành bốn chân
+      xanh) cùng GM1. GM1 (chiều IM): cùng fixture, executor `a` mang NGUYÊN VĂN lệnh
+      `executors.script.zqw_giu_nqz` của crm — sha256 của chuỗi fixture bằng
+      `00d9d863…975917` (băm giá trị resolveConfigKey trên config crm 24/09, lệch thì ca đỏ
+      «chuoi khong con nguyen van») — tệp duong-nen.md có ra, chân cong_cu XANH,
+      KHÔNG bullet `nen cong-cu:` nào mang khoá `executors.test.a`. Trên bản `main` trước
+      vá ca này ĐỎ với `nen cong-cu: THIEU merge-base (khoa executors.test.a)` — đo tay
+      24/09 trước khi viết vá; chiều đỏ bền nằm ở E4.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ngm_gan_mo
+    expected: >
+      Exit 0 và dòng PASS của GM2 (chiều ĐỎ, cùng fixture): executor `B=1 khong-co-lenh`,
+      chân cong_cu ĐỎ, bullet ghim ĐÚNG `nen cong-cu: THIEU khong-co-lenh (khoa
+      executors.test.a)`. Kèm PASS của NEN1 (ca đỏ cũ: `NEN_X=1 khong-co-lenh-nay-xyz --x`)
+      — bản vá không được tắt đèn cho phép gán đã đóng.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ngm_gan_mo
+    expected: >
+      Exit 0 và PASS của GM1 và GM2, vì hai ca ghim stderr hai chiều: ở lượt GM1 số dòng
+      stderr chứa «cong-cu» + khoá `executors.test.a` + «bo qua» bằng ĐÚNG 1 (một bản
+      in-cho-chắc hoặc in hai lần làm GM1 đỏ); ở lượt GM2 số dòng ấy bằng ĐÚNG 0 (một bản
+      bỏ tra mọi phép gán làm GM2 đỏ ở hai điều kiện: mất bullet ghim và có dòng bo qua).
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ngm_gan_mo
+    expected: >
+      Exit 0 và dòng PASS của GM3 — ca đột biến chạy HAI lượt trên CÙNG một bản chép
+      `feature-loop`. Lượt 1 (đối chứng dương): chưa tiêm, chuỗi của GM1 → cong_cu XANH;
+      không xanh thì ca tự đỏ với thông điệp «ban chep hong». Lượt 2: marker
+      `CONG-CU-GAN-MO` phải khớp ĐÚNG 1/1 (khác thì ném, ca tự đỏ), khối thay bằng
+      `const moThayThe = () => false;`, bản tiêm phải KHÁC bản gốc; chạy lại chuỗi GM1 →
+      cong_cu ĐỎ và bullet ghim đúng `nen cong-cu: THIEU merge-base (khoa
+      executors.test.a)` — tức triệu chứng crm, không chỉ màu đỏ. Kèm PASS của GM6: khối
+      thay bằng vị từ hời hợt `(tok) => /\$\(/.test(tok)` (dò có mặt `$(` thay vì cân) →
+      lượt GM4 KHÔNG còn bullet ghim `THIEU khong-co-lenh` và bị bỏ tra đúng 1 lần, và cả
+      hai lệnh của GM5 ĐỎ — chứng GM4/GM5 phân biệt được phép cân với phép dò.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ngm_gan_mo
+    expected: >
+      Exit 0 và dòng PASS của đủ NEN0, NEN1, NEN-TD1…NEN-TD6 (luật từ-đầu của hồ sơ
+      trước, gồm hai ca đột biến TD5/TD6 trên khối CONG-CU-TU-DAU) — lệnh vắng tên nào là
+      in «FAIL: vang PASS <tên>» và thoát 1.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ncc_hoi_quy_nen
+    expected: >
+      Exit 0, «PASS: HQ1» (13 ca cũ + 6 ca TD của hồ sơ nen-cong-cu-lenh-shell có mặt
+      bằng tên) và «PASS: HQ2 so dong PASS NEN dung bang 19» — răng của hồ sơ ĐÃ KÝ giữ
+      nguyên sau vòng này. Nếu ca mới mang tiền tố NEN, HQ2 đỏ «so dong PASS NEN la 22,
+      ma tran khai 19» — đã đo khi đặt tên ca, lý do ca vòng này mang tiền tố GM.
+    paths: [tests/scripts/duong-nen.test.mjs, _acceptance/nen-cong-cu-lenh-shell/rang-hoi-quy.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ngm_gan_mo
+    expected: >
+      Exit 0 và dòng PASS của GM4 (chiều ĐỎ, cùng fixture NEN0): executor
+      `B=$(pwd) khong-co-lenh` — phép gán ĐÃ ĐÓNG nhưng giá trị có `$( )` — chân cong_cu
+      ĐỎ, bullet ghim ĐÚNG `nen cong-cu: THIEU khong-co-lenh (khoa executors.test.a)`, stderr
+      0 dòng «bo qua». Chiều đỏ của chính phép đo nằm ở GM6 (E4).
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ngm_gan_mo
+    expected: >
+      Exit 0 và dòng PASS của GM5 (chiều IM, hai lượt cùng fixture): `` B=`git rev-parse
+      HEAD` && echo chay-duoc `` và `B=${KHONG_CO_BIEN:-mac dinh} echo chay-duoc` — mỗi
+      lượt chân cong_cu XANH, stderr ĐÚNG MỘT dòng «bo qua» và dòng ấy gọi đúng token đầu
+      (`` «B=`git» `` / `«B=${KHONG_CO_BIEN:-mac»`). Trên bản `main` cả hai lượt đỏ oan
+      (`THIEU rev-parse` / `THIEU dinh}`); chiều đỏ bền nằm ở GM6 (E4).
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

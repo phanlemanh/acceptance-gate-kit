@@ -410,6 +410,10 @@ executors:
     ncc_cong_cu_tu_dau: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     ncc_khuon_bon_chan: "bash _acceptance/nen-cong-cu-lenh-shell/rang-khuon.sh"
     ncc_hoi_quy_nen: "bash _acceptance/nen-cong-cu-lenh-shell/rang-hoi-quy.sh"
+    # Vật của hồ sơ nen-cong-cu-gan-mo-thay-the — ghim đúng sáu ca của vòng (GM1 GM5 IM ·
+    # GM2 GM4 ĐỎ · GM3 GM6 đột biến) cùng đối chứng dương NEN0 và toàn bộ ca TD1…TD6 của luật
+    # từ-đầu mà vòng này nới; đếm dòng «PASS: GM» bằng ĐÚNG 6 để ca đổi tên hay return sớm không lọt.
+    ngm_gan_mo: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] || exit 1; for c in NEN0 NEN1 NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 GM1 GM2 GM3 GM4 GM5 GM6; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || { echo \"FAIL: vang PASS $c\"; exit 1; }; done; n=$(printf \"%s\\n\" \"$out\" | grep -cE \"^  PASS: GM\"); [ \"$n\" -eq 6 ] || { echo \"FAIL: so dong PASS GM la $n, ma tran khai 6\"; exit 1; }'"
     tcc_the_nen: "bash -c 'out=$(node tests/scripts/gate-card-duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GN1 GN2 GN3 GN4 GN5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_suite_tuan_tu: "bash -c 'out=$(node tests/workflows/suite-tuan-tu.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in ST0 ST1 ST2 ST3 ST4 ST5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_phan_loai: "bash -c 'out=$(node tests/scripts/phan-loai.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in PL1 PL2 PL3 PL4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
