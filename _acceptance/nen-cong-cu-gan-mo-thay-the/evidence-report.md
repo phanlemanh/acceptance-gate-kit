@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: c3bc9664edba267dde651ccb7c7839eeb10d7ce9
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-24 — ký với 1 known-limit (Ngoài-1: lượt chưa tiêm NEN-TD6 kết luận từ «0 bullet»); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: nen-cong-cu-gan-mo-thay-the

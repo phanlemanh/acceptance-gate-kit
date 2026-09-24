@@ -5,7 +5,7 @@ slug: nen-cong-cu-gan-mo-thay-the
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/scripts + tests/scripts — không chạm hooks/ lib/ pre-merge/recheck
 surfaces: [cli]
-status: verified       # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off       # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
@@ -58,4 +58,8 @@ Source input: prompt (owner báo lỗi kèm chẩn đoán + đặc tả bản v�
 
 - Giới hạn đã biết: `B=1 && cmd` và `B="$(git merge-base x)" && cmd` cho từ đầu `&&` → đỏ oan `THIEU &&`. Lệnh crm hôm nay không vướng (không nháy quanh `$( )`).
 - Giới hạn đã biết: literal có nháy chứa `(`/`{` lệch (`X='{' cmd`) bị bỏ tra thay vì tra `cmd` — lệch về phía IM.
-- Giới hạn đã biết, CHẠM CỔNG THẬT (gap-probe P2, hoãn): kế thừa Ngoài-1 của `nen-cong-cu-lenh-shell` — chân bỏ tra vẫn khai `cong_cu: xanh`, dòng bỏ tra chỉ ra stderr, không vào `duong-nen.md`. Vòng này chuyển chính hai khoá thật của crm — `executors.script.zqw_giu_nqz` và `executors.script.nzm_giu_da_ky` — từ «đỏ oan» sang «bỏ tra, báo xanh»: nếu `bun` (chương trình thật ở cuối lệnh) vắng trên máy, người ký Cổng Phạm vi ở crm vẫn đọc `nen: xanh` cho hai khoá ấy. Sửa đúng tầng = đổi khuôn tệp + bên đọc thẻ (ghi `bo-qua` vào vật như chân `luoi`/`engine`) — ngoài phạm vi vòng này.
+- Giới hạn đã biết, CHẠM CỔNG THẬT (gap-probe P2, hoãn, người ký nhận ở Cổng Bằng chứng 2026-09-24): kế thừa Ngoài-1 của `nen-cong-cu-lenh-shell` — chân bỏ tra vẫn khai `cong_cu: xanh`, dòng bỏ tra chỉ ra stderr, không vào `duong-nen.md`. Vòng này chuyển chính hai khoá thật của crm — `executors.script.zqw_giu_nqz` và `executors.script.nzm_giu_da_ky` — từ «đỏ oan» sang «bỏ tra, báo xanh»: nếu `bun` (chương trình thật ở cuối lệnh) vắng trên máy, người ký Cổng Phạm vi ở crm vẫn đọc `nen: xanh` cho hai khoá ấy. Sửa đúng tầng = đổi khuôn tệp + bên đọc thẻ (ghi `bo-qua` vào vật như chân `luoi`/`engine`) — ngoài phạm vi vòng này.
+
+### Known limits (người ký nhận, Cổng Bằng chứng 2026-09-24)
+
+- **Ngoài-1** — lượt chưa tiêm của ca cũ NEN-TD6 kết luận «sau vá, chuỗi thật của crm không sinh bullet» chỉ từ «0 bullet», không đòi tệp `duong-nen.md` có mặt hay `cong_cu: xanh` (assertion âm-tính-một-mình). Nếu vật lỗi ngầm đúng ở nhánh bỏ-tra mà chuỗi ấy đi qua, lượt đó không ra tệp mà vẫn qua. Chiều đỏ của chính ca ấy (bản tiêm ghim `THIEU ${CLAUDE_PLUGIN_ROOT:-$(node`) vẫn đứng. Cùng mục với Ngoài-9 đã ghi ở `nen-cong-cu-lenh-shell`.
