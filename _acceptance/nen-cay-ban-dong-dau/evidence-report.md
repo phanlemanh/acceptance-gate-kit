@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 6d6d559c7f7aafb3371637771e78b4dc7a8c54fb
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-24 — ký với 2 known-limits đã khai (Ngoài-1/2: lỗi git status bị nuốt im lặng, có từ bản cũ); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: nen-cay-ban-dong-dau

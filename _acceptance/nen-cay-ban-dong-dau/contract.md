@@ -5,7 +5,7 @@ slug: nen-cay-ban-dong-dau
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/scripts + tests/scripts — không chạm hooks/ lib/ pre-merge/recheck
 surfaces: [cli]
-status: verified       # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off       # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
@@ -53,3 +53,7 @@ Source input: prompt (owner, 2026-09-24) · quan sát thật: `_acceptance/nen-c
 - Triệu chứng thật sau vá (gap-probe F5): ở `0c4eb404` tệp `_acceptance/config.yaml` bị sửa THẬT trong lúc chân suite chạy (phiên chính ghi song song), nên sau vá dòng ấy đọc đúng tên `nen suite: CAY BAN SAU SUITE _acceptance/config.yaml` — vẫn đỏ, vì đó là thay đổi thật trong lượt; bản vá đổi TÊN, không xoá dòng.
 
 - Lớp của lỗi: phép đo chỉ có ca tệp CHƯA theo dõi (NEN3) — đúng hình dạng mà `trim()` không chạm, nên xanh không phân biệt được «đọc đúng» với «chưa từng gặp dòng có dấu cách đầu».
+
+### Known limits (người ký nhận, Cổng Bằng chứng 2026-09-24)
+
+- **Ngoài-1 / Ngoài-2** — khi chính lệnh `git status` lỗi (vd `.git` hỏng giữa lượt), khối đọc trạng thái trả tập rỗng mà không in dòng cảnh báo: lỗi ở lần chụp SAU suite làm chân suite xanh như cây sạch; lỗi ở lần chụp TRƯỚC làm mọi tệp bẩn sẵn bị đổ cho suite. Có từ bản cũ, bản vá không gây ra.
