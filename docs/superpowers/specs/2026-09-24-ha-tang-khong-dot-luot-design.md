@@ -163,5 +163,10 @@ cho người» (cùng chữ AC-6 của 2.18.1). Hồ sơ sống: Cổng 1 như c
 | `duong-nen.test.mjs` | 20,4 |
 | ca bash đắt nhất (`SA4`) | 10,3 |
 
+Ba suite còn lại, cùng máy, cùng ngày: `plugins` 391 s (65 % trần) · `hooks` 2 s · `workflows` 4 s.
+**Giới hạn đã khai, kèm ngưỡng đang đếm:** suite plugins chưa tách mảnh — dưới tải ×1,2 nó ≈ 470 s,
+sát ngưỡng 80 %. Ngưỡng mở lại: một lượt chấm BLOCKED vì công cụ ngắt suite plugins, hoặc một phép
+đo máy rảnh > 480 s. Bộ chọn khối `ONLY_BLOCK` của tệp chạy plugins là chỗ tách khi tới ngưỡng.
+
 Giới hạn đã khai: thời lượng là đại lượng máy — không ghim thành ca (ca theo đồng hồ là ca chập
 chờn). Đường đo thật là dòng `round-tally` round 1 của chính vòng này.
