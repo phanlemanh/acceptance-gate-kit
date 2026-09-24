@@ -5,11 +5,11 @@ slug: ha-tang-khong-dot-luot
 owner: phanlemanh@gmail.com
 risk_tier: T2      # không tệp nào khớp t3_paths (hooks/**, lib/**, pre-merge-check.sh, recheck-evidence.cjs); lib/nhan-canh-gay.cjs chỉ được GỌI, không sửa
 surfaces: [cli, docs]
-status: verified      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: approved      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: ""
 approved_at: ""
 veto_state: mo
-veto_opened_at: 2026-09-24T00:31:38Z
+veto_opened_at: 2026-09-24T03:17:03Z
 design_doc: docs/superpowers/specs/2026-09-24-ha-tang-khong-dot-luot-design.md
 ---
 
@@ -42,13 +42,16 @@ Source input: `_acceptance/ha-tang-khong-dot-luot/opportunity.md` ·
 - AC-6: Given SKILL feature-loop, When đọc bước S4 `BLOCKED` và câu Gate 1.5 về goal, Then bước BLOCKED nói lượt chạy lại do `s4-args` đánh số, lượt hạ tầng không đếm vào trần, thử lại MỘT lần, còn finding trong hợp đồng thì sửa như REJECT, đã thử lại vẫn chặn thì trình thẻ Cổng Bằng chứng; câu Gate 1.5 không còn nói «khuôn coi chờ input người là hoàn thành». Chiều đỏ: bản sao SKILL đời 2.18.2 → ca đỏ gọi tên câu thiếu.
 - AC-7: Given ma trận bốn hồ sơ viết trước — (1) `da-cham-boi-thuc-te` có dòng quan sát đủ vế, KHÔNG có `evidence-report.md` · (2) hồ sơ `approved` có dòng sổ nghỉ đủ vế (nghỉ trên hồ sơ CHƯA ký — vị từ một nguồn `hoSoDaKhep` của 2.18.1 xếp KHÔNG khép) · (3) hồ sơ `draft` sống · (4) hồ sơ `approved` sống — When dựng thẻ bằng `gate-card.js --extract` (cổng tự nhận), Then (1) ra `routing.hoi` rỗng, không `one_shot`, không `goal_line`, và thẻ HTML có dòng «Hồ sơ đã khép (đã chấm bởi thực tế) — không còn câu hỏi nào cho người»; (2), (3), (4) ra `routing.hoi` = ["duyệt hay sửa"] như trước vòng (số assert = 4). Chiều đỏ: bản sao `gate-card.js` gỡ vế khép ở nhánh Cổng 1 → hàng (1) có lại ô hỏi, thông điệp ghim slug.
 - AC-8: Given tệp chạy suite plugins có marker vùng `# <<<PLUGINS-VUNG <k>` và `# <<<PLUGINS-KET`, When in bản ghép của từng mảnh `vung:<k>` bằng chế độ in (`PLUGINS_SHARD_EMIT=1`, cùng hàm ghép lượt chạy dùng) với mọi k mà `feature_loop.suite_keys` khai, Then mỗi bản ghép = phần đầu chung + đúng vùng k + phần kết chung, nối các vùng theo thứ tự bằng ĐÚNG thân suite gốc (so từng dòng, tách độc lập với hàm ghép), số vùng khai trong suite_keys bằng số marker; suite_keys không còn `executors.test.plugins` nguyên khối, lệnh trọn và CI vẫn chạy trọn. Trên fixture code sinh (phần đầu thật + ba vùng tí hon + phần kết thật): mọi mảnh thoát 0 và số PASS của lượt trọn bằng tổng các mảnh (đối chứng dương); ca tiêm đỏ ở vùng 2 → chỉ mảnh 2 thoát ≠ 0 và in FAIL gọi tên ca. Chiều đỏ: bản sao gỡ marker vùng 2 → phép kiểm gọi tên «vung thieu: 2».
+- AC-9: Given khuôn goal (ba bản rút qua marker `GOAL-TEMPLATE`), When đọc vế hoàn thành, Then nó nêu điểm kết của làn V — phiên đã mở PR ở S5 — cạnh thẻ Cổng Bằng chứng và các cổng có tên, vẫn đúng 6 dòng và giữ mọi tính chất của AC-5; và câu GUIDE mục /goal nói goal tự thỏa khi nào nêu cả lối làn V. Chiều đỏ: bản sao khuôn gỡ vế S5 → ca đỏ gọi tên «thieu diem ket lam V». (Nâng phạm vi ở Cổng Bằng chứng round 1 — Ngoài-1.)
+- AC-10: Given mục /goal của GUIDE (từ tiêu đề mục tới tiêu đề kế, NGOÀI khối marker), When so với các câu của chính mục ấy ở tag `v2.18.2` còn đặt goal tới «`verified`» hoặc «trạng thái escalate», Then không câu nào trong số đó còn trên cây; chiều đỏ trên chính bản `v2.18.2` → ca đỏ gọi tên câu cũ. (Ngoài-4.)
+- AC-11: Given run-log của một lượt BLOCKED vì hạ tầng mà dòng finding trong hợp đồng mang cờ `unverified` (bộ bác bỏ chết), hoặc một dòng finding của lượt mang cờ `unclassified` (triage hỏng), When chạy `s4-args.mjs`, Then round = CÙNG round — s4-args coi là finding sửa-được ĐÚNG tập mà bộ chấm dùng để REJECT (`inContract` ∧ ¬`unverified`, và rỗng khi triage hỏng); đối chứng: finding trong hợp đồng đã bác bỏ xong → round kế như AC-4 hàng 9. Round-trip: run-log sinh bởi workflow chấm thật qua harness (tác tử máy chết + bộ bác bỏ chết; tác tử máy chết + triage ném lỗi) → s4-args ra 1. Chiều đỏ: bản sao s4-args bỏ hai vế ấy → hai hàng lật sang 2. (Ngoài-5.)
 
 ## Coverage
 
 Quét Zwicky rút gọn (preset test-matrix), đầy đủ ở design doc §3.
 
-- **Trục 1 — kết cục lượt chấm cuối × nhãn** [thước CE: nhãn và `trangThai` rút từ `lib/nhan-canh-gay.cjs` — SUY-TỪ-REPO]: không gì · chỉ Iterations · PASS · REJECT · BLOCKED chet lần đầu · BLOCKED mu lần đầu · BLOCKED đã thử lại · BLOCKED có `vat` · BLOCKED hạ tầng + finding trong hợp đồng · BLOCKED sớm không báo cáo · BLOCKED ở trần (round 3) → AC-4 toàn phần; bên viết thật round-trip cho hàng chet và chet+finding.
-- **Trục 2 — bản khuôn goal × tính chất**: SKILL · GUIDE · gate-card × (khớp, 6 dòng, không `status:`, BLOCKED chỉ ở câu CHƯA hoàn thành) → AC-5 toàn phần; chữ quanh khuôn trong SKILL → AC-6.
+- **Trục 1 — kết cục lượt chấm cuối × nhãn** [thước CE: nhãn và `trangThai` rút từ `lib/nhan-canh-gay.cjs` — SUY-TỪ-REPO]: không gì · chỉ Iterations · PASS · REJECT · BLOCKED chet lần đầu · BLOCKED mu lần đầu · BLOCKED đã thử lại · BLOCKED có `vat` · BLOCKED hạ tầng + finding trong hợp đồng · BLOCKED sớm không báo cáo · BLOCKED ở trần (round 3) → AC-4 toàn phần; bên viết thật round-trip cho hàng chet và chet+finding; BLOCKED chet + finding chưa bác bỏ · BLOCKED chet + triage hỏng → AC-11.
+- **Trục 2 — bản khuôn goal × tính chất**: SKILL · GUIDE · gate-card × (khớp, 6 dòng, không `status:`, BLOCKED chỉ ở câu CHƯA hoàn thành, có điểm kết làn V) → AC-5, AC-9; chữ quanh khuôn trong SKILL → AC-6; chữ quanh khuôn trong GUIDE → AC-9, AC-10.
 - **Trục 3 — hồ sơ × nhánh cổng**: khép-thực-tế-không-báo-cáo · nghỉ-trên-hồ-sơ-chưa-ký · sống draft · sống approved → AC-7 toàn phần; nhánh Cổng 2 của hồ sơ khép đã có ca HK-AC6 (2.18.1), không lặp.
 - **Trục 4 — suite × mảnh**: scripts — phân hoạch (AC-1) · độ nhạy từng mảnh (AC-2) · nối vào lượt chấm (AC-3); plugins — phân hoạch + độ nhạy + nối (AC-8, thêm ở S3 khi đo suite plugins 537 s máy rảnh).
 - `[GIẢ ĐỊNH]` Thời lượng mỗi mảnh dưới 80 % trần 600 s đo trên máy S3 (design doc §5) — thời gian là đại lượng máy, không ghim thành ca; đường đo thật là lượt chấm đầu của chính vòng này.

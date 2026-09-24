@@ -124,3 +124,51 @@ evals:
       HT-AC8-dot-bien: bản sao gỡ marker vùng 2 → phép kiểm đỏ «vung thieu: 2».
     paths: [tests/plugins/run-tests.sh, _acceptance/config.yaml, .github/workflows/gate.yml, tests/scripts/htkd.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC9 và HT-AC9-dot-bien. HT-AC9: khuôn goal (rút qua marker, ba bản
+      khớp) có vế điểm kết làn V NẰM TRONG câu HOÀN THÀNH (không trong câu «CHƯA hoàn thành»), vế ấy
+      nêu «làn V» cùng «S5» và «PR», và không kèm điều kiện ký (không chứa «ký»); vẫn qua mọi tính
+      chất của HT-AC5. Câu GUIDE «goal tự thỏa» phải TỒN TẠI (vắng → đỏ «thieu cau goal tu thoa»)
+      và nêu cả «làn V» lẫn «PR». HT-AC9-dot-bien: khuôn lành đạt trước (đối chứng dương); ba đột
+      biến — gỡ vế S5 → «thieu diem ket lam V»; chèn «sau khi người ký» vào vế S5 → «lam V bi dieu
+      kien ky»; chuyển vế S5 sang câu «CHƯA hoàn thành» → «S5 sai cuc»; và bản sao GUIDE gỡ «làn V»
+      khỏi câu goal tự thỏa → đỏ gọi tên câu.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, GUIDE.md, scripts/gate-card.js, tests/scripts/htkd.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC10 và HT-AC10-do. Chuẩn hoá mọi câu (bỏ backtick, gộp khoảng
+      trắng, chữ thường) trước khi so. Câu cũ rút TỪ VẬT CŨ: mục /goal của GUIDE tại tag v2.18.2, bỏ
+      khối marker, các câu có «verified» hoặc «escalate»; tập rút rỗng → đỏ. Đối chứng dương: mục
+      /goal hiện tại rút ra ≥ 1 câu và chứa marker GOAL-TEMPLATE, không → đỏ «muc goal rong».
+      HT-AC10: (1) không câu cũ nào (đã chuẩn hoá) còn ở BẤT KỲ đâu trong GUIDE; (2) vị từ nghĩa trên
+      toàn GUIDE ngoài khối marker: không câu nào vừa có «goal» vừa đặt đích «verified»/«escalate»
+      (câu nói «không neo verified» được phép — vị từ đọc chữ phủ định đi trước). HT-AC10-do: cùng
+      phép kiểm trên GUIDE v2.18.2 → đỏ gọi tên câu cũ; bản sao GUIDE hiện tại chèn lại câu cũ đã
+      đổi «hoặc» → «hay» → vẫn đỏ.
+    paths: [GUIDE.md, tests/scripts/htkd.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC11, HT-AC11-khu-hoi, HT-AC11-dot-bien. HT-AC11: ba kho code sinh,
+      cùng Iterations Round 1 + tally round 1 BLOCKED chet lần đầu cùng ts: (a) finding inContract
+      unverified → round 1 · (b) finding inContract + một finding unclassified cùng lượt → round 1 ·
+      (c) finding inContract đã bác bỏ xong → round 2 (đối chứng). HT-AC11-khu-hoi: run-log sinh bởi
+      acceptance-verify.js thật qua harness — máy chết + bộ bác bỏ chết; máy chết + triage ném lỗi;
+      máy chết + finding trong hợp đồng đã bác bỏ — và QUAN HỆ trên từng lượt: `result.rejectFindings`
+      của bộ chấm rỗng ⇔ s4-args ra cùng round. HT-AC11-dot-bien: HAI đột biến tách riêng, mỗi kim khớp
+      đúng một lần — bỏ vế unverified → chỉ lượt «bộ bác bỏ chết» lật sang 2; bỏ vế unclassified →
+      chỉ lượt «triage ném lỗi» lật sang 2 (nếu bên viết thật khiến vế này không phân biệt được thì ca
+      đỏ gọi tên «ve unclassified khong co chieu do tren ben viet that» thay vì xanh).
+    paths: [feature-loop/scripts/s4-args.mjs, feature-loop/workflows/acceptance-verify.js, tests/scripts/htkd.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

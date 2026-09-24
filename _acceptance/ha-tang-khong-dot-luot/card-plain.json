@@ -1,0 +1,46 @@
+{
+  "feature_plain": "Vòng chấm thôi bị hạ tầng đốt: bộ kiểm chạy dưới trần thời gian của công cụ, lượt chấm chết vì hạ tầng được thử lại mà không tính là một vòng, dòng /goal thôi dừng ở chỗ máy lẽ ra tự chạy lại, và hồ sơ đã khép thôi bị hỏi «duyệt hay sửa».",
+  "scope_plain": "Không đổi cách phân nhãn lượt chấm, không xoá ca kiểm nào để lọt trần, không làm phần kiểm chữ ký phía đọc (việc có thêm luật, chờ anh phê riêng), không đưa bản mới ra kho nào ngoài crm.",
+  "decisions_plain": [
+    {
+      "id": "d-20260924T002720Z-1",
+      "p": "Chia bộ kiểm lớn nhất thành nhiều mảnh chạy lần lượt, mỗi mảnh dưới trần thời gian — KHÔNG dặn tác tử chấm «chạy nền rồi chờ», vì lời dặn không có gì giữ; đổi lại lượt chấm có nhiều lệnh hơn, tổng thời gian như cũ."
+    },
+    {
+      "id": "d-20260924T002720Z-2",
+      "p": "Máy nhận ra lượt chết vì hạ tầng bằng nhãn bộ chấm đã ghi, không bằng «mã có đổi không» — nhờ vậy lượt chạy lại sau khi vá hạ tầng vẫn không bị tính là một vòng; đổi lại dòng sổ đời cũ thiếu lý do thì vẫn tính như cũ."
+    },
+    {
+      "id": "d-20260924T002720Z-3",
+      "p": "KHÔNG làm đặc tả giao diện — vòng này không chạm màn hình nào; chữ trên thẻ và dòng /goal là chỗ duy nhất người thấy đổi."
+    },
+    {
+      "id": "d-20260924T002720Z-4",
+      "p": "KHÔNG làm phần kiểm chữ ký phía đọc (việc có thêm luật) — để ngoài phạm vi cho tới khi anh phê riêng."
+    },
+    {
+      "id": "d-20260924T003421Z-5",
+      "p": "Lượt chấm gọi từng mảnh bằng một đối số trong lệnh, để mỗi lệnh khớp đúng một dòng trong danh sách lệnh được phép chạy — tác tử chấm không bị chặn giữa chừng."
+    },
+    {
+      "id": "d-20260924T004438Z-6",
+      "p": "Sửa một hàng trong bảng kỳ vọng của tiêu chí về thẻ hồ sơ khép: hồ sơ chưa ký mà có dòng «nghỉ» VẪN được hỏi, đúng luật khép đã ký ở bản 2.18.1 — không đặt ra luật khép thứ hai."
+    },
+    {
+      "id": "d-20260924T005055Z-7",
+      "p": "Chia phần tệp kiểm lớn thành ba mảnh thay vì hai, vì hai tệp chậm nhất rơi chung một mảnh; mảnh nặng nhất còn khoảng 170 giây."
+    },
+    {
+      "id": "d-20260924T013415Z-8",
+      "p": "Thẻ Cổng 1 chỉ hỏi bộ quét trạng thái khi hồ sơ có thể đã khép — bản đầu hỏi mọi thẻ, làm một bộ kiểm chậm gần gấp đôi; dòng này đã được dòng sau thay."
+    },
+    {
+      "id": "d-20260924T014456Z-9",
+      "p": "Thu hẹp thêm: thẻ Cổng 1 chỉ hỏi bộ quét với hồ sơ mang trạng thái ngoài mọi trạng thái quen thuộc — đúng ca hồ sơ chấm-bởi-thực-tế không có báo cáo; đổi lại thẻ Cổng 1 bị ép bằng tay trên hồ sơ đã-ký-rồi-nghỉ vẫn hỏi như trước."
+    },
+    {
+      "id": "d-20260924T015538Z-10",
+      "p": "Thêm một tiêu chí (AC-8): bộ kiểm thứ hai cũng chia vùng, vì nó đo 537 giây — đã sát trần từ trước vòng (518 giây trên nhánh chính); đổi lại phạm vi rộng hơn bản anh thấy ở Cổng Phạm vi, và một vùng vẫn là một khối 320 giây không chia nhỏ hơn được."
+    }
+  ]
+}
