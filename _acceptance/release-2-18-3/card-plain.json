@@ -1,0 +1,8 @@
+{
+  "feature_plain": "Đóng số 2.18.3 cho bản kit có vòng «hạ tầng thôi đốt lượt»: hai gói cùng lên 2.18.3, CHANGELOG nói người dùng nhận gì kèm năm dòng số, để crm nâng plugin và ghim được theo tag.",
+  "scope_plain": "Không đổi mã cổng nào, không nâng gói vẽ sơ đồ, không làm lớp chép tự xoá (để cửa sổ kế), không chạy chiến dịch ghim lại trước khi mốc gộp, không đổi gì ở kho tiêu thụ trước khi có tag.",
+  "decisions_plain": [
+    {"id": "d-20260924T045118Z-1", "p": "Mốc đi làn tự động như các mốc trước: không dựng phép đo mới, dựa ca kiểm số thường trực và các bộ kiểm; các phép đo gọi từng mảnh bộ kiểm thay vì bộ kiểm trọn — đổi lại người chấm là chính phiên làm mốc."},
+    {"id": "d-20260924T045118Z-2", "p": "KHÔNG chạy phản biện độc lập trước duyệt — mốc không có thiết kế mới, mọi tiêu chí là lệnh máy đã có chiều đỏ."}
+  ]
+}

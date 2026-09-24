@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e23d707604f9e0afac9fc5552b66bef134b6dbba
+verified_commit: 36f1efed73cb1210a82faca6b9dcdbd8d0a7b4e1
 human_signoff: Phan Le Manh 2026-09-24
 ---
 
@@ -217,3 +217,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: PASS máy — 8/8 eval (AC-1…AC-8), 11 lệnh máy xanh, 0 finding trong hợp đồng, 10 finding ngoài hợp đồng. Owner trả lại ở Cổng Phạm vi: nâng phạm vi thêm AC-9…AC-11 từ Ngoài-1, 4, 5.
+
+### Re-pin lần 1 — 2026-09-24, do chiến dịch ghim lại theo mốc 2.18.3 — manifest, GUIDE, CHANGELOG đổi sau pin
+run_id: repin-20260924T061300Z-37762
+sha: 36f1efed73cb1210a82faca6b9dcdbd8d0a7b4e1 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng
