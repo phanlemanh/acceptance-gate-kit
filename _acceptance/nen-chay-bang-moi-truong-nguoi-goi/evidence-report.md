@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (sequential retry after infra BLOCKED)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ecc0467464187aceed1ec74294639277395a17a4
+verified_commit: 11bb85c2195fa4e769ca4327504c39506abecf62
 human_signoff: Manh Phan 2026-09-25 — ký với 1 known-limit đã khai (Ngoài-1: tham số thư mục của bước chạy suite không còn tác dụng); đồng ý phạm vi đã cắt
 ---
 
@@ -194,3 +194,7 @@ Round 1, lượt 1: BLOCKED — hai agent chết không trả kết quả (lện
 suite `mjs:3/3`); lỗi hạ tầng, không phải lỗi sản phẩm. Chín lệnh suite còn lại xanh.
 Round 1, lượt 2 (thử lại tuần tự, phiên mới): lệnh eval chung xanh với đủ 19 dòng PASS gọi
 tên, `mjs:3/3` xanh; cả mười lệnh suite xanh. Verdict: PASS.
+
+### Re-pin lần 1 — 2026-09-24, do hoá cũ do gộp main (PR #218 nen-cay-ban-dong-dau sửa duong-nen.mjs + test)
+run_id: repin-20260924T225731Z-86752
+sha: 11bb85c2195fa4e769ca4327504c39506abecf62 · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng
