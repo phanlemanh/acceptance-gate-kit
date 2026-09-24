@@ -8,7 +8,7 @@ verified_by: implementing session (làn V — mốc phát hành không chạy l�
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 2e097bfe6f82c1a33fefe6798d89dad009f7e6e3
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-24 — ký mốc phát hành 2.18.3 với năm known-limits đã khai; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence — release-2-18-3
