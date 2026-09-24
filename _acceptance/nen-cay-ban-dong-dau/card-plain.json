@@ -1,0 +1,10 @@
+{
+  "feature_plain": "Khi bộ kiểm làm bẩn cây, dòng «Nền hạ tầng» gọi đúng tên tệp bị làm bẩn — không cụt mất một ký tự, và không đổ cho bộ kiểm một tệp đã bẩn sẵn từ trước.",
+  "scope_plain": "Đường dẫn có ký tự lạ (git đặt trong nháy) vẫn được gọi tên như hôm nay; các chỗ đọc git một dòng khác giữ nguyên.",
+  "decisions_plain": [
+    {"id":"d-20260924T100848Z-1","p":"Đã chọn sửa đúng một chỗ đọc trạng thái nhiều dòng, thay vì đổi cách đọc git ở mọi chỗ — đổi lại vá hẹp, không chạm hành vi khác."},
+    {"id":"d-20260924T100848Z-2","p":"KHÔNG viết đặc tả giao diện — việc này không có màn hình nào."},
+    {"id":"d-20260924T100848Z-3","p":"KHÔNG đổi cách đọc cho đường dẫn có ký tự lạ — giữ vá nhỏ; đường dẫn ấy vẫn hiện trong nháy như hôm nay."},
+    {"id":"d-20260924T100959Z-5","p":"Bài kiểm được commit TRƯỚC bản vá, nên lịch sử cho thấy nó đỏ trên mã cũ («EADME.md», tệp bẩn sẵn bị đổ oan)."}
+  ]
+}
