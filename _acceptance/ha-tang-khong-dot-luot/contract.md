@@ -5,7 +5,7 @@ slug: ha-tang-khong-dot-luot
 owner: phanlemanh@gmail.com
 risk_tier: T2      # không tệp nào khớp t3_paths (hooks/**, lib/**, pre-merge-check.sh, recheck-evidence.cjs); lib/nhan-canh-gay.cjs chỉ được GỌI, không sửa
 surfaces: [cli, docs]
-status: implemented   # draft | approved | implemented | verified | signed-off | machine-cleared
+status: verified      # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: ""
 approved_at: ""
 veto_state: mo
