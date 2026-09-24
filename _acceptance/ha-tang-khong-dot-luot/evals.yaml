@@ -164,11 +164,11 @@ evals:
       cùng Iterations Round 1 + tally round 1 BLOCKED chet lần đầu cùng ts: (a) finding inContract
       unverified → round 1 · (b) finding inContract + một finding unclassified cùng lượt → round 1 ·
       (c) finding inContract đã bác bỏ xong → round 2 (đối chứng). HT-AC11-khu-hoi: run-log sinh bởi
-      acceptance-verify.js thật qua harness — máy chết + bộ bác bỏ chết; máy chết + triage ném lỗi;
+      acceptance-verify.js thật qua harness — máy chết + bộ bác bỏ chết; máy chết + triage trả thiếu mục (hai finding, triage trả một, trong hợp đồng);
       máy chết + finding trong hợp đồng đã bác bỏ — và QUAN HỆ trên từng lượt: `result.rejectFindings`
       của bộ chấm rỗng ⇔ s4-args ra cùng round. HT-AC11-dot-bien: HAI đột biến tách riêng, mỗi kim khớp
       đúng một lần — bỏ vế unverified → chỉ lượt «bộ bác bỏ chết» lật sang 2; bỏ vế unclassified →
-      chỉ lượt «triage ném lỗi» lật sang 2 (nếu bên viết thật khiến vế này không phân biệt được thì ca
+      chỉ lượt «triage trả thiếu mục» lật sang 2 (nếu bên viết thật khiến vế này không phân biệt được thì ca
       đỏ gọi tên «ve unclassified khong co chieu do tren ben viet that» thay vì xanh).
     paths: [feature-loop/scripts/s4-args.mjs, feature-loop/workflows/acceptance-verify.js, tests/scripts/htkd.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

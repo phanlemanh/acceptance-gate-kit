@@ -572,6 +572,173 @@ await ca('HT-AC8-dot-bien', () => {
   return '(do dung: vung thieu: 2)';
 });
 
+// ── AC-9: khuôn goal có điểm kết cho làn V ──────────────────────────────────────
+const VE_S5 = 'hoặc (làn V) đã mở PR ở S5, ';
+function kiemLamV(k) {
+  const loi = [];
+  const cau = k.split('\n').join(' ').split(/(?<=[.!?])\s+/);
+  const xong = cau.find(c => c.includes('HOÀN THÀNH'));
+  if (!xong) return ['khong thay cau HOAN THANH'];
+  if (!(xong.includes('S5') && xong.includes('PR') && xong.includes('làn V'))) loi.push('thieu diem ket lam V');
+  else if (/ký/u.test(xong)) loi.push('lam V bi dieu kien ky');
+  for (const c of cau) if (c.includes('CHƯA hoàn thành') && /S5/.test(c)) loi.push('S5 sai cuc');
+  return loi;
+}
+const CAU_TU_THOA = /^.*goal tự thỏa.*$/m;
+function kiemGuideTuThoa(g) {
+  const m = g.match(CAU_TU_THOA);
+  if (!m) return ['thieu cau goal tu thoa'];
+  const loi = [];
+  if (!(m[0].includes('làn V') && m[0].includes('PR'))) loi.push(`cau goal tu thoa thieu lam V: «${m[0].slice(0, 80)}»`);
+  return loi;
+}
+await ca('HT-AC9', () => {
+  const sb = rut(RX_MD, readFileSync(SKILL_P, 'utf8'), 'SKILL');
+  const gb = rut(RX_MD, readFileSync(GUIDE_P, 'utf8'), 'GUIDE');
+  const cb = rut(RX_JS, readFileSync(GC_P, 'utf8'), 'gate-card.js');
+  assert(sb === gb && sb === cb, 'ba ban khuon lech');
+  const loi = [...kiemKhuon(sb), ...kiemLamV(sb), ...kiemGuideTuThoa(readFileSync(GUIDE_P, 'utf8'))];
+  assert(!loi.length, loi.join(' · '));
+  return '(ve lam V trong cau HOAN THANH; cau GUIDE goal tu thoa neu lam V + PR)';
+});
+await ca('HT-AC9-dot-bien', () => {
+  const sb = rut(RX_MD, readFileSync(SKILL_P, 'utf8'), 'SKILL');
+  assert(!kiemLamV(sb).length && !kiemKhuon(sb).length, 'doi chung duong: khuon lanh phai dat truoc');
+  motLan(sb, VE_S5, 've S5 cua khuon');
+  const go = kiemLamV(sb.replace(VE_S5, ''));
+  assert(go.includes('thieu diem ket lam V'), `go ve S5 ma khong do dung ten: ${go.join(' · ') || '(rong)'}`);
+  const ky = kiemLamV(sb.replace(VE_S5, 'hoặc (làn V) đã mở PR ở S5 sau khi người ký, '));
+  assert(ky.includes('lam V bi dieu kien ky'), `chen dieu kien ky ma khong do: ${ky.join(' · ') || '(rong)'}`);
+  const L = sb.replace(VE_S5, '').split('\n'); const i = L.findIndex(l => l.includes('CHƯA hoàn thành'));
+  L[i] = L[i].replace('không hỏi.', 'không hỏi, kể cả khi (làn V) đã mở PR ở S5.');
+  const cuc = kiemLamV(L.join('\n'));
+  assert(cuc.includes('S5 sai cuc'), `chuyen ve S5 sang cau CHUA ma khong do: ${cuc.join(' · ') || '(rong)'}`);
+  const g = readFileSync(GUIDE_P, 'utf8');
+  assert(!kiemGuideTuThoa(g).length, 'doi chung duong: cau GUIDE lanh phai dat truoc');
+  const cauG = g.match(CAU_TU_THOA)[0];
+  const gGo = g.replace(cauG, cauG.split('làn V').join('lối tự động'));
+  assert(kiemGuideTuThoa(gGo).some(l => l.startsWith('cau goal tu thoa thieu lam V')), 'ban sao GUIDE go lam V ma khong do');
+  assert(kiemGuideTuThoa(g.replace(cauG, '')).includes('thieu cau goal tu thoa'), 'ban sao GUIDE xoa cau ma khong do');
+  return '(do dung: thieu diem ket · dieu kien ky · S5 sai cuc · GUIDE go lam V · GUIDE xoa cau)';
+});
+
+// ── AC-10: mục /goal của GUIDE thôi đặt đích verified/escalate ─────────────────
+const chuan = s => s.replace(/`/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+const boMarker = s => s.replace(/<!-- <<<GOAL-TEMPLATE -->[\s\S]*?<!-- GOAL-TEMPLATE>>> -->/g, '');
+const mucGoal = g => { const m = g.match(/^## [^\n]*\/goal[^\n]*\n([\s\S]*?)(?=^## )/m); return m ? m[0] : ''; };
+const cauCua = s => boMarker(s).split(/(?<=[.!?;])\s+|\n\s*[-*]\s+|\n\n+/).map(chuan).filter(Boolean);
+const PHU_DINH = /(không|thôi|bỏ|cũ)/u;
+const viPham = c => /goal/.test(c) && /(verified|escalate)/.test(c) && !PHU_DINH.test(c);
+function kiemGoalGuide(g, cauCu) {
+  const loi = [];
+  const muc = mucGoal(g);
+  if (!muc || !muc.includes('<<<GOAL-TEMPLATE') || !cauCua(muc).length) return ['muc goal rong'];
+  const tat = cauCua(g).join(' \n ');
+  for (const c of cauCu) if (tat.includes(c)) loi.push(`cau cu con tren cay: «${c.slice(0, 70)}»`);
+  for (const c of cauCua(g)) if (viPham(c)) loi.push(`cau dat dich verified/escalate: «${c.slice(0, 70)}»`);
+  return loi;
+}
+const GUIDE_CU = (() => { const r = spawnSync('git', ['-C', KIT, 'show', 'v2.18.2:GUIDE.md'], { encoding: 'utf8' }); return r.status === 0 ? r.stdout : null; })();
+const cauCuTu = g => cauCua(mucGoal(g)).filter(c => /(verified|escalate)/.test(c));
+await ca('HT-AC10', () => {
+  assert(GUIDE_CU, 'khong doc duoc GUIDE tai tag v2.18.2');
+  const cu = cauCuTu(GUIDE_CU);
+  assert(cu.length, 'tap cau cu rut tu v2.18.2 rong — phep do tu chet');
+  const loi = kiemGoalGuide(readFileSync(GUIDE_P, 'utf8'), cu);
+  assert(!loi.length, loi.join(' · '));
+  return `(${cu.length} cau cu rut tu v2.18.2, khong cau nao con)`;
+});
+await ca('HT-AC10-do', () => {
+  assert(GUIDE_CU, 'khong doc duoc GUIDE tai tag v2.18.2');
+  const cu = cauCuTu(GUIDE_CU);
+  const l1 = kiemGoalGuide(GUIDE_CU, cu);
+  assert(l1.some(l => l.startsWith('cau cu con tren cay')), `GUIDE v2.18.2 ma phep kiem khong do: ${l1.join(' · ') || '(rong)'}`);
+  const g = readFileSync(GUIDE_P, 'utf8');
+  const chen = g.replace('## Model theo giai đoạn', 'Chỉ đặt goal tới transcript xác nhận `verified` hay trạng thái escalate.\n\n## Model theo giai đoạn');
+  const l2 = kiemGoalGuide(chen, cu);
+  assert(l2.some(l => l.startsWith('cau dat dich verified/escalate')), `chen lai cau cu da doi mot chu ma khong do: ${l2.join(' · ') || '(rong)'}`);
+  return `(do dung tren v2.18.2: ${l1.length} loi; cau cu doi chu van do)`;
+});
+
+// ── AC-11: s4-args soi đúng tập REJECT của bộ chấm ──────────────────────────────
+const findingCo = (ts, round, co) => JSON.stringify({ ts, round, kind: 'finding', file: 'src/x.js', title: 'loi ' + JSON.stringify(co), severity: 'high', source: 'review', inContract: true, acRef: 'AC-1', plain: '', proposal: '', ...co });
+const HANG_AC11 = [
+  ['a unverified', [chet(T1, 1), findingCo(T1, 1, { unverified: true }), tally(T1, 1, 'BLOCKED', 1)], 1],
+  ['b unclassified', [chet(T1, 1), findingCo(T1, 1, {}), JSON.stringify({ ts: T1, round: 1, kind: 'finding', file: 'src/y.js', title: 'chua phan loai', severity: 'low', source: 'review', inContract: false, acRef: '', plain: '', proposal: '', unclassified: true }), tally(T1, 1, 'BLOCKED', 1)], 1],
+  ['c da bac bo', [chet(T1, 1), findingCo(T1, 1, {}), tally(T1, 1, 'BLOCKED', 1)], 2],
+];
+const chayAC11 = script => HANG_AC11.map(([ten, rl]) => ({ ten, round: chayS4(khoS4({ baoCao: BAO_CAO([1]), runLog: rl }), { script }).round }));
+await ca('HT-AC11', () => {
+  const kq = chayAC11(S4ARGS);
+  const lech = kq.map((x, i) => (x.round === HANG_AC11[i][2] ? null : `hang ${x.ten}: ra ${x.round}, ky vong ${HANG_AC11[i][2]}`)).filter(Boolean);
+  assert(!lech.length, lech.join(' · '));
+  return `(${kq.map(x => x.round).join(',')})`;
+});
+// Ba lượt THẬT của bộ chấm qua harness; trả { ten, rejectRong, runLog }.
+async function luotThat() {
+  const { runWorkflow } = await import(path.join(KIT, 'tests', 'workflows', 'harness.mjs'));
+  const F = { title: 'loi trong hop dong', file: 'src/x.js', severity: 'high', detail: 'x' };
+  const args = {
+    slug: 'demo', round: 1, riskTier: 'T2',
+    evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: 'echo x', ref: 'config:executors.script.cli', expected: 'thuong', paths: ['src/**'] }],
+    suiteCommands: [], diffBase: 'main', repoRoot: '/repo', personasPath: '/refs/p.md', templatePath: '/refs/t.md',
+    contractPath: '/repo/_acceptance/demo/contract.md', invokedAt: T1,
+  };
+  const out = [];
+  const G = { title: 'loi thu hai', file: 'src/z.js', severity: 'low', detail: 'z' };
+  for (const [ten, kieu] of [['bac-bo-chet', 'refute'], ['triage-thieu-muc', 'triage'], ['da-bac-bo', 'lanh']]) {
+    const respond = call => {
+      const l = call.label;
+      if (l.startsWith('machine:')) return null;
+      // triage-thieu-muc: hai finding, triage chỉ trả MỘT (trong hợp đồng) cả hai lượt hỏi → triage không đủ.
+      if (l.startsWith('review:')) return { findings: kieu === 'triage' ? [F, G] : [F] };
+      if (l.startsWith('refute:')) return kieu === 'refute' ? null : { refuted: false, reason: 'that' };
+      if (l.startsWith('triage')) return { triaged: [{ title: F.title, file: F.file, inContract: true, acRef: 'AC-1', rationale: 'r', proposal: '', plain: '' }] };
+      if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'ok' };
+      if (l.startsWith('baseline:')) return { results: [] };
+      if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2' };
+      if (l === 'synthesize:report') return { report: '# r', findings: '# f' };
+      throw new Error('nhan la: ' + l);
+    };
+    const r = (await runWorkflow(WF, args, respond)).result;
+    assert(r.verdict === 'BLOCKED', `luot that ${ten} ra ${r.verdict}, can BLOCKED`);
+    out.push({ ten, rejectRong: !(r.rejectFindings || []).length, runLog: r.runLog });
+  }
+  return out;
+}
+let _luot = null; const luotT = async () => (_luot ||= await luotThat());
+await ca('HT-AC11-khu-hoi', async () => {
+  const L = await luotT(); const loi = []; const bang = [];
+  for (const x of L) {
+    const round = chayS4(khoS4({ baoCao: BAO_CAO([1]), runLog: x.runLog })).round;
+    bang.push(`${x.ten}: reject ${x.rejectRong ? 'rong' : 'co'} → round ${round}`);
+    if (x.rejectRong !== (round === 1)) loi.push(`quan he lech o ${x.ten}: rejectFindings ${x.rejectRong ? 'rong' : 'khac rong'} nhung s4-args ra ${round}`);
+  }
+  assert(L.some(x => x.rejectRong) && L.some(x => !x.rejectRong), `ba luot khong phu ca hai phia cua quan he: ${bang.join(' · ')}`);
+  assert(!loi.length, loi.join(' · '));
+  return `(${bang.join(' · ')})`;
+});
+await ca('HT-AC11-dot-bien', async () => {
+  const src = readFileSync(S4ARGS, 'utf8');
+  const KIM_UV = ' && o.unverified !== true';
+  const KIM_UC = 'const trieuHong = ';
+  motLan(src, KIM_UV, 've unverified');
+  motLan(src, KIM_UC, 've unclassified');
+  const L = await luotT(); const loi = [];
+  for (const [kim, doi, lat] of [[KIM_UV, '', 'bac-bo-chet'], [KIM_UC, 'const trieuHong = false && ', 'triage-thieu-muc']]) {
+    const sao = path.join(path.dirname(S4ARGS), `.htkd-s4-ac11-${process.pid}.mjs`);
+    try {
+      writeFileSync(sao, src.replace(kim, doi));
+      const kq = Object.fromEntries(L.map(x => [x.ten, chayS4(khoS4({ baoCao: BAO_CAO([1]), runLog: x.runLog }), { script: sao }).round]));
+      const khac = L.filter(x => x.ten !== lat && x.rejectRong).map(x => x.ten);
+      if (kq[lat] !== 2) loi.push(lat === 'triage-thieu-muc' ? `ve unclassified khong co chieu do tren ben viet that (${lat} ra ${kq[lat]})` : `bo ve unverified ma ${lat} ra ${kq[lat]}, can 2`);
+      for (const k of khac) if (kq[k] !== 1) loi.push(`dot bien ${lat} lam lat ca ${k} (ra ${kq[k]})`);
+    } finally { rmSync(sao, { force: true }); }
+  }
+  assert(!loi.length, loi.join(' · '));
+  return '(bo ve unverified → chi bac-bo-chet lat; bo ve unclassified → chi triage-thieu-muc lat)';
+});
+
 // ── (các ca AC-4…AC-7 nối vào dưới) ─────────────────────────────────────────────
 
 rmSync(TMP, { recursive: true, force: true });
