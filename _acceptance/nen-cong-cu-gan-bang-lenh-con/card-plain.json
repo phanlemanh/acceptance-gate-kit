@@ -1,0 +1,13 @@
+{
+  "feature_plain": "Đường nền đầu vòng thôi báo «thiếu công cụ» nhầm cho lệnh kiểu `B=$(git merge-base …) && …` — nó tra đúng `git`, và vẫn báo đỏ khi một chương trình thật sự vắng trên máy.",
+  "scope_plain": "Vẫn chỉ tra MỘT chương trình mỗi lệnh (chương trình chạy đầu tiên); các lệnh sau `&&` không được tra.",
+  "decisions_plain": [
+    {"id":"d-20260924T084748Z-1","p":"Đã chọn sửa cả lớp lỗi (ba cách viết lệnh con) thay vì vá riêng một dạng `B=$(` — đổi lại bộ tách dài hơn."},
+    {"id":"d-20260924T084748Z-2","p":"KHÔNG mở rộng sang tra mọi lệnh trong chuỗi — giữ vá nhỏ; đổi lại chương trình vắng ở lệnh sau `&&` vẫn không bị bắt sớm."},
+    {"id":"d-20260924T084748Z-3","p":"KHÔNG viết đặc tả giao diện — việc này không có màn hình nào."},
+    {"id":"d-20260924T084748Z-4","p":"Lượt đo nền đầu tiên đỏ vì chính máy ghi tệp giữa lúc đo; đã đo lại trên cây sạch thay vì tính đỏ đó cho vòng."},
+    {"id":"d-20260924T084955Z-6","p":"Bài kiểm được commit TRƯỚC bản vá, nên lịch sử cho thấy nó đỏ trên mã cũ đúng câu owner báo («thiếu merge-base»)."},
+    {"id":"d-20260924T085251Z-7","p":"Thử tay bắt được lỗi của chính bản nháp (lệnh con thiếu dấu đóng bị đọc thành «gi») và đã sửa — ca này chỉ được thử tay, chưa có bài kiểm máy."},
+    {"id":"d-20260924T092414Z-8","p":"Hồ sơ dùng kết quả đo nền trên cây sạch (nền xanh cả bốn chân) thay cho lượt đầu bị nhiễu."}
+  ]
+}
