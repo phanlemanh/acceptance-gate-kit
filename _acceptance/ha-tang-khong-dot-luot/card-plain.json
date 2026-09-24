@@ -1,5 +1,5 @@
 {
-  "feature_plain": "Vòng chấm thôi bị hạ tầng đốt: bộ kiểm chạy dưới trần thời gian của công cụ, lượt chấm chết vì hạ tầng được thử lại mà không tính là một vòng, dòng /goal thôi dừng ở chỗ máy lẽ ra tự chạy lại, và hồ sơ đã khép thôi bị hỏi «duyệt hay sửa».",
+  "feature_plain": "Vòng chấm thôi bị hạ tầng đốt: bộ kiểm chạy dưới trần thời gian của công cụ, lượt chấm chết vì hạ tầng được thử lại mà không tính là một vòng, dòng /goal dừng đúng chỗ (kể cả khi làn tự động đã mở PR), và hồ sơ đã khép thôi bị hỏi «duyệt hay sửa».",
   "scope_plain": "Không đổi cách phân nhãn lượt chấm, không xoá ca kiểm nào để lọt trần, không làm phần kiểm chữ ký phía đọc (việc có thêm luật, chờ anh phê riêng), không đưa bản mới ra kho nào ngoài crm.",
   "decisions_plain": [
     {
@@ -41,6 +41,18 @@
     {
       "id": "d-20260924T015538Z-10",
       "p": "Thêm một tiêu chí (AC-8): bộ kiểm thứ hai cũng chia vùng, vì nó đo 537 giây — đã sát trần từ trước vòng (518 giây trên nhánh chính); đổi lại phạm vi rộng hơn bản anh thấy ở Cổng Phạm vi, và một vùng vẫn là một khối 320 giây không chia nhỏ hơn được."
+    },
+    {
+      "id": "d-20260924T031642Z-11",
+      "p": "Anh trả lại ở Cổng Bằng chứng lượt 1: sửa ngay ba chỗ — dòng /goal thiếu điểm dừng cho làn tự động, một câu cũ trong hướng dẫn, và cách đếm lượt khi bộ bác bỏ chết."
+    },
+    {
+      "id": "d-20260924T031921Z-12",
+      "p": "Trước khi sửa, một người soi độc lập tìm ra bốn chỗ phép đo của ba tiêu chí mới chỉ đo chữ có mặt; máy siết lại để đo đúng quan hệ — đổi lại tệp kiểm dài thêm."
+    },
+    {
+      "id": "d-20260924T034317Z-13",
+      "p": "Vòng sửa xong; kèm tám dòng vào sổ hạn chế đã biết cho các đề xuất máy của lượt 1 (vì một phép kiểm đếm cả hồ sơ chưa ký) — các dòng này chờ cập nhật theo quyết định của anh lúc ký."
     }
   ]
 }
