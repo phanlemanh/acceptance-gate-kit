@@ -10,6 +10,93 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.18.3 — 24/09/2026
+
+Cửa sổ 2.18.2 → 2.18.3 kéo **một ngày**, có **một vòng** chạm engine do owner gọi tên:
+`ha-tang-khong-dot-luot` (T2, ký 24/09). Kho chờ nhận là `crm`, đã nâng 2.18.2 ở mọi scope sống
+ngày 24/09. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên `2.18.3`; `diagram-design` giữ
+`2.7.0`. Tag `v2.18.3` gắn tại commit ký mốc sau khi gộp.
+
+**Đổi gì:**
+
+- **Lượt chấm chết vì hạ tầng được thử lại, không tính là một vòng.** Khi lượt S4 bị chặn chỉ vì
+  hạ tầng (tác tử chấm chết, hoặc công cụ ngắt lệnh), và lượt ấy không có lỗi nào máy phải sửa
+  trong hợp đồng, bộ sinh tham số chấm lại ở CÙNG round. Lượt thử lại không đếm vào trần 3 round và
+  chỉ thử lại một lần. Lượt còn lỗi trong hợp đồng thì vẫn là một round sửa như trước. Tập «lỗi máy
+  phải sửa» đọc đúng tập bộ chấm dùng để trả lại: lỗi chưa qua bác bỏ hoặc lượt phân loại không đủ
+  thì không tính.
+- **Dòng `/goal` thôi coi «bị chặn» là xong.** Khuôn mới coi là hoàn thành khi phiên đã trình thẻ
+  Cổng Bằng chứng, hoặc (làn V) đã mở PR ở S5, hoặc đã dừng ở một cổng có tên. Lượt bị chặn vì hạ
+  tầng mà chưa thử lại thì CHƯA hoàn thành: máy thử lại, không hỏi. Khuôn không còn đòi
+  «status: verified», điều làn V không bao giờ tới.
+- **Thẻ Cổng 1 của hồ sơ đã khép thôi hỏi.** Hồ sơ chấm-bởi-thực-tế chưa từng có báo cáo không còn ô
+  «duyệt hay sửa», không dòng lệnh duyệt, không dòng goal.
+- **Bộ kiểm của kit chạy dưới trần công cụ** (chỉ kho kit). Suite scripts chấm bằng bốn mảnh, suite
+  plugins bằng ba vùng; lệnh suite dài nhất của lượt chấm là 234 s. Trước vòng, suite plugins trọn
+  mất 518 s trên `main`, tức 86 % trần. Lệnh trọn và CI không đổi.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Máy dev:** cập nhật plugin như mọi mốc — `claude plugin update <plugin> --scope project` trong
+  từng thư mục có scope sống. Không cần làm gì với hồ sơ đang mở.
+- **Kho còn đường chép** (`crm`): không tệp nào trong lớp chép CI (GUIDE §5.3) đổi ở mốc này, nên
+  không phải chép gì.
+- **Kho đã ghim sha:** đổi `KIT_SHA` sang commit ký mốc 2.18.3, hoặc lấy theo tag `v2.18.3`.
+- **Ai đang dán dòng `/goal` cũ:** dán khuôn mới từ thẻ Cổng 1 hoặc GUIDE mục /goal. Goal cũ đang
+  chạy vẫn chạy.
+
+**Giới hạn đã khai** (owner quyết ở Cổng Bằng chứng của vòng, 24/09):
+
+- «Đã thử lại một lần vẫn chặn» chỉ là một dòng stderr; bộ sinh tham số vẫn thoát 0. Hạt giống
+  `docs/plans/2026-09-24-hat-giong-thu-lai-roi-thoat-khac-0.md`.
+- Thẻ Cổng 1 của hồ sơ đã khép còn hai nút «Sửa lại / Duyệt, cho code», và bỏ qua im lặng lỗi của bộ
+  quét. Hạt giống `docs/plans/2026-09-24-hat-giong-the-cong-1-ho-so-khep-nut-va-loi-quet.md`.
+- 68 hồ sơ đã ký của kit còn eval trỏ khoá suite trọn, nên lượt ghim lại của chúng chạy thêm suite
+  trọn ngoài các mảnh. Suite trọn vẫn sát trần; nguy cơ có từ trước vòng.
+- Thân lệnh `acceptance-card` còn đọc `one_shot: null` là «bị trả lại/bị chặn», trong khi thẻ hồ sơ
+  đã khép nay cũng trả null.
+- Vùng 2 của suite plugins là một khối đơn (P161, 320 s máy rảnh), không chia nhỏ hơn được nếu
+  không sửa chính P161.
+
+**Năm dòng số của luật (c) — vòng `ha-tang-khong-dot-luot`:**
+
+| Dòng | Số | Nguồn |
+|---|---|---|
+| Làm-xong→quyết-được | Cổng Phạm vi đi làn V hai lần, không chờ người · Cổng Bằng chứng lượt 1 ≈ 7 phút (trả lại, nâng phạm vi 3 mục) · lượt 2 ≈ 6 phút (ký). Code xong → chữ ký cuối: 1 giờ 48 phút | giờ commit + sổ quyết định |
+| Lượt gọi người / vòng | **2** lượt, **2** chạm, mỗi lượt một lệnh. Trong thiết kế **2** (Cổng Bằng chứng hai lượt). Ngoài thiết kế **0**. Mục tiêu T2 là ≤3 | sổ quyết định + hội thoại |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **0**. Hai lượt đều trả đủ phép đo, 0 BLOCKED; round 1 không bị trần công cụ ngắt — ngưỡng sống đầu tiên của ô | `run-log.jsonl` round-tally |
+| Token máy / vòng | 2 lượt: **241 k** out-token, **3,40 M** token không-cache. Tách theo model vì nhãn vai mất trong báo cáo: chứng-minh-vật (haiku) 32 k (13 %) · rà soát (opus) 124 k (51 %) · phân loại + chụp + tổng hợp (sonnet) 85 k (35 %). Phiên chính không đo | `usage-report.md` |
+| Phút máy / lượt chấm | 35 · 29 phút, tổng 63 phút. Đường găng là chuỗi 10 lệnh suite chạy tuần tự (≈ 1 150 s máy rảnh) | `wall` + kiểm kết S3 |
+
+Dòng 4 không tách được phân loại (thuộc khối tìm-lỗi) khỏi tổng hợp: cả hai chạy sonnet và báo cáo
+chi phí của hai lượt không còn nhãn vai.
+
+**Điều kiện tin cậy:** đường verdict không đổi thành phần — vòng này đổi cách ĐÁNH SỐ lượt và cách
+CHẠY suite, không đổi ai phán. Hai thay đổi có răng hai chiều: phân hoạch mảnh có chiều đỏ (bỏ sót
+tệp, ca tiêm đỏ ở từng mảnh) và chiều im (tổng PASS các mảnh = lượt trọn); đánh số lượt có ma trận
+chín hàng + round-trip với bộ chấm thật + hai đột biến tách riêng. Số lượt chấm sai không tăng. Dòng
+4–5 vì thế cắt được.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ | lượt chặn vì hạ tầng thôi thành câu hỏi cho người |
+| 2 | ↓ ở kho tiêu thụ | khuôn goal thôi ép phiên dựng lối cho người khi lượt bị chặn |
+| 3 | ↓ ở kho kit | suite dưới trần, round đầu thôi BLOCKED |
+| 4 | = | không thêm tác tử |
+| 5 | ↓ | lượt thử lại cùng round không đốt một round sửa |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc trên kit bằng
+`scripts/hieu-chuan-moc.mjs --root .`. **N không tăng so với mốc 2.18.2 — dòng vô hiệu ở mốc này**,
+cấm đọc thành «0 sự cố».
+
+**Nhát cắt có tên cho cửa sổ kế** (thứ tự mốc 2.18.2 đã xếp, còn nguyên):
+
+1. **Lớp chép tự xoá** (`docs/plans/2026-09-23-hat-giong-lop-chep-tu-xoa-2-18-3.md`) — mốc này
+   không làm; cửa sổ vừa rồi dành cho vòng owner gọi tên.
+2. **Máy hỏi ngoài thiết kế ở S1** (`docs/plans/2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md`).
+
 ## 2.18.2 — 23/09/2026
 
 Cửa sổ 2.18.1 → 2.18.2 kéo **một ngày**, có **một vòng** chạm engine do owner gọi tên:
