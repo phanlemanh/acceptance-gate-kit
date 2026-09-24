@@ -400,6 +400,42 @@ if (!gate) {
   else gate = report.trim() ? '2' : '1';
 }
 
+// <<<QUET-HO-SO — MỘT lượt gọi bộ quét cho cả hai nhánh cổng, nhớ kết quả (ha-tang-khong-dot-luot
+// AC-7). Trước vòng, chỉ nhánh Cổng 2 hỏi bộ quét, nên hồ sơ đã khép mà không có evidence-report.md
+// rơi vào Cổng 1 và vẫn bị hỏi «duyệt hay sửa» (crm 2/7 thẻ hồ sơ khép, 22/09).
+let _quet = null;
+function quetHoSo() {
+  if (_quet) return _quet;
+  const q = { state: null, err: null, broken: null, hit: null };
+  try {
+    const r = require('child_process').spawnSync(process.execPath,
+      [path.join(__dirname, 'start-scan.mjs'), '--root', root],
+      { encoding: 'utf8', timeout: 20000, maxBuffer: 64 * 1024 * 1024 });
+    if (r.status !== 0) q.err = (r.stderr || '').trim().slice(0, 200) || `exit ${r.status}`;
+    else {
+      const j = JSON.parse(r.stdout);
+      // `config: false` = máy quét CHẠY ĐƯỢC nhưng repo chưa dựng cổng, nên không
+      // có `groups`. Đó KHÔNG phải lỗi: không có gì để nói thì thẻ đi lối cũ và
+      // KHÔNG bật cờ. Cờ chỉ dành cho máy quét THẤT BẠI. (P150 bắt: bản đầu đọc
+      // thẳng j.groups.gates nên ném lỗi và bật cờ oan ở mọi repo không workspace.)
+      const gr = j.groups || {};
+      const hit = [...(gr.gates || []), ...(gr.inProgress || []), ...(gr.done || [])]
+        .find(x => x.slug === slug);
+      // `broken` phát ở TẦNG NGOÀI `groups` (start-scan out({..., broken})) — không tra nó
+      // thì hồ sơ bộ quét gọi HỎNG rơi vào scanState null và mệnh đề «bộ quét mù» bên dưới
+      // biến đúng hồ sơ mâu thuẫn thành «máy đã đi tiếp hợp lệ» (S4-r6 [4], dựng lại được
+      // với machine-cleared + human_signoff).
+      q.broken = (j.broken || []).find(x => x.slug === slug) || null;
+      q.state = hit ? hit.stateKey : (q.broken ? (q.broken.stateKey || 'ho-so-hong') : null);
+      q.hit = hit || null;
+    }
+  } catch (e) { q.err = String(e.message).slice(0, 200); }
+  return (_quet = q);
+}
+// Vị từ «đã khép» của THẺ — đọc khoá đầu ra của bộ quét (nghỉ · thực tế đủ vế), KHÔNG tự đọc sổ.
+const daKhepTu = hit => !!(hit && (hit.nghi || hit.thucTe));
+// QUET-HO-SO>>>
+
 const STYLE = `<style>
 .gc{font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;margin:0 auto;color:#1f1f1d;line-height:1.5}
 .gc .card{background:#fff;border:1px solid #e6e4de;border-radius:14px;padding:16px 18px}
@@ -686,8 +722,12 @@ if (gate === '1') {
   // đỏ hoặc rơi bậc → để trống, vì mời ký trên thẻ đang đỏ đúng là thứ audit
   // 01/09 gọi tên «mời khi chưa ký-được-ngay». dupIds chỉ VÀNG, không chặn.
   const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot;
-  const oneShotG1 = `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: goalLine(slug), routing: { hoi: ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2)); process.exit(0); }
+  // Hồ sơ đã khép (bộ quét: chấm bởi thực tế / nghỉ) không còn câu hỏi nào cho người — không ô hỏi,
+  // không dòng lệnh duyệt, không dòng goal (ha-tang-khong-dot-luot AC-7; cùng chữ AC-6 của 2.18.1).
+  const DA_KHEP_G1 = daKhepTu(quetHoSo().hit);
+  const DA_KHEP_G1_VI = (quetHoSo().hit || {}).nghi ? 'đã nghỉ' : 'đã chấm bởi thực tế';
+  const oneShotG1 = DA_KHEP_G1 ? null : `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
@@ -783,7 +823,8 @@ if (gate === '1') {
   // không tag chen giữa — P185 canh). Khuôn này sống CHỈ trên thẻ; tin nhắn
   // mời cổng KHÔNG dùng nó (hồ sơ cat-khoi-viec-cua-anh-tren-tin, 16/08 —
   // điều khoản GATE-INVITE-CLAUSE trong human-facing-language.md).
-  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p></div><div class="mach">Dòng lệnh ${(roiBac || g1Blocked) ? 'CHƯA điền sẵn được — thẻ đang có cờ đỏ, đọc cờ trước' : 'đã điền sẵn khuyến nghị'}: <b>${esc(oneShotG1)}</b></div><div class="mach goal">Sau khi trả lời (duyệt hay sửa), dán dòng này để đoạn máy chạy tới cổng kế: <b>${esc(goalLine(slug))}</b></div>`);
+  if (DA_KHEP_G1) P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Hồ sơ đã khép (${DA_KHEP_G1_VI}) — không còn câu hỏi nào cho người.</b> Mở lại hồ sơ là một quyết định riêng.</p></div>`);
+  else P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu điều cần đổi».</p><p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p></div><div class="mach">Dòng lệnh ${(roiBac || g1Blocked) ? 'CHƯA điền sẵn được — thẻ đang có cờ đỏ, đọc cờ trước' : 'đã điền sẵn khuyến nghị'}: <b>${esc(oneShotG1)}</b></div><div class="mach goal">Sau khi trả lời (duyệt hay sửa), dán dòng này để đoạn máy chạy tới cổng kế: <b>${esc(goalLine(slug))}</b></div>`);
   P.push(`<div class="foot"><span class="rev">↻ Sửa 1 dòng tiêu chí GIỜ rẻ hơn 10× phát hiện sai sau khi code.</span><div class="btns"><button class="b no">Sửa lại</button><button class="b yes">Duyệt, cho code</button></div></div>
 </div></div>`);
   process.stdout.write(P.join('\n'));
@@ -919,29 +960,7 @@ let scanState = null, scanErr = null, scanBroken = null, scanHit = null;
 // Chỉ quét khi thẻ CÓ THỂ ký: nhánh REJECT/BLOCKED không đọc MAY_DI_TIEP, mà
 // start-scan là lượt chạy tiến trình con đắt nhất của bộ dựng (S4-r1 đo:
 // --extract 0,03s → 0,45s sau khi khối bị dời lên trước extract).
-if (approvable) try {
-  const r = require('child_process').spawnSync(process.execPath,
-    [path.join(__dirname, 'start-scan.mjs'), '--root', root],
-    { encoding: 'utf8', timeout: 20000, maxBuffer: 64 * 1024 * 1024 });
-  if (r.status !== 0) scanErr = (r.stderr || '').trim().slice(0, 200) || `exit ${r.status}`;
-  else {
-    const j = JSON.parse(r.stdout);
-    // `config: false` = máy quét CHẠY ĐƯỢC nhưng repo chưa dựng cổng, nên không
-    // có `groups`. Đó KHÔNG phải lỗi: không có gì để nói thì thẻ đi lối cũ và
-    // KHÔNG bật cờ. Cờ chỉ dành cho máy quét THẤT BẠI. (P150 bắt: bản đầu đọc
-    // thẳng j.groups.gates nên ném lỗi và bật cờ oan ở mọi repo không workspace.)
-    const gr = j.groups || {};
-    const hit = [...(gr.gates || []), ...(gr.inProgress || []), ...(gr.done || [])]
-      .find(x => x.slug === slug);
-    // `broken` phát ở TẦNG NGOÀI `groups` (start-scan out({..., broken})) — không tra nó
-    // thì hồ sơ bộ quét gọi HỎNG rơi vào scanState null và mệnh đề «bộ quét mù» bên dưới
-    // biến đúng hồ sơ mâu thuẫn thành «máy đã đi tiếp hợp lệ» (S4-r6 [4], dựng lại được
-    // với machine-cleared + human_signoff).
-    scanBroken = (j.broken || []).find(x => x.slug === slug) || null;
-    scanState = hit ? hit.stateKey : (scanBroken ? (scanBroken.stateKey || 'ho-so-hong') : null);
-    scanHit = hit || null;
-  }
-} catch (e) { scanErr = String(e.message).slice(0, 200); }
+if (approvable) ({ state: scanState, err: scanErr, broken: scanBroken, hit: scanHit } = quetHoSo());
 // Hồ sơ đã có ô kết `machine-cleared` cũng là «máy đã đi tiếp» — bộ quét gọi nó bằng hai
 // khoá riêng, thẻ phải nhận cả bốn, nếu không hồ sơ máy-thông lại bị mời ký (hồ sơ ra-co-ten).
 const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
@@ -1011,7 +1030,7 @@ const cm = chotMay(dir);
 // Vế thực tế hỏi KHOÁ đầu ra `thucTe` của bộ quét — khác null CHỈ khi dòng quan sát đủ vế (vị từ
 // hoSoDaKhep, AC-1). Suy từ tên ô `da-cham-thuc-te` là sai: bộ quét xếp MỌI hồ sơ status ấy vào ô
 // đó, kể cả khi dòng vắng/thiếu vế (Ngoài-5/7 lượt chấm 2 — thẻ giấu câu hỏi, lưới vẫn chặn).
-const DA_KHEP = !!NGHI || !!(scanHit && scanHit.thucTe);
+const DA_KHEP = daKhepTu(scanHit);
 const DA_KHEP_VI = NGHI ? 'đã nghỉ' : 'đã chấm bởi thực tế';
 const oneShotG2 = approvable && !DA_KHEP ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
 if (!approvable) { routingHoi.length = 0; routingBao.length = 0; }

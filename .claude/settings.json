@@ -16,8 +16,9 @@
   "permissions": {
     "allow": [
       "Bash(bash tests/scripts/run-tests.sh --manh bash)",
-      "Bash(bash tests/scripts/run-tests.sh --manh mjs:1/2)",
-      "Bash(bash tests/scripts/run-tests.sh --manh mjs:2/2)",
+      "Bash(bash tests/scripts/run-tests.sh --manh mjs:1/3)",
+      "Bash(bash tests/scripts/run-tests.sh --manh mjs:2/3)",
+      "Bash(bash tests/scripts/run-tests.sh --manh mjs:3/3)",
       "Bash(bash tests/hooks/run-tests.sh)",
       "Bash(bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40')",
       "Bash(bash tests/workflows/run-tests.sh)",

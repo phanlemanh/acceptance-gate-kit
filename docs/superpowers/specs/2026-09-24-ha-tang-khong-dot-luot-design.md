@@ -45,12 +45,14 @@ phải cắt ca hay đổi cách tác tử chạy lệnh.
 mà lượt chạy dùng (`mjs_cua_manh`), nên danh sách và lượt chạy không thể trôi khỏi nhau. Ca «có ít
 nhất một `*.test.mjs` được chạy» đi theo mảnh mjs (mỗi mảnh phải có ≥ 1 tệp).
 
-`feature_loop.suite_keys` thay `executors.test.scripts` bằng ba khoá `scripts_bash`,
-`scripts_mjs_1`, `scripts_mjs_2`. Bộ chấm S4 đã chạy lệnh suite TUẦN TỰ (thuoc-co-cua AC-9), nên
-tổng thời gian không đổi; mỗi lệnh riêng lẻ nằm dưới trần. Ước mảnh nặng nhất: ≈ 265 s máy rảnh
-(nếu hai tệp đắt rơi cùng mảnh) → ≈ 320 s dưới tải, dưới ngưỡng 80 % (480 s). Mảnh chia theo chỉ
-số chứ không theo thời gian đo: danh sách cân bằng theo số đo là danh sách viết tay, trôi ngay khi
-thêm ca.
+`feature_loop.suite_keys` thay `executors.test.scripts` bằng bốn khoá `scripts_bash`,
+`scripts_mjs_1`, `scripts_mjs_2`, `scripts_mjs_3` (mảnh truyền bằng đối số `--manh`, để lệnh khớp
+nguyên văn một mục `permissions.allow` — song ánh LM1). Bộ chấm S4 đã chạy lệnh suite TUẦN TỰ
+(thuoc-co-cua AC-9), nên tổng thời gian không đổi; mỗi lệnh riêng lẻ nằm dưới trần. Kế hoạch ban
+đầu là hai mảnh mjs; đo S3 cho thấy hai tệp đắt nhất rơi chung một mảnh (232 s máy rảnh, 352 s khi
+chạy chồng với loạt ca khác), nên chốt ba mảnh mjs: mảnh nặng nhất 167 s máy rảnh (sổ quyết định
+dòng 7). Mảnh chia theo chỉ số chứ không theo thời gian đo: danh sách cân bằng theo số đo là danh
+sách viết tay, trôi ngay khi thêm ca.
 
 **Đã cân và LOẠI:**
 - *Chạy nền có chờ trong prompt tác tử chấm* — là lời dặn cho LLM, không có răng; tác tử chết giữa

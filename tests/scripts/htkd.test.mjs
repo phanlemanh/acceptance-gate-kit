@@ -190,9 +190,11 @@ await ca('HT-AC3-dot-bien', () => {
   const cfg = readFileSync(CONFIG, 'utf8');
   const KIM = '    - executors.test.scripts_mjs_2\n';
   motLan(cfg, KIM, 'khoa scripts_mjs_2 trong suite_keys');
+  const n = Number((manhKhai(cfg).map(x => x.manh).find(v => v && v.startsWith('mjs:')) || 'mjs:1/0').split('/')[1]);
+  const ky = `manh thieu: mjs:2/${n}`;
   const loi = kiemConfig(cfg.replace(KIM, ''), GATE_YML());
-  assert(loi.includes('manh thieu: mjs:2/2'), `ban sao bo scripts_mjs_2 ma phep kiem khong do dung ten: ${loi.join(' · ') || '(rong)'}`);
-  return '(do dung: manh thieu: mjs:2/2)';
+  assert(n >= 2 && loi.includes(ky), `ban sao bo scripts_mjs_2 ma phep kiem khong do dung ten «${ky}»: ${loi.join(' · ') || '(rong)'}`);
+  return `(do dung: ${ky})`;
 });
 
 // ── AC-4: s4-args thử lại CÙNG round ──────────────────────────────────────────

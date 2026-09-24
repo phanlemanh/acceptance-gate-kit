@@ -44,7 +44,7 @@ evals:
       executors.test.scripts_bash và scripts_mjs_1…n (n rút từ lệnh khoá), mỗi khoá đúng một
       SCRIPTS_SHARD, không có executors.test.scripts; executors.test.scripts không đặt SCRIPTS_SHARD;
       .github/workflows/gate.yml vẫn chạy `bash tests/scripts/run-tests.sh` không đặt mảnh.
-      HT-AC3-dot-bien: bản sao config bỏ scripts_mjs_2 khỏi suite_keys → đỏ «manh thieu: mjs:2/2».
+      HT-AC3-dot-bien: bản sao config bỏ scripts_mjs_2 khỏi suite_keys → đỏ «manh thieu: mjs:2/<n>» (n rút từ config).
     paths: [_acceptance/config.yaml, .github/workflows/gate.yml, tests/scripts/htkd.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
