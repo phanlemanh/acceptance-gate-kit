@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6d6d559c7f7aafb3371637771e78b4dc7a8c54fb
+verified_commit: 802b93fa668d91a96e7c84752528509d6f11dbfe
 human_signoff: Phan Le Manh 2026-09-24 — ký với 2 known-limits đã khai (Ngoài-1/2: lỗi git status bị nuốt im lặng, có từ bản cũ); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
@@ -145,3 +145,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: E1–E5 và toàn bộ lệnh suite (bash/mjs/hooks/plugins/workflows/product-map) PASS ngay từ lượt chạy đầu tiên, không có vòng vá nào.
+
+### Re-pin lần 1 — 2026-09-24, do gộp main sau PR #216 vào nhánh trước khi mở PR (lần 2: lần 1 đỏ mjs:1/3 không tái hiện khi chạy riêng)
+run_id: repin-20260924T154757Z-40929
+sha: 802b93fa668d91a96e7c84752528509d6f11dbfe · suites: 10 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng
