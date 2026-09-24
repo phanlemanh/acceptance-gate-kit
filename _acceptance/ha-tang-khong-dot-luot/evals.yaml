@@ -109,3 +109,18 @@ evals:
       4a210597 nếu đổi).
     paths: [scripts/gate-card.js, tests/scripts/htkd.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC8, HT-AC8-do, HT-AC8-dot-bien. HT-AC8: k = 1…n rút từ các khoá
+      suite_keys có `--manh vung:<k>` (n = số marker PLUGINS-VUNG của tệp thật); với mỗi k,
+      `PLUGINS_SHARD_EMIT=1 bash tests/plugins/run-tests.sh --manh vung:<k>` BẰNG phần đầu + vùng k +
+      phần kết cắt độc lập bằng JS từ tệp gốc; nối các vùng = thân gốc; suite_keys không có
+      executors.test.plugins; executors.test.plugins không đặt mảnh; gate.yml chạy trọn plugins.
+      HT-AC8-do: fixture phần đầu thật + ba vùng tí hon + phần kết thật → bốn lượt thoát 0, PASS
+      trọn = tổng; tiêm `run "HTP9 …" false` vào vùng 2 → chỉ vung:2 thoát ≠ 0 và in «FAIL: HTP9».
+      HT-AC8-dot-bien: bản sao gỡ marker vùng 2 → phép kiểm đỏ «vung thieu: 2».
+    paths: [tests/plugins/run-tests.sh, _acceptance/config.yaml, .github/workflows/gate.yml, tests/scripts/htkd.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -349,7 +349,8 @@ function kiemKhuon(k) {
   if (/không chắc/iu.test(k)) loi.push('khuon con ve «không chắc»');
   if (/người chọn/iu.test(k)) loi.push('khuon con ve «người chọn»');
   if (/nêu\s+(?:tiền đề hay\s+)?lối/iu.test(k)) loi.push('khuon con ve «nêu lối»');
-  if (k.includes('signed-off')) loi.push('khuon nham dich signed-off');
+  // Trạng thái «đã ký» rút từ lib (nếp hskt): tệp ca không mang chuỗi trạng thái của riêng nó (RT13).
+  if (k.includes(require(path.join(KIT, 'lib', 'workspace-record.cjs')).DA_THONG_CONG_2[0])) loi.push('khuon nham dich trang thai da ky');
   if (!k.includes('sau 15 turns')) loi.push('khuon mat loi thoat «sau 15 turns»');
   if (!k.includes('Cổng Bằng chứng')) loi.push('khuon khong neo «Cổng Bằng chứng»');
   const cau = k.split('\n').join(' ').split(/(?<=[.!?])\s+/);
@@ -468,7 +469,7 @@ await ca('HT-AC7', () => {
 });
 await ca('HT-AC7-dot-bien', () => {
   const src = readFileSync(GC_P, 'utf8');
-  const KIM = 'const DA_KHEP_G1 = daKhepTu(quetHoSo().hit);';
+  const KIM = 'const DA_KHEP_G1 = G1_CO_THE_KHEP && daKhepTu(quetHoSo().hit);';
   motLan(src, KIM, 'DA_KHEP_G1');
   const sao = path.join(path.dirname(GC_P), `.htkd-gate-card-${process.pid}.js`);
   try {
@@ -477,6 +478,98 @@ await ca('HT-AC7-dot-bien', () => {
     assert(loi.some(l => l.startsWith('g1-thuc-te: ho so da khep ma routing.hoi')), `ban sao go ve khep o nhanh Cong 1 ma phep kiem khong do dung ten: ${loi.join(' · ') || '(rong)'}`);
     return '(do dung: g1-thuc-te co lai o hoi)';
   } finally { rmSync(sao, { force: true }); }
+});
+
+// ── AC-8: suite plugins chia vùng ───────────────────────────────────────────────
+const P_RUNNER = path.join(KIT, 'tests', 'plugins', 'run-tests.sh');
+const RX_VUNG = /^# <<<PLUGINS-VUNG (\d+)$/;
+// Cắt ĐỘC LẬP bằng JS (không gọi hàm ghép của tệp chạy): phần đầu · các vùng · phần kết.
+function catVung(text) {
+  const L = text.split('\n');
+  const moc = []; let ket = -1;
+  L.forEach((l, i) => { const m = l.match(RX_VUNG); if (m && ket < 0) moc.push({ k: Number(m[1]), i }); if (l === '# <<<PLUGINS-KET' && ket < 0) ket = i; });
+  return { L, moc, ket };
+}
+function kiemVung(text, nKhai, emitFn) {
+  const loi = [];
+  const { L, moc, ket } = catVung(text);
+  if (ket < 0) return ['thieu marker PLUGINS-KET'];
+  for (let k = 1; k <= nKhai; k += 1) if (!moc.some(m => m.k === k)) loi.push(`vung thieu: ${k}`);
+  if (moc.length !== nKhai) loi.push(`so marker vung ${moc.length} khac so vung khai ${nKhai}`);
+  if (loi.length) return loi;
+  const dau = L.slice(0, moc[0].i), cuoi = L.slice(ket);
+  const noi = [];
+  moc.forEach((m, j) => {
+    const vung = L.slice(m.i, j + 1 < moc.length ? moc[j + 1].i : ket);
+    noi.push(...vung.slice(1));
+    if (vung.length < 2) loi.push(`vung ${m.k} rong`);
+    if (emitFn) {
+      const ky = [...dau, ...vung, ...cuoi].join('\n');
+      const ra = emitFn(m.k);
+      if (ra.replace(/\n$/, '') !== ky.replace(/\n$/, '')) loi.push(`ban ghep vung ${m.k} khac phan dau + vung ${m.k} + phan ket`);
+    }
+  });
+  const than = L.slice(moc[0].i, ket).filter(l => !RX_VUNG.test(l));
+  if (JSON.stringify(noi) !== JSON.stringify(than)) loi.push('noi cac vung khac than suite goc');
+  return loi;
+}
+const emitThat = file => k => {
+  const env = { ...process.env, PLUGINS_SHARD_EMIT: '1' }; delete env.PLUGINS_SHARD; delete env._PLUGINS_TRONG_MANH; delete env._PLUGINS_SELF_GOC; delete env._PLUGINS_ROOT_GOC;
+  const r = spawnSync('bash', [file, '--manh', `vung:${k}`], { encoding: 'utf8', env, maxBuffer: 64 * 1024 * 1024 });
+  assert(r.status === 0, `in ban ghep vung ${k} thoat ${r.status}: ${(r.stderr || '').slice(0, 200)}`);
+  return r.stdout;
+};
+const vungKhai = cfg => khoaSuite(cfg).map(k => lenhCua(cfg, k) || '').filter(c => c.includes('tests/plugins/run-tests.sh')).map(c => { const m = c.match(/--manh\s+vung:(\d+)/); return m ? Number(m[1]) : null; });
+
+await ca('HT-AC8', () => {
+  const cfg = readFileSync(CONFIG, 'utf8');
+  const vk = vungKhai(cfg);
+  assert(vk.length && vk.every(v => v != null), `suite_keys khai lenh plugins khong dat vung: ${JSON.stringify(vk)}`);
+  const n = Math.max(...vk);
+  const loi = kiemVung(readFileSync(P_RUNNER, 'utf8'), n, emitThat(P_RUNNER));
+  for (let k = 1; k <= n; k += 1) if (!vk.includes(k)) loi.push(`suite_keys thieu vung ${k}`);
+  if (khoaSuite(cfg).includes('executors.test.plugins')) loi.push('suite_keys con executors.test.plugins nguyen khoi');
+  if (/--manh/.test(lenhCua(cfg, 'executors.test.plugins') || '')) loi.push('executors.test.plugins dat manh — lenh tron phai chay tron');
+  if (!/^\s*run:\s*bash tests\/plugins\/run-tests\.sh\s*$/m.test(GATE_YML())) loi.push('gate.yml khong con chay tron suite plugins');
+  assert(!loi.length, loi.join(' · '));
+  return `(${n} vung, noi = than goc, moi ban ghep = dau + vung + ket)`;
+});
+
+// Fixture: phần đầu THẬT (tới marker vùng 1) + ba vùng tí hon + phần kết THẬT.
+function fixtureVung({ doVung2 = false } = {}) {
+  const { L, moc, ket } = catVung(readFileSync(P_RUNNER, 'utf8'));
+  assert(moc.length && ket > 0, 'tep chay plugins thieu marker vung/ket');
+  const vung = k => [`# <<<PLUGINS-VUNG ${k}`, `run "HTP${k} ca tiem vung ${k}" true`, ...(doVung2 && k === 2 ? ['run "HTP9 ca tiem do" false'] : [])];
+  const D = mkdtempSync(path.join(TMP, 'pv-'));
+  writeFileSync(path.join(D, 'run-tests.sh'), [...L.slice(0, moc[0].i), ...vung(1), ...vung(2), ...vung(3), ...L.slice(ket)].join('\n'));
+  return path.join(D, 'run-tests.sh');
+}
+function chayVung(file, k) {
+  const env = { ...process.env }; for (const v of ['PLUGINS_SHARD', 'PLUGINS_SHARD_EMIT', '_PLUGINS_TRONG_MANH', '_PLUGINS_SELF_GOC', '_PLUGINS_ROOT_GOC', 'ONLY_BLOCK']) delete env[v];
+  const r = spawnSync('bash', k ? [file, '--manh', `vung:${k}`] : [file], { encoding: 'utf8', env, timeout: 60000 });
+  const out = (r.stdout || '') + (r.stderr || '');
+  return { rc: r.status, out, pass: (out.match(/^ {2}PASS: /gm) || []).length };
+}
+await ca('HT-AC8-do', () => {
+  const F = fixtureVung();
+  const tron = chayVung(F, null), v = [1, 2, 3].map(k => chayVung(F, k));
+  assert(tron.rc === 0 && v.every(x => x.rc === 0), `fixture lanh: tron ${tron.rc}, vung ${v.map(x => x.rc).join('/')}: ${tron.out.slice(-200)}`);
+  const tong = v.reduce((a, x) => a + x.pass, 0);
+  assert(tron.pass === tong && tong === 3, `PASS tron ${tron.pass} khac tong cac vung ${tong} (ky vong 3)`);
+  const D = fixtureVung({ doVung2: true });
+  const d = [1, 2, 3].map(k => chayVung(D, k));
+  assert(d[1].rc !== 0 && /FAIL: HTP9 ca tiem do/.test(d[1].out), `vung 2 chua ca do thoat ${d[1].rc}, khong in FAIL: HTP9`);
+  assert(d[0].rc === 0 && d[2].rc === 0, `vung 1/3 thoat ${d[0].rc}/${d[2].rc} du khong chua ca do`);
+  return `(lanh: tron ${tron.pass} = ${v.map(x => x.pass).join(' + ')}; do: chi vung 2 thoat ${d[1].rc})`;
+});
+await ca('HT-AC8-dot-bien', () => {
+  const src = readFileSync(P_RUNNER, 'utf8');
+  const KIM = '\n# <<<PLUGINS-VUNG 2\n';
+  motLan(src, KIM, 'marker vung 2');
+  const n = Math.max(...vungKhai(readFileSync(CONFIG, 'utf8')));
+  const loi = kiemVung(src.replace(KIM, '\n'), n, null);
+  assert(loi.includes('vung thieu: 2'), `ban sao go marker vung 2 ma phep kiem khong do dung ten: ${loi.join(' · ') || '(rong)'}`);
+  return '(do dung: vung thieu: 2)';
 });
 
 // ── (các ca AC-4…AC-7 nối vào dưới) ─────────────────────────────────────────────
