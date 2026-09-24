@@ -186,3 +186,12 @@ assert f"{lp2}: cau ve hinh lech khuon mot-nguon" in check(m4), \
 assert sb == gb, f"GOAL-TEMPLATE lech giua {skill_p} va {guide_p} — dong bo lai 2 khoi marker"
 assert mutated != skill_t, "dot bien khong tac dung — chuoi neo da doi"
 assert block(skill_p, mutated) != gb, f"dot bien khoi trong {skill_p} ma van khop {guide_p} — phep so GOAL-TEMPLATE da chet"
+#
+# ── Đợt khai 2026-09-24 — hồ sơ ha-tang-khong-dot-luot (khuôn /goal thôi coi BLOCKED là xong) ──
+# Hai assert dưới đây ghim hai vế của khuôn cũ mà hợp đồng vòng này bỏ ĐÍCH DANH (AC-5): mệnh lệnh
+# «set contract … status: verified» (làn V không bao giờ tới `verified`, Stop hook kẹt) và vế
+# «REJECT quá 3 round / BLOCKED … cũng coi là HOÀN THÀNH». Chúng được THAY trong cùng ca P85 bằng ba
+# assert mới: neo «Cổng Bằng chứng», lối thoát «trần 3 round», và vắng «status:»; tính chất đầy đủ
+# (BLOCKED chỉ ở câu CHƯA hoàn thành · không «người chọn»/«nêu lối») đo ở HT-AC5 kèm đột biến.
+assert "verified" in sb, "template phai neo dieu kien verified"
+assert "REJECT quá 3 round" in sb, "template phai co loi thoat escalate (REJECT qua 3 round)"

@@ -62,6 +62,7 @@ const AG_REQUIRES = [
   'skills/acceptance/references/tool-kill-rule.md',
   'lib/evidence-core.cjs',
   'lib/eval-yaml.cjs',
+  'lib/nhan-canh-gay.cjs',
 ];
 let agRoot = flags['ag-root'];
 if (!agRoot) {
@@ -87,6 +88,8 @@ if (typeof machineEvalIdsSkipped !== 'function') die('acceptance-gate quá cũ: 
 // STOP-PATCHING đã bắt.
 if (typeof parseFlowValue !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có parseFlowValue (cần ≥ 2.11.0) — cập nhật plugin');
 const { parseEvals, expectedExits } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
+// Bên đọc DUY NHẤT của nhãn cạnh gãy (chet · mu · vat) — s4-args GỌI nó, không chép luật.
+const nhanCanhGay = require_(path.join(agRoot, 'lib', 'nhan-canh-gay.cjs'));
 
 // ── Bảng trường bắt buộc: RÚT TỪ CHÍNH BÊN ĐỌC, không gõ tay ──────────────
 // Bên viết (script này) và bên đọc (acceptance-verify.js) từng trôi khỏi nhau:
@@ -415,6 +418,39 @@ else {
     if (!nums.length) die('section "## Iterations" không chứa dòng "Round <n>" nào — không đếm được round; truyền --round tường minh');
     round = Math.max(...nums) + 1;
   }
+  // <<<THU-LAI-CUNG-ROUND — ha-tang-khong-dot-luot AC-4 · khối ĐỊNH VỊ K8 («hệ thống chết → thử
+  // lại MỘT lần») · luật S4 «BLOCKED → chạy lại CÙNG round». Lượt BLOCKED mà mọi mục chặn mang
+  // nhãn hạ tầng (`chet`/`mu`, phân bởi canhGay — không chép luật), chưa thử lại, và không có
+  // finding TRONG hợp đồng ở cùng lượt → thử lại CÙNG round, không đếm vào trần. Còn finding
+  // trong hợp đồng → REJECT về bản chất: máy sửa vật, round kế đếm. Base đọc cả Iterations lẫn
+  // dòng round-tally: lượt BLOCKED sớm không soạn báo cáo nên Iterations có thể thiếu round cuối.
+  {
+    const rlPath = path.join(ws, 'run-log.jsonl');
+    const rl = fs.existsSync(rlPath) ? fs.readFileSync(rlPath, 'utf8') : '';
+    const dong = nhanCanhGay.docDong(rl);
+    const tallies = dong.filter(o => o.kind === 'round-tally' && typeof o.round === 'number');
+    const base = Math.max(round - 1, ...tallies.map(o => o.round));
+    round = base + 1;
+    const cuoi = tallies[tallies.length - 1];
+    if (base >= 1 && cuoi && cuoi.round === base && String(cuoi.verdict).toUpperCase() === 'BLOCKED') {
+      const expMap = Object.fromEntries([...expById].filter(([, v]) => Number.isInteger(v)));   // mã đạt đã khai (ADR 0016)
+      const cg = nhanCanhGay.canhGay({ runLogText: rl, verdict: 'BLOCKED', expectedExit: expMap, nguon: nhanCanhGay.NGUON });
+      const haTang = cg.trangThai === 'chet-lan-dau' || cg.trangThai === 'mo';
+      // Finding «sửa-được» = ĐÚNG tập bộ chấm dùng để REJECT (acceptance-verify.js: triageFailed ? [] :
+      // inContract ∧ ¬unverified). Triage không đủ để lại ≥ 1 dòng `unclassified` trong lượt; bộ bác bỏ
+      // chết để lại `unverified` — cả hai là hạ tầng hỏng, không phải việc sửa vật (AC-11).
+      const findingLuot = dong.filter(o => o.kind === 'finding' && o.round === base && o.ts === cuoi.ts);
+      const trieuHong = findingLuot.some(o => o.unclassified === true);
+      const findingTrong = !trieuHong && findingLuot.some(o => o.inContract === true && o.unverified !== true);
+      if (haTang && !findingTrong && !cg.daThuLai) {
+        round = base;
+        console.error(`s4-args: round ${base} BLOCKED vì hạ tầng (${cg.muc.map(m => m.nhan).join(', ')}) — thử lại CÙNG round, không đếm vào trần`);
+      } else if (haTang && !findingTrong && cg.daThuLai) {
+        console.error(`s4-args: round ${base} đã thử lại một lần vẫn chặn vì hạ tầng — trình thẻ Cổng Bằng chứng (cạnh gãy), không chấm tiếp`);
+      }
+    }
+  }
+  // THU-LAI-CUNG-ROUND>>>
 }
 
 // ── bộ đếm vật · thước · nhát: CHẠY, không CHẶN (nhan-trang-thai-va-reality AC-2, Đ3) ──

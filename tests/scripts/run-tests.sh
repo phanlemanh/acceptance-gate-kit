@@ -43,6 +43,71 @@ T="${PREMERGE_FIXTURE_DIR:-$(mktemp -d)}"
 [ -n "${PREMERGE_FIXTURE_DIR:-}" ] || trap 'rm -rf "$T"' EXIT
 mkdir -p "$T"
 
+# <<<SCRIPTS-SHARD — hồ sơ ha-tang-khong-dot-luot AC-1..3. Suite này từng chạy 601 s dưới tải,
+# qua trần 600 s của công cụ chạy lệnh trong tác tử chấm (round 1 của mọi vòng kit BLOCKED).
+# Mảnh: SCRIPTS_SHARD (hoặc đối số `--manh <giá trị>`, dạng lượt chấm dùng để khớp song ánh
+# permissions.allow) ∈ all (mặc định — CI, người gọi tay) · bash (mọi ca bash, bỏ vòng mjs) ·
+# mjs:<i>/<n> (chỉ các tệp *.test.mjs có chỉ số ≡ i−1 mod n, thoát trước ca bash đầu tiên).
+# SCRIPTS_SHARD_LIST=1 in tên tệp mjs của mảnh rồi thoát — in bằng CHÍNH hàm chọn mà lượt
+# chạy dùng, nên danh sách và lượt chạy không thể trôi khỏi nhau.
+SHARD="${SCRIPTS_SHARD:-all}"
+if [ "${1:-}" = "--manh" ]; then SHARD="${2:-}"; fi
+mjs_tat_ca() { local f; for f in "$HERE"/*.test.mjs; do [ -e "$f" ] || continue; case "$f" in */wf-usage.test.mjs) continue;; esac; printf '%s\n' "$f"; done; }
+mjs_cua_manh() {
+  case "$SHARD" in
+    all) mjs_tat_ca ;;
+    bash) : ;;
+    mjs:*/*)
+      local spec="${SHARD#mjs:}" i n k=0 f
+      i="${spec%/*}"; n="${spec#*/}"
+      case "$i$n" in ''|*[!0-9]*) echo "run-tests: SCRIPTS_SHARD sai: $SHARD (all | bash | mjs:<i>/<n>)" >&2; exit 2 ;; esac
+      if [ "$n" -lt 1 ] || [ "$i" -lt 1 ] || [ "$i" -gt "$n" ]; then echo "run-tests: SCRIPTS_SHARD sai: $SHARD (1 <= i <= n)" >&2; exit 2; fi
+      while IFS= read -r f; do
+        if [ $((k % n)) -eq $((i - 1)) ]; then printf '%s\n' "$f"; fi
+        k=$((k + 1))
+      done < <(mjs_tat_ca) ;;
+    *) echo "run-tests: SCRIPTS_SHARD sai: $SHARD (all | bash | mjs:<i>/<n>)" >&2; exit 2 ;;
+  esac
+}
+chay_mjs() {
+  _MJS_SEEN=0
+  # Danh sách đi qua fd 3, không qua stdin: `node` bên trong vòng không được nuốt danh sách.
+  while IFS= read -r _f <&3; do
+    [ -e "$_f" ] || continue
+    _MJS_SEEN=$((_MJS_SEEN+1))
+    echo "=== $(basename "$_f") ==="
+    # BẮT rc VÀO BIẾN TRƯỚC. Bản cũ viết `node "$_f"; check "$(basename "$_f")" 0 $?`
+    # — bash khai triển đối số TRƯỚC khi gọi `check`, nên `$(basename ...)` chạy
+    # trước và GHI ĐÈ `$?` bằng mã thoát của `basename` (luôn 0). Hệ quả: MỌI
+    # *.test.mjs đỏ vẫn được ghi PASS, suite in "0 failed" và thoát 0. Đo tại chỗ
+    # 2026-08-13: `core-untouched.test.mjs` đỏ từ trước mà suite vẫn xanh trọn.
+    # Đúng lớp runner-nuốt-mã-thoát đã ghi sổ, lần này ở tests/scripts.
+    node "$_f"; _mjs_rc=$?
+    _mjs_name="$(basename "$_f")"
+    check "$_mjs_name" 0 "$_mjs_rc"
+  done 3< <(mjs_cua_manh)
+  # 0 hit chính là chế độ hỏng đã xảy ra một lần — phải ĐỎ, không im lặng.
+  check "co it nhat mot *.test.mjs duoc chay" 1 "$([ "$_MJS_SEEN" -ge 1 ] && echo 1 || echo 0)"
+}
+ket_suite() {
+  echo ""
+  echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
+  [ "$FAIL_COUNT" -eq 0 ] || exit 1
+  exit 0
+}
+if [ -n "${SCRIPTS_SHARD_LIST:-}" ]; then
+  _manh_ds="$(mjs_cua_manh)" || exit 2
+  [ -z "$_manh_ds" ] || printf '%s\n' "$_manh_ds" | while IFS= read -r _f; do basename "$_f"; done
+  exit 0
+fi
+case "$SHARD" in
+  all|bash) : ;;
+  mjs:*) mjs_cua_manh >/dev/null || exit 2; chay_mjs; ket_suite ;;
+  *) mjs_cua_manh >/dev/null; exit 2 ;;
+esac
+# SCRIPTS-SHARD>>>
+# <<<CA-BASH-DAU
+
 echo "S01 T2 signed-off feature -> pass"
 R="$T/s01"; mk_feature "$R" feat-a T2 implemented PASS "Manh Phan 2026-06-10"
 bash "$CHECK" "$R"; check S01 0 $?
@@ -2765,24 +2830,9 @@ UOUT="$(node "$HERE/wf-usage.test.mjs" 2>&1)"; UST=$?
 # Dùng `check` (bộ đếm THẬT của runner này) — `pass`/`fail` chỉ tồn tại ở
 # tests/plugins/run-tests.sh; gọi nhầm chúng ở đây làm test đỏ vẫn cho suite
 # exit 0 (S4-r2 bắt: vá "test không chạy" bằng lỗ "verdict bị vứt").
-_MJS_SEEN=0
-for _f in "$HERE"/*.test.mjs; do
-  [ -e "$_f" ] || continue
-  case "$_f" in */wf-usage.test.mjs) continue;; esac
-  _MJS_SEEN=$((_MJS_SEEN+1))
-  echo "=== $(basename "$_f") ==="
-  # BẮT rc VÀO BIẾN TRƯỚC. Bản cũ viết `node "$_f"; check "$(basename "$_f")" 0 $?`
-  # — bash khai triển đối số TRƯỚC khi gọi `check`, nên `$(basename ...)` chạy
-  # trước và GHI ĐÈ `$?` bằng mã thoát của `basename` (luôn 0). Hệ quả: MỌI
-  # *.test.mjs đỏ vẫn được ghi PASS, suite in "0 failed" và thoát 0. Đo tại chỗ
-  # 2026-08-13: `core-untouched.test.mjs` đỏ từ trước mà suite vẫn xanh trọn.
-  # Đúng lớp runner-nuốt-mã-thoát đã ghi sổ, lần này ở tests/scripts.
-  node "$_f"; _mjs_rc=$?
-  _mjs_name="$(basename "$_f")"
-  check "$_mjs_name" 0 "$_mjs_rc"
-done
-# 0 hit chính là chế độ hỏng đã xảy ra một lần — phải ĐỎ, không im lặng.
-check "co it nhat mot *.test.mjs duoc chay" 1 "$([ "$_MJS_SEEN" -ge 1 ] && echo 1 || echo 0)"
+# <<<MJS-GOI
+[ "$SHARD" = all ] && chay_mjs
+# MJS-GOI>>>
 [ "$UST" -eq 0 ] || printf '%s\n' "$UOUT"
 check U01 0 "$UST"
 
@@ -4431,6 +4481,5 @@ if [ -n "$SELF_CTRL" ]; then echo "  PASS: SELF02 (doi chung duong: phep quet ba
 else echo "  FAIL: SELF02 (phep quet KHONG bat duoc file co loi ro rang -> SELF01 vo nghia)"; FAIL_COUNT=$((FAIL_COUNT+1)); fi
 rm -f "$SELF_MUT"
 
-echo ""
-echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
-[ "$FAIL_COUNT" -eq 0 ] || exit 1
+# <<<KET-SUITE
+ket_suite

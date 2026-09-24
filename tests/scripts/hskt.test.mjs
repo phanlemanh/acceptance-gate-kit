@@ -519,7 +519,9 @@ function khoThucTe() {
   git(r, 'add', '-A'); git(r, 'commit', '-qm', 'fixture');
   return r;
 }
-const NEO_DA_KHEP = "const DA_KHEP = !!NGHI || !!(scanHit && scanHit.thucTe);";
+// Kim dời 24/09 (hồ sơ ha-tang-khong-dot-luot AC-7): vị từ «đã khép» của thẻ gom về MỘT hàm
+// `daKhepTu` cho cả hai nhánh cổng — đột biến giữ nguyên NGHĨA: suy «đã khép» từ tên ô của bộ quét.
+const NEO_DA_KHEP = "const daKhepTu = hit => !!(hit && (hit.nghi || hit.thucTe));";
 function kiemE9(the = theExtract, html = theHtml) {
   const R = khoThucTe(); const sai = [];
   if ((the(R, 'tt-du').routing.hoi || []).length) sai.push('tt-du: hoi khac rong');
@@ -539,7 +541,7 @@ for (const [ca, slug] of [['HK-AC9-vang', 'tt-vang'], ['HK-AC9-thieu', 'tt-thieu
 }
 if (want('HK-AC9-dot-bien')) {
   try {
-    const may = banSaoMay([['scripts/gate-card.js', NEO_DA_KHEP, "const DA_KHEP = !!NGHI || scanState === 'da-cham-thuc-te';"]]);
+    const may = banSaoMay([['scripts/gate-card.js', NEO_DA_KHEP, "const daKhepTu = hit => !!(hit && (hit.nghi || hit.stateKey === 'da-cham-thuc-te'));"]]);
     const GC = path.join(may, 'scripts', 'gate-card.js');
     const the = (R, slug) => JSON.parse(execFileSync(process.execPath, [GC, '--root', R, '--slug', slug, '--extract'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
     const html = (R, slug) => execFileSync(process.execPath, [GC, '--root', R, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });

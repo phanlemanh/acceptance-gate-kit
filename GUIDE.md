@@ -342,7 +342,7 @@ bằng eval `ui-check`/`design-gate`. Lý do + đường lấy lại:
 harness: sau mỗi turn một checker nhỏ đọc transcript, điều kiện chưa thỏa thì tự nổ
 turn mới. Dùng đúng cách với feature-loop:
 
-**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:** (1) mỗi câu **xin duyệt thiết kế** của brainstorm — dán cùng câu trả lời; (2) khi **duyệt Cổng Phạm vi** — thẻ Cổng 1 in sẵn dòng goal ngay dưới dòng lệnh duyệt; (3) khi **duyệt Gate 1.5** (T3). Vì sao nhiều lần: khuôn goal cố ý coi «máy đang chờ người» là hoàn thành, nên goal kết ở mỗi cổng và đoạn máy sau cổng cần vũ trang lại. **Làn V T2 không chạm UI:** không có cổng ở giữa, lần dán ở brainstorm là lần duy nhất. **Brainstorm không hỏi gì** (đề bài đã đủ, máy đi thẳng tới artifact) → không có lượt để vũ trang trước Cổng 1 — ca chưa phủ, đo ở ba dòng số mốc kế.
+**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:** (1) mỗi câu **xin duyệt thiết kế** của brainstorm — dán cùng câu trả lời; (2) khi **duyệt Cổng Phạm vi** — thẻ Cổng 1 in sẵn dòng goal ngay dưới dòng lệnh duyệt; (3) khi **duyệt Gate 1.5** (T3). Vì sao nhiều lần: khuôn goal coi «dừng ở một cổng có tên» là hoàn thành, nên goal kết ở mỗi cổng và đoạn máy sau cổng cần vũ trang lại. **Làn V T2 không chạm UI:** không có cổng ở giữa, lần dán ở brainstorm là lần duy nhất. **Brainstorm không hỏi gì** (đề bài đã đủ, máy đi thẳng tới artifact) → không có lượt để vũ trang trước Cổng 1 — ca chưa phủ, đo ở ba dòng số mốc kế.
 
 **Combo rời-máy trọn bộ (phiên đang chạy model đắt cho phần thiết kế):** duyệt Gate 1 →
 `/model opus` + `/effort high` (alias `opus` tự trỏ bản opus mới nhất — KHÔNG ghim model ID
@@ -355,19 +355,23 @@ ghim qua `feature_loop.models` (xem mục "Model theo giai đoạn" ngay dưới
 
 <!-- <<<GOAL-TEMPLATE -->
 ```
-/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
-S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
-_acceptance/<slug>/contract.md sang status: verified. Loop đã escalate cho
-user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH — «chờ input người» gồm cả dừng GIỮA vòng, trước hoặc trong S4, khi máy nêu đích danh một tiền đề chỉ người gỡ được, hoặc nêu các lối để người chọn (vd chạm trần nhát sửa thước)
-— để dừng. Dừng mà không nêu tiền đề hay lối nào để người chọn = CHƯA hoàn thành. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
+/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript cho thấy phiên chính
+đã trình thẻ Cổng Bằng chứng của vòng <slug>, hoặc (làn V) đã mở PR ở S5, hoặc đã dừng
+ở một cổng có tên — Cổng Phạm vi, Gate 1.5, trần 3 round, dừng-vá, DỪNG-lỗi có tên.
+Lượt BLOCKED vì hạ tầng chưa thử lại cùng round = CHƯA hoàn thành: máy thử lại, không hỏi.
+Chỉ neo vào việc phiên đã trình trong transcript, không neo vào trạng thái tệp. Hoặc dừng
 sau 15 turns.
 ```
 <!-- GOAL-TEMPLATE>>> -->
 
-**Vì sao template dài vậy:** checker của `/goal` đọc *transcript*, không đọc file —
-điều kiện phải neo vào tường thuật của loop (verdict + set status), không neo vào
-trạng thái file. Vế "mơ hồ = CHƯA hoàn thành" giữ checker khỏi dừng-sớm-sai khi log
-lấp lửng; vế escalate và "15 turns" là hai lối thoát để không đốt token vô ích.
+**Vì sao template viết như vậy:** checker của `/goal` đọc *transcript*, không đọc file —
+nên điều kiện neo vào việc phiên đã TRÌNH (thẻ Cổng Bằng chứng, hoặc dừng ở một cổng có tên),
+không neo vào trạng thái tệp: làn V đưa hợp đồng sang `machine-cleared`, nên mệnh lệnh cũ
+«set status: verified» không bao giờ thoả và Stop hook kẹt (đo 22/09). Lượt BLOCKED vì hạ
+tầng KHÔNG phải điểm dừng: `s4-args` đánh số nó CÙNG round và máy thử lại một lần; khuôn cũ
+coi BLOCKED là hoàn thành và ép phiên dựng lối cho người chọn đúng lúc luật S4 bảo tự chạy lại
+(crm 23/09, một lượt gọi người ngoài thiết kế — hồ sơ `ha-tang-khong-dot-luot`). «15 turns» là
+lối thoát để không đốt token vô ích.
 
 **Giới hạn cứng:**
 - **KHÔNG BAO GIỜ đặt goal tới `signed-off`.** Hook của kit chặn agent tự điền chữ
@@ -375,11 +379,11 @@ lấp lửng; vế escalate và "15 turns" là hai lối thoát để không đ�
   bound. Gate 2 là việc của người.
 - `/goal` **không thay grader**: checker chỉ trả lời "chạy tiếp không"; S4 verify
   (fresh agents + evals máy + hook) mới là chấm thật — doer≠grader giữ nguyên.
-- Đạt `verified` → goal tự thỏa và tắt; quay lại duyệt Gate 2 bằng mắt người như thường.
+- Thẻ Cổng Bằng chứng đã trình, hoặc (làn V) PR đã mở ở S5 → goal tự thỏa và tắt; thẻ thì quay lại duyệt Gate 2 bằng mắt người như thường, làn V thì cửa veto vẫn mở, không cần duyệt.
 
-**Phạm vi runtime:** Claude Code ≥ 2.1.139 có `/goal` native. Chỉ đặt goal tới
-transcript xác nhận `verified` hoặc trạng thái escalate; **không bao giờ** đặt
-goal tới `signed-off`. `/goal` là bộ kiểm tra tiếp tục/dừng, không thay grader và
+**Phạm vi runtime:** Claude Code ≥ 2.1.139 có `/goal` native. Dùng đúng khuôn trên —
+đích là việc phiên đã TRÌNH (thẻ Cổng Bằng chứng · PR mở ở S5 của làn V · một cổng có
+tên); **không bao giờ** đặt goal tới `signed-off`. `/goal` là bộ kiểm tra tiếp tục/dừng, không thay grader và
 không tự cấp chữ ký Gate 2. Kit không phụ thuộc: không dùng `/goal` thì mọi thứ
 chạy y nguyên.
 

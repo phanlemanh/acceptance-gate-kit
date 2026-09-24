@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ccabea22159944a10d5f768d5b67bd2b5d095d7c
+verified_commit: 35b91ba2f11b94e7a3385d70d77d73b1858fa37f
 human_signoff: Manh Phan 2026-08-11
 ---
 
@@ -201,3 +201,7 @@ sha: 41b949dec2245c147ff1460ba6e70e41e5fbb6df · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 16 — 2026-09-22, do chiến dịch ghim lại theo mốc 2.18.1 (GUIDE §7.1)
 run_id: repin-20260922T110053Z-46306
 sha: ccabea22159944a10d5f768d5b67bd2b5d095d7c · suites: 5 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths) · AC không có chốt máy: AC-7
+
+### Re-pin lần 17 — 2026-09-24, do thẻ lưu p185 sinh lại vì khuôn /goal đổi (ha-tang-khong-dot-luot AC-5, AC-9)
+run_id: repin-20260924T044732Z-47912
+sha: 35b91ba2f11b94e7a3385d70d77d73b1858fa37f · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths) · AC không có chốt máy: AC-7
