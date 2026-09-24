@@ -1,7 +1,8 @@
 // duong-nen.test.mjs — đường nền hạ tầng bốn chân (feature-loop/scripts/duong-nen.mjs),
 // hồ sơ thuoc-co-cua AC-6 (E8: NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN8) và AC-7
 // (E9: NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9); hồ sơ nen-cong-cu-lenh-shell AC-1 AC-3
-// AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»).
+// AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»);
+// hồ sơ nen-cong-cu-gan-bang-lenh-con AC-1…AC-5 (NEN-LC1…NEN-LC3 — lệnh chỉ-gán mang lệnh con).
 //
 // Mọi ca chạy trên kho do `dungKho()` SINH trong lượt (tests/scripts/duong-nen-fixture.mjs),
 // cùng một fixture lành, mỗi ca đỏ chỉ đổi MỘT biến. Đối chứng dương NEN0 chạy trước.
@@ -10,6 +11,8 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync, renameSync, cpSync, mkdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
 import { KIT, DUONG_NEN, CONFIG_LANH, dungKho, dungCache, chayNen, tamDir, donDep } from './duong-nen-fixture.mjs';
 
 let pass = 0, fail = 0;
@@ -493,6 +496,99 @@ function banDotBien() {
       else ok('NEN-TD6 chuoi nguyen van crm@onehub — sau va 0 bullet, ban dot bien ghim «THIEU ${CLAUDE_PLUGIN_ROOT:-$(node»');
     }
   } catch (e) { bad('NEN-TD6 khong dung duoc ban dot bien', String(e.message || e)); }
+}
+
+// ── NEN-LC* — lệnh CHỈ-GÁN mang lệnh con: tra chương trình TRONG lệnh con ─────────
+// Hồ sơ nen-cong-cu-gan-bang-lenh-con. `B=$(git merge-base …) && …` phải tra `git`, không
+// phải `merge-base` (lệnh con của git) hay `&&`. Khoá đo nằm ở nhóm `script`, NGOÀI
+// suite_keys, nên chân suite không chạy chuỗi đang đo. Mỗi lượt có thêm khoá đối chứng chắc
+// chắn bỏ-tra: bộ dò phải thấy ĐÚNG MỘT dòng bỏ-tra nguyên văn của nó trước khi «0 dòng» cho
+// khoá đang đo được tin — assertion âm tính không đứng một mình (gap-probe F1).
+
+// Giá trị YAML THÔ của executors.script.zqw_giu_nqz ở crm@onehub 64d7c593 (nháy đơn giữ
+// nguyên). sha256 ghim ở contract: lệch băm = hằng chép sai, ca tự đỏ trước khi đo (F2).
+const CRM_ZQW_YAML = `'B=$(git merge-base HEAD origin/onehub) && { git diff --quiet "$B" -- apps/agent/test/nhac-qua-zalo.integration.spec.ts || { echo "spec da ky cua nhac-qua-zalo bi sua" >&2; exit 1; }; } && bun run test -- "cd apps/agent && bun test test/nhac-qua-zalo.integration.spec.ts"'`;
+const CRM_ZQW_SHA256 = '652e6eccb66fa661478ede817b496b72cae36638e024bff9da48fb6165d64379';
+const DOI_CHUNG = '${X_KHONG_CO:-git} --version';
+const DONG_DOI_CHUNG = 'cong-cu: bo qua executors.script.lc_doi_chung — tu dau «${X_KHONG_CO:-git}» dung cu phap shell, khong phai ten chuong trinh';
+const { resolveConfigKey } = createRequire(import.meta.url)(path.join(KIT, 'lib', 'evidence-core.cjs'));
+
+// Dòng bỏ-tra của ĐÚNG khoá đã cho (so tiền tố có khoảng trắng — `executors.script.lc` là
+// tiền tố chữ của `executors.script.lc_doi_chung`, `includes` sẽ đếm lẫn).
+const boQuaKhoa = (stderr, khoa) => String(stderr || '').split('\n').filter(l => l.startsWith(`cong-cu: bo qua ${khoa} `));
+const bulletCongCuMoi = tep => (bullets(tep) || []).filter(x => x.startsWith('nen cong-cu:'));
+const yamlCmd = cmd => ({ yaml: JSON.stringify(cmd), cmd });
+
+/**
+ * chayLC(khoa) — fixture lành của NEN0 thêm nhóm `executors.script` gồm các khoá đã cho
+ * ({ ten: { yaml, cmd } }) cùng khoá đối chứng. Round-trip TRƯỚC khi chạy: mọi khoá phải
+ * được `resolveConfigKey` đọc lại đúng `cmd`; lệch → { lech } và ca tự đỏ, không chạy.
+ */
+function chayLC(khoa) {
+  const tat = { ...khoa, lc_doi_chung: yamlCmd(DOI_CHUNG) };
+  const dong = Object.entries(tat).map(([k, v]) => `    ${k}: ${v.yaml}\n`).join('');
+  const config = CONFIG_LANH.replace('feature_loop:\n', `  script:\n${dong}feature_loop:\n`);
+  const lech = Object.entries(tat).filter(([k, v]) => resolveConfigKey(config, `executors.script.${k}`) !== v.cmd).map(([k]) => k);
+  if (lech.length) return { lech };
+  const r = chayNen(dungKho({ config }), { cache: CACHE });
+  const dc = boQuaKhoa(r.stderr, 'executors.script.lc_doi_chung');
+  return { lech, r, doiChung: dc.length === 1 && dc[0] === DONG_DOI_CHUNG ? null : JSON.stringify(dc) };
+}
+
+// ── NEN-LC1 — chuỗi NGUYÊN VĂN của crm@onehub → chân công cụ XANH, tra `git` ─────
+{
+  const sha = createHash('sha256').update(CRM_ZQW_YAML).digest('hex');
+  const x = sha === CRM_ZQW_SHA256 ? chayLC({ lc: { yaml: CRM_ZQW_YAML, cmd: CRM_ZQW_YAML.slice(1, -1) } }) : null;
+  if (!x) bad('NEN-LC1 hang CRM_ZQW_YAML lech dong that cua crm@onehub 64d7c593', sha);
+  else if (x.lech.length) bad('NEN-LC1 fixture khong round-trip', x.lech.join(','));
+  else if (x.doiChung) bad('NEN-LC1 doi chung: khong thay dung 1 dong bo-tra nguyen van cho lc_doi_chung', x.doiChung);
+  else if (bulletCongCuMoi(x.r.tep).length) bad('NEN-LC1 chuoi crm van sinh bullet cong-cu', JSON.stringify(bulletCongCuMoi(x.r.tep)));
+  else if (boQuaKhoa(x.r.stderr, 'executors.script.lc').length) bad('NEN-LC1 chuoi crm roi vao nhanh bo-tra — im nham thay vi tra git', JSON.stringify(boQuaKhoa(x.r.stderr, 'executors.script.lc')));
+  else if (x.r.code !== 0 || fm(x.r.tep, 'cong_cu') !== 'xanh') bad('NEN-LC1 chuoi crm phai cho ma 0 va chan cong_cu xanh', tomTat(x.r));
+  else ok('NEN-LC1 chuoi nguyen van crm@onehub zqw_giu_nqz — ma 0, cong_cu xanh, 0 bullet, 0 dong bo-tra (doi chung: dung 1 dong)');
+}
+
+// ── NEN-LC2 — cùng fixture, chương trình THẬT SỰ vắng → ĐỎ, gọi đúng tên ─────────
+{
+  const x = chayLC({ lc: yamlCmd('khong-co-that --x') });
+  const can = ['nen cong-cu: THIEU khong-co-that (khoa executors.script.lc)'];
+  const b = x.r ? bulletCongCuMoi(x.r.tep) : [];
+  if (x.lech.length) bad('NEN-LC2 fixture khong round-trip', x.lech.join(','));
+  else if (x.doiChung) bad('NEN-LC2 doi chung: khong thay dung 1 dong bo-tra nguyen van cho lc_doi_chung', x.doiChung);
+  else if (JSON.stringify(b) !== JSON.stringify(can)) bad('NEN-LC2 bullet cong-cu khac dung mot dong ghim', JSON.stringify(b));
+  else if (x.r.code !== 1 || fm(x.r.tep, 'cong_cu') !== 'do') bad('NEN-LC2 phai ma 1 va chan cong_cu do', tomTat(x.r));
+  else ok(`NEN-LC2 chuong trinh vang that — do, ghim «${can[0]}»`);
+}
+
+// ── NEN-LC3 — ma trận viết trước: {$(…), "$(…)", `…`, chỉ-gán trần} × {có, vắng} ──
+// Tám chuỗi và bốn bullet ghim NGUYÊN VĂN ở evals.yaml E3–E5; so BẰNG NHAU, không includes.
+{
+  const MA_TRAN = {
+    lc_tran_co: 'B=$(git rev-parse HEAD) && echo "$B"',
+    lc_nhay_co: 'B="$(git rev-parse "HEAD")" && echo "$B"',
+    lc_huyen_co: 'B=`git rev-parse HEAD`; echo $B',
+    lc_gan_co: 'A=1; git --version',
+    lc_tran_thieu: 'B=$(khong-co-that-lc1 --x) && echo "$B"',
+    lc_nhay_thieu: 'B="$(khong-co-that-lc2 "--x")" && echo "$B"',
+    lc_huyen_thieu: 'B=`khong-co-that-lc3 --x`; echo $B',
+    lc_gan_thieu: 'A=1 && khong-co-that-lc4 --x',
+  };
+  const MONG = [
+    'nen cong-cu: THIEU khong-co-that-lc1 (khoa executors.script.lc_tran_thieu)',
+    'nen cong-cu: THIEU khong-co-that-lc2 (khoa executors.script.lc_nhay_thieu)',
+    'nen cong-cu: THIEU khong-co-that-lc3 (khoa executors.script.lc_huyen_thieu)',
+    'nen cong-cu: THIEU khong-co-that-lc4 (khoa executors.script.lc_gan_thieu)',
+  ].sort();
+  const x = chayLC(Object.fromEntries(Object.entries(MA_TRAN).map(([k, v]) => [k, yamlCmd(v)])));
+  const b = x.r ? bulletCongCuMoi(x.r.tep).sort() : [];
+  const roiBoQua = x.r ? Object.keys(MA_TRAN).filter(k => boQuaKhoa(x.r.stderr, `executors.script.${k}`).length) : [];
+  if (Object.keys(MA_TRAN).length !== 8 || MONG.length !== 4) bad('NEN-LC3 ma tran khai sai kich thuoc (can 8 khoa, 4 bullet)', `${Object.keys(MA_TRAN).length}/${MONG.length}`);
+  else if (x.lech.length) bad('NEN-LC3 fixture khong round-trip', x.lech.join(','));
+  else if (x.doiChung) bad('NEN-LC3 doi chung: khong thay dung 1 dong bo-tra nguyen van cho lc_doi_chung', x.doiChung);
+  else if (JSON.stringify(b) !== JSON.stringify(MONG)) bad('NEN-LC3 tap bullet cong-cu khac tap mong doi', JSON.stringify(b));
+  else if (roiBoQua.length) bad('NEN-LC3 khoa roi vao nhanh bo-tra', roiBoQua.join(','));
+  else if (fm(x.r.tep, 'cong_cu') !== 'do') bad('NEN-LC3 chan cong_cu phai do', tomTat(x.r));
+  else ok('NEN-LC3 ma tran 8 khoa — tap bullet == 4 dong mong doi, 0 khoa roi bo-tra (doi chung: dung 1 dong)');
 }
 
 donDep();
