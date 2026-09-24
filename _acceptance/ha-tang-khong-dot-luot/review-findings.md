@@ -1,73 +1,57 @@
 ## Trong hợp đồng
 
-Không có phát hiện nào ánh xạ được vào AC.
+_Không có phát hiện nào ánh xạ được vào AC trong round này._
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Khuôn /goal mới không có điểm kết cho lối đi thẳng của làn V (xanh-sạch → machine-cleared → S5)**
-  Người dùng thấy gì: Khi một tính năng tự chạy xong theo đường tự động (không cần người duyệt), hệ thống có thể không nhận ra là đã xong và treo phiên làm việc chờ vô ích thay vì dừng gọn gàng.
-  file: `feature-loop/skills/feature-loop/SKILL.md`
-  severity: medium
-  Đề xuất: new-contract
-
-- **Thẻ Cổng 1 của hồ sơ đã khép vẫn in nút «Sửa lại / Duyệt, cho code»**
-  Người dùng thấy gì: Trên một hồ sơ đã coi là khép, màn hình quyết định vẫn hiện nút Duyệt và Sửa lại như thể vẫn cần bấm, có thể khiến người dùng bấm nhầm vào một việc không còn cần làm.
-  file: `scripts/gate-card.js`
+- **Tách suite_keys thành mảnh làm hỏng dedupe với 68 hồ sơ có eval trỏ `config:executors.test.scripts|plugins`: suite trọn chạy thêm một lần nữa, và lại vượt trần công cụ**
+  Người dùng thấy gì: Với các hồ sơ chấm theo cách cũ đã ký từ trước, lượt chấm lại có thể vô tình chạy toàn bộ bộ kiểm tra thêm một lần nữa, khiến lượt chấm chậm hơn và có nguy cơ bị dừng giữa chừng vì vượt thời gian cho phép.
+  file: `_acceptance/config.yaml`
   severity: medium
   Đề xuất: known-limits
 
-- **Nhánh Cổng 1 bỏ qua lỗi và kết quả «hỏng» của bộ quét, không bật cờ như nhánh Cổng 2**
-  Người dùng thấy gì: Nếu công cụ tự động kiểm tra trạng thái hồ sơ bị lỗi ngầm, màn hình quyết định vẫn hỏi duyệt hay sửa như bình thường mà không báo cho người biết kết quả kiểm tra có thể không đáng tin.
-  file: `scripts/gate-card.js`
-  severity: low
-  Đề xuất: known-limits
-
-- **GUIDE còn một câu cũ: «chỉ đặt goal tới transcript xác nhận verified hoặc trạng thái escalate»**
-  Người dùng thấy gì: Tài liệu hướng dẫn nội bộ còn sót một câu chỉ dẫn cũ, mâu thuẫn với quy tắc mới về khi nào một vòng làm việc được coi là xong, có thể khiến người đọc làm theo hướng dẫn sai.
-  file: `GUIDE.md`
-  severity: low
-  Đề xuất: known-limits
-
-- **s4-args treats an in-contract finding that the engine itself refuses to REJECT on as disqualifying, so the round is counted toward the cap**
-  Người dùng thấy gì: Khi công cụ chấm điểm tự động gặp trục trặc nội bộ giữa chừng, hệ thống có thể vẫn tính đó là một lượt cần sửa và tốn thêm một vòng thử, đúng kiểu lãng phí mà cải tiến này vốn để khắc phục.
+- **Chặn «đã thử lại vẫn chặn → không chấm tiếp» chỉ là lời dặn trên stderr: s4-args vẫn thoát 0 và ra args cho round base+1**
+  Người dùng thấy gì: Khi một lượt chấm bị chặn lần thứ hai do lỗi hạ tầng, hệ thống chỉ ghi một dòng cảnh báo kỹ thuật chứ không tự động dừng hẳn — nếu người vận hành bỏ qua cảnh báo đó, hệ thống vẫn có thể chạy thêm một lượt nữa ngoài giới hạn đã định.
   file: `feature-loop/scripts/s4-args.mjs`
   severity: medium
+  Đề xuất: known-limits
+
+- **Doc bên đọc JSON `--extract` (commands/acceptance-card.md) vẫn định nghĩa `one_shot: null` = REJECT/BLOCKED và bắt in `goal_line` nguyên văn «không bỏ», trong khi Cổng 1 nay trả null cho hồ sơ đã khép**
+  Người dùng thấy gì: Tài liệu hướng dẫn người đọc kết quả thẻ vẫn mô tả một trường hợp trống là 'bị từ chối', trong khi thực tế nay nó còn có thể mang nghĩa 'hồ sơ đã hoàn tất' — người đọc theo tài liệu có thể thuật lại sai trạng thái của hồ sơ.
+  file: `commands/acceptance-card.md`
+  severity: low
+  Đề xuất: known-limits
+
+- **Ca đột biến ghi bản sao mutant thẳng vào thư mục nguồn đang giao (feature-loop/scripts/, scripts/) thay vì bản sao ở thư mục tạm như mẫu banSaoMay**
+  Người dùng thấy gì: Trong lúc chạy kiểm thử nội bộ, hệ thống có thể tạm thời để lại vài tệp thử nghiệm ngay trong thư mục mã nguồn sẽ được đóng gói; nếu quá trình kiểm thử bị ngắt giữa chừng, các tệp thừa này có nguy cơ lọt vào bản phát hành.
+  file: `tests/scripts/htkd.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Thẻ Cổng 1 của hồ sơ đã khép vẫn in hai nút «Sửa lại / Duyệt, cho code»**
+  Người dùng thấy gì: Với một hồ sơ được xem là đã hoàn tất, thẻ vẫn ghi 'không còn câu hỏi nào cho người' nhưng ngay bên dưới lại hiện hai nút 'Sửa lại' và 'Duyệt, cho code' — người đọc thẻ có thể bối rối không rõ có còn việc phải quyết hay không.
+  file: `scripts/gate-card.js`
+  severity: medium
   Đề xuất: new-contract
 
-- **Gate 1 card silently drops a scanner failure and falls back to asking «duyệt hay sửa» with no warning**
-  Người dùng thấy gì: Nếu công cụ tự động kiểm tra trạng thái hồ sơ gặp lỗi ngầm, màn hình quyết định của một nhánh cổng vẫn lặng lẽ quay về hỏi duyệt hay sửa như bình thường, không có cảnh báo nào cho người biết kết quả kiểm tra có thể sai.
+- **Nhánh Cổng 1 bỏ qua im lặng lỗi của bộ quét rồi quay về mời «duyệt hay sửa»**
+  Người dùng thấy gì: Nếu một bước kiểm tra nội bộ của hệ thống bị lỗi âm thầm, thẻ có thể lại hiện ô hỏi 'duyệt hay sửa' cho một hồ sơ thực ra đã hoàn tất, mà không có bất kỳ cảnh báo nào cho người biết dữ liệu chưa đọc được đầy đủ.
   file: `scripts/gate-card.js`
-  severity: low
-  Đề xuất: known-limits
+  severity: medium
+  Đề xuất: new-contract
 
-- **Hình dạng 4 (assertion âm tính một mình): vế «SKILL không còn coi chờ input người là hoàn thành» của HT-AC6 không có chiều đỏ**
-  Người dùng thấy gì: Bộ kiểm tra tự động cho một quy tắc tài liệu có thể không phát hiện được nếu sau này ai đó vô tình đưa lại một câu hướng dẫn sai, dù quy tắc đó hiện đang đúng.
+- **Hình dạng 3 — HT-AC10 dùng một vị từ «có mặt chữ phủ định» trong khi lời hứa là quan hệ thứ tự (phủ định đứng trước verified/escalate); «cũ» còn khớp cả «cũng»**
+  Người dùng thấy gì: Bộ kiểm tra tự động dùng để đảm bảo tài liệu hướng dẫn không còn câu văn cũ có thể bỏ sót một số cách viết lại mang cùng ý cũ, khiến lỗi cũ có nguy cơ quay lại sau này mà không bị phát hiện ngay.
   file: `tests/scripts/htkd.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 4 (âm tính một mình, không đối chứng dương): hàng g1-nghi-chua-ky của AC-7 không đo vị từ hoSoDaKhep mà nó tuyên đo**
-  Người dùng thấy gì: Một trong các phép kiểm tra tự động cho việc hồ sơ đã khép thì thôi hỏi có thể không thực sự chạm đúng phần nó tuyên bố kiểm tra, nên nếu logic đó bị hỏng sau này, bộ kiểm tra có thể không bắt được.
+- **Hình dạng 3 — HT-AC4-bao-cao-thieu assert giá trị 2, nhưng cả vật đúng lẫn vật thiếu vế «base đọc cả round-tally» đều ra 2**
+  Người dùng thấy gì: Một phần bộ kiểm tra tự động không phân biệt được cách tính đúng và một cách tính sai cho số lượt thử lại trong vài tình huống hiếm, nên nếu sau này có người vô tình sửa sai chỗ đó, lỗi có thể không bị phát hiện ngay.
   file: `tests/scripts/htkd.test.mjs`
   severity: medium
   Đề xuất: known-limits
-
-- **Hình dạng 4: HT-AC5-dot-bien và P85 chỉ phá hai trong các tính chất âm của khuôn /goal, các tính chất âm còn lại chưa từng đỏ**
-  Người dùng thấy gì: Một số ràng buộc về nội dung khuôn mẫu mục tiêu hiện chưa có phép thử tự động xác nhận nó thực sự bị bắt lỗi khi vi phạm, dù hiện tại nội dung đang đúng.
-  file: `tests/scripts/htkd.test.mjs`
-  severity: low
-  Đề xuất: known-limits
-
-- **Hình dạng 4 (không ghim đúng thông điệp): HT-AC1-dot-bien không assert tên tệp bị sót, chỉ assert tiền tố**
-  Người dùng thấy gì: Phép thử cho việc chia nhỏ tệp kiểm thử có thể báo đạt ngay cả khi tệp bị bỏ sót không phải là tệp thực sự cần được phát hiện, miễn là có bất kỳ tệp nào bị bỏ sót.
-  file: `tests/scripts/htkd.test.mjs`
-  severity: low
-  Đề xuất: known-limits
-
-## Chưa adversarial-verify (refuter chết)
-
-(không có)
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
