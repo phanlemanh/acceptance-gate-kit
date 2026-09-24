@@ -330,6 +330,88 @@ await ca('HT-AC4-khu-hoi', async () => {
   return '(chet → 1, chet+finding → 2)';
 });
 
+// ── AC-5: khuôn /goal — tính chất trên ba bản ────────────────────────────────────
+const SKILL_P = path.join(KIT, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md');
+const GUIDE_P = path.join(KIT, 'GUIDE.md');
+const GC_P = path.join(KIT, 'scripts', 'gate-card.js');
+const RX_MD = /<!-- <<<GOAL-TEMPLATE -->\n```\n([\s\S]*?)```\n<!-- GOAL-TEMPLATE>>> -->/;
+const RX_JS = /\/\/ <<<GOAL-TEMPLATE[^\n]*\n(?:\/\/ [^\n]*\n)*const GOAL_TEMPLATE = `([\s\S]*?)`;\n\/\/ GOAL-TEMPLATE>>>/;
+const rut = (rx, text, ten) => { const m = text.match(rx); assert(m, `${ten}: khong rut duoc khoi GOAL-TEMPLATE qua marker`); return m[1].trim(); };
+// Phép kiểm tính chất của MỘT khuôn — trả danh sách lỗi (rỗng = đạt).
+function kiemKhuon(k) {
+  const loi = [];
+  const n = k.split('\n').length;
+  if (n !== 6) loi.push(`khuon ${n} dong (can 6)`);
+  if (!k.startsWith('/goal ')) loi.push('khuon khong bat dau bang /goal');
+  if (k.includes('status:')) loi.push('khuon con menh lenh trang thai tep «status:»');
+  if (/không chắc/iu.test(k)) loi.push('khuon con ve «không chắc»');
+  if (/người chọn/iu.test(k)) loi.push('khuon con ve «người chọn»');
+  if (/nêu\s+(?:tiền đề hay\s+)?lối/iu.test(k)) loi.push('khuon con ve «nêu lối»');
+  if (k.includes('signed-off')) loi.push('khuon nham dich signed-off');
+  if (!k.includes('sau 15 turns')) loi.push('khuon mat loi thoat «sau 15 turns»');
+  if (!k.includes('Cổng Bằng chứng')) loi.push('khuon khong neo «Cổng Bằng chứng»');
+  const cau = k.split('\n').join(' ').split(/(?<=[.!?])\s+/);
+  for (const c of cau) if (c.includes('BLOCKED') && !c.includes('CHƯA hoàn thành')) loi.push(`BLOCKED ngoai cau CHUA hoan thanh: «${c.slice(0, 90)}»`);
+  return loi;
+}
+const VE_BLOCKED_CU = 'Loop đã escalate cho user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH.';
+const VE_NEU_LOI_CU = 'Dừng mà không nêu tiền đề hay lối nào để người chọn = CHƯA hoàn thành.';
+// Chèn một câu vào đầu dòng thứ hai, giữ đúng 6 dòng — đột biến chỉ đổi NGHĨA, không đổi hình.
+const chen = (k, cau) => { const L = k.split('\n'); L[1] = `${cau} ${L[1]}`; return L.join('\n'); };
+
+await ca('HT-AC5', async () => {
+  const sb = rut(RX_MD, readFileSync(SKILL_P, 'utf8'), 'SKILL');
+  const gb = rut(RX_MD, readFileSync(GUIDE_P, 'utf8'), 'GUIDE');
+  const cb = rut(RX_JS, readFileSync(GC_P, 'utf8'), 'gate-card.js');
+  assert(sb === gb && sb === cb, `ba ban khuon lech: SKILL${sb === gb ? '=' : '≠'}GUIDE, SKILL${sb === cb ? '=' : '≠'}gate-card`);
+  const loi = kiemKhuon(sb);
+  assert(!loi.length, loi.join(' · '));
+  const { mkWs, G1, PROBE, card } = await import('./gate-fixture.mjs');
+  const r = mkWs('g', G1(PROBE('findings')));
+  const x = card(r, 'g', ['--extract']);
+  assert(x.status === 0, `gate-card --extract thoat ${x.status}: ${(x.stderr || '').slice(0, 200)}`);
+  const goal = JSON.parse(x.stdout).goal_line;
+  const kyVong = sb.split('\n').join(' ').split('<slug>').join('g');
+  assert(goal === kyVong, `the Cong 1 in goal_line khac khuon moi: «${String(goal).slice(0, 80)}…»`);
+  return '(3 ban khop, 6 dong, du tinh chat, the Cong 1 in khuon moi)';
+});
+
+await ca('HT-AC5-dot-bien', () => {
+  const sb = rut(RX_MD, readFileSync(SKILL_P, 'utf8'), 'SKILL');
+  assert(!kiemKhuon(sb).length, 'doi chung duong: khuon lanh phai dat truoc khi tin mau do');
+  const l1 = kiemKhuon(chen(sb, VE_BLOCKED_CU));
+  assert(l1.some(l => l.startsWith('BLOCKED ngoai cau CHUA hoan thanh')), `chen lai ve BLOCKED-la-xong ma phep kiem khong do: ${l1.join(' · ') || '(rong)'}`);
+  const l2 = kiemKhuon(chen(sb, VE_NEU_LOI_CU));
+  assert(l2.some(l => l.includes('«nêu lối»')), `chen lai ve «neu loi» ma phep kiem khong do: ${l2.join(' · ') || '(rong)'}`);
+  return '(do dung: BLOCKED ngoai cau CHUA hoan thanh · «nêu lối»)';
+});
+
+// ── AC-6: SKILL — bước BLOCKED + câu Gate 1.5 ─────────────────────────────────────
+const MENH_DE_BLOCKED = ['s4-args', 'không đếm vào trần', 'MỘT lần', 'như REJECT', 'thẻ Cổng Bằng chứng'];
+function kiemSkill(text) {
+  const loi = [];
+  const a = text.indexOf('   - `BLOCKED` →');
+  const b = text.indexOf('<!-- <<<CLASSIFIER-FALLBACK -->');
+  if (a < 0 || b < 0 || b < a) return ['khong tim thay doan buoc S4 BLOCKED (tu «- `BLOCKED` →» toi CLASSIFIER-FALLBACK)'];
+  const doan = text.slice(a, b);
+  for (const m of MENH_DE_BLOCKED) if (!doan.includes(m)) loi.push(`buoc BLOCKED thieu menh de «${m}»`);
+  const cho = text.match(/chờ input người[^\n]*hoàn thành/iu);
+  if (cho) loi.push(`SKILL con coi «chờ input người» la hoan thanh: «${cho[0].slice(0, 80)}»`);
+  return loi;
+}
+await ca('HT-AC6', () => {
+  const loi = kiemSkill(readFileSync(SKILL_P, 'utf8'));
+  assert(!loi.length, loi.join(' · '));
+  return `(du ${MENH_DE_BLOCKED.length} menh de; khong con «chờ input người» la hoan thanh)`;
+});
+await ca('HT-AC6-do', () => {
+  const r = spawnSync('git', ['-C', KIT, 'show', 'v2.18.2:feature-loop/skills/feature-loop/SKILL.md'], { encoding: 'utf8' });
+  assert(r.status === 0, `khong doc duoc SKILL doi truoc tai tag v2.18.2: ${(r.stderr || '').trim()}`);
+  const loi = kiemSkill(r.stdout);
+  assert(loi.some(l => l.startsWith('buoc BLOCKED thieu menh de')), `SKILL v2.18.2 ma phep kiem khong do buoc BLOCKED: ${loi.join(' · ') || '(rong)'}`);
+  return `(do dung tren v2.18.2: ${loi.filter(l => l.startsWith('buoc BLOCKED')).length} menh de thieu)`;
+});
+
 // ── (các ca AC-4…AC-7 nối vào dưới) ─────────────────────────────────────────────
 
 rmSync(TMP, { recursive: true, force: true });
