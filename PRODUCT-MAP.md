@@ -10,7 +10,7 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>25 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>75 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>8 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
@@ -44,6 +44,7 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
+- Chân công cụ của đường nền đọc đúng lệnh chỉ-gán mang lệnh con — `B=$(git merge-base …) && …` tra `git`, không tra `merge-base`; lệnh con của một chương trình không bị coi là chương trình riêng; lệnh mở đầu bằng tên chương trình thật sự vắng vẫn đỏ gọi đúng tên (`nen-cong-cu-gan-bang-lenh-con`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
