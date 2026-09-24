@@ -356,8 +356,8 @@ ghim qua `feature_loop.models` (xem mục "Model theo giai đoạn" ngay dưới
 <!-- <<<GOAL-TEMPLATE -->
 ```
 /goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript cho thấy phiên chính
-đã trình thẻ Cổng Bằng chứng của vòng <slug>, hoặc đã dừng ở một cổng có tên — Cổng
-Phạm vi, Gate 1.5, trần 3 round, dừng-vá, hoặc một DỪNG-lỗi có tên của skill.
+đã trình thẻ Cổng Bằng chứng của vòng <slug>, hoặc (làn V) đã mở PR ở S5, hoặc đã dừng
+ở một cổng có tên — Cổng Phạm vi, Gate 1.5, trần 3 round, dừng-vá, DỪNG-lỗi có tên.
 Lượt BLOCKED vì hạ tầng chưa thử lại cùng round = CHƯA hoàn thành: máy thử lại, không hỏi.
 Chỉ neo vào việc phiên đã trình trong transcript, không neo vào trạng thái tệp. Hoặc dừng
 sau 15 turns.
@@ -379,11 +379,11 @@ lối thoát để không đốt token vô ích.
   bound. Gate 2 là việc của người.
 - `/goal` **không thay grader**: checker chỉ trả lời "chạy tiếp không"; S4 verify
   (fresh agents + evals máy + hook) mới là chấm thật — doer≠grader giữ nguyên.
-- Thẻ Cổng Bằng chứng đã trình → goal tự thỏa và tắt; quay lại duyệt Gate 2 bằng mắt người như thường (làn V: cửa veto mở, không cần duyệt).
+- Thẻ Cổng Bằng chứng đã trình, hoặc (làn V) PR đã mở ở S5 → goal tự thỏa và tắt; thẻ thì quay lại duyệt Gate 2 bằng mắt người như thường, làn V thì cửa veto vẫn mở, không cần duyệt.
 
-**Phạm vi runtime:** Claude Code ≥ 2.1.139 có `/goal` native. Chỉ đặt goal tới
-transcript xác nhận `verified` hoặc trạng thái escalate; **không bao giờ** đặt
-goal tới `signed-off`. `/goal` là bộ kiểm tra tiếp tục/dừng, không thay grader và
+**Phạm vi runtime:** Claude Code ≥ 2.1.139 có `/goal` native. Dùng đúng khuôn trên —
+đích là việc phiên đã TRÌNH (thẻ Cổng Bằng chứng · PR mở ở S5 của làn V · một cổng có
+tên); **không bao giờ** đặt goal tới `signed-off`. `/goal` là bộ kiểm tra tiếp tục/dừng, không thay grader và
 không tự cấp chữ ký Gate 2. Kit không phụ thuộc: không dùng `/goal` thì mọi thứ
 chạy y nguyên.
 

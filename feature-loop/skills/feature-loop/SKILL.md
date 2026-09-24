@@ -150,8 +150,8 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 <!-- <<<GOAL-TEMPLATE -->
 ```
 /goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript cho thấy phiên chính
-đã trình thẻ Cổng Bằng chứng của vòng <slug>, hoặc đã dừng ở một cổng có tên — Cổng
-Phạm vi, Gate 1.5, trần 3 round, dừng-vá, hoặc một DỪNG-lỗi có tên của skill.
+đã trình thẻ Cổng Bằng chứng của vòng <slug>, hoặc (làn V) đã mở PR ở S5, hoặc đã dừng
+ở một cổng có tên — Cổng Phạm vi, Gate 1.5, trần 3 round, dừng-vá, DỪNG-lỗi có tên.
 Lượt BLOCKED vì hạ tầng chưa thử lại cùng round = CHƯA hoàn thành: máy thử lại, không hỏi.
 Chỉ neo vào việc phiên đã trình trong transcript, không neo vào trạng thái tệp. Hoặc dừng
 sau 15 turns.

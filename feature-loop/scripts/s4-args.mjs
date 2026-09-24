@@ -436,7 +436,12 @@ else {
       const expMap = Object.fromEntries([...expById].filter(([, v]) => Number.isInteger(v)));   // mã đạt đã khai (ADR 0016)
       const cg = nhanCanhGay.canhGay({ runLogText: rl, verdict: 'BLOCKED', expectedExit: expMap, nguon: nhanCanhGay.NGUON });
       const haTang = cg.trangThai === 'chet-lan-dau' || cg.trangThai === 'mo';
-      const findingTrong = dong.some(o => o.kind === 'finding' && o.round === base && o.ts === cuoi.ts && o.inContract === true);
+      // Finding «sửa-được» = ĐÚNG tập bộ chấm dùng để REJECT (acceptance-verify.js: triageFailed ? [] :
+      // inContract ∧ ¬unverified). Triage không đủ để lại ≥ 1 dòng `unclassified` trong lượt; bộ bác bỏ
+      // chết để lại `unverified` — cả hai là hạ tầng hỏng, không phải việc sửa vật (AC-11).
+      const findingLuot = dong.filter(o => o.kind === 'finding' && o.round === base && o.ts === cuoi.ts);
+      const trieuHong = findingLuot.some(o => o.unclassified === true);
+      const findingTrong = !trieuHong && findingLuot.some(o => o.inContract === true && o.unverified !== true);
       if (haTang && !findingTrong && !cg.daThuLai) {
         round = base;
         console.error(`s4-args: round ${base} BLOCKED vì hạ tầng (${cg.muc.map(m => m.nhan).join(', ')}) — thử lại CÙNG round, không đếm vào trần`);
