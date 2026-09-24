@@ -1,0 +1,110 @@
+schema_version: 1
+feature_slug: ha-tang-khong-dot-luot
+# Tệp ca mới tests/scripts/htkd.test.mjs, tên ca mang mã AC (khối ĐỊNH VỊ: tên test = tên AC).
+# Fixture là thư mục/kho git do CODE SINH trong lượt; run-log dựng bằng khuôn dòng rút từ nguồn
+# bên viết (tallyLine/ROUND-TALLY-SCHEMA của acceptance-verify.js, hằng NGUON của nhan-canh-gay.cjs);
+# đường dẫn suy từ vị trí tệp ca. Bản «đời trước» neo bằng TAG v2.18.2 (sha rút từ lịch sử, không
+# merge-base, không origin). Mỗi cặp hai-chiều dùng CÙNG fixture: vật lành → xanh, bản sao phá vật
+# → đỏ với thông điệp ghim; mỗi kim đột biến khẳng định khớp ĐÚNG MỘT lần trong nguồn thật.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC1 và HT-AC1-dot-bien. HT-AC1: với mọi `mjs:<i>/<n>` rút từ lệnh
+      các khoá suite_keys của config thật, `SCRIPTS_SHARD_LIST=1 bash tests/scripts/run-tests.sh` in
+      danh sách rời nhau từng đôi, mỗi mảnh ≥ 1 tệp, hợp = tập `*.test.mjs` của tests/scripts trừ
+      wf-usage.test.mjs (tập kỳ vọng do readdirSync, không gõ tay); SCRIPTS_SHARD=bash liệt 0 tệp;
+      không đặt SCRIPTS_SHARD liệt đủ tập. HT-AC1-dot-bien: bản sao tệp chạy suite đổi phép chọn tệp để bỏ
+      chỉ số cuối → ca đỏ «tep bi sot: <tên>».
+    paths: [tests/scripts/run-tests.sh, tests/scripts/htkd.test.mjs, _acceptance/config.yaml]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC2, HT-AC2-do-mjs, HT-AC2-do-bash. Fixture: thư mục tạm có bản ghép
+      tệp chạy suite thật theo marker (đầu tới <<<CA-BASH-DAU · khối MJS-GOI · kết từ <<<KET-SUITE; mỗi
+      marker khớp đúng một lần, không khớp → ca đỏ gọi tên marker) + hai ca bash tiêm thoát 0 + bốn
+      tệp ca giả thoát 0. HT-AC2: bốn lượt (không mảnh · bash · mjs:1/2 · mjs:2/2) đều thoát 0; mảnh
+      mjs không in tiêu đề ca bash; passed(tất cả) = passed(bash) + passed(mjs1) + passed(mjs2) − 1
+      (in bốn số). HT-AC2-do-mjs: thêm tệp ca giả thoát 1 → mảnh LIST gán nó thoát ≠ 0, in «FAIL:
+      <tên tệp>», mảnh kia 0. HT-AC2-do-bash: thêm ca bash thoát 1 → mảnh bash thoát ≠ 0 in FAIL gọi
+      tên ca, hai mảnh mjs thoát 0.
+    paths: [tests/scripts/run-tests.sh, tests/scripts/htkd.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC3 và HT-AC3-dot-bien. HT-AC3: suite_keys của config thật có
+      executors.test.scripts_bash và scripts_mjs_1…n (n rút từ lệnh khoá), mỗi khoá đúng một
+      SCRIPTS_SHARD, không có executors.test.scripts; executors.test.scripts không đặt SCRIPTS_SHARD;
+      .github/workflows/gate.yml vẫn chạy `bash tests/scripts/run-tests.sh` không đặt mảnh.
+      HT-AC3-dot-bien: bản sao config bỏ scripts_mjs_2 khỏi suite_keys → đỏ «manh thieu: mjs:2/2».
+    paths: [_acceptance/config.yaml, .github/workflows/gate.yml, tests/scripts/htkd.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC4, HT-AC4-thu-lai-roi, HT-AC4-bao-cao-thieu, HT-AC4-tran,
+      HT-AC4-khu-hoi, HT-AC4-dot-bien. HT-AC4: ma trận chín kho git code sinh — (1) trống · (2) chỉ
+      Iterations Round 1 · rồi cùng Iterations Round 1: (3) PASS · (4) REJECT · (5) BLOCKED chet lần
+      đầu · (6) BLOCKED mu lần đầu · (7) BLOCKED hạ tầng đã thử lại · (8) BLOCKED có vat · (9) BLOCKED
+      hạ tầng + finding inContract cùng ts; dòng tally dựng bằng khuôn rút từ ROUND-TALLY-SCHEMA,
+      lý do chặn rút từ NGUON của nhan-canh-gay.cjs; s4-args --out → round so BẰNG NHAU với
+      [1,2,2,2,1,1,2,2,2]; số assert = 9. HT-AC4-thu-lai-roi: hàng 7 stderr có đúng một dòng «đã thử
+      lại một lần vẫn chặn vì hạ tầng». HT-AC4-bao-cao-thieu: Iterations Round 1 + tally round 2
+      BLOCKED chet → round 2. HT-AC4-tran: Iterations Round 1–3 + tally round 3 BLOCKED chet lần đầu
+      → round 3 với --no-carry; không cờ carry → thoát ≠ 0, stderr «phải khai tường minh».
+      HT-AC4-khu-hoi: run-log sinh bởi acceptance-verify.js thật qua tests/workflows/harness.mjs
+      (tác tử máy chết; có/không một finding inContract từ triage) → s4-args ra 1 và 2.
+      HT-AC4-dot-bien: bản sao s4-args gỡ khối marker THU-LAI-CUNG-ROUND (khớp đúng một lần) → hàng 5
+      và 6 ra 2, thông điệp ghim «hang 5», «hang 6».
+    paths: [feature-loop/scripts/s4-args.mjs, lib/nhan-canh-gay.cjs, feature-loop/workflows/acceptance-verify.js, tests/scripts/htkd.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC5 và HT-AC5-dot-bien. HT-AC5: khối GOAL-TEMPLATE rút qua marker
+      ở SKILL, GUIDE, gate-card.js khớp nhau, 6 dòng; không chứa «status:», «không chắc», «người chọn», «nêu lối»; mọi câu
+      chứa «BLOCKED» đều chứa «CHƯA hoàn thành»; `gate-card.js --extract` trên hồ sơ draft ra
+      goal_line = khuôn gộp một dòng thay slug. HT-AC5-dot-bien: bản sao khuôn chèn lại vế cũ
+      «(REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH» → đỏ «BLOCKED ngoai
+      cau CHUA hoan thanh»; chèn lại vế «Dừng mà không nêu tiền đề hay lối nào để người chọn =
+      CHƯA hoàn thành» → đỏ «nêu lối». Và P85 (suite plugins) xanh với khuôn mới.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, GUIDE.md, scripts/gate-card.js, tests/scripts/htkd.test.mjs, tests/plugins/run-tests.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC6 và HT-AC6-do. HT-AC6: đoạn bước S4 `BLOCKED` của SKILL (từ dòng
+      «- `BLOCKED` →» tới marker CLASSIFIER-FALLBACK) chứa đủ bốn mệnh đề — «s4-args», «không đếm vào
+      trần», «MỘT lần», «như REJECT» — và «thẻ Cổng Bằng chứng»; toàn SKILL không còn «chờ input
+      người» là hoàn thành. HT-AC6-do: cùng phép kiểm trên SKILL đời trước rút bằng `git show
+      v2.18.2:feature-loop/skills/feature-loop/SKILL.md` → đỏ, gọi tên mệnh đề thiếu.
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/scripts/htkd.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.htkd
+    expected: >
+      Exit 0, có dòng PASS của HT-AC7 và HT-AC7-dot-bien. Kho fixture code sinh bốn hồ sơ (thực tế đủ
+      vế không report · approved có dòng nghỉ đủ vế · draft sống · approved sống; dòng sổ rút vế từ
+      lib như hskt). gate-card --extract (cổng tự nhận): hai hồ sơ khép → routing.hoi = [],
+      one_shot null, goal_line null; HTML có «không còn câu hỏi nào cho người»; hai hồ sơ sống →
+      routing.hoi = ["duyệt hay sửa"]; số assert = 4. HT-AC7-dot-bien: bản sao gate-card.js gỡ vế
+      DA_KHEP ở nhánh Cổng 1 → đỏ ghim slug hai hồ sơ khép. Và HK-AC6-baseline + LM20 xanh (bản ghi
+      mốc định tuyến sinh lại nếu đổi).
+    paths: [scripts/gate-card.js, tests/scripts/htkd.test.mjs, tests/scripts/fixtures/routing-baseline.txt]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
