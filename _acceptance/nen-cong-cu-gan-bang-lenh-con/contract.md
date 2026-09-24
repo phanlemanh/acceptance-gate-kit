@@ -53,4 +53,4 @@ Source input: prompt (owner báo lỗi kèm tái hiện, 2026-09-24) · tái hi�
 
 ## Notes
 
-- Đo trên dữ liệu thật trước vá: 5 113 khoá, đúng 1 khoá đọc sai kiểu này (`zqw_giu_nqz` → `merge-base`). Sau vá chạy lại cùng phép quét — kỳ vọng đúng 1 dòng đổi; kết quả + lệnh tái lập ghi ở đây khi S3 xong (gap-probe F2: phép quét đọc máy tác giả nên không là eval, là vật người ký đọc).
+- Đo trên dữ liệu thật (24/09, máy tác giả — gap-probe F2: không là eval vì đọc `~/dev`, là vật người ký đọc): 5 113 khoá `executors.*` ở mọi `~/dev/*/_acceptance/config.yaml` + crm@onehub `64d7c593`. Trước vá (`a1ef0a3d`) và sau vá (`684445df`): cột TRA/BỎ-TRA đổi **0** khoá; tên được tra đổi **đúng 1** khoá — `crm@onehub executors.script.zqw_giu_nqz: merge-base → git`. Mười khoá `$(ls …)` vẫn bỏ-tra, chỉ dòng lý do in trọn từ thay vì mảnh cụt. Tái lập: `git show <sha>:feature-loop/scripts/duong-nen.mjs > /tmp/d.mjs && node _acceptance/nen-cong-cu-gan-bang-lenh-con/quet-kho.mjs /tmp/d.mjs <config…>` cho mỗi sha rồi `diff` hai đầu ra.
