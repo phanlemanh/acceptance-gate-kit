@@ -126,7 +126,7 @@ const r0 = chayNen(k0, { cache: CACHE });
     if (nMo !== 1 || nDong !== 1) throw new Error(`marker SUITE-TUAN-TU khop ${nMo}/${nDong} lan (can dung 1/1)`);
     const i = src.indexOf(MO) + MO.length, j = src.indexOf(DONG);
     const thanThat = src.slice(i, j);
-    if (!/for \(const/.test(thanThat) || !/spawnSync\(/.test(thanThat)) throw new Error('than vung SUITE-TUAN-TU khong con la vong spawnSync — mui tiem mat vat');
+    if (!/for \(const/.test(thanThat) || !/bashNguoiGoi\(/.test(thanThat)) throw new Error('than vung SUITE-TUAN-TU khong con la vong bashNguoiGoi — mui tiem mat vat');
     const songSong =
       'async function chaySuite(root, lenh) {\n' +
       "  const { spawn } = await import('node:child_process');\n" +
