@@ -5,7 +5,7 @@ slug: ha-tang-khong-dot-luot
 owner: phanlemanh@gmail.com
 risk_tier: T2      # không tệp nào khớp t3_paths (hooks/**, lib/**, pre-merge-check.sh, recheck-evidence.cjs); lib/nhan-canh-gay.cjs chỉ được GỌI, không sửa
 surfaces: [cli, docs]
-status: verified      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off    # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: ""
 approved_at: ""
 veto_state: mo
@@ -79,3 +79,12 @@ Quét Zwicky rút gọn (preset test-matrix), đầy đủ ở design doc §3.
 - **Giới hạn đã khai (S3):** vùng 2 của suite plugins là MỘT khối — P161, 320 s máy rảnh (53 % trần). Không tách nhỏ hơn được nếu không sửa chính P161. Ngưỡng mở lại: vùng 2 đo máy rảnh > 480 s, hoặc một lượt chấm BLOCKED vì công cụ ngắt vùng 2.
 - **Giới hạn đã khai (S3):** thẻ Cổng 1 ÉP bằng `--gate 1` trên hồ sơ đã-ký-rồi-nghỉ vẫn in ô hỏi như trước vòng; đường tự nhận cổng đưa hồ sơ ấy về Cổng 2, nơi vị từ khép đã chạy từ 2.18.1. Ngưỡng mở lại: một bên gọi thật (không phải ca đo) ép `--gate 1` lên hồ sơ đã khép.
 - Lượt thử lại cùng round đúc lại cùng `run_id` (khuôn không mang mốc giờ). Bộ đọc bằng chứng là phép có-mặt nên mã trùng vô hại; `canhGay` tách lượt theo `ts`. Ngưỡng mở lại: một bộ đọc nào đọc NHẦM kết quả lượt bị thay vì trùng mã.
+- **Known limits (owner quyết ở Cổng Bằng chứng 24/09, lượt ký — lượt chấm 2):**
+  - 68 hồ sơ đã ký còn eval trỏ khoá trọn `executors.test.scripts` / `executors.test.plugins`; lượt chấm hay làn ghim lại của chúng chạy thêm suite trọn ngoài các mảnh (không dedupe với lệnh mảnh), và suite trọn vẫn sát trần công cụ. Nguy cơ có từ trước vòng (plugins trọn 518 s trên `main`). Ngưỡng mở lại: một lượt ghim lại hoặc lượt chấm BLOCKED vì công cụ ngắt một suite trọn (Ngoài-1).
+  - Thân lệnh `acceptance-card` còn định nghĩa `one_shot: null` = REJECT/BLOCKED và bắt in `goal_line` nguyên văn, trong khi thẻ Cổng 1 của hồ sơ đã khép nay trả hai khoá null. Ngưỡng mở lại: một phiên thuật lại hồ sơ đã khép thành REJECT/BLOCKED (Ngoài-3).
+  - Ca đột biến của `htkd.test.mjs` ghi bản sao tạm vào `scripts/` và `feature-loop/scripts/` rồi dọn trong `finally`; tiến trình bị ngắt giữa chừng có thể để lại tệp tạm trong thư mục nguồn. Ngưỡng mở lại: một tệp `.htkd-*` lọt vào `git status` hay gói phát hành (Ngoài-4).
+  - HT-AC10 dùng vị từ «có mặt chữ phủ định» thay vì quan hệ thứ tự, và «cũ» khớp cả «cũng». Ngưỡng mở lại: một câu đặt đích verified/escalate cho goal lọt qua HT-AC10 (Ngoài-7).
+  - HT-AC4-bao-cao-thieu cho cùng số 2 ở cả bản đúng lẫn bản thiếu vế «base đọc cả round-tally» — ca không phân biệt được vế ấy. Ngưỡng mở lại: một lượt BLOCKED sớm không soạn báo cáo mà s4-args đánh sai số round (Ngoài-8).
+- **Mở hợp đồng mới (owner quyết ở Cổng Bằng chứng 24/09) — ghi hạt giống, không tạo ô (luật «Ô chỉ mở khi có NEO NGOÀI»):**
+  - Ngoài-2 → `docs/plans/2026-09-24-hat-giong-thu-lai-roi-thoat-khac-0.md` (đã thử lại vẫn chặn chỉ là dòng stderr, s4-args vẫn thoát 0).
+  - Ngoài-5, Ngoài-6 → `docs/plans/2026-09-24-hat-giong-the-cong-1-ho-so-khep-nut-va-loi-quet.md` (thẻ Cổng 1 hồ sơ khép còn nút duyệt; bỏ qua im lặng lỗi bộ quét).
