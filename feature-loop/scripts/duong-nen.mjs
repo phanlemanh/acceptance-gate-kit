@@ -142,11 +142,13 @@ function khoaExecutor(text) {
 // Cùng lý do, một phép gán mà giá trị MỞ phép thay thế chưa đóng trong token của nó
 // (`B=$(git merge-base …)` → `B=$(git`) KHÔNG được bỏ qua như phép gán thường: token kế
 // nằm BÊN TRONG phép thay thế, không phải tên chương trình (đo ở crm 24/09, «THIEU
-// merge-base»). Trả chính token ấy về để vị từ bỏ tra và nói ra (ca NEN-TD7/TD8).
+// merge-base»). Trả chính token ấy về để vị từ bỏ tra và nói ra (ca GM1/GM2/GM3).
+// <<<CONG-CU-GAN-MO
 const moThayThe = (tok) => {
   const dem = (re) => (tok.match(re) || []).length;
   return dem(/\(/g) > dem(/\)/g) || dem(/\{/g) > dem(/\}/g) || dem(/`/g) % 2 === 1;
 };
+// CONG-CU-GAN-MO>>>
 function tuDau(cmd) {
   const toks = []; let cur = ''; let q = null; let co = false;
   for (const ch of String(cmd)) {

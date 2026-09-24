@@ -2,7 +2,9 @@
 // hồ sơ thuoc-co-cua AC-6 (E8: NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN8) và AC-7
 // (E9: NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9); hồ sơ nen-cong-cu-lenh-shell AC-1 AC-3
 // AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»);
-// NEN-TD7/TD8 — phép gán mở phép thay thế đứng đầu (đo ở crm 24/09).
+// GM1…GM6 — phép gán mở phép thay thế đứng đầu (hồ sơ nen-cong-cu-gan-mo-thay-the).
+// Tiền tố riêng, KHÔNG «NEN»: răng rang-hoi-quy.sh của hồ sơ đã ký nen-cong-cu-lenh-shell
+// đếm đúng 19 dòng «PASS: NEN» — đó là ma trận của vòng ấy, vòng này không chạm nó.
 //
 // Mọi ca chạy trên kho do `dungKho()` SINH trong lượt (tests/scripts/duong-nen-fixture.mjs),
 // cùng một fixture lành, mỗi ca đỏ chỉ đổi MỘT biến. Đối chứng dương NEN0 chạy trước.
@@ -11,6 +13,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync, renameSync, cpSync, mkdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { KIT, DUONG_NEN, CONFIG_LANH, dungKho, dungCache, chayNen, tamDir, donDep } from './duong-nen-fixture.mjs';
 
 let pass = 0, fail = 0;
@@ -341,20 +344,20 @@ const rTD3 = chayNen(kTD3, { cache: CACHE });
 }
 
 /**
- * banDotBien() — bản sao `feature-loop` với khối marker CONG-CU-TU-DAU bị thay bằng một
- * bản luôn nhận MỌI từ đầu là tên chương trình (tức gỡ đúng luật vòng này thêm).
+ * banDotBien(marker, thay) — bản sao `feature-loop` với khối marker `marker` bị thay bằng
+ * `thay`. Mặc định: khối CONG-CU-TU-DAU thành bản luôn nhận MỌI từ đầu là tên chương trình
+ * (gỡ luật của hồ sơ nen-cong-cu-lenh-shell); GM3 dùng khối CONG-CU-GAN-MO.
  * Trả đường dẫn script đột biến. Marker khớp khác 1/1 lần → ném, ca tự đỏ.
  */
-function banDotBien() {
+function banDotBien(marker = 'CONG-CU-TU-DAU', thay = 'const tenChuongTrinh = () => true;\n') {
   const d = tamDir('duong-nen-td-mut-');
   cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
   const f = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
   const src = readFileSync(f, 'utf8');
-  const MO = '// <<<CONG-CU-TU-DAU\n', DONG = '// CONG-CU-TU-DAU>>>\n';
+  const MO = `// <<<${marker}\n`, DONG = `// ${marker}>>>\n`;
   const nMo = src.split(MO).length - 1, nDong = src.split(DONG).length - 1;
-  if (nMo !== 1 || nDong !== 1) throw new Error(`marker CONG-CU-TU-DAU khop ${nMo}/${nDong} lan (can dung 1/1)`);
+  if (nMo !== 1 || nDong !== 1) throw new Error(`marker ${marker} khop ${nMo}/${nDong} lan (can dung 1/1)`);
   const i = src.indexOf(MO) + MO.length, j = src.indexOf(DONG);
-  const thay = 'const tenChuongTrinh = () => true;\n';
   writeFileSync(f, src.slice(0, i) + thay + src.slice(j));
   if (readFileSync(f, 'utf8') === src) throw new Error('ban dot bien TRUNG ban goc — buoc tiem chua chay');
   return f;
@@ -406,22 +409,32 @@ function banDotBien() {
   } catch (e) { bad('NEN-TD6 khong dung duoc ban dot bien', String(e.message || e)); }
 }
 
-// ── NEN-TD7 / NEN-TD8 — phép GÁN đứng đầu mà giá trị mở một phép thay thế ───────
+// ── GM1 / GM2 / GM3 — phép GÁN đứng đầu mà giá trị mở một phép thay thế ──
 // Bộ tách theo khoảng trắng cắt `B=$(git merge-base …)` thành `B=$(git` + `merge-base`;
 // bỏ phép gán rồi lấy mảnh BÊN TRONG phép thay thế làm tên chương trình là báo động giả
-// đo 24/09 ở hai worktree crm (khoá executors.script.zqw_giu_nqz / nzm_giu_da_ky).
-// Hai ca đi cặp trên cùng fixture: TD7 phải IM (có đúng một dòng bỏ-tra), TD8 — phép gán
-// ĐÃ ĐÓNG đứng trước một tên thiếu thật — phải VẪN ĐỎ và ghim đúng tên.
-const LENH_CRM_GAN = 'B=$(git merge-base HEAD origin/onehub) && { git diff --quiet "$B" -- x || exit 1; } && bun run test -- "..."';
+// đo 24/09 ở crm (hồ sơ goi-thu-hong-man-noi-that, khoá executors.script.zqw_giu_nqz và
+// nzm_giu_da_ky). GM1 và GM2 đi cặp trên cùng fixture: GM1 phải IM (đúng một dòng bỏ-tra),
+// GM2 — phép gán ĐÃ ĐÓNG đứng trước một tên thiếu thật — phải VẪN ĐỎ và ghim đúng tên.
+// GM3 gỡ đúng luật mới (khối CONG-CU-GAN-MO) trên bản chép: chuỗi của GM1 phải đỏ lại.
+// LENH_CRM_GAN là chuỗi NGUYÊN VĂN của `executors.script.zqw_giu_nqz` (crm, dòng 414 của
+// _acceptance/config.yaml ở worktree goi-thu-hong-man-noi-that, đo 2026-09-24).
+// Băm của giá trị `resolveConfigKey(config, 'executors.script.zqw_giu_nqz')` đo trên CẢ HAI
+// worktree crm (goi-thu-hong-man-noi-that, noi-zalo-cho-nguoi-moi) ngày 24/09 — GM1 so chuỗi
+// dưới với băm này để vế «nguyên văn» là thứ máy kiểm, không phải lời khai.
+const SHA_CRM_GAN = '00d9d8634633561ebe8847808c0d2f868cc0c19dbc0cd033a5d3435807975917';
+const LENH_CRM_GAN = 'B=$(git merge-base HEAD origin/onehub) && { git diff --quiet "$B" -- apps/agent/test/nhac-qua-zalo.integration.spec.ts || { echo "spec da ky cua nhac-qua-zalo bi sua" >&2; exit 1; }; } && bun run test -- "cd apps/agent && bun test test/nhac-qua-zalo.integration.spec.ts"';
 {
   const k = dungKho({ config: cfgVoi(LENH_CRM_GAN) });
   const r = chayNen(k, { cache: CACHE });
   const b = bulletCongCu(r.tep, 'executors.test.a');
   const n = dongBoQua(r.stderr, 'executors.test.a').length;
-  if (fm(r.tep, 'cong_cu') !== 'xanh') bad('NEN-TD7 chan cong_cu phai xanh', tomTat(r));
-  else if (b.length) bad('NEN-TD7 van co bullet cong-cu (manh trong phep thay the bi lay lam ten)', JSON.stringify(b));
-  else if (n !== 1) bad('NEN-TD7 phai co dung 1 dong bo qua tren stderr', `${n} · ${r.stderr.slice(-300)}`);
-  else ok('NEN-TD7 «B=$(git merge-base …) && …» — chan cong_cu xanh, 0 bullet, 1 dong bo qua');
+  const bam = createHash('sha256').update(LENH_CRM_GAN).digest('hex');
+  if (bam !== SHA_CRM_GAN) bad('GM1 chuoi khong con nguyen van', `sha256 ${bam} != ${SHA_CRM_GAN}`);
+  else if (!r.tep) bad('GM1 luot chay khong ra duong-nen.md', tomTat(r));
+  else if (fm(r.tep, 'cong_cu') !== 'xanh') bad('GM1 chan cong_cu phai xanh', tomTat(r));
+  else if (b.length) bad('GM1 van co bullet cong-cu (manh trong phep thay the bi lay lam ten)', JSON.stringify(b));
+  else if (n !== 1) bad('GM1 phai co dung 1 dong bo qua tren stderr', `${n} · ${r.stderr.slice(-300)}`);
+  else ok('GM1 chuoi nguyen van crm «B=$(git merge-base …) && …» — chan cong_cu xanh, 0 bullet, 1 dong bo qua, sha256 khop');
 }
 {
   const k = dungKho({ config: cfgVoi('B=1 khong-co-lenh') });
@@ -429,10 +442,88 @@ const LENH_CRM_GAN = 'B=$(git merge-base HEAD origin/onehub) && { git diff --qui
   const can = 'nen cong-cu: THIEU khong-co-lenh (khoa executors.test.a)';
   const b = bullets(r.tep) || [];
   const n = dongBoQua(r.stderr, 'executors.test.a').length;
-  if (fm(r.tep, 'cong_cu') !== 'do') bad('NEN-TD8 chan cong_cu phai do', tomTat(r));
-  else if (!b.includes(can)) bad('NEN-TD8 thieu dong ghim', JSON.stringify(b));
-  else if (n !== 0) bad('NEN-TD8 phep gan da dong KHONG duoc bo tra', `${n} · ${r.stderr.slice(-300)}`);
-  else ok(`NEN-TD8 «B=1 khong-co-lenh» — van do, ghim «${can}», 0 dong bo qua`);
+  if (fm(r.tep, 'cong_cu') !== 'do') bad('GM2 chan cong_cu phai do', tomTat(r));
+  else if (!b.includes(can)) bad('GM2 thieu dong ghim', JSON.stringify(b));
+  else if (n !== 0) bad('GM2 phep gan da dong KHONG duoc bo tra', `${n} · ${r.stderr.slice(-300)}`);
+  else ok(`GM2 «B=1 khong-co-lenh» — van do, ghim «${can}», 0 dong bo qua`);
+}
+// ── GM3 — đột biến: gỡ luật phép-gán-mở thì chuỗi của GM1 phải ĐỎ ghim «merge-base» ──
+// Đối chứng dương là GM1 ở trên (cùng chuỗi, bản gốc, xanh) VÀ lượt chưa tiêm trên CÙNG
+// bản chép (nếp NEN-TD5): không xanh thì «đỏ» của lượt tiêm không phân biệt được với bản
+// chép hỏng.
+{
+  try {
+    const d = tamDir('duong-nen-gm-base-');
+    cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
+    const fSach = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+    const rSach = chayNen(dungKho({ config: cfgVoi(LENH_CRM_GAN) }), { cache: CACHE, script: fSach });
+    if (fm(rSach.tep, 'cong_cu') !== 'xanh') {
+      bad('GM3 ban chep hong — luot CHUA TIEM khong xanh, ket luan do cua luot tiem vo nghia', tomTat(rSach));
+    } else {
+      const fMut = banDotBien('CONG-CU-GAN-MO', 'const moThayThe = () => false;\n');
+      const rMut = chayNen(dungKho({ config: cfgVoi(LENH_CRM_GAN) }), { cache: CACHE, script: fMut });
+      const can = 'nen cong-cu: THIEU merge-base (khoa executors.test.a)';
+      const b = bullets(rMut.tep) || [];
+      if (fm(rMut.tep, 'cong_cu') !== 'do') bad('GM3 ban dot bien KHONG do — phep do khong treo vao luat phep-gan-mo', tomTat(rMut));
+      else if (!b.includes(can)) bad('GM3 do nhung khong ghim dung trieu chung crm', JSON.stringify(b));
+      else ok(`GM3 dot bien — luot chua tiem xanh, luot tiem do ghim «${can}»`);
+    }
+  } catch (e) { bad('GM3 khong dung duoc ban dot bien', String(e.message || e)); }
+}
+
+// ── GM4 — phép gán ĐÃ ĐÓNG mà giá trị CÓ phép thay thế (`B=$(pwd)`) + tên thiếu → VẪN ĐỎ ──
+// Ca phân biệt phép CÂN ngoặc (lời hứa) với phép kiểm «có mặt `$(`»: GM2 (`B=1`) không có
+// ngoặc nào nên không tách được hai bản ấy; GM6 tiêm đúng bản «có mặt» để chứng ca này bắt nó.
+const LENH_GM4 = 'B=$(pwd) khong-co-lenh';
+const chayGM4 = (script) => chayNen(dungKho({ config: cfgVoi(LENH_GM4) }), { cache: CACHE, ...(script ? { script } : {}) });
+const CAN_GM4 = 'nen cong-cu: THIEU khong-co-lenh (khoa executors.test.a)';
+{
+  const r = chayGM4();
+  const b = bullets(r.tep) || [];
+  const n = dongBoQua(r.stderr, 'executors.test.a').length;
+  if (fm(r.tep, 'cong_cu') !== 'do') bad('GM4 chan cong_cu phai do', tomTat(r));
+  else if (!b.includes(CAN_GM4)) bad('GM4 thieu dong ghim', JSON.stringify(b));
+  else if (n !== 0) bad('GM4 phep gan da dong co thay the KHONG duoc bo tra', `${n} · ${r.stderr.slice(-300)}`);
+  else ok(`GM4 «B=$(pwd) khong-co-lenh» — van do, ghim «${CAN_GM4}», 0 dong bo qua`);
+}
+
+// ── GM5 — hai nhánh còn lại của vị từ: backtick lẻ và `{` dư → IM, đúng một dòng bỏ-tra ──
+// Không có ca này thì nhánh backtick hay nhánh ngoặc nhọn viết sai vẫn qua mọi ca (GM3 gỡ
+// cả vị từ một lượt, không đo riêng nhánh nào). Cả hai lệnh CHẠY ĐƯỢC trên máy.
+const LENH_GM5 = [
+  ['backtick', 'B=`git rev-parse HEAD` && echo chay-duoc', 'B=`git'],
+  ['ngoac-nhon', 'B=${KHONG_CO_BIEN:-mac dinh} echo chay-duoc', 'B=${KHONG_CO_BIEN:-mac'],
+];
+const chayGM5 = (script) => LENH_GM5.map(([ten, lenh, tu]) =>
+  ({ ten, tu, r: chayNen(dungKho({ config: cfgVoi(lenh) }), { cache: CACHE, ...(script ? { script } : {}) }) }));
+{
+  const loi = [];
+  for (const { ten, tu, r } of chayGM5()) {
+    const b = bulletCongCu(r.tep, 'executors.test.a');
+    const dq = dongBoQua(r.stderr, 'executors.test.a');
+    if (fm(r.tep, 'cong_cu') !== 'xanh') loi.push(`${ten}: cong_cu ${fm(r.tep, 'cong_cu')} ${JSON.stringify(b)}`);
+    else if (dq.length !== 1) loi.push(`${ten}: ${dq.length} dong bo qua`);
+    else if (!dq[0].includes(`«${tu}»`)) loi.push(`${ten}: dong bo qua khong goi tu dau «${tu}»: ${dq[0]}`);
+  }
+  if (loi.length) bad('GM5 nhanh backtick/ngoac-nhon', loi.join(' · '));
+  else ok('GM5 backtick le va «{» du — ca hai IM, dung 1 dong bo qua goi dung tu dau');
+}
+
+// ── GM6 — đột biến «có mặt `$(`» thay phép cân: GM4 phải mất đèn, GM5 phải đỏ ─────────
+// Chứng GM4 và GM5 thật sự phân biệt vị từ cân ngoặc với một vị từ hời hợt. Đối chứng
+// dương: GM4 và GM5 ở trên (bản gốc) đã đạt; lượt chưa tiêm trên cùng bản chép ở GM3.
+{
+  try {
+    const fMut = banDotBien('CONG-CU-GAN-MO', 'const moThayThe = (tok) => /\\$\\(/.test(tok);\n');
+    const r4 = chayGM4(fMut);
+    const r5 = chayGM5(fMut);
+    const b4 = bullets(r4.tep) || [];
+    const doGM5 = r5.filter(x => fm(x.r.tep, 'cong_cu') === 'do').map(x => x.ten);
+    if (b4.includes(CAN_GM4)) bad('GM6 ban dot bien «co mat $(» VAN ghim GM4 — GM4 khong phan biet phep can', JSON.stringify(b4));
+    else if (dongBoQua(r4.stderr, 'executors.test.a').length !== 1) bad('GM6 ban dot bien: GM4 phai bi bo tra dung 1 lan', r4.stderr.slice(-300));
+    else if (doGM5.length !== 2) bad('GM6 ban dot bien: ca hai nhanh GM5 phai do', `do: ${JSON.stringify(doGM5)}`);
+    else ok('GM6 dot bien «co mat $(» — GM4 mat den (bi bo tra), ca hai nhanh GM5 do');
+  } catch (e) { bad('GM6 khong dung duoc ban dot bien', String(e.message || e)); }
 }
 
 donDep();
