@@ -1,0 +1,13 @@
+{
+  "feature_plain": "Kho dùng kit thôi bị báo «thiếu công cụ» oan khi một lệnh kiểm mở đầu bằng việc gán kết quả của một lệnh con (như lệnh ở crm bị báo thiếu «merge-base»); một lệnh gọi chương trình thật sự vắng vẫn bị báo đỏ như cũ.",
+  "scope_plain": "Chưa làm: hiểu trọn cú pháp shell, và ca gán-rồi-nối-lệnh (`B=1 && …`) vẫn có thể báo oan — đã ghi rõ ở phần giới hạn.",
+  "decisions_plain": [
+    {"id": "d-20260924T093719Z-1", "p": "Nhận ra lệnh con chưa đóng bằng cách đếm ngoặc trên từ đầu tiên, không dựng bộ đọc shell đầy đủ — đổi lại dạng gán-rồi-nối-lệnh vẫn có thể báo oan."},
+    {"id": "d-20260924T093719Z-2", "p": "Đặt tên các ca kiểm mới theo nhóm riêng (GM, ca của vòng này) — để bài kiểm của một việc đã ký trước đó không bị đổi số đếm; đổi lại cùng một phần có ca kiểm nằm ở hai nhóm tên."},
+    {"id": "d-20260924T093719Z-3", "p": "KHÔNG làm vòng hỏi-đáp làm rõ, vì anh đã nêu trọn cách sửa và ca kiểm hai chiều khi báo lỗi — đổi lại mọi lựa chọn máy tự đi nằm ở sổ này, anh vẫn gạt được."},
+    {"id": "d-20260924T093719Z-4", "p": "KHÔNG chạy công cụ quét độ phủ, vì không gian chỉ có hai trục nhỏ nên kê tay — đổi lại không có bằng chứng độ phủ từ công cụ."},
+    {"id": "d-20260924T093719Z-5", "p": "KHÔNG viết đặc tả giao diện, vì việc này không có màn hình nào người nhìn."},
+    {"id": "d-20260924T094216Z-6", "p": "Hoãn: khi một lệnh bị bỏ qua không kiểm, bản ghi nền vẫn báo xanh — ở crm, nếu máy thiếu «bun» thì người duyệt vẫn thấy nền xanh cho hai lệnh ấy; sửa đúng chỗ là một việc riêng khi có ca thật lọt."},
+    {"id": "d-20260924T102013Z-8", "p": "Sửa sau lượt chấm 1: mọi ca thử-phá chạy lượt đối chứng và lượt phá trên CÙNG một bản chép, và bản đồ việc được làm mới mỗi lần đổi trạng thái — đổi lại mỗi ca thử-phá chạy lâu hơn một chút."}
+  ]
+}
