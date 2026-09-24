@@ -165,10 +165,33 @@ cho người» (cùng chữ AC-6 của 2.18.1). Hồ sơ sống: Cổng 1 như c
 | `duong-nen.test.mjs` | 20,4 |
 | ca bash đắt nhất (`SA4`) | 10,3 |
 
-Ba suite còn lại, cùng máy, cùng ngày: `plugins` 391 s (65 % trần) · `hooks` 2 s · `workflows` 4 s.
-**Giới hạn đã khai, kèm ngưỡng đang đếm:** suite plugins chưa tách mảnh — dưới tải ×1,2 nó ≈ 470 s,
-sát ngưỡng 80 %. Ngưỡng mở lại: một lượt chấm BLOCKED vì công cụ ngắt suite plugins, hoặc một phép
-đo máy rảnh > 480 s. Bộ chọn khối `ONLY_BLOCK` của tệp chạy plugins là chỗ tách khi tới ngưỡng.
+Ba suite còn lại, đo đầu S1: `plugins` 391 s · `hooks` 2 s · `workflows` 4 s. Con số 391 s là
+một lượt ĐỎ giữa chừng (bản đồ sản phẩm lệch vì hồ sơ mới), nên nó thấp giả.
+
+### 5.1 Suite plugins — phát hiện ở S3, thành AC-8
+
+Kiểm kết S3 (máy rảnh, tuần tự, 24/09): `main` plugins trọn **518 s** (86 % trần — bệnh có từ
+trước vòng) · nhánh: vùng 1 **90 s** · vùng 2 **234 s** · vùng 3 **81 s**; số dòng PASS ba vùng
+cộng lại = 267 = lượt trọn trên `main`. Scripts: bash 140 s · mjs:1/3 169 s · mjs:2/3 91 s ·
+mjs:3/3 220 s. Lệnh suite dài nhất của lượt chấm: 234 s (39 % trần).
+
+Lượt kiểm kết S3 đo suite plugins **619 s** trên máy rảnh, qua trần. Truy nguyên cho hai phần:
+- *Hồi quy do chính vòng này:* bản đầu của §2.D cho thẻ Cổng 1 gọi bộ quét ở MỌI hồ sơ (0,04 s →
+  0,60 s mỗi thẻ), mà P161 ép `--gate 1` cho cả kho qua nhiều lượt. Sửa: chỉ gọi bộ quét khi trạng
+  thái nằm ngoài mọi danh sách mà bộ tự nhận cổng biết (sổ d-…-8, d-…-9). Sau sửa: 537 s.
+- *Phần có từ trước:* 537 s vẫn trên ngưỡng 80 % (480 s); riêng P161 là **320 s** — một khối đơn,
+  quét corpus thật bằng gate-card trên mọi hồ sơ × hai cổng × nhiều lượt.
+
+Nghiệm cùng dạng §2.A nhưng khác cơ chế, vì tệp chạy plugins (11 271 dòng, ~123 khối qua `run()`
+và ~46 khối viết thẳng) không chia được theo chỉ số khối: **vùng theo dải dòng**. Marker
+`# <<<PLUGINS-VUNG <k>` mở vùng, `# <<<PLUGINS-KET` mở phần kết; `--manh vung:<k>` ghép «phần đầu
++ vùng k + phần kết» thành bản tạm trong thư mục tạm rồi chạy; ROOT và RUN_TESTS_SELF truyền qua
+môi trường nên ca tự soi (P198) vẫn đọc tệp gốc. Ba vùng: P07–P160 (≈ 110 s) · **P161 riêng** (≈
+320 s) · P165–hết (≈ 110 s). Mọi mã vẫn trong MỘT tệp, nên P161 (bánh cóc assert) vẫn quét đủ.
+
+**Giới hạn đã khai, kèm ngưỡng đang đếm:** vùng 2 là MỘT khối (P161) 320 s máy rảnh — không tách
+nhỏ hơn được nếu không sửa chính P161. Ngưỡng mở lại: vùng 2 đo máy rảnh > 480 s, hoặc một lượt
+chấm BLOCKED vì công cụ ngắt vùng 2.
 
 Giới hạn đã khai: thời lượng là đại lượng máy — không ghim thành ca (ca theo đồng hồ là ca chập
 chờn). Đường đo thật là dòng `round-tally` round 1 của chính vòng này.

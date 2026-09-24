@@ -5,7 +5,7 @@ slug: ha-tang-khong-dot-luot
 owner: phanlemanh@gmail.com
 risk_tier: T2      # không tệp nào khớp t3_paths (hooks/**, lib/**, pre-merge-check.sh, recheck-evidence.cjs); lib/nhan-canh-gay.cjs chỉ được GỌI, không sửa
 surfaces: [cli, docs]
-status: approved      # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented   # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: ""
 approved_at: ""
 veto_state: mo
@@ -73,4 +73,6 @@ Quét Zwicky rút gọn (preset test-matrix), đầy đủ ở design doc §3.
 
 ## Notes
 
+- **Giới hạn đã khai (S3):** vùng 2 của suite plugins là MỘT khối — P161, 320 s máy rảnh (53 % trần). Không tách nhỏ hơn được nếu không sửa chính P161. Ngưỡng mở lại: vùng 2 đo máy rảnh > 480 s, hoặc một lượt chấm BLOCKED vì công cụ ngắt vùng 2.
+- **Giới hạn đã khai (S3):** thẻ Cổng 1 ÉP bằng `--gate 1` trên hồ sơ đã-ký-rồi-nghỉ vẫn in ô hỏi như trước vòng; đường tự nhận cổng đưa hồ sơ ấy về Cổng 2, nơi vị từ khép đã chạy từ 2.18.1. Ngưỡng mở lại: một bên gọi thật (không phải ca đo) ép `--gate 1` lên hồ sơ đã khép.
 - Lượt thử lại cùng round đúc lại cùng `run_id` (khuôn không mang mốc giờ). Bộ đọc bằng chứng là phép có-mặt nên mã trùng vô hại; `canhGay` tách lượt theo `ts`. Ngưỡng mở lại: một bộ đọc nào đọc NHẦM kết quả lượt bị thay vì trùng mã.
