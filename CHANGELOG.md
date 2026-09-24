@@ -37,8 +37,8 @@ ngày 24/09. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lê
 
 **Kho tiêu thụ làm gì khi nhận:**
 
-- **Máy dev:** cập nhật plugin như mọi mốc — `claude plugin update <plugin> --scope project` trong
-  từng thư mục có scope sống. Không cần làm gì với hồ sơ đang mở.
+- **Máy dev:** cập nhật plugin như mọi mốc, theo khối khai plugin của GUIDE, trong từng thư mục có
+  scope sống. Không cần làm gì với hồ sơ đang mở.
 - **Kho còn đường chép** (`crm`): không tệp nào trong lớp chép CI (GUIDE §5.3) đổi ở mốc này, nên
   không phải chép gì.
 - **Kho đã ghim sha:** đổi `KIT_SHA` sang commit ký mốc 2.18.3, hoặc lấy theo tag `v2.18.3`.
