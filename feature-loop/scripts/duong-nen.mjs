@@ -139,6 +139,14 @@ function khoaExecutor(text) {
 // CHÚ Ý: bộ tách này chỉ biết khoảng trắng và nháy — nó KHÔNG hiểu phép thay thế của
 // shell, nên với `${VAR:-$(lenh con)}/duong/dan` nó trả về mảnh cụt `${VAR:-$(lenh`.
 // Vị từ `tenChuongTrinh` dưới đây là chỗ mảnh cụt ấy bị chặn lại trước `command -v`.
+// Cùng lý do, một phép gán mà giá trị MỞ phép thay thế chưa đóng trong token của nó
+// (`B=$(git merge-base …)` → `B=$(git`) KHÔNG được bỏ qua như phép gán thường: token kế
+// nằm BÊN TRONG phép thay thế, không phải tên chương trình (đo ở crm 24/09, «THIEU
+// merge-base»). Trả chính token ấy về để vị từ bỏ tra và nói ra (ca NEN-TD7/TD8).
+const moThayThe = (tok) => {
+  const dem = (re) => (tok.match(re) || []).length;
+  return dem(/\(/g) > dem(/\)/g) || dem(/\{/g) > dem(/\}/g) || dem(/`/g) % 2 === 1;
+};
 function tuDau(cmd) {
   const toks = []; let cur = ''; let q = null; let co = false;
   for (const ch of String(cmd)) {
@@ -148,7 +156,7 @@ function tuDau(cmd) {
     cur += ch; co = true;
   }
   if (co || cur) toks.push(cur);
-  const t = toks.find(x => !/^[A-Za-z_][A-Za-z0-9_]*=/.test(x));
+  const t = toks.find(x => !/^[A-Za-z_][A-Za-z0-9_]*=/.test(x) || moThayThe(x));
   return t || null;
 }
 // <<<CONG-CU-TU-DAU

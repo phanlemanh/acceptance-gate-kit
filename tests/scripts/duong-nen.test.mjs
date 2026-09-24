@@ -1,7 +1,8 @@
 // duong-nen.test.mjs — đường nền hạ tầng bốn chân (feature-loop/scripts/duong-nen.mjs),
 // hồ sơ thuoc-co-cua AC-6 (E8: NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN8) và AC-7
 // (E9: NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9); hồ sơ nen-cong-cu-lenh-shell AC-1 AC-3
-// AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»).
+// AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»);
+// NEN-TD7/TD8 — phép gán mở phép thay thế đứng đầu (đo ở crm 24/09).
 //
 // Mọi ca chạy trên kho do `dungKho()` SINH trong lượt (tests/scripts/duong-nen-fixture.mjs),
 // cùng một fixture lành, mỗi ca đỏ chỉ đổi MỘT biến. Đối chứng dương NEN0 chạy trước.
@@ -403,6 +404,35 @@ function banDotBien() {
       else ok('NEN-TD6 chuoi nguyen van crm@onehub — sau va 0 bullet, ban dot bien ghim «THIEU ${CLAUDE_PLUGIN_ROOT:-$(node»');
     }
   } catch (e) { bad('NEN-TD6 khong dung duoc ban dot bien', String(e.message || e)); }
+}
+
+// ── NEN-TD7 / NEN-TD8 — phép GÁN đứng đầu mà giá trị mở một phép thay thế ───────
+// Bộ tách theo khoảng trắng cắt `B=$(git merge-base …)` thành `B=$(git` + `merge-base`;
+// bỏ phép gán rồi lấy mảnh BÊN TRONG phép thay thế làm tên chương trình là báo động giả
+// đo 24/09 ở hai worktree crm (khoá executors.script.zqw_giu_nqz / nzm_giu_da_ky).
+// Hai ca đi cặp trên cùng fixture: TD7 phải IM (có đúng một dòng bỏ-tra), TD8 — phép gán
+// ĐÃ ĐÓNG đứng trước một tên thiếu thật — phải VẪN ĐỎ và ghim đúng tên.
+const LENH_CRM_GAN = 'B=$(git merge-base HEAD origin/onehub) && { git diff --quiet "$B" -- x || exit 1; } && bun run test -- "..."';
+{
+  const k = dungKho({ config: cfgVoi(LENH_CRM_GAN) });
+  const r = chayNen(k, { cache: CACHE });
+  const b = bulletCongCu(r.tep, 'executors.test.a');
+  const n = dongBoQua(r.stderr, 'executors.test.a').length;
+  if (fm(r.tep, 'cong_cu') !== 'xanh') bad('NEN-TD7 chan cong_cu phai xanh', tomTat(r));
+  else if (b.length) bad('NEN-TD7 van co bullet cong-cu (manh trong phep thay the bi lay lam ten)', JSON.stringify(b));
+  else if (n !== 1) bad('NEN-TD7 phai co dung 1 dong bo qua tren stderr', `${n} · ${r.stderr.slice(-300)}`);
+  else ok('NEN-TD7 «B=$(git merge-base …) && …» — chan cong_cu xanh, 0 bullet, 1 dong bo qua');
+}
+{
+  const k = dungKho({ config: cfgVoi('B=1 khong-co-lenh') });
+  const r = chayNen(k, { cache: CACHE });
+  const can = 'nen cong-cu: THIEU khong-co-lenh (khoa executors.test.a)';
+  const b = bullets(r.tep) || [];
+  const n = dongBoQua(r.stderr, 'executors.test.a').length;
+  if (fm(r.tep, 'cong_cu') !== 'do') bad('NEN-TD8 chan cong_cu phai do', tomTat(r));
+  else if (!b.includes(can)) bad('NEN-TD8 thieu dong ghim', JSON.stringify(b));
+  else if (n !== 0) bad('NEN-TD8 phep gan da dong KHONG duoc bo tra', `${n} · ${r.stderr.slice(-300)}`);
+  else ok(`NEN-TD8 «B=1 khong-co-lenh» — van do, ghim «${can}», 0 dong bo qua`);
 }
 
 donDep();
