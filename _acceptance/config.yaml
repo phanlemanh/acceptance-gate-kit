@@ -29,6 +29,14 @@ baseline_minutes: []         # CỐ Ý ĐỂ TRỐNG, không phải quên. Owner
 executors:
   test:
     scripts: "bash tests/scripts/run-tests.sh"
+    # Ba mảnh của CÙNG suite scripts (hồ sơ ha-tang-khong-dot-luot AC-1..3): suite trọn chạy
+    # 498 s máy rảnh / 601 s dưới tải — qua trần 600 s của công cụ chạy lệnh trong tác tử chấm.
+    # Lượt chấm (feature_loop.suite_keys) chạy ba mảnh; khoá `scripts` ở trên vẫn chạy trọn
+    # (CI, người gọi tay). Mảnh truyền bằng đối số `--manh`, không bằng tiền tố biến môi
+    # trường, để lệnh khớp nguyên văn một mục permissions.allow (song ánh LM1).
+    scripts_bash: "bash tests/scripts/run-tests.sh --manh bash"
+    scripts_mjs_1: "bash tests/scripts/run-tests.sh --manh mjs:1/2"
+    scripts_mjs_2: "bash tests/scripts/run-tests.sh --manh mjs:2/2"
     hooks: "bash tests/hooks/run-tests.sh"
     # Bọc lượt 6 release-2-11-0 (owner chọn 11/09): suite plugins in ~70k ký tự và
     # bốn trên năm lượt chấm của hồ sơ đó bị công cụ cắt output giữa chừng rồi agent
@@ -414,6 +422,8 @@ executors:
     # Hồ sơ ho-so-khep-thoi-hoi (22/09, vòng meta 2.18.1): tệp ca hskt + hai tệp ca cũ đổi khuôn.
     hskt: "bash -c 'out=$(node tests/scripts/hskt.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in HK-AC1 HK-AC1-cli HK-AC2-quet HK-AC2-luoi HK-AC2-dot-bien HK-AC4-ma-tran HK-AC4-bash HK-AC4-the HK-AC4-dot-bien HK-AC5-im HK-AC5-note HK-AC6-nghi HK-AC6-thuc-te HK-AC6-song HK-AC6-baseline HK-AC8-ben-goi HK-AC8-dot-bien HK-AC9-vang HK-AC9-thieu HK-AC9-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     hskt_ce: "bash -c 'out=$(node tests/scripts/consumer-esm.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CE2 CE2m CE2g CE2gm CE2p CE2p-dot-bien CE5-map CE6-ooc; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # Hồ sơ ha-tang-khong-dot-luot (24/09, vòng meta sau 2.18.2): tệp ca htkd, tên ca = tên AC.
+    htkd: "bash -c 'out=$(node tests/scripts/htkd.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in HT-AC1 HT-AC1-dot-bien HT-AC2 HT-AC2-do-mjs HT-AC2-do-bash HT-AC3 HT-AC3-dot-bien HT-AC4 HT-AC4-thu-lai-roi HT-AC4-bao-cao-thieu HT-AC4-tran HT-AC4-khu-hoi HT-AC4-dot-bien HT-AC5 HT-AC5-dot-bien HT-AC6 HT-AC6-do HT-AC7 HT-AC7-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     hskt_bo_do: "bash -c 'out=$({ node tests/scripts/ntr-trang-thai.test.mjs && node tests/scripts/lan-status-not-run.test.mjs && node tests/scripts/hskt.test.mjs HK-AC7-dot-bien; } 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NS-AC9-moi NS-AC9-cu NS-AC9-sai HK-AC7-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done; printf \"%s\\n\" \"$out\" | grep -qF \"✓ L05 \" || exit 1'"
     rel217_cua_so: bash scripts/rel-cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat
     rel218_cua_so: bash scripts/rel-cua-so.sh 2826f807 ghim-lai-noi-ra-o-khong-do nhan-trang-thai-va-reality
@@ -508,7 +518,11 @@ feature_loop:
     # thứ vô dụng. Xoá khoá ở ĐÂY là bắt buộc: để lại một suite_key trỏ executor
     # không còn định nghĩa là gỡ-một-nửa, và runner sẽ đỏ vì hạ tầng chứ không
     # vì vật.
-    - executors.test.scripts
+    # Suite scripts đi vào lượt chấm qua BA MẢNH (hồ sơ ha-tang-khong-dot-luot): nguyên
+    # khối nó qua trần 600 s của công cụ chạy lệnh trong tác tử chấm.
+    - executors.test.scripts_bash
+    - executors.test.scripts_mjs_1
+    - executors.test.scripts_mjs_2
     - executors.test.hooks
     - executors.test.plugins
     # Lớp thuần của 2 workflow script (verdict routing, dedupe, carry-forward,
