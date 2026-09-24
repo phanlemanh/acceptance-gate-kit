@@ -344,15 +344,19 @@ const rTD3 = chayNen(kTD3, { cache: CACHE });
 }
 
 /**
- * banDotBien(marker, thay) — bản sao `feature-loop` với khối marker `marker` bị thay bằng
- * `thay`. Mặc định: khối CONG-CU-TU-DAU thành bản luôn nhận MỌI từ đầu là tên chương trình
- * (gỡ luật của hồ sơ nen-cong-cu-lenh-shell); GM3 dùng khối CONG-CU-GAN-MO.
- * Trả đường dẫn script đột biến. Marker khớp khác 1/1 lần → ném, ca tự đỏ.
+ * banChep() — bản chép `feature-loop` vào thư mục tạm; trả đường dẫn `duong-nen.mjs` của nó.
+ * tiemTaiCho(f, marker, thay) — thay khối marker `marker` của CHÍNH tệp `f` bằng `thay`.
+ * Mọi ca đột biến chạy lượt CHƯA TIÊM trên bản chép rồi tiêm TẠI CHỖ vào đúng bản chép ấy,
+ * để đối chứng dương và lượt tiêm cùng một vật (review S4-r1 hồ sơ nen-cong-cu-gan-mo-thay-the,
+ * và Known limit Ngoài-8 của nen-cong-cu-lenh-shell). Mặc định: khối CONG-CU-TU-DAU thành
+ * bản luôn nhận MỌI từ đầu là tên chương trình. Marker khớp khác 1/1 lần → ném, ca tự đỏ.
  */
-function banDotBien(marker = 'CONG-CU-TU-DAU', thay = 'const tenChuongTrinh = () => true;\n') {
+function banChep() {
   const d = tamDir('duong-nen-td-mut-');
   cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
-  const f = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+  return path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+}
+function tiemTaiCho(f, marker = 'CONG-CU-TU-DAU', thay = 'const tenChuongTrinh = () => true;\n') {
   const src = readFileSync(f, 'utf8');
   const MO = `// <<<${marker}\n`, DONG = `// ${marker}>>>\n`;
   const nMo = src.split(MO).length - 1, nDong = src.split(DONG).length - 1;
@@ -368,15 +372,13 @@ function banDotBien(marker = 'CONG-CU-TU-DAU', thay = 'const tenChuongTrinh = ()
 // tiêm không phân biệt được với bản chép hỏng (thiếu tệp, sai đường dẫn, exit 127).
 {
   try {
-    const d = tamDir('duong-nen-td-base-');
-    cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
-    const fSach = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+    const fSach = banChep();
     const kSach = dungKho({ config: cfgVoi(LENH_TD1) });
     const rSach = chayNen(kSach, { cache: CACHE, script: fSach });
     if (fm(rSach.tep, 'cong_cu') !== 'xanh') {
       bad('NEN-TD5 ban chep hong — luot CHUA TIEM khong xanh, ket luan do cua luot tiem vo nghia', tomTat(rSach));
     } else {
-      const fMut = banDotBien();
+      const fMut = tiemTaiCho(fSach);
       const kMut = dungKho({ config: cfgVoi(LENH_TD1) });
       const rMut = chayNen(kMut, { cache: CACHE, script: fMut });
       const b = bulletCongCu(rMut.tep, 'executors.test.a');
@@ -389,16 +391,18 @@ function banDotBien(marker = 'CONG-CU-TU-DAU', thay = 'const tenChuongTrinh = ()
 
 // ── NEN-TD6 — chuỗi lệnh NGUYÊN VĂN của kho tiêu thụ đang đỏ (crm@onehub) ────────
 // Ca buộc bản vá vào TRIỆU CHỨNG: sau vá 0 bullet cho khoá ấy; trên bản đột biến
-// (gỡ luật) thì ≥1 bullet, ghim đúng chuỗi cụt owner báo.
+// (gỡ luật) thì ≥1 bullet, ghim đúng chuỗi cụt owner báo. Lượt «sau vá» chạy trên CHÍNH
+// bản chép rồi mới tiêm tại chỗ.
 {
   try {
+    const fChep = banChep();
     const k = dungKho({ config: cfgVoi(LENH_CRM) });
-    const r = chayNen(k, { cache: CACHE });
+    const r = chayNen(k, { cache: CACHE, script: fChep });
     const b = bulletCongCu(r.tep, 'executors.test.a');
     if (b.length) {
       bad('NEN-TD6 chuoi that cua crm VAN sinh bullet cong-cu', JSON.stringify(b));
     } else {
-      const fMut = banDotBien();
+      const fMut = tiemTaiCho(fChep);
       const kMut = dungKho({ config: cfgVoi(LENH_CRM) });
       const rMut = chayNen(kMut, { cache: CACHE, script: fMut });
       const bMut = bulletCongCu(rMut.tep, 'executors.test.a');
@@ -449,18 +453,16 @@ const LENH_CRM_GAN = 'B=$(git merge-base HEAD origin/onehub) && { git diff --qui
 }
 // ── GM3 — đột biến: gỡ luật phép-gán-mở thì chuỗi của GM1 phải ĐỎ ghim «merge-base» ──
 // Đối chứng dương là GM1 ở trên (cùng chuỗi, bản gốc, xanh) VÀ lượt chưa tiêm trên CÙNG
-// bản chép (nếp NEN-TD5): không xanh thì «đỏ» của lượt tiêm không phân biệt được với bản
-// chép hỏng.
+// bản chép, rồi tiêm TẠI CHỖ vào đúng bản chép ấy (nếp NEN-TD5): không xanh thì «đỏ» của
+// lượt tiêm không phân biệt được với bản chép hỏng.
 {
   try {
-    const d = tamDir('duong-nen-gm-base-');
-    cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
-    const fSach = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+    const fSach = banChep();
     const rSach = chayNen(dungKho({ config: cfgVoi(LENH_CRM_GAN) }), { cache: CACHE, script: fSach });
     if (fm(rSach.tep, 'cong_cu') !== 'xanh') {
       bad('GM3 ban chep hong — luot CHUA TIEM khong xanh, ket luan do cua luot tiem vo nghia', tomTat(rSach));
     } else {
-      const fMut = banDotBien('CONG-CU-GAN-MO', 'const moThayThe = () => false;\n');
+      const fMut = tiemTaiCho(fSach, 'CONG-CU-GAN-MO', 'const moThayThe = () => false;\n');
       const rMut = chayNen(dungKho({ config: cfgVoi(LENH_CRM_GAN) }), { cache: CACHE, script: fMut });
       const can = 'nen cong-cu: THIEU merge-base (khoa executors.test.a)';
       const b = bullets(rMut.tep) || [];
@@ -511,10 +513,17 @@ const chayGM5 = (script) => LENH_GM5.map(([ten, lenh, tu]) =>
 
 // ── GM6 — đột biến «có mặt `$(`» thay phép cân: GM4 phải mất đèn, GM5 phải đỏ ─────────
 // Chứng GM4 và GM5 thật sự phân biệt vị từ cân ngoặc với một vị từ hời hợt. Đối chứng
-// dương: GM4 và GM5 ở trên (bản gốc) đã đạt; lượt chưa tiêm trên cùng bản chép ở GM3.
+// dương trên CÙNG bản chép: lượt chưa tiêm phải cho GM4 đỏ-ghim-tên và cả hai lượt GM5 xanh,
+// không thì ca tự đỏ «ban chep hong» trước khi tiêm.
 {
   try {
-    const fMut = banDotBien('CONG-CU-GAN-MO', 'const moThayThe = (tok) => /\\$\\(/.test(tok);\n');
+    const fChep = banChep();
+    const s4 = chayGM4(fChep);
+    const s5 = chayGM5(fChep);
+    if (!(bullets(s4.tep) || []).includes(CAN_GM4) || s5.some(x => fm(x.r.tep, 'cong_cu') !== 'xanh')) {
+      throw new Error(`ban chep hong — luot CHUA TIEM khong dung GM4/GM5: ${tomTat(s4)}`);
+    }
+    const fMut = tiemTaiCho(fChep, 'CONG-CU-GAN-MO', 'const moThayThe = (tok) => /\\$\\(/.test(tok);\n');
     const r4 = chayGM4(fMut);
     const r5 = chayGM5(fMut);
     const b4 = bullets(r4.tep) || [];

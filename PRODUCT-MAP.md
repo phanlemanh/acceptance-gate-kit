@@ -9,8 +9,8 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>25 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>75 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>8 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
@@ -40,14 +40,11 @@ flowchart TD
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
 
-## Chờ duyệt phạm vi
-
-- Chân công cụ của đường nền thôi lấy mảnh BÊN TRONG một phép thay thế làm tên chương trình khi lệnh mở đầu bằng phép gán có giá trị mở phép thay thế (`B=$(git merge-base …) && …`) — bỏ tra và nói ra; phép gán đã đóng đứng trước một tên thiếu thật vẫn đỏ như cũ (`nen-cong-cu-gan-mo-thay-the`)
-
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
+- Chân công cụ của đường nền thôi lấy mảnh BÊN TRONG một phép thay thế làm tên chương trình khi lệnh mở đầu bằng phép gán có giá trị mở phép thay thế (`B=$(git merge-base …) && …`) — bỏ tra và nói ra; phép gán đã đóng đứng trước một tên thiếu thật vẫn đỏ như cũ (`nen-cong-cu-gan-mo-thay-the`)
 
 ## Đã giao — chờ phiên nghiệm thu
 

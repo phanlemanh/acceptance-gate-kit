@@ -51,11 +51,13 @@ evals:
       Exit 0 và dòng PASS của GM3 — ca đột biến chạy HAI lượt trên CÙNG một bản chép
       `feature-loop`. Lượt 1 (đối chứng dương): chưa tiêm, chuỗi của GM1 → cong_cu XANH;
       không xanh thì ca tự đỏ với thông điệp «ban chep hong». Lượt 2: marker
-      `CONG-CU-GAN-MO` phải khớp ĐÚNG 1/1 (khác thì ném, ca tự đỏ), khối thay bằng
-      `const moThayThe = () => false;`, bản tiêm phải KHÁC bản gốc; chạy lại chuỗi GM1 →
+      `CONG-CU-GAN-MO` phải khớp ĐÚNG 1/1 (khác thì ném, ca tự đỏ), khối thay TẠI CHỖ trong
+      chính bản chép vừa chạy lượt 1 bằng `const moThayThe = () => false;`, bản tiêm phải
+      KHÁC bản gốc; chạy lại chuỗi GM1 →
       cong_cu ĐỎ và bullet ghim đúng `nen cong-cu: THIEU merge-base (khoa
-      executors.test.a)` — tức triệu chứng crm, không chỉ màu đỏ. Kèm PASS của GM6: khối
-      thay bằng vị từ hời hợt `(tok) => /\$\(/.test(tok)` (dò có mặt `$(` thay vì cân) →
+      executors.test.a)` — tức triệu chứng crm, không chỉ màu đỏ. Kèm PASS của GM6 (cùng nếp:
+      lượt chưa tiêm trên bản chép phải cho GM4 đỏ-ghim-tên và GM5 xanh, rồi tiêm tại chỗ):
+      khối thay bằng vị từ hời hợt `(tok) => /\$\(/.test(tok)` (dò có mặt `$(` thay vì cân) →
       lượt GM4 KHÔNG còn bullet ghim `THIEU khong-co-lenh` và bị bỏ tra đúng 1 lần, và cả
       hai lệnh của GM5 ĐỎ — chứng GM4/GM5 phân biệt được phép cân với phép dò.
     paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
