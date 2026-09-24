@@ -1454,8 +1454,9 @@ for rel, b in ((skill_p, sb), (guide_p, gb), (card_p, cb)):
     print(f"     P85 VE: {rel} khop (6 dong)")
 # Tinh chat noi dung template.
 assert sb.startswith("/goal "), "template phai bat dau bang /goal "
-assert "verified" in sb, "template phai neo dieu kien verified"
-assert "REJECT quá 3 round" in sb, "template phai co loi thoat escalate (REJECT qua 3 round)"
+assert "Cổng Bằng chứng" in sb, "template phai neo dieu kien the Cong Bang chung da trinh"
+assert "trần 3 round" in sb, "template phai co loi thoat escalate (tran 3 round)"
+assert "status:" not in sb, "template KHONG duoc neo vao trang thai tep (status:) — lam V khong bao gio verified"
 assert "signed-off" not in sb, "template KHONG duoc nham dich signed-off"
 # Lenh in phai NOI voi khoi — khong chi khoi ton tai (gap-probe F1).
 assert "IN NGUYÊN VĂN khối GOAL-TEMPLATE" in skill_t, "GATE 1 thieu lenh in-mac-dinh tham chieu dich danh khoi marker"

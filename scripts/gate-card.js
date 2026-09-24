@@ -105,11 +105,11 @@ const ONE_SHOT_CMD_SIGNOFF = '/acceptance-gate:signoff';
 // feature-loop — đọc chéo plugin lúc chạy là đường dẫn giòn. P85 so ba bản sau strip + 6 dòng;
 // đổi một ký tự ở bất kỳ bản nào là đỏ. Thẻ Cổng 1 in dòng này để người dán ngay sau khi trả
 // lời — điểm vũ trang thứ hai (hồ sơ vu-trang-goal-luc-goi-ten). Chép NGUYÊN VĂN, không trim dòng.
-const GOAL_TEMPLATE = `/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
-S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
-_acceptance/<slug>/contract.md sang status: verified. Loop đã escalate cho
-user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH — «chờ input người» gồm cả dừng GIỮA vòng, trước hoặc trong S4, khi máy nêu đích danh một tiền đề chỉ người gỡ được, hoặc nêu các lối để người chọn (vd chạm trần nhát sửa thước)
-— để dừng. Dừng mà không nêu tiền đề hay lối nào để người chọn = CHƯA hoàn thành. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
+const GOAL_TEMPLATE = `/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript cho thấy phiên chính
+đã trình thẻ Cổng Bằng chứng của vòng <slug>, hoặc đã dừng ở một cổng có tên — Cổng
+Phạm vi, Gate 1.5, trần 3 round, dừng-vá, hoặc một DỪNG-lỗi có tên của skill.
+Lượt BLOCKED vì hạ tầng chưa thử lại cùng round = CHƯA hoàn thành: máy thử lại, không hỏi.
+Chỉ neo vào việc phiên đã trình trong transcript, không neo vào trạng thái tệp. Hoặc dừng
 sau 15 turns.`;
 // GOAL-TEMPLATE>>>
 // Một dòng, MỌI `<slug>` thay bằng slug thật (khuôn có hai chỗ).

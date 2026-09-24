@@ -101,10 +101,11 @@ evals:
     expected: >
       Exit 0, có dòng PASS của HT-AC7 và HT-AC7-dot-bien. Kho fixture code sinh bốn hồ sơ (thực tế đủ
       vế không report · approved có dòng nghỉ đủ vế · draft sống · approved sống; dòng sổ rút vế từ
-      lib như hskt). gate-card --extract (cổng tự nhận): hai hồ sơ khép → routing.hoi = [],
-      one_shot null, goal_line null; HTML có «không còn câu hỏi nào cho người»; hai hồ sơ sống →
-      routing.hoi = ["duyệt hay sửa"]; số assert = 4. HT-AC7-dot-bien: bản sao gate-card.js gỡ vế
-      DA_KHEP ở nhánh Cổng 1 → đỏ ghim slug hai hồ sơ khép. Và HK-AC6-baseline + LM20 xanh (bản ghi
-      mốc định tuyến sinh lại nếu đổi).
-    paths: [scripts/gate-card.js, tests/scripts/htkd.test.mjs, tests/scripts/fixtures/routing-baseline.txt]
+      lib như hskt). gate-card --extract (cổng tự nhận): hồ sơ thực tế → routing.hoi = [],
+      one_shot null, goal_line null, HTML có «không còn câu hỏi nào cho người»; ba hồ sơ còn lại →
+      routing.hoi = ["duyệt hay sửa"] (nghỉ trên hồ sơ chưa ký KHÔNG khép theo hoSoDaKhep); số
+      assert = 4. HT-AC7-dot-bien: bản sao gate-card.js gỡ vế DA_KHEP ở nhánh Cổng 1 (kim khớp đúng
+      một lần) → đỏ ghim slug hồ sơ thực tế. Và HK-AC6* + P190 xanh (thẻ lưu sinh lại theo tiền lệ
+      4a210597 nếu đổi).
+    paths: [scripts/gate-card.js, tests/scripts/htkd.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

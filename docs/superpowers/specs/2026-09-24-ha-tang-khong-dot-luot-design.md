@@ -95,7 +95,7 @@ Khuôn mới (6 dòng, ba bản SKILL · GUIDE · hằng `gate-card.js`, P85 gi�
 
 ```
 /goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript cho thấy phiên chính
-đã trình thẻ Cổng Bằng chứng của vòng này, hoặc đã dừng ở một cổng có tên — Cổng
+đã trình thẻ Cổng Bằng chứng của vòng <slug>, hoặc đã dừng ở một cổng có tên — Cổng
 Phạm vi, Gate 1.5, trần 3 round, dừng-vá, hoặc một DỪNG-lỗi có tên của skill.
 Lượt BLOCKED vì hạ tầng chưa thử lại cùng round = CHƯA hoàn thành: máy thử lại, không hỏi.
 Chỉ neo vào việc phiên đã trình trong transcript, không neo vào trạng thái tệp. Hoặc dừng

@@ -412,6 +412,71 @@ await ca('HT-AC6-do', () => {
   return `(do dung tren v2.18.2: ${loi.filter(l => l.startsWith('buoc BLOCKED')).length} menh de thieu)`;
 });
 
+// ── AC-7: thẻ Cổng 1 của hồ sơ đã khép ─────────────────────────────────────────
+const WR = require(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const hopDongG1 = (slug, status) => `---\nschema_version: 1\nslug: ${slug}\nfeature: viec ${slug}\nowner: x@y.z\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${status}\napproved_by: M\napproved_at: 2026-09-01T00:00:00Z\n---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- khong gi\n`;
+const dongNghiG1 = () => JSON.stringify({ id: 'd-20260920T100000Z-1', type: 'nghi', stage: 'nghi', by: 'M', at: '2026-09-20T10:00:00Z', decision: 'tien de ngoai da chet' });
+// Vế dòng quan sát RÚT từ lib (THUC_TE_VE) — không gõ tay danh sách vế.
+const dongTTG1 = () => JSON.stringify({ id: 'd-20260921T100000Z-1', type: 'thuc-te', stage: 'thuc-te',
+  ...Object.fromEntries(WR.THUC_TE_VE.map(k => [k, { id: 'd-20260921T100000Z-1', by: 'M', at: '2026-09-21T09:00:00Z', build_sha: 'f'.repeat(40), decision: 'chay tren prod' }[k]])) });
+const MA_TRAN_AC7 = [
+  ['g1-thuc-te', 'da-cham-boi-thuc-te', dongTTG1(), true],
+  ['g1-nghi-chua-ky', 'approved', dongNghiG1(), false],
+  ['g1-draft', 'draft', null, false],
+  ['g1-approved', 'approved', null, false],
+];
+let _khoG1 = null;
+function khoG1() {
+  if (_khoG1) return _khoG1;
+  const r = mkdtempSync(path.join(TMP, 'g1-'));
+  execFileSync('git', ['init', '-q', '-b', 'main', r]); gitC(r, 'config', 'user.email', 'x@y.z'); gitC(r, 'config', 'user.name', 'x');
+  mkdirSync(path.join(r, '_acceptance'), { recursive: true });
+  writeFileSync(path.join(r, '_acceptance', 'config.yaml'), 'schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "PRODUCT-MAP.md"\n');
+  for (const [slug, status, dong] of MA_TRAN_AC7) {
+    const d = path.join(r, '_acceptance', slug); mkdirSync(d, { recursive: true });
+    writeFileSync(path.join(d, 'contract.md'), hopDongG1(slug, status));
+    if (dong) writeFileSync(path.join(d, 'decisions.jsonl'), dong + '\n');
+  }
+  gitC(r, 'add', '-A'); gitC(r, 'commit', '-qm', 'fixture');
+  return (_khoG1 = r);
+}
+const CAU_KHEP_G1 = 'không còn câu hỏi nào cho người';
+function kiemG1(gc) {
+  const R = khoG1(); const loi = [];
+  for (const [slug, , , khep] of MA_TRAN_AC7) {
+    const x = spawnSync(process.execPath, [gc, '--root', R, '--slug', slug, '--extract'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    if (x.status !== 0) { loi.push(`${slug}: --extract thoat ${x.status}: ${(x.stderr || '').slice(0, 160)}`); continue; }
+    const j = JSON.parse(x.stdout);
+    const h = spawnSync(process.execPath, [gc, '--root', R, '--slug', slug], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '';
+    const hoi = (j.routing && j.routing.hoi) || [];
+    if (j.gate !== 1) loi.push(`${slug}: the tu nhan cong ${j.gate} (can 1)`);
+    if (khep) {
+      if (hoi.length) loi.push(`${slug}: ho so da khep ma routing.hoi=${JSON.stringify(hoi)}`);
+      if (j.one_shot != null) loi.push(`${slug}: ho so da khep ma con one_shot`);
+      if (j.goal_line != null) loi.push(`${slug}: ho so da khep ma con goal_line`);
+      if (!h.includes(CAU_KHEP_G1)) loi.push(`${slug}: HTML thieu «${CAU_KHEP_G1}»`);
+    } else if (JSON.stringify(hoi) !== JSON.stringify(['duyệt hay sửa'])) loi.push(`${slug}: ho so song ma routing.hoi=${JSON.stringify(hoi)}`);
+  }
+  return loi;
+}
+await ca('HT-AC7', () => {
+  const loi = kiemG1(GC_P);
+  assert(!loi.length, loi.join(' · '));
+  return `(${MA_TRAN_AC7.length} ho so: 1 khep 0 o hoi, 3 song hoi nhu cu)`;
+});
+await ca('HT-AC7-dot-bien', () => {
+  const src = readFileSync(GC_P, 'utf8');
+  const KIM = 'const DA_KHEP_G1 = daKhepTu(quetHoSo().hit);';
+  motLan(src, KIM, 'DA_KHEP_G1');
+  const sao = path.join(path.dirname(GC_P), `.htkd-gate-card-${process.pid}.js`);
+  try {
+    writeFileSync(sao, src.replace(KIM, 'const DA_KHEP_G1 = false;'));
+    const loi = kiemG1(sao);
+    assert(loi.some(l => l.startsWith('g1-thuc-te: ho so da khep ma routing.hoi')), `ban sao go ve khep o nhanh Cong 1 ma phep kiem khong do dung ten: ${loi.join(' · ') || '(rong)'}`);
+    return '(do dung: g1-thuc-te co lai o hoi)';
+  } finally { rmSync(sao, { force: true }); }
+});
+
 // ── (các ca AC-4…AC-7 nối vào dưới) ─────────────────────────────────────────────
 
 rmSync(TMP, { recursive: true, force: true });

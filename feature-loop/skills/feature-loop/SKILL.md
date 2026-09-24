@@ -149,11 +149,11 @@ Khi duyệt: set contract `status: approved`, `approved_by`, `approved_at` (ISO)
 
 <!-- <<<GOAL-TEMPLATE -->
 ```
-/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript tường thuật rõ
-S4 verdict PASS hoặc PENDING-JUDGMENT và xác nhận đã set contract
-_acceptance/<slug>/contract.md sang status: verified. Loop đã escalate cho
-user (REJECT quá 3 round / BLOCKED / chờ input người) cũng coi là HOÀN THÀNH — «chờ input người» gồm cả dừng GIỮA vòng, trước hoặc trong S4, khi máy nêu đích danh một tiền đề chỉ người gỡ được, hoặc nêu các lối để người chọn (vd chạm trần nhát sửa thước)
-— để dừng. Dừng mà không nêu tiền đề hay lối nào để người chọn = CHƯA hoàn thành. Thông tin mơ hồ hoặc không chắc = CHƯA hoàn thành. Hoặc dừng
+/goal Feature <slug>: coi là HOÀN THÀNH chỉ khi transcript cho thấy phiên chính
+đã trình thẻ Cổng Bằng chứng của vòng <slug>, hoặc đã dừng ở một cổng có tên — Cổng
+Phạm vi, Gate 1.5, trần 3 round, dừng-vá, hoặc một DỪNG-lỗi có tên của skill.
+Lượt BLOCKED vì hạ tầng chưa thử lại cùng round = CHƯA hoàn thành: máy thử lại, không hỏi.
+Chỉ neo vào việc phiên đã trình trong transcript, không neo vào trạng thái tệp. Hoặc dừng
 sau 15 turns.
 ```
 <!-- GOAL-TEMPLATE>>> -->
@@ -180,7 +180,7 @@ Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không v�
 
 1. Invoke `superpowers:writing-plans` → `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`.
 2. Mỗi task PHẢI ghi: Files / verify command per-task / evals nó phục vụ (vd "phục vụ E1, E3") / cờ `independent: true|false` so với các task khác.
-3. **Trình cho người bằng tiếng sản phẩm — áp cho MỌI lần trình, không riêng T3.** Nạp bản luật TRƯỚC khi viết: `node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require skills/acceptance/references/human-facing-language.md` rồi đọc `<kết quả>/skills/acceptance/references/human-facing-language.md`. Gói feature-loop KHÔNG chứa bản luật nên ghép thẳng gốc gói là con trỏ chết — luôn đi qua bộ giải. Mọi lần trình kế hoạch hoặc tiến độ cho người dùng khuôn `PLAN-SUMMARY-TABLE-TEMPLATE` trong file đó. Điểm quyết định vượt ngưỡng N5 thì kèm hình; chọn cách vẽ bằng bảng tra `DECISION-DIAGRAM-SURFACES` theo mặt phẳng đang trình, và kiểm lại bằng phép thử nhìn-thấy-hình. **T3: GATE 1.5** — trình tóm tắt plan (task list + files + thứ tự) theo đúng khuôn đó, chờ duyệt — kèm dòng `/goal` (khối GOAL-TEMPLATE, thay `<slug>`) để người dán cùng câu duyệt: goal đã kết ở Cổng 1 (khuôn coi «chờ input người» là hoàn thành), S3→S4 cần vũ trang lại. T2: đi tiếp luôn, không dừng.
+3. **Trình cho người bằng tiếng sản phẩm — áp cho MỌI lần trình, không riêng T3.** Nạp bản luật TRƯỚC khi viết: `node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require skills/acceptance/references/human-facing-language.md` rồi đọc `<kết quả>/skills/acceptance/references/human-facing-language.md`. Gói feature-loop KHÔNG chứa bản luật nên ghép thẳng gốc gói là con trỏ chết — luôn đi qua bộ giải. Mọi lần trình kế hoạch hoặc tiến độ cho người dùng khuôn `PLAN-SUMMARY-TABLE-TEMPLATE` trong file đó. Điểm quyết định vượt ngưỡng N5 thì kèm hình; chọn cách vẽ bằng bảng tra `DECISION-DIAGRAM-SURFACES` theo mặt phẳng đang trình, và kiểm lại bằng phép thử nhìn-thấy-hình. **T3: GATE 1.5** — trình tóm tắt plan (task list + files + thứ tự) theo đúng khuôn đó, chờ duyệt — kèm dòng `/goal` (khối GOAL-TEMPLATE, thay `<slug>`) để người dán cùng câu duyệt: goal đã kết ở Cổng 1 (khuôn coi dừng ở một cổng có tên là hoàn thành), S3→S4 cần vũ trang lại. T2: đi tiếp luôn, không dừng.
 4. Cuối S2: append entry ledger cho lựa chọn load-bearing (nếu có). Xong → vào S3 NGAY, không hỏi.
 
 ## S3 — EXECUTE
@@ -245,7 +245,7 @@ Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không v�
      <!-- STOP-PATCHING-CLAUSE>>> -->
 
      **Tối đa 3 round** — quá → DỪNG, escalate user kèm phân tích từng round. `result.report` rỗng ở round REJECT → cảnh báo user lịch sử Iterations của round này không được ghi (vẫn PHẢI ghi report/findings từ result như bước "Mọi verdict" nếu có nội dung).
-   - `BLOCKED` → đọc `blocked[].cmd` + `blocked[].reason` từ kết quả, trình NGUYÊN VĂN cho user rồi khắc phục nguyên nhân, chạy lại CÙNG round. Không bao giờ downgrade BLOCKED thành pass.
+   - `BLOCKED` → đọc `blocked[].cmd` + `blocked[].reason` từ kết quả, trình NGUYÊN VĂN cho user (một dòng báo, không phải câu hỏi) rồi khắc phục nguyên nhân và chạy lại — KHÔNG tự chọn số round: `s4-args` đánh số. Lượt mà mọi mục chặn mang nhãn hạ tầng (`chet`/`mu` của `lib/nhan-canh-gay.cjs`) và không có finding trong hợp đồng thì `s4-args` ra CÙNG round — lượt ấy không đếm vào trần, và chỉ thử lại MỘT lần (khối ĐỊNH VỊ, K8). Lượt BLOCKED còn finding trong hợp đồng (`rejectFindings`) là REJECT về bản chất: sửa như REJECT rồi chấm round kế — round ấy đếm. Đã thử lại một lần mà vẫn chặn vì hạ tầng (`s4-args` in một dòng báo) → ghi run-log + báo cáo như mọi verdict rồi trình thẻ Cổng Bằng chứng (cạnh gãy, ô ký trên cạnh gãy) — không hỏi thêm, không tự tung lượt thứ ba. Không bao giờ downgrade BLOCKED thành pass.
      <!-- <<<CLASSIFIER-FALLBACK -->
      **Lượt bị chặn VÌ BỘ PHÂN LOẠI thì lượt kế ĐỔI ĐƯỜNG, không tung bầy lại.**
      Dấu hiệu nằm ở `blocked[].reason`, HAI hình dạng — đừng chỉ đợi hình dạng thứ
