@@ -5,7 +5,7 @@ slug: nen-cay-ban-dong-dau
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/scripts + tests/scripts — không chạm hooks/ lib/ pre-merge/recheck
 surfaces: [cli]
-status: implemented       # draft | approved | implemented | verified | signed-off | machine-cleared
+status: verified       # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
