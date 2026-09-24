@@ -135,27 +135,86 @@ function khoaExecutor(text) {
   }
   return out;
 }
-// Từ đầu của lệnh sau khi bỏ các phép gán `TEN=gia-tri` đứng trước (tôn trọng nháy).
-// CHÚ Ý: bộ tách này chỉ biết khoảng trắng và nháy — nó KHÔNG hiểu phép thay thế của
-// shell, nên với `${VAR:-$(lenh con)}/duong/dan` nó trả về mảnh cụt `${VAR:-$(lenh`.
-// Vị từ `tenChuongTrinh` dưới đây là chỗ mảnh cụt ấy bị chặn lại trước `command -v`.
-function tuDau(cmd) {
-  const toks = []; let cur = ''; let q = null; let co = false;
-  for (const ch of String(cmd)) {
-    if (q) { if (ch === q) q = null; else cur += ch; continue; }
-    if (ch === '"' || ch === "'") { q = ch; co = true; continue; }
-    if (/\s/.test(ch)) { if (co || cur) { toks.push(cur); cur = ''; co = false; } continue; }
-    cur += ch; co = true;
+// Tách chuỗi lệnh executor thành các LỆNH ĐƠN của shell, đủ để gọi tên chương trình chạy đầu.
+// Bộ tách hiểu ba thứ (POSIX.1-2017 XCU §2.9.1 Simple Commands): nháy đơn/kép · vùng thay thế
+// `$(…)` `${…}` `` `…` `` là MỘT phần của từ dù bên trong có khoảng trắng, nháy hay ngoặc
+// (cân ngoặc, lồng được) · `;` `&` `|` ngoài nháy/vùng kết thúc lệnh đơn, trừ `>&`/`<&` là
+// chuyển hướng. Không phải một bộ phân tích shell đầy đủ: heredoc, từ khoá điều khiển và
+// `$((…))` số học không được hiểu riêng — chúng rơi về luật `tenChuongTrinh` bên dưới.
+const laVung = (s, i) => s[i] === '`' || (s[i] === '$' && (s[i + 1] === '(' || s[i + 1] === '{'));
+// Chỉ số ngay sau vùng thay thế mở tại `i`; vùng không đóng thì chạy tới hết chuỗi.
+function hetVung(s, i) {
+  if (s[i] === '`') {
+    let j = i + 1;
+    while (j < s.length && s[j] !== '`') j += s[j] === '\\' ? 2 : 1;
+    return Math.min(j + 1, s.length);
   }
-  if (co || cur) toks.push(cur);
-  const t = toks.find(x => !/^[A-Za-z_][A-Za-z0-9_]*=/.test(x));
-  return t || null;
+  const mo = s[i + 1]; const dong = mo === '(' ? ')' : '}';
+  let sau = 0; let q = null;
+  for (let j = i + 1; j < s.length; j += 1) {
+    const ch = s[j];
+    if (q) { if (ch === '\\' && q === '"') j += 1; else if (ch === q) q = null; continue; }
+    if (ch === '\\') { j += 1; continue; }
+    if (ch === "'" || ch === '"') { q = ch; continue; }
+    if (j > i + 1 && laVung(s, j)) { j = hetVung(s, j) - 1; continue; }
+    if (ch === mo) sau += 1;
+    else if (ch === dong && (sau -= 1) === 0) return j + 1;
+  }
+  return s.length;
+}
+// Một từ = { text: chữ sau khi bỏ nháy (vùng thay thế giữ nguyên văn), con: [thân các lệnh con] }.
+function cacLenhDon(cmd) {
+  const s = String(cmd); const lenh = []; let tu = []; let w = null;
+  const dongTu = () => { if (w) tu.push(w); w = null; };
+  const dongLenh = () => { dongTu(); if (tu.length) lenh.push(tu); tu = []; };
+  const vung = (i) => {
+    const e = hetVung(s, i); w.text += s.slice(i, e);
+    // Vùng không đóng (chuỗi cụt) chạy tới hết chuỗi — khi ấy không có ký tự đóng để bỏ.
+    const huyen = s[i] === '`';
+    const cuoi = e - (s[e - 1] === (huyen ? '`' : ')') && e - 1 > (huyen ? i : i + 1) ? 1 : 0);
+    if (huyen) w.con.push(s.slice(i + 1, cuoi));
+    else if (s[i + 1] === '(') w.con.push(s.slice(i + 2, cuoi));
+    return e;
+  };
+  for (let i = 0; i < s.length;) {
+    const ch = s[i];
+    if (/\s/.test(ch)) { dongTu(); i += 1; continue; }
+    if (';&|'.includes(ch) && !(ch === '&' && w && /[<>]$/.test(w.text))) { dongLenh(); i += 1; continue; }
+    w = w || { text: '', con: [] };
+    if (ch === "'") { const j = s.indexOf("'", i + 1); const e = j < 0 ? s.length : j; w.text += s.slice(i + 1, e); i = e + 1; continue; }
+    if (ch === '"') {
+      let j = i + 1;
+      while (j < s.length && s[j] !== '"') {
+        if (s[j] === '\\') { w.text += s[j + 1] || ''; j += 2; } else if (laVung(s, j)) j = vung(j); else { w.text += s[j]; j += 1; }
+      }
+      i = j + 1; continue;
+    }
+    if (ch === '\\') { w.text += s[i + 1] || ''; i += 2; continue; }
+    if (laVung(s, i)) { i = vung(i); continue; }
+    w.text += ch; i += 1;
+  }
+  dongLenh();
+  return lenh;
+}
+const LA_GAN = /^[A-Za-z_][A-Za-z0-9_]*=/;
+// Từ đầu = từ đầu tiên không phải phép gán của lệnh đơn đầu tiên có tên lệnh. Lệnh đơn
+// CHỈ-GÁN thì chương trình chạy thật là lệnh con trong phép gán (`B=$(git merge-base …)` →
+// `git`, không phải `merge-base`); chỉ-gán không lệnh con (`A=1 && x`) → xét lệnh đơn kế.
+function tuDau(cmd, sau = 0) {
+  for (const tu of cacLenhDon(cmd)) {
+    const ten = tu.find(w => !LA_GAN.test(w.text));
+    if (ten) return ten.text;
+    const con = tu.flatMap(w => w.con)[0];
+    const t = con !== undefined && sau < 8 ? tuDau(con, sau + 1) : null;
+    if (t) return t;
+  }
+  return null;
 }
 // <<<CONG-CU-TU-DAU
 // Một TỪ ĐẦU chỉ tra được bằng `command -v` khi nó là TÊN CHƯƠNG TRÌNH (hoặc đường dẫn
 // tới một chương trình). Từ đầu mang phép thay thế của shell — `${…}` `$(…)` `` `…` ``
 // `$VAR` — hoặc mở một nhóm/subshell — `(` `{` — thì nó KHÔNG phải một cái tên, và hỏi
-// máy về nó là hỏi sai câu: câu trả lời «không có» nói về chuỗi cụt, không nói gì về
+// máy về nó là hỏi sai câu: câu trả lời «không có» nói về một chuỗi cú pháp, không nói gì về
 // lệnh. Đó là báo động giả đo được ở `~/dev/crm` nhánh onehub (executors.design.ui_check).
 //
 // Luật xét đúng TỪ ĐẦU, KHÔNG quét cả chuỗi lệnh: `khong-co-lenh | head` vẫn phải đỏ và
