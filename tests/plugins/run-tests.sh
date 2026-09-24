@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -u
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="${_PLUGINS_ROOT_GOC:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 # Duong dan CHINH file dang chay — case tu-soi (P198) doc ban nay, khong doc ban goc,
 # de rang cua ho so chay duoc BAN SAO da dot bien (siet-rang-cau-ve-hinh AC-7).
-export RUN_TESTS_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+export RUN_TESTS_SELF="${_PLUGINS_SELF_GOC:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")}"
 failures=0
 
 pass() { echo "  PASS: $1"; }
@@ -34,13 +34,37 @@ run() {
   fi
 }
 
-
-
-
-
-
-
-
+# <<<PLUGINS-MANH — hồ sơ ha-tang-khong-dot-luot AC-8. Suite này đo 537 s trên máy rảnh (24/09),
+# trên ngưỡng 80 % trần 600 s của công cụ chạy lệnh trong tác tử chấm. Mảnh = VÙNG theo dải dòng:
+# marker `# <<<PLUGINS-VUNG <k>` mở vùng k, `# <<<PLUGINS-KET` mở phần kết. Ở chế độ
+# `--manh vung:<k>` (hoặc PLUGINS_SHARD=vung:<k>) tệp này ghép «phần đầu + vùng k + phần kết»
+# (hàm ghep_vung) thành bản tạm trong thư mục tạm rồi chạy bản ấy; ROOT và RUN_TESTS_SELF truyền
+# qua môi trường nên vẫn trỏ cây và tệp GỐC — ca tự soi đọc đủ suite. PLUGINS_SHARD_EMIT=1 in bản
+# ghép thay vì chạy, bằng CÙNG hàm ghép. Mọi mã vẫn nằm trong MỘT tệp: vùng là phân hoạch theo
+# dải dòng, nối các vùng theo thứ tự = thân suite gốc.
+PMANH="${PLUGINS_SHARD:-all}"
+if [ "${1:-}" = "--manh" ]; then PMANH="${2:-}"; fi
+ghep_vung() { # <tệp gốc> <k> → in bản ghép ra stdout
+  awk -v k="$2" '
+    /^# <<<PLUGINS-VUNG [0-9]+$/ { vung = $3 + 0; if (!ket && vung == k) print; next }
+    /^# <<<PLUGINS-KET$/ { ket = 1 }
+    { if (ket || !vung || vung == k) print }
+  ' "$1"
+}
+if [ "$PMANH" != all ] && [ -z "${_PLUGINS_TRONG_MANH:-}" ]; then
+  _pk="${PMANH#vung:}"
+  _pn="$(grep -c '^# <<<PLUGINS-VUNG [0-9]*$' "$RUN_TESTS_SELF")"
+  case "$PMANH" in vung:*) ;; *) echo "run-tests (plugins): mảnh sai: $PMANH (all | vung:<k>)" >&2; exit 2 ;; esac
+  case "$_pk" in ''|*[!0-9]*) echo "run-tests (plugins): mảnh sai: $PMANH (all | vung:<k>)" >&2; exit 2 ;; esac
+  if [ "$_pk" -lt 1 ] || [ "$_pk" -gt "$_pn" ]; then echo "run-tests (plugins): mảnh sai: $PMANH (1 <= k <= $_pn)" >&2; exit 2; fi
+  if [ -n "${PLUGINS_SHARD_EMIT:-}" ]; then ghep_vung "$RUN_TESTS_SELF" "$_pk"; exit 0; fi
+  _pdir="$(mktemp -d)"
+  ghep_vung "$RUN_TESTS_SELF" "$_pk" > "$_pdir/manh-vung-$_pk.sh"
+  _PLUGINS_TRONG_MANH=1 _PLUGINS_SELF_GOC="$RUN_TESTS_SELF" _PLUGINS_ROOT_GOC="$ROOT" bash "$_pdir/manh-vung-$_pk.sh"; _prc=$?
+  rm -rf "$_pdir"; exit "$_prc"
+fi
+# PLUGINS-MANH>>>
+# <<<PLUGINS-VUNG 1
 
 run "P07 vendor engine import graph resolves (vendor/ shipped)" \
   node --input-type=module -e "
@@ -6673,6 +6697,7 @@ assert gloss(saved) == gloss(fresh), \
     "gold-stdout.txt khong phai ban may vua in: khoi Tu dien lech"
 P160PY
 
+# <<<PLUGINS-VUNG 2
 # ── P161 (card-text-fidelity, E1-E11): ham lot dinh dang giu nguyen duong dan
 #     co dau sao. MA TRAN lay TEN + KY VONG tu marker STRIP-SHAPE-MATRIX trong
 #     contract that; doi chung duong lay ban TRUOC-DIFF tai MOC DOC TU SO QUYET
@@ -7164,6 +7189,7 @@ print("P161 OK: %d hinh dang · %d slug · %d cum sao corpus · %d phan loai · 
     len(CASES), len(slugs), cum_count, classified, calls, len(old_asserts)))
 P161PY
 
+# <<<PLUGINS-VUNG 3
 # ── P165: F-K vế ÂM — câu phủ định superpowers:brainstorming nằm TRONG đoạn
 # lối (a) của CẢ HAI thân /start; mutant code-sinh per-file (E1). Đo trong
 # ĐOẠN chứ không grep toàn file — chống "đo từ vựng thay vì quan hệ".
@@ -11255,6 +11281,7 @@ for _lnt in $_lnt_ids; do
     env LNT_CASES="$_lnt" node "$ROOT/tests/plugins/lop-nhin-thay.test.mjs"
 done
 
+# <<<PLUGINS-KET
 # ONLY_BLOCK dat ma khong khoi nao khop = no-op xanh im lang (S4-r1 mtc)
 if [ -n "${ONLY_BLOCK:-}" ] && [ "$only_matched" -eq 0 ]; then
   echo "ONLY_BLOCK=$ONLY_BLOCK khong khop khoi nao — go sai ten? (fail de khong xanh gia)"

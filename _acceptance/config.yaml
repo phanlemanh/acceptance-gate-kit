@@ -44,6 +44,12 @@ executors:
     # khai exit 1 (tool-kill). pipefail GIỮ mã thoát của suite; lọc + tail chỉ để
     # đầu ra lọt qua. Suite sập trước dòng «Results:» thì grep không khớp → vẫn ≠ 0.
     plugins: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
+    # Ba vùng của CÙNG suite plugins (hồ sơ ha-tang-khong-dot-luot AC-8): suite trọn đo 537 s máy
+    # rảnh — trên ngưỡng 80 % trần 600 s của công cụ chạy lệnh trong tác tử chấm. Lượt chấm chạy ba
+    # vùng (vùng 2 chỉ có P161, khối đắt nhất); khoá `plugins` ở trên vẫn chạy trọn (CI, người gọi).
+    plugins_vung_1: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
+    plugins_vung_2: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
+    plugins_vung_3: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
     workflows: "bash tests/workflows/run-tests.sh"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
@@ -424,7 +430,7 @@ executors:
     hskt: "bash -c 'out=$(node tests/scripts/hskt.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in HK-AC1 HK-AC1-cli HK-AC2-quet HK-AC2-luoi HK-AC2-dot-bien HK-AC4-ma-tran HK-AC4-bash HK-AC4-the HK-AC4-dot-bien HK-AC5-im HK-AC5-note HK-AC6-nghi HK-AC6-thuc-te HK-AC6-song HK-AC6-baseline HK-AC8-ben-goi HK-AC8-dot-bien HK-AC9-vang HK-AC9-thieu HK-AC9-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     hskt_ce: "bash -c 'out=$(node tests/scripts/consumer-esm.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CE2 CE2m CE2g CE2gm CE2p CE2p-dot-bien CE5-map CE6-ooc; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     # Hồ sơ ha-tang-khong-dot-luot (24/09, vòng meta sau 2.18.2): tệp ca htkd, tên ca = tên AC.
-    htkd: "bash -c 'out=$(node tests/scripts/htkd.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in HT-AC1 HT-AC1-dot-bien HT-AC2 HT-AC2-do-mjs HT-AC2-do-bash HT-AC3 HT-AC3-dot-bien HT-AC4 HT-AC4-thu-lai-roi HT-AC4-bao-cao-thieu HT-AC4-tran HT-AC4-khu-hoi HT-AC4-dot-bien HT-AC5 HT-AC5-dot-bien HT-AC6 HT-AC6-do HT-AC7 HT-AC7-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    htkd: "bash -c 'out=$(node tests/scripts/htkd.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 30; [ $rc -eq 0 ] && for c in HT-AC1 HT-AC1-dot-bien HT-AC2 HT-AC2-do-mjs HT-AC2-do-bash HT-AC3 HT-AC3-dot-bien HT-AC4 HT-AC4-thu-lai-roi HT-AC4-bao-cao-thieu HT-AC4-tran HT-AC4-khu-hoi HT-AC4-dot-bien HT-AC5 HT-AC5-dot-bien HT-AC6 HT-AC6-do HT-AC7 HT-AC7-dot-bien HT-AC8 HT-AC8-do HT-AC8-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     hskt_bo_do: "bash -c 'out=$({ node tests/scripts/ntr-trang-thai.test.mjs && node tests/scripts/lan-status-not-run.test.mjs && node tests/scripts/hskt.test.mjs HK-AC7-dot-bien; } 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NS-AC9-moi NS-AC9-cu NS-AC9-sai HK-AC7-dot-bien; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done; printf \"%s\\n\" \"$out\" | grep -qF \"✓ L05 \" || exit 1'"
     rel217_cua_so: bash scripts/rel-cua-so.sh 26bf12fe ho-so-nghi nen-cong-cu-lenh-shell ma-so-quyet-dinh-duy-nhat
     rel218_cua_so: bash scripts/rel-cua-so.sh 2826f807 ghim-lai-noi-ra-o-khong-do nhan-trang-thai-va-reality
@@ -526,7 +532,10 @@ feature_loop:
     - executors.test.scripts_mjs_2
     - executors.test.scripts_mjs_3
     - executors.test.hooks
-    - executors.test.plugins
+    # Suite plugins cũng vào lượt chấm qua BA VÙNG (AC-8) — trọn khối nó trên 80 % trần.
+    - executors.test.plugins_vung_1
+    - executors.test.plugins_vung_2
+    - executors.test.plugins_vung_3
     # Lớp thuần của 2 workflow script (verdict routing, dedupe, carry-forward,
     # scope-triage) — harness vm-realm, không sinh agent nào.
     - executors.test.workflows

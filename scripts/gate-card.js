@@ -394,6 +394,9 @@ const decsProvisional = ledger.sealIdx === null ? decsAll : ledger.entries.slice
 const decLine = e => esc(stripMd(e.decision || '')) + (e.impact ? ' — ' + esc(stripMd(e.impact)) : '');
 
 // auto-detect gate: prefer contract.status (the SKILL's source of truth), else report presence
+// Mọi trạng thái mà bộ tự nhận cổng dưới đây biết tên — trạng thái ngoài danh sách rơi về phép hỏi
+// báo cáo (và là ca DUY NHẤT thẻ Cổng 1 phải hỏi bộ quét «đã khép chưa», ha-tang-khong-dot-luot AC-7).
+const TRANG_THAI_CONG_BIET = /^(implemented|verified|signed-off|machine-cleared|draft|approved)$/i;
 if (!gate) {
   if (/^(implemented|verified|signed-off|machine-cleared)$/i.test(status)) gate = '2';
   else if (/^(draft|approved)$/i.test(status)) gate = '1';
@@ -724,8 +727,14 @@ if (gate === '1') {
   const g1Blocked = !!rangHong || mienDoCoNguoiDung || !!blindSpot;
   // Hồ sơ đã khép (bộ quét: chấm bởi thực tế / nghỉ) không còn câu hỏi nào cho người — không ô hỏi,
   // không dòng lệnh duyệt, không dòng goal (ha-tang-khong-dot-luot AC-7; cùng chữ AC-6 của 2.18.1).
-  const DA_KHEP_G1 = daKhepTu(quetHoSo().hit);
-  const DA_KHEP_G1_VI = (quetHoSo().hit || {}).nghi ? 'đã nghỉ' : 'đã chấm bởi thực tế';
+  // Chỉ HỎI bộ quét khi trạng thái nằm NGOÀI mọi danh sách mà bộ tự nhận cổng ở trên biết — đúng ca
+  // hồ sơ rơi về Cổng 1 vì không có báo cáo (vd `da-cham-boi-thuc-te` chưa từng có lượt chấm). Hồ sơ
+  // draft/approved không bao giờ khép theo vị từ một nguồn (hoSoDaKhep, 2.18.1 AC-1); hồ sơ đã ký tự
+  // nhận Cổng 2, nơi vị từ khép đã chạy. Lý do là giá: bộ quét 0,5 s mỗi thẻ, và P161 dựng thẻ Cổng 1
+  // ép `--gate 1` cho mọi hồ sơ trong kho (đo S3: suite plugins 391 s → 665 s khi gọi mọi thẻ).
+  const G1_CO_THE_KHEP = !TRANG_THAI_CONG_BIET.test(status);
+  const DA_KHEP_G1 = G1_CO_THE_KHEP && daKhepTu(quetHoSo().hit);
+  const DA_KHEP_G1_VI = DA_KHEP_G1 && (quetHoSo().hit || {}).nghi ? 'đã nghỉ' : 'đã chấm bởi thực tế';
   const oneShotG1 = DA_KHEP_G1 ? null : `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
   if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
