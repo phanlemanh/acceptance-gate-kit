@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent (sequential retry after infra B
 enforcement_mode: strict
 bypass_used: false
 verified_commit: ecc0467464187aceed1ec74294639277395a17a4
-human_signoff:
+human_signoff: Manh Phan 2026-09-25 — ký với 1 known-limit đã khai (Ngoài-1: tham số thư mục của bước chạy suite không còn tác dụng); đồng ý phạm vi đã cắt
 ---
 
 # Evidence Report: nen-chay-bang-moi-truong-nguoi-goi

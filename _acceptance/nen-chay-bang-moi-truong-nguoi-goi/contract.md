@@ -5,7 +5,7 @@ slug: nen-chay-bang-moi-truong-nguoi-goi
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/scripts + tests/scripts — không chạm hooks/ lib/ pre-merge/recheck
 surfaces: [cli]
-status: verified       # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off       # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
@@ -60,3 +60,7 @@ vòng (PR #217; cổng CI đòi hồ sơ) — khai ở sổ quyết định.
 
 - Quét toàn kit (24/09, sau vá): `grep -rnE "(bash|sh|zsh)['\"]?,? *\[?['\"]?(-l[a-z]*c|-[a-z]*l[a-z]*c|--login)|['\"]-l['\"]|--login" scripts lib hooks feature-loop workflows commands skills` → đúng 1 dòng, là chú thích trong khối `BASH-NGUOI-GOI` của `duong-nen.mjs`; không còn lời gọi shell đăng nhập nào trong mã kit. Giới hạn: phép quét đọc chuỗi, không bắt được lời gọi dựng tham số động.
 - Neo ngoài (đọc máy tác giả, không là eval): chạy lại đường nền trên worktree crm thật `beautiful-thompson-16c095` sha `28db67028cc7a63ecb4f003221b4fff113819d90` bằng script đã vá (`3ba8edc0`): `suite: xanh` — `build_khong_cache` qua; trước vá cùng worktree ghi `nen suite: DO SAN executors.script.build_khong_cache ma 1`. Đỏ còn lại `THIEU merge-base` ×2 thuộc lớp hồ sơ `nen-cong-cu-gan-bang-lenh-con` (script chạy lượt ấy chưa gộp #216). Tệp `duong-nen.md` của vòng crm trả về bản commit.
+
+### Known limits (người ký nhận, Cổng Bằng chứng 2026-09-25)
+
+- **Ngoài-1** — tham số thư mục của bước chạy suite (`chaySuite(root, …)`) không còn tác dụng: thư mục chạy lấy từ giá trị chung của cả tệp qua cửa `bashNguoiGoi`. Hành vi hôm nay giống hệt vì nơi gọi duy nhất truyền đúng giá trị ấy; một nơi gọi sau này truyền thư mục khác sẽ chạy nhầm chỗ mà không báo.
