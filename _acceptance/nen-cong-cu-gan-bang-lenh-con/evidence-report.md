@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 7c8f271110361faa9cc3bcfa9c141b95dbfb2e95
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-24 — ký với 6 known-limits đã khai (Ngoài-1/2/3/5/6/7) và 1 mục mở hợp đồng mới (Ngoài-4: lệnh con mở đầu bằng chuyển hướng, ghi hạt giống); đồng ý phạm vi đã cắt; phê hết quyết định ghi sau Cổng Phạm vi
 ---
 
 # Evidence Report: nen-cong-cu-gan-bang-lenh-con

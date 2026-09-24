@@ -5,7 +5,7 @@ slug: nen-cong-cu-gan-bang-lenh-con
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/scripts + tests/scripts — không chạm hooks/ lib/ pre-merge/recheck
 surfaces: [cli]
-status: verified       # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off       # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
@@ -54,3 +54,12 @@ Source input: prompt (owner báo lỗi kèm tái hiện, 2026-09-24) · tái hi�
 ## Notes
 
 - Đo trên dữ liệu thật (24/09, máy tác giả — gap-probe F2: không là eval vì đọc `~/dev`, là vật người ký đọc): 5 113 khoá `executors.*` ở mọi `~/dev/*/_acceptance/config.yaml` + crm@onehub `64d7c593`. Trước vá (`a1ef0a3d`) và sau vá (`684445df`): cột TRA/BỎ-TRA đổi **0** khoá; tên được tra đổi **đúng 1** khoá — `crm@onehub executors.script.zqw_giu_nqz: merge-base → git`. Mười khoá `$(ls …)` vẫn bỏ-tra, chỉ dòng lý do in trọn từ thay vì mảnh cụt. Tái lập: `git show <sha>:feature-loop/scripts/duong-nen.mjs > /tmp/d.mjs && node _acceptance/nen-cong-cu-gan-bang-lenh-con/quet-kho.mjs /tmp/d.mjs <config…>` cho mỗi sha rồi `diff` hai đầu ra.
+
+### Known limits (người ký nhận, Cổng Bằng chứng 2026-09-24)
+
+- **Ngoài-1 / Ngoài-7** — `quet-kho.mjs` nạp bộ đọc cấu hình từ thư mục hiện tại chứ không từ vị trí script: tính lại số 5 113 khoá phải chạy từ gốc kho kit, chạy nơi khác có thể sai lặng.
+- **Ngoài-2** — độ sâu đệ quy vào lệnh con có trần 8 (hằng không tên); chạm trần thì khoá bị bỏ tra mà không in dòng lý do.
+- **Ngoài-3 / Ngoài-6** — chú thích và thông điệp PASS của `NEN-TD5`/`NEN-TD6` còn tả «chuỗi cụt»; sau bản vá từ đầu `${…:-$(…)}/…` là trọn từ, hai ca vẫn đúng vì ghim bằng tiền tố.
+- **Ngoài-5** — `N=$((1+2)); lenh-ke`: phép thay thế số học bị coi là lệnh con, khoá rơi vào bỏ-tra (có dòng lý do) thay vì tra `lenh-ke` như bản trước vá.
+
+**Ngoài-4** (lệnh con mở đầu bằng chuyển hướng, `X=$(<file)` → báo THIEU giả; hồi quy, 0/5 113 khoá thật) đi **hợp đồng mới**: hạt giống `docs/plans/2026-09-24-hat-giong-lenh-con-mo-bang-chuyen-huong.md`, không ghi Known limits.
