@@ -11,7 +11,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>78 việc"]
+  GB --> DG["Đã giao<br/>79 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>8 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
 ```
@@ -113,6 +113,7 @@ flowchart TD
 - Phát hành kit 2.18.1 — đóng số cho cửa sổ 2.18.0 → 2.18.1 (một vòng chạm engine đã ký «ho-so-khep-thoi-hoi»), để kho crm — nơi mọi lỗ của bản này lộ ra trong ngày cài 2.18.0 — nhận engine theo mốc có chủ đích; làn V, không dựng răng (`release-2-18-1`)
 - Phát hành kit 2.18.2 — đóng số cho cửa sổ 2.18.1 → 2.18.2 (một vòng chạm engine đã ký «chot-may-chu-ky-sau-synthesize») và đường CI mặc định «chạy cổng từ bản kit ghim sha», để sáu kho vừa nâng 2.18.1 nhận engine theo mốc có chủ đích và ghim được theo tag; làn V, không dựng răng (`release-2-18-2`)
 - Phát hành kit 2.18.3 — đóng số cho cửa sổ 2.18.2 → 2.18.3 (một vòng chạm engine đã ký «ha-tang-khong-dot-luot»), để crm nhận engine theo mốc có chủ đích và ghim được theo tag; làn V, không dựng răng (`release-2-18-3`)
+- Phát hành kit 2.18.4 — đóng số cho cửa sổ 2.18.3 → 2.18.4 (ba vòng đã ký cùng sửa đường nền «nen-cong-cu-gan-bang-lenh-con» + «nen-cay-ban-dong-dau» + «nen-chay-bang-moi-truong-nguoi-goi»), để crm thôi đọc «nen: do» giả ở mọi phiên mở vòng; làn V, không dựng răng (`release-2-18-4`)
 - Phát hành kit 2.2.0 — đóng số cho ba hồ sơ 17–18/08 (hình tại Cổng 1 · mối nối Vòng TRAO · siết răng câu-về-hình) để repo tiêu thụ nhận engine mới có chủ đích trước khi mở vòng r4 bước 1 (`release-2-2-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)

@@ -1,0 +1,9 @@
+{
+  "feature_plain": "Đóng số 2.18.4 cho bản kit có ba bản vá đường nền: hai gói cùng lên 2.18.4, CHANGELOG nói người dùng nhận gì kèm năm dòng số, để crm cài vào và thôi thấy cờ «nền hạ tầng đỏ» giả ở mỗi lần mở vòng.",
+  "scope_plain": "Không đổi mã cổng nào, không nâng gói vẽ sơ đồ, không vá bộ kiểm chữ tràn của gói vẽ (ghi sổ cho cửa sổ kế), không làm hai nhát cắt đã xếp từ mốc trước, không ghim lại hồ sơ cũ trước khi mốc gộp, không đổi gì ở kho tiêu thụ trước khi có tag.",
+  "decisions_plain": [
+    {"id": "d-20260925T030155Z-1", "p": "Mốc đi làn tự động như các mốc trước: không dựng phép đo mới, dựa ca kiểm số thường trực và các bộ kiểm chạy từng mảnh — đổi lại người chấm là chính phiên làm mốc."},
+    {"id": "d-20260925T030155Z-2", "p": "KHÔNG chạy phản biện độc lập trước duyệt — mốc không có thiết kế mới, mọi tiêu chí là lệnh máy đã có chiều đỏ."},
+    {"id": "d-20260925T030155Z-3", "p": "KHÔNG đưa bản vá bộ kiểm chữ tràn của gói vẽ sơ đồ vào mốc — lỗi vỡ ồn ào chứ không báo xanh giả, mới gặp một lần, và vá chạm mã bên thứ ba cần một vòng riêng; đổi lại lỗi còn tới cửa sổ kế."}
+  ]
+}
