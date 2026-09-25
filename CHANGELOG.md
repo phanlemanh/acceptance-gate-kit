@@ -10,6 +10,86 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.18.4 — 25/09/2026
+
+Cửa sổ 2.18.3 → 2.18.4 kéo **một ngày**, có **ba vòng** chạm engine, cả ba cùng sửa báo động giả
+của **đường nền** (`feature-loop/scripts/duong-nen.mjs` — tệp engine duy nhất đổi):
+`nen-cong-cu-gan-bang-lenh-con`, `nen-cay-ban-dong-dau`, `nen-chay-bang-moi-truong-nguoi-goi` (đều
+T2, ký 24–25/09). Kho chờ nhận là `crm`: sau khi bản vá đầu đã gộp, đường nền của hai phiên crm mở
+vòng 24/09 vẫn ghi `nen cong-cu: THIEU merge-base` và mỗi phiên đẩy một chip «sửa đường nền» cho
+owner — đúng lỗi đã sửa, chỉ chưa phát hành. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên
+`2.18.4`; `diagram-design` giữ `2.7.0`. Tag `v2.18.4` gắn tại commit ký mốc sau khi gộp.
+
+**Đổi gì** — thẻ Cổng Phạm vi thôi mang cờ vàng «nền hạ tầng đỏ» giả:
+
+- **Lệnh mở bằng phép gán mang lệnh con thôi bị báo thiếu công cụ.** Executor dạng
+  `B=$(git merge-base HEAD origin/onehub) && …` từng bị đọc thành chương trình `merge-base`. Bộ tách
+  lệnh nay hiểu vùng thay thế `$(…)` `${…}` `` `…` `` và ranh giới `;` `&` `|`; lệnh chỉ-gán tra từ
+  đầu của lệnh con. Chương trình vắng thật vẫn đỏ và gọi đúng tên.
+- **Chân suite gọi đúng tên tệp bẩn.** Tên tệp đã theo dõi thôi bị cụt ký tự đầu (`README.md` →
+  `EADME.md`), và tệp bẩn sẵn từ trước thôi bị đổ cho suite.
+- **Đường nền chạy bằng môi trường của người gọi.** Tra `command -v` và chạy suite qua `bash -c` với
+  env của người gọi, không qua shell đăng nhập nạp lại profile. Máy dùng fnm/nvm thôi bị báo
+  «nen suite: DO SAN» giả khi PATH đăng nhập trỏ một bản node khác (đo ở crm: node 22 thay 24).
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Máy dev:** cập nhật plugin như mọi mốc, theo khối khai plugin của GUIDE, trong từng thư mục có
+  scope sống. Không cần làm gì với hồ sơ đang mở; đường nền lần mở vòng kế tự đọc bằng bản mới.
+- **Kho còn đường chép** (`crm`): `duong-nen.mjs` không thuộc lớp chép CI (GUIDE §5.3) — không phải
+  chép gì.
+- **Kho đã ghim sha:** đổi `KIT_SHA` sang commit ký mốc 2.18.4, hoặc lấy theo tag `v2.18.4`.
+
+**Giới hạn đã khai** (owner quyết ở Cổng Bằng chứng của từng vòng, 24–25/09):
+
+- Lệnh con mở bằng chuyển hướng (`X=$(<file)`) bị báo THIEU giả — hồi quy so với bản trước vá; 0 /
+  5 113 khoá `executors.*` thật có dạng này. Hạt giống
+  `docs/plans/2026-09-24-hat-giong-lenh-con-mo-bang-chuyen-huong.md`.
+- `N=$((1+2)); lenh-ke` rơi vào nhánh bỏ-tra thay vì tra `lenh-ke`; trần độ sâu 8 chạm thì bỏ tra
+  không in lý do.
+- Khi `git status` lỗi, chân suite đọc được tập rỗng (có từ bản cũ).
+- Một ca chập chờn chưa gọi tên trong mảnh suite `mjs:1/3` (đỏ một lần ở làn ghim lại, lần sau xanh).
+- `check_overflow.py` của `diagram-design` vỡ `JSONDecodeError` khi nhãn tràn chứa `]` — gặp ở crm
+  25/09, owner chọn không đưa vào mốc này. Hạt giống
+  `docs/plans/2026-09-25-hat-giong-check-overflow-cat-json-o-ngoac-vuong.md`.
+
+**Năm dòng số của luật (c)** — ba vòng, số theo thứ tự `lenh-con` · `cay-ban` · `moi-truong`:
+
+| Dòng | Số | Nguồn |
+|---|---|---|
+| Làm-xong→quyết-được | Cổng Phạm vi cả ba đi làn V, không chờ người. Cổng Bằng chứng một lượt mỗi vòng: ≈ 5 phút · ≈ 4 giờ 25 phút · ≈ 6 giờ 27 phút (qua đêm). Code xong → chữ ký: 37 phút · 4 giờ 58 phút · 7 giờ 1 phút. Hai vòng sau không có dấu giờ trình thẻ nên không tách được giờ chờ người khỏi giờ máy | giờ commit + sổ quyết định |
+| Lượt gọi người / vòng | **1 · 1 · 1**, cả ba trong thiết kế (Cổng Bằng chứng). Ngoài thiết kế **0**. Mục tiêu T2 ≤3. Số chạm không đo được — sổ chỉ cho một dấu giờ quyết mỗi vòng, hội thoại không nằm trong kho | `decisions.jsonl` |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **0 · 0 · 1 lượt, 0 round**. Vòng thứ ba: round 1 lượt 1 BLOCKED (2 tác tử chấm chết, trả 9/11), thử lại cùng round trên cùng cây → PASS 6/6. Ca sống đầu tiên của «thử lại cùng round» (2.18.3) | `run-log.jsonl` round-tally |
+| Token máy / vòng | Out-token **66 k · 48 k · 52 k**; không-cache **1,50 M · 1,39 M · 1,15 M**. Tách theo vai: chứng-minh-vật (machine+baseline) 29 % · 43 % · 35 % — tìm-lỗi (review+triage) 58 % · 35 % · 30 % — tổng hợp (capture+synthesize) 14 % · 22 % · 34 %. Vòng thứ ba chỉ có lượt BLOCKED: lượt thử lại chạy bằng tác tử chấm tuần tự ngoài workflow đo chi phí, không đo. Phiên chính không đo | `usage-report.md` |
+| Phút máy / lượt chấm | 28 · 29 · 23 phút (+ lượt thử lại ≈ 3 phút lệnh, ≈ 6 phút dấu giờ). Đường găng cả ba là khối chứng-minh-vật (1 533 · 1 602 · 1 202 s) | `usage-report.md` + `evidence-report.md` |
+
+Dòng 4 xếp `capture` vào tổng hợp — quyết định của người đếm, mẫu 2.18.3 không nói rõ; báo cáo chi phí
+của ba vòng còn nhãn vai nên tách được theo vai thay vì theo model.
+
+**Điều kiện tin cậy:** đường verdict không đổi thành phần — ba vòng chỉ đổi đường nền, không đổi ai
+phán. Số lượt chấm sai không tăng. Dòng 4–5 cắt được, trừ vế lượt thử lại của vòng thứ ba: lượt ấy
+đi ngoài workflow đo chi phí, nên dòng 4 của vòng đó thiếu một lượt — khai, không ước.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở kho tiêu thụ | thẻ Cổng Phạm vi thôi mang cờ vàng nền giả, người khỏi đọc rồi bỏ qua |
+| 2 | ↓ ở kho tiêu thụ | phiên thôi đẩy chip «sửa đường nền» cho lỗi đã sửa (đo 24/09: hai chip từ hai phiên crm) |
+| 3 | = | đường nền không nằm trên đường chấm |
+| 4 | = | không thêm tác tử |
+| 5 | = | không đổi lượt chấm |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc trên kit bằng
+`scripts/hieu-chuan-moc.mjs --root .`. **N không tăng so với mốc 2.18.3 — dòng vô hiệu ở mốc này**,
+cấm đọc thành «0 sự cố».
+
+**Nhát cắt có tên cho cửa sổ kế** (thứ tự mốc 2.18.3 đã xếp, còn nguyên; cửa sổ vừa rồi dành cho ba
+vòng đường nền):
+
+1. **Lớp chép tự xoá** (`docs/plans/2026-09-23-hat-giong-lop-chep-tu-xoa-2-18-3.md`).
+2. **Máy hỏi ngoài thiết kế ở S1** (`docs/plans/2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md`).
+
 ## 2.18.3 — 24/09/2026
 
 Cửa sổ 2.18.2 → 2.18.3 kéo **một ngày**, có **một vòng** chạm engine do owner gọi tên:
