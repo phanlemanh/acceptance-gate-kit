@@ -222,6 +222,16 @@ function tuDau(cmd, sau = 0) {
 const tenChuongTrinh = (tu) => !/[$`({]/.test(tu);
 // CONG-CU-TU-DAU>>>
 
+// <<<BASH-NGUOI-GOI
+// Mọi lệnh của kho (tra `command -v` lẫn chạy suite) đi qua MỘT cửa: `bash -c` với ĐÚNG
+// môi trường của người gọi — cùng cách `repin-lane.mjs` chạy lệnh. KHÔNG `bash -lc`: shell
+// đăng nhập nạp lại profile và đặt lại PATH, nên máy đo một máy KHÁC máy người gọi đang
+// đứng. Đo ở crm@onehub 24/09: người gọi trên fnm node 24, `-lc` trả node 22 của
+// /usr/local/bin → build «eve requires Node.js >=24» đỏ oan trên cây chưa chạm (ca NEN-ENV).
+const bashNguoiGoi = (lenh, thamSo, o) =>
+  spawnSync('bash', ['-c', lenh, ...thamSo], { cwd: root, env: process.env, ...o });
+// BASH-NGUOI-GOI>>>
+
 const chan = { cong_cu: 'xanh', suite: 'xanh', luoi: 'xanh', engine: 'xanh' };
 const DO = [];
 {
@@ -239,7 +249,7 @@ const DO = [];
       continue;
     }
     if (!coTrenMay.has(tu)) {
-      const r = spawnSync('bash', ['-lc', 'command -v "$1"', '_', tu], { cwd: root, stdio: ['ignore', 'ignore', 'ignore'] });
+      const r = bashNguoiGoi('command -v "$1"', ['_', tu], { stdio: ['ignore', 'ignore', 'ignore'] });
       coTrenMay.set(tu, r.status === 0);
     }
     if (!coTrenMay.get(tu)) { chan.cong_cu = 'do'; DO.push(dongDo('cong-cu-thieu', { tu, khoa })); }
@@ -253,7 +263,7 @@ const DO = [];
 async function chaySuite(root, lenh) {
   const kq = [];
   for (const { khoa, cmd } of lenh) {
-    const r = spawnSync('bash', ['-lc', cmd], { cwd: root, stdio: ['ignore', 2, 2] });
+    const r = bashNguoiGoi(cmd, [], { stdio: ['ignore', 2, 2] });
     kq.push({ khoa, ma: r.status === null ? `tin-hieu-${r.signal}` : r.status });
   }
   return kq;

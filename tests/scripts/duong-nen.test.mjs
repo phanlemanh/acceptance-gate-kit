@@ -3,13 +3,15 @@
 // (E9: NEN5 NEN5-IM NEN6 NEN6-IM NEN7 NEN9); hồ sơ nen-cong-cu-lenh-shell AC-1 AC-3
 // AC-4 AC-5 AC-6 AC-9 (NEN-TD1…NEN-TD6 — luật «từ đầu phải là TÊN CHƯƠNG TRÌNH mới tra»);
 // hồ sơ nen-cong-cu-gan-bang-lenh-con AC-1…AC-5 (NEN-LC1…NEN-LC3 — lệnh chỉ-gán mang lệnh con).
+// NEN-ENV1…NEN-ENV4: lệnh chạy bằng MÔI TRƯỜNG NGƯỜI GỌI, không bằng profile đăng nhập
+// (báo động giả đo ở crm@onehub 24/09, vòng mot-duong-ghi-phong-ban).
 //
 // Mọi ca chạy trên kho do `dungKho()` SINH trong lượt (tests/scripts/duong-nen-fixture.mjs),
 // cùng một fixture lành, mỗi ca đỏ chỉ đổi MỘT biến. Đối chứng dương NEN0 chạy trước.
 // Mọi lần chạy truyền `--cache-root` trỏ vào cache DO CA DỰNG — không ca nào đọc plugin
 // cache thật của máy; không ca nào ghi vào `_acceptance/` của kho kit.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, renameSync, cpSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, cpSync, mkdirSync, existsSync, chmodSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
@@ -217,12 +219,12 @@ function banDotBienCB() {
     if (nMo !== 1 || nDong !== 1) throw new Error(`marker SUITE-TUAN-TU khop ${nMo}/${nDong} lan (can dung 1/1)`);
     const i = src.indexOf(MO) + MO.length, j = src.indexOf(DONG);
     const thanThat = src.slice(i, j);
-    if (!/for \(const/.test(thanThat) || !/spawnSync\(/.test(thanThat)) throw new Error('than vung SUITE-TUAN-TU khong con la vong spawnSync — mui tiem mat vat');
+    if (!/for \(const/.test(thanThat) || !/bashNguoiGoi\(/.test(thanThat)) throw new Error('than vung SUITE-TUAN-TU khong con la vong bashNguoiGoi — mui tiem mat vat');
     const songSong =
       'async function chaySuite(root, lenh) {\n' +
       "  const { spawn } = await import('node:child_process');\n" +
       '  return Promise.all(lenh.map(({ khoa, cmd }) => new Promise((res) => {\n' +
-      "    const c = spawn('bash', ['-lc', cmd], { cwd: root, stdio: ['ignore', 2, 2] });\n" +
+      "    const c = spawn('bash', ['-c', cmd], { cwd: root, env: process.env, stdio: ['ignore', 2, 2] });\n" +
       '    c.on(\'close\', (code, sig) => res({ khoa, ma: code === null ? `tin-hieu-${sig}` : code }));\n' +
       '  })));\n' +
       '}\n';
@@ -589,6 +591,132 @@ function chayLC(khoa) {
   else if (roiBoQua.length) bad('NEN-LC3 khoa roi vao nhanh bo-tra', roiBoQua.join(','));
   else if (fm(x.r.tep, 'cong_cu') !== 'do') bad('NEN-LC3 chan cong_cu phai do', tomTat(x.r));
   else ok('NEN-LC3 ma tran 8 khoa — tap bullet == 4 dong mong doi, 0 khoa roi bo-tra (doi chung: dung 1 dong)');
+}
+
+// ── NEN-ENV — lệnh chạy bằng MÔI TRƯỜNG CỦA NGƯỜI GỌI, không bằng profile đăng nhập ──
+// crm@onehub 24/09: `bash -lc` nạp lại profile, PATH về /usr/local/bin (node 22) trong khi
+// người gọi đứng trên fnm (node 24) → build đỏ «eve requires Node.js >=24» trên cây chưa
+// chạm. Fixture dựng đúng cơ chế đó, không phụ thuộc máy: HOME tạm có `.bash_profile`
+// ĐẶT LẠI PATH, công cụ chỉ nằm trong PATH của người gọi. Cặp ENV1/ENV2 cùng fixture,
+// chỉ khác MỘT biến: công cụ có hay không. ENV4 là HÌNH DẠNG THẬT của crm: công cụ có ở
+// cả hai nơi, profile tìm thấy bản khác trước (mồi `exit 42`) — chân công cụ vẫn xanh,
+// chỉ chân suite đỏ.
+const CONG_CU_RIENG = 'nen-cong-cu-rieng-xyz';
+function moiTruongNguoiGoi({ coCongCu, moi = false }) {
+  const home = tamDir('duong-nen-home-');
+  let pathDangNhap = '/usr/bin:/bin';
+  if (moi) {
+    const heThong = tamDir('duong-nen-he-thong-');
+    writeFileSync(path.join(heThong, CONG_CU_RIENG), '#!/bin/sh\nexit 42\n');
+    chmodSync(path.join(heThong, CONG_CU_RIENG), 0o755);
+    pathDangNhap = `${heThong}:${pathDangNhap}`;
+  }
+  writeFileSync(path.join(home, '.bash_profile'), `export PATH=${pathDangNhap}\n`);
+  const bin = tamDir('duong-nen-bin-');
+  if (coCongCu) {
+    writeFileSync(path.join(bin, CONG_CU_RIENG), '#!/bin/sh\nexit 0\n');
+    chmodSync(path.join(bin, CONG_CU_RIENG), 0o755);
+  }
+  return { HOME: home, PATH: `${bin}${path.delimiter}${process.env.PATH}` };
+}
+const LENH_ENV = `${CONG_CU_RIENG} --chay`;
+const DONG_ENV_CONG_CU = `nen cong-cu: THIEU ${CONG_CU_RIENG} (khoa executors.test.a)`;
+const DONG_ENV_SUITE = 'nen suite: DO SAN executors.test.a ma 127';
+const DONG_ENV_MOI = 'nen suite: DO SAN executors.test.a ma 42';
+const BON_CHAN = ['cong_cu', 'suite', 'luoi', 'engine'];
+const bangNhau = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+// Bốn chân của lượt ENV phải BẰNG của NEN0 (không đổi HOME): HOME tạm không được đổi màu
+// chân lưới hay chân engine — nếu đổi, fixture đã khác đối chứng thêm một biến.
+const chanKhacNEN0 = (r) => BON_CHAN.filter(c => fm(r.tep, c) !== fm(r0.tep, c)).map(c => `${c}=${fm(r.tep, c)}/NEN0=${fm(r0.tep, c)}`);
+
+/**
+ * banDotBienDangNhap() — bản chép `feature-loop` + script CHƯA tiêm và script đã đổi
+ * khối BASH-NGUOI-GOI về shell đăng nhập (`['-c',` → `['-lc',`). Marker khớp khác 1/1,
+ * thân không có đúng 1 `['-c',`, hay tệp không đổi → ném, ca tự đỏ.
+ */
+function banDotBienDangNhap() {
+  const d = tamDir('duong-nen-env-mut-');
+  cpSync(path.join(KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
+  const fSach = path.join(d, 'feature-loop', 'scripts', 'duong-nen.mjs');
+  const fMut = path.join(d, 'feature-loop', 'scripts', 'duong-nen-dang-nhap.mjs');
+  const src = readFileSync(fSach, 'utf8');
+  const MO = '// <<<BASH-NGUOI-GOI\n', DONG = '// BASH-NGUOI-GOI>>>\n';
+  const nMo = src.split(MO).length - 1, nDong = src.split(DONG).length - 1;
+  if (nMo !== 1 || nDong !== 1) throw new Error(`marker BASH-NGUOI-GOI khop ${nMo}/${nDong} lan (can dung 1/1)`);
+  const i = src.indexOf(MO) + MO.length, j = src.indexOf(DONG);
+  const than = src.slice(i, j);
+  const nC = than.split("['-c',").length - 1;
+  if (nC !== 1) throw new Error(`than BASH-NGUOI-GOI co ${nC} lan «['-c',» (can dung 1) — mui tiem mat vat`);
+  writeFileSync(fMut, src.slice(0, i) + than.replace("['-c',", "['-lc',") + src.slice(j));
+  if (readFileSync(fMut, 'utf8') === src) throw new Error('ban dot bien TRUNG ban goc — buoc tiem chua chay');
+  return { fSach, fMut };
+}
+
+// ── NEN-ENV1 — đối chứng dương: công cụ có trong PATH người gọi, profile đặt lại PATH → XANH ──
+{
+  const k = dungKho({ config: cfgVoi(LENH_ENV) });
+  const r = chayNen(k, { cache: CACHE, env: moiTruongNguoiGoi({ coCongCu: true }) });
+  const b = bullets(r.tep) || [];
+  const lech = chanKhacNEN0(r);
+  if (r.code !== 0) bad('NEN-ENV1 cong cu co trong PATH nguoi goi phai ma 0', tomTat(r));
+  else if (fm(r0.tep, 'nen') !== 'xanh') bad('NEN-ENV1 doi chung NEN0 khong xanh — khong so duoc', tomTat(r0));
+  else if (lech.length) bad('NEN-ENV1 bon chan khac NEN0', lech.join(' '));
+  else if (!bangNhau(b, ['không có'])) bad('NEN-ENV1 phai dung mot bullet «không có»', JSON.stringify(b));
+  else ok('NEN-ENV1 cong cu chi co trong PATH nguoi goi, profile dat lai PATH — ma 0, bon chan bang NEN0, mot bullet «không có»');
+}
+
+// ── NEN-ENV2 — chiều đỏ cùng fixture: công cụ THẬT SỰ vắng → đỏ, ghim tên khoá ở cả hai chân ──
+{
+  const k = dungKho({ config: cfgVoi(LENH_ENV) });
+  const r = chayNen(k, { cache: CACHE, env: moiTruongNguoiGoi({ coCongCu: false }) });
+  const b = bullets(r.tep) || [];
+  if (r.code !== 1) bad('NEN-ENV2 cong cu vang phai ma 1', tomTat(r));
+  else if (!bangNhau(b, [DONG_ENV_CONG_CU, DONG_ENV_SUITE])) bad('NEN-ENV2 tap bullet khac dung hai dong ghim', JSON.stringify(b));
+  else ok(`NEN-ENV2 cong cu vang that — tap bullet == «${DONG_ENV_CONG_CU}» + «${DONG_ENV_SUITE}»`);
+}
+
+// ── NEN-ENV3 — đột biến: trả khối BASH-NGUOI-GOI về shell đăng nhập thì ENV1 phải ĐỎ ──
+// Hai lượt trên CÙNG bản chép: lượt chưa tiêm phải XANH trước, rồi mới tin đỏ của lượt tiêm.
+{
+  try {
+    const { fSach, fMut } = banDotBienDangNhap();
+    const rSach = chayNen(dungKho({ config: cfgVoi(LENH_ENV) }), { cache: CACHE, script: fSach, env: moiTruongNguoiGoi({ coCongCu: true }) });
+    if (rSach.code !== 0) {
+      bad('NEN-ENV3 ban chep hong — luot CHUA TIEM khong xanh, ket luan do cua luot tiem vo nghia', tomTat(rSach));
+    } else {
+      const rMut = chayNen(dungKho({ config: cfgVoi(LENH_ENV) }), { cache: CACHE, script: fMut, env: moiTruongNguoiGoi({ coCongCu: true }) });
+      const b = bullets(rMut.tep) || [];
+      if (rMut.code !== 1) bad('NEN-ENV3 ban dot bien (shell dang nhap) KHONG do — phep do khong treo vao moi truong nguoi goi', tomTat(rMut));
+      else if (!bangNhau(b, [DONG_ENV_CONG_CU, DONG_ENV_SUITE])) bad('NEN-ENV3 tap bullet khac dung hai dong ghim', JSON.stringify(b));
+      else ok('NEN-ENV3 dot bien -c → -lc — luot chua tiem xanh, luot tiem do dung hai dong (cong-cu + suite)');
+    }
+  } catch (e) { bad('NEN-ENV3 khong dung duoc ban dot bien', String(e.message || e)); }
+}
+
+// ── NEN-ENV4 — hình dạng thật của crm: công cụ CÓ ở cả hai nơi, profile tìm thấy bản khác trước ──
+// Bản thật: bản của người gọi chạy → xanh. Bản đột biến đăng nhập: `command -v` vẫn thấy công
+// cụ (chân công cụ XANH) nhưng suite chạy bản mồi `exit 42` → ĐÚNG một dòng suite, mã 42.
+// Một bản vá giữ `-lc` rồi nối PATH người gọi vào CUỐI vẫn qua ENV1 và ENV2 nhưng đỏ ở đây
+// (phá thử tay 24/09: fixture ENV1 mã 0, fixture ENV4 mã 1 «DO SAN … ma 42»).
+{
+  try {
+    const kThat = dungKho({ config: cfgVoi(LENH_ENV) });
+    const rThat = chayNen(kThat, { cache: CACHE, env: moiTruongNguoiGoi({ coCongCu: true, moi: true }) });
+    const bThat = bullets(rThat.tep) || [];
+    const { fSach, fMut } = banDotBienDangNhap();
+    const rSach = chayNen(dungKho({ config: cfgVoi(LENH_ENV) }), { cache: CACHE, script: fSach, env: moiTruongNguoiGoi({ coCongCu: true, moi: true }) });
+    if (rThat.code !== 0 || !bangNhau(bThat, ['không có'])) bad('NEN-ENV4 ban that phai ma 0, mot bullet «không có» khi co ban moi o profile', tomTat(rThat));
+    else if (chanKhacNEN0(rThat).length) bad('NEN-ENV4 bon chan khac NEN0', chanKhacNEN0(rThat).join(' '));
+    else if (rSach.code !== 0) bad('NEN-ENV4 ban chep hong — luot CHUA TIEM khong xanh', tomTat(rSach));
+    else {
+      const rMut = chayNen(dungKho({ config: cfgVoi(LENH_ENV) }), { cache: CACHE, script: fMut, env: moiTruongNguoiGoi({ coCongCu: true, moi: true }) });
+      const b = bullets(rMut.tep) || [];
+      if (rMut.code !== 1) bad('NEN-ENV4 ban dot bien KHONG do — ban moi cua profile khong bi phat hien', tomTat(rMut));
+      else if (fm(rMut.tep, 'cong_cu') !== 'xanh') bad('NEN-ENV4 ban dot bien: chan cong_cu phai XANH (cong cu co o ca hai noi)', tomTat(rMut));
+      else if (!bangNhau(b, [DONG_ENV_MOI])) bad('NEN-ENV4 tap bullet khac dung mot dong ghim', JSON.stringify(b));
+      else ok(`NEN-ENV4 cong cu co o ca hai noi, profile tim ban moi truoc — ban that xanh, dot bien do dung «${DONG_ENV_MOI}»`);
+    }
+  } catch (e) { bad('NEN-ENV4 khong dung duoc ban dot bien', String(e.message || e)); }
 }
 
 donDep();

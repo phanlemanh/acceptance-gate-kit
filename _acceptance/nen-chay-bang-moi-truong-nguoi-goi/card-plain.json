@@ -1,0 +1,11 @@
+{
+  "feature_plain": "Khối «Nền hạ tầng» trên thẻ Cổng Phạm vi thôi báo đỏ oan khi máy người làm dùng trình quản lý phiên bản (fnm, nvm…): đường nền nay kiểm công cụ và chạy bộ kiểm bằng đúng môi trường người gọi, thay vì một phiên đăng nhập nạp lại cấu hình máy và chọn nhầm phiên bản cũ.",
+  "scope_plain": "Không sửa bản đã cài ở máy owner hay bản chép ở các kho tiêu thụ — chúng nhận thay đổi ở mốc phát hành kế; không đụng hai chân lưới và engine vì chúng không chạy lệnh của kho qua shell.",
+  "decisions_plain": [
+    {"id": "d-20260924T152811Z-1", "p": "Bản sửa và ca kiểm có TRƯỚC khi mở vòng (anh giao sửa thẳng, cổng CI đòi hồ sơ sau) — đổi lại thứ tự «đo trước, làm sau» bị đảo, bù bằng lịch sử commit ca kiểm đỏ trước bản sửa và lượt chấm độc lập."},
+    {"id": "d-20260924T152811Z-2", "p": "Chọn một cửa chạy lệnh duy nhất cho cả kiểm công cụ lẫn chạy bộ kiểm, cùng cách với làn ghim lại — đổi lại, kho nào chỉ có công cụ nhờ cấu hình đăng nhập sẽ thấy nền đỏ đúng (công cụ thật sự không có trong môi trường người gọi)."},
+    {"id": "d-20260924T152811Z-3", "p": "KHÔNG chạy công cụ quét độ phủ tự động — bốn trục có/không liệt kê tay đủ; đổi lại không có bằng chứng độ phủ từ công cụ quét."},
+    {"id": "d-20260924T152811Z-4", "p": "KHÔNG viết đặc tả giao diện — việc này không có màn hình nào."},
+    {"id": "d-20260924T153505Z-5", "p": "Theo phản biện, thêm ca đúng hình dạng thật ở crm (công cụ có ở hai nơi, cấu hình đăng nhập tìm bản cũ trước) — bản sửa nửa vời nay không lọt được; đổi lại bộ kiểm chạy thêm vài giây."}
+  ]
+}

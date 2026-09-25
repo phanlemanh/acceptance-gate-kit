@@ -117,15 +117,16 @@ export function dungCache() {
 }
 
 /**
- * chayNen(kho, { cache, agRoot, root, script, them }) — chạy đường nền, trả
+ * chayNen(kho, { cache, agRoot, root, script, them, env }) — chạy đường nền, trả
  * { code, stdout, stderr, tep } với `tep` = nội dung duong-nen.md hoặc null.
+ * `env` đè lên môi trường của lượt test (vd HOME, PATH của ca NEN-ENV).
  */
 export function chayNen(kho, o = {}) {
   const root = o.root || kho.dir;
   const args = [o.script || DUONG_NEN, '--root', root, '--slug', 'demo',
     '--ag-root', o.agRoot || KIT, '--cache-root', o.cache, ...(o.them || [])];
   const r = spawnSync(process.execPath, args, {
-    encoding: 'utf8', env: { ...process.env, NEN_DAU: kho.dau }, maxBuffer: 64 * 1024 * 1024,
+    encoding: 'utf8', env: { ...process.env, ...(o.env || {}), NEN_DAU: kho.dau }, maxBuffer: 64 * 1024 * 1024,
   });
   const p = path.join(root, '_acceptance', 'demo', 'duong-nen.md');
   return { code: r.status, stdout: r.stdout || '', stderr: r.stderr || '', tep: existsSync(p) ? readFileSync(p, 'utf8') : null, tepPath: p };

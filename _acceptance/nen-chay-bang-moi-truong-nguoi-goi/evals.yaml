@@ -1,0 +1,86 @@
+schema_version: 1
+feature_slug: nen-chay-bang-moi-truong-nguoi-goi
+# Khuôn như hồ sơ nen-cong-cu-gan-bang-lenh-con: mọi eval chạy CHUNG một lệnh (bộ chạy
+# dedupe), lệnh ghim dòng PASS của đúng các ca gọi tên — phán quyết không lấy từ mã thoát
+# trọn suite. Ca NEN-ENV* dùng fixture lành của NEN0 (code sinh trong lượt, đường dẫn suy
+# từ vị trí tệp ca) cộng HOME tạm có `.bash_profile` đặt lại PATH và thư mục bin tạm ở đầu
+# PATH người gọi; mỗi ca đổi đúng một biến.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.nme_moi_truong
+    expected: >
+      Exit 0 và dòng PASS của NEN-ENV1. Fixture: khoá `executors.test.a` =
+      `nen-cong-cu-rieng-xyz --chay`, công cụ là tệp thực thi `exit 0` chỉ nằm trong bin tạm
+      ở ĐẦU PATH người gọi; HOME tạm có `.bash_profile` = `export PATH=/usr/bin:/bin`. Ca
+      đòi: mã 0, NEN0 xanh (đối chứng), bốn trường chân `cong_cu suite luoi engine` BẰNG
+      của NEN0 (HOME tạm không đổi màu chân nào khác), tập bullet BẰNG đúng `không có`. Chiều đỏ trong lịch sử: ở commit ca kiểm `71f97b8f` (trước vá) ca
+      này ĐỎ với đúng hai bullet của E2 — báo động giả được tái hiện.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.nme_moi_truong
+    expected: >
+      Exit 0 và dòng PASS của NEN-ENV2 — CÙNG fixture của ENV1, chỉ khác công cụ vắng
+      thật: mã 1 và tập bullet (đã sắp) BẰNG ĐÚNG hai dòng nguyên văn
+      `nen cong-cu: THIEU nen-cong-cu-rieng-xyz (khoa executors.test.a)` và
+      `nen suite: DO SAN executors.test.a ma 127`. Cặp với E1: một bản vá tắt tra công cụ
+      hoặc nuốt mã thoát suite không qua được cặp này.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.nme_moi_truong
+    expected: >
+      Exit 0 và dòng PASS của NEN-ENV3. Ca chép `feature-loop/` vào thư mục tạm; marker
+      `// <<<BASH-NGUOI-GOI` và `// BASH-NGUOI-GOI>>>` khớp đúng 1/1 lần (khác → ca đỏ «marker
+      … khop»); lượt CHƯA tiêm trên bản chép chạy fixture ENV1 phải mã 0 (khác → ca đỏ «ban
+      chep hong»); thân khối chứa đúng 1 lần `['-c',` (khác → ca đỏ «mui tiem mat vat»),
+      đổi thành `['-lc',`, tệp phải khác bản gốc (khác → «ban dot bien TRUNG ban goc»); lượt
+      tiêm chạy fixture ENV1 phải mã 1 với tập bullet BẰNG ĐÚNG hai dòng của E2. Ở commit `71f97b8f` ca này
+      đỏ vì khối chưa tồn tại.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.nme_moi_truong
+    expected: >
+      Exit 0 và dòng PASS của NEN0, NEN2, NEN3, NEN4, NEN4b — chân suite vẫn đúng sau khi
+      đổi cửa chạy lệnh: kho lành xanh bốn chân; suite đỏ sẵn ghim
+      `nen suite: DO SAN executors.test.b ma 3`; suite ghi rác ghim
+      `nen suite: CAY BAN SAU SUITE rac.txt`; bốn dấu tuần tự không lồng; bản đột biến song
+      song (gọi `spawn('bash', ['-c', cmd], { env: process.env })`) làm NEN4 đỏ «suite long
+      nhau». Guard mũi tiêm NEN4b đòi thân `SUITE-TUAN-TU` còn vòng `for (const` và lời gọi
+      `bashNguoiGoi(`.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.nme_moi_truong
+    expected: >
+      Exit 0 và dòng PASS của NEN1, NEN-TD1…NEN-TD6, NEN-LC1…NEN-LC3 — luật từ đầu (bỏ tra
+      và nói ra khi từ đầu mang cú pháp shell) và luật lệnh con của phép chỉ-gán vẫn sống sau
+      khi `command -v` đi qua cửa mới, gồm hai ca đột biến NEN-TD5/TD6 và ma trận 8 khoá
+      NEN-LC3 so bằng nhau.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.nme_moi_truong
+    expected: >
+      Exit 0 và dòng PASS của NEN-ENV4. Fixture ENV1 cộng thư mục «hệ thống» tạm chứa công
+      cụ MỒI cùng tên `exit 42`, đứng đầu PATH mà `.bash_profile` đặt
+      (`export PATH=<he-thong-tam>:/usr/bin:/bin`). Bản thật: mã 0, tập bullet == `không
+      có`, bốn chân bằng NEN0. Bản chép chưa tiêm: mã 0 (khác → «ban chep hong»). Bản chép
+      có khối BASH-NGUOI-GOI đổi `-c` → `-lc`: mã 1, `cong_cu: xanh`, tập bullet BẰNG ĐÚNG
+      `nen suite: DO SAN executors.test.a ma 42`. Phá thử tay (ghi sổ): bản vá yếu giữ
+      `-lc` rồi nối PATH người gọi vào cuối cho fixture ENV1 mã 0 nhưng fixture này mã 1.
+    paths: [feature-loop/scripts/duong-nen.mjs, tests/scripts/duong-nen.test.mjs, tests/scripts/duong-nen-fixture.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

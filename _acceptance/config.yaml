@@ -415,6 +415,9 @@ executors:
     # Vật của hồ sơ nen-cong-cu-gan-bang-lenh-con — ghim ca NEN-LC* của vòng cùng các ca
     # cũ của chân công cụ (NEN0 đối chứng dương, NEN1 và NEN-TD* hồi quy).
     ncl_lenh_con: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 NEN-LC1 NEN-LC2 NEN-LC3; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # Vật của hồ sơ nen-chay-bang-moi-truong-nguoi-goi — ghim ca NEN-ENV* của vòng cùng các ca
+    # cũ của chân suite (NEN0 NEN2 NEN3 NEN4 NEN4b) và chân công cụ (NEN1 NEN-TD* NEN-LC*).
+    nme_moi_truong: "bash -c 'out=$(node tests/scripts/duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in NEN0 NEN1 NEN2 NEN3 NEN4 NEN4b NEN-TD1 NEN-TD2 NEN-TD3 NEN-TD4 NEN-TD5 NEN-TD6 NEN-LC1 NEN-LC2 NEN-LC3 NEN-ENV1 NEN-ENV2 NEN-ENV3 NEN-ENV4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_the_nen: "bash -c 'out=$(node tests/scripts/gate-card-duong-nen.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GN1 GN2 GN3 GN4 GN5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_suite_tuan_tu: "bash -c 'out=$(node tests/workflows/suite-tuan-tu.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in ST0 ST1 ST2 ST3 ST4 ST5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_phan_loai: "bash -c 'out=$(node tests/scripts/phan-loai.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in PL1 PL2 PL3 PL4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
