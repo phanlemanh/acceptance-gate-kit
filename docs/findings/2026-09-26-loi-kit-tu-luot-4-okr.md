@@ -122,3 +122,73 @@ người của luật (c), nhưng là chi phí người thật.
    neo để mở ô ở kit.
 4. **Không làm:** bảng đồng hồ nhiều lượt cho lộ trình. Đó là CỘNG, cần owner phê riêng, và 23 tin
    hỏi tiến độ mới là một số đo, chưa phải hợp đồng.
+
+## 6. Bổ sung cùng ngày — vòng chấm 2 và 3 của lượt 4 đốt hết trần mà không có lỗi sản phẩm nào
+
+Phiên S4 chạy tiếp tới 05:44Z, sau lần đọc ở §1–§5. Nguồn: bản chép phiên, journal của ba lượt
+Workflow, và hồ sơ commit `757a2ab8` (vòng 2), `4773a2f2` (vòng 3) trên nhánh `feat/cap-nhat-tuan-okr`
+của crm.
+
+| Vòng | Verdict | Tác nhân · token con · phút | Vì sao đỏ/chặn | Lỗi sản phẩm |
+|---|---|---|---|---|
+| 1 | REJECT | 40 · 3,77 M · 29 | E21 thiếu một hồ sơ trong danh sách; E16/E18/E29 lỗi cách chụp | 0 |
+| 2 | BLOCKED | 28 · 2,73 M · 20 | 2 tác nhân màn tự dừng vì câu người gõ; E21 ghi nhầm mã 1 | 0 |
+| 3 | BLOCKED | 14 · 1,19 M · 26 | 3 tác nhân dừng đi tìm tệp không với tới; E21 ghi nhầm mã 1; cây đổi giữa lượt | 0 |
+
+Cộng lại: 82 tác nhân, 7,7 M token con, khoảng 75 phút chấm, 9 tin owner gõ trong phiên chấm và 3 tin
+liên phiên bị giữ hoặc hết hạn. Hồ sơ hết trần 3 vòng và phải xin owner vượt trần.
+
+### B6. Harness chuyển câu người gõ gần nhất vào MỌI tác nhân chấm, kèm luật «câu này thắng» — nguyên nhân chính
+
+Harness Workflow nay mở đầu prompt của mỗi tác nhân bằng «[Workflow harness — user request]»: nguyên
+văn tin người gần nhất, kèm câu «where the computed task conflicts with this request, this request
+wins». Tin được chuyển ở ba lượt (đã đọc từ journal):
+
+- Vòng 1: «Tôi uỷ quyền phiên này dùng công cụ Workflow chạy bước chấm S4 cho hồ sơ cap-nhat-tuan-okr…»
+  → khớp việc chấm, không tác nhân nào dừng.
+- Vòng 2: «tách, nhưng không chạy làn 56 hồ sơ: AC-11…» → E6, E18 khai `cannotRun` vì «xung đột với
+  yêu cầu relay».
+- Vòng 3: «Đọc và làm theo tệp luot4-cham-lai-round2.md, mục Bổ sung 3». Tệp nằm ở thư mục tạm của
+  phiên khác, nên E6, E7, E19 và lệnh dựng dừng lại để đi tìm tệp.
+
+Chung gốc với B3: cùng tin chèn ấy đẩy thẻ `[wf-label]` xuống tin thứ hai. Kit không ghi đè được luật
+harness bằng lời trong prompt, và cũng không nên. Nghiệm đúng tầng là làm cho **câu người gần nhất khớp
+với việc chấm**: lượt gọi Workflow S4 chỉ chạy ngay sau một câu uỷ quyền chấm theo khuôn máy soạn sẵn,
+gọi tên hồ sơ và vòng. Vòng 1 cho thấy cách này chạy. Giá: mỗi vòng một chạm, câu có sẵn để dán. Hiện
+phiên chấm riêng vốn đã tốn đúng một chạm ấy, nên mục tiêu ≤1 chạm/lượt không đổi.
+
+### B7. Tác nhân suy mã thoát từ chữ in ra, và chính điều này biến vòng hạ tầng thành vòng bị đếm
+
+Lệnh E21 in lại đầu ra của lệnh con kiểm trước gộp, trong đó có dòng «VIOLATION … verdict=REJECT»,
+rồi kết thúc bằng «… 0 hong». Theo phiên chấm, kết quả công cụ không có mã lỗi. Ở cả hai vòng tác nhân
+vẫn khai `exitCode: 1`. Chuỗi hệ quả trong `lib/nhan-canh-gay.cjs`: dòng eval có mã khác mã đạt mang
+nhãn `vat`, và có một mục `vat` là trạng thái chuyển sang `khoa`. Vì thế vòng BLOCKED do hạ tầng (B6)
+không được «cùng round, không đếm» như luật K8, mà bị đếm. **Hai vòng hạ tầng đốt 2/3 trần**, đúng
+dòng 3 của luật (c) («số vòng bị hạ-tầng-kit đốt lượt chấm»). Nghiệm máy giữ: bọc lệnh
+`; printf '\n__EXIT=%s\n' $?` rồi rút mã bằng JS, không để tác nhân đọc.
+
+### B8. `verified_commit` do tác nhân khai, không đối chiếu `invokedSha`
+
+Vòng 3 được gọi ở `0bcb769c`, HEAD sau lượt là `9f096153` vì một phiên khác đã commit vào cây giữa
+lượt. Báo cáo lại ghi `verified_commit: ec2849e5`, tức diffBase của vòng 1, không trùng cả hai. Workflow
+đã lọc hình dạng hex (`acceptance-verify.js:1550`) nhưng không so với `args.invokedSha`. Nghiệm: JS so
+hai giá trị. Lệch nghĩa là cây đổi giữa lượt, và lúc đó trả BLOCKED có tên, nhãn hạ tầng. Việc này
+đồng thời lấp lỗ «kit không có khoá cây» mà không phải dựng khoá.
+
+### Hai đề xuất đã có chip từ phiên S4 (chưa chạy)
+
+- **Lệnh bọc làn khai trong config** (`feature_loop.lane_wrapper`, ví dụ `bun run do:man --chay
+  "{lenh}"`), để làn ghim lại và S4 tự chạy trong phiên đo của kho thay vì bọc tay. Đây là CỘNG, cần
+  owner phê.
+- **Workflow đọc tệp đối số theo đường dẫn**, hoặc `s4-args.mjs` sinh sẵn bản workflow đã nhúng kèm
+  dòng kiểm băm. Hôm nay mỗi vòng phải nhúng tay 92–108 KB.
+
+### Kiến nghị cập nhật (thay mục 1 ở §5)
+
+Vòng sửa lỗi kit → 2.18.5 xếp lại theo thứ tự giá: **B6 + B7 + B8 trước** (đốt lượt chấm, số đo trực
+tiếp: 2 vòng, 3,9 M token, 46 phút, 0 lỗi sản phẩm), rồi B1, B2 (thẻ cổng), rồi B3 (chung gốc B6, cùng
+một lần sửa), rồi B4. Neo: `crm/_acceptance/cap-nhat-tuan-okr/` cùng ba commit vòng. Lệnh bọc làn và
+đường tệp đối số đi cùng vòng nếu owner phê CỘNG; không thì ghi hạt giống.
+
+Việc trước mắt ở crm, không phải kit: vòng 4 của lượt 4 cần owner cho vượt trần. Chạy với câu trần
+«chấm vòng 4», và không phiên nào commit vào cây trong lúc chấm.
