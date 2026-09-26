@@ -262,3 +262,87 @@ không phải một ô.
 
 Chip 03:29 (lệnh bọc làn, đường tệp đối số) là CỘNG, chỉ vào vòng nếu owner phê. Neo cho cả vòng:
 `crm/_acceptance/cap-nhat-tuan-okr/` cùng các commit vòng `0a0f16f9`, `757a2ab8`, `4773a2f2`.
+
+## 8. Chấm theo North Star, rồi đề xuất cập nhật kit
+
+### 8.1 Ba thước trên lượt 4 (`cap-nhat-tuan-okr`, T3, ship qua crm#153)
+
+| Thước | Số đo | Ghi chú |
+|---|---|---|
+| Làm-xong → quyết-được | **5 giờ 33 phút**: tệp đối số vòng 1 lúc 00:52Z → ký lúc 06:25Z | Bốn vòng chấm chỉ chiếm 93 phút. Phần còn lại là chờ tin liên phiên, ghim lại sau mỗi lần gộp (#149–#152 lên nhánh chính giữa chừng), và gỡ kẹt phiên. |
+| Lượt gọi người | Thiết kế T3 là 4. Riêng phiên chấm có **≥11 tin owner gõ**, và chỉ dòng ký là trong thiết kế. Cộng thêm ≥6 lần duyệt tin bị giữ ở phiên kia. | Tức **≥10 lượt ngoài thiết kế** trên một kết quả ship, trong khi mục tiêu là 0. |
+| Chi phí máy | 4 vòng S4: 100 tác nhân, 919 k token ra, 93 phút; token con khoảng 9 M (vòng 4 chưa tách được) | Cả 4 vòng: **0 lỗi sản phẩm trong hợp đồng**. Ba ô màn đỏ vòng 1 là lỗi thước; vòng 2–3 chết vì hạ tầng. Khối tìm lỗi ra 13 mục ngoài hợp đồng, owner đổi 5 mục sang hợp đồng mới. Khối này có giá trị thật với người, nhưng người phải gõ 13 định đoạt. |
+| Tin được (ràng buộc) | Không màu xanh nào sai | Bằng chứng không tự dối vẫn giữ. Cái vỡ là **chi phí** để giữ nó. |
+
+Đọc theo thứ tự luật đặt, dòng người trước dòng máy: kit giữ được niềm tin nhưng đã **đẩy người vào
+giữa vòng**, đúng thứ North Star sinh ra để chặn. Số lượt ngoài thiết kế không đến từ răng. Nó đến từ
+**chỗ nối giữa kit và harness**: câu người lọt vào tác nhân, tin bị giữ, tác nhân con không có Workflow,
+mã thoát suy đoán.
+
+### 8.2 Chấm từng hạng mục
+
+Cột «Thước» ghi dòng mà hạng mục đang làm hỏng (N = lượt gọi người · T = làm-xong→quyết-được · M = máy ·
+Tin = bằng chứng). Cột «Loại»: SỬA = vá cái đang có, không thêm bề mặt · TRỪ · CỘNG = cần owner phê.
+
+| # | Hạng mục | Nguyên tố | Thước | Đo được trên lượt 4 | Loại | Hạng |
+|---|---|---|---|---|---|---|
+| B7 | Mã thoát do tác nhân đoán → vòng hạ tầng bị đếm | 2 | N · T · M | Trần vỡ, owner phải cho vòng 4 | SỬA | **1** |
+| B6 | Câu người lọt vào mọi tác nhân chấm | 3 (câu người ≠ việc) | N · T · M | 2 vòng · 46 phút · 3,9 M token · ≥4 tin | SỬA | **1** |
+| B8 | verified_commit không so invokedSha · cây đổi giữa lượt | 2 | Tin | Hồ sơ vòng 3 ghi sai commit | SỬA | **1** |
+| B11 | Kho tiêu thụ chép luật K8 thành lời | — hệ quả B7 | N | Đề bài lượt 5 mang «ba luật» | tự hết khi B7 xong | — |
+| — | Tác nhân con không có Workflow → phiên chấm riêng + tin liên phiên | 3 | N · T | Phần lớn trong ≥10 lượt ngoài thiết kế | **TRỪ** (cách chạy, không mã) | **1** |
+| B9 | Eval màn song song trên một kho đo → đỏ giả | 2 | T · M | Góp vào REJECT vòng 1; lượt 5 tự khoá | SỬA (đảo mặc định) | 2 |
+| B1 | Thẻ Cổng Phạm vi rơi «sẽ không làm» | 3 | Tin của chữ ký | 5/8 mục rơi im lặng | SỬA | 2 |
+| B2 | Thẻ chỉ đọc bảng phản biện đầu | 3 | Tin của chữ ký | 5 phát hiện vắng | SỬA | 2 |
+| B4 | Ảnh bằng chứng không neo hồ sơ | 2 | Tin | Ảnh ở thư mục tạm | SỬA | 3 |
+| B3 | Bảng chi phí mù theo khối | — (đo kit) | đo M | Dòng 4 luật (c) không cắt được | SỬA, chung gốc B6 | 3 |
+| B5 | run_id không kiểm hình dạng | 2 | — | 2 mã lệch, chưa đỏ | sổ | 4 |
+| §4 | Ghim lại dây chuyền | — | **T** (lớn nhất) | 35 lượt / 3 ngày, 3 lượt riêng cho #151 | chưa biết — đo trước | hạt giống |
+| — | Eval hứa việc vượt trần 600 giây (E21 «56 hồ sơ») lọt qua Cổng Phạm vi | 1 | N | 1 quyết định đổi AC sau cổng | CỘNG (kiểm ở Cổng Phạm vi) | hạt giống |
+| chip 03:29 | Lệnh bọc làn · đọc tệp đối số theo đường dẫn | — | M | Nhúng tay có kiểm băm, đang chạy được | CỘNG | hoãn |
+
+### 8.3 Đề xuất cập nhật kit
+
+**A. Vòng 2.18.5 «chấm không tự đốt lượt, không kéo người vào giữa»**: chỉ SỬA, không thêm bề mặt.
+1. **B7:** workflow bọc mọi lệnh máy bằng `; printf '\n__EXIT=%s\n' $?` rồi rút mã bằng JS. Tác nhân không
+   còn khai mã thoát.
+2. **B8:** JS so `verified_commit` với `args.invokedSha`. Lệch thì BLOCKED có tên «cây đổi giữa lượt»,
+   mang nhãn hạ tầng (cùng vòng, không đếm).
+3. **B6 (+B3):** máy soạn một câu uỷ quyền chấm cố định, gọi tên hồ sơ và vòng. SKILL chỉ cho gọi
+   Workflow S4 ngay sau câu ấy; sau câu khác thì in câu ấy ra để dán. `wf-usage` đọc nhãn từ `.meta.json`
+   (`description`/`workflowPhase`) thay vì tin đầu.
+4. **B9, đảo chiều mặc định:** eval ui-check chạy tuần tự, vì vật đo là một trình duyệt và một kho. Giá:
+   khoảng một phút mỗi eval màn. Không thêm khoá cấu hình nào.
+5. **B1, B2:** thẻ tra `wont_do` theo cả id `OOS-*` và đọc mọi bảng phản biện. Dòng dịch nào không khớp
+   ô thì bật **cờ vàng**, không rơi im lặng. Đây là nghiệm theo lớp «tiếng người vào ô máy đọc».
+6. **B4:** đường ảnh tuyệt đối dưới hồ sơ của vòng.
+
+Mỗi mục kèm ca đỏ trên chính hồ sơ `crm/_acceptance/cap-nhat-tuan-okr/` và commit vòng 2–3. Đây là
+chiều đỏ có sẵn, không phải fixture viết tay.
+
+**B. TRỪ, không cần mã (GUIDE §điều phối + SKILL S0):** mỗi lượt của một lộ trình chạy như **phiên cấp
+cao nhất** (chip), không làm tác nhân con của phiên điều phối. Phiên đó chấm S4 tại chỗ, nên bỏ được
+phiên chấm riêng, tin liên phiên và bước «đọc và làm theo tệp». Lượt 5 đã chạy đúng hình này
+(07:34Z). Bỏ luôn nếp cũ «tác nhân con dừng trước S4», vì nó sinh ra chỉ để vá giới hạn Workflow.
+
+**C. Hạt giống, không mở ô:** (1) đo tám hồ sơ hoá cũ vì mã Zalo để biết ghim lại dây chuyền là lỗi của
+`paths` hay của kit; (2) Cổng Phạm vi có nên báo eval nào không thể chạy trong trần công cụ không.
+
+**D. CỘNG hoãn:** lệnh bọc làn và đọc tệp đối số theo đường dẫn. Đường tay hiện chạy được và có kiểm
+băm, nên nó không kéo người vào vòng. Mở lại khi có ≥1 vòng chấm hỏng vì nhúng sai.
+
+### 8.4 Bảng dự báo 5 dòng cho vòng A + B (luật c)
+
+| Dòng | Dự báo | Căn cứ |
+|---|---|---|
+| Làm-xong → quyết-được | ↓ | Không còn vòng chết vì hạ tầng hay tin bị giữ |
+| Lượt gọi người/vòng (ngoài thiết kế) | ↓ mạnh | B6 + TRỪ phiên riêng xoá phần lớn ≥10 lượt đo được |
+| Vòng bị hạ-tầng-kit đốt | ↓ | B7 + B8 cho vòng hạ tầng đúng nhãn, không đếm |
+| Token máy/vòng | ↓ | Ít vòng hơn. Mỗi vòng thì như cũ; khối tìm lỗi không đổi |
+| Phút máy/lượt chấm | ↑ nhẹ | Eval màn chạy tuần tự |
+
+Điều kiện tin cậy: đường verdict không đổi thành phần. B7 và B8 chỉ đổi **nguồn** của hai trường, và
+mỗi cái có ca đỏ lẫn ca im (vòng 1 thật phải vẫn REJECT; cây không đổi thì phải im).
+
+**Luật chiều rộng (b):** đây là vòng meta duy nhất giữa hai mốc, và phải buộc vào việc crm nhận 2.18.5.
+crm đang chờ thật cho lượt 5 trở đi, nên có neo ngoài.
