@@ -317,6 +317,19 @@
   một công ty khác dùng kit, thì không thuộc kit. (Quyết 2026-07-27, plan
   discovery-gate0-rollout G1.)
 
+  - **Sửa kit vì sự cố của MỘT kho phải cân trên MỌI kho (owner đặt 26/09).**
+    Kit là nền dùng chung; mỗi kho tiêu thụ có hình dạng hồ sơ, tên mục, bộ đo
+    khác nhau. Phép thử cho mọi đề xuất sửa: «kho KHÔNG có sự cố này được gì,
+    mất gì?» và «hành vi cũ có ai đang dựa không?». Thứ tự chọn nghiệm: sửa
+    đúng tầng (vật của kho tự lo) → bộ đọc khoan dung + cờ vàng → bật thêm theo
+    lựa chọn → đổi mặc định; đổi mặc định là mọi kho trả giá. Neo vào khuôn kit
+    định nghĩa (marker, chữ ký tiêu đề), không vào từ vựng của một kho. Răng
+    hiện có: chiến dịch phát hành đo trước→sau trên các kho (tiền lệ 23/09,
+    `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`). Chưa có: kiểm vi
+    phân tự động trên bộ hồ sơ thật — ngưỡng dựng: ≥1 mốc đổi hành vi làm một
+    kho đổi phán quyết mà vật của kho không đổi. Ca đẻ luật: B9,
+    `docs/findings/2026-09-26-loi-kit-tu-luot-4-okr.md` §9.
+
 - **Đổi schema artifact phải có đường đọc-cũ**: nhánh đọc bản cũ + cờ vàng
   trên card, KHÔNG bắt consumer migrate hàng loạt (pattern đã dùng: contract
   thiếu Coverage → cờ vàng 1.13.0; workspace thiếu gap-probe → cờ vàng
