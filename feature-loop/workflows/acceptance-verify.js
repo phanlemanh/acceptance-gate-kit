@@ -871,6 +871,9 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
 // killedByTool ⇒ cannotRun: không tin một lời khai đơn lẻ — đúng ca sự cố
 // (agent khai cannotRun=false + exitCode=1 khi lệnh bị giết). reason agent giữ
 // NGUYÊN VĂN nếu có; trống → điền khuôn ghim để card BLOCKED không rỗng.
+// Vì reason là chữ tự do, tín hiệu máy-đọc là CỜ killedByTool: nó đi tới sổ chạy
+// thành `killed_by_tool` (dưới) và lib/nhan-canh-gay.cjs phân nhãn trên cờ ấy —
+// thiếu cờ trên sổ là lượt suite bị cắt ra nhãn null, khoá, đốt round (crm 26/09).
 // Áp cho CẢ BA lane trước mọi merge; baseline → cannotRun → baselineStatus n-a.
 const TOOL_KILL_REASON = 'bi cong cu giet (timeout tool/output cat) — exit code khong phai cua lenh'
 const normKill = r => (r && r.killedByTool === true)
@@ -908,7 +911,7 @@ for (const cmd of distinctCmds) {
   // KHÔNG được tính pass-rate/variance trên mẫu thiếu: 1/5 lần chạy được mà PASS = giả mạo (đúng triết lý kit: verify được hay BLOCKED, không fake).
   if (cannotRunCount > 0 || missing > 0) {
     const firstCannot = rs.find(r => r.cannotRun)
-    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === expCmd(cmd)).length, variance: false, cannotRun: true, reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
+    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === expCmd(cmd)).length, variance: false, cannotRun: true, killedByTool: !!(firstCannot && firstCannot.killedByTool === true), reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
     continue
   }
   // đủ N lần chạy sạch → tính pass-rate / variance
@@ -1006,6 +1009,7 @@ for (const m of machine) {
       evalId: `SUITE-${ten}`, run_id: rid,
       exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
       ...(m.cannotRun ? { cannot_run: true, reason: m.reason || '' } : {}),   // lý do: thẻ + lưới phân nhãn cạnh gãy (lib/nhan-canh-gay.cjs)
+      ...(m.cannotRun && m.killedByTool ? { killed_by_tool: true } : {}),   // cờ máy-đọc: nhãn «không đọc được ở đây» (tool-kill-rule.md)
     }))
     continue
   }
@@ -1017,6 +1021,7 @@ for (const m of machine) {
       exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
       ...(m.runs > 1 ? { runs: m.runs, passes: m.passes } : {}),
       ...(m.cannotRun ? { cannot_run: true, reason: m.reason || '' } : {}),   // lý do: thẻ + lưới phân nhãn cạnh gãy (lib/nhan-canh-gay.cjs)
+      ...(m.cannotRun && m.killedByTool ? { killed_by_tool: true } : {}),   // cờ máy-đọc: nhãn «không đọc được ở đây» (tool-kill-rule.md)
     }))
   }
 }
