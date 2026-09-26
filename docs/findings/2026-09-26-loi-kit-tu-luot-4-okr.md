@@ -192,3 +192,73 @@ một lần sửa), rồi B4. Neo: `crm/_acceptance/cap-nhat-tuan-okr/` cùng ba
 
 Việc trước mắt ở crm, không phải kit: vòng 4 của lượt 4 cần owner cho vượt trần. Chạy với câu trần
 «chấm vòng 4», và không phiên nào commit vào cây trong lúc chấm.
+
+## 7. Sổ chip lỗi kit của phiên điều phối (đọc lại tới 07:58Z) và ba lỗi mới
+
+### 7.1 Chip nào đã chạy, chip nào còn treo
+
+| Mở lúc (Z) | Nơi mở | Chip | Trạng thái 26/09 | Trùng với |
+|---|---|---|---|---|
+| 24/09 16:25 | điều phối | Báo giả «THIEU merge-base» | **Xong** — #216, 2.18.4 | — |
+| 25/09 14:34→15:20 | điều phối | 2 → 3 → 4 lỗi (PATH, tệp hồ sơ bị coi là rác, thẻ rơi Ngoài phạm vi, thẻ chỉ đọc bảng phản biện đầu) | **Một nửa** — phiên chip sửa PATH (#217); #218 sửa lỗi gọi nhầm tên tệp bẩn sẵn; hai lỗi thẻ không làm | §2, B1, B2 |
+| 26/09 03:29 | phiên S4 | Lệnh bọc làn khai trong config + workflow đọc tệp đối số theo đường dẫn | **Chưa chạy** | §6 cuối |
+| 26/09 03:31 | điều phối | Hai lỗi thẻ cổng (Ngoài phạm vi, bảng phản biện) | **Chưa chạy** | B1, B2 |
+| 26/09 05:43 | phiên S4 | Chắn câu người lọt vào tác nhân · mã thoát suy đoán · verified_commit sai | **Chưa chạy** | B6, B7, B8 |
+
+Ba chip treo cùng nhắm một bộ tệp (`gate-card.js`, `acceptance-verify.js`, `s4-args.mjs`) và đều viết
+«làm theo quy trình vòng tính năng của kho kit». Chạy riêng từng chip là ba vòng, mỗi vòng ba cổng
+người, tức tới 9 lượt gọi. Gom lại thành một vòng thì chỉ còn 3. Chip 03:31 còn tả sai gốc của B1: bộ dựng
+CÓ đọc «Out of scope». Chỗ rơi là bản dịch ghi id `OOS-*` mà bộ dựng không tra (xem B1). Phiên nhận
+chip đó cần đọc §3 trước.
+
+### 7.2 Ba lỗi mới
+
+**B9. Tác nhân ui-check chạy song song mà dùng chung một kho đo → đỏ giả.** Lượt 5 thấy trước khi
+chấm: 9 tác nhân cùng gọi một phép đo màn trên một kho, nên từ tác nhân thứ hai trở đi thấy dữ liệu của
+tác nhân trước. Lượt 5 tự bọc phép đo trong một khoá xếp hàng, khoảng một phút mỗi lượt. Phiên điều
+phối ghi rằng đây «đúng là lỗi từng làm lượt 4 đỏ ở lượt chấm đầu». Kit chỉ xếp tuần tự các lệnh suite
+(AC-9); eval màn luôn song song. Kho tiêu thụ không có cách khai «eval này không chạy song song được»,
+nên mỗi kho tự vá một kiểu: hôm nay crm có hai kiểu, thư mục ảnh riêng từng lượt và khoá xếp hàng. Nghiệm
+đúng tầng là một cờ khai trong `evals.yaml` hoặc config (ví dụ `serial: true` cho executor) để workflow
+đưa eval đó vào nhánh tuần tự sẵn có. Chip 03:29 (lệnh bọc làn) chạm cùng chỗ.
+
+**B10. Hai phiên cùng ghi một cây, và cách vòng qua giới hạn harness này đẻ ra lỗi harness kia.** Chuỗi
+đo được 01:37–05:50Z:
+1. Tin liên phiên giữa phiên điều phối và phiên chấm bị giữ chờ duyệt rồi hết hạn ít nhất 6 lần, mỗi
+   lần tắc 30–60 phút.
+2. Để vòng qua, phiên điều phối ghi đề bài vào tệp nháp và nhờ owner dán «Đọc và làm theo <tệp>».
+3. Chính câu dán ấy là câu harness chuyển vào mọi tác nhân chấm (B6), và vòng 3 chết vì tác nhân đi tìm
+   tệp.
+4. Cũng để khỏi chờ, phiên điều phối tự gộp #152 vào cây lượt 4 đúng lúc vòng 3 khởi động, nên cây đổi
+   giữa lượt (B8).
+
+Kit không giữ bất biến «một cây, một người ghi trong lúc chấm». Phiên điều phối phải tự hứa «tôi không
+đụng cây», nghĩa là bất biến này đang được giữ bằng lời. B8 (so HEAD với `invokedSha`) biến nó thành
+vật-máy-giữ ở phía phát hiện.
+
+**B11. Luật «chặn vì hạ tầng thì thử lại cùng vòng» đúng trên giấy nhưng máy không thi hành, nên kho
+tiêu thụ tự chép luật.** Phiên điều phối viết đúng tinh thần K8: vòng 2–3 là lỗi bộ chấm, không được
+đếm. Nhưng `s4-args` vẫn đánh số vòng 3 rồi vòng 4, và owner phải cho vượt trần thêm một lần. Gốc máy là
+B7: một eval bị gắn nhãn `vat` do mã thoát đoán sai. Hệ quả thứ hai: đề bài chip S4 lượt 5 (07:15Z) chép
+thành «ba luật bắt buộc», gồm «chạy lại cùng round» và «ui-check chạy tuần tự». Phiên chấm không làm được
+hai điều ấy nếu không sửa workflow, mà luật kho cấm sửa. Luật sống ở lời của kho tiêu thụ trong khi máy
+của kit làm khác, đúng lớp «dặn bằng lời làm nghiệm».
+
+### 7.3 Một quan sát giảm lượt gọi người, không cần sửa mã
+
+S4 phải tách sang phiên riêng chỉ vì **tác nhân con** không có Workflow. Lượt 5 chạy như một phiên chip
+cấp cao nhất, và đã chấm S4 ngay trong phiên của nó (07:34Z): không phiên chấm riêng, không tin liên
+phiên, không bước «Đọc và làm theo tệp». Mở mỗi lượt của lộ trình thành phiên cấp cao nhất thay vì tác
+nhân con xoá được cả chuỗi B10 và câu uỷ quyền phụ. Đây là cách điều phối, thuộc GUIDE hoặc bộ nhớ,
+không phải một ô.
+
+### 7.4 Kiến nghị gộp (thay §5.1 và §6 cuối)
+
+**Một vòng kit → 2.18.5**, rút chip 03:31 và chip 05:43 vào vòng đó thay vì chạy riêng:
+1. B6, B7, B8, B11: đốt lượt chấm.
+2. B9: cờ tuần tự cho eval.
+3. B1, B2: thẻ cổng.
+4. B3, B4: đo chi phí, neo ảnh.
+
+Chip 03:29 (lệnh bọc làn, đường tệp đối số) là CỘNG, chỉ vào vòng nếu owner phê. Neo cho cả vòng:
+`crm/_acceptance/cap-nhat-tuan-okr/` cùng các commit vòng `0a0f16f9`, `757a2ab8`, `4773a2f2`.
