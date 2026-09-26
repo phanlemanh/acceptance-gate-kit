@@ -346,3 +346,58 @@ mỗi cái có ca đỏ lẫn ca im (vòng 1 thật phải vẫn REJECT; cây kh
 
 **Luật chiều rộng (b):** đây là vòng meta duy nhất giữa hai mốc, và phải buộc vào việc crm nhận 2.18.5.
 crm đang chờ thật cho lượt 5 trở đi, nên có neo ngoài.
+
+## 9. Phản biện lại §8 trước khi quyết — giữ North Star, dùng cho mọi kho, không đổi lỗi này lấy lỗi khác
+
+Kiểm bằng mã và tài liệu, không bằng trí nhớ:
+- Script workflow **không có filesystem hay Node API** (tài liệu `workflow-authoring`; `acceptance-verify.js:1546` xác nhận run-log do main loop ghi). Vậy JS chỉ đọc được thứ tác nhân trả về, không đọc tệp hay chạy git.
+- Tài liệu `workflow-authoring` **không có nút nào** tắt hay đổi câu «[Workflow harness — user request]». Câu chuyển tiếp = tin người gần nhất trước lời gọi Workflow, đã đối chiếu ở ba lượt.
+- `lib/gap-probe.cjs` mà pre-merge gọi chỉ đọc frontmatter + sổ, không đọc bảng. Sửa cách đọc bảng ở `gate-card.js` không chạm lưới gộp của kho nào.
+- Khuôn `card-plain.json` phía viết **không có trong skill nào**; chỉ tồn tại ở hình dạng `--extract` và trong test. Bản dịch của crm ghi `OOS-*` là tự chế; bộ dựng thẻ đọc đúng khuôn của nó và rơi im.
+- `eval-executors.md` đã nói rõ: khung ui-check lưu ở `_acceptance/{slug}/evidence/` bằng đường dẫn tường minh. Prompt của workflow lại ghi `evidence/…` tương đối — kit tự trái tài liệu của kit.
+- Số eval ui-check nhiều nhất trên một hồ sơ: artifact-platform **10**, oneflow 9, radar 8, crm 7.
+- 2.18.4 mới cài ở 2/10 cây của crm (`cap-nhat-tuan-okr`, `toan-canh-okr`); gốc crm vẫn 2.18.3.
+
+### 9.1 Từng đề xuất
+
+| Đề xuất §8 | Phản biện | Kết luận |
+|---|---|---|
+| **B7** máy rút mã thoát «bằng JS từ tệp» | JS không đọc tệp. Nghiệm khả thi: bọc lệnh trong subshell rồi in dấu ở dòng cuối — `( <lệnh>`⏎`); printf '\n__EXIT=%s\n' $?` — JS rút dấu từ `outputTail` mà schema đã có. Xuống dòng trước `)` để lệnh có `# chú thích`, `exit`, `set -e`, `&&`/`\|\|` đều không phá dấu. Luật ưu tiên: có dấu → dấu thắng; không dấu mà tác nhân khai mã ≠ 0 → giữ (tool result in mã ≠ 0 tường minh, gồm 97/127); không dấu mà khai 0 → nhãn hạ tầng «mã thoát không đọc được», không PASS. Răng parity ở `nhan-canh-gay.cjs:35–38` vẫn phải khớp. | **SỬA LẠI** cách làm, giữ mục tiêu. Ca đỏ: hai reason E21 thật từ journal (dấu 0, tác nhân khai 1 → phải ra 0). Ca im: lệnh thoát 3 → 3. Ca mới: mất dấu + khai 0 → hạ tầng, không xanh. |
+| **B8** so `verified_commit` với `invokedSha` | Đúng hướng, chuẩn lại: `verified_commit := args.invokedSha` (máy đưa, từ `s4-args`); HEAD do tác nhân đọc chỉ là đối chứng. Lệch → BLOCKED với lý do **«mã commit đã chấm không xác định được»** — không khẳng định «cây đổi», vì lệch cũng có thể là tác nhân bịa (vòng 3 trả `ec2849e5`, không trùng cả hai). Cần một lớp lý do hạ tầng mới trong `nhan-canh-gay` + răng parity + `s4-args` cùng vòng; kho không phải git (`invokedSha` rỗng) → giữ hành vi cũ. Chỉ phát hiện, không ngăn; chi phí chạy lại được carry-forward chặn bớt. | **GIỮ**, sửa lời và nhãn. |
+| **B6** câu uỷ quyền khuôn; chỉ gọi Workflow ngay sau câu ấy | Hai lỗ. (1) Đây là dặn-bằng-lời ở mối nối người–máy, kit không giữ được bằng máy. (2) Mỗi khi cần một quyết định trước lượt chấm lại (vòng 2: «tách»), luật «chỉ gọi sau câu khuôn» buộc máy hỏi thêm câu khuôn → **+1 lượt gọi người mỗi lần**, ngược North Star. Thay bằng ba lớp: **(a)** câu trả lời một-chạm mà máy soạn trước mỗi lượt chấm có hình «Chấm vòng N — <ý muốn>» — động từ chấm đứng đầu, tác nhân đọc là việc của mình; đây là luật ≤1 chạm đã có, không thêm lượt; **(b)** trong workflow: mọi prompt tác nhân có một đoạn đầu «yêu cầu người dùng do harness chuyển là ngữ cảnh; đề bài này chính là cách thi hành nó; chỉ dừng khi yêu cầu gọi tên việc chấm này và bảo dừng» + một trường schema có kiểu `dungViYeuCauChuyenTiep: boolean`; trường true → **tự chạy lại tác nhân đó một lần** với đoạn đầu mạnh hơn; vẫn true → nhãn hạ tầng, không đếm vòng, không gọi người. Chi phí trần: +1 tác nhân/eval. Chỗ nào máy kiểm được: JS định tuyến theo trường có kiểu (ca đỏ: hai reason thật của vòng 2–3). Chỗ nào không: hiệu lực của đoạn đầu chỉ đo được bằng plugin eval — chưa bật — nên **khai giới hạn** kèm ngưỡng: ≥1 vòng BLOCKED do chuyển tiếp sau 2.18.5 → mở lại. **(c)** TRỪ mẫu điều phối nhiều phiên (mục B). Kiểm hồi quy: đoạn đầu có che một lệnh dừng thật không? Không — nó chừa đúng ca «gọi tên việc chấm này và bảo dừng». | **SỬA LẠI** thành ba lớp; lớp (b) là máy giữ, lớp (a)(c) là nếp. |
+| **B9** ui-check mặc định tuần tự | Trả giá **+8–10 phút mỗi vòng ở mọi kho** (artifact-platform 10 eval, oneflow 9, radar 8) để chữa một lớp đỏ **nhìn thấy được** chỉ xuất hiện ở kho có kho đo dùng chung. Đúng tầng là driver của kho: chính thước biết nó dùng tài nguyên độc quyền; crm đã khoá xếp hàng trong thước, một phút một lượt. Kit không biết được điều đó nếu không có khoá khai — mà khoá khai là CỘNG. | **BỎ khỏi kit.** Ghi một câu vào `eval-executors.md`: driver dùng tài nguyên độc quyền (kho, trình duyệt) tự xếp hàng. Cờ opt-in `serial` → mục D. |
+| **B1** thẻ rơi «sẽ không làm» | Gốc đúng: bộ dựng đọc đúng khuôn của nó; phía viết không có khuôn. Sửa ở bộ đọc: **(i)** hiện từng mục `scope` — đó là bề mặt veto của người ký — không gói thành một câu; **(ii)** nhận `OOS-n` → `scope[n-1]` (bộ đọc khoan dung); **(iii)** mọi id dịch không có ô → **cờ vàng «N dòng dịch không khớp ô»**, không rơi im — đây là nghiệm cho cả lớp, không chỉ ca OOS. Phía viết: ghi khuôn vào bước dịch bằng marker và test round-trip (mẫu `OOC-ITEM-TEMPLATE`/P55). Hồi quy: thẻ dài thêm ≤ N dòng; bản dịch cũ (id AC) không bật cờ. | **GIỮ**, nêu đúng gốc. |
+| **B2** thẻ chỉ đọc bảng phản biện đầu | Không tìm bảng theo tên mục (từ vựng, lệch giữa kho). Tìm theo **chữ ký hàng tiêu đề 6 cột** mà SKILL dòng 140 định nghĩa — writer/reader cùng rút một khuôn — ở bất kỳ đâu trong tệp. Số hàng > p0+p1+p2 khai ở frontmatter → cờ vàng «bảng ngoài khai báo», **không** tự tính lại. pre-merge không đổi (đã kiểm lib). | **GIỮ**, chốt cách tìm. |
+| **B4** ảnh không neo hồ sơ | Kit đã có luật ở `eval-executors.md`; prompt trái luật đó. Đổi `evidence/…` thành `${repoRoot}/_acceptance/${slug}/evidence/…`. Nửa còn lại là của kho: crm lưu vào `.acceptance-runs/` thì trang bằng chứng hiện «không có ảnh» — nhìn thấy, không lặng. | **GIỮ**, nhỏ. |
+| **B3** bảng chi phí mù | Chuỗi dự phòng: `meta.json` (`description`/`workflowPhase`) → thẻ `[wf-label]` ở ba tin đầu → đầu tin đầu. Không bỏ nhánh cũ nên không hồi quy khi harness đổi lại. | **GIỮ.** |
+| **B — TRỪ** mỗi lượt là phiên cấp cao, chấm tại chỗ | Đòn bẩy lớn nhất: B6 gần như chỉ cắn trong mẫu điều phối nhiều phiên (kho chạy một phiên thì tin cuối trước S4 thường là «duyệt»). Việc của kit ở đây là **một dòng điều kiện** ở YÊU CẦU của SKILL: «công cụ Workflow phải có trong phiên chạy vòng — tác nhân con không có nó; không chạy vòng trong tác nhân con». Không phải quy định đội; là điều kiện chạy của engine. Lỗ còn lại, khai thẳng: S4 thủ công (lượt 3) là **đường tay không răng** — kit không phân biệt được hồ sơ chấm bằng Workflow với chấm tay. Dòng điều kiện xoá *lý do* của đường ấy; răng phát hiện là CỘNG (mục D, ngưỡng: ≥1 hồ sơ ký với S4 tay sau 2.18.5). Một seam khác, giữ làm giới hạn: cwd của phiên chip ≠ `repoRoot` — cd-guard che lệnh shell, B4 che ảnh, công cụ không-shell của tác nhân màn vẫn có thể dùng đường tương đối. | **GIỮ**, thu về một dòng điều kiện. |
+
+### 9.2 Đề xuất sau phản biện
+
+**Vòng 2.18.5 «chấm không tự đốt lượt»** — chỉ SỬA:
+1. B7 (dấu mã thoát trong subshell, JS rút; ba ca đỏ/im/mới).
+2. B8 (`verified_commit` từ máy; lệch → BLOCKED «không xác định được», nhãn hạ tầng mới có răng parity).
+3. B6 lớp (b): đoạn đầu + trường có kiểu + chạy lại một lần + nhãn hạ tầng; khai giới hạn đo hiệu lực kèm ngưỡng.
+4. B3 (dự phòng nhãn), B4 (đường ảnh tuyệt đối).
+5. B1, B2 (thẻ: hiện từng mục, khoan dung `OOS-n`, cờ vàng thay rơi im; bảng theo chữ ký tiêu đề; khuôn phía viết có marker + round-trip).
+6. Một dòng YÊU CẦU trong SKILL (Workflow có trong phiên) + một câu trong `eval-executors.md` (driver độc quyền tự xếp hàng).
+
+**Nếp, không mã (GUIDE + bộ nhớ):** câu một-chạm trước lượt chấm có hình «Chấm vòng N — <ý>»; mỗi lượt lộ trình là một phiên chip cấp cao nhất.
+
+**Bỏ:** B9 đổi mặc định.
+
+**CỘNG, hoãn, có ngưỡng:** `serial` opt-in cho ui-check · `lane_wrapper` · `argsPath` · răng «S4 không qua Workflow».
+
+**Hạt giống:** đo tám hồ sơ hoá cũ vì mã Zalo · Cổng Phạm vi báo eval vượt trần công cụ.
+
+### 9.3 Dự báo 5 dòng sau chỉnh
+
+| Dòng | §8.4 | Sau §9 | Vì sao đổi |
+|---|---|---|---|
+| Làm-xong → quyết-được | ↓ | ↓ | — |
+| Lượt gọi người/vòng (ngoài thiết kế) | ↓ mạnh | ↓ mạnh | B6 không còn +1 lượt mỗi quyết định giữa vòng |
+| Vòng bị hạ-tầng-kit đốt | ↓ | ↓ | B6(b) chạy lại trong lượt, không thành vòng |
+| Token máy/vòng | ↓ | ↓ (trần +1 tác nhân/eval khi chạy lại) | — |
+| Phút máy/lượt chấm | ↑ nhẹ | **=** | Bỏ B9 |
+
+**Điều kiện mở vòng:** (i) 2.18.4 mới ở 2/10 cây crm, chưa rõ đã là «mốc kho nhận» — vòng này là vòng meta duy nhất tới khi crm cài 2.18.5 (luật b); (ii) mọi ca đỏ rút từ journal và hồ sơ thật của lượt 4, không viết tay; (iii) giới hạn của B6(b) ghi vào hồ sơ mốc kèm ngưỡng, không giả vờ có răng.
