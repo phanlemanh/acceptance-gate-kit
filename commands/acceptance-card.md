@@ -127,7 +127,10 @@ Steps:
 
    - `feature_plain`: one plain sentence — what it does for the user.
    - Gate 1: `will_do[] → {id,p}` each starting "Sẽ …" (what the system DOES);
-     `wont_do[] → {id,p}` starting "Sẽ KHÔNG …" or "Chặn …".
+     `wont_do[] → {id,p}`: id `AC-n` cho tiêu chí phủ định (starting "Sẽ KHÔNG …"
+     or "Chặn …"), id `OOS-n` cho TỪNG mục phạm vi bỏ ngoài (extract `scope[].id`,
+     một câu mỗi mục). Mục không có câu dịch vẫn hiện bằng chữ hợp đồng; câu dịch
+     mang id không khớp mục nào bị bỏ qua và thẻ nổi cờ «dòng dịch không khớp mục nào».
    - Gate 1 `coverage_plain[] → {i,p}`: mỗi dòng Coverage của contract (đúng thứ
      tự trong extract, `i` là chỉ số) → 1 câu tiếng sản phẩm nói trục đó đã phủ
      gì và bằng chứng "đủ" là gì. Giữ mã AC (N3: mã là tra cứu, kèm 3–5 chữ).
@@ -151,7 +154,8 @@ Steps:
      lỗi nào) → thẻ render như cũ, không cờ, không lỗi. Có "## Chưa phân loại (triage-failed)" → script THÊM một cờ vàng phía trên khối (không thay thế — các lỗi đã phân loại được vẫn hiện cho người quyết). Cờ cụm-ngoài-vùng-phủ
      cũng do script render, và cố ý KHÔNG nêu đường dẫn file: thẻ là chỗ quyết
      định, chi tiết nằm ở gói bằng chứng.
-   - `scope_plain`: one plain phrase for the deferred/cut scope.
+   - `scope_plain`: một câu dẫn tuỳ chọn cho phần cắt/hoãn — KHÔNG thay các mục
+     (Cổng 1 hiện nó như dòng dẫn phía trên từng mục `OOS-n`).
    - `decisions_plain[] → {id,p}` cho MỌI entry trong `decisions` (Gate 1) /
      `decisions_approved` + `decisions_provisional` (Gate 2): mỗi `p` = 1 câu sản
      phẩm "đã chọn gì — đổi lại gì" (descope: bắt đầu "KHÔNG làm ..."). Ledger là

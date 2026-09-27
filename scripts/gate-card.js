@@ -92,6 +92,9 @@ const NEN_DO_FLAG = 'Nền hạ tầng có chân ĐỎ — đỏ ở đây khôn
 const NEN_VANG_FLAG = 'Chưa có số liệu nền hạ tầng — hồ sơ sinh trước bản này, hoặc đường nền chưa chạy xong.';
 // Cờ dòng đếm vật · thước · nhát trên thẻ Cổng Bằng chứng (thuoc-co-cua AC-13).
 const THUOC_VAT_HONG_FLAG = 'Không đọc được dòng đếm vật/thước trong run-log — thẻ không in số.';
+// Cờ câu dịch wont_do mang id không trùng tiêu chí phủ định nào và không trùng mục phạm vi
+// OOS-n nào (cham-khong-tu-dot-luot AC-6) — câu dịch lạc bị bỏ qua, người phải biết.
+const DICH_LAC = 'dòng dịch không khớp mục nào: ';
 const MSG_ROI_BAC = 'Đối kháng máy KHÔNG chạy được — phần vượt-nhận-thức RƠI VỀ ANH: thẻ này không điền sẵn ô nào, và chữ ký ở đây KHÔNG có nghĩa «đối kháng đã hội tụ». Anh tự đọc vật, hoặc chạy lại bước phản biện context sạch rồi dựng thẻ lại.';
 
 // <<<ONE-SHOT-CMD — MỘT nguồn của tên lệnh thẻ in ra. Luật «lệnh in ra phải
@@ -364,6 +367,11 @@ const feature = cfm.feature || cfm.slug || slug;
 const tier = clean(cfm.risk_tier);
 const status = clean(cfm.status);
 const oos = bullets(section(contract, 'Out of scope'));
+// <<<CARD-PLAIN-SCOPE — khuôn phía viết của mục phạm vi (cham-khong-tu-dot-luot AC-6):
+// mỗi mục «Out of scope» mang id OOS-<thứ tự 1-based>; bản dịch ghi câu vào khoá wont_do
+// với CHÍNH id đó. Bộ đọc: mục có câu dịch dùng câu dịch, không có dùng chữ hợp đồng.
+const oosItems = oos.map((t, i) => ({ id: `OOS-${i + 1}`, text: t }));
+// CARD-PLAIN-SCOPE>>>
 
 // ---- decisions.jsonl (ledger — rationale only, tolerant per-line parse) ----
 // Returns entries in FILE ORDER; sealIdx = index of the first gate-1 seal entry
@@ -736,12 +744,16 @@ if (gate === '1') {
   const DA_KHEP_G1 = G1_CO_THE_KHEP && daKhepTu(quetHoSo().hit);
   const DA_KHEP_G1_VI = DA_KHEP_G1 && (quetHoSo().hit || {}).nghi ? 'đã nghỉ' : 'đã chấm bởi thực tế';
   const oneShotG1 = DA_KHEP_G1 ? null : `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2)); process.exit(0); }
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oosItems.map(x => ({ id: x.id, text: x.text })), coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
   const wontText = x => pmap(pl.wont_do, x.id) || stripMd(x.gwt);
-  const scopePlain = pl.scope_plain || oos.map(stripMd).join(' · ');
+  // Mục phạm vi (AC-6): mỗi dòng «Out of scope» là MỘT mục trên thẻ; câu dịch theo id
+  // OOS-n, vắng câu dịch thì chữ hợp đồng — không mục nào bị gộp mất vào một câu tóm.
+  const scopeText = x => pmap(pl.wont_do, x.id) || stripMd(x.text);
+  const idHopLe = new Set([...wontDo.map(x => x.id), ...oosItems.map(x => x.id)]);
+  const dichLac = (pl.wont_do || []).map(x => x && x.id).filter(id => id && !idHopLe.has(id));
   // Tầng card-plain cho hai khối sinh sau nó (findings 2026-08-05): overlay chỉ
   // ĐỔI CHỮ theo luật mặt người — script vẫn render đủ MỌI dòng/hàng (không thể
   // quên) và sev do script in (không đè được). Vắng overlay → bản lột-markdown.
@@ -753,7 +765,7 @@ if (gate === '1') {
   // the reviewer must learn that BEFORE reading a list that looks complete.
   if (blindSpot) P.push(`<div class="flag fred">⚠ ${esc(blindSpotText(blindSpot))}</div>`);
   if (willDo.length) P.push(`<div class="lab">Hệ thống SẼ làm</div><div class="grp gdo">${willDo.map(x => `<p class="li">${esc(willText(x))}</p>`).join('')}</div>`);
-  const notItems = wontDo.map(x => esc(wontText(x))).concat(oos.length ? ['Hoãn/cắt: ' + esc(scopePlain)] : []);
+  const notItems = wontDo.map(x => esc(wontText(x))).concat(pl.scope_plain && oos.length ? ['Hoãn/cắt: ' + esc(pl.scope_plain)] : []).concat(oosItems.map(x => esc(scopeText(x))));
   if (notItems.length) P.push(`<div class="lab">Sẽ KHÔNG làm / sẽ chặn</div><div class="grp gnot">${notItems.map(t => `<p class="li">${t}</p>`).join('')}</div>`);
   P.push(`<div class="lab">Quyết định &amp; trade-off</div>`);
   if (!decsAll.length) P.push(`<div class="flag finfo">Sổ quyết định: (chưa ghi quyết định nào)</div>`);
@@ -819,6 +831,7 @@ if (gate === '1') {
   if (gpPresent && !gpVerdictKnown) flags.push(['fwarn', `gap-probe.md không đọc được (verdict lạ/thiếu${gpVerdict ? ': "' + esc(gpVerdict) + '"' : ''}) — coi như CHƯA có phản biện, chạy lại bước S1#7 hoặc sửa frontmatter.`]);
   if (gpPresent && gpVerdictKnown && gpVerdict !== 'probe-failed' && (gpVerdict === 'findings' || gpP0 + gpP1 + gpP2 > 0) && !gpRows.length && !gpDropped) flags.push(['fwarn', 'gap-probe.md khai findings nhưng không đọc được dòng finding nào (bảng thiếu / heading sai) — soi file trước khi duyệt.']);
   if (gpVerdict === 'clean' && (gpRows.length || gpDropped)) flags.push(['fwarn', 'gap-probe.md mâu thuẫn: verdict clean nhưng bảng có finding — soi lại file trước khi duyệt.']);
+  for (const id of dichLac) flags.push(['fwarn', DICH_LAC + esc(id)]);
   if (gpDropped) flags.push(['fwarn', `${gpDropped} dòng finding không đọc được (sai số cột — cell chứa "|" hoặc thiếu cột) — sửa bảng gap-probe.md nếu cần soi đủ.`]);
   if (nen.present && nen.nen === 'do') flags.push(['fwarn', esc(NEN_DO_FLAG)]);
   else if (!nen.present) flags.push(['fwarn', esc(NEN_VANG_FLAG)]);
