@@ -880,6 +880,26 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
 
 ])
 
+// Đọc dấu (cham-khong-tu-dot-luot AC-2, design §2 bảng tám hàng). Chỉ lane machine.
+// Dấu có mặt = lệnh ĐÃ chạy xong → mã dấu thắng lời khai, TRỪ ca tác tử khai hạ tầng khác
+// (thiếu env…) mà dấu ≠ 0: giữ hạ tầng — «thiếu env thoát 1» không được thành REJECT đốt round.
+// Không dấu: khai ≠ 0 giữ (97/127 đi tiếp normInfra); khai 0 không có căn cứ → không PASS.
+// Lấy LẦN KHỚP CUỐI: lệnh con tự in một dấu giả giữa đầu ra không thắng dấu thật của khung bọc.
+const EXIT_UNREAD_REASON = 'ma thoat khong doc duoc (thieu dong __EXIT=) — khong tinh PASS'
+const rutDau = tail => { const all = [...String(tail || '').matchAll(new RegExp(`^${EXIT_MARK}(\\d+)\\s*$`, 'gm'))]; return all.length ? Number(all[all.length - 1][1]) : null }
+const normDau = r => {
+  if (!r) return r
+  const dau = rutDau(r.outputTail)
+  if (dau != null) {
+    if (r.cannotRun === true && r.killedByTool !== true && dau !== 0) return r
+    const { killedByTool, ...rest } = r
+    return { ...rest, cannotRun: false, exitCode: dau, reason: r.cannotRun ? '' : r.reason }
+  }
+  if (r.cannotRun === true) return r
+  if (r.exitCode === 0) return { ...r, cannotRun: true, reason: EXIT_UNREAD_REASON }
+  return r
+}
+
 // killedByTool ⇒ cannotRun: không tin một lời khai đơn lẻ — đúng ca sự cố
 // (agent khai cannotRun=false + exitCode=1 khi lệnh bị giết). reason agent giữ
 // NGUYÊN VĂN nếu có; trống → điền khuôn ghim để card BLOCKED không rỗng.
@@ -907,7 +927,7 @@ const normInfra = r => {
 
 // ---- variance-N: gộp các lần chạy của 1 lệnh → 1 entry/lệnh với pass-rate ----
 const runsByCmd = new Map()
-for (const r of (machineRaw || []).filter(Boolean).map(normKill).map(normInfra)) {
+for (const r of (machineRaw || []).filter(Boolean).map(normDau).map(normKill).map(normInfra)) {
   if (!runsByCmd.has(r.cmd)) runsByCmd.set(r.cmd, [])
   runsByCmd.get(r.cmd).push(r)
 }

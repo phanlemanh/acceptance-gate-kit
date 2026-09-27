@@ -38,7 +38,7 @@ function responder(overrides = {}) {
     for (const [prefix, v] of Object.entries(overrides)) {
       if (l.startsWith(prefix)) return typeof v === 'function' ? v(call) : v;
     }
-    if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green', runId: '', cannotRun: false };
+    if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green\n__EXIT=0', runId: '', cannotRun: false };
     if (l.startsWith('ui:')) return { exitCode: 0, outputTail: 'asserted', runId: '', cannotRun: false, screenshotPath: 'evidence/E-step1.png' };
     if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'fits intent' };
     if (l.startsWith('review:')) return { findings: [] };
@@ -171,7 +171,7 @@ console.log('W07 variance-N: mixed pass-rate -> PENDING-JUDGMENT; short sample -
   let n = 0;
   const exits = [0, 1, 0];
   const { result, calls } = await runWorkflow(WF, baseArgs({ evals: [vEval], suiteCommands: [] }), responder({
-    'machine:./rand.sh': () => ({ exitCode: exits[n++], outputTail: 't', runId: '', cannotRun: false }),
+    'machine:./rand.sh': () => { const c = exits[n++]; return { exitCode: c, outputTail: `t\n__EXIT=${c}`, runId: '', cannotRun: false }; },
   }));
   check('W07 runs 3 agents for runs:3', byLabel(calls, 'machine:./rand.sh').length === 3);
   check('W07 mixed 2/3 -> PENDING-JUDGMENT + variance surfaced', result.verdict === 'PENDING-JUDGMENT' && result.variance[0].passRate === '2/3');
@@ -179,7 +179,7 @@ console.log('W07 variance-N: mixed pass-rate -> PENDING-JUDGMENT; short sample -
   check('W07 run-log carries runs/passes', logLine.runs === 3 && logLine.passes === 2);
   n = 0;
   const { result: r2 } = await runWorkflow(WF, baseArgs({ evals: [vEval], suiteCommands: [] }), responder({
-    'machine:./rand.sh': () => (n++ === 1 ? null : { exitCode: 0, outputTail: 't', runId: '', cannotRun: false }),
+    'machine:./rand.sh': () => (n++ === 1 ? null : { exitCode: 0, outputTail: 't\n__EXIT=0', runId: '', cannotRun: false }),
   }));
   check('W07 missing sample (dead run) -> BLOCKED, not a fake pass-rate', r2.verdict === 'BLOCKED');
 }
@@ -1540,7 +1540,7 @@ console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
     invokedAt: '2026-08-18T00:00:00Z',
   };
   const tkRespond = (call) => {
-    if (call.label.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false };
+    if (call.label.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false };
     if (call.label.startsWith('ui:')) return { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false, screenshotPath: 'e.html', observed: 'thay trang len dung expected', networkObserved: 'n-a (driver)' };
     if (call.label === 'baseline:diffBase') return { results: [{ cmd: './suite.sh', baselineExit: 1, cannotRun: false }] };
     if (call.label.startsWith('review:')) return { findings: [] };
@@ -1679,7 +1679,7 @@ console.log('JR3 carry P3 giữ nguyên danh sách per-vote (AC-3)');
     personasPath: '/p.md', templatePath: '/t.md', contractPath: '/c.md', invokedAt: '2026-08-18T00:00:00Z',
   });
   const respond = (bl) => (call) => {
-    if (call.label.startsWith('machine:')) return { exitCode: 0, outputTail: 'Results: 9 passed', runId: '', cannotRun: false };
+    if (call.label.startsWith('machine:')) return { exitCode: 0, outputTail: 'Results: 9 passed\n__EXIT=0', runId: '', cannotRun: false };
     if (call.label === 'baseline:diffBase') return { results: [bl] };
     if (call.label.startsWith('review:')) return { findings: [] };
     if (call.label === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: VC };
@@ -1899,7 +1899,7 @@ console.log('W35 verifier tu khai runId: luoi chong va cham phai VAN chay');
   // chong va cham: run_id — truong DUY NHAT ma lib/evidence-core.cjs doc — bi trung.
   const A = 'cd apps/web && pnpm build', B = 'cd apps/api && pnpm build';
   const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder({
-    'machine:cd apps/': (call) => ({ exitCode: call.label.includes('api') ? 1 : 0, outputTail: 'x', runId: 'harness-42', cannotRun: false }),
+    'machine:cd apps/': (call) => { const c = call.label.includes('api') ? 1 : 0; return { exitCode: c, outputTail: `x\n__EXIT=${c}`, runId: 'harness-42', cannotRun: false }; },
   }));
   const suite = result.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
   const idA = (suite.find(l => l.cmd === A) || {}).run_id;
@@ -1908,8 +1908,8 @@ console.log('W35 verifier tu khai runId: luoi chong va cham phai VAN chay');
   check('W35 giu lai ma that cua verifier lam goc', String(idA).startsWith('harness-42') && String(idB).startsWith('harness-42'), `${idA} / ${idB}`);
   // doi chung duong: verifier khai ma KHAC nhau -> giu nguyen van, khong hau to
   const { result: r2 } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder({
-    'machine:cd apps/web': { exitCode: 0, outputTail: 'x', runId: 'rid-web', cannotRun: false },
-    'machine:cd apps/api': { exitCode: 0, outputTail: 'x', runId: 'rid-api', cannotRun: false },
+    'machine:cd apps/web': { exitCode: 0, outputTail: 'x\n__EXIT=0', runId: 'rid-web', cannotRun: false },
+    'machine:cd apps/api': { exitCode: 0, outputTail: 'x\n__EXIT=0', runId: 'rid-api', cannotRun: false },
   }));
   const s2 = r2.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
   check('W35 doi chung: ma verifier khac nhau -> giu nguyen van',
@@ -2110,7 +2110,7 @@ console.log('W-EE10 eval khai ma khac 0, lan chay tra 0 -> khoi GIOI HAN DA KHAI
   const { calls } = await runWorkflow(WF, baseArgs({
     evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', cmd: './x.sh', ref: 'config:executors.script.cli', expected: 'a', expectedExit: 2 }],
     suiteCommands: [],
-  }), responder({ 'machine:': { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false } }));
+  }), responder({ 'machine:': { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false } }));
   const p = byLabel(calls, 'synthesize:report')[0].prompt;
   check('W-EE10a khoi GIOI HAN DA KHAI KHONG CON goi ten eval + cap ma khai(2)/that(0)',
     /GIOI HAN DA KHAI KHONG CON/.test(p) && p.includes('E1') && p.includes('AC-1')
@@ -2145,7 +2145,7 @@ console.log('W-EE12 AC-10 hai chieu tren CUNG fixture (khai expectedExit khac 0)
     suiteCommands: [],
   });
   const { result: rHetHan, calls: callsHetHan } = await runWorkflow(WF, mkArgs(),
-    responder({ 'machine:': { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false } }));
+    responder({ 'machine:': { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false } }));
   check('W-EE12a gioi han het -> failedEvals RONG', (rHetHan.failedEvals || []).length === 0, JSON.stringify(rHetHan.failedEvals));
   check('W-EE12a gioi han het -> verdict KHONG phai REJECT', rHetHan.verdict !== 'REJECT', rHetHan.verdict);
   const pHetHan = byLabel(callsHetHan, 'synthesize:report')[0].prompt;
@@ -2182,7 +2182,7 @@ console.log('W-EE13 AC-10 ap cho CA lan doi chung lan danh sach khong-phan-biet:
   // la "dat" qua duong hetHan (khong phai qua khop expectedExit tran) -> eval
   // phai duoc doc la KHONG PHAN BIET (nonDiscriminating).
   const { result: rBoth0 } = await runWorkflow(WF, mkArgs(), responder({
-    'machine:': { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false },
+    'machine:': { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false },
     'baseline:': { results: [{ cmd: './x.sh', baselineExit: 0, cannotRun: false }] },
   }));
   const ndBoth0 = (rBoth0.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));
@@ -2196,7 +2196,7 @@ console.log('W-EE13 AC-10 ap cho CA lan doi chung lan danh sach khong-phan-biet:
   // hang-dung (vd code luon tra nonDiscriminating=true bat ke baseline) thi ca
   // nay se bat duoc.
   const { result: rBaselineLech } = await runWorkflow(WF, mkArgs(), responder({
-    'machine:': { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false },
+    'machine:': { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false },
     'baseline:': { results: [{ cmd: './x.sh', baselineExit: 1, cannotRun: false }] },
   }));
   const ndBaselineLech = (rBaselineLech.nonDiscriminating || []).some(nd => (nd.evals || []).includes('E1'));

@@ -45,7 +45,7 @@ const responder = (events, ketQua = {}) => (call) => {
     events.push({ cmd, ev: 'start' });
     return new Promise(r => setTimeout(() => {
       events.push({ cmd, ev: 'end' });
-      r(ketQua[cmd] || { exitCode: 0, outputTail: 'green', runId: '', cannotRun: false });
+      r(ketQua[cmd] || { exitCode: 0, outputTail: 'green\n__EXIT=0', runId: '', cannotRun: false });
     }, 30));
   }
   if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'fits intent' };

@@ -97,7 +97,7 @@ const ARGS = () => ({
 function traLoi(baoCao) {
   return (call) => {
     const l = call.label;
-    if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green', runId: '', cannotRun: false };
+    if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green\n__EXIT=0', runId: '', cannotRun: false };
     if (l.startsWith('ui:')) return { exitCode: 0, outputTail: 'asserted', runId: '', cannotRun: false, screenshotPath: 'evidence/E2-step1.png', observed: 'trang chu hien thi dung menu va bang so lieu' };
     if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'dung y' };
     if (l.startsWith('review:')) return { findings: [] };

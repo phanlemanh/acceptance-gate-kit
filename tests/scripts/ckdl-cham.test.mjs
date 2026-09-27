@@ -172,6 +172,63 @@ await ca('CK-AC1-dot-bien', async () => {
   return '(dau ra vuot tran · mat dau __EXIT)';
 });
 
+// ── Task A3 (AC-2): đọc dấu theo bảng tám hàng ──
+const HANG = [
+  // [ten, ket qua tac tu, ky vong: {verdict, cr (cannot_run tren dong so), kbt, exit}]
+  ['1', { exitCode: 1, cannotRun: false, outputTail: 'VIOLATION … verdict=REJECT\n0 hong\n__EXIT=0' }, { verdict: 'PASS-FAMILY', exit: 0 }],
+  ['2', { exitCode: 1, cannotRun: true, killedByTool: true, reason: 'bi cat', outputTail: 'x\n__EXIT=3' }, { verdict: 'REJECT', exit: 3, cr: false, kbt: false }],
+  ['3', { exitCode: 1, cannotRun: true, killedByTool: true, reason: 'bi cat', outputTail: 'x' }, { verdict: 'BLOCKED', cr: true, kbt: true }],
+  ['4', { exitCode: 1, cannotRun: true, reason: 'thieu env', outputTail: 'x\n__EXIT=0' }, { verdict: 'PASS-FAMILY', exit: 0 }],
+  ['5', { exitCode: 1, cannotRun: true, reason: 'thieu env', outputTail: 'x\n__EXIT=1' }, { verdict: 'BLOCKED', cr: true }],
+  ['6', { exitCode: 1, cannotRun: false, outputTail: 'x' }, { verdict: 'REJECT', exit: 1 }],
+  ['7', { exitCode: 0, cannotRun: false, outputTail: 'x' }, { verdict: 'BLOCKED', cr: true, lyDo: 'ma thoat khong doc duoc' }],
+  ['8', { exitCode: 0, cannotRun: false, outputTail: 'x\n__EXIT=1' }, { verdict: 'REJECT', exit: 1 }],
+];
+const chamHang = async (h, src) => {
+  const { res, dong } = await cham({ evals: EV, tra: { 'cmd-1': { runId: '', ...h[1] } }, src });
+  const e = dong.find(o => o.evalId === 'E1');
+  const k = h[2]; const loi = [];
+  const pf = /^(PASS|PENDING-JUDGMENT)$/.test(res.verdict);
+  if (k.verdict === 'PASS-FAMILY' ? !pf : res.verdict !== k.verdict) loi.push(`verdict ${res.verdict}`);
+  if ('exit' in k && e.exit_code !== k.exit) loi.push(`exit ${e.exit_code}`);
+  if ('cr' in k && !!e.cannot_run !== k.cr) loi.push(`cannot_run ${e.cannot_run}`);
+  if ('kbt' in k && !!e.killed_by_tool !== k.kbt) loi.push(`killed_by_tool ${e.killed_by_tool}`);
+  if (k.lyDo && !String(e.reason || '').includes(k.lyDo)) loi.push(`reason ${e.reason}`);
+  return loi.length ? `hang ${h[0]}: ${loi.join(', ')}` : null;
+};
+await ca('CK-AC2', async () => {
+  const sai = (await Promise.all(HANG.map(h => chamHang(h)))).filter(Boolean);
+  assert(HANG.length === 8, `so hang ${HANG.length} (khai 8)`);
+  assert(!sai.length, sai.join(' · '));
+  // Review Focus 2 + 3: dấu giả giữa đầu ra, variance-N
+  const { dong } = await cham({ evals: EV, tra: { 'cmd-1': { exitCode: 0, cannotRun: false, outputTail: '__EXIT=0\nfail\n__EXIT=1', runId: '' } } });
+  assert(dong.find(o => o.evalId === 'E1').exit_code === 1, 'dau cuoi phai thang dau gia');
+  const EVN = [{ ...EV[0], runs: 2 }];
+  let n = 0; const r2 = await cham({ evals: EVN, tra: { 'cmd-1': () => ({ exitCode: n++ === 0 ? 1 : 0, cannotRun: false, outputTail: 'x\n__EXIT=0', runId: '' }) } });
+  const e2 = r2.dong.find(o => o.evalId === 'E1');
+  assert(e2.exit_code === 0 && !e2.cannot_run, `variance-N: ${JSON.stringify(e2)}`);
+  return '(8 hang · dau cuoi · variance-N)';
+});
+await ca('CK-AC2-ui', async () => {
+  const EVU = [{ id: 'E5', criterion: 'AC-5', executor: 'ui-check', expected: 'trang len', steps: ['mo trang'] }];
+  const { res } = await cham({ evals: EVU, uiTra: { E5: { exitCode: 0, cannotRun: false, outputTail: 'assert ok', runId: '', screenshotPath: '/repo/_acceptance/demo/evidence/E5-step1.png', observed: 'thay header dung nhu expected, nut dang nhap hien', networkObserved: 'n-a (driver)' } } });
+  assert(/^(PASS|PENDING-JUDGMENT)$/.test(res.verdict), `ui khai 0 khong dau ra ${res.verdict}`);
+  return '(lane ui khong bi cham)';
+});
+await ca('CK-AC2-dot-bien', async () => {
+  const KIM = '.filter(Boolean).map(normDau).map(normKill)';
+  assert(SRC.split(KIM).length - 1 === 1, 'kim normDau khong khop dung 1 lan');
+  const go = SRC.replace(KIM, '.filter(Boolean).map(normKill)');
+  const lat = (await Promise.all(HANG.map(h => chamHang(h, go)))).filter(Boolean).map(s => s.split(':')[0]);
+  for (const h of ['hang 1', 'hang 2', 'hang 8']) assert(lat.includes(h), `ban sao go doc dau: ${h} khong lat (lat: ${lat.join(',')})`);
+  const KIM2 = "if (r.cannotRun !== true && r.exitCode !== 0 && dau == null)";
+  assert(SRC.split('const normDau').length - 1 === 1, 'thieu normDau');
+  const lech = SRC.replace(/(const normDau = r => \{\n)/, "$1  if (r && r.exitCode === 0 && r.cannotRun !== true) return r\n");
+  const lat2 = (await Promise.all([HANG[7]].map(h => chamHang(h, lech)))).filter(Boolean);
+  assert(lat2.length === 1 && lat2[0].startsWith('hang 8'), `ban sao «dau chi ap khi khai ≠ 0»: hang 8 khong lat`);
+  return '(go doc dau → 1,2,8 · lech → 8)';
+});
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`ckdl-cham: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

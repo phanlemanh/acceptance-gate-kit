@@ -51,7 +51,7 @@ const respond = ({ findings, triage }) => {
     if (c.label.startsWith('review:bugs')) return { findings };
     if (c.label.startsWith('review:')) return { findings: [] };
     if (c.label === 'triage') { luot += 1; const sent = rutTaiGui(c.prompt); const r = triage(sent, luot); return r === null ? null : { contractUnreadable: false, triaged: r }; }
-    if (c.label.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false };
+    if (c.label.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false };
     if (c.label.startsWith('baseline:')) return { results: [] };
     if (c.label.startsWith('refute:')) return { refuted: false, reason: 'that' };
     if (c.label === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2' };

@@ -41,7 +41,7 @@ const argsCham = (over = {}) => ({
 const traLoi = (e2) => (call) => {
   const l = call.label;
   if (l === 'machine:cmd-e2') return typeof e2 === 'function' ? e2(call) : e2;
-  if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false };
+  if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false };
   if (l.startsWith('review:')) return { findings: [] };
   if (l.startsWith('refute:')) return { refuted: true, reason: 'x' };
   if (l.startsWith('baseline:')) return { results: [] };
@@ -249,7 +249,7 @@ const OPP = n => `---\nschema_version: 1\nslug: ${SLUG}\nfeature: Y dinh mau <co
 const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 if (want('NC-AC12-co') || want('NC-AC12-dai') || want('NC-AC12-khong')) {
   try {
-    const rPass = (await cham({ exitCode: 0, outputTail: 'ok', runId: '', cannotRun: false })).runLog;
+    const rPass = (await cham({ exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false })).runLog;
     const cot = (opp) => { const t = readFileSync(path.join(opp, 'opportunity.md'), 'utf8'); const fe = t.match(/^feature: (.*)$/m)[1]; const body = t.split('## Vấn đề & ai gặp')[1].split('\n## ')[0].split('\n').filter(l => l.trim()); return { fe, body }; };
     if (want('NC-AC12-co')) {
       const { d, ws } = hoSo({ verdict: 'PASS', runLog: rPass, opportunity: OPP(5) });

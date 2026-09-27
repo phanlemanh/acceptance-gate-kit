@@ -40,7 +40,7 @@ const baseArgs = (over = {}) => ({
 
 const responder = () => (call) => {
   const l = call.label;
-  if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green', runId: '', cannotRun: false };
+  if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green\n__EXIT=0', runId: '', cannotRun: false };
   if (l.startsWith('ui:')) return { exitCode: 0, outputTail: 'asserted', runId: '', cannotRun: false, screenshotPath: 'evidence/EU-step1.png', observed: 'thay marker trong frame da luu' };
   if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'ok' };
   if (l.startsWith('review:')) return { findings: [] };

@@ -39,7 +39,7 @@ function responder(overrides = {}) {
     for (const [prefix, v] of Object.entries(overrides)) {
       if (l.startsWith(prefix)) return typeof v === 'function' ? v(call) : v;
     }
-    if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green', runId: '', cannotRun: false };
+    if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green\n__EXIT=0', runId: '', cannotRun: false };
     if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'ok' };
     if (l.startsWith('review:')) return { findings: [] };
     if (l.startsWith('refute:')) return { refuted: true, reason: 'not real' };
