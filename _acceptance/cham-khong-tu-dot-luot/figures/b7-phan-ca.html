@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B7 — phân ca mã thoát</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-rule: rgba(45,49,66,0.12);
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --color-paper: #2d3142; --color-ink: #f5f5f5; --color-muted: #bfc0c0; --color-rule: rgba(245,245,245,0.12); }
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1320px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    .diagram { overflow-x: auto; }
+    svg { width: 100%; min-width: 1040px; display: block; }
+    .footer { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid var(--color-rule); font-family: var(--font-mono); font-size: 0.62rem; color: var(--color-muted); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Hình · cây quyết định · hồ sơ cham-khong-tu-dot-luot · D1 / B7</p>
+    <h1>Dấu mã thoát thắng khi nào — ba chỗ rẽ, tám lá của AC-2</h1>
+    <div class="diagram">
+<svg viewBox="0 0 1280 816" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif" role="img" aria-labelledby="b7-title">
+<title id="b7-title">Cây phân ca B7: tác tử khai cannotRun, killedByTool, có dấu __EXIT, giá trị dấu hoặc mã khai quyết định tám lá theo ma trận AC-2</title>
+<defs>
+<style><![CDATA[
+svg{--paper:#f5f5f5;--white:#ffffff;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;--rule:rgba(45,49,66,0.12);--accent:#eb6c36;--accent-text:#ba4513;--accent-tint:rgba(235,108,54,0.08);--link:#2e5aa8;--link-tint:rgba(46,90,168,0.08);--fill-faint:rgba(45,49,66,0.03);}
+@media (prefers-color-scheme: dark){svg{--paper:#2d3142;--white:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,0.12);--accent:#f08a59;--accent-text:#f19162;--accent-tint:rgba(240,138,89,0.10);--link:#6a95d8;--link-tint:rgba(106,149,216,0.12);--fill-faint:rgba(245,245,245,0.04);}}
+]]></style>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/></marker>
+<marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="var(--paper)"/>
+
+<!-- Tiêu đề cột -->
+<text x="88" y="44" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">ĐẦU VÀO</text>
+<text x="280" y="44" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">RẼ 1</text>
+<text x="496" y="44" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">RẼ 2</text>
+<text x="696" y="44" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">RẼ 3</text>
+<text x="816" y="44" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">LÁ = HÀNG CỦA MA TRẬN AC-2</text>
+
+<!-- Mũi tên (vẽ trước, nằm dưới nút) -->
+<line x1="152" y1="380" x2="190" y2="380" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<!-- Rẽ 1 → rẽ 2 -->
+<path d="M280,340 V228 Q280,220 288,220 H406" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M280,420 V532 Q280,540 288,540 H406" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<!-- Rẽ 2 → rẽ 3 -->
+<path d="M496,188 V148 Q496,140 504,140 H622" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M496,252 V292 Q496,300 504,300 H622" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M496,508 V468 Q496,460 504,460 H622" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M496,572 V612 Q496,620 504,620 H622" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<!-- Rẽ 3 → lá -->
+<path d="M696,116 V108 Q696,100 704,100 H814" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M696,164 V172 Q696,180 704,180 H814" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M696,276 V268 Q696,260 704,260 H814" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M696,324 V332 Q696,340 704,340 H814" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M696,436 V428 Q696,420 704,420 H814" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M696,484 V492 Q696,500 704,500 H814" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M696,596 V588 Q696,580 704,580 H814" fill="none" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M696,644 V652 Q696,660 704,660 H814" fill="none" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+<!-- Nhãn nhánh (mặt nạ, cách đường 8px) -->
+<rect x="336" y="200" width="24" height="12" rx="2" fill="var(--paper)"/>
+<text x="348" y="209" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">có</text>
+<rect x="328" y="520" width="40" height="12" rx="2" fill="var(--paper)"/>
+<text x="348" y="529" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">không</text>
+
+<rect x="552" y="120" width="24" height="12" rx="2" fill="var(--paper)"/>
+<text x="564" y="129" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">có</text>
+<rect x="508" y="280" width="112" height="12" rx="2" fill="var(--paper)"/>
+<text x="564" y="289" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">không · lý do khác</text>
+<rect x="552" y="440" width="24" height="12" rx="2" fill="var(--paper)"/>
+<text x="564" y="449" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">có</text>
+<rect x="544" y="600" width="40" height="12" rx="2" fill="var(--paper)"/>
+<text x="564" y="609" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">không</text>
+
+<rect x="748" y="80" width="24" height="12" rx="2" fill="var(--paper)"/>
+<text x="760" y="89" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">có</text>
+<rect x="740" y="160" width="40" height="12" rx="2" fill="var(--paper)"/>
+<text x="760" y="169" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">không</text>
+<rect x="748" y="240" width="24" height="12" rx="2" fill="var(--paper)"/>
+<text x="760" y="249" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">có</text>
+<rect x="712" y="320" width="96" height="12" rx="2" fill="var(--paper)"/>
+<text x="760" y="329" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">không / không dấu</text>
+<rect x="748" y="400" width="24" height="12" rx="2" fill="var(--paper)"/>
+<text x="760" y="409" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">có</text>
+<rect x="740" y="480" width="40" height="12" rx="2" fill="var(--paper)"/>
+<text x="760" y="489" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">không</text>
+<rect x="740" y="560" width="40" height="12" rx="2" fill="var(--paper)"/>
+<text x="760" y="569" fill="var(--soft)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">không</text>
+<rect x="748" y="640" width="24" height="12" rx="2" fill="var(--paper)"/>
+<text x="760" y="649" fill="var(--accent-text)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">có</text>
+
+<!-- Đầu vào -->
+<rect x="24" y="352" width="128" height="56" rx="28" fill="var(--paper)"/>
+<rect x="24" y="352" width="128" height="56" rx="28" fill="var(--fill-faint)" stroke="var(--muted)" stroke-width="1"/>
+<text x="88" y="376" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">kết quả tác tử</text>
+<text x="88" y="392" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">lane machine</text>
+
+<!-- Rẽ 1 -->
+<polygon points="280,340 368,380 280,420 192,380" fill="var(--paper)"/>
+<polygon points="280,340 368,380 280,420 192,380" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="280" y="376" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">tác tử khai</text>
+<text x="280" y="392" fill="var(--ink)" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle">cannotRun?</text>
+
+<!-- Rẽ 2 -->
+<polygon points="496,188 584,220 496,252 408,220" fill="var(--paper)"/>
+<polygon points="496,188 584,220 496,252 408,220" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="496" y="216" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">khai kèm</text>
+<text x="496" y="232" fill="var(--ink)" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle">killedByTool?</text>
+
+<polygon points="496,508 584,540 496,572 408,540" fill="var(--paper)"/>
+<polygon points="496,508 584,540 496,572 408,540" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="496" y="536" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">có dòng</text>
+<text x="496" y="552" fill="var(--ink)" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle">__EXIT=&lt;n&gt;?</text>
+
+<!-- Rẽ 3 -->
+<polygon points="696,116 768,140 696,164 624,140" fill="var(--paper)"/>
+<polygon points="696,116 768,140 696,164 624,140" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="696" y="144" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">có dấu?</text>
+
+<polygon points="696,276 768,300 696,324 624,300" fill="var(--paper)"/>
+<polygon points="696,276 768,300 696,324 624,300" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="696" y="304" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">dấu bằng 0?</text>
+
+<polygon points="696,436 768,460 696,484 624,460" fill="var(--paper)"/>
+<polygon points="696,436 768,460 696,484 624,460" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="696" y="464" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">dấu bằng 0?</text>
+
+<polygon points="696,596 768,620 696,644 624,620" fill="var(--paper)"/>
+<polygon points="696,596 768,620 696,644 624,620" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="696" y="624" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">khai mã 0?</text>
+
+<!-- Lá — mã thật: nền trắng, viền mực · hạ tầng: nền + viền xanh -->
+<!-- hàng 2 -->
+<rect x="816" y="72" width="440" height="56" rx="6" fill="var(--paper)"/>
+<rect x="816" y="72" width="440" height="56" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="828" y="92" width="56" height="16" rx="2" fill="none" stroke="var(--ink)" stroke-opacity="0.4" stroke-width="0.8"/>
+<text x="856" y="104" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÀNG 2</text>
+<text x="896" y="96" fill="var(--ink)" font-size="12" font-weight="600">mã = dấu (3) — lệnh đã chạy xong</text>
+<text x="896" y="116" fill="var(--muted)" font-size="10">khai killedByTool + dấu 3 · không cannotRun, không killed_by_tool</text>
+
+<!-- hàng 3 -->
+<rect x="816" y="152" width="440" height="56" rx="6" fill="var(--paper)"/>
+<rect x="816" y="152" width="440" height="56" rx="6" fill="var(--link-tint)" stroke="var(--link)" stroke-width="1.2"/>
+<rect x="828" y="172" width="56" height="16" rx="2" fill="none" stroke="var(--link)" stroke-opacity="0.6" stroke-width="0.8"/>
+<text x="856" y="184" fill="var(--link)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÀNG 3</text>
+<text x="896" y="176" fill="var(--ink)" font-size="12" font-weight="600">hạ tầng: cannotRun + killed_by_tool</text>
+<text x="896" y="196" fill="var(--muted)" font-size="10">khai killedByTool, không dấu · thử lại cùng round</text>
+
+<!-- hàng 4 -->
+<rect x="816" y="232" width="440" height="56" rx="6" fill="var(--paper)"/>
+<rect x="816" y="232" width="440" height="56" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="828" y="252" width="56" height="16" rx="2" fill="none" stroke="var(--ink)" stroke-opacity="0.4" stroke-width="0.8"/>
+<text x="856" y="264" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÀNG 4</text>
+<text x="896" y="256" fill="var(--ink)" font-size="12" font-weight="600">mã = 0 — đạt</text>
+<text x="896" y="276" fill="var(--muted)" font-size="10">khai cannotRun khác (thiếu env) + dấu 0</text>
+
+<!-- hàng 5 -->
+<rect x="816" y="312" width="440" height="56" rx="6" fill="var(--paper)"/>
+<rect x="816" y="312" width="440" height="56" rx="6" fill="var(--link-tint)" stroke="var(--link)" stroke-width="1.2"/>
+<rect x="828" y="332" width="56" height="16" rx="2" fill="none" stroke="var(--link)" stroke-opacity="0.6" stroke-width="0.8"/>
+<text x="856" y="344" fill="var(--link)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÀNG 5</text>
+<text x="896" y="336" fill="var(--ink)" font-size="12" font-weight="600">giữ cannotRun — hạ tầng, không REJECT</text>
+<text x="896" y="356" fill="var(--muted)" font-size="10">khai cannotRun khác (thiếu env) + dấu 1</text>
+
+<!-- hàng 1 -->
+<rect x="816" y="392" width="440" height="56" rx="6" fill="var(--paper)"/>
+<rect x="816" y="392" width="440" height="56" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="828" y="412" width="56" height="16" rx="2" fill="none" stroke="var(--ink)" stroke-opacity="0.4" stroke-width="0.8"/>
+<text x="856" y="424" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÀNG 1</text>
+<text x="896" y="416" fill="var(--ink)" font-size="12" font-weight="600">mã = dấu (0) — đạt</text>
+<text x="896" y="436" fill="var(--muted)" font-size="10">hình E21: khai 1, dấu 0 · cứu đỏ sai</text>
+
+<!-- hàng 8 -->
+<rect x="816" y="472" width="440" height="56" rx="6" fill="var(--paper)"/>
+<rect x="816" y="472" width="440" height="56" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="828" y="492" width="56" height="16" rx="2" fill="none" stroke="var(--ink)" stroke-opacity="0.4" stroke-width="0.8"/>
+<text x="856" y="504" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÀNG 8</text>
+<text x="896" y="496" fill="var(--ink)" font-size="12" font-weight="600">mã = dấu (1) — REJECT</text>
+<text x="896" y="516" fill="var(--muted)" font-size="10">khai 0, dấu 1 · kéo xanh sai về đỏ</text>
+
+<!-- hàng 6 -->
+<rect x="816" y="552" width="440" height="56" rx="6" fill="var(--paper)"/>
+<rect x="816" y="552" width="440" height="56" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<rect x="828" y="572" width="56" height="16" rx="2" fill="none" stroke="var(--ink)" stroke-opacity="0.4" stroke-width="0.8"/>
+<text x="856" y="584" fill="var(--ink)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÀNG 6</text>
+<text x="896" y="576" fill="var(--ink)" font-size="12" font-weight="600">giữ mã tác tử khai (1)</text>
+<text x="896" y="596" fill="var(--muted)" font-size="10">không dấu, khai 1</text>
+
+<!-- hàng 7 — vế mới, ngưỡng chết -->
+<rect x="816" y="632" width="440" height="56" rx="6" fill="var(--paper)"/>
+<rect x="816" y="632" width="440" height="56" rx="6" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<rect x="828" y="652" width="56" height="16" rx="2" fill="none" stroke="var(--accent)" stroke-opacity="0.7" stroke-width="0.8"/>
+<text x="856" y="664" fill="var(--accent-text)" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÀNG 7</text>
+<text x="896" y="656" fill="var(--ink)" font-size="12" font-weight="600">cannotRun «ma thoat khong doc duoc» — KHÔNG đạt</text>
+<text x="896" y="676" fill="var(--muted)" font-size="10">không dấu, khai 0 · vế mới, ngưỡng chết ≤ 1/10 lượt đầu</text>
+
+<!-- Chú giải -->
+<line x1="24" y1="716" x2="1256" y2="716" stroke="var(--rule)" stroke-width="0.8"/>
+<text x="24" y="736" fill="var(--muted)" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<rect x="24" y="748" width="24" height="12" rx="2" fill="var(--link-tint)" stroke="var(--link)" stroke-width="1"/>
+<text x="56" y="758" fill="var(--muted)" font-size="10">hạ tầng → thử lại cùng round, không REJECT</text>
+<rect x="336" y="748" width="24" height="12" rx="2" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="368" y="758" fill="var(--muted)" font-size="10">mã thật → đạt hoặc REJECT</text>
+<rect x="560" y="748" width="24" height="12" rx="2" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.2"/>
+<text x="592" y="758" fill="var(--muted)" font-size="10">hàng 7 — vế mới, có ngưỡng chết (hạ tầng, không đạt)</text>
+<polygon points="908,754 920,748 932,754 920,760" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="940" y="758" fill="var(--muted)" font-size="10">chỗ rẽ · nhánh ghi có / không</text>
+
+<!-- Ghi chú dưới hình -->
+<text x="24" y="796" fill="var(--ink)" font-size="12">Luật chỉ áp lane machine (lệnh eval + suite); lane ui và baseline không bị chạm.</text>
+</svg>
+    </div>
+    <div class="footer">
+      <span>Hình tầng 2 · chiếu của ma trận tám hàng AC-2 trong contract.md · AC liên quan: AC-1 · AC-2 · AC-3 · sổ d-…-1 (lệch findings 26/09 §9.2)</span>
+      <span>hồ sơ cham-khong-tu-dot-luot · vẽ 27/09/2026</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Lượt chấm thôi tự đốt lượt: khi hỏng vì hạ tầng thì máy tự chấm lại cùng lượt thay vì bắt anh cho vượt trần; mã đạt/trượt do máy đọc, không do tác tử đoán; thẻ Cổng Phạm vi hiện đủ những gì anh cần để phủ quyết.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ in một dấu mã thoát ở cuối mọi lệnh máy chấm, gọn dưới ~6 KB để công cụ không cất đầu ra đi — mà không đổi tên lệnh, tên suite hay mã lượt chạy nào."},
+    {"id": "AC-2", "p": "Sẽ lấy mã đạt/trượt từ dấu ấy theo bảng tám trường hợp: cứu lần tác tử khai đỏ sai, kéo lần khai xanh sai về đỏ, còn «thiếu môi trường» vẫn là hạ tầng chứ không thành trượt."},
+    {"id": "AC-3", "p": "Sẽ giữ cờ «công cụ đã giết lệnh» trong sổ chạy, để lượt ấy được chấm lại cùng lượt thay vì bị khoá."},
+    {"id": "AC-4", "p": "Sẽ coi bộ kiểm chung không chạy được (có ghi lý do) là hạ tầng, chấm lại cùng lượt một lần; bộ kiểm trượt thật vẫn là trượt."},
+    {"id": "AC-5", "p": "Sẽ ghi vào hồ sơ đúng mã commit máy đã chấm, không nhận mã do tác tử tự khai."},
+    {"id": "AC-6", "p": "Sẽ hiện đủ từng mục «sẽ không làm» trên thẻ Cổng Phạm vi, mỗi mục một dòng, và bật cờ vàng khi một câu dịch không khớp mục nào."},
+    {"id": "AC-7", "p": "Sẽ đọc mọi bảng phản biện trong hồ sơ (không chỉ bảng đầu) và báo cờ vàng khi số phát hiện vượt số đã khai."},
+    {"id": "AC-8", "p": "Sẽ tách lại bảng chi phí máy theo từng khối việc, để mốc phát hành đếm được token vào đâu."},
+    {"id": "AC-9", "p": "Sẽ cất ảnh bằng chứng màn hình vào đúng hồ sơ của vòng, và ghi đường ngắn trong báo cáo để không lộ đường máy cá nhân."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Mọi cách tác tử báo mã (có dấu, mất dấu, khai bị giết, khai thiếu môi trường, khai tay) trên lệnh eval và bộ kiểm chung đều có trường hợp riêng (AC-1, AC-2); làn ảnh và làn đối chiếu nền để ngoài có tên."},
+    {"i": 1, "p": "Mọi dạng dòng sổ chạy (bị giết, lý do tự do, lý do rỗng, trượt thật, trộn) đều có nhãn đã định (AC-3, AC-4)."},
+    {"i": 2, "p": "Mã commit trong hồ sơ: có/không/hỏng ở phía máy × khớp/khác/hỏng ở phía tác tử — đủ chín tổ hợp (AC-5)."},
+    {"i": 3, "p": "Thẻ Cổng Phạm vi: không dịch, dịch đủ, dịch một phần, câu dịch lạc, đúng hình crm (AC-6); bảng phản biện một, nhiều, lạ tiêu đề, vượt khai (AC-7)."},
+    {"i": 4, "p": "Bảng chi phí: có, không có sổ nhãn, nhãn nằm ở tin thứ hai (AC-8)."},
+    {"i": 5, "p": "Ảnh bằng chứng: lưu trong hoặc ngoài hồ sơ (AC-9)."},
+    {"i": 6, "p": "Giả định chưa đo: công cụ chỉ cất đầu ra khi vượt 8 000 byte — lượt chấm đầu của chính vòng này sẽ đo."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Bảng tám trường hợp thiếu chiều «tác tử khai xanh mà lệnh trượt» — một bản sửa chỉ tin dấu khi khai đỏ vẫn qua, để lọt đạt giả. Đã thêm trường hợp thứ tám và một bản phá thử riêng."},
+    {"i": 1, "p": "Hồ sơ phản biện «sạch» (một dòng «không còn lỗ») sẽ bật cờ vàng giả trên mọi thẻ, cờ thành nhiễu. Đã sửa: chỉ đếm dòng có mức nặng, thêm trường hợp hồ sơ sạch phải im."},
+    {"i": 2, "p": "Hình crm trong phép đo tự dựng đúng khuôn bộ đọc, có thể lệch tiêu đề thật. Đã đọc crm: hai tiêu đề khớp nguyên văn, chép nguyên vào phép đo, thêm dòng đo lại sau khi crm cài."},
+    {"i": 3, "p": "Giới hạn đầu ra đếm theo ký tự, tiếng Việt nhiều byte có thể vượt ngưỡng và làm mất dấu. Đã sửa: giới hạn theo byte, thêm trường hợp đầu ra tiếng Việt."},
+    {"i": 4, "p": "Phép so «trước vòng» dựa vào nhãn phiên bản cũ, dễ hỏng vì hạ tầng trên máy CI. Đã đổi cách so: so với cùng bộ chấm tắt khung bọc, không cần git hay nhãn phiên bản."}
+  ],
+  "decisions_plain": [
+    {"id": "d-20260927T073150Z-1", "p": "Dấu mã thoát thắng theo bảng tám trường hợp, không thắng tuyệt đối — đổi lại mọi lệnh máy ở mọi kho đi qua khung bọc, có thể tạm tăng lượt chặn hạ tầng trước khi giảm (ngưỡng chết: quá 1/10 lượt ở kho sạch thì gỡ vế mới)."},
+    {"id": "d-20260927T073150Z-2", "p": "Bộ kiểm chung không chạy được có ghi lý do được chấm lại cùng lượt như eval — đổi lại một bộ kiểm hỏng vì chính sản phẩm cũng được chấm lại một lần vô ích rồi mới lên thẻ."},
+    {"id": "d-20260927T073150Z-3", "p": "KHÔNG làm lớp nhắc tác tử bỏ qua câu người do công cụ chuyển tiếp — đổi lại ca đó vẫn tốn một lượt gọi anh cho tới khi mỗi lượt chạy trong phiên riêng; mở lại nếu còn gặp sau khi đã tách phiên."},
+    {"id": "d-20260927T073150Z-4", "p": "KHÔNG làm phần phát hiện «mã nguồn đổi giữa lượt chấm» — chỉ bỏ quyền tác tử tự khai mã commit; mở lại nếu có hồ sơ ký lệch commit."},
+    {"id": "d-20260927T073150Z-5", "p": "KHÔNG bọc lệnh cho làn ảnh màn hình và làn đối chiếu nền — hai làn này vẫn có thể khai sai mã; mở lại nếu một lượt chấm đổi kết luận vì chúng."},
+    {"id": "d-20260927T073150Z-6", "p": "KHÔNG viết đặc tả trải nghiệm — vòng không dựng màn mới, thẻ chỉ hiện đủ mục đang bị gộp; anh thấy thẻ mới lần đầu ở Cổng Bằng chứng."},
+    {"id": "d-20260927T073150Z-7", "p": "KHÔNG chạy phiên thiết kế trước duyệt — thẻ không đổi bố cục; đổi lại anh duyệt bằng chữ, không có bản bấm được."}
+  ]
+}
