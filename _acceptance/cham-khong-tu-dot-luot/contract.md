@@ -5,7 +5,7 @@ slug: cham-khong-tu-dot-luot
 owner: phanlemanh@gmail.com
 risk_tier: T3      # sửa lib/nhan-canh-gay.cjs (khớp t3_paths lib/**)
 surfaces: [cli, docs]
-status: verified    # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off    # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: "Phan Le Manh"
 approved_at: 2026-09-27T07:49:56Z
 design_doc: docs/superpowers/specs/2026-09-27-cham-khong-tu-dot-luot-design.md
@@ -78,3 +78,8 @@ Quét Zwicky rút gọn (preset test-matrix), đầy đủ ở design doc §3.
 ## Notes
 
 - B12 (AC-3 và một phần AC-4) đã dựng trước vòng trên nhánh `fix/suite-bi-cat-la-ha-tang` (test đỏ `c886122f` → sửa `68d2d60c`), lấy sang nguyên; ca `tests/scripts/suite-bi-cat.test.mjs` nhập vào tệp ca của vòng.
+- **Known limits (owner quyết ở Cổng Bằng chứng 27/09, lượt chấm 3):**
+  - Ngoài-2: `nhanLyDo` của `lib/nhan-canh-gay.cjs` còn hai nhánh chết (mã hạ tầng, câu tool-kill) và tham số `laEval` không còn đọc sau AC-4 — không đổi phân loại, chỉ gây hiểu nhầm cho người sửa sau. Ngưỡng mở lại: một lượt sửa khôi phục nhầm nhánh «SUITE → null» dựa vào tham số này.
+- **Mở hợp đồng mới (owner quyết ở Cổng Bằng chứng 27/09) — ghi hạt giống, không tạo ô (luật «Ô chỉ mở khi có NEO NGOÀI»):**
+  - Ngoài-1 → `docs/plans/2026-09-27-hat-giong-the-cong-2-scope-plain-thay-muc.md` (thẻ Cổng 2 vẫn để câu tóm thay các mục «không làm»).
+  - Ngoài-3 → `docs/plans/2026-09-27-hat-giong-ca-lan-ui-khong-phan-biet.md` (ca «luật dấu không chạm làn ui» không có chiều đỏ).

@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: cham-khong-tu-dot-luot
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 6399949ea5e3d820cc68ab8c651d86260e94a5c0
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-27 — ký lượt chấm 3; Ngoài-1, Ngoài-3 mở hợp đồng mới (hạt giống); Ngoài-2 ghi Known limits; E10 Đạt; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: cham-khong-tu-dot-luot
@@ -153,7 +153,7 @@ human_signoff:
     - domain-correctness: PASS (r2)
     - operational-feasibility: PASS (r2)
     - spec-alignment: PASS (r2)
-  human_override:  # chi nguoi ghi — T3 doi bat buoc tren MOI muc judgment bat ke phieu judge
+  human_override: Phan Le Manh 2026-09-27 — Đạt
 
 ### Lệnh suite (hồi quy)
 
