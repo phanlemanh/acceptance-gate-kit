@@ -59,7 +59,7 @@ async function kho({ tra = TRA.lanh, soDong = [], status = DA_KY, chuKy = 'M 202
   g('add', '-A'); g('commit', '-qm', 'nen'); const sha = g('rev-parse', 'HEAD');
   const res = (await runWorkflow(WF, { slug: 's', round: 1, riskTier: 'T2', evals: EV, suiteCommands: [], diffBase: 'main', repoRoot: r, personasPath: '/p', templatePath: '/t', invokedAt: '2026-09-21T10:00:00Z', invokedSha: sha }, c => {
     const l = c.label;
-    if (l.startsWith('machine:')) { const cmd = l.slice(8); return tra[cmd] || { exitCode: 0, outputTail: 'ok', runId: `rid-${cmd}`, cannotRun: false }; }
+    if (l.startsWith('machine:')) { const cmd = l.slice(8); return tra[cmd] || { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: `rid-${cmd}`, cannotRun: false }; }
     if (l.startsWith('review:')) return { findings: [] };
     if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: sha };
     if (l === 'synthesize:report') return { report: '# r', findings: '# f' };

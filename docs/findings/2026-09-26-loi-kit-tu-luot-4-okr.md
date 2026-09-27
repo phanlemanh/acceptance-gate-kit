@@ -401,3 +401,40 @@ Kiểm bằng mã và tài liệu, không bằng trí nhớ:
 | Phút máy/lượt chấm | ↑ nhẹ | **=** | Bỏ B9 |
 
 **Điều kiện mở vòng:** (i) 2.18.4 mới ở 2/10 cây crm, chưa rõ đã là «mốc kho nhận» — vòng này là vòng meta duy nhất tới khi crm cài 2.18.5 (luật b); (ii) mọi ca đỏ rút từ journal và hồ sơ thật của lượt 4, không viết tay; (iii) giới hạn của B6(b) ghi vào hồ sơ mốc kèm ngưỡng, không giả vờ có răng.
+
+## 10. Bổ sung 27/09 — B12: cờ `killedByTool` rơi khỏi sổ chạy
+
+**Hiện tượng.** Hồ sơ `crm/_acceptance/quen-mat-khau/` (cây `wizardly-lumiere-e25e92`), S4 round 2 và 3
+BLOCKED chỉ vì `bun run test` bị công cụ cắt output trước dòng tổng kết. Tác nhân suite khai ĐÚNG cấu trúc
+ở cả hai lượt: `cannotRun: true, killedByTool: true`, gọi Bash với `timeout: 600000` (journal
+`wf_7acee3ef-8de/agent-a87c473415bd8a4f0`, `wf_162b21bb-b42/agent-a6d175bf2580b6dce`). Chỗ rơi là bộ chấm:
+`normKill` giữ lý do tự do của tác nhân, còn dòng sổ chạy không ghi `killed_by_tool` — trường mà đường
+VERIFY độc lập (`tool-kill-rule.md`, mục «Hồ sơ cho lượt bị ngắt») đã khai. `canhGay()` chỉ còn chữ tự do,
+xếp dòng SUITE vào nhãn null → `khoa` → `s4-args` đánh round 4, quá trần. Cùng đích B11, khác gốc B7:
+ở đây mã thoát không bị đoán — cờ đúng mà bị bỏ. Fixture `mu` của ca HT-AC4 gõ tay đúng câu cố định của
+bên đọc, nên xanh suốt khi lỗi sống (lớp bên-viết/bên-đọc trôi).
+
+**Nghiệm máy giữ** — nhánh `fix/suite-bi-cat-la-ha-tang` (hai commit, chưa đẩy): bộ chấm ghi
+`killed_by_tool: true` trên dòng eval/SUITE khi `cannotRun` do công cụ; lib gán `mu` theo cờ, không đọc
+chữ lý do. Ca `tests/scripts/suite-bi-cat.test.mjs` đi round-trip (bộ chấm thật sinh sổ → lib → `s4-args`),
+dùng nguyên văn hai lý do crm; đối chứng: SUITE exit 1 thật → REJECT; hình dạng round 2 crm (test bị cắt +
+lint exit 1) → `mu`+`vat` → khoá; cannotRun không cờ → null; đột biến gỡ trường ghi → ca `mu` lật khoá.
+
+**Cân trên mọi kho (luật 26/09).** Kho không có sự cố: dòng sổ không đổi — cờ chỉ ghi khi
+`cannotRun ∧ killedByTool`; sổ cũ không có cờ đọc như trước. Kho có sự cố: lượt bị cắt thử lại cùng round
+thay vì đốt trần; trần thử lại vẫn một lần (`daThuLai`). Ai dựa hành vi cũ: không — `lib/nhan-canh-gay.cjs`
+là bên đọc `cannot_run` duy nhất. Lib thuộc lớp chép CI: kho nhận mốc chép lại như mọi mốc.
+
+**Đầu vào cho B7.** Công cụ cắt ĐUÔI output (round 3: dòng cuối là `(pass) permitted(` dở), nên dấu
+`__EXIT=` in ở cuối sẽ mất cùng đuôi với suite dài, và lượt thử lại cùng round cắt lại y hệt → sau B12 một
+mình, suite dài vẫn dừng ở thẻ Cổng Bằng chứng (không đốt round, nhưng gọi người). Khung bọc B7 phải ghi
+output ra tệp rồi in đuôi trước dấu: `F=$(mktemp); ( <lệnh>`⏎`) > "$F" 2>&1; rc=$?; tail -n 80 "$F";
+printf '\n__EXIT=%s\n' $rc`. Bằng chứng: lượt thử lại round 3 (02:42Z) chạy theo cách vòng ngoài ghi tệp
+đọc được exit 1 THẬT → REJECT → round 4 PASS, hồ sơ đã ký. Thứ tự trong bộ chấm: `normKill` trước bước
+rút dấu. Không dặn bằng lời trong `tool-kill-rule.md` — hai dấu (`EXIT=` của lời, `__EXIT=` của máy) sẽ trôi.
+
+**Kiến nghị.** Gộp B12 vào vòng 2.18.5 mục 1 (cùng tệp `acceptance-verify.js` + `nhan-canh-gay.cjs`, cùng
+mục tiêu «chấm không tự đốt lượt»). Vòng riêng tốn một hồ sơ T3 (CI đòi hồ sơ cho PR chạm `lib/`) ≈ +4 lượt
+gọi người, và là vòng meta thứ hai giữa hai mốc (luật b). Không mở ô.
+
+**Owner đồng ý 27/09:** B12 vào vòng 2.18.5, đi cùng B7. Hai commit mã lấy từ nhánh `fix/suite-bi-cat-la-ha-tang`.

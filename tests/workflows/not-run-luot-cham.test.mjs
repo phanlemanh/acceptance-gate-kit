@@ -38,7 +38,7 @@ const buildArgs = (over = {}) => ({
 // Responder xanh cùng hình dạng ca W03 (acceptance-verify.test.mjs).
 const responder = (call) => {
   const l = call.label;
-  if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green', runId: '', cannotRun: false };
+  if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'all green\n__EXIT=0', runId: '', cannotRun: false };
   if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'fits intent' };
   if (l.startsWith('review:')) return { findings: [] };
   if (l.startsWith('refute:')) return { refuted: true, reason: 'not real' };

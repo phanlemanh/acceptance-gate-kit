@@ -236,7 +236,7 @@ const MACHINE_SCHEMA = {
   type: 'object',
   properties: {
     exitCode: { type: 'number' },
-    outputTail: { type: 'string', description: '~10 dong cuoi output lien quan' },
+    outputTail: { type: 'string', description: 'NGUYEN VAN phan duoi tool result cua khung boc lenh — PHAI giu dong cuoi __EXIT=<n>; khong chon loc, khong viet lai' },
     runId: { type: 'string', description: 'run_id tu stdout neu co, khong co thi chuoi rong' },
     cannotRun: { type: 'boolean' },
     killedByTool: KILLED_BY_TOOL_FIELD,
@@ -630,6 +630,20 @@ const INFRA_EXITS = {
 const CD_GUARD = (dir) => `cd ${dir} || exit 97`
 // INFRA-EXIT-CODES>>>
 
+// Khung bọc lệnh máy (cham-khong-tu-dot-luot AC-1): mã thoát là VẬT máy đọc, không phải điều
+// tác tử suy từ chữ in ra (E21 crm, 26/09). Đầu ra ghi trọn ra tệp tạm; chỉ ĐUÔI (≤ 6000 byte)
+// và một dòng dấu đi vào tool result, nên harness không cất đầu ra ra tệp (đo 27/09: 74 KB bị
+// cất, preview 2 KB). Xuống dòng trước `)` để `#`/`exit` trong lệnh không nuốt dấu. Chỉ BỌC ở
+// tầng prompt — chuỗi `cmd` là khoá của dedupe/carry/SUITE/run_id, không đổi.
+// Trần byte là `tail -c 6000`, KHÔNG phải cắt dòng: `cut -c` đếm byte ở locale C mà đếm ký tự ở
+// locale UTF-8, nên 40 dòng × 240 cột tự nó không chặn được byte (40 × 241 B > 8000 kể cả ở C).
+// <<<EXIT-MARK
+const EXIT_MARK = '__EXIT='
+const BOC_LENH = (lenh) => `F=$(mktemp); ( ${lenh}\n) > "$F" 2>&1; rc=$?; tail -n 40 "$F" | cut -c1-240 | tail -c 6000; printf '\\n${EXIT_MARK}%s\\n' "$rc"; rm -f "$F"; (exit $rc)`
+// Kết bằng `(exit $rc)`: trạng thái công cụ phải bằng mã của LỆNH, không bằng mã của `rm` (luôn 0) —
+// thiếu vế này thì tác tử làm rơi dòng dấu mà khai theo trạng thái công cụ sẽ ra PASS giả (S4-r2).
+// EXIT-MARK>>>
+
 // Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen
 // `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
 // Tach `**` TRUOC khi doi `*`, neu khong `**` bi doi thanh hai lan `[^/]*` va het
@@ -806,9 +820,13 @@ Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong 
 // AC-9: MỘT lời gọi agent cho MỘT lần chạy của một lệnh máy — hai nhánh (song song cho lệnh
 // eval, tuần tự cho lệnh suite) dùng CHUNG hàm này để prompt không bị chép thành hai bản.
 const agentCuaLenh = (cmd, __i) => agentT(
-  `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n  ${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
+  `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n${BOC_LENH(`${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}`)}\n\nCapture TRUNG THUC: outputTail = NGUYEN VAN phan duoi tool result, PHAI giu dong cuoi \`${EXIT_MARK}<n>\`; exitCode = so <n> cua dong do (khong suy tu chu); run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
   { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
 ).then(r => r && { ...r, cmd, runIndex: __i + 1 })
+
+// cham-khong-tu-dot-luot AC-9: ảnh ui lưu DƯỚI hồ sơ bằng đường tuyệt đối — đường tương đối
+// `evidence/…` rơi vào cwd của tác tử (không phải hồ sơ). Báo cáo mang lại đường tương đối.
+const EVD = `${args.repoRoot}/_acceptance/${args.slug}/evidence`
 
 const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
   // AC-9: nhánh song song (lệnh eval) và nhánh tuần tự (lệnh suite) chạy ĐỒNG THỜI với nhau;
@@ -833,9 +851,9 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
       `Quy tac:\n` +
       `- Tu quan dev server: start NEN (background) neu steps yeu cau, doi ready (poll HTTP toi 90s); TAT server truoc khi tra ket qua (chi tat server minh start — port dang co server san thi dung chung va KHONG tat).\n` +
       `- Assertion phai MAY-KIEM-DUOC: HTTP status + marker trong HTML/DOM (trang SSR thi curl + grep du). Ghi tung assertion + ket qua vao outputTail.\n` +
-      `- Evidence file: mkdir -p thu muc truoc. LUU FRAME RA FILE: neu config.yaml co "capture.ui" (lenh <cmd> <url> <out.png>, vd npm run ui:capture) thi DUNG no de luu moi frame — preview_screenshot tra anh INLINE, khong luu file duoc. NHIEU FRAME: luu 1 anh o MOI buoc co screenshot trong steps → evidence/${e.id}-step1.png, evidence/${e.id}-step2.png... (de trang bang chung phat slideshow nhu flow). Tra frame DAU vao screenshotPath; liet ke moi frame da luu vao outputTail. KHONG co capture.ui/tool chup → luu HTML da assert (duoi .html) vao screenshotPath va GHI RO fallback trong outputTail.\n` +
+      `- Evidence file: mkdir -p thu muc truoc. LUU FRAME RA FILE: neu config.yaml co "capture.ui" (lenh <cmd> <url> <out.png>, vd npm run ui:capture) thi DUNG no de luu moi frame — preview_screenshot tra anh INLINE, khong luu file duoc. NHIEU FRAME: luu 1 anh o MOI buoc co screenshot trong steps → ${EVD}/${e.id}-step1.png, ${EVD}/${e.id}-step2.png... (de trang bang chung phat slideshow nhu flow). Tra frame DAU vao screenshotPath — Khai screenshotPath bang duong TUYET DOI da luu; liet ke moi frame da luu vao outputTail. KHONG co capture.ui/tool chup → luu HTML da assert (duoi .html) vao screenshotPath va GHI RO fallback trong outputTail.\n` +
       `- observed (BAT BUOC khi co frame): MO TUNG file frame vua luu bang Read (anh doc truc tiep; .html doc noi dung file) roi VIET field observed = thay gi CU THE trong tung frame, doi chieu Expected. KHONG viet observed tu tri nho lenh/steps — phai doc file that. Neu noi dung frame MAU THUAN Expected → assertion do FAIL: exitCode phai khac 0 du lenh exit 0.\n` +
-      `- NETWORK TRUTH (mo rong rail observed tu pixels sang wire): NEU driver la browser tool co duong doc network (read_network_requests / read_console_messages hoac tuong duong) — SAU khi chay xong steps: doc failed requests + console errors, dump tho vao evidence/${e.id}-network.txt (mkdir -p truoc). Luat scoping: FAIL-eligible = fetch/XHR toi origin cua config dev_server.url HOAC prefix trong dev_server.api_base (co the la LIST); third-party (analytics/CDN/tracker) KHONG BAO GIO fail; static asset (.map/favicon/anh/font) ke ca app-origin → chi note. Trong tap FAIL-eligible: connection-error/timeout/status tu 500 tro len → eval FAIL: exitCode phai khac 0 KE CA khi frame dep; loi 4xx → FAIL TRU KHI expected cua eval khai dung status do. Dien field networkObserved bang VOCAB CHU (cam so status/exit): "clean" = CO thay traffic app-scope va tat ca OK — khong thay request app nao thi PHAI ghi "no-app-traffic" (cam ghi clean khi khong co traffic); "third-party-only" = chi third-party fail; "app-fail" = co request FAIL-eligible fail; "unscoped" = config chua khai dev_server.url/api_base; "unscoped-partial" = thay XHR toi origin la ngoai scope da khai (note-only); driver khong doc duoc network (curl+grep, capture-only) → "n-a (driver)"; tool doc network tu loi → "n-a (tool-error: <ly do ngan>)" kem chi tiet trong outputTail. Cac gia tri n-a/unscoped/no-app-traffic KHONG lam eval fail.\n` +
+      `- NETWORK TRUTH (mo rong rail observed tu pixels sang wire): NEU driver la browser tool co duong doc network (read_network_requests / read_console_messages hoac tuong duong) — SAU khi chay xong steps: doc failed requests + console errors, dump tho vao ${EVD}/${e.id}-network.txt (mkdir -p truoc). Luat scoping: FAIL-eligible = fetch/XHR toi origin cua config dev_server.url HOAC prefix trong dev_server.api_base (co the la LIST); third-party (analytics/CDN/tracker) KHONG BAO GIO fail; static asset (.map/favicon/anh/font) ke ca app-origin → chi note. Trong tap FAIL-eligible: connection-error/timeout/status tu 500 tro len → eval FAIL: exitCode phai khac 0 KE CA khi frame dep; loi 4xx → FAIL TRU KHI expected cua eval khai dung status do. Dien field networkObserved bang VOCAB CHU (cam so status/exit): "clean" = CO thay traffic app-scope va tat ca OK — khong thay request app nao thi PHAI ghi "no-app-traffic" (cam ghi clean khi khong co traffic); "third-party-only" = chi third-party fail; "app-fail" = co request FAIL-eligible fail; "unscoped" = config chua khai dev_server.url/api_base; "unscoped-partial" = thay XHR toi origin la ngoai scope da khai (note-only); driver khong doc duoc network (curl+grep, capture-only) → "n-a (driver)"; tool doc network tu loi → "n-a (tool-error: <ly do ngan>)" kem chi tiet trong outputTail. Cac gia tri n-a/unscoped/no-app-traffic KHONG lam eval fail.\n` +
       `- exitCode=0 CHI khi MOI assertion pass. KHONG sua code. Khong the chay (port ban khong xu ly duoc, thieu env...) → cannotRun=true + reason cu the.\n` +
       `- ${TOOL_KILL_RULE}`,
       { label: `ui:${e.id}`, phase: 'Machine', schema: UI_SCHEMA, ...modelOpt('ui') }
@@ -868,9 +886,33 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
 
 ])
 
+// Đọc dấu (cham-khong-tu-dot-luot AC-2, design §2 bảng tám hàng). Chỉ lane machine.
+// Dấu có mặt = lệnh ĐÃ chạy xong → mã dấu thắng lời khai, TRỪ ca tác tử khai hạ tầng khác
+// (thiếu env…) mà dấu ≠ 0: giữ hạ tầng — «thiếu env thoát 1» không được thành REJECT đốt round.
+// Không dấu: khai ≠ 0 giữ (97/127 đi tiếp normInfra); khai 0 không có căn cứ → không PASS.
+// Lấy LẦN KHỚP CUỐI: lệnh con tự in một dấu giả giữa đầu ra không thắng dấu thật của khung bọc.
+const rutDau = tail => { const all = [...String(tail || '').matchAll(new RegExp(`^${EXIT_MARK}(\\d+)\\s*$`, 'gm'))]; return all.length ? Number(all[all.length - 1][1]) : null }
+const normDau = r => {
+  if (!r) return r
+  const dau = rutDau(r.outputTail)
+  if (dau != null) {
+    if (r.cannotRun === true && r.killedByTool !== true && dau !== 0) return r
+    const { killedByTool, ...rest } = r
+    return { ...rest, cannotRun: false, exitCode: dau, reason: r.cannotRun ? '' : r.reason }
+  }
+  // Không dấu → giữ lời khai như trước vòng. Vế «không dấu mà khai 0 → không PASS» đã GỠ theo
+  // ngưỡng chết khai ở Cổng Đáng: lượt chấm 1 của chính vòng (27/09) có 3/11 tác tử chạy lệnh
+  // trần, không qua khung bọc — khung vẫn là lời trong prompt, nên thiếu dấu không chứng được
+  // lệnh hỏng; chặn ở đây chỉ tăng BLOCKED hạ tầng (sổ S4-r1).
+  return r
+}
+
 // killedByTool ⇒ cannotRun: không tin một lời khai đơn lẻ — đúng ca sự cố
 // (agent khai cannotRun=false + exitCode=1 khi lệnh bị giết). reason agent giữ
 // NGUYÊN VĂN nếu có; trống → điền khuôn ghim để card BLOCKED không rỗng.
+// Vì reason là chữ tự do, tín hiệu máy-đọc là CỜ killedByTool: nó đi tới sổ chạy
+// thành `killed_by_tool` (dưới) và lib/nhan-canh-gay.cjs phân nhãn trên cờ ấy —
+// thiếu cờ trên sổ là lượt suite bị cắt ra nhãn null, khoá, đốt round (crm 26/09).
 // Áp cho CẢ BA lane trước mọi merge; baseline → cannotRun → baselineStatus n-a.
 const TOOL_KILL_REASON = 'bi cong cu giet (timeout tool/output cat) — exit code khong phai cua lenh'
 const normKill = r => (r && r.killedByTool === true)
@@ -892,7 +934,7 @@ const normInfra = r => {
 
 // ---- variance-N: gộp các lần chạy của 1 lệnh → 1 entry/lệnh với pass-rate ----
 const runsByCmd = new Map()
-for (const r of (machineRaw || []).filter(Boolean).map(normKill).map(normInfra)) {
+for (const r of (machineRaw || []).filter(Boolean).map(normDau).map(normKill).map(normInfra)) {
   if (!runsByCmd.has(r.cmd)) runsByCmd.set(r.cmd, [])
   runsByCmd.get(r.cmd).push(r)
 }
@@ -908,7 +950,7 @@ for (const cmd of distinctCmds) {
   // KHÔNG được tính pass-rate/variance trên mẫu thiếu: 1/5 lần chạy được mà PASS = giả mạo (đúng triết lý kit: verify được hay BLOCKED, không fake).
   if (cannotRunCount > 0 || missing > 0) {
     const firstCannot = rs.find(r => r.cannotRun)
-    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === expCmd(cmd)).length, variance: false, cannotRun: true, reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
+    machine.push({ cmd, evals: byCmd.get(cmd), runs: N, passes: ran.filter(r => r.exitCode === expCmd(cmd)).length, variance: false, cannotRun: true, killedByTool: !!(firstCannot && firstCannot.killedByTool === true), reason: (firstCannot && firstCannot.reason) || `chi ${ran.length}/${N} lan chay duoc (${cannotRunCount} cannotRun, ${missing} agent chet) — khong du can cu de PASS`, exitCode: 1, runId: (ran[0] || rs[0]).runId || '', outputTail: (rs[0] || {}).outputTail || '' })
     continue
   }
   // đủ N lần chạy sạch → tính pass-rate / variance
@@ -924,7 +966,11 @@ for (const cmd of distinctCmds) {
   machine.push({ cmd, evals: byCmd.get(cmd), runs: ran.length, passes, variance, cannotRun: false, reason: rep.reason, exitCode, runId: rep.runId, outputTail: rep.outputTail })
 }
 // ui-check hợp nhất vào machine-style (luôn 1 lần): cmd ui-check:<evalId> — routing blocked/failed dùng chung
-machine.push(...(uiRaw || []).filter(Boolean).map(normKill).map(normInfra).map(r => ({ ...r, runs: 1, passes: !r.cannotRun && r.exitCode === 0 ? 1 : 0, variance: false })))
+// AC-9: ảnh nằm dưới hồ sơ → báo cáo mang đường TƯƠNG ĐỐI hồ sơ (`evidence/…`); ngoài hồ sơ giữ nguyên.
+const EVD_PREFIX = `${args.repoRoot}/_acceptance/${args.slug}/`
+const neoAnh = r => (r && typeof r.screenshotPath === 'string' && r.screenshotPath.startsWith(EVD_PREFIX + 'evidence/'))
+  ? { ...r, screenshotPath: r.screenshotPath.slice(EVD_PREFIX.length) } : r
+machine.push(...(uiRaw || []).filter(Boolean).map(neoAnh).map(normKill).map(normInfra).map(r => ({ ...r, runs: 1, passes: !r.cannotRun && r.exitCode === 0 ? 1 : 0, variance: false })))
 
 // ---- run-log: run_id per eval do JS THUẦN quyết (verifier có runId thật → dùng; rỗng → mint
 // deterministic) + build NGUYÊN VĂN từng dòng JSONL. Synthesize CHỈ chép map này — hết quyền
@@ -1006,6 +1052,7 @@ for (const m of machine) {
       evalId: `SUITE-${ten}`, run_id: rid,
       exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
       ...(m.cannotRun ? { cannot_run: true, reason: m.reason || '' } : {}),   // lý do: thẻ + lưới phân nhãn cạnh gãy (lib/nhan-canh-gay.cjs)
+      ...(m.cannotRun && m.killedByTool ? { killed_by_tool: true } : {}),   // cờ máy-đọc: nhãn «không đọc được ở đây» (tool-kill-rule.md)
     }))
     continue
   }
@@ -1017,6 +1064,7 @@ for (const m of machine) {
       exit_code: m.cannotRun ? null : m.exitCode, cmd: m.cmd,
       ...(m.runs > 1 ? { runs: m.runs, passes: m.passes } : {}),
       ...(m.cannotRun ? { cannot_run: true, reason: m.reason || '' } : {}),   // lý do: thẻ + lưới phân nhãn cạnh gãy (lib/nhan-canh-gay.cjs)
+      ...(m.cannotRun && m.killedByTool ? { killed_by_tool: true } : {}),   // cờ máy-đọc: nhãn «không đọc được ở đây» (tool-kill-rule.md)
     }))
   }
 }
@@ -1547,9 +1595,11 @@ const runLogWriteFailed = runLogLines.length > 0 // luôn: main loop append, kh�
 if (runLogWriteFailed) log('Run-log: ' + runLogLines.length + ' dong trong result.runLog — main loop TU append truoc Gate 2 (hook/recheck doi chieu run_id voi log nay)')
 // verified_commit sanitize bang JS thuan — khong tin agent: sai shape (khong phai hex SHA) coi nhu
 // khong co (report BO field; pre-merge se NOTE "not pinned" thay vi hook chan oan ca round).
-const verifiedCommit = /^[0-9a-f]{7,40}$/i.test(String((prov && prov.verified_commit) || '').trim())
-  ? String(prov.verified_commit).trim().toLowerCase()
-  : ''
+// cham-khong-tu-dot-luot AC-5: mã commit do MÁY đưa (s4-args, git rev-parse HEAD lúc gọi) thắng
+// giá trị tác tử khai (vòng 3 lượt 4 OKR: tác tử trả ec2849e5, không trùng commit nào). Không
+// invokedSha → đường cũ (giá trị tác tử qua bộ lọc hình dạng). Không phát hiện cây trôi (descope d-…-4).
+const hopLeSha = v => (/^[0-9a-f]{7,40}$/i.test(String(v || '').trim()) ? String(v).trim().toLowerCase() : '')
+const verifiedCommit = hopLeSha(args.invokedSha) || hopLeSha(prov && prov.verified_commit)
 // P1: payload block carried cho report — run_id + verified_at NGUYÊN GỐC round trước (không giả
 // timestamp mới), kèm carried_from_round để Gate 2 thấy rõ eval nào round này KHÔNG chạy lại.
 const carriedForReport = carriedEvals.map(c => {

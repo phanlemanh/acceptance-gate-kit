@@ -92,6 +92,18 @@ const NEN_DO_FLAG = 'Nền hạ tầng có chân ĐỎ — đỏ ở đây khôn
 const NEN_VANG_FLAG = 'Chưa có số liệu nền hạ tầng — hồ sơ sinh trước bản này, hoặc đường nền chưa chạy xong.';
 // Cờ dòng đếm vật · thước · nhát trên thẻ Cổng Bằng chứng (thuoc-co-cua AC-13).
 const THUOC_VAT_HONG_FLAG = 'Không đọc được dòng đếm vật/thước trong run-log — thẻ không in số.';
+// Cờ câu dịch wont_do mang id không trùng tiêu chí phủ định nào và không trùng mục phạm vi
+// OOS-n nào (cham-khong-tu-dot-luot AC-6) — câu dịch lạc bị bỏ qua, người phải biết.
+const DICH_LAC = 'dòng dịch không khớp mục nào: ';
+// Nhãn dòng của mục phạm vi (AC-6): mỗi mục giữ nhãn «Hoãn/cắt: » như dòng gộp đời trước —
+// thẻ một mục không dịch ra byte y hệt trước vòng; câu tóm bản dịch là dòng dẫn nhãn riêng.
+const SCOPE_MUC = 'Hoãn/cắt: ';
+const SCOPE_TOM = 'Tóm phần hoãn/cắt: ';
+// <<<GAP-PROBE-HEADER — chữ ký bảng phản biện; bên VIẾT là câu định nghĩa bảng ở
+// feature-loop SKILL S1#7 (ca CK-AC7 so bằng nhau). Bảng tìm theo chữ ký, KHÔNG theo tên mục.
+const GP_HEADER = '| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |';
+const GP_NGOAI = 'bảng phản biện ngoài khai báo: ';
+// GAP-PROBE-HEADER>>>
 const MSG_ROI_BAC = 'Đối kháng máy KHÔNG chạy được — phần vượt-nhận-thức RƠI VỀ ANH: thẻ này không điền sẵn ô nào, và chữ ký ở đây KHÔNG có nghĩa «đối kháng đã hội tụ». Anh tự đọc vật, hoặc chạy lại bước phản biện context sạch rồi dựng thẻ lại.';
 
 // <<<ONE-SHOT-CMD — MỘT nguồn của tên lệnh thẻ in ra. Luật «lệnh in ra phải
@@ -364,6 +376,11 @@ const feature = cfm.feature || cfm.slug || slug;
 const tier = clean(cfm.risk_tier);
 const status = clean(cfm.status);
 const oos = bullets(section(contract, 'Out of scope'));
+// <<<CARD-PLAIN-SCOPE — khuôn phía viết của mục phạm vi (cham-khong-tu-dot-luot AC-6):
+// mỗi mục «Out of scope» mang id OOS-<thứ tự 1-based>; bản dịch ghi câu vào khoá wont_do
+// với CHÍNH id đó. Bộ đọc: mục có câu dịch dùng câu dịch, không có dùng chữ hợp đồng.
+const oosItems = oos.map((t, i) => ({ id: `OOS-${i + 1}`, text: t }));
+// CARD-PLAIN-SCOPE>>>
 
 // ---- decisions.jsonl (ledger — rationale only, tolerant per-line parse) ----
 // Returns entries in FILE ORDER; sealIdx = index of the first gate-1 seal entry
@@ -517,15 +534,44 @@ if (gate === '1') {
   const gpPresent = !!probeT.trim();
   const gpVerdict = clean(gpFm.verdict).toLowerCase();
   const gpRows = []; let gpDropped = 0;
-  if (gpPresent) for (const l of section(probeT, 'Findings')) {
-    if (!/^\s*\|/.test(l)) continue;
-    const cells = l.split('|').slice(1, -1).map(c => c.trim());
-    if (!cells.length) continue;
-    if (cells.every(c => /^:?-+:?$/.test(c))) continue; // separator row
-    if (/^sev$/i.test(cells[0])) continue;              // header row
-    if (cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
-    else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4)
+  // AC-7 (cham-khong-tu-dot-luot): đọc MỌI bảng mang chữ ký GP_HEADER ở bất kỳ mục nào
+  // (bảng soát lại sau Cổng Phạm vi từng bị bỏ vì chỉ đọc «## Findings»); bảng khác chữ ký
+  // bị bỏ qua. Bảng kết thúc ở dòng đầu tiên không bắt đầu bằng «|».
+  // Bảng đời cũ có cột đầu «Sev» mà KHÁC chữ ký (4–5 cột) không được đọc thành phát hiện,
+  // nhưng mọi hàng của nó vẫn đếm vào parse_dropped như trước vòng — cờ «dòng finding không
+  // đọc được» không được im đi trên hồ sơ cũ (Review Focus 5 của kế hoạch).
+  const cotGp = l => l.split('|').slice(1, -1).map(c => c.trim());
+  const GP_COT = cotGp(GP_HEADER).join('|');
+  // Nguồn dòng: mục «## Findings» đọc qua section() của lib/md-section.cjs — luật ranh giới
+  // (bảng dưới «### Notes» hay «# Appendix» là bảng ma) sống MỘT chỗ ở bảng marker của lib
+  // (FSB1/FSB2/FSB8). Mục «##» KHÁC (bảng soát lại sau Cổng Phạm vi của crm) đọc tới tiêu đề
+  // kế tiếp ở mọi cấp: nghiêm hơn, không có bảng ma nào lọt từ mục con.
+  // khoanDung (chỉ «## Findings»): bảng đời cũ đúng SÁU cột mở bằng ô «sev» (tiêu đề chữ khác,
+  // vd `| sev | artifact | summary | … |` ở artifact-platform) vẫn đọc thành phát hiện như trước
+  // vòng — đường đọc-cũ, luật 26/09: kho không sự cố không đổi phán quyết. Mục ## khác: đúng chữ ký.
+  const docBang = (dong, khoanDung) => {
+    let bang = ''; // '' ngoài bảng · 'gp' bảng đúng chữ ký · 'cu' bảng Sev khác chữ ký
+    for (const l of dong) {
+      if (!/^\s*\|/.test(l)) { bang = ''; continue; }
+      const cells = cotGp(l);
+      if (!bang) { bang = cells.join('|') === GP_COT ? 'gp' : /^sev$/i.test(cells[0] || '') ? 'cu' : 'khac'; continue; }
+      if (bang === 'khac') continue;
+      if (cells.every(c => /^:?-+:?$/.test(c))) continue; // separator row
+      if ((bang === 'gp' || (khoanDung && bang === 'cu')) && cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
+      else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4), hoặc bảng Sev đời cũ
+    }
+  };
+  if (gpPresent) {
+    docBang(section(probeT, 'Findings'), true);
+    const mucKhac = []; let trongMucKhac = false;
+    for (const l of probeT.split(/\r?\n/)) {
+      const td = l.match(/^(#{1,6})\s+(.*)$/);
+      if (td) { trongMucKhac = td[1].length === 2 && !/^findings\b/i.test(td[2].trim()); mucKhac.push(''); continue; }
+      if (trongMucKhac) mucKhac.push(l);
+    }
+    docBang(mucKhac, false);
   }
+  const gpPhatHien = gpRows.filter(r => /^P[0-2]$/.test(r.sev)).length;
   // Luật van thoát nằm ở lib/gap-probe.cjs — CÙNG hàm mà pre-merge gọi. Không
   // viết lại ở đây: contract v2 chết đúng vì chỗ này bị tách làm hai bản, parity
   // giữ bằng comment (ledger d-125/d-126). P38 canh bằng máy.
@@ -736,12 +782,16 @@ if (gate === '1') {
   const DA_KHEP_G1 = G1_CO_THE_KHEP && daKhepTu(quetHoSo().hit);
   const DA_KHEP_G1_VI = DA_KHEP_G1 && (quetHoSo().hit || {}).nghi ? 'đã nghỉ' : 'đã chấm bởi thực tế';
   const oneShotG1 = DA_KHEP_G1 ? null : `${ONE_SHOT_CMD_APPROVE} ${slug} ${(roiBac || g1Blocked) ? '___' : 'duyệt'}`;
-  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oos, coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2)); process.exit(0); }
+  if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 1, feature, tier, blind_spot: blindSpot ? { kind: blindSpot.kind, suspect: blindSpot.suspect, parsed: blindSpot.parsed, lines: blindSpot.lines, heading: blindSpot.heading } : null, will_do: willDo.map(x => ({ id: x.id, gwt: x.gwt })), wont_do: wontDo.map(x => ({ id: x.id, gwt: x.gwt })), scope: oosItems.map(x => ({ id: x.id, text: x.text })), coverage: covLines, coverage_missing: !covPresent || !covLines.length, glossary_delta: { present: glossaryPresent, computed: glossaryDelta !== null, error: glossaryDeltaErr, terms: glossaryDelta || [] }, one_shot: oneShotG1, goal_line: DA_KHEP_G1 ? null : goalLine(slug), routing: { hoi: DA_KHEP_G1 ? [] : ['duyệt hay sửa'], bao: [] }, roi_bac: { on: roiBac, reason: roiBacReason }, gap_probe: { present: gpPresent, verdict: gpPresent ? (gpVerdict || null) : null, p0: gpP0, p1: gpP1, p2: gpP2, rows: gpRows.map(r => ({ sev: r.sev, artifact: r.artifact, summary: r.summary, disposition: r.disposition })), parse_dropped: gpDropped, descoped: !!gpDescope }, decisions: decsAll.map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, design_pass: dp.present ? { material: dp.material, context: dp.context, context_label: CONTEXT_LABEL[dp.context] || null, scenes: dp.scenes, reaction: dp.reaction, reaction_label: REACTION_LABEL[dp.reaction] || null, options: dp.options, host_embed: he, flags: dpFlags } : { present: false }, uat_threshold: ut, cong_gia_tri: { mien_do_co_nguoi_dung: mienDoCoNguoiDung }, ui_observed: uiObserved, chot_may: { ac_khong: cmG1.ac_khong, ac_khong_mo: cmG1.ac_khong_mo }, duong_do: { applicable: ddApplicable, present: ddPresent, lines: ddLines, descoped: ddDescope ? ddDescope.id : null }, nen }, null, 2)); process.exit(0); }
   const featurePlain = pl.feature_plain || feature;
   const pmap = (arr, id) => (((arr || []).find(x => x.id === id)) || {}).p;
   const willText = x => pmap(pl.will_do, x.id) || stripMd(x.gwt);
   const wontText = x => pmap(pl.wont_do, x.id) || stripMd(x.gwt);
-  const scopePlain = pl.scope_plain || oos.map(stripMd).join(' · ');
+  // Mục phạm vi (AC-6): mỗi dòng «Out of scope» là MỘT mục trên thẻ; câu dịch theo id
+  // OOS-n, vắng câu dịch thì chữ hợp đồng — không mục nào bị gộp mất vào một câu tóm.
+  const scopeText = x => pmap(pl.wont_do, x.id) || stripMd(x.text);
+  const idHopLe = new Set([...wontDo.map(x => x.id), ...oosItems.map(x => x.id)]);
+  const dichLac = (pl.wont_do || []).map(x => x && x.id).filter(id => id && !idHopLe.has(id));
   // Tầng card-plain cho hai khối sinh sau nó (findings 2026-08-05): overlay chỉ
   // ĐỔI CHỮ theo luật mặt người — script vẫn render đủ MỌI dòng/hàng (không thể
   // quên) và sev do script in (không đè được). Vắng overlay → bản lột-markdown.
@@ -753,7 +803,7 @@ if (gate === '1') {
   // the reviewer must learn that BEFORE reading a list that looks complete.
   if (blindSpot) P.push(`<div class="flag fred">⚠ ${esc(blindSpotText(blindSpot))}</div>`);
   if (willDo.length) P.push(`<div class="lab">Hệ thống SẼ làm</div><div class="grp gdo">${willDo.map(x => `<p class="li">${esc(willText(x))}</p>`).join('')}</div>`);
-  const notItems = wontDo.map(x => esc(wontText(x))).concat(oos.length ? ['Hoãn/cắt: ' + esc(scopePlain)] : []);
+  const notItems = wontDo.map(x => esc(wontText(x))).concat(pl.scope_plain && oos.length ? [SCOPE_TOM + esc(pl.scope_plain)] : []).concat(oosItems.map(x => SCOPE_MUC + esc(scopeText(x))));
   if (notItems.length) P.push(`<div class="lab">Sẽ KHÔNG làm / sẽ chặn</div><div class="grp gnot">${notItems.map(t => `<p class="li">${t}</p>`).join('')}</div>`);
   P.push(`<div class="lab">Quyết định &amp; trade-off</div>`);
   if (!decsAll.length) P.push(`<div class="flag finfo">Sổ quyết định: (chưa ghi quyết định nào)</div>`);
@@ -818,7 +868,9 @@ if (gate === '1') {
   if (gpPresent && gpVerdict === 'probe-failed') flags.push(['fwarn', 'Phản biện không chạy được (probe-failed sau retry) — duyệt nghĩa là duyệt KHÔNG có phản biện context sạch.']);
   if (gpPresent && !gpVerdictKnown) flags.push(['fwarn', `gap-probe.md không đọc được (verdict lạ/thiếu${gpVerdict ? ': "' + esc(gpVerdict) + '"' : ''}) — coi như CHƯA có phản biện, chạy lại bước S1#7 hoặc sửa frontmatter.`]);
   if (gpPresent && gpVerdictKnown && gpVerdict !== 'probe-failed' && (gpVerdict === 'findings' || gpP0 + gpP1 + gpP2 > 0) && !gpRows.length && !gpDropped) flags.push(['fwarn', 'gap-probe.md khai findings nhưng không đọc được dòng finding nào (bảng thiếu / heading sai) — soi file trước khi duyệt.']);
-  if (gpVerdict === 'clean' && (gpRows.length || gpDropped)) flags.push(['fwarn', 'gap-probe.md mâu thuẫn: verdict clean nhưng bảng có finding — soi lại file trước khi duyệt.']);
+  if (gpPresent && gpPhatHien > gpP0 + gpP1 + gpP2) flags.push(['fwarn', GP_NGOAI + gpPhatHien + esc(' > ') + (gpP0 + gpP1 + gpP2)]);
+  if (gpVerdict === 'clean' && (gpPhatHien || gpDropped)) flags.push(['fwarn', 'gap-probe.md mâu thuẫn: verdict clean nhưng bảng có finding — soi lại file trước khi duyệt.']);
+  for (const id of dichLac) flags.push(['fwarn', DICH_LAC + esc(id)]);
   if (gpDropped) flags.push(['fwarn', `${gpDropped} dòng finding không đọc được (sai số cột — cell chứa "|" hoặc thiếu cột) — sửa bảng gap-probe.md nếu cần soi đủ.`]);
   if (nen.present && nen.nen === 'do') flags.push(['fwarn', esc(NEN_DO_FLAG)]);
   else if (!nen.present) flags.push(['fwarn', esc(NEN_VANG_FLAG)]);
