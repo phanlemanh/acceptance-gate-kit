@@ -5,7 +5,7 @@ slug: cham-khong-tu-dot-luot
 owner: phanlemanh@gmail.com
 risk_tier: T3      # sửa lib/nhan-canh-gay.cjs (khớp t3_paths lib/**)
 surfaces: [cli, docs]
-status: approved    # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented    # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: "Phan Le Manh"
 approved_at: 2026-09-27T07:49:56Z
 design_doc: docs/superpowers/specs/2026-09-27-cham-khong-tu-dot-luot-design.md
