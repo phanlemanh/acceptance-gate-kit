@@ -639,7 +639,9 @@ const CD_GUARD = (dir) => `cd ${dir} || exit 97`
 // locale UTF-8, nên 40 dòng × 240 cột tự nó không chặn được byte (40 × 241 B > 8000 kể cả ở C).
 // <<<EXIT-MARK
 const EXIT_MARK = '__EXIT='
-const BOC_LENH = (lenh) => `F=$(mktemp); ( ${lenh}\n) > "$F" 2>&1; rc=$?; tail -n 40 "$F" | cut -c1-240 | tail -c 6000; printf '\\n${EXIT_MARK}%s\\n' "$rc"; rm -f "$F"`
+const BOC_LENH = (lenh) => `F=$(mktemp); ( ${lenh}\n) > "$F" 2>&1; rc=$?; tail -n 40 "$F" | cut -c1-240 | tail -c 6000; printf '\\n${EXIT_MARK}%s\\n' "$rc"; rm -f "$F"; (exit $rc)`
+// Kết bằng `(exit $rc)`: trạng thái công cụ phải bằng mã của LỆNH, không bằng mã của `rm` (luôn 0) —
+// thiếu vế này thì tác tử làm rơi dòng dấu mà khai theo trạng thái công cụ sẽ ra PASS giả (S4-r2).
 // EXIT-MARK>>>
 
 // Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen

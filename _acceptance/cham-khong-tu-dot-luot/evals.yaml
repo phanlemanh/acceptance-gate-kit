@@ -36,8 +36,8 @@ evals:
       (hàng 1 hình E21: không cannotRun + dấu 0 + khai 1 → eval đạt · 2 killedByTool + dấu 3 → mã 3, dòng sổ
       không cannot_run, không killed_by_tool · 3 killedByTool không dấu → cannot_run + killed_by_tool ·
       4 cannotRun thiếu env + dấu 0 → đạt · 5 cannotRun thiếu env + dấu 1 → cannot_run, verdict BLOCKED,
-      không REJECT · 6 không dấu khai 1 → REJECT mã 1 · 7 không dấu khai 0 → cannot_run lý do
-      «ma thoat khong doc duoc», không đạt; kết quả đọc từ verdict + run-log do
+      không REJECT · 6 không dấu khai 1 → REJECT mã 1 · 7 không dấu khai 0 → giữ lời khai, đạt (vế
+      «không PASS» đã gỡ theo ngưỡng chết ở lượt chấm 1, sổ S4-r1); kết quả đọc từ verdict + run-log do
       bộ chấm sinh · 8 không cannotRun + dấu 1 + khai 0 → REJECT mã 1, chiều xanh-giả); số assert = 8.
       CK-AC2-ui: eval ui-check khai exitCode 0 không dấu vẫn đạt (luật không chạm lane ui). CHIỀU ĐỎ
       (CK-AC2-dot-bien): bản sao gỡ bước đọc dấu → hàng 1, 2, 8 lật; bản sao «dấu chỉ áp khi khai ≠ 0»

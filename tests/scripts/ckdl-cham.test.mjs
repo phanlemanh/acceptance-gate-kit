@@ -130,7 +130,7 @@ await ca('CK-AC4-dot-bien', async () => {
 // ── Task A2 (AC-1): khung bọc EXIT-MARK ──
 const khoiMark = () => { const m = SRC.match(/\/\/ <<<EXIT-MARK\n([\s\S]*?)\/\/ EXIT-MARK>>>/g); assert(m && m.length === 1, `khoi EXIT-MARK khop ${m ? m.length : 0} lan`); return m[0]; };
 const bocTu = src => { const k = src.match(/\/\/ <<<EXIT-MARK\n([\s\S]*?)\/\/ EXIT-MARK>>>/)[1]; return new Function(`${k}; return BOC_LENH;`)(); };
-const chayBoc = (boc, lenh) => { const r = spawnSync('bash', ['-c', boc(lenh)], { encoding: 'buffer', maxBuffer: 1 << 26 }); return { buf: r.stdout, txt: r.stdout.toString('utf8') }; };
+const chayBoc = (boc, lenh) => { const r = spawnSync('bash', ['-c', boc(lenh)], { encoding: 'buffer', maxBuffer: 1 << 26 }); return { buf: r.stdout, txt: r.stdout.toString('utf8'), status: r.status }; };
 await ca('CK-AC1', async () => {
   khoiMark();
   const tra = { 'cmd-1': { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false }, [SUITE]: { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false } };
@@ -149,7 +149,7 @@ await ca('CK-AC1-khung', async () => {
   const boc = bocTu(SRC);
   const d = mkdtempSync(path.join(TMP, 'boc-'));
   const MA = [['true', 0], ['false', 1], ['exit 3 # chu thich', 3], ['khong-co-lenh-nay-xyz', 127], [`cd "${path.join(d, 'vang')}" || exit 97 && true`, 97]];
-  const sai = MA.map(([l, m]) => { const t = chayBoc(boc, l).txt.trimEnd().split('\n').pop(); return t === `__EXIT=${m}` ? null : `${l} → ${t}`; }).filter(Boolean);
+  const sai = MA.map(([l, m]) => { const o = chayBoc(boc, l); const t = o.txt.trimEnd().split('\n').pop(); return t === `__EXIT=${m}` && o.status === m ? null : `${l} → ${t} (trang thai cong cu ${o.status})`; }).filter(Boolean);
   assert(sai.length === 0 && MA.length === 5, sai.join(' · '));
   const to = chayBoc(boc, `node -e 'process.stdout.write("x".repeat(76000))'`);
   const vi = chayBoc(boc, `node -e 'for(let i=0;i<40;i++)console.log("Đường dẫn tiếng Việt có dấu ".repeat(11))'`);
@@ -169,7 +169,11 @@ await ca('CK-AC1-dot-bien', async () => {
   assert(d2 !== k, 'kim printf khong khop');
   const o2 = chayBoc(bocTu(SRC.replace(k, d2)), 'true');
   assert(!/__EXIT=/.test(o2.txt), 'ban sao bo printf ma van co dau');
-  return '(dau ra vuot tran · mat dau __EXIT)';
+  const d3 = k.replace('; (exit $rc)', '');
+  assert(d3 !== k, 'kim (exit $rc) khong khop');
+  const o3 = chayBoc(bocTu(SRC.replace(k, d3)), 'false');
+  assert(o3.status === 0, `ban sao bo (exit $rc) ma trang thai cong cu van ${o3.status} — phep do khong do`);
+  return '(dau ra vuot tran · mat dau __EXIT · trang thai cong cu lech ma lenh)';
 });
 
 // ── Task A3 (AC-2): đọc dấu theo bảng tám hàng ──
@@ -239,7 +243,8 @@ await ca('CK-AC5', async () => {
   const b = await cham({ evals: EV, invokedSha: '', prov: { bypass_used: false, enforcement_mode: 'strict', verified_commit: KHAC } });
   assert(provPrompt(b).includes(`verified_commit: ${KHAC}`), 'khong invokedSha → sha tac tu (duong cu)');
   const c = await cham({ evals: EV, invokedSha: '', prov: { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'rac!' } });
-  assert(!/verified_commit: /.test(provPrompt(c).split('PROVENANCE')[1] || ''), 'rac → bo truong');
+  assert(provPrompt(c).includes('PROVENANCE'), 'neo duong: prompt synthesize thieu khoi PROVENANCE');
+  assert(!/verified_commit: /.test(provPrompt(c).split('PROVENANCE')[1]), 'rac → bo truong');
   return '(invokedSha thang · duong cu · rac bo)';
 });
 await ca('CK-AC5-dot-bien', async () => {
