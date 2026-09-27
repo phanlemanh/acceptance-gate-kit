@@ -21,6 +21,7 @@ KHÔNG grep nội dung output trong engine (chuỗi tổng kết là của suite
 
 <!-- <<<TOOL-KILL-RULE -->
 TRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason "bi cong cu giet o <so giay> giay" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.
+DAU RA DAI: harness co the CAT DAU RA RA TEP ("Output too large … saved to <tep>") va chi hien doan DAU — do KHONG phai bi cong cu giet: doc DUOI tep do (tail) de lay dong tong ket va ma thoat; chi khai killedByTool khi tool result bao timeout/killed that.
 <!-- TOOL-KILL-RULE>>> -->
 
 ## Hồ sơ cho lượt bị ngắt (đường độc lập)

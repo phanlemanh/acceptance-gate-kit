@@ -130,6 +130,12 @@ wants it as evidence — an act of the round, not of the command.
   written. Known limit: the S4 round and plain CI runs are not snapshotted, so a
   writer there is caught at the next re-pin lane, not at the run that wrote it.
 
+**Exclusive resources.** A driver that uses a resource only one run may hold at
+a time (a shared dev database or store, a single browser profile) queues itself
+inside the measure — a lock or wait in the driver, the way crm's DB lock does.
+The kit runs ui-check evals in parallel and does not serialise them for you:
+only the measure knows its resource is exclusive.
+
 ## Executor selection rules (used by Phase 2 EVAL-GEN)
 
 1. Criterion checkable by running existing/new automated tests → `test`.
