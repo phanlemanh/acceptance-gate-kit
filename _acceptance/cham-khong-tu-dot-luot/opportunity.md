@@ -46,8 +46,8 @@ cài — owner gọi tên 27/09 (luật chiều rộng (b)).
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- **Ngưỡng UAT:** sau khi crm cài 2.18.5, trên ≥ 10 lượt chấm kế tiếp ở crm: 0 lần owner phải cho
+- Ngưỡng UAT: sau khi crm cài 2.18.5, trên ≥ 10 lượt chấm kế tiếp ở crm: 0 lần owner phải cho
   vượt trần hoặc gõ `--round` vì hạ tầng; mọi round-tally BLOCKED mà mọi mục là hạ tầng có trạng
   thái `mo` hoặc `chet-lan-dau` (đếm bằng `canhGay` của `lib/nhan-canh-gay.cjs`).
-- **Ngưỡng chết (đảo B7):** trên 10 lượt chấm đầu ở một kho KHÔNG có sự cố trước đó, > 1 lượt BLOCKED
+- Ngưỡng chết (đảo B7): trên 10 lượt chấm đầu ở một kho KHÔNG có sự cố trước đó, > 1 lượt BLOCKED
   với lý do «ma thoat khong doc duoc» → gỡ vế «không dấu mà khai 0 → không PASS», giữ vế «dấu thắng».

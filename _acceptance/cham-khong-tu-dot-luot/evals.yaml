@@ -145,6 +145,18 @@ evals:
       - feature-loop/skills/feature-loop/SKILL.md
       - skills/acceptance/references/eval-executors.md
       - skills/acceptance/references/tool-kill-rule.md
+    paths:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - skills/acceptance/references/eval-executors.md
+      - skills/acceptance/references/tool-kill-rule.md
+    question: >
+      Agent context SẠCH (chỉ ba file ở `inputs`), đóng vai một người đọc lạ không có ngữ cảnh phiên,
+      trả lời ba câu, mỗi câu trích đúng một đoạn làm căn cứ: (a) theo YÊU CẦU của SKILL feature-loop,
+      vòng lặp phải chạy trong loại phiên nào, và vì sao tác tử con không chạy được nó? (b) theo
+      eval-executors.md, khi thước dùng một tài nguyên chỉ một lượt được giữ (một kho dữ liệu, một trình
+      duyệt), ai xếp hàng các lượt — thước hay kit? (c) theo khối marker TOOL-KILL-RULE, khi công cụ báo
+      đầu ra quá dài đã lưu ra tệp và chỉ hiện đoạn đầu, tác tử có được khai killedByTool không, và phải
+      làm gì? PASS khi cả ba câu trả lời được từ chữ tài liệu và không câu nào mâu thuẫn chữ quanh nó.
     expected: >
       Người đọc lạ tìm được, không cần ngữ cảnh phiên: (a) ở YÊU CẦU của SKILL feature-loop — vòng chạy
       trong phiên cấp cao có công cụ Workflow, tác tử con không có nó; (b) ở eval-executors.md — driver dùng

@@ -44,7 +44,7 @@ await ca('CK-AC6-crm', async () => {
   const pl = { scope_plain: 'Cập nhật trong chat, toàn cảnh và họp tuần…', wont_do: [1, 2, 3, 4, 6].map(n => ({ id: `OOS-${n}`, p: `Dịch crm ${n}` })) };
   const pf = path.join(r, 'pl.json'); writeFileSync(pf, JSON.stringify(pl));
   const html = card(r, 'g', ['--plain', pf]).stdout;
-  const li = liKhong(html).filter(t => !t.startsWith('Hoãn/cắt'));
+  const li = liKhong(html).filter(t => !t.startsWith('Tóm phần hoãn/cắt'));
   assert(li.length === 8, `hinh crm: ${li.length} muc (khai 8)`);
   assert([1, 2, 3, 4, 6].every(n => li.some(t => t.includes(`Dịch crm ${n}`))) && [5, 7, 8].every(n => li.some(t => t.includes(`Mục bỏ ngoài số ${n}`))), 'sai chu tung muc');
   assert(!html.includes('dòng dịch không khớp mục nào'), 'hinh crm khong duoc co co');
@@ -62,7 +62,7 @@ await ca('CK-AC6-co-vang', async () => {
   return '(2 co · doi chung 0 co)';
 });
 await ca('CK-AC6-dot-bien', async () => {
-  const KIM = 'oosItems.map(x => esc(scopeText(x)))';
+  const KIM = 'oosItems.map(x => SCOPE_MUC + esc(scopeText(x)))';
   assert(SRC.split(KIM).length - 1 === 1, 'kim oosItems khong khop');
   const gc = banSao(s => s.replace(KIM, "(oos.length ? [esc(pl.scope_plain || oos.map(stripMd).join(' · '))] : [])"));
   const r = mkWs('g', hoSo(null));

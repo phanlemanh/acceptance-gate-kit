@@ -95,6 +95,10 @@ const THUOC_VAT_HONG_FLAG = 'Không đọc được dòng đếm vật/thước 
 // Cờ câu dịch wont_do mang id không trùng tiêu chí phủ định nào và không trùng mục phạm vi
 // OOS-n nào (cham-khong-tu-dot-luot AC-6) — câu dịch lạc bị bỏ qua, người phải biết.
 const DICH_LAC = 'dòng dịch không khớp mục nào: ';
+// Nhãn dòng của mục phạm vi (AC-6): mỗi mục giữ nhãn «Hoãn/cắt: » như dòng gộp đời trước —
+// thẻ một mục không dịch ra byte y hệt trước vòng; câu tóm bản dịch là dòng dẫn nhãn riêng.
+const SCOPE_MUC = 'Hoãn/cắt: ';
+const SCOPE_TOM = 'Tóm phần hoãn/cắt: ';
 // <<<GAP-PROBE-HEADER — chữ ký bảng phản biện; bên VIẾT là câu định nghĩa bảng ở
 // feature-loop SKILL S1#7 (ca CK-AC7 so bằng nhau). Bảng tìm theo chữ ký, KHÔNG theo tên mục.
 const GP_HEADER = '| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |';
@@ -780,7 +784,7 @@ if (gate === '1') {
   // the reviewer must learn that BEFORE reading a list that looks complete.
   if (blindSpot) P.push(`<div class="flag fred">⚠ ${esc(blindSpotText(blindSpot))}</div>`);
   if (willDo.length) P.push(`<div class="lab">Hệ thống SẼ làm</div><div class="grp gdo">${willDo.map(x => `<p class="li">${esc(willText(x))}</p>`).join('')}</div>`);
-  const notItems = wontDo.map(x => esc(wontText(x))).concat(pl.scope_plain && oos.length ? ['Hoãn/cắt: ' + esc(pl.scope_plain)] : []).concat(oosItems.map(x => esc(scopeText(x))));
+  const notItems = wontDo.map(x => esc(wontText(x))).concat(pl.scope_plain && oos.length ? [SCOPE_TOM + esc(pl.scope_plain)] : []).concat(oosItems.map(x => SCOPE_MUC + esc(scopeText(x))));
   if (notItems.length) P.push(`<div class="lab">Sẽ KHÔNG làm / sẽ chặn</div><div class="grp gnot">${notItems.map(t => `<p class="li">${t}</p>`).join('')}</div>`);
   P.push(`<div class="lab">Quyết định &amp; trade-off</div>`);
   if (!decsAll.length) P.push(`<div class="flag finfo">Sổ quyết định: (chưa ghi quyết định nào)</div>`);
