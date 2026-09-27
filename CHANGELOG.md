@@ -10,6 +10,90 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.18.5 — 27/09/2026
+
+Cửa sổ 2.18.4 → 2.18.5 kéo **hai ngày**, có **một vòng** chạm engine: `cham-khong-tu-dot-luot` (T3, ký
+27/09, PR #223) — suất meta duy nhất của cửa sổ, owner gọi tên sau ba lượt phản biện. Kho chờ nhận là
+`crm`: lượt 4 lộ trình OKR (`cap-nhat-tuan-okr`) đốt hai round và một lượt gọi người mà không có lỗi
+sản phẩm nào, `quen-mat-khau` round 3 và `okr-soat-anh-luot-3` round 1 khoá chỉ vì bộ kiểm chung bị
+harness cất đầu ra. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên `2.18.5`; `diagram-design`
+giữ `2.7.0`. Tag `v2.18.5` gắn tại commit ký mốc sau khi gộp.
+
+**Đổi gì** — lượt chấm thôi tự đốt lượt vì hạ tầng, thẻ người ký hiện đủ:
+
+- **Bộ kiểm chung không chạy được thì được thử lại cùng round.** Dòng SUITE mang lý do (kể cả lý do tự
+  do của tác tử) nay có nhãn «không đọc được ở đây» như dòng eval; cờ «công cụ đã giết lệnh» đi tới sổ
+  chạy thành `killed_by_tool`. Bộ kiểm trượt thật vẫn là trượt, và lượt vừa có hạ tầng vừa có trượt
+  thật vẫn khoá.
+- **Mã thoát đọc từ dấu, không từ chữ.** Lệnh máy chạy trong khung bọc: đầu ra ghi ra tệp, chỉ đuôi
+  (≤ 6 000 byte) và dòng `__EXIT=<mã>` đi vào kết quả công cụ, nên harness thôi cất đầu ra dài ra tệp;
+  dấu có mặt thắng lời khai (hình E21 của crm: khai 1, dấu 0 → đạt). «Thiếu môi trường, thoát 1» vẫn
+  là hạ tầng, không thành REJECT.
+- **Hồ sơ ghi đúng commit máy đã chấm** (`verified_commit` từ `invokedSha`, không từ tác tử).
+- **Thẻ Cổng Phạm vi hiện từng mục «không làm»**, dịch theo id `OOS-n`; câu dịch lạc bật cờ vàng. Thẻ
+  đọc mọi bảng phản biện đúng chữ ký sáu cột (bảng soát lại sau Cổng Phạm vi của crm từng vắng), cờ
+  vàng khi số phát hiện vượt số khai; bảng đời cũ sáu cột mở bằng «sev» vẫn đọc như trước.
+- **Bảng chi phí S4 tách theo khối trở lại** — `wf-usage` đọc nhãn tác tử từ `meta.json` cạnh
+  transcript (harness mới chèn một câu chung vào tin đầu của mọi tác tử).
+- **Ảnh ui-check lưu dưới hồ sơ**, báo cáo mang đường tương đối `evidence/…`.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Máy dev:** cập nhật plugin như mọi mốc, theo khối khai plugin của GUIDE, trong từng thư mục có scope
+  sống. Hồ sơ đang giữa vòng nhận bộ chấm mới ở lượt chấm kế — không cần làm gì.
+- **Kho còn đường chép** (`crm`): chép lại **`lib/nhan-canh-gay.cjs`** (lớp chép CI, GUIDE §5.3 —
+  tệp duy nhất của lớp đổi trong cửa sổ).
+
+**Giới hạn đã khai** (owner quyết ở Cổng Bằng chứng của vòng, 27/09):
+
+- Khung in dấu vẫn là lời trong prompt: tác tử có thể bỏ qua nó (lượt chấm 1 của vòng: 3/11 tác tử chạy
+  lệnh trần). Thiếu dấu thì bộ chấm giữ lời khai như trước — tác tử bỏ khung và khai sai mã vẫn lọt.
+  Làn ui-check và baseline không bọc.
+- Thẻ Cổng 2 còn để `scope_plain` thay các mục «không làm» — hạt giống
+  `docs/plans/2026-09-27-hat-giong-the-cong-2-scope-plain-thay-muc.md`.
+- Ca «luật dấu không chạm làn ui» không có chiều đỏ — hạt giống
+  `docs/plans/2026-09-27-hat-giong-ca-lan-ui-khong-phan-biet.md`.
+- Bộ phân nhãn còn hai nhánh chết và một tham số không đọc (không đổi phân loại).
+- Câu «đầu ra dài» của khối TOOL-KILL-RULE viết không dấu nên «CAT» đọc được là «cắt» — nghĩa đúng là
+  «cất»; đổi thành «LUU» ở cửa sổ kế.
+
+**Năm dòng số của luật (c)** — một vòng (`cham-khong-tu-dot-luot`):
+
+| Dòng | Số | Nguồn |
+|---|---|---|
+| Làm-xong→quyết-được | Cổng Phạm vi ≈ 5 phút · Gate 1.5 ≈ 6 phút · Cổng Bằng chứng ≈ 25 phút (gồm một câu hỏi của owner về E10). Code xong → chữ ký: **2 giờ 5 phút**, ba lượt chấm | giờ commit + sổ quyết định |
+| Lượt gọi người / vòng | **4**, cả bốn trong thiết kế T3 (Cổng Đáng · Cổng Phạm vi · Gate 1.5 · Cổng Bằng chứng). Ngoài thiết kế **0**. Trần T3 = 4. Mỗi lượt một chạm (một câu gộp hoặc một dòng dán). Gate 1.5 được máy ĐỌC là duyệt khi owner dán dòng /goal không kèm chữ «duyệt» — ghi sổ, phê ở Cổng Bằng chứng | `decisions.jsonl` |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **1 lượt, 1 round** — lượt chấm 1 BLOCKED vì chính khung in dấu của vòng (3/11 tác tử chạy lệnh trần); vòng sửa vật nên tự đếm round kế thay vì thử lại cùng round | `run-log.jsonl` round-tally |
+| Token máy / vòng | Out-token S4: **49 955 · 62 479 · 28 498** (ba lượt). Tách theo khối: chứng-minh-vật (machine+judge+baseline) 34 % · 28 % · 40 % — tìm-lỗi (review+triage+refute) 28 % · 40 % · 38 % — tổng hợp (capture+synthesize) 38 % · 32 % · 22 %. Cache-read S4 ≈ 14,3 M · 15,6 M · 15,1 M, trong đó review ≈ 11–13 M mỗi lượt. S3 ba làn: 12 348 out-token. Phiên chính không đo | `usage-report.md` |
+| Phút máy / lượt chấm | 24 · 30 · 28 phút. Đường găng cả ba là khối chứng-minh-vật (1 135 · 1 140 · 1 341 s) | `usage-report.md` |
+
+Mốc đầu tiên tách được dòng 4 theo NHÃN tác tử thay vì theo model — nhờ chính AC-8 của vòng.
+
+**Điều kiện tin cậy:** đường verdict ĐỔI thành phần — nguồn của mã thoát đổi từ lời khai của tác tử
+sang dấu máy in. Răng hai chiều có ở ca AC-2 của vòng (tám hàng viết trước, hai đột biến), nhưng vế
+«thiếu dấu» đã gỡ theo ngưỡng chết nên chiều đỏ của nó là dòng sổ S4-r1, không phải ca. Số lượt chấm
+sai giữa hai mốc không tăng. Dòng 4–5 cắt được đủ.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở kho tiêu thụ | lượt chặn vì hạ tầng thử lại cùng round, không đợi owner cho vượt trần |
+| 2 | ↓ ở kho tiêu thụ | hết lượt «cho vượt trần» và `--round` tay (lượt 4 OKR: 1 lượt ngoài thiết kế) |
+| 3 | ↓ | nền: 2 round đốt chắc chắn trên 63 lượt BLOCKED quét 27/09 |
+| 4 | = | không thêm tác tử |
+| 5 | = | khung bọc không làm chậm lệnh |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc trên kit bằng
+`scripts/hieu-chuan-moc.mjs --root .`. **N không tăng so với mốc 2.18.4 — dòng vô hiệu ở mốc này**,
+cấm đọc thành «0 sự cố».
+
+**Nhát cắt có tên cho cửa sổ kế:**
+
+1. **Lớp chép tự xoá** (`docs/plans/2026-09-23-hat-giong-lop-chep-tu-xoa-2-18-3.md`) — xếp từ 2.18.3, còn nguyên.
+2. **Máy hỏi ngoài thiết kế ở S1** (`docs/plans/2026-09-22-hat-giong-may-hoi-ngoai-thiet-ke-o-s1.md`) — còn nguyên.
+3. **Thẻ Cổng 2 để `scope_plain` thay các mục** — cùng lớp AC-6 vừa sửa ở Cổng 1.
+
 ## 2.18.4 — 25/09/2026
 
 Cửa sổ 2.18.3 → 2.18.4 kéo **một ngày**, có **ba vòng** chạm engine, cả ba cùng sửa báo động giả
