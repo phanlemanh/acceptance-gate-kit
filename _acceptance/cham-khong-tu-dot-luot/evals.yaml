@@ -1,0 +1,153 @@
+schema_version: 1
+feature_slug: cham-khong-tu-dot-luot
+# Tệp ca tests/scripts/ckdl.test.mjs, tên ca mang mã AC (khối ĐỊNH VỊ: tên test = tên AC).
+# Sổ chạy do BỘ CHẤM THẬT sinh (harness tests/workflows, tác tử giả) rồi đưa cho chính bên đọc
+# (lib/nhan-canh-gay.cjs, s4-args.mjs) — không gõ tay dòng sổ theo khuôn bên đọc. Khung bọc lệnh
+# rút từ khối marker EXIT-MARK của nguồn bộ chấm rồi CHẠY THẬT bằng bash. Chữ ký bảng phản biện
+# rút từ SKILL feature-loop S1#7 (bên viết). Hình crm dựng bằng code theo đúng số mục/bảng đã đo ở
+# findings §10–§11 (kho test không đọc kho crm). Đường dẫn suy từ vị trí tệp ca. Mỗi cặp hai-chiều
+# dùng CÙNG fixture: vật lành → xanh, bản sao phá vật → đỏ với thông điệp ghim; mỗi kim đột biến
+# khẳng định khớp ĐÚNG MỘT lần trong nguồn thật (hoặc số lần khai).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC1, CK-AC1-khung, CK-AC1-dot-bien. CK-AC1: workflow chạy qua harness
+      với hai eval máy và một lệnh suite; prompt MỌI tác tử nhãn machine: chứa khung bọc rút từ khối
+      EXIT-MARK (khớp đúng một khối trong nguồn thật) quanh `cd "<repoRoot>" || exit 97 && <cmd>`;
+      args.evals[].cmd, nhãn tác tử, evalId SUITE-* và run_id đúc bằng đúng giá trị của CÙNG nguồn bộ
+      chấm với khối EXIT-MARK thay bằng hàm đồng nhất (bản sao trong bộ nhớ qua srcOverride của harness —
+      không git, không tag, không chép tệp; đối chứng dương: bản đồng nhất ra đúng số tác tử machine khai
+      trước). CK-AC1-khung: khung bọc rút từ nguồn, chạy bằng bash trên lệnh do code sinh thoát 0, 1, 3,
+      127, bước cd hỏng (97) → dòng cuối __EXIT=<đúng mã> (số assert = 5); lệnh in 74 KB ASCII và lệnh in
+      40 dòng × 300 ký tự tiếng Việt có dấu → mỗi lượt tổng đầu ra ≤ 8000 byte và vẫn có dòng __EXIT=0. CHIỀU ĐỎ
+      (CK-AC1-dot-bien): bản sao khung bỏ bước giới hạn đầu ra → «dau ra vuot tran: <số byte>»; bản sao
+      bỏ printf dấu → «mat dau __EXIT».
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC2, CK-AC2-ui, CK-AC2-dot-bien. CK-AC2: ma trận bảy hàng viết trước
+      (hàng 1 hình E21: không cannotRun + dấu 0 + khai 1 → eval đạt · 2 killedByTool + dấu 3 → mã 3, dòng sổ
+      không cannot_run, không killed_by_tool · 3 killedByTool không dấu → cannot_run + killed_by_tool ·
+      4 cannotRun thiếu env + dấu 0 → đạt · 5 cannotRun thiếu env + dấu 1 → cannot_run, verdict BLOCKED,
+      không REJECT · 6 không dấu khai 1 → REJECT mã 1 · 7 không dấu khai 0 → cannot_run lý do
+      «ma thoat khong doc duoc», không đạt; kết quả đọc từ verdict + run-log do
+      bộ chấm sinh · 8 không cannotRun + dấu 1 + khai 0 → REJECT mã 1, chiều xanh-giả); số assert = 8.
+      CK-AC2-ui: eval ui-check khai exitCode 0 không dấu vẫn đạt (luật không chạm lane ui). CHIỀU ĐỎ
+      (CK-AC2-dot-bien): bản sao gỡ bước đọc dấu → hàng 1, 2, 8 lật; bản sao «dấu chỉ áp khi khai ≠ 0»
+      → hàng 8 lật; thông điệp ghim «hang <n>».
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC3-r2, CK-AC3-r3, CK-AC3-dot-bien. Với NGUYÊN VĂN hai lý do crm
+      (quen-mat-khau round 2 và 3), tác tử suite trả cannotRun + killedByTool không dấu: dòng sổ SUITE do
+      bộ chấm sinh mang cannot_run true, killed_by_tool true, reason nguyên văn; canhGay ra một mục nhãn
+      mu, trangThai mo; s4-args trên kho git do code sinh với đúng sổ ấy ra round 1 và stderr có
+      «thử lại CÙNG round». CHIỀU ĐỎ: bản sao bộ chấm bỏ chỗ ghi killed_by_tool (kim khớp đúng số chỗ
+      khai) → trangThai khoa.
+    paths: [feature-loop/workflows/acceptance-verify.js, lib/nhan-canh-gay.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC4, CK-AC4-dot-bien. CK-AC4 (sổ do bộ chấm sinh): dòng SUITE
+      cannot_run lý do tự do «thieu env DATABASE_URL» không cờ → mu, trangThai mo, s4-args round 1; dòng
+      SUITE cannot_run lý do rỗng (dựng bằng khuôn dòng rút từ bộ chấm, xoá trường reason — hình đời
+      trước 2.18.0) → null, khoa; SUITE exit 1 thật → REJECT, s4-args round 2; lượt có SUITE bị cắt
+      lẫn SUITE lint exit 1 → nhãn mu + vat, khoa, s4-args round 2. CHIỀU ĐỎ: bản sao lib khôi phục
+      «SUITE lý do tự do → null» → hàng lý do tự do ra khoa, thông điệp ghim hàng.
+    paths: [lib/nhan-canh-gay.cjs, feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC5, CK-AC5-dot-bien. Args invokedSha 40-hex, tác tử provenance trả
+      verified_commit khác (40-hex khác) → prompt synthesize chứa «verified_commit: <invokedSha>» và
+      KHÔNG chứa sha tác tử; không invokedSha + tác tử trả sha hợp lệ → prompt chứa sha tác tử; không
+      invokedSha + tác tử trả rác → không có dòng verified_commit (đường cũ, W11 vẫn xanh). CHIỀU ĐỎ:
+      bản sao đảo thứ tự ưu tiên → «sha tac tu lot vao bao cao».
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC6, CK-AC6-crm, CK-AC6-co-vang, CK-AC6-dot-bien. Hồ sơ fixture do code
+      sinh, 8 mục Out of scope. CK-AC6: --extract phát scope 8 mục id OOS-1…OOS-8 theo thứ tự (khuôn rút
+      từ khối marker phía viết); bản dịch dựng từ CHÍNH các id ấy → thẻ Cổng 1 (HTML) hiện đủ 8 câu dịch,
+      mỗi câu một mục của khối «sẽ KHÔNG làm». CK-AC6-crm: bản dịch hình crm (5 dòng OOS-1,2,3,4,6 nằm
+      trong wont_do + một scope_plain) → 8 mục (5 câu dịch + 3 chữ hợp đồng), 0 cờ «không khớp».
+      CK-AC6-co-vang: thêm id OOS-99 và AC-99 vào bản dịch → đúng hai cờ vàng gọi tên từng id; bản dịch
+      không có id lạ → 0 cờ (đối chứng). CHIỀU ĐỎ: bản sao bộ dựng in scope_plain thay các mục →
+      «thieu muc OOS-<n>».
+    paths: [scripts/gate-card.js, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC7, CK-AC7-clean, CK-AC7-dot-bien. Chữ ký sáu cột rút từ câu định nghĩa bảng ở
+      feature-loop SKILL.md S1#7 (khớp đúng một lần). gap-probe.md do code sinh hình crm (tên hai mục ## và
+      hai dòng tiêu đề chép nguyên văn crm cap-nhat-tuan-okr, đọc 27/09): bảng 1 dưới «## Findings» 5 hàng,
+      bảng 2 dưới «## Soát lại sau Cổng Phạm vi (hai chỗ sửa, 2026-09-25)» 5 hàng, frontmatter
+      p0+p1+p2 = 5, cộng một bảng tiêu đề khác chữ ký 2 hàng → --extract gap_probe.rows có đúng 10 hàng
+      (nội dung hàng bảng 2 có mặt, bảng lạ vắng) và thẻ có một cờ «bảng phản biện ngoài khai báo: 10 > 5»;
+      cùng fixture với frontmatter tổng 10 → 0 cờ (đối chứng). Ca clean (CK-AC7-clean): verdict clean, một
+      hàng «Không còn lỗ đáng kể», p0=p1=p2=0 → 0 cờ, 0 hàng phát hiện. CHIỀU ĐỎ: bản sao dừng sau bảng
+      đầu → «thieu hang bang 2»; bản sao đếm mọi hàng → «co gia tren ho so clean».
+    paths: [scripts/gate-card.js, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC8, CK-AC8-doi-chung, CK-AC8-dot-bien. Thư mục transcript do code sinh:
+      ba tác tử, tin người đầu đều mở «[Workflow harness — user request]», meta.json mang description
+      «machine:a», «review:b», «judge:c» → `wf-usage.mjs --md` in ba nhãn ấy, ba hàng riêng. Đối chứng:
+      cùng thư mục bỏ meta.json và đặt thẻ [wf-label: x] ở tin người thứ hai → nhãn x; không meta, không
+      thẻ → 48 ký tự đầu như trước vòng. CHIỀU ĐỎ: bản sao bỏ nhánh đọc meta → «nhan trung».
+    paths: [feature-loop/scripts/wf-usage.mjs, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.ckdl
+    expected: >
+      Exit 0, có dòng PASS của CK-AC9, CK-AC9-dot-bien. Workflow chạy qua harness với một eval ui-check:
+      mọi chỗ «evidence/» trong prompt tác tử ui đứng sau tiền tố «<repoRoot>/_acceptance/<slug>/» (số chỗ
+      trơ = 0, số chỗ có tiền tố ≥ 2); tác tử trả screenshotPath tuyệt đối dưới hồ sơ → prompt synthesize
+      mang screenshotPath «evidence/<tệp>»; tác tử trả đường ngoài hồ sơ → giữ nguyên. CHIỀU ĐỎ: bản sao
+      prompt quay về đường tương đối → «evidence/ tro: <số>».
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    inputs:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - skills/acceptance/references/eval-executors.md
+      - skills/acceptance/references/tool-kill-rule.md
+    expected: >
+      Người đọc lạ tìm được, không cần ngữ cảnh phiên: (a) ở YÊU CẦU của SKILL feature-loop — vòng chạy
+      trong phiên cấp cao có công cụ Workflow, tác tử con không có nó; (b) ở eval-executors.md — driver dùng
+      tài nguyên độc quyền tự xếp hàng trong thước, kit không tuần tự hoá thay; (c) trong khối marker
+      TOOL-KILL-RULE — harness lưu đầu ra dài ra tệp và chỉ hiện đoạn đầu, đó không phải bị giết, đọc đuôi
+      tệp. Mỗi ý không mâu thuẫn chữ quanh nó. FAIL nếu thiếu một ý, hoặc ý (c) nằm ngoài khối marker.
+    evidence_required: [verdict, rationale, judged_by]
