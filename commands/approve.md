@@ -1,5 +1,5 @@
 ---
-description: Record the Gate 1 decision (phê duyệt Cổng 1) — render the decision card, ask exactly one question, write approved_by/approved_at only on an explicit human YES. Never approves on its own.
+description: Record the Gate 1 decision (phê duyệt Cổng 1) — render the decision card, ask exactly one question, write approved_by/approved_at only on an explicit human YES; with `đáng: <lối>` it records the Cổng Đáng decision instead. Never approves on its own.
 disable-model-invocation: true
 ---
 
@@ -56,6 +56,8 @@ Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị 
   chạy trọn. Đừng biến nó thành lỗi cú pháp; cắt một thói quen không được phép
   chặn đúng cái người đang làm.
 - `sửa: <điều cần đổi>` → bước 4 với đúng nội dung đó (vẫn là Gate 1).
+- `đáng: <lối>[: <tên> [<ngày>]]` → KHÔNG phải Gate 1: đây là chữ ký Cổng Đáng,
+  đi mục «Cổng Đáng» cuối file. Danh tính và ngày theo đúng bậc thang ở trên.
 - Ngày người nêu — trong câu gộp hoặc ở dòng xác nhận — LUÔN thắng ngày máy
   suy, và đó là giá trị ghi vào `approved_at`.
 - Đuôi tự do sau các nhãn nhận ra được → GIỮ NGUYÊN VĂN, ghi vào sổ quyết
@@ -78,6 +80,14 @@ Steps:
    Already `approved` or later → show `status`, `approved_by`, `approved_at`
    and stop: re-approval only happens when the user explicitly reopens the
    contract, and the hook re-validates that path.
+   **Thứ tự cổng Đáng → Phạm vi:** chạy
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/start-scan.mjs --root .` và tìm slug trong
+   `groups.gates[]`. Phần tử mang `gate: dang` → việc này CHƯA qua Cổng Đáng (ô
+   cơ hội chưa ai quyết): KHÔNG duyệt Gate 1, KHÔNG ghi gì, in đúng một dòng
+   «Việc này chưa qua Cổng Đáng — ký trước: `/acceptance-gate:approve <slug> đáng: ___`
+   (làm · lặp · xếp lại · dừng)» rồi dừng. Hỏi bộ quét, đừng tự đọc ô cơ hội: luật
+   «ô còn chờ Cổng Đáng» sống MỘT chỗ (`lib/workspace-record.cjs`) và bộ quét
+   là bộ phân ô duy nhất.
 2. **Present.** Render the decision card — `/acceptance-gate:acceptance-card <slug>` — unless
    it was just rendered this session. Attach the deep-review package: the full
    `contract.md` verbatim + the AC → eval → executor mapping table. Run the
@@ -145,3 +155,48 @@ Never:
 - offer gate-skipping here — `gate1_skipped: true` stays a chat-explicit,
   audited escape hatch, deliberately outside this command;
 - touch `human_signoff` or any Gate-2 field (that is `/acceptance-gate:signoff`).
+
+## Cổng Đáng — câu gộp `đáng: <lối>`
+
+Cổng Đáng dùng CHÍNH lệnh này — không có lệnh thứ tám: khoá model-invocation
+(ADR 0002) đã phủ lệnh duyệt, và người chỉ cần nhớ một động từ quyết định.
+Chế độ này KHÔNG đi bước 1–7 ở trên (hồ sơ có thể chưa có hợp đồng); nó chỉ ghi
+ô cơ hội. Vắng `<slug>` → hồ sơ là phần tử `gate: dang` của bộ quét
+(`start-scan.mjs --root .`): đúng một → dùng nó và hiển thị lại tên; nhiều → liệt
+tên để người chọn; không có → nói không có việc nào chờ Cổng Đáng rồi dừng.
+
+Bốn lối ra — danh sách ĐÓNG, rút được bằng máy; bên phải là giá trị ghi vào
+`decision`. Nguồn của bảng là bộ ghi (`ky-cong-dang.mjs --loi-ra`); ca CD6 so
+khối dưới với nó bằng nhau, lệch một dòng là đỏ:
+
+<!-- <<<G0-LOI-RA
+làm -> build
+lặp -> iterate
+xếp lại -> park
+dừng -> kill
+G0-LOI-RA>>> -->
+
+1. **Vắng lối ra trong câu gộp** → trình nguyên văn section «Vấn đề & ai gặp»
+   và «Ngưỡng chết / ngưỡng UAT» của `opportunity.md` (ngưỡng mang tiền tố
+   `[đề xuất]` hiện rõ là đề xuất của máy), rồi hỏi ĐÚNG một câu: lối nào trong
+   bốn. Máy KHÔNG điền sẵn lối ra và không viết hộ căn cứ — chọn là phát ngôn
+   của người. Có lối ra trong câu gộp thì không hỏi gì.
+2. **Ghi bằng bộ ghi, không sửa tay:**
+   `node ${CLAUDE_PLUGIN_ROOT}/scripts/ky-cong-dang.mjs --root . --slug <slug> --loi "<lối>" --by "<tên>" [--at <ngày>]`
+   (`<tên>`/`<ngày>` theo bậc thang danh tính ở đầu file). Bộ ghi đặt
+   `stage: decided` · `decision` · `decided_by` · `decided_at`; với «làm»/«lặp»
+   ký là NHẬN ngưỡng — nó gỡ tiền tố đề xuất khỏi section Ngưỡng (và chỉ section
+   đó); có `decisions.jsonl` thì nối một dòng `seal` gate 0. Nó TỪ CHỐI (thoát 2,
+   không ghi gì) khi: «làm»/«lặp» mà ngưỡng còn trống · ô đã quyết hoặc đã đóng ·
+   ô hỏng · lối ra lạ. Thoát khác 0 → in nguyên văn dòng lỗi của nó cho người,
+   KHÔNG sửa tay thay. Căn cứ người nói thêm trong câu gộp → ghi NGUYÊN VĂN vào
+   section «Cổng 0» của ô nếu ô có section đó.
+3. **Bản đồ + commit MỘT lượt:** bản đồ theo đúng luật opt-in của bước 5 ở trên
+   (chưa bật thì bỏ qua và in ghi chú), rồi một commit
+   `<slug>: Cổng Đáng — <lối> — <tên>` gồm `opportunity.md` (+ `decisions.jsonl`
+   khi có + `PRODUCT-MAP.md` khi đã vẽ lại).
+4. **Bước kế — in đúng một dòng**, theo khoá `buocKe` trong JSON của bộ ghi:
+   `cong-pham-vi` → «Đã ký Cổng Đáng. Bước kế: duyệt bộ tiêu chí —
+   `/acceptance-gate:approve <slug> duyệt`.» · `S1` → «Đã ký Cổng Đáng. Bước kế:
+   máy chốt thiết kế và bộ tiêu chí — `/feature-loop:feature-loop <slug>`.» ·
+   `khong-ai` → «Đã ký Cổng Đáng: <xếp lại|dừng> — không ai phải làm gì tiếp.»

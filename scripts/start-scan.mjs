@@ -27,7 +27,7 @@ const { frontmatterField, resolveConfigKey, chuKyThat } = require(path.join(__di
 // đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
 // khỏi nhau ở r12 và r13 dù bảng enum đã gom xong từ r3.
-const { recordProblem, navValues, consumedTexts, usesOpportunity, readRecord, ioReason,
+const { recordProblem, navValues, consumedTexts, usesOpportunity, oCoHoiTruocPhamVi, readRecord, ioReason,
         configList, fieldProblem, missingArtifact, mapState, MAP_LABELS, mapTracked,
         DA_THONG_CONG_2, conflictProblem, hoSoNghi, DA_DONG_THUC_TE, thucTe, hoSoDaKhep } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
@@ -507,7 +507,16 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // Đọc lười ô cơ hội: chỉ để trả lời «lối không-đo-được có bị dùng sai chỗ không».
       const oD = read(oPath);
       const flags = [...nghiFlags, ...(!oD.err && oD.t && mienDoCoNguoiDung(cTxt, oD.t) ? ['mien-do-co-nguoi-dung'] : [])];
-      gates.push(g('cho-cong-pham-vi', { slug, gate: 'pham-vi', since: since(cPath, null), tier, flags }));
+      // Thứ tự cổng Đáng → Phạm vi: ô cơ hội chưa quyết thì hợp đồng nháp CHƯA tới lượt
+      // duyệt (ca crm 27/09). HỎI lib — bản đồ hỏi cùng hàm. Ô chưa có ngưỡng vẫn là cổng
+      // (không phải «đang cân nhắc»: hợp đồng đã viết), mang cờ ngưỡng như Cổng Giá trị.
+      const truoc = !oD.err ? oCoHoiTruocPhamVi(oD.t) : null;
+      if (truoc === 'cho-cong-dang') {
+        const oFl = [...flags, ...(quaTimebox(oD.t) ? ['qua-timebox'] : []), ...(thresholdFilled(oD.t) ? [] : ['nguong-chua-chot'])];
+        gates.push(g('cho-cong-dang', { slug, gate: 'dang', since: since(oPath, fmOrNull(oD.t, 'decided_at')), tier, flags: oFl }));
+      }
+      else if (truoc) done.push(g(truoc, { slug, state: (fmOrNull(oD.t, 'decision') || '').toLowerCase() || 'archived', at: ngayXong(dir, oPath), flags }));
+      else gates.push(g('cho-cong-pham-vi', { slug, gate: 'pham-vi', since: since(cPath, null), tier, flags }));
     }
     else pushHong({ slug, file: 'contract.md', reason: `status không nhận diện được: ${status || '(rỗng)'}` });
     continue;

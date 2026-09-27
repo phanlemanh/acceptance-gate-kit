@@ -57,7 +57,12 @@ Steps:
    2026-09-01 tại điều khoản dừng-vá (cây ghim `528caaa8`, xem
    `_acceptance/cong-dang-co-cua/discovery/LAY-VE-LAN-THE.md`). Lấy lại là một
    quyết định riêng. ĐỪNG viết ở đây rằng ca đó ra thẻ — bản 01/09 từng viết thế
-   và nó nói ngược hành vi đang ship.
+   và nó nói ngược hành vi đang ship. Từ 27/09 Cổng Đáng có LỐI KÝ có tên không
+   qua thẻ — `/acceptance-gate:approve <slug> đáng: <lối>` — và `/acceptance-gate:start`
+   bàn giao cổng `dang` thẳng sang dòng đó; người mở thẻ bằng tay cho ô đang chờ
+   Cổng Đáng thì chỉ họ tới dòng ấy, không tới bước chuẩn hoá. Ô chờ Cổng Đáng mà
+   ĐÃ có hợp đồng nháp thì bộ dựng vẫn vẽ thẻ Cổng Phạm vi (kèm cờ ngưỡng đề
+   xuất) — thẻ đó chưa ký được: lệnh duyệt từ chối Cổng 1 tới khi Cổng Đáng ký.
 
    - `gate-card: xưởng chưa mở` → kho này chưa từng mở sổ nghiệm thu, nên chưa có hồ sơ nào để trình; việc kế là mở sổ cho kho rồi quay lại.
    - `gate-card: không có hồ sơ` → tên vừa gõ không có trong sổ; đọc lại nguyên văn danh sách tên có thật mà chốt vừa in, để người nhận ra mình nhầm tên nào.

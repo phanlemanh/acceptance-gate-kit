@@ -112,7 +112,9 @@ if (want('VC3')) {
   W(root, '_acceptance/w-park/opportunity.md', stub({ slug: 'w-park', stage: 'decided', decision: 'park' }));
   W(root, '_acceptance/w-odd/opportunity.md', stub({ slug: 'w-odd', stage: 'ideation' }));
   W(root, '_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus: draft\n---\n');
-  W(root, '_acceptance/w-draft/opportunity.md', stub({ slug: 'w-draft' }));
+  // Hàng «có contract» dùng ô ĐÃ QUYẾT: hợp đồng nháp cạnh ô CHƯA quyết nay là chờ Cổng Đáng
+  // (thứ tự cổng Đáng → Phạm vi, ca crm 27/09) — ma trận đủ ở tests/scripts/cong-dang-truoc-pham-vi.test.mjs CD1.
+  W(root, '_acceptance/w-draft/opportunity.md', stub({ slug: 'w-draft', stage: 'decided', decision: 'build' }, { filled: true }));
   const j = scan(root), g = j.groups;
   if (!(g.inProgress || []).some(x => x.slug === 'w-build' && x.nextStep === 'S1')) errs.push('build không ở inProgress S1');
   if (!(g.done || []).some(x => x.slug === 'w-park' && x.state === 'park')) errs.push('park không ở done park');

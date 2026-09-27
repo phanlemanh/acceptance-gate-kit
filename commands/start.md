@@ -203,6 +203,12 @@ worktree/nhánh đọc từ git của `<path>`.
    chọn xong → bàn giao sang nghi thức đích:
    - Chọn một cổng → `/acceptance-gate:acceptance-card <slug>`; riêng cổng `gia-tri` → skill
      `/acceptance-gate:uat-session <slug>` (phiên nghiệm thu có nghi thức riêng, không phải thẻ).
+     Riêng cổng `dang` → KHÔNG có thẻ (giới hạn đã khai ở `acceptance-card`): in
+     đúng dòng lệnh `/acceptance-gate:approve <slug> đáng: ___` kèm bốn lối
+     «làm · lặp · xếp lại · dừng» để người gõ — kể cả khi hồ sơ đã có hợp đồng
+     nháp: thứ tự cổng là Đáng rồi mới Phạm vi. Phần tử mang cờ
+     `nguong-chua-chot` → thêm «làm/lặp cần ngưỡng đã điền; xếp lại/dừng thì
+     không». Máy không điền sẵn lối ra.
    - Chọn một vòng dở → `/feature-loop:feature-loop <slug>` — NHƯNG nếu `git.dirty` là
      `true` hoặc phiên đang đứng cây chung với vòng khác: nhắc mở worktree/
      phiên riêng TRƯỚC, chưa đưa lệnh resume (cạm bẫy một-worktree-một-phiên).

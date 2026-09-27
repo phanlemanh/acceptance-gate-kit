@@ -179,7 +179,10 @@ Câu gộp theo lệnh:
 
 - `/acceptance-gate:approve [<slug>] <câu gộp>` — trả lời chỗ trống «duyệt hay sửa: ___»
   của thẻ Cổng 1: `duyệt[: <tên> [<ngày>]][, phút <số>]` hoặc
-  `sửa: <điều cần đổi>`.
+  `sửa: <điều cần đổi>`. Cùng lệnh ký Cổng Đáng: `đáng: <lối>[: <tên> [<ngày>]]`
+  với `<lối>` là một trong bốn lối ra «làm · lặp · xếp lại · dừng» (bảng
+  `G0-LOI-RA` của thân lệnh duyệt) — Cổng Đáng không có thẻ, nên dòng lệnh là
+  chỗ trống duy nhất.
 - `/acceptance-gate:signoff [<slug>] <câu gộp>` — chuỗi `nhãn: giá trị` phân cách bằng `;`,
   đúng các nhãn dòng «Trả lời mẫu» của thẻ Cổng 2 («Ngoài-<số>» ·
   «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký[: <tên> [<ngày>]][, phút
@@ -272,6 +275,7 @@ g2 cắt/hoãn
 g2 Treo
 g2 ký hay trả
 g2 veto hay để yên
+extra đáng
 extra tên
 extra phút
 <!-- GATE-ONESHOT-SLOTS>>> -->

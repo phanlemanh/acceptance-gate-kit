@@ -23,7 +23,7 @@ const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence
 // Luật "hồ sơ này có hỏng không" sống một chỗ và được CẢ bộ quét vào phiên
 // dùng chung — xem lib/workspace-record.cjs để biết vì sao (S4-r1: hai bên đọc
 // cùng hồ sơ cho hai kết luận trái nhau).
-const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence,
+const { recordProblem, navValues, consumedTexts, usesUat, usesOpportunity, usesEvidence, oCoHoiTruocPhamVi,
         missingArtifact, readRecord, ioReason, configList, NAV_RULES, mapState, MAP_LABELS,
         mapTracked, DA_THONG_CONG_2, conflictProblem, hoSoNghi, DA_DONG_THUC_TE } =
   require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
@@ -266,7 +266,14 @@ function classify(dir, slug) {
       }
       return o('da-giao');
     }
-    if (status === 'draft') return o('cho-cong-pham-vi');
+    // Thứ tự cổng Đáng → Phạm vi — HỎI cùng vị từ với bộ quét (lib/workspace-record.cjs):
+    // ô cơ hội chưa quyết thì hợp đồng nháp chưa tới lượt duyệt (ca crm 27/09).
+    if (status === 'draft') {
+      const truoc = oR.err ? null : oCoHoiTruocPhamVi(oTxt);
+      if (truoc === 'cho-cong-dang') return o('cho-cong-dang');
+      if (truoc) return { ...o(truoc), note: chu(truoc).nhan };
+      return o('cho-cong-pham-vi');
+    }
     return o('dang-viet-code');
   }
 
