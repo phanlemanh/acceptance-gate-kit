@@ -251,6 +251,31 @@ await ca('CK-AC5-dot-bien', async () => {
   return '(dao uu tien → sha tac tu lot vao bao cao)';
 });
 
+// ── Task A5 (AC-9): ảnh ui neo hồ sơ ──
+const EVU = [{ id: 'E5', criterion: 'AC-5', executor: 'ui-check', expected: 'trang len', steps: ['mo trang'] }];
+const UI_OK = p => ({ exitCode: 0, cannotRun: false, outputTail: 'ok', runId: '', screenshotPath: p, observed: 'thay header dung nhu expected, nut dang nhap hien ro', networkObserved: 'n-a (driver)' });
+await ca('CK-AC9', async () => {
+  const x = await cham({ evals: EVU, uiTra: { E5: UI_OK('/repo/_acceptance/demo/evidence/E5-step1.png') } });
+  const p = (x.calls.find(c => c.label === 'ui:E5') || {}).prompt || '';
+  const tro = (p.match(/(?<!_acceptance\/demo\/)\bevidence\//g) || []).length;
+  const coTien = (p.match(/\/repo\/_acceptance\/demo\/evidence\//g) || []).length;
+  assert(tro === 0 && coTien >= 2, `evidence/ tro: ${tro}, co tien to: ${coTien}`);
+  assert(provPrompt(x).includes('"screenshotPath":"evidence/E5-step1.png"'), 'bao cao phai mang duong tuong doi');
+  const y = await cham({ evals: EVU, uiTra: { E5: UI_OK('/tmp/khac/E5.png') } });
+  assert(provPrompt(y).includes('"screenshotPath":"/tmp/khac/E5.png"'), 'duong ngoai ho so phai giu nguyen');
+  return `(${coTien} cho co tien to · chuan hoa · ngoai ho so giu)`;
+});
+await ca('CK-AC9-dot-bien', async () => {
+  const KIM = '${EVD}/';
+  const n = SRC.split(KIM).length - 1;
+  assert(n >= 2, `kim EVD khop ${n} lan`);
+  const x = await cham({ evals: EVU, uiTra: { E5: UI_OK('/repo/_acceptance/demo/evidence/E5-step1.png') }, src: SRC.split(KIM).join('evidence/') });
+  const p = (x.calls.find(c => c.label === 'ui:E5') || {}).prompt || '';
+  const tro = (p.match(/(?<!_acceptance\/demo\/)\bevidence\//g) || []).length;
+  assert(tro >= 2, `ban sao quay ve duong tuong doi ma evidence/ tro: ${tro}`);
+  return `(evidence/ tro: ${tro})`;
+});
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`ckdl-cham: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
