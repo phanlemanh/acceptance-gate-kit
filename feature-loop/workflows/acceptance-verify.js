@@ -1584,9 +1584,11 @@ const runLogWriteFailed = runLogLines.length > 0 // luôn: main loop append, kh�
 if (runLogWriteFailed) log('Run-log: ' + runLogLines.length + ' dong trong result.runLog — main loop TU append truoc Gate 2 (hook/recheck doi chieu run_id voi log nay)')
 // verified_commit sanitize bang JS thuan — khong tin agent: sai shape (khong phai hex SHA) coi nhu
 // khong co (report BO field; pre-merge se NOTE "not pinned" thay vi hook chan oan ca round).
-const verifiedCommit = /^[0-9a-f]{7,40}$/i.test(String((prov && prov.verified_commit) || '').trim())
-  ? String(prov.verified_commit).trim().toLowerCase()
-  : ''
+// cham-khong-tu-dot-luot AC-5: mã commit do MÁY đưa (s4-args, git rev-parse HEAD lúc gọi) thắng
+// giá trị tác tử khai (vòng 3 lượt 4 OKR: tác tử trả ec2849e5, không trùng commit nào). Không
+// invokedSha → đường cũ (giá trị tác tử qua bộ lọc hình dạng). Không phát hiện cây trôi (descope d-…-4).
+const hopLeSha = v => (/^[0-9a-f]{7,40}$/i.test(String(v || '').trim()) ? String(v).trim().toLowerCase() : '')
+const verifiedCommit = hopLeSha(args.invokedSha) || hopLeSha(prov && prov.verified_commit)
 // P1: payload block carried cho report — run_id + verified_at NGUYÊN GỐC round trước (không giả
 // timestamp mới), kèm carried_from_round để Gate 2 thấy rõ eval nào round này KHÔNG chạy lại.
 const carriedForReport = carriedEvals.map(c => {

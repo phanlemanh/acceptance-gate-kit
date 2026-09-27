@@ -229,6 +229,28 @@ await ca('CK-AC2-dot-bien', async () => {
   return '(go doc dau → 1,2,8 · lech → 8)';
 });
 
+// ── Task A4 (AC-5): verified_commit từ invokedSha ──
+const provPrompt = x => (x.calls.find(c => c.label === 'synthesize:report') || {}).prompt || '';
+await ca('CK-AC5', async () => {
+  const KHAC = 'a'.repeat(40);
+  const a = await cham({ evals: EV, prov: { bypass_used: false, enforcement_mode: 'strict', verified_commit: KHAC } });
+  assert(provPrompt(a).includes(`verified_commit: ${SHA}`) && !provPrompt(a).includes(KHAC), 'invokedSha phai thang sha tac tu');
+  const b = await cham({ evals: EV, invokedSha: '', prov: { bypass_used: false, enforcement_mode: 'strict', verified_commit: KHAC } });
+  assert(provPrompt(b).includes(`verified_commit: ${KHAC}`), 'khong invokedSha → sha tac tu (duong cu)');
+  const c = await cham({ evals: EV, invokedSha: '', prov: { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'rac!' } });
+  assert(!/verified_commit: /.test(provPrompt(c).split('PROVENANCE')[1] || ''), 'rac → bo truong');
+  return '(invokedSha thang · duong cu · rac bo)';
+});
+await ca('CK-AC5-dot-bien', async () => {
+  const KIM = 'const verifiedCommit = hopLeSha(args.invokedSha) || hopLeSha(prov && prov.verified_commit)';
+  assert(SRC.split(KIM).length - 1 === 1, 'kim verifiedCommit khong khop');
+  const d = SRC.replace(KIM, 'const verifiedCommit = hopLeSha(prov && prov.verified_commit) || hopLeSha(args.invokedSha)');
+  const KHAC = 'a'.repeat(40);
+  const x = await cham({ evals: EV, prov: { bypass_used: false, enforcement_mode: 'strict', verified_commit: KHAC }, src: d });
+  assert(provPrompt(x).includes(KHAC), 'sha tac tu lot vao bao cao — ban sao phai lo');
+  return '(dao uu tien → sha tac tu lot vao bao cao)';
+});
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`ckdl-cham: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
