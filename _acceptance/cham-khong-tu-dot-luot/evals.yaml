@@ -53,8 +53,9 @@ evals:
       (quen-mat-khau round 2 và 3), tác tử suite trả cannotRun + killedByTool không dấu: dòng sổ SUITE do
       bộ chấm sinh mang cannot_run true, killed_by_tool true, reason nguyên văn; canhGay ra một mục nhãn
       mu, trangThai mo; s4-args trên kho git do code sinh với đúng sổ ấy ra round 1 và stderr có
-      «thử lại CÙNG round». CHIỀU ĐỎ: bản sao bộ chấm bỏ chỗ ghi killed_by_tool (kim khớp đúng số chỗ
-      khai) → trangThai khoa.
+      «thử lại CÙNG round». CHIỀU ĐỎ: bản sao bộ chấm bỏ chỗ ghi killed_by_tool (kim khớp đúng 2 chỗ)
+      → dòng sổ eval mất trường killed_by_tool. (Không ghim trangThai khoa: sau AC-4 nhãn dòng
+      cannot_run không còn phụ thuộc cờ — lệch hợp đồng đã ghi sổ S2, trình ở Gate 1.5.)
     paths: [feature-loop/workflows/acceptance-verify.js, lib/nhan-canh-gay.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/ckdl.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
