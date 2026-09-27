@@ -6923,7 +6923,13 @@ with tempfile.TemporaryDirectory() as d:
             for gate in ("1", "2"):
                 out = card(js, slug, gate)
                 if out is None: continue
-                plain = (out.replace("&quot;", '"').replace("&#39;", "'")
+                # Bo THE HTML THAT truoc khi tach cum (cham-khong-tu-dot-luot, 27/09):
+                # cum sao dinh sat the (`<p class="li">lib/**`, `may-di-tiep-*.</p><p`)
+                # khong phai chu cua the — tach tren HTML tho la bao oan moi dong mo/dong
+                # bang glob. Bo the TRUOC khi giai thuc the, de chu `&lt;` cua noi dung
+                # khong bi xoa nham nhu mot the.
+                plain = re.sub(r"<[^>]*>", " ", out)
+                plain = (plain.replace("&quot;", '"').replace("&#39;", "'")
                             .replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&"))
                 for cum in stars_in(plain):
                     # LOI = bo dau cau/nhay o hai dau; the them dau phay, ngoac,
@@ -7128,8 +7134,12 @@ with tempfile.TemporaryDirectory() as d:
     mut_js.write_text(mut_src, encoding="utf-8")
     assert renders_any(mut_js, slugs), \
         "PHEP DO MU: mutant khong chay duoc (0 the render duoc) — 'khong do' cua mot script chet khong duoc dem la bang chung; dat mutant canh dung lib the he cua no"
-    bad_mut = untraceable(mut_js)
-    assert bad_mut, "PHEP DO MU: mutant 'khong lot chu dam' van khong lam chan truy-ve-nguon ĐỎ"
+    # Assert «mutant khong lot chu dam lam E7 DO» da GO (cham-khong-tu-dot-luot, 27/09):
+    # E7 so cum sao voi NGUON nguyen van, ma chu dam `**x**` co nguyen van trong nguon —
+    # E7 ve ban chat khong bat duoc mutant nay; assert cu chi xanh NHO loi dinh the
+    # (cum `<p class="li">**x**` khong co trong nguon). Rang that cua E8 la ve quet-corpus
+    # E9 duoi day. Assert sinh sau moc ghim 044968e nen E11 khong doi khai; ly do o so
+    # quyet dinh cua ho so.
     # ...VA phai lam chan quet-corpus (E9) do — day la chan tung mu o S4-r2
     strip_mut = load_strip(mut_js)
     left_mut, _ = scan_corpus(strip_mut)

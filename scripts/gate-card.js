@@ -542,15 +542,31 @@ if (gate === '1') {
   // đọc được» không được im đi trên hồ sơ cũ (Review Focus 5 của kế hoạch).
   const cotGp = l => l.split('|').slice(1, -1).map(c => c.trim());
   const GP_COT = cotGp(GP_HEADER).join('|');
-  let bang = ''; // '' ngoài bảng · 'gp' bảng đúng chữ ký · 'cu' bảng Sev khác chữ ký
-  if (gpPresent) for (const l of probeT.split(/\r?\n/)) {
-    if (!/^\s*\|/.test(l)) { bang = ''; continue; }
-    const cells = cotGp(l);
-    if (!bang) { bang = cells.join('|') === GP_COT ? 'gp' : /^sev$/i.test(cells[0] || '') ? 'cu' : 'khac'; continue; }
-    if (bang === 'khac') continue;
-    if (cells.every(c => /^:?-+:?$/.test(c))) continue; // separator row
-    if (bang === 'gp' && cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
-    else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4), hoặc bảng Sev đời cũ
+  // Nguồn dòng: mục «## Findings» đọc qua section() của lib/md-section.cjs — luật ranh giới
+  // (bảng dưới «### Notes» hay «# Appendix» là bảng ma) sống MỘT chỗ ở bảng marker của lib
+  // (FSB1/FSB2/FSB8). Mục «##» KHÁC (bảng soát lại sau Cổng Phạm vi của crm) đọc tới tiêu đề
+  // kế tiếp ở mọi cấp: nghiêm hơn, không có bảng ma nào lọt từ mục con.
+  const docBang = dong => {
+    let bang = ''; // '' ngoài bảng · 'gp' bảng đúng chữ ký · 'cu' bảng Sev khác chữ ký
+    for (const l of dong) {
+      if (!/^\s*\|/.test(l)) { bang = ''; continue; }
+      const cells = cotGp(l);
+      if (!bang) { bang = cells.join('|') === GP_COT ? 'gp' : /^sev$/i.test(cells[0] || '') ? 'cu' : 'khac'; continue; }
+      if (bang === 'khac') continue;
+      if (cells.every(c => /^:?-+:?$/.test(c))) continue; // separator row
+      if (bang === 'gp' && cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
+      else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4), hoặc bảng Sev đời cũ
+    }
+  };
+  if (gpPresent) {
+    docBang(section(probeT, 'Findings'));
+    const mucKhac = []; let trongMucKhac = false;
+    for (const l of probeT.split(/\r?\n/)) {
+      const td = l.match(/^(#{1,6})\s+(.*)$/);
+      if (td) { trongMucKhac = td[1].length === 2 && !/^findings\b/i.test(td[2].trim()); mucKhac.push(''); continue; }
+      if (trongMucKhac) mucKhac.push(l);
+    }
+    docBang(mucKhac);
   }
   const gpPhatHien = gpRows.filter(r => /^P[0-2]$/.test(r.sev)).length;
   // Luật van thoát nằm ở lib/gap-probe.cjs — CÙNG hàm mà pre-merge gọi. Không
