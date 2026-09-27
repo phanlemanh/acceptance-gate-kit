@@ -127,6 +127,51 @@ await ca('CK-AC4-dot-bien', async () => {
   return '(hang ly do tu do → khoa)';
 });
 
+// ── Task A2 (AC-1): khung bọc EXIT-MARK ──
+const khoiMark = () => { const m = SRC.match(/\/\/ <<<EXIT-MARK\n([\s\S]*?)\/\/ EXIT-MARK>>>/g); assert(m && m.length === 1, `khoi EXIT-MARK khop ${m ? m.length : 0} lan`); return m[0]; };
+const bocTu = src => { const k = src.match(/\/\/ <<<EXIT-MARK\n([\s\S]*?)\/\/ EXIT-MARK>>>/)[1]; return new Function(`${k}; return BOC_LENH;`)(); };
+const chayBoc = (boc, lenh) => { const r = spawnSync('bash', ['-c', boc(lenh)], { encoding: 'buffer', maxBuffer: 1 << 26 }); return { buf: r.stdout, txt: r.stdout.toString('utf8') }; };
+await ca('CK-AC1', async () => {
+  khoiMark();
+  const tra = { 'cmd-1': { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false }, [SUITE]: { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false } };
+  const moi = await cham({ evals: EV, suite: [SUITE], tra });
+  const dongNhat = SRC.replace(/(\/\/ <<<EXIT-MARK\n)[\s\S]*?(\/\/ EXIT-MARK>>>)/, "$1const EXIT_MARK = '__EXIT='\nconst BOC_LENH = (lenh) => lenh\n$2");
+  const cu = await cham({ evals: EV, suite: [SUITE], tra, src: dongNhat });
+  const mach = x => x.calls.filter(c => c.label.startsWith('machine:'));
+  assert(mach(cu).length === 2, `doi chung: ${mach(cu).length} tac tu machine (khai 2)`);
+  const boc = bocTu(SRC);
+  for (const c of mach(moi)) { const cmd = c.label.startsWith('machine:cmd-1') ? 'cmd-1' : SUITE; assert(c.prompt.includes(boc(`cd "/repo" || exit 97 && ${cmd}`)), `prompt ${c.label} thieu khung boc`); }
+  const khoa = x => JSON.stringify({ l: mach(x).map(c => c.label).sort(), r: x.dong.filter(o => o.evalId).map(o => [o.evalId, o.run_id, o.cmd]).sort() });
+  assert(khoa(moi) === khoa(cu), `nhan/run_id/cmd lech: ${khoa(moi)} ≠ ${khoa(cu)}`);
+  return '(khung trong prompt · khoa bang nhau)';
+});
+await ca('CK-AC1-khung', async () => {
+  const boc = bocTu(SRC);
+  const d = mkdtempSync(path.join(TMP, 'boc-'));
+  const MA = [['true', 0], ['false', 1], ['exit 3 # chu thich', 3], ['khong-co-lenh-nay-xyz', 127], [`cd "${path.join(d, 'vang')}" || exit 97 && true`, 97]];
+  const sai = MA.map(([l, m]) => { const t = chayBoc(boc, l).txt.trimEnd().split('\n').pop(); return t === `__EXIT=${m}` ? null : `${l} → ${t}`; }).filter(Boolean);
+  assert(sai.length === 0 && MA.length === 5, sai.join(' · '));
+  const to = chayBoc(boc, `node -e 'process.stdout.write("x".repeat(76000))'`);
+  const vi = chayBoc(boc, `node -e 'for(let i=0;i<40;i++)console.log("Đường dẫn tiếng Việt có dấu ".repeat(11))'`);
+  for (const [ten, o] of [['ascii', to], ['tieng-viet', vi]]) {
+    assert(o.buf.length <= 8000, `dau ra vuot tran: ${o.buf.length} (${ten})`);
+    assert(/^__EXIT=0\s*$/m.test(o.txt), `mat dau __EXIT (${ten})`);
+  }
+  return `(5 ma · ${to.buf.length}B · ${vi.buf.length}B)`;
+});
+await ca('CK-AC1-dot-bien', async () => {
+  const k = khoiMark();
+  const d1 = k.replace(/ \| tail -c 6000/, '');
+  assert(d1 !== k, 'kim tail -c khong khop');
+  const o = chayBoc(bocTu(SRC.replace(k, d1)), `node -e 'for(let i=0;i<40;i++)console.log("Đường dẫn tiếng Việt có dấu ".repeat(11))'`);
+  assert(o.buf.length > 8000, `ban sao bo gioi han ma dau ra van ${o.buf.length}B — phep do khong do`);
+  const d2 = k.replace(/; printf [^;]*EXIT_MARK[^;]*;/, ';');
+  assert(d2 !== k, 'kim printf khong khop');
+  const o2 = chayBoc(bocTu(SRC.replace(k, d2)), 'true');
+  assert(!/__EXIT=/.test(o2.txt), 'ban sao bo printf ma van co dau');
+  return '(dau ra vuot tran · mat dau __EXIT)';
+});
+
 rmSync(TMP, { recursive: true, force: true });
 console.log(`ckdl-cham: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

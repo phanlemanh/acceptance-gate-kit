@@ -630,6 +630,18 @@ const INFRA_EXITS = {
 const CD_GUARD = (dir) => `cd ${dir} || exit 97`
 // INFRA-EXIT-CODES>>>
 
+// Khung bọc lệnh máy (cham-khong-tu-dot-luot AC-1): mã thoát là VẬT máy đọc, không phải điều
+// tác tử suy từ chữ in ra (E21 crm, 26/09). Đầu ra ghi trọn ra tệp tạm; chỉ ĐUÔI (≤ 6000 byte)
+// và một dòng dấu đi vào tool result, nên harness không cất đầu ra ra tệp (đo 27/09: 74 KB bị
+// cất, preview 2 KB). Xuống dòng trước `)` để `#`/`exit` trong lệnh không nuốt dấu. Chỉ BỌC ở
+// tầng prompt — chuỗi `cmd` là khoá của dedupe/carry/SUITE/run_id, không đổi.
+// Trần byte là `tail -c 6000`, KHÔNG phải cắt dòng: `cut -c` đếm byte ở locale C mà đếm ký tự ở
+// locale UTF-8, nên 40 dòng × 240 cột tự nó không chặn được byte (40 × 241 B > 8000 kể cả ở C).
+// <<<EXIT-MARK
+const EXIT_MARK = '__EXIT='
+const BOC_LENH = (lenh) => `F=$(mktemp); ( ${lenh}\n) > "$F" 2>&1; rc=$?; tail -n 40 "$F" | cut -c1-240 | tail -c 6000; printf '\\n${EXIT_MARK}%s\\n' "$rc"; rm -f "$F"`
+// EXIT-MARK>>>
+
 // Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen
 // `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
 // Tach `**` TRUOC khi doi `*`, neu khong `**` bi doi thanh hai lan `[^/]*` va het
@@ -806,7 +818,7 @@ Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong 
 // AC-9: MỘT lời gọi agent cho MỘT lần chạy của một lệnh máy — hai nhánh (song song cho lệnh
 // eval, tuần tự cho lệnh suite) dùng CHUNG hàm này để prompt không bị chép thành hai bản.
 const agentCuaLenh = (cmd, __i) => agentT(
-  `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n  ${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}\n\nCapture TRUNG THUC: exit code that, ~10 dong output cuoi lien quan, run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
+  `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n${BOC_LENH(`${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}`)}\n\nCapture TRUNG THUC: outputTail = NGUYEN VAN phan duoi tool result, PHAI giu dong cuoi \`${EXIT_MARK}<n>\`; exitCode = so <n> cua dong do (khong suy tu chu); run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
   { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
 ).then(r => r && { ...r, cmd, runIndex: __i + 1 })
 
