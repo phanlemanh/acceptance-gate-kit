@@ -50,8 +50,14 @@ await ca('CK-AC8-dot-bien', async () => {
   const src = readFileSync(WFU, 'utf8');
   const KIM = 'const meta = docMeta(file);';
   assert(src.split(KIM).length - 1 === 1, 'kim docMeta khong khop');
+  // Đối chứng dương cùng đường chép: bản sao NGUYÊN VẸN đặt cùng chỗ phải tách ba nhãn (S4-r1).
+  const lanhP = path.join(TMP, 'wfu-lanh.mjs'); writeFileSync(lanhP, src);
+  const lanh = spawnSync(process.execPath, [lanhP, thuMuc(), '--md', '--title', 't'], { encoding: 'utf8' }).stdout;
+  assert(['machine:a', 'review:b', 'judge:c'].every(l => lanh.includes(`| ${l} |`)), 'doi chung: ban sao nguyen ven khong tach ba nhan');
   const sao = path.join(TMP, 'wfu-sao.mjs'); writeFileSync(sao, src.replace(KIM, 'const meta = null;'));
-  const o = spawnSync(process.execPath, [sao, thuMuc(), '--md', '--title', 't'], { encoding: 'utf8' }).stdout;
+  const r = spawnSync(process.execPath, [sao, thuMuc(), '--md', '--title', 't'], { encoding: 'utf8' });
+  const o = r.stdout;
+  assert(r.status === 0 && (o.match(/^\| [^|]+ \| claude-/gm) || []).length === 3, `ban sao dot bien khong in du 3 hang (status ${r.status})`);
   assert(!['machine:a', 'review:b', 'judge:c'].every(l => o.includes(`| ${l} |`)), 'nhan trung — ban sao bo meta ma van tach nhan');
   return '(nhan trung)';
 });

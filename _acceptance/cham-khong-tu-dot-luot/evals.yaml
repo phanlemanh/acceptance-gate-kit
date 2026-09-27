@@ -1,6 +1,6 @@
 schema_version: 1
 feature_slug: cham-khong-tu-dot-luot
-# Tệp ca tests/scripts/ckdl.test.mjs, tên ca mang mã AC (khối ĐỊNH VỊ: tên test = tên AC).
+# Tệp ca tests/scripts/ckdl-{cham,the,do}.test.mjs (mỗi làn một tệp), tên ca mang mã AC (khối ĐỊNH VỊ: tên test = tên AC).
 # Sổ chạy do BỘ CHẤM THẬT sinh (harness tests/workflows, tác tử giả) rồi đưa cho chính bên đọc
 # (lib/nhan-canh-gay.cjs, s4-args.mjs) — không gõ tay dòng sổ theo khuôn bên đọc. Khung bọc lệnh
 # rút từ khối marker EXIT-MARK của nguồn bộ chấm rồi CHẠY THẬT bằng bash. Chữ ký bảng phản biện
@@ -25,7 +25,7 @@ evals:
       40 dòng × 300 ký tự tiếng Việt có dấu → mỗi lượt tổng đầu ra ≤ 8000 byte và vẫn có dòng __EXIT=0. CHIỀU ĐỎ
       (CK-AC1-dot-bien): bản sao khung bỏ bước giới hạn đầu ra → «dau ra vuot tran: <số byte>»; bản sao
       bỏ printf dấu → «mat dau __EXIT».
-    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl-cham.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -42,7 +42,7 @@ evals:
       CK-AC2-ui: eval ui-check khai exitCode 0 không dấu vẫn đạt (luật không chạm lane ui). CHIỀU ĐỎ
       (CK-AC2-dot-bien): bản sao gỡ bước đọc dấu → hàng 1, 2, 8 lật; bản sao «dấu chỉ áp khi khai ≠ 0»
       → hàng 8 lật; thông điệp ghim «hang <n>».
-    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl-cham.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -56,7 +56,7 @@ evals:
       «thử lại CÙNG round». CHIỀU ĐỎ: bản sao bộ chấm bỏ chỗ ghi killed_by_tool (kim khớp đúng 2 chỗ)
       → dòng sổ eval mất trường killed_by_tool. (Không ghim trangThai khoa: sau AC-4 nhãn dòng
       cannot_run không còn phụ thuộc cờ — lệch hợp đồng đã ghi sổ S2, trình ở Gate 1.5.)
-    paths: [feature-loop/workflows/acceptance-verify.js, lib/nhan-canh-gay.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/ckdl.test.mjs]
+    paths: [feature-loop/workflows/acceptance-verify.js, lib/nhan-canh-gay.cjs, feature-loop/scripts/s4-args.mjs, tests/scripts/ckdl-cham.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -69,7 +69,7 @@ evals:
       trước 2.18.0) → null, khoa; SUITE exit 1 thật → REJECT, s4-args round 2; lượt có SUITE bị cắt
       lẫn SUITE lint exit 1 → nhãn mu + vat, khoa, s4-args round 2. CHIỀU ĐỎ: bản sao lib khôi phục
       «SUITE lý do tự do → null» → hàng lý do tự do ra khoa, thông điệp ghim hàng.
-    paths: [lib/nhan-canh-gay.cjs, feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    paths: [lib/nhan-canh-gay.cjs, feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl-cham.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
@@ -81,7 +81,7 @@ evals:
       KHÔNG chứa sha tác tử; không invokedSha + tác tử trả sha hợp lệ → prompt chứa sha tác tử; không
       invokedSha + tác tử trả rác → không có dòng verified_commit (đường cũ, W11 vẫn xanh). CHIỀU ĐỎ:
       bản sao đảo thứ tự ưu tiên → «sha tac tu lot vao bao cao».
-    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl-cham.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -96,14 +96,14 @@ evals:
       CK-AC6-co-vang: thêm id OOS-99 và AC-99 vào bản dịch → đúng hai cờ vàng gọi tên từng id; bản dịch
       không có id lạ → 0 cờ (đối chứng). CHIỀU ĐỎ: bản sao bộ dựng in scope_plain thay các mục →
       «thieu muc OOS-<n>».
-    paths: [scripts/gate-card.js, tests/scripts/ckdl.test.mjs]
+    paths: [scripts/gate-card.js, tests/scripts/ckdl-the.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7
     criterion: AC-7
     executor: script
     cmd: config:executors.script.ckdl
     expected: >
-      Exit 0, có dòng PASS của CK-AC7, CK-AC7-clean, CK-AC7-dot-bien. Chữ ký sáu cột rút từ câu định nghĩa bảng ở
+      Exit 0, có dòng PASS của CK-AC7, CK-AC7-clean, CK-AC7-doc-cu, CK-AC7-dot-bien. Chữ ký sáu cột rút từ câu định nghĩa bảng ở
       feature-loop SKILL.md S1#7 (khớp đúng một lần). gap-probe.md do code sinh hình crm (tên hai mục ## và
       hai dòng tiêu đề chép nguyên văn crm cap-nhat-tuan-okr, đọc 27/09): bảng 1 dưới «## Findings» 5 hàng,
       bảng 2 dưới «## Soát lại sau Cổng Phạm vi (hai chỗ sửa, 2026-09-25)» 5 hàng, frontmatter
@@ -112,7 +112,7 @@ evals:
       cùng fixture với frontmatter tổng 10 → 0 cờ (đối chứng). Ca clean (CK-AC7-clean): verdict clean, một
       hàng «Không còn lỗ đáng kể», p0=p1=p2=0 → 0 cờ, 0 hàng phát hiện. CHIỀU ĐỎ: bản sao dừng sau bảng
       đầu → «thieu hang bang 2»; bản sao đếm mọi hàng → «co gia tren ho so clean».
-    paths: [scripts/gate-card.js, tests/scripts/ckdl.test.mjs]
+    paths: [scripts/gate-card.js, tests/scripts/ckdl-the.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -124,7 +124,7 @@ evals:
       «machine:a», «review:b», «judge:c» → `wf-usage.mjs --md` in ba nhãn ấy, ba hàng riêng. Đối chứng:
       cùng thư mục bỏ meta.json và đặt thẻ [wf-label: x] ở tin người thứ hai → nhãn x; không meta, không
       thẻ → 48 ký tự đầu như trước vòng. CHIỀU ĐỎ: bản sao bỏ nhánh đọc meta → «nhan trung».
-    paths: [feature-loop/scripts/wf-usage.mjs, tests/scripts/ckdl.test.mjs]
+    paths: [feature-loop/scripts/wf-usage.mjs, tests/scripts/ckdl-do.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
@@ -136,7 +136,7 @@ evals:
       trơ = 0, số chỗ có tiền tố ≥ 2); tác tử trả screenshotPath tuyệt đối dưới hồ sơ → prompt synthesize
       mang screenshotPath «evidence/<tệp>»; tác tử trả đường ngoài hồ sơ → giữ nguyên. CHIỀU ĐỎ: bản sao
       prompt quay về đường tương đối → «evidence/ tro: <số>».
-    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl.test.mjs]
+    paths: [feature-loop/workflows/acceptance-verify.js, tests/scripts/ckdl-cham.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-10

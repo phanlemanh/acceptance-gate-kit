@@ -236,7 +236,7 @@ const MACHINE_SCHEMA = {
   type: 'object',
   properties: {
     exitCode: { type: 'number' },
-    outputTail: { type: 'string', description: '~10 dong cuoi output lien quan' },
+    outputTail: { type: 'string', description: 'NGUYEN VAN phan duoi tool result cua khung boc lenh — PHAI giu dong cuoi __EXIT=<n>; khong chon loc, khong viet lai' },
     runId: { type: 'string', description: 'run_id tu stdout neu co, khong co thi chuoi rong' },
     cannotRun: { type: 'boolean' },
     killedByTool: KILLED_BY_TOOL_FIELD,
@@ -889,7 +889,6 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
 // (thiếu env…) mà dấu ≠ 0: giữ hạ tầng — «thiếu env thoát 1» không được thành REJECT đốt round.
 // Không dấu: khai ≠ 0 giữ (97/127 đi tiếp normInfra); khai 0 không có căn cứ → không PASS.
 // Lấy LẦN KHỚP CUỐI: lệnh con tự in một dấu giả giữa đầu ra không thắng dấu thật của khung bọc.
-const EXIT_UNREAD_REASON = 'ma thoat khong doc duoc (thieu dong __EXIT=) — khong tinh PASS'
 const rutDau = tail => { const all = [...String(tail || '').matchAll(new RegExp(`^${EXIT_MARK}(\\d+)\\s*$`, 'gm'))]; return all.length ? Number(all[all.length - 1][1]) : null }
 const normDau = r => {
   if (!r) return r
@@ -899,8 +898,10 @@ const normDau = r => {
     const { killedByTool, ...rest } = r
     return { ...rest, cannotRun: false, exitCode: dau, reason: r.cannotRun ? '' : r.reason }
   }
-  if (r.cannotRun === true) return r
-  if (r.exitCode === 0) return { ...r, cannotRun: true, reason: EXIT_UNREAD_REASON }
+  // Không dấu → giữ lời khai như trước vòng. Vế «không dấu mà khai 0 → không PASS» đã GỠ theo
+  // ngưỡng chết khai ở Cổng Đáng: lượt chấm 1 của chính vòng (27/09) có 3/11 tác tử chạy lệnh
+  // trần, không qua khung bọc — khung vẫn là lời trong prompt, nên thiếu dấu không chứng được
+  // lệnh hỏng; chặn ở đây chỉ tăng BLOCKED hạ tầng (sổ S4-r1).
   return r
 }
 

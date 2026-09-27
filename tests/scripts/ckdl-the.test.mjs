@@ -67,7 +67,13 @@ await ca('CK-AC6-dot-bien', async () => {
   const gc = banSao(s => s.replace(KIM, "(oos.length ? [esc(pl.scope_plain || oos.map(stripMd).join(' · '))] : [])"));
   const r = mkWs('g', hoSo(null));
   const pf = path.join(r, 'pl.json'); writeFileSync(pf, JSON.stringify({ scope_plain: 'tom', wont_do: [] }));
-  const li = liKhong(chayGc(gc, r, 'g', ['--plain', pf]).stdout);
+  // Đối chứng dương trên CÙNG cách chép (banSao không tiêm gì): bản sao sống và hiện đủ 8 mục —
+  // không có vế này thì bản sao chết (status ≠ 0, 0 dòng) cũng cho «thiếu mục» (S4-r1).
+  const lanh = chayGc(banSao(s => s), r, 'g', ['--plain', pf]);
+  assert(lanh.status === 0 && liKhong(lanh.stdout).filter(t => t.startsWith('Hoãn/cắt: ')).length === 8, `doi chung: ban sao nguyen ven khong hien du 8 muc (status ${lanh.status})`);
+  const dot = chayGc(gc, r, 'g', ['--plain', pf]);
+  assert(dot.status === 0 && dot.stdout.includes('tom'), `ban sao dot bien khong chay hoac khong in scope_plain (status ${dot.status})`);
+  const li = liKhong(dot.stdout);
   const thieu = Array.from({ length: 8 }, (_, i) => i + 1).filter(n => !li.some(t => t.includes(`Mục bỏ ngoài số ${n}`)));
   assert(thieu.length > 0, 'ban sao gop scope_plain ma du muc — phep do khong do');
   return `(thieu muc OOS-${thieu[0]})`;
@@ -111,6 +117,23 @@ await ca('CK-AC7-dot-bien', async () => {
   const r2 = mkWs('g', hoSo(P));
   assert(chayGc(gc2, r2, 'g').stdout.includes('bảng phản biện ngoài khai báo'), 'co gia tren ho so clean — ban sao dem moi hang ma van im');
   return '(thieu hang bang 2 · co gia tren ho so clean)';
+});
+
+// Đường đọc-cũ (S4-r1, phát hiện conventions trên artifact-platform so-khach-vong-cham): bảng đúng
+// sáu cột mở bằng «sev» mà tiêu đề chữ khác, dưới «## Findings», vẫn là phát hiện như trước vòng.
+await ca('CK-AC7-doc-cu', async () => {
+  const TD = '| sev | artifact | summary | scenario | measure | disposition |';
+  const P = `---\nslug: g\nat: x\nverdict: findings\np0: 1\np1: 1\np2: 1\n---\n\n## Findings\n\n${TD}\n|---|---|---|---|---|---|\n| P0 | contract | cu 1 | kb | do | fixed |\n| P1 | evals | cu 2 | kb | do | fixed |\n| P2 | design | cu 3 | kb | do | fixed |\n`;
+  const r = mkWs('g', hoSo(P));
+  const x = extract(r, 'g');
+  assert(x.gap_probe.rows.length === 3 && x.gap_probe.parse_dropped === 0, `bang cu: rows ${x.gap_probe.rows.length}, dropped ${x.gap_probe.parse_dropped}`);
+  const KIM = "(khoanDung && bang === 'cu')";
+  assert(SRC.split(KIM).length - 1 === 1, 'kim khoanDung khong khop');
+  const lanh = JSON.parse(chayGc(banSao(s => s), r, 'g', ['--extract']).stdout);
+  assert(lanh.gap_probe.rows.length === 3, 'doi chung: ban sao nguyen ven khong doc bang cu');
+  const dot = JSON.parse(chayGc(banSao(s => s.replace(KIM, 'false')), r, 'g', ['--extract']).stdout);
+  assert(dot.gap_probe.rows.length === 0, `ban sao bo duong doc cu ma van doc ${dot.gap_probe.rows.length} hang`);
+  return '(3 hang doc nhu truoc · bo duong doc cu → 0)';
 });
 
 rmSync(TMP, { recursive: true, force: true });

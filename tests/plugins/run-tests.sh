@@ -7140,6 +7140,19 @@ with tempfile.TemporaryDirectory() as d:
     # (cum `<p class="li">**x**` khong co trong nguon). Rang that cua E8 la ve quet-corpus
     # E9 duoi day. Assert sinh sau moc ghim 044968e nen E11 khong doi khai; ly do o so
     # quyet dinh cua ho so.
+    # Chieu DO that cua E7 thay cho assert da go: mutant tiem mot cum sao BIA (khong co trong
+    # nguon nao) vao dong tieu de the ca hai cong — E7 PHAI bao dung cum ay (S4-r1, ghim noi dung).
+    KIM_FT = '<div class="ft">${esc(featurePlain)}</div>'
+    n_ft = card_src.count(KIM_FT)
+    bia_src = card_src.replace(KIM_FT, '<div class="ft">${esc(featurePlain)} **bia-dat-xyz**</div>')
+    assert n_ft >= 2 and bia_src.count("**bia-dat-xyz**") == n_ft, \
+        "tiem mutant bia that bai (kim khop %d cho) — cap nhat phep do" % n_ft
+    bia_js = mut_dir / "scripts" / "gate-card.bia.js"
+    bia_js.write_text(bia_src, encoding="utf-8")
+    assert renders_any(bia_js, slugs), "PHEP DO MU: mutant bia khong chay duoc"
+    bad_bia = untraceable(bia_js)
+    assert any("bia-dat-xyz" in c for _, _, c in bad_bia), \
+        "PHEP DO MU: mutant tiem cum sao bia ma truy-ve-nguon (E7) van im"
     # ...VA phai lam chan quet-corpus (E9) do — day la chan tung mu o S4-r2
     strip_mut = load_strip(mut_js)
     left_mut, _ = scan_corpus(strip_mut)

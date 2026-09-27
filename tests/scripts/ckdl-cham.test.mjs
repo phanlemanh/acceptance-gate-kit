@@ -181,7 +181,8 @@ const HANG = [
   ['4', { exitCode: 1, cannotRun: true, reason: 'thieu env', outputTail: 'x\n__EXIT=0' }, { verdict: 'PASS-FAMILY', exit: 0 }],
   ['5', { exitCode: 1, cannotRun: true, reason: 'thieu env', outputTail: 'x\n__EXIT=1' }, { verdict: 'BLOCKED', cr: true }],
   ['6', { exitCode: 1, cannotRun: false, outputTail: 'x' }, { verdict: 'REJECT', exit: 1 }],
-  ['7', { exitCode: 0, cannotRun: false, outputTail: 'x' }, { verdict: 'BLOCKED', cr: true, lyDo: 'ma thoat khong doc duoc' }],
+  // Hàng 7 đổi theo ngưỡng chết (sổ S4-r1): tác tử chạy lệnh trần, không dấu, khai 0 → giữ lời khai.
+  ['7', { exitCode: 0, cannotRun: false, outputTail: 'x' }, { verdict: 'PASS-FAMILY', exit: 0, cr: false }],
   ['8', { exitCode: 0, cannotRun: false, outputTail: 'x\n__EXIT=1' }, { verdict: 'REJECT', exit: 1 }],
 ];
 const chamHang = async (h, src) => {
