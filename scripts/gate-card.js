@@ -95,6 +95,11 @@ const THUOC_VAT_HONG_FLAG = 'Không đọc được dòng đếm vật/thước 
 // Cờ câu dịch wont_do mang id không trùng tiêu chí phủ định nào và không trùng mục phạm vi
 // OOS-n nào (cham-khong-tu-dot-luot AC-6) — câu dịch lạc bị bỏ qua, người phải biết.
 const DICH_LAC = 'dòng dịch không khớp mục nào: ';
+// <<<GAP-PROBE-HEADER — chữ ký bảng phản biện; bên VIẾT là câu định nghĩa bảng ở
+// feature-loop SKILL S1#7 (ca CK-AC7 so bằng nhau). Bảng tìm theo chữ ký, KHÔNG theo tên mục.
+const GP_HEADER = '| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |';
+const GP_NGOAI = 'bảng phản biện ngoài khai báo: ';
+// GAP-PROBE-HEADER>>>
 const MSG_ROI_BAC = 'Đối kháng máy KHÔNG chạy được — phần vượt-nhận-thức RƠI VỀ ANH: thẻ này không điền sẵn ô nào, và chữ ký ở đây KHÔNG có nghĩa «đối kháng đã hội tụ». Anh tự đọc vật, hoặc chạy lại bước phản biện context sạch rồi dựng thẻ lại.';
 
 // <<<ONE-SHOT-CMD — MỘT nguồn của tên lệnh thẻ in ra. Luật «lệnh in ra phải
@@ -525,15 +530,25 @@ if (gate === '1') {
   const gpPresent = !!probeT.trim();
   const gpVerdict = clean(gpFm.verdict).toLowerCase();
   const gpRows = []; let gpDropped = 0;
-  if (gpPresent) for (const l of section(probeT, 'Findings')) {
-    if (!/^\s*\|/.test(l)) continue;
-    const cells = l.split('|').slice(1, -1).map(c => c.trim());
-    if (!cells.length) continue;
+  // AC-7 (cham-khong-tu-dot-luot): đọc MỌI bảng mang chữ ký GP_HEADER ở bất kỳ mục nào
+  // (bảng soát lại sau Cổng Phạm vi từng bị bỏ vì chỉ đọc «## Findings»); bảng khác chữ ký
+  // bị bỏ qua. Bảng kết thúc ở dòng đầu tiên không bắt đầu bằng «|».
+  // Bảng đời cũ có cột đầu «Sev» mà KHÁC chữ ký (4–5 cột) không được đọc thành phát hiện,
+  // nhưng mọi hàng của nó vẫn đếm vào parse_dropped như trước vòng — cờ «dòng finding không
+  // đọc được» không được im đi trên hồ sơ cũ (Review Focus 5 của kế hoạch).
+  const cotGp = l => l.split('|').slice(1, -1).map(c => c.trim());
+  const GP_COT = cotGp(GP_HEADER).join('|');
+  let bang = ''; // '' ngoài bảng · 'gp' bảng đúng chữ ký · 'cu' bảng Sev khác chữ ký
+  if (gpPresent) for (const l of probeT.split(/\r?\n/)) {
+    if (!/^\s*\|/.test(l)) { bang = ''; continue; }
+    const cells = cotGp(l);
+    if (!bang) { bang = cells.join('|') === GP_COT ? 'gp' : /^sev$/i.test(cells[0] || '') ? 'cu' : 'khac'; continue; }
+    if (bang === 'khac') continue;
     if (cells.every(c => /^:?-+:?$/.test(c))) continue; // separator row
-    if (/^sev$/i.test(cells[0])) continue;              // header row
-    if (cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
-    else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4)
+    if (bang === 'gp' && cells.length === 6) gpRows.push({ sev: cells[0], artifact: cells[1], summary: cells[2], scenario: cells[3], measure: cells[4], disposition: cells[5] });
+    else gpDropped++; // cell chứa "|" → sai số cột (giới hạn v1, spec §4), hoặc bảng Sev đời cũ
   }
+  const gpPhatHien = gpRows.filter(r => /^P[0-2]$/.test(r.sev)).length;
   // Luật van thoát nằm ở lib/gap-probe.cjs — CÙNG hàm mà pre-merge gọi. Không
   // viết lại ở đây: contract v2 chết đúng vì chỗ này bị tách làm hai bản, parity
   // giữ bằng comment (ledger d-125/d-126). P38 canh bằng máy.
@@ -830,7 +845,8 @@ if (gate === '1') {
   if (gpPresent && gpVerdict === 'probe-failed') flags.push(['fwarn', 'Phản biện không chạy được (probe-failed sau retry) — duyệt nghĩa là duyệt KHÔNG có phản biện context sạch.']);
   if (gpPresent && !gpVerdictKnown) flags.push(['fwarn', `gap-probe.md không đọc được (verdict lạ/thiếu${gpVerdict ? ': "' + esc(gpVerdict) + '"' : ''}) — coi như CHƯA có phản biện, chạy lại bước S1#7 hoặc sửa frontmatter.`]);
   if (gpPresent && gpVerdictKnown && gpVerdict !== 'probe-failed' && (gpVerdict === 'findings' || gpP0 + gpP1 + gpP2 > 0) && !gpRows.length && !gpDropped) flags.push(['fwarn', 'gap-probe.md khai findings nhưng không đọc được dòng finding nào (bảng thiếu / heading sai) — soi file trước khi duyệt.']);
-  if (gpVerdict === 'clean' && (gpRows.length || gpDropped)) flags.push(['fwarn', 'gap-probe.md mâu thuẫn: verdict clean nhưng bảng có finding — soi lại file trước khi duyệt.']);
+  if (gpPresent && gpPhatHien > gpP0 + gpP1 + gpP2) flags.push(['fwarn', GP_NGOAI + gpPhatHien + esc(' > ') + (gpP0 + gpP1 + gpP2)]);
+  if (gpVerdict === 'clean' && (gpPhatHien || gpDropped)) flags.push(['fwarn', 'gap-probe.md mâu thuẫn: verdict clean nhưng bảng có finding — soi lại file trước khi duyệt.']);
   for (const id of dichLac) flags.push(['fwarn', DICH_LAC + esc(id)]);
   if (gpDropped) flags.push(['fwarn', `${gpDropped} dòng finding không đọc được (sai số cột — cell chứa "|" hoặc thiếu cột) — sửa bảng gap-probe.md nếu cần soi đủ.`]);
   if (nen.present && nen.nen === 'do') flags.push(['fwarn', esc(NEN_DO_FLAG)]);
