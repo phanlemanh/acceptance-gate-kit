@@ -83,9 +83,13 @@ Steps:
    **Thứ tự cổng Đáng → Phạm vi:** chạy
    `node ${CLAUDE_PLUGIN_ROOT}/scripts/start-scan.mjs --root .` và tìm slug trong
    `groups.gates[]`. Phần tử mang `gate: dang` → việc này CHƯA qua Cổng Đáng (ô
-   cơ hội chưa ai quyết): KHÔNG duyệt Gate 1, KHÔNG ghi gì, in đúng một dòng
-   «Việc này chưa qua Cổng Đáng — ký trước: `/acceptance-gate:approve <slug> đáng: ___`
-   (làm · lặp · xếp lại · dừng)» rồi dừng. Hỏi bộ quét, đừng tự đọc ô cơ hội: luật
+   cơ hội chưa ai quyết): KHÔNG duyệt Gate 1, KHÔNG ghi gì vào hợp đồng — nói
+   một dòng «Việc này chưa qua Cổng Đáng» rồi đi THẲNG bước 1 của mục «Cổng Đáng»
+   cuối file (trình đề bài + ngưỡng, hỏi đúng MỘT câu: lối nào) trong CÙNG lượt.
+   ĐỪNG chỉ in dòng lệnh `/acceptance-gate:approve <slug> đáng: ___` rồi dừng:
+   một lượt trả về mà không mang quyết định nào là trạm thu phí. Người chọn lối →
+   ghi theo mục đó; lối là làm/lặp và hồ sơ có hợp đồng → tiếp bước 2 của Gate 1
+   ngay trong lượt kế, không bắt người gõ lại lệnh. Hỏi bộ quét, đừng tự đọc ô cơ hội: luật
    «ô còn chờ Cổng Đáng» sống MỘT chỗ (`lib/workspace-record.cjs`) và bộ quét
    là bộ phân ô duy nhất.
 2. **Present.** Render the decision card — `/acceptance-gate:acceptance-card <slug>` — unless
