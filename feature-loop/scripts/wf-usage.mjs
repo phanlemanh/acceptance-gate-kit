@@ -73,16 +73,27 @@ function textOf(content) {
   return '';
 }
 
+function docMeta(file) {
+  try { return JSON.parse(fs.readFileSync(file.replace(/\.jsonl$/, '.meta.json'), 'utf8')); } catch { return null; }
+}
+
 function parseAgent(file) {
   const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map(l => {
     try { return JSON.parse(l); } catch { return null; }
   }).filter(Boolean);
   if (!lines.length) return null;
 
-  const firstUser = lines.find(l => l.type === 'user' && l.message);
-  const head = firstUser ? textOf(firstUser.message.content) : '';
-  const tag = head.match(/\[wf-label:\s*([^\]\n]+)\]/);
-  const label = tag ? tag[1].trim() : (head.replace(/\s+/g, ' ').trim().slice(0, 48) || '(prompt rỗng)');
+  // cham-khong-tu-dot-luot AC-8: harness mới chèn «[Workflow harness — user request]» làm tin
+  // người ĐẦU của mọi tác tử, nên nhãn đọc từ tin đầu gộp mọi tác tử làm một (40/40, 26/09).
+  // Thứ tự: meta.json cạnh transcript (description = nhãn Workflow) → thẻ [wf-label:] ở ba tin
+  // người đầu → 48 ký tự đầu (đường cũ).
+  const meta = docMeta(file);
+  const users = lines.filter(l => l.type === 'user' && l.message).slice(0, 3).map(l => textOf(l.message.content));
+  const head = users[0] || '';
+  const tagHit = users.map(t => t.match(/\[wf-label:\s*([^\]\n]+)\]/)).find(Boolean);
+  const label = (meta && typeof meta.description === 'string' && meta.description.trim()) ? meta.description.trim()
+    : tagHit ? tagHit[1].trim()
+    : (head.replace(/\s+/g, ' ').trim().slice(0, 48) || '(prompt rỗng)');
 
   // dedupe theo message.id: usage là snapshot lớn dần trong cùng call → max từng field
   const byId = new Map();
