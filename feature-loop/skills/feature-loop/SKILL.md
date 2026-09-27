@@ -1,6 +1,6 @@
 ---
 name: feature-loop
-description: Vòng lặp chuẩn phát triển 1 tính năng từ ý tưởng đến PR — hợp nhất Superpowers (brainstorm/plan/execute) + acceptance-gate (contract/evals/evidence/signoff) + Workflow orchestration. 2 điểm dừng human (Gate 1 duyệt design+contract+evals, Gate 2 duyệt evidence+signoff); T3 thêm Gate 1.5 duyệt plan. Use khi user nói "làm tính năng X", "/feature-loop:feature-loop <mô tả>", hoặc "/feature-loop:feature-loop <slug>" để resume. KHÔNG dùng cho hotfix T1 (docs/config nhỏ) — thoát ngay ở S0. YÊU CẦU: plugin acceptance-gate (cùng marketplace) + plugin superpowers đã cài; repo đích đã chạy acceptance-init (_acceptance/config.yaml).
+description: Vòng lặp chuẩn phát triển 1 tính năng từ ý tưởng đến PR — hợp nhất Superpowers (brainstorm/plan/execute) + acceptance-gate (contract/evals/evidence/signoff) + Workflow orchestration. 2 điểm dừng human (Gate 1 duyệt design+contract+evals, Gate 2 duyệt evidence+signoff); T3 thêm Gate 1.5 duyệt plan. Use khi user nói "làm tính năng X", "/feature-loop:feature-loop <mô tả>", hoặc "/feature-loop:feature-loop <slug>" để resume. KHÔNG dùng cho hotfix T1 (docs/config nhỏ) — thoát ngay ở S0. YÊU CẦU: plugin acceptance-gate (cùng marketplace) + plugin superpowers đã cài; repo đích đã chạy acceptance-init (_acceptance/config.yaml); vòng chạy trong phiên cấp cao nhất có công cụ Workflow — tác tử con không có Workflow, đừng chạy vòng trong tác tử con.
 ---
 
 # feature-loop
