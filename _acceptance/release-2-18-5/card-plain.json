@@ -1,0 +1,9 @@
+{
+  "feature_plain": "Đóng số 2.18.5 cho bản kit có vòng «lượt chấm không tự đốt lượt»: hai gói cùng lên 2.18.5, CHANGELOG nói người dùng nhận gì kèm năm dòng số, để crm cài vào và thôi phải cho vượt trần khi lượt chấm chặn vì hạ tầng.",
+  "scope_plain": "Không đổi mã cổng nào (kể cả chữ «CAT» → «LUU» của câu đầu ra dài), không nâng gói vẽ sơ đồ, không làm hai hạt giống vừa mở, không ghim lại hồ sơ cũ trước khi mốc gộp, không đổi gì ở kho tiêu thụ trước khi có tag.",
+  "decisions_plain": [
+    {"id": "d-20260927T112712Z-1", "p": "Mốc đi làn tự động như các mốc trước: không dựng phép đo mới, dựa ca kiểm số thường trực và các bộ kiểm chạy từng mảnh — đổi lại người chấm là chính phiên làm mốc."},
+    {"id": "d-20260927T112712Z-2", "p": "KHÔNG chạy phản biện độc lập trước duyệt — mốc không có thiết kế mới, mọi tiêu chí là lệnh máy đã có chiều đỏ."},
+    {"id": "d-20260927T112712Z-3", "p": "KHÔNG sửa chữ «CAT» → «LUU» trong câu hướng dẫn đầu ra dài ở mốc này — chữ đó là mã cổng, mốc không đổi mã; đổi lại câu còn đọc được hai nghĩa tới mốc kế."}
+  ]
+}
