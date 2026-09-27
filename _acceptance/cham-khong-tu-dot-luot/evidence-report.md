@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6399949ea5e3d820cc68ab8c651d86260e94a5c0
+verified_commit: 7da781a53cc4cc023094b18fa3b119b93856a690
 human_signoff: Phan Le Manh 2026-09-27 — ký lượt chấm 3; Ngoài-1, Ngoài-3 mở hợp đồng mới (hạt giống); Ngoài-2 ghi Known limits; E10 Đạt; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -224,3 +224,7 @@ none — every multi-run eval is uniform
 Round 1: BLOCKED — 3 lệnh suite hồi quy (bash tests/scripts/run-tests.sh --manh bash, tests/hooks/run-tests.sh, tests/plugins/run-tests.sh --manh vung:3) thoát với mã không đọc được (thiếu dòng __EXIT=), dù 9 eval máy (E1-E9) và E10 đã đạt. Trả về hạ tầng chạy lại, không phải sửa code.
 Round 2: 9 eval máy (E1-E9) và E10 (judgment, PASS cả 3 lens) đều đạt; cả 10 lệnh suite hồi quy nay thoát sạch mã 0 (khung bọc đọc __EXIT= đã được vá ở S4-r1). Verdict PENDING-JUDGMENT — chờ human_override bắt buộc trên E10 theo luật T3; 2 phát hiện trong hợp đồng (AC-6: nhánh khoan dung `scope`) được trả về sửa.
 Round 3: 9 eval máy (E1-E9) tiếp tục đạt, cả 10 lệnh suite hồi quy thoát sạch mã 0 trên verified_commit 6399949e (fix S4-r2 khớp chữ AC-6 với vật). E10 giữ nguyên panel PASS carried từ round 2 (inputs không đổi, không chấm lại). 0 phát hiện trong hợp đồng round này; 3 phát hiện mới ngoài hợp đồng ghi ở review-findings.md. Verdict vẫn PENDING-JUDGMENT — chờ human_override bắt buộc trên E10 theo luật T3.
+
+### Re-pin lần 1 — 2026-09-27, do chiến dịch ghim lại theo mốc 2.18.5 — manifest đổi sau pin
+run_id: repin-20260927T132521Z-81959
+sha: 7da781a53cc4cc023094b18fa3b119b93856a690 · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 · AC không có chốt máy: AC-10
