@@ -340,14 +340,19 @@ check('DK15 doc-cu, chieu im: dong so KHONG co o target doc duoc y het dong co o
   const sCo = scan(co.raw), sKhong = scan(khong.raw);
   if (!sKhong.includes('ton z')) die('doi chung duong hong: bo quet bai hoc khong doc dong so khong o');
   eq(sCo, sKhong, 'claim-scan co o vs khong o');
+  // Thẻ IN dòng sổ (khối «Quyết định & trade-off» Cổng 1), không đo qua --extract: dòng ghi bằng
+  // lệnh ba vế (ADR 0021) rời danh sách xin dịch theo AC-9 của mot-so-ba-ve, nên đo «đọc được»
+  // phải đo chữ trên thẻ. Đối chứng dương: khối chứa đúng vế vì-sao + vế giá của dòng.
   const the = raw => {
     const r = wsG1({});
     writeFileSync(path.join(r, '_acceptance', 'g', 'decisions.jsonl'), raw + '\n');
-    return extract(GC, r, 'g').decisions.map(x => [x.type, x.stage, x.decision, x.impact]);
+    const h = spawnSync('node', [GC, '--root', r, '--slug', 'g'], { encoding: 'utf8' }).stdout;
+    const i = h.indexOf('<div class="lab">Quyết định'); const j = i < 0 ? -1 : h.indexOf('<div class="lab">', i + 10);
+    return i < 0 ? '' : h.slice(i, j < 0 ? undefined : j);
   };
   const tKhong = the(khong.raw);
-  if (tKhong.length !== 1) die('doi chung duong hong: the khong doc dong so khong o');
-  eq(the(co.raw), tKhong, 'the --extract co o vs khong o');
+  if (!tKhong.includes('vi y — sai thì tốn: ton z')) die('doi chung duong hong: the khong doc dong so khong o');
+  eq(the(co.raw), tKhong, 'the co o vs khong o');
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-dec-key)`);
