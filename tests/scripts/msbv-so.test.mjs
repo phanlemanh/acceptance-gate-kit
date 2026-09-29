@@ -42,7 +42,8 @@ ca('MS-AC1-lib-im', () => {
   const moi = [cu[0], '{"id":"d-9","type":"approach","stage":"S1","at":"2026-09-01T00:10:00Z","decision":"q","why":"w","cost_if_wrong":"c"}', cu[1], cu[2],
     '{"id":"d-10","type":"approach","stage":"S3","at":"2026-09-01T01:00:00Z","decision":"q2","why":"w2","source":"superpowers","source_ref":"ws#Ruling:abcd1234"}'];
   const A = cu.join('\n') + '\n', B = moi.join('\n') + '\n';
-  const kq = t => JSON.stringify({ nghi: WR.hoSoNghi({ ledgerText: t }), thucTe: WR.thucTe(t), khep: WR.hoSoDaKhep({ status: 'signed-off', ledgerText: t }) });
+  if (!Array.isArray(WR.DA_THONG_CONG_2) || WR.DA_THONG_CONG_2.length < 2) die('lib khong xuat DA_THONG_CONG_2 du hai trang thai');
+  const kq = t => JSON.stringify({ nghi: WR.hoSoNghi({ ledgerText: t }), thucTe: WR.thucTe(t), khep: WR.DA_THONG_CONG_2.map(st => WR.hoSoDaKhep({ status: st, ledgerText: t })) }); // mọi trạng thái đã thông cổng, rút từ một nguồn của lib
   if (kq(A) !== kq(B)) die(`bo doc lib doi ket qua khi so co dong ba ve:\n A=${kq(A)}\n B=${kq(B)}`);
 });
 
