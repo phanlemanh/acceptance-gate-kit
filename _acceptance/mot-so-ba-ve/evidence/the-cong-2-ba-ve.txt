@@ -1,0 +1,17 @@
+# fixture sha256 3360c4ce99f75ef9f5990dbe9370899080e88eceff79b2329188930a032fb295 · at 2026-09-29T00:00:00Z
+Quyết định CHƯA duyệt — cần phê (ghi sau Gate 1)
+Treo-1 · Chặn lệnh xoá thư mục tạm cho tới khi đã gặt quyết định — thư mục bị xoá trước bước cuối thi công — sai thì tốn: một hook chạy trên mọi lệnh shell
+S1 · approach
+Phê
+Không phê
+Treo-2 · In quyết định thành một dòng ba vế — người ký cần biết giá để quyết có lật không — sai thì tốn: một câu dài hơn trên thẻ
+S1 · approach
+Phê
+Không phê
+Treo-3 · Giữ quyết định chưa khai giá và gắn nhãn — giới hạn là nhãn trạng thái, không phải việc
+⚠ chưa khai giá nếu sai
+S1 · approach
+Phê
+Không phê
+Đã duyệt từ Gate 1
+KHÔNG tự dịch dòng cũ — người đọc chữ gốc của sổ.

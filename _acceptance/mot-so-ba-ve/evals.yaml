@@ -58,9 +58,11 @@ evals:
       (cùng phần tử HTML), dòng đủ không mang nhãn, thẻ không có cờ toàn thẻ mới; chiều đỏ: bản sao gỡ
       nhãn → «dòng thiếu giá không mang nhãn». MS-AC8-xuat: ca ghi tệp
       <HERE>/../../_acceptance/mot-so-ba-ve/evidence/the-cong-2-ba-ve.txt (đường suy từ vị trí tệp ca)
-      gồm dòng đầu «# fixture sha256 <băm sổ fixture> · at <ISO lúc chạy>» + phần văn bản của thẻ Cổng 2
-      vừa dựng (ba dòng ba vế, một thiếu giá, một dòng cũ có câu dịch); đọc lại tệp → băm ở dòng đầu ==
-      sha256 tính trong lượt của fixture, thân chứa đủ bốn dòng; đối chứng: xoá tệp trước khi chạy.
+      gồm dòng đầu «# fixture sha256 <băm sổ fixture> · at <ISO trường at của fixture>» + phần văn bản
+      của thẻ Cổng 2 vừa dựng (ba dòng ba vế, một thiếu giá, một dòng cũ có câu dịch); đọc lại tệp → băm
+      ở dòng đầu == sha256 tính trong lượt của fixture, thân chứa đủ bốn dòng; ghi chỉ khi nội dung
+      khác; khẳng định tệp trên đĩa BẰNG từng byte bản dựng từ code hiện tại (nên tệp cũ hay viết tay
+      đều đỏ).
     paths: [scripts/gate-card.js, tests/scripts/msbv-the.test.mjs]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
@@ -122,9 +124,9 @@ evals:
     inputs: [_acceptance/mot-so-ba-ve/evidence/the-cong-2-ba-ve.txt]
     question: >
       Đọc phần văn bản của thẻ Cổng 2 ở evidence/the-cong-2-ba-ve.txt — ca MS-AC8-xuat (E4) ghi tệp này
-      trong lượt chạy. TRƯỚC KHI CHẤM: dòng đầu phải có dạng «# fixture sha256 <64 hex> · at <ISO>» và
-      <ISO> không sớm hơn invokedAt của lượt chấm này quá 24 giờ; thiếu hoặc quá cũ → FAIL «đầu vào không
-      phải vật của lượt». Với mỗi dòng trong khối «Quyết định CHƯA duyệt» và «Đã duyệt từ Gate 1»:
+      trong lượt chạy. TRƯỚC KHI CHẤM: dòng đầu phải có dạng «# fixture sha256 <64 hex> · at <ISO>»;
+      thiếu dòng ấy → FAIL «đầu vào không phải vật của lượt» (ca E4 MS-AC8-xuat đã khẳng định tệp bằng
+      bản dựng từ code hiện tại). Với mỗi dòng trong khối «Quyết định CHƯA duyệt» và «Đã duyệt từ Gate 1»:
       (1) bạn nêu được quyết gì · vì sao · sai thì tốn gì mà không cần mở sổ? (2) dòng nào thiếu giá,
       thẻ có nói ra không? (3) ở vế «quyết gì» và vế «sai thì tốn» của các dòng ba vế có tên biến, tên
       tệp hay mã eval trần không? PASS khi cả ba câu đạt cho mọi dòng; FAIL nêu đúng dòng.
