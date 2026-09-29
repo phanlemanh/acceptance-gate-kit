@@ -9,8 +9,8 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>25 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>81 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>9 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
@@ -40,14 +40,11 @@ flowchart TD
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
 
-## Chờ duyệt phạm vi
-
-- Phát hành kit 2.19.0 — đóng số cho cửa sổ 2.18.5 → 2.19.0 (một vòng đã ký «mot-so-ba-ve»: mỗi dòng sổ quyết định ghi ba vế quyết gì · vì sao · sai thì tốn gì, thẻ cổng in thành một câu, ruling superpowers được gặt vào sổ trước khi thư mục tạm bị xoá), để crm cài vào và người ký thấy mọi ruling có mã sổ ngay trên thẻ; làn V, không dựng răng (`release-2-19-0`)
-
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
+- Phát hành kit 2.19.0 — đóng số cho cửa sổ 2.18.5 → 2.19.0 (một vòng đã ký «mot-so-ba-ve»: mỗi dòng sổ quyết định ghi ba vế quyết gì · vì sao · sai thì tốn gì, thẻ cổng in thành một câu, ruling superpowers được gặt vào sổ trước khi thư mục tạm bị xoá), để crm cài vào và người ký thấy mọi ruling có mã sổ ngay trên thẻ; làn V, không dựng răng (`release-2-19-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
