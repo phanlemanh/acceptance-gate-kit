@@ -5,7 +5,7 @@ slug: mot-so-ba-ve
 owner: phanlemanh@gmail.com
 risk_tier: T3      # thêm hooks/ruling-truoc-khi-xoa.js + sửa hooks/hooks.json (khớp t3_paths hooks/**)
 surfaces: [cli, docs]
-status: verified    # draft | approved | implemented | verified | signed-off | machine-cleared
+status: signed-off    # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: "Phan Le Manh"
 approved_at: 2026-09-29T01:35:14Z
 design_doc: docs/superpowers/specs/2026-09-29-mot-so-ba-ve-design.md
@@ -59,3 +59,16 @@ Quét Zwicky rút gọn (preset test-matrix; chân ngành ADR Nygard — Context
 ## Notes
 
 - Lỗ khối «Đã duyệt từ Gate 1» chỉ gọi `decLine` (chip task_f63c6488, phiên crm 28/09) đóng trong AC-3, không mở vòng riêng.
+- **Known limits (owner quyết ở Cổng Bằng chứng 29/09, lượt chấm 1):**
+  - Ngoài-1: ca MS-AC8-xuat nằm trong bộ kiểm thường trực, ghi vào tệp đã theo dõi `_acceptance/mot-so-ba-ve/evidence/the-cong-2-ba-ve.txt` rồi so với chính thứ vừa ghi — không có chiều đỏ; sau khi ký, mỗi lần bộ dựng thẻ đổi cách in hai khối quyết định thì bộ kiểm lặng lẽ ghi lại bằng chứng của hồ sơ đã ký.
+  - Ngoài-2: bốn ca phá thử (RT-AC6-dot-bien-chan, MS-AC2-dot-bien, MS-AC3-dot-bien, bước đột biến của MS-AC4-thieu-gia) kết luận «đã bắt» từ một sự vắng mặt mà không chứng bản sao đã chạy — bản sao sập cũng cho màu xanh.
+  - Ngoài-3: dữ liệu thử `tests/scripts/fixtures/msbv-progress-superpowers.md` và mảng kỳ vọng trong `msbv-cau-noi.test.mjs` chép nguyên văn 26 ruling nội bộ của kho crm (riêng tư), gồm một hạn chế bảo mật của sản phẩm đó — căng thẳng giữa AC-5 («chép nguyên văn») và luật «kit không chứa product context của kho tiêu thụ»; kho kit công khai.
+  - Ngoài-4: gợi ý sửa `gp_fix` trong `scripts/pre-merge-check.sh` vẫn dạy ghi dòng sổ hai vế (`impact`, id `<rand>`) — khuôn ghi thứ hai trôi khỏi `DEC-ID-RECIPE`; dòng ghi theo nó rơi về đường đọc-cũ.
+  - Ngoài-5: hook cho qua KHÔNG khai báo khi lệnh xoá dùng glob, ngoặc nhọn, dấu `~`, `sudo` hay lệnh con — ruling trong đó mất mà không được gặt.
+  - Ngoài-7: tệp đầu vào của E8 bị ca MS-AC8-xuat viết đè trước khi so, nên không phép đo nào biết nó cũ hay viết tay (cùng gốc với Ngoài-1).
+  - Ngoài-8: ca MS-AC1-lib-im so hai kết quả đều rỗng với mọi đầu vào — không có đối chứng dương, xanh cả khi bộ đọc sổ hỏng.
+  - Ngoài-9: bộ lọc xin dịch của `--extract` chỉ được kiểm ở Cổng 1; hai bộ lọc ở Cổng 2 (`decisions_approved`, `decisions_provisional`) không có ca.
+  - Ngoài-10: chiều đỏ của MS-AC7-van-ban chỉ xác nhận chỗ phá có hiệu lực, không chạy lại khẳng định và không ghim thông điệp.
+  - Ngoài-11: «khoá dịch của bước trích và bước dựng thẻ rút từ một hàm» chỉ được kiểm bằng đọc chữ trong mã, không bằng đầu ra.
+- **Mở hợp đồng mới (owner quyết ở Cổng Bằng chứng 29/09) — ghi hạt giống, không tạo ô (luật «Ô chỉ mở khi có NEO NGOÀI»):**
+  - Ngoài-6 → `docs/plans/2026-09-29-hat-giong-hook-chan-ke-hoach-ngoai-ho-so.md` (kho có kit mà kế hoạch superpowers không thuộc hồ sơ nào: hook chặn, lệnh chạy tay không gỡ được).

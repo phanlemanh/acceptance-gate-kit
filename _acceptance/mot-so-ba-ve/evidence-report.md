@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: mot-so-ba-ve
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: aa38cf67b9f525de9f7b024aa874ee67a9f826d7
-human_signoff:
+human_signoff: Phan Le Manh 2026-09-29 — ký lượt chấm 1; Ngoài-1…5, Ngoài-7…11 ghi Known limits; Ngoài-6 mở hợp đồng mới (hạt giống); E8 Đạt; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: mot-so-ba-ve
@@ -107,7 +107,7 @@ Round 1. Mọi eval máy đều xanh; verdict là PENDING-JUDGMENT vì E8 (judgm
     - domain-correctness: PASS — Dòng đầu là «# fixture sha256 <64 hex> · at 2026-09-29T00:00:00Z», hex đủ 64 ký tự nên tệp đạt điều kiện «vật của lượt». Treo-1 và Treo-2 đọc được đủ ba vế (quyết gì, vì sao, sai thì tốn) bằng lời thường, không có tên biến, tên tệp hay mã eval trần. Treo-3 thiếu giá nhưng thẻ nói ra bằng «⚠ chưa khai giá nếu sai». Khối «Đã duyệt từ Gate 1» chỉ có dòng chú thích, không có dòng quyết định nào phải chấm.
     - operational-feasibility: PASS — Dòng đầu là «# fixture sha256 <64 hex> · at 2026-09-29T00:00:00Z» hợp lệ (đếm được 64 ký tự hex, có mốc ISO). Treo-1 và Treo-2 đọc được đủ quyết gì, vì sao, sai thì tốn mà không cần mở sổ. Treo-3 thiếu giá nhưng thẻ nói ra bằng «⚠ chưa khai giá nếu sai». Ở vế «quyết gì» và «sai thì tốn» không có tên biến, tên tệp hay mã eval trần. Khối «Đã duyệt từ Gate 1» chỉ có dòng ghi chú, không có dòng quyết định nào để chấm.
     - spec-alignment: PASS — Dòng đầu đúng dạng «# fixture sha256 <64 hex> · at <ISO>» (đếm đủ 64 ký tự hex). Ba dòng Treo đều đọc được quyết gì, vì sao, sai thì tốn gì mà không cần mở sổ. Treo-3 thiếu giá nhưng thẻ nói ra rõ bằng «⚠ chưa khai giá nếu sai». Hai vế «quyết gì» và «sai thì tốn» của Treo-1 và Treo-2 không có tên biến, tên tệp hay mã eval trần. Khối «Đã duyệt từ Gate 1» chỉ có một dòng ghi chú, không có dòng cũ nào để chấm, nên phần này đạt theo nghĩa rỗng.
-  human_override:  # chi nguoi ghi
+  human_override: Phan Le Manh 2026-09-29 — Đạt
 
 - eval: E9
   run_id: minted-mot-so-ba-ve-E9-r1
