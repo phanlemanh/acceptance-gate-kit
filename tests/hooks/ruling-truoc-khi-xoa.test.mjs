@@ -19,6 +19,7 @@ const kho = (slugDir = 'ws-thu') => {
   mkdirSync(path.join(r, '_acceptance', slugDir), { recursive: true }); writeFileSync(path.join(r, '_acceptance', slugDir, 'decisions.jsonl'), '');
   for (const ws of ['2026-09-29-ws-thu', '2026-09-30-ws-thu']) { const w = path.join(r, '.superpowers', 'sdd', ws); mkdirSync(w, { recursive: true }); writeFileSync(path.join(w, 'progress.md'), PROGRESS); }
   mkdirSync(path.join(r, 'apps', 'con'), { recursive: true });
+  writeFileSync(path.join(r, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
   return r;
 };
 const so = r => { const p = path.join(r, '_acceptance', 'ws-thu', 'decisions.jsonl'); return existsSync(p) ? readFileSync(p, 'utf8') : ''; };
@@ -65,6 +66,14 @@ ca('RT-AC6-bien', () => {
 ca('RT-AC6-chan', () => {
   const r = kho('ho-so-khac'); const x = hook(r, 'rm -rf .superpowers/sdd/2026-09-29-ws-thu');
   if (x.status !== 2 || !x.stderr.includes('ruling chưa vào sổ') || !x.stderr.includes('cau-noi-ruling.mjs')) die(`exit ${x.status} ${x.stderr}`);
+});
+ca('RT-AC6-kho-ngoai', () => { // kho chưa dùng kit: không sổ để gặt → im, cho xoá; đối chứng: cùng kho có config → chặn
+  const r = kho('ho-so-khac');
+  const co = hook(r, 'rm -rf .superpowers/sdd/2026-09-29-ws-thu');
+  if (co.status !== 2) die('doi chung duong hong: kho co config ma hook khong chan ca khong suy duoc ho so');
+  spawnSync('rm', ['-f', path.join(r, '_acceptance', 'config.yaml')]);
+  const x = hook(r, 'rm -rf .superpowers/sdd/2026-09-29-ws-thu');
+  if (x.status !== 0 || x.stderr.includes('ruling chưa vào sổ')) die(`kho ngoai kit bi chan: exit ${x.status} ${x.stderr}`);
 });
 ca('RT-AC6-vang', () => { const r = kho(); const x = hook(r, 'rm -rf .superpowers/sdd/khong-ton-tai'); if (x.status !== 0 || dem(r) !== 0) die(`exit ${x.status}`); });
 

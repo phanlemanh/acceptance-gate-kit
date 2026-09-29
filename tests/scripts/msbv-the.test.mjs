@@ -6,6 +6,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { mkWs, card, extract, G1, G2, REVIEW2, PROBE, ROOT, GC, SRC } from './gate-fixture.mjs';
+import { ghiSo } from './msbv-fixture.mjs';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SHA_NEN = '705077e53764e482593fb47c68a5f9e9034091f3'; // git rev-parse origin/main 29/09, trước vòng mot-so-ba-ve
 let pass = 0, fail = 0;
@@ -135,6 +136,12 @@ ca('MS-AC9-dot-bien', () => { // CHIỀU ĐỎ trên CÙNG fixture của MS-AC9-
   const xm = JSON.parse(spawnSync('node', [gc, '--root', mkWs('g', f1), '--slug', 'g', '--extract'], { encoding: 'utf8' }).stdout);
   if (xm.decisions.length !== 4) die('dot bien khong co tac dung');
   console.log('    · chieu do: bo loc → «extract xin dịch dòng đã ba vế» (bat duoc)');
+});
+
+ca('MS-AC2-recipe', () => {
+  const r = mkWs('g', g2(J({ id: 'd-s', type: 'seal', gate: 1, at: '2026-09-29T00:00:00Z' }) + '\n', null));
+  ghiSo(path.join(r, '_acceptance', 'g', 'decisions.jsonl'), { type: 'approach', stage: 'S3', at: '2026-09-29T00:01:00Z', decision: 'Dr', why: 'Wr', cost_if_wrong: 'Cr' });
+  if (!(khoi(render(r, 'g').stdout, 'Quyết định CHƯA duyệt') || '').includes('Dr — Wr — sai thì tốn: Cr')) die('dong ghi bang recipe khong in ba ve tren the');
 });
 
 console.log(`Results: ${pass} passed, ${fail} failed (msbv-the)`);
