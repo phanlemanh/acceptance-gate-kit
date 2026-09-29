@@ -43,7 +43,7 @@ ca('MS-AC2-dot-bien', () => { // CHIỀU ĐỎ trên CÙNG fixture của MS-AC2-
   const r2 = mkWs('g', g2([BA('d-a', 'Da', 'Wa', 'Ca'), SEAL, BA('d-b', 'Db', 'Wb', 'Cb')].join('\n') + '\n'));
   if (!(khoi(render(r2, 'g').stdout, 'Quyết định CHƯA duyệt') || '').includes('Db — Wb — sai thì tốn: Cb')) die('doi chung duong: ban lanh khong xanh');
   const gc = banSao(s => s.replace("if (coBaVe(e)) {", "if (false) {"));
-  if ((khoi(render(r2, 'g', gc).stdout, 'Quyết định CHƯA duyệt') || '').includes('sai thì tốn: Cb')) die('dot bien go nhanh ba ve khong co tac dung');
+  if ((khoi(render(r2, 'g', gc).stdout, 'Quyết định CHƯA duyệt') || '').includes('Db — Wb — sai thì tốn: Cb')) die('dot bien go nhanh ba ve khong co tac dung'); // so CÙNG chuỗi với đối chứng dương: decLine vẫn in «Db — sai thì tốn: Cb» cho dòng chỉ có giá
   console.log('    · chieu do: go nhanh ba ve → «khối Quyết định CHƯA duyệt không in ba vế» (bat duoc)');
 });
 
