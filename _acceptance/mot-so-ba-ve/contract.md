@@ -5,7 +5,7 @@ slug: mot-so-ba-ve
 owner: phanlemanh@gmail.com
 risk_tier: T3      # thêm hooks/ruling-truoc-khi-xoa.js + sửa hooks/hooks.json (khớp t3_paths hooks/**)
 surfaces: [cli, docs]
-status: approved    # draft | approved | implemented | verified | signed-off | machine-cleared
+status: implemented    # draft | approved | implemented | verified | signed-off | machine-cleared
 approved_by: "Phan Le Manh"
 approved_at: 2026-09-29T01:35:14Z
 design_doc: docs/superpowers/specs/2026-09-29-mot-so-ba-ve-design.md
