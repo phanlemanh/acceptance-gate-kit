@@ -72,3 +72,4 @@ Quét Zwicky rút gọn (preset test-matrix; chân ngành ADR Nygard — Context
   - Ngoài-11: «khoá dịch của bước trích và bước dựng thẻ rút từ một hàm» chỉ được kiểm bằng đọc chữ trong mã, không bằng đầu ra.
 - **Mở hợp đồng mới (owner quyết ở Cổng Bằng chứng 29/09) — ghi hạt giống, không tạo ô (luật «Ô chỉ mở khi có NEO NGOÀI»):**
   - Ngoài-6 → `docs/plans/2026-09-29-hat-giong-hook-chan-ke-hoach-ngoai-ho-so.md` (kho có kit mà kế hoạch superpowers không thuộc hồ sơ nào: hook chặn, lệnh chạy tay không gỡ được).
+- **Sau chữ ký (owner quyết «gỡ trước khi đẩy», 29/09, sổ d-20):** dữ liệu thử của AC-5 không còn là bản chép nguyên văn — nó giữ đúng khung từng đoạn ruling của ledger thật (tiền tố, nhãn có dấu/không dấu, « — », đoạn nhiều dòng) nhưng nội dung đã thay bằng câu trung tính, và lịch sử nhánh được viết lại trước khi đẩy, vì kho kit công khai còn kho nguồn riêng tư. Chữ «NGUYÊN VĂN» trong AC-5 đọc là «giữ nguyên hình dạng».
