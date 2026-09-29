@@ -30,3 +30,4 @@
 {"ts":"2026-09-29T02:41:12Z","sha":"aa38cf67b9f525de9f7b024aa874ee67a9f826d7","round":1,"kind":"round-tally","verdict":"PENDING-JUDGMENT","expected":11,"returned":11,"blocked":0}
 {"ts":"2026-09-29T02:41:12Z","sha":"aa38cf67b9f525de9f7b024aa874ee67a9f826d7","round":1,"kind":"chot-truong-nguoi","human_signoff":0,"human_override":1,"bypass_ack":0,"verified_at":17}
 {"kind":"thuoc-vat","ts":"2026-09-29T03:04:17Z","round":1,"san":"aa38cf67b9f525de9f7b024aa874ee67a9f826d7","vat":[0,0],"thuoc":[0,0],"ho_so":[0,0],"nhat":0,"lan":0,"tep_thuoc":[]}
+{"ts":"2026-09-29T06:01:04Z","kind":"repin","run_id":"repin-20260929T060104Z-35662","sha":"5cdd147e6ad160a43a76d09c2849fbfdecfe1424","suites_exit":[0,0,0,0,0,0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E7":0,"E9":0},"evals_not_machine":["E8"]}

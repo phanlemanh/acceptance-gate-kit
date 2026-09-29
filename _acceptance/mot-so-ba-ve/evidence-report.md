@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: aa38cf67b9f525de9f7b024aa874ee67a9f826d7
+verified_commit: 5cdd147e6ad160a43a76d09c2849fbfdecfe1424
 human_signoff: Phan Le Manh 2026-09-29 — ký lượt chấm 1; Ngoài-1…5, Ngoài-7…11 ghi Known limits; Ngoài-6 mở hợp đồng mới (hạt giống); E8 Đạt; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -181,3 +181,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: mọi eval máy xanh; E8 (judgment) chờ người chốt bằng `human_override` ở Cổng 2; 11 phát hiện ngoài hợp đồng ghi ở review-findings.md, người quyết.
+
+### Re-pin lần 1 — 2026-09-29, do lịch sử nhánh viết lại để ẩn danh dữ liệu thử trước khi đẩy (owner quyết 29/09)
+run_id: repin-20260929T060104Z-35662
+sha: 5cdd147e6ad160a43a76d09c2849fbfdecfe1424 · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng · ngoài làn máy: E8 · AC không có chốt máy: AC-8
