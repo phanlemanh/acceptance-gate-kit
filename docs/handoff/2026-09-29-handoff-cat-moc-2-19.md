@@ -2,6 +2,8 @@
 
 **Ngày:** 2026-09-29 · **Từ:** phiên kit trên máy Mac mini (memory của phiên này KHÔNG theo sang máy mới — tệp này thay nó) · **Việc kế:** cắt mốc `2.19.0`, rồi đưa crm cài.
 
+> **Cập nhật 30/09:** mốc 2.19.0 đã cắt trên máy mới — #229 gộp (`51ef2d31`), tag `v2.19.0`, chiến dịch ghim lại #230 gộp (`9be6c301`). Mục 3 là sử liệu; việc còn mở là mục 4–5 (crm cài 2.19.0, đo ngưỡng của ô).
+
 ## 1. Trạng thái lúc bàn giao
 
 - `main` = `9b6abd77` (gộp PR #227). Tag gần nhất `v2.18.5` → `2e7b1347`.
@@ -15,7 +17,7 @@
 
 ## 2. Vòng mot-so-ba-ve đã giao gì
 
-| Người dùng thấy gì khác | Đụng đâu | Tiêu chí |
+| Đã giao | Tệp | Tiêu chí |
 |---|---|---|
 | Mỗi dòng sổ quyết định ghi ba vế: quyết gì · vì sao · sai thì tốn gì | `feature-loop/skills/feature-loop/SKILL.md` (khối `DEC-ID-RECIPE`) | AC-1, AC-7 |
 | Thẻ Cổng 1/2 in dòng ba vế thành một câu ở cả ba khối, không cần lớp dịch; dòng thiếu giá mang nhãn | `scripts/gate-card.js` (`decBaVe`) | AC-2, AC-3, AC-4, AC-9 |
