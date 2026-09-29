@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>25 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>81 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>82 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>9 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
 ```
@@ -44,7 +44,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Phát hành kit 2.19.0 — đóng số cho cửa sổ 2.18.5 → 2.19.0 (một vòng đã ký «mot-so-ba-ve»: mỗi dòng sổ quyết định ghi ba vế quyết gì · vì sao · sai thì tốn gì, thẻ cổng in thành một câu, ruling superpowers được gặt vào sổ trước khi thư mục tạm bị xoá), để crm cài vào và người ký thấy mọi ruling có mã sổ ngay trên thẻ; làn V, không dựng răng (`release-2-19-0`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -118,6 +117,7 @@ flowchart TD
 - Phát hành kit 2.18.3 — đóng số cho cửa sổ 2.18.2 → 2.18.3 (một vòng chạm engine đã ký «ha-tang-khong-dot-luot»), để crm nhận engine theo mốc có chủ đích và ghim được theo tag; làn V, không dựng răng (`release-2-18-3`)
 - Phát hành kit 2.18.4 — đóng số cho cửa sổ 2.18.3 → 2.18.4 (ba vòng đã ký cùng sửa đường nền «nen-cong-cu-gan-bang-lenh-con» + «nen-cay-ban-dong-dau» + «nen-chay-bang-moi-truong-nguoi-goi»), để crm thôi đọc «nen: do» giả ở mọi phiên mở vòng; làn V, không dựng răng (`release-2-18-4`)
 - Phát hành kit 2.18.5 — đóng số cho cửa sổ 2.18.4 → 2.18.5 (một vòng đã ký «cham-khong-tu-dot-luot»: lượt chấm thôi tự đốt lượt vì hạ tầng, thẻ Cổng Phạm vi hiện đủ điều người ký cần), để crm cài vào và thôi phải cho vượt trần hay gõ --round tay khi lượt chấm chặn vì hạ tầng; làn V, không dựng răng (`release-2-18-5`)
+- Phát hành kit 2.19.0 — đóng số cho cửa sổ 2.18.5 → 2.19.0 (một vòng đã ký «mot-so-ba-ve»: mỗi dòng sổ quyết định ghi ba vế quyết gì · vì sao · sai thì tốn gì, thẻ cổng in thành một câu, ruling superpowers được gặt vào sổ trước khi thư mục tạm bị xoá), để crm cài vào và người ký thấy mọi ruling có mã sổ ngay trên thẻ; làn V, không dựng răng (`release-2-19-0`)
 - Phát hành kit 2.2.0 — đóng số cho ba hồ sơ 17–18/08 (hình tại Cổng 1 · mối nối Vòng TRAO · siết răng câu-về-hình) để repo tiêu thụ nhận engine mới có chủ đích trước khi mở vòng r4 bước 1 (`release-2-2-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
