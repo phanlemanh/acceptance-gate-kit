@@ -10,6 +10,82 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.19.0 — 29/09/2026
+
+Cửa sổ 2.18.5 → 2.19.0 kéo **hai ngày**, có **một vòng** chạm engine: `mot-so-ba-ve` (T3, ký 29/09,
+PR #226 mở ô + ADR 0021 «ba vế một câu», PR #227 vòng) — suất meta duy nhất của cửa sổ. Kho chờ nhận là
+`crm`: vòng `tro-ly-okr-de-xuat` (28/09) có 11 ruling superpowers mà chỉ 4 có mã trong sổ quyết định,
+và thẻ Cổng Bằng chứng phải cần một lớp dịch mới đọc được sổ. Mốc đi **làn V**, không dựng răng mới. Hai
+gói cùng lên `2.19.0`; `diagram-design` giữ `2.7.0`. Tag `v2.19.0` gắn tại commit ký mốc sau khi gộp.
+
+**Vì sao 2.19.0, không 2.18.6:** cửa sổ thêm một hook mới, một script mới và ba trường sổ mới — thay đổi
+cộng thêm, có đường đọc-cũ.
+
+**Đổi gì** — một sổ quyết định, mỗi dòng đọc được ngay trên thẻ:
+
+- **Mỗi dòng sổ ghi ba vế viết cho người ký:** quyết gì (`decision`) · vì sao (`why`) · sai thì tốn gì
+  (`cost_if_wrong`). Dòng cũ chỉ có `impact` vẫn đọc như trước — không phải sửa hồ sơ cũ.
+- **Thẻ Cổng 1 và Cổng 2 in dòng ba vế thành một câu** ở cả ba khối (sẽ làm/không làm · CHƯA duyệt ·
+  Đã duyệt từ Gate 1), không cần lớp dịch. Dòng thiếu vế giá mang nhãn «chưa khai giá nếu sai» ngay ở
+  dòng đó, thẻ không chặn. Bước trích chỉ xin dịch dòng cũ.
+- **Ruling mà superpowers ghi trong lúc thi công được gặt vào sổ** (`scripts/cau-noi-ruling.mjs`), mang
+  nguồn `superpowers`, để người ký thấy ở Cổng Bằng chứng thay vì mất theo thư mục tạm.
+- **Hook mới chặn lệnh xoá thư mục tạm của superpowers** cho tới khi ruling trong đó đã vào sổ
+  (`hooks/ruling-truoc-khi-xoa.js`, PreToolUse · Bash). Kho chưa dùng kit thì hook im.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Máy dev:** cập nhật plugin như mọi mốc, trong từng thư mục có scope sống, rồi **khởi động lại phiên**
+  để hook mới có hiệu lực. Hồ sơ đang giữa vòng không cần làm gì — dòng sổ cũ vẫn đọc được.
+- **Kho còn đường chép:** không chép gì — không tệp nào của lớp chép CI (GUIDE §5.3) đổi trong cửa sổ.
+
+**Giới hạn đã khai** (owner quyết ở Cổng Bằng chứng của vòng, 29/09 — đủ mười mục ở Notes của
+`_acceptance/mot-so-ba-ve/contract.md`):
+
+- Bảy phép đo của chính hồ sơ tự dối: ca in thẻ ghi bằng chứng vào tệp đã theo dõi rồi tự so với thứ vừa
+  ghi (sau khi ký, đổi cách in thẻ sẽ làm bộ kiểm lặng lẽ ghi lại bằng chứng của hồ sơ đã ký); một ca so
+  rỗng với rỗng; bốn ca phá thử kết luận từ sự vắng mặt mà không chứng bản sao đã chạy.
+- Hook cho qua không khai báo khi lệnh xoá dùng glob, ngoặc nhọn, `~`, `sudo` hay lệnh con.
+- Gợi ý sửa của lưới trước-merge còn dạy ghi dòng sổ hai vế — dòng ghi theo nó rơi về đường đọc-cũ.
+- Kho có kit mà kế hoạch superpowers không thuộc hồ sơ nào thì hook chặn mãi — hạt giống
+  `docs/plans/2026-09-29-hat-giong-hook-chan-ke-hoach-ngoai-ho-so.md`.
+
+**Năm dòng số của luật (c)** — một vòng (`mot-so-ba-ve`):
+
+| Dòng | Số | Nguồn |
+|---|---|---|
+| Làm-xong→quyết-được | `implemented` 09:41 → ký 11:10 (29/09, giờ VN) ≈ **1 giờ 29 phút**; riêng `verified` → ký ≈ 66 phút; một lượt chấm | giờ commit + sổ quyết định |
+| Lượt gọi người / vòng | **3** trong thiết kế (Cổng 1 · Gate 1.5 · Cổng Bằng chứng; trần T3 = 4). Ngoài thiết kế **1** — câu khó-đảo «đẩy hay ẩn danh» sau chữ ký (dữ liệu thử chép nội dung kho riêng tư); thêm **1 chạm** vì «ký» gõ trong chat không ghi được chữ ký, phải gõ lại bằng lệnh | `decisions.jsonl` · bàn giao 29/09 |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **0** — S4 một lượt, PENDING-JUDGMENT | `run-log.jsonl` |
+| Token máy / vòng | Out-token S4: **41 840** (21 tác tử). Tách theo khối: chứng-minh-vật (machine+judge+baseline) 38 % — tìm-lỗi (review+triage) 41 % — tổng hợp (capture+synthesize) 21 %. Cache-read S4 ≈ 11,9 M, trong đó review ≈ 9,2 M. S3 ba làn song song: 9 529 out-token. Phiên chính không đo | `usage-report.md` |
+| Phút máy / lượt chấm | **21 phút** (1 276 s). Đường găng là khối chứng-minh-vật (1 141 s); S3 song song 379 s | `usage-report.md` |
+
+**Điều kiện tin cậy:** đường verdict KHÔNG đổi thành phần (finder → refute trong hợp đồng → REJECT giữ
+nguyên; vòng chỉ đổi sổ, thẻ và thêm hook). Số lượt chấm sai giữa hai mốc không tăng. Dòng 4–5 cắt được đủ.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở kho tiêu thụ | người ký đọc vì-sao và giá ngay trên thẻ, không mở sổ hay chờ lớp dịch |
+| 2 | = | không thêm cổng; câu hỏi «ruling này ở đâu» ở Cổng Bằng chứng giảm khi ruling đã vào sổ |
+| 3 | = | không chạm bộ chấm |
+| 4 | ↓ nhẹ | thẻ thôi cần bước dịch sổ cho dòng mới |
+| 5 | = | hook chỉ chạy trên lệnh Bash nhắc `.superpowers` |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc trên kit bằng
+`scripts/hieu-chuan-moc.mjs --root .`. **N không tăng so với mốc 2.18.5 — dòng vô hiệu ở mốc này**,
+cấm đọc thành «0 sự cố».
+
+**Nhát cắt có tên cho cửa sổ kế:**
+
+1. **Bảy phép đo tự dối của `mot-so-ba-ve`** (Known limits của hồ sơ, sổ known-limits) — ứng viên số một
+   nếu owner gọi tên.
+2. **Ba hạt giống cùng lớp «ba vế»:** «Trả lại: lý do» ở Cổng 2 không ghi trường · `veto` thiếu giá · cột
+   Xử lý của gap-probe thiếu giá.
+3. Từ 2.18.5 còn nguyên: lớp chép tự xoá · máy hỏi ngoài thiết kế ở S1 · thẻ Cổng 2 để `scope_plain`
+   thay các mục.
+
 ## 2.18.5 — 27/09/2026
 
 Cửa sổ 2.18.4 → 2.18.5 kéo **hai ngày**, có **một vòng** chạm engine: `cham-khong-tu-dot-luot` (T3, ký
