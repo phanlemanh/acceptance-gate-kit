@@ -1,0 +1,145 @@
+schema_version: 1
+feature_slug: mot-so-ba-ve
+# Tệp ca tests/scripts/msbv-{so,the,cau-noi}.test.mjs + ca hook trong tests/hooks/run-tests.sh; tên ca mang mã AC.
+# Fixture thẻ do tests/scripts/gate-fixture.mjs sinh; dòng sổ sinh bằng CHÍNH lệnh rút từ khối DEC-ID-RECIPE
+# của SKILL (round-trip writer→reader); ledger superpowers là bản chép NGUYÊN VĂN từ progress.md do superpowers
+# sinh (ghi nguồn + ngày trong fixture) cộng dòng khuôn chuẩn của skill. Đường dẫn suy từ vị trí tệp ca.
+# Mỗi cặp hai chiều dùng CÙNG fixture: vật lành → xanh, bản sao phá vật (chép TRỌN scripts/ + lib/ + hooks/,
+# P150) → đỏ với thông điệp ghim; mỗi kim đột biến khớp đúng một lần trong nguồn thật.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.msbv
+    expected: >
+      Exit 0, có PASS của MS-AC1-recipe, MS-AC1-lib-im. MS-AC1-recipe: lệnh rút nguyên văn từ khối
+      DEC-ID-RECIPE (khớp đúng một khối trong SKILL) chạy hai lần trong sổ tạm → hai dòng JSON hợp lệ,
+      id d-<UTC>-1 và -2, đủ decision/why/cost_if_wrong, không có impact. MS-AC1-lib-im: sổ A (chỉ dòng
+      cũ + seal + veto + observed) và sổ B (A xen ba dòng ba vế) qua lib/workspace-record.cjs → cùng
+      kết quả trạng thái/chữ ký (deepEqual). CHIỀU ĐỎ: khối DEC-ID-RECIPE trong bản sao SKILL bỏ ô
+      cost_if_wrong → «recipe thiếu cost_if_wrong».
+    paths: [feature-loop/skills/feature-loop/SKILL.md, lib/workspace-record.cjs, tests/scripts/msbv-so.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.msbv
+    expected: >
+      Exit 0, có PASS của MS-AC2-ba-khoi, MS-AC2-dot-bien. MS-AC2-ba-khoi: fixture gate-fixture với sổ
+      có dòng ba vế trước seal, sau seal, và hồ sơ chưa seal; overlay decisions_plain có câu KHÁC cho
+      cùng id; thẻ Cổng 1 và Cổng 2 → ba khối (grp gnot Cổng 1 · Treo · Đã duyệt từ Gate 1) đều chứa
+      «<decision> — <why> — sai thì tốn: <cost>» và KHÔNG chứa câu overlay (số assert = 3 khối × 2).
+      CHIỀU ĐỎ: bản sao gate-card.js gỡ nhánh ba vế (kim khớp một lần) → khối in decision — impact →
+      «khối <tên> không in ba vế».
+    paths: [scripts/gate-card.js, tests/scripts/msbv-the.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.msbv
+    expected: >
+      Exit 0, có PASS của MS-AC3-doc-cu, MS-AC3-nen, MS-AC3-dot-bien. MS-AC3-doc-cu: sổ chỉ dòng cũ
+      (trước và sau seal), một nửa có câu dịch; thẻ Cổng 2 → khối Treo VÀ khối Đã duyệt in câu dịch
+      cho dòng có, chữ gốc decision — impact cho dòng không. MS-AC3-nen: bản nền = `git archive
+      <SHA_NEN> scripts lib` vào thư mục tạm (SHA_NEN là hằng trong tệp ca, kèm chú thích «output
+      git rev-parse origin/main 29/09 trước vòng»); gate-card.js của bản nền dựng cùng fixture → đoạn
+      HTML khối Treo cho dòng cũ BẰNG bản HEAD; ca đỏ có tên «nền trùng HEAD» khi SHA_NEN == git
+      rev-parse HEAD, «nền dựng lỗi: <mã>» khi archive/gate-card nền exit ≠ 0 hoặc đoạn rỗng. CHIỀU
+      ĐỎ: bản sao gỡ tra overlay ở khối Đã duyệt → «khối đã duyệt không tra decisions_plain».
+    paths: [scripts/gate-card.js, tests/scripts/msbv-the.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.msbv
+    expected: >
+      Exit 0, có PASS của MS-AC4-thieu-gia, MS-AC8-xuat. MS-AC4-thieu-gia: dòng có why không
+      cost_if_wrong cạnh dòng đủ ba vế: thẻ in «chưa khai giá nếu sai» ĐÚNG MỘT lần, gắn vào dòng thiếu
+      (cùng phần tử HTML), dòng đủ không mang nhãn, thẻ không có cờ toàn thẻ mới; chiều đỏ: bản sao gỡ
+      nhãn → «dòng thiếu giá không mang nhãn». MS-AC8-xuat: ca ghi tệp
+      <HERE>/../../_acceptance/mot-so-ba-ve/evidence/the-cong-2-ba-ve.txt (đường suy từ vị trí tệp ca)
+      gồm dòng đầu «# fixture sha256 <băm sổ fixture> · at <ISO trường at của fixture>» + phần văn bản
+      của thẻ Cổng 2 vừa dựng (ba dòng ba vế, một thiếu giá, một dòng cũ có câu dịch); đọc lại tệp → băm
+      ở dòng đầu == sha256 tính trong lượt của fixture, thân chứa đủ bốn dòng; ghi chỉ khi nội dung
+      khác; khẳng định tệp trên đĩa BẰNG từng byte bản dựng từ code hiện tại (nên tệp cũ hay viết tay
+      đều đỏ).
+    paths: [scripts/gate-card.js, tests/scripts/msbv-the.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.msbv
+    expected: >
+      Exit 0, có PASS của MS-AC5-ma-tran, MS-AC5-lap, MS-AC5-slug, MS-AC5-rong, MS-AC5-dot-bien.
+      MS-AC5-ma-tran: fixture tests/scripts/fixtures/msbv-progress-superpowers.md = MỌI dòng chứa
+      «Ruling» chép nguyên văn từ ledger superpowers thật (chú thích nguồn + ngày + hai hình dạng) + ba
+      dòng theo khuôn skill (Ruling: a — b — c · Final: Ruling: … — … — … · Task N: parked — … — Ruling:
+      …) + một dòng «minor (deferred)»; ma trận viết trước công bố TEXT decision/why/cost_if_wrong (hoặc
+      vắng) cho TỪNG hàng, số hàng = số dòng Ruling của fixture (đếm trong lượt), deepEqual từng hàng;
+      dòng minor không vào sổ; số hàng cost vắng == số đếm từ fixture; mọi dòng stage S3, source
+      superpowers, source_ref đôi một khác; dòng parked có type revisit. MS-AC5-lap: chạy lần hai →
+      số dòng không đổi. MS-AC5-slug: không --slug → suy từ tên workspace (bỏ tiền tố ngày) rồi từ dòng
+      _acceptance/<slug>/contract.md; cả hai vắng → exit 2 «không suy được hồ sơ». MS-AC5-rong:
+      progress.md vắng và progress.md không dòng Ruling → exit 0 + stderr «không có ruling để gặt».
+      CHIỀU ĐỎ: bản sao bỏ so source_ref → lần hai nhân đôi → «gặt lặp nhân đôi: <n>»; bản sao bỏ
+      nhãn làm dấu cắt → hàng «Ruling 1» mất cost_if_wrong → «hàng Ruling 1 mất cost».
+    paths: [scripts/cau-noi-ruling.mjs, tests/scripts/msbv-cau-noi.test.mjs, tests/scripts/fixtures/msbv-progress-superpowers.md]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: >
+      Exit 0, có PASS của RT-AC6-gat (ma trận), RT-AC6-im, RT-AC6-bien, RT-AC6-chan, RT-AC6-vang,
+      RT-AC6-dot-bien-rm, RT-AC6-dot-bien-chan; hooks.json có đúng một mục PreToolUse matcher Bash trỏ
+      hooks/ruling-truoc-khi-xoa.js. RT-AC6-gat: ma trận có tên, mỗi hàng dựng workspace tươi có ruling
+      rồi gửi payload {cwd: <repo>, tool_input.command}: (1) lệnh Finish nguyên văn của skill superpowers
+      «rm -rf <workspace>» với đường TUYỆT ĐỐI (chú thích nguồn: SKILL subagent-driven-development
+      6.4.1 §Finish + sdd-workspace in đường tuyệt đối) · (2) đường tương đối .superpowers/sdd/<ws> ·
+      (3) «/» cuối · (4) cd .superpowers/sdd && rm -rf <ws> · (5) thư mục cha rm -rf .superpowers/sdd
+      (hai workspace con → gặt cả hai) · (6) rm -r · (7) rm -fr · (8) -R · (9) đường trong nháy kép →
+      mỗi hàng: sổ +N dòng đúng, exit 0 (số assert = 9 hàng × 2). RT-AC6-im: cat / grep -r / ls -R /
+      node x.mjs --workspace .superpowers/sdd/<ws> → exit 0 VÀ sha256 sổ không đổi (4 hàng). RT-AC6-bien:
+      rm -rf "$WS" → exit 0, stderr chứa «không giải được đường». RT-AC6-chan: workspace không suy được
+      hồ sơ → exit 2, stderr «ruling chưa vào sổ» + lệnh chạy tay. RT-AC6-vang: workspace không tồn tại
+      → exit 0. CHIỀU ĐỎ: bản sao hook bỏ neo rm → hàng grep -r kích gặt (sổ đổi) → «lệnh đọc kích gặt»;
+      bản sao bỏ nhánh exit 2 → ca chan cho qua → «hook cho xoá khi ruling chưa vào sổ».
+    paths: [hooks/hooks.json, hooks/ruling-truoc-khi-xoa.js, scripts/cau-noi-ruling.mjs, tests/hooks/run-tests.sh]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.msbv
+    expected: >
+      Exit 0, có PASS của MS-AC7-van-ban: SKILL mục «Sổ quyết định» chứa ba tên khoá và câu impact
+      đường đọc-cũ; khối DEC-ID-RECIPE chứa "why" và "cost_if_wrong" và không còn "impact" ở dòng giữa;
+      S3 chứa «cau-noi-ruling.mjs» đúng một lần; commands/acceptance-card.md mục DEC-PLAIN chứa câu
+      «chỉ phát khoá cho dòng thiếu why» (chữ khớp marker). Chiều đỏ: bản sao SKILL gỡ câu S3 →
+      «S3 không nêu đường tay».
+    paths: [feature-loop/skills/feature-loop/SKILL.md, commands/acceptance-card.md, tests/scripts/msbv-so.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs: [_acceptance/mot-so-ba-ve/evidence/the-cong-2-ba-ve.txt]
+    question: >
+      Đọc phần văn bản của thẻ Cổng 2 ở evidence/the-cong-2-ba-ve.txt — ca MS-AC8-xuat (E4) ghi tệp này
+      trong lượt chạy. TRƯỚC KHI CHẤM: dòng đầu phải có dạng «# fixture sha256 <64 hex> · at <ISO>»;
+      thiếu dòng ấy → FAIL «đầu vào không phải vật của lượt» (ca E4 MS-AC8-xuat đã khẳng định tệp bằng
+      bản dựng từ code hiện tại). Với mỗi dòng trong khối «Quyết định CHƯA duyệt» và «Đã duyệt từ Gate 1»:
+      (1) bạn nêu được quyết gì · vì sao · sai thì tốn gì mà không cần mở sổ? (2) dòng nào thiếu giá,
+      thẻ có nói ra không? (3) ở vế «quyết gì» và vế «sai thì tốn» của các dòng ba vế có tên biến, tên
+      tệp hay mã eval trần không? PASS khi cả ba câu đạt cho mọi dòng; FAIL nêu đúng dòng.
+    paths: [scripts/gate-card.js, tests/scripts/msbv-the.test.mjs]
+    evidence_required: [run_id, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.msbv
+    expected: >
+      Exit 0, có PASS của MS-AC9-extract, MS-AC9-dot-bien. MS-AC9-extract: sổ trộn 2 dòng ba vế + 2 dòng
+      cũ → gate-card --extract phát decisions gồm ĐÚNG 2 id của dòng cũ; overlay có câu cho id ba vế → thẻ
+      không in câu ấy; khoá của --extract và khoá render đọc từ cùng hàm DEC-PLAIN-KEY (kim khớp một lần).
+      CHIỀU ĐỎ: bản sao --extract phát cả dòng ba vế → «extract xin dịch dòng đã ba vế».
+    paths: [scripts/gate-card.js, tests/scripts/msbv-the.test.mjs]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

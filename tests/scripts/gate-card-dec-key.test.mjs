@@ -284,9 +284,9 @@ const slotOf = t => {
   if (!m) die('SKILL feature-loop thieu khoi marker DEC-TARGET-SLOT (mot dong)');
   return m[1];
 };
-const IMPACT_HOLE = '"impact":"<đổi lại gì>"';
+const IMPACT_HOLE = '"cost_if_wrong":"<sai thì tốn gì, 1 câu>"';
 const lenhVoiO = (recipe, slot) => {
-  if (recipe.split(IMPACT_HOLE).length !== 2) die('khoi DEC-ID-RECIPE khong con dung mot o impact de chen target sau no');
+  if (recipe.split(IMPACT_HOLE).length !== 2) die('khoi DEC-ID-RECIPE khong con dung mot o cost_if_wrong de chen target sau no');
   return recipe.split(IMPACT_HOLE).join(IMPACT_HOLE + slot);
 };
 const ghiSo = (cmd, shell, lop) => {
@@ -294,7 +294,7 @@ const ghiSo = (cmd, shell, lop) => {
   mkdirSync(path.join(d, '_acceptance', 'x'), { recursive: true });
   const line = cmd.split('<slug>').join('x').split('<type>').join('fix').split('<stage>').join('S4-r1')
     .split('<ISO>').join('2026-09-17T00:00:00Z').split('<1 câu>').join(REAL_JSON)
-    .split('<đổi lại gì>').join('doi lai y').split('<lớp>').join(lop);
+    .split('<vì sao, 1 câu>').join('vi y').split('<sai thì tốn gì, 1 câu>').join('ton z').split('<lớp>').join(lop);
   const r = spawnSync(shell, ['-c', line], { cwd: d, encoding: 'utf8' });
   if (r.status !== 0) die(`lenh ghi so co o target khong chay duoi ${shell}: ` + String(r.stderr).split('\n')[0]);
   const raw = readFileSync(path.join(d, '_acceptance', 'x', 'decisions.jsonl'), 'utf8').trim();
@@ -338,16 +338,21 @@ check('DK15 doc-cu, chieu im: dong so KHONG co o target doc duoc y het dong co o
     return r.stdout;
   };
   const sCo = scan(co.raw), sKhong = scan(khong.raw);
-  if (!sKhong.includes('doi lai y')) die('doi chung duong hong: bo quet bai hoc khong doc dong so khong o');
+  if (!sKhong.includes('ton z')) die('doi chung duong hong: bo quet bai hoc khong doc dong so khong o');
   eq(sCo, sKhong, 'claim-scan co o vs khong o');
+  // Thẻ IN dòng sổ (khối «Quyết định & trade-off» Cổng 1), không đo qua --extract: dòng ghi bằng
+  // lệnh ba vế (ADR 0021) rời danh sách xin dịch theo AC-9 của mot-so-ba-ve, nên đo «đọc được»
+  // phải đo chữ trên thẻ. Đối chứng dương: khối chứa đúng vế vì-sao + vế giá của dòng.
   const the = raw => {
     const r = wsG1({});
     writeFileSync(path.join(r, '_acceptance', 'g', 'decisions.jsonl'), raw + '\n');
-    return extract(GC, r, 'g').decisions.map(x => [x.type, x.stage, x.decision, x.impact]);
+    const h = spawnSync('node', [GC, '--root', r, '--slug', 'g'], { encoding: 'utf8' }).stdout;
+    const i = h.indexOf('<div class="lab">Quyết định'); const j = i < 0 ? -1 : h.indexOf('<div class="lab">', i + 10);
+    return i < 0 ? '' : h.slice(i, j < 0 ? undefined : j);
   };
   const tKhong = the(khong.raw);
-  if (tKhong.length !== 1) die('doi chung duong hong: the khong doc dong so khong o');
-  eq(the(co.raw), tKhong, 'the --extract co o vs khong o');
+  if (!tKhong.includes('vi y — sai thì tốn: ton z')) die('doi chung duong hong: the khong doc dong so khong o');
+  eq(the(co.raw), tKhong, 'the co o vs khong o');
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-dec-key)`);

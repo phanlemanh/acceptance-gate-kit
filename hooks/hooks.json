@@ -9,6 +9,15 @@
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/acceptance-evidence-gate.js\""
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'd=$(cat); case \"$d\" in *.superpowers*) printf %s \"$d\" | node \"${CLAUDE_PLUGIN_ROOT}/hooks/ruling-truoc-khi-xoa.js\";; esac'"
+          }
+        ]
       }
     ]
   }

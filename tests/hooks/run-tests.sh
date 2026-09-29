@@ -711,6 +711,9 @@ veto_opened_at: 2026-08-14T10:00:00Z
 
 rm -f "$V_DIR/contract.md" "$V_ERR"
 
+echo "RT làn hook ruling-truoc-khi-xoa (hồ sơ mot-so-ba-ve)"
+node "$HERE/ruling-truoc-khi-xoa.test.mjs"; check RT-node 0 $?
+
 echo ""
 echo "Results: $PASS_COUNT passed, $FAIL_COUNT failed"
 [ "$FAIL_COUNT" -eq 0 ] || exit 1

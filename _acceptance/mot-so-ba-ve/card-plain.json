@@ -1,0 +1,162 @@
+{
+  "feature_plain": "Người ký cổng đọc mỗi quyết định máy đã làm thay mình thành đúng một dòng ba vế — quyết gì, vì sao, sai thì tốn gì — ở một sổ duy nhất; quyết định máy tự đưa ra trong lúc thi công không còn chết cùng thư mục tạm của superpowers.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ ghi mỗi quyết định mới thành một dòng đủ ba vế bằng đúng lệnh ghi sổ hiện có, và các bộ đọc dùng chung của kit đọc sổ mới ra kết quả y như sổ cũ (chỉ thêm khoá, không đổi hành vi)."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ in dòng cũ chỉ có hai vế y như hôm nay ở cả ba khối thẻ — có câu dịch thì in câu dịch, không thì in chữ gốc — và khối «Đã duyệt từ Gate 1» của thẻ Cổng 2 từ nay cũng đọc câu dịch (đóng lỗ mà phiên crm 28/09 phát hiện)."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ in dòng máy gặt từ ruling chưa khai giá kèm nhãn «chưa khai giá nếu sai» ngay dòng đó, không chặn thẻ; ca kiểm thẻ tự ghi bản văn thẻ ra tệp bằng chứng cho phần chấm bằng người đọc lạ."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ gặt mọi dòng «Ruling» trong ledger của superpowers thành dòng sổ chờ phê ở giai đoạn thi công, cắt đúng ba vế theo nhãn «Vì sao» và «Sai thì tốn» (kể cả ruling hai vế và ruling «không sửa»); gặt lại lần hai không nhân đôi; tự suy hồ sơ đích từ tên thư mục; không suy được thì dừng có tên; ledger vắng thì im kèm một dòng cờ vàng."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ chặn lệnh xoá thư mục tạm của superpowers cho tới khi ruling đã vào sổ: xoá bằng lệnh nguyên văn của superpowers, đường tương đối, thư mục cha, sau «cd», hay trong nháy đều bị bắt; lệnh chỉ đọc thư mục ấy thì hook im; đường có biến shell thì cho qua kèm một dòng khai giới hạn; gặt lỗi thì chặn kèm lệnh chạy tay."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ sửa văn bản vòng lặp tính năng để mục «Sổ quyết định» và lệnh ghi sổ khai ba vế, và bước thi công nêu đường chạy tay cầu nối cho harness không có hook."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ chỉ xin dịch những dòng sổ cũ; dòng đã đủ ba vế không cần lớp dịch, và câu dịch thừa cho dòng ấy bị thẻ bỏ qua."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-2",
+      "p": "Sẽ KHÔNG tra lớp dịch cho dòng đã đủ ba vế: cả ba khối thẻ (Cổng 1, Cổng 2 chờ phê, Cổng 2 đã duyệt) in thẳng «quyết gì — vì sao — sai thì tốn gì»."
+    },
+    {
+      "id": "OOS-1",
+      "p": "Chưa ghi lý do «Trả lại» ở Cổng 2 thành trường, chưa thêm giá cho veto và cho cột xử lý của phản biện — ba hạt giống, chỉ mở khi vòng này ship và anh gọi tên."
+    },
+    {
+      "id": "OOS-2",
+      "p": "Chưa có hook cho harness Codex, chưa gương ruling theo thời gian thật, chưa bắt xoá bằng đường khác lệnh rm — giới hạn khai, đo bằng đường đo 1."
+    },
+    {
+      "id": "OOS-3",
+      "p": "Không di trú dòng cũ, không sửa hay xoá dòng đã có, không đổi khuôn dòng của seal, veto, observed."
+    },
+    {
+      "id": "OOS-4",
+      "p": "Chưa xếp khối chờ phê theo giá nếu sai, chưa bỏ hẳn lớp dịch khỏi khuôn card-plain."
+    },
+    {
+      "id": "OOS-5",
+      "p": "Rollout ra kho tiêu thụ và chiến dịch ghim lại là việc của mốc 2.19."
+    }
+  ],
+  "scope_plain": "Những việc dưới đây để ngoài vòng này, có tên và có lý do.",
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Ai viết dòng sổ: người gõ lệnh ghi → AC-1 (khuôn ba vế); cầu nối máy → AC-5, AC-6 (gặt và chặn xoá); các lệnh cổng người giữ nguyên khuôn — thước là chính lệnh ghi và các lệnh cổng trong kho."
+    },
+    {
+      "i": 1,
+      "p": "Dòng sổ có hình dạng nào: đủ ba vế → AC-2, AC-9; có vì-sao thiếu giá → AC-4; dòng cũ có hoặc không câu dịch → AC-3, AC-9; dòng seal → AC-1 chiều im — thước là dòng thật trong các sổ của kit và ledger thật của superpowers."
+    },
+    {
+      "i": 2,
+      "p": "Ai đọc sổ: ba khối thẻ → AC-2, AC-3, AC-4; bước trích để dịch → AC-9; bộ đọc dùng chung → AC-1; người đọc lạ → AC-8; các bộ đọc còn lại không đụng khoá mới (chiều im nằm ở bộ kiểm thường trực) — thước là danh sách bộ đọc grep từ kho."
+    },
+    {
+      "i": 3,
+      "p": "Cầu nối được kích khi nào: lệnh xoá → AC-6; gặt lặp, suy hồ sơ, ledger vắng, không có ruling → AC-5; đường chạy tay → AC-7; harness không có hook là giới hạn khai — thước là bước Finish của skill superpowers."
+    },
+    {
+      "i": 4,
+      "p": "Chuẩn ngành ADR (Context · Decision · Consequences) bắt buộc có vế hệ quả → vòng này chọn gắn nhãn cho ruling thiếu giá thay vì bác nó (AC-4)."
+    },
+    {
+      "i": 5,
+      "p": "Giả định chưa kiểm: chế độ thi công «Native» của superpowers dùng cùng thư mục tạm với chế độ tác tử con; kiểm ở bước thi công, khác thì mở rộng mẫu đường của hook (AC-6), không thêm tiêu chí."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Thiếu: các lệnh xoá dùng để thử hook do cùng một trí tưởng tượng với hook viết ra, chưa lấy lệnh xoá thật của superpowers, và chưa nói hook lấy gốc kho từ đâu — xoá sau «cd», qua biến, hay xoá thư mục cha đều lọt. Đã sửa: hook neo vào lệnh rm và giải đường theo thư mục làm việc; bảng thử chín hàng có tên, hàng đầu là lệnh xoá nguyên văn của superpowers; đường qua biến shell khai là giới hạn."
+    },
+    {
+      "i": 1,
+      "p": "Thiếu: chưa thử chiều im — lệnh chỉ đọc thư mục tạm (cat, grep, ls) có thể bị hook coi là xoá và gặt hoặc chặn oan. Đã sửa: thêm bốn ca lệnh đọc phải im và sổ không đổi, kèm một bản phá bỏ neo rm để chắc ca ấy đỏ được."
+    },
+    {
+      "i": 2,
+      "p": "Thiếu: quy tắc cắt ba vế theo dấu gạch không cắt được dòng thật của superpowers (vì-sao và giá chỉ ngăn bằng nhãn), nên ruling đã khai giá vẫn bị in «chưa khai giá»; bảng thử chưa ghi chữ kỳ vọng từng dòng. Đã sửa: nhãn là dấu cắt, thắng dấu gạch; bảng thử công bố chữ kỳ vọng từng dòng; số dòng thiếu giá đếm từ chính ledger; thêm bản phá bỏ nhãn."
+    },
+    {
+      "i": 3,
+      "p": "Thiếu: phép so «giống bản cũ» lấy bản cũ ở điểm rẽ nhánh, sau khi gộp thì bản cũ trùng bản đang đo nên phép so luôn xanh; ngưỡng chết vế hai của ô chưa có đường đo. Đã sửa: bản nền lấy từ một mốc cố định ghi kèm nguồn, ca đỏ có tên khi mốc trùng bản hiện tại hoặc bản nền dựng lỗi; thêm dòng đường đo thứ tư."
+    },
+    {
+      "i": 4,
+      "p": "Thiếu: tệp mà người đọc lạ chấm chỉ được nhắc trong câu hỏi, không ca nào bảo đảm nó do lượt chạy này sinh — có thể chấm trên tệp cũ hoặc viết tay. Đã sửa: ca kiểm thẻ tự ghi tệp với dòng đầu là băm của dữ liệu thử và giờ chạy; phần chấm kiểm dòng đầu trước khi chấm."
+    }
+  ],
+  "decisions_plain": [
+    {
+      "id": "d-20260928T230717Z-1",
+      "p": "KHÔNG viết đặc tả trải nghiệm: vòng này không chạm mặt web nào, thẻ chỉ đổi chữ của một dòng — đổi lại cấu trúc không được khai trước, anh thấy nó lần đầu trong bản dựng."
+    },
+    {
+      "id": "d-20260928T230717Z-2",
+      "p": "KHÔNG làm phiên thiết kế trước Cổng 1: không có mặt web nào để bấm thử, thẻ giữ nguyên bố cục — đổi lại anh duyệt phần chữ trên thẻ bằng chữ."
+    },
+    {
+      "id": "d-20260928T230717Z-3",
+      "p": "Chọn hook chặn lệnh xoá thư mục tạm của superpowers thay vì dặn bằng lời «chạy cầu nối cuối bước thi công» — nâng hạng lên T3, thêm một điểm dừng duyệt kế hoạch và một hook chạy trên mọi lệnh shell của kho tiêu thụ (lọc rẻ trước khi mở node); đổi lại ruling không chết cùng thư mục tạm, vì lời dặn đo được chỉ đạt 36 %."
+    },
+    {
+      "id": "d-20260928T230717Z-4",
+      "p": "Chọn để ruling chưa khai giá vẫn vào sổ và lên thẻ kèm nhãn «chưa khai giá nếu sai», không bác — giới hạn là nhãn trạng thái, không phải việc; đổi lại anh tự ước giá cho dòng ấy."
+    },
+    {
+      "id": "d-20260928T230717Z-5",
+      "p": "KHÔNG đọc lại lịch sử phiên làm nguồn ruling dự phòng khi thư mục tạm đã bị xoá — khuôn hội thoại không có hợp đồng; harness không có hook chỉ còn đường chạy tay, đo bằng đường đo 1; xem lại khi đường đo 1 dưới 100 % ở một vòng có hook đang bật."
+    },
+    {
+      "id": "d-20260929T014534Z-7",
+      "p": "Chọn coi một quyết định của superpowers là cả đoạn tới dòng trống, và cắt ba vế theo nhãn «Vì sao» / «Sai thì tốn» kể cả khi viết không dấu — vì sổ thật có khoảng 20 quyết định với nhiều hình dạng, không phải 7 dòng như thiết kế ghi."
+    },
+    {
+      "id": "d-20260929T014534Z-8",
+      "p": "Chọn vẫn in giá trên thẻ cho dòng chỉ khai giá mà không khai vì sao — đổi lại thêm một nhánh nhỏ ở chỗ in chữ gốc; dòng cũ in y như trước."
+    },
+    {
+      "id": "d-20260929T014534Z-9",
+      "p": "Sửa chữ hai phép đo sau khi đã duyệt Cổng 1: tệp đầu vào cho phần người đọc lạ mang giờ của dữ liệu thử thay vì giờ chạy, để bộ kiểm không ghi lại hồ sơ mỗi lượt — cần anh phê vì là đổi thước sau khi niêm."
+    },
+    {
+      "id": "d-20260929T014534Z-10",
+      "p": "Dời chỗ chèn «lớp của nhát sửa» ra sau vế giá, kéo theo sửa một ca kiểm cũ của kit đang ghim chỗ cũ."
+    },
+    {
+      "id": "d-20260929T014534Z-11",
+      "p": "Chọn chạy ba việc đầu song song rồi mới làm hook — nhanh hơn, đổi lại phải gộp ba nhánh."
+    },
+    {
+      "id": "d-20260929T020151Z-12",
+      "p": "Anh đã duyệt kế hoạch bốn việc ở cổng duyệt kế hoạch."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "E8",
+      "q": "Đọc thẻ, anh hiểu được mỗi quyết định mà không mở sổ không?",
+      "why": "Hội đồng ba người chấm đề xuất ĐẠT: từng dòng nói được quyết gì, vì sao, sai thì tốn gì; dòng thiếu giá có nhãn riêng; vế quyết và vế giá không có tên biến."
+    }
+  ],
+  "analyst_plain": ""
+}

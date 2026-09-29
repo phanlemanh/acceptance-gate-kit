@@ -160,6 +160,7 @@ Steps:
      `decisions_approved` + `decisions_provisional` (Gate 2): mỗi `p` = 1 câu sản
      phẩm "đã chọn gì — đổi lại gì" (descope: bắt đầu "KHÔNG làm ..."). Ledger là
      rationale, KHÔNG phải scope-truth — không dịch thành cam kết mới.
+     Dòng sổ đã có `why` (ADR 0021, ba vế) thẻ in thẳng ba vế: `--extract` chỉ phát khoá cho dòng thiếu `why`, và câu dịch cho dòng đã có `why` bị bỏ qua.
      `id` của overlay = trường **`key`** của entry trong extract, không phải
      `id`: hai trường trùng nhau khi mã là duy nhất; sổ ghi trước khuôn
      `d-<UTC>-<n>` có thể nhiều dòng chung một mã, khi đó `key` là `<id>#<k>`
