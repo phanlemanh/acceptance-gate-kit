@@ -30,11 +30,13 @@ function ledgerClaims(file, slug, warn) {
     if (!line.trim()) continue;
     let e; try { e = JSON.parse(line); } catch { bad++; continue; }
     if (e.type !== 'fix' && e.type !== 'descope') continue;
-    // Entry rỗng ruột (thiếu decision/impact) = malformed — emit claim text
-    // rỗng là câm-lặng kiểu khác (parser-hardening PH5).
-    if (!e.decision || !e.impact) { bad++; continue; }
+    // Entry rỗng ruột (thiếu decision/bài học) = malformed — emit claim text
+    // rỗng là câm-lặng kiểu khác (parser-hardening PH5). Bài học = `impact`
+    // (dòng trước 2.19, đường đọc-cũ) hoặc `cost_if_wrong` (ADR 0021, ba vế).
+    const lesson = e.impact || e.cost_if_wrong;
+    if (!e.decision || !lesson) { bad++; continue; }
     out.push({ id: e.id, source: 'ledger', slug, kind: e.type, stage: e.stage ?? null,
-      sev: null, at: e.at ?? null, claim: cut(e.decision), lesson: cut(e.impact),
+      sev: null, at: e.at ?? null, claim: cut(e.decision), lesson: cut(lesson),
       pointer: `_acceptance/${slug}/decisions.jsonl`,
       ...(Array.isArray(e.serves) && e.serves.length ? { serves: e.serves } : {}) });
   }
