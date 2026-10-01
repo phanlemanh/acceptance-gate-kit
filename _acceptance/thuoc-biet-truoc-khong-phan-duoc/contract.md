@@ -5,7 +5,7 @@ slug: thuoc-biet-truoc-khong-phan-duoc
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -76,6 +76,9 @@ của hàm và các nơi luật sống.
   - Phạm vi `paths:` của E5 chỉ liệt năm tệp, trong khi nhóm JI12 quét mọi thư mục nguồn; ở một vòng sửa sau, bản sao khuôn dán vào tệp ngoài năm tệp đó có thể được mang PASS cũ sang mà không chạy lại (Ngoài-2). Tương tự E1/E4 không liệt `lib/eval-yaml.cjs`.
   - Kiểm «bộ dò một nguồn» chỉ bắt bản sao chép NGUYÊN chữ một mảnh mỗi khuôn; bản sao viết lại khác chữ hoặc thiếu nhánh thì lọt (Ngoài-3).
   - Răng hồ sơ không chạy bản sao trọn cây xanh trước khi tiêm đột biến; một bản sao hỏng vì hạ tầng có thể in trùng dòng ghim của chiều đỏ (Ngoài-4).
+- **Known limits (owner ký 01/10 tại Cổng Bằng chứng, lượt chấm 2):**
+  - Ngoài-1 (lượt 2): ma trận ngày-độc-lập của RT13 chưa phủ ba lối «đã xong» còn thiếu cờ quá hạn ở bộ quét thẻ khởi động (verified đã ký · máy thông · đã chạm bởi thực tế) — thuộc bản sửa PR #232, gộp như hiện tại; một hồ sơ ở các lối đó quá hạn tự khai sẽ lại làm RT13 đỏ theo ngày.
+  - Ngoài-2, Ngoài-3 (lượt 2) là hai mục Known limits của lượt 1 ở trên (paths của E5 · kiểm một nguồn chỉ bắt bản sao nguyên chữ); Ngoài-4 (bản sao răng hồ sơ chưa chạy xanh trước khi tiêm) chấp nhận, không sửa.
 - Ngoài-1 (tên hồ sơ, đường dẫn, commit riêng của crm trong tài liệu skill giao đi) SỬA ở lượt 2 theo quyết định owner: tài liệu giữ luật + số đo, con trỏ nguồn chuyển sang bản ghi phát hiện §10.8.
 - Hạt giống ghi trong vòng (phiên điều phối đề nghị 01/10): `docs/plans/2026-10-01-hat-giong-thue-tu-host-rt13-may-thong.md` — mỗi vòng tới «máy thông» ở kho kit phải khai tay vào khối KHAC-BIET-DOC-CU của một hồ sơ đã ký rồi ghim lại hồ sơ đó; ngưỡng: vòng thứ ba.
 - Fixture do code sinh trong chính lần chạy; đường dẫn suy từ vị trí script. Bản sao để tiêm đột biến chụp TRỌN cây làm việc; mỗi đột biến là MỘT phép thay thế nguyên văn khai trong design doc; chân đo chứng mũi tiêm trúng (đúng một chỗ khớp, bản sao khác bản thật, mutant chạy được) trước khi chấm; chiều đỏ giữ đủ hai vế: exit ≠ 0 VÀ dòng FAIL có tên ca.
