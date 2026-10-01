@@ -2,6 +2,8 @@
 
 **Ngày:** 2026-10-01 · **Từ:** phiên điều phối trên máy đang chạy các vòng crm (memory của phiên này KHÔNG theo sang máy khác — tệp này thay nó) · **Việc kế:** cắt mốc `2.20.0` ở máy khác, rồi đưa crm nhận.
 
+> **Cập nhật 02/10:** mốc 2.20.0 đã cắt ở máy kia — #236 gộp (`1e764895`), tag `v2.20.0` → `1b98fdb1`, chiến dịch ghim lại #237 gộp (`1b598830`, sáu hồ sơ). Máy gốc đã kéo `main` và cài 2.20.0 ở phạm vi user và kho kit (kiểm bằng nội dung: bản cài khớp `main`). Mục 3 là sử liệu; việc còn mở là mục 4 — crm CHƯA nhận: lớp chép lệch đúng ba tệp đã nêu ở mục 2, bản ghi cài của crm còn 2.19.0, chờ vòng `soan-okr-cung-tro-ly` xong.
+
 Owner gọi tên việc này ngày 01/10 («tạo chip cắt mốc phát hành», «tôi sẽ chạy ở máy khác»). Chạy ở máy khác là hợp lý: máy gốc đang dành cho vòng chấm cuối của crm `soan-okr-cung-tro-ly`, bộ kiểm của mốc là việc nặng.
 
 ## 1. Trạng thái lúc bàn giao
