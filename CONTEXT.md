@@ -323,6 +323,7 @@ Kết quả của một eval máy trả ĐÚNG mã thoát khác 0 mà `evals.yam
 một dòng ở mục Known limits, nên hồ sơ hết xanh-sạch và về Cổng Bằng chứng cho
 người quyết. Khác **cannotRun** — cannotRun là hạ tầng chấm hỏng, đạt-có-giới-hạn
 là tiền đề của sản phẩm thiếu và điều đó đã được khai trước.
+_Avoid_: pass có điều kiện, soft fail, «trượt nhưng chấp nhận được».
 
 **Nhãn trạng thái**:
 Trạng thái MÁY-ĐỌC mà thẻ gắn cho một cạnh của tứ diện Ý·Hạng mục·Thước·Vật, mỗi
@@ -333,7 +334,6 @@ từng đỏ) · *chưa đo* · *không đọc được ở đây* (bàn đo thi
 không phải lỗi, và tự nó KHÔNG sinh việc.
 _Avoid_: **Nhãn** trần (đã dành cho chú thích trong ngoặc của criterion, không đổi
 hành vi máy) · **Dấu** (hậu tố contract) · status, label, cờ.
-_Avoid_: pass có điều kiện, soft fail, «trượt nhưng chấp nhận được».
 
 **dogfood**:
 Chính đội làm ra bộ công cụ đem nó áp lên công việc của mình — kit tự chạy cổng
