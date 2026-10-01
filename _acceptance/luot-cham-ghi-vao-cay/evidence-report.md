@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: luot-cham-ghi-vao-cay
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 5cfc78cf6a6c72eaf4cc4240a0571328008292c5
-human_signoff:
+human_signoff: Manh Phan 2026-10-01 — ký lượt chấm 1; Ngoài-1, Ngoài-2, Ngoài-5, Ngoài-6, Ngoài-7 ghi Known limits; Ngoài-3, Ngoài-4 mở hợp đồng mới (hạt giống); E8 Đạt; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: luot-cham-ghi-vao-cay
@@ -149,7 +149,7 @@ human_signoff:
   judged_by: judge panel (3 lens, fresh context) — đề xuất panel: domain-correctness, operational-feasibility, spec-alignment
   verdict: PASS
   rationale: Cả ba lens cùng đọc SKILL.md (bước sau-lượt của S4) và CONTEXT.md (mục Nhãn trạng thái) và thấy khớp nhau từng ý của AC-8, không lens nào bất đồng.
-  human_override:  # chi nguoi ghi
+  human_override: Manh Phan 2026-10-01 — Đạt
 
   Phiếu từng lens (đề xuất, để trống human_override cho người ở Cổng 2):
 

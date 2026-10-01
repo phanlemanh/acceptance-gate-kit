@@ -5,7 +5,7 @@ slug: luot-cham-ghi-vao-cay
 owner: phanlemanh@gmail.com
 risk_tier: T3      # sửa lib/nhan-canh-gay.cjs, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs (t3_paths)
 surfaces: [cli, docs]
-status: verified
+status: signed-off
 approved_by: "Manh Phan"
 approved_at: 2026-10-01T10:37:41Z
 design_doc: docs/superpowers/specs/2026-10-01-luot-cham-ghi-vao-cay-design.md
@@ -78,3 +78,11 @@ Quét Zwicky (preset test-matrix), đầy đủ ở design doc §3–§5.
   - Lệnh kho ghi lại tệp đang theo dõi chỉ khi vật lệch (oneflow `gen:abi`) biến một ô đỏ đúng thành lượt không dùng được. Ngưỡng: ≥1 ca thật.
 - Bảng dự báo năm dòng (luật (c)): làm-xong→quyết-được ↓ · lượt gọi người/vòng = (↓ ở ca có sự cố) · vòng bị hạ tầng đốt ↓ (lượt cây đổi chạy lại cùng round) · token/vòng = (+1 lượt ở ca có sự cố, hôm nay cũng chấm lại) · phút/lượt =. Điều kiện tin cậy: vòng ĐỔI thành phần đường verdict (nhánh «không dùng được» sau fan-out) → răng cả hai chiều: chiều đỏ AC-2, chiều im AC-3, mỗi AC máy kèm đột biến ở răng hồ sơ (design doc §6).
 - Fixture do code sinh trong chính lần chạy; đường suy từ vị trí script; bản sao để tiêm đột biến chụp TRỌN cây làm việc.
+- **Known limits (owner ký 01/10 tại Cổng Bằng chứng, lượt chấm 1):**
+  - Ngoài-1 = Ngoài-5 (cùng một lỗi): kiểm «đã hoàn lại» của s4-args băm tệp bằng hàm riêng (`bamTep`, đọc xuyên liên kết mềm) trong khi ảnh chụp băm bằng `bam` của `cay-doi.mjs` (băm đích liên kết) — một liên kết mềm đang theo dõi, bẩn SẴN trước lượt và bị chạm trong lượt, sẽ không bao giờ được nhận là đã hoàn lại; lối thoát duy nhất là `--nhan-cay-moi`. Ngưỡng: ≥1 ca thật.
+  - Ngoài-2: recheck-evidence chặn «cây đổi» TRƯỚC lối miễn hồ sơ nghỉ, còn lưới trước-merge bỏ qua hồ sơ nghỉ trước — hồ sơ đã ký rồi cho nghỉ có lượt cuối cây đổi nhận hai phán quyết khác nhau. Không lọt lỗi.
+  - Ngoài-6: nhánh «lib vắng» của ca LC7 là kiểm âm tính một mình (không đối chứng dương, không ghim thông điệp) — xanh cả khi lưới sập trên bản kit thiếu lib.
+  - Ngoài-7: ca JI11 (hồ sơ thuoc-biet-truoc-khong-phan-duoc) đo chữ trong mã nguồn bộ chấm thay vì lời giao việc thật hội đồng nhận.
+- **Mở hợp đồng mới (owner quyết ở Cổng Bằng chứng 01/10) — ghi hạt giống, không tạo ô (luật «Ô chỉ mở khi có NEO NGOÀI»):**
+  - Ngoài-3 → `docs/plans/2026-10-01-hat-giong-thuoc-lech-che-cay-doi-o-luoi.md` (dòng thước lệch che dòng cây đổi khỏi lưới trước-merge và recheck).
+  - Ngoài-4 → `docs/plans/2026-10-01-hat-giong-tac-tu-lui-nhanh-giua-luot.md` (tác tử lùi nhánh về commit cũ giữa lượt — kiểm «đã hoàn lại» cho qua).
