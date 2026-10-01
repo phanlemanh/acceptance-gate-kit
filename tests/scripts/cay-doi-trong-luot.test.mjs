@@ -71,7 +71,7 @@ const ngan = (d, a, b) => git(d, 'log', '--format=%h', `${a}..${b}`).split('\n')
 const khoaKhuon = () => {
   const m = readFileSync(CAY_DOI, 'utf8').match(/<<<CAY-DOI-LINE\n\/\/ (\{[^\n]+\})\n\/\/ CAY-DOI-LINE>>>/);
   if (!m) throw new Error('khong rut duoc khoi CAY-DOI-LINE tu cay-doi.mjs');
-  return [...m[1].matchAll(/"([a-z_]+)":/g)].map(x => x[1]).sort();
+  return Object.keys(JSON.parse(m[1].replace(/<n>/g, '0'))).sort();   // khoá CẤP ĐẦU của khuôn
 };
 
 // Lượt chấm thật (bộ chấm + tác tử giả) → các dòng sổ của nó, ts = invokedAt của args.
@@ -300,6 +300,7 @@ if (want('LC5')) {
     if (rb.status !== 0 || !existsSync(tamB) || sortJ(docArgs(h.d, tamB).cayNhanMoi || []) !== sortJ(mong)) saiH.push(`(b) --nhan-cay-moi: thoat ${rb.status}, cayNhanMoi ${existsSync(tamB) ? JSON.stringify(docArgs(h.d, tamB).cayNhanMoi) : '-'}`);
     // (c) hoàn lại → CÙNG round
     git(h.d, 'reset', '-q', '--keep', h.a.invokedSha);
+    await new Promise(r => setTimeout(r, 1100));   // invokedAt có độ phân giải giây: hai lượt thật cách nhau hàng phút
     const rc = sinhArgs(h.d);
     if (rc.status !== 0) saiR.push(`(c) da hoan lai ma thoat ${rc.status}: ${String(rc.stderr).split('\n').slice(-2).join(' | ')}`);
     else if (docArgs(h.d).round !== h.a.round || !String(rc.stderr).includes('cay doi trong luot cham — thu lai CUNG round')) saiR.push(`(c) round ${docArgs(h.d).round}, mong ${h.a.round} cung round`);

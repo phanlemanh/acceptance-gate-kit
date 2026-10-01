@@ -24,13 +24,14 @@ import { DO_GLOBS, HO_SO_VAN_BAN_GLOBS } from './lib/phan-loai.mjs';
 import { demThuocVat } from './thuoc-vat.mjs';
 import { chupThuoc } from './chup-ho-so-da-thong.mjs';
 import { hoiNgoaiInputs } from './lib/hoi-ngoai-inputs.mjs';
+import { chupCay } from './lib/cay-doi.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const KNOWN = new Set(['slug', 'root', 'round', 'carry-anchor', 'no-carry', 'diff-base', 'ag-root', 'out']);
+const KNOWN = new Set(['slug', 'root', 'round', 'carry-anchor', 'no-carry', 'diff-base', 'ag-root', 'out', 'nhan-cay-moi']);
 
-function usage(msg) { console.error(`s4-args: ${msg}\nusage: s4-args.mjs --slug <slug> --root <repoRoot> [--round N] [--carry-anchor <sha>|--no-carry] [--diff-base <ref>] [--ag-root <path>] [--out <file>]`); process.exit(3); }
+function usage(msg) { console.error(`s4-args: ${msg}\nusage: s4-args.mjs --slug <slug> --root <repoRoot> [--round N] [--carry-anchor <sha>|--no-carry] [--diff-base <ref>] [--ag-root <path>] [--out <file>] [--nhan-cay-moi]`); process.exit(3); }
 function die(msg) { console.error(`s4-args: ${msg}`); process.exit(2); }
 
 const flags = {};
@@ -41,7 +42,7 @@ const flags = {};
     if (!tok.startsWith('--')) usage(`tham số lạ (không phải cờ): ${tok}`);
     const name = tok.slice(2);
     if (!KNOWN.has(name)) usage(`cờ không nhận diện được: ${tok}`);
-    if (name === 'no-carry') { flags[name] = true; continue; }
+    if (name === 'no-carry' || name === 'nhan-cay-moi') { flags[name] = true; continue; }
     if (argv[i + 1] === undefined || argv[i + 1].startsWith('--')) usage(`cờ ${tok} thiếu giá trị`);
     flags[name] = argv[i + 1]; i += 1;
   }
@@ -443,7 +444,16 @@ else {
     const base = Math.max(round - 1, ...tallies.map(o => o.round));
     round = base + 1;
     const cuoi = tallies[tallies.length - 1];
-    if (base >= 1 && cuoi && cuoi.round === base && String(cuoi.verdict).toUpperCase() === 'BLOCKED') {
+    // Cây đổi trong lượt chấm (luot-cham-ghi-vao-cay AC-5): lượt ấy không dùng được BẤT KỂ verdict
+    // → CÙNG round, MỘT lần. Nhãn hỏi canhGay (một nguồn với thẻ/lưới), không chép luật khớp lượt.
+    const cgCay = base >= 1 && cuoi && cuoi.round === base ? nhanCanhGay.canhGay({ runLogText: rl, verdict: cuoi.verdict, nguon: nhanCanhGay.NGUON }) : null;
+    if (cgCay && cgCay.trangThai === 'cay-doi') {
+      const lanCay = tallies.filter(t => t.round === base && dong.some(o => o.kind === 'cay-doi' && o.round === base && o.luot_ts === t.ts)).length;
+      if (lanCay < 2) {
+        round = base;
+        console.error(`s4-args: cay doi trong luot cham — thu lai CUNG round ${base}, không đếm vào trần`);
+      } else console.error(`s4-args: round ${base} da thu lai mot lan van cay doi — trình thẻ Cổng Bằng chứng, không chấm tiếp`);
+    } else if (base >= 1 && cuoi && cuoi.round === base && String(cuoi.verdict).toUpperCase() === 'BLOCKED') {
       const expMap = Object.fromEntries([...expById].filter(([, v]) => Number.isInteger(v)));   // mã đạt đã khai (ADR 0016)
       const cg = nhanCanhGay.canhGay({ runLogText: rl, verdict: 'BLOCKED', expectedExit: expMap, nguon: nhanCanhGay.NGUON });
       const haTang = cg.trangThai === 'chet-lan-dau' || cg.trangThai === 'mo';
@@ -463,6 +473,34 @@ else {
   }
   // THU-LAI-CUNG-ROUND>>>
 }
+
+// <<<KIEM-HOAN-LAI — luot-cham-ghi-vao-cay AC-5. Lượt trước có «cây đổi trong lượt chấm» mà chưa
+// lượt nào chạy sau nó (kể cả dòng mồ côi — lượt chết không ghi round-tally) → commit lạ phải
+// không còn là tổ tiên của HEAD và tệp bị chạm phải về lại. Còn → KHÔNG sinh tệp: ảnh chụp mới
+// sẽ lấy chính commit của tác tử làm mốc và chấm vật tác tử đã sửa (doer = grader). Lối có tên
+// `--nhan-cay-moi` cho thay đổi có chủ đích (phiên khác gộp) — ghi vào args, không im.
+let cayNhanMoi = null;
+{
+  const rlPath = path.join(ws, 'run-log.jsonl');
+  const dong = nhanCanhGay.docDong(fs.existsSync(rlPath) ? fs.readFileSync(rlPath, 'utf8') : '');
+  const L = dong.filter(o => o.kind === 'cay-doi').pop();
+  const daThay = L && dong.some(o => o.kind === 'round-tally' && typeof o.ts === 'string' && o.ts > String(L.luot_ts || ''));
+  if (L && !daThay) {
+    const conCommit = (Array.isArray(L.commit) ? L.commit : []).filter(c => gitTry('merge-base', '--is-ancestor', String(c), 'HEAD') !== null);
+    const conTep = (Array.isArray(L.tep) ? L.tep : []).filter(t => t && t.doi !== 'commit' && typeof t.tep === 'string').filter(t => {
+      if (t.truoc) return bamTep(t.tep) !== t.truoc;   // tệp bẩn SẴN trước lượt: phải về đúng nội dung lúc chụp
+      return (gitTry('diff', '--name-only', 'HEAD', '--', t.tep) || '') !== '';
+    }).map(t => t.tep);
+    if (conCommit.length || conTep.length) {
+      const ke = `commit ${conCommit.join(', ') || '—'} · tệp ${conTep.join(', ') || '—'}`;
+      if (!flags['nhan-cay-moi']) die(`cay doi chua hoan lai — lượt round ${L.round} (${L.luot_ts}) còn ${ke}. Hoàn lại (commit chưa đẩy: git reset --keep ${L.sha}; tệp: git checkout -- <tệp>) rồi sinh lại; thay đổi có chủ đích của phiên khác → --nhan-cay-moi`);
+      cayNhanMoi = [...conCommit, ...conTep];
+      console.error(`s4-args: --nhan-cay-moi — chấm trên cây mới, giữ ${ke}`);
+    }
+  }
+}
+function bamTep(rel) { try { return createHash('sha256').update(fs.readFileSync(path.join(root, rel))).digest('hex'); } catch { return 'vang'; } }
+// KIEM-HOAN-LAI>>>
 
 // ── bộ đếm vật · thước · nhát: CHẠY, không CHẶN (nhan-trang-thai-va-reality AC-2, Đ3) ──
 // Trần 3 nhát + ba lối (thuoc-co-cua AC-12) đã gỡ 21/09: nổ 5 lần, miễn 5 lần, và lối (3)
@@ -584,6 +622,10 @@ try {
   const tep = chupThuoc(root, flags.slug, DO_GLOBS.map(globToRe));
   args.thuocChup = { sha: invokedSha, n: Object.keys(tep).length, digest: sha256(JSON.stringify(tep)), tep };
 } catch (e) { die(`không chụp được thước: ${String((e && (e.stderr || e.message)) || e).split('\n')[0]}`); }
+// ── ảnh chụp cây (luot-cham-ghi-vao-cay AC-1): so ở thuoc-vat.mjs --write ngay sau lượt ──
+try { args.cayChup = chupCay(root, flags.slug, t1SkipGlobs, invokedSha); }
+catch (e) { die(`không chụp được cây: ${String((e && (e.stderr || e.message)) || e).split('\n')[0]}`); }
+if (cayNhanMoi) args.cayNhanMoi = cayNhanMoi;
 
 const json = JSON.stringify(args, null, 2);
 if (flags.out) { fs.writeFileSync(flags.out, json); console.error(`s4-args: đã sinh ${flags.out} (round ${round}, ${evals.length} eval, ${suiteCommands.length} suite)`); }

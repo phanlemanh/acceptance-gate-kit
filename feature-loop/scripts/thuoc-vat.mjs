@@ -18,6 +18,8 @@
 // exit 0 = xong (kể cả «chưa có mốc sàn») · exit 2 = usage / nguồn hỏng ·
 // exit 3 = --giua-hai-luot không liệt kê được (thiếu lượt, sha không thuần nhất) — KHÔNG đoán.
 // exit 5 = --write thấy THƯỚC LỆCH trong lượt chấm (ảnh chụp trong s4-args.json ≠ cây lúc này).
+// exit 6 = --write thấy CÂY ĐỔI TRONG LƯỢT CHẤM (commit lạ / tệp đang theo dõi bị sửa trong vùng
+//          xét — luot-cham-ghi-vao-cay). Cả hai cùng lúc → ghi hai dòng, thoát 5.
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -26,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 import { phanLoai, DO_GLOBS } from './lib/phan-loai.mjs';
 import { chupThuoc, soThuoc } from './chup-ho-so-da-thong.mjs';
 import { globToRe } from './carry-plan.mjs';
+import { soCay, dongCayDoi } from './lib/cay-doi.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SELF = fileURLToPath(import.meta.url);
@@ -265,8 +268,11 @@ if (isMain) {
     // Thước chỉ-đọc (AC-3): so ảnh chụp trong tệp args với cây lúc này. Lệch = lượt ấy
     // chấm bằng thước khác thước lúc sinh args → không dùng được; chấm lại lượt mới.
     const argsPath = flags.args ? path.resolve(flags.args) : path.join(ws, 's4-args.json');
-    let chup = null;
-    try { chup = JSON.parse(fs.readFileSync(argsPath, 'utf8')).thuocChup || null; } catch { chup = null; }
+    let argsTep = null;
+    try { argsTep = JSON.parse(fs.readFileSync(argsPath, 'utf8')); } catch { argsTep = null; }
+    const ts = new Date().toISOString().slice(0, 19) + 'Z';
+    let maThoat = 0;
+    const chup = (argsTep && argsTep.thuocChup) || null;
     if (!chup || !chup.tep) console.error(`thuoc-vat: không có ảnh chụp thước (${path.relative(root, argsPath) || argsPath}) — hồ sơ đời cũ, bỏ qua so`);
     else {
       let lech;
@@ -274,14 +280,36 @@ if (isMain) {
       catch (e) { die(`không chụp lại được thước: ${String(e.message).split('\n')[0]}`); }
       if (lech.length) {
         let dl;
-        try { dl = dongThuocLech(lech, { round, ts: new Date().toISOString().slice(0, 19) + 'Z', sha: chup.sha }); }
+        try { dl = dongThuocLech(lech, { round, ts, sha: chup.sha }); }
         catch (e) { die(String(e.message)); }
         fs.appendFileSync(runLogPath, dl + '\n');
         console.error('thuoc-vat: thuoc lech trong luot cham — luot nay khong dung duoc, cham lai luot moi');
         for (const x of lech) console.error(`  ${x.doi}: ${x.tep}`);
-        if (flags.json) console.log(JSON.stringify(dem));
-        process.exit(5);
+        maThoat = 5;
       }
+    }
+    // Cây chỉ-đọc trong lượt chấm (luot-cham-ghi-vao-cay AC-2/AC-3): so ảnh chụp cây của tệp args.
+    const cay = (argsTep && argsTep.cayChup) || null;
+    if (!cay || !cay.sha) console.error('thuoc-vat: khong co anh chup cay trong tep args — ho so doi cu, bo qua so cay');
+    else {
+      let so;
+      try { so = soCay(root, slug, t1SkipGlobs, cay); }
+      catch (e) { die(`khong so duoc cay: ${String(e.stderr || e.message).split('\n')[0]}`); }
+      for (const m of so.moi) console.error(`thuoc-vat: tep moi chua theo doi: ${m} (khong khoa luot)`);
+      if (so.tep.length) {
+        let dc;
+        try { dc = dongCayDoi({ ts, round: Number.isInteger(argsTep.round) ? argsTep.round : round, luotTs: argsTep.invokedAt, sha: cay.sha, tep: so.tep, commit: so.commit, moi: so.moi }); }
+        catch (e) { die(String(e.message)); }
+        fs.appendFileSync(runLogPath, dc + '\n');
+        console.error('thuoc-vat: cay doi trong luot cham — luot nay khong dung duoc; hoan lai roi cham lai cung round');
+        for (const x of so.tep) console.error(`  ${x.doi}: ${x.tep}`);
+        if (so.commit.length) console.error(`  commit: ${so.commit.join(', ')}`);
+        if (!maThoat) maThoat = 6;
+      }
+    }
+    if (maThoat) {
+      if (flags.json) console.log(JSON.stringify(dem));
+      process.exit(maThoat);
     }
   }
 
