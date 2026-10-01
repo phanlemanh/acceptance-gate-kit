@@ -467,6 +467,14 @@ executors:
     ctn_ac8: "bash -c 'out=$(node tests/workflows/chot-truong-nguoi.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CTN-AC8-go-goi CTN-AC8-bo-khoa CTN-AC8-carry CTN-AC8-moi-cot CTN-AC8-vi-phan; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     # Hồ sơ mot-so-ba-ve (29/09, vòng meta T3 sau ADR 0021): tệp ca msbv, tên ca = tên AC.
     msbv: "bash -c 'out=$(for f in msbv-so msbv-the msbv-cau-noi; do node tests/scripts/$f.test.mjs 2>&1 || echo \"TEP-DO: $f\"; done); printf \"%s\\\\n\" \"$out\" | tail -n 60; printf \"%s\\\\n\" \"$out\" | grep -q \"^TEP-DO: \" && exit 1; for c in MS-AC1-recipe MS-AC1-lib-im MS-AC7-van-ban MS-AC2-ba-khoi MS-AC2-dot-bien MS-AC2-recipe MS-AC3-doc-cu MS-AC3-dot-bien MS-AC3-nen MS-AC4-thieu-gia MS-AC4-chi-gia MS-AC8-xuat MS-AC9-extract MS-AC9-dot-bien MS-AC5-ma-tran MS-AC5-lap MS-AC5-slug MS-AC5-rong MS-AC5-dot-bien; do printf \"%s\\\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # Hồ sơ thuoc-biet-truoc-khong-phan-duoc (01/10): răng «hỏi ngoài inputs» ở s4-args —
+    # mỗi chân một nhóm JI7–JI12 trên cây thật + bản sao tiêm đột biến (design doc §3).
+    tbt_hoi_diff: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan hoi-diff
+    tbt_chay_lenh: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan chay-lenh
+    tbt_ten_diff_khong_mien: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan ten-diff-khong-mien
+    tbt_khong_chan_oan: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan khong-chan-oan
+    tbt_mot_nguon: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan mot-nguon
+    tbt_tien_de_hoi_dong: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan tien-de-hoi-dong
     # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
     nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
     nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs

@@ -11,8 +11,9 @@
 // → exit 2 gọi tên file, KHÔNG sinh tệp — đúng nếp fail-closed của các trường
 // khác trong cùng script. Fixture do CODE SINH trong chính lần chạy.
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, mkdirSync, existsSync, readFileSync, realpathSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, existsSync, readFileSync, realpathSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -24,8 +25,8 @@ const ok0 = (cond, m, d) => { if (cond) { console.log(`  PASS: ${m}`); pass += 1
 const git = (cwd, ...a) => execFileSync('git', ['-C', cwd, ...a], { encoding: 'utf8' }).trim();
 
 const TMP = mkdtempSync(path.join(tmpdir(), 's4args-ji-'));
-function buildRepo(inputs) {
-  const d = path.join(TMP, `r-${Math.random().toString(36).slice(2)}`);
+function buildRepo(inputs, dir) {
+  const d = dir || path.join(TMP, `r-${Math.random().toString(36).slice(2)}`);
   mkdirSync(path.join(d, '_acceptance', 'demo'), { recursive: true });
   mkdirSync(path.join(d, 'src'), { recursive: true });
   execFileSync('git', ['init', '-q', '-b', 'main', d]);
@@ -50,9 +51,9 @@ function writeEvals(d, inputs) {
     '  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.api\n    expected: x\n' +
     `  - id: E2\n    criterion: AC-2\n    executor: judgment\n    question: "chữ trên màn đúng từ điển?"\n    inputs:\n${list}\n    expected: PASS\n`);
 }
-function runArgs(repo) {
+function runArgs(repo, slug = 'demo') {
   const out = path.join(TMP, `args-${Math.random().toString(36).slice(2)}.json`);
-  const r = spawnSync(process.execPath, [S4ARGS, '--slug', 'demo', '--root', repo, '--ag-root', KIT, '--no-carry', '--out', out],
+  const r = spawnSync(process.execPath, [S4ARGS, '--slug', slug, '--root', repo, '--ag-root', KIT, '--no-carry', '--out', out],
     { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   return { code: r.status, text: `${r.stdout || ''}${r.stderr || ''}`, out, wrote: existsSync(out) };
 }
@@ -148,6 +149,137 @@ group('JI6', 'input trỏ THƯ MỤC → exit 2 «là thư mục, không phải 
   ok0(r2.code === 0 && r2.wrote, 'JI6 đối chứng dương: trỏ file trong thư mục → sinh args', `code=${r2.code}`);
 });
 
-if (ONLY && groupsRun === 0) { console.log(`  FAIL: --only ${ONLY} không khớp nhóm nào (JI1|JI2|JI3|JI4|JI5|JI6)`); fail += 1; }
+// ── JI7–JI12: răng «hỏi ngoài inputs» (hồ sơ thuoc-biet-truoc-khong-phan-duoc) ──
+// Hội đồng chỉ đọc đúng các tệp trong `inputs` — không diff, không lệnh. Câu hỏi
+// judgment đòi diff của lượt hoặc bảo chạy lệnh có phán quyết biết trước
+// (UNCERTAIN, bất kể vật), nên s4-args chặn TRƯỚC lượt chấm: exit 2, không sinh
+// tệp, thông điệp nêu hai lối ra. Bộ dò sống ở MỘT module, nạp cả ở đây.
+const HOI = path.join(KIT, 'feature-loop', 'scripts', 'lib', 'hoi-ngoai-inputs.mjs');
+// Nạp LƯỜI: nhóm JI1–JI6 (răng hồ sơ cũ gọi `--only`) không được sập vì module vắng.
+const napHoi = () => { try { return createRequire(import.meta.url)(HOI); } catch { return null; } };
+const RANG = 'câu hỏi đòi thứ hội đồng không đọc được';
+// Ghi evals.yaml với một câu hỏi tuỳ ý cho E2 (judgment). `q` là phần YAML ngay
+// sau `question:` — một dòng có nháy, hoặc `>` + các dòng khối thụt 6.
+function writeEvalsQ(d, inputs, q, slug = 'demo') {
+  const list = inputs.map(p => `      - ${p}`).join('\n');
+  writeFileSync(path.join(d, '_acceptance', slug, 'evals.yaml'),
+    `schema_version: 1\nfeature_slug: ${slug}\nevals:\n` +
+    '  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.api\n    expected: x\n' +
+    `  - id: E2\n    criterion: AC-2\n    executor: judgment\n    question: ${q}\n    inputs:\n${list}\n    expected: PASS\n`);
+}
+const chan = (r) => r.code === 2 && !r.wrote && r.text.includes(`eval E2 (judgment): ${RANG}`);
+const khop = (r) => (r.text.match(new RegExp(`${RANG} — «([^»]+)»`)) || [])[1];
+
+group('JI7', 'judgment hỏi DIFF CỦA LƯỢT → exit 2, không sinh tệp, thông điệp nêu đoạn khớp + hai lối ra; khối gấp cũng bắt; đối chứng dương cùng fixture', () => {
+  const repo = buildRepo(['CONTEXT.md']);
+  writeEvalsQ(repo, ['CONTEXT.md'], '"Đọc diff của lượt (git diff diffBase...HEAD) có giữ luật kho không?"');
+  const r = runArgs(repo);
+  ok0(chan(r), 'JI7 exit 2', `code=${r.code} wrote=${r.wrote} ${r.text.trim().split('\n').pop()}`);
+  ok0(khop(r) === 'diff của lượt', 'JI7 đoạn khớp «diff của lượt» nguyên văn', `got=${khop(r)}`);
+  ok0(/\(a\) vế đo được bằng lệnh/.test(r.text) && /\(b\) vế cần phán/.test(r.text) && /KHÔNG sinh tệp/.test(r.text), 'JI7 thông điệp có đủ hai lối ra', r.text.trim().split('\n').pop());
+  // Khối gấp: «diff của» và «lượt» nằm hai dòng nguồn — một câu trong nghĩa YAML.
+  writeEvalsQ(repo, ['CONTEXT.md'], '>\n      Xét diff của\n      lượt này có giữ luật kho không?');
+  // Tiền đề: bộ đọc thật trả xuống dòng NGUYÊN trong khối gấp — nếu nó tự gấp thì
+  // phép gộp khoảng trắng của bộ dò thành thừa và đột biến khong-gop phải đo lại.
+  const eyJ = createRequire(import.meta.url)(path.join(KIT, 'lib', 'eval-yaml.cjs'));
+  const qJ = (eyJ.parseEvals(readFileSync(path.join(repo, '_acceptance', 'demo', 'evals.yaml'), 'utf8'), ['question']).find(e => e.id === 'E2') || {}).question || '';
+  ok0(qJ.includes('\n'), 'JI7 tiền đề: parseEvals trả khối gấp còn xuống dòng', JSON.stringify(qJ));
+  const rg = runArgs(repo);
+  ok0(chan(rg) && khop(rg) === 'diff của lượt', 'JI7 khối gấp exit 2', `code=${rg.code} khop=${khop(rg)}`);
+  writeEvalsQ(repo, ['CONTEXT.md'], '"Tài liệu có định nghĩa từ «hồ sơ» không?"');
+  const r2 = runArgs(repo);
+  ok0(r2.code === 0 && r2.wrote, 'JI7 đối chứng dương: hỏi nội dung tài liệu → sinh args', `code=${r2.code} ${r2.text.trim().split('\n').pop()}`);
+});
+
+group('JI8', 'judgment BẢO CHẠY LỆNH (Run: `…` · grep -n · git -C) → exit 2 cùng khuôn, nêu đoạn khớp của đúng dạng', () => {
+  const repo = buildRepo(['CONTEXT.md']);
+  for (const [q, want] of [['"Run: `pnpm lint` rồi xét kết quả có sạch không?"', 'Run: `'], ['"Chạy `pnpm typecheck` xem có lỗi không?"', 'Chạy `'], ['"grep -n console apps/ có ra dòng nào không?"', 'grep -'], ['"git -C apps log có commit sửa khoá không?"', 'git -C']]) {
+    writeEvalsQ(repo, ['CONTEXT.md'], q);
+    const r = runArgs(repo);
+    ok0(chan(r) && khop(r) === want, `JI8 «${want}» exit 2 + đoạn khớp`, `code=${r.code} wrote=${r.wrote} khop=${khop(r)}`);
+  }
+});
+
+group('JI9', 'inputs có TỆP DIFF có thật mà câu hỏi vẫn hỏi diff → vẫn exit 2 bằng thông điệp của răng (tên tệp không miễn); đối chứng dương cùng inputs', () => {
+  const repo = buildRepo(['CONTEXT.md']);
+  mkdirSync(path.join(repo, '_acceptance', 'demo', 'evidence'), { recursive: true });
+  writeFileSync(path.join(repo, '_acceptance', 'demo', 'evidence', 'diff-luot.txt'), ' src/a.ts | 2 +-\n');
+  writeEvalsQ(repo, ['_acceptance/demo/evidence/diff-luot.txt'], '"Nhìn diff của lượt trong tệp đính kèm: luật kho có giữ không?"');
+  const r = runArgs(repo);
+  ok0(chan(r), 'JI9 exit 2', `code=${r.code} wrote=${r.wrote} ${r.text.trim().split('\n').pop()}`);
+  ok0(!/không tồn tại trên đĩa/.test(r.text), 'JI9 thông điệp là của răng, không phải input vắng', r.text.trim().split('\n').pop());
+  writeEvalsQ(repo, ['_acceptance/demo/evidence/diff-luot.txt'], '"Tệp đính kèm có nêu tên tệp nào không?"');
+  const r2 = runArgs(repo);
+  ok0(r2.code === 0 && r2.wrote, 'JI9 đối chứng dương: cùng inputs, câu hỏi về nội dung tệp → sinh args', `code=${r2.code}`);
+});
+
+group('JI10', 'KHÔNG chặn oan: bốn câu hỏi trong phạm vi inputs → exit 0; bộ dò trên mọi eval judgment của kho kit → 0 khớp (đối chứng dương: tiêm một câu → 1)', () => {
+  const repo = buildRepo(['CONTEXT.md']);
+  for (const [ten, inp, q] of [
+    ['tài liệu', ['CONTEXT.md'], '"Tài liệu có định nghĩa từ «hồ sơ» không?"'],
+    ['tệp mã trong inputs', ['src/a.ts'], '"Hàm trong src/a.ts có parse dữ liệu ở biên không?"'],
+    ['«diff» nghĩa khác', ['CONTEXT.md', 'src/a.ts'], '"Có diff giữa hai cấu hình đính kèm hợp lý không?"'],
+    ['«đang chạy:»', ['CONTEXT.md'], '"Trên app QC đang chạy: chữ trên màn có đúng từ điển không?"'],
+  ]) {
+    writeEvalsQ(repo, inp, q);
+    const r = runArgs(repo);
+    ok0(r.code === 0 && r.wrote, `JI10 ${ten} exit 0`, `code=${r.code} ${r.text.trim().split('\n').pop()}`);
+  }
+  // Bộ hồ sơ THẬT của kho kit — gốc suy từ vị trí script, không hardcode.
+  const mod = napHoi();
+  ok0(!!mod, 'JI10 module bộ dò nạp được', HOI);
+  if (!mod) return;
+  const { hoiNgoaiInputs } = mod;
+  const ey = createRequire(import.meta.url)(path.join(KIT, 'lib', 'eval-yaml.cjs'));
+  const acc = path.join(KIT, '_acceptance');
+  const texts = existsSync(acc) ? readdirSync(acc).map(s => path.join(acc, s, 'evals.yaml')).filter(f => existsSync(f)).map(f => [f, readFileSync(f, 'utf8')]) : [];
+  const quet = (text) => ey.parseEvals(text, ['executor', 'question']).filter(e => e.executor === 'judgment');
+  let soJ = 0; const trung = [];
+  for (const [f, t] of texts) for (const e of quet(t)) { soJ += 1; const h = hoiNgoaiInputs(e.question); if (h) trung.push(`${path.basename(path.dirname(f))} ${e.id} «${h}»`); }
+  ok0(soJ > 0, 'JI10 bộ hồ sơ của kho kit có eval judgment để dò', `so=${soJ}`);
+  ok0(trung.length === 0, 'JI10 bộ dò trên hồ sơ kho kit: 0 khớp', trung.join(' · '));
+  const tiem = (texts[0] ? texts[0][1] : 'evals:\n') + '  - id: EZ\n    criterion: AC-1\n    executor: judgment\n    question: "Nhìn diff của lượt: luật kho có giữ không?"\n';
+  ok0(quet(tiem).filter(e => hoiNgoaiInputs(e.question)).length === 1, 'JI10 đối chứng dương: tiêm một câu hỏi diff → đúng 1 khớp');
+});
+
+group('JI11', 'tiền đề của răng: lời giao việc cho judge trong acceptance-verify.js còn MÙ DIFF và CHỈ đọc danh sách Input', () => {
+  const lines = readFileSync(path.join(KIT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8').split('\n').filter(l => l.includes('lens duy nhat') && !/^\s*(\/\/|\*)/.test(l) && l.includes('`'));
+  ok0(lines.length === 1, 'JI11 tìm đúng một dòng dựng lời giao việc judge', `so dong=${lines.length}`);
+  ok0(lines.length === 1 && lines[0].includes('KHONG doc diff') && lines[0].includes('CHI duoc doc dung cac file liet ke'),
+    'JI11 lời giao việc hội đồng còn mù diff + chỉ đọc Input — tiền đề của răng hỏi-ngoài-inputs (s4-args.mjs); nới hội đồng thì gỡ răng cùng lúc');
+});
+
+group('JI12', 'bộ dò MỘT nguồn: khuôn chỉ ở module; round-trip — script quét của bản ghi phát hiện báo ĐÚNG tập eval mà s4-args chặn', () => {
+  // (i) Mảnh đặc trưng của CẢ hai khuôn, viết như trong mã nguồn; quét mọi thư
+  // mục nguồn của kit (trừ tests/ và _acceptance/ — nơi ca kiểm và răng hồ sơ
+  // được phép nhắc khuôn để tiêm đột biến).
+  const MANH = { 'hỏi diff': String.raw`\.\.\.\s*HEAD\b`, 'bảo chạy lệnh': String.raw`(Run|Chạy|Chay)\s*:?\s*` };
+  const files = [];
+  const walk = (dir) => { for (const n of readdirSync(dir, { withFileTypes: true })) { if (n.name === 'node_modules') continue; const p = path.join(dir, n.name); if (n.isDirectory()) walk(p); else files.push(p); } };
+  for (const d of ['feature-loop', 'scripts', 'lib', 'hooks', 'skills', 'commands', path.join('docs', 'findings', 'assets')]) if (existsSync(path.join(KIT, d))) walk(path.join(KIT, d));
+  const MOT = [path.join('feature-loop', 'scripts', 'lib', 'hoi-ngoai-inputs.mjs')];
+  for (const [ten, manh] of Object.entries(MANH)) {
+    const coTrong = files.filter(f => readFileSync(f, 'utf8').includes(manh)).map(f => path.relative(KIT, f)).sort();
+    ok0(existsSync(HOI) && readFileSync(HOI, 'utf8').includes(manh), `JI12 mảnh khuôn «${ten}» có trong module (đối chứng dương của phép tìm)`);
+    ok0(JSON.stringify(coTrong) === JSON.stringify(MOT), `JI12 khuôn bộ dò chỉ ở một module — «${ten}»`, `tep chua manh: ${JSON.stringify(coTrong)}`);
+  }
+  // (ii) Round-trip trên gốc kho giả do code sinh: một kho, ba hồ sơ.
+  const dev = path.join(TMP, `dev-${Math.random().toString(36).slice(2)}`);
+  const repo = buildRepo(['CONTEXT.md'], path.join(dev, 'khoA'));
+  const HO = { 'h-diff': '"Nhìn diff của lượt: luật kho có giữ không?"', 'h-lenh': '"Run: `pnpm lint` rồi xét có sạch không?"', 'h-sach': '"Tài liệu có định nghĩa từ «hồ sơ» không?"' };
+  for (const [slug, q] of Object.entries(HO)) {
+    mkdirSync(path.join(repo, '_acceptance', slug), { recursive: true });
+    writeFileSync(path.join(repo, '_acceptance', slug, 'contract.md'), `---\nschema_version: 1\nslug: ${slug}\nrisk_tier: T2\nstatus: implemented\n---\n`);
+    writeEvalsQ(repo, ['CONTEXT.md'], q, slug);
+  }
+  const chanBoiS4 = Object.keys(HO).filter(slug => chan(runArgs(repo, slug))).map(s => `khoA/${s} E2`).sort();
+  const QUET = path.join(KIT, 'docs', 'findings', 'assets', '2026-10-01-quet-judgment-hoi-ngoai-inputs.cjs');
+  const sq = spawnSync(process.execPath, [QUET, dev], { encoding: 'utf8' });
+  const baoBoiQuet = [...String(sq.stdout).matchAll(/^\s+(\S+) (E\d+) «/mg)].map(m => `${m[1]} ${m[2]}`).sort();
+  ok0(sq.status === 0 && chanBoiS4.length === 2, 'JI12 round-trip có đối tượng: script quét chạy được và s4-args chặn đúng hai hồ sơ', `quet exit=${sq.status} ${String(sq.stderr).trim().split('\n').pop()} · s4=${JSON.stringify(chanBoiS4)}`);
+  ok0(JSON.stringify(baoBoiQuet) === JSON.stringify(chanBoiS4), 'JI12 script quét báo đúng tập eval s4-args chặn', `quet=${JSON.stringify(baoBoiQuet)} s4=${JSON.stringify(chanBoiS4)}`);
+});
+
+if (ONLY && groupsRun === 0) { console.log(`  FAIL: --only ${ONLY} không khớp nhóm nào (JI1…JI12)`); fail += 1; }
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

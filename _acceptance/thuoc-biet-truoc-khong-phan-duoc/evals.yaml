@@ -1,0 +1,140 @@
+schema_version: 1
+feature_slug: thuoc-biet-truoc-khong-phan-duoc
+# E1–E6: mỗi chân chạy MỘT nhóm của lưới thường trực
+# tests/scripts/s4-args-judgment-inputs.test.mjs trên cây thật (đối chứng dương)
+# rồi trên bản sao trọn cây đã tiêm một đột biến thay thế nguyên văn (chiều đỏ:
+# exit ≠ 0 VÀ dòng FAIL có tên ca). Bảng đột biến ở design doc §3. Chân chứng mũi
+# tiêm trúng (khớp đúng 1 chỗ, bản sao khác bản thật, mutant chạy được) trước khi
+# chấm. E7/E8 judgment hỏi NỘI DUNG các tệp có trong inputs — dogfood răng của vòng.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.tbt_hoi_diff
+    expected: >
+      Cây thật: nhóm JI7 xanh — câu hỏi ca gốc (một dòng) và khối gấp xuống dòng
+      giữa «diff của» / «lượt» đều exit 2, tệp args vắng, thông điệp có «eval E2
+      (judgment): câu hỏi đòi thứ hội đồng không đọc được», đoạn khớp trong «…»,
+      «(a) vế đo được bằng lệnh» và «(b) vế cần phán»; đối chứng dương cùng fixture
+      đổi câu hỏi sang tài liệu → exit 0. Chiều đỏ: đột biến bo-rang → «FAIL: JI7
+      exit 2»; khong-gop → «FAIL: JI7 khối gấp exit 2»; bo-loi-b → «FAIL: JI7
+      thông điệp có đủ hai lối ra».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/scripts/lib/hoi-ngoai-inputs.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh"]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.tbt_chay_lenh
+    expected: >
+      Cây thật: nhóm JI8 xanh — bốn hàng có tên «Run: `…`», «Chạy `…`»,
+      «grep -n …», «git -C <dir> …» đều exit 2, không sinh tệp, thông điệp cùng khuôn AC-1 nêu đoạn khớp của
+      đúng dạng đó. Chiều đỏ: đột biến bo-rang → «FAIL: JI8» và exit ≠ 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/scripts/lib/hoi-ngoai-inputs.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh"]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.tbt_ten_diff_khong_mien
+    expected: >
+      Cây thật: nhóm JI9 xanh — inputs có tệp _acceptance/demo/evidence/diff-luot.txt
+      CÓ THẬT mà câu hỏi hỏi diff của lượt → exit 2 với thông điệp của răng (không
+      phải thông điệp input vắng), không sinh tệp. Chiều đỏ: đột biến mien-ten-diff
+      (miễn khi inputs có tệp tên chứa «diff») → «FAIL: JI9 exit 2» và exit ≠ 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/scripts/lib/hoi-ngoai-inputs.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh"]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.tbt_khong_chan_oan
+    expected: >
+      Cây thật: nhóm JI10 xanh — bốn câu hỏi (tài liệu · tệp mã src/a.ts có trong
+      inputs · «diff giữa hai cấu hình đính kèm» · «Trên app QC đang chạy:») đều
+      exit 0 và sinh tệp; bộ dò trên mọi eval judgment của _acceptance/*/evals.yaml
+      trong kho kit trả 0 khớp, và bản sao văn bản tiêm một câu hỏi diff trả đúng 1.
+      Chiều đỏ: đột biến do-rong → «FAIL: JI10 «diff» nghĩa khác exit 0»;
+      chay-khong-backtick → «FAIL: JI10 «đang chạy:» exit 0».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/scripts/lib/hoi-ngoai-inputs.mjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/*/evals.yaml", "_acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh"]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.tbt_mot_nguon
+    expected: >
+      Cây thật: nhóm JI12 xanh — mảnh đặc trưng của CẢ hai khuôn có trong module
+      (đối chứng dương) và, với từng mảnh, tập tệp chứa nó dưới feature-loop/
+      scripts/ lib/ hooks/ skills/ commands/ docs/findings/assets/ BẰNG đúng
+      {feature-loop/scripts/lib/hoi-ngoai-inputs.mjs};
+      round-trip: script quét của bản ghi phát hiện chạy trên gốc kho giả code-sinh
+      (một kho, ba hồ sơ) báo đúng tập eval mà s4-args.mjs chặn trên cùng hồ sơ.
+      Hai chiều đỏ: ban-sao-khuon (dán lại khuôn «hỏi diff» vào script quét) và
+      ban-sao-lenh (dán khuôn «bảo chạy lệnh» vào scripts/eval-coverage-lint.js) →
+      mỗi chiều «FAIL: JI12 khuôn bộ dò chỉ ở một module» và exit ≠ 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/lib/hoi-ngoai-inputs.mjs", "feature-loop/scripts/s4-args.mjs", "docs/findings/assets/2026-10-01-quet-judgment-hoi-ngoai-inputs.cjs", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh"]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.tbt_tien_de_hoi_dong
+    expected: >
+      Cây thật: nhóm JI11 xanh — dòng mẫu (không phải chú thích) dựng lời giao việc
+      cho judge trong feature-loop/workflows/acceptance-verify.js còn «KHONG doc
+      diff» và «CHI duoc doc dung cac file liet ke». Hai chiều đỏ, một cho mỗi vế:
+      noi-hoi-dong (bỏ «KHONG doc diff») và noi-hoi-dong-2 (bỏ «CHI duoc doc…») →
+      mỗi chiều «FAIL: JI11 lời giao việc hội đồng còn mù diff» kèm tên răng
+      hỏi-ngoài-inputs, exit ≠ 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/scripts/s4-args-judgment-inputs.test.mjs", "_acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh"]
+
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    question: >
+      Đọc ba tệp luật cho người viết eval (eval-executors.md, Phase 2 của SKILL
+      acceptance, dòng evals.yaml ở S1 của SKILL feature-loop) cùng hợp đồng.
+      Trong nội dung ba tệp: (1) có dạy chọn người chấm theo TỪNG VẾ của một tiêu
+      chí với đủ bốn lối (lệnh đọc được → script/test của kho; chỉ thấy trên màn
+      đang chạy → ui-check; cần cân với ý định trên một tệp → judgment với đúng tệp
+      đó trong inputs; không ai ở đây đọc được → khai giới hạn lúc viết) không?
+      (2) có nói Dấu (judgment) của cả tiêu chí không đè luật «executor máy nhất»
+      không? (3) có nói hội đồng đọc trạng thái, không đọc lịch sử — tệp diff hay
+      patch không bao giờ là input — không? (4) có ghi ba bẫy của script luật kho
+      (đo dòng thêm mới thì xanh rỗng sau gộp; đo trạng thái thì đỏ oan khi cây đã
+      bẩn → thu phạm vi về paths của vòng, script là của kho; thước dùng chung phải
+      chạy được ở mọi nhánh — thư mục vắng thì im hoặc khai có tên, ca gài tự dựng
+      tệp mục tiêu trong bản sao) không? PASS chỉ khi
+      cả bốn câu đúng ở mức đủ để một phiên sinh eval làm theo; FAIL nêu đúng tệp
+      và đoạn còn thiếu.
+    inputs:
+      - skills/acceptance/references/eval-executors.md
+      - skills/acceptance/SKILL.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - _acceptance/thuoc-biet-truoc-khong-phan-duoc/contract.md
+    expected: PASS với trích dẫn đoạn cụ thể cho từng câu; FAIL nêu đúng tệp và đoạn còn lệch
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    question: >
+      Đọc tệp persona của hội đồng (judge-personas.md), eval-executors.md và mục
+      gap-probe (bước S1#7) của SKILL feature-loop, cùng hợp đồng. (1) Câu «judge
+      không nhận implementation diff» của persona và câu «tệp mã nguồn trong inputs
+      là hợp lệ» của eval-executors.md có còn mâu thuẫn không, hay cả hai đọc được
+      bằng một câu trạng-thái-vs-lịch-sử? (2) Câu dặn «>50 % UNCERTAIN → sửa
+      contract ở Gate 1 lần sau» đã được thay bằng con trỏ tới răng ở bước sinh
+      args chưa? (3) Danh sách câu hỏi chéo bắt buộc của gap-probe có một ý hỏi
+      eval judgment nào hỏi điều không nằm trong tệp của chính nó, kèm sự thật nền
+      «hội đồng chỉ đọc đúng inputs, không diff, không lệnh» không? PASS chỉ khi
+      cả ba đúng chiều; FAIL nêu đúng tệp và đoạn.
+    inputs:
+      - skills/acceptance/references/judge-personas.md
+      - skills/acceptance/references/eval-executors.md
+      - feature-loop/skills/feature-loop/SKILL.md
+      - _acceptance/thuoc-biet-truoc-khong-phan-duoc/contract.md
+    expected: PASS với trích dẫn đoạn cụ thể cho từng câu; FAIL nêu đúng tệp và đoạn còn lệch
+    evidence_required: [judged_by, verdict, rationale]
