@@ -38,14 +38,16 @@ này ở 9 hồ sơ trong hai tuần, và người đã ký «Đạt» bằng ta
 | Bộ dò | Số eval | Ghi chú |
 |---|---|---|
 | Rộng: hỏi diff · bảo chạy lệnh · nhắc đường dẫn mã ngoài `inputs` | 28 | nhánh đường-dẫn-mã có ca hợp lệ (nhắc tên tệp làm ngữ cảnh) — không đủ chắc làm chốt |
-| Hẹp: hỏi diff của lượt mà `inputs` không có tệp diff · bảo chạy lệnh | 15 | soi tay: 15/15 đúng là hỏi thứ giám khảo không đọc được |
+| Hẹp: hỏi diff của lượt · bảo chạy lệnh | 17 | soi tay: 17/17 đúng là hỏi thứ giám khảo không đọc được |
 
-Phán quyết cuối của 15 ca hẹp: 9 UNCERTAIN · 6 PASS. Sáu PASS đều có lý do
-không lành: bốn ca artifact-platform chấm tháng 6 — TRƯỚC khi khoá «chỉ đọc
+Phán quyết cuối của 17 ca hẹp: 10 UNCERTAIN · 7 PASS. Bảy PASS đều có lý do
+không lành: năm ca artifact-platform chấm tháng 6–7 — TRƯỚC khi khoá «chỉ đọc
 inputs» có, giám khảo tự chạy lệnh; một ca crm (`tro-ly-okr-de-xuat`) PASS nhờ
 một tệp bằng chứng tĩnh `luat-kho.md` mà chính giám khảo thứ ba chỉ ra là ghi HEAD
-cũ hơn nhánh; một ca radar trả lời từ tệp đầu ra kèm theo. Sau 04/08: 9/11 ca
-kết thúc UNCERTAIN.
+cũ hơn nhánh; một ca radar trả lời từ tệp đầu ra kèm theo. Sau 04/08: 10/12 ca
+kết thúc UNCERTAIN. Bản quét đầu (sáng 01/10) miễn hai ca có tệp tên «diff» trong
+`inputs` — §10.3 giải thích vì sao miễn như vậy là sai, nên số ở đây là bản đã
+bỏ miễn.
 
 crm riêng — dạng «Nhìn diff của lượt này: luật kho…» ở 9 hồ sơ OKR (26/09 → 01/10):
 vòng chấm cộng lại ≈ 17, mỗi vòng 3 giám khảo — khoảng 50 lượt giám khảo mà
@@ -126,33 +128,56 @@ khuyến nghị dựa vào điều gì máy không có? Không gì cả; máy c�
   kit đã viết E14. Không đổi mặc định chấm của bên đọc; không cho giám khảo đọc
   diff (phá tính độc lập, và vế cơ học vẫn thuộc về script).
 
-## 8. Đề xuất — một vòng T2, CỘNG cần owner duyệt đích danh
+## 8. Đề xuất — một vòng T2, CỘNG cần owner duyệt đích danh (bản sửa sau §10)
 
-Phạm vi (không chạm `lib/**` → T2):
-1. `eval-executors.md` + Phase 1/2 của `skills/acceptance/SKILL.md`: chọn
-   executor theo từng vế; judgment chỉ đọc `inputs`, không diff, không lệnh; vế
-   kiểm được bằng lệnh → script/test của kho.
-2. `eval-coverage-lint.js` W9 (bộ dò hẹp §3, miễn khi `inputs` có tệp diff) —
-   thông điệp nói việc máy làm, không hỏi người; ca kiểm hai chiều.
-3. gap-probe: thêm một ý vào câu hỏi chéo bắt buộc kèm sự thật nền «hội đồng chỉ
-   đọc đúng `inputs`».
-4. Feature-loop S1: W9 do máy xử trước Cổng Phạm vi (tách eval, một dòng sổ),
-   không trình lên thẻ trừ khi còn sót.
+Lõi (giữ) — không chạm `lib/**`, `hooks/**`, lưới trước-merge → T2:
+1. **Răng ở `feature-loop/scripts/s4-args.mjs`** — cùng chỗ và cùng hình với răng
+   «input không có trên đĩa → exit 2 gọi tên, không sinh tệp» (hồ sơ
+   `inputs-tinh-tu-goc-kho`, ca JI2–JI6): câu hỏi của một eval judgment hỏi diff
+   của lượt hoặc bảo chạy lệnh → exit 2, nêu eval, nói đúng hai lối ra: vế đo
+   được bằng lệnh → eval `script`/`test` của kho đo TRẠNG THÁI cây; vế cần phán
+   → hỏi về tệp có trong `inputs` (tệp mã nguồn được, diff không). Chạy TRƯỚC
+   lượt chấm đầu tiên, nên không tốn một giám khảo nào và không đốt lượt chấm.
+2. **Luật chọn theo từng vế** ở `eval-executors.md` (mục judgment + luật chọn
+   số 4), Phase 2 của `skills/acceptance/SKILL.md`, dòng evals ở S1 của
+   feature-loop; **giải mâu thuẫn** `judge-personas.md` («không nhận diff») với
+   `eval-executors.md` (tệp mã trong `inputs` là hợp lệ): hội đồng đọc TRẠNG
+   THÁI, không đọc LỊCH SỬ; thay câu dặn chết «>50 % UNCERTAIN → sửa hợp đồng lần
+   sau» bằng con trỏ tới răng. Kèm hai bẫy đã khai ở §10.2 cho script luật kho.
+3. **Một ý thêm vào câu hỏi chéo của gap-probe** kèm sự thật nền «hội đồng chỉ đọc
+   đúng `inputs`, không diff, không lệnh» — bắt ở Cổng Phạm vi, trước khi hợp
+   đồng được duyệt; răng (1) là lưới nếu lọt.
+4. **Ca kiểm hai chiều** trên cùng fixture, ghim thông điệp: hỏi tài liệu với
+   inputs tài liệu → exit 0 (đối chứng dương) · hỏi «diff của lượt» → exit 2 +
+   thông điệp · hỏi về tệp mã có trong inputs → exit 0 · inputs có tệp tên
+   `diff-luot.txt` mà câu hỏi vẫn hỏi diff → exit 2 (không miễn theo tên tệp).
 
-Bảng dự báo năm dòng: làm-xong→quyết-được ↓ (người thôi phải tự đọc diff cho mục
-luật kho) · lượt gọi người/vòng = ở các ca đã thấy (Cổng Bằng chứng vẫn dừng vì
-T3 hoặc lỗi ngoài hợp đồng), ↓ ở vòng T2 mà mục này là thứ duy nhất làm hết
-xanh-sạch · vòng bị hạ tầng đốt lượt chấm = · token máy/vòng ↓ (3 giám khảo ×
-mỗi lượt chấm, cho câu hỏi không trả lời được) · phút máy/lượt chấm =. Điều kiện
-tin cậy: đường verdict không đổi thành phần — chốt nằm ở bước sinh eval, không ở
-làn chấm.
+Đuôi (không làm ở vòng này, ghi ngưỡng): W9 ở `eval-coverage-lint.js` và một
+làn trên thẻ Cổng Phạm vi — cùng bộ dò, hai bộ đọc nữa là hai bản sao nữa; lint
+không nằm trên đường feature-loop (§10.1) nên chỉ phục vụ người chạy acceptance
+trần. Ngưỡng mở: ≥1 hồ sơ mắc dạng này tới được lượt chấm qua đường acceptance
+trần sau mốc phát hành vòng này.
 
-Chưa làm, kèm ngưỡng đang đếm:
-- Bộ đọc khoan dung ở lượt chấm (không gọi hội đồng cho câu hỏi đòi diff, như
-  nhánh không-inputs) — phải chia bộ dò giữa hai nơi, kéo vào `lib/**` (T3).
-  Ngưỡng mở: ≥1 lượt chấm sau mốc phát hành vòng này vẫn gọi hội đồng cho câu
-  hỏi đòi diff.
-- Ô «chỉ người làm được» cho judgment — 1 ca (onehub). Ngưỡng mở: ≥2 kho.
+Bảng dự báo năm dòng, nói thẳng hơn bản sáng: **thời gian làm-xong→quyết-được ↓**
+(người thôi phải tự đọc diff cho mục luật kho) · **lượt gọi người/vòng =** — 7/9
+hồ sơ crm là T3, mọi mục judgment đều phải người phán theo thiết kế, nên eval này
+không THÊM lượt dừng, nó thêm một mục không-căn-cứ vào lượt dừng có sẵn; 2 hồ sơ
+T2 đều có mục ngoài hợp đồng nên cũng không xanh-sạch · **vòng bị hạ tầng đốt
+lượt chấm =** (răng chặn trước lượt, không trong lượt) · **token máy/vòng ↓** —
+16 lượt hội đồng × 3 giám khảo ở crm cho câu hỏi không trả lời được · **phút
+máy/lượt chấm =**. Điều kiện tin cậy: đường verdict không đổi thành phần — răng
+nằm trước lượt chấm, không trong làn finder → refute → REJECT. Giá trị không
+nằm ở số lượt: nó nằm ở chỗ AC luật kho lần đầu có một thước gắn vào vật (§2,
+lỗi đã lọt).
+
+Giới hạn khai trước, kèm ngưỡng:
+- Bộ dò là ngôn ngữ tự nhiên, răng là CHẶN: bắt nhầm = chặn oan. Độ đặc hiệu đo
+  được 17/17 trên 434; bản đầu từng bắt nhầm «Trên app QC đang chạy:» (onehub)
+  nên đã siết. Ngưỡng nới thành cờ vàng: ≥1 lần chặn oan có tên.
+- Sót tiếng Anh («the changes», «what was modified») — 1/17 ca là tiếng Anh.
+  Ngưỡng mở rộng: ≥2 ca sót đi tới lượt chấm.
+- Ô «chỉ người làm được» cho judgment (`[HUMAN — BE thật]`, onehub) — 1 ca, 1
+  kho. Ngưỡng: ≥2 kho.
 
 ## 9. Việc ngay ở crm (không phải việc kit)
 
@@ -160,3 +185,69 @@ Vòng `va-tro-ly-okr-sau-thu` không phải chờ kit: tách E14 thành một ev
 (các vế grep được, chạy trên HEAD hiện tại, qua một `config:` của crm) + một
 judgment chỉ cho vế tài liệu; lỗi «chữ trên màn ghi cứng tên biến khoá» là sai
 hợp đồng của AC-13 → máy sửa vật. Không ký «Đạt» cho E14 ở dạng hiện tại.
+
+## 10. Tự phản biện 01/10 (owner yêu cầu trước khi duyệt) — đọc mã, không đọc lại đề xuất
+
+### 10.1 Răng đặt sai chỗ — lỗ nặng nhất của bản sáng
+`eval-coverage-lint.js` KHÔNG nằm trên đường feature-loop: S1 của feature-loop
+sinh evals.yaml tại chỗ và không gọi lint (0 hit trong SKILL feature-loop); lint
+chỉ chạy ở Phase 2 của skill acceptance (đường acceptance trần) và ở lệnh
+`approve` do người gõ. crm — nơi sinh 9/17 ca — chạy feature-loop ở làn V, máy
+đi tiếp, không ai gõ `approve`. W9 ở lint sẽ không bao giờ nổ ở đúng kho mắc lỗi.
+Thẻ Cổng Phạm vi (`gate-card.js`) tự tính cờ phủ riêng, không đọc lint. Chỗ MỌI
+lượt chấm phải đi qua, ở MỌI kho, là `s4-args.mjs` — và nó đã có răng cùng hình:
+input không có trên đĩa → exit 2 gọi tên, không sinh tệp, kèm bộ ca JI1–JI6
+(đối chứng dương + ghim thông điệp + round-trip). Răng mới là một nhánh nữa của
+đúng hàm đó. Vì sao CHẶN thay vì «hội đồng UNCERTAIN cơ học, 0 giám khảo» như
+nhánh thiếu-inputs: nhánh kia là đường đọc-cũ cho hồ sơ đã ký; ở đây không có
+hồ sơ cũ nào cần đọc, và UNCERTAIN cơ học vẫn đẩy một mục không-căn-cứ lên Cổng
+Bằng chứng cho người — là trạm thu phí; chặn trước lượt thì máy sửa, 0 người.
+
+### 10.2 «Vế cơ học → script» có hai bẫy đã có tên trong kit
+- **Đo diff thì xanh rỗng sau gộp** — tiền lệ JR11a (`judge-required-evidence`):
+  sau merge base = HEAD, `git diff HEAD HEAD` rỗng, phép đo chết lặng; làn ghim lại
+  cũng vậy. Script luật kho phải đo TRẠNG THÁI cây («0 chú thích trong các tệp vòng
+  này chạm», «0 chỗ đọc khoá ngoài `apps/agent`»), không đo «dòng thêm mới».
+- **Đo trạng thái thì đỏ oan nếu cây đã bẩn** — routing của S4: eval máy đỏ →
+  REJECT, cột baseline chỉ là ghi chú ở mục Analyst, không cứu. Script luật kho
+  phải XANH trên cây hiện tại trước khi được nhận (đối chứng dương theo
+  `MEASURE-BIRTH-CLAUSE`); cây đã bẩn thì thu phạm vi quét về đường dẫn của vòng
+  (`paths:`), và chính kho dựng script đó — vật của kho, kit không viết hộ.
+Cả hai vào `eval-executors.md` cùng luật chọn theo vế. `paths:` không có bẫy
+thêm: không khai → luôn chạy lại (rẻ), khai hẹp → carry-forward đúng.
+
+### 10.3 Lối thay thế «đưa diff cho giám khảo» đã có bằng chứng hỏng, và sẽ đẻ lỗi mới
+crm `gioi-han-duyet-cay-okr` E25 đưa `evidence/diff-luot.txt` vào `inputs`:
+tệp 500 dòng chỉ chứa `--stat`, 0 thân diff → hai vòng UNCERTAIN, cả ba giám khảo
+đòi «nội dung diff, không chỉ --stat». Nặng hơn: tệp diff làm tay ở vòng N là
+lịch sử đóng băng; vòng N+1 mã đổi mà tệp không đổi thì bộ nhớ hội đồng (P3, băm
+`inputs`) MANG phán quyết cũ sang mã mới — một lỗi chưa từng có sẽ xuất hiện nếu
+ai «sửa» bằng cách thêm tệp diff. Hệ quả cho bộ dò: KHÔNG miễn khi `inputs` có
+tệp tên «diff» (bản quét sáng đã miễn — sai; §3 đã sửa số). Luật: hội đồng đọc
+trạng thái (tệp mã nguồn hợp lệ, P3 băm lại đúng khi mã đổi), không đọc lịch sử.
+
+### 10.4 Số lượt gọi người — bản sáng nói quá
+7/9 hồ sơ crm là T3: mọi mục judgment đều phải người phán theo thiết kế. Eval này
+không thêm lượt dừng nào; nó thêm một mục mà người ký không có căn cứ để ký. Dòng
+«lượt gọi người ↓» của bản sáng đã đổi thành «=» (§8). Giá trị thật của vòng là
+chất lượng thước (một lỗi đã lọt, §2) và token.
+
+### 10.5 Bộ phân loại phạm vi không sửa được ở đây — và không cần
+Lỗi «chữ trên màn ghi cứng tên biến khoá» bị xếp ngoài hợp đồng dù AC-13 nêu đích
+danh — lớp lỗi classifier đã biết (luật «không chắc → ngoài»). Vòng này không
+chữa classifier; tách vế thành script khiến vế đó được đo bằng lệnh, không còn
+phụ thuộc ai phân loại. Đúng tầng: thước gắn vào vật thay vì sửa người gác.
+
+### 10.6 Nguồn lặp ở crm là chép khuôn, kit tự nó 0 ca
+Quét 96 hồ sơ của chính kit: 0/42 eval judgment mắc dạng này. crm lặp vì mỗi
+vòng chép câu «Nhìn diff của lượt này: luật kho…» từ hồ sơ trước (không có khuôn
+nào trong docs của crm). Kit sửa để kho khác không dẫm; crm nên có MỘT script
+luật kho dùng chung qua `suite_keys` thay vì 9 judgment — việc của crm (§9).
+
+### 10.7 Phạm vi chạm, đo trên mọi kho
+Tệp chạm: `s4-args.mjs` + test · `eval-executors.md` · `judge-personas.md` ·
+Phase 2 của skill acceptance · hai dòng ở S1 feature-loop (evals + gap-probe).
+Không chạm `lib/**`, hooks, lưới trước-merge, danh sách chép sang kho. s4-args là
+đường găng của mọi vòng mọi kho: kho không có dạng này (6/10) → im; vòng đang
+chạy có dạng này → chặn ở lượt kế với lời sửa (đúng điều muốn cho crm
+`va-tro-ly-okr-sau-thu`); hồ sơ đã ký → không chạy s4-args lại, không chạm.

@@ -21,12 +21,14 @@ const ey = require(path.join(KIT, 'lib', 'eval-yaml.cjs'));
 const DEV = process.argv[2];
 if (!DEV) { console.error('thiếu <dev_root>'); process.exit(2); }
 
-// Bộ dò HẸP (ứng viên cho chốt máy): hỏi diff của lượt / chạy lệnh.
+// Bộ dò HẸP (ứng viên cho chốt máy): hỏi diff của lượt / chạy lệnh. KHÔNG miễn khi
+// inputs có một tệp tên «diff»: tệp diff làm tay là lịch sử đóng băng — mã đổi mà tệp
+// không đổi thì bộ nhớ hội đồng (P3, băm inputs) mang phán quyết cũ sang mã mới
+// (crm gioi-han-duyet-cay-okr E25: tệp 500 dòng chỉ có --stat, hai vòng UNCERTAIN).
 const DIFF_REQ = /\bgit\s+(-C\s+\S+\s+)?diff\b|\bdiffBase\b|\.\.\.\s*HEAD\b|\bdiff\b[^.\n]{0,25}\b(lượt|luot|PR|round|nhánh|nhanh|branch|HEAD|commit)\b|\b(nhìn|nhin|đọc|doc|read|so)\s+(bản\s+)?diff\b/i;
 const CMD_REQ = /(^|\s)(Run|Chạy|Chay)\s*:?\s*`|\bgrep\s+-|\bgit\s+-C\b/i;
 // Bộ dò RỘNG (chỉ để đếm, KHÔNG làm chốt): đường dẫn mã trong câu hỏi mà inputs không phủ.
 const CODEPATH = /(?:^|[\s`(«"'])((?:apps|packages|src|lib|scripts|server|app|components|supabase)\/[\w@.\/\[\]()-]+)/g;
-const diffInput = i => /diff|patch/i.test(i);
 
 function inputsOf(text, id) {
   const lines = text.split('\n');
@@ -94,7 +96,7 @@ for (const [key, { f }] of bySlug) {
     const inp = inputsOf(text, e.id);
     const paths = [...q.matchAll(CODEPATH)].map(m => m[1].replace(/[.,;:)»"'`]+$/, ''));
     const ngoai = paths.filter(p => !inp.some(i => i === p || i.startsWith(p) || p.startsWith(i)));
-    const hep = (DIFF_REQ.test(q) && !inp.some(diffInput)) || CMD_REQ.test(q);
+    const hep = DIFF_REQ.test(q) || CMD_REQ.test(q);
     if (hep || ngoai.length || DIFF_REQ.test(q)) t.rong++;
     const p = lastPanel(path.dirname(f), e.id);
     const bucket = hep ? tally.hep : tally.khac;
@@ -104,6 +106,6 @@ for (const [key, { f }] of bySlug) {
 }
 console.log(`kho: ${t.kho.size} · hồ sơ: ${t.hoSo} · eval judgment: ${t.judgment}`);
 console.log(`bộ dò RỘNG (diff | lệnh | đường dẫn mã ngoài inputs): ${t.rong}`);
-console.log(`bộ dò HẸP (hỏi diff mà inputs không có tệp diff | bảo chạy lệnh): ${t.hep}`);
+console.log(`bộ dò HẸP (hỏi diff của lượt | bảo chạy lệnh): ${t.hep}`);
 console.log(`phán quyết cuối của hội đồng — HẸP: ${JSON.stringify(tally.hep)} · còn lại: ${JSON.stringify(tally.khac)}`);
 for (const h of hits) console.log(`  ${h.key} ${h.id} «${h.m}» → ${h.p ? h.p.chain : 'chưa chấm'}`);
