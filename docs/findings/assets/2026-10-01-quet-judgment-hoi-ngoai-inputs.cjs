@@ -21,12 +21,15 @@ const ey = require(path.join(KIT, 'lib', 'eval-yaml.cjs'));
 const DEV = process.argv[2];
 if (!DEV) { console.error('thiếu <dev_root>'); process.exit(2); }
 
-// Bộ dò HẸP (ứng viên cho chốt máy): hỏi diff của lượt / chạy lệnh. KHÔNG miễn khi
-// inputs có một tệp tên «diff»: tệp diff làm tay là lịch sử đóng băng — mã đổi mà tệp
-// không đổi thì bộ nhớ hội đồng (P3, băm inputs) mang phán quyết cũ sang mã mới
+// Bộ dò HẸP (chốt máy): hỏi diff của lượt / chạy lệnh. Khuôn sống ở MỘT module —
+// feature-loop/scripts/lib/hoi-ngoai-inputs.mjs (hồ sơ thuoc-biet-truoc-khong-phan-duoc),
+// cùng module s4-args.mjs dùng để chặn. Bản đo 01/10 viết khuôn tại chỗ (commit a2db0fad);
+// module chép nguyên văn hai khuôn ấy, thêm gộp khoảng trắng + bóc nháy bao ngoài (đo lại:
+// cùng 17 ca). Từ đó script này là lệnh đếm ngưỡng của chính bộ dò đang ship — chặn oan · sót.
+// KHÔNG miễn khi inputs có một tệp tên «diff»: tệp diff làm tay là lịch sử đóng băng — mã đổi
+// mà tệp không đổi thì bộ nhớ hội đồng (P3, băm inputs) mang phán quyết cũ sang mã mới
 // (crm gioi-han-duyet-cay-okr E25: tệp 500 dòng chỉ có --stat, hai vòng UNCERTAIN).
-const DIFF_REQ = /\bgit\s+(-C\s+\S+\s+)?diff\b|\bdiffBase\b|\.\.\.\s*HEAD\b|\bdiff\b[^.\n]{0,25}\b(lượt|luot|PR|round|nhánh|nhanh|branch|HEAD|commit)\b|\b(nhìn|nhin|đọc|doc|read|so)\s+(bản\s+)?diff\b/i;
-const CMD_REQ = /(^|\s)(Run|Chạy|Chay)\s*:?\s*`|\bgrep\s+-|\bgit\s+-C\b/i;
+const { DIFF_REQ, hoiNgoaiInputs } = require(path.join(KIT, 'feature-loop', 'scripts', 'lib', 'hoi-ngoai-inputs.mjs'));
 // Bộ dò RỘNG (chỉ để đếm, KHÔNG làm chốt): đường dẫn mã trong câu hỏi mà inputs không phủ.
 const CODEPATH = /(?:^|[\s`(«"'])((?:apps|packages|src|lib|scripts|server|app|components|supabase)\/[\w@.\/\[\]()-]+)/g;
 
@@ -96,12 +99,13 @@ for (const [key, { f }] of bySlug) {
     const inp = inputsOf(text, e.id);
     const paths = [...q.matchAll(CODEPATH)].map(m => m[1].replace(/[.,;:)»"'`]+$/, ''));
     const ngoai = paths.filter(p => !inp.some(i => i === p || i.startsWith(p) || p.startsWith(i)));
-    const hep = DIFF_REQ.test(q) || CMD_REQ.test(q);
+    const khop = hoiNgoaiInputs(q);
+    const hep = !!khop;
     if (hep || ngoai.length || DIFF_REQ.test(q)) t.rong++;
     const p = lastPanel(path.dirname(f), e.id);
     const bucket = hep ? tally.hep : tally.khac;
     if (p) bucket[p.last] = (bucket[p.last] || 0) + 1;
-    if (hep) { t.hep++; hits.push({ key, id: e.id, p, m: (q.match(DIFF_REQ) || q.match(CMD_REQ) || [''])[0] }); }
+    if (hep) { t.hep++; hits.push({ key, id: e.id, p, m: khop }); }
   }
 }
 console.log(`kho: ${t.kho.size} · hồ sơ: ${t.hoSo} · eval judgment: ${t.judgment}`);

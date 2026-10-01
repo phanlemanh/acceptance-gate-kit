@@ -23,6 +23,7 @@ import { globToRe } from './carry-plan.mjs';
 import { DO_GLOBS, HO_SO_VAN_BAN_GLOBS } from './lib/phan-loai.mjs';
 import { demThuocVat } from './thuoc-vat.mjs';
 import { chupThuoc } from './chup-ho-so-da-thong.mjs';
+import { hoiNgoaiInputs } from './lib/hoi-ngoai-inputs.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
@@ -204,6 +205,16 @@ for (const e of evals) {
     const val = resolveConfigKey(configText, ref.slice('config:'.length));
     if (!val) die(`ref không giải được trong config.yaml: ${ref} (eval ${e.id})`);
     e.ref = ref; e.cmd = val;
+  }
+  // Răng hỏi-ngoài-inputs (hồ sơ thuoc-biet-truoc-khong-phan-duoc): hội đồng chỉ
+  // đọc đúng các tệp trong `inputs` — không diff, không lệnh (lời giao việc ở
+  // acceptance-verify.js) — nên câu hỏi đòi diff của lượt hay bảo chạy lệnh có
+  // phán quyết biết trước: UNCERTAIN, bất kể vật. Chặn TRƯỚC lượt chấm, không tốn
+  // giám khảo nào. Chạy trước khi giải inputs: tệp tên «diff» không miễn — diff là
+  // lịch sử đóng băng, P3 băm inputs sẽ mang phán quyết cũ sang mã mới.
+  if (e.executor === 'judgment') {
+    const hoi = hoiNgoaiInputs(e.question);
+    if (hoi) die(`eval ${e.id} (judgment): câu hỏi đòi thứ hội đồng không đọc được — «${hoi}». Hội đồng chỉ đọc đúng các tệp trong inputs: không đọc diff, không chạy lệnh — phán quyết biết trước là UNCERTAIN, bất kể vật. KHÔNG sinh tệp. Tách câu hỏi theo từng vế: (a) vế đo được bằng lệnh → eval script/test của kho đo TRẠNG THÁI cây, không đo diff (sau gộp diff rỗng, phép đo xanh rỗng), và phải xanh trên cây hiện tại trước khi nhận (eval máy đỏ → REJECT, baseline không cứu); (b) vế cần phán → viết lại câu hỏi về TỆP có trong inputs (tệp mã nguồn được, diff/patch không). Luật: eval-executors.md «Pick the grader per clause»`);
   }
   if (e.executor === 'judgment' && Array.isArray(e.inputs)) e.inputs = e.inputs.map(p => resolveJudgmentInput(e, p));
   for (const k of Object.keys(e)) if (e[k] === '' || e[k] == null) delete e[k];
