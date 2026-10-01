@@ -5,9 +5,9 @@ slug: luot-cham-ghi-vao-cay
 owner: phanlemanh@gmail.com
 risk_tier: T3      # sửa lib/nhan-canh-gay.cjs, scripts/pre-merge-check.sh, scripts/recheck-evidence.cjs (t3_paths)
 surfaces: [cli, docs]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: "Manh Phan"
+approved_at: 2026-10-01T10:37:41Z
 design_doc: docs/superpowers/specs/2026-10-01-luot-cham-ghi-vao-cay-design.md
 ---
 
