@@ -475,6 +475,9 @@ executors:
     tbt_khong_chan_oan: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan khong-chan-oan
     tbt_mot_nguon: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan mot-nguon
     tbt_tien_de_hoi_dong: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan tien-de-hoi-dong
+    # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
+    nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
+    nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
