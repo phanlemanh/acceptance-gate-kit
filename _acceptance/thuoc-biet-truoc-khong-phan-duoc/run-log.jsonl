@@ -48,3 +48,4 @@
 {"ts":"2026-10-01T03:50:14Z","sha":"199e210a217f49153d44bc0e5f878bd51f31d117","round":2,"kind":"round-tally","verdict":"PASS","expected":15,"returned":15,"blocked":0}
 {"ts":"2026-10-01T03:50:14Z","sha":"199e210a217f49153d44bc0e5f878bd51f31d117","round":2,"kind":"chot-truong-nguoi","human_signoff":0,"human_override":0,"bypass_ack":0,"verified_at":15}
 {"kind":"thuoc-vat","ts":"2026-10-01T04:11:51Z","round":2,"san":"945d12d4278f20129db2a0f6c6b2a518e3c38478","vat":[29,15],"thuoc":[30,0],"ho_so":[565,0],"nhat":0,"lan":1,"tep_thuoc":["_acceptance/config.yaml","_acceptance/nghi-van-mang-co-qua-han/evals.yaml"]}
+{"ts":"2026-10-01T17:54:32Z","kind":"repin","run_id":"repin-20261001T175432Z-63647","sha":"1b98fdb1d9d9066bb35bdb936c0f7599e481da68","suites_exit":[0,0,0,0,0,0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0},"evals_not_machine":["E7","E8"]}

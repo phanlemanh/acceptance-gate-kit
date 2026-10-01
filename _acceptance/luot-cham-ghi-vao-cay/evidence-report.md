@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5cfc78cf6a6c72eaf4cc4240a0571328008292c5
+verified_commit: 1b98fdb1d9d9066bb35bdb936c0f7599e481da68
 human_signoff: Manh Phan 2026-10-01 — ký lượt chấm 1; Ngoài-1, Ngoài-2, Ngoài-5, Ngoài-6, Ngoài-7 ghi Known limits; Ngoài-3, Ngoài-4 mở hợp đồng mới (hạt giống); E8 Đạt; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -174,3 +174,7 @@ none — mọi eval nhiều lượt chạy đều đồng đều
 ## Iterations
 
 Round 1: mọi eval máy xanh, 7 lỗi ngoài hợp đồng chờ người quyết, panel E8 chờ người chốt — verdict PENDING-JUDGMENT.
+
+### Re-pin lần 1 — 2026-10-01, do chiến dịch ghim lại theo mốc 2.20.0
+run_id: repin-20261001T175432Z-63647
+sha: 1b98fdb1d9d9066bb35bdb936c0f7599e481da68 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng · ngoài làn máy: E8 (E8 không khai paths) · AC không có chốt máy: AC-8

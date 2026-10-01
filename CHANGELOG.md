@@ -10,6 +10,99 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.20.0 — 01/10/2026
+
+Cửa sổ 2.19.0 → 2.20.0 kéo **hai ngày**, có **ba vòng** chạm engine: `thuoc-biet-truoc-khong-phan-duoc`
+(T2, ký 01/10, PR #233), `luot-cham-ghi-vao-cay` (T3, ký 01/10, PR #234) và `nghi-van-mang-co-qua-han`
+(T2, máy thông 01/10, cửa veto mở, PR #232) — vòng thứ ba là suất meta duy nhất của cửa sổ, mở theo lời
+owner giữa lượt chấm của vòng thứ nhất. Thêm PR #231 sửa một dòng `CONTEXT.md`. Kho chờ nhận là `crm`:
+ba neo của cửa sổ đều là hồ sơ crm. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên `2.20.0`;
+`diagram-design` giữ `2.7.0`. Tag `v2.20.0` gắn tại commit ký mốc sau khi gộp.
+
+**Vì sao 2.20.0, không 2.19.1:** cửa sổ thêm hành vi mới ở đường chấm — bước chuẩn bị tham số từ chối một
+loại eval, bộ chấm có một nhãn trạng thái mới, lưới trước-merge và bộ kiểm lại bằng chứng đọc nhãn đó.
+
+**Đổi gì** — đường chấm thôi tin hai thứ nó không kiểm được:
+
+- **Giám khảo chỉ được hỏi điều nằm trong danh sách tệp.** Hội đồng chấm chỉ đọc đúng `inputs`, không
+  diff, không lệnh — nên một eval `judgment` hỏi diff của lượt hay bảo chạy lệnh là câu không ai trả lời
+  được. Nay `s4-args.mjs` thoát 2, gọi tên eval, thay vì để nó thành UNCERTAIN mà người phải quyết lại.
+  Luật đi kèm: **chọn người chấm theo từng vế** của tiêu chí — vế một lệnh đọc được giao cho
+  script/test của kho, vế chỉ thấy trên màn giao ui-check, vế cần cân với ý định trên một tệp giao
+  judgment với đúng tệp đó, vế không ai đọc được thì khai giới hạn ngay lúc viết.
+- **Lượt chấm mà cây đổi giữa chừng không dùng được.** Khi tác tử chấm ghi vào cây (commit lạ, hoặc sửa
+  tệp vật đang theo dõi), lượt mang nhãn «cây đổi trong lượt chấm»: bước sau-lượt thoát 6, thẻ Cổng Bằng
+  chứng khoá ký và in tệp + sha, lưới trước-merge và bộ kiểm lại bằng chứng chặn hồ sơ đã ký trên lượt
+  ấy. Máy chấm lại cùng round; lượt kế chỉ được sinh tham số khi thay đổi lạ đã được hoàn lại.
+- **Hồ sơ đã nghỉ thôi làm đỏ bộ kiểm theo ngày.** Ca RT13 từng đỏ trên `main` từ 01/10 chỉ vì timebox
+  của một hồ sơ đã nghỉ đã qua; bộ quét thẻ khởi động nay tính cờ quá hạn cho cả lối nghỉ.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Kho còn đường chép: chép lại ba tệp** của lớp chép CI (GUIDE §5.3) — `lib/nhan-canh-gay.cjs`,
+  `scripts/pre-merge-check.sh`, `scripts/recheck-evidence.cjs` — trong một PR, đo trước → sau bằng phép vi
+  phân (bản chép cũ so bản mới), không đọc số tuyệt đối.
+- **Máy dev:** cài lại plugin ở MỌI phạm vi trên mỗi máy có phiên của kho, rồi mở lại phiên. Cây phụ
+  (worktree) có bản ghi cài riêng: kiểm từng bản ghi bằng `claude plugin list --json`, đừng tin câu «đã
+  mới nhất» — câu ấy từng bỏ sót hai cây phụ ở 2.19.0.
+- **Nhận ở ranh giới vòng.** Hồ sơ đang mở có eval `judgment` hỏi diff hoặc bảo chạy lệnh sẽ bị chặn ở
+  lượt chấm kế — quét trước bằng `docs/findings/assets/2026-10-01-quet-judgment-hoi-ngoai-inputs.cjs`,
+  chuyển vế đó sang script/test của kho.
+
+**Giới hạn đã khai** (owner quyết ở Cổng Bằng chứng của từng vòng, 01/10 — đủ ở Notes của ba hợp đồng):
+
+- Kiểm «đã hoàn lại» băm tệp khác cách ảnh chụp với liên kết mềm bẩn sẵn; tệp mới chưa theo dõi sinh
+  trong lượt chỉ được gọi tên, không khoá lượt.
+- Bộ kiểm lại bằng chứng chặn «cây đổi» trước lối miễn hồ sơ nghỉ — lệch thứ tự với lưới trước-merge.
+- Ma trận RT13 chưa phủ ba lối «đã xong» còn thiếu cờ quá hạn; kiểm «bộ dò một nguồn» chỉ bắt bản sao
+  nguyên chữ; phạm vi `paths` của eval E5 hẹp hơn tập thư mục nhóm JI12 quét.
+
+**Năm dòng số của luật (c)** — ba vòng (giờ VN, 01/10):
+
+| Dòng | `thuoc-biet-truoc-khong-phan-duoc` (T2) | `nghi-van-mang-co-qua-han` (T2) | `luot-cham-ghi-vao-cay` (T3) | Nguồn |
+|---|---|---|---|---|
+| Làm-xong→quyết-được | `implemented` 09:25 → ký 11:17 ≈ **1 giờ 52 phút**, hai lượt chấm; `verified` → ký 5 phút | `implemented` 09:57 → máy thông 10:33 ≈ **36 phút**, không người | `implemented` 18:08 → ký 22:55 ≈ **4 giờ 47 phút**, gồm khoảng máy đóng giữa lượt chấm; `verified` → ký 5 phút | giờ commit `contract.md` |
+| Lượt gọi người / vòng | Trong thiết kế **1** (Cổng Bằng chứng; Cổng Phạm vi đi làn V). Ngoài thiết kế **1** — «ok» sửa RT13 ở PR riêng giữa lượt chấm (sổ `d-20261001T025809Z-11`), 1 chạm | **0** — làn V cả hai cổng; lời mở vòng đã đếm ở cột trái | Trong thiết kế **3** (Cổng Phạm vi · Gate 1.5 · Cổng Bằng chứng; trần T3 = 4). Gate 1.5 không có chữ duyệt — owner chỉ dán dòng `/goal`, máy hiểu là duyệt (sổ `d-20261001T103918Z-9`). Ngoài thiết kế **0** | `decisions.jsonl` |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **1** — lượt 1 REJECT chỉ vì suite vùng 3 đỏ sẵn ở RT13, ngoài vật (sổ `d-20261001T024953Z-10`) | **0** | **0** — lượt chấm 1 bị ngắt vì đóng máy rồi nối lại; máy của người, không phải hạ tầng kit | `run-log.jsonl` · sổ |
+| Token máy / vòng (out-token S4) | **71 526** (lượt 1: 39 644 · lượt 2: 31 882). Chứng-minh-vật 60 % / 64 % — tìm-lỗi 21 % / 10 % — tổng hợp 18 % / 26 % | **17 767**. Chứng-minh-vật 73 % — tìm-lỗi 8 % — tổng hợp 18 % | **61 923**. Chứng-minh-vật 56 % — tìm-lỗi 33 % — tổng hợp 12 %. Cache-read làn rà soát ≈ 15,0 M | `usage-report.md` |
+| Phút máy / lượt chấm | **21 phút** mỗi lượt (1 256 s · 1 269 s); đường găng chứng-minh-vật 1 160 s · 1 183 s | **20 phút** (1 176 s); găng 1 138 s | **không đọc được ở đây** — tường 16 833 s gồm khoảng máy đóng; usage-report không tách phút chạy thật | `usage-report.md` |
+
+Phiên chính của cả ba vòng không đo token. Tỉ lệ ba khối làm tròn nên có thể cộng ra 99 %.
+
+**Điều kiện tin cậy:** (i) `luot-cham-ghi-vao-cay` ĐỔI thành phần đường verdict — thêm nhánh «không dùng
+được» sau fan-out — nên dòng 4–5 chỉ cắt được vì vòng mang răng cả hai chiều: chiều đỏ AC-2 (ma trận cây
+đổi viết trước), chiều im AC-3 (chỉ đổi thứ không phải vật — `.acceptance-runs/`, `evidence/` của chính
+hồ sơ, không đổi gì — thì không có dòng `cay-doi`, thoát 0), mỗi AC máy kèm đột biến ở răng hồ sơ.
+`thuoc-biet-truoc-khong-phan-duoc` KHÔNG đổi thành phần — răng nằm trước lượt chấm, `acceptance-verify.js`
+không đổi. (ii) Số lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0** — lượt REJECT của
+`thuoc-biet-…` là đỏ đúng của một ca kiểm đỏ sẵn, đã đếm ở dòng 3. Dòng 4–5 cắt được, trừ ô phút của
+`luot-cham-ghi-vao-cay`.
+
+**Dự báo năm dòng cho thay đổi của mốc này** (chép chiều từ hợp đồng của hai vòng ký):
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở kho tiêu thụ | người thôi tự đọc diff cho mục luật kho; lượt cây đổi bị bắt trước chữ ký thay vì sau |
+| 2 | = | răng chặn trước lượt chấm, không thêm lượt dừng; ↓ ở ca có sự cố cây đổi |
+| 3 | ↓ | lượt cây đổi chạy lại cùng round, không đốt trần |
+| 4 | ↓ ở crm | ≈16 lượt hội đồng × 3 giám khảo cho câu không trả lời được thôi chạy; +1 lượt ở ca cây đổi |
+| 5 | = | không chạm làn máy |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc trên kit bằng
+`scripts/hieu-chuan-moc.mjs --root .`. **N không tăng so với mốc 2.19.0 — dòng vô hiệu ở mốc này**,
+cấm đọc thành «0 sự cố».
+
+**Nhát cắt có tên cho cửa sổ kế** (đủ ở Notes của `_acceptance/release-2-20-0/contract.md`, không mở ô):
+
+1. **Thuế tự-host** — vòng ở kho kit tới «máy thông» phải khai một dòng `KHAC-BIET-DOC-CU` rồi ghim lại
+   `ra-co-ten-lam-va-trao`; PR #232 đỏ CI hai lần vì đúng việc này.
+2. **Phép đo dài hơn trần 600 giây của làn máy** — ca thật thứ hai ở crm `soan-okr-cung-tro-ly` (35 phút).
+3. **Tham số lượt chấm bằng đường tệp** — hai lần trong ngày (35 KB ở kit, 196 KB ở crm).
+4. **Ca thật đầu tiên cho «bất biến sản phẩm»** — thước quyền xem OKR của crm tắt im hai ngày trong
+   `rang/` của một hồ sơ đã ký.
+5. `scripts/rel-cua-so.sh` chỉ rút hồ sơ `signed-off`, nên tiêu chí cửa sổ của mốc không phủ vòng máy
+   thông (phát hiện khi mở hồ sơ mốc này).
+
 ## 2.19.0 — 29/09/2026
 
 Cửa sổ 2.18.5 → 2.19.0 kéo **hai ngày**, có **một vòng** chạm engine: `mot-so-ba-ve` (T3, ký 29/09,

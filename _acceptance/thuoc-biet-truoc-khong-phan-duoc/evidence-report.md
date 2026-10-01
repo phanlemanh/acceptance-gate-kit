@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 199e210a217f49153d44bc0e5f878bd51f31d117
+verified_commit: 1b98fdb1d9d9066bb35bdb936c0f7599e481da68
 human_signoff: Manh Phan 2026-10-01 — ký với Known limits Ngoài-1..3, Ngoài-4 chấp nhận không sửa; cắt/hoãn đồng ý; Treo phê hết
 ---
 
@@ -191,3 +191,7 @@ none — every multi-run eval is uniform
 
 Round 1: không eval nào đỏ (E1–E6 xanh, E7–E8 hội đồng đề xuất đạt); REJECT vì lệnh suite hồi quy `tests/plugins/run-tests.sh --manh vung:3` đỏ ở ca RT13 (hồ sơ `ra-co-ten-lam-va-trao`, «cờ qua-timebox thiếu»), không gắn eval nào. Trả về triển khai.
 Round 2: RT13 được khai hồ sơ nghi-van-mang-co-qua-han vào khối khác-biệt đọc-cũ; `vung:3` xanh, cả mười một lệnh suite xanh. E1–E5 chạy lại xanh, E6 carry-forward từ round 1 (delta không chạm paths của eval). Hội đồng E7–E8 đề xuất PASS. Verdict PASS, chờ người chốt judgment ở Cổng Bằng chứng.
+
+### Re-pin lần 1 — 2026-10-01, do chiến dịch ghim lại theo mốc 2.20.0
+run_id: repin-20261001T175432Z-63647
+sha: 1b98fdb1d9d9066bb35bdb936c0f7599e481da68 · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths), E8 (E8 không khai paths) · AC không có chốt máy: AC-7, AC-8

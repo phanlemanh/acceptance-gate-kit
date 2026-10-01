@@ -488,6 +488,8 @@ executors:
     # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
     nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
     nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs
+    rel2200_cua_so: bash scripts/rel-cua-so.sh 7f45f37d thuoc-biet-truoc-khong-phan-duoc luot-cham-ghi-vao-cay
+    rel2200_dd_giu: git diff --exit-code --stat 7f45f37d HEAD -- diagram-design
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
