@@ -332,7 +332,12 @@ for (const entry of readdirSync(acc, { withFileTypes: true })) {
       // `nghi` là KHOÁ ĐẦU RA, không phải tên ô: một hồ sơ chưa ký mà nghỉ đậu
       // ô «đã đóng có hồ sơ» — thẻ đoán theo tên ô sẽ vẫn mời ký nó. Bên đọc hỏi
       // khoá này, ô chỉ để xếp chỗ trên bản đồ.
+      // Cờ quá hạn CẮT NGANG mọi ô, kể cả ô nghỉ: hạn tự khai là của hồ sơ, không của
+      // lối nó đậu (RT13 đỏ theo ngày 01/10/2026 — cong-dang-co-cua nghỉ 21/09, hạn 30/09).
+      // Đọc lười như lối phán quyết giá trị: lỗi đọc một tệp không dùng tới không quyết ô.
+      const oNghiTxt = (() => { const r = read(oPath); return r.err ? null : r.t; })();
       done.push(g(oNghi, { slug, state: status, at: nghi.at,
+        flags: oNghiTxt && quaTimebox(oNghiTxt) ? ['qua-timebox'] : [],
         nghi: { by: nghi.by, at: nghi.at, ly_do: nghi.ly_do, id: nghi.id } }));
       continue;
     }

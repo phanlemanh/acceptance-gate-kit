@@ -1155,11 +1155,13 @@ if (want('RT13')) {
     const dongNghi = s => JSON.stringify({ id: 'd-20260919T120000Z-9', type: 'nghi', stage: 'gate2', at: '2026-09-19T12:00:00Z', by: 'Fx', decision: `nghỉ fixture ${s}` }) + '\n';
     for (const [s, tb] of [['ng-qua', QUA], ['ng-chua', CHUA]])
       mkWs(root, s, { contract: KYb, evidence: { signoff: 'Fx 2026-08-23' }, opportunity: { nguong: 'chot', timebox: tb }, decisions: dongNghi(s) });
+    // Nghỉ mà KHÔNG có opportunity.md (đường B/C/E): đọc lười trả rỗng → không cờ, không ném.
+    mkWs(root, 'ng-khong', { contract: KYb, evidence: { signoff: 'Fx 2026-08-23' }, decisions: dongNghi('ng-khong') });
   };
   const MA_TRAN = [['pk-qua', 'xep-lai', true], ['pk-chua', 'xep-lai', false], ['kl-qua', 'da-bac', true],
     ['ar-qua', 'da-dong-ho-so', true], ['ar-chua', 'da-dong-ho-so', false],
     ['rl-qua', 'da-nghiem-thu-release', true], ['rl-chua', 'da-nghiem-thu-release', false],
-    ['ng-qua', 'da-nghi', true], ['ng-chua', 'da-nghi', false]];
+    ['ng-qua', 'da-nghi', true], ['ng-chua', 'da-nghi', false], ['ng-khong', 'da-nghi', false]];
   const soi = j => MA_TRAN.flatMap(([s, key, exp]) => {
     const x = findSlug(j, s);
     if (!x) return [`${s}: không thấy`];
@@ -1194,7 +1196,7 @@ if (want('RT13')) {
   });
 
   if (errs.length) fail('RT13', errs.join(' · '));
-  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so · iii: ${quaThat.length} hồ sơ quá hạn trên cây thật (${quaThat.join(', ') || 'không'}) · iii-b: 9 fixture — park quá hạn ✓ · park chưa hạn ✗ · kill quá hạn ✓ · archived quá hạn ✓ · archived chưa hạn ✗ · release quá hạn ✓ · release chưa hạn ✗ · nghỉ quá hạn ✓ · nghỉ chưa hạn ✗ · mutant ×4 bắt: ${batDuoc.join(' · ')}`);
+  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so · iii: ${quaThat.length} hồ sơ quá hạn trên cây thật (${quaThat.join(', ') || 'không'}) · iii-b: 10 fixture — park quá hạn ✓ · park chưa hạn ✗ · kill quá hạn ✓ · archived quá hạn ✓ · archived chưa hạn ✗ · release quá hạn ✓ · release chưa hạn ✗ · nghỉ quá hạn ✓ · nghỉ chưa hạn ✗ · nghỉ không hồ sơ cơ hội ✗ · mutant ×4 bắt: ${batDuoc.join(' · ')}`);
 }
 
 // ── RT14 — hồ sơ THẬT thoát Cổng Giá trị bằng lối có tên, có vết ────────────
