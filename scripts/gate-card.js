@@ -932,7 +932,7 @@ const cgNguon = NCG.nguonNhan();
 const cgExpected = (() => { try { const r = evalYamlLib.expectedExits(read(path.join(dir, 'evals.yaml'))); return r.errs.length ? {} : Object.fromEntries(r.byId); } catch (_) { return {}; } })();
 const cg = NCG.canhGay({ runLogText: read(path.join(dir, 'run-log.jsonl')), verdict, expectedExit: cgExpected, nguon: cgNguon });
 const CANH_MO = verdict === 'BLOCKED' && cg.trangThai === 'mo';
-const approvable = cg.trangThai !== 'lech' && (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT' || CANH_MO);
+const approvable = cg.trangThai !== 'lech' && cg.trangThai !== 'cay-doi' && (verdict === 'PASS' || verdict === 'PENDING-JUDGMENT' || CANH_MO);
 
 const critText = {}; for (const ac of parseACBlock(contract)) { if (!critText[ac.id]) critText[ac.id] = ac.gwt; }
 const cgEvalMeta = (() => { try { return Object.fromEntries(evalYamlLib.parseEvals(read(path.join(dir, 'evals.yaml')), ['criterion', 'cmd']).map(e => [e.id, { ac: clean(e.criterion), cmd: clean(e.cmd) }])); } catch (_) { return {}; } })();
@@ -1133,7 +1133,7 @@ const yDinh = (() => {
   const dong = section(t, 'Vấn đề & ai gặp').filter(l => l.trim());
   return { feature: unquote(frontmatter(t).feature || ''), dong: dong.slice(0, Y_DINH_MAX), cat: dong.length > Y_DINH_MAX };
 })();
-if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai }, y_dinh: yDinh }, null, 2)); process.exit(0); }
+if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh }, null, 2)); process.exit(0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -1150,19 +1150,26 @@ if (!approvable) {
     ch.t = `${NCG.NHAN.LECH} — chấm lại`; ch.c = 'coral';
     notes.push(['fred', `${esc(NCG.NHAN.LECH)}: thước của hồ sơ đổi nội dung giữa lúc sinh tham số chấm và lúc lượt chấm xong — lượt này chấm bằng thước khác, không dùng được.`]);
     for (const x of cg.lech) notes.push(['fwarn', `${esc(x.doi || 'đổi')}: ${esc(x.tep || '')}`]);
+  } else if (cg.trangThai === 'cay-doi') {
+    // luot-cham-ghi-vao-cay AC-6: mã đổi giữa lúc sinh tham số chấm và lúc lượt xong — ai đổi máy
+    // không biết; lượt không dùng được BẤT KỂ verdict nó ra.
+    ch.t = `${NCG.NHAN.CAY} — chấm lại`; ch.c = 'coral';
+    notes.push(['fred', `${esc(NCG.NHAN.CAY)}: trong lúc chấm có commit mới hoặc tệp mã đang theo dõi bị sửa — lượt này không chấm đúng một mốc commit nên không dùng được, dù nó ra «${esc(verdict || '—')}».`]);
+    for (const x of (cg.cay && cg.cay.tep) || []) notes.push(['fwarn', `${esc(x.doi || 'đổi')}: ${esc(x.tep || '')}`]);
+    if (cg.cay && cg.cay.commit && cg.cay.commit.length) notes.push(['fwarn', `commit lạ: ${esc(cg.cay.commit.join(', '))}`]);
   } else if (cg.trangThai === 'chet-lan-dau') {
     notes.push(['fred', `${esc(NCG.NHAN.CHET)} — tác tử chấm không trả kết quả cho ${esc(cg.muc.map(m => m.evalId).join(', '))}; máy thử lại một lần, chưa ký.`]);
   } else if (cgVat) {
     for (const m of cg.muc) notes.push(['fred', `${esc(NCG.TEN[m.nhan] || 'không phân loại được')} — ${esc(m.evalId)} (${esc(cgAC(m))})`]);
   }
-  if (cg.trangThai === 'lech' || cg.trangThai === 'chet-lan-dau' || cgVat) { /* nhãn đã in ở trên */ }
+  if (cg.trangThai === 'lech' || cg.trangThai === 'cay-doi' || cg.trangThai === 'chet-lan-dau' || cgVat) { /* nhãn đã in ở trên */ }
   else if (verdict === 'REJECT') notes.push(['fred', (failed.length ? 'Eval chưa đạt: ' + esc(failed.join(', ')) + ' — ' : '') + 'quay lại sửa code, chưa ký.']);
   else if (verdict === 'BLOCKED') notes.push(['fred', 'Không chạy được' + (reason ? ': ' + esc(stripMd(reason)) : '') + ' — sửa môi trường rồi chạy lại, chưa ký.']);
   else notes.push(['fred', 'Verdict "' + esc(verdict || '—') + '" không phải PASS/PENDING-JUDGMENT — không ký ở thẻ này.']);
   P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ${tier === 'T3' ? 'tier T3 · ' : ''}CHƯA ký được</div></div><span class="chip ${ch.c}">${esc(ch.t)}</span></div>
 <div class="lab">Vì sao chưa ký được</div>${notes.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}
-<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gnot"><p class="li">không cần làm gì — ${cg.trangThai === 'lech' ? 'máy chấm lại lượt mới; thước đổi giữa lượt nên lượt này không dùng được' : cg.trangThai === 'chet-lan-dau' ? 'máy thử lại lượt chấm một lần' : verdict === 'REJECT' ? 'máy đang quay lại sửa code rồi tự chấm vòng mới' : verdict === 'BLOCKED' ? 'máy đang khắc phục nguyên nhân kẹt rồi chạy lại vòng chấm' : 'máy phải chạy lại vòng chấm để có kết luận đọc được'}; thẻ này chỉ báo trạng thái. Khi máy cần bạn quyết, nó hỏi bằng tin nhắn riêng.</p></div>
+<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gnot"><p class="li">không cần làm gì — ${cg.trangThai === 'lech' ? 'máy chấm lại lượt mới; thước đổi giữa lượt nên lượt này không dùng được' : cg.trangThai === 'cay-doi' ? 'máy hoàn lại thay đổi lạ rồi chấm lại cùng vòng — không đếm vào trần' : cg.trangThai === 'chet-lan-dau' ? 'máy thử lại lượt chấm một lần' : verdict === 'REJECT' ? 'máy đang quay lại sửa code rồi tự chấm vòng mới' : verdict === 'BLOCKED' ? 'máy đang khắc phục nguyên nhân kẹt rồi chạy lại vòng chấm' : 'máy phải chạy lại vòng chấm để có kết luận đọc được'}; thẻ này chỉ báo trạng thái. Khi máy cần bạn quyết, nó hỏi bằng tin nhắn riêng.</p></div>
 <div class="foot"><span class="rev">↻ Trả lại → quay về code; trạng thái này không có nút ký.</span><div class="btns"><button class="b no">Quay về code</button></div></div>
 </div></div>`);
   process.stdout.write(P.join('\n'));

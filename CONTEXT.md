@@ -329,9 +329,15 @@ _Avoid_: pass có điều kiện, soft fail, «trượt nhưng chấp nhận đ�
 Trạng thái MÁY-ĐỌC mà thẻ gắn cho một cạnh của tứ diện Ý·Hạng mục·Thước·Vật, mỗi
 nhãn mang kèm **người gỡ** và **giá** — *ĐẠT* · *ĐẠT-MÙ* (đọc xanh mà thước chưa
 từng đỏ) · *chưa đo* · *không đọc được ở đây* (bàn đo thiếu) · *thước lệch* ·
-*hệ thống chết* · *bản đồ cũ N commit* · *sai hợp đồng* · *ngoài hợp đồng*. Từ
-21/09 (khối ĐỊNH VỊ của `CLAUDE.md`): một nhãn giới hạn là **câu trả lời hợp lệ**,
-không phải lỗi, và tự nó KHÔNG sinh việc.
+*hệ thống chết* · *bản đồ cũ N commit* · *sai hợp đồng* · *ngoài hợp đồng* ·
+*cây đổi trong lượt chấm*. Từ 21/09 (khối ĐỊNH VỊ của `CLAUDE.md`): một nhãn giới
+hạn là **câu trả lời hợp lệ**, không phải lỗi, và tự nó KHÔNG sinh việc.
+*Cây đổi trong lượt chấm* (01/10, hồ sơ `luot-cham-ghi-vao-cay`): giữa lúc sinh
+tham số chấm và lúc lượt chấm xong, có commit mới hoặc tệp đang theo dõi bị sửa
+ở phần vật/thước của kho — ai làm (tác tử chấm hay phiên khác) máy không biết, chỉ
+biết lượt ấy không chấm đúng một mốc commit nên không dùng được. Người gỡ: phiên
+chính hoàn lại thay đổi lạ rồi chấm lại cùng vòng. Giá: một lượt chấm, không đếm
+vào trần ba vòng; thử lại một lần vẫn đổi thì thẻ khoá và hỏi người.
 _Avoid_: **Nhãn** trần (đã dành cho chú thích trong ngoặc của criterion, không đổi
 hành vi máy) · **Dấu** (hậu tố contract) · status, label, cờ.
 

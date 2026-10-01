@@ -475,6 +475,16 @@ executors:
     tbt_khong_chan_oan: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan khong-chan-oan
     tbt_mot_nguon: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan mot-nguon
     tbt_tien_de_hoi_dong: bash _acceptance/thuoc-biet-truoc-khong-phan-duoc/rang.sh --chan tien-de-hoi-dong
+    # Hồ sơ luot-cham-ghi-vao-cay (01/10, T3): cây đổi trong lượt chấm — mỗi chân một nhóm
+    # LC1–LC7 của tests/scripts/cay-doi-trong-luot.test.mjs trên cây thật + bản sao tiêm đột
+    # biến (design doc §6).
+    lcgvc_chup: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan chup
+    lcgvc_do: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan do
+    lcgvc_im: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan im
+    lcgvc_lib: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan lib
+    lcgvc_round: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan round
+    lcgvc_the: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan the
+    lcgvc_luoi: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan luoi
     # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
     nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
     nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs
