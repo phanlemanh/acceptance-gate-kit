@@ -1,0 +1,129 @@
+schema_version: 1
+feature_slug: luot-cham-ghi-vao-cay
+# E1–E7: mỗi chân chạy MỘT nhóm của lưới thường trực
+# tests/scripts/cay-doi-trong-luot.test.mjs trên cây thật (đối chứng dương) rồi
+# trên bản sao trọn cây đã tiêm một đột biến thay thế nguyên văn (chiều đỏ:
+# exit ≠ 0 VÀ dòng FAIL có tên ca). Bảng đột biến: design doc §6. Chân chứng mũi
+# tiêm trúng (khớp đúng 1 chỗ, bản sao khác bản thật, mutant chạy được) trước
+# khi chấm. Fixture: kho git code sinh, args do s4-args THẬT sinh, dòng sổ do
+# thuoc-vat --write THẬT ghi, dòng round-tally do tallyLine của bộ chấm THẬT dựng.
+# E8 judgment hỏi NỘI DUNG hai tệp có trong inputs.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lcgvc_chup
+    expected: >
+      Cây thật: nhóm LC1 xanh — ảnh chụp `cayChup` của args do s4-args THẬT sinh
+      trên kho có tệp bẩn ở đủ bốn lớp + `.acceptance-runs/` + `evidence/` liệt
+      đúng tập mong đợi (ma trận viết trước, số assert = số phần tử), cây sạch →
+      `ban` và `chuaTheoDoi` rỗng. Chiều đỏ: đột biến khong-tru-runs →
+      «FAIL: LC1» kèm đường `.acceptance-runs/` lọt vào ảnh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "feature-loop/scripts/lib/cay-doi.mjs", "feature-loop/scripts/lib/phan-loai.mjs", "tests/scripts/cay-doi-trong-luot.test.mjs", "_acceptance/luot-cham-ghi-vao-cay/rang.sh"]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.lcgvc_do
+    expected: >
+      Cây thật: nhóm LC2 xanh — năm hàng (commit vật · sửa tracked · xoá tracked ·
+      commit rồi hoàn · commit thước hồ sơ khác) mỗi hàng đúng một dòng `cay-doi`
+      đúng khuôn marker CAY-DOI-LINE, đúng tệp, đúng sha ngắn, `luot_ts` = invokedAt,
+      thoát 6, stderr «cay doi trong luot cham»; hàng thước lệch cùng lượt → hai
+      dòng, thoát 5. Chiều đỏ: bo-so → «FAIL: LC2 hang 1»; chi-diff → «FAIL: LC2 hang 4».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/thuoc-vat.mjs", "feature-loop/scripts/lib/cay-doi.mjs", "feature-loop/scripts/s4-args.mjs", "tests/scripts/cay-doi-trong-luot.test.mjs", "_acceptance/luot-cham-ghi-vao-cay/rang.sh"]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.lcgvc_im
+    expected: >
+      Cây thật: nhóm LC3 xanh — mười một hàng chiều im (không đổi · tệp theo dõi
+      dưới .acceptance-runs · evidence/chup.mjs của chính hồ sơ · commit sổ hồ sơ ·
+      commit t1 · cây bẩn sẵn · chạm mtime · tệp mới chưa theo dõi · tạo phẩm chưa
+      theo dõi có sẵn bị ghi lại · .claude/launch.json · evidence của hồ sơ khác)
+      đều không dòng `cay-doi`, thoát 0; hàng tệp mới chưa theo dõi có stderr «tep
+      moi chua theo doi» gọi tên; args đời cũ không `cayChup` → không dòng, stderr
+      «khong co anh chup cay». Chiều đỏ: khong-tru-runs → «FAIL: LC3 hang 2»;
+      khong-tru-evidence → «FAIL: LC3 hang 3»; khong-tru-claude → «FAIL: LC3 hang
+      10»; xet-chua-theo-doi → «FAIL: LC3 hang 9».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/thuoc-vat.mjs", "feature-loop/scripts/lib/cay-doi.mjs", "feature-loop/scripts/s4-args.mjs", "tests/scripts/cay-doi-trong-luot.test.mjs", "_acceptance/luot-cham-ghi-vao-cay/rang.sh"]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.lcgvc_lib
+    expected: >
+      Cây thật: nhóm LC4 xanh — sổ round-trip (dòng `cay-doi` do thuoc-vat THẬT
+      ghi, dòng round-tally do tallyLine THẬT dựng): khớp luot_ts + PASS → `cay-doi`
+      với tep/commit đúng; khớp + REJECT → `cay-doi`; dòng của lần thử trước →
+      không; dòng mồ côi → không; kèm thuoc-lech → `lech`; không dòng → deep-equal bản lib trước vòng
+      (git archive cha của commit đầu chạm nhánh); `NHAN.CAY` có trong CONTEXT.md.
+      Chiều đỏ: lib-bo-cay → «FAIL: LC4».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["lib/nhan-canh-gay.cjs", "CONTEXT.md", "feature-loop/scripts/thuoc-vat.mjs", "tests/scripts/cay-doi-trong-luot.test.mjs", "_acceptance/luot-cham-ghi-vao-cay/rang.sh"]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.lcgvc_round
+    expected: >
+      Cây thật: nhóm LC5 xanh — commit của dòng `cay-doi` cuối còn trong HEAD (kể
+      cả dòng mồ côi) hoặc tệp còn bẩn → s4-args thoát 2 «cay doi chua hoan lai»,
+      không sinh tệp; `--nhan-cay-moi` → sinh tệp có `cayNhanMoi`; đã hoàn lại →
+      CÙNG round, stderr «cay doi trong luot cham — thu lai CUNG round»; lần thử lại
+      thứ hai vẫn `cay-doi` → round + 1, stderr «da thu lai mot lan van cay doi»;
+      không dòng → round như trước. Chiều đỏ: lib-bo-cay → «FAIL: LC5 round»;
+      bo-kiem-hoan-lai → «FAIL: LC5 hoan lai».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/s4-args.mjs", "lib/nhan-canh-gay.cjs", "tests/scripts/cay-doi-trong-luot.test.mjs", "_acceptance/luot-cham-ghi-vao-cay/rang.sh"]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.lcgvc_the
+    expected: >
+      Cây thật: nhóm LC6 xanh — `gate-card.js --extract` cho approvable false,
+      canh_gay.trangThai `cay-doi`; HTML có «cây đổi trong lượt chấm», từng tệp,
+      từng sha, câu việc «chấm lại cùng vòng — không đếm vào trần», không nút ký;
+      hồ sơ không dòng → HTML bằng bản thẻ trước vòng từng byte. Chiều đỏ:
+      lib-bo-cay → «FAIL: LC6».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/gate-card.js", "lib/nhan-canh-gay.cjs", "tests/scripts/cay-doi-trong-luot.test.mjs", "_acceptance/luot-cham-ghi-vao-cay/rang.sh"]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.lcgvc_luoi
+    expected: >
+      Cây thật: nhóm LC7 xanh — hồ sơ ký PASS có `cay-doi` lượt cuối → lưới trước-merge
+      in «VIOLATION [<slug>]: lượt chấm cuối không dùng được — cây đổi trong lượt
+      chấm», thoát ≠ 0; recheck thoát 1 cùng cụm; không dòng → OK / 0; bản sao bỏ lib
+      → không VIOLATION từ luật này; lib bản trước vòng + script mới → lưới NOTE
+      «lib chua biet nhan cay doi», recheck 0 không stack trace. Chiều đỏ:
+      lib-bo-cay → «FAIL: LC7»; bo-do-nang-luc → «FAIL: LC7 lib doi cu».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/pre-merge-check.sh", "scripts/recheck-evidence.cjs", "lib/nhan-canh-gay.cjs", "tests/scripts/cay-doi-trong-luot.test.mjs", "_acceptance/luot-cham-ghi-vao-cay/rang.sh"]
+
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    question: >
+      Đọc mục S4 của SKILL.md và mục «Nhãn trạng thái» của CONTEXT.md. (a) SKILL
+      có nói mã thoát 6 của bước sau-lượt nghĩa là cây đổi trong lượt chấm, lượt
+      không dùng được, không ghi PASS và không đặt verified, hoàn lại rồi chấm lại
+      cùng vòng không? (b) SKILL có tách hai ca hoàn lại — commit chưa đẩy mà phiên
+      không tạo và không phối hợp thì đưa nhánh về sha đã chấm; thay đổi có chủ đích
+      của phiên khác thì chấm lại trên HEAD mới — và nói việc khó đảo (commit đã
+      đẩy, việc của người khác) thì hỏi người không? (c) CONTEXT có định nghĩa nhãn
+      «cây đổi trong lượt chấm» kèm người gỡ và giá, không mâu thuẫn chữ quanh nó
+      không? PASS chỉ khi cả ba có; FAIL nêu đúng tệp và đoạn.
+    inputs:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - CONTEXT.md
+      - _acceptance/luot-cham-ghi-vao-cay/contract.md
+    expected: PASS với trích dẫn đoạn cụ thể cho từng ý; FAIL nêu đúng tệp và đoạn còn thiếu hoặc lệch
+    evidence_required: [judged_by, verdict, rationale]

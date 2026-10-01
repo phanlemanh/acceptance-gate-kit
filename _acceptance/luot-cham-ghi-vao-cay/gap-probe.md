@@ -1,0 +1,18 @@
+---
+slug: luot-cham-ghi-vao-cay
+at: 2026-10-01T08:12:00Z
+verdict: findings
+p0: 1
+p1: 4
+p2: 0
+---
+
+## Findings
+
+| Sev | Artifact | Thiếu gì | Kịch bản fail | Thước đo | Xử lý |
+|---|---|---|---|---|---|
+| P0 | design + evals | Vế (2) duyệt «mọi đường có ở ảnh trước hoặc git status sau» nên mục CHƯA THEO DÕI có sẵn (trong chuaTheoDoi, không băm) rơi vào vế (2) với băm-trước «vắng» | Tạo phẩm của bộ chạy S4 không bị che ở crm/oneflow/media-library (.s4-acceptance-verify.js, .wf/, .playwright-mcp/): lượt 1 tạo, lượt 2 ghi lại → thoát 6 mọi lượt, đốt trần, lưới VIOLATION; tám hàng E3 vẫn xanh | Hàng (9) AC-3: tạo phẩm chưa theo dõi có sẵn bị ghi lại (khác byte, cùng byte) → im; đột biến xet-chua-theo-doi đỏ hàng (9) | fixed: design §3 vế (2) chỉ duyệt đường đang theo dõi (có ở sha hoặc trong index), mục chưa theo dõi không bao giờ vào vế này; AC-3 hàng (9) + đột biến xet-chua-theo-doi (design §6, E3) |
+| P1 | design + contract + evals | Lớp phan-loai của đường dưới _acceptance/ tự mâu thuẫn giữa §3, §5.1 và AC-2 hàng (5); đột biến khong-tru-evidence có thể tương đương | evidence/ là ho-so → đột biến không bao giờ đỏ; hoặc là vat/thuoc → evidence hồ sơ khác khoá oan; AC-2 hàng (5) mơ hồ | Bảng lớp phan-loai THẬT cho bốn đường mẫu; hàng im cho evidence hồ sơ khác; AC-2 hàng (5) ghi đường cụ thể | fixed: design §3 có bảng phanLoai thật (chạy 01/10) — evidence/f.png ho-so, evidence/chup.mjs thuoc, ve-that.json hồ sơ khác ho-so, rang.sh hồ sơ khác thuoc; AC-3 hàng (3) dùng evidence/chup.mjs đang theo dõi (để đột biến khong-tru-evidence không tương đương), hàng (11) evidence hồ sơ khác → im; AC-2 hàng (5) = _acceptance/khac/rang.sh |
+| P1 | design + contract | Hoàn lại trước khi chấm lại chỉ là lời dặn SKILL; dòng cay-doi mồ côi (lượt chết không ghi tally) bị đọc im | Phiên chính sinh args lại chưa hoàn lại → ảnh chụp mới lấy HEAD chứa commit tác tử → PASS ký được trên vật tác tử sửa (đúng ca hydrat) | AC-5 thêm hàng: commit của dòng cay-doi còn trong HEAD → s4-args chặn có tên; dòng mồ côi cũng tính | fixed: design §3 cuối + §4 — s4-args đọc dòng cay-doi mới nhất chưa bị lượt sau thay, commit còn là tổ tiên HEAD hoặc tệp còn bẩn → thoát 2 «cay doi chua hoan lai», lối có tên --nhan-cay-moi (ghi cayNhanMoi vào args); AC-5 + đột biến bo-kiem-hoan-lai; AC-4 hàng mồ côi (thẻ không đọc, việc giữ ở AC-5) |
+| P1 | design + contract (Coverage GIẢ ĐỊNH) | Giả định «không lệnh/tác tử nào sửa tệp đang theo dõi ngoài _acceptance/» đo bằng ĐỌC, không xét tác tử ui-check; crm có .claude/launch.json đang theo dõi | Tác tử ui-check mở xem trước → công cụ ghi .claude/launch.json → thoát 6 mỗi lượt ở crm | AC-3 hàng .claude/launch.json → im, hoặc giới hạn khai kèm ngưỡng | fixed: .claude/ vào NGOAI_VUNG (cấu hình phiên của harness, không phải vật) + AC-3 hàng (10) + đột biến khong-tru-claude; phần còn lại (tác tử ghi tệp theo dõi khác) khai giới hạn ở Notes + design §7, ngưỡng nới thành cờ vàng ≥1 lượt khoá oan có tên; chạy lượt S4 thật ở crm để đo — rejected: lượt chấm của kho khác không thuộc vòng kit, và lượt đầu sau khi crm cài mốc chính là phép đo (chi phí trần mỗi ca oan: một lượt chấm lại cùng round) |
+| P1 | design + contract (AC-7) | Đường đọc-cũ chỉ phủ lib VẮNG, không phủ lib ĐỜI CŨ (script mới + lib cũ ở kho tiêu thụ) | recheck gọi hàm không tồn tại → TypeError, chặn oan mọi báo cáo PASS; hoặc bash nuốt lỗi, luật im | AC-7 hàng lib bản trước vòng + script mới → lưới OK có NOTE, recheck 0 không stack trace; đột biến bỏ dò năng lực | fixed: design §4 — pre-merge chỉ VIOLATION khi --luot thoát đúng 1, mã khác (lib cũ in cách dùng, thoát 3) → NOTE «lib chua biet nhan cay doi»; recheck dò typeof trước khi gọi; AC-7 hàng lib đời cũ + đột biến bo-do-nang-luc |
