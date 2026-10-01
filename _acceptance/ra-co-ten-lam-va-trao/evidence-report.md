@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ccabea22159944a10d5f768d5b67bd2b5d095d7c
+verified_commit: 48c8793f14c9b99e352e162d4a2af5eebc7664ed
 human_signoff: Manh 2026-08-25
 ---
 
@@ -334,3 +334,7 @@ sha: 288090243c5d2e3b14efafbe848e1aee418b66dd · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 20 — 2026-09-22, do chiến dịch ghim lại theo mốc 2.18.1 (GUIDE §7.1)
 run_id: repin-20260922T110053Z-46306
 sha: ccabea22159944a10d5f768d5b67bd2b5d095d7c · suites: 5 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 21 — 2026-10-01, do khai nghi-van-mang-co-qua-han vào khối KHAC-BIET-DOC-CU (RT13) ở PR #232
+run_id: repin-20261001T043520Z-49591
+sha: 48c8793f14c9b99e352e162d4a2af5eebc7664ed · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
