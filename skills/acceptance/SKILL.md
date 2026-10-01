@@ -112,7 +112,14 @@ Run immediately after the user reviews the contract (same gate, one sitting).
 1. Read `references/eval-executors.md`. Create `_acceptance/{slug}/evals.yaml`.
 2. Map every criterion to ≥1 eval using the executor selection rules
    (test > script > ui-check > judgment — prefer the most mechanical executor
-   that can actually check the criterion).
+   that can actually check the criterion). Pick the grader PER CLAUSE, not per
+   criterion: a clause a command can read → a `script`/`test` eval of the repo
+   measuring the STATE of the tree; a clause visible only on a running screen →
+   `ui-check`; a clause weighed against intent on a file → `judgment` with that
+   file in `inputs`; a clause no one here can read → declare the limit now. The
+   `(judgment)` tag of a criterion never sends its command-checkable clauses to
+   the panel — split them out. Full rule + three traps of a repo-rule script:
+   `references/eval-executors.md` «Pick the grader per clause».
 2b. **Design quality (web-UI surfaces, default-on).** If any `surface` in the
    contract renders a web UI, add ≥1 design-quality eval **even when no criterion
    explicitly mentions design**: a `script` eval `cmd: config:executors.design.gate`
@@ -146,7 +153,12 @@ Run immediately after the user reviews the contract (same gate, one sitting).
    empty file. The one exception is `_acceptance/{slug}/evidence/**` of the
    same dossier, which a ui-check of the same round may produce — it is
    resolved with a notice, and a judge that still finds it missing returns
-   UNCERTAIN.
+   UNCERTAIN. The panel reads exactly these files — no diff, no command — so the
+   `question` asks only about what `inputs` contain. State, not history: a source
+   file is a legitimate input, a diff or patch never is. A question asking for
+   the round's diff or telling the judge to run a command is refused at the
+   feature-loop S4 args step (exit 2, eval named); this plain path has no args
+   step, so check it here before Gate 1.
 3c. A `test`/`script` eval `cmd` (and every suite command) runs again after
    the round — re-pin lane, other rounds' suites, CI — so it writes its
    artifacts to the run directory `.acceptance-runs/<slug>/` (gitignored) or a

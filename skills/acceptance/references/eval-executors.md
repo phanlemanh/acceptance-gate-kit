@@ -8,7 +8,7 @@ determines who grades and what counts as evidence.
 | `test` | api / backend / sdk / mobile flow (native E2E runner) | Machine (exit code) | run_id, exit_code, verifier, verified_at |
 | `script` | cli | Machine (exit code + output match) | run_id, exit_code, verifier, verified_at, output excerpt |
 | `ui-check` | web ui | Machine assertion + human glance | run_id, exit_code, verifier, verified_at, screenshot path |
-| `judgment` | any ("does this match business intent?") | Judge subagent → human | judged_by, verdict, rationale (+ human_override if UNCERTAIN) |
+| `judgment` | any ("does this match business intent?") — a clause weighed against intent, on files listed in `inputs` (the panel reads nothing else: no diff, no command) | Judge subagent → human | judged_by, verdict, rationale (+ human_override if UNCERTAIN) |
 
 Hook-enforced vs agent-obligation: the hook checks the four machine evidence
 fields report-wide (presence + verifier authenticity), the L1 CONSISTENCY
@@ -70,6 +70,18 @@ yet, because a ui-check of the same round produces it (E4 above reads E3's
 frame) — it is resolved anyway with one notice line, and a judge that still
 finds it missing returns UNCERTAIN. That `evidence/**` is written only by the
 dossier's own S4 round — see «Where a run writes its artifacts».
+
+The panel reads STATE, not HISTORY. A source file in `inputs` is legitimate: it
+is the tree as it stands, and the panel memo (P3, keyed by a hash of `inputs`)
+re-grades when it changes. A diff or patch is never an input: a hand-made diff
+file is frozen history — the code changes, the file does not, and P3 carries the
+old verdict onto new code (crm `gioi-han-duyet-cay-okr` E25: a 500-line file of
+`--stat` only, two rounds UNCERTAIN). So a `question` asks only about what its
+`inputs` contain — never for the round's diff, never for a command to be run.
+Such a question has a verdict known before grading (UNCERTAIN, whatever the code
+does); the feature-loop S4 args step (`s4-args.mjs`) refuses it — exit 2, eval
+named, both ways out printed — and the plain `/acceptance` path, which has no
+args step, must catch it here. See «Pick the grader per clause» below.
 
 Optional `runs: N` (int > 1) on a `test`/`script` eval marks it **stochastic** —
 its command crosses `ctx.providers.invoke` (an LLM generator) so the output is a
@@ -149,7 +161,11 @@ only the measure knows its resource is exclusive.
    evidence only (see §Mobile mechanics below). Never `ui-check`: there is no
    browser, no network log, no `network_observed` on this lane.
 4. Criterion containing words like "appropriate", "matches intent", "tone",
-   "makes sense", or tagged `(judgment)` in the contract → `judgment`.
+   "makes sense", or tagged `(judgment)` in the contract → `judgment` — for the
+   clauses that need weighing, not for the whole criterion. The `(judgment)` tag
+   never overrides "the most mechanical executor that can check it": a criterion
+   that bundles command-checkable clauses with one clause to weigh splits into
+   separate evals (see «Pick the grader per clause»).
 4b. Criterion about **design / visual quality** on a web UI — accessibility
    (contrast), AI-slop tells, "looks shippable" → the **design tiers**: a
    `script` eval `cmd: config:executors.design.gate` (deterministic floor, fails
@@ -160,6 +176,41 @@ only the measure knows its resource is exclusive.
 5. Every criterion gets ≥1 eval. A criterion with zero evals fails Gate 1.
 6. `cmd` MUST be a `config:` reference when the command is repo-specific —
    never hardcode repo commands into evals.yaml.
+
+### Pick the grader per clause, not per criterion
+
+A criterion often bundles clauses of different kinds. crm `va-tro-ly-okr-sau-thu`
+E14 (AC-13, tagged `(judgment)`) asked eight clauses — seven checkable only in
+code (no new comments, no key read outside one module, no repeated literal…),
+one on a doc — with six docs as `inputs`: 3/3 judges UNCERTAIN two rounds
+running, and a real defect slipped through that exact gap. Pick per clause:
+
+| The clause is… | Grader |
+|---|---|
+| readable by a command | a `script`/`test` eval of the repo — measures the STATE of the tree |
+| visible only on a running screen | `ui-check` |
+| a weighing against intent, on a file | `judgment` with exactly that file in `inputs` (a source file is fine; a diff is not) |
+| readable by no one here (prod data, real keys, real users) | declare the limit when writing the eval — do not call three judges to discover what the writer already knew |
+
+Three traps of a repo-rule script (the first row):
+
+- **Measuring the diff goes green-empty after merge** (precedent JR11a): once
+  base = HEAD the diff is empty and the check passes on nothing — in the re-pin
+  lane too. Measure the state ("0 comments in the files this round touches",
+  "0 key reads outside `apps/agent`"), not "lines added".
+- **Measuring the state goes red on a tree already dirty**: a red machine eval
+  routes the round to REJECT and the baseline column does not rescue it. The
+  script must be green on the current tree before it is accepted (positive
+  control, `MEASURE-BIRTH-CLAUSE`); if the tree is already dirty, narrow the scan
+  to the round's `paths:`. The script is the repo's own object — the kit does
+  not write it.
+- **A shared rule script must run on every branch the code runs on** (crm
+  `scripts/luat-kho/do-cay.mjs`, 39779f90: it took one round's own folder as a
+  premise, and 13/20 of its planted cases injected into files that exist only
+  on the branch that wrote it — the red side survived 6/20 elsewhere). A folder
+  that is absent means that rule has nothing to measure: stay silent or declare
+  it by name, never exit "cannot measure". Planted cases build their target file
+  inside the copy before injecting; they never require a file already on the tree.
 
 ## Pairing mechanics — `(cross-layer)` criteria
 

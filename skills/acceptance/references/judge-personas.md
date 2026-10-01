@@ -14,6 +14,15 @@ session. Dispatch with exactly these inputs:
 The judge does NOT receive: the implementation diff, the implementing session's
 reasoning, or prior verdicts. Blind grading is the point.
 
+State, not history: a source file listed in the eval's `inputs` IS legitimate
+evidence — it is the tree as it stands, and the panel memo re-grades when it
+changes. A diff or patch is history and never an input: a frozen diff file
+carries an old verdict onto new code. So a question may ask about a source file
+in `inputs`; it may not ask for the round's diff or for a command to be run —
+the judge can read neither, and the verdict is known before grading
+(UNCERTAIN). Same rule from the writer's side: `eval-executors.md` «Pick the
+grader per clause».
+
 ## Persona: Acceptance Judge v1
 
 ```
@@ -50,7 +59,12 @@ Rules:
 
 - T3 features: judge verdicts are advisory only — the human verifies every
   judgment item personally (hook-enforced at L3; surfaced in the Gate 2 checklist).
-- A judge that returns >50% UNCERTAIN across a feature signals criteria that
-  are not independently checkable → fix the contract at Gate 1 next time.
+- A question that asks for something outside its `inputs` (the round's diff, a
+  command's output) is not a judge to calibrate: the feature-loop S4 args step
+  (`feature-loop/scripts/s4-args.mjs`) refuses it before any judge runs — exit
+  2, eval named, both ways out (split the command-checkable clause into a
+  `script`/`test` eval of the repo; rewrite the rest to ask about a file in
+  `inputs`). A judge still UNCERTAIN on a question within its `inputs` is asking
+  for evidence — the fix round reads `required_evidence` first.
 - A judge PASS later contradicted by a human (defect slipped) → log it in the
   pilot notes; 2+ occurrences = tighten this persona before widening rollout.
