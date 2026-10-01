@@ -1,35 +1,114 @@
 {
   "feature_plain": "Lượt chấm nào bị ai đó ghi vào mã trong lúc chấm (tác tử chấm tự sửa, hoặc phiên khác gộp code) sẽ bị máy gọi tên ngay sau lượt, không ký được, và được chấm lại cùng vòng — thay vì người phải tự phát hiện như ba lần ở crm.",
   "will_do": [
-    {"id": "AC-1", "p": "Sẽ ghi lại hiện trạng mã (mốc commit + các tệp đang sửa dở) ngay trước mỗi lượt chấm, bỏ qua chỗ lượt chấm được phép ghi."},
-    {"id": "AC-2", "p": "Sẽ gọi tên lượt chấm là «cây đổi trong lượt chấm» khi có commit mới chạm mã, hoặc tệp mã đang theo dõi bị sửa/xoá — kể cả commit rồi tự hoàn lại."},
-    {"id": "AC-4", "p": "Sẽ cho mọi nơi đọc trạng thái lượt chấm (thẻ, lưới trước khi gộp, kiểm lại bằng chứng) đọc cùng một nhãn từ một nguồn."},
-    {"id": "AC-5", "p": "Sẽ chấm lại cùng vòng (không đốt trần ba vòng) — nhưng chỉ khi thay đổi lạ đã được hoàn lại; chưa hoàn lại thì máy dừng có tên."},
-    {"id": "AC-6", "p": "Sẽ khoá nút ký trên thẻ Cổng Bằng chứng của lượt ấy, liệt từng tệp và từng commit lạ."}
+    {
+      "id": "AC-1",
+      "p": "Sẽ ghi lại hiện trạng mã (mốc commit + các tệp đang sửa dở) ngay trước mỗi lượt chấm, bỏ qua chỗ lượt chấm được phép ghi."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ gọi tên lượt chấm là «cây đổi trong lượt chấm» khi có commit mới chạm mã, hoặc tệp mã đang theo dõi bị sửa/xoá — kể cả commit rồi tự hoàn lại."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ cho mọi nơi đọc trạng thái lượt chấm (thẻ, lưới trước khi gộp, kiểm lại bằng chứng) đọc cùng một nhãn từ một nguồn."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ chấm lại cùng vòng (không đốt trần ba vòng) — nhưng chỉ khi thay đổi lạ đã được hoàn lại; chưa hoàn lại thì máy dừng có tên."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ khoá nút ký trên thẻ Cổng Bằng chứng của lượt ấy, liệt từng tệp và từng commit lạ."
+    }
   ],
   "wont_do": [
-    {"id": "AC-3", "p": "Sẽ KHÔNG khoá oan: phiên chính ghi sổ giữa lượt, ảnh chụp màn, tệp tạm chưa theo dõi, cấu hình phiên, tài liệu, mã đã sửa dở từ trước — đều im."},
-    {"id": "AC-7", "p": "Chặn gộp một hồ sơ đã ký trên lượt cây đổi; kho còn bản cũ của bộ đọc thì không chặn thêm gì."},
-    {"id": "OOS-1", "p": "KHÔNG làm đường chạy cho phép đo dài hơn 10 phút — ghi hạt giống, mở khi có hai hồ sơ vấp."},
-    {"id": "OOS-2", "p": "KHÔNG đổi cách truyền tham số lượt chấm sang đường tệp — ghi hạt giống, mở khi vấp thêm một lần."},
-    {"id": "OOS-3", "p": "KHÔNG thêm lời dặn chống việc câu người gõ lọt vào tác tử chấm — vòng này chỉ bắt hậu quả của nó."},
-    {"id": "OOS-4", "p": "KHÔNG khoá cây để ngăn ghi — chỉ phát hiện."},
-    {"id": "OOS-5", "p": "KHÔNG cho thẻ Cổng Phạm vi và đường «máy thông» tự đọc nhãn mới — lưới trước khi gộp là chốt."},
-    {"id": "OOS-6", "p": "KHÔNG sửa lỗ cùng dạng của «thước lệch» ở lưới trước khi gộp — chưa có ca thật."},
-    {"id": "OOS-7", "p": "KHÔNG sửa bộ chấm và KHÔNG tăng số phiên bản — lên số theo mốc phát hành."}
+    {
+      "id": "AC-3",
+      "p": "Sẽ KHÔNG khoá oan: phiên chính ghi sổ giữa lượt, ảnh chụp màn, tệp tạm chưa theo dõi, cấu hình phiên, tài liệu, mã đã sửa dở từ trước — đều im."
+    },
+    {
+      "id": "AC-7",
+      "p": "Chặn gộp một hồ sơ đã ký trên lượt cây đổi; kho còn bản cũ của bộ đọc thì không chặn thêm gì."
+    },
+    {
+      "id": "OOS-1",
+      "p": "KHÔNG làm đường chạy cho phép đo dài hơn 10 phút — ghi hạt giống, mở khi có hai hồ sơ vấp."
+    },
+    {
+      "id": "OOS-2",
+      "p": "KHÔNG đổi cách truyền tham số lượt chấm sang đường tệp — ghi hạt giống, mở khi vấp thêm một lần."
+    },
+    {
+      "id": "OOS-3",
+      "p": "KHÔNG thêm lời dặn chống việc câu người gõ lọt vào tác tử chấm — vòng này chỉ bắt hậu quả của nó."
+    },
+    {
+      "id": "OOS-4",
+      "p": "KHÔNG khoá cây để ngăn ghi — chỉ phát hiện."
+    },
+    {
+      "id": "OOS-5",
+      "p": "KHÔNG cho thẻ Cổng Phạm vi và đường «máy thông» tự đọc nhãn mới — lưới trước khi gộp là chốt."
+    },
+    {
+      "id": "OOS-6",
+      "p": "KHÔNG sửa lỗ cùng dạng của «thước lệch» ở lưới trước khi gộp — chưa có ca thật."
+    },
+    {
+      "id": "OOS-7",
+      "p": "KHÔNG sửa bộ chấm và KHÔNG tăng số phiên bản — lên số theo mốc phát hành."
+    }
   ],
   "coverage_plain": [
-    {"i": 0, "p": "Đủ mọi cách cây có thể đổi trong lượt (commit, sửa, xoá, commit-rồi-hoàn, tệp mới, chạm giờ sửa, bẩn sẵn) — AC-2 bắt, AC-3 im."},
-    {"i": 1, "p": "Đủ mọi loại đường trong kho (mã, phép đo, hồ sơ, tài liệu, tạo phẩm lượt chạy, ảnh chụp màn) — AC-1, AC-2, AC-3."},
-    {"i": 2, "p": "Đủ bốn nơi đọc nhãn (thẻ, đánh số vòng, lưới trước gộp, kiểm lại) — AC-4 tới AC-7; thẻ Cổng Phạm vi và đường máy-thông để ngoài, có ghi giới hạn."},
-    {"i": 3, "p": "Đủ hồ sơ đời cũ, lần thử lại cùng vòng, và ca trùng với «thước lệch» — AC-3, AC-4, AC-5."},
-    {"i": 4, "p": "Giả định chưa chạy thật: ở bốn kho, lệnh chấm và tác tử chấm không sửa tệp mã đang theo dõi — mới đo bằng đọc mã và lịch sử; khoá oan lần đầu thì nới thành cờ vàng."}
+    {
+      "i": 0,
+      "p": "Đủ mọi cách cây có thể đổi trong lượt (commit, sửa, xoá, commit-rồi-hoàn, tệp mới, chạm giờ sửa, bẩn sẵn) — AC-2 bắt, AC-3 im."
+    },
+    {
+      "i": 1,
+      "p": "Đủ mọi loại đường trong kho (mã, phép đo, hồ sơ, tài liệu, tạo phẩm lượt chạy, ảnh chụp màn) — AC-1, AC-2, AC-3."
+    },
+    {
+      "i": 2,
+      "p": "Đủ bốn nơi đọc nhãn (thẻ, đánh số vòng, lưới trước gộp, kiểm lại) — AC-4 tới AC-7; thẻ Cổng Phạm vi và đường máy-thông để ngoài, có ghi giới hạn."
+    },
+    {
+      "i": 3,
+      "p": "Đủ hồ sơ đời cũ, lần thử lại cùng vòng, và ca trùng với «thước lệch» — AC-3, AC-4, AC-5."
+    },
+    {
+      "i": 4,
+      "p": "Giả định chưa chạy thật: ở bốn kho, lệnh chấm và tác tử chấm không sửa tệp mã đang theo dõi — mới đo bằng đọc mã và lịch sử; khoá oan lần đầu thì nới thành cờ vàng."
+    }
   ],
   "gap_probe_plain": [
-    {"i": 0, "p": "Tệp tạm chưa theo dõi có sẵn từ lượt trước (bộ chạy để lại ở gốc kho) bị ghi lại ở lượt sau sẽ khoá mọi lượt — đã sửa: chỉ tệp đang theo dõi mới bị xét, thêm ca và đột biến chứng."},
-    {"i": 1, "p": "Ranh giới «hồ sơ» với «mã» dưới thư mục hồ sơ chưa rõ — đã sửa: in bảng phân lớp thật, thêm ca im cho ảnh chụp của hồ sơ khác."},
-    {"i": 2, "p": "Việc hoàn lại trước khi chấm lại chỉ là lời dặn, dễ chấm lại trên mã tác tử đã sửa — đã sửa: máy từ chối chấm lại khi commit lạ còn đó, trừ khi gõ lối có tên."},
-    {"i": 3, "p": "Giả định «không lệnh nào sửa tệp đang theo dõi» chỉ đo bằng đọc; crm có tệp cấu hình phiên bị công cụ ghi — đã sửa: bỏ qua cấu hình phiên; phần còn lại ghi giới hạn kèm ngưỡng."},
-    {"i": 4, "p": "Kho có bộ đọc đời cũ cạnh lưới mới có thể chặn oan mọi hồ sơ — đã sửa: lưới dò năng lực bộ đọc, cũ thì chỉ ghi chú."}
+    {
+      "i": 0,
+      "p": "Tệp tạm chưa theo dõi có sẵn từ lượt trước (bộ chạy để lại ở gốc kho) bị ghi lại ở lượt sau sẽ khoá mọi lượt — đã sửa: chỉ tệp đang theo dõi mới bị xét, thêm ca và đột biến chứng."
+    },
+    {
+      "i": 1,
+      "p": "Ranh giới «hồ sơ» với «mã» dưới thư mục hồ sơ chưa rõ — đã sửa: in bảng phân lớp thật, thêm ca im cho ảnh chụp của hồ sơ khác."
+    },
+    {
+      "i": 2,
+      "p": "Việc hoàn lại trước khi chấm lại chỉ là lời dặn, dễ chấm lại trên mã tác tử đã sửa — đã sửa: máy từ chối chấm lại khi commit lạ còn đó, trừ khi gõ lối có tên."
+    },
+    {
+      "i": 3,
+      "p": "Giả định «không lệnh nào sửa tệp đang theo dõi» chỉ đo bằng đọc; crm có tệp cấu hình phiên bị công cụ ghi — đã sửa: bỏ qua cấu hình phiên; phần còn lại ghi giới hạn kèm ngưỡng."
+    },
+    {
+      "i": 4,
+      "p": "Kho có bộ đọc đời cũ cạnh lưới mới có thể chặn oan mọi hồ sơ — đã sửa: lưới dò năng lực bộ đọc, cũ thì chỉ ghi chú."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "E8",
+      "q": "Hướng dẫn và từ điển đã nói đủ khi gặp lượt chấm cây đổi chưa?",
+      "why": "Hội đồng ba người chấm đề xuất ĐẠT: hướng dẫn vòng lặp nói rõ mã 6, hai cách hoàn lại, việc khó đảo thì hỏi người; từ điển có nhãn mới kèm người gỡ và giá."
+    }
   ]
 }
