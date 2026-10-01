@@ -1,0 +1,4 @@
+{
+  "feature_plain": "Đóng số 2.20.0 cho bản kit có hai răng mới ở bước chấm: giám khảo không còn được hỏi điều nằm ngoài tệp được giao, và lượt chấm mà cây bị sửa giữa chừng bị loại thay vì được ký. Bản ghi thay đổi nói người dùng nhận gì kèm năm dòng số, để crm cài vào sau khi vòng đang chấm của nó khép.",
+  "scope_plain": "Không đổi mã cổng nào (kể cả cho bộ đếm cửa sổ đếm thêm vòng máy thông), không sửa giới hạn đã khai của ba vòng, không làm các hạt giống vừa mở, không nâng gói vẽ sơ đồ, không ghim lại hồ sơ cũ trước khi mốc gộp, không đưa crm nhận bản mới trong mốc này."
+}
