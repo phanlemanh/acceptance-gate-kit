@@ -77,4 +77,5 @@ của hàm và các nơi luật sống.
   - Kiểm «bộ dò một nguồn» chỉ bắt bản sao chép NGUYÊN chữ một mảnh mỗi khuôn; bản sao viết lại khác chữ hoặc thiếu nhánh thì lọt (Ngoài-3).
   - Răng hồ sơ không chạy bản sao trọn cây xanh trước khi tiêm đột biến; một bản sao hỏng vì hạ tầng có thể in trùng dòng ghim của chiều đỏ (Ngoài-4).
 - Ngoài-1 (tên hồ sơ, đường dẫn, commit riêng của crm trong tài liệu skill giao đi) SỬA ở lượt 2 theo quyết định owner: tài liệu giữ luật + số đo, con trỏ nguồn chuyển sang bản ghi phát hiện §10.8.
+- Hạt giống ghi trong vòng (phiên điều phối đề nghị 01/10): `docs/plans/2026-10-01-hat-giong-thue-tu-host-rt13-may-thong.md` — mỗi vòng tới «máy thông» ở kho kit phải khai tay vào khối KHAC-BIET-DOC-CU của một hồ sơ đã ký rồi ghim lại hồ sơ đó; ngưỡng: vòng thứ ba.
 - Fixture do code sinh trong chính lần chạy; đường dẫn suy từ vị trí script. Bản sao để tiêm đột biến chụp TRỌN cây làm việc; mỗi đột biến là MỘT phép thay thế nguyên văn khai trong design doc; chân đo chứng mũi tiêm trúng (đúng một chỗ khớp, bản sao khác bản thật, mutant chạy được) trước khi chấm; chiều đỏ giữ đủ hai vế: exit ≠ 0 VÀ dòng FAIL có tên ca.
