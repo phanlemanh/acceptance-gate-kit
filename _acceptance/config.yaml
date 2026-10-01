@@ -467,6 +467,9 @@ executors:
     ctn_ac8: "bash -c 'out=$(node tests/workflows/chot-truong-nguoi.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CTN-AC8-go-goi CTN-AC8-bo-khoa CTN-AC8-carry CTN-AC8-moi-cot CTN-AC8-vi-phan; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     # Hồ sơ mot-so-ba-ve (29/09, vòng meta T3 sau ADR 0021): tệp ca msbv, tên ca = tên AC.
     msbv: "bash -c 'out=$(for f in msbv-so msbv-the msbv-cau-noi; do node tests/scripts/$f.test.mjs 2>&1 || echo \"TEP-DO: $f\"; done); printf \"%s\\\\n\" \"$out\" | tail -n 60; printf \"%s\\\\n\" \"$out\" | grep -q \"^TEP-DO: \" && exit 1; for c in MS-AC1-recipe MS-AC1-lib-im MS-AC7-van-ban MS-AC2-ba-khoi MS-AC2-dot-bien MS-AC2-recipe MS-AC3-doc-cu MS-AC3-dot-bien MS-AC3-nen MS-AC4-thieu-gia MS-AC4-chi-gia MS-AC8-xuat MS-AC9-extract MS-AC9-dot-bien MS-AC5-ma-tran MS-AC5-lap MS-AC5-slug MS-AC5-rong MS-AC5-dot-bien; do printf \"%s\\\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
+    nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
+    nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

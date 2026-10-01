@@ -1,0 +1,27 @@
+schema_version: 1
+feature_slug: nghi-van-mang-co-qua-han
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.nvmcqh_rt13
+    expected: >
+      Ca RT13 PASS: ma trận iii-b mười ô do code sinh — «nghỉ quá hạn» (hạn ghim
+      2026-01-01) đậu da-nghi CÓ cờ qua-timebox, «nghỉ chưa hạn» (hạn = ngày chạy +2)
+      và «nghỉ không có opportunity.md» đậu da-nghi KHÔNG cờ, không ném; bốn đột biến
+      gỡ cờ (park · archived · release · nghỉ) đều bị bắt, đột biến nghỉ nêu đúng
+      «ng-qua: cờ qua-timebox thiếu»; vế cây thật: mọi ô đọc cờ khớp quaTimebox của lib.
+      Chiều đỏ trên mã cũ: «ng-qua: cờ qua-timebox thiếu» + «cong-dang-co-cua: cờ
+      qua-timebox thiếu» (commit ca đỏ đứng trước commit vật trong lịch sử nhánh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/start-scan.mjs", "tests/plugins/ra-co-ten.test.mjs"]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.nvmcqh_ho_so_nghi
+    expected: >
+      Bộ ca ho-so-nghi exit 0, không dòng FAIL: ô da-nghi, cờ nghi-thieu-ve,
+      nghi-chua-ky và cửa veto của hồ sơ nghỉ không đổi.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/start-scan.mjs", "tests/scripts/ho-so-nghi.test.mjs"]
