@@ -251,3 +251,16 @@ Không chạm `lib/**`, hooks, lưới trước-merge, danh sách chép sang kho
 đường găng của mọi vòng mọi kho: kho không có dạng này (6/10) → im; vòng đang
 chạy có dạng này → chặn ở lượt kế với lời sửa (đúng điều muốn cho crm
 `va-tro-ly-okr-sau-thu`); hồ sơ đã ký → không chạy s4-args lại, không chạm.
+
+### 10.8 Con trỏ nguồn cho phần tài liệu giao đi (ghi 01/10, sau lượt chấm 1 của vòng)
+Tài liệu skill gửi tới mọi kho chỉ giữ luật và số đo, không giữ tên riêng của kho
+tiêu thụ (luật «kit là engine»). Nguồn của từng số đo nằm ở đây:
+- «một tiêu chí gộp tám vế, 3/3 UNCERTAIN hai lượt, một lỗi thật lọt» — crm
+  `va-tro-ly-okr-sau-thu` E14 (§2).
+- «tệp diff 500 dòng chỉ có `--stat`, hai lượt UNCERTAIN» — crm `gioi-han-duyet-cay-okr`
+  E25 (§10.3).
+- «đo diff xanh rỗng sau gộp» — tiền lệ JR11a của hồ sơ `judge-required-evidence` (§10.2).
+- Bẫy thứ ba «thước dùng chung phải chạy được ở mọi nhánh» — phiên phối hợp báo
+  01/10: crm `scripts/luat-kho/do-cay.mjs` (39779f90) coi thư mục riêng của một
+  lượt là tiền đề, 13/20 ca gài tiêm vào tệp chỉ có ở nhánh sinh thước — chiều đỏ
+  sống 6/20 ở nhánh khác.

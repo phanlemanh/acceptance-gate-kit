@@ -75,8 +75,8 @@ The panel reads STATE, not HISTORY. A source file in `inputs` is legitimate: it
 is the tree as it stands, and the panel memo (P3, keyed by a hash of `inputs`)
 re-grades when it changes. A diff or patch is never an input: a hand-made diff
 file is frozen history — the code changes, the file does not, and P3 carries the
-old verdict onto new code (crm `gioi-han-duyet-cay-okr` E25: a 500-line file of
-`--stat` only, two rounds UNCERTAIN). So a `question` asks only about what its
+old verdict onto new code (measured: a 500-line diff file holding only `--stat`
+kept a panel UNCERTAIN two rounds running). So a `question` asks only about what its
 `inputs` contain — never for the round's diff, never for a command to be run.
 Such a question has a verdict known before grading (UNCERTAIN, whatever the code
 does); the feature-loop S4 args step (`s4-args.mjs`) refuses it — exit 2, eval
@@ -179,8 +179,8 @@ only the measure knows its resource is exclusive.
 
 ### Pick the grader per clause, not per criterion
 
-A criterion often bundles clauses of different kinds. crm `va-tro-ly-okr-sau-thu`
-E14 (AC-13, tagged `(judgment)`) asked eight clauses — seven checkable only in
+A criterion often bundles clauses of different kinds. Measured on a real round:
+one criterion tagged `(judgment)` asked eight clauses — seven checkable only in
 code (no new comments, no key read outside one module, no repeated literal…),
 one on a doc — with six docs as `inputs`: 3/3 judges UNCERTAIN two rounds
 running, and a real defect slipped through that exact gap. Pick per clause:
@@ -194,22 +194,22 @@ running, and a real defect slipped through that exact gap. Pick per clause:
 
 Three traps of a repo-rule script (the first row):
 
-- **Measuring the diff goes green-empty after merge** (precedent JR11a): once
+- **Measuring the diff goes green-empty after merge**: once
   base = HEAD the diff is empty and the check passes on nothing — in the re-pin
   lane too. Measure the state ("0 comments in the files this round touches",
-  "0 key reads outside `apps/agent`"), not "lines added".
+  "0 key reads outside the one module allowed to read it"), not "lines added".
 - **Measuring the state goes red on a tree already dirty**: a red machine eval
   routes the round to REJECT and the baseline column does not rescue it. The
   script must be green on the current tree before it is accepted (positive
   control, `MEASURE-BIRTH-CLAUSE`); if the tree is already dirty, narrow the scan
   to the round's `paths:`. The script is the repo's own object — the kit does
   not write it.
-- **A shared rule script must run on every branch the code runs on** (crm
-  `scripts/luat-kho/do-cay.mjs`, 39779f90: it took one round's own folder as a
-  premise, and 13/20 of its planted cases injected into files that exist only
-  on the branch that wrote it — the red side survived 6/20 elsewhere). A folder
-  that is absent means that rule has nothing to measure: stay silent or declare
-  it by name, never exit "cannot measure". Planted cases build their target file
+- **A shared rule script must run on every branch the code runs on** (measured:
+  a shared rule script took one round's own folder as a premise, and 13/20 of
+  its planted cases injected into files that exist only on the branch that wrote
+  it — the red side survived 6/20 elsewhere). A folder that is absent means that
+  rule has nothing to measure: stay silent or declare it by name, never exit
+  "cannot measure". Planted cases build their target file
   inside the copy before injecting; they never require a file already on the tree.
 
 ## Pairing mechanics — `(cross-layer)` criteria

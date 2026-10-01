@@ -13,7 +13,7 @@
 // đầu từng bắt nhầm «Trên app QC đang chạy:» nên «Run/Chạy» phải đi kèm backtick.
 // KHÔNG miễn khi `inputs` có tệp tên «diff»: tệp diff làm tay là lịch sử đóng
 // băng — mã đổi mà tệp không đổi thì bộ nhớ hội đồng (P3, băm inputs) mang phán
-// quyết cũ sang mã mới (crm gioi-han-duyet-cay-okr E25).
+// quyết cũ sang mã mới (đo: một tệp diff 500 dòng chỉ có --stat giữ hội đồng UNCERTAIN hai lượt).
 //
 // Giới hạn đã khai (hồ sơ thuoc-biet-truoc-khong-phan-duoc, Notes): `\b` là ranh
 // giới ASCII nên «Đọc diff» trần (chữ đầu có dấu, không từ khoá kèm) lọt; tiếng
