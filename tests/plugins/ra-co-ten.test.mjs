@@ -1150,10 +1150,16 @@ if (want('RT13')) {
       mkWs(root, s, { contract: KYb, evidence: { signoff: 'Fx 2026-08-23' }, opportunity: { nguong: 'chot', timebox: tb } });
       W(root, `_acceptance/${s}/uat-session.md`, uatRelease(s));
     }
+    // Lối NGHỈ (hồ sơ đã ký, owner cho nghỉ): đỏ theo ngày 01/10/2026 ở cây thật —
+    // cong-dang-co-cua nghỉ 21/09, hạn tự khai 30/09, lối nghỉ không tính cờ.
+    const dongNghi = s => JSON.stringify({ id: 'd-20260919T120000Z-9', type: 'nghi', stage: 'gate2', at: '2026-09-19T12:00:00Z', by: 'Fx', decision: `nghỉ fixture ${s}` }) + '\n';
+    for (const [s, tb] of [['ng-qua', QUA], ['ng-chua', CHUA]])
+      mkWs(root, s, { contract: KYb, evidence: { signoff: 'Fx 2026-08-23' }, opportunity: { nguong: 'chot', timebox: tb }, decisions: dongNghi(s) });
   };
   const MA_TRAN = [['pk-qua', 'xep-lai', true], ['pk-chua', 'xep-lai', false], ['kl-qua', 'da-bac', true],
     ['ar-qua', 'da-dong-ho-so', true], ['ar-chua', 'da-dong-ho-so', false],
-    ['rl-qua', 'da-nghiem-thu-release', true], ['rl-chua', 'da-nghiem-thu-release', false]];
+    ['rl-qua', 'da-nghiem-thu-release', true], ['rl-chua', 'da-nghiem-thu-release', false],
+    ['ng-qua', 'da-nghi', true], ['ng-chua', 'da-nghi', false]];
   const soi = j => MA_TRAN.flatMap(([s, key, exp]) => {
     const x = findSlug(j, s);
     if (!x) return [`${s}: không thấy`];
@@ -1165,6 +1171,7 @@ if (want('RT13')) {
     ['pk-qua', "state: decision, at: ngayXong(dir, oPath), flags: oFlags }));", "state: decision, at: ngayXong(dir, oPath) }));"],
     ['ar-qua', "state: decision || 'archived', at: ngayXong(dir, oPath), flags: oFlags }));", "state: decision || 'archived', at: ngayXong(dir, oPath) }));"],
     ['rl-qua', "state: UAT_STATE[verdict], at: ngayXong(dir, cPath), flags }));", "state: UAT_STATE[verdict], at: ngayXong(dir, cPath) }));"],
+    ['ng-qua', "flags: oNghiTxt && quaTimebox(oNghiTxt) ? ['qua-timebox'] : [],", "flags: [],"],
   ];
   const batDuoc = [];
   withRepo(root => {
@@ -1187,7 +1194,7 @@ if (want('RT13')) {
   });
 
   if (errs.length) fail('RT13', errs.join(' · '));
-  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so · iii: ${quaThat.length} hồ sơ quá hạn trên cây thật (${quaThat.join(', ') || 'không'}) · iii-b: 7 fixture — park quá hạn ✓ · park chưa hạn ✗ · kill quá hạn ✓ · archived quá hạn ✓ · archived chưa hạn ✗ · release quá hạn ✓ · release chưa hạn ✗ · mutant ×3 bắt: ${batDuoc.join(' · ')}`);
+  else pass('RT13', `đọc-cũ: broken rỗng, khác biệt đúng khối; cờ ⇔ điều kiện (đúng mọi ngày chạy); ${filesThat.length} file chứa "signed-off" đều có ca thật hoặc khai gạch; hai chiều đỏ tiêm vào đầu vào của chính phép so · iii: ${quaThat.length} hồ sơ quá hạn trên cây thật (${quaThat.join(', ') || 'không'}) · iii-b: 9 fixture — park quá hạn ✓ · park chưa hạn ✗ · kill quá hạn ✓ · archived quá hạn ✓ · archived chưa hạn ✗ · release quá hạn ✓ · release chưa hạn ✗ · nghỉ quá hạn ✓ · nghỉ chưa hạn ✗ · mutant ×4 bắt: ${batDuoc.join(' · ')}`);
 }
 
 // ── RT14 — hồ sơ THẬT thoát Cổng Giá trị bằng lối có tên, có vết ────────────
