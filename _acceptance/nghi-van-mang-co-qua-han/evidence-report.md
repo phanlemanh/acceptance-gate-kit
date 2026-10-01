@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c3e41d4d34e2e14d56a0647b1ad2316cc73245b4
+verified_commit: 1b98fdb1d9d9066bb35bdb936c0f7599e481da68
 human_signoff:
 ---
 
@@ -107,3 +107,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: E1, E2 đều đạt; mười lệnh suite hồi quy đều xanh. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-01, do chiến dịch ghim lại theo mốc 2.20.0
+run_id: repin-20261001T175432Z-63647
+sha: 1b98fdb1d9d9066bb35bdb936c0f7599e481da68 · suites: 10 lệnh exit 0 · evals: 2/2 eval máy đạt kỳ vọng
