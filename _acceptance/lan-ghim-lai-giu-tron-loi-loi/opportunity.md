@@ -3,10 +3,10 @@ schema_version: 1
 slug: lan-ghim-lai-giu-tron-loi-loi
 feature: Làn ghim lại giữ trọn lời lỗi và để lại dấu lượt đỏ kèm dòng tự xưng của bàn đo — lệnh đỏ ghi trọn đầu ra ra thư mục lượt chạy và in đường dẫn; làn đỏ để lại một dòng sổ (run_id · lệnh · mã thoát · tải máy); không đổi nghĩa xanh/đỏ
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Phan Le Manh
+decided_at: 2026-10-02T14:31:09Z   # owner gõ «làm» một chạm trong phiên 02/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -54,10 +54,10 @@ chung» — là tật cách viết thước của crm/oneflow, không phải lu�
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] *sau khi có log trọn và dấu lượt đỏ, phiên điều phối có chẩn đoán được lượt ghim lại đỏ từ nhật ký làn mà không chạy lại toàn kho không, và chi phí lượt đỏ có hiện trong sổ không?*
-- Kết quả nào là SỐNG: [đề xuất] trên 10 lượt ghim lại đỏ kế tiếp ở crm + kit: ≥ 8 chẩn đoán đúng từ tệp log (không chạy lại toàn kho để «xem lỗi») · 10/10 có dòng sổ với run_id, lệnh, mã thoát, tải máy · 0 hồ sơ xanh đổi byte.
-- Kết quả nào là CHẾT: [đề xuất] < 5/10 chẩn đoán được từ log, hoặc bộ đọc nào đỏ vì dòng sổ mới, hoặc kho xanh đổi byte.
-- Timebox: [đề xuất] một vòng T2, trần ba lượt chấm; ngưỡng đọc sau 10 lượt đỏ kế tiếp hoặc 30 ngày sau phát hành, lấy cái đến trước.
+- Câu hỏi phép đo trả lời: *sau khi có log trọn và dấu lượt đỏ, phiên điều phối có chẩn đoán được lượt ghim lại đỏ từ nhật ký làn mà không chạy lại toàn kho không, và chi phí lượt đỏ có hiện trong sổ không?*
+- Kết quả nào là SỐNG: trên 10 lượt ghim lại đỏ kế tiếp ở crm + kit: ≥ 8 chẩn đoán đúng từ tệp log (không chạy lại toàn kho để «xem lỗi») · 10/10 có dòng sổ với run_id, lệnh, mã thoát, tải máy · 0 hồ sơ xanh đổi byte.
+- Kết quả nào là CHẾT: < 5/10 chẩn đoán được từ log, hoặc bộ đọc nào đỏ vì dòng sổ mới, hoặc kho xanh đổi byte.
+- Timebox: một vòng T2, trần ba lượt chấm; ngưỡng đọc sau 10 lượt đỏ kế tiếp hoặc 30 ngày sau phát hành, lấy cái đến trước.
 
 ## Kết quả prototype
 
@@ -74,13 +74,14 @@ giả định 2 trước khi viết mã.
 
 ## Cổng 0
 
-- **decision = …** Đề xuất `build`, hạng T2: sửa `runCmd` (ghi trọn ra tệp, in đường dẫn + 30 dòng cuối) · đường đỏ ghi một dòng sổ `kind` mới kèm tải máy · bộ đọc đường đọc-cũ (cờ vàng) · bộ kiểm hai chiều (tiêm lệnh 200 dòng thoát 1 → log đủ 200 dòng; lệnh xanh → không tệp, không dòng, không đổi byte; dòng `kind` lạ → bộ đọc im).
+- **decision = build** Đề xuất `build`, hạng T2: sửa `runCmd` (ghi trọn ra tệp, in đường dẫn + 30 dòng cuối) · đường đỏ ghi một dòng sổ `kind` mới kèm tải máy · bộ đọc đường đọc-cũ (cờ vàng) · bộ kiểm hai chiều (tiêm lệnh 200 dòng thoát 1 → log đủ 200 dòng; lệnh xanh → không tệp, không dòng, không đổi byte; dòng `kind` lạ → bộ đọc im).
 - **disposition = …**
 - **Ngưỡng UAT chốt cùng lúc ký:** ba ngưỡng SỐNG ở trên; số đọc từ dấu lượt đỏ chính là răng cho các nhát đã hoãn («chạy lại rồi đi tiếp có cờ», «chạy theo delta»).
 
 ## Out of scope từ khám phá
 
 - Không thử-lại-tự-động trong làn; không đổi nghĩa xanh/đỏ; không chạy theo delta; không lấy suite từ CI.
+  Số cho nhát «chạy theo delta» đã hoãn: hạt giống `docs/plans/2026-10-02-hat-giong-lan-ghim-lai-theo-paths-va-suite-song-song.md` (mô phỏng 70/186 làn crm tránh được, 3 bỏ lỡ, 02/10).
 - Không gộp bộ nhãn cạnh gãy của S4 vào làn.
 - Không sửa thước của kho (crm/oneflow viết luật kho thành bộ kiểm chung là việc của kho).
 - Không chạm hồ sơ đã ký ngoài một dòng sổ loại mới; không ghi bằng chứng khi đỏ.
