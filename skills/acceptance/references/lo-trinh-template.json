@@ -20,6 +20,7 @@
       "vi_sao": "Đứng trên dữ liệu thật của hàng 1",
       "hang": "T3",
       "dung_tren": ["1"],
+      "slug": "gui-duyet-mot-phut",
       "bat_khi": "Mười lượt gửi thật không lượt nào trễ quá một phút"
     },
     {
