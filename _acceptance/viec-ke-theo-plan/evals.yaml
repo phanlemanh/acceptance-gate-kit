@@ -1,0 +1,183 @@
+schema_version: 1
+feature_slug: viec-ke-theo-plan
+# Ca đo sống ở tests/scripts/lo-trinh.test.mjs (suite scripts tự chạy qua glob *.test.mjs; executor
+# riêng `executors.test.lo_trinh` chạy đúng một tệp). Kho thử do code sinh trong lượt (git init trong
+# thư mục tạm); tệp ý định là INPUT người viết nên ba lộ trình thật nằm ở fixtures/lo-trinh/*.json
+# viết tay từ nguồn. Mỗi ca đỏ chạy trên bản sao của vật, SAU khi bản lành xanh trên cùng fixture,
+# và ghim thông điệp. Mỗi eval ghim đúng dòng "PASS: LT-…" — suite xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/product-map.mjs, scripts/start-scan.mjs, scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-01" — kho không khai: PRODUCT-MAP.md của nhánh == của base (git archive
+      trọn scripts lib skills ở merge-base) từng byte, không có LO-TRINH.html, JSON start-scan nhánh có
+      loTrinh === null và JSON bỏ khoá loTrinh == JSON base từng byte; và "PASS: LT-01-do" — bản sao
+      product-map luôn vẽ trang → đỏ, thông điệp ghim "trang sinh khi ổ cắm vắng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-02" — thứ tự hàng == thứ tự tệp; trường tự do giữ nguyên (so sâu);
+      danh sách cờ == đúng bốn cờ mong đợi (thiếu ma ở vị trí k · thiếu cau_giao ở mã X · thiếu hang ở
+      mã Y · mã trùng Z), so đẳng thức mảng, không phép chứa; hàng thiếu trường tuỳ chọn không cờ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/fixtures/lo-trinh/**, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-03 crm-okr", "PASS: LT-03 crm-kho-tai-lieu", "PASS: LT-03 oneflow" —
+      mỗi fixture 0 cờ thiếu trường bắt buộc, số hàng == số khai trong khoá `_nguon.so_hang` của fixture,
+      mỗi trường tự do khai ở `_nguon.truong_tu_do` có mặt ở ≥1 hàng với giá trị nguyên; đối chứng
+      đỏ: bản sao fixture xoá cau_giao một hàng → đúng một cờ nêu mã đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-04" — với mỗi trong mười ô, chữ trạng thái của hàng == tiêu đề mục
+      `## …` chứa slug đó trong PRODUCT-MAP.md vẽ cùng lượt (rút từ bản đồ thật, không chép bảng);
+      hàng slug dự kiến == "Chưa mở" và 0 cờ; hàng không slug == "<ô tự khai> (tin theo lời)" hoặc
+      "Chưa mở (tin theo lời)" đúng bảng design §Trạng thái; và "PASS: LT-04-do" — bản sao lo-trinh.mjs
+      đổi chữ một ô → đỏ, thông điệp ghim nêu slug và hai chữ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-05" — hàng lệch có đúng cờ "tệp khai khác hồ sơ: khai Đã giao, hồ sơ
+      Đang làm" và ô in là ô hồ sơ; hàng trùng 0 cờ; hàng ngoài từ vựng in "tự khai: đã lên onehub";
+      "PASS: LT-05-the" — loTrinh.co == danh sách cờ của trang (so đẳng thức mảng) và loTrinh.tuKhaiNgoai
+      == số trên dòng "tự khai ngoài từ vựng" của trang; "PASS: LT-05-crm" — fixture crm OKR thật trên cây
+      hồ sơ do code sinh: in bảng từ vựng tự khai (giá trị · khớp ô hay ngoài · số hàng), số ngoài từ vựng
+      == số ghim trong `_nguon.tu_khai_ngoai` của fixture; "PASS: LT-05-im" — đổi status một hồ sơ không
+      hàng nào trỏ: danh sách cờ trên mọi hàng giữ nguyên (so đẳng thức trước/sau).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs, tests/scripts/lo-trinh-mau.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-06" — hai lần vẽ cho cùng byte; trang không khớp /<script|src=|href="?https?:/;
+      không chứa ngày ISO của lượt chạy; --check exit 0 với "LO-TRINH.html khớp tệp ý định và hồ sơ.";
+      và "PASS: LT-06-do" — ba ca (sửa một byte · đổi status hồ sơ có hàng trỏ · xoá trang) mỗi ca
+      --check exit 1, stderr chứa "LO-TRINH.html" và "--root"; "PASS: LT-06-mau" — tệp
+      _acceptance/viec-ke-theo-plan/mau/lo-trinh-crm-okr.html đã commit == bản lo-trinh-mau.mjs vẽ lại
+      trong lượt (trang hội đồng E14 đọc là vật máy sinh, không phải bản sửa tay).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, scripts/start-scan.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-07" — sha256 + mtimeMs của tệp ý định bằng nhau trước/sau bốn lệnh;
+      và "PASS: LT-07-do" — bản sao lo-trinh.mjs ghi lại tệp sau khi đọc → đỏ, thông điệp ghim
+      "tệp ý định bị ghi".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, scripts/start-scan.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-08 vang", "PASS: LT-08 json-hong", "PASS: LT-08 thoat-goc",
+      "PASS: LT-08 khong-object" — mỗi ca: product-map ghi exit 0, trang chứa lý do riêng của ca,
+      loTrinh.loi chứa cùng lý do, stderr không chứa "    at "; và "PASS: LT-08-lanh" — tệp lành thì
+      loTrinh.loi === null.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/start-scan.mjs, commands/start.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-09 <biến thể>" cho từng biến thể của ma trận hàng kế viết trước trong
+      test (ghim mã hàng kế mong đợi hoặc null, so đẳng thức): không-slug-không-tự-khai · không-slug-tự-
+      khai-ngoài-đã-giao · slug-dự-kiến · ô-cân-nhắc · ô-sắp-mở · đứng-trên-chưa-giao · mã-lạ (có cờ "đứng
+      trên mã không có", không bao giờ là hàng kế); "PASS: LT-09-tre" — ACCEPTANCE_TODAY sau mốc: hangTre ==
+      đúng [mã chưa giao]; "PASS: LT-09-truoc-moc" — trước mốc: hangTre rỗng; "PASS: LT-09-tin" —
+      tinTheoLoi == {n, tong} mong đợi; "PASS: LT-09-crm" — fixture crm OKR thật: hangKe khác null;
+      "PASS: LT-09-khoa" — mọi đường khoá loTrinh.* trong JSON thật có trong khối START-SCAN-KEYS và ngược lại.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-10" — năm hàng chung slug cùng một chữ trạng thái, 0 cờ trùng slug;
+      hai hàng tách mang hai chữ khác nhau đúng ô hồ sơ của mỗi slug; hàng đổi hạng có đúng một cờ
+      "hạng tệp T2, hồ sơ T3" với hợp đồng mang chú thích cuối dòng; "PASS: LT-10-im" — hồ sơ chỉ có
+      opportunity.md: 0 cờ hạng; hợp đồng "risk_tier: T2  # …" với hàng T2: 0 cờ hạng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-11" — khối "Vòng ngoài lộ trình" liệt đúng tập slug không hàng nào
+      trỏ (so tập), không cờ; khối mốc và đã bác đủ mục; dòng "Hàng sống qua Cổng Đáng: 2/3" trên
+      fixture có build, iterate, park và một slug trỏ bởi hai hàng (đếm một lần).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-12" — lệnh rút NGUYÊN VĂN từ khối marker S0-NHAN-HANG của SKILL, chỉ
+      thay `<mã>` bằng 9b, chạy với cwd = kho fixture KHÔNG có scripts/lo-trinh.mjs, WORKFLOWS_DIR trỏ
+      feature-loop/workflows của cây đang kiểm và gốc bộ giải gói trỏ cây đang kiểm (suy từ vị trí test):
+      exit 0, JSON đủ bảy trường đúng giá trị; "PASS: LT-12-do" — mã lạ exit 1 stderr chứa "không có hàng";
+      vắng khoá exit 1 stderr chứa "kho chưa khai lo_trinh.tep"; "PASS: LT-12-kho" — bản sao khối dùng
+      `node scripts/lo-trinh.mjs` tương đối chạy ở cùng kho fixture → đỏ, thông điệp ghim "lệnh S0 không
+      chạy được ở kho tiêu thụ".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [skills/acceptance/references/lo-trinh-template.json, scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-13" — khuôn đọc ra 0 cờ, có ≥1 hàng mang đủ bảy trường khuôn và ≥1
+      trường tự do; "PASS: LT-13-do" — bản sao khuôn đổi tên cau_giao → đúng một cờ nêu cau_giao.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-14
+    executor: judgment
+    inputs:
+      - _acceptance/viec-ke-theo-plan/mau/lo-trinh-crm-okr.html
+    paths: [scripts/lo-trinh.mjs, tests/scripts/fixtures/lo-trinh/crm-okr.json, tests/scripts/lo-trinh-mau.mjs]
+    question: >
+      Đọc trang lo-trinh-crm-okr.html như một người chưa biết kho này, trong một phút, không mở tệp
+      nào khác. Trả lời ba câu bằng chính chữ trên trang: (1) hàng nào làm kế, và trang cho thấy vì
+      sao nó đủ điều kiện (những hàng nó đứng trên đang ở trạng thái nào)? (2) mỗi hàng đang ở đâu —
+      trang có cho một chữ trạng thái cho MỌI hàng, và phân biệt được hàng suy từ hồ sơ với hàng tin
+      theo lời không? (3) chỗ nào tệp khai lệch hồ sơ, và trang có đặt cờ đó cạnh đúng hàng không?
+      PASS khi cả ba trả lời được kèm trích chữ trên trang; FAIL nêu câu nào không trả lời được và
+      vì sao; UNCERTAIN khi trang không đọc được.
+    expected: PASS với trích chữ trên trang cho từng câu; FAIL nêu câu và chỗ thiếu
+    evidence_required: [judged_by, verdict, rationale]
+  - id: E15
+    criterion: AC-15
+    executor: script
+    cmd: config:executors.script.product_map
+    paths: [scripts/product-map.mjs, scripts/lo-trinh.mjs, PRODUCT-MAP.md]
+    expected: >
+      exit 0; stdout "PRODUCT-MAP.md khớp hồ sơ xưởng." — kho kit không khai lo_trinh.tep, bản đồ
+      không đổi; bốn suite (suiteCommands) cùng thoát 0 trong lượt chấm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
