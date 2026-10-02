@@ -9,8 +9,8 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>5 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>86 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>9 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
@@ -42,14 +42,11 @@ flowchart TD
 - Lộ trình vào kit, lát 1 — ổ cắm đọc file ý định của kho (khuôn sáu trường), máy suy trạng thái từ hồ sơ bằng bảng nhãn bản đồ sản phẩm, in ba dòng lên thẻ start và vẽ trang lộ trình cạnh PRODUCT-MAP.md; kit KHÔNG ghi vào file ý định (`viec-ke-theo-plan`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
 
-## Chờ duyệt phạm vi
-
-- Làn ghim lại bớt chạy vô ích — hoá cũ theo paths (kho tự bật, chỉ thu) và suite song song trong làn (kho tự bật) (`lan-ghim-lai-theo-paths`)
-
 ## Đang làm
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
+- Làn ghim lại bớt chạy vô ích — hoá cũ theo paths (kho tự bật, chỉ thu) và suite song song trong làn (kho tự bật) (`lan-ghim-lai-theo-paths`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
