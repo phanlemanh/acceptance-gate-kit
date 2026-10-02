@@ -3,10 +3,10 @@ schema_version: 1
 slug: viec-ke-theo-plan
 feature: Lộ trình vào kit, lát 1 — ổ cắm đọc file ý định của kho (khuôn sáu trường), máy suy trạng thái từ hồ sơ bằng bảng nhãn bản đồ sản phẩm, in ba dòng lên thẻ start và vẽ trang lộ trình cạnh PRODUCT-MAP.md; kit KHÔNG ghi vào file ý định
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Phan Le Manh
+decided_at: 2026-10-02T11:09:50Z   # owner gõ «làm» một chạm trong phiên 02/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -42,10 +42,10 @@ thông lệ và chỗ ngược playbook: `docs/plans/2026-09-06-hat-giong-viec-k
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] *trang vẽ + ba dòng thẻ start có thay được việc hỏi tiến độ và gõ tay trạng thái không?*
-- Kết quả nào là SỐNG: [đề xuất] trên hai lộ trình crm dùng ổ cắm, tin hỏi tiến độ/lượt ≤ nửa nền (nền 23/48, lượt 4 OKR) · 0 commit «bản chụp» chỉ đổi trạng thái sau khi ổ cắm chạy · 0 hàng tự khai lệch hồ sơ mà thẻ im.
-- Kết quả nào là CHẾT: [đề xuất] owner vẫn gõ trạng thái tay sau hai lộ trình, hoặc ổ cắm làm kho không khai đổi thẻ/đỏ.
-- Timebox: [đề xuất] một vòng, trần ba lượt chấm; ngưỡng đọc sau hai lộ trình crm kế tiếp (≤ 30 ngày sau phát hành).
+- Câu hỏi phép đo trả lời: *trang vẽ + ba dòng thẻ start có thay được việc hỏi tiến độ và gõ tay trạng thái không?*
+- Kết quả nào là SỐNG: trên hai lộ trình crm dùng ổ cắm, tin hỏi tiến độ/lượt ≤ nửa nền (nền 23/48, lượt 4 OKR) · 0 commit «bản chụp» chỉ đổi trạng thái sau khi ổ cắm chạy · 0 hàng tự khai lệch hồ sơ mà thẻ im.
+- Kết quả nào là CHẾT: owner vẫn gõ trạng thái tay sau hai lộ trình, hoặc ổ cắm làm kho không khai đổi thẻ/đỏ.
+- Timebox: một vòng, trần ba lượt chấm; ngưỡng đọc sau hai lộ trình crm kế tiếp (≤ 30 ngày sau phát hành).
 
 ## Kết quả prototype
 
@@ -63,7 +63,7 @@ sống Artifact) — là vật để so khuôn và trạng thái, không phải 
 
 ## Cổng 0
 
-- **decision = …** Đề xuất `build` lát 1, hạng T2: một khoá config · bộ đọc khối + đối chiếu slug · ba dòng thẻ start · bộ vẽ HTML cạnh PRODUCT-MAP.md · feature-loop S0 nhận một hàng. Không cổng mới, không lệnh thứ tám, không ghi vào file ý định.
+- **decision = build** Lát 1, hạng T2: một khoá config · bộ đọc khối + đối chiếu slug · ba dòng thẻ start · bộ vẽ HTML cạnh PRODUCT-MAP.md · feature-loop S0 nhận một hàng. Không cổng mới, không lệnh thứ tám, không ghi vào file ý định.
 - **disposition = …**
 - **Ngưỡng UAT chốt cùng lúc ký:** ba ngưỡng SỐNG ở trên + hai thước từ git ghi cạnh năm dòng của hồ sơ mốc (tỉ lệ hàng sống qua Cổng Đáng · số hàng bị sửa sau khi vòng mở).
 
