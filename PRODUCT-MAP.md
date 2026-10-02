@@ -5,7 +5,7 @@
 
 ```mermaid
 flowchart TD
-  A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
+  A["Đang cân nhắc cơ hội<br/>11 việc"] --> GD{"Cổng Đáng"}
   GD --> B["Sắp mở vòng<br/>4 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
@@ -25,6 +25,7 @@ flowchart TD
 
 - Bốn mục cho cửa sổ 2.13 — re-pin theo diff · routing-baseline không đỏ vì hồ sơ mới · dòng 1 đo tới lên-main + ship chạy nền · chiến dịch ghim lại 41 hồ sơ stale (`ba-cho-cat-sau-chu-ky-cua-so-2-13`)
 - Chốt chặn trước-merge chấm MỌI hồ sơ đã arm cổng, kể cả hồ sơ PR không chạm — một vòng dở làm kẹt mọi PR khác của kho (`cong-chan-theo-ho-so-khong-theo-diff`)
+- Làn ghim lại giữ trọn lời lỗi và để lại dấu lượt đỏ kèm dòng tự xưng của bàn đo — lệnh đỏ ghi trọn đầu ra ra thư mục lượt chạy và in đường dẫn; làn đỏ để lại một dòng sổ (run_id · lệnh · mã thoát · tải máy); không đổi nghĩa xanh/đỏ (`lan-ghim-lai-giu-tron-loi-loi`)
 - Nhà tài liệu khai một chỗ — repo khai «lớp vật × vòng đời → một nhà» trong khối máy đọc của docs/MAP.md, máy kiểm không hai nhà / không nhà lạ; repo mới được acceptance-init dựng bản mặc định cũng qua router; feature-loop đọc nhà thay vì đường cứng (`nha-tai-lieu-router`)
 - Ô nuốt luật — đổi hai ô hỏi-khẩu-vị thành ô hỏi-phép-đối-chiếu (`o-nuot-luat`)
 - Phát hiện của làn rà soát đến được người ký — thẻ Cổng 2 và luật xanh-sạch đọc cùng một nguồn, và đọc được đúng chữ in trên nút (`phat-hien-den-duoc-nguoi-ky`)
