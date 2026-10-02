@@ -594,6 +594,23 @@ Repo dựng trước 1.31.0 không tự bật: các thân cổng đọc `t1_skip
 thấy `PRODUCT-MAP.md` thì **bỏ qua** bước vẽ lại và in hai dòng chỉ cách bật.
 Không có bước này thì chính commit chữ ký làm bằng chứng cũ đi và merge kẹt.
 
+**Lộ trình cạnh bản đồ (hồ sơ viec-ke-theo-plan)** — kho tự viết một tệp ý định JSON (khuôn
+`skills/acceptance/references/lo-trinh-template.json`: mỗi hàng `ma` · `cau_giao` bắt buộc; `hang` ·
+`vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
+cấp tệp; mọi trường khác là trường tự do của kho) rồi bật bằng hai dòng:
+
+```yaml
+lo_trinh:
+  tep: docs/plan/lo-trinh.json
+```
+
+và thêm `LO-TRINH.html` vào `risk_tiers.t1_skip_globs` cạnh `PRODUCT-MAP.md` (cùng lý do: view máy
+sinh, `--check` canh). Từ đó mỗi lần bản đồ được vẽ lại, `LO-TRINH.html` được vẽ cùng lượt — trạng
+thái từng hàng suy từ hồ sơ, không gõ tay — và thẻ `/acceptance-gate:start` in ba dòng: hàng kế, hàng
+trễ theo mốc, số hàng tin theo lời. Kho dùng chữ trạng thái riêng thì khai `tu_vung` để kit so được
+lời tự khai với hồ sơ. Kit **không bao giờ ghi** vào tệp ý định. Vòng tính năng nhận thẳng một hàng:
+`/feature-loop:feature-loop <mã hàng>`. Kho không khai khoá thì không thấy gì khác.
+
 **Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
 đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ
 đã hứa chưa?"; Cổng Giá trị hỏi "thứ đó có ăn thua không?". Nghi thức chép

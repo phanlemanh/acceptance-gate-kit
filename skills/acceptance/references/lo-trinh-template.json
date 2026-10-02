@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "ten": "Lộ trình <tên sản phẩm hoặc đợt>",
+  "tu_vung": { "đã lên production": "Đã giao" },
   "moc": [
     { "ten": "Hạn ngoài: mùa báo cáo quý", "ngay": "2026-12-07", "loai": "han", "ai": "Chủ sản phẩm", "hang": ["2"] }
   ],

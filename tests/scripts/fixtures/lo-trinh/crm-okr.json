@@ -1,6 +1,12 @@
 {
   "schema": 1,
   "ten": "Lộ trình OKR (crm)",
+  "tu_vung": {
+    "đã lên onehub": "Đã giao",
+    "xong": "Đã giao",
+    "đang dựng": "Đang làm",
+    "Cổng Phạm vi": "Chờ duyệt phạm vi"
+  },
   "moc": [
     {
       "ten": "Ban lãnh đạo gửi OKR quý 4 cấp OneHub, nếu đã có",
@@ -813,7 +819,7 @@
     "ma_trung": [
       "T"
     ],
-    "tu_khai_ngoai": 24,
+    "tu_khai_ngoai": 0,
     "ho_so": {
       "cay-to-chuc-co-nguoi": "da-ship",
       "vai-chi-okr": "da-ship",
@@ -831,18 +837,16 @@
       "dot-hoi-y-tuong-okr": "da-ship",
       "khung-tao-okr-nhu-deal": "da-ship",
       "sua-an-chu-ky-okr": "da-ship",
-      "okr-trong-chat": "can-nhac",
       "ro-slack-tac-nhan": "da-ship",
       "slack-thieu-quyen-email": "da-ship",
       "tro-ly-okr-nen": "da-ship",
       "tro-ly-okr-de-xuat": "da-ship",
       "tro-ly-okr-tom-tat": "cho-duyet",
       "soan-okr-cung-tro-ly": "dang-dung",
-      "hoi-dap-okr": "can-nhac",
-      "nhap-dieu-hoc-duoc": "can-nhac",
-      "tom-tat-cap-bo-phan": "can-nhac",
       "ha-tran-thang-hoi-zalo": "da-ship"
     },
-    "hang_lech_mau": "7n"
+    "hang_lech_mau": "7n",
+    "tu_khai_ngoai_khong_tu_vung": 24,
+    "ghi_chu_tu_vung": "tu_vung do máy đề xuất từ năm chữ trạng thái crm đang dùng; kho thật tự khai khối này"
   }
 }

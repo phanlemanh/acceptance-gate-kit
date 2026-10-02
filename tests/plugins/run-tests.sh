@@ -2713,7 +2713,10 @@ const extractKeys = txt => {
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p99-'));
 const W = (rel, s) => { const p = path.join(tmp, rel);
   fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
-W('_acceptance/config.yaml', 'schema_version: 1\n');
+// Khai ổ cắm lộ trình (hồ sơ viec-ke-theo-plan) để `loTrinh` mang đủ khoá con thật mà soi: một hàng
+// chưa mở gắn mốc đã qua (hangTre có phần tử), ACCEPTANCE_TODAY ghim đồng hồ bên dưới.
+W('_acceptance/config.yaml', 'schema_version: 1\nlo_trinh:\n  tep: docs/lo-trinh.json\n');
+W('docs/lo-trinh.json', JSON.stringify({ schema: 1, ten: 'p99', moc: [{ ten: 'M', ngay: '2026-01-01', hang: ['1'] }], hang: [{ ma: '1', cau_giao: 'c' }] }));
 W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus: draft\n---\n');
 W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
 // w-done mang `veto_state: mo` de mang vetoOpen[] co PHAN TU THAT ma soi — va no
@@ -2722,8 +2725,9 @@ W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: appro
 W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\nveto_state: mo\n---\n');
 W('_acceptance/w-bad/contract.md', 'khong fence\n');
 W('_acceptance/w-consider/opportunity.md', '---\nslug: w-consider\nfeature: w\nstage: discovery\ndecision:\n---\n');   // o «dang can nhac» (vao-co-o-ra-co-ten)
+const ENV99 = { ...process.env, ACCEPTANCE_TODAY: '2026-10-02' };
 const outJson = JSON.parse(execFileSync('node',
-  [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
+  [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8', env: ENV99 }));
 
 const resolveKey = (obj, dotted) => dotted.split('.').reduce((acc, part) => {
   if (acc === undefined || acc === null) return undefined;
@@ -2769,7 +2773,9 @@ for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-
                    'scripts/trang-thai-ho-so.cjs',
                    // luat nguong chung (ho so ra-co-ten) — cung ly do
                    'lib/nguong-o-co-hoi.cjs',
-                   'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md']) {
+                   'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md',
+                   // ổ cắm lộ trình (hồ sơ viec-ke-theo-plan) — fixture khai ổ cắm nên bản sao cần cả hai
+                   'scripts/lo-trinh.mjs', 'scripts/lo-trinh-khoa.cjs']) {
   fs.mkdirSync(path.dirname(path.join(mut3, rel)), { recursive: true });
   fs.copyFileSync(path.join(root, rel), path.join(mut3, rel));
 }
@@ -2779,7 +2785,7 @@ const scanSrc = fs.readFileSync(path.join(root, 'scripts/start-scan.mjs'), 'utf8
 // «thuoc ghim vao thu SE DOI» (S4-r10, khi start-scan them flags cho o y-can-nhac).
 if (!scanSrc.includes(', ageDays: ageDays(s)')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
 fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s)', ''));
-const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
+const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8', env: ENV99 }));
 const eMut = checkOn(outMut, SOURCES.map(load));
 if (!eMut.some(x => /key groups\.considering\[\]\.ageDays khong co/.test(x)))
   die('dot bien bo khoa ageDays phia dau ra khong bi bat: ' + JSON.stringify(eMut));

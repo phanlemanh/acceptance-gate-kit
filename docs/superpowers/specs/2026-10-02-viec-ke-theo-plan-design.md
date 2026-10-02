@@ -69,8 +69,9 @@ Mỗi hàng ra đúng một chữ trạng thái, theo thứ tự xét:
 |---|---|---|---|
 | có `slug`, thư mục `_acceptance/<slug>/` có | tiêu đề ô mà `classify()` của bản đồ xếp slug đó | không | xem dưới |
 | có `slug`, thư mục chưa có (slug dự kiến) | «Chưa mở» | không | không — slug dự kiến là hợp lệ |
-| không `slug`, `trang_thai` là một tiêu đề ô | tiêu đề ô đó, kèm «(tin theo lời)» | có | không |
-| không `slug`, còn lại | «Chưa mở», kèm «(tin theo lời)» | có | không |
+| không `slug`, `trang_thai` (sau quy đổi `tu_vung`) là một tiêu đề ô | tiêu đề ô đó, kèm «(tin theo lời)» | có | không |
+| không `slug`, có `trang_thai` mà không quy đổi được | «Không suy được», kèm «(tin theo lời)» | có | không |
+| không `slug`, không `trang_thai` | «Chưa mở», kèm «(tin theo lời)» | có | không |
 
 `classify()` là hàm của `scripts/product-map.mjs` (xuất ra, không chép) → tiêu đề mục `SECTIONS`. Không
 bảng nhãn thứ hai.
@@ -80,6 +81,12 @@ bảng nhãn thứ hai.
 - **Hàng kế** = hàng ĐẦU TIÊN theo thứ tự tệp có chữ trạng thái thuộc tập «chưa làm» mà MỌI hàng trong
   `dung_tren` có chữ thuộc tập «đã giao». `dung_tren` trỏ mã không có → cờ «đứng trên mã không có: X»,
   hàng đó không bao giờ là hàng kế. Không hàng nào đủ → `null`, trang in «chưa có hàng đủ điều kiện».
+- **Từ vựng của kho** (`tu_vung`, khối cấp tệp, tuỳ chọn): `{ "<chữ riêng của kho>": "<tên trạng thái kit>" }`.
+  Tự khai được quy đổi qua khối này trước khi so (khoá không phân biệt hoa thường). Đích không phải
+  tên trạng thái → cờ «tu_vung: «k» trỏ «v» — không phải tên trạng thái». Vì sao có: đo trên crm OKR
+  02/10, 24/32 hàng tự khai bằng chữ riêng («đã lên onehub», «xong»…); không quy đổi thì không so được
+  và hàng «0» đã xong bị coi là «Chưa mở» rồi thành hàng kế. «Không suy được» không thuộc tập «chưa
+  làm» lẫn «đã giao», nên không bao giờ thành hàng kế và không mở khoá hàng đứng trên nó.
 - **Tự khai** (`trang_thai`) trên hàng CÓ slug và thư mục: bằng một tiêu đề ô (so sau khi gọt khoảng
   trắng, không phân biệt hoa thường) mà khác ô suy → cờ «tệp khai khác hồ sơ: khai X, hồ sơ Y». Ngoài
   từ vựng ô → in «tự khai: …», không cờ từng hàng, nhưng trang và thẻ in một dòng đếm «N hàng tự khai

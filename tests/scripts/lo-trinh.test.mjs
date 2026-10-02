@@ -266,9 +266,22 @@ if (want('LT-05-crm')) {
     for (const d of kq.dong) if (d.tuKhai) { const k = `${d.tuKhai} → ${d.khaiNgoai ? 'ngoài từ vựng' : 'khớp ô'}`; bang[k] = (bang[k] || 0) + 1; }
     console.log('    bảng từ vựng tự khai (crm OKR):'); for (const [k, n] of Object.entries(bang).sort()) console.log(`      ${k}: ${n}`);
     if (kq.tuKhaiNgoai !== f._nguon.tu_khai_ngoai) sai.push(`ngoài từ vựng ${kq.tuKhaiNgoai} != ${f._nguon.tu_khai_ngoai}`);
+    // Cùng nguồn KHÔNG có khối tu_vung: số ngoài từ vựng là số đo của nguồn thật.
+    const { _nguon: _g, tu_vung: _t, ...tho } = f;
+    const kq2 = phan(kho({ data: tho, hoSo: f._nguon.ho_so })).kq;
+    if (kq2.tuKhaiNgoai !== f._nguon.tu_khai_ngoai_khong_tu_vung) sai.push(`không tu_vung: ngoài từ vựng ${kq2.tuKhaiNgoai} != ${f._nguon.tu_khai_ngoai_khong_tu_vung}`);
     const lech = kq.co.filter(c => c.includes('tệp khai khác hồ sơ'));
     if (!lech.some(c => c.startsWith(`hàng ${f._nguon.hang_lech_mau}:`))) sai.push(`không có cờ lệch cho hàng ${f._nguon.hang_lech_mau}: ${JSON.stringify(lech)}`);
-    if (sai.length) bad('LT-05-crm', sai.join(' ; ')); else ok('LT-05-crm', `crm OKR thật: ${kq.tuKhaiNgoai} hàng tự khai ngoài từ vựng (ghim), cờ lệch ở hàng ${f._nguon.hang_lech_mau}`);
+    if (sai.length) bad('LT-05-crm', sai.join(' ; ')); else ok('LT-05-crm', `crm OKR thật: ${f._nguon.tu_khai_ngoai_khong_tu_vung} hàng tự khai ngoài từ vựng khi chưa khai tu_vung, ${kq.tuKhaiNgoai} khi có (ghim); cờ lệch ở hàng ${f._nguon.hang_lech_mau}`);
+  } catch (e) { bad('LT-05-crm', loi(e)); }
+}
+if (want('LT-05-tuvung')) {
+  try {
+    const r = kho({ hoSo: { r1: 'dang-dung', r2: 'da-ship' }, data: { schema: 1, tu_vung: { 'đã lên onehub': 'Đã giao', 'x': 'Xong rồi' }, hang: [H('r1', { slug: 'r1', trang_thai: 'đã lên onehub' }), H('r2', { slug: 'r2', trang_thai: 'Đã lên OneHub' })] } });
+    const kq = phan(r).kq;
+    const mong = ['tu_vung: «x» trỏ «Xong rồi» — không phải tên trạng thái', 'hàng r1: tệp khai khác hồ sơ: khai đã lên onehub (Đã giao), hồ sơ Đang làm'];
+    if (deq(kq.co, mong) && kq.tuKhaiNgoai === 0) ok('LT-05-tuvung', 'khối tu_vung của kho quy đổi chữ riêng sang trạng thái kit: hàng lệch có cờ, hàng khớp (khác hoa thường) không cờ, đích sai có cờ');
+    else bad('LT-05-tuvung', `cờ ${JSON.stringify(kq.co)} ngoài ${kq.tuKhaiNgoai}`);
   } catch (e) { bad('LT-05-crm', loi(e)); }
 }
 if (want('LT-05-im')) {
@@ -405,11 +418,13 @@ const MA_TRAN = {
   'ma-la': { hang: [H('V', { dung_tren: ['ZZ'] }), F], ke: 'F', co: 'hàng V: đứng trên mã không có: ZZ' },
   'vong': { hang: [H('A', { dung_tren: ['B'] }), H('B', { dung_tren: ['A'] }), F], ke: 'F', co: 'đứng trên tạo vòng: A → B → A' },
   'khong-hang-nao': { hang: [H('V', { slug: 'v' })], hoSo: { v: 'dang-dung' }, ke: null },
+  'khong-slug-tu-khai-khong-quy-doi': { hang: [H('V', { trang_thai: 'xong' }), F], ke: 'F' },
+  'dung-tren-tu-khai-quy-doi-da-giao': { hang: [H('V', { dung_tren: ['X'] }), H('X', { trang_thai: 'xong' }), F], tuVung: { xong: 'Đã giao' }, ke: 'V' },
 };
 for (const [ten, c] of Object.entries(MA_TRAN)) {
   if (!want(`LT-09 ${ten}`)) continue;
   try {
-    const r = kho({ hoSo: c.hoSo || {}, data: { schema: 1, hang: c.hang } });
+    const r = kho({ hoSo: c.hoSo || {}, data: { schema: 1, ...(c.tuVung ? { tu_vung: c.tuVung } : {}), hang: c.hang } });
     const j = JSON.parse(quet(r, { ACCEPTANCE_TODAY: '2026-10-02' }).stdout).loTrinh; const sai = [];
     const ke = j.hangKe ? j.hangKe.ma : null;
     if (ke !== c.ke) sai.push(`hàng kế ${ke} != ${c.ke}`);

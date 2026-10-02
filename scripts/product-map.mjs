@@ -34,6 +34,7 @@ export { NAV_RULES };
 // TỚI ô, không đổi TÊN ô (hồ sơ start-bang-dieu-khien, AC-7).
 const { BUCKET_OF, chu } = require(path.join(__dirname, 'trang-thai-ho-so.cjs'));
 const NGUONG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
+const { khoaTuConfig: khoaLoTrinh } = require(path.join(__dirname, 'lo-trinh-khoa.cjs'));
 import { khongCanNguoi } from './khong-can-nguoi.mjs';
 const OPP_TPL_MAP = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
 let _oppTpl = null;
@@ -392,11 +393,33 @@ if (isMain) {
     process.exit(0);
   }
   const rendered = renderProductMap(root);
+  // Trang lộ trình (hồ sơ viec-ke-theo-plan): cùng lượt, cùng `--check` với bản đồ. Khoá đọc bằng
+  // hàm chung TRƯỚC, mô-đun lộ trình chỉ được nạp khi kho khai ổ cắm — kho không khai thì mã lộ
+  // trình không chạy (AC-1) và kho chép thiếu tệp vẫn vẽ được bản đồ. Lỗi của TỆP Ý ĐỊNH không làm
+  // lệnh này thoát khác 0: trang tự nói lý do; chỉ trang vắng hoặc lệch mới làm `--check` đỏ.
+  const tepLoTrinh = khoaLoTrinh(readPlain(path.join(root, '_acceptance', 'config.yaml')) || '');
+  const pagePath = path.join(root, 'LO-TRINH.html');
+  let trang = null;
+  if (tepLoTrinh != null) {
+    const LT = await import('./lo-trinh.mjs');
+    trang = LT.veTrang({ root, classify, sections: SECTIONS });
+  }
   if (!check) {
     writeFileSync(mapPath, rendered);
     console.log(mapPath);
+    if (trang != null) { writeFileSync(pagePath, trang); console.log(pagePath); }
     process.exit(0);
   }
+  const ketThuc = code => {
+    if (trang != null) {
+      if (existsSync(pagePath) && readPlain(pagePath) === trang) console.log('LO-TRINH.html khớp tệp ý định và hồ sơ.');
+      else {
+        console.error(`LO-TRINH.html ${existsSync(pagePath) ? 'lệch với' : 'chưa có, trong khi kho khai'} tệp ý định và hồ sơ — chạy: node ${hint} --root .`);
+        code = Math.max(code, 1);
+      }
+    }
+    process.exit(code);
+  };
   if (!existsSync(mapPath)) {
     // Phân biệt "repo CHƯA TỪNG dựng bản đồ" (đường đọc-cũ, hợp lệ) với "đã có
     // rồi MẤT". File được git theo dõi mà biến khỏi cây làm việc là một lần
@@ -419,15 +442,15 @@ if (isMain) {
     const state = mapState({ exists: false, tracked: daTheoDoi });
     if (state === 'da-xoa') {
       console.error(`${MAP_LABELS[state]} — khôi phục, hoặc vẽ lại: node ${hint} --root .`);
-      process.exit(1);
+      ketThuc(1);
     }
     console.log(`${MAP_LABELS[state]} — PRODUCT-MAP.md chưa có; bật thì nó tự sinh ở lần đóng cổng người kế.`);
-    process.exit(0);
+    ketThuc(0);
   }
   if (readPlain(mapPath) === rendered) {
     console.log('PRODUCT-MAP.md khớp hồ sơ xưởng.');
-    process.exit(0);
+    ketThuc(0);
   }
   console.error(`PRODUCT-MAP.md lệch với hồ sơ xưởng — chạy: node ${hint} --root .`);
-  process.exit(1);
+  ketThuc(1);
 }

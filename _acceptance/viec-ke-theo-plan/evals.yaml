@@ -64,7 +64,9 @@ evals:
       "PASS: LT-05-the" — loTrinh.co == danh sách cờ của trang (so đẳng thức mảng) và loTrinh.tuKhaiNgoai
       == số trên dòng "tự khai ngoài từ vựng" của trang; "PASS: LT-05-crm" — fixture crm OKR thật trên cây
       hồ sơ do code sinh: in bảng từ vựng tự khai (giá trị · khớp ô hay ngoài · số hàng), số ngoài từ vựng
-      == số ghim trong `_nguon.tu_khai_ngoai` của fixture; "PASS: LT-05-im" — đổi status một hồ sơ không
+      == `_nguon.tu_khai_ngoai` khi có khối tu_vung và == `_nguon.tu_khai_ngoai_khong_tu_vung` (24) khi bỏ
+      khối đó; "PASS: LT-05-tuvung" — tu_vung quy đổi chữ riêng: hàng lệch có cờ «khai đã lên onehub (Đã
+      giao), hồ sơ Đang làm», đích sai có cờ «tu_vung: «x» trỏ «Xong rồi» — không phải tên trạng thái»; "PASS: LT-05-im" — đổi status một hồ sơ không
       hàng nào trỏ: danh sách cờ trên mọi hàng giữ nguyên (so đẳng thức trước/sau).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
@@ -110,7 +112,8 @@ evals:
       exit 0; stdout có "PASS: LT-09 <biến thể>" cho từng biến thể của ma trận hàng kế viết trước trong
       test (ghim mã hàng kế mong đợi hoặc null, so đẳng thức): không-slug-không-tự-khai · không-slug-tự-
       khai-ngoài-đã-giao · slug-dự-kiến · ô-cân-nhắc · ô-sắp-mở · đứng-trên-chưa-giao · mã-lạ (có cờ "đứng
-      trên mã không có", không bao giờ là hàng kế); "PASS: LT-09-tre" — ACCEPTANCE_TODAY sau mốc: hangTre ==
+      trên mã không có", không bao giờ là hàng kế) · không-slug-tự-khai-không-quy-đổi (Không suy được, không là
+      hàng kế) · đứng-trên-tự-khai-quy-đổi-đã-giao (mở khoá hàng kế); "PASS: LT-09-tre" — ACCEPTANCE_TODAY sau mốc: hangTre ==
       đúng [mã chưa giao]; "PASS: LT-09-truoc-moc" — trước mốc: hangTre rỗng; "PASS: LT-09-tin" —
       tinTheoLoi == {n, tong} mong đợi; "PASS: LT-09-crm" — fixture crm OKR thật: hangKe khác null;
       "PASS: LT-09-khoa" — mọi đường khoá loTrinh.* trong JSON thật có trong khối START-SCAN-KEYS và ngược lại.

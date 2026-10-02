@@ -17,31 +17,27 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const { resolveConfigKey, frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 
-export const KHOA = 'lo_trinh.tep';
+const { KHOA: KHOA_, khoaTuConfig: khoaTuConfig_ } = require(path.join(__dirname, 'lo-trinh-khoa.cjs'));
+export const KHOA = KHOA_;
 export const TEP_TRANG = 'LO-TRINH.html';
 export const CHUA_MO = 'Chưa mở';
+export const KHONG_SUY = 'Không suy được';
 export const TIN_THEO_LOI = 'tin theo lời';
 // Ô bản đồ nào là «đã giao» và «chưa làm» — tra bằng KHOÁ ô, chữ rút từ SECTIONS của bản đồ.
 export const DA_GIAO_O = ['cho-nghiem-thu', 'da-ship', 'da-nghiem-thu'];
 export const CHUA_LAM_O = ['can-nhac', 'sap-mo'];
 const BAT_BUOC = ['ma', 'cau_giao'];
 const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
-const NULLISH = new Set(['~', 'null', 'Null', 'NULL']);
 
 const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
 const chuoi = v => (v == null ? '' : String(v).trim());
 const so = s => chuoi(s).toLowerCase();
 
 // ── Khoá ổ cắm ────────────────────────────────────────────────────────────────
-// Đọc bằng bộ đọc config DÙNG CHUNG — không parser thứ hai. Rỗng / null của YAML → vắng.
-export function khoaTuConfig(cfgText) {
-  const v = resolveConfigKey(String(cfgText || ''), KHOA);
-  if (v == null) return null;
-  const s = String(v).trim().replace(/^["']|["']$/g, '').trim();
-  return s && !NULLISH.has(s) ? s : null;
-}
+// MỘT hàm cho mọi bên đọc (scripts/lo-trinh-khoa.cjs). Rỗng / null của YAML → vắng.
+export const khoaTuConfig = khoaTuConfig_;
 export function docKhoa(root) {
   return khoaTuConfig(doc(path.join(root, '_acceptance', 'config.yaml')));
 }
@@ -86,7 +82,13 @@ export function kiemKhuon(data) {
   for (const m of trung) co.push(`mã trùng: ${m}`);
   const moc = (Array.isArray(data.moc) ? data.moc : []).filter(m => m && typeof m === 'object');
   const daBac = (Array.isArray(data.da_bac) ? data.da_bac : []).filter(m => m && typeof m === 'object');
-  return { ten: chuoi(data.ten), hang, moc, daBac, co };
+  // Từ vựng tự khai của KHO: chữ riêng của kho → tên trạng thái của kit. Kho khai, kit chỉ đọc.
+  const tuVung = {};
+  if (data.tu_vung !== undefined) {
+    if (data.tu_vung == null || typeof data.tu_vung !== 'object' || Array.isArray(data.tu_vung)) co.push('khối tu_vung phải là một object');
+    else for (const [k, v] of Object.entries(data.tu_vung)) tuVung[so(k)] = chuoi(v);
+  }
+  return { ten: chuoi(data.ten), hang, moc, daBac, tuVung, co };
 }
 
 // ── Suy trạng thái ────────────────────────────────────────────────────────────
@@ -103,12 +105,15 @@ export function suyTrangThai({ root, khuon, classify, sections }) {
     return cache.get(slug);
   };
   const co = [...khuon.co];
+  const tuVungKho = khuon.tuVung || {};
+  for (const [k, v] of Object.entries(tuVungKho)) if (!tuVung.has(so(v))) co.push(`tu_vung: «${k}» trỏ «${v}» — không phải tên trạng thái`);
   let tuKhaiNgoai = 0;
   const dong = khuon.hang.map(r => {
     const coHang = [];
     const slug = chuoi(r.slug);
     const tuKhai = chuoi(r.trang_thai);
-    const khaiChuan = tuKhai ? tuVung.get(so(tuKhai)) : undefined;
+    const quyDoi = tuKhai && tuVungKho[so(tuKhai)] !== undefined ? tuVungKho[so(tuKhai)] : tuKhai;
+    const khaiChuan = quyDoi ? tuVung.get(so(quyDoi)) : undefined;
     if (tuKhai && !khaiChuan) tuKhaiNgoai += 1;
     let chu; let tinTheoLoi = false; let coHoSo = false;
     if (slug && !SLUG_RE.test(slug)) {
@@ -121,10 +126,12 @@ export function suyTrangThai({ root, khuon, classify, sections }) {
       chu = CHUA_MO;
     } else {
       tinTheoLoi = true;
-      chu = khaiChuan || CHUA_MO;
+      // Tự khai không quy đổi được thì KHÔNG đoán: «Chưa mở» sẽ biến một hàng đã xong thành hàng
+      // kế (đo trên crm OKR 02/10, hàng «0» khai «xong»).
+      chu = khaiChuan || (tuKhai ? KHONG_SUY : CHUA_MO);
     }
     if (!tinTheoLoi && khaiChuan && khaiChuan !== chu)
-      coHang.push(`hàng ${r._nhan}: tệp khai khác hồ sơ: khai ${tuKhai}, hồ sơ ${chu}`);
+      coHang.push(`hàng ${r._nhan}: tệp khai khác hồ sơ: khai ${tuKhai}${quyDoi !== tuKhai ? ` (${khaiChuan})` : ''}, hồ sơ ${chu}`);
     if (coHoSo && chuoi(r.hang)) {
       const c = doc(path.join(acc, slug, 'contract.md'));
       const t = c == null ? '' : chuoi(frontmatterField(c, 'risk_tier'));
@@ -161,7 +168,7 @@ export function suyTrangThai({ root, khuon, classify, sections }) {
   const duDieuKien = d => (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi)
     .every(x => theoMa.has(x) && daGiaoMa(x));
   const ke = dong.find(d => chuaLam.has(d.chu) && duDieuKien(d)) || null;
-  const hangKe = ke ? { ma: ke._nhan, cauGiao: chuoi(ke.cau_giao), dungTren: (Array.isArray(ke.dung_tren) ? ke.dung_tren : []).map(chuoi).map(x => ({ ma: x, chu: theoMa.get(x)?.chu || null })) } : null;
+  const hangKe = ke ? { ma: ke._nhan, cauGiao: chuoi(ke.cau_giao) || '(hàng chưa có câu giao)', dungTren: (Array.isArray(ke.dung_tren) ? ke.dung_tren : []).map(chuoi).map(x => ({ ma: x, chu: theoMa.get(x)?.chu || null })) } : null;
 
   // Vòng ngoài lộ trình: hồ sơ không hàng nào trỏ — đếm, không cờ.
   const troi = new Set(dong.map(d => d.slug).filter(Boolean));
