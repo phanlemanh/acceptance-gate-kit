@@ -81,6 +81,7 @@ giả định 2 trước khi viết mã.
 ## Out of scope từ khám phá
 
 - Không thử-lại-tự-động trong làn; không đổi nghĩa xanh/đỏ; không chạy theo delta; không lấy suite từ CI.
+  Số cho nhát «chạy theo delta» đã hoãn: hạt giống `docs/plans/2026-10-02-hat-giong-lan-ghim-lai-theo-paths-va-suite-song-song.md` (mô phỏng 70/186 làn crm tránh được, 3 bỏ lỡ, 02/10).
 - Không gộp bộ nhãn cạnh gãy của S4 vào làn.
 - Không sửa thước của kho (crm/oneflow viết luật kho thành bộ kiểm chung là việc của kho).
 - Không chạm hồ sơ đã ký ngoài một dòng sổ loại mới; không ghi bằng chứng khi đỏ.
