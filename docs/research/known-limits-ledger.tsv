@@ -385,3 +385,5 @@ luot-cham-ghi-vao-cay#ngoai-2	luot-cham-ghi-vao-cay	low	khac	song			recheck ch�
 luot-cham-ghi-vao-cay#ngoai-5	luot-cham-ghi-vao-cay	low	khac	trung		luot-cham-ghi-vao-cay#ngoai-1	cùng lỗi băm liên kết mềm của Ngoài-1 [lượt chấm 1; owner quyết ở Cổng Bằng chứng 01/10]
 luot-cham-ghi-vao-cay#ngoai-6	luot-cham-ghi-vao-cay	medium	fail-open	song			nhánh «lib vắng» của ca LC7 là kiểm âm tính một mình — xanh cả khi lưới sập trên bản kit thiếu lib [lượt chấm 1; owner quyết ở Cổng Bằng chứng 01/10]
 luot-cham-ghi-vao-cay#ngoai-7	luot-cham-ghi-vao-cay	low	chuoi-thay-quan-he	song			ca JI11 (hồ sơ thuoc-biet-truoc-khong-phan-duoc) đo chữ trong mã nguồn bộ chấm thay vì lời giao việc thật hội đồng nhận [lượt chấm 1; owner quyết ở Cổng Bằng chứng 01/10]
+viec-ke-theo-plan#ngoai-1	viec-ke-theo-plan	medium	dong-goi	song			Bản sao mutant của P99 nối danh sách tệp tay thay vì chép trọn thư mục — script mới mà start-scan nạp sẽ làm P99 đỏ vì hạ tầng
+viec-ke-theo-plan#ngoai-2	viec-ke-theo-plan	medium	doi-chung-tu-sinh	song			Ô hồ sơ của fixture crm OKR khai tay trong _nguon.ho_so — trang đọc đúng trên mẫu chưa chứng minh đọc đúng trên lộ trình thật của crm
