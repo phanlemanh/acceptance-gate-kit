@@ -72,3 +72,10 @@ builtins) là vật để đọc số tại mốc 09/10, không phải prototype
 - Không viết bộ đọc frontmatter thứ hai; không sinh lại bản đồ bằng bộ sinh cache khi bộ kiểm
   vendored của repo chưa nâng theo.
 - Không gộp bản đồ sản phẩm với plan (từ điển: «Product map, _Avoid_: roadmap»).
+
+> **02/10/2026 — neo thật đã có, ô vẫn park theo ý owner.** Hạt giống
+> `docs/plans/2026-09-06-hat-giong-viec-ke-theo-plan.md` cập nhật 02/10: ba lộ
+> trình sống bằng tay ở crm và oneflow, hai lát (ổ cắm đọc + vẽ · skill cắt lượt),
+> owner gật hướng và chốt «kit không ghi vào file ý định». Khi mở lại, dòng neo
+> là `Gốc: crm/_acceptance/cap-nhat-tuan-okr` (hồ sơ đo 23/48 tin hỏi tiến độ) và
+> `stage:` về `discovery`. Điều kiện mở: crm nhận mốc 2.20.0.
