@@ -1,0 +1,115 @@
+# Eval cho hồ sơ lan-ghim-lai-giu-tron-loi-loi.
+#
+# Một răng hồ sơ `rang.sh`, mỗi chân một AC. Kho fixture code-sinh (kho git tạm, hồ sơ
+# đã ký, pin do CHÍNH repin-lane.mjs --write ghi), chạy làn THẬT của cây đang kiểm (đường
+# dẫn suy từ vị trí rang.sh). Mỗi chân: bản lành XANH trước, rồi bản sao engine bị tiêm
+# ĐỎ với THÔNG ĐIỆP GHIM. Bản base cho vi phân: `git archive <merge-base> scripts lib
+# feature-loop` — trọn thư mục, không chép danh sách tệp tay.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.gtll_nhat_ky_tron
+    expected: >-
+      Suite in 200 dòng đánh số xen stdout/stderr rồi thoát 1: đúng một tệp dưới
+      .acceptance-runs/<slug>/repin-<run_id>/ chứa đủ 200 số (đếm từng số 1..200, không
+      thiếu); stderr làn in đường dẫn tệp và vẫn in 30 dòng cuối. Biến thể > 1 MiB, dấu riêng
+      ở DÒNG ĐẦU → dấu có trong tệp. Chiều đỏ: bản sao chỉ ghi 30 dòng cuối vào tệp → ĐỎ ghim
+      "nhật ký bị cắt".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.gtll_xanh_im
+    expected: >-
+      Mọi lệnh thoát 0, làn chạy có --write và không: số mục dưới .acceptance-runs/
+      trước = sau (KHÔNG tạo), và không dòng kind repin-do nào. Đối chứng dương cùng
+      fixture: một lệnh đỏ → có tệp (để chứng ca đếm sống). Chiều đỏ: bản sao ghi nhật ký
+      cho mọi lệnh → ĐỎ ghim "xanh sinh tệp".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.gtll_dau_do
+    expected: >-
+      Ba nguyên nhân đỏ (suite · eval lệch kỳ vọng · chạm hồ sơ đã thông cổng) × hai slug:
+      mã 1; mỗi slug đúng MỘT dòng kind repin-do mới đủ khoá run_id, sha, suites_exit,
+      evals_exit, lenh_do[{cmd,exit,log}], cham, wall_s, so_lenh, tai; KHÔNG dòng kind repin
+      mới; evidence-report.md bằng hệt từng byte. Mỗi lenh_do[].log của CẢ HAI slug giải từ
+      gốc kho → tệp mở được và chứa dấu riêng mà chính lệnh đỏ ấy in; eval lệch kỳ vọng mà
+      thoát 0 và ca chạm hồ sơ → log null kèm ly_do. Ba chiều đỏ: bỏ ghi dấu → ghim "đỏ không
+      vết"; chỉ ghi slug đầu → ghim "thiếu dấu ở slug"; đường tương đối thư mục slug → ghim
+      "dấu trỏ chỗ trống".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.gtll_bo_doc_im
+    expected: >-
+      Bộ đọc run-log RÚT bằng tìm "run-log.jsonl" trong scripts/, lib/, feature-loop/scripts/
+      (trừ test); mỗi bộ đọc một hàng trong bảng cách gọi viết trước (rang/bo-doc.mjs); bộ đọc
+      rút được mà không có hàng → ĐỎ ghim "bộ đọc chưa đo"; rút rỗng → ĐỎ. Mỗi hàng: vi phân
+      có vs không có (một dòng repin-do + wall_s/so_lenh) → stdout + mã thoát bằng hệt; đối
+      chứng dương riêng — mã thoát ghim sẵn + dấu nội dung (run_id của pin) hoặc đầu ra đổi khi
+      làm nhiễu dòng repin thật. Chiều đỏ: bản sao đặt kind repin cho dấu đỏ → recheck đỏ, ghim
+      "dấu đỏ giả làm pin".
+    paths:
+      - "feature-loop/scripts/**"
+      - "scripts/**"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.gtll_thoi_luong
+    expected: >-
+      Làn xanh --write, hai suite trùng lệnh ngủ 3 giây + một eval ngủ 2 giây: dòng kind repin
+      có wall_s ≥ 5 và ≤ đồng hồ ngoài của lượt + 1; so_lenh = 2 (lệnh trùng tính một). Khuôn
+      REPIN-TEMPLATE trong feature-loop SKILL có wall_s và so_lenh; ca LN5
+      (tests/scripts/repin-lane.test.mjs) xanh. Ca biên KHÔNG bắn: làn xanh không --write →
+      run-log KHÔNG đổi byte nào. Ba chiều đỏ: đếm cả lệnh trùng → ghim "đếm lệnh trùng";
+      wall_s = 0 → ghim "thời lượng hằng"; chỉ đo lệnh cuối → ghim "thời lượng một lệnh".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/skills/feature-loop/SKILL.md"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.gtll_tai_may
+    expected: >-
+      Mô-đun đọc tải máy gọi trực tiếp: (a) máy đang chạy → load1, ncpu là số; (b) bảng ba
+      dòng nội dung /proc/meminfo do code sinh → swap_used_mb = SwapTotal − SwapFree (MB) đúng
+      từng dòng (ca tự kiểm đúng 3); (c) bản sao trỏ nguồn swap tới đường không tồn tại →
+      swap_used_mb null, nen khác null (đối chứng dương phép tiêm có hiệu lực), và làn đỏ dùng
+      bản sao ấy VẪN mã 1, VẪN có dòng repin-do. Chiều đỏ: bản sao không bắt lỗi đọc swap →
+      ĐỎ ghim "tải máy làm sập làn".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/tai-may.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.gtll_nghia_khong_doi
+    expected: >-
+      Năm ca (xanh · suite đỏ · eval đỏ · chạm hồ sơ đã thông cổng · thiếu evals.yaml), cây
+      đang kiểm vs bản base: mã thoát bằng hệt cả năm VÀ bằng năm mã ghim sẵn 0 · 1 · 1 · 1 · 2
+      (ca tự kiểm đúng 5 ô, lệch số ô → ghim "số ô lệch"). Chiều đỏ: bản sao cho làn có dấu đỏ
+      thoát 0 → ghim "đổi nghĩa đỏ".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
