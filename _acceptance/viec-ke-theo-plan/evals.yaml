@@ -12,10 +12,12 @@ evals:
     cmd: config:executors.test.lo_trinh
     paths: [scripts/product-map.mjs, scripts/start-scan.mjs, scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: LT-01" — kho không khai: PRODUCT-MAP.md của nhánh == của base (git archive
-      trọn scripts lib skills ở merge-base) từng byte, không có LO-TRINH.html, JSON start-scan nhánh có
-      loTrinh === null và JSON bỏ khoá loTrinh == JSON base từng byte; và "PASS: LT-01-do" — bản sao
-      product-map luôn vẽ trang → đỏ, thông điệp ghim "trang sinh khi ổ cắm vắng".
+      exit 0; stdout có "PASS: LT-01" — kho không khai: bản cây đang kiểm và bản sao có scripts/lo-trinh.mjs
+      thay bằng mô-đun ném "LO-TRINH-GOI-KHI-VANG" cho PRODUCT-MAP.md giống từng byte, JSON start-scan giống
+      từng byte với loTrinh === null, không có LO-TRINH.html, cả hai lệnh của bản sao thoát 0 (đối chứng
+      dương: cùng bản sao trên kho CÓ khoá phải ném/thoát khác 0 với "LO-TRINH-GOI-KHI-VANG" — chứng minh
+      bản thay thật sự được nạp); và "PASS: LT-01-do" — bản sao product-map luôn vẽ trang → đỏ, thông điệp
+      ghim "trang sinh khi ổ cắm vắng".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
