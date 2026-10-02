@@ -610,15 +610,19 @@ if (want('LT-13-do')) {
 // ── LT-16: lệnh đóng cổng đưa trang lộ trình vào commit ─────────────────────
 // Khối MAP-STAGE rút NGUYÊN VĂN từ từng thân; chạy với AG = cây đang kiểm; commit; clone SẠCH rồi
 // --check trên clone — đúng hình dạng CI thấy, không phải cây làm việc còn tệp chưa commit.
+// Mốc = BƯỚC GHI trường của cổng trong từng thân (không phải lần đầu tên trường được nhắc).
 const THAN = {
-  approve: ['commands/approve.md', '`approved_by`'],
-  signoff: ['commands/signoff.md', '`human_signoff`'],
-  observed: ['commands/observed.md', '`status: da-cham-boi-thuc-te`'],
-  'uat-session': ['skills/uat-session/SKILL.md', '`verdict`'],
+  approve: ['commands/approve.md', '- Edit the contract frontmatter — `status: approved`'],
+  signoff: ['commands/signoff.md', '**7a — ghi trường người.**'],
+  observed: ['commands/observed.md', '**Đặt `status: da-cham-boi-thuc-te`**'],
+  'uat-session': ['skills/uat-session/SKILL.md', 'Người ký điền `verdict`'],
 };
 const MAP_RE = /<!-- <<<MAP-STAGE -->\n```(?:bash)?\n([^\n]+)\n```\n<!-- MAP-STAGE>>> -->/;
 const khoiMap = txt => { const m = txt.match(MAP_RE); if (!m) throw new Error('không thấy khối MAP-STAGE (một dòng lệnh trong rào ```)'); return m[1]; };
-const bash = (lenh, cwd, env = {}) => spawnSync('bash', ['-c', lenh], { cwd, encoding: 'utf8', env: { ...process.env, ...env } });
+// Chạy khối như harness: thay chữ ${CLAUDE_PLUGIN_ROOT} bằng gốc gói (cây đang kiểm), và AG KHÔNG có
+// trong môi trường — khối phải tự lấy gốc gói, không dựa vào một biến người gọi gán sẵn.
+const bash = (lenh, cwd) => { const env = { ...process.env }; delete env.AG; delete env.CLAUDE_PLUGIN_ROOT;
+  return spawnSync('bash', ['-c', lenh.split('${CLAUDE_PLUGIN_ROOT}').join(KIT)], { cwd, encoding: 'utf8', env }); };
 function lt16(lenh, khai = true) {
   const r = kho({ khoa: khai, hoSo: { p1: 'dang-dung' }, data: khai ? { schema: 1, hang: [H('1', { slug: 'p1' })] } : null });
   // Trạng thái ban đầu đã commit (cả hai view), như kho thật đã đóng cổng trước đó.
@@ -626,7 +630,7 @@ function lt16(lenh, khai = true) {
   // Cổng ghi trường của nó: hồ sơ có hàng trỏ đổi trạng thái, và thân cổng đưa hồ sơ vào commit.
   const hd = path.join(r, '_acceptance', 'p1', 'contract.md'); writeFileSync(hd, readFileSync(hd, 'utf8').replace('status: approved', 'status: draft'));  // đổi Ô bản đồ (Đang làm → Chờ duyệt phạm vi), không chỉ đổi status trong cùng ô
   git(r, 'add', '_acceptance');
-  const x = bash(lenh, r, { AG: KIT });
+  const x = bash(lenh, r);
   const staged = git(r, 'diff', '--cached', '--name-only').split('\n').filter(Boolean).sort();
   git(r, 'commit', '-qm', 'dong cong');
   const cl = path.join(TMP, `clone-${++khoN}`); execFileSync('git', ['clone', '-q', r, cl]);
@@ -648,16 +652,33 @@ if (want('LT-16-giong')) {
     if (!khac.length) ok('LT-16-giong', `bốn thân mang cùng một khối: «${k[0][1].slice(0, 70)}…»`); else bad('LT-16-giong', `khối khác ở: ${khac.join(', ')}`);
   } catch (e) { bad('LT-16-giong', loi(e)); }
 }
-const thuTu = (ten, txt, moc) => { const i = txt.indexOf(moc), j = txt.indexOf('<!-- <<<MAP-STAGE -->'); return (i < 0 || j < 0 || j < i) ? `thân ${ten}: khối MAP-STAGE không đứng sau chỗ ghi ${moc}` : null; };
+const thuTu = (ten, txt, moc) => {
+  const i = txt.indexOf(moc), j = txt.indexOf('<!-- <<<MAP-STAGE -->');
+  if (i < 0) return `thân ${ten}: không thấy mốc bước ghi «${moc}»`;
+  if (txt.indexOf(moc, i + 1) >= 0) return `thân ${ten}: mốc bước ghi «${moc}» xuất hiện hơn một lần`;
+  return (j < 0 || j < i) ? `thân ${ten}: khối MAP-STAGE không đứng sau bước ghi ${moc}` : null;
+};
 if (want('LT-16-thu-tu')) {
   try {
     const sai = Object.entries(THAN).map(([t, [rel, moc]]) => thuTu(t, readFileSync(path.join(KIT, rel), 'utf8'), moc)).filter(Boolean);
-    // Chiều đỏ: bản sao thân signoff dời khối lên đầu — cùng hàm đo phải trả lỗi nêu tên thân.
+    // Chiều đỏ: bản sao thân signoff đặt khối NGAY TRƯỚC bước ghi — cùng hàm đo phải trả lỗi nêu tên thân.
     const sg = readFileSync(path.join(KIT, THAN.signoff[0]), 'utf8'); const m = sg.match(MAP_RE)[0];
-    const doi = thuTu('signoff', m + '\n' + sg.replace(m, ''), THAN.signoff[1]);
-    if (!sai.length && doi && doi.startsWith('thân signoff:')) ok('LT-16-thu-tu', `bốn khối đứng sau chỗ ghi trường của cổng; bản sao dời khối lên đầu → «${doi}»`);
+    const bo = sg.replace(m, ''); const k = bo.indexOf(THAN.signoff[1]);
+    const doi = thuTu('signoff', bo.slice(0, k) + m + '\n' + bo.slice(k), THAN.signoff[1]);
+    if (!sai.length && doi && doi.startsWith('thân signoff:')) ok('LT-16-thu-tu', `bốn khối đứng sau bước ghi trường của cổng; bản sao đặt khối ngay trước bước ghi → «${doi}»`);
     else bad('LT-16-thu-tu', `${JSON.stringify(sai)} · đỏ: ${doi}`);
   } catch (e) { bad('LT-16-thu-tu', loi(e)); }
+}
+if (want('LT-16-ag')) {
+  try {
+    const that = khoiMap(readFileSync(path.join(KIT, THAN.approve[0]), 'utf8'));
+    const DAU = 'AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && ';
+    if (that.split(DAU).length !== 2) throw new Error('khối không chứa đúng một phần tự lấy gốc gói để tiêm');
+    const lanh = lt16(that); const hong = lt16(that.replace(DAU, ''));
+    const ghim = /Cannot find module .*scripts\/product-map\.mjs/;
+    if (lanh.x.status === 0 && hong.x.status !== 0 && ghim.test(hong.x.stderr)) ok('LT-16-ag', `bản sao bỏ phần tự lấy gốc gói, AG không gán: đỏ «${(hong.x.stderr.match(ghim) || [''])[0].slice(0, 80)}»`);
+    else bad('LT-16-ag', `lành ${lanh.x.status}, hỏng ${hong.x.status} «${hong.x.stderr.trim().slice(0, 140)}»`);
+  } catch (e) { bad('LT-16-ag', loi(e)); }
 }
 if (want('LT-16-khong-khai')) {
   try {
