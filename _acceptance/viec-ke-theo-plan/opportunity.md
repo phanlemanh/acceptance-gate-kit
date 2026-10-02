@@ -42,10 +42,10 @@ thông lệ và chỗ ngược playbook: `docs/plans/2026-09-06-hat-giong-viec-k
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: *trang vẽ + ba dòng thẻ start có thay được việc hỏi tiến độ và gõ tay trạng thái không?*
-- Kết quả nào là SỐNG: trên hai lộ trình crm dùng ổ cắm, tin hỏi tiến độ/lượt ≤ nửa nền (nền 23/48, lượt 4 OKR) · 0 commit «bản chụp» chỉ đổi trạng thái sau khi ổ cắm chạy · 0 hàng tự khai lệch hồ sơ mà thẻ im.
-- Kết quả nào là CHẾT: owner vẫn gõ trạng thái tay sau hai lộ trình, hoặc ổ cắm làm kho không khai đổi thẻ/đỏ.
-- Timebox: một vòng, trần ba lượt chấm; ngưỡng đọc sau hai lộ trình crm kế tiếp (≤ 30 ngày sau phát hành).
+- Câu hỏi phép đo trả lời: [đề xuất] *trang vẽ + ba dòng thẻ start có thay được việc hỏi tiến độ và gõ tay trạng thái không?*
+- Kết quả nào là SỐNG: [đề xuất] trên hai lộ trình crm dùng ổ cắm, tin hỏi tiến độ/lượt ≤ nửa nền (nền 23/48, lượt 4 OKR) · 0 commit «bản chụp» chỉ đổi trạng thái sau khi ổ cắm chạy · 0 hàng tự khai lệch hồ sơ mà thẻ im.
+- Kết quả nào là CHẾT: [đề xuất] owner vẫn gõ trạng thái tay sau hai lộ trình, hoặc ổ cắm làm kho không khai đổi thẻ/đỏ.
+- Timebox: [đề xuất] một vòng, trần ba lượt chấm; ngưỡng đọc sau hai lộ trình crm kế tiếp (≤ 30 ngày sau phát hành).
 
 ## Kết quả prototype
 
