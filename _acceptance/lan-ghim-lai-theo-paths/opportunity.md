@@ -50,6 +50,20 @@ cho bên đọc NHẬN một pin mà không chạy lại eval; ô này không ch
 nhưng dời 14 % ca bắt được tới mốc và đổi mặc định mọi kho · «cache suite theo sha» — 180/186 làn
 ở sha riêng · «ghim theo delta đi vòng S4» — GUIDE §7.1 đã có, tốn token hội đồng nên crm không đi.
 
+**Đối chiếu E14 crm (phiên phân tích 03/10, vòng OKR lượt 4 — 5 giờ 10 phút cho một eval).** E14 dùng
+`paths` theo chiều NGƯỢC với (b): diff chạm glob của hồ sơ khác → chạy eval của họ (44 → 237 eval), ba
+tầng thước-chạy-thước, 79 % phút đi vào lệnh đỏ sẵn trên nhánh gốc. Hai điều cho ô này: (i) kho cần
+phép chọn-theo-`paths` thật, và khi kit không có thì kho tự dựng ở sai tầng — (b) đưa vị từ ấy về
+MỘT tầng (một hàm, kho chỉ được dùng để LIỆT KÊ hồ sơ cần ghim, không chạy eval trong eval);
+(ii) glob rộng (`packages/**` khớp một component dùng chung của ~40 hồ sơ) là lý do 43 % là trần —
+dưới (b) chính các hồ sơ ấy vẫn hoá cũ, đúng, vì mã dùng chung đổi.
+
+**Giới hạn khai, kèm ngưỡng:** (b) đảo chiều khuyến khích — hôm nay glob rộng là tốn (E14), sau (b)
+glob hẹp là đỡ ghim, nên có thể thu `paths` để né làn. Lưới: chiến dịch mốc ghim TOÀN BỘ bỏ qua vị
+từ; ngưỡng là dòng CHẾT «≥ 1 ca bỏ lỡ chạm mã sản phẩm». Điều kiện bật (c) ở kho: không còn eval nào
+gọi `repin-lane`/suite bên trong eval (E14 crm gọi làn trong eval trong S4 — song song lồng song song
+là tranh chấp nhân lên).
+
 ## Giả định chốt sinh tử
 
 | # | Giả định | Nếu sai thì | Phép thử rẻ nhất | Trạng thái |
