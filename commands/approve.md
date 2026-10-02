@@ -127,14 +127,15 @@ Steps:
      AFTER the gate fields are written, and include `PRODUCT-MAP.md` in the
      commit below. The map is a view over the workshop's records, and a human
      closing a gate is exactly when those records change; CI's `--check` turns
-     any drift red. Do both with EXACTLY this block (`AG` = this plugin's root,
-     `${CLAUDE_PLUGIN_ROOT}`; the self-hosting kit uses `.`): it redraws the map
+     any drift red. Do both with EXACTLY this block — it resolves `AG` to this
+     plugin's root, `${CLAUDE_PLUGIN_ROOT}`, by itself (the self-hosting kit sets
+     `AG=.` first) — after the frontmatter edit above: it redraws the map
      — and the roadmap page `LO-TRINH.html` when the repo declares
      `lo_trinh.tep` — and stages both, so the gate commit never leaves the page
      behind for CI to find stale:
 <!-- <<<MAP-STAGE -->
 ```
-node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
 ```
 <!-- MAP-STAGE>>> -->
    - Offer ONE commit: contract + evals (+ design doc when present) — the

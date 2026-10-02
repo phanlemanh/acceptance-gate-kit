@@ -45,11 +45,11 @@ nào mà vẫn là đúng bản đang chạy.
    đưa bản đồ vào commit, và in ghi chú: «Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai
    dòng trong `_acceptance/config.yaml` (xem `/acceptance-gate:approve` bước 5).» Có → chạy
    `node <acceptance-gate>/scripts/product-map.mjs --root .` rồi đưa `PRODUCT-MAP.md` vào commit —
-   bằng ĐÚNG khối dưới (`AG` = gốc gói acceptance-gate; kho tự host kit dùng `.`). Khối vẽ lại bản đồ,
+   bằng ĐÚNG khối dưới — khối tự lấy gốc gói từ `${CLAUDE_PLUGIN_ROOT}` (kho tự host kit gán `AG=.` trước). Khối vẽ lại bản đồ,
    và trang lộ trình `LO-TRINH.html` khi kho khai `lo_trinh.tep`, rồi đưa cả hai vào commit:
 <!-- <<<MAP-STAGE -->
 ```
-node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
 ```
 <!-- MAP-STAGE>>> -->
 5. **Một commit** gồm dòng sổ + hợp đồng (+ bản đồ nếu vẽ lại): `observed: <slug> — <tên>`.
