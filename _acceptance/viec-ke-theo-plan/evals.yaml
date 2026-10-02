@@ -16,8 +16,9 @@ evals:
       thay bằng mô-đun ném "LO-TRINH-GOI-KHI-VANG" cho PRODUCT-MAP.md giống từng byte, JSON start-scan giống
       từng byte với loTrinh === null, không có LO-TRINH.html, cả hai lệnh của bản sao thoát 0 (đối chứng
       dương: cùng bản sao trên kho CÓ khoá phải ném/thoát khác 0 với "LO-TRINH-GOI-KHI-VANG" — chứng minh
-      bản thay thật sự được nạp); và "PASS: LT-01-do" — bản sao product-map luôn vẽ trang → đỏ, thông điệp
-      ghim "trang sinh khi ổ cắm vắng".
+      bản thay thật sự được nạp); và "PASS: LT-01-do" — bản sao product-map luôn vẽ trang: CHÍNH hàm đo của
+      LT-01 chạy lại trên bản sao trả danh sách lỗi chứa "trang sinh khi ổ cắm vắng" (thông điệp rút từ đầu
+      ra của hàm đo, không gán sẵn trong ca).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
     criterion: AC-2
@@ -51,7 +52,7 @@ evals:
       `## …` chứa slug đó trong PRODUCT-MAP.md vẽ cùng lượt (rút từ bản đồ thật, không chép bảng);
       hàng slug dự kiến == "Chưa mở" và 0 cờ, kể cả khi hàng có tự khai «Đã giao»; hàng không slug == "<ô tự khai> (tin theo lời)" hoặc
       "Chưa mở (tin theo lời)" đúng bảng design §Trạng thái; và "PASS: LT-04-do" — bản sao lo-trinh.mjs
-      đổi chữ một ô → đỏ, thông điệp ghim nêu slug và hai chữ; "PASS: LT-04-do2" — bản sao so lời
+      đổi chữ một ô: CHÍNH hàm đo lt04 chạy lại trên bản sao trả lỗi nêu slug và hai chữ; "PASS: LT-04-do2" — bản sao so lời
       khai cả khi không có hồ sơ → đỏ, ghim «tệp khai khác hồ sơ: khai Đã giao, hồ sơ Chưa mở».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
@@ -90,8 +91,8 @@ evals:
     paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, scripts/start-scan.mjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
       exit 0; stdout có "PASS: LT-07" — sha256 + mtimeMs của tệp ý định bằng nhau trước/sau bốn lệnh;
-      và "PASS: LT-07-do" — bản sao lo-trinh.mjs ghi lại tệp sau khi đọc → đỏ, thông điệp ghim
-      "tệp ý định bị ghi".
+      và "PASS: LT-07-do" — bản sao lo-trinh.mjs ghi lại tệp sau khi đọc: CHÍNH hàm đo của LT-07 chạy lại
+      trả danh sách lỗi chứa "tệp ý định bị ghi sau lệnh" kèm tên lệnh (rút từ đầu ra hàm đo).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -151,8 +152,8 @@ evals:
       feature-loop/workflows của cây đang kiểm và gốc bộ giải gói trỏ cây đang kiểm (suy từ vị trí test):
       exit 0, JSON đủ bảy trường đúng giá trị; "PASS: LT-12-do" — mã lạ exit 1 stderr chứa "không có hàng";
       vắng khoá exit 1 stderr chứa "kho chưa khai lo_trinh.tep"; "PASS: LT-12-kho" — bản sao khối dùng
-      `node scripts/lo-trinh.mjs` tương đối chạy ở cùng kho fixture → đỏ, thông điệp ghim "lệnh S0 không
-      chạy được ở kho tiêu thụ".
+      `node scripts/lo-trinh.mjs` tương đối chạy ở cùng kho fixture → exit khác 0 với stderr thật khớp
+      /Cannot find module .*scripts\/lo-trinh\.mjs/.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E13
     criterion: AC-13
@@ -187,4 +188,45 @@ evals:
     expected: >
       exit 0; stdout "PRODUCT-MAP.md khớp hồ sơ xưởng." — kho kit không khai lo_trinh.tep, bản đồ
       không đổi; bốn suite (suiteCommands) cùng thoát 0 trong lượt chấm.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E16
+    criterion: AC-16
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [commands/approve.md, commands/signoff.md, commands/observed.md, skills/uat-session/SKILL.md, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-16 <thân>" cho đủ bốn thân (approve · signoff · observed · uat-session) —
+      khối MAP-STAGE rút nguyên văn (vẽ lại + đưa vào commit, AG = cây đang kiểm) chạy trên kho khai lộ trình có
+      một hồ sơ vừa đổi trạng thái, commit, clone sạch: product-map --check trên clone exit 0; "PASS: LT-16-giong"
+      — bốn khối giống hệt từng byte; "PASS: LT-16-thu-tu" — trong mỗi thân, khối đứng sau mốc ghi trường của
+      cổng (approved_by · human_signoff · da-cham-boi-thuc-te · verdict), và bản sao một thân dời khối lên đầu thì
+      phép đo trả lỗi nêu tên thân; "PASS: LT-16-khong-khai" — kho không khai: khối exit 0, commit chỉ có
+      PRODUCT-MAP.md; "PASS: LT-16-do" — bản sao khối chỉ đưa PRODUCT-MAP.md: --check trên clone exit 1, stderr
+      chứa "LO-TRINH.html" (khối thật trên CÙNG kho xanh trước); "PASS: LT-16-mien-tru" — t1_skip_globs với
+      "LO-TRINH.html", "**/LO-TRINH.html", "*.html" → --check exit 0; "docs/*.html" → exit 1, stderr chứa
+      "t1_skip_globs".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E17
+    criterion: AC-17
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-17" — ma trận viết trước: dung_tren là chuỗi · số · object, moc[].hang là
+      chuỗi; danh sách cờ == đúng bốn cờ mong đợi (so đẳng thức mảng); hàng dung_tren sai kiểu không là
+      hàng kế (hàng kế == hàng dự phòng F); mốc đúng kiểu còn lại vẫn cho hàng trễ đúng; và "PASS: LT-17-do" —
+      bản sao kiemKhuon bỏ kiểm kiểu: CHÍNH hàm đo chạy lại trả lỗi "hàng kế là hàng có dung_tren sai kiểu".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E18
+    criterion: AC-18
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-18" — mẫu rút từ khối S0-MA-HANG-RE: khớp mọi `ma` của ba fixture lộ trình
+      thật; KHÔNG khớp mô tả chứa backtick + $(...) + dấu + ngoặc + chấm phẩy; bộ chạy theo luật SKILL (khớp mẫu
+      mới chạy khối S0-NHAN-HANG, ngược lại là mô tả) không tạo tệp canh nào; 9b vẫn exit 0 với JSON đúng;
+      "PASS: LT-18-luat" — đoạn S0 của SKILL nói đối số không khớp mẫu và mọi mã thoát khác 0 là mô tả việc;
+      "PASS: LT-18-do" — bản sao mẫu nhận-mọi-thứ + nháy kép: cùng bộ chạy tạo tệp canh (đầu ra thật: tệp có
+      mặt sau lệnh).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

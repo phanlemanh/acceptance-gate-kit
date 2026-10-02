@@ -183,3 +183,27 @@ Năm dòng (dự báo): làm-xong→quyết-được ↓ · lượt gọi ngư�
 
 Kit ghi tệp ý định · đọc `data.js` của crm · skill cắt lượt và nhịp thật (lát 2) · cờ tuổi theo mốc
 phát hành · thước «hàng bị sửa sau khi vòng mở» (lát 2) · băng/răng chống trôi (lát C) · nấc CRM.
+
+## Bổ sung sau Cổng Bằng chứng 02/10 (owner «trả», nâng phạm vi)
+
+- **Lệnh đóng cổng đưa trang vào commit (AC-16).** Bốn thân lệnh đóng cổng (duyệt phạm vi, ký bằng
+  chứng, ghi quan sát thực tế, phiên nghiệm thu) mang CÙNG một khối `MAP-STAGE`, đứng sau chỗ thân ghi
+  trường của cổng: vẽ lại rồi đưa `PRODUCT-MAP.md` và — khi tệp có mặt — `LO-TRINH.html` vào commit:
+  `node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi`
+  (`AG` = gốc gói acceptance-gate; kho tự host là `.`). `product-map.mjs --check` thêm một luật: kho khai
+  `lo_trinh.tep` mà không glob nào của `risk_tiers.t1_skip_globs` phủ `LO-TRINH.html` → thoát 1 nêu
+  «t1_skip_globs». Khớp glob bằng ĐÚNG hai hàm `glob_variants`/`match_globs` của
+  `scripts/pre-merge-check.sh` (gọi qua bash, không viết lại): kit giữ MỘT bộ khớp. Không gọi được bash
+  hay không thấy tệp đó → in một dòng «không kiểm được miễn trừ», không đỏ. Ngoài luật này, `--check`
+  vẫn chỉ so byte.
+- **Trường sai kiểu (AC-17).** `dung_tren` hoặc `moc[].hang` có mặt mà không phải mảng → cờ «hàng X:
+  dung_tren phải là một mảng» / «mốc Y: hang phải là một mảng»; hàng có `dung_tren` sai kiểu coi như
+  đứng trên một thứ không đọc được — không bao giờ là hàng kế.
+- **S0 không bao giờ đưa chữ tự do vào shell (AC-18).** Chỉ đối số là MỘT mã khớp mẫu
+  `^[A-Za-z0-9][A-Za-z0-9_.-]*$` (khối `S0-MA-HANG-RE`) mới vào lệnh tra, trong nháy đơn; đối số khác —
+  có khoảng trắng, backtick, `$(...)` — là mô tả việc, không chạy lệnh nào. Vì sao: trong nháy kép
+  shell vẫn chạy backtick và `$(...)`, mà mô tả việc ở kit gần như luôn có backtick (gap-probe 02/10, P0).
+- **Lớp «thông điệp ghim tự gán» (đổi khuôn sau dừng-vá).** Đã quét các ca đỏ của ca đo lộ trình:
+  LT-01-do và LT-07-do nay chạy lại CHÍNH hàm đo của ca xanh trên bản sao và ghim thông điệp hàm đó trả
+  về; LT-12-kho ghim stderr thật; LT-03-do, LT-04-do, LT-04-do2, LT-13-do vốn đã lấy thông điệp từ đầu ra.
+  Không dựng thước kiểm khuôn của chính bộ đo (luật chiều rộng (a): không đo thước của thước).
