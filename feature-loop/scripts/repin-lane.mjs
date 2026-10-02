@@ -259,6 +259,11 @@ function runCmd(cmd, label) {
       const rel = ['.acceptance-runs', slugs[0], runId.startsWith('repin-') ? runId : `repin-${runId}`, ten].join('/');
       const abs = path.join(root, ...rel.split('/'));
       fs.mkdirSync(path.dirname(abs), { recursive: true });
+      // Thư mục lượt chạy TỰ ẨN khỏi git: kho chưa khai `.acceptance-runs/` trong .gitignore (đo 03/10:
+      // radar, oneflow, media-library) mà `git add -A` sau lượt đỏ thì nhật ký vào lịch sử, và luật
+      // hoá cũ đếm nó là mã đổi — mọi hồ sơ cũ theo. Vật tự lo, không kho nào phải làm gì (luật 26/09).
+      const anGit = path.join(root, '.acceptance-runs', '.gitignore'); // TU-AN-GIT
+      if (!fs.existsSync(anGit)) fs.writeFileSync(anGit, '*\n');
       const dau = `# lệnh: ${cmd}\n# mã thoát: ${exit}\n=== `;
       fs.writeFileSync(abs, dau + 'stdout ===\n' + out + '\n=== stderr ===\n' + err);
       nhatKy.set(cmd, rel);

@@ -15,7 +15,9 @@ evals:
       Suite in 200 dòng đánh số xen stdout/stderr rồi thoát 1: đúng một tệp dưới
       .acceptance-runs/<slug>/repin-<run_id>/ chứa đủ 200 số (đếm từng số 1..200, không
       thiếu); stderr làn in đường dẫn tệp và vẫn in 30 dòng cuối. Biến thể > 1 MiB, dấu riêng
-      ở DÒNG ĐẦU → dấu có trong tệp. Chiều đỏ: bản sao chỉ ghi 30 dòng cuối vào tệp → ĐỎ ghim
+      ở DÒNG ĐẦU → dấu có trong tệp. Kho không khai .acceptance-runs/ trong .gitignore: sau lượt
+      đỏ git status sạch dưới .acceptance-runs/ (bản sao gỡ tệp tự ẩn → ghim "nhật ký lọt vào git").
+      Chiều đỏ: bản sao chỉ ghi 30 dòng cuối vào tệp → ĐỎ ghim
       "nhật ký bị cắt".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"

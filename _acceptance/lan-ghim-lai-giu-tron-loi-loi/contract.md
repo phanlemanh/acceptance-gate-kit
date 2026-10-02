@@ -5,7 +5,7 @@ slug: lan-ghim-lai-giu-tron-loi-loi
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ feature-loop/scripts/repin-lane.mjs + SKILL/tài liệu; bộ đọc lib/ và pre-merge KHÔNG sửa (đo im 03/10)
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -32,7 +32,7 @@ Phép thử mọi kho (luật 26/09): kho xanh không thấy gì khác ngoài ha
 
 ## Criteria
 
-- AC-1: Given một lệnh suite in 200 dòng đánh số (xen stdout và stderr) rồi thoát 1, When làn chạy, Then có ĐÚNG một tệp nhật ký dưới `.acceptance-runs/<slug>/repin-<run_id>/` chứa đủ 200 dòng đánh số (không thiếu dòng nào, đếm từng số), stderr của làn in đường dẫn tệp ấy và vẫn in 30 dòng cuối; biến thể đầu ra lớn hơn 1 MiB với dấu riêng ở DÒNG ĐẦU → dấu ấy có trong tệp; chiều đỏ trên cùng fixture: bản sao chỉ ghi 30 dòng cuối vào tệp → ĐỎ ghim «nhật ký bị cắt».
+- AC-1: Given một lệnh suite in 200 dòng đánh số (xen stdout và stderr) rồi thoát 1, When làn chạy, Then có ĐÚNG một tệp nhật ký dưới `.acceptance-runs/<slug>/repin-<run_id>/` chứa đủ 200 dòng đánh số (không thiếu dòng nào, đếm từng số), stderr của làn in đường dẫn tệp ấy và vẫn in 30 dòng cuối; biến thể đầu ra lớn hơn 1 MiB với dấu riêng ở DÒNG ĐẦU → dấu ấy có trong tệp; và trên kho KHÔNG khai `.acceptance-runs/` trong `.gitignore`, sau lượt đỏ `git status` không thấy tệp nào dưới `.acceptance-runs/` (thư mục tự ẩn khỏi git — bản sao gỡ tệp tự ẩn → ĐỎ ghim «nhật ký lọt vào git»); chiều đỏ trên cùng fixture: bản sao chỉ ghi 30 dòng cuối vào tệp → ĐỎ ghim «nhật ký bị cắt».
 - AC-2: Given làn mà mọi lệnh thoát 0, When làn chạy (có `--write` và không), Then không tạo tệp hay thư mục nào dưới `.acceptance-runs/` (đếm trước/sau) và không dòng `repin-do` nào; chiều đỏ: bản sao ghi nhật ký cho mọi lệnh → ĐỎ ghim «xanh sinh tệp».
 - AC-3: Given làn đỏ theo BA nguyên nhân (suite đỏ · eval lệch kỳ vọng · lệnh chạm cây hồ sơ đã thông cổng) với hai slug, When làn thoát, Then mã thoát 1 như cũ; run-log CỦA TỪNG slug có đúng MỘT dòng mới `kind: repin-do` mang `run_id`, `sha`, `suites_exit`, `evals_exit`, `lenh_do` (mỗi lệnh đỏ: lệnh, mã, đường nhật ký tương đối GỐC KHO — giải từ gốc kho phải mở được và chứa dấu riêng mà chính lệnh đỏ ấy in, ở CẢ slug thứ hai; eval lệch kỳ vọng mà thoát 0 và ca chạm hồ sơ mang `log: null` kèm `ly_do`), `cham` (ca chạm), `wall_s`, `so_lenh`, `tai`; KHÔNG dòng `kind: repin` mới và `evidence-report.md` không đổi byte nào; chiều đỏ: bản sao bỏ bước ghi dấu → ĐỎ ghim «đỏ không vết»; bản sao ghi dấu cho một slug → ĐỎ ghim «thiếu dấu ở slug»; bản sao ghi đường tương đối thư mục slug → ĐỎ ghim «dấu trỏ chỗ trống».
 - AC-4: Given hồ sơ đã ký có thêm một dòng `repin-do` và dòng `repin` mang `wall_s`/`so_lenh`, When chạy MỌI bộ đọc run-log của cây đang kiểm — danh sách RÚT bằng tìm `run-log.jsonl` trong `scripts/`, `lib/`, `feature-loop/scripts/` (trừ test), mỗi bộ đọc một hàng trong bảng cách gọi viết trước của răng; bộ đọc rút được mà không có hàng → ĐỎ ghim «bộ đọc chưa đo»; danh sách rỗng → ĐỎ — Then đầu ra + mã thoát mỗi bộ đọc BẰNG HỆT trên cùng hồ sơ không có hai thứ ấy, VÀ mỗi hàng có đối chứng dương riêng chứng bộ đọc đã đọc đúng hồ sơ (mã thoát mong đợi ghim sẵn + một dấu nội dung, vd run_id của pin, hoặc đầu ra đổi khi làm nhiễu dòng `repin` thật); chiều đỏ: bản sao đặt `kind: repin` cho dấu đỏ → bảng sức khoẻ vòng (`loop-health.mjs`) đếm thêm một làn ghim, ghim «dấu đỏ giả làm pin» (bộ kiểm lại chỉ đọc dòng pin được báo cáo trích nên KHÔNG thấy dòng giả — đo 03/10).

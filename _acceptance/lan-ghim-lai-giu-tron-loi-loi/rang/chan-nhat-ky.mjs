@@ -32,6 +32,12 @@ if (chan === 'nhat-ky-tron') {
   const n2 = t2.length === 1 ? readFileSync(path.join(kho2.R, t2[0]), 'utf8') : '';
   ok(r2.status === 1 && n2.length > 1024 * 1024 && n2.includes('DAU-DONG-DAU-7f3a'), `E1 đầu ra > 1 MiB: dấu dòng đầu có trong tệp (cỡ ${n2.length})`);
   kho2.don();
+  // thư mục lượt chạy tự ẩn khỏi git (kho mẫu KHÔNG khai .acceptance-runs/ trong .gitignore)
+  const anGit = (engine) => { const k = dungKho({ slugs: [{ slug: 'feat', evals: [{ id: 'E1', key: 'rang_ok' }] }], suites: ['echo do; exit 2'], scripts: { rang_ok: 'true' } }); chayLan(engine, k, ['feat'], []); const st = k.git('status', '--porcelain', '--untracked-files=all'); k.don(); return st.split('\n').filter(l => l.includes('.acceptance-runs')); };
+  const lo = anGit(KIT);
+  ok(lo.length === 0, `E1 sau lượt đỏ git status không thấy tệp nào dưới .acceptance-runs/ (thấy ${JSON.stringify(lo)})`);
+  const saoAn = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: "if (!fs.existsSync(anGit)) fs.writeFileSync(anGit, '*\\n');", thanh: '' }]);
+  ok(anGit(saoAn).length > 0, 'E1 chiều đỏ: bản sao gỡ tệp tự ẩn → thước thấy «nhật ký lọt vào git»');
   // chiều đỏ: bản sao chỉ ghi 30 dòng cuối vào tệp
   kho.git('clean', '-fdxq');
   const sao = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: RUNCMD_GHI, thanh: "fs.writeFileSync(abs, (out + '\\n' + err).split('\\n').filter(Boolean).slice(-30).join('\\n'));" }]);
@@ -53,7 +59,8 @@ if (chan === 'nhat-ky-tron') {
   kho.git('checkout', '-q', '--', '.'); 
   const kho3 = dungKho({ slugs: [{ slug: 'feat', evals: [{ id: 'E1', key: 'rang_ok' }] }], suites: ['echo xanh', 'echo do; exit 3'], scripts: { rang_ok: 'echo eval-xanh' } });
   chayLan(KIT, kho3, ['feat'], []);
-  ok(kho3.runs().length === 1, `E2 đối chứng dương: một lệnh đỏ → đúng một tệp (được ${kho3.runs().length})`);
+  const log3 = kho3.runs().filter(f => f.endsWith('.log'));
+  ok(log3.length === 1, `E2 đối chứng dương: một lệnh đỏ → đúng một tệp nhật ký (được ${log3.length})`);
   kho3.don();
   // chiều đỏ: bản sao ghi nhật ký cho MỌI lệnh
   const sao = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: '  if (exit !== 0) { // NHAT-KY-KHI-DO', thanh: '  if (true) { // NHAT-KY-KHI-DO' }]);

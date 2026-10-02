@@ -1224,7 +1224,9 @@ eval `ui-check`/`judgment` không chạy được trong làn máy nên re-pin KH
 lại chúng. Từ 2.18 làn nói ra thay vì im: dòng `kind:repin` mang
 `evals_not_machine` (mọi id ngoài làn máy) và `evals_not_machine_touched` (những
 id mà `git diff <pin cũ> HEAD` chạm `paths` của chính chúng), section Re-pin nêu
-thêm `AC không có chốt máy`, và thẻ Cổng Bằng chứng in cả hai. Hồ sơ mang
+thêm `AC không có chốt máy`, và thẻ Cổng Bằng chứng in cả hai (từ 2.21 dòng ấy
+mang thêm `wall_s` và `so_lenh` — thời lượng làn, không phải giới hạn; xem «Làn đỏ để lại
+vết» bên dưới). Hồ sơ mang
 `evals_not_machine_touched` phải đi vòng S4 delta — làn vẫn ghi pin, nó KHÔNG
 chặn. Ngưỡng mở vòng CHẶN, đếm giữa hai bản phát hành:
 
@@ -1235,6 +1237,18 @@ grep -l '"evals_not_machine_touched"' _acceptance/*/run-log.jsonl 2>/dev/null | 
 ≥1 hồi quy UI lọt qua một lượt ghim mang khoá đó → mở vòng. Lý do và các lối bị
 loại: ADR 0014; ba lối tách hai nghĩa của `ui-check`:
 `docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md`.
+
+**Làn đỏ để lại vết (2.21).** Lệnh đỏ trong làn ghi nhật ký TRỌN (stdout + stderr) ra
+`.acceptance-runs/<slug đầu>/repin-<run_id>/NN-<nhãn>.log` và in đường dẫn kèm 30 dòng cuối như
+cũ; lệnh xanh không sinh tệp. Làn đỏ chạy `--write` để MỘT dòng `kind: repin-do` ở run-log mỗi
+slug — lệnh đỏ, mã, đường nhật ký, `wall_s`, `so_lenh`, tải máy (`tai`) — không chống lưng pin
+nào; mọi bộ đọc sổ lọc theo loại dòng riêng nên đọc qua im (đo 03/10). Dòng `kind: repin` xanh
+mang thêm `wall_s` + `so_lenh`. Kho tiêu thụ thêm `.acceptance-runs/` vào `.gitignore` nếu chưa có.
+Đếm lượt đỏ giữa hai mốc:
+
+```bash
+cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -c '"kind":"repin-do"'
+```
 
 **Làn bỏ qua khi cây BẰNG PIN — `--skip-unchanged` (2.14).** Đo 14/09: một chữ ký
 mất **54 phút · ≈ 42 M token** từ lúc owner gõ «Ký» tới READY, và **7/7** chữ ký
