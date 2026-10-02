@@ -130,7 +130,8 @@ export function suyTrangThai({ root, khuon, classify, sections }) {
       // kế (đo trên crm OKR 02/10, hàng «0» khai «xong»).
       chu = khaiChuan || (tuKhai ? KHONG_SUY : CHUA_MO);
     }
-    if (!tinTheoLoi && khaiChuan && khaiChuan !== chu)
+    // Chỉ so khi CÓ hồ sơ: slug dự kiến chưa có thư mục thì không có gì để «khác» (bảng design §Trạng thái).
+    if (coHoSo && khaiChuan && khaiChuan !== chu)
       coHang.push(`hàng ${r._nhan}: tệp khai khác hồ sơ: khai ${tuKhai}${quyDoi !== tuKhai ? ` (${khaiChuan})` : ''}, hồ sơ ${chu}`);
     if (coHoSo && chuoi(r.hang)) {
       const c = doc(path.join(acc, slug, 'contract.md'));

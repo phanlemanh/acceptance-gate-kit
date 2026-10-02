@@ -49,9 +49,10 @@ evals:
     expected: >
       exit 0; stdout có "PASS: LT-04" — với mỗi trong mười ô, chữ trạng thái của hàng == tiêu đề mục
       `## …` chứa slug đó trong PRODUCT-MAP.md vẽ cùng lượt (rút từ bản đồ thật, không chép bảng);
-      hàng slug dự kiến == "Chưa mở" và 0 cờ; hàng không slug == "<ô tự khai> (tin theo lời)" hoặc
+      hàng slug dự kiến == "Chưa mở" và 0 cờ, kể cả khi hàng có tự khai «Đã giao»; hàng không slug == "<ô tự khai> (tin theo lời)" hoặc
       "Chưa mở (tin theo lời)" đúng bảng design §Trạng thái; và "PASS: LT-04-do" — bản sao lo-trinh.mjs
-      đổi chữ một ô → đỏ, thông điệp ghim nêu slug và hai chữ.
+      đổi chữ một ô → đỏ, thông điệp ghim nêu slug và hai chữ; "PASS: LT-04-do2" — bản sao so lời
+      khai cả khi không có hồ sơ → đỏ, ghim «tệp khai khác hồ sơ: khai Đã giao, hồ sơ Chưa mở».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5
