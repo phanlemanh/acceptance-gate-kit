@@ -3,10 +3,10 @@ schema_version: 1
 slug: lan-ghim-lai-theo-paths
 feature: Làn ghim lại bớt chạy vô ích — hồ sơ chỉ hoá cũ khi diff chạm `paths` các eval của nó (kho bật khoá; hồ sơ không khai `paths` giữ luật cũ; chiến dịch mốc vẫn ghim toàn bộ) · suite trong làn chạy song song (kho bật khoá), eval vẫn nối đuôi
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:                     # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:
+stage: decided                # discovery | decided | archived
+decision: build               # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Phan Le Manh
+decided_at: 2026-10-02T21:55:32Z   # owner gõ «Làm» một chạm trong phiên 03/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -75,10 +75,10 @@ là tranh chấp nhân lên).
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] *sau khi crm bật hai khoá, số làn ghim lại mỗi tuần và giá mỗi làn có giảm như dự báo mà không lọt một hồi quy mã sản phẩm nào không?*
-- Kết quả nào là SỐNG: [đề xuất] đọc ở crm, so tuần trước-bật (dòng `wall_s` do ô `lan-ghim-lai-giu-tron-loi-loi` ghi) với các tuần sau-bật: làn/tuần giảm ≥ 25 % · `wall_s` p50 giảm ≥ 40 % · 0 ca bỏ lỡ chạm mã sản phẩm (ca bỏ lỡ = hồ sơ luật mới bỏ qua mà lượt đo kế tiếp của nó — S4 hoặc chiến dịch mốc — đỏ) · 0 lần bảy mã thoát song song khác nối đuôi trên cùng cây.
-- Kết quả nào là CHẾT: [đề xuất] ≥ 1 ca bỏ lỡ chạm mã sản phẩm · hoặc ≥ 1 lần mã thoát song song khác nối đuôi mà vật không đổi · hoặc làn/tuần giảm < 10 %.
-- Timebox: [đề xuất] một vòng T3, trần ba lượt chấm; đọc ngưỡng sau 30 ngày kể từ ngày crm bật khoá hoặc sau 50 làn crm, lấy cái đến trước.
+- Câu hỏi phép đo trả lời: *sau khi crm bật hai khoá, số làn ghim lại mỗi tuần và giá mỗi làn có giảm như dự báo mà không lọt một hồi quy mã sản phẩm nào không?*
+- Kết quả nào là SỐNG: đọc ở crm, so tuần trước-bật (dòng `wall_s` do ô `lan-ghim-lai-giu-tron-loi-loi` ghi) với các tuần sau-bật: làn/tuần giảm ≥ 25 % · `wall_s` p50 giảm ≥ 40 % · 0 ca bỏ lỡ chạm mã sản phẩm (ca bỏ lỡ = hồ sơ luật mới bỏ qua mà lượt đo kế tiếp của nó — S4 hoặc chiến dịch mốc — đỏ) · 0 lần bảy mã thoát song song khác nối đuôi trên cùng cây.
+- Kết quả nào là CHẾT: ≥ 1 ca bỏ lỡ chạm mã sản phẩm · hoặc ≥ 1 lần mã thoát song song khác nối đuôi mà vật không đổi · hoặc làn/tuần giảm < 10 %.
+- Timebox: một vòng T3, trần ba lượt chấm; đọc ngưỡng sau 30 ngày kể từ ngày crm bật khoá hoặc sau 50 làn crm, lấy cái đến trước.
 
 ## Kết quả prototype
 
@@ -96,9 +96,9 @@ Không dựng prototype — phép thử cho giả định 2 đã chạy trên l�
 
 ## Cổng 0
 
-- **decision = …** [đề xuất] `build`, hạng **T3** — `scripts/pre-merge-check.sh` nằm trong `risk_tiers.t3_paths`; vị từ chung nhiều khả năng nằm ở `lib/**` (cũng T3). Phạm vi: (b) vị từ hoá cũ theo `paths`, bật bằng khoá config (mặc định TẮT), hồ sơ thiếu `paths` giữ luật cũ, chiến dịch mốc vẫn ghim toàn bộ; (c) suite song song trong làn, bật bằng khoá config (mặc định TẮT), eval vẫn nối đuôi. Việc (a) của hạt giống (`wall_s` + số lệnh trên dòng `kind: repin`) đề xuất GỘP vào ô `lan-ghim-lai-giu-tron-loi-loi` — xem gói trình.
+- **decision = build** `build`, hạng **T3** — `scripts/pre-merge-check.sh` nằm trong `risk_tiers.t3_paths`; vị từ chung nhiều khả năng nằm ở `lib/**` (cũng T3). Phạm vi: (b) vị từ hoá cũ theo `paths`, bật bằng khoá config (mặc định TẮT), hồ sơ thiếu `paths` giữ luật cũ, chiến dịch mốc vẫn ghim toàn bộ; (c) suite song song trong làn, bật bằng khoá config (mặc định TẮT), eval vẫn nối đuôi. Việc (a) của hạt giống (`wall_s` + số lệnh trên dòng `kind: repin`) đề xuất GỘP vào ô `lan-ghim-lai-giu-tron-loi-loi` — xem gói trình.
 - **disposition = …** Không prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** ba ngưỡng ở trên.
+- **Ngưỡng UAT chốt cùng lúc ký:** ba ngưỡng ở trên (owner ký 03/10, cùng chạm phê CỘNG (b)(c) và gộp (a) vào ô `lan-ghim-lai-giu-tron-loi-loi`).
 
 ## Thước đo thành công → ứng viên criterion
 
