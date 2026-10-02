@@ -21,3 +21,6 @@ _acceptance/*/evidence-page.html
 # Fixture gap-probe sinh ra lúc chạy test — không thuộc git (xem run-tests.sh).
 tests/hooks/fixtures/gapprobe/
 s4-args.json
+
+# Thư mục lượt chạy của eval/suite/làn ghim lại (eval-executors.md «Where a run writes its artifacts»)
+.acceptance-runs/

@@ -235,6 +235,13 @@ for (const s of perSlug) {
 
 // ── chạy: một lệnh trùng chỉ chạy MỘT lần (dedupe cmd như S4) ─────────────
 const results = new Map(); // cmd → exit
+// Lệnh đỏ → nhật ký TRỌN (hồ sơ lan-ghim-lai-giu-tron-loi-loi, 03/10/2026). Bản 2.20 chỉ in
+// 30 dòng cuối: với suite 1 507 bài của crm đó là phần tổng kết, lời lỗi mất, và chẩn đoán
+// đầu tiên của phiên thi công 02/10 SAI vì đoán thiếu lời lỗi. Tệp đi ra thư mục lượt chạy
+// (eval-executors.md «Where a run writes its artifacts»), KHÔNG vào _acceptance/; lệnh xanh
+// không sinh tệp nào. Đường lưu tương đối gốc kho để dấu lượt đỏ trỏ tới được từ mọi slug.
+const nhatKy = new Map(); // cmd → đường nhật ký (tương đối --root) | null khi không ghi được
+let soNhatKy = 0;
 function runCmd(cmd, label) {
   if (results.has(cmd)) { log(`${label}: (đã chạy) → exit ${results.get(cmd)}`); return results.get(cmd); }
   const t0 = Date.now();
@@ -242,8 +249,23 @@ function runCmd(cmd, label) {
   const exit = r.status === null ? 1 : r.status;
   results.set(cmd, exit);
   log(`${label}: ${cmd} → exit ${exit} (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
-  if (exit !== 0) {
-    const tail = (String(r.stdout || '') + String(r.stderr || '')).split('\n').filter(Boolean).slice(-30);
+  if (exit !== 0) { // NHAT-KY-KHI-DO
+    const out = String(r.stdout || ''), err = String(r.stderr || '');
+    try {
+      soNhatKy += 1;
+      const ten = `${String(soNhatKy).padStart(2, '0')}-${label.replace(/[^\w.-]+/g, '-').slice(0, 60)}.log`;
+      const rel = ['.acceptance-runs', slugs[0], runId.startsWith('repin-') ? runId : `repin-${runId}`, ten].join('/');
+      const abs = path.join(root, ...rel.split('/'));
+      fs.mkdirSync(path.dirname(abs), { recursive: true });
+      const dau = `# lệnh: ${cmd}\n# mã thoát: ${exit}\n=== `;
+      fs.writeFileSync(abs, dau + 'stdout ===\n' + out + '\n=== stderr ===\n' + err);
+      nhatKy.set(cmd, rel);
+      process.stderr.write(`    nhật ký trọn: ${rel}\n`);
+    } catch (e) {
+      nhatKy.set(cmd, null);
+      process.stderr.write(`    (không ghi được nhật ký trọn: ${String((e && e.code) || (e && e.message) || e).split('\n')[0]})\n`);
+    }
+    const tail = (out + err).split('\n').filter(Boolean).slice(-30);
     for (const l of tail) process.stderr.write(`    ${l}\n`);
   }
   return exit;
@@ -406,6 +428,9 @@ log(`sha ${sha} · ${suiteCmds.length} suite · ${perSlug.length} hồ sơ · ${
 // chạy executor nào) và so TRƯỚC mọi lần ghi của chính làn (run-log/report).
 const daThong = hoSoDaThong(root, core.frontmatterField, DA_THONG_CONG_2);
 const anhTruoc = chup(root, daThong);
+// run_id sinh TRƯỚC lệnh đầu — thư mục nhật ký lệnh đỏ cần nó; `ts` của dòng sổ vẫn là lúc xong.
+const tBatDau = Date.now();
+const runId = flags['run-id'] || `repin-${new Date(tBatDau).toISOString().replace(/\.\d{3}Z$/, 'Z').replace(/[-:]/g, '')}-${Math.floor(Math.random() * 90000 + 10000)}`;
 const suitesExit = suiteCmds.map((c, i) => runCmd(c, `suite ${i + 1}/${suiteCmds.length}`));
 for (const s of perSlug) for (const e of s.evals) e.exit = runCmd(e.cmd, `${s.slug} ${e.id}`);
 const cham = soChup(anhTruoc, chup(root, daThong));
@@ -414,7 +439,6 @@ log(`chụp ${daThong.length} hồ sơ đã thông Cổng Bằng chứng (${anhT
 // ── kết quả ─────────────────────────────────────────────────────────────
 const now = new Date();
 const iso = now.toISOString().replace(/\.\d{3}Z$/, 'Z');
-const runId = flags['run-id'] || `repin-${iso.replace(/[-:]/g, '')}-${Math.floor(Math.random() * 90000 + 10000)}`;
 const day = iso.slice(0, 10);
 const reason = flags.reason || 'ghim lại bằng làn eval';
 const out = { run_id: runId, sha, ts: iso, suites: suiteCmds.map((cmd, i) => ({ cmd, exit: suitesExit[i] })), slugs: {} };
