@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/ (lo-trinh.mjs mới, product-map, start-scan) + commands/start.md + SKILL feature-loop + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-02-viec-ke-theo-plan-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo

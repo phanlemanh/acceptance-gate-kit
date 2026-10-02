@@ -387,3 +387,9 @@ luot-cham-ghi-vao-cay#ngoai-6	luot-cham-ghi-vao-cay	medium	fail-open	song			nhá
 luot-cham-ghi-vao-cay#ngoai-7	luot-cham-ghi-vao-cay	low	chuoi-thay-quan-he	song			ca JI11 (hồ sơ thuoc-biet-truoc-khong-phan-duoc) đo chữ trong mã nguồn bộ chấm thay vì lời giao việc thật hội đồng nhận [lượt chấm 1; owner quyết ở Cổng Bằng chứng 01/10]
 viec-ke-theo-plan#ngoai-1	viec-ke-theo-plan	medium	dong-goi	song			Bản sao mutant của P99 nối danh sách tệp tay thay vì chép trọn thư mục — script mới mà start-scan nạp sẽ làm P99 đỏ vì hạ tầng
 viec-ke-theo-plan#ngoai-2	viec-ke-theo-plan	medium	doi-chung-tu-sinh	song			Ô hồ sơ của fixture crm OKR khai tay trong _nguon.ho_so — trang đọc đúng trên mẫu chưa chứng minh đọc đúng trên lộ trình thật của crm
+viec-ke-theo-plan#ngoai-3	viec-ke-theo-plan	medium	khac	song			Bước S0 tra hàng: mô tả nhiều từ không trích dẫn làm lệnh thoát 2, SKILL không có nhánh cho mã thoát đó
+viec-ke-theo-plan#ngoai-4	viec-ke-theo-plan	medium	fail-open	song			dung_tren hoặc moc[].hang khai sai kiểu (không phải mảng) bị coi như rỗng, không cờ — hàng còn chờ có thể hiện là hàng kế
+viec-ke-theo-plan#ngoai-5	viec-ke-theo-plan	low	khac	song			Slug sai dạng trỏ ra ngoài _acceptance/ vẫn được đọc khi đếm hàng sống qua Cổng Đáng
+viec-ke-theo-plan#ngoai-6	viec-ke-theo-plan	medium	chuoi-thay-quan-he	song			Không phép đo nào kiểm cờ và nhãn tự khai nằm đúng hàng trên trang — chỉ kiểm chuỗi có mặt
+viec-ke-theo-plan#ngoai-7	viec-ke-theo-plan	low	doi-chung-tu-sinh	trung		viec-ke-theo-plan#ngoai-2	Cờ lệch crm OKR ở hàng 7n do chính fixture dựng ra — trùng mục ngoai-2
+viec-ke-theo-plan#ngoai-8	viec-ke-theo-plan	low	khong-the-do	song			LT-06 kết luận không có ngày chạy và không script mà không có ca đỏ nào tiêm hai thứ đó
