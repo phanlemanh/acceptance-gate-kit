@@ -112,7 +112,9 @@ function lt01(goc) {
   const hs = { a1: 'sap-mo', a2: 'dang-dung', a3: 'da-ship', a4: 'can-nhac' };
   const stub = banSao([], goc); writeFileSync(path.join(stub, 'scripts', 'lo-trinh.mjs'), STUB_LT);
   const sai = [];
-  const A = kho({ khoa: false, hoSo: hs }); const B = kho({ khoa: false, hoSo: hs });
+  // B là bản CLONE của A: cùng commit nên cùng giờ commit — hai kho dựng riêng lệch giây khi máy chậm và
+  // `since` của ô cân nhắc khác nhau, đỏ vì bàn đo chứ không vì vật (đo được trong suite 03/10).
+  const A = kho({ khoa: false, hoSo: hs }); const B = path.join(TMP, `clone-${++khoN}`); execFileSync('git', ['clone', '-q', A, B]);
   const scan = (r, k) => { const x = node([path.join(k, 'scripts', 'start-scan.mjs'), '--root', r]); return x.status === 0 ? JSON.parse(x.stdout) : { loi: x.stderr }; };
   const jA = scan(A, goc); const jB = scan(B, stub);
   if (jA.loTrinh !== null) sai.push(`loTrinh khác null: ${JSON.stringify(jA.loTrinh)}`);
