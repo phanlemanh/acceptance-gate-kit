@@ -8,6 +8,8 @@
 `feature-loop/scripts/repin-lane.mjs` và `scripts/pre-merge-check.sh`; `lib/**` không chạm nếu
 `wall_s` chỉ là khoá bổ sung) · **CỘNG hai món (b, c) + TRỪ một món (a), owner phê ở Cổng Đáng.**
 
+**Ô:** `_acceptance/lan-ghim-lai-theo-paths/` (mở 03/10, `stage: discovery`, chờ Cổng Đáng).
+
 **Gốc:** `_acceptance/*/run-log.jsonl` crm `origin/onehub` 04/09→02/10 — 186 làn ghim, 301
 hồ sơ-lượt, 3 748 eval = 28 % mọi lần chạy eval máy; proxy giờ làn từ 155 commit `repin…`:
 p50 6 phút · p75 15 · Σ ≈ 15 giờ/tuần trên đường găng PR.
