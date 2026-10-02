@@ -32,6 +32,8 @@ import { globToRe } from './carry-plan.mjs';
 // `_acceptance/<slug>/` là sử liệu chỉ đọc (crm-onehub 16/09/2026: một spec trong
 // suite chung ghi đè evidence/ đã ký sau mỗi lượt chạy mà không làn nào đỏ).
 import { hoSoDaThong, chup, soChup } from './chup-ho-so-da-thong.mjs';
+// Dòng tự xưng của bàn đo cho dấu lượt đỏ — không bao giờ ném (hồ sơ lan-ghim-lai-giu-tron-loi-loi).
+import { docTai } from './tai-may.mjs';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -434,6 +436,11 @@ const runId = flags['run-id'] || `repin-${new Date(tBatDau).toISOString().replac
 const suitesExit = suiteCmds.map((c, i) => runCmd(c, `suite ${i + 1}/${suiteCmds.length}`));
 for (const s of perSlug) for (const e of s.evals) e.exit = runCmd(e.cmd, `${s.slug} ${e.id}`);
 const cham = soChup(anhTruoc, chup(root, daThong));
+// Thời lượng làn (việc (a), hồ sơ lan-ghim-lai-giu-tron-loi-loi): suite đầu → eval cuối, giây,
+// một số lẻ; số lệnh KHÁC NHAU thực chạy (lệnh trùng gộp một lần). Không có hai số này thì làn
+// vắng khỏi dòng phút máy của năm dòng số, và vòng lan-ghim-lai-theo-paths không có số nền.
+const wallS = Math.round((Date.now() - tBatDau) / 100) / 10;
+const soLenh = results.size;
 log(`chụp ${daThong.length} hồ sơ đã thông Cổng Bằng chứng (${anhTruoc.size} tệp) trước suite · sau eval: ${cham.length} tệp bị chạm`);
 
 // ── kết quả ─────────────────────────────────────────────────────────────
@@ -469,7 +476,7 @@ for (const s of perSlug) {
   // thứ tự chèn, nên thứ tự khoá khớp khuôn REPIN-TEMPLATE của SKILL với MỌI tổ
   // hợp có/không — ternary lồng nhau cho 8 nhánh là chỗ khuôn sẽ trôi.
   const line = JSON.stringify(Object.assign(
-    { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit },
+    { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit, wall_s: wallS, so_lenh: soLenh },
     boQua.length ? { evals_not_run: boQua } : {},
     s.ngoaiMay.length ? { evals_not_machine: s.ngoaiMay } : {},
     chamNgoaiMay.length ? { evals_not_machine_touched: chamNgoaiMay } : {},
@@ -487,7 +494,7 @@ for (const s of perSlug) {
   const veCham = chamNgoaiMay.length ? ` · diff chạm vật đo ngoài làn máy: ${chamNgoaiMay.join(', ')} — chưa chứng lại, đi vòng S4 delta` : '';
   const veAcKhong = acKhong.length ? ` · AC không có chốt máy: ${acKhong.join(', ')}` : '';
   const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veNgoaiMay}${veCham}${veAcKhong}\n`;
-  out.slugs[s.slug] = { evals_exit: evalsExit, line, section };
+  out.slugs[s.slug] = { evals_exit: evalsExit, line, section, lech: s.evals.filter(e => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0)) };
 }
 if (red) {
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
@@ -496,7 +503,31 @@ if (red) {
     ? `\nexecutor chạm hồ sơ đã thông Cổng Bằng chứng — ${cham.length} tệp:\n${cham.map(c => `  - ${c.tep} (${c.doi})`).join('\n')}\n`
       + 'Sau cổng, cây _acceptance/<slug>/ là sử liệu chỉ đọc: tạo phẩm của lượt chạy lại đi ra .acceptance-runs/<slug>/ hoặc thư mục tạm (eval-executors.md, mục «Where a run writes its artifacts»); sửa bằng chứng đã thông cổng là một dòng revisit trong decisions.jsonl trước, không phải tác dụng phụ. Trả các tệp trên về bản đã commit, sửa executor ghi chúng, rồi chạy làn MỚI.'
     : '';
-  console.error(`repin-lane: LÀN ĐỎ — không ghi gì (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lech).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.${veCham}`);
+  // Dấu lượt đỏ (hồ sơ lan-ghim-lai-giu-tron-loi-loi, 03/10/2026): bản 2.20 thoát 1 mà KHÔNG ghi
+  // gì, nên lượt đỏ không tồn tại trong sổ nào — 02/10 ở crm, 5 lượt đỏ không để vết. Nay với
+  // --write, mỗi slug nhận MỘT dòng `repin-do` (KHÔNG phải `repin`: không chống lưng pin nào, bộ
+  // đọc 2.20 lọc theo loại nên đọc qua im — đo 03/10). Không --write thì như cũ: không chạm tệp
+  // đang theo dõi nào. Pin và evidence-report KHÔNG đổi ở mọi ca.
+  let soDau = 0;
+  if (flags.write) {
+    const lenhDo = [];
+    const daCo = new Set();
+    const them = (cmd, exit) => { if (daCo.has(cmd)) return; daCo.add(cmd); const lg = nhatKy.has(cmd) ? nhatKy.get(cmd) : null; lenhDo.push(lg === null ? { cmd, exit, log: null, ly_do: exit === 0 ? 'lech-ky-vong' : 'khong-ghi-duoc' } : { cmd, exit, log: lg }); };
+    suiteCmds.forEach((c, i) => { if (suitesExit[i] !== 0) them(c, suitesExit[i]); });
+    for (const s of perSlug) for (const e of out.slugs[s.slug].lech) them(e.cmd, e.exit);
+    const tai = docTai();
+    for (const s of perSlug) {
+      const dau = JSON.stringify({ ts: iso, kind: 'repin-do', run_id: runId, sha, suites_exit: suitesExit, evals_exit: out.slugs[s.slug].evals_exit, lenh_do: lenhDo, cham: cham.map(c => ({ tep: c.tep, doi: c.doi, log: null, ly_do: 'cham-ho-so' })), wall_s: wallS, so_lenh: soLenh, tai });
+      const logPath = path.join(s.ws, 'run-log.jsonl');
+      try {
+        const prev = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '';
+        fs.writeFileSync(logPath, prev + (prev && !prev.endsWith('\n') ? '\n' : '') + dau + '\n');
+        soDau += 1;
+      } catch (e) { console.error(`repin-lane: ${s.slug}: không ghi được dấu lượt đỏ — ${String((e && e.code) || e).split('\n')[0]}`); }
+    }
+  }
+  const dauDo = flags.write ? `không ghi pin; dấu lượt đỏ ở run-log của ${soDau} hồ sơ` : 'không ghi gì';
+  console.error(`repin-lane: LÀN ĐỎ — ${dauDo} (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lech).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.${veCham}`);
   process.exit(1);
 }
 if (flags.write) {

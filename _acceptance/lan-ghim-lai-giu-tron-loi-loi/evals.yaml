@@ -61,8 +61,8 @@ evals:
       rút được mà không có hàng → ĐỎ ghim "bộ đọc chưa đo"; rút rỗng → ĐỎ. Mỗi hàng: vi phân
       có vs không có (một dòng repin-do + wall_s/so_lenh) → stdout + mã thoát bằng hệt; đối
       chứng dương riêng — mã thoát ghim sẵn + dấu nội dung (run_id của pin) hoặc đầu ra đổi khi
-      làm nhiễu dòng repin thật. Chiều đỏ: bản sao đặt kind repin cho dấu đỏ → recheck đỏ, ghim
-      "dấu đỏ giả làm pin".
+      làm nhiễu đúng loại dòng bộ đọc ấy đọc. Chiều đỏ: bản sao đặt kind repin cho dấu đỏ →
+      loop-health đếm thêm một làn ghim, ghim "dấu đỏ giả làm pin".
     paths:
       - "feature-loop/scripts/**"
       - "scripts/**"

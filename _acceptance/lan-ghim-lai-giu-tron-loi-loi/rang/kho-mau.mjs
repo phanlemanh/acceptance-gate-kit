@@ -46,7 +46,7 @@ export function dungKho(opts) {
   // Cấu hình + evals của CA (lệnh thật của ca, expected_exit nếu khai).
   W(R, '_acceptance/config.yaml', config(opts.suites, opts.scripts));
   for (const s of opts.slugs) W(R, `_acceptance/${s.slug}/evals.yaml`, evalsY(s.slug, s.evals));
-  git('add', '-A'); git('commit', '-qm', 'lenh cua ca');
+  git('add', '-A'); git('commit', '-q', '--allow-empty', '-m', 'lenh cua ca');
   const runs = () => { const d = path.join(R, '.acceptance-runs'); if (!existsSync(d)) return []; const out = []; const di = (p) => { for (const f of readdirSync(p, { withFileTypes: true })) { const q = path.join(p, f.name); if (f.isDirectory()) di(q); else out.push(path.relative(R, q)); } }; di(d); return out.sort(); };
   const doc = (rel) => readFileSync(path.join(R, rel), 'utf8');
   return { R, git, runs, doc, don: () => rmSync(R, { recursive: true, force: true }) };
