@@ -71,7 +71,7 @@ const thresholdStateOrDie = oTxt => {
 
 // Tên ô nói VIỆC ĐANG Ở ĐÂU, không gọi tên cơ chế máy (N1). Thứ tự cố định —
 // nó cũng là thứ tự các chặng trong hình.
-const SECTIONS = [
+export const SECTIONS = [
   ['can-nhac', 'Đang cân nhắc cơ hội'],
   ['sap-mo', 'Sắp mở vòng'],
   ['cho-duyet', 'Chờ duyệt phạm vi'],
@@ -144,7 +144,7 @@ function edges(cTxt, oTxt) {
   return out.length ? ' · ' + out.join(' · ') : '';
 }
 
-function classify(dir, slug) {
+export function classify(dir, slug) {
   // Đọc LƯỜI và phân biệt lỗi, đúng thứ tự bộ quét đi: mở file nào là câu hỏi
   // của luật chung. Đọc cả ba vô điều kiện thì (a) lỗi quyền ở một hồ sơ trạng
   // thái hiện tại không dùng lại quyết định ô của slug, và (b) `read` cũ nuốt
