@@ -1,0 +1,216 @@
+<title>Lộ trình vào kit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: một cột đọc 68ch, lề trái có nhãn mục; bảng rộng cuộn trong khung riêng. */
+:root{
+  --bg:#f6f5f2; --bg-2:#ecebe6; --fg:#1d2230; --muted:#5c6273; --line:#d6d4cc;
+  --accent:#2f5d8a; --accent-soft:#dde8f2; --warn:#a2641a; --warn-soft:#f6e9d4; --ok:#2e6b4f; --ok-soft:#dcebe2;
+  --display:"Lora",Georgia,"Times New Roman",serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#171a22; --bg-2:#20242f; --fg:#e8e8e4; --muted:#a3a7b3; --line:#363b48;
+  --accent:#8db4dc; --accent-soft:#223449; --warn:#e0a85c; --warn-soft:#3a2d18; --ok:#8fcfae; --ok-soft:#1f3a2d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#171a22; --bg-2:#20242f; --fg:#e8e8e4; --muted:#a3a7b3; --line:#363b48;
+  --accent:#8db4dc; --accent-soft:#223449; --warn:#e0a85c; --warn-soft:#3a2d18; --ok:#8fcfae; --ok-soft:#1f3a2d; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.6 var(--body);margin:0;padding-block:40px 80px;padding-inline:16px}
+.wrap{max-width:76ch;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:2.1rem;font-weight:600}
+h2{font-size:1.45rem;font-weight:600;margin-top:56px;padding-top:18px;border-top:1px solid var(--line)}
+h3{font-size:1.1rem;font-weight:600;margin-top:28px;font-family:var(--body)}
+p{margin:14px 0;max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{font-size:1.1rem;color:var(--fg)}
+.meta{color:var(--muted);font-size:.9rem;margin-top:6px}
+.answer{background:var(--accent-soft);border-left:4px solid var(--accent);padding:16px 20px;margin:26px 0;border-radius:0 6px 6px 0}
+.answer p{margin:8px 0}
+.callout{background:var(--bg-2);padding:14px 18px;border-radius:6px;margin:18px 0}
+.warn{background:var(--warn-soft);border-left:4px solid var(--warn);padding:12px 18px;border-radius:0 6px 6px 0;margin:18px 0}
+.decide{background:var(--warn-soft);border:1px solid var(--warn);padding:20px 22px;border-radius:8px;margin-top:40px}
+.decide h2{border:0;margin-top:0;padding-top:0;font-size:1.3rem}
+code,.mono{font-family:var(--mono);font-size:.88em;background:var(--bg-2);padding:1px 5px;border-radius:4px}
+.tbl{overflow-x:auto;margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:.93rem;min-width:560px}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-weight:600;font-size:.82rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+td.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.pill{display:inline-block;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:999px;letter-spacing:.02em}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:18px 0}
+.card{border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-width:0}
+.card h3{margin-top:0;font-size:1rem}
+.card.rec{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.card p{font-size:.93rem;margin:8px 0}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;font-size:.93rem;margin:12px 0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;min-width:0}
+ul,ol{padding-left:22px}
+li{margin:6px 0}
+.src{font-size:.82rem;color:var(--muted)}
+.svgwrap{overflow-x:auto;margin:18px 0}
+svg text{font-family:var(--body)}
+a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<div class="eyebrow">Brainstorm · Cổng Đáng · 02/10/2026</div>
+<h1>Đưa lộ trình sản phẩm vào Acceptance Gate Kit</h1>
+<p class="meta">Đo trên hai kho anh đã dùng thật (CRM OneHub và OneFlow), đặt cạnh luật của kit và ba hạt giống đã ghi. Chữ là nguồn; số đo có nơi trỏ.</p>
+
+<div class="answer">
+<p><strong>Trả lời ngắn: đáng.</strong> Anh đã tự tay dựng thứ này <strong>ba lần</strong> ở hai kho trong năm tuần, mỗi lần một khuôn khác, và lần nào cũng phải cập nhật trạng thái bằng tay dù sự thật đã nằm sẵn trong hồ sơ cổng. Đó là định nghĩa của một tính năng engine: việc lặp mà kho nào cũng tự làm theo cách riêng.</p>
+<p><strong>Nhưng không phải «kit có roadmap».</strong> Kit chỉ nên <strong>đọc</strong> lộ trình, <strong>suy</strong> trạng thái từ hồ sơ, và <strong>vẽ</strong> trang đọc. Ý định (hàng nào, thứ tự, hạng, câu giao) vẫn là của người và sống trong kho. Kit sở hữu lộ trình là vi phạm thẳng luật «kit là engine, không chứa product context».</p>
+</div>
+
+<h2>1. Anh đã làm gì thật</h2>
+<p>Ba hình dạng, cùng một ý, đo ngày 02/10 trên nhánh đang sống của từng kho.</p>
+
+<div class="tbl"><table>
+<tr><th>Kho · lộ trình</th><th>Vật</th><th>Hạng mục</th><th>Ai cập nhật trạng thái</th><th>Răng</th></tr>
+<tr><td><strong>CRM · OKR</strong><br><span class="src">docs/plan/lo-trinh-okr.*</span></td><td>Văn (.md) + dữ liệu (.data.js, 19 trường) + trang (.html) + bản sống trên Artifact</td><td class="num">28</td><td>Tay: 12 commit «bản chụp» trong 4 ngày (27–30/09)</td><td>Không</td></tr>
+<tr><td><strong>CRM · Kho tài liệu</strong><br><span class="src">docs/plan/lo-trinh-kho-tai-lieu.*</span></td><td>Cùng ba vật, khuôn đã lệch: 10 trường chung, 9 trường chỉ OKR có, 3 trường chỉ Kho có</td><td class="num">11</td><td>Tay</td><td>Không</td></tr>
+<tr><td><strong>OneFlow · 24 tuần</strong><br><span class="src">docs/roadmap.md</span></td><td>Văn theo phase + sổ cái hạng mục đã ký + hai trang HTML</td><td class="num">—</td><td>Tay, tại mốc qua cổng</td><td><strong>Có</strong>: guard 3 kiểm (ADR chưa nhắc · trích ADR đã thay · hồ sơ ký chưa vào sổ), ô <code>roadmap-drift-guard</code> ký 27/08</td></tr>
+</table></div>
+
+<h3>Mẫu chung đã tự mọc, không ai bảo</h3>
+<ul>
+<li><strong>Một hàng = một câu người dùng nói được</strong> («Tôi mở một đối tác như mở một thoả thuận…»), kèm hạng T2/T3, slug dự kiến, và <em>đứng trên</em> hàng nào.</li>
+<li><strong>Vòng feature-loop lấy ý định từ hàng.</strong> Ở CRM, 22 trong 42 ô cơ hội trỏ về lộ trình bằng chữ («lượt 8a của lộ trình OKR»).</li>
+<li><strong>Hai lớp tách bạch:</strong> ý định (hàng, thứ tự, điều kiện mở) và sự thật (PR nào, cổng nào đã ký). Nhưng hôm nay cả hai đều gõ tay vào cùng một file.</li>
+<li><strong>Trang đọc riêng</strong>, và ở CRM anh đã đẩy nó lên Artifact để đọc ở nơi khác (<code>ban_song</code> trong dữ liệu).</li>
+</ul>
+
+<h3>Giá đang trả</h3>
+<dl class="kv">
+<dt>Cập nhật tay</dt><dd>12 commit cho một lộ trình trong 4 ngày; mỗi lần gộp PR là một lần phải nhớ sửa trạng thái.</dd>
+<dt>Trạng thái có thể nói dối</dt><dd>Chữ «đã lên onehub» gõ tay, không ai so với <code>contract.md</code>. OneFlow đo được một lần: hàng vẫn ⬜ khi hồ sơ đã verified (05/09).</dd>
+<dt>Hỏi tiến độ</dt><dd>Phiên điều phối OKR 23–26/09: 23 trong 48 tin anh gõ là hỏi tiến độ. Finding 26/09 ghi thẳng: «bảng đồng hồ nhiều lượt không tồn tại, owner phải tự hỏi».</dd>
+<dt>Ba khuôn</dt><dd>Hai kho, ba khuôn dữ liệu. Phiên mới vào kho nào cũng phải học lại.</dd>
+</dl>
+
+<h2>2. Có đáng không, chấm bằng thước của chính kit</h2>
+<div class="tbl"><table>
+<tr><th>Phép thử</th><th>Kết quả</th></tr>
+<tr><td>Trace về một nguyên tố</td><td><span class="pill ok">Đạt</span> Nguyên tố 1, <em>ý định chốt trước khi làm</em>. Đây đúng là thước mà nguyên tố 1 đang thiếu (hạt giống 07/09 ghi «không có số đo nào»). Người hưởng: anh ở phiên điều phối, và mọi phiên Claude vào kho mất bốn lượt đọc file mới tìm ra hàng kế (đo 05/09).</td></tr>
+<tr><td>North Star: làm-xong → quyết-được</td><td><span class="pill ok">Giảm</span> Bảng đồng hồ thay 23 tin hỏi. Không thêm cổng người, không thêm chạm.</td></tr>
+<tr><td>Chi phí máy</td><td><span class="pill ok">Không tăng</span> Render từ hồ sơ có sẵn, giống bản đồ sản phẩm. 0 lượt LLM.</td></tr>
+<tr><td>Cân trên mọi kho</td><td><span class="pill ok">Đạt nếu là ổ cắm</span> 3 trong 5 kho tiêu thụ đang có lộ trình, 3 khuôn khác nhau. Kho không khai thì im, không cờ, không lỗi. Ép một khuôn cứng là mọi kho trả giá.</td></tr>
+<tr><td>Kit là engine</td><td><span class="pill warn">Chỉ đạt nếu kit không ghi</span> Nội dung lộ trình là product context. Kit mang <em>khuôn tối thiểu + bộ đọc + bộ vẽ</em>, không mang hàng nào.</td></tr>
+<tr><td>CỘNG hay TRỪ</td><td><span class="pill warn">CỘNG</span> Cần anh phê đích danh (luật 15/09). Finding 26/09 §5 đã xếp nó là «CỘNG, chờ owner phê riêng». Hôm nay là lúc đó.</td></tr>
+<tr><td>Neo ngoài</td><td><span class="pill ok">Có</span> <code>crm/docs/plan/lo-trinh-okr.data.js</code> (vật thật, 28 hàng) · finding 26/09 §4 (23/48 tin) · hạt giống 06/09 (OneFlow, bốn lượt đọc file).</td></tr>
+<tr><td>Ngưỡng hạt giống 06/09</td><td><span class="pill ok">Vượt</span> Hạt giống đặt điều kiện «B chạy ở hai repo rồi mới xét C». Nay <strong>ba</strong> lộ trình ở hai kho đã sống bằng tay trước cả B.</td></tr>
+</table></div>
+
+<div class="callout"><strong>Vì sao «rất đáng với tôi» đủ là lý do.</strong> Kit dành cho phiên Claude Code và qua nó là chủ kho. Chủ kho đã trả giá dựng ba lần thì đó là ca thật, không phải giả định. Điều cần cân không phải «người khác có cần không» mà là «kho không dùng lộ trình có mất gì không». Với ổ cắm trung tính: không.</div>
+
+<h3>Rủi ro thật, và lưới</h3>
+<ul>
+<li><strong>Kit nuốt ý định.</strong> Nếu kit ghi vào lộ trình, hai nguồn sự thật mọc lại. Lưới: luật đọc-không-ghi, giống bản đồ sản phẩm. Thứ máy biết (PR, cổng, ngày) máy <em>suy</em> và <em>in</em>, không viết vào file của người.</li>
+<li><strong>Lộ trình thành máy đẻ ô.</strong> Bài học 18/09: 22 trong 35 ô sinh từ nghi thức kit. Lưới: hàng lộ trình <strong>không</strong> là ô. Hàng chưa mở chỉ là một dòng chữ; ô chỉ sinh khi anh gọi vòng.</li>
+<li><strong>Trạm thu phí thứ năm.</strong> Nếu lộ trình có «cổng duyệt» thì thêm một lượt gọi người. Lưới: đổi lộ trình là một PR, chủ sản phẩm duyệt bằng merge. Không cổng mới, không lệnh thứ tám.</li>
+<li><strong>Đổi mặc định làm ba lộ trình đang sống đỏ.</strong> Lưới: đường đọc-cũ. Thiếu trường thì cờ vàng, không chặn.</li>
+</ul>
+
+<h2>3. Ba cách dựng</h2>
+<div class="grid">
+<div class="card rec">
+<h3><span class="pill acc">Khuyến nghị</span> A · Ổ cắm đọc + bộ vẽ</h3>
+<p>Kho khai một khoá trong <code>_acceptance/config.yaml</code> trỏ tới file lộ trình. Kit đọc hàng, đối chiếu slug với hồ sơ, <strong>suy trạng thái</strong> bằng bảng nhãn đã có của bản đồ sản phẩm, in ba dòng lên thẻ start và vẽ một trang HTML cạnh <code>PRODUCT-MAP.md</code>. Trang ấy là thứ anh đẩy lên Artifact.</p>
+<p>Người giữ: hàng, câu giao, hạng, thứ tự, đứng trên, điều kiện mở, hạn. Máy giữ: trạng thái, PR, ngày qua cổng, hồ sơ nào.</p>
+<p>Hạng T2. Không chạm cổng. Là phần B của hạt giống 06/09, mở rộng thêm bộ vẽ.</p>
+</div>
+<div class="card">
+<h3>B · Gói riêng cùng kho</h3>
+<p>Một gói như <code>feature-loop</code>: khuôn, lệnh, răng chống trôi và luật băng (như OneFlow đã dựng riêng). Kit chỉ có ổ cắm.</p>
+<p>Ưu: kho không dùng không phải mang khái niệm hàng, băng, làn. Nhược: thêm một gói phải phát hành, chép, ghim; hiện chưa có hai kho cùng đòi răng. Là phần C của hạt giống 06/09; giữ làm nấc sau, mở theo ngưỡng.</p>
+</div>
+<div class="card">
+<h3>C · Lộ trình là tập ô có thứ tự</h3>
+<p>Không file mới: mỗi hàng là một <code>opportunity.md</code> ở <code>discovery</code> với trường thứ tự và đứng-trên; bản đồ sản phẩm vẽ thành lộ trình.</p>
+<p>Ưu: một nguồn sự thật, không schema mới. Nhược: vi phạm luật 18/09 «ô chỉ mở khi có neo ngoài»; 9 hàng chưa mở ở CRM thành 9 ô lúc chưa ai quyết; hàng «tin theo lời» không có slug không có chỗ đứng. Lấy của C đúng một ý: trạng thái suy từ hồ sơ.</p>
+</div>
+</div>
+
+<h2>4. Quản lý thế nào khi chia sẻ cho nhiều người</h2>
+
+<h3>Ranh giới sở hữu, theo tứ diện của kit</h3>
+<p>Lộ trình là <strong>ý định thường-trú</strong>: đỉnh trên của tứ diện, cố định trong vòng, và là lớp vật mà bản đồ 13/09 chỉ ra «không ai sở hữu» nên mỗi kho mọc một kiểu. Nó sống trong kho, do người ghi, đổi bằng PR. Kit đứng ở ba đỉnh đáy: đọc hạng mục, so với vật, in thước.</p>
+
+<div class="svgwrap">
+<svg viewBox="0 0 720 230" width="720" height="230" role="img" aria-label="Người giữ ý định, máy suy trạng thái">
+  <rect x="0" y="0" width="720" height="230" fill="var(--bg)"/>
+  <rect x="20" y="30" width="300" height="170" rx="8" fill="var(--bg-2)" stroke="var(--line)"/>
+  <text x="40" y="58" font-size="13" font-weight="600" fill="var(--muted)" letter-spacing="1">NGƯỜI GHI · ĐỔI BẰNG PR</text>
+  <text x="40" y="86" font-size="14" fill="var(--fg)">mã · tên · câu giao</text>
+  <text x="40" y="110" font-size="14" fill="var(--fg)">hạng · thứ tự · đứng trên</text>
+  <text x="40" y="134" font-size="14" fill="var(--fg)">điều kiện mở · hạn · slug dự kiến</text>
+  <text x="40" y="170" font-size="12" fill="var(--muted)">file lộ trình trong kho</text>
+  <path d="M320 115 L400 115" stroke="var(--accent)" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+  <text x="330" y="105" font-size="12" fill="var(--accent)">kit đọc</text>
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--accent)"/></marker></defs>
+  <rect x="400" y="30" width="300" height="170" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+  <text x="420" y="58" font-size="13" font-weight="600" fill="var(--accent)" letter-spacing="1">MÁY SUY · CHỈ IN</text>
+  <text x="420" y="86" font-size="14" fill="var(--fg)">trạng thái từ hồ sơ cổng</text>
+  <text x="420" y="110" font-size="14" fill="var(--fg)">PR · ngày ký · hồ sơ nào</text>
+  <text x="420" y="134" font-size="14" fill="var(--fg)">hàng kế · hàng trễ · hàng tin theo lời</text>
+  <text x="420" y="170" font-size="12" fill="var(--muted)">thẻ start · trang HTML · Artifact</text>
+</svg>
+</div>
+
+<h3>Khuôn tối thiểu, phần còn lại tự do</h3>
+<p>Kit chỉ bind sáu trường; kho thêm gì tuỳ ý (CRM đang có 19 trường, Kho tài liệu 13). Thiếu trường bind thì cờ vàng trên thẻ, không đỏ.</p>
+<div class="tbl"><table>
+<tr><th>Trường</th><th>Ai ghi</th><th>Dùng để</th></tr>
+<tr><td><code>ma</code></td><td>người</td><td>khoá hàng, không đổi khi đổi tên</td></tr>
+<tr><td><code>cau_giao</code></td><td>người</td><td>câu người dùng nói được, in lên thẻ</td></tr>
+<tr><td><code>hang</code></td><td>người</td><td>T1/T2/T3, biết vòng có Cổng 1.5 hay không</td></tr>
+<tr><td><code>dung_tren[]</code></td><td>người</td><td>thứ tự thi công, suy «hàng kế đủ điều kiện chưa»</td></tr>
+<tr><td><code>slug</code></td><td>người, khi mở vòng</td><td>nối hàng với <code>_acceptance/&lt;slug&gt;/</code></td></tr>
+<tr><td><em>trạng thái</em></td><td><strong>máy</strong></td><td>suy từ hồ sơ: chưa mở · đang cân nhắc · đang làm · đã giao · đã nghiệm thu. Dùng đúng bảng nhãn của bản đồ sản phẩm, không bảng thứ hai.</td></tr>
+</table></div>
+<p>Hàng không có slug là hàng <strong>tin theo lời</strong>: máy in số lượng, không giả vờ suy được. OneFlow có 8 trong 20 hàng như vậy; CRM có 5 trong 28.</p>
+
+<h3>Nhiều người cùng một lộ trình</h3>
+<ul>
+<li><strong>Ai cũng commit được một hàng nháp</strong>; chủ sản phẩm duyệt bằng merge. Đây đúng là lát A của hạt giống «Ý định có nhà riêng» (07/09), chỉ khác chỗ: hàng nháp nằm trong lộ trình chứ không phải một ô.</li>
+<li><strong>Băng (đóng lộ trình giữa hai mốc)</strong> là luật của kho, không phải mặc định kit. OneFlow cần, CRM không. Kho muốn thì tự dựng răng, hoặc chờ gói B.</li>
+<li><strong>Nhà của lộ trình</strong> do kho khai. Tới khi ô <code>nha-tai-lieu-router</code> có răng, khoá config trỏ đường là đủ; khi router lên, khoá này thành một dòng của router.</li>
+<li><strong>Đổi ý định giữa vòng</strong> vẫn là một Cổng Đáng mới, bởi người. Lộ trình không cho máy quyền mở vòng.</li>
+</ul>
+
+<h3>Trang đọc bằng Artifact</h3>
+<p>Kit vẽ trang HTML vào kho (như <code>PRODUCT-MAP.md</code> hôm nay) sau mỗi lần một cổng ký, cùng lượt với bản đồ sản phẩm. Anh đẩy trang đó lên Artifact bằng một lệnh; ai không có Claude vẫn mở được file trong kho. Trang có ba khối: <em>hàng kế và vì sao đủ điều kiện</em> · <em>đang chạy ở cổng nào</em> · <em>đã giao, kèm PR</em>. Không tự chạy LLM, không hỏi ai.</p>
+
+<h2>5. Thước năm dòng, dự báo</h2>
+<div class="tbl"><table>
+<tr><th>Dòng</th><th>Dự báo</th><th>Vì sao</th></tr>
+<tr><td>Làm-xong → quyết-được</td><td class="num">↓</td><td>Hàng kế và trạng thái hiện sẵn trên thẻ start và trang đọc</td></tr>
+<tr><td>Lượt gọi người / vòng</td><td class="num">=</td><td>Không thêm cổng, không thêm lệnh khoá</td></tr>
+<tr><td>Vòng bị hạ tầng đốt</td><td class="num">=</td><td>Không chạm S4</td></tr>
+<tr><td>Token máy / vòng</td><td class="num">=</td><td>Tất định, 0 lượt LLM</td></tr>
+<tr><td>Phút máy / lượt chấm</td><td class="num">=</td><td>Không chạm đường găng</td></tr>
+</table></div>
+<p>Thêm một số riêng để biết nó có đáng thật: <strong>tin hỏi tiến độ trên một lộ trình</strong>, nền 23/48 (26/09). Số này không giảm sau hai lộ trình dùng ổ cắm thì ô đóng với giới hạn, không nới.</p>
+
+<h2>6. Đường đi nếu anh gật</h2>
+<ol>
+<li>Sửa hạt giống 06/09 thành «Lộ trình: người ghi ý, máy suy trạng thái và vẽ», ghi neo mới (CRM OKR, Kho tài liệu, finding 26/09). Chỉ sửa tài liệu, không mở ô.</li>
+<li>Đây là vòng meta có kho chờ nhận (CRM đang chạy hai lộ trình), nên không vướng luật chiều rộng (b). Nhưng CRM chưa nhận 2.20.0; mở ô sau khi CRM nhận mốc để không đổi engine dưới chân vòng đang chạy.</li>
+<li>Vòng thi công một lát: ổ cắm đọc + ba dòng thẻ start + trang HTML. Thước: dựng bản sao CRM, phá một hàng (slug sai, trường thiếu, hàng tự khai «đã giao» khi hồ sơ chưa ký) và xem thẻ đỏ đúng chỗ; chạm hồ sơ không thuộc lộ trình và xem thẻ im.</li>
+<li>Gói B và băng chỉ mở khi ≥2 kho cùng đòi răng chống trôi.</li>
+</ol>
+
+<div class="decide">
+<h2>Một quyết định</h2>
+<p><strong>Khuyến nghị:</strong> gật hướng A. Máy sửa hạt giống 06/09 hôm nay kèm neo CRM; ô mở sau khi CRM nhận 2.20.0, đi như vòng meta có kho chờ nhận.</p>
+<p>Điều chỉ anh biết, máy không có: anh có muốn kit <em>tuyệt đối không ghi</em> vào file lộ trình (kể cả điền PR và ngày khi cổng ký), hay chấp nhận máy ghi hai trường ấy để bớt 12 commit tay? Khuyến nghị là <strong>không ghi</strong>, trả giá bằng việc trạng thái chỉ hiện trên trang vẽ chứ không nằm trong file văn.</p>
+<p class="src">Nguồn: crm `docs/plan/lo-trinh-okr.{md,data.js,html}` và `lo-trinh-kho-tai-lieu.*` (origin/onehub 02/10) · oneflow `docs/roadmap.md`, `scripts/roadmap/`, `_acceptance/roadmap-drift-guard/` · kit `docs/plans/2026-09-06-hat-giong-viec-ke-theo-plan.md`, `2026-09-07-hat-giong-y-dinh-co-nha-rieng.md`, `docs/findings/2026-09-13-ban-do-vung-lam-viec-hai-tang.md` §3 §5 §7, `2026-09-26-loi-kit-tu-luot-4-okr.md` §4 §5.</p>
+</div>
+</div>
