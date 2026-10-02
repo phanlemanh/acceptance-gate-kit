@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/ (lo-trinh.mjs mới, product-map, start-scan) + commands/{start,approve,signoff,observed}.md + SKILL feature-loop + SKILL uat-session + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-02-viec-ke-theo-plan-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -89,6 +89,11 @@ outcome-based roadmap `[NGÀNH: rà soát §8, owner gật 02/10]`.
   fixture crm OKR khai tay nên trang đọc đúng trên mẫu chưa chứng minh đọc đúng trên lộ trình thật
   (Ngoài-6, Ngoài-11) · LT-06 không có ca đỏ cho «không ngày chạy, không script» (Ngoài-7) · bản sao
   mutant của P99 nối danh sách tệp tay (Ngoài-9).
+- **Known limits (Cổng Bằng chứng, ký 03/10):** khối `MAP-STAGE` ở phiên nghiệm thu bỏ dự phòng
+  `$PLUGIN_ROOT` — harness chỉ có biến đó thì khối đỏ to (Ngoài-1) · lệnh ký bằng chứng còn hai câu cũ
+  nói bước 6 vẽ lại bản đồ (Ngoài-2, Ngoài-4) · chiều đỏ của LT-16-thu-tu chỉ so tiền tố thông điệp
+  (Ngoài-5). Ngoài-3 (làn 7b chạy trước bước vẽ lại) → hạt giống
+  `docs/plans/2026-10-03-hat-giong-lan-ky-truoc-ban-do.md`.
 - **Known limits (Cổng Bằng chứng lần hai, 03/10):** bộ kiểm khuôn bỏ im `moc`, `da_bac` sai kiểu,
   mốc không phải object và ngày mốc sai dạng (Ngoài-3) · ca luật S0 đo chữ của SKILL chứ không đo bộ chạy
   (Ngoài-4) · ba mục mang sang từ vòng trước: fixture crm OKR khai tay, bản sao P99 nối danh sách tay
