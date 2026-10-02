@@ -1,0 +1,168 @@
+# Eval cho hồ sơ lan-ghim-lai-theo-paths.
+#
+# Một răng hồ sơ `rang.sh`, mỗi chân một AC. Mỗi chân dựng kho git tạm CODE-SINH trong
+# chính lượt chạy (hồ sơ đã ký + pin + diff sau pin), chạy CHÍNH `scripts/pre-merge-check.sh`
+# và `feature-loop/scripts/repin-lane.mjs` thật của cây đang kiểm (đường dẫn suy từ vị trí
+# rang.sh), và mang cặp hai chiều trên CÙNG fixture: bản lành XANH trước, rồi tiêm vào BẢN
+# SAO engine và đòi ĐỎ với THÔNG ĐIỆP GHIM. Bản base cho ca vi phân lấy trọn `scripts` + `lib`
+# bằng `git archive <merge-base> scripts lib`, không chép danh sách tệp tay.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lgtp_doc_cu
+    expected: >-
+      Đường đọc-cũ, đo bằng VI PHÂN từng byte. Cùng fixture (hồ sơ đã ký, diff sau pin chạm
+      tệp ngoài paths), chạy pre-merge-check của bản base (git archive merge-base) và của cây
+      đang kiểm, với khoá stale_scope VẮNG và với `all`: stdout + mã thoát bằng hệt ở cả hai.
+      Chiều đỏ: bản sao đổi mặc định khoá vắng thành paths → vi phân khác, chân ĐỎ, thông điệp
+      ghim "đổi mặc định". Đối chứng dương: cây lành → 2/2 ô bằng hệt.
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.lgtp_nhay_dac_hieu
+    expected: >-
+      Khoá paths, hồ sơ mọi eval máy có paths. Ô (a) diff chạm ĐÚNG MỘT tệp khớp paths →
+      VIOLATION hoá cũ liệt đúng tệp ấy. Ô (b) diff chỉ chạm tệp ngoài paths → không VIOLATION
+      hoá cũ cho hồ sơ, CÓ dòng NOTE nêu số tệp bỏ qua theo paths. Hai chiều đỏ trên CÙNG
+      fixture: bản sao gỡ bộ lọc → (b) VIOLATION, ghim "bộ lọc không chạy"; bản sao bỏ dòng
+      NOTE → ghim "bỏ qua im lặng". Đối chứng dương: cây lành → (a) đỏ đúng tệp, (b) im + NOTE.
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.lgtp_chi_thu
+    expected: >-
+      Chỉ thu, đo QUAN HỆ tập con trên ĐÚNG 12 ô ma trận M của contract (hằng 12
+      viết trước trong rang.sh; số ô bộ sinh trả khác 12 → ĐỎ ghim "số ô lệch"): mỗi ô, tập
+      tệp hoá cũ dưới khoá paths ⊆ tập dưới khoá vắng. Ô M3 (paths gồm _acceptance/config.yaml
+      + một glob t1_skip_globs, diff chỉ chạm hai tệp đó) → không hoá cũ. Chiều đỏ: bản sao so
+      paths với diff THÔ → M3 hoá cũ, ghim "nới: tệp ngoài luật cũ"; bản sao xoá M8 khỏi bộ
+      sinh → ghim "số ô lệch".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.lgtp_hinh_ho_so
+    expected: >-
+      Chín ô M4–M12 của ma trận M dưới khoá paths, mỗi ô đúng cột Kỳ vọng: M4 (eval
+      máy thiếu paths), M7 (vắng evals.yaml), M8 (evals.yaml hỏng do code sinh), M12 (hợp paths
+      rỗng) → VẪN hoá cũ; M5 (chỉ ô not-run thiếu paths) → lọc; M6 (diff chạm paths ô ui-check)
+      → VẪN hoá cũ; M9/M10/M11 (một dòng, block seq, glob trần) → cùng kết luận lọc. Đối chứng
+      dương: cây lành → 9/9. Năm mutant trên bản sao, mỗi cái ĐỎ với thông điệp ghim riêng:
+      chỉ gom eval máy → "im ô ngoài làn máy" · bỏ vế eval-máy-thiếu → "eval máy thiếu paths" ·
+      coi tệp hỏng/hợp rỗng là không vật nào → "hợp rỗng thành im" · bỏ ngoại lệ not-run →
+      "not-run chặn lọc" · chỉ đọc dạng một dòng → "bộ đọc paths một dạng".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.lgtp_khong_chay_duoc
+    expected: >-
+      Fail-closed khi bộ lọc không chạy được. Ba tiêm trong bản sao: PATH không có node · gỡ
+      tệp lib của vị từ · hàm lib ném lỗi. Cả ba: VIOLATION hoá cũ y như luật cũ VÀ một dòng
+      NOTE nêu bộ lọc không chạy được kèm lý do; mã thoát khác 0. Đối chứng dương cùng
+      fixture: môi trường lành → hồ sơ im (bộ lọc chạy). Chiều đỏ của chân: bản sao nuốt lỗi
+      rồi trả danh sách rỗng → ghim "rơi về im khi lỗi".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.lgtp_khoa_va_co
+    expected: >-
+      (i) stale_scope: path (sai chính tả) → VIOLATION [config] gọi tên giá trị và nêu `paths`
+      | `all`; không ô hồ sơ nào bị lọc. (ii) Khoá paths + cờ --stale-all → stdout + mã thoát
+      bằng hệt khoá vắng trên cùng fixture. Chiều đỏ: bản sao bỏ qua cờ → vi phân khác, ghim
+      "chiến dịch bị thu hẹp"; bản sao rơi về all khi sai chính tả mà không VIOLATION → ghim
+      "sai chính tả im".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.lgtp_mot_nguon
+    expected: >-
+      Round-trip hai bên hỏi trên ĐÚNG 12 ô ma trận M (hằng viết trước): kết luận
+      pre-merge-check (hoá cũ?) và repin-lane --skip-unchanged (bỏ qua?) KHỚP, khoá paths. Tĩnh:
+      tên hàm vị từ chỉ ĐỊNH NGHĨA ở một tệp lib, cả hai bên gọi. Vế riêng của làn: evals.yaml
+      đổi → KHÔNG bỏ qua. Kho tiêu thụ: dựng kho fixture bằng CHÍNH lệnh chép của acceptance-init,
+      plugin feature-loop ở thư mục riêng ngoài kho; ô M2 chạy từ kho đó → pre-merge có NOTE
+      "bỏ qua theo paths", làn có dòng bỏ qua, KHÔNG dòng "không chạy được". Chiều đỏ: bản sao
+      cho làn dùng luật cũ → lệch ở M2, ghim "hai bên lệch"; bản sao cho lib nạp tệp ngoài danh
+      sách chép → ghim "lib không tự đứng ở kho tiêu thụ".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/**"
+      - "skills/acceptance-init/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.lgtp_song_song
+    expected: >-
+      Kho fixture với ba suite giả `sleep` thời lượng khác nhau (xong ngược thứ tự suite_keys)
+      và mã thoát chọn trước. Bốn ca (tất xanh · một đỏ · hai đỏ · lệnh trùng) × khoá vắng/true
+      trên CÙNG cây: suites_exit, mã thoát làn, có/không dòng repin bằng hệt. Ca true: tổng
+      thời gian < tổng sleep (song song thật). Khoá vắng: dấu thời gian bắt đầu từng suite nối
+      đuôi. Chiều đỏ: bản sao ghi suites_exit theo thứ tự xong → ghim "thứ tự theo lúc xong".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.lgtp_loi_khong_xen
+    expected: >-
+      Khoá song song, hai suite đỏ in xen kẽ từng dòng theo thời gian: stderr của làn có lời
+      lỗi mỗi suite là MỘT khối liền dưới nhãn của nó; eval bắt đầu sau khi suite cuối xong.
+      Tiêm một suite ghi vào cây hồ sơ đã ký → làn đỏ, gọi tên tệp bị chạm (chụp hồ sơ đã
+      thông cổng còn sống). Ca biên KHÔNG bắn: chỉ một suite đỏ, hai suite xanh in nhiều dòng → stderr KHÔNG có
+      khối lời lỗi nào của suite xanh. Chiều đỏ: bản sao in dòng ngay khi nhận → ghim "lời lỗi xen".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.lgtp_lan_doc_cu
+    expected: >-
+      Đường đọc-cũ phía làn, VI PHÂN với bản base (git archive merge-base scripts lib
+      feature-loop/scripts — trọn thư mục). Khoá vắng cả hai, 12 ô ma trận M: repin-lane
+      --skip-unchanged và làn đủ --write cho stdout, stderr (bỏ dấu thời gian, giây) và dòng
+      run-log bằng hệt base, gồm evals_not_machine_touched. Ô lib vắng / lib ném lỗi: khoá
+      vắng → y như base; khoá paths → KHÔNG bỏ qua, một dòng gọi tên lý do. Đối chứng dương:
+      cây lành 12/12 bằng hệt. Chiều đỏ: bản sao thêm vị từ vào danh sách bắt buộc của cổng
+      bộ máy vô điều kiện → làn khoá vắng thoát 2 trên lib cũ, ghim "khoá vắng mà đòi lib mới".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
