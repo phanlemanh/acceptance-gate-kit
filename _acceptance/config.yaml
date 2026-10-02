@@ -488,6 +488,11 @@ executors:
     # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
     nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
     nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs
+    # Hồ sơ loi-moi-tran-luot-loi-song-co-gia (03/10, T2): khối «Lối ra» trên thẻ CHƯA-ký-được.
+    # Mỗi lệnh một nhóm ca của tests/scripts/lmtl-the.test.mjs; ca gọi tên mà không chạy → thoát ≠ 0.
+    lmtl_khoi: "bash -c 'LMTL_CASES=LT-AC1-lap,LT-AC1-tuan-tu,LT-AC1-blocked,LT-AC2-tran,LT-AC4-khuyen-nghi,LT-AC7-mot-nguon,LT-dot-bien-tat-khoi,LT-dot-bien-bo-expected-exit,LT-dot-bien-bo-loc-id node tests/scripts/lmtl-the.test.mjs'"
+    lmtl_bien: "bash -c 'LMTL_CASES=LT-AC3-khong-ky,LT-AC6-im,LT-AC9-so-hong,LT-dot-bien-them-loi-ky,LT-dot-bien-lap-moi-luot,LT-dot-bien-nuot-evals-hong node tests/scripts/lmtl-the.test.mjs'"
+    lmtl_gia: "bash -c 'LMTL_CASES=LT-AC5-phut,LT-AC5-chua-do,LT-AC8-skill,LT-dot-bien-phut-ve-0 node tests/scripts/lmtl-the.test.mjs'"
     rel2200_cua_so: bash scripts/rel-cua-so.sh 7f45f37d thuoc-biet-truoc-khong-phan-duoc luot-cham-ghi-vao-cay
     rel2200_dd_giu: git diff --exit-code --stat 7f45f37d HEAD -- diagram-design
 risk_tiers:
