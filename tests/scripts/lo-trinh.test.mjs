@@ -193,7 +193,7 @@ if (want('LT-03-do')) {
 const KHOA_O = ['can-nhac', 'sap-mo', 'cho-duyet', 'dang-dung', 'cho-nghiem-thu', 'da-ship', 'da-nghiem-thu', 'xep-lai', 'da-bac', 'hong'];
 function lt04(kitScripts = null) {
   const hoSo = Object.fromEntries(KHOA_O.map(k => [`s-${k}`, k]));
-  const hang = [...KHOA_O.map(k => H(k, { slug: `s-${k}` })), H('du-kien', { slug: 'chua-co-ho-so' }), H('tin-trong'), H('tin-khai', { trang_thai: 'Đã giao' })];
+  const hang = [...KHOA_O.map(k => H(k, { slug: `s-${k}` })), H('du-kien', { slug: 'chua-co-ho-so' }), H('du-kien-khai', { slug: 'chua-co-2', trang_thai: 'Đã giao' }), H('tin-trong'), H('tin-khai', { trang_thai: 'Đã giao' })];
   const r = kho({ hoSo, data: { schema: 1, hang } });
   let kq;
   if (kitScripts) {
@@ -210,6 +210,9 @@ function lt04(kitScripts = null) {
   }
   const dk = kq.dong.find(x => x.ma === 'du-kien');
   if (dk.chu !== 'Chưa mở' || dk.co.length || dk.tin) sai.push(`slug dự kiến: ${JSON.stringify(dk)}`);
+  // Slug dự kiến CÓ tự khai: bảng design §Trạng thái nói không cờ — không có hồ sơ nào để «khác».
+  const dkk = kq.dong.find(x => x.ma === 'du-kien-khai');
+  if (dkk.chu !== 'Chưa mở' || dkk.co.length) sai.push(`slug dự kiến có tự khai: ${JSON.stringify(dkk)}`);
   const t1 = kq.dong.find(x => x.ma === 'tin-trong'); if (t1.chu !== 'Chưa mở' || !t1.tin) sai.push(`không slug không khai: ${JSON.stringify(t1)}`);
   const t2 = kq.dong.find(x => x.ma === 'tin-khai'); if (t2.chu !== 'Đã giao' || !t2.tin) sai.push(`không slug khai Đã giao: ${JSON.stringify(t2)}`);
   return sai;
@@ -217,6 +220,15 @@ function lt04(kitScripts = null) {
 if (want('LT-04')) {
   try { const sai = lt04(); if (sai.length) bad('LT-04', sai.join(' ; ')); else ok('LT-04', `mười ô: chữ trạng thái == tiêu đề mục bản đồ vẽ cùng lượt; slug dự kiến «Chưa mở» không cờ; không slug «Chưa mở»/«Đã giao» kèm tin theo lời`); }
   catch (e) { bad('LT-04', loi(e)); }
+}
+if (want('LT-04-do2')) {
+  try {
+    // Chiều đỏ của vế «slug dự kiến có tự khai → không cờ»: bản sao so lời khai cả khi KHÔNG có hồ sơ.
+    const mut = banSao([['scripts/lo-trinh.mjs', 'if (coHoSo && khaiChuan && khaiChuan !== chu)', 'if (!tinTheoLoi && khaiChuan && khaiChuan !== chu)']]);
+    const sai = lt04(path.join(mut, 'scripts'));
+    const g = sai.find(s => s.startsWith('slug dự kiến có tự khai:') && s.includes('tệp khai khác hồ sơ: khai Đã giao, hồ sơ Chưa mở'));
+    if (g) ok('LT-04-do2', `bản sao so lời khai khi không có hồ sơ → đỏ: «${g.slice(0, 120)}»`); else bad('LT-04-do2', `phép đo không bắt: ${JSON.stringify(sai)}`);
+  } catch (e) { bad('LT-04-do2', loi(e)); }
 }
 if (want('LT-04-do')) {
   try {
@@ -553,10 +565,16 @@ if (want('LT-12-do')) {
 }
 if (want('LT-12-kho')) {
   try {
-    const lanh = chayS0(khoiS0().replace('<mã>', '9b'), LT12());
-    const x = chayS0('node scripts/lo-trinh.mjs --root . --hang 9b', LT12());
-    if (lanh.status === 0 && x.status !== 0) ok('LT-12-kho', 'bản sao khối dùng đường tương đối đỏ ở kho fixture: «lệnh S0 không chạy được ở kho tiêu thụ»');
-    else bad('LT-12-kho', `lành exit ${lanh.status}, tương đối exit ${x.status}`);
+    const khoi = khoiS0();
+    const lanh = chayS0(khoi.replace('<mã>', '9b'), LT12());
+    // Bản sao CỦA KHỐI (không gõ tay): bỏ bước giải gói, gọi đường tương đối — đúng một chỗ thay.
+    const CU = 'node "$AG/scripts/lo-trinh.mjs"';
+    if (khoi.split(CU).length !== 2) throw new Error(`khối S0 không chứa đúng một «${CU}» để tiêm`);
+    const ban = khoi.slice(khoi.indexOf(CU)).replace(CU, 'node scripts/lo-trinh.mjs').replace('<mã>', '9b');
+    const x = chayS0(ban, LT12());
+    const ghim = /Cannot find module .*scripts\/lo-trinh\.mjs/;
+    if (lanh.status === 0 && x.status !== 0 && ghim.test(x.stderr)) ok('LT-12-kho', `bản sao khối dùng đường tương đối đỏ ở kho fixture (lệnh S0 không chạy được ở kho tiêu thụ): «${(x.stderr.match(ghim) || [''])[0].slice(0, 90)}»`);
+    else bad('LT-12-kho', `lành exit ${lanh.status}, tương đối exit ${x.status}, stderr «${x.stderr.trim().slice(0, 160)}»`);
   } catch (e) { bad('LT-12-kho', loi(e)); }
 }
 
