@@ -624,7 +624,7 @@ function lt16(lenh, khai = true) {
   // Trạng thái ban đầu đã commit (cả hai view), như kho thật đã đóng cổng trước đó.
   node([PM, '--root', r]); git(r, 'add', '-A'); git(r, 'commit', '-qm', 'view ban dau');
   // Cổng ghi trường của nó: hồ sơ có hàng trỏ đổi trạng thái, và thân cổng đưa hồ sơ vào commit.
-  const hd = path.join(r, '_acceptance', 'p1', 'contract.md'); writeFileSync(hd, readFileSync(hd, 'utf8').replace('status: approved', 'status: implemented'));
+  const hd = path.join(r, '_acceptance', 'p1', 'contract.md'); writeFileSync(hd, readFileSync(hd, 'utf8').replace('status: approved', 'status: draft'));  // đổi Ô bản đồ (Đang làm → Chờ duyệt phạm vi), không chỉ đổi status trong cùng ô
   git(r, 'add', '_acceptance');
   const x = bash(lenh, r, { AG: KIT });
   const staged = git(r, 'diff', '--cached', '--name-only').split('\n').filter(Boolean).sort();

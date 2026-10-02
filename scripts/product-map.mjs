@@ -410,8 +410,30 @@ if (isMain) {
     if (trang != null) { writeFileSync(pagePath, trang); console.log(pagePath); }
     process.exit(0);
   }
+  // Kho khai lộ trình thì LO-TRINH.html phải được t1_skip_globs phủ — thiếu thì chính commit đóng cổng
+  // làm bằng chứng cũ đi (cùng lý do ADR 0007). Khớp bằng ĐÚNG hai hàm glob của lưới trước-merge, gọi
+  // qua bash: kit giữ MỘT bộ khớp glob. Không gọi được thì nói ra một dòng, không đỏ.
+  const mienTruLoTrinh = () => {
+    const pm = path.join(__dirname, 'pre-merge-check.sh');
+    if (!existsSync(pm)) return { biet: false, ly: 'không thấy scripts/pre-merge-check.sh' };
+    const globs = configList(readPlain(path.join(root, '_acceptance', 'config.yaml')) || '', 't1_skip_globs').join('\n');
+    const lenh = `eval "$(sed -n '/^glob_variants() {/,/^}/p;/^match_globs() {/,/^}/p' "$1")"; match_globs LO-TRINH.html "$2"`;
+    try {
+      execFileSync('bash', ['-c', lenh, 'mien-tru', pm, globs], { stdio: ['ignore', 'ignore', 'ignore'] });
+      return { biet: true, phu: true };
+    } catch (e) {
+      if (e.status === 1) return { biet: true, phu: false };
+      return { biet: false, ly: `bash không chạy được (${e.code || e.status})` };
+    }
+  };
   const ketThuc = code => {
     if (trang != null) {
+      const mt = mienTruLoTrinh();
+      if (!mt.biet) console.log(`Không kiểm được miễn trừ của LO-TRINH.html (${mt.ly}).`);
+      else if (!mt.phu) {
+        console.error('Kho khai lo_trinh.tep nhưng không glob nào trong risk_tiers.t1_skip_globs phủ LO-TRINH.html — thêm `- "LO-TRINH.html"` vào risk_tiers.t1_skip_globs của _acceptance/config.yaml (thiếu miễn trừ thì commit đóng cổng làm bằng chứng cũ đi).');
+        code = Math.max(code, 1);
+      }
       if (existsSync(pagePath) && readPlain(pagePath) === trang) console.log('LO-TRINH.html khớp tệp ý định và hồ sơ.');
       else {
         console.error(`LO-TRINH.html ${existsSync(pagePath) ? 'lệch với' : 'chưa có, trong khi kho khai'} tệp ý định và hồ sơ — chạy: node ${hint} --root .`);

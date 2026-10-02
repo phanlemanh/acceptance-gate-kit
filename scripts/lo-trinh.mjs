@@ -76,11 +76,14 @@ export function kiemKhuon(data) {
     const ma = chuoi(r.ma);
     const nhan = ma || `#${i + 1}`;
     for (const f of BAT_BUOC) if (!chuoi(r[f])) co.push(`hàng ${nhan} thiếu ${f}`);
+    // Trường kit đọc lấy NGHĨA mà sai kiểu thì nói ra — coi như rỗng là để hàng còn chờ hiện thành hàng kế.
+    if (r.dung_tren !== undefined && !Array.isArray(r.dung_tren)) co.push(`hàng ${nhan}: dung_tren phải là một mảng`);
     if (ma) { if (daThay.has(ma) && !trung.includes(ma)) trung.push(ma); daThay.add(ma); }
     hang.push({ ...r, _nhan: nhan, _ma: ma });
   });
   for (const m of trung) co.push(`mã trùng: ${m}`);
   const moc = (Array.isArray(data.moc) ? data.moc : []).filter(m => m && typeof m === 'object');
+  for (const m of moc) if (m.hang !== undefined && !Array.isArray(m.hang)) co.push(`mốc ${chuoi(m.ten) || chuoi(m.ngay) || '?'}: hang phải là một mảng`);
   const daBac = (Array.isArray(data.da_bac) ? data.da_bac : []).filter(m => m && typeof m === 'object');
   // Từ vựng tự khai của KHO: chữ riêng của kho → tên trạng thái của kit. Kho khai, kit chỉ đọc.
   const tuVung = {};
@@ -166,8 +169,10 @@ export function suyTrangThai({ root, khuon, classify, sections }) {
   for (const d of dong) co.push(...d.coHang);
 
   const daGiaoMa = ma => { const d = theoMa.get(ma); return !!d && daGiao.has(d.chu); };
-  const duDieuKien = d => (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi)
-    .every(x => theoMa.has(x) && daGiaoMa(x));
+  const duDieuKien = d => {
+    if (d.dung_tren !== undefined && !Array.isArray(d.dung_tren)) return false;
+    return (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi).every(x => theoMa.has(x) && daGiaoMa(x));
+  };
   const ke = dong.find(d => chuaLam.has(d.chu) && duDieuKien(d)) || null;
   const hangKe = ke ? { ma: ke._nhan, cauGiao: chuoi(ke.cau_giao) || '(hàng chưa có câu giao)', dungTren: (Array.isArray(ke.dung_tren) ? ke.dung_tren : []).map(chuoi).map(x => ({ ma: x, chu: theoMa.get(x)?.chu || null })) } : null;
 

@@ -44,7 +44,14 @@ nào mà vẫn là đúng bản đang chạy.
    `_acceptance/config.yaml`. `PRODUCT-MAP.md` KHÔNG có trong đó → **BỎ QUA** bước vẽ, không
    đưa bản đồ vào commit, và in ghi chú: «Bản đồ sản phẩm chưa bật cho repo này. Bật bằng hai
    dòng trong `_acceptance/config.yaml` (xem `/acceptance-gate:approve` bước 5).» Có → chạy
-   `node <acceptance-gate>/scripts/product-map.mjs --root .` rồi đưa `PRODUCT-MAP.md` vào commit.
+   `node <acceptance-gate>/scripts/product-map.mjs --root .` rồi đưa `PRODUCT-MAP.md` vào commit —
+   bằng ĐÚNG khối dưới (`AG` = gốc gói acceptance-gate; kho tự host kit dùng `.`). Khối vẽ lại bản đồ,
+   và trang lộ trình `LO-TRINH.html` khi kho khai `lo_trinh.tep`, rồi đưa cả hai vào commit:
+<!-- <<<MAP-STAGE -->
+```
+node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+```
+<!-- MAP-STAGE>>> -->
 5. **Một commit** gồm dòng sổ + hợp đồng (+ bản đồ nếu vẽ lại): `observed: <slug> — <tên>`.
    Dòng sổ và trạng thái đi CÙNG commit: lưới đếm «thước đổi sau dòng quan sát» từ chính
    commit ghi dòng.

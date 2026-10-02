@@ -119,7 +119,15 @@ là thứ duy nhất phiên này sinh ra mà máy không thay được.
   Có trong danh sách → chạy
   `node ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/scripts/product-map.mjs --root .` (repo tự host
   kit chạy `node scripts/product-map.mjs --root .`). Bản đồ vừa có một ô đổi
-  chủ; để nó lệch là để người sau đọc một bản đồ nói dối.
+  chủ; để nó lệch là để người sau đọc một bản đồ nói dối. Làm bằng ĐÚNG khối
+  dưới (`AG` = gốc gói acceptance-gate, `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}`;
+  kho tự host kit dùng `.`): khối vẽ lại bản đồ, và trang lộ trình
+  `LO-TRINH.html` khi kho khai `lo_trinh.tep`, rồi đưa cả hai vào commit chữ ký:
+<!-- <<<MAP-STAGE -->
+```
+node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+```
+<!-- MAP-STAGE>>> -->
 - Bước kế theo verdict — mỗi lối có CHỦ, không lối nào bỏ lửng:
   - `release` → nghi thức phát hành của repo.
   - `iterate` → in đúng một dòng: «mở vòng kế bằng `/feature-loop:feature-loop

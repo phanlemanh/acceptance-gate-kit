@@ -174,7 +174,16 @@ Steps:
 
    Listed → run `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .`
    after `human_signoff` is written; the map is machine-generated from records
-   this gate just changed, so it belongs in the signature commit below.
+   this gate just changed, so it belongs in the signature commit below. Do it
+   with EXACTLY this block (`AG` = this plugin's root, `${CLAUDE_PLUGIN_ROOT}`;
+   the self-hosting kit uses `.`): it redraws the map — and the roadmap page
+   `LO-TRINH.html` when the repo declares `lo_trinh.tep` — and stages both, so
+   step 7's `git add` already carries the views:
+<!-- <<<MAP-STAGE -->
+```
+node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+```
+<!-- MAP-STAGE>>> -->
 
 7. **Ghi và commit — một lượt, làn máy chạy TRƯỚC chữ ký. THỨ TỰ CÓ RĂNG.**
 
