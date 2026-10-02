@@ -854,7 +854,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 15 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 17 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -879,6 +879,8 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/khong-can-nguoi.mjs` — vị từ làn V «không cần người» mà `product-map.mjs` nạp để từ chối hồ sơ tự khai máy-thông không có vật
 - `lib/nguong-o-co-hoi.cjs` — bộ đọc ngưỡng ô cơ hội mà `product-map.mjs` `require` cho ô Cổng Giá trị
 - `lib/out-of-contract.cjs` — bộ đọc DUY NHẤT của `review-findings.md`; luật làn V ở lưới trước-merge và `khong-can-nguoi.mjs` cùng hỏi nó mục ngoài hợp đồng nào chưa được người định tuyến. **Đổi tên từ `.js` ở 2.18.1** — kho tiêu thụ chép lại thì XOÁ tệp đuôi cũ
+- `scripts/lo-trinh-khoa.cjs` — bộ đọc DUY NHẤT của khoá ổ cắm lộ trình `lo_trinh.tep` mà `product-map.mjs` `require` ở MỌI lượt; thiếu → bước bản đồ `MODULE_NOT_FOUND` kể cả ở kho không khai lộ trình
+- `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;

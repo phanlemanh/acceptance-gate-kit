@@ -1322,6 +1322,10 @@ if (want('RT16')) {
   // Chiều đỏ: bản sao product-map GỠ nhánh mới → phép so phải ĐỎ nêu slug và hai ô lệch.
   {
     const mut = tmp('rt16-mut-');
+    // TRỌN thư mục trước (luật «bản sao lấy trọn thư mục, không chép danh sách tay»): vật thêm một
+    // tệp mà bản đồ nạp (scripts/lo-trinh-khoa.cjs, hồ sơ viec-ke-theo-plan) là bản sao chết vì HẠ
+    // TẦNG chứ không vì vật. Danh sách dưới giữ làm lời ghi vì sao từng tệp cần.
+    for (const d of ['scripts', 'lib', 'skills/acceptance/references']) cpSync(path.join(ROOT, d), path.join(mut, d), { recursive: true });
     for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'lib/gap-probe.cjs',
                        'lib/ac-line.cjs', 'lib/nguong-o-co-hoi.cjs', 'scripts/trang-thai-ho-so.cjs',
                        // bản đồ nay đọc khuôn LÚC CHẠY (fail-closed) — cây mutant thiếu khuôn thì

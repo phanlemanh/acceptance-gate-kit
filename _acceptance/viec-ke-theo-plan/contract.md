@@ -82,3 +82,16 @@ outcome-based roadmap `[NGÀNH: rà soát §8, owner gật 02/10]`.
 
 - Ca đo: `tests/scripts/lo-trinh.test.mjs` (LT-*), suite scripts tự chạy qua glob `*.test.mjs`.
 - Đường nền hạ tầng xanh cả bốn chân tại `418436ce` (`duong-nen.md`).
+- Đo bốn kho thật không khai (AC-1, một lần, 02/10, nhánh `c5a22f44` so mã trước vòng `418436ce`,
+  trên bản sao `_acceptance/` + `.out-of-scope/` của từng kho, không ghi vào kho thật):
+
+  | Kho | Bản đồ giống từng byte | JSON quét giống (bỏ `git`, `loTrinh`) | `loTrinh` | `LO-TRINH.html` |
+  |---|---|---|---|---|
+  | oneflow | có | có | null | không sinh |
+  | radar | có | có | null | không sinh |
+  | aes | có | có | null | không sinh |
+  | media-library | có | có, trừ `since` lệch 1 giây — giờ commit của hai bản sao do phép đo tự tạo | null | không sinh |
+- Giả định sinh tử 1 (khuôn phủ ba lộ trình): phủ được, không bỏ trường tự do nào; đo ra 6/43 hàng crm
+  chưa có hạng → `hang` thành tuỳ chọn (sổ d-20261002T143650Z-11). Giả định 2 (trạng thái suy khớp crm): 24/32 hàng
+  OKR tự khai bằng chữ riêng, không so được nếu không khai `tu_vung` (sổ d-20261002T144907Z-12); có `tu_vung` thì 0.
+- Giả định 3 (vắng thì im): bảng trên + LT-01. Giả định 4 (ca biên crm): LT-10.
