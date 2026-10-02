@@ -18,11 +18,13 @@ evals:
       AC-2, [1,2]}], HTML có «E2 (AC-2) chưa đạt ở lượt 1, 2» · (2) E2 `killedByTool` hai lượt →
       vào `lap` · (3) mã thoát 2 không khai → vào `lap` · (4) E2 khai `expected_exit: 2` và thoát 2
       hai lượt → `lap` rỗng, không khối (đặc hiệu) · (5) lượt 2 có hai dòng E2 (thử lại), dòng
-      cuối đạt → không lặp (đặc hiệu) · (6) `SUITE-*` đỏ hai lượt → không vào `lap` (đặc hiệu) ·
+      cuối đạt → không lặp (đặc hiệu) · (6) `SUITE-*` đỏ hai lượt → không vào `lap` (đặc hiệu); (6b) bộ chấm thật chạy thêm E9 ngoài
+      evals.yaml, đỏ hai lượt → không vào `lap` (đặc hiệu) ·
       (7) cùng sổ bỏ dòng `round-tally` → cùng `lap` · (8) lượt cuối cụt: cắt sổ lượt 2 trước dòng
       E2 → `lap` có E2 kèm «không có dòng ở lượt 2» · (9) lượt cuối BLOCKED không ký được → khối
       hiện. Chiều đỏ: `tat-khoi` → «FAIL: LT-AC1-lap» hàng 1; `bo-expected-exit` → đỏ hàng 4;
-      `bo-loc-id` → đỏ hàng 6.
+      `bo-loc-id` → đỏ hàng 6;
+      `bo-loc-ngoai-evals` (chỉ gỡ vế id-ngoài-evals.yaml) → đỏ hàng 6b.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "tests/scripts/lmtl-the.test.mjs"]
 

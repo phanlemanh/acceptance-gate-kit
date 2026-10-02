@@ -94,6 +94,9 @@ async function dung() {
   LOG.khai = [...await nhat(1, { 'cmd-e2': DO(2), 'cmd-e3': DAT }), ...await nhat(2, { 'cmd-e2': DO(2), 'cmd-e3': DO(1) })];
   LOG.thuLai = [...await nhat(1, { 'cmd-e2': DO(1) }), ...await nhat(2, { 'cmd-e2': DO(1) }), ...await nhat(2, { 'cmd-e2': DAT, 'cmd-e3': DO(1) })];
   LOG.suite = [...await nhat(1, { 'npm run build': DO(1) }), ...await nhat(2, { 'npm run build': DO(1) })];
+  // Hàng 6b: bộ chấm thật chạy thêm E9 (id KHÔNG có trong evals.yaml của hồ sơ) và E9 đỏ hai lượt.
+  const E9 = { evals: [...EVALS, { id: 'E9', criterion: 'AC-9', executor: 'script', cmd: 'cmd-e9', ref: 'config:executors.script.e9', expected: 'x' }] };
+  LOG.ngoaiEvals = [...await nhat(1, { 'cmd-e9': DO(1) }, E9), ...await nhat(2, { 'cmd-e9': DO(1) }, E9)];
   const r2 = await nhat(2, { 'cmd-e1': DO(1) });
   LOG.cut = [...await nhat(1, { 'cmd-e2': KHONG_CHAY }), ...r2.filter(l => !/"evalId":"E2"/.test(l))];
   LOG.blocked = [...await nhat(1, { 'cmd-e2': DO(1) }), ...await nhat(2, {}, { evals: [{ id: 'E1', criterion: 'AC-1', executor: 'script', ref: 'config:executors.script.e1', expected: 'x' }] })];
@@ -132,6 +135,7 @@ CA['LT-AC1-lap'] = async gc => {
     ['4 ma dung expected_exit la dat', LOG.khai, { E2: '    expected_exit: 2\n' }, t => !lapIds(t).includes('E2') || 'E2 khai ma 2 van vao lap'],
     ['5 thu lai cung round dong cuoi thang', LOG.thuLai, {}, t => !lapIds(t).includes('E2') || 'dong cuoi dat ma E2 van lap'],
     ['6 SUITE khong vao lap', LOG.suite, {}, t => !lapIds(t).some(x => x.startsWith('SUITE-')) || `lap=${lapIds(t)}`],
+    ['6b id ngoai evals.yaml khong vao lap', LOG.ngoaiEvals, {}, t => (LOG.ngoaiEvals.some(l => /"evalId":"E9"/.test(l)) ? !lapIds(t).includes('E9') || `lap=${lapIds(t)}` : 'fixture: bo cham khong ghi dong E9')],
     ['7 luot tuan tu khong tally', boTally(LOG.lap), {}, t => lapIds(t).join() === 'E2' || `lap=${lapIds(t)}`],
     ['8 luot cuoi cut', LOG.cut, {}, t => (lapIds(t).join() === 'E2' && t.j.loi_ra.lap[0].vang === 2 && t.html.includes('không có dòng ở lượt 2')) || `lap=${JSON.stringify(t.j && t.j.loi_ra && t.j.loi_ra.lap)}`],
     ['9 luot cuoi BLOCKED', LOG.blocked, {}, t => (lapIds(t).join() === 'E2' && t.html.includes(LRM.TEN_KHOI)) || `lap=${lapIds(t)}`],
@@ -299,6 +303,7 @@ const DOT_BIEN = [
   ['lap-moi-luot', 'if (m.has(cuoi)) { if (!m.get(cuoi)) continue; } else vang = cuoi;', 'if (m.has(cuoi)) { /* bo */ } else vang = cuoi;', 'LT-AC6-im', 'tung chua dat nay dat'],
   ['bo-expected-exit', 'return !(k != null && String(k) === String(c));', 'return true;', 'LT-AC1-lap', '4 ma dung expected_exit'],
   ['bo-loc-id', "return !o.evalId.startsWith('SUITE-') && (evalMeta === null || coKhoa(evalMeta, o.evalId));", 'return true;', 'LT-AC1-lap', '6 SUITE'],
+  ['bo-loc-ngoai-evals', '(evalMeta === null || coKhoa(evalMeta, o.evalId))', 'true', 'LT-AC1-lap', '6b id ngoai evals.yaml'],
   ['nuot-evals-hong', 'if (evalMeta === null) canhBao.push(CANH_BAO_EVALS);', '', 'LT-AC9-so-hong', 'evals.yaml hong'],
 ];
 async function dotBien([ten, tim, thay, ca, hang]) {
