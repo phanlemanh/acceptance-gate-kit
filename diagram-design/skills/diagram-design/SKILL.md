@@ -3,7 +3,7 @@ name: diagram-design
 description: Create technical and product diagrams — architecture, system context, deployment, IT current-state, flowchart, sequence, event flow, state machine, ER, timeline, Gantt, swimlane, service blueprint, journey map, wireflow, morphological box, disposition map, solution tree, cadence, evidence chain, quadrant, radar, loop, nested, tree, org chart, capability map, stakeholder map, layer stack, venn, funnel, sankey, RACI matrix, threshold chart, bar, line, scatter, process, medallion, data flow, DP integration / security matrix — standalone HTML files with inline SVG. Also imports draw.io files (.drawio, .drawio.png, .drawio.svg), redrawn at chosen format and size. Use for any request to draw or redraw a diagram, in Vietnamese too — vẽ sơ đồ, sơ đồ kiến trúc, sơ đồ luồng, hành trình khách hàng, không gian lựa chọn, so ngưỡng, chuyển file draw.io. Data-bound charts in app code belong to a dataviz skill.
 license: MIT
 metadata:
-  version: "2.7"
+  version: "2.7.1"
 ---
 
 # Diagram Design
