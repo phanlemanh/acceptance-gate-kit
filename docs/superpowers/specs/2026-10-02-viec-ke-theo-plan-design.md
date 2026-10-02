@@ -189,8 +189,10 @@ phát hành · thước «hàng bị sửa sau khi vòng mở» (lát 2) · băn
 - **Lệnh đóng cổng đưa trang vào commit (AC-16).** Bốn thân lệnh đóng cổng (duyệt phạm vi, ký bằng
   chứng, ghi quan sát thực tế, phiên nghiệm thu) mang CÙNG một khối `MAP-STAGE`, đứng sau chỗ thân ghi
   trường của cổng: vẽ lại rồi đưa `PRODUCT-MAP.md` và — khi tệp có mặt — `LO-TRINH.html` vào commit:
-  `node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi`
-  (`AG` = gốc gói acceptance-gate; kho tự host là `.`). `product-map.mjs --check` thêm một luật: kho khai
+  `AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi`
+  — khối tự lấy gốc gói từ `${CLAUDE_PLUGIN_ROOT}` (harness thay chữ này) khi `AG` chưa gán; kho tự host gán
+  `AG=.` trước. Khối đứng SAU bước ghi trường của từng cổng; ở lệnh ký bằng chứng đó là bước 7c, sau 7a
+  (sổ Cổng Bằng chứng lần hai: bản trước đặt khối ở bước 6, trước khi trường chữ ký được ghi). `product-map.mjs --check` thêm một luật: kho khai
   `lo_trinh.tep` mà không glob nào của `risk_tiers.t1_skip_globs` phủ `LO-TRINH.html` → thoát 1 nêu
   «t1_skip_globs». Khớp glob bằng ĐÚNG hai hàm `glob_variants`/`match_globs` của
   `scripts/pre-merge-check.sh` (gọi qua bash, không viết lại): kit giữ MỘT bộ khớp. Không gọi được bash

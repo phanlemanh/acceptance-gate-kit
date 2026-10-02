@@ -196,15 +196,17 @@ evals:
     paths: [commands/approve.md, commands/signoff.md, commands/observed.md, skills/uat-session/SKILL.md, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
       exit 0; stdout có "PASS: LT-16 <thân>" cho đủ bốn thân (approve · signoff · observed · uat-session) —
-      khối MAP-STAGE rút nguyên văn (vẽ lại + đưa vào commit, AG = cây đang kiểm) chạy trên kho khai lộ trình có
-      một hồ sơ vừa đổi trạng thái, commit, clone sạch: product-map --check trên clone exit 0; "PASS: LT-16-giong"
-      — bốn khối giống hệt từng byte; "PASS: LT-16-thu-tu" — trong mỗi thân, khối đứng sau mốc ghi trường của
-      cổng (approved_by · human_signoff · da-cham-boi-thuc-te · verdict), và bản sao một thân dời khối lên đầu thì
-      phép đo trả lỗi nêu tên thân; "PASS: LT-16-khong-khai" — kho không khai: khối exit 0, commit chỉ có
-      PRODUCT-MAP.md; "PASS: LT-16-do" — bản sao khối chỉ đưa PRODUCT-MAP.md: --check trên clone exit 1, stderr
-      chứa "LO-TRINH.html" (khối thật trên CÙNG kho xanh trước); "PASS: LT-16-mien-tru" — t1_skip_globs với
-      "LO-TRINH.html", "**/LO-TRINH.html", "*.html" → --check exit 0; "docs/*.html" → exit 1, stderr chứa
-      "t1_skip_globs".
+      khối MAP-STAGE rút nguyên văn, ${CLAUDE_PLUGIN_ROOT} thay bằng cây đang kiểm như harness thay, AG KHÔNG có
+      trong môi trường; chạy trên kho khai lộ trình có một hồ sơ vừa đổi ô, commit, clone sạch: product-map --check
+      trên clone exit 0; "PASS: LT-16-giong" — bốn khối giống hệt từng byte; "PASS: LT-16-thu-tu" — trong mỗi thân
+      khối đứng sau mốc BƯỚC GHI (dòng sửa frontmatter status: approved · **7a — ghi trường người.** · **Đặt
+      `status: da-cham-boi-thuc-te`** · Người ký điền `verdict`), và bản sao thân signoff đặt khối ngay trước mốc
+      đó thì cùng hàm đo trả lỗi nêu «thân signoff»; "PASS: LT-16-ag" — bản sao khối bỏ phần AG="${AG:-…}":
+      chạy với AG không có thì exit khác 0, stderr thật khớp /Cannot find module .*scripts\/product-map\.mjs/;
+      "PASS: LT-16-khong-khai" — kho không khai: khối exit 0, commit chỉ có PRODUCT-MAP.md; "PASS: LT-16-do" —
+      bản sao khối chỉ đưa PRODUCT-MAP.md: --check trên clone exit 1, stderr chứa "LO-TRINH.html" (khối thật
+      trên CÙNG kho xanh trước); "PASS: LT-16-mien-tru" — "LO-TRINH.html", "**/LO-TRINH.html", "*.html" → exit 0;
+      "docs/*.html" → exit 1, stderr chứa "t1_skip_globs".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E17
     criterion: AC-17

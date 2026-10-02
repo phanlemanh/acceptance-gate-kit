@@ -6,11 +6,11 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/ (lo-trinh.mjs mới, product-map, start-scan) + commands/{start,approve,signoff,observed}.md + SKILL feature-loop + SKILL uat-session + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-02-viec-ke-theo-plan-design.md
-status: verified
+status: approved
 approved_by:
 approved_at:
 veto_state: mo
-veto_opened_at: 2026-10-02T21:29:26Z
+veto_opened_at: 2026-10-02T22:29:00Z
 ---
 
 # Acceptance Contract: viec-ke-theo-plan
@@ -44,7 +44,7 @@ Source input: `_acceptance/viec-ke-theo-plan/opportunity.md` (Cổng Đáng `bui
 - AC-13: Given khuôn mẫu `skills/acceptance/references/lo-trinh-template.json`, When bộ đọc đọc nó, Then 0 cờ và mọi trường của khuôn ra đúng vai (bắt buộc, tuỳ chọn, tự do); bản sao khuôn đổi tên `cau_giao` → đỏ với cờ thiếu trường nêu `cau_giao`.
 - AC-14 (judgment): Given trang `mau/lo-trinh-crm-okr.html` sinh từ fixture crm OKR cộng cây hồ sơ do code sinh (vật máy sinh, test giữ bằng nhau với bản vẽ lại), When một người đọc chưa biết kho đọc riêng trang đó trong một phút, Then người đó trả lời được ba câu bằng chữ trên trang: hàng nào làm kế và các hàng nó đứng trên đang ở đâu, mỗi hàng đang ở đâu và hàng nào chỉ là tin theo lời, chỗ nào tệp khai lệch hồ sơ.
 - AC-15: Given cây ở commit đã kiểm, When chạy `product-map.mjs --check` của kho kit và các suite `scripts` · `plugins` · `hooks` · `workflows`, Then tất cả thoát 0 (kho kit không khai `lo_trinh.tep` nên bản đồ không đổi).
-- AC-16: Given một kho khai `lo_trinh.tep`, có `PRODUCT-MAP.md` và `LO-TRINH.html` được `risk_tiers.t1_skip_globs` phủ, và một hồ sơ có hàng trỏ vừa đổi trạng thái, When chạy NGUYÊN VĂN khối `MAP-STAGE` (vẽ lại + đưa vào commit, `AG` = gốc gói) của từng thân lệnh đóng cổng (`/acceptance-gate:approve`, `/acceptance-gate:signoff`, `/acceptance-gate:observed`, phiên nghiệm thu), rồi commit và chạy `product-map.mjs --check` trên một bản clone sạch của commit đó, Then `--check` thoát 0 ở cả bốn thân; khối giống hệt nhau ở bốn thân và mỗi khối đứng SAU chỗ thân đó ghi trường của cổng; kho KHÔNG khai lộ trình chạy cùng khối thì thoát 0 và chỉ đưa bản đồ vào commit; bản sao khối chỉ đưa bản đồ → `--check` trên clone thoát 1 nêu «LO-TRINH.html»; kho khai lộ trình mà không glob nào trong `t1_skip_globs` phủ `LO-TRINH.html` (khớp bằng đúng bộ khớp glob của lưới trước-merge) → `--check` thoát 1 nêu «t1_skip_globs»; glob tương đương (`**/LO-TRINH.html`, `*.html`) thì thoát 0.
+- AC-16: Given một kho khai `lo_trinh.tep`, có `PRODUCT-MAP.md` và `LO-TRINH.html` được `risk_tiers.t1_skip_globs` phủ, và một hồ sơ có hàng trỏ vừa đổi ô bản đồ, When chạy NGUYÊN VĂN khối `MAP-STAGE` của từng thân lệnh đóng cổng (`/acceptance-gate:approve`, `/acceptance-gate:signoff`, `/acceptance-gate:observed`, phiên nghiệm thu) sau khi thay `${CLAUDE_PLUGIN_ROOT}` bằng gốc gói như harness thay và KHÔNG gán sẵn biến nào, rồi commit và chạy `product-map.mjs --check` trên một bản clone sạch của commit đó, Then `--check` thoát 0 ở cả bốn thân; khối giống hệt nhau ở bốn thân; trong mỗi thân khối đứng SAU bước ghi trường của cổng (approve: dòng sửa frontmatter `status: approved` · signoff: bước 7a ghi trường người · observed: bước đặt `status: da-cham-boi-thuc-te` · phiên nghiệm thu: dòng người ký điền `verdict`), và bản sao đặt khối ngay TRƯỚC bước ghi đó thì phép đo nêu tên thân; bản sao khối bỏ phần tự lấy gốc gói thì chạy nguyên văn đỏ với lỗi không tìm thấy bộ vẽ; kho KHÔNG khai lộ trình chạy cùng khối thì thoát 0 và chỉ đưa bản đồ vào commit; bản sao khối chỉ đưa bản đồ → `--check` trên clone thoát 1 nêu «LO-TRINH.html»; kho khai lộ trình mà không glob nào trong `t1_skip_globs` phủ `LO-TRINH.html` (khớp bằng đúng bộ khớp glob của lưới trước-merge) → `--check` thoát 1 nêu «t1_skip_globs»; glob tương đương (`**/LO-TRINH.html`, `*.html`) thì thoát 0.
 - AC-17: Given hàng có `dung_tren` không phải mảng (chuỗi, số, object) và mốc có `hang` không phải mảng, When đọc và tính hàng kế, hàng trễ, Then mỗi trường sai kiểu có đúng một cờ nêu mã hàng (hoặc tên mốc) và tên trường; hàng có `dung_tren` sai kiểu không bao giờ là hàng kế; mốc có `hang` sai kiểu không làm mất cờ của mốc khác; trường đúng kiểu không có cờ.
 - AC-18: Given kho có khoá và tệp có hàng `9b`, When phiên S0 nhận một đối số, Then chỉ đối số là MỘT mã khớp mẫu trong khối `S0-MA-HANG-RE` mới được đưa vào lệnh tra (khối `S0-NHAN-HANG`, mã trong nháy đơn); mọi mã `ma` của ba lộ trình thật đều khớp mẫu; một mô tả nhiều từ chứa backtick, `$(...)`, dấu, ngoặc và chấm phẩy KHÔNG khớp, nên không lệnh shell nào chạy (tệp canh mà backtick và `$(...)` định tạo không tồn tại); SKILL nói rõ đối số không khớp mẫu và mọi mã thoát khác 0 đều là mô tả việc; bản sao mẫu nhận-mọi-thứ cộng nháy kép → tệp canh bị tạo.
 
@@ -89,6 +89,10 @@ outcome-based roadmap `[NGÀNH: rà soát §8, owner gật 02/10]`.
   fixture crm OKR khai tay nên trang đọc đúng trên mẫu chưa chứng minh đọc đúng trên lộ trình thật
   (Ngoài-6, Ngoài-11) · LT-06 không có ca đỏ cho «không ngày chạy, không script» (Ngoài-7) · bản sao
   mutant của P99 nối danh sách tệp tay (Ngoài-9).
+- **Known limits (Cổng Bằng chứng lần hai, 03/10):** bộ kiểm khuôn bỏ im `moc`, `da_bac` sai kiểu,
+  mốc không phải object và ngày mốc sai dạng (Ngoài-3) · ca luật S0 đo chữ của SKILL chứ không đo bộ chạy
+  (Ngoài-4) · ba mục mang sang từ vòng trước: fixture crm OKR khai tay, bản sao P99 nối danh sách tay
+  (Ngoài-5..7).
 
 - Ca đo: `tests/scripts/lo-trinh.test.mjs` (LT-*), suite scripts tự chạy qua glob `*.test.mjs`.
 - Đường nền hạ tầng xanh cả bốn chân tại `418436ce` (`duong-nen.md`).
