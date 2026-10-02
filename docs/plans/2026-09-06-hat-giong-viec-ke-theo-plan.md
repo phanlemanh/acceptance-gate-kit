@@ -239,3 +239,60 @@ nên không vướng luật chiều rộng (b). Gói C (§3 cũ: băng, răng ch
 chung) chỉ mở khi ≥ 2 kho cùng đòi. Thước kiểm nhanh hai chiều cho lát 1: dựng
 bản sao crm, phá một hàng (slug sai · trường thiếu · tự khai đã giao) → thẻ đỏ
 đúng chỗ; chạm hồ sơ ngoài lộ trình → thẻ im.
+
+### 8. Rà soát 02/10 (owner gật bổ sung) — sáu điểm thiếu, thông lệ, và chỗ ngược playbook
+
+**Sáu bổ sung vào khuôn và luật (không đổi gì đã quyết ở §2):**
+
+1. **Hàng có «vì sao».** Thêm trường `vi_sao` một dòng ở hàng (vấn đề · ai gặp ·
+   kết quả muốn thấy, nén). Phần dài sống ở ô khi mở vòng. Nguồn: intent.md của
+   playbook có vấn đề · kết quả · ai bị ảnh hưởng · ràng buộc · câu hỏi mở; crm
+   đang nhét những thứ này vào `ghi_chu`.
+2. **Hai thước rút từ git, cạnh số «tin hỏi tiến độ» ở §6:** (a) tỉ lệ hàng sống
+   qua Cổng Đáng = hàng có ô `build`/`iterate` ÷ hàng đã có ô; (b) số hàng bị sửa
+   sau khi vòng đã mở — đổi hạng, tách, gộp, đổi câu giao (so diff file ý định với
+   `approved_at` của hợp đồng). (b) là thước duy nhất của lát 2: skill cắt lượt
+   cắt đúng hay không chỉ đo được bằng số hàng phải sửa giữa đường. Đây là hai
+   thước «ý định chốt trước khi làm» hạt giống 07/09 (lát B) đã hứa.
+3. **Khối `moc[]` cấp file**, người ghi: tên · ngày · ai · loại (hạn / sự kiện).
+   Dùng để vẽ view thời gian và để máy in cờ «hàng kế không kịp mốc» khi tổng
+   nhịp thật của chuỗi `dung_tren` vượt ngày mốc. Nguồn: khối `moc` của
+   `lo-trinh-okr.data.js` (Tết · mùa OKR 07/12 · hạn nhân sự).
+4. **Mục «đã bác kèm lý do» trong file ý định**, máy đếm được. Hàng nháp (nấc 2
+   CRM) bị bác không biến mất và không quay lại như mới — luật «dismiss with a
+   reason» của playbook, cùng họ `.out-of-scope/` cho ô.
+5. **Hàng không mở quá hai mốc phát hành → một trong ba phán quyết tại mốc:**
+   giữ · gieo (mở ô) · bỏ kèm lý do. Máy in cờ tuổi trên trang vẽ và thẻ start;
+   người quyết. Đây là lưới chống hàng-thành-backlog (§4 cũ đã có cho hạt
+   giống, nay áp cho hàng), và là điều kiện để lộ trình không đối lập playbook.
+6. **Vòng ngoài lộ trình hợp lệ.** Sửa lỗi, sự cố, đường ship thẳng không thuộc
+   hàng nào: trang vẽ có khối «vòng ngoài lộ trình», in số, **không đỏ**. Kho
+   muốn đỏ (như kiểm C của oneflow) tự dựng răng.
+
+Ghi kèm, không phải việc kit: file ý định cần CODEOWNERS để «chủ sản phẩm duyệt
+bằng merge» có răng; `CONTEXT.md` thêm term **Lộ trình** (ý định thường-trú, đứng
+cạnh bản đồ sản phẩm) khi mở ô; đường «ngưỡng Cổng Giá trị vượt → hàng nháp» là
+R5 của hạt giống `2026-09-07-hat-giong-y-dinh-co-nha-rieng.md`, trỏ sang, không
+dựng mới.
+
+**Thông lệ đội sản phẩm — dùng được, với điều kiện vào kit như VIEW hoặc như tầng
+TRƯỚC bước cắt, không vào như cột gõ tay:** Now/Next/Later = trạng thái máy suy
+(đang làm · đủ điều kiện · chân trời) · outcome-based = ngưỡng Cổng Giá trị và
+`bat_khi`, output = câu giao, hai tầng cùng sống · cây cơ hội (Torres) = quét hình
+thái và aes, trước cắt · Shape Up = gần kit nhất (bàn cược = Cổng Đáng, khẩu vị =
+hạng + trần ba vòng, không backlog = hàng chưa mở không là ô; khác: kit cố định
+phạm vi, xả bằng «ký với giới hạn») · OKR = trường tự do `nhom` · RICE/WSJF
+**không** vào khuôn (thứ tự là quyết định người) · Gantt/lịch quý chỉ là view ·
+Jira/Linear/Notion = cấu hình «hệ ngoài là nguồn», kho tự lo bản xuất.
+
+**Đối lập với AI-Native SDLC (Anthropic, 21/08):** khớp ở nhà ý định trong kho,
+duyệt bằng merge, chuỗi vật tự kích hoạt, một nguồn sự thật mỗi vật, bác kèm lý
+do. **Căng thật:** playbook không có lộ trình và coi backlog là lãng phí — kit
+thêm đúng tầng playbook bỏ. Chỗ đứng duy nhất: lộ trình của kit là **danh sách
+cắt có thứ tự phụ thuộc** cho một người chạy nhiều vòng liên tiếp trên dữ liệu
+thật của vòng trước; ngày nó thành lịch quý có cột trạng thái gõ tay là ngày nó
+đối lập cả playbook lẫn North Star — lưới là điểm 5. **Ngược có chủ đích:** một
+file nhiều hàng thay vì một file mỗi intent, vì ô có giá đóng không có giá mở
+(18/09); hai thước của playbook (thời gian tới commit · tỉ lệ sống) vẫn rút từ
+git của file ấy. **Kit tốn thêm một chạm** ở đầu vòng vì giữ người ở Cổng Đáng
+thay vì intent duyệt xong tự kích hoạt spec; chấp nhận, Cổng Đáng là cổng thiết kế.
