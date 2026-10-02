@@ -166,3 +166,42 @@ wall: 1591s
 - **claude-opus-5-5**: 3 agent · 58 calls · out 6,852 · in 116 · cache_read 6,993,581 · cache_create 387,960
 - **claude-haiku-4-5-20251001**: 11 agent · 32 calls · out 11,721 · in 278 · cache_read 1,613,620 · cache_create 428,531
 
+### S4 round 5 — wf_d17dcc5e-584 (18 agent, 30,826 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 5 | 8,452 | 10 | 453,768 | 60 |
+| review:bugs | claude-opus-5-5 | 14 | 3,725 | 28 | 1,402,577 | 164 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 3,079 | 18 | 89,685 | 42 |
+| triage | claude-sonnet-5-5 | 2 | 2,529 | 4 | 83,262 | 20 |
+| machine:node tests/scripts/lo-trinh.test.mjs | claude-haiku-4-5-20251001 | 2 | 2,376 | 18 | 89,693 | 50 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 2,101 | 18 | 89,698 | 223 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 1,462 | 18 | 89,698 | 111 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 1,424 | 18 | 89,698 | 174 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,389 | 18 | 89,685 | 30 |
+| review:conventions | claude-opus-5-5 | 11 | 1,384 | 22 | 996,881 | 107 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-4-5-20251001 | 2 | 984 | 18 | 60,664 | 135 |
+| review:measurement | claude-opus-5-5 | 10 | 650 | 20 | 948,954 | 120 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 381 | 18 | 89,734 | 86 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 332 | 18 | 89,734 | 73 |
+| baseline:diffBase | claude-sonnet-5-5 | 4 | 214 | 8 | 249,628 | 19 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 195 | 18 | 89,734 | 243 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 147 | 4 | 79,444 | 4 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 2 | 18 | 89,692 | 10 |
+
+
+wall: 1240s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 214 | 249,628 | 19 | 22:54:52 | 22:55:11 |
+| machine | 11 | 13,725 | 957,715 | 1149 | 22:54:52 | 23:14:02 |
+| review | 3 | 5,759 | 3,348,412 | 169 | 22:54:52 | 22:57:41 |
+| triage | 1 | 2,529 | 83,262 | 20 | 23:14:03 | 23:14:23 |
+| capture | 1 | 147 | 79,444 | 4 | 23:14:25 | 23:14:29 |
+| synthesize | 1 | 8,452 | 453,768 | 60 | 23:14:31 | 23:15:32 |
+
+- **claude-sonnet-5-5**: 4 agent · 13 calls · out 11,342 · in 26 · cache_read 866,102 · cache_create 387,260
+- **claude-opus-5-5**: 3 agent · 35 calls · out 5,759 · in 70 · cache_read 3,348,412 · cache_create 285,431
+- **claude-haiku-4-5-20251001**: 11 agent · 22 calls · out 13,725 · in 198 · cache_read 957,715 · cache_create 420,697
+

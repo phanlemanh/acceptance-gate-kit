@@ -393,3 +393,8 @@ viec-ke-theo-plan#ngoai-5	viec-ke-theo-plan	low	khac	song			Slug sai dạng tr�
 viec-ke-theo-plan#ngoai-6	viec-ke-theo-plan	medium	chuoi-thay-quan-he	song			Không phép đo nào kiểm cờ và nhãn tự khai nằm đúng hàng trên trang — chỉ kiểm chuỗi có mặt
 viec-ke-theo-plan#ngoai-7	viec-ke-theo-plan	low	doi-chung-tu-sinh	trung		viec-ke-theo-plan#ngoai-2	Cờ lệch crm OKR ở hàng 7n do chính fixture dựng ra — trùng mục ngoai-2
 viec-ke-theo-plan#ngoai-8	viec-ke-theo-plan	low	khong-the-do	song			LT-06 kết luận không có ngày chạy và không script mà không có ca đỏ nào tiêm hai thứ đó
+viec-ke-theo-plan#ngoai-9	viec-ke-theo-plan	medium	dong-goi	song			Khối MAP-STAGE ở phiên nghiệm thu bỏ dự phòng $PLUGIN_ROOT mà skill khai cho mọi đường gói — harness chỉ có PLUGIN_ROOT thì khối đỏ to
+viec-ke-theo-plan#ngoai-10	viec-ke-theo-plan	low	doc-drift	song			Lệnh ký bằng chứng: bước 6 và 7a còn nói bước 6 vẽ lại bản đồ sau khi khối đã dời sang 7c
+viec-ke-theo-plan#ngoai-11	viec-ke-theo-plan	low	doc-drift	trung		viec-ke-theo-plan#ngoai-10	Câu 7a «chỉ đưa bản đồ nếu bước 6 vẽ lại» — trùng mục ngoai-10
+viec-ke-theo-plan#ngoai-12	viec-ke-theo-plan	low	khong-the-do	song			Chiều đỏ của LT-16-thu-tu chỉ so tiền tố thông điệp «thân signoff:»
+viec-ke-theo-plan#ngoai-13	viec-ke-theo-plan	medium	khac	song			Lệnh ký bằng chứng: làn kiểm 7b chạy trước khối vẽ lại ở 7c — khi làn chạy trọn, product_map --check có thể đỏ vì bản đồ chưa vẽ lại (có từ trước vòng này, nặng hơn)
