@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "ten": "Lộ trình <tên sản phẩm hoặc đợt>",
+  "moc": [
+    { "ten": "Hạn ngoài: mùa báo cáo quý", "ngay": "2026-12-07", "loai": "han", "ai": "Chủ sản phẩm", "hang": ["2"] }
+  ],
+  "hang": [
+    {
+      "ma": "1",
+      "cau_giao": "«Tôi mở trang X và thấy Y của tuần này»",
+      "vi_sao": "Người dùng Z đang phải hỏi tay mỗi tuần; muốn thấy họ tự xem được",
+      "hang": "T2",
+      "slug": "trang-x-thay-y",
+      "bat_khi": "Hai tuần sau khi giao, số lần hỏi tay giảm một nửa",
+      "nhom": "trang-x"
+    },
+    {
+      "ma": "2",
+      "cau_giao": "«Tôi bấm Gửi và người duyệt nhận được trong một phút»",
+      "vi_sao": "Đứng trên dữ liệu thật của hàng 1",
+      "hang": "T3",
+      "dung_tren": ["1"],
+      "bat_khi": "Mười lượt gửi thật không lượt nào trễ quá một phút"
+    },
+    {
+      "ma": "3",
+      "cau_giao": "«Quản trị tắt được tính năng theo đơn vị»",
+      "dung_tren": ["2"]
+    }
+  ],
+  "da_bac": [
+    { "ma": "x1", "ly_do": "Trùng với hàng 2 sau khi cắt lại" }
+  ]
+}

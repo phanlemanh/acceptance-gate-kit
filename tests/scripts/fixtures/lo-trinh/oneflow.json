@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "ten": "Kế hoạch lát cắt chứng minh (oneflow)",
+  "moc": [
+    {
+      "ten": "Mốc tái hoạch",
+      "ngay": "2026-10-09",
+      "loai": "su-kien",
+      "hang": []
+    },
+    {
+      "ten": "Kết thúc lát cắt chứng minh",
+      "ngay": "2026-11-08",
+      "loai": "han",
+      "hang": [
+        "B10"
+      ]
+    }
+  ],
+  "hang": [
+    {
+      "ma": "B1",
+      "cau_giao": "Hồ sơ kế hoạch + luật đóng băng + guard; STATUS.md, vision.md, roadmap; mở cơ hội của lát cắt",
+      "slug": "lat-cat-chung-minh",
+      "trang_thai": "✅",
+      "sao": "★",
+      "ghi_chu": "hạng mục mới cuối cùng được nhận; vòng nội bộ, ngưỡng Không đo được"
+    },
+    {
+      "ma": "B2",
+      "cau_giao": "Hạ cánh nhánh mở hoá b01: ba README, NOTICE, SECURITY, docker-compose trỏ ảnh của fork, tắt trigger tag desktop-release",
+      "hang": "T2",
+      "slug": "mo-hoa-b01",
+      "trang_thai": "✅",
+      "sao": "★",
+      "ghi_chu": "code có trước hợp đồng nên đi làn prototype keep; merge main vào nhánh trước; T2 vì chạm .github và docker-compose"
+    },
+    {
+      "ma": "B3",
+      "cau_giao": "Hạ cánh D0 Director wire-shape: resume S4 VERIFY, Cổng 2, [ADR-0013](adr/0013-director-truong-ky.md) về main, mục Làn D",
+      "hang": "T3",
+      "slug": "director-wire-shape",
+      "trang_thai": "✅",
+      "sao": "★",
+      "ghi_chu": "T3 vì chạm src/db; soi Gate 1.5 đã qua chưa; director-v2 D1 D2 D4 đã park"
+    },
+    {
+      "ma": "B4",
+      "cau_giao": "Engine dùng venv per-plugin như TS, bỏ fallback về sys.executable; SDK 0.2.20 và bump pin bốn plugin",
+      "hang": "T3",
+      "dung_tren": [
+        "A6"
+      ],
+      "slug": "hai-duong-chay-mot-venv",
+      "trang_thai": "✅",
+      "sao": "★",
+      "ghi_chu": "T3 vì chạm sdk; ký 09/09 với phạm vi owner chốt 08/09: chỉ sửa va chạm trong kho — không bump SDK (kho khớp PyPI 0.2.23), pin bốn plugin ngoài kho; ba chỗ lệch của dòng này ghi ở contract §Nợ có tên"
+    },
+    {
+      "ma": "B5",
+      "cau_giao": "Skill system v1: manifest tham số, template, orchestrator v1, nút skill, xem sửa kế hoạch; skill thứ hai giả lập không đụng engine",
+      "hang": "T3",
+      "slug": "skill-system-v1",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "T3 vì chạm src/app/api; dòng nền tảng"
+    },
+    {
+      "ma": "B6",
+      "cau_giao": "Overlay chạy local (port khỏi Modal, cùng slot) kèm canvas 9:16 pad crop",
+      "hang": "T2",
+      "dung_tren": [
+        "A7"
+      ],
+      "slug": "overlay-chay-local",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "T2; sau A7"
+    },
+    {
+      "ma": "B7",
+      "cau_giao": "Skill #1 Footage sang kho clip 9:16: nạp hoặc upload, split, transcribe-timestamp, drop, overlay phụ đề và giá, gom; conformance headless",
+      "hang": "T3",
+      "slug": "skill-1-footage-kho-clip",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "T3 vì chạm src/lib/workflow"
+    },
+    {
+      "ma": "B8",
+      "cau_giao": "Director sinh instance skill từ prompt",
+      "hang": "T3",
+      "slug": "director-sinh-instance",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "T3; có thể hạ Should ở mốc 09/10"
+    },
+    {
+      "ma": "B9",
+      "cau_giao": "Đo G0 (WER, COGS từ ảnh chụp giá) và G1 (50 clip, đổi giá chỉ overlay chạy lại, headless bằng canvas)",
+      "hang": "T2",
+      "dung_tren": [
+        "A1",
+        "A3"
+      ],
+      "slug": "do-g0-g1-lat-cat",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "T2; chờ A1 và A3"
+    },
+    {
+      "ma": "B10",
+      "cau_giao": "Cổng Giá trị của cơ hội lát cắt: phiên UAT với 3 tới 5 người dùng đại diện trên máy trắng; phán quyết release iterate kill",
+      "dung_tren": [
+        "A2",
+        "A5"
+      ],
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "làn A và B; chờ A2 và A5; ✅ khi cơ hội có verdict"
+    },
+    {
+      "ma": "A1",
+      "cau_giao": "Ký Cổng Đáng của cơ hội lát cắt: gỡ nhãn đề xuất ở U1 tới U8 và ba số G0 (WER ≤ 10%, lỗi chữ số trên câu có giá bằng 0, COGS ≤ 11 đô)",
+      "trang_thai": "✅",
+      "sao": "★",
+      "ghi_chu": "làn A · T5 · kiểm: opportunity:skill-1-footage-kho-clip"
+    },
+    {
+      "ma": "A2",
+      "cau_giao": "Chốt ngách seller thương mại điện tử hay môi giới bất động sản",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "làn A · T8"
+    },
+    {
+      "ma": "A3",
+      "cau_giao": "Corpus ít nhất 10 clip thực địa kèm bản chép tay vào measure/wer-corpus",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "làn A · T9"
+    },
+    {
+      "ma": "A4",
+      "cau_giao": "Một lượt chạy thật kèm hoá đơn",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "làn A · T11"
+    },
+    {
+      "ma": "A5",
+      "cau_giao": "Tuyển 3 tới 5 người dùng đại diện cho phiên nghiệm thu",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "làn A · T13"
+    },
+    {
+      "ma": "A6",
+      "cau_giao": "Thu hồi token PyPI toàn tài khoản, cấp lại loại hẹp theo dự án",
+      "trang_thai": "✅",
+      "ghi_chu": "làn A · T6, trước B4 · xong 08/09: token All projects (26/07) thu hồi, token phạm vi oneflow-sdk cấp mới vào .env, xác thực bằng lần tải lên bỏ-qua-nếu-đã-có bản 0.2.23 (PyPI trả đã tồn tại, exit 0)"
+    },
+    {
+      "ma": "A7",
+      "cau_giao": "Tạo kho công khai oneflow-api-compose-overlay",
+      "trang_thai": "⬜",
+      "sao": "★",
+      "ghi_chu": "làn A · T8, trước B6"
+    },
+    {
+      "ma": "S1",
+      "cau_giao": "Hạ cánh bản vá t1-escape đòi artifact hồ sơ (2 commit sẵn)",
+      "slug": "t1-escape-doi-hoi-artifact-ho-so",
+      "trang_thai": "⬜",
+      "ghi_chu": "Should; code có trước hợp đồng nên đi làn prototype keep"
+    },
+    {
+      "ma": "S2",
+      "cau_giao": "Đăng ký plugin normalize-text-vi, đóng lỗ 1.3",
+      "slug": "dang-ky-plugin-normalize-text-vi",
+      "trang_thai": "⬜",
+      "ghi_chu": "Should; cần kho plugin công khai"
+    },
+    {
+      "ma": "S3",
+      "cau_giao": "Ingest ngược về media-library (giai đoạn B của quyết định ranh giới kho)",
+      "slug": "ingest-nguoc-media-library",
+      "trang_thai": "⬜",
+      "ghi_chu": "Should; ứng viên iterate sau phiên nghiệm thu"
+    }
+  ],
+  "da_bac": [],
+  "_nguon": {
+    "tep": "oneflow:docs/roadmap.md §Kế hoạch lát cắt chứng minh, bảng plan-freeze (đọc 02/10)",
+    "so_hang": 20,
+    "truong_tu_do": [
+      "sao",
+      "ghi_chu"
+    ],
+    "thieu_bat_buoc": 0,
+    "ma_trung": [],
+    "tu_khai_ngoai": 20
+  }
+}

@@ -48,8 +48,10 @@ Khoá `lo_trinh.tep` trong `_acceptance/config.yaml` = đường dẫn tương �
 }
 ```
 
-- Bắt buộc ở hàng: `ma` · `cau_giao` · `hang`. Thiếu → cờ vàng nêu mã + trường, hàng vẫn hiện.
-- Tuỳ chọn: `vi_sao` · `dung_tren[]` · `slug` · `bat_khi` · `trang_thai`. Vắng → không cờ.
+- Bắt buộc ở hàng: `ma` · `cau_giao`. Thiếu → cờ vàng nêu mã + trường, hàng vẫn hiện.
+- Tuỳ chọn: `hang` · `vi_sao` · `dung_tren[]` · `slug` · `bat_khi` · `trang_thai`. Vắng → không cờ.
+  `hang` tuỳ chọn vì đo trên hai lộ trình crm: 6/43 hàng chưa có hạng — hàng đo, hàng vận hành, hàng
+  chưa cắt thành vòng (S3 task 1, sổ quyết định).
 - Mọi trường khác là trường tự do của kho: đọc vào, giữ nguyên, không in, không cờ.
 - `trang_thai` là lời TỰ KHAI. Bằng một tên ô của bản đồ (so không phân biệt hoa thường) → đem so với
   ô suy từ hồ sơ; khác → cờ «tệp khai khác hồ sơ». Ngoài từ vựng ô → in «tự khai: …», không cờ.

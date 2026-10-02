@@ -26,8 +26,8 @@ evals:
     paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
       exit 0; stdout có "PASS: LT-02" — thứ tự hàng == thứ tự tệp; trường tự do giữ nguyên (so sâu);
-      danh sách cờ == đúng bốn cờ mong đợi (thiếu ma ở vị trí k · thiếu cau_giao ở mã X · thiếu hang ở
-      mã Y · mã trùng Z), so đẳng thức mảng, không phép chứa; hàng thiếu trường tuỳ chọn không cờ.
+      danh sách cờ == đúng ba cờ mong đợi (thiếu ma ở vị trí k · thiếu cau_giao ở mã X · mã trùng Z), so
+      đẳng thức mảng, không phép chứa; hàng thiếu hang và hàng thiếu trường tuỳ chọn 0 cờ.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -36,9 +36,10 @@ evals:
     paths: [scripts/lo-trinh.mjs, tests/scripts/fixtures/lo-trinh/**, tests/scripts/lo-trinh.test.mjs]
     expected: >
       exit 0; stdout có "PASS: LT-03 crm-okr", "PASS: LT-03 crm-kho-tai-lieu", "PASS: LT-03 oneflow" —
-      mỗi fixture 0 cờ thiếu trường bắt buộc, số hàng == số khai trong khoá `_nguon.so_hang` của fixture,
-      mỗi trường tự do khai ở `_nguon.truong_tu_do` có mặt ở ≥1 hàng với giá trị nguyên; đối chứng
-      đỏ: bản sao fixture xoá cau_giao một hàng → đúng một cờ nêu mã đó.
+      mỗi fixture: số hàng == _nguon.so_hang; mỗi trường trong _nguon.truong_tu_do có ở ≥1 hàng với giá trị
+      nguyên; số cờ thiếu trường bắt buộc == _nguon.thieu_bat_buoc (crm-okr 4, hai khối kia 0); tập mã trùng
+      == _nguon.ma_trung (crm-okr ["T"]); "PASS: LT-03-do" — bản sao fixture xoá cau_giao một hàng đang đủ →
+      số cờ thiếu tăng đúng 1 và cờ mới nêu mã đó.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
