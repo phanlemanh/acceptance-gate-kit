@@ -408,3 +408,5 @@ viec-ke-theo-plan#ngoai-10	viec-ke-theo-plan	low	doc-drift	song			Lệnh ký b�
 viec-ke-theo-plan#ngoai-11	viec-ke-theo-plan	low	doc-drift	trung		viec-ke-theo-plan#ngoai-10	Câu 7a «chỉ đưa bản đồ nếu bước 6 vẽ lại» — trùng mục ngoai-10
 viec-ke-theo-plan#ngoai-12	viec-ke-theo-plan	low	khong-the-do	song			Chiều đỏ của LT-16-thu-tu chỉ so tiền tố thông điệp «thân signoff:»
 viec-ke-theo-plan#ngoai-13	viec-ke-theo-plan	medium	khac	song			Lệnh ký bằng chứng: làn kiểm 7b chạy trước khối vẽ lại ở 7c — khi làn chạy trọn, product_map --check có thể đỏ vì bản đồ chưa vẽ lại (có từ trước vòng này, nặng hơn)
+lan-ghim-lai-theo-paths#ngoai-1	lan-ghim-lai-theo-paths	low	khac	song			SKILL.md documents a log directory path the lane never writes [lượt chấm 1; chờ Cổng Bằng chứng]
+lan-ghim-lai-theo-paths#ngoai-2	lan-ghim-lai-theo-paths	low	khac	song			pre-merge-check.sh gained a new flag that the usage header does not list [lượt chấm 1; chờ Cổng Bằng chứng]

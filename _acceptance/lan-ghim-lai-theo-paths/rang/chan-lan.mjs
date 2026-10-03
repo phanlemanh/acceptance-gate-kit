@@ -94,7 +94,7 @@ if (chan === 'mot-nguon') {
   ok(rP.status === 2 && /staleByPaths/.test(rP.stderr), `E10 khoá paths + lib cũ → KHÔNG bỏ qua, dừng gọi tên staleByPaths (mã ${rP.status})`);
   const s = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: ", khi: 'stale_scope=paths' }", thanh: ' }' }]);
   const kS = khoO(o2, undefined); const rS = lan(LANE(s), kS, BASE, ['--skip-unchanged', '--allow-dirty']); kS.don();
-  ok(rS.status === 2, 'E10 chiều đỏ: bản sao đòi vị từ vô điều kiện → làn khoá vắng thoát 2 trên lib cũ — «khoá vắng mà đòi lib mới» được thấy');
+  ok(rS.status === 2 && /staleByPaths/.test(rS.stderr), 'E10 chiều đỏ: bản sao đòi vị từ vô điều kiện → làn khoá vắng thoát 2 GỌI TÊN staleByPaths trên lib cũ — «khoá vắng mà đòi lib mới» được thấy');
   rmSync(s, { recursive: true, force: true }); rmSync(BASE, { recursive: true, force: true });
   ket('E10');
 }

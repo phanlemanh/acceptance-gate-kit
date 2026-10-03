@@ -1367,27 +1367,35 @@ XLACS
     # là vị từ --skip-unchanged của repin-lane.mjs. Không chạy được → giữ danh sách cũ + NOTE nói vì sao.
     if [ -n "$stale" ] && [ "$STALE_SCOPE" = paths ] && [ "$STALE_ALL" -eq 0 ]; then
       _sbp_pre="$(git -C "$ROOT" rev-parse --show-prefix 2>/dev/null)"
+      # stderr của node đi RIÊNG (lượt chấm 1, t4): trộn vào stdout thì một cảnh báo của node làm
+      # bước đọc thứ hai sập, danh sách hoá cũ rỗng và cổng xanh im lặng — đúng chiều AC-5 cấm.
+      _sbp_ok=0; _sbp=""; _sbp_ly="thiếu node hoặc lib/evidence-core.cjs"
       if command -v node >/dev/null 2>&1 && [ -f "$CHU_KY_LIB" ]; then
-        _sbp="$(printf '%s\n' "$stale" | node -e '
+        _sbp_ef="$(mktemp 2>/dev/null || echo "/tmp/pmc-sbp.$$")"
+        if _sbp="$(printf '%s\n' "$stale" | node -e '
           const l=require(process.argv[1]),fs=require("fs");
           const files=fs.readFileSync(0,"utf8").split("\n").filter(Boolean);
           let ev=null; try{ev=fs.readFileSync(process.argv[2],"utf8")}catch(_){}
-          process.stdout.write(JSON.stringify(l.staleByPaths(files,ev,{prefix:process.argv[3]})));' "$CHU_KY_LIB" "$dir/evals.yaml" "$_sbp_pre" 2>&1)" && _sbp_ok=1 || _sbp_ok=0
-      else _sbp_ok=0; _sbp="thiếu node hoặc lib/evidence-core.cjs"; fi
-      if [ "$_sbp_ok" -eq 1 ] && printf '%s' "$_sbp" | grep -q '^{'; then
-        _sbp_out="$(printf '%s' "$_sbp" | node -e '
+          process.stdout.write(JSON.stringify(l.staleByPaths(files,ev,{prefix:process.argv[3]})));' "$CHU_KY_LIB" "$dir/evals.yaml" "$_sbp_pre" 2>"$_sbp_ef")"; then
+          _sbp_ok=1; _sbp_ly="đầu ra không đọc được"
+        else _sbp_ly="$(head -1 "$_sbp_ef" 2>/dev/null | cut -c1-160)"; fi
+        rm -f "$_sbp_ef"
+      fi
+      _sbp_out=""
+      [ "$_sbp_ok" -eq 1 ] && _sbp_out="$(printf '%s' "$_sbp" | node -e '
           const r=JSON.parse(require("fs").readFileSync(0,"utf8"));
           if(!r.apply){process.stdout.write("APPLY=0\n"+r.reason+"\n");process.exit(0)}
-          process.stdout.write("APPLY=1\n"+r.skipped.length+"\n"+r.skipped.slice(0,10).join(", ")+"\n"+r.kept.join("\n"));')"
-        if [ "$(printf '%s\n' "$_sbp_out" | sed -n 1p)" = "APPLY=0" ]; then
-          echo "NOTE [$slug]: bộ lọc paths không áp ($(printf '%s\n' "$_sbp_out" | sed -n 2p)) — giữ luật cũ"
-        else
-          _sbp_n="$(printf '%s\n' "$_sbp_out" | sed -n 2p)"
-          [ "$_sbp_n" -gt 0 ] && echo "NOTE [$slug]: hoá cũ theo luật cũ, bỏ qua theo paths: $_sbp_n tệp — $(printf '%s\n' "$_sbp_out" | sed -n 3p)"
-          stale="$(printf '%s\n' "$_sbp_out" | sed -n '4,$p')"
-        fi
+          process.stdout.write("APPLY=1\n"+r.skipped.length+"\n"+r.skipped.slice(0,10).join(", ")+"\n"+r.kept.join("\n"));' 2>/dev/null)"
+      _sbp_dau="$(printf '%s\n' "$_sbp_out" | sed -n 1p)"
+      if [ "$_sbp_dau" = "APPLY=0" ]; then
+        echo "NOTE [$slug]: bộ lọc paths không áp ($(printf '%s\n' "$_sbp_out" | sed -n 2p)) — giữ luật cũ"
+      elif [ "$_sbp_dau" = "APPLY=1" ]; then
+        _sbp_n="$(printf '%s\n' "$_sbp_out" | sed -n 2p)"
+        [ "$_sbp_n" -gt 0 ] && echo "NOTE [$slug]: hoá cũ theo luật cũ, bỏ qua theo paths: $_sbp_n tệp — $(printf '%s\n' "$_sbp_out" | sed -n 3p)"
+        stale="$(printf '%s\n' "$_sbp_out" | sed -n '4,$p')"
       else
-        echo "NOTE [$slug]: bộ lọc paths không chạy được ($(printf '%s' "$_sbp" | head -1 | cut -c1-160)) — giữ luật cũ"
+        # Mọi đầu ra khác (rỗng, hỏng, lỗi) = GIỮ luật cũ. Chỉ «APPLY=1» đọc được mới được bớt tệp.
+        echo "NOTE [$slug]: bộ lọc paths không chạy được (${_sbp_ly:-không rõ}) — giữ luật cũ"
       fi
     fi
     if [ -n "$stale" ]; then

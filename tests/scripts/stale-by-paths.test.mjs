@@ -25,8 +25,11 @@ ca('SBP4 paths ui-check vào hợp', () => {
 });
 ca('SBP5 evals vắng / hỏng / hợp rỗng / paths: [] → apply=false', () => {
   assert.equal(core.staleByPaths(['x'], null).reason, 'khong-co-evals');
-  assert.equal(core.staleByPaths(['x'], 'evals:\n  - id: E1\n   executor: [\n').apply, false);
+  // ghim LÝ DO, không chỉ apply:false (lượt chấm 1, t5): YAML hỏng phải ra evals-hong, không lọt nhánh khác
+  assert.equal(core.staleByPaths(['x'], 'evals:\n  - id: E1\n   executor: [script\n').reason, 'evals-hong');
+  assert.equal(core.staleByPaths(['x'], Y(ev('E1', 'script', '    paths: ["src/**"]\n')) + '  - id: E2\n    executor: [script\n').reason, 'evals-hong', 'một eval hỏng cạnh eval lành vẫn là hỏng');
   assert.equal(core.staleByPaths(['x'], Y(ev('E1', 'judgment', ''))).reason, 'hop-paths-rong');
+  assert.equal(core.staleByPaths(['x'], null).apply, false);
   assert.match(core.staleByPaths(['x'], Y(ev('E1', 'script', '    paths: []\n'))).reason, /eval-may-thieu-paths:E1/);
 });
 ca('SBP6 ba cách viết paths cùng kết luận', () => {

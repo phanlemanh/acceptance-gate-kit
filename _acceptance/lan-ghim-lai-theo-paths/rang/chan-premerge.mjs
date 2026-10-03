@@ -88,7 +88,11 @@ if (chan === 'doc-cu') {
 } else if (chan === 'hinh-ho-so') {
   // E4 — M4…M12 dưới khoá paths đúng cột Kỳ vọng; năm mutant trên lib.
   const KY = { M4: 'cu', M5: 'loc', M6: 'hoa-cu', M7: 'cu', M8: 'cu', M9: 'loc', M10: 'loc', M11: 'loc', M12: 'cu' };
-  const ketLuan = (engine, id) => { const k = khoO(O[id], 'paths'); const r = pm(engine, k); k.don(); return coStale(r.out) ? 'stale' : 'loc'; };
+  const ketLuanDu = (engine, id) => { const k = khoO(O[id], 'paths'); const r = pm(engine, k); k.don(); return { t: coStale(r.out) ? 'stale' : 'loc', out: r.out }; };
+  const ketLuan = (engine, id) => ketLuanDu(engine, id).t;
+  // ghim LÝ DO lưới in ra (lượt chấm 1, t5): «giữ luật cũ» phải vì đúng nhánh của ô, không nhánh khác.
+  const LY_DO = { M4: 'eval-may-thieu-paths:E1', M7: 'khong-co-evals', M8: 'evals-hong', M12: 'hop-paths-rong' };
+  for (const [id, ly] of Object.entries(LY_DO)) { const r = ketLuanDu(KIT, id); ok(r.out.includes(`NOTE [feat]: bộ lọc paths không áp (${ly}) — giữ luật cũ`), `E4 ${id}: NOTE gọi đúng lý do «${ly}»`); }
   const muon = (ky) => (ky === 'loc' ? 'loc' : 'stale');
   let n = 0;
   for (const [id, ky] of Object.entries(KY)) { const t = ketLuan(KIT, id); ok(t === muon(ky), `E4 ${id} (${ky}) → ${t}`); n++; }
@@ -97,6 +101,7 @@ if (chan === 'doc-cu') {
     { pin: 'im ô ngoài làn máy', o: 'M6', sua: [{ tep: LIB, tu: '    globs.push(...p);', thanh: '    if (isRepinMachineEval(e)) globs.push(...p);' }] },
     { pin: 'eval máy thiếu paths', o: 'M4', sua: [{ tep: LIB, tu: "if (!p) { if (isRepinMachineEval(e)) return cu(`eval-may-thieu-paths:${e.id}`); continue; }", thanh: 'if (!p) { continue; }' }] },
     { pin: 'hợp rỗng thành im', o: 'M12', sua: [{ tep: LIB, tu: "if (!globs.length) return cu('hop-paths-rong');", thanh: 'if (!globs.length) return { apply: true, reason: null, kept: [], skipped: all };' }] },
+    { pin: 'tệp hỏng thành im', o: 'M8', sua: [{ tep: LIB, tu: "return cu('evals-hong');\n  const globs", thanh: "return { apply: true, reason: null, kept: [], skipped: all };\n  const globs" }] },
     { pin: 'not-run chặn lọc', o: 'M5', sua: [{ tep: LIB, tu: "if (!p) { if (isRepinMachineEval(e)) return", thanh: "if (!p) { if (['test', 'script'].includes(String(e.executor).trim())) return" }] },
     { pin: 'bộ đọc paths một dạng', o: 'M10', sua: [{ tep: LIB, tu: '    if (!v) { seq = []; continue; }', thanh: '    if (!v) return null;' }] },
   ];
@@ -121,6 +126,14 @@ if (chan === 'doc-cu') {
   const coNode = spawnSync('bash', ['-c', 'command -v node'], { env: { PATH: '/usr/bin:/bin' } }).status === 0;
   ok(coNode || (coStale(r3.out) && noteKhong(r3.out)), `E5 thiếu node → VẪN hoá cũ + NOTE (${coNode ? 'máy có node ở /usr/bin — vế này không áp' : 'đã đo'})`);
   ok(r1.st !== 0 && r2.st !== 0, `E5 mã thoát khác 0 khi bộ lọc không chạy (${r1.st}, ${r2.st})`);
+  // (iv) node in CẢNH BÁO ra stderr (lượt chấm 1, t4): tệp TRONG paths vẫn phải hoá cũ, không bị xoá im.
+  const wf = path.join(k.R, '..', path.basename(k.R) + '-warn.cjs'); writeFileSync(wf, "process.emitWarning('canh-bao-thu');\n");
+  const k1 = khoO(O.M1, 'paths');
+  const r4 = pm(KIT, k1, [], { NODE_OPTIONS: `--require ${wf}` });
+  ok(coStale(r4.out) && JSON.stringify(staleCua(r4.out)) === JSON.stringify(['src/a.js']), `E5 node in cảnh báo → src/a.js VẪN hoá cũ (${JSON.stringify(staleCua(r4.out))})`);
+  const s4 = sao([{ tep: PM, tu: '2>"$_sbp_ef")"; then', thanh: '2>&1)"; then' }, { tep: PM, tu: '      elif [ "$_sbp_dau" = "APPLY=1" ]; then', thanh: '      elif [ "$_sbp_dau" != "APPLY=0" ]; then' }]);
+  ok(!coStale(pm(s4, k1, [], { NODE_OPTIONS: `--require ${wf}` }).out), 'E5 chiều đỏ: bản sao trộn stderr + coi mọi đầu ra là APPLY=1 → src/a.js bị xoá im — «đầu ra hỏng thành im» được thấy');
+  k1.don(); don(s4); rmSync(wf, { force: true });
   const s3 = sao([{ tep: LIB, tu: 'function staleByPaths(staleFiles, evalsText, opts = {}) {', thanh: "function staleByPaths(staleFiles, evalsText, opts = {}) { throw new Error('tiem-loi');" },
     { tep: PM, tu: '        echo "NOTE [$slug]: bộ lọc paths không chạy được', thanh: '        stale=""; echo "NOTE [$slug]: bộ lọc paths không chạy được' }]);
   ok(!coStale(pm(s3, k).out), 'E5 chiều đỏ: bản sao nuốt lỗi rồi trả danh sách rỗng → im — «rơi về im khi lỗi» được thấy');

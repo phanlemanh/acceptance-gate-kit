@@ -57,7 +57,8 @@ if (chan === 'song-song') {
   const sao = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: '  return cmds.map((c, i) => {', thanh: '  return [...cmds].sort((a, b) => ((xong.get(a) || { ms: 0 }).ms - (xong.get(b) || { ms: 0 }).ms)).map((c, i) => {' }]);
   const kM = kho(CA[2].s, true), kR = kho(CA[2].s, false);
   const m = chay(sao, kM), r = chay(KIT, kR);
-  ok(JSON.stringify(m.suites) !== JSON.stringify(r.suites), `E8 chiều đỏ: bản sao xếp theo lúc xong ${JSON.stringify(m.suites)} ≠ nối đuôi ${JSON.stringify(r.suites)} — «thứ tự theo lúc xong» được thấy`);
+  const hoanVi = (a, b) => Array.isArray(a) && Array.isArray(b) && JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+  ok(m.st === r.st && hoanVi(m.suites, r.suites) && JSON.stringify(m.suites) !== JSON.stringify(r.suites), `E8 chiều đỏ: bản sao chạy trọn (mã ${m.st}) nhưng xếp theo lúc xong ${JSON.stringify(m.suites)} — hoán vị khác thứ tự ${JSON.stringify(r.suites)} — «thứ tự theo lúc xong» được thấy`);
   kM.don(); kR.don(); rmSync(sao, { recursive: true, force: true });
   ket('E8');
 } else if (chan === 'loi-khong-xen') {
