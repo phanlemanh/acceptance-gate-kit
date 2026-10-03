@@ -1,80 +1,91 @@
-# Review findings: lan-ghim-lai-theo-paths (round 3)
+# Review findings: lan-ghim-lai-theo-paths (round 4)
 
 ## Trong hợp đồng
 
-- **Shape 3: E10 'paths key absent + old lib → same as base' is checked by exit code 0 alone, not by comparing against base**
-  file: `_acceptance/lan-ghim-lai-theo-paths/rang/chan-lan.mjs:93` — severity: medium — AC: AC-10 — source: measurement
-  detail: evals.yaml E10 promises a relation: 'Ô lib vắng / lib ném lỗi: khoá vắng → y như base' (with the lib missing or throwing and the key absent, output must be identical to the base). The code only runs the current tree with --ag-root BASE and asserts `rV.status === 0` (line 93). It never runs the base lane on the same fixture to compare stdout/stderr/run-log, as the 12-cell loop just above does with chay(KIT)/chay(BASE). A lane that still exits 0 but changes its output (an extra line, a different skip decision) on an old lib stays green. The 'lib ném lỗi' (lib throws) cell named in the promise has no case at all; only 'old lib lacking the function' is measured.
-  Lý do vào hợp đồng: AC-10 đòi khi lib vắng hoặc ném lỗi mà khoá vắng thì làn chạy y như base; phép đo chỉ kiểm mã thoát 0 và không có ca lib ném lỗi, nên vế này của AC-10 chưa được chứng.
+- **Hình dạng 5: ô M9 «paths một dòng [a, b]» trong ma trận viết trước thực chất là bản sao byte-đúng của M2**
+  file: `_acceptance/lan-ghim-lai-theo-paths/rang/ma-tran.mjs:22`
+  severity: medium
+  source: measurement
+  AC: AC-4
+  detail: Contract khai M9 là `paths` viết một dòng `[a, b]` (hai phần tử) và là một trong «ba cách viết» mà AC-4 hứa cho cùng kết luận. Nhưng `MA_TRAN` cho M9 đúng `Y(ev('E1','script',P('src/**')))` với diff `['lib2/b.js']` và kỳ vọng 'loc', trùng hệt M2 ở dòng 20. Không ô nào có mảng một dòng nhiều phần tử mà kết luận phụ thuộc phần tử thứ hai. M3 có hai glob, nhưng cả hai tệp của nó đều bị luật cũ loại, nên kết luận không đổi dù bộ đọc bỏ phần tử sau. Một bộ đọc chỉ lấy phần tử đầu của mảng một dòng vẫn qua đủ 15/15 ô ở E3, E4, E7 và E10. Ma trận đếm đúng 15 phần tử nhưng phần tử M9 không hiện thân hình dạng nó khai.
+  rationale: AC-4 dịch danh ở M9 (paths viết một dòng hai phần tử) là một trong ba cách viết phải cho cùng kết luận, nhưng ma trận cài đặt không thể hiện đúng hình dạng đó.
+
+- **Hình dạng 5: ô M12 «hợp paths RỖNG» không chạm nhánh hợp-rỗng; mutant «hợp rỗng thành im» mà AC-4 khai không có trong răng**
+  file: `_acceptance/lan-ghim-lai-theo-paths/rang/ma-tran.mjs:25`
+  severity: low
+  source: measurement
+  AC: AC-4
+  detail: M12 = một eval `judgment` không `paths`, không `not-run`. Trong `staleByPaths` (lib/evidence-core.cjs:453), ô này trả về `eval-ngoai-may-thieu-paths:E1` trước khi tới `if (!globs.length) return cu('hop-paths-rong')` (dòng 458). chan-premerge.mjs cũng tự ghim LY_DO M12 = 'eval-ngoai-may-thieu-paths:E1', tức M12 đi cùng nhánh với M13. Vì vậy không ô nào của ma trận ở tầng lưới trước-gộp tới được nhánh hợp-rỗng. Danh sách mutant E4 cũng chỉ có 'tệp hỏng thành im' trên M8, không có cặp «hợp rỗng thành im» trên M12 như AC-4 khai. Nhánh này chỉ được chạm ở unit SBP5 của tests/scripts/stale-by-paths.test.mjs, không qua lưới thật.
+  rationale: AC-4 khai rõ cặp đỏ cho ô M12 và bản sao «hợp rỗng thành im», mà răng không có mutant đó và ô M12 đi vào nhánh khác.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Under stale_scope: paths, changes covered only by ui-check/judgment evals without `paths` are silently dropped**
-  Người dùng thấy gì: Nếu một hồ sơ chỉ có kiểm tra giao diện hoặc đánh giá bằng người mà không khai phạm vi, thay đổi vào phần đó vẫn bị coi là 'hồ sơ còn mới', nên bằng chứng cũ có thể được thông qua dù phần được đo đã đổi.
-  file: `lib/evidence-core.cjs`
+- **Re-pin lane now holds two readers of the same `paths:` field that disagree; the comment and blank-line fixes went into the new one only**
+  Người dùng thấy gì: Khi kho bat che do loc theo phan do, mot so cach viet khai bao pham vi (co chu thich cuoi dong, hoac co dong trong) van duoc doc day du o buoc quyet dinh chay lai, nhung o buoc ghi chu sau khi chay lai thi doc thieu. Hau qua: ban ghi co the khong bao rang phan do ngoai may da thay doi, nen nguoi doc co the bo qua mot thay doi dang chu y.
+  file: `feature-loop/scripts/repin-lane.mjs`
   severity: medium
-  Đề xuất: new-contract
+  Đề xuất: known-limits
 
-- **SKILL staleness guard still says it runs «cùng luật» as CI, but ignores risk_tiers.stale_scope: paths**
-  Người dùng thấy gì: Ở kho bật khoá, CI báo hồ sơ còn mới nhưng phiên làm việc vẫn mở lại vòng kiểm khi chỉ tệp ngoài phạm vi đổi, nên phần tiết kiệm công sức chỉ có ở CI và làn, không có ở phiên.
-  file: `feature-loop/skills/feature-loop/SKILL.md`
+- **acceptance-init config template: new `repin_parallel_suites` line splits `ship_default` from its continuation comment**
+  Người dùng thấy gì: Trong mau cau hinh de cac kho sao chep, loi giai thich ve cach giao hang nam duoi dong cua tuy chon chay song song, nen nguoi doc de hieu nham tuy chon nay lam gi.
+  file: `commands/acceptance-init.md`
   severity: low
   Đề xuất: known-limits
 
-- **AG_FLOOR now includes the conditional staleByPaths row, so the engine-stop message asks every repo for ≥ 2.21.0**
-  Người dùng thấy gì: Kho không bật khoá, khi engine cũ thiếu một phần khác, sẽ được nhắc nâng lên bản mới nhất thay vì bản tối thiểu thật sự cần; chỉ sai lời hướng dẫn, không đổi kết quả chạy.
+- **pre-merge-check.sh usage header leaves out the new `--stale-all` flag**
+  Người dùng thấy gì: Co ep dung luat cu khi chay chien dich phat hanh chua duoc ghi o phan huong dan nguoi dung doc dau tien, nen nguoi van hanh co the khong biet co no.
+  file: `scripts/pre-merge-check.sh`
+  severity: low
+  Đề xuất: known-limits
+
+- **Path filter skips files inside a `paths` entry written as a folder with no wildcard, so evidence wrongly stays fresh**
+  Người dùng thấy gì: Neu mot ho so khai pham vi do bang ten thu muc tran (khong dau sao) va kho bat che do loc, thi sua ma ngay trong thu muc do van khong lam bang chung bi coi la cu. Cong co the cho qua sach du ma dang duoc do da doi, va lan ghi lai bi bo qua.
+  file: `lib/evidence-core.cjs`
+  severity: high
+  Đề xuất: new-contract
+
+- **Parallel suite mode joins raw output chunks as text, which garbles multibyte UTF-8 characters in the full log**
+  Người dùng thấy gì: Khi bat che do chay song song, chu tieng Viet co dau trong nhat ky loi day du co the bi vo thanh ky tu loi, nen doc lai loi cua suite do khong con nguyen ven.
   file: `feature-loop/scripts/repin-lane.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **A comment after `paths:` makes the paths filter skip every changed file, so stale evidence passes**
-  Người dùng thấy gì: Nếu kho đã bật khoá và viết chú thích ngay sau dòng khai phạm vi, mọi thay đổi đều bị coi là ngoài phạm vi và bằng chứng cũ được thông qua mà chỉ có một ghi chú nhỏ báo lại.
-  file: `lib/evidence-core.cjs`
-  severity: medium
-  Đề xuất: new-contract
-
-- **A blank or comment line inside a `paths:` block list silently drops the later globs**
-  Người dùng thấy gì: Nếu danh sách phạm vi có dòng trống giữa chừng, các mục sau dòng đó bị bỏ qua và thay đổi ở đó có thể bị coi là không ảnh hưởng hồ sơ; hiện chưa kho nào viết như vậy.
-  file: `lib/evidence-core.cjs`
-  severity: low
-  Đề xuất: known-limits
-
-- **Two failure-direction (`chiều đỏ`) checks in E3 only assert that nothing was written, so a copy that crashed also passes**
-  Người dùng thấy gì: Một vài phép thử chiều đỏ của việc giữ trọn lời lỗi có thể báo 'bắt được' dù bản thử chỉ bị hỏng giữa chừng, nên độ tin của chúng thấp hơn vẻ ngoài.
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs`
-  severity: low
-  Đề xuất: known-limits
-
-- **banBase hides a git archive failure: a missing pin commit yields an empty base directory**
-  Người dùng thấy gì: Khi bản gốc để so sánh không lấy được (ví dụ kho clone nông trên CI), các phép thử sẽ đỏ với lý do gây hiểu lầm là thay đổi sai thay vì báo thiếu bản gốc.
+- **banBase drops git archive errors (no pipefail), so the comparison base can be an empty folder without saying why**
+  Người dùng thấy gì: Khi ban doi chung khong lay duoc tu lich su, bo kiem tra van chay tren thu muc rong va bao do vi mot ly do sai, nen kho phan biet loi cua san pham voi loi cua moi truong thu.
   file: `_acceptance/lan-ghim-lai-theo-paths/rang/ban-base.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Shape 5: the matrix row-count checks in lmtl-the.test.mjs only count the array against itself, so they can never fail (no pre-written number)**
-  Người dùng thấy gì: Phép thử lẽ ra giữ cho bảng tình huống không bị mất dòng lại không thể đỏ, nên xoá một dòng khỏi bảng vẫn được báo xanh.
-  file: `tests/scripts/lmtl-the.test.mjs`
-  severity: high
-  Đề xuất: new-contract
-
-- **Shape 4: red-direction mutants in the lan-ghim-lai-giu-tron-loi-loi checks count 'copy crashed' as 'caught', with no positive sign that the copy reached the step**
-  Người dùng thấy gì: Nhiều phép thử chiều đỏ của việc giữ trọn lời lỗi coi 'bản thử bị hỏng' là 'đã bắt được lỗi', nên có thể xanh trong khi chưa thật sự chạy tới bước cần kiểm.
+- **Hình dạng 4 (âm-tính-một-mình) ở chiều đỏ E3/E7 của bộ răng giu-tron-loi-loi: bản sao sập cũng được tính là «đã bắt»**
+  Người dùng thấy gì: Mot so phep thu canh bao cua tinh nang lan ghi lai chi ket luan 'da bat duoc' khi khong thay dong ghi nao, nen neu ban thu tu sap thi van tinh la dat. Do tin cay cua mau xanh o do thap hon ve ngoai.
   file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Shape 4: the repin-lane reader in bộ-đọc-im has no positive control showing it reads the run log, and the red-direction check only asserts 'differs' without pinning a message**
-  Người dùng thấy gì: Phép thử xác nhận làn đọc đúng nhật ký chạy chưa có đối chứng dương, nên có thể xanh dù làn không hề đọc nhật ký.
+- **Hình dạng 4 (âm-tính-một-mình) ở chiều đỏ E1 và E6: không có dấu sống của bản sao, không ghim thông điệp**
+  Người dùng thấy gì: Mot so phep thu cua tinh nang giu loi nhat ky van dat ke ca khi ban thu bi sap truoc khi chay, nen khong chung minh duoc phep thu thuc su bat duoc loi.
+  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-nhat-ky.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 4 ở các ca đột biến của lmtl-the: «đỏ đúng hàng» chỉ ghim tiền tố tên hàng, nên lỗi hạ tầng cũng tính là bắt được**
+  Người dùng thấy gì: Cac phep thu doi chung cua the quyet dinh co the van xanh khi ban thu bi hong ha tang, nen mau xanh o do chua chung minh phep thu bat dung loi.
+  file: `tests/scripts/lmtl-the.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 5 (ma trận tự đếm): LT-AC7-mot-nguon tính số chuỗi mong đợi từ chính đối tượng đang đo**
+  Người dùng thấy gì: Phep dem so loi ra tren the quyet dinh tu lay so mong doi tu chinh du lieu dang do, nen neu mat mot lua chon thi phep thu van xanh.
+  file: `tests/scripts/lmtl-the.test.mjs`
+  severity: low
+  Đề xuất: new-contract
+
+- **Hình dạng 5: E4 tuyên «MỌI bộ đọc run-log» nhưng cách rút bằng grep chuỗi bỏ sót carry-plan.mjs, còn hàng s4-args lại tắt đường carry**
+  Người dùng thấy gì: Phep quet 'moi cho doc nhat ky' bo sot mot cong cu doc nhat ky. Hien cong cu do khong bi anh huong, nhung phep quet chua chung minh duoc dieu do.
   file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-bo-doc.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Shape 4: E3 chi-thu takes the ⊆ relation and M3 'not stale' on the healthy tree with no sign the merge gate reached the record**
-  Người dùng thấy gì: Nếu cổng trước-merge dừng sớm mà không xử lý hồ sơ, một số phép thử quan hệ tập con vẫn xanh vì chúng đúng một cách hiển nhiên khi danh sách rỗng.
-  file: `_acceptance/lan-ghim-lai-theo-paths/rang/chan-premerge.mjs`
-  severity: low
-  Đề xuất: known-limits
-
-⚠ Cụm ngoài vùng phủ: 8/12 lỗi rơi vào file không bộ đo nào phủ (feature-loop/skills/feature-loop/SKILL.md, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs, _acceptance/lan-ghim-lai-theo-paths/rang/ban-base.mjs, tests/scripts/lmtl-the.test.mjs, _acceptance/lan-ghim-lai-theo-paths/rang/chan-lan.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-bo-doc.mjs, _acceptance/lan-ghim-lai-theo-paths/rang/chan-premerge.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 9/13 lỗi rơi vào file không bộ đo nào phủ (commands/acceptance-init.md, _acceptance/lan-ghim-lai-theo-paths/rang/ban-base.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-nhat-ky.mjs, tests/scripts/lmtl-the.test.mjs, _acceptance/lan-ghim-lai-theo-paths/rang/ma-tran.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-bo-doc.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
