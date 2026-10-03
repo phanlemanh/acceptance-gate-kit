@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d24b42beed5a914393881df59699dfc510c4f68c
+verified_commit: 8a8ea2d84361be894137d031aad82a7881931713
 human_signoff: Phan Le Manh 2026-10-03
 ---
 
@@ -187,3 +187,7 @@ none — mọi eval nhiều lần chạy đều đồng đều (không eval nào
 
 Round 1: cả chín eval máy (E1–E9) xanh và đều red trên baseline, nhưng khâu tìm lỗi giữ một phát hiện trong hợp đồng mức high ở AC-1 (hàng 6 của ma trận chỉ đo nửa «SUITE-*», chưa có assert nào cho vế «id ngoài evals.yaml») nên phán quyết REJECT, failed_evals để trống vì không eval nào đỏ. Trả về thi công để thêm hàng đo cho vế còn thiếu và một đột biến chỉ gỡ vế đó.
 Round 2: thêm hàng 6b vào ma trận AC-1 (nay mười hàng) cùng đột biến bo-loc-ngoai-evals; cả chín eval máy xanh và đều red trên baseline, không còn phát hiện trong hợp đồng nên phán quyết PASS. Ba phát hiện mức thấp ngoài hợp đồng (hai trong số đó là cùng một lệch «chín hàng» so với mười hàng) cùng một mục mang từ round 1 chuyển sang review-findings.md cho người quyết ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-03, do hoá cũ do merge main (#246 lộ trình) vào nhánh PR #247
+run_id: repin-20261003T015721Z-66467
+sha: 8a8ea2d84361be894137d031aad82a7881931713 · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng

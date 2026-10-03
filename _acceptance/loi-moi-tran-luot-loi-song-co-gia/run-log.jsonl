@@ -52,3 +52,4 @@
 {"ts":"2026-10-02T23:57:05Z","sha":"d24b42beed5a914393881df59699dfc510c4f68c","round":2,"kind":"round-tally","verdict":"PASS","expected":13,"returned":13,"blocked":0}
 {"ts":"2026-10-02T23:57:05Z","sha":"d24b42beed5a914393881df59699dfc510c4f68c","round":2,"kind":"chot-truong-nguoi","human_signoff":0,"human_override":0,"bypass_ack":0,"verified_at":19}
 {"kind":"thuoc-vat","ts":"2026-10-03T00:25:05Z","round":2,"san":"c010066ddc7fb707db4ded249461c4b4c6770e1d","vat":[5,0],"thuoc":[5,3],"ho_so":[294,0],"nhat":0,"lan":1,"tep_thuoc":["_acceptance/config.yaml","_acceptance/loi-moi-tran-luot-loi-song-co-gia/evals.yaml"]}
+{"ts":"2026-10-03T01:57:21Z","kind":"repin","run_id":"repin-20261003T015721Z-66467","sha":"8a8ea2d84361be894137d031aad82a7881931713","suites_exit":[0,0,0,0,0,0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E7":0,"E8":0,"E9":0}}
