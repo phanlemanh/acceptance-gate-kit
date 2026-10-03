@@ -190,3 +190,4 @@
 {"ts":"2026-10-02T22:54:36Z","sha":"58dbe3a1563cabf8303df7a40cca362623f06510","round":5,"kind":"round-tally","verdict":"PASS","expected":11,"returned":11,"blocked":0}
 {"ts":"2026-10-02T22:54:36Z","sha":"58dbe3a1563cabf8303df7a40cca362623f06510","round":5,"kind":"chot-truong-nguoi","human_signoff":0,"human_override":0,"bypass_ack":0,"verified_at":26}
 {"kind":"thuoc-vat","ts":"2026-10-02T23:16:41Z","round":5,"san":"3fcaccd253ed51603d1f86269b95afdc9d7f5b52","vat":[325,59],"thuoc":[53,8],"ho_so":[719,14],"nhat":2,"lan":1,"tep_thuoc":["_acceptance/viec-ke-theo-plan/evals.yaml"]}
+{"ts":"2026-10-03T08:11:54Z","kind":"repin","run_id":"repin-20261003T081154Z-25025","sha":"0ea3503948e25932927b9f4432520c02dd76d2eb","suites_exit":[0,0,0,0,0,0,0,0,0,0],"evals_exit":{"E1":0,"E2":0,"E3":0,"E4":0,"E5":0,"E6":0,"E7":0,"E8":0,"E9":0,"E10":0,"E11":0,"E12":0,"E13":0,"E15":0,"E16":0,"E17":0,"E18":0},"evals_not_machine":["E14"],"evals_not_machine_touched":["E14"]}
