@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cd8fa89f1057836c2b4b6d35e67f31a6ad45c5b4
+verified_commit: 5c6f2f482432b385cd4140557b251f90d668a8ec
 human_signoff: Manh 2026-08-25
 ---
 
@@ -346,3 +346,7 @@ sha: 1b98fdb1d9d9066bb35bdb936c0f7599e481da68 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 23 — 2026-10-03, do hồ sơ kéo vào diff PR #246 khi khai hai tệp ca lộ trình vào khối gạch
 run_id: repin-20261003T000341Z-89512
 sha: cd8fa89f1057836c2b4b6d35e67f31a6ad45c5b4 · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 24 — 2026-10-03, do chiến dịch ghim lại mốc 2.21.0
+run_id: repin-20261003T125505Z-37851
+sha: 5c6f2f482432b385cd4140557b251f90d668a8ec · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

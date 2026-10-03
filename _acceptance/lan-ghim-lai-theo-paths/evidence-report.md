@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6da5c214d099be1456a267ef60457d03d4b86e9e
+verified_commit: 5c6f2f482432b385cd4140557b251f90d668a8ec
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -203,3 +203,7 @@ Round 4: Cổng 2 trả lại; sau vá ba chỗ bộ lọc paths mở khi lỗi 
 ### Re-pin lần 1 — 2026-10-03, do hoá cũ do gộp origin/main (lo-trinh-tren-du-lieu-that)
 run_id: repin-20261003T104357Z-15410
 sha: 6da5c214d099be1456a267ef60457d03d4b86e9e · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-03, do chiến dịch ghim lại mốc 2.21.0
+run_id: repin-20261003T125505Z-37851
+sha: 5c6f2f482432b385cd4140557b251f90d668a8ec · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng

@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8a8ea2d84361be894137d031aad82a7881931713
+verified_commit: 5c6f2f482432b385cd4140557b251f90d668a8ec
 human_signoff: Phan Le Manh 2026-10-03
 ---
 
@@ -191,3 +191,7 @@ Round 2: thêm hàng 6b vào ma trận AC-1 (nay mười hàng) cùng đột bi�
 ### Re-pin lần 1 — 2026-10-03, do hoá cũ do merge main (#246 lộ trình) vào nhánh PR #247
 run_id: repin-20261003T015721Z-66467
 sha: 8a8ea2d84361be894137d031aad82a7881931713 · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-03, do chiến dịch ghim lại mốc 2.21.0
+run_id: repin-20261003T125505Z-37851
+sha: 5c6f2f482432b385cd4140557b251f90d668a8ec · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
