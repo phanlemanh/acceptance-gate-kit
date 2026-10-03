@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0ea3503948e25932927b9f4432520c02dd76d2eb
+verified_commit: ddccc203a459b606bbf7b063adb0ae881fb1289c
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -309,3 +309,7 @@ Round 5: sau «trả» lần hai (AC-16 thắt chặt) trên commit 58dbe3a1; E1
 ### Re-pin lần 1 — 2026-10-03, do vật lộ trình đổi ở vòng lo-trinh-tren-du-lieu-that (so theo nhóm, nhiều lộ trình, mở ô từ hàng)
 run_id: repin-20261003T081154Z-25025
 sha: 0ea3503948e25932927b9f4432520c02dd76d2eb · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · diff chạm vật đo ngoài làn máy: E14 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-14
+
+### Re-pin lần 2 — 2026-10-03, do gộp origin/main (34 commit) vào nhánh PR #252
+run_id: repin-20261003T081411Z-52013
+sha: ddccc203a459b606bbf7b063adb0ae881fb1289c · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14
