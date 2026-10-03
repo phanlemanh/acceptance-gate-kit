@@ -1147,7 +1147,7 @@ if (want('LT-77 mot-tep-byte')) {
 if (want('LT-77-do')) {
   try {
     const sai = await lt77(banSao([['scripts/lo-trinh.mjs', "const ke = dong.find(d => chuaLam.has(d.chu) && duDieuKien(d)) || null;", 'const ke = dong[0] || null;']]));
-    const g = sai.find(m => m.startsWith('một tệp:'));
+    const g = sai.find(m => m === 'một tệp: lớp phân tích khác bản trước vòng');
     if (g) ok('LT-77-do', `bản sao đổi luật hàng kế: «${g}»`); else bad('LT-77-do', `không bắt: ${JSON.stringify(sai)}`);
   } catch (e) { bad('LT-77-do', loi(e)); }
 }
@@ -1355,19 +1355,23 @@ const mucLT = (html, i) => { const m = html.match(new RegExp(`<section id="lt${i
 const cacId = html => new Set([...html.matchAll(/ id="([^"]+)"/g)].map(m => m[1]));
 const NHAN_THE = ['Làm tiếp', 'Cần sửa trong kế hoạch', 'Mốc kế tiếp', 'Tiến độ'];
 // Các hàng của một mục, đọc từ HTML: [id, mã, câu việc giao].
-const hangMuc = muc => [...(muc || '').matchAll(/<tr id="([^"]+)"><td data-nhan="Mã">([^<]*)<\/td>(?:<td data-nhan="Việc giao">([\s\S]*?)<\/td>)?/g)].map(m => [m[1], giaiMa(m[2]), chuTron(m[3] || '')]);
+const hangMuc = muc => [...(muc || '').matchAll(/<tr id="([^"]+)"><td data-nhan="Mã">([^<]*)<\/td>(?:<td data-nhan="Việc giao">([\s\S]*?)<\/td>)?[\s\S]*?<span class="tt[^"]*">([^<]*)<\/span>/g)].map(m => [m[1], giaiMa(m[2]), chuTron(m[3] || ''), giaiMa(m[4])]);
+const TEN_CHUA = new Set([LT.CHUA_MO, ...LT.CHUA_LAM_O.map(k => Object.fromEntries(PMM.SECTIONS)[k])]);
 // Neo của hàng ĐẦU mang mã (liên kết từ chỗ cần sửa), và neo của hàng kế (mã + câu giao — mã trùng thì
 // không lấy hàng đầu).
 const neoDau = (muc, ma) => (hangMuc(muc).find(h => h[1] === String(ma)) || [])[0];
-const neoKe = (muc, ma, cau) => { const c = hangMuc(muc).filter(h => h[1] === String(ma)); return ((c.length > 1 ? c.find(h => h[2].startsWith(cau)) : c[0]) || [])[0]; };
+// Hàng kế đọc từ bảng: cùng mã, cùng câu, trạng thái thuộc nhóm chưa làm (luật chọn hàng kế viết lại ở đây).
+const neoKe = (muc, ma, cau) => { const c = hangMuc(muc).filter(h => h[1] === String(ma)); return ((c.length > 1 ? c.find(h => h[2].startsWith(cau) && TEN_CHUA.has(h[3])) : c[0]) || [])[0]; };
 // Hàng ghi trạng thái ngoài bảng từ, gom theo từ: [từ, [nhãn hàng]] theo thứ tự gặp.
 const muaKhai = kq => { const g = new Map(); for (const d of kq.dong) if (d.khaiNgoai) { if (!g.has(d.tuKhai)) g.set(d.tuKhai, []); g.get(d.tuKhai).push(String(d._nhan)); } return [...g]; };
 const cauKhai = ([w, ma]) => `kế hoạch ghi «${w}» ở ${ma.length} việc — máy không hiểu trạng thái này, thêm từ này vào bảng từ trạng thái (việc ${ma.join(', ')})`;
 const khoKT = {}; const khoTT = ten => (khoKT[ten] ||= KT.dungKho(ten, path.join(TMP, 'kt')));
 const phanKho = (M, r) => M.LT.phanTichKho({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS });
 const chayCa = async (id, f, kit = KIT) => { try { const s = await f(kit); if (s.length) bad(id, s.join(' ; ')); else return true; } catch (e) { bad(id, loi(e)); } return false; };
+// Chiều đỏ: bản lành (cây đang kiểm) PHẢI xanh trước, rồi CHÍNH hàm đo chạy trên bản sao bị tiêm.
 const chayDo = async (id, f, tiem, ghim, moTa) => {
   try {
+    const lanh = await f(KIT); if (lanh.length) { bad(id, `bản lành chưa xanh — không tin được chiều đỏ: ${lanh[0]}`); return; }
     const s = await f(banSao(tiem)); const g = s.find(m => m.includes(ghim));
     if (g) ok(id, `${moTa}: hàm đo trả «${g.slice(0, 110)}»`); else bad(id, `không bắt (cần «${ghim}»): ${JSON.stringify(s).slice(0, 200)}`);
   } catch (e) { bad(id, loi(e)); }
@@ -1377,8 +1381,9 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
 async function lt90(kit) {
   const M = await napLT(kit); const sai = [];
   const KHO_90 = { 'ma-trung-ke': () => kho({ data: { schema: 1, hang: [H('T', { cau_giao: '«một»', trang_thai: 'Đã giao' }), H('T', { cau_giao: '«hai»' })] } }),
+    'ma-trung-dang-lam': () => kho({ hoSo: { s: 'dang-dung' }, data: { schema: 1, hang: [H('T', { cau_giao: '«x»', slug: 's' }), H('T', { cau_giao: '«x»' })] } }),
     'khong-ma': () => kho({ data: { schema: 1, hang: [{ cau_giao: '«việc chưa đặt mã»' }] } }) };
-  for (const ten of ['hai-lo-trinh', 'loi-tep', 'rong', 'ma-trung-ke', 'khong-ma']) {
+  for (const ten of ['hai-lo-trinh', 'loi-tep', 'rong', 'ma-trung-ke', 'ma-trung-dang-lam', 'khong-ma']) {
     const r = KHO_90[ten] ? KHO_90[ten]() : khoTT(ten); const html = veM(M, r); const ids = cacId(html); const k = phanKho(M, r);
     const j = JSON.parse(quet(r, { ACCEPTANCE_TODAY: '2026-10-03' }, kit).stdout).loTrinh;
     const the = cacThe(html);
@@ -1399,16 +1404,17 @@ async function lt90(kit) {
       }
       const nco = t.kq.co.length + muaKhai(t.kq).length; const m = tc.match(/(\d+) chỗ cần sửa/);
       if (nco ? !(m && Number(m[1]) === nco && c.includes(`href="#lt${i + 1}-co"`) && ids.has(`lt${i + 1}-co`)) : !tc.includes('Không có chỗ nào cần sửa')) sai.push(`${ma}: số chỗ cần sửa ${m && m[1]} != ${nco}`);
-      const tong = t.kq.dong.length; const td = tc.match(/(\d+)\/(\d+) đã giao · (\d+) đang làm · (\d+) chưa bắt đầu(?: · (\d+) xếp lại hoặc chưa rõ)?/);
+      const tong = t.kq.dong.length; const td = tc.match(/(\d+)\/(\d+) đã giao · (\d+) đang làm · (\d+) chưa bắt đầu(?: · (\d+) việc khác \(xếp lại, đã bác hoặc trạng thái chưa rõ\))?/);
       if (tong === 0) { if (!tc.includes('Kế hoạch chưa có việc nào')) sai.push(`${ma}: kế hoạch rỗng mà thẻ không nói «Kế hoạch chưa có việc nào»`); }
       else if (!td || Number(td[2]) !== tong || Number(td[1]) + Number(td[3]) + Number(td[4]) + Number(td[5] || 0) !== tong) sai.push(`${ma}: tiến độ «${td && td[0]}» cho ${tong} hàng`);
     });
     if (ten === 'ma-trung-ke' && !(the[0].includes('href="#lt1-h-T-2">T</a> — «hai»') && chuTron(the[0]).includes('Mã này trùng trong kế hoạch'))) sai.push(`ma-trung-ke: thẻ không chỉ hàng T thứ hai «${chuTron(the[0]).slice(0, 120)}»`);
+    if (ten === 'ma-trung-dang-lam' && !the[0].includes('href="#lt1-h-T-2">T</a> — «x»')) sai.push(`ma-trung-dang-lam: thẻ không chỉ hàng T thứ hai (hàng đầu đang làm) «${(the[0].match(/<span class="ke">[\s\S]*?<\/span>/) || [''])[0]}»`);
     if (ten === 'khong-ma' && !chuTron(the[0]).includes('Việc này chưa có mã')) sai.push(`khong-ma: thẻ «${chuTron(the[0]).slice(0, 120)}»`);
   }
   return sai;
 }
-if (want('LT-90') && await chayCa('LT-90', lt90)) ok('LT-90', 'hai lộ trình · tệp hỏng · kế hoạch rỗng · mã trùng · việc không mã: một thẻ mỗi lộ trình, bốn nhãn đúng thứ tự, liên kết hàng kế == neo của CHÍNH hàng kế, lệnh == thamSo thẻ start (không lệnh thì nói vì sao), số chỗ cần sửa == cờ + hàng ghi trạng thái lạ, tiến độ cộng đủ, thẻ lỗi chỉ câu lỗi');
+if (want('LT-90') && await chayCa('LT-90', lt90)) ok('LT-90', 'hai lộ trình · tệp hỏng · kế hoạch rỗng · mã trùng (hàng đầu đã giao / đang làm) · việc không mã: một thẻ mỗi lộ trình, bốn nhãn đúng thứ tự, liên kết hàng kế == neo của CHÍNH hàng kế, lệnh == thamSo thẻ start (không lệnh thì nói vì sao), số chỗ cần sửa == cờ + hàng ghi trạng thái lạ, tiến độ cộng đủ, thẻ lỗi chỉ câu lỗi');
 if (want('LT-90-do')) await chayDo('LT-90-do', lt90, [['scripts/lo-trinh.mjs', 'const lenh = thamSoKe(kq, t.tep, nhieu);', 'const lenh = thamSoKe(kq, t.tep, false);']], '!= thamSo', 'bản sao in mã trơn khi nhiều tệp');
 
 // ── LT-91: danh sách chỗ lệch ───────────────────────────────────────────────
@@ -1494,6 +1500,7 @@ async function lt94(kit) {
   if (/ src=|href="?https?:/i.test(html) || (html.match(/<script/g) || []).length !== 1) sai.push('trang có tài nguyên ngoài hoặc hơn một script');
   return sai;
 }
+if (want('LT-94-do')) await chayDo('LT-94-do', lt94, [['scripts/lo-trinh.mjs', 'const mocs = [...kq.moc].sort((a, b) => chuoi(a.ngay).localeCompare(chuoi(b.ngay)));', 'const mocs = [...kq.moc];']], 'thứ tự mốc', 'bản sao không sắp mốc theo ngày');
 if (want('LT-94') && await chayCa('LT-94', lt94)) ok('LT-94', 'dải mốc sắp theo ngày, chỉ mốc gắn việc chưa giao mang dấu còn việc, mốc không gắn việc mang nhãn, tiêu đề «1/3 mốc chưa gắn việc nào», ô thẻ có chữ dự phòng, không ngày chạy, một script nội tuyến, không tài nguyên ngoài');
 
 // ── LT-95: hai đồng hồ, một trang ───────────────────────────────────────────
@@ -1598,6 +1605,7 @@ async function lt98(kit) {
   if (!(mucLT(html, 2) || '').includes('Không đọc được kế hoạch docs/plan/hong.json')) sai.push('mục tệp hỏng không có câu lỗi');
   return sai;
 }
+if (want('LT-98-do')) await chayDo('LT-98-do', lt98, [['scripts/lo-trinh.mjs', '...cacTep.map((t, i) => mucLoTrinh(i + 1, t)),', '...cacTep.map((t, i) => mucLoTrinh(i + 1, cacTep.find(x => x.loi) || t)),']], 'mục OKR không có bảng việc', 'bản sao để một tệp hỏng tắt mọi mục');
 if (want('LT-98') && await chayCa('LT-98', lt98)) ok('LT-98', 'tệp hỏng: thẻ và mục của nó nêu lỗi bằng tiếng người; lộ trình kia đủ bốn dòng thẻ và bảng việc');
 
 // ── LT-99: trang mẫu hội đồng + ảnh gắn băm ─────────────────────────────────

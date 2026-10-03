@@ -126,6 +126,8 @@ if (P) {
           ['h2 32px', ['scripts/lo-trinh.mjs', 'h2{font-size:18px;', 'h2{font-size:32px;'], ['tiêu đề']],
           ['summary không min-height', ['scripts/lo-trinh.mjs', 'summary{cursor:pointer;min-height:44px;', 'summary{cursor:pointer;'], ['nút']],
           ['bỏ khối CSS điện thoại', ['scripts/lo-trinh.mjs', '@media (max-width:640px){main{', '@media (max-width:1px){main{'], ['màn đầu', 'tràn']],
+          ['thêm cỡ chữ 12.5px', ['scripts/lo-trinh.mjs', '.mu{color:var(--mu)}.nho{font-size:13px}', '.mu{color:var(--mu)}.nho{font-size:12.5px}'], ['cỡ chữ']],
+          ['mở sẵn việc đã giao', ['scripts/lo-trinh.mjs', 'P.push(`<details><summary>${xong.length} việc đã giao', 'P.push(`<details open><summary>${xong.length} việc đã giao'], ['độ dài']],
         ];
         const hong = [];
         for (const [ten, tiem, mong] of MUT) {
@@ -155,14 +157,18 @@ if (P) {
       try {
         const f = await ve(KIT, khoMoc(), 'moc'); const sai = [];
         await P.mo(f, { homNay: '2026-10-03' }); const a = await docMoc();
-        if (a.o !== 'Mốc hôm nay — 03/10/2026 (hôm nay) · 1 mốc đã qua còn việc chưa giao') sai.push(`03/10: ô thẻ «${a.o}»`);
+        if (a.o !== 'Mốc hôm nay — 03/10/2026 (hôm nay) · mốc «Mốc đã qua» đã qua, còn việc chưa giao') sai.push(`03/10: ô thẻ «${a.o}»`);
         if (!deq(a.li.map(x => x[0]), ['2026-08-15', '2026-09-01', '2026-10-03', '2026-10-20'])) sai.push(`thứ tự ${JSON.stringify(a.li.map(x => x[0]))}`);
         if (a.li[0][1] !== 'đã qua' || a.li[1][1] !== 'đã qua — còn việc chưa giao' || a.li[3][1] !== 'còn 17 ngày' || !a.li[2][3] || a.li[3][3]) sai.push(`03/10: dải ${JSON.stringify(a.li)}`);
         await P.mo(f, { homNay: '2026-10-04' }); const b = await docMoc();
-        if (b.o !== 'Mốc tới — 20/10/2026 (còn 16 ngày) · 1 mốc đã qua còn việc chưa giao') sai.push(`04/10: ô thẻ «${b.o}»`);
+        if (b.o !== 'Mốc tới — 20/10/2026 (còn 16 ngày) · mốc «Mốc đã qua» đã qua, còn việc chưa giao') sai.push(`04/10: ô thẻ «${b.o}»`);
         await P.mo(f, { homNay: '2026-10-21' }); const c = await docMoc();
-        if (c.o !== 'Không còn mốc nào phía trước. · 2 mốc đã qua còn việc chưa giao') sai.push(`21/10: ô thẻ «${c.o}»`);
-        if (sai.length) bad('LTT-moc', sai.join(' ; ')); else ok('LTT-moc', 'ngày 03/10 → «Mốc hôm nay — 03/10/2026 (hôm nay) · 1 mốc đã qua còn việc chưa giao», mốc 15/08 (việc đã giao) «đã qua», mốc 01/09 «đã qua — còn việc chưa giao»; 04/10 → «Mốc tới — 20/10/2026 (còn 16 ngày) · …»; 21/10 → không còn mốc, 2 mốc đã qua còn việc');
+        if (c.o !== 'Không còn mốc nào phía trước. · 2 mốc đã qua còn việc chưa giao (sớm nhất: «Mốc đã qua»)') sai.push(`21/10: ô thẻ «${c.o}»`);
+        // Mốc ghi ngày không đọc được (chỉ tháng): ô thẻ giữ chữ dự phòng, không nói sai «không còn mốc».
+        const fx = await ve(KIT, KT.khoMoi(path.join(TMP, 'moc'), { tep: ['docs/plan/moc.json'], files: { 'docs/plan/moc.json': { schema: 1, moc: [{ ten: 'Cuối năm', ngay: '2026-12' }], hang: [{ ma: 'A', cau_giao: '«a»' }] } } }), 'moc-x');
+        await P.mo(fx, { homNay: '2026-10-03' }); const x = await docMoc();
+        if (x.o !== 'Xem dải mốc bên dưới.') sai.push(`ngày chỉ tháng: ô thẻ «${x.o}»`);
+        if (sai.length) bad('LTT-moc', sai.join(' ; ')); else ok('LTT-moc', 'ngày 03/10 → «Mốc hôm nay — 03/10/2026 (hôm nay) · mốc «Mốc đã qua» đã qua, còn việc chưa giao», mốc 15/08 (việc đã giao) «đã qua»; 04/10 → «Mốc tới — 20/10/2026 (còn 16 ngày) · …»; 21/10 → không còn mốc, 2 mốc đã qua còn việc (sớm nhất nêu tên); ngày chỉ tháng → ô giữ «Xem dải mốc bên dưới.»');
       } catch (e) { bad('LTT-moc', loi(e)); }
     }
     if (want('LTT-moc-khong-script')) {
