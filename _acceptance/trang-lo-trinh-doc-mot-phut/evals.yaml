@@ -14,12 +14,14 @@ evals:
     cmd: config:executors.test.lo_trinh
     paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: LT-90" — kho thử hai lộ trình (một có hàng kế, một có tệp hỏng) và kho
-      một lộ trình rỗng: mỗi lộ trình đọc được có đúng một thẻ theo thứ tự khai với bốn nhãn «Làm tiếp»,
-      «Cần sửa trong kế hoạch», «Mốc kế tiếp», «Tiến độ» theo thứ tự; liên kết mã hàng kế trỏ một neo có
-      trên trang; lệnh in == "/feature-loop:feature-loop " + hangKe.thamSo của JSON quét start cùng kho;
-      số chỗ lệch == số cờ của lộ trình; ba số tiến độ cộng == số hàng; thẻ tệp hỏng chỉ có câu
-      «Không đọc được kế hoạch <tệp>»; kho rỗng có «Kế hoạch chưa có việc nào». Và "PASS: LT-90-do" — bản
+      exit 0; stdout có "PASS: LT-90" — kho thử hai lộ trình (một có hàng kế, một có tệp hỏng), kho
+      một lộ trình rỗng, kho mã trùng (T đã giao + T chưa giao) và kho việc không mã: mỗi lộ trình đọc
+      được có đúng một thẻ theo thứ tự khai với bốn nhãn «Làm tiếp», «Cần sửa trong kế hoạch», «Mốc kế
+      tiếp», «Tiến độ» theo thứ tự; liên kết mã hàng kế == neo của CHÍNH hàng kế (đọc từ bảng: mã + câu
+      giao; kho mã trùng → `#lt1-h-T-2` và câu «hai»); lệnh in == "/feature-loop:feature-loop " +
+      hangKe.thamSo của JSON quét start cùng kho, không tham số thì thẻ nói «Mã này trùng…» hoặc «Việc
+      này chưa có mã»; «N chỗ cần sửa» == số cờ + số từ trạng thái lạ; các số tiến độ cộng == số hàng;
+      thẻ tệp hỏng chỉ có câu «Không đọc được kế hoạch <tệp>»; kho rỗng có «Kế hoạch chưa có việc nào». Và "PASS: LT-90-do" — bản
       sao bộ vẽ in mã trơn thay `<tệp>:<mã>` khi nhiều tệp: CHÍNH hàm đo trả lỗi nêu thamSo.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
@@ -28,9 +30,9 @@ evals:
     cmd: config:executors.test.lo_trinh
     paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: LT-91" — danh sách chỗ lệch của mỗi mục == bảng dịch áp lên kq.co (đẳng
-      thức, đúng thứ tự); mỗi chỗ lệch có mã hàng là `<a>` bọc trọn ô trỏ neo có trên trang; danh sách
-      đứng trước bảng việc của mục. Và "PASS: LT-05-the" — cờ thẻ start == kq.co gốc, số chỗ lệch trang ==
+      exit 0; stdout có "PASS: LT-91" — danh sách chỗ cần sửa của mỗi mục == bảng dịch áp lên kq.co (đẳng
+      thức, đúng thứ tự) rồi một ô mỗi từ trạng thái lạ (câu viết trong ca); mỗi chỗ có mã hàng là `<a>`
+      bọc trọn ô trỏ ĐÚNG neo của hàng đầu mang mã đó (đọc từ bảng); danh sách đứng trước bảng việc. Và "PASS: LT-05-the" — cờ thẻ start == kq.co gốc, số chỗ lệch trang ==
       số cờ thẻ. Và "PASS: LT-91-do" — bản sao bỏ một cờ khi vẽ: CHÍNH hàm đo trả lỗi đếm lệch.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
@@ -64,12 +66,13 @@ evals:
     cmd: config:executors.test.lo_trinh_trang
     paths: [scripts/lo-trinh.mjs, tests/scripts/xem-trang-lo-trinh.test.mjs, tests/scripts/lo-trinh-do-trang.mjs]
     expected: >
-      exit 0; stdout có "PASS: LT-94" (Node) — dải mốc sắp theo ngày, mỗi mốc mang data-ngay, mốc không
-      gắn việc có «chưa gắn việc», tiêu đề «k/N mốc chưa gắn việc nào» với k, N đếm từ dữ liệu; trang không
+      exit 0; stdout có "PASS: LT-94" (Node) — dải mốc sắp theo ngày, mỗi mốc mang data-ngay, chỉ mốc gắn
+      việc chưa giao mang dấu còn việc, mốc không gắn việc có «chưa gắn việc», tiêu đề «k/N mốc chưa gắn việc nào» với k, N đếm từ dữ liệu; trang không
       chứa chuỗi ngày hôm nay của máy vẽ. Và "PASS: LTT-moc" (Chrome, ngày đóng băng 2026-10-03, kho có
-      mốc đã qua, mốc hôm nay, mốc tương lai) — ô Mốc kế tiếp của thẻ == tên + ngày + «hôm nay» của mốc
-      hôm nay; mốc đã qua ghi «đã qua»; đổi ngày đóng băng sang hôm sau thì ô ghi mốc tương lai «còn N
-      ngày» với N đúng. Và "PASS: LTT-moc-khong-script" — tắt script: ô thẻ «Xem dải mốc bên dưới», dải
+      mốc đã qua việc đã giao, mốc đã qua còn việc, mốc hôm nay, mốc tương lai) — ô Mốc kế tiếp == «Mốc
+      hôm nay — 03/10/2026 (hôm nay) · 1 mốc đã qua còn việc chưa giao»; mốc đã qua việc đã giao ghi «đã
+      qua», mốc còn việc ghi «đã qua — còn việc chưa giao»; ngày 04/10 thì ô ghi mốc tương lai «còn 16
+      ngày»; ngày 21/10 thì «Không còn mốc nào phía trước. · 2 mốc đã qua còn việc chưa giao». Và "PASS: LTT-moc-khong-script" — tắt script: ô thẻ «Xem dải mốc bên dưới», dải
       mốc vẫn có ngày.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
@@ -80,7 +83,8 @@ evals:
     expected: >
       exit 0; stdout có "PASS: LT-06" (vẽ hai lần giống từng byte, --check xanh), "PASS: LT-06-do" (sửa
       byte · đổi hồ sơ có hàng trỏ · xoá trang → --check exit 1 nêu LO-TRINH.html và lệnh vẽ lại) và
-      "PASS: LT-95" — vẽ cùng kho trong hai tiến trình con có `Date` bị chặn ở 2026-10-03 và 2026-10-06:
+      "PASS: LT-95" — kho có mốc đã qua, mốc tới và mốc nằm giữa hai đồng hồ; vẽ cùng kho trong hai tiến
+      trình con có `Date` bị chặn ở 2026-10-03 và 2026-10-06:
       hai trang giống từng byte (đối chứng: cả hai tiến trình thoát 0, trang khác rỗng). Và "PASS: LT-95-do"
       — bản sao bộ vẽ chèn ngày vẽ dd/mm/yyyy: CHÍNH hàm so trả lỗi nêu vị trí byte đầu tiên lệch.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -93,10 +97,10 @@ evals:
       exit 0; stdout có "PASS: LTT-san" — năm trạng thái × ba khổ × hai màu = 30 ô (số ô in ra, assert ==
       30): mọi ô manDau đúng, không tràn, ≤ 6 cỡ chữ, h1 > h2 > h3, tương phản thấp nhất ≥ ngưỡng, nút
       ≥ 44px; ở 1440 trang hai lộ trình cao ≤ 1/3 trang do bộ vẽ v2.21.0 (`git archive v2.21.0 scripts lib`, trọn
-      thư mục) vẽ cùng kho, đo cùng phiên Chrome (in hai số và tỉ lệ); in ô xấu nhất mỗi thước. Và "PASS: LTT-san-do" — bốn
-      bản sao bộ vẽ, mỗi bản tiêm một lỗi (màu chữ phụ #bbbbbb · bỏ khối CSS điện thoại · h2 32px · summary
-      không min-height): CHÍNH hàm đo trả đúng thước bị phá (tương phản · tràn hoặc màn đầu · tiêu đề · nút)
-      và chỉ thước đó. Và "PASS: LTT-san-im" — đổi câu giải thích cuối trang thành câu dài gấp đôi: mọi
+      thư mục) vẽ cùng kho, đo cùng phiên Chrome (in hai số và tỉ lệ); in ô xấu nhất mỗi thước. Và "PASS: LTT-san-do" — năm
+      bản sao bộ vẽ, mỗi bản tiêm một lỗi (màu chữ phụ #bbbbbb · khung trang tối thiểu 1180px · h2 32px ·
+      summary không min-height · bỏ khối CSS điện thoại): CHÍNH hàm đo trả ĐÚNG tập thước mong đợi (tương
+      phản · tràn · tiêu đề · nút · màn đầu + tràn) và không thước nào khác. Và "PASS: LTT-san-im" — đổi câu giải thích cuối trang thành câu dài gấp đôi: mọi
       thước vẫn xanh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
@@ -189,5 +193,6 @@ evals:
       mục; tag không resolve thì FAIL, không bỏ qua); chạy `phanTichKho` (bỏ ra hàm render) và
       `start-scan.mjs --root` ở base và ở cây đang kiểm: đối chứng dương hai bên thoát 0 và có ≥ 1 hàng
       mỗi lộ trình; kết quả JSON hai bên bằng nhau toàn phần. Và "PASS: LT-100-do" — bản sao cây đang
-      kiểm đổi một luật nhóm trong suyTrangThai: CHÍNH hàm so trả lỗi nêu hàng lệch.
+      kiểm đổi chữ trạng thái «Chưa mở» của lớp phân tích: CHÍNH hàm so trả lỗi nêu hàng lệch cụ thể
+      («hàng lệch docs/plan/lo-trinh-okr.json:<mã>»).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
