@@ -608,8 +608,28 @@ và thêm `LO-TRINH.html` vào `risk_tiers.t1_skip_globs` cạnh `PRODUCT-MAP.md
 sinh, `--check` canh). Từ đó mỗi lần bản đồ được vẽ lại, `LO-TRINH.html` được vẽ cùng lượt — trạng
 thái từng hàng suy từ hồ sơ, không gõ tay — và thẻ `/acceptance-gate:start` in ba dòng: hàng kế, hàng
 trễ theo mốc, số hàng tin theo lời. Kho dùng chữ trạng thái riêng thì khai `tu_vung` để kit so được
-lời tự khai với hồ sơ. Kit **không bao giờ ghi** vào tệp ý định. Vòng tính năng nhận thẳng một hàng:
-`/feature-loop:feature-loop <mã hàng>`. Kho không khai khoá thì không thấy gì khác.
+lời tự khai với hồ sơ. Kit **không bao giờ ghi** vào tệp ý định. Kho không khai khoá thì không thấy
+gì khác.
+
+Từ vòng `lo-trinh-tren-du-lieu-that` (chạy thử trên lộ trình OKR thật của crm):
+
+- **So theo nhóm.** Lời tự khai so với hồ sơ theo ba nhóm — đã giao · đang làm · chưa làm — không
+  theo từng chữ tên ô; «đã lên onehub» khớp cả «Đã giao» lẫn «Đã giao — chờ phiên nghiệm thu». Hàng
+  khai slug mà kho không có hồ sơ đó, lời khai lại nói đã giao hay đang làm, được nêu tên và không
+  bao giờ là hàng kế.
+- **Nối hai chiều.** Ô cơ hội ghi `lo_trinh_ma: <mã>` (và `lo_trinh_tep` khi kho nhiều lộ trình) là
+  hồ sơ nhận hàng đó: hàng không slug lấy trạng thái từ hồ sơ nhận nó, slug sai thì có cờ. Hồ sơ cũ
+  không phải sửa.
+- **Nhiều lộ trình.** `tep:` nhận một danh sách (`- docs/a.json` hoặc `[a, b]`); trang có một mục mỗi
+  lộ trình, thẻ in từng lộ trình. Mã trùng giữa hai tệp thì gọi `<tệp>:<mã>`.
+- **Mở việc từ hàng.** `/feature-loop:feature-loop <mã hàng>` (hoặc chọn «mở hàng kế» trên thẻ
+  `/acceptance-gate:start`): hàng chưa có hồ sơ → máy dựng `opportunity.md` từ hàng (ngưỡng đề xuất
+  từ `bat_khi` và ngày mốc) rồi dừng ở Cổng Đáng; hàng đã có hồ sơ → vào thẳng vòng đó.
+- **Đường vào trang.** Thẻ `/start` luôn có một dòng mở `LO-TRINH.html`, `PRODUCT-MAP.md` trỏ sang
+  trang, và thẻ cảnh báo khi kho khai lộ trình mà chưa bật bản đồ (khi đó bốn lệnh đóng cổng không
+  vẽ lại trang).
+- **Sửa tệp ý định bằng PR** làm trang lệch cho tới khi vẽ lại: CI của kho đỏ với đúng lệnh
+  `node scripts/product-map.mjs --root .` — chạy lệnh đó trong cùng PR.
 
 **Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
 đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ

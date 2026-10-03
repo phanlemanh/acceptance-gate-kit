@@ -149,7 +149,7 @@ if (want('LT-01-do')) {
   try {
     const mut = banSao([
       ['scripts/product-map.mjs', 'if (tepLoTrinh != null) {', 'if (true) {'],
-      ['scripts/lo-trinh.mjs', '  if (tep == null) return null;\n  const { loi, data } = docTep(root, tep);', "  if (tep == null) return { tep: '(vắng)', loi: 'giả', kq: null };\n  const { loi, data } = docTep(root, tep);"],
+      ['scripts/lo-trinh.mjs', '  if (khai == null) return null;\n  const nhan = docNhan(root);', "  if (khai == null) return { cacTep: [{ tep: '(vắng)', loi: 'giả', kq: null }], nhan: [] };\n  const nhan = docNhan(root);"],
     ]);
     const sai = lt01(mut);
     const g = sai.find(m => m === 'trang sinh khi ổ cắm vắng');
@@ -219,9 +219,10 @@ function lt04(kitScripts = null) {
   }
   const dk = kq.dong.find(x => x.ma === 'du-kien');
   if (dk.chu !== 'Chưa mở' || dk.co.length || dk.tin) sai.push(`slug dự kiến: ${JSON.stringify(dk)}`);
-  // Slug dự kiến CÓ tự khai: bảng design §Trạng thái nói không cờ — không có hồ sơ nào để «khác».
+  // Slug dự kiến CÓ tự khai «Đã giao»: lát 1 nói không cờ; vòng lo-trinh-tren-du-lieu-that AC-2 thay
+  // vế đó — «Không suy được» + ĐÚNG MỘT cờ «tự khai … mà không có hồ sơ», không cờ so lời khai.
   const dkk = kq.dong.find(x => x.ma === 'du-kien-khai');
-  if (dkk.chu !== 'Chưa mở' || dkk.co.length) sai.push(`slug dự kiến có tự khai: ${JSON.stringify(dkk)}`);
+  if (dkk.chu !== 'Không suy được' || !deq(dkk.co, ['hàng du-kien-khai: tự khai Đã giao mà không có hồ sơ chua-co-2'])) sai.push(`slug dự kiến có tự khai: ${JSON.stringify(dkk)}`);
   const t1 = kq.dong.find(x => x.ma === 'tin-trong'); if (t1.chu !== 'Chưa mở' || !t1.tin) sai.push(`không slug không khai: ${JSON.stringify(t1)}`);
   const t2 = kq.dong.find(x => x.ma === 'tin-khai'); if (t2.chu !== 'Đã giao' || !t2.tin) sai.push(`không slug khai Đã giao: ${JSON.stringify(t2)}`);
   return sai;
@@ -233,15 +234,15 @@ if (want('LT-04')) {
 if (want('LT-04-do2')) {
   try {
     // Chiều đỏ của vế «slug dự kiến có tự khai → không cờ»: bản sao so lời khai cả khi KHÔNG có hồ sơ.
-    const mut = banSao([['scripts/lo-trinh.mjs', 'if (coHoSo && khaiChuan && khaiChuan !== chu)', 'if (!tinTheoLoi && khaiChuan && khaiChuan !== chu)']]);
+    const mut = banSao([['scripts/lo-trinh.mjs', 'if (coHoSo && khaiChuan && nhomCua(khaiChuan) !== nhomCua(chu))', 'if (!tinTheoLoi && khaiChuan && nhomCua(khaiChuan) !== nhomCua(chu))']]);
     const sai = lt04(path.join(mut, 'scripts'));
-    const g = sai.find(s => s.startsWith('slug dự kiến có tự khai:') && s.includes('tệp khai khác hồ sơ: khai Đã giao, hồ sơ Chưa mở'));
+    const g = sai.find(s => s.startsWith('slug dự kiến có tự khai:') && s.includes('tệp khai khác hồ sơ: khai Đã giao, hồ sơ Không suy được'));
     if (g) ok('LT-04-do2', `bản sao so lời khai khi không có hồ sơ → đỏ: «${g.slice(0, 120)}»`); else bad('LT-04-do2', `phép đo không bắt: ${JSON.stringify(sai)}`);
   } catch (e) { bad('LT-04-do2', loi(e)); }
 }
 if (want('LT-04-do')) {
   try {
-    const mut = banSao([['scripts/lo-trinh.mjs', 'chu = TEN[xep(slug).key];', "chu = xep(slug).key === 'dang-dung' ? 'Đang chạy' : TEN[xep(slug).key];"]]);
+    const mut = banSao([['scripts/lo-trinh.mjs', 'chu = TEN[xep(hoSo).key];', "chu = xep(hoSo).key === 'dang-dung' ? 'Đang chạy' : TEN[xep(hoSo).key];"]]);
     const sai = lt04(path.join(mut, 'scripts'));
     const g = sai.find(s => s === 'slug s-dang-dung: trang «Đang chạy», bản đồ «Đang làm»');
     if (g) ok('LT-04-do', `bản sao đổi chữ một ô → đỏ: «${g}»`); else bad('LT-04-do', `phép đo không bắt: ${JSON.stringify(sai)}`);
@@ -548,7 +549,7 @@ const khoiS0 = () => {
 const homeGia = (() => { let h = null; return () => {
   if (h) return h;
   h = path.join(TMP, 'home'); const v = path.join(h, '.claude', 'plugins', 'cache', 'acceptance-gate-kit', 'acceptance-gate', '9.9.9');
-  for (const d of ['scripts', 'lib']) cpSync(path.join(KIT, d), path.join(v, d), { recursive: true });
+  for (const d of ['scripts', 'lib', 'skills']) cpSync(path.join(KIT, d), path.join(v, d), { recursive: true });
   return h; }; })();
 const chayS0 = (lenh, r) => spawnSync('bash', ['-c', lenh], { cwd: r, encoding: 'utf8', env: { ...process.env, HOME: homeGia(), WORKFLOWS_DIR: path.join(KIT, 'feature-loop', 'workflows') } });
 const LT12 = () => kho({ data: { schema: 1, hang: [H('9b', { vi_sao: 'vì sao 9b', hang: 'T3', slug: 'tro-ly-okr-de-xuat', bat_khi: 'mười hai ca thật', dung_tren: ['9a'] }), H('9a')] } });
@@ -1000,10 +1001,12 @@ const OPP_TPL = path.join(KIT, 'skills', 'acceptance', 'references', 'opportunit
 const khoiTpl = (txt, ten) => { const m = txt.match(new RegExp(`<!-- <<<${ten} -->\\n([\\s\\S]*?)<!-- ${ten}>>> -->`)); if (!m) throw new Error(`khuôn thiếu khối ${ten}`); return m[1]; };
 const khoaFm = txt => { const fm = txt.split('\n---')[0].replace(/^[\s\S]*?---\n/, ''); return [...fm.matchAll(/^\s*([A-Za-z_]+):/gm)].map(m => m[1]); };
 const fmCua = (txt, k) => { const m = txt.match(new RegExp(`^${k}:[ \\t]*(.*?)[ \\t]*(#.*)?$`, 'm')); return m ? m[1].trim() : undefined; };
-const KHO_74 = (batKhi = true) => kho({ data: { schema: 1, hang: [H('7n', { slug: 'no-sau-7', vi_sao: 'vì sao 7n', ...(batKhi ? { bat_khi: 'crm có ba phiên thật' } : {}) })] } });
+// Ô chỉ chờ Cổng Đáng khi ĐỦ bốn dòng ngưỡng (lib/nguong-o-co-hoi.cjs); máy đề xuất hạn chỉ khi hàng
+// gắn một mốc có ngày — không mốc thì Timebox «…» và ô ở đang cân nhắc.
+const KHO_74 = (batKhi = true, moc = true) => kho({ data: { schema: 1, ...(moc ? { moc: [{ ten: 'm-lt', ngay: '2026-11-30', hang: ['7n'] }] } : {}), hang: [H('7n', { slug: 'no-sau-7', vi_sao: 'vì sao 7n', ...(batKhi ? { bat_khi: 'crm có ba phiên thật' } : {}) })] } });
 const sha74 = r => sha(path.join(r, 'docs', 'lo-trinh.json'));
-function lt74(kit, batKhi) {
-  const r = KHO_74(batKhi); const truoc = sha74(r); const sai = [];
+function lt74(kit, batKhi, moc = true) {
+  const r = KHO_74(batKhi, moc); const vaoCong = batKhi && moc; const truoc = sha74(r); const sai = [];
   const x = node([path.join(kit, 'scripts', 'lo-trinh.mjs'), '--root', r, '--hang', '7n', '--mo-o', '--owner', 'x@y.z']);
   if (x.status !== 0) return { sai: [`exit ${x.status}: ${x.stderr.trim()}`] };
   if (x.stdout.trim() !== '{"hoSo":"no-sau-7","moi":true}') sai.push(`stdout «${x.stdout.trim()}»`);
@@ -1016,15 +1019,17 @@ function lt74(kit, batKhi) {
   const tien = khoiTpl(tpl, 'OPP-DE-XUAT-PREFIX').trim();
   const song = (t.match(/^- Kết quả nào là SỐNG:(.*)$/m) || [])[1];
   if (batKhi ? song?.trim() !== `${tien} crm có ba phiên thật` : song?.trim() !== '…') sai.push(`SỐNG «${song}»`);
+  const han = (t.match(/^- Timebox:(.*)$/m) || [])[1];
+  if (vaoCong ? han?.trim() !== `${tien} 2026-11-30 (mốc m-lt)` : han?.trim() !== '…') sai.push(`Timebox «${han}»`);
   const j = JSON.parse(quet(r, {}, kit).stdout);
   const oCong = j.groups.gates.some(g => g.slug === 'no-sau-7' && g.gate === 'dang'); const oCan = j.groups.considering.some(g => (g.name || g.slug) === 'no-sau-7' || g.slug === 'no-sau-7');
-  if (batKhi ? !oCong : !oCan) sai.push(`bộ quét xếp sai: cổng ${oCong} cân nhắc ${oCan}`);
+  if (vaoCong ? !oCong : !oCan) sai.push(`bộ quét xếp sai: cổng ${oCong} cân nhắc ${oCan}`);
   const M = { LT, PM: PMM }; const d = phanBang(M, r).kq.dong[0]; if (!d.coHoSo) sai.push('bộ vẽ chưa coi hàng đã có hồ sơ');
   if (sha74(r) !== truoc) sai.push('tệp ý định bị ghi');
   return { sai, t };
 }
-for (const [ten, bk] of [['co-bat-khi', true], ['khong-bat-khi', false]]) if (want(`LT-74 ${ten}`)) {
-  try { const { sai } = lt74(KIT, bk); if (sai.length) bad(`LT-74 ${ten}`, sai.join(' ; ')); else ok(`LT-74 ${ten}`, `--mo-o ghi đúng khuôn (khoá ⊇ OPP-FRONTMATTER-TEMPLATE), ${bk ? 'SỐNG mang tiền tố đề xuất + bat_khi, bộ quét xếp chờ Cổng Đáng' : 'SỐNG «…», bộ quét xếp đang cân nhắc'}; tệp ý định giữ nguyên`); } catch (e) { bad(`LT-74 ${ten}`, loi(e)); }
+for (const [ten, bk, mc] of [['co-bat-khi', true, true], ['bat-khi-khong-moc', true, false], ['khong-bat-khi', false, true]]) if (want(`LT-74 ${ten}`)) {
+  try { const { sai } = lt74(KIT, bk, mc); if (sai.length) bad(`LT-74 ${ten}`, sai.join(' ; ')); else ok(`LT-74 ${ten}`, `--mo-o ghi đúng khuôn (khoá ⊇ OPP-FRONTMATTER-TEMPLATE), ${bk && mc ? 'bốn dòng ngưỡng mang tiền tố đề xuất (SỐNG = bat_khi, Timebox = ngày mốc), bộ quét xếp chờ Cổng Đáng' : bk ? 'SỐNG đề xuất, Timebox «…» vì hàng không gắn mốc, bộ quét xếp đang cân nhắc' : 'SỐNG «…», bộ quét xếp đang cân nhắc'}; tệp ý định giữ nguyên`); } catch (e) { bad(`LT-74 ${ten}`, loi(e)); }
 }
 if (want('LT-74-do')) {
   try {
@@ -1042,7 +1047,7 @@ if (want('LT-75')) {
   const CA = {
     'da-co-ho-so': () => { const r = kho({ hoSo: { s1: 'sap-mo' }, data: { schema: 1, hang: [H('1', { slug: 's1' })] } }); return { r, a: ['--hang', '1', '--mo-o'], kiem: x => (x.status === 0 && x.stdout.trim() === '{"hoSo":"s1","moi":false}' ? null : `exit ${x.status} «${x.stdout.trim()}»`), giu: true }; },
     'dich-da-co': () => { const r = kho({ data: { schema: 1, hang: [H('1')] } }); mkdirSync(path.join(r, '_acceptance', 'da-co'), { recursive: true }); writeFileSync(path.join(r, '_acceptance', 'da-co', 'ghi-chu.md'), 'x\n'); return { r, a: ['--hang', '1', '--mo-o', '--slug', 'da-co'], kiem: x => (x.status === 2 && x.stderr.includes(path.join('_acceptance', 'da-co')) ? null : `exit ${x.status} «${x.stderr.trim()}»`), giu: true }; },
-    'thieu-slug': () => { const r = kho({ data: { schema: 1, hang: [{ ma: '1', cau_giao: 'Đặt OKR cho Bộ phận trong CRM ngay bây giờ' }] } }); return { r, a: ['--hang', '1', '--mo-o'], kiem: x => (x.status === 0 && x.stdout.trim() === '{"hoSo":"dat-okr-cho-bo-phan-trong-crm","moi":true}' && existsSync(path.join(r, '_acceptance', 'dat-okr-cho-bo-phan-trong-crm', 'opportunity.md')) ? null : `exit ${x.status} «${x.stdout.trim()}» ${x.stderr.trim()}`), giu: false }; },
+    'thieu-slug': () => { const r = kho({ data: { schema: 1, hang: [{ ma: '1', cau_giao: 'Đặt OKR cho Bộ phận trong CRM ngay bây giờ' }] } }); return { r, a: ['--hang', '1', '--mo-o'], kiem: x => (x.status === 0 && x.stdout.trim() === '{"hoSo":"dat-okr-cho-bo-phan-trong","moi":true}' && existsSync(path.join(r, '_acceptance', 'dat-okr-cho-bo-phan-trong', 'opportunity.md')) ? null : `exit ${x.status} «${x.stdout.trim()}» ${x.stderr.trim()}`), giu: false }; },
   };
   for (const [ten, f] of Object.entries(CA)) {
     try {

@@ -98,9 +98,12 @@ CLI: `lo-trinh.mjs --root . --hang <ref> --mo-o [--slug <s>] [--owner <o>]`.
   frontmatter dựng từ khối `OPP-FRONTMATTER-TEMPLATE` của khuôn (đọc khuôn lúc chạy, không chép):
   `stage: discovery`, `decision`/`decided_by`/`decided_at` trống, `feature` = câu giao, cộng hai
   dòng `lo_trinh_ma`/`lo_trinh_tep` trước `---` đóng. Thân: «Vấn đề & ai gặp» = dòng nguồn (hàng,
-  lộ trình, tệp) + câu giao + vì sao; «Ngưỡng chết / ngưỡng UAT» = bốn bullet của khuôn, «Kết quả
-  nào là SỐNG» mang `[đề xuất] <bat_khi>` (tiền tố rút từ khối `OPP-DE-XUAT-PREFIX`) khi hàng có
-  `bat_khi`, còn lại `…`. Có đề xuất → bộ quét start xếp ô vào chờ Cổng Đáng; không → đang cân nhắc.
+  lộ trình, tệp) + câu giao + vì sao; «Ngưỡng chết / ngưỡng UAT» = bốn bullet của khuôn. Hàng có
+  `bat_khi`: câu hỏi, SỐNG (= `bat_khi`) và CHẾT (phủ định của nó khi hết timebox) mang tiền tố của
+  khối `OPP-DE-XUAT-PREFIX`; Timebox mang tiền tố + ngày của mốc có ngày đầu tiên chứa hàng, hàng
+  không gắn mốc thì `…`. Không `bat_khi` → cả bốn `…`. Bộ quét chỉ xếp ô chờ Cổng Đáng khi ĐỦ bốn
+  dòng (`lib/nguong-o-co-hoi.cjs`), nên hàng có `bat_khi` và mốc → chờ Cổng Đáng; thiếu một trong
+  hai → đang cân nhắc, người điền nốt — máy không bịa hạn.
 - Không bao giờ ghi vào tệp ý định.
 
 feature-loop S0: đối số khớp mẫu → chạy MỘT khối lệnh (`S0-MO-O`) gọi `--mo-o`; ứng xử theo bảng

@@ -121,12 +121,25 @@ Workspace cũ (contract sinh trước 1.13.0, không có Coverage) → cờ vàn
    - Match toàn bộ vào `risk_tiers.t1_skip_globs` → **T1: thoát loop**, nhưng KHÔNG thoát im lặng: in bảng match (`<path dự kiến> → <glob>`), hỏi user XÁC NHẬN kết luận T1 rồi mới thoát, kèm cảnh báo backstop CI (`pre-merge-check.sh --base <ref>`) sẽ chặn merge nếu PR thực tế đụng path gated mà không có `_acceptance/` artifacts.
    - Match bất kỳ `risk_tiers.t3_paths` → **T3**. Còn lại **T2**.
 3. Slug = kebab-case tên feature. Workspace: `_acceptance/<slug>/`. **Guard trùng slug:** workspace đã tồn tại → so `feature:` (và `owner:`) trong frontmatter contract với mô tả hiện tại — KHÁC feature → đây là ĐỤNG slug chứ không phải resume: BẮT đổi slug mới (đề xuất `<slug>-2` hoặc suffix ngày), tuyệt đối không im lặng ghi đè workspace của feature khác; CÙNG feature → resume theo bảng state. Contract mới sinh ở S1 phải ghi `owner:` = `git config user.email`. Workspace đã có `opportunity.md` (vòng đi từ Cổng Đáng) → đó là INPUT THỨ NHẤT của brainstorm S1: đọc trước khi hỏi câu nào; ngưỡng nghiệm thu và khung người/việc/dữ liệu của nó chảy vào contract — không hỏi lại owner điều đã grill.
-   **Nhận một hàng lộ trình** (kho khai ổ cắm `lo_trinh.tep`): đối số không khớp workspace nào. CHỈ khi đối số là MỘT mã khớp mẫu trong khối `S0-MA-HANG-RE` dưới đây mới chạy lệnh tra trong khối `S0-NHAN-HANG`, thay `<mã>` bằng đối số (mã nằm trong nháy đơn). Đối số không khớp mẫu — có khoảng trắng, dấu, backtick, `$(...)`, ngoặc — là mô tả việc: KHÔNG đưa nó vào bất kỳ lệnh shell nào, vì trong nháy kép shell vẫn chạy backtick và `$(...)`. Lệnh tra thoát 0 → JSON của hàng: mô tả việc = `cau_giao` + `vi_sao`; slug = `slug` của hàng (vắng → kebab của mã); `hang` của hàng in cạnh hạng máy suy ở bước 2 (khác thì nói ra, máy không tự đổi). Lệnh tra trả về mọi mã thoát khác 0 (không có hàng, kho chưa khai lo_trinh.tep, gói chưa có bộ đọc, tệp ý định hỏng) → đối số là mô tả việc như thường lệ. Kit không ghi gì vào tệp ý định — trạng thái hàng tự hiện trên `LO-TRINH.html` khi hồ sơ của vòng sinh ra.
+   **Nhận một hàng lộ trình** (kho khai ổ cắm `lo_trinh.tep`, một tệp hoặc danh sách): đối số không khớp workspace nào. CHỈ khi đối số khớp mẫu trong khối `S0-MA-HANG-RE` dưới đây — một mã, hoặc `<tệp>:<mã>` khi kho có nhiều lộ trình — mới chạy khối `S0-MO-O`, thay `<mã>` bằng đối số (nằm trong nháy đơn). Đối số không khớp mẫu — có khoảng trắng, dấu, backtick, `$(...)`, ngoặc — là mô tả việc: KHÔNG đưa nó vào bất kỳ lệnh shell nào, vì trong nháy kép shell vẫn chạy backtick và `$(...)`. Khối `S0-MO-O` mở việc từ hàng QUA Cổng Đáng (hồ sơ lo-trinh-tren-du-lieu-that): hàng đã có hồ sơ (thư mục slug, hoặc ô cơ hội ghi `lo_trinh_ma` của hàng) → in `{"hoSo":"<slug>","moi":false}`; chưa có → ghi `_acceptance/<slug>/opportunity.md` từ khuôn ô cơ hội (slug = `slug` của hàng, vắng thì suy tất định từ câu giao; ngưỡng đề xuất từ `bat_khi` và ngày mốc của hàng; ghi `lo_trinh_ma`/`lo_trinh_tep`) rồi in `{"hoSo":"<slug>","moi":true}`. Ứng xử theo mã thoát ĐÚNG bảng `S0-MO-O-THOAT` — bảng là hợp đồng với lệnh, ca đo LT-76 đọc chính bảng này. `moi: true` → in lại slug máy chọn, trình thẻ Cổng Đáng của ô (`/acceptance-gate:acceptance-card <slug>`) rồi DỪNG ở Cổng Đáng — KHÔNG vào S1: Cổng Đáng là cổng đã có trong thiết kế, chọn hàng không phải chốt «có làm». `hang` của hàng in cạnh hạng máy suy ở bước 2 khi vòng chạy tiếp (khác thì nói ra, máy không tự đổi). Kit không ghi gì vào tệp ý định — trạng thái hàng tự hiện trên `LO-TRINH.html` khi hồ sơ của vòng sinh ra. Khối `S0-NHAN-HANG` chỉ đọc một hàng (in JSON, không ghi gì) — dùng khi cần soi hàng mà không mở việc.
 <!-- <<<S0-MA-HANG-RE -->
 ```
-^[A-Za-z0-9][A-Za-z0-9_.-]*$
+^([A-Za-z0-9][A-Za-z0-9_./-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*$
 ```
 <!-- S0-MA-HANG-RE>>> -->
+<!-- <<<S0-MO-O -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/lo-trinh.mjs --require skills/acceptance/references/opportunity-template.md) && node "$AG/scripts/lo-trinh.mjs" --root . --hang '<mã>' --mo-o --owner "$(git config user.email)"
+```
+<!-- S0-MO-O>>> -->
+<!-- <<<S0-MO-O-THOAT -->
+```
+0 → theo moi: true → in slug, trình thẻ Cổng Đáng của ô rồi DỪNG · false → resume hồ sơ hoSo như workspace có sẵn
+1 → mô tả việc (kho chưa khai lộ trình, không có hàng mang mã đó, hoặc gói chưa có bộ đọc)
+2 → dừng: in nguyên thông điệp (đối số sai, thư mục đích đã có, khuôn ô cơ hội thiếu)
+3 → dừng: in nguyên thông điệp (mã có ở nhiều lộ trình — người gọi lại bằng <tệp>:<mã>)
+```
+<!-- S0-MO-O-THOAT>>> -->
 <!-- <<<S0-NHAN-HANG -->
 ```
 AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/lo-trinh.mjs) && node "$AG/scripts/lo-trinh.mjs" --root . --hang '<mã>'

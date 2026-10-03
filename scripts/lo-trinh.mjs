@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 // lo-trinh.mjs — ổ cắm ĐỌC tệp ý định của kho (lộ trình) + suy trạng thái từ hồ sơ + vẽ trang.
 // Hồ sơ: _acceptance/viec-ke-theo-plan/ · design: docs/superpowers/specs/2026-10-02-viec-ke-theo-plan-design.md
+// Vòng sửa trên dữ liệu thật: _acceptance/lo-trinh-tren-du-lieu-that/ · design 2026-10-03-…-design.md —
+// so lời khai theo NHÓM, nối hai chiều hàng ↔ hồ sơ (`lo_trinh_ma`), nhiều lộ trình mỗi kho, mở ô
+// cơ hội từ hàng (`--mo-o`), dòng thẻ start dựng sẵn.
 //
 // Hai lớp, không gộp: Ý ĐỊNH do người ghi (tệp JSON trong kho, đổi bằng PR) và TRẠNG THÁI do máy
 // suy từ `_acceptance/` bằng ĐÚNG hàm xếp ô của bản đồ sản phẩm (`classify` của product-map.mjs,
@@ -9,17 +12,17 @@
 //
 // Trang tất định: không ngày chạy, không «hôm nay» — `--check` so byte. Ngày chỉ vào `hangTre`,
 // thứ chỉ thẻ start in.
-import { readFileSync, readdirSync, existsSync, statSync, realpathSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync, realpathSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 
-const { KHOA: KHOA_, khoaTuConfig: khoaTuConfig_ } = require(path.join(__dirname, 'lo-trinh-khoa.cjs'));
+const { KHOA: KHOA_, khoaTuConfig: khoaTuConfig_, cacTepTuConfig } = require(path.join(__dirname, 'lo-trinh-khoa.cjs'));
 export const KHOA = KHOA_;
 export const TEP_TRANG = 'LO-TRINH.html';
 export const CHUA_MO = 'Chưa mở';
@@ -27,7 +30,17 @@ export const KHONG_SUY = 'Không suy được';
 export const TIN_THEO_LOI = 'tin theo lời';
 // Ô bản đồ nào là «đã giao» và «chưa làm» — tra bằng KHOÁ ô, chữ rút từ SECTIONS của bản đồ.
 export const DA_GIAO_O = ['cho-nghiem-thu', 'da-ship', 'da-nghiem-thu'];
+export const DANG_LAM_O = ['cho-duyet', 'dang-dung'];
 export const CHUA_LAM_O = ['can-nhac', 'sap-mo'];
+// Nhóm của một tên trạng thái: lời khai so với hồ sơ theo NHÓM, không theo từng chữ tên ô (crm OKR
+// 03/10: 11/18 cờ là «khai Đã giao, hồ sơ Đã giao — chờ phiên nghiệm thu»). Ô ngoài ba nhóm là
+// nhóm riêng của chính nó.
+function nhomBang(sections) {
+  const TEN = Object.fromEntries(sections);
+  const m = new Map([[CHUA_MO, 'chua-lam']]);
+  for (const [ds, nh] of [[DA_GIAO_O, 'da-giao'], [DANG_LAM_O, 'dang-lam'], [CHUA_LAM_O, 'chua-lam']]) for (const k of ds) m.set(TEN[k], nh);
+  return t => m.get(t) || `rieng:${t}`;
+}
 const BAT_BUOC = ['ma', 'cau_giao'];
 const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9_.-]*$/;
 
@@ -40,6 +53,28 @@ const so = s => chuoi(s).toLowerCase();
 export const khoaTuConfig = khoaTuConfig_;
 export function docKhoa(root) {
   return khoaTuConfig(doc(path.join(root, '_acceptance', 'config.yaml')));
+}
+// Mọi tệp khai, theo thứ tự khai, kèm cờ tệp lặp — hoặc null khi ổ cắm vắng.
+export function docCacTep(root) {
+  return cacTepTuConfig(doc(path.join(root, '_acceptance', 'config.yaml')));
+}
+
+// ── Chiều hồ sơ → hàng ──────────────────────────────────────────────────────
+// Ô cơ hội ghi `lo_trinh_ma` (và `lo_trinh_tep` khi mở từ hàng) là hồ sơ NHẬN hàng đó. Đọc một lần
+// mỗi lần phân tích kho; hồ sơ không ghi trường thì không có mặt — kho cũ không phải sửa gì.
+export function docNhan(root) {
+  const acc = path.join(root, '_acceptance');
+  if (!existsSync(acc)) return [];
+  const ra = [];
+  for (const e of readdirSync(acc, { withFileTypes: true }).filter(x => x.isDirectory()).sort((a, b) => a.name.localeCompare(b.name))) {
+    const o = doc(path.join(acc, e.name, 'opportunity.md'));
+    if (o == null) continue;
+    const ma = chuoi(frontmatterField(o, 'lo_trinh_ma')).replace(/^["']|["']$/g, '');
+    if (!ma) continue;
+    const tep = chuoi(frontmatterField(o, 'lo_trinh_tep')).replace(/^["']|["']$/g, '');
+    ra.push({ slug: e.name, ma, tep: tep || null });
+  }
+  return ra;
 }
 
 // ── Đọc tệp ───────────────────────────────────────────────────────────────────
@@ -96,17 +131,26 @@ export function kiemKhuon(data) {
 
 // ── Suy trạng thái ────────────────────────────────────────────────────────────
 // `classify(dir, slug) → { key }` và `sections: [[key, title]…]` của bản đồ, nhận qua tham số.
-export function suyTrangThai({ root, khuon, classify, sections }) {
+export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
   const TEN = Object.fromEntries(sections);
   const tuVung = new Map([...sections.map(([, t]) => t), CHUA_MO].map(t => [so(t), t]));
   const daGiao = new Set(DA_GIAO_O.map(k => TEN[k]));
   const chuaLam = new Set([CHUA_MO, ...CHUA_LAM_O.map(k => TEN[k])]);
+  const nhomCua = nhomBang(sections);
   const acc = path.join(root, '_acceptance');
   const cache = new Map();
   const xep = slug => {
     if (!cache.has(slug)) cache.set(slug, classify(path.join(acc, slug), slug));
     return cache.get(slug);
   };
+  const coThuMuc = s => existsSync(path.join(acc, s)) && statSync(path.join(acc, s)).isDirectory();
+  // `nhan` đã lọc về lộ trình này (bên gọi): mã → các hồ sơ nhận · hồ sơ → mã nó ghi.
+  const nhanTheoMa = new Map(); const maCuaHoSo = new Map();
+  for (const n of nhan) {
+    if (!nhanTheoMa.has(n.ma)) nhanTheoMa.set(n.ma, []);
+    nhanTheoMa.get(n.ma).push(n.slug);
+    maCuaHoSo.set(n.slug, n.ma);
+  }
   const co = [...khuon.co];
   const tuVungKho = khuon.tuVung || {};
   for (const [k, v] of Object.entries(tuVungKho)) if (!tuVung.has(so(v))) co.push(`tu_vung: «${k}» trỏ «${v}» — không phải tên trạng thái`);
@@ -118,30 +162,46 @@ export function suyTrangThai({ root, khuon, classify, sections }) {
     const quyDoi = tuKhai && tuVungKho[so(tuKhai)] !== undefined ? tuVungKho[so(tuKhai)] : tuKhai;
     const khaiChuan = quyDoi ? tuVung.get(so(quyDoi)) : undefined;
     if (tuKhai && !khaiChuan) tuKhaiNgoai += 1;
-    let chu; let tinTheoLoi = false; let coHoSo = false;
+    let chu; let tinTheoLoi = false; let coHoSo = false; let hoSo = null;
     if (slug && !SLUG_RE.test(slug)) {
       coHang.push(`hàng ${r._nhan}: slug không hợp lệ: ${slug}`);
       chu = CHUA_MO;
-    } else if (slug && existsSync(path.join(acc, slug)) && statSync(path.join(acc, slug)).isDirectory()) {
-      coHoSo = true;
-      chu = TEN[xep(slug).key];
-    } else if (slug) {
-      chu = CHUA_MO;
     } else {
-      tinTheoLoi = true;
-      // Tự khai không quy đổi được thì KHÔNG đoán: «Chưa mở» sẽ biến một hàng đã xong thành hàng
-      // kế (đo trên crm OKR 02/10, hàng «0» khai «xong»).
-      chu = khaiChuan || (tuKhai ? KHONG_SUY : CHUA_MO);
+      // Thứ tự ưu tiên (design §2): thư mục của slug → đúng MỘT hồ sơ nhận qua mã → lời khai.
+      const coS = !!slug && coThuMuc(slug);
+      const nguoiNhan = r._ma ? (nhanTheoMa.get(r._ma) || []) : [];
+      const motNhan = nguoiNhan.length === 1 ? nguoiNhan[0] : null;
+      if (nguoiNhan.length > 1) coHang.push(`hàng ${r._nhan} được nhiều hồ sơ nhận: ${nguoiNhan.join(', ')}`);
+      if (motNhan && slug && motNhan !== slug) coHang.push(`hàng ${r._nhan} trỏ hồ sơ ${slug} nhưng hồ sơ ${motNhan} nhận hàng này`);
+      if (coS && maCuaHoSo.has(slug) && maCuaHoSo.get(slug) !== r._ma) coHang.push(`hàng ${r._nhan} trỏ hồ sơ ${slug} nhưng hồ sơ ghi hàng ${maCuaHoSo.get(slug)}`);
+      hoSo = coS ? slug : motNhan;
+      if (hoSo) {
+        coHoSo = true;
+        chu = TEN[xep(hoSo).key];
+      } else if (slug) {
+        chu = CHUA_MO;
+        // Slug khai mà không có hồ sơ, lời khai nói đã giao hoặc đang làm: kit không chứng được, và
+        // «Chưa mở» biến nó thành hàng kế — đúng lỗi hàng «1» của crm OKR (03/10).
+        if (khaiChuan && ['da-giao', 'dang-lam'].includes(nhomCua(khaiChuan))) {
+          chu = KHONG_SUY;
+          coHang.push(`hàng ${r._nhan}: tự khai ${tuKhai} mà không có hồ sơ ${slug}`);
+        }
+      } else {
+        tinTheoLoi = true;
+        // Tự khai không quy đổi được thì KHÔNG đoán: «Chưa mở» sẽ biến một hàng đã xong thành hàng
+        // kế (đo trên crm OKR 02/10, hàng «0» khai «xong»).
+        chu = khaiChuan || (tuKhai ? KHONG_SUY : CHUA_MO);
+      }
     }
-    // Chỉ so khi CÓ hồ sơ: slug dự kiến chưa có thư mục thì không có gì để «khác» (bảng design §Trạng thái).
-    if (coHoSo && khaiChuan && khaiChuan !== chu)
+    // So theo NHÓM, chỉ khi có hồ sơ: slug dự kiến chưa có thư mục thì không có gì để «khác».
+    if (coHoSo && khaiChuan && nhomCua(khaiChuan) !== nhomCua(chu))
       coHang.push(`hàng ${r._nhan}: tệp khai khác hồ sơ: khai ${tuKhai}${quyDoi !== tuKhai ? ` (${khaiChuan})` : ''}, hồ sơ ${chu}`);
     if (coHoSo && chuoi(r.hang)) {
-      const c = doc(path.join(acc, slug, 'contract.md'));
+      const c = doc(path.join(acc, hoSo, 'contract.md'));
       const t = c == null ? '' : chuoi(frontmatterField(c, 'risk_tier'));
       if (t && t !== chuoi(r.hang)) coHang.push(`hàng ${r._nhan}: hạng tệp ${chuoi(r.hang)}, hồ sơ ${t}`);
     }
-    return { ...r, slug: slug || undefined, chu, tinTheoLoi, coHoSo, tuKhai: tuKhai || null, khaiNgoai: !!(tuKhai && !khaiChuan), coHang };
+    return { ...r, slug: slug || undefined, hoSo, chu, tinTheoLoi, coHoSo, tuKhai: tuKhai || null, khaiNgoai: !!(tuKhai && !khaiChuan), coHang };
   });
   const theoMa = new Map();
   for (const d of dong) if (d._ma && !theoMa.has(d._ma)) theoMa.set(d._ma, d);
@@ -177,7 +237,7 @@ export function suyTrangThai({ root, khuon, classify, sections }) {
   const hangKe = ke ? { ma: ke._nhan, cauGiao: chuoi(ke.cau_giao) || '(hàng chưa có câu giao)', dungTren: (Array.isArray(ke.dung_tren) ? ke.dung_tren : []).map(chuoi).map(x => ({ ma: x, chu: theoMa.get(x)?.chu || null })) } : null;
 
   // Vòng ngoài lộ trình: hồ sơ không hàng nào trỏ — đếm, không cờ.
-  const troi = new Set(dong.map(d => d.slug).filter(Boolean));
+  const troi = new Set(dong.flatMap(d => [d.slug, d.hoSo]).filter(Boolean));
   const ngoaiLoTrinh = existsSync(acc)
     ? readdirSync(acc, { withFileTypes: true }).filter(e => e.isDirectory() && !troi.has(e.name)).map(e => e.name).sort()
     : [];
@@ -213,6 +273,14 @@ export function hangTre(kq, today) {
     }
   }
   return ra;
+}
+
+// Mốc không gắn hàng nào: kit không tự gắn thay kho (khảo sát mục 6), chỉ đếm để «Hàng trễ: không
+// có» khỏi bị đọc thành «không trễ».
+export function mocKhongHang(kq) {
+  const n = kq.moc.length;
+  const k = kq.moc.filter(m => !Array.isArray(m.hang) || !m.hang.map(chuoi).filter(Boolean).length).length;
+  return { k, n };
 }
 
 // ── Trang ─────────────────────────────────────────────────────────────────────
@@ -263,6 +331,8 @@ export function renderTrang(kq, tep) {
   P.push(kq.moc.length
     ? `<ul>${kq.moc.map(m => `<li>${esc(chuoi(m.ngay))} · ${esc(chuoi(m.ten))}${chuoi(m.loai) ? ` · ${esc(chuoi(m.loai))}` : ''}${Array.isArray(m.hang) && m.hang.length ? ` · hàng ${esc(m.hang.map(chuoi).join(', '))}` : ''}</li>`).join('')}</ul>`
     : '<p class="mu">Không có mốc.</p>');
+  const mk = mocKhongHang(kq);
+  if (mk.k > 0) P.push(`<p class="mu">${mk.k} mốc không gắn hàng nào — không tính trễ được.</p>`);
   P.push('<h2>Đã bác</h2>');
   P.push(kq.daBac.length
     ? `<ul>${kq.daBac.map(b => `<li>${esc(chuoi(b.ma))} — ${esc(chuoi(b.ly_do))}</li>`).join('')}</ul>`
@@ -276,33 +346,141 @@ export function renderTrang(kq, tep) {
   return khung(ten, P.join('\n'));
 }
 
+// Nhiều lộ trình: một trang, mỗi lộ trình một mục theo thứ tự khai, mỗi mục là đúng thân của trang
+// đơn với tiêu đề hạ một bậc. Kho một tệp KHÔNG đi đường này — trang giữ từng byte bản lát 1.
+const haBac = html => html.replace(/<(\/?)h([1-5])>/g, (m, g, n) => `<${g}h${Number(n) + 1}>`);
+const thanCua = html => html.slice(html.indexOf('<main>\n') + 7, html.lastIndexOf('\n</main>'));
+export function renderNhieu(cacTep) {
+  const P = ['<h1>Lộ trình</h1>'];
+  P.push(`<p class="mu">Kho khai ${cacTep.length} lộ trình; mỗi mục vẽ từ một tệp ý định và hồ sơ trong <code>_acceptance/</code> — đừng sửa tay.</p>`);
+  P.push(`<ul>${cacTep.map((t, i) => `<li><a href="#lt-${i + 1}">${esc((t.kq && t.kq.ten) || t.tep)}</a></li>`).join('')}</ul>`);
+  cacTep.forEach((t, i) => {
+    const html = t.loi ? renderLoi(t.tep, t.loi) : renderTrang(t.kq, t.tep);
+    P.push(`<section class="lt" id="lt-${i + 1}">\n${haBac(thanCua(html))}\n</section>`);
+  });
+  return khung('Lộ trình', P.join('\n'));
+}
+
 // ── Hai lối vào cho hai bên đọc ───────────────────────────────────────────────
-// Bản đồ: trang của kho (hoặc null khi ổ cắm vắng). Thẻ start: khoá `loTrinh` (null khi vắng).
-export function phanTich({ root, classify, sections }) {
-  const tep = docKhoa(root);
-  if (tep == null) return null;
-  const { loi, data } = docTep(root, tep);
-  if (loi) return { tep, loi, kq: null };
-  return { tep, loi: null, kq: suyTrangThai({ root, khuon: kiemKhuon(data), classify, sections }) };
+// Phân tích cả kho: mọi tệp khai, và cờ không gắn được vào một hàng (tệp lặp, hồ sơ ghi tệp không
+// khai, hồ sơ ghi mã không có hàng) — cờ ấy vào lộ trình của tệp nó ghi, không ghi tệp thì vào lộ
+// trình đọc được ĐẦU theo thứ tự khai. null khi ổ cắm vắng.
+export function phanTichKho({ root, classify, sections }) {
+  const khai = docCacTep(root);
+  if (khai == null) return null;
+  const nhan = docNhan(root);
+  const cacTep = khai.tep.map(tep => {
+    const { loi, data } = docTep(root, tep);
+    if (loi) return { tep, loi, kq: null };
+    return { tep, loi: null, kq: suyTrangThai({ root, khuon: kiemKhuon(data), classify, sections, nhan: nhan.filter(n => !n.tep || n.tep === tep) }) };
+  });
+  const docDuoc = cacTep.filter(t => t.kq);
+  const dat = (tep, c) => { const t = (tep && docDuoc.find(x => x.tep === tep)) || docDuoc[0]; if (t) t.kq.co.push(c); };
+  for (const c of khai.co) dat(null, c);
+  for (const n of nhan) {
+    if (n.tep && !khai.tep.includes(n.tep)) { dat(null, `hồ sơ ${n.slug} ghi lo_trinh_tep ${n.tep} — kho không khai tệp đó`); continue; }
+    const pham = docDuoc.filter(t => !n.tep || n.tep === t.tep);
+    if (pham.length && !pham.some(t => t.kq.dong.some(d => d._ma === n.ma))) dat(n.tep, `hồ sơ ${n.slug} ghi lo_trinh_ma ${n.ma} — không có hàng ${n.ma}`);
+  }
+  // Vòng ngoài lộ trình tính trên CẢ kho: hồ sơ một lộ trình trỏ không phải «ngoài» ở lộ trình kia.
+  if (docDuoc.length > 1) {
+    const troi = new Set(docDuoc.flatMap(t => t.kq.dong.flatMap(d => [d.slug, d.hoSo])).filter(Boolean));
+    for (const t of docDuoc) t.kq.ngoaiLoTrinh = t.kq.ngoaiLoTrinh.filter(x => !troi.has(x));
+  }
+  return { cacTep, nhan };
+}
+// Lối cũ của lát 1 (một lộ trình): phần tử đầu.
+export function phanTich(opts) {
+  const k = phanTichKho(opts);
+  return k == null ? null : k.cacTep[0];
 }
 export function veTrang(opts) {
-  const p = phanTich(opts);
-  if (p == null) return null;
+  const k = phanTichKho(opts);
+  if (k == null) return null;
+  if (k.cacTep.length > 1) return renderNhieu(k.cacTep);
+  const p = k.cacTep[0];
   return p.loi ? renderLoi(p.tep, p.loi) : renderTrang(p.kq, p.tep);
 }
-export function loTrinhThe({ root, classify, sections, today }) {
-  const p = phanTich({ root, classify, sections });
-  if (p == null) return null;
-  if (p.loi) return { tep: p.tep, ten: null, loi: p.loi, hangKe: null, hangTre: [], tinTheoLoi: { n: 0, tong: 0 }, tuKhaiNgoai: 0, co: [] };
-  const kq = p.kq;
-  return {
-    tep: p.tep, ten: kq.ten || null, loi: null,
-    hangKe: kq.hangKe ? { ma: kq.hangKe.ma, cauGiao: kq.hangKe.cauGiao } : null,
-    hangTre: hangTre(kq, today), tinTheoLoi: kq.tinTheoLoi, tuKhaiNgoai: kq.tuKhaiNgoai, co: kq.co,
-  };
+// Thẻ start: dữ liệu từng lộ trình (`ds`) và CÁC DÒNG THẺ dựng sẵn (`dong`) — thân /start in nguyên,
+// không tự soạn (kit render, không soạn; phép đo đo đầu ra thay vì đo chữ chỉ dẫn).
+export function loTrinhThe({ root, classify, sections, today, banDoBat = null, lenhVe = null }) {
+  const k = phanTichKho({ root, classify, sections });
+  if (k == null) return null;
+  const nhieu = k.cacTep.length > 1;
+  const ds = k.cacTep.map(p => {
+    if (p.loi) return { tep: p.tep, ten: null, loi: p.loi, hangKe: null, hangTre: [], mocKhongHang: { k: 0, n: 0 }, tinTheoLoi: { n: 0, tong: 0 }, tuKhaiNgoai: 0, co: [] };
+    const kq = p.kq;
+    const ke = kq.hangKe ? kq.dong.find(d => d._nhan === kq.hangKe.ma) : null;
+    return {
+      tep: p.tep, ten: kq.ten || null, loi: null,
+      hangKe: kq.hangKe ? { ma: kq.hangKe.ma, cauGiao: kq.hangKe.cauGiao, thamSo: ke && ke._ma ? (nhieu ? `${p.tep}:${ke._ma}` : ke._ma) : null } : null,
+      hangTre: hangTre(kq, today), mocKhongHang: mocKhongHang(kq), tinTheoLoi: kq.tinTheoLoi, tuKhaiNgoai: kq.tuKhaiNgoai, co: kq.co,
+    };
+  });
+  const dong = [];
+  for (const t of ds) {
+    if (nhieu) dong.push(`Lộ trình ${t.ten || t.tep}:`);
+    if (t.loi) { dong.push(`${nhieu ? 'K' : 'Lộ trình: k'}hông đọc được tệp ý định — ${t.loi}`); continue; }
+    dong.push(t.hangKe ? `Hàng kế: ${t.hangKe.ma} — ${t.hangKe.cauGiao}` : 'Hàng kế: chưa có hàng đủ điều kiện mở');
+    const tre = t.hangTre.length ? `Hàng trễ: ${t.hangTre.map(h => `${h.ma} (mốc ${h.moc}, ${h.ngay})`).join(' · ')}` : 'Hàng trễ: không có';
+    dong.push(t.mocKhongHang.k > 0 ? `${tre} (${t.mocKhongHang.k}/${t.mocKhongHang.n} mốc không gắn hàng nào)` : tre);
+    dong.push(`Tin theo lời: ${t.tinTheoLoi.n}/${t.tinTheoLoi.tong} hàng${t.tuKhaiNgoai > 0 ? ` · ${t.tuKhaiNgoai} hàng tự khai ngoài từ vựng — không so được với hồ sơ` : ''}`);
+    if (t.co.length) dong.push(`Lộ trình có ${t.co.length} cờ — xem trang lộ trình`);
+  }
+  const trang = path.join(root, TEP_TRANG);
+  const trangCo = existsSync(trang);
+  dong.push(trangCo ? `Trang lộ trình: [${TEP_TRANG}](${trang})` : `Trang lộ trình chưa được vẽ — vẽ bằng: \`${lenhVe || 'node scripts/product-map.mjs --root .'}\``);
+  if (banDoBat === false) dong.push('⚠ Lộ trình đã khai nhưng bản đồ sản phẩm chưa bật — bốn lệnh đóng cổng sẽ không vẽ lại trang; bật bằng hai dòng trong `_acceptance/config.yaml`');
+  // Đường đọc-cũ: khoá phẳng của lát 1 mang lộ trình ĐẦU, nguyên hình dạng cũ — bộ đọc đời trước
+  // không phải đổi; khoá mới (`trang`, `trangCo`, `ds`, `dong`) nằm cạnh.
+  const d0 = ds[0];
+  const cu = { tep: d0.tep, ten: d0.ten, loi: d0.loi, hangKe: d0.hangKe ? { ma: d0.hangKe.ma, cauGiao: d0.hangKe.cauGiao } : null, hangTre: d0.hangTre, tinTheoLoi: d0.tinTheoLoi, tuKhaiNgoai: d0.tuKhaiNgoai, co: d0.co };
+  return { ...cu, trang, trangCo, ds, dong };
+}
+
+// ── Mở ô cơ hội từ hàng (feature-loop S0) ─────────────────────────────────────
+// Slug suy TẤT ĐỊNH từ câu giao: bỏ dấu, đ→d, chữ thường, ký tự khác chữ-số thành «-», sáu từ đầu.
+export function suySlug(cauGiao) {
+  const tu = String(cauGiao || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+  return tu.slice(0, 6).join('-');
+}
+const KHUON_OPP = path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md');
+const khoiKhuon = (txt, ten) => { const m = String(txt).match(new RegExp(`<!-- <<<${ten} -->\\n([\\s\\S]*?)<!-- ${ten}>>> -->`)); return m ? m[1] : null; };
+const giaTriYaml = v => { const t = String(v ?? '').replace(/\s+/g, ' ').trim(); return /(^[\[{>|&*!%@`"'#-])|(\s#)|(: )/.test(t) ? JSON.stringify(t) : t; };
+// Dựng ô cơ hội từ khuôn đọc LÚC CHẠY (khối OPP-FRONTMATTER-TEMPLATE + OPP-DE-XUAT-PREFIX): bên ghi và
+// bộ phân loại ngưỡng rút từ cùng một khuôn. Ngưỡng chỉ đề xuất từ dữ liệu của hàng: SỐNG = bat_khi,
+// Timebox = ngày mốc có ngày đầu tiên chứa hàng; thiếu căn cứ thì «…» — máy không bịa hạn.
+export function dungCoHoi({ khuon, hang, tep, tenLoTrinh, slug, owner, moc = [] }) {
+  const fm = khoiKhuon(khuon, 'OPP-FRONTMATTER-TEMPLATE');
+  const tien = khoiKhuon(khuon, 'OPP-DE-XUAT-PREFIX');
+  if (fm == null || tien == null) throw new Error('khuôn ô cơ hội thiếu khối OPP-FRONTMATTER-TEMPLATE hoặc OPP-DE-XUAT-PREFIX');
+  const dx = tien.trim();
+  const dien = { slug, feature: giaTriYaml(hang.cau_giao), owner: giaTriYaml(owner || ''), stage: 'discovery', decision: '', decided_by: '', decided_at: '', base_commit: '', disposition: '' };
+  let yaml = fm.replace(/^```yaml\n/, '').replace(/```\s*$/, '');
+  yaml = yaml.replace(/\{(\w+)\}/g, (m, k) => (k in dien ? dien[k] : m));
+  yaml = yaml.replace(/\n---\n?$/, `\nlo_trinh_ma: ${giaTriYaml(hang.ma)}\nlo_trinh_tep: ${giaTriYaml(tep)}\n---\n`);
+  const batKhi = chuoi(hang.bat_khi);
+  const m = moc.find(x => /^\d{4}-\d{2}-\d{2}$/.test(chuoi(x.ngay)) && Array.isArray(x.hang) && x.hang.map(chuoi).includes(chuoi(hang.ma)));
+  const coMoc = !!(batKhi && m);
+  const nguong = [
+    `- Câu hỏi phép đo trả lời: ${batKhi ? `${dx} đã đạt «${batKhi}» chưa?` : '…'}`,
+    `- Kết quả nào là SỐNG: ${batKhi ? `${dx} ${batKhi}` : '…'}`,
+    `- Kết quả nào là CHẾT: ${batKhi ? `${dx} chưa đạt «${batKhi}» khi hết timebox` : '…'}`,
+    `- Timebox: ${coMoc ? `${dx} ${chuoi(m.ngay)} (mốc ${chuoi(m.ten) || chuoi(m.ngay)})` : '…'}`,
+  ];
+  const than = [
+    '', '## Vấn đề & ai gặp', '',
+    `Mở từ hàng ${chuoi(hang.ma)} của «${tenLoTrinh || 'lộ trình'}» (\`${tep}\`).`, '',
+    chuoi(hang.cau_giao), ...(chuoi(hang.vi_sao) ? ['', `Vì sao: ${chuoi(hang.vi_sao)}`] : []), '',
+    '## Ngưỡng chết / ngưỡng UAT', '', ...nguong, '',
+  ];
+  return yaml + than.join('\n');
 }
 
 // ── CLI: feature-loop S0 nhận một hàng ────────────────────────────────────────
+// Mã thoát là HỢP ĐỒNG với bảng S0-MO-O-THOAT của SKILL feature-loop: 0 = hàng (JSON) · 1 = không
+// phải hàng (kho chưa khai, không có mã) · 2 = lỗi dùng/ghi · 3 = mã ở nhiều lộ trình.
 const isMain = (() => {
   if (!process.argv[1]) return false;
   try { return realpathSync(process.argv[1]) === realpathSync(__filename); } catch { return path.resolve(process.argv[1]) === __filename; }
@@ -310,23 +488,50 @@ const isMain = (() => {
 if (isMain) {
   const a = process.argv.slice(2);
   const bail = m => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(2); };
-  let root = '.'; let ma = null;
+  const thoat = (c, m) => { process.stderr.write(`lo-trinh: ${m}\n`); process.exit(c); };
+  let root = '.'; let ref = null; let moO = false; let slugMoi = null; let owner = '';
   for (let i = 0; i < a.length; i++) {
-    if (a[i] === '--root' || a[i] === '--hang') {
+    if (a[i] === '--mo-o') { moO = true; continue; }
+    if (['--root', '--hang', '--slug', '--owner'].includes(a[i])) {
       const v = a[i + 1];
       if (v == null || v === '' || v.startsWith('--')) bail(`${a[i]} cần một giá trị ngay sau nó`);
-      if (a[i] === '--root') root = v; else ma = v;
+      if (a[i] === '--root') root = v; else if (a[i] === '--hang') ref = v; else if (a[i] === '--slug') slugMoi = v; else owner = v;
       i++;
-    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> --hang <mã>`);
+    } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> --hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]]`);
   }
-  if (ma == null) bail('thiếu --hang <mã>');
+  if (ref == null) bail('thiếu --hang <mã>');
   root = path.resolve(root);
-  const tep = docKhoa(root);
-  if (tep == null) { process.stderr.write(`lo-trinh: kho chưa khai ${KHOA} trong _acceptance/config.yaml\n`); process.exit(1); }
-  const { loi, data } = docTep(root, tep);
-  if (loi) { process.stderr.write(`lo-trinh: ${loi}\n`); process.exit(1); }
-  const r = kiemKhuon(data).hang.find(h => h._ma === ma);
-  if (!r) { process.stderr.write(`lo-trinh: không có hàng ${ma} trong ${tep}\n`); process.exit(1); }
+  const khai = docCacTep(root);
+  if (khai == null) thoat(1, `kho chưa khai ${KHOA} trong _acceptance/config.yaml`);
+  const hai = ref.lastIndexOf(':');
+  const tepChon = hai > 0 ? ref.slice(0, hai) : null; const ma = hai > 0 ? ref.slice(hai + 1) : ref;
+  if (tepChon != null && !khai.tep.includes(tepChon)) thoat(1, `kho không khai lộ trình ${tepChon}`);
+  const thay = []; const loiTep = [];
+  for (const tep of tepChon != null ? [tepChon] : khai.tep) {
+    const { loi, data } = docTep(root, tep);
+    if (loi) { loiTep.push(loi); continue; }
+    const k = kiemKhuon(data); const r = k.hang.find(h => h._ma === ma);
+    if (r) thay.push({ tep, r, k });
+  }
+  if (thay.length > 1) thoat(3, `mã ${ma} có ở nhiều lộ trình: ${thay.map(t => t.tep).join(', ')} — gọi ${thay.map(t => `${t.tep}:${ma}`).join(' hoặc ')}`);
+  if (!thay.length) thoat(1, loiTep.length ? loiTep[0] : `không có hàng ${ma} trong ${(tepChon != null ? [tepChon] : khai.tep).join(', ')}`);
+  const { tep, r, k } = thay[0];
   const { _nhan, _ma, ...hang } = r;
-  process.stdout.write(JSON.stringify(hang) + '\n');
+  if (!moO) { process.stdout.write(JSON.stringify(hang) + '\n'); process.exit(0); }
+  // «Hàng đã có hồ sơ chưa» đọc từ CÙNG hàm của bộ vẽ — hai bên không thể nói khác nhau.
+  const PM = await import(pathToFileURL(path.join(__dirname, 'product-map.mjs')).href);
+  const kho = phanTichKho({ root, classify: PM.classify, sections: PM.SECTIONS });
+  const d = kho.cacTep.find(t => t.tep === tep)?.kq?.dong.find(x => x._ma === ma);
+  if (d && d.hoSo) { process.stdout.write(JSON.stringify({ hoSo: d.hoSo, moi: false }) + '\n'); process.exit(0); }
+  const slug = slugMoi || chuoi(hang.slug) || suySlug(hang.cau_giao);
+  if (!slug || !SLUG_RE.test(slug)) bail(`slug không hợp lệ: «${slug}» — truyền --slug`);
+  const dich = path.join(root, '_acceptance', slug);
+  if (existsSync(dich)) bail(`thư mục đã có: ${path.join('_acceptance', slug)} — không ghi`);
+  let khuon;
+  try { khuon = readFileSync(KHUON_OPP, 'utf8'); } catch { bail(`không đọc được khuôn ô cơ hội: ${KHUON_OPP}`); }
+  let noiDung;
+  try { noiDung = dungCoHoi({ khuon, hang, tep, tenLoTrinh: k.ten, slug, owner, moc: k.moc }); } catch (e) { bail(e.message); }
+  mkdirSync(dich, { recursive: true });
+  writeFileSync(path.join(dich, 'opportunity.md'), noiDung);
+  process.stdout.write(JSON.stringify({ hoSo: slug, moi: true }) + '\n');
 }

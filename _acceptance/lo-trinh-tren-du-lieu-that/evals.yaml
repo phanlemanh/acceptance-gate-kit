@@ -76,12 +76,13 @@ evals:
     cmd: config:executors.test.lo_trinh
     paths: [scripts/lo-trinh.mjs, scripts/start-scan.mjs, skills/acceptance/references/opportunity-template.md, tests/scripts/lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: LT-74 co-bat-khi" và "PASS: LT-74 khong-bat-khi" — CLI --mo-o thoát 0
+      exit 0; stdout có "PASS: LT-74 co-bat-khi", "PASS: LT-74 bat-khi-khong-moc" và
+      "PASS: LT-74 khong-bat-khi" — Timebox == tiền tố + "2026-11-30 (mốc m-lt)" chỉ ở ca có mốc; CLI --mo-o thoát 0
       và ghi đúng một tệp mới; khoá frontmatter của tệp ghi ⊇ khoá rút từ khối OPP-FRONTMATTER-TEMPLATE
       của khuôn (round-trip writer→khuôn), stage == discovery, decision rỗng, feature == cau_giao,
       lo_trinh_ma == mã; dòng SỐNG bắt đầu bằng tiền tố rút từ khối OPP-DE-XUAT-PREFIX (ca co-bat-khi)
-      hoặc là "…" (ca khong-bat-khi); start-scan xếp slug vào gates loại cong-dang (co-bat-khi) hoặc
-      groups.considering (khong-bat-khi); phanTich sau đó cho hàng coHoSo true; sha256 tệp ý định trước
+      hoặc là "…" (ca khong-bat-khi); start-scan xếp slug vào gates gate dang (co-bat-khi) hoặc
+      groups.considering (hai ca kia); phanTich sau đó cho hàng coHoSo true; sha256 tệp ý định trước
       == sau. Và "PASS: LT-74-do" — bản sao khuôn đổi tiền tố trong khối OPP-DE-XUAT-PREFIX: tệp ghi
       mang tiền tố MỚI (bằng chứng writer đọc khuôn, không chép cứng).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -93,7 +94,7 @@ evals:
     expected: >
       exit 0; stdout có "PASS: LT-75 da-co-ho-so", "PASS: LT-75 dich-da-co", "PASS: LT-75 thieu-slug"
       — lần lượt: stdout == {"hoSo":"<slug>","moi":false} thoát 0 · thoát 2, stderr chứa đường thư mục
-      · câu giao "Đặt OKR cho Bộ phận trong CRM ngay" cho slug == "dat-okr-cho-bo-phan-trong-crm" (in
+      · câu giao "Đặt OKR cho Bộ phận trong CRM ngay bây giờ" cho slug == "dat-okr-cho-bo-phan-trong" (sáu từ đầu, in
       lại trong JSON, tệp ghi đúng thư mục đó); danh sách (đường, sha256) của cây _acceptance/ trước ==
       sau ở hai ca đầu (đối chứng dương: ca thứ ba làm danh sách đó ĐỔI — phép so có răng).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
