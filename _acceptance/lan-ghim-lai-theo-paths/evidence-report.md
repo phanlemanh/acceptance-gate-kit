@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 92dd0191ac25c6d76ce01097a305c4fc55fb0ddf
+verified_commit: 6da5c214d099be1456a267ef60457d03d4b86e9e
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -199,3 +199,7 @@ Round 1: cả 10 eval máy (E1–E10) và các lệnh suite đều xanh; vẫn R
 Round 2: sau sửa S4-r1 cả 10 eval máy và toàn bộ lệnh suite xanh; khối tìm lỗi vẫn nêu 3 phát hiện trong hợp đồng cùng một lớp (ca chiều đỏ chỉ khẳng định sự vắng mặt, không ghim bản sao đã chạy tới bước cần đo) nên dừng-vá và đổi khuôn chung thay vì vá từng ca.
 Round 3: sau S4-r2 đổi khuôn chung chiều đỏ (fc521b61) cả 10 eval máy và toàn bộ lệnh suite xanh trên cây này; baseline không đo lại (carried từ round 1). Còn một phát hiện trong hợp đồng mức vừa (AC-10: ca khoá vắng với lib cũ mới kiểm mã thoát, chưa so với bản base) được ghi ở review-findings.md để người cân ở Cổng 2. Verdict PASS.
 Round 4: Cổng 2 trả lại; sau vá ba chỗ bộ lọc paths mở khi lỗi (ô M13–M15) và E10 so trọn trên bộ máy cũ (92dd0191), cả 10 eval máy và toàn bộ lệnh suite xanh. Còn hai phát hiện trong hợp đồng mức thấp–vừa (AC-4: ô M9 và M12 của ma trận chưa hiện thân đúng hình dạng đã khai) và các mục ngoài hợp đồng ghi ở review-findings.md để người cân ở Cổng 2. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-03, do hoá cũ do gộp origin/main (lo-trinh-tren-du-lieu-that)
+run_id: repin-20261003T104357Z-15410
+sha: 6da5c214d099be1456a267ef60457d03d4b86e9e · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
