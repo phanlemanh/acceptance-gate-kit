@@ -365,8 +365,8 @@ tr{border:1px solid var(--ln);border-radius:10px;margin:10px 0;padding:6px 0;bac
 // Script nội tuyến DUY NHẤT: tính «còn N ngày / hôm nay / đã qua» theo ngày của người xem, đánh dấu
 // mốc kế tiếp và điền ô «Mốc kế tiếp» của thẻ. Không tải gì, không ghi gì.
 const SCRIPT = `(function(){var d=new Date();var h=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
-document.querySelectorAll('ol.moc').forEach(function(ol){var ke=null;var tre=0;ol.querySelectorAll('li[data-ngay]').forEach(function(li){var p=li.getAttribute('data-ngay').split('-');var t=Date.UTC(+p[0],+p[1]-1,+p[2]);var n=Math.round((t-h)/864e5);var s=li.querySelector('.con');if(isNaN(n))return;if(n<0){if(li.hasAttribute('data-con-viec')){tre++;li.classList.add('tre');if(s)s.textContent='đã qua — còn việc chưa giao';}else{li.classList.add('qua');if(s)s.textContent='đã qua';}}else{if(s)s.textContent=n===0?'hôm nay':'còn '+n+' ngày';if(!ke){ke=li;li.classList.add('ke-tiep');}}});
-var o=document.getElementById(ol.getAttribute('data-the'));if(o){o.textContent=(ke?ke.getAttribute('data-ten')+' — '+ke.getAttribute('data-ngay').split('-').reverse().join('/')+' ('+ke.querySelector('.con').textContent+')':'Không còn mốc nào phía trước.')+(tre?' · '+tre+' mốc đã qua còn việc chưa giao':'');}});})();`;
+document.querySelectorAll('ol.moc').forEach(function(ol){var ke=null;var tre=[];var hong=0;ol.querySelectorAll('li[data-ngay]').forEach(function(li){var p=li.getAttribute('data-ngay').split('-');var t=Date.UTC(+p[0],+p[1]-1,+p[2]);var n=Math.round((t-h)/864e5);var s=li.querySelector('.con');if(p.length!==3||isNaN(n)){hong++;return;}if(n<0){if(li.hasAttribute('data-con-viec')){tre.push(li.getAttribute('data-ten'));li.classList.add('tre');if(s)s.textContent='đã qua — còn việc chưa giao';}else{li.classList.add('qua');if(s)s.textContent='đã qua';}}else{if(s)s.textContent=n===0?'hôm nay':'còn '+n+' ngày';if(!ke){ke=li;li.classList.add('ke-tiep');}}});
+var o=document.getElementById(ol.getAttribute('data-the'));if(!o||(!ke&&hong))return;o.textContent=(ke?ke.getAttribute('data-ten')+' — '+ke.getAttribute('data-ngay').split('-').reverse().join('/')+' ('+ke.querySelector('.con').textContent+')':'Không còn mốc nào phía trước.')+(tre.length===1?' · mốc «'+tre[0]+'» đã qua, còn việc chưa giao':tre.length?' · '+tre.length+' mốc đã qua còn việc chưa giao (sớm nhất: «'+tre[0]+'»)':'');});})();`;
 
 const neoHang = (i, ma) => `lt${i}-h-${String(ma).replace(/[^A-Za-z0-9_-]/g, '_')}`;
 const ngayVN = s => chuoi(s).split('-').reverse().join('/');
@@ -385,12 +385,12 @@ function neoCua(i, kq) {
   return { idHang, ids, theoNhan };
 }
 const CHUA_CAU = '(chưa có câu mô tả việc giao)';
-// Hàng mà lớp phân tích chọn làm hàng kế: cùng nhãn, chưa giao, cùng câu giao (mã trùng thì không lấy
-// nhầm hàng đầu).
-function hangKeCua(kq) {
+// Hàng mà lớp phân tích chọn làm hàng kế: cùng nhãn, trạng thái thuộc nhóm chưa làm (cùng luật lớp
+// phân tích dùng để chọn), cùng câu giao — mã trùng thì không lấy nhầm hàng đầu đã giao hay đang làm.
+function hangKeCua(kq, chuaLam) {
   const ke = kq.hangKe; if (!ke) return null;
-  const cung = kq.dong.filter(d => String(d._nhan) === String(ke.ma));
-  return cung.find(d => !kq.daGiao.has(d.chu) && (chuoi(d.cau_giao) || '(hàng chưa có câu giao)') === ke.cauGiao) || cung.find(d => !kq.daGiao.has(d.chu)) || cung[0] || null;
+  const cung = kq.dong.filter(d => String(d._nhan) === String(ke.ma) && (chuoi(d.cau_giao) || '(hàng chưa có câu giao)') === ke.cauGiao);
+  return cung.find(d => d.chu === CHUA_MO || chuaLam.has(d.chu)) || cung[0] || null;
 }
 // Hàng ghi trạng thái ngoài bảng từ, gom theo TỪ đã ghi: mỗi từ là một chỗ cần sửa (thêm từ đó vào
 // `tu_vung` là sửa xong mọi hàng mang nó).
@@ -399,7 +399,7 @@ const khaiLa = kq => { const g = new Map(); for (const d of kq.dong) if (d.khaiN
 function theDau(i, t, nhieu, nhom) {
   const ten = esc((t.kq && t.kq.ten) || t.tep);
   if (t.loi) return `<section class="the"><h2><a href="#lt${i}">${ten}</a></h2><p class="loi">Không đọc được kế hoạch ${esc(t.tep)}: ${esc(dichLoi(t.loi))}</p></section>`;
-  const kq = t.kq; const ke = hangKeCua(kq); const { idHang } = neoCua(i, kq);
+  const kq = t.kq; const ke = hangKeCua(kq, nhom.chuaLam); const { idHang } = neoCua(i, kq);
   const lenh = thamSoKe(kq, t.tep, nhieu);
   const tong = kq.dong.length; const giao = kq.dong.filter(d => kq.daGiao.has(d.chu)).length;
   const dang = kq.dong.filter(d => nhom.dangLam.has(d.chu)).length;
@@ -414,7 +414,7 @@ function theDau(i, t, nhieu, nhom) {
   const nSua = kq.co.length + khaiLa(kq).length;
   const canSua = nSua ? `<a href="#lt${i}-co">${nSua} chỗ cần sửa</a>` : '<span class="khong">Không có chỗ nào cần sửa</span>';
   const tienDo = tong
-    ? `${giao}/${tong} đã giao · ${dang} đang làm · ${chua} chưa bắt đầu${khac ? ` · ${khac} xếp lại hoặc chưa rõ` : ''}<div class="thanh" aria-hidden="true"><i class="g" style="width:${pt(giao)}%"></i><i class="l" style="width:${pt(dang)}%"></i></div>`
+    ? `${giao}/${tong} đã giao · ${dang} đang làm · ${chua} chưa bắt đầu${khac ? ` · ${khac} việc khác (xếp lại, đã bác hoặc trạng thái chưa rõ)` : ''}<div class="thanh" aria-hidden="true"><i class="g" style="width:${pt(giao)}%"></i><i class="l" style="width:${pt(dang)}%"></i></div>`
     : 'Kế hoạch chưa có việc nào.';
   return `<section class="the"><h2><a href="#lt${i}">${ten}</a></h2>
 <div class="o"><span class="nhan">Làm tiếp</span>${lamTiep}</div>

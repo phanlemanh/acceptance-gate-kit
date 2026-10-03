@@ -54,26 +54,39 @@ evals:
     cmd: config:executors.test.lo_trinh
     paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: LT-93" — kho hai lộ trình có ba hồ sơ không lộ trình nào trỏ: mỗi slug đó
-      xuất hiện đúng một lần trong trang, trong `<details>` cuối trang, tiêu đề «3 hồ sơ không thuộc kế
-      hoạch nào»; kho mọi hồ sơ đều thuộc lộ trình thì không có khối. Và "PASS: LT-11" (chữ mới: khối
-      ngoài kế hoạch chứa ngoai1, ngoai2, mốc và mục đã bác đủ). Và "PASS: LT-93-do" — bản sao in khối
-      mỗi lộ trình một lần: CHÍNH hàm đo trả lỗi «xuất hiện 3 lần» (hai mục + cuối trang).
+      exit 0; stdout có "PASS: LT-93" — kho thử hai lộ trình từ fixture crm mang 132 hồ sơ không lộ trình
+      nào trỏ (như crm lúc audit); số mong đợi đếm ĐỘC LẬP trong ca từ thư mục `_acceptance/` trừ slug mọi
+      tệp kế hoạch trỏ: mỗi slug đó xuất hiện đúng một lần trong trang, trong `<details>` cuối trang có
+      tiêu đề «N hồ sơ không thuộc kế hoạch nào» với N đúng số đếm; kho mọi hồ sơ đều thuộc lộ trình thì
+      không có khối. Và "PASS: LT-11" (chữ mới: khối ngoài kế hoạch chứa ngoai1, ngoai2, mốc và mục đã
+      bác đủ). Và "PASS: LT-93-do" — bản sao in khối mỗi lộ trình một lần: CHÍNH hàm đo trả lỗi
+      «xuất hiện 3 lần» (hai mục + cuối trang).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-94" — dải mốc sắp theo ngày, mỗi mốc mang data-ngay, chỉ mốc gắn việc
+      chưa giao mang dấu còn việc, mốc không gắn việc có «chưa gắn việc», tiêu đề «k/N mốc chưa gắn việc
+      nào» với k, N đếm từ dữ liệu, ô thẻ có chữ dự phòng, trang không chứa ngày chạy, một script nội
+      tuyến, không tài nguyên ngoài. Và "PASS: LT-94-do" — bản sao không sắp mốc theo ngày: CHÍNH hàm đo
+      trả «thứ tự mốc …».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5b
     criterion: AC-5
     executor: test
     cmd: config:executors.test.lo_trinh_trang
     paths: [scripts/lo-trinh.mjs, tests/scripts/xem-trang-lo-trinh.test.mjs, tests/scripts/lo-trinh-do-trang.mjs]
     expected: >
-      exit 0; stdout có "PASS: LT-94" (Node) — dải mốc sắp theo ngày, mỗi mốc mang data-ngay, chỉ mốc gắn
-      việc chưa giao mang dấu còn việc, mốc không gắn việc có «chưa gắn việc», tiêu đề «k/N mốc chưa gắn việc nào» với k, N đếm từ dữ liệu; trang không
-      chứa chuỗi ngày hôm nay của máy vẽ. Và "PASS: LTT-moc" (Chrome, ngày đóng băng 2026-10-03, kho có
-      mốc đã qua việc đã giao, mốc đã qua còn việc, mốc hôm nay, mốc tương lai) — ô Mốc kế tiếp == «Mốc
-      hôm nay — 03/10/2026 (hôm nay) · 1 mốc đã qua còn việc chưa giao»; mốc đã qua việc đã giao ghi «đã
-      qua», mốc còn việc ghi «đã qua — còn việc chưa giao»; ngày 04/10 thì ô ghi mốc tương lai «còn 16
-      ngày»; ngày 21/10 thì «Không còn mốc nào phía trước. · 2 mốc đã qua còn việc chưa giao». Và "PASS: LTT-moc-khong-script" — tắt script: ô thẻ «Xem dải mốc bên dưới», dải
-      mốc vẫn có ngày.
+      exit 0; stdout có "PASS: LTT-moc" (Chrome, ngày đóng băng 2026-10-03, kho có mốc đã qua việc đã giao,
+      mốc đã qua còn việc, mốc hôm nay, mốc tương lai) — ô Mốc kế tiếp == «Mốc hôm nay — 03/10/2026 (hôm
+      nay) · mốc «Mốc đã qua» đã qua, còn việc chưa giao»; mốc đã qua việc đã giao ghi «đã qua», mốc còn
+      việc ghi «đã qua — còn việc chưa giao»; ngày 04/10 thì ô ghi mốc tương lai «còn 16 ngày»; ngày 21/10
+      thì «Không còn mốc nào phía trước. · 2 mốc đã qua còn việc chưa giao (sớm nhất: «Mốc đã qua»)»; mốc
+      ghi ngày chỉ có tháng thì ô thẻ giữ «Xem dải mốc bên dưới.». Và "PASS: LTT-moc-khong-script" — tắt
+      script: ô thẻ «Xem dải mốc bên dưới.», dải mốc vẫn đủ bốn ngày.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -97,10 +110,11 @@ evals:
       exit 0; stdout có "PASS: LTT-san" — năm trạng thái × ba khổ × hai màu = 30 ô (số ô in ra, assert ==
       30): mọi ô manDau đúng, không tràn, ≤ 6 cỡ chữ, h1 > h2 > h3, tương phản thấp nhất ≥ ngưỡng, nút
       ≥ 44px; ở 1440 trang hai lộ trình cao ≤ 1/3 trang do bộ vẽ v2.21.0 (`git archive v2.21.0 scripts lib`, trọn
-      thư mục) vẽ cùng kho, đo cùng phiên Chrome (in hai số và tỉ lệ); in ô xấu nhất mỗi thước. Và "PASS: LTT-san-do" — năm
+      thư mục) vẽ cùng kho, đo cùng phiên Chrome (in hai số và tỉ lệ); in ô xấu nhất mỗi thước. Và "PASS: LTT-san-do" — bảy
       bản sao bộ vẽ, mỗi bản tiêm một lỗi (màu chữ phụ #bbbbbb · khung trang tối thiểu 1180px · h2 32px ·
-      summary không min-height · bỏ khối CSS điện thoại): CHÍNH hàm đo trả ĐÚNG tập thước mong đợi (tương
-      phản · tràn · tiêu đề · nút · màn đầu + tràn) và không thước nào khác. Và "PASS: LTT-san-im" — đổi câu giải thích cuối trang thành câu dài gấp đôi: mọi
+      summary không min-height · bỏ khối CSS điện thoại · thêm cỡ chữ 12.5px · mở sẵn việc đã giao):
+      CHÍNH hàm đo trả ĐÚNG tập thước mong đợi (tương phản · tràn · tiêu đề · nút · màn đầu + tràn · cỡ
+      chữ · độ dài) và không thước nào khác — đủ bảy thước của hàm đo. Và "PASS: LTT-san-im" — đổi câu giải thích cuối trang thành câu dài gấp đôi: mọi
       thước vẫn xanh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
@@ -148,7 +162,8 @@ evals:
     expected: >
       exit 0; stdout có "PASS: LT-01" (ổ cắm vắng: không trang, mô-đun không nạp), "PASS: LT-80" (kho không
       khai: bản đồ + JSON quét giống từng byte bộ e4a399ed) và "PASS: LT-98" — kho hai lộ trình một tệp
-      hỏng: thẻ và mục tệp hỏng có câu lỗi, lộ trình kia đủ bốn nhãn thẻ và bảng việc.
+      hỏng: thẻ và mục tệp hỏng có câu lỗi, lộ trình kia đủ bốn nhãn thẻ và bảng việc. Và "PASS: LT-98-do" —
+      bản sao để một tệp hỏng tắt mọi mục: CHÍNH hàm đo trả «mục OKR không có bảng việc».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-11
