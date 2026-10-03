@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/{lo-trinh.mjs, lo-trinh-khoa.cjs, product-map.mjs, start-scan.mjs} + commands/start.md + SKILL feature-loop + GUIDE + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-03-lo-trinh-tren-du-lieu-that-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -75,6 +75,16 @@ lần chạy thử trên crm `onehub`. Chân ngành: kế thừa rà soát §8 h
 
 ## Notes
 
+- **Known limits (Cổng Bằng chứng lượt 2, ký 03/10):** bảng mã thoát của bước S0 mở việc vẫn
+  hướng dẫn «gọi lại bằng tệp:mã» cho ca mã trùng TRONG một tệp, nơi cách gỡ đúng là sửa tệp ý định
+  (Ngoài-1) · ca đo đọc khối config (LT-81) không neo bản sạch vào giá trị mong đợi, bộ đọc hỏng về
+  «vắng» cho mọi đầu vào vẫn xanh (Ngoài-4) · chiều đỏ LT-84-do chỉ ghim mã thoát, không ghim thông
+  điệp (Ngoài-5) · trang mẫu của hồ sơ đã ký `viec-ke-theo-plan` đổi một dòng nên hồ sơ đó phải ghim
+  lại trong cùng PR (Ngoài-6). Ngoài-7 (không email git) là bản mang sang từ lượt 1, đã sửa ở lượt 2
+  (AC-16) — chấp nhận, không sửa thêm.
+- **Hạt giống (Ngoài-2, Ngoài-3, «mở hợp đồng mới»):**
+  `docs/plans/2026-10-03-hat-giong-khoa-lo-trinh-khai-ma-khong-doc-ra.md` — khoá lộ trình có mặt mà
+  không đọc ra tệp nào phải cờ, không được im; hàng slug sai dạng + nhiều hồ sơ nhận không là hàng kế.
 - **Thay thế một phần hợp đồng đã ký:** AC-2 ở đây thay vế «slug dự kiến chưa có thư mục thì không
   có gì để khác — không cờ» của `_acceptance/viec-ke-theo-plan/contract.md` AC-4 cho ca lời khai thuộc
   nhóm đã giao hoặc đang làm. Hợp đồng cũ đã ký, không sửa; con trỏ này là vết thay thế.

@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: c017c2822f0a56b4f29d5454f3155f6b6f6536d8
-human_signoff:
+human_signoff: Manh Phan 2026-10-03 — ký lượt chấm 2; Ngoài-1, Ngoài-4, Ngoài-5, Ngoài-6 ghi Known limits; Ngoài-2, Ngoài-3 mở hợp đồng mới (hạt giống); Ngoài-7 chấp nhận, không sửa; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: lo-trinh-tren-du-lieu-that
