@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6addf3cdc729949280202370095a283a76b4b727
+verified_commit: 87c3e493b5766fd59cfcdc19cbaf9c5857c76c1f
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -170,3 +170,7 @@ Round 1: bảy eval E1 đến E7 và mười một lệnh suite đều xanh; kh�
 Round 2: bảy eval E1 đến E7 đều xanh; một lệnh suite không gắn eval (plugins vung:3, ca P179) đỏ nên verdict REJECT. Không có judgment item nào và không có phương sai.
 Round 3: bảy eval E1 đến E7 và mười lệnh suite đều xanh trên cây 0932d357, gồm cả plugins vung:3. Không có judgment item, không có phương sai, không eval nào đỏ.
 Round 4: tám eval E1 đến E8 (thêm E8 cho AC-8, mã lượt đỏ không thành bằng chứng) và mười lệnh suite đều xanh trên cây 6addf3cd. Không có judgment item, không có phương sai, không eval nào đỏ.
+
+### Re-pin lần 1 — 2026-10-03, do hoá cũ do gộp main vào nhánh PR
+run_id: repin-20261003T030509Z-98172
+sha: 87c3e493b5766fd59cfcdc19cbaf9c5857c76c1f · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
