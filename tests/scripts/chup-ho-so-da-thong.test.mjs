@@ -109,9 +109,16 @@ check('CH2 PHÁ VẬT THẬT (cùng fixture, chỉ đổi DICH): eval ghi vào e
   const truoc = trangThai();
   const r = lane({ DICH: '_acceptance/feat-ky/evidence/ve-that.json' }, '--write');
   assert.equal(r.status, 1, `làn phải đỏ:\n${r.stderr}`);
-  assert.match(r.stderr, /LÀN ĐỎ — không ghi gì \(suite \[0\]; eval đỏ: không\)/);
+  // Từ hồ sơ lan-ghim-lai-giu-tron-loi-loi: làn đỏ --write để MỘT dòng repin-do, KHÔNG ghi pin.
+  assert.match(r.stderr, /LÀN ĐỎ — không ghi pin; dấu lượt đỏ ở run-log của 1 hồ sơ \(suite \[0\]; eval đỏ: không\)/);
   assert.match(r.stderr, /executor chạm hồ sơ đã thông Cổng Bằng chứng — 1 tệp:\n {2}- _acceptance\/feat-ky\/evidence\/ve-that\.json \(đổi nội dung\)\n/);
-  assert.deepEqual(trangThai(), truoc, 'làn đỏ mà run-log/report vẫn bị ghi');
+  const sau = trangThai();
+  assert.equal(sau.rep, truoc.rep, 'làn đỏ mà report vẫn bị ghi');
+  assert.ok(sau.log.startsWith(truoc.log), 'làn đỏ mà phần run-log cũ đổi');
+  const them = sau.log.slice(truoc.log.length).split('\n').filter(Boolean).map(l => JSON.parse(l));
+  assert.deepEqual(them.map(o => o.kind), ['repin-do'], 'làn đỏ phải thêm đúng một dòng dấu đỏ, không dòng pin');
+  assert.deepEqual(them[0].cham.map(c => [c.tep, c.log, c.ly_do]), [['_acceptance/feat-ky/evidence/ve-that.json', null, 'cham-ho-so']], 'dấu đỏ phải gọi tên tệp bị chạm');
+  writeFileSync(LOG, truoc.log);
   assert.doesNotMatch(r.stderr, /recheck-evidence xanh/);
   writeFileSync(VE_THAT, 'da-ky\n'); utimesSync(VE_THAT, QUA_KHU, QUA_KHU);
 });

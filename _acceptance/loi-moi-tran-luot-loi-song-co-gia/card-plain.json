@@ -1,0 +1,122 @@
+{
+  "feature_plain": "Khi một vòng chấm chạm trần ba lượt hoặc một phép đo hỏng lặp lại, thẻ Cổng Bằng chứng tự in ba lối ra kèm giá và một khuyến nghị — thay vì phiên tự soạn lời mời, có khi mời cả lối không ký được.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ gọi đúng tên phép đo hỏng lặp lại (mã, tiêu chí, các lượt hỏng) trên thẻ, kể cả khi lượt chấm chạy tuần tự, khi lượt cuối bị ngắt giữa chừng, và khi lượt cuối là BLOCKED."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ in khối lối ra khi vòng đã chấm từ ba lượt dù mỗi lượt hỏng một chỗ khác, và nói rõ lối «chấm thêm» là vượt trần."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ khuyên theo luật cố định: phép đo lặp → thu phạm vi tiêu chí ấy; không lặp → chấm thêm một lượt — kèm một câu vì sao."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ in trên thẻ đúng những chữ mà bản máy đọc (--extract) chứa — một nguồn, không hai bản lệch nhau."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ dạy phiên (SKILL feature-loop) rằng ở trần lượt và ở dừng-vá phải dựng thẻ và mời bằng đúng khối này, không tự soạn lối, không mời ký."
+    },
+    {
+      "id": "AC-9",
+      "p": "Sẽ vẫn dựng được thẻ khi sổ chạy có dòng hỏng, thiếu số lượt, vắng hẳn, hoặc bản khai phép đo không đọc được — và nói ra điều đó thay vì im."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "AC-3",
+      "p": "Sẽ KHÔNG bao giờ mời ký trên báo cáo chưa đạt: khối chỉ có ba lối (thu phạm vi · chấm thêm · dừng), và thẻ ký được thì không có khối này."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ KHÔNG bịa số phút: phút của một lượt chỉ in khi sổ có đủ mốc đầu và mốc cuối do máy ghi; thiếu thì in «chưa đo», không in 0."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ KHÔNG đổi một byte nào trên thẻ của các vòng bình thường (lượt 1–2 không lặp, thẻ đã đạt, thẻ ký được trên cạnh gãy)."
+    },
+    {
+      "id": "OOS-1",
+      "p": "Chưa in «phép đo này ăn bao nhiêu phần của lượt» — cần nguồn thứ hai (usage-report), để lại trong hạt giống."
+    },
+    {
+      "id": "OOS-2",
+      "p": "Chưa cho máy tự chặn lượt vượt trần ở bước sinh tham số chấm."
+    },
+    {
+      "id": "OOS-3",
+      "p": "Chưa mở đường «thước lệch» ở Cổng Bằng chứng — một phần thêm riêng, cần ông phê riêng."
+    },
+    {
+      "id": "OOS-4",
+      "p": "Không sửa cách kho crm viết phép đo (thước chạy thước, glob làm danh sách hồi quy) — việc của kho đó."
+    },
+    {
+      "id": "OOS-5",
+      "p": "Không chạm bộ chấm S4, không chạm lib/, không lên số phiên bản."
+    },
+    {
+      "id": "OOS-6",
+      "p": "Không đổi thẻ Cổng Phạm vi."
+    }
+  ],
+  "scope_plain": "Những việc dưới đây cố ý để ngoài vòng này, mỗi việc có nơi ghi.",
+  "coverage_plain": [
+    {
+      "i": 0,
+      "p": "Mọi trạng thái thẻ có thể gặp (chưa đạt · không chạy được · ký được trên cạnh gãy · đã đạt · máy đang tự chấm lại) đều có hàng kiểm — rút từ chính mã thẻ hiện có (AC-1, AC-3, AC-6)."
+    },
+    {
+      "i": 1,
+      "p": "Mọi hình dạng lịch sử lượt (lượt 1 · lượt 2 · lặp · chạm trần · từng lặp nay đạt) đều có hàng kiểm — rút từ luật dừng-vá và trần lượt của SKILL, và ca crm bốn lượt (AC-1, AC-2, AC-4, AC-6)."
+    },
+    {
+      "i": 2,
+      "p": "Mọi hình dạng sổ chạy từng gặp ở ca crm (lượt chạy bầy · lượt tuần tự · thiếu mốc giờ · lượt cuối bị ngắt · dòng hỏng · bản khai phép đo hỏng) đều có hàng kiểm (AC-1, AC-5, AC-9)."
+    },
+    {
+      "i": 3,
+      "p": "Ba mặt người và máy đọc — thẻ HTML, bản máy đọc, chỉ dẫn cho phiên — đều được so với nhau (AC-7, AC-8)."
+    },
+    {
+      "i": 4,
+      "p": "Đối chiếu ngành: mẫu «ngắt mạch» (sau N lần hỏng thì thôi thử, mở lại bằng một lượt có giới hạn) đã nhận vào lối «chấm thêm một lượt»; mẫu «ngân sách thử lại» để sau."
+    },
+    {
+      "i": 5,
+      "p": "Giả định cần ông gật: hai trạng thái «thước lệch» và «cây đổi» không dựng riêng trong ma trận vì đi cùng nhánh mã với «chết lần đầu» — một đại diện là đủ."
+    },
+    {
+      "i": 6,
+      "p": "Giả định cần ông gật: phiên ở kho tiêu thụ sẽ dựng thẻ ở trần lượt vì SKILL bảo thế — kit không có răng máy ép việc đó (đã khai là giới hạn, có ngưỡng đếm)."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Thiếu: bộ kiểm chỉ thử hai trong sáu kiểu «phép đo hỏng», nên một phép đo đang ĐẠT đúng mã đã khai có thể bị đếm là lặp. Đã sửa: ma trận chín hàng viết trước, hai hàng đặc hiệu, hai đột biến mới."
+    },
+    {
+      "i": 1,
+      "p": "Thiếu: phép đo phút ghi giờ tay, không rõ mốc nào là đầu lượt. Đã sửa: khai rõ mốc đầu lượt là lúc sinh tham số chấm; bộ kiểm rút tên trường giờ từ chính dòng máy ghi."
+    },
+    {
+      "i": 2,
+      "p": "Thiếu: trường hợp lượt cuối bị ngắt giữa chừng (đúng ca crm) làm phép đo hỏng biến mất khỏi danh sách lặp. Đã sửa: luật mới coi nó là lặp kèm ghi chú, có hàng kiểm riêng."
+    },
+    {
+      "i": 3,
+      "p": "Thiếu: bản khai phép đo không đọc được thì khối im lặng. Đã sửa: khối in cờ vàng có tên và không lọc mã nào."
+    },
+    {
+      "i": 4,
+      "p": "Thiếu: lời hứa «không đổi byte nào» chỉ được so trên thẻ chưa đạt. Đã sửa: so byte cả thẻ đã đạt và thẻ ký được trên cạnh gãy, cả HTML lẫn bản máy đọc."
+    }
+  ],
+  "decisions_plain": [],
+  "analyst_plain": "Lượt này không chạy đối chứng phân biệt (không có phép đo phán xét nào)."
+}

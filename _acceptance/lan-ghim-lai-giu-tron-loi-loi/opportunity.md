@@ -75,7 +75,9 @@ giả định 2 trước khi viết mã.
 ## Cổng 0
 
 - **decision = build** Đề xuất `build`, hạng T2: sửa `runCmd` (ghi trọn ra tệp, in đường dẫn + 30 dòng cuối) · đường đỏ ghi một dòng sổ `kind` mới kèm tải máy · bộ đọc đường đọc-cũ (cờ vàng) · bộ kiểm hai chiều (tiêm lệnh 200 dòng thoát 1 → log đủ 200 dòng; lệnh xanh → không tệp, không dòng, không đổi byte; dòng `kind` lạ → bộ đọc im).
+- **Phạm vi bổ sung 03/10** (owner ký cùng chạm ở Cổng Đáng `lan-ghim-lai-theo-paths`): việc (a) của hạt giống `docs/plans/2026-10-02-hat-giong-lan-ghim-lai-theo-paths-va-suite-song-song.md` — dòng `kind: repin` thêm `wall_s` + số lệnh (khoá bổ sung; bộ đọc 2.20.0 — recheck, pre-merge — phải im với khoá mới, chứng trong bộ kiểm). Vì sao gộp vào đây: cùng `runCmd` đã đo giờ từng lệnh, cùng dòng sổ, cùng đường đọc-cũ; và (a) phải lên mốc TRƯỚC ô `lan-ghim-lai-theo-paths` để có ít nhất một tuần số nền trước khi crm bật hai khoá của ô ấy.
 - **disposition = …**
+- **Gộp thêm 03/10 (owner quyết tại Cổng Đáng của ô `lan-ghim-lai-theo-paths`, 2026-10-02T21:52:55Z):** dòng `kind: repin` ghi thêm `wall_s` (giây toàn làn) và số lệnh đã chạy — khoá bổ sung, bộ đọc 2.20.0 phải im (cùng chiều im với `kind` mới ở giả định 1). Là số nền trước/sau cho ô kia; không thêm lượt gọi người.
 - **Ngưỡng UAT chốt cùng lúc ký:** ba ngưỡng SỐNG ở trên; số đọc từ dấu lượt đỏ chính là răng cho các nhát đã hoãn («chạy lại rồi đi tiếp có cờ», «chạy theo delta»).
 
 ## Out of scope từ khám phá

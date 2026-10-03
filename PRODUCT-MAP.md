@@ -11,8 +11,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>86 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>11 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>87 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>12 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
 ```
 
@@ -36,7 +36,7 @@ flowchart TD
 
 ## Sắp mở vòng
 
-- Làn ghim lại giữ trọn lời lỗi và để lại dấu lượt đỏ kèm dòng tự xưng của bàn đo — lệnh đỏ ghi trọn đầu ra ra thư mục lượt chạy và in đường dẫn; làn đỏ để lại một dòng sổ (run_id · lệnh · mã thoát · tải máy); không đổi nghĩa xanh/đỏ (`lan-ghim-lai-giu-tron-loi-loi`)
+- Làn ghim lại bớt chạy vô ích — hồ sơ chỉ hoá cũ khi diff chạm `paths` các eval của nó (kho bật khoá; hồ sơ không khai `paths` giữ luật cũ; chiến dịch mốc vẫn ghim toàn bộ) · suite trong làn chạy song song (kho bật khoá), eval vẫn nối đuôi (`lan-ghim-lai-theo-paths`)
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
@@ -53,6 +53,7 @@ flowchart TD
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)
 - Hạ tầng thôi đốt lượt chấm và lượt gọi người — suite scripts chạy dưới trần công cụ, lượt BLOCKED vì hạ tầng thử lại cùng round, khuôn /goal thôi coi BLOCKED là xong, thẻ Cổng 1 của hồ sơ đã khép thôi hỏi (`ha-tang-khong-dot-luot`)
 - Hồ sơ nghỉ — một dòng sổ có người và lý do làm hồ sơ đã ký rời khỏi luật cũ hoá, luật làn ghim lại và luật làn eval mà không sửa một byte chữ ký; cổng, kiểm lại bằng chứng, bộ quét và thẻ cùng hỏi một hàm; văn xuôi và dòng thiếu vế không tính là nghỉ; kiểu thư mục sử liệu cũ đọc được bằng cờ vàng (`ho-so-nghi`)
+- Làn ghim lại giữ trọn lời lỗi, để lại dấu lượt đỏ kèm tải máy, và ghi thời lượng làn (`lan-ghim-lai-giu-tron-loi-loi`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
 - Lộ trình chạy được trên dữ liệu thật của crm — so lời khai theo nhóm, hàng tự khai đã giao mà không hồ sơ bị nêu tên và không thành hàng kế, nối hai chiều hàng ↔ hồ sơ qua lo_trinh_ma, nhiều lộ trình mỗi kho, mở việc từ hàng qua Cổng Đáng, thẻ start luôn có đường mở trang (`lo-trinh-tren-du-lieu-that`)
 - Lời mời cổng thành vật máy sinh — thẻ in câu gộp khuyến nghị bấm được, khối VIỆC-CỦA-ANH chỉ chứa điều-chỉ-người-biết, vá các đường fail-quiet của thẻ (`loi-moi-cong-may-sinh`)
@@ -92,6 +93,7 @@ flowchart TD
 - Máy quét vào phiên hỏi đúng câu lưới trước-merge hỏi — hồ sơ không còn cần người thì thôi hiện «chờ ký», hồ sơ chưa sạch thì luôn còn ở cổng (`lan-v-khong-phai-cho-ky`) — đã giao — đã nghỉ, giữ sử liệu
 - Lệnh in ra phải bấm được — một nguồn tên lệnh (bảng COMMAND-NAMES, bảng ⊆ vật thật, điểm bàn giao ⊆ bảng) + TRỪ ba cờ nhiễu trên thẻ + bốn sửa đúng từ finding B/C (`lenh-in-ra-phai-bam-duoc`)
 - Ba tài liệu đầu-tay (QUICKSTART · README · GUIDE) vào vũ trụ quét lệnh — 52 token trần đổi sang dạng bấm được, cùng bảng COMMAND-NAMES và cùng ca LB2 (`lenh-tran-tai-lieu-dau-tay`)
+- Lời mời ở trần lượt là vật máy sinh — thẻ Cổng Bằng chứng CHƯA-ký-được in khối «Lối ra» (lối sống, có giá, khuyến nghị tất định) khi vòng chạm trần lượt hoặc một eval hỏng lặp lại (`loi-moi-tran-luot-loi-song-co-gia`)
 - Lớp bằng chứng nhìn-thấy — hợp đồng có mặt người nhìn phải có ≥1 eval ui-check (`layer: ui-observed`); răng W8 ba tầng (lint · thẻ · pre-merge NOTE), một nguồn cho surfaces, đường bỏ có tên (`lop-bang-chung-nhin-thay`)
 - lượt chấm ghi vào cây — bộ chấm S4 phát hiện cây đổi trong lượt chấm (commit lạ, tệp vật/thước bị sửa) và lượt ấy không dùng được, chấm lại cùng vòng (`luot-cham-ghi-vao-cay`)
 - Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`) — đã giao — đã nghỉ, giữ sử liệu
