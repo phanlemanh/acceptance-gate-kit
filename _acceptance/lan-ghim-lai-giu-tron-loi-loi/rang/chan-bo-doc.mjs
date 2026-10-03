@@ -23,7 +23,7 @@ const themMoi = (k) => {
   const i = ls.map(l => l.includes('"kind":"repin"')).lastIndexOf(true);
   const o = JSON.parse(ls[i]); o.wall_s = 812.4; o.so_lenh = 3; ls[i] = JSON.stringify(o);
   writeFileSync(LOG(k), ls.join('\n'));
-  appendFileSync(LOG(k), JSON.stringify({ ts: '2026-10-03T00:00:00Z', kind: 'repin-do', run_id: 'repin-x', sha: 'b'.repeat(40), suites_exit: [1], evals_exit: { E1: 0 }, lenh_do: [{ cmd: 'x', exit: 1, log: '.acceptance-runs/feat/repin-x/01-x.log' }], cham: [], wall_s: 3.2, so_lenh: 2, tai: { load1: 9.1, load5: 8, ncpu: 14, mem_free_mb: 500, swap_used_mb: 4400, nen: null } }) + '\n');
+  appendFileSync(LOG(k), JSON.stringify({ ts: '2026-10-03T00:00:00Z', kind: 'repin-do', lan_id: 'repin-x', sha: 'b'.repeat(40), suites_exit: [1], evals_exit: { E1: 0 }, lenh_do: [{ cmd: 'x', exit: 1, log: '.acceptance-runs/feat/repin-x/01-x.log' }], cham: [], wall_s: 3.2, so_lenh: 2, tai: { load1: 9.1, load5: 8, ncpu: 14, mem_free_mb: 500, swap_used_mb: 4400, nen: null } }) + '\n');
 };
 const nhieu = (k, kieu) => {
   if (kieu === 'xoa-log') rmSync(LOG(k));

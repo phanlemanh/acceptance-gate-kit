@@ -497,6 +497,7 @@ executors:
     gtll_thoi_luong: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan thoi-luong
     gtll_tai_may: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan tai-may
     gtll_nghia_khong_doi: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan nghia-khong-doi
+    gtll_do_khong_thanh_bang_chung: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan do-khong-thanh-bang-chung
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

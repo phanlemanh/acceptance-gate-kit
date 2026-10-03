@@ -18,8 +18,10 @@ kho; chi phí lượt đỏ và thời lượng mỗi làn hiện trong sổ. Kh
    `.gitignore` của kit (kit tự vi phạm quy ước của mình — đo 03/10).
 2. **Dấu lượt đỏ.** Làn đỏ (suite đỏ · eval lệch kỳ vọng · chạm hồ sơ đã thông cổng) → TRƯỚC khi
    thoát 1, append vào run-log CỦA TỪNG slug một dòng
-   `{"ts","kind":"repin-do","run_id","sha","suites_exit","evals_exit","lenh_do":[{"cmd","exit","log"}],"cham":[…],"wall_s","so_lenh","tai":{…}}`.
-   Không dòng `kind: repin`, không chạm `evidence-report.md`. Thông điệp đỏ đổi «không ghi gì»
+   `{"ts","kind":"repin-do","lan_id","sha","suites_exit","evals_exit","lenh_do":[{"cmd","exit","log"}],"cham":[…],"wall_s","so_lenh","tai":{…}}`.
+   Không dòng `kind: repin`, không chạm `evidence-report.md`. Mã lượt nằm dưới `lan_id`, KHÔNG `run_id`:
+   thư viện bằng chứng nhận mọi `run_id` trong sổ làm mã verify hợp lệ, nên mang `run_id` là để báo cáo
+   trích được mã của một lượt ĐỎ (Cổng Bằng chứng lượt 3, Ngoài-5 — AC-8). Thông điệp đỏ đổi «không ghi gì»
    thành «không ghi pin — để dấu lượt đỏ ở run-log».
    Tên loại `repin-do` được chọn để KHÔNG khớp so khớp `"kind":"repin"` nguyên văn của
    `loop-health.mjs`, `recheck-evidence.cjs`, `evidence-core.cjs` (đo 03/10: mọi bộ đọc sổ lọc theo

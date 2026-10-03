@@ -43,7 +43,7 @@ evals:
     cmd: config:executors.script.gtll_dau_do
     expected: >-
       Ba nguyên nhân đỏ (suite · eval lệch kỳ vọng · chạm hồ sơ đã thông cổng) × hai slug:
-      mã 1; mỗi slug đúng MỘT dòng kind repin-do mới đủ khoá run_id, sha, suites_exit,
+      mã 1; mỗi slug đúng MỘT dòng kind repin-do mới đủ khoá lan_id (KHÔNG run_id), sha, suites_exit,
       evals_exit, lenh_do[{cmd,exit,log}], cham, wall_s, so_lenh, tai; KHÔNG dòng kind repin
       mới; evidence-report.md bằng hệt từng byte. Mỗi lenh_do[].log của CẢ HAI slug giải từ
       gốc kho → tệp mở được và chứa dấu riêng mà chính lệnh đỏ ấy in; MỘT lượt ba lệnh đỏ
@@ -116,4 +116,20 @@ evals:
       thoát 0 → ghim "đổi nghĩa đỏ".
     paths:
       - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.gtll_do_khong_thanh_bang_chung
+    expected: >-
+      Cùng một kho fixture, làn đỏ --write để dòng repin-do. Bốn báo cáo: gốc (mã verify thật)
+      → recheck xanh · trích mã lượt đỏ (lan_id của dòng repin-do) → recheck CHẶN, ghim "not
+      found in run-log.jsonl" · trích mã pin xanh → chặn, ghim "cites re-pin lane run_id" · trích
+      mã bịa → chặn, ghim "not found". Dòng repin-do không có khoá run_id. Chiều đỏ: bản sao ghi
+      mã lượt đỏ dưới khoá run_id → báo cáo trích nó qua recheck, ghim "mã lượt đỏ thành bằng chứng".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/evidence-core.cjs"
+      - "scripts/recheck-evidence.cjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -522,7 +522,10 @@ if (red) {
     for (const s of perSlug) for (const e of out.slugs[s.slug].lech) them(e.cmd, e.exit);
     const tai = docTai();
     for (const s of perSlug) {
-      const dau = JSON.stringify({ ts: iso, kind: 'repin-do', run_id: runId, sha, suites_exit: suitesExit, evals_exit: out.slugs[s.slug].evals_exit, lenh_do: lenhDo, cham: cham.map(c => ({ tep: c.tep, doi: c.doi, log: null, ly_do: 'cham-ho-so' })), wall_s: wallS, so_lenh: soLenh, tai });
+      // Mã lượt dưới `lan_id`, KHÔNG `run_id`: thư viện bằng chứng (loadRunLogIds) nhận MỌI `run_id` trong sổ
+      // làm mã lượt verify hợp lệ — mang `run_id` thì báo cáo trích mã của một lượt ĐỎ qua được recheck
+      // (lượt chấm 3, Ngoài-5, tái hiện 03/10). Đỏ không bao giờ là bằng chứng (AC-8).
+      const dau = JSON.stringify({ ts: iso, kind: 'repin-do', lan_id: runId, sha, suites_exit: suitesExit, evals_exit: out.slugs[s.slug].evals_exit, lenh_do: lenhDo, cham: cham.map(c => ({ tep: c.tep, doi: c.doi, log: null, ly_do: 'cham-ho-so' })), wall_s: wallS, so_lenh: soLenh, tai });
       const logPath = path.join(s.ws, 'run-log.jsonl');
       try {
         const prev = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '';

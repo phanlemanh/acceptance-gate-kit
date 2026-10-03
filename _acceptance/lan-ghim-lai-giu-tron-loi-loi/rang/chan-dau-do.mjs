@@ -1,5 +1,6 @@
 // E3 (AC-3) dấu lượt đỏ · E7 (AC-7) mã thoát không đổi. Làn THẬT của cây đang kiểm.
-import { readFileSync, existsSync, rmSync } from 'node:fs';
+import { readFileSync, existsSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { dungKho, chayLan, banSao, bao, KIT } from './kho-mau.mjs';
 import { banBase } from './ban-base.mjs';
@@ -16,7 +17,7 @@ const dongMoi = (k, slug, truoc) => k.doc(`_acceptance/${slug}/run-log.jsonl`).s
 
 if (chan === 'dau-do') {
   const { ok, ket } = bao('E3');
-  const KHOA = ['ts', 'kind', 'run_id', 'sha', 'suites_exit', 'evals_exit', 'lenh_do', 'cham', 'wall_s', 'so_lenh', 'tai'];
+  const KHOA = ['ts', 'kind', 'lan_id', 'sha', 'suites_exit', 'evals_exit', 'lenh_do', 'cham', 'wall_s', 'so_lenh', 'tai'];
   const chay = (engine, ca) => {
     const k = dung(ca);
     const truoc = Object.fromEntries(HAI.map(s => [s.slug, k.doc(`_acceptance/${s.slug}/run-log.jsonl`)]));
@@ -36,6 +37,7 @@ if (chan === 'dau-do') {
       if (!dau.length) continue;
       const d = dau[0];
       ok(KHOA.every(x => x in d), `E3 ${ca}/${s.slug}: đủ khoá ${KHOA.filter(x => !(x in d)).join(',') || ''}`);
+      ok(!('run_id' in d), `E3 ${ca}/${s.slug}: dấu đỏ KHÔNG mang khoá run_id (AC-8)`);
       for (const ld of d.lenh_do || []) {
         const p = ld.log && path.join(k.R, ld.log);
         const mo = p && existsSync(p) ? readFileSync(p, 'utf8') : null;
@@ -75,7 +77,7 @@ if (chan === 'dau-do') {
   const LANE = 'feature-loop/scripts/repin-lane.mjs';
   const M = [
     { pin: 'đỏ không vết', sua: [{ tep: LANE, tu: '  if (flags.write) {\n    const lenhDo = [];', thanh: '  if (false) {\n    const lenhDo = [];' }], do: (k, t) => HAI.every(s => dongMoi(k, s.slug, t).length === 0) },
-    { pin: 'thiếu dấu ở slug', sua: [{ tep: LANE, tu: '    for (const s of perSlug) {\n      const dau = JSON.stringify(', thanh: '    for (const s of perSlug.slice(0, 1)) {\n      const dau = JSON.stringify(' }], do: (k, t) => dongMoi(k, 'feat2', t).length === 0 },
+    { pin: 'thiếu dấu ở slug', sua: [{ tep: LANE, tu: '    for (const s of perSlug) {\n      // Mã lượt dưới', thanh: '    for (const s of perSlug.slice(0, 1)) {\n      // Mã lượt dưới' }], do: (k, t) => dongMoi(k, 'feat2', t).length === 0 },
     { pin: 'dấu trỏ chỗ trống', sua: [{ tep: LANE, tu: 'nhatKy.set(cmd, rel);', thanh: "nhatKy.set(cmd, rel.split('/').slice(2).join('/'));" }], do: (k, t) => HAI.some(s => dongMoi(k, s.slug, t).some(o => (o.lenh_do || []).some(ld => !ld.log || !existsSync(path.join(k.R, ld.log))))) },
   ];
   for (const m of M) {
@@ -84,6 +86,35 @@ if (chan === 'dau-do') {
     ok(m.do(k, truoc), `E3 chiều đỏ: bản sao «${m.pin}» → thước thấy`);
     k.don(); rmSync(sao, { recursive: true, force: true });
   }
+  ket();
+} else if (chan === 'do-khong-thanh-bang-chung') {
+  // E8 (AC-8) — mã lượt của làn ĐỎ không bao giờ thành bằng chứng eval. Quan hệ báo cáo ↔ recheck,
+  // bốn báo cáo trên CÙNG kho; thông điệp ghim; bên viết THẬT sinh dòng repin-do.
+  const { ok, ket } = bao('E8');
+  const RECHECK = path.join(KIT, 'scripts', 'recheck-evidence.cjs');
+  const thu = (engine) => {
+    const k = dungKho({ slugs: [{ slug: 'feat', evals: [{ id: 'E1', key: 'rang_a' }] }], suites: ['echo do; exit 4'], scripts: { rang_a: 'true' } });
+    const truoc = k.doc('_acceptance/feat/run-log.jsonl');
+    chayLan(engine, k, ['feat'], ['--reason', 'do', '--write']);
+    const moi = k.doc('_acceptance/feat/run-log.jsonl').slice(truoc.length).split('\n').filter(Boolean).map(l => JSON.parse(l));
+    const dau = moi.find(o => o.kind === 'repin-do') || {};
+    const maDo = dau.lan_id || dau.run_id;
+    const pin = truoc.split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(o => o.kind === 'repin').pop().run_id;
+    const REP = path.join(k.R, '_acceptance/feat/evidence-report.md'); const goc = readFileSync(REP, 'utf8');
+    const rc = (id) => { writeFileSync(REP, id ? goc.replace('run_id: r1-feat', `run_id: ${id}`) : goc); const r = spawnSync(process.execPath, [RECHECK, REP], { encoding: 'utf8' }); return { st: r.status, out: r.stdout + r.stderr }; };
+    const o = { dau, maDo, goc: rc(null), doRc: rc(maDo), pinRc: rc(pin), biaRc: rc('bia-77') };
+    writeFileSync(REP, goc); k.don(); return o;
+  };
+  const a = thu(KIT);
+  ok(a.maDo && !('run_id' in a.dau), `E8 dòng repin-do mang mã lượt dưới lan_id, KHÔNG khoá run_id (${JSON.stringify(Object.keys(a.dau))})`);
+  ok(a.goc.st === 0, `E8 đối chứng: báo cáo gốc (mã verify thật) → recheck xanh (${a.goc.st})`);
+  ok(a.doRc.st !== 0 && /not found in run-log\.jsonl/.test(a.doRc.out), `E8 trích mã lượt ĐỎ → recheck CHẶN, «not found» (mã ${a.doRc.st})`);
+  ok(a.pinRc.st !== 0 && /cites re-pin lane run_id/.test(a.pinRc.out), `E8 đối chứng: trích mã pin xanh → chặn «cites re-pin lane run_id» (${a.pinRc.st})`);
+  ok(a.biaRc.st !== 0 && /not found in run-log\.jsonl/.test(a.biaRc.out), `E8 đối chứng: trích mã bịa → chặn «not found» (${a.biaRc.st})`);
+  const sao = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: "kind: 'repin-do', lan_id: runId,", thanh: "kind: 'repin-do', run_id: runId," }]);
+  const b = thu(sao);
+  ok(b.doRc.st === 0, `E8 chiều đỏ: bản sao ghi mã lượt đỏ dưới run_id → báo cáo trích nó QUA recheck — «mã lượt đỏ thành bằng chứng» được thước thấy (mã ${b.doRc.st})`);
+  rmSync(sao, { recursive: true, force: true });
   ket();
 } else if (chan === 'nghia-khong-doi') {
   const { ok, ket } = bao('E7');
