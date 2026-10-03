@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: eb89ab74a5b2f9282bdbd9306338e85b94405286
+verified_commit: 0675036a3bbbbb976d66eae00e30d0846d91ce60
 human_signoff: Manh Phan 2026-10-04 — ký lượt chấm 3; mục trong hợp đồng AC-5 (ngày mốc thiếu số 0) và Ngoài-1, Ngoài-2, Ngoài-3, Ngoài-4, Ngoài-6 ghi Known limits; Ngoài-5 chấp nhận, không sửa; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -267,3 +267,7 @@ Round 1: không eval máy nào đỏ (13 eval máy xanh, 11 lệnh suite xanh). 
 Round 2: không eval máy nào đỏ (13 eval máy xanh, 10 lệnh suite xanh), nhưng còn bốn finding trong hợp đồng nên verdict REJECT. Ba finding (AC-5): E5 ghim dòng «PASS: LT-94» mà lệnh của nó không in, nên vế tĩnh của dải mốc được chấm từ dòng tổng kết chứ không từ dòng ghim. Một finding (AC-1): liên kết «Làm tiếp» vẫn có thể trỏ nhầm hàng khi hai hàng trùng mã mà hàng trùng đứng trước đang làm dở. E11 (judgment) hội đồng chuyển từ không đạt sang chưa chắc, chờ phiếu đọc của người ngoài nhóm kit. Returned to implementation.
 
 Round 3: mọi eval máy xanh (14 eval trong hai lệnh chức năng, 10 lệnh suite xanh); E5 tách khỏi E5b theo lệnh chạy nên mỗi lệnh in dòng ghim của chính nó. Ba eval Chrome E5b, E7, E8b đỏ trên bản trước tính năng. Hội đồng E11 đề xuất đạt trên cả hai ảnh mẫu. Còn một finding trong hợp đồng mức thấp (AC-5, dải mốc sắp theo chuỗi khi ngày không đệm số 0) được ghi ở review-findings.md để người xem ở Cổng 2; sáu mục ngoài hợp đồng cũng ở đó.
+
+### Re-pin lần 1 — 2026-10-03, do CI Ubuntu: bản sao h2 của LTT-san-do tiêm 27px để cô lập một thước
+run_id: repin-20261003T221901Z-19295
+sha: 0675036a3bbbbb976d66eae00e30d0846d91ce60 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11
