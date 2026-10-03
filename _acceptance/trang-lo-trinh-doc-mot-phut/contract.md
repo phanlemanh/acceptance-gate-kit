@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # lớp vẽ của scripts/lo-trinh.mjs + test (tests/scripts/lo-trinh*.mjs) + config executor — không chạm lib/**, hook, lưới trước-merge, lớp phân tích
 surfaces: [ui]
 design_doc: docs/superpowers/specs/2026-10-03-trang-lo-trinh-doc-mot-phut-design.md
-status: draft
+status: approved
 approved_by:
 approved_at:
 veto_state: mo
@@ -79,6 +79,8 @@ khổ). Chân sản phẩm: audit 03/10 trên trang crm thật (số ở `opport
   `_acceptance/viec-ke-theo-plan/contract.md` các vế đọc chữ trang cũ (khối «Cờ», «tự khai: …»,
   «Vòng ngoài lộ trình», «Hàng sống qua Cổng Đáng», trang mẫu cho hội đồng) → đọc chữ và khối
   tương ứng của trang mới (bảng dịch ở `design_doc`).
+  Cùng hồ sơ đó, AC-6 vế «không có `<script`» → «không có `src=` hay `href=` ra ngoài, và đoạn script
+  nội tuyến duy nhất chỉ tính số ngày lúc xem; tắt script trang vẫn đủ» (AC-5 của vòng này đo vế tắt script).
 - Ca đo: `tests/scripts/lo-trinh.test.mjs` (LT-90…, cùng tệp) và
   `tests/scripts/lo-trinh-trang.test.mjs` (đo Chrome, LTT-*); đo Chrome cần Chrome trên máy chạy —
   thiếu thì ca ĐỎ nêu tên, không bỏ qua (CI ubuntu có sẵn Chrome).
