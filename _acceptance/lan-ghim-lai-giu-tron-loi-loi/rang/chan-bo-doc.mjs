@@ -15,6 +15,9 @@ ok(BO_DOC.length === rut.length, `E4 số hàng bảng = số bộ đọc rút �
 // (2) mỗi bộ đọc: sạch == có dòng mới; làm nhiễu → khác
 const lam = () => dungKho({ slugs: [{ slug: 'feat', evals: [{ id: 'E1', key: 'rang_ok' }] }], suites: ['true'], scripts: { rang_ok: 'true' } });
 const LOG = (k) => path.join(k.R, '_acceptance/feat/run-log.jsonl');
+// Bản «không có» phải KHÔNG có thật (lượt chấm 2, t4/t6): kho mẫu ghi pin bằng làn MỚI nên dòng pin
+// mang sẵn wall_s/so_lenh — gỡ hai khoá khỏi mọi dòng pin trước khi dựng ba bản so.
+const goKhoaMoi = (k) => { const ls = readFileSync(LOG(k), 'utf8').split('\n').map(l => { if (!l.includes('"kind":"repin"')) return l; const o = JSON.parse(l); delete o.wall_s; delete o.so_lenh; return JSON.stringify(o); }); writeFileSync(LOG(k), ls.join('\n')); };
 const themMoi = (k) => {
   const ls = readFileSync(LOG(k), 'utf8').split('\n');
   const i = ls.map(l => l.includes('"kind":"repin"')).lastIndexOf(true);
@@ -37,8 +40,13 @@ const chuan = (s) => s.replace(/\/[^\s"']*\/gtll-[A-Za-z0-9]+/g, '<KHO>').replac
 let soHang = 0;
 for (const b of BO_DOC) {
   const k1 = lam(), k2 = lam(), k3 = lam();
+  for (const k of [k1, k2, k3]) goKhoaMoi(k);
   // k1 sạch · k2 có dòng mới · k3 làm nhiễu (bên viết: k3 = có dòng mới rồi làn --write xanh)
   themMoi(k2);
+  if (soHang === 0) {
+    ok(!/"wall_s"|"so_lenh"/.test(readFileSync(LOG(k1), 'utf8')), 'E4 bản sạch KHÔNG chứa wall_s/so_lenh (đối chứng thật sự vắng khoá)');
+    ok(/"kind":"repin"[^\n]*"wall_s"[^\n]*"so_lenh"/.test(readFileSync(LOG(k2), 'utf8')), 'E4 bản có dòng mới CHỨA wall_s/so_lenh trên dòng pin');
+  }
   let a, c, d;
   if (b.nhieu === 'noi') {
     themMoi(k3); k3.git('add', '-A'); k3.git('commit', '-qm', 'dau');

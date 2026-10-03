@@ -23,8 +23,17 @@ if (chan === 'nhat-ky-tron') {
   ok(a.tep.length === 1 && /^\.acceptance-runs\/feat\/repin-[^/]+\/[^/]+\.log$/.test(a.tep[0]), `E1 đúng một tệp dưới .acceptance-runs/feat/repin-<run_id>/ (được ${JSON.stringify(a.tep)})`);
   ok(a.thieu.length === 0, `E1 tệp chứa đủ 200 dòng đánh số (thiếu ${a.thieu.length}: ${a.thieu.slice(0, 5)})`);
   ok(a.tep[0] && a.r.stderr.includes(a.tep[0]), 'E1 stderr làn in đường dẫn tệp nhật ký');
-  const duoi = (a.r.stderr.match(/^    dong-\d+$/gm) || []).length;
-  ok(duoi === 30, `E1 stderr vẫn in đúng 30 dòng đuôi như 2.20 (được ${duoi})`);
+  // QUAN HỆ, không chỉ đếm (lượt chấm 2, t9): đuôi phải BẰNG ĐÚNG 30 dòng cuối của đầu ra gộp
+  // stdout-rồi-stderr như 2.20 — stdout = chẵn 2..200, stderr = lẻ 1..199 → 30 dòng cuối = lẻ 141..199.
+  const GOP = [...Array.from({ length: 100 }, (_, i) => `dong-${2 * i + 2}`), ...Array.from({ length: 100 }, (_, i) => `dong-${2 * i + 1}`)];
+  const KY_VONG = GOP.slice(-30);
+  const duoiCua = (st) => (st.match(/^    dong-\d+$/gm) || []).map(l => l.trim());
+  ok(JSON.stringify(duoiCua(a.r.stderr)) === JSON.stringify(KY_VONG), `E1 stderr in ĐÚNG 30 dòng cuối, đúng thứ tự (đầu ${duoiCua(a.r.stderr)[0]}, cuối ${duoiCua(a.r.stderr).slice(-1)[0]})`);
+  { const k5 = dungKho({ slugs: [{ slug: 'feat', evals: [{ id: 'E1', key: 'rang_ok' }] }], suites: [IN200], scripts: { rang_ok: 'true' } });
+    const sao5 = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: "const tail = (out + err).split('\\n').filter(Boolean).slice(-30);", thanh: "const tail = (out + err).split('\\n').filter(Boolean).slice(0, 30);" }]);
+    const r5 = chayLan(sao5, k5, ['feat'], []);
+    ok(JSON.stringify(duoiCua(r5.stderr)) !== JSON.stringify(KY_VONG), 'E1 chiều đỏ: bản sao in 30 dòng ĐẦU → thước thấy «đuôi không phải 30 dòng cuối»');
+    k5.don(); }
   // > 1 MiB, dấu riêng ở DÒNG ĐẦU
   const kho2 = dungKho({ slugs: [{ slug: 'feat', evals: [{ id: 'E1', key: 'rang_ok' }] }], suites: [`node -e 'const fs=require("fs");fs.writeSync(1,"DAU-DONG-DAU-7f3a\\n");for(let i=0;i<30000;i++)fs.writeSync(1,"x".repeat(40)+" "+i+"\\n");process.exit(1)'`], scripts: { rang_ok: 'true' } });
   const r2 = chayLan(KIT, kho2, ['feat'], []);

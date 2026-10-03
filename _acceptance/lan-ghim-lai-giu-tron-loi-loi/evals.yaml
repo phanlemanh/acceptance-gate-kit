@@ -14,7 +14,8 @@ evals:
     expected: >-
       Suite in 200 dòng đánh số xen stdout/stderr rồi thoát 1: đúng một tệp dưới
       .acceptance-runs/<slug>/repin-<run_id>/ chứa đủ 200 số (đếm từng số 1..200, không
-      thiếu); stderr làn in đường dẫn tệp và vẫn in 30 dòng cuối. Biến thể > 1 MiB, dấu riêng
+      thiếu); stderr làn in đường dẫn tệp và in ĐÚNG 30 dòng cuối của đầu ra gộp (tập + thứ tự
+      = lẻ 141..199; bản sao in 30 dòng đầu → ghim "đuôi không phải 30 dòng cuối"). Biến thể > 1 MiB, dấu riêng
       ở DÒNG ĐẦU → dấu có trong tệp. Kho không khai .acceptance-runs/ trong .gitignore: sau lượt
       đỏ git status sạch dưới .acceptance-runs/ (bản sao gỡ tệp tự ẩn → ghim "nhật ký lọt vào git").
       Chiều đỏ: bản sao chỉ ghi 30 dòng cuối vào tệp → ĐỎ ghim
@@ -45,8 +46,9 @@ evals:
       mã 1; mỗi slug đúng MỘT dòng kind repin-do mới đủ khoá run_id, sha, suites_exit,
       evals_exit, lenh_do[{cmd,exit,log}], cham, wall_s, so_lenh, tai; KHÔNG dòng kind repin
       mới; evidence-report.md bằng hệt từng byte. Mỗi lenh_do[].log của CẢ HAI slug giải từ
-      gốc kho → tệp mở được và chứa dấu riêng mà chính lệnh đỏ ấy in; eval lệch kỳ vọng mà
-      thoát 0 và ca chạm hồ sơ → log null kèm ly_do. Ba chiều đỏ: bỏ ghi dấu → ghim "đỏ không
+      gốc kho → tệp mở được và chứa dấu riêng mà chính lệnh đỏ ấy in; MỘT lượt ba lệnh đỏ
+      ba dấu × hai slug = 6 mục, mỗi nhật ký chứa dấu của mình, KHÔNG dấu lệnh khác (bản sao
+      trỏ mọi lệnh về nhật ký đầu → ghim "nhật ký gán nhầm lệnh"); ca chạm hồ sơ → log null kèm ly_do. Ba chiều đỏ: bỏ ghi dấu → ghim "đỏ không
       vết"; chỉ ghi slug đầu → ghim "thiếu dấu ở slug"; đường tương đối thư mục slug → ghim
       "dấu trỏ chỗ trống".
     paths:
@@ -59,7 +61,7 @@ evals:
     cmd: config:executors.script.gtll_bo_doc_im
     expected: >-
       Bộ đọc run-log RÚT bằng tìm "run-log.jsonl" trong scripts/, lib/, feature-loop/scripts/
-      (trừ test); mỗi bộ đọc một hàng trong bảng cách gọi viết trước (rang/bo-doc.mjs); bộ đọc
+      (trừ test); bản sạch GỠ thật wall_s/so_lenh khỏi dòng pin (ca tự kiểm); mỗi bộ đọc một hàng trong bảng cách gọi viết trước (rang/bo-doc.mjs); bộ đọc
       rút được mà không có hàng → ĐỎ ghim "bộ đọc chưa đo"; rút rỗng → ĐỎ. Mỗi hàng: vi phân
       có vs không có (một dòng repin-do + wall_s/so_lenh) → stdout + mã thoát bằng hệt; đối
       chứng dương riêng — mã thoát ghim sẵn + dấu nội dung (run_id của pin) hoặc đầu ra đổi khi

@@ -517,7 +517,7 @@ if (red) {
   if (flags.write) {
     const lenhDo = [];
     const daCo = new Set();
-    const them = (cmd, exit) => { if (daCo.has(cmd)) return; daCo.add(cmd); const lg = nhatKy.has(cmd) ? nhatKy.get(cmd) : null; lenhDo.push(lg === null ? { cmd, exit, log: null, ly_do: exit === 0 ? 'lech-ky-vong' : 'khong-ghi-duoc' } : { cmd, exit, log: lg }); };
+    const them = (cmd, exit) => { if (daCo.has(cmd)) return; daCo.add(cmd); const lg = nhatKy.has(cmd) ? nhatKy.get(cmd) : null; lenhDo.push(lg === null ? { cmd, exit, log: null, ly_do: 'khong-ghi-duoc' } : { cmd, exit, log: lg }); };
     suiteCmds.forEach((c, i) => { if (suitesExit[i] !== 0) them(c, suitesExit[i]); });
     for (const s of perSlug) for (const e of out.slugs[s.slug].lech) them(e.cmd, e.exit);
     const tai = docTai();

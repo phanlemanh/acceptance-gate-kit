@@ -46,6 +46,31 @@ if (chan === 'dau-do') {
     }
     k.don();
   }
+  // QUAN HỆ lệnh ↔ nhật ký (lượt chấm 2, t7): MỘT lượt, BA lệnh đỏ in ba dấu khác nhau. Mỗi mục
+  // lenh_do phải trỏ nhật ký chứa dấu của CHÍNH lệnh ấy và KHÔNG chứa dấu hai lệnh kia, ở cả hai slug.
+  const NHIEU = { suites: ['echo DAU-S1-aa; exit 4', 'echo DAU-S2-bb; exit 5'], scripts: { rang_a: 'echo DAU-EV-cc; exit 1', rang_b: 'true' } };
+  const dauCua = (cmd) => (String(cmd).match(/DAU-[A-Z0-9]+-[a-z]+/) || [])[0];
+  const quanHe = (engine) => {
+    const k = dungKho({ slugs: HAI, suites: NHIEU.suites, scripts: NHIEU.scripts });
+    const truoc = Object.fromEntries(HAI.map(s => [s.slug, k.doc(`_acceptance/${s.slug}/run-log.jsonl`)]));
+    const r = chayLan(engine, k, HAI.map(s => s.slug), ['--reason', 'do', '--write']);
+    const sai = [];
+    let soMuc = 0;
+    for (const s of HAI) for (const d of dongMoi(k, s.slug, truoc).filter(o => o.kind === 'repin-do')) for (const ld of d.lenh_do || []) {
+      soMuc++;
+      const cua = dauCua(ld.cmd); const p = ld.log && path.join(k.R, ld.log);
+      const noi = p && existsSync(p) ? readFileSync(p, 'utf8') : '';
+      const khac = ['DAU-S1-aa', 'DAU-S2-bb', 'DAU-EV-cc'].filter(x => x !== cua && noi.includes(x));
+      if (!cua || !noi.includes(cua) || khac.length) sai.push(`${s.slug}: ${ld.cmd} → ${ld.log} (thiếu dấu mình: ${!noi.includes(cua)}, lẫn: ${khac})`);
+    }
+    k.don(); return { r, sai, soMuc };
+  };
+  const qh = quanHe(KIT);
+  ok(qh.r.status === 1 && qh.soMuc === 6 && qh.sai.length === 0, `E3 quan hệ: 3 lệnh đỏ × 2 slug = 6 mục, mỗi nhật ký đúng lệnh của nó (được ${qh.soMuc} mục, sai ${JSON.stringify(qh.sai)})`);
+  { const sao = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: 'const lg = nhatKy.has(cmd) ? nhatKy.get(cmd) : null;', thanh: 'const lg = [...nhatKy.values()][0] ?? null;' }]);
+    const qs = quanHe(sao);
+    ok(qs.sai.length > 0, `E3 chiều đỏ: bản sao trỏ mọi lệnh về nhật ký đầu → thước thấy «nhật ký gán nhầm lệnh» (${qs.sai.length} mục sai)`);
+    rmSync(sao, { recursive: true, force: true }); }
   // Ba chiều đỏ trên cùng ca «suite»
   const LANE = 'feature-loop/scripts/repin-lane.mjs';
   const M = [

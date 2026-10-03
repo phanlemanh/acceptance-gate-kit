@@ -38,8 +38,9 @@ làm sập làn: mọi lỗi nuốt về `null`. Bộ đọc là mô-đun riêng
 (hàm `docTai()` + hàm thuần `swapTuMeminfo(text)`), nguồn đọc là hằng đầu tệp — để răng gọi trực tiếp
 và tiêm «nguồn không tồn tại» trong bản sao trên cả hai nền (phản biện 03/10, P1).
 
-`lenh_do[].log` là đường TƯƠNG ĐỐI GỐC KHO (`--root`); eval lệch kỳ vọng mà thoát 0 và ca chạm hồ sơ
-không có nhật ký → `log: null` kèm `ly_do` (`lech-ky-vong` · `cham-ho-so`).
+`lenh_do[].log` là đường TƯƠNG ĐỐI GỐC KHO (`--root`); ca chạm hồ sơ không có nhật ký → `log: null`
+kèm `ly_do: cham-ho-so`; nhật ký không ghi được → `ly_do: khong-ghi-duoc`. (Ca «eval lệch kỳ vọng mà thoát 0»
+không thể xảy ra — luật AC-10 không phạt một cải thiện — nên đã gỡ, lượt chấm 2 t8.)
 
 Dòng `tai` chỉ ghi khi làn đỏ (mục đích: số cho nhát đã hoãn «chạy lại rồi đi tiếp có cờ»); dòng
 xanh không mang `tai` (đủ `wall_s`).
