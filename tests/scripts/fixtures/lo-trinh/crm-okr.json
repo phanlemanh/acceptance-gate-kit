@@ -847,6 +847,93 @@
     },
     "hang_lech_mau": "7n",
     "tu_khai_ngoai_khong_tu_vung": 24,
-    "ghi_chu_tu_vung": "tu_vung do máy đề xuất từ năm chữ trạng thái crm đang dùng; kho thật tự khai khối này"
+    "ghi_chu_tu_vung": "tu_vung do máy đề xuất từ năm chữ trạng thái crm đang dùng; kho thật tự khai khối này",
+    "ho_so_onehub": {
+      "vai-chi-okr": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "dat-okr-trong-crm": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "cap-nhat-tuan-okr": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "no-sau-luot-4-okr": [
+        "da-ship",
+        "T2"
+      ],
+      "toan-canh-okr": [
+        "cho-nghiem-thu",
+        "T2"
+      ],
+      "so-okr-tu-chay": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "khep-ky-okr": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "bo-okr-mau": [
+        "da-ship",
+        "T2"
+      ],
+      "canh-kr-okr": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "gioi-han-duyet-cay-okr": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "ux-lai-thu-8c-okr": [
+        "da-ship",
+        "T2"
+      ],
+      "dot-hoi-y-tuong-okr": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "khung-tao-okr-nhu-deal": [
+        "da-ship",
+        "T2"
+      ],
+      "sua-an-chu-ky-okr": [
+        "da-ship",
+        "T3"
+      ],
+      "ro-slack-tac-nhan": [
+        "da-ship",
+        "T3"
+      ],
+      "slack-thieu-quyen-email": [
+        "da-ship",
+        "T3"
+      ],
+      "tro-ly-okr-nen": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "tro-ly-okr-de-xuat": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "tro-ly-okr-tom-tat": [
+        "cho-nghiem-thu",
+        "T2"
+      ],
+      "soan-okr-cung-tro-ly": [
+        "cho-nghiem-thu",
+        "T3"
+      ],
+      "ha-tran-thang-hoi-zalo": [
+        "da-ship",
+        "T2"
+      ]
+    },
+    "ho_so_onehub_nguon": "crm onehub 9660bf6c"
   }
 }
