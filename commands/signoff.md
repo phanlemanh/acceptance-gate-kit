@@ -174,7 +174,9 @@ Steps:
 
    Listed → run `node ${CLAUDE_PLUGIN_ROOT}/scripts/product-map.mjs --root .`
    after `human_signoff` is written; the map is machine-generated from records
-   this gate just changed, so it belongs in the signature commit below.
+   this gate just changed, so it belongs in the signature commit below. The
+   redraw runs in step **7c**, with the `MAP-STAGE` block, AFTER 7a has written
+   the human fields — drawn any earlier it shows the record before this gate.
 
 7. **Ghi và commit — một lượt, làn máy chạy TRƯỚC chữ ký. THỨ TỰ CÓ RĂNG.**
 
@@ -235,15 +237,26 @@ Steps:
    cùng luật đỏ. `--allow-dirty` không kèm `--write`: chỉ ĐO, không ghim.
 
    **7c — commit chữ ký cùng mọi file làn đòi**, MỘT lượt — không tách, không
-   đòi người tự gõ git. Print the exact sequence:
+   đòi người tự gõ git. Repo opted in (step 6) → FIRST run EXACTLY this block — it
+   resolves `AG` to this plugin's root, `${CLAUDE_PLUGIN_ROOT}`, by itself (the
+   self-hosting kit sets `AG=.` first). It redraws the map from the fields 7a just
+   wrote — and the roadmap page `LO-TRINH.html` when the repo declares
+   `lo_trinh.tep` — and stages both:
+<!-- <<<MAP-STAGE -->
+```
+AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/product-map.mjs" --root . && git add -- PRODUCT-MAP.md && if [ -f LO-TRINH.html ]; then git add -- LO-TRINH.html; fi
+```
+<!-- MAP-STAGE>>> -->
+
+   Then print the exact sequence:
 
    ```bash
    git add _acceptance/<slug>/evidence-report.md _acceptance/<slug>/contract.md
    git commit -m "Gate 2 signoff: <slug> — <name>"
    ```
 
-   Repo opted in (step 6 regenerated the map) → append ` PRODUCT-MAP.md` to that
-   `git add`. Repo NOT opted in → leave it out: the file does not exist there and
+   Repo opted in (step 6) → the `MAP-STAGE` block above already staged the views;
+   appending ` PRODUCT-MAP.md` to that `git add` as well is harmless. Repo NOT opted in → leave it out: the file does not exist there and
    naming it makes `git add` fail with a pathspec error mid-signature. Kho TỰ HOST
    kit (bước **7a-bis** đã chạy) → thêm ` tests/scripts/fixtures/routing-baseline.txt` vào
    cùng `git add`: dòng vừa sinh phải đi CÙNG commit chữ ký, vì tách ra là đúng

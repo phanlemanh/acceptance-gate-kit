@@ -23,6 +23,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // `chuKyThat` — MỘT NGUỒN của vị từ «chữ ký thật» (đổi khuôn S4-r2). Lưới
 // trước-merge gọi CÙNG hàm này qua CLI `node lib/evidence-core.cjs chu-ky-that`.
 const { frontmatterField, resolveConfigKey, chuKyThat } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+const { khoaTuConfig: khoaLoTrinh } = require(path.join(__dirname, 'lo-trinh-khoa.cjs'));
 // Luật "hồ sơ nào được tiêu thụ" VÀ luật "field điều hướng có hợp lệ không"
 // đều sống MỘT chỗ, bản đồ sản phẩm dùng chung — hai bên đọc cùng hồ sơ không
 // được cho hai kết luận trái nhau. Kiểm tay lại ở đây là cách hai bên đã trôi
@@ -637,6 +638,17 @@ const discoverySkill = cfgTxt => {
 const discovery = {
   brainstormSkill: cfgRead.err || cfgRead.t == null ? null : discoverySkill(cfgRead.t),
 };
+// Ổ cắm lộ trình (hồ sơ viec-ke-theo-plan): khoá đọc bằng hàm chung TRƯỚC; mô-đun lộ trình và
+// hàm xếp ô của bản đồ chỉ được nạp khi kho khai — kho không khai thì `loTrinh: null` và không mã
+// lộ trình nào chạy. «Hôm nay» chỉ vào hàng trễ; `ACCEPTANCE_TODAY` ghim đồng hồ cho phép đo.
+const tepLoTrinh = cfgRead.err || cfgRead.t == null ? null : khoaLoTrinh(cfgRead.t);
+let loTrinh = null;
+if (tepLoTrinh != null) {
+  const { classify, SECTIONS } = await import('./product-map.mjs');
+  const LT = await import('./lo-trinh.mjs');
+  loTrinh = LT.loTrinhThe({ root, classify, sections: SECTIONS,
+    today: process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10) });
+}
 const map = {
   present: existsSync(mapPath),
   fresh: null,
@@ -707,4 +719,4 @@ const metaOpen = (() => {
   kq.flag = kq.n >= 2;
   return kq;
 })();
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken });
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken, loTrinh });
