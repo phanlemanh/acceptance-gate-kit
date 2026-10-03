@@ -625,7 +625,7 @@ Từ vòng `lo-trinh-tren-du-lieu-that` (chạy thử trên lộ trình OKR th�
 - **Mở việc từ hàng.** `/feature-loop:feature-loop <mã hàng>` (hoặc chọn «mở hàng kế» trên thẻ
   `/acceptance-gate:start`): hàng chưa có hồ sơ → máy dựng `opportunity.md` từ hàng (ngưỡng đề xuất
   từ `bat_khi` và ngày mốc) rồi dừng ở Cổng Đáng; hàng đã có hồ sơ → vào thẳng vòng đó.
-- **Đường vào trang.** Thẻ `/start` luôn có một dòng mở `LO-TRINH.html`, `PRODUCT-MAP.md` trỏ sang
+- **Đường vào trang.** Thẻ `/acceptance-gate:start` luôn có một dòng mở `LO-TRINH.html`, `PRODUCT-MAP.md` trỏ sang
   trang, và thẻ cảnh báo khi kho khai lộ trình mà chưa bật bản đồ (khi đó bốn lệnh đóng cổng không
   vẽ lại trang).
 - **Sửa tệp ý định bằng PR** làm trang lệch cho tới khi vẽ lại: CI của kho đỏ với đúng lệnh

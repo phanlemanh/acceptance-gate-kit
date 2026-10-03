@@ -452,10 +452,16 @@ const giaTriYaml = v => { const t = String(v ?? '').replace(/\s+/g, ' ').trim();
 // bộ phân loại ngưỡng rút từ cùng một khuôn. Ngưỡng chỉ đề xuất từ dữ liệu của hàng: SỐNG = bat_khi,
 // Timebox = ngày mốc có ngày đầu tiên chứa hàng; thiếu căn cứ thì «…» — máy không bịa hạn.
 export function dungCoHoi({ khuon, hang, tep, tenLoTrinh, slug, owner, moc = [] }) {
+  // Luật ô ngưỡng (tiêu đề section, nhãn bốn dòng, tiền tố đề xuất) chỉ sống ở lib — nạp LƯỜI ở
+  // đây: bộ vẽ ở kho tiêu thụ chép mô-đun này mà không chép lib đó, và chỉ lối CLI dùng tới nó.
+  const NG = require(path.join(__dirname, '..', 'lib', 'nguong-o-co-hoi.cjs'));
   const fm = khoiKhuon(khuon, 'OPP-FRONTMATTER-TEMPLATE');
-  const tien = khoiKhuon(khuon, 'OPP-DE-XUAT-PREFIX');
-  if (fm == null || tien == null) throw new Error('khuôn ô cơ hội thiếu khối OPP-FRONTMATTER-TEMPLATE hoặc OPP-DE-XUAT-PREFIX');
-  const dx = tien.trim();
+  if (fm == null) throw new Error('khuôn ô cơ hội thiếu khối OPP-FRONTMATTER-TEMPLATE');
+  const dx = NG.prefixFromTemplate(khuon, 'OPP-DE-XUAT-PREFIX');
+  const nhan = NG.thresholdLabels(khuon);
+  const tim = re => nhan.find(l => re.test(l));
+  const [lHoi, lSong, lChet, lHan] = [tim(/Câu hỏi/), tim(/SỐNG/), tim(/CHẾT/), tim(/Timebox/)];
+  if (!lHoi || !lSong || !lChet || !lHan || nhan.length !== 4) throw new Error(`khuôn ô cơ hội có nhãn ngưỡng lạ: ${JSON.stringify(nhan)}`);
   const dien = { slug, feature: giaTriYaml(hang.cau_giao), owner: giaTriYaml(owner || ''), stage: 'discovery', decision: '', decided_by: '', decided_at: '', base_commit: '', disposition: '' };
   let yaml = fm.replace(/^```yaml\n/, '').replace(/```\s*$/, '');
   yaml = yaml.replace(/\{(\w+)\}/g, (m, k) => (k in dien ? dien[k] : m));
@@ -463,17 +469,18 @@ export function dungCoHoi({ khuon, hang, tep, tenLoTrinh, slug, owner, moc = [] 
   const batKhi = chuoi(hang.bat_khi);
   const m = moc.find(x => /^\d{4}-\d{2}-\d{2}$/.test(chuoi(x.ngay)) && Array.isArray(x.hang) && x.hang.map(chuoi).includes(chuoi(hang.ma)));
   const coMoc = !!(batKhi && m);
-  const nguong = [
-    `- Câu hỏi phép đo trả lời: ${batKhi ? `${dx} đã đạt «${batKhi}» chưa?` : '…'}`,
-    `- Kết quả nào là SỐNG: ${batKhi ? `${dx} ${batKhi}` : '…'}`,
-    `- Kết quả nào là CHẾT: ${batKhi ? `${dx} chưa đạt «${batKhi}» khi hết timebox` : '…'}`,
-    `- Timebox: ${coMoc ? `${dx} ${chuoi(m.ngay)} (mốc ${chuoi(m.ten) || chuoi(m.ngay)})` : '…'}`,
-  ];
+  const giaTri = {
+    [lHoi]: batKhi ? `${dx} đã đạt «${batKhi}» chưa?` : '…',
+    [lSong]: batKhi ? `${dx} ${batKhi}` : '…',
+    [lChet]: batKhi ? `${dx} chưa đạt «${batKhi}» khi hết timebox` : '…',
+    [lHan]: coMoc ? `${dx} ${chuoi(m.ngay)} (mốc ${chuoi(m.ten) || chuoi(m.ngay)})` : '…',
+  };
+  const nguong = nhan.map(l => `- ${l}: ${giaTri[l]}`);
   const than = [
     '', '## Vấn đề & ai gặp', '',
     `Mở từ hàng ${chuoi(hang.ma)} của «${tenLoTrinh || 'lộ trình'}» (\`${tep}\`).`, '',
     chuoi(hang.cau_giao), ...(chuoi(hang.vi_sao) ? ['', `Vì sao: ${chuoi(hang.vi_sao)}`] : []), '',
-    '## Ngưỡng chết / ngưỡng UAT', '', ...nguong, '',
+    `## ${NG.UAT_THRESHOLD_HEADING}`, '', ...nguong, '',
   ];
   return yaml + than.join('\n');
 }

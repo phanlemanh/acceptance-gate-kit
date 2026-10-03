@@ -1034,7 +1034,7 @@ for (const [ten, bk, mc] of [['co-bat-khi', true, true], ['bat-khi-khong-moc', t
 if (want('LT-74-do')) {
   try {
     const goc = khoiTpl(readFileSync(OPP_TPL, 'utf8'), 'OPP-DE-XUAT-PREFIX');
-    const mut = banSao([['skills/acceptance/references/opportunity-template.md', `<!-- <<<OPP-DE-XUAT-PREFIX -->\n${goc}`, `<!-- <<<OPP-DE-XUAT-PREFIX -->\n${goc.replace('[đề xuất]', '[gợi ý]')}`]]);
+    const mut = banSao([['skills/acceptance/references/opportunity-template.md', `<!-- <<<OPP-DE-XUAT-PREFIX -->\n${goc}`, `<!-- <<<OPP-DE-XUAT-PREFIX -->\n${goc.replace(goc.trim(), '[gợi ý]')}`]]);
     const r = KHO_74(true); const x = node([path.join(mut, 'scripts', 'lo-trinh.mjs'), '--root', r, '--hang', '7n', '--mo-o']);
     const t = existsSync(path.join(r, '_acceptance', 'no-sau-7', 'opportunity.md')) ? readFileSync(path.join(r, '_acceptance', 'no-sau-7', 'opportunity.md'), 'utf8') : '';
     if (x.status === 0 && /^- Kết quả nào là SỐNG: \[gợi ý\] /m.test(t)) ok('LT-74-do', 'bản sao khuôn đổi tiền tố: tệp ghi mang «[gợi ý]» — writer đọc khuôn lúc chạy'); else bad('LT-74-do', `exit ${x.status} ${x.stderr.trim()} — tệp «${(t.match(/^- Kết quả nào là SỐNG:.*$/m) || [''])[0]}»`);
