@@ -5,7 +5,7 @@ slug: lan-ghim-lai-giu-tron-loi-loi
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ feature-loop/scripts/repin-lane.mjs + SKILL/tài liệu; bộ đọc lib/ và pre-merge KHÔNG sửa (đo im 03/10)
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-10-03T01:59:11Z   # owner duyệt nâng phạm vi (AC-8) khi trả lại ở Cổng Bằng chứng lượt 3
 veto_state: mo
