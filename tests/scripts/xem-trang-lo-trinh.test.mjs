@@ -123,7 +123,9 @@ if (P) {
         const MUT = [
           ['màu chữ phụ #bbbbbb', ['scripts/lo-trinh.mjs', ':root{--bg:#fbfaf7;--sf:#ffffff;--fg:#1d1d1b;--mu:#5f5c56;', ':root{--bg:#fbfaf7;--sf:#ffffff;--fg:#1d1d1b;--mu:#bbbbbb;'], ['tương phản']],
           ['khung trang tối thiểu 1180px', ['scripts/lo-trinh.mjs', 'main{max-width:1180px;', 'main{min-width:1180px;max-width:1180px;'], ['tràn']],
-          ['h2 32px', ['scripts/lo-trinh.mjs', 'h2{font-size:18px;', 'h2{font-size:32px;'], ['tiêu đề']],
+          // h2 vượt h1 ĐÚNG một nấc (27 > 26): to hơn nữa thì phông chữ rộng của máy CI (Ubuntu) đẩy thẻ khỏi
+          // màn đầu và tràn ngang ở 375 — nhát tiêm phải cô lập một thước, không phá thêm thước khác.
+          ['h2 27px', ['scripts/lo-trinh.mjs', 'h2{font-size:18px;', 'h2{font-size:27px;'], ['tiêu đề']],
           ['summary không min-height', ['scripts/lo-trinh.mjs', 'summary{cursor:pointer;min-height:44px;', 'summary{cursor:pointer;'], ['nút']],
           ['bỏ khối CSS điện thoại', ['scripts/lo-trinh.mjs', '@media (max-width:640px){main{', '@media (max-width:1px){main{'], ['màn đầu', 'tràn']],
           ['thêm cỡ chữ 12.5px', ['scripts/lo-trinh.mjs', '.mu{color:var(--mu)}.nho{font-size:13px}', '.mu{color:var(--mu)}.nho{font-size:12.5px}'], ['cỡ chữ']],

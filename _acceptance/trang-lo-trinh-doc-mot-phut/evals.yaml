@@ -111,7 +111,7 @@ evals:
       30): mọi ô manDau đúng, không tràn, ≤ 6 cỡ chữ, h1 > h2 > h3, tương phản thấp nhất ≥ ngưỡng, nút
       ≥ 44px; ở 1440 trang hai lộ trình cao ≤ 1/3 trang do bộ vẽ v2.21.0 (`git archive v2.21.0 scripts lib`, trọn
       thư mục) vẽ cùng kho, đo cùng phiên Chrome (in hai số và tỉ lệ); in ô xấu nhất mỗi thước. Và "PASS: LTT-san-do" — bảy
-      bản sao bộ vẽ, mỗi bản tiêm một lỗi (màu chữ phụ #bbbbbb · khung trang tối thiểu 1180px · h2 32px ·
+      bản sao bộ vẽ, mỗi bản tiêm một lỗi (màu chữ phụ #bbbbbb · khung trang tối thiểu 1180px · h2 27px (vượt h1 một nấc) ·
       summary không min-height · bỏ khối CSS điện thoại · thêm cỡ chữ 12.5px · mở sẵn việc đã giao):
       CHÍNH hàm đo trả ĐÚNG tập thước mong đợi (tương phản · tràn · tiêu đề · nút · màn đầu + tràn · cỡ
       chữ · độ dài) và không thước nào khác — đủ bảy thước của hàm đo. Và "PASS: LTT-san-im" — đổi câu giải thích cuối trang thành câu dài gấp đôi: mọi
