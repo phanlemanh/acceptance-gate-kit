@@ -155,6 +155,7 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
   const tuVungKho = khuon.tuVung || {};
   for (const [k, v] of Object.entries(tuVungKho)) if (!tuVung.has(so(v))) co.push(`tu_vung: «${k}» trỏ «${v}» — không phải tên trạng thái`);
   let tuKhaiNgoai = 0;
+  const nguoiNhanCua = r => { const n = r._ma ? (nhanTheoMa.get(r._ma) || []) : []; return n.length > 1 ? n : []; };
   const dong = khuon.hang.map(r => {
     const coHang = [];
     const slug = chuoi(r.slug);
@@ -178,6 +179,10 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
       if (hoSo) {
         coHoSo = true;
         chu = TEN[xep(hoSo).key];
+      } else if (nguoiNhan.length > 1) {
+        // Nhiều hồ sơ cùng nhận mà slug không chỉ ra hồ sơ nào: kit không chọn hộ, hàng không là
+        // hàng kế, và lệnh mở không đẻ thêm hồ sơ (Cổng Bằng chứng lượt 1, Ngoài-6).
+        chu = KHONG_SUY; // nhiều-người-nhận
       } else if (slug) {
         chu = CHUA_MO;
         // Slug khai mà không có hồ sơ, lời khai nói đã giao hoặc đang làm: kit không chứng được, và
@@ -201,7 +206,7 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
       const t = c == null ? '' : chuoi(frontmatterField(c, 'risk_tier'));
       if (t && t !== chuoi(r.hang)) coHang.push(`hàng ${r._nhan}: hạng tệp ${chuoi(r.hang)}, hồ sơ ${t}`);
     }
-    return { ...r, slug: slug || undefined, hoSo, chu, tinTheoLoi, coHoSo, tuKhai: tuKhai || null, khaiNgoai: !!(tuKhai && !khaiChuan), coHang };
+    return { ...r, slug: slug || undefined, hoSo, nhieuNhan: hoSo ? [] : nguoiNhanCua(r), chu, tinTheoLoi, coHoSo, tuKhai: tuKhai || null, khaiNgoai: !!(tuKhai && !khaiChuan), coHang };
   });
   const theoMa = new Map();
   for (const d of dong) if (d._ma && !theoMa.has(d._ma)) theoMa.set(d._ma, d);
@@ -234,6 +239,8 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
     return (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi).every(x => theoMa.has(x) && daGiaoMa(x));
   };
   const ke = dong.find(d => chuaLam.has(d.chu) && duDieuKien(d)) || null;
+  // Mã trùng trong tệp: hàng kế vẫn hiện, nhưng không ai mở nó bằng mã được (Ngoài-7).
+  const keMaDon = !!ke && !!ke._ma && dong.filter(d => d._ma === ke._ma).length === 1;
   const hangKe = ke ? { ma: ke._nhan, cauGiao: chuoi(ke.cau_giao) || '(hàng chưa có câu giao)', dungTren: (Array.isArray(ke.dung_tren) ? ke.dung_tren : []).map(chuoi).map(x => ({ ma: x, chu: theoMa.get(x)?.chu || null })) } : null;
 
   // Vòng ngoài lộ trình: hồ sơ không hàng nào trỏ — đếm, không cờ.
@@ -253,7 +260,7 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
   const demTheoO = {};
   for (const d of dong) demTheoO[d.chu] = (demTheoO[d.chu] || 0) + 1;
   return {
-    ten: khuon.ten, dong, co, hangKe, ngoaiLoTrinh, songQuaCongDang: { k, n }, tuKhaiNgoai,
+    ten: khuon.ten, dong, co, hangKe, hangKeMaDon: keMaDon, ngoaiLoTrinh, songQuaCongDang: { k, n }, tuKhaiNgoai,
     tinTheoLoi: { n: dong.filter(d => d.tinTheoLoi).length, tong: dong.length },
     moc: khuon.moc, daBac: khuon.daBac, demTheoO, daGiao,
   };
@@ -410,10 +417,9 @@ export function loTrinhThe({ root, classify, sections, today, banDoBat = null, l
   const ds = k.cacTep.map(p => {
     if (p.loi) return { tep: p.tep, ten: null, loi: p.loi, hangKe: null, hangTre: [], mocKhongHang: { k: 0, n: 0 }, tinTheoLoi: { n: 0, tong: 0 }, tuKhaiNgoai: 0, co: [] };
     const kq = p.kq;
-    const ke = kq.hangKe ? kq.dong.find(d => d._nhan === kq.hangKe.ma) : null;
     return {
       tep: p.tep, ten: kq.ten || null, loi: null,
-      hangKe: kq.hangKe ? { ma: kq.hangKe.ma, cauGiao: kq.hangKe.cauGiao, thamSo: ke && ke._ma ? (nhieu ? `${p.tep}:${ke._ma}` : ke._ma) : null } : null,
+      hangKe: kq.hangKe ? { ma: kq.hangKe.ma, cauGiao: kq.hangKe.cauGiao, thamSo: kq.hangKeMaDon ? (nhieu ? `${p.tep}:${kq.hangKe.ma}` : kq.hangKe.ma) : null } : null,
       hangTre: hangTre(kq, today), mocKhongHang: mocKhongHang(kq), tinTheoLoi: kq.tinTheoLoi, tuKhaiNgoai: kq.tuKhaiNgoai, co: kq.co,
     };
   });
@@ -501,7 +507,8 @@ if (isMain) {
     if (a[i] === '--mo-o') { moO = true; continue; }
     if (['--root', '--hang', '--slug', '--owner'].includes(a[i])) {
       const v = a[i + 1];
-      if (v == null || v === '' || v.startsWith('--')) bail(`${a[i]} cần một giá trị ngay sau nó`);
+      // `--owner` nhận chuỗi rỗng: máy không khai email git vẫn mở được việc (Ngoài-9).
+      if (v == null || (v === '' && a[i] !== '--owner') || v.startsWith('--')) bail(`${a[i]} cần một giá trị ngay sau nó`);
       if (a[i] === '--root') root = v; else if (a[i] === '--hang') ref = v; else if (a[i] === '--slug') slugMoi = v; else owner = v;
       i++;
     } else bail(`tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> --hang <mã|tệp:mã> [--mo-o [--slug <s>] [--owner <o>]]`);
@@ -517,8 +524,10 @@ if (isMain) {
   for (const tep of tepChon != null ? [tepChon] : khai.tep) {
     const { loi, data } = docTep(root, tep);
     if (loi) { loiTep.push(loi); continue; }
-    const k = kiemKhuon(data); const r = k.hang.find(h => h._ma === ma);
-    if (r) thay.push({ tep, r, k });
+    const k = kiemKhuon(data); const cung = k.hang.filter(h => h._ma === ma);
+    // Mã trùng TRONG một tệp: kit không chọn hộ hàng nào (Ngoài-7) — tra hay mở đều dừng.
+    if (cung.length > 1) thoat(3, `mã ${ma} trùng trong ${tep} — sửa tệp ý định cho mỗi hàng một mã`);
+    if (cung.length) thay.push({ tep, r: cung[0], k });
   }
   if (thay.length > 1) thoat(3, `mã ${ma} có ở nhiều lộ trình: ${thay.map(t => t.tep).join(', ')} — gọi ${thay.map(t => `${t.tep}:${ma}`).join(' hoặc ')}`);
   if (!thay.length) thoat(1, loiTep.length ? loiTep[0] : `không có hàng ${ma} trong ${(tepChon != null ? [tepChon] : khai.tep).join(', ')}`);
@@ -530,6 +539,7 @@ if (isMain) {
   const kho = phanTichKho({ root, classify: PM.classify, sections: PM.SECTIONS });
   const d = kho.cacTep.find(t => t.tep === tep)?.kq?.dong.find(x => x._ma === ma);
   if (d && d.hoSo) { process.stdout.write(JSON.stringify({ hoSo: d.hoSo, moi: false }) + '\n'); process.exit(0); }
+  if (d && d.nhieuNhan.length) bail(`hàng ${ma} được nhiều hồ sơ nhận: ${d.nhieuNhan.join(', ')} — không mở thêm hồ sơ; sửa lo_trinh_ma của các hồ sơ đó`);
   const slug = slugMoi || chuoi(hang.slug) || suySlug(hang.cau_giao);
   if (!slug || !SLUG_RE.test(slug)) bail(`slug không hợp lệ: «${slug}» — truyền --slug`);
   const dich = path.join(root, '_acceptance', slug);

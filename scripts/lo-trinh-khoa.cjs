@@ -18,6 +18,7 @@ function khoiLoTrinh(cfgText) {
   if (i < 0) return null;
   const ra = [];
   for (const l of dong.slice(i + 1)) {
+    if (/^\s*(#.*)?$/.test(l)) continue; // chú thích và dòng trống không cắt khối
     if (/^\S/.test(l)) break;
     ra.push(l);
   }

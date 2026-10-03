@@ -6,11 +6,11 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/{lo-trinh.mjs, lo-trinh-khoa.cjs, product-map.mjs, start-scan.mjs} + commands/start.md + SKILL feature-loop + GUIDE + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-03-lo-trinh-tren-du-lieu-that-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
-veto_opened_at: 2026-10-03T02:12:51Z
+veto_opened_at: 2026-10-03T07:14:30Z
 ---
 
 # Acceptance Contract: lo-trinh-tren-du-lieu-that
