@@ -255,7 +255,21 @@ Resume vào `draft` mà workspace đã có `figures/` → dùng lại, không v�
      cùng tên, và hai lỗi trên cùng một dòng vẫn là khác lớp nếu khác tên.
      <!-- STOP-PATCHING-CLAUSE>>> -->
 
+     **«Ship với giới hạn đã biết» = thu phạm vi có tên** (đưa tiêu chí ra Known limits, ký lại
+     Cổng Phạm vi) — KHÔNG phải ký trên báo cáo REJECT/BLOCKED: báo cáo ấy không ký được.
+
      **Tối đa 3 round** — quá → DỪNG, escalate user kèm phân tích từng round. `result.report` rỗng ở round REJECT → cảnh báo user lịch sử Iterations của round này không được ghi (vẫn PHẢI ghi report/findings từ result như bước "Mọi verdict" nếu có nội dung).
+     <!-- <<<TRAN-LUOT-LOI-RA -->
+     **Mời ở trần lượt và ở dừng-vá bằng khối «Lối ra» của thẻ — không tự soạn lời mời.** Ở hai
+     điểm dừng này phiên ghi report + run-log như mọi verdict, chạy `thuoc-vat.mjs --write`, rồi
+     render thẻ Cổng Bằng chứng (`/acceptance-gate:acceptance-card <slug>`): thẻ CHƯA-ký-được tự
+     in khối «Lối ra» — các lượt đã chấm kèm phút máy, eval chưa đạt lặp lại, ba lối có giá (thu
+     phạm vi · chấm thêm một lượt · dừng vòng) và lối máy khuyên. Tin mời chép ĐÚNG ba lối và lối
+     khuyên của khối; không thêm lối, không đổi khuyến nghị, không mời ký — báo cáo REJECT/BLOCKED
+     không ký được, nên một lối «ký ngay» là lối chết. Được thêm tối đa ba dòng phân tích từng
+     lượt. Thẻ không in khối (bản acceptance-gate cũ) → một dòng báo điều đó rồi mời bằng đúng ba
+     lối ấy, giá ghi «chưa đo».
+     <!-- TRAN-LUOT-LOI-RA>>> -->
    - `BLOCKED` → đọc `blocked[].cmd` + `blocked[].reason` từ kết quả, trình NGUYÊN VĂN cho user (một dòng báo, không phải câu hỏi) rồi khắc phục nguyên nhân và chạy lại — KHÔNG tự chọn số round: `s4-args` đánh số. Lượt mà mọi mục chặn mang nhãn hạ tầng (`chet`/`mu` của `lib/nhan-canh-gay.cjs`) và không có finding trong hợp đồng thì `s4-args` ra CÙNG round — lượt ấy không đếm vào trần, và chỉ thử lại MỘT lần (khối ĐỊNH VỊ, K8). Lượt BLOCKED còn finding trong hợp đồng (`rejectFindings`) là REJECT về bản chất: sửa như REJECT rồi chấm round kế — round ấy đếm. Đã thử lại một lần mà vẫn chặn vì hạ tầng (`s4-args` in một dòng báo) → ghi run-log + báo cáo như mọi verdict rồi trình thẻ Cổng Bằng chứng (cạnh gãy, ô ký trên cạnh gãy) — không hỏi thêm, không tự tung lượt thứ ba. Không bao giờ downgrade BLOCKED thành pass.
      <!-- <<<CLASSIFIER-FALLBACK -->
      **Lượt bị chặn VÌ BỘ PHÂN LOẠI thì lượt kế ĐỔI ĐƯỜNG, không tung bầy lại.**
