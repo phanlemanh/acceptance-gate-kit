@@ -401,4 +401,4 @@ viec-ke-theo-plan#ngoai-13	viec-ke-theo-plan	medium	khac	song			Lệnh ký bằn
 lo-trinh-tren-du-lieu-that#ngoai-1	lo-trinh-tren-du-lieu-that	medium	doc-drift	song			Bảng mã thoát S0-MO-O-THOAT hướng dẫn gọi lại bằng tệp:mã cho ca mã trùng trong một tệp — cách gỡ đúng là sửa tệp ý định
 lo-trinh-tren-du-lieu-that#ngoai-4	lo-trinh-tren-du-lieu-that	medium	doi-chung-tu-sinh	song			LT-81 so hai đầu ra của cùng bộ đọc mà không neo bản sạch — bộ đọc trả null cho mọi đầu vào vẫn xanh
 lo-trinh-tren-du-lieu-that#ngoai-5	lo-trinh-tren-du-lieu-that	low	khong-the-do	song			LT-84-do chỉ ghim mã thoát 2, không ghim thông điệp — nhánh bail khác cùng mã vẫn xanh
-lo-trinh-tren-du-lieu-that#ngoai-6	lo-trinh-tren-du-lieu-that	high	dong-goi	song			Trang mẫu của hồ sơ đã ký viec-ke-theo-plan đổi một dòng nên hồ sơ đó hoá cũ, phải ghim lại trong cùng PR
+lo-trinh-tren-du-lieu-that#ngoai-6	lo-trinh-tren-du-lieu-that	high	dong-goi	chet	effd50a9		Trang mẫu của hồ sơ đã ký viec-ke-theo-plan đổi một dòng nên hồ sơ đó hoá cũ, phải ghim lại trong cùng PR
