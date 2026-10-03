@@ -10,6 +10,16 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Unreleased
+
+### Làn ghim lại giữ trọn lời lỗi (hồ sơ `lan-ghim-lai-giu-tron-loi-loi`, T2)
+
+- Lệnh đỏ trong `repin-lane.mjs` ghi nhật ký trọn ra `.acceptance-runs/<slug>/repin-<run_id>/`; lệnh xanh không sinh tệp.
+- Làn đỏ `--write` để một dòng `kind: repin-do` mỗi slug (mã lượt dưới `lan_id` · lệnh đỏ · mã · nhật ký · `wall_s` · `so_lenh` · tải máy); pin và evidence không đổi; mã thoát không đổi. Mã lượt đỏ KHÔNG mang khoá `run_id` nên không bao giờ thành bằng chứng eval.
+- Thư mục `.acceptance-runs/` tự đặt `.gitignore` (`*`) khi làn tạo nó — kho chưa khai không còn bị nhật ký lọt vào git.
+- Dòng `kind: repin` mang thêm `wall_s` và `so_lenh` (khuôn `REPIN-TEMPLATE` cập nhật).
+- Mô-đun mới `feature-loop/scripts/tai-may.mjs` (không bao giờ ném). `.acceptance-runs/` vào `.gitignore` của kit.
+
 ## 2.20.0 — 01/10/2026
 
 Cửa sổ 2.19.0 → 2.20.0 kéo **hai ngày**, có **ba vòng** chạm engine: `thuoc-biet-truoc-khong-phan-duoc`

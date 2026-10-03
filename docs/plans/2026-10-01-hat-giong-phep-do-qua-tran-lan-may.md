@@ -24,3 +24,13 @@ chung (lời nhờ «giữ máy yên» giữa các phiên 01/10 là chi phí th�
 
 ≥2 hồ sơ ở ≥1 kho phải khai `not-run` chỉ vì trần thời gian (đếm: grep `not-run` trong
 `evals.yaml` các kho, đọc lý do ở sổ quyết định cùng hồ sơ).
+
+## Ca thứ hai (03/10) — cùng hình, KHÔNG tính vào ngưỡng trên
+
+Gốc: crm/_acceptance/muc-tieu-va-kr — E14 (`rang/ho-so-cham.mjs`) dài 34–310 phút. Kho không
+khai `not-run`: làn máy ôm lệnh ba lượt liền (`cannot_run` · mã 137 sau 188 phút, 61 lần gọi
+công cụ, 5,6 triệu token đọc cache · `cannot_run`), rồi lượt 4 phải chấm tuần tự bằng một phiên
+riêng ngoài bầy tác tử (310 phút). Tổng ~9,6 giờ máy và ba lượt chấm BLOCKED/REJECT vì hạ tầng
+trước khi thước cho ra một phán quyết. Ngưỡng ở trên đếm `not-run` nên ca này không cộng vào;
+ghi để thấy hình thứ hai của cùng lỗ: không có đường chạy thì kho **không khai** mà **đốt lượt**.
+Số đo và phần lời mời: `docs/plans/2026-10-03-hat-giong-loi-moi-tran-luot-loi-song-co-gia.md`.

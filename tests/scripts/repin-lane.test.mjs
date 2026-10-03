@@ -81,7 +81,8 @@ check('LN2 PHÁ VẬT THẬT: hợp nhất xoá tiền đề của E1 → suite 
   const before = { lines: repinLines().length, vc: vcOf(), rep: readFileSync(REPORT, 'utf8') };
   const r = lane('--slug', 'feat-lane', '--reason', 'sau hợp nhất', '--write');
   assert.equal(r.status, 1, `nghi thức cũ sẽ ghim xanh ở đây (suite xanh) — làn mới phải đỏ:\n${r.stderr}`);
-  assert.match(r.stderr, /LÀN ĐỎ — không ghi gì \(suite \[0\]; eval đỏ: feat-lane\/E1=1\)/);
+  // Từ hồ sơ lan-ghim-lai-giu-tron-loi-loi: làn đỏ có --write để MỘT dòng repin-do, KHÔNG ghi pin.
+  assert.match(r.stderr, /LÀN ĐỎ — không ghi pin; dấu lượt đỏ ở run-log của 1 hồ sơ \(suite \[0\]; eval đỏ: feat-lane\/E1=1\)/);
   assert.equal(repinLines().length, before.lines, 'làn đỏ mà run-log vẫn nhận dòng');
   assert.equal(vcOf(), before.vc, 'làn đỏ mà verified_commit vẫn nhảy');
   assert.equal(readFileSync(REPORT, 'utf8'), before.rep, 'làn đỏ mà report vẫn bị sửa');
@@ -219,9 +220,14 @@ check('RL-EE2 cùng fixture (khai 2), lệnh trả 1: làn ĐỎ exit 1, KHÔNG 
   const beforeRep = readFileSync(f.reportPath, 'utf8');
   const r = eeLane(f.root, '--reason', 'kiểm lệch', '--write');
   assert.equal(r.status, 1, `mã trả 1 lệch với khai 2 phải ĐỎ:\n${r.stderr}`);
-  assert.match(r.stderr, /LÀN ĐỎ — không ghi gì/);
+  assert.match(r.stderr, /LÀN ĐỎ — không ghi pin; dấu lượt đỏ ở run-log của 1 hồ sơ/);
   assert.match(r.stderr, /feat-ee\/EE1=1 \(khai 2\)/, 'thông điệp phải gọi tên mã thật lẫn mã đã khai');
-  assert.equal(readFileSync(f.logPath, 'utf8'), beforeLog, 'làn đỏ mà run-log.jsonl đổi dù chỉ 1 byte');
+  // run-log chỉ được thêm ĐÚNG một dòng repin-do (hồ sơ lan-ghim-lai-giu-tron-loi-loi), không dòng pin nào.
+  const sau = readFileSync(f.logPath, 'utf8');
+  assert.ok(sau.startsWith(beforeLog), 'làn đỏ mà phần run-log cũ đổi');
+  const them = sau.slice(beforeLog.length).split('\n').filter(Boolean);
+  assert.equal(them.length, 1, `làn đỏ phải thêm đúng 1 dòng, thấy ${them.length}`);
+  assert.equal(JSON.parse(them[0]).kind, 'repin-do', 'dòng thêm phải là dấu lượt đỏ, không phải pin');
   assert.equal(readFileSync(f.reportPath, 'utf8'), beforeRep, 'làn đỏ mà evidence-report.md đổi dù chỉ 1 byte');
   const o = JSON.parse(r.stdout);
   assert.deepEqual(o.slugs['feat-ee'].evals_exit, { EE1: 1 });

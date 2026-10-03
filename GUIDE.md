@@ -594,6 +594,23 @@ Repo dựng trước 1.31.0 không tự bật: các thân cổng đọc `t1_skip
 thấy `PRODUCT-MAP.md` thì **bỏ qua** bước vẽ lại và in hai dòng chỉ cách bật.
 Không có bước này thì chính commit chữ ký làm bằng chứng cũ đi và merge kẹt.
 
+**Lộ trình cạnh bản đồ (hồ sơ viec-ke-theo-plan)** — kho tự viết một tệp ý định JSON (khuôn
+`skills/acceptance/references/lo-trinh-template.json`: mỗi hàng `ma` · `cau_giao` bắt buộc; `hang` ·
+`vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
+cấp tệp; mọi trường khác là trường tự do của kho) rồi bật bằng hai dòng:
+
+```yaml
+lo_trinh:
+  tep: docs/plan/lo-trinh.json
+```
+
+và thêm `LO-TRINH.html` vào `risk_tiers.t1_skip_globs` cạnh `PRODUCT-MAP.md` (cùng lý do: view máy
+sinh, `--check` canh). Từ đó mỗi lần bản đồ được vẽ lại, `LO-TRINH.html` được vẽ cùng lượt — trạng
+thái từng hàng suy từ hồ sơ, không gõ tay — và thẻ `/acceptance-gate:start` in ba dòng: hàng kế, hàng
+trễ theo mốc, số hàng tin theo lời. Kho dùng chữ trạng thái riêng thì khai `tu_vung` để kit so được
+lời tự khai với hồ sơ. Kit **không bao giờ ghi** vào tệp ý định. Vòng tính năng nhận thẳng một hàng:
+`/feature-loop:feature-loop <mã hàng>`. Kho không khai khoá thì không thấy gì khác.
+
 **Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
 đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ
 đã hứa chưa?"; Cổng Giá trị hỏi "thứ đó có ăn thua không?". Nghi thức chép
@@ -837,7 +854,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 15 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 17 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -862,6 +879,8 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/khong-can-nguoi.mjs` — vị từ làn V «không cần người» mà `product-map.mjs` nạp để từ chối hồ sơ tự khai máy-thông không có vật
 - `lib/nguong-o-co-hoi.cjs` — bộ đọc ngưỡng ô cơ hội mà `product-map.mjs` `require` cho ô Cổng Giá trị
 - `lib/out-of-contract.cjs` — bộ đọc DUY NHẤT của `review-findings.md`; luật làn V ở lưới trước-merge và `khong-can-nguoi.mjs` cùng hỏi nó mục ngoài hợp đồng nào chưa được người định tuyến. **Đổi tên từ `.js` ở 2.18.1** — kho tiêu thụ chép lại thì XOÁ tệp đuôi cũ
+- `scripts/lo-trinh-khoa.cjs` — bộ đọc DUY NHẤT của khoá ổ cắm lộ trình `lo_trinh.tep` mà `product-map.mjs` `require` ở MỌI lượt; thiếu → bước bản đồ `MODULE_NOT_FOUND` kể cả ở kho không khai lộ trình
+- `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;
@@ -1224,7 +1243,9 @@ eval `ui-check`/`judgment` không chạy được trong làn máy nên re-pin KH
 lại chúng. Từ 2.18 làn nói ra thay vì im: dòng `kind:repin` mang
 `evals_not_machine` (mọi id ngoài làn máy) và `evals_not_machine_touched` (những
 id mà `git diff <pin cũ> HEAD` chạm `paths` của chính chúng), section Re-pin nêu
-thêm `AC không có chốt máy`, và thẻ Cổng Bằng chứng in cả hai. Hồ sơ mang
+thêm `AC không có chốt máy`, và thẻ Cổng Bằng chứng in cả hai (từ 2.21 dòng ấy
+mang thêm `wall_s` và `so_lenh` — thời lượng làn, không phải giới hạn; xem «Làn đỏ để lại
+vết» bên dưới). Hồ sơ mang
 `evals_not_machine_touched` phải đi vòng S4 delta — làn vẫn ghi pin, nó KHÔNG
 chặn. Ngưỡng mở vòng CHẶN, đếm giữa hai bản phát hành:
 
@@ -1235,6 +1256,18 @@ grep -l '"evals_not_machine_touched"' _acceptance/*/run-log.jsonl 2>/dev/null | 
 ≥1 hồi quy UI lọt qua một lượt ghim mang khoá đó → mở vòng. Lý do và các lối bị
 loại: ADR 0014; ba lối tách hai nghĩa của `ui-check`:
 `docs/plans/2026-09-20-hat-giong-tach-hai-nghia-ui-check.md`.
+
+**Làn đỏ để lại vết (2.21).** Lệnh đỏ trong làn ghi nhật ký TRỌN (stdout + stderr) ra
+`.acceptance-runs/<slug đầu>/repin-<run_id>/NN-<nhãn>.log` và in đường dẫn kèm 30 dòng cuối như
+cũ; lệnh xanh không sinh tệp. Làn đỏ chạy `--write` để MỘT dòng `kind: repin-do` ở run-log mỗi
+slug — lệnh đỏ, mã, đường nhật ký, `wall_s`, `so_lenh`, tải máy (`tai`) — không chống lưng pin
+nào; mọi bộ đọc sổ lọc theo loại dòng riêng nên đọc qua im (đo 03/10). Dòng `kind: repin` xanh
+mang thêm `wall_s` + `so_lenh`. Kho tiêu thụ thêm `.acceptance-runs/` vào `.gitignore` nếu chưa có.
+Đếm lượt đỏ giữa hai mốc:
+
+```bash
+cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -c '"kind":"repin-do"'
+```
 
 **Làn bỏ qua khi cây BẰNG PIN — `--skip-unchanged` (2.14).** Đo 14/09: một chữ ký
 mất **54 phút · ≈ 42 M token** từ lúc owner gõ «Ký» tới READY, và **7/7** chữ ký
