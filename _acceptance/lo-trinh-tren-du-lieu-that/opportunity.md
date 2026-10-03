@@ -3,10 +3,10 @@ schema_version: 1
 slug: lo-trinh-tren-du-lieu-that
 feature: Lộ trình chạy được trên dữ liệu thật của crm — hàng kế đúng, cờ không nhiễu, nhiều lộ trình mỗi kho, mở việc từ hàng qua Cổng Đáng, liên kết hai chiều hàng ↔ hồ sơ, đường vào trang từ /start
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Phan Le Manh
+decided_at: 2026-10-03T01:49:35Z   # owner gõ «làm» một chạm trong phiên 03/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -58,10 +58,10 @@ Chạy thử lát 1 trên hồ sơ thật của crm cho:
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] *trên lộ trình OKR thật của crm, thẻ start có chỉ đúng hàng kế và cờ chỉ còn lệch thật không?*
-- Kết quả nào là SỐNG: [đề xuất] trên bản sao hồ sơ crm `onehub` · hàng kế là một hàng thật sự chưa giao · 0 cờ nhiễu (mỗi cờ còn lại được owner xác nhận là lệch thật) · mở hàng kế từ /start ra ô cơ hội có ngưỡng đề xuất lấy từ `bat_khi`, không thêm lượt gọi người.
-- Kết quả nào là CHẾT: [đề xuất] hàng kế vẫn là hàng đã giao, hoặc còn ≥ 3 cờ nhiễu trên lộ trình OKR, hoặc kho không khai đổi thẻ/đổi trang.
-- Timebox: [đề xuất] một vòng T2, trần ba lượt chấm; đọc ngưỡng ngay trên bản sao crm trước khi cắt mốc 2.21.0.
+- Câu hỏi phép đo trả lời: *trên lộ trình OKR thật của crm, thẻ start có chỉ đúng hàng kế và cờ chỉ còn lệch thật không?*
+- Kết quả nào là SỐNG: trên bản sao hồ sơ crm `onehub` · hàng kế là một hàng thật sự chưa giao · 0 cờ nhiễu (mỗi cờ còn lại được owner xác nhận là lệch thật) · mở hàng kế từ /start ra ô cơ hội có ngưỡng đề xuất lấy từ `bat_khi`, không thêm lượt gọi người.
+- Kết quả nào là CHẾT: hàng kế vẫn là hàng đã giao, hoặc còn ≥ 3 cờ nhiễu trên lộ trình OKR, hoặc kho không khai đổi thẻ/đổi trang.
+- Timebox: một vòng T2, trần ba lượt chấm; đọc ngưỡng ngay trên bản sao crm trước khi cắt mốc 2.21.0.
 
 ## Kết quả prototype
 
@@ -79,7 +79,7 @@ Chưa dựng. Bản chạy thử: bộ đọc lát 1 trên bản sao `_acceptanc
 
 ## Cổng 0
 
-- **decision = …** Đề xuất `build` T2, năm món: (1) so lời khai theo nhóm + cờ «tự khai đã giao mà không có hồ sơ» (hàng đó không bao giờ là hàng kế); (2) lối «mở hàng kế» trong /start và feature-loop S0 nhận mã hàng: chưa có hồ sơ → dựng ô cơ hội từ hàng (ngưỡng đề xuất từ `bat_khi`, ghi `lo_trinh_ma`) rồi chờ Cổng Đáng; (3) nối hai chiều hàng ↔ hồ sơ qua `lo_trinh_ma`, cờ khi lệch; (4) khoá `lo_trinh.tep` nhận danh sách tệp, trang và thẻ theo từng lộ trình; (5) thẻ start luôn in đường mở trang bấm được, bản đồ trỏ sang trang, cờ khi kho khai lộ trình mà chưa bật bản đồ. KHÔNG thêm lệnh mới — mọi đường vào đi qua `/start`, bản đồ và feature-loop.
+- **decision = build** T2, năm món: (1) so lời khai theo nhóm + cờ «tự khai đã giao mà không có hồ sơ» (hàng đó không bao giờ là hàng kế); (2) lối «mở hàng kế» trong /start và feature-loop S0 nhận mã hàng: chưa có hồ sơ → dựng ô cơ hội từ hàng (ngưỡng đề xuất từ `bat_khi`, ghi `lo_trinh_ma`) rồi chờ Cổng Đáng; (3) nối hai chiều hàng ↔ hồ sơ qua `lo_trinh_ma`, cờ khi lệch; (4) khoá `lo_trinh.tep` nhận danh sách tệp, trang và thẻ theo từng lộ trình; (5) thẻ start luôn in đường mở trang bấm được, bản đồ trỏ sang trang, cờ khi kho khai lộ trình mà chưa bật bản đồ. KHÔNG thêm lệnh mới — mọi đường vào đi qua `/start`, bản đồ và feature-loop.
 - **disposition = …**
 - **Ngưỡng UAT chốt cùng lúc ký:** ngưỡng SỐNG ở trên, đọc trên bản sao crm trước khi cắt mốc 2.21.0.
 
