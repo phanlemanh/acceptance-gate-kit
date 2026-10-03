@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # lớp vẽ của scripts/lo-trinh.mjs + test (tests/scripts/lo-trinh*.mjs) + config executor — không chạm lib/**, hook, lưới trước-merge, lớp phân tích
 surfaces: [ui]
 design_doc: docs/superpowers/specs/2026-10-03-trang-lo-trinh-doc-mot-phut-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
