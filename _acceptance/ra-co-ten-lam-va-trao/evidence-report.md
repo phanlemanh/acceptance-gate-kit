@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5c6f2f482432b385cd4140557b251f90d668a8ec
+verified_commit: 0675036a3bbbbb976d66eae00e30d0846d91ce60
 human_signoff: Manh 2026-08-25
 ---
 
@@ -350,3 +350,15 @@ sha: cd8fa89f1057836c2b4b6d35e67f31a6ad45c5b4 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 24 — 2026-10-03, do chiến dịch ghim lại mốc 2.21.0
 run_id: repin-20261003T125505Z-37851
 sha: 5c6f2f482432b385cd4140557b251f90d668a8ec · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 25 — 2026-10-03, do vòng trang-lo-trinh-doc-mot-phut: trang lộ trình vẽ lại, ca đo đọc trang chuyển sang trang mới; khai gạch tệp kho thử mới
+run_id: repin-20261003T152931Z-70830
+sha: 71bd6ff8992f2115a1b6492751648f971322490a · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 26 — 2026-10-03, do vòng trang-lo-trinh-doc-mot-phut: bộ vẽ trang lộ trình sau ba lượt chấm, sau chữ ký
+run_id: repin-20261003T213250Z-19047
+sha: 919a8320c8b5e3bad8a7c5e768a7ebdc13eb914a · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 27 — 2026-10-03, do CI Ubuntu: bản sao h2 của LTT-san-do tiêm 27px để cô lập một thước
+run_id: repin-20261003T221901Z-19295
+sha: 0675036a3bbbbb976d66eae00e30d0846d91ce60 · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

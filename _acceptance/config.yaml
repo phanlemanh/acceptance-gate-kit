@@ -52,6 +52,8 @@ executors:
     plugins_vung_3: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:\" | tail -n 40'"
     workflows: "bash tests/workflows/run-tests.sh"
     lo_trinh: "node tests/scripts/lo-trinh.test.mjs"
+    # Đo trang lộ trình trên Chrome thật (CDP) — thiếu Chrome thì ĐỎ nêu tên, không bỏ qua.
+    lo_trinh_trang: "node tests/scripts/xem-trang-lo-trinh.test.mjs"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc

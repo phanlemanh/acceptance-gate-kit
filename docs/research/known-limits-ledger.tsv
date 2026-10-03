@@ -423,3 +423,9 @@ lo-trinh-tren-du-lieu-that#ngoai-5	lo-trinh-tren-du-lieu-that	low	khong-the-do	s
 lo-trinh-tren-du-lieu-that#ngoai-6	lo-trinh-tren-du-lieu-that	high	dong-goi	chet	effd50a9		Trang mẫu của hồ sơ đã ký viec-ke-theo-plan đổi một dòng nên hồ sơ đó hoá cũ, phải ghim lại trong cùng PR
 release-2-21-0#ngoai-1	release-2-21-0	medium	chuoi-thay-quan-he	song			E1/E2/E6 khai ghim dòng P200 mà lệnh mảnh plugins_vung_3 lọc mất (grep FAIL|Results) — bằng chứng là mã thoát chung của vùng 3
 release-2-21-0#ngoai-2	release-2-21-0	medium	khong-the-do	trung		release-2-21-0#ngoai-1	Cùng gốc Ngoài-1: AC-1/2/6 không có bằng chứng riêng, không phân biệt P200 chạy-đạt với không-chạy
+trang-lo-trinh-doc-mot-phut#trong-1	trang-lo-trinh-doc-mot-phut	low	snapshot-nguon-song	song			Dải mốc sắp ngày theo chuỗi; ngày thiếu số 0 xếp sai và ô Mốc kế tiếp có thể chỉ mốc xa hơn (AC-5)
+trang-lo-trinh-doc-mot-phut#ngoai-1	trang-lo-trinh-doc-mot-phut	medium	khong-the-do	song			Đường dẫn khai ở các eval thiếu bộ sinh kho thử, fixture crm và bộ sinh trang mẫu — sửa chỉ các tệp đó mang màu xanh cũ sang
+trang-lo-trinh-doc-mot-phut#ngoai-2	trang-lo-trinh-doc-mot-phut	medium	doi-chung-tu-sinh	song			LT-100 so loTrinh của JSON quét với 2.21.0 không có đối chứng dương — hai bên cùng rỗng vẫn xanh
+trang-lo-trinh-doc-mot-phut#ngoai-3	trang-lo-trinh-doc-mot-phut	medium	khong-the-do	song			LT-92 chỉ đo cột Vì sao/Bật khi vắng, không có ca cột có dữ liệu thì phải hiện
+trang-lo-trinh-doc-mot-phut#ngoai-4	trang-lo-trinh-doc-mot-phut	medium	doi-chung-tu-sinh	song			LT-08 lấy câu lỗi mong đợi từ chính hàm dịch của bộ vẽ — hàm dịch hỏng về đồng nhất vẫn xanh
+trang-lo-trinh-doc-mot-phut#ngoai-6	trang-lo-trinh-doc-mot-phut	low	khong-the-do	song			LT-73-khong-truong-do xanh khi có bất kỳ khác biệt nào giữa hai chuỗi JSON, không ghim thông điệp

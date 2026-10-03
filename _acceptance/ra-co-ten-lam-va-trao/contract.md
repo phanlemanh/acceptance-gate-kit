@@ -141,6 +141,7 @@ tests/plugins/lenh-bam-duoc.test.mjs ca-hồ-sơ-cũ-trước-khi-lib-ra-đời
 scripts/start-scan.mjs hằng-một-ngày-dùng-cho-tuổi-ý-ageDays-không-phải-luật-timebox
 tests/scripts/lo-trinh.test.mjs fixture-code-sinh-dựng-opportunity.md-mang-tiêu-đề-section-không-đọc-ngưỡng
 tests/scripts/lo-trinh-mau.mjs fixture-code-sinh-dựng-opportunity.md-mang-tiêu-đề-section-không-đọc-ngưỡng
+tests/scripts/lo-trinh-kho-thu.mjs fixture-code-sinh-dựng-opportunity.md-cho-kho-thử-trang-lộ-trình-mang-tiêu-đề-section-không-đọc-ngưỡng
 LUAT-NGUONG-KHAI-GACH>>> -->
 
 Khối máy-đọc cho AC-13(iv) — bộ đọc chứa chuỗi `signed-off` mà hồ sơ này CỐ Ý không đụng, mỗi dòng `đường-dẫn lý-do`:
@@ -165,6 +166,7 @@ tests/scripts/repin-lane.test.mjs ca-của-làn-ghim-lại-bằng-eval-trên-kho
 tests/hooks/run-tests.sh ca-V12-signed-off-kèm-da-veto-của-lưới-ghi-duong-lui-phai-song-không-rẽ-theo-status-máy-thông
 tests/scripts/lo-trinh.test.mjs fixture-code-sinh-mang-status-để-bộ-đọc-lộ-trình-hỏi-hàm-xếp-ô-của-bản-đồ-không-rẽ-nhánh-theo-status
 tests/scripts/lo-trinh-mau.mjs fixture-code-sinh-mang-status-dựng-trang-mẫu-lộ-trình-không-rẽ-nhánh-theo-status
+tests/scripts/lo-trinh-kho-thu.mjs fixture-code-sinh-mang-status-dựng-kho-thử-năm-trạng-thái-trang-lộ-trình-không-rẽ-nhánh-theo-status
 BO-DOC-KHAI-GACH>>> -->
 
 
