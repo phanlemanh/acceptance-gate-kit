@@ -307,10 +307,12 @@ export function renderProductMap(root) {
     '',
     '> Bản đồ vẽ lại từ hồ sơ của xưởng mỗi lần một người ký một cổng — đừng sửa tay.',
     '> (đọc từ thư mục `_acceptance/` và `.out-of-scope/`)',
-    '',
-    ...mermaidBlock(Object.fromEntries(SECTIONS.map(([k]) => [k, buckets[k].length]))),
-    '',
   ];
+  // Kho khai lộ trình: bản đồ trỏ sang trang lộ trình (hồ sơ lo-trinh-tren-du-lieu-that, khảo sát
+  // mục 1). Kho không khai: không dòng nào — bản đồ giữ từng byte.
+  const coLoTrinh = khoaLoTrinh(readPlain(path.join(root, '_acceptance', 'config.yaml')) || '') != null;
+  if (coLoTrinh) lines.push('> Lộ trình: [LO-TRINH.html](LO-TRINH.html)');
+  lines.push('', ...mermaidBlock(Object.fromEntries(SECTIONS.map(([k]) => [k, buckets[k].length]))), '');
   for (const [key, title] of SECTIONS) {
     const items = buckets[key].sort((a, b) => a.slug.localeCompare(b.slug));
     if (!items.length) continue;

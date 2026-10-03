@@ -643,12 +643,6 @@ const discovery = {
 // lộ trình nào chạy. «Hôm nay» chỉ vào hàng trễ; `ACCEPTANCE_TODAY` ghim đồng hồ cho phép đo.
 const tepLoTrinh = cfgRead.err || cfgRead.t == null ? null : khoaLoTrinh(cfgRead.t);
 let loTrinh = null;
-if (tepLoTrinh != null) {
-  const { classify, SECTIONS } = await import('./product-map.mjs');
-  const LT = await import('./lo-trinh.mjs');
-  loTrinh = LT.loTrinhThe({ root, classify, sections: SECTIONS,
-    today: process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10) });
-}
 const map = {
   present: existsSync(mapPath),
   fresh: null,
@@ -665,6 +659,15 @@ const map = {
 map.state = map.enabled == null ? null
   : mapState({ exists: map.present, tracked: mapTracked(root, cfgRead.t) });
 map.label = map.state == null ? null : MAP_LABELS[map.state];
+// Lộ trình dựng SAU bản đồ: dòng thẻ cảnh báo «khai lộ trình mà bản đồ chưa bật» đọc `map.enabled`
+// (hồ sơ lo-trinh-tren-du-lieu-that, khảo sát mục 5), và lệnh vẽ trỏ đúng bộ vẽ cạnh tệp này.
+if (tepLoTrinh != null) {
+  const { classify, SECTIONS } = await import('./product-map.mjs');
+  const LT = await import('./lo-trinh.mjs');
+  loTrinh = LT.loTrinhThe({ root, classify, sections: SECTIONS,
+    today: process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10),
+    banDoBat: map.enabled, lenhVe: `node ${path.join(__dirname, 'product-map.mjs')} --root .` });
+}
 if (map.present) {
   // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
   // được bản đồ", không nói xanh.

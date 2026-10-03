@@ -112,11 +112,15 @@ thái vắng mặt phân biệt "đã xoá" với "chưa bật" theo bảng nhã
 _Avoid_: roadmap, dashboard; sửa tay (nó là view, sửa hồ sơ rồi vẽ lại).
 
 **Lộ trình**:
-Ý định thường-trú của KHO: một tệp JSON do người viết và đổi bằng PR (khoá `lo_trinh.tep` trong
-`_acceptance/config.yaml`), mỗi hàng một câu giao cắt theo thứ tự phụ thuộc (`dung_tren`), đứng cạnh
-bản đồ sản phẩm chứ không thay nó. Kit chỉ ĐỌC tệp; trạng thái từng hàng do máy suy từ hồ sơ bằng
-đúng hàm xếp ô của bản đồ, hiện ở `LO-TRINH.html` và ba dòng thẻ start. Hàng không slug là «tin theo
-lời». Khuôn: `skills/acceptance/references/lo-trinh-template.json`; hồ sơ `viec-ke-theo-plan`.
+Ý định thường-trú của KHO: tệp JSON do người viết và đổi bằng PR (khoá `lo_trinh.tep` trong
+`_acceptance/config.yaml`, một tệp hoặc một danh sách — mỗi tệp một lộ trình), mỗi hàng một câu giao
+cắt theo thứ tự phụ thuộc (`dung_tren`), đứng cạnh bản đồ sản phẩm chứ không thay nó. Kit chỉ ĐỌC
+tệp; trạng thái từng hàng do máy suy từ hồ sơ bằng đúng hàm xếp ô của bản đồ, lời tự khai so theo
+NHÓM (đã giao · đang làm · chưa làm), hiện ở `LO-TRINH.html` và các dòng thẻ start máy dựng sẵn. Hàng
+nối hồ sơ hai chiều: `slug` của hàng, hoặc ô cơ hội ghi `lo_trinh_ma`. Hàng không hồ sơ nào là «tin
+theo lời». Mở một hàng là dựng ô cơ hội rồi dừng ở Cổng Đáng. Khuôn:
+`skills/acceptance/references/lo-trinh-template.json`; hồ sơ `viec-ke-theo-plan`,
+`lo-trinh-tren-du-lieu-that`.
 _Avoid_: roadmap (trong chữ cho người); gộp với bản đồ sản phẩm; để kit ghi trạng thái vào tệp ý
 định; coi một hàng là một ô (hàng chỉ thành ô khi người mở vòng).
 

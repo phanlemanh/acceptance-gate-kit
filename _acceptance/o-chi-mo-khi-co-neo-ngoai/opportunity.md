@@ -205,6 +205,8 @@ dưới đây là SỔ; con trỏ hai chiều giữa chúng và ô này là **ch
   hỏi ở trần lượt đều «theo khuyến nghị», một lối không ký được, E14 ăn 310 phút lượt 4 mà 0 hồi quy sản phẩm.
 - `docs/plans/2026-10-03-hat-giong-bo-doc-ngoai-hop-dong-bo-dau-mang-sang.md` — 03/10 kit `loi-moi-tran-luot-loi-song-co-gia`:
   bộ đọc «Ngoài hợp đồng» bỏ mục carry `(r1)`, trộn trường vào mục trước — thẻ đếm 3/4.
+- `docs/plans/2026-10-03-hat-giong-suite-chap-chon-ho-so-khac-khoa-the.md` — 03/10 crm `muc-tieu-va-kr` lượt 5–8:
+  mọi eval đạt mà thẻ khoá vì suite toàn kho chập chờn ở hồ sơ khác và tác tử chết.
 
 K7 («pin nói ra ô nó không đo») **đã xong ở kho này** — vòng `ghim-lai-noi-ra-o-khong-do`, gộp
 20/09 (PR #190). Không mở lại.

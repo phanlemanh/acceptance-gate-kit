@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 58dbe3a1563cabf8303df7a40cca362623f06510
+verified_commit: ddccc203a459b606bbf7b063adb0ae881fb1289c
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -305,3 +305,11 @@ Round 2: E1–E13 và E15 xanh, E14 hội đồng đề xuất đạt; suite `vu
 Round 3: E1–E13, E15 và hội đồng E14 giữ nguyên từ round 2 (delta không chạm paths của chúng); cả mười lệnh suite xanh, gồm `vung:3` (ca P179) sau khi thêm hai hàng sổ known-limits (commit eb2a6c09). Verdict PASS.
 Round 4: phạm vi mở rộng thêm AC-16..18 (E16–E18) sau Cổng Bằng chứng «trả»; E1–E13, E15–E18 chạy lại xanh trên commit e21c15d7, E14 hội đồng giữ nguyên từ round 2, chín lệnh suite xanh. Ba finding trong hợp đồng cùng gốc (phép đo thứ tự LT-16-thu-tu neo vào lần nhắc đầu của tên trường) ghi ở review-findings.md để người xem ở Cổng 2. Verdict PASS.
 Round 5: sau «trả» lần hai (AC-16 thắt chặt) trên commit 58dbe3a1; E1–E13 và E16–E18 chạy lại xanh (68 ca lo-trinh), E14 hội đồng giữ nguyên từ round 2, E15 carry-forward từ round 4 (delta không chạm paths), mười lệnh suite xanh. Không còn finding trong hợp đồng; năm finding ngoài hợp đồng mới và bốn mục mang từ round trước ghi ở review-findings.md để người quyết ở Cổng 2. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-03, do vật lộ trình đổi ở vòng lo-trinh-tren-du-lieu-that (so theo nhóm, nhiều lộ trình, mở ô từ hàng)
+run_id: repin-20261003T081154Z-25025
+sha: 0ea3503948e25932927b9f4432520c02dd76d2eb · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · diff chạm vật đo ngoài làn máy: E14 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-14
+
+### Re-pin lần 2 — 2026-10-03, do gộp origin/main (34 commit) vào nhánh PR #252
+run_id: repin-20261003T081411Z-52013
+sha: ddccc203a459b606bbf7b063adb0ae881fb1289c · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14

@@ -41,7 +41,7 @@ worktree/nhánh đọc từ git của `<path>`.
    vetoOpen[].slug vetoOpen[].status vetoOpen[].humanSignoff vetoOpen[].signoffWarn vetoOpen[].daKhep
    vetoOpenUnsigned
    broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
-   loTrinh.tep loTrinh.ten loTrinh.loi loTrinh.hangKe.ma loTrinh.hangKe.cauGiao loTrinh.hangTre[].ma loTrinh.hangTre[].moc loTrinh.hangTre[].ngay loTrinh.tinTheoLoi.n loTrinh.tinTheoLoi.tong loTrinh.tuKhaiNgoai loTrinh.co
+   loTrinh.tep loTrinh.ten loTrinh.loi loTrinh.hangKe.ma loTrinh.hangKe.cauGiao loTrinh.hangTre[].ma loTrinh.hangTre[].moc loTrinh.hangTre[].ngay loTrinh.tinTheoLoi.n loTrinh.tinTheoLoi.tong loTrinh.tuKhaiNgoai loTrinh.co loTrinh.trang loTrinh.trangCo loTrinh.ds[].tep loTrinh.ds[].ten loTrinh.ds[].loi loTrinh.ds[].hangKe.ma loTrinh.ds[].hangKe.cauGiao loTrinh.ds[].hangKe.thamSo loTrinh.ds[].hangTre[].ma loTrinh.ds[].hangTre[].moc loTrinh.ds[].hangTre[].ngay loTrinh.ds[].mocKhongHang.k loTrinh.ds[].mocKhongHang.n loTrinh.ds[].tinTheoLoi.n loTrinh.ds[].tinTheoLoi.tong loTrinh.ds[].tuKhaiNgoai loTrinh.ds[].co loTrinh.dong
    START-SCAN-KEYS>>> -->
 
 2. **Nạp luật TRƯỚC khi viết:** đọc
@@ -136,17 +136,16 @@ worktree/nhánh đọc từ git của `<path>`.
      xác nhận nó là T1 rồi KẾT THÚC `/acceptance-gate:start` — người ra lệnh sửa ở lượt kế,
      ngoài nghi thức này (lệnh `/acceptance-gate:start` không sửa gì, kể cả việc vặt).
    <!-- <<<START-LO-TRINH -->
-   - **Lộ trình** (`loTrinh` — ổ cắm `lo_trinh.tep` trong `_acceptance/config.yaml`, hồ sơ
-     viec-ke-theo-plan): `loTrinh` là `null` → KHÔNG in gì, không khuyên bật (kho không dùng lộ
-     trình không thấy gì). `loTrinh.loi` khác null → đúng MỘT dòng «Lộ trình: không đọc được tệp
-     ý định — <loi>». Còn lại in đúng BA dòng, chữ lấy nguyên từ JSON, máy không tự suy thêm:
-     (1) «Hàng kế: <hangKe.ma> — <hangKe.cauGiao>», hoặc «Hàng kế: chưa có hàng đủ điều kiện mở»
-     khi `hangKe` null; (2) «Hàng trễ: <ma> (mốc <moc>, <ngay>) · …» cho mỗi phần tử
-     `hangTre`, hoặc «Hàng trễ: không có»; (3) «Tin theo lời: <tinTheoLoi.n>/<tinTheoLoi.tong>
-     hàng», nối thêm « · <tuKhaiNgoai> hàng tự khai ngoài từ vựng — không so được với hồ sơ» khi
-     `tuKhaiNgoai` > 0. `co` không rỗng → thêm một dòng «Lộ trình có <số> cờ — xem LO-TRINH.html».
-     Trang đầy đủ là `LO-TRINH.html` cạnh bản đồ; thẻ không chép lại bảng hàng. Kit KHÔNG ghi vào
-     tệp ý định — muốn đổi hàng thì người sửa tệp đó bằng PR.
+   - **Lộ trình** (`loTrinh` — ổ cắm `lo_trinh.tep` trong `_acceptance/config.yaml`, một tệp hoặc
+     một danh sách; hồ sơ viec-ke-theo-plan và lo-trinh-tren-du-lieu-that): `loTrinh` là `null` →
+     KHÔNG in gì, không khuyên bật (kho không dùng lộ trình không thấy gì). Còn lại in nguyên
+     `loTrinh.dong`, mỗi phần tử một dòng, đúng thứ tự, không thêm bớt chữ nào — bộ quét đã dựng
+     sẵn hàng kế, hàng trễ, tin theo lời, số cờ của từng lộ trình, dòng mở trang (liên kết bấm được
+     tới `LO-TRINH.html`, hoặc lệnh vẽ khi trang chưa có) và cảnh báo khi bản đồ sản phẩm chưa bật.
+     Khoá phẳng (`loTrinh.hangKe`, `loTrinh.co`, …) là đường đọc-cũ mang lộ trình ĐẦU; thân này
+     không dựng dòng từ chúng. Mỗi `loTrinh.ds[]` có `hangKe.thamSo` khác null là MỘT lựa chọn
+     đánh số của câu hỏi ở bước 4 («mở hàng kế <hangKe.ma>»). Thẻ không chép lại bảng hàng. Kit
+     KHÔNG ghi vào tệp ý định — muốn đổi hàng thì người sửa tệp đó bằng PR.
    <!-- START-LO-TRINH>>> -->
    - Dưới thẻ: một dòng bản đồ sản phẩm — đọc `map.state` + `map.label` (nhãn
      rút từ bảng nhãn chung trong lib, CÙNG chữ với cổng CI — không tự chế
@@ -217,6 +216,9 @@ worktree/nhánh đọc từ git của `<path>`.
    chọn xong → bàn giao sang nghi thức đích:
    - Chọn một cổng → `/acceptance-gate:acceptance-card <slug>`; riêng cổng `gia-tri` → skill
      `/acceptance-gate:uat-session <slug>` (phiên nghiệm thu có nghi thức riêng, không phải thẻ).
+   - Chọn mở hàng kế của một lộ trình → `/feature-loop:feature-loop <hangKe.thamSo>` (giá trị
+     lấy nguyên từ `loTrinh.ds[]`): feature-loop dựng ô cơ hội từ hàng rồi dừng ở Cổng Đáng; hàng
+     đã có hồ sơ thì vào thẳng vòng đó. Nhắc worktree/phiên riêng như dòng vòng dở ngay dưới.
    - Chọn một vòng dở → `/feature-loop:feature-loop <slug>` — NHƯNG nếu `git.dirty` là
      `true` hoặc phiên đang đứng cây chung với vòng khác: nhắc mở worktree/
      phiên riêng TRƯỚC, chưa đưa lệnh resume (cạm bẫy một-worktree-một-phiên).
