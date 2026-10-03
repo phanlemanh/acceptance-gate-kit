@@ -5,7 +5,7 @@ slug: release-2-21-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 2 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -76,6 +76,12 @@ Source input: `git log v2.20.0..HEAD` · nếp phát hành `_acceptance/release-
 > Out of scope = scope-truth (Gate 1 duyệt mục này). Rationale/trade-off từng mục → 1 entry `descope` trong `decisions.jsonl`.
 
 ## Notes
+
+- **Known limits (Cổng Bằng chứng, ký 03/10):** E1, E2, E6 khai ghim các dòng «P200 …» của ca kiểm số,
+  nhưng lệnh mảnh `plugins_vung_3` lọc chỉ giữ dòng FAIL và «Results:», nên bằng chứng thật của ba
+  tiêu chí là mã thoát chung của cả vùng 3 — không phân biệt «P200 đã chạy và đạt» với «P200 không chạy»
+  (Ngoài-1, Ngoài-2 — cùng một gốc, có từ mốc 2.20.0). Tác tử chấm tự chạy vùng 3 không lọc và thấy đủ
+  dòng P200 trên cùng cây.
 
 **Vì sao làn V:** mốc này không có mục nào chỉ-người-biết. Số lấy từ manifest, danh sách vòng suy từ
 kho, hồi quy là các lệnh suite thường trực. Cửa veto mở và có dấu vết thời gian; owner veto lúc nào

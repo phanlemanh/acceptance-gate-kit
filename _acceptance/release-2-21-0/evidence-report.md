@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 54c189d40c873903238540a9b91d16a0c0d816ff
-human_signoff:
+human_signoff: Manh Phan 2026-10-03 — ký mốc phát hành 2.21.0 (làn V, mười lăm phép đo xanh); Ngoài-1, Ngoài-2 ghi Known limits; đồng ý phần cắt/hoãn
 ---
 
 # Evidence Report: release-2-21-0
