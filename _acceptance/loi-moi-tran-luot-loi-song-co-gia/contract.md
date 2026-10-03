@@ -5,7 +5,7 @@ slug: loi-moi-tran-luot-loi-song-co-gia
 owner: phanlemanh@gmail.com
 risk_tier: T2      # scripts/gate-card.js, scripts/loi-ra-tran-luot.cjs, SKILL feature-loop — không khớp t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: "Phan Le Manh"
 approved_at: 2026-10-02T23:10:33Z
 design_doc: docs/superpowers/specs/2026-10-03-loi-moi-tran-luot-loi-song-co-gia-design.md
