@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/{lo-trinh.mjs, lo-trinh-khoa.cjs, product-map.mjs, start-scan.mjs} + commands/start.md + SKILL feature-loop + GUIDE + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-03-lo-trinh-tren-du-lieu-that-design.md
-status: verified
+status: approved
 approved_by:
 approved_at:
 veto_state: mo
@@ -36,6 +36,10 @@ này sửa tại chỗ, không thêm lệnh, không ghi tệp ý định.
 - AC-10: Given kho khai lộ trình, When quét start, Then `loTrinh.dong` là các dòng thẻ máy dựng sẵn: ba dòng cũ mỗi lộ trình, luôn một dòng trang — liên kết markdown tới đường tuyệt đối của `LO-TRINH.html` khi tệp có, câu «chưa được vẽ» kèm lệnh vẽ khi vắng — và dòng cảnh báo «bản đồ sản phẩm chưa bật» khi và chỉ khi bản đồ chưa bật; dòng hàng trễ nối «(k/N mốc không gắn hàng nào)» khi k > 0; thân `/start` in nguyên `loTrinh.dong` và đặt hàng kế làm một dòng chọn được ở câu hỏi bước 4 dẫn tới `/feature-loop:feature-loop <thamSo>`.
 - AC-11: Given kho khai lộ trình, When vẽ bản đồ, Then `PRODUCT-MAP.md` có đúng một dòng liên kết tới `LO-TRINH.html`; Given kho KHÔNG khai, Then `PRODUCT-MAP.md` và JSON quét start giống từng byte bản trước vòng và mô-đun lộ trình không được nạp (ca LT-01 của lát 1 vẫn xanh).
 - AC-12: Given bản sao crm `onehub` (`_acceptance/` + lộ trình OKR đã chuyển JSON), When chạy bộ vẽ của vòng bằng lệnh ở Notes, Then `LO-TRINH.html` do lệnh đó sinh (chép nguyên vào hồ sơ, không qua bản chép tay) cho hàng kế là một hàng mà lời khai và hồ sơ đều chưa làm, mọi cờ thuộc năm loại lệch thật đã ghi ở `opportunity.md`, và hàng «1» được nêu tên. Vế «owner xác nhận từng cờ là lệch thật» của ngưỡng SỐNG đọc ở phiên nghiệm thu, không ở đây. (judgment)
+- AC-13: Given khối `lo_trinh:` của config có dòng chú thích sát lề, dòng trống, hoặc xuống dòng kiểu Windows nằm giữa khối, When đọc khoá, Then danh sách tệp giống hệt khi bỏ các dòng đó, và với mọi hình dạng một-tệp trong bảng ca, tệp đầu bằng đúng giá trị bộ đọc config dùng chung của kit trả cho `lo_trinh.tep` (đường đọc-cũ của lát 1). (Cổng Bằng chứng lượt 1, Ngoài-2/8)
+- AC-14: Given một lộ trình có hai hàng cùng mã, When vẽ, quét và gọi lệnh tra/mở hàng bằng mã đó, Then thẻ không đưa hàng kế mang mã trùng thành lựa chọn mở (`hangKe.thamSo` null), lệnh tra và lệnh mở thoát 3 nêu «mã <mã> trùng trong <tệp>» và không ghi byte nào. (Ngoài-7)
+- AC-15: Given một hàng mà hai hồ sơ trở lên cùng nhận qua `lo_trinh_ma` và slug của hàng không có hồ sơ, When vẽ và gọi lệnh mở hàng, Then hàng mang trạng thái «Không suy được» kèm cờ «được nhiều hồ sơ nhận», không là hàng kế, và lệnh mở thoát 2 nêu tên các hồ sơ nhận, không ghi byte nào. (Ngoài-6)
+- AC-16: Given máy không khai email git, When chạy NGUYÊN VĂN khối mở việc S0 trên một hàng chưa có hồ sơ, Then lệnh thoát 0, ô cơ hội được ghi với `owner` rỗng. (Ngoài-9)
 
 ## Coverage
 
@@ -44,9 +48,9 @@ Chân sản phẩm: khảo sát hành trình 03/10 (`figures/hanh-trinh-lo-trinh
 lần chạy thử trên crm `onehub`. Chân ngành: kế thừa rà soát §8 hạt giống của lát 1.
 
 - Trục A — lời khai × hồ sơ: không khai | khai ngoài từ vựng | khai cùng nhóm | khai khác nhóm | khai đã giao/đang làm mà không hồ sơ | khai chưa làm mà không hồ sơ  [thước CE: 32 hàng crm OKR, 18 cờ phân loại tay 03/10] → AC-1, AC-2, AC-3, AC-12
-- Trục B — liên kết: chỉ slug | chỉ `lo_trinh_ma` | cả hai khớp | cả hai lệch | nhiều hồ sơ nhận | mã không có hàng | tệp không khai  [thước CE: bảng design §2] → AC-4
-- Trục C — số lộ trình: không khai | một (chuỗi) | một (danh sách) | nhiều | tệp lặp | một tệp hỏng  [thước CE: crm có 5 tài liệu lộ trình] → AC-8, AC-9, AC-11
-- Trục D — đường vào: thẻ start (trang có · trang vắng · bản đồ chưa bật) | bản đồ | S0 mã đơn | S0 `<tệp>:<mã>` | S0 mô tả | `/start` chọn hàng kế  [thước CE: khảo sát mục 1, 2, 5] → AC-5, AC-6, AC-7, AC-10, AC-11
+- Trục B — liên kết: chỉ slug | chỉ `lo_trinh_ma` | cả hai khớp | cả hai lệch | nhiều hồ sơ nhận | mã không có hàng | tệp không khai  [thước CE: bảng design §2] → AC-4, AC-15
+- Trục C — số lộ trình: không khai | một (chuỗi) | một (danh sách) | nhiều | tệp lặp | một tệp hỏng | chú thích/dòng trống trong khối | mã trùng trong một tệp  [thước CE: crm có 5 tài liệu lộ trình; crm OKR có mã T trùng] → AC-8, AC-9, AC-11, AC-13, AC-14
+- Trục D — đường vào: thẻ start (trang có · trang vắng · bản đồ chưa bật) | bản đồ | S0 mã đơn | S0 `<tệp>:<mã>` | S0 mô tả | S0 trên máy không email git | `/start` chọn hàng kế  [thước CE: khảo sát mục 1, 2, 5] → AC-5, AC-6, AC-7, AC-10, AC-11, AC-16
 - Later: tự gắn mốc với hàng · di trú hồ sơ cũ sang `lo_trinh_ma` · lát 2 (skill cắt lượt).
 - Never: kit ghi tệp ý định · lệnh thứ chín cho lộ trình.
 

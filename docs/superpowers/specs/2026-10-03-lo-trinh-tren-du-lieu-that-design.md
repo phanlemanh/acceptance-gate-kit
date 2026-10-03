@@ -49,7 +49,7 @@ bảng «mã → hồ sơ nhận». Một hồ sơ nhận một hàng của lộ
 | Ca | Trạng thái hàng | Cờ |
 |---|---|---|
 | hàng không slug, đúng một hồ sơ nhận | từ hồ sơ đó (thôi «tin theo lời») | — |
-| hàng không slug, ≥2 hồ sơ nhận | tin theo lời như cũ | «hàng X được nhiều hồ sơ nhận: a, b» |
+| hàng mà slug không có hồ sơ, ≥2 hồ sơ nhận | «Không suy được» (không là hàng kế, lệnh mở từ chối) | «hàng X được nhiều hồ sơ nhận: a, b» |
 | hàng trỏ slug S có hồ sơ, hồ sơ S ghi mã khác M | từ S | «hàng X trỏ hồ sơ S nhưng hồ sơ ghi hàng M» |
 | hàng trỏ slug S, hồ sơ khác C nhận mã X | từ S nếu S có hồ sơ; S vắng thì từ C | «hàng X trỏ S nhưng hồ sơ C nhận hàng này» |
 | hồ sơ C ghi mã M mà lộ trình không có hàng M | — | «hồ sơ C ghi lo_trinh_ma M — không có hàng M» |
@@ -146,3 +146,13 @@ cũ sang `lo_trinh_ma`.
 T2: `scripts/lo-trinh.mjs`, `scripts/lo-trinh-khoa.cjs`, `scripts/product-map.mjs`,
 `scripts/start-scan.mjs`, `commands/start.md`, SKILL feature-loop, GUIDE, test. Không chạm `lib/**`,
 hook, lưới trước-merge. Tệp chép sang kho tiêu thụ không đổi danh sách.
+
+## Vòng trả lượt 1 (Cổng Bằng chứng 03/10, owner «trả»)
+
+- **Khối config khoan dung** (AC-13): dòng chú thích sát lề, dòng trống và CRLF trong khối
+  `lo_trinh:` không cắt khối; một tệp thì tệp đầu luôn bằng giá trị bộ đọc chung của kit.
+- **Mã trùng trong một tệp** (AC-14): kit không chọn hộ — `thamSo` null, lệnh tra/mở thoát 3
+  «mã X trùng trong T».
+- **Nhiều hồ sơ nhận** (AC-15): hàng mà slug không có hồ sơ và ≥2 hồ sơ nhận là «Không suy được»,
+  không là hàng kế, lệnh mở thoát 2 — không đẻ thêm hồ sơ thứ ba.
+- **Không email git** (AC-16): `--owner` nhận giá trị rỗng.

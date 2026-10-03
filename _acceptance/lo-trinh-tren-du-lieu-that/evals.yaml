@@ -180,3 +180,48 @@ evals:
     paths: [scripts/lo-trinh.mjs, _acceptance/lo-trinh-tren-du-lieu-that/do-crm-onehub.html]
     expected: PASS kèm trích chữ cho từng câu; FAIL nêu câu và dòng
     evidence_required: [judged_by, verdict, rationale]
+  - id: E13
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh-khoa.cjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-81" — bảng ca hình dạng khối (chú thích sát lề trước/sau tep · dòng
+      trống · CRLF · chú thích giữa danh sách khối): mỗi ca cacTepTuConfig == cùng ca đã bỏ các dòng đó
+      (so đẳng thức); mọi ca một-tệp: phần tử đầu == resolveConfigKey(text, "lo_trinh.tep") của
+      lib/evidence-core.cjs bỏ nháy. Và "PASS: LT-81-do" — bản sao bộ đọc bỏ bước bỏ qua chú thích:
+      CHÍNH hàm đo trả lỗi nêu ca "chú thích sát lề".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/start-scan.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-82" — lộ trình có hai hàng mã T (hàng đầu bị chặn, hàng sau đủ điều
+      kiện): hàng kế mang mã T và hangKe.thamSo === null trong loTrinh.ds; --hang T và --hang T --mo-o
+      đều thoát 3, stderr chứa "mã T trùng trong docs/lo-trinh.json"; cây _acceptance/ giữ từng byte
+      (đối chứng dương: --mo-o trên một hàng mã đơn cùng kho làm cây đổi).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E15
+    criterion: AC-15
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-83" — hàng X (slug vắng hồ sơ) được c1, c2 nhận: chu == "Không suy
+      được", cờ == ["hàng X được nhiều hồ sơ nhận: c1, c2"], hàng kế != X; --hang X --mo-o thoát 2,
+      stderr chứa "c1" và "c2", cây _acceptance/ giữ từng byte. Và "PASS: LT-83-do" — bản sao bỏ nhánh
+      nhiều-người-nhận: CHÍNH hàm đo trả lỗi nêu "hàng kế X".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E16
+    criterion: AC-16
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-84" — khối S0-MO-O chạy nguyên văn với HOME tạm, GIT_CONFIG_NOSYSTEM=1
+      và kho đã gỡ user.email (đối chứng: `git config user.email` in rỗng): thoát 0, JSON moi true, ô
+      cơ hội có dòng `owner:` rỗng. Và "PASS: LT-84-do" — bản sao CLI từ chối --owner rỗng: CHÍNH hàm đo
+      trả lỗi nêu "exit 2".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
