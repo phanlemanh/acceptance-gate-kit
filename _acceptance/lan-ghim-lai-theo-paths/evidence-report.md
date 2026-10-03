@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: b3547ce91627b0f902131916f2082d30aaa2892e
+verified_commit: fc521b6110158d266ab468a0dd82d23c6d301f29
 human_signoff:
 ---
 
@@ -29,102 +29,101 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-lan-ghim-lai-theo-paths-E1-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E1-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_doc_cu
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
-    runs: 1, passes: 1
+    E1 XANH
 
 - eval: E2
-  run_id: minted-lan-ghim-lai-theo-paths-E2-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E2-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_nhay_dac_hieu
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     E2 XANH
 
 - eval: E3
-  run_id: minted-lan-ghim-lai-theo-paths-E3-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E3-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_chi_thu
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
     E3 XANH
 
 - eval: E4
-  run_id: minted-lan-ghim-lai-theo-paths-E4-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E4-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_hinh_ho_so
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan hinh-ho-so
-      PASS: E4 chiều đỏ: bản sao «bộ đọc paths một dạng» → M10 lệch kỳ vọng (stale)
     E4 XANH
 
 - eval: E5
-  run_id: minted-lan-ghim-lai-theo-paths-E5-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E5-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_khong_chay_duoc
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan khong-chay-duoc
     E5 XANH
 
 - eval: E6
-  run_id: minted-lan-ghim-lai-theo-paths-E6-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E6-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_khoa_va_co
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan khoa-va-co
     E6 XANH
 
 - eval: E7
-  run_id: minted-lan-ghim-lai-theo-paths-E7-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E7-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_mot_nguon
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan mot-nguon
     E7 XANH
 
 - eval: E8
-  run_id: minted-lan-ghim-lai-theo-paths-E8-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E8-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_song_song
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan song-song
     E8 XANH
 
 - eval: E9
-  run_id: minted-lan-ghim-lai-theo-paths-E9-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E9-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_loi_khong_xen
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan loi-khong-xen
     E9 XANH
 
 - eval: E10
-  run_id: minted-lan-ghim-lai-theo-paths-E10-r2
+  run_id: minted-lan-ghim-lai-theo-paths-E10-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lgtp_lan_doc_cu
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
   output: |
     cmd: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan lan-doc-cu
     E10 XANH
@@ -132,54 +131,54 @@ human_signoff:
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_hooks_run_tests_sh-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_hooks_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_workflows_run_tests_sh-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-bash_tests_workflows_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-lan-ghim-lai-theo-paths-SUITE-node_scripts_product_map_mjs_root_check-r2
+  run_id: minted-lan-ghim-lai-theo-paths-SUITE-node_scripts_product_map_mjs_root_check-r3
   exit_code: 0
-  verified_at: 2026-10-03T08:25:40Z
+  verified_at: 2026-10-03T09:18:36Z
 
 ## Known limits
 
@@ -196,4 +195,5 @@ none — moi eval chay mot lan (deterministic), khong co eval nhieu lan chay hay
 ## Iterations
 
 Round 1: cả 10 eval máy (E1–E10) và các lệnh suite đều xanh; vẫn REJECT vì khối tìm lỗi xác nhận 3 lỗi nằm TRONG hợp đồng (AC-5 bộ lọc paths mở khi parse thứ hai sập · AC-4 ô M8 xanh nhờ nhánh khác · AC-10 chiều đỏ của làn chỉ ghim mã thoát). Returned to implementation.
-Round 2: sau sửa S4-r1 (lưới đóng khi bộ lọc lỗi; evals.yaml hỏng nhận đúng; thước ghim lý do) cả 10 eval máy và toàn bộ lệnh suite xanh trên cây b3547ce9; baseline không đo lại (carried từ round 1). Verdict PASS.
+Round 2: sau sửa S4-r1 cả 10 eval máy và toàn bộ lệnh suite xanh; khối tìm lỗi vẫn nêu 3 phát hiện trong hợp đồng cùng một lớp (ca chiều đỏ chỉ khẳng định sự vắng mặt, không ghim bản sao đã chạy tới bước cần đo) nên dừng-vá và đổi khuôn chung thay vì vá từng ca.
+Round 3: sau S4-r2 đổi khuôn chung chiều đỏ (fc521b61) cả 10 eval máy và toàn bộ lệnh suite xanh trên cây này; baseline không đo lại (carried từ round 1). Còn một phát hiện trong hợp đồng mức vừa (AC-10: ca khoá vắng với lib cũ mới kiểm mã thoát, chưa so với bản base) được ghi ở review-findings.md để người cân ở Cổng 2. Verdict PASS.

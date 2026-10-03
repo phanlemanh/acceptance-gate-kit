@@ -100,3 +100,51 @@ wall: 1204s
 - **claude-opus-5-5**: 3 agent · 67 calls · out 6,311 · in 134 · cache_read 9,108,970 · cache_create 502,770
 - **claude-haiku-4-5-20251001**: 20 agent · 40 calls · out 18,282 · in 360 · cache_read 1,704,135 · cache_create 745,119
 
+### S4 round 3 — wf_abbe463a-1ce (27 agent, 39,117 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 4 | 7,297 | 8 | 326,952 | 66 |
+| triage | claude-sonnet-5-5 | 2 | 6,668 | 4 | 84,401 | 52 |
+| review:measurement | claude-opus-5-5 | 15 | 2,671 | 30 | 2,003,916 | 191 |
+| review:bugs | claude-opus-5-5 | 36 | 2,659 | 72 | 5,567,603 | 313 |
+| review:conventions | claude-opus-5-5 | 24 | 1,673 | 48 | 3,333,463 | 194 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 1,545 | 18 | 86,591 | 139 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 1,528 | 18 | 86,597 | 35 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 1,503 | 18 | 86,591 | 251 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,479 | 18 | 86,578 | 25 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,408 | 18 | 86,578 | 27 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 1,195 | 18 | 86,596 | 33 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 1,096 | 18 | 86,598 | 30 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 1,030 | 18 | 86,595 | 32 |
+| refute:chan-lan.mjs | claude-sonnet-5-5 | 4 | 988 | 8 | 259,687 | 21 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-4-5-20251001 | 2 | 957 | 18 | 59,166 | 129 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 858 | 18 | 86,600 | 22 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 712 | 18 | 86,595 | 19 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 676 | 18 | 86,591 | 90 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 648 | 18 | 86,600 | 19 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 596 | 18 | 86,595 | 58 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 523 | 18 | 86,600 | 21 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 379 | 18 | 86,585 | 9 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 368 | 18 | 86,627 | 87 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 274 | 18 | 86,627 | 70 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 235 | 18 | 86,627 | 261 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 148 | 4 | 77,546 | 5 |
+| machine:bash _acceptance/lan-ghim-lai-theo-paths | claude-haiku-4-5-20251001 | 2 | 3 | 18 | 86,598 | 22 |
+
+
+wall: 1252s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 20 | 17,013 | 1,704,535 | 1101 | 09:18:41 | 09:37:02 |
+| review | 3 | 7,003 | 10,904,982 | 336 | 09:18:41 | 09:24:16 |
+| triage | 1 | 6,668 | 84,401 | 52 | 09:37:03 | 09:37:55 |
+| refute | 1 | 988 | 259,687 | 21 | 09:37:57 | 09:38:18 |
+| capture | 1 | 148 | 77,546 | 5 | 09:38:20 | 09:38:25 |
+| synthesize | 1 | 7,297 | 326,952 | 66 | 09:38:26 | 09:39:32 |
+
+- **claude-sonnet-5-5**: 4 agent · 12 calls · out 15,101 · in 24 · cache_read 748,586 · cache_create 390,542
+- **claude-opus-5-5**: 3 agent · 75 calls · out 7,003 · in 150 · cache_read 10,904,982 · cache_create 541,109
+- **claude-haiku-4-5-20251001**: 20 agent · 40 calls · out 17,013 · in 360 · cache_read 1,704,535 · cache_create 735,188
+

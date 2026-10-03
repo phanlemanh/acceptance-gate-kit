@@ -5,7 +5,7 @@ slug: lan-ghim-lai-theo-paths
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh + lib/** (t3_paths)
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-10-02T22:28:59Z
 design_doc: docs/superpowers/specs/2026-10-03-lan-ghim-lai-theo-paths-design.md
