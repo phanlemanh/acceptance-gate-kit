@@ -23,7 +23,7 @@
 // CLAUDE_PLUGIN_ROOT… như khi chạy S4). stdout = JSON kết quả; tiến trình ở stderr.
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync, spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 // globToRe: CÙNG hàm khớp glob mà S4 dùng cho vùng vật (feature-loop/scripts/
 // carry-plan.mjs) — hai bản khớp glob là hai khuôn sẽ trôi (đã trôi thật ở ký tự `?`).
@@ -256,10 +256,14 @@ function runCmd(cmd, label) {
   const t0 = Date.now();
   const r = spawnSync('bash', ['-c', cmd], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 256 * 1024 * 1024, env: process.env });
   const exit = r.status === null ? 1 : r.status;
+  return ghiKetQua(cmd, label, exit, String(r.stdout || ''), String(r.stderr || ''), Date.now() - t0);
+}
+// Ghi kết quả MỘT lệnh — dùng chung cho đường nối đuôi (runCmd) và đường song song (runSuites):
+// dòng log, nhật ký trọn khi đỏ, 30 dòng đuôi. Một chỗ ghi nên hai đường không trôi khỏi nhau.
+function ghiKetQua(cmd, label, exit, out, err, ms) {
   results.set(cmd, exit);
-  log(`${label}: ${cmd} → exit ${exit} (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
+  log(`${label}: ${cmd} → exit ${exit} (${(ms / 1000).toFixed(1)}s)`);
   if (exit !== 0) { // NHAT-KY-KHI-DO
-    const out = String(r.stdout || ''), err = String(r.stderr || '');
     try {
       soNhatKy += 1;
       const ten = `${String(soNhatKy).padStart(2, '0')}-${label.replace(/[^\w.-]+/g, '-').slice(0, 60)}.log`;
@@ -283,6 +287,30 @@ function runCmd(cmd, label) {
     for (const l of tail) process.stderr.write(`    ${l}\n`);
   }
   return exit;
+}
+// Suite song song (hồ sơ lan-ghim-lai-theo-paths, AC-8/AC-9): khoá feature_loop.repin_parallel_suites
+// = true thì mọi lệnh suite KHÁC NHAU bắn cùng lúc, chờ hết, rồi ghi kết quả theo ĐÚNG thứ tự
+// suite_keys (không theo lúc xong) — mỗi lệnh một khối, không xen dòng. Eval vẫn nối đuôi. Khoá
+// vắng/false → nối đuôi y như cũ. Đo 02/10 ở crm: phần cố định ≈ 13,6 phút mỗi làn là suite.
+async function runSuites(cmds) {
+  const nhan = (i) => `suite ${i + 1}/${cmds.length}`;
+  const songSong = String(core.resolveConfigKey(configText, 'feature_loop.repin_parallel_suites') || '').trim() === 'true';
+  if (!songSong) return cmds.map((c, i) => runCmd(c, nhan(i)));
+  const xong = new Map();
+  await Promise.all([...new Set(cmds)].filter(c => !results.has(c)).map(c => new Promise(res => {
+    const t0 = Date.now();
+    let out = '', err = '', loiKhoi = '';
+    const p = spawn('bash', ['-c', c], { cwd: root, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+    p.stdout.on('data', d => { out += d; });
+    p.stderr.on('data', d => { err += d; });
+    p.on('error', e => { loiKhoi = String((e && e.message) || e); });
+    p.on('close', code => { xong.set(c, { exit: code === null ? 1 : code, out, err: err + (loiKhoi ? `\n${loiKhoi}` : ''), ms: Date.now() - t0 }); res(); });
+  })));
+  return cmds.map((c, i) => {
+    if (results.has(c)) { log(`${nhan(i)}: (đã chạy) → exit ${results.get(c)}`); return results.get(c); }
+    const x = xong.get(c);
+    return ghiKetQua(c, nhan(i), x.exit, x.out, x.err, x.ms);
+  });
 }
 // ── --skip-unchanged: cây BẰNG PIN thì không có gì để chứng lại ──────────────
 // <<<SKIP-UNCHANGED-PREDICATE
@@ -459,7 +487,7 @@ const anhTruoc = chup(root, daThong);
 // run_id sinh TRƯỚC lệnh đầu — thư mục nhật ký lệnh đỏ cần nó; `ts` của dòng sổ vẫn là lúc xong.
 const tBatDau = Date.now();
 const runId = flags['run-id'] || `repin-${new Date(tBatDau).toISOString().replace(/\.\d{3}Z$/, 'Z').replace(/[-:]/g, '')}-${Math.floor(Math.random() * 90000 + 10000)}`;
-const suitesExit = suiteCmds.map((c, i) => runCmd(c, `suite ${i + 1}/${suiteCmds.length}`));
+const suitesExit = await runSuites(suiteCmds);
 for (const s of perSlug) for (const e of s.evals) e.exit = runCmd(e.cmd, `${s.slug} ${e.id}`);
 const cham = soChup(anhTruoc, chup(root, daThong));
 // Thời lượng làn (việc (a), hồ sơ lan-ghim-lai-giu-tron-loi-loi): suite đầu → eval cuối, giây,
