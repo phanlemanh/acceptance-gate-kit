@@ -89,3 +89,11 @@ Chưa dựng. Bản chạy thử: bộ đọc lát 1 trên bản sao `_acceptanc
 - Không skill cắt lượt (lát 2), không băng chống trôi, không nấc CRM.
 - Không tự gắn mốc với hàng thay kho (khảo sát mục 6) — chỉ nhắc khi mốc không gắn hàng nào.
 - Không đổi hành vi «sửa tệp ý định → CI đỏ tới khi vẽ lại» (khảo sát mục 7) — chỉ ghi hướng dẫn.
+
+## Kết quả đo sau ship (phiên nghiệm thu 03/10)
+
+Đo trên bản sao crm `onehub` `9660bf6c` + lộ trình OKR bản chụp 30/09 tối (PR crm #223): hàng kế 7n
+(chưa làm, không hồ sơ, không PR) · 8 cờ, 0 nhiễu (trước vòng 18 cờ, 11 nhiễu) · `--mo-o 7n` ra ô cơ hội
+đủ bốn dòng ngưỡng đề xuất, bộ quét xếp chờ Cổng Đáng · kho không khai giữ từng byte. Vế «owner xác nhận
+từng cờ» đo bằng máy đối chiếu hồ sơ + git (owner 03/10). Verdict Cổng Giá trị: **release** (Manh Phan),
+gửi crm ngay sau khi cắt 2.21.0. Chi tiết: `uat-session.md`.
