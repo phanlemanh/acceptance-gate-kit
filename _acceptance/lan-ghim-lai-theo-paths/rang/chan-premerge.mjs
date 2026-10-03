@@ -6,6 +6,7 @@ import path from 'node:path';
 import { dungKho, banSao, KIT } from './kho-mau.mjs';
 import { MA_TRAN, M_SO_O } from './ma-tran.mjs';
 import { banBase } from './ban-base.mjs';
+import { daChayLuoi, batDo } from './chieu-do.mjs';
 
 const chan = process.argv[2];
 let loi = 0;
@@ -45,7 +46,7 @@ if (chan === 'doc-cu') {
   const s = sao([{ tep: PM, tu: "  ''|all) STALE_SCOPE=all ;;", thanh: "  '') STALE_SCOPE=paths ;;\n  all) STALE_SCOPE=all ;;" }]);
   const k = khoO(O.M2, undefined);
   const a = pm(s, k), b = pm(BASE, k);
-  ok(chuan(a.out, k) !== chuan(b.out, k), 'E1 chiều đỏ: bản sao đổi mặc định khoá vắng thành paths → vi phân khác — «đổi mặc định» được thấy');
+  batDo(ok, 'E1 chiều đỏ: bản sao đổi mặc định khoá vắng thành paths → lọc M2 dù khoá vắng — «đổi mặc định» được thấy', daChayLuoi(a.out), chuan(a.out, k) !== chuan(b.out, k) && !!noteBoQua(a.out));
   k.don(); don(s, BASE); ket('E1');
 } else if (chan === 'nhay-dac-hieu') {
   // E2 — (a) chạm đúng MỘT tệp trong paths → hoá cũ đúng tệp; (b) chỉ ngoài paths → im + NOTE.
@@ -60,11 +61,19 @@ if (chan === 'doc-cu') {
   const c = pm(KIT, k3); const n3 = noteBoQua(c.out);
   ok(!coStale(c.out) && n3 && /lib2\/b c\.js/.test(n3[2]), `E2 hồ sơ ở pkg/a/ + tên tệp có khoảng trắng → lọc đúng (${n3 ? n3[0] : 'vắng NOTE'})`);
   k3.don();
+  // tên tệp có dấu TRONG paths (git in trong ngoặc) → vẫn hoá cũ (lượt chấm 2, t4)
+  const k4 = dungKho({ evalsYaml: O.M1.evalsYaml, staleScope: 'paths' }); k4.apDiff(['src/tài.js']);
+  const d4 = pm(KIT, k4).out;
+  ok(coStale(d4) && staleCua(d4).length === 1 && /src\/t\\303\\240i\.js/.test(staleCua(d4)[0]), `E2 tên có dấu trong paths → VẪN hoá cũ (${JSON.stringify(staleCua(d4))})`);
+  const s0 = sao([{ tep: LIB, tu: 'const t = tenGitThat(f);', thanh: 'const t = f;' }]);
+  const d5 = pm(s0, k4).out;
+  batDo(ok, 'E2 chiều đỏ: bản sao bỏ giải mã tên git → tên có dấu bị lọc nhầm — «tên có dấu lọt» được thấy', daChayLuoi(d5), !coStale(d5) && !!noteBoQua(d5));
+  k4.don(); don(s0);
   const s1 = sao([{ tep: PM, tu: '[ "$STALE_SCOPE" = paths ] && [ "$STALE_ALL" -eq 0 ]', thanh: '[ "$STALE_SCOPE" = khong-bao-gio ] && [ "$STALE_ALL" -eq 0 ]' }]);
-  ok(coStale(pm(s1, k2).out), 'E2 chiều đỏ: bản sao gỡ bộ lọc → (b) lại hoá cũ — «bộ lọc không chạy» được thấy');
+  { const o1 = pm(s1, k2).out; batDo(ok, 'E2 chiều đỏ: bản sao gỡ bộ lọc → (b) lại hoá cũ — «bộ lọc không chạy» được thấy', daChayLuoi(o1), coStale(o1)); }
   const s2 = sao([{ tep: PM, tu: '[ "$_sbp_n" -gt 0 ] && echo "NOTE [$slug]: hoá cũ theo luật cũ, bỏ qua theo paths:', thanh: '[ "$_sbp_n" -gt 0 ] && : "NOTE [$slug]: hoá cũ theo luật cũ, bỏ qua theo paths:' }]);
   const b2 = pm(s2, k2);
-  ok(!coStale(b2.out) && !noteBoQua(b2.out), 'E2 chiều đỏ: bản sao bỏ dòng NOTE → lọc mà im — «bỏ qua im lặng» được thấy');
+  batDo(ok, 'E2 chiều đỏ: bản sao bỏ dòng NOTE → lọc mà im — «bỏ qua im lặng» được thấy', daChayLuoi(b2.out), !coStale(b2.out) && !noteBoQua(b2.out));
   k1.don(); k2.don(); don(s1, s2); ket('E2');
 } else if (chan === 'chi-thu') {
   // E3 — tập hoá cũ dưới paths ⊆ tập dưới luật cũ trên ĐÚNG 12 ô.
@@ -83,7 +92,7 @@ if (chan === 'doc-cu') {
   ok(/số ô lệch/.test(bat), 'E3 chiều đỏ: bộ sinh mất ô M8 → «số ô lệch»');
   const s = sao([{ tep: PM, tu: '    if [ -n "$stale" ] && [ "$STALE_SCOPE" = paths ]', thanh: '    stale="$(git -C "$ROOT" diff --name-only "$vc" -- 2>/dev/null)"\n    if [ -n "$stale" ] && [ "$STALE_SCOPE" = paths ]' }]);
   const k = khoO(O.M3, 'paths');
-  ok(coStale(pm(s, k).out), 'E3 chiều đỏ: bản sao so paths với diff THÔ → M3 hoá cũ — «nới: tệp ngoài luật cũ» được thấy');
+  { const o3 = pm(s, k).out; batDo(ok, 'E3 chiều đỏ: bản sao so paths với diff THÔ → M3 hoá cũ — «nới: tệp ngoài luật cũ» được thấy', daChayLuoi(o3), coStale(o3)); }
   k.don(); don(s); ket('E3');
 } else if (chan === 'hinh-ho-so') {
   // E4 — M4…M12 dưới khoá paths đúng cột Kỳ vọng; năm mutant trên lib.
@@ -105,7 +114,7 @@ if (chan === 'doc-cu') {
     { pin: 'not-run chặn lọc', o: 'M5', sua: [{ tep: LIB, tu: "if (!p) { if (isRepinMachineEval(e)) return", thanh: "if (!p) { if (['test', 'script'].includes(String(e.executor).trim())) return" }] },
     { pin: 'bộ đọc paths một dạng', o: 'M10', sua: [{ tep: LIB, tu: '    if (!v) { seq = []; continue; }', thanh: '    if (!v) return null;' }] },
   ];
-  for (const m of M) { const s = sao(m.sua); const t = ketLuan(s, m.o); ok(t !== muon(KY[m.o]), `E4 chiều đỏ: bản sao «${m.pin}» → ${m.o} lệch kỳ vọng (${t})`); don(s); }
+  for (const m of M) { const s = sao(m.sua); const r = ketLuanDu(s, m.o); batDo(ok, `E4 chiều đỏ: bản sao «${m.pin}» → ${m.o} lệch kỳ vọng (${r.t})`, daChayLuoi(r.out), r.t !== muon(KY[m.o])); don(s); }
   ket('E4');
 } else if (chan === 'khong-chay-duoc') {
   // E5 — bộ lọc không chạy được → giữ luật cũ + NOTE nói vì sao; đối chứng: lành thì lọc.
@@ -132,11 +141,11 @@ if (chan === 'doc-cu') {
   const r4 = pm(KIT, k1, [], { NODE_OPTIONS: `--require ${wf}` });
   ok(coStale(r4.out) && JSON.stringify(staleCua(r4.out)) === JSON.stringify(['src/a.js']), `E5 node in cảnh báo → src/a.js VẪN hoá cũ (${JSON.stringify(staleCua(r4.out))})`);
   const s4 = sao([{ tep: PM, tu: '2>"$_sbp_ef")"; then', thanh: '2>&1)"; then' }, { tep: PM, tu: '      elif [ "$_sbp_dau" = "APPLY=1" ]; then', thanh: '      elif [ "$_sbp_dau" != "APPLY=0" ]; then' }]);
-  ok(!coStale(pm(s4, k1, [], { NODE_OPTIONS: `--require ${wf}` }).out), 'E5 chiều đỏ: bản sao trộn stderr + coi mọi đầu ra là APPLY=1 → src/a.js bị xoá im — «đầu ra hỏng thành im» được thấy');
+  { const o4 = pm(s4, k1, [], { NODE_OPTIONS: `--require ${wf}` }).out; batDo(ok, 'E5 chiều đỏ: bản sao trộn stderr + coi mọi đầu ra là APPLY=1 → src/a.js bị xoá im — «đầu ra hỏng thành im» được thấy', daChayLuoi(o4), !coStale(o4)); }
   k1.don(); don(s4); rmSync(wf, { force: true });
   const s3 = sao([{ tep: LIB, tu: 'function staleByPaths(staleFiles, evalsText, opts = {}) {', thanh: "function staleByPaths(staleFiles, evalsText, opts = {}) { throw new Error('tiem-loi');" },
     { tep: PM, tu: '        echo "NOTE [$slug]: bộ lọc paths không chạy được', thanh: '        stale=""; echo "NOTE [$slug]: bộ lọc paths không chạy được' }]);
-  ok(!coStale(pm(s3, k).out), 'E5 chiều đỏ: bản sao nuốt lỗi rồi trả danh sách rỗng → im — «rơi về im khi lỗi» được thấy');
+  { const o5 = pm(s3, k).out; batDo(ok, 'E5 chiều đỏ: bản sao nuốt lỗi rồi trả danh sách rỗng → im — «rơi về im khi lỗi» được thấy', daChayLuoi(o5) && /bộ lọc paths không chạy được/.test(o5), !coStale(o5)); }
   k.don(); don(s1, s2, s3); ket('E5');
 } else if (chan === 'khoa-va-co') {
   // E6 — sai chính tả → VIOLATION [config]; --stale-all + paths ≡ khoá vắng.
@@ -148,8 +157,8 @@ if (chan === 'doc-cu') {
   const a = pm(KIT, kVang), b = pm(KIT, kP, ['--stale-all']);
   ok(a.st === b.st && JSON.stringify(staleCua(a.out)) === JSON.stringify(staleCua(b.out)) && coStale(b.out), `E6 --stale-all + paths → hoá cũ y như khoá vắng (${JSON.stringify(staleCua(b.out))})`);
   const s1 = sao([{ tep: PM, tu: '      STALE_ALL=1; shift ;;', thanh: '      shift ;;' }]);
-  ok(!coStale(pm(s1, kP, ['--stale-all']).out), 'E6 chiều đỏ: bản sao bỏ qua cờ → chiến dịch bị lọc — «chiến dịch bị thu hẹp» được thấy');
+  { const o6 = pm(s1, kP, ['--stale-all']).out; batDo(ok, 'E6 chiều đỏ: bản sao bỏ qua cờ → chiến dịch bị lọc — «chiến dịch bị thu hẹp» được thấy', daChayLuoi(o6), !coStale(o6) && !!noteBoQua(o6)); }
   const s2 = sao([{ tep: PM, tu: '  *) echo "VIOLATION [config]: risk_tiers.stale_scope:', thanh: '  *) STALE_SCOPE=all ;; zz) echo "VIOLATION [config]: risk_tiers.stale_scope:' }]);
-  ok(!/VIOLATION \[config\]: risk_tiers\.stale_scope/.test(pm(s2, kSai).out), 'E6 chiều đỏ: bản sao rơi về all khi sai chính tả → im — «sai chính tả im» được thấy');
+  { const o7 = pm(s2, kSai).out; batDo(ok, 'E6 chiều đỏ: bản sao rơi về all khi sai chính tả → im — «sai chính tả im» được thấy', daChayLuoi(o7) && coStale(o7), !/VIOLATION \[config\]: risk_tiers\.stale_scope/.test(o7)); }
   kSai.don(); kVang.don(); kP.don(); don(s1, s2); ket('E6');
 }

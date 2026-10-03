@@ -50,4 +50,10 @@ ca('SBP8 chỉ thu: kept ⊆ staleFiles, kept ∪ skipped = staleFiles', () => {
   const r = core.staleByPaths(f, Y(ev('E1', 'script', '    paths: ["src/**"]\n')));
   assert.deepEqual([...r.kept, ...r.skipped].sort(), [...f].sort());
 });
+ca('SBP9 tên tệp git in trong ngoặc (core.quotepath, tên có dấu) vẫn khớp paths; danh sách giữ nguyên chữ git', () => {
+  const q = '"src/t\\303\\240i.js"';   // đúng chuỗi `git diff --name-only` in cho src/tài.js
+  const r = core.staleByPaths(['src/a.js', q, '"lib2/b\\303\\240.js"'], Y(ev('E1', 'script', '    paths: ["src/**"]\n')));
+  assert.deepEqual(r.kept, ['src/a.js', q], 'tên có dấu trong paths phải ở kept (giữ nguyên chữ git in)');
+  assert.deepEqual(r.skipped, ['"lib2/b\\303\\240.js"']);
+});
 console.log(`Results: ${pass} passed`);

@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { rmSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { dungKho, banSao, KIT } from './kho-mau.mjs';
+import { batDo } from './chieu-do.mjs';
 
 const chan = process.argv[2];
 let loi = 0;
@@ -84,7 +85,7 @@ if (chan === 'song-song') {
   const sao = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: "    p.stdout.on('data', d => { out += d; });", thanh: "    p.stdout.on('data', d => { out += d; process.stderr.write(String(d).split('\\n').filter(Boolean).map(l => '    ' + l + '\\n').join('')); });" }]);
   const k4 = kho(XEN, true);
   const r4 = chay(sao, k4, []);
-  ok(!(khoi(r4.err, 'A') && khoi(r4.err, 'B')), 'E9 chiều đỏ: bản sao in ngay khi nhận → khối xen — «lời lỗi xen» được thấy');
+  batDo(ok, 'E9 chiều đỏ: bản sao in ngay khi nhận → khối xen — «lời lỗi xen» được thấy', r4.st === 1 && /suite 2\/2/.test(r4.err) && ['A-1', 'A-4', 'B-1', 'B-4'].every(x => r4.err.includes(`    ${x}`)), !(khoi(r4.err, 'A') && khoi(r4.err, 'B')));
   k4.don(); rmSync(sao, { recursive: true, force: true });
   ket('E9');
 }

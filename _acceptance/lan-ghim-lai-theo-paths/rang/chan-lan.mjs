@@ -7,6 +7,7 @@ import path from 'node:path';
 import { dungKho, banSao, KIT } from './kho-mau.mjs';
 import { MA_TRAN, M_SO_O } from './ma-tran.mjs';
 import { banBase } from './ban-base.mjs';
+import { daChayLan, batDo } from './chieu-do.mjs';
 
 const chan = process.argv[2];
 let loi = 0;
@@ -63,12 +64,12 @@ if (chan === 'mot-nguon') {
   // chiều đỏ 2: làn dùng luật cũ → lệch ở M2
   const s2 = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: "if (staleScope === 'paths' && doiSlug.length) {", thanh: "if (false && staleScope === 'paths' && doiSlug.length) {" }]);
   const k2 = khoO(MA_TRAN.find(o => o.id === 'M2'), 'paths');
-  ok(!coStale(pm(PMF(KIT), k2).stdout) && !boQua(lan(LANE(s2), k2, KIT, ['--skip-unchanged', '--allow-dirty'])), 'E7 chiều đỏ: bản sao cho làn dùng luật cũ → lưới im mà làn chạy — «hai bên lệch» được thấy');
+  { const r2 = lan(LANE(s2), k2, KIT, ['--skip-unchanged', '--allow-dirty']); batDo(ok, 'E7 chiều đỏ: bản sao cho làn dùng luật cũ → lưới im mà làn chạy — «hai bên lệch» được thấy', daChayLan(r2.stderr) && /--skip-unchanged: \d+ tệp vật đổi so pin/.test(r2.stderr), !coStale(pm(PMF(KIT), k2).stdout) && !boQua(r2)); }
   // vế riêng của làn: evals.yaml đổi → KHÔNG bỏ qua dưới khoá paths
   const k3 = khoO(MA_TRAN.find(o => o.id === 'M2'), 'paths');
   writeFileSync(path.join(k3.AR, '_acceptance/feat/evals.yaml'), readFileSync(path.join(k3.AR, '_acceptance/feat/evals.yaml'), 'utf8') + '# doi\n');
   k3.git('add', '-A'); k3.git('commit', '-qm', 'doi evals');
-  ok(!boQua(lan(LANE(KIT), k3, KIT, ['--skip-unchanged', '--allow-dirty'])), 'E7 vế riêng: evals.yaml đổi → làn KHÔNG bỏ qua dưới khoá paths');
+  { const r3 = lan(LANE(KIT), k3, KIT, ['--skip-unchanged', '--allow-dirty']); ok(!boQua(r3) && /KHÔNG bỏ qua — tệp định nghĩa phép đo đổi so với pin: _acceptance\/feat\/evals\.yaml/.test(r3.stderr), 'E7 vế riêng: evals.yaml đổi → làn KHÔNG bỏ qua dưới khoá paths, gọi tên tệp định nghĩa'); }
   k2.don(); k3.don(); rmSync(s1, { recursive: true, force: true }); rmSync(s2, { recursive: true, force: true });
   ket('E7');
 } else if (chan === 'lan-doc-cu') {
