@@ -11,8 +11,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>86 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>10 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>87 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>11 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
 ```
 
@@ -37,9 +37,9 @@ flowchart TD
 ## Sắp mở vòng
 
 - Làn ghim lại bớt chạy vô ích — hồ sơ chỉ hoá cũ khi diff chạm `paths` các eval của nó (kho bật khoá; hồ sơ không khai `paths` giữ luật cũ; chiến dịch mốc vẫn ghim toàn bộ) · suite trong làn chạy song song (kho bật khoá), eval vẫn nối đuôi (`lan-ghim-lai-theo-paths`)
+- Lộ trình chạy được trên dữ liệu thật của crm — hàng kế đúng, cờ không nhiễu, nhiều lộ trình mỗi kho, mở việc từ hàng qua Cổng Đáng, liên kết hai chiều hàng ↔ hồ sơ, đường vào trang từ /start (`lo-trinh-tren-du-lieu-that`)
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
-- Lộ trình vào kit, lát 1 — ổ cắm đọc file ý định của kho (khuôn sáu trường), máy suy trạng thái từ hồ sơ bằng bảng nhãn bản đồ sản phẩm, in ba dòng lên thẻ start và vẽ trang lộ trình cạnh PRODUCT-MAP.md; kit KHÔNG ghi vào file ý định (`viec-ke-theo-plan`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
 
 ## Đang làm
@@ -58,6 +58,7 @@ flowchart TD
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
 - Lời mời cổng thành vật máy sinh — thẻ in câu gộp khuyến nghị bấm được, khối VIỆC-CỦA-ANH chỉ chứa điều-chỉ-người-biết, vá các đường fail-quiet của thẻ (`loi-moi-cong-may-sinh`)
 - Ra có tên ở Vòng LÀM và TRAO — trạng thái «máy đã thông» cho làn V; Cổng Đáng ký qua /approve một lượt một PR; Cổng Giá trị có lối «không đo được» + archived/timebox có bộ đọc (`ra-co-ten-lam-va-trao`)
+- Lộ trình vào kit, lát 1 — ổ cắm đọc tệp ý định của kho, trạng thái suy từ hồ sơ bằng bảng ô của bản đồ sản phẩm, ba dòng thẻ start, trang LO-TRINH.html cạnh PRODUCT-MAP.md, feature-loop S0 nhận một hàng; kit không ghi tệp ý định (`viec-ke-theo-plan`)
 - Vũ trang /goal ở mọi lượt người đứng ngay trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in = mỗi câu xin duyệt thiết kế của brainstorm · Cổng 1 · Gate 1.5 (`vu-trang-goal-luc-goi-ten`)
 
 ## Đã giao
@@ -92,6 +93,7 @@ flowchart TD
 - Máy quét vào phiên hỏi đúng câu lưới trước-merge hỏi — hồ sơ không còn cần người thì thôi hiện «chờ ký», hồ sơ chưa sạch thì luôn còn ở cổng (`lan-v-khong-phai-cho-ky`) — đã giao — đã nghỉ, giữ sử liệu
 - Lệnh in ra phải bấm được — một nguồn tên lệnh (bảng COMMAND-NAMES, bảng ⊆ vật thật, điểm bàn giao ⊆ bảng) + TRỪ ba cờ nhiễu trên thẻ + bốn sửa đúng từ finding B/C (`lenh-in-ra-phai-bam-duoc`)
 - Ba tài liệu đầu-tay (QUICKSTART · README · GUIDE) vào vũ trụ quét lệnh — 52 token trần đổi sang dạng bấm được, cùng bảng COMMAND-NAMES và cùng ca LB2 (`lenh-tran-tai-lieu-dau-tay`)
+- Lời mời ở trần lượt là vật máy sinh — thẻ Cổng Bằng chứng CHƯA-ký-được in khối «Lối ra» (lối sống, có giá, khuyến nghị tất định) khi vòng chạm trần lượt hoặc một eval hỏng lặp lại (`loi-moi-tran-luot-loi-song-co-gia`)
 - Lớp bằng chứng nhìn-thấy — hợp đồng có mặt người nhìn phải có ≥1 eval ui-check (`layer: ui-observed`); răng W8 ba tầng (lint · thẻ · pre-merge NOTE), một nguồn cho surfaces, đường bỏ có tên (`lop-bang-chung-nhin-thay`)
 - lượt chấm ghi vào cây — bộ chấm S4 phát hiện cây đổi trong lượt chấm (commit lạ, tệp vật/thước bị sửa) và lượt ấy không dùng được, chấm lại cùng vòng (`luot-cham-ghi-vao-cay`)
 - Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`) — đã giao — đã nghỉ, giữ sử liệu

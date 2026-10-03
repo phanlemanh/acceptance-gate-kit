@@ -1,0 +1,127 @@
+schema_version: 1
+feature_slug: loi-moi-tran-luot-loi-song-co-gia
+# Ba lệnh, chín eval (eval chung lệnh chạy một lần). Mỗi lệnh chạy MỘT nhóm ca của lưới thường
+# trực tests/scripts/lmtl-the.test.mjs. Sổ chạy của fixture do CHÍNH bộ chấm sinh (harness
+# tests/workflows chạy acceptance-verify.js với tác tử giả, ghi nguyên result.runLog); dòng
+# thuoc-vat do thuoc-vat.mjs --write THẬT ghi trên kho git code sinh. Mỗi nhóm có đối chứng dương
+# trên cây thật và đột biến trên bản sao scripts/ + lib/ + skills/ (thay nguyên văn đúng một chỗ,
+# chứng mũi tiêm trúng trước khi chấm). Ca được gọi tên mà không in dòng PASS/FAIL → tệp thoát
+# khác 0 với «ca không chạy: <tên>». Bảng đột biến: design doc §5.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lmtl_khoi
+    expected: >
+      Ca LT-AC1-lap xanh với ma trận viết trước chín hàng (số assert = số hàng), sổ của từng
+      hàng do bộ chấm thật sinh: (1) E2 `cannotRun` lượt 1 + thoát 1 lượt 2 → `lap` = [{E2,
+      AC-2, [1,2]}], HTML có «E2 (AC-2) chưa đạt ở lượt 1, 2» · (2) E2 `killedByTool` hai lượt →
+      vào `lap` · (3) mã thoát 2 không khai → vào `lap` · (4) E2 khai `expected_exit: 2` và thoát 2
+      hai lượt → `lap` rỗng, không khối (đặc hiệu) · (5) lượt 2 có hai dòng E2 (thử lại), dòng
+      cuối đạt → không lặp (đặc hiệu) · (6) `SUITE-*` đỏ hai lượt → không vào `lap` (đặc hiệu); (6b) bộ chấm thật chạy thêm E9 ngoài
+      evals.yaml, đỏ hai lượt → không vào `lap` (đặc hiệu) ·
+      (7) cùng sổ bỏ dòng `round-tally` → cùng `lap` · (8) lượt cuối cụt: cắt sổ lượt 2 trước dòng
+      E2 → `lap` có E2 kèm «không có dòng ở lượt 2» · (9) lượt cuối BLOCKED không ký được → khối
+      hiện. Chiều đỏ: `tat-khoi` → «FAIL: LT-AC1-lap» hàng 1; `bo-expected-exit` → đỏ hàng 4;
+      `bo-loc-id` → đỏ hàng 6;
+      `bo-loc-ngoai-evals` (chỉ gỡ vế id-ngoài-evals.yaml) → đỏ hàng 6b.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "tests/scripts/lmtl-the.test.mjs"]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.lmtl_khoi
+    expected: >
+      Ca LT-AC2-tran xanh: ba lượt, mỗi lượt một eval khác chưa đạt (E1, E2, E3) → `tran: true`,
+      `lap: []`, tên lối `luot-nua` chứa «vượt trần 3 lượt», khối hiện trên HTML.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "tests/scripts/lmtl-the.test.mjs"]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.lmtl_bien
+    expected: >
+      Ca LT-AC3-khong-ky xanh với ma trận viết trước sáu hàng (số assert = số hàng): PASS ·
+      PENDING-JUDGMENT · BLOCKED cạnh mù · chết lần đầu → không khoá `loi_ra`, HTML không có
+      «Lối ra»; REJECT có lặp · REJECT ở trần → `loi` đúng ba mã [thu-pham-vi, luot-nua, dung],
+      HTML có «Không có lối ký» và không có nút hay chữ mời ký. Chiều đỏ: đột biến `them-loi-ky`
+      → «FAIL: LT-AC3-khong-ky».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "tests/scripts/lmtl-the.test.mjs"]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.lmtl_khoi
+    expected: >
+      Ca LT-AC4-khuyen-nghi xanh: sổ có lặp → `khuyen_nghi.ma` = thu-pham-vi, tên lối chứa
+      «AC-2»; sổ ở trần không lặp → `khuyen_nghi.ma` = luot-nua; cả hai `vi_sao` khác rỗng và có
+      mặt nguyên văn trên HTML.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "tests/scripts/lmtl-the.test.mjs"]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.lmtl_gia
+    expected: >
+      Ca LT-AC5-phut xanh: args của lượt mang `invokedAt` = giờ chạy − 7 phút (đúng vai s4-args,
+      không ghi tay dòng sổ); bộ chấm thật ghi `round-tally`, `thuoc-vat.mjs --write` thật ghi dòng
+      cùng lượt; ca khẳng định trước rằng hai dòng ấy mang đúng tên trường giờ mô-đun đọc (hằng
+      xuất `TRUONG_GIO`) và `ts` của tally = `invokedAt` đã truyền; rồi `luot[].phut` thuộc {7, 8}
+      và giá lối `luot-nua` in đúng số ấy. Ca LT-AC5-chua-do xanh: lượt không có dòng `thuoc-vat`
+      → `phut` null, HTML in «chưa đo», không in «0 phút». Chiều đỏ: `phut-ve-0` → «FAIL:
+      LT-AC5-chua-do».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "feature-loop/scripts/thuoc-vat.mjs", "tests/scripts/lmtl-the.test.mjs"]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.lmtl_bien
+    expected: >
+      Ca LT-AC6-im xanh với năm hàng: REJECT lượt 1 · REJECT lượt 2 không lặp · eval chưa đạt
+      lượt 1 rồi đạt lượt 2 trong khi eval khác đỏ lượt 2 · PASS · BLOCKED cạnh mù ký được → không
+      khoá `loi_ra`, và cả HTML lẫn `--extract` bằng từng byte với thẻ dựng bằng bản trước vòng (git archive ở cha của lần ghi đầu tiên đưa chuỗi
+      `loi-ra-tran-luot` vào scripts/gate-card.js; không tìm ra sha → ca đỏ có tên). Chiều đỏ:
+      đột biến `lap-moi-luot` → «FAIL: LT-AC6-im».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "tests/scripts/lmtl-the.test.mjs"]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.lmtl_khoi
+    expected: >
+      Ca LT-AC7-mot-nguon xanh: mọi `ten` và `gia` của ba lối, `khuyen_nghi.vi_sao` và từng dòng
+      eval lặp của `--extract` có mặt nguyên văn (sau khi thoát HTML) trên thẻ HTML của cùng hồ
+      sơ — số chuỗi so = số chuỗi trong `loi_ra`.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "tests/scripts/lmtl-the.test.mjs"]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.lmtl_gia
+    expected: >
+      Ca LT-AC8-skill xanh: khối marker `TRAN-LUOT-LOI-RA` rút từ SKILL chứa «TEN_KHOI» do mô-đun
+      xuất (so bằng nhau qua require, không chép chuỗi), chứa «dừng-vá» và câu cấm mời ký;
+      `TRAN_LUOT` mô-đun xuất bằng số trong «Tối đa <n> round». Chiều đỏ trong ca: bản sao SKILL
+      gỡ khối marker → hàm kiểm trả sai với tên khối.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "feature-loop/skills/feature-loop/SKILL.md", "tests/scripts/lmtl-the.test.mjs"]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.lmtl_bien
+    expected: >
+      Ca LT-AC9-so-hong xanh với bốn hàng: sổ có lặp chèn thêm dòng không phải JSON và dòng eval
+      thiếu `round` → thẻ thoát 0, khối vẫn hiện với đúng eval lặp; sổ vắng hẳn trên báo cáo
+      REJECT → thẻ thoát 0, không khối; sổ chỉ còn dòng hỏng → thẻ thoát 0, không khối; sổ có lặp
+      mà `evals.yaml` hỏng → thẻ thoát 0, khối hiện với E2 và dòng «không đọc được evals.yaml — AC
+      không xác định». Chiều đỏ: `nuot-evals-hong` → «FAIL: LT-AC9-so-hong» hàng 4.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["scripts/loi-ra-tran-luot.cjs", "scripts/gate-card.js", "tests/scripts/lmtl-the.test.mjs"]

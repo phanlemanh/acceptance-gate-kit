@@ -395,3 +395,16 @@ lan-ghim-lai-giu-tron-loi-loi#ngoai-7	lan-ghim-lai-giu-tron-loi-loi	medium	khac	
 lan-ghim-lai-giu-tron-loi-loi#ngoai-8	lan-ghim-lai-giu-tron-loi-loi	medium	khac	song			Shape 4 (negative-only assertion): E7's red direction sets the flag on ANY exit-code drift, including crash exits on the green case [lượt chấm 4; owner quyết ở Cổng Bằng chứng 03/10]
 lan-ghim-lai-giu-tron-loi-loi#ngoai-9	lan-ghim-lai-giu-tron-loi-loi	medium	khac	song			Shape 2 (hand-written fixture): E4 hand-writes the repin-do line and wall_s/so_lenh instead of taking them from the real writer [lượt chấm 4; owner quyết ở Cổng Bằng chứng 03/10]
 lan-ghim-lai-giu-tron-loi-loi#ngoai-10	lan-ghim-lai-giu-tron-loi-loi	low	khac	song			Shape 5 (class sweep with only point cases): E4 finds readers by grepping the literal «run-log.jsonl», missing readers that take the run-log path as an argument [lượt chấm 4; owner quyết ở Cổng Bằng chứng 03/10]
+viec-ke-theo-plan#ngoai-1	viec-ke-theo-plan	medium	dong-goi	song			Bản sao mutant của P99 nối danh sách tệp tay thay vì chép trọn thư mục — script mới mà start-scan nạp sẽ làm P99 đỏ vì hạ tầng
+viec-ke-theo-plan#ngoai-2	viec-ke-theo-plan	medium	doi-chung-tu-sinh	song			Ô hồ sơ của fixture crm OKR khai tay trong _nguon.ho_so — trang đọc đúng trên mẫu chưa chứng minh đọc đúng trên lộ trình thật của crm
+viec-ke-theo-plan#ngoai-3	viec-ke-theo-plan	medium	khac	chet	09e1df99		Bước S0 tra hàng: mô tả nhiều từ không trích dẫn làm lệnh thoát 2, SKILL không có nhánh cho mã thoát đó
+viec-ke-theo-plan#ngoai-4	viec-ke-theo-plan	medium	fail-open	chet	09e1df99		dung_tren hoặc moc[].hang khai sai kiểu (không phải mảng) bị coi như rỗng, không cờ — hàng còn chờ có thể hiện là hàng kế
+viec-ke-theo-plan#ngoai-5	viec-ke-theo-plan	low	khac	song			Slug sai dạng trỏ ra ngoài _acceptance/ vẫn được đọc khi đếm hàng sống qua Cổng Đáng
+viec-ke-theo-plan#ngoai-6	viec-ke-theo-plan	medium	chuoi-thay-quan-he	song			Không phép đo nào kiểm cờ và nhãn tự khai nằm đúng hàng trên trang — chỉ kiểm chuỗi có mặt
+viec-ke-theo-plan#ngoai-7	viec-ke-theo-plan	low	doi-chung-tu-sinh	trung		viec-ke-theo-plan#ngoai-2	Cờ lệch crm OKR ở hàng 7n do chính fixture dựng ra — trùng mục ngoai-2
+viec-ke-theo-plan#ngoai-8	viec-ke-theo-plan	low	khong-the-do	song			LT-06 kết luận không có ngày chạy và không script mà không có ca đỏ nào tiêm hai thứ đó
+viec-ke-theo-plan#ngoai-9	viec-ke-theo-plan	medium	dong-goi	song			Khối MAP-STAGE ở phiên nghiệm thu bỏ dự phòng $PLUGIN_ROOT mà skill khai cho mọi đường gói — harness chỉ có PLUGIN_ROOT thì khối đỏ to
+viec-ke-theo-plan#ngoai-10	viec-ke-theo-plan	low	doc-drift	song			Lệnh ký bằng chứng: bước 6 và 7a còn nói bước 6 vẽ lại bản đồ sau khi khối đã dời sang 7c
+viec-ke-theo-plan#ngoai-11	viec-ke-theo-plan	low	doc-drift	trung		viec-ke-theo-plan#ngoai-10	Câu 7a «chỉ đưa bản đồ nếu bước 6 vẽ lại» — trùng mục ngoai-10
+viec-ke-theo-plan#ngoai-12	viec-ke-theo-plan	low	khong-the-do	song			Chiều đỏ của LT-16-thu-tu chỉ so tiền tố thông điệp «thân signoff:»
+viec-ke-theo-plan#ngoai-13	viec-ke-theo-plan	medium	khac	song			Lệnh ký bằng chứng: làn kiểm 7b chạy trước khối vẽ lại ở 7c — khi làn chạy trọn, product_map --check có thể đỏ vì bản đồ chưa vẽ lại (có từ trước vòng này, nặng hơn)

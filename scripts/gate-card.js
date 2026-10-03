@@ -940,6 +940,14 @@ const cgEvalMeta = (() => { try { return Object.fromEntries(evalYamlLib.parseEva
 const cgNenDo = docNen(read(path.join(dir, 'duong-nen.md'))).do || [];
 const cgDoTruoc = m => { const k = (cgEvalMeta[m.evalId] || {}).cmd; const key = k && k.startsWith('config:') ? k.slice(7) : ''; return cgNenDo.some(l => (key && l.includes(key)) || (m.cmd && l.includes(m.cmd)) || (String(m.evalId).startsWith('SUITE-') && /^nen suite:/.test(l))); };
 const cgAC = m => (cgEvalMeta[m.evalId] || {}).ac || '—';
+// ── LOI-RA-TRAN-LUOT (hồ sơ loi-moi-tran-luot-loi-song-co-gia) ──────────────────────────────
+// Thẻ CHƯA-ký-được ở trần lượt hoặc khi một eval chưa đạt lặp lại: khối «Lối ra» (ba lối sống,
+// có giá, khuyến nghị tất định) tính từ sổ chạy bằng MỘT mô-đun thuần — HTML và `--extract` đọc
+// cùng đối tượng. Ngoài hai ca ấy `LR` là null và thẻ giữ nguyên từng byte. evals.yaml vắng hoặc
+// không đọc ra eval nào → evalMeta null: không lọc id, khối in cờ vàng có tên thay vì im.
+const LRM = require('./loi-ra-tran-luot.cjs');
+const lrEvalMeta = (() => { const t = read(path.join(dir, 'evals.yaml')); if (!t.trim()) return null; try { const ds = evalYamlLib.parseEvals(t, ['criterion']); return ds.length ? Object.fromEntries(ds.map(e => [e.id, { ac: clean(e.criterion) }])) : null; } catch (_) { return null; } })();
+const LR = LRM.loiRa({ runLogText: read(path.join(dir, 'run-log.jsonl')), verdict, approvable, trangThai: cg.trangThai, expectedExit: cgExpected, evalMeta: lrEvalMeta });
 const CG_LOI = ['ghi hạn chế rồi ship', 'dựng bàn đo rồi chấm lại', 'trả lại'];
 const CG_GIA = ['AC ấy ship không có bằng chứng máy; mở lại khi bàn đo về', 'thêm một lượt chấm và công dựng bàn đo', 'vòng dừng ở đây, không ship'];
 
@@ -1133,7 +1141,7 @@ const yDinh = (() => {
   const dong = section(t, 'Vấn đề & ai gặp').filter(l => l.trim());
   return { feature: unquote(frontmatter(t).feature || ''), dong: dong.slice(0, Y_DINH_MAX), cat: dong.length > Y_DINH_MAX };
 })();
-if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh }, null, 2)); process.exit(0); }
+if (EXTRACT) { process.stdout.write(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, ...(LR ? { loi_ra: LR } : {}) }, null, 2)); process.exit(0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -1169,7 +1177,7 @@ if (!approvable) {
   P.push(`<div class="gc"><div class="card">
 <div class="h"><div><div class="ft">${esc(featurePlain)}</div><div class="sub">Cổng 2 · ${tier === 'T3' ? 'tier T3 · ' : ''}CHƯA ký được</div></div><span class="chip ${ch.c}">${esc(ch.t)}</span></div>
 <div class="lab">Vì sao chưa ký được</div>${notes.map(([c, t]) => `<div class="flag ${c}">${t}</div>`).join('')}
-<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gnot"><p class="li">không cần làm gì — ${cg.trangThai === 'lech' ? 'máy chấm lại lượt mới; thước đổi giữa lượt nên lượt này không dùng được' : cg.trangThai === 'cay-doi' ? 'máy hoàn lại thay đổi lạ rồi chấm lại cùng vòng — không đếm vào trần' : cg.trangThai === 'chet-lan-dau' ? 'máy thử lại lượt chấm một lần' : verdict === 'REJECT' ? 'máy đang quay lại sửa code rồi tự chấm vòng mới' : verdict === 'BLOCKED' ? 'máy đang khắc phục nguyên nhân kẹt rồi chạy lại vòng chấm' : 'máy phải chạy lại vòng chấm để có kết luận đọc được'}; thẻ này chỉ báo trạng thái. Khi máy cần bạn quyết, nó hỏi bằng tin nhắn riêng.</p></div>
+${LR ? LRM.khoiHtml(LR, esc) : `<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gnot"><p class="li">không cần làm gì — ${cg.trangThai === 'lech' ? 'máy chấm lại lượt mới; thước đổi giữa lượt nên lượt này không dùng được' : cg.trangThai === 'cay-doi' ? 'máy hoàn lại thay đổi lạ rồi chấm lại cùng vòng — không đếm vào trần' : cg.trangThai === 'chet-lan-dau' ? 'máy thử lại lượt chấm một lần' : verdict === 'REJECT' ? 'máy đang quay lại sửa code rồi tự chấm vòng mới' : verdict === 'BLOCKED' ? 'máy đang khắc phục nguyên nhân kẹt rồi chạy lại vòng chấm' : 'máy phải chạy lại vòng chấm để có kết luận đọc được'}; thẻ này chỉ báo trạng thái. Khi máy cần bạn quyết, nó hỏi bằng tin nhắn riêng.</p></div>`}
 <div class="foot"><span class="rev">↻ Trả lại → quay về code; trạng thái này không có nút ký.</span><div class="btns"><button class="b no">Quay về code</button></div></div>
 </div></div>`);
   process.stdout.write(P.join('\n'));
