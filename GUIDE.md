@@ -1279,7 +1279,7 @@ engine đã chép vào, nên không có cờ thì chiến dịch chọn gần 0 
 true` — các lệnh suite trong làn chạy cùng lúc, eval vẫn nối đuôi; kết quả ghi theo thứ tự
 `suite_keys`. Trước khi bật: chạy làn hai cách trên cùng một cây và so mã thoát; kho có suite cùng
 ghi một tài nguyên (DB test) hoặc eval tự gọi làn bên trong thì chưa nên bật. Giới hạn khai: tệp
-phụ thuộc gián tiếp nằm ngoài `paths` không làm hồ sơ cũ — lưới cuối là chiến dịch mốc.
+phụ thuộc gián tiếp nằm ngoài `paths` không làm hồ sơ cũ — lưới cuối là chiến dịch mốc. **Chưa bật `stale_scope: paths` ở kho nào** (Cổng Bằng chứng 03/10): bộ lọc chưa đóng mặc định với dạng khai lạ — một mục `paths` là tên thư mục trần (`apps/api/src/saved-views`, không dấu sao) làm mọi tệp trong thư mục ấy bị bỏ qua, cổng xanh mà sai; crm có dạng khai này. Làm lại theo khuôn đóng mặc định: `docs/plans/2026-10-03-hat-giong-loc-paths-dong-mac-dinh.md`.
 
 **Làn bỏ qua khi cây BẰNG PIN — `--skip-unchanged` (2.14).** Đo 14/09: một chữ ký
 mất **54 phút · ≈ 42 M token** từ lúc owner gõ «Ký» tới READY, và **7/7** chữ ký

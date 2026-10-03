@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 92dd0191ac25c6d76ce01097a305c4fc55fb0ddf
-human_signoff:
+human_signoff: Manh Phan 2026-10-03
 ---
 
 # Evidence Report: lan-ghim-lai-theo-paths

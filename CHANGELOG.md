@@ -18,6 +18,7 @@
 - Cờ `--stale-all` cho `pre-merge-check.sh` — chiến dịch ghim lại ở mốc ép luật cũ.
 - Khoá `feature_loop.repin_parallel_suites: true` (mặc định tắt): suite trong làn chạy song song, eval nối đuôi.
 - **Kho tiêu thụ:** không bật khoá thì không đổi gì; bộ máy làn chỉ đòi `staleByPaths` khi kho bật khoá.
+- **Chưa bật `stale_scope: paths`:** mục `paths` là thư mục trần (không dấu sao) làm bộ lọc bỏ qua mọi tệp trong thư mục — cổng xanh mà sai (crm có dạng này). Làm lại theo khuôn đóng mặc định: hạt giống `docs/plans/2026-10-03-hat-giong-loc-paths-dong-mac-dinh.md`.
 
 ### Làn ghim lại giữ trọn lời lỗi (hồ sơ `lan-ghim-lai-giu-tron-loi-loi`, T2)
 

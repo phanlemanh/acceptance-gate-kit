@@ -5,7 +5,7 @@ slug: lan-ghim-lai-theo-paths
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh + lib/** (t3_paths)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-03T09:42:19Z   # owner duyệt nâng phạm vi (M13–M15, E10) khi trả lại ở Cổng Bằng chứng lượt 3
 design_doc: docs/superpowers/specs/2026-10-03-lan-ghim-lai-theo-paths-design.md
@@ -105,6 +105,10 @@ Mọi ô: khoá `paths`, diff sau pin chạm tệp nêu ở cột Diff. «Cũ» 
 
 - Known limits (owner định tuyến ở Cổng Bằng chứng lượt 3, 03/10 — Ngoài-2, 3, 6, 7, 9, 10, 11): vệ binh hoá cũ phía phiên trong SKILL chưa hỏi khoá stale_scope · AG_FLOOR tính cả hàng điều kiện nên lời nhắc nâng bộ máy nêu mốc cao hơn cần · vài chiều đỏ E3 / bộ răng vòng chị em còn kết luận từ «không ghi gì» · banBase giấu lỗi git archive · bộ đọc repin-lane trong E4 thiếu đối chứng dương riêng · E3 lấy quan hệ ⊆ trên cây lành không dấu dương. Hàng sổ: `docs/research/known-limits-ledger.tsv` `lan-ghim-lai-theo-paths#ngoai-*`.
 - Ngoài-8 (ca LT-AC* tự đếm ô) → hạt giống `docs/plans/2026-10-03-hat-giong-dem-o-tu-dem-lmtl-the.md`.
+- Known limits (owner định tuyến ở Cổng Bằng chứng lượt 4, 03/10 — Ngoài-1, 2, 3, 5, 6, 7, 8, 9, 11): làn có hai bộ đọc `paths` lệch nhau, vá chú thích/dòng trống chỉ vào bộ mới · dòng `repin_parallel_suites` trong khuôn init tách `ship_default` khỏi chú thích · đầu dùng của `pre-merge-check.sh` chưa nêu `--stale-all` · suite song song ghép đoạn đầu ra thô làm vỡ chữ UTF-8 trong nhật ký đầy đủ · `banBase` nuốt lỗi `git archive` · chiều đỏ âm-tính-một-mình ở E3/E7 và E1/E6 của bộ răng `lan-ghim-lai-giu-tron-loi-loi` và các ca đột biến `lmtl-the` · E4 rút bộ đọc run-log bằng grep chuỗi. Chín hàng ở `docs/research/known-limits-ledger.tsv`.
+- Ngoài-4 (thư mục trần trong `paths`, mức cao) → hạt giống `docs/plans/2026-10-03-hat-giong-loc-paths-dong-mac-dinh.md`. **Khoá `stale_scope: paths` chưa bật ở kho nào** — khai ở GUIDE §7.1 và CHANGELOG.
+- Ngoài-10 (LT-AC7 tự đếm) → gộp vào hạt giống `docs/plans/2026-10-03-hat-giong-dem-o-tu-dem-lmtl-the.md` (cùng tệp, cùng hình dạng Ngoài-8 lượt 3).
+- Trong hợp đồng, lượt 4 (thước, không chặn): M9 trùng M2; M12 không còn chạm nhánh `hop-paths-rong`.
 
 - Khuôn chiều đỏ (owner chọn «đổi khuôn» 03/10 ở dừng-vá lượt 2): mọi phép phá trong bộ răng đi qua `rang/chieu-do.mjs` — chỉ tính «đã bắt» khi có dấu dương bản sao đã chạy tới hồ sơ.
 

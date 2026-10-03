@@ -19,3 +19,10 @@ Hằng số ô viết TRƯỚC + ném «số ô lệch» khi lệch (khuôn P105
 
 Lần kế hồ sơ ấy bị chạm (ghim lại hoặc vòng sửa) — sửa cùng lượt; hoặc ≥ 1 lượt chấm khác bắt lại
 đúng hình dạng này trong cùng tệp.
+
+## Bắt lại 03/10 (lượt chấm 4)
+
+Lượt chấm 4 của cùng hồ sơ bắt lại đúng hình dạng ở LT-AC7-mot-nguon (Ngoài-10: số chuỗi mong đợi
+rút từ chính đối tượng đang đo), owner định tuyến «mở hợp đồng mới» — gộp vào hạt giống này thay vì
+mở hạt giống thứ hai. **Vế thứ hai của ngưỡng mở ô đã ĐẠT** (≥ 1 lượt chấm khác bắt lại trong cùng
+tệp); ô chỉ mở khi owner gọi tên (luật chiều rộng (b)).
