@@ -12,6 +12,13 @@
 
 ## Unreleased
 
+### Làn ghim lại theo `paths` + suite song song (hồ sơ `lan-ghim-lai-theo-paths`, T3)
+
+- Khoá `risk_tiers.stale_scope: paths` (mặc định tắt): hoá cũ chỉ khi diff chạm `paths` các eval — bộ lọc sau luật cũ, chỉ thu; NOTE gọi tên tệp bỏ qua. Hàm một nguồn `staleByPaths` (`lib/evidence-core.cjs`) cho lưới trước-merge và `--skip-unchanged`.
+- Cờ `--stale-all` cho `pre-merge-check.sh` — chiến dịch ghim lại ở mốc ép luật cũ.
+- Khoá `feature_loop.repin_parallel_suites: true` (mặc định tắt): suite trong làn chạy song song, eval nối đuôi.
+- **Kho tiêu thụ:** không bật khoá thì không đổi gì; bộ máy làn chỉ đòi `staleByPaths` khi kho bật khoá.
+
 ### Làn ghim lại giữ trọn lời lỗi (hồ sơ `lan-ghim-lai-giu-tron-loi-loi`, T2)
 
 - Lệnh đỏ trong `repin-lane.mjs` ghi nhật ký trọn ra `.acceptance-runs/<slug>/repin-<run_id>/`; lệnh xanh không sinh tệp.
