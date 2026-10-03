@@ -53,8 +53,8 @@ export function dungKho(opts) {
 }
 
 // Làn của một engine (thư mục chứa feature-loop/scripts); bộ máy lib luôn là KIT (vòng này không sửa lib).
-export function chayLan(engine, kho, slugs, args = [], env = {}) {
-  return spawnSync(process.execPath, [path.join(engine, 'feature-loop', 'scripts', 'repin-lane.mjs'), '--root', kho.R, '--ag-root', KIT, ...slugs.flatMap(s => ['--slug', s]), ...args],
+export function chayLan(engine, kho, slugs, args = [], env = {}, agRoot = KIT) {
+  return spawnSync(process.execPath, [path.join(engine, 'feature-loop', 'scripts', 'repin-lane.mjs'), '--root', kho.R, '--ag-root', agRoot, ...slugs.flatMap(s => ['--slug', s]), ...args],
     { encoding: 'utf8', env: { ...process.env, ...env }, maxBuffer: 512 * 1024 * 1024 });
 }
 

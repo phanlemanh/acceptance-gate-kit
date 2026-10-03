@@ -71,12 +71,13 @@ if (chan === 'dau-do') {
   ];
   ok(MA.length === 5, 'E7 đúng 5 ô (số ô lệch)');
   const BASE = banBase();
+  ok(['scripts/pre-merge-check.sh', 'lib/evidence-core.cjs', 'feature-loop/scripts/repin-lane.mjs'].every(f => existsSync(path.join(BASE, f))), 'E7 bản base có trọn scripts + lib + feature-loop (không lai bộ máy mới)');
   const sao = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: 'không ký mù.${veCham}`);\n  process.exit(1);', thanh: 'không ký mù.${veCham}`);\n  process.exit(0);' }]);
   let thayDoi = false;
   for (const c of MA) {
     const kA = c.lam(), kB = c.lam(), kC = c.lam();
     const a = chayLan(KIT, kA, HAI.map(s => s.slug), ['--reason', 'x', '--write']).status;
-    const b = chayLan(BASE, kB, HAI.map(s => s.slug), ['--reason', 'x', '--write']).status;
+    const b = chayLan(BASE, kB, HAI.map(s => s.slug), ['--reason', 'x', '--write'], {}, BASE).status;
     const m = chayLan(sao, kC, HAI.map(s => s.slug), ['--reason', 'x', '--write']).status;
     ok(a === b && a === c.ma, `E7 ${c.ten}: mã thoát cây đang kiểm ${a} = bản base ${b} = ghim sẵn ${c.ma}`);
     if (m !== c.ma) thayDoi = true;

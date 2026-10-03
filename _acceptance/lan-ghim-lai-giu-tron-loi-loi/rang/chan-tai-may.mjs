@@ -41,5 +41,25 @@ const sd = readFileSync(saoDo, 'utf8').replace("linux: '/proc/meminfo'", "linux:
 writeFileSync(saoDo, sd);
 let nem = false; try { (await nap(saoDo)).docTai(); } catch { nem = true; }
 ok(nem, 'E6 chiều đỏ: bản sao không bắt lỗi đọc swap → ném — «tải máy làm sập làn» được thước thấy');
+// (c') ĐẦU RA của làn — không chỉ mô-đun (lượt chấm 1, t3/t9/t12): bản sao TRỌN feature-loop/ với
+// nguồn swap hỏng ở cả hai nền → làn đỏ VẪN thoát 1 và VẪN để một dòng repin-do mang tai.nen.
+const { dungKho, chayLan, banSao: saoLan } = await import('./kho-mau.mjs');
+const HONG = [
+  { tep: 'feature-loop/scripts/tai-may.mjs', tu: "linux: '/proc/meminfo'", thanh: "linux: '/khong/ton/tai/meminfo'" },
+  { tep: 'feature-loop/scripts/tai-may.mjs', tu: "mac: ['sysctl', '-n', 'vm.swapusage']", thanh: "mac: ['/khong/ton/tai/sysctl', '-n', 'vm.swapusage']" },
+];
+const chayDo = (engine) => {
+  const k = dungKho({ slugs: [{ slug: 'feat', evals: [{ id: 'E1', key: 'rang_ok' }] }], suites: ['echo DO; exit 3'], scripts: { rang_ok: 'true' } });
+  const truoc = k.doc('_acceptance/feat/run-log.jsonl');
+  const r = chayLan(engine, k, ['feat'], ['--reason', 'do', '--write']);
+  const moi = k.doc('_acceptance/feat/run-log.jsonl').slice(truoc.length).split('\n').filter(Boolean).map(l => JSON.parse(l));
+  k.don(); return { r, moi };
+};
+const lanHong = chayDo(saoLan(HONG));
+const dau = lanHong.moi.filter(o => o.kind === 'repin-do');
+ok(lanHong.r.status === 1, `E6c' làn với nguồn swap hỏng VẪN thoát 1 (được ${lanHong.r.status})`);
+ok(dau.length === 1 && dau[0].tai && dau[0].tai.swap_used_mb === null && typeof dau[0].tai.nen === 'string' && dau[0].tai.nen.length > 0, `E6c' VẪN để một dòng repin-do, tai.swap_used_mb null, tai.nen = «${dau[0] && dau[0].tai && dau[0].tai.nen}»`);
+const lanSap = chayDo(saoLan([...HONG, { tep: 'feature-loop/scripts/tai-may.mjs', tu: '/* CATCH-SWAP */ } catch (e) {', thanh: '/* CATCH-SWAP */ } catch (e) { throw e;' }]));
+ok(!(lanSap.r.status === 1 && lanSap.moi.some(o => o.kind === 'repin-do')), `E6c' chiều đỏ: bản sao gỡ chốt bắt lỗi → làn KHÔNG còn «thoát 1 + để dấu» (mã ${lanSap.r.status}, dấu ${lanSap.moi.filter(o => o.kind === 'repin-do').length}) — «tải máy làm sập làn» thấy ở ĐẦU RA làn`);
 if (loi) { console.log(`E6 ĐỎ: ${loi} ca`); process.exit(1); }
 console.log('E6 XANH');
