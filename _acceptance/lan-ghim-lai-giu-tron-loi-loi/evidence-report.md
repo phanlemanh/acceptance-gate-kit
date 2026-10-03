@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 6addf3cdc729949280202370095a283a76b4b727
-human_signoff:
+human_signoff: Manh Phan 2026-10-03
 ---
 
 # Evidence Report: lan-ghim-lai-giu-tron-loi-loi

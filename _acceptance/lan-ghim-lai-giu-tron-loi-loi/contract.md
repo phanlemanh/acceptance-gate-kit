@@ -5,7 +5,7 @@ slug: lan-ghim-lai-giu-tron-loi-loi
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ feature-loop/scripts/repin-lane.mjs + SKILL/tài liệu; bộ đọc lib/ và pre-merge KHÔNG sửa (đo im 03/10)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-03T01:59:11Z   # owner duyệt nâng phạm vi (AC-8) khi trả lại ở Cổng Bằng chứng lượt 3
 veto_state: mo
@@ -76,6 +76,8 @@ Phép thử mọi kho (luật 26/09): kho xanh không thấy gì khác ngoài ha
 ## Notes
 
 - Known limits (owner định tuyến ở Cổng Bằng chứng lượt 3, 03/10 — Ngoài-1..4, Ngoài-6..13): bộ phân tích swap của macOS chưa có phép thử riêng · chiều đỏ của các phép phá E1/E3/E6/E7 chưa ghim mã thoát + thông điệp (khẳng định âm tính một mình) · danh sách bộ đọc của E4 rút bằng chuỗi nên bỏ sót bộ đọc nhận đường sổ qua cờ (carry-plan.mjs — hiện im) · fixture E4 dựng tay dòng repin-do thay vì rút từ bên viết · E4 chiều đỏ đo «có đổi» thay vì «tăng đúng một làn» · mã lượt `--run-id` gõ tay chưa kiểm hình dạng (có thể ghi nhật ký ra ngoài --root) · lệnh thoát đúng mã khác 0 đã khai vẫn để một tệp nhật ký thừa trong thư mục tự ẩn. Hàng sổ: `docs/research/known-limits-ledger.tsv` `lan-ghim-lai-giu-tron-loi-loi#ngoai-*`.
+- Known limits (owner định tuyến ở Cổng Bằng chứng lượt 4, 03/10 — Ngoài-1..3, Ngoài-5..11): vị từ «eval lệch kỳ vọng» chép hai chỗ trong làn và mảng `lech` rò vào JSON stdout · câu đỏ không `--write` vẫn in «không ghi gì» dù đã lưu nhật ký · chiều đỏ của E1/E3/E6/E7/E8 kết luận từ «không thấy» mà chưa có đối chứng dương trên chính bản sao (E8: bản sao không để dấu vẫn cho xanh) · fixture E4 dựng tay dòng repin-do · E4 rút bộ đọc bằng chuỗi.
+- Ngoài-4 (lệnh bị giết / bị cắt ghi như đỏ thường) → hạt giống `docs/plans/2026-10-03-hat-giong-nhat-ky-lan-phan-biet-bi-giet.md`.
 
 - Giới hạn khai: nhân quả tải máy → làn đỏ CHƯA chứng minh; dòng `tai` chỉ là số để đọc sau. Ngưỡng mở «chạy lại rồi đi tiếp có cờ»: theo ô (10 lượt đỏ hoặc 30 ngày).
 - Kho tiêu thụ chưa bỏ qua `.acceptance-runs/` trong `.gitignore` sẽ thấy tệp lạ sau lượt đỏ; quy ước đã có ở `eval-executors.md` — vòng này thêm cho kit, không sửa kho khác.
