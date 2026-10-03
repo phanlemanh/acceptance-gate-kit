@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: d24b42beed5a914393881df59699dfc510c4f68c
-human_signoff:
+human_signoff: Phan Le Manh 2026-10-03
 ---
 
 # Evidence Report: loi-moi-tran-luot-loi-song-co-gia

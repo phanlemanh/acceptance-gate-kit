@@ -10,8 +10,8 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>25 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>86 việc"]
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GB --> DG["Đã giao<br/>87 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>9 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>3 việc"]
 ```
@@ -44,7 +44,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Lời mời ở trần lượt là vật máy sinh — thẻ Cổng Bằng chứng CHƯA-ký-được in khối «Lối ra» (lối sống, có giá, khuyến nghị tất định) khi vòng chạm trần lượt hoặc một eval hỏng lặp lại (`loi-moi-tran-luot-loi-song-co-gia`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -90,6 +89,7 @@ flowchart TD
 - Máy quét vào phiên hỏi đúng câu lưới trước-merge hỏi — hồ sơ không còn cần người thì thôi hiện «chờ ký», hồ sơ chưa sạch thì luôn còn ở cổng (`lan-v-khong-phai-cho-ky`) — đã giao — đã nghỉ, giữ sử liệu
 - Lệnh in ra phải bấm được — một nguồn tên lệnh (bảng COMMAND-NAMES, bảng ⊆ vật thật, điểm bàn giao ⊆ bảng) + TRỪ ba cờ nhiễu trên thẻ + bốn sửa đúng từ finding B/C (`lenh-in-ra-phai-bam-duoc`)
 - Ba tài liệu đầu-tay (QUICKSTART · README · GUIDE) vào vũ trụ quét lệnh — 52 token trần đổi sang dạng bấm được, cùng bảng COMMAND-NAMES và cùng ca LB2 (`lenh-tran-tai-lieu-dau-tay`)
+- Lời mời ở trần lượt là vật máy sinh — thẻ Cổng Bằng chứng CHƯA-ký-được in khối «Lối ra» (lối sống, có giá, khuyến nghị tất định) khi vòng chạm trần lượt hoặc một eval hỏng lặp lại (`loi-moi-tran-luot-loi-song-co-gia`)
 - Lớp bằng chứng nhìn-thấy — hợp đồng có mặt người nhìn phải có ≥1 eval ui-check (`layer: ui-observed`); răng W8 ba tầng (lint · thẻ · pre-merge NOTE), một nguồn cho surfaces, đường bỏ có tên (`lop-bang-chung-nhin-thay`)
 - lượt chấm ghi vào cây — bộ chấm S4 phát hiện cây đổi trong lượt chấm (commit lạ, tệp vật/thước bị sửa) và lượt ấy không dùng được, chấm lại cùng vòng (`luot-cham-ghi-vao-cay`)
 - Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`) — đã giao — đã nghỉ, giữ sử liệu

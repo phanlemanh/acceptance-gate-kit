@@ -5,7 +5,7 @@ slug: loi-moi-tran-luot-loi-song-co-gia
 owner: phanlemanh@gmail.com
 risk_tier: T2      # scripts/gate-card.js, scripts/loi-ra-tran-luot.cjs, SKILL feature-loop — không khớp t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: "Phan Le Manh"
 approved_at: 2026-10-02T23:10:33Z
 design_doc: docs/superpowers/specs/2026-10-03-loi-moi-tran-luot-loi-song-co-gia-design.md
@@ -68,6 +68,9 @@ Quét Zwicky (preset test-matrix), đầy đủ ở design doc §6.
 - Dự báo năm dòng số (luật c): làm-xong→quyết-được ↓ (ở vòng chạm trần) · lượt gọi người ngoài thiết kế ↓ (lối chết hết, khuyến nghị thôi sai hướng) · vòng bị hạ tầng đốt lượt = · token máy/vòng = · phút máy/lượt chấm =. Điều kiện tin cậy: đường phán quyết không đổi thành phần — vòng này chỉ đọc sổ và in thẻ.
 - Cân trên mọi kho: kho không chạm trần và không có eval lặp nhận thẻ giống từng byte (AC-6); không đổi mặc định nào.
 - Giới hạn đã khai, kèm ngưỡng đang đếm:
+  - known-limits (Cổng Bằng chứng 03/10, Ngoài-1): mô tả `expected` của E1 ghi «chín hàng» trong khi ma trận AC-1 có mười hàng (6b thêm ở lượt 2).
+  - known-limits (Cổng Bằng chứng 03/10, Ngoài-2): đột biến `bo-loc-ngoai-evals` chạy riêng có thể báo đạt khi fixture hàng 6b hỏng — chưa có đối chứng dương trên bản sao.
+  - known-limits (Cổng Bằng chứng 03/10, Ngoài-3): giá «khoảng N phút máy» lấy dòng `thuoc-vat` CUỐI của lượt; chạy bộ đếm thêm lần nữa ở điểm dừng làm phút đội lên. Ngưỡng: vòng kế chạm thẻ Cổng 2.
   - Phiên có render thẻ ở trần lượt hay không vẫn là chỉ dẫn SKILL (AC-8 đo khối chỉ dẫn khớp bên viết, không đo phiên). Ngưỡng: ≥1 vòng ở kho đã cài bản này mà phiên vẫn tự soạn lời mời ở trần lượt.
   - Chiều im AC-6 cần lịch sử git đủ sâu để tìm cha của commit đầu; bản sao nông → ca đỏ có tên, không xanh rỗng.
   - Sửa `scripts/gate-card.js` làm các hồ sơ ghim `scripts/**` hoá cũ tới chiến dịch ghim lại kế (luật re-pin theo mốc).
