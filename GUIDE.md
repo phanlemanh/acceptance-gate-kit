@@ -611,6 +611,12 @@ trễ theo mốc, số hàng tin theo lời. Kho dùng chữ trạng thái riên
 lời tự khai với hồ sơ. Kit **không bao giờ ghi** vào tệp ý định. Kho không khai khoá thì không thấy
 gì khác.
 
+Trang đọc trong một phút (vòng `trang-lo-trinh-doc-mot-phut`): mở bằng một thẻ mỗi lộ trình — làm
+tiếp (kèm lệnh mở chép được), số chỗ cần sửa trong kế hoạch, mốc kế tiếp và số ngày còn lại, tiến
+độ — rồi mỗi lộ trình một mục: chỗ lệch bằng tiếng sản phẩm, việc còn mở, việc đã giao gập lại, dải
+mốc. Hồ sơ không thuộc kế hoạch nào gập ở cuối trang, một lần. Trang tĩnh, tất định, đọc được trên
+điện thoại; số ngày còn lại do một đoạn script nhỏ tính lúc xem, tắt script trang vẫn đủ.
+
 Từ vòng `lo-trinh-tren-du-lieu-that` (chạy thử trên lộ trình OKR thật của crm):
 
 - **So theo nhóm.** Lời tự khai so với hồ sơ theo ba nhóm — đã giao · đang làm · chưa làm — không
