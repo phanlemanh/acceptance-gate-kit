@@ -1,115 +1,71 @@
-# Review findings: lan-ghim-lai-giu-tron-loi-loi (round 1)
-
 ## Trong hợp đồng
 
-- **The E7 base engine is not built from full scripts+lib as AC-7 and the repo convention require**
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/ban-base.mjs:8`
+- **E4's "wall_s/so_lenh absent" baseline already has both keys, so that half of AC-4 can never go red**
+  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/kho-mau.mjs:43`
   severity: medium
-  AC: AC-7
-  source: conventions
-  detail: AC-7 says the base is built with '`git archive` merge-base trọn `scripts lib feature-loop`'. CLAUDE.md also requires that a comparison base be taken as whole directories (`git archive <sha> scripts lib`), citing P150. banBase only archives `feature-loop`. chayLan then runs the base with `--ag-root KIT`, so it uses the CURRENT lib/ and scripts/ (recheck-evidence, evidence-core). The result is a hybrid engine that never existed at any commit. The comment justifies this with 'vòng này không sửa lib', but the eval lives on in later re-pin campaigns. Once lib/scripts change after merge, the base side compares old feature-loop against new lib and can go red from infrastructure, which is exactly the P150 class. The default ref `origin/main` also drifts: after merge, merge-base(HEAD, origin/main) == HEAD, so the base leg compares the tree with itself. Only the pinned codes 0·1·1·1·2 still give that leg any teeth.
-  rationale: AC-7 ghi rõ bản base dựng bằng git archive trọn scripts, lib, feature-loop; bản dựng chỉ lấy feature-loop nên so sánh nhẹ hơn hợp đồng.
-
-- **E6 does not test the 'red lane still exits 1 and still writes its mark' leg of AC-6(c)**
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-tai-may.mjs:33`
-  severity: medium
-  AC: AC-6
-  source: conventions
-  detail: In AC-6(c), when the swap source is broken, the lane must still exit 1 and still write the repin-do line ('và làn đỏ VẪN thoát 1, VẪN ghi dấu'). chan-tai-may.mjs only imports tai-may.mjs directly and checks `swap_used_mb: null` + `nen`, plus the red direction (catch removed → throw). It never runs repin-lane.mjs with an engine copy whose NGUON_SWAP is injected. So the integration path (repin-lane calls docTai() unguarded at the red-path write) has no measurement in either the red or the green direction. That falls under the CLAUDE.md invariant 'Thước phải gắn vào vật được giao' (measuring the module instead of the delivered output). Fix: in chan-tai-may, use banSao on the whole feature-loop/ with NGUON_SWAP injected into feature-loop/scripts/tai-may.mjs, then run a red lane and assert exit 1 + one repin-do line with tai.nen != null.
-  rationale: AC-6(c) đòi rõ làn đỏ vẫn thoát 1 và vẫn ghi dấu khi đọc swap lỗi; phép đo không chạy làn nên chân này không được đo.
-
-- **E6 never checks AC-6(c): that the red lane still exits 1 and still writes repin-do when reading swap fails**
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-tai-may.mjs:38`
-  severity: medium
-  AC: AC-6
+  AC: AC-4
   source: bugs
-  detail: AC-6(c) and the E6 expected text both say: point the swap source at a missing path → «làn đỏ dùng bản sao ấy VẪN mã 1, VẪN có dòng repin-do». chan-tai-may.mjs only imports tai-may.mjs and calls docTai() directly; it never runs repin-lane (no chayLan or banSao of feature-loop). The red side («tải máy làm sập làn») only shows that docTai throws, not that the lane crashes. In repin-lane.mjs:523, `const tai = docTai();` sits outside any try. If it threw, Node would exit with an uncaught exception, which is also exit code 1 (the same as a normal red lane), and no repin-do line would be written to any slug. Exit code alone cannot tell the two cases apart, and the lane-level check that would (count repin-do lines when the injected copy runs) does not exist. The AC-6 clause is claimed but unmeasured.
-  rationale: Trùng t3: chân «làn đỏ vẫn thoát 1 và vẫn ghi dấu» của AC-6(c) không được đo.
+  detail: `dungKho` writes the starting pin with the current writer: `chayLan(KIT, { R }, …, ['--write'])` at kho-mau.mjs:43. Since this change, that writer always emits `wall_s` and `so_lenh` (repin-lane.mjs:484). In chan-bo-doc.mjs:39-53, the "clean" fixture k1 is meant to be the record without the new keys, but its `kind:repin` line already carries `wall_s` and `so_lenh`. `themMoi(k2)` only changes their values (`o.wall_s = 812.4; o.so_lenh = 3`). So the E4 assertion "output + exit code BẰNG HỆT không có" compares two records that both have the keys. It can only catch a reader whose output depends on the key values. It cannot catch a reader that breaks when the keys are present, for example a strict key-set or schema check: that reader fails the same way on k1 and k2, and E4 stays green. AC-4's promise that readers are unaffected by the new pin-line keys is therefore not measured. The repin-do half of the comparison is still valid, because k1 has no repin-do line. Fix: build the k1 baseline by stripping `wall_s` and `so_lenh` from its repin line, or write it with the base writer (`banBase()`).
+  rationale: AC-4 hứa đầu ra bằng hệt trên hồ sơ KHÔNG có hai khoá wall_s/so_lenh, nhưng bản đối chứng đã có sẵn hai khoá nên vế này không đo được.
 
-- **The base build archives only feature-loop/, while AC-7 and evals.yaml say scripts, lib and feature-loop**
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/ban-base.mjs:11`
-  severity: low
-  AC: AC-7
-  source: bugs
-  detail: AC-7 and the evals.yaml header say the base is built with `git archive <merge-base> scripts lib feature-loop`. ban-base.mjs archives only `feature-loop`, and chayLan always passes `--ag-root KIT` (the current tree's lib). So the base lane in E7 runs on the current lib/scripts, not the base ones. This diff does not touch lib/ or scripts/, so there is no effect today. But the comparison is narrower than the contract says: a later change to lib/evidence-core.cjs that alters exit codes would show up identically on both sides and E7 would stay green.
-  rationale: Trùng t2: AC-7 ghi trọn scripts lib feature-loop, bản dựng chỉ lấy feature-loop.
-
-- **Hình dạng 1 (đo vật trung gian thay vì đầu ra): E6(c) và chiều đỏ «tải máy làm sập làn» không bao giờ chạy làn**
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-tai-may.mjs:37`
+- **Shape 4 (a no-change assertion with no control arm): E4 compares two arms that both carry wall_s/so_lenh**
+  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-bo-doc.mjs:53`
   severity: medium
-  AC: AC-6
+  AC: AC-4
   source: measurement
-  detail: AC-6(c) và evals.yaml E6 hứa: với nguồn swap trỏ tới đường không tồn tại, «làn đỏ dùng bản sao ấy VẪN mã 1, VẪN có dòng repin-do». Chiều đỏ được ghim là «tải máy làm sập làn». Nhưng chan-tai-may.mjs chỉ import tai-may.mjs rồi gọi docTai() trực tiếp. Dòng 37 assert swap_used_mb null kèm nen, dòng 43 assert «mô-đun ném». Không chỗ nào gọi chayLan, không đọc mã thoát hay run-log của làn. Đầu ra được giao là làn (repin-lane.mjs gọi `const tai = docTai();` mà không bọc try), nhưng thước chỉ đo mô-đun. Thêm một lý do chỉ mã thoát là không đủ: một exception không bắt trong node cũng thoát 1, nên «vẫn mã 1» không phân biệt được làn sống với làn sập. Chỉ việc dòng repin-do có mặt mới phân biệt được, và chân này không kiểm nó. Phụ thêm ở dòng 42–43: `nap(saoDo)` nằm trong cùng khối try với docTai(), nên bản sao import hỏng cũng cho nem=true, chiều đỏ không phân biệt «ném vì bỏ catch» với «mô-đun không nạp được».
-  rationale: Trùng t3/t9: AC-6(c) và chiều đỏ ghim «tải máy làm sập làn» yêu cầu làn thật chạy, phép đo chỉ gọi mô-đun.
+  detail: E4 claims a differential 'có vs không có (một dòng repin-do + wall_s/so_lenh)', asserted at line 53 as `a.status === c.status && chuan(a.out) === chuan(c.out)`. The baseline arm k1 comes from `dungKho`, which writes its pin with the NEW writer of the tree under test (kho-mau.mjs:43, `chayLan(KIT, …, '--write')`). That writer now emits `wall_s`/`so_lenh` (repin-lane.mjs line 484). I ran it and the clean k1 pin line is `{…"evals_exit":{"E1":0},"wall_s":0,"so_lenh":1}`. `themMoi` (lines 21-22) only overwrites the values (812.4/3), so neither arm is ever the 2.20 shape without those keys. Suppose a reader breaks or changes its output just because the `wall_s`/`so_lenh` keys are present: both arms are affected the same way, so the assertion stays green. For that half of AC-4 the 'im' result cannot tell 'the reader ignores the key' from 'the key never varied'. The per-reader positive control uses a different disturbance (sha-pin/xoa-log/them-…), not the presence of the key, so it does not cover this.
+  rationale: Cùng gốc với t4: hai nhánh so sánh đều đã mang wall_s/so_lenh nên AC-4 «hồ sơ không có hai thứ ấy» không được kiểm.
+
+- **Shape 3 (presence check where the promise is a relation): E3 never checks that each log belongs to its own red command**
+  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs:42`
+  severity: medium
+  AC: AC-3
+  source: measurement
+  detail: evals.yaml E3 promises 'Mỗi lenh_do[].log … chứa dấu riêng mà CHÍNH lệnh đỏ ấy in', which is a relation between each command and its log. Line 42 only checks `CA[ca].dau.some(x => mo.includes(x))`, and every case has exactly ONE red command (suite: DAU-SUITE-91; eval: DAU-EVAL-55; cham: none). Line 44 even requires `lenh_do.length === 1`. With only one red command per run, the cmd→log mapping (`nhatKy.set(cmd, rel)` / `nhatKy.get(cmd)`) is never exercised against a second command. A mutant that points every lenh_do entry at the first log file of the run, or that swaps logs between commands, passes every assertion. On top of that, `.some` over the dau list would accept any marker even if several existed. To test the relation, the measure needs a single run with ≥2 red commands that each print a different marker, and for each entry it must check that the file holds THAT entry's marker.
+  rationale: AC-3 hứa nhật ký mở được chứa dấu riêng mà CHÍNH lệnh đỏ ấy in; phép đo chỉ có một lệnh đỏ mỗi lượt nên quan hệ lệnh-nhật ký không bị thử.
+
+- **Shape 5 (claimed case with no code behind it): E3's 'eval mismatched but exited 0 → log null + ly_do' case is never built**
+  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs:11`
+  severity: medium
+  AC: AC-3
+  source: measurement
+  detail: evals.yaml E3 expected states: 'eval lệch kỳ vọng mà thoát 0 và ca chạm hồ sơ → log null kèm ly_do'. chan-dau-do.mjs only builds three cases. The 'eval' case (line 11) has an eval that exits 1 against a declared 2, so its exit is not 0 and it gets a real log. No case has an eval exiting 0 against a nonzero declared exit, and nothing in the file checks `ly_do === 'lech-ky-vong'` or `'khong-ghi-duoc'` on a lenh_do entry. Only `cham[].ly_do === 'cham-ho-so'` is checked (line 45). There is also a deeper problem: in repin-lane.mjs the `lech` filter (line 502/506: `e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0)`) drops every exit-0 eval. So the `exit === 0 ? 'lech-ky-vong'` branch on line 520 cannot be reached, and the measure states a promise that no case can ever turn red or green.
+  rationale: AC-3 nêu rõ ca eval lệch kỳ vọng mà thoát 0 phải có log null kèm ly_do; ca này không được dựng và nhánh mã tương ứng dường như không tới được.
+
+- **Shape 3 (count check where the promise is 'the last 30 lines'): E1 only counts 30 tail lines**
+  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-nhat-ky.mjs:27`
+  severity: low
+  AC: AC-1
+  source: measurement
+  detail: E1 promises that stderr 'vẫn in 30 dòng CUỐI như 2.20'. Lines 26-27 only count lines matching `^    dong-\d+$` and check `duoi === 30`. They never check that those lines are the last ones (in this fixture the tail of out+err is dong-141..dong-199, odd numbers only). A mutant that changes `.slice(-30)` to `.slice(0, 30)` (prints the first 30 lines, which is exactly the class of bug this record exists to fix, where the error message gets lost) still prints 30 `dong-N` lines and stays green. The assertion should pin the expected set or order, for example the last line must be `dong-199` and the set must equal the computed last 30 lines of the concatenation.
+  rationale: AC-1 hứa stderr vẫn in 30 dòng CUỐI; phép đo chỉ đếm 30 dòng nên bản in 30 dòng ĐẦU vẫn xanh.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **A green lane still writes a log file when an eval declares a non-zero expected exit**
-  Người dùng thấy gì: Với kho có bài kiểm khai sẵn «đạt kèm giới hạn», lượt ghim vẫn xanh nhưng để lại một tệp nhật ký thừa trong thư mục tự ẩn khỏi git. Không đổi kết quả xanh/đỏ, chỉ thêm tệp rác vô hại.
+- **Unvalidated --run-id is now used as a filesystem path segment**
+  Người dùng thấy gì: Nếu ai đó gõ một mã lượt chạy có ký tự lùi thư mục, nhật ký có thể bị ghi ra ngoài kho. Chỉ xảy ra khi chính người chạy cố tình truyền giá trị lạ, nên ghi là hạn chế đã biết.
   file: `feature-loop/scripts/repin-lane.mjs`
-  severity: medium
+  severity: low
   Đề xuất: known-limits
 
-- **--run-id becomes a filesystem path component without validation**
-  Người dùng thấy gì: Nếu người chạy làn gõ nhãn lượt chứa dấu gạch chéo lạ, nhật ký có thể bị ghi ra ngoài thư mục dành cho nó. Nhãn do chính phiên làm việc đặt nên rủi ro thấp.
+- **Red-eval predicate now exists in three copies; internal `lech` leaks into the lane's stdout JSON**
+  Người dùng thấy gì: Cùng một quy tắc nhận biết lượt đỏ được viết ở ba chỗ nên sau này dễ lệch nhau, và kết quả in ra của làn có thêm một phần dữ liệu nội bộ. Hôm nay chưa làm sai kết quả cho người dùng.
   file: `feature-loop/scripts/repin-lane.mjs`
-  severity: medium
+  severity: low
   Đề xuất: known-limits
 
-- **E4 does not measure every run-log reader: carry-plan.mjs is missing from the list**
-  Người dùng thấy gì: Một công cụ đọc sổ lượt chạy của kho không nằm trong danh sách được kiểm tra «không bị dòng mới làm đổi kết quả». Hiện chưa thấy nó đổi hành vi, nhưng chưa có phép đo chứng minh.
+- **E4 «every run-log reader» is found by literal string match and misses carry-plan.mjs**
+  Người dùng thấy gì: Có một công cụ đọc sổ lượt chạy mà phép kiểm không soi tới, nên nếu sau này nó đọc nhầm dòng mới thì không ai được báo trước. Hiện nó bỏ qua dòng mới nên chưa gây hại.
   file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-bo-doc.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **The `lech` predicate now has three copies; the new property also leaks eval objects into stdout**
-  Người dùng thấy gì: Cùng một quy tắc «lệch kỳ vọng» được viết ở ba chỗ và đầu ra của làn có thêm một khoá phụ. Hiện kết quả đúng; rủi ro chỉ là sau này sửa một chỗ mà quên chỗ khác.
-  file: `feature-loop/scripts/repin-lane.mjs`
-  severity: low
-  Đề xuất: wont-fix
-
-- **Docs describe the log directory as repin-<run_id>, but the code never doubles the prefix**
-  Người dùng thấy gì: Tài liệu chỉ đường tới thư mục nhật ký hơi khác thư mục thật; ai tự ghép đường theo tài liệu sẽ không thấy tệp. Đường đúng vẫn được in sẵn ở cuối mỗi lượt đỏ.
-  file: `feature-loop/skills/feature-loop/SKILL.md`
-  severity: low
-  Đề xuất: known-limits
-
-- **A green lane still writes run logs when an eval passes with its declared non-zero exit code**
-  Người dùng thấy gì: Lượt ghim xanh ở kho có bài kiểm «đạt kèm giới hạn» vẫn tạo tệp nhật ký thừa và in ra như thể có lỗi. Kết quả không sai, chỉ gây nhiễu và tệp rác ẩn khỏi git.
-  file: `feature-loop/scripts/repin-lane.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **The «lech-ky-vong» reason is dead code, and the AC-3/E3 case it serves can never happen**
-  Người dùng thấy gì: Một tình huống hiếm được nhắc trong lời hứa của tính năng thực tế không thể xảy ra, nên người dùng không bị ảnh hưởng. Chỉ là mô tả dư.
+- **The "full log" header records exit 1 for a killed process and drops the signal and spawn error**
+  Người dùng thấy gì: Khi một lệnh bị hệ điều hành giết giữa chừng (ví dụ hết bộ nhớ), nhật ký vẫn ghi như một lệnh thất bại bình thường, nên người đọc khó phân biệt lỗi test với bị ngắt.
   file: `feature-loop/scripts/repin-lane.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4 (assertion âm-tính-một-mình): các chiều đỏ của E3/E1/E7 xanh cả khi bản sao làn chết sớm**
-  Người dùng thấy gì: Một số phép thử «cố ý phá để thấy đỏ» có thể vẫn xanh nếu bản thử hỏng sớm vì lý do khác. Kết quả thật của tính năng không đổi, chỉ độ tin của phép thử giảm một chút.
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hình dạng 5 (tuyên quét LỚP nhưng rút bằng từ vựng): E4 bỏ sót bộ đọc run-log carry-plan.mjs**
-  Người dùng thấy gì: Một công cụ đọc sổ lượt chạy không được kiểm xem dòng mới thêm có làm nó đổi hành vi không. Đọc mã thì nó vẫn im, nhưng chưa có phép đo xác nhận.
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-bo-doc.mjs`
-  severity: medium
-  Đề xuất: known-limits
-
-- **Hình dạng 4: hàng repin-lane.mjs trong E4 so bằng nhau trên đường không đọc run-log, còn đối chứng dương lại đo đường khác**
-  Người dùng thấy gì: Một phép thử «đọc sổ không đổi kết quả» chạy trên đường không thật sự đọc sổ, nên nó xanh theo cấu trúc. Người dùng không bị ảnh hưởng, chỉ là phép thử này không chứng minh thêm điều gì.
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/bo-doc.mjs`
-  severity: low
-  Đề xuất: known-limits
-
-- **Hình dạng 5: ô «eval lệch kỳ vọng mà thoát 0 → log null kèm ly_do» được hứa trong E3 nhưng không fixture nào sinh ra**
-  Người dùng thấy gì: Một tình huống hiếm được hứa trong mô tả không có phép thử riêng, vì có thể nó không bao giờ xảy ra. Không ảnh hưởng người dùng.
-  file: `_acceptance/lan-ghim-lai-giu-tron-loi-loi/evals.yaml`
-  severity: low
-  Đề xuất: known-limits
-
-⚠ Cụm ngoài vùng phủ: 10/16 lỗi rơi vào file không bộ đo nào phủ (_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/ban-base.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-tai-may.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-bo-doc.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/bo-doc.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 6/9 lỗi rơi vào file không bộ đo nào phủ (_acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-bo-doc.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/kho-mau.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-dau-do.mjs, _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang/chan-nhat-ky.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.

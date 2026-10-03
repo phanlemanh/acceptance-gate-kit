@@ -385,3 +385,7 @@ luot-cham-ghi-vao-cay#ngoai-2	luot-cham-ghi-vao-cay	low	khac	song			recheck ch�
 luot-cham-ghi-vao-cay#ngoai-5	luot-cham-ghi-vao-cay	low	khac	trung		luot-cham-ghi-vao-cay#ngoai-1	cùng lỗi băm liên kết mềm của Ngoài-1 [lượt chấm 1; owner quyết ở Cổng Bằng chứng 01/10]
 luot-cham-ghi-vao-cay#ngoai-6	luot-cham-ghi-vao-cay	medium	fail-open	song			nhánh «lib vắng» của ca LC7 là kiểm âm tính một mình — xanh cả khi lưới sập trên bản kit thiếu lib [lượt chấm 1; owner quyết ở Cổng Bằng chứng 01/10]
 luot-cham-ghi-vao-cay#ngoai-7	luot-cham-ghi-vao-cay	low	chuoi-thay-quan-he	song			ca JI11 (hồ sơ thuoc-biet-truoc-khong-phan-duoc) đo chữ trong mã nguồn bộ chấm thay vì lời giao việc thật hội đồng nhận [lượt chấm 1; owner quyết ở Cổng Bằng chứng 01/10]
+lan-ghim-lai-giu-tron-loi-loi#ngoai-1	lan-ghim-lai-giu-tron-loi-loi	low	khac	song			Unvalidated --run-id is now used as a filesystem path segment [lượt chấm 2; chờ Cổng Bằng chứng]
+lan-ghim-lai-giu-tron-loi-loi#ngoai-2	lan-ghim-lai-giu-tron-loi-loi	low	khac	song			Red-eval predicate now exists in three copies; internal `lech` leaks into the lane's stdout JSON [lượt chấm 2; chờ Cổng Bằng chứng]
+lan-ghim-lai-giu-tron-loi-loi#ngoai-3	lan-ghim-lai-giu-tron-loi-loi	low	khac	song			E4 «every run-log reader» is found by literal string match and misses carry-plan.mjs [lượt chấm 2; chờ Cổng Bằng chứng]
+lan-ghim-lai-giu-tron-loi-loi#ngoai-4	lan-ghim-lai-giu-tron-loi-loi	low	khac	song			The "full log" header records exit 1 for a killed process and drops the signal and spawn error [lượt chấm 2; chờ Cổng Bằng chứng]
