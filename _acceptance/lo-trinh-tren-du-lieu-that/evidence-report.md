@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ddccc203a459b606bbf7b063adb0ae881fb1289c
+verified_commit: 5c6f2f482432b385cd4140557b251f90d668a8ec
 human_signoff: Manh Phan 2026-10-03 — ký lượt chấm 2; Ngoài-1, Ngoài-4, Ngoài-5, Ngoài-6 ghi Known limits; Ngoài-2, Ngoài-3 mở hợp đồng mới (hạt giống); Ngoài-7 chấp nhận, không sửa; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -259,3 +259,7 @@ Round 2: vòng trả lượt 1 thêm AC-13 đến AC-16 (E13–E16); toàn bộ 
 ### Re-pin lần 1 — 2026-10-03, do gộp origin/main (34 commit) vào nhánh PR #252
 run_id: repin-20261003T081411Z-52013
 sha: ddccc203a459b606bbf7b063adb0ae881fb1289c · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng · ngoài làn máy: E12 · AC không có chốt máy: AC-12
+
+### Re-pin lần 2 — 2026-10-03, do chiến dịch ghim lại mốc 2.21.0
+run_id: repin-20261003T125505Z-37851
+sha: 5c6f2f482432b385cd4140557b251f90d668a8ec · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng · ngoài làn máy: E12 · AC không có chốt máy: AC-12

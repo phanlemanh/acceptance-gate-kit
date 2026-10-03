@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent (đường VERIFY độc lập, 4 lệnh chạy tuần tự — entry d-20260911T092728Z-10)
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0757612ca0c453d1697b757abbb7981552f192c1
+verified_commit: 5c6f2f482432b385cd4140557b251f90d668a8ec
 human_signoff: Mạnh 2026-09-18 — ký trong cửa veto của làn V (hồ sơ máy thông 11/09); đồng ý phần cắt/hoãn; phê hết Treo-1…Treo-3
 ---
 
@@ -189,3 +189,7 @@ sha: ccabea22159944a10d5f768d5b67bd2b5d095d7c · suites: 5 lệnh exit 0 · eval
 ### Re-pin lần 6 — 2026-10-02, do tệp ca gate-card-dec-key đổi sau chữ ký: DK15 chuẩn hoá mã dòng d-<UTC>-<n> trước khi so (chập chờn ranh giới giây, CI run 36998055489)
 run_id: repin-20261002T133603Z-65180
 sha: 0757612ca0c453d1697b757abbb7981552f192c1 · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
+
+### Re-pin lần 7 — 2026-10-03, do chiến dịch ghim lại mốc 2.21.0
+run_id: repin-20261003T125505Z-37851
+sha: 5c6f2f482432b385cd4140557b251f90d668a8ec · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng

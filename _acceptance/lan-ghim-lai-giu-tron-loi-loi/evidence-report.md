@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 87c3e493b5766fd59cfcdc19cbaf9c5857c76c1f
+verified_commit: 5c6f2f482432b385cd4140557b251f90d668a8ec
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -174,3 +174,7 @@ Round 4: tám eval E1 đến E8 (thêm E8 cho AC-8, mã lượt đỏ không th�
 ### Re-pin lần 1 — 2026-10-03, do hoá cũ do gộp main vào nhánh PR
 run_id: repin-20261003T030509Z-98172
 sha: 87c3e493b5766fd59cfcdc19cbaf9c5857c76c1f · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-03, do chiến dịch ghim lại mốc 2.21.0
+run_id: repin-20261003T125505Z-37851
+sha: 5c6f2f482432b385cd4140557b251f90d668a8ec · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
