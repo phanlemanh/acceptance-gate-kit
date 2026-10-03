@@ -3,10 +3,10 @@ schema_version: 1
 slug: trang-lo-trinh-doc-mot-phut
 feature: Trang lộ trình đọc trong một phút — màn đầu trả lời làm gì tiếp, kẹt gì, lệch gì; hàng đã giao và hồ sơ ngoài lộ trình gập lại; đọc được trên điện thoại
 owner: phanlemanh@gmail.com
-stage: scheduled
-verdict:
-decided_by:
-decided_at:
+stage: held
+verdict: release
+decided_by: Manh Phan
+decided_at: 2026-10-03T23:30:56Z
 ---
 
 ## Ngưỡng đã khai tại Cổng Đáng (CHÉP NGUYÊN VĂN — cấm sửa sau khi thấy số)
@@ -35,7 +35,7 @@ làm gì tiếp, kẹt gì, lệch gì?
 
 | Người | Điểm/nhận xét kín | Sẽ gửi cho khách nào, khi nào |
 |---|---|---|
-| Phan Le Manh | không chấm tay — mọi vế ngưỡng kiểm được bằng máy (khối dưới), theo nếp owner đặt 03/10 «sao không ghi log mà cần phải hỏi tôi?» | |
+| Phan Le Manh | không chấm tay — mọi vế ngưỡng kiểm được bằng máy (khối dưới), theo nếp owner đặt 03/10 «sao không ghi log mà cần phải hỏi tôi?»; owner xem lại giao diện (ảnh + trang chạy thật) trước khi quyết | crm, ngay sau khi cắt 2.22.0 |
 
 ### Kiểm bằng máy (mọi vế đều có căn cứ trong hồ sơ)
 
@@ -59,6 +59,13 @@ Nguồn: bản sao `_acceptance/` + `docs/plan/lo-trinh-*.json` của crm `onehu
 
 ## Thảo luận sau khi đã chấm
 
+Owner xem lại giao diện trang tĩnh trên crm thật, rồi hỏi phương án ghép trang từ ReUI (blocks +
+components). Máy dựng bản mẫu React trên cùng dữ liệu và so cạnh trang tĩnh (ảnh ở
+`evidence/reui-de-xuat/`): đẹp hơn rõ, nhưng 7 cỡ chữ, vùng bấm 24–32 px, cần bước build, và mã block
+Pro không phát lại được qua kit. Owner đồng ý đề xuất: nghiệm thu trang HTML tĩnh; bản ReUI thành bản
+chiếu sống bật theo kho — ghi hạt giống
+`docs/plans/2026-10-04-hat-giong-ban-chieu-reui-trang-lo-trinh.md`.
+
 ## Số đo thật đặt cạnh ngưỡng
 
 | Thước | Ngưỡng đã khai | Số đo được | SỐNG/CHẾT |
@@ -70,3 +77,11 @@ Nguồn: bản sao `_acceptance/` + `docs/plan/lo-trinh-*.json` của crm `onehu
 | Kho không khai | giữ từng byte | giữ (LT-01, LT-80) | SỐNG |
 
 ## Quyết định Cổng Giá trị
+
+- **verdict = release** (Manh Phan, 04/10: «quyết: release; gửi: crm, ngay sau khi cắt 2.22.0» —
+  xác nhận sau khi xem giao diện: «Đồng ý với đề xuất và nghiệm thu dùng html tĩnh»).
+  Căn cứ: năm thước của ngưỡng SỐNG đều SỐNG trên crm `onehub` `0b8540c16` — màn đầu đủ ba điều ở
+  1440 và 375 · 2.879 / 11.587 px (24,8 %) · 0 lỗi đo được · vẽ lại cùng byte · kho không khai giữ
+  từng byte. Không thước nào chạm ngưỡng CHẾT.
+- Bước kế: nghi thức phát hành của kit — cắt mốc 2.22.0, rồi PR ở crm nhận mốc (vẽ lại
+  `LO-TRINH.html` bằng bộ vẽ mới).

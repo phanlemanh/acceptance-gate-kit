@@ -78,3 +78,12 @@ Chưa dựng. Số đo nền là bảng audit 03/10 ở mục «Vấn đề & ai
 - Không live artifact đọc dữ liệu (owner chọn 03/10: trang tĩnh là bản gốc).
 - Không phát hành trang lên claude.ai trong vòng này — bản chiếu artifact là bước sau, bật theo từng kho.
 - Không đổi khuôn tệp ý định (không thêm trường bắt buộc); không lát 2.
+
+## Kết quả đo sau ship (phiên nghiệm thu 04/10)
+
+Trên crm `onehub` `0b8540c16`, bộ vẽ nhánh chính kit `e48f6968`: màn đầu đủ làm tiếp · chỗ cần sửa ·
+mốc kế tiếp cho cả hai lộ trình ở 1440 và 375 (sáng, tối); 2.879 / 11.587 px; tương phản thấp nhất
+6,35 (trang cũ 1,91 ở tối); vùng bấm 44 px; tiêu đề đúng bậc; không cuộn ngang; vẽ lại cùng byte.
+Cổng Giá trị: **release** (Manh Phan 04/10), gửi crm sau mốc 2.22.0. Đề xuất bản chiếu ReUI: hạt giống
+`docs/plans/2026-10-04-hat-giong-ban-chieu-reui-trang-lo-trinh.md`.
+
