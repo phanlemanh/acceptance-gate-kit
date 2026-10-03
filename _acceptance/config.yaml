@@ -496,6 +496,14 @@ executors:
     lmtl_gia: "bash -c 'LMTL_CASES=LT-AC5-phut,LT-AC5-chua-do,LT-AC8-skill,LT-dot-bien-phut-ve-0 node tests/scripts/lmtl-the.test.mjs'"
     rel2200_cua_so: bash scripts/rel-cua-so.sh 7f45f37d thuoc-biet-truoc-khong-phan-duoc luot-cham-ghi-vao-cay
     rel2200_dd_giu: git diff --exit-code --stat 7f45f37d HEAD -- diagram-design
+    gtll_nhat_ky_tron: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan nhat-ky-tron
+    gtll_xanh_im: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan xanh-im
+    gtll_dau_do: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan dau-do
+    gtll_bo_doc_im: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan bo-doc-im
+    gtll_thoi_luong: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan thoi-luong
+    gtll_tai_may: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan tai-may
+    gtll_nghia_khong_doi: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan nghia-khong-doi
+    gtll_do_khong_thanh_bang_chung: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan do-khong-thanh-bang-chung
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
