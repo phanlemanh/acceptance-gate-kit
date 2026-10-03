@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # lớp vẽ của scripts/lo-trinh.mjs + test (tests/scripts/lo-trinh*.mjs) + config executor — không chạm lib/**, hook, lưới trước-merge, lớp phân tích
 surfaces: [ui]
 design_doc: docs/superpowers/specs/2026-10-03-trang-lo-trinh-doc-mot-phut-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -71,6 +71,14 @@ khổ). Chân sản phẩm: audit 03/10 trên trang crm thật (số ở `opport
 
 ## Notes
 
+- **Known limits (Cổng Bằng chứng lượt 3, ký 04/10):** dải mốc sắp ngày theo chuỗi — ngày thiếu số 0
+  (`2026-10-5`) xếp sai và ô «Mốc kế tiếp» có thể chỉ mốc xa hơn (AC-5, mức thấp; dữ liệu crm thật mọi
+  ngày đủ số 0) · đường dẫn khai ở các eval thiếu bộ sinh kho thử, fixture crm và bộ sinh trang mẫu,
+  nên lượt sửa chỉ chạm các tệp đó mang màu xanh cũ sang (Ngoài-1) · LT-100 so JSON quét start với
+  2.21.0 không có đối chứng dương (Ngoài-2) · LT-92 chỉ đo cột rỗng vắng, không có ca cột có dữ liệu
+  phải hiện (Ngoài-3) · LT-08 lấy câu lỗi mong đợi từ chính hàm dịch (Ngoài-4) · LT-73-khong-truong-do
+  không ghim thông điệp (Ngoài-6). Ngoài-5 (vế không-ngày-chạy của LT-94 vô hiệu đúng ngày 03/10) —
+  chấp nhận, không sửa: LT-95 hai đồng hồ đã phủ.
 - **Thay thế một phần hợp đồng đã ký** (hai hồ sơ cũ không sửa; con trỏ này là vết thay thế, hai hồ
   sơ ghim lại trong cùng PR; lời hứa thay thế đo ở AC-12):
   `_acceptance/lo-trinh-tren-du-lieu-that/contract.md` AC-8 vế «`LO-TRINH.html` giống từng byte bản

@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: eb89ab74a5b2f9282bdbd9306338e85b94405286
-human_signoff:
+human_signoff: Manh Phan 2026-10-04 — ký lượt chấm 3; mục trong hợp đồng AC-5 (ngày mốc thiếu số 0) và Ngoài-1, Ngoài-2, Ngoài-3, Ngoài-4, Ngoài-6 ghi Known limits; Ngoài-5 chấp nhận, không sửa; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: trang-lo-trinh-doc-mot-phut
@@ -247,6 +247,8 @@ Hội đồng đề xuất cho E11 là PASS: cả ba thành viên đọc đượ
 ## Known limits
 
 ## Ngoài hợp đồng
+
+6 lỗi nằm ngoài hợp đồng, người định tuyến ở Cổng Bằng chứng (5 ghi Known limits, 1 chấp nhận không sửa); chi tiết ở review-findings.md, định đoạt ở decisions.jsonl.
 
 ## Analyst
 
