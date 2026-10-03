@@ -2713,7 +2713,10 @@ const extractKeys = txt => {
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'p99-'));
 const W = (rel, s) => { const p = path.join(tmp, rel);
   fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); };
-W('_acceptance/config.yaml', 'schema_version: 1\n');
+// Khai ổ cắm lộ trình (hồ sơ viec-ke-theo-plan) để `loTrinh` mang đủ khoá con thật mà soi: một hàng
+// chưa mở gắn mốc đã qua (hangTre có phần tử), ACCEPTANCE_TODAY ghim đồng hồ bên dưới.
+W('_acceptance/config.yaml', 'schema_version: 1\nlo_trinh:\n  tep: docs/lo-trinh.json\n');
+W('docs/lo-trinh.json', JSON.stringify({ schema: 1, ten: 'p99', moc: [{ ten: 'M', ngay: '2026-01-01', hang: ['1'] }], hang: [{ ma: '1', cau_giao: 'c' }] }));
 W('_acceptance/w-draft/contract.md', '---\nslug: w-draft\nrisk_tier: T2\nstatus: draft\n---\n');
 W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: approved\n---\n');
 // w-done mang `veto_state: mo` de mang vetoOpen[] co PHAN TU THAT ma soi — va no
@@ -2722,8 +2725,9 @@ W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: appro
 W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\nveto_state: mo\n---\n');
 W('_acceptance/w-bad/contract.md', 'khong fence\n');
 W('_acceptance/w-consider/opportunity.md', '---\nslug: w-consider\nfeature: w\nstage: discovery\ndecision:\n---\n');   // o «dang can nhac» (vao-co-o-ra-co-ten)
+const ENV99 = { ...process.env, ACCEPTANCE_TODAY: '2026-10-02' };
 const outJson = JSON.parse(execFileSync('node',
-  [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
+  [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8', env: ENV99 }));
 
 const resolveKey = (obj, dotted) => dotted.split('.').reduce((acc, part) => {
   if (acc === undefined || acc === null) return undefined;
@@ -2769,7 +2773,9 @@ for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-
                    'scripts/trang-thai-ho-so.cjs',
                    // luat nguong chung (ho so ra-co-ten) — cung ly do
                    'lib/nguong-o-co-hoi.cjs',
-                   'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md']) {
+                   'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md',
+                   // ổ cắm lộ trình (hồ sơ viec-ke-theo-plan) — fixture khai ổ cắm nên bản sao cần cả hai
+                   'scripts/lo-trinh.mjs', 'scripts/lo-trinh-khoa.cjs']) {
   fs.mkdirSync(path.dirname(path.join(mut3, rel)), { recursive: true });
   fs.copyFileSync(path.join(root, rel), path.join(mut3, rel));
 }
@@ -2779,7 +2785,7 @@ const scanSrc = fs.readFileSync(path.join(root, 'scripts/start-scan.mjs'), 'utf8
 // «thuoc ghim vao thu SE DOI» (S4-r10, khi start-scan them flags cho o y-can-nhac).
 if (!scanSrc.includes(', ageDays: ageDays(s)')) die('dot bien dau ra: khong thay anchor ageDays trong start-scan');
 fs.writeFileSync(path.join(mut3, 'scripts/start-scan.mjs'), scanSrc.replace(', ageDays: ageDays(s)', ''));
-const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8' }));
+const outMut = JSON.parse(execFileSync('node', [path.join(mut3, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8', env: ENV99 }));
 const eMut = checkOn(outMut, SOURCES.map(load));
 if (!eMut.some(x => /key groups\.considering\[\]\.ageDays khong co/.test(x)))
   die('dot bien bo khoa ageDays phia dau ra khong bi bat: ' + JSON.stringify(eMut));
@@ -3200,6 +3206,10 @@ if (e0.length) die('doi chung DUONG that bai: ' + JSON.stringify(e0));   // ban 
 const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p104m-'));
 fs.mkdirSync(path.join(mut, 'scripts'), { recursive: true });
 fs.mkdirSync(path.join(mut, 'lib'), { recursive: true });
+// TRON thu muc truoc (luat «ban sao lay tron thu muc, khong chep danh sach tay»): vat them mot tep
+// ma start-scan nap (scripts/lo-trinh-khoa.cjs, ho so viec-ke-theo-plan) la ban sao chet vi HA TANG.
+fs.cpSync(path.join(root, 'scripts'), path.join(mut, 'scripts'), { recursive: true });
+fs.cpSync(path.join(root, 'lib'), path.join(mut, 'lib'), { recursive: true });
 fs.copyFileSync(path.join(root, 'lib/evidence-core.cjs'), path.join(mut, 'lib/evidence-core.cjs'));
 // start-scan nay dung LUAT CHUNG cho field dieu huong (lib/workspace-record.cjs)
 // — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
@@ -3356,6 +3366,10 @@ if (e0.length) die(`ma tran ghim ${Object.keys(MATRIX).length} o — ${e0.length
 // con bug S4-r4) → ma tran phai DO tai cac o draft/approved/signed-off × loi-doc.
 const mut = fs.mkdtempSync(path.join(os.tmpdir(), 'p105m-'));
 fs.mkdirSync(path.join(mut, 'scripts')); fs.mkdirSync(path.join(mut, 'lib'));
+// TRON thu muc truoc (luat «ban sao lay tron thu muc, khong chep danh sach tay»): vat them mot tep
+// ma start-scan nap (scripts/lo-trinh-khoa.cjs, ho so viec-ke-theo-plan) la ban sao chet vi HA TANG.
+fs.cpSync(path.join(root, 'scripts'), path.join(mut, 'scripts'), { recursive: true });
+fs.cpSync(path.join(root, 'lib'), path.join(mut, 'lib'), { recursive: true });
 fs.copyFileSync(path.join(root, 'lib/evidence-core.cjs'), path.join(mut, 'lib/evidence-core.cjs'));
 // start-scan nay dung LUAT CHUNG cho field dieu huong (lib/workspace-record.cjs)
 // — ban sao chay thu phai co no, khong thi ket luan "chay duoc/khong" chi noi
@@ -4817,6 +4831,22 @@ out = json.loads(subprocess.run(["node", str(root / "scripts/start-scan.mjs"), "
                                 capture_output=True, text=True, check=True).stdout)
 khoa_that = set(out.keys()) | set(out.get("groups", {}).keys())
 assert "broken" in khoa_that and "map" in khoa_that, f"bo dem tinh tao: dau ra scan la {sorted(khoa_that)} — nghi buoc chay hong"
+# Khoa LONG cua o cam lo trinh (ho so viec-ke-theo-plan) chi phat khi kho khai `lo_trinh.tep`, ma
+# kho kit thi khong khai: quet them MOT kho tam co khai, gom khoa o MOI do sau cua dau ra that.
+import tempfile, os
+_tam = Path(tempfile.mkdtemp(prefix="p128-"))
+(_tam / "_acceptance").mkdir()
+(_tam / "_acceptance/config.yaml").write_text("schema_version: 1\nlo_trinh:\n  tep: lo-trinh.json\n", encoding="utf-8")
+(_tam / "lo-trinh.json").write_text(json.dumps({"schema": 1, "moc": [{"ten": "M", "ngay": "2026-01-01", "hang": ["1"]}], "hang": [{"ma": "1", "cau_giao": "c"}]}), encoding="utf-8")
+out_lt = json.loads(subprocess.run(["node", str(root / "scripts/start-scan.mjs"), "--root", str(_tam)], capture_output=True, text=True, check=True,
+                                   env={**os.environ, "ACCEPTANCE_TODAY": "2026-10-02"}).stdout)
+def _gom(v):
+    if isinstance(v, dict):
+        for k, x in v.items(): khoa_that.add(k); _gom(x)
+    elif isinstance(v, list):
+        for x in v: _gom(x)
+assert out_lt.get("loTrinh"), f"bo dem tinh tao: kho tam khai lo_trinh ma loTrinh rong: {out_lt.get('loTrinh')}"
+_gom(out_lt["loTrinh"])
 BODIES = DOCS + ["scripts/start-scan.mjs", "commands/start.md"]
 for rel in BODIES:
     t = (root / rel).read_text(encoding="utf-8")

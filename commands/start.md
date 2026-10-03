@@ -41,6 +41,7 @@ worktree/nhánh đọc từ git của `<path>`.
    vetoOpen[].slug vetoOpen[].status vetoOpen[].humanSignoff vetoOpen[].signoffWarn vetoOpen[].daKhep
    vetoOpenUnsigned
    broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
+   loTrinh.tep loTrinh.ten loTrinh.loi loTrinh.hangKe.ma loTrinh.hangKe.cauGiao loTrinh.hangTre[].ma loTrinh.hangTre[].moc loTrinh.hangTre[].ngay loTrinh.tinTheoLoi.n loTrinh.tinTheoLoi.tong loTrinh.tuKhaiNgoai loTrinh.co
    START-SCAN-KEYS>>> -->
 
 2. **Nạp luật TRƯỚC khi viết:** đọc
@@ -134,6 +135,19 @@ worktree/nhánh đọc từ git của `<path>`.
      việc đã rõ → `/feature-loop:feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
      xác nhận nó là T1 rồi KẾT THÚC `/acceptance-gate:start` — người ra lệnh sửa ở lượt kế,
      ngoài nghi thức này (lệnh `/acceptance-gate:start` không sửa gì, kể cả việc vặt).
+   <!-- <<<START-LO-TRINH -->
+   - **Lộ trình** (`loTrinh` — ổ cắm `lo_trinh.tep` trong `_acceptance/config.yaml`, hồ sơ
+     viec-ke-theo-plan): `loTrinh` là `null` → KHÔNG in gì, không khuyên bật (kho không dùng lộ
+     trình không thấy gì). `loTrinh.loi` khác null → đúng MỘT dòng «Lộ trình: không đọc được tệp
+     ý định — <loi>». Còn lại in đúng BA dòng, chữ lấy nguyên từ JSON, máy không tự suy thêm:
+     (1) «Hàng kế: <hangKe.ma> — <hangKe.cauGiao>», hoặc «Hàng kế: chưa có hàng đủ điều kiện mở»
+     khi `hangKe` null; (2) «Hàng trễ: <ma> (mốc <moc>, <ngay>) · …» cho mỗi phần tử
+     `hangTre`, hoặc «Hàng trễ: không có»; (3) «Tin theo lời: <tinTheoLoi.n>/<tinTheoLoi.tong>
+     hàng», nối thêm « · <tuKhaiNgoai> hàng tự khai ngoài từ vựng — không so được với hồ sơ» khi
+     `tuKhaiNgoai` > 0. `co` không rỗng → thêm một dòng «Lộ trình có <số> cờ — xem LO-TRINH.html».
+     Trang đầy đủ là `LO-TRINH.html` cạnh bản đồ; thẻ không chép lại bảng hàng. Kit KHÔNG ghi vào
+     tệp ý định — muốn đổi hàng thì người sửa tệp đó bằng PR.
+   <!-- START-LO-TRINH>>> -->
    - Dưới thẻ: một dòng bản đồ sản phẩm — đọc `map.state` + `map.label` (nhãn
      rút từ bảng nhãn chung trong lib, CÙNG chữ với cổng CI — không tự chế
      chuỗi): `da-xoa` → in nguyên `map.label` kèm "khôi phục, hoặc vẽ lại bằng

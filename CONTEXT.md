@@ -111,6 +111,15 @@ thái vắng mặt phân biệt "đã xoá" với "chưa bật" theo bảng nhã
 `lib/workspace-record.cjs`.
 _Avoid_: roadmap, dashboard; sửa tay (nó là view, sửa hồ sơ rồi vẽ lại).
 
+**Lộ trình**:
+Ý định thường-trú của KHO: một tệp JSON do người viết và đổi bằng PR (khoá `lo_trinh.tep` trong
+`_acceptance/config.yaml`), mỗi hàng một câu giao cắt theo thứ tự phụ thuộc (`dung_tren`), đứng cạnh
+bản đồ sản phẩm chứ không thay nó. Kit chỉ ĐỌC tệp; trạng thái từng hàng do máy suy từ hồ sơ bằng
+đúng hàm xếp ô của bản đồ, hiện ở `LO-TRINH.html` và ba dòng thẻ start. Hàng không slug là «tin theo
+lời». Khuôn: `skills/acceptance/references/lo-trinh-template.json`; hồ sơ `viec-ke-theo-plan`.
+_Avoid_: roadmap (trong chữ cho người); gộp với bản đồ sản phẩm; để kit ghi trạng thái vào tệp ý
+định; coi một hàng là một ô (hàng chỉ thành ô khi người mở vòng).
+
 **Verdict**:
 Kết luận CẤP REPORT: `PASS` / `REJECT` / `BLOCKED` (± `PENDING-JUDGMENT`).
 Eval riêng lẻ KHÔNG có verdict — nó có `expected`/actual; đừng dùng từ này cho

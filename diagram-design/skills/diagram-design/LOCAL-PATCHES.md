@@ -188,3 +188,20 @@ export giữ canonical).
   Verified backs và ví dụ.
 
 **Upstream status:** not upstreamed. Re-apply on update.
+
+## 10. Export PNG gọi `python3`, không gọi `python` (2026-10-02)
+
+`references/export.md` kiểm Playwright bằng `python -c "import playwright" 2>NUL
+|| python -c …` (dấu vết Windows của upstream) rồi dặn chạy snippet bằng
+`python`. Trên macOS/Homebrew và đa số Linux hiện nay chỉ có `python3` — không
+có `python` — nên bước dò luôn báo «Playwright chưa cài» kể cả khi đã cài, và
+lệnh export không bao giờ tới bước rasterize. Phần còn lại của skill (SKILL.md
+§9, import-drawio, check_backs) vốn đã gọi `python3`.
+
+Sửa: bước dò thành `python3 -c "import playwright"`, lời dặn cài thành
+`python3 -m pip install playwright` + `python3 -m playwright install chromium`
+(gọi qua module để pip/playwright khớp đúng trình thông dịch sẽ chạy snippet),
+và snippet chạy bằng `python3`. Phát hiện khi kiểm môi trường máy cho kit
+acceptance-gate: `python` vắng, `python3` 3.14 có.
+
+**Upstream status:** not upstreamed. Re-apply on update.

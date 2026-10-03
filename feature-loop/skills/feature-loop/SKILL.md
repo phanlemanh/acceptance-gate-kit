@@ -121,6 +121,17 @@ Workspace cũ (contract sinh trước 1.13.0, không có Coverage) → cờ vàn
    - Match toàn bộ vào `risk_tiers.t1_skip_globs` → **T1: thoát loop**, nhưng KHÔNG thoát im lặng: in bảng match (`<path dự kiến> → <glob>`), hỏi user XÁC NHẬN kết luận T1 rồi mới thoát, kèm cảnh báo backstop CI (`pre-merge-check.sh --base <ref>`) sẽ chặn merge nếu PR thực tế đụng path gated mà không có `_acceptance/` artifacts.
    - Match bất kỳ `risk_tiers.t3_paths` → **T3**. Còn lại **T2**.
 3. Slug = kebab-case tên feature. Workspace: `_acceptance/<slug>/`. **Guard trùng slug:** workspace đã tồn tại → so `feature:` (và `owner:`) trong frontmatter contract với mô tả hiện tại — KHÁC feature → đây là ĐỤNG slug chứ không phải resume: BẮT đổi slug mới (đề xuất `<slug>-2` hoặc suffix ngày), tuyệt đối không im lặng ghi đè workspace của feature khác; CÙNG feature → resume theo bảng state. Contract mới sinh ở S1 phải ghi `owner:` = `git config user.email`. Workspace đã có `opportunity.md` (vòng đi từ Cổng Đáng) → đó là INPUT THỨ NHẤT của brainstorm S1: đọc trước khi hỏi câu nào; ngưỡng nghiệm thu và khung người/việc/dữ liệu của nó chảy vào contract — không hỏi lại owner điều đã grill.
+   **Nhận một hàng lộ trình** (kho khai ổ cắm `lo_trinh.tep`): đối số không khớp workspace nào. CHỈ khi đối số là MỘT mã khớp mẫu trong khối `S0-MA-HANG-RE` dưới đây mới chạy lệnh tra trong khối `S0-NHAN-HANG`, thay `<mã>` bằng đối số (mã nằm trong nháy đơn). Đối số không khớp mẫu — có khoảng trắng, dấu, backtick, `$(...)`, ngoặc — là mô tả việc: KHÔNG đưa nó vào bất kỳ lệnh shell nào, vì trong nháy kép shell vẫn chạy backtick và `$(...)`. Lệnh tra thoát 0 → JSON của hàng: mô tả việc = `cau_giao` + `vi_sao`; slug = `slug` của hàng (vắng → kebab của mã); `hang` của hàng in cạnh hạng máy suy ở bước 2 (khác thì nói ra, máy không tự đổi). Lệnh tra trả về mọi mã thoát khác 0 (không có hàng, kho chưa khai lo_trinh.tep, gói chưa có bộ đọc, tệp ý định hỏng) → đối số là mô tả việc như thường lệ. Kit không ghi gì vào tệp ý định — trạng thái hàng tự hiện trên `LO-TRINH.html` khi hồ sơ của vòng sinh ra.
+<!-- <<<S0-MA-HANG-RE -->
+```
+^[A-Za-z0-9][A-Za-z0-9_.-]*$
+```
+<!-- S0-MA-HANG-RE>>> -->
+<!-- <<<S0-NHAN-HANG -->
+```
+AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/lo-trinh.mjs) && node "$AG/scripts/lo-trinh.mjs" --root . --hang '<mã>'
+```
+<!-- S0-NHAN-HANG>>> -->
 4. Nếu giữa chừng phát hiện tier sai (vd T1 hóa ra đụng t3_paths) → nâng tier, quay lại stage thiếu (thường là S1 sinh contract).
 5. 🎨 **(CT1 signals)** Feature có vẻ chạm UI mà config CHƯA có `executors.design.*` → CẢNH BÁO (không chặn): đề nghị wire `executors.design.*` bằng tay (GUIDE mục Wire executors.design), hoặc user xác nhận đi tiếp functional-only (sẽ hiện ở gói Gate 2). Đã wire → làn design theo bảng tra. Nếu `provenance.design_repo` set mà repo KHÔNG reachable → cảnh báo ngay từ S0, trước khi tốn công S1-D (fidelity sẽ skip). Surface `mobile` KHÔNG phải web-UI surface: không kích hoạt CT1/làn design (làn design là web-only) — flow mobile đi làn eval `test` qua `config:executors.test.e2e_mobile` (xem eval-executors.md §Mobile mechanics).
 

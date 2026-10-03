@@ -323,36 +323,64 @@ check('DK14 dong so co o target (khuon SKILL + DEC-TARGET-SLOT): JSON hop le bas
   if (!msg || !msg.startsWith('dong so khong phai JSON:')) die('bo dau phay cua o target ma dong so van doc duoc — phep do khong phan biet: ' + msg);
 });
 
+// Mã dòng `d-<UTC giây>-<n>` do `date` của lệnh ghi sinh: hai lần ghi rơi vào hai giây khác nhau thì
+// hai đầu ra khác nhau Ở MÃ mà hành vi y hệt (CI run 36998055489, PR #240). Mọi phép so chuỗi giữa hai
+// lần ghi đi qua chuanId — ghim mọi thứ TRỪ mã. DK16 giữ cả hai chiều của chính hàm này.
+const ID_DONG = /d-\d{8}T\d{6}Z-\d+/g;
+const chuanId = s => s.replace(ID_DONG, 'd-<ID>');
+const scan = raw => {
+  const d = mkdtempSync(path.join(tmpdir(), 'dectarget-scan-'));
+  mkdirSync(path.join(d, '_acceptance', 'a'), { recursive: true }); mkdirSync(path.join(d, '_acceptance', 'b'), { recursive: true });
+  writeFileSync(path.join(d, '_acceptance', 'a', 'decisions.jsonl'), raw + '\n');
+  const r = spawnSync('node', [path.join(ROOT, 'feature-loop', 'scripts', 'claim-scan.mjs'), '--root', d, '--slug', 'b'], { encoding: 'utf8' });
+  if (r.status !== 0) die('claim-scan loi: ' + r.stderr);
+  return r.stdout;
+};
+// Thẻ IN dòng sổ (khối «Quyết định & trade-off» Cổng 1), không đo qua --extract: dòng ghi bằng
+// lệnh ba vế (ADR 0021) rời danh sách xin dịch theo AC-9 của mot-so-ba-ve, nên đo «đọc được»
+// phải đo chữ trên thẻ. Đối chứng dương: khối chứa đúng vế vì-sao + vế giá của dòng.
+const the = raw => {
+  const r = wsG1({});
+  writeFileSync(path.join(r, '_acceptance', 'g', 'decisions.jsonl'), raw + '\n');
+  const h = spawnSync('node', [GC, '--root', r, '--slug', 'g'], { encoding: 'utf8' }).stdout;
+  const i = h.indexOf('<div class="lab">Quyết định'); const j = i < 0 ? -1 : h.indexOf('<div class="lab">', i + 10);
+  return i < 0 ? '' : h.slice(i, j < 0 ? undefined : j);
+};
+const soCoKhong = (coRaw, khongRaw) => {
+  const sCo = scan(coRaw), sKhong = scan(khongRaw);
+  if (!sKhong.includes('ton z')) die('doi chung duong hong: bo quet bai hoc khong doc dong so khong o');
+  eq(chuanId(sCo), chuanId(sKhong), 'claim-scan co o vs khong o');
+  const tKhong = the(khongRaw);
+  if (!tKhong.includes('vi y — sai thì tốn: ton z')) die('doi chung duong hong: the khong doc dong so khong o');
+  eq(chuanId(the(coRaw)), chuanId(tKhong), 'the co o vs khong o');
+};
+const idOf = raw => (raw.match(ID_DONG) || [])[0] || die('dong so khong co ma d-<UTC>-<n>: ' + raw);
+
 check('DK15 doc-cu, chieu im: dong so KHONG co o target doc duoc y het dong co o o the, bo quet bai hoc va bo dem suc khoe vong', () => {
   const recipe = recipeOf(SKILL); const slot = slotOf(SKILL);
   const co = ghiSo(lenhVoiO(recipe, slot), 'bash', 'vat');
   const khong = ghiSo(recipe, 'bash', 'vat');
   if ('target' in khong.e) die('doi chung hong: dong khong o van co target');
   eq(loopFix(khong.d), loopFix(co.d), 'loop-health fix_s4 co o vs khong o');
-  const scan = raw => {
-    const d = mkdtempSync(path.join(tmpdir(), 'dectarget-scan-'));
-    mkdirSync(path.join(d, '_acceptance', 'a'), { recursive: true }); mkdirSync(path.join(d, '_acceptance', 'b'), { recursive: true });
-    writeFileSync(path.join(d, '_acceptance', 'a', 'decisions.jsonl'), raw + '\n');
-    const r = spawnSync('node', [path.join(ROOT, 'feature-loop', 'scripts', 'claim-scan.mjs'), '--root', d, '--slug', 'b'], { encoding: 'utf8' });
-    if (r.status !== 0) die('claim-scan loi: ' + r.stderr);
-    return r.stdout;
-  };
-  const sCo = scan(co.raw), sKhong = scan(khong.raw);
-  if (!sKhong.includes('ton z')) die('doi chung duong hong: bo quet bai hoc khong doc dong so khong o');
-  eq(sCo, sKhong, 'claim-scan co o vs khong o');
-  // Thẻ IN dòng sổ (khối «Quyết định & trade-off» Cổng 1), không đo qua --extract: dòng ghi bằng
-  // lệnh ba vế (ADR 0021) rời danh sách xin dịch theo AC-9 của mot-so-ba-ve, nên đo «đọc được»
-  // phải đo chữ trên thẻ. Đối chứng dương: khối chứa đúng vế vì-sao + vế giá của dòng.
-  const the = raw => {
-    const r = wsG1({});
-    writeFileSync(path.join(r, '_acceptance', 'g', 'decisions.jsonl'), raw + '\n');
-    const h = spawnSync('node', [GC, '--root', r, '--slug', 'g'], { encoding: 'utf8' }).stdout;
-    const i = h.indexOf('<div class="lab">Quyết định'); const j = i < 0 ? -1 : h.indexOf('<div class="lab">', i + 10);
-    return i < 0 ? '' : h.slice(i, j < 0 ? undefined : j);
-  };
-  const tKhong = the(khong.raw);
-  if (!tKhong.includes('vi y — sai thì tốn: ton z')) die('doi chung duong hong: the khong doc dong so khong o');
-  eq(the(co.raw), tKhong, 'the co o vs khong o');
+  soCoKhong(co.raw, khong.raw);
+});
+
+check('DK16 phep so DK15 hai chieu: khac that ngoai ma dong -> DO dung thong diep; hai ma khac giay -> XANH', () => {
+  const recipe = recipeOf(SKILL); const slot = slotOf(SKILL);
+  const co = ghiSo(lenhVoiO(recipe, slot), 'bash', 'vat');
+  const khong = ghiSo(recipe, 'bash', 'vat');
+  // Độ nhạy: đổi vế giá ở bên CÓ ô (bên KHÔNG ô giữ «ton z» để đối chứng dương còn đứng) -> đỏ ở claim-scan.
+  const coLech = co.raw.split('ton z').join('ton w');
+  if (coLech === co.raw) die('kim do nhay khong khop «ton z» trong dong so');
+  let msg = null;
+  try { soCoKhong(coLech, khong.raw); } catch (err) { msg = err.message; }
+  if (!msg || !msg.startsWith('claim-scan co o vs khong o\n')) die('khac that o ve gia ma phep so DK15 khong do dung thong diep: ' + msg);
+  // Độ đặc hiệu: ép mã bên CÓ ô sang một giây khác hẳn -> đầu ra thô PHẢI khác (nhát tiêm có tác dụng), phép so vẫn xanh.
+  const idCo = idOf(co.raw), idKhac = 'd-20000101T000000Z-1';
+  if (idCo === idKhac) die('kim do dac hieu trung ma that');
+  const coKhacGiay = co.raw.split(idCo).join(idKhac);
+  if (scan(coKhacGiay) === scan(khong.raw)) die('nhat tiem ma khong hien o dau ra claim-scan — chieu im khong do gi');
+  soCoKhong(coKhacGiay, khong.raw);
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (gate-card-dec-key)`);

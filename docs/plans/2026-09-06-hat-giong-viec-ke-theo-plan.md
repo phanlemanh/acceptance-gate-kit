@@ -130,3 +130,169 @@ hoạch `2026-09-13-ke-hoach-theo-outcome-nha-tai-lieu.md`, vẫn chờ mốc 09
 OneFlow. Bộ đọc phải nhận hai marker (`<!-- x:start -->` kiểu OneFlow và
 `<!-- <<<X -->` kiểu kit) với cặp ca cho cả hai. Nối dòng dõi `iterate` (phát
 hiện 13/09) quyết cùng P3.
+
+---
+
+## Cập nhật 02/10/2026 — hạt giống đổi tên gọi, có neo thật, hai lát (owner gật 02/10)
+
+**Tên mới của ý:** *Lộ trình: người ghi ý định, máy suy trạng thái và vẽ.* Tên
+file giữ nguyên để lịch sử và răng VC8 không đứt. Nguồn chữ là mục này; hai bản
+chiếu đi kèm ở `assets/2026-10-02-lo-trinh-vao-kit/` (00 = brainstorm Cổng Đáng,
+01 = sơ đồ ba làn người · kit · đội dùng CRM, swimlane, hai bộ kiểm của skill xanh).
+
+### 1. Neo ngoài — ba lộ trình đã sống bằng tay ở hai kho (đo 02/10 trên nhánh đang sống)
+
+| Kho · lộ trình | Vật | Hàng | Trạng thái cập nhật bởi | Răng |
+|---|---|---|---|---|
+| crm · OKR — `docs/plan/lo-trinh-okr.{md,data.js,html}` + bản sống Artifact | văn + dữ liệu 19 trường + trang | 28 (15 đã lên onehub · 9 chưa mở · 2 xong · 2 Cổng Bằng chứng) | tay — **12 commit «bản chụp» trong 4 ngày** (27–30/09) | không |
+| crm · Kho tài liệu — `docs/plan/lo-trinh-kho-tai-lieu.*` | cùng ba vật; khuôn đã lệch: 10 trường chung, 9 chỉ OKR, 3 chỉ Kho | 11 | tay | không |
+| oneflow · 24 tuần — `docs/roadmap.md` | văn theo phase + sổ cái hạng mục đã ký | — | tay, tại mốc | **có** — `scripts/roadmap/roadmap-drift.mjs` ba kiểm A/B/C, ô `roadmap-drift-guard` ký 27/08 |
+
+Số đo đi kèm: 22/42 ô cơ hội của crm trỏ về lộ trình bằng chữ; 23/48 tin owner ở
+phiên điều phối OKR 23–26/09 là hỏi tiến độ (`docs/findings/2026-09-26-loi-kit-tu-luot-4-okr.md`
+§4, kiến nghị §5.4 đã xếp việc này là «CỘNG, chờ owner phê riêng»); OneFlow
+05/09 bốn lượt đọc file mới tìm ra hàng kế (§1 ở trên). Ngưỡng «B chạy ở hai
+repo rồi mới xét C» (§7) đã bị thực tế vượt theo chiều ngược: ba lộ trình sống
+trước cả B.
+
+### 2. Kết luận brainstorm 02/10 (chi tiết và phép thử theo thước kit ở bản 00)
+
+- **Đáng, nhưng là ổ cắm đọc + bộ vẽ, không phải «kit có roadmap».** Nội dung
+  lộ trình là product context; kit mang *khuôn tối thiểu + bộ đọc + bộ vẽ*,
+  không mang hàng nào. Trace: nguyên tố 1 — và là thước đầu tiên cho nguyên
+  tố 1. Người hưởng: owner ở phiên điều phối, mọi phiên vào kho ở S0.
+- **Hai lớp, hai câu trả lời.** Lớp *ý định* (hàng, câu giao, hạng, thứ tự,
+  đứng trên, điều kiện mở) độc lập, đứng trước mọi vòng, người ghi, đổi bằng
+  PR. Lớp *trạng thái* (PR, cổng ký, ngày, lệch) là đầu ra của vận hành, máy
+  suy từ hồ sơ bằng đúng bảng nhãn của bản đồ sản phẩm — không bảng thứ hai.
+  Vì sao không gộp: hàng ↔ vòng không một-một ở biên (crm: `okr-8` tách 8a/8c;
+  `canh-kr-okr` phủ năm mã; 9b đổi hạng T2→T3 giữa đường) và lộ trình sinh từ
+  vòng là ý định viết sau khi làm.
+- **Owner quyết 02/10, bốn điều:** (i) gật hướng A; (ii) kit **tuyệt đối không
+  ghi** vào file ý định — trạng thái chỉ hiện trên trang vẽ, không nằm trong
+  file văn; (iii) hai nấc trong CRM (trang đọc `/lo-trinh` · nút góp ý sinh
+  hàng nháp) là hai hàng trên chính lộ trình OKR, ngoài kit; nấc 3 (đội sửa
+  trong app, CRM thành nguồn, kho nhận bản xuất qua PR máy mở) chỉ mở khi hàng
+  nháp có người ngoài owner tạo; (iv) skill **cắt lượt** là lát 2 của hạt
+  giống này.
+
+### 3. Khuôn sáu trường (kit bind; kho thêm trường tự do; thiếu trường → cờ vàng, không đỏ)
+
+| Trường | Ai ghi | Dùng để |
+|---|---|---|
+| `ma` | người | khoá hàng, không đổi khi đổi tên |
+| `cau_giao` | người | câu người dùng nói được, in lên thẻ |
+| `hang` | người | T1/T2/T3 — biết vòng có Cổng 1.5 không |
+| `dung_tren[]` | người | suy «hàng kế đủ điều kiện chưa» |
+| `slug` | người, khi mở vòng | nối hàng với `_acceptance/<slug>/`; hồ sơ ghi `Gốc:` trỏ ngược về `ma` |
+| `bat_khi` / điều kiện mở | người | ngưỡng Cổng Giá trị khai trước, hiện nguyên trên trang đọc |
+| *trạng thái* | **máy** | suy từ hồ sơ: chưa mở · đang cân nhắc · đang làm · đã giao · đã nghiệm thu (`da-cham-boi-thuc-te`) |
+
+Hàng không `slug` là hàng **tin theo lời** — máy in số, không giả vờ suy (crm 5/28,
+oneflow 8/20). Hàng lộ trình **không** là ô (luật 18/09); ô chỉ sinh khi người mở vòng.
+
+### 4. Hai lát
+
+**Lát 1 — ổ cắm đọc + vẽ (T2).** Khoá trong `_acceptance/config.yaml` trỏ tới
+file lộ trình (tới khi router nhà tài liệu có răng thì khoá này thành một hàng
+của router); vắng thì im. `start-scan` đọc hàng, đối chiếu slug với hồ sơ, in
+ba dòng lên thẻ start (hàng kế · hàng trễ · tin theo lời); bộ vẽ sinh trang HTML
+cạnh `PRODUCT-MAP.md`, cùng lượt và cùng `--check`. Trang ấy là thứ owner đẩy
+lên Artifact. feature-loop S0 sửa một dòng: nhận một hàng thay đoạn văn dán tay.
+Kit không ghi gì vào file ý định.
+
+**Lát 2 — skill cắt lượt (T2, sau lát 1 vì cần khuôn đã có răng).** Đầu vào:
+bản phạm vi của đội sản phẩm (mã, mốc ngoài, đợt) hoặc Core của quét hình
+thái. Đầu ra: bảng hàng theo khuôn + bảng phủ. Sáu luật, rút từ ba lộ trình
+owner đã viết (`lo-trinh-dieu-phoi-30-ngay.md` §2 · `lo-trinh-kho-tai-lieu.md`
+· `lo-trinh-okr.md` §8): (1) mỗi hàng một câu người dùng nói được; (2) hàng sau
+đứng trên dữ liệu thật của hàng trước; (3) không chạm hai lớp khó đảo trong một
+hàng; (4) cỡ hàng theo nhịp thật của kho, máy đo từ hồ sơ cũ; (5) ngày rơi ra
+từ thứ tự + nhịp, mốc ngoài là ràng buộc để kiểm; (6) mã không cắt được thành
+câu giao → chân trời kèm lý do. **Răng duy nhất:** mỗi mã của bản phạm vi nằm ở
+đúng một hàng hoặc chân trời. Lộ trình thời gian cho đội sản phẩm là view vẽ
+từ hàng + mốc.
+
+### 5. Chiều đỏ khai trước (thêm vào §5)
+
+- Hàng tự khai «đã giao» trong file ý định → bộ vẽ **bỏ qua**, in trạng thái
+  suy từ hồ sơ kèm cờ «file khai khác hồ sơ» (đặc hiệu: chạm hồ sơ không thuộc
+  lộ trình → thẻ im).
+- Bảng phủ thiếu một mã / một mã ở hai hàng → răng lát 2 đỏ, nêu tên mã.
+- Bản sao crm với `lo-trinh-okr.data.js` nguyên vẹn phải XANH trước khi tin
+  bản bị tiêm là ĐỎ.
+
+### 6. Thước năm dòng (dự báo) + một số riêng
+
+làm-xong→quyết-được ↓ · lượt gọi người/vòng = · vòng bị hạ tầng đốt = · token máy/vòng
+= (tất định, 0 lượt LLM) · phút máy/lượt chấm =. Số riêng: **tin hỏi tiến độ trên
+một lộ trình**, nền 23/48; không giảm sau hai lộ trình dùng ổ cắm → ô đóng với
+giới hạn, không nới.
+
+### 7. Đường đi và điều kiện mở ô
+
+Ô `_acceptance/viec-ke-theo-plan/` vẫn **park**; neo thật nay có:
+`crm/_acceptance/cap-nhat-tuan-okr` (hồ sơ lượt 4 OKR, nơi đo 23/48) và vật
+`crm/docs/plan/lo-trinh-okr.data.js`. **Mở ô khi crm nhận mốc 2.20.0** (owner
+02/10) — không đổi engine dưới chân vòng đang chạy; là vòng meta có kho chờ nhận
+nên không vướng luật chiều rộng (b). Gói C (§3 cũ: băng, răng chống trôi dùng
+chung) chỉ mở khi ≥ 2 kho cùng đòi. Thước kiểm nhanh hai chiều cho lát 1: dựng
+bản sao crm, phá một hàng (slug sai · trường thiếu · tự khai đã giao) → thẻ đỏ
+đúng chỗ; chạm hồ sơ ngoài lộ trình → thẻ im.
+
+### 8. Rà soát 02/10 (owner gật bổ sung) — sáu điểm thiếu, thông lệ, và chỗ ngược playbook
+
+**Sáu bổ sung vào khuôn và luật (không đổi gì đã quyết ở §2):**
+
+1. **Hàng có «vì sao».** Thêm trường `vi_sao` một dòng ở hàng (vấn đề · ai gặp ·
+   kết quả muốn thấy, nén). Phần dài sống ở ô khi mở vòng. Nguồn: intent.md của
+   playbook có vấn đề · kết quả · ai bị ảnh hưởng · ràng buộc · câu hỏi mở; crm
+   đang nhét những thứ này vào `ghi_chu`.
+2. **Hai thước rút từ git, cạnh số «tin hỏi tiến độ» ở §6:** (a) tỉ lệ hàng sống
+   qua Cổng Đáng = hàng có ô `build`/`iterate` ÷ hàng đã có ô; (b) số hàng bị sửa
+   sau khi vòng đã mở — đổi hạng, tách, gộp, đổi câu giao (so diff file ý định với
+   `approved_at` của hợp đồng). (b) là thước duy nhất của lát 2: skill cắt lượt
+   cắt đúng hay không chỉ đo được bằng số hàng phải sửa giữa đường. Đây là hai
+   thước «ý định chốt trước khi làm» hạt giống 07/09 (lát B) đã hứa.
+3. **Khối `moc[]` cấp file**, người ghi: tên · ngày · ai · loại (hạn / sự kiện).
+   Dùng để vẽ view thời gian và để máy in cờ «hàng kế không kịp mốc» khi tổng
+   nhịp thật của chuỗi `dung_tren` vượt ngày mốc. Nguồn: khối `moc` của
+   `lo-trinh-okr.data.js` (Tết · mùa OKR 07/12 · hạn nhân sự).
+4. **Mục «đã bác kèm lý do» trong file ý định**, máy đếm được. Hàng nháp (nấc 2
+   CRM) bị bác không biến mất và không quay lại như mới — luật «dismiss with a
+   reason» của playbook, cùng họ `.out-of-scope/` cho ô.
+5. **Hàng không mở quá hai mốc phát hành → một trong ba phán quyết tại mốc:**
+   giữ · gieo (mở ô) · bỏ kèm lý do. Máy in cờ tuổi trên trang vẽ và thẻ start;
+   người quyết. Đây là lưới chống hàng-thành-backlog (§4 cũ đã có cho hạt
+   giống, nay áp cho hàng), và là điều kiện để lộ trình không đối lập playbook.
+6. **Vòng ngoài lộ trình hợp lệ.** Sửa lỗi, sự cố, đường ship thẳng không thuộc
+   hàng nào: trang vẽ có khối «vòng ngoài lộ trình», in số, **không đỏ**. Kho
+   muốn đỏ (như kiểm C của oneflow) tự dựng răng.
+
+Ghi kèm, không phải việc kit: file ý định cần CODEOWNERS để «chủ sản phẩm duyệt
+bằng merge» có răng; `CONTEXT.md` thêm term **Lộ trình** (ý định thường-trú, đứng
+cạnh bản đồ sản phẩm) khi mở ô; đường «ngưỡng Cổng Giá trị vượt → hàng nháp» là
+R5 của hạt giống `2026-09-07-hat-giong-y-dinh-co-nha-rieng.md`, trỏ sang, không
+dựng mới.
+
+**Thông lệ đội sản phẩm — dùng được, với điều kiện vào kit như VIEW hoặc như tầng
+TRƯỚC bước cắt, không vào như cột gõ tay:** Now/Next/Later = trạng thái máy suy
+(đang làm · đủ điều kiện · chân trời) · outcome-based = ngưỡng Cổng Giá trị và
+`bat_khi`, output = câu giao, hai tầng cùng sống · cây cơ hội (Torres) = quét hình
+thái và aes, trước cắt · Shape Up = gần kit nhất (bàn cược = Cổng Đáng, khẩu vị =
+hạng + trần ba vòng, không backlog = hàng chưa mở không là ô; khác: kit cố định
+phạm vi, xả bằng «ký với giới hạn») · OKR = trường tự do `nhom` · RICE/WSJF
+**không** vào khuôn (thứ tự là quyết định người) · Gantt/lịch quý chỉ là view ·
+Jira/Linear/Notion = cấu hình «hệ ngoài là nguồn», kho tự lo bản xuất.
+
+**Đối lập với AI-Native SDLC (Anthropic, 21/08):** khớp ở nhà ý định trong kho,
+duyệt bằng merge, chuỗi vật tự kích hoạt, một nguồn sự thật mỗi vật, bác kèm lý
+do. **Căng thật:** playbook không có lộ trình và coi backlog là lãng phí — kit
+thêm đúng tầng playbook bỏ. Chỗ đứng duy nhất: lộ trình của kit là **danh sách
+cắt có thứ tự phụ thuộc** cho một người chạy nhiều vòng liên tiếp trên dữ liệu
+thật của vòng trước; ngày nó thành lịch quý có cột trạng thái gõ tay là ngày nó
+đối lập cả playbook lẫn North Star — lưới là điểm 5. **Ngược có chủ đích:** một
+file nhiều hàng thay vì một file mỗi intent, vì ô có giá đóng không có giá mở
+(18/09); hai thước của playbook (thời gian tới commit · tỉ lệ sống) vẫn rút từ
+git của file ấy. **Kit tốn thêm một chạm** ở đầu vòng vì giữ người ở Cổng Đáng
+thay vì intent duyệt xong tự kích hoạt spec; chấp nhận, Cổng Đáng là cổng thiết kế.

@@ -164,6 +164,8 @@ Omit the `capture` block if the repo has no UI evidence need.
    - `${CLAUDE_PLUGIN_ROOT}/scripts/khong-can-nguoi.mjs` → `scripts/` (the lane-V «no human needed» predicate product-map.mjs imports to refuse a self-declared machine-cleared record without evidence)
    - `${CLAUDE_PLUGIN_ROOT}/lib/nguong-o-co-hoi.cjs` → `lib/` (opportunity-threshold reader product-map.mjs `require`s for the value-gate cell)
    - `${CLAUDE_PLUGIN_ROOT}/lib/out-of-contract.cjs` → `lib/` (the ONE reader of `review-findings.md` — the lane-V rule in pre-merge AND khong-can-nguoi.mjs asks it which out-of-contract items a human has not yet routed; renamed from `.js` in 2.18.1, delete the old file when re-copying)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/lo-trinh-khoa.cjs` → `scripts/` (the ONE reader of the roadmap socket key `lo_trinh.tep` that product-map.mjs `require`s on every run; missing → `MODULE_NOT_FOUND` on the map step even in a repo that never declares the socket)
+   - `${CLAUDE_PLUGIN_ROOT}/scripts/lo-trinh.mjs` → `scripts/` (roadmap page reader/renderer product-map.mjs imports ONLY when the repo declares `lo_trinh.tep`; a repo that declares it without this file gets the map step failing loud, never a silently missing `LO-TRINH.html`)
    <!-- INIT-CI-COPY-LIST>>> -->
    Copying only pre-merge-check.sh silently drops the committed-evidence
    re-check layer (it degrades to a NOTE) and mutes the gap-probe rule.

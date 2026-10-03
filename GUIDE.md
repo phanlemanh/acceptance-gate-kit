@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.20.0 · feature-loop 2.20.0 · diagram-design 2.7.0.
+> Khớp phiên bản: acceptance-gate 2.20.0 · feature-loop 2.20.0 · diagram-design 2.7.1.
 
 ## Mục lục
 
@@ -594,6 +594,23 @@ Repo dựng trước 1.31.0 không tự bật: các thân cổng đọc `t1_skip
 thấy `PRODUCT-MAP.md` thì **bỏ qua** bước vẽ lại và in hai dòng chỉ cách bật.
 Không có bước này thì chính commit chữ ký làm bằng chứng cũ đi và merge kẹt.
 
+**Lộ trình cạnh bản đồ (hồ sơ viec-ke-theo-plan)** — kho tự viết một tệp ý định JSON (khuôn
+`skills/acceptance/references/lo-trinh-template.json`: mỗi hàng `ma` · `cau_giao` bắt buộc; `hang` ·
+`vi_sao` · `dung_tren` · `slug` · `bat_khi` · `trang_thai` tuỳ chọn; khối `moc`, `da_bac`, `tu_vung`
+cấp tệp; mọi trường khác là trường tự do của kho) rồi bật bằng hai dòng:
+
+```yaml
+lo_trinh:
+  tep: docs/plan/lo-trinh.json
+```
+
+và thêm `LO-TRINH.html` vào `risk_tiers.t1_skip_globs` cạnh `PRODUCT-MAP.md` (cùng lý do: view máy
+sinh, `--check` canh). Từ đó mỗi lần bản đồ được vẽ lại, `LO-TRINH.html` được vẽ cùng lượt — trạng
+thái từng hàng suy từ hồ sơ, không gõ tay — và thẻ `/acceptance-gate:start` in ba dòng: hàng kế, hàng
+trễ theo mốc, số hàng tin theo lời. Kho dùng chữ trạng thái riêng thì khai `tu_vung` để kit so được
+lời tự khai với hồ sơ. Kit **không bao giờ ghi** vào tệp ý định. Vòng tính năng nhận thẳng một hàng:
+`/feature-loop:feature-loop <mã hàng>`. Kho không khai khoá thì không thấy gì khác.
+
 **Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
 đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ
 đã hứa chưa?"; Cổng Giá trị hỏi "thứ đó có ăn thua không?". Nghi thức chép
@@ -837,7 +854,7 @@ thể ghim `KIT_SHA` bằng sha hoặc lấy kit bằng tag — `git fetch --dep
 sửa riêng của cổng: đo trước bằng cách chạy hai gate cạnh nhau trên vài merge
 gần nhất (`--base <cha thứ nhất>`), như đã làm cho oneflow.
 
-**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 15 file**
+**Đường cũ — còn chạy, không còn khuyến nghị, sẽ xoá ở mốc kế:** Copy **đủ 17 file**
 từ plugin vào repo, giữ đúng layout (re-check `require ../lib`; đuôi `.cjs` là cố
 ý — repo khai `"type": "module"` sẽ đọc file `.js` chép sang thành ESM và
 `require()` bên trong nổ ReferenceError, lớp cưỡng chế chết câm). Danh sách này
@@ -862,6 +879,8 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/khong-can-nguoi.mjs` — vị từ làn V «không cần người» mà `product-map.mjs` nạp để từ chối hồ sơ tự khai máy-thông không có vật
 - `lib/nguong-o-co-hoi.cjs` — bộ đọc ngưỡng ô cơ hội mà `product-map.mjs` `require` cho ô Cổng Giá trị
 - `lib/out-of-contract.cjs` — bộ đọc DUY NHẤT của `review-findings.md`; luật làn V ở lưới trước-merge và `khong-can-nguoi.mjs` cùng hỏi nó mục ngoài hợp đồng nào chưa được người định tuyến. **Đổi tên từ `.js` ở 2.18.1** — kho tiêu thụ chép lại thì XOÁ tệp đuôi cũ
+- `scripts/lo-trinh-khoa.cjs` — bộ đọc DUY NHẤT của khoá ổ cắm lộ trình `lo_trinh.tep` mà `product-map.mjs` `require` ở MỌI lượt; thiếu → bước bản đồ `MODULE_NOT_FOUND` kể cả ở kho không khai lộ trình
+- `scripts/lo-trinh.mjs` — bộ đọc + vẽ trang lộ trình mà `product-map.mjs` chỉ nạp khi kho khai `lo_trinh.tep`; kho khai mà thiếu tệp này thì bước bản đồ đỏ to, không bao giờ im lặng thiếu `LO-TRINH.html`
 <!-- GUIDE-CI-COPY-LIST>>> -->
 
 > Nguồn chuẩn là khối `INIT-CI-COPY-LIST` trong `commands/acceptance-init.md`;
