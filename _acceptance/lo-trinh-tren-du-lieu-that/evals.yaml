@@ -1,0 +1,181 @@
+schema_version: 1
+feature_slug: lo-trinh-tren-du-lieu-that
+# Ca đo sống ở tests/scripts/lo-trinh.test.mjs (LT-70..LT-80, cùng tệp với ca của lát 1; executor
+# `executors.test.lo_trinh` chạy đúng tệp đó). Kho thử do code sinh trong lượt (git init trong thư mục
+# tạm). Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao vật bị tiêm, SAU khi bản lành xanh trên cùng kho thử,
+# và ghim thông điệp rút từ đầu ra của hàm đo. Mỗi eval ghim đúng dòng "PASS: LT-…" — suite xanh mà
+# thiếu dòng ghim là ĐỎ. Bộ vẽ «bản trước vòng» lấy bằng `git archive e4a399ed scripts lib` (CI
+# checkout fetch-depth 0); sha không resolve được thì ca FAIL, không bỏ qua.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-70" — ma trận toàn phần: mọi tên ô của SECTIONS cộng «Chưa mở» và
+      «Không suy được» làm lời khai × trục hồ sơ == ĐÚNG các khoá của SECTIONS (ô nào HO_SO không dựng
+      được phải nằm trong danh sách loại trừ viết sẵn trong ca, và số ô đo + số ô loại trừ == số khoá
+      SECTIONS, assert); cộng trục lời khai qua tu_vung (mỗi từ của config thử × mỗi ô); số cặp đo ==
+      tích các trục (in ra); với mỗi cặp, có cờ «tệp khai khác hồ sơ» ⟺ nhóm khác nhau theo bảng nhóm của design §1
+      (bảng nhóm viết trong ca từ KHOÁ ô, tên rút từ SECTIONS); cờ có mặt thì chứa cả chữ khai lẫn chữ
+      ô hồ sơ. Và "PASS: LT-70-do" — bản sao lo-trinh.mjs so lời khai bằng đẳng thức chữ (vật lát 1):
+      CHÍNH hàm đo của LT-70 chạy lại trên bản sao trả danh sách cặp sai chứa cặp
+      («Đã giao», «Đã giao — chờ phiên nghiệm thu»); và "PASS: LT-70-do2" — bản sao xếp `xep-lai` vào
+      nhóm chưa làm: CHÍNH hàm đo trả cặp sai («Chưa mở», «Xếp lại sau»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-71" — kho thử: hàng A slug vắng-hồ-sơ khai «Đã giao», hàng B khai
+      «Đang làm», hàng C khai «Chưa mở», hàng D không khai, hàng E đứng trên A: trạng thái A, B ==
+      «Không suy được»; C, D == «Chưa mở»; cờ của A == đúng một chuỗi «hàng A: tự khai Đã giao mà
+      không có hồ sơ <slug>» (đẳng thức), C, D không cờ; hàng kế == C (không phải A, không phải E).
+      Và "PASS: LT-71-do" — bản sao bỏ nhánh «không hồ sơ mà khai đã giao/đang làm»: CHÍNH hàm đo trả
+      lỗi chứa "hàng kế A" (hàng tự khai đã giao lên làm hàng kế — đúng lỗi crm hàng «1»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/fixtures/lo-trinh/crm-okr.json, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-72" — fixture crm-okr dựng kho bằng bảng `_nguon.ho_so` (hồ sơ do
+      HO_SO sinh theo ô khai): hàng kế != "1"; hàng kế có lời khai (sau tu_vung) và ô hồ sơ đều thuộc
+      nhóm chưa làm (suy trong ca, không đọc danh sách viết sẵn); thành phần cờ theo loại so với số
+      ghi ở opportunity.md trước khi có mã: thiếu câu giao == 4 · mã trùng == 1 · «tệp khai khác hồ
+      sơ» == 2 và đúng ở mã {9c, D} · «tự khai … mà không có hồ sơ» == 1 ở mã "1" · tổng == 8.
+      Và "PASS: LT-72-do" — CHÍNH hàm đo trên bản sao bộ đọc của commit e4a399ed (vật lát 1) trả lỗi
+      nêu hàng kế "1" và số cờ thừa 11.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-73 mot-nguoi-nhan", "PASS: LT-73 nhieu-nguoi-nhan",
+      "PASS: LT-73 ho-so-ghi-ma-khac", "PASS: LT-73 ho-so-khac-nhan-S-co",
+      "PASS: LT-73 ho-so-khac-nhan-S-vang", "PASS: LT-73 gop-S-vang-khai-da-giao-C-nhan",
+      "PASS: LT-73 ma-khong-co-hang", "PASS: LT-73 tep-khong-khai", "PASS: LT-73 khong-truong" — mỗi ca
+      một kho thử; trạng thái hàng và danh sách cờ so đẳng thức với bảng design §2; ca gộp: trạng thái
+      == ô của C, mảng cờ của hàng có ĐÚNG một phần tử (cờ liên kết), và `--mo-o` trên cùng kho in
+      {"hoSo":"C","moi":false}; ca mot-nguoi-nhan: hàng thôi «tin theo lời»
+      (đếm tinTheoLoi giảm đúng 1) và hồ sơ không còn trong «vòng ngoài lộ trình»; ca khong-truong:
+      LO-TRINH.html giống từng byte bản do bộ vẽ commit e4a399ed vẽ trên cùng kho. Và
+      "PASS: LT-73-do" — bản sao bộ đọc bỏ phần quét lo_trinh_ma: CHÍNH hàm đo trả lỗi nêu
+      "mot-nguoi-nhan"; "PASS: LT-73-khong-truong-do" — bản sao bộ đọc tiêm một byte vào trang khi
+      không hồ sơ nào ghi trường: CHÍNH phép so byte của ca khong-truong ĐỎ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/start-scan.mjs, skills/acceptance/references/opportunity-template.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-74 co-bat-khi" và "PASS: LT-74 khong-bat-khi" — CLI --mo-o thoát 0
+      và ghi đúng một tệp mới; khoá frontmatter của tệp ghi ⊇ khoá rút từ khối OPP-FRONTMATTER-TEMPLATE
+      của khuôn (round-trip writer→khuôn), stage == discovery, decision rỗng, feature == cau_giao,
+      lo_trinh_ma == mã; dòng SỐNG bắt đầu bằng tiền tố rút từ khối OPP-DE-XUAT-PREFIX (ca co-bat-khi)
+      hoặc là "…" (ca khong-bat-khi); start-scan xếp slug vào gates loại cong-dang (co-bat-khi) hoặc
+      groups.considering (khong-bat-khi); phanTich sau đó cho hàng coHoSo true; sha256 tệp ý định trước
+      == sau. Và "PASS: LT-74-do" — bản sao khuôn đổi tiền tố trong khối OPP-DE-XUAT-PREFIX: tệp ghi
+      mang tiền tố MỚI (bằng chứng writer đọc khuôn, không chép cứng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-75 da-co-ho-so", "PASS: LT-75 dich-da-co", "PASS: LT-75 thieu-slug"
+      — lần lượt: stdout == {"hoSo":"<slug>","moi":false} thoát 0 · thoát 2, stderr chứa đường thư mục
+      · câu giao "Đặt OKR cho Bộ phận trong CRM ngay" cho slug == "dat-okr-cho-bo-phan-trong-crm" (in
+      lại trong JSON, tệp ghi đúng thư mục đó); danh sách (đường, sha256) của cây _acceptance/ trước ==
+      sau ở hai ca đầu (đối chứng dương: ca thứ ba làm danh sách đó ĐỔI — phép so có răng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-76 ma-mot-tep", "PASS: LT-76 ma-hai-tep", "PASS: LT-76 da-co-ho-so",
+      "PASS: LT-76 khong-slug", "PASS: LT-76 ma-khong-ton-tai" — rút khối S0-MO-O từ SKILL, chạy NGUYÊN
+      VĂN qua bash (thay <mã>, gốc gói = cây đang kiểm như harness thay; không gán sẵn biến nào khác)
+      trên kho thử sinh trong lượt; mã thoát + JSON lần lượt 0+moi:true · 3 (cây _acceptance/ giữ từng
+      byte) · 0+moi:false · 0+slug suy · 1. "PASS: LT-76 bang-thoat" — bảng S0-MO-O-THOAT parse thành
+      ánh xạ {0: theo moi, 1: mô tả việc, 2: dừng, 3: dừng} so đẳng thức; "PASS: LT-76-do" — bản sao
+      bảng gộp 3 vào mô tả việc: CHÍNH hàm đo của bang-thoat trả lỗi nêu "3". "PASS: LT-76 mau" — mẫu
+      S0-MA-HANG-RE nhận "7n", "docs/a.json:7n" và từ chối đúng từng chuỗi trong danh sách (khoảng trắng
+      · nháy đơn · nháy kép · backtick · "$(" · ngoặc).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh-khoa.cjs, scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-77 dang" — cacTepTuConfig trên ba dạng (chuỗi · khối · dòng) trả
+      cùng mảng theo thứ tự khai; tệp lặp → gộp + cờ «khai hai lần»; config có khối khác chứa
+      "  tep: x" → không đọc nhầm (mảng == chỉ tệp của lo_trinh). Và "PASS: LT-77 mot-tep-byte" —
+      kho thử một tệp: LO-TRINH.html của cây đang kiểm == của bộ vẽ commit e4a399ed (sha256 bằng nhau);
+      đường thực thi của bên «cũ» nằm trong thư mục giải nén (in ra, assert tiền tố); đối chứng dương:
+      thêm một hàng vào tệp ý định của kho thử thì hai bản cùng đổi và vẫn bằng nhau. Và
+      "PASS: LT-77-do" — bản sao bộ vẽ tiêm một byte vào nhánh một tệp: CHÍNH phép so ĐỎ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/start-scan.mjs, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-78" — kho hai lộ trình (tệp a, b; mã "1" có ở cả hai): trang có hai
+      <section> theo thứ tự a, b, mỗi mục có hàng kế của chính nó (so đẳng thức với phanTich từng tệp);
+      thay b bằng JSON hỏng → mục a giống từng byte, mục b mang câu lỗi; loTrinh.ds.length == 2;
+      --hang 1 thoát 3, stderr chứa cả "a" và "b"; --hang <a>:1 trả hàng của a; hangKe.thamSo ==
+      "<tệp>:<mã>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/start-scan.mjs, scripts/lo-trinh.mjs, commands/start.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-79 trang-co", "PASS: LT-79 trang-vang", "PASS: LT-79 ban-do-chua-bat",
+      "PASS: LT-79 moc-khong-hang", "PASS: LT-79 than-start" — loTrinh.dong so đẳng thức mảng với dòng
+      mong đợi từng ca (liên kết markdown tới path.join(root, "LO-TRINH.html") · câu «chưa được vẽ» kèm
+      lệnh · dòng cảnh báo có mặt ⟺ map.enabled false · hậu tố «(k/N mốc không gắn hàng nào)»); ca
+      than-start: khối START-LO-TRINH của commands/start.md nói in nguyên `loTrinh.dong`, và bước 4 có
+      dòng chọn hàng kế dẫn tới "/feature-loop:feature-loop <hangKe.thamSo>".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/product-map.mjs, scripts/start-scan.mjs, scripts/lo-trinh-khoa.cjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-80" — kho khai: PRODUCT-MAP.md có đúng 1 dòng chứa
+      "[LO-TRINH.html](LO-TRINH.html)"; kho không khai: PRODUCT-MAP.md và JSON quét (bỏ `git`) giống từng
+      byte bản do commit e4a399ed sinh trên cùng kho (đường bên «cũ» nằm trong thư mục giải nén), 0 dòng
+      chứa "LO-TRINH.html"; "PASS: LT-80-do" — bản sao product-map luôn thêm dòng liên kết: CHÍNH
+      phép so ĐỎ ở kho không khai; và "PASS: LT-01" (ca kho-không-khai của lát 1) vẫn xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: judgment
+    inputs: [_acceptance/lo-trinh-tren-du-lieu-that/do-crm-onehub.html, _acceptance/lo-trinh-tren-du-lieu-that/opportunity.md]
+    question: >
+      do-crm-onehub.html là LO-TRINH.html do bộ vẽ của vòng sinh trên bản sao crm onehub, chép nguyên.
+      opportunity.md (ghi trước khi có mã) liệt các lệch thật: 4 hàng thiếu câu giao, 1 mã trùng, hai
+      lệch ở hàng 9c và D, và hàng «1» khai slug không có hồ sơ. Trả lời bằng chữ trên trang: hàng kế
+      có phải một hàng mà trạng thái trên trang là chưa làm và lời khai (nếu có) cũng là chưa làm không;
+      mỗi cờ trong mục «Cờ» có thuộc một trong năm loại lệch thật ấy không; hàng «1» có được nêu tên
+      trong mục «Cờ» không? PASS khi cả ba đúng, kèm trích chữ trên trang; FAIL nêu câu nào sai và cờ
+      nào; UNCERTAIN khi trang không đọc được.
+    paths: [scripts/lo-trinh.mjs, _acceptance/lo-trinh-tren-du-lieu-that/do-crm-onehub.html]
+    expected: PASS kèm trích chữ cho từng câu; FAIL nêu câu và dòng
+    evidence_required: [judged_by, verdict, rationale]
