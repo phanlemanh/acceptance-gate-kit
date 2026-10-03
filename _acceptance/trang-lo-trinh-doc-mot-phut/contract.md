@@ -30,7 +30,7 @@ máy lọt ra mặt người. Cổng Đáng 03/10 ký build: thay lớp vẽ, gi
 - AC-4: Given kho có hồ sơ không thuộc lộ trình nào (một hoặc nhiều lộ trình), When vẽ, Then danh sách các hồ sơ đó xuất hiện đúng MỘT lần trên trang, trong một `<details>` không mở sẵn ở cuối trang có tiêu đề «N hồ sơ không thuộc kế hoạch nào», N bằng số hồ sơ không lộ trình nào trỏ tới; không có hồ sơ nào như thế thì khối vắng.
 - AC-5: Given một lộ trình có mốc, When vẽ và mở trang trên Chrome với ngày đóng băng, Then dải mốc sắp theo ngày, mốc kế tiếp là mốc đầu tiên có ngày ≥ hôm nay và ô «Mốc kế tiếp» của thẻ ghi tên + ngày + «còn N ngày» (hoặc «hôm nay») của đúng mốc đó, mốc đã qua ghi «đã qua», mốc không gắn việc mang nhãn «chưa gắn việc» và tiêu đề ghi «k/N mốc chưa gắn việc nào»; tắt script thì ô thẻ ghi «Xem dải mốc bên dưới» và dải mốc vẫn có ngày; HTML không chứa ngày vẽ.
 - AC-6: Given cùng kho, When vẽ hai lần dưới hai đồng hồ cách nhau ba ngày (tiến trình con chặn `Date`), Then hai trang giống từng byte, và `product-map.mjs --check` vẫn bắt trang bị đổi byte / hồ sơ đổi / trang bị xoá (ca LT-06, LT-06-do xanh).
-- AC-7: Given năm trạng thái (hai lộ trình · một lộ trình · tệp hỏng · không chỗ lệch · kế hoạch rỗng) dựng từ fixture crm trong lượt, When đo trên Chrome thật ở 1440×900, 768×1024, 375×812, sáng và tối, Then ở MỌI ô: đáy ba dòng Làm tiếp / Cần sửa / Mốc kế tiếp của mọi thẻ (thẻ lỗi: đáy thẻ) ≤ chiều cao màn · không tràn ngang · ≤ 6 cỡ chữ · cỡ h1 > h2 > h3 · tương phản chữ ≥ 4,5 (chữ lớn ≥ 3) · `summary` và liên kết chỗ lệch cao ≥ 44px; và trang hai lộ trình cao ≤ 3.900px ở 1440.
+- AC-7: Given năm trạng thái (hai lộ trình · một lộ trình · tệp hỏng · không chỗ lệch · kế hoạch rỗng) dựng từ fixture crm trong lượt, When đo trên Chrome thật ở 1440×900, 768×1024, 375×812, sáng và tối, Then ở MỌI ô: đáy ba dòng Làm tiếp / Cần sửa / Mốc kế tiếp của mọi thẻ (thẻ lỗi: đáy thẻ) ≤ chiều cao màn · không tràn ngang · ≤ 6 cỡ chữ · cỡ h1 > h2 > h3 · tương phản chữ ≥ 4,5 (chữ lớn ≥ 3) · `summary` và liên kết chỗ lệch cao ≥ 44px; và ở 1440 trang hai lộ trình (kho thử mang 132 hồ sơ ngoài kế hoạch như crm lúc audit) cao ≤ 1/3 trang do bộ vẽ 2.21.0 vẽ cùng kho, đo trong cùng phiên Chrome.
 - AC-8: Given bảng việc, When vẽ, Then mỗi ô `td` mang `data-nhan` bằng đúng tiêu đề cột của nó, và ở 375 mỗi hàng là một khối có nhãn cột đứng trên giá trị (không tràn ngang — đo ở AC-7); When mở trên Chrome ở 1440, Then cuộn qua bảng việc còn mở thì tiêu đề cột vẫn trong khung nhìn, lệnh mở có `user-select: all`, và mở trang tại neo một hàng thì hàng đó có viền nhấn.
 - AC-9: Given một kho thử kích MỌI dạng cờ có trong mã lớp phân tích, When vẽ, Then số dạng cờ đếm từ mã bằng số dòng bảng dịch và bằng số dạng kho thử thật sự phát ra, mỗi dạng ra đúng câu đích viết sẵn trong ca đo (không rơi về nguyên văn) và giữ mọi giá trị của cờ gốc (mã, lời khai, ô hồ sơ, slug, hạng), mỗi chỗ lệch trên trang đã dịch (không còn `cau_giao`, `dung_tren`, `lo_trinh_`, `tu_vung`, «tự khai», «tệp khai khác hồ sơ», «đứng trên», «tệp ý định»), và phần chữ của trang ngoài `<code>` và lệnh mở không chứa «tin theo lời», «câu giao», «hàng kế», «Hàng kế», «Vòng ngoài lộ trình», «Cổng Đáng», «tệp ý định», «Cờ».
 - AC-10: Given kho không khai lộ trình, When vẽ bản đồ và quét start, Then không có `LO-TRINH.html`, `PRODUCT-MAP.md` và JSON quét giống từng byte bộ vẽ trước vòng, mô-đun lộ trình không được nạp (LT-01, LT-80 xanh); Given kho khai hai lộ trình mà một tệp hỏng, Then chỉ thẻ và mục của tệp đó nêu lỗi, lộ trình kia đủ bốn dòng.
@@ -55,7 +55,7 @@ khổ). Chân sản phẩm: audit 03/10 trên trang crm thật (số ở `opport
 ## Đường đo
 
 - Màn đầu có hàng kế, số chỗ lệch, mốc gần nhất ở 1440 và 375 · số từ: `tests/scripts/lo-trinh-do-trang.mjs` trên năm trạng thái dựng trong lượt · AC-1, AC-5, AC-7.
-- Trang ≤ 1/3 độ dài cũ (≤ 3.900px ở 1440) · số từ: cùng phép đo, trạng thái hai lộ trình từ fixture crm · AC-7; trên crm thật đọc ở phiên nghiệm thu.
+- Trang ≤ 1/3 độ dài cũ · số từ: cùng phép đo, so với bộ vẽ 2.21.0 trên cùng kho thử, cùng phiên Chrome (số px tuyệt đối đổi theo phông chữ của máy, tỉ lệ thì không) · AC-7; trên crm thật đọc ở phiên nghiệm thu (bản mẫu: 3.430 / 11.587).
 - 0 lỗi đo được (tương phản, điểm chạm, tiêu đề, tràn, cỡ chữ) · số từ: cùng phép đo, ô xấu nhất · AC-7, AC-8.
 - Kho không khai giữ từng byte · số từ: LT-80, LT-01 · AC-10.
 - Câu hỏi «màn đầu trả lời được ba câu» · số từ: hội đồng đọc ảnh · AC-11.
@@ -82,7 +82,7 @@ khổ). Chân sản phẩm: audit 03/10 trên trang crm thật (số ở `opport
   Cùng hồ sơ đó, AC-6 vế «không có `<script`» → «không có `src=` hay `href=` ra ngoài, và đoạn script
   nội tuyến duy nhất chỉ tính số ngày lúc xem; tắt script trang vẫn đủ» (AC-5 của vòng này đo vế tắt script).
 - Ca đo: `tests/scripts/lo-trinh.test.mjs` (LT-90…, cùng tệp) và
-  `tests/scripts/lo-trinh-trang.test.mjs` (đo Chrome, LTT-*); đo Chrome cần Chrome trên máy chạy —
+  `tests/scripts/xem-trang-lo-trinh.test.mjs` (đo Chrome, LTT-*); đo Chrome cần Chrome trên máy chạy —
   thiếu thì ca ĐỎ nêu tên, không bỏ qua (CI ubuntu có sẵn Chrome).
 - Lệnh đọc trên crm thật (phiên nghiệm thu, không ghi vào crm):
   `node scripts/product-map.mjs --root <bản sao crm> && node tests/scripts/lo-trinh-do-trang.mjs <bản sao crm>/LO-TRINH.html`.

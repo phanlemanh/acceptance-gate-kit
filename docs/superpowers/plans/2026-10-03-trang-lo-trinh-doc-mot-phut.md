@@ -12,7 +12,7 @@ Thứ tự TDD: commit ca đo (đỏ) trước commit vật.
    `CHROME_BIN` hoặc đường chuẩn mac/ubuntu; không có thì exit 3 nêu tên.
 2. **Ca đo đỏ** — `tests/scripts/lo-trinh.test.mjs` thêm LT-90…LT-100 (+ `-do`), sửa LT-05,
    LT-05-the, LT-11, LT-73 khong-truong, LT-77 mot-tep-byte, LT-78 và LT-06 sang trang mới (lớp
-   phân tích so bằng `phanTichKho` với bộ máy gốc thay cho so HTML); `tests/scripts/lo-trinh-trang.test.mjs`
+   phân tích so bằng `phanTichKho` với bộ máy gốc thay cho so HTML); `tests/scripts/xem-trang-lo-trinh.test.mjs`
    mới: LTT-san, LTT-san-do, LTT-san-im, LTT-moc, LTT-moc-khong-script, LTT-hanh-vi, LTT-hanh-vi-do.
    Năm trạng thái dựng từ fixture crm-okr + crm-kho-tai-lieu với hồ sơ sinh từ `_nguon.ho_so`.
 3. **Bộ vẽ** — `scripts/lo-trinh.mjs`: thay `CSS`/`khung`/`renderTrang`/`renderNhieu`/`renderLoi`
