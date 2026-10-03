@@ -43,7 +43,7 @@ evals:
     executor: script
     cmd: config:executors.script.lgtp_chi_thu
     expected: >-
-      Chỉ thu, đo QUAN HỆ tập con trên ĐÚNG 12 ô ma trận M của contract (hằng 12
+      Chỉ thu, đo QUAN HỆ tập con trên ĐÚNG 15 ô ma trận M của contract (hằng 15
       viết trước trong rang.sh; số ô bộ sinh trả khác 12 → ĐỎ ghim "số ô lệch"): mỗi ô, tập
       tệp hoá cũ dưới khoá paths ⊆ tập dưới khoá vắng. Ô M3 (paths gồm _acceptance/config.yaml
       + một glob t1_skip_globs, diff chỉ chạm hai tệp đó) → không hoá cũ. Chiều đỏ: bản sao so
@@ -59,11 +59,11 @@ evals:
     executor: script
     cmd: config:executors.script.lgtp_hinh_ho_so
     expected: >-
-      Chín ô M4–M12 của ma trận M dưới khoá paths, mỗi ô đúng cột Kỳ vọng: M4 (eval
+      Chín ô M4–M15 của ma trận M dưới khoá paths, mỗi ô đúng cột Kỳ vọng: M4 (eval
       máy thiếu paths), M7 (vắng evals.yaml), M8 (evals.yaml hỏng do code sinh), M12 (hợp paths
       rỗng) → VẪN hoá cũ; M5 (chỉ ô not-run thiếu paths) → lọc; M6 (diff chạm paths ô ui-check)
       → VẪN hoá cũ; M9/M10/M11 (một dòng, block seq, glob trần) → cùng kết luận lọc. Đối chứng
-      dương: cây lành → 9/9. Năm mutant trên bản sao, mỗi cái ĐỎ với thông điệp ghim riêng:
+      dương: cây lành → 12/12. Năm mutant trên bản sao, mỗi cái ĐỎ với thông điệp ghim riêng:
       chỉ gom eval máy → "im ô ngoài làn máy" · bỏ vế eval-máy-thiếu → "eval máy thiếu paths" ·
       coi tệp hỏng/hợp rỗng là không vật nào → "hợp rỗng thành im" · bỏ ngoại lệ not-run →
       "not-run chặn lọc" · chỉ đọc dạng một dòng → "bộ đọc paths một dạng".
@@ -107,7 +107,7 @@ evals:
     executor: script
     cmd: config:executors.script.lgtp_mot_nguon
     expected: >-
-      Round-trip hai bên hỏi trên ĐÚNG 12 ô ma trận M (hằng viết trước): kết luận
+      Round-trip hai bên hỏi trên ĐÚNG 15 ô ma trận M (hằng viết trước): kết luận
       pre-merge-check (hoá cũ?) và repin-lane --skip-unchanged (bỏ qua?) KHỚP, khoá paths. Tĩnh:
       tên hàm vị từ chỉ ĐỊNH NGHĨA ở một tệp lib, cả hai bên gọi. Vế riêng của làn: evals.yaml
       đổi → KHÔNG bỏ qua. Kho tiêu thụ: dựng kho fixture bằng CHÍNH lệnh chép của acceptance-init,
@@ -156,7 +156,7 @@ evals:
     cmd: config:executors.script.lgtp_lan_doc_cu
     expected: >-
       Đường đọc-cũ phía làn, VI PHÂN với bản base (git archive merge-base scripts lib
-      feature-loop/scripts — trọn thư mục). Khoá vắng cả hai, 12 ô ma trận M: repin-lane
+      feature-loop/scripts — trọn thư mục). Khoá vắng cả hai, 15 ô ma trận M: repin-lane
       --skip-unchanged và làn đủ --write cho stdout, stderr (bỏ dấu thời gian, giây) và dòng
       run-log bằng hệt base, gồm evals_not_machine_touched. Ô lib vắng / lib ném lỗi: khoá
       vắng → y như base; khoá paths → KHÔNG bỏ qua, một dòng gọi tên lý do. Đối chứng dương:

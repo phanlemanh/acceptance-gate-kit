@@ -28,7 +28,8 @@ ca('SBP5 evals vắng / hỏng / hợp rỗng / paths: [] → apply=false', () =
   // ghim LÝ DO, không chỉ apply:false (lượt chấm 1, t5): YAML hỏng phải ra evals-hong, không lọt nhánh khác
   assert.equal(core.staleByPaths(['x'], 'evals:\n  - id: E1\n   executor: [script\n').reason, 'evals-hong');
   assert.equal(core.staleByPaths(['x'], Y(ev('E1', 'script', '    paths: ["src/**"]\n')) + '  - id: E2\n    executor: [script\n').reason, 'evals-hong', 'một eval hỏng cạnh eval lành vẫn là hỏng');
-  assert.equal(core.staleByPaths(['x'], Y(ev('E1', 'judgment', ''))).reason, 'hop-paths-rong');
+  assert.equal(core.staleByPaths(['x'], Y(ev('E1', 'judgment', ''))).reason, 'eval-ngoai-may-thieu-paths:E1');
+  assert.equal(core.staleByPaths(['x'], Y(ev('E1', 'script', '', '    status: not-run\n'))).reason, 'hop-paths-rong');
   assert.equal(core.staleByPaths(['x'], null).apply, false);
   assert.match(core.staleByPaths(['x'], Y(ev('E1', 'script', '    paths: []\n'))).reason, /eval-may-thieu-paths:E1/);
 });
@@ -55,5 +56,21 @@ ca('SBP9 tên tệp git in trong ngoặc (core.quotepath, tên có dấu) vẫn 
   const r = core.staleByPaths(['src/a.js', q, '"lib2/b\\303\\240.js"'], Y(ev('E1', 'script', '    paths: ["src/**"]\n')));
   assert.deepEqual(r.kept, ['src/a.js', q], 'tên có dấu trong paths phải ở kept (giữ nguyên chữ git in)');
   assert.deepEqual(r.skipped, ['"lib2/b\\303\\240.js"']);
+});
+ca('SBP10 eval ngoài làn máy KHÔNG khai paths → giữ luật cũ (trừ ô not-run)', () => {
+  const r = core.staleByPaths(['ui/Page.tsx'], Y(ev('E1', 'script', '    paths: ["src/**"]\n') + ev('E2', 'ui-check', '')));
+  assert.equal(r.apply, false); assert.equal(r.reason, 'eval-ngoai-may-thieu-paths:E2');
+  const r2 = core.staleByPaths(['ui/Page.tsx'], Y(ev('E1', 'script', '    paths: ["src/**"]\n') + ev('E2', 'judgment', '', '    status: not-run\n')));
+  assert.equal(r2.apply, true, 'ô not-run không chặn lọc, bất kể executor');
+});
+ca('SBP11 chú thích cuối dòng paths: không nuốt danh sách khối', () => {
+  const r = core.staleByPaths(['src/a.js'], Y(ev('E1', 'script', '    paths:   # vat do\n      - "src/**"\n')));
+  assert.deepEqual(r.kept, ['src/a.js']);
+});
+ca('SBP12 dòng trống / chú thích giữa các mục khối không cắt mục sau; glob rỗng là hỏng', () => {
+  const r = core.staleByPaths(['src/b/c.js'], Y(ev('E1', 'script', '    paths:\n      - "src/a/**"\n\n      # ghi chu\n      - "src/b/**"\n')));
+  assert.deepEqual(r.kept, ['src/b/c.js']);
+  assert.equal(core.staleByPaths(['x'], Y(ev('E1', 'script', '    paths: [""]\n'))).apply, false, 'mảng chỉ có chuỗi rỗng → giữ luật cũ');
+  assert.equal(core.staleByPaths(['x'], Y(ev('E1', 'script', '    paths:\n      - ""\n'))).reason, 'evals-hong', 'glob rỗng dạng khối → hỏng, không phải «không vật»');
 });
 console.log(`Results: ${pass} passed`);

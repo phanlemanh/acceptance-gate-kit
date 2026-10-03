@@ -96,22 +96,24 @@ if (chan === 'doc-cu') {
   k.don(); don(s); ket('E3');
 } else if (chan === 'hinh-ho-so') {
   // E4 — M4…M12 dưới khoá paths đúng cột Kỳ vọng; năm mutant trên lib.
-  const KY = { M4: 'cu', M5: 'loc', M6: 'hoa-cu', M7: 'cu', M8: 'cu', M9: 'loc', M10: 'loc', M11: 'loc', M12: 'cu' };
+  const KY = { M4: 'cu', M5: 'loc', M6: 'hoa-cu', M7: 'cu', M8: 'cu', M9: 'loc', M10: 'loc', M11: 'loc', M12: 'cu', M13: 'cu', M14: 'hoa-cu', M15: 'hoa-cu' };
   const ketLuanDu = (engine, id) => { const k = khoO(O[id], 'paths'); const r = pm(engine, k); k.don(); return { t: coStale(r.out) ? 'stale' : 'loc', out: r.out }; };
   const ketLuan = (engine, id) => ketLuanDu(engine, id).t;
   // ghim LÝ DO lưới in ra (lượt chấm 1, t5): «giữ luật cũ» phải vì đúng nhánh của ô, không nhánh khác.
-  const LY_DO = { M4: 'eval-may-thieu-paths:E1', M7: 'khong-co-evals', M8: 'evals-hong', M12: 'hop-paths-rong' };
+  const LY_DO = { M4: 'eval-may-thieu-paths:E1', M7: 'khong-co-evals', M8: 'evals-hong', M12: 'eval-ngoai-may-thieu-paths:E1', M13: 'eval-ngoai-may-thieu-paths:E2' };
   for (const [id, ly] of Object.entries(LY_DO)) { const r = ketLuanDu(KIT, id); ok(r.out.includes(`NOTE [feat]: bộ lọc paths không áp (${ly}) — giữ luật cũ`), `E4 ${id}: NOTE gọi đúng lý do «${ly}»`); }
   const muon = (ky) => (ky === 'loc' ? 'loc' : 'stale');
   let n = 0;
   for (const [id, ky] of Object.entries(KY)) { const t = ketLuan(KIT, id); ok(t === muon(ky), `E4 ${id} (${ky}) → ${t}`); n++; }
-  ok(n === 9, `E4 đúng 9 ô M4–M12 (được ${n})`);
+  ok(n === 12, `E4 đúng 12 ô M4–M15 (được ${n})`);
   const M = [
     { pin: 'im ô ngoài làn máy', o: 'M6', sua: [{ tep: LIB, tu: '    globs.push(...p);', thanh: '    if (isRepinMachineEval(e)) globs.push(...p);' }] },
-    { pin: 'eval máy thiếu paths', o: 'M4', sua: [{ tep: LIB, tu: "if (!p) { if (isRepinMachineEval(e)) return cu(`eval-may-thieu-paths:${e.id}`); continue; }", thanh: 'if (!p) { continue; }' }] },
-    { pin: 'hợp rỗng thành im', o: 'M12', sua: [{ tep: LIB, tu: "if (!globs.length) return cu('hop-paths-rong');", thanh: 'if (!globs.length) return { apply: true, reason: null, kept: [], skipped: all };' }] },
+    { pin: 'eval máy thiếu paths', o: 'M4', sua: [{ tep: LIB, tu: 'if (isRepinMachineEval(e)) return cu(`eval-may-thieu-paths:${e.id}`);', thanh: 'if (isRepinMachineEval(e)) continue;' }] },
+    { pin: 'eval ngoài làn máy thiếu paths', o: 'M13', sua: [{ tep: LIB, tu: 'if (normaliseEvalStatus(e.status) !== EVAL_STATUS_NOT_RUN) return cu(`eval-ngoai-may-thieu-paths:${e.id}`);', thanh: '' }] },
+    { pin: 'chú thích nuốt paths', o: 'M14', sua: [{ tep: LIB, tu: "const v = (f[1].trim().startsWith('#') ? '' : f[1].replace(/\\s+#.*$/, '')).trim();", thanh: 'const v = f[1].trim();' }, { tep: LIB, tu: "  if (globs.some(g => !String(g || '').trim())) return cu('evals-hong');", thanh: '' }] },
+    { pin: 'dòng trống cắt paths', o: 'M15', sua: [{ tep: LIB, tu: '      if (!raw.trim() || /^\\s*#/.test(raw)) continue;', thanh: '' }] },
     { pin: 'tệp hỏng thành im', o: 'M8', sua: [{ tep: LIB, tu: "return cu('evals-hong');\n  const globs", thanh: "return { apply: true, reason: null, kept: [], skipped: all };\n  const globs" }] },
-    { pin: 'not-run chặn lọc', o: 'M5', sua: [{ tep: LIB, tu: "if (!p) { if (isRepinMachineEval(e)) return", thanh: "if (!p) { if (['test', 'script'].includes(String(e.executor).trim())) return" }] },
+    { pin: 'not-run chặn lọc', o: 'M5', sua: [{ tep: LIB, tu: 'if (isRepinMachineEval(e)) return cu(`eval-may-thieu-paths', thanh: "if (['test', 'script'].includes(String(e.executor).trim())) return cu(`eval-may-thieu-paths" }] },
     { pin: 'bộ đọc paths một dạng', o: 'M10', sua: [{ tep: LIB, tu: '    if (!v) { seq = []; continue; }', thanh: '    if (!v) return null;' }] },
   ];
   for (const m of M) { const s = sao(m.sua); const r = ketLuanDu(s, m.o); batDo(ok, `E4 chiều đỏ: bản sao «${m.pin}» → ${m.o} lệch kỳ vọng (${r.t})`, daChayLuoi(r.out), r.t !== muon(KY[m.o])); don(s); }

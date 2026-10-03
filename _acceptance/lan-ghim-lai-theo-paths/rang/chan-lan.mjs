@@ -91,6 +91,11 @@ if (chan === 'mot-nguon') {
   const o2 = MA_TRAN.find(o => o.id === 'M2');
   const kV = khoO(o2, undefined); const rV = lan(LANE(KIT), kV, BASE, ['--skip-unchanged', '--allow-dirty']); kV.don();
   ok(rV.status === 0, `E10 khoá vắng + lib cũ → làn chạy như thường (mã ${rV.status})`);
+  // so TRỌN đầu ra với bản base chạy trên CHÍNH bộ máy cũ (lượt chấm 3, phát hiện trong hợp đồng)
+  { const kA = khoO(o2, undefined), kB = khoO(o2, undefined);
+    const a = lan(LANE(KIT), kA, BASE, ['--reason', 'x', '--write']), b = lan(LANE(BASE), kB, BASE, ['--reason', 'x', '--write']);
+    ok(a.status === b.status && chuan(a.stdout, kA) === chuan(b.stdout, kB) && chuan(a.stderr, kA) === chuan(b.stderr, kB), `E10 khoá vắng + bộ máy cũ: đầu ra làn bằng hệt base cùng bộ máy (mã ${a.status}/${b.status})`);
+    kA.don(); kB.don(); }
   const kP = khoO(o2, 'paths'); const rP = lan(LANE(KIT), kP, BASE, ['--skip-unchanged', '--allow-dirty']); kP.don();
   ok(rP.status === 2 && /staleByPaths/.test(rP.stderr), `E10 khoá paths + lib cũ → KHÔNG bỏ qua, dừng gọi tên staleByPaths (mã ${rP.status})`);
   const s = banSao([{ tep: 'feature-loop/scripts/repin-lane.mjs', tu: ", khi: 'stale_scope=paths' }", thanh: ' }' }]);

@@ -3,7 +3,7 @@
 //   'hoa-cu'  — vẫn hoá cũ (tệp nào: `tep`)      'loc'  — bộ lọc áp, không hoá cũ, có NOTE bỏ qua
 //   'cu'      — giữ luật cũ (hoá cũ như khoá vắng) 'khong' — không hoá cũ ở CẢ hai luật
 // Răng đòi ĐÚNG M_SO_O ô; số ô lệch là đỏ (phản biện 03/10, P1 «ma trận tự đếm»).
-export const M_SO_O = 12;
+export const M_SO_O = 15;
 
 const ev = (id, ex, paths = '', extra = '') =>
   `  - id: ${id}\n    criterion: AC-1\n    executor: ${ex}\n    cmd: config:executors.script.rang_ok\n    expected: exit 0\n${paths}${extra}    evidence_required: [run_id, exit_code, verifier, verified_at, output]\n`;
@@ -23,5 +23,9 @@ export const MA_TRAN = [
   { id: 'M10', evalsYaml: Y(ev('E1', 'script', '    paths:\n      - "src/**"\n')), diff: ['lib2/b.js'], kyVong: 'loc' },
   { id: 'M11', evalsYaml: Y(ev('E1', 'script', '    paths: "src/**"\n')), diff: ['lib2/b.js'], kyVong: 'loc' },
   { id: 'M12', evalsYaml: Y(ev('E1', 'judgment')), diff: ['lib2/b.js'], kyVong: 'cu' },
+  // M13–M15: owner nâng phạm vi ở Cổng Bằng chứng lượt 3 (Ngoài-1, 4, 5 — fail-open đã tái hiện).
+  { id: 'M13', evalsYaml: Y(ev('E1', 'script', P('src/**')), ev('E2', 'ui-check')), diff: ['ui/p.tsx'], kyVong: 'cu' },
+  { id: 'M14', evalsYaml: Y(ev('E1', 'script', '    paths:   # vat do cua E1\n      - "src/**"\n')), diff: ['src/a.js'], kyVong: 'hoa-cu', tep: ['src/a.js'] },
+  { id: 'M15', evalsYaml: Y(ev('E1', 'script', '    paths:\n      - "lib2/zz/**"\n\n      - "src/**"\n')), diff: ['src/a.js'], kyVong: 'hoa-cu', tep: ['src/a.js'] },
 ];
 if (MA_TRAN.length !== M_SO_O) throw new Error(`số ô lệch: ${MA_TRAN.length} ≠ ${M_SO_O}`);
