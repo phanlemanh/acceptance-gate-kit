@@ -10,7 +10,37 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
-## Unreleased
+## 2.21.0 — 03/10/2026
+
+Cửa sổ 2.20.0 → 2.21.0 kéo **hai ngày** (02–03/10), có **năm vòng** được ký, cả năm chạm engine:
+`viec-ke-theo-plan` (T2, PR #246) và `lo-trinh-tren-du-lieu-that` (T2, PR #252, Cổng Giá trị «release»
+PR #253) — lộ trình cạnh bản đồ; `loi-moi-tran-luot-loi-song-co-gia` (T2, PR #247) — lối ra ở trần lượt;
+`lan-ghim-lai-giu-tron-loi-loi` (T2, PR #250) và `lan-ghim-lai-theo-paths` (T3, PR #255) — làn ghim lại.
+Thêm `diagram-design` 2.7.1 (xuất PNG gọi `python3`, e2df88ff) và sáu PR không gắn hồ sơ (bàn giao, hạt
+giống, ô, một ca kiểm DK15). Kho chờ nhận là `crm`: lộ trình neo ở hồ sơ crm `cap-nhat-tuan-okr`, làn
+ghim lại neo ở số đo chi phí làn của crm 02/10. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên
+`2.21.0`; `diagram-design` lên `2.7.1`. Tag `v2.21.0` gắn tại commit ký mốc sau khi gộp.
+
+**Vì sao 2.21.0, không 2.20.1:** cửa sổ thêm hành vi mới cho người dùng — ổ cắm lộ trình, dòng thẻ start
+mới, khối «Lối ra» trên thẻ, hai khoá cấu hình mới của làn ghim lại.
+
+### Lộ trình cạnh bản đồ (hồ sơ `viec-ke-theo-plan` + `lo-trinh-tren-du-lieu-that`, T2)
+
+- Kho khai `lo_trinh.tep` trong `_acceptance/config.yaml` (một tệp, hoặc một danh sách) trỏ tệp ý định
+  JSON (khuôn `skills/acceptance/references/lo-trinh-template.json`). Kit chỉ **đọc**; trạng thái từng hàng
+  suy từ hồ sơ bằng đúng hàm xếp ô của bản đồ, lời tự khai so theo **nhóm** (đã giao · đang làm · chưa
+  làm), hàng nối hồ sơ hai chiều (`slug` của hàng, hoặc ô cơ hội ghi `lo_trinh_ma`).
+- `LO-TRINH.html` vẽ cạnh `PRODUCT-MAP.md` ở bốn lệnh đóng cổng; `--check` canh nó. Thẻ
+  `/acceptance-gate:start` in các dòng máy dựng sẵn (hàng kế · hàng trễ · tin theo lời · cờ · đường mở
+  trang) và đặt hàng kế làm một lựa chọn mở. `/feature-loop:feature-loop <mã hàng>` dựng ô cơ hội từ hàng
+  (ngưỡng đề xuất từ `bat_khi` và ngày mốc) rồi dừng ở Cổng Đáng.
+- Đo trên crm `onehub` + lộ trình OKR: hàng kế đúng, 8 cờ, 0 nhiễu (lát 1: hàng kế sai, 18 cờ, 11 nhiễu).
+- **Kho không khai:** bản đồ và thẻ giữ từng byte; mã lộ trình không được nạp.
+
+### Lối ra ở trần lượt (hồ sơ `loi-moi-tran-luot-loi-song-co-gia`, T2)
+
+- Thẻ Cổng Bằng chứng chưa-ký-được in khối «Lối ra» — lối sống, có giá, khuyến nghị tất định — khi vòng
+  chạm trần lượt hoặc một eval hỏng lặp lại (`scripts/loi-ra-tran-luot.cjs`). Thẻ ký được không đổi.
 
 ### Làn ghim lại theo `paths` + suite song song (hồ sơ `lan-ghim-lai-theo-paths`, T3)
 
@@ -27,6 +57,63 @@
 - Thư mục `.acceptance-runs/` tự đặt `.gitignore` (`*`) khi làn tạo nó — kho chưa khai không còn bị nhật ký lọt vào git.
 - Dòng `kind: repin` mang thêm `wall_s` và `so_lenh` (khuôn `REPIN-TEMPLATE` cập nhật).
 - Mô-đun mới `feature-loop/scripts/tai-may.mjs` (không bao giờ ném). `.acceptance-runs/` vào `.gitignore` của kit.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Kho còn đường chép: chép lại năm tệp** của lớp chép CI (GUIDE §5.3) — danh sách nay **17 tệp** (thêm
+  `scripts/lo-trinh-khoa.cjs`, `scripts/lo-trinh.mjs`); trong đó đổi so 2.20.0: hai tệp mới ấy,
+  `scripts/pre-merge-check.sh`, `scripts/product-map.mjs`, `lib/evidence-core.cjs`. Đo trước → sau bằng
+  phép vi phân, không đọc số tuyệt đối.
+- **Máy dev:** cài lại plugin ở MỌI phạm vi trên mỗi máy có phiên của kho, kiểm từng bản ghi cây phụ.
+- **Muốn dùng lộ trình:** viết tệp ý định JSON, khai `lo_trinh.tep`, thêm `LO-TRINH.html` vào
+  `risk_tiers.t1_skip_globs` cạnh `PRODUCT-MAP.md`. Viết danh sách tệp có thụt (`    - a.json`) hoặc
+  dạng dòng (`[a.json, b.json]`) — dạng sát lề chưa đọc được (giới hạn dưới).
+- **Đừng bật `stale_scope: paths`** cho tới khi hạt giống đóng mặc định được thi công.
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng từng vòng — đủ ở Notes của năm hợp đồng):
+
+- Khoá `lo_trinh.tep` có mặt mà không đọc ra tệp nào (danh sách YAML sát lề) thì kit im như chưa khai —
+  hạt giống `docs/plans/2026-10-03-hat-giong-khoa-lo-trinh-khai-ma-khong-doc-ra.md`.
+- `stale_scope: paths` có mã nhưng chưa bật: thư mục trần trong `paths` làm bộ lọc bỏ qua.
+- Ca P179 (sổ known-limits ít hơn số đề xuất) đốt hai lượt chấm trong cửa sổ — cùng một lớp hai lần.
+
+**Năm dòng số của luật (c)** — năm vòng (giờ VN, 02–03/10; nguồn: giờ commit `contract.md`,
+`decisions.jsonl`, `run-log.jsonl`, `usage-report.md` của từng hồ sơ):
+
+| Dòng | `viec-ke-theo-plan` (T2) | `lo-trinh-tren-du-lieu-that` (T2) | `loi-moi-tran-luot-loi-song-co-gia` (T2) | `lan-ghim-lai-giu-tron-loi-loi` (T2) | `lan-ghim-lai-theo-paths` (T3) |
+|---|---|---|---|---|---|
+| Làm-xong→quyết-được | 22:20 → ký 06:19 ≈ **7 giờ 59 phút**, gồm hai «trả» và một khoảng chờ qua đêm 4 giờ 46 phút; `verified` → ký 3 phút; **5 lượt chấm** | 09:46 → ký 14:56 ≈ **5 giờ 9 phút**, gồm khoảng chờ 4 giờ 3 phút trước «trả»; `verified` → ký 15 phút; **2 lượt** | 06:31 → ký 07:29 ≈ **58 phút**; `verified` → ký 4 phút; **2 lượt** | 06:51 → ký 10:01 ≈ **3 giờ 10 phút**; `verified` → ký 19 phút; **4 lượt** (lượt 4 vượt trần, owner cho phép đích danh) | 14:27 → ký 17:32 ≈ **3 giờ 5 phút**; `verified` → ký 4 phút; **4 lượt** (lượt 4 vượt trần, owner cho phép đích danh) |
+| Lượt gọi người / vòng (trần T2 3 · T3 4) | Trong thiết kế **4** — Cổng Đáng · Cổng Bằng chứng ba lần («trả» · «trả» · ký); Cổng Phạm vi làn V. Ngoài thiết kế **0**. 1 chạm mỗi lượt | Trong thiết kế **3** — Cổng Đáng · «trả» · ký; Cổng Phạm vi làn V. Ngoài thiết kế **0**. Sau ký: Cổng Giá trị «release» | Trong thiết kế **2** — Cổng Phạm vi (vòng CỘNG, owner duyệt) · ký. Ngoài thiết kế **0**; lời mở vòng không có dòng sổ — không đọc được ở đây | Trong thiết kế **3** — Cổng Đáng · «trả» · ký; Cổng Phạm vi làn V. Ngoài thiết kế **1** — dừng-vá sau lượt 2, owner chọn «đổi khuôn», 1 chạm | Trong thiết kế **5** — Cổng Đáng · Cổng Phạm vi · Gate 1.5 · «trả» · ký. Ngoài thiết kế **1** — dừng-vá sau lượt 2, «đổi khuôn», 1 chạm. **6 so trần 4** |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **1** — lượt 2 REJECT chỉ vì ca P179 (sổ known-limits 386 < 388), vật không đổi | **0** | **0** | **0 lượt thêm** — lượt 2 REJECT có P179 nhưng còn 5 finding trong hợp đồng, đằng nào cũng chấm lượt 3 | **0** |
+| Token máy / vòng (out-token S4) · chứng-minh-vật / tìm-lỗi / tổng hợp | **167 904** · 45/20/35 % | **67 899** · 52/18/30 % | **63 452** · 47/22/32 % | **178 990** · 40/29/32 % | **163 564** · 46/25/30 % |
+| Phút máy / lượt chấm | 21–27 phút (1 240–1 591 s), tổng ≈ 116 phút; găng 1 149–1 459 s | 20–21 phút, tổng ≈ 41 phút; găng 1 093–1 159 s | 24–28 phút, tổng ≈ 52 phút; găng 1 304–1 558 s | 21–22 phút, riêng lượt 2 **62 phút** (bước tổng hợp kéo 2 465 s), tổng ≈ 126 phút; găng 1 085–1 190 s | 20–24 phút, tổng ≈ 87 phút; găng 1 036–1 289 s |
+
+Cả cửa sổ: 15 lượt chấm, 641 809 out-token S4. Phiên chính của cả năm vòng không đo token. Cổng Đáng tính
+vào «trong thiết kế» (trần = số cổng thiết kế: Đáng · Phạm vi · Bằng chứng, T3 thêm Gate 1.5); dừng-vá
+không phải một cổng nên xếp ngoài thiết kế, theo tiền lệ 2.20.0. **Ba vòng vượt trần lượt gọi người**
+(`viec-ke-…` 4/3, `lan-ghim-lai-giu-…` 4/3, `lan-ghim-lai-theo-paths` 6/4): mọi lượt vượt là «trả» ở
+Cổng Bằng chứng hoặc dừng-vá — lỗi trong vật hay thước bị bắt tại cổng, không phải lượt hỏi xác nhận.
+
+**Điều kiện tin cậy:** (i) không vòng nào đổi thành phần đường verdict — diff cửa sổ không chạm
+`acceptance-verify.js`, `s4-args.mjs`, `lib/nhan-canh-gay.cjs`, `recheck-evidence.cjs`.
+`lan-ghim-lai-theo-paths` đổi luật HOÁ CŨ (`pre-merge-check.sh`, `lib/evidence-core.cjs`) kèm răng hai
+chiều: chiều im (khoá tắt → đầu ra bằng hệt bản base; `--stale-all` bằng hệt luật cũ), chiều đỏ (ma trận
+15 ô, tiêm lỗi môi trường). `loi-moi-tran-luot-…` chỉ thêm khối trên thẻ chưa-ký-được, răng hai chiều
+(đỏ AC-1/2/4 + đột biến; im AC-3/6 bằng từng byte). (ii) Lượt chấm sai do phép-đo-tự-dối giữa hai mốc:
+**0** — mọi finding nhắm vào thước đều bị bắt trong chính lượt đó. Dòng 4–5 cắt được.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | = | không chạm đường từ làm-xong tới cổng |
+| 2 | ↓ ở crm | lộ trình trả lời câu hỏi tiến độ trên thẻ start (lượt 4 OKR: 23/48 tin owner là hỏi tiến độ); khối «Lối ra» cho người một lựa chọn có giá thay vì hỏi mở ở trần lượt |
+| 3 | = | — |
+| 4 | = | không chạm lượt chấm |
+| 5 | ↓ ở làn ghim lại khi kho bật suite song song | `repin_parallel_suites` (mặc định tắt) |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .`.
+**N không tăng so với mốc 2.20.0 — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
 
 ## 2.20.0 — 01/10/2026
 

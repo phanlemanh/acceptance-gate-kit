@@ -421,3 +421,5 @@ lo-trinh-tren-du-lieu-that#ngoai-1	lo-trinh-tren-du-lieu-that	medium	doc-drift	s
 lo-trinh-tren-du-lieu-that#ngoai-4	lo-trinh-tren-du-lieu-that	medium	doi-chung-tu-sinh	song			LT-81 so hai đầu ra của cùng bộ đọc mà không neo bản sạch — bộ đọc trả null cho mọi đầu vào vẫn xanh
 lo-trinh-tren-du-lieu-that#ngoai-5	lo-trinh-tren-du-lieu-that	low	khong-the-do	song			LT-84-do chỉ ghim mã thoát 2, không ghim thông điệp — nhánh bail khác cùng mã vẫn xanh
 lo-trinh-tren-du-lieu-that#ngoai-6	lo-trinh-tren-du-lieu-that	high	dong-goi	chet	effd50a9		Trang mẫu của hồ sơ đã ký viec-ke-theo-plan đổi một dòng nên hồ sơ đó hoá cũ, phải ghim lại trong cùng PR
+release-2-21-0#ngoai-1	release-2-21-0	medium	chuoi-thay-quan-he	song			E1/E2/E6 khai ghim dòng P200 mà lệnh mảnh plugins_vung_3 lọc mất (grep FAIL|Results) — bằng chứng là mã thoát chung của vùng 3
+release-2-21-0#ngoai-2	release-2-21-0	medium	khong-the-do	trung		release-2-21-0#ngoai-1	Cùng gốc Ngoài-1: AC-1/2/6 không có bằng chứng riêng, không phân biệt P200 chạy-đạt với không-chạy

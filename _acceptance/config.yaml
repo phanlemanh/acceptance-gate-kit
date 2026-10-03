@@ -496,6 +496,10 @@ executors:
     lmtl_gia: "bash -c 'LMTL_CASES=LT-AC5-phut,LT-AC5-chua-do,LT-AC8-skill,LT-dot-bien-phut-ve-0 node tests/scripts/lmtl-the.test.mjs'"
     rel2200_cua_so: bash scripts/rel-cua-so.sh 7f45f37d thuoc-biet-truoc-khong-phan-duoc luot-cham-ghi-vao-cay
     rel2200_dd_giu: git diff --exit-code --stat 7f45f37d HEAD -- diagram-design
+    # Mốc 2.21.0 (03/10): mốc = commit gắn tag v2.20.0. diagram-design ĐỔI trong cửa sổ (2.7.0 → 2.7.1,
+    # e2df88ff) nên AC-5 đảo vế: số phải KHÁC số ở mốc trước, và thư mục phải có dòng đổi.
+    rel2210_cua_so: bash scripts/rel-cua-so.sh 1b98fdb1 lan-ghim-lai-giu-tron-loi-loi lan-ghim-lai-theo-paths lo-trinh-tren-du-lieu-that loi-moi-tran-luot-loi-song-co-gia viec-ke-theo-plan
+    rel2210_dd_nang: "bash -c 'c=$(git show 1b98fdb1:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; ! git diff --quiet 1b98fdb1 HEAD -- diagram-design && [ \"$c\" != \"$m\" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
