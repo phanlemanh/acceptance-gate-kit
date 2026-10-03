@@ -115,6 +115,9 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'readSignedReportFor', kind: 'function', since: '2.11.0', why: 'sàn ngữ nghĩa bên đọc' },
   { file: 'lib/evidence-core.cjs', name: 'frontmatterField', kind: 'function', since: '2.9.0', why: 'làn gọi (chụp hồ sơ đã thông cổng)' },
   { file: 'lib/workspace-record.cjs', name: 'DA_THONG_CONG_2', kind: 'array', since: '2.3.0', why: 'làn gọi (chụp hồ sơ đã thông cổng — hai trạng thái đã thông Cổng Bằng chứng, hỏi lib không chép)' },
+  // Hàng ĐIỀU KIỆN (khoá `khi`): chỉ đòi khi kho bật khoá — kho không bật chạy y như trên bộ máy cũ
+  // (hồ sơ lan-ghim-lai-theo-paths AC-10). Hàng thiếu `khi` là đòi vô điều kiện như mọi hàng trên.
+  { file: 'lib/evidence-core.cjs', name: 'staleByPaths', kind: 'function', since: '2.21.0', why: 'làn gọi (--skip-unchanged khi risk_tiers.stale_scope: paths)', khi: 'stale_scope=paths' },
 ];
 // AG-ENGINE-TABLE>>>
 const verNum = (v) => String(v).split('.').map(Number).reduce((n, x) => n * 1000 + (x || 0), 0);
@@ -143,7 +146,11 @@ function loadEngine(rel) {
 }
 const mods = { 'lib/evidence-core.cjs': loadEngine('lib/evidence-core.cjs'), 'lib/eval-yaml.cjs': loadEngine('lib/eval-yaml.cjs'), 'lib/workspace-record.cjs': loadEngine('lib/workspace-record.cjs') };
 const lacks = (r) => { const v = mods[r.file] ? mods[r.file][r.name] : undefined; return r.kind === 'array' ? !Array.isArray(v) : typeof v !== 'function'; };
-const missing = AG_ENGINE.filter(lacks);
+// risk_tiers.stale_scope đọc THẲNG từ config.yaml (bộ máy chưa nạp ở đây) — cùng cách pre-merge-check.sh
+// đọc nó; giá trị lạ coi như vắng ở làn (lưới trước-merge là nơi gọi tên giá trị sai).
+const staleScope = String((configText.match(/^[ \t]*stale_scope:[ \t]*([^\s#]+)/m) || [])[1] || 'all').replace(/^['"]|['"]$/g, '');
+const batKhoa = (r) => !r.khi || (r.khi === 'stale_scope=paths' && staleScope === 'paths');
+const missing = AG_ENGINE.filter(r => batKhoa(r) && lacks(r));
 if (missing.length) engineStop(`acceptance-gate quá cũ cho làn ghim lại (root: ${agRoot}) — thiếu ${missing.length} mục:\n${missing.map(r => `  - ${r.file}: ${r.name} (cần ≥ ${r.since})`).join('\n')}`);
 const core = mods['lib/evidence-core.cjs'];
 const { parseEvals, expectedExits } = mods['lib/eval-yaml.cjs'];
@@ -330,10 +337,24 @@ if (flags['skip-unchanged']) {
     const doi = [];
     const dinhNghia = new Set();
     for (const [slug, vc] of Object.entries(pins)) {
+      const doiSlug = [];
       for (const f of gitRaw('diff', '--name-only', vc, '--').split('\n').filter(Boolean)) {
         if (laDinhNghia(f)) dinhNghia.add(f);          // xét TRƯỚC ngoaiVat: tệp định nghĩa nằm dưới _acceptance/
-        else if (!ngoaiVat(f)) doi.push(`${slug}: ${f}`);
+        else if (!ngoaiVat(f)) doiSlug.push(f);
       }
+      // Khoá risk_tiers.stale_scope: paths — CÙNG hàm lưới trước-merge gọi (lan-ghim-lai-theo-paths
+      // AC-7): chỉ BỚT tệp ngoài phạm vi đo; vế tệp định nghĩa ở trên không qua bộ lọc.
+      let giu = doiSlug;
+      if (staleScope === 'paths' && doiSlug.length) {
+        const s = perSlug.find(x => x.slug === slug);
+        let r;
+        try { r = core.staleByPaths(doiSlug, s ? s.evalsText : null, { prefix: tienToGit }); } catch (e) { r = { apply: false, reason: `lib-loi:${String((e && e.message) || e).split('\n')[0]}` }; }
+        if (r.apply) {
+          giu = r.kept;
+          if (r.skipped.length) process.stderr.write(`repin-lane: --skip-unchanged theo paths: bỏ qua ${r.skipped.length} tệp ngoài phạm vi đo của ${slug}\n`);
+        } else process.stderr.write(`repin-lane: --skip-unchanged không lọc theo paths (${r.reason}) — xét theo luật cũ\n`);
+      }
+      for (const f of giu) doi.push(`${slug}: ${f}`);
     }
     for (const f of dinhNghia) process.stderr.write(`repin-lane: KHÔNG bỏ qua — tệp định nghĩa phép đo đổi so với pin: ${f}\n`);
     if (!doi.length && !dinhNghia.size) {

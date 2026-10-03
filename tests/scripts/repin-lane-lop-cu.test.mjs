@@ -84,8 +84,9 @@ function exportsOf(layer, rel) { return Object.keys(req(path.join(layer, rel)));
 function tableRows(laneFile) {
   const m = read(laneFile).match(/\/\/ <<<AG-ENGINE-TABLE\n([\s\S]*?)\/\/ AG-ENGINE-TABLE>>>/);
   if (!m) throw new Error('khong thay khoi AG-ENGINE-TABLE trong ' + laneFile);
-  const rows = [...m[1].matchAll(/\{ file: '([^']+)', name: '([^']+)', kind: '([^']+)', since: '([^']+)', why: '([^']+)' \}/g)]
-    .map(x => ({ file: x[1], name: x[2], kind: x[3], since: x[4], why: x[5] }));
+  // Hàng ĐIỀU KIỆN mang thêm `khi: '<điều kiện>'` (hồ sơ lan-ghim-lai-theo-paths): chỉ đòi khi kho bật khoá.
+  const rows = [...m[1].matchAll(/\{ file: '([^']+)', name: '([^']+)', kind: '([^']+)', since: '([^']+)', why: '([^']+)'(?:, khi: '([^']+)')? \}/g)]
+    .map(x => ({ file: x[1], name: x[2], kind: x[3], since: x[4], why: x[5], khi: x[6] || null }));
   const rowLines = m[1].split('\n').filter(l => /^\s*\{/.test(l)).length;
   if (!rows.length || rows.length !== rowLines) throw new Error(`hang bang khong doc duoc: ${rows.length}/${rowLines}`);
   return rows;
@@ -232,7 +233,8 @@ function judgeGL02(lane) {
   if (c.status !== 0 || printedMissing(c.stderr).length) p.push(`doi chung duong khong xanh sach (exit ${c.status})`);
   const cmp = (tag, layer) => {
     const lacks = lacksIn(layer);
-    const want = rows.filter(lacks);
+    // Kho mẫu không bật khoá → hàng điều kiện (khi) không bị đòi (lan-ghim-lai-theo-paths AC-10).
+    const want = rows.filter(r => !r.khi && lacks(r));
     const r = runLane(lane, repo, ['--ag-root', layer, '--slug', 'feat-z']);
     const got = printedMissing(r.stderr);
     if (r.status !== 2) p.push(`[${tag}] exit ${r.status} (can 2)`);
@@ -251,7 +253,7 @@ function judgeGL02(lane) {
   return p;
 }
 ca('GL02', 'liệt kê TRỌN mục thiếu — đẳng thức tập tính lúc chạy, cả hai-thiếu-cùng-tệp', judgeGL02, [
-  { pin: 'thieu muc cung tep', make: () => mutantLane('AG_ENGINE.filter(lacks)', 'AG_ENGINE.filter((r, i, a) => lacks(r) && !a.slice(0, i).some(q => q.file === r.file && lacks(q)))') },
+  { pin: 'thieu muc cung tep', make: () => mutantLane('AG_ENGINE.filter(r => batKhoa(r) && lacks(r))', 'AG_ENGINE.filter((r, i, a) => batKhoa(r) && lacks(r) && !a.slice(0, i).some(q => q.file === r.file && batKhoa(q) && lacks(q)))') },
 ]);
 
 function matrixJudge(lane, only) {
@@ -269,7 +271,10 @@ function matrixJudge(lane, only) {
   }
   let cells = 0; let total = 0; let nG = 0; let nN = 0;
   // QUAN HỆ: mỗi hàng bảng mà export có mặt ở cây đang đo phải ra (N) ở CẢ HAI hồ sơ.
-  const rowsHere = rows.filter(rw => exportsOf(ROOT, rw.file).includes(rw.name));
+  // Kho mẫu ở đây KHÔNG bật khoá nào, nên hàng điều kiện phải ra (G) — chạy y như bộ máy cũ (AC-10 của
+  // lan-ghim-lai-theo-paths); vế «bật khoá thì dừng có tên» do răng hồ sơ ấy đo (chân lan-doc-cu).
+  const rowsHere = rows.filter(rw => !rw.khi && exportsOf(ROOT, rw.file).includes(rw.name));
+  const dieuKien = new Set(rows.filter(rw => rw.khi).map(rw => `${rw.file}:${rw.name}`));
   for (const rel of LIBS) {
     for (const name of exportsOf(ROOT, rel)) {
       total += 2;
@@ -288,7 +293,7 @@ function matrixJudge(lane, only) {
         if (!isG && !isN) {
           const why = r.stderr.includes(PIN.reWrote) ? 'ghi roi moi do' : (r.status === 0 ? 'ghi khac doi chung' : `exit ${r.status}`);
           p.push(`${tag} ra ${why}: ${cut(r.stderr, 160)}`);
-        } else if (isG && mustStop.has(name) && rows.some(rw => rw.file === rel && rw.name === name)) {
+        } else if (isG && mustStop.has(name) && !dieuKien.has(`${rel}:${name}`) && rows.some(rw => rw.file === rel && rw.name === name)) {
           p.push(`${tag} phai dung (N) ma ra (G)`);
         }
       }
@@ -350,7 +355,7 @@ ca('GL04', 'lớp LAI (evidence-core 04069351) → dừng TRƯỚC khi ghi, gọ
   {
     pin: 'cong khong con chan',
     make: () => {
-      const missing = tableRows(LANE).filter(lacksIn(layerMixed()));
+      const missing = tableRows(LANE).filter(r => !r.khi).filter(lacksIn(layerMixed()));
       if (!missing.length) throw new Error('layerMixed() khong con thieu hang nao — fixture het gia tri, can sha lich su moi hon');
       return mutantLaneMulti(missing.map(r => [`  { file: '${r.file}', name: '${r.name}', kind: '${r.kind}', since: '${r.since}', why: '${r.why}' },\n`, '']));
     },
