@@ -496,6 +496,16 @@ executors:
     lmtl_gia: "bash -c 'LMTL_CASES=LT-AC5-phut,LT-AC5-chua-do,LT-AC8-skill,LT-dot-bien-phut-ve-0 node tests/scripts/lmtl-the.test.mjs'"
     rel2200_cua_so: bash scripts/rel-cua-so.sh 7f45f37d thuoc-biet-truoc-khong-phan-duoc luot-cham-ghi-vao-cay
     rel2200_dd_giu: git diff --exit-code --stat 7f45f37d HEAD -- diagram-design
+    lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
+    lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
+    lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
+    lgtp_hinh_ho_so: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan hinh-ho-so
+    lgtp_khong_chay_duoc: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan khong-chay-duoc
+    lgtp_khoa_va_co: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan khoa-va-co
+    lgtp_mot_nguon: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan mot-nguon
+    lgtp_song_song: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan song-song
+    lgtp_loi_khong_xen: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan loi-khong-xen
+    lgtp_lan_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan lan-doc-cu
     gtll_nhat_ky_tron: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan nhat-ky-tron
     gtll_xanh_im: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan xanh-im
     gtll_dau_do: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan dau-do

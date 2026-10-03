@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đường hoá cũ theo paths</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1100px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 0.5rem;
+    }
+    .sub { font-size: 0.9rem; color: var(--color-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flowchart · lan-ghim-lai-theo-paths · Cổng Phạm vi</p>
+    <h1>Đường hoá cũ khi kho bật khoá paths</h1>
+    <p class="sub">Bộ lọc đứng sau luật cũ và chỉ bớt dòng; bốn nhánh rơi về danh sách luật cũ. AC liên quan: AC-1…AC-7, AC-10.</p>
+
+    <svg viewBox="0 0 1000 900" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Arrows (behind nodes) ===== -->
+      <!-- spine -->
+      <line x1="360" y1="88" x2="360" y2="120" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="360" y1="176" x2="360" y2="208" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="360" y1="304" x2="360" y2="344" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="360" y1="440" x2="360" y2="480" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="360" y1="576" x2="360" y2="608" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="360" y1="704" x2="360" y2="744" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- four branches back to old rule -->
+      <line x1="460" y1="256" x2="720" y2="256" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="460" y1="392" x2="720" y2="392" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="480" y1="504" x2="720" y2="504" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <line x1="480" y1="552" x2="720" y2="552" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- nothing left after filter -->
+      <line x1="460" y1="656" x2="560" y2="656" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+
+      <!-- ===== Arrow labels ===== -->
+      <rect x="568" y="236" width="48" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="592" y="245" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHÔNG</text>
+
+      <rect x="368" y="316" width="24" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="380" y="325" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CÓ</text>
+
+      <rect x="580" y="372" width="24" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="592" y="381" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CÓ</text>
+
+      <rect x="368" y="452" width="48" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="392" y="461" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHÔNG</text>
+
+      <rect x="560" y="484" width="72" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="596" y="493" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHÔNG CHẠY</text>
+
+      <rect x="556" y="532" width="80" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="596" y="541" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HỒ SƠ THIẾU</text>
+
+      <rect x="488" y="636" width="48" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="512" y="645" fill="#ba4513" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KHÔNG</text>
+
+      <rect x="368" y="716" width="24" height="12" rx="2" fill="#f5f5f5"/>
+      <text x="380" y="725" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CÓ</text>
+
+      <!-- ===== Nodes ===== -->
+      <!-- Start -->
+      <rect x="240" y="40" width="240" height="48" rx="24" fill="#f5f5f5"/>
+      <rect x="240" y="40" width="240" height="48" rx="24" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="360" y="62" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Tệp đổi từ pin</text>
+      <text x="360" y="78" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">của một hồ sơ đã ký</text>
+
+      <!-- Old rule -->
+      <rect x="240" y="120" width="240" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="360" y="144" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Luật cũ</text>
+      <text x="360" y="162" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">bỏ _acceptance/ + t1_skip_globs</text>
+
+      <!-- D1 key -->
+      <polygon points="360,208 460,256 360,304 260,256" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="360" y="252" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Khoá của kho</text>
+      <text x="360" y="266" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">= paths?</text>
+
+      <!-- D2 campaign flag -->
+      <polygon points="360,344 460,392 360,440 260,392" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="360" y="388" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Chạy chiến dịch</text>
+      <text x="360" y="402" fill="#2d3142" font-size="10" font-family="'Geist Mono', monospace" text-anchor="middle">--stale-all?</text>
+
+      <!-- Filter (focal) -->
+      <rect x="240" y="480" width="240" height="96" rx="6" fill="#f5f5f5"/>
+      <rect x="240" y="480" width="240" height="96" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="360" y="524" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Bộ lọc theo paths</text>
+      <text x="360" y="542" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">giữ tệp khớp paths của hồ sơ</text>
+
+      <!-- D3 files left? -->
+      <polygon points="360,608 460,656 360,704 260,656" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="360" y="652" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Còn tệp</text>
+      <text x="360" y="666" fill="#2d3142" font-size="11" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">sau lọc?</text>
+
+      <!-- End: stale -->
+      <rect x="240" y="744" width="240" height="56" rx="28" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="360" y="768" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Hoá cũ</text>
+      <text x="360" y="786" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">liệt đúng tệp khớp paths</text>
+
+      <!-- End: skipped with NOTE (focal) -->
+      <rect x="560" y="628" width="240" height="56" rx="28" fill="#f5f5f5"/>
+      <rect x="560" y="628" width="240" height="56" rx="28" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="680" y="652" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Không hoá cũ</text>
+      <text x="680" y="670" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">in NOTE bỏ qua: slug + tệp</text>
+
+      <!-- End: keep old list -->
+      <rect x="720" y="176" width="240" height="424" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="840" y="200" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Giữ danh sách luật cũ</text>
+      <text x="840" y="216" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="middle">hoá cũ như hôm nay</text>
+      <line x1="732" y1="228" x2="948" y2="228" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <text x="736" y="260" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">khoá vắng hoặc all</text>
+      <line x1="732" y1="324" x2="948" y2="324" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <text x="736" y="388" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">chiến dịch ép luật cũ</text>
+      <text x="736" y="402" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">--stale-all</text>
+      <line x1="732" y1="448" x2="948" y2="448" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <text x="736" y="500" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">thiếu node · thiếu lib · lỗi</text>
+      <text x="736" y="514" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">in NOTE nói vì sao</text>
+      <line x1="732" y1="528" x2="948" y2="528" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+
+      <text x="736" y="552" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">eval máy thiếu paths</text>
+      <text x="736" y="568" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">evals.yaml vắng hoặc hỏng</text>
+      <text x="736" y="584" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">hợp paths rỗng</text>
+
+      <!-- ===== Callouts (left margin) ===== -->
+      <text x="32" y="452" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">Hợp paths gồm cả ô</text>
+      <text x="32" y="470" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">ui-check và judgment</text>
+      <path d="M 168 476 Q 208 492 240 508" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <circle cx="240" cy="508" r="2" fill="#2d3142"/>
+
+      <text x="32" y="600" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">Chỉ bớt dòng, nên không thể</text>
+      <text x="32" y="618" fill="#2d3142" font-size="14" font-style="italic" font-family="'Instrument Serif', 'Lora', serif">đỏ ở chỗ hôm nay xanh</text>
+      <path d="M 196 588 Q 220 576 240 564" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <circle cx="240" cy="564" r="2" fill="#2d3142"/>
+
+      <!-- ===== Legend ===== -->
+      <line x1="32" y1="832" x2="968" y2="832" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="32" y="852" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="32" y="868" width="24" height="12" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+      <text x="64" y="878" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Đầu / kết cục</text>
+
+      <rect x="196" y="868" width="24" height="12" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="228" y="878" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Bước</text>
+
+      <polygon points="328,874 340,868 352,874 340,880" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="360" y="878" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Quyết định</text>
+
+      <rect x="472" y="868" width="24" height="12" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+      <text x="504" y="878" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Mới ở vòng này</text>
+
+      <path d="M 652 874 L 680 874" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="688" y="878" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Chú thích</text>
+    </svg>
+  </div>
+</body>
+</html>

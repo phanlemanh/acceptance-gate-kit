@@ -1289,6 +1289,18 @@ mang thêm `wall_s` + `so_lenh`. Kho tiêu thụ thêm `.acceptance-runs/` vào 
 cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -c '"kind":"repin-do"'
 ```
 
+**Hoá cũ theo `paths` và suite song song — kho tự bật (2.21).** Hai khoá, mặc định TẮT:
+`risk_tiers.stale_scope: paths` — lưới trước-merge chỉ gọi hồ sơ là cũ khi diff chạm `paths` của eval
+trong hồ sơ ấy. Đây là BỘ LỌC đặt sau luật cũ, chỉ bớt tệp: hồ sơ có eval máy thiếu `paths`, không
+có hoặc hỏng `evals.yaml`, hay không eval nào khai `paths` thì giữ luật cũ; tệp bị bỏ qua được
+in thành một dòng NOTE mang tên hồ sơ. `--skip-unchanged` của làn hỏi CÙNG hàm. **Chiến dịch ghim
+lại ở mốc phải chạy lưới với `--stale-all`** (ép luật cũ): `paths` của kho tiêu thụ hiếm khi trỏ vào
+engine đã chép vào, nên không có cờ thì chiến dịch chọn gần 0 hồ sơ. `feature_loop.repin_parallel_suites:
+true` — các lệnh suite trong làn chạy cùng lúc, eval vẫn nối đuôi; kết quả ghi theo thứ tự
+`suite_keys`. Trước khi bật: chạy làn hai cách trên cùng một cây và so mã thoát; kho có suite cùng
+ghi một tài nguyên (DB test) hoặc eval tự gọi làn bên trong thì chưa nên bật. Giới hạn khai: tệp
+phụ thuộc gián tiếp nằm ngoài `paths` không làm hồ sơ cũ — lưới cuối là chiến dịch mốc. **Chưa bật `stale_scope: paths` ở kho nào** (Cổng Bằng chứng 03/10): bộ lọc chưa đóng mặc định với dạng khai lạ — một mục `paths` là tên thư mục trần (`apps/api/src/saved-views`, không dấu sao) làm mọi tệp trong thư mục ấy bị bỏ qua, cổng xanh mà sai; crm có dạng khai này. Làm lại theo khuôn đóng mặc định: `docs/plans/2026-10-03-hat-giong-loc-paths-dong-mac-dinh.md`.
+
 **Làn bỏ qua khi cây BẰNG PIN — `--skip-unchanged` (2.14).** Đo 14/09: một chữ ký
 mất **54 phút · ≈ 42 M token** từ lúc owner gõ «Ký» tới READY, và **7/7** chữ ký
 từ 08/09 đều chạy **ba** lượt làn ≈ 13 phút. Phần lớn số đó chứng lại một cây

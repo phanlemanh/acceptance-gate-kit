@@ -82,6 +82,9 @@ risk_tiers:
     - "PRODUCT-MAP.md"
   t3_paths:
     - "<from 2d>"
+  # stale_scope: paths       # optional (2.21): evidence goes stale only when the diff touches the `paths`
+  #                          # of its evals — a FILTER after the old rule, never wider; key absent/all = old rule.
+  #                          # Release re-pin campaigns pass --stale-all to pre-merge-check.sh (old rule).
 signoff:
   required_for: [T2, T3]     # tiers that pre-merge-check requires signoff for
   approvers: ["<from 2f>"]   # approvers: informational — this key is NOT enforced
@@ -107,6 +110,7 @@ capture:
 #     judge: opus            # roles: machine/ui/judge/finder/refute/baseline/provenance/scribe/synthesize (+ executor for S3 fan-out)
 #     finder: session        # 'session' = inherit the main session's model
 #   ship_default: pr         # pr (default; key absent = pr) | merge | branch | ask
+#   repin_parallel_suites: true  # optional (2.21): re-pin lane fires suite commands concurrently (evals stay serial); measure same exit codes first
 #                            # S5 ships by opening a PR and says so in one line — no menu
 ```
 
