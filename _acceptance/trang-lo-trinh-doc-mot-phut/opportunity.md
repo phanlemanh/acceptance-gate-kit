@@ -3,10 +3,10 @@ schema_version: 1
 slug: trang-lo-trinh-doc-mot-phut
 feature: Trang lộ trình đọc trong một phút — màn đầu trả lời làm gì tiếp, kẹt gì, lệch gì; hàng đã giao và hồ sơ ngoài lộ trình gập lại; đọc được trên điện thoại
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-03T14:32:48Z   # owner gõ «Làm» một chạm trong phiên 03/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -50,10 +50,10 @@ so byte), bảng màu sáng/tối đã đạt tương phản ở các cặp ch�
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] trên lộ trình thật của crm, màn đầu của trang (không cuộn) có trả lời được làm gì tiếp, kẹt gì, lệch gì cho từng lộ trình không?
-- Kết quả nào là SỐNG: [đề xuất] ở 1440 và 375, màn đầu chứa hàng kế, số cờ và mốc gần nhất của cả hai lộ trình crm; trang ngắn ≤ 1/3 chiều dài hiện tại (≤ 3.900 px ở 1440); 0 lỗi đo được ở bảng audit (tương phản, vùng bấm, thứ bậc tiêu đề, cuộn ngang); kho không khai giữ từng byte.
-- Kết quả nào là CHẾT: [đề xuất] màn đầu vẫn thiếu một trong ba câu ở bất kỳ khổ nào, hoặc trang mất tính tất định (`--check` đỏ khi không đổi dữ liệu), hoặc kho không khai đổi bản đồ/thẻ.
-- Timebox: [đề xuất] một vòng T2, trần ba lượt chấm; đọc ngưỡng trên bản sao crm trước mốc kế.
+- Câu hỏi phép đo trả lời: trên lộ trình thật của crm, màn đầu của trang (không cuộn) có trả lời được làm gì tiếp, kẹt gì, lệch gì cho từng lộ trình không?
+- Kết quả nào là SỐNG: ở 1440 và 375, màn đầu chứa hàng kế, số cờ và mốc gần nhất của cả hai lộ trình crm; trang ngắn ≤ 1/3 chiều dài hiện tại (≤ 3.900 px ở 1440); 0 lỗi đo được ở bảng audit (tương phản, vùng bấm, thứ bậc tiêu đề, cuộn ngang); kho không khai giữ từng byte.
+- Kết quả nào là CHẾT: màn đầu vẫn thiếu một trong ba câu ở bất kỳ khổ nào, hoặc trang mất tính tất định (`--check` đỏ khi không đổi dữ liệu), hoặc kho không khai đổi bản đồ/thẻ.
+- Timebox: một vòng T2, trần ba lượt chấm; đọc ngưỡng trên bản sao crm trước mốc kế.
 
 ## Kết quả prototype
 
@@ -69,9 +69,9 @@ Chưa dựng. Số đo nền là bảng audit 03/10 ở mục «Vấn đề & ai
 
 ## Cổng 0
 
-- **decision = …**
+- **decision = build** T2 — dựng lại bộ vẽ trang lộ trình theo tám điểm audit 03/10: khối đầu trang mỗi lộ trình (hàng kế + lệnh mở · số cờ · mốc gần nhất kèm số ngày còn lại · tiến độ), cờ lên ngay dưới khối đầu, bảng hàng mặc định chỉ hiện hàng còn mở (đã giao gập lại), tiêu đề cột dính, cột trống toàn bảng tự ẩn, «vòng ngoài lộ trình» một dòng đếm một lần cho cả trang, mốc thành dải thời gian, thẻ hàng trên điện thoại, sửa thứ bậc tiêu đề · màu liên kết · vùng bấm, chữ bằng tiếng sản phẩm. Trang vẫn tĩnh và tất định; không JavaScript bắt buộc.
 - **disposition = …**
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng ngưỡng ở trên (owner gỡ tiền tố đề xuất bằng chữ «Làm»).
 
 ## Out of scope từ khám phá
 
