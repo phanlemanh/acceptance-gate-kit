@@ -22,7 +22,8 @@ export function timChrome() {
 
 // Hàm đo chạy TRONG trang. Thẻ: đáy ba dòng đầu (Làm tiếp · Cần sửa · Mốc kế tiếp), hoặc đáy thẻ khi
 // thẻ là thẻ lỗi. Cỡ chữ, tương phản (nền ghép qua các lớp bán trong suốt), cỡ tiêu đề, cao nút đứng
-// riêng (summary, liên kết chỗ lệch) — đều trên phần tử đang hiện.
+// riêng (summary, liên kết bọc trọn ô chỗ cần sửa; liên kết nằm trong câu được miễn như WCAG 2.5.8) —
+// đều trên phần tử đang hiện.
 export const DO_TRONG_TRANG = `(() => {
   const vh = innerHeight; const de = document.documentElement;
   const hien = el => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; };
@@ -47,7 +48,7 @@ export const DO_TRONG_TRANG = `(() => {
   const cz = sel => [...document.querySelectorAll(sel)].filter(hien).map(e => parseFloat(getComputedStyle(e).fontSize));
   const h1 = cz('h1'), h2 = cz('h2'), h3 = cz('h3');
   const donDieu = (!h2.length || !h1.length || Math.max(...h2) < Math.min(...h1)) && (!h3.length || !h2.length || Math.max(...h3) < Math.min(...h2));
-  const nut = [...document.querySelectorAll('summary, .so-co a, .co-ds a')].filter(hien).map(e => ({ h: Math.round(e.getBoundingClientRect().height), chu: e.textContent.trim().slice(0, 30) }));
+  const nut = [...document.querySelectorAll('summary, .so-co a, .co-ds li > a')].filter(hien).map(e => ({ h: Math.round(e.getBoundingClientRect().height), chu: e.textContent.trim().slice(0, 30) }));
   return { vw: innerWidth, vh, cao: de.scrollHeight, tran: de.scrollWidth > de.clientWidth, the, manDau,
     soCoChu: coChu.size, coChu: [...coChu], tieuDe: { h1: [...new Set(h1)], h2: [...new Set(h2)], h3: [...new Set(h3)] }, donDieu,
     tpMin: mau.reduce((x, m) => Math.min(x, m.ti), 99), kemTP: mau.filter(m => m.ti < m.can).slice(0, 5),

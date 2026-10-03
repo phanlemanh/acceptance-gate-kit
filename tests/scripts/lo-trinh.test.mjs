@@ -275,9 +275,10 @@ if (want('LT-05-the')) {
     const r = LT05(); node([PM, '--root', r]);
     const html = readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8');
     const j = JSON.parse(quet(r, { ACCEPTANCE_TODAY: '2026-10-02' }).stdout); const sai = [];
-    if (!deq(j.loTrinh.co.map(coDich), coTrang(html))) sai.push(`thẻ ${JSON.stringify(j.loTrinh.co)} != trang ${JSON.stringify(coTrang(html))}`);
-    const m = html.match(/(\d+) hàng ghi trạng thái máy không hiểu — không so được với hồ sơ/);
-    if (!m || Number(m[1]) !== j.loTrinh.tuKhaiNgoai) sai.push(`dòng ngoài từ vựng trang ${m && m[1]} != thẻ ${j.loTrinh.tuKhaiNgoai}`);
+    const ct = coTrang(html); const nCo = j.loTrinh.co.length;
+    if (!deq(j.loTrinh.co.map(coDich), ct.slice(0, nCo))) sai.push(`thẻ ${JSON.stringify(j.loTrinh.co)} != trang ${JSON.stringify(ct)}`);
+    const la = ct.slice(nCo).map(x => x.match(/ở (\d+) việc — máy không hiểu trạng thái này/));
+    if (la.some(x => !x) || la.reduce((n, x) => n + Number(x[1]), 0) !== j.loTrinh.tuKhaiNgoai) sai.push(`hàng ghi trạng thái lạ trên trang ${JSON.stringify(ct.slice(nCo))} != thẻ ${j.loTrinh.tuKhaiNgoai}`);
     if (sai.length) bad('LT-05-the', sai.join(' ; ')); else ok('LT-05-the', `thẻ và trang cùng một danh sách cờ (${j.loTrinh.co.length}, trang in bản dịch) và cùng số hàng ghi trạng thái ngoài từ vựng (${j.loTrinh.tuKhaiNgoai})`);
   } catch (e) { bad('LT-05-the', loi(e)); }
 }
@@ -1353,6 +1354,15 @@ const cacThe = html => [...html.matchAll(/<section class="the">([\s\S]*?)<\/sect
 const mucLT = (html, i) => { const m = html.match(new RegExp(`<section id="lt${i}">([\\s\\S]*?)</section>`)); return m ? m[1] : null; };
 const cacId = html => new Set([...html.matchAll(/ id="([^"]+)"/g)].map(m => m[1]));
 const NHAN_THE = ['Làm tiếp', 'Cần sửa trong kế hoạch', 'Mốc kế tiếp', 'Tiến độ'];
+// Các hàng của một mục, đọc từ HTML: [id, mã, câu việc giao].
+const hangMuc = muc => [...(muc || '').matchAll(/<tr id="([^"]+)"><td data-nhan="Mã">([^<]*)<\/td>(?:<td data-nhan="Việc giao">([\s\S]*?)<\/td>)?/g)].map(m => [m[1], giaiMa(m[2]), chuTron(m[3] || '')]);
+// Neo của hàng ĐẦU mang mã (liên kết từ chỗ cần sửa), và neo của hàng kế (mã + câu giao — mã trùng thì
+// không lấy hàng đầu).
+const neoDau = (muc, ma) => (hangMuc(muc).find(h => h[1] === String(ma)) || [])[0];
+const neoKe = (muc, ma, cau) => { const c = hangMuc(muc).filter(h => h[1] === String(ma)); return ((c.length > 1 ? c.find(h => h[2].startsWith(cau)) : c[0]) || [])[0]; };
+// Hàng ghi trạng thái ngoài bảng từ, gom theo từ: [từ, [nhãn hàng]] theo thứ tự gặp.
+const muaKhai = kq => { const g = new Map(); for (const d of kq.dong) if (d.khaiNgoai) { if (!g.has(d.tuKhai)) g.set(d.tuKhai, []); g.get(d.tuKhai).push(String(d._nhan)); } return [...g]; };
+const cauKhai = ([w, ma]) => `kế hoạch ghi «${w}» ở ${ma.length} việc — máy không hiểu trạng thái này, thêm từ này vào bảng từ trạng thái (việc ${ma.join(', ')})`;
 const khoKT = {}; const khoTT = ten => (khoKT[ten] ||= KT.dungKho(ten, path.join(TMP, 'kt')));
 const phanKho = (M, r) => M.LT.phanTichKho({ root: r, classify: M.PM.classify, sections: M.PM.SECTIONS });
 const chayCa = async (id, f, kit = KIT) => { try { const s = await f(kit); if (s.length) bad(id, s.join(' ; ')); else return true; } catch (e) { bad(id, loi(e)); } return false; };
@@ -1366,8 +1376,10 @@ const chayDo = async (id, f, tiem, ghim, moTa) => {
 // ── LT-90: thẻ đầu trang ────────────────────────────────────────────────────
 async function lt90(kit) {
   const M = await napLT(kit); const sai = [];
-  for (const ten of ['hai-lo-trinh', 'loi-tep', 'rong']) {
-    const r = khoTT(ten); const html = veM(M, r); const ids = cacId(html); const k = phanKho(M, r);
+  const KHO_90 = { 'ma-trung-ke': () => kho({ data: { schema: 1, hang: [H('T', { cau_giao: '«một»', trang_thai: 'Đã giao' }), H('T', { cau_giao: '«hai»' })] } }),
+    'khong-ma': () => kho({ data: { schema: 1, hang: [{ cau_giao: '«việc chưa đặt mã»' }] } }) };
+  for (const ten of ['hai-lo-trinh', 'loi-tep', 'rong', 'ma-trung-ke', 'khong-ma']) {
+    const r = KHO_90[ten] ? KHO_90[ten]() : khoTT(ten); const html = veM(M, r); const ids = cacId(html); const k = phanKho(M, r);
     const j = JSON.parse(quet(r, { ACCEPTANCE_TODAY: '2026-10-03' }, kit).stdout).loTrinh;
     const the = cacThe(html);
     if (the.length !== k.cacTep.length) { sai.push(`${ten}: ${the.length} thẻ cho ${k.cacTep.length} lộ trình`); continue; }
@@ -1378,21 +1390,25 @@ async function lt90(kit) {
       if (!deq(nhan, NHAN_THE)) sai.push(`${ma}: nhãn ${JSON.stringify(nhan)}`);
       const d = j.ds[i];
       if (d.hangKe) {
-        const a = c.match(/<span class="ke"><a href="#([^"]+)">/); if (!a || !ids.has(a[1])) sai.push(`${ma}: liên kết hàng kế không trỏ neo có trên trang`);
+        const a = c.match(/<span class="ke"><a href="#([^"]+)">/); const neo = neoKe(mucLT(html, i + 1), d.hangKe.ma, d.hangKe.cauGiao);
+        if (!a || !neo || a[1] !== neo) sai.push(`${ma}: liên kết hàng kế «${a && a[1]}» != neo của hàng kế «${neo}»`);
         const l = c.match(/<span class="lenh">([^<]*)<\/span>/); const co = l ? giaiMa(l[1]) : null;
         const mong = d.hangKe.thamSo ? `/feature-loop:feature-loop ${d.hangKe.thamSo}` : null;
         if (co !== mong) sai.push(`${ma}: lệnh «${co}» != thamSo «${mong}»`);
+        if (!mong && !/Mã này trùng trong kế hoạch|Việc này chưa có mã/.test(tc)) sai.push(`${ma}: không lệnh mà không nói vì sao`);
       }
-      const nco = t.kq.co.length; const m = tc.match(/(\d+) chỗ lệch/);
-      if (nco ? !(m && Number(m[1]) === nco && c.includes(`href="#lt${i + 1}-co"`) && ids.has(`lt${i + 1}-co`)) : !tc.includes('Không có chỗ lệch')) sai.push(`${ma}: số chỗ lệch ${m && m[1]} != ${nco}`);
-      const tong = t.kq.dong.length; const td = tc.match(/(\d+)\/(\d+) đã giao · (\d+) đang làm · (\d+) chưa bắt đầu/);
+      const nco = t.kq.co.length + muaKhai(t.kq).length; const m = tc.match(/(\d+) chỗ cần sửa/);
+      if (nco ? !(m && Number(m[1]) === nco && c.includes(`href="#lt${i + 1}-co"`) && ids.has(`lt${i + 1}-co`)) : !tc.includes('Không có chỗ nào cần sửa')) sai.push(`${ma}: số chỗ cần sửa ${m && m[1]} != ${nco}`);
+      const tong = t.kq.dong.length; const td = tc.match(/(\d+)\/(\d+) đã giao · (\d+) đang làm · (\d+) chưa bắt đầu(?: · (\d+) xếp lại hoặc chưa rõ)?/);
       if (tong === 0) { if (!tc.includes('Kế hoạch chưa có việc nào')) sai.push(`${ma}: kế hoạch rỗng mà thẻ không nói «Kế hoạch chưa có việc nào»`); }
-      else if (!td || Number(td[2]) !== tong || Number(td[1]) + Number(td[3]) + Number(td[4]) !== tong) sai.push(`${ma}: tiến độ «${td && td[0]}» cho ${tong} hàng`);
+      else if (!td || Number(td[2]) !== tong || Number(td[1]) + Number(td[3]) + Number(td[4]) + Number(td[5] || 0) !== tong) sai.push(`${ma}: tiến độ «${td && td[0]}» cho ${tong} hàng`);
     });
+    if (ten === 'ma-trung-ke' && !(the[0].includes('href="#lt1-h-T-2">T</a> — «hai»') && chuTron(the[0]).includes('Mã này trùng trong kế hoạch'))) sai.push(`ma-trung-ke: thẻ không chỉ hàng T thứ hai «${chuTron(the[0]).slice(0, 120)}»`);
+    if (ten === 'khong-ma' && !chuTron(the[0]).includes('Việc này chưa có mã')) sai.push(`khong-ma: thẻ «${chuTron(the[0]).slice(0, 120)}»`);
   }
   return sai;
 }
-if (want('LT-90') && await chayCa('LT-90', lt90)) ok('LT-90', 'hai lộ trình · tệp hỏng · kế hoạch rỗng: một thẻ mỗi lộ trình, bốn nhãn đúng thứ tự, lệnh == thamSo thẻ start, số chỗ lệch == số cờ, tiến độ cộng đủ, thẻ lỗi chỉ câu lỗi');
+if (want('LT-90') && await chayCa('LT-90', lt90)) ok('LT-90', 'hai lộ trình · tệp hỏng · kế hoạch rỗng · mã trùng · việc không mã: một thẻ mỗi lộ trình, bốn nhãn đúng thứ tự, liên kết hàng kế == neo của CHÍNH hàng kế, lệnh == thamSo thẻ start (không lệnh thì nói vì sao), số chỗ cần sửa == cờ + hàng ghi trạng thái lạ, tiến độ cộng đủ, thẻ lỗi chỉ câu lỗi');
 if (want('LT-90-do')) await chayDo('LT-90-do', lt90, [['scripts/lo-trinh.mjs', 'const lenh = thamSoKe(kq, t.tep, nhieu);', 'const lenh = thamSoKe(kq, t.tep, false);']], '!= thamSo', 'bản sao in mã trơn khi nhiều tệp');
 
 // ── LT-91: danh sách chỗ lệch ───────────────────────────────────────────────
@@ -1405,20 +1421,21 @@ async function lt91(kit) {
       if (muc == null) { sai.push(`${ma}: không có mục`); return; }
       const ds = muc.match(/<ul class="co-ds">([\s\S]*?)<\/ul>/);
       const li = ds ? [...ds[1].matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => m[1]) : [];
-      if (li.length !== t.kq.co.length) { sai.push(`${ma}: ${li.length} chỗ lệch trên trang, ${t.kq.co.length} cờ`); return; }
-      if (li.length && muc.indexOf('class="co-ds"') > muc.indexOf('Việc còn mở')) sai.push(`${ma}: danh sách chỗ lệch đứng sau bảng việc`);
+      const mong = [...t.kq.co.map(c => { const d = M.LT.dichCo(c); return [d.ma, d.ma != null ? `${d.ma} — ${d.chu}` : d.chu]; }), ...muaKhai(t.kq).map(g => [null, cauKhai(g)])];
+      if (li.length !== mong.length) { sai.push(`${ma}: ${li.length} chỗ cần sửa trên trang, cần ${mong.length} (cờ + hàng ghi trạng thái lạ)`); return; }
+      if (li.length && muc.indexOf('class="co-ds"') > muc.indexOf('Việc còn mở')) sai.push(`${ma}: danh sách chỗ cần sửa đứng sau bảng việc`);
       li.forEach((x, n) => {
-        const d = M.LT.dichCo(t.kq.co[n]); const can = d.ma != null ? `${d.ma} — ${d.chu}` : d.chu;
-        if (chuTron(x) !== can) sai.push(`${ma} chỗ lệch ${n + 1}: «${chuTron(x)}» != «${can}»`);
-        const a = x.match(/^<a href="#([^"]+)">[\s\S]*<\/a>$/);
-        if (d.ma != null && ids.has(`lt${i + 1}-h-${String(d.ma).replace(/[^A-Za-z0-9_-]/g, '_')}`) && !(a && ids.has(a[1]))) sai.push(`${ma} chỗ lệch ${n + 1}: không phải liên kết bọc trọn ô tới hàng ${d.ma}`);
+        const [mh, can] = mong[n];
+        if (chuTron(x) !== can) sai.push(`${ma} chỗ cần sửa ${n + 1}: «${chuTron(x)}» != «${can}»`);
+        const a = x.match(/^<a href="#([^"]+)">[\s\S]*<\/a>$/); const neo = mh != null ? neoDau(muc, mh) : null;
+        if (neo && !(a && a[1] === neo)) sai.push(`${ma} chỗ cần sửa ${n + 1}: liên kết «${a && a[1]}» != neo hàng ${mh} «${neo}»`);
       });
     });
   }
   return sai;
 }
-if (want('LT-91') && await chayCa('LT-91', lt91)) ok('LT-91', 'mỗi mục: chỗ lệch == cờ dịch theo đúng thứ tự, mỗi chỗ lệch có hàng là liên kết bọc trọn ô tới neo có trên trang, đứng trước bảng việc');
-if (want('LT-91-do')) await chayDo('LT-91-do', lt91, [['scripts/lo-trinh.mjs', 'kq.co.map(c => moCo(i, c, ids))', 'kq.co.slice(1).map(c => moCo(i, c, ids))']], 'chỗ lệch trên trang', 'bản sao bỏ một cờ khi vẽ');
+if (want('LT-91') && await chayCa('LT-91', lt91)) ok('LT-91', 'mỗi mục: chỗ cần sửa == cờ dịch theo đúng thứ tự + mỗi từ trạng thái lạ (gom các hàng ghi nó), mỗi chỗ có hàng là liên kết bọc trọn ô tới neo của ĐÚNG hàng đó, đứng trước bảng việc');
+if (want('LT-91-do')) await chayDo('LT-91-do', lt91, [['scripts/lo-trinh.mjs', 'kq.co.map(c => moCo(i, c, theoNhan))', 'kq.co.slice(1).map(c => moCo(i, c, theoNhan))']], 'chỗ cần sửa trên trang', 'bản sao bỏ một cờ khi vẽ');
 
 // ── LT-92: bảng việc còn mở / đã giao ───────────────────────────────────────
 const KHO_92 = () => kho({ hoSo: { g: 'da-ship', l: 'dang-dung' }, data: { schema: 1, hang: [H('A', { slug: 'g', hang: 'T2' }), H('B', { slug: 'l', dung_tren: ['A'] }), H('C', { dung_tren: ['B'] }), H('D')] } });
@@ -1463,20 +1480,21 @@ if (want('LT-93-do')) await chayDo('LT-93-do', lt93, [['scripts/lo-trinh.mjs', "
 // ── LT-94: dải mốc tĩnh ─────────────────────────────────────────────────────
 async function lt94(kit) {
   const M = await napLT(kit); const sai = [];
-  const r = kho({ data: { schema: 1, moc: [{ ten: 'Tới', ngay: '2026-11-15', hang: ['B'] }, { ten: 'Qua', ngay: '2026-09-01', hang: ['A'] }, { ten: 'Rời', ngay: '2026-10-03' }], hang: [H('A'), H('B')] } });
+  const r = kho({ hoSo: { g: 'da-ship' }, data: { schema: 1, moc: [{ ten: 'Tới', ngay: '2026-11-15', hang: ['B'] }, { ten: 'Qua', ngay: '2026-09-01', hang: ['A'] }, { ten: 'Rời', ngay: '2026-10-03' }], hang: [H('A', { slug: 'g' }), H('B')] } });
   const html = veM(M, r); const ol = (html.match(/<ol class="moc"[\s\S]*?<\/ol>/) || [''])[0];
   const ngay = [...ol.matchAll(/<li data-ngay="([^"]+)"/g)].map(m => m[1]);
   if (!deq(ngay, ['2026-09-01', '2026-10-03', '2026-11-15'])) sai.push(`thứ tự mốc ${JSON.stringify(ngay)}`);
   const li = [...ol.matchAll(/<li [\s\S]*?<\/li>/g)].map(m => m[0]);
   if (li.filter(x => x.includes('chưa gắn việc')).length !== 1 || !li[1].includes('chưa gắn việc')) sai.push('nhãn «chưa gắn việc» không đúng một mốc Rời');
   if (!html.includes('1/3 mốc chưa gắn việc nào')) sai.push('tiêu đề không ghi «1/3 mốc chưa gắn việc nào»');
+  if (!deq(li.map(x => x.includes(' data-con-viec')), [false, false, true])) sai.push(`đánh dấu mốc còn việc ${JSON.stringify(li.map(x => x.includes(' data-con-viec')))} (cần chỉ mốc Tới: việc B chưa giao; Qua: việc A đã giao)`);
   if (!html.includes('<span id="lt1-moc-ke">Xem dải mốc bên dưới.</span>')) sai.push('ô thẻ không có chữ dự phòng khi tắt script');
   const h = new Date(); const p2 = x => String(x).padStart(2, '0');
   for (const s of [h.toISOString().slice(0, 10), `${p2(h.getDate())}/${p2(h.getMonth() + 1)}/${h.getFullYear()}`]) if (!['2026-10-03', '03/10/2026'].includes(s) && html.includes(s)) sai.push(`trang chứa ngày chạy ${s}`);
   if (/ src=|href="?https?:/i.test(html) || (html.match(/<script/g) || []).length !== 1) sai.push('trang có tài nguyên ngoài hoặc hơn một script');
   return sai;
 }
-if (want('LT-94') && await chayCa('LT-94', lt94)) ok('LT-94', 'dải mốc sắp theo ngày, mốc không gắn việc mang nhãn, tiêu đề «1/3 mốc chưa gắn việc nào», ô thẻ có chữ dự phòng, không ngày chạy, một script nội tuyến, không tài nguyên ngoài');
+if (want('LT-94') && await chayCa('LT-94', lt94)) ok('LT-94', 'dải mốc sắp theo ngày, chỉ mốc gắn việc chưa giao mang dấu còn việc, mốc không gắn việc mang nhãn, tiêu đề «1/3 mốc chưa gắn việc nào», ô thẻ có chữ dự phòng, không ngày chạy, một script nội tuyến, không tài nguyên ngoài');
 
 // ── LT-95: hai đồng hồ, một trang ───────────────────────────────────────────
 function veDuoiDongHo(kit, r, ngay) {
@@ -1487,14 +1505,15 @@ function veDuoiDongHo(kit, r, ngay) {
   if (x.status !== 0) throw new Error(`bộ vẽ dưới đồng hồ ${ngay} exit ${x.status}: ${x.stderr.slice(0, 200)}`);
   return readFileSync(path.join(c, 'LO-TRINH.html'), 'utf8');
 }
+const KHO_95 = () => kho({ hoSo: { g: 'da-ship' }, data: { schema: 1, moc: [{ ten: 'Qua', ngay: '2026-09-01', hang: ['B'] }, { ten: 'Tới', ngay: '2026-12-01', hang: ['A'] }, { ten: 'Rời', ngay: '2026-10-04' }], hang: [H('A', { slug: 'g' }), H('B')] } });
 async function lt95(kit) {
-  const r = KHO_92(); const a = veDuoiDongHo(kit, r, '2026-10-03'); const b = veDuoiDongHo(kit, r, '2026-10-06');
+  const r = KHO_95(); const a = veDuoiDongHo(kit, r, '2026-10-03'); const b = veDuoiDongHo(kit, r, '2026-10-06');
   if (!a.length || !b.length) return ['trang rỗng'];
   if (a === b) return [];
   let i = 0; while (a[i] === b[i]) i++;
   return [`hai đồng hồ cho hai trang khác nhau, lệch ở byte ${i}: «${a.slice(i, i + 30)}» / «${b.slice(i, i + 30)}»`];
 }
-if (want('LT-95') && await chayCa('LT-95', lt95)) ok('LT-95', 'vẽ dưới đồng hồ 03/10 và 06/10: hai trang giống từng byte (cả hai tiến trình thoát 0, trang khác rỗng)');
+if (want('LT-95') && await chayCa('LT-95', lt95)) ok('LT-95', 'kho có mốc đã qua, mốc tới và mốc nằm giữa hai đồng hồ — vẽ dưới đồng hồ 03/10 và 06/10: hai trang giống từng byte (cả hai tiến trình thoát 0, trang khác rỗng)');
 if (want('LT-95-do')) await chayDo('LT-95-do', lt95, [['scripts/lo-trinh.mjs', '<main>\\n${than.join', '<main>\\n<p>${new Date().toLocaleDateString(\'vi-VN\')}</p>\\n${than.join']], 'lệch ở byte', 'bản sao chèn ngày vẽ');
 
 // ── LT-96: nhãn cột trên từng ô ─────────────────────────────────────────────
@@ -1524,7 +1543,7 @@ const MA_TRAN_97 = [
   ['dung-tren-mang', () => kho({ data: { schema: 1, hang: [H('A', { dung_tren: 'B' })] } }), 'A — ô «cần xong trước» phải là danh sách'],
   ['khong-object', () => kho({ data: { schema: 1, hang: ['x', H('A')] } }), 'việc thứ 1 không đúng dạng'],
   ['khoi-hang', () => kho({ data: { schema: 1, hang: {} } }), 'danh sách việc phải là một mảng'],
-  ['ma-trung', () => kho({ data: { schema: 1, hang: [H('T'), H('T')] } }), 'hai hàng cùng mã T'],
+  ['ma-trung', () => kho({ data: { schema: 1, hang: [H('T'), H('T')] } }), 'hai việc cùng mã T — đổi mã một trong hai'],
   ['moc-mang', () => kho({ data: { schema: 1, moc: [{ ten: 'M1', ngay: '2026-11-01', hang: 'A' }], hang: [H('A')] } }), 'mốc M1 — danh sách việc gắn mốc phải là một mảng'],
   ['khoi-tu-vung', () => kho({ data: { schema: 1, tu_vung: [], hang: [H('A')] } }), 'bảng từ trạng thái phải là một object'],
   ['tu-vung-tro', () => kho({ data: { schema: 1, tu_vung: { 'xong rồi': 'Hoàn tất' }, hang: [H('A')] } }), 'từ «xong rồi» trỏ «Hoàn tất» — không phải tên trạng thái'],
@@ -1533,8 +1552,8 @@ const MA_TRAN_97 = [
   ['nhan-khac', () => CA_73['ho-so-khac-nhan-S-co']().k, 'X — kế hoạch ghi hồ sơ s nhưng hồ sơ c nhận việc này'],
   ['ghi-hang-khac', () => CA_73['ho-so-ghi-ma-khac']().k, 'X — kế hoạch ghi hồ sơ s nhưng hồ sơ đó ghi việc M'],
   ['tu-khai-khong-ho-so', () => kho({ data: { schema: 1, hang: [H('A', { slug: 'vang', trang_thai: 'Đã giao' })] } }), 'A — kế hoạch ghi «Đã giao» nhưng chưa có hồ sơ vang'],
-  ['khai-khac', () => kho({ hoSo: { s: 'dang-dung' }, data: { schema: 1, tu_vung: { xong: 'Đã giao' }, hang: [H('A', { slug: 's', trang_thai: 'xong' })] } }), `A — kế hoạch ghi «xong», hồ sơ ghi «${TEN_O_97['dang-dung']}»`],
-  ['hang-khac', () => kho({ hoSo: { s: ['dang-dung', 'T3'] }, data: { schema: 1, hang: [H('A', { slug: 's', hang: 'T2' })] } }), 'A — kế hoạch ghi hạng T2, hồ sơ ghi hạng T3'],
+  ['khai-khac', () => kho({ hoSo: { s: 'dang-dung' }, data: { schema: 1, tu_vung: { xong: 'Đã giao' }, hang: [H('A', { slug: 's', trang_thai: 'xong' })] } }), `A — kế hoạch ghi «xong», thực tế «${TEN_O_97['dang-dung']}»`],
+  ['hang-khac', () => kho({ hoSo: { s: ['dang-dung', 'T3'] }, data: { schema: 1, hang: [H('A', { slug: 's', hang: 'T2' })] } }), 'A — kế hoạch ghi hạng T2, thực tế hạng T3'],
   ['dung-tren-khong-co', () => kho({ data: { schema: 1, hang: [H('A', { dung_tren: ['Z'] })] } }), 'A — cần xong trước Z nhưng kế hoạch không có việc Z'],
   ['vong', () => kho({ data: { schema: 1, hang: [H('A', { dung_tren: ['B'] }), H('B', { dung_tren: ['A'] })] } }), 'thứ tự «cần xong trước» tạo vòng: A → B → A'],
   ['ho-so-tep', () => CA_73['tep-khong-khai']().k, 'hồ sơ c ghi kế hoạch docs/khac.json — kho không khai kế hoạch đó'],
@@ -1566,8 +1585,8 @@ async function lt97(kit) {
   return [...new Set(sai)];
 }
 if (want('LT-97') && await chayCa('LT-97', lt97)) ok('LT-97', `${MA_TRAN_97.length} dạng cờ: số dạng mã == ma trận == bảng dịch == kho thử phát; mỗi dạng ra đúng câu đích viết tay, không còn chữ máy; chữ trang không còn cụm nội bộ`);
-if (want('LT-97-do')) await chayDo('LT-97-do', lt97, [['scripts/lo-trinh.mjs', "  { ten: 'ma-trung', re: /^mã trùng: (.+)$/, ra: m => ({ ma: null, chu: `hai hàng cùng mã ${m[1]}` }) },\n", '']], 'ma-trung: trang không có', 'bản sao xoá dòng dịch ma-trung');
-if (want('LT-97-do2')) await chayDo('LT-97-do2', lt97, [['scripts/lo-trinh.mjs', 'chu: `kế hoạch ghi «${m[2]}», hồ sơ ghi «${m[4]}»`', 'chu: `kế hoạch ghi «${m[4]}», hồ sơ ghi «${m[2]}»`']], 'khai-khac: trang không có', 'bản sao đảo hai nhóm của dòng khai-khac');
+if (want('LT-97-do')) await chayDo('LT-97-do', lt97, [['scripts/lo-trinh.mjs', "  { ten: 'ma-trung', re: /^mã trùng: (.+)$/, ra: m => ({ ma: null, chu: `hai việc cùng mã ${m[1]} — đổi mã một trong hai` }) },\n", '']], 'ma-trung: trang không có', 'bản sao xoá dòng dịch ma-trung');
+if (want('LT-97-do2')) await chayDo('LT-97-do2', lt97, [['scripts/lo-trinh.mjs', 'chu: `kế hoạch ghi «${m[2]}», thực tế «${m[4]}»`', 'chu: `kế hoạch ghi «${m[4]}», thực tế «${m[2]}»`']], 'khai-khac: trang không có', 'bản sao đảo hai nhóm của dòng khai-khac');
 
 // ── LT-98: tệp hỏng chỉ tắt thẻ và mục của nó ───────────────────────────────
 async function lt98(kit) {
@@ -1628,7 +1647,7 @@ async function lt100(kit) {
   return sai;
 }
 if (want('LT-100') && await chayCa('LT-100', lt100)) ok('LT-100', 'hai lộ trình · tệp hỏng · không chỗ lệch: phanTichKho và loTrinh của JSON quét giống hệt bộ máy v2.21.0 (git archive trọn thư mục)');
-if (want('LT-100-do')) await chayDo('LT-100-do', lt100, [['scripts/lo-trinh.mjs', "export const DA_GIAO_O = ['cho-nghiem-thu', 'da-ship', 'da-nghiem-thu'];", "export const DA_GIAO_O = ['cho-nghiem-thu', 'da-nghiem-thu'];"]], 'hàng lệch', 'bản sao bỏ da-ship khỏi nhóm đã giao');
+if (want('LT-100-do')) await chayDo('LT-100-do', lt100, [['scripts/lo-trinh.mjs', "export const CHUA_MO = 'Chưa mở';", "export const CHUA_MO = 'Chưa bắt đầu';"]], 'hàng lệch docs/plan/lo-trinh-okr.json:', 'bản sao đổi chữ trạng thái «Chưa mở» của lớp phân tích');
 
 
 rmSync(TMP, { recursive: true, force: true });
