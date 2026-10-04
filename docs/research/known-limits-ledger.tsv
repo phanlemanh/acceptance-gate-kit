@@ -429,3 +429,6 @@ trang-lo-trinh-doc-mot-phut#ngoai-2	trang-lo-trinh-doc-mot-phut	medium	doi-chung
 trang-lo-trinh-doc-mot-phut#ngoai-3	trang-lo-trinh-doc-mot-phut	medium	khong-the-do	song			LT-92 chỉ đo cột Vì sao/Bật khi vắng, không có ca cột có dữ liệu thì phải hiện
 trang-lo-trinh-doc-mot-phut#ngoai-4	trang-lo-trinh-doc-mot-phut	medium	doi-chung-tu-sinh	song			LT-08 lấy câu lỗi mong đợi từ chính hàm dịch của bộ vẽ — hàm dịch hỏng về đồng nhất vẫn xanh
 trang-lo-trinh-doc-mot-phut#ngoai-6	trang-lo-trinh-doc-mot-phut	low	khong-the-do	song			LT-73-khong-truong-do xanh khi có bất kỳ khác biệt nào giữa hai chuỗi JSON, không ghim thông điệp
+release-2-22-0#ngoai-1	release-2-22-0	low	chuoi-thay-quan-he	song			E1/E2/E6 khai ghim dòng P200 mà lệnh mảnh plugins_vung_3 lọc mất (grep FAIL|Results) — bằng chứng là mã thoát chung của vùng 3
+release-2-22-0#ngoai-2	release-2-22-0	medium	khong-the-do	song			Cùng gốc Ngoài-1: AC-2/AC-6 không có bằng chứng riêng ngoài mã thoát chung
+release-2-22-0#ngoai-3	release-2-22-0	low	doi-chung-tu-sinh	song			Tập hồ sơ được ký gõ tay ở Context và ở dòng executor rel2220_cua_so — không gì tự so hai chỗ

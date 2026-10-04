@@ -10,6 +10,84 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.22.0 — 04/10/2026
+
+Cửa sổ 2.21.0 → 2.22.0 kéo **hai ngày** (03–04/10), có **một vòng** được ký, chạm engine đúng một tệp:
+`trang-lo-trinh-doc-mot-phut` (T2, ô PR #259, vật PR #260, Cổng Giá trị «release» PR #261). Ngoài hồ sơ:
+chiến dịch ghim lại 2.21.0 (#257) và ghi chú mốc (#254). Kho chờ nhận là `crm`: neo ở hồ sơ crm
+`cap-nhat-tuan-okr`, owner quyết 04/10 «gửi crm, ngay sau khi cắt 2.22.0». Mốc đi **làn V**, không dựng
+răng mới. Hai gói cùng lên `2.22.0`; `diagram-design` giữ `2.7.1`. Tag `v2.22.0` gắn tại commit ký mốc
+sau khi gộp.
+
+**Vì sao 2.22.0, không 2.21.1:** trang lộ trình đổi bố cục và chữ mà người dùng đọc — một hành vi mới,
+không phải một bản vá.
+
+### Trang lộ trình đọc trong một phút (hồ sơ `trang-lo-trinh-doc-mot-phut`, T2)
+
+- `LO-TRINH.html` mở bằng **một thẻ mỗi lộ trình**: làm tiếp (mã + câu giao + lệnh mở chép được) · số chỗ
+  cần sửa trong kế hoạch · mốc kế tiếp kèm số ngày còn lại (mốc đã qua mà còn việc chưa giao thì nêu tên)
+  · tiến độ (đã giao · đang làm · chưa bắt đầu, nhóm khác hiện riêng khi có).
+- Mỗi lộ trình một mục: **chỗ cần sửa** bằng tiếng sản phẩm (câu cờ máy dịch bằng một bảng, mỗi chỗ là
+  liên kết tới đúng hàng) → việc còn mở → **việc đã giao gập lại** → dải mốc. Hồ sơ không thuộc kế hoạch
+  nào **gập ở cuối trang, một lần** cho cả trang.
+- Đọc được trên điện thoại (bảng thành thẻ hàng), tiêu đề cột dính khi cuộn, sáng/tối theo máy.
+- Trang vẫn tĩnh và tất định: một script nội tuyến duy nhất tính số ngày lúc xem; tắt script trang vẫn đủ.
+- Đo trên crm `onehub` thật: **2.879 / 11.587 px** ở 1440, màn đầu đủ ba điều ở 1440 và 375, tương phản
+  thấp nhất 6,35 (trang cũ 1,91 ở tối), vùng bấm 44 px.
+- **Không đổi:** lớp phân tích, thẻ `/acceptance-gate:start`, `--hang`, `--mo-o` (ca LT-100 so khớp với bộ
+  máy `v2.21.0`). **Kho không khai lộ trình:** bản đồ và thẻ giữ từng byte.
+- Bộ đo trang trên Chrome thật đi kèm kit: `tests/scripts/lo-trinh-do-trang.mjs` (CDP, ngày đóng băng).
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Kho còn đường chép: chép lại MỘT tệp** của lớp chép CI — `scripts/lo-trinh.mjs` (danh sách vẫn 17
+  tệp). Đo trước → sau bằng phép vi phân.
+- **Kho khai lộ trình:** `LO-TRINH.html` đổi một lần khi nhận — chạy `product-map.mjs --root .` trong PR
+  nhận mốc rồi commit trang; `--check` đỏ cho tới khi vẽ lại. Kho không khai: không làm gì thêm.
+- **Máy dev:** cài lại plugin ở MỌI phạm vi trên mỗi máy có phiên của kho, kiểm từng bản ghi cây phụ.
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng — đủ ở Notes của hợp đồng):
+
+- Dải mốc sắp ngày theo chuỗi: ngày thiếu số 0 (`2026-10-5`) xếp sai, ô «Mốc kế tiếp» có thể chỉ mốc xa
+  hơn. Dữ liệu crm thật mọi ngày đủ số 0.
+- Năm điểm độ chặt của thước (đường dẫn khai ở eval, đối chứng dương LT-100, ca cột có dữ liệu phải hiện,
+  câu lỗi mong đợi rút từ hàm dịch, LT-73-khong-truong-do không ghim thông điệp).
+- Đề xuất bản chiếu ReUI của trang (owner xem bản mẫu 04/10): hạt giống
+  `docs/plans/2026-10-04-hat-giong-ban-chieu-reui-trang-lo-trinh.md` — kit chỉ xuất JSON, trang ReUI sống
+  ở kho tiêu thụ, mã block Pro không vào kit.
+
+**Năm dòng số của luật (c)** — một vòng (giờ VN, 03–04/10; nguồn: giờ commit `contract.md`,
+`decisions.jsonl`, `run-log.jsonl`, `usage-report.md` của hồ sơ):
+
+| Dòng | `trang-lo-trinh-doc-mot-phut` (T2) |
+|---|---|
+| Làm-xong→quyết-được | 22:50 03/10 → ký 04:32 04/10 ≈ **5 giờ 42 phút**, gồm ba lượt chấm (≈ 65 phút máy) và khoảng chờ chữ ký qua đêm 4 giờ 15 phút (`verified` 00:17 → ký 04:32); **3 lượt chấm** |
+| Lượt gọi người / vòng (trần T2 3) | Trong thiết kế **2** — Cổng Đáng · ký Cổng Bằng chứng; Cổng Phạm vi làn V. Ngoài thiết kế **0**. 1 chạm mỗi lượt. Sau ký: Cổng Giá trị «release» (owner xem lại giao diện và bản mẫu ReUI trước khi quyết — owner tự gọi, không phải máy hỏi) |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **0** — lượt 1 và 2 REJECT vì finding thật trong hợp đồng. Sau chữ ký một lượt CI đỏ vì phông chữ Ubuntu làm một bản sao chiều đỏ phá thêm thước (sửa nhát tiêm, ghim lại ba hồ sơ) — không phải lượt chấm |
+| Token máy / vòng (out-token S4) · chứng-minh-vật / tìm-lỗi / tổng hợp | **153 849** · 48/20/32 % (54 105 · 54 470 · 45 274 theo lượt) |
+| Phút máy / lượt chấm | 20–24 phút (1 230–1 420 s), tổng ≈ 65 phút; găng 1 063–1 234 s |
+
+Phiên chính không đo token. Cổng Đáng tính vào «trong thiết kế» theo tiền lệ 2.20.0.
+
+**Điều kiện tin cậy:** (i) không đổi thành phần đường verdict — diff cửa sổ ở engine chỉ là
+`scripts/lo-trinh.mjs` (lớp vẽ), không chạm `acceptance-verify.js`, `s4-args.mjs`, `lib/nhan-canh-gay.cjs`,
+`recheck-evidence.cjs`, `pre-merge-check.sh`. (ii) Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **1** —
+lượt 1 chấm E5 ĐẠT từ dòng tổng kết của một lệnh không bao giờ in dòng ghim LT-94 (eval trỏ nhầm mảnh);
+lượt 2 bắt, lượt 3 tách eval theo lệnh. Ngưỡng (a) đếm **1/2** — chưa mở vòng đo-thước. Dòng 4–5 cắt được.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | = | không chạm đường từ làm-xong tới cổng |
+| 2 | ↓ ở crm | màn đầu trang lộ trình trả lời làm gì tiếp · kẹt gì · lệch gì trong một phút — câu hỏi tiến độ (lượt 4 OKR: 23/48 tin owner) đọc được thay vì hỏi |
+| 3 | = | — |
+| 4 | = | không chạm lượt chấm |
+| 5 | = | — |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .`.
+**N không tăng so với mốc 2.21.0 — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.21.0 — 03/10/2026
 
 Cửa sổ 2.20.0 → 2.21.0 kéo **hai ngày** (02–03/10), có **năm vòng** được ký, cả năm chạm engine:
