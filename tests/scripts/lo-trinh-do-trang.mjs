@@ -100,7 +100,9 @@ export async function phienChrome() {
     },
     async do() { return danhGia(DO_TRONG_TRANG); },
     async chup(png) { const s = await goi('Page.captureScreenshot', { format: 'png' }); mkdirSync(path.dirname(png), { recursive: true }); writeFileSync(png, Buffer.from(s.data, 'base64')); },
-    async dong() { try { sock.close(); } catch { /* đã đóng */ } await new Promise(r => { if (ch.exitCode != null) r(); else { ch.on('exit', r); ch.kill(); } }); rmSync(ud, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); },
+    async dong() { try { sock.close(); } catch { /* đã đóng */ } await new Promise(r => { if (ch.exitCode != null) r(); else { ch.on('exit', r); ch.kill(); } }); // Chrome con trên Linux còn ghi vào hồ sơ tạm sau khi tiến trình chính thoát (CI 04/10: ENOTEMPTY
+      // ở bước dọn, sau khi mọi ca đã ĐẠT) — dọn là việc phụ, không được làm sập phép đo.
+      try { rmSync(ud, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); } catch { /* thư mục tạm, hệ điều hành dọn sau */ } },
   };
 }
 

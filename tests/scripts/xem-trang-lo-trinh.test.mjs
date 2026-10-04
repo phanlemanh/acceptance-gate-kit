@@ -205,6 +205,6 @@ if (P) {
   } finally { await P.dong(); }
 }
 
-rmSync(TMP, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+try { rmSync(TMP, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); } catch { /* thư mục tạm — Chrome con có thể còn ghi */ }
 console.log(`\nResults: ${pass} passed, ${fail} failed (xem-trang-lo-trinh)`);
 process.exit(fail ? 1 : 0);
