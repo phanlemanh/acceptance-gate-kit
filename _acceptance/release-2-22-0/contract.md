@@ -5,7 +5,7 @@ slug: release-2-22-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 2 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -67,5 +67,9 @@ Source input: `git log v2.21.0..HEAD` · nếp phát hành `_acceptance/release-
 
 ## Notes
 
+- **Known limits (Cổng Bằng chứng, ký 04/10):** E1, E2, E6 khai ghim các dòng «P200 …» của ca kiểm số,
+  nhưng lệnh mảnh vùng 3 lọc đầu ra còn «FAIL|Results», nên bằng chứng AC-1/2/6 là mã thoát chung của
+  vùng 3 (Ngoài-1, Ngoài-2 — tồn từ 2.21.0) · tập hồ sơ được ký gõ tay ở hai chỗ (Context và dòng
+  executor `rel2220_cua_so`), không gì tự so hai chỗ (Ngoài-3).
 - Hạt giống mới của cửa sổ: `docs/plans/2026-10-04-hat-giong-ban-chieu-reui-trang-lo-trinh.md` (ô
   `trang-lo-trinh-doc-mot-phut` trích tên).
