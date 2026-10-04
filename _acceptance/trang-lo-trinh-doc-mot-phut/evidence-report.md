@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0675036a3bbbbb976d66eae00e30d0846d91ce60
+verified_commit: 1185eb41fc82f1208952de15a2fbbcf00eaefd86
 human_signoff: Manh Phan 2026-10-04 — ký lượt chấm 3; mục trong hợp đồng AC-5 (ngày mốc thiếu số 0) và Ngoài-1, Ngoài-2, Ngoài-3, Ngoài-4, Ngoài-6 ghi Known limits; Ngoài-5 chấp nhận, không sửa; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -271,3 +271,7 @@ Round 3: mọi eval máy xanh (14 eval trong hai lệnh chức năng, 10 lệnh 
 ### Re-pin lần 1 — 2026-10-03, do CI Ubuntu: bản sao h2 của LTT-san-do tiêm 27px để cô lập một thước
 run_id: repin-20261003T221901Z-19295
 sha: 0675036a3bbbbb976d66eae00e30d0846d91ce60 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11
+
+### Re-pin lần 2 — 2026-10-04, do chiến dịch ghim lại sau mốc 2.22.0
+run_id: repin-20261004T012917Z-97809
+sha: 1185eb41fc82f1208952de15a2fbbcf00eaefd86 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11
