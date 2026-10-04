@@ -88,7 +88,11 @@ const TRUOC = (() => {
     const d = mkdtempSync(path.join(TMP, 'truoc-'));
     const tar = execFileSync('git', ['-C', KIT, 'archive', `${shas[0]}^`, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 });
     execFileSync('tar', ['-x', '-C', d], { input: tar });
-    return { gc: path.join(d, 'scripts', 'gate-card.js'), sha: shas[0] };
+    // Bản SAU cố định ở CHÍNH commit đưa chuỗi vào, cho phép so từng byte của NC-AC4-cu — không
+    // neo HEAD (vòng sau nhan-lan-v-theo-huong đổi thẻ hồ sơ PASS xanh-sạch, 04/10).
+    const d2 = mkdtempSync(path.join(TMP, 'sau-'));
+    execFileSync('tar', ['-x', '-C', d2], { input: execFileSync('git', ['-C', KIT, 'archive', shas[0], 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
+    return { gc: path.join(d, 'scripts', 'gate-card.js'), gcSau: path.join(d2, 'scripts', 'gate-card.js'), sha: shas[0] };
   } catch (e) { return { loi: loi(e) }; }
 })();
 // Khối không-ký-được = từ `<div class="gc">` tới hết (bản cũ in trọn thẻ trong nhánh đó).
@@ -121,9 +125,9 @@ if (want('NC-AC4') || want('NC-AC4-cu')) {
       if (TRUOC.loi) bad('NC-AC4-cu', TRUOC.loi);
       else {
         const khong = hoSo({ verdict: 'PASS', runLog: logLech.filter(l => !/"thuoc-lech"/.test(l)) });
-        const moi = the(khong.d); const cu = the(khong.d, SLUG, TRUOC.gc);
-        if (moi.html !== cu.html) bad('NC-AC4-cu', 'bo dong thuoc-lech ma HTML khac ban truoc vong');
-        else ok('NC-AC4-cu', `— khong dong thuoc-lech: HTML bang ban truoc vong (${TRUOC.sha.slice(0, 8)}^) tung byte`);
+        const sau = the(khong.d, SLUG, TRUOC.gcSau); const cu = the(khong.d, SLUG, TRUOC.gc);
+        if (sau.html !== cu.html) bad('NC-AC4-cu', 'bo dong thuoc-lech ma HTML khac ban truoc vong');
+        else ok('NC-AC4-cu', `— khong dong thuoc-lech: HTML ban ${TRUOC.sha.slice(0, 8)} bang ban truoc vong (${TRUOC.sha.slice(0, 8)}^) tung byte`);
       }
     }
   } catch (e) { if (want('NC-AC4')) bad('NC-AC4', loi(e)); if (want('NC-AC4-cu')) bad('NC-AC4-cu', loi(e)); }

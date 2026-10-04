@@ -87,16 +87,20 @@ Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị 
   khối Out of scope đã duyệt ở Cổng 1, không hỏi mở. Đuôi tự do sau các
   nhãn nhận ra được → GIỮ NGUYÊN VĂN vào sổ quyết định. Nghi thức commit
   ghi-và-commit-một-lượt (bước 1 và bước 7) không đổi một li.
-- Hồ sơ MÁY-ĐI-TRƯỚC (`veto_state: mo`, không chữ ký; lời mời cổng in
-  «veto hay để yên» thay «ký hay trả»): `veto: <lý do>` → ghi `veto_state: da-veto` vào
+- Hồ sơ MÁY-ĐI-TRƯỚC (`veto_state: mo`, không chữ ký; lời mời cổng in dòng báo
+  `đi tiếp hay kéo lại: đi tiếp` thay ô hỏi «ký hay trả»): đọc câu gộp theo khối
+  `GATE-ONESHOT-LAN-V` của bản luật ngôn ngữ mặt người — mỗi dạng người gõ ở đó
+  dẫn tới đúng MỘT trong hai lối. Lối kéo-lại (`kéo lại: <lý do>`, dạng ô
+  `đi tiếp hay kéo lại: kéo lại: <lý do>`, chữ cũ `veto: <lý do>`) → ghi `veto_state: da-veto` vào
   contract bằng công cụ sửa file (lưới ghi-lúc-viết kiểm), append vào
   `decisions.jsonl` một dòng
   `{"id":"d-<UTC>-<n>","type":"veto","stage":"gate2","at":"<ISO>","decision":"<lý do nguyên văn>","decided_by":"<tên>","decided_at":"<ISO>"}`
   (id theo khối `DEC-ID-RECIPE` của SKILL feature-loop — `<n>` là số dòng mới trong sổ),
   commit `Veto: <slug> — <tên>` (chỉ contract + decisions), in đúng một dòng
-  «Đã veto. Máy dừng; hồ sơ chờ người xử: về `status: draft` để làm lại phạm
+  «Đã kéo lại (veto). Máy dừng; hồ sơ chờ người xử: về `status: draft` để làm lại phạm
   vi, hoặc duyệt tay (`approved_by`)» và DỪNG — không menu, không tranh luận.
-  `để yên` → không ghi gì, in «cửa veto vẫn mở». Danh tính suy theo cùng bậc
+  Lối đi-tiếp (`đi tiếp`, ô điền sẵn `đi tiếp hay kéo lại: đi tiếp`, chữ cũ
+  `để yên`) → không ghi gì, in «cửa veto vẫn mở». Danh tính suy theo cùng bậc
   thang ở trên.
 «Ngoài-<số>», «cắt/hoãn», «Treo» không có trường frontmatter riêng: định
 đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và

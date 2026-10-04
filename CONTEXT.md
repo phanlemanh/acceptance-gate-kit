@@ -207,8 +207,12 @@ chứng ĐÓNG cửa veto**: người đã phát ngôn thì hồ sơ hết nằm
 người. Căn cứ là QUAN HỆ, không phải nhãn — `status: signed-off` một mình không
 đóng cửa. Ba bộ đọc nói cùng vị từ này: lưới trước-merge (dòng NOTE và dòng tổng)
 và máy quét `/start` (`vetoOpen[].humanSignoff` · `vetoOpenUnsigned[]`).
+Trên thẻ Cổng Bằng chứng, lối ra của cửa veto mang nhãn theo hướng sản phẩm
+«đi tiếp hay kéo lại» (dòng báo, điền sẵn «đi tiếp»); «veto» là thuật ngữ của
+kit, «kéo lại» là chữ người đọc.
 _Avoid_: gọi hồ sơ ĐÃ KÝ là «còn veto được» hay «owner chưa veto»; «cửa đang mở»
-suy từ một mình `veto_state: mo`.
+suy từ một mình `veto_state: mo`; nhãn lựa chọn «veto hay để yên» trên mặt người
+(cả hai lối đọc như lùi/đứng).
 
 ### Classification
 

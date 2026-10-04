@@ -432,3 +432,4 @@ trang-lo-trinh-doc-mot-phut#ngoai-6	trang-lo-trinh-doc-mot-phut	low	khong-the-do
 release-2-22-0#ngoai-1	release-2-22-0	low	chuoi-thay-quan-he	song			E1/E2/E6 khai ghim dòng P200 mà lệnh mảnh plugins_vung_3 lọc mất (grep FAIL|Results) — bằng chứng là mã thoát chung của vùng 3
 release-2-22-0#ngoai-2	release-2-22-0	medium	khong-the-do	song			Cùng gốc Ngoài-1: AC-2/AC-6 không có bằng chứng riêng ngoài mã thoát chung
 release-2-22-0#ngoai-3	release-2-22-0	low	doi-chung-tu-sinh	song			Tập hồ sơ được ký gõ tay ở Context và ở dòng executor rel2220_cua_so — không gì tự so hai chỗ
+nhan-lan-v-theo-huong#ngoai-1	nhan-lan-v-theo-huong	medium	snapshot-nguon-song	song			NC-AC4-cu (ntr) so bản trước vòng với commit lõi 62b7166c, không so hai commit gate-card sau của vòng ấy; LT-AC6-im cùng giả định «commit đầu chứa chuỗi = vật trọn của vòng»

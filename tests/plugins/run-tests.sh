@@ -9824,10 +9824,11 @@ node "$ROOT/scripts/gate-card.js" --root "$P192WS1" --slug fx --gate 1 > "$P192T
   || { echo "     render the g1 that bai"; P192OK=0; }
 node "$ROOT/scripts/gate-card.js" --root "$P192WS2" --slug fx --gate 2 > "$P192TMP/card-g2.html" 2>/dev/null \
   || { echo "     render the g2 that bai"; P192OK=0; }
-# the may-di-truoc: nhan cuoi la «veto hay để yên» (duong-lui-phai-song AC-7)
+# the may-di-truoc: o cuoi la dong bao «đi tiếp hay kéo lại: đi tiếp» o dong lenh (duong-lui-phai-song
+# AC-7; nhan doi o ho so nhan-lan-v-theo-huong)
 node "$ROOT/scripts/gate-card.js" --root "$P192WS3" --slug fx --gate 2 > "$P192TMP/card-g2v.html" 2>/dev/null \
   || { echo "     render the g2v that bai"; P192OK=0; }
-grep -qF 'veto hay để yên: ___' "$P192TMP/card-g2v.html" || { echo "     the g2v khong in «veto hay để yên» — fixture khong phai may-di-truoc"; P192OK=0; }
+grep -qF 'đi tiếp hay kéo lại: đi tiếp' "$P192TMP/card-g2v.html" || { echo "     the g2v khong in «đi tiếp hay kéo lại: đi tiếp» — fixture khong phai may-di-truoc"; P192OK=0; }
 grep -qF 'Trả lời mẫu' "$P192TMP/card-g1.html" && grep -qF 'Trả lời mẫu' "$P192TMP/card-g2.html" \
   || { echo "     the render thieu dong Tra-loi-mau — fixture/renderer hong"; P192OK=0; }
 # doi chung DUONG truoc moi dot bien

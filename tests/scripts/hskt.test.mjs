@@ -275,11 +275,12 @@ const theExtract = (R, slug) => JSON.parse(execFileSync(process.execPath, [path.
 if (want('HK-AC4-the')) {
   try {
     const sai = [];
-    const h1 = theExtract(khoLanV('lv-a', FINDINGS_2, ''), 'lv-a').routing.hoi;
-    if (!h1.includes('ký hay trả') || h1.includes('veto hay để yên')) sai.push(`chua-ai-quyet: hoi=${JSON.stringify(h1)}`);
-    const h3 = theExtract(khoLanV('lv-b', FINDINGS_2, dongGate2('Ngoai-1 den Ngoai-2: ghi Known limits')), 'lv-b').routing.hoi;
-    if (!h3.includes('veto hay để yên') || h3.includes('ký hay trả')) sai.push(`quyet-du: hoi=${JSON.stringify(h3)}`);
-    if (sai.length) bad('HK-AC4-the', sai.join(' ; ')); else ok('HK-AC4-the', '— chưa ai quyết → «ký hay trả»; đã quyết đủ → «veto hay để yên»');
+    // Làn V: ô lối ra là DÒNG BÁO «đi tiếp hay kéo lại» (hồ sơ nhan-lan-v-theo-huong), không còn ô hỏi.
+    const r1 = theExtract(khoLanV('lv-a', FINDINGS_2, ''), 'lv-a').routing;
+    if (!r1.hoi.includes('ký hay trả') || r1.bao.includes('đi tiếp hay kéo lại')) sai.push(`chua-ai-quyet: routing=${JSON.stringify(r1)}`);
+    const r3 = theExtract(khoLanV('lv-b', FINDINGS_2, dongGate2('Ngoai-1 den Ngoai-2: ghi Known limits')), 'lv-b').routing;
+    if (!r3.bao.includes('đi tiếp hay kéo lại') || r3.hoi.includes('ký hay trả') || r3.hoi.includes('đi tiếp hay kéo lại')) sai.push(`quyet-du: routing=${JSON.stringify(r3)}`);
+    if (sai.length) bad('HK-AC4-the', sai.join(' ; ')); else ok('HK-AC4-the', '— chưa ai quyết → hỏi «ký hay trả»; đã quyết đủ → báo «đi tiếp hay kéo lại»');
   } catch (e) { bad('HK-AC4-the', loi(e)); }
 }
 

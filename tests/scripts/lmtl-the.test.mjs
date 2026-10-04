@@ -256,20 +256,27 @@ const TRUOC = (() => {
     const d = mkdtempSync(path.join(TMP, 'truoc-'));
     const tar = execFileSync('git', ['-C', KIT, 'archive', `${shas[0]}^`, 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 });
     execFileSync('tar', ['-x', '-C', d], { input: tar });
-    return { gc: path.join(d, 'scripts', 'gate-card.js'), sha: shas[0] };
+    // Bản SAU cố định ở CHÍNH commit đưa chuỗi vào — không neo HEAD: một vòng sau đổi thẻ của
+    // hồ sơ PASS xanh-sạch (nhan-lan-v-theo-huong, 04/10) làm phép so HEAD đỏ dù vòng này không đổi
+    // gì. Mệnh đề «vòng này không đổi thẻ khi không có Lối ra» phải còn đúng sau 50 commit.
+    const d2 = mkdtempSync(path.join(TMP, 'sau-'));
+    execFileSync('tar', ['-x', '-C', d2], { input: execFileSync('git', ['-C', KIT, 'archive', shas[0], 'scripts', 'lib', 'skills'], { maxBuffer: 512 * 1024 * 1024 }) });
+    return { gc: path.join(d, 'scripts', 'gate-card.js'), gcSau: path.join(d2, 'scripts', 'gate-card.js'), sha: shas[0] };
   } catch (e) { return { loi: loi(e) }; }
 })();
+// Khoá `loi_ra` đo trên `gc` (cây đang chấm, hoặc bản sao đã tiêm đột biến); phép so từng byte đo
+// cặp TRƯỚC/SAU cố định của vòng.
 CA['LT-AC6-im'] = async gc => {
   if (TRUOC.loi) return [TRUOC.loi];
   const s = []; let n = 0;
   const H = [['REJECT luot 1', 'REJECT', LOG.r1], ['REJECT luot 2 khong lap', 'REJECT', LOG.r2khac], ['tung chua dat nay dat', 'REJECT', LOG.nayDat], ['PASS', 'PASS', LOG.pass], ['BLOCKED canh mu', 'BLOCKED', LOG.mu]];
   for (const [ten, vd, log] of H) {
     n += 1; const d = hoSo({ verdict: vd, runLog: log });
-    const moi = the(d, gc); const cu = the(d, TRUOC.gc);
+    const moi = the(d, gc); const cu = the(d, TRUOC.gc); const sau = the(d, TRUOC.gcSau);
     if (!moi.j) { s.push(`${ten}: extract loi`); continue; }
     if ('loi_ra' in moi.j) s.push(`${ten}: co khoa loi_ra`);
-    if (moi.html !== cu.html) s.push(`${ten}: HTML khac ban truoc vong`);
-    if (moi.raw !== cu.raw) s.push(`${ten}: --extract khac ban truoc vong`);
+    if (sau.html !== cu.html) s.push(`${ten}: HTML khac ban truoc vong`);
+    if (sau.raw !== cu.raw) s.push(`${ten}: --extract khac ban truoc vong`);
   }
   if (n !== H.length) s.push(`so hang ${n}/${H.length}`);
   return s;

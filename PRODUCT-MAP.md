@@ -11,7 +11,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>89 việc"]
+  GB --> DG["Đã giao<br/>90 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>12 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>5 việc"]
 ```
@@ -106,6 +106,7 @@ flowchart TD
 - Chân công cụ của đường nền đọc đúng lệnh chỉ-gán mang lệnh con — `B=$(git merge-base …) && …` tra `git`, không tra `merge-base`; lệnh con của một chương trình không bị coi là chương trình riêng; lệnh mở đầu bằng tên chương trình thật sự vắng vẫn đỏ gọi đúng tên (`nen-cong-cu-gan-bang-lenh-con`)
 - Chân công cụ của đường nền thôi báo động giả cho executor dựng đường bằng cú pháp shell — token đầu không phải tên chương trình thì không tra tên, và nói ra khoá nào không được tra; lệnh mở đầu bằng một tên thật vẫn bị tra như cũ kể cả khi phần sau có ống dẫn (`nen-cong-cu-lenh-shell`)
 - hồ sơ đã nghỉ vẫn mang cờ quá hạn trên thẻ khởi động — bên viết khớp lại bên đọc của RT13 (`nghi-van-mang-co-qua-han`) — đã giao — máy thông, cửa veto còn mở
+- Nhãn lối ra của hồ sơ máy-đi-trước theo hướng sản phẩm — «đi tiếp hay kéo lại», máy điền sẵn «đi tiếp» ở dòng báo, signoff vẫn nhận chữ cũ (`nhan-lan-v-theo-huong`)
 - Sổ luật-đã-chạy — `clean` phải được chứng minh, không phải mặc định (`premerge-rules-ledger`)
 - Chặn PASS chưa ai phán ở biên merge (chữ ký giữ-chỗ + slug tự khai phát hành không được tàng hình) (`premerge-unjudged-pass`)
 - Phát hành kit 2.0.0 — gom 1c + đợt 2 «người về biên» về một mốc release để repo tiêu thụ nhận engine mới có chủ đích trước đợt 3 (`release-2-0-0`) — đã chấm bởi thực tế
