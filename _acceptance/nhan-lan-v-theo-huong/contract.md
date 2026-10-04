@@ -5,7 +5,7 @@ slug: nhan-lan-v-theo-huong
 owner: phanlemanh@gmail.com
 risk_tier: T2      # scripts/gate-card.js, commands/signoff.md, skills/acceptance/references/human-facing-language.md, CONTEXT.md, tests — không khớp t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
