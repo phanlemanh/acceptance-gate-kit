@@ -500,7 +500,9 @@ executors:
     # Mỗi lệnh một nhóm ca của tests/scripts/nlvh-the.test.mjs; ca gọi tên mà không chạy → thoát ≠ 0.
     nlvh_the: "bash -c 'NLVH_CASES=NL-AC1-sach,NL-AC2-con-muc,NL-AC4-khep,NL-dot-bien-nhan-cu,NL-dot-bien-ve-o-hoi,NL-dot-bien-khep-ro node tests/scripts/nlvh-the.test.mjs'"
     nlvh_im: "bash -c 'NLVH_CASES=NL-AC3-im,NL-dot-bien-lech-the-thuong node tests/scripts/nlvh-the.test.mjs'"
-    nlvh_luat: "bash -c 'NLVH_CASES=NL-AC5-luat,NL-dot-bien-luat-de-yen,NL-dot-bien-luat-go-marker node tests/scripts/nlvh-the.test.mjs && ONLY_BLOCK=\"P192 round-trip\" bash tests/plugins/run-tests.sh'"
+    # P192 là khối viết thẳng (không qua run()) nên ONLY_BLOCK không lọc được nó — ca NL-AC5-p192
+    # chạy NGUYÊN VĂN bộ kiểm P192 rút từ run-tests.sh (S4-r1).
+    nlvh_luat: "bash -c 'NLVH_CASES=NL-AC5-luat,NL-AC5-p192,NL-dot-bien-luat-de-yen,NL-dot-bien-luat-go-marker,NL-dot-bien-slots-cu node tests/scripts/nlvh-the.test.mjs'"
     rel2200_cua_so: bash scripts/rel-cua-so.sh 7f45f37d thuoc-biet-truoc-khong-phan-duoc luot-cham-ghi-vao-cay
     rel2200_dd_giu: git diff --exit-code --stat 7f45f37d HEAD -- diagram-design
     # Mốc 2.21.0 (03/10): mốc = commit gắn tag v2.20.0. diagram-design ĐỔI trong cửa sổ (2.7.0 → 2.7.1,

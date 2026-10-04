@@ -171,6 +171,25 @@ function kiemLuat(law, signoff) {
   return s;
 }
 CA['NL-AC5-luat'] = () => kiemLuat(readFileSync(LAW, 'utf8'), readFileSync(SIGNOFF, 'utf8'));
+// Round-trip thẻ↔SLOTS: chạy NGUYÊN VĂN bộ kiểm của P192 (rút từ heredoc P192JS trong
+// tests/plugins/run-tests.sh — một nguồn) trên ba thẻ cây này dựng. KHÔNG gọi run-tests.sh bằng
+// ONLY_BLOCK: P192 là khối viết thẳng, không đi qua run(), nên bộ lọc không khớp khối nào và
+// suite thoát 1 dù P192 xanh (S4-r1 của hồ sơ này).
+function kiemP192(gc, lawPath) {
+  const sh = readFileSync(path.join(KIT, 'tests', 'plugins', 'run-tests.sh'), 'utf8');
+  const m = sh.match(/<<'P192JS'\n([\s\S]*?)\nP192JS\n/);
+  if (!m) return ['khong rut duoc checker P192 tu tests/plugins/run-tests.sh'];
+  const d = mkdtempSync(path.join(TMP, 'p192-'));
+  const chk = path.join(d, 'check-rt.js'); writeFileSync(chk, m[1]);
+  const the3 = [['gate1-draft', '1', 'card-g1.html'], ['gate2-4loai', '2', 'card-g2.html'], ['gate2-may-di-tiep', '2', 'card-g2v.html']].map(([sc, g, f]) => {
+    const h = spawnSync(process.execPath, [gc, '--root', canh(sc), '--slug', 'fx', '--gate', g], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    const p = path.join(d, f); writeFileSync(p, h.stdout || ''); return p;
+  });
+  const r = spawnSync(process.execPath, [chk, lawPath, 'E9', ...the3], { encoding: 'utf8' });
+  if (r.status !== 0 || !/ONESHOT-RT-NGUOC/.test(r.stdout)) return [`P192 do: ${(r.stderr || r.stdout).trim().split('\n')[0]}`];
+  return [];
+}
+CA['NL-AC5-p192'] = gc => kiemP192(gc, LAW);
 
 // ── chiều im (NL-AC3) ───────────────────────────────────────────────────────
 function capCommit() {
@@ -256,7 +275,7 @@ const DOT_BIEN_LUAT = [
 ];
 
 // ── chạy ────────────────────────────────────────────────────────────────────
-for (const ten of ['NL-AC1-sach', 'NL-AC2-con-muc', 'NL-AC4-khep', 'NL-AC5-luat']) {
+for (const ten of ['NL-AC1-sach', 'NL-AC2-con-muc', 'NL-AC4-khep', 'NL-AC5-luat', 'NL-AC5-p192']) {
   if (!want(ten)) continue;
   try { const s = CA[ten](GC); if (s.length) bad(ten, s.join(' ; ')); else ok(ten); } catch (e) { bad(ten, loi(e)); }
 }
@@ -282,6 +301,20 @@ for (const [ten, kim, thay, cum] of DOT_BIEN_LUAT) {
     if (!s.length) bad(name, 'NL-AC5-luat van XANH tren ban sao luat da tiem — phep do mu');
     else if (!s.some(x => x.includes(cum))) bad(name, `NL-AC5-luat do nhung sai thong diep (can «${cum}»): ${s.join(' ; ')}`);
     else ok(name, `— NL-AC5-luat do dung «${cum}»`);
+  } catch (e) { bad(name, loi(e)); }
+}
+if (want('NL-dot-bien-slots-cu')) {
+  // Bản sao luật mang lại dòng SLOTS cũ: thẻ in nhãn mới mà ngữ pháp không khai → P192 đỏ gọi tên.
+  const name = 'NL-dot-bien-slots-cu';
+  try {
+    const law = readFileSync(LAW, 'utf8'); const kim = `g2 ${NHAN}\n`; const n = law.split(kim).length - 1;
+    if (n !== 1) throw new Error(`mui tiem truot: kim khop ${n} lan trong ban luat (can dung 1)`);
+    const p = path.join(mkdtempSync(path.join(TMP, 'luat-')), 'human-facing-language.md');
+    writeFileSync(p, law.replace(kim, `g2 ${NHAN_CU}\n`));
+    const s = kiemP192(GC, p);
+    if (!s.length) bad(name, 'NL-AC5-p192 van XANH tren ban sao luat da tiem — phep do mu');
+    else if (!s.some(x => x.includes(`nhan khong khop SLOTS: ${NHAN}`))) bad(name, `NL-AC5-p192 do nhung sai thong diep: ${s.join(' ; ')}`);
+    else ok(name, `— NL-AC5-p192 do dung «nhan khong khop SLOTS: ${NHAN}»`);
   } catch (e) { bad(name, loi(e)); }
 }
 if (want('NL-AC3-im')) {

@@ -80,7 +80,11 @@ evals:
       (số assert = số hàng); khối nêu «da-veto», «type: veto», «Veto:» và «không ghi gì»;
       commands/signoff.md chứa tên khối «GATE-ONESHOT-LAN-V». Chiều đỏ: bản sao luật đổi hành vi
       dòng «để yên» thành kéo-lại → «FAIL: NL-AC5-luat» kèm «để yên»; gỡ marker → kèm «rut rong».
-      Và khối P192 của tests/plugins/run-tests.sh (chạy riêng bằng ONLY_BLOCK) xanh: thẻ
-      máy-đi-trước in nhãn mới, round-trip thẻ↔SLOTS khớp hai hướng.
+      Ca NL-AC5-p192 xanh: bộ kiểm P192 rút NGUYÊN VĂN từ heredoc P192JS của
+      tests/plugins/run-tests.sh chạy trên ba thẻ cây này dựng (gate1-draft · gate2-4loai ·
+      gate2-may-di-tiep) → in «ONESHOT-RT-NGUOC», round-trip thẻ↔SLOTS khớp hai hướng. Chiều đỏ:
+      bản sao luật mang lại «g2 veto hay để yên» → «FAIL: NL-AC5-p192» kèm «nhan khong khop
+      SLOTS: đi tiếp hay kéo lại» (đột biến slots-cu). Không gọi run-tests.sh bằng ONLY_BLOCK —
+      P192 không qua run() nên bộ lọc thoát 1 dù P192 xanh (S4-r1).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["skills/acceptance/references/human-facing-language.md", "commands/signoff.md", "tests/scripts/nlvh-the.test.mjs", "tests/plugins/run-tests.sh"]
