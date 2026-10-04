@@ -89,7 +89,8 @@ EOF
       ;;
     gate2-may-di-tiep)
       # Hồ sơ MÁY-ĐI-TRƯỚC: làn V mở (veto_state mo có vết), không chữ ký, xanh-sạch
-      # → thẻ Cổng 2 in «veto hay để yên» thay «ký hay trả» (duong-lui-phai-song AC-7).
+      # → thẻ Cổng 2 in dòng báo «đi tiếp hay kéo lại: đi tiếp» thay ô hỏi «ký hay trả»
+      # (duong-lui-phai-song AC-7; nhãn đổi ở hồ sơ nhan-lan-v-theo-huong).
       # Thẻ HỎI bộ quét để biết máy đã đi tiếp; bộ quét đòi _acceptance/config.yaml
       # (vắng → {"config": false} và thẻ rơi về «ký hay trả»), nên kịch bản này ghi
       # một config tối thiểu — các kịch bản khác không cần vì thẻ ký không hỏi bộ quét.

@@ -1025,8 +1025,8 @@ const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = 
 const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
 
 // DỜI LÊN TRƯỚC --extract (hồ sơ loi-moi-cong-may-sinh, Task 6): câu gộp của
-// Cổng 2 cần biết hồ sơ có đi làn V không (nhãn cuối là «veto hay để yên» hay
-// «ký hay trả»), mà MAY_DI_TIEP trước đây tính SAU cả --extract lẫn nhánh thoát
+// Cổng 2 cần biết hồ sơ có đi làn V không (ô cuối là dòng báo «đi tiếp hay kéo lại» hay
+// ô hỏi «ký hay trả»), mà MAY_DI_TIEP trước đây tính SAU cả --extract lẫn nhánh thoát
 // non-approvable — extract sẽ khai một nhãn khác thẻ. Khối giữ NGUYÊN VĂN, chỉ
 // đổi vị trí (rà soát Gate 1.5, rủi ro #5).
 // Trạng thái làn V HỎI đúng bộ phân ô, KHÔNG dựng lại sáu điều kiện xanh-sạch ở
@@ -1097,8 +1097,14 @@ if (CANH_MO) cg.muc.forEach((m, i) => { oneParts.push(`Mù-${i + 1}: ghi hạn c
 if (oos.length) { oneParts.push('cắt/hoãn: đồng ý cắt'); routingBao.push('cắt/hoãn'); }
 // Treo: máy đã quyết + ghi sổ + cửa veto mở → dòng báo, điền sẵn (ROUTING-RULE).
 if (decsProvisional.length) { oneParts.push('Treo: phê hết'); routingBao.push('Treo'); }
-{ const lbl = MAY_DI_TIEP ? 'veto hay để yên' : 'ký hay trả';
-  oneParts.push(`${lbl}: ___`); routingHoi.push(lbl); }   // chữ quyết luôn của người
+// Hồ sơ máy-đi-trước: máy ĐÃ qua cổng, im lặng = đi tiếp. Nhãn gọi HƯỚNG của sản phẩm, không
+// gọi động tác của người — «veto hay để yên» đọc như hai lối đều lùi/đứng (owner nhầm nhiều lần
+// ở thẻ crm soan-okr-khong-tru-luot, 04/10). Ô điền sẵn «đi tiếp» là TRẠNG THÁI máy đã đi (signoff
+// không ghi byte nào cho nó), không phải lời chấp thuận viết hộ — nên nó là dòng BÁO như Treo;
+// người chỉ gõ khi kéo lại (hồ sơ nhan-lan-v-theo-huong).
+const NHAN_LAN_V = 'đi tiếp hay kéo lại';
+if (MAY_DI_TIEP) { oneParts.push(`${NHAN_LAN_V}: đi tiếp`); routingBao.push(NHAN_LAN_V); }
+else { oneParts.push('ký hay trả: ___'); routingHoi.push('ký hay trả'); }   // chữ quyết luôn của người
 // Thẻ KHÔNG-ký-được (REJECT/BLOCKED) không có câu gộp: mời ký ở đó là mời trên
 // một thẻ đang đỏ — đúng thứ audit 01/09 gọi tên.
 // Thẻ KHÔNG-ký-được (REJECT/BLOCKED): HTML in «không cần làm gì», nên routing
@@ -1107,8 +1113,9 @@ if (decsProvisional.length) { oneParts.push('Treo: phê hết'); routingBao.push
 // người, đúng lớp hai-nguồn-cho-một-luật (S4-r2).
 const cm = chotMay(dir);
 // Hồ sơ ĐÃ KHÉP (nghỉ · chấm bởi thực tế — khoá đầu ra của bộ quét, KHÔNG tự đọc sổ): không còn
-// câu hỏi nào cho người, kể cả «veto hay để yên» (ho-so-khep-thoi-hoi AC-6). Mục Ngoài-N vẫn
-// hiện ở khối riêng làm sử liệu; dòng BÁO giữ nguyên.
+// câu hỏi nào cho người (ho-so-khep-thoi-hoi AC-6), và cũng không còn lối ra «đi tiếp hay kéo
+// lại» để báo — hồ sơ nghỉ đi vế NGHI của MAY_DI_TIEP nên nhãn đã vào bao, phải lọc ra. Mục
+// Ngoài-N vẫn hiện ở khối riêng làm sử liệu; các dòng BÁO khác giữ nguyên.
 // Vế thực tế hỏi KHOÁ đầu ra `thucTe` của bộ quét — khác null CHỈ khi dòng quan sát đủ vế (vị từ
 // hoSoDaKhep, AC-1). Suy từ tên ô `da-cham-thuc-te` là sai: bộ quét xếp MỌI hồ sơ status ấy vào ô
 // đó, kể cả khi dòng vắng/thiếu vế (Ngoài-5/7 lượt chấm 2 — thẻ giấu câu hỏi, lưới vẫn chặn).
@@ -1117,6 +1124,7 @@ const DA_KHEP_VI = NGHI ? 'đã nghỉ' : 'đã chấm bởi thực tế';
 const oneShotG2 = approvable && !DA_KHEP ? `${ONE_SHOT_CMD_SIGNOFF} ${slug} ${oneParts.join('; ')}` : null;
 if (!approvable) { routingHoi.length = 0; routingBao.length = 0; }
 if (DA_KHEP) routingHoi.length = 0;
+if (DA_KHEP && routingBao.includes(NHAN_LAN_V)) routingBao.splice(routingBao.indexOf(NHAN_LAN_V), 1);
 
 // ── Dòng đếm vật · thước · nhát (thuoc-co-cua AC-13): dòng `kind: thuoc-vat` CUỐI CÙNG của
 // run-log, do feature-loop/scripts/thuoc-vat.mjs --write ghi sau mỗi lượt chấm. Dòng BÁO, không
@@ -1353,22 +1361,22 @@ if (DA_KHEP) {
   // lời đá nhau: dòng mẫu 5 ô trống ngay trên dòng lệnh có 3 (S4-r1).
   if (oos.length) ymItems.push(`<b>Phần cắt/hoãn — máy đã điền «đồng ý cắt»</b> — làm gì: đọc mục xác nhận phạm vi ở trên; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «cắt/hoãn» trong dòng lệnh thành «kéo vào: nêu mục» nếu anh không đồng ý.`);
   if (decsProvisional.length) ymItems.push(`<b>${decsProvisional.length} quyết định ghi sau Cổng 1 (Treo-1…Treo-${decsProvisional.length}) — máy đã điền «phê hết»</b> — làm gì: đọc khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «Treo» trong dòng lệnh thành «không phê: Treo-số» nếu có mục anh không phê.`);
-  // Hồ sơ máy ĐÃ đi tiếp hợp lệ thì việc-của-người KHÔNG phải ký, mà là veto nếu
+  // Hồ sơ máy ĐÃ đi tiếp hợp lệ thì việc-của-người KHÔNG phải ký, mà là kéo lại nếu
   // muốn. Bỏ sót chỗ này là thẻ nói «máy đã đi tiếp» ở đầu rồi vẫn bảo «Ký hay
-  // trả» ở cuối — mâu thuẫn ngay trong chính thẻ, và đúng thứ AC-8 cấm.
+  // trả» ở cuối — mâu thuẫn ngay trong chính thẻ, và đúng thứ AC-8 cấm. Ô «đi tiếp
+  // hay kéo lại» là dòng BÁO (điền sẵn ở dòng lệnh), nên KHÔNG vào dòng mẫu.
   if (MAY_DI_TIEP) {
-    ymItems.push(`<b>${esc(chuMDT().viecKe)}</b> — làm gì: hồ sơ này máy đã đi tiếp hợp lệ, không cần chữ ký; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «veto: nêu lý do» nếu muốn dừng, hoặc không trả lời gì.`);
-    ymSlots.push('veto hay để yên: ___');
+    ymItems.push(`<b>Máy đã đi tiếp — không cần trả lời</b> — ${esc(chuMDT().viecKe)}; muốn dừng: sửa ô cuối của dòng lệnh thành «${NHAN_LAN_V}: kéo lại: nêu lý do» (hoặc gõ «kéo lại: nêu lý do»).`);
   } else {
     ymItems.push(`<b>Ký hay trả</b> — làm gì: sau khi trả lời các mục trên, chốt hồ sơ; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «Ký» hoặc «Trả lại: nêu lý do».`);
     ymSlots.push('ký hay trả: ___');
   }
-  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «${esc(ymSlots.join('; '))}»</p></div>${oneShotG2 ? `<div class="mach">Dòng lệnh đã điền sẵn khuyến nghị — sửa ô nào anh nghĩ khác: <b>${esc(oneShotG2)}</b></div>` : ''}`);
+  P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo">${ymItems.map(t => `<p class="li">${t}</p>`).join('')}<p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «${ymSlots.length ? esc(ymSlots.join('; ')) : '— không có ô nào cần anh điền —'}»</p></div>${oneShotG2 ? `<div class="mach">Dòng lệnh đã điền sẵn khuyến nghị — sửa ô nào anh nghĩ khác: <b>${esc(oneShotG2)}</b></div>` : ''}`);
 }
 P.push(DA_KHEP
   ? `<div class="foot"><span class="rev">↻ Hồ sơ đã khép — mở lại bằng một dòng sổ có người và lý do.</span></div></div>`
   : MAY_DI_TIEP
-  ? `<div class="foot"><span class="rev">↻ ${esc(chuMDT().viecKe)}</span><div class="btns"><button class="b no">Veto</button></div></div>
+  ? `<div class="foot"><span class="rev">↻ ${esc(chuMDT().viecKe)}</span><div class="btns"><button class="b no">Kéo lại</button></div></div>
 </div></div>`
   : `<div class="foot"><span class="rev">↻ Đảo ngược dễ: trả lại → quay về code, không mất gì.</span><div class="btns"><button class="b no">Trả lại</button><button class="b yes">Ký duyệt</button></div></div>
 </div></div>`);
