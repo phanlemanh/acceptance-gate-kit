@@ -142,7 +142,10 @@ Ba luật âm đi kèm — không tốn một chữ nào trong tin, chỉ cấm:
   tự chấm: những chỗ đó luôn để trống. Kit khoá không cho máy GỌI thao tác cổng
   (ADR 0002); ranh nằm ở AI PHÁT NGÔN CUỐI, không ở việc ô có được điền sẵn hay
   không (ca thật vẫn cấm: thẻ Cổng 2 vòng 2 chip ② từng in sẵn «E9 Đạt» cho mục
-  máy vừa khai «chưa chắc» — đó là điền verdict).
+  máy vừa khai «chưa chắc» — đó là điền verdict). Ô `đi tiếp hay kéo lại: đi
+  tiếp` của hồ sơ máy-đi-trước KHÔNG phải lời chấp thuận viết hộ: máy đã qua
+  cổng, lối ấy không ghi byte nào — nó báo trạng thái; chữ quyết của người ở
+  đó là kéo lại.
 - **Máy không hỏi phút.** Kit thôi đo phút người (hồ sơ cat-hinh-thuc); vế
   «phút» người quen tay gõ thì bỏ qua lặng.
 - **Tin chỉ-báo không hỏi.** Tin không có việc cho người thì kết bằng một câu
@@ -184,10 +187,10 @@ Câu gộp theo lệnh:
   đúng các nhãn dòng «Trả lời mẫu» của thẻ Cổng 2 («Ngoài-<số>» ·
   «<mã eval>» · «cắt/hoãn» · «Treo»), kết bằng `Ký[: <tên> [<ngày>]][, phút
   <số>]` (chỗ trống «ký hay trả») hoặc `Trả lại: <lý do>`. Hồ sơ máy-đi-trước
-  (lời mời cổng in «veto hay để yên» thay «ký hay trả»): câu gộp là
-  `veto: <lý do>` hoặc `để yên` — veto ghi `veto_state: da-veto` + entry sổ
-  `type: veto` mang lý do nguyên văn + commit `Veto: <slug> — <tên>`, máy dừng
-  ngay; «để yên» không ghi gì.
+  (lời mời cổng in dòng báo `đi tiếp hay kéo lại: đi tiếp` thay ô hỏi «ký hay
+  trả»): máy đã qua cổng, im lặng là đi tiếp; câu gộp đọc theo khối
+  `GATE-ONESHOT-LAN-V` dưới đây — chữ mới `kéo lại: <lý do>` / `đi tiếp`, chữ
+  cũ `veto: <lý do>` / `để yên` vẫn nhận, cùng hành vi.
 - `/acceptance-gate:start [<slug>]` — chọn-trước bằng slug: slug nằm trong nhóm nào của lần
   quét thì bàn giao thẳng theo lối nhóm đó và hiển thị lại nhóm đã khớp;
   không thấy slug trong nhóm nào → trình thẻ như cũ.
@@ -271,10 +274,26 @@ g2 <mã eval>
 g2 cắt/hoãn
 g2 Treo
 g2 ký hay trả
-g2 veto hay để yên
+g2 đi tiếp hay kéo lại
 extra tên
 extra phút
 <!-- GATE-ONESHOT-SLOTS>>> -->
+
+Ma trận câu gộp của hồ sơ máy-đi-trước — mỗi dạng người gõ dẫn tới đúng MỘT
+lối; thân lệnh signoff trỏ khối này, không chép lại. Nhãn đặt theo HƯỚNG sản
+phẩm (owner nhầm «veto hay để yên» vì cả hai lối đều đọc như lùi/đứng — hồ sơ
+nhan-lan-v-theo-huong); chữ cũ là đường đọc-cũ:
+
+<!-- <<<GATE-ONESHOT-LAN-V -->
+kéo lại: <lý do> → kéo-lại
+đi tiếp hay kéo lại: kéo lại: <lý do> → kéo-lại
+veto: <lý do> → kéo-lại
+đi tiếp hay kéo lại: đi tiếp → đi-tiếp
+đi tiếp → đi-tiếp
+để yên → đi-tiếp
+kéo-lại = ghi `veto_state: da-veto` vào contract + một dòng sổ `type: veto` mang lý do nguyên văn + commit `Veto: <slug> — <tên>`; máy dừng ngay
+đi-tiếp = không ghi gì; in «cửa veto vẫn mở»
+<!-- GATE-ONESHOT-LAN-V>>> -->
 
 Câu dưới đây là bản gốc DUY NHẤT của điều khoản một-lượt-gõ. Mười hai thân
 lệnh cổng người chép nguyên văn, không tự diễn đạt; số bản phải có của từng
