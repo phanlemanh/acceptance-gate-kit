@@ -5,7 +5,7 @@ slug: nhan-lan-v-theo-huong
 owner: phanlemanh@gmail.com
 risk_tier: T2      # scripts/gate-card.js, commands/signoff.md, skills/acceptance/references/human-facing-language.md, CONTEXT.md, tests — không khớp t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -61,3 +61,4 @@ Bỏ quét Zwicky (entry `descope` trong sổ); trục kê tay:
 - Cân trên mọi kho: kho không có hồ sơ máy-đi-trước nhận thẻ giống từng byte (AC-3); người quen gõ `veto:` / `để yên` vẫn được nhận (AC-5).
 - Giới hạn đã khai: AC-5 đo chữ dạy trong thân lệnh, không có răng máy nào chứng phiên thi hành đúng — cùng giới hạn mọi thân lệnh cổng người hôm nay. Ngưỡng: ≥1 lần phiên ở kho tiêu thụ từ chối hoặc hiểu sai `kéo lại:` / `đi tiếp`.
 - Sửa `scripts/gate-card.js` làm hồ sơ ghim `scripts/**` hoá cũ tới chiến dịch ghim lại kế (luật re-pin theo mốc).
+- known-limits (Cổng Bằng chứng 05/10, Ngoài-1): ca `NC-AC4-cu` của vòng nhan-trang-thai-va-reality nay so bản trước vòng với commit lõi `62b7166c`, không so hai commit gate-card sau của vòng ấy (`a53bebc4e`, `d186f591`); `LT-AC6-im` cùng giả định «commit đầu chứa chuỗi = vật trọn của vòng», hiện còn đúng vì vòng loi-moi-tran-luot chỉ có một commit chạm gate-card.
