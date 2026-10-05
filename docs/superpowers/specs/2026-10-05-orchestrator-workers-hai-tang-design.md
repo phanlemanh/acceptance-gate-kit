@@ -349,6 +349,29 @@ Spec này là **thiết kế phương pháp** và sống ở kho kit, cạnh fin
 - Hồ sơ của vòng đó là neo cho giai đoạn 3.
 - Không chen vào làn R1 trước 12/10.
 
+### 5.1 Lộ trình đóng gói (crm → kit → chia sẻ)
+
+Owner duyệt ngày 05/10: thiết kế riêng và chạy thật ở crm trước, đo xong mới đóng gói vào kit.
+
+| Bước | Ở đâu | Điều kiện sang bước sau |
+|---|---|---|
+| 1 · Chạy thật | Vòng crm `dieu-phoi-hai-tang`, rồi đợt sau 14/10 | Thước §6 đạt |
+| 2 · Đóng gói | Vòng kit có ô với `Gốc:` trỏ hồ sơ crm; owner duyệt CỘNG; bật theo kho, mặc định tắt | Chạy được trên ≥ 2 kho mà không sửa lõi |
+| 3 · Chia sẻ | Bản phát hành kit; các kho khác cài theo mốc | — |
+
+**Ranh giới giữ ngay từ bước 1**, để bước 2 chỉ là chuyển chỗ chứ không phải viết lại. Mã ở
+`scripts/dieu-phoi/` không được ghi cứng thứ gì của crm.
+
+| Lớp | Gồm | Nằm ở |
+|---|---|---|
+| Lõi dùng chung | Bộ phát lịch, hook chặn S4, hook chờ người, kênh yêu cầu, khuôn `LUAT.md` và `hang-viec.json`, nghi thức mở và đóng đợt, bảng đồng hồ | `scripts/dieu-phoi/`. Sau này chuyển vào plugin kit |
+| Riêng từng kho | Ranh giới tệp, cổng dev, lệnh suite, nhánh chính, check được bỏ qua, luật migration, tài nguyên chung | Một tệp cấu hình đợt `dieu-phoi.config.json` cạnh `LUAT.md`, đọc lúc chạy |
+| Riêng từng máy, từng người | Chế độ quyền, auto-archive, phiên bản app, Remote Control | Cài đặt người dùng |
+
+**Chưa thiết kế:** nhiều người, hoặc nhiều máy, cùng làm một đợt trên cùng một kho. Ca này đã xảy ra
+ngày 26/09: PR #146 đẩy từ máy khác và merge ngoài hàng. Muốn làm thì trạng thái chung phải chuyển lên
+GitHub. Chỉ mở khi có một người dùng thứ hai thật làm neo.
+
 ## 6. Thước đo của đợt thử
 
 So với ngày 04/10. Máy đo bằng `su-kien.jsonl` và cùng script đếm token đã dùng ở finding.
