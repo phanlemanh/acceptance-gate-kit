@@ -119,10 +119,14 @@ Phiên giám sát dựng tệp này từ tệp lộ trình của kho, theo cách
 
 ### 4.3 Canh sức khoẻ máy
 
-Cứ 30″ một lần, đọc `sysctl vm.swapusage`, `vm.loadavg` và tiến trình có RSS lớn nhất. Ngưỡng ghi
+Cứ 30″ một lần, đọc `sysctl vm.swapusage`, `kern.memorystatus_vm_pressure_level`, `vm.loadavg` và tiến trình có RSS lớn nhất. Ngưỡng ghi
 trong `LUAT.md`:
-- **Khởi điểm:** swap dùng > 50 % hoặc > 8 GB → chế độ **giảm tải**. Không cấp lượt `s4` hay
-  `duong-nen` mới; lượt đang chạy vẫn chạy tiếp; ghi sự kiện `can_phan`.
+- **Khởi điểm:** áp lực bộ nhớ của macOS (`kern.memorystatus_vm_pressure_level`) ≥ 2, hoặc swap dùng
+  > 8 GB → chế độ **giảm tải**. Không cấp lượt `s4` hay `duong-nen` mới; lượt đang chạy vẫn chạy tiếp;
+  ghi sự kiện `can_phan`.
+- **Không dùng tỉ lệ swap.** macOS tự co giãn dung lượng swap. Ngày 05/10 máy đo 1,6/3 GB = 54 % lúc
+  đang khoẻ (áp lực mức 1, còn trống 75 %), nên tỉ lệ sẽ báo động giả. Lỗi này bộ phát lịch tự bắt
+  được khi chạy thử kế hoạch.
 - **Một tiến trình hệ thống vượt 8 GB RSS** (ví dụ `fseventsd` 19 GB ngày 04/10) → sự kiện
   `can_phan` kèm lệnh gỡ. Lệnh cần `sudo`, nên chỉ owner chạy.
 
