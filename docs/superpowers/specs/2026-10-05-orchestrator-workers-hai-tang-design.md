@@ -69,6 +69,7 @@ thiếu `Workflow`, nên không chạy được `/feature-loop` hay S4. Agent Te
 | `tra-loi/<id>.json` | Bộ phát lịch hoặc phiên giám sát | Trả lời một yêu cầu: duyệt, bác hay chuyển, ai quyết, lý do |
 | `cho-nguoi/<phiên>.json` | Hook của thợ | Phiên đang chờ owner; hook tự ghi và tự xoá (§4.9) |
 | `ranh-gioi-them.json` | Bộ phát lịch | Các tệp máy đã duyệt nới ranh giới (§4.9) |
+| `tiep/<phiên>.json` | Bộ phát lịch | Hàng kế của mỗi phiên thợ, chọn theo `sau` và `uu_tien` (§4.12) |
 | `trang-thai.json` + `bang.html` | Bộ phát lịch | Ảnh trạng thái và trang đồng hồ dựng từ nó |
 
 **Không đường quan trọng nào đi qua tin nhắn liên phiên.** Lượt khoá, lệnh hoá cũ và lệnh merge đều
@@ -265,6 +266,74 @@ Ca #249 ngày 05/10: phiên điều phối chỉ thấy nhánh đỏ khoảng 50
   - Canh sức khoẻ §4.3 đã bao phần này.
   - Muốn chặn S4 xuyên kho thì phải đặt hook ở mức user. Đó là cấu hình bền, nên owner duyệt riêng.
 
+### 4.11 Hành trình của owner
+
+Hình: [2026-10-05-orchestrator-workers-hanh-trinh.html](2026-10-05-orchestrator-workers-hanh-trinh.html).
+
+**Năm nguyên tắc:**
+1. **Owner chỉ xuất hiện ở bốn lúc:** mở đợt, quyết theo lô, sự cố cần người, đóng đợt. Lúc đợt đang
+   chạy, owner không phải làm gì.
+2. **Trạng thái tự đến, owner không phải đi hỏi.** Nó tới bằng push, hoặc hiện sẵn trên thanh bên và
+   trên bảng đồng hồ.
+3. **Mỗi lần gọi owner chỉ cần một chạm.** Một thẻ đọc trong một phút, một khuyến nghị, một chạm
+   (theo North Star).
+4. **Dùng giao diện có sẵn của app trước khi dựng cái mới.** App đã có nhóm ở thanh bên, chấm «cần anh»,
+   tên phiên, thông báo của hệ điều hành và Remote Control.
+5. **Nói tự nhiên là đủ.** Owner nói câu thường với phiên giám sát; không có lệnh nào phải nhớ.
+
+**Bốn chỗ owner dùng:**
+
+| Chỗ | Ở đâu | Cho gì |
+|---|---|---|
+| Phiên giám sát | Ghim đầu nhóm «Đợt <tên>» ở thanh bên | Chỗ duy nhất để nói chuyện: mở, tạm dừng, đóng đợt; đổi kế hoạch; hỏi |
+| Nhóm «Đợt <tên>» | Thanh bên của app desktop; Remote Control trên điện thoại | Mỗi phiên thợ một dòng, tên phiên là trạng thái (`P2 · R1c man-okr`). Chấm «cần anh» của app chính là hộp quyết định gốc |
+| Bảng đồng hồ | Trang lộ trình đã ghim (phiên giám sát đăng lại ở mỗi mốc), cộng trang local `bang.html` cập nhật liên tục | Toàn cảnh: hàng xong, đang chạy, đang chờ; ai giữ S4; hàng merge; sức khoẻ máy; nhịp cuối. Hộp quyết định có link mở thẳng phiên |
+| Push | Điện thoại qua Remote Control, cộng thông báo của hệ điều hành | Gom tối đa 1 lần mỗi 30′: «3 việc chờ anh: …». Khi có sự cố: nguyên nhân kèm lệnh chép sẵn |
+
+**Hành trình theo giai đoạn:**
+
+| Giai đoạn | Anh làm | Anh thấy | Máy làm | Số chạm (04/10 → mới) |
+|---|---|---|---|---|
+| **1 · Mở đợt** | Nói «Mở đợt <tên>: <mục tiêu, mốc>» với một phiên mới; phiên này sẽ thành phiên giám sát. Duyệt thẻ khởi tạo. Bấm N chip | Một câu hỏi: «các việc tay này anh đã làm chưa?» (bài học 04/10). Rồi thẻ khởi tạo: bảng dãy P1…Pn (hàng, mốc) và 3 quyết định có khuyến nghị: ưu tiên khi tranh chấp, làn veto, quyền tự merge | Khảo sát chỉ đọc (tối đa 30′), dựng `hang-viec.json`. Sau khi anh duyệt thì bật đợt: `LUAT.md`, symlink, bộ phát lịch, task lịch 30′, nhóm ở thanh bên, ghim phiên giám sát. Mở N chip kèm lời ghi danh | 7 tin + 7 chip trong 2 giờ 09′ → 1 câu + 1 thẻ + N chip (N = 3–4) |
+| **2 · Chạy** | Không làm gì | Tên phiên đổi khi phiên chuyển hàng. Bảng tự cập nhật | Thợ chạy vòng, xin lượt, gửi yêu cầu. Bộ phát lịch cấp lượt, merge, báo hoá cũ. Phiên giám sát chỉ thức khi có `can_phan` | 20 tin «kiểm tra» → 0 |
+| **3 · Quyết theo lô** | Mở nhóm hoặc bảng. Vào phiên có chấm, đọc thẻ, ký hoặc trả lời. Muốn đổi kế hoạch thì nói với phiên giám sát | Push «N việc chờ anh». Buổi tối, bảng có dòng «đêm nay sẽ kẹt nếu không quyết: k việc» | Hook ghi `cho-nguoi`, rồi tự xoá khi anh trả lời. Phiên giám sát gom việc và push | Cổng trong thiết kế (≤ 3 mỗi hàng). Lượt ngoài thiết kế giảm khi H3 vào kit |
+| **4 · Sự cố** | Chạy lệnh chép sẵn khi cần `sudo` hay tiền. Mở lại app nếu app sập | Push nêu nguyên nhân và lệnh gỡ. Sau sập: «đã khôi phục k/n phiên» | Máy đã tự giảm tải. Task lịch bắn ngay khi app mở lại; phiên giám sát kiểm bộ phát lịch (vẫn chạy), thu hồi khoá mồ côi, gọi các phiên thợ chạy tiếp, mở lại phiên bị lưu trữ | 2 lần `sudo` + nhắc mở lại từng phiên → chỉ còn lệnh cần người |
+| **5 · Đóng đợt** | Duyệt thẻ đóng đợt | Thẻ đóng đợt: kết quả, năm dòng số và thước §6 so với đợt trước, việc dở (mỗi dòng có khuyến nghị: chuyển sang đợt sau, ghi sổ, hay bỏ), các phiên sẽ lưu trữ, luật mới đề xuất đưa vào khuôn | Xả đợt: không cấp lượt mới, hoàn tất merge dở. Sau khi anh duyệt thì tắt đợt (dừng bộ phát lịch, gỡ symlink để hook im, xoá task lịch), lưu trữ phiên thợ, dọn worktree đã gộp (kiểm `git status --porcelain` trước), đăng lại trang lộ trình, viết báo cáo đợt | Chưa có nghi thức → 1 thẻ |
+
+**Câu nói mẫu** với phiên giám sát. Đây là gợi ý, không phải cú pháp bắt buộc:
+- «Mở đợt sau-14-10: K2–K4 và làn Deal, mốc 07/12»
+- «Tạm dừng đợt» / «Chạy tiếp đợt». Tạm dừng nghĩa là xả: không cấp lượt mới; phiên đang chạy làm xong
+  bước hiện tại.
+- «Đẩy K3 lên trước K2» · «Thêm việc X cho P2» · «Cho P4 nghỉ»
+- «Đóng đợt»
+
+**Lần đầu trên một máy hay một kho** (chỉ làm một lần):
+- Tắt «Auto-archive after PR merge or close» trong app.
+- Cập nhật app để phiên desktop có Claude Code ≥ 2.1.288.
+- Gộp vòng crm `dieu-phoi-hai-tang`, vòng mang hook và `scripts/dieu-phoi/`.
+- Chế độ quyền của phiên giám sát: ở chế độ mặc định, mỗi lần chuyển phiên vào nhóm hay đổi tên phiên,
+  app hỏi duyệt. Owner chọn giữ như vậy hay để phiên giám sát chạy auto.
+
+### 4.12 Vòng đời của đợt và của phiên thợ
+
+**Đợt:**
+- Chuỗi trạng thái: `nháp` → `đang chạy` → `đang đóng` → `đã đóng`.
+- Từ `đang chạy` có hai trạng thái phụ và đều quay lại được:
+  - `tạm dừng`: do owner bật và tắt;
+  - `giảm tải`: do máy tự bật, tự về khi máy khoẻ.
+- Mỗi lần chuyển trạng thái là một dòng Nhật ký và một sự kiện. Trạng thái hiện ở đầu bảng đồng hồ.
+
+**Phiên thợ:**
+1. **Ghi danh.** Chip mở, phiên đọc `LUAT.md`, phiên giám sát ghép phiên với dãy của nó.
+2. **Làm hàng.** Chạy `/feature-loop`; trong lúc đó có thể chờ lượt hoặc chờ người.
+3. **Hàng xong.** Bộ phát lịch ghi `tiep/<phiên>.json` là hàng kế, chọn theo `sau` và `uu_tien`. Thợ tự
+   mở hàng kế, không gọi owner.
+4. **Hết việc.** Phiên giám sát đổi tên thành `P2 · xong`, và đánh dấu đã xong ở thanh bên.
+5. **Nghỉ.** Phiên được lưu trữ khi đóng đợt, hoặc khi owner nói «cho P2 nghỉ».
+
+Phiên giám sát chỉ đổi tên phiên thợ khi phiên **đổi hàng**, không đổi ở mỗi bước. Bước chi tiết nằm
+trên bảng. Làm vậy để thanh bên không nhấp nháy, và để không sinh thẻ duyệt của app ở mỗi bước.
+
 ## 5. Giai đoạn
 
 | Giai đoạn | Gồm | Điều kiện qua |
@@ -334,6 +403,8 @@ Theo luật kit: không có assertion chỉ âm tính; mỗi phép đo phải th
   - `viec-phu` trùng trong 24 giờ → gộp làm một, không sinh `can_phan` thứ hai.
   - Phiên có đơn trong `xin/` mà `idle_prompt` bắn → không vào hộp quyết định (chiều im).
   - Hook `UserPromptSubmit` xoá đúng tệp `cho-nguoi` của phiên đó.
+- **Hàng kế (§4.12):** `tiep/` chọn đúng hàng có `sau` đã xong và `uu_tien` nhỏ nhất. Hàng chưa đủ
+  phụ thuộc thì không bao giờ được chọn. Dãy hết hàng → phiên ghi trạng thái «xong», không bịa hàng mới.
 
 ## 8. Đường lùi
 
