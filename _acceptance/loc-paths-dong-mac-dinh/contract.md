@@ -5,9 +5,9 @@ slug: loc-paths-dong-mac-dinh
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/** + scripts/pre-merge-check.sh (t3_paths)
 surfaces: [cli]
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-06T10:43:37Z
 design_doc: docs/superpowers/specs/2026-10-06-loc-paths-dong-mac-dinh-design.md
 ---
 
