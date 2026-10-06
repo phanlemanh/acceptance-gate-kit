@@ -1,6 +1,6 @@
 # Giá làn ghim lại — năm điểm giảm thời gian, token và số lượt (thiết kế)
 
-**Ngày:** 2026-10-06 · **Trạng thái:** bản thiết kế chờ owner duyệt · **Hạng dự kiến:** T3
+**Ngày:** 2026-10-06 · **Trạng thái:** owner DUYỆT 06/10 — Đ3 chế độ THAY, thứ tự Đ1 → Đ4 → Đ5 → Đ3 → Đ2, một vòng T3 · **Hạng dự kiến:** T3
 (đổi cái gì được tính là «đã chứng lại» trong dòng `repin`, và bộ đọc pin).
 
 Gốc: crm-onehub/_acceptance/kiem-cheo-sau-gop — cùng đợt với
@@ -180,7 +180,7 @@ chạy với `.env` có khoá Zalo, CI thì không. Kéo theo một vòng sửa 
   `.env`; chỉ chuỗi rỗng mới thắng. Ở crm mã đọc khoá bằng `Boolean(process.env.X?.trim())`
   nên rỗng ≡ vắng, mô phỏng đúng.
 - Eval vẫn chạy với env đầy đủ (eval model thật, eval Zalo thật cần khoá).
-- **Chế độ — máy khuyến nghị THAY, không THÊM:** suite chạy một lần, ở env giống CI; dòng
+- **Chế độ THAY, không THÊM (owner duyệt 06/10):** suite chạy một lần, ở env giống CI; dòng
   repin ghi `suites_env: "ci"`. Lý do bằng số: thêm một lượt suite là cộng vào ~12 làn/ngày ở
   crm (suite là phần cố định lớn nhất của làn trung vị 7 phút); còn một ca suite cần khoá
   thật thì CI cũng đỏ nó rồi — lượt «env đầy đủ» của suite không phủ thêm điều gì CI phủ, và
