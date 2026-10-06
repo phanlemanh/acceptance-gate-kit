@@ -426,7 +426,10 @@ CASES.push({
     if (!m) return ['khuon SKILL thieu: khong thay marker REPIN-TEMPLATE'];
     const tl = m[1].split('\n').find(l => l.includes('"kind":"repin"'));
     const filled = tl.replaceAll('<ISO>', '2026-09-20T00:00:00Z').replaceAll('<id>', 'x').replaceAll('<40-hex>', 'a'.repeat(40)).replaceAll('"<E>"', '"E1"');
-    const tKeys = Object.keys(JSON.parse(filled));
+    // Hai khoá của hồ sơ gia-lan-ghim-lai (2.23) chỉ hiện khi kho BẬT khoá của làn (chap_chon ←
+    // repin_retry, suites_env ← repin_ci_blank_env); fixture ca này không bật khoá nào nên bỏ chúng
+    // khỏi phép so bằng hệt — ca khuôn của chính chúng là AC6-khuon-writer.
+    const tKeys = Object.keys(JSON.parse(filled)).filter(k => !['chap_chon', 'suites_env'].includes(k));
     for (const k of ['evals_not_machine', 'evals_not_machine_touched']) {
       if (!tKeys.includes(k)) errs.push(`khuon SKILL thieu khoa ${k}`);
     }

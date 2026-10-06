@@ -142,7 +142,8 @@ check('LN5 khoá dòng repin của SCRIPT == khoá khuôn REPIN-TEMPLATE trong S
   assert.ok(m, 'không thấy marker REPIN-TEMPLATE');
   const tl = m[1].split('\n').find(l => l.includes('"kind":"repin"'));
   const filled = tl.replaceAll('<ISO>', '2026-09-09T00:00:00Z').replaceAll('<id>', 'x').replaceAll('<40-hex>', 'a'.repeat(40)).replaceAll('"<E>"', '"E1"');
-  const tKeys = Object.keys(JSON.parse(filled));
+  // chap_chon / suites_env chỉ hiện khi kho bật khoá của làn (hồ sơ gia-lan-ghim-lai) — fixture này không bật.
+  const tKeys = Object.keys(JSON.parse(filled)).filter(k => !['chap_chon', 'suites_env'].includes(k));
   assert.ok(tKeys.includes('evals_exit'), 'khuôn SKILL chưa có evals_exit');
   assert.ok(tKeys.includes('evals_not_run'), 'khuôn SKILL chưa có evals_not_run — khuôn trôi khỏi bên viết');
   // Hình dạng CÓ ô khai không-chạy: phải khớp TRỌN tập khoá của khuôn. Bản
