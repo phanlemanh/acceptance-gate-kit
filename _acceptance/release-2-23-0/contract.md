@@ -5,7 +5,7 @@ slug: release-2-23-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 2 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -71,3 +71,14 @@ Source input: `git log v2.22.0..HEAD` · nếp phát hành `_acceptance/release-
 
 - Hạng T2: không tệp nào khớp `t3_paths`.
 - Cả hai vòng của cửa sổ neo kho tiêu thụ (crm); luật (b) — mốc này là mốc KHO NHẬN kế tiếp sau 2.22.0.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-2): repin-lane.mjs header contract is stale: no exit 4 / 128+n, no --tran-phut, and «env hiện tại» is no longer true — Lời giải thích ở đầu công cụ ghim lại còn thiếu một mã kết quả mới và một tuỳ chọn mới, nên ai chỉ đọc phần đó sẽ hiểu sai cách dùng. Phần hướng dẫn chính thức đã cập nhật đúng.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-3): The «lệch kỳ vọng» predicate now has a third hand-written copy — Cùng một quy tắc phán đoán đang được viết tay ở ba chỗ. Hôm nay chúng khớp nhau, nhưng nếu sau này chỉ sửa một chỗ thì việc chạy lại và việc chốt kết quả có thể kết luận khác nhau.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-5): doChiPhi takes the first numeric token: thousands separators and leading numbers give a wrong cost delta with no warning — Nếu lệnh đo chi phí in số có dấu phân cách hàng nghìn hoặc có số khác đứng trước, con số chi phí báo cho người quyết định sẽ sai mà không có cảnh báo. Mức chênh lệch trông hợp lý nên dễ bị tin nhầm.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-6): A large lane budget overflows setTimeout and triggers vuot-tran (exit 4) right away — Nếu ai đó đặt trần thời gian cho một lượt ghim lại ở mức rất lớn để ý nói không giới hạn, mọi lượt sẽ bị dừng ngay lập tức và báo vượt trần. Chỉ xảy ra khi đặt con số cực lớn.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-8): Hình dạng 1/2 — AC-6 rút danh sách khoá từ khối LAN-KHOA, mà bộ đọc thật (docKhoa) không dùng khối đó — Danh sách các khoá cấu hình ghi trong tài liệu và danh sách mà công cụ thật sự đọc là hai bản riêng. Thêm một khoá mới mà quên cập nhật tài liệu thì kiểm thử vẫn xanh.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-9): Hình dạng 6 — Chiều đỏ của E1–E6 và chiều xanh của E7 đo bản archive cố định SAU-GIA, không đo cây đang kiểm — Bộ đo kiểm tra lỗi dùng một bản chốt cố định thay vì cây đang kiểm. Hôm nay hai bản giống nhau nên chưa sai, nhưng sau này nếu bài kiểm bị làm yếu đi mà không đánh dấu thì bộ đo có thể không nhận ra.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-10): Hình dạng 5+4 — Chiều đỏ AC-7 hứa mỗi khoá một bản sao + ghim «đổi mặc định: <khoá>» / «thêm ngoài danh sách»; ma trận chỉ có 3/5 khoá, ghim là mảnh vi phân hoặc chính chuỗi tiêm — Tài liệu hứa mỗi khoá cấu hình đều có phép thử gây lỗi riêng, nhưng thực tế chỉ 3 trong 5 khoá có. Người đọc có thể tưởng độ phủ đầy đủ hơn thực tế.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-11): Hình dạng 2/3 — Round-trip khuôn REPIN-TEMPLATE chỉ so khoá tầng ngoài; trường lồng không được đo (writer ghi tong_ket.chi_phi_loi ngoài khuôn; chap_chon[].lenh không ca nào ghim) — Phép kiểm khuôn dòng ghi lại chỉ soi lớp ngoài cùng, nên một số trường bên trong có thể bị thiếu hoặc thừa mà không ai phát hiện. Hậu quả là sổ ghim lại có thể thiếu thông tin mà kiểm thử vẫn xanh.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-12): Hình dạng 2 — «Bảng chân trị viết trước» của AC-1 nằm trong chính module được đo; ca đọc kỳ vọng từ vật — Bảng đáp án dùng để kiểm quy tắc chạy lại nằm cùng chỗ với chính quy tắc đó. Nếu ai sửa cả hai cùng lúc theo hướng sai thì kiểm thử vẫn xanh.
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-13): Hình dạng 5 — AC-4 hứa hai ô lỗi của lệnh đo chi phí («thoát 1 / không in số»), ca chỉ phủ một ô — Khi lệnh đo chi phí chạy xong nhưng không in ra con số nào, không có phép kiểm nào xác nhận thông báo lỗi hiện đúng. Trường hợp này chưa được kiểm thử.
+- Hạt giống mới của cửa sổ: `docs/plans/2026-10-06-hat-giong-rang-lan-ghim-lai-sau-moc-2-23.md` (Ngoài-1, Ngoài-4, Ngoài-7 → «mở hợp đồng mới», owner 06/10).
