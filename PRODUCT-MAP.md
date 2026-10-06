@@ -6,12 +6,12 @@
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>3 việc"]
+  GD --> B["Sắp mở vòng<br/>4 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>90 việc"]
+  GB --> DG["Đã giao<br/>91 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>12 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>5 việc"]
 ```
@@ -36,6 +36,7 @@ flowchart TD
 
 ## Sắp mở vòng
 
+- Bộ lọc hoá cũ theo paths đóng mặc định — chỉ bớt tệp khi MỌI mục paths của hồ sơ thuộc dạng đã chứng; thư mục trần thành thư-mục/** chỉ khi cây đang kiểm có thư mục ấy; mục không trỏ được tới tệp nào thì hồ sơ giữ luật cũ; hai bộ đọc paths trong làn ghim lại về một nguồn (`loc-paths-dong-mac-dinh`)
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
@@ -83,6 +84,7 @@ flowchart TD
 - Eval máy khai mã thoát mong đợi (expected_exit) — một giới hạn đã khai không còn bị năm bộ đọc coi là thất bại (`eval-khai-ma-thoat-mong-doi`) — đã giao — đã nghỉ, giữ sử liệu
 - Pre-merge enforce gap-probe presence (merge-boundary, thay cho hook write-time) (`gap-probe-presence-hook`)
 - Làn ghim lại phải NÓI RA ô nó không đo — eval ngoài làn máy (ui-check/judgment), vật đo của chúng đã đổi, và AC không có chốt máy — ở dòng pin, section Re-pin, thẻ hai cổng và lint W8; không đổi hành vi chặn nào (`ghim-lai-noi-ra-o-khong-do`)
+- Giá làn ghim lại, Vòng A — chạy lại lệnh đỏ một lần, trần mỗi lượt và dọn sạch tiến trình khi dừng hay bị ngắt, tổng kết cuối lượt, suite ở môi trường giống CI (kho tự bật) (`gia-lan-ghim-lai`)
 - Bộ khớp glob của cổng hiểu `**/` là không-hoặc-nhiều thư mục — `**/*.md` bắt cả markdown ở gốc kho (`glob-hai-sao-khop-goc-kho`)
 - sổ vàng in cho người được máy đo thật đầu-ra (render round-trip, ma trận đồng thuận toàn phần) + từ điển biệt ngữ lời ký để lớp giám khảo ngôn-ngữ có đường PASS sạch (`gold-output-measure`)
 - Gom đúc kết 08/09 thành một vòng T3 trước mốc 2.10.0 — nợ C1 (7 Known limits của lop-bang-chung-nhin-thay), K1 null-guard workflow, K2 danh tính hết trạm thu phí, K3 W6/W8 thu phạm vi, K5 S5 mặc định PR, K8 làn conventions chỉ chấm file đổi (`gom-duc-ket-2-10-0`)

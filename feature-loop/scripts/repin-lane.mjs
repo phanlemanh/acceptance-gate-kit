@@ -34,13 +34,20 @@ import { globToRe } from './carry-plan.mjs';
 import { hoSoDaThong, chup, soChup } from './chup-ho-so-da-thong.mjs';
 // Dòng tự xưng của bàn đo cho dấu lượt đỏ — không bao giờ ném (hồ sơ lan-ghim-lai-giu-tron-loi-loi).
 import { docTai } from './tai-may.mjs';
+// Hồ sơ gia-lan-ghim-lai (Vòng A): chạy lệnh trong nhóm riêng + dừng sạch cả cây (Đ5), quyết chạy lại
+// một lần (Đ4), năm khoá của làn + tổng kết cuối lượt.
+import { chayLenh } from './lib/chay-lenh.mjs';
+import { docKhoa, doChiPhi, dungTongKet } from './lib/lan-khoa.mjs';
+import { coChayLai, rutTenCa } from './lib/chay-lai.mjs';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const KNOWN = new Set(['root', 'slug', 'reason', 'run-id', 'ag-root', 'write', 'allow-dirty', 'skip-unchanged']);
+const KNOWN = new Set(['root', 'slug', 'reason', 'run-id', 'ag-root', 'write', 'allow-dirty', 'skip-unchanged', 'tran-phut']);
+// Đồng hồ trần (AC-2) tính từ lúc làn KHỞI ĐỘNG, không từ suite đầu.
+const tKhoiDong = Date.now();
 const BOOL = new Set(['write', 'allow-dirty', 'skip-unchanged']);
 
-function usage(msg) { console.error(`repin-lane: ${msg}\nusage: repin-lane.mjs --root <repo> --slug <s> [--slug <s2> ...] [--reason "<lý do>"] [--run-id <id>] [--ag-root <path>] [--write] [--allow-dirty] [--skip-unchanged]`); process.exit(3); }
+function usage(msg) { console.error(`repin-lane: ${msg}\nusage: repin-lane.mjs --root <repo> --slug <s> [--slug <s2> ...] [--reason "<lý do>"] [--run-id <id>] [--ag-root <path>] [--write] [--allow-dirty] [--skip-unchanged] [--tran-phut <phút>]`); process.exit(3); }
 function die(msg) { console.error(`repin-lane: ${msg}`); process.exit(2); }
 const log = (s) => process.stderr.write(`[lane] ${s}\n`);
 
@@ -61,6 +68,7 @@ const flags = { slug: [] };
 if (!flags.root || !flags.slug.length) usage('thiếu --root hoặc --slug');
 // Bỏ qua KHÔNG BAO GIỜ là một pin: một lượt bỏ qua không chạy suite nào, nên nó
 // không có tư cách ghi dòng repin. Hai cờ loại trừ nhau, fail-CLOSED ở usage.
+if (flags['tran-phut'] !== undefined && !(Number.isFinite(Number(flags['tran-phut'])) && Number(flags['tran-phut']) > 0)) usage(`--tran-phut phải là số phút > 0 (nhận «${flags['tran-phut']}»)`);
 if (flags['skip-unchanged'] && flags.write) usage('--skip-unchanged và --write loại trừ nhau: một lượt bỏ qua không chạy phép đo nào nên không được ghi pin. Chạy ĐO trước (--skip-unchanged), rồi ghim bằng một làn thật (--write) nếu cần');
 const slugs = [...new Set(flags.slug)];
 
@@ -156,6 +164,19 @@ const core = mods['lib/evidence-core.cjs'];
 const { parseEvals, expectedExits } = mods['lib/eval-yaml.cjs'];
 const { DA_THONG_CONG_2 } = mods['lib/workspace-record.cjs'];
 
+// ── Năm khoá của làn (hồ sơ gia-lan-ghim-lai) — VẮNG = hành vi trước vòng. Giá trị sai → nguồn hỏng (2).
+let khoa;
+try { khoa = docKhoa(configText, core); } catch (e) { die(String((e && e.message) || e)); }
+const tranPhut = flags['tran-phut'] !== undefined ? Number(flags['tran-phut']) : khoa.repin_budget_min;
+const hanMs = tranPhut ? tKhoiDong + tranPhut * 60000 : null;
+const conLai = () => (hanMs == null ? null : hanMs - Date.now());
+// Env của suite: các khoá tuỳ chọn đặt RỖNG tường minh — xoá biến thì bộ nạp .env (Bun, node
+// --env-file) điền lại giá trị (đo 06/10). Eval luôn chạy env đầy đủ.
+const envCi = khoa.repin_ci_blank_env.length
+  ? Object.assign({}, process.env, Object.fromEntries(khoa.repin_ci_blank_env.map(k => [k, ''])))
+  : null;
+const nhanCi = envCi ? `môi trường giống CI (biến rỗng: ${khoa.repin_ci_blank_env.join(', ')})` : '';
+
 // ── git: sha = HEAD, cây phải sạch ngoài _acceptance/ (pin phải là cây đã đo) ──
 const gitRaw = (...a) => { try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch (e) { return die(`git ${a[0]} thất bại tại ${root}: ${String(e.stderr || e.message).trim().split('\n')[0]}`); } };
 const git = (...a) => gitRaw(...a).trim();
@@ -243,74 +264,118 @@ for (const s of perSlug) {
 }
 
 // ── chạy: một lệnh trùng chỉ chạy MỘT lần (dedupe cmd như S4) ─────────────
-const results = new Map(); // cmd → exit
+// Khoá gộp = môi trường + lệnh (hồ sơ gia-lan-ghim-lai, Đ3): một eval có lệnh trùng nguyên văn một
+// suite chạy ở env CI thì vẫn chạy riêng — hai môi trường là hai phép đo. Không bật env CI thì mọi
+// lệnh mang thẻ 'full' và việc gộp y như trước vòng.
+const results = new Map(); // khoaLenh → { exit, lan: [{exit, ms, log}], model, chap_chon? }
+const khoaLenh = (cmd, envTag) => `${envTag}\0${cmd}`;
+// Lệnh thuộc eval model thật, tính TRƯỚC khi chạy gì: tính chất model thuộc NGUYÊN VĂN LỆNH — không
+// thuộc nhãn gặp lệnh lần đầu (S4 lượt 1), không thuộc môi trường chạy nó (S4 lượt 2). Một suite dùng
+// chung lệnh với eval model, ở env nào, vẫn là lệnh model: không chạy lại (AC-1), và lần chạy được đếm.
+const lenhModel = new Set(perSlug.flatMap(s => s.evals.filter(e => khoa.model_evals.has(`${s.slug}/${e.id}`)).map(e => e.cmd)));
+// Điểm DUY NHẤT dựng bản ghi một lệnh — cả đường nối đuôi lẫn song song đi qua đây, nên cờ model không
+// thể được xét ở chỗ này mà quên ở chỗ kia (hai lượt S4 trước đều là một chỗ gặp lệnh bị sót).
+const taoRec = (cmd, envTag) => ({ exit: null, lan: [], model: lenhModel.has(cmd), envTag });
+const chapChon = [];        // mục `chap_chon` của dòng pin (Đ4)
+const dangChay = new Set(); // handle chayLenh đang chạy — bộ dừng (trần/tín hiệu) giết cả cây từng cái
+const daXong = new Set();   // nhãn lệnh đã có kết quả — phần bù là `chua_chay` khi làn dừng sớm
 // Lệnh đỏ → nhật ký TRỌN (hồ sơ lan-ghim-lai-giu-tron-loi-loi, 03/10/2026). Bản 2.20 chỉ in
 // 30 dòng cuối: với suite 1 507 bài của crm đó là phần tổng kết, lời lỗi mất, và chẩn đoán
 // đầu tiên của phiên thi công 02/10 SAI vì đoán thiếu lời lỗi. Tệp đi ra thư mục lượt chạy
 // (eval-executors.md «Where a run writes its artifacts»), KHÔNG vào _acceptance/; lệnh xanh
 // không sinh tệp nào. Đường lưu tương đối gốc kho để dấu lượt đỏ trỏ tới được từ mọi slug.
-const nhatKy = new Map(); // cmd → đường nhật ký (tương đối --root) | null khi không ghi được
 let soNhatKy = 0;
-function runCmd(cmd, label) {
-  if (results.has(cmd)) { log(`${label}: (đã chạy) → exit ${results.get(cmd)}`); return results.get(cmd); }
-  const t0 = Date.now();
-  const r = spawnSync('bash', ['-c', cmd], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 256 * 1024 * 1024, env: process.env });
-  const exit = r.status === null ? 1 : r.status;
-  return ghiKetQua(cmd, label, exit, String(r.stdout || ''), String(r.stderr || ''), Date.now() - t0);
-}
-// Ghi kết quả MỘT lệnh — dùng chung cho đường nối đuôi (runCmd) và đường song song (runSuites):
-// dòng log, nhật ký trọn khi đỏ, 30 dòng đuôi. Một chỗ ghi nên hai đường không trôi khỏi nhau.
-function ghiKetQua(cmd, label, exit, out, err, ms) {
-  results.set(cmd, exit);
-  log(`${label}: ${cmd} → exit ${exit} (${(ms / 1000).toFixed(1)}s)`);
-  if (exit !== 0) { // NHAT-KY-KHI-DO
-    try {
-      soNhatKy += 1;
-      const ten = `${String(soNhatKy).padStart(2, '0')}-${label.replace(/[^\w.-]+/g, '-').slice(0, 60)}.log`;
-      const rel = ['.acceptance-runs', slugs[0], runId.startsWith('repin-') ? runId : `repin-${runId}`, ten].join('/');
-      const abs = path.join(root, ...rel.split('/'));
-      fs.mkdirSync(path.dirname(abs), { recursive: true });
-      // Thư mục lượt chạy TỰ ẨN khỏi git: kho chưa khai `.acceptance-runs/` trong .gitignore (đo 03/10:
-      // radar, oneflow, media-library) mà `git add -A` sau lượt đỏ thì nhật ký vào lịch sử, và luật
-      // hoá cũ đếm nó là mã đổi — mọi hồ sơ cũ theo. Vật tự lo, không kho nào phải làm gì (luật 26/09).
-      const anGit = path.join(root, '.acceptance-runs', '.gitignore'); // TU-AN-GIT
-      if (!fs.existsSync(anGit)) fs.writeFileSync(anGit, '*\n');
-      const dau = `# lệnh: ${cmd}\n# mã thoát: ${exit}\n=== `;
-      fs.writeFileSync(abs, dau + 'stdout ===\n' + out + '\n=== stderr ===\n' + err);
-      nhatKy.set(cmd, rel);
-      process.stderr.write(`    nhật ký trọn: ${rel}\n`);
-    } catch (e) {
-      nhatKy.set(cmd, null);
-      process.stderr.write(`    (không ghi được nhật ký trọn: ${String((e && e.code) || (e && e.message) || e).split('\n')[0]})\n`);
-    }
-    const tail = (out + err).split('\n').filter(Boolean).slice(-30);
-    for (const l of tail) process.stderr.write(`    ${l}\n`);
+function ghiNhatKyNeuDo(cmd, label, exit, out, err) {
+  if (exit === 0) return undefined;
+  let rel = null;
+  try { // NHAT-KY-KHI-DO
+    soNhatKy += 1;
+    const ten = `${String(soNhatKy).padStart(2, '0')}-${label.replace(/[^\w.-]+/g, '-').slice(0, 60)}.log`;
+    rel = ['.acceptance-runs', slugs[0], runId.startsWith('repin-') ? runId : `repin-${runId}`, ten].join('/');
+    const abs = path.join(root, ...rel.split('/'));
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    // Thư mục lượt chạy TỰ ẨN khỏi git: kho chưa khai `.acceptance-runs/` trong .gitignore (đo 03/10:
+    // radar, oneflow, media-library) mà `git add -A` sau lượt đỏ thì nhật ký vào lịch sử, và luật
+    // hoá cũ đếm nó là mã đổi — mọi hồ sơ cũ theo. Vật tự lo, không kho nào phải làm gì (luật 26/09).
+    const anGit = path.join(root, '.acceptance-runs', '.gitignore'); // TU-AN-GIT
+    if (!fs.existsSync(anGit)) fs.writeFileSync(anGit, '*\n');
+    const dau = `# lệnh: ${cmd}\n# mã thoát: ${exit}\n=== `;
+    fs.writeFileSync(abs, dau + 'stdout ===\n' + out + '\n=== stderr ===\n' + err);
+    process.stderr.write(`    nhật ký trọn: ${rel}\n`);
+  } catch (e) {
+    rel = null;
+    process.stderr.write(`    (không ghi được nhật ký trọn: ${String((e && e.code) || (e && e.message) || e).split('\n')[0]})\n`);
   }
-  return exit;
+  const tail = (out + err).split('\n').filter(Boolean).slice(-30);
+  for (const l of tail) process.stderr.write(`    ${l}\n`);
+  return rel;
+}
+// Ghi MỘT lần chạy — dùng chung cho đường nối đuôi và đường song song: dòng log, nhật ký trọn khi
+// đỏ, 30 dòng đuôi. Một chỗ ghi nên hai đường không trôi khỏi nhau.
+function ghiLan(cmd, label, r, lanThu, envTag) {
+  const veCi = envTag === 'ci' && r.exit !== 0 ? ` (${nhanCi})` : '';
+  log(`${label}${lanThu > 1 ? ' (chạy lại)' : ''}: ${cmd} → exit ${r.exit} (${(r.ms / 1000).toFixed(1)}s)${veCi}`);
+  const logRel = ghiNhatKyNeuDo(cmd, lanThu > 1 ? `${label}-lan-${lanThu}` : label, r.exit, r.out, r.err);
+  return { exit: r.exit, ms: r.ms, log: logRel, out: r.out, err: r.err };
+}
+// Chờ kết quả một lệnh. Đã vào dừng sớm (trần / tín hiệu) thì luồng chính TREO tại đây: lệnh vừa bị
+// giết trả về «exit 1», và nếu luồng chính đi tiếp nó sẽ chạy eval kế rồi thoát 1 trước khi bộ dừng kịp
+// ghi dấu và thoát mã riêng. Bộ dừng giữ vòng sự kiện sống (hẹn giờ SIGKILL) rồi tự process.exit.
+let dangDung = false;
+const treo = () => new Promise(() => {});
+function batDau(cmd, env) { const h = chayLenh(cmd, { cwd: root, env }); dangChay.add(h); h.done.then(() => dangChay.delete(h)); return h; }
+async function cho(h) { const r = await h.done; if (dangDung) await treo(); return r; }
+// Chạy lại (Đ4) — sau khi khối song song (nếu có) đã xong, một mình. Lần hai đạt → ghi chap_chon.
+async function chayLaiNeuCan(rec, cmd, label, env, envTag, lech) {
+  const l1 = rec.lan[0];
+  const q = coChayLai({ khoa: khoa.repin_retry, lech: lech(l1.exit), laModel: rec.model, msLanDau: l1.ms, conLaiMs: conLai() });
+  if (!q.chay) return;
+  const l2 = ghiLan(cmd, label, await cho(batDau(cmd, env)), 2, envTag);
+  rec.lan.push(l2); rec.exit = l2.exit;
+  if (!lech(l2.exit)) {
+    rec.chap_chon = { lenh: cmd, nhan: label, lan_dau: l1.exit, log: l1.log === undefined ? null : l1.log, ca: rutTenCa(`${l1.out}\n${l1.err}`) };
+    chapChon.push(rec.chap_chon);
+  }
+}
+async function runCmd(cmd, label, { env = process.env, envTag = 'full', lech = (x) => x !== 0 } = {}) {
+  const k = khoaLenh(cmd, envTag);
+  if (results.has(k)) { log(`${label}: (đã chạy) → exit ${results.get(k).exit}`); daXong.add(label); return results.get(k).exit; }
+  const rec = taoRec(cmd, envTag);
+  results.set(k, rec);
+  rec.lan.push(ghiLan(cmd, label, await cho(batDau(cmd, env)), 1, envTag));
+  rec.exit = rec.lan[0].exit;
+  await chayLaiNeuCan(rec, cmd, label, env, envTag, lech);
+  daXong.add(label);
+  return rec.exit;
 }
 // Suite song song (hồ sơ lan-ghim-lai-theo-paths, AC-8/AC-9): khoá feature_loop.repin_parallel_suites
 // = true thì mọi lệnh suite KHÁC NHAU bắn cùng lúc, chờ hết, rồi ghi kết quả theo ĐÚNG thứ tự
 // suite_keys (không theo lúc xong) — mỗi lệnh một khối, không xen dòng. Eval vẫn nối đuôi. Khoá
 // vắng/false → nối đuôi y như cũ. Đo 02/10 ở crm: phần cố định ≈ 13,6 phút mỗi làn là suite.
+// Chạy lại (Đ4) chỉ bắt đầu SAU khi cả khối song song xong — ca chập chờn vì tải có một lượt máy yên.
 async function runSuites(cmds) {
   const nhan = (i) => `suite ${i + 1}/${cmds.length}`;
+  const env = envCi || process.env;
+  const envTag = envCi ? 'ci' : 'full';
   const songSong = String(core.resolveConfigKey(configText, 'feature_loop.repin_parallel_suites') || '').trim() === 'true';
-  if (!songSong) return cmds.map((c, i) => runCmd(c, nhan(i)));
-  const xong = new Map();
-  await Promise.all([...new Set(cmds)].filter(c => !results.has(c)).map(c => new Promise(res => {
-    const t0 = Date.now();
-    let out = '', err = '', loiKhoi = '';
-    const p = spawn('bash', ['-c', c], { cwd: root, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
-    p.stdout.on('data', d => { out += d; });
-    p.stderr.on('data', d => { err += d; });
-    p.on('error', e => { loiKhoi = String((e && e.message) || e); });
-    p.on('close', code => { xong.set(c, { exit: code === null ? 1 : code, out, err: err + (loiKhoi ? `\n${loiKhoi}` : ''), ms: Date.now() - t0 }); res(); });
-  })));
-  return cmds.map((c, i) => {
-    if (results.has(c)) { log(`${nhan(i)}: (đã chạy) → exit ${results.get(c)}`); return results.get(c); }
-    const x = xong.get(c);
-    return ghiKetQua(c, nhan(i), x.exit, x.out, x.err, x.ms);
-  });
+  if (!songSong) {
+    const ra = [];
+    for (let i = 0; i < cmds.length; i += 1) ra.push(await runCmd(cmds[i], nhan(i), { env, envTag }));
+    return ra;
+  }
+  const moi = [...new Set(cmds)].filter(c => !results.has(khoaLenh(c, envTag)));
+  const xong = new Map(await Promise.all(moi.map(async c => [c, await cho(batDau(c, env))])));
+  const lech = (x) => x !== 0;
+  const can = [];
+  for (let i = 0; i < cmds.length; i += 1) {
+    const c = cmds[i]; const k = khoaLenh(c, envTag);
+    if (results.has(k)) { log(`${nhan(i)}: (đã chạy) → exit ${results.get(k).exit}`); daXong.add(nhan(i)); continue; }
+    const rec = taoRec(c, envTag);
+    rec.lan.push(ghiLan(c, nhan(i), xong.get(c), 1, envTag));
+    rec.exit = rec.lan[0].exit; results.set(k, rec); can.push([rec, c, nhan(i)]);
+  }
+  for (const [rec, c, nh] of can) { await chayLaiNeuCan(rec, c, nh, env, envTag, lech); daXong.add(nh); }
+  return cmds.map(c => results.get(khoaLenh(c, envTag)).exit);
 }
 // ── --skip-unchanged: cây BẰNG PIN thì không có gì để chứng lại ──────────────
 // <<<SKIP-UNCHANGED-PREDICATE
@@ -387,7 +452,9 @@ if (flags['skip-unchanged']) {
     for (const f of dinhNghia) process.stderr.write(`repin-lane: KHÔNG bỏ qua — tệp định nghĩa phép đo đổi so với pin: ${f}\n`);
     if (!doi.length && !dinhNghia.size) {
       log(`cây bằng pin ${sha.slice(0, 7)} — 0 tệp ngoài _acceptance/ và t1_skip_globs đổi so verified_commit của ${perSlug.length} hồ sơ — làn bỏ qua (không suite, không eval, không ghi)`);
-      process.stdout.write(JSON.stringify({ skipped: true, sha, pins }, null, 2) + '\n');
+      const tkBo = dungTongKet({ ketCuc: 'bo-qua', ms: Date.now() - tKhoiDong, soLenh: 0, modelGoi: 0, chapChon: 0 });
+      process.stdout.write(JSON.stringify({ skipped: true, sha, pins, tong_ket: tkBo.obj }, null, 2) + '\n');
+      process.stderr.write(tkBo.dong + '\n');
       process.exit(0);
     }
     if (doi.length) log(`--skip-unchanged: ${doi.length} tệp vật đổi so pin — làn chạy trọn: ${doi.slice(0, 5).join(', ')}${doi.length > 5 ? ' …' : ''}`);
@@ -487,8 +554,49 @@ const anhTruoc = chup(root, daThong);
 // run_id sinh TRƯỚC lệnh đầu — thư mục nhật ký lệnh đỏ cần nó; `ts` của dòng sổ vẫn là lúc xong.
 const tBatDau = Date.now();
 const runId = flags['run-id'] || `repin-${new Date(tBatDau).toISOString().replace(/\.\d{3}Z$/, 'Z').replace(/[-:]/g, '')}-${Math.floor(Math.random() * 90000 + 10000)}`;
+// ── Đ5: đo chi phí trước lệnh đầu, đồng hồ trần, bộ bắt tín hiệu (hồ sơ gia-lan-ghim-lai AC-2…AC-4) ──
+const chiPhiTruoc = khoa.repin_cost_cmd ? doChiPhi(khoa.repin_cost_cmd, root, process.env) : undefined;
+function chiPhiCuoi() {
+  if (!khoa.repin_cost_cmd) return undefined;
+  const sau = doChiPhi(khoa.repin_cost_cmd, root, process.env);
+  if (typeof chiPhiTruoc !== 'number') return { loi: `lần đo trước: ${chiPhiTruoc.loi}` };
+  if (typeof sau !== 'number') return { loi: `lần đo sau: ${sau.loi}` };
+  return sau - chiPhiTruoc;
+}
+const demModel = () => [...results.values()].filter(r => r.model).reduce((n, r) => n + r.lan.length, 0);
+const tongKet = (ketCuc) => dungTongKet({ ketCuc, ms: Date.now() - tKhoiDong, soLenh: results.size, modelGoi: demModel(), chapChon: chapChon.length, chiPhi: chiPhiCuoi() });
+const nhanKeHoach = [...suiteCmds.map((_, i) => `suite ${i + 1}/${suiteCmds.length}`), ...perSlug.flatMap(s => s.evals.map(e => `${s.slug} ${e.id}`))];
+// Dừng sớm (vượt trần / bị ngắt): giết cả cây của MỌI lệnh đang chạy, ghi dấu (khi --write), in tổng
+// kết, thoát mã riêng. Không ghi pin — làn chưa xong không chứng gì.
+async function ketThucSom(kieu, extra, ma) {
+  if (dangDung) return; dangDung = true;
+  await Promise.all([...dangChay].map(h => h.dung()));
+  const tk = tongKet(kieu);
+  const chuaChay = nhanKeHoach.filter(n => !daXong.has(n));
+  if (flags.write) {
+    const iso2 = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+    const tai = docTai();
+    for (const s of perSlug) {
+      const dau = JSON.stringify(Object.assign({ ts: iso2, kind: 'repin-do', lan_id: runId, sha, ly_do: kieu }, extra,
+        { chua_chay: chuaChay }, chapChon.length ? { chap_chon: chapChon } : {}, { tong_ket: tk.obj, tai }));
+      try { fs.appendFileSync(path.join(s.ws, 'run-log.jsonl'), dau + '\n'); } catch (e) { console.error(`repin-lane: ${s.slug}: không ghi được dấu ${kieu} — ${String((e && e.code) || e).split('\n')[0]}`); }
+    }
+  }
+  process.stderr.write(tk.dong + '\n');
+  process.exit(ma);
+}
+for (const [sig, so] of [['SIGTERM', 15], ['SIGINT', 2], ['SIGHUP', 1]]) process.on(sig, () => { ketThucSom('bi-ngat', { tin_hieu: sig }, 128 + so); });
+const henTran = hanMs == null ? null : setTimeout(() => {
+  ketThucSom('vuot-tran', { tran_phut: tranPhut, da_chay_phut: Math.round((Date.now() - tKhoiDong) / 600) / 100 }, 4);
+}, Math.max(0, hanMs - Date.now()));
+
 const suitesExit = await runSuites(suiteCmds);
-for (const s of perSlug) for (const e of s.evals) e.exit = runCmd(e.cmd, `${s.slug} ${e.id}`);
+for (const s of perSlug) for (const e of s.evals) {
+  e.exit = await runCmd(e.cmd, `${s.slug} ${e.id}`, {
+    lech: (x) => !(x === e.expected) && !(e.expected !== 0 && x === 0),
+  });
+}
+if (henTran) clearTimeout(henTran);
 const cham = soChup(anhTruoc, chup(root, daThong));
 // Thời lượng làn (việc (a), hồ sơ lan-ghim-lai-giu-tron-loi-loi): suite đầu → eval cuối, giây,
 // một số lẻ; số lệnh KHÁC NHAU thực chạy (lệnh trùng gộp một lần). Không có hai số này thì làn
@@ -505,6 +613,7 @@ const reason = flags.reason || 'ghim lại bằng làn eval';
 const out = { run_id: runId, sha, ts: iso, suites: suiteCmds.map((cmd, i) => ({ cmd, exit: suitesExit[i] })), slugs: {} };
 if (cham.length) out.cham_ho_so_da_thong = cham;
 let red = suitesExit.some(x => x !== 0) || cham.length > 0;
+const lineObjs = new Map();
 for (const s of perSlug) {
   const evalsExit = {};
   const gioiHan = [];    // đạt đúng một mã khác 0 đã khai
@@ -529,12 +638,16 @@ for (const s of perSlug) {
   // Ba khoá tuỳ chọn cùng LUẬT HIỆN DIỆN: rỗng thì VẮNG HẲN. Object.assign giữ
   // thứ tự chèn, nên thứ tự khoá khớp khuôn REPIN-TEMPLATE của SKILL với MỌI tổ
   // hợp có/không — ternary lồng nhau cho 8 nhánh là chỗ khuôn sẽ trôi.
-  const line = JSON.stringify(Object.assign(
+  // Hồ sơ gia-lan-ghim-lai thêm ba khoá cùng luật hiện diện: chap_chon (Đ4), suites_env (Đ3), và
+  // tong_ket (Đ5, LUÔN có — gắn sau vòng này, khi kết cục làn đã biết).
+  const lineObj = Object.assign(
     { ts: iso, kind: 'repin', run_id: runId, sha, suites_exit: suitesExit, evals_exit: evalsExit, wall_s: wallS, so_lenh: soLenh },
     boQua.length ? { evals_not_run: boQua } : {},
     s.ngoaiMay.length ? { evals_not_machine: s.ngoaiMay } : {},
     chamNgoaiMay.length ? { evals_not_machine_touched: chamNgoaiMay } : {},
-  ));
+    chapChon.length ? { chap_chon: chapChon } : {},
+    envCi ? { suites_env: 'ci' } : {},
+  );
   const veGioiHan = gioiHan.length ? ` · đạt-có-giới-hạn: ${gioiHan.join(', ')}` : '';
   const veHet = hetGioiHan.length ? ` · giới hạn đã khai không còn: ${hetGioiHan.join(', ')}` : '';
   const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${boQua.join(', ')}` : '';
@@ -547,8 +660,18 @@ for (const s of perSlug) {
     : '';
   const veCham = chamNgoaiMay.length ? ` · diff chạm vật đo ngoài làn máy: ${chamNgoaiMay.join(', ')} — chưa chứng lại, đi vòng S4 delta` : '';
   const veAcKhong = acKhong.length ? ` · AC không có chốt máy: ${acKhong.join(', ')}` : '';
-  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veNgoaiMay}${veCham}${veAcKhong}\n`;
-  out.slugs[s.slug] = { evals_exit: evalsExit, line, section, lech: s.evals.filter(e => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0)) };
+  const veChapChon = chapChon.length ? ` · chập chờn (đỏ lần đầu, đạt khi chạy lại): ${chapChon.map(c => c.nhan).join(', ')}` : '';
+  const veEnvCi = envCi ? ` · suite chạy ở ${nhanCi}` : '';
+  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veNgoaiMay}${veCham}${veAcKhong}${veChapChon}${veEnvCi}\n`;
+  // `line` giữ CHỖ trong thứ tự khoá cũ (stdout là mặt máy — AC-7 so từng byte); gán sau khi có tổng kết.
+  lineObjs.set(s.slug, lineObj);
+  out.slugs[s.slug] = { evals_exit: evalsExit, line: null, section, lech: s.evals.filter(e => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0)) };
+}
+// Tổng kết cuối lượt (Đ5, AC-4) — mọi kết cục; đo chi phí sau lệnh cuối nằm trong lời gọi này.
+const tk = tongKet(red ? 'do' : 'xanh');
+out.tong_ket = tk.obj;
+for (const s of perSlug) {
+  out.slugs[s.slug].line = JSON.stringify(Object.assign(lineObjs.get(s.slug), { tong_ket: tk.obj }));
 }
 if (red) {
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
@@ -566,15 +689,25 @@ if (red) {
   if (flags.write) {
     const lenhDo = [];
     const daCo = new Set();
-    const them = (cmd, exit) => { if (daCo.has(cmd)) return; daCo.add(cmd); const lg = nhatKy.has(cmd) ? nhatKy.get(cmd) : null; lenhDo.push(lg === null ? { cmd, exit, log: null, ly_do: 'khong-ghi-duoc' } : { cmd, exit, log: lg }); };
-    suiteCmds.forEach((c, i) => { if (suitesExit[i] !== 0) them(c, suitesExit[i]); });
-    for (const s of perSlug) for (const e of out.slugs[s.slug].lech) them(e.cmd, e.exit);
+    // Mục `lenh_do` thêm (gia-lan-ghim-lai): `lan_thu_lai` + `log_lan_dau` khi lệnh đã chạy lại (Đ4),
+    // `moi_truong: "ci"` khi đỏ ở env giống CI (Đ3). Lệnh không chạy lại, env đầy đủ → y như trước.
+    const them = (cmd, exit, tag) => {
+      const k = khoaLenh(cmd, tag); if (daCo.has(k)) return; daCo.add(k);
+      const rec = results.get(k); const cuoi = rec ? rec.lan[rec.lan.length - 1] : null;
+      const lg = cuoi && cuoi.log != null ? cuoi.log : null;
+      lenhDo.push(Object.assign(lg === null ? { cmd, exit, log: null, ly_do: 'khong-ghi-duoc' } : { cmd, exit, log: lg },
+        rec && rec.lan.length > 1 ? { lan_thu_lai: rec.lan.length - 1, log_lan_dau: rec.lan[0].log == null ? null : rec.lan[0].log } : {},
+        tag === 'ci' ? { moi_truong: 'ci' } : {}));
+    };
+    suiteCmds.forEach((c, i) => { if (suitesExit[i] !== 0) them(c, suitesExit[i], envCi ? 'ci' : 'full'); });
+    for (const s of perSlug) for (const e of out.slugs[s.slug].lech) them(e.cmd, e.exit, 'full');
     const tai = docTai();
     for (const s of perSlug) {
       // Mã lượt dưới `lan_id`, KHÔNG `run_id`: thư viện bằng chứng (loadRunLogIds) nhận MỌI `run_id` trong sổ
       // làm mã lượt verify hợp lệ — mang `run_id` thì báo cáo trích mã của một lượt ĐỎ qua được recheck
       // (lượt chấm 3, Ngoài-5, tái hiện 03/10). Đỏ không bao giờ là bằng chứng (AC-8).
-      const dau = JSON.stringify({ ts: iso, kind: 'repin-do', lan_id: runId, sha, suites_exit: suitesExit, evals_exit: out.slugs[s.slug].evals_exit, lenh_do: lenhDo, cham: cham.map(c => ({ tep: c.tep, doi: c.doi, log: null, ly_do: 'cham-ho-so' })), wall_s: wallS, so_lenh: soLenh, tai });
+      const dau = JSON.stringify(Object.assign({ ts: iso, kind: 'repin-do', lan_id: runId, sha, suites_exit: suitesExit, evals_exit: out.slugs[s.slug].evals_exit, lenh_do: lenhDo, cham: cham.map(c => ({ tep: c.tep, doi: c.doi, log: null, ly_do: 'cham-ho-so' })), wall_s: wallS, so_lenh: soLenh },
+        chapChon.length ? { chap_chon: chapChon } : {}, { tong_ket: tk.obj, tai }));
       const logPath = path.join(s.ws, 'run-log.jsonl');
       try {
         const prev = fs.existsSync(logPath) ? fs.readFileSync(logPath, 'utf8') : '';
@@ -585,6 +718,7 @@ if (red) {
   }
   const dauDo = flags.write ? `không ghi pin; dấu lượt đỏ ở run-log của ${soDau} hồ sơ` : 'không ghi gì';
   console.error(`repin-lane: LÀN ĐỎ — ${dauDo} (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lech).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.${veCham}`);
+  process.stderr.write(tk.dong + '\n');
   process.exit(1);
 }
 if (flags.write) {
@@ -599,9 +733,10 @@ if (flags.write) {
     log(`ghi ${s.slug}: run-log +1 dòng · verified_commit → ${sha.slice(0, 7)} · section Re-pin (${Object.keys(o.evals_exit).length} eval máy)`);
     // Tự kiểm bằng CHÍNH bên đọc — writer không được tin mình.
     const rc = spawnSync(process.execPath, [path.join(agRoot, 'scripts', 'recheck-evidence.cjs'), s.reportPath], { encoding: 'utf8' });
-    if (rc.status !== 0) { console.error(`repin-lane: ${s.slug} đã ghi nhưng recheck-evidence ĐỎ (exit ${rc.status}) — sửa trước khi commit:\n${rc.stderr}`); process.exit(1); }
+    if (rc.status !== 0) { console.error(`repin-lane: ${s.slug} đã ghi nhưng recheck-evidence ĐỎ (exit ${rc.status}) — sửa trước khi commit:\n${rc.stderr}`); process.stderr.write(tongKet('do').dong + '\n'); process.exit(1); }
     log(`${s.slug}: recheck-evidence xanh`);
   }
 }
 process.stdout.write(JSON.stringify(out, null, 2) + '\n');
 log(`LÀN XANH — run_id ${runId}${flags.write ? ' (đã ghi)' : ' (chưa ghi: thêm --write)'}`);
+process.stderr.write(tk.dong + '\n');

@@ -110,8 +110,10 @@ evals:
       - "tests/scripts/eval-thay-boi.test.mjs"
     expected: >-
       Sau làn xanh của E1: dòng run-log đọc bằng JSON.parse — id ô thay bởi nằm
-      trong evals_not_run đúng thứ tự bản khai, tập khoá của dòng bằng tập khoá
-      của REPIN-TEMPLATE (không khoá mới). Dòng sha: đọc bằng regex riêng — mang
+      trong evals_not_run đúng thứ tự bản khai, mọi khoá của dòng nằm trong tập
+      khoá rút từ khối REPIN-TEMPLATE của SKILL feature-loop (không khoá mới); và
+      dòng không có khoá nào khác so với lượt cùng fixture không mang con trỏ (đối
+      chứng: cùng tập khoá). Dòng sha: đọc bằng regex riêng — mang
       hậu tố «thay bởi hồ sơ đã ký: E…→<hồ sơ>#AC-…» theo thứ tự bản khai. Hồ sơ
       không ô thay bởi (fixture thứ hai) → hậu tố vắng hẳn. recheck pin có hậu tố
       thoát 0. Chiều đỏ: bản sao làn bỏ bước nối hậu tố → ĐỎ ghim «pin im lặng về

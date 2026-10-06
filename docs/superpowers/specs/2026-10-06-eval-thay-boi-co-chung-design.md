@@ -95,7 +95,7 @@ gọi (workspace-record nạp evidence-core lúc tải — nạp lười tránh 
 
 ## Bên gọi
 
-- `repin-lane.mjs` (dòng ~237): truyền `{ root, slug }` với `root` = `--root` đã giải tuyệt đối (làn không bao giờ tự lấy cwd cho phép tra này). Ô `thayBoi` không làm làn dừng; ô ở lại
+- `repin-lane.mjs` (dòng ~258 trên `main` `8215e63a`): truyền `{ root, slug }` với `root` = `--root` đã giải tuyệt đối (làn không bao giờ tự lấy cwd cho phép tra này). Ô `thayBoi` không làm làn dừng; ô ở lại
   `xungDot` vẫn dừng exit 2, thông điệp nối thêm lý do từng ô.
 - `checkRepinEvals(entry, evalsText, slug, reportText, opts)`: tham số thứ năm tuỳ chọn chuyển
   thẳng xuống. `recheck-evidence.cjs` và `pre-merge-check.sh` truyền `root`. Bên gọi cũ bốn đối
@@ -107,8 +107,9 @@ gọi (workspace-record nạp evidence-core lúc tải — nạp lười tránh 
 ## Pin nói ra
 
 Ô thay bởi vẫn là ô không chạy: id của nó vẫn vào `evals_not_run` (ba tập rời nhau giữ nguyên,
-không thêm khoá JSON). Dòng `sha:` của mục Re-pin nối thêm hậu tố tuỳ chọn thứ tư, do script
-nối, chỉ khi có ô qua chứng:
+không thêm khoá JSON). Dòng `sha:` của mục Re-pin nối thêm MỘT hậu tố tuỳ chọn, do script nối, chỉ
+khi có ô qua chứng — đặt NGAY SAU hậu tố «không chạy theo hồ sơ» (cùng nói về ô không chạy), trước
+các hậu tố về ô ngoài làn máy và hai hậu tố của vòng `gia-lan-ghim-lai` (chập chờn · môi trường CI):
 
 ```
  · thay bởi hồ sơ đã ký: E3→gop-y-dung-cho#AC-7, E4→gop-y-dung-cho#AC-5
@@ -117,6 +118,17 @@ nối, chỉ khi có ô qua chứng:
 Hồ sơ không có ô nào như vậy → hậu tố vắng hẳn. Bên đọc sau này KHÔNG tin hậu tố: nó kiểm lại
 chuỗi chứng sống từ `evals.yaml` ở mỗi lượt (hồ sơ thay sau này nghỉ hay bị gỡ thì xung đột quay
 lại — đúng ý: lời hứa thay đã hết).
+
+## Đồng bộ với nhánh chính (06/10)
+
+Trước Cổng Phạm vi, nhánh vòng gộp `main` `8215e63a` (32 commit sau điểm rẽ `bf79fdb1`): vòng
+`gia-lan-ghim-lai` (ký, chưa phát hành — dự kiến 2.23) sửa `repin-lane.mjs` (trần phút, chạy lại
+lệnh đỏ, môi trường giống CI, dòng `repin-do`, khoá `tong_ket`) và khuôn REPIN-TEMPLATE. Không đụng
+`lib/evidence-core.cjs` (băm giống hệt), không đụng luật hai vế; lời gọi `notRunConflicts` giữ
+nguyên, chỉ dời dòng. Lối dừng exit 2 của luật hai vế vẫn đứng TRƯỚC lượt chạy suite đầu và không
+ghi dòng `repin-do` nào (dòng đó chỉ cho mã 4 và mã tín hiệu). Không nhánh hay PR nào khác chạm
+con trỏ thay thế. `loc-paths-dong-mac-dinh` mới qua Cổng Đáng — chưa có mã, cùng tệp lib nhưng
+khác hàm.
 
 ## Cân trên mọi kho (luật 26/09)
 

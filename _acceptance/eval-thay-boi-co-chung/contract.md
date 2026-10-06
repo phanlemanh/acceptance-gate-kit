@@ -95,6 +95,9 @@ ngoài làn máy. **Never:** giá trị trạng thái mới `thay-boi` (giả đ
 - **CỘNG cần owner phê đích danh ở Cổng Phạm vi (ADR 0018):** một trường mới trong khuôn
   `evals.yaml` (`superseded_by`) và một hậu tố tuỳ chọn thứ tư trên dòng `sha:` của mục Re-pin.
   Phần còn lại là mở rộng một luật có sẵn, không thêm lệnh, khoá cấu hình hay lượt gọi người.
+- **Đã gộp `main` `8215e63a` trước Cổng Phạm vi (06/10):** vòng `gia-lan-ghim-lai` đổi làn ghim lại
+  và khuôn REPIN-TEMPLATE, không đụng luật hai vế; hậu tố «thay bởi» đặt ngay sau «không chạy theo
+  hồ sơ». Chi tiết ở design doc, mục «Đồng bộ với nhánh chính».
 - **Chạy song song với `loc-paths-dong-mac-dinh`** (T3, cùng tệp `lib/evidence-core.cjs`, khác
   hàm): vòng nào gộp sau thì gộp nhánh chính vào trước lượt chấm cuối.
 - **T3** nên Cổng 1.5 cần người theo thiết kế; trần 4 lượt gọi người.

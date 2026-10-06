@@ -33,12 +33,24 @@ Resume: `/feature-loop:feature-loop <slug>` → đọc status, vào đúng hàng
 
 <!-- <<<REPIN-TEMPLATE -->
 ```
-{"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,0,0,0],"evals_exit":{"<E>":0},"wall_s":812.4,"so_lenh":5,"evals_not_run":["<E>"],"evals_not_machine":["<E>"],"evals_not_machine_touched":["<E>"]}
+{"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,0,0,0],"evals_exit":{"<E>":0},"wall_s":812.4,"so_lenh":5,"evals_not_run":["<E>"],"evals_not_machine":["<E>"],"evals_not_machine_touched":["<E>"],"chap_chon":[{"lenh":"<cmd>","nhan":"suite 1/4","lan_dau":1,"log":"<đường>","ca":["<tên ca>"]}],"suites_env":"ci","tong_ket":{"ket_cuc":"xanh","phut":13.5,"so_lenh":5,"model_goi":0,"model_carry":0,"chap_chon":1,"chi_phi":0.42}}
+{"ts":"<ISO>","kind":"repin-do","lan_id":"<id>","sha":"<40-hex>","ly_do":"vuot-tran","tran_phut":80,"da_chay_phut":80.1,"tin_hieu":"SIGTERM","chua_chay":["<nhãn>"],"suites_exit":[1],"evals_exit":{"<E>":0},"lenh_do":[{"cmd":"<cmd>","exit":1,"log":"<đường>","lan_thu_lai":1,"log_lan_dau":"<đường>","moi_truong":"ci"}],"cham":[],"wall_s":812.4,"so_lenh":5,"chap_chon":[],"tong_ket":{},"tai":{}}
 ### Re-pin lần <N> — <ngày>, do <lý do 1 dòng>
 run_id: <id>
 sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt kỳ vọng
 ```
 <!-- REPIN-TEMPLATE>>> -->
+Ba khoá của hồ sơ gia-lan-ghim-lai (2.23). `chap_chon` (khoá `feature_loop.repin_retry: 1`) và
+`suites_env: "ci"` (khoá `feature_loop.repin_ci_blank_env`) theo CÙNG luật hiện diện — kho không bật
+khoá thì vắng hẳn. `tong_ket` LUÔN có mặt (bật mặc định, chỉ thêm): kết cục, phút, số lệnh, eval
+model thật đã gọi (khoá `feature_loop.model_evals`), `model_carry` cố định 0 (ô giữ chỗ cho Vòng B),
+số lệnh chập chờn, và chi phí đo khi kho khai `feature_loop.repin_cost_cmd`. Làn còn hai kết cục dừng
+sớm, không ghi pin, mỗi slug một dòng `repin-do` khi `--write`: **mã thoát 4** = vượt trần
+(`--tran-phut` / `feature_loop.repin_budget_min`, `ly_do: "vuot-tran"` + `tran_phut`, `da_chay_phut`,
+`chua_chay`) và **128 + số hiệu tín hiệu** = bị ngắt mềm (`ly_do: "bi-ngat"` + `tin_hieu`, `chua_chay`);
+cả hai dừng lệnh bằng cách thu cả cây tiến trình theo `ppid` rồi SIGTERM → SIGKILL sau 10 giây. Dòng
+stderr cuối của mọi kết cục bắt đầu `[lane] TỔNG KẾT`.
+
 Khoá `evals_not_run` chỉ CÓ MẶT khi hồ sơ có eval `test`/`script` tự khai
 `status: not-run` (2.12.0) — hồ sơ không khai ô nào thì khoá VẮNG HẲN khỏi dòng,
 không phải mang một mảng rỗng; giá trị là đúng các id bị loại, theo thứ tự bản khai.

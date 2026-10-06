@@ -1,0 +1,37 @@
+{
+  "feature_plain": "Lượt ghim lại ở kho dùng kit không còn chết vì một ca chập chờn, không chạy câm quá trần hay biến mất không vết khi bị ngắt, in tổng kết cuối lượt, và chạy bộ test chung như trên CI — mỗi điểm kho tự bật.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ chạy lại một lệnh đỏ đúng một lần, một mình, rồi ghi tên ca chập chờn vào báo cáo thay vì làm đỏ cả lượt; không chạy lại eval gọi model thật."},
+    {"id": "AC-2", "p": "Sẽ dừng lượt ghim lại khi chạm trần thời gian, giết sạch mọi tiến trình con cháu kể cả trong lượt lồng bên trong, thoát bằng mã riêng và ghi lại lệnh nào chưa kịp chạy."},
+    {"id": "AC-3", "p": "Sẽ để lại một dòng dấu và dọn sạch tiến trình con khi lượt ghim lại bị công cụ ngắt giữa chừng, thay vì biến mất không vết."},
+    {"id": "AC-4", "p": "Sẽ in tổng kết cuối mọi lượt: mất bao lâu, chạy bao nhiêu lệnh, gọi bao nhiêu eval model thật (ô «mang sang» giữ chỗ, bằng 0 cho tới Vòng B), mấy ca chập chờn, và chi phí đo được nếu kho khai cách đo."},
+    {"id": "AC-5", "p": "Sẽ chạy bộ test chung với các khoá tuỳ chọn để rỗng như trên CI, để lỗi chỉ hiện ở CI lộ ra ngay trong lượt ghim lại; eval vẫn chạy với khoá thật."},
+    {"id": "AC-6", "p": "Sẽ giữ khuôn dòng ghim lại trong hướng dẫn của vòng lặp và bảng khoá trong GUIDE (danh sách khoá để crm bật) khớp đúng với thứ làn thật sự ghi."},
+    {"id": "AC-7", "p": "Sẽ để kho chưa bật khoá nào chạy y hệt bản trước vòng, chỉ thêm đúng ba thứ đã kê (dòng tổng kết, khoá tổng kết, dòng dấu khi bị ngắt); bộ đọc cũ ở CI các kho vẫn đọc được dòng mới."},
+    {"id": "AC-8", "p": "Sẽ có một lệnh dựng lại hai kịch bản thật của R1g (ca chập chờn trong bộ test, lượt bị ngắt giữa lệnh) và lỗi chỉ-CI, in bảng trước → sau, và tự đỏ nếu điểm nào không đổi số."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Không làm hai điểm Vòng B — tệp test chỉ làm hoá cũ hồ sơ gọi tên nó, và mang kết quả eval sang theo băm — chúng thành hạt giống, mở sau khi đo lại trên crm."},
+    {"id": "OOS-2", "p": "Không tách phép kiểm chéo E11 hay dựng job kiểm chéo sau gộp — việc của crm."},
+    {"id": "OOS-3", "p": "Không làm kín các ca test chập chờn hay dọn trạng thái sót của crm — việc của crm."},
+    {"id": "OOS-4", "p": "Không đổi cách chấm eval model theo biên thống kê — việc của crm."},
+    {"id": "OOS-5", "p": "Không sửa thẻ Cổng 2 để in phát hiện mức thấp trong hợp đồng — đã có việc riêng chờ ở phiên P4."},
+    {"id": "OOS-6", "p": "Không bật khoá nào ở bất kỳ kho nào, kể cả kit — mỗi kho tự bật sau khi nhận bản phát hành."}
+  ],
+  "scope_plain": "Vòng này chỉ sửa làn ghim lại của bộ máy; hai điểm lớn hơn chờ ở Vòng B, phần còn lại thuộc crm.",
+  "coverage_plain": [
+    {"i": 0, "p": "Không gian tiêu chí được quét có hệ thống trên năm điểm rồi thu về ba điểm theo quyết định của chủ kho, đứng trên sổ R1g thật."},
+    {"i": 1, "p": "Đối chiếu với công cụ cùng loại có tên: chạy lại và gọi tên ca chập chờn như Playwright, Bazel; trần thời gian và huỷ cả cây tiến trình như GitHub Actions; khoá chưa khai thành chuỗi rỗng như CI."},
+    {"i": 2, "p": "Tám tiêu chí (AC-1…AC-8) là phần làm ngay; phải đúng cả khi lệnh trùng nhau, bộ test chạy song song, và cây chưa commit."},
+    {"i": 3, "p": "Để sau: chạy lại từng ca riêng, trần theo tiền, lệnh đo chi phí dựng sẵn, và hai điểm Vòng B."},
+    {"i": 4, "p": "Không bao giờ: chạy lại eval model thật, bỏ hẳn biến thay vì để rỗng, chạy thêm lượt bộ test thứ hai."},
+    {"i": 5, "p": "Một giả định chờ anh gạch: giết theo cây bắt được mọi tiến trình con, trừ tiến trình tự tách hẳn khỏi cây."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Nặng nhất (thuộc Vòng B): kết quả có thể bị mang sang sai khi chỉ tệp setup dùng chung đổi. Bản sửa đã soạn sẵn, đi theo hạt giống Vòng B."},
+    {"i": 1, "p": "Thuộc Vòng B: bảng ca của tiêu chí gọi tên thiếu và có ca tự mâu thuẫn. Bản sửa 22 ca đã soạn sẵn, đi theo hạt giống Vòng B."},
+    {"i": 2, "p": "Lời hứa «chưa bật khoá thì y hệt bản cũ» mâu thuẫn với tổng kết và dòng dấu khi bị ngắt. Đã sửa: ba phần chỉ-thêm bật mặc định và được kê đích danh (AC-7) — đây là điểm đổi mặc định cho mọi kho, chờ anh duyệt."},
+    {"i": 3, "p": "Chưa có ca cho lượt ghim lại lồng nhau và cho tiến trình phớt lờ lệnh dừng mềm. Đã sửa: dừng bằng cách thu cả cây tiến trình trước rồi mới gửi tín hiệu, thêm ca tiến trình lì và ca lượt lồng (AC-2)."},
+    {"i": 4, "p": "Thuộc Vòng B: bên đọc có thể tự đỏ CI sau tám ngày và chưa được thử ở kho chỉ chép lớp CI. Bản sửa đã soạn sẵn, đi theo hạt giống Vòng B."}
+  ]
+}

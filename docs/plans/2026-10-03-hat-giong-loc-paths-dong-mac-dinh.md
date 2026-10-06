@@ -1,6 +1,7 @@
 # Hạt giống — bộ lọc `stale_scope: paths` phải đóng mặc định với dạng khai lạ
 
-**Ngày:** 2026-10-03 · **Trạng thái:** hạt giống (SỔ, chưa là ô).
+**Ngày:** 2026-10-03 · **Trạng thái:** ô `_acceptance/loc-paths-dong-mac-dinh/opportunity.md`
+(`stage: discovery`, mở 06/10 khi ngưỡng chạm: crm bật khoá, crm-onehub#279) · chờ Cổng Đáng.
 Gốc: acceptance-gate-kit/_acceptance/lan-ghim-lai-theo-paths/ — Ngoài-4 của lượt chấm 4 (mức cao),
 owner định tuyến «mở hợp đồng mới» ở Cổng Bằng chứng 03/10.
 
