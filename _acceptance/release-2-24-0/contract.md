@@ -5,7 +5,7 @@ slug: release-2-24-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 2 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -74,3 +74,4 @@ hai hồ sơ cơ hội.
 - Cả hai vòng của cửa sổ neo kho tiêu thụ (crm); luật (b) — mốc này là mốc KHO NHẬN kế tiếp sau 2.23.0.
 - Hai chỉ dẫn cho crm của hai vòng chạm cùng lưới tạm `kiem-paths-dong.mjs` — CHANGELOG ghép thành một thứ tự: khai con trỏ và ghim lại năm hồ sơ TRƯỚC, rồi gỡ trọn lưới tạm (gồm nhánh «ĐÃ THAY»).
 - Chiều đỏ của hai phép đo cửa sổ đo khi mở hồ sơ: `rel-cua-so.sh 8344fa92 x` thoát 1 gọi tên hai hồ sơ thiếu và «x» thừa; lệnh giữ-số của `diagram-design` với mốc `1b98fdb1` thoát 1 (`2.7.0` ≠ `2.7.1`).
+- known-limits (Cổng Bằng chứng 06/10, Ngoài-1): E1/E2/E6 chấm trên các dòng P200 mà bộ lọc `grep -E "FAIL|^Results:"` của chính lệnh cắt khỏi output — bằng chứng chỉ cho thấy vùng 3 xanh, không in riêng con số 2.24.0 · 2.24.0 · 2.7.1, câu dẫn xuất của GUIDE hay câu khai cặp; mã P200 không lỗi (chạy không lọc thì đủ dòng). Cùng hình dạng ở hai mốc trước.
