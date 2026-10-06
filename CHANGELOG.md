@@ -10,6 +10,111 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## 2.23.0 — 06/10/2026
+
+Cửa sổ 2.22.0 → 2.23.0 kéo **ba ngày** (04–06/10), có **hai vòng** được ký: `nhan-lan-v-theo-huong`
+(T2, PR #265) và `gia-lan-ghim-lai` (T2, PR #268). Ngoài hồ sơ: chiến dịch ghim lại 2.22.0 (#263) và một
+bản sửa bước dọn của bộ đo trang lộ trình (#264). Kho chờ nhận là `crm`: neo ở hồ sơ crm
+`kiem-cheo-sau-gop` (sự cố R1g — ~17 giờ từ ký tới gộp, ~14 giờ trong làn ghim lại); phiên điều phối
+crm gọi mốc 06/10 ngay sau khi #268 gộp. Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên
+`2.23.0`; `diagram-design` giữ `2.7.1`. Tag `v2.23.0` gắn tại commit ký mốc sau khi gộp.
+
+**Vì sao 2.23.0, không 2.22.1:** làn ghim lại có năm khoá mới, một mã thoát mới (4) và ba hành vi bật
+mặc định — hành vi mới, không phải bản vá.
+
+### Làn ghim lại rẻ hơn (hồ sơ `gia-lan-ghim-lai`, T2 — Vòng A)
+
+Mọi điểm bật bằng khoá trong `_acceptance/config.yaml` (`feature_loop.*`); bảng khoá và gợi ý cho crm ở
+GUIDE §7.1.
+
+- **Ca chập chờn không còn làm đỏ cả lượt** (`repin_retry: 1`): lệnh đỏ được chạy lại **một lần, một
+  mình**, sau khi khối song song xong; đạt lần hai → làn xanh, dòng pin có `chap_chon` gọi tên ca (rút từ
+  năm khuôn đầu ra test phổ biến) và trỏ nhật ký lần đỏ. Lần hai vẫn đỏ → làn đỏ như cũ.
+- **Eval gọi model thật không bao giờ chạy lại** (`model_evals: [<slug>/<E>]`) — kể cả khi một suite dùng
+  chung nguyên văn câu lệnh với nó, ở env nào; mọi lần lệnh ấy chạy được đếm vào tổng kết.
+- **Trần phút của làn** (`repin_budget_min`): quá trần → dừng cả cây tiến trình, ghi dòng `repin-do`
+  (`ly_do: vuot-tran`, `chua_chay`; khi chạy với `--write`), **thoát mã 4**, không ghi pin. Đặt trần DƯỚI trần của công cụ gọi
+  làn thì lượt kẹt để lại dấu thay vì biến mất.
+- **Env giống CI cho suite** (`repin_ci_blank_env: [TÊN_BIẾN…]`): suite chạy với các biến tuỳ chọn đặt
+  **rỗng** (thắng `.env` của Bun và `node --env-file`; `env -u` không mô phỏng được), eval vẫn chạy env đầy
+  đủ — hai môi trường là hai phép đo. Dòng pin ghi `suites_env`.
+- **Chi phí đo** (`repin_cost_cmd`): một lệnh in số dư trước và sau làn; hiệu số vào dòng tổng kết.
+
+**Bật mặc định cho mọi kho (không cần khoá — duyệt ở Cổng Phạm vi):**
+
+- Dòng **TỔNG KẾT** cuối mọi lượt: kết cục · phút · số lệnh · số lần gọi model thật · số ca chập chờn.
+- Bị ngắt mềm (TERM/INT/HUP) → dòng `repin-do` với `ly_do: bi-ngat` (khi `--write`), thoát `128+n`.
+- Mỗi lệnh chạy trong nhóm tiến trình riêng; dừng là giết **cả cây hậu duệ** (thu theo cha-con trước khi gửi
+  tín hiệu, SIGTERM rồi SIGKILL sau 10 giây) — kể cả làn lồng trong eval.
+
+Mã thoát của làn sau mốc: `0` xanh · `1` đỏ · `2` nguồn hỏng · `3` usage · **`4` vượt trần** · `128+n` bị ngắt.
+
+Số trước → sau, dựng lại hai tình huống R1g trên fixture (AC-8, `_acceptance/gia-lan-ghim-lai/rang/so-do.mjs`):
+ca chập chờn trong suite đỏ → xanh có tên ca · lượt bị ngắt giữa lệnh để lại dấu 0 → 1 · tiến trình con
+sót sau ngắt 1 → 0 · lỗi chỉ hiện ở CI bắt được trên máy 0 → 1.
+
+Đ1 (test chỉ làm hoá cũ hồ sơ gọi tên nó) và Đ2 (carry theo băm đầu vào) **không ở mốc này** — hạt giống
+`docs/plans/2026-10-06-hat-giong-gia-lan-ghim-lai-vong-b.md`, mở sau khi đo lại trên crm không có E11.
+
+### Thẻ làn V đọc theo hướng (hồ sơ `nhan-lan-v-theo-huong`, T2)
+
+- Hồ sơ máy-đi-trước (cửa veto mở) in dòng **báo** `đi tiếp hay kéo lại: đi tiếp` — máy đã điền sẵn, người
+  không phải gõ gì để để yên; nút đổi thành «Kéo lại». Ô «veto hay để yên» cũ làm owner đọc ngược ở crm.
+- `/acceptance-gate:signoff` vẫn nhận `veto:` / `để yên` — người quen tay không mất lượt.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI KHÔNG đổi** (17 tệp như 2.22.0) — không chép gì.
+- **Máy dev:** cài lại plugin ở MỌI phạm vi trên mỗi máy có phiên của kho, kiểm từng bản ghi cây phụ.
+- **Muốn bật khoá làn ghim lại:** khai trong `_acceptance/config.yaml` theo GUIDE §7.1. Trước khi liệt
+  `repin_ci_blank_env`, soát test tự bỏ qua theo khoá (`skipIf`): dưới env giống CI chúng sẽ bị bỏ qua trong
+  làn như ở CI. Không khai khoá: chỉ nhận ba phần bật mặc định ở trên.
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng — đủ ở Notes của hai hợp đồng):
+
+- `gia-lan-ghim-lai` (8 mục): ô «song song × env CI» của ma trận lệnh-dùng-chung chưa có phép phá riêng ·
+  GUIDE §7.1 mang cột gợi ý riêng cho crm · gõ nhầm id trong `model_evals` không bị báo (eval model thật
+  sẽ bị chạy lại) · lệnh chạy tách nhóm nên công cụ gọi làn giết theo nhóm không còn tới suite (làn tự giết
+  cây khi nhận tín hiệu) · mẫu `repin-do` trong SKILL ghi `chap_chon: []` trái luật hiện diện · số chi phí có
+  dấu phân cách nghìn bị đọc sai · ca vượt trần chỉ ghim mã thoát · lời hứa «vượt trần không ghi pin» đo ở
+  chế độ không ghi. Tiến trình tách hẳn khỏi cây (double-fork) vẫn thoát lưới giết.
+- `nhan-lan-v-theo-huong` (1 mục): ca `NC-AC4-cu` neo commit lõi, không phủ hai commit vá sau của vòng cũ.
+- Lỗi kit phát hiện ở Cổng 2 của `gia-lan-ghim-lai`: thẻ giấu mục ngoài hợp đồng mang hậu tố ` (r<n>)`
+  (bên viết nối hậu tố sau `**`, bên đọc không nhận) — việc riêng đã tách; tới khi sửa, đếm tay số mục khối
+  «Ngoài hợp đồng» với số Ngoài-n trên thẻ trước khi ký.
+
+**Năm dòng số của luật (c)** — hai vòng (giờ VN; nguồn: giờ commit `contract.md`, `decisions.jsonl`,
+`run-log.jsonl`, `usage-report.md` của hồ sơ; token đầu ra S4 đọc lại bằng `wf-usage --json`):
+
+| Dòng | `nhan-lan-v-theo-huong` (T2) | `gia-lan-ghim-lai` (T2) |
+|---|---|---|
+| Làm-xong→quyết-được | `implemented` 20:11 04/10 → ký 04:01 05/10 ≈ **7 giờ 50 phút**, gồm hai lượt chấm (≈ 58 phút máy) và chờ chữ ký qua đêm 6 giờ 38 phút (`verified` 21:23 → ký 04:01); **2 lượt chấm** | `implemented` 12:03 06/10 → ký 16:04 06/10 ≈ **4 giờ 1 phút**, gồm ba lượt chấm (≈ 111 phút máy), một điểm dừng-vá và chờ chữ ký ≈ 1 giờ 40 phút (`verified` 14:24 → ký 16:04); **3 lượt chấm** |
+| Lượt gọi người / vòng (trần T2 3) | Trong thiết kế **1** — ký Cổng Bằng chứng; Cổng Phạm vi làn V. Ngoài thiết kế **0**. 1 chạm | Trong thiết kế **3** — Cổng Phạm vi · dừng-vá (lượt 2 cùng lớp lỗi lượt 1) · ký Cổng Bằng chứng. Ngoài thiết kế **1** — câu hỏi thiết kế ở S1 (Đ3 THAY hay THÊM). 1 chạm mỗi lượt. Owner tự gọi thêm (không tính máy hỏi): rà theo North Star, bảng so sánh trước/sau, thu phạm vi về Vòng A qua phiên điều phối |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **0** — lượt 1 REJECT vì phép đo của chính vòng | **0** — lượt 1 và 2 REJECT vì finding thật trong hợp đồng. Lượt 2 còn một suite đỏ vì sổ known-limits thiếu dòng cho đề xuất của chính hồ sơ (ca P179) — không phải lý do REJECT |
+| Token máy / vòng (out-token S4) · chứng-minh-vật / tìm-lỗi / tổng hợp | **47 442** · 52/20/29 % (29 081 · 18 361 theo lượt) | **111 702** · 58/14/28 % (45 163 · 37 698 · 28 841 theo lượt) |
+| Phút máy / lượt chấm | 28–30 phút (1 692–1 811 s), tổng ≈ 58 phút; găng 1 540–1 738 s | 32–46 phút (1 945–2 731 s), tổng ≈ 111 phút; găng 1 808–2 605 s |
+
+Phiên chính không đo token.
+
+**Điều kiện tin cậy:** (i) không đổi thành phần đường verdict — diff cửa sổ ở engine chạm làn ghim lại
+(`feature-loop/scripts/repin-lane.mjs` + ba thư viện mới), thẻ (`scripts/gate-card.js`), thân lệnh
+`signoff`/`acceptance-init`, SKILL feature-loop và bản luật ngôn ngữ mặt người; KHÔNG chạm
+`acceptance-verify.js`, `s4-args.mjs`, `lib/nhan-canh-gay.cjs`, `recheck-evidence.cjs`, `pre-merge-check.sh`.
+(ii) Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0** — ngưỡng (a) đếm **0/2**. Dòng 4–5 cắt được.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở crm | làn ghim lại không còn chết vì một ca chập chờn rồi chạy lại cả lượt (R1g: ~14 giờ trong làn) |
+| 2 | ↓ ở crm | lượt kẹt để lại dấu và tổng kết thay vì người phải hỏi «làn đang ở đâu»; thẻ làn V không còn ô mời gõ |
+| 3 | = | — |
+| 4 | = | không chạm lượt chấm S4 (làn ghim lại nằm ngoài S4) |
+| 5 | = | — |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .`.
+**N không tăng so với mốc 2.22.0 — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
+
 ## 2.22.0 — 04/10/2026
 
 Cửa sổ 2.21.0 → 2.22.0 kéo **hai ngày** (03–04/10), có **một vòng** được ký, chạm engine đúng một tệp:
