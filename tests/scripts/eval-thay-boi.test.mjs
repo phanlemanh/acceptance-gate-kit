@@ -307,6 +307,50 @@ test('T02', 'mutant — gỡ từng điều kiện thì đúng hàng của nó l
   }
 });
 
+// ── T06 — pin nói ra (AC-6) ─────────────────────────────────────────────────────
+// Khoá của dòng pin rút từ khối REPIN-TEMPLATE của SKILL feature-loop (đường suy từ ROOT) —
+// dòng JSON ĐẦU trong khối là dòng `kind: repin`.
+function khoaKhuonRepin(root = ROOT) {
+  const t = fs.readFileSync(path.join(root, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
+  const khoi = (t.split('<!-- <<<REPIN-TEMPLATE -->')[1] || '').split('<!-- REPIN-TEMPLATE>>> -->')[0];
+  const dong = khoi.split('\n').find(l => l.startsWith('{') && l.includes('"kind":"repin"'));
+  if (!dong) fail('không rút được dòng repin của khối REPIN-TEMPLATE');
+  return new Set(Object.keys(JSON.parse(dong)));
+}
+const dongPinCuoi = (k, slug = 'ho-so-cu') => fs.readFileSync(path.join(k.dir, '_acceptance', slug, 'run-log.jsonl'), 'utf8')
+  .trim().split('\n').map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(e => e && e.kind === 'repin').pop();
+const HAU_TO_RE = /^sha: .* · thay bởi hồ sơ đã ký: (.+?)(?: · |$)/m;
+function kiemPinNoiRa(root = ROOT) {
+  const k = dungKho();
+  const r = chayLan(k, ['--write'], undefined, root);
+  if (r.code !== 0) fail(`làn không xanh: ${r.stderr.split('\n').slice(-2).join(' / ')}`);
+  const pin = dongPinCuoi(k) || fail('không có dòng pin');
+  if (JSON.stringify(pin.evals_not_run) !== JSON.stringify(['E3'])) fail(`evals_not_run = ${JSON.stringify(pin.evals_not_run)}, cần ["E3"]`);
+  const khuon = khoaKhuonRepin(root);
+  const la = Object.keys(pin).filter(x => !khuon.has(x));
+  if (la.length) fail(`dòng pin có khoá ngoài khuôn REPIN-TEMPLATE: ${la.join(', ')}`);
+  // đối chứng: cùng bộ dựng, E3 không con trỏ và không có khối đã ký → không xung đột, không thay bởi
+  const k0 = dungKho({ conTro: null, kyE3: false });
+  if (chayLan(k0, ['--write'], undefined, root).code !== 0) fail('đối chứng không xanh');
+  const pin0 = dongPinCuoi(k0);
+  const a = Object.keys(pin).sort().join(','), b = Object.keys(pin0).sort().join(',');
+  if (a !== b) fail(`ô thay bởi đổi tập khoá của dòng pin: ${a} ≠ ${b}`);
+  const bc = fs.readFileSync(path.join(k.wsCu, 'evidence-report.md'), 'utf8');
+  const m = HAU_TO_RE.exec(bc);
+  if (!m) fail('pin im lặng về ô thay bởi — dòng sha: thiếu hậu tố «thay bởi hồ sơ đã ký»');
+  if (m[1] !== 'E3→ho-so-thay#AC-2') fail(`hậu tố sai: «${m[1]}»`);
+  if (HAU_TO_RE.test(fs.readFileSync(path.join(k0.wsCu, 'evidence-report.md'), 'utf8'))) fail('hồ sơ không ô thay bởi mà dòng sha: vẫn mang hậu tố');
+  if (chayRecheck(k, 'ho-so-cu', undefined, root).code !== 0) fail('recheck không nhận dòng sha: mang hậu tố');
+}
+test('T06', 'pin-noi-ra — evals_not_run có E3, không khoá mới, dòng sha: nói «E3→ho-so-thay#AC-2»; vắng khi không có ô thay bởi', () => kiemPinNoiRa());
+test('T06', 'pin-noi-ra — mutant bỏ nối hậu tố → ĐỎ «pin im lặng về ô thay bởi»', () => {
+  const goc = banSaoBoMay([[path.join('feature-loop', 'scripts', 'repin-lane.mjs'), '${veBoQua}${veThayBoi}', '${veBoQua}']]);
+  for (const d of [path.join('feature-loop', 'skills')]) fs.cpSync(path.join(ROOT, d), path.join(goc, d), { recursive: true });
+  let loi = null;
+  try { kiemPinNoiRa(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('pin im lặng về ô thay bởi')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
+});
+
 // ── T04 — một nguồn, ba bên gọi (AC-4) ──────────────────────────────────────────
 test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => {
   let soHang = 0;
