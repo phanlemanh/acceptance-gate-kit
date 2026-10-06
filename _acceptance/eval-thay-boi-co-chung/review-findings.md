@@ -50,7 +50,7 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-- **Hồ sơ thay đã được thực tế đóng bị gọi nhầm tên lý do «chưa ký»; nhánh thực tế của «đã khép» không bao giờ chạy tới** (r1)
+- **Hồ sơ thay đã được thực tế đóng bị gọi nhầm tên lý do «chưa ký»; nhánh thực tế của «đã khép» không bao giờ chạy tới (r1)**
   Người dùng thấy gì: Khi hồ sơ thay thế đã được chính thực tế đóng lại, hệ thống vẫn chặn đúng nhưng báo nhầm lý do là «chưa ký». Người đọc có thể làm theo lời dặn sai (đi ký lại) thay vì hiểu hồ sơ đã khép.
   file: `lib/evidence-core.cjs`
   severity: medium
