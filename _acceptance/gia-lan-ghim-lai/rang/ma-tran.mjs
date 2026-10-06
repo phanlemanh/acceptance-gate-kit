@@ -70,7 +70,7 @@ export const MA_TRAN = {
     pha: [
       { ten: 'doi-mac-dinh: repin_retry', tep: LIB('lan-khoa.mjs'), doi: [['let retry = 0;', 'let retry = 1;'], ['retry = Number(String(r).trim()); }', 'retry = 1; }']], ghim: '(chạy lại)' },
       { ten: 'doi-mac-dinh: repin_budget_min', tep: LIB('lan-khoa.mjs'), doi: [['let budget = null;', 'let budget = 0.0001;']], ghim: 'mã thoát' },
-      { ten: 'doi-mac-dinh: repin_ci_blank_env', tep: LIB('lan-khoa.mjs'), doi: [["const blank = ds('feature_loop.repin_ci_blank_env');", "const blank = ds('feature_loop.repin_ci_blank_env').concat(['PATH']);"]], ghim: 'exit 127' },
+      { ten: 'doi-mac-dinh: repin_ci_blank_env', tep: LIB('lan-khoa.mjs'), doi: [["const blank = ds('feature_loop.repin_ci_blank_env');", "const blank = ds('feature_loop.repin_ci_blank_env').concat(['PATH']);"]], ghim: 'biến rỗng: PATH' },
       { ten: 'them-ngoai-danh-sach', tep: LANE, doi: [['{ tong_ket: tk.obj }));', '{ tong_ket: tk.obj, them_la: 1 }));']], ghim: 'them_la' },
     ],
     // Khoá mà bật mặc định chỉ đổi tổng kết — phần đã gỡ khỏi phép so (sổ quyết định, fix S3).

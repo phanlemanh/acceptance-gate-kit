@@ -59,7 +59,8 @@ export function chayLenh(cmd, { cwd, env } = {}) {
   let loiKhoi = '';
   p.on('error', e => { loiKhoi = String((e && e.message) || e); });
   const done = new Promise(res => p.on('close', code => res({
-    exit: code === null ? 1 : code,
+    // Không khởi động được (bash vắng trong PATH → mã âm) hay bị giết bởi tín hiệu (null) → 1, như spawnSync của bản trước.
+    exit: code === null || code < 0 ? 1 : code,
     out: Buffer.concat(out).toString('utf8'),
     err: Buffer.concat(err).toString('utf8') + (loiKhoi ? `\n${loiKhoi}` : ''),
     ms: Date.now() - t0,
