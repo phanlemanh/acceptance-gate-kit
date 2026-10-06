@@ -152,6 +152,50 @@ test('T01', 'nhan — đối chứng: gỡ con trỏ → làn exit 2 với thôn
   if (bam(k) !== truoc) fail('làn ghi byte khi dừng ở xung đột');
 });
 
+// ── T02 — dạng con trỏ (Review Focus 1) ─────────────────────────────────────────
+test('T02', 'dang — con trỏ bọc nháy kép + chú thích đuôi vẫn được nhận', () => {
+  const r = chayLan(dungKho({ conTro: '"ho-so-thay#AC-2"   # thay theo bảng' }));
+  if (r.code !== 0) fail(`con trỏ hợp lệ bọc nháy bị từ chối: exit ${r.code}\n${r.stderr}`);
+});
+test('T02', 'dang — con trỏ bọc nháy đơn vẫn được nhận', () => {
+  const r = chayLan(dungKho({ conTro: "'ho-so-thay#AC-2'" }));
+  if (r.code !== 0) fail(`con trỏ hợp lệ nháy đơn bị từ chối: exit ${r.code}\n${r.stderr}`);
+});
+
+// ── T03 — bên gọi cũ vẫn chặn (AC-3) ────────────────────────────────────────────
+const docCu = (k) => [fs.readFileSync(path.join(k.wsCu, 'evals.yaml'), 'utf8'), fs.readFileSync(path.join(k.wsCu, 'evidence-report.md'), 'utf8')];
+test('T03', 'ben-goi-cu — notRunConflicts hai đối số: ô vẫn xung đột, lý do khong-tra-duoc', () => {
+  const k = dungKho();
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const r = core.notRunConflicts(...docCu(k));
+  if (!r.xungDot.includes('E3')) fail(`bên gọi cũ bị nới lặng: ${JSON.stringify(r)}`);
+  if (!(r.lyDo || []).some(l => l.startsWith('E3: khong-tra-duoc ('))) fail(`thiếu lý do khong-tra-duoc: ${JSON.stringify(r)}`);
+});
+test('T03', 'ben-goi-cu — checkRepinEvals bốn đối số: vẫn vi phạm, gọi tên khong-tra-duoc', () => {
+  const k = dungKho();
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const [ev, rp] = docCu(k);
+  const { errs } = core.checkRepinEvals({ run_id: 'x', sha: k.sha, ts: 't', evals_exit: { E1: 0 } }, ev, 'ho-so-cu', rp);
+  if (!errs.some(e => e.includes('hai vế mâu thuẫn') && e.includes('khong-tra-duoc'))) fail(`bên đọc cũ bị nới lặng: ${errs.join(' | ')}`);
+});
+test('T03', 'ben-goi-cu — lib thiếu ac-line.cjs hoặc workspace-record.cjs: khong-tra-duoc, không ném; đủ tệp thì nhận', () => {
+  const k = dungKho();
+  const [ev, rp] = docCu(k);
+  for (const thieu of ['ac-line.cjs', 'workspace-record.cjs']) {
+    const lib = path.join(TMP, `lib-thieu-${thieu}`);
+    fs.cpSync(path.join(ROOT, 'lib'), lib, { recursive: true });
+    fs.rmSync(path.join(lib, thieu));
+    if (fs.existsSync(path.join(lib, thieu))) fail('bước gỡ tệp chưa bao giờ chạy');
+    const core = require(path.join(lib, 'evidence-core.cjs'));
+    let r;
+    try { r = core.notRunConflicts(ev, rp, { root: k.dir, slug: 'ho-so-cu' }); } catch (e) { fail(`thiếu ${thieu} thì ném: ${e.message}`); }
+    if (!(r.lyDo || []).some(l => l.startsWith('E3: khong-tra-duoc ('))) fail(`thiếu ${thieu} mà không ra khong-tra-duoc: ${JSON.stringify(r)}`);
+  }
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const r = core.notRunConflicts(ev, rp, { root: k.dir, slug: 'ho-so-cu' });
+  if (r.xungDot.length || !(r.thayBoi || []).some(t => t.id === 'E3' && t.thay === 'ho-so-thay' && t.ac === 'AC-2')) fail(`đối chứng dương hỏng (đủ tệp + gốc cây phải nhận): ${JSON.stringify(r)}`);
+});
+
 // ── chạy ───────────────────────────────────────────────────────────────────────
 const want = (process.env.ETB_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const chon = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;
