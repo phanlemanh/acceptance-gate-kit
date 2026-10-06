@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1185eb41fc82f1208952de15a2fbbcf00eaefd86
+verified_commit: 892755ec6014ccc4312afddca594c77ac2ce416c
 human_signoff: Phan Le Manh 2026-10-03
 ---
 
@@ -199,3 +199,7 @@ sha: 5c6f2f482432b385cd4140557b251f90d668a8ec · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 3 — 2026-10-04, do chiến dịch ghim lại sau mốc 2.22.0
 run_id: repin-20261004T012917Z-97809
 sha: 1185eb41fc82f1208952de15a2fbbcf00eaefd86 · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
+
+### Re-pin lần 4 — 2026-10-06, do hoá cũ do mốc 2.23.0 (manifest, config.yaml, GUIDE)
+run_id: repin-20261006T112535Z-18651
+sha: 892755ec6014ccc4312afddca594c77ac2ce416c · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng
