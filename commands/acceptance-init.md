@@ -84,6 +84,8 @@ risk_tiers:
     - "<from 2d>"
   # stale_scope: paths       # optional (2.21): evidence goes stale only when the diff touches the `paths`
   #                          # of its evals — a FILTER after the old rule, never wider; key absent/all = old rule.
+  #                          # 2.24: an entry it cannot prove (odd shape, points at no file) keeps the old rule
+  #                          # for that record, and a NOTE names the entry.
   #                          # Release re-pin campaigns pass --stale-all to pre-merge-check.sh (old rule).
 signoff:
   required_for: [T2, T3]     # tiers that pre-merge-check requires signoff for
