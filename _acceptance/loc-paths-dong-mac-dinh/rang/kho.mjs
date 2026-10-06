@@ -50,8 +50,8 @@ export function dungKho(opts) {
     ...opts.hoSo.flatMap(h => ['--slug', h.slug]), '--reason', 'ghim ban dau', '--write'], { encoding: 'utf8' });
   if (w.status !== 0) throw new Error(`kho mẫu: writer thật không ghi được pin (exit ${w.status})\n${w.stderr}`);
   git('add', '-A'); git('commit', '-qm', 'repin');
-  const doi = (tepList) => { for (const t of tepList) { const p = path.join(AR, t); mkdirSync(path.dirname(p), { recursive: true }); writeFileSync(p, (existsSync(p) ? readFileSync(p, 'utf8') : '') + `# v2\n`); } git('add', '-A'); git('commit', '-qm', 'diff sau pin'); };
-  const xoa = (tepList) => { for (const t of tepList) rmSync(path.join(AR, t), { force: true }); git('add', '-A'); git('commit', '-qm', 'xoa sau pin'); };
+  const doi = (tepList) => { for (const t of tepList) { const p = path.join(AR, t); mkdirSync(path.dirname(p), { recursive: true }); writeFileSync(p, (existsSync(p) ? readFileSync(p, 'utf8') : '') + `# v2\n`); } git('add', '-A', '--', ...tepList.map(t => path.join(pre, t))); git('commit', '-qm', 'diff sau pin'); };   // chỉ đúng các tệp đổi — tệp chưa theo dõi khác giữ nguyên chưa theo dõi
+  const xoa = (tepList) => { for (const t of tepList) rmSync(path.join(AR, t), { force: true }); git('add', '-A', '--', ...tepList.map(t => path.join(pre, t))); git('commit', '-qm', 'xoa sau pin'); };
   const don = () => { rmSync(R, { recursive: true, force: true }); TAM.delete(R); };
   return { R, AR, git, doi, xoa, don };
 }

@@ -89,7 +89,9 @@ if (chan === 'ma-tran') {
     ok(note(r.out) === 'paths-khong-tro-toi-tep:E1:vendor' && stale(r.out), `(a) thư mục chưa theo dõi «vendor» → không trỏ tới tệp, hồ sơ hoá cũ theo luật cũ (NOTE: ${note(r.out)})`);
     k.git('add', '-A'); k.git('commit', '-qm', 'theo doi vendor');
     const r2 = chayPremerge(KIT, k);
-    ok(note(r2.out) === null && /bỏ qua theo paths: 1 tệp/.test(r2.out) && !stale(r2.out), '(a) đối chứng dương: thư mục đã theo dõi → nhận như vendor/**, tệp ngoài bị bỏ qua có NOTE');
+    // vendor/x.js vào diff từ commit này nên nó là vật đo đã đổi: hoá cũ đúng tệp ấy, src/a.js bị bỏ qua.
+    ok(note(r2.out) === null && /bỏ qua theo paths: 1 tệp/.test(r2.out) && stale(r2.out) && /\n {4}vendor\/x\.js/.test(r2.out) && !/\n {4}src\/a\.js/.test(r2.out),
+      '(a) đối chứng dương: thư mục đã theo dõi → nhận như vendor/**: hoá cũ đúng vendor/x.js, src/a.js bị bỏ qua có NOTE');
     k.don(); }
   { const k = khoA();
     const s = banSao([{ tep: 'scripts/pre-merge-check.sh', tu: 'git -C "$ROOT" ls-files -z', thanh: '(cd "$ROOT" && find . -type f -not -path "./.git/*" | sed "s|^\\./||" | tr "\\n" "\\0")' }]);

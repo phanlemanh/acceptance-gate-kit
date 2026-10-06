@@ -26,6 +26,8 @@ export const MA_TRAN = [
   // M13–M15: owner nâng phạm vi ở Cổng Bằng chứng lượt 3 (Ngoài-1, 4, 5 — fail-open đã tái hiện).
   { id: 'M13', evalsYaml: Y(ev('E1', 'script', P('src/**')), ev('E2', 'ui-check')), diff: ['ui/p.tsx'], kyVong: 'cu' },
   { id: 'M14', evalsYaml: Y(ev('E1', 'script', '    paths:   # vat do cua E1\n      - "src/**"\n')), diff: ['src/a.js'], kyVong: 'hoa-cu', tep: ['src/a.js'] },
-  { id: 'M15', evalsYaml: Y(ev('E1', 'script', '    paths:\n      - "lib2/zz/**"\n\n      - "src/**"\n')), diff: ['src/a.js'], kyVong: 'hoa-cu', tep: ['src/a.js'] },
+  // M15: mục đầu `lib2/**` trỏ tệp có thật (06/10, hồ sơ loc-paths-dong-mac-dinh): bộ lọc đóng mặc định từ chối
+  // mục không trỏ tới tệp nào, nên với `lib2/zz/**` cũ bản sao «dòng trống cắt paths» rơi về luật cũ và hết đỏ.
+  { id: 'M15', evalsYaml: Y(ev('E1', 'script', '    paths:\n      - "lib2/**"\n\n      - "src/**"\n')), diff: ['src/a.js'], kyVong: 'hoa-cu', tep: ['src/a.js'] },
 ];
 if (MA_TRAN.length !== M_SO_O) throw new Error(`số ô lệch: ${MA_TRAN.length} ≠ ${M_SO_O}`);
