@@ -167,6 +167,7 @@ tests/hooks/run-tests.sh ca-V12-signed-off-kèm-da-veto-của-lưới-ghi-duong-
 tests/scripts/lo-trinh.test.mjs fixture-code-sinh-mang-status-để-bộ-đọc-lộ-trình-hỏi-hàm-xếp-ô-của-bản-đồ-không-rẽ-nhánh-theo-status
 tests/scripts/lo-trinh-mau.mjs fixture-code-sinh-mang-status-dựng-trang-mẫu-lộ-trình-không-rẽ-nhánh-theo-status
 tests/scripts/lo-trinh-kho-thu.mjs fixture-code-sinh-mang-status-dựng-kho-thử-năm-trạng-thái-trang-lộ-trình-không-rẽ-nhánh-theo-status
+tests/scripts/eval-thay-boi.test.mjs fixture-code-sinh-mang-status-hồ-sơ-thay-để-luật-thay-bởi-đọc-ca-không-rẽ-nhánh-theo-status
 BO-DOC-KHAI-GACH>>> -->
 
 

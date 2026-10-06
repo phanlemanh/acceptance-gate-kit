@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 1185eb41fc82f1208952de15a2fbbcf00eaefd86
+verified_commit: 44e8f13083de51407840c79811c68337e507df59
 human_signoff: Manh 2026-08-25
 ---
 
@@ -366,3 +366,7 @@ sha: 0675036a3bbbbb976d66eae00e30d0846d91ce60 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 28 — 2026-10-04, do chiến dịch ghim lại sau mốc 2.22.0
 run_id: repin-20261004T012917Z-97809
 sha: 1185eb41fc82f1208952de15a2fbbcf00eaefd86 · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 29 — 2026-10-06, do gộp main 730d000c (loc-paths-dong-mac-dinh) sau chữ ký; ra-co-ten vào diff PR #272 vì khai tệp ca vào khối gạch
+run_id: repin-20261006T131841Z-26509
+sha: 44e8f13083de51407840c79811c68337e507df59 · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

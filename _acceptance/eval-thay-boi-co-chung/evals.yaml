@@ -1,0 +1,189 @@
+# Mỗi eval = MỘT nhóm ca của tệp ca VĨNH VIỄN tests/scripts/eval-thay-boi.test.mjs
+# (suite `scripts` tự chạy qua glob, nên đây là lưới thường trực). Ca chọn bằng
+# biến ETB_CASES; bộ lọc khớp 0 ca phải thoát khác 0 (bài học P86).
+#
+# LUẬT VIẾT CHO CHÍNH TỆP NÀY (bài học lan-doc-status-not-run, gap-probe P0-1 12/09):
+# không dòng văn nào ở đây đặt chữ «status» + dấu hai chấm liền chữ chỉ giá trị
+# không-chạy, và không dòng văn nào đặt tên trường con trỏ + dấu hai chấm — bộ quét
+# theo dòng sẽ gán chúng cho eval đang mở. Văn xuôi gọi chúng là «lời khai
+# không-chạy» và «trường con trỏ».
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.etb_nhan
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "scripts/recheck-evidence.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Kho tạm do MÃ SINH (hồ sơ cũ đã ký + hồ sơ thay signed-off có design doc
+      nêu thẻ <slug cũ>/<id> và eval phủ AC mang mã 0 trong báo cáo đã ký). Làn --write thoát 0
+      và ghi dòng pin; recheck-evidence.cjs thoát 0; pre-merge-check.sh không in
+      VIOLATION nào cho hồ sơ cũ. Đối chứng dương cùng kho: gỡ dòng trường con trỏ
+      → làn exit 2 và stderr chứa NGUYÊN VĂN thông điệp xung đột cũ «khai không-chạy
+      trong evals.yaml nhưng báo cáo đã ký CÓ mã thoát cho chính nó». Chiều đỏ: bản
+      sao lib bỏ bước xét con trỏ → ĐỎ ghim «ô thay bởi hợp lệ vẫn bị chặn».
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.etb_ma_tran
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "scripts/recheck-evidence.cjs"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Ma trận mười bảy hàng từ chối viết trước (số hàng là HẰNG viết trước, và tập lý do khớp THAY_BOI_LY_DO của lib), mỗi hàng gãy ĐÚNG MỘT điều kiện từ
+      fixture lành của E1: con-tro-hong · tu-tro · ho-so-thay-vang ·
+      ho-so-thay-chua-ky (verified) · ho-so-thay-chua-ky (machine-cleared) ·
+      ho-so-thay-da-khep · thay-khong-nhan (con trỏ tới AC sống của hồ sơ đã ký
+      không nêu tên eval cũ) · ac-thay-vang · ac-thay-khong-con-eval (chỉ còn eval
+      không-chạy) · ac-thay-khong-con-eval (eval thêm sau ký, báo cáo thay không có
+      mã thoát) · ac-thay-khong-con-eval (con trỏ AC-1, chỉ AC-10 sống) · vòng tròn
+      hai hồ sơ trỏ nhau → ac-thay-khong-con-eval. Cộng một hàng NHẬN: criterion
+      «AC-3, AC-7» với con trỏ AC-7 → làn thoát 0. Mỗi hàng: làn exit 2, băm run-log
+      và báo cáo trước/sau giống nhau (đối chứng: lượt lành làm hai băm đổi), recheck
+      exit 1; cả hai đầu ra chứa id, con trỏ và đúng chuỗi lý do của hàng. Số assert
+      đếm lúc chạy = số hàng × 2 bên, lệch → ĐỎ «số ca lệch». Chiều đỏ: bốn mutant
+      trên bản sao lib — bỏ kiểm chữ ký, bỏ kiểm hồ sơ thay nhận việc, bỏ kiểm mã
+      thoát đã ký của eval thay, so AC bằng chuỗi con — mỗi mutant làm đúng hàng của
+      nó đi qua, ĐỎ ghim «đường né đo mở: <lý do>».
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.etb_ben_goi_cu
+    paths:
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Trên fixture lành của E1: gọi notRunConflicts hai đối số và checkRepinEvals
+      bốn đối số → ô vẫn trong tập xung đột, lý do chứa «khong-tra-duoc». Bản sao
+      thư mục lib thiếu ac-line.cjs (lượt một) và thiếu workspace-record.cjs (lượt
+      hai) → cùng kết luận, không ném; đối chứng dương: bản sao đủ tệp → ô được nhận.
+      Chiều đỏ: bản sao coi «không tra được» là nhận → ĐỎ ghim «bên gọi cũ bị nới lặng».
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.etb_mot_nguon
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "scripts/recheck-evidence.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Trên ca lành và mười bảy hàng của E2, rút từ ĐẦU RA THẬT của làn (stderr + mã
+      thoát), recheck (stderr) và pre-merge (stdout) bộ ba {id nhận | id: lý do};
+      ba bộ phải bằng nhau ở mọi hàng. Chân bảng bộ máy: ca thường trực lớp-cũ
+      của làn (bảng điểm chạm) xanh với mọi export mới. Chiều đỏ: bản sao recheck
+      không truyền gốc cây → ĐỎ ghim «ba bên trả phán quyết khác nhau» kèm id lệch.
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.etb_cay_dang_kiem
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/recheck-evidence.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Hai kho tạm mã sinh, hồ sơ thay cùng tên: kho K1 đã ký, kho K2 chưa ký. Chạy
+      làn (--root K2), recheck và pre-merge của K2 với cwd = K1 → cả ba từ chối, lý
+      do «ho-so-thay-chua-ky», băm run-log/báo cáo của K2 trước/sau giống nhau. Đối
+      chứng dương: ba lệnh của K1 với cwd = K2 → nhận.
+      Chiều đỏ: bản sao lib đọc hồ sơ thay từ process.cwd() → ĐỎ ghim «đọc nhầm cây».
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.etb_pin_noi_ra
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Sau làn xanh của E1: dòng run-log đọc bằng JSON.parse — id ô thay bởi nằm
+      trong evals_not_run đúng thứ tự bản khai, mọi khoá của dòng nằm trong tập
+      khoá rút từ khối REPIN-TEMPLATE của SKILL feature-loop (không khoá mới); và
+      dòng không có khoá nào khác so với lượt cùng fixture không mang con trỏ (đối
+      chứng: cùng tập khoá). Dòng sha: đọc bằng regex riêng — mang
+      hậu tố «thay bởi hồ sơ đã ký: E…→<hồ sơ>#AC-…» theo thứ tự bản khai. Hồ sơ
+      không ô thay bởi (fixture thứ hai) → hậu tố vắng hẳn. recheck pin có hậu tố
+      thoát 0. Chiều đỏ: bản sao làn bỏ bước nối hậu tố → ĐỎ ghim «pin im lặng về
+      ô thay bởi».
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.etb_chung_song
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/recheck-evidence.cjs"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Sau làn xanh của E1 (pin đã ghi): lượt một thêm dòng nghỉ có chữ ký vào sổ
+      hồ sơ thay → recheck hồ sơ cũ exit 1, lý do «ho-so-thay-da-khep»; lượt hai
+      (fixture mới) đổi trạng thái hồ sơ thay về verified → lý do
+      «ho-so-thay-chua-ky». Đối chứng dương: không đổi gì → recheck 0. Chiều đỏ:
+      bản sao bên đọc nhận ô khi dòng sha: mang hậu tố thay bởi → ĐỎ ghim «lời hứa
+      thay đã hết mà pin vẫn xanh».
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.etb_vi_phan
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/recheck-evidence.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Bản base = git archive TRỌN scripts lib ở merge-base với nhánh chính (không
+      chép danh sách tệp tay; kiểm tệp tồn tại sau khi bung, pipefail). Chạy
+      pre-merge-check.sh có --base và recheck trên (a) bộ hồ sơ kit tại HEAD, (b)
+      fixture mã sinh có ô không-chạy xung đột KHÔNG con trỏ, bằng cả hai bản: đầu
+      ra và mã thoát giống từng byte; số hồ sơ đã chấm in ra > 0. Chân nhạy: thêm
+      một con trỏ hợp lệ vào (b) → đầu ra hai bản KHÁC. Chiều đỏ: bản sao đổi một
+      chữ trong thông điệp xung đột cũ → ĐỎ ghim «kho không dùng trường đổi đầu ra».
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.etb_khuon_tai_lieu
+    paths:
+      - "GUIDE.md"
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Rút khối EVAL-THAY-BOI-TEMPLATE khỏi GUIDE.md (đường suy từ vị trí script),
+      điền chỗ trống bằng giá trị fixture E1, ghi vào evals.yaml của hồ sơ cũ, chạy
+      làn → thoát 0 và id được nhận. Khối vắng → ĐỎ «không có khuôn để rút». Chiều
+      đỏ: bản sao khối đổi tên trường con trỏ → làn exit 2, ĐỎ ghim «khuôn tài liệu
+      không khớp bộ đọc».
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.etb_hinh_dang_crm
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "scripts/recheck-evidence.cjs"
+      - "tests/scripts/eval-thay-boi.test.mjs"
+    expected: >-
+      Fixture mã sinh theo hình dạng crm 06/10 (design doc của hồ sơ thay mang bảng
+      thẻ <hồ sơ>/<eval> như crm, không mang marker riêng của kho): năm hồ sơ cũ đã ký với số eval máy
+      bị thay 9 · 6 · 4 · 4 · 2 (tổng 25, đếm 06/10), trỏ tám AC (AC-5, 7, 10, 11, 12, 14,
+      15, 16) của một hồ sơ thay đã ký; mỗi hồ sơ cũ có thêm ≥ 1 eval máy sống. Làn
+      --write một lượt cho cả năm slug → thoát 0; mỗi dòng pin liệt đúng id thay bởi
+      của hồ sơ đó (so với bảng sinh fixture); recheck năm hồ sơ 0 lỗi. Đối chứng:
+      cùng fixture không con trỏ → làn exit 2 ở hồ sơ đầu, thông điệp xung đột cũ.
+      Chiều đỏ: bản sao lib bỏ bước xét con trỏ → ĐỎ ghim «hinh-dang-crm».

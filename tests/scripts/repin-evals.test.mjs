@@ -282,7 +282,7 @@ check('REm1 mutant lib: danh sách executor máy → [] ⇒ ca phủ-thiếu (RE
 });
 check('REm3 mutant dây nối: recheck bỏ lời gọi checkRepinEvals ⇒ RE1 xanh ở recheck nhưng pre-merge VẪN đỏ (mỗi reader nối riêng)', () => {
   const f = NEW({ noEvalsExit: true });
-  const m = mutantTree([['scripts/recheck-evidence.cjs', 'for (const x of core.checkRepinEvals(e, evalsText, slug, payload).errs) errs.push(`REPIN x ${x}`);', '/* mutant */']]);
+  const m = mutantTree([['scripts/recheck-evidence.cjs', "for (const x of core.checkRepinEvals(e, evalsText, slug, payload, { root: path.resolve(dir, '..', '..') }).errs) errs.push(`REPIN x ${x}`);", '/* mutant */']]);   // neo dời 06/10 (eval-thay-boi-co-chung: lời gọi truyền gốc cây)
   assert.equal(rc(f.report, m.rc).code, 0);
   assert.equal(pm(f.root, m.pm).code, 1);
 });

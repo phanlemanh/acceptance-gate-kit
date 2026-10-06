@@ -30,3 +30,8 @@ Răng: round-trip rút mục carry từ CHÍNH `acceptance-verify.js` (harness t
 `review-findings.md` (đếm: `gate-card.js --extract` → `out_of_contract.findings.length` so với
 `grep -c '^- \*\*'` mục «Ngoài hợp đồng»), HOẶC chủ kho gọi tên. Chạm `lib/**` nên đi cùng một mốc
 phát hành có kho chờ nhận.
+
+**Đếm thêm (06/10):** lần 2 — `gia-lan-ghim-lai` lượt 3 (commit `07e00937` chuẩn hoá tay tiêu đề để
+thẻ đọc đủ 9 mục); lần 3 — `eval-thay-boi-co-chung` lượt 2: thẻ đọc 6/7 mục, mục 6 mang chữ và tệp
+của mục 7 (mục mang sang từ lượt 1), chuẩn hoá tay cùng cách. Ngưỡng «≥1 lần nữa» ĐÃ CHẠM; chưa mở ô
+vì luật đóng băng meta-work — mở ở mốc phát hành kế, hoặc khi chủ kho gọi tên.
