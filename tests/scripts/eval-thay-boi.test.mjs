@@ -381,6 +381,53 @@ test('T07', 'chung-song — mutant bên đọc tin hậu tố sha: → ĐỎ «l
   if (!loi || !loi.startsWith('lời hứa thay đã hết mà pin vẫn xanh')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
 });
 
+// ── T08 — kho không dùng trường giữ từng byte (AC-8) ────────────────────────────
+// Vi phân theo MỐC BẤT BIẾN: `main` ngay trước vòng này (điểm gộp 06/10). Không neo
+// merge-base động — sau khi gộp, merge-base = HEAD và chân nhạy đỏ vĩnh viễn. Ca này
+// đo bộ hồ sơ kit tại HEAD, nên nó gãy theo mọi vòng sau đổi lưới — vì thế nó KHÔNG
+// vào lượt chạy trọn của suite, chỉ chạy khi gọi tên (ETB_CASES=T08; eval E8).
+const MOC_TRUOC = '8215e63a86a6ead2aa95bc1780f9e6b935621605';
+const CHI_GOI_TEN = new Set(['T08']);
+function dungBase() {
+  const dir = fs.mkdtempSync(path.join(TMP, 'base-'));
+  try { execFileSync('git', ['-C', SELF_ROOT, 'cat-file', '-e', `${MOC_TRUOC}^{commit}`], { stdio: 'ignore' }); }
+  catch { fail(`không có base: mốc ${MOC_TRUOC.slice(0, 8)} không có trong kho (clone nông?)`); }
+  const r = spawnSync('bash', ['-o', 'pipefail', '-c', `git -C '${SELF_ROOT}' archive ${MOC_TRUOC} scripts lib feature-loop/scripts | tar -x -C '${dir}'`], { encoding: 'utf8' });
+  if (r.status !== 0) fail(`bung base hỏng: ${r.stderr}`);
+  for (const f of ['lib/evidence-core.cjs', 'scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs']) if (!fs.existsSync(path.join(dir, f))) fail(`base thiếu ${f} sau khi bung`);
+  return dir;
+}
+function dauRa(root, kho) {   // đầu ra lưới + recheck mọi báo cáo, một chuỗi để so từng byte
+  const pm = chay('bash', [premerge(root), kho, ...(kho === SELF_ROOT ? ['--base', MOC_TRUOC] : [])], kho);
+  const acc = path.join(kho, '_acceptance');
+  const rc = fs.readdirSync(acc).sort().filter(s => fs.existsSync(path.join(acc, s, 'evidence-report.md'))).map(s => {
+    const r = chay(process.execPath, [recheck(root), path.join(acc, s, 'evidence-report.md')], kho);
+    return `## ${s} ${r.code}\n${r.stdout}${r.stderr}`;
+  });
+  return { txt: `${pm.code}\n${pm.stdout}${pm.stderr}\n${rc.join('\n')}`, soHoSo: rc.length };
+}
+function kiemViPhan(root = ROOT) {
+  const base = dungBase();
+  const a0 = dauRa(base, SELF_ROOT), a1 = dauRa(root, SELF_ROOT);
+  if (a0.soHoSo === 0) fail('không hồ sơ nào được chấm — phép so rỗng');
+  if (a0.txt !== a1.txt) fail('kho không dùng trường đổi đầu ra — bộ hồ sơ kit');
+  const b = khoDaGhimRoiDoi({ conTro: null });               // ô không-chạy xung đột, KHÔNG con trỏ
+  if (dauRa(base, b.dir).txt !== dauRa(root, b.dir).txt) fail('kho không dùng trường đổi đầu ra — fixture xung đột không con trỏ');
+  const c = khoDaGhimRoiDoi({});                             // chân nhạy: con trỏ hợp lệ
+  if (dauRa(base, c.dir).txt === dauRa(root, c.dir).txt) fail('chân nhạy hỏng: con trỏ hợp lệ mà hai bản cho cùng đầu ra — phép so không phân biệt được gì');
+  return a0.soHoSo;
+}
+test('T08', 'vi-phan — lưới + recheck: bộ hồ sơ kit và fixture không con trỏ giống từng byte bản trước vòng; con trỏ hợp lệ thì khác', () => {
+  const n = kiemViPhan();
+  console.log(`    (đã so ${n} hồ sơ kit tại HEAD với mốc ${MOC_TRUOC.slice(0, 8)})`);
+});
+test('T08', 'vi-phan — mutant đổi một chữ thông điệp xung đột cũ → ĐỎ «kho không dùng trường đổi đầu ra»', () => {
+  const goc = banSaoBoMay([[path.join('lib', 'evidence-core.cjs'), 'hai vế mâu thuẫn; sửa hồ sơ rồi chạy làn MỚI', 'hai vế mâu thuẫn; sửa hồ sơ rồi chạy làn mới!']]);
+  let loi = null;
+  try { kiemViPhan(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('kho không dùng trường đổi đầu ra')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
+});
+
 // ── T04 — một nguồn, ba bên gọi (AC-4) ──────────────────────────────────────────
 test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => {
   let soHang = 0;
@@ -424,8 +471,9 @@ test('T05', 'cay-dang-kiem — K2 (hồ sơ thay chưa ký) chạy từ cwd K1 (
 
 // ── chạy ───────────────────────────────────────────────────────────────────────
 const want = (process.env.ETB_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
-const chon = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;
+const chon = want.length ? CASES.filter(c => want.includes(c.id)) : CASES.filter(c => !CHI_GOI_TEN.has(c.id));
 if (!chon.length) { console.error(`eval-thay-boi: ETB_CASES=${want.join(',')} khớp 0 ca`); process.exit(1); }
+if (!want.length) console.log(`  (bỏ qua có tên: ${[...CHI_GOI_TEN].join(', ')} — vi phân theo mốc, chỉ chạy khi gọi tên qua ETB_CASES)`);
 let bad = 0;
 for (const c of chon) {
   try { c.fn(); console.log(`  PASS: ${c.id} ${c.name}`); }
