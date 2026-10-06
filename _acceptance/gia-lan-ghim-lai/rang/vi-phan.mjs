@@ -27,14 +27,16 @@ async function chayNgat(lan, root, args) {
   const p = spawn(process.execPath, [lan, '--root', root, '--ag-root', base, '--slug', 'feat', ...args], { env, stdio: ['ignore', 'pipe', 'pipe'] });
   let stdout = '', stderr = '';
   p.stdout.on('data', d => { stdout += d; }); p.stderr.on('data', d => { stderr += d; });
-  const xong = new Promise(res => p.on('close', (status, signal) => res({ status, signal })));
+  let daXong = null;
+  const xong = new Promise(res => p.on('close', (status, signal) => { daXong = { status, signal }; res(daXong); }));
   const t = Date.now(); let pid = null;
-  while (Date.now() - t < 20000) { const f = path.join(env.GG_DAU, 'chau.pid'); if (existsSync(f) && /^\d+$/.test(readFileSync(f, 'utf8').trim())) { pid = Number(readFileSync(f, 'utf8').trim()); break; } await ngu(100); }
-  if (!pid) throw new Error('cháu chưa kịp sinh — kịch bản bị ngắt không đo được');
-  p.kill('SIGTERM');
+  while (Date.now() - t < 20000 && !daXong) { const f = path.join(env.GG_DAU, 'chau.pid'); if (existsSync(f) && /^\d+$/.test(readFileSync(f, 'utf8').trim())) { pid = Number(readFileSync(f, 'utf8').trim()); break; } await ngu(100); }
+  // Làn tự kết thúc trước khi có cháu (lệnh không sinh được cháu) → kết quả của nó là bằng chứng, không sập.
+  if (!pid && !daXong) { p.kill('SIGKILL'); await xong; return { status: 'không sinh cháu sau 20 s', stdout, stderr }; }
+  if (pid) p.kill('SIGTERM');
   const r = await xong;
   await ngu(500);
-  if (song(pid)) { try { process.kill(pid, 'SIGKILL'); } catch { /* */ } }     // bản trước vòng để cháu sót — dọn sau khi đo
+  if (pid && song(pid)) { try { process.kill(pid, 'SIGKILL'); } catch { /* */ } }     // bản trước vòng để cháu sót — dọn sau khi đo
   // Bị giết bởi SIGTERM (bản trước vòng) và tự thoát 143 (bản sau) là CÙNG một mã ở mắt shell.
   return { status: r.status === null && r.signal === 'SIGTERM' ? 143 : r.status, stdout, stderr };
 }
