@@ -98,6 +98,12 @@ ngoài làn máy. **Never:** giá trị trạng thái mới `thay-boi` (giả đ
 - **Chạy song song với `loc-paths-dong-mac-dinh`** (T3, cùng tệp `lib/evidence-core.cjs`, khác
   hàm): vòng nào gộp sau thì gộp nhánh chính vào trước lượt chấm cuối.
 - **T3** nên Cổng 1.5 cần người theo thiết kế; trần 4 lượt gọi người.
+- **Đường nền chạy ba lượt (06/10):** hai lượt đầu đỏ giả — lượt một vì vòng viết tệp hồ sơ vào cây
+  trong lúc suite chạy (S1#0 cho brainstorm song song, nhưng tệp viết ra làm chân «cây sạch sau
+  suite» và P122 đỏ), lượt hai vì máy tạo sẵn thư mục hồ sơ rỗng trước khi chạy (suite đọc nó thành
+  hồ sơ hỏng). Lượt ba trên bản sao sạch của `bf79fdb1`, không tạo thư mục trước: năm chân xanh —
+  đó là tệp `duong-nen.md` của hồ sơ này. Lỗ ở nghi thức (song song mà cây bị ghi) ghi ở đây, không
+  mở ô — luật chiều rộng.
 - **Giới hạn khai trước — cái bắt tay đọc văn bản hiện tại:** điều kiện «hồ sơ thay nhận việc
   thay» đọc `contract.md`/design doc của hồ sơ thay ở cây đang kiểm, không đối chiếu bản lúc ký;
   một người sửa design doc của hồ sơ đã ký để thêm thẻ `<slug>/<id>` sẽ qua. Cùng tầng tin cậy
