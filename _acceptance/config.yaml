@@ -530,6 +530,21 @@ executors:
     gtll_tai_may: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan tai-may
     gtll_nghia_khong_doi: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan nghia-khong-doi
     gtll_do_khong_thanh_bang_chung: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan do-khong-thanh-bang-chung
+    # Hồ sơ gia-lan-ghim-lai (06/10, T3): mỗi lệnh một AC — chạy các ca bền của AC đó trong
+    # tests/scripts/*.test.mjs (chiều xanh) rồi các bản sao bị phá (chiều đỏ có dấu dương).
+    gg_ac1: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 1
+    gg_ac2: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 2
+    gg_ac3: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 3
+    gg_ac4: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 4
+    gg_ac5: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 5
+    gg_ac6: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 6
+    gg_ac7: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 7
+    gg_ac8: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 8
+    gg_ac9: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 9
+    gg_ac10: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 10
+    gg_ac11: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 11
+    gg_ac12: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 12
+    gg_ac13: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 13
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

@@ -1,0 +1,43 @@
+{
+  "feature_plain": "Lượt ghim lại ở kho dùng kit chỉ chạy lại những phép đo có đầu vào thật sự đổi, không chết vì một ca chập chờn, không để lọt lỗi chỉ hiện ở CI, và không bao giờ chạy câm quá trần — mỗi điểm kho tự bật.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ không bắt một hồ sơ ghim lại chỉ vì một tệp test của hồ sơ khác đổi, khi hồ sơ đó không gọi tên tệp ấy; lưới trước-merge và làn ghim lại cùng kết luận và cùng nói ra đã bỏ qua tệp nào."},
+    {"id": "AC-2", "p": "Sẽ vẫn bắt ghim lại mọi hồ sơ có gọi tên tệp test vừa đổi — qua danh sách tệp được đo hoặc qua lệnh chạy — và giữ luật cũ khi lệnh không đọc hiểu được; đúng trên 22 ca viết trước, cả ở kho chỉ chép lớp CI."},
+    {"id": "AC-3", "p": "Sẽ để kho chưa bật khoá nào chạy y hệt bản trước vòng, chỉ thêm đúng ba thứ đã kê (dòng tổng kết, khoá tổng kết, dòng dấu khi bị ngắt); bộ đọc cũ ở CI các kho vẫn đọc được dòng mới."},
+    {"id": "AC-4", "p": "Sẽ chạy lại một lệnh đỏ đúng một lần, một mình, rồi ghi tên ca chập chờn vào báo cáo thay vì làm đỏ cả lượt; không chạy lại eval gọi model thật."},
+    {"id": "AC-5", "p": "Sẽ dừng lượt ghim lại khi chạm trần thời gian, giết sạch mọi tiến trình con cháu kể cả trong lượt lồng bên trong, thoát bằng mã riêng và ghi lại lệnh nào chưa kịp chạy."},
+    {"id": "AC-6", "p": "Sẽ để lại một dòng dấu và dọn sạch tiến trình con khi lượt ghim lại bị công cụ ngắt giữa chừng, thay vì biến mất không vết."},
+    {"id": "AC-7", "p": "Sẽ in tổng kết cuối mọi lượt: mất bao lâu, chạy bao nhiêu lệnh, gọi bao nhiêu eval model thật, mang sang bao nhiêu, và chi phí đo được nếu kho khai cách đo."},
+    {"id": "AC-8", "p": "Sẽ chạy bộ test chung với các khoá tuỳ chọn để rỗng như trên CI, để lỗi chỉ hiện ở CI lộ ra ngay trong lượt ghim lại; eval vẫn chạy với khoá thật."},
+    {"id": "AC-9", "p": "Sẽ mang kết quả của lượt trước sang (không chạy lại) cho eval có đầu vào không đổi trong 7 ngày — tính cả tệp lệnh nạp vào và biến môi trường đã khai — và luôn chạy lại khi bất kỳ phần nào đổi."},
+    {"id": "AC-10", "p": "Sẽ để lưới trước-merge từ chối mọi kết quả mang sang không truy được về một lượt chạy thật, cùng đầu vào, cùng mã, trong 7 ngày — ở cả cây kit lẫn kho chỉ chép lớp CI."},
+    {"id": "AC-11", "p": "Sẽ ghi lại và thôi mang sang khi một eval chạy thật cho kết quả khác lần trước dù đầu vào khai không đổi — dấu hiệu danh sách đầu vào còn thiếu."},
+    {"id": "AC-12", "p": "Sẽ giữ khuôn dòng ghim lại trong hướng dẫn của vòng lặp và bảng khoá trong GUIDE khớp đúng với thứ làn thật sự ghi."},
+    {"id": "AC-13", "p": "Sẽ có một lệnh in bảng trước → sau cho cả năm điểm trên kho mẫu, và tự đỏ nếu điểm nào không đổi số theo đúng chiều đã hứa."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Không tách phép kiểm chéo E11 ra khỏi hồ sơ trả lời tin nhắc của crm — việc đó crm làm ở hồ sơ kiểm chéo sau gộp."},
+    {"id": "OOS-2", "p": "Không làm kín các ca test chập chờn hay dọn trạng thái sót của crm — việc của hồ sơ cách ly ca chập chờn bên crm."},
+    {"id": "OOS-3", "p": "Không đổi cách chấm eval model theo biên thống kê — phần chấm thuộc hồ sơ eval model thật bên crm."},
+    {"id": "OOS-4", "p": "Không sửa các thước tự hết hạn khi nhánh dời — việc của hồ sơ thước không tự hết hạn bên crm."},
+    {"id": "OOS-5", "p": "Không sửa thẻ Cổng 2 để in phát hiện mức thấp trong hợp đồng — đã có việc riêng chờ ở phiên P4."},
+    {"id": "OOS-6", "p": "Không mang kết quả sang trong lượt chấm S4, và không gộp hai bộ đọc danh sách tệp được đo của làn."},
+    {"id": "OOS-7", "p": "Không bật khoá nào ở bất kỳ kho nào, kể cả kit — mỗi kho tự bật sau khi nhận bản phát hành."}
+  ],
+  "scope_plain": "Năm việc liền kề nằm ở kho crm hoặc ở việc riêng khác — vòng này chỉ sửa bộ máy dùng chung.",
+  "coverage_plain": [
+    {"i": 0, "p": "Không gian tiêu chí được quét có hệ thống, đứng trên sản phẩm thật (kit là bộ máy, người dùng là phiên làm việc và chủ kho) và trên số đo của crm."},
+    {"i": 1, "p": "Đối chiếu với công cụ cùng loại có tên: chạy lại và gọi tên ca chập chờn như Playwright, Bazel; băm đầu vào cùng biến môi trường khai như Turborepo; trần thời gian và huỷ cả cây tiến trình như GitHub Actions; khoá chưa khai thành chuỗi rỗng như CI."},
+    {"i": 2, "p": "Mười ba tiêu chí (AC-1…AC-13) là phần làm ngay; mọi tiêu chí phải đúng cả với tên tệp có dấu, kho lồng, lệnh trùng, bộ test chạy song song và cây chưa commit."},
+    {"i": 3, "p": "Để sau: chạy lại từng ca riêng, trần theo tiền, mang kết quả sang trong lượt chấm, bên đọc tự tính lại băm, lệnh đo chi phí dựng sẵn, và phát lại ca R1g thật thành phép đo tự động."},
+    {"i": 4, "p": "Không bao giờ: chạy lại eval model thật, mang kết quả bộ test chung sang, bỏ hẳn biến thay vì để rỗng, chạy thêm lượt bộ test thứ hai, hay đoán tệp theo đuôi tên."},
+    {"i": 5, "p": "Ba giả định chờ anh gạch: 7 ngày là đủ ngắn cho phần trôi ngoài băm; giết theo cây bắt được mọi tiến trình con trừ tiến trình tự tách hẳn; và lưới cho tệp test không ai gọi tên là bộ test chung chạy ở mọi lượt và ở CI."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Nặng nhất: kết quả có thể bị mang sang sai khi chỉ tệp setup dùng chung đổi (394 eval crm nạp nó), vì tệp ấy không nằm trong băm. Đã sửa: băm gồm mọi tệp mà lệnh nạp, thêm hai ca đo và một bản phá thử."},
+    {"i": 1, "p": "Bảng ca của tiêu chí gọi tên có một ca tự mâu thuẫn và thiếu ca lệnh có biến, ca thư mục test, ca lệnh crm thật. Đã sửa: bảng lên 22 ca kèm hai lệnh crm nguyên văn; phát lại R1g thật không thành phép đo vì cần kho crm trên máy."},
+    {"i": 2, "p": "Lời hứa «chưa bật khoá thì y hệt bản cũ» mâu thuẫn với tổng kết và dòng dấu khi bị ngắt vốn không sau khoá nào. Đã sửa: ba phần chỉ-thêm bật mặc định và được kê đích danh — đây là điểm đổi mặc định cho mọi kho, chờ anh duyệt."},
+    {"i": 3, "p": "Chưa có ca cho lượt ghim lại lồng nhau (E11 crm) và cho tiến trình phớt lờ lệnh dừng mềm. Đã sửa: dừng bằng cách thu cả cây tiến trình trước rồi mới gửi tín hiệu, thêm ca tiến trình lì và ca lượt lồng."},
+    {"i": 4, "p": "Bên đọc có thể tự đỏ CI tám ngày sau một lần ghim không đổi gì, và chưa được thử ở kho chỉ chép lớp CI. Đã sửa: tuổi so giữa hai dòng chứ không so giờ hiện tại, thêm ca kho chỉ chép lớp CI."}
+  ]
+}

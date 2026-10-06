@@ -9,11 +9,12 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>90 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>12 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>5 việc"]
+  HS["Hồ sơ hỏng<br/>1 việc"]
 ```
 
 > **Bốn cổng người** — mỗi cổng là một câu hỏi chỉ người trả lời được:
@@ -39,6 +40,10 @@ flowchart TD
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
+
+## Chờ duyệt phạm vi
+
+- Giá làn ghim lại — tệp test chỉ làm hoá cũ hồ sơ gọi tên nó, chạy lại lệnh đỏ một lần, trần mỗi lượt, suite ở môi trường giống CI, carry kết quả eval theo băm đầu vào (mọi điểm kho tự bật) (`gia-lan-ghim-lai`)
 
 ## Đang làm
 
@@ -211,3 +216,7 @@ flowchart TD
 - Miễn trừ `.github/**` và `.claude-plugin/plugin.json` khỏi `t1_skip_globs` — ĐÃ TỪ CHỐI (`.out-of-scope/t1-skip-globs-github-and-manifests.md`)
 - Đo-thước-của-thước sâu hơn MỘT tầng — PARK 30/08 («cắt đuôi, giữ lõi») (`.out-of-scope/thuoc-cua-thuoc-mot-tang.md`)
 - Thước sống theo đời model — BÁC 16/09/2026 (`.out-of-scope/thuoc-song-theo-doi-model.md`)
+
+## Hồ sơ hỏng
+
+- `nen-cong-cu-gan-mo-thay-the` — không đọc được hồ sơ (`(workspace)`): không có contract.md lẫn opportunity.md

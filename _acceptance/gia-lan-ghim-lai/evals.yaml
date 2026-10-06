@@ -1,0 +1,290 @@
+# Eval cho hồ sơ gia-lan-ghim-lai.
+#
+# Mỗi eval gọi `rang/chan.mjs --ac <n>`, làm HAI việc trên CÙNG fixture code-sinh:
+#   (1) chiều xanh — chạy các ca BỀN của AC đó trong tests/scripts/*.test.mjs (ca sống vĩnh viễn
+#       trong suite scripts, tên ca bắt đầu bằng mã AC; chọn ca bằng biến GG_CASES) trên CÂY ĐANG
+#       KIỂM; đòi ĐÚNG danh sách ca viết trước trong rang/ma-tran.mjs đều PASS — rút rỗng hoặc
+#       đếm lệch là ĐỎ «số ô lệch»;
+#   (2) chiều đỏ — dựng bản sao bằng `git archive SAU-GIA` (commit lõi mới nhất của vòng, xem
+#       contract — cố định sau khi gộp, nên hồ sơ còn ghim lại được ở mọi HEAD sau này), tiêm MỘT
+#       phép phá vào engine của bản sao, chạy đúng ca ấy trong bản sao; chỉ tính «đã bắt» khi CÓ
+#       dấu dương bản sao đã chạy tới ca (dòng tên ca in ra) VÀ ca FAIL với thông điệp ghim — vắng
+#       một dòng mà bản sao sập sớm không được tính (bất biến «âm tính một mình», CLAUDE.md); phép
+#       phá không áp được vào bản sao là ĐỎ «phép phá không áp được», không phải xanh.
+# Đường dẫn suy từ vị trí chan.mjs, không hardcode ROOT. Bản base cho ca vi phân lấy trọn
+# `scripts lib feature-loop/scripts` bằng `git archive BASE-GIA` (sha ghim trong contract).
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.gg_ac1
+    expected: >-
+      Kho fixture khai test_globs; hồ sơ P chỉ phủ tệp ca bằng glob rộng (app/**); đổi đúng tệp ca
+      sau pin. Xanh: pre-merge-check không VIOLATION hoá cũ cho P vì tệp đó, có ĐÚNG MỘT dòng NOTE
+      mang slug P + số 1 + tên tệp; repin-lane --skip-unchanged bỏ qua (skipped: true). Chiều đỏ
+      trên cùng fixture: bản sao gỡ bộ lọc thước → VIOLATION hoá cũ cho P, ghim "thước không gọi
+      tên vẫn làm hoá cũ"; bản sao bỏ dòng NOTE → ghim "bỏ thước im lặng".
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "tests/scripts/thuoc-goi-ten.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.gg_ac2
+    expected: >-
+      Ma trận T đúng 22 ô viết trước (rang/ma-tran.mjs). Xanh: mỗi ô đúng cột Kỳ vọng ở CẢ
+      pre-merge-check và repin-lane --skip-unchanged (hai bên cùng kết luận), tập hoá cũ dưới khoá
+      ⊆ tập luật cũ trên cả 22 ô, T11 giữ nguyên chữ git in, T19/T20 có NOTE gọi tên token; cùng
+      22 ô trên kho chỉ có lớp CI vendored (danh sách rút từ marker chép của acceptance-init) ra
+      cùng kết luận ở pre-merge-check. Chiều đỏ, mỗi vế một thông điệp ghim: bỏ vế lệnh → T4/T5/T7
+      im "lệnh gọi tên bị bỏ"; không giải config → T7 im "không giải config"; khớp theo hậu tố → T6
+      hoá cũ "khớp theo hậu tố"; glob rộng thành gọi tên → T3 hoá cũ "glob rộng thành gọi tên";
+      lệnh không giải được thành không gọi tên → T19/T20 im "lệnh không giải được thành im"; nuốt
+      lỗi đọc → T9/T10 im "lỗi thành im"; bỏ qua --stale-all → T12 im "chiến dịch bị thu hẹp"; lib
+      nạp tệp ngoài danh sách chép → vế kho tiêu thụ lệch "lib không tự đứng ở kho tiêu thụ". Bộ
+      sinh ra số ô khác 22 → "số ô lệch".
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "commands/acceptance-init.md"
+      - "tests/scripts/thuoc-goi-ten.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.gg_ac3
+    expected: >-
+      Đường đọc-cũ, đo bằng VI PHÂN từng byte giữa hai bản archive CỐ ĐỊNH — BASE-GIA (bf79fdb1) và
+      SAU-GIA (commit lõi mới nhất mang dấu (gia-lan-ghim-lai)), cả hai `git archive <sha> scripts
+      lib feature-loop/scripts` — sau khi chuẩn hoá run_id, ts, wall_s, số giây trong dòng stderr của làn, và gỡ
+      ĐÚNG các phần thêm đã kê (dòng stderr cuối "[lane] TỔNG KẾT", khoá tong_ket ở JSON stdout và
+      dòng repin/repin-do, dòng repin-do bi-ngat). Trên fixture AC-1…AC-11 đã gỡ khoá: stdout, mã
+      thoát, dòng run-log và section Re-pin của pre-merge-check và repin-lane (--skip-unchanged,
+      --write xanh, --write đỏ, SIGTERM giữa lệnh) BẰNG HỆT. Bộ đọc BASE-GIA đọc dòng repin có
+      tong_ket → sạch. Làn khoá vắng chạy được với --ag-root = bộ máy BASE-GIA; khoá test_globs bật
+      trên bộ máy đó → thoát 2, thông điệp gọi tên hàm thiếu và mốc cần. Không tìm được SAU-GIA →
+      ĐỎ "không tìm thấy commit lõi". Chiều đỏ: mỗi bản sao đổi mặc định MỘT khoá → "đổi mặc định:
+      <khoá>"; bản sao thêm dòng hay khoá ngoài danh sách đã kê → "thêm ngoài danh sách"; bản sao
+      đòi hàm mới vô điều kiện → khoá vắng thoát 2 trên bộ máy BASE-GIA, "khoá vắng mà đòi lib mới".
+    paths:
+      - "scripts/**"
+      - "lib/**"
+      - "feature-loop/scripts/**"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.gg_ac4
+    expected: >-
+      Lệnh fixture chập chờn bằng bộ đếm NGOÀI kho (đỏ lần 1, xanh lần 2). Xanh: suite chập chờn và
+      eval chập chờn → làn xanh, chap_chon đủ năm trường, log trỏ tệp tồn tại, ca rút đúng tên theo
+      năm khuôn (bun · vitest/jest · playwright · node:test · rỗng → "không rút được tên ca"), section
+      có hậu tố chập chờn; đỏ cả hai lần → làn đỏ, hai nhật ký, lenh_do mang lan_thu_lai; eval trong
+      model_evals → chạy đúng MỘT lần; khoá vắng → chạy đúng MỘT lần; suite song song bật → lần chạy
+      lại bắt đầu sau khi mọi suite song song xong (dấu thời gian ngoài kho); bảng chân trị của hàm
+      quyết định đúng từng hàng; repin_retry: 2 → thoát 2 gọi tên khoá. Chiều đỏ: lần hai đỏ vẫn tính
+      đạt → ghim "lần hai đỏ vẫn tính đạt"; chạy lại eval model → "chạy lại eval model thật"; bỏ
+      chap_chon → "chập chờn im"; chạy lại xen trong khối song song → "chạy lại dưới tải".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-chay-lai.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.gg_ac5
+    expected: >-
+      Bảy ô B1–B7. Lệnh fixture ghi pid cháu ra tệp NGOÀI kho ngay khi sinh — tệp pid vắng lúc làn
+      thoát là ĐỎ "cháu chưa kịp sinh" (dấu dương), không phải xanh; trần của ca đặt rộng so với thời
+      gian khởi động làn. Xanh: B1 cháu thường → thoát 4 trong N + 15 s, pid cháu đã chết, không dòng
+      repin, verified_commit và báo cáo giữ nguyên; B2 cháu bẫy SIGTERM → đã chết trong N + 10 + 15 s;
+      B3 làn lồng hai tầng → sau khi làn ngoài thoát 4, mọi pid đã ghi ở hai tầng đều chết; B4 --write
+      → mỗi slug một dòng repin-do ly_do vuot-tran có tran_phut, da_chay_phut, chua_chay; B5 khoá
+      repin_budget_min cho cùng kết quả, cờ thắng khoá; B6 trần vắng → lệnh dài chạy hết xanh; B7
+      --tran-phut 0 / chữ → thoát 3, khoá sai → thoát 2. Chiều đỏ: chỉ giết pid bash → B1 cháu sống
+      "cháu tiến trình sót"; bỏ SIGKILL → B2 cháu sống "không SIGKILL"; chỉ giết theo nhóm → B3 cháu
+      tầng trong sống "làn lồng sót cháu"; thoát 1 → "trùng mã làn đỏ"; ghi pin khi vượt trần → "pin
+      trên làn chưa xong".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-tran.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.gg_ac6
+    expected: >-
+      Ba ô SIGTERM · SIGINT · SIGHUP gửi vào làn SAU khi tệp pid cháu đã có (dấu dương). Xanh: mã
+      thoát 143 · 130 · 129, pid cháu đã chết, với --write một dòng repin-do ly_do bi-ngat mang
+      tin_hieu đúng tên và chua_chay; không --write → git status không có tệp theo dõi nào đổi.
+      Chiều đỏ: bản sao bỏ bộ bắt tín hiệu → không có dòng bi-ngat, ghim "ngắt không để vết".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-tran.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.gg_ac7
+    expected: >-
+      Bốn kết cục (xanh · đỏ · vượt trần · bị ngắt). Xanh: dòng stderr cuối bắt đầu "[lane] TỔNG KẾT"
+      nêu kết cục, phút, số lệnh, "eval model thật: gọi n, carry m", "chập chờn: k"; khoá tong_ket
+      cùng số ở JSON stdout và ở dòng repin / repin-do. Đo bằng QUAN HỆ: hai eval model thật mỗi lần
+      chạy cộng 1 vào bộ đếm chi tiêu ngoài kho mà repin_cost_cmd đọc → n BẰNG số lần thực chạy các
+      eval đó và "chi phí đo" BẰNG n; lệnh đo chi phí thoát 1 / không in số → "chi phí đo: lỗi (…)" và
+      kết cục làn không đổi. Chiều đỏ: đếm n theo eval thay vì theo lần chạy thật → ghim "đếm model
+      sai"; bỏ tổng kết ở làn đỏ → "tổng kết vắng ở làn đỏ".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-tran.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.gg_ac8
+    expected: >-
+      Fixture: env tiến trình K=x, tệp .env K=tu-file, suite `node --env-file=.env -e` thoát 0 khi K
+      có chữ, 1 khi rỗng; một eval có lệnh trùng nguyên văn suite. Xanh: khoá [K] → làn ĐỎ, dòng stderr
+      của làn và lenh_do gọi "môi trường giống CI (biến rỗng: K)", eval cùng lệnh vẫn chạy riêng với env đầy
+      đủ (xanh, dấu vết hai lần chạy); suite xanh ở env CI → dòng repin suites_env "ci" + hậu tố
+      section; chập chờn ở env CI → chạy lại cùng env; tên biến "1BAD" → thoát 2. Đối chứng: khoá
+      vắng → suite xanh. Chiều đỏ: xoá biến thay vì đặt rỗng → suite xanh, ghim "xoá biến thay vì
+      rỗng"; áp env CI cho eval → "env CI tràn sang eval"; gộp lệnh khác env → "gộp lệnh khác env".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-env-ci.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.gg_ac9
+    expected: >-
+      Ma trận C đúng 15 ô viết trước; số lần chạy mỗi eval và suite đếm bằng dấu vết NGOÀI kho;
+      lượt nguồn do writer THẬT ghi (repin-lane --write), không dựng tay. Xanh: mỗi ô đúng kỳ vọng
+      (chạy / carry), evals_carry trỏ run_id nơi eval chạy thật (C11 trỏ lượt 1), evals_hash có cho
+      mọi eval đủ điều kiện và VẮNG cho eval C15, suite chạy ở cả ba lượt, section có hậu tố carry;
+      repin_carry: "tat" → thoát 2. Chiều đỏ: băm bỏ vế tệp → C1 carry "băm bỏ vế tệp"; băm chỉ lấy
+      tệp _acceptance/ lệnh gọi tên → C14 carry "băm bỏ tệp lệnh gọi tên"; bỏ vế env → C5 carry "băm
+      bỏ vế env"; bỏ hạn 7 ngày → C7 carry "quá hạn vẫn carry"; không dàn phẳng → C11 trỏ lượt 2
+      "chuỗi carry không dàn phẳng"; carry cả suite → "carry suite".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/repin-lane-carry.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.gg_ac10
+    expected: >-
+      Ma trận D đúng 10 ô viết trước; dòng D1 do writer THẬT ghi, các ô khác là bản biến đổi code-sinh
+      của chính dòng đó. Xanh: D1 → pre-merge-check sạch và recheck-evidence thoát 0; D2–D8 → mỗi ô
+      một VIOLATION ở CẢ HAI bên đọc, gọi tên id và đúng lý do ghim ("nguồn vắng" · "nguồn không chạy
+      thật" · "băm lệch nguồn" · "mã thoát lệch nguồn" · "nguồn quá 7 ngày" · "thiếu băm" · "nguồn
+      không phải pin xanh"); D9 bộ đọc BASE-GIA (archive) đọc D1 → sạch; D10 hai dòng lùi 30 ngày cách
+      nhau 1 ngày → sạch; D1–D10 trên kho chỉ có lớp CI vendored → cùng kết luận. Chiều đỏ: bản sao
+      bỏ lời gọi luật carry → D2–D8 sạch, ghim "bên đọc bỏ qua carry"; bản sao so tuổi với giờ hiện
+      tại → D10 VIOLATION, ghim "so tuổi với giờ hiện tại".
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/pre-merge-check.sh"
+      - "scripts/recheck-evidence.cjs"
+      - "commands/acceptance-init.md"
+      - "tests/scripts/repin-lane-carry.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.gg_ac11
+    expected: >-
+      Ba ô L1–L3; eval đọc một biến env KHÔNG khai để lật mã thoát mà băm không đổi. Xanh: L1 dòng của
+      lượt (repin-do vì làn đỏ) ghi carry_lech [{id, bam}] và tổng kết in "carry lệch: E1"; L2 lượt
+      sau với nguồn xanh ≤ 7 ngày cùng băm vẫn chạy thật (dấu vết); L3 đổi tệp trong paths → băm mới,
+      lượt kế carry lại. Chiều đỏ: bản sao không đọc carry_lech → L2 carry, ghim "carry lệch vẫn
+      carry".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/scripts/lib/**"
+      - "tests/scripts/repin-lane-carry.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.gg_ac12
+    expected: >-
+      Round-trip rút từ writer THẬT trên fixture bật mọi khoá: tập khoá của dòng repin và repin-do mà
+      writer ghi ⊆ khoá của khuôn REPIN-TEMPLATE trong feature-loop SKILL, thứ tự tương đối giữ nguyên;
+      đoạn nghi thức re-pin của SKILL nêu "4" là mã vượt trần và cả hai ly_do vuot-tran, bi-ngat;
+      danh sách khoá config rút từ khối marker LAN-KHOA trong repin-lane.mjs (rút rỗng → ĐỎ "rút
+      rỗng"), mỗi khoá có một dòng trong GUIDE §7.1. Chiều đỏ: bản sao writer thêm khoá ngoài khuôn →
+      ghim "khoá ngoài khuôn"; bản sao GUIDE bỏ một khoá → "khoá chưa khai ở GUIDE".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "feature-loop/skills/feature-loop/SKILL.md"
+      - "GUIDE.md"
+      - "tests/scripts/repin-lane-khuon-gia.test.mjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.gg_ac13
+    expected: >-
+      rang/so-do.mjs chạy năm điểm, mỗi điểm khoá vắng rồi khoá bật trên CÙNG cây fixture, in bảng năm
+      hàng trước → sau và thoát 0: Đ1 hồ sơ hoá cũ 2 → 1 · Đ4 làn đỏ → xanh · Đ5 lệnh treo: làn dừng
+      sau ≥ thời lượng lệnh → ≤ trần + 15 s · Đ3 lỗi chỉ-CI bắt được 0 → 1 · Đ2 lần thực chạy eval ở
+      lượt hai bằng tổng số eval → chỉ eval có đầu vào chạm diff. Chiều đỏ: bản sao SAU-GIA tắt MỘT
+      điểm (khoá bị bỏ qua) → hàng đó không đổi, thoát 1, ghim "Đx không đổi số" với đúng mã điểm.
+    paths:
+      - "feature-loop/scripts/**"
+      - "scripts/pre-merge-check.sh"
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/gia-lan-fixture.mjs"
+      - "_acceptance/gia-lan-ghim-lai/rang/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

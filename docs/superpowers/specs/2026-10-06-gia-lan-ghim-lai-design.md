@@ -80,12 +80,27 @@ test) không đổi hành vi sản phẩm; nó chỉ làm cũ phép đo **dùng 
   1. một mục `paths` của một eval của P khớp `f` **và chính mục đó là một glob thước** (chuỗi
      glob khớp `test_globs`) — `apps/agent/test/zalo-va.integration.spec.ts` gọi tên;
      `apps/agent/test/*.spec.ts` gọi tên; `apps/**` **không** gọi tên (nó phủ cả cây);
-  2. hoặc lệnh đã giải (`config:` → `config.yaml`) của một eval máy của P chứa một token
-     đường dẫn trỏ tới `f` (`test/zalo-va.integration.spec.ts` sau `cd apps/agent`;
+  2. hoặc lệnh đã giải (`config:` → `config.yaml`) của một eval của P chứa một token
+     đường dẫn GIẢI ĐÚNG ra `f` (`test/zalo-va.integration.spec.ts` sau `cd apps/agent`;
      `../../packages/ui/test/setup-dom.ts` → mọi eval nạp tệp setup chung đều hoá cũ —
-     đúng, đó là thước dùng chung).
-- Không đọc được `evals.yaml`/`config.yaml`, hay lệnh không giải được → **giữ** tệp (fail-closed
-  về phía chạy), kèm NOTE nói vì sao — cùng nếp `staleByPaths`.
+     đúng, đó là thước dùng chung). Giải đường **chính xác**, không khớp lỏng theo hậu tố:
+     token tương đối giải theo `cd` đứng trước nó (cd nối tiếp nhau, `../` được tính), nhận dạng
+     `--cờ=đường`, token trỏ thư mục gọi tên mọi tệp dưới nó, token glob khớp theo glob; bỏ qua
+     đường tuyệt đối (ngoài kho), gán biến (`A=b`), cờ, từ trần (`bun`, `test`) và đường dưới
+     `.acceptance-runs/`. Đo 06/10 ở crm: 434/441 ca lệnh nạp một tệp test mà `paths` không liệt
+     là tệp nạp trước dùng chung — nên vế lệnh là bắt buộc, không phải phụ.
+- **Lệnh không giải được** — có biến hay `$(…)`/backtick, `cd` tới đường không giải được, hoặc
+  một token dạng đường trong kho không trỏ tệp/thư mục nào đang theo dõi — thì P **giữ mọi tệp
+  thước** (fail-closed về phía chạy) và NOTE gọi tên token. Không đọc được `evals.yaml`/`config.yaml`
+  hay khoá `config:` không giải được → cũng giữ, cùng nếp `staleByPaths`.
+- Glob thư mục test trong `paths` (`apps/agent/test/**`) chỉ gọi tên khi `test_globs` khai mẫu
+  thư mục (`**/test/**`); với `test_globs` chỉ gồm mẫu tệp ca (`**/*.spec.ts`) thì nó là glob
+  rộng theo chính định nghĩa của kho. Hai cách khai là lựa chọn của kho, mỗi cách một ô ma trận.
+- **Lưới cho thước không gọi tên là suite.** Nghĩa của Đ1 là SỞ HỮU, không phải «lệnh nào chạy
+  tệp nào»: một eval chạy cả thư mục (`bun test` không đối số) vẫn chạy cả thước của hồ sơ khác
+  mà không gọi tên chúng. An toàn đến từ chỗ MỌI làn ghim lại và CI chạy trọn `suite_keys`: một
+  thước bị sửa hỏng làm suite của chính làn hồ sơ sở hữu nó đỏ, nên không gộp được. Kho có suite
+  không phủ một thước thì mất lưới cho thước đó — giả định ghi ở Coverage của hợp đồng.
 - Vế «với chính hồ sơ thì chỉ chạy lại eval chạm tệp đó» **không** làm ở Đ1 bằng một cơ chế
   diff riêng: nó là đúng carry của Đ2 (§Đ2). Hai cơ chế cho cùng một câu hỏi là hai khuôn sẽ trôi.
 
@@ -93,8 +108,11 @@ test) không đổi hành vi sản phẩm; nó chỉ làm cũ phép đo **dùng 
 - chiều đỏ: đổi tệp sản phẩm → P hoá cũ (như cũ); đổi test mà `paths` của P gọi tên → hoá
   cũ; đổi test mà chỉ **lệnh** của P gọi tên → hoá cũ;
 - chiều im: đổi test mà P chỉ phủ bằng `apps/**` → P **không** hoá cũ;
-- đối chứng: không khai `test_globs` → đầu ra pre-merge-check giống byte với bản 2.22.0
-  (bản base lấy bằng `git archive v2.22.0 scripts lib`, không chép danh sách tay);
+- đối chứng: không khai `test_globs` → đầu ra pre-merge-check giống byte với bản trước vòng
+  (bản base lấy bằng `git archive <BASE-GIA> scripts lib`, không chép danh sách tay);
+- kho tiêu thụ: cùng ma trận chạy trên một kho chỉ có lớp CI vendored (danh sách rút từ
+  marker chép của `acceptance-init`, không có `feature-loop/`) phải ra cùng kết luận
+  [bài học lan-ghim-lai-theo-paths#F1];
 - round-trip: cùng fixture, `pre-merge-check.sh` và `repin-lane.mjs --skip-unchanged` cho
   cùng kết luận;
 - mutant: gỡ vế «gọi tên qua lệnh» → ca chiều đỏ thứ ba đỏ; coi glob rộng là gọi tên → ca
@@ -146,13 +164,27 @@ Không làn nào báo đã gọi bao nhiêu eval model thật.
 
 **Cơ chế.**
 - `--tran-phut N` (ưu tiên) hoặc `feature_loop.repin_budget_min`. Vắng → không trần (như cũ).
-- Mỗi lệnh chạy trong **nhóm tiến trình riêng**; hết trần → SIGTERM cả nhóm, 10 giây sau
-  SIGKILL; làn dừng, **mã thoát 4** (mới — 0 xanh · 1 đỏ · 2 nguồn hỏng · 3 usage giữ
-  nguyên). Với `--write`: mỗi slug nhận một dòng `repin-do` mang `ly_do: "vuot-tran"`,
-  `tran_phut`, `da_chay_phut`, `chua_chay: [nhãn lệnh]`. Không ghi pin.
-- Làn nhận SIGTERM/SIGINT/SIGHUP (công cụ ngắt) → giết nhóm tiến trình con, ghi
-  `repin-do` `ly_do: "bi-ngat"` nếu `--write`, thoát 128+tín hiệu. (SIGKILL thì không gì cứu
-  được — nên trần của làn đặt dưới trần công cụ.)
+- Mỗi lệnh chạy trong **nhóm tiến trình riêng**. Dừng một lệnh = **giết cả cây**: TRƯỚC khi
+  gửi tín hiệu nào, làn thu danh sách mọi hậu duệ của lệnh theo `ppid` (`ps -A -o pid=,ppid=`)
+  cộng nhóm tiến trình; gửi SIGTERM cho cả danh sách, 10 giây sau SIGKILL mọi pid trong danh
+  sách còn sống. Thu theo cây chứ không chỉ theo nhóm vì làn có thể LỒNG (E11 crm chạy chính
+  `repin-lane.mjs` làm lệnh): làn trong mở nhóm `detached` riêng cho lệnh của nó, nên tín hiệu
+  gửi theo nhóm của làn ngoài không tới đó; và làn ngoài SIGKILL làn trong ở giây 10 thì hẹn
+  SIGKILL của làn trong chết theo — danh sách thu trước là thứ không phụ thuộc vào ai sống.
+  Tiến trình tách cây (double-fork, cha thành 1) vẫn thoát lưới — giới hạn khai.
+- Hết trần → dừng lệnh đang chạy như trên, không chạy lệnh nào nữa, **mã thoát 4** (mới — 0 xanh
+  · 1 đỏ · 2 nguồn hỏng · 3 usage giữ nguyên). Với `--write`: mỗi slug nhận một dòng `repin-do`
+  mang `ly_do: "vuot-tran"`, `tran_phut`, `da_chay_phut`, `chua_chay: [nhãn lệnh]`. Không ghi pin.
+- Làn nhận SIGTERM/SIGINT/SIGHUP (công cụ ngắt) → dừng lệnh đang chạy như trên, ghi `repin-do`
+  `ly_do: "bi-ngat"` nếu `--write`, thoát 128+tín hiệu. (SIGKILL thì không gì cứu được — nên trần
+  của làn đặt dưới trần công cụ.)
+- **Ba phần của Đ5 BẬT MẶC ĐỊNH, không sau khoá** (phản biện 06/10, P1-b): tổng kết cuối lượt,
+  bắt tín hiệu, và chạy lệnh trong nhóm riêng + giết cả cây. Lý do: cả ba chỉ THÊM (một dòng
+  stderr, một khoá JSON mà bên đọc bỏ qua, một dòng `repin-do` khi bị ngắt — trước đây lượt bị
+  ngắt không để vết) và không đổi kết cục làn nào; bắt kho bật khoá mới có tổng kết thì kho
+  chưa bật không có số cho dòng «phút máy» của luật (c). Đây là đổi mặc định cho mọi kho — trình
+  ở Cổng 1 như một điểm quyết định; hợp đồng kê đích danh các phần thêm ấy và phép vi phân
+  với bản trước vòng gỡ đúng chúng.
 - **Tổng kết cuối lượt** — một dòng stderr cuối + khoá `tong_ket` trong JSON stdout + hậu tố
   section: thời gian · số lệnh · **eval model thật: gọi n, carry m** (đọc `model_evals`) ·
   số lệnh chập chờn · **chi phí đo** nếu kho khai `feature_loop.repin_cost_cmd` (lệnh in một
@@ -160,9 +192,13 @@ Không làn nào báo đã gọi bao nhiêu eval model thật.
   gồm mọi phiên chạy cùng lúc»). Kit không đếm token được ở mọi kho; đây là chỗ «ước nếu đo
   được».
 
-**Răng.** Lệnh `sleep` vượt trần → thoát 4 trong trần + 15 giây, cháu tiến trình (một `sleep`
-nền ghi pid) đã chết, có dòng `vuot-tran`; trần vắng → như cũ; SIGTERM vào làn → dòng
-`bi-ngat`; mutant «chỉ giết pid bash, không giết nhóm» → ca cháu-còn-sống đỏ.
+**Răng.** Lệnh dài vượt trần → thoát 4 trong trần + 15 giây, cháu tiến trình (ghi pid TRƯỚC khi
+trần chạm — dấu dương) đã chết, có dòng `vuot-tran`; cháu BẪY SIGTERM (`trap '' TERM`) chết sau
+SIGKILL; làn LỒNG hai tầng (lệnh của làn ngoài là một `repin-lane` khác, lệnh trong sinh cháu bẫy
+SIGTERM) → sau khi làn ngoài thoát, mọi pid đã ghi đều chết; trần vắng → như cũ; SIGTERM vào làn →
+dòng `bi-ngat`. Trần của ca đặt rộng so với thời gian khởi động làn, không phải vài giây tuyệt
+đối (dưới tải lượt chấm, khởi động có thể ăn hết trần hẹp). Mutant: «chỉ giết pid bash» → cháu
+sống · «không SIGKILL» → cháu bẫy TERM sống · «chỉ giết theo nhóm» → cháu của làn trong sống.
 
 **Số đo trước/sau.** Trước: 1 lượt bị ngắt, 0 dòng vết, 1 lượt kế đỏ vì trạng thái sót. Sau:
 fixture đo thời gian dừng và số tiến trình sót; ở crm đếm dòng `vuot-tran`/`bi-ngat` và ca
@@ -209,29 +245,36 @@ Không gọi là «cache».
 **Cơ chế.**
 - Khoá `feature_loop.repin_carry: paths` (vắng = chạy hết như cũ) +
   `feature_loop.repin_carry_env: [TÊN, …]` (biến mà giá trị góp vào băm, ví dụ id model).
-- **Băm đầu vào** của một eval máy (hàm một nguồn trong `lib/evidence-core.cjs`, khối marker
-  `CARRY-INPUT-HASH`, writer và test round-trip cùng rút):
+- **Băm đầu vào** của một eval máy (hàm thuần ở bên viết — `feature-loop/scripts/lib/`, khối
+  marker `CARRY-INPUT-HASH`; ma trận C và các bản sao bị phá giữ nó):
   - *định nghĩa*: khối của eval trong `evals.yaml` + lệnh đã giải;
   - *tệp*: danh sách `đường<TAB>blob` của tệp git-theo-dõi tại `sha` của làn (`git ls-tree
-    -r`) khớp `paths` (CÙNG `evalPathsOf` + glob mà `staleByPaths` dùng), cộng tệp dưới
-    `_acceptance/` mà lệnh gọi tên nguyên văn (script thước của chính eval);
+    -r`) khớp `paths` (CÙNG `evalPathsOf` + glob mà `staleByPaths` dùng), HỢP với **mọi tệp mà
+    lệnh đã giải gọi tên** — rút bằng CHÍNH hàm gọi-tên một nguồn của Đ1 (tệp setup nạp trước,
+    spec nêu trong lệnh, script thước dưới `_acceptance/`), không giới hạn ở `_acceptance/`
+    (phản biện 06/10, P0: 394 eval crm nạp `setup-dom.ts` mà `paths` không liệt);
   - *env*: băm của `TÊN=giá trị` cho từng tên khai — giá trị **không bao giờ** được ghi ra.
-- **Luật carry (bên viết):** eval có `paths`, cây sạch (không `--allow-dirty`), và run-log của
-  chính hồ sơ có một dòng `repin` xanh mà eval đó **thật sự chạy** (không carry ở đó), cùng
-  băm, cách lượt này ≤ 7 ngày → không chạy, mang mã thoát của lượt đó. Dòng mới ghi
+- **Luật carry (bên viết):** eval có `paths`, lệnh giải được trọn (Đ1 — có biến hay token không
+  giải được thì eval luôn chạy), cây sạch (không `--allow-dirty`), và run-log của chính hồ sơ có
+  một dòng `repin` xanh mà eval đó **thật sự chạy** (không carry ở đó), cùng băm, cách lượt này
+  ≤ 7 ngày → không chạy, mang mã thoát của lượt đó. Dòng mới ghi
   `evals_hash` cho mọi eval máy và `evals_carry: {Eid: <run_id nơi nó thật sự chạy>}` (chuỗi
   carry dàn phẳng — luôn trỏ về lượt chạy thật). Suite **không bao giờ** carry.
 - **Lượt chạy thật buộc tự kiểm carry:** quá 7 ngày, eval chạy lại; nếu băm **bằng** băm cũ mà
   mã thoát **khác** → `paths` của eval thiếu đầu vào → dòng repin ghi `carry_lech: [Eid]`, tổng
   kết in đỏ, và eval đó thôi carry tới khi băm đổi. Đây là ngưỡng đang đếm của giới hạn
   «`paths` không đủ» (bên dưới) — máy giữ, không dặn bằng lời.
-- **Bên đọc** (`checkRepinEvals`): mỗi id trong `evals_carry` phải có dòng nguồn trong run-log
-  của chính hồ sơ, `kind: repin`, đã chạy id đó, cùng băm, cùng mã thoát, ≤ 7 ngày. Lệch →
-  VIOLATION. Bộ đọc 2.22.0 (bản vendored ở CI kho tiêu thụ) bỏ qua khoá lạ và vẫn thấy
-  `evals_exit` đủ → **đọc được dòng mới** (đường đọc-cũ, có ca giữ).
+- **Bên đọc** (hàm mới cạnh `checkRepinEvals`, cả `pre-merge-check.sh` lẫn `recheck-evidence.cjs`
+  gọi): mỗi id trong `evals_carry` phải có dòng nguồn trong run-log của chính hồ sơ, `kind:
+  repin`, đã chạy id đó, cùng băm, cùng mã thoát, và ts dòng nguồn cách ts **dòng chống lưng**
+  ≤ 7 ngày — so hai dòng với nhau, KHÔNG so với giờ hiện tại (so giờ hiện tại thì 8 ngày sau
+  một pin không gì đổi, CI tự đỏ — trái luật ghim lại theo release). Lệch → VIOLATION. Luật chỉ
+  dùng hàm trong lớp CI vendored (`lib/evidence-core.cjs`, `lib/eval-yaml.cjs`), không nạp gì
+  của `feature-loop/` — kho tiêu thụ không có thư mục đó. Bộ đọc 2.22.0 (bản vendored ở CI kho
+  tiêu thụ) bỏ qua khoá lạ và vẫn thấy `evals_exit` đủ → **đọc được dòng mới** (đường đọc-cũ).
 - Lượt S4 không ghi băm → lượt ghim lại đầu tiên sau khi cài chạy trọn, rồi mới có nguồn carry.
-- Hợp với Đ1: đổi một tệp test mà `zalo-va` gọi tên → chỉ eval có `paths` chứa tệp đó đổi băm
-  và chạy lại; eval khác carry.
+- Hợp với Đ1: đổi một tệp test mà `zalo-va` gọi tên → chỉ eval có `paths` chứa tệp đó HOẶC có
+  lệnh gọi tên tệp đó đổi băm và chạy lại; eval khác carry.
 
 **Giới hạn khai (kèm ngưỡng):** `paths` thiếu đầu vào → carry xanh sai — ngưỡng là
 `carry_lech` ≥ 1 ở bất kỳ kho nào thì mở vòng siết luật carry. Env ngoài danh sách (phiên bản
@@ -251,7 +294,7 @@ tách riêng eval trong `model_evals` của crm × giá một lượt gọi.
 
 ---
 
-## 3. Khoá config (mọi khoá bật theo lựa chọn; vắng = hành vi 2.22.0)
+## 3. Khoá config (mọi khoá bật theo lựa chọn; vắng = hành vi 2.22.0, trừ ba phần chỉ-thêm của Đ5 bật mặc định — §Đ5)
 
 | Khoá | Điểm | Giá trị gợi ý cho crm (crm tự thêm, không từ phiên này) |
 |---|---|---|
