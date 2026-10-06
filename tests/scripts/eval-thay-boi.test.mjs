@@ -62,6 +62,9 @@ function ghiHoSoCu(dir, o) {
   fs.mkdirSync(ws, { recursive: true });
   const e3 = ['  - id: E3', '    criterion: AC-1', '    executor: script', '    cmd: "false"', '    status: not-run'];
   if (o.conTro !== null) e3.push(`    superseded_by: ${o.conTro}`);
+  // Hồ sơ cũ CÓ hợp đồng đã ký: thiếu nó thì lưới trước-merge dừng ở «no contract.md» và
+  // không bao giờ chấm luật hai vế — ca xanh mà không đo gì (bắt được 06/10 khi dựng T04).
+  fs.writeFileSync(path.join(ws, 'contract.md'), hopDong('ho-so-cu', ['AC-1']));
   fs.writeFileSync(path.join(ws, 'evals.yaml'), `evals:\n  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: "true"\n${e3.join('\n')}\n`);
   return ws;
 }
@@ -74,7 +77,8 @@ function ghiHoSoThay(dir, o) {
   if (o.nhanO === 'contract') c += `\n## Notes\n\n${dong}\n`;
   fs.writeFileSync(path.join(ws, 'contract.md'), c);
   const ddPath = path.resolve(dir, o.designDoc);
-  if (o.designDocCo) { fs.mkdirSync(path.dirname(ddPath), { recursive: true }); fs.writeFileSync(ddPath, `# Thiết kế\n\n${o.nhanO === 'design' || o.nhanO === 'ngoai' ? dong : ''}\n`); }
+  if (o.designDocCo) { fs.mkdirSync(path.dirname(ddPath), { recursive: true }); fs.writeFileSync(ddPath, `# Thiết kế\n\n${o.nhanO === 'design' ? dong : ''}\n`); }
+  else fs.rmSync(ddPath, { force: true });   // hàng «design doc vắng» đổi trên kho đã ghim: gỡ tệp của lượt lành
   const et = o.evalThay;
   const e7 = ['  - id: E7', `    criterion: ${et.criterion}`, '    executor: script', '    cmd: "true"'];
   if (et.khaiKhongChay) e7.push('    status: not-run');
@@ -141,8 +145,10 @@ test('T01', 'nhan — con trỏ hợp lệ: làn --write 0, recheck 0, lưới t
   const rc = chayRecheck(k);
   if (rc.code !== 0) fail(`recheck đỏ sau pin hợp lệ: ${rc.stderr}`);
   const pm = chayPreMerge(k);
-  const vp = viPhamLanCu(pm);
-  if (vp.length) fail(`lưới trước-merge vẫn ghi vi phạm làn-eval: ${vp.join(' | ')}`);
+  // MỌI vi phạm của hồ sơ cũ, không riêng luật làn-eval: một lỗi khác (thiếu hợp đồng…) làm lưới
+  // dừng sớm và không bao giờ chấm luật hai vế — ca xanh rỗng (bắt được 06/10).
+  const vp = pm.stdout.split('\n').filter(l => l.startsWith('VIOLATION [ho-so-cu]'));
+  if (vp.length) fail(`lưới trước-merge vẫn ghi vi phạm cho ho-so-cu: ${vp.join(' | ')}`);
 });
 test('T01', 'nhan — đối chứng: gỡ con trỏ → làn exit 2 với thông điệp xung đột cũ NGUYÊN VĂN, không ghi byte', () => {
   const k = dungKho({ conTro: null });
@@ -229,11 +235,77 @@ function khoDaGhimRoiDoi(opts, base = {}) {
   if (r.code !== 0) fail(`ghim lành thất bại (exit ${r.code}) — không dựng được tiền đề: ${r.stderr.split('\n').slice(-4).join(' / ')}`);
   const o = gop({ ...base, ...opts });
   ghiHoSoCu(k.dir, o);
-  ghiHoSoThay(k.dir, o);
+  const wsThay = ghiHoSoThay(k.dir, o);
+  const rp = path.join(wsThay, 'evidence-report.md');
+  fs.writeFileSync(rp, fs.readFileSync(rp, 'utf8').replace('verified_commit: PENDING', `verified_commit: ${k.sha}`));
   return k;
 }
 const LY_DO_RE = /(E\d+): ([a-z-]+) \(/g;
 const phanQuyet = (txt) => [...new Set([...String(txt).matchAll(LY_DO_RE)].map(m => `${m[1]}:${m[2]}`))].sort().join(',');
+
+// ── T02 — ma trận từ chối có tên (AC-2) ─────────────────────────────────────────
+// Kiểm MỘT hàng trên một bộ máy (ROOT, hoặc bản sao bị phá). Trả số assert đã chạy.
+function kiemHang(h, root = ROOT) {
+  const k = dungKho(h.opts);
+  const truoc = bam(k);
+  const lan = chayLan(k, ['--write'], undefined, root);
+  if (lan.code === 0) fail(`đường né đo mở: ${h.lyDo} (${h.ten}) — làn nhận một con trỏ phải bị từ chối`);
+  if (lan.code !== 2 || !lan.stderr.includes(`E3: ${h.lyDo} (`)) fail(`${h.ten}: làn exit ${lan.code}, cần 2 + «E3: ${h.lyDo} (» — ${lan.stderr.split('\n').slice(-3).join(' / ')}`);
+  if (bam(k) !== truoc) fail(`${h.ten}: làn ghi byte khi từ chối`);
+  const k2 = khoDaGhimRoiDoi(h.opts);
+  const rc = chayRecheck(k2, 'ho-so-cu', undefined, root);
+  if (rc.code === 0) fail(`đường né đo mở: ${h.lyDo} (${h.ten}) — recheck xanh trên pin mà hồ sơ thay không chứng được`);
+  if (!rc.stderr.includes(`E3: ${h.lyDo} (`)) fail(`${h.ten}: recheck đỏ nhưng không gọi tên «E3: ${h.lyDo} (»`);
+  return 2;
+}
+test('T02', 'ma-tran — mỗi hàng: làn exit 2 không ghi byte, recheck đỏ; cả hai gọi đúng id + con trỏ + lý do', () => {
+  let soAssert = 0;
+  for (const h of MA_TRAN) soAssert += kiemHang(h);
+  if (soAssert !== MA_TRAN.length * 2) fail(`số ca lệch: ${soAssert} ≠ ${MA_TRAN.length * 2}`);
+  // đối chứng dương cùng bộ dựng: lượt lành phải ĐỔI băm (băm-giống-nhau mới có nghĩa «không ghi»)
+  const lanh = dungKho(); const b0 = bam(lanh);
+  if (chayLan(lanh, ['--write']).code !== 0 || bam(lanh) === b0) fail('đối chứng dương hỏng: lượt lành không ghi');
+});
+test('T02', 'ma-tran — hàng NHẬN: criterion nhiều AC, dạng mảng, thẻ nằm trong hợp đồng → làn 0', () => {
+  for (const h of NHAN_THEM) {
+    const r = chayLan(dungKho(h.opts));
+    if (r.code !== 0) fail(`${h.ten}: con trỏ hợp lệ bị từ chối — ${r.stderr.split('\n').slice(-2).join(' / ')}`);
+  }
+});
+// Bốn mutant trên BẢN SAO bộ máy: mỗi mutant gỡ một điều kiện; hàng ma trận của điều kiện đó
+// phải LỌT (làn 0) dưới mutant — chứng hàng đó là thứ bắt điều kiện, không phải hàng khác.
+const MUTANT = [
+  { ten: 'bo-kiem-chu-ky', hang: 'chi-may-thong',
+    tu: "if (String(frontmatterField(hopDong, 'status') || '').trim() !== 'signed-off')", thanh: 'if (false)' },
+  { ten: 'bo-kiem-nhan-viec', hang: 'khong-nhan',
+    tu: 'if (!(the.test(hopDong) ||', thanh: 'if (false && !(the.test(hopDong) ||' },
+  { ten: 'bo-kiem-ma-thoat-da-ky', hang: 'eval-them-sau-ky',
+    tu: 'daKy.has(e.id) && (daKy.get(e.id) === 0 || daKy.get(e.id) === (mong.get(e.id) || 0))', thanh: 'true' },
+  { ten: 'so-AC-bang-chuoi-con', hang: 'tien-to-AC-1-vs-AC-10',
+    tu: "(String(e.criterion || '').match(/AC-\\d+/g) || []).includes(acId)", thanh: "String(e.criterion || '').includes(acId)" },
+];
+function banSaoBoMay(tiem) {
+  const goc = fs.mkdtempSync(path.join(TMP, 'bo-may-'));
+  for (const d of ['lib', 'scripts', path.join('feature-loop', 'scripts')]) fs.cpSync(path.join(ROOT, d), path.join(goc, d), { recursive: true });
+  for (const [rel, tu, thanh] of tiem) {
+    const f = path.join(goc, rel); const t = fs.readFileSync(f, 'utf8');
+    const n = t.split(tu).length - 1;
+    if (n !== 1) fail(`mũi tiêm vào ${rel} khớp ${n} lần (cần đúng 1) — neo đã trôi khỏi vật, sửa mũi tiêm chứ đừng tin màu xanh`);
+    fs.writeFileSync(f, t.replace(tu, thanh));
+    if (fs.readFileSync(f, 'utf8') === t) fail('bước tiêm chưa bao giờ chạy');
+  }
+  return goc;
+}
+test('T02', 'mutant — gỡ từng điều kiện thì đúng hàng của nó lọt qua (đường né đo mở)', () => {
+  for (const m of MUTANT) {
+    const h = MA_TRAN.find(x => x.ten === m.hang) || fail(`không có hàng ${m.hang}`);
+    const goc = banSaoBoMay([[path.join('lib', 'evidence-core.cjs'), m.tu, m.thanh]]);
+    kiemHang(h);                                   // bộ máy thật: hàng xanh
+    let loi = null;
+    try { kiemHang(h, goc); } catch (e) { loi = e.message; }
+    if (!loi || !loi.startsWith(`đường né đo mở: ${h.lyDo} (${h.ten})`)) fail(`${m.ten}: mutant không làm hàng ${h.ten} đỏ đúng thông điệp ghim — nhận «${loi}»`);
+  }
+});
 
 // ── T04 — một nguồn, ba bên gọi (AC-4) ──────────────────────────────────────────
 test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => {
