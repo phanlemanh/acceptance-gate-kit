@@ -1,6 +1,8 @@
 # Giá làn ghim lại — năm điểm giảm thời gian, token và số lượt (thiết kế)
 
-**Ngày:** 2026-10-06 · **Trạng thái:** owner DUYỆT 06/10 — Đ3 chế độ THAY, thứ tự Đ1 → Đ4 → Đ5 → Đ3 → Đ2, một vòng T3 · **Hạng dự kiến:** T3
+**Ngày:** 2026-10-06 · **Trạng thái:** owner DUYỆT 06/10 — Đ3 chế độ THAY, thứ tự Đ1 → Đ4 → Đ5 → Đ3 → Đ2, một vòng T3
+
+> **Thu vòng 06/10 08:43 (chủ kho, qua phiên điều phối crm):** vòng này chỉ làm **Vòng A** — Đ4, Đ5, Đ3, hạng T2, bỏ Cổng 1.5, trần 2 ngày tới khi crm bật khoá. Đ1 và Đ2 thành hạt giống `docs/plans/2026-10-06-hat-giong-gia-lan-ghim-lai-vong-b.md`; phần thiết kế của chúng dưới đây giữ làm đầu vào cho Vòng B. · **Hạng dự kiến:** T3
 (đổi cái gì được tính là «đã chứng lại» trong dòng `repin`, và bộ đọc pin).
 
 Gốc: crm-onehub/_acceptance/kiem-cheo-sau-gop — cùng đợt với

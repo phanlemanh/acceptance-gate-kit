@@ -43,7 +43,7 @@ flowchart TD
 
 ## Chờ duyệt phạm vi
 
-- Giá làn ghim lại — tệp test chỉ làm hoá cũ hồ sơ gọi tên nó, chạy lại lệnh đỏ một lần, trần mỗi lượt, suite ở môi trường giống CI, carry kết quả eval theo băm đầu vào (mọi điểm kho tự bật) (`gia-lan-ghim-lai`)
+- Giá làn ghim lại, Vòng A — chạy lại lệnh đỏ một lần, trần mỗi lượt và dọn sạch tiến trình khi dừng hay bị ngắt, tổng kết cuối lượt, suite ở môi trường giống CI (kho tự bật) (`gia-lan-ghim-lai`)
 
 ## Đang làm
 
