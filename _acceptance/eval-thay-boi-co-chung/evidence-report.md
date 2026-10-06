@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d8ecaa36a11ac522ed1be4f8b07a89fc8fdfba1b
+verified_commit: 44e8f13083de51407840c79811c68337e507df59
 human_signoff: Manh Phan 2026-10-06 — ký lượt chấm 2; Ngoài-1 đến Ngoài-7 ghi Known limits; phát hiện trong hợp đồng sau dừng-vá ghi giới hạn đã biết; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -196,3 +196,7 @@ none — mọi eval nhiều lần chạy đều đồng đều (không eval nào
 
 Round 1: E1–E10 và toàn bộ lệnh suite đều xanh. Không eval nào thất bại, không có mục judgment nào chờ người.
 Round 2 (sau sửa S4-r1): E1–E10 và toàn bộ lệnh suite đều xanh, mọi eval feature đều red trên baseline. Không mục judgment, không eval nhiều lần chạy. Phần tìm lỗi còn một phát hiện trong hợp đồng (AC-2, phép đếm số assert) và các mục ngoài hợp đồng được ghi ở review-findings.md để người xem ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-06, do gộp main 730d000c (loc-paths-dong-mac-dinh) sau chữ ký; ra-co-ten vào diff PR #272 vì khai tệp ca vào khối gạch
+run_id: repin-20261006T131841Z-26509
+sha: 44e8f13083de51407840c79811c68337e507df59 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
