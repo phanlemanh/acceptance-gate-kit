@@ -85,7 +85,8 @@ function tableRows(laneFile) {
   const m = read(laneFile).match(/\/\/ <<<AG-ENGINE-TABLE\n([\s\S]*?)\/\/ AG-ENGINE-TABLE>>>/);
   if (!m) throw new Error('khong thay khoi AG-ENGINE-TABLE trong ' + laneFile);
   // Hàng ĐIỀU KIỆN mang thêm `khi: '<điều kiện>'` (hồ sơ lan-ghim-lai-theo-paths): chỉ đòi khi kho bật khoá.
-  const rows = [...m[1].matchAll(/\{ file: '([^']+)', name: '([^']+)', kind: '([^']+)', since: '([^']+)', why: '([^']+)'(?:, khi: '([^']+)')? \}/g)]
+  // `vong: '<slug>'` (tuỳ chọn, hồ sơ loc-paths-dong-mac-dinh) chỉ ghi nguồn hàng — bảng không đọc nó.
+  const rows = [...m[1].matchAll(/\{ file: '([^']+)', name: '([^']+)', kind: '([^']+)', since: '([^']+)', why: '([^']+)'(?:, khi: '([^']+)')?(?:, vong: '[^']+')? \}/g)]
     .map(x => ({ file: x[1], name: x[2], kind: x[3], since: x[4], why: x[5], khi: x[6] || null }));
   const rowLines = m[1].split('\n').filter(l => /^\s*\{/.test(l)).length;
   if (!rows.length || rows.length !== rowLines) throw new Error(`hang bang khong doc duoc: ${rows.length}/${rowLines}`);

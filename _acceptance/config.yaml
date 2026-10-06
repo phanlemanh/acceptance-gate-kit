@@ -525,6 +525,15 @@ executors:
     lgtp_song_song: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan song-song
     lgtp_loi_khong_xen: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan loi-khong-xen
     lgtp_lan_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan lan-doc-cu
+    lpdm_ma_tran: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan ma-tran
+    lpdm_doi_chung_crm: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan doi-chung-crm
+    lpdm_truoc_merge: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan truoc-merge
+    lpdm_cay: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan cay
+    lpdm_mot_nguon: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan mot-nguon
+    lpdm_lan_mot_bo_doc: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan lan-mot-bo-doc
+    lpdm_doc_cu: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan doc-cu
+    lpdm_bo_may_cu: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan bo-may-cu
+    lpdm_tai_lieu: bash _acceptance/loc-paths-dong-mac-dinh/rang.sh --chan tai-lieu
     gtll_nhat_ky_tron: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan nhat-ky-tron
     gtll_xanh_im: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan xanh-im
     gtll_dau_do: bash _acceptance/lan-ghim-lai-giu-tron-loi-loi/rang.sh --chan dau-do

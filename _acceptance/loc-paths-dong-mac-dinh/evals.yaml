@@ -1,0 +1,146 @@
+# Eval cho hồ sơ loc-paths-dong-mac-dinh.
+#
+# Một răng hồ sơ `rang.sh`, mỗi chân một AC. Fixture CODE-SINH trong chính lượt chạy (cây git tạm
+# từ ma trận D của contract, hồ sơ đã ký, pin do writer thật ghi), chạy CHÍNH `lib/evidence-core.cjs`,
+# `scripts/pre-merge-check.sh` và `feature-loop/scripts/repin-lane.mjs` của cây đang kiểm (đường dẫn
+# suy từ vị trí rang.sh). Mỗi chân mang cặp hai chiều trên CÙNG fixture: bản lành XANH trước, rồi
+# tiêm vào BẢN SAO engine và đòi ĐỎ với THÔNG ĐIỆP GHIM. Bản base lấy trọn thư mục bằng
+# `git archive <merge-base> scripts lib feature-loop/scripts`, không chép danh sách tệp tay.
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lpdm_ma_tran
+    expected: >-
+      Ma trận D đúng 19 ô (hằng viết trước; bộ sinh trả khác 19 → ĐỎ ghim "số ô lệch"). Mỗi ô
+      có tệp đổi riêng (tệp đích + mồi other/z.js), gọi staleByPaths của lib cây đang kiểm với cây
+      fixture: kết luận, kept BẰNG ĐÚNG tập viết trước, mã lý do (đúng mã, gọi tên eval và mục).
+      Đối chứng dương 19/19. Hai chiều đỏ trên CÙNG fixture, tập ô lệch do code tính và in kèm số:
+      bản sao bỏ bước phân loại → tập chứa D4, D12, ghim "bỏ qua thầm"; bản sao khớp glob trả rỗng
+      → tập chứa D1, D3, D5, D6, ghim "kept rỗng".
+    paths:
+      - "lib/evidence-core.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.lpdm_doi_chung_crm
+    expected: >-
+      Kho fixture sinh trong lượt, ô D1–D17 và D19 mỗi ô một hồ sơ, lib của cây đang kiểm chép vào kho.
+      Chạy bản chụp lưới crm (rang/doi-chung-crm/kiem-paths-dong.mjs, sha crm ghi đầu tệp) rồi bộ
+      lọc mới: (lưới báo) − (bộ lọc từ chối) BẰNG ĐÚNG {D4}; (bộ lọc từ chối) − (lưới báo) BẰNG ĐÚNG
+      {D15, D17, D19}. Đối chứng dương: lưới báo ≥ 7 LỖI (lưới thật sự chạy). Chiều đỏ: bản sao lib nhận
+      `/` cuối → hiệu thứ nhất {D4, D12}, ghim "lưới crm chặn mà bộ lọc nhận: D12".
+    paths:
+      - "lib/evidence-core.cjs"
+      - "_acceptance/loc-paths-dong-mac-dinh/rang/doi-chung-crm/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.lpdm_truoc_merge
+    expected: >-
+      Kho git fixture khoá paths, hồ sơ đã ký. (a) mục `src/sub`, diff đổi src/sub/c.js →
+      VIOLATION hoá cũ liệt đúng tệp; bản base trên CÙNG kho → 0 VIOLATION (lỗ trước vòng có
+      thật). (b) mỗi dạng D7–D17, D19 → VIOLATION luật cũ + NOTE gọi đúng mục. (c) `src/sub`, diff
+      chỉ other/z.js → không VIOLATION, có NOTE bỏ qua. Chiều đỏ: bản sao bỏ dòng NOTE → ghim
+      "từ chối im lặng".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "lib/evidence-core.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.lpdm_cay
+    expected: >-
+      Cây = tệp git theo dõi ở commit đang kiểm. (a) thư mục chưa theo dõi trùng tên mục trần →
+      paths-khong-tro-toi-tep; (b) diff xoá đúng tệp mục khai → paths-khong-tro-toi-tep, hồ sơ
+      hoá cũ; (c) không truyền cây → thieu-cay; (d) lưới trước-merge với git ls-files tiêm lỗi →
+      NOTE "bộ lọc paths không áp (thieu-cay)", VIOLATION luật cũ giữ nguyên. Đối chứng dương: cây
+      đủ → (a) nhận khi thư mục được theo dõi. Chiều đỏ: bản sao dựng cây từ đĩa → (a) ghim "cây
+      đọc từ đĩa".
+    paths:
+      - "lib/evidence-core.cjs"
+      - "scripts/pre-merge-check.sh"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.lpdm_mot_nguon
+    expected: >-
+      19 ô ma trận D × hai diff (tệp đổi của ô · chỉ mồi), khoá paths: pre-merge-check (hoá cũ?)
+      và repin-lane --skip-unchanged (bỏ qua?) cùng kết luận 38/38 (hằng viết trước). Chiều đỏ: bản
+      sao làn không truyền cây → tập lượt lệch do code tính, phải chứa (D4, chỉ mồi), ghim "làn mù
+      cây".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/evidence-core.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.lpdm_lan_mot_bo_doc
+    expected: >-
+      Ô ui-check khai paths (i) khối có chú thích + dòng trống, (ii) thư mục trần có thật, (iii)
+      một dạng D9–D17 hoặc D19; diff chạm tệp tương ứng → evals_not_machine_touched chứa ô ở cả ba ca. Trên
+      19 ô D: tập id mới ⊇ tập id base, mã thoát + ghi/không ghi pin bằng hệt base. Chiều đỏ: bản
+      sao làn khôi phục bộ đọc cũ → ca (i) ghim "bộ đọc riêng".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/evidence-core.cjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.lpdm_doc_cu
+    expected: >-
+      Khoá vắng, paths dạng thường (D1–D3): pre-merge-check và repin-lane (--skip-unchanged,
+      --write) cho stdout, stderr (bỏ dấu thời gian) và dòng run-log bằng hệt bản base (git
+      archive merge-base scripts lib feature-loop/scripts), VÀ mỗi kịch bản đạt kết cục ghim trước
+      ở cả hai bản (pre-merge thoát 1 với đúng một VIOLATION hoá cũ · skip-unchanged chạy trọn · write
+      thoát 0, đúng một dòng repin mới); bằng nhau mà kết cục sai → ghim "vi phân rỗng". Đối chứng
+      dương: mọi ô bằng hệt và đúng kết cục. Chiều
+      đỏ: bản sao đổi mặc định khoá vắng thành paths → ghim "đổi mặc định".
+    paths:
+      - "scripts/pre-merge-check.sh"
+      - "feature-loop/scripts/repin-lane.mjs"
+      - "lib/**"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.lpdm_bo_may_cu
+    expected: >-
+      --ag-root trỏ bản sao bộ máy gỡ export phanLoaiMucPaths. Khoá paths → làn thoát khác 0, gọi
+      tên phanLoaiMucPaths + mốc, cây hồ sơ không đổi byte. Khoá vắng → làn ghi pin, không có
+      evals_not_machine_touched, stderr đúng một dòng "bộ máy thiếu phanLoaiMucPaths". Đối chứng
+      dương: bộ máy đủ → ghi pin, ô chạm hiện đủ. Chiều đỏ: bản sao biến hàng thành vô điều kiện
+      → ca khoá vắng thoát khác 0, ghim "khoá vắng mà đòi bộ máy mới".
+    paths:
+      - "feature-loop/scripts/repin-lane.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.lpdm_tai_lieu
+    expected: >-
+      Rút mọi mã lý do từ khối marker trong lib/evidence-core.cjs (writer); đoạn stale_scope của
+      GUIDE §7.1 nêu từng mã (reader), không còn câu "Chưa bật `stale_scope: paths` ở kho nào";
+      CHANGELOG có mục chưa phát hành nêu điều kiện bật. Chiều đỏ: bản sao lib thêm một mã vào
+      khối → ghim tên mã thiếu trong GUIDE.
+    paths:
+      - "lib/evidence-core.cjs"
+      - "GUIDE.md"
+      - "CHANGELOG.md"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
