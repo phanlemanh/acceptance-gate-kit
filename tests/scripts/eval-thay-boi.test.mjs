@@ -428,6 +428,37 @@ test('T08', 'vi-phan — mutant đổi một chữ thông điệp xung đột c�
   if (!loi || !loi.startsWith('kho không dùng trường đổi đầu ra')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
 });
 
+// ── T09 — khuôn tài liệu đi qua bộ đọc thật (AC-9) ───────────────────────────────
+function rutKhuon(root = ROOT) {
+  const t = fs.readFileSync(path.join(root, 'GUIDE.md'), 'utf8');
+  const khoi = t.split('<!-- <<<EVAL-THAY-BOI-TEMPLATE -->')[1];
+  if (khoi === undefined || !khoi.includes('<!-- EVAL-THAY-BOI-TEMPLATE>>> -->')) fail('không có khuôn để rút — GUIDE.md thiếu khối EVAL-THAY-BOI-TEMPLATE');
+  const m = /```yaml\n([\s\S]*?)```/.exec(khoi.split('<!-- EVAL-THAY-BOI-TEMPLATE>>> -->')[0]);
+  if (!m) fail('khối EVAL-THAY-BOI-TEMPLATE không có khối mã yaml');
+  return m[1];
+}
+function kiemKhuon(root = ROOT) {
+  const k = dungKho({ conTro: null });                // ô E3 viết lại HOÀN TOÀN từ khuôn
+  const o = rutKhuon(root).replace(/<id>/g, 'E3').replace(/<slug thay>/g, 'ho-so-thay').replace(/<AC-n>/g, 'AC-2')
+    .replace(/<giữ nguyên>/g, '"false"');
+  if (/<[^>\n]+>/.test(o)) fail(`khuôn còn chỗ trống chưa điền: ${o}`);
+  fs.writeFileSync(path.join(k.wsCu, 'evals.yaml'), `evals:\n  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: "true"\n${o.replace(/\n?$/, '\n')}`);
+  const r = chayLan(k, [], undefined, root);
+  if (r.code !== 0) fail(`khuôn tài liệu không khớp bộ đọc — làn exit ${r.code}: ${r.stderr.split('\n').slice(-2).join(' / ')}`);
+}
+test('T09', 'khuon-tai-lieu — rút khối GUIDE §7.1, điền chỗ trống, chạy làn thật → xanh', () => kiemKhuon());
+test('T09', 'khuon-tai-lieu — mutant đổi tên trường trong khuôn → ĐỎ «khuôn tài liệu không khớp bộ đọc»', () => {
+  const goc = banSaoBoMay([]);
+  fs.cpSync(path.join(ROOT, 'feature-loop', 'skills'), path.join(goc, 'feature-loop', 'skills'), { recursive: true });
+  const g = fs.readFileSync(path.join(ROOT, 'GUIDE.md'), 'utf8');
+  const tiem = g.replace('    superseded_by: <slug thay>#<AC-n>', '    supersede_by: <slug thay>#<AC-n>');
+  if (tiem === g) fail('bước tiêm chưa bao giờ chạy — khuôn không có dòng trường con trỏ');
+  fs.writeFileSync(path.join(goc, 'GUIDE.md'), tiem);
+  let loi = null;
+  try { kiemKhuon(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('khuôn tài liệu không khớp bộ đọc')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
+});
+
 // ── T04 — một nguồn, ba bên gọi (AC-4) ──────────────────────────────────────────
 test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => {
   let soHang = 0;
