@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.22.0 · feature-loop 2.22.0 · diagram-design 2.7.1.
+> Khớp phiên bản: acceptance-gate 2.23.0 · feature-loop 2.23.0 · diagram-design 2.7.1.
 
 ## Mục lục
 
@@ -894,8 +894,8 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/recheck-evidence.cjs` — chấm lại evidence đã commit; thiếu → cổng chỉ in NOTE
 - `lib/evidence-core.cjs` — thước bằng chứng dùng chung với hook; thiếu → re-check không nạp nổi
 - `lib/gap-probe.cjs` — luật phản biện context sạch; thiếu → mọi lần chạy in `GAP-PROBE: NOT ENFORCED`
-- `lib/workspace-record.cjs` — bộ đọc danh sách config dùng chung; thiếu → rơi về nhánh `sed` yếu hơn; luật eval thay bởi (2.23) cũng đọc nó — thiếu thì ô khai `superseded_by` vẫn là xung đột (`khong-tra-duoc`)
-- `lib/ac-line.cjs` — bộ đọc dòng tiêu chí cho răng xuyên tầng; thiếu → rơi về `awk` rộng hơn, có thể chặn oan; luật eval thay bởi (2.23) cũng đọc nó — thiếu thì ô khai `superseded_by` vẫn là xung đột (`khong-tra-duoc`)
+- `lib/workspace-record.cjs` — bộ đọc danh sách config dùng chung; thiếu → rơi về nhánh `sed` yếu hơn; luật eval thay bởi (2.24) cũng đọc nó — thiếu thì ô khai `superseded_by` vẫn là xung đột (`khong-tra-duoc`)
+- `lib/ac-line.cjs` — bộ đọc dòng tiêu chí cho răng xuyên tầng; thiếu → rơi về `awk` rộng hơn, có thể chặn oan; luật eval thay bởi (2.24) cũng đọc nó — thiếu thì ô khai `superseded_by` vẫn là xung đột (`khong-tra-duoc`)
 - `lib/md-section.cjs` — ranh giới mục, `ac-line` `require` nó
 - `lib/eval-yaml.cjs` — bộ đọc `evals.yaml` mà luật làn-eval của re-pin dùng để liệt kê eval máy; cũng là MỘT nguồn `checkRepinEvals` và luật nhất-quán L1 của `evaluateEvidence` đọc `expected_exit`; thiếu → luật làn-eval fail-closed trên mọi làn khuôn mới, và cả hai đường đọc `expected_exit` fail-closed trên eval khai giới hạn
 - `lib/lop-nhin-thay.cjs` — MỘT nguồn cho «bề mặt người nhìn thấy» (`ui`/`web`/`web-ui`) và nghĩa vụ ui-observed; làn NOTE của pre-merge đọc nó qua `classify`; thiếu → làn đó in «không kiểm được» và không bao giờ chặn
@@ -1366,7 +1366,7 @@ khai được kỳ vọng khác 0 — hai loại đó không chạy lệnh nên 
 để so, và làn ghim lại bằng máy vẫn không chạy được chúng. Lý do đầy đủ và các
 lối bị loại: ADR 0016.
 
-**Eval bị một hồ sơ đã ký khác thay (2.23 · hồ sơ eval-thay-boi-co-chung).** Một lượt sản phẩm gỡ
+**Eval bị một hồ sơ đã ký khác thay (2.24 · hồ sơ eval-thay-boi-co-chung).** Một lượt sản phẩm gỡ
 hẳn một tính năng đã ký thì các eval cũ đo nó mất vật đo. Khai ô cũ không chạy thôi là chưa đủ: báo
 cáo đã ký vẫn mang mã thoát cho ô đó, và luật hai vế (2.12.0) chặn — đúng, vì «thêm một dòng khai»
 không được thành đường né đo. Lối hợp lệ là khai ô cũ không chạy KÈM con trỏ tới tiêu chí đo lại nó

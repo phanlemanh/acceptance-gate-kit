@@ -128,9 +128,9 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'staleByPaths', kind: 'function', since: '2.21.0', why: 'làn gọi (--skip-unchanged khi risk_tiers.stale_scope: paths)', khi: 'stale_scope=paths' },
   // Ba hàng của hồ sơ eval-thay-boi-co-chung: chỉ đòi khi một slug đang ghim khai con trỏ thay thế —
   // kho không khai chạy y như trên bộ máy cũ (bộ máy cũ thấy con trỏ thì vẫn chặn ở luật hai vế).
-  { file: 'lib/evidence-core.cjs', name: 'chungThayBoi', kind: 'function', since: '2.23.0', why: 'notRunConflicts gọi khi hồ sơ khai con trỏ thay thế', khi: 'superseded_by' },
-  { file: 'lib/workspace-record.cjs', name: 'hoSoDaKhep', kind: 'function', since: '2.23.0', why: 'chungThayBoi gọi', khi: 'superseded_by' },
-  { file: 'lib/ac-line.cjs', name: 'parseACBlock', kind: 'function', since: '2.23.0', why: 'chungThayBoi gọi', khi: 'superseded_by' },
+  { file: 'lib/evidence-core.cjs', name: 'chungThayBoi', kind: 'function', since: '2.24.0', why: 'notRunConflicts gọi khi hồ sơ khai con trỏ thay thế', khi: 'superseded_by' },
+  { file: 'lib/workspace-record.cjs', name: 'hoSoDaKhep', kind: 'function', since: '2.24.0', why: 'chungThayBoi gọi', khi: 'superseded_by' },
+  { file: 'lib/ac-line.cjs', name: 'parseACBlock', kind: 'function', since: '2.24.0', why: 'chungThayBoi gọi', khi: 'superseded_by' },
 ];
 // AG-ENGINE-TABLE>>>
 const verNum = (v) => String(v).split('.').map(Number).reduce((n, x) => n * 1000 + (x || 0), 0);

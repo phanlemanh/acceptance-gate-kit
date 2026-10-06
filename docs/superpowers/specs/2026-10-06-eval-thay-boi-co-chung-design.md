@@ -122,7 +122,7 @@ lại — đúng ý: lời hứa thay đã hết).
 ## Đồng bộ với nhánh chính (06/10)
 
 Trước Cổng Phạm vi, nhánh vòng gộp `main` `8215e63a` (32 commit sau điểm rẽ `bf79fdb1`): vòng
-`gia-lan-ghim-lai` (ký, chưa phát hành — dự kiến 2.23) sửa `repin-lane.mjs` (trần phút, chạy lại
+`gia-lan-ghim-lai` (ký; phát hành ở mốc 2.23.0 cũng ngày 06/10, `892755ec` — vòng này vì thế vào mốc 2.24) sửa `repin-lane.mjs` (trần phút, chạy lại
 lệnh đỏ, môi trường giống CI, dòng `repin-do`, khoá `tong_ket`) và khuôn REPIN-TEMPLATE. Không đụng
 `lib/evidence-core.cjs` (băm giống hệt), không đụng luật hai vế; lời gọi `notRunConflicts` giữ
 nguyên, chỉ dời dòng. Lối dừng exit 2 của luật hai vế vẫn đứng TRƯỚC lượt chạy suite đầu và không
