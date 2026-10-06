@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19
+verified_commit: 98aa7282f3d6d8ed03f14981d48ecce6aa753b90
 human_signoff: Phan Le Manh 2026-10-05
 ---
 
@@ -136,11 +136,3 @@ none — every multi-run eval is uniform
 
 Round 1: E5 failed — lệnh đo ghép cuối bằng bộ lọc ONLY_BLOCK nhưng khối P192 là khối viết thẳng, không đi qua run(), nên bộ lọc không khớp khối nào và suite tự đỏ dù khối P192 xanh. Hai mảnh suite mjs:2/3 và mjs:3/3 cũng đỏ mà không gắn eval nào. Returned to implementation.
 Round 2: toàn bộ E1–E5 và mọi lệnh suite xanh ở commit 98aa7282 — E5 nay chạy nguyên văn bộ kiểm P192 thay cho bộ lọc ONLY_BLOCK; hai ca chiều im cũ neo commit cố định; các mảnh suite hết đỏ.
-
-### Re-pin lần 1 — 2026-10-06, do hoá cũ do mốc 2.23.0 (manifest, config.yaml, GUIDE)
-run_id: repin-20261006T112535Z-18651
-sha: 892755ec6014ccc4312afddca594c77ac2ce416c · suites: 10 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng
-
-### Re-pin lần 2 — 2026-10-06, do hoá cũ do mốc 2.23.0 và PR #271 (engine: repin-lane, evidence-core, pre-merge)
-run_id: repin-20261006T141021Z-66326
-sha: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19 · suites: 10 lệnh exit 0 · evals: 5/5 eval máy đạt kỳ vọng

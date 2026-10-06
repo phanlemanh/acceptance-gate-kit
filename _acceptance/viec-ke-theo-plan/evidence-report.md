@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19
+verified_commit: e85f5e0db974fa76cf1b0098846ebd95d55aca1a
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -334,10 +334,6 @@ sha: 0675036a3bbbbb976d66eae00e30d0846d91ce60 · suites: 10 lệnh exit 0 · eva
 run_id: repin-20261004T012917Z-97809
 sha: 1185eb41fc82f1208952de15a2fbbcf00eaefd86 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14
 
-### Re-pin lần 8 — 2026-10-06, do hoá cũ do mốc 2.23.0 (manifest, config.yaml, GUIDE)
-run_id: repin-20261006T112535Z-18651
-sha: 892755ec6014ccc4312afddca594c77ac2ce416c · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14
-
-### Re-pin lần 9 — 2026-10-06, do hoá cũ do mốc 2.23.0 và PR #271 (engine: repin-lane, evidence-core, pre-merge)
-run_id: repin-20261006T141021Z-66326
-sha: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14
+### Re-pin lần 8 — 2026-10-06, do Cổng Giá trị 06/10 kéo hồ sơ vào diff; engine đổi từ 1185eb41 (2.22.0, 2.23.0)
+run_id: repin-20261006T134816Z-55610
+sha: e85f5e0db974fa76cf1b0098846ebd95d55aca1a · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14

@@ -552,6 +552,19 @@ executors:
     gg_ac6: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 6
     gg_ac7: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 7
     gg_ac8: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 8
+    # Hồ sơ eval-thay-boi-co-chung (06/10): mỗi khoá chạy MỘT nhóm ca của tệp ca vĩnh viễn
+    # tests/scripts/eval-thay-boi.test.mjs (suite `scripts` cũng tự chạy nó qua glob). ETB_CASES
+    # khớp 0 ca thì tệp thoát khác 0 (bài học P86).
+    etb_nhan: ETB_CASES=T01 node tests/scripts/eval-thay-boi.test.mjs
+    etb_ma_tran: ETB_CASES=T02 node tests/scripts/eval-thay-boi.test.mjs
+    etb_ben_goi_cu: ETB_CASES=T03 node tests/scripts/eval-thay-boi.test.mjs
+    etb_mot_nguon: ETB_CASES=T04 node tests/scripts/eval-thay-boi.test.mjs
+    etb_cay_dang_kiem: ETB_CASES=T05 node tests/scripts/eval-thay-boi.test.mjs
+    etb_pin_noi_ra: ETB_CASES=T06 node tests/scripts/eval-thay-boi.test.mjs
+    etb_chung_song: ETB_CASES=T07 node tests/scripts/eval-thay-boi.test.mjs
+    etb_vi_phan: ETB_CASES=T08 node tests/scripts/eval-thay-boi.test.mjs
+    etb_khuon_tai_lieu: ETB_CASES=T09 node tests/scripts/eval-thay-boi.test.mjs
+    etb_hinh_dang_crm: ETB_CASES=T10 node tests/scripts/eval-thay-boi.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

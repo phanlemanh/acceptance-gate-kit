@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19
+verified_commit: 44e8f13083de51407840c79811c68337e507df59
 human_signoff: Manh 2026-08-25
 ---
 
@@ -367,10 +367,6 @@ sha: 0675036a3bbbbb976d66eae00e30d0846d91ce60 · suites: 10 lệnh exit 0 · eva
 run_id: repin-20261004T012917Z-97809
 sha: 1185eb41fc82f1208952de15a2fbbcf00eaefd86 · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
 
-### Re-pin lần 29 — 2026-10-06, do hoá cũ do mốc 2.23.0 (manifest, config.yaml, GUIDE)
-run_id: repin-20261006T112535Z-18651
-sha: 892755ec6014ccc4312afddca594c77ac2ce416c · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
-
-### Re-pin lần 30 — 2026-10-06, do hoá cũ do mốc 2.23.0 và PR #271 (engine: repin-lane, evidence-core, pre-merge)
-run_id: repin-20261006T141021Z-66326
-sha: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19 · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+### Re-pin lần 29 — 2026-10-06, do gộp main 730d000c (loc-paths-dong-mac-dinh) sau chữ ký; ra-co-ten vào diff PR #272 vì khai tệp ca vào khối gạch
+run_id: repin-20261006T131841Z-26509
+sha: 44e8f13083de51407840c79811c68337e507df59 · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

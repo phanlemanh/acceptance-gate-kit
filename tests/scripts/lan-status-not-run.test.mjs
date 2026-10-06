@@ -335,9 +335,11 @@ const TIEM_QUET_THEO_DONG = [[CORE_REL, NEO_MACHINE_IDS, QUET_THO]];
 const THAN_HAU_TO = "  const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${boQua.join(', ')}` : '';";
 const TIEM_BO_HAU_TO = [[LANE_REL, THAN_HAU_TO, "  const veBoQua = '';"]];
 // Bỏ VẾ 2 của luật hai vế: xung đột không bao giờ được báo.
+// Neo dời 06/10/2026 (hồ sơ eval-thay-boi-co-chung): luật hai vế viết lại thành vòng lặp
+// để xét con trỏ thay thế; dòng dưới là chỗ ô KHÔNG con trỏ vào tập xung đột — đúng vế 2.
 const TIEM_BO_VE_HAI = [[CORE_REL,
-  '  return { xungDot: skipped.filter(id => signed.has(id)), khongDoiChieuDuoc: [] };',
-  '  return { xungDot: [], khongDoiChieuDuoc: [] };']];
+  '    if (!ct) { out.xungDot.push(id); continue; }',
+  '    if (!ct) { continue; }']];
 // Thôi chuẩn hoá lời khai: nháy/hoa/khoảng trắng lọt.
 const TIEM_KHONG_CHUAN_HOA = [[CORE_REL,
   "  return unquoteScalar(String(v == null ? '' : v)).trim().toLowerCase();",
@@ -367,8 +369,9 @@ const TIEM_BEN_GHI_MAT_TRUONG = [[LANE_REL,
   "  const evalRecords = parseEvals(evalsText, ['executor', 'cmd', 'criterion']);"]];
 // Hoàn nguyên fail-OPEN của vế hai (rà cuối 12/09/2026, Important 2).
 const TIEM_FAIL_OPEN = [[CORE_REL,
-  '  if (reportText == null) return { xungDot: [], khongDoiChieuDuoc: skipped.slice() };',
-  '  if (reportText == null) return { xungDot: [], khongDoiChieuDuoc: [] };']];
+  // Neo dời 06/10/2026 (eval-thay-boi-co-chung): giá trị trả có thêm hai trường thayBoi · lyDo.
+  '  if (reportText == null) return { ...rong, khongDoiChieuDuoc: skipped.slice() };',
+  '  if (reportText == null) return { ...rong, khongDoiChieuDuoc: [] };']];
 
 test('L01', 'hai bên trả CÙNG một tập id', () => {
   const text = evalsYaml([{ id: 'E1' }, { id: 'E2', status: 'not-run' }, { id: 'E3', executor: 'test' }]);

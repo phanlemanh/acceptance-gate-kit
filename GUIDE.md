@@ -894,8 +894,8 @@ DANH SÁCH, không theo con số «thêm N tệp» của CHANGELOG. Thiếu mộ
 - `scripts/recheck-evidence.cjs` — chấm lại evidence đã commit; thiếu → cổng chỉ in NOTE
 - `lib/evidence-core.cjs` — thước bằng chứng dùng chung với hook; thiếu → re-check không nạp nổi
 - `lib/gap-probe.cjs` — luật phản biện context sạch; thiếu → mọi lần chạy in `GAP-PROBE: NOT ENFORCED`
-- `lib/workspace-record.cjs` — bộ đọc danh sách config dùng chung; thiếu → rơi về nhánh `sed` yếu hơn
-- `lib/ac-line.cjs` — bộ đọc dòng tiêu chí cho răng xuyên tầng; thiếu → rơi về `awk` rộng hơn, có thể chặn oan
+- `lib/workspace-record.cjs` — bộ đọc danh sách config dùng chung; thiếu → rơi về nhánh `sed` yếu hơn; luật eval thay bởi (2.24) cũng đọc nó — thiếu thì ô khai `superseded_by` vẫn là xung đột (`khong-tra-duoc`)
+- `lib/ac-line.cjs` — bộ đọc dòng tiêu chí cho răng xuyên tầng; thiếu → rơi về `awk` rộng hơn, có thể chặn oan; luật eval thay bởi (2.24) cũng đọc nó — thiếu thì ô khai `superseded_by` vẫn là xung đột (`khong-tra-duoc`)
 - `lib/md-section.cjs` — ranh giới mục, `ac-line` `require` nó
 - `lib/eval-yaml.cjs` — bộ đọc `evals.yaml` mà luật làn-eval của re-pin dùng để liệt kê eval máy; cũng là MỘT nguồn `checkRepinEvals` và luật nhất-quán L1 của `evaluateEvidence` đọc `expected_exit`; thiếu → luật làn-eval fail-closed trên mọi làn khuôn mới, và cả hai đường đọc `expected_exit` fail-closed trên eval khai giới hạn
 - `lib/lop-nhin-thay.cjs` — MỘT nguồn cho «bề mặt người nhìn thấy» (`ui`/`web`/`web-ui`) và nghĩa vụ ui-observed; làn NOTE của pre-merge đọc nó qua `classify`; thiếu → làn đó in «không kiểm được» và không bao giờ chặn
@@ -1365,6 +1365,43 @@ thuộc. Giới hạn của chính luật này không đổi: `ui-check` và `ju
 khai được kỳ vọng khác 0 — hai loại đó không chạy lệnh nên không có mã thoát
 để so, và làn ghim lại bằng máy vẫn không chạy được chúng. Lý do đầy đủ và các
 lối bị loại: ADR 0016.
+
+**Eval bị một hồ sơ đã ký khác thay (2.24 · hồ sơ eval-thay-boi-co-chung).** Một lượt sản phẩm gỡ
+hẳn một tính năng đã ký thì các eval cũ đo nó mất vật đo. Khai ô cũ không chạy thôi là chưa đủ: báo
+cáo đã ký vẫn mang mã thoát cho ô đó, và luật hai vế (2.12.0) chặn — đúng, vì «thêm một dòng khai»
+không được thành đường né đo. Lối hợp lệ là khai ô cũ không chạy KÈM con trỏ tới tiêu chí đo lại nó
+ở hồ sơ thay:
+
+<!-- <<<EVAL-THAY-BOI-TEMPLATE -->
+```yaml
+  - id: <id>
+    criterion: AC-1
+    executor: test
+    cmd: <giữ nguyên>
+    status: not-run
+    superseded_by: <slug thay>#<AC-n>
+```
+<!-- EVAL-THAY-BOI-TEMPLATE>>> -->
+
+Làn ghim lại, lưới trước-merge và `recheck-evidence.cjs` cùng nhận ô đó khi đủ chín điều kiện ở
+chính kho đang kiểm, gãy ở điều nào thì vẫn chặn và gọi tên điều đó:
+
+- con trỏ đúng dạng `<slug>#AC-<số>` (`con-tro-hong`) và không trỏ chính hồ sơ (`tu-tro`);
+- hồ sơ thay có trong `_acceptance/` (`ho-so-thay-vang`), có **chữ ký người** — `status: signed-off`;
+  hồ sơ máy đã thông phải ký trước (`ho-so-thay-chua-ky`) — và chưa nghỉ hay được thực tế đóng
+  (`ho-so-thay-da-khep`);
+- **hồ sơ thay tự nhận việc thay**: `contract.md` của nó, hoặc tệp `design_doc:` nó trỏ (trong kho),
+  nêu thẻ `<slug cũ>/<id cũ>` đứng riêng — một bảng «eval cũ → AC mới» trong design doc của lượt mới
+  là đủ (`thay-khong-nhan`);
+- AC được trỏ có trong tiêu chí của hợp đồng thay (`ac-thay-vang`) và còn ít nhất một eval không khai
+  không-chạy, có mã thoát 0 (hoặc đúng mã đã khai) trong báo cáo ĐÃ KÝ của hồ sơ thay
+  (`ac-thay-khong-con-eval`).
+
+Bên đọc kiểm lại chuỗi đó ở MỌI lượt: hồ sơ thay sau này nghỉ hay lùi trạng thái thì xung đột quay
+lại. Pin nói ra ô nào thay bởi đâu bằng hậu tố ` · thay bởi hồ sơ đã ký: <E>→<hồ sơ>#<AC>` trên dòng
+`sha:`. Kho không khai con trỏ: đầu ra của cổng giữ nguyên từng byte. Bộ máy cũ (chưa chép
+`lib/evidence-core.cjs` mới) thấy con trỏ thì vẫn chặn — hướng an toàn; luật cần thêm
+`lib/ac-line.cjs` và `lib/workspace-record.cjs`, cả hai đã có trong danh sách chép.
 
 ## 8. Tinh chỉnh cho repo của đội
 

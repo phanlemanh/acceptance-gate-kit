@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19
+verified_commit: 2cc82935c93dd5a3064253cab9b8cb4e295e680d
 human_signoff: Phan Le Manh 2026-10-06
 ---
 
@@ -177,11 +177,3 @@ none — every multi-run eval is uniform (mọi eval chạy một lần, determi
 Round 1: REJECT — một lỗi trong hợp đồng, lệnh dùng chung với eval model thật vẫn bị chạy lại. Returned to implementation.
 Round 2: REJECT — lỗi trong hợp đồng cùng lớp (tập lệnh model khoá theo env «full»), dừng-vá; đổi khuôn: cờ model xét ở MỘT điểm dựng bản ghi, ma trận nhánh × env. Returned to implementation.
 Round 3: PASS — 8 eval máy và 10 lệnh suite xanh trên verified_commit; các phát hiện ngoài hợp đồng nằm ở review-findings.md để người quyết ở Gate 2.
-
-### Re-pin lần 1 — 2026-10-06, do hoá cũ do mốc 2.23.0 (manifest, config.yaml, GUIDE)
-run_id: repin-20261006T112535Z-18651
-sha: 892755ec6014ccc4312afddca594c77ac2ce416c · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
-
-### Re-pin lần 2 — 2026-10-06, do hoá cũ do mốc 2.23.0 và PR #271 (engine: repin-lane, evidence-core, pre-merge)
-run_id: repin-20261006T141021Z-66326
-sha: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19 · suites: 10 lệnh exit 0 · evals: 8/8 eval máy đạt kỳ vọng
