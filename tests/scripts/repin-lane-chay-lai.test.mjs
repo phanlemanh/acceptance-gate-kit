@@ -9,7 +9,8 @@ const lib = (f) => import(path.join(ROOT, 'feature-loop', 'scripts', 'lib', f));
 const { coChayLai, BANG_CHAN_TRI, rutTenCa } = await lib('chay-lai.mjs');
 
 const ALL = ['AC1-bang-chan-tri', 'AC1-rut-ten-ca', 'AC1-suite-chap-chon', 'AC1-eval-chap-chon', 'AC1-do-hai-lan',
-  'AC1-model-khong-lai', 'AC1-model-dung-chung', 'AC1-khoa-vang', 'AC1-sau-song-song', 'AC1-khoa-sai', 'AC1-gioi-han-da-khai'];
+  'AC1-model-khong-lai', 'AC1-model-dung-chung', 'AC1-model-dung-chung-ci', 'AC1-model-dung-chung-song-song',
+  'AC1-model-dung-chung-song-song-ci', 'AC1-khoa-vang', 'AC1-sau-song-song', 'AC1-khoa-sai', 'AC1-gioi-han-da-khai'];
 const { ca, ket } = boKiem(ALL);
 const pinCuoi = (k) => k.docLog().filter(l => l.kind === 'repin').pop();
 const dauDo = (k) => k.docLog().filter(l => l.kind === 'repin-do').pop();
@@ -65,17 +66,26 @@ await ca('AC1-model-khong-lai', 'eval model thật đỏ lần đầu → KHÔNG
   ok(k.docDau('dem.txt').trim() === '1', `ghim: chạy lại eval model thật — chạy ${k.docDau('dem.txt').trim()} lần`);
   ok(r.status === 1, `mã ${r.status}`);
 });
-await ca('AC1-model-dung-chung', 'lệnh DÙNG CHUNG với eval model thật (suite chạy trước) → KHÔNG chạy lại, và lần chạy được đếm là gọi model', async () => {
-  // Suite và E1 (model thật) cùng NGUYÊN VĂN một lệnh; suite chạy trước nên làn gặp lệnh này lần đầu với nhãn
-  // suite. Lời hứa AC-1: «lệnh dùng chung với một eval model thật cũng không» chạy lại.
+// Lệnh DÙNG CHUNG với eval model thật — ma trận ĐỦ hai trục gặp lệnh (S4 lượt 1 sót ô nối đuôi, lượt 2 sót
+// ô env CI): nhánh suite {nối đuôi, song song} × env suite {full, CI}. Suite và E1 (model thật) cùng NGUYÊN
+// VĂN một lệnh, suite chạy trước nên làn gặp lệnh lần đầu với nhãn suite. Lời hứa AC-1: «lệnh dùng chung với
+// một eval model thật cũng không» chạy lại; AC-4: mọi lần lệnh ấy chạy đều được đếm là gọi model.
+// Env CI: suite và E1 là HAI phép đo (Đ3) nên E1 vẫn chạy riêng một lần — tổng 2 lần, cả hai được đếm.
+async function modelDungChung({ songSong, ci }) {
   const cmd = 'sh rang_e1.sh';
-  const k = mkKho({ suiteCmd: cmd, evals: [{ id: 'E1', cmd: 'rang_e1', body: lenhChapChon('dem.txt') + '\n' }], config: '  repin_retry: 1\n  model_evals: [feat/E1]\n' });
+  const config = '  repin_retry: 1\n  model_evals: [feat/E1]\n' + (songSong ? '  repin_parallel_suites: true\n' : '') + (ci ? '  repin_ci_blank_env: [K]\n' : '');
+  const k = mkKho({ suiteCmd: cmd, evals: [{ id: 'E1', cmd: 'rang_e1', body: lenhChapChon('dem.txt') + '\n' }], config });
   const r = k.lane([]);
-  ok(k.docDau('dem.txt').trim() === '1', `ghim: chạy lại eval model thật — lệnh dùng chung chạy ${k.docDau('dem.txt').trim()} lần`);
+  const mong = ci ? 2 : 1;
+  ok(k.docDau('dem.txt').trim() === String(mong), `ghim: chạy lại eval model thật — lệnh dùng chung chạy ${k.docDau('dem.txt').trim()} lần, mong ${mong}`);
   ok(r.status === 1, `mã ${r.status}`);
   const tk = (r.stderr.trim().split('\n').pop());
-  ok(/eval model thật: gọi 1,/.test(tk), `ghim: đếm model sai — ${tk}`);
-});
+  ok(new RegExp(`eval model thật: gọi ${mong},`).test(tk), `ghim: đếm model sai — ${tk}`);
+}
+await ca('AC1-model-dung-chung', 'lệnh dùng chung với eval model thật — suite nối đuôi, env full', () => modelDungChung({ songSong: false, ci: false }));
+await ca('AC1-model-dung-chung-ci', 'lệnh dùng chung với eval model thật — suite nối đuôi, env CI', () => modelDungChung({ songSong: false, ci: true }));
+await ca('AC1-model-dung-chung-song-song', 'lệnh dùng chung với eval model thật — suite song song, env full', () => modelDungChung({ songSong: true, ci: false }));
+await ca('AC1-model-dung-chung-song-song-ci', 'lệnh dùng chung với eval model thật — suite song song, env CI', () => modelDungChung({ songSong: true, ci: true }));
 await ca('AC1-khoa-vang', 'khoá vắng → đỏ ngay, chạy đúng một lần (hành vi cũ)', async () => {
   const k = mkKho({ suiteCmd: lenhChapChon('dem.txt') });
   const r = k.lane([]);
