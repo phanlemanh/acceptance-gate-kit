@@ -11,7 +11,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>91 việc"]
+  GB --> DG["Đã giao<br/>92 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>12 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>5 việc"]
 ```
@@ -131,6 +131,7 @@ flowchart TD
 - Phát hành kit 2.20.0 — đóng số cho cửa sổ 2.19.0 → 2.20.0 (hai vòng đã ký «thuoc-biet-truoc-khong-phan-duoc» · «luot-cham-ghi-vao-cay» và một vòng máy thông «nghi-van-mang-co-qua-han»: giám khảo chỉ được hỏi điều nằm trong danh sách tệp, lượt chấm mà cây đổi giữa chừng không dùng được, hồ sơ đã nghỉ thôi làm đỏ bộ kiểm theo ngày), để crm cài vào; làn V, không dựng răng (`release-2-20-0`)
 - Phát hành kit 2.21.0 — đóng số cho cửa sổ 2.20.0 → 2.21.0 (năm vòng đã ký «viec-ke-theo-plan» · «lo-trinh-tren-du-lieu-that» · «loi-moi-tran-luot-loi-song-co-gia» · «lan-ghim-lai-giu-tron-loi-loi» · «lan-ghim-lai-theo-paths»: lộ trình cạnh bản đồ, lối ra ở trần lượt, làn ghim lại giữ trọn lời lỗi và chạy suite song song), để crm cài vào; làn V, không dựng răng (`release-2-21-0`)
 - Phát hành kit 2.22.0 — đóng số cho cửa sổ 2.21.0 → 2.22.0 (một vòng đã ký «trang-lo-trinh-doc-mot-phut»: trang lộ trình đọc trong một phút), để crm cài vào; làn V, không dựng răng (`release-2-22-0`)
+- Phát hành kit 2.23.0 — đóng số cho cửa sổ 2.22.0 → 2.23.0 (hai vòng đã ký «nhan-lan-v-theo-huong» và «gia-lan-ghim-lai»: thẻ làn V đọc theo hướng, làn ghim lại rẻ hơn), để crm cài vào; làn V, không dựng răng (`release-2-23-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)
