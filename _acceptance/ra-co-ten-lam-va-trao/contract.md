@@ -131,6 +131,8 @@ cua-veto-sau-chu-ky da-giao da-nghi
 lan-v-khong-phai-cho-ky da-giao da-nghi
 release-2-18-0 da-giao da-nghi
 nghi-van-mang-co-qua-han ho-so-hong da-giao-may-thong-veto-mo
+lan-ghim-lai-giu-tron-loi-loi cho-cong-gia-tri da-nghi
+lan-ghim-lai-theo-paths cho-cong-gia-tri da-nghi
 KHAC-BIET-DOC-CU>>> -->
 
 Khối máy-đọc cho AC-18 — file NGOÀI lib được phép mang chuỗi luật ngưỡng, mỗi dòng `đường-dẫn lý-do`; thêm bản chép mới là quyết định người, khai ở đây cùng lượt:
