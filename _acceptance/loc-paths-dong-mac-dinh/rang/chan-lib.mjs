@@ -68,7 +68,11 @@ if (chan === 'ma-tran') {
   ok(lanh.tongKet && lanh.loiDong >= 7, `đối chứng dương: lưới crm chạy trọn và báo ${lanh.loiDong} LỖI (≥ 7)`);
   ok(same(lanh.a, ['d4']), `(lưới chặn) − (bộ lọc từ chối) = {D4}: được {${lanh.a.join(', ')}}`);
   ok(same(lanh.b, ['d15', 'd17', 'd19']), `(bộ lọc từ chối) − (lưới chặn) = {D15, D17, D19}: được {${lanh.b.join(', ')}}`);
-  const s = banSao([{ tep: LIB, tu: "|| v.endsWith('/')) return { nhan: false, ma: 'dang-khai-la' };", thanh: ") return { nhan: false, ma: 'dang-khai-la' };" }]);
+  // Bản sao «nhận `/` cuối như thư mục» (nghĩa CODEOWNERS): bỏ chặn `/` cuối VÀ hiểu `src/sub/` là `src/sub/**`.
+  const s = banSao([
+    { tep: LIB, tu: "|| v.endsWith('/')) return { nhan: false, ma: 'dang-khai-la' };", thanh: ") return { nhan: false, ma: 'dang-khai-la' };" },
+    { tep: LIB, tu: "if (cay.thuMuc.has(v)) return { nhan: true, glob: v + '/**' };", thanh: "if (cay.thuMuc.has(v.replace(/\\/$/, ''))) return { nhan: true, glob: v.replace(/\\/$/, '') + '/**' };" },
+  ]);
   const do_ = doiChieu(s);
   ok(do_.tongKet && do_.a.includes('d12'), `chiều đỏ «lưới crm chặn mà bộ lọc nhận: D12»: bản sao nhận \`/\` cuối → hiệu {${do_.a.join(', ')}} [lưới chạy trọn: ${do_.tongKet ? 'có' : 'KHÔNG'}]`);
   k.don();
