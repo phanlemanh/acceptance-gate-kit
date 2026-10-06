@@ -196,6 +196,86 @@ test('T03', 'ben-goi-cu — lib thiếu ac-line.cjs hoặc workspace-record.cjs:
   if (r.xungDot.length || !(r.thayBoi || []).some(t => t.id === 'E3' && t.thay === 'ho-so-thay' && t.ac === 'AC-2')) fail(`đối chứng dương hỏng (đủ tệp + gốc cây phải nhận): ${JSON.stringify(r)}`);
 });
 
+// ── Ma trận từ chối — VIẾT TRƯỚC, mỗi hàng gãy ĐÚNG MỘT điều kiện từ ca lành ────────
+const MA_TRAN = [
+  { ten: 'con-tro-hong',          opts: { conTro: 'ho-so-thay-AC-2' },                                        lyDo: 'con-tro-hong' },
+  { ten: 'slug-thoat-goc',        opts: { conTro: '../x#AC-2' },                                              lyDo: 'con-tro-hong' },
+  { ten: 'tu-tro',                opts: { conTro: 'ho-so-cu#AC-2' },                                          lyDo: 'tu-tro' },
+  { ten: 'ho-so-thay-vang',       opts: { conTro: 'khong-co#AC-2' },                                          lyDo: 'ho-so-thay-vang' },
+  { ten: 'chua-ky-verified',      opts: { statusThay: 'verified' },                                           lyDo: 'ho-so-thay-chua-ky' },
+  { ten: 'chi-may-thong',         opts: { statusThay: 'machine-cleared' },                                    lyDo: 'ho-so-thay-chua-ky' },
+  { ten: 'da-khep-nghi',          opts: { nghiThay: true },                                                   lyDo: 'ho-so-thay-da-khep' },
+  { ten: 'khong-nhan',            opts: { nhanO: false },                                                     lyDo: 'thay-khong-nhan' },
+  { ten: 'the-dinh-chu-E30',      opts: { theNhan: 'ho-so-cu/E30' },                                          lyDo: 'thay-khong-nhan' },
+  { ten: 'the-dinh-chu-slug',     opts: { theNhan: 'ho-so-cu-2/E3' },                                         lyDo: 'thay-khong-nhan' },
+  { ten: 'design-doc-vang',       opts: { designDocCo: false },                                               lyDo: 'thay-khong-nhan' },
+  { ten: 'design-doc-ngoai-goc',  opts: { designDoc: '../ngoai-goc.md' },                                     lyDo: 'thay-khong-nhan' },
+  { ten: 'ac-thay-vang',          opts: { conTro: 'ho-so-thay#AC-9' },                                        lyDo: 'ac-thay-vang' },
+  { ten: 'ac-chi-khong-chay',     opts: { evalThay: { khaiKhongChay: true } },                                lyDo: 'ac-thay-khong-con-eval' },
+  { ten: 'eval-them-sau-ky',      opts: { evalThay: { maThoatKy: null } },                                    lyDo: 'ac-thay-khong-con-eval' },
+  { ten: 'tien-to-AC-1-vs-AC-10', opts: { conTro: 'ho-so-thay#AC-1', acThay: ['AC-1', 'AC-2', 'AC-10'], evalThay: { criterion: 'AC-10' } }, lyDo: 'ac-thay-khong-con-eval' },
+  { ten: 'vong-tron',             opts: { evalThay: { khaiKhongChay: true, conTroNguoc: 'ho-so-cu#AC-1' } }, lyDo: 'ac-thay-khong-con-eval' },
+];
+const NHAN_THEM = [
+  { ten: 'nhan-o-hop-dong',     opts: { nhanO: 'contract' } },
+  { ten: 'criterion-nhieu-AC',  opts: { conTro: 'ho-so-thay#AC-7', acThay: ['AC-3', 'AC-7'], evalThay: { criterion: '"AC-3, AC-7"' } } },
+  { ten: 'criterion-mang',      opts: { conTro: 'ho-so-thay#AC-7', acThay: ['AC-3', 'AC-7'], evalThay: { criterion: '[AC-3, AC-7]' } } },
+];
+// Ghim pin bằng làn lành, rồi đổi hồ sơ theo hàng — để recheck và lưới trước-merge có pin
+// mà chấm (cả hai chỉ xét luật hai vế trên làn đang chống lưng verified_commit).
+function khoDaGhimRoiDoi(opts, base = {}) {
+  const k = dungKho(base);
+  const r = chayLan(k, ['--write']);
+  if (r.code !== 0) fail(`ghim lành thất bại (exit ${r.code}) — không dựng được tiền đề: ${r.stderr.split('\n').slice(-4).join(' / ')}`);
+  const o = gop({ ...base, ...opts });
+  ghiHoSoCu(k.dir, o);
+  ghiHoSoThay(k.dir, o);
+  return k;
+}
+const LY_DO_RE = /(E\d+): ([a-z-]+) \(/g;
+const phanQuyet = (txt) => [...new Set([...String(txt).matchAll(LY_DO_RE)].map(m => `${m[1]}:${m[2]}`))].sort().join(',');
+
+// ── T04 — một nguồn, ba bên gọi (AC-4) ──────────────────────────────────────────
+test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => {
+  let soHang = 0;
+  for (const h of MA_TRAN) {
+    const k = khoDaGhimRoiDoi(h.opts);
+    const a = phanQuyet(chayLan(k).stderr);
+    const b = phanQuyet(chayRecheck(k).stderr);
+    const c = phanQuyet(viPhamLanCu(chayPreMerge(k)).join('\n'));
+    if (a !== `E3:${h.lyDo}`) fail(`${h.ten}: làn trả «${a}», cần E3:${h.lyDo}`);
+    if (!(a === b && b === c)) fail(`ba bên trả phán quyết khác nhau ở ${h.ten}: làn=${a} recheck=${b} premerge=${c}`);
+    soHang++;
+  }
+  if (soHang !== MA_TRAN.length) fail(`số ca lệch: ${soHang} ≠ ${MA_TRAN.length}`);
+});
+test('T04', 'mot-nguon — ca lành: ba bên đều không có lý do nào, và làn thoát 0', () => {
+  const k = dungKho();
+  const lan = chayLan(k, ['--write']);
+  if (lan.code !== 0 || phanQuyet(lan.stderr)) fail(`làn: exit ${lan.code} ${phanQuyet(lan.stderr)}`);
+  const b = phanQuyet(chayRecheck(k).stderr); const c = phanQuyet(viPhamLanCu(chayPreMerge(k)).join('\n'));
+  if (b || c) fail(`ca lành mà còn lý do: recheck=${b} premerge=${c}`);
+});
+
+// ── T05 — cây đang kiểm, không cây tác giả (AC-5) ─────────────────────────────────
+test('T05', 'cay-dang-kiem — K2 (hồ sơ thay chưa ký) chạy từ cwd K1 (đã ký): làn, recheck, lưới đều từ chối ho-so-thay-chua-ky', () => {
+  const k1 = dungKho();
+  const k2lan = dungKho({ statusThay: 'verified' });
+  const truoc = bam(k2lan);
+  const lan = chayLan(k2lan, ['--write'], k1.dir);
+  if (lan.code !== 2 || phanQuyet(lan.stderr) !== 'E3:ho-so-thay-chua-ky') fail(`đọc nhầm cây (làn): exit ${lan.code} ${phanQuyet(lan.stderr)}`);
+  if (bam(k2lan) !== truoc) fail('làn ghi byte khi từ chối');
+  const k2 = khoDaGhimRoiDoi({ statusThay: 'verified' });
+  const rc = chayRecheck(k2, 'ho-so-cu', k1.dir);
+  if (rc.code === 0 || phanQuyet(rc.stderr) !== 'E3:ho-so-thay-chua-ky') fail(`đọc nhầm cây (recheck): ${rc.stderr}`);
+  const pm = phanQuyet(viPhamLanCu(chayPreMerge(k2, k1.dir)).join('\n'));
+  if (pm !== 'E3:ho-so-thay-chua-ky') fail(`đọc nhầm cây (pre-merge): «${pm}»`);
+  // đối chứng dương: K1 lành, chạy từ cwd K2 → nhận
+  const k1b = dungKho();
+  if (chayLan(k1b, ['--write'], k2.dir).code !== 0) fail('đối chứng dương hỏng: K1 lành chạy từ cwd K2 bị từ chối');
+  if (chayRecheck(k1b, 'ho-so-cu', k2.dir).code !== 0) fail('đối chứng dương hỏng: recheck K1 từ cwd K2 đỏ');
+});
+
 // ── chạy ───────────────────────────────────────────────────────────────────────
 const want = (process.env.ETB_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const chon = want.length ? CASES.filter(c => want.includes(c.id)) : CASES;
