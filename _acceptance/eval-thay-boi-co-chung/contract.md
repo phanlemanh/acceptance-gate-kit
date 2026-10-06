@@ -5,7 +5,7 @@ slug: eval-thay-boi-co-chung
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs, scripts/recheck-evidence.cjs, scripts/pre-merge-check.sh ∈ t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-10-06T10:21:39Z
 design_doc: docs/superpowers/specs/2026-10-06-eval-thay-boi-co-chung-design.md
