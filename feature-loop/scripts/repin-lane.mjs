@@ -269,6 +269,11 @@ for (const s of perSlug) {
 // lệnh mang thẻ 'full' và việc gộp y như trước vòng.
 const results = new Map(); // khoaLenh → { exit, lan: [{exit, ms, log}], model, chap_chon? }
 const khoaLenh = (cmd, envTag) => `${envTag}\0${cmd}`;
+// Lệnh thuộc eval model thật, tính TRƯỚC khi chạy gì (S4 lượt 1): cờ model không được lấy từ nhãn gặp lệnh
+// lần ĐẦU — một suite hay eval khác dùng CHUNG nguyên văn lệnh chạy trước thì lệnh ấy vẫn là lệnh model:
+// không chạy lại (AC-1 «lệnh dùng chung với một eval model thật cũng không»), và lần chạy được đếm.
+const lenhModel = new Set(perSlug.flatMap(s => s.evals.filter(e => khoa.model_evals.has(`${s.slug}/${e.id}`)).map(e => khoaLenh(e.cmd, 'full'))));
+const laLenhModel = (cmd, envTag) => lenhModel.has(khoaLenh(cmd, envTag));
 const chapChon = [];        // mục `chap_chon` của dòng pin (Đ4)
 const dangChay = new Set(); // handle chayLenh đang chạy — bộ dừng (trần/tín hiệu) giết cả cây từng cái
 const daXong = new Set();   // nhãn lệnh đã có kết quả — phần bù là `chua_chay` khi làn dừng sớm
@@ -333,7 +338,7 @@ async function chayLaiNeuCan(rec, cmd, label, env, envTag, lech) {
 async function runCmd(cmd, label, { env = process.env, envTag = 'full', lech = (x) => x !== 0, model = false } = {}) {
   const k = khoaLenh(cmd, envTag);
   if (results.has(k)) { log(`${label}: (đã chạy) → exit ${results.get(k).exit}`); daXong.add(label); return results.get(k).exit; }
-  const rec = { exit: null, lan: [], model, envTag };
+  const rec = { exit: null, lan: [], model: model || laLenhModel(cmd, envTag), envTag };
   results.set(k, rec);
   rec.lan.push(ghiLan(cmd, label, await cho(batDau(cmd, env)), 1, envTag));
   rec.exit = rec.lan[0].exit;
@@ -363,7 +368,7 @@ async function runSuites(cmds) {
   for (let i = 0; i < cmds.length; i += 1) {
     const c = cmds[i]; const k = khoaLenh(c, envTag);
     if (results.has(k)) { log(`${nhan(i)}: (đã chạy) → exit ${results.get(k).exit}`); daXong.add(nhan(i)); continue; }
-    const rec = { exit: null, lan: [ghiLan(c, nhan(i), xong.get(c), 1, envTag)], model: false, envTag };
+    const rec = { exit: null, lan: [ghiLan(c, nhan(i), xong.get(c), 1, envTag)], model: laLenhModel(c, envTag), envTag };
     rec.exit = rec.lan[0].exit; results.set(k, rec); can.push([rec, c, nhan(i)]);
   }
   for (const [rec, c, nh] of can) { await chayLaiNeuCan(rec, c, nh, env, envTag, lech); daXong.add(nh); }

@@ -9,10 +9,11 @@ export const MA_TRAN = {
   1: {
     tep: T('repin-lane-chay-lai.test.mjs'),
     ca: ['AC1-bang-chan-tri', 'AC1-rut-ten-ca', 'AC1-suite-chap-chon', 'AC1-eval-chap-chon', 'AC1-do-hai-lan',
-      'AC1-model-khong-lai', 'AC1-khoa-vang', 'AC1-sau-song-song', 'AC1-khoa-sai', 'AC1-gioi-han-da-khai'],
+      'AC1-model-khong-lai', 'AC1-model-dung-chung', 'AC1-khoa-vang', 'AC1-sau-song-song', 'AC1-khoa-sai', 'AC1-gioi-han-da-khai'],
     pha: [
       { ten: 'lan-hai-do-van-dat', tep: LANE, doi: [['rec.lan.push(l2); rec.exit = l2.exit;', 'rec.lan.push(l2); rec.exit = 0;']], ca: 'AC1-do-hai-lan', ghim: 'lần hai đỏ vẫn tính đạt' },
       { ten: 'chay-lai-eval-model', tep: LIB('chay-lai.mjs'), doi: [['if (laModel) return { chay: false', 'if (false) return { chay: false']], ca: 'AC1-model-khong-lai', ghim: 'chạy lại eval model thật' },
+      { ten: 'model-chi-theo-nhan-dau', tep: LANE, doi: [['const laLenhModel = (cmd, envTag) => lenhModel.has(khoaLenh(cmd, envTag));', 'const laLenhModel = (cmd, envTag) => false && lenhModel.has(khoaLenh(cmd, envTag));']], ca: 'AC1-model-dung-chung', ghim: 'chạy lại eval model thật' },
       { ten: 'chap-chon-im', tep: LANE, doi: [['chapChon.push(rec.chap_chon);', 'void 0;']], ca: 'AC1-suite-chap-chon', ghim: 'chập chờn im' },
       { ten: 'chay-lai-duoi-tai', tep: LANE, doi: [['const xong = new Map(await Promise.all(moi.map(async c => [c, await cho(batDau(c, env))])));',
         'const xong = new Map(await Promise.all(moi.map(async c => { const r1 = await cho(batDau(c, env)); return [c, r1.exit !== 0 ? await cho(batDau(c, env)) : r1]; })));']], ca: 'AC1-sau-song-song', ghim: 'chạy lại dưới tải' },
