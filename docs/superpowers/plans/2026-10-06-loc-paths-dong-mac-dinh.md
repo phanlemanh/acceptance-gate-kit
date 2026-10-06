@@ -8,6 +8,8 @@
 
 **Tech Stack:** Node ≥ 18 (CommonJS lib, ESM script), bash, git.
 
+**Duyệt kế hoạch (Gate 1.5):** Manh Phan, 06/10/2026 — «duyệt kế hoạch».
+
 **Spec:** `docs/superpowers/specs/2026-10-06-loc-paths-dong-mac-dinh-design.md` · hợp đồng `_acceptance/loc-paths-dong-mac-dinh/contract.md` (đã duyệt 06/10).
 
 ## Global Constraints
