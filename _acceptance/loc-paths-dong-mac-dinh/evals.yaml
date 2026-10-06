@@ -105,7 +105,10 @@ evals:
     expected: >-
       Khoá vắng, paths dạng thường (D1–D3): pre-merge-check và repin-lane (--skip-unchanged,
       --write) cho stdout, stderr (bỏ dấu thời gian) và dòng run-log bằng hệt bản base (git
-      archive merge-base scripts lib feature-loop/scripts). Đối chứng dương: mọi ô bằng hệt. Chiều
+      archive merge-base scripts lib feature-loop/scripts), VÀ mỗi kịch bản đạt kết cục ghim trước
+      ở cả hai bản (pre-merge thoát 1 với đúng một VIOLATION hoá cũ · skip-unchanged chạy trọn · write
+      thoát 0, đúng một dòng repin mới); bằng nhau mà kết cục sai → ghim "vi phân rỗng". Đối chứng
+      dương: mọi ô bằng hệt và đúng kết cục. Chiều
       đỏ: bản sao đổi mặc định khoá vắng thành paths → ghim "đổi mặc định".
     paths:
       - "scripts/pre-merge-check.sh"
