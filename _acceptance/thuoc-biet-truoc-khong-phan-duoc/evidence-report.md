@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 892755ec6014ccc4312afddca594c77ac2ce416c
+verified_commit: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19
 human_signoff: Manh Phan 2026-10-01 — ký với Known limits Ngoài-1..3, Ngoài-4 chấp nhận không sửa; cắt/hoãn đồng ý; Treo phê hết
 ---
 
@@ -207,3 +207,7 @@ sha: 1185eb41fc82f1208952de15a2fbbcf00eaefd86 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 4 — 2026-10-06, do hoá cũ do mốc 2.23.0 (manifest, config.yaml, GUIDE)
 run_id: repin-20261006T112535Z-18651
 sha: 892755ec6014ccc4312afddca594c77ac2ce416c · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths), E8 (E8 không khai paths) · AC không có chốt máy: AC-7, AC-8
+
+### Re-pin lần 5 — 2026-10-06, do hoá cũ do mốc 2.23.0 và PR #271 (engine: repin-lane, evidence-core, pre-merge)
+run_id: repin-20261006T141021Z-66326
+sha: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19 · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths), E8 (E8 không khai paths) · AC không có chốt máy: AC-7, AC-8

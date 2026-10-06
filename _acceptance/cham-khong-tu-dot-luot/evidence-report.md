@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 892755ec6014ccc4312afddca594c77ac2ce416c
+verified_commit: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19
 human_signoff: Phan Le Manh 2026-09-27 — ký lượt chấm 3; Ngoài-1, Ngoài-3 mở hợp đồng mới (hạt giống); Ngoài-2 ghi Known limits; E10 Đạt; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -248,3 +248,7 @@ sha: 1185eb41fc82f1208952de15a2fbbcf00eaefd86 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 6 — 2026-10-06, do hoá cũ do mốc 2.23.0 (manifest, config.yaml, GUIDE)
 run_id: repin-20261006T112535Z-18651
 sha: 892755ec6014ccc4312afddca594c77ac2ce416c · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 · diff chạm vật đo ngoài làn máy: E10 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-10
+
+### Re-pin lần 7 — 2026-10-06, do hoá cũ do mốc 2.23.0 và PR #271 (engine: repin-lane, evidence-core, pre-merge)
+run_id: repin-20261006T141021Z-66326
+sha: 2341eb013a3a0a1dab05e4d2011ef7703cc4fe19 · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 · AC không có chốt máy: AC-10
