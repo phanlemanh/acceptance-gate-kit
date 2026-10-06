@@ -459,6 +459,80 @@ test('T09', 'khuon-tai-lieu — mutant đổi tên trường trong khuôn → Đ
   if (!loi || !loi.startsWith('khuôn tài liệu không khớp bộ đọc')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
 });
 
+// ── T10 — hình dạng crm 06/10 (AC-10) ───────────────────────────────────────────
+// Số eval máy bị thay ở mỗi hồ sơ cũ — đếm 06/10 trên crm `origin/onehub` `e753383a` từ bảng
+// thay thế của `gop-y-dung-cho`; tám AC thay là tám AC bảng đó nêu.
+const CRM = { cu: [['the-gop-y-okr', 9], ['khung-tao-okr-nhu-deal', 6], ['tro-ly-okr-de-xuat', 4], ['va-tro-ly-okr-sau-thu', 4], ['nen-kara', 2]],
+  thay: 'gop-y-dung-cho', ac: ['AC-5', 'AC-7', 'AC-10', 'AC-11', 'AC-12', 'AC-14', 'AC-15', 'AC-16'] };
+function dungKhoCrm({ coConTro = true } = {}) {
+  const dir = fs.mkdtempSync(path.join(TMP, 'crm-'));
+  const g = (...a) => execFileSync('git', ['-C', dir, '-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  const acc = path.join(dir, '_acceptance');
+  fs.mkdirSync(acc, { recursive: true });
+  fs.writeFileSync(path.join(acc, 'config.yaml'), 'schema_version: 1\nfeature_loop:\n  suite_keys:\n    - executors.script.noop\nexecutors:\n  script:\n    noop: "true"\n');
+  const ky = new Map(); const bang = []; const thayBoiCua = new Map(); let n = 0;
+  for (const [slug, soThay] of CRM.cu) {
+    const ws = path.join(acc, slug); fs.mkdirSync(ws, { recursive: true });
+    fs.writeFileSync(path.join(ws, 'contract.md'), hopDong(slug, ['AC-1']));
+    const rows = ['  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: "true"'];
+    const ids = [];
+    for (let i = 0; i < soThay; i++) {
+      const id = `E${i + 2}`; const acThay = CRM.ac[n++ % CRM.ac.length];
+      rows.push(`  - id: ${id}\n    criterion: AC-1\n    executor: test\n    cmd: "false"\n    status: not-run${coConTro ? `\n    superseded_by: ${CRM.thay}#${acThay}` : ''}`);
+      ids.push(id); bang.push(`| ${slug}/${id} | đo cột góp ý | ${acThay} |`);
+    }
+    thayBoiCua.set(slug, ids);
+    fs.writeFileSync(path.join(ws, 'evals.yaml'), `evals:\n${rows.join('\n')}\n`);
+    ky.set(slug, ['E1', ...ids]);
+  }
+  const wt = path.join(acc, CRM.thay); fs.mkdirSync(wt, { recursive: true });
+  fs.writeFileSync(path.join(wt, 'contract.md'), hopDong(CRM.thay, CRM.ac, `design_doc: docs/superpowers/specs/2026-10-03-${CRM.thay}-design.md\n`));
+  const dd = path.join(dir, 'docs', 'superpowers', 'specs', `2026-10-03-${CRM.thay}-design.md`);
+  fs.mkdirSync(path.dirname(dd), { recursive: true });
+  fs.writeFileSync(dd, `# Thiết kế\n\n| hồ sơ/eval | đo gì | thay bởi |\n|---|---|---|\n${bang.join('\n')}\n`);
+  fs.writeFileSync(path.join(wt, 'evals.yaml'), `evals:\n${CRM.ac.map((a, i) => `  - id: E${i + 1}\n    criterion: ${a}\n    executor: test\n    cmd: "true"`).join('\n')}\n`);
+  ky.set(CRM.thay, CRM.ac.map((_, i) => `E${i + 1}`));
+  for (const [slug, ids] of ky) {
+    fs.writeFileSync(path.join(acc, slug, 'evidence-report.md'), baoCao(slug, ids.map(id => [id, 0])));
+    fs.writeFileSync(path.join(acc, slug, 'run-log.jsonl'), '');
+  }
+  g('init', '-q'); g('add', '-A'); g('commit', '-qm', 'impl');
+  const sha = g('rev-parse', 'HEAD');
+  for (const [slug, ids] of ky) {
+    const rp = path.join(acc, slug, 'evidence-report.md');
+    fs.writeFileSync(rp, fs.readFileSync(rp, 'utf8').replace('verified_commit: PENDING', `verified_commit: ${sha}`));
+    fs.writeFileSync(path.join(acc, slug, 'run-log.jsonl'), ids.map(id => JSON.stringify({ ts: '2026-10-06T00:00:00Z', kind: 'eval', run_id: `seed-${id}`, sha, eval: id, exit_code: 0 }) + '\n').join(''));
+  }
+  g('add', '-A'); g('commit', '-qm', 'evidence');
+  return { dir, sha, thayBoiCua };
+}
+function kiemHinhDangCrm(root = ROOT) {
+  const k = dungKhoCrm();
+  const slugs = CRM.cu.map(x => x[0]);
+  const tong = [...k.thayBoiCua.values()].reduce((a, b) => a + b.length, 0);
+  if (tong !== 25) fail(`hinh-dang-crm: bộ dựng sinh ${tong} eval bị thay, cần 25`);
+  const r = chayLan(k, ['--write'], undefined, root, slugs);
+  if (r.code !== 0) fail(`hinh-dang-crm: làn năm slug exit ${r.code} — ${r.stderr.split('\n').slice(-2).join(' / ')}`);
+  for (const s of slugs) {
+    const pin = dongPinCuoi(k, s) || fail(`hinh-dang-crm: ${s} không có dòng pin`);
+    if (JSON.stringify(pin.evals_not_run) !== JSON.stringify(k.thayBoiCua.get(s))) fail(`hinh-dang-crm: ${s} evals_not_run ${JSON.stringify(pin.evals_not_run)} ≠ ${JSON.stringify(k.thayBoiCua.get(s))}`);
+    const rc = chayRecheck(k, s, undefined, root);
+    if (rc.code !== 0) fail(`hinh-dang-crm: recheck ${s} đỏ — ${rc.stderr.slice(0, 300)}`);
+  }
+}
+test('T10', 'hinh-dang-crm — năm hồ sơ cũ, 25 eval máy trỏ tám AC của một hồ sơ thay: làn 0, pin đúng id, recheck 0', () => kiemHinhDangCrm());
+test('T10', 'hinh-dang-crm — đối chứng: cùng kho không con trỏ → làn exit 2 ở hồ sơ đầu, thông điệp xung đột cũ', () => {
+  const k = dungKhoCrm({ coConTro: false });
+  const r = chayLan(k, [], undefined, ROOT, CRM.cu.map(x => x[0]));
+  if (r.code !== 2 || !r.stderr.includes(`repin-lane: the-gop-y-okr: eval E2`) || !r.stderr.includes(XUNG_DOT_CU)) fail(`đối chứng hỏng: exit ${r.code} — ${r.stderr.slice(0, 300)}`);
+});
+test('T10', 'hinh-dang-crm — mutant bỏ bước xét con trỏ → ĐỎ «hinh-dang-crm»', () => {
+  const goc = banSaoBoMay([[path.join('lib', 'evidence-core.cjs'), '    const ct = conTroCua.get(id);', "    const ct = '';"]]);
+  let loi = null;
+  try { kiemHinhDangCrm(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('hinh-dang-crm:')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
+});
+
 // ── T04 — một nguồn, ba bên gọi (AC-4) ──────────────────────────────────────────
 test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => {
   let soHang = 0;
