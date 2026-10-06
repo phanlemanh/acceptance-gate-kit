@@ -43,11 +43,12 @@ export function mkKho(opts = {}) {
   const laneFile = opts.lane || LANE;
   const agRoot = opts.agRoot || ROOT;
   const envOf = (extraEnv) => ({ ...process.env, GG_DAU: dau, ...(extraEnv || {}) });
-  const lane = (args, o = {}) => spawnSync(process.execPath, [laneFile, '--root', root, '--ag-root', agRoot, '--slug', 'feat', ...args],
+  // o.laneFile / o.agRoot: chạy một bản làn khác (bản archive trước vòng) trên CÙNG kho.
+  const lane = (args, o = {}) => spawnSync(process.execPath, [o.laneFile || laneFile, '--root', root, '--ag-root', o.agRoot || agRoot, '--slug', 'feat', ...args],
     { encoding: 'utf8', env: envOf(o.env), timeout: o.timeout || 300000, killSignal: 'SIGKILL', maxBuffer: 256 * 1024 * 1024 });
   // Làn chạy NỀN — để gửi tín hiệu vào giữa lệnh. Trả { proc, xong: Promise<{status, signal, stdout, stderr}> }.
   const laneNen = (args, o = {}) => {
-    const proc = spawn(process.execPath, [laneFile, '--root', root, '--ag-root', agRoot, '--slug', 'feat', ...args], { env: envOf(o.env), stdio: ['ignore', 'pipe', 'pipe'] });
+    const proc = spawn(process.execPath, [o.laneFile || laneFile, '--root', root, '--ag-root', o.agRoot || agRoot, '--slug', 'feat', ...args], { env: envOf(o.env), stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '', stderr = '';
     proc.stdout.on('data', d => { stdout += d; }); proc.stderr.on('data', d => { stderr += d; });
     const xong = new Promise(res => proc.on('close', (status, signal) => res({ status, signal, stdout, stderr })));
