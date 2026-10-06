@@ -115,7 +115,6 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'isRepinMachineEval', kind: 'function', since: '2.12.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'machineEvalIdsSkipped', kind: 'function', since: '2.12.0', why: 'notRunConflicts gọi (làn gọi gián tiếp)' },
   { file: 'lib/evidence-core.cjs', name: 'notRunConflicts', kind: 'function', since: '2.12.0', why: 'làn gọi' },
-  { file: 'lib/evidence-core.cjs', name: 'parseFlowValue', kind: 'function', since: '2.11.0', why: 'làn gọi (rút paths của ô ngoài làn máy)' },
   { file: 'lib/evidence-core.cjs', name: 'determineEnforce', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'evaluateEvidence', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'checkRepinEvals', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
@@ -129,6 +128,7 @@ const AG_ENGINE = [
   // Ba hàng của hồ sơ loc-paths-dong-mac-dinh — cũng ĐIỀU KIỆN: khoá vắng mà bộ máy thiếu chúng thì phần «ô ngoài
   // làn máy có vật đổi» in một dòng không tính được (chamTuPin), làn vẫn chạy y như bộ máy cũ.
   { file: 'lib/evidence-core.cjs', name: 'evalPathsOf', kind: 'function', since: '2.21.0', why: 'làn gọi (đọc paths một nguồn)', khi: 'stale_scope=paths', vong: 'loc-paths-dong-mac-dinh' },
+  { file: 'lib/evidence-core.cjs', name: 'pathGlobToRe', kind: 'function', since: '2.21.0', why: 'làn gọi (khớp glob một nguồn)', khi: 'stale_scope=paths', vong: 'loc-paths-dong-mac-dinh' },
   { file: 'lib/evidence-core.cjs', name: 'dungCayPaths', kind: 'function', since: '2.24.0', why: 'làn gọi (cây git cho bộ lọc)', khi: 'stale_scope=paths', vong: 'loc-paths-dong-mac-dinh' },
   { file: 'lib/evidence-core.cjs', name: 'phanLoaiMucPaths', kind: 'function', since: '2.24.0', why: 'làn gọi (phân loại mục paths)', khi: 'stale_scope=paths', vong: 'loc-paths-dong-mac-dinh' },
 ];
@@ -490,7 +490,7 @@ const tienToGitPin = gitRaw('rev-parse', '--show-prefix').trim();
 function chamTuPin(s) {
   if (!s.ngoaiMay.length) return [];
   // Bộ máy cũ hơn làn (chỉ khi --ag-root trỏ bản kit cũ, khoá vắng): không giữ bộ đọc thứ hai làm đường lui.
-  const thieuHam = ['evalPathsOf', 'dungCayPaths', 'phanLoaiMucPaths'].find(n => typeof core[n] !== 'function');
+  const thieuHam = ['evalPathsOf', 'pathGlobToRe', 'dungCayPaths', 'phanLoaiMucPaths'].find(n => typeof core[n] !== 'function');
   if (thieuHam) { log(`bộ máy thiếu ${thieuHam} — không tính được ô ngoài làn máy có vật đổi`); return []; }
   const vcCu = (s.report.match(/^verified_commit\s*:\s*(\S+)/m) || [])[1];
   if (!vcCu) { log(`${s.slug}: không đọc được verified_commit — không tính được ô ngoài làn máy có vật đổi`); return []; }

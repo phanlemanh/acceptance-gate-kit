@@ -110,17 +110,13 @@ if (chan === 'doc-cu') {
     { pin: 'im ô ngoài làn máy', o: 'M6', sua: [{ tep: LIB, tu: '    globs.push(...p);', thanh: '    if (isRepinMachineEval(e)) globs.push(...p);' }] },
     { pin: 'eval máy thiếu paths', o: 'M4', sua: [{ tep: LIB, tu: 'if (isRepinMachineEval(e)) return cu(`eval-may-thieu-paths:${e.id}`);', thanh: 'if (isRepinMachineEval(e)) continue;' }] },
     { pin: 'eval ngoài làn máy thiếu paths', o: 'M13', sua: [{ tep: LIB, tu: 'if (normaliseEvalStatus(e.status) !== EVAL_STATUS_NOT_RUN) return cu(`eval-ngoai-may-thieu-paths:${e.id}`);', thanh: '' }] },
-    // M14 (06/10, hồ sơ loc-paths-dong-mac-dinh THAY THẾ cách đo): bản sao nuốt chú thích thành một mục RỖNG;
-    // bộ lọc đóng mặc định từ chối mục rỗng nên hồ sơ không còn xanh-sai — lỗi lộ ra thành dòng NOTE
-    // «không áp (evals-hong)» mà bản lành không có. Đo đúng dấu đó.
-    { pin: 'chú thích nuốt paths', o: 'M14', thay: (r) => /NOTE \[feat\]: bộ lọc paths không áp \(evals-hong\)/.test(r.out), sua: [{ tep: LIB, tu: "const v = (f[1].trim().startsWith('#') ? '' : f[1].replace(/\\s+#.*$/, '')).trim();", thanh: 'const v = f[1].trim();' }, { tep: LIB, tu: "  if (globs.some(g => !String(g || '').trim())) return cu('evals-hong');", thanh: '' }] },
+    { pin: 'chú thích nuốt paths', o: 'M14', sua: [{ tep: LIB, tu: "const v = (f[1].trim().startsWith('#') ? '' : f[1].replace(/\\s+#.*$/, '')).trim();", thanh: 'const v = f[1].trim();' }, { tep: LIB, tu: "  if (globs.some(g => !String(g || '').trim())) return cu('evals-hong');", thanh: '' }] },
     { pin: 'dòng trống cắt paths', o: 'M15', sua: [{ tep: LIB, tu: '      if (!raw.trim() || /^\\s*#/.test(raw)) continue;', thanh: '' }] },
     { pin: 'tệp hỏng thành im', o: 'M8', sua: [{ tep: LIB, tu: "return cu('evals-hong');\n  const globs", thanh: "return { apply: true, reason: null, kept: [], skipped: all };\n  const globs" }] },
     { pin: 'not-run chặn lọc', o: 'M5', sua: [{ tep: LIB, tu: 'if (isRepinMachineEval(e)) return cu(`eval-may-thieu-paths', thanh: "if (['test', 'script'].includes(String(e.executor).trim())) return cu(`eval-may-thieu-paths" }] },
     { pin: 'bộ đọc paths một dạng', o: 'M10', sua: [{ tep: LIB, tu: '    if (!v) { seq = []; continue; }', thanh: '    if (!v) return null;' }] },
   ];
-  for (const m of M) { const s = sao(m.sua); const r = ketLuanDu(s, m.o); batDo(ok, `E4 chiều đỏ: bản sao «${m.pin}» → ${m.o} lệch kỳ vọng (${r.t})`, daChayLuoi(r.out), m.thay ? m.thay(r) : r.t !== muon(KY[m.o])); don(s); }
-  ok(!/NOTE \[feat\]: bộ lọc paths không áp/.test(ketLuanDu(KIT, 'M14').out), 'E4 M14 bản lành KHÔNG có NOTE «không áp» — dấu đo bản sao «chú thích nuốt paths» phân biệt được');
+  for (const m of M) { const s = sao(m.sua); const r = ketLuanDu(s, m.o); batDo(ok, `E4 chiều đỏ: bản sao «${m.pin}» → ${m.o} lệch kỳ vọng (${r.t})`, daChayLuoi(r.out), r.t !== muon(KY[m.o])); don(s); }
   ket('E4');
 } else if (chan === 'khong-chay-duoc') {
   // E5 — bộ lọc không chạy được → giữ luật cũ + NOTE nói vì sao; đối chứng: lành thì lọc.

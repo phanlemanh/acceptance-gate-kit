@@ -104,3 +104,4 @@ TỪ CHỐI. Lưới chặn thư mục trần vì bộ lọc CŨ bỏ qua tệp 
 
 - Ghi chú cho mốc mang vòng này: crm gỡ `scripts/kiem-paths-dong.mjs` và bước CI «Paths đóng mặc định» trong `.github/workflows/acceptance.yml`; trước khi gỡ, chạy cả hai trên cùng cây — mọi mục lưới báo LỖI phải là mục bộ lọc từ chối.
 - Đóng hàng sổ `lan-ghim-lai-theo-paths#ngoai-1` (hai bộ đọc trong làn) khi ký.
+- Bộ răng hồ sơ đã ký `lan-ghim-lai-theo-paths`: hai bản sao phá thử của E4 (M14, M15) hết đỏ vì bộ lọc đóng mặc định chặn luôn lớp lỗi của chúng; ba chân E8, E9, E10 đỏ sẵn trên `main` từ 2.23.0. Bản sửa ca đo E4 và hướng sửa ba chân kia ở hạt giống `docs/plans/2026-10-06-hat-giong-rang-lgtp-do-sau-2-23.md` — không gộp trong vòng này.
