@@ -52,3 +52,53 @@ wall: 2981s
 - **claude-sonnet-5-5**: 6 agent · 19 calls · out 12,197 · in 38 · cache_read 1,206,684 · cache_create 541,172
 - **claude-haiku-4-5-20251001**: 20 agent · 50 calls · out 13,458 · in 440 · cache_read 2,348,487 · cache_create 857,333
 
+### S4 round 2 — wf_8ff1f8d0-b6a (28 agent, 35,877 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 4 | 6,232 | 8 | 325,177 | 51 |
+| review:measurement | claude-opus-5-5 | 8 | 5,691 | 16 | 791,728 | 114 |
+| triage | claude-sonnet-5-5 | 2 | 3,471 | 4 | 85,630 | 27 |
+| review:conventions | claude-opus-5-5 | 11 | 2,314 | 22 | 1,017,440 | 139 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 1,662 | 18 | 90,273 | 250 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 1,661 | 18 | 58,058 | 380 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 6 | 1,383 | 50 | 357,415 | 33 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,323 | 18 | 90,260 | 26 |
+| baseline:diffBase | claude-sonnet-5-5 | 4 | 1,256 | 8 | 253,590 | 19 |
+| review:bugs | claude-opus-5-5 | 8 | 1,061 | 16 | 736,182 | 108 |
+| machine:ETB_CASES=T02 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 953 | 18 | 90,283 | 27 |
+| refute:eval-thay-boi.test.mjs | claude-sonnet-5-5 | 5 | 933 | 10 | 343,543 | 20 |
+| machine:ETB_CASES=T04 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 728 | 18 | 90,283 | 49 |
+| machine:ETB_CASES=T10 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 669 | 18 | 90,283 | 15 |
+| machine:ETB_CASES=T03 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 634 | 18 | 90,283 | 13 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 598 | 18 | 90,273 | 132 |
+| machine:ETB_CASES=T09 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 585 | 18 | 90,283 | 17 |
+| machine:ETB_CASES=T05 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 583 | 18 | 90,283 | 14 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 534 | 18 | 90,309 | 90 |
+| machine:ETB_CASES=T08 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 521 | 18 | 90,283 | 153 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-4-5-20251001 | 2 | 517 | 18 | 90,268 | 129 |
+| machine:ETB_CASES=T07 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 499 | 18 | 90,283 | 15 |
+| machine:ETB_CASES=T01 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 488 | 18 | 90,283 | 15 |
+| machine:ETB_CASES=T06 node tests/scripts/eval-th | claude-haiku-4-5-20251001 | 2 | 482 | 18 | 90,283 | 13 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 344 | 18 | 90,267 | 11 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 327 | 18 | 90,309 | 271 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 273 | 18 | 90,309 | 72 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 155 | 4 | 79,983 | 7 |
+
+
+wall: 1538s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 1,256 | 253,590 | 19 | 12:32:48 | 12:33:07 |
+| machine | 20 | 14,764 | 2,040,571 | 1421 | 12:32:48 | 12:56:28 |
+| review | 3 | 9,066 | 2,545,350 | 139 | 12:33:04 | 12:35:22 |
+| triage | 1 | 3,471 | 85,630 | 27 | 12:56:32 | 12:56:59 |
+| refute | 1 | 933 | 343,543 | 20 | 12:57:02 | 12:57:22 |
+| capture | 1 | 155 | 79,983 | 7 | 12:57:25 | 12:57:32 |
+| synthesize | 1 | 6,232 | 325,177 | 51 | 12:57:34 | 12:58:26 |
+
+- **claude-sonnet-5-5**: 5 agent · 17 calls · out 12,047 · in 34 · cache_read 1,087,923 · cache_create 475,389
+- **claude-opus-5-5**: 3 agent · 27 calls · out 9,066 · in 54 · cache_read 2,545,350 · cache_create 287,370
+- **claude-haiku-4-5-20251001**: 20 agent · 44 calls · out 14,764 · in 392 · cache_read 2,040,571 · cache_create 760,145
+
