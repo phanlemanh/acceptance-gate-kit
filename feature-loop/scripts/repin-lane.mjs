@@ -606,6 +606,7 @@ const reason = flags.reason || 'ghim lại bằng làn eval';
 const out = { run_id: runId, sha, ts: iso, suites: suiteCmds.map((cmd, i) => ({ cmd, exit: suitesExit[i] })), slugs: {} };
 if (cham.length) out.cham_ho_so_da_thong = cham;
 let red = suitesExit.some(x => x !== 0) || cham.length > 0;
+const lineObjs = new Map();
 for (const s of perSlug) {
   const evalsExit = {};
   const gioiHan = [];    // đạt đúng một mã khác 0 đã khai
@@ -655,15 +656,15 @@ for (const s of perSlug) {
   const veChapChon = chapChon.length ? ` · chập chờn (đỏ lần đầu, đạt khi chạy lại): ${chapChon.map(c => c.nhan).join(', ')}` : '';
   const veEnvCi = envCi ? ` · suite chạy ở ${nhanCi}` : '';
   const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veNgoaiMay}${veCham}${veAcKhong}${veChapChon}${veEnvCi}\n`;
-  out.slugs[s.slug] = { evals_exit: evalsExit, lineObj, section, lech: s.evals.filter(e => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0)) };
+  // `line` giữ CHỖ trong thứ tự khoá cũ (stdout là mặt máy — AC-7 so từng byte); gán sau khi có tổng kết.
+  lineObjs.set(s.slug, lineObj);
+  out.slugs[s.slug] = { evals_exit: evalsExit, line: null, section, lech: s.evals.filter(e => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0)) };
 }
 // Tổng kết cuối lượt (Đ5, AC-4) — mọi kết cục; đo chi phí sau lệnh cuối nằm trong lời gọi này.
 const tk = tongKet(red ? 'do' : 'xanh');
 out.tong_ket = tk.obj;
 for (const s of perSlug) {
-  const o = out.slugs[s.slug];
-  o.line = JSON.stringify(Object.assign(o.lineObj, { tong_ket: tk.obj }));
-  delete o.lineObj;
+  out.slugs[s.slug].line = JSON.stringify(Object.assign(lineObjs.get(s.slug), { tong_ket: tk.obj }));
 }
 if (red) {
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
