@@ -22,7 +22,9 @@ export function mkKho(opts = {}) {
   const ws = path.join(root, '_acceptance', 'feat');
   mkdirSync(ws, { recursive: true });
   const evals = opts.evals || [{ id: 'E1', cmd: 'rang_e1' }];
-  const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
+  // Nháy KÉP có thoát ký tự: bộ đọc config của kit gỡ \\" và \\\\ trong nháy kép, nhưng KHÔNG gỡ '' trong
+  // nháy đơn — lệnh có nháy đơn viết trong nháy đơn sẽ tới bash sai (đo 06/10: `trap` không bao giờ chạy).
+  const q = (s) => `"${String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
   const extra = opts.extraSuites || [];
   const suiteKeys = ['    - executors.test.suite', ...extra.map(x => `    - executors.test.${x.key}`)].join('\n');
   const testExecs = [`    suite: ${q(opts.suiteCmd || 'sh suite.sh')}`, ...extra.map(x => `    ${x.key}: ${q(x.cmd)}`)].join('\n');
