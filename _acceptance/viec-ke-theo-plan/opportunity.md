@@ -76,3 +76,13 @@ sống Artifact) — là vật để so khuôn và trạng thái, không phải 
   vendored của repo chưa nâng theo.
 - Không gộp bản đồ sản phẩm với lộ trình (từ điển: «Product map, _Avoid_: roadmap»); khi mở ô thêm term «Lộ trình» = ý định thường-trú đứng cạnh.
 - Không đưa skill cắt lượt (lát 2), băng/răng chống trôi (lát C), nấc 1–2 trong CRM vào ô này.
+
+## Kết quả đo sau ship (phiên nghiệm thu 06/10)
+
+Đo trên crm `origin/onehub` `ccbaf7068` bằng kit `main` `730d000c`, sau MỘT lượt cắt (làn R1, 04→06/10):
+0 hàng tự khai lệch hồ sơ mà thẻ im (chiều đỏ 2/2, đối chứng 0 cờ; 12 hàng lệch trước `1dc8ffe0c` đều
+có cờ) · 3/5 commit sau khi ổ cắm chạy đổi trường trạng thái — `841717c70` gỡ lời khai 25 hàng,
+`074b275ce` một hàng tin theo lời, `1dc8ffe0c` gõ tay `pr` + `buoc_ke` cho 12 hàng máy đã suy · tin hỏi
+tiến độ CHƯA ĐO (bản chép phiên điều phối không ở máy này) · kho không khai im. Thẻ: OKR 62 hàng, hàng
+kế `7n`, tin theo lời 5/62; Kho 13 hàng, hàng kế `l3b`. Verdict Cổng Giá trị: **iterate** (Manh Phan);
+phần sửa vào ô lát 2 `lo-trinh-cat-luot`. Chi tiết: `uat-session.md`.
