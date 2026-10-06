@@ -10,6 +10,15 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### Bộ lọc hoá cũ theo paths đóng mặc định (hồ sơ `loc-paths-dong-mac-dinh`, T3)
+
+- `risk_tiers.stale_scope: paths` chỉ bớt tệp khi MỌI mục `paths` của hồ sơ chứng được trên danh sách tệp git của bản đang kiểm; thư mục viết trơn có thật hiểu là cả thư mục. Mục lạ (`./`, `/` cuối, khoảng trắng, glob khớp thư mục) hay mục không trỏ tới tệp nào → hồ sơ giữ luật cũ, NOTE gọi tên mục và mã lý do (GUIDE §7.1). Hết ca cổng xanh mà sai của 2.21–2.23 (thư mục trần làm bộ lọc bỏ qua mọi tệp bên trong).
+- Làn ghim lại đọc `paths` của ô ngoài làn máy bằng cùng bộ đọc và bộ phân loại của lib; danh sách `evals_not_machine_touched` chỉ có thể THÊM id so với trước (dòng trống, chú thích, thư mục trần, mục lạ nay được thấy).
+- **Kho không bật khoá:** lưới trước-merge không đổi byte nào.
+- **crm khi nhận:** gỡ lưới tạm `scripts/kiem-paths-dong.mjs` và bước CI «Paths đóng mặc định» trong `.github/workflows/acceptance.yml`; trước khi gỡ, chạy cả hai trên cùng cây — mọi mục lưới báo LỖI phải là mục bộ lọc từ chối, trừ thư mục viết trơn có thật (bộ lọc nhận như cả thư mục).
+
 ## 2.23.0 — 06/10/2026
 
 Cửa sổ 2.22.0 → 2.23.0 kéo **ba ngày** (04–06/10), có **hai vòng** được ký: `nhan-lan-v-theo-huong`

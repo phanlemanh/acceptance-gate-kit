@@ -408,7 +408,7 @@ viec-ke-theo-plan#ngoai-10	viec-ke-theo-plan	low	doc-drift	song			Lệnh ký b�
 viec-ke-theo-plan#ngoai-11	viec-ke-theo-plan	low	doc-drift	trung		viec-ke-theo-plan#ngoai-10	Câu 7a «chỉ đưa bản đồ nếu bước 6 vẽ lại» — trùng mục ngoai-10
 viec-ke-theo-plan#ngoai-12	viec-ke-theo-plan	low	khong-the-do	song			Chiều đỏ của LT-16-thu-tu chỉ so tiền tố thông điệp «thân signoff:»
 viec-ke-theo-plan#ngoai-13	viec-ke-theo-plan	medium	khac	song			Lệnh ký bằng chứng: làn kiểm 7b chạy trước khối vẽ lại ở 7c — khi làn chạy trọn, product_map --check có thể đỏ vì bản đồ chưa vẽ lại (có từ trước vòng này, nặng hơn)
-lan-ghim-lai-theo-paths#ngoai-1	lan-ghim-lai-theo-paths	medium	khac	song			Re-pin lane now holds two readers of the same `paths:` field that disagree; the comment and blank-line fixes went into the new one only [lượt chấm 4; owner quyết ở Cổng Bằng chứng 03/10]
+lan-ghim-lai-theo-paths#ngoai-1	lan-ghim-lai-theo-paths	medium	khac	chet	2557a01a		Re-pin lane now holds two readers of the same `paths:` field that disagree; the comment and blank-line fixes went into the new one only [lượt chấm 4; owner quyết ở Cổng Bằng chứng 03/10]
 lan-ghim-lai-theo-paths#ngoai-2	lan-ghim-lai-theo-paths	low	khac	song			acceptance-init config template: new `repin_parallel_suites` line splits `ship_default` from its continuation comment [lượt chấm 4; owner quyết ở Cổng Bằng chứng 03/10]
 lan-ghim-lai-theo-paths#ngoai-3	lan-ghim-lai-theo-paths	low	khac	song			pre-merge-check.sh usage header leaves out the new `--stale-all` flag [lượt chấm 4; owner quyết ở Cổng Bằng chứng 03/10]
 lan-ghim-lai-theo-paths#ngoai-4	lan-ghim-lai-theo-paths	low	khac	song			Parallel suite mode joins raw output chunks as text, which garbles multibyte UTF-8 characters in the full log [lượt chấm 4; owner quyết ở Cổng Bằng chứng 03/10]
@@ -459,3 +459,8 @@ eval-thay-boi-co-chung#ngoai-4	eval-thay-boi-co-chung	high	khong-the-do	trung		e
 eval-thay-boi-co-chung#ngoai-5	eval-thay-boi-co-chung	low	khong-the-do	song			Mutant T03 chỉ làm đỏ vế notRunConflicts; assert checkRepinEvals bốn đối số chưa từng bật đỏ
 eval-thay-boi-co-chung#ngoai-6	eval-thay-boi-co-chung	low	doi-chung-tu-sinh	song			T05 đối chứng dương chỉ làn và recheck, bỏ lưới trước-merge
 eval-thay-boi-co-chung#ngoai-7	eval-thay-boi-co-chung	medium	khac	song			Hồ sơ thay đã được thực tế đóng bị gọi tên lý do «chưa ký» thay vì «đã khép» — chặn đúng, sai tên
+loc-paths-dong-mac-dinh#ngoai-1	loc-paths-dong-mac-dinh	medium	doc-drift	song			Kho không bật khoá + bộ máy cũ hơn làn: dòng ghim lại vắng danh sách ô ngoài làn máy bị chạm; CHANGELOG hứa «chỉ có thể THÊM id» [lượt chấm 2; owner quyết ở Cổng Bằng chứng 06/10]
+loc-paths-dong-mac-dinh#ngoai-2	loc-paths-dong-mac-dinh	low	khac	song			Bộ máy trước 2.21: hậu tố «ngoài làn máy» của báo cáo ghi «không khai paths» cho ô có khai paths [lượt chấm 2; owner quyết ở Cổng Bằng chứng 06/10]
+loc-paths-dong-mac-dinh#ngoai-3	loc-paths-dong-mac-dinh	low	khac	song			Cùng gốc Ngoài-2 phía dòng ghim lại: lý do ô vắng khỏi danh sách chạm bị ghi sai khi bộ máy thiếu evalPathsOf [lượt chấm 2; owner quyết ở Cổng Bằng chứng 06/10]
+loc-paths-dong-mac-dinh#ngoai-4	loc-paths-dong-mac-dinh	high	khac	song			Hình dạng 4 — ca tên có dấu và ca thư mục con của chân truoc-merge không phân biệt bộ lọc nhận với từ chối rồi rơi về luật cũ [lượt chấm 2; owner quyết ở Cổng Bằng chứng 06/10]
+loc-paths-dong-mac-dinh#ngoai-6	loc-paths-dong-mac-dinh	medium	khac	song			Hình dạng 2 — ô D6 của chân ma-tran dùng tên tệp viết tay chưa qua ngoặc git [lượt chấm 2; owner quyết ở Cổng Bằng chứng 06/10]

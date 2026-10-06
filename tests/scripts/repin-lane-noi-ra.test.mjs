@@ -591,7 +591,7 @@ CASES.push({
 // ── GN07 ────────────────────────────────────────────────────────────────────
 CASES.push({
   id: 'GN07',
-  title: 'khớp glob bằng globToRe của carry-plan (* không xuyên /); đọc cả paths flow lẫn block-seq',
+  title: 'khớp glob bằng pathGlobToRe của lib (≡ globToRe của carry-plan, * không xuyên /); đọc cả paths flow lẫn block-seq',
   real(lane) {
     const errs = [];
     // paths HẸP, dạng block-seq: apps/x/*.ts — tệp sâu hơn KHÔNG khớp.
@@ -625,7 +625,9 @@ CASES.push({
   },
   mutants: [
     { pin: 'khop tien to thay glob', make: () => mutLane('res.some(re => re.test(f))', 'gl.some(g => f.startsWith(String(g).replace(/[*?].*$/, "")))') },
-    { pin: 'paths dang flow khong doc duoc', make: () => mutLane("if (v.startsWith('[')) { const pv = core.parseFlowValue(v); return pv.kind === 'seq' ? pv.items : []; }", "if (v.startsWith('[')) { return []; }") },
+    // Làn đọc paths bằng bộ đọc của lib từ hồ sơ loc-paths-dong-mac-dinh (bộ đọc riêng đã gỡ): mũi tiêm
+    // làm làn coi mọi paths dạng flow là rỗng ngay tại lời gọi bộ đọc chung.
+    { pin: 'paths dang flow khong doc duoc', make: () => mutLane('const gl = core.evalPathsOf(s.evalsText, id) || [];', "const gl = (/^\\s+paths:\\s*\\[/m.test(s.evalsText) ? [] : core.evalPathsOf(s.evalsText, id)) || [];") },
   ],
 });
 

@@ -115,7 +115,6 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'isRepinMachineEval', kind: 'function', since: '2.12.0', why: 'làn gọi' },
   { file: 'lib/evidence-core.cjs', name: 'machineEvalIdsSkipped', kind: 'function', since: '2.12.0', why: 'notRunConflicts gọi (làn gọi gián tiếp)' },
   { file: 'lib/evidence-core.cjs', name: 'notRunConflicts', kind: 'function', since: '2.12.0', why: 'làn gọi' },
-  { file: 'lib/evidence-core.cjs', name: 'parseFlowValue', kind: 'function', since: '2.11.0', why: 'làn gọi (rút paths của ô ngoài làn máy)' },
   { file: 'lib/evidence-core.cjs', name: 'determineEnforce', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'evaluateEvidence', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
   { file: 'lib/evidence-core.cjs', name: 'checkRepinEvals', kind: 'function', since: '2.9.0', why: 'recheck gọi' },
@@ -131,6 +130,12 @@ const AG_ENGINE = [
   { file: 'lib/evidence-core.cjs', name: 'chungThayBoi', kind: 'function', since: '2.24.0', why: 'notRunConflicts gọi khi hồ sơ khai con trỏ thay thế', khi: 'superseded_by' },
   { file: 'lib/workspace-record.cjs', name: 'hoSoDaKhep', kind: 'function', since: '2.24.0', why: 'chungThayBoi gọi', khi: 'superseded_by' },
   { file: 'lib/ac-line.cjs', name: 'parseACBlock', kind: 'function', since: '2.24.0', why: 'chungThayBoi gọi', khi: 'superseded_by' },
+  // Ba hàng của hồ sơ loc-paths-dong-mac-dinh — cũng ĐIỀU KIỆN: khoá vắng mà bộ máy thiếu chúng thì phần «ô ngoài
+  // làn máy có vật đổi» in một dòng không tính được (chamTuPin), làn vẫn chạy y như bộ máy cũ.
+  { file: 'lib/evidence-core.cjs', name: 'evalPathsOf', kind: 'function', since: '2.21.0', why: 'làn gọi (đọc paths một nguồn)', khi: 'stale_scope=paths', vong: 'loc-paths-dong-mac-dinh' },
+  { file: 'lib/evidence-core.cjs', name: 'pathGlobToRe', kind: 'function', since: '2.21.0', why: 'làn gọi (khớp glob một nguồn)', khi: 'stale_scope=paths', vong: 'loc-paths-dong-mac-dinh' },
+  { file: 'lib/evidence-core.cjs', name: 'dungCayPaths', kind: 'function', since: '2.24.0', why: 'làn gọi (cây git cho bộ lọc)', khi: 'stale_scope=paths', vong: 'loc-paths-dong-mac-dinh' },
+  { file: 'lib/evidence-core.cjs', name: 'phanLoaiMucPaths', kind: 'function', since: '2.24.0', why: 'làn gọi (phân loại mục paths)', khi: 'stale_scope=paths', vong: 'loc-paths-dong-mac-dinh' },
 ];
 // AG-ENGINE-TABLE>>>
 const verNum = (v) => String(v).split('.').map(Number).reduce((n, x) => n * 1000 + (x || 0), 0);
@@ -188,6 +193,11 @@ const nhanCi = envCi ? `môi trường giống CI (biến rỗng: ${khoa.repin_c
 
 // ── git: sha = HEAD, cây phải sạch ngoài _acceptance/ (pin phải là cây đã đo) ──
 const gitRaw = (...a) => { try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch (e) { return die(`git ${a[0]} thất bại tại ${root}: ${String(e.stderr || e.message).trim().split('\n')[0]}`); } };
+// Cây git của bản đang kiểm (hồ sơ loc-paths-dong-mac-dinh) — dựng MỘT lần, lười, cho cả `--skip-unchanged`
+// lẫn chamTuPin; tương đối --root, cùng gốc với `paths`. Khai ở đây vì `--skip-unchanged` chạy ở tầng trên
+// cùng TRƯỚC phần khai hàm phía dưới (biến `let` khai sau chỗ dùng là lỗi «trước khi khởi tạo»).
+let _cay;
+function cayHead() { if (!_cay) _cay = core.dungCayPaths(gitRaw('ls-files', '-z').split('\0').filter(Boolean)); return _cay; }
 const git = (...a) => gitRaw(...a).trim();
 const sha = git('rev-parse', 'HEAD');
 if (!/^[0-9a-f]{40}$/.test(sha)) die(`HEAD không phải SHA 40 hex: ${sha}`);
@@ -452,7 +462,7 @@ if (flags['skip-unchanged']) {
       if (staleScope === 'paths' && doiSlug.length) {
         const s = perSlug.find(x => x.slug === slug);
         let r;
-        try { r = core.staleByPaths(doiSlug, s ? s.evalsText : null, { prefix: tienToGit }); } catch (e) { r = { apply: false, reason: `lib-loi:${String((e && e.message) || e).split('\n')[0]}` }; }
+        try { r = core.staleByPaths(doiSlug, s ? s.evalsText : null, { prefix: tienToGit, cay: cayHead() }); } catch (e) { r = { apply: false, reason: `lib-loi:${String((e && e.message) || e).split('\n')[0]}` }; }
         if (r.apply) {
           giu = r.kept;
           if (r.skipped.length) process.stderr.write(`repin-lane: --skip-unchanged theo paths: bỏ qua ${r.skipped.length} tệp ngoài phạm vi đo của ${slug}\n`);
@@ -485,43 +495,14 @@ if (flags['skip-unchanged']) {
 // `_acceptance/`, không loại t1_skip_globs): `paths` của một eval UI trỏ cả răng
 // của chính nó dưới `_acceptance/<slug>/rang/**`, và răng đổi LÀ vật đổi.
 const tienToGitPin = gitRaw('rev-parse', '--show-prefix').trim();
-// Rút `paths` của MỘT eval, nhận CẢ HAI cách viết: flow `paths: [a, b]` và block
-// seq (`paths:` rồi các dòng `- "a"`). Vì sao không dùng bộ đọc của
-// `carry-plan.mjs`: bộ đó chỉ nhận dạng flow, và đo ở crm 20/09 thì 393 eval khai
-// block-seq so với 49 flow — dùng nó ở đây thì phép đo mù 89% eval tại chính kho
-// sinh ra nó. Vì sao không SỬA bộ đó cho nhận cả hai: nó quyết carry-forward P1
-// của S4, tức một thành phần của đường verdict, và hồ sơ này đã khai điều kiện
-// tin cậy «đường verdict không đổi thành phần». Hợp nhất hai bộ đọc là một vòng
-// riêng phải có răng cho carry P1 — hạt giống, ngưỡng: lần đầu hai bên cho hai
-// kết luận khác nhau trên cùng một `evals.yaml`. `globToRe` vẫn dùng CHUNG.
-function pathsCuaEval(evalsText, id) {
-  const dong = String(evalsText).split('\n');
-  let trong = false;
-  let seq = null;
-  for (const raw of dong) {
-    const idM = raw.match(/^\s*-\s+id:\s*(\S+)/);
-    if (idM) {
-      if (seq) return seq;                       // đã gom xong block seq của đúng eval
-      trong = idM[1].trim() === String(id);
-      continue;
-    }
-    if (!trong) continue;
-    if (seq) {
-      const it = raw.match(/^\s+-\s+(\S.*)$/);
-      if (it) { seq.push(core.parseFlowValue(it[1]).value); continue; }
-      return seq;                                // dedent → hết block
-    }
-    const f = raw.match(/^\s+paths:\s*(.*)$/);
-    if (!f) continue;
-    const v = f[1].trim();
-    if (v.startsWith('[')) { const pv = core.parseFlowValue(v); return pv.kind === 'seq' ? pv.items : []; }
-    if (!v) { seq = []; continue; }              // block seq mở
-    return [core.parseFlowValue(v).value];       // một glob viết trần trên cùng dòng
-  }
-  return seq || [];
-}
+// `paths` của ô ngoài làn máy đọc bằng CÙNG bộ đọc và bộ phân loại của lib mà bộ lọc dùng (hồ sơ
+// loc-paths-dong-mac-dinh gộp bộ đọc riêng `pathsCuaEval` cũ — Ngoài-1 lượt chấm 4 của
+// lan-ghim-lai-theo-paths). Bộ đọc của `carry-plan.mjs` (đường verdict S4) KHÔNG đổi.
 function chamTuPin(s) {
   if (!s.ngoaiMay.length) return [];
+  // Bộ máy cũ hơn làn (chỉ khi --ag-root trỏ bản kit cũ, khoá vắng): không giữ bộ đọc thứ hai làm đường lui.
+  const thieuHam = ['evalPathsOf', 'pathGlobToRe', 'dungCayPaths', 'phanLoaiMucPaths'].find(n => typeof core[n] !== 'function');
+  if (thieuHam) { log(`bộ máy thiếu ${thieuHam} — không tính được ô ngoài làn máy có vật đổi`); return []; }
   const vcCu = (s.report.match(/^verified_commit\s*:\s*(\S+)/m) || [])[1];
   if (!vcCu) { log(`${s.slug}: không đọc được verified_commit — không tính được ô ngoài làn máy có vật đổi`); return []; }
   const co = spawnSync('git', ['-C', root, 'cat-file', '-e', `${vcCu}^{commit}`], { stdio: 'ignore' });
@@ -531,9 +512,13 @@ function chamTuPin(s) {
     .map(f => (tienToGitPin && f.startsWith(tienToGitPin) ? f.slice(tienToGitPin.length) : f));
   const cham = [];
   for (const id of s.ngoaiMay) {
-    const gl = pathsCuaEval(s.evalsText, id);
+    const gl = core.evalPathsOf(s.evalsText, id) || [];
     if (!gl.length) continue;                    // không khai paths → không biết vật nào, không kết luận
-    const res = gl.map(globToRe);
+    // Mục không chứng được (dạng lạ, không trỏ tới tệp) → không biết vật nào đổi: nói ra (chạm) khi diff
+    // khác rỗng — chiều nói-nhiều-hơn, danh sách chỉ có thể THÊM id so với bộ đọc cũ.
+    const pl = gl.map(m => core.phanLoaiMucPaths(m, cayHead()));
+    if (pl.some(x => !x.nhan)) { if (doi.length) cham.push(id); continue; }
+    const res = pl.map(x => core.pathGlobToRe(x.glob));
     if (doi.some(f => res.some(re => re.test(f)))) cham.push(id);
   }
   return cham;
@@ -671,7 +656,7 @@ for (const s of perSlug) {
   // `paths` thì nói rõ, để «vắng khỏi danh sách đã chạm» không đọc thành «không chạm».
   const acKhong = acKhongChotMay(s.evalRecords);
   const veNgoaiMay = s.ngoaiMay.length
-    ? ` · ngoài làn máy: ${s.ngoaiMay.map(id => (pathsCuaEval(s.evalsText, id).length ? id : `${id} (${id} không khai paths)`)).join(', ')}`
+    ? ` · ngoài làn máy: ${s.ngoaiMay.map(id => ((typeof core.evalPathsOf === 'function' ? core.evalPathsOf(s.evalsText, id) : null) ? id : `${id} (${id} không khai paths)`)).join(', ')}`
     : '';
   const veCham = chamNgoaiMay.length ? ` · diff chạm vật đo ngoài làn máy: ${chamNgoaiMay.join(', ')} — chưa chứng lại, đi vòng S4 delta` : '';
   const veAcKhong = acKhong.length ? ` · AC không có chốt máy: ${acKhong.join(', ')}` : '';

@@ -233,6 +233,11 @@ const ALLOWED_REMOVALS = [
   // LEDGER_EXPECTED); mọi sửa khác trên hai dòng thay thế vẫn ĐỎ.
   `            const r = core.checkRepinEvals(e, evalsText, slug);`,
   `          for (const x of core.checkRepinEvals(e, evalsText, slug).errs) errs.push(\`REPIN x \${x}\`);`,
+  // Hồ sơ loc-paths-dong-mac-dinh (2026-10-06): lời gọi bộ lọc hoá cũ theo paths nhận thêm danh sách
+  // tệp git của bản đang kiểm (`cay`) — bộ lọc đóng mặc định chỉ lọc khi chứng được mọi mục trên
+  // cây. SỬA MỘT LỜI GỌI HÀM thêm đối số (tiền lệ checkRepinEvals ở trên), không nới luật nào: thiếu
+  // cây thì lib trả thieu-cay và lưới giữ luật cũ. Miễn trừ ĐÍCH DANH dòng gọi cũ.
+  `          process.stdout.write(JSON.stringify(l.staleByPaths(files,ev,{prefix:process.argv[3]})));' "$CHU_KY_LIB" "$dir/evals.yaml" "$_sbp_pre" 2>"$_sbp_ef")"; then`,
 ];
 let passed = 0, failed = 0;
 const check = (n, f) => { try { f(); passed++; console.log(`  PASS: ${n}`); } catch (e) { failed++; console.log(`  FAIL: ${n}\n    ${e.message}`); } };
