@@ -24,8 +24,8 @@ await ca('AC5-eval-rieng', 'eval trùng NGUYÊN VĂN lệnh suite vẫn chạy r
   const k = mkKho({ suiteCmd: DOC_K, files, config: '  repin_ci_blank_env: [K]\n', evals: [{ id: 'E1', cmd: 'rang_e1', sh: DOC_K }] });
   const r = k.lane([], ENV);
   ok(r.status === 1, `suite phải đỏ ở env CI (mã ${r.status})`);
-  ok(/feat E1: .* → exit 0/.test(r.stderr), 'ghim: env CI tràn sang eval — eval không chạy xanh với env đầy đủ');
   ok(!/feat E1: \(đã chạy\)/.test(r.stderr), 'ghim: gộp lệnh khác env — eval mượn kết quả suite');
+  ok(/feat E1: .* → exit 0/.test(r.stderr), 'ghim: env CI tràn sang eval — eval không chạy xanh với env đầy đủ');
 });
 await ca('AC5-xanh-ghi-env', 'suite xanh ở env CI → dòng repin suites_env "ci" + hậu tố section', async () => {
   const k = mkKho({ files, config: '  repin_ci_blank_env: [K]\n' });

@@ -62,8 +62,8 @@ await ca('AC1-do-hai-lan', 'đỏ cả hai lần → làn đỏ, hai nhật ký,
 await ca('AC1-model-khong-lai', 'eval model thật đỏ lần đầu → KHÔNG chạy lại', async () => {
   const k = mkKho({ evals: [{ id: 'E1', cmd: 'rang_e1', body: lenhChapChon('dem.txt') + '\n' }], config: '  repin_retry: 1\n  model_evals: [feat/E1]\n' });
   const r = k.lane([]);
-  ok(r.status === 1, `mã ${r.status}`);
   ok(k.docDau('dem.txt').trim() === '1', `ghim: chạy lại eval model thật — chạy ${k.docDau('dem.txt').trim()} lần`);
+  ok(r.status === 1, `mã ${r.status}`);
 });
 await ca('AC1-khoa-vang', 'khoá vắng → đỏ ngay, chạy đúng một lần (hành vi cũ)', async () => {
   const k = mkKho({ suiteCmd: lenhChapChon('dem.txt') });

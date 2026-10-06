@@ -10,7 +10,7 @@ import { mkKho, boKiem, ok, lenhChau, lenhChapChon, song, choPid, choChet, ngu, 
 const { chayLenh, thuCay } = await import(path.join(ROOT, 'feature-loop', 'scripts', 'lib', 'chay-lenh.mjs'));
 
 const ALL = ['AC2-lib-giet-cay', 'AC2-lib-bay-term', 'AC2-lib-in-nhieu',
-  'AC2-B1', 'AC2-B2', 'AC2-B3', 'AC2-B4', 'AC2-B5', 'AC2-B6', 'AC2-B7',
+  'AC2-B1', 'AC2-B2', 'AC2-B3', 'AC2-B3-tach-nhom', 'AC2-B4', 'AC2-B5', 'AC2-B6', 'AC2-B7',
   'AC3-TERM', 'AC3-INT', 'AC3-HUP', 'AC3-khong-write-sach',
   'AC4-xanh', 'AC4-do', 'AC4-vuot-tran', 'AC4-bi-ngat', 'AC4-chi-phi-loi'];
 const { ca, ket } = boKiem(ALL);
@@ -76,6 +76,20 @@ await ca('AC2-B3', 'làn LỒNG hai tầng → sau khi làn ngoài thoát 4, ch�
   ok(r.status === 4, `mã ${r.status}\n${r.stderr}`);
   ok(await choChet(pid, 2000), 'ghim: làn lồng sót cháu');
 });
+await ca('AC2-B3-tach-nhom', 'lệnh có tầng giữa chết ngay khi nhận SIGTERM và cháu ở NHÓM tiến trình riêng → cháu vẫn chết (thu cây theo ppid, không chỉ theo nhóm)', async () => {
+  // Hình dạng của làn lồng khi tầng giữa không tự dọn: một tiến trình node mở cháu detached (nhóm riêng)
+  // rồi chết theo mặc định khi nhận SIGTERM. Giết theo nhóm của làn không bao giờ tới nhóm của cháu.
+  const tang = [
+    "const c = require('child_process').spawn('bash', ['-c', 'trap \"\" TERM; sleep 120'], { detached: true, stdio: 'ignore' });",
+    "require('fs').writeFileSync(process.env.GG_DAU + '/chau.pid', String(c.pid));",
+    'setInterval(() => {}, 1000);',
+  ].join('\n') + '\n';
+  const k = mkKho({ suiteCmd: 'node tang.js', files: { 'tang.js': tang } });
+  const r = k.lane(['--tran-phut', TRAN]);
+  const pid = await choPid(k);
+  ok(r.status === 4, `mã ${r.status}\n${r.stderr}`);
+  ok(await choChet(pid, 2000), 'ghim: làn lồng sót cháu');
+});
 await ca('AC2-B4', '--write khi vượt trần → mỗi slug một dòng repin-do vuot-tran đủ trường', async () => {
   const k = mkKho({ suiteCmd: lenhChau() });
   const r = k.lane(['--tran-phut', TRAN, '--write']);
@@ -119,10 +133,10 @@ for (const [id, sig, ma] of [['AC3-TERM', 'SIGTERM', 143], ['AC3-INT', 'SIGINT',
     const pid = await choPid(k);
     proc.kill(sig);
     const r = await xong;
-    ok(r.status === ma, `mã ${r.status} (tín hiệu ${r.signal})\n${r.stderr}`);
-    ok(await choChet(pid, 2000), 'ghim: cháu tiến trình sót');
     const d = repinDo(k);
     ok(d && d.ly_do === 'bi-ngat', 'ghim: ngắt không để vết');
+    ok(r.status === ma, `mã ${r.status} (tín hiệu ${r.signal})\n${r.stderr}`);
+    ok(await choChet(pid, 2000), 'ghim: cháu tiến trình sót');
     ok(d.tin_hieu === sig, `tin_hieu ${d.tin_hieu}`);
     ok(Array.isArray(d.chua_chay) && d.chua_chay.includes('feat E1'), `chua_chay ${JSON.stringify(d.chua_chay)}`);
   });
@@ -142,8 +156,9 @@ await ca('AC3-khong-write-sach', 'bị ngắt không --write → không tệp th
 // ── tổng kết ────────────────────────────────────────────────────────────────
 const khoModel = (extra = {}) => {
   const k = mkKho({
-    evals: [{ id: 'E1', cmd: 'rang_e1', body: 'echo 1 >> "$GG_DAU/tieu.txt"\nexit 0\n' }, { id: 'E2', cmd: 'rang_e2', body: 'echo 1 >> "$GG_DAU/tieu.txt"\nexit 0\n' }],
-    config: `  model_evals: [feat/E1, feat/E2]\n  repin_cost_cmd: ${extra.cost || `'cat "$GG_DAU/tieu.txt" 2>/dev/null | wc -l'`}\n${extra.config || ''}`,
+    // E3 trùng NGUYÊN VĂN lệnh của E1 → làn gộp, chạy 1 lần: «gọi n» đếm LẦN CHẠY THẬT (2), không đếm eval (3).
+    evals: [{ id: 'E1', cmd: 'rang_e1', body: 'echo 1 >> "$GG_DAU/tieu.txt"\nexit 0\n' }, { id: 'E2', cmd: 'rang_e2', body: 'echo 1 >> "$GG_DAU/tieu.txt"\nexit 0\n' }, { id: 'E3', cmd: 'rang_e3', sh: 'sh rang_e1.sh' }],
+    config: `  model_evals: [feat/E1, feat/E2, feat/E3]\n  repin_cost_cmd: ${extra.cost || `'cat "$GG_DAU/tieu.txt" 2>/dev/null | wc -l'`}\n${extra.config || ''}`,
     ...extra.kho,
   });
   return k;
