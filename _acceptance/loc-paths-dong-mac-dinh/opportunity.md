@@ -3,10 +3,10 @@ schema_version: 1
 slug: loc-paths-dong-mac-dinh
 feature: Bộ lọc hoá cũ theo paths đóng mặc định — chỉ bớt tệp khi MỌI mục paths của hồ sơ thuộc dạng đã chứng; thư mục trần thành thư-mục/** chỉ khi cây đang kiểm có thư mục ấy; mục không trỏ được tới tệp nào thì hồ sơ giữ luật cũ; hai bộ đọc paths trong làn ghim lại về một nguồn
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Phan Le Manh
+decided_at: 2026-10-06T06:39:04Z   # owner gõ «làm» một chạm trong phiên 06/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -73,10 +73,10 @@ bộ thứ nhất. Đảo chiều mặc định mà chỉ sửa một bộ thì 
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] *crm gỡ được lưới tạm `kiem-paths-dong.mjs` mà không mở lại lỗ nào nó đang che, và vẫn giữ phần lớn phần tiết kiệm của khoá?*
-- Kết quả nào là SỐNG: [đề xuất] trên bản chụp crm `onehub` lúc cắt mốc · mọi dạng lưới crm chặn (thư mục trần, rỗng, `./`, `/` đầu, `/` cuối, `\`, khoảng trắng) và glob chỉ khớp thư mục đều làm bộ lọc trả `apply: false` kèm lý do gọi tên mục · thư mục trần có thật ở cây đang kiểm giữ tệp bên trong · áp được ≥ 115/167 hồ sơ · phát lại các lượt ghim lại từ 27/09 vẫn tránh ≥ 33 % lượt hồ sơ (hôm nay 41 %) · kho không bật khoá giữ từng byte.
-- Kết quả nào là CHẾT: [đề xuất] còn một dạng lưới crm chặn mà bộ lọc vẫn bỏ qua tệp, hoặc phát lại tránh < 25 % lượt hồ sơ, hoặc một kho không bật khoá đổi đầu ra lưới trước-merge.
-- Timebox: [đề xuất] một vòng T3 (chạm `lib/**`), trần bốn lượt gọi người; ngưỡng đọc trên bản chụp crm trước khi cắt mốc mang vòng này.
+- Câu hỏi phép đo trả lời: *crm gỡ được lưới tạm `kiem-paths-dong.mjs` mà không mở lại lỗ nào nó đang che, và vẫn giữ phần lớn phần tiết kiệm của khoá?*
+- Kết quả nào là SỐNG: trên bản chụp crm `onehub` lúc cắt mốc · mọi dạng lưới crm chặn (thư mục trần, rỗng, `./`, `/` đầu, `/` cuối, `\`, khoảng trắng) và glob chỉ khớp thư mục đều làm bộ lọc trả `apply: false` kèm lý do gọi tên mục · thư mục trần có thật ở cây đang kiểm giữ tệp bên trong · áp được ≥ 115/167 hồ sơ · phát lại các lượt ghim lại từ 27/09 vẫn tránh ≥ 33 % lượt hồ sơ (hôm nay 41 %) · kho không bật khoá giữ từng byte.
+- Kết quả nào là CHẾT: còn một dạng lưới crm chặn mà bộ lọc vẫn bỏ qua tệp, hoặc phát lại tránh < 25 % lượt hồ sơ, hoặc một kho không bật khoá đổi đầu ra lưới trước-merge.
+- Timebox: một vòng T3 (chạm `lib/**`), trần bốn lượt gọi người; ngưỡng đọc trên bản chụp crm trước khi cắt mốc mang vòng này.
 
 ## Kết quả prototype
 
@@ -94,7 +94,7 @@ cho số ở «Vấn đề & ai gặp». Bản tái hiện bốn dạng bỏ qua
 
 ## Cổng 0
 
-- **decision = …** Đề xuất `build`, hạng T3: (1) `staleByPaths` phân loại từng mục `paths` trước khi so khớp — chỉ ba dạng đã chứng được lọc; mục ngoài danh sách → `apply: false`, lý do `dang-khai-la:<mục>`, NOTE gọi tên; mục không trỏ tới tệp nào → `apply: false`, lý do `paths-khong-tro-toi-tep:<mục>`; (2) «cây đang kiểm» là danh sách tệp git theo dõi ở commit đang kiểm, truyền vào hàm, không đọc đĩa; (3) làn ghim lại bỏ `pathsCuaEval` và `globToRe` riêng, gọi `evalPathsOf` + `pathGlobToRe` + cùng bộ phân loại; (4) ma trận ca đỏ rút từ lưới crm, mỗi ca có đối chứng dương và ghim đúng lý do; (5) GUIDE §7.1 và CHANGELOG đổi lời khai «chưa bật» thành điều kiện bật.
+- **decision = build** T3: (1) `staleByPaths` phân loại từng mục `paths` trước khi so khớp — chỉ ba dạng đã chứng được lọc; mục ngoài danh sách → `apply: false`, lý do `dang-khai-la:<mục>`, NOTE gọi tên; mục không trỏ tới tệp nào → `apply: false`, lý do `paths-khong-tro-toi-tep:<mục>`; (2) «cây đang kiểm» là danh sách tệp git theo dõi ở commit đang kiểm, truyền vào hàm, không đọc đĩa; (3) làn ghim lại bỏ `pathsCuaEval` và `globToRe` riêng, gọi `evalPathsOf` + `pathGlobToRe` + cùng bộ phân loại; (4) ma trận ca đỏ rút từ lưới crm, mỗi ca có đối chứng dương và ghim đúng lý do; (5) GUIDE §7.1 và CHANGELOG đổi lời khai «chưa bật» thành điều kiện bật.
 - **disposition = …**
 - **Ngưỡng UAT chốt cùng lúc ký:** ngưỡng SỐNG ở trên, đọc trên bản chụp crm trước khi cắt mốc.
 
