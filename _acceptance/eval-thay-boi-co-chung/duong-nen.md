@@ -1,7 +1,7 @@
 ---
 slug: eval-thay-boi-co-chung
-at: 2026-10-06T09:55:20.985Z
-sha: bf79fdb11fe6e69b12efa1b4c9c7cf40fbb36e1d
+at: 2026-10-06T10:20:35.479Z
+sha: 8215e63a86a6ead2aa95bc1780f9e6b935621605
 nen: xanh
 cong_cu: xanh
 suite: xanh

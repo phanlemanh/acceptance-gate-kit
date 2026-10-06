@@ -105,7 +105,8 @@ ngoài làn máy. **Never:** giá trị trạng thái mới `thay-boi` (giả đ
   trong lúc suite chạy (S1#0 cho brainstorm song song, nhưng tệp viết ra làm chân «cây sạch sau
   suite» và P122 đỏ), lượt hai vì máy tạo sẵn thư mục hồ sơ rỗng trước khi chạy (suite đọc nó thành
   hồ sơ hỏng). Lượt ba trên bản sao sạch của `bf79fdb1`, không tạo thư mục trước: năm chân xanh —
-  đó là tệp `duong-nen.md` của hồ sơ này. Lỗ ở nghi thức (song song mà cây bị ghi) ghi ở đây, không
+  sau khi gộp `main`, chạy lại lần bốn trên bản sạch `8215e63a`: năm chân xanh — đó là tệp
+  `duong-nen.md` hiện tại của hồ sơ này. Lỗ ở nghi thức (song song mà cây bị ghi) ghi ở đây, không
   mở ô — luật chiều rộng.
 - **Giới hạn khai trước — cái bắt tay đọc văn bản hiện tại:** điều kiện «hồ sơ thay nhận việc
   thay» đọc `contract.md`/design doc của hồ sơ thay ở cây đang kiểm, không đối chiếu bản lúc ký;
