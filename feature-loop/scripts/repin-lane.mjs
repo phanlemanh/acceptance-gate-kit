@@ -126,6 +126,11 @@ const AG_ENGINE = [
   // Hàng ĐIỀU KIỆN (khoá `khi`): chỉ đòi khi kho bật khoá — kho không bật chạy y như trên bộ máy cũ
   // (hồ sơ lan-ghim-lai-theo-paths AC-10). Hàng thiếu `khi` là đòi vô điều kiện như mọi hàng trên.
   { file: 'lib/evidence-core.cjs', name: 'staleByPaths', kind: 'function', since: '2.21.0', why: 'làn gọi (--skip-unchanged khi risk_tiers.stale_scope: paths)', khi: 'stale_scope=paths' },
+  // Ba hàng của hồ sơ eval-thay-boi-co-chung: chỉ đòi khi một slug đang ghim khai con trỏ thay thế —
+  // kho không khai chạy y như trên bộ máy cũ (bộ máy cũ thấy con trỏ thì vẫn chặn ở luật hai vế).
+  { file: 'lib/evidence-core.cjs', name: 'chungThayBoi', kind: 'function', since: '2.23.0', why: 'notRunConflicts gọi khi hồ sơ khai con trỏ thay thế', khi: 'superseded_by' },
+  { file: 'lib/workspace-record.cjs', name: 'hoSoDaKhep', kind: 'function', since: '2.23.0', why: 'chungThayBoi gọi', khi: 'superseded_by' },
+  { file: 'lib/ac-line.cjs', name: 'parseACBlock', kind: 'function', since: '2.23.0', why: 'chungThayBoi gọi', khi: 'superseded_by' },
 ];
 // AG-ENGINE-TABLE>>>
 const verNum = (v) => String(v).split('.').map(Number).reduce((n, x) => n * 1000 + (x || 0), 0);
@@ -157,7 +162,11 @@ const lacks = (r) => { const v = mods[r.file] ? mods[r.file][r.name] : undefined
 // risk_tiers.stale_scope đọc THẲNG từ config.yaml (bộ máy chưa nạp ở đây) — cùng cách pre-merge-check.sh
 // đọc nó; giá trị lạ coi như vắng ở làn (lưới trước-merge là nơi gọi tên giá trị sai).
 const staleScope = String((configText.match(/^[ \t]*stale_scope:[ \t]*([^\s#]+)/m) || [])[1] || 'all').replace(/^['"]|['"]$/g, '');
-const batKhoa = (r) => !r.khi || (r.khi === 'stale_scope=paths' && staleScope === 'paths');
+// Con trỏ thay thế: đọc THÔ evals.yaml của từng slug đang ghim (bộ máy chưa nạp) — chỉ để biết có đòi
+// ba hàng `khi: 'superseded_by'` hay không; luật thật chạy trong bộ máy.
+const coConTro = slugs.some(sl => { try { return /^[ \t]+superseded_by[ \t]*:/m.test(fs.readFileSync(path.join(root, '_acceptance', sl, 'evals.yaml'), 'utf8')); } catch { return false; } });
+if (coConTro) mods['lib/ac-line.cjs'] = loadEngine('lib/ac-line.cjs');
+const batKhoa = (r) => !r.khi || (r.khi === 'stale_scope=paths' && staleScope === 'paths') || (r.khi === 'superseded_by' && coConTro);
 const missing = AG_ENGINE.filter(r => batKhoa(r) && lacks(r));
 if (missing.length) engineStop(`acceptance-gate quá cũ cho làn ghim lại (root: ${agRoot}) — thiếu ${missing.length} mục:\n${missing.map(r => `  - ${r.file}: ${r.name} (cần ≥ ${r.since})`).join('\n')}`);
 const core = mods['lib/evidence-core.cjs'];
@@ -255,8 +264,10 @@ const perSlug = slugs.map(slug => {
 for (const s of perSlug) {
   // s.evalsText: cùng nội dung đã đọc khi dựng perSlug (minor ghi-lai-tren-lop-cu
   // 12/09/2026) — không đọc lại evals.yaml lần hai từ đĩa.
-  const { xungDot, khongDoiChieuDuoc } = core.notRunConflicts(s.evalsText, s.report);
-  if (xungDot.length) die(`${s.slug}: eval ${xungDot.join(', ')} khai không-chạy trong evals.yaml nhưng báo cáo đã ký CÓ mã thoát cho chính nó — hai vế mâu thuẫn, làn không ghi gì; sửa hồ sơ rồi chạy làn mới`);
+  // `root` = --root đã giải tuyệt đối — hồ sơ thay tra ở CÂY ĐANG GHIM, không ở cwd (eval-thay-boi-co-chung).
+  const { xungDot, khongDoiChieuDuoc, thayBoi, lyDo } = core.notRunConflicts(s.evalsText, s.report, { root, slug: s.slug });
+  s.thayBoi = thayBoi || [];
+  if (xungDot.length) die(`${s.slug}: eval ${xungDot.join(', ')} khai không-chạy trong evals.yaml nhưng báo cáo đã ký CÓ mã thoát cho chính nó — hai vế mâu thuẫn, làn không ghi gì; sửa hồ sơ rồi chạy làn mới${lyDo && lyDo.length ? ` — con trỏ thay thế không chứng được: ${lyDo.join('; ')}` : ''}`);
   // s.report LUÔN là chuỗi ở làn (đọc ngay trên, die nếu vắng) nên vế dưới
   // không chạy ở đây hôm nay; giữ để một bên gọi tương lai không lách qua
   // lặng lẽ — cùng nếp fail-closed với bên đọc.
