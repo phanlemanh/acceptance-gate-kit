@@ -10,7 +10,17 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
-## Chưa phát hành
+## 2.24.0 — 06/10/2026
+
+Cửa sổ 2.23.0 → 2.24.0 nằm trong **một ngày** (06/10), có **hai vòng** được ký: `loc-paths-dong-mac-dinh`
+(T3, PR #271) và `eval-thay-boi-co-chung` (T3, PR #272). Ngoài hồ sơ: ô `lo-trinh-cat-luot` mở và qua
+Cổng Đáng (#274, #275). Kho chờ nhận là `crm`, neo ở hai hồ sơ crm: `go-khoa-goc-nhin` (bật
+`stale_scope: paths` kèm lưới tạm `kiem-paths-dong.mjs`) và `gop-y-dung-cho` (25 eval máy đã ký ở năm hồ
+sơ mất vật đo, làn ghim lại chết ở luật hai vế). Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên
+`2.24.0`; `diagram-design` giữ `2.7.1`. Tag `v2.24.0` gắn tại commit ký mốc sau khi gộp.
+
+**Vì sao 2.24.0, không 2.23.1:** một trường mới trong khuôn `evals.yaml` (`superseded_by`), một hậu tố mới
+trên dòng `sha:` của mục Re-pin, và bộ lọc paths đổi kết luận trên kho đã bật khoá — hành vi mới.
 
 ### Bộ lọc hoá cũ theo paths đóng mặc định (hồ sơ `loc-paths-dong-mac-dinh`, T3)
 
@@ -18,6 +28,87 @@
 - Làn ghim lại đọc `paths` của ô ngoài làn máy bằng cùng bộ đọc và bộ phân loại của lib; danh sách `evals_not_machine_touched` chỉ có thể THÊM id so với trước (dòng trống, chú thích, thư mục trần, mục lạ nay được thấy).
 - **Kho không bật khoá:** lưới trước-merge không đổi byte nào.
 - **crm khi nhận:** gỡ lưới tạm `scripts/kiem-paths-dong.mjs` và bước CI «Paths đóng mặc định» trong `.github/workflows/acceptance.yml`; trước khi gỡ, chạy cả hai trên cùng cây — mọi mục lưới báo LỖI phải là mục bộ lọc từ chối, trừ thư mục viết trơn có thật (bộ lọc nhận như cả thư mục).
+
+### Eval thay bởi hồ sơ đã ký (hồ sơ `eval-thay-boi-co-chung`, T3)
+
+- Ô `test`/`script` khai `status: not-run` mang thêm `superseded_by: <hồ sơ thay>#AC-<n>` (khuôn ở GUIDE
+  §7.1). Luật hai vế nhận ô đó — thay vì báo «hai vế mâu thuẫn» — khi máy chứng được ở CÂY ĐANG KIỂM: hồ sơ
+  thay có chữ ký người (`signed-off`) và chưa nghỉ · **hồ sơ thay tự nêu thẻ `<slug cũ>/<id cũ>`** trong
+  hợp đồng hoặc design doc của nó (bắt tay hai đầu) · AC được trỏ có trong hợp đồng thay và còn eval có mã
+  thoát trong báo cáo đã ký của nó. Gãy điều nào → vẫn xung đột, thông điệp gọi tên điều gãy (chín mã lý do,
+  GUIDE §7.1).
+- Làn ghim lại, `recheck-evidence.cjs` và `pre-merge-check.sh` gọi chung một hàm; bên đọc kiểm lại chuỗi
+  ở MỌI lượt — hồ sơ thay sau này nghỉ hay lùi trạng thái thì xung đột quay lại.
+- Pin nói ra: dòng `sha:` của mục Re-pin nối ` · thay bởi hồ sơ đã ký: <E>→<hồ sơ>#<AC>` (vắng khi không có
+  ô thay bởi); dòng JSON không thêm khoá.
+- **Kho không khai trường mới:** lưới trước-merge và recheck giống từng byte bản trước (đo trên 110 hồ sơ của
+  kit). Bộ máy cũ thấy con trỏ thì vẫn chặn — hướng an toàn.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI ĐỔI ba tệp:** `lib/evidence-core.cjs`, `scripts/pre-merge-check.sh`,
+  `scripts/recheck-evidence.cjs` — chép lại theo INIT-CI-COPY-LIST (danh sách vẫn 17 tệp; luật thay bởi
+  đọc thêm `lib/ac-line.cjs` và `lib/workspace-record.cjs`, cả hai đã có trong danh sách).
+- **Máy dev:** cài lại plugin ở MỌI phạm vi trên mỗi máy có phiên của kho, kiểm từng bản ghi cây phụ.
+- **crm, theo thứ tự:**
+  1. Khai `superseded_by` cho 25 eval máy ở năm hồ sơ cũ (`the-gop-y-okr`, `khung-tao-okr-nhu-deal`,
+     `tro-ly-okr-de-xuat`, `va-tro-ly-okr-sau-thu`, `nen-kara`) theo bảng `BANG-THAY-THE` của design doc
+     `gop-y-dung-cho` — bảng đó đã nêu đủ thẻ `<hồ sơ>/<eval>` mà điều kiện bắt tay đòi; rồi ghim lại năm
+     hồ sơ bằng một lượt làn. 11 eval ngoài làn máy của bảng không cần con trỏ.
+  2. Gỡ lưới tạm `scripts/kiem-paths-dong.mjs` (kể cả nhánh «ĐÃ THAY» đọc bảng thay thế) và bước CI «Paths
+     đóng mặc định» trong `.github/workflows/acceptance.yml`; trước khi gỡ, chạy lưới tạm và bộ lọc mới trên
+     cùng cây — mọi mục lưới báo LỖI phải là mục bộ lọc từ chối, trừ thư mục viết trơn có thật.
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng — đủ ở hai hợp đồng và
+`docs/research/known-limits-ledger.tsv`):
+
+- `loc-paths-dong-mac-dinh` (5 mục + 1 hạt giống): kho không bật khoá mà bộ máy cài cũ hơn làn thì dòng ghim
+  lại vắng danh sách ô ngoài làn máy bị chạm · cùng cấu hình, bộ máy trước 2.21 ghi sai «không khai paths» ·
+  hai ca của chân trước-merge không phân biệt «bộ lọc nhận» với «rơi về luật cũ» · ô D6 dùng tên tệp chưa qua
+  ngoặc git. Hạt giống `2026-10-06-hat-giong-ma-ly-do-rut-tu-ben-phat.md`: bộ kiểm tài liệu đối chiếu mảng
+  mã khai báo, không đối chiếu chỗ phát mã.
+- `eval-thay-boi-co-chung` (8 mục, ký sau dừng-vá lượt 2): phép đếm tổng của ma trận từ chối cộng một hằng ·
+  ma trận neo vào `THAY_BOI_LY_DO` viết tay mà `chungThayBoi` không đọc — **cùng hình dạng với hạt giống của
+  vòng kia** · hồ sơ thay đã được thực tế đóng nhận lý do «chưa ký» thay vì «đã khép» (chặn đúng, sai tên) ·
+  năm mục độ chặt bộ kiểm (đối chứng dương trên bản sao, chiều đỏ của nhánh bốn đối số, đối chứng trước-merge
+  của T05, mô tả E2 lệch số hàng). Không mục nào mở đường né đo.
+- Lỗi thẻ giấu mục mang hậu tố ` (r<n>)` gặp lần 3 ở `eval-thay-boi-co-chung` (chuẩn hoá tay như 2.23.0);
+  ngưỡng hạt giống `2026-10-03-hat-giong-bo-doc-ngoai-hop-dong-bo-dau-mang-sang.md` đã chạm, chưa mở ô (đóng
+  băng meta-work) — chỗ cắt cho cửa sổ kế.
+
+**Năm dòng số của luật (c)** — hai vòng (giờ VN; nguồn: giờ commit `contract.md`/`evidence-report.md`,
+`usage-report.md` của hồ sơ):
+
+| Dòng | `loc-paths-dong-mac-dinh` (T3) | `eval-thay-boi-co-chung` (T3) |
+|---|---|---|
+| Làm-xong→quyết-được | `implemented` 18:15 → ký 19:45 ≈ **1 giờ 30 phút**, gồm hai lượt chấm (≈ 81 phút máy); **2 lượt chấm** | `implemented` 18:29 → ký 20:04 ≈ **1 giờ 35 phút**, gồm hai lượt chấm (≈ 75 phút máy) và một điểm dừng-vá; chờ chữ ký sau `verified` 5 phút; **2 lượt chấm** |
+| Lượt gọi người / vòng (trần T3 4) | Trong thiết kế **4** — Cổng Đáng · Cổng Phạm vi · Cổng 1.5 · ký Cổng Bằng chứng. Ngoài thiết kế: không đọc được từ kho (phiên khác) | Trong thiết kế **3** — Cổng Phạm vi · Cổng 1.5 · ký Cổng Bằng chứng (dừng-vá trình cùng lượt ký); Cổng Đáng ghi hộ từ câu giao việc. Ngoài thiết kế **1** — máy hỏi bật tự sửa CI ở S5. 1 chạm mỗi lượt. Owner tự gọi thêm: đối chiếu kit mới nhất trước khi duyệt, lệnh gộp |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **0** — lượt 1 REJECT vì lưới «chỉ thêm» bắt dòng gọi bộ lọc bị sửa (phép đo thật) | **0** lượt chấm. Đường nền đầu vòng đỏ giả hai lần do máy (ghi tệp lúc suite chạy · tạo sẵn thư mục hồ sơ); CI `tests` đỏ một lần vì runner không mở được Chrome, chạy lại xanh |
+| Token máy / vòng (out-token S4) · chứng-minh-vật / tìm-lỗi / tổng hợp | **60 931** · 64/10/26 % (34 554 · 26 377 theo lượt) | **77 091** · 40/35/25 % (41 214 · 35 877 theo lượt) |
+| Phút máy / lượt chấm | 54 và 27 phút (3 237 s · 1 633 s), tổng ≈ 81 phút | 50 và 26 phút (2 981 s · 1 538 s), tổng ≈ 75 phút |
+
+Phiên chính không đo token. Ngoài lượt chấm, `eval-thay-boi-co-chung` tốn thêm một lượt ghim lại sau chữ ký
+(30 phút, 21 lệnh) vì hồ sơ đã ký `ra-co-ten-lam-va-trao` bị kéo vào diff (khai tệp ca vào khối gạch) và vì
+gộp `main` mang thay đổi thư viện của vòng kia.
+
+**Điều kiện tin cậy:** (i) không đổi thành phần đường verdict — diff cửa sổ ở engine chạm luật hai vế và bộ
+lọc paths (`lib/evidence-core.cjs`), hai bên đọc (`recheck-evidence.cjs`, `pre-merge-check.sh`), làn ghim
+lại, thân `acceptance-init` và SKILL feature-loop; KHÔNG chạm `acceptance-verify.js`, `s4-args.mjs`,
+`lib/nhan-canh-gay.cjs`. (ii) Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0** — ngưỡng (a) đếm **0/2**.
+Dòng 4–5 cắt được.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở crm | năm hồ sơ mất vật đo ghim lại được thay vì treo; bộ lọc paths giữ phần tiết kiệm mà không cần lưới tạm |
+| 2 | ↓ ở crm | không còn phải quyết tay «hồ sơ này chôn hay để đỏ» cho từng hồ sơ cũ |
+| 3 | = | — |
+| 4 | = | không chạm lượt chấm S4 |
+| 5 | = | — |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .`.
+**N không tăng so với mốc 2.23.0 — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
 
 ## 2.23.0 — 06/10/2026
 
