@@ -433,3 +433,12 @@ release-2-22-0#ngoai-1	release-2-22-0	low	chuoi-thay-quan-he	song			E1/E2/E6 kha
 release-2-22-0#ngoai-2	release-2-22-0	medium	khong-the-do	song			Cùng gốc Ngoài-1: AC-2/AC-6 không có bằng chứng riêng ngoài mã thoát chung
 release-2-22-0#ngoai-3	release-2-22-0	low	doi-chung-tu-sinh	song			Tập hồ sơ được ký gõ tay ở Context và ở dòng executor rel2220_cua_so — không gì tự so hai chỗ
 nhan-lan-v-theo-huong#ngoai-1	nhan-lan-v-theo-huong	medium	snapshot-nguon-song	song			NC-AC4-cu (ntr) so bản trước vòng với commit lõi 62b7166c, không so hai commit gate-card sau của vòng ấy; LT-AC6-im cùng giả định «commit đầu chứa chuỗi = vật trọn của vòng»
+gia-lan-ghim-lai#r2-ngoai-1	gia-lan-ghim-lai	medium	mut-khong-qua-chan-that	chet	9f6146b4		Ca AC1-model-dung-chung chỉ chạm một trong hai chỗ gặp lệnh model; nhánh suite song song không có ca, phép phá ở đó sống sót
+gia-lan-ghim-lai#ngoai-3	gia-lan-ghim-lai	medium	doc-drift	song			GUIDE §7.1 mang cột «Gợi ý cho crm» — cấu hình sản phẩm của một kho tiêu thụ nằm trong engine
+gia-lan-ghim-lai#ngoai-4	gia-lan-ghim-lai	medium	fail-open	song			model_evals chỉ kiểm hình dạng; gõ nhầm id thì eval model thật bị chạy lại im lặng
+gia-lan-ghim-lai#ngoai-5	gia-lan-ghim-lai	medium	khac	song			Lệnh làn chạy detached (setsid): SIGKILL theo nhóm từ công cụ gọi không còn tới suite — giới hạn chưa khai
+gia-lan-ghim-lai#ngoai-6	gia-lan-ghim-lai	low	doc-drift	song			Mẫu repin-do trong SKILL ghi "chap_chon":[] trái luật hiện diện ngay dưới nó
+gia-lan-ghim-lai#ngoai-7	gia-lan-ghim-lai	low	khac	song			doChiPhi đọc sai số chi phí có dấu phân cách nghìn
+gia-lan-ghim-lai#ngoai-8	gia-lan-ghim-lai	medium	khac	song			AC2-B7 chỉ ghim mã thoát 3, không ghim thông điệp; ca vẫn xanh trên BASE-GIA
+gia-lan-ghim-lai#ngoai-9	gia-lan-ghim-lai	medium	khong-the-do	song			Lời hứa «không ghi pin khi vượt trần» đo trên làn không --write, nơi làn vốn không ghi
+gia-lan-ghim-lai#ngoai-2	gia-lan-ghim-lai	low	mut-khong-qua-chan-that	song			Ô song song × env CI của ma trận lệnh-dùng-chung-với-model chỉ có chiều xanh; không phép phá nào trỏ riêng vào ô giao ấy

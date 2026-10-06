@@ -210,6 +210,8 @@ MIEN_TRU = {
     ("README.md", "phút"): "thời gian ĐỌC tài liệu",
     ("README.md", "minutes"): "câu tuyên kit KHÔNG đo phút người",
     ("scripts/loop-health.mjs", "minutes"): "phút MÁY giữa hai commit (làm-xong→quyết-được của luật (c)) — không phải phút NGƯỜI ở cổng",
+    ("feature-loop/scripts/lib/chay-lai.mjs", "phút"): "trần thời lượng MÁY của một lệnh trước khi được chạy lại (hồ sơ gia-lan-ghim-lai, AC-1) — không phải phút NGƯỜI ở cổng",
+    ("commands/acceptance-init.md", "minutes"): "trần MÁY của làn ghim lại (feature_loop.repin_budget_min, hồ sơ gia-lan-ghim-lai AC-2) — không phải phút NGƯỜI ở cổng",
     ("feature-loop/scripts/repin-lane.mjs", "phút"): "số đo GIỜ MÁY của làn (13 phút/làn, đo 14/09) trong comment giải thích vì sao có --skip-unchanged — dòng 5 của luật (c) đếm phút MÁY, không phải phút NGƯỜI ở cổng",
 }
 def _quet():

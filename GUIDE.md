@@ -1271,7 +1271,8 @@ lại chúng. Từ 2.18 làn nói ra thay vì im: dòng `kind:repin` mang
 id mà `git diff <pin cũ> HEAD` chạm `paths` của chính chúng), section Re-pin nêu
 thêm `AC không có chốt máy`, và thẻ Cổng Bằng chứng in cả hai (từ 2.21 dòng ấy
 mang thêm `wall_s` và `so_lenh` — thời lượng làn, không phải giới hạn; xem «Làn đỏ để lại
-vết» bên dưới). Hồ sơ mang
+vết» bên dưới; từ 2.23 thêm `tong_ket` — tổng kết cuối lượt, cũng không phải giới hạn; xem «Năm khoá
+của làn» bên dưới). Hồ sơ mang
 `evals_not_machine_touched` phải đi vòng S4 delta — làn vẫn ghi pin, nó KHÔNG
 chặn. Ngưỡng mở vòng CHẶN, đếm giữa hai bản phát hành:
 
@@ -1293,6 +1294,27 @@ mang thêm `wall_s` + `so_lenh`. Kho tiêu thụ thêm `.acceptance-runs/` vào 
 
 ```bash
 cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -c '"kind":"repin-do"'
+```
+
+**Năm khoá của làn — chạy lại, trần, môi trường giống CI, tổng kết (2.23, hồ sơ gia-lan-ghim-lai).**
+Mọi khoá dưới `feature_loop`, VẮNG = như 2.22. Danh sách nguồn là khối `LAN-KHOA` trong
+`feature-loop/scripts/lib/lan-khoa.mjs`; giá trị sai → làn thoát 2 gọi tên khoá.
+
+| Khoá | Giá trị | Làm gì | Gợi ý cho crm |
+|---|---|---|---|
+| `repin_retry` | `0` · `1` | Lệnh (suite hay eval máy) lệch kỳ vọng thì chạy lại ĐÚNG lệnh đó một lần, một mình, sau khi khối suite song song xong; lần hai đạt → dòng pin mang `chap_chon` gọi tên ca (rút từ nhật ký: bun, vitest/jest, playwright, node:test). Không chạy lại eval trong `model_evals`, lệnh lần đầu dài hơn 30 phút, hay khi trần còn lại ít hơn thời lượng lần đầu. | `1` |
+| `model_evals` | danh sách `<slug>/<Eid>` | Eval gọi model thật: không bao giờ chạy lại (chạy lại là chọn lượt rút tốt hơn), đếm ở tổng kết «eval model thật: gọi n». | crm liệt kê (`tro-ly-doc-kho/E15`, …) |
+| `repin_budget_min` | số phút > 0 | Trần mỗi lượt (cờ `--tran-phut` thắng khoá). Chạm trần → dừng lệnh bằng cách thu cả cây tiến trình rồi SIGTERM → SIGKILL sau 10 s, **thoát 4**, không ghi pin, `repin-do` `ly_do: "vuot-tran"` + `chua_chay`. Đặt DƯỚI trần của công cụ chạy làn — ngắt cứng (SIGKILL) thì không gì kịp ghi dấu. | `80` (công cụ ngắt ở 90) |
+| `repin_cost_cmd` | lệnh in một số tăng theo chi tiêu | Làn chạy nó trước lệnh đầu và lúc tổng kết; «chi phí đo» = chênh — gồm mọi phiên chạy cùng lúc. Lỗi → «chi phí đo: lỗi (…)», kết cục làn không đổi. | lệnh in tổng đã dùng của AI Gateway — kiểm khi bật |
+| `repin_ci_blank_env` | danh sách tên biến | Suite chạy với các biến này đặt RỖNG tường minh (giống CI không có khoá; xoá biến thì bộ nạp `.env` điền lại — đo 06/10); eval giữ env đầy đủ; dòng pin mang `suites_env: "ci"`. **Giới hạn:** test tự bỏ qua khi thiếu khoá mất phủ ở làn — lưới là eval chạy có khoá; mã đọc khoá bằng `??` coi rỗng là «có khoá». | `[ZALO_BOT_TOKEN, …]` — crm liệt kê |
+
+Bật mặc định, không khoá (chỉ thêm, không đổi kết cục làn nào): dòng stderr cuối `[lane] TỔNG KẾT`
+và khoá `tong_ket` (kết cục · phút · số lệnh · eval model thật đã gọi · `model_carry` = 0 giữ chỗ cho
+Vòng B · số chập chờn · chi phí đo) ở JSON stdout, dòng `repin` và `repin-do`; bắt SIGTERM/SIGINT/SIGHUP
+→ dừng cả cây, `repin-do` `ly_do: "bi-ngat"`, thoát 128 + số hiệu. Đếm lượt dừng sớm giữa hai mốc:
+
+```bash
+cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -cE '"ly_do":"(vuot-tran|bi-ngat)"'
 ```
 
 **Hoá cũ theo `paths` và suite song song — kho tự bật (2.21).** Hai khoá, mặc định TẮT:
