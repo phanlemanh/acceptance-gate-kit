@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chuỗi chứng — eval thay bởi hồ sơ đã ký</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5; --color-ink: #2d3142; --color-muted: #4f5d75; --color-rule: rgba(45,49,66,0.12);
+      --font-sans: 'Geist', system-ui, sans-serif; --font-serif: 'Instrument Serif', 'Lora', serif; --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --color-paper: #2d3142; --color-ink: #f5f5f5; --color-muted: #bfc0c0; --color-rule: rgba(245,245,245,0.12); }
+    }
+    body { font-family: var(--font-sans); background: var(--color-paper); color: var(--color-ink); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-muted); margin-bottom: 0.5rem; }
+    h1 { font-family: var(--font-serif); font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    svg { width: 100%; min-width: 960px; display: block; }
+    .footer { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid var(--color-rule); font-family: var(--font-mono); font-size: 0.62rem; color: var(--color-muted); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Hình · chuỗi chín điều kiện · hồ sơ eval-thay-boi-co-chung · AC-1 · AC-2 · AC-6</p>
+    <h1>Cái bắt tay hai đầu: ô cũ trỏ đi, hồ sơ thay nhận về — gãy một điều là vẫn xung đột</h1>
+<svg viewBox="0 0 1120 1416" xmlns="http://www.w3.org/2000/svg" font-family="'Geist', sans-serif">
+<defs>
+<style><![CDATA[
+svg{--paper:#f5f5f5;--white:#ffffff;--ink:#2d3142;--muted:#4f5d75;--soft:#636b80;--rule:rgba(45,49,66,0.12);--rule2:#bfc0c0;--accent:#eb6c36;--accent-text:#ba4513;--accent-tint:rgba(235,108,54,0.08);--link:#2e5aa8;--fill-soft:rgba(45,49,66,0.05);--fill-faint:rgba(45,49,66,0.03);}
+@media (prefers-color-scheme: dark){svg{--paper:#2d3142;--white:#393e53;--ink:#f5f5f5;--muted:#bfc0c0;--soft:#a1aaba;--rule:rgba(245,245,245,0.12);--rule2:rgba(191,192,192,0.25);--accent:#f08a59;--accent-text:#f19162;--accent-tint:rgba(240,138,89,0.10);--link:#6a95d8;--fill-soft:rgba(245,245,245,0.06);--fill-faint:rgba(245,245,245,0.04);}}
+]]></style>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--muted)"/></marker>
+<marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--link)"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="var(--paper)"/>
+<!-- lanes + arrows first -->
+<rect x="40" y="40" width="440" height="192" rx="8" fill="var(--fill-faint)" stroke="var(--rule2)" stroke-width="0.8"/>
+<text x="56" y="64" fill="var(--muted)" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">HỒ SƠ CŨ · ĐÃ KÝ</text>
+<rect x="640" y="40" width="440" height="192" rx="8" fill="var(--fill-faint)" stroke="var(--rule2)" stroke-width="0.8"/>
+<text x="656" y="64" fill="var(--muted)" font-size="9" font-weight="500" font-family="'Geist Mono', monospace" letter-spacing="0.18em">HỒ SƠ THAY · ĐÃ KÝ</text>
+<line x1="380" y1="116" x2="738" y2="116" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="740" y1="184" x2="382" y2="184" stroke="var(--link)" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+<line x1="260" y1="212" x2="260" y2="270" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="308" x2="798" y2="308" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="344" x2="260" y2="382" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="420" x2="798" y2="420" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="456" x2="260" y2="494" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="532" x2="798" y2="532" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="568" x2="260" y2="606" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="644" x2="798" y2="644" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="680" x2="260" y2="718" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="756" x2="798" y2="756" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="792" x2="260" y2="830" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="868" x2="798" y2="868" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="904" x2="260" y2="942" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="980" x2="798" y2="980" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="1016" x2="260" y2="1054" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="1092" x2="798" y2="1092" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="1128" x2="260" y2="1166" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="440" y1="1204" x2="798" y2="1204" stroke="var(--muted)" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="260" y1="1240" x2="260" y2="1278" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<rect x="140" y="84" width="240" height="128" rx="6" fill="var(--paper)"/>
+<rect x="140" y="84" width="240" height="128" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<rect x="148" y="92" width="40" height="16" rx="2" fill="transparent" stroke="var(--muted)" stroke-opacity="0.5" stroke-width="0.8"/><text x="168" y="104" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">EVAL</text>
+<text x="260" y="136" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">E3 · eval máy</text>
+<text x="260" y="156" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">status: not-run</text>
+<text x="260" y="172" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">superseded_by: ho-so-thay#AC-7</text>
+<text x="260" y="196" fill="var(--soft)" font-size="9" text-anchor="middle">báo cáo đã ký có mã thoát cho nó</text>
+<rect x="740" y="92" width="240" height="48" rx="6" fill="var(--paper)"/>
+<rect x="740" y="92" width="240" height="48" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="860" y="114" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">AC-7 trong hợp đồng thay</text>
+<text x="860" y="130" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">contract.md · tiêu chí</text>
+<rect x="740" y="160" width="240" height="48" rx="6" fill="var(--paper)"/>
+<rect x="740" y="160" width="240" height="48" rx="6" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="860" y="182" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">Design doc của hồ sơ thay</text>
+<text x="860" y="198" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">design_doc: · đã duyệt</text>
+<rect x="800" y="272" width="240" height="968" rx="6" fill="var(--paper)"/>
+<rect x="800" y="272" width="240" height="968" rx="6" fill="var(--fill-soft)" stroke="var(--muted)" stroke-width="1"/>
+<text x="920" y="804" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">Gãy → vẫn xung đột</text>
+<text x="920" y="824" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ô ở lại xungDot</text>
+<text x="920" y="840" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">lyDo: id · lý do · con trỏ</text>
+<text x="920" y="856" fill="var(--soft)" font-size="9" text-anchor="middle">gãy ở điều đầu tiên</text>
+<polygon points="260,272 440,308 260,344 80,308" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="260" y="306" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Tra được gốc cây?</text>
+<text x="260" y="322" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">root + hai thư viện phụ</text>
+<text x="56" y="312" fill="var(--muted)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">0</text>
+<polygon points="260,384 440,420 260,456 80,420" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="260" y="418" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Con trỏ đúng dạng?</text>
+<text x="260" y="434" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">&lt;slug&gt;#AC-&lt;số&gt;</text>
+<text x="56" y="424" fill="var(--muted)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">1</text>
+<polygon points="260,496 440,532 260,568 80,532" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="260" y="530" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Không tự trỏ?</text>
+<text x="260" y="546" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">slug thay ≠ slug cũ</text>
+<text x="56" y="536" fill="var(--muted)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">2</text>
+<polygon points="260,608 440,644 260,680 80,644" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="260" y="642" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Hồ sơ thay có?</text>
+<text x="260" y="658" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">contract.md tồn tại</text>
+<text x="56" y="648" fill="var(--muted)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">3</text>
+<polygon points="260,720 440,756 260,792 80,756" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="260" y="754" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Có chữ ký người?</text>
+<text x="260" y="770" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">status: signed-off</text>
+<text x="56" y="760" fill="var(--muted)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">4</text>
+<polygon points="260,832 440,868 260,904 80,868" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="260" y="866" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Chưa khép?</text>
+<text x="260" y="882" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">không nghỉ · không đóng</text>
+<text x="56" y="872" fill="var(--muted)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">5</text>
+<polygon points="260,944 440,980 260,1016 80,980" fill="var(--paper)"/>
+<polygon points="260,944 440,980 260,1016 80,980" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="260" y="978" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">Hồ sơ thay NHẬN việc thay?</text>
+<text x="260" y="994" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">nêu thẻ ho-so-cu/E3</text>
+<text x="56" y="984" fill="var(--accent-text)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">6</text>
+<polygon points="260,1056 440,1092 260,1128 80,1092" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="260" y="1090" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">AC có trong hợp đồng thay?</text>
+<text x="260" y="1106" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">AC-7 ∈ tiêu chí</text>
+<text x="56" y="1096" fill="var(--muted)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">7</text>
+<polygon points="260,1168 440,1204 260,1240 80,1204" fill="var(--paper)"/>
+<polygon points="260,1168 440,1204 260,1240 80,1204" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="260" y="1202" fill="var(--ink)" font-size="11" font-weight="600" text-anchor="middle">AC còn eval có mã thoát đã ký?</text>
+<text x="260" y="1218" fill="var(--accent-text)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">báo cáo thay có mã</text>
+<text x="56" y="1208" fill="var(--accent-text)" font-size="12" font-weight="500" font-family="'Geist Mono', monospace" text-anchor="middle">8</text>
+<rect x="100" y="1280" width="320" height="56" rx="28" fill="var(--paper)"/>
+<rect x="100" y="1280" width="320" height="56" rx="28" fill="var(--white)" stroke="var(--ink)" stroke-width="1.2"/>
+<text x="260" y="1304" fill="var(--ink)" font-size="12" font-weight="600" text-anchor="middle">Nhận — ô rời xung đột</text>
+<text x="260" y="1320" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">pin nói ra: E3→ho-so-thay#AC-7</text>
+<rect x="522" y="92" width="76" height="16" rx="2" fill="var(--paper)"/>
+<text x="560" y="104" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CON TRỎ ĐI</text>
+<rect x="500" y="160" width="120" height="16" rx="2" fill="var(--paper)"/>
+<text x="560" y="172" fill="var(--link)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">NHẬN · ho-so-cu/E3</text>
+<rect x="268" y="244" width="92" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="256" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">ô còn xung đột</text>
+<rect x="572" y="284" width="96" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="296" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">khong-tra-duoc</text>
+<rect x="268" y="356" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="368" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<rect x="578" y="396" width="84" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="408" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">con-tro-hong</text>
+<rect x="268" y="468" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="480" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<rect x="594" y="508" width="52" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="520" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">tu-tro</text>
+<rect x="268" y="580" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="592" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<rect x="568" y="620" width="104" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="632" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ho-so-thay-vang</text>
+<rect x="268" y="692" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="704" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<rect x="560" y="732" width="120" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="744" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ho-so-thay-chua-ky</text>
+<rect x="268" y="804" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="816" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<rect x="560" y="844" width="120" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="856" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ho-so-thay-da-khep</text>
+<rect x="268" y="916" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="928" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<rect x="568" y="956" width="104" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="968" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">thay-khong-nhan</text>
+<rect x="268" y="1028" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="1040" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<rect x="578" y="1068" width="84" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="1080" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ac-thay-vang</text>
+<rect x="268" y="1140" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="1152" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<rect x="550" y="1180" width="140" height="16" rx="2" fill="var(--paper)"/>
+<text x="620" y="1192" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ac-thay-khong-con-eval</text>
+<rect x="268" y="1252" width="32" height="16" rx="2" fill="var(--paper)"/>
+<text x="274" y="1264" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.06em">QUA</text>
+<line x1="40" y1="1368" x2="1080" y2="1368" stroke="var(--rule)" stroke-width="0.8"/>
+<text x="40" y="1388" fill="var(--muted)" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+<polygon points="140,1384 152,1378 164,1384 152,1390" fill="var(--white)" stroke="var(--ink)" stroke-width="1"/>
+<text x="172" y="1388" fill="var(--muted)" font-size="9">Điều kiện (số = hàng trong bảng)</text>
+<polygon points="356,1384 368,1378 380,1384 368,1390" fill="var(--accent-tint)" stroke="var(--accent)" stroke-width="1.4"/>
+<text x="388" y="1388" fill="var(--muted)" font-size="9">Điều kiện mới sau gap-probe</text>
+<line x1="560" y1="1384" x2="588" y2="1384" stroke="var(--muted)" stroke-width="1.2" marker-end="url(#arrow)"/>
+<text x="596" y="1388" fill="var(--muted)" font-size="9">Nhánh (nhãn trên nhánh gãy = lý do ghim)</text>
+<line x1="836" y1="1384" x2="864" y2="1384" stroke="var(--link)" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow-link)"/>
+<text x="872" y="1388" fill="var(--muted)" font-size="9">Đầu thay nhận về</text>
+</svg>
+    <div class="footer"><span>Nguồn chữ: bảng điều kiện 0–8 · docs/superpowers/specs/2026-10-06-eval-thay-boi-co-chung-design.md</span><span>Hình là chiếu của bảng, không thêm điều kiện</span></div>
+  </div>
+</body>
+</html>

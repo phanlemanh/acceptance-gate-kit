@@ -1,0 +1,37 @@
+{
+  "feature_plain": "Khi một lượt sản phẩm mới đã ký thay hẳn một phần cũ, các phép đo cũ mất vật được khai nghỉ hưu kèm chỗ đo mới — và cổng chỉ nhận lời khai đó khi tự kiểm được chỗ đo mới có thật, đã có chữ ký người, và chính nó nhận việc thay.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ cho ghim lại hồ sơ cũ khi phép đo đã nghỉ trỏ tới một hồ sơ thay hợp lệ — gỡ con trỏ đi thì cổng chặn đúng như hôm nay."},
+    {"id": "AC-4", "p": "Sẽ cho ba chốt (ghim lại, kiểm lại bằng chứng, lưới trước khi gộp) cùng một phán quyết, từ một luật duy nhất."},
+    {"id": "AC-6", "p": "Sẽ ghi rõ trên dòng ghim: phép đo nào được thay, thay bởi tiêu chí nào của hồ sơ nào."},
+    {"id": "AC-7", "p": "Sẽ chặn lại hồ sơ cũ ngay khi hồ sơ thay sau này nghỉ hoặc mất chữ ký — lời hứa thay hết thì pin cũ hết xanh."},
+    {"id": "AC-8", "p": "Sẽ giữ nguyên từng chữ đầu ra của cổng ở mọi kho không dùng lời khai mới."},
+    {"id": "AC-9", "p": "Sẽ đặt mẫu khai trong hướng dẫn và chạy chính mẫu đó qua cổng thật, để mẫu không lệch khỏi luật."},
+    {"id": "AC-10", "p": "Sẽ ghim lại xanh một bộ dựng đúng hình dạng crm: năm hồ sơ cũ, 25 phép đo máy trỏ tám tiêu chí của một hồ sơ thay."}
+  ],
+  "wont_do": [
+    {"id": "AC-2", "p": "Chặn mọi con trỏ gãy một điều kiện — hồ sơ thay vắng, chưa có chữ ký người, đã nghỉ, không tự nêu tên phép đo cũ, tiêu chí không có hoặc không còn phép đo có kết quả đã ký — mỗi ca nói rõ vì sao."},
+    {"id": "AC-3", "p": "Sẽ KHÔNG nới cho kho còn dùng bản kit cũ: chốt nào không tra được hồ sơ thay thì vẫn chặn."},
+    {"id": "AC-5", "p": "Sẽ KHÔNG đọc nhầm hồ sơ thay của một kho khác khi lệnh chạy từ thư mục khác."},
+    {"id": "OOS-1", "p": "KHÔNG sửa kho crm trong vòng này — crm khai con trỏ và ghim lại khi nhận bản kit mới."},
+    {"id": "OOS-2", "p": "KHÔNG đổi thẻ cổng và bản đồ sản phẩm để hiện «thay bởi» — vòng này chỉ cho dòng ghim nói ra."},
+    {"id": "OOS-3", "p": "KHÔNG làm con trỏ nhiều đích, con trỏ trên phép đo nhìn-bằng-mắt hay chấm-bằng-hội-đồng, hay con trỏ trên phép đo vẫn đang chạy."},
+    {"id": "OOS-4", "p": "KHÔNG đổi lối «cho cả hồ sơ nghỉ» — lối đó vẫn dành cho cả hồ sơ."},
+    {"id": "OOS-5", "p": "KHÔNG chạm bộ lọc hoá cũ theo đường dẫn — đó là việc của vòng đóng-mặc-định đang chạy song song."}
+  ],
+  "scope_plain": "Năm mục cố ý để ngoài vòng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Ba chốt đọc luật — ghim lại, kiểm lại bằng chứng, lưới trước khi gộp — đều được đo (AC-1 nhận, AC-4 cùng phán quyết)."},
+    {"i": 1, "p": "Mười tình huống của chuỗi chứng — một ca lành và chín cách gãy, kể cả hai hồ sơ trỏ vòng vào nhau — mỗi cách gãy một ca có tên (AC-1 nhận, AC-2 từ chối)."},
+    {"i": 2, "p": "Bản kit cũ, thiếu thư viện phụ, chạy từ thư mục khác — đều phải chặn chứ không nới (AC-3 bên gọi cũ, AC-5 đúng cây)."},
+    {"i": 3, "p": "Cả lúc ghim lẫn sau khi ghim: ghim xong mà hồ sơ thay hết hiệu lực thì kiểm lại phải đỏ (AC-6 nói ra, AC-7 chứng sống)."},
+    {"i": 4, "p": "Kho dùng lời khai mới và kho không dùng: kho không dùng giữ nguyên từng chữ đầu ra (AC-8 so trước/sau)."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Nặng nhất: bản đầu chỉ kiểm hồ sơ thay còn sống, nên trỏ tới một hồ sơ đã ký bất kỳ cũng lọt — phép đo cũ biến mất mà không ai thấy. Đã sửa: hồ sơ thay phải tự nêu tên phép đo cũ trong tài liệu đã duyệt của nó (bắt tay hai đầu)."},
+    {"i": 1, "p": "Bản đầu chỉ đòi hồ sơ thay có khai phép đo cho tiêu chí, chưa đòi phép đo đó từng chạy — thêm một dòng khai sau khi ký là lọt. Đã sửa: phép đo phải có kết quả trong báo cáo đã ký."},
+    {"i": 2, "p": "So tiêu chí bằng «chứa chuỗi» thì AC-1 khớp nhầm AC-10. Đã sửa: so theo ranh giới, thêm ca nhầm tiền tố và ca một phép đo phủ nhiều tiêu chí."},
+    {"i": 3, "p": "Bản đầu nhận cả hồ sơ chỉ được máy thông, trái ý «chữ ký người đứng sau việc thay». Đã sửa: chỉ nhận hồ sơ có chữ ký người."},
+    {"i": 4, "p": "Lệnh ghim lại chưa được thử khi chạy từ thư mục của kho khác. Đã sửa: thêm ca đó, kèm kiểm không ghi byte nào."}
+  ]
+}
