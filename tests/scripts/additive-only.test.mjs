@@ -18,6 +18,12 @@ const FILES = ['scripts/pre-merge-check.sh', 'scripts/recheck-evidence.cjs'];
 // lịch sử — DV2-12/DV2p-10 ghim hành vi mới, DV2-13/DV2p-11 ghim fraud):
 // phép so sha chuyển từ per-section sang quan-hệ ít-nhất-một-khớp-vc.
 const ALLOWED_REMOVALS = [
+  // Hồ sơ `eval-thay-boi-co-chung` (06/10/2026): luật hai vế xét con trỏ thay thế ở CÂY ĐANG
+  // KIỂM, nên hai bên đọc phải truyền thêm gốc cây vào checkRepinEvals — lời gọi cũ không có
+  // chỗ cho tham số đó, không đường «chỉ thêm» (tiền lệ cong-chan-nham-cho). Thông điệp và
+  // nhánh luật cũ giữ từng chữ; ô không con trỏ đi đúng luật cũ (ca T08 so 110 hồ sơ từng byte).
+  '          for (const x of core.checkRepinEvals(e, evalsText, slug, payload).errs) errs.push(`REPIN x ${x}`);',
+  '            const r = core.checkRepinEvals(e, evalsText, slug, core.readSignedReportFor(evalsPath));',
   // S4-r3: đã GỠ các mục chuỗi-CHUNG (`fi`, `    fi`, `      else`, `  esac`,
   // `  return 1`). Chúng khớp hàng chục dòng của lưới, nên mỗi mục là một lỗ tàng
   // hình: xoá một `fi` hay một dấu đóng `case` ở BẤT KỲ luật nào cũng lọt qua DV5.
