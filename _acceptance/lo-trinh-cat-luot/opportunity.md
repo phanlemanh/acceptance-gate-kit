@@ -3,10 +3,10 @@ schema_version: 1
 slug: lo-trinh-cat-luot
 feature: Lộ trình vào kit, lát 2 — skill cắt lượt biến một bản phạm vi (mã, mốc ngoài, đợt) thành hàng theo khuôn của lát 1 cùng bảng phủ, theo sáu luật rút từ ba lộ trình owner đã viết; răng duy nhất «mỗi mã nằm ở đúng một hàng hoặc chân trời»; kit KHÔNG ghi file ý định của kho
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-06T14:27:12Z   # owner gõ «làm, mở vòng sau khi cắt 2.24» một chạm trong phiên 06/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -50,10 +50,10 @@ mở vòng từ hàng ấy, vì hàng cắt sai thì vòng mở trên câu giao 
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] *skill cắt lượt có biến một bản phạm vi thành hàng theo khuôn nhanh hơn cắt tay mà không lọt mã không?*
-- Kết quả nào là SỐNG: [đề xuất] lượt cắt kế của crm chạy bằng skill · răng phủ xanh (mỗi mã của bản phạm vi ở đúng một hàng hoặc chân trời, 0 mã lọt) · thời gian từ bản phạm vi tới commit hàng ≤ nửa lượt cắt tay 04/10 · bảng phủ không còn chép tay · 0 hàng sửa ý định sau khi vòng mở trong 30 ngày.
-- Kết quả nào là CHẾT: [đề xuất] owner viết lại ≥ 1/3 số hàng skill sinh trước khi mở vòng, hoặc kit ghi vào tệp ý định của kho, hoặc kho không khai lộ trình thấy thẻ/trang đổi.
-- Timebox: [đề xuất] một vòng T2, trần ba lượt chấm; ngưỡng đọc sau lượt cắt kế của crm (≤ 30 ngày sau phát hành mốc mang lát 2).
+- Câu hỏi phép đo trả lời: *skill cắt lượt có biến một bản phạm vi thành hàng theo khuôn nhanh hơn cắt tay mà không lọt mã không?*
+- Kết quả nào là SỐNG: lượt cắt kế của crm chạy bằng skill · răng phủ xanh (mỗi mã của bản phạm vi ở đúng một hàng hoặc chân trời, 0 mã lọt) · thời gian từ bản phạm vi tới commit hàng ≤ nửa lượt cắt tay 04/10 · bảng phủ không còn chép tay · 0 hàng sửa ý định sau khi vòng mở trong 30 ngày.
+- Kết quả nào là CHẾT: owner viết lại ≥ 1/3 số hàng skill sinh trước khi mở vòng, hoặc kit ghi vào tệp ý định của kho, hoặc kho không khai lộ trình thấy thẻ/trang đổi.
+- Timebox: một vòng T2, trần ba lượt chấm; ngưỡng đọc sau lượt cắt kế của crm (≤ 30 ngày sau phát hành mốc mang lát 2).
 
 ## Kết quả prototype
 
@@ -72,10 +72,12 @@ Chưa dựng. Vật để so: hai lượt cắt tay 04/10 (`3e80edc29`, `729a1ab
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: … (máy đề xuất `build` hạng T2 — một skill, một răng tất định, không lệnh
-  cổng mới; chờ người ký).
+- **decision = build** Lát 2, hạng T2: một skill cắt lượt, một răng tất định (mỗi mã ở đúng một hàng
+  hoặc chân trời), đầu ra qua `kiemKhuon` của lát 1, không lệnh cổng mới, kit không ghi tệp ý định.
+  **Mở vòng SAU khi cắt mốc 2.24.0 và crm nhận** (owner 06/10) — giữ cửa sổ 2.23 → 2.24 ở một vòng
+  chạm engine (luật chiều rộng b).
 - **disposition = …**
-- **Ngưỡng UAT chốt cùng lúc ký:** chép từ bullet `[đề xuất]` sau khi người gỡ tiền tố.
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn bullet ở section Ngưỡng, giữ nguyên chữ, đã gỡ tiền tố.
 - **Luật chiều rộng (b) — để owner cân ở Cổng Đáng:** lát 2 là vòng có kho chờ nhận (crm, như lát 1).
   Cửa sổ 2.23 → 2.24 ĐÃ có một vòng chạm engine: `loc-paths-dong-mac-dinh` (T3, ký Cổng Bằng chứng
   06/10, gộp sau tag 2.23.0, PR #271 `730d000c`). Ký `build` ô này = vòng thứ hai chạm engine trong
