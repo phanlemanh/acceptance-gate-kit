@@ -351,6 +351,36 @@ test('T06', 'pin-noi-ra — mutant bỏ nối hậu tố → ĐỎ «pin im lặ
   if (!loi || !loi.startsWith('pin im lặng về ô thay bởi')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
 });
 
+// ── T07 — chứng sống sau khi ghim (AC-7) ────────────────────────────────────────
+function kiemChungSong(root = ROOT) {
+  const k = dungKho();
+  if (chayLan(k, ['--write'], undefined, root).code !== 0) fail('ghim lành không xanh');
+  if (chayRecheck(k, 'ho-so-cu', undefined, root).code !== 0) fail('đối chứng dương hỏng: không đổi gì mà recheck đỏ');
+  // (a) hồ sơ thay nghỉ (dòng nghỉ đủ vế, hồ sơ đã ký)
+  fs.appendFileSync(path.join(k.wsThay, 'decisions.jsonl'), JSON.stringify({ id: 'd-20261006T010000Z-1', type: 'nghi', stage: 'gate2', at: '2026-10-06T01:00:00Z', by: 'Manh Phan', decision: 'tính năng gỡ' }) + '\n');
+  const a = chayRecheck(k, 'ho-so-cu', undefined, root);
+  if (a.code === 0) fail('lời hứa thay đã hết mà pin vẫn xanh — hồ sơ thay nghỉ, recheck 0');
+  if (!a.stderr.includes('E3: ho-so-thay-da-khep (')) fail(`nghỉ: recheck đỏ nhưng không gọi tên ho-so-thay-da-khep — ${a.stderr.slice(0, 300)}`);
+  // (b) kho mới: trạng thái hồ sơ thay lùi về verified sau khi ghim
+  const k2 = dungKho();
+  if (chayLan(k2, ['--write'], undefined, root).code !== 0) fail('ghim lành (b) không xanh');
+  const c = path.join(k2.wsThay, 'contract.md');
+  fs.writeFileSync(c, fs.readFileSync(c, 'utf8').replace(/^status: .*$/m, 'status: verified'));
+  const b = chayRecheck(k2, 'ho-so-cu', undefined, root);
+  if (b.code === 0) fail('lời hứa thay đã hết mà pin vẫn xanh — hồ sơ thay lùi trạng thái, recheck 0');
+  if (!b.stderr.includes('E3: ho-so-thay-chua-ky (')) fail(`lùi trạng thái: thiếu ho-so-thay-chua-ky — ${b.stderr.slice(0, 300)}`);
+}
+test('T07', 'chung-song — hồ sơ thay nghỉ hoặc lùi trạng thái sau ghim → recheck pin cũ đỏ, gọi đúng lý do', () => kiemChungSong());
+test('T07', 'chung-song — mutant bên đọc tin hậu tố sha: → ĐỎ «lời hứa thay đã hết mà pin vẫn xanh»', () => {
+  const goc = banSaoBoMay([[path.join('lib', 'evidence-core.cjs'),
+    '    const r = chungThayBoi({ root: opts && opts.root, slug: opts && opts.slug, id, conTro: ct });',
+    "    if (/thay bởi hồ sơ đã ký:/.test(reportText)) { out.thayBoi.push({ id, thay: '?', ac: '?' }); continue; }\n    const r = chungThayBoi({ root: opts && opts.root, slug: opts && opts.slug, id, conTro: ct });"]]);
+  fs.cpSync(path.join(ROOT, 'feature-loop', 'skills'), path.join(goc, 'feature-loop', 'skills'), { recursive: true });
+  let loi = null;
+  try { kiemChungSong(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('lời hứa thay đã hết mà pin vẫn xanh')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
+});
+
 // ── T04 — một nguồn, ba bên gọi (AC-4) ──────────────────────────────────────────
 test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => {
   let soHang = 0;
