@@ -34,7 +34,9 @@ export function mkKho(opts = {}) {
   writeFileSync(path.join(root, 'suite.sh'), opts.suite || 'echo ran >> "$GG_DAU/suite.txt"\nexit 0\n');
   for (const e of evals) if (!e.sh) writeFileSync(path.join(root, `${e.cmd}.sh`), e.body || `echo ran >> "$GG_DAU/${e.id}.txt"\nexit 0\n`);
   for (const [ten, nd] of Object.entries(opts.files || {})) { const p = path.join(root, ten); mkdirSync(path.dirname(p), { recursive: true }); writeFileSync(p, nd); }
-  writeFileSync(path.join(ws, 'contract.md'), '---\nschema_version: 1\nfeature: feat\nslug: feat\nrisk_tier: T2\nsurfaces: [api]\nstatus: signed-off\napproved_by: Manh Phan\n---\n');
+  // `status: implemented`, không phải trạng thái đã ký: làn không đọc trạng thái hợp đồng để quyết gì, còn
+  // chuỗi trạng thái ký trong tệp ca làm lưới RT13 kêu (tiền lệ repin-lane-noi-ra, d-20260911T162950Z-14).
+  writeFileSync(path.join(ws, 'contract.md'), '---\nschema_version: 1\nfeature: feat\nslug: feat\nrisk_tier: T2\nsurfaces: [api]\nstatus: implemented\napproved_by: Manh Phan\n---\n');
   writeFileSync(path.join(ws, 'evals.yaml'), `schema_version: 1\nfeature_slug: feat\nevals:\n${evals.map(e => `  - id: ${e.id}\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.${e.cmd}\n    expected: exit 0\n    evidence_required: [run_id, exit_code, verifier, verified_at, output]\n`).join('')}`);
   git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'impl');
   const H1 = git('rev-parse', 'HEAD');
