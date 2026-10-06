@@ -24,6 +24,11 @@ Ca sinh ra Đ1 (R1g: bốn dòng test kéo E11 chạy lại 4 giờ) đã tan �
 ghim lại có diff toàn tệp test. Đ2 lớn theo số đếm (1 726/2 912 lần chạy eval carry được) nhưng là
 điểm duy nhất đổi cái được tính là «đã chứng», nên đi sau khi Vòng A đã ở kho.
 
+## Điều kiện mở (chủ kho đặt 06/10 ~08:50, qua phiên điều phối crm)
+
+Đo lại Đ1 trên crm SAU khi E11 không còn trong làn: tiết kiệm (số cặp ghim lại tránh được / tổng cặp,
+14 ngày) **< 10 % thì bỏ Đ1, Vòng B chỉ làm Đ2**. Số nền trước khi bỏ E11 là 12/203 = 6 %.
+
 ## Ngưỡng mở (đang đếm: 0)
 
 Đo lại trên crm SAU khi E11 không còn trong làn ghim lại: (a) Đ1 — ≥ 3 làn trong 14 ngày mà hồ sơ

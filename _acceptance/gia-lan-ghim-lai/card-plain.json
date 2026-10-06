@@ -4,7 +4,7 @@
     {"id": "AC-1", "p": "Sẽ chạy lại một lệnh đỏ đúng một lần, một mình, rồi ghi tên ca chập chờn vào báo cáo thay vì làm đỏ cả lượt; không chạy lại eval gọi model thật."},
     {"id": "AC-2", "p": "Sẽ dừng lượt ghim lại khi chạm trần thời gian, giết sạch mọi tiến trình con cháu kể cả trong lượt lồng bên trong, thoát bằng mã riêng và ghi lại lệnh nào chưa kịp chạy."},
     {"id": "AC-3", "p": "Sẽ để lại một dòng dấu và dọn sạch tiến trình con khi lượt ghim lại bị công cụ ngắt giữa chừng, thay vì biến mất không vết."},
-    {"id": "AC-4", "p": "Sẽ in tổng kết cuối mọi lượt: mất bao lâu, chạy bao nhiêu lệnh, gọi bao nhiêu eval model thật, mấy ca chập chờn, và chi phí đo được nếu kho khai cách đo."},
+    {"id": "AC-4", "p": "Sẽ in tổng kết cuối mọi lượt: mất bao lâu, chạy bao nhiêu lệnh, gọi bao nhiêu eval model thật (ô «mang sang» giữ chỗ, bằng 0 cho tới Vòng B), mấy ca chập chờn, và chi phí đo được nếu kho khai cách đo."},
     {"id": "AC-5", "p": "Sẽ chạy bộ test chung với các khoá tuỳ chọn để rỗng như trên CI, để lỗi chỉ hiện ở CI lộ ra ngay trong lượt ghim lại; eval vẫn chạy với khoá thật."},
     {"id": "AC-6", "p": "Sẽ giữ khuôn dòng ghim lại trong hướng dẫn của vòng lặp và bảng khoá trong GUIDE (danh sách khoá để crm bật) khớp đúng với thứ làn thật sự ghi."},
     {"id": "AC-7", "p": "Sẽ để kho chưa bật khoá nào chạy y hệt bản trước vòng, chỉ thêm đúng ba thứ đã kê (dòng tổng kết, khoá tổng kết, dòng dấu khi bị ngắt); bộ đọc cũ ở CI các kho vẫn đọc được dòng mới."},

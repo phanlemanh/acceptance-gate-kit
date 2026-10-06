@@ -81,7 +81,7 @@ evals:
     cmd: config:executors.script.gg_ac4
     expected: >-
       Bốn kết cục (xanh · đỏ · vượt trần · bị ngắt). Xanh: dòng stderr cuối bắt đầu "[lane] TỔNG KẾT"
-      nêu kết cục, phút, số lệnh, "eval model thật: gọi n", "chập chờn: k"; khoá tong_ket cùng số ở
+      nêu kết cục, phút, số lệnh, "eval model thật: gọi n, carry 0" (carry cố định 0, chờ Vòng B), "chập chờn: k"; khoá tong_ket cùng số ở
       JSON stdout và ở dòng repin / repin-do. Đo bằng QUAN HỆ: hai eval model thật mỗi lần chạy cộng 1
       vào bộ đếm chi tiêu ngoài kho mà repin_cost_cmd đọc → n BẰNG số lần thực chạy các eval đó và
       "chi phí đo" BẰNG n; lệnh đo chi phí thoát 1 / không in số → "chi phí đo: lỗi (…)" và kết cục làn
