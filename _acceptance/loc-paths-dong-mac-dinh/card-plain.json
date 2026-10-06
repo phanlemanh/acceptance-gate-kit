@@ -1,0 +1,34 @@
+{
+  "feature_plain": "Kho bật «chỉ hoá cũ khi thay đổi chạm phần đo» không còn bị cổng xanh mà sai: bộ lọc chỉ bỏ qua tệp khi hiểu chắc mọi dòng khai phần đo, còn lại giữ luật cũ và nói tên dòng khai.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ cho đúng kết luận ở cả 19 cách khai phần đo đã liệt kê trước, kể cả thư mục viết trơn, tên có dấu và đường dẫn kiểu Next."},
+    {"id": "AC-2", "p": "Sẽ từ chối mọi cách khai mà lưới tạm của crm đang chặn; ngoại lệ duy nhất là thư mục viết trơn có thật, được hiểu là cả thư mục."},
+    {"id": "AC-4", "p": "Sẽ biết một dòng khai là tệp hay thư mục bằng danh sách tệp của bản đang kiểm, không bằng thứ đang nằm trên đĩa."},
+    {"id": "AC-5", "p": "Sẽ cho cổng trước khi gộp và bước ghim lại cùng một kết luận ở cả 38 lượt thử."},
+    {"id": "AC-6", "p": "Sẽ để bước ghim lại đọc phần đo bằng đúng một bộ đọc, và chỉ có thể báo THÊM ô chưa chứng lại, không bao giờ bớt."},
+    {"id": "AC-7", "p": "Sẽ giữ nguyên từng chữ đầu ra ở kho không bật khoá."},
+    {"id": "AC-8", "p": "Sẽ dừng có tên khi kho bật khoá mà bộ máy cũ hơn cần; kho không bật khoá vẫn chạy, kèm một dòng báo."},
+    {"id": "AC-9", "p": "Sẽ ghi trong hướng dẫn mọi lý do bộ lọc có thể báo, kèm việc kho phải làm với từng lý do, và bỏ câu «chưa bật ở kho nào»."}
+  ],
+  "wont_do": [
+    {"id": "AC-3", "p": "Chặn cổng xanh mà sai ở cổng trước khi gộp: thư mục viết trơn mà có tệp bên trong đổi thì hồ sơ hoá cũ (bản hôm nay cho xanh), mỗi cách khai bị từ chối đều để lại một dòng gọi tên."},
+    {"id": "OOS-1", "p": "KHÔNG đổi mặc định, không thêm khoá, lệnh hay chế độ chỉ cảnh báo."},
+    {"id": "OOS-2", "p": "KHÔNG chạm bộ đọc phần đo của bước chấm (đường ra phán quyết giữ nguyên)."},
+    {"id": "OOS-3", "p": "KHÔNG sửa dòng khai của kho tiêu thụ, KHÔNG tự gỡ lưới tạm ở crm (crm làm khi nhận mốc)."},
+    {"id": "OOS-4", "p": "KHÔNG làm lại lịch quét thước hằng tuần của crm."}
+  ],
+  "scope_plain": "Vòng sửa một lỗ của thứ đã giao; mọi thứ dưới đây cố ý để ngoài.",
+  "coverage_plain": [
+    {"i": 0, "p": "Không gian đã quét từ chính mã cổng, bước ghim lại và 5 333 dòng khai thật của crm."},
+    {"i": 1, "p": "Đối chiếu ngoài: GitHub Actions và CODEOWNERS hiểu cùng một cách viết thư mục theo hai nghĩa khác nhau, nên bộ lọc không được đoán."},
+    {"i": 2, "p": "Chín tiêu chí AC-1 tới AC-9 phủ bốn trục: cách khai, bản đang kiểm, bên hỏi, khoá bật hay tắt."},
+    {"i": 3, "p": "Để sau: cách viết ngoặc nhọn {a,b}; hôm nay nó bị từ chối, an toàn, mở khi có kho khai thật."},
+    {"i": 4, "p": "Không bao giờ: đọc đĩa thay danh sách tệp của bản đang kiểm."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Hai luật đụng nhau ở thư mục viết trơn (lưới crm chặn, Cổng Đáng cho nhận); đã ghi rõ đây là ngoại lệ có tên duy nhất và đo đúng nó."},
+    {"i": 1, "p": "Thử cũ để lọt ca «không giữ tệp nào» ở bốn cách khai; nay mỗi cách khai có tệp đổi riêng và phải giữ đúng tập tệp viết trước."},
+    {"i": 2, "p": "Danh sách ô phải đỏ khi cố ý phá được viết tay và sai; nay máy tự tính, chỉ ghim phần tối thiểu viết trước."},
+    {"i": 3, "p": "Ngưỡng «phát lại tránh ≥ 33 %» chưa có cách đếm; nay ghi rõ tử số, mẫu số và lệnh đi vào ghi chú mốc."}
+  ]
+}
