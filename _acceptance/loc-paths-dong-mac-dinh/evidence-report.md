@@ -1,19 +1,19 @@
 ---
 schema_version: 2
 feature_slug: loc-paths-dong-mac-dinh
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 11dffe76272d850a41a0f78815120b2883f309fb
+verified_commit: 16bef1c7b17a03941db3ece3f6e3e28f11ce25f2
 human_signoff:
 ---
 
 # Evidence Report: loc-paths-dong-mac-dinh
 
-Round 1 bị REJECT dù cả chín eval của hợp đồng đều xanh: một lệnh suite hồi quy không gắn eval nào (`bash tests/scripts/run-tests.sh --manh mjs:1/3`) đỏ ở ca DV5 của `additive-only.test.mjs` — diff làm đổi một dòng luật cũ trong `scripts/pre-merge-check.sh`. Chi tiết ở khối suite bên dưới và mục Iterations.
+Round 2 xanh trọn: chín eval của hợp đồng (E1–E9) và mười lệnh suite hồi quy đều xanh trên cây 16bef1c7. Ca DV5 của additive-only đỏ ở round 1 nay xanh nhờ miễn trừ đích danh dòng gọi bộ lọc cũ (35fd61bd).
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -30,145 +30,137 @@ Round 1 bị REJECT dù cả chín eval của hợp đồng đều xanh: một l
 ## Evidence
 
 - eval: E1
-  run_id: minted-loc-paths-dong-mac-dinh-E1-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E1-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_ma_tran
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
     E1 XANH
 
 - eval: E2
-  run_id: minted-loc-paths-dong-mac-dinh-E2-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E2-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_doi_chung_crm
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
     E2 XANH
 
 - eval: E3
-  run_id: minted-loc-paths-dong-mac-dinh-E3-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E3-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_truoc_merge
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
     E3 XANH
 
 - eval: E4
-  run_id: minted-loc-paths-dong-mac-dinh-E4-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E4-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_cay
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
     E4 XANH
 
 - eval: E5
-  run_id: minted-loc-paths-dong-mac-dinh-E5-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E5-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_mot_nguon
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
-    E5 XANH
+    (lệnh thoát sạch, không in dòng tóm tắt riêng)
 
 - eval: E6
-  run_id: minted-loc-paths-dong-mac-dinh-E6-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E6-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_lan_mot_bo_doc
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
     E6 XANH
 
 - eval: E7
-  run_id: minted-loc-paths-dong-mac-dinh-E7-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E7-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_doc_cu
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
-    PASS: chiều đỏ «đổi mặc định»: bản sao coi khoá vắng là paths → đầu ra lưới khác base
     E7 XANH
 
 - eval: E8
-  run_id: minted-loc-paths-dong-mac-dinh-E8-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E8-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_bo_may_cu
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
     (lệnh thoát sạch, không in dòng tóm tắt riêng)
 
 - eval: E9
-  run_id: minted-loc-paths-dong-mac-dinh-E9-r1
+  run_id: minted-loc-paths-dong-mac-dinh-E9-r2
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.lpdm_tai_lieu
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
   output: |
     E9 XANH
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
-  exit_code: 1
-  verified_at: 2026-10-06T11:16:25Z
-  ghi chú: lệnh ĐỎ và không gắn eval nào (failed_evals để trống). Ca đỏ là DV5 trong additive-only.test.mjs — «diff so với base 892755e CHỈ THÊM» — vì một dòng luật cũ của scripts/pre-merge-check.sh (dòng gọi l.staleByPaths, nay truyền thêm tham số cây {prefix:process.argv[3]} cùng đối số thứ ba) bị đổi thay vì thêm. Ba mục còn lại trong cùng lệnh (DV5 recheck-evidence, DV5u, DV5m) và cay-doi-trong-luot.test.mjs (25 ca) xanh. Cách gỡ thuộc về người sửa vật: hoặc thêm dòng mới thay vì sửa dòng cũ, hoặc đưa dòng bị sửa vào ALLOWED_REMOVALS kèm lý do.
-  output: |
-    additive-only: existing rule line removed/modified trong scripts/pre-merge-check.sh:
-      process.stdout.write(JSON.stringify(l.staleByPaths(files,ev,{prefix:process.argv[3]})));' "$CHU_KY_LIB" "$dir/evals.yaml" "$_sbp_pre" 2>"$_sbp_ef")"; then
-    Results: 4 passed, 1 failed
-      FAIL: additive-only.test.mjs (expected exit 0, got 1)
-    Results passed: 57 tests in multiple suites with core suite additive-only.test.mjs failing
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
+  exit_code: 0
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-loc-paths-dong-mac-dinh-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-loc-paths-dong-mac-dinh-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-06T11:16:25Z
+  verified_at: 2026-10-06T12:12:23Z
 
 ## Known limits
 
@@ -176,7 +168,9 @@ Round 1 bị REJECT dù cả chín eval của hợp đồng đều xanh: một l
 
 ## Analyst
 
-none (baseline n-a ở cả chín eval — chiều đỏ nằm trong chính từng chân bằng bản sao tiêm lỗi, không đo trên cây base; không eval nào được chứng minh là xanh-cả-hai-phía)
+carried tu round 1 — baseline khong do lai round nay (evals.yaml không đổi từ lần đo baseline cuối). Không eval nào được liệt kê là không-phân-biệt-được; lệnh suite xanh-cả-hai-phía là regression-guard bình thường. Field baseline của chín eval ghi n-a vì round này không đo.
+
+none
 
 ## Variance
 
@@ -185,3 +179,4 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: không eval nào của hợp đồng đỏ (E1–E9 xanh); lệnh suite `bash tests/scripts/run-tests.sh --manh mjs:1/3` đỏ ở ca DV5 additive-only (scripts/pre-merge-check.sh có dòng luật cũ bị sửa, không chỉ thêm), không gắn eval nào. Trả về hiện thực hoá.
+Round 2: sau sửa S4-r1 (miễn trừ đích danh dòng gọi staleByPaths cũ trong lưới chỉ-thêm, commit 35fd61bd), E1–E9 và cả mười lệnh suite xanh, kể cả mjs:1/3. Sáu mục ngoài hợp đồng của round 1 giữ nguyên, không chấm lại, chờ người quyết ở Cổng Bằng chứng.

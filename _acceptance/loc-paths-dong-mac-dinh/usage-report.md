@@ -45,3 +45,46 @@ wall: 3237s
 - **claude-haiku-4-5-20251001**: 19 agent · 54 calls · out 17,360 · in 470 · cache_read 2,674,249 · cache_create 836,904
 - **claude-opus-5-5**: 3 agent · 40 calls · out 5,227 · in 80 · cache_read 4,682,115 · cache_create 393,147
 
+### S4 round 2 — wf_e9812d9d-d18 (24 agent, 26,377 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 4 | 5,147 | 8 | 316,336 | 44 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 6 | 2,112 | 50 | 361,500 | 397 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 3 | 1,816 | 26 | 123,705 | 391 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-4-5-20251001 | 2 | 1,761 | 18 | 90,714 | 137 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 1,706 | 18 | 90,727 | 41 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-4-5-20251001 | 2 | 1,583 | 18 | 90,719 | 124 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 1,357 | 18 | 90,723 | 30 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-4-5-20251001 | 7 | 1,308 | 58 | 424,182 | 46 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-4-5-20251001 | 2 | 1,261 | 18 | 90,706 | 25 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 1,259 | 18 | 90,724 | 34 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 1,066 | 18 | 90,722 | 23 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 926 | 18 | 90,724 | 18 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 895 | 18 | 90,727 | 18 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 730 | 18 | 90,725 | 17 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 636 | 18 | 90,723 | 16 |
+| machine:bash _acceptance/loc-paths-dong-mac-dinh | claude-haiku-4-5-20251001 | 2 | 577 | 18 | 90,724 | 69 |
+| review:measurement | claude-opus-5-5 | 4 | 486 | 8 | 295,203 | 22 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 483 | 18 | 90,755 | 85 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 346 | 18 | 90,755 | 267 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-4-5-20251001 | 2 | 319 | 18 | 90,755 | 69 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-4-5-20251001 | 2 | 246 | 18 | 90,713 | 9 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 156 | 4 | 80,704 | 7 |
+| review:bugs | claude-opus-5-5 | 6 | 101 | 12 | 483,071 | 22 |
+| review:conventions | claude-opus-5-5 | 5 | 100 | 10 | 351,335 | 16 |
+
+
+wall: 1633s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 19 | 20,387 | 2,361,023 | 1576 | 12:12:31 | 12:38:48 |
+| review | 3 | 687 | 1,129,609 | 40 | 12:12:31 | 12:13:11 |
+| capture | 1 | 156 | 80,704 | 7 | 12:38:52 | 12:38:59 |
+| synthesize | 1 | 5,147 | 316,336 | 44 | 12:39:01 | 12:39:45 |
+
+- **claude-sonnet-5-5**: 2 agent · 6 calls · out 5,303 · in 12 · cache_read 397,040 · cache_create 199,141
+- **claude-haiku-4-5-20251001**: 19 agent · 48 calls · out 20,387 · in 422 · cache_read 2,361,023 · cache_create 748,678
+- **claude-opus-5-5**: 3 agent · 15 calls · out 687 · in 30 · cache_read 1,129,609 · cache_create 214,182
+
