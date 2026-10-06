@@ -72,7 +72,10 @@ hậu tố đầu khi hồ sơ có eval khai `expected_exit` (2.11.0, ADR 0016):
 giới hạn đã khai không còn: <E> (khai <mã>)` cho mỗi eval từng khai mã khác 0 mà
 lượt này trả 0 (AC-10 — không phạt một cải thiện, nhưng phải nói ra, không được
 im). Hậu tố thứ ba ` · không chạy theo hồ sơ: <E>` (2.12.0) liệt kê đúng các id
-trong `evals_not_run`, để pin THÔI im lặng về ô nó không đo. Ví dụ
+trong `evals_not_run`, để pin THÔI im lặng về ô nó không đo. Ngay sau nó, hậu tố
+` · thay bởi hồ sơ đã ký: <E>→<hồ sơ>#<AC>` (2.23, hồ sơ eval-thay-boi-co-chung) liệt kê các ô
+không-chạy mang con trỏ `superseded_by` đã qua chứng — cùng luật vắng-khi-rỗng, và bên đọc
+KHÔNG tin hậu tố: nó chứng lại chuỗi ở mỗi lượt (khuôn khai: GUIDE §7.1). Ví dụ
 dòng `sha:` mang cả hai (VÍ DỤ MINH HOẠ — nằm NGOÀI khuôn máy-đọc ở trên, không
 phải một biến thể khuôn thứ hai):
 ```

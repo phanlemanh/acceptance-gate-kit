@@ -662,6 +662,10 @@ for (const s of perSlug) {
   const veGioiHan = gioiHan.length ? ` · đạt-có-giới-hạn: ${gioiHan.join(', ')}` : '';
   const veHet = hetGioiHan.length ? ` · giới hạn đã khai không còn: ${hetGioiHan.join(', ')}` : '';
   const veBoQua = boQua.length ? ` · không chạy theo hồ sơ: ${boQua.join(', ')}` : '';
+  // Ô không chạy vì một hồ sơ đã ký khác thay nó (eval-thay-boi-co-chung): pin nói ra thay bởi đâu.
+  // Thứ tự bản khai; vắng hẳn khi không ô nào qua chứng. Bên đọc không tin hậu tố — nó chứng lại.
+  const thayBoi = s.thayBoi || [];
+  const veThayBoi = thayBoi.length ? ` · thay bởi hồ sơ đã ký: ${thayBoi.map(t => `${t.id}→${t.thay}#${t.ac}`).join(', ')}` : '';
   // Ba hậu tố của hồ sơ ghim-lai-noi-ra-o-khong-do: ô ngoài làn máy · ô trong số
   // đó có vật đo đã đổi · AC vì thế không có chốt máy. Ô ngoài làn máy KHÔNG khai
   // `paths` thì nói rõ, để «vắng khỏi danh sách đã chạm» không đọc thành «không chạm».
@@ -673,7 +677,7 @@ for (const s of perSlug) {
   const veAcKhong = acKhong.length ? ` · AC không có chốt máy: ${acKhong.join(', ')}` : '';
   const veChapChon = chapChon.length ? ` · chập chờn (đỏ lần đầu, đạt khi chạy lại): ${chapChon.map(c => c.nhan).join(', ')}` : '';
   const veEnvCi = envCi ? ` · suite chạy ở ${nhanCi}` : '';
-  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veNgoaiMay}${veCham}${veAcKhong}${veChapChon}${veEnvCi}\n`;
+  const section = `### Re-pin lần ${n} — ${day}, do ${reason}\nrun_id: ${runId}\nsha: ${sha} · suites: ${suiteCmds.length} lệnh exit 0 · evals: ${dat}/${s.evals.length} eval máy đạt kỳ vọng${veGioiHan}${veHet}${veBoQua}${veThayBoi}${veNgoaiMay}${veCham}${veAcKhong}${veChapChon}${veEnvCi}\n`;
   // `line` giữ CHỖ trong thứ tự khoá cũ (stdout là mặt máy — AC-7 so từng byte); gán sau khi có tổng kết.
   lineObjs.set(s.slug, lineObj);
   out.slugs[s.slug] = { evals_exit: evalsExit, line: null, section, lech: s.evals.filter(e => e.exit !== e.expected && !(e.expected !== 0 && e.exit === 0)) };
