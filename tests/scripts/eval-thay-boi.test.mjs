@@ -138,17 +138,24 @@ function bam(kho, slug = 'ho-so-cu') {
 const viPhamLanCu = (pm) => pm.stdout.split('\n').filter(l => l.startsWith('VIOLATION [ho-so-cu]: re-pin lane'));
 
 // ── T01 — nhận khi chứng đủ (AC-1) ─────────────────────────────────────────────
-test('T01', 'nhan — con trỏ hợp lệ: làn --write 0, recheck 0, lưới trước-merge không vi phạm làn-eval cho ho-so-cu', () => {
+function kiemNhan(root = ROOT) {
   const k = dungKho();
-  const r = chayLan(k, ['--write']);
+  const r = chayLan(k, ['--write'], undefined, root);
   if (r.code !== 0) fail(`ô thay bởi hợp lệ vẫn bị chặn: exit ${r.code}\n${r.stderr.split('\n').slice(-6).join('\n')}`);
-  const rc = chayRecheck(k);
+  const rc = chayRecheck(k, 'ho-so-cu', undefined, root);
   if (rc.code !== 0) fail(`recheck đỏ sau pin hợp lệ: ${rc.stderr}`);
-  const pm = chayPreMerge(k);
+  const pm = chayPreMerge(k, undefined, root);
   // MỌI vi phạm của hồ sơ cũ, không riêng luật làn-eval: một lỗi khác (thiếu hợp đồng…) làm lưới
   // dừng sớm và không bao giờ chấm luật hai vế — ca xanh rỗng (bắt được 06/10).
   const vp = pm.stdout.split('\n').filter(l => l.startsWith('VIOLATION [ho-so-cu]'));
   if (vp.length) fail(`lưới trước-merge vẫn ghi vi phạm cho ho-so-cu: ${vp.join(' | ')}`);
+}
+test('T01', 'nhan — con trỏ hợp lệ: làn --write 0, recheck 0, lưới trước-merge không vi phạm làn-eval cho ho-so-cu', () => kiemNhan());
+test('T01', 'nhan — mutant lib bỏ bước xét con trỏ → ĐỎ «ô thay bởi hợp lệ vẫn bị chặn»', () => {
+  const goc = banSaoBoMay([[path.join('lib', 'evidence-core.cjs'), '    const ct = conTroCua.get(id);', "    const ct = '';"]]);
+  let loi = null;
+  try { kiemNhan(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('ô thay bởi hợp lệ vẫn bị chặn')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
 });
 test('T01', 'nhan — đối chứng: gỡ con trỏ → làn exit 2 với thông điệp xung đột cũ NGUYÊN VĂN, không ghi byte', () => {
   const k = dungKho({ conTro: null });
@@ -170,19 +177,22 @@ test('T02', 'dang — con trỏ bọc nháy đơn vẫn được nhận', () => 
 
 // ── T03 — bên gọi cũ vẫn chặn (AC-3) ────────────────────────────────────────────
 const docCu = (k) => [fs.readFileSync(path.join(k.wsCu, 'evals.yaml'), 'utf8'), fs.readFileSync(path.join(k.wsCu, 'evidence-report.md'), 'utf8')];
-test('T03', 'ben-goi-cu — notRunConflicts hai đối số: ô vẫn xung đột, lý do khong-tra-duoc', () => {
+function kiemBenGoiCu(root = ROOT) {
   const k = dungKho();
-  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const core = require(path.join(root, 'lib', 'evidence-core.cjs'));
   const r = core.notRunConflicts(...docCu(k));
-  if (!r.xungDot.includes('E3')) fail(`bên gọi cũ bị nới lặng: ${JSON.stringify(r)}`);
+  if (!r.xungDot.includes('E3')) fail(`bên gọi cũ bị nới lặng: notRunConflicts hai đối số nhận ô — ${JSON.stringify(r)}`);
   if (!(r.lyDo || []).some(l => l.startsWith('E3: khong-tra-duoc ('))) fail(`thiếu lý do khong-tra-duoc: ${JSON.stringify(r)}`);
-});
-test('T03', 'ben-goi-cu — checkRepinEvals bốn đối số: vẫn vi phạm, gọi tên khong-tra-duoc', () => {
-  const k = dungKho();
-  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
   const [ev, rp] = docCu(k);
   const { errs } = core.checkRepinEvals({ run_id: 'x', sha: k.sha, ts: 't', evals_exit: { E1: 0 } }, ev, 'ho-so-cu', rp);
-  if (!errs.some(e => e.includes('hai vế mâu thuẫn') && e.includes('khong-tra-duoc'))) fail(`bên đọc cũ bị nới lặng: ${errs.join(' | ')}`);
+  if (!errs.some(e => e.includes('hai vế mâu thuẫn') && e.includes('khong-tra-duoc'))) fail(`bên gọi cũ bị nới lặng: checkRepinEvals bốn đối số không vi phạm — ${errs.join(' | ')}`);
+}
+test('T03', 'ben-goi-cu — notRunConflicts hai đối số và checkRepinEvals bốn đối số: ô vẫn xung đột, lý do khong-tra-duoc', () => kiemBenGoiCu());
+test('T03', 'ben-goi-cu — mutant lib coi «không tra được» là nhận → ĐỎ «bên gọi cũ bị nới lặng»', () => {
+  const goc = banSaoBoMay([[path.join('lib', 'evidence-core.cjs'), '    if (r.ok) out.thayBoi.push({ id, thay: r.thay, ac: r.ac });', "    if (r.ok || r.lyDo === 'khong-tra-duoc') { out.thayBoi.push({ id, thay: r.thay || '?', ac: r.ac || '?' }); continue; }"]]);
+  let loi = null;
+  try { kiemBenGoiCu(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('bên gọi cũ bị nới lặng')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
 });
 test('T03', 'ben-goi-cu — lib thiếu ac-line.cjs hoặc workspace-record.cjs: khong-tra-duoc, không ném; đủ tệp thì nhận', () => {
   const k = dungKho();
@@ -203,6 +213,10 @@ test('T03', 'ben-goi-cu — lib thiếu ac-line.cjs hoặc workspace-record.cjs:
 });
 
 // ── Ma trận từ chối — VIẾT TRƯỚC, mỗi hàng gãy ĐÚNG MỘT điều kiện từ ca lành ────────
+// Hai HẰNG viết trước, ngoài mọi vòng lặp (mẫu P105 — lượt chấm 1 bắt phép đếm cũ là hằng đúng:
+// hai vế cùng rút từ MA_TRAN nên xoá một hàng vẫn xanh). Thêm/bớt hàng thì sửa số ở đây CÙNG lượt.
+const SO_HANG_TU_CHOI = 17;
+const SO_HANG_NHAN = 3;
 const MA_TRAN = [
   { ten: 'con-tro-hong',          opts: { conTro: 'ho-so-thay-AC-2' },                                        lyDo: 'con-tro-hong' },
   { ten: 'slug-thoat-goc',        opts: { conTro: '../x#AC-2' },                                              lyDo: 'con-tro-hong' },
@@ -240,6 +254,18 @@ function khoDaGhimRoiDoi(opts, base = {}) {
   fs.writeFileSync(rp, fs.readFileSync(rp, 'utf8').replace('verified_commit: PENDING', `verified_commit: ${k.sha}`));
   return k;
 }
+// Neo ma trận vào danh sách lý do THẬT của lib (THAY_BOI_LY_DO): lib thêm điều kiện thứ mười mà
+// ma trận không có hàng, hay ma trận rơi mất một lý do → đỏ gọi tên. `khong-tra-duoc` không có hàng
+// ở đây vì nó không gãy từ fixture — nó là ca bên gọi cũ (T03), nêu đích danh.
+function kiemMaTranKhop() {
+  if (MA_TRAN.length !== SO_HANG_TU_CHOI) fail(`số ca lệch: MA_TRAN có ${MA_TRAN.length} hàng, hằng viết trước ${SO_HANG_TU_CHOI}`);
+  if (NHAN_THEM.length !== SO_HANG_NHAN) fail(`số ca lệch: NHAN_THEM có ${NHAN_THEM.length} hàng, hằng viết trước ${SO_HANG_NHAN}`);
+  const core = require(path.join(ROOT, 'lib', 'evidence-core.cjs'));
+  const lib = new Set(core.THAY_BOI_LY_DO || []);
+  const maTran = new Set(MA_TRAN.map(h => h.lyDo).concat(['khong-tra-duoc']));
+  const thieu = [...lib].filter(x => !maTran.has(x)); const la = [...maTran].filter(x => !lib.has(x));
+  if (thieu.length || la.length) fail(`ma trận lệch danh sách lý do của lib — lib có mà ma trận thiếu: [${thieu}] · ma trận có mà lib không: [${la}]`);
+}
 const LY_DO_RE = /(E\d+): ([a-z-]+) \(/g;
 const phanQuyet = (txt) => [...new Set([...String(txt).matchAll(LY_DO_RE)].map(m => `${m[1]}:${m[2]}`))].sort().join(',');
 
@@ -259,14 +285,16 @@ function kiemHang(h, root = ROOT) {
   return 2;
 }
 test('T02', 'ma-tran — mỗi hàng: làn exit 2 không ghi byte, recheck đỏ; cả hai gọi đúng id + con trỏ + lý do', () => {
+  kiemMaTranKhop();
   let soAssert = 0;
   for (const h of MA_TRAN) soAssert += kiemHang(h);
-  if (soAssert !== MA_TRAN.length * 2) fail(`số ca lệch: ${soAssert} ≠ ${MA_TRAN.length * 2}`);
+  if (soAssert !== SO_HANG_TU_CHOI * 2) fail(`số ca lệch: ${soAssert} ≠ ${SO_HANG_TU_CHOI * 2}`);
   // đối chứng dương cùng bộ dựng: lượt lành phải ĐỔI băm (băm-giống-nhau mới có nghĩa «không ghi»)
   const lanh = dungKho(); const b0 = bam(lanh);
   if (chayLan(lanh, ['--write']).code !== 0 || bam(lanh) === b0) fail('đối chứng dương hỏng: lượt lành không ghi');
 });
 test('T02', 'ma-tran — hàng NHẬN: criterion nhiều AC, dạng mảng, thẻ nằm trong hợp đồng → làn 0', () => {
+  kiemMaTranKhop();
   for (const h of NHAN_THEM) {
     const r = chayLan(dungKho(h.opts));
     if (r.code !== 0) fail(`${h.ten}: con trỏ hợp lệ bị từ chối — ${r.stderr.split('\n').slice(-2).join(' / ')}`);
@@ -296,6 +324,25 @@ function banSaoBoMay(tiem) {
   }
   return goc;
 }
+test('T02', 'ma-tran — chân đếm: bớt một hàng hay thêm một lý do lạ thì kiemMaTranKhop ĐỎ «số ca lệch» / «lệch danh sách»', () => {
+  // Chiều đỏ của chính phép đếm — trên bản sao MA_TRAN, không đụng mảng thật.
+  const goc = [...MA_TRAN];
+  MA_TRAN.pop();
+  let loi = null; try { kiemMaTranKhop(); } catch (e) { loi = e.message; }
+  MA_TRAN.length = 0; MA_TRAN.push(...goc);
+  if (!loi || !loi.startsWith('số ca lệch')) fail(`bớt một hàng mà phép đếm không đỏ: «${loi}»`);
+  MA_TRAN.push({ ten: 'la', opts: {}, lyDo: 'ly-do-la' });
+  loi = null; try { kiemMaTranKhop(); } catch (e) { loi = e.message; }
+  MA_TRAN.length = 0; MA_TRAN.push(...goc);
+  if (!loi || !loi.startsWith('số ca lệch')) fail(`thêm hàng lạ mà phép đếm không đỏ: «${loi}»`);
+  // lệch danh sách khi số hàng đúng nhưng lý do sai tên
+  const cuoi = goc[goc.length - 1];
+  MA_TRAN[MA_TRAN.length - 1] = { ...cuoi, lyDo: 'ly-do-la' };
+  loi = null; try { kiemMaTranKhop(); } catch (e) { loi = e.message; }
+  MA_TRAN.length = 0; MA_TRAN.push(...goc);
+  if (!loi || !loi.startsWith('ma trận lệch danh sách lý do của lib')) fail(`đổi tên lý do mà phép neo không đỏ: «${loi}»`);
+  kiemMaTranKhop();   // phục hồi xong phải xanh
+});
 test('T02', 'mutant — gỡ từng điều kiện thì đúng hàng của nó lọt qua (đường né đo mở)', () => {
   for (const m of MUTANT) {
     const h = MA_TRAN.find(x => x.ten === m.hang) || fail(`không có hàng ${m.hang}`);
@@ -534,18 +581,30 @@ test('T10', 'hinh-dang-crm — mutant bỏ bước xét con trỏ → ĐỎ «hi
 });
 
 // ── T04 — một nguồn, ba bên gọi (AC-4) ──────────────────────────────────────────
-test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => {
+function kiemMotNguon(root = ROOT) {
+  kiemMaTranKhop();
   let soHang = 0;
   for (const h of MA_TRAN) {
     const k = khoDaGhimRoiDoi(h.opts);
-    const a = phanQuyet(chayLan(k).stderr);
-    const b = phanQuyet(chayRecheck(k).stderr);
-    const c = phanQuyet(viPhamLanCu(chayPreMerge(k)).join('\n'));
-    if (a !== `E3:${h.lyDo}`) fail(`${h.ten}: làn trả «${a}», cần E3:${h.lyDo}`);
+    const a = phanQuyet(chayLan(k, [], undefined, root).stderr);
+    const b = phanQuyet(chayRecheck(k, 'ho-so-cu', undefined, root).stderr);
+    const c = phanQuyet(viPhamLanCu(chayPreMerge(k, undefined, root)).join('\n'));
     if (!(a === b && b === c)) fail(`ba bên trả phán quyết khác nhau ở ${h.ten}: làn=${a} recheck=${b} premerge=${c}`);
+    if (a !== `E3:${h.lyDo}`) fail(`${h.ten}: làn trả «${a}», cần E3:${h.lyDo}`);
     soHang++;
   }
-  if (soHang !== MA_TRAN.length) fail(`số ca lệch: ${soHang} ≠ ${MA_TRAN.length}`);
+  if (soHang !== SO_HANG_TU_CHOI) fail(`số ca lệch: ${soHang} ≠ ${SO_HANG_TU_CHOI}`);
+}
+test('T04', 'mot-nguon — làn, recheck, lưới trước-merge trả CÙNG lý do ở mọi hàng ma trận', () => kiemMotNguon());
+test('T04', 'mot-nguon — chân bảng bộ máy: ca thường trực lớp-cũ của làn xanh với mọi export mới', () => {
+  const r = chay(process.execPath, [path.join(ROOT, 'tests', 'scripts', 'repin-lane-lop-cu.test.mjs')], ROOT);
+  if (r.code !== 0) fail(`ca lớp-cũ đỏ: ${(r.stdout + r.stderr).split('\n').filter(l => /FAIL/.test(l)).join(' | ')}`);
+});
+test('T04', 'mot-nguon — mutant recheck không truyền gốc cây → ĐỎ «ba bên trả phán quyết khác nhau»', () => {
+  const goc = banSaoBoMay([[path.join('scripts', 'recheck-evidence.cjs'), "{ root: path.resolve(dir, '..', '..') }", '{}']]);
+  let loi = null;
+  try { kiemMotNguon(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('ba bên trả phán quyết khác nhau')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
 });
 test('T04', 'mot-nguon — ca lành: ba bên đều không có lý do nào, và làn thoát 0', () => {
   const k = dungKho();
@@ -556,22 +615,29 @@ test('T04', 'mot-nguon — ca lành: ba bên đều không có lý do nào, và 
 });
 
 // ── T05 — cây đang kiểm, không cây tác giả (AC-5) ─────────────────────────────────
-test('T05', 'cay-dang-kiem — K2 (hồ sơ thay chưa ký) chạy từ cwd K1 (đã ký): làn, recheck, lưới đều từ chối ho-so-thay-chua-ky', () => {
+function kiemCayDangKiem(root = ROOT) {
   const k1 = dungKho();
   const k2lan = dungKho({ statusThay: 'verified' });
   const truoc = bam(k2lan);
-  const lan = chayLan(k2lan, ['--write'], k1.dir);
+  const lan = chayLan(k2lan, ['--write'], k1.dir, root);
   if (lan.code !== 2 || phanQuyet(lan.stderr) !== 'E3:ho-so-thay-chua-ky') fail(`đọc nhầm cây (làn): exit ${lan.code} ${phanQuyet(lan.stderr)}`);
   if (bam(k2lan) !== truoc) fail('làn ghi byte khi từ chối');
   const k2 = khoDaGhimRoiDoi({ statusThay: 'verified' });
-  const rc = chayRecheck(k2, 'ho-so-cu', k1.dir);
-  if (rc.code === 0 || phanQuyet(rc.stderr) !== 'E3:ho-so-thay-chua-ky') fail(`đọc nhầm cây (recheck): ${rc.stderr}`);
-  const pm = phanQuyet(viPhamLanCu(chayPreMerge(k2, k1.dir)).join('\n'));
+  const rc = chayRecheck(k2, 'ho-so-cu', k1.dir, root);
+  if (rc.code === 0 || phanQuyet(rc.stderr) !== 'E3:ho-so-thay-chua-ky') fail(`đọc nhầm cây (recheck): ${rc.stderr.slice(0, 200)}`);
+  const pm = phanQuyet(viPhamLanCu(chayPreMerge(k2, k1.dir, root)).join('\n'));
   if (pm !== 'E3:ho-so-thay-chua-ky') fail(`đọc nhầm cây (pre-merge): «${pm}»`);
   // đối chứng dương: K1 lành, chạy từ cwd K2 → nhận
   const k1b = dungKho();
-  if (chayLan(k1b, ['--write'], k2.dir).code !== 0) fail('đối chứng dương hỏng: K1 lành chạy từ cwd K2 bị từ chối');
-  if (chayRecheck(k1b, 'ho-so-cu', k2.dir).code !== 0) fail('đối chứng dương hỏng: recheck K1 từ cwd K2 đỏ');
+  if (chayLan(k1b, ['--write'], k2.dir, root).code !== 0) fail('đối chứng dương hỏng: K1 lành chạy từ cwd K2 bị từ chối');
+  if (chayRecheck(k1b, 'ho-so-cu', k2.dir, root).code !== 0) fail('đối chứng dương hỏng: recheck K1 từ cwd K2 đỏ');
+}
+test('T05', 'cay-dang-kiem — K2 (hồ sơ thay chưa ký) chạy từ cwd K1 (đã ký): làn, recheck, lưới đều từ chối ho-so-thay-chua-ky', () => kiemCayDangKiem());
+test('T05', 'cay-dang-kiem — mutant lib đọc hồ sơ thay từ process.cwd() → ĐỎ «đọc nhầm cây»', () => {
+  const goc = banSaoBoMay([[path.join('lib', 'evidence-core.cjs'), '  const goc = path.resolve(root);', '  const goc = process.cwd();']]);
+  let loi = null;
+  try { kiemCayDangKiem(goc); } catch (e) { loi = e.message; }
+  if (!loi || !loi.startsWith('đọc nhầm cây')) fail(`mutant không bị bắt đúng thông điệp: «${loi}»`);
 });
 
 // ── chạy ───────────────────────────────────────────────────────────────────────

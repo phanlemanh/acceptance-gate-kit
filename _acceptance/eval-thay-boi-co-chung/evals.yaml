@@ -37,7 +37,7 @@ evals:
       - "scripts/recheck-evidence.cjs"
       - "tests/scripts/eval-thay-boi.test.mjs"
     expected: >-
-      Ma trận mười hai hàng từ chối viết trước, mỗi hàng gãy ĐÚNG MỘT điều kiện từ
+      Ma trận mười bảy hàng từ chối viết trước (số hàng là HẰNG viết trước, và tập lý do khớp THAY_BOI_LY_DO của lib), mỗi hàng gãy ĐÚNG MỘT điều kiện từ
       fixture lành của E1: con-tro-hong · tu-tro · ho-so-thay-vang ·
       ho-so-thay-chua-ky (verified) · ho-so-thay-chua-ky (machine-cleared) ·
       ho-so-thay-da-khep · thay-khong-nhan (con trỏ tới AC sống của hồ sơ đã ký
@@ -78,7 +78,7 @@ evals:
       - "scripts/pre-merge-check.sh"
       - "tests/scripts/eval-thay-boi.test.mjs"
     expected: >-
-      Trên ca lành và tám hàng của E2, rút từ ĐẦU RA THẬT của làn (stderr + mã
+      Trên ca lành và mười bảy hàng của E2, rút từ ĐẦU RA THẬT của làn (stderr + mã
       thoát), recheck (stderr) và pre-merge (stdout) bộ ba {id nhận | id: lý do};
       ba bộ phải bằng nhau ở mọi hàng. Chân bảng bộ máy: ca thường trực lớp-cũ
       của làn (bảng điểm chạm) xanh với mọi export mới. Chiều đỏ: bản sao recheck
