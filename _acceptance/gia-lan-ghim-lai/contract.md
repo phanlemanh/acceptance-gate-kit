@@ -5,7 +5,9 @@ slug: gia-lan-ghim-lai
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ chạm feature-loop/scripts (+ khuôn trong SKILL, GUIDE) — ngoài t3_paths
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-10-06T03:45:16Z
 design_doc: docs/superpowers/specs/2026-10-06-gia-lan-ghim-lai-design.md
 ---
 
@@ -92,5 +94,9 @@ R1g (ca chập chờn trong suite, làn bị ngắt giữa lệnh) và lỗi ch�
   gì chạy được — cái cứu lượt như R1g 15:11 là trần của làn (AC-2) đặt DƯỚI trần của công cụ, không phải AC-3.
 - Bộ răng: chiều xanh chạy ca bền trên cây hiện hành; chiều đỏ và phép vi phân chạy trên bản archive
   của SAU-GIA/BASE-GIA (cố định), để hồ sơ đã ký còn ghim lại được ở mọi HEAD sau này.
-- Giới hạn khai: tiến trình tách cây thoát lưới giết (G2); chạy lại ở mức lệnh, không mức ca.
+- Giới hạn khai: tiến trình tách cây thoát lưới giết (G2); chạy lại ở mức lệnh, không mức ca; **chế độ THAY
+  của Đ3** — test tự bỏ qua khi thiếu khoá (`skipIf`) hôm nay chạy trong làn, sau khi bật khoá sẽ bỏ qua
+  như ở CI, tức làn mất phủ cho chúng; lưới là eval của hồ sơ vẫn chạy có khoá. Ngưỡng mở: ≥1 hồi quy ở kho
+  thật lọt qua làn vì một test bị bỏ qua dưới env giống CI. Mã đọc khoá bằng `??` thay vì `?.trim()` coi
+  rỗng là «có khoá» — kho soát trước khi liệt `repin_ci_blank_env`.
 - Mã thoát của làn sau vòng: 0 xanh · 1 đỏ · 2 nguồn hỏng · 3 usage · **4 vượt trần** · 128+n bị ngắt.
