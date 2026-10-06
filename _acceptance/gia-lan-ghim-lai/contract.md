@@ -5,7 +5,7 @@ slug: gia-lan-ghim-lai
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chỉ chạm feature-loop/scripts (+ khuôn trong SKILL, GUIDE) — ngoài t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-10-06T03:45:16Z
 design_doc: docs/superpowers/specs/2026-10-06-gia-lan-ghim-lai-design.md
