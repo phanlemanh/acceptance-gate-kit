@@ -5,7 +5,7 @@ slug: eval-thay-boi-co-chung
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs, scripts/recheck-evidence.cjs, scripts/pre-merge-check.sh ∈ t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-06T10:21:39Z
 design_doc: docs/superpowers/specs/2026-10-06-eval-thay-boi-co-chung-design.md
@@ -117,3 +117,24 @@ ngoài làn máy. **Never:** giá trị trạng thái mới `thay-boi` (giả đ
   ở PR. Ngưỡng mở răng chặt hơn: ≥ 1 ca thật một thẻ nhận được thêm vào hồ sơ thay sau ngày nó ký.
 - **Giới hạn khai trước:** AC-8 đo «kho không dùng trường giữ từng byte» trên bộ hồ sơ kit và
   fixture; các kho tiêu thụ khác được đo ở chiến dịch phát hành, không ở lượt chấm.
+
+## Known limits (owner định đoạt tại Cổng Bằng chứng 06/10/2026)
+
+Owner ký lượt chấm 2 với giới hạn đã biết. Không mục nào là luật sai: luật chặn đúng ở mọi ca thử
+và không mục nào mở đường né đo — tất cả là độ chặt của bộ kiểm. Sổ kit:
+`docs/research/known-limits-ledger.tsv` (`eval-thay-boi-co-chung#ngoai-1…7`).
+
+- **Trong hợp đồng, sau dừng-vá lượt 2 (AC-2):** phép đếm «số assert = số hàng × 2» cộng một hằng
+  mà `kiemHang` trả về, nên nó trùng với phép so số hàng — mười bảy hàng vẫn được kiểm từng hàng, chỉ
+  phép đếm tổng không đếm assert thật. Cùng lớp với phát hiện lượt 1, nên máy dừng không vá lượt ba.
+- **Ngoài-1:** mô tả E2 nói mười bảy hàng nhưng chỉ kể tên mười hai, và một hàng nhận thay vì ba.
+- **Ngoài-2:** ca mutant T01/T04/T05 chạy đối chứng dương trên bộ máy gốc, không trên bản sao chưa
+  tiêm — hôm nay bản sao sạch qua (đo 5/5), lỗ tiềm ẩn khi làn đọc thêm tệp ngoài ba thư mục chép.
+- **Ngoài-3 / Ngoài-4 (một lỗ):** ma trận neo vào `THAY_BOI_LY_DO`, một danh sách viết tay mà
+  `chungThayBoi` không đọc — điều kiện thứ mười thêm vào luật mà quên danh sách thì không ai đỏ.
+  Thêm điều kiện chỉ làm luật chặt hơn, nên lỗ này không mở đường né đo.
+- **Ngoài-5:** bản phá của T03 chỉ làm đỏ vế `notRunConflicts`; vế `checkRepinEvals` bốn đối số chưa
+  từng được phá thử.
+- **Ngoài-6:** đối chứng dương của T05 chỉ có làn và recheck, thiếu lưới trước-merge.
+- **Ngoài-7:** hồ sơ thay đã được thực tế đóng nhận lý do `ho-so-thay-chua-ky` thay vì
+  `ho-so-thay-da-khep` (`hoSoDaKhep` được gọi với trạng thái cứng `signed-off`) — chặn đúng, sai tên.

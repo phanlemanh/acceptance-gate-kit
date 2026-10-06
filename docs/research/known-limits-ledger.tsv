@@ -452,3 +452,10 @@ release-2-23-0#ngoai-10	release-2-23-0	medium	doc-drift	song			Hình dạng 5+4 
 release-2-23-0#ngoai-11	release-2-23-0	low	tap-so-rong	song			Hình dạng 2/3 — Round-trip khuôn REPIN-TEMPLATE chỉ so khoá tầng ngoài; trường lồng không được đo (writer ghi tong_ket.chi_phi_loi ngoài khuôn; chap_chon[].lenh không ca nào ghim)
 release-2-23-0#ngoai-12	release-2-23-0	low	doi-chung-tu-sinh	song			Hình dạng 2 — «Bảng chân trị viết trước» của AC-1 nằm trong chính module được đo; ca đọc kỳ vọng từ vật
 release-2-23-0#ngoai-13	release-2-23-0	low	khong-the-do	song			Hình dạng 5 — AC-4 hứa hai ô lỗi của lệnh đo chi phí («thoát 1 / không in số»), ca chỉ phủ một ô
+eval-thay-boi-co-chung#ngoai-1	eval-thay-boi-co-chung	medium	doc-drift	song			Mô tả E2 nói mười bảy hàng nhưng chỉ kể tên mười hai, một hàng nhận thay vì ba
+eval-thay-boi-co-chung#ngoai-2	eval-thay-boi-co-chung	low	doi-chung-tu-sinh	song			Ca mutant T01/T04/T05 chạy đối chứng dương trên ROOT, không trên bản sao chưa tiêm — bản sao hỏng vì hạ tầng cũng ra cùng thông điệp
+eval-thay-boi-co-chung#ngoai-3	eval-thay-boi-co-chung	medium	khong-the-do	song			Ma trận neo vào THAY_BOI_LY_DO — danh sách viết tay mà chungThayBoi không đọc; điều kiện thứ mười không có hàng thì không ai đỏ
+eval-thay-boi-co-chung#ngoai-4	eval-thay-boi-co-chung	high	khong-the-do	trung		eval-thay-boi-co-chung#ngoai-3	Cùng lỗ ngoai-3 nhìn từ phía đo lời khai thay vì đầu ra; vế «lib có mà ma trận thiếu» chưa từng bị phá thử
+eval-thay-boi-co-chung#ngoai-5	eval-thay-boi-co-chung	low	khong-the-do	song			Mutant T03 chỉ làm đỏ vế notRunConflicts; assert checkRepinEvals bốn đối số chưa từng bật đỏ
+eval-thay-boi-co-chung#ngoai-6	eval-thay-boi-co-chung	low	doi-chung-tu-sinh	song			T05 đối chứng dương chỉ làn và recheck, bỏ lưới trước-merge
+eval-thay-boi-co-chung#ngoai-7	eval-thay-boi-co-chung	medium	khac	song			Hồ sơ thay đã được thực tế đóng bị gọi tên lý do «chưa ký» thay vì «đã khép» — chặn đúng, sai tên
