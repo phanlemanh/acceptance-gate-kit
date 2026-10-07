@@ -12,6 +12,26 @@
 
 ## Chưa phát hành
 
+### Làn đối chứng S4 có trần, bỏ qua eval mới, tự dọn (hồ sơ `baseline-tran-bo-qua-don`, T2)
+
+Gốc: crm `_acceptance/khung-ban-ghi-kara`, 07/10 — lượt `wf_f425c910-a3b` giữ khoá s4 5 giờ, không ra
+báo cáo, để lại worktree tạm. Truy nguyên: tác tử baseline tự chế vòng `bash -c "…$c"`; kiểm tra an toàn
+của Claude Code hỏi người cho script nó không đọc được — kể cả ở bypassPermissions — và không ai trả lời
+suốt đêm. Lệnh không treo. Tám lệnh đầu còn đo tệp kiểm chưa có ở merge-base.
+
+- **Tác tử baseline chỉ chạy MỘT lệnh do kit sinh**, chép nguyên văn: worktree cô lập, trần 180 giây mỗi
+  lệnh (dừng cả cây tiến trình) và trần tổng 480 giây (dưới trần 600 giây của công cụ). Lệnh không có
+  `eval`, `bash -c "$biến"`, `rm`, `rmdir` — những hình dạng kích hộp xin quyền.
+- **Mã thoát baseline do máy đọc** từ dòng dấu `__BL …`, không từ lời khai của tác tử. Lane không về trọn
+  (tác tử chết, bị dừng, đầu ra cụt, worktree không dựng được) → BLOCKED hạ tầng có tên cho làn đối chứng:
+  mọi lệnh `n-a` kèm lý do, **lượt chấm vẫn ra báo cáo**, và không ghi dòng `kind:"baseline"` nên round
+  sau đo lại.
+- **Eval trỏ tệp chưa có ở merge-base được bỏ qua**, lý do vào section `## Analyst` («Baseline khong do»).
+- **Worktree tạm tự dọn** khi bị dừng (trap) và lượt sau quét worktree `agk-baseline*` mồ côi của lượt bị
+  giết cứng — trừ lượt còn sống (pid trong lý do khoá `git worktree lock`).
+- Ai bị ảnh hưởng: mọi kho chạy S4. Không cần làm gì khi cập nhật; tác tử/harness đời cũ không trả
+  `dauRa` thì đọc như 2.24.0, có cờ vàng.
+
 ### Lượt chấm S4 không còn bị lệnh dài và eval nặng đốt (hồ sơ `lenh-dai-chay-rieng`, T2)
 
 Gốc: crm `_acceptance/tro-ly-okr-bo-final-output`, 07/10 — bốn lượt chấm mất vì hạ tầng kit: hai lượt

@@ -88,10 +88,10 @@ console.log('LP4 chieu do (mutant AC-7): nuong cd repoRoot vao lenh baseline -> 
 {
   const src = readFileSync(WF, 'utf8');
   // mutant: danh sách lệnh baseline bị wrap cd repoRoot (đúng lỗi thiết kế mà AC-7 chặn)
-  const mut = src.replace(
-    /\$\{baselineCmds\.join\(' , '\)\}/,
-    "${baselineCmds.map(c => `cd ${args.repoRoot} && ${c}`).join(' , ')}"
-  );
+  // Site: chỗ BL_KHOI ghép lệnh eval sau guard worktree (lệnh baseline do kit sinh — hồ sơ
+  // baseline-tran-bo-qua-don dời site từ prompt danh sách sang khối từng lệnh).
+  const SITE = "${CD_GUARD('\"$WT\"')} && ${cmd}";
+  const mut = src.split(SITE).length === 2 ? src.replace(SITE, "${CD_GUARD('\"$WT\"')} && cd ${args.repoRoot} && ${cmd}") : src;
   if (mut === src) { check('LP4 mutant ap dung duoc (site baselineCmds.join ton tai)', false, 'khong tim thay site de mutate'); }
   else {
     const { calls } = await runWorkflow(WF, baseArgs(), responder(), mut);
