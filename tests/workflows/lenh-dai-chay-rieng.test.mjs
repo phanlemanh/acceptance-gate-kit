@@ -165,7 +165,11 @@ console.log('LN1 dấu giả giữa chừng + thoát 3, tác tử khai sai → w
 }
 console.log('LN2 quá hạn → __QUA_HAN và CÂY tiến trình chết (pid canh của cháu)');
 {
-  const LENH_NGU = `sh -c 'echo $$ > canh.pid; exec sleep 60'`;
+  // Mẫu có CHÁU thật: `sh` nền một `sleep 60`, ghi pid của cháu, rồi chờ. Vỏ có tự `exec` lệnh cuối của subshell
+  // hay không (bash 3.2 không; bash 5 trên CI và zsh có) thì pid trong `.pid` cũng KHÔNG phải cháu — nên
+  // «chỉ giết pid vỏ» luôn để cháu sống. Bản `exec sleep 60` cũ gộp cây còn một tiến trình dưới bash 5/zsh,
+  // chiều đỏ không lật được (CI PR #279).
+  const LENH_NGU = `sh -c 'sleep 60 & echo $! > canh.pid; wait; :'`;
   const khaiQuaHan = (out) => ({ exitCode: 1, outputTail: out, runId: '', cannotRun: true, killedByTool: false, reason: 'vuot thoi luong khai' });
   const r = await luotThat({ cmd: LENH_NGU, hanPhut: 0, khai: khaiQuaHan, truocCho: choCanh });
   const chet = r.pidCanh ? await chetTrong(r.pidCanh) : false;
