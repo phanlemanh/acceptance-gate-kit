@@ -481,3 +481,5 @@ lenh-dai-chay-rieng#ngoai-13	lenh-dai-chay-rieng	low	khac	chet	bdd249c0		Chú th
 lenh-dai-chay-rieng#ngoai-14	lenh-dai-chay-rieng	medium	khac	trung		lenh-dai-chay-rieng#ngoai-12	Dọn cây mồ côi giết theo pid cũ (finder bugs) [lượt chấm 3; máy định đoạt sau lượt 3, cửa veto mở]
 lenh-dai-chay-rieng#ngoai-15	lenh-dai-chay-rieng	medium	khac	chet	bdd249c0		LN6 đo «có tệp mốc» thay vì quan hệ hạn chờ — ca LN6b [lượt chấm 3; máy định đoạt sau lượt 3, cửa veto mở]
 lenh-dai-chay-rieng#ngoai-16	lenh-dai-chay-rieng	low	khac	chet	bdd249c0		SC5 chỉ thử một khoá riêng của làn — mở ra ba khoá [lượt chấm 3; máy định đoạt sau lượt 3, cửa veto mở]
+lenh-dai-chay-rieng#ngoai-17	lenh-dai-chay-rieng	medium	khac	song			Hình dạng 1 — ghi mốc nguyên tử và chặn mốc rỗng (vá sau lượt 3) không có ca hành vi; gỡ phép chặn chỉ làm kim không khớp [lượt chấm 4; chờ owner ở Cổng Bằng chứng]
+lenh-dai-chay-rieng#ngoai-18	lenh-dai-chay-rieng	low	khac	song			Hình dạng 5 — SC5 tuyên ba khoá nhưng chiều đỏ dừng ở khoá đầu (repin_retry) [lượt chấm 4; chờ owner ở Cổng Bằng chứng]
