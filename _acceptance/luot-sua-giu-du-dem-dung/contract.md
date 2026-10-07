@@ -5,7 +5,7 @@ slug: luot-sua-giu-du-dem-dung
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/scripts + feature-loop/workflows, không chạm t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
