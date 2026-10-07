@@ -568,6 +568,21 @@ executors:
     etb_vi_phan: ETB_CASES=T08 node tests/scripts/eval-thay-boi.test.mjs
     etb_khuon_tai_lieu: ETB_CASES=T09 node tests/scripts/eval-thay-boi.test.mjs
     etb_hinh_dang_crm: ETB_CASES=T10 node tests/scripts/eval-thay-boi.test.mjs
+    # Hồ sơ luot-sua-giu-du-dem-dung (07/10, T2): mỗi khoá chạy MỘT AC của tệp ca vĩnh viễn —
+    # tests/scripts/luot-sua-giu-du.test.mjs (AC-1,2,4,6..11) và tests/workflows/luot-sua-giu-du.test.mjs
+    # (AC-3,5,12). Suite scripts/workflows cũng tự nhặt hai tệp qua glob. LSGD_CASES khớp 0 ca → thoát 1.
+    lsgd_ac1: LSGD_CASES=AC-1 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac2: LSGD_CASES=AC-2 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac3: LSGD_CASES=AC-3 node tests/workflows/luot-sua-giu-du.test.mjs
+    lsgd_ac4: LSGD_CASES=AC-4 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac5: LSGD_CASES=AC-5 node tests/workflows/luot-sua-giu-du.test.mjs
+    lsgd_ac6: LSGD_CASES=AC-6 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac7: LSGD_CASES=AC-7 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac8: LSGD_CASES=AC-8 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac9: LSGD_CASES=AC-9 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac10: LSGD_CASES=AC-10 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac11: LSGD_CASES=AC-11 node tests/scripts/luot-sua-giu-du.test.mjs
+    lsgd_ac12: LSGD_CASES=AC-12 node tests/workflows/luot-sua-giu-du.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

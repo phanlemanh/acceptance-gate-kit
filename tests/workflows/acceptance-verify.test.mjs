@@ -2498,8 +2498,11 @@ console.log('W43 T5: carriedFindings — khong triage/refute lai; K8 mo rong cho
   check('W43 result.carried.findings liet khoa da carry',
     JSON.stringify(result.carried.findings) === JSON.stringify(['src/b.js :: B ngoai']), JSON.stringify(result.carried));
   const synth = byLabel(calls, 'synthesize:report')[0];
-  check('W43 synthesize nhan muc carried kem fromRound', synth && synth.prompt.includes('"fromRound":1') && /CARRIED/i.test(synth.prompt),
-    synth ? synth.prompt.slice(synth.prompt.indexOf('CARRIED'), synth.prompt.indexOf('CARRIED') + 120) : '(khong co)');
+  // Từ luot-sua-giu-du-dem-dung: MÁY chèn mục carry vào bản findings; prompt chỉ báo tên để
+  // tác tử không in trùng. Nhãn «(r1)» đo trên ĐẦU RA (result.findings), không trên prompt.
+  check('W43 synthesize duoc bao muc carried (ten) va KHONG phai tu in', synth && /CARRIED/i.test(synth.prompt) && synth.prompt.includes('B ngoai') && /KHONG in lai/.test(synth.prompt),
+    synth ? synth.prompt.slice(synth.prompt.indexOf('CARRIED'), synth.prompt.indexOf('CARRIED') + 160) : '(khong co)');
+  check('W43 ban findings mang muc carry nhan (r1)', /- \*\*B ngoai \(r1\)\*\*/.test(result.findings || ''), (result.findings || '').slice(0, 300));
   const pb = (byLabel(calls, 'review:bugs')[0] || {}).prompt || '';
   const pm = (byLabel(calls, 'review:measurement')[0] || {}).prompt || '';
   check('W43 K8 mo rong: bugs round>=2 mang tien to deltaFiles', /DA DOI so round truoc/i.test(pb) && pb.includes('src/a.js'), pb.slice(0, 200));
