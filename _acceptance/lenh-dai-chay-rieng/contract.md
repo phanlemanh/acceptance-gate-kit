@@ -5,7 +5,7 @@ slug: lenh-dai-chay-rieng
 owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/workflows, feature-loop/scripts, skills/acceptance/references — không chạm t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 veto_state: mo
 veto_opened_at: 2026-10-07T01:46:05Z
 design_doc: docs/superpowers/specs/2026-10-07-lenh-dai-chay-rieng-design.md
@@ -58,3 +58,4 @@ Quét theo khuôn test-matrix (máy tự quét trong phiên, không gọi skill 
 
 - Ghi chú cho mốc mang vòng này: crm khai `long_running: 45` cho `tro-ly-okr-bo-final-output/E6`, `E7` (và mọi eval model dài khác); thước có thể bỏ nhật ký tự ghi nhưng không bắt buộc.
 - Known limits: xem «Giới hạn đã khai» ở design doc. Thêm (thu phạm vi sau lượt chấm 4, owner chọn): lượt chấm bị cắt ngang khi lệnh dài còn chạy, rồi chấm lại cùng round — lệnh của lượt cũ chạy tiếp, chồng lượt mới (đúng tài nguyên chung mà nhóm chạy-riêng giữ yên) tới khi nó tự xong hoặc người dừng nó; kết quả của nó KHÔNG lẫn vào lượt mới (nhãn lượt). Ngưỡng mở lại: một lượt chấm thật đỏ vì chồng như vậy.
+- Known limits (owner định tuyến ở Cổng Bằng chứng 07/10 — Ngoài-1, 2 của lượt chấm 7): ca đo `lenh-dai-chay-rieng.test.mjs` nhận ra tiến trình mẫu theo dòng lệnh (`sleep 60` / `canh.pid`), không phân biệt mẫu của bản tệp ca khác chạy song song — pid cấp lại cho mẫu bản khác vẫn có thể bị giết nhầm, lượt chấm đỏ oan hiếm hoi · ca đo đọc mọi lỗi của `ps` thành «tiến trình đã chết», nên dưới áp lực fork phép kiểm «cây đã chết» có thể xanh giả. Hai hàng ở `docs/research/known-limits-ledger.tsv` (ngoai-19, ngoai-20).

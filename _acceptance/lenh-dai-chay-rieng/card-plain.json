@@ -1,0 +1,4 @@
+{
+  "feature_plain": "Lượt chấm không còn hỏng vì một bài đo chạy lâu hơn 10 phút, và các bài đo gọi model chạy riêng sau mọi bài khác, không chồng lên bộ kiểm hồi quy.",
+  "scope_plain": "Vòng này không đụng kho crm, không đổi làn ghim lại, và chưa cho bộ kiểm hồi quy khai chạy dài."
+}
