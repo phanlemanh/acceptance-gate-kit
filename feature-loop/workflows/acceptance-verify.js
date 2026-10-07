@@ -330,6 +330,80 @@ const OOC_PROPOSALS = [
 // OOC-PROPOSAL-VALUES>>>
 const OOC_ENUM = OOC_PROPOSALS.map(([v]) => v)
 const OOC_GLOSS = OOC_PROPOSALS.map(([v, g]) => `"${v}" (${g})`).join(' hoac ')
+// Khuôn MỘT mục ngoài hợp đồng — MỘT nguồn cho hai bên viết: prompt synthesize in nó cho tác
+// tử, và `chenMucCarry` dựng mục carry bằng chính nó (luot-sua-giu-du-dem-dung AC-3). Ca P55 /
+// hskt / nlvh / lan-v rút khối marker từ văn bản nguồn này.
+// ── Chốt máy sau synthesize: mục CARRY và khung CARRY (luot-sua-giu-du-dem-dung) ─────────
+// Hai thứ lượt trước đã có mà lượt này KHÔNG chấm lại thì máy tự đặt vào hai tệp, không trông
+// vào tác tử tổng hợp nghe lời: crm don-okr-nhap-sai 07/10 mất cả hai (ba mục ngoài hợp đồng
+// rụng khỏi thẻ, khối ui-check E12 mất ảnh). Hàm thuần, chạy lại vô hại (đã có thì không chèn).
+const HEAD_NGOAI_RE = /^##\s+Ngoài hợp đồng/
+const HEAD_RE = /^##\s+/
+const CUM_RE = /Cụm ngoài vùng phủ/
+const nhanCarry = c => ` (r${typeof c.fromRound === 'number' ? c.fromRound : '?'}${c.tepDoi === true ? ' · tệp đã đổi' : ''})`
+function dungMucCarry(c) {
+  const khuon = OOC_ITEM_TEMPLATE.split('\n').slice(1, -1).join('\n')
+  const v = { title: String(c.title || '') + nhanCarry(c), plain: c.plain || '', file: c.file || '', severity: c.severity || '', proposal: c.proposal || '' }
+  return khuon.replace(/\{(\w+)\}/g, (m, k) => (Object.prototype.hasOwnProperty.call(v, k) ? v[k] : m))
+}
+function chenMucCarry(text, carried) {
+  const ds = (Array.isArray(carried) ? carried : []).filter(c => c && typeof c.title === 'string' && typeof c.file === 'string')
+  if (!ds.length) return text
+  const dong = String(text || '').split('\n')
+  let dau = dong.findIndex(l => HEAD_NGOAI_RE.test(l))
+  if (dau === -1) {
+    // Tác tử không viết mục: dựng mục ngay trước dòng cụm (hoặc cuối tệp).
+    const cum = dong.findIndex(l => CUM_RE.test(l))
+    const o = cum === -1 ? dong.length : cum
+    dong.splice(o, 0, '## Ngoài hợp đồng — người quyết ở Gate 2', '', 'Mục mang nhãn (r<N>) mang sang từ lượt N — lượt này không chấm lại; người quyết.', '')
+    dau = o
+  }
+  let het = dau + 1
+  while (het < dong.length && !HEAD_RE.test(dong[het])) het += 1
+  // Mục đã có trong khối: cặp (tiêu đề, tệp). Khoá chỉ-tiêu-đề sẽ để một mục TƯƠI trùng tên
+  // trên tệp khác nuốt mục carry (gap-probe P1 của hồ sơ).
+  const daCo = []
+  let cur = null
+  for (let i = dau + 1; i < het; i += 1) {
+    const t = /^-\s+\*\*(.+?)\*\*\s*$/.exec(dong[i])
+    if (t) { cur = { title: t[1], file: '' }; daCo.push(cur); continue }
+    const f = cur && /^\s+file\s*:\s*(.+?)\s*$/.exec(dong[i])
+    if (f) cur.file = f[1].replace(/^`|`$/g, '').replace(/:\d+(-\d+)?$/, '')
+  }
+  const thieu = ds.filter(c => !daCo.some(x => x.title.includes(c.title) && x.file === String(c.file).replace(/:\d+(-\d+)?$/, '')))
+  if (!thieu.length) return dong.join('\n')
+  // Chèn sau dòng có chữ cuối cùng của khối (không tính dòng cụm).
+  let sau = dau
+  for (let i = dau + 1; i < het; i += 1) if (dong[i].trim() && !CUM_RE.test(dong[i])) sau = i
+  const khoi = []
+  for (const c of thieu) khoi.push('', ...dungMucCarry(c).split('\n'))
+  if (dong[sau + 1] !== undefined && dong[sau + 1].trim() !== '') khoi.push('')
+  dong.splice(sau + 1, 0, ...khoi)
+  return dong.join('\n')
+}
+function chenKhungCarry(report, carriedForReport) {
+  const coKhung = (Array.isArray(carriedForReport) ? carriedForReport : []).filter(c => c && c.screenshot && c.observed)
+  if (!coKhung.length) return report
+  const dong = String(report || '').split('\n')
+  for (const c of coKhung) {
+    const dau = dong.findIndex(l => new RegExp(`^-\\s+eval:\\s*${String(c.id).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`).test(l))
+    if (dau === -1) continue
+    let het = dau + 1
+    while (het < dong.length && !/^(-\s|#)/.test(dong[het])) het += 1
+    const than = dong.slice(dau + 1, het)
+    const co = k => than.some(l => new RegExp(`^\\s+${k}\\s*:`).test(l))
+    const them = []
+    if (!co('screenshot')) them.push(`  screenshot: ${c.screenshot}`)
+    if (!co('observed')) them.push('  observed: |', ...String(c.observed).split('\n').map(l => (l ? `    ${l}` : '')))
+    if (!co('network_observed')) them.push(`  network_observed: ${c.network_observed || 'n-a (driver)'}`)
+    if (!them.length) continue
+    let sau = dau
+    for (let i = dau + 1; i < het; i += 1) if (dong[i].trim()) sau = i
+    dong.splice(sau + 1, 0, ...them)
+  }
+  return dong.join('\n')
+}
+const OOC_ITEM_TEMPLATE = `<<<OOC-ITEM-TEMPLATE\n- **{title}**\n  Người dùng thấy gì: {plain}\n  file: \`{file}\`\n  severity: {severity}\n  Đề xuất: {proposal}\nOOC-ITEM-TEMPLATE>>>`
 
 // Tên trường mã máy đúc — MỘT nguồn cho tải gửi, lược đồ và bộ ghép. Test rút từ
 // đây (AC-10). Mã do máy đúc, LLM chỉ chép lại một chuỗi ngắn; định danh không còn
@@ -1608,15 +1682,19 @@ const carriedForReport = carriedEvals.map(c => {
     id: c.id, criterion: d.criterion, executor: d.executor, ref: d.ref, expected: d.expected,
     run_id: c.runId, verified_at: c.verifiedAt || invokedAt,
     carried_from_round: typeof c.fromRound === 'number' ? c.fromRound : null,
+    // AC-5: khung lượt gốc do s4-args gắn (cùng run_id, ảnh có thật). Chỉ ui-check, chỉ khi đủ.
+    ...(d.executor === 'ui-check' && typeof c.screenshot === 'string' && c.screenshot.trim() && typeof c.observed === 'string' && c.observed.trim()
+      ? { screenshot: c.screenshot.trim(), observed: c.observed, network_observed: typeof c.networkObserved === 'string' && c.networkObserved.trim() ? c.networkObserved.trim() : 'n-a (driver)' }
+      : {}),
   }
 })
 const report = await agentT(
   `Soan NOI DUNG evidence report cho feature "${args.slug}" round ${args.round} — TRA VE trong field "report", KHONG ghi file nao ca (main loop se append run-log roi MOI ghi evidence-report.md — hook doi chieu run_id trong report voi log nen thu tu do la bat buoc). Noi dung thay tron round cu; lich su round nam trong section Iterations.\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS chi duoc chua token exit khac 0 BEN TRONG khoi cua eval DA KHAI dung ma do (gioi han da khai) — moi cho khac van cam; chuoi "verdict: FAIL" van bi cam o moi cho; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\n${triageFailed ? `TRIAGE HONG — buoc phan loai pham vi KHONG chay duoc round nay, nen may KHONG biet finding nao trong hop dong va KHONG tu sua gi. Ghi CA HAI dau vet sau, khong duoc bo mot cai nao:\n(1) frontmatter THEM DUNG dong "triage_failed: true" (dat ngay duoi dong verdict);\n(2) than bai, NGAY DUOI dong tieu de "# Evidence Report: ...", mot dong canh bao BAT DAU bang "⚠ phân loại phạm vi KHÔNG chạy được" roi noi ro: khong loi nao duoc may tu sua, danh sach day du nam trong review-findings.md, nguoi xem lai toan bo truoc khi ky.\nTUYET DOI KHONG them section "##" moi cho viec nay va KHONG viet lai verdict.\n` : ''}failed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n${evalsNotRun.length ? `O KHAI KHONG-CHAY (evals.yaml tu khai status: not-run — may KHONG chay, khong co ket qua nao): chep NGUYEN VAN dong sau vao report, ngay duoi bang ket qua:\nkhông chạy theo hồ sơ: ${evalsNotRun.join(', ')}\nKHÔNG viết hàng bảng và KHÔNG viết khối \`- eval:\` nào cho các id này — báo cáo chỉ nói ra chúng bằng dòng ấy.\n` : ''}\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua VA field "observed:" = observed tu ket qua (template schema v2 — hook CHAN report PASS co screenshot: ma thieu observed: thuc chat >=20 ky tu; neu ket qua ui THIEU observed → TU MO tung frame evidence da luu bang Read va viet observed truoc khi ghi report, KHONG bia)): ${JSON.stringify(machineForReportB)}\n${knownLimitLines.length ? `\nKNOWN LIMITS — chep NGUYEN VAN ${knownLimitLines.length} dong sau vao muc "## Known limits", moi dong mot bullet, KHONG dien dat lai, KHONG gop dong:\n${knownLimitLines.join('\n')}\nVoi cac eval nay: khoi eval PHAI ghi "exit_code: <ma that>" DUNG TEN TRUONG do — TUYET DOI khong bo truong va khong dat ten truong khac.\n` : ''}${gioiHanHet.length ? `\nGIOI HAN DA KHAI KHONG CON — chep NGUYEN VAN vao muc "## Known limits":\n${gioiHanHet.join('\n')}\n` : ''}NETWORK TRUTH (advisory — schema v2 GIU NGUYEN, hook KHONG kiem field nay): moi block eval ui-check ghi them field "network_observed:" = chep NGUYEN VAN field networkObserved tu ket qua ui o tren; ket qua ui KHONG co field nay → ghi "n-a (driver)". TUYET DOI KHONG tu suy ra "clean". Vocab chu duy nhat: clean | no-app-traffic | third-party-only | app-fail | n-a (driver) | n-a (tool-error) | unscoped | unscoped-partial — CAM ghi so status/exit tho hay chu 'verdict: FAIL' vao report (bay L1 CONSISTENCY; so tho nam trong evidence/E{id}-network.txt).
 run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}\nrun_id cua TUNG LENH SUITE — cung luat, key la cmd. MOI lenh mot khoi theo DUNG khuon SUITE-BLOCK-TEMPLATE trong ban mau o tren — ban mau noi ro ca hinh dang lan cho dat, dung tu che khuon khac. Khoi do BAT BUOC co dong run_id: bo doi chieu quet MOI dong run_id trong bao cao va doi tung ma co mat trong run-log, nen khoi vang run_id la lenh suite khong co dau vet, con ma tu dat la cong do L2 PROVENANCE ngay sau chu ky: ${JSON.stringify(suiteRunIds)}${carriedForReport.length ? `
-EVAL CARRY-FORWARD (P1 — delta staleness khong cham paths cua cac eval nay, round nay KHONG chay lai): moi item van la MOT block eval PASS trong bang + Evidence, ghi run_id va verified_at NGUYEN VAN tu payload (id da nam trong run-log tu round goc), exit_code: 0, verifier = field ref, THEM dong "carried_from_round: <N>" va ghi chu 1 dong "carry-forward tu round <N> — delta khong cham paths cua eval". TUYET DOI KHONG ghi screenshot:/observed: cho block carried (frame goc xem round <N> trong Iterations): ${JSON.stringify(carriedForReport)}` : ''}
+EVAL CARRY-FORWARD (P1 — delta staleness khong cham paths cua cac eval nay, round nay KHONG chay lai): moi item van la MOT block eval PASS trong bang + Evidence, ghi run_id va verified_at NGUYEN VAN tu payload (id da nam trong run-log tu round goc), exit_code: 0, verifier = field ref, THEM dong "carried_from_round: <N>" va ghi chu 1 dong "carry-forward tu round <N> — delta khong cham paths cua eval". Item ui-check co field screenshot/observed/network_observed trong payload = KHUNG CUA LUOT GOC (cung run_id, anh con tren dia): ghi NGUYEN VAN ba field do vao block carried ("observed: |" roi tung dong noi dung thut le) — may se chen neu ban bo sot; item KHONG co cac field do thi KHONG ghi screenshot:/observed: (may khong bia khung): ${JSON.stringify(carriedForReport)}` : ''}
 A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.
 Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. ${runBaseline ? 'Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)".' : `BASELINE ROUND NAY KHONG DO LAI (P2 — evals.yaml khong doi tu lan baseline cuoi${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? `, round ${carriedAnalyst.fromRound}` : ''}): mo dau section Analyst bang dong "carried tu round ${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : 'truoc'} — baseline khong do lai round nay"; field "baseline:" cua tung block eval ghi "n-a" (round nay khong do).`} Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.
-VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai. Panel co "carried": true (P3) = inputs khong doi tu round "fromRound" (hash khop) nen KHONG cham lai: ghi ro "panel giu nguyen tu round <fromRound> — inputs khong doi, khong cham lai; rationale xem round do", votes carried chi co lens+verdict (ghi "- <lens>: <verdict> (r<fromRound>)"). Panel co "ungrounded": true = eval KHONG khai input nao nen KHONG hoi dong nao duoc cham (votes rong la DUNG, khong phai thieu du lieu): ghi ro "khong khai input — may khong co can cu, nguoi quyet o Cong 2" va de human_override TRONG; TUYET DOI khong ghi no nhu mot muc da dat: ${JSON.stringify(panels)}\n\nSau do soan NOI DUNG file thu hai review-findings.md — TRA VE trong field "findings", KHONG ghi file (informational, NGOAI hook — TUYET DOI khong them section/field nao cua no vao evidence-report.md).\nFile nay chia theo ket qua SCOPE-TRIAGE, moi finding ghi title, file:line, severity, detail, source:\n- "## Trong hợp đồng" — findings da map duoc vao AC; moi dong ghi them "AC: <acRef>". Findings: ${JSON.stringify(triaged.filter(f => f.inContract && !f.unverified))}\n- "## Ngoài hợp đồng — người quyết ở Gate 2" — findings THAT nhung khong AC nao phu. Mo dau ngan bang DUNG mot cau: "Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa." Roi MOI MUC viet DUNG khuon duoi day, KHONG doi thu tu dong, KHONG bo dau gach dau dong hay hai dau sao (bo doc lai file nay bang may — sai khuon la khoi bien mat khoi the, khong bao loi):\n<<<OOC-ITEM-TEMPLATE\n- **{title}**\n  Người dùng thấy gì: {plain}\n  file: \`{file}\`\n  severity: {severity}\n  Đề xuất: {proposal}\nOOC-ITEM-TEMPLATE>>>\n{plain} chep NGUYEN VAN truong plain (day la chu DUY NHAT the Cong 2 in ra cho nguoi quyet doc); {proposal} chep NGUYEN VAN tu truong proposal cua finding — gia tri hop le: ${OOC_GLOSS}. TUYET DOI khong doi sang gia tri khac. Findings: ${JSON.stringify(triaged.filter(f => !f.inContract && !f.unclassified))}\nCARRIED (T5 — muc ngoai hop dong tu round TRUOC, tep khong doi nen round nay KHONG cham lai): in MOI muc theo DUNG khuon OOC-ITEM-TEMPLATE nhu tren, va them " (r<fromRound>)" ngay sau {title} trong dong dau de nguoi doc biet muc nao khong duoc cham lai: ${JSON.stringify(carriedFindings)}\n${triaged.some(f => f.unclassified) ? '- "## Chưa phân loại (triage-failed)" — buoc phan loai pham vi hong nen KHONG finding nao duoc coi la trong hop dong; mo dau bang dong "phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ". Findings: ' + JSON.stringify(triaged.filter(f => f.unclassified)) + '\n' : ''}- Finding co unverified=true liet ke RIENG duoi heading VIET DUNG NGUYEN VAN "## Chưa adversarial-verify (refuter chết)" (bat buoc muc ##: heading khac cap hoac dong tran se lam cac muc nay bi may doc nham thanh finding ngoai-hop-dong tren the): ${JSON.stringify(confirmedFindings.filter(f => f.unverified))}\n${coverageCluster ? `Cuoi file ghi DUNG mot dong co: "⚠ Cụm ngoài vùng phủ: ${coverageCluster.count}/${coverageCluster.total} lỗi rơi vào file không bộ đo nào phủ (${coverageCluster.files.join(', ')}) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi."\n` : 'Cuoi file ghi DUNG mot dong: "Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm)." TUYET DOI khong bia co canh bao.\n'}Tra ve {report, findings} — hai CHUOI NOI DUNG day du, khong phai duong dan.`,
+VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai. Panel co "carried": true (P3) = inputs khong doi tu round "fromRound" (hash khop) nen KHONG cham lai: ghi ro "panel giu nguyen tu round <fromRound> — inputs khong doi, khong cham lai; rationale xem round do", votes carried chi co lens+verdict (ghi "- <lens>: <verdict> (r<fromRound>)"). Panel co "ungrounded": true = eval KHONG khai input nao nen KHONG hoi dong nao duoc cham (votes rong la DUNG, khong phai thieu du lieu): ghi ro "khong khai input — may khong co can cu, nguoi quyet o Cong 2" va de human_override TRONG; TUYET DOI khong ghi no nhu mot muc da dat: ${JSON.stringify(panels)}\n\nSau do soan NOI DUNG file thu hai review-findings.md — TRA VE trong field "findings", KHONG ghi file (informational, NGOAI hook — TUYET DOI khong them section/field nao cua no vao evidence-report.md).\nFile nay chia theo ket qua SCOPE-TRIAGE, moi finding ghi title, file:line, severity, detail, source:\n- "## Trong hợp đồng" — findings da map duoc vao AC; moi dong ghi them "AC: <acRef>". Findings: ${JSON.stringify(triaged.filter(f => f.inContract && !f.unverified))}\n- "## Ngoài hợp đồng — người quyết ở Gate 2" — findings THAT nhung khong AC nao phu. Mo dau ngan bang DUNG mot cau: "Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa." Roi MOI MUC viet DUNG khuon duoi day, KHONG doi thu tu dong, KHONG bo dau gach dau dong hay hai dau sao (bo doc lai file nay bang may — sai khuon la khoi bien mat khoi the, khong bao loi):\n${OOC_ITEM_TEMPLATE}\n{plain} chep NGUYEN VAN truong plain (day la chu DUY NHAT the Cong 2 in ra cho nguoi quyet doc); {proposal} chep NGUYEN VAN tu truong proposal cua finding — gia tri hop le: ${OOC_GLOSS}. TUYET DOI khong doi sang gia tri khac. Findings: ${JSON.stringify(triaged.filter(f => !f.inContract && !f.unclassified))}\nCARRIED (T5 — muc ngoai hop dong tu round TRUOC, round nay KHONG cham lai): ${carriedFindings.length ? `${carriedFindings.length} muc — MAY tu chen vao muc "## Ngoài hợp đồng" sau khi ban tra ve, mang nhan "(r<N>)"; KHONG in lai cac muc nay (titles: ${JSON.stringify(carriedFindings.map(c => c.title))})` : "khong co"}\n${triaged.some(f => f.unclassified) ? '- "## Chưa phân loại (triage-failed)" — buoc phan loai pham vi hong nen KHONG finding nao duoc coi la trong hop dong; mo dau bang dong "phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ". Findings: ' + JSON.stringify(triaged.filter(f => f.unclassified)) + '\n' : ''}- Finding co unverified=true liet ke RIENG duoi heading VIET DUNG NGUYEN VAN "## Chưa adversarial-verify (refuter chết)" (bat buoc muc ##: heading khac cap hoac dong tran se lam cac muc nay bi may doc nham thanh finding ngoai-hop-dong tren the): ${JSON.stringify(confirmedFindings.filter(f => f.unverified))}\n${coverageCluster ? `Cuoi file ghi DUNG mot dong co: "⚠ Cụm ngoài vùng phủ: ${coverageCluster.count}/${coverageCluster.total} lỗi rơi vào file không bộ đo nào phủ (${coverageCluster.files.join(', ')}) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi."\n` : 'Cuoi file ghi DUNG mot dong: "Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm)." TUYET DOI khong bia co canh bao.\n'}Tra ve {report, findings} — hai CHUOI NOI DUNG day du, khong phai duong dan.`,
   { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA, ...modelOpt('synthesize') }
 )
 
@@ -1626,7 +1704,7 @@ VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop l
 // BLOCKED có tên (không để lại giờ tác tử đặt). Chốt đổi dòng nào thì NÓI RA: một dòng run-log.
 const gioTheoRunId = {}
 for (const c of carriedEvals) gioTheoRunId[c.runId] = c.verifiedAt || invokedAt
-const chot = chotTruongNguoi(String((report && report.report) || ''), { invokedAt, gioTheoRunId })
+const chot = chotTruongNguoi(chenKhungCarry(String((report && report.report) || ''), carriedForReport), { invokedAt, gioTheoRunId })
 if (chot.loi) {
   blocked.push({ cmd: 'chot-truong-nguoi', reason: chot.loi })
   verdict = 'BLOCKED'
@@ -1670,5 +1748,6 @@ return {
   runLog: runLogLines,
   runLogWriteFailed,
   report: chot.loi ? '' : chot.text,
-  findings: chot.loi ? '' : ((report && report.findings) || ''),
+  // Mục carry do MÁY chèn (AC-3) — chỉ khi tác tử trả bản findings; rỗng = tác tử chết, lượt chạy lại.
+  findings: chot.loi || !(report && report.findings) ? '' : chenMucCarry(report.findings, carriedFindings),
 }

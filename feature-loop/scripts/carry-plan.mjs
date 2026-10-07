@@ -6,7 +6,7 @@
 //   node carry-plan.mjs --run-log <p> --evals <p> --contract <p> \
 //        --delta-files <f1,f2,...> --round <N>
 //
-// stdout JSON: { anchorSha, carriedEvals:[{id,runId,fromRound,verifiedAt,cmd}],
+// stdout JSON: { anchorSha, carriedEvals:[{id,runId,fromRound,verifiedAt,cmd}], carriedFindings:[{…,tepDoi}],
 //               rerun:[id...], reason:{id:"vì sao"} }
 // exit 0 = có kế hoạch carry; exit 3 = KHÔNG carry (dòng round trước thiếu
 // field sha, hoặc sha không thuần nhất — lịch sử cũ, full re-run là mặc định
@@ -147,18 +147,22 @@ export function plan({ runLogText, evalsText, contractText, deltaFiles, round, a
   const lastOfPrev = new Map();
   for (const l of evalLines) if (l.round === prevRound) lastOfPrev.set(l.evalId, l);
 
-  // T5: finding NGOÀI hợp đồng ở lượt trước mà file KHÔNG chạm diff-fix → mang sang.
+  // T5: MỌI finding NGOÀI hợp đồng ở lượt trước → mang sang, kể cả khi diff-fix chạm tệp
+  // của nó (luot-sua-giu-du-dem-dung AC-1). Bản trước bỏ mục có tệp trong diff với giả định
+  // «tệp đổi thì lượt sau tự tìm lại» — sai: tìm lỗi là LLM, không tất định, và máy KHÔNG
+  // sửa mục ngoài hợp đồng trong lượt sửa. crm don-okr-nhap-sai 07/10 mất ba mục đúng cách
+  // ấy, im lặng, ở chính chỗ người phải quyết. Mục trên tệp bị chạm mang `tepDoi: true` để
+  // bản findings nói ra «tệp đã đổi» — người gạch nếu nó đã hết.
   // Tính TRƯỚC cửa ngõ `noCarry` bên dưới, có chủ đích: hai đường carry độc lập nhau —
-  // `noCarry` nói về SHA của dòng eval, còn dòng `finding` không dùng sha. Bản trước
-  // trả về trước khi tính, nên một sổ thiếu sha làm rụng luôn cả carry finding (mọi
-  // finding ngoài hợp đồng bị triage+refute lại từ đầu, đúng khoản tiền T5 sinh ra để cắt).
-  // Trong hợp đồng thì KHÔNG carry: chúng kéo REJECT nên file của chúng chắc chắn đã đổi.
+  // `noCarry` nói về SHA của dòng eval, còn dòng `finding` không dùng sha.
+  // Trong hợp đồng thì KHÔNG carry: chúng kéo REJECT và máy sửa chúng trong lượt này.
   // Sổ đời cũ không có dòng `finding` → mảng rỗng, không lỗi (đường đọc-cũ).
   const carriedFindings = lines
     .filter(l => l.kind === 'finding' && l.round === prevRound && l.inContract === false
-      && !l.unclassified && l.file && !deltaFiles.includes(l.file))
+      && !l.unclassified && l.file)
     .map(l => ({ file: l.file, title: l.title, severity: l.severity || '', plain: l.plain || '',
-      proposal: l.proposal || '', fromRound: typeof l.carried_from_round === 'number' ? l.carried_from_round : l.round }));
+      proposal: l.proposal || '', fromRound: typeof l.carried_from_round === 'number' ? l.carried_from_round : l.round,
+      tepDoi: deltaFiles.includes(l.file) }));
 
   // Mặc định an toàn (AC-8): BẤT KỲ dòng round trước nào thiếu sha, hoặc sha
   // không thuần nhất → không carry EVAL nào. Finding vẫn đi theo đường riêng ở trên.

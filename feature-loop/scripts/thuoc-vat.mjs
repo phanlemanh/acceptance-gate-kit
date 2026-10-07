@@ -14,6 +14,10 @@
 //   nhát    — commit sau mốc sàn chạm thước mà KHÔNG chạm vật; chạm cả hai → ô «lẫn»
 //             (nhát sửa vật kèm ca hồi quy, đúng lệ kit); chỉ hồ sơ/ngoài → không là gì.
 //   dòng    — `git diff --numstat <mốc sàn>..HEAD` gom theo lớp (tệp nhị phân đếm 0).
+//   nền     — merge first-parent mà cha thứ hai không có mốc sàn làm tổ tiên = nhập từ nhánh
+//             nền: commit và tệp của nó KHÔNG đếm (luot-sua-giu-du-dem-dung, xem chaNen).
+//   nền     — merge first-parent mà cha thứ hai không có mốc sàn làm tổ tiên = nhập từ nhánh
+//             nền: commit và tệp của nó KHÔNG đếm (luot-sua-giu-du-dem-dung, xem chaNen).
 //
 // exit 0 = xong (kể cả «chưa có mốc sàn») · exit 2 = usage / nguồn hỏng ·
 // exit 3 = --giua-hai-luot không liệt kê được (thiếu lượt, sha không thuần nhất) — KHÔNG đoán.
@@ -84,15 +88,40 @@ function timMocSan(root, slug, docTruong) {
   return laToTien(root, implemented, van) ? van : implemented;
 }
 
+// ── Nội dung NHẬP TỪ NỀN (luot-sua-giu-du-dem-dung AC-6..AC-9) ─────────────────
+// Vòng gộp nhánh nền vào nhánh của nó (crm don-okr-nhap-sai 07/10: 17 commit của hồ sơ khác)
+// thì `<từ>..<tới>` thấy cả commit lẫn nội dung của nền — thước-vật in +1780 dòng vật và tệp
+// thước của hồ sơ khác. Cha thứ hai của một merge TRÊN nhánh chính (first-parent) là nền khi
+// nó KHÔNG có `<từ>` làm tổ tiên; có thì đó là nhánh con của chính vòng (worktree của
+// execute-parallel tách sau mốc sàn) — việc của vòng, đếm như thường. Không cần ref nền nên
+// không thêm cờ. Trả mảng rỗng khi không có merge từ nền → bên gọi đi đường cũ từng byte.
+export function chaNen(root, tu, toi) {
+  // <<<CHA-NEN
+  const laChaNen = p => !laToTien(root, tu, p);
+  // CHA-NEN>>>
+  const nen = [];
+  for (const m of gitLines(root, ['rev-list', '--first-parent', '--merges', `${tu}..${toi}`])) {
+    const cha = gitLines(root, ['rev-list', '--parents', '-n', '1', m])[0].split(/\s+/).slice(2);
+    for (const p of cha) if (laChaNen(p) && !nen.includes(p)) nen.push(p);
+  }
+  return nen;
+}
+// Tệp mà commit KHÔNG-merge của vòng chạm trong `<từ>..<tới>`, trừ mọi thứ tới từ nền.
+function tepCuaVong(root, tu, toi, nen) {
+  return new Set(gitLines(root, ['log', '--no-merges', '--no-renames', '--format=', '--name-only', `${tu}..${toi}`, ...nen.map(p => `^${p}`)]));
+}
+
 export function demThuocVat({ root, slug, t1SkipGlobs = [], frontmatterField }) {
   const lop = f => phanLoai(f, { t1SkipGlobs });
   const san = timMocSan(root, slug, frontmatterField);
   if (!san) {
     return { san: null, ghiChu: 'chua co moc san (hop dong chua tung implemented)', vat: [0, 0], thuoc: [0, 0], hoSo: [0, 0], nhat: 0, lan: 0, tepThuoc: [] };
   }
+  const nen = chaNen(root, san, 'HEAD');
+  const truNen = nen.map(p => `^${p}`);
   // Nhát: một lời gọi git cho mọi commit sau mốc sàn, theo thứ tự thời gian.
   let nhat = 0; let lan = 0;
-  const khoi = gitRaw(root, ['log', '--reverse', '--format=@@%H', '--name-only', `${san}..HEAD`]).split('@@').filter(s => s.trim());
+  const khoi = gitRaw(root, ['log', '--reverse', ...(nen.length ? ['--no-merges'] : []), '--format=@@%H', '--name-only', `${san}..HEAD`, ...truNen]).split('@@').filter(s => s.trim());
   for (const k of khoi) {
     const tep = k.split('\n').slice(1).map(s => s.trim()).filter(Boolean);
     const cacLop = new Set(tep.map(lop));
@@ -104,11 +133,33 @@ export function demThuocVat({ root, slug, t1SkipGlobs = [], frontmatterField }) 
   // Dòng: numstat gom theo lớp.
   const vat = [0, 0]; const thuoc = [0, 0]; const hoSo = [0, 0];
   const tepThuoc = [];
-  for (const l of gitLines(root, ['diff', '--numstat', `${san}..HEAD`])) {
+  // Có merge từ nền: chỉ tệp commit của vòng chạm. Tệp nền CŨNG chạm thì số ròng trộn hai
+  // nguồn (git 2.37 chưa có merge-tree --write-tree để tách) → cộng numstat từng commit của
+  // vòng trên tệp đó. Không merge từ nền → `cuaVong` null, vòng lặp dưới y hệt bản trước.
+  const cuaVong = nen.length ? tepCuaVong(root, san, 'HEAD', nen) : null;
+  const congTungCommit = new Map();
+  if (cuaVong) {
+    const tepNen = new Set(gitLines(root, ['log', '--no-merges', '--no-renames', '--format=', '--name-only', ...nen, `^${san}`]));
+    // <<<TEP-CHUNG
+    const tepChung = new Set([...cuaVong].filter(f => tepNen.has(f)));
+    // TEP-CHUNG>>>
+    if (tepChung.size) {
+      for (const l of gitLines(root, ['log', '--no-merges', '--no-renames', '--numstat', '--format=', `${san}..HEAD`, ...truNen, '--', ...tepChung])) {
+        const [a, b, ...rest] = l.split('\t');
+        const f = rest.join('\t');
+        const o = congTungCommit.get(f) || [0, 0];
+        o[0] += a === '-' ? 0 : Number(a) || 0; o[1] += b === '-' ? 0 : Number(b) || 0;
+        congTungCommit.set(f, o);
+      }
+    }
+  }
+  for (const l of gitLines(root, ['diff', '--numstat', ...(cuaVong ? ['--no-renames'] : []), `${san}..HEAD`])) {
     const [a, b, ...rest] = l.split('\t');
     const f = rest.join('\t');
-    const them = a === '-' ? 0 : Number(a) || 0;
-    const bot = b === '-' ? 0 : Number(b) || 0;
+    if (cuaVong && !cuaVong.has(f)) continue;
+    const cong = congTungCommit.get(f);
+    const them = cong ? cong[0] : a === '-' ? 0 : Number(a) || 0;
+    const bot = cong ? cong[1] : b === '-' ? 0 : Number(b) || 0;
     const c = lop(f);
     const o = c === 'vat' ? vat : c === 'thuoc' ? thuoc : c === 'ho-so' ? hoSo : null;
     if (o) { o[0] += them; o[1] += bot; }
@@ -230,7 +281,12 @@ if (isMain) {
     }
     const [shaA, shaB] = shaLuot;
     let tep;
-    try { tep = gitLines(root, ['diff', '--name-only', `${shaA}..${shaB}`]); }
+    try {
+      tep = gitLines(root, ['diff', '--name-only', `${shaA}..${shaB}`]);
+      // Gộp nền giữa hai lượt → chỉ tệp commit của vòng chạm (AC-9); không gộp → như cũ.
+      const nen = chaNen(root, shaA, shaB);
+      if (nen.length) { const cuaVong = tepCuaVong(root, shaA, shaB, nen); tep = tep.filter(f => cuaVong.has(f)); }
+    }
     catch (e) { die(`khong liet ke duoc: git diff ${shaA}..${shaB} that bai — ${String(e.stderr || e.message).split('\n')[0]}`, 3); }
     const thuoc = tep.filter(f => phanLoai(f, { t1SkipGlobs }) === 'thuoc');
     console.error(`thuoc-vat: tep thuoc doi giua luot ${hai[0].round} (${shaA.slice(0, 8)}) va luot ${hai[1].round} (${shaB.slice(0, 8)}): ${thuoc.length}`);

@@ -605,8 +605,8 @@ async function dotBien(id, tim, thay, doFn, bc, ghim, moTa) {
   }
   ca(id, loi, moTa);
 }
-await dotBien('CTN-AC8-go-goi', 'chotTruongNguoi(String(',
-  '((s) => ({ text: s, doi: { human_signoff: 0, human_override: 0, bypass_ack: 0, verified_at: 0 }, loi: null }))(String(',
+await dotBien('CTN-AC8-go-goi', 'chotTruongNguoi(chenKhungCarry(String(',
+  '((s) => ({ text: s, doi: { human_signoff: 0, human_override: 0, bypass_ack: 0, verified_at: 0 }, loi: null }))(chenKhungCarry(String(',
   doAC1, TIEM, 'human_signoff con gia tri', 'go loi goi chot -> phep AC-1 bao human_signoff con gia tri');
 await dotBien('CTN-AC8-bo-khoa', "const KHOA_NGUOI = ['human_signoff', 'human_override', 'bypass_ack']",
   "const KHOA_NGUOI = ['human_signoff', 'human_override']",
