@@ -690,9 +690,24 @@ const BOC_LENH = (lenh) => `F=$(mktemp); ( ${lenh}\n) > "$F" 2>&1; rc=$?; tail -
 // git như làn ghim lại (TU-AN-GIT). Chỉ BỌC ở tầng prompt — chuỗi `cmd` không đổi.
 // <<<LENH-DAI
 const TRAN_LAN_GIAY = 100
+const DAU_CHUA_XONG = '__CHUA_XONG'
+const DAU_QUA_HAN = '__QUA_HAN'
 const NEN_DIR = `${args.repoRoot}/.acceptance-runs/${args.slug}/s4-lenh-dai`
-const BOC_NEN = (lenh, ten) => `D="${NEN_DIR}"; mkdir -p "$D"; [ -f "${args.repoRoot}/.acceptance-runs/.gitignore" ] || printf '*\\n' > "${args.repoRoot}/.acceptance-runs/.gitignore"; L="$D/${ten}.log"; rm -f "$L" "$L.xong" "$L.qua-han"; date +%s > "$L.bat-dau"; ( ${lenh}\n) > "$L" 2>&1 & P=$!; echo "$P" > "$L.pid"; wait "$P"; rc=$?; printf '\\n${EXIT_MARK}%s\\n' "$rc" >> "$L"; echo "$rc" > "$L.xong"; (exit $rc)`
-const CHO_NEN = (ten, phut) => `L="${NEN_DIR}/${ten}.log"; TRAN_LAN=${TRAN_LAN_GIAY}; HAN_PHUT=${phut}; B=$(cat "$L.bat-dau" 2>/dev/null || date +%s); HAN=$((B + HAN_PHUT * 60)); T=$(( $(date +%s) + TRAN_LAN )); KQ=chua-xong; while :; do if [ -f "$L.qua-han" ]; then KQ=qua-han; break; fi; if [ -f "$L.xong" ]; then KQ=xong; break; fi; N=$(date +%s); if [ "$N" -ge "$HAN" ]; then KQ=qua-han; : > "$L.qua-han"; k() { for c in $(pgrep -P "$1"); do k "$c"; done; kill -TERM "$1" 2>/dev/null; }; P=$(cat "$L.pid" 2>/dev/null); [ -n "$P" ] && k "$P"; break; fi; if [ "$N" -ge "$T" ]; then break; fi; sleep 2; done; if [ "$KQ" = xong ]; then tail -n 40 "$L" | cut -c1-240 | tail -c 6000; else tail -n 5 "$L" 2>/dev/null | sed 's/^${EXIT_MARK}/[__EXIT che]/' | cut -c1-240; if [ "$KQ" = qua-han ]; then printf '\\n__QUA_HAN\\n'; else printf '\\n__CHUA_XONG\\n'; fi; fi`
+// Nhãn LƯỢT: một lượt chấm = một invokedAt. Lượt cùng round chạy lại (BLOCKED hạ tầng) có tên nhật ký
+// mới, nên không bao giờ đọc `.xong` của lượt trước (S4-r1 finding t3, S4-r2 finding t2).
+const NHAN_LUOT = String(args.invokedAt || '').replace(/\D/g, '') || 'x'
+// Dừng CẢ CÂY: thu danh sách (đệ quy pgrep -P) TRƯỚC khi gửi tín hiệu, TERM, chờ tối đa 5 s, KILL phần
+// còn sống (S4-r1 finding t5: chỉ TERM thì lệnh bẫy tín hiệu sống tiếp, chồng lệnh nặng kế). Vòng `for`
+// trên `$(…)` để tách từ giống nhau ở bash và zsh.
+const DUNG_CAY = `cay() { echo "$1"; for c in $(pgrep -P "$1"); do cay "$c"; done; }; dung() { DS=$(cay "$1"); for p in $(printf '%s\\n' "$DS"); do kill -TERM "$p" 2>/dev/null; done; i=0; while [ $i -lt 10 ]; do S=; for p in $(printf '%s\\n' "$DS"); do kill -0 "$p" 2>/dev/null && S=1; done; [ -z "$S" ] && break; sleep 0.5; i=$((i+1)); done; for p in $(printf '%s\\n' "$DS"); do kill -KILL "$p" 2>/dev/null; done; }`
+// Trước khi chạy: dừng cây MỒ CÔI của lượt trước cùng ô (`<gốc>-*.log.pid` chưa có `.xong`) — nó còn
+// chạy thì chồng đúng tài nguyên chung mà nhóm chạy-riêng hứa giữ yên. Liệt kê bằng `ls | grep`, không
+// bằng glob: zsh dừng cả dòng lệnh khi glob không khớp.
+const BOC_NEN = (lenh, ten, goc) => `D="${NEN_DIR}"; mkdir -p "$D"; [ -f "${args.repoRoot}/.acceptance-runs/.gitignore" ] || printf '*\\n' > "${args.repoRoot}/.acceptance-runs/.gitignore"; ${DUNG_CAY}; for f in $(ls "$D" 2>/dev/null | grep '^${goc}-.*\\.log\\.pid$'); do [ -f "$D/\${f%.pid}.xong" ] || dung "$(cat "$D/$f")"; done; L="$D/${ten}.log"; rm -f "$L" "$L.xong" "$L.qua-han"; date +%s > "$L.bat-dau"; ( ${lenh}\n) > "$L" 2>&1 & P=$!; echo "$P" > "$L.pid"; wait "$P"; rc=$?; printf '\\n${EXIT_MARK}%s\\n' "$rc" >> "$L"; echo "$rc" > "$L.xong"; (exit $rc)`
+// Mốc bắt đầu thiếu (bước khởi chạy chưa chạy / hỏng) → lệnh chờ TỰ ghi mốc ở lần chờ đầu, nên số phút
+// khai luôn chặn trên mọi ca — không lượt chấm nào treo (S4-r2 finding t2). Tự `mkdir -p`: lần chờ đầu có thể
+// chạy TRƯỚC bước khởi chạy tạo thư mục — không ghi được mốc thì hạn rơi về 0 và «quá hạn» giả ngay.
+const CHO_NEN = (ten, phut) => `mkdir -p "${NEN_DIR}"; L="${NEN_DIR}/${ten}.log"; TRAN_LAN=${TRAN_LAN_GIAY}; HAN_PHUT=${phut}; ${DUNG_CAY}; [ -f "$L.bat-dau" ] || date +%s > "$L.bat-dau"; B=$(cat "$L.bat-dau"); HAN=$((B + HAN_PHUT * 60)); T=$(( $(date +%s) + TRAN_LAN )); KQ=chua-xong; while :; do if [ -f "$L.qua-han" ]; then KQ=qua-han; break; fi; if [ -f "$L.xong" ]; then KQ=xong; break; fi; N=$(date +%s); if [ "$N" -ge "$HAN" ]; then KQ=qua-han; : > "$L.qua-han"; P=$(cat "$L.pid" 2>/dev/null); [ -n "$P" ] && dung "$P"; break; fi; if [ "$N" -ge "$T" ]; then break; fi; sleep 2; done; if [ "$KQ" = xong ]; then tail -n 40 "$L" | cut -c1-240 | tail -c 6000; else tail -n 5 "$L" 2>/dev/null | sed 's/^${EXIT_MARK}/[__EXIT che]/' | cut -c1-240; if [ "$KQ" = qua-han ]; then printf '\\n${DAU_QUA_HAN}\\n'; else printf '\\n${DAU_CHUA_XONG}\\n'; fi; fi`
 // LENH-DAI>>>
 
 // Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen
@@ -876,8 +891,9 @@ const DUOI_LENH_MAY = `KHONG sua code. KHONG dung git checkout/switch/stash/rese
 // lenh-dai-chay-rieng AC-2: lệnh có `longRunning` nhận prompt hai bước (BOC_NEN + CHO_NEN); lệnh
 // không khai giữ prompt cũ NGUYÊN VĂN (AC-7 so từng byte với v2.24.0).
 const promptLenhDai = (lenhGhim, cmd, __i, phut) => {
-  const ten = `r${args.round}-l${distinctCmds.indexOf(cmd) + 1}-${__i + 1}`
-  return `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Lenh can kiem khai chay toi ${phut} phut — DAI hon tran 600 giay cua cong cu chay lenh, nen KHONG chay no o dang thuong. Lam DUNG hai buoc, chep NGUYEN VAN tung lenh (cho dung da GHIM trong lenh — khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban).\n\nBUOC 1 — KHOI CHAY: goi Bash voi run_in_background=true (cong cu khong co tham so do thi goi thuong — no tu day lenh sang nen o 600 giay, ket qua khong doi). Lenh tu ghi TOAN BO dau ra vao nhat ky ${NEN_DIR}/${ten}.log va ket bang dong \`${EXIT_MARK}<n>\`:\n\n${BOC_NEN(lenhGhim, ten)}\n\nKHONG doc tep dau ra nen cua cong cu (no TRONG toi khi lenh xong — do KHONG phai dau hieu lenh chet); chi doc nhat ky qua lenh cho o buoc 2.\n\nBUOC 2 — CHO: goi Bash (timeout 600000) lenh sau; LAP LAI DUNG lenh do moi khi dong cuoi la __CHUA_XONG:\n\n${CHO_NEN(ten, phut)}\n\nDoc ket qua cua lan cho CUOI:\n- dong cuoi la \`${EXIT_MARK}<n>\` → lenh da xong: outputTail = NGUYEN VAN dau ra lan cho do (PHAI giu dong \`${EXIT_MARK}<n>\`), exitCode = <n>, cannotRun=false.\n- dong cuoi la __QUA_HAN → lenh vuot ${phut} phut da khai, lenh cho DA dung tien trinh: cannotRun=true, killedByTool=false, reason "vuot thoi luong khai ${phut} phut — chua co dong ${EXIT_MARK}", outputTail = NGUYEN VAN dau ra lan cho do. KHONG doan PASS/FAIL tu dau ra do dang.\nrun_id neu nhat ky co in (khong co thi de chuoi rong).\n${DUOI_LENH_MAY}`
+  const goc = `r${args.round}-l${distinctCmds.indexOf(cmd) + 1}-${__i + 1}`
+  const ten = `${goc}-${NHAN_LUOT}`
+  return `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Lenh can kiem khai chay toi ${phut} phut — DAI hon tran 600 giay cua cong cu chay lenh, nen KHONG chay no o dang thuong. Lam DUNG hai buoc, chep NGUYEN VAN tung lenh (cho dung da GHIM trong lenh — khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban).\n\nBUOC 1 — KHOI CHAY: goi Bash voi run_in_background=true (cong cu khong co tham so do thi goi thuong — no tu day lenh sang nen o 600 giay, ket qua khong doi). Lenh tu ghi TOAN BO dau ra vao nhat ky ${NEN_DIR}/${ten}.log va ket bang dong \`${EXIT_MARK}<n>\`:\n\n${BOC_NEN(lenhGhim, ten, goc)}\n\nKHONG doc tep dau ra nen cua cong cu (no TRONG toi khi lenh xong — do KHONG phai dau hieu lenh chet); chi doc nhat ky qua lenh cho o buoc 2.\n\nBUOC 2 — CHO: goi Bash (timeout 600000) lenh sau; LAP LAI DUNG lenh do moi khi dong cuoi la ${DAU_CHUA_XONG}:\n\n${CHO_NEN(ten, phut)}\n\nDoc ket qua cua lan cho CUOI:\n- dong cuoi la \`${EXIT_MARK}<n>\` → lenh da xong: outputTail = NGUYEN VAN dau ra lan cho do (PHAI giu dong \`${EXIT_MARK}<n>\`), exitCode = <n>, cannotRun=false.\n- dong cuoi la ${DAU_QUA_HAN} → lenh vuot ${phut} phut da khai, lenh cho DA dung tien trinh: cannotRun=true, killedByTool=false, reason "vuot thoi luong khai ${phut} phut — chua co dong ${EXIT_MARK}", outputTail = NGUYEN VAN dau ra lan cho do. KHONG doan PASS/FAIL tu dau ra do dang.\nrun_id neu nhat ky co in (khong co thi de chuoi rong).\n${DUOI_LENH_MAY}`
 }
 const agentCuaLenh = (cmd, __i) => {
   // Chỗ đứng ghim MỘT lần cho cả hai nhánh (RS5 đếm lời gọi CD_GUARD theo lane).
@@ -967,6 +983,16 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
 const rutDau = tail => { const all = [...String(tail || '').matchAll(new RegExp(`^${EXIT_MARK}(\\d+)\\s*$`, 'gm'))]; return all.length ? Number(all[all.length - 1][1]) : null }
 const normDau = r => {
   if (!r) return r
+  // lenh-dai-chay-rieng (S4-r2 finding t4): đuôi lệnh chờ kết bằng dấu chưa-xong / quá-hạn là VẬT máy
+  // đọc — lệnh chưa có mã thoát, bất kể tác tử khai gì. Thiếu vế này thì «khai exit 0 sau một lần chờ»
+  // ra PASS khi lệnh còn chạy: đúng lớp fail-open kit chặn.
+  const cuoi = String(r.outputTail || '').trim().split('\n').pop().trim()
+  if (cuoi === DAU_CHUA_XONG || cuoi === DAU_QUA_HAN) {
+    const { killedByTool, ...rest } = r
+    return { ...rest, cannotRun: true, exitCode: 1, reason: cuoi === DAU_QUA_HAN
+      ? `vuot thoi luong khai (long_running) — lenh cho tra ${DAU_QUA_HAN}, chua co dong ${EXIT_MARK}`
+      : `lenh dai CHUA XONG — tac tu dung cho o ${DAU_CHUA_XONG}, chua co dong ${EXIT_MARK}` }
+  }
   const dau = rutDau(r.outputTail)
   if (dau != null) {
     if (r.cannotRun === true && r.killedByTool !== true && dau !== 0) return r

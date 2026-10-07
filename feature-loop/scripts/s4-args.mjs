@@ -25,7 +25,7 @@ import { demThuocVat } from './thuoc-vat.mjs';
 import { chupThuoc } from './chup-ho-so-da-thong.mjs';
 import { hoiNgoaiInputs } from './lib/hoi-ngoai-inputs.mjs';
 import { chupCay } from './lib/cay-doi.mjs';
-import { docKhoa } from './lib/lan-khoa.mjs';
+import { docModelEvals } from './lib/lan-khoa.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
@@ -600,11 +600,12 @@ if (round >= 2) {
   }
 }
 
-// Eval «nặng» chạy riêng (lenh-dai-chay-rieng AC-5): `feature_loop.model_evals` đọc bằng CHÍNH docKhoa của
-// làn ghim lại — một bộ đọc, một luật kiểm giá trị. Giá trị sai → dừng với thông điệp của docKhoa.
-let khoaLan;
-try { khoaLan = docKhoa(configText, { resolveConfigKey, resolveConfigList }); } catch (e) { die(String((e && e.message) || e)); }
-const evalsChayRieng = evals.filter(e => (e.executor === 'test' || e.executor === 'script') && khoaLan.model_evals.has(`${flags.slug}/${e.id}`)).map(e => e.id);
+// Eval «nặng» chạy riêng (lenh-dai-chay-rieng AC-5): `feature_loop.model_evals` đọc bằng bộ đọc HẸP mà
+// docKhoa của làn ghim lại cũng gọi — một luật kiểm. CHỈ khoá này: khoá riêng của làn ghim lại sai giá
+// trị không được dừng lượt chấm (S4-r1 finding t2/t4). Giá trị sai → dừng với thông điệp của bộ đọc.
+let modelEvals;
+try { modelEvals = new Set(docModelEvals(configText, { resolveConfigKey, resolveConfigList })); } catch (e) { die(String((e && e.message) || e)); }
+const evalsChayRieng = evals.filter(e => (e.executor === 'test' || e.executor === 'script') && modelEvals.has(`${flags.slug}/${e.id}`)).map(e => e.id);
 
 const args = {
   generated_at: invokedAt,

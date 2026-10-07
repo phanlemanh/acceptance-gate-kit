@@ -3,14 +3,14 @@
 // Nạp CHÍNH acceptance-verify.js qua harness; đột biến chạy trên BẢN SAO TRONG BỘ NHỚ (`srcOverride`),
 // mỗi kim khẳng định khớp ĐÚNG MỘT lần trong nguồn thật trước khi tin màu đỏ.
 //   LD* — prompt lệnh dài (AC-2)            LN* — lệnh khởi chạy + lệnh chờ chạy bằng bash THẬT (AC-3)
-//   CR* — thứ tự nhóm chạy-riêng (AC-6)     VP* — vi phân với v2.24.0 khi không khai gì (AC-7)
+//   CR* — thứ tự nhóm chạy-riêng (AC-6)     VP* — vi phân lane máy với v2.24.0 khi không khai gì (AC-7)
 // Lệnh khởi chạy và lệnh chờ RÚT TỪ PROMPT của lane — không viết tay. Mọi đường dẫn suy từ vị trí tệp.
 import { fileURLToPath } from 'node:url';
 import { readFileSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { execFileSync, spawn } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { runWorkflow, check, summary } from './harness.mjs';
+import { runWorkflow, check, summary, TOOL_KILL_RULE_LINES } from './harness.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.join(HERE, '..', '..');
@@ -61,6 +61,8 @@ const ketLuanLD = (calls) => {
   if (han !== '45') loi.push(`HAN_PHUT lệch: ${han}`);
   if (!(tran > 0 && tran <= 110)) loi.push(`TRAN_LAN ${tran} không dưới trần mặc định 120 s`);
   if (dai.includes('mktemp')) loi.push('lệnh dài còn khung bọc thường');
+  const thieuLuat = TOOL_KILL_RULE_LINES.filter(l => !dai.includes(l));
+  if (thieuLuat.length) loi.push(`luật TOOL-KILL không tới prompt lệnh dài: ${thieuLuat.length} dòng thiếu`);
   if (!thuong.includes('mktemp') || thuong.includes('HAN_PHUT')) loi.push('lệnh thường mất khung bọc thường');
   return loi;
 };
@@ -102,15 +104,15 @@ const song = pid => { try { process.kill(pid, 0); return true; } catch { return 
 const docPid = f => { try { return Number(readFileSync(f, 'utf8').trim()) || 0; } catch { return 0; } };
 const KIM_XONG = 'if [ -f "$L.xong" ]; then KQ=xong; break; fi;';
 const KIM_CHE = ` | sed 's/^\${EXIT_MARK}/[__EXIT che]/'`;
-const KIM_GIET = '[ -n "$P" ] && k "$P";';
+const KIM_GIET = '[ -n "$P" ] && dung "$P";';
 const MUTANT_GREP = SRC.replace(KIM_XONG, `if grep -q '^__EXIT=' "$L" 2>/dev/null; then KQ=xong; break; fi;`);
 const MUTANT_KHONG_CHE = SRC.replace(KIM_CHE, '');
 const MUTANT_GIET_VO = SRC.replace(KIM_GIET, '[ -n "$P" ] && kill -TERM "$P";');
 
 // Chạy một lượt: tác tử giả rút hai lệnh, khởi chạy NỀN, gọi lệnh chờ (đã hạ trần/hạn) tới khi hết
 // __CHUA_XONG hoặc tới `dungO` lần; `khai(out, lan)` là lời khai (có thể SAI) của tác tử.
-async function luotThat({ cmd, phut = 45, tranLan = 1, hanPhut, dungO = 40, khai, src, truocCho }) {
-  const root = mkdtempSync(path.join(tmpdir(), 'ldcr-'));
+async function luotThat({ cmd, phut = 45, tranLan = 1, hanPhut, dungO = 40, khai, src, truocCho, root: rootSan, invokedAt = '2026-10-07T00:00:00Z', khongKhoi = false }) {
+  const root = rootSan || mkdtempSync(path.join(tmpdir(), 'ldcr-'));
   const st = { root, chuaXong: 0, out: '', ketCuoi: '' };
   const onMachine = async (call) => {
     const { khoi, cho } = rutLenh(call.prompt);
@@ -118,7 +120,7 @@ async function luotThat({ cmd, phut = 45, tranLan = 1, hanPhut, dungO = 40, khai
     if (!st.rut) return { exitCode: 1, outputTail: 'khong rut duoc lenh', runId: '', cannotRun: true, reason: 'khong rut duoc' };
     let choCmd = cho.replace(/TRAN_LAN=\d+/, `TRAN_LAN=${tranLan}`);
     if (hanPhut !== undefined) choCmd = choCmd.replace(/HAN_PHUT=\d+/, `HAN_PHUT=${hanPhut}`);
-    const p = spawn('bash', ['-c', khoi], { detached: true, stdio: 'ignore' }); p.unref();
+    if (!khongKhoi) { const p = spawn('bash', ['-c', khoi], { detached: true, stdio: 'ignore' }); p.unref(); }
     if (truocCho) await truocCho(root);
     let lan = 0;
     for (; lan < dungO; lan += 1) {
@@ -129,7 +131,7 @@ async function luotThat({ cmd, phut = 45, tranLan = 1, hanPhut, dungO = 40, khai
     }
     return khai(st.out, st);
   };
-  const out = await runWorkflow(WF, buildArgs({ repoRoot: root, evals: [ev('E1', cmd, { longRunning: phut })], suiteCommands: [] }), responder({ onMachine }), src);
+  const out = await runWorkflow(WF, buildArgs({ repoRoot: root, invokedAt, evals: [ev('E1', cmd, { longRunning: phut })], suiteCommands: [] }), responder({ onMachine }), src);
   const pidCanh = docPid(path.join(root, 'canh.pid'));
   return { ...out, st, root, pidCanh };
 }
@@ -144,7 +146,7 @@ const ketLuanLN1 = (r) => {
   const loi = [];
   if (!r.st.rut) loi.push('không rút được hai lệnh từ prompt');
   if (r.st.chuaXong < 1) loi.push('không lần chờ nào trả __CHUA_XONG');
-  if (!existsSync(path.join(r.root, '.acceptance-runs', 'demo', 's4-lenh-dai', 'r1-l1-1.log'))) loi.push('nhật ký không ở đường cố định');
+  if (!existsSync(path.join(r.root, '.acceptance-runs', 'demo', 's4-lenh-dai', 'r1-l1-1-20261007000000.log'))) loi.push('nhật ký không ở đường cố định (gốc ô + nhãn lượt)');
   if (!existsSync(path.join(r.root, '.acceptance-runs', '.gitignore'))) loi.push('thư mục lượt chạy không tự ẩn khỏi git');
   if (!(r.result.failedEvals || []).includes('E1') || (r.result.blocked || []).length) loi.push(`dấu giả kết thúc chờ (verdict ${r.result.verdict}, failed ${JSON.stringify(r.result.failedEvals)})`);
   return loi;
@@ -180,25 +182,106 @@ console.log('LN3 chiều đỏ: bản sao chờ chữ __EXIT= trong nhật ký t
   don(m);
   await ngu(3500); // lệnh mẫu của mutant tự xong — không để tiến trình sống qua ca sau
 }
-console.log('LN4 dấu giả + chưa xong/quá hạn, tác tử dán nguyên văn đầu ra lệnh chờ → BLOCKED, không PASS');
+console.log('LN4 dấu giả + chưa xong/quá hạn, tác tử dán nguyên văn đầu ra lệnh chờ → BLOCKED; đuôi chưa-xong không mang dấu nào');
+const LENH_GIA_NGU = `sh -c 'echo $$ > canh.pid; echo __EXIT=0; exec sleep 60'`;
 {
-  const LENH_GIA_NGU = `sh -c 'echo $$ > canh.pid; echo __EXIT=0; exec sleep 60'`;
   const ca = async (src) => {
     const a = await luotThat({ cmd: LENH_GIA_NGU, hanPhut: 0, truocCho: choCanh, src,
       khai: (out) => ({ exitCode: 1, outputTail: out, runId: '', cannotRun: true, killedByTool: false, reason: 'vuot thoi luong khai 45 phut' }) });
     const b = await luotThat({ cmd: LENH_GIA_NGU, dungO: 1, truocCho: choCanh, src,
       khai: (out) => ({ exitCode: 0, outputTail: out, runId: '', cannotRun: false, killedByTool: true }) });
     const tot = x => x.result.verdict !== 'PASS' && (x.result.blocked || []).some(bb => bb.cmd === LENH_GIA_NGU) && !(x.result.failedEvals || []).length;
-    const kq = { quaHan: tot(a), chuaXong: tot(b) && b.st.ketCuoi === '__CHUA_XONG', va: `${a.result.verdict}/${b.result.verdict}` };
+    const coDau = x => /^__EXIT=\d+\s*$/m.test(x.st.out);
+    const kq = { quaHan: tot(a), chuaXong: tot(b) && b.st.ketCuoi === '__CHUA_XONG', dauLo: coDau(a) || coDau(b), va: `${a.result.verdict}/${b.result.verdict}` };
     don(a); don(b);
     return kq;
   };
   const that = await ca(undefined);
-  check('LN4 cả hai biến thể → BLOCKED', that.quaHan && that.chuaXong, JSON.stringify(that));
+  check('LN4 cả hai biến thể → BLOCKED, đuôi chưa-xong/quá-hạn không mang dòng __EXIT=', that.quaHan && that.chuaXong && !that.dauLo, JSON.stringify(that));
   const mut = await ca(MUTANT_KHONG_CHE);
-  if (!(mut.quaHan && mut.chuaXong)) console.log('  (mutant không che) dấu giả thắng khi chưa xong');
-  check('LN4 chiều đỏ: bản sao không che dấu ở đuôi chưa-xong → dấu giả thắng khi chưa xong',
-    soLan(SRC, KIM_CHE) === 1 && MUTANT_KHONG_CHE !== SRC && !(mut.quaHan && mut.chuaXong), JSON.stringify(mut));
+  if (mut.dauLo) console.log('  (mutant không che) dấu giả lộ ở đuôi chưa xong');
+  check('LN4 chiều đỏ: bản sao không che dấu → "dấu giả lộ ở đuôi chưa xong"', soLan(SRC, KIM_CHE) === 1 && MUTANT_KHONG_CHE !== SRC && mut.dauLo, JSON.stringify(mut));
+}
+console.log('LN5 tác tử khai exit 0 sau MỘT lần chờ (đuôi __CHUA_XONG) → máy đọc dấu, BLOCKED — không PASS');
+{
+  const KIM_DOC = 'if (cuoi === DAU_CHUA_XONG || cuoi === DAU_QUA_HAN) {';
+  const MUTANT_KHONG_DOC = SRC.replace(KIM_DOC, 'if (false) {');
+  const ca = async (src) => {
+    const r = await luotThat({ cmd: LENH_GIA_NGU, dungO: 1, truocCho: choCanh, src,
+      khai: (out) => ({ exitCode: 0, outputTail: out, runId: '', cannotRun: false, killedByTool: false }) });
+    const kq = { ket: r.st.ketCuoi, verdict: r.result.verdict, blocked: (r.result.blocked || []).some(bb => bb.cmd === LENH_GIA_NGU) };
+    don(r);
+    return kq;
+  };
+  const that = await ca(undefined);
+  check('LN5 đuôi __CHUA_XONG + lời khai exit 0 → BLOCKED', that.ket === '__CHUA_XONG' && that.verdict !== 'PASS' && that.blocked, JSON.stringify(that));
+  const mut = await ca(MUTANT_KHONG_DOC);
+  if (mut.verdict === 'PASS') console.log('  (mutant không đọc dấu) đuôi chưa-xong thành PASS');
+  check('LN5 chiều đỏ: bản sao không đọc dấu → "đuôi chưa-xong thành PASS"', soLan(SRC, KIM_DOC) === 1 && mut.verdict === 'PASS', JSON.stringify(mut));
+}
+console.log('LN6 bước khởi chạy không chạy → lệnh chờ TỰ ghi mốc bắt đầu (hạn chờ luôn có chặn)');
+{
+  const KIM_MOC = '[ -f "$L.bat-dau" ] || date +%s > "$L.bat-dau"; B=$(cat "$L.bat-dau");';
+  const MUTANT_MOC = SRC.replace(KIM_MOC, 'B=$(cat "$L.bat-dau" 2>/dev/null || date +%s);');
+  const ca = async (src) => {
+    const r = await luotThat({ cmd: 'echo khong-bao-gio-chay', dungO: 1, khongKhoi: true, src,
+      khai: (out) => ({ exitCode: 1, outputTail: out, runId: '', cannotRun: true, reason: 'chua khoi chay' }) });
+    const moc = existsSync(path.join(r.root, '.acceptance-runs', 'demo', 's4-lenh-dai', 'r1-l1-1-20261007000000.log.bat-dau'));
+    const kq = { ket: r.st.ketCuoi, moc };
+    don(r);
+    return kq;
+  };
+  const that = await ca(undefined);
+  check('LN6 lần chờ đầu ghi mốc bắt đầu', that.ket === '__CHUA_XONG' && that.moc, JSON.stringify(that));
+  const mut = await ca(MUTANT_MOC);
+  if (!mut.moc) console.log('  (mutant mốc tính lại mỗi lần) chờ không hạn khi thiếu mốc');
+  check('LN6 chiều đỏ: bản sao tính lại mốc mỗi lần → "chờ không hạn khi thiếu mốc"', soLan(SRC, KIM_MOC) === 1 && !mut.moc, JSON.stringify(mut));
+}
+console.log('LN7 lượt cùng round chạy lại: cây mồ côi của lượt trước bị dừng, tên nhật ký mới');
+{
+  const LENH_NGU = `sh -c 'echo $$ > canh.pid; exec sleep 60'`;
+  const ia = s => SRC.indexOf(s);
+  const a0 = ia('for f in $(ls "$D" 2>/dev/null'); const a1 = SRC.indexOf('done; ', a0) + 'done; '.length;
+  const KIM_MO_COI = a0 > 0 ? SRC.slice(a0, a1) : '@@khong-thay@@';
+  const MUTANT_MO_COI = SRC.replace(KIM_MO_COI, '');
+  const ca = async (src) => {
+    const root = mkdtempSync(path.join(tmpdir(), 'ldcr-'));
+    const khaiDung = (out) => ({ exitCode: 0, outputTail: out, runId: '', cannotRun: false, killedByTool: true });
+    const r1 = await luotThat({ root, cmd: LENH_NGU, dungO: 1, truocCho: choCanh, src, invokedAt: '2026-10-07T01:00:00Z', khai: khaiDung });
+    const pid1 = r1.pidCanh;
+    rmSync(path.join(root, 'canh.pid'), { force: true });
+    const r2 = await luotThat({ root, cmd: LENH_NGU, dungO: 1, truocCho: choCanh, src, invokedAt: '2026-10-07T02:00:00Z', khai: khaiDung });
+    const chet1 = pid1 ? await chetTrong(pid1, 8000) : false;
+    const tenMoi = existsSync(path.join(root, '.acceptance-runs', 'demo', 's4-lenh-dai', 'r1-l1-1-20261007020000.log'));
+    const kq = { pid1, chet1, tenMoi };
+    if (pid1 && song(pid1)) try { process.kill(pid1, 'SIGKILL'); } catch {}
+    don(r2);
+    return kq;
+  };
+  const that = await ca(undefined);
+  check('LN7 cây lượt trước chết khi lượt sau khởi chạy; nhật ký lượt sau tên mới', that.pid1 > 0 && that.chet1 && that.tenMoi, JSON.stringify(that));
+  const mut = await ca(MUTANT_MO_COI);
+  if (!mut.chet1) console.log('  (mutant không dọn) cây mồ côi lượt trước còn sống');
+  check('LN7 chiều đỏ: bản sao bỏ bước dọn → "cây mồ côi lượt trước còn sống"', soLan(SRC, KIM_MO_COI) === 1 && mut.pid1 > 0 && !mut.chet1, JSON.stringify(mut));
+}
+console.log('LN8 lệnh bẫy SIGTERM: quá hạn vẫn dừng được (TERM rồi KILL)');
+{
+  const LENH_BAY = `sh -c 'echo $$ > canh.pid; trap "" TERM; exec sleep 60'`;
+  const KIM_KILL = `for p in $(printf '%s\\\\n' "$DS"); do kill -KILL "$p" 2>/dev/null; done;`;
+  const MUTANT_CHI_TERM = SRC.replace(KIM_KILL, '');
+  const ca = async (src) => {
+    const r = await luotThat({ cmd: LENH_BAY, hanPhut: 0, truocCho: choCanh, src,
+      khai: (out) => ({ exitCode: 1, outputTail: out, runId: '', cannotRun: true, reason: 'qua han' }) });
+    const chet = r.pidCanh ? await chetTrong(r.pidCanh, 3000) : false;
+    const kq = { ket: r.st.ketCuoi, pid: r.pidCanh, chet };
+    don(r);
+    return kq;
+  };
+  const that = await ca(undefined);
+  check('LN8 lệnh bẫy TERM chết sau __QUA_HAN', that.ket === '__QUA_HAN' && that.pid > 0 && that.chet, JSON.stringify(that));
+  const mut = await ca(MUTANT_CHI_TERM);
+  if (!mut.chet) console.log('  (mutant chỉ TERM) lệnh bẫy TERM sống sót');
+  check('LN8 chiều đỏ: bản sao chỉ gửi TERM → "lệnh bẫy TERM sống sót"', soLan(SRC, KIM_KILL) === 1 && mut.pid > 0 && !mut.chet, `${JSON.stringify(mut)} kim=${soLan(SRC, KIM_KILL)}`);
 }
 
 // ═════ CR — nhóm chạy-riêng (AC-6) ══════════════════════════════════════════
@@ -290,15 +373,19 @@ const argsVP = (over = {}) => buildArgs({
 const vetLuot = async (src) => {
   const { result, calls } = await runWorkflow(WF, argsVP(), responder(), src);
   const { result: dry } = await runWorkflow(WF, argsVP({ dryRun: true }), responder(), src);
+  // CHỈ lane máy (S4-r1/r2 finding t1): so prompt judge/review/synthesize với một mốc cố định là khoá cả
+  // engine vào 2.24.0 — lần sửa hợp lệ kế tiếp của các lane đó sẽ đỏ oan. AC-7 hứa về lệnh MÁY.
+  const may = calls.filter(c => c.label.startsWith('machine:'));
+  const { distinctCommands, commandGroups, evalsPerCommand, runsPerCommand } = dry;
   return {
-    goi: JSON.stringify(calls.map(c => [c.label, c.prompt])),
-    kq: JSON.stringify({ verdict: result.verdict, failedEvals: result.failedEvals, blocked: result.blocked, runLog: result.runLog }),
-    dry: JSON.stringify(dry), verdict: result.verdict,
+    goi: JSON.stringify(may.map(c => [c.label, c.prompt])),
+    kq: JSON.stringify({ verdict: result.verdict, failedEvals: result.failedEvals, blocked: result.blocked }),
+    dry: JSON.stringify({ distinctCommands, commandGroups, evalsPerCommand, runsPerCommand }), verdict: result.verdict,
     soMay: calls.filter(c => c.label.startsWith('machine:')).length,
   };
 };
 const MUTANT_MOI_EVAL_RIENG = SRC.replace(KIM_LA, 'const laChayRieng = c => (byCmd.get(c) || []).length > 0');
-console.log(`VP1 cùng args không khai: cây đang kiểm BẰNG HỆT ${BASE_REF} (thứ tự lời gọi, prompt, kết quả, dry-run)`);
+console.log(`VP1 cùng args không khai: lane máy của cây đang kiểm BẰNG HỆT ${BASE_REF} (thứ tự lời gọi máy, prompt máy, nhóm lệnh, verdict)`);
 let vpBase = null;
 if (!BASE_SRC) {
   check(`VP1 không giải được ${BASE_REF} — hạ tầng (cần tag; CI fetch-depth 0)`, false, baseLoi);
@@ -308,7 +395,7 @@ if (!BASE_SRC) {
   const loi = [];
   if (BASE_SRC === SRC) loi.push('base trùng cây — vi phân rỗng');
   for (const [ten, v] of [['base', vpBase], ['cây', vThat]]) if (v.verdict !== 'PASS' || v.soMay !== 4) loi.push(`vi phân rỗng: kết cục ${ten} sai (${v.verdict}, ${v.soMay} machine)`);
-  if (vThat.goi !== vpBase.goi) loi.push('thứ tự lệnh đổi (lời gọi/prompt khác base)');
+  if (vThat.goi !== vpBase.goi) loi.push('thứ tự lệnh đổi (lời gọi/prompt máy khác base)');
   if (vThat.kq !== vpBase.kq) loi.push('kết quả khác base');
   if (vThat.dry !== vpBase.dry) loi.push('dry-run khác base');
   check('VP1 bằng hệt base, kết cục ghim đúng ở cả hai', loi.length === 0, loi.join(' ; '));

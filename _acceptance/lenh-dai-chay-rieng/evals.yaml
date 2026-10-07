@@ -30,7 +30,8 @@ evals:
     expected: >-
       LD1: args có lệnh chung của hai eval longRunning 20 và 45 + một lệnh không khai → prompt lệnh
       dài chứa đường .acceptance-runs/<slug>/s4-lenh-dai/, "HAN_PHUT=45", TRAN_LAN đọc từ prompt ≤ 110, không chứa
-      khung bọc thường (mktemp); prompt lệnh không khai chứa khung bọc thường, không chứa HAN_PHUT.
+      khung bọc thường (mktemp), chứa MỌI dòng khối TOOL-KILL-RULE (rút từ tệp nguồn); prompt lệnh không
+      khai chứa khung bọc thường, không chứa HAN_PHUT.
       LD2: longRunning hỏng (0, "30", 300) → verdict BLOCKED, blocked[0].cmd "(evals)", reason gọi tên
       eval, 0 lời gọi agent — 3/3. LD3 chiều đỏ: bản sao lấy MIN → ca in "HAN_PHUT lệch: 20". LD4:
       kim khớp đúng một lần.
@@ -54,8 +55,12 @@ evals:
       đỏ: bản sao lệnh chờ đợi grep "^__EXIT=" trong nhật ký thay vì tệp .xong → workflow đọc mã 0, ca
       in "dấu giả kết thúc chờ". LN4: lệnh in "__EXIT=0" giả rồi ngủ dài; tác tử giả dán nguyên văn
       đầu ra lệnh chờ (a) __QUA_HAN + cannotRun, (b) một lần __CHUA_XONG + killedByTool → cả hai eval
-      trong blocked, verdict không PASS; chiều đỏ: bản sao không che dấu ở đuôi chưa-xong → ca in
-      "dấu giả thắng khi chưa xong".
+      trong blocked, đuôi không mang dòng __EXIT=; chiều đỏ: bản sao không che → "dấu giả lộ ở đuôi chưa
+      xong". LN5: khai exit 0 + đuôi __CHUA_XONG → BLOCKED; đỏ: bản sao không đọc dấu → "đuôi chưa-xong
+      thành PASS". LN6: không khởi chạy → lần chờ đầu ghi tệp .bat-dau; đỏ: tính lại mốc mỗi lần → "chờ
+      không hạn khi thiếu mốc". LN7: hai lượt cùng round (invokedAt khác) → cây lượt 1 chết khi lượt 2
+      khởi chạy, nhật ký lượt 2 tên mới; đỏ: bỏ bước dọn → "cây mồ côi lượt trước còn sống". LN8: lệnh
+      bẫy TERM chết sau __QUA_HAN; đỏ: chỉ gửi TERM → "lệnh bẫy TERM sống sót".
     paths:
       - "feature-loop/workflows/acceptance-verify.js"
       - "tests/workflows/lenh-dai-chay-rieng.test.mjs"
@@ -86,11 +91,16 @@ evals:
       SC1 đối chứng dương: model_evals [demo/E1, khac/E2, demo/E3], E3 khai status not-run →
       evalsChayRieng đúng ["E1"]. SC2: khoá model_evals vắng → evalsChayRieng VẮNG HẲN trong tệp args.
       SC3: mục "khong-gach" → thoát 2, stderr chứa "feature_loop.model_evals", không sinh tệp. SC4 chiều
-      đỏ một nguồn: bản sao feature-loop/ có docKhoa trả model_evals rỗng → evalsChayRieng vắng, ca in
-      "không đọc qua docKhoa"; kim khớp đúng một lần.
+      đỏ một nguồn: bản sao feature-loop/ có docModelEvals trả rỗng → evalsChayRieng vắng, ca in
+      "không đọc qua docModelEvals". SC5: thêm repin_retry: 2 → s4-args vẫn xanh, evalsChayRieng ["E1"];
+      đỏ: bản sao đọc qua docKhoa → thoát 2, ca in "khoá làn ghim lại chặn lượt chấm". RT1: args do
+      s4-args thật sinh (E1 long_running 45 + model_evals [demo/E1]) → workflow thật: dry-run chayRieng
+      ["echo dai"], prompt lệnh dài có HAN_PHUT=45; đỏ: bản sao bên viết đổi tên khoá → ca in "bên viết
+      bên đọc trôi".
     paths:
       - "feature-loop/scripts/s4-args.mjs"
       - "feature-loop/scripts/lib/lan-khoa.mjs"
+      - "feature-loop/workflows/acceptance-verify.js"
       - "tests/scripts/s4-args-lenh-dai-chay-rieng.test.mjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
 
@@ -119,8 +129,8 @@ evals:
     expected: >-
       VP1: CÙNG args không khai (2 eval script, 2 suite, 1 judgment, 1 ui-check) chạy trên workflow cây
       đang kiểm và bản base (git show v2.24.0 — mốc cố định; nguồn base trùng nguồn cây → ĐỎ "base
-      trùng cây"; tag không giải được → ĐỎ gọi tên hạ tầng) → dãy (nhãn, prompt) theo thứ tự
-      gọi, verdict, failedEvals, blocked, runLog, và dry-run BẰNG HỆT; kết cục ghim trước ở CẢ HAI:
+      trùng cây"; tag không giải được → ĐỎ gọi tên hạ tầng) → CHỈ lane máy: dãy (nhãn, prompt) theo thứ tự
+      gọi, verdict, failedEvals, blocked, và nhóm lệnh dry-run BẰNG HỆT; kết cục ghim trước ở CẢ HAI:
       verdict PASS, đúng 4 lời gọi machine — bằng nhau mà kết cục sai thì ĐỎ "vi phân rỗng". VP2 chiều
       đỏ: bản sao coi mọi lệnh eval là chạy-riêng → ca in "thứ tự lệnh đổi".
     paths:

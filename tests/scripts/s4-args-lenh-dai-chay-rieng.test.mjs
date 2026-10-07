@@ -1,7 +1,9 @@
 // s4-args-lenh-dai-chay-rieng.test.mjs — bên VIẾT của hồ sơ lenh-dai-chay-rieng (AC-1, AC-5).
 //
 //   SL* — `long_running: <phút>` trên eval → `longRunning` trong args; giá trị sai → exit 2 có tên.
-//   SC* — `feature_loop.model_evals` → `evalsChayRieng`, đọc bằng CHÍNH docKhoa của làn ghim lại.
+//   SC* — `feature_loop.model_evals` → `evalsChayRieng`, đọc bằng bộ đọc hẹp docModelEvals (docKhoa của làn
+//         ghim lại gọi lại chính nó); khoá riêng của làn sai giá trị KHÔNG chặn lượt chấm.
+//   RT* — round-trip: tệp args do s4-args THẬT sinh → acceptance-verify.js THẬT (qua harness) đọc đúng.
 // Kho git fixture dựng bằng code trong lượt chạy (khuôn s4-args-not-run.test.mjs). Chiều đỏ chạy trên
 // BẢN SAO trọn thư mục feature-loop/ (cpSync), mỗi kim khẳng định khớp ĐÚNG MỘT lần trong nguồn thật.
 // Mọi đường dẫn suy từ vị trí tệp này.
@@ -10,6 +12,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync, existsSync, cpSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { runWorkflow } from '../workflows/harness.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KIT = path.join(HERE, '..', '..');
@@ -26,13 +29,13 @@ const evalYaml = (rows) => 'schema_version: 1\nfeature_slug: demo\nevals:\n' + r
   `  - id: ${r.id}\n    criterion: AC-1\n    executor: ${r.executor || 'script'}\n    cmd: config:executors.script.cli\n    expected: x\n`
   + (r.lr !== undefined ? `    long_running: ${r.lr}\n` : '') + (r.notRun ? '    status: not-run\n' : '')).join('');
 
-function buildRepo(evalsBody, flExtra = '') {
+function buildRepo(evalsBody, flExtra = '', exExtra = '') {
   const d = path.join(TMP, 'r-' + Math.random().toString(36).slice(2));
   mkdirSync(path.join(d, '_acceptance', 'demo'), { recursive: true });
   execFileSync('git', ['init', '-q', '-b', 'main', d]);
   git(d, 'config', 'user.email', 't@t.t'); git(d, 'config', 'user.name', 'T');
   writeFileSync(path.join(d, '_acceptance', 'config.yaml'),
-    'schema_version: 1\nexecutors:\n  script:\n    cli: "echo x"\nfeature_loop:\n  suite_keys:\n    - executors.script.cli\n' + flExtra);
+    'schema_version: 1\nexecutors:\n  script:\n    cli: "echo x"\n' + exExtra + 'feature_loop:\n  suite_keys:\n    - executors.script.cli\n' + flExtra);
   writeFileSync(path.join(d, '_acceptance', 'demo', 'contract.md'), '---\nschema_version: 1\nslug: demo\nrisk_tier: T2\nstatus: implemented\n---\n');
   writeFileSync(path.join(d, '_acceptance', 'demo', 'evals.yaml'), evalsBody);
   writeFileSync(path.join(d, 'README.md'), 'demo\n');
@@ -54,13 +57,16 @@ function run(d, s4Root = FL) {
   }
 }
 // Bản sao trọn feature-loop/ với MỘT phép thay trong một tệp; kim phải khớp đúng một lần.
-function banSao(tep, kim, thay) {
+function banSao(tep, kim, thay, them = []) {
   const dst = path.join(TMP, 'fl-' + Math.random().toString(36).slice(2));
   cpSync(FL, dst, { recursive: true });
   const f = path.join(dst, tep);
-  const src = readFileSync(f, 'utf8');
-  if (soLan(src, kim) !== 1) return { dst: null, kimLoi: `kim khớp ${soLan(src, kim)} lần trong ${tep}` };
-  writeFileSync(f, src.replace(kim, thay));
+  let src = readFileSync(f, 'utf8');
+  for (const [k, t] of [[kim, thay], ...them]) {
+    if (soLan(src, k) !== 1) return { dst: null, kimLoi: `kim khớp ${soLan(src, k)} lần trong ${tep}: ${k.slice(0, 50)}` };
+    src = src.replace(k, t);
+  }
+  writeFileSync(f, src);
   return { dst };
 }
 
@@ -117,16 +123,75 @@ console.log('SC3 mục sai dạng → thoát 2 với thông điệp docKhoa, kh�
   const r = run(buildRepo(EVALS_SC, '  model_evals: [khong-gach]\n'));
   check('SC3 thoát 2 gọi tên feature_loop.model_evals', r.status === 2 && !r.args && r.stderr.includes('feature_loop.model_evals'), `${r.status} ${r.stderr.split('\n')[0]}`);
 }
-const KIM_DOC = 'return { repin_retry: retry, model_evals: new Set(model),';
-console.log('SC4 chiều đỏ một nguồn: bản sao docKhoa trả model_evals rỗng → evalsChayRieng vắng');
+const KIM_DOC = '  return model;\n}';
+console.log('SC4 chiều đỏ một nguồn: bản sao bộ đọc hẹp trả rỗng → evalsChayRieng vắng');
 {
-  const { dst, kimLoi } = banSao(path.join('scripts', 'lib', 'lan-khoa.mjs'), KIM_DOC, 'return { repin_retry: retry, model_evals: new Set(),');
+  const { dst, kimLoi } = banSao(path.join('scripts', 'lib', 'lan-khoa.mjs'), KIM_DOC, '  return [];\n}');
   if (!dst) bad('SC4 không dựng được bản sao', kimLoi);
   else {
     const r = run(buildRepo(EVALS_SC, KHOA_SC), dst);
     const vang = r.status === 0 && r.args && !('evalsChayRieng' in r.args);
-    if (vang) console.log('  (bản sao docKhoa rỗng) không đọc qua docKhoa → evalsChayRieng vắng');
-    check('SC4 bản sao docKhoa rỗng lật kết luận ("không đọc qua docKhoa")', vang, `${r.status} ${JSON.stringify(r.args && r.args.evalsChayRieng)}`);
+    if (vang) console.log('  (bản sao bộ đọc rỗng) không đọc qua docModelEvals → evalsChayRieng vắng');
+    check('SC4 bản sao bộ đọc rỗng lật kết luận ("không đọc qua docModelEvals")', vang, `${r.status} ${JSON.stringify(r.args && r.args.evalsChayRieng)}`);
+  }
+}
+console.log('SC5 khoá CHỈ của làn ghim lại sai giá trị (repin_retry: 2) → lượt chấm vẫn sinh args');
+{
+  const KHOA_HONG = KHOA_SC + '  repin_retry: 2\n';
+  const r = run(buildRepo(EVALS_SC, KHOA_HONG));
+  check('SC5 s4-args xanh, evalsChayRieng ["E1"]', r.status === 0 && JSON.stringify(r.args && r.args.evalsChayRieng) === '["E1"]', `${r.status} ${r.stderr.split('\n')[0]}`);
+  const KIM_IMP = "import { docModelEvals } from './lib/lan-khoa.mjs';";
+  const KIM_GOI = 'modelEvals = new Set(docModelEvals(configText, { resolveConfigKey, resolveConfigList }));';
+  const { dst, kimLoi } = banSao(path.join('scripts', 's4-args.mjs'), KIM_IMP, "import { docKhoa } from './lib/lan-khoa.mjs';",
+    [[KIM_GOI, 'modelEvals = docKhoa(configText, { resolveConfigKey, resolveConfigList }).model_evals;']]);
+  if (!dst) bad('SC5 không dựng được bản sao', kimLoi);
+  else {
+    const m = run(buildRepo(EVALS_SC, KHOA_HONG), dst);
+    const chan = m.status === 2 && m.stderr.includes('repin_retry');
+    if (chan) console.log('  (bản sao đọc qua docKhoa) khoá làn ghim lại chặn lượt chấm');
+    check('SC5 chiều đỏ: bản sao đọc qua docKhoa → "khoá làn ghim lại chặn lượt chấm"', chan, `${m.status} ${m.stderr.split('\n')[0]}`);
+  }
+}
+
+// ═════ RT — round-trip bên viết → bên đọc ═════════════════════════════════
+const WF = path.join(FL, 'workflows', 'acceptance-verify.js');
+const stub = (c) => {
+  const l = c.label;
+  if (l.startsWith('machine:')) return { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '', cannotRun: false };
+  if (l.startsWith('judge:')) return { verdict: 'PASS', rationale: 'ok' };
+  if (l.startsWith('review:')) return { findings: [] };
+  if (l.startsWith('triage')) return { items: [] };
+  if (l.startsWith('baseline:')) return { results: [] };
+  if (l === 'capture:provenance') return { bypass_used: false, enforcement_mode: 'strict', verified_commit: 'a'.repeat(40) };
+  if (l === 'synthesize:report') return { report: '# r', findings: '# f' };
+  return {};
+};
+const EVALS_RT = 'schema_version: 1\nfeature_slug: demo\nevals:\n'
+  + '  - id: E1\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.dai\n    expected: x\n    long_running: 45\n'
+  + '  - id: E2\n    criterion: AC-2\n    executor: script\n    cmd: config:executors.script.thuong\n    expected: x\n';
+const ketLuanRT = async (a) => {
+  const loi = [];
+  if (!a) return ['s4-args không sinh tệp'];
+  const { result: dry } = await runWorkflow(WF, { ...a, dryRun: true }, stub);
+  if (JSON.stringify((dry.commandGroups || {}).chayRieng) !== '["echo dai"]') loi.push(`nhóm chạy-riêng ${JSON.stringify(dry.commandGroups)}`);
+  const { calls } = await runWorkflow(WF, a, stub);
+  const p = (calls.find(c => c.label === 'machine:echo dai') || {}).prompt || '';
+  if (!/HAN_PHUT=45\b/.test(p)) loi.push('bên viết bên đọc trôi: prompt lệnh dài thiếu HAN_PHUT=45');
+  return loi;
+};
+console.log('RT1 args do s4-args thật sinh → workflow thật: lệnh dài có khung nền, lệnh model chạy riêng');
+{
+  const repo = () => buildRepo(EVALS_RT, '  model_evals: [demo/E1]\n', '    dai: "echo dai"\n    thuong: "echo thuong"\n');
+  const r = run(repo());
+  const loi = await ketLuanRT(r.args);
+  check('RT1 round-trip đúng hai khoá', r.status === 0 && loi.length === 0, `${r.status} ${loi.join(' ; ')} ${r.stderr.split('\n')[0]}`);
+  const { dst, kimLoi } = banSao(path.join('scripts', 's4-args.mjs'), '    e.longRunning = Number(raw);', '    e.longRunningMin = Number(raw);');
+  if (!dst) bad('RT1 không dựng được bản sao', kimLoi);
+  else {
+    const m = run(repo(), dst);
+    const lm = await ketLuanRT(m.args);
+    if (lm.length) console.log('  (bản sao đổi tên khoá) ' + lm.join(' ; '));
+    check('RT1 chiều đỏ: bản sao đổi tên khoá ở bên viết → "bên viết bên đọc trôi"', m.status === 0 && lm.some(x => x.startsWith('bên viết bên đọc trôi')), lm.join(' ; '));
   }
 }
 

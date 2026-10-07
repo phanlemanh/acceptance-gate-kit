@@ -20,11 +20,13 @@ dựng `eve dev` cùng lúc với một ca suite canh đúng tiến trình đó.
 
 - **Khoá eval mới `long_running: <phút>`** (số nguyên 1–240, thời lượng tối đa dự kiến; chỉ eval
   `test`/`script`). Lượt chấm tự chạy lệnh nền, ghi nhật ký ở `.acceptance-runs/<slug>/s4-lenh-dai/`
-  (kết bằng `__EXIT=<n>`), chờ bằng lệnh máy sinh; quá số phút → dừng cả cây tiến trình, eval BLOCKED.
+  (kết bằng `__EXIT=<n>`), chờ bằng lệnh máy sinh; quá số phút → dừng cả cây tiến trình (TERM rồi KILL), eval BLOCKED. Máy đọc dấu «chưa xong»/«quá hạn» ở
+  đuôi lệnh chờ — tác tử khai «exit 0» khi lệnh còn chạy không thành PASS. Lượt cùng round chạy lại có
+  nhật ký tên mới và dừng cây còn sót của lượt trước.
   Thước không cần tự ghi nhật ký. Giá trị sai → `s4-args` dừng gọi tên eval.
 - **Eval trong `feature_loop.model_evals` chạy riêng** ở S4: tuần tự, SAU mọi lệnh máy khác (eval song
-  song và chuỗi suite) — như làn ghim lại đã làm. Đọc bằng cùng bộ đọc với làn; khoá có giá trị sai giờ
-  cũng dừng `s4-args` (trước chỉ dừng làn).
+  song và chuỗi suite) — như làn ghim lại đã làm. Đọc bằng bộ đọc hẹp mà làn ghim lại cũng gọi; `model_evals` sai dạng giờ
+  cũng dừng `s4-args` (trước chỉ dừng làn) — khoá CHỈ của làn ghim lại sai giá trị thì không.
 - **Luật TOOL-KILL thêm một dòng:** «chuyển sang nền» không phải «bị giết» — chờ tới dòng `__EXIT=`,
   tối đa `long_running` hoặc 30 phút; quá thì BLOCKED với lý do chỉ việc cần làm.
 - **Khoá vắng = như 2.24.0:** kho không khai `long_running` lẫn `model_evals` nhận prompt và thứ tự

@@ -81,3 +81,21 @@ Thêm một dòng vào khối marker `TOOL-KILL-RULE` (nguồn duy nhất, đi v
 - Dừng tiến trình khi `__QUA_HAN` giết cả cây con từ `.pid` của vỏ khởi chạy (đo bằng pid canh của tiến trình cháu); tiến trình tự tách khỏi cây (daemon, `setsid`) thoát được.
 - Hành vi tác tử trên lối lời (B) không có răng máy.
 - Ca đo chạy hai lệnh bằng **bash**. Dưới **zsh** (vỏ mặc định của macOS, nơi tác tử chấm thật có thể chạy) đo tay 07/10: xong · chưa xong · quá hạn · dấu giả đều đúng; riêng chiều đỏ «chỉ giết pid vỏ» không lật vì zsh tự `exec` lệnh cuối của subshell (cây chỉ còn một tiến trình) — đặc thù vỏ, không phải lỗ của khung. Ngưỡng dựng ca zsh trong suite: ≥ 1 lượt chấm thật lệch kết cục giữa hai vỏ.
+
+## Nâng phạm vi sau lượt chấm 2 (sổ quyết định d-…-7, làn V, cửa veto mở)
+
+Review hai lượt chấm nêu bảy lỗ ngoài hợp đồng phá chính lời hứa của vòng; vá trong vòng, mỗi vá một ca hai chiều:
+
+| Lỗ | Vá | Ca |
+|---|---|---|
+| Tác tử khai «exit 0» sau một lần chờ (đuôi `__CHUA_XONG`/`__QUA_HAN`) → PASS khi lệnh còn chạy | `normDau` đọc dấu cuối đuôi trước mọi lời khai → không-chạy-được | LN5 |
+| Đuôi chưa-xong mang dấu giả | che mọi dòng `__EXIT=` ở đuôi chưa-xong (giữ, lớp phòng thủ thứ hai) | LN4 |
+| Bước khởi chạy chưa chạy → mốc bắt đầu tính lại mỗi lần, chờ không hạn | lệnh chờ tự `mkdir -p` và ghi mốc ở lần đầu | LN6 (và LN1: cuộc đua thư mục chưa có) |
+| Lượt cùng round chạy lại đọc `.xong` của lượt trước; cây cũ chạy chồng | tên nhật ký thêm nhãn lượt (`invokedAt`); khởi chạy dừng cây mồ côi cùng ô | LN7 |
+| Chỉ gửi SIGTERM | thu cây, TERM, chờ ≤ 5 s, KILL | LN8 |
+| S4 dừng vì khoá CHỈ của làn ghim lại sai | bộ đọc hẹp `docModelEvals`, docKhoa gọi lại nó | SC5 |
+| VP1 khoá cả engine vào 2.24.0 | chỉ so lane máy + nhóm lệnh + verdict | VP1 |
+| Hai khoá mới không có round-trip bên viết → bên đọc | args do s4-args thật sinh chạy qua workflow thật | RT1 |
+| Luật TOOL-KILL không được kiểm tới prompt lệnh dài | LD1 đòi mọi dòng luật trong prompt lệnh dài | LD1 |
+
+Còn lại ngoài vòng (Known limits ở Cổng Bằng chứng): VP1 vẫn neo vào tag `v2.24.0` cho lane máy — đổi khung bọc lệnh thường có chủ đích thì dời mốc trong tệp ca; bộ đọc `paths` của carry-plan chỉ nhận dạng một dòng `[...]` (dạng khối coi như vắng → chạy lại toàn bộ, phía an toàn).
