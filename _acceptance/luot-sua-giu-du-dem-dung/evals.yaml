@@ -1,0 +1,164 @@
+# Eval cho hồ sơ luot-sua-giu-du-dem-dung.
+#
+# Ca vĩnh viễn (test hồi quy của kho) ở hai tệp, tên ca = tên AC:
+#   tests/scripts/luot-sua-giu-du.test.mjs    — AC-1, AC-2, AC-4, AC-6..AC-10 (LSGD_CASES chọn nhóm)
+#   tests/workflows/luot-sua-giu-du.test.mjs  — AC-3, AC-5 (workflow chạy thật qua harness.mjs)
+# Suite `scripts`/`workflows` cũng tự nhặt hai tệp qua glob. LSGD_CASES khớp 0 ca → thoát 1.
+# Kho/hồ sơ fixture do MÃ SINH trong lượt chạy; đường dẫn suy từ vị trí tệp ca. Bản base
+# cho chiều đỏ lịch sử = `git archive 7b1afe1e` (main trước vòng, mốc bất biến — không
+# merge-base, vì sau khi gộp merge-base trùng HEAD và chiều đỏ tự chết). Mutant: bản sao
+# bộ máy trong thư mục tạm, chuỗi tiêm phải đổi được bản sao (khác bản gốc) trước khi tin đỏ.
+schema_version: 1
+feature_slug: luot-sua-giu-du-dem-dung
+
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.lsgd_ac1
+    expected: >-
+      Sổ chạy code-sinh với năm dòng finding a–e của lượt N−1; carry-plan bản mới cho
+      carriedFindings BẰNG ĐÚNG {a, b, e} (tập viết trước), tepDoi a=false, b=e=true, fromRound
+      e=N−2; đường noCarry (sổ thiếu sha) cho cùng tập. Đối chứng dương: a có ở cả base lẫn mới.
+      Chiều đỏ lịch sử: base 7b1afe1e trên CÙNG sổ thiếu b, e — ghim "mục ngoài hợp đồng rụng: b, e".
+    paths:
+      - "feature-loop/scripts/carry-plan.mjs"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.lsgd_ac2
+    expected: >-
+      Kho fixture code-sinh, lượt 1 có dòng finding ngoài hợp đồng trên src/a.js, lượt sửa
+      chạm src/a.js; s4-args --carry-anchor sinh tệp args có carriedFindings chứa mục đó kèm
+      tepDoi true. Chiều đỏ: bản sao s4-args bỏ khoá carriedFindings → ghim "s4-args làm rơi
+      carriedFindings".
+    paths:
+      - "feature-loop/scripts/s4-args.mjs"
+      - "feature-loop/scripts/carry-plan.mjs"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.lsgd_ac3
+    expected: >-
+      Workflow chạy thật qua harness, carriedFindings hai mục (tepDoi false/true), tác tử trả
+      findings ở ba hình dạng (mục có một finding tươi · mục rỗng · không mục) — out-of-contract.cjs
+      đọc ra đủ hai mục carry, tiêu đề đuôi "(r1)" và "(r1 · tệp đã đổi)", plain/file/proposal của
+      sổ, suspect_empty false, mục tươi còn; tác tử đã in một mục carry (cùng title + file) → đúng
+      một lần; mục tươi tiêu đề chứa title carry nhưng khác file → mục carry vẫn lên đúng một lần.
+      Round-trip sổ: dòng finding của result.runLog → carry-plan lượt kế → đủ hai mục, fromRound 1,
+      title không đuôi. Đối chứng dương: carriedFindings rỗng → findings BẰNG HỆT chuỗi tác tử.
+      Chiều đỏ (ba bản sao): gỡ bước chèn → "mục carry không lên bản findings"; khoá chỉ-chứa-title
+      → "mục carry bị nuốt bởi mục tươi trùng tên"; bỏ dòng sổ carry → "mục carry rụng ở lượt kế".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "lib/out-of-contract.cjs"
+      - "tests/workflows/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.lsgd_ac4
+    expected: >-
+      Hồ sơ fixture với evidence-report lượt trước (khối ui-check E2: run_id R, ảnh có thật,
+      observed nhiều dòng, network_observed clean) và sổ carry E2 bằng R; s4-args gắn đúng ba trường
+      (observed giữ xuống dòng). Ba ca phủ định trên CÙNG fixture: run_id lệch / ảnh vắng / thiếu
+      observed → không gắn, đúng một dòng stderr gọi E2 + lý do; eval test carry → không gắn, không
+      dòng. Chiều đỏ: bản sao bỏ phép so run_id → ghim "gắn khung của lượt khác".
+    paths:
+      - "feature-loop/scripts/s4-args.mjs"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.lsgd_ac5
+    expected: >-
+      Workflow qua harness, E2 ui-check carry mang khung, tác tử bỏ sót khung — khối E2 của
+      result.report có screenshot/observed/network_observed đúng giá trị; evaluateEvidence không
+      observedFailures; gate-card --extract trên hồ sơ fixture cho ui_observed present true,
+      passed 1. Round-trip ba lượt: result.report ghi làm evidence-report, s4-args lượt kế → khung
+      E2 bằng hệt từng byte. Đối chứng dương: carry không khung → không screenshot, passed 0.
+      Chiều đỏ: bản sao gỡ bước chèn → ghim "khối carry mất khung".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "scripts/gate-card.js"
+      - "lib/evidence-core.cjs"
+      - "tests/workflows/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.lsgd_ac6
+    expected: >-
+      Hai kho code-sinh A (không merge) và B (A + merge từ nền chạm _acceptance/khac/** và
+      src/nen.js); thuoc-vat --json VÀ --write (đọc lại dòng thuoc-vat vừa nối): số của B BẰNG ĐÚNG
+      của A, A bằng hằng viết trước, tepThuoc/tep_thuoc B không có _acceptance/khac/. Chiều đỏ lịch
+      sử: base 7b1afe1e trên B có _acceptance/khac/rang/x.mjs ở cả hai chế độ — ghim "đếm nội dung
+      nhập từ nền".
+    paths:
+      - "feature-loop/scripts/thuoc-vat.mjs"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.lsgd_ac7
+    expected: >-
+      Kho B thêm src/chung.js nền +5, vòng +3/−1 trước và sau merge; vat chỉ cộng +3/−1 cho tệp
+      đó (hằng viết trước). Chiều đỏ: bản sao lấy numstat ròng cho tệp chung → ghim "tệp chung đếm
+      cả dòng của nền".
+    paths:
+      - "feature-loop/scripts/thuoc-vat.mjs"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.lsgd_ac8
+    expected: >-
+      Kho C có nhánh con tách sau mốc sàn mang commit chỉ-thước, gộp --no-ff: nhát +1, tệp của nó
+      trong dòng và tepThuoc. Kho D không merge: stdout BẰNG HỆT base 7b1afe1e. Chiều đỏ: bản sao coi
+      mọi cha thứ hai là nền → C ghim "nhánh con của vòng bị bỏ".
+    paths:
+      - "feature-loop/scripts/thuoc-vat.mjs"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.lsgd_ac9
+    expected: >-
+      Kho B với hai dòng round-tally (sha lượt 1 trước merge, lượt 2 sau); --giua-hai-luot in
+      chỉ tệp thước của vòng đổi giữa hai lượt (đối chứng dương: tệp thước vòng sửa có mặt), không
+      _acceptance/khac/. Chiều đỏ lịch sử: base in _acceptance/khac/rang/x.mjs.
+    paths:
+      - "feature-loop/scripts/thuoc-vat.mjs"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-10
+    executor: script
+    cmd: config:executors.script.lsgd_ac10
+    expected: >-
+      Rút câu cấm ghi screenshot/observed cho khối carry từ CHÍNH acceptance-verify.js của base
+      7b1afe1e (đối chứng dương: rút được ≥ 1 câu, in nguyên văn); câu đó vắng ở bản mới; SKILL feature-loop đoạn T5 nêu nhãn "(r<N> · tệp đã đổi)";
+      CHANGELOG mục chưa phát hành nêu don-okr-nhap-sai. Chiều đỏ: bản sao còn câu cấm → ghim tên câu.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "feature-loop/skills/feature-loop/SKILL.md"
+      - "CHANGELOG.md"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
