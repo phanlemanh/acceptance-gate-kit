@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a87b6782644d017baafcce3361d24e1bb607dd3c
+verified_commit: 429f625cd9c23f2f6c288a374ad29c257219e9ad
 human_signoff: Manh Phan 2026-10-07 — ký lượt chấm 7; Ngoài-1, Ngoài-2 ghi Known limits; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -191,3 +191,7 @@ Round 4: bị trả — dọn cây mồ côi không chạy được dưới zsh 
 Round 5: bị trả — ca LN6b bị xoá nhầm khi viết lại LN7; đã khôi phục LN6b.
 Round 6: bị chặn do hạ tầng — tác tử chạy shard scripts 1/3 chết, ca đo không giết theo pid đã cấp lại.
 Round 7: mọi eval máy và mọi lệnh suite xanh; hai mục judgment giữ panel cũ; verdict PASS.
+
+### Re-pin lần 1 — 2026-10-07, do cây đổi sau chữ ký: sửa mẫu ca LN2 cho bash 5 (CI) + gộp main #278
+run_id: repin-20261007T101502Z-18478
+sha: 429f625cd9c23f2f6c288a374ad29c257219e9ad · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E4 (E4 không khai paths), E8 (E8 không khai paths) · AC không có chốt máy: AC-4, AC-8
