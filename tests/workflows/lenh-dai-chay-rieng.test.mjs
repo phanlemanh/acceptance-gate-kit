@@ -101,6 +101,11 @@ const rutLenh = (prompt) => {
   return { khoi: a && a[1], cho: b && b[1] };
 };
 const song = pid => { try { process.kill(pid, 0); return true; } catch { return false; } };
+// Pid trong tệp canh có thể đã được hệ điều hành CẤP LẠI cho tiến trình khác khi mẫu đã thoát (lượt chấm sinh
+// hàng nghìn tiến trình) — chỉ coi là «mẫu còn sống» khi dòng lệnh của pid vẫn là mẫu, và chỉ giết khi đó.
+// Thiếu vế này thì bước dọn của ca đo SIGKILL nhầm tiến trình của suite chạy cùng lúc (lượt chấm 1 và 6:
+// mảnh scripts mjs:1/3 đỏ một tệp, chạy riêng thì xanh).
+const songMau = pid => { if (!pid || !song(pid)) return false; try { return /sleep 60|canh\.pid/.test(execFileSync('ps', ['-o', 'command=', '-p', String(pid)], { encoding: 'utf8' })); } catch { return false; } };
 const docPid = f => { try { return Number(readFileSync(f, 'utf8').trim()) || 0; } catch { return 0; } };
 const KIM_XONG = 'if [ -f "$L.xong" ]; then KQ=xong; break; fi;';
 const KIM_CHE = ` | sed 's/^\${EXIT_MARK}/[__EXIT che]/'`;
@@ -136,8 +141,8 @@ async function luotThat({ cmd, phut = 45, tranLan = 1, hanPhut, dungO = 40, khai
   return { ...out, st, root, pidCanh };
 }
 const choCanh = async (root) => { for (let i = 0; i < 50 && !docPid(path.join(root, 'canh.pid')); i++) await ngu(100); };
-const chetTrong = async (pid, ms = 5000) => { for (let t = 0; t < ms; t += 100) { if (!song(pid)) return true; await ngu(100); } return !song(pid); };
-const don = (r) => { if (r.pidCanh && song(r.pidCanh)) try { process.kill(r.pidCanh, 'SIGKILL'); } catch {} try { rmSync(r.root, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }); } catch { /* tiến trình nền còn ghi .xong — thư mục tạm, để hệ điều hành dọn */ } };
+const chetTrong = async (pid, ms = 5000) => { for (let t = 0; t < ms; t += 100) { if (!songMau(pid)) return true; await ngu(100); } return !songMau(pid); };
+const don = (r) => { if (songMau(r.pidCanh)) try { process.kill(r.pidCanh, 'SIGKILL'); } catch {} try { rmSync(r.root, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }); } catch { /* tiến trình nền còn ghi .xong — thư mục tạm, để hệ điều hành dọn */ } };
 
 // Lệnh mẫu: in dấu GIẢ giữa chừng, chạy tiếp rồi thoát 3. Tác tử khai SAI: killedByTool + exit 0.
 const LENH_GIA_ROI_3 = `sh -c 'echo $$ > canh.pid; echo dau; echo __EXIT=0; sleep 3; echo cuoi; exit 3'`;
