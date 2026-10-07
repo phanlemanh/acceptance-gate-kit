@@ -99,6 +99,7 @@ flowchart TD
 - Lời mời ở trần lượt là vật máy sinh — thẻ Cổng Bằng chứng CHƯA-ký-được in khối «Lối ra» (lối sống, có giá, khuyến nghị tất định) khi vòng chạm trần lượt hoặc một eval hỏng lặp lại (`loi-moi-tran-luot-loi-song-co-gia`)
 - Lớp bằng chứng nhìn-thấy — hợp đồng có mặt người nhìn phải có ≥1 eval ui-check (`layer: ui-observed`); răng W8 ba tầng (lint · thẻ · pre-merge NOTE), một nguồn cho surfaces, đường bỏ có tên (`lop-bang-chung-nhin-thay`)
 - lượt chấm ghi vào cây — bộ chấm S4 phát hiện cây đổi trong lượt chấm (commit lạ, tệp vật/thước bị sửa) và lượt ấy không dùng được, chấm lại cùng vòng (`luot-cham-ghi-vao-cay`)
+- Lượt sửa giữ đủ, đếm đúng — mục ngoài hợp đồng lượt trước không rụng khi tệp bị sửa; khối ui-check carry giữ khung lượt gốc; thước-vật không đếm nội dung nhập từ nhánh nền (`luot-sua-giu-du-dem-dung`)
 - Lưu kho harness Codex và khai tử nghi lễ design-loop — chỉ TRỪ, có mốc git để đảo và 2 ADR (`luu-kho-codex-va-nghi-le-design`) — đã giao — đã nghỉ, giữ sử liệu
 - Mã sổ quyết định duy nhất — khuôn mã d-<UTC>-<n> ở bên ghi, khoá overlay theo dòng ở bên đọc để thẻ không lặp một câu dịch lên mọi dòng chung mã (`ma-so-quyet-dinh-duy-nhat`)
 - lớp lỗi đo-lường thành luật ở 2 điểm cắm: gap-probe S1 (7 câu đối chiếu chéo) + review lens measurement S4 (6 hình dạng, một chỗ, mutation-covered); không nới finder cũ (`matrix-measure-law`)

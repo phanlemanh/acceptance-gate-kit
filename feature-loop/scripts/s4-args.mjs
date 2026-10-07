@@ -576,6 +576,67 @@ if (flags['carry-anchor']) {
     else die(`carry-plan.mjs lỗi (exit ${code}): ${String(e.stderr || e.message || '').split('\n')[0]}`);
   }
 }
+// ── Khung của eval ui-check CARRY (luot-sua-giu-du-dem-dung AC-4) ─────────
+// Khối carry trong báo cáo lượt mới phải giữ ảnh + mô tả của lượt gốc; thiếu chúng thì thẻ
+// Cổng 2 đếm «bằng chứng nhìn-thấy: KHÔNG có» dù khung còn nguyên (crm don-okr-nhap-sai
+// 07/10, E12). Nguồn: `evidence-report.md` đang nằm trong hồ sơ — bản của lượt TRƯỚC, lượt
+// này chưa ghi đè. Chỉ gắn khi chắc là CÙNG lần chấm: khối mang đúng run_id của dòng carry,
+// ảnh có thật trên đĩa, observed thực chất. Lệch thì không gắn và nói ra một dòng — thẻ báo
+// «không có» là đúng sự thật, máy không bịa khung.
+function khoiEvalBaoCao(text, id) {
+  const dong = String(text || '').split('\n');
+  const dau = dong.findIndex(l => new RegExp(`^-\\s+eval:\\s*${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`).test(l));
+  if (dau === -1) return null;
+  let het = dau + 1;
+  while (het < dong.length && !/^(-\s|#)/.test(dong[het])) het += 1;
+  const than = dong.slice(dau + 1, het);
+  const o = {};
+  for (let i = 0; i < than.length; i += 1) {
+    const m = than[i].match(/^(\s+)(run_id|screenshot|observed|network_observed):\s*(.*)$/);
+    if (!m) continue;
+    const [, thut, khoa, giaTri] = m;
+    if (/^[|>][-+]?\s*$/.test(giaTri)) {   // khối vô hướng: các dòng thụt sâu hơn khoá
+      const noi = [];
+      let j = i + 1;
+      for (; j < than.length; j += 1) {
+        if (than[j].trim() === '') { noi.push(''); continue; }
+        if (than[j].match(/^(\s*)/)[1].length <= thut.length) break;
+        noi.push(than[j]);
+      }
+      while (noi.length && noi[noi.length - 1] === '') noi.pop();
+      const lui = Math.min(...noi.filter(Boolean).map(l => l.match(/^(\s*)/)[1].length));
+      o[khoa] = noi.map(l => l.slice(Number.isFinite(lui) ? lui : 0)).join('\n');
+      i = j - 1;
+    } else o[khoa] = giaTri.trim();
+  }
+  return o;
+}
+if (carriedEvals) {
+  const evalTheoId = new Map(evals.map(e => [e.id, e]));
+  const baoCaoTruoc = (() => { try { return fs.readFileSync(path.join(ws, 'evidence-report.md'), 'utf8'); } catch { return ''; } })();
+  for (const c of carriedEvals) {
+    const e = evalTheoId.get(c.id);
+    if (!e || e.executor !== 'ui-check') continue;
+    const k = khoiEvalBaoCao(baoCaoTruoc, c.id);
+    const khongMang = lyDo => console.error(`s4-args: khung ui-check ${c.id} không mang sang — ${lyDo}; khối carry sẽ không có ảnh, thẻ báo đúng là không có`);
+    if (!k) { khongMang('báo cáo lượt trước không có khối của eval'); continue; }
+    // <<<KHUNG-CUNG-RUN-ID
+    if (k.run_id !== c.runId) { khongMang(`run_id lệch (khối ${k.run_id || 'vắng'} ≠ carry ${c.runId})`); continue; }
+    // KHUNG-CUNG-RUN-ID>>>
+    if (!k.screenshot) { khongMang('ảnh vắng (khối không có screenshot)'); continue; }
+    // Báo cáo thật ghi cả đường tương đối hồ sơ lẫn đường TUYỆT ĐỐI (crm 07/10: 20/172 khối ảnh) —
+    // `resolve` giữ nguyên đường tuyệt đối, `join` sẽ ghép nó vào sau ws và báo vắng oan (AC-11).
+    // <<<DUONG-ANH
+    const anhCo = [path.resolve(ws, k.screenshot), path.resolve(root, k.screenshot)].some(p => { try { return fs.statSync(p).isFile(); } catch { return false; } });
+    // DUONG-ANH>>>
+    if (!anhCo) { khongMang(`ảnh vắng (${k.screenshot} không có trên đĩa)`); continue; }
+    if (!k.observed || k.observed.replace(/\s+/g, ' ').trim().length < 20) { khongMang('thiếu observed'); continue; }
+    c.screenshot = k.screenshot;
+    c.observed = k.observed;
+    if (k.network_observed) c.networkObserved = k.network_observed;
+    console.error(`s4-args: khung ui-check ${c.id} mang sang từ báo cáo lượt trước (${k.screenshot})`);
+  }
+}
 // P2 (mọi round): baseline-once theo evalsHash
 const evalsHash = sha256(evalsText);
 const lastBaseline = [...runLogLines].reverse().find(l => l.kind === 'baseline');

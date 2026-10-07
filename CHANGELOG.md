@@ -35,6 +35,32 @@ dựng `eve dev` cùng lúc với một ca suite canh đúng tiến trình đó.
 - **crm khi nhận:** khai `long_running: 45` cho `tro-ly-okr-bo-final-output/E6`, `E7` (và mọi eval model
   dài khác); E6/E7 đã có trong `model_evals` nên tự chạy sau suite.
 
+### Lượt sửa giữ đủ, đếm đúng (hồ sơ `luot-sua-giu-du-dem-dung`, T2)
+
+Gốc: crm, hồ sơ `don-okr-nhap-sai`, S4 lượt 2 ngày 07/10 trên 2.24.0 — ba lỗ, cả ba tái hiện được
+trên dữ liệu crm.
+
+- **Mục ngoài hợp đồng của lượt trước không còn rụng.** Trước đây mục nằm trên tệp mà lượt sửa có chạm
+  bị bỏ khỏi carry (giả định «lượt sau tự tìm lại» — sai: tìm lỗi không tất định), nên nó biến mất khỏi
+  thẻ Cổng Bằng chứng; crm mất ba mục và vá tay. Nay mọi mục ngoài hợp đồng đều mang sang; mục trên tệp
+  bị chạm mang nhãn «(r<N> · tệp đã đổi)». Bản findings do MÁY chèn mục carry, không trông vào tác tử tổng
+  hợp; mục chỉ được coi là đã in khi cùng tệp và tiêu đề bằng đúng hoặc mang nhãn «(r…)» — một mục
+  mới cùng tệp có tên dài hơn không nuốt được mục cũ.
+- **Eval ui-check carry giữ ảnh và mô tả của lượt gốc.** Trước đây khối carry cố ý bỏ `screenshot:` /
+  `observed:` nên thẻ báo «Bằng chứng lớp nhìn-thấy: KHÔNG có» dù khung còn nguyên. Nay `s4-args` đọc
+  khối của báo cáo lượt trước — chỉ khi cùng `run_id`, ảnh còn trên đĩa (đường tương đối hồ sơ hay
+  đường tuyệt đối — crm có cả hai), mô tả thực chất — và workflow
+  chép ba trường vào khối carry. Thiếu một điều kiện → không chép, một dòng stderr nói vì sao; thẻ báo
+  «không có» là đúng sự thật.
+- **Thước-vật không đếm nội dung nhập từ nhánh nền.** Gộp nhánh nền vào nhánh của vòng từng làm
+  `thuoc-vat.mjs` đếm cả commit và tệp của hồ sơ khác (crm: vật +1780/−12 → +38/−11 khi đếm đúng; nhát
+  2 → 0). Cha thứ hai của merge mà không có mốc sàn làm tổ tiên = nền, không đếm; nhánh con của chính
+  vòng (worktree `execute-parallel`) vẫn đếm. `--giua-hai-luot` cùng bộ lọc.
+- **Kho không gặp ba ca này:** không đổi gì — kho không merge từ nền giữ từng byte đầu ra thước-vật;
+  args đời cũ (không trường khung, không `tepDoi`) chạy y như trước.
+- **Giới hạn đã khai:** tệp mà cả vòng lẫn nền cùng sửa được đếm bằng cộng từng commit của vòng thay vì
+  số ròng (git 2.37 chưa có `merge-tree --write-tree`) — một dòng thêm rồi xoá trong vòng đếm hai lần.
+
 ## 2.24.0 — 06/10/2026
 
 Cửa sổ 2.23.0 → 2.24.0 nằm trong **một ngày** (06/10), có **hai vòng** được ký: `loc-paths-dong-mac-dinh`

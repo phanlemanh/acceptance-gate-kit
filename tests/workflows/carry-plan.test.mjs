@@ -137,9 +137,9 @@ console.log('DV9c parser cross-layer đồng bộ chuẩn (fix S4-r1: parser th�
 }
 
 // ── DV10 (khoi-tim-loi-tra-phi-theo-vat, T5): carry FINDING ngoài hợp đồng ──
-// Finding ngoài hợp đồng ở lượt trước, file KHÔNG chạm diff-fix → mang sang, không
-// triage/refute lại. Trong hợp đồng thì KHÔNG carry: chúng kéo REJECT nên file của
-// chúng chắc chắn đã đổi ở lượt sau.
+// Finding ngoài hợp đồng ở lượt trước → mang sang, không triage/refute lại; tệp nằm trong
+// diff-fix thì kèm `tepDoi: true` (luot-sua-giu-du-dem-dung, 07/10). Trong hợp đồng thì KHÔNG
+// carry: chúng kéo REJECT và máy sửa chúng trong lượt sau.
 //
 // Dòng sổ KHÔNG gõ tay: rút khoá từ khối marker FINDING-LINE của bên VIẾT
 // (acceptance-verify.js) rồi cho bên ĐỌC (carry-plan) đọc lại — round-trip. Gõ tay ở
@@ -168,16 +168,22 @@ console.log('DV10 carriedFindings: ngoai hop dong + file khong doi (round-trip t
 
   const r = run(d, 'src/a/y.js');
   const cf = (r.json && r.json.carriedFindings) || [];
-  check('DV10 carry DUNG mot: ngoai A (file khong doi)', cf.length === 1 && cf[0].title === 'ngoai A', JSON.stringify(cf));
+  // luot-sua-giu-du-dem-dung AC-1 (07/10): mục ngoài hợp đồng trên tệp NẰM TRONG delta cũng
+  // mang sang — kèm `tepDoi: true`. Bản trước bỏ nó (crm don-okr-nhap-sai mất ba mục, im lặng).
+  const by = Object.fromEntries(cf.map(x => [x.title, x]));
+  check('DV10 carry DUNG hai: ngoai A (file khong doi) + ngoai B (file trong delta)',
+    cf.length === 2 && cf.map(x => x.title).sort().join(',') === 'ngoai A,ngoai B', JSON.stringify(cf.map(x => x.title)));
   check('DV10 mang du truong cho the: plain + proposal + fromRound',
-    cf[0] && cf[0].plain === 'nguoi dung thay A' && cf[0].proposal === 'known-limits' && cf[0].fromRound === 1, JSON.stringify(cf[0]));
-  check('DV10 KHONG carry: ngoai B (file trong delta) · trong C (in-contract) · chua phan loai D',
-    !cf.some(x => ['ngoai B', 'trong C', 'chua phan loai D'].includes(x.title)), JSON.stringify(cf.map(x => x.title)));
-  // Đối chứng dương: đổi delta sang file khác → ngoai B cũng được carry (hai mục).
+    by['ngoai A'] && by['ngoai A'].plain === 'nguoi dung thay A' && by['ngoai A'].proposal === 'known-limits' && by['ngoai A'].fromRound === 1, JSON.stringify(by['ngoai A']));
+  check('DV10 tepDoi: A false (file khong doi) · B true (file trong delta)',
+    by['ngoai A'] && by['ngoai A'].tepDoi === false && by['ngoai B'] && by['ngoai B'].tepDoi === true, JSON.stringify(cf));
+  check('DV10 KHONG carry: trong C (in-contract) · chua phan loai D',
+    !cf.some(x => ['trong C', 'chua phan loai D'].includes(x.title)), JSON.stringify(cf.map(x => x.title)));
+  // Đối chứng dương: đổi delta sang file khác → vẫn hai mục, nay cả hai tepDoi false.
   const r2 = run(d, 'nowhere/q.js');
   const cf2 = (r2.json && r2.json.carriedFindings) || [];
-  check('DV10 doi chung duong: delta khong cham file nao -> carry ca hai muc ngoai hop dong',
-    cf2.length === 2 && cf2.map(x => x.title).sort().join(',') === 'ngoai A,ngoai B', JSON.stringify(cf2.map(x => x.title)));
+  check('DV10 doi chung duong: delta khong cham file nao -> hai muc, tepDoi deu false',
+    cf2.length === 2 && cf2.every(x => x.tepDoi === false), JSON.stringify(cf2));
   // Sổ đời cũ (không có dòng finding) → carriedFindings rỗng, KHÔNG ném lỗi.
   const dCu = mkFix();
   const rCu = run(dCu, 'src/a/y.js');
