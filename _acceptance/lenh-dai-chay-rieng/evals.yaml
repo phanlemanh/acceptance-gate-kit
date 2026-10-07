@@ -58,9 +58,12 @@ evals:
       trong blocked, đuôi không mang dòng __EXIT=; chiều đỏ: bản sao không che → "dấu giả lộ ở đuôi chưa
       xong". LN5: khai exit 0 + đuôi __CHUA_XONG → BLOCKED; đỏ: bản sao không đọc dấu → "đuôi chưa-xong
       thành PASS". LN6: không khởi chạy → lần chờ đầu ghi tệp .bat-dau; đỏ: tính lại mốc mỗi lần → "chờ
-      không hạn khi thiếu mốc". LN7: hai lượt cùng round (invokedAt khác) → cây lượt 1 chết khi lượt 2
+      không hạn khi thiếu mốc". LN6b: mốc 120 s trước, hạn 1 phút → __QUA_HAN; đỏ: ghi đè mốc mỗi lần →
+      "hạn chờ dời theo mỗi lần chờ". LN7: hai lượt cùng round (invokedAt khác) → cây lượt 1 chết khi lượt 2
       khởi chạy, nhật ký lượt 2 tên mới; đỏ: bỏ bước dọn → "cây mồ côi lượt trước còn sống". LN8: lệnh
-      bẫy TERM chết sau __QUA_HAN; đỏ: chỉ gửi TERM → "lệnh bẫy TERM sống sót".
+      bẫy TERM chết sau __QUA_HAN; đỏ: chỉ gửi TERM → "lệnh bẫy TERM sống sót". LN9: tệp pid cũ trỏ một
+      tiến trình khác → nó sống, tệp pid bị xoá, lượt đạt; đỏ: bỏ kiểm danh tính → "giết nhầm tiến trình
+      mang pid cũ".
     paths:
       - "feature-loop/workflows/acceptance-verify.js"
       - "tests/workflows/lenh-dai-chay-rieng.test.mjs"
@@ -92,7 +95,7 @@ evals:
       evalsChayRieng đúng ["E1"]. SC2: khoá model_evals vắng → evalsChayRieng VẮNG HẲN trong tệp args.
       SC3: mục "khong-gach" → thoát 2, stderr chứa "feature_loop.model_evals", không sinh tệp. SC4 chiều
       đỏ một nguồn: bản sao feature-loop/ có docModelEvals trả rỗng → evalsChayRieng vắng, ca in
-      "không đọc qua docModelEvals". SC5: thêm repin_retry: 2 → s4-args vẫn xanh, evalsChayRieng ["E1"];
+      "không đọc qua docModelEvals". SC5: thêm repin_retry: 2, repin_budget_min: 0, repin_ci_blank_env: [1sai] → s4-args vẫn xanh, evalsChayRieng ["E1"];
       đỏ: bản sao đọc qua docKhoa → thoát 2, ca in "khoá làn ghim lại chặn lượt chấm". RT1: args do
       s4-args thật sinh (E1 long_running 45 + model_evals [demo/E1]) → workflow thật: dry-run chayRieng
       ["echo dai"], prompt lệnh dài có HAN_PHUT=45; đỏ: bản sao bên viết đổi tên khoá → ca in "bên viết

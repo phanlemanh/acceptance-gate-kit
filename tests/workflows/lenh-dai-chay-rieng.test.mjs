@@ -137,7 +137,7 @@ async function luotThat({ cmd, phut = 45, tranLan = 1, hanPhut, dungO = 40, khai
 }
 const choCanh = async (root) => { for (let i = 0; i < 50 && !docPid(path.join(root, 'canh.pid')); i++) await ngu(100); };
 const chetTrong = async (pid, ms = 5000) => { for (let t = 0; t < ms; t += 100) { if (!song(pid)) return true; await ngu(100); } return !song(pid); };
-const don = (r) => { if (r.pidCanh && song(r.pidCanh)) try { process.kill(r.pidCanh, 'SIGKILL'); } catch {} rmSync(r.root, { recursive: true, force: true }); };
+const don = (r) => { if (r.pidCanh && song(r.pidCanh)) try { process.kill(r.pidCanh, 'SIGKILL'); } catch {} try { rmSync(r.root, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 }); } catch { /* tiến trình nền còn ghi .xong — thư mục tạm, để hệ điều hành dọn */ } };
 
 // Lệnh mẫu: in dấu GIẢ giữa chừng, chạy tiếp rồi thoát 3. Tác tử khai SAI: killedByTool + exit 0.
 const LENH_GIA_ROI_3 = `sh -c 'echo $$ > canh.pid; echo dau; echo __EXIT=0; sleep 3; echo cuoi; exit 3'`;
@@ -221,7 +221,7 @@ console.log('LN5 tác tử khai exit 0 sau MỘT lần chờ (đuôi __CHUA_XONG
 }
 console.log('LN6 bước khởi chạy không chạy → lệnh chờ TỰ ghi mốc bắt đầu (hạn chờ luôn có chặn)');
 {
-  const KIM_MOC = '[ -f "$L.bat-dau" ] || date +%s > "$L.bat-dau"; B=$(cat "$L.bat-dau");';
+  const KIM_MOC = '[ -f "$L.bat-dau" ] || { date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; }; B=$(cat "$L.bat-dau" 2>/dev/null); case "$B" in \'\'|*[!0-9]*) B=$(date +%s);; esac;';
   const MUTANT_MOC = SRC.replace(KIM_MOC, 'B=$(cat "$L.bat-dau" 2>/dev/null || date +%s);');
   const ca = async (src) => {
     const r = await luotThat({ cmd: 'echo khong-bao-gio-chay', dungO: 1, khongKhoi: true, src,
@@ -263,6 +263,55 @@ console.log('LN7 lượt cùng round chạy lại: cây mồ côi của lượt 
   const mut = await ca(MUTANT_MO_COI);
   if (!mut.chet1) console.log('  (mutant không dọn) cây mồ côi lượt trước còn sống');
   check('LN7 chiều đỏ: bản sao bỏ bước dọn → "cây mồ côi lượt trước còn sống"', soLan(SRC, KIM_MO_COI) === 1 && mut.pid1 > 0 && !mut.chet1, JSON.stringify(mut));
+}
+console.log('LN6b hạn chờ tính từ mốc ĐÃ LƯU, không dời theo mỗi lần chờ (quan hệ, không chỉ «có tệp»)');
+{
+  const KIM_GIU = '[ -f "$L.bat-dau" ] || { date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; };';
+  const MUTANT_DOI = SRC.replace(KIM_GIU, '{ date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; };');
+  const datMocCu = async (root) => {
+    const d = path.join(root, '.acceptance-runs', 'demo', 's4-lenh-dai');
+    execFileSync('mkdir', ['-p', d]);
+    execFileSync('bash', ['-c', `echo $(( $(date +%s) - 120 )) > "${d}/r1-l1-1-20261007000000.log.bat-dau"`]);
+  };
+  const ca = async (src) => {
+    const r = await luotThat({ cmd: 'echo x', phut: 1, dungO: 1, khongKhoi: true, truocCho: datMocCu, src,
+      khai: (out) => ({ exitCode: 1, outputTail: out, runId: '', cannotRun: true, reason: 'x' }) });
+    const kq = { ket: r.st.ketCuoi }; don(r); return kq;
+  };
+  const that = await ca(undefined);
+  check('LN6b mốc 120 s trước, hạn 1 phút → __QUA_HAN', that.ket === '__QUA_HAN', JSON.stringify(that));
+  const mut = await ca(MUTANT_DOI);
+  if (mut.ket !== '__QUA_HAN') console.log('  (mutant ghi đè mốc) hạn chờ dời theo mỗi lần chờ');
+  check('LN6b chiều đỏ: bản sao ghi đè mốc mỗi lần → "hạn chờ dời theo mỗi lần chờ"', soLan(SRC, KIM_GIU) === 1 && mut.ket === '__CHUA_XONG', JSON.stringify(mut));
+}
+console.log('LN9 tệp pid cũ trỏ một tiến trình KHÁC (pid tái dùng) → không bị giết, tệp pid bị xoá');
+{
+  const KIM_DANH = 'ps -ww -o command= -p "$P0" 2>/dev/null | grep -qF "\\${f%.pid}" && ';
+  const MUTANT_KHONG_DANH = SRC.replace(KIM_DANH, '');
+  const ca = async (src) => {
+    const la = spawn('sleep', ['60'], { detached: true, stdio: 'ignore' }); la.unref();
+    let tepCu = '';
+    const datPidCu = async (root) => {
+      const d = path.join(root, '.acceptance-runs', 'demo', 's4-lenh-dai');
+      execFileSync('mkdir', ['-p', d]);
+      tepCu = path.join(d, 'r1-l1-1-20261006000000.log.pid');
+      execFileSync('bash', ['-c', `echo ${la.pid} > "${tepCu}"`]);
+    };
+    // Mốc pid cũ phải có TRƯỚC khi khởi chạy: dựng thư mục + tệp rồi mới cho tác tử giả chạy hai lệnh.
+    const root = mkdtempSync(path.join(tmpdir(), 'ldcr-'));
+    await datPidCu(root);
+    const r = await luotThat({ root, cmd: 'sleep 1; exit 0', khai: (out) => ({ exitCode: 0, outputTail: out, runId: '', cannotRun: false }), src });
+    const songLa = await (async () => { await ngu(800); return song(la.pid); })();
+    const kq = { songLa, xoaPid: !existsSync(tepCu), verdict: r.result.verdict };
+    try { process.kill(la.pid, 'SIGKILL'); } catch {}
+    don(r);
+    return kq;
+  };
+  const that = await ca(undefined);
+  check('LN9 tiến trình mang pid cũ còn sống, tệp pid cũ đã xoá, lượt chạy đạt', that.songLa && that.xoaPid && that.verdict === 'PASS', JSON.stringify(that));
+  const mut = await ca(MUTANT_KHONG_DANH);
+  if (!mut.songLa) console.log('  (mutant không kiểm danh tính) giết nhầm tiến trình mang pid cũ');
+  check('LN9 chiều đỏ: bản sao không kiểm danh tính → "giết nhầm tiến trình mang pid cũ"', soLan(SRC, KIM_DANH) === 1 && !mut.songLa, JSON.stringify(mut));
 }
 console.log('LN8 lệnh bẫy SIGTERM: quá hạn vẫn dừng được (TERM rồi KILL)');
 {

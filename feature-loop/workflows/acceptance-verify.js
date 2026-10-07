@@ -602,7 +602,7 @@ const cmdRuns = new Map(distinctCmds.map(cmd => {
 // mảng eval của nó không rỗng (thuoc-co-cua, phản biện F1).
 const SUITE_SET = new Set(args.suiteCommands || []);
 // lenh-dai-chay-rieng AC-6: eval «nặng» (id trong `args.evalsChayRieng`, bên viết rút từ
-// `feature_loop.model_evals` qua docKhoa) dựng tài nguyên chung — crm 07/10: eval model dựng `eve dev`
+// `feature_loop.model_evals` qua bộ đọc hẹp docModelEvals) dựng tài nguyên chung — crm 07/10: eval model dựng `eve dev`
 // ở `apps/agent` trong lúc một ca suite canh đúng tiến trình đó, hai lượt REJECT. Lệnh của chúng chạy
 // RIÊNG: tuần tự, SAU khi nhánh song song lẫn chuỗi suite đã xong. Thuộc tính của LỆNH (dedupe theo
 // cmd), như làn ghim lại. Lệnh suite giữ chỗ trong chuỗi suite. Khoá vắng (args đời cũ) → nhóm rỗng.
@@ -702,12 +702,17 @@ const NHAN_LUOT = String(args.invokedAt || '').replace(/\D/g, '') || 'x'
 const DUNG_CAY = `cay() { echo "$1"; for c in $(pgrep -P "$1"); do cay "$c"; done; }; dung() { DS=$(cay "$1"); for p in $(printf '%s\\n' "$DS"); do kill -TERM "$p" 2>/dev/null; done; i=0; while [ $i -lt 10 ]; do S=; for p in $(printf '%s\\n' "$DS"); do kill -0 "$p" 2>/dev/null && S=1; done; [ -z "$S" ] && break; sleep 0.5; i=$((i+1)); done; for p in $(printf '%s\\n' "$DS"); do kill -KILL "$p" 2>/dev/null; done; }`
 // Trước khi chạy: dừng cây MỒ CÔI của lượt trước cùng ô (`<gốc>-*.log.pid` chưa có `.xong`) — nó còn
 // chạy thì chồng đúng tài nguyên chung mà nhóm chạy-riêng hứa giữ yên. Liệt kê bằng `ls | grep`, không
-// bằng glob: zsh dừng cả dòng lệnh khi glob không khớp.
-const BOC_NEN = (lenh, ten, goc) => `D="${NEN_DIR}"; mkdir -p "$D"; [ -f "${args.repoRoot}/.acceptance-runs/.gitignore" ] || printf '*\\n' > "${args.repoRoot}/.acceptance-runs/.gitignore"; ${DUNG_CAY}; for f in $(ls "$D" 2>/dev/null | grep '^${goc}-.*\\.log\\.pid$'); do [ -f "$D/\${f%.pid}.xong" ] || dung "$(cat "$D/$f")"; done; L="$D/${ten}.log"; rm -f "$L" "$L.xong" "$L.qua-han"; date +%s > "$L.bat-dau"; ( ${lenh}\n) > "$L" 2>&1 & P=$!; echo "$P" > "$L.pid"; wait "$P"; rc=$?; printf '\\n${EXIT_MARK}%s\\n' "$rc" >> "$L"; echo "$rc" > "$L.xong"; (exit $rc)`
+// bằng glob: zsh dừng cả dòng lệnh khi glob không khớp. Chỉ giết khi dòng lệnh của pid ghi trong tệp CÒN mang
+// tên nhật ký của lượt đó (vỏ khởi chạy mang nó trong chính lệnh) — pid đã chết rồi bị hệ điều hành cấp lại thì
+// KHÔNG chạm; rồi xoá tệp pid để lượt sau không thử lại (S4-r3 finding t1/t3).
+const BOC_NEN = (lenh, ten, goc) => `D="${NEN_DIR}"; mkdir -p "$D"; [ -f "${args.repoRoot}/.acceptance-runs/.gitignore" ] || printf '*\\n' > "${args.repoRoot}/.acceptance-runs/.gitignore"; ${DUNG_CAY}; for f in $(ls "$D" 2>/dev/null | grep '^${goc}-.*\\.log\\.pid$'); do if [ ! -f "$D/\${f%.pid}.xong" ]; then P0=$(cat "$D/$f" 2>/dev/null); [ -n "$P0" ] && ps -ww -o command= -p "$P0" 2>/dev/null | grep -qF "\${f%.pid}" && dung "$P0"; fi; rm -f "$D/$f"; done; L="$D/${ten}.log"; rm -f "$L" "$L.xong" "$L.qua-han"; date +%s > "$L.bat-dau.t" && mv -f "$L.bat-dau.t" "$L.bat-dau"; ( ${lenh}\n) > "$L" 2>&1 & P=$!; echo "$P" > "$L.pid"; wait "$P"; rc=$?; printf '\\n${EXIT_MARK}%s\\n' "$rc" >> "$L"; echo "$rc" > "$L.xong"; (exit $rc)`
 // Mốc bắt đầu thiếu (bước khởi chạy chưa chạy / hỏng) → lệnh chờ TỰ ghi mốc ở lần chờ đầu, nên số phút
 // khai luôn chặn trên mọi ca — không lượt chấm nào treo (S4-r2 finding t2). Tự `mkdir -p`: lần chờ đầu có thể
 // chạy TRƯỚC bước khởi chạy tạo thư mục — không ghi được mốc thì hạn rơi về 0 và «quá hạn» giả ngay.
-const CHO_NEN = (ten, phut) => `mkdir -p "${NEN_DIR}"; L="${NEN_DIR}/${ten}.log"; TRAN_LAN=${TRAN_LAN_GIAY}; HAN_PHUT=${phut}; ${DUNG_CAY}; [ -f "$L.bat-dau" ] || date +%s > "$L.bat-dau"; B=$(cat "$L.bat-dau"); HAN=$((B + HAN_PHUT * 60)); T=$(( $(date +%s) + TRAN_LAN )); KQ=chua-xong; while :; do if [ -f "$L.qua-han" ]; then KQ=qua-han; break; fi; if [ -f "$L.xong" ]; then KQ=xong; break; fi; N=$(date +%s); if [ "$N" -ge "$HAN" ]; then KQ=qua-han; : > "$L.qua-han"; P=$(cat "$L.pid" 2>/dev/null); [ -n "$P" ] && dung "$P"; break; fi; if [ "$N" -ge "$T" ]; then break; fi; sleep 2; done; if [ "$KQ" = xong ]; then tail -n 40 "$L" | cut -c1-240 | tail -c 6000; else tail -n 5 "$L" 2>/dev/null | sed 's/^${EXIT_MARK}/[__EXIT che]/' | cut -c1-240; if [ "$KQ" = qua-han ]; then printf '\\n${DAU_QUA_HAN}\\n'; else printf '\\n${DAU_CHUA_XONG}\\n'; fi; fi`
+// Mốc ghi NGUYÊN TỬ (tệp tạm rồi `mv`) ở cả hai lệnh, và lệnh chờ không bao giờ tin mốc rỗng/không phải số:
+// `>` cắt tệp trước khi ghi, lệnh chờ đọc đúng lúc đó ra mốc rỗng → «quá hạn» giả (S4-r3: LN1 đỏ 4/4 khi
+// bốn bản tệp ca chạy song song).
+const CHO_NEN = (ten, phut) => `mkdir -p "${NEN_DIR}"; L="${NEN_DIR}/${ten}.log"; TRAN_LAN=${TRAN_LAN_GIAY}; HAN_PHUT=${phut}; ${DUNG_CAY}; [ -f "$L.bat-dau" ] || { date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; }; B=$(cat "$L.bat-dau" 2>/dev/null); case "$B" in ''|*[!0-9]*) B=$(date +%s);; esac; HAN=$((B + HAN_PHUT * 60)); T=$(( $(date +%s) + TRAN_LAN )); KQ=chua-xong; while :; do if [ -f "$L.qua-han" ]; then KQ=qua-han; break; fi; if [ -f "$L.xong" ]; then KQ=xong; break; fi; N=$(date +%s); if [ "$N" -ge "$HAN" ]; then KQ=qua-han; : > "$L.qua-han"; P=$(cat "$L.pid" 2>/dev/null); [ -n "$P" ] && dung "$P"; break; fi; if [ "$N" -ge "$T" ]; then break; fi; sleep 2; done; if [ "$KQ" = xong ]; then tail -n 40 "$L" | cut -c1-240 | tail -c 6000; else tail -n 5 "$L" 2>/dev/null | sed 's/^${EXIT_MARK}/[__EXIT che]/' | cut -c1-240; if [ "$KQ" = qua-han ]; then printf '\\n${DAU_QUA_HAN}\\n'; else printf '\\n${DAU_CHUA_XONG}\\n'; fi; fi`
 // LENH-DAI>>>
 
 // Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen

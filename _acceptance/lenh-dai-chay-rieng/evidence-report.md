@@ -1,19 +1,17 @@
 ---
 schema_version: 2
 feature_slug: lenh-dai-chay-rieng
-verdict: BLOCKED
-failed_evals: []
-reason: bash tests/hooks/run-tests.sh — agent bi skip/chet, khong co ket qua, khong duoc tinh la pass
+verdict: REJECT
+failed_evals: [E7]
+reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: fc210beaed57fc9b6e816589df1c0581f40cd64b
+verified_commit: 7235362de3d28bd8195e9a6d5b60fc808628a12a
 human_signoff:
 ---
 
 # Evidence Report: lenh-dai-chay-rieng
-
-Lưu ý verdict (round 2): sáu eval máy (E1, E2, E3, E5, E6, E7) xanh và hai eval judgment (E4, E8) được hội đồng đề xuất PASS, nhưng vòng này là BLOCKED vì hai việc ngoài eval. Một: lệnh suite `bash tests/hooks/run-tests.sh` không có kết quả vì tác tử chạy nó bị bỏ qua hoặc chết, nên không được tính là đạt. Hai: lệnh suite `vung:3` của bộ plugin không gắn eval nào và báo một ca đỏ (P179, sổ known-limits), nằm ở mục «Lệnh suite (hồi quy)» bên dưới. `failed_evals` để rỗng vì không lệnh nào thuộc eval.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -23,149 +21,149 @@ Lưu ý verdict (round 2): sáu eval máy (E1, E2, E3, E5, E6, E7) xanh và hai 
 | E4 | AC-4 | judgment | PASS |
 | E5 | AC-5 | script | PASS |
 | E6 | AC-6 | script | PASS |
-| E7 | AC-7 | script | PASS |
+| E7 | AC-7 | script | FAIL |
 | E8 | AC-8 | judgment | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-lenh-dai-chay-rieng-E1-r2
+  run_id: minted-lenh-dai-chay-rieng-E1-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.ldcr_s4_args_lenh_dai
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
   output: |
-    Results: 8 passed, 0 failed (s4-args-lenh-dai-chay-rieng)
-
+    Results: 12 passed, 0 failed (s4-args-lenh-dai-chay-rieng)
     __EXIT=0
 
 - eval: E2
-  run_id: minted-lenh-dai-chay-rieng-E2-r2
+  run_id: minted-lenh-dai-chay-rieng-E2-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.ldcr_prompt_lenh_dai
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
   output: |
-    Results: 18 passed, 0 failed (lenh-dai-chay-rieng)
-
+    Results: 26 passed, 0 failed (lenh-dai-chay-rieng)
     __EXIT=0
 
 - eval: E3
-  run_id: minted-lenh-dai-chay-rieng-E3-r2
+  run_id: minted-lenh-dai-chay-rieng-E3-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.ldcr_chay_nen_that
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
   output: |
-    Results: 18 passed, 0 failed (lenh-dai-chay-rieng)
-
+    Results: 26 passed, 0 failed (lenh-dai-chay-rieng)
     __EXIT=0
 
 - eval: E5
-  run_id: minted-lenh-dai-chay-rieng-E5-r2
+  run_id: minted-lenh-dai-chay-rieng-E5-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.ldcr_s4_args_chay_rieng
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
   output: |
-    Results: 8 passed, 0 failed (s4-args-lenh-dai-chay-rieng)
-
+    Results: 12 passed, 0 failed (s4-args-lenh-dai-chay-rieng)
     __EXIT=0
 
 - eval: E6
-  run_id: minted-lenh-dai-chay-rieng-E6-r2
+  run_id: minted-lenh-dai-chay-rieng-E6-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.ldcr_thu_tu_chay_rieng
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
   output: |
-    Results: 18 passed, 0 failed (lenh-dai-chay-rieng)
-
+    Results: 26 passed, 0 failed (lenh-dai-chay-rieng)
     __EXIT=0
 
 - eval: E7
-  run_id: minted-lenh-dai-chay-rieng-E7-r2
-  exit_code: 0
+  run_id: minted-lenh-dai-chay-rieng-E7-r3
+  exit_code: 1
   baseline: n-a
   verifier: config:executors.script.ldcr_vi_phan_khong_khai
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
   output: |
-    Results: 18 passed, 0 failed (lenh-dai-chay-rieng)
+    VP1 cùng args không khai: lane máy của cây đang kiểm BẰNG HỆT v2.24.0 (thứ tự lời gọi máy, prompt máy, nhóm lệnh, verdict)
+      PASS: VP1 bằng hệt base, kết cục ghim đúng ở cả hai
+    VP2 chiều đỏ: bản sao coi mọi lệnh eval là chạy-riêng
+      (mutant mọi eval chạy riêng) thứ tự lệnh đổi
+      PASS: VP2 mutant đỏ với "thứ tự lệnh đổi"
 
-    __EXIT=0
-
-### Judgment
-
-Hội đồng chỉ ĐỀ XUẤT; ô `human_override` để trống cho người quyết ở Cổng Bằng chứng.
+    Results: 25 passed, 1 failed (lenh-dai-chay-rieng)
+    __EXIT=1
+  note: lệnh của E7 chạy cả tệp tests/workflows/lenh-dai-chay-rieng.test.mjs và đòi thoát sạch; hai ca VP1, VP2 đều đạt nhưng một ca khác trong tệp đỏ. Ca đỏ không nằm trong 25 dòng đuôi nên báo cáo này không gọi được tên nó. Cùng tệp đó chạy xanh trọn (26 đạt, 0 đỏ) ở lệnh của E2, E3 và E6 trong cùng lượt.
 
 - eval: E4
-  judged_by: judge-panel (domain-correctness, operational-feasibility, spec-alignment; fresh context)
+  judged_by: judge-subagent (fresh context)
   verdict: PASS
-  rationale: Đề xuất PASS, ba hội đồng đồng thuận. Dòng CHUYEN SANG NEN KHONG PHAI BI GIET trong khối marker nêu đủ năm ý (không khai killedByTool; tệp nền trống là bình thường; chờ bằng lệnh Bash mỗi lần tối đa 100 giây tới khi có dòng __EXIT=<n>; trần chờ là số phút long_running, vắng thì 30 phút; quá trần thì khai cannotRun=true kèm reason về long_running). Luật cho lệnh bị công cụ giết thật vẫn còn nguyên và không mâu thuẫn.
+  rationale: panel giữ nguyên từ round 2 — inputs không đổi, không chấm lại; rationale xem round đó.
   votes:
-    - domain-correctness: PASS — Dòng CHUYEN SANG NEN trong khối marker nêu đủ năm ý: không khai killedByTool và không kết luận từ tệp trống; tệp nền trống là bình thường vì khung bọc chỉ in đuôi và __EXIT=<n> khi lệnh xong; chờ bằng lệnh Bash mỗi lần ≤100 giây tới khi có dòng __EXIT=<n>; trần chờ là số phút long_running, vắng thì 30 phút; quá trần thì khai cannotRun=true kèm reason «khai long_running: <phút>», không killedByTool. Hai dòng đầu giữ nguyên luật cho lệnh bị công cụ giết thật (timeout/killed hoặc output cắt trước dòng tổng kết, khai killedByTool, cấm báo exitCode hay đoán PASS/FAIL). Dòng mới phân biệt rõ hai ca bằng dấu hiệu «moved to the background», nên không mâu thuẫn.
-    - operational-feasibility: PASS — Dòng «CHUYEN SANG NEN KHONG PHAI BI GIET» trong khối marker nói đủ năm ý: không khai killedByTool, tệp nền trống là bình thường vì khung bọc chỉ in khi lệnh xong, chờ bằng lệnh có giới hạn ≤100 giây mỗi lần tới dòng __EXIT=<n>, trần tổng bằng long_running (vắng thì 30 phút), và quá trần thì khai cannotRun với reason «khai long_running: <phút>». Hai dòng luật cũ về lệnh bị công cụ giết thật (timeout/killed, output cắt) và dòng DAU RA DAI vẫn còn nguyên. Luật mới tự phân biệt bằng cụm «moved to the background» nên không mâu thuẫn với luật cũ.
-    - spec-alignment: PASS — Dòng "CHUYEN SANG NEN KHONG PHAI BI GIET" trong khối marker nói đủ năm ý. Lệnh chuyển sang nền thì không khai killedByTool. Tệp nền trống là bình thường vì khung bọc chỉ in khi lệnh xong. Chờ bằng lệnh Bash mỗi lần ≤100 giây tới khi có dòng __EXIT=<n>. Tổng chờ tối đa bằng long_running của eval, vắng thì 30 phút. Quá trần thì khai cannotRun=true với reason nói rõ cần khai long_running. Hai đoạn trước vẫn giữ luật cho lệnh bị công cụ giết thật (timeout/killed, output bị cắt) và không mâu thuẫn, vì dòng mới tách rõ "moved to the background" khỏi trường hợp bị giết.
+    - domain-correctness: PASS (r2)
+    - operational-feasibility: PASS (r2)
+    - spec-alignment: PASS (r2)
   human_override:  # chi nguoi ghi
 
 - eval: E8
-  judged_by: judge-panel (domain-correctness, operational-feasibility, spec-alignment; fresh context)
+  judged_by: judge-subagent (fresh context)
   verdict: PASS
-  rationale: Đề xuất PASS, ba hội đồng đồng thuận. (a) eval-executors.md nêu long_running là số nguyên 1–240 phút, khai khi lệnh có thể chạy quá khoảng 9 phút, nhật ký kết bằng __EXIT=<n>, chờ theo nhịp ngắn, quá hạn thì dừng cả cây tiến trình và BLOCKED. (b) eval-executors.md, GUIDE §7.1, acceptance-init.md và CHANGELOG đều nói eval trong model_evals chạy riêng, sau mọi lệnh máy khác. (c) Mục «Chưa phát hành» của CHANGELOG nêu cả hai thay đổi và có dòng «Khoá vắng = như 2.24.0». Không câu nào mâu thuẫn về hai khoá này.
+  rationale: Đề xuất panel PASS, ba lăng kính nhất trí; ô human_override để TRỐNG cho người quyết ở Cổng 2.
   votes:
-    - domain-correctness: PASS — Từ bốn tệp, người viết eval biết đủ cả ba ý. (a) eval-executors.md nêu long_running là số nguyên 1–240 phút, khai khi lệnh có thể chạy quá ~9 phút, nhật ký ở `.acceptance-runs/{slug}/s4-lenh-dai/r<round>-l<k>-<run>.log` kết bằng `__EXIT=<n>`, chờ bằng poll ngắn, quá hạn thì dừng cả cây tiến trình và BLOCKED. (b) eval-executors.md, GUIDE §7.1, acceptance-init.md và CHANGELOG đều nói eval trong model_evals chạy riêng, sau mọi lệnh máy khác. (c) Mục «Chưa phát hành» của CHANGELOG nêu cả hai thay đổi và có dòng «Khoá vắng = như 2.24.0». Tôi không thấy câu nào mâu thuẫn về hai khoá này. Hai chỗ nhìn như lệch thì khác phạm vi: «VẮNG = như 2.22» ở GUIDE nói về các khoá làn, và mốc 30 phút ở dòng repin_retry là điều kiện của repin_retry.
-    - operational-feasibility: PASS — Bốn tệp đủ cho cả ba ý. (a) eval-executors.md khai long_running là số nguyên 1–240 phút trên eval test/script, cần khai khi lệnh có thể chạy quá ~9 phút, nhật ký ở .acceptance-runs/{slug}/s4-lenh-dai/ kết bằng __EXIT=<n>, chờ theo nhịp ngắn, quá hạn thì dừng cả cây tiến trình và báo BLOCKED. (b) eval-executors.md, GUIDE §7.1 (dòng model_evals), acceptance-init.md và CHANGELOG đều nói eval trong model_evals chạy riêng, tuần tự, sau mọi lệnh máy khác. (c) Mục «Chưa phát hành» của CHANGELOG nêu cả hai thay đổi và có dòng «Khoá vắng = như 2.24.0». Không câu nào mâu thuẫn giữa các tệp, chỉ khác mức chi tiết: CHANGELOG nói chờ «tối đa long_running hoặc 30 phút», eval-executors nói 30 phút áp dụng khi khoá vắng, hai câu không xung đột.
-    - spec-alignment: PASS — (a) eval-executors.md nêu đủ khoá long_running: số nguyên 1–240 phút, test/script, khai khi lệnh có thể vượt ~9 phút, nhật ký .acceptance-runs/{slug}/s4-lenh-dai/ kết bằng __EXIT=, chờ theo nhịp ngắn, quá hạn thì dừng cả cây tiến trình và BLOCKED. (b) eval-executors.md, GUIDE §7.1, acceptance-init.md và CHANGELOG đều nói eval trong model_evals chạy riêng, tuần tự, sau mọi lệnh máy khác. (c) Mục «Chưa phát hành» của CHANGELOG nêu cả hai thay đổi và có dòng «Khoá vắng = như 2.24.0». Không câu nào mâu thuẫn về hai khoá này. Chỉ có hai chỗ lệch nhẹ: GUIDE ghi «VẮNG = như 2.22», còn nhãn «(2.23)» trong acceptance-init chỉ ghi nguồn gốc khoá, không đổi nghĩa.
+    - domain-correctness: PASS — (a) eval-executors.md nêu đủ khoá long_running: số nguyên 1–240 phút, chỉ test/script, khai khi lệnh có thể chạy quá ~9 phút. Nó cũng nêu việc lượt chấm làm: chạy nền, nhật ký `.acceptance-runs/{slug}/s4-lenh-dai/r<round>-l<k>-<run>.log` kết bằng `__EXIT=<n>`, chờ theo nhịp ngắn, quá hạn thì dừng cả cây tiến trình và báo BLOCKED. (b) eval-executors.md, GUIDE §7.1 (dòng `model_evals`), CHANGELOG và comment trong acceptance-init.md đều nói eval trong model_evals chạy riêng, tuần tự, sau mọi lệnh máy khác. (c) Mục «Chưa phát hành» của CHANGELOG nêu cả hai thay đổi và có dòng «Khoá vắng = như 2.24.0». Không thấy mâu thuẫn: khoảng 1–240, trần 30 phút khi vắng khoá, quy tắc TOOL-KILL và thứ tự chạy khớp nhau giữa các tệp.
+    - operational-feasibility: PASS — (a) eval-executors.md nêu đủ khoá `long_running`: số nguyên 1–240 phút, chỉ cho eval test/script, khai khi lệnh có thể chạy quá ~9 phút. Nó cũng nêu nhật ký ở `.acceptance-runs/{slug}/s4-lenh-dai/r<round>-l<k>-<run>.log` kết bằng `__EXIT=<n>`, việc chờ theo từng nhịp ngắn, và quá hạn thì dừng cả cây tiến trình rồi BLOCKED, không PASS hay FAIL. (b) eval-executors.md, GUIDE §7.1 (hàng `model_evals`) và CHANGELOG cùng nói eval trong `model_evals` chạy riêng, tuần tự, sau mọi lệnh máy khác (eval song song và chuỗi suite). (c) Mục «Chưa phát hành» của CHANGELOG nêu cả hai thay đổi và có dòng «Khoá vắng = như 2.24.0»; không thấy câu nào mâu thuẫn về hai khoá này: mốc ~9 phút, trần 30 phút khi không có khoá và đặc tả `long_running` đều khớp giữa các tệp.
+    - spec-alignment: PASS — Bốn tệp đủ để trả lời cả ba ý. Ý (a): eval-executors.md nêu `long_running` là số nguyên 1–240 phút, chỉ cho test/script, khai khi lệnh có thể chạy quá ~9 phút. Nhật ký nằm ở `.acceptance-runs/{slug}/s4-lenh-dai/r<round>-l<k>-<run>.log` và kết bằng `__EXIT=<n>`. Lượt chấm chờ theo từng nhịp ngắn, quá hạn thì dừng cả cây tiến trình và báo BLOCKED. Ý (b): eval-executors.md, GUIDE dòng `model_evals`, acceptance-init (chú thích khoá) và CHANGELOG đều nói eval trong `model_evals` chạy riêng, tuần tự, sau mọi lệnh máy khác. Ý (c): mục "Chưa phát hành" nêu cả hai thay đổi và có dòng «Khoá vắng = như 2.24.0». Không thấy câu nào mâu thuẫn: ngưỡng 30 phút khi vắng khoá, "TERM rồi KILL", và ~9 phút khớp nhau giữa các tệp.
   human_override:  # chi nguoi ghi
 
 ### Lệnh suite (hồi quy)
 
-Chín lệnh suite có kết quả: tám lệnh xanh (khối có `exit_code: 0`), một lệnh đỏ là `vung:3` của bộ plugin (khối cuối danh sách, không ghi mã thoát). Lệnh đỏ không gắn eval nào. Đuôi đầu ra của nó ghi ca P179 [MBC] E6 (ledger known-limits: đếm từ corpus, bất biến hàng, quan hệ) đỏ, và dòng «MUTANT-6 bị bắt» của bộ kiểm khác; dòng tổng ghi 1 ca đỏ. Lệnh thứ mười, `bash tests/hooks/run-tests.sh`, không có kết quả vì tác tử chạy nó bị bỏ qua hoặc chết; theo luật, lệnh không có kết quả không được tính là đạt, đó là lý do verdict là BLOCKED chứ không phải REJECT.
-
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r3
   exit_code: 0
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r3
   exit_code: 0
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r3
   exit_code: 0
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r3
   exit_code: 0
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
+
+- cmd: bash tests/hooks/run-tests.sh
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_hooks_run_tests_sh-r3
+  exit_code: 0
+  verified_at: 2026-10-07T04:03:44Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r3
   exit_code: 0
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r3
   exit_code: 0
-  verified_at: 2026-10-07T03:05:24Z
-
-- cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_workflows_run_tests_sh-r2
-  exit_code: 0
-  verified_at: 2026-10-07T03:05:24Z
-
-- cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-lenh-dai-chay-rieng-SUITE-node_scripts_product_map_mjs_root_check-r2
-  exit_code: 0
-  verified_at: 2026-10-07T03:05:24Z
+  verified_at: 2026-10-07T04:03:44Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
-  ket_qua: đỏ — ca P179 (ledger known-limits) báo đỏ, dòng tổng ghi 1 ca đỏ; không gắn eval nào
-  verified_at: 2026-10-07T03:05:24Z
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r3
+  exit_code: 0
+  verified_at: 2026-10-07T04:03:44Z
+
+- cmd: bash tests/workflows/run-tests.sh
+  run_id: minted-lenh-dai-chay-rieng-SUITE-bash_tests_workflows_run_tests_sh-r3
+  exit_code: 0
+  verified_at: 2026-10-07T04:03:44Z
+
+- cmd: node scripts/product-map.mjs --root . --check
+  run_id: minted-lenh-dai-chay-rieng-SUITE-node_scripts_product_map_mjs_root_check-r3
+  exit_code: 0
+  verified_at: 2026-10-07T04:03:44Z
 
 ## Known limits
 
@@ -173,15 +171,14 @@ Chín lệnh suite có kết quả: tám lệnh xanh (khối có `exit_code: 0`)
 
 ## Analyst
 
-carried tu round 1 — baseline khong do lai round nay.
-
-none — khong eval nao duoc liet ke la khong-phan-biet. Truong baseline cua tung eval may round nay ghi n-a (khong do lai), nen danh sach rong nghia la khong co eval nao duoc xac dinh la xanh o ca hai phia trong round nay. Lenh suite xanh o ca hai phia la regression-guard binh thuong, khong liet ke.
+none — moi eval feature deu red tren baseline (co phan biet)
 
 ## Variance
 
-none — every multi-run eval is uniform
+none — không eval nào khai runs lớn hơn 1; xem ghi chú ở khối E7 và dòng Round 3 ở Iterations về một ca trong tệp test không tái hiện giữa các lệnh cùng lượt.
 
 ## Iterations
 
-Round 1: sáu eval máy (E1, E2, E3, E5, E6, E7) xanh và hai eval judgment (E4, E8) được hội đồng đề xuất PASS, nhưng lệnh suite `bash tests/scripts/run-tests.sh --manh mjs:1/3` có 1 ca đỏ (không gắn eval nào). Verdict REJECT; quay lại triển khai để sửa ca đó.
-Round 2: sáu eval máy xanh, hai eval judgment được đề xuất PASS, lệnh `mjs:1/3` đã xanh (26 ca đạt). Còn hai việc chặn: lệnh suite `vung:3` của bộ plugin có 1 ca đỏ (P179, sổ known-limits, không gắn eval nào) và lệnh `bash tests/hooks/run-tests.sh` không có kết quả vì tác tử chạy nó bị bỏ qua hoặc chết. Verdict BLOCKED; cần chạy lại hai lệnh đó và xử lý ca P179 trước khi chấm tiếp.
+Round 1: một phần suite scripts mjs:1/3 đỏ, không tái hiện; trả về triển khai.
+Round 2: BLOCKED, nâng phạm vi (làn V): máy đọc dấu chưa-xong/quá-hạn, mốc bắt đầu tự ghi, nhãn lượt, dọn cây mồ côi, TERM rồi KILL, bộ đọc hẹp model_evals, VP1 chỉ lane máy, round-trip.
+Round 3: E7 failed — lệnh của E7 thoát khác 0 vì một ca đỏ trong tệp tests/workflows/lenh-dai-chay-rieng.test.mjs (25 đạt, 1 đỏ; VP1 và VP2 đều đạt), trong khi cùng tệp chạy 26 đạt, 0 đỏ ở E2, E3, E6; ca đỏ chưa gọi được tên từ đuôi 25 dòng. Vòng 3 chạm trần, chuyển người quyết.

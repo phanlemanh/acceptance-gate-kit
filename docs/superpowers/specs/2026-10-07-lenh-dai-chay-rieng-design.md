@@ -97,5 +97,8 @@ Review hai lượt chấm nêu bảy lỗ ngoài hợp đồng phá chính lời
 | VP1 khoá cả engine vào 2.24.0 | chỉ so lane máy + nhóm lệnh + verdict | VP1 |
 | Hai khoá mới không có round-trip bên viết → bên đọc | args do s4-args thật sinh chạy qua workflow thật | RT1 |
 | Luật TOOL-KILL không được kiểm tới prompt lệnh dài | LD1 đòi mọi dòng luật trong prompt lệnh dài | LD1 |
+| *(sau lượt 3)* Mốc bắt đầu ghi bằng `>` — lệnh chờ đọc đúng lúc tệp rỗng → «quá hạn» giả (LN1 đỏ 4/4 khi chạy song song) | ghi mốc nguyên tử (`mv`), không tin mốc rỗng | LN1 dưới tải (8/8 xanh) |
+| *(sau lượt 3)* Dọn cây mồ côi giết theo pid cũ không kiểm danh tính — pid tái dùng thì giết nhầm | chỉ giết khi dòng lệnh của pid mang tên nhật ký của lượt đó; xoá tệp pid | LN9 |
+| *(sau lượt 3)* LN6 đo «có tệp mốc» thay vì quan hệ hạn chờ | thêm ca mốc cũ → quá hạn | LN6b |
 
-Còn lại ngoài vòng (Known limits ở Cổng Bằng chứng): VP1 vẫn neo vào tag `v2.24.0` cho lane máy — đổi khung bọc lệnh thường có chủ đích thì dời mốc trong tệp ca; bộ đọc `paths` của carry-plan chỉ nhận dạng một dòng `[...]` (dạng khối coi như vắng → chạy lại toàn bộ, phía an toàn).
+Còn lại ngoài vòng (Known limits ở Cổng Bằng chứng): kiểm danh tính pid dựa vào việc dòng lệnh của vỏ khởi chạy mang lệnh (harness chuyển lệnh qua `-c`); harness chuyển lệnh qua tệp/stdin thì bước dọn KHÔNG giết gì (phía an toàn, cây mồ côi có thể chồng lượt sau); VP1 vẫn neo vào tag `v2.24.0` cho lane máy — đổi khung bọc lệnh thường có chủ đích thì dời mốc trong tệp ca; bộ đọc `paths` của carry-plan chỉ nhận dạng một dòng `[...]` (dạng khối coi như vắng → chạy lại toàn bộ, phía an toàn).

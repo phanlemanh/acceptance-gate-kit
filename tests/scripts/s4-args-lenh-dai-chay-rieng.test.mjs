@@ -135,9 +135,9 @@ console.log('SC4 chiều đỏ một nguồn: bản sao bộ đọc hẹp trả 
     check('SC4 bản sao bộ đọc rỗng lật kết luận ("không đọc qua docModelEvals")', vang, `${r.status} ${JSON.stringify(r.args && r.args.evalsChayRieng)}`);
   }
 }
-console.log('SC5 khoá CHỈ của làn ghim lại sai giá trị (repin_retry: 2) → lượt chấm vẫn sinh args');
+console.log('SC5 ba khoá CHỈ của làn ghim lại sai giá trị (repin_retry, repin_budget_min, repin_ci_blank_env) → lượt chấm vẫn sinh args');
 {
-  const KHOA_HONG = KHOA_SC + '  repin_retry: 2\n';
+  const KHOA_HONG = KHOA_SC + '  repin_retry: 2\n  repin_budget_min: 0\n  repin_ci_blank_env: [1sai]\n';
   const r = run(buildRepo(EVALS_SC, KHOA_HONG));
   check('SC5 s4-args xanh, evalsChayRieng ["E1"]', r.status === 0 && JSON.stringify(r.args && r.args.evalsChayRieng) === '["E1"]', `${r.status} ${r.stderr.split('\n')[0]}`);
   const KIM_IMP = "import { docModelEvals } from './lib/lan-khoa.mjs';";
@@ -147,7 +147,7 @@ console.log('SC5 khoá CHỈ của làn ghim lại sai giá trị (repin_retry: 
   if (!dst) bad('SC5 không dựng được bản sao', kimLoi);
   else {
     const m = run(buildRepo(EVALS_SC, KHOA_HONG), dst);
-    const chan = m.status === 2 && m.stderr.includes('repin_retry');
+    const chan = m.status === 2 && /repin_(retry|budget_min|ci_blank_env)/.test(m.stderr);
     if (chan) console.log('  (bản sao đọc qua docKhoa) khoá làn ghim lại chặn lượt chấm');
     check('SC5 chiều đỏ: bản sao đọc qua docKhoa → "khoá làn ghim lại chặn lượt chấm"', chan, `${m.status} ${m.stderr.split('\n')[0]}`);
   }
