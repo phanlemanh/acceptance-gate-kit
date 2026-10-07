@@ -72,7 +72,7 @@ const suiteTuanTu = (events, suites = SUITES) => suites.every((s, i) => i === 0
 
 // ── Kim đột biến ─────────────────────────────────────────────────────────────
 const KIM_TT = 'const cmdTuanTu = distinctCmds.filter(c => SUITE_SET.has(c));';
-const KIM_SS = 'const cmdSongSong = distinctCmds.filter(c => !SUITE_SET.has(c));';
+const KIM_SS = 'const cmdSongSong = distinctCmds.filter(c => !SUITE_SET.has(c) && !laChayRieng(c));';
 const soLan = (hay, kim) => hay.split(kim).length - 1;
 const kimMotLan = soLan(SRC, KIM_TT) === 1 && soLan(SRC, KIM_SS) === 1;
 // ST4: khôi phục mảng phẳng — mọi lệnh vào nhánh song song.
@@ -80,7 +80,7 @@ const MUTANT_PHANG = SRC.replace(KIM_TT, 'const cmdTuanTu = [];').replace(KIM_SS
 // ST5: phân nhóm theo «lệnh không có eval đi kèm» (đúng hình dạng phản biện F1 bác).
 const MUTANT_KHONG_EVAL = SRC
   .replace(KIM_TT, 'const cmdTuanTu = distinctCmds.filter(c => (byCmd.get(c) || []).length === 0);')
-  .replace(KIM_SS, 'const cmdSongSong = distinctCmds.filter(c => (byCmd.get(c) || []).length > 0);');
+  .replace(KIM_SS, 'const cmdSongSong = distinctCmds.filter(c => (byCmd.get(c) || []).length > 0 && !laChayRieng(c));');
 
 const run = async (args, ketQua, src) => {
   const events = [];

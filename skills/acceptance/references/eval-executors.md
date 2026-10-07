@@ -93,6 +93,30 @@ times is wasted round-time, and a deterministic eval that varies is a flaky test
 not a score. `runs` is ignored on `ui-check`/`judgment` (judgment already runs a
 3-lens panel).
 
+Optional `long_running: <minutes>` (integer 1–240) on a `test`/`script` eval
+declares the **longest the command is expected to take**. Declare it when the
+command can run past ~9 minutes — e.g. an eval that drives a real model for
+20–35 minutes. The verifier's shell tool stops waiting at 600 s and pushes a
+longer command to the background; its background output stays empty until the
+command ends, which a verifier misreads as "killed" (crm, 07/10/2026: two
+rounds BLOCKED on an eval that was still running). With the key, the
+feature-loop S4 round runs the command in the background itself, writes all its
+output to a fixed log `.acceptance-runs/{slug}/s4-lenh-dai/r<round>-l<k>-<run>.log`
+that ends with `__EXIT=<n>`, and waits in short polls until it finishes; past
+the declared minutes it stops the whole process tree and reports the eval
+BLOCKED (cannot run — "over the declared duration"), never PASS or FAIL. The
+measure does not need its own log or end line. Leave it off for commands that
+finish within a few minutes. Wrong values (0, over 240, decimals, words, on a
+`ui-check`/`judgment` eval) make the S4 args step stop with the eval named.
+Without the key, a command pushed to the background is waited on for up to 30
+minutes by the TOOL-KILL rule (`tool-kill-rule.md`).
+
+Evals listed in `feature_loop.model_evals` (`<slug>/<Eid>`, see GUIDE §7.1)
+also **run alone** in the S4 round: after every other machine command (parallel
+evals and the sequential suite chain) has finished, one at a time. A measure
+that starts a shared process (a dev server, an agent runtime) no longer runs
+on top of a suite that guards that process.
+
 Boundary + should-NOT-fire: for a threshold/numeric/window criterion (a count,
 ≥/≤/<>, "trong N ngày", a budget), don't stop at the happy path — add an eval
 whose `expected` asserts the SUPPRESSION half (a just-below case that must NOT

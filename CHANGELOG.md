@@ -10,6 +10,28 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### Lượt chấm S4 không còn bị lệnh dài và eval nặng đốt (hồ sơ `lenh-dai-chay-rieng`, T2)
+
+Gốc: crm `_acceptance/tro-ly-okr-bo-final-output`, 07/10 — bốn lượt chấm mất vì hạ tầng kit: hai lượt
+BLOCKED vì tác tử đọc «lệnh bị đẩy sang nền ở 600 s» thành «bị giết», hai lượt REJECT vì eval gọi model
+dựng `eve dev` cùng lúc với một ca suite canh đúng tiến trình đó.
+
+- **Khoá eval mới `long_running: <phút>`** (số nguyên 1–240, thời lượng tối đa dự kiến; chỉ eval
+  `test`/`script`). Lượt chấm tự chạy lệnh nền, ghi nhật ký ở `.acceptance-runs/<slug>/s4-lenh-dai/`
+  (kết bằng `__EXIT=<n>`), chờ bằng lệnh máy sinh; quá số phút → dừng cả cây tiến trình, eval BLOCKED.
+  Thước không cần tự ghi nhật ký. Giá trị sai → `s4-args` dừng gọi tên eval.
+- **Eval trong `feature_loop.model_evals` chạy riêng** ở S4: tuần tự, SAU mọi lệnh máy khác (eval song
+  song và chuỗi suite) — như làn ghim lại đã làm. Đọc bằng cùng bộ đọc với làn; khoá có giá trị sai giờ
+  cũng dừng `s4-args` (trước chỉ dừng làn).
+- **Luật TOOL-KILL thêm một dòng:** «chuyển sang nền» không phải «bị giết» — chờ tới dòng `__EXIT=`,
+  tối đa `long_running` hoặc 30 phút; quá thì BLOCKED với lý do chỉ việc cần làm.
+- **Khoá vắng = như 2.24.0:** kho không khai `long_running` lẫn `model_evals` nhận prompt và thứ tự
+  lệnh bằng hệt 2.24.0 (đo bằng vi phân với tag `v2.24.0`).
+- **crm khi nhận:** khai `long_running: 45` cho `tro-ly-okr-bo-final-output/E6`, `E7` (và mọi eval model
+  dài khác); E6/E7 đã có trong `model_evals` nên tự chạy sau suite.
+
 ## 2.24.0 — 06/10/2026
 
 Cửa sổ 2.23.0 → 2.24.0 nằm trong **một ngày** (06/10), có **hai vòng** được ký: `loc-paths-dong-mac-dinh`

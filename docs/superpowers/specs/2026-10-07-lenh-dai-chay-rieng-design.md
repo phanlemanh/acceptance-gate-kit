@@ -80,3 +80,4 @@ Thêm một dòng vào khối marker `TOOL-KILL-RULE` (nguồn duy nhất, đi v
 - «Chạy riêng» chỉ riêng với lệnh MÁY (eval + suite); ui-check và baseline vẫn chạy đồng thời.
 - Dừng tiến trình khi `__QUA_HAN` giết cả cây con từ `.pid` của vỏ khởi chạy (đo bằng pid canh của tiến trình cháu); tiến trình tự tách khỏi cây (daemon, `setsid`) thoát được.
 - Hành vi tác tử trên lối lời (B) không có răng máy.
+- Ca đo chạy hai lệnh bằng **bash**. Dưới **zsh** (vỏ mặc định của macOS, nơi tác tử chấm thật có thể chạy) đo tay 07/10: xong · chưa xong · quá hạn · dấu giả đều đúng; riêng chiều đỏ «chỉ giết pid vỏ» không lật vì zsh tự `exec` lệnh cuối của subshell (cây chỉ còn một tiến trình) — đặc thù vỏ, không phải lỗ của khung. Ngưỡng dựng ca zsh trong suite: ≥ 1 lượt chấm thật lệch kết cục giữa hai vỏ.
