@@ -259,6 +259,26 @@ console.log('LN7 lượt cùng round chạy lại: tên nhật ký theo nhãn l�
   if (mut.luot2 === '__EXIT=5') console.log('  (mutant bỏ nhãn lượt) lượt sau đọc kết quả lượt trước');
   check('LN7 chiều đỏ: bản sao bỏ nhãn lượt → "lượt sau đọc kết quả lượt trước"', soLan(SRC, KIM_NHAN) === 1 && mut.luot2 === '__EXIT=5', JSON.stringify(mut));
 }
+console.log('LN6b hạn chờ tính từ mốc ĐÃ LƯU, không dời theo mỗi lần chờ (quan hệ, không chỉ «có tệp»)');
+{
+  const KIM_GIU = '[ -f "$L.bat-dau" ] || { date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; };';
+  const MUTANT_DOI = SRC.replace(KIM_GIU, '{ date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; };');
+  const datMocCu = async (root) => {
+    const d = path.join(root, '.acceptance-runs', 'demo', 's4-lenh-dai');
+    execFileSync('mkdir', ['-p', d]);
+    execFileSync('bash', ['-c', `echo $(( $(date +%s) - 120 )) > "${d}/r1-l1-1-20261007000000.log.bat-dau"`]);
+  };
+  const ca = async (src) => {
+    const r = await luotThat({ cmd: 'echo x', phut: 1, dungO: 1, khongKhoi: true, truocCho: datMocCu, src,
+      khai: (out) => ({ exitCode: 1, outputTail: out, runId: '', cannotRun: true, reason: 'x' }) });
+    const kq = { ket: r.st.ketCuoi }; don(r); return kq;
+  };
+  const that = await ca(undefined);
+  check('LN6b mốc 120 s trước, hạn 1 phút → __QUA_HAN', that.ket === '__QUA_HAN', JSON.stringify(that));
+  const mut = await ca(MUTANT_DOI);
+  if (mut.ket !== '__QUA_HAN') console.log('  (mutant ghi đè mốc) hạn chờ dời theo mỗi lần chờ');
+  check('LN6b chiều đỏ: bản sao ghi đè mốc mỗi lần → "hạn chờ dời theo mỗi lần chờ"', soLan(SRC, KIM_GIU) === 1 && mut.ket === '__CHUA_XONG', JSON.stringify(mut));
+}
 console.log('LN6c mốc bắt đầu RỖNG (đọc đúng lúc tệp bị cắt) → lần chờ không báo quá hạn giả');
 {
   const KIM_CHAN = `case "$B" in ''|*[!0-9]*) B=$(date +%s);; esac;`;
