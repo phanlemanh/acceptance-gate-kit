@@ -1,19 +1,19 @@
 ---
 schema_version: 2
 feature_slug: luot-sua-giu-du-dem-dung
-verdict: REJECT
-failed_evals: [E6, E7, E8]
+verdict: PASS
+failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: ab1e50f2e2852cc0ac861f8ce568ac03ed662898
+verified_commit: aac0ec2753325d8f29e21a05227adec114a8096d
 human_signoff:
 ---
 
 # Evidence Report: luot-sua-giu-du-dem-dung
 
-Vòng 1. Bảy trong mười eval của tính năng đạt (E1–E5, E9, E10); ba eval trượt (E6, E7, E8) vì cùng một nguyên nhân: bộ đếm thước-vật gọi `git diff --numstat --no-renames <san>..HEAD ^<nen>`, git không nhận rev âm thêm vào sau một khoảng `A..B`, in usage rồi thoát, nên thuoc-vat thoát 2 «lệnh git thất bại» ở đúng ca gộp nhánh nền. Chi tiết nguyên nhân và hướng sửa ở `review-findings.md`.
+Vòng 2. Cả mười hai eval của tính năng (E1–E12) đạt và đều đỏ trên bản nền trước tính năng, nên chúng phân biệt được việc có tính năng với không có. Mười một lệnh suite hồi quy xanh. Ba eval trượt ở vòng 1 (E6, E7, E8) nay đạt; hai tiêu chí nâng phạm vi (AC-11, AC-12) đã có eval riêng. Không eval nào dùng khung ui-check hay hội đồng chấm, nên không có ảnh chụp và không có mục chờ người chấm. Các lỗi review nằm ngoài hợp đồng được liệt kê ở `review-findings.md` cho người quyết ở Cổng 2.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -22,166 +22,175 @@ Vòng 1. Bảy trong mười eval của tính năng đạt (E1–E5, E9, E10); b
 | E3 | AC-3 | script | PASS |
 | E4 | AC-4 | script | PASS |
 | E5 | AC-5 | script | PASS |
-| E6 | AC-6 | script | FAIL |
-| E7 | AC-7 | script | FAIL |
-| E8 | AC-8 | script | FAIL |
+| E6 | AC-6 | script | PASS |
+| E7 | AC-7 | script | PASS |
+| E8 | AC-8 | script | PASS |
 | E9 | AC-9 | script | PASS |
 | E10 | AC-10 | script | PASS |
+| E11 | AC-11 | script | PASS |
+| E12 | AC-12 | script | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-luot-sua-giu-du-dem-dung-E1-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-E1-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac1
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
     Results: 1 passed, 0 failed (luot-sua-giu-du)
 
 - eval: E2
-  run_id: minted-luot-sua-giu-du-dem-dung-E2-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-E2-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac2
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
     Results: 1 passed, 0 failed (luot-sua-giu-du)
 
 - eval: E3
-  run_id: minted-luot-sua-giu-du-dem-dung-E3-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-E3-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac3
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
     Results: 1 passed, 0 failed (luot-sua-giu-du workflow)
 
 - eval: E4
-  run_id: minted-luot-sua-giu-du-dem-dung-E4-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-E4-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac4
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
     Results: 1 passed, 0 failed (luot-sua-giu-du)
 
 - eval: E5
-  run_id: minted-luot-sua-giu-du-dem-dung-E5-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-E5-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac5
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
     Results: 1 passed, 0 failed (luot-sua-giu-du workflow)
 
 - eval: E6
-  run_id: minted-luot-sua-giu-du-dem-dung-E6-r1
-  exit_code: 1
+  run_id: minted-luot-sua-giu-du-dem-dung-E6-r2
+  exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac6
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
-    FAIL: AC-6 — thuoc-vat: merge từ nền không đổi số đếm (--json và --write)
-    thuoc-vat exit 2: fatal: path '_acceptance/demo/decisions.jsonl' does not exist in 'HEAD'
-    thuoc-vat: lệnh git thất bại: usage: git diff [<options>] [<commit>] [--] [<path>...]
-    Results: 0 passed, 1 failed (luot-sua-giu-du)
+    Results: 1 passed, 0 failed (luot-sua-giu-du)
 
 - eval: E7
-  run_id: minted-luot-sua-giu-du-dem-dung-E7-r1
-  exit_code: 1
+  run_id: minted-luot-sua-giu-du-dem-dung-E7-r2
+  exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac7
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
-    FAIL: AC-7 — thuoc-vat: tệp vòng và nền cùng chạm chỉ đếm dòng của vòng
-    thuoc-vat exit 2: fatal: path '_acceptance/demo/decisions.jsonl' does not exist in 'HEAD'
-    thuoc-vat: lệnh git thất bại: usage: git diff [<options>] [<commit>] [--] [<path>...]
-    Results: 0 passed, 1 failed (luot-sua-giu-du)
+    Results: 1 passed, 0 failed (luot-sua-giu-du)
 
 - eval: E8
-  run_id: minted-luot-sua-giu-du-dem-dung-E8-r1
-  exit_code: 1
+  run_id: minted-luot-sua-giu-du-dem-dung-E8-r2
+  exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac8
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
-    FAIL: AC-8 — thuoc-vat: nhánh con tách sau mốc sàn vẫn đếm; kho không merge giữ từng byte
-    thuoc-vat exit 2: fatal: path '_acceptance/demo/decisions.jsonl' does not exist in 'HEAD'
-    thuoc-vat: lệnh git thất bại: usage: git diff [<options>] [<commit>] [--] [<path>...]
-    Results: 0 passed, 1 failed (luot-sua-giu-du)
+    Results: 1 passed, 0 failed (luot-sua-giu-du)
 
 - eval: E9
-  run_id: minted-luot-sua-giu-du-dem-dung-E9-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-E9-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac9
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
-    (ca AC-9 chạy xong, không có dòng lỗi)
+    Results: 1 passed, 0 failed (luot-sua-giu-du)
 
 - eval: E10
-  run_id: minted-luot-sua-giu-du-dem-dung-E10-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-E10-r2
   exit_code: 0
   baseline: red
   verifier: config:executors.script.lsgd_ac10
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
   output: |
-    (ca AC-10 chạy xong, không có dòng lỗi)
+    (bộ chạy không in dòng Results; kết thúc bình thường, mã thoát 0)
+
+- eval: E11
+  run_id: minted-luot-sua-giu-du-dem-dung-E11-r2
+  exit_code: 0
+  baseline: red
+  verifier: config:executors.script.lsgd_ac11
+  verified_at: 2026-10-07T06:35:48Z
+  output: |
+    Results: 1 passed, 0 failed (luot-sua-giu-du)
+
+- eval: E12
+  run_id: minted-luot-sua-giu-du-dem-dung-E12-r2
+  exit_code: 0
+  baseline: red
+  verifier: config:executors.script.lsgd_ac12
+  verified_at: 2026-10-07T06:35:48Z
+  output: |
+    Results: 1 passed, 0 failed (luot-sua-giu-du workflow)
 
 ### Lệnh suite (hồi quy)
 
-Lệnh fail không gắn eval nào: `bash tests/scripts/run-tests.sh --manh mjs:3/3` (kết quả 25 qua, 1 trượt; đuôi nhật ký không nêu tên ca trượt). Ba lệnh `LSGD_CASES=AC-6/7/8 node tests/scripts/luot-sua-giu-du.test.mjs` cũng trượt nhưng đã gắn E6, E7, E8 ở trên.
-
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
-  exit_code: 1
-  verified_at: 2026-10-07T03:23:52Z
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
+  exit_code: 0
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-luot-sua-giu-du-dem-dung-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-07T03:23:52Z
+  verified_at: 2026-10-07T06:35:48Z
 
 ## Known limits
 
@@ -189,12 +198,13 @@ Lệnh fail không gắn eval nào: `bash tests/scripts/run-tests.sh --manh mjs:
 
 ## Analyst
 
-none — mọi eval feature đều red trên baseline (có phân biệt)
+none — moi eval feature deu red tren baseline (co phan biet)
 
 ## Variance
 
-none — mọi eval chạy một lần, không eval nào có pass_rate hỗn hợp
+none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: E6, E7, E8 failed — thuoc-vat gọi `git diff --numstat <san>..HEAD ^<nen>`, git không nhận rev âm thêm vào sau khoảng A..B nên in usage và thoát 2 ở ca gộp nhánh nền (AC-6, AC-7, AC-8). Lệnh suite `--manh mjs:3/3` cũng trượt một ca. Returned to implementation.
+Round 1: E6, E7, E8 failed — thuoc-vat gọi `git diff --numstat <san>..HEAD ^<nen>`, git không nhận rev âm thêm vào sau khoảng A..B nên in usage và dừng ở ca gộp nhánh nền (AC-6, AC-7, AC-8). Lệnh suite `--manh mjs:3/3` cũng trượt một ca. Returned to implementation.
+Round 2: không eval nào trượt — E1–E12 đạt (E11, E12 là hai tiêu chí nâng phạm vi), mười một lệnh suite xanh. Các lỗi review ngoài hợp đồng chuyển người quyết ở Cổng 2.
