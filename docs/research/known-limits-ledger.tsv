@@ -476,3 +476,8 @@ lenh-dai-chay-rieng#ngoai-8	lenh-dai-chay-rieng	low	khac	trung		lenh-dai-chay-ri
 lenh-dai-chay-rieng#ngoai-9	lenh-dai-chay-rieng	low	khac	chet	7e4a5461		Quá hạn chỉ gửi SIGTERM — TERM rồi KILL, ca LN8 [lượt chấm 2; máy định đoạt theo sổ d-…-7, cửa veto mở]
 lenh-dai-chay-rieng#ngoai-10	lenh-dai-chay-rieng	medium	khac	song			Hình dạng 4 — thông điệp ghim của LN3 gộp «đọc mã 0» với «BLOCKED» [lượt chấm 2; máy định đoạt theo sổ d-…-7, cửa veto mở]
 lenh-dai-chay-rieng#ngoai-11	lenh-dai-chay-rieng	low	khac	trung		lenh-dai-chay-rieng#ngoai-4	Thiếu round-trip bên viết → bên đọc (lượt 1) [lượt chấm 2; máy định đoạt theo sổ d-…-7, cửa veto mở]
+lenh-dai-chay-rieng#ngoai-12	lenh-dai-chay-rieng	medium	khac	chet	bdd249c0		Dọn cây mồ côi giết theo pid cũ không kiểm danh tính, không xoá tệp pid — kiểm dòng lệnh + xoá, ca LN9 [lượt chấm 3; máy định đoạt sau lượt 3, cửa veto mở]
+lenh-dai-chay-rieng#ngoai-13	lenh-dai-chay-rieng	low	khac	chet	bdd249c0		Chú thích nói bên viết đọc model_evals qua docKhoa — sửa thành docModelEvals [lượt chấm 3; máy định đoạt sau lượt 3, cửa veto mở]
+lenh-dai-chay-rieng#ngoai-14	lenh-dai-chay-rieng	medium	khac	trung		lenh-dai-chay-rieng#ngoai-12	Dọn cây mồ côi giết theo pid cũ (finder bugs) [lượt chấm 3; máy định đoạt sau lượt 3, cửa veto mở]
+lenh-dai-chay-rieng#ngoai-15	lenh-dai-chay-rieng	medium	khac	chet	bdd249c0		LN6 đo «có tệp mốc» thay vì quan hệ hạn chờ — ca LN6b [lượt chấm 3; máy định đoạt sau lượt 3, cửa veto mở]
+lenh-dai-chay-rieng#ngoai-16	lenh-dai-chay-rieng	low	khac	chet	bdd249c0		SC5 chỉ thử một khoá riêng của làn — mở ra ba khoá [lượt chấm 3; máy định đoạt sau lượt 3, cửa veto mở]
