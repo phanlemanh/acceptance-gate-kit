@@ -5,7 +5,7 @@ slug: luot-sua-giu-du-dem-dung
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/scripts + feature-loop/workflows, không chạm t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -74,3 +74,9 @@ cờ, không thêm khoá config, không đổi mặc định với kho không g�
 
 - Hồ sơ gốc ở kho crm: `_acceptance/don-okr-nhap-sai/` (run-log lượt 1/2, evidence-report lượt 1
   ở commit `6724af405`, bản vá tay `0bd50fdd9`).
+- Known limits (owner định tuyến ở Cổng Bằng chứng 07/10 — Ngoài-2): `s4-args` tự kiểm «mô tả khung đủ
+  dài» bằng luật riêng (≥ 20 ký tự) thay vì luật của bộ kiểm bằng chứng (bỏ chỗ giữ chỗ `{{…}}`, chú thích,
+  dấu khối trước khi đếm). Mô tả của lượt trước chỉ là dòng mẫu chưa điền thì vẫn được mang sang, rồi
+  báo cáo bị chặn rõ ràng ở bước kiểm — không kết quả sai nào lọt. Hàng sổ `luot-sua-giu-du-dem-dung#ngoai-2`.
+- Ngoài-1, Ngoài-6, Ngoài-7 (mở hợp đồng mới) → hạt giống `docs/plans/2026-10-07-hat-giong-carry-finding-sau-luot-sua.md`.
+- Ngoài-3, Ngoài-4, Ngoài-5: chấp nhận, không sửa (chú thích lặp/đặt lệch chỗ, dòng đầu evals.yaml chưa cập nhật AC-11/AC-12).
