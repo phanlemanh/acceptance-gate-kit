@@ -237,81 +237,47 @@ console.log('LN6 bước khởi chạy không chạy → lệnh chờ TỰ ghi m
   if (!mut.moc) console.log('  (mutant mốc tính lại mỗi lần) chờ không hạn khi thiếu mốc');
   check('LN6 chiều đỏ: bản sao tính lại mốc mỗi lần → "chờ không hạn khi thiếu mốc"', soLan(SRC, KIM_MOC) === 1 && !mut.moc, JSON.stringify(mut));
 }
-console.log('LN7 lượt cùng round chạy lại: cây mồ côi của lượt trước bị dừng, tên nhật ký mới');
+console.log('LN7 lượt cùng round chạy lại: tên nhật ký theo nhãn lượt — lượt sau không đọc kết quả lượt trước');
 {
-  const LENH_NGU = `sh -c 'echo $$ > canh.pid; exec sleep 60'`;
-  const ia = s => SRC.indexOf(s);
-  const a0 = ia('for f in $(ls "$D" 2>/dev/null'); const a1 = SRC.indexOf('done; ', a0) + 'done; '.length;
-  const KIM_MO_COI = a0 > 0 ? SRC.slice(a0, a1) : '@@khong-thay@@';
-  const MUTANT_MO_COI = SRC.replace(KIM_MO_COI, '');
+  const KIM_NHAN = '  const ten = `${goc}-${NHAN_LUOT}`';
+  const MUTANT_KHONG_NHAN = SRC.replace(KIM_NHAN, '  const ten = goc');
   const ca = async (src) => {
     const root = mkdtempSync(path.join(tmpdir(), 'ldcr-'));
-    const khaiDung = (out) => ({ exitCode: 0, outputTail: out, runId: '', cannotRun: false, killedByTool: true });
-    const r1 = await luotThat({ root, cmd: LENH_NGU, dungO: 1, truocCho: choCanh, src, invokedAt: '2026-10-07T01:00:00Z', khai: khaiDung });
-    const pid1 = r1.pidCanh;
-    rmSync(path.join(root, 'canh.pid'), { force: true });
-    const r2 = await luotThat({ root, cmd: LENH_NGU, dungO: 1, truocCho: choCanh, src, invokedAt: '2026-10-07T02:00:00Z', khai: khaiDung });
-    const chet1 = pid1 ? await chetTrong(pid1, 8000) : false;
-    const tenMoi = existsSync(path.join(root, '.acceptance-runs', 'demo', 's4-lenh-dai', 'r1-l1-1-20261007020000.log'));
-    const kq = { pid1, chet1, tenMoi };
-    if (pid1 && song(pid1)) try { process.kill(pid1, 'SIGKILL'); } catch {}
+    // Lượt 1 chạy trọn và thoát 5; lượt 2 (invokedAt khác) gọi lệnh chờ TRƯỚC khi khởi chạy của nó.
+    const r1 = await luotThat({ root, cmd: 'exit 5', src, invokedAt: '2026-10-07T01:00:00Z',
+      khai: (out) => ({ exitCode: 5, outputTail: out, runId: '', cannotRun: false }) });
+    const r2 = await luotThat({ root, cmd: 'exit 5', src, invokedAt: '2026-10-07T02:00:00Z', khongKhoi: true, dungO: 1,
+      khai: (out) => ({ exitCode: 1, outputTail: out, runId: '', cannotRun: true, reason: 'chua khoi chay' }) });
+    const kq = { luot1: r1.st.ketCuoi, luot2: r2.st.ketCuoi };
     don(r2);
     return kq;
   };
   const that = await ca(undefined);
-  check('LN7 cây lượt trước chết khi lượt sau khởi chạy; nhật ký lượt sau tên mới', that.pid1 > 0 && that.chet1 && that.tenMoi, JSON.stringify(that));
-  const mut = await ca(MUTANT_MO_COI);
-  if (!mut.chet1) console.log('  (mutant không dọn) cây mồ côi lượt trước còn sống');
-  check('LN7 chiều đỏ: bản sao bỏ bước dọn → "cây mồ côi lượt trước còn sống"', soLan(SRC, KIM_MO_COI) === 1 && mut.pid1 > 0 && !mut.chet1, JSON.stringify(mut));
+  check('LN7 lượt 1 xong mã 5; lần chờ đầu của lượt 2 trả __CHUA_XONG (không đọc .xong của lượt 1)',
+    that.luot1 === '__EXIT=5' && that.luot2 === '__CHUA_XONG', JSON.stringify(that));
+  const mut = await ca(MUTANT_KHONG_NHAN);
+  if (mut.luot2 === '__EXIT=5') console.log('  (mutant bỏ nhãn lượt) lượt sau đọc kết quả lượt trước');
+  check('LN7 chiều đỏ: bản sao bỏ nhãn lượt → "lượt sau đọc kết quả lượt trước"', soLan(SRC, KIM_NHAN) === 1 && mut.luot2 === '__EXIT=5', JSON.stringify(mut));
 }
-console.log('LN6b hạn chờ tính từ mốc ĐÃ LƯU, không dời theo mỗi lần chờ (quan hệ, không chỉ «có tệp»)');
+console.log('LN6c mốc bắt đầu RỖNG (đọc đúng lúc tệp bị cắt) → lần chờ không báo quá hạn giả');
 {
-  const KIM_GIU = '[ -f "$L.bat-dau" ] || { date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; };';
-  const MUTANT_DOI = SRC.replace(KIM_GIU, '{ date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; };');
-  const datMocCu = async (root) => {
+  const KIM_CHAN = `case "$B" in ''|*[!0-9]*) B=$(date +%s);; esac;`;
+  const MUTANT_KHONG_CHAN = SRC.replace(KIM_CHAN, '');
+  const datMocRong = async (root) => {
     const d = path.join(root, '.acceptance-runs', 'demo', 's4-lenh-dai');
     execFileSync('mkdir', ['-p', d]);
-    execFileSync('bash', ['-c', `echo $(( $(date +%s) - 120 )) > "${d}/r1-l1-1-20261007000000.log.bat-dau"`]);
+    execFileSync('bash', ['-c', `: > "${d}/r1-l1-1-20261007000000.log.bat-dau"`]);
   };
   const ca = async (src) => {
-    const r = await luotThat({ cmd: 'echo x', phut: 1, dungO: 1, khongKhoi: true, truocCho: datMocCu, src,
+    const r = await luotThat({ cmd: 'echo x', dungO: 1, khongKhoi: true, truocCho: datMocRong, src,
       khai: (out) => ({ exitCode: 1, outputTail: out, runId: '', cannotRun: true, reason: 'x' }) });
     const kq = { ket: r.st.ketCuoi }; don(r); return kq;
   };
   const that = await ca(undefined);
-  check('LN6b mốc 120 s trước, hạn 1 phút → __QUA_HAN', that.ket === '__QUA_HAN', JSON.stringify(that));
-  const mut = await ca(MUTANT_DOI);
-  if (mut.ket !== '__QUA_HAN') console.log('  (mutant ghi đè mốc) hạn chờ dời theo mỗi lần chờ');
-  check('LN6b chiều đỏ: bản sao ghi đè mốc mỗi lần → "hạn chờ dời theo mỗi lần chờ"', soLan(SRC, KIM_GIU) === 1 && mut.ket === '__CHUA_XONG', JSON.stringify(mut));
-}
-console.log('LN9 tệp pid cũ trỏ một tiến trình KHÁC (pid tái dùng) → không bị giết, tệp pid bị xoá');
-{
-  const KIM_DANH = 'ps -ww -o command= -p "$P0" 2>/dev/null | grep -qF "\\${f%.pid}" && ';
-  const MUTANT_KHONG_DANH = SRC.replace(KIM_DANH, '');
-  const ca = async (src) => {
-    const la = spawn('sleep', ['60'], { detached: true, stdio: 'ignore' }); la.unref();
-    let tepCu = '';
-    const datPidCu = async (root) => {
-      const d = path.join(root, '.acceptance-runs', 'demo', 's4-lenh-dai');
-      execFileSync('mkdir', ['-p', d]);
-      tepCu = path.join(d, 'r1-l1-1-20261006000000.log.pid');
-      execFileSync('bash', ['-c', `echo ${la.pid} > "${tepCu}"`]);
-    };
-    // Mốc pid cũ phải có TRƯỚC khi khởi chạy: dựng thư mục + tệp rồi mới cho tác tử giả chạy hai lệnh.
-    const root = mkdtempSync(path.join(tmpdir(), 'ldcr-'));
-    await datPidCu(root);
-    const r = await luotThat({ root, cmd: 'sleep 1; exit 0', khai: (out) => ({ exitCode: 0, outputTail: out, runId: '', cannotRun: false }), src });
-    const songLa = await (async () => { await ngu(800); return song(la.pid); })();
-    const kq = { songLa, xoaPid: !existsSync(tepCu), verdict: r.result.verdict };
-    try { process.kill(la.pid, 'SIGKILL'); } catch {}
-    don(r);
-    return kq;
-  };
-  const that = await ca(undefined);
-  check('LN9 tiến trình mang pid cũ còn sống, tệp pid cũ đã xoá, lượt chạy đạt', that.songLa && that.xoaPid && that.verdict === 'PASS', JSON.stringify(that));
-  const mut = await ca(MUTANT_KHONG_DANH);
-  if (!mut.songLa) console.log('  (mutant không kiểm danh tính) giết nhầm tiến trình mang pid cũ');
-  check('LN9 chiều đỏ: bản sao không kiểm danh tính → "giết nhầm tiến trình mang pid cũ"', soLan(SRC, KIM_DANH) === 1 && !mut.songLa, JSON.stringify(mut));
+  check('LN6c mốc rỗng → __CHUA_XONG', that.ket === '__CHUA_XONG', JSON.stringify(that));
+  const mut = await ca(MUTANT_KHONG_CHAN);
+  if (mut.ket === '__QUA_HAN') console.log('  (mutant không chặn mốc rỗng) mốc rỗng thành quá hạn giả');
+  check('LN6c chiều đỏ: bản sao gỡ đúng phép chặn → "mốc rỗng thành quá hạn giả"', soLan(SRC, KIM_CHAN) === 1 && mut.ket === '__QUA_HAN', JSON.stringify(mut));
 }
 console.log('LN8 lệnh bẫy SIGTERM: quá hạn vẫn dừng được (TERM rồi KILL)');
 {

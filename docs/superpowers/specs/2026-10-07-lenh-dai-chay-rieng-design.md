@@ -91,14 +91,17 @@ Review hai lượt chấm nêu bảy lỗ ngoài hợp đồng phá chính lời
 | Tác tử khai «exit 0» sau một lần chờ (đuôi `__CHUA_XONG`/`__QUA_HAN`) → PASS khi lệnh còn chạy | `normDau` đọc dấu cuối đuôi trước mọi lời khai → không-chạy-được | LN5 |
 | Đuôi chưa-xong mang dấu giả | che mọi dòng `__EXIT=` ở đuôi chưa-xong (giữ, lớp phòng thủ thứ hai) | LN4 |
 | Bước khởi chạy chưa chạy → mốc bắt đầu tính lại mỗi lần, chờ không hạn | lệnh chờ tự `mkdir -p` và ghi mốc ở lần đầu | LN6 (và LN1: cuộc đua thư mục chưa có) |
-| Lượt cùng round chạy lại đọc `.xong` của lượt trước; cây cũ chạy chồng | tên nhật ký thêm nhãn lượt (`invokedAt`); khởi chạy dừng cây mồ côi cùng ô | LN7 |
+| Lượt cùng round chạy lại đọc `.xong` của lượt trước; cây cũ chạy chồng | tên nhật ký thêm nhãn lượt (`invokedAt`) — bước dọn cây mồ côi thêm ở đây đã GỠ sau lượt 4 (xem dưới) | LN7 |
 | Chỉ gửi SIGTERM | thu cây, TERM, chờ ≤ 5 s, KILL | LN8 |
 | S4 dừng vì khoá CHỈ của làn ghim lại sai | bộ đọc hẹp `docModelEvals`, docKhoa gọi lại nó | SC5 |
 | VP1 khoá cả engine vào 2.24.0 | chỉ so lane máy + nhóm lệnh + verdict | VP1 |
 | Hai khoá mới không có round-trip bên viết → bên đọc | args do s4-args thật sinh chạy qua workflow thật | RT1 |
 | Luật TOOL-KILL không được kiểm tới prompt lệnh dài | LD1 đòi mọi dòng luật trong prompt lệnh dài | LD1 |
 | *(sau lượt 3)* Mốc bắt đầu ghi bằng `>` — lệnh chờ đọc đúng lúc tệp rỗng → «quá hạn» giả (LN1 đỏ 4/4 khi chạy song song) | ghi mốc nguyên tử (`mv`), không tin mốc rỗng | LN1 dưới tải (8/8 xanh) |
-| *(sau lượt 3)* Dọn cây mồ côi giết theo pid cũ không kiểm danh tính — pid tái dùng thì giết nhầm | chỉ giết khi dòng lệnh của pid mang tên nhật ký của lượt đó; xoá tệp pid | LN9 |
 | *(sau lượt 3)* LN6 đo «có tệp mốc» thay vì quan hệ hạn chờ | thêm ca mốc cũ → quá hạn | LN6b |
 
 Còn lại ngoài vòng (Known limits ở Cổng Bằng chứng): kiểm danh tính pid dựa vào việc dòng lệnh của vỏ khởi chạy mang lệnh (harness chuyển lệnh qua `-c`); harness chuyển lệnh qua tệp/stdin thì bước dọn KHÔNG giết gì (phía an toàn, cây mồ côi có thể chồng lượt sau); VP1 vẫn neo vào tag `v2.24.0` cho lane máy — đổi khung bọc lệnh thường có chủ đích thì dời mốc trong tệp ca; bộ đọc `paths` của carry-plan chỉ nhận dạng một dòng `[...]` (dạng khối coi như vắng → chạy lại toàn bộ, phía an toàn).
+
+## Thu phạm vi sau lượt chấm 4 (owner chọn)
+
+Lượt 4 xanh mọi eval và suite nhưng REJECT vì một lỗi trong AC-3(iii): dưới zsh, `$!` của subshell là pid của chính lệnh eval (zsh chạy thẳng lệnh cuối của subshell), nên phép kiểm danh tính bằng dòng lệnh (vá sau lượt 3) luôn trượt và bước dọn cây mồ côi không làm gì; ca đo chạy bằng bash nên không thấy. Hai lần vá liên tiếp ở vùng này đều đẻ lỗi mới (STOP-PATCHING). Owner chọn **thu phạm vi**: gỡ hẳn bước dọn; giữ nhãn lượt (lượt sau không đọc kết quả lượt trước — LN7 mới). Giới hạn đã khai: lệnh dài của một lượt bị cắt ngang chạy chồng lượt chấm lại cùng round cho tới khi tự xong; ngưỡng mở lại: một lượt chấm thật đỏ vì chồng như vậy. Kèm hai lỗ đo lượt 4 nêu: LN6c (mốc rỗng) và SC5 tách ba fixture. Các ca bash thật đã chạy lại dưới zsh tại máy: mọi ca hành vi xanh; riêng chiều đỏ LN2 không lật dưới zsh (cây sụp còn một tiến trình — giới hạn đã khai ở trên).

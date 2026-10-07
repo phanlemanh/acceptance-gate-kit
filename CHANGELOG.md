@@ -22,7 +22,8 @@ dựng `eve dev` cùng lúc với một ca suite canh đúng tiến trình đó.
   `test`/`script`). Lượt chấm tự chạy lệnh nền, ghi nhật ký ở `.acceptance-runs/<slug>/s4-lenh-dai/`
   (kết bằng `__EXIT=<n>`), chờ bằng lệnh máy sinh; quá số phút → dừng cả cây tiến trình (TERM rồi KILL), eval BLOCKED. Máy đọc dấu «chưa xong»/«quá hạn» ở
   đuôi lệnh chờ — tác tử khai «exit 0» khi lệnh còn chạy không thành PASS. Lượt cùng round chạy lại có
-  nhật ký tên mới và dừng cây còn sót của lượt trước.
+  nhật ký tên mới, không đọc kết quả của lượt trước (lệnh dài của lượt cũ bị cắt ngang có thể còn chạy chồng —
+  giới hạn đã khai).
   Thước không cần tự ghi nhật ký. Giá trị sai → `s4-args` dừng gọi tên eval.
 - **Eval trong `feature_loop.model_evals` chạy riêng** ở S4: tuần tự, SAU mọi lệnh máy khác (eval song
   song và chuỗi suite) — như làn ghim lại đã làm. Đọc bằng bộ đọc hẹp mà làn ghim lại cũng gọi; `model_evals` sai dạng giờ

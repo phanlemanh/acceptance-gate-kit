@@ -135,22 +135,29 @@ console.log('SC4 chiều đỏ một nguồn: bản sao bộ đọc hẹp trả 
     check('SC4 bản sao bộ đọc rỗng lật kết luận ("không đọc qua docModelEvals")', vang, `${r.status} ${JSON.stringify(r.args && r.args.evalsChayRieng)}`);
   }
 }
-console.log('SC5 ba khoá CHỈ của làn ghim lại sai giá trị (repin_retry, repin_budget_min, repin_ci_blank_env) → lượt chấm vẫn sinh args');
+// Ba khoá CHỈ của làn ghim lại, MỖI khoá một fixture riêng (lượt chấm 4 finding t4: gộp ba khoá vào một
+// fixture thì docKhoa dừng ở khoá đầu, hai khoá sau không bao giờ được thử).
+const KHOA_RIENG_LAN = ['  repin_retry: 2\n', '  repin_budget_min: 0\n', '  repin_ci_blank_env: [1sai]\n'];
+console.log(`SC5 ${KHOA_RIENG_LAN.length} khoá CHỈ của làn ghim lại, mỗi khoá sai một mình → lượt chấm vẫn sinh args; bản sao đọc qua docKhoa dừng ở đúng khoá đó`);
 {
-  const KHOA_HONG = KHOA_SC + '  repin_retry: 2\n  repin_budget_min: 0\n  repin_ci_blank_env: [1sai]\n';
-  const r = run(buildRepo(EVALS_SC, KHOA_HONG));
-  check('SC5 s4-args xanh, evalsChayRieng ["E1"]', r.status === 0 && JSON.stringify(r.args && r.args.evalsChayRieng) === '["E1"]', `${r.status} ${r.stderr.split('\n')[0]}`);
   const KIM_IMP = "import { docModelEvals } from './lib/lan-khoa.mjs';";
   const KIM_GOI = 'modelEvals = new Set(docModelEvals(configText, { resolveConfigKey, resolveConfigList }));';
   const { dst, kimLoi } = banSao(path.join('scripts', 's4-args.mjs'), KIM_IMP, "import { docKhoa } from './lib/lan-khoa.mjs';",
     [[KIM_GOI, 'modelEvals = docKhoa(configText, { resolveConfigKey, resolveConfigList }).model_evals;']]);
   if (!dst) bad('SC5 không dựng được bản sao', kimLoi);
-  else {
-    const m = run(buildRepo(EVALS_SC, KHOA_HONG), dst);
-    const chan = m.status === 2 && /repin_(retry|budget_min|ci_blank_env)/.test(m.stderr);
-    if (chan) console.log('  (bản sao đọc qua docKhoa) khoá làn ghim lại chặn lượt chấm');
-    check('SC5 chiều đỏ: bản sao đọc qua docKhoa → "khoá làn ghim lại chặn lượt chấm"', chan, `${m.status} ${m.stderr.split('\n')[0]}`);
+  let xanh = 0, do_ = 0; const lech = [];
+  for (const k of KHOA_RIENG_LAN) {
+    const ten = k.trim().split(':')[0];
+    const r = run(buildRepo(EVALS_SC, KHOA_SC + k));
+    if (r.status === 0 && JSON.stringify(r.args && r.args.evalsChayRieng) === '["E1"]') xanh += 1; else lech.push(`${ten}: thật ${r.status}`);
+    if (dst) {
+      const m = run(buildRepo(EVALS_SC, KHOA_SC + k), dst);
+      if (m.status === 2 && m.stderr.includes(ten)) do_ += 1; else lech.push(`${ten}: bản sao ${m.status} ${m.stderr.split('\n')[0]}`);
+    }
   }
+  check(`SC5 ${xanh}/${KHOA_RIENG_LAN.length} khoá sai một mình không chặn lượt chấm`, xanh === KHOA_RIENG_LAN.length, lech.join(' ; '));
+  if (do_ === KHOA_RIENG_LAN.length) console.log('  (bản sao đọc qua docKhoa) khoá làn ghim lại chặn lượt chấm — cả ba khoá');
+  check(`SC5 chiều đỏ: bản sao đọc qua docKhoa → "khoá làn ghim lại chặn lượt chấm" ở ${do_}/${KHOA_RIENG_LAN.length} khoá`, do_ === KHOA_RIENG_LAN.length, lech.join(' ; '));
 }
 
 // ═════ RT — round-trip bên viết → bên đọc ═════════════════════════════════
