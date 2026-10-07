@@ -120,7 +120,7 @@ test('AC-1', 'carry-plan: mục ngoài hợp đồng mang sang cả khi tệp b�
 // ══ AC-2 / AC-4 · s4-args ══════════════════════════════════════════════════════
 const PNG = Buffer.from('89504e470d0a1a0a0000000d4948445200000001000000010806000000', 'hex');
 const OBSERVED = ['Đã Read khung: danh sách hiện hai thẻ đang dùng và dòng gập «Đã bỏ (2)».', 'Dòng hai: ngăn mở có nút «Dùng lại», không chữ bị cắt.'];
-function khoS4({ uiKhoi = 'du', anhCo = true } = {}) {
+function khoS4({ uiKhoi = 'du', anhCo = true, tuyetDoi = false } = {}) {
   const d = fs.mkdtempSync(path.join(TMP, 's4-'));
   execFileSync('git', ['init', '-q', '-b', 'main', d]);
   git(d, 'config', 'user.email', 't@t.t'); git(d, 'config', 'user.name', 'T');
@@ -146,10 +146,11 @@ function khoS4({ uiKhoi = 'du', anhCo = true } = {}) {
     { ts: '2026-10-07T02:01:02Z', sha: s1, round: 1, kind: 'finding', file: 'src/a.js', title: 'Ngoai hop dong tren a', severity: 'low', source: 'bugs', inContract: false, acRef: '', plain: 'nguoi dung khong thay gi khac', proposal: 'known-limits', khongBacBo: true, unverified: false, unclassified: false },
   ];
   w(d, '_acceptance/demo/run-log.jsonl', dong.map(x => JSON.stringify(x)).join('\n') + '\n');
+  const ANH = tuyetDoi ? path.join(d, '_acceptance/demo/evidence/E2-a.png') : 'evidence/E2-a.png';
   const khoiE2 = {
-    du: [`- eval: E2`, `  run_id: ${run('E2')}`, `  exit_code: 0`, `  baseline: red`, `  verifier: config:executors.test.api`, `  verified_at: 2026-10-07T02:01:02Z`, `  screenshot: evidence/E2-a.png`, `  observed: |`, ...OBSERVED.map(l => `    ${l}`), `  network_observed: clean`],
-    'run-lech': [`- eval: E2`, `  run_id: E2-khac-0001`, `  exit_code: 0`, `  verifier: config:executors.test.api`, `  verified_at: 2026-10-07T02:01:02Z`, `  screenshot: evidence/E2-a.png`, `  observed: |`, ...OBSERVED.map(l => `    ${l}`), `  network_observed: clean`],
-    'thieu-observed': [`- eval: E2`, `  run_id: ${run('E2')}`, `  exit_code: 0`, `  verifier: config:executors.test.api`, `  verified_at: 2026-10-07T02:01:02Z`, `  screenshot: evidence/E2-a.png`, `  network_observed: clean`],
+    du: [`- eval: E2`, `  run_id: ${run('E2')}`, `  exit_code: 0`, `  baseline: red`, `  verifier: config:executors.test.api`, `  verified_at: 2026-10-07T02:01:02Z`, `  screenshot: ${ANH}`, `  observed: |`, ...OBSERVED.map(l => `    ${l}`), `  network_observed: clean`],
+    'run-lech': [`- eval: E2`, `  run_id: E2-khac-0001`, `  exit_code: 0`, `  verifier: config:executors.test.api`, `  verified_at: 2026-10-07T02:01:02Z`, `  screenshot: ${ANH}`, `  observed: |`, ...OBSERVED.map(l => `    ${l}`), `  network_observed: clean`],
+    'thieu-observed': [`- eval: E2`, `  run_id: ${run('E2')}`, `  exit_code: 0`, `  verifier: config:executors.test.api`, `  verified_at: 2026-10-07T02:01:02Z`, `  screenshot: ${ANH}`, `  network_observed: clean`],
   }[uiKhoi];
   w(d, '_acceptance/demo/evidence-report.md', [
     '---', 'schema_version: 2', 'feature_slug: demo', 'verdict: REJECT', '---', '', '# Evidence Report: demo', '', '## Evidence', '',
@@ -225,6 +226,38 @@ test('AC-4', 's4-args gắn khung ui-check carry từ báo cáo lượt trước
   const loi = kiemAC4(sao);
   if (!coThongDiep(loi, 'gắn khung của lượt khác')) throw new Error(`chiều đỏ không đỏ đúng câu: ${loi.join(' · ') || '(xanh)'}`);
   return 'khớp gắn đủ ba trường; run_id lệch · ảnh vắng · thiếu observed không gắn, mỗi ca một dòng; bản sao bỏ so run_id đỏ đúng câu';
+});
+
+// ══ AC-11 · đường ảnh tuyệt đối (nâng phạm vi 07/10 — 20/172 khối ảnh crm có dạng này) ════
+function kiemAC11(may) {
+  const loi = [];
+  {
+    const { d, anchor } = khoS4({ tuyetDoi: true });
+    const { args } = chayS4(may, d, anchor);
+    const e2 = (args.carriedEvals || []).find(c => c.id === 'E2');
+    const ky = path.join(d, '_acceptance/demo/evidence/E2-a.png');
+    if (!e2) loi.push('tuyệt đối có thật: E2 không được carry (fixture hỏng?)');
+    else if (e2.screenshot !== ky || e2.observed !== OBSERVED.join('\n') || e2.networkObserved !== 'clean') loi.push(`đường ảnh tuyệt đối bị ghép sai (screenshot=${JSON.stringify(e2.screenshot)})`);
+  }
+  {
+    const { d, anchor } = khoS4({ tuyetDoi: true, anhCo: false });
+    const { args, stderr } = chayS4(may, d, anchor);
+    const e2 = (args.carriedEvals || []).find(c => c.id === 'E2');
+    if (e2 && 'screenshot' in e2) loi.push('tuyệt đối vắng: vẫn gắn khung');
+    const n = String(stderr).split('\n').filter(l => l.includes('E2') && l.includes('ảnh vắng')).length;
+    if (n !== 1) loi.push(`tuyệt đối vắng: kỳ vọng đúng một dòng «ảnh vắng», thấy ${n}`);
+  }
+  return loi;
+}
+test('AC-11', 's4-args gắn khung khi ảnh ghi đường tuyệt đối có thật; vắng thì nói ra', () => {
+  const moi = kiemAC11(ROOT);
+  if (moi.length) throw new Error(`cây đang kiểm: ${moi.join(' · ')}`);
+  const duong = kiemAC4(ROOT);   // đối chứng dương: ca tương đối vẫn gắn trên CÙNG bản
+  if (duong.length) throw new Error(`đối chứng dương (tương đối) hỏng: ${duong.join(' · ')}`);
+  const sao = banSao('feature-loop/scripts/s4-args.mjs', /\/\/ <<<DUONG-ANH[\s\S]*?\/\/ DUONG-ANH>>>/, m => m.replace(/path\.resolve/g, 'path.join'));
+  const loi = kiemAC11(sao);
+  if (!coThongDiep(loi, 'đường ảnh tuyệt đối bị ghép sai')) throw new Error(`chiều đỏ không đỏ đúng câu: ${loi.join(' · ') || '(xanh)'}`);
+  return 'tuyệt đối có thật gắn đúng chuỗi; vắng → một dòng; tương đối vẫn gắn; bản sao path.join đỏ đúng câu';
 });
 
 // ══ AC-6..AC-9 · thuoc-vat ═════════════════════════════════════════════════════

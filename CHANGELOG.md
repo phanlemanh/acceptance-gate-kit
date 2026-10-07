@@ -20,11 +20,13 @@ trên dữ liệu crm.
 - **Mục ngoài hợp đồng của lượt trước không còn rụng.** Trước đây mục nằm trên tệp mà lượt sửa có chạm
   bị bỏ khỏi carry (giả định «lượt sau tự tìm lại» — sai: tìm lỗi không tất định), nên nó biến mất khỏi
   thẻ Cổng Bằng chứng; crm mất ba mục và vá tay. Nay mọi mục ngoài hợp đồng đều mang sang; mục trên tệp
-  bị chạm mang nhãn «(r<N> · tệp đã đổi)». Bản findings do MÁY chèn mục carry (khoá chống trùng là cặp
-  tiêu đề + tệp), không trông vào tác tử tổng hợp.
+  bị chạm mang nhãn «(r<N> · tệp đã đổi)». Bản findings do MÁY chèn mục carry, không trông vào tác tử tổng
+  hợp; mục chỉ được coi là đã in khi cùng tệp và tiêu đề bằng đúng hoặc mang nhãn «(r…)» — một mục
+  mới cùng tệp có tên dài hơn không nuốt được mục cũ.
 - **Eval ui-check carry giữ ảnh và mô tả của lượt gốc.** Trước đây khối carry cố ý bỏ `screenshot:` /
   `observed:` nên thẻ báo «Bằng chứng lớp nhìn-thấy: KHÔNG có» dù khung còn nguyên. Nay `s4-args` đọc
-  khối của báo cáo lượt trước — chỉ khi cùng `run_id`, ảnh còn trên đĩa, mô tả thực chất — và workflow
+  khối của báo cáo lượt trước — chỉ khi cùng `run_id`, ảnh còn trên đĩa (đường tương đối hồ sơ hay
+  đường tuyệt đối — crm có cả hai), mô tả thực chất — và workflow
   chép ba trường vào khối carry. Thiếu một điều kiện → không chép, một dòng stderr nói vì sao; thẻ báo
   «không có» là đúng sự thật.
 - **Thước-vật không đếm nội dung nhập từ nhánh nền.** Gộp nhánh nền vào nhánh của vòng từng làm

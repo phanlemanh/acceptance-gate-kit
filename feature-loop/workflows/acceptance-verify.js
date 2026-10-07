@@ -361,7 +361,7 @@ function chenMucCarry(text, carried) {
   let het = dau + 1
   while (het < dong.length && !HEAD_RE.test(dong[het])) het += 1
   // Mục đã có trong khối: cặp (tiêu đề, tệp). Khoá chỉ-tiêu-đề sẽ để một mục TƯƠI trùng tên
-  // trên tệp khác nuốt mục carry (gap-probe P1 của hồ sơ).
+  // trên tệp khác nuốt mục carry (gap-probe P1 của hồ sơ, AC-3).
   const daCo = []
   let cur = null
   for (let i = dau + 1; i < het; i += 1) {
@@ -370,7 +370,12 @@ function chenMucCarry(text, carried) {
     const f = cur && /^\s+file\s*:\s*(.+?)\s*$/.exec(dong[i])
     if (f) cur.file = f[1].replace(/^`|`$/g, '').replace(/:\d+(-\d+)?$/, '')
   }
-  const thieu = ds.filter(c => !daCo.some(x => x.title.includes(c.title) && x.file === String(c.file).replace(/:\d+(-\d+)?$/, '')))
+  // Đã in = CÙNG tệp VÀ tiêu đề bằng đúng title, hoặc mở bằng «title (r» (nhãn carry). Khoá
+  // «tiêu đề chứa title» để một mục TƯƠI cùng tệp tên dài hơn nuốt mục carry (AC-12, lượt chấm 1).
+  const thieu = ds.filter(c => {
+    const tepC = String(c.file).replace(/:\d+(-\d+)?$/, '')
+    return !daCo.some(x => x.file === tepC && (x.title === c.title || x.title.startsWith(c.title + ' (r')))
+  })
   if (!thieu.length) return dong.join('\n')
   // Chèn sau dòng có chữ cuối cùng của khối (không tính dòng cụm).
   let sau = dau

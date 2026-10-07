@@ -604,7 +604,11 @@ if (carriedEvals) {
     if (k.run_id !== c.runId) { khongMang(`run_id lệch (khối ${k.run_id || 'vắng'} ≠ carry ${c.runId})`); continue; }
     // KHUNG-CUNG-RUN-ID>>>
     if (!k.screenshot) { khongMang('ảnh vắng (khối không có screenshot)'); continue; }
-    const anhCo = [path.join(ws, k.screenshot), path.join(root, k.screenshot)].some(p => { try { return fs.statSync(p).isFile(); } catch { return false; } });
+    // Báo cáo thật ghi cả đường tương đối hồ sơ lẫn đường TUYỆT ĐỐI (crm 07/10: 20/172 khối ảnh) —
+    // `resolve` giữ nguyên đường tuyệt đối, `join` sẽ ghép nó vào sau ws và báo vắng oan (AC-11).
+    // <<<DUONG-ANH
+    const anhCo = [path.resolve(ws, k.screenshot), path.resolve(root, k.screenshot)].some(p => { try { return fs.statSync(p).isFile(); } catch { return false; } });
+    // DUONG-ANH>>>
     if (!anhCo) { khongMang(`ảnh vắng (${k.screenshot} không có trên đĩa)`); continue; }
     if (!k.observed || k.observed.replace(/\s+/g, ' ').trim().length < 20) { khongMang('thiếu observed'); continue; }
     c.screenshot = k.screenshot;

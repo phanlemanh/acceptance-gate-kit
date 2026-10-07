@@ -162,3 +162,31 @@ evals:
       - "CHANGELOG.md"
       - "tests/scripts/luot-sua-giu-du.test.mjs"
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.lsgd_ac11
+    expected: >-
+      Hồ sơ fixture AC-4 với khối E2 ghi screenshot bằng đường tuyệt đối: ảnh có thật → gắn đủ ba
+      trường, screenshot bằng đúng chuỗi tuyệt đối; ảnh vắng → không gắn, đúng một dòng stderr «ảnh
+      vắng». Đối chứng dương: ca tương đối vẫn gắn. Chiều đỏ: bản sao ghép bằng path.join → ghim
+      "đường ảnh tuyệt đối bị ghép sai".
+    paths:
+      - "feature-loop/scripts/s4-args.mjs"
+      - "tests/scripts/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.lsgd_ac12
+    expected: >-
+      Workflow qua harness, mục carry (T, F) và mục tươi cùng tệp F tiêu đề "T ở API xoá" — bản
+      findings có mục carry đúng một lần và mục tươi đúng một lần. Đối chứng dương: tác tử đã in
+      "T (r1)" trên F → một lần. Chiều đỏ: bản sao khoá "tiêu đề chứa T" → ghim "mục carry bị nuốt
+      bởi mục tươi cùng tệp".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/luot-sua-giu-du.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

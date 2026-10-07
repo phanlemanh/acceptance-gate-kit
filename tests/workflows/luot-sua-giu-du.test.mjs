@@ -98,9 +98,9 @@ async function kiemAC3(src) {
     const n = p.findings.filter(f => f.title.startsWith('Thu tu da bo khong duoc kiem')).length;
     if (n !== 1) loi.push(`tác tử đã in mục carry: xuất hiện ${n} lần, kỳ vọng 1`);
   }
-  // Mục TƯƠI trùng tên, khác tệp → mục carry vẫn lên đúng một lần.
+  // Mục TƯƠI trùng tên ĐÚNG, khác tệp → mục carry vẫn lên đúng một lần (khoá có tệp).
   {
-    const txt = '# Review findings\n\n' + HEAD + MUC('Khong co nguoi xem hop le o API xoa', 'apps/api/src/xoa.ts') + CUM;
+    const txt = '# Review findings\n\n' + HEAD + MUC('Khong co nguoi xem hop le', 'apps/api/src/xoa.ts') + CUM;
     const p = ooc.parse((await chayAC3(txt, src)).findings || '');
     const n = p.findings.filter(f => f.title === 'Khong co nguoi xem hop le (r1 · tệp đã đổi)').length;
     if (n !== 1) loi.push(`mục carry bị nuốt bởi mục tươi trùng tên (xuất hiện ${n} lần)`);
@@ -132,7 +132,7 @@ test('AC-3', 'mục ngoài hợp đồng carry lên bản findings do máy chèn
   if (moi.length) throw new Error(`cây đang kiểm: ${moi.join(' · ')}`);
   const dotBien = [
     ['gỡ bước chèn', tiem('chenMucCarry(report.findings, carriedFindings)', 'report.findings'), 'mục carry không lên bản findings'],
-    ['khoá chỉ-tiêu-đề', tiem("x.title.includes(c.title) && x.file === String(c.file).replace(/:\\d+(-\\d+)?$/, '')", 'x.title.includes(c.title)'), 'mục carry bị nuốt bởi mục tươi trùng tên'],
+    ['khoá chỉ-tiêu-đề', tiem('x.file === tepC && ', ''), 'mục carry bị nuốt bởi mục tươi trùng tên'],
     ['bỏ dòng sổ carry', tiem('for (const c of carriedFindings) runLogLines.push(findingLine(', 'for (const c of []) runLogLines.push(findingLine('), 'mục carry rụng ở lượt kế'],
   ];
   const ra = [];
@@ -142,6 +142,33 @@ test('AC-3', 'mục ngoài hợp đồng carry lên bản findings do máy chèn
     ra.push(`${ten} → «${ghim}»`);
   }
   return `ba hình dạng tác tử + trùng + va tên + sổ nối lượt 3 xanh; đỏ: ${ra.join(' · ')}`;
+});
+
+// ══ AC-12 · mục tươi CÙNG tệp, tiêu đề chứa tiêu đề carry (nâng phạm vi 07/10) ══════════════
+async function kiemAC12(src) {
+  const loi = [];
+  const c = CARRIED[1];
+  const txt = '# Review findings\n\n' + HEAD + MUC(`${c.title} o API xoa`, c.file) + CUM;
+  const p = ooc.parse((await chayAC3(txt, src)).findings || '');
+  const nCarry = p.findings.filter(f => f.title === `${c.title} (r1 · tệp đã đổi)`).length;
+  const nTuoi = p.findings.filter(f => f.title === `${c.title} o API xoa`).length;
+  if (nCarry !== 1) loi.push(`mục carry bị nuốt bởi mục tươi cùng tệp (xuất hiện ${nCarry} lần)`);
+  if (nTuoi !== 1) loi.push(`mục tươi xuất hiện ${nTuoi} lần`);
+  return loi;
+}
+test('AC-12', 'mục tươi cùng tệp có tiêu đề chứa tiêu đề carry không nuốt mục carry', async () => {
+  // Đối chứng dương: tác tử đã in đúng «T (r1)» trên F → một lần.
+  const c = CARRIED[1];
+  const daIn = '# Review findings\n\n' + HEAD + MUC(`${c.title} (r1)`, c.file, c.plain) + CUM;
+  const p0 = ooc.parse((await chayAC3(daIn)).findings || '');
+  const n0 = p0.findings.filter(f => f.title.startsWith(c.title)).length;
+  if (n0 !== 1) throw new Error(`đối chứng dương hỏng: tác tử đã in «${c.title} (r1)» mà xuất hiện ${n0} lần`);
+  const moi = await kiemAC12();
+  if (moi.length) throw new Error(`cây đang kiểm: ${moi.join(' · ')}`);
+  const sao = tiem("(x.title === c.title || x.title.startsWith(c.title + ' (r'))", 'x.title.includes(c.title)');
+  const loi = await kiemAC12(sao);
+  if (!coThongDiep(loi, 'mục carry bị nuốt bởi mục tươi cùng tệp')) throw new Error(`đột biến khoá «chứa» không đỏ đúng câu: ${loi.join(' · ') || '(xanh)'}`);
+  return 'mục carry và mục tươi cùng tệp mỗi mục một lần; đã in đúng nhãn → một lần; khoá «chứa» đỏ đúng câu';
 });
 
 // ══ AC-5 · khối ui-check carry giữ khung; thẻ thấy; s4-args lượt kế đọc lại đúng từng byte ═══
