@@ -114,7 +114,7 @@ capture:
 #   ship_default: pr         # pr (default; key absent = pr) | merge | branch | ask
 #   repin_parallel_suites: true  # optional (2.21): re-pin lane fires suite commands concurrently (evals stay serial); measure same exit codes first
 #   repin_retry: 1           # optional (2.23): re-run a red lane command once, alone; name the flaky case (never a model eval)
-#   model_evals: [<slug>/<Eid>]  # optional (2.23): evals that call a real model — never re-run, counted in the lane summary
+#   model_evals: [<slug>/<Eid>]  # optional (2.23): evals that call a real model — never re-run, counted in the lane summary; S4 runs them alone, after every other machine command
 #   repin_budget_min: 80     # optional (2.23): lane budget in minutes (set BELOW your tool's own cap); over → exit 4, repin-do vuot-tran
 #   repin_cost_cmd: "<cmd>"  # optional (2.23): prints one number that grows with spend; the summary reports the delta
 #   repin_ci_blank_env: [KEY]  # optional (2.23): suites run with these vars set EMPTY (like CI); evals keep the full env

@@ -25,6 +25,7 @@ import { demThuocVat } from './thuoc-vat.mjs';
 import { chupThuoc } from './chup-ho-so-da-thong.mjs';
 import { hoiNgoaiInputs } from './lib/hoi-ngoai-inputs.mjs';
 import { chupCay } from './lib/cay-doi.mjs';
+import { docModelEvals } from './lib/lan-khoa.mjs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
@@ -118,9 +119,19 @@ const EVAL_REQUIRED = (() => {
 const uniq = a => [...new Set(a)];
 const REQ_STR = uniq(Object.values(EVAL_REQUIRED).flatMap(v => v.str)).filter(k => k !== 'id');
 const REQ_ARR = uniq(Object.values(EVAL_REQUIRED).flatMap(v => v.arr));
+// Khoảng hợp lệ của `long_running` RÚT từ khối LONG-RUNNING-RANGE của bên đọc (lenh-dai-chay-rieng
+// AC-1) — bên viết kiểm cùng khoảng, không chép số.
+const LONG_RUNNING = (() => {
+  const src = fs.readFileSync(wfPath, 'utf8');
+  const m = src.match(/<<<LONG-RUNNING-RANGE([\s\S]*?)LONG-RUNNING-RANGE>>>/);
+  const so = k => Number(((m && m[1].match(new RegExp(`const ${k} = (\\d+)`))) || [])[1]);
+  const r = { min: so('LONG_RUNNING_MIN'), max: so('LONG_RUNNING_MAX') };
+  if (!Number.isInteger(r.min) || !Number.isInteger(r.max)) die(`không rút được khối LONG-RUNNING-RANGE trong ${wfPath} — bên đọc đổi khuôn, KHÔNG đoán`);
+  return r;
+})();
 
 // ── evals: scalar qua parser dùng chung + list fields quét cục bộ ──────────
-const evals = parseEvals(evalsText, uniq([...REQ_STR, 'executor', 'expected', 'runs']));
+const evals = parseEvals(evalsText, uniq([...REQ_STR, 'executor', 'expected', 'runs', 'long_running']));
 if (!evals.length) die('evals.yaml không có eval nào (hoặc không parse được)');
 // ── ô tự khai `status: not-run`: CÙNG hàm với làn ghim lại và bên đọc pin
 // (lib/evidence-core.cjs). Lượt chấm không thi hành ô ấy; tệp args GỌI TÊN nó để
@@ -201,6 +212,15 @@ function resolveJudgmentInput(e, p) {
 }
 for (const e of evals) {
   if (e.runs) { const n = parseInt(e.runs, 10); if (Number.isFinite(n) && n > 1) e.runs = n; else delete e.runs; } else delete e.runs;
+  // `long_running: <phút>` (lenh-dai-chay-rieng AC-1): lệnh dài hơn trần công cụ — workflow chạy nền và
+  // chờ. Sai thì DỪNG có tên: đoán một số khác là hoặc chờ quá ngắn (BLOCKED giả) hoặc treo lượt chấm.
+  if (e.long_running !== undefined && String(e.long_running).trim() !== '') {
+    const raw = String(e.long_running).trim();
+    if (!/^\d+$/.test(raw) || Number(raw) < LONG_RUNNING.min || Number(raw) > LONG_RUNNING.max) die(`eval ${e.id}: long_running "${raw}" không hợp lệ — số phút nguyên ${LONG_RUNNING.min}..${LONG_RUNNING.max} (thời lượng tối đa dự kiến của lệnh), KHÔNG sinh tệp`);
+    if (e.executor !== 'test' && e.executor !== 'script') die(`eval ${e.id}: long_running chỉ dành cho eval test/script (đang là ${e.executor || '(vắng)'}), KHÔNG sinh tệp`);
+    e.longRunning = Number(raw);
+  }
+  delete e.long_running;
   if (e.cmd && e.cmd.startsWith('config:')) {
     const ref = e.cmd;
     const val = resolveConfigKey(configText, ref.slice('config:'.length));
@@ -641,6 +661,13 @@ if (round >= 2) {
   }
 }
 
+// Eval «nặng» chạy riêng (lenh-dai-chay-rieng AC-5): `feature_loop.model_evals` đọc bằng bộ đọc HẸP mà
+// docKhoa của làn ghim lại cũng gọi — một luật kiểm. CHỈ khoá này: khoá riêng của làn ghim lại sai giá
+// trị không được dừng lượt chấm (S4-r1 finding t2/t4). Giá trị sai → dừng với thông điệp của bộ đọc.
+let modelEvals;
+try { modelEvals = new Set(docModelEvals(configText, { resolveConfigKey, resolveConfigList })); } catch (e) { die(String((e && e.message) || e)); }
+const evalsChayRieng = evals.filter(e => (e.executor === 'test' || e.executor === 'script') && modelEvals.has(`${flags.slug}/${e.id}`)).map(e => e.id);
+
 const args = {
   generated_at: invokedAt,
   generated_sha: invokedSha,
@@ -650,6 +677,7 @@ const args = {
   riskTier,
   evals,
   ...(evalsNotRun.length ? { evalsNotRun } : {}),
+  ...(evalsChayRieng.length ? { evalsChayRieng } : {}),
   suiteCommands,
   diffBase,
   repoRoot: root,

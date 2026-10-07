@@ -20,7 +20,11 @@ export const meta = {
 //             ref,                      // config: ref GỐC (vd 'config:executors.test.api') — synthesize ghi verifier (hook L2)
 //             expected, evidence_required,
 //             question, inputs,           // judgment only; inputs = abs paths
-//             runs }],                     // OPTIONAL int>1: eval ngẫu nhiên (LLM) chạy N lần → pass_rate + variance
+//             runs,                        // OPTIONAL int>1: eval ngẫu nhiên (LLM) chạy N lần → pass_rate + variance
+//             longRunning }],              // OPTIONAL (lenh-dai-chay-rieng): phút tối đa (khối LONG-RUNNING-RANGE) — lệnh
+//                                          // dài hơn trần công cụ: chạy nền, nhật ký đường cố định, chờ bằng lệnh máy sinh
+//   evalsChayRieng: ['E6', ...],       // OPTIONAL (lenh-dai-chay-rieng): id trong feature_loop.model_evals — lệnh của
+//                                      // chúng chạy tuần tự SAU mọi lệnh máy khác. Vắng → thứ tự 2.24.0.
 //   suiteCommands: ['npm run build', 'npm run typecheck', ...],
 //                                      // thuoc-co-cua AC-9: lệnh có tên trong danh sách này chạy TUẦN TỰ (theo thứ tự
 //                                      // xuất hiện) — kể cả khi trùng lệnh của một eval; lệnh máy khác giữ song song.
@@ -553,6 +557,13 @@ const badInputsShape = v => v !== undefined && v !== null && (!Array.isArray(v) 
 const isUngroundedInputs = v => !Array.isArray(v) || !v.length
 // EVAL-REQUIRED-FIELDS>>>
 
+// lenh-dai-chay-rieng AC-1/AC-2: khoảng hợp lệ của `long_running` (phút) — MỘT nguồn; s4-args.mjs
+// RÚT khối này (bên viết kiểm cùng khoảng với bên đọc, không chép số).
+// <<<LONG-RUNNING-RANGE
+const LONG_RUNNING_MIN = 1
+const LONG_RUNNING_MAX = 240
+// LONG-RUNNING-RANGE>>>
+
 const evalProblems = []
 args.evals.forEach((e, i) => {
   const nm = (e && typeof e.id === 'string' && e.id.trim()) ? e.id.trim() : `#${i} (khong co id)`
@@ -573,6 +584,12 @@ args.evals.forEach((e, i) => {
     evalProblems.push(!Array.isArray(e.inputs)
       ? `${nm}: field "inputs" phai la mang`
       : `${nm}: field "inputs" co phan tu khong phai chuoi`)
+  }
+  // Khoá vắng = lệnh thường. Có mặt mà sai → hỏng khuôn, không đoán (một lệnh 35 phút chạy như lệnh
+  // thường là đúng sự cố crm 07/10 — fail-open ở đây đốt lượt).
+  if (e.longRunning !== undefined && (!Number.isInteger(e.longRunning) || e.longRunning < LONG_RUNNING_MIN
+    || e.longRunning > LONG_RUNNING_MAX || (e.executor !== 'test' && e.executor !== 'script'))) {
+    evalProblems.push(`${nm}: longRunning ${JSON.stringify(e.longRunning)} khong hop le — so phut nguyen ${LONG_RUNNING_MIN}..${LONG_RUNNING_MAX}, chi cho eval test/script`)
   }
 })
 if (evalProblems.length) {
@@ -663,8 +680,19 @@ const cmdRuns = new Map(distinctCmds.map(cmd => {
 // «lệnh không có eval đi kèm»: lệnh suite trùng lệnh của một eval bị gộp ở byCmd nên
 // mảng eval của nó không rỗng (thuoc-co-cua, phản biện F1).
 const SUITE_SET = new Set(args.suiteCommands || []);
+// lenh-dai-chay-rieng AC-6: eval «nặng» (id trong `args.evalsChayRieng`, bên viết rút từ
+// `feature_loop.model_evals` qua bộ đọc hẹp docModelEvals) dựng tài nguyên chung — crm 07/10: eval model dựng `eve dev`
+// ở `apps/agent` trong lúc một ca suite canh đúng tiến trình đó, hai lượt REJECT. Lệnh của chúng chạy
+// RIÊNG: tuần tự, SAU khi nhánh song song lẫn chuỗi suite đã xong. Thuộc tính của LỆNH (dedupe theo
+// cmd), như làn ghim lại. Lệnh suite giữ chỗ trong chuỗi suite. Khoá vắng (args đời cũ) → nhóm rỗng.
+const CHAY_RIENG = new Set((Array.isArray(args.evalsChayRieng) ? args.evalsChayRieng : []).filter(id => typeof id === 'string' && id))
+const laChayRieng = c => (byCmd.get(c) || []).some(id => CHAY_RIENG.has(id))
 const cmdTuanTu = distinctCmds.filter(c => SUITE_SET.has(c));
-const cmdSongSong = distinctCmds.filter(c => !SUITE_SET.has(c));
+const cmdSongSong = distinctCmds.filter(c => !SUITE_SET.has(c) && !laChayRieng(c));
+const cmdChayRieng = distinctCmds.filter(c => !SUITE_SET.has(c) && laChayRieng(c));
+// lenh-dai-chay-rieng AC-2: thời lượng tối đa (phút) của LỆNH = max `longRunning` trên mọi eval trỏ
+// tới nó — một lần chạy phục vụ mọi eval, nên hạn chờ phải đủ cho eval đòi dài nhất.
+const cmdPhut = new Map(distinctCmds.map(cmd => [cmd, Math.max(0, ...machineEvals.filter(e => e.cmd === cmd && Number.isInteger(e.longRunning)).map(e => e.longRunning))]))
 
 // A/B baseline: chỉ chạy lại trên diffBase các lệnh CÓ eval (eval của feature) — để biết lệnh nào
 // xanh-cả-hai-phía (không phân biệt). Suite-only cmd bỏ qua (đắt + green-on-both là regression-guard bình thường).
@@ -679,6 +707,8 @@ log(`Round ${args.round}: ${distinctCmds.length} lenh may (dedupe tu ${machineEv
   + (carriedEvals.length ? ` — carried ${carriedEvals.length} eval (P1)` : '')
   + (carriedPanels.length ? ` — carried ${carriedPanels.length} panel (P3)` : '')
   + (runBaseline ? '' : ' — baseline carried (P2)'))
+if (cmdChayRieng.length) log(`Chay rieng (feature_loop.model_evals): ${cmdChayRieng.length} lenh, tuan tu SAU moi lenh may khac`)
+if ([...cmdPhut.values()].some(p => p > 0)) log(`Lenh dai (long_running): ${distinctCmds.filter(c => cmdPhut.get(c) > 0).map(c => `${c.slice(0, 40)} ≤${cmdPhut.get(c)} phut`).join(' ; ')} — chay nen, nhat ky .acceptance-runs/${args.slug}/s4-lenh-dai/`)
 
 // Sáu hình dạng lỗi đo-lường (matrix-measure-law — chưng cất từ baseline B4
 // ≥13 round bị đốt + 4 hình dạng CLAUDE.md "thước gắn vào vật"). MỘT CHỖ:
@@ -722,6 +752,46 @@ const BOC_LENH = (lenh) => `F=$(mktemp); ( ${lenh}\n) > "$F" 2>&1; rc=$?; tail -
 // Kết bằng `(exit $rc)`: trạng thái công cụ phải bằng mã của LỆNH, không bằng mã của `rm` (luôn 0) —
 // thiếu vế này thì tác tử làm rơi dòng dấu mà khai theo trạng thái công cụ sẽ ra PASS giả (S4-r2).
 // EXIT-MARK>>>
+
+// Lệnh DÀI hơn trần công cụ (lenh-dai-chay-rieng AC-2/AC-3). Sự cố crm 07/10: công cụ không giết lệnh
+// quá 600 s mà ĐẨY SANG NỀN; tệp nền trống vì BOC_LENH chỉ in lúc xong, tác tử đọc trống thành «bị
+// giết» — hai lượt BLOCKED. Eval khai `long_running` thì kit giữ nhật ký ở đường CỐ ĐỊNH và chờ bằng
+// lệnh MÁY sinh, tác tử chỉ chép nguyên văn:
+//   BOC_NEN — chạy lệnh nền (job con, pid vào `.pid`), toàn bộ đầu ra vào nhật ký, lúc xong nối
+//             `__EXIT=<n>` (cùng EXIT_MARK) rồi mới viết `.xong`.
+//   CHO_NEN — mỗi lần gọi tối đa TRAN_LAN giây, DƯỚI trần MẶC ĐỊNH 120 s của công cụ (tác tử quên
+//             timeout thì lệnh chờ cũng không bị đẩy sang nền — gap-probe F2). Chờ tệp `.xong`, KHÔNG
+//             chờ chữ trong nhật ký: lệnh tự in `__EXIT=` giả giữa chừng không kết thúc việc chờ. Chưa
+//             xong / quá hạn → đuôi ngắn với MỌI dòng dấu bị che (normDau không được thấy dấu nào trên
+//             đuôi chưa-xong — gap-probe F1) + `__CHUA_XONG` / `__QUA_HAN`. Quá hạn → ghi `.qua-han`
+//             (lần chờ sau vẫn trả quá hạn) rồi giết CẢ CÂY từ `.pid` (đệ quy pgrep -P).
+// Nhật ký dưới `.acceptance-runs/` (eval-executors.md «Where a run writes its artifacts»), tự ẩn khỏi
+// git như làn ghim lại (TU-AN-GIT). Chỉ BỌC ở tầng prompt — chuỗi `cmd` không đổi.
+// <<<LENH-DAI
+const TRAN_LAN_GIAY = 100
+const DAU_CHUA_XONG = '__CHUA_XONG'
+const DAU_QUA_HAN = '__QUA_HAN'
+const NEN_DIR = `${args.repoRoot}/.acceptance-runs/${args.slug}/s4-lenh-dai`
+// Nhãn LƯỢT: một lượt chấm = một invokedAt. Lượt cùng round chạy lại (BLOCKED hạ tầng) có tên nhật ký
+// mới, nên không bao giờ đọc `.xong` của lượt trước (S4-r1 finding t3, S4-r2 finding t2).
+const NHAN_LUOT = String(args.invokedAt || '').replace(/\D/g, '') || 'x'
+// Dừng CẢ CÂY: thu danh sách (đệ quy pgrep -P) TRƯỚC khi gửi tín hiệu, TERM, chờ tối đa 5 s, KILL phần
+// còn sống (S4-r1 finding t5: chỉ TERM thì lệnh bẫy tín hiệu sống tiếp, chồng lệnh nặng kế). Vòng `for`
+// trên `$(…)` để tách từ giống nhau ở bash và zsh.
+const DUNG_CAY = `cay() { echo "$1"; for c in $(pgrep -P "$1"); do cay "$c"; done; }; dung() { DS=$(cay "$1"); for p in $(printf '%s\\n' "$DS"); do kill -TERM "$p" 2>/dev/null; done; i=0; while [ $i -lt 10 ]; do S=; for p in $(printf '%s\\n' "$DS"); do kill -0 "$p" 2>/dev/null && S=1; done; [ -z "$S" ] && break; sleep 0.5; i=$((i+1)); done; for p in $(printf '%s\\n' "$DS"); do kill -KILL "$p" 2>/dev/null; done; }`
+// Bước dọn cây MỒ CÔI của lượt trước đã GỠ (owner chọn thu phạm vi sau lượt chấm 4, sổ quyết định): nó đẻ
+// lỗi ở lượt 3 (giết nhầm pid tái dùng) và lượt 4 (zsh chạy thẳng lệnh cuối của subshell nên pid không mang
+// dòng lệnh khởi chạy — phép kiểm danh tính luôn trượt). Nhãn lượt trong tên nhật ký một mình đã chặn việc
+// đọc kết quả cũ; lệnh dài của một lượt bị cắt ngang còn chạy chồng lượt chấm lại là giới hạn đã khai.
+const BOC_NEN = (lenh, ten) => `D="${NEN_DIR}"; mkdir -p "$D"; [ -f "${args.repoRoot}/.acceptance-runs/.gitignore" ] || printf '*\\n' > "${args.repoRoot}/.acceptance-runs/.gitignore"; L="$D/${ten}.log"; rm -f "$L" "$L.xong" "$L.qua-han"; date +%s > "$L.bat-dau.t" && mv -f "$L.bat-dau.t" "$L.bat-dau"; ( ${lenh}\n) > "$L" 2>&1 & P=$!; echo "$P" > "$L.pid"; wait "$P"; rc=$?; printf '\\n${EXIT_MARK}%s\\n' "$rc" >> "$L"; echo "$rc" > "$L.xong"; (exit $rc)`
+// Mốc bắt đầu thiếu (bước khởi chạy chưa chạy / hỏng) → lệnh chờ TỰ ghi mốc ở lần chờ đầu, nên số phút
+// khai luôn chặn trên mọi ca — không lượt chấm nào treo (S4-r2 finding t2). Tự `mkdir -p`: lần chờ đầu có thể
+// chạy TRƯỚC bước khởi chạy tạo thư mục — không ghi được mốc thì hạn rơi về 0 và «quá hạn» giả ngay.
+// Mốc ghi NGUYÊN TỬ (tệp tạm rồi `mv`) ở cả hai lệnh, và lệnh chờ không bao giờ tin mốc rỗng/không phải số:
+// `>` cắt tệp trước khi ghi, lệnh chờ đọc đúng lúc đó ra mốc rỗng → «quá hạn» giả (S4-r3: LN1 đỏ 4/4 khi
+// bốn bản tệp ca chạy song song).
+const CHO_NEN = (ten, phut) => `mkdir -p "${NEN_DIR}"; L="${NEN_DIR}/${ten}.log"; TRAN_LAN=${TRAN_LAN_GIAY}; HAN_PHUT=${phut}; ${DUNG_CAY}; [ -f "$L.bat-dau" ] || { date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; }; B=$(cat "$L.bat-dau" 2>/dev/null); case "$B" in ''|*[!0-9]*) B=$(date +%s);; esac; HAN=$((B + HAN_PHUT * 60)); T=$(( $(date +%s) + TRAN_LAN )); KQ=chua-xong; while :; do if [ -f "$L.qua-han" ]; then KQ=qua-han; break; fi; if [ -f "$L.xong" ]; then KQ=xong; break; fi; N=$(date +%s); if [ "$N" -ge "$HAN" ]; then KQ=qua-han; : > "$L.qua-han"; P=$(cat "$L.pid" 2>/dev/null); [ -n "$P" ] && dung "$P"; break; fi; if [ "$N" -ge "$T" ]; then break; fi; sleep 2; done; if [ "$KQ" = xong ]; then tail -n 40 "$L" | cut -c1-240 | tail -c 6000; else tail -n 5 "$L" 2>/dev/null | sed 's/^${EXIT_MARK}/[__EXIT che]/' | cut -c1-240; if [ "$KQ" = qua-han ]; then printf '\\n${DAU_QUA_HAN}\\n'; else printf '\\n${DAU_CHUA_XONG}\\n'; fi; fi`
+// LENH-DAI>>>
 
 // Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen
 // `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
@@ -843,7 +913,7 @@ if (args.dryRun) {
   return {
     dryRun: true,
     distinctCommands: distinctCmds,
-    commandGroups: { songSong: cmdSongSong, tuanTu: cmdTuanTu },
+    commandGroups: { songSong: cmdSongSong, tuanTu: cmdTuanTu, ...(cmdChayRieng.length ? { chayRieng: cmdChayRieng } : {}) },
     evalsPerCommand: Object.fromEntries([...byCmd.entries()]),
     judgePanels: freshJudgmentEvals.map(e => ({ eval: e.id, judges: LENSES.length })),
     uiCheckEvals: uiEvals.map(e => e.id),
@@ -898,10 +968,26 @@ Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong 
 
 // AC-9: MỘT lời gọi agent cho MỘT lần chạy của một lệnh máy — hai nhánh (song song cho lệnh
 // eval, tuần tự cho lệnh suite) dùng CHUNG hàm này để prompt không bị chép thành hai bản.
-const agentCuaLenh = (cmd, __i) => agentT(
-  `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n${BOC_LENH(`${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}`)}\n\nCapture TRUNG THUC: outputTail = NGUYEN VAN phan duoi tool result, PHAI giu dong cuoi \`${EXIT_MARK}<n>\`; exitCode = so <n> cua dong do (khong suy tu chu); run_id neu stdout co in (khong co thi de chuoi rong).\nKHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`,
-  { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
-).then(r => r && { ...r, cmd, runIndex: __i + 1 })
+// MỘT đuôi chung cho hai nhánh prompt máy: luật TOOL-KILL nội suy đúng MỘT chỗ cho lane máy (W25 ánh xạ
+// chỗ nội suy → lane), và nhánh lệnh thường giữ NGUYÊN VĂN từng byte (AC-7).
+const DUOI_LENH_MAY = `KHONG sua code. KHONG dung git checkout/switch/stash/reset — repo dang o dung branch can verify, doi branch la pha hong cac verifier khac dang chay song song. KHONG chay lai nhieu lan de "cho pass". Neu lenh khong the chay (thieu env, service/DB local chua chay, script khong ton tai...) → cannotRun=true + reason cu the.\n\n${TOOL_KILL_RULE}`
+// lenh-dai-chay-rieng AC-2: lệnh có `longRunning` nhận prompt hai bước (BOC_NEN + CHO_NEN); lệnh
+// không khai giữ prompt cũ NGUYÊN VĂN (AC-7 so từng byte với v2.24.0).
+const promptLenhDai = (lenhGhim, cmd, __i, phut) => {
+  const goc = `r${args.round}-l${distinctCmds.indexOf(cmd) + 1}-${__i + 1}`
+  const ten = `${goc}-${NHAN_LUOT}`
+  return `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Lenh can kiem khai chay toi ${phut} phut — DAI hon tran 600 giay cua cong cu chay lenh, nen KHONG chay no o dang thuong. Lam DUNG hai buoc, chep NGUYEN VAN tung lenh (cho dung da GHIM trong lenh — khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban).\n\nBUOC 1 — KHOI CHAY: goi Bash voi run_in_background=true (cong cu khong co tham so do thi goi thuong — no tu day lenh sang nen o 600 giay, ket qua khong doi). Lenh tu ghi TOAN BO dau ra vao nhat ky ${NEN_DIR}/${ten}.log va ket bang dong \`${EXIT_MARK}<n>\`:\n\n${BOC_NEN(lenhGhim, ten)}\n\nKHONG doc tep dau ra nen cua cong cu (no TRONG toi khi lenh xong — do KHONG phai dau hieu lenh chet); chi doc nhat ky qua lenh cho o buoc 2.\n\nBUOC 2 — CHO: goi Bash (timeout 600000) lenh sau; LAP LAI DUNG lenh do moi khi dong cuoi la ${DAU_CHUA_XONG}:\n\n${CHO_NEN(ten, phut)}\n\nDoc ket qua cua lan cho CUOI:\n- dong cuoi la \`${EXIT_MARK}<n>\` → lenh da xong: outputTail = NGUYEN VAN dau ra lan cho do (PHAI giu dong \`${EXIT_MARK}<n>\`), exitCode = <n>, cannotRun=false.\n- dong cuoi la ${DAU_QUA_HAN} → lenh vuot ${phut} phut da khai, lenh cho DA dung tien trinh: cannotRun=true, killedByTool=false, reason "vuot thoi luong khai ${phut} phut — chua co dong ${EXIT_MARK}", outputTail = NGUYEN VAN dau ra lan cho do. KHONG doan PASS/FAIL tu dau ra do dang.\nrun_id neu nhat ky co in (khong co thi de chuoi rong).\n${DUOI_LENH_MAY}`
+}
+const agentCuaLenh = (cmd, __i) => {
+  // Chỗ đứng ghim MỘT lần cho cả hai nhánh (RS5 đếm lời gọi CD_GUARD theo lane).
+  const lenhGhim = `${CD_GUARD(`"${args.repoRoot}"`)} && ${cmd}`
+  const phut = cmdPhut.get(cmd) || 0
+  return agentT(
+    phut > 0 ? promptLenhDai(lenhGhim, cmd, __i, phut) :
+    `Ban la verifier doc lap, KHONG phai nguoi viet code nay (doer ≠ grader). Chay dung lenh sau NGUYEN VAN — cho dung da GHIM trong chinh lenh (khong tach ve cd ra, khong sua ve || exit 97, khong tin cwd hien tai cua ban):\n\n${BOC_LENH(lenhGhim)}\n\nCapture TRUNG THUC: outputTail = NGUYEN VAN phan duoi tool result, PHAI giu dong cuoi \`${EXIT_MARK}<n>\`; exitCode = so <n> cua dong do (khong suy tu chu); run_id neu stdout co in (khong co thi de chuoi rong).\n${DUOI_LENH_MAY}`,
+    { label: `machine:${cmd.slice(0, 40)}${(cmdRuns.get(cmd) || 1) > 1 ? '#' + (__i + 1) : ''}`, phase: 'Machine', schema: MACHINE_SCHEMA, ...modelOpt('machine') }
+  ).then(r => r && { ...r, cmd, runIndex: __i + 1 })
+}
 
 // cham-khong-tu-dot-luot AC-9: ảnh ui lưu DƯỚI hồ sơ bằng đường tuyệt đối — đường tương đối
 // `evidence/…` rơi vào cwd của tác tử (không phải hồ sơ). Báo cáo mang lại đường tương đối.
@@ -918,7 +1004,14 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
       for (const cmd of cmdTuanTu) for (let n = 0; n < (cmdRuns.get(cmd) || 1); n++) out.push(await Promise.resolve().then(() => agentCuaLenh(cmd, n)).catch(() => null))
       return out
     })(),
-  ]).then(([ss, tt]) => [...ss, ...tt]),
+  ]).then(async ([ss, tt]) => {
+    // lenh-dai-chay-rieng AC-6: nhóm chạy-riêng chỉ bắt đầu khi CẢ HAI nhánh trên đã xong, và tuần tự
+    // với nhau — không chồng suite, không chồng eval khác. Cùng agentCuaLenh nên lệnh vừa chạy-riêng
+    // vừa dài (ca crm E6/E7) vẫn nhận khung nền.
+    const rr = []
+    for (const cmd of cmdChayRieng) for (let n = 0; n < (cmdRuns.get(cmd) || 1); n++) rr.push(await Promise.resolve().then(() => agentCuaLenh(cmd, n)).catch(() => null))
+    return [...ss, ...tt, ...rr]
+  }),
 
   // ui-check (v1.1): 1 agent/eval — chạy steps trên dev server, assertion máy-kiểm + evidence file
   () => parallel(uiEvals.map(e => () =>
@@ -973,6 +1066,16 @@ const [machineRaw, uiRaw, judgeRaw, reviewRaw] = await parallel([
 const rutDau = tail => { const all = [...String(tail || '').matchAll(new RegExp(`^${EXIT_MARK}(\\d+)\\s*$`, 'gm'))]; return all.length ? Number(all[all.length - 1][1]) : null }
 const normDau = r => {
   if (!r) return r
+  // lenh-dai-chay-rieng (S4-r2 finding t4): đuôi lệnh chờ kết bằng dấu chưa-xong / quá-hạn là VẬT máy
+  // đọc — lệnh chưa có mã thoát, bất kể tác tử khai gì. Thiếu vế này thì «khai exit 0 sau một lần chờ»
+  // ra PASS khi lệnh còn chạy: đúng lớp fail-open kit chặn.
+  const cuoi = String(r.outputTail || '').trim().split('\n').pop().trim()
+  if (cuoi === DAU_CHUA_XONG || cuoi === DAU_QUA_HAN) {
+    const { killedByTool, ...rest } = r
+    return { ...rest, cannotRun: true, exitCode: 1, reason: cuoi === DAU_QUA_HAN
+      ? `vuot thoi luong khai (long_running) — lenh cho tra ${DAU_QUA_HAN}, chua co dong ${EXIT_MARK}`
+      : `lenh dai CHUA XONG — tac tu dung cho o ${DAU_CHUA_XONG}, chua co dong ${EXIT_MARK}` }
+  }
   const dau = rutDau(r.outputTail)
   if (dau != null) {
     if (r.cannotRun === true && r.killedByTool !== true && dau !== 0) return r

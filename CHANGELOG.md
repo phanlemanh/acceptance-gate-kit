@@ -12,6 +12,29 @@
 
 ## Chưa phát hành
 
+### Lượt chấm S4 không còn bị lệnh dài và eval nặng đốt (hồ sơ `lenh-dai-chay-rieng`, T2)
+
+Gốc: crm `_acceptance/tro-ly-okr-bo-final-output`, 07/10 — bốn lượt chấm mất vì hạ tầng kit: hai lượt
+BLOCKED vì tác tử đọc «lệnh bị đẩy sang nền ở 600 s» thành «bị giết», hai lượt REJECT vì eval gọi model
+dựng `eve dev` cùng lúc với một ca suite canh đúng tiến trình đó.
+
+- **Khoá eval mới `long_running: <phút>`** (số nguyên 1–240, thời lượng tối đa dự kiến; chỉ eval
+  `test`/`script`). Lượt chấm tự chạy lệnh nền, ghi nhật ký ở `.acceptance-runs/<slug>/s4-lenh-dai/`
+  (kết bằng `__EXIT=<n>`), chờ bằng lệnh máy sinh; quá số phút → dừng cả cây tiến trình (TERM rồi KILL), eval BLOCKED. Máy đọc dấu «chưa xong»/«quá hạn» ở
+  đuôi lệnh chờ — tác tử khai «exit 0» khi lệnh còn chạy không thành PASS. Lượt cùng round chạy lại có
+  nhật ký tên mới, không đọc kết quả của lượt trước (lệnh dài của lượt cũ bị cắt ngang có thể còn chạy chồng —
+  giới hạn đã khai).
+  Thước không cần tự ghi nhật ký. Giá trị sai → `s4-args` dừng gọi tên eval.
+- **Eval trong `feature_loop.model_evals` chạy riêng** ở S4: tuần tự, SAU mọi lệnh máy khác (eval song
+  song và chuỗi suite) — như làn ghim lại đã làm. Đọc bằng bộ đọc hẹp mà làn ghim lại cũng gọi; `model_evals` sai dạng giờ
+  cũng dừng `s4-args` (trước chỉ dừng làn) — khoá CHỈ của làn ghim lại sai giá trị thì không.
+- **Luật TOOL-KILL thêm một dòng:** «chuyển sang nền» không phải «bị giết» — chờ tới dòng `__EXIT=`,
+  tối đa `long_running` hoặc 30 phút; quá thì BLOCKED với lý do chỉ việc cần làm.
+- **Khoá vắng = như 2.24.0:** kho không khai `long_running` lẫn `model_evals` nhận prompt và thứ tự
+  lệnh bằng hệt 2.24.0 (đo bằng vi phân với tag `v2.24.0`).
+- **crm khi nhận:** khai `long_running: 45` cho `tro-ly-okr-bo-final-output/E6`, `E7` (và mọi eval model
+  dài khác); E6/E7 đã có trong `model_evals` nên tự chạy sau suite.
+
 ### Lượt sửa giữ đủ, đếm đúng (hồ sơ `luot-sua-giu-du-dem-dung`, T2)
 
 Gốc: crm, hồ sơ `don-okr-nhap-sai`, S4 lượt 2 ngày 07/10 trên 2.24.0 — ba lỗ, cả ba tái hiện được

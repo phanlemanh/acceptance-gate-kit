@@ -1,0 +1,156 @@
+# Eval cho hồ sơ lenh-dai-chay-rieng.
+#
+# Hai tệp ca: tests/scripts/s4-args-lenh-dai-chay-rieng.test.mjs (bên VIẾT — kho git fixture
+# code-sinh, chạy CHÍNH s4-args.mjs của cây đang kiểm) và tests/workflows/lenh-dai-chay-rieng.test.mjs
+# (bên ĐỌC — nạp CHÍNH acceptance-verify.js qua harness, đột biến trên bản sao trong bộ nhớ). Mỗi
+# khoá executor ghim các ca của MỘT AC; mỗi AC có đối chứng dương và chiều đỏ trên CÙNG fixture,
+# thông điệp ghim. Đường dẫn suy từ vị trí tệp ca.
+schema_version: 1
+feature_slug: lenh-dai-chay-rieng
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.ldcr_s4_args_lenh_dai
+    expected: >-
+      SL1 đối chứng dương: eval khai long_running 45 → args mang longRunning 45 (số); eval không khai
+      không có khoá; giá trị biên 1 và 240 sinh tệp. SL2: năm giá trị viết trước {0, 241, 2.5, abc, -3}
+      → mỗi ca thoát 2, stderr gọi tên eval và giá trị, tệp args KHÔNG tồn tại — đếm đúng 5/5. SL3 chiều
+      đỏ: bản sao feature-loop/ (cpSync trọn thư mục) với bước kiểm gỡ → ca 0 sinh tệp, ca đỏ in
+      "long_running sai lọt". SL4: kim gỡ khớp ĐÚNG một lần trong nguồn thật.
+    paths:
+      - "feature-loop/scripts/s4-args.mjs"
+      - "tests/scripts/s4-args-lenh-dai-chay-rieng.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.ldcr_prompt_lenh_dai
+    expected: >-
+      LD1: args có lệnh chung của hai eval longRunning 20 và 45 + một lệnh không khai → prompt lệnh
+      dài chứa đường .acceptance-runs/<slug>/s4-lenh-dai/, "HAN_PHUT=45", TRAN_LAN đọc từ prompt ≤ 110, không chứa
+      khung bọc thường (mktemp), chứa MỌI dòng khối TOOL-KILL-RULE (rút từ tệp nguồn); prompt lệnh không
+      khai chứa khung bọc thường, không chứa HAN_PHUT.
+      LD2: longRunning hỏng (0, "30", 300) → verdict BLOCKED, blocked[0].cmd "(evals)", reason gọi tên
+      eval, 0 lời gọi agent — 3/3. LD3 chiều đỏ: bản sao lấy MIN → ca in "HAN_PHUT lệch: 20". LD4:
+      kim khớp đúng một lần.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/lenh-dai-chay-rieng.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.ldcr_chay_nen_that
+    expected: >-
+      Lệnh khởi chạy và lệnh chờ RÚT từ prompt lane máy (không viết tay), chạy bằng bash thật trên thư
+      mục tạm làm repoRoot. LN1: lệnh mẫu in "__EXIT=0" giả giữa chừng rồi thoát 3; tác tử giả khởi
+      chạy nền, gọi lệnh chờ (TRAN_LAN hạ xuống 1) tới khi hết "__CHUA_XONG", khai sai killedByTool
+      true + exitCode 0 → có ≥1 lần "__CHUA_XONG", nhật ký nằm đúng đường cố định, workflow trả
+      failedEvals chứa eval đó với mã 3, không BLOCKED. LN2: HAN_PHUT hạ 0 với lệnh ngủ 60 s → lệnh chờ
+      in "__QUA_HAN", pid CHÁU (lệnh mẫu tự ghi pid canh rồi exec sleep) không còn sống sau vòng chờ
+      có trần; chiều đỏ: bản sao chỉ giết pid vỏ → ca in "cây con sống sót sau __QUA_HAN". LN3 chiều
+      đỏ: bản sao lệnh chờ đợi grep "^__EXIT=" trong nhật ký thay vì tệp .xong → workflow đọc mã 0, ca
+      in "dấu giả kết thúc chờ". LN4: lệnh in "__EXIT=0" giả rồi ngủ dài; tác tử giả dán nguyên văn
+      đầu ra lệnh chờ (a) __QUA_HAN + cannotRun, (b) một lần __CHUA_XONG + killedByTool → cả hai eval
+      trong blocked, đuôi không mang dòng __EXIT=; chiều đỏ: bản sao không che → "dấu giả lộ ở đuôi chưa
+      xong". LN5: khai exit 0 + đuôi __CHUA_XONG → BLOCKED; đỏ: bản sao không đọc dấu → "đuôi chưa-xong
+      thành PASS". LN6: không khởi chạy → lần chờ đầu ghi tệp .bat-dau; đỏ: tính lại mốc mỗi lần → "chờ
+      không hạn khi thiếu mốc". LN6b: mốc 120 s trước, hạn 1 phút → __QUA_HAN; đỏ: ghi đè mốc mỗi lần →
+      "hạn chờ dời theo mỗi lần chờ". LN6c: mốc rỗng → __CHUA_XONG; đỏ: gỡ đúng phép
+      chặn → "mốc rỗng thành quá hạn giả". LN7: lượt 1 thoát 5, lượt 2 (invokedAt khác) gọi lệnh chờ trước khi
+      khởi chạy → __CHUA_XONG; đỏ: bỏ nhãn lượt → "lượt sau đọc kết quả lượt trước". LN8: lệnh
+      bẫy TERM chết sau __QUA_HAN; đỏ: chỉ gửi TERM → "lệnh bẫy TERM sống sót".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/lenh-dai-chay-rieng.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: judgment
+    question: >-
+      Một tác tử chấm chỉ có khối giữa hai marker TOOL-KILL-RULE trong tệp tool-kill-rule.md làm luật.
+      Công cụ của nó vừa báo lệnh đang chạy «did not complete within its 600s timeout and was moved to
+      the background», kèm một tệp đầu ra đang trống. Khối luật có nói đủ năm ý sau không: (1) đó KHÔNG
+      phải bị giết và không khai killedByTool; (2) tệp nền trống là bình thường, kèm lý do; (3) chờ bằng
+      lệnh có giới hạn thời gian mỗi lần gọi, tới khi có dòng __EXIT=<n>; (4) tổng thời gian chờ tối đa
+      bằng long_running của eval, vắng thì 30 phút; (5) quá trần thì khai cannotRun với lý do chỉ ra việc
+      cần làm (khai long_running)? Và khối có còn luật về lệnh bị công cụ giết THẬT (timeout/killed,
+      output bị cắt) mà không mâu thuẫn với ý mới không?
+    inputs: [skills/acceptance/references/tool-kill-rule.md]
+    expected: >-
+      PASS khi đủ năm ý và luật lệnh-bị-giết-thật vẫn có mặt, không mâu thuẫn; FAIL nêu ý thiếu hoặc câu mâu thuẫn.
+    evidence_required: [judged_by, verdict, rationale]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.ldcr_s4_args_chay_rieng
+    expected: >-
+      SC1 đối chứng dương: model_evals [demo/E1, khac/E2, demo/E3], E3 khai status not-run →
+      evalsChayRieng đúng ["E1"]. SC2: khoá model_evals vắng → evalsChayRieng VẮNG HẲN trong tệp args.
+      SC3: mục "khong-gach" → thoát 2, stderr chứa "feature_loop.model_evals", không sinh tệp. SC4 chiều
+      đỏ một nguồn: bản sao feature-loop/ có docModelEvals trả rỗng → evalsChayRieng vắng, ca in
+      "không đọc qua docModelEvals". SC5: ba khoá riêng của làn (repin_retry: 2 · repin_budget_min: 0 · repin_ci_blank_env: [1sai]), MỖI khoá một fixture → s4-args vẫn xanh 3/3, evalsChayRieng ["E1"];
+      đỏ: bản sao đọc qua docKhoa → thoát 2 gọi tên đúng khoá ở 3/3, ca in "khoá làn ghim lại chặn lượt chấm". RT1: args do
+      s4-args thật sinh (E1 long_running 45 + model_evals [demo/E1]) → workflow thật: dry-run chayRieng
+      ["echo dai"], prompt lệnh dài có HAN_PHUT=45; đỏ: bản sao bên viết đổi tên khoá → ca in "bên viết
+      bên đọc trôi".
+    paths:
+      - "feature-loop/scripts/s4-args.mjs"
+      - "feature-loop/scripts/lib/lan-khoa.mjs"
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/scripts/s4-args-lenh-dai-chay-rieng.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.ldcr_thu_tu_chay_rieng
+    expected: >-
+      Agent giả ghi cờ start/end (mẫu suite-tuan-tu). CR1: hai eval thường, hai eval chạy-riêng (hai
+      lệnh), ba suite → mỗi lệnh chạy-riêng start sau end của MỌI lệnh khác; hai lệnh chạy-riêng không
+      chồng; đủ 7 lời gọi machine. CR2: dry-run commandGroups.chayRieng bằng đúng hai lệnh đó, mỗi lệnh
+      thuộc đúng một nhóm. CR3: id chạy-riêng trên lệnh trùng suite → lệnh trong tuanTu, không trong
+      chayRieng. CR4 chiều đỏ: bản sao gộp chạy-riêng về song song → ca in "chạy-riêng chồng lệnh khác";
+      kim khớp đúng một lần. CR5 (ca crm E6/E7): lệnh vừa chạy-riêng vừa longRunning 45 → bắt đầu sau
+      mọi lệnh khác VÀ prompt có HAN_PHUT=45, không có khung bọc thường; chiều đỏ: bản sao nhóm
+      chạy-riêng dùng khung bọc thường → ca in "chạy-riêng mất khung nền".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/lenh-dai-chay-rieng.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.ldcr_vi_phan_khong_khai
+    expected: >-
+      VP1: CÙNG args không khai (2 eval script, 2 suite, 1 judgment, 1 ui-check) chạy trên workflow cây
+      đang kiểm và bản base (git show v2.24.0 — mốc cố định; nguồn base trùng nguồn cây → ĐỎ "base
+      trùng cây"; tag không giải được → ĐỎ gọi tên hạ tầng) → CHỈ lane máy: dãy (nhãn, prompt) theo thứ tự
+      gọi, verdict, failedEvals, blocked, và nhóm lệnh dry-run BẰNG HỆT; kết cục ghim trước ở CẢ HAI:
+      verdict PASS, đúng 4 lời gọi machine — bằng nhau mà kết cục sai thì ĐỎ "vi phân rỗng". VP2 chiều
+      đỏ: bản sao coi mọi lệnh eval là chạy-riêng → ca in "thứ tự lệnh đổi".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/lenh-dai-chay-rieng.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    question: >-
+      Một người viết eval ở một kho tiêu thụ chỉ đọc bốn tệp đính kèm. Từ chúng, họ có biết: (a) khoá
+      long_running trên một eval khai gì (số phút tối đa, khoảng hợp lệ), khi nào cần khai, và lượt chấm
+      làm gì với nó (nhật ký ở .acceptance-runs/<slug>/s4-lenh-dai/, chờ, quá hạn thì sao); (b) eval có
+      trong feature_loop.model_evals nay còn chạy riêng sau mọi lệnh máy khác ở lượt chấm S4; (c) mục
+      CHANGELOG chưa phát hành nêu cả hai thay đổi và nói khoá vắng thì như 2.24.0? Có câu nào trong các
+      tệp mâu thuẫn với nhau về hai khoá này không?
+    inputs: [skills/acceptance/references/eval-executors.md, GUIDE.md, commands/acceptance-init.md, CHANGELOG.md]
+    expected: >-
+      PASS khi (a), (b), (c) đủ và không mâu thuẫn; FAIL nêu tệp và ý thiếu.
+    evidence_required: [judged_by, verdict, rationale]

@@ -18,6 +18,16 @@ const loi = (khoa, kieu, gia) => { const e = new Error(`config.yaml ${khoa}: "${
 const BIEN_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const rong = (v) => v == null || String(v).trim() === '';
 
+// Bộ đọc HẸP của `feature_loop.model_evals` — lượt chấm S4 (s4-args) chỉ cần khoá này, không được dừng
+// vì một khoá CHỈ của làn ghim lại sai giá trị (hồ sơ lenh-dai-chay-rieng, S4-r1 finding t2/t4). docKhoa
+// gọi lại đúng hàm này: một luật kiểm, hai bên gọi. Trả mảng theo thứ tự khai.
+export function docModelEvals(configText, core) {
+  const v = core.resolveConfigList(configText, 'feature_loop.model_evals');
+  const model = Array.isArray(v) ? v.map(x => String(x).trim()).filter(Boolean) : [];
+  for (const m of model) if (!/^[\w.-]+\/[\w.-]+$/.test(m)) throw loi('feature_loop.model_evals', 'mỗi mục dạng <slug>/<Eid>', m);
+  return model;
+}
+
 // core = lib/evidence-core.cjs của bộ máy (resolveConfigKey, resolveConfigList). Giá trị sai → ném
 // Error gọi tên khoá + giá trị hợp lệ; làn bắt và thoát 2 (nguồn hỏng).
 export function docKhoa(configText, core) {
@@ -26,8 +36,7 @@ export function docKhoa(configText, core) {
   const r = k('feature_loop.repin_retry');
   let retry = 0;
   if (!rong(r)) { if (!/^[01]$/.test(String(r).trim())) throw loi('feature_loop.repin_retry', 'dùng 0 | 1', r); retry = Number(String(r).trim()); }
-  const model = ds('feature_loop.model_evals');
-  for (const m of model) if (!/^[\w.-]+\/[\w.-]+$/.test(m)) throw loi('feature_loop.model_evals', 'mỗi mục dạng <slug>/<Eid>', m);
+  const model = docModelEvals(configText, core);
   const b = k('feature_loop.repin_budget_min');
   let budget = null;
   if (!rong(b)) { const n = Number(String(b).trim()); if (!(Number.isFinite(n) && n > 0)) throw loi('feature_loop.repin_budget_min', 'số phút > 0', b); budget = n; }
