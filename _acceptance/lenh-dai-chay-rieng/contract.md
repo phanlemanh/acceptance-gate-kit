@@ -5,7 +5,7 @@ slug: lenh-dai-chay-rieng
 owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/workflows, feature-loop/scripts, skills/acceptance/references — không chạm t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 veto_state: mo
 veto_opened_at: 2026-10-07T01:46:05Z
 design_doc: docs/superpowers/specs/2026-10-07-lenh-dai-chay-rieng-design.md
