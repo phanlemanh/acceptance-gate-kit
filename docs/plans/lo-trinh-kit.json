@@ -1,0 +1,285 @@
+{
+  "schema": 1,
+  "ten": "Lộ trình kit nghiệm thu — từ 2.24.0",
+  "ghi_chu": "BẢN NHÁP máy dựng 08/10 cho owner duyệt; ý định là của owner, sửa bằng PR. Nhịp đo được (22/09–06/10): 9 mốc phát hành trong 15 ngày, mỗi mốc 1–2 vòng — ngày dưới đây rơi ra từ thứ tự + nhịp đó, không phải hứa. Hàng chỉ vào khi có neo ngoài (một hồ sơ hay commit ở kho tiêu thụ); ý chưa có neo nằm ở chan_troi.",
+  "moc": [
+    {
+      "ten": "crm: làn R1 vá xong trên production",
+      "ngay": "2026-10-12",
+      "loai": "ngoai",
+      "ai": "crm",
+      "hang": []
+    },
+    {
+      "ten": "crm: mọi phòng ban dùng thật hằng ngày (hạn cứng) — kit KHÔNG đổi engine dưới chân crm trước mốc này",
+      "ngay": "2026-10-14",
+      "loai": "ngoai",
+      "ai": "crm",
+      "hang": []
+    },
+    {
+      "ten": "Phát hành 2.25.0 và crm cài — crm ghi «gộp và cài trước khi mở đợt sau-14-10»",
+      "ngay": "2026-10-15",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "P1"
+      ]
+    },
+    {
+      "ten": "Phát hành 2.26.0 — tác tử chấm không sửa mã, bộ đọc khoan dung, kiểm chéo sau gộp (cho dãy P4 của crm)",
+      "ngay": "2026-10-18",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "A1",
+        "R1",
+        "G1"
+      ]
+    },
+    {
+      "ten": "Phát hành 2.27.0 — ca chập chờn, eval model thật, cắt lượt",
+      "ngay": "2026-10-23",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "G2",
+        "G3",
+        "L2"
+      ]
+    },
+    {
+      "ten": "Phát hành 2.28.0 — bớt câu hỏi ở bước thiết kế",
+      "ngay": "2026-10-27",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "A2"
+      ]
+    }
+  ],
+  "hang": [
+    {
+      "ma": "N1",
+      "nhom": "nen",
+      "hang": "T2",
+      "slug": "viec-ke-theo-plan",
+      "cau_giao": "«Kho khai một tệp kế hoạch, thẻ mở phiên chỉ ra việc kế và việc trễ»"
+    },
+    {
+      "ma": "N2",
+      "nhom": "nen",
+      "hang": "T2",
+      "slug": "lo-trinh-tren-du-lieu-that",
+      "dung_tren": [
+        "N1"
+      ],
+      "cau_giao": "«Kế hoạch thật của crm đọc đúng: lời tự khai so theo nhóm, mở việc thẳng từ một hàng»"
+    },
+    {
+      "ma": "N3",
+      "nhom": "nen",
+      "hang": "T2",
+      "slug": "trang-lo-trinh-doc-mot-phut",
+      "dung_tren": [
+        "N2"
+      ],
+      "cau_giao": "«Mở trang lộ trình, một phút biết làm gì tiếp, kẹt gì, lệch gì»"
+    },
+    {
+      "ma": "N4",
+      "nhom": "nen",
+      "hang": "T2",
+      "slug": "gia-lan-ghim-lai",
+      "cau_giao": "«Lượt ghim lại rẻ hơn: lệnh đỏ chạy lại một lần, có trần, dọn sạch khi dừng»"
+    },
+    {
+      "ma": "N5",
+      "nhom": "nen",
+      "hang": "T3",
+      "slug": "loc-paths-dong-mac-dinh",
+      "dung_tren": [
+        "N4"
+      ],
+      "cau_giao": "«Lượt ghim lại chỉ chấm lại hồ sơ có vùng tệp chạm thay đổi»"
+    },
+    {
+      "ma": "N6",
+      "nhom": "nen",
+      "hang": "T3",
+      "slug": "eval-thay-boi-co-chung",
+      "cau_giao": "«Eval đã có hồ sơ ký khác thay thì nghỉ có tên, không làm đỏ lượt chấm»"
+    },
+    {
+      "ma": "N7",
+      "nhom": "nen",
+      "hang": "T2",
+      "slug": "luot-sua-giu-du-dem-dung",
+      "cau_giao": "«Lượt sửa không làm rơi mục ngoài hợp đồng, khung ảnh, hay đếm nhầm phần gộp từ nền»",
+      "vi_sao": "Gốc: crm/_acceptance/don-okr-nhap-sai — ba lỗi lộ ra 07/10. Đã gộp #278, CHƯA phát hành."
+    },
+    {
+      "ma": "N8",
+      "nhom": "nen",
+      "hang": "T2",
+      "slug": "lenh-dai-chay-rieng",
+      "cau_giao": "«Lệnh chấm dài chạy nền, eval gọi model chạy riêng — lượt chấm không chết vì trần công cụ»",
+      "vi_sao": "Đã gộp #279, CHƯA phát hành. Mốc mang nó phải ghi crm khai long_running: 45 cho E6/E7."
+    },
+    {
+      "ma": "P1",
+      "nhom": "phat-hanh",
+      "slug": "release-2-25-0",
+      "dung_tren": [
+        "N7",
+        "N8"
+      ],
+      "cau_giao": "«crm cài 2.25.0 trước khi mở đợt sau-14-10»",
+      "vi_sao": "Gốc: crm/docs/plan/dot-sau-14-10/README.md — hàng «bản vá ba lỗ của bộ kit»: «gộp và cài cùng phiên bản trước khi mở đợt».",
+      "bat_khi": "crm có commit nhận 2.25.0 trước khi hàng đầu tiên của đợt sau-14-10 mở vòng"
+    },
+    {
+      "ma": "A1",
+      "nhom": "chung-khong-tu-doi",
+      "hang": "T2",
+      "dung_tren": [
+        "P1"
+      ],
+      "cau_giao": "«Tác tử chấm chỉ chấm — không nhận câu nhắn gần nhất của người làm nhiệm vụ, không sửa mã»",
+      "vi_sao": "Gốc: crm/_acceptance/loi-vao-dieu-phoi-30-ngay (3 lượt trong một ngày, hạt giống 2026-09-21-tac-nhan-con-khong-doc-cau-nhan-cua-nguoi — đã chạm ngưỡng). Tái phát 07/10 ở chính kit: phiên mở bằng «sửa + thêm test» thì tác tử chấm tự sửa mã và commit (luot-sua-giu-du-dem-dung, lượt 1 vô hiệu). Nguyên tố 2: bằng chứng không tự dối.",
+      "bat_khi": "Ba mươi ngày không lượt chấm nào bị vô hiệu vì tác tử chấm ghi vào cây"
+    },
+    {
+      "ma": "R1",
+      "nhom": "doc-khoan-dung",
+      "hang": "T2",
+      "dung_tren": [
+        "P1"
+      ],
+      "cau_giao": "«Kho viết evals.yaml kiểu danh sách sát lề vẫn được kit đọc đủ đầu vào và vùng tệp»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-va-bien — commit 352ef33ac (07/10) phải viết lại 309 dòng evals.yaml sang khuôn thụt 4 «để bộ đọc của kit thấy inputs và paths». YAML hợp lệ mà kit đọc thiếu IM LẶNG → bộ lọc vùng tệp (N5) có thể bỏ sót hồ sơ. Sửa theo thứ tự luật 26/09: bộ đọc khoan dung + cờ vàng, không đổi mặc định.",
+      "bat_khi": "Hồ sơ viết danh sách sát lề và thụt 2 cho cùng kết quả đọc; khuôn không đọc được thì có cờ vàng, không im"
+    },
+    {
+      "ma": "G1",
+      "nhom": "gia-ghim-lai",
+      "hang": "T2",
+      "dung_tren": [
+        "N5"
+      ],
+      "cau_giao": "«Kiểm ‘có làm hỏng hồ sơ đã ký khác không’ chạy một lần sau mỗi lần gộp, không trong từng lượt ghim lại»",
+      "vi_sao": "Gốc: crm/_acceptance/kiem-cheo-sau-gop (owner ký build 07/10) — E11 ăn ~14 giờ máy cho một PR, 0 hồi quy bắt được; hồ sơ ghi «phần sửa ở bộ kit đi chip riêng». Phần kit cụ thể chốt ở Cổng Phạm vi của hàng F9 bên crm. Hạt giống kit: docs/plans/2026-10-06-hat-giong-gia-lan-ghim-lai-vong-b.md (Đ1).",
+      "cho": "crm chốt phạm vi F9 (chạy ở CI hay đêm; khi đỏ thì làm gì)",
+      "bat_khi": "Lượt ghim lại một hồ sơ chạm vùng Zalo của crm dưới 30 phút, kiểm chéo vẫn chạy sau gộp"
+    },
+    {
+      "ma": "G2",
+      "nhom": "gia-ghim-lai",
+      "hang": "T2",
+      "dung_tren": [
+        "N8"
+      ],
+      "cau_giao": "«Ca kiểm chập chờn chạy lại một lần trước khi làm đỏ cả lượt dài hay CI»",
+      "vi_sao": "Gốc: crm/_acceptance/ca-chap-chon-cach-ly (ký build 07/10): «phần chạy lại một lần trước khi kết luận đỏ trong làn ghim lại thuộc bộ kit». KIỂM TRƯỚC KHI MỞ: 2.23 đã có repin_retry (N4) và crm đã bật 06/10 — có thể chỉ còn phần suite/CI, hoặc đã đủ. Cùng lớp: hạt giống 2026-10-03-suite-chap-chon-ho-so-khac-khoa-the (crm muc-tieu-va-kr, ~3,5 giờ máy).",
+      "bat_khi": "Một tuần CI của crm không còn lượt đỏ do ca chập chờn đã biết"
+    },
+    {
+      "ma": "G3",
+      "nhom": "gia-ghim-lai",
+      "hang": "T2",
+      "dung_tren": [
+        "N8"
+      ],
+      "cau_giao": "«Eval gọi model thật không chạy lại khi đầu vào không đổi»",
+      "vi_sao": "Gốc: crm/_acceptance/eval-model-that-dung-luc (ký build 07/10) — số dư AI Gateway 43,91 → 32,51 USD trong 14 giờ, phần lớn do chạy lại eval không đổi đầu vào; hồ sơ ghi «bộ nhớ đệm theo băm đầu vào cho mọi eval thuộc bộ kit». Hạt giống kit: 2026-10-06-hat-giong-gia-lan-ghim-lai-vong-b.md (Đ2 — dùng lại kết quả theo băm đầu vào).",
+      "bat_khi": "Lượt ghim lại không đổi đầu vào của eval model thì chi phí model của eval đó bằng 0"
+    },
+    {
+      "ma": "L2",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "slug": "lo-trinh-cat-luot",
+      "dung_tren": [
+        "N3",
+        "P1"
+      ],
+      "cau_giao": "«Đưa bản phạm vi vào, nhận các hàng kế hoạch đúng khuôn kèm bảng phủ — không mã nào lọt»",
+      "vi_sao": "Gốc: crm/_acceptance/khung-okr-truoc-r1 — kế hoạch OKR 32 → 62 hàng trong ba ngày, cắt tay. Owner ký build 06/10, điều kiện «mở sau khi cắt 2.24 và crm nhận» đã đạt 07/10.",
+      "bat_khi": "Lượt cắt kế của crm chạy bằng skill, 0 mã lọt, nhanh hơn nửa lượt cắt tay 04/10"
+    },
+    {
+      "ma": "A2",
+      "nhom": "bot-goi-nguoi",
+      "hang": "T3",
+      "dung_tren": [
+        "L2"
+      ],
+      "cau_giao": "«Bước lên thiết kế không hỏi người những câu mà người luôn trả lời theo khuyến nghị»",
+      "vi_sao": "Gốc: crm/_acceptance/ke-hoach-la-mot-ban-ghi, sua-luu-tru-dieu-phoi — 28/28 câu trả lời «theo khuyến nghị» qua 3 vòng (hạt giống 2026-09-22-may-hoi-ngoai-thiet-ke-o-s1, đã chạm ngưỡng). Thước đo số 1 của kit: số lần gọi người mỗi kết quả ship.",
+      "bat_khi": "Số lượt gọi người ngoài thiết kế ở bước thiết kế của crm về 0 trong ba vòng liền, không vòng nào bị trả vì thiết kế sai"
+    },
+    {
+      "ma": "S1",
+      "nhom": "cho-xet-lai",
+      "hang": "T2",
+      "slug": "lop-vendored-tu-xung",
+      "cau_giao": "«Kho biết mình đang chạy đúng bản kit đã khai, kiểm bằng một lệnh trong CI»",
+      "ghi_chu": "Ký build 19/09, chưa mở vòng sau ba tuần. Neo là hồ sơ của chính kit (thuoc-co-cua) — đề xuất xét lại khi ký lộ trình này. Cùng lớp có neo bốn kho: hạt giống 2026-09-23-lop-chep-tu-xoa-2-18-3 (oneflow #127, artifact-platform #391, media-library #66, crm #70)."
+    },
+    {
+      "ma": "S2",
+      "nhom": "cho-xet-lai",
+      "hang": "T2",
+      "slug": "phep-do-o-doc-lap-thuoc-co-cua",
+      "cau_giao": "«Ba phép đo của thước-có-cửa đỏ đúng ô của chính nó»",
+      "ghi_chu": "Ký build 17/09, chưa mở vòng. Neo nội bộ (meta) — luật chiều rộng (b) chỉ cho một vòng meta giữa hai mốc kho nhận; đề xuất xét lại."
+    },
+    {
+      "ma": "S3",
+      "nhom": "cho-xet-lai",
+      "hang": "T3",
+      "slug": "vong-la-mot-ket-qua",
+      "cau_giao": "«Mỗi vòng giao đúng một kết quả người dùng thấy được»",
+      "ghi_chu": "Ký build 04/09, chưa mở vòng sau năm tuần. Neo media-library (kho đã lâu không nhận mốc) — đề xuất xét lại."
+    }
+  ],
+  "chan_troi": [
+    {
+      "ma": "H1",
+      "cau_giao": "«Thước mới không được dùng ref nhánh — chặn ngay từ lúc sinh eval»",
+      "ly_do": "crm/_acceptance/thuoc-khong-tu-het-han còn hỏi «luật quét đặt ở kho hay ở kit» — chờ crm chốt ở Cổng Phạm vi F10.",
+      "mo_lai_khi": "crm chốt phần đó thuộc kit"
+    },
+    {
+      "ma": "H2",
+      "cau_giao": "«Bản đồ không xếp việc đã gộp vào ngăn Đang làm chỉ vì mất chữ ký»",
+      "ly_do": "Đo 08/10: co-qua-timebox-nhom-da-xong (#149) và ghim-lai-tren-lop-cu (#170) đã gộp từ tháng 9 mà bản đồ vẫn ghi Đang làm. Chưa có neo ngoài.",
+      "mo_lai_khi": "≥1 kho tiêu thụ thấy việc đã gộp nằm ở Đang làm"
+    },
+    {
+      "ma": "H3",
+      "cau_giao": "Bảy hạt giống có neo crm đã chạm ngưỡng, chờ owner gọi tên",
+      "ly_do": "audit-s4-bon-diem-nguoc-north-star · nhan-ngoai-n-neo-theo-noi-dung · vi-tu-tran-thuoc-dem-vong-chua-duyet · khai-ca-dung-cua-de-quy-dung-bac · dem-vong-tu-run-log-khong-tu-bao-cao (cùng hai hạt giống đã thành A1, A2). Luật chiều rộng: không kéo hết vào một cửa sổ.",
+      "mo_lai_khi": "owner gọi tên, hoặc tái phát ở một kho nhận mốc"
+    },
+    {
+      "ma": "H4",
+      "cau_giao": "Làn ghim lại 2.23 còn ba lỗ (thư mục tạm 1,2 GB, khoá đơn bị bỏ qua, vi phân xanh rỗng)",
+      "ly_do": "Hạt giống 2026-10-06-rang-lan-ghim-lai-sau-moc-2-23, neo crm kiem-cheo-sau-gop; chưa lộ ở lượt thật.",
+      "mo_lai_khi": "crm bật khoá và một lượt ghim lộ một trong ba lỗ"
+    },
+    {
+      "ma": "H5",
+      "cau_giao": "Tham số lượt chấm truyền bằng tệp, không dán ~100 KB vào lời gọi",
+      "ly_do": "Hạt giống 2026-10-01-tham-so-luot-cham-bang-tep, neo crm soan-okr-cung-tro-ly; đang 1 lần.",
+      "mo_lai_khi": "≥1 lượt chấm nữa hỏng vì cách truyền tham số"
+    },
+    {
+      "ma": "H6",
+      "cau_giao": "33 hạt giống nội bộ còn mở",
+      "ly_do": "Không neo kho tiêu thụ — luật «ô chỉ mở khi có neo ngoài» và đóng băng meta-work. Danh sách: docs/plans/*-hat-giong-*.md.",
+      "mo_lai_khi": "mỗi hạt giống tự khai ngưỡng (50/56 có)"
+    }
+  ],
+  "da_bac": []
+}
