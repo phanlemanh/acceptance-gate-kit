@@ -5,7 +5,7 @@ slug: doc-ghi-troi-mang-sang-run-id
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/** và scripts/recheck-evidence.cjs — đều trong risk_tiers.t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Phan Le Manh
 approved_at: 2026-10-08
 ---
