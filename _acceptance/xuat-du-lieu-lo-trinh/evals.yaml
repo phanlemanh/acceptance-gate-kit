@@ -1,0 +1,175 @@
+schema_version: 1
+feature_slug: xuat-du-lieu-lo-trinh
+# Ca đo sống ở tests/scripts/lo-trinh.test.mjs (LT-110..LT-120, cùng tệp với ca của các vòng lộ trình
+# trước; executor `executors.test.lo_trinh` chạy đúng tệp đó — không thêm khoá executor). Kho thử do
+# code sinh trong lượt (git init trong thư mục tạm). Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao vật bị
+# tiêm (hoặc trên trang bị tiêm), SAU khi bản lành xanh trên cùng kho thử, và ghim thông điệp rút từ
+# đầu ra của hàm đo. Mỗi eval ghim đúng dòng "PASS: LT-…" — suite xanh mà thiếu dòng ghim là ĐỎ. Bộ
+# vẽ «bản trước vòng» lấy bằng `git archive 7e965b54 scripts lib` (trọn thư mục; CI checkout
+# fetch-depth 0); sha không resolve được thì ca FAIL, không bỏ qua.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-110" — kho thử ba lộ trình (tệp 1: hàng có hồ sơ, hàng theo lời,
+      hàng kế, cờ, mốc có/không gắn việc, đã bác; tệp 2: JSON hỏng; tệp 3: hợp lệ, `hang: []`) + một hồ
+      sơ ngoài kế hoạch: đếm
+      `id="lo-trinh-du-lieu"` trong trang == 1; JSON.parse khối được; khuon/phien_ban/nguon đúng; tập
+      khoá từng cấp (gốc · lo_trinh · hang · moc · hang_ke · tien_do) == KHUON_DU_LIEU của mã (đẳng
+      thức tập, in ra); lo_trinh[1].loi chứa «tệp kế hoạch» và các mảng của nó rỗng; lo_trinh[2] đủ khoá, tien_do
+      toàn 0, hang_ke null; KHUON_DU_LIEU == bảng khoá VIẾT SẴN trong ca (chép từ bảng của design doc,
+      không rút từ mã). Và
+      "PASS: LT-110-do" — bản sao lo-trinh.mjs bỏ khoá `nhom_trang_thai` khỏi hàng: CHÍNH hàm đo trả
+      lỗi nêu «nhom_trang_thai».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/fixtures/lo-trinh/crm-okr.json, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-111 kho-thu" và "PASS: LT-111 crm-okr" — bản chiếu tham chiếu (trong
+      ca, chỉ đọc khối qua docDuLieu) so với bộ đọc HTML độc lập (regex trên `<tr id>` + ô «Trạng thái»,
+      thẻ «Làm tiếp», danh sách «Cần sửa», dòng «Tiến độ», `li[data-ngay]` của dải mốc, dấu «theo ghi
+      chép», chữ cờ trong ô trạng thái, mục «Đã bác», khối hồ sơ ngoài kế hoạch) của CHÍNH trang: tập mã
+      hàng bằng nhau; mỗi mã cùng chữ trạng thái, cùng theo_loi, cùng tập chữ cờ; số hàng theo
+      nhom_trang_thai == bốn số trên thẻ; hàng kế + lệnh bằng nhau; số và câu cần sửa bằng nhau; mỗi mốc
+      cùng ngày/tên/việc/con_viec; da_bac (mã + lý do) và ngoai_lo_trinh bằng nhau; ho_so mỗi hàng ==
+      hồ sơ kho thử dựng để nhận hàng đó (bảng biết trước lúc dựng); số mục so được in ra và > 0 ở từng
+      loại. Và "PASS: LT-111 nhom" — ma trận toàn phần: mọi chữ trạng thái lớp phân tích phát được (rút
+      từ SECTIONS + «Chưa mở» + «Không suy được», không viết tay) × một hàng mỗi chữ trong kho do code
+      sinh; nhom_trang_thai TỪNG hàng == nhóm mà phép chia của thanh tiến độ cho chữ đó (in ma trận; số
+      ô đo == số chữ). Chiều đỏ, mỗi ca trên trang lành sau khi bản lành xanh: "PASS: LT-111-do bo-hang"
+      (xoá một hàng khỏi khối → lỗi nêu mã hàng) · "PASS: LT-111-do doi-trang-thai" (lỗi nêu mã + hai
+      chữ) · "PASS: LT-111-do ngoai-rong" (ngoai_lo_trinh = [] → lỗi nêu «ngoai_lo_trinh») · "PASS:
+      LT-111-do co-chua-dich" (thay một cờ bằng câu gốc chưa dịch → lỗi nêu mã hàng) · "PASS: LT-111-do
+      doi-nhom" (bản sao mã xếp «Sắp mở vòng» vào dang-lam → lỗi nêu mã hàng và hai tên nhóm).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-112" — trang vẽ bằng bộ vẽ của cây, gỡ đúng khối
+      `<script type="application/json" id="lo-trinh-du-lieu">…</script>`, giống từng byte trang do bộ
+      vẽ ở `git archive 7e965b54 scripts lib` vẽ trên cùng kho thử của LT-110. Và "PASS: LT-112-do" —
+      bản sao bộ vẽ đổi một chữ hiển thị (nhãn «Làm tiếp» → «Làm kế»): CHÍNH hàm so trả lỗi chứa
+      «Làm kế».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-113" — kho thử không khai lo_trinh (có hồ sơ): `product-map.mjs
+      --root` rồi `--check`: không có LO-TRINH.html; PRODUCT-MAP.md == bản bộ vẽ 7e965b54 sinh trên
+      cùng kho; `git status --porcelain` chỉ liệt PRODUCT-MAP.md (đẳng thức danh sách). Và
+      "PASS: LT-113-do" — bản sao product-map luôn ghi LO-TRINH.html: CHÍNH hàm đo trả lỗi chứa
+      «LO-TRINH.html».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-114" — kho thử khai lộ trình, t1_skip_globs gồm "LO-TRINH.html" đích
+      danh: vẽ, commit, đổi ô một hồ sơ, vẽ lại: tập tệp đổi (`git status --porcelain`, trừ hồ sơ vừa
+      đổi) == {PRODUCT-MAP.md, LO-TRINH.html}; `--check` thoát 0 và stderr không chứa «t1_skip_globs».
+      Và "PASS: LT-114-do" — bản sao bộ vẽ ghi thêm LO-TRINH.json cạnh trang: CHÍNH hàm đo trả lỗi
+      chứa «LO-TRINH.json».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-115 ho-so-doi", "PASS: LT-115 sua-khoi" và "PASS: LT-115 ve-lai" —
+      đối chứng dương trước: trang vừa vẽ `--check` thoát 0. Hồ sơ đổi ô không vẽ lại → thoát 1, stderr
+      chứa «LO-TRINH.html lệch với tệp ý định và hồ sơ»; chỉ sửa một byte bên trong khối dữ liệu → thoát
+      1, cùng câu; vẽ lại → thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-116" — vẽ hai lần (lần hai TZ=Pacific/Kiritimati, lần một TZ=UTC):
+      hai trang bằng nhau từng byte; tập chuỗi `\d{4}-\d{2}-\d{2}` trong khối ⊆ tập ngày mốc khai trong
+      tệp kế hoạch thử (ngày hôm nay của máy không nằm trong tệp thử). Và "PASS: LT-116-do" — bản sao bộ
+      vẽ thêm `ve_luc: new Date().toISOString()` vào khối: CHÍNH hàm đo trả lỗi nêu chuỗi ngày lạ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-117" — hàng có cau_giao = "a</script><script>x()</script><!--b-->"
+      + "</SCRIPT >" + "</sCrIpT" + U+2028 + U+2029 + nháy kép, vi_sao tương tự: văn bản thô của khối
+      không chứa ký tự `<`; đếm `<script` (không phân biệt hoa thường) trong trang == 2; docDuLieu trả
+      cau_giao/vi_sao ĐÚNG chuỗi gốc (đẳng thức); ô bảng hiển thị chứa `&lt;/script&gt;`. Và
+      "PASS: LT-117-do" — bản sao bộ vẽ bỏ bước thoát `<` trong khối: CHÍNH hàm đo trả lỗi nêu số thẻ
+      `<script` khác 2; "PASS: LT-117-do chu-thuong" — bản sao chỉ thoát `</script` và `<!--` chữ
+      thường: lỗi nêu «</SCRIPT».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-118 dung-khuon", "PASS: LT-118 trang-cu", "PASS: LT-118 json-hong",
+      "PASS: LT-118 khuon-la", "PASS: LT-118 phien-ban-moi" — năm đầu vào sinh trong ca (trang cũ = trang
+      do bộ vẽ 7e965b54 vẽ, không viết tay): kết quả và cảnh báo đúng như AC-9 (đẳng thức số cảnh báo +
+      chứa cụm ghim từng ca); không ca nào ném. Và "PASS: LT-118-do" — bản sao docDuLieu ném khi
+      phien_ban > 1: CHÍNH hàm đo trả lỗi nêu «phien-ban-moi».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, GUIDE.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-119" — bảng khoá rút từ khối marker LO-TRINH-DU-LIEU-KHOA của tài
+      liệu == KHUON_DU_LIEU của mã ở từng cấp; GUIDE.md chứa đường `references/lo-trinh-du-lieu.md`.
+      Và "PASS: LT-119-do tai-lieu" — bản sao tài liệu bỏ dòng khoá `ho_so`: CHÍNH hàm so trả lỗi nêu
+      «ho_so»; "PASS: LT-119-do ma" — bản sao mã thêm khoá `thu_nghiem`: lỗi nêu «thu_nghiem».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-120" — trang kho thử có một mốc M (ngày D) còn việc chưa giao và một
+      mốc xong; script nội tuyến của CHÍNH trang chạy trong `vm` với DOM tối giản dựng từ các `li` của
+      trang và `Date` cố định ở D−1, D, D+1, mỗi ngày ở TZ=UTC và TZ=Asia/Ho_Chi_Minh (6 ca, in ra);
+      tập mốc trang tô «đã qua, còn việc» và tập hàng trễ == kết quả bản chiếu tham chiếu áp luật so
+      ngày rút từ khối marker LO-TRINH-DU-LIEU-LUAT-NGAY của tài liệu lên khối dữ liệu với cùng «hôm
+      nay». Đối chứng dương: ca D+1 mỗi bên có đúng {M}. Và "PASS: LT-120-do" — bản sao luật đổi «trước»
+      thành «trước hoặc bằng»: CHÍNH hàm so trả lỗi ở ca ngày D nêu tên mốc M.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: judgment
+    inputs: [skills/acceptance/references/lo-trinh-du-lieu.md, _acceptance/xuat-du-lieu-lo-trinh/lt1-crm.json]
+    question: >
+      lo-trinh-du-lieu.md là tài liệu kit giao cho kho tiêu thụ về khối dữ liệu lộ trình; lt1-crm.json là
+      hàng «Trang Lộ trình trong CRM» của kho crm. Chỉ dựa vào tài liệu, một kỹ sư crm có dựng được trang
+      đó không — biết lấy khối ở đâu và rút ra sao, mỗi hàng hiện trạng thái gì, lọc theo nhóm bằng khoá
+      nào, việc kế và lệnh mở ở đâu, mốc nào đã qua còn việc chưa giao — mà không phải đọc mã kit? Luật
+      duy nhất tài liệu bảo bản chiếu tự làm có phải là so ngày của mốc với hôm nay không, hay tài liệu
+      để bản chiếu tự suy trạng thái ở chỗ nào khác? PASS khi đủ cả năm việc và chỉ có luật so ngày, kèm
+      trích câu tài liệu cho từng việc; FAIL nêu việc nào thiếu hoặc chỗ nào bắt bản chiếu tự suy;
+      UNCERTAIN khi tài liệu không đọc được.
+    paths: [skills/acceptance/references/lo-trinh-du-lieu.md]
+    expected: PASS kèm trích câu cho từng việc; FAIL nêu việc thiếu
+    evidence_required: [judged_by, verdict, rationale]
