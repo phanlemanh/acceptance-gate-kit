@@ -429,9 +429,13 @@ function kiemAC10(may) {
   for (const c of cam) if (wf.includes(c)) loi.push(`prompt còn câu cấm: «${c}»`);
   const skill = fs.readFileSync(path.join(may, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
   if (!skill.includes('(r<N> · tệp đã đổi)')) loi.push('SKILL thiếu nhãn «(r<N> · tệp đã đổi)» ở đoạn T5');
+  // Phần CHANGELOG MỚI HƠN mốc gốc: từ đầu tệp tới mục của số ở MOC_TRUOC — gồm «Chưa phát hành»
+  // lẫn mục của mốc mang vòng này. Ghim riêng «Chưa phát hành» là thước nổ ở lần cắt số kế tiếp.
   const cl = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
-  const chuaPhatHanh = cl.split(/\n## /).find(s => /^\[?Unreleased|^\[?Chưa phát hành/i.test(s)) || '';
-  if (!chuaPhatHanh.includes('don-okr-nhap-sai')) loi.push('CHANGELOG mục chưa phát hành không nêu gốc don-okr-nhap-sai');
+  const soMoc = JSON.parse(git(ROOT, 'show', `${MOC_TRUOC}:.claude-plugin/plugin.json`)).version;
+  const iMoc = cl.search(new RegExp(`\\n## \\[?${soMoc.replace(/\./g, '\\.')}\\b`));
+  if (iMoc < 0) loi.push(`CHANGELOG không có mục của mốc gốc ${soMoc}`);
+  else if (!cl.slice(0, iMoc).includes('don-okr-nhap-sai')) loi.push(`CHANGELOG phần mới hơn ${soMoc} không nêu gốc don-okr-nhap-sai`);
   return loi;
 }
 test('AC-10', 'lời: câu cấm chép khung gỡ khỏi prompt, SKILL nêu nhãn tệp đổi, CHANGELOG nêu gốc', () => {
