@@ -12,6 +12,20 @@
 
 ## Chưa phát hành
 
+### Cắt lượt: bản phạm vi thành hàng lộ trình, răng phủ «mỗi mã ở đúng một chỗ» (hồ sơ `lo-trinh-cat-luot`, T2)
+
+Gốc: crm `_acceptance/khung-okr-truoc-r1` — lộ trình OKR 32 → 62 hàng trong ba ngày, hai lượt cắt tay
+một buổi sáng 04/10, bảng phủ chép tay đã cũ, bản phạm vi không có trong git.
+
+- Skill mới `cat-luot`: bản phạm vi (hoặc Core của quét hình thái) → hàng + chân trời theo sáu luật, hai
+  dáng `chuoi` · `lan-va`; ghi hàng → chạy răng → xanh mới mở PR.
+- `scripts/cat-luot.mjs` (chỉ đọc): răng phủ theo đợt (`dot`), chân trời có lý do, khuôn và ngày/mốc của
+  hàng cùng đợt; `--nhip` đo nhịp theo hạng từ hồ sơ đã ký. Khuôn mới `pham-vi-template.md`; khuôn lộ
+  trình thêm `dot`, `phu`, `chan_troi`; `kiemKhuon` cờ khi `phu`/`chan_troi` sai kiểu.
+- Trang lộ trình: hàng có hồ sơ mang dòng «bước kế: …» suy từ ô bản đồ (phần sửa lát 1 sau phiên nghiệm
+  thu 06/10). Kho không khai lộ trình, và kho không hàng nào có hồ sơ: không đổi byte nào.
+- Ai bị ảnh hưởng: kho đã khai `lo_trinh.tep` — trang đổi ở hàng có hồ sơ; vẽ lại một lần khi nâng kit.
+
 ### Lượt chấm S4 không còn bị lệnh dài và eval nặng đốt (hồ sơ `lenh-dai-chay-rieng`, T2)
 
 Gốc: crm `_acceptance/tro-ly-okr-bo-final-output`, 07/10 — bốn lượt chấm mất vì hạ tầng kit: hai lượt

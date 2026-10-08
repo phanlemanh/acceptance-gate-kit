@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs (mới) + scripts/lo-trinh.mjs + skills/cat-luot (mới) + references + CONTEXT/GUIDE/CHANGELOG + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-08-lo-trinh-cat-luot-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo

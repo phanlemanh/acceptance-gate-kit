@@ -1,9 +1,19 @@
 {
   "schema": 1,
   "ten": "Lộ trình <tên sản phẩm hoặc đợt>",
-  "tu_vung": { "đã lên production": "Đã giao" },
+  "tu_vung": {
+    "đã lên production": "Đã giao"
+  },
   "moc": [
-    { "ten": "Hạn ngoài: mùa báo cáo quý", "ngay": "2026-12-07", "loai": "han", "ai": "Chủ sản phẩm", "hang": ["2"] }
+    {
+      "ten": "Hạn ngoài: mùa báo cáo quý",
+      "ngay": "2026-12-07",
+      "loai": "han",
+      "ai": "Chủ sản phẩm",
+      "hang": [
+        "2"
+      ]
+    }
   ],
   "hang": [
     {
@@ -13,24 +23,53 @@
       "hang": "T2",
       "slug": "trang-x-thay-y",
       "bat_khi": "Hai tuần sau khi giao, số lần hỏi tay giảm một nửa",
-      "nhom": "trang-x"
+      "nhom": "trang-x",
+      "dot": "mau-1",
+      "phu": [
+        "A1",
+        "A2"
+      ]
     },
     {
       "ma": "2",
       "cau_giao": "«Tôi bấm Gửi và người duyệt nhận được trong một phút»",
       "vi_sao": "Đứng trên dữ liệu thật của hàng 1",
       "hang": "T3",
-      "dung_tren": ["1"],
+      "dung_tren": [
+        "1"
+      ],
       "slug": "gui-duyet-mot-phut",
-      "bat_khi": "Mười lượt gửi thật không lượt nào trễ quá một phút"
+      "bat_khi": "Mười lượt gửi thật không lượt nào trễ quá một phút",
+      "dot": "mau-1",
+      "phu": [
+        "A3"
+      ]
     },
     {
       "ma": "3",
       "cau_giao": "«Quản trị tắt được tính năng theo đơn vị»",
-      "dung_tren": ["2"]
+      "dung_tren": [
+        "2"
+      ]
+    }
+  ],
+  "chan_troi": [
+    {
+      "ma": "H1",
+      "dot": "mau-1",
+      "cau_giao": "«Kế toán xuất báo cáo quý ra bảng tính»",
+      "ly_do": "Chưa ai ngoài kế toán xin; chờ mùa báo cáo quý đầu tiên chạy trên sản phẩm",
+      "phu": [
+        "B1",
+        "B2"
+      ],
+      "mo_lai_khi": "Kế toán xin lần thứ hai"
     }
   ],
   "da_bac": [
-    { "ma": "x1", "ly_do": "Trùng với hàng 2 sau khi cắt lại" }
+    {
+      "ma": "x1",
+      "ly_do": "Trùng với hàng 2 sau khi cắt lại"
+    }
   ]
 }

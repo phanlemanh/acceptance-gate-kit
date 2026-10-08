@@ -85,7 +85,7 @@ Trang lộ trình in thêm một dòng nhỏ «bước kế: …» trong ô Tr�
 
 | Ô hồ sơ | Bước kế |
 |---|---|
-| Đang cân nhắc cơ hội | quyết có làm ở Cổng Đáng |
+| Đang cân nhắc cơ hội | quyết có làm hay không |
 | Sắp mở vòng | mở vòng |
 | Chờ duyệt phạm vi | duyệt phạm vi |
 | Đang làm | làm và chấm |
