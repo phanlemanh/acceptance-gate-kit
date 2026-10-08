@@ -5,7 +5,7 @@ slug: baseline-tran-bo-qua-don
 owner: manh.phan@onemount.com
 risk_tier: T2               # feature-loop/workflows + tests/workflows — không chạm t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-10-08
 ---
@@ -129,3 +129,12 @@ lệnh này qua công cụ Bash của Claude Code đi qua kiểm tra an toàn, b
   (đi vào nhật ký), nhưng một tác tử cố ý bịa `dauRa` thì giả được — cùng mức tin như khung `BOC_LENH`.
   (6) `worktree add --lock --reason` cần git đủ mới; git cũ hơn → `__BL_HA_TANG worktree-add`, có tên.
   (7) Nhật ký `.acceptance-runs/<slug>/s4-baseline/<lượt>/` không tự dọn (đã ẩn khỏi git).
+- Known limits (owner định tuyến ở Cổng Bằng chứng 08/10 — Ngoài-1, 2, 4, 6, 7 của lượt chấm 1): bốn chỗ độ
+  chặt của chính bộ ca đo — BM2/BM4 kết luận đỏ từ việc VẮNG một dấu mà không ghim đầu ra bản đột biến phải có
+  (Ngoài-1, Ngoài-6); BQ2 «lệnh bị bỏ qua không chạy» không thể đỏ vì `moi.sh` vắng trong worktree gốc (Ngoài-4);
+  BB5 khẳng định một «red» không liên quan và chuỗi lý do tìm ở bất kỳ đâu (Ngoài-7) — và một chỗ của báo cáo:
+  section Analyst vẫn in «none — mọi eval đều red trên baseline» khi có eval bị bỏ qua / không đo (Ngoài-2).
+  Năm hàng ở `docs/research/known-limits-ledger.tsv` (baseline-tran-bo-qua-don#ngoai-1, 2, 4, 6, 7).
+- Mở hợp đồng mới (Ngoài-3, Ngoài-5) và lỗ lệnh eval dạng `bash -c` lượt chấm 1 lộ ra: ghi hạt giống
+  `docs/plans/2026-10-08-hat-giong-baseline-lenh-kit-sinh.md`.
+- Chấp nhận, không sửa (Ngoài-8): đột biến LP4 của `lane-pin` chưa có đối chứng dương chạy trên nguồn thật.

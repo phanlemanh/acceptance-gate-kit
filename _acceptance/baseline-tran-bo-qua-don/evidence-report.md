@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 20fd50edaecff2346ffa370671390abbca11ca19
-human_signoff:
+human_signoff: Phan Le Manh 2026-10-08 — ký lượt chấm 1; Ngoài-1, 2, 4, 6, 7 ghi Known limits; Ngoài-3, 5 mở hợp đồng mới (hạt giống); Ngoài-8 chấp nhận; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: baseline-tran-bo-qua-don
