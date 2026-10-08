@@ -540,35 +540,46 @@ const khoiDuLieu = o => `<script type="application/json" id="${ID_DU_LIEU}">${JS
 
 // Bộ đọc mẫu, KHOAN DUNG (đường đọc-cũ): không bao giờ ném. Trang đời trước không có khối, JSON hỏng,
 // khuôn lạ → `duLieu: null` + câu cảnh báo; phiên bản mới hơn → vẫn đọc phần biết + một cảnh báo;
-// khoá thiếu → giá trị rỗng theo kiểu; khoá lạ giữ nguyên.
-const RONG = {
-  mang: new Set(['nguon', 'lo_trinh', 'ngoai_lo_trinh', 'can_sua', 'hang', 'moc', 'da_bac', 'dung_tren', 'co']),
-  bool: new Set(['theo_loi', 'con_viec']),
-  so: new Set(['phien_ban', 'tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac']),
-  null: new Set(['ten', 'loi', 'hang_ke', 'lenh', 'ho_so']),
-};
-const rongCua = k => (RONG.mang.has(k) ? [] : RONG.bool.has(k) ? false : RONG.so.has(k) ? 0 : RONG.null.has(k) ? null : k === 'tien_do' ? tienDoRong() : '');
-const vaKhuon = (o, cap) => {
-  if (o == null || typeof o !== 'object' || Array.isArray(o)) return o;
-  const ra = { ...o };
-  for (const k of KHUON_DU_LIEU[cap]) if (!(k in ra)) ra[k] = rongCua(k);
-  return ra;
-};
+// khoá thiếu → giá trị rỗng theo kiểu; khoá lạ giữ nguyên. Hàm TỰ ĐỦ — không gọi ký hiệu nào khác của
+// mô-đun — để kho tiêu thụ chép nguyên văn hàm này (tài liệu lo-trinh-du-lieu.md bảo vậy); bảng khoá
+// bên trong phải bằng KHUON_DU_LIEU, ca LT-118 chạy bản chép rời của hàm và so hai bảng.
 export function docDuLieu(html) {
-  const m = String(html ?? '').match(new RegExp(`<script type="application/json" id="${ID_DU_LIEU}">([\\s\\S]*?)</script>`));
+  const ID = 'lo-trinh-du-lieu'; const PHIEN_BAN = 1;
+  const KHUON = {
+    goc: ['khuon', 'phien_ban', 'nguon', 'lo_trinh', 'ngoai_lo_trinh'],
+    lo_trinh: ['tep', 'ten', 'loi', 'hang_ke', 'can_sua', 'tien_do', 'hang', 'moc', 'da_bac'],
+    hang_ke: ['ma', 'cau_giao', 'lenh'],
+    can_sua: ['ma', 'chu'],
+    tien_do: ['tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'],
+    hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao'],
+    moc: ['ten', 'ngay', 'hang', 'con_viec'],
+    da_bac: ['ma', 'ly_do'],
+  };
+  const MANG = ['nguon', 'lo_trinh', 'ngoai_lo_trinh', 'can_sua', 'hang', 'moc', 'da_bac', 'dung_tren', 'co'];
+  const BOOL = ['theo_loi', 'con_viec']; const SO = ['phien_ban', 'tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'];
+  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so'];
+  const rong = k => (MANG.includes(k) ? [] : BOOL.includes(k) ? false : SO.includes(k) ? 0 : NUL.includes(k) ? null
+    : k === 'tien_do' ? { tong: 0, da_giao: 0, dang_lam: 0, chua_bat_dau: 0, khac: 0 } : '');
+  const va = (o, cap) => {
+    if (o == null || typeof o !== 'object' || Array.isArray(o)) return o;
+    const ra = { ...o };
+    for (const k of KHUON[cap]) if (!(k in ra)) ra[k] = rong(k);
+    return ra;
+  };
+  const m = String(html ?? '').match(new RegExp(`<script type="application/json" id="${ID}">([\\s\\S]*?)</script>`));
   if (!m) return { duLieu: null, canhBao: ['trang chưa mang dữ liệu lộ trình — vẽ lại bằng bộ kit từ 2.27'] };
   let o;
   try { o = JSON.parse(m[1]); } catch (e) { return { duLieu: null, canhBao: [`khối dữ liệu lộ trình không phải JSON hợp lệ: ${e.message}`] }; }
-  if (o == null || typeof o !== 'object' || Array.isArray(o) || o.khuon !== ID_DU_LIEU) return { duLieu: null, canhBao: [`khối mang khuôn «${o && o.khuon}», không phải ${ID_DU_LIEU}`] };
+  if (o == null || typeof o !== 'object' || Array.isArray(o) || o.khuon !== ID) return { duLieu: null, canhBao: [`khối mang khuôn «${o && o.khuon}», không phải ${ID}`] };
   const canhBao = [];
-  if (Number(o.phien_ban) > PHIEN_BAN_DU_LIEU) canhBao.push(`khuôn phiên bản ${o.phien_ban} mới hơn bộ đọc (${PHIEN_BAN_DU_LIEU}) — đọc phần biết`);
-  const g = vaKhuon(o, 'goc');
+  if (Number(o.phien_ban) > PHIEN_BAN) canhBao.push(`khuôn phiên bản ${o.phien_ban} mới hơn bộ đọc (${PHIEN_BAN}) — đọc phần biết`);
+  const g = va(o, 'goc');
   g.lo_trinh = (Array.isArray(g.lo_trinh) ? g.lo_trinh : []).map(t => {
-    const x = vaKhuon(t, 'lo_trinh');
+    const x = va(t, 'lo_trinh');
     if (x == null || typeof x !== 'object') return x;
-    if (x.hang_ke != null) x.hang_ke = vaKhuon(x.hang_ke, 'hang_ke');
-    x.tien_do = vaKhuon(x.tien_do, 'tien_do');
-    for (const [k, cap] of [['can_sua', 'can_sua'], ['hang', 'hang'], ['moc', 'moc'], ['da_bac', 'da_bac']]) x[k] = (Array.isArray(x[k]) ? x[k] : []).map(v => vaKhuon(v, cap));
+    if (x.hang_ke != null) x.hang_ke = va(x.hang_ke, 'hang_ke');
+    x.tien_do = va(x.tien_do, 'tien_do');
+    for (const cap of ['can_sua', 'hang', 'moc', 'da_bac']) x[cap] = (Array.isArray(x[cap]) ? x[cap] : []).map(v => va(v, cap));
     return x;
   });
   return { duLieu: g, canhBao };

@@ -25,9 +25,11 @@ bản chiếu đọc thẳng, không suy lại từ hồ sơ, không dịch lạ
 2. Tìm thẻ `<script type="application/json" id="lo-trinh-du-lieu">`, lấy văn bản bên trong tới
    `</script>` đầu tiên, `JSON.parse`. Mọi `<` trong khối đã được viết thành `<`, nên `</script>`
    đầu tiên chính là chỗ đóng khối.
-3. Kiểm `khuon == "lo-trinh-du-lieu"` và `phien_ban`. Bản viết bằng JavaScript có thể chép thẳng bộ
-   đọc mẫu `docDuLieu(html)` của `scripts/lo-trinh.mjs` trong gói kit — nó làm đúng năm ca ở mục
-   «Đọc khoan dung».
+3. Kiểm `khuon == "lo-trinh-du-lieu"` và `phien_ban`. Bản viết bằng JavaScript chép NGUYÊN hàm
+   `docDuLieu(html)` của `scripts/lo-trinh.mjs` trong gói kit — từ dòng `export function docDuLieu`
+   tới dấu `}` đóng hàm. Hàm tự đủ: không gọi gì khác của tệp đó, trả `{ duLieu, canhBao }` và làm
+   đúng năm ca ở mục «Đọc khoan dung». Ca đo của kit chạy chính bản chép rời ấy (ngoài mô-đun) và
+   so kết quả với bản trong mô-đun, nên hàm thôi tự đủ là bộ kiểm đỏ.
 
 ## Khuôn — phiên bản 1
 

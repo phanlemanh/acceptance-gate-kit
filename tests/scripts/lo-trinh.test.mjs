@@ -1961,7 +1961,7 @@ async function lt118(kit) {
   const tot = veM(M, r); const cu = veM(B, r); const sai = {};
   const doc = h => { try { return M.LT.docDuLieu(h); } catch (e) { return { nem: e.message }; } };
   const k = khoiCua(tot); const ca = {
-    'dung-khuon': [tot, x => x.duLieu && x.duLieu.lo_trinh.length === 3 && x.canhBao.length === 0],
+    'dung-khuon': [tot, x => x.canhBao.length === 0 && deq(x.duLieu, k)],
     'trang-cu': [cu, x => x.duLieu === null && x.canhBao.length === 1 && x.canhBao[0].includes('trang chưa mang dữ liệu')],
     'json-hong': [tot.replace(KHOI_RE, '<script type="application/json" id="lo-trinh-du-lieu">{oops</script>'), x => x.duLieu === null && x.canhBao.length === 1 && x.canhBao[0].includes('không phải JSON hợp lệ')],
     'khuon-la': [datKhoi(tot, { khuon: 'khac', phien_ban: 1 }), x => x.duLieu === null && x.canhBao.length === 1 && x.canhBao[0].includes('«khac»')],
@@ -1970,15 +1970,30 @@ async function lt118(kit) {
   };
   if (KHOI_RE.test(cu)) sai.dau = 'đối chứng: trang bản cũ đã có khối';
   for (const [ten, [html, dat]] of Object.entries(ca)) { const x = doc(html); if (x.nem) sai[ten] = `ném: ${x.nem}`; else if (!dat(x)) sai[ten] = `kết quả ${JSON.stringify(x).slice(0, 140)}`; }
+  // Bản CHÉP RỜI của hàm (không còn phạm vi mô-đun — đúng thứ kho tiêu thụ chép): năm ca cho đúng kết quả
+  // của bản trong mô-đun, và bảng khoá bên trong hàm == KHUON_DU_LIEU (khoá nó điền khi mọi khoá vắng).
+  let tach = null;
+  try { tach = new Function(`return (${M.LT.docDuLieu.toString()});`)(); } catch (e) { sai['chep-roi'] = `không dựng được bản chép rời: ${e.message}`; }
+  if (tach) {
+    for (const [ten, [html]] of Object.entries(ca)) { let a; try { a = tach(html); } catch (e) { a = { nem: e.message }; } const b = doc(html); if (!deq(a, b)) { sai['chep-roi'] = `ca ${ten}: bản chép rời ${JSON.stringify(a).slice(0, 120)} · bản mô-đun ${JSON.stringify(b).slice(0, 60)}`; break; } }
+    const rongHet = { khuon: 'lo-trinh-du-lieu', phien_ban: 1, lo_trinh: [{ hang_ke: {}, tien_do: {}, can_sua: [{}], hang: [{}], moc: [{}], da_bac: [{}] }] };
+    let d = null; try { d = tach(datKhoi(tot, rongHet)).duLieu; } catch (e) { sai['chep-roi'] ||= `bản chép rời ném: ${e.message}`; }
+    const L = d && d.lo_trinh[0]; const KM = M.LT.KHUON_DU_LIEU;
+    const cap = { goc: d, lo_trinh: L, hang_ke: L && L.hang_ke, tien_do: L && L.tien_do, can_sua: L && L.can_sua[0], hang: L && L.hang[0], moc: L && L.moc[0], da_bac: L && L.da_bac[0] };
+    const lech = Object.entries(cap).filter(([c, o]) => !o || !tapBang(Object.keys(o), KM[c])).map(([c, o]) => `${c}: ${o ? lechTap(Object.keys(o), KM[c]) : 'vắng'}`);
+    if (lech.length) sai['bang-khoa'] = `bảng khoá trong docDuLieu lệch KHUON_DU_LIEU — ${lech.join(' ; ')}`;
+  }
   return sai;
 }
 if (want('LT-118')) {
   try {
     const s = await lt118(KIT); if (s.dau) bad('LT-118', s.dau);
-    for (const ten of ['dung-khuon', 'trang-cu', 'json-hong', 'khuon-la', 'phien-ban-moi']) if (want(`LT-118 ${ten}`)) { if (s[ten]) bad(`LT-118 ${ten}`, s[ten]); else ok(`LT-118 ${ten}`, 'đúng dữ liệu + đúng cảnh báo, không ném'); }
+    for (const ten of ['dung-khuon', 'trang-cu', 'json-hong', 'khuon-la', 'phien-ban-moi', 'chep-roi', 'bang-khoa']) if (want(`LT-118 ${ten}`)) { if (s[ten]) bad(`LT-118 ${ten}`, s[ten]); else ok(`LT-118 ${ten}`, 'đúng dữ liệu + đúng cảnh báo, không ném'); }
   } catch (e) { bad('LT-118', loi(e)); }
 }
-if (want('LT-118-do')) await chayDo('LT-118-do', async k => Object.entries(await lt118(k)).map(([t, m]) => `${t}: ${m}`), [['scripts/lo-trinh.mjs', 'if (Number(o.phien_ban) > PHIEN_BAN_DU_LIEU) canhBao.push(', "if (Number(o.phien_ban) > PHIEN_BAN_DU_LIEU) throw new Error('khuon moi'); if (false) canhBao.push("]], 'phien-ban-moi', 'bản sao bộ đọc ném khi khuôn mới hơn');
+if (want('LT-118-do')) await chayDo('LT-118-do', async k => Object.entries(await lt118(k)).map(([t, m]) => `${t}: ${m}`), [['scripts/lo-trinh.mjs', 'if (Number(o.phien_ban) > PHIEN_BAN) canhBao.push(', "if (Number(o.phien_ban) > PHIEN_BAN) throw new Error('khuon moi'); if (false) canhBao.push("]], 'phien-ban-moi', 'bản sao bộ đọc ném khi khuôn mới hơn');
+if (want('LT-118-do chep-roi')) await chayDo('LT-118-do chep-roi', async k => Object.entries(await lt118(k)).map(([t, m]) => `${t}: ${m}`), [['scripts/lo-trinh.mjs', "const ID = 'lo-trinh-du-lieu'; const PHIEN_BAN = 1;", "const ID = 'lo-trinh-du-lieu'; const PHIEN_BAN = PHIEN_BAN_DU_LIEU;"]], 'chep-roi', 'bản sao bộ đọc gọi một ký hiệu ngoài hàm');
+if (want('LT-118-do bang-khoa')) await chayDo('LT-118-do bang-khoa', async k => Object.entries(await lt118(k)).map(([t, m]) => `${t}: ${m}`), [['scripts/lo-trinh.mjs', "    hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so',", "    hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai',"]], 'ho_so', 'bản sao bảng khoá trong bộ đọc bỏ ho_so');
 
 // ── LT-119: tài liệu kho tiêu thụ == khuôn trong mã ─────────────────────────
 const TL = p => path.join(p, 'skills', 'acceptance', 'references', 'lo-trinh-du-lieu.md');
@@ -1994,7 +2009,7 @@ async function lt119(kit) {
 }
 if (want('LT-119') && await chayCa('LT-119', lt119)) ok('LT-119', 'bảng khoá trong tài liệu kho tiêu thụ == KHUON_DU_LIEU ở mọi cấp; GUIDE trỏ tài liệu');
 if (want('LT-119-do tai-lieu')) await chayDo('LT-119-do tai-lieu', lt119, [['skills/acceptance/references/lo-trinh-du-lieu.md', 'hang.ho_so — tên hồ sơ nghiệm thu đang nhận việc, hoặc null\n', '']], 'ho_so', 'bản sao tài liệu bỏ dòng khoá ho_so');
-if (want('LT-119-do ma')) await chayDo('LT-119-do ma', lt119, [['scripts/lo-trinh.mjs', "'bat_khi', 'vi_sao'],", "'bat_khi', 'vi_sao', 'thu_nghiem'],"]], 'thu_nghiem', 'bản sao mã thêm khoá thu_nghiem');
+if (want('LT-119-do ma')) await chayDo('LT-119-do ma', lt119, [['scripts/lo-trinh.mjs', "\n  hang: ['ma',", "\n  hang: ['thu_nghiem', 'ma',"]], 'thu_nghiem', 'bản sao mã thêm khoá thu_nghiem');
 
 // ── LT-120: luật so ngày của tài liệu == script của trang ───────────────────
 // Script nội tuyến của CHÍNH trang chạy trong vm (DOM tối giản dựng từ các li của dải mốc) dưới một
@@ -2025,22 +2040,29 @@ async function lt120(kit) {
   const luat = khoiMd(existsSync(TL(kit)) ? readFileSync(TL(kit), 'utf8') : '', 'LO-TRINH-DU-LIEU-LUAT-NGAY'); if (luat == null) return ['tài liệu thiếu khối LO-TRINH-DU-LIEU-LUAT-NGAY'];
   const ph = path.join(TMP, `t120-${++khoN}.html`); const pl = path.join(TMP, `l120-${khoN}.js`); const pr = path.join(TMP, 'chay-120.mjs');
   writeFileSync(ph, html); writeFileSync(pl, luat); writeFileSync(pr, CHAY_120);
-  let duong = 0; const bang = [];
-  for (const ngay of ['2030-03-14', '2030-03-15', '2030-03-16']) for (const tz of ['UTC', 'Asia/Ho_Chi_Minh']) {
-    const x = node([pr, ph, pl, `${ngay}T20:00:00Z`], { env: { ...process.env, TZ: tz } });
+  const duong = {}; const bang = [];
+  // Sáu ca chính: trưa giờ địa phương của ngày trước mốc · đúng ngày mốc · ngày sau mốc, ở mỗi múi giờ —
+  // «hôm nay» của người xem PHẢI là đúng ngày đó (ca tự kiểm). Hai ca biên: cùng một khoảnh khắc 20:00Z
+  // ngày mốc là ngày mốc ở UTC và ngày sau mốc ở UTC+7.
+  const CA = [];
+  for (const ngay of ['2030-03-14', '2030-03-15', '2030-03-16']) { CA.push([`${ngay}T12:00:00Z`, 'UTC', ngay]); CA.push([`${ngay}T05:00:00Z`, 'Asia/Ho_Chi_Minh', ngay]); }
+  CA.push(['2030-03-15T20:00:00Z', 'UTC', '2030-03-15'], ['2030-03-15T20:00:00Z', 'Asia/Ho_Chi_Minh', '2030-03-16']);
+  for (const [khoanh, tz, mong] of CA) {
+    const x = node([pr, ph, pl, khoanh], { env: { ...process.env, TZ: tz } });
     if (x.status !== 0) { sai.push(`${ngay} ${tz}: tiến trình con exit ${x.status} ${x.stderr.slice(0, 120)}`); continue; }
-    const o = JSON.parse(x.stdout); bang.push(`${ngay}T20Z/${tz}→${o.homNay}:[${o.trang}]`);
+    const o = JSON.parse(x.stdout); bang.push(`${khoanh.slice(5, 16)}/${tz}→${o.homNay}:[${o.trang}]`);
+    if (o.homNay !== mong) sai.push(`đồng hồ ${khoanh} ở ${tz}: hôm nay ${o.homNay}, ca cần ${mong}`);
     if (!tapBang(o.trang, o.thamChieu)) sai.push(`hôm nay ${o.homNay} (${tz}): trang tô ${JSON.stringify(o.trang)} · luật tài liệu ${JSON.stringify(o.thamChieu)} — lệch ở mốc ${[...o.trang.filter(t => !o.thamChieu.includes(t)), ...o.thamChieu.filter(t => !o.trang.includes(t))].join(', ')}`);
     const kit2 = M.LT.hangTre(kq, o.homNay).map(h => h.ma);
     if (!tapBang([...new Set(kit2)], o.viecTre)) sai.push(`hôm nay ${o.homNay}: việc trễ luật tài liệu ${JSON.stringify(o.viecTre)} · lớp phân tích ${JSON.stringify(kit2)}`);
-    if (o.trang.includes('Mốc Một')) duong += 1;
+    if (o.trang.includes('Mốc Một') && mong === '2030-03-16') duong[tz] = true;
     if (o.trang.includes('Mốc Xong')) sai.push(`hôm nay ${o.homNay}: mốc đã xong bị tô còn việc`);
   }
-  if (!duong) sai.push('đối chứng dương: không ca nào trang tô «Mốc Một»');
-  console.log(`    · LT-120 sáu ca: ${bang.join(' · ')}`);
+  for (const tz of ['UTC', 'Asia/Ho_Chi_Minh']) if (!duong[tz]) sai.push(`đối chứng dương: ngày sau mốc ở ${tz} trang không tô «Mốc Một»`);
+  console.log(`    · LT-120 tám ca: ${bang.join(' · ')}`);
   return sai;
 }
-if (want('LT-120') && await chayCa('LT-120', lt120)) ok('LT-120', 'ba ngày quanh mốc × hai múi giờ: mốc trang tô «đã qua, còn việc» == luật so ngày của tài liệu; việc trễ == lớp phân tích');
+if (want('LT-120') && await chayCa('LT-120', lt120)) ok('LT-120', 'ba ngày quanh mốc × hai múi giờ (trưa địa phương) + hai ca biên cùng khoảnh khắc: mốc trang tô «đã qua, còn việc» == luật so ngày của tài liệu; việc trễ == lớp phân tích');
 if (want('LT-120-do')) await chayDo('LT-120-do', lt120, [['skills/acceptance/references/lo-trinh-du-lieu.md', 'moc.ngay < homNay && moc.con_viec', 'moc.ngay <= homNay && moc.con_viec']], 'lệch ở mốc Mốc Một', 'bản sao tài liệu đổi «trước» thành «trước hoặc bằng»');
 
 

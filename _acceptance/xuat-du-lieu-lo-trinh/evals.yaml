@@ -129,8 +129,13 @@ evals:
       exit 0; stdout có "PASS: LT-118 dung-khuon", "PASS: LT-118 trang-cu", "PASS: LT-118 json-hong",
       "PASS: LT-118 khuon-la", "PASS: LT-118 phien-ban-moi" — năm đầu vào sinh trong ca (trang cũ = trang
       do bộ vẽ 7e965b54 vẽ, không viết tay): kết quả và cảnh báo đúng như AC-9 (đẳng thức số cảnh báo +
-      chứa cụm ghim từng ca); không ca nào ném. Và "PASS: LT-118-do" — bản sao docDuLieu ném khi
-      phien_ban > 1: CHÍNH hàm đo trả lỗi nêu «phien-ban-moi».
+      chứa cụm ghim từng ca); không ca nào ném; ca dung-khuon: duLieu == JSON.parse của khối (đẳng thức
+      toàn phần, không chỉ đếm). Và "PASS: LT-118 chep-roi" — bản CHÉP RỜI của docDuLieu (dựng từ
+      mã nguồn hàm, ngoài phạm vi mô-đun) cho đúng kết quả bản mô-đun ở cả năm ca; "PASS: LT-118
+      bang-khoa" — khoá bản chép rời điền khi mọi khoá vắng == KHUON_DU_LIEU ở từng cấp. Chiều đỏ:
+      "PASS: LT-118-do" — bản sao docDuLieu ném khi phien_ban > 1: CHÍNH hàm đo trả lỗi nêu
+      «phien-ban-moi»; "PASS: LT-118-do chep-roi" — bản sao hàm gọi một ký hiệu ngoài hàm: lỗi nêu
+      «chep-roi»; "PASS: LT-118-do bang-khoa" — bản sao bảng khoá trong hàm bỏ ho_so: lỗi nêu «ho_so».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-10
@@ -151,10 +156,12 @@ evals:
     expected: >
       exit 0; stdout có "PASS: LT-120" — trang kho thử có một mốc M (ngày D) còn việc chưa giao và một
       mốc xong; script nội tuyến của CHÍNH trang chạy trong `vm` với DOM tối giản dựng từ các `li` của
-      trang và `Date` cố định ở D−1, D, D+1, mỗi ngày ở TZ=UTC và TZ=Asia/Ho_Chi_Minh (6 ca, in ra);
+      trang và `Date` cố định ở trưa giờ địa phương của D−1, D, D+1, mỗi ngày ở TZ=UTC và
+      TZ=Asia/Ho_Chi_Minh (6 ca, mỗi ca tự kiểm «hôm nay» == đúng ngày đó), cộng hai ca biên cùng khoảnh
+      khắc D 20:00Z (UTC → D, UTC+7 → D+1) — tám ca, in ra;
       tập mốc trang tô «đã qua, còn việc» và tập hàng trễ == kết quả bản chiếu tham chiếu áp luật so
       ngày rút từ khối marker LO-TRINH-DU-LIEU-LUAT-NGAY của tài liệu lên khối dữ liệu với cùng «hôm
-      nay». Đối chứng dương: ca D+1 mỗi bên có đúng {M}. Và "PASS: LT-120-do" — bản sao luật đổi «trước»
+      nay». Đối chứng dương: ca D+1 ở MỖI múi giờ trang tô {M}. Và "PASS: LT-120-do" — bản sao luật đổi «trước»
       thành «trước hoặc bằng»: CHÍNH hàm so trả lỗi ở ca ngày D nêu tên mốc M.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
