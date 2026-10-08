@@ -5,7 +5,7 @@ slug: baseline-tran-bo-qua-don
 owner: manh.phan@onemount.com
 risk_tier: T2               # feature-loop/workflows + tests/workflows — không chạm t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by: Phan Le Manh
 approved_at: 2026-10-08
 ---
