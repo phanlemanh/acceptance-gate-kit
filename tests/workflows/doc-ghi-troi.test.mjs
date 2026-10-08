@@ -115,6 +115,12 @@ console.log('DG chèn mục mang sang: tác tử đã in mục với nhãn ngoà
   const tuoi = `# Findings\n\n${tep(muc('- **Loi mang sang cua tep khac han**'))}`;
   const r3 = await runWorkflow(WF, args({ carriedFindings: carried }), responder({ findings: tuoi }));
   check('DG5 chiều im: mục tươi tên dài hơn không nuốt mục mang sang', soLan(r3.result.findings, '**Loi mang sang (r1)**') === 1);
+  // Chiều im (S4-r1, finding t2 — AC-3): mục tươi cùng tệp có NGOẶC mở bằng r/R mà KHÔNG phải nhãn lượt
+  // («(race condition)», «(Redux)») không được coi là bản mang sang — mục mang sang vẫn phải được chèn.
+  for (const ngoac of ['(race condition)', '(Redux store)', '(r1 lỗi)']) {
+    const rr = await runWorkflow(WF, args({ carriedFindings: carried }), responder({ findings: `# Findings\n\n${tep(muc(`- **Loi mang sang ${ngoac}**`))}` }));
+    check(`DG5b mục tươi «Loi mang sang ${ngoac}» → mục mang sang vẫn được chèn`, soLan(rr.result.findings, '**Loi mang sang (r1)**') === 1, rr.result.findings.split('\n').filter(l => l.startsWith('- **')).join(' | '));
+  }
 }
 
 console.log('DG đột biến phía workflow: bước chèn về biểu thức cũ → in bản thứ hai');
@@ -125,6 +131,15 @@ console.log('DG đột biến phía workflow: bước chèn về biểu thức c
   const r = await runWorkflow(WF, args({ carriedFindings: carried }), responder({ findings: `# Findings\n\n${tep(muc('- **Loi mang sang** (r1)'))}` }), mut);
   const n = soLan(r.result.findings, 'Loi mang sang');
   check('DG7 đột biến (bước chèn dùng biểu thức cũ) → mục in HAI lần (đỏ)', soLan(SRC, KIM) === 1 && n === 2, `${n} lần`);
+}
+
+console.log('DG đột biến: phép so nhãn của bước chống trùng về «ngoặc mở bằng r» → mục tươi nuốt mục mang sang');
+{
+  const KIM = SRC.match(/const NHAN_LUOT_RE = [^\n]*/);
+  const mut = KIM ? SRC.replace(KIM[0], 'const NHAN_LUOT_RE = /^\\([rR]/') : SRC;
+  const carried = [{ title: 'Loi mang sang', file: 'a.js', severity: 'medium', plain: 'p', proposal: 'known-limits', fromRound: 1 }];
+  const r = await runWorkflow(WF, args({ carriedFindings: carried }), responder({ findings: `# Findings\n\n${tep(muc('- **Loi mang sang (race condition)**'))}` }), mut);
+  check('DG8 đột biến (nhãn = mọi ngoặc mở bằng r) → mục mang sang bị nuốt (đỏ)', !!KIM && soLan(SRC, KIM[0]) === 1 && soLan(r.result.findings, '**Loi mang sang (r1)**') === 0, KIM ? 'co kim' : 'khong co NHAN_LUOT_RE');
 }
 
 console.log('DG đột biến: bộ đọc thẻ về biểu thức cũ → dạng tác tử viết biến mất khỏi thẻ');

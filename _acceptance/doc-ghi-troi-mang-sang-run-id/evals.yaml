@@ -33,6 +33,8 @@ evals:
       «Loi mang sang (r1)». DG4 đối chứng: tác tử không in → máy chèn một bản, thẻ đọc được. DG5 chiều im: mục
       tươi tên dài hơn không nuốt mục mang sang. DG3c năm dạng nhãn tác tử in («(r1)», «(r1 · tệp đã đổi)»,
       «(r1, tệp đã đổi)», «(r1 — tệp đổi)», «(R1)») chạy qua workflow → mỗi dạng đúng một lần, thẻ đếm được.
+      DG5b chiều im: mục tươi cùng tệp «Loi mang sang (race condition)» / «(Redux store)» / «(r1 lỗi)» — ngoặc
+      không phải nhãn lượt — mục mang sang «Loi mang sang (r1)» vẫn được chèn đúng một lần.
     paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/doc-ghi-troi.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
@@ -61,7 +63,8 @@ evals:
     cmd: config:executors.script.dgt_dot_bien
     expected: >-
       DG6 bộ đọc thẻ về biểu thức cũ → «- **T2** (r1)» đếm 0 (đỏ). DG7 bước chèn của workflow về biểu thức cũ →
-      mục mang sang in 2 lần (đỏ). DR5 bên viết không bỏ nháy → run_id `""` lọt (đỏ). Kim khớp đúng một lần.
+      mục mang sang in 2 lần (đỏ). DG8 phép so nhãn về «ngoặc mở bằng r» → mục tươi «(race condition)» nuốt
+      mục mang sang (đỏ). DR5 bên viết không bỏ nháy → run_id `""` lọt (đỏ). Kim khớp đúng một lần.
     paths: ["lib/out-of-contract.cjs", "feature-loop/workflows/acceptance-verify.js", "tests/workflows/doc-ghi-troi.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E7

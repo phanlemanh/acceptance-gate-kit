@@ -352,6 +352,10 @@ const nhanCarry = c => ` (r${typeof c.fromRound === 'number' ? c.fromRound : '?'
 const OOC_TITLE_RE = /^-\s+\*\*(.+?)\*\*(?:\s+(\([rR](?:\d+|\?)(?:\s*[·,—–-][^()]*)?\)))?\s*$/
 // OOC-TITLE-RE>>>
 const tieuDeMuc = m => m[1] + (m[2] ? ' ' + m[2] : '')
+// Phần ngoặc sau tiêu đề chỉ là NHÃN LƯỢT khi khớp ĐÚNG nhóm nhãn của OOC_TITLE_RE — «(race condition)»,
+// «(Redux …)», «(r1 lỗi)» là chữ của mục tươi, không phải nhãn (S4-r1 finding t2, AC-3: mục tươi cùng tệp tên
+// dài hơn không được nuốt mục mang sang).
+const NHAN_LUOT_RE = /^\([rR](?:\d+|\?)(?:\s*[·,—–-][^()]*)?\)$/
 function dungMucCarry(c) {
   const khuon = OOC_ITEM_TEMPLATE.split('\n').slice(1, -1).join('\n')
   const v = { title: String(c.title || '') + nhanCarry(c), plain: c.plain || '', file: c.file || '', severity: c.severity || '', proposal: c.proposal || '' }
@@ -385,7 +389,7 @@ function chenMucCarry(text, carried) {
   // «tiêu đề chứa title» để một mục TƯƠI cùng tệp tên dài hơn nuốt mục carry (AC-12, lượt chấm 1).
   const thieu = ds.filter(c => {
     const tepC = String(c.file).replace(/:\d+(-\d+)?$/, '')
-    return !daCo.some(x => x.file === tepC && (x.title === c.title || (x.title.startsWith(c.title + ' (') && /^\([rR]/.test(x.title.slice(c.title.length + 1)))))
+    return !daCo.some(x => x.file === tepC && (x.title === c.title || (x.title.startsWith(c.title + ' (') && NHAN_LUOT_RE.test(x.title.slice(c.title.length + 1)))))
   })
   if (!thieu.length) return dong.join('\n')
   // Chèn sau dòng có chữ cuối cùng của khối (không tính dòng cụm).
