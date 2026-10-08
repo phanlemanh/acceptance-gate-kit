@@ -5,7 +5,7 @@ slug: release-2-25-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 3 khoá executor + một ca đo ghim mục CHANGELOG — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
@@ -76,6 +76,6 @@ sơ cơ hội.
 
 - Hạng T2: không tệp nào khớp `t3_paths`.
 - Cả hai vòng của cửa sổ neo kho tiêu thụ (crm); luật (b) — mốc này là mốc KHO NHẬN kế tiếp sau 2.24.0 (crm nhận 2.24.0 ở crm-onehub#282).
-- E1/E2/E6 nay chạy lệnh vùng 3 GIỮ dòng P200 (`rel2250_vung_3_p200`) — ba mốc 2.22 → 2.24 cùng mang Known limit «chấm trên dòng mà bộ lọc của chính lệnh cắt khỏi output». Các dòng vế + chiều đỏ của P200 gộp thành MỘT dòng, vì workflow lượt chấm chỉ giữ ba dòng cuối (gồm dòng `__EXIT`) của lệnh xanh khi viết báo cáo — lượt chấm 2 bắt bản nhiều dòng bị cắt mất; giả lập trên đầu ra thật: bảy chuỗi `expected` của E1/E2/E6 sống qua bước cắt. Suite vẫn chạy `plugins_vung_3` như mọi hồ sơ; vùng 3 chạy hai lần trong lượt chấm.
+- E1/E2/E6 chạy lệnh vùng 3 gộp các dòng P200 thành MỘT dòng (`rel2250_vung_3_p200`) để chữa Known limit Ngoài-1 của 2.22 → 2.24 («chấm trên dòng mà bộ lọc của chính lệnh cắt khỏi output»). **Chưa chữa được ở tầng hồ sơ:** khung bọc lệnh của workflow lượt chấm cắt mỗi dòng ở 240 ký tự rồi bước viết báo cáo chỉ giữ ba dòng cuối của lệnh xanh — bằng chứng giữ năm dòng vế đầu, mất phần sau (lượt chấm 2 và 3 bắt hai lớp cắt). Nghiệm đúng tầng nằm trong workflow lượt chấm — Out of scope của mốc. Suite vẫn chạy `plugins_vung_3` như mọi hồ sơ.
 - Ca đo AC-10 của hồ sơ đã ký `luot-sua-giu-du-dem-dung` ghim mục «Chưa phát hành» của CHANGELOG — cắt số làm nó đỏ. Sửa CA ĐO (đọc phần CHANGELOG mới hơn số ở mốc gốc của ca, rút từ manifest tại `7b1afe1e`), không sửa hợp đồng đã ký.
 - Chiều đỏ của hai phép đo cửa sổ đo khi mở hồ sơ: `rel-cua-so.sh 9d1ae527 x` thoát 1 gọi tên hai hồ sơ thiếu và «x» thừa; lệnh giữ-số của `diagram-design` với mốc `1b98fdb1` thoát 1 (`2.7.0` ≠ `2.7.1`).
