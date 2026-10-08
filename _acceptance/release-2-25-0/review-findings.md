@@ -8,10 +8,10 @@
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **AC-10 viết lại vế CHANGELOG nhưng vế đó vẫn không có chiều đỏ trong bộ kiểm**
-  Người dùng thấy gì: Phép kiểm cũ chỉ bảo đảm ghi chú phát hành còn nhắc đúng lỗi đã sửa, nhưng nếu ai đó lỡ xoá hoặc đổi tiêu đề mục đó trong ghi chú thì phép kiểm vẫn không báo đỏ. Hôm nay mọi thứ vẫn đúng và xanh, nên bản 2.25.0 không bị ảnh hưởng; rủi ro chỉ là một lần sửa ghi chú sai về sau lọt qua mà không ai biết.
-  file: `tests/scripts/luot-sua-giu-du.test.mjs`
-  severity: low
+- **The new P200 command does not fix Ngoài-1, because the engine trims each PASS output to its last 3 lines before writing evidence**
+  Người dùng thấy gì: Người ký mốc 2.25.0 vẫn không thấy số phiên bản trong báo cáo bằng chứng, dù hồ sơ nói lỗi này đã được xử lý. Kết quả đạt/không đạt vẫn đúng, chỉ phần minh hoạ trong báo cáo thiếu. Nên ghi rõ đây là giới hạn đã biết thay vì tuyên bố đã sửa.
+  file: `_acceptance/config.yaml`
+  severity: medium
   Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).

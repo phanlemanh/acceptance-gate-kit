@@ -76,6 +76,6 @@ sơ cơ hội.
 
 - Hạng T2: không tệp nào khớp `t3_paths`.
 - Cả hai vòng của cửa sổ neo kho tiêu thụ (crm); luật (b) — mốc này là mốc KHO NHẬN kế tiếp sau 2.24.0 (crm nhận 2.24.0 ở crm-onehub#282).
-- E1/E2/E6 nay chạy lệnh vùng 3 GIỮ dòng P200 (`rel2250_vung_3_p200`) — ba mốc 2.22 → 2.24 cùng mang Known limit «chấm trên dòng mà bộ lọc của chính lệnh cắt khỏi output». Suite vẫn chạy `plugins_vung_3` như mọi hồ sơ; vùng 3 chạy hai lần trong lượt chấm.
+- E1/E2/E6 nay chạy lệnh vùng 3 GIỮ dòng P200 (`rel2250_vung_3_p200`) — ba mốc 2.22 → 2.24 cùng mang Known limit «chấm trên dòng mà bộ lọc của chính lệnh cắt khỏi output». Các dòng vế + chiều đỏ của P200 gộp thành MỘT dòng, vì workflow lượt chấm chỉ giữ ba dòng cuối (gồm dòng `__EXIT`) của lệnh xanh khi viết báo cáo — lượt chấm 2 bắt bản nhiều dòng bị cắt mất; giả lập trên đầu ra thật: bảy chuỗi `expected` của E1/E2/E6 sống qua bước cắt. Suite vẫn chạy `plugins_vung_3` như mọi hồ sơ; vùng 3 chạy hai lần trong lượt chấm.
 - Ca đo AC-10 của hồ sơ đã ký `luot-sua-giu-du-dem-dung` ghim mục «Chưa phát hành» của CHANGELOG — cắt số làm nó đỏ. Sửa CA ĐO (đọc phần CHANGELOG mới hơn số ở mốc gốc của ca, rút từ manifest tại `7b1afe1e`), không sửa hợp đồng đã ký.
 - Chiều đỏ của hai phép đo cửa sổ đo khi mở hồ sơ: `rel-cua-so.sh 9d1ae527 x` thoát 1 gọi tên hai hồ sơ thiếu và «x» thừa; lệnh giữ-số của `diagram-design` với mốc `1b98fdb1` thoát 1 (`2.7.0` ≠ `2.7.1`).
