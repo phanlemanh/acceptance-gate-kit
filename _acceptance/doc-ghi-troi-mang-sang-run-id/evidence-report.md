@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 70db1a9cdb7eaeb4dcfb3b0d795070b3dfc3f6dd
-human_signoff:
+human_signoff: Phan Le Manh 2026-10-09 — ký lượt chấm 3; Ngoài-1, 2, 4, 5, 6, 7 ghi Known limits; Ngoài-3 mở hợp đồng mới (hạt giống); đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: doc-ghi-troi-mang-sang-run-id

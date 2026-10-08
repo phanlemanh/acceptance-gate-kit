@@ -5,7 +5,7 @@ slug: doc-ghi-troi-mang-sang-run-id
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/** và scripts/recheck-evidence.cjs — đều trong risk_tiers.t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-10-08
 ---
@@ -84,3 +84,12 @@ lại kế tiếp.
   Cổng 2 ở kho tiêu thụ thiếu mục vì một hình dạng nhãn ngoài bảng AC-1. (3) Mã `Ngoài-N` đánh theo vị trí:
   hồ sơ từng bị giấu mục giữa chừng sẽ thấy số dịch khi dựng thẻ lại; sổ quyết định cũ ghi theo số cũ.
 - Hạng T3: `lib/**` và `scripts/recheck-evidence.cjs` nằm trong `risk_tiers.t3_paths` (thêm Gate 1.5 duyệt kế hoạch).
+- Known limits (owner định tuyến ở Cổng Bằng chứng 09/10 — Ngoài-1, 2, 4, 5, 6, 7 của lượt chấm 3): ba chỗ của
+  vật — `NHAN_LUOT_RE` là bản chép tay nhóm nhãn của `OOC_TITLE_RE`, nằm ngoài khối marker nên DG2 không giữ nó
+  (Ngoài-1); bộ dò `run_id` rỗng bóc nháy một tầng (`unquoteScalar`) còn hai bộ đọc bóc tham lam, nên dạng lồng
+  `'""'`/`"''"` lọt mà không có ghi chú (Ngoài-2, Ngoài-4); đường mang sang ghi lại `runId` thô có nháy vào run-log
+  và báo cáo (Ngoài-5) — và hai chỗ độ chặt của bộ ca: đường suite (`ridTho`) không có ca đo (Ngoài-6); báo cáo
+  của DR2/DR4 viết tay theo khuôn bên đọc thay vì rút từ bên viết (Ngoài-7). Sáu hàng ở
+  `docs/research/known-limits-ledger.tsv` (doc-ghi-troi-mang-sang-run-id#ngoai-1, 2, 4, 5, 6, 7).
+- Mở hợp đồng mới (Ngoài-3): eval mang sang bị chạy lại vì `run_id` rỗng tách cặp nguyên tử của tiêu chí
+  nhiều tầng — ghi hạt giống `docs/plans/2026-10-09-hat-giong-carry-run-id-rong-tach-cap.md`.
