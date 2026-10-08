@@ -38,14 +38,15 @@
       ]
     },
     {
-      "ten": "Phát hành 2.27.0 — ca chập chờn, eval model thật, cắt lượt (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
+      "ten": "Phát hành 2.27.0 — ca chập chờn, eval model thật, cắt lượt, xuất dữ liệu lộ trình (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
       "ngay": "2026-10-23",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
         "G2",
         "G3",
-        "L2"
+        "L2",
+        "X1"
       ]
     },
     {
@@ -209,14 +210,27 @@
       "bat_khi": "Lượt cắt kế của crm chạy bằng skill, 0 mã lọt, nhanh hơn nửa lượt cắt tay 04/10"
     },
     {
+      "ma": "X1",
+      "nhom": "cua-xem",
+      "hang": "T2",
+      "dung_tren": [
+        "N3"
+      ],
+      "cau_giao": "«Trang nào cũng vẽ được lộ trình của kho từ một tệp dữ liệu kit xuất sẵn — không trang nào phải tự tính trạng thái»",
+      "vi_sao": "Gốc: crm/_acceptance/cap-nhat-tuan-okr — 23/48 tin của chủ sản phẩm ở phiên điều phối OKR 23–26/09 là hỏi tiến độ. Owner chốt 08/10: đội sản phẩm và trưởng phòng ban không dùng git được XEM lộ trình (crm: ngay trong CRM — nấc đã hẹn 02/10), mỗi kho một trang, nguồn vẫn là git. Hôm nay trạng thái chỉ có trong trang tĩnh LO-TRINH.html; bản chiếu nào muốn hiện phải tự tính lại → nguồn sự thật thứ hai.",
+      "bat_khi": "Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ",
+      "ghi_chu": "CỘNG — owner phê ở Cổng Đáng khi mở. Trang lộ trình trong CRM là hàng trên lộ trình của crm, không phải việc kit. Làm trước L3 vì cửa góp cần chỗ trả trạng thái về người gửi."
+    },
+    {
       "ma": "L3",
       "nhom": "lo-trinh",
       "hang": "T2",
       "dung_tren": [
-        "L2"
+        "L2",
+        "X1"
       ],
-      "cau_giao": "«Đưa mọi tín hiệu vào, nhận các nhóm đặt tên bằng tiếng sản phẩm — mỗi tín hiệu ở đúng một nhóm, hoặc lẻ kèm lý do, hoặc đã phủ bởi việc đã giao»",
-      "vi_sao": "Gốc: crm/_acceptance/kiem-cheo-sau-gop — mục «Hạng mục cùng lớp» gom tay bốn hồ sơ F9–F12, và phần thuộc kit chỉ được nối với hai hạt giống kit (gia-lan-ghim-lai-vong-b, suite-chap-chon-ho-so-khac-khoa-the) khi máy đọc chéo hai kho ngày 08/10. Cùng ngày kiểm kê 94 hạt giống thấy ≥3 hạt giống «mở» thật ra đã được việc đã giao phủ. Owner nêu nhu cầu 08/10: phân loại và gom nhóm là việc khó nhất với người dùng kit. Bước này đứng TRƯỚC cắt lượt: tín hiệu → nhóm → bản phạm vi → hàng.",
+      "cau_giao": "«Mọi người gửi tín hiệu vào một cửa của kho; máy gom thành nhóm đặt tên bằng tiếng sản phẩm — mỗi tín hiệu ở đúng một nhóm, lẻ kèm lý do, hoặc đã phủ bởi việc đã giao — và người gửi thấy tín hiệu của mình đi tới đâu»",
+      "vi_sao": "Gốc: crm/_acceptance/kiem-cheo-sau-gop — mục «Hạng mục cùng lớp» gom tay bốn hồ sơ F9–F12, và phần thuộc kit chỉ được nối với hai hạt giống kit (gia-lan-ghim-lai-vong-b, suite-chap-chon-ho-so-khac-khoa-the) khi máy đọc chéo hai kho ngày 08/10. Cùng ngày kiểm kê 94 hạt giống thấy ≥3 hạt giống «mở» thật ra đã được việc đã giao phủ. Owner nêu nhu cầu 08/10: phân loại và gom nhóm là việc khó nhất với người dùng kit. Bước này đứng TRƯỚC cắt lượt: tín hiệu → nhóm → bản phạm vi → hàng. Owner chốt 08/10: người không dùng git được GỬI TÍN HIỆU; kit đặt khuôn tín hiệu + ổ cắm đọc nguồn tín hiệu kho khai (như lo_trinh.tep), KHÔNG giữ kho tín hiệu; trạng thái trả về người gửi qua chuỗi tín hiệu → nhóm → hàng → hồ sơ.",
       "bat_khi": "Ở lượt gom kế của crm, người sửa dưới 1/5 số nhóm máy đề xuất, 0 tín hiệu lọt, và mọi trùng lặp đã biết trong bộ vàng được gộp đúng",
       "ghi_chu": "CỘNG — cần owner phê ở Cổng Đáng. Dùng lại răng phủ và khuôn của L2; người chọn TRỤC gom một lần (chính sách), máy áp."
     },
