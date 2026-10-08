@@ -18,7 +18,8 @@ evals:
       BH3 khung (lệnh eval thay bằng token, quét cả dòng) không có eval / bash|sh|zsh -c / xargs /
       while-read / <(. BH5b khung không có rm, rmdir. BH4 prompt
       dặn MOT lan goi Bash, 600000, dauRa. BH5 có TRAN_LENH=<n>; TRAN_TONG=<n>;. BH6 năm tệp ứng viên đúng
-      thư mục của phạm vi, không có apps/api/apps/app.
+      thư mục của phạm vi, không có apps/api/apps/app. BH7 TRAN_TONG + 15 < 600 (timeout trong prompt), TRAN_LENH ≤
+      TRAN_TONG. BH8 lệnh btbd_tran_that rút từ config: tệp ca là ứng viên bỏ qua, lệnh có mặt nguyên văn.
     paths:
       - "feature-loop/workflows/acceptance-verify.js"
       - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"
@@ -32,7 +33,8 @@ evals:
       Mỗi shell có trên máy (bash; zsh nếu có): BT1 lệnh ngủ ~30 s → "__BL 1 qua-tran 2", lệnh thoát 3 →
       "__BL 2 xong 3", có "__BL_XONG"; BT2 < 20 s; BT3 tiến trình ngủ đã chết; BT4 không còn worktree
       agk-baseline. BT5 TRAN_TONG 3 → lệnh 3 "het-tran-tong"; BT6 < 20 s. BT7 đối chứng: lệnh nhanh →
-      "xong 3", không nhãn trần.
+      "xong 3", không nhãn trần. BT8 lệnh in dấu giả rồi thoát 3 → stdout chỉ "__BL 1 xong 3", __BL_XONG
+      đúng một lần ở cuối. BZ0 trên macOS vắng zsh → đỏ, "zsh co tren may ma khong chay".
     paths:
       - "feature-loop/workflows/acceptance-verify.js"
       - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"
@@ -93,7 +95,7 @@ evals:
       mọi trap → worktree ở lại sau TERM; BM4 bước quét coi mọi pid sống → mồ côi không được dọn; BM5 bộ đọc
       bỏ điều kiện __BL_XONG → đầu ra cụt ghi thành dòng kind:baseline. BM6 gỡ phép hỏi gitignore →
       "bo-qua gen/cau-hinh.json". BM7 bỏ điều kiện «không chạm trần» → dòng kind:baseline ghi cho phép đo
-      chạm trần.
+      chạm trần. BM8 lính canh chỉ giết pid con → tiến trình cháu sống sót.
     paths:
       - "feature-loop/workflows/acceptance-verify.js"
       - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"

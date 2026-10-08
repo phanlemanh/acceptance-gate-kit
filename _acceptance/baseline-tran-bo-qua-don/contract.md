@@ -5,7 +5,9 @@ slug: baseline-tran-bo-qua-don
 owner: manh.phan@onemount.com
 risk_tier: T2               # feature-loop/workflows + tests/workflows — không chạm t3_paths
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-10-08
 ---
 
 # Acceptance Contract: baseline-tran-bo-qua-don
@@ -47,16 +49,20 @@ lệnh này qua công cụ Bash của Claude Code đi qua kiểm tra an toàn, b
   --ten 'co nhay'`), When workflow dispatch lane baseline, Then prompt mang
   ĐÚNG MỘT khối giữa `<<<AGK-BASELINE` và `AGK-BASELINE>>>`; mỗi lệnh eval có mặt nguyên văn đúng một lần;
   khung kit sinh (lệnh với mỗi lệnh eval thay bằng một token cố định — quét CẢ dòng chứa lệnh eval) KHÔNG
-  chứa `eval`, `bash|sh|zsh -c`, `xargs`, `while … read`, `<(`, `rm `, `rmdir `; có `TRAN_LENH=<n>;` và `TRAN_TONG=<n>;`; prompt dặn MỘT lần gọi Bash, timeout 600000,
+  chứa `eval`, `bash|sh|zsh -c`, `xargs`, `while … read`, `<(`, `rm `, `rmdir `; có `TRAN_LENH=<n>;` và `TRAN_TONG=<n>;`
+  với TRAN_TONG + 15 < trần 600 giây mà prompt dặn và TRAN_LENH ≤ TRAN_TONG; prompt dặn MỘT lần gọi Bash, timeout 600000,
   trả `dauRa`; tệp ứng viên tính theo `cd` của TỪNG phạm vi (`apps/app/test/kara-ban-ghi.dom.tsx`,
   `packages/ui/test/setup-dom.ts`, `apps/api/test/hoan-tac-thong-tin.spec.ts`,
   `apps/app/test/kara-ban-ghi-de-xuat.dom.tsx`, `_acceptance/khung-ban-ghi-kara/rang/chu-cung.mjs`; không có
-  `apps/api/apps/app`).
+  `apps/api/apps/app`). And lệnh executor của chính kho kit (`bash -c '…$(node <tệp ca> 2>&1)…'`, rút từ
+  config) cho tệp ca là ứng viên và có mặt nguyên văn.
 - AC-2: Given lệnh RÚT từ prompt (không viết tay) chạy bằng shell thật (bash, và zsh nếu máy có) trên
   một kho git tạm, với `TRAN_LENH` hạ còn 2, When một lệnh ngủ ~30 s và một lệnh thoát 3, Then đầu ra có
   `__BL 1 qua-tran 2`, `__BL 2 xong 3`, `__BL_XONG`; cả lượt < 20 s; tiến trình ngủ đã chết; không còn
   worktree `agk-baseline`. And `TRAN_TONG` hạ còn 3 với ba lệnh → lệnh 3 `het-tran-tong`, lượt < 20 s.
-  Đối chứng dương: lệnh nhanh dưới trần → `xong 3`, không dấu chạm trần.
+  Đối chứng dương: lệnh nhanh dưới trần → `xong 3`, không dấu chạm trần. And lệnh in `__BL 1 xong 0` /
+  `__BL_XONG` giả rồi thoát 3 → stdout chỉ có `__BL 1 xong 3`, `__BL_XONG` đúng một lần ở cuối. Trên macOS
+  mà vắng zsh thì ca đỏ (vế zsh không được im lặng bỏ qua).
 - AC-3: Given tác tử baseline trả (i) đầu ra thiếu `__BL_XONG`, (ii) null, (iii) `killedByTool: true`,
   (iv) `__BL_HA_TANG worktree-add`, When workflow tổng hợp, Then verdict vẫn PASS và có báo cáo (làn phụ
   không giữ lượt); mọi lệnh baseline `n-a`, không red/green; prompt tổng hợp mang `BASELINE BLOCKED HA
@@ -83,7 +89,7 @@ lệnh này qua công cụ Bash của Claude Code đi qua kiểm tra an toàn, b
   hỏi merge-base → không còn `bo-qua`; gỡ mọi trap → worktree ở lại sau TERM; bước quét coi mọi pid là
   sống → mồ côi không được dọn; bộ đọc bỏ điều kiện `__BL_XONG` → đầu ra cụt được ghi thành dòng
   `kind:"baseline"`; gỡ phép hỏi gitignore → tệp sinh ra bị bỏ qua nhầm; bỏ điều kiện «không chạm trần» →
-  phép đo chạm trần được ghi dòng `kind:"baseline"`.
+  phép đo chạm trần được ghi dòng `kind:"baseline"`; lính canh chỉ giết pid con → tiến trình cháu sống sót.
 - AC-7: Given cây sau sửa, When chạy `bash tests/workflows/run-tests.sh`, Then mọi bộ xanh — gồm
   `lane-pin` (LP3/LP4: lệnh baseline đứng trong worktree, không `cd` repoRoot; kim LP4 dời sang chỗ ghép
   lệnh mới), `round-signal` (RS5: ba lane gọi `CD_GUARD`), `lenh-dai-chay-rieng` (LN2: kim `[ -n "$P" ] &&

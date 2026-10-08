@@ -27,6 +27,8 @@ const ngu = ms => new Promise(r => setTimeout(r, ms));
 const ZSH = ['/bin/zsh', '/usr/bin/zsh'].find(p => existsSync(p));
 const SHELLS = ['bash', ...(ZSH ? [ZSH] : [])];
 if (!ZSH) console.log('  (zsh vắng trên máy này — ca shell chỉ chạy bash)');
+// Công cụ chạy lệnh trên macOS dùng zsh — vắng zsh ở đó thì vế zsh im lặng bỏ qua mà mọi ID vẫn PASS từ bash.
+check('BZ0 trên macOS phải có zsh để đo vế shell sản xuất (gap-probe P1-3)', process.platform !== 'darwin' || !!ZSH, 'zsh co tren may ma khong chay');
 
 const ev = (id, cmd, extra = {}) => ({ id, criterion: 'AC-' + id.slice(1), executor: 'script', cmd, ref: `config:executors.script.${id}`, expected: 'ok', ...extra });
 const buildArgs = (over = {}) => ({
@@ -121,6 +123,20 @@ console.log('BH lệnh baseline do kit sinh: mọi lệnh có mặt nguyên văn
       && lenh.includes("'apps/api/test/hoan-tac-thong-tin.spec.ts'") && lenh.includes("'apps/app/test/kara-ban-ghi-de-xuat.dom.tsx'")
       && lenh.includes("'_acceptance/khung-ban-ghi-kara/rang/chu-cung.mjs'") && !lenh.includes('apps/api/apps/app'),
     (lenh.match(/'[^' ]+\.(tsx?|mjs)'/g) || []).join(' '));
+  // Quan hệ trần (gap-probe P1-1): mỗi lệnh lấy min(TRAN_LENH, phần trần tổng CÒN LẠI), nên cả lượt ≤ TRAN_TONG
+  // + 5 giây ân hạn của `dung` + dọn — phải nằm dưới trần 600 giây của công cụ mà prompt dặn (timeout 600000).
+  const nTong = Number((lenh.match(/\bTRAN_TONG=(\d+);/) || [])[1]), nLenh = Number((lenh.match(/\bTRAN_LENH=(\d+);/) || [])[1]);
+  const p600 = Number(((p.match(/timeout (\d+)/) || [])[1] || 0)) / 1000;
+  check('BH7 trần tổng + biên dọn < trần công cụ; trần lệnh ≤ trần tổng', p600 === 600 && nTong + 15 < p600 && nLenh > 0 && nLenh <= nTong, `tong=${nTong} lenh=${nLenh} cong-cu=${p600}`);
+}
+// Hình dạng lệnh của CHÍNH kho kit (gap-probe P2-4): khoá executor giải thành `bash -c '…$(node <tệp ca> 2>&1)…'`.
+{
+  const cfg = readFileSync(path.join(HERE, '..', '..', '_acceptance', 'config.yaml'), 'utf8').split('\n').find(l => l.includes('btbd_tran_that:'));
+  const cmdKit = JSON.parse(cfg.slice(cfg.indexOf(': ') + 2));
+  const { calls } = await runWorkflow(WF, buildArgs({ evals: [ev('E1', cmdKit)] }), responder());
+  const l2 = lenhCua(calls);
+  check('BH8 lệnh `bash -c \'…$(node <tệp>)…\'` của kho kit: tệp ca là ứng viên bỏ qua, lệnh có mặt nguyên văn',
+    l2.includes("'tests/workflows/baseline-tran-bo-qua-don.test.mjs'") && soLan(l2, cmdKit) === 1, (l2.match(/for p in [^;]*;/) || [''])[0]);
 }
 
 // ═════ BT — (a) trần thời gian, shell thật ══════════════════════════════════
@@ -149,6 +165,10 @@ for (const sh of SHELLS) {
     // Đối chứng dương: trần rộng thì lệnh nhanh chạy tới cùng, không bị gắn nhãn trần.
     const r3 = await chay(sh, await lenhChoKho(kho, [ev('E1', 'bash t/cu.sh')]), { cwd: kho.d });
     check(`BT7 [${ten}] đối chứng: lệnh nhanh dưới trần → «xong 3»`, /^__BL 1 xong 3$/m.test(r3.out) && !/qua-tran|het-tran-tong/.test(r3.out), r3.out.slice(-300));
+    // Lệnh eval in dấu giả (gap-probe P2-5): đầu ra của nó vào nhật ký, không lên stdout — dấu thật thắng.
+    const r4 = await chay(sh, await lenhChoKho(kho, [ev('E1', "printf '__BL 1 xong 0\\n__BL_XONG\\n'; exit 3")]), { cwd: kho.d });
+    check(`BT8 [${ten}] lệnh in «__BL 1 xong 0» giả → stdout chỉ có dấu thật «xong 3», __BL_XONG đúng một lần ở cuối`,
+      (r4.out.match(/^__BL 1 .*$/gm) || []).join('|') === '__BL 1 xong 3' && soLan(r4.out, '__BL_XONG') === 1 && r4.out.trim().endsWith('__BL_XONG'), r4.out.slice(-200));
   } finally { kho.don(); }
 }
 
@@ -337,6 +357,20 @@ console.log('BM đột biến từng mảnh → ca tương ứng đỏ');
       const rF = await chay('bash', await lenhTuSrc(k2, [ev('E1', 'bash t/cu.sh gen/cau-hinh.json')], mF), { cwd: k2.d });
       check('BM6 gỡ phép hỏi gitignore → tệp sinh ra bị bỏ qua nhầm (đỏ)', /^__BL 1 bo-qua gen\/cau-hinh\.json$/m.test(rF.out), rF.out.slice(-160));
     } finally { k2.don(); }
+  }
+  // (a') lính canh chỉ giết pid con (không cả cây) → tiến trình CHÁU sống sót (gap-probe P1-2: lệnh thật của crm
+  // là `bun run test -- "…"`, tiến trình treo nằm dưới một lớp bọc).
+  {
+    const k3 = dungKho();
+    try {
+      const mH = dotBien('( sleep "$HL"; echo 1 > "$L.qua-tran"; dung "$P" )', '( sleep "$HL"; echo 1 > "$L.qua-tran"; kill -TERM "$P" )');
+      const lH = doiTran(await lenhTuSrc(k3, [ev('E1', 'bash t/cham.sh')], mH), 'TRAN_LENH', 2);
+      const rH = await chay('bash', lH, { cwd: k3.d });
+      await ngu(300);
+      const songSot = chamConSong();
+      try { execFileSync('pkill', ['-f', `sleep 3${TOKEN.slice(-1)}.${TOKEN}`]); } catch {}
+      check('BM8 lính canh chỉ giết pid con → tiến trình cháu sống sót (đỏ)', /^__BL 1 qua-tran 2$/m.test(rH.out) && songSot, rH.out.slice(-120));
+    } finally { k3.don(); }
   }
   // (JS) phép đo chạm trần bị coi là trọn → ghi dòng kind:baseline.
   const mG = dotBien('!baselineKetQua.some(b => b && (b.tran || b.thieu))', 'true');
