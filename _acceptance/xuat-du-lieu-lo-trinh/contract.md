@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/lo-trinh.mjs + skills/acceptance/references/lo-trinh-du-lieu.md (mới) + GUIDE + CHANGELOG + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-08-xuat-du-lieu-lo-trinh-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -86,3 +86,4 @@ không phải JavaScript»]` cho cách nhúng; `[NGÀNH: Tolerant Reader — Fow
   (`trang-lo-trinh-doc-mot-phut`) đếm script chạy được thay vì mọi thẻ `<script` — khối dữ liệu của
   vòng này không tính, khối thứ hai vẫn tính. Hợp đồng cũ đã ký, không sửa; dòng này là vết thay thế
   (sổ quyết định của hồ sơ này, dòng `fix` ở S3).
+- **Known limits (Cổng Bằng chứng lượt 2, ký 08/10):** Ngoài-1: LT-118 bang-khoa không có chiều đỏ cho khoá mà đầu vào tự cung cấp — bỏ 'hang_ke' khỏi bảng khoá trong docDuLieu vẫn xanh · Ngoài-2: LT-120 tham chiếu biến `ngay` ngoài phạm vi — tiến trình con lỗi thì ra ReferenceError thay cho chẩn đoán · Ngoài-3: LT-120: the error path for a failed child process uses `ngay`, which no longer exists in that scope, so the real error is lost · Ngoài-4: Hình dạng 5 (tuyên cả lớp nhưng chỉ có ca lẻ): LT-118 hứa «khoá thiếu là rỗng theo kiểu» cho mọi khoá, nhưng chỉ kiểm hai khoá; bảng-khoa có trọn ma trận mà chỉ so tên khoá · Ngoài-5: Tài liệu cho kho tiêu thụ nói sai cách thoát ký tự: «mọi `<` đã được viết thành `<`» (r1 · tệp đã đổi) · Ngoài-6: Phép chia nhóm tiến độ vẫn dựng hai lần, dù chú thích tuyên «MỘT hàm» (r1 · tệp đã đổi) · Ngoài-7: LT-119 kiểm GUIDE trên cây KIT, không trên cây `kit` đang đo, và vế GUIDE không có chiều đỏ (r1 · tệp đã đổi) · Ngoài-8: Consumer doc says '<' is written as '<' (escape sequence lost) (r1 · tệp đã đổi) · Ngoài-9: E2/E8 say the comparison goes through docDuLieu, but the tests parse the block with their own JSON.parse (r1 · tệp đã đổi) · Ngoài-10: Shape 2 (round trip not read by the shipped reader): LT-117 parses the block with the test's own JSON.parse while E8 claims docDuLieu returns the original string (r1 · tệp đã đổi). Ngoài-11 chấp nhận, không sửa.
