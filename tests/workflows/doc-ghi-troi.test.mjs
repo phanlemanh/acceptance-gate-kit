@@ -70,6 +70,12 @@ console.log('DG bộ đọc thẻ nhận cả dạng máy chèn lẫn dạng tá
     ['- **T9** (r1 — tệp đổi)', true, 'T9 (r1 — tệp đổi)'],                // biến thể gạch dài
     ['- **T10** (R1)', true, 'T10 (R1)'],                                 // R hoa
     ['- **T11** (từ r1)', false, 'T11'],                                  // GIỚI HẠN ĐÃ KHAI: nhãn mở bằng chữ khác
+    // Hai dòng giữ NGUYÊN HÌNH của vật đã làm lộ lỗi (crm be8abc7e4, chữ đã ẩn danh): tiêu đề dài có backtick,
+    // dấu hai chấm, dấu «—» và «'…'» bên trong sao — gap-probe P1 «fixture tưởng tượng hình dạng».
+    ['- **If spawn fails, `pid ?? 0` makes the alive check pass for nothing and makes cleanup SIGKILL the group** (r1)', true,
+      'If spawn fails, `pid ?? 0` makes the alive check pass for nothing and makes cleanup SIGKILL the group (r1)'],
+    ["- **Hình dạng 3 — AC-1 hứa thứ tự «dừng TRƯỚC khi X», nhưng bài chỉ đo 'rồi cũng chết' sau khi Y trả về** (r1)", true,
+      "Hình dạng 3 — AC-1 hứa thứ tự «dừng TRƯỚC khi X», nhưng bài chỉ đo 'rồi cũng chết' sau khi Y trả về (r1)"],
   ];
   const r = ooc.parse(tep(MT.map(([d]) => muc(d)).join('\n\n')));
   const tieuDe = r.findings.map(f => f.title);
@@ -77,7 +83,7 @@ console.log('DG bộ đọc thẻ nhận cả dạng máy chèn lẫn dạng tá
     check(`DG1 «${dong}» → ${laMuc ? `mục «${chuan}»` : 'không phải mục'}`,
       laMuc ? tieuDe.includes(chuan) : !tieuDe.some(t => t === chuan || t.startsWith(chuan + ' ')), tieuDe.join(' | '));
   }
-  check('DG1b đếm đúng 8 mục / 11 dòng', r.findings.length === 8, String(r.findings.length));
+  check('DG1b đếm đúng 10 mục / 13 dòng', r.findings.length === 10, String(r.findings.length));
   // Hai bộ đọc của CÙNG một dòng (thẻ ở lib, chống trùng ở workflow) dùng cùng MỘT biểu thức: khối marker
   // OOC-TITLE-RE có mặt ở cả hai nguồn và giống nhau từng ký tự.
   const rut = s => (s.match(/<<<OOC-TITLE-RE\n([\s\S]*?)\n\/\/ OOC-TITLE-RE>>>/) || [])[1];
@@ -93,6 +99,14 @@ console.log('DG chèn mục mang sang: tác tử đã in mục với nhãn ngoà
   const n1 = soLan(r1.result.findings, 'Loi mang sang');
   check('DG3 tác tử đã in «- **T** (r1)» → mục xuất hiện đúng MỘT lần', n1 === 1, `${n1} lần`);
   check('DG3b và bộ đọc thẻ đếm được nó', ooc.parse(r1.result.findings).findings.some(f => f.title === 'Loi mang sang (r1)'));
+  // Ma trận nhãn (gap-probe P1): bước chèn của workflow nhận ĐỦ mọi dạng nhãn bộ đọc thẻ nhận — mỗi dạng một
+  // assert «đúng một lần + thẻ đếm được», chạy qua CHÍNH workflow (không chỉ so văn bản hai khối marker).
+  for (const nhan of ['(r1)', '(r1 · tệp đã đổi)', '(r1, tệp đã đổi)', '(r1 — tệp đổi)', '(R1)']) {
+    const c2 = [{ ...carried[0], tepDoi: /đổi/.test(nhan) }];
+    const rr = await runWorkflow(WF, args({ carriedFindings: c2 }), responder({ findings: `# Findings\n\n${tep(muc(`- **Loi mang sang** ${nhan}`))}` }));
+    const nn = soLan(rr.result.findings, 'Loi mang sang');
+    check(`DG3c nhãn «${nhan}» do tác tử in → đúng một lần, thẻ đếm được`, nn === 1 && ooc.parse(rr.result.findings).findings.length === 1, `${nn} lần`);
+  }
   // Đối chứng dương: tác tử KHÔNG in → máy chèn đúng một bản, bộ đọc thẻ đọc được.
   const r2 = await runWorkflow(WF, args({ carriedFindings: carried }), responder({ findings: `# Findings\n\n${tep('')}` }));
   check('DG4 đối chứng: tác tử không in → máy chèn đúng một bản, thẻ đọc được',
@@ -153,25 +167,32 @@ console.log('DR đường mang sang: eval carried với run_id rỗng/chỉ nhá
 
 console.log('DR bên đọc: khối eval khai run_id rỗng → ghi chú có tên (khoan dung, không chặn)');
 {
-  const bao = (rid3) => `---\nverdict: PASS\n---\n\n## Evals\n\n- eval: E1\n  run_id: minted-demo-E1-r2\n  exit_code: 0\n  verifier: config:executors.script.E1\n  verified_at: 2026-10-08T00:00:00Z\n\n- eval: E3\n  run_id: ${rid3}\n  exit_code: 0\n  verifier: config:executors.script.E3\n  verified_at: 2026-10-08T00:00:00Z\n`;
-  const rRong = core.evaluateEvidence(bao('""'), {});
-  check('DR2 run_id "" ở khối E3 → notes gọi tên E3', Array.isArray(rRong.notes) && rRong.notes.some(n => /run_id rỗng/.test(n) && /\bE3\b/.test(n)), JSON.stringify(rRong.notes));
-  const rDu = core.evaluateEvidence(bao('minted-demo-E3-r2'), {});
-  check('DR2b khoan dung: không thêm thất bại (anyFailure như bản đủ)', rRong.anyFailure === rDu.anyFailure, `${rRong.anyFailure}/${rDu.anyFailure}`);
-  check('DR3 đối chứng: run_id thật → không ghi chú', Array.isArray(rDu.notes) && rDu.notes.length === 0, JSON.stringify(rDu.notes));
-  const rTrong = core.evaluateEvidence(bao(''), {});
-  check('DR3b run_id để trống trơn cũng được gọi tên', (rTrong.notes || []).some(n => /\bE3\b/.test(n)));
-  // CLI recheck in ghi chú ra stderr, mã thoát không đổi so với bản đủ.
+  // Báo cáo ba khối eval; E3 và E7 mang run_id do tham số (không liền nhau, E5 thật ở giữa). Cấu hình khai đủ
+  // verifier nên bản ĐỦ qua trọn — ghim giá trị TUYỆT ĐỐI, không chỉ so bằng (gap-probe P1: fixture hỏng làm cả
+  // hai bản cùng đỏ thì phép so bằng vẫn xanh).
+  const khoi = (id, rid) => `- eval: ${id}\n  run_id: ${rid}\n  exit_code: 0\n  verifier: config:executors.script.${id}\n  verified_at: 2026-10-08T00:00:00Z\n`;
+  const bao = (r3, r7) => `---\nverdict: PASS\n---\n\n## Evals\n\n${khoi('E3', r3)}\n${khoi('E5', 'minted-demo-E5-r2')}\n${khoi('E7', r7)}`;
+  const CFG = 'executors:\n  script:\n    E3: "bash t/c.sh"\n    E5: "bash t/e.sh"\n    E7: "bash t/g.sh"\n';
+  const rDu = core.evaluateEvidence(bao('minted-demo-E3-r2', 'minted-demo-E7-r2'), { configText: CFG });
+  check('DR2a đối chứng dương: bản đủ qua TRỌN (anyFailure=false) và không ghi chú', rDu.anyFailure === false && Array.isArray(rDu.notes) && rDu.notes.length === 0, JSON.stringify({ a: rDu.anyFailure, n: rDu.notes, m: rDu.missing, au: rDu.authFailures }));
+  // Bốn dạng rỗng của trục C (bên viết) — bên đọc phải gọi tên đủ cả bốn.
+  for (const rong of ['""', "''", "' '", '']) {
+    const r = core.evaluateEvidence(bao(rong, rong), { configText: CFG });
+    check(`DR2 run_id ${JSON.stringify(rong)} ở E3 và E7 → notes gọi tên CẢ HAI, anyFailure vẫn false`,
+      r.anyFailure === false && (r.notes || []).some(n => /run_id rỗng/.test(n) && /\bE3\b/.test(n) && /\bE7\b/.test(n) && !/\bE5\b/.test(n)), JSON.stringify(r.notes));
+  }
+  // CLI recheck: ghi chú ra stderr, mã thoát 0 ở cả hai bản.
   const d = mkdtempSync(path.join(tmpdir(), 'dr-cli-'));
   try {
     mkdirSync(path.join(d, '_acceptance', 'demo'), { recursive: true });
+    writeFileSync(path.join(d, '_acceptance', 'config.yaml'), CFG);
     const f = path.join(d, '_acceptance', 'demo', 'evidence-report.md');
-    writeFileSync(f, bao('""'));
-    const r = spawnSync('node', [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), f], { encoding: 'utf8' });
-    writeFileSync(f, bao('minted-demo-E3-r2'));
-    const rDoi = spawnSync('node', [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), f], { encoding: 'utf8' });
-    check('DR4 recheck in «NOTE … run_id rỗng … E3», cùng mã thoát với bản đủ',
-      /NOTE[^\n]*run_id rỗng[^\n]*E3/.test(r.stderr) && r.status === rDoi.status && !/run_id rỗng/.test(rDoi.stderr), `${r.status}/${rDoi.status} ${r.stderr.slice(0, 200)}`);
+    writeFileSync(f, bao('""', '""'));
+    const r = spawnSync('node', [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), f], { encoding: 'utf8', cwd: d });
+    writeFileSync(f, bao('minted-demo-E3-r2', 'minted-demo-E7-r2'));
+    const rDoi = spawnSync('node', [path.join(ROOT, 'scripts', 'recheck-evidence.cjs'), f], { encoding: 'utf8', cwd: d });
+    check('DR4 recheck: bản rỗng in «NOTE … run_id rỗng … E3, E7» và thoát 0; bản đủ thoát 0, không NOTE',
+      r.status === 0 && /NOTE[^\n]*run_id rỗng[^\n]*E3, E7/.test(r.stderr) && rDoi.status === 0 && !/run_id rỗng/.test(rDoi.stderr), `${r.status}/${rDoi.status} ${(r.stderr + rDoi.stderr).slice(0, 300)}`);
   } finally { rmSync(d, { recursive: true, force: true }); }
 }
 

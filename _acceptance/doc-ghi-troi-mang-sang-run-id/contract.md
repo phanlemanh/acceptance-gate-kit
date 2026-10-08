@@ -5,7 +5,9 @@ slug: doc-ghi-troi-mang-sang-run-id
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/** và scripts/recheck-evidence.cjs — đều trong risk_tiers.t3_paths
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Phan Le Manh
+approved_at: 2026-10-08
 ---
 
 # Acceptance Contract: doc-ghi-troi-mang-sang-run-id
@@ -33,24 +35,26 @@ lại kế tiếp.
 
 ## Criteria
 
-- AC-1: Given bảng viết trước 11 dòng tiêu đề (`- **T1 (r1)**`, `- **T2** (r1)`, `- **T3** (r2 · tệp đã đổi)`,
+- AC-1: Given bảng viết trước 13 dòng tiêu đề (hai dòng cuối giữ nguyên hình từ crm `be8abc7e4`, chữ ẩn danh) (`- **T1 (r1)**`, `- **T2** (r1)`, `- **T3** (r2 · tệp đã đổi)`,
   `- **T4**`, `- **T5** (r?)`, `- **T6** là văn xuôi…`, `- **T7** (xem ghi chú)`, `- **T8** (r1, tệp đã đổi)`,
   `- **T9** (r1 — tệp đổi)`, `- **T10** (R1)`, `- **T11** (từ r1)`) dựng từ khuôn OOC-ITEM-TEMPLATE, When bộ đọc
-  thẻ `parse`, Then đếm đúng 8 mục, mỗi mục tiêu đề chuẩn hoá `<tiêu đề> <nhãn>`. T6, T7 KHÔNG thành mục (chữ
+  thẻ `parse`, Then đếm đúng 10 mục, mỗi mục tiêu đề chuẩn hoá `<tiêu đề> <nhãn>`. T6, T7 KHÔNG thành mục (chữ
   tự do sau dấu sao không bị nuốt); T11 KHÔNG thành mục (giới hạn đã khai).
 - AC-2: Given khối marker `OOC-TITLE-RE`, When rút từ `feature-loop/workflows/acceptance-verify.js` và
   `lib/out-of-contract.cjs`, Then hai khối có mặt và giống nhau từng ký tự.
 - AC-3: Given một mục mang sang `Loi mang sang` (r1) và tác tử tổng hợp đã tự in nó dạng `- **Loi mang
   sang** (r1)`, When workflow chèn mục mang sang, Then mục xuất hiện đúng MỘT lần và bộ đọc thẻ đếm được nó.
   Đối chứng dương: tác tử không in thì máy chèn đúng một bản, thẻ đọc được. Chiều im: mục tươi cùng tệp, tên
-  dài hơn, không nuốt mục mang sang.
+  dài hơn, không nuốt mục mang sang. And mỗi dạng nhãn {`(r1)`, `(r1 · tệp đã đổi)`, `(r1, tệp đã đổi)`, `(r1 —
+  tệp đổi)`, `(R1)`} tác tử in, chạy qua workflow → đúng một lần, thẻ đếm được.
 - AC-4: Given tác tử máy trả `runId` ∈ {`""`, `''`, `  `, `" "`}, When workflow ghi run-log, Then dòng eval
   mang `minted-<slug>-<eval>-r<round>`. Đối chứng: `abc123` giữ nguyên. And eval MANG SANG từ lượt trước với
   `runId` `""` thì KHÔNG được mang: eval chạy lại, dòng run-log mang mã đúc mới, không có `carried_from_round`.
   Đối chứng: `runId` thật thì mang sang, không chạy lại.
-- AC-5: Given báo cáo PASS có khối eval E3 khai `run_id: ""` (hoặc để trống trơn), When `evaluateEvidence`,
-  Then `notes` gọi tên E3 và `anyFailure` bằng đúng giá trị của bản có `run_id` thật. Đối chứng: bản đủ thì
-  `notes` rỗng. And `recheck-evidence.cjs` in `NOTE … run_id rỗng … E3` ra stderr, mã thoát bằng bản đủ.
+- AC-5: Given báo cáo PASS ba khối eval (E3, E5, E7) với cấu hình khai verifier, E3 và E7 khai `run_id` rỗng ở
+  mỗi dạng {`""`, `''`, `' '`, trống trơn}, When `evaluateEvidence`, Then `notes` gọi tên cả E3 và E7 (không
+  E5) và `anyFailure` = false. Đối chứng: bản đủ thì `anyFailure` = false và `notes` rỗng. And
+  `recheck-evidence.cjs` thoát 0 ở cả hai bản; bản rỗng in `NOTE … run_id rỗng … E3, E7` ra stderr.
 - AC-6: Given bản sao với đúng một mảnh bị gỡ, When chạy lại ca, Then ca đỏ: bộ đọc thẻ về biểu thức cũ thì
   `- **T2** (r1)` không được đếm; bước chèn của workflow về biểu thức cũ thì mục mang sang in HAI lần; bên viết
   không bỏ nháy thì `run_id` `""` lọt.

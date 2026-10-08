@@ -385,7 +385,7 @@ function chenMucCarry(text, carried) {
   // «tiêu đề chứa title» để một mục TƯƠI cùng tệp tên dài hơn nuốt mục carry (AC-12, lượt chấm 1).
   const thieu = ds.filter(c => {
     const tepC = String(c.file).replace(/:\d+(-\d+)?$/, '')
-    return !daCo.some(x => x.file === tepC && (x.title === c.title || x.title.startsWith(c.title + ' (r')))
+    return !daCo.some(x => x.file === tepC && (x.title === c.title || (x.title.startsWith(c.title + ' (') && /^\([rR]/.test(x.title.slice(c.title.length + 1)))))
   })
   if (!thieu.length) return dong.join('\n')
   // Chèn sau dòng có chữ cuối cùng của khối (không tính dòng cụm).

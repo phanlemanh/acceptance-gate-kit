@@ -12,9 +12,9 @@ evals:
     executor: script
     cmd: config:executors.script.dgt_bo_doc_tieu_de
     expected: >-
-      DG1 mười một dòng của bảng viết trước, mỗi dòng một assert: tám mục với tiêu đề chuẩn hoá (gồm biến thể
-      «(r1, tệp đã đổi)», «(r1 — tệp đổi)», «(R1)»); T6 (văn xuôi sau sao), T7 (ngoặc không phải nhãn), T11
-      («(từ r1)», giới hạn đã khai) không thành mục. DG1b đếm đúng 8.
+      DG1 mười ba dòng của bảng viết trước, mỗi dòng một assert: mười mục với tiêu đề chuẩn hoá (gồm biến thể
+      «(r1, tệp đã đổi)», «(r1 — tệp đổi)», «(R1)» và hai dòng giữ nguyên hình từ crm be8abc7e4); T6 (văn xuôi
+      sau sao), T7 (ngoặc không phải nhãn), T11 («(từ r1)», giới hạn đã khai) không thành mục. DG1b đếm 10.
     paths: ["lib/out-of-contract.cjs", "tests/workflows/doc-ghi-troi.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2
@@ -31,7 +31,8 @@ evals:
     expected: >-
       DG3 tác tử đã in «- **Loi mang sang** (r1)» → findings chứa tên đó đúng một lần; DG3b bộ đọc thẻ đếm
       «Loi mang sang (r1)». DG4 đối chứng: tác tử không in → máy chèn một bản, thẻ đọc được. DG5 chiều im: mục
-      tươi tên dài hơn không nuốt mục mang sang.
+      tươi tên dài hơn không nuốt mục mang sang. DG3c năm dạng nhãn tác tử in («(r1)», «(r1 · tệp đã đổi)»,
+      «(r1, tệp đã đổi)», «(r1 — tệp đổi)», «(R1)») chạy qua workflow → mỗi dạng đúng một lần, thẻ đếm được.
     paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/doc-ghi-troi.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
@@ -49,8 +50,9 @@ evals:
     executor: script
     cmd: config:executors.script.dgt_run_id_ben_doc
     expected: >-
-      DR2 notes gọi tên E3 khi run_id ""; DR2b anyFailure bằng bản đủ; DR3 đối chứng bản đủ không ghi chú;
-      DR3b run_id trống trơn cũng gọi tên; DR4 recheck in «NOTE … run_id rỗng … E3», cùng mã thoát với bản đủ.
+      DR2a đối chứng: bản đủ (cấu hình khai verifier) anyFailure=false, không ghi chú. DR2 bốn dạng rỗng ("",
+      '', ' ', trống trơn) ở E3 và E7 (E5 thật ở giữa) → notes gọi tên cả hai, không E5, anyFailure vẫn false.
+      DR4 recheck: bản rỗng thoát 0 và in «NOTE … run_id rỗng … E3, E7»; bản đủ thoát 0, không NOTE.
     paths: ["lib/evidence-core.cjs", "scripts/recheck-evidence.cjs", "tests/workflows/doc-ghi-troi.test.mjs"]
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
