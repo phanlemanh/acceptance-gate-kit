@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/lo-trinh.mjs + skills/acceptance/references/lo-trinh-du-lieu.md (mới) + GUIDE + CHANGELOG + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-08-xuat-du-lieu-lo-trinh-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -74,3 +74,15 @@ không phải JavaScript»]` cho cách nhúng; `[NGÀNH: Tolerant Reader — Fow
   không thêm khoá executor (sửa `_acceptance/config.yaml` làm cũ hồ sơ khác).
 - Hàng `LT1` của crm chép nguyên vào `_acceptance/xuat-du-lieu-lo-trinh/lt1-crm.json` từ commit crm
   `66862babd` (nhánh `docs/lo-trinh-cua-xem-cua-gop`, chưa gộp vào `onehub` lúc mở vòng).
+- Đính chính số đo 08/10: khối dữ liệu trên trang crm (`onehub` `c803963ef`, 3 lộ trình, 85 hàng)
+  nặng ≈ 34 KB (trang 59,5 KB → 93,8 KB), đo bằng chính bộ vẽ của vòng — không phải ≈ 19 KB như số
+  ước ở Cổng Đáng (ước trên một phần khoá). Số này không đổi kết luận: khối nằm trong tệp đã ngoài
+  vùng soi của lượt chấm.
+- Hai trang mẫu của hồ sơ đã ký (`viec-ke-theo-plan/mau/lo-trinh-crm-okr.html`,
+  `trang-lo-trinh-doc-mot-phut/mau/hai-lo-trinh.html` + `anh.json`) vẽ lại vì trang có thêm khối; hai
+  ảnh chụp lại giống từng byte ảnh cũ (phần nhìn thấy không đổi). Hai hồ sơ đó ghim lại ở chiến dịch
+  phát hành mốc mang vòng này.
+- **Thay thế một phần thước của hồ sơ đã ký:** ca LT-06 (`viec-ke-theo-plan`) và LT-94
+  (`trang-lo-trinh-doc-mot-phut`) đếm script chạy được thay vì mọi thẻ `<script` — khối dữ liệu của
+  vòng này không tính, khối thứ hai vẫn tính. Hợp đồng cũ đã ký, không sửa; dòng này là vết thay thế
+  (sổ quyết định của hồ sơ này, dòng `fix` ở S3).

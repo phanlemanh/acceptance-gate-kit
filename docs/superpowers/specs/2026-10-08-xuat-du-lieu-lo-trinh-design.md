@@ -28,7 +28,7 @@ vẽ nào mà trang và dữ liệu đi hai đường.
 **Phương án bị loại — tệp riêng `LO-TRINH.json` ở gốc kho.** Miễn trừ T1 của crm phủ `LO-TRINH.html`
 đích danh và `docs/**`; tệp mới ở gốc không được phủ → (1) bộ vẽ phải đòi kho thêm glob, tức sửa
 `_acceptance/config.yaml` và làm cũ hàng loạt hồ sơ; (2) tệp ngoài miễn trừ lọt vào vùng vật của lượt
-chấm, tác tử soi lỗi đọc nó mỗi lượt (≈ 19 KB trên crm); (3) phải thêm một phép so «tệp khớp trang».
+chấm, tác tử soi lỗi đọc nó mỗi lượt (≈ 34 KB trên crm, đo bằng bộ vẽ của vòng); (3) phải thêm một phép so «tệp khớp trang».
 Nhúng thì cả ba biến mất: không đổi cấu hình kho nào, trang đã ở ngoài vùng vật, `--check` so byte
 của trang là so luôn dữ liệu. Giá phải trả: bản chiếu rút khối khỏi HTML (một phép tìm theo `id` +
 `JSON.parse`), thay vì đọc thẳng một tệp JSON. Kho cần tệp riêng → bật thêm theo lựa chọn ở vòng sau

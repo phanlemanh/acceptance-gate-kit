@@ -12,6 +12,21 @@
 
 ## Chưa phát hành
 
+### Trang lộ trình mang sẵn dữ liệu máy đọc cho bản chiếu ngoài kho (hồ sơ `xuat-du-lieu-lo-trinh`, T2)
+
+Gốc: crm `_acceptance/cap-nhat-tuan-okr` — 23/48 tin chủ kho ở phiên điều phối OKR 23–26/09 là hỏi tiến
+độ; owner chốt 08/10 người không dùng git được XEM lộ trình (crm: hàng `LT1`, trang «Lộ trình» trong CRM).
+
+- `LO-TRINH.html` có thêm một khối `<script type="application/json" id="lo-trinh-du-lieu">` theo khuôn
+  `lo-trinh-du-lieu` phiên bản 1: mỗi lộ trình — hàng kế + lệnh mở, chỗ cần sửa, tiến độ, từng hàng
+  (trạng thái, nhóm tiến độ, hồ sơ nhận, cờ đã dịch, ý định của hàng), mốc, đã bác; cấp trang — hồ sơ
+  ngoài kế hoạch. Bộ đọc mẫu khoan dung `docDuLieu` trong `scripts/lo-trinh.mjs`.
+- Ai bị ảnh hưởng: kho đã khai `lo_trinh.tep` — trang đổi byte một lần (khối mới); phần người xem
+  không đổi. Kho không khai: không đổi gì.
+- Làm gì khi nâng: vẽ lại trang một lần (`node scripts/product-map.mjs --root .`) trong PR nâng kit,
+  nếu không `--check` đỏ «LO-TRINH.html lệch». Không sửa cấu hình. Bản chiếu đọc tài liệu
+  `skills/acceptance/references/lo-trinh-du-lieu.md`.
+
 ### Lượt chấm S4 không còn bị lệnh dài và eval nặng đốt (hồ sơ `lenh-dai-chay-rieng`, T2)
 
 Gốc: crm `_acceptance/tro-ly-okr-bo-final-output`, 07/10 — bốn lượt chấm mất vì hạ tầng kit: hai lượt
