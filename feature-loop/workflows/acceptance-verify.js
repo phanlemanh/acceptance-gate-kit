@@ -345,6 +345,13 @@ const HEAD_NGOAI_RE = /^##\s+Ngoài hợp đồng/
 const HEAD_RE = /^##\s+/
 const CUM_RE = /Cụm ngoài vùng phủ/
 const nhanCarry = c => ` (r${typeof c.fromRound === 'number' ? c.fromRound : '?'}${c.tepDoi === true ? ' · tệp đã đổi' : ''})`
+// Dòng tiêu đề mục: máy chèn nhãn TRONG sao, tác tử có thể viết NGOÀI sao (`- **t** (r1)`) — cả hai là CÙNG
+// một mục, nếu không thì bước chèn dưới đây in bản thứ hai. Khối giống từng ký tự với lib/out-of-contract.cjs
+// (bộ đọc thẻ) — ca DG2.
+// <<<OOC-TITLE-RE
+const OOC_TITLE_RE = /^-\s+\*\*(.+?)\*\*(?:\s+(\([rR](?:\d+|\?)(?:\s*[·,—–-][^()]*)?\)))?\s*$/
+// OOC-TITLE-RE>>>
+const tieuDeMuc = m => m[1] + (m[2] ? ' ' + m[2] : '')
 function dungMucCarry(c) {
   const khuon = OOC_ITEM_TEMPLATE.split('\n').slice(1, -1).join('\n')
   const v = { title: String(c.title || '') + nhanCarry(c), plain: c.plain || '', file: c.file || '', severity: c.severity || '', proposal: c.proposal || '' }
@@ -369,8 +376,8 @@ function chenMucCarry(text, carried) {
   const daCo = []
   let cur = null
   for (let i = dau + 1; i < het; i += 1) {
-    const t = /^-\s+\*\*(.+?)\*\*\s*$/.exec(dong[i])
-    if (t) { cur = { title: t[1], file: '' }; daCo.push(cur); continue }
+    const t = OOC_TITLE_RE.exec(dong[i])
+    if (t) { cur = { title: tieuDeMuc(t), file: '' }; daCo.push(cur); continue }
     const f = cur && /^\s+file\s*:\s*(.+?)\s*$/.exec(dong[i])
     if (f) cur.file = f[1].replace(/^`|`$/g, '').replace(/:\d+(-\d+)?$/, '')
   }
@@ -599,9 +606,14 @@ if (evalProblems.length) {
 
 // ---- Đợt 5 carry-forward (P1/P2/P3) — sanitize thuần; args thiếu → hành vi cũ y nguyên ----
 // P1: chỉ nhận carried cho eval máy/ui CÓ TRONG args.evals (định nghĩa eval giữ 1 nguồn duy nhất).
+// runId tác tử khai: bỏ khoảng trắng VÀ dấu nháy bao quanh trước khi tin. Tác tử trả chuỗi `""` (hai ký tự
+// nháy) thì bản trước coi là có giá trị → run-log ghi `"\"\""`, báo cáo ghi `run_id: ""` mà bên đọc bỏ nháy ra
+// rỗng rồi lặng lẽ bỏ qua (crm danh-sach-keo-chung r2: E3/E7/E12). Rỗng sau khi bỏ → đúc mã như khi vắng;
+// eval MANG SANG với run_id như thế thì KHÔNG mang (chạy lại) — run-log cũ của kho tiêu thụ đang chứa nó.
+const ridHopLe = v => String(v == null ? '' : v).trim().replace(/^["']+|["']+$/g, '').trim()
 const evalById = new Map(args.evals.map(e => [e.id, e]))
 const carriedEvals = (Array.isArray(args.carriedEvals) ? args.carriedEvals : []).filter(c =>
-  c && typeof c.id === 'string' && typeof c.runId === 'string' && c.runId
+  c && typeof c.id === 'string' && typeof c.runId === 'string' && ridHopLe(c.runId)
   && evalById.has(c.id) && evalById.get(c.id).executor !== 'judgment')
 const carriedEvalIds = new Set(carriedEvals.map(c => c.id))
 const runBaseline = args.runBaseline !== false // P2 — default true (tương thích ngược)
@@ -1215,7 +1227,7 @@ const tenDuyNhat = (cmd) => {
  *  không cứu được. Đếm TRƯỚC rồi mới gắn hậu tố cho MỌI thành viên của nhóm
  *  trùng (không phải "ai tới sau thì gắn"): mã khi đó không phụ thuộc thứ tự
  *  khai `suiteCommands`, đúng bất biến AC-2. */
-const ridTho = (m) => (m.runId && String(m.runId).trim()) || `minted-${args.slug}-SUITE-${tenDuyNhat(m.cmd)}-r${args.round}`
+const ridTho = (m) => ridHopLe(m.runId) || `minted-${args.slug}-SUITE-${tenDuyNhat(m.cmd)}-r${args.round}`
 const demRidSuite = Object.create(null)
 for (const m of machine) {
   if ((m.evals || []).length) continue
@@ -1239,7 +1251,7 @@ for (const m of machine) {
     continue
   }
   for (const evalId of (m.evals || [])) {
-    const rid = (m.runId && String(m.runId).trim()) || `minted-${args.slug}-${evalId}-r${args.round}`
+    const rid = ridHopLe(m.runId) || `minted-${args.slug}-${evalId}-r${args.round}`
     evalRunIds[evalId] = rid
     runLogLines.push(JSON.stringify({
       ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId, run_id: rid,

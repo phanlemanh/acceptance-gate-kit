@@ -1,0 +1,70 @@
+# Eval cho hồ sơ doc-ghi-troi-mang-sang-run-id.
+#
+# Một tệp ca: tests/workflows/doc-ghi-troi.test.mjs — nạp CHÍNH acceptance-verify.js qua harness (mục mang sang
+# do workflow chèn thật), CHÍNH lib/out-of-contract.cjs và lib/evidence-core.cjs, và chạy CHÍNH
+# scripts/recheck-evidence.cjs. Khuôn mục rút từ OOC-ITEM-TEMPLATE. Mỗi khoá ghim các ca của MỘT AC; mỗi AC có
+# đối chứng dương và chiều đỏ, thông điệp ghim. Đường dẫn suy từ vị trí tệp ca.
+schema_version: 1
+feature_slug: doc-ghi-troi-mang-sang-run-id
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.dgt_bo_doc_tieu_de
+    expected: >-
+      DG1 mười một dòng của bảng viết trước, mỗi dòng một assert: tám mục với tiêu đề chuẩn hoá (gồm biến thể
+      «(r1, tệp đã đổi)», «(r1 — tệp đổi)», «(R1)»); T6 (văn xuôi sau sao), T7 (ngoặc không phải nhãn), T11
+      («(từ r1)», giới hạn đã khai) không thành mục. DG1b đếm đúng 8.
+    paths: ["lib/out-of-contract.cjs", "tests/workflows/doc-ghi-troi.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.dgt_mot_bieu_thuc
+    expected: DG2 khối OOC-TITLE-RE rút được ở cả workflow và lib, giống nhau từng ký tự.
+    paths: ["lib/out-of-contract.cjs", "feature-loop/workflows/acceptance-verify.js", "tests/workflows/doc-ghi-troi.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.dgt_chen_mang_sang
+    expected: >-
+      DG3 tác tử đã in «- **Loi mang sang** (r1)» → findings chứa tên đó đúng một lần; DG3b bộ đọc thẻ đếm
+      «Loi mang sang (r1)». DG4 đối chứng: tác tử không in → máy chèn một bản, thẻ đọc được. DG5 chiều im: mục
+      tươi tên dài hơn không nuốt mục mang sang.
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/doc-ghi-troi.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.dgt_run_id_ben_viet
+    expected: >-
+      DR1 năm giá trị runId — bốn giá trị rỗng/chỉ nháy cho «minted-demo-E1-r2», «abc123» giữ nguyên. DR6 eval
+      carried runId `""` → chạy lại, dòng run-log minted, không carried_from_round; DR6b đối chứng runId thật →
+      mang sang, không chạy lại.
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/doc-ghi-troi.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.dgt_run_id_ben_doc
+    expected: >-
+      DR2 notes gọi tên E3 khi run_id ""; DR2b anyFailure bằng bản đủ; DR3 đối chứng bản đủ không ghi chú;
+      DR3b run_id trống trơn cũng gọi tên; DR4 recheck in «NOTE … run_id rỗng … E3», cùng mã thoát với bản đủ.
+    paths: ["lib/evidence-core.cjs", "scripts/recheck-evidence.cjs", "tests/workflows/doc-ghi-troi.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.dgt_dot_bien
+    expected: >-
+      DG6 bộ đọc thẻ về biểu thức cũ → «- **T2** (r1)» đếm 0 (đỏ). DG7 bước chèn của workflow về biểu thức cũ →
+      mục mang sang in 2 lần (đỏ). DR5 bên viết không bỏ nháy → run_id `""` lọt (đỏ). Kim khớp đúng một lần.
+    paths: ["lib/out-of-contract.cjs", "feature-loop/workflows/acceptance-verify.js", "tests/workflows/doc-ghi-troi.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: '"Results: all workflow tests passed".'
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
