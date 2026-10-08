@@ -14,6 +14,7 @@ flowchart TD
   GB --> DG["Đã giao<br/>97 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>11 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>6 việc"]
+  HS["Hồ sơ hỏng<br/>1 việc"]
 ```
 
 > **Bốn cổng người** — mỗi cổng là một câu hỏi chỉ người trả lời được:
@@ -220,3 +221,7 @@ flowchart TD
 - Miễn trừ `.github/**` và `.claude-plugin/plugin.json` khỏi `t1_skip_globs` — ĐÃ TỪ CHỐI (`.out-of-scope/t1-skip-globs-github-and-manifests.md`)
 - Đo-thước-của-thước sâu hơn MỘT tầng — PARK 30/08 («cắt đuôi, giữ lõi») (`.out-of-scope/thuoc-cua-thuoc-mot-tang.md`)
 - Thước sống theo đời model — BÁC 16/09/2026 (`.out-of-scope/thuoc-song-theo-doi-model.md`)
+
+## Hồ sơ hỏng
+
+- `baseline-tran-bo-qua-don` — không đọc được hồ sơ (`(workspace)`): không có contract.md lẫn opportunity.md
