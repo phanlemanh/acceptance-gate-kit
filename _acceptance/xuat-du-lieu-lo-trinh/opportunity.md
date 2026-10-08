@@ -3,10 +3,10 @@ schema_version: 1
 slug: xuat-du-lieu-lo-trinh
 feature: «Trang nào cũng vẽ được lộ trình của kho từ một tệp dữ liệu kit xuất sẵn — không trang nào phải tự tính trạng thái»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-08T08:22:48Z   # owner gõ «làm» một chạm trong phiên 08/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -74,10 +74,10 @@ nó — đó là ngưỡng chết bên dưới.
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ; bản chiếu không chứa luật suy trạng thái nào ngoài phép so ngày của mốc
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ» khi hết timebox; hoặc 21 ngày sau khi mốc mang X1 phát hành mà không bản chiếu nào đọc dữ liệu xuất (khi đó gỡ lối xuất); hoặc một kho không khai lộ trình thấy bất kỳ tệp nào đổi
-- Timebox: [đề xuất] 2026-10-23 (mốc Phát hành 2.27.0 — ca chập chờn, eval model thật, cắt lượt, xuất dữ liệu lộ trình (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)); ngưỡng SỐNG/CHẾT đọc 21 ngày sau ngày phát hành thật của mốc mang X1
+- Câu hỏi phép đo trả lời: đã đạt «Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ» chưa?
+- Kết quả nào là SỐNG: Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ; bản chiếu không chứa luật suy trạng thái nào ngoài phép so ngày của mốc
+- Kết quả nào là CHẾT: chưa đạt «Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ» khi hết timebox; hoặc 21 ngày sau khi mốc mang X1 phát hành mà không bản chiếu nào đọc dữ liệu xuất (khi đó gỡ lối xuất); hoặc một kho không khai lộ trình thấy bất kỳ tệp nào đổi
+- Timebox: 2026-10-23 (mốc Phát hành 2.27.0 — ca chập chờn, eval model thật, cắt lượt, xuất dữ liệu lộ trình (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)); ngưỡng SỐNG/CHẾT đọc 21 ngày sau ngày phát hành thật của mốc mang X1
 
 ## Kết quả prototype
 
@@ -96,12 +96,12 @@ Chưa dựng. Phép thử 1 chạy trên lớp phân tích sẵn có — không 
 
 ## Cổng 0
 
-- **decision = …** Máy khuyên **build**, hạng T2: một lối xuất dữ liệu từ lớp phân tích sẵn có, cùng
-  lượt vẽ với `LO-TRINH.html`, không lệnh mới, không đổi cấu hình kho, kho không khai lộ trình không
-  đổi byte nào. Nhịp: vòng dựng trên kit trước, nhưng **PR chỉ gộp sau khi cắt 2.26.0** để X1 đi đúng
-  mốc 2.27 — không đưa engine mới tới crm trước hạn cứng 14/10.
+- **decision = build** (Manh Phan, 08/10 — «làm» một chạm) hạng T2: một lối xuất dữ liệu từ lớp phân
+  tích sẵn có, cùng lượt vẽ với `LO-TRINH.html`, không lệnh mới, không đổi cấu hình kho, kho không
+  khai lộ trình không đổi byte nào. Nhịp: vòng dựng trên kit trước, nhưng **PR chỉ gộp sau khi cắt
+  2.26.0** để X1 đi đúng mốc 2.27 — không đưa engine mới tới crm trước hạn cứng 14/10.
 - **disposition = …** Không có prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng ở section Ngưỡng — người ký gỡ tiền tố đề xuất.
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng ở section Ngưỡng, giữ nguyên chữ, đã gỡ tiền tố.
 - **CỘNG (ADR 0018):** trace về nguyên tố 2 (bằng chứng không tự dối — một nguồn trạng thái thay vì
   mỗi bản chiếu tự tính) và khối ĐỊNH VỊ (bảng đồng hồ cho người không dùng git); người hưởng: trưởng
   phòng ban + đội sản phẩm crm qua `LT1`, chủ kho bớt câu hỏi tiến độ.
@@ -119,6 +119,11 @@ Chưa dựng. Phép thử 1 chạy trên lớp phân tích sẵn có — không 
   (đường đọc-cũ).
 - Bản chiếu không phải tính gì ngoài so ngày: dữ liệu mang sẵn trạng thái chữ, cờ đã giao, hồ sơ nhận,
   hàng kế, cờ, ngày mốc + hàng của mốc.
+
+- Bản xuất không làm phạm vi soi của lượt chấm nở ra và không làm cũ bằng chứng khi đóng cổng: trên
+  cấu hình hiện có của kho (crm phủ `LO-TRINH.html` đích danh), tệp đổi khi vẽ lại đều thuộc vùng
+  ngoài-vật — owner hỏi 08/10 «có tăng thời gian và token sau mỗi vòng không»; đo 08/10: bản xuất crm
+  ≈ 19 KB, phân tích 85 hàng ≈ 0,1 giây, 0 token.
 
 ## Out of scope từ khám phá
 
