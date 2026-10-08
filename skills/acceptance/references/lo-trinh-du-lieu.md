@@ -6,8 +6,8 @@
 
 ## Một nguồn, không tự tính
 
-Kho khai `lo_trinh.tep` thì mỗi lần bản đồ sản phẩm vẽ lại (đóng mỗi cổng nghiệm thu, hoặc
-`node scripts/product-map.mjs --root .`), kit vẽ `LO-TRINH.html` ở gốc kho. Từ kit 2.27 trang mang
+Kho khai `lo_trinh.tep` thì mỗi lần bản đồ sản phẩm vẽ lại (đóng mỗi cổng nghiệm thu, hoặc khi kho
+tự vẽ lại bản đồ), kit vẽ `LO-TRINH.html` ở gốc kho. Từ kit 2.27 trang mang
 thêm **một khối dữ liệu** vẽ cùng lượt, từ cùng kết quả phân tích:
 
 ```html
