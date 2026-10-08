@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e85f5e0db974fa76cf1b0098846ebd95d55aca1a
+verified_commit: 5fe5c2c51e762958e44cfdc4d04c5cff82ee0999
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -337,3 +337,7 @@ sha: 1185eb41fc82f1208952de15a2fbbcf00eaefd86 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 8 — 2026-10-06, do Cổng Giá trị 06/10 kéo hồ sơ vào diff; engine đổi từ 1185eb41 (2.22.0, 2.23.0)
 run_id: repin-20261006T134816Z-55610
 sha: e85f5e0db974fa76cf1b0098846ebd95d55aca1a · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14
+
+### Re-pin lần 9 — 2026-10-08, do trang lộ trình mang khối dữ liệu (xuat-du-lieu-lo-trinh) — trang mẫu vẽ lại, phần nhìn thấy không đổi
+run_id: repin-20261008T113359Z-84941
+sha: 5fe5c2c51e762958e44cfdc4d04c5cff82ee0999 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · diff chạm vật đo ngoài làn máy: E14 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-14
