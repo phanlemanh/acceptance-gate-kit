@@ -63,7 +63,7 @@ export function kiemPhu(pv, data) {
     if (n != null ? nhanDot.has(String(n)) : CO_TEP_DO.some(re => re.test(c))) loi.push(c); else canhBao.push(c);
   }
   const theoMa = new Map(hang.filter(r => r._ma).map(r => [r._ma, r]));
-  for (const r of dot) for (const x of (Array.isArray(r.dung_tren) ? r.dung_tren : []).map(chuoi)) if (!theoMa.has(x)) loi.push(`hàng ${r._nhan}: đứng trên mã không có: ${x}`);
+  for (const r of hang) for (const x of (Array.isArray(r.dung_tren) ? r.dung_tren : []).map(chuoi)) if (!theoMa.has(x)) (trongDot(r) ? loi : canhBao).push(`hàng ${r._nhan}: đứng trên mã không có: ${x}`);
   // Ngày: hàng đứng sau không sớm hơn hàng nó đứng trên; hàng gắn mốc không muộn hơn ngày mốc.
   const datNgay = (r, cau) => (trongDot(r) ? loi : canhBao).push(cau);
   for (const r of hang) {

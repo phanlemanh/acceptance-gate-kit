@@ -1710,7 +1710,7 @@ async function lt130(kit) {
   const dongMau = khoi.split('\n').find(l => l.startsWith('- `'));
   const CA = {
     'ma-trung': [khoi + dongMau + '\n', 'mã trùng trong bản phạm vi: A1'],
-    'thieu-gach': [khoi + '- `Z9` mô tả không có gạch\n', 'dòng sai khuôn'],
+    'thieu-gach': [khoi + '- `Z9` mô tả không có gạch\n', `dòng sai khuôn ${khoi.split('\n').length}: - \`Z9\` mô tả không có gạch`],
     'ma-rong': [khoi + '- `` — mô tả\n', 'dòng sai khuôn'],
     'dang-la': [khoi.replace('dang: chuoi', 'dang: khac'), 'dang «khac»'],
   };
@@ -1778,10 +1778,9 @@ async function lt133(kit) {
       const lt = LT_GOC(); if (!trong) lt.hang.push(H('R5', { dot: 'cu' }), H('R6', { dot: 'cu', dung_tren: ['R5'] }));
       const dich = trong ? 'R2' : 'R6'; sua(lt, dich, trong ? 'd1' : 'cu');
       const mong = M.LT.kiemKhuon(lt).co.filter(c => c.includes(`hàng ${dich}`) || c === `mã trùng: ${dich}`);
-      if (ten === 'dung-tren-khong-co' && trong) mong.push('hàng R2: đứng trên mã không có: Z');
+      if (ten === 'dung-tren-khong-co') mong.push(`hàng ${dich}: đứng trên mã không có: Z`);
       const x = rang(kit, khoCL({ pv, lt })); const nhom = trong ? 'lỗi: ' : 'cảnh báo: ';
       const ma = trong ? 1 : 0;
-      if (ten === 'dung-tren-khong-co' && !trong) { if (x.status !== 0) sai.push(`${ten} ngoài đợt: exit ${x.status} ${JSON.stringify(dongLoi(x))}`); continue; }
       if (!mong.length) { sai.push(`${ten} ${trong ? 'trong' : 'ngoài'} đợt: đối chứng — không có cờ mong đợi`); continue; }
       const thieu = mong.filter(c => !x.stdout.includes(nhom + c));
       if (x.status !== ma || thieu.length) sai.push(`${ten} ${trong ? 'trong' : 'ngoài'} đợt: exit ${x.status}, thiếu ${JSON.stringify(thieu)} — ${x.stdout.split('\n').filter(l => /^(lỗi|cảnh báo)/.test(l)).join(' | ').slice(0, 200)}`);
@@ -1878,13 +1877,19 @@ if (want('LT-136-do dinh-dang')) await chayDo('LT-136-do dinh-dang', lt136that, 
 // ── LT-137: răng không ghi gì ───────────────────────────────────────────────
 function chupCay(r) { const ra = {}; const di = d => { for (const e of readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) di(p); else ra[path.relative(r, p)] = sha(p); } }; di(r); return ra; }
 async function lt137(kit) {
-  const sai = []; const r = khoCL({ pv: vietPV({ dot: 'd1', ma: MA6 }), lt: LT_GOC() }); const truoc = chupCay(r);
-  rang(kit, r); const lt = LT_GOC(); lt.chan_troi = [];
+  const sai = []; const r = khoCL({ pv: vietPV({ dot: 'd1', ma: MA6 }), lt: LT_GOC() });
+  const doi = (a, b) => [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(f => a[f] !== b[f]);
+  // Lượt xanh: chụp trước/sau CHÍNH lượt đó.
+  const truoc = chupCay(r); const x = rang(kit, r); const sau1 = chupCay(r);
+  if (x.status !== 0) sai.push(`đối chứng: lượt xanh exit ${x.status}`);
+  const d1 = doi(truoc, sau1); if (d1.length) sai.push(`tệp đổi sau lượt xanh: ${d1.join(', ')}`);
+  // Lượt đỏ + nhịp trên cùng kho sau khi commit tệp lộ trình hỏng phủ.
+  const lt = LT_GOC(); lt.chan_troi = [];
   writeFileSync(path.join(r, 'docs', 'plan', 'lo-trinh.json'), JSON.stringify(lt)); git(r, 'commit', '-qam', 'do'); const truoc2 = chupCay(r);
-  rang(kit, r); chayCL(kit, r, ['--nhip']); const sau = chupCay(r);
-  if (deq(truoc, truoc2)) sai.push('đối chứng: commit ca đỏ không đổi cây');
-  const moi = Object.keys(sau).filter(f => truoc2[f] !== sau[f]);
-  if (moi.length) sai.push(`tệp đổi sau ba lượt: ${moi.join(', ')}`);
+  if (!doi(sau1, truoc2).length) sai.push('đối chứng: commit ca đỏ không đổi cây');
+  const y = rang(kit, r); chayCL(kit, r, ['--nhip']); const sau = chupCay(r);
+  if (y.status !== 1) sai.push(`đối chứng: lượt đỏ exit ${y.status}`);
+  const moi = doi(truoc2, sau); if (moi.length) sai.push(`tệp đổi sau lượt đỏ và nhịp: ${moi.join(', ')}`);
   if (git(r, 'status', '--porcelain', '--untracked-files=all')) sai.push(`git status: ${git(r, 'status', '--porcelain')}`);
   return sai;
 }
