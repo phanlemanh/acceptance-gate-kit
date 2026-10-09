@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 0aeef0c8259177b55b8b92f10b2b3921f81b81d7
+verified_commit: fa6f7eff2108f00fdf5f7e034a70674feec2edb9
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -345,3 +345,7 @@ sha: 5fe5c2c51e762958e44cfdc4d04c5cff82ee0999 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 10 — 2026-10-09, do gộp main sau mốc 2.25.0 (#286) vào nhánh #285
 run_id: repin-20261009T031359Z-34847
 sha: 0aeef0c8259177b55b8b92f10b2b3921f81b81d7 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14
+
+### Re-pin lần 11 — 2026-10-09, do gộp main sau #288 (ổ cắm lộ trình kit + P126) vào nhánh #285
+run_id: repin-20261009T034654Z-35291
+sha: fa6f7eff2108f00fdf5f7e034a70674feec2edb9 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14
