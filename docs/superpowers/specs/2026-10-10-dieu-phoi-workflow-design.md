@@ -278,7 +278,7 @@ ghi). Chế độ auto cho riêng phiên giám sát thì cột này về 0; đó
 
 | Hàng | Làm các mục | Tệp dựng |
 |---|---|---|
-| DP2 | §4.1, §4.4, §3 (trạng thái nháp, đang chạy, tạm dừng, đang đóng), khung `chan-doan`, lệnh `/dieu-phoi:xem`, các câu thường của §13 | `vai.json`, `dieu-khien.json` |
+| DP2 | §4.1, §4.4, §3 (trạng thái nháp, đang chạy, tạm dừng, đang đóng), khung `chan-doan`, lệnh `/dieu-phoi:xem`, các câu thường của §13, liên kết lộ trình §14 | `vai.json`, `dieu-khien.json` |
 | DP3 | §4.2, §5, §5.1, lệnh con ghi qua CLI (spec ô dù §2.3), `chan-doan` đủ mục | `song/` |
 | DP4 | §4.3, §4.5 (gồm mod đọc mức dùng ở §12.2), trạng thái ★, đồng hồ bàn giao trong bộ phát lịch, hook hạn mức | `ban-giao.json`, `ban-giao/lich-su/`, `han-muc.json` |
 | DP6 | §12: khung trạng thái đợt, chặn S4 bằng mod, tự bắt việc chờ người | — |
@@ -375,3 +375,45 @@ Anh không bao giờ gõ lệnh `node …` của CLI, không sửa tệp JSON n�
 
 Lệnh `/dieu-phoi:xem` là lệnh thứ năm. Nó chỉ đọc, nên nằm ở DP2; khi có lớp mod (DP6), nó thành lệnh của
 mod và trả lời không qua model.
+
+## 14. Liên kết với lộ trình của kit
+
+**Vấn đề, đo 10/10 trên crm.** Gói đợt `sau-14-10` lúc mở có 24 hàng, cả 24 là hàng của các tệp lộ
+trình crm, chép tay sang `hang-viec.json` kèm phần thi công (dãy, ranh giới tệp, ưu tiên, kiểu S4). Đợt
+đang chạy có 67 hàng; 21 hàng sinh giữa đợt (sửa nóng, «mở hợp đồng mới», việc phụ) không có trong lộ
+trình nào. Một mã (`V2`) trùng ở hai tệp lộ trình. Lộ trình và đợt đang là hai nguồn của cùng một danh
+sách hàng, và chúng trôi khỏi nhau.
+
+**Nguyên tắc: lộ trình là KẾ HOẠCH (git, ý định của anh); đợt là MỘT LÁT THI CÔNG của kế hoạch (máy,
+ngắn hạn).** Mỗi thứ chỉ có một nguồn:
+
+| Thứ | Nguồn duy nhất | Bên kia làm gì |
+|---|---|---|
+| Hàng: mã, câu giao, slug, phụ thuộc, mốc | tệp lộ trình | Đợt đọc theo mã, không chép |
+| Phần thi công: dãy, ưu tiên trong đợt, ranh giới tệp, kiểu S4 | `hang-viec.json` của đợt, theo mã hàng | Lộ trình không biết |
+| Trạng thái hàng (chưa mở · đang làm · đã giao) | hồ sơ `_acceptance/`, suy bằng MỘT hàm của kit (bộ phân tích lộ trình) | Bộ phát lịch gọi chính hàm đó, không tự suy (thay 05/10 §4.6) |
+| Ai đang giữ khoá, dãy nào đang chạy | thư mục đợt (máy) | Không vào git, không vào `LO-TRINH.html` |
+
+**Năm chỗ nối:**
+1. **Mở đợt từ lộ trình.** Gói đợt khai nguồn hàng: một mốc (`--moc 2026-10-25` lấy mọi hàng của mốc đó),
+   hoặc một danh sách mã, viết `<tệp>:<mã>` khi kho có nhiều lộ trình (cùng mẫu với lệnh mở hàng ở S0
+   của feature-loop). `hang-viec.json` chỉ còn phần thi công theo mã. Kho chưa có lộ trình (như OneFlow
+   hôm nay) vẫn khai hàng tay như crm: đây là lựa chọn bật thêm, không đổi mặc định của kho nào.
+2. **Cổng Đáng của cả lát ở thẻ khởi tạo.** Thẻ khởi tạo liệt kê các hàng của đợt chưa có ô cơ hội đã ký.
+   Một chữ «duyệt» ở thẻ là «build» cho đúng các hàng đó (tiền lệ luật 16 của đợt crm). Máy mở ô cơ hội
+   cho từng hàng bằng bộ ghi sẵn có (`lo-trinh.mjs --mo-o`), ô mang `lo_trinh_ma`. Dòng `Gốc:` của ô lấy
+   từ `vi_sao` của hàng, nên mọi ô đều có neo ngoài.
+3. **Một hàm trạng thái.** Bộ phát lịch và `LO-TRINH.html` suy trạng thái hàng bằng cùng một hàm, nên bảng
+   của đợt và trang lộ trình không bao giờ nói khác nhau về cùng một hàng.
+4. **Hàng phát sinh giữa đợt quay về lộ trình.** Hàng mới trong đợt (loại yêu cầu `hang-moi`, sửa nóng) chạy
+   ngay trong đợt. Thẻ đóng đợt liệt kê chúng kèm khuyến nghị «ghi vào lộ trình» hoặc «không». Một chạm ở
+   thẻ đóng; máy mở một PR sửa tệp lộ trình. Kit vẫn không tự ghi tệp ý định ngoài PR có người gộp.
+5. **Đổi thứ tự có hai cấp.** «Đẩy K3 lên trước K2» trong đợt chỉ đổi ưu tiên trong `hang-viec.json` (lớp
+   phủ của đợt, ghi Nhật ký). Muốn đổi kế hoạch lâu dài (dời hàng sang mốc khác) thì đó là PR vào tệp lộ
+   trình. Thẻ đóng đợt hỏi một lần: «đưa các lớp phủ ưu tiên vào lộ trình không?».
+
+**Chia việc:** chỗ nối 1, 2, 3 vào DP2 (khoá bật thêm `nguon_hang` trong gói đợt; thiếu khoá thì đọc hàng
+tay như cũ). Chỗ nối 4, 5 vào thẻ đóng đợt của DP2. Không mở hàng mới.
+
+**Cũng là phép thử của chính kit:** các hàng DP1–DP6 đã nằm trên lộ trình kit. Khi gói xong, chính vòng
+này chạy được thành một đợt của kit, với nguồn hàng là mốc 25/10.

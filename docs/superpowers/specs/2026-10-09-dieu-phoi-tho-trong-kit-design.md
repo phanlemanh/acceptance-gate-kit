@@ -131,8 +131,8 @@ Ngưỡng nghiệm thu nằm ở ô dù và được đọc khi đợt thử One
 
 Giữ nguyên mục «Out of scope» của ô. Thêm hai điều:
 - Hệ điều hành ngoài macOS.
-- Tự sinh hàng việc từ lộ trình hay bản phạm vi của kho. Đây là ứng viên cho DP2, chỉ làm nếu nó rẻ
-  hơn tệp tay trên đợt thử OneFlow.
+- ~~Tự sinh hàng việc từ lộ trình~~ — đưa vào DP2 ngày 10/10 dưới dạng bật thêm (workflow §14): đo crm
+  cho thấy 24/24 hàng lúc mở đợt là hàng lộ trình chép tay.
 
 ### 6. Giới hạn đã khai, kèm ngưỡng đang đếm
 
