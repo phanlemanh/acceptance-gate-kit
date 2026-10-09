@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs (mới) + scripts/lo-trinh.mjs + skills/cat-luot (mới) + references + CONTEXT/GUIDE/CHANGELOG + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-08-lo-trinh-cat-luot-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -97,3 +97,15 @@ yêu cầu truy về đúng một hạng mục]`; `[NGÀNH: Shape Up — bàn c�
   (`feature-loop/workflows/acceptance-verify.js`, `docRid`: chuẩn hoá theo đúng luật bên đọc, mã chỉ có
   nháy thì máy đúc mã) kèm ca khứ hồi W-RID có chiều đỏ (`tests/workflows/acceptance-verify.test.mjs`),
   rồi chấm lượt 3. Không AC nào của hợp đồng phủ phần sửa này — nó đi PR cùng vòng, ghi trong mô tả PR.
+- **Known limits (Cổng Bằng chứng sau lượt chấm 4, ký 09/10 — thẻ đánh số lại, khối trên giữ số cũ):**
+  Trong hợp đồng t7 (AC-6): LT-135 chỉ dựng ca hàng đứng trên thiếu ngày, ca này im theo cấu tạo; ca
+  hàng đứng sau thiếu ngày chưa có — lớp hình dạng 5 lần thứ ba, owner ký thay vì mở lượt 5 ·
+  Ngoài-1: hai hồ sơ đã ký có trang mẫu vẽ lại (trang-lo-trinh-doc-mot-phut, viec-ke-theo-plan) hoá cũ —
+  ghim lại trong PR · Ngoài-2: `--nhip` coi mọi `human_signoff` khác rỗng là đã ký, không qua
+  `chuKyThat` (chữ giữ chỗ «pending» bị tính) · Ngoài-3: SKILL cắt lượt trỏ khuôn bằng đường tương đối
+  với kho kit, không mở được ở kho tiêu thụ · Ngoài-4: `docRid` chép lại `chuanHoa` trong cùng tệp —
+  chấp nhận, không sửa · Ngoài-5: hàng ghi ngày sai khuôn bị bỏ qua lặng lẽ khi kiểm ngày · Ngoài-6:
+  trùng Ngoài-13 · Ngoài-7: LT-136-do ghim «bo_qua» có trong mọi thông điệp lỗi kho-thật · Ngoài-8:
+  đường mang kết quả cũ giữ mã `""` của E13, bộ đọc bỏ qua lặng lẽ · Ngoài-9: W-RID không phủ nhánh cắt
+  đuôi ` # …` của luật bên đọc · Ngoài-10…14: năm mục khối trên (cũ Ngoài-1…5), định tuyến giữ nguyên.
+  Lượt chấm 4 vượt trần ba lượt một lần, theo lời owner.
