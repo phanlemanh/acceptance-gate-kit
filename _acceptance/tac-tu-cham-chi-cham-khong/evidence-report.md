@@ -82,7 +82,6 @@ human_signoff:
 - eval: E7
   judged_by: judge panel (fresh context) — đề xuất panel 3 lens: domain-correctness, operational-feasibility, spec-alignment
   verdict: PASS
-  verifier: config:executors.judgment
   verified_at: 2026-10-09T15:38:41Z
   rationale: |
     Hội đồng đề xuất PASS, 3/3 lens PASS, không có phiếu bất đồng.
