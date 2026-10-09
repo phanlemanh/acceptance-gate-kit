@@ -422,16 +422,22 @@ function cauCam() {
   // Câu cấm của base: mệnh đề TUYET DOI KHONG … screenshot … carried — rút từ chính tệp base.
   return [...src.matchAll(/TUYET DOI KHONG ghi screenshot:\/observed: cho block carried[^:]*?\)/g)].map(m => m[0]);
 }
-function kiemAC10(may) {
+const CL_THAT = () => fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
+const SO_MOC = () => JSON.parse(git(ROOT, 'show', `${MOC_TRUOC}:.claude-plugin/plugin.json`)).version;
+const reMucMoc = (so) => new RegExp(`\\n## \\[?${so.replace(/\./g, '\\.')}\\b`);
+function kiemAC10(may, cl = CL_THAT()) {
   const loi = [];
   const cam = cauCam();
   const wf = fs.readFileSync(path.join(may, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
   for (const c of cam) if (wf.includes(c)) loi.push(`prompt còn câu cấm: «${c}»`);
   const skill = fs.readFileSync(path.join(may, 'feature-loop', 'skills', 'feature-loop', 'SKILL.md'), 'utf8');
   if (!skill.includes('(r<N> · tệp đã đổi)')) loi.push('SKILL thiếu nhãn «(r<N> · tệp đã đổi)» ở đoạn T5');
-  const cl = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf8');
-  const chuaPhatHanh = cl.split(/\n## /).find(s => /^\[?Unreleased|^\[?Chưa phát hành/i.test(s)) || '';
-  if (!chuaPhatHanh.includes('don-okr-nhap-sai')) loi.push('CHANGELOG mục chưa phát hành không nêu gốc don-okr-nhap-sai');
+  // Phần CHANGELOG MỚI HƠN mốc gốc: từ đầu tệp tới mục của số ở MOC_TRUOC — gồm «Chưa phát hành»
+  // lẫn mục của mốc mang vòng này. Ghim riêng «Chưa phát hành» là thước nổ ở lần cắt số kế tiếp.
+  const soMoc = SO_MOC();
+  const iMoc = cl.search(reMucMoc(soMoc));
+  if (iMoc < 0) loi.push(`CHANGELOG không có mục của mốc gốc ${soMoc}`);
+  else if (!cl.slice(0, iMoc).includes('don-okr-nhap-sai')) loi.push(`CHANGELOG phần mới hơn ${soMoc} không nêu gốc don-okr-nhap-sai`);
   return loi;
 }
 test('AC-10', 'lời: câu cấm chép khung gỡ khỏi prompt, SKILL nêu nhãn tệp đổi, CHANGELOG nêu gốc', () => {
@@ -442,7 +448,14 @@ test('AC-10', 'lời: câu cấm chép khung gỡ khỏi prompt, SKILL nêu nhã
   const sao = banSao('feature-loop/workflows/acceptance-verify.js', '// <<<OOC-PROPOSAL-VALUES', `// ${cam[0]}\n// <<<OOC-PROPOSAL-VALUES`);
   const loi = kiemAC10(sao);
   if (!coThongDiep(loi, 'prompt còn câu cấm')) throw new Error(`chiều đỏ không đỏ đúng câu: ${loi.join(' · ') || '(xanh)'}`);
-  return `rút ${cam.length} câu từ base: «${cam[0]}» — vắng ở bản mới; bản sao còn câu đỏ`;
+  // Chiều đỏ của vế CHANGELOG — hai bản tiêm trên chữ thật, mỗi bản phải KHÁC bản gốc rồi mới tin đỏ.
+  const that = CL_THAT(), so = SO_MOC();
+  const matGoc = that.split('don-okr-nhap-sai').join('don-okr-x');
+  const matMuc = that.replace(reMucMoc(so), '\n## mục-đã-đổi-tên');
+  if (matGoc === that || matMuc === that) throw new Error('đối chứng dương hỏng: chuỗi tiêm không đổi được CHANGELOG');
+  if (!coThongDiep(kiemAC10(ROOT, matGoc), `CHANGELOG phần mới hơn ${so} không nêu gốc don-okr-nhap-sai`)) throw new Error('chiều đỏ vế CHANGELOG (mất gốc) không đỏ đúng câu');
+  if (!coThongDiep(kiemAC10(ROOT, matMuc), `CHANGELOG không có mục của mốc gốc ${so}`)) throw new Error('chiều đỏ vế CHANGELOG (mất mục mốc) không đỏ đúng câu');
+  return `rút ${cam.length} câu từ base: «${cam[0]}» — vắng ở bản mới; bản sao còn câu đỏ; CHANGELOG mất gốc / mất mục ${so} → đỏ đúng câu`;
 });
 
 // ── chạy ─────────────────────────────────────────────────────────────────────

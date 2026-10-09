@@ -54,6 +54,11 @@ executors:
     lo_trinh: "node tests/scripts/lo-trinh.test.mjs"
     # Đo trang lộ trình trên Chrome thật (CDP) — thiếu Chrome thì ĐỎ nêu tên, không bỏ qua.
     lo_trinh_trang: "node tests/scripts/xem-trang-lo-trinh.test.mjs"
+    # Mốc 2.25.0: vùng 3 GIỮ các dòng P200 (vế + chiều đỏ) trong bằng chứng — ba mốc 2.22 → 2.24
+    # chấm số phiên bản trên dòng mà bộ lọc FAIL|Results của plugins_vung_3 cắt mất (Known
+    # limit Ngoài-1 lặp ba lần). Gộp thành MỘT dòng vì workflow lượt chấm chỉ giữ ba dòng cuối
+    # (gồm dòng __EXIT) của lệnh xanh khi viết báo cáo (lượt chấm 2 của release-2-25-0 bắt).
+    rel2250_vung_3_p200: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:|P200 (VE|OK)|[[]chieu do]\" | tail -n 60 | paste -sd\"|\" -'"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
@@ -525,6 +530,9 @@ executors:
     # Mốc 2.24.0 — cửa sổ v2.23.0 (8344fa92) → HEAD.
     rel2240_cua_so: bash scripts/rel-cua-so.sh 8344fa92 eval-thay-boi-co-chung loc-paths-dong-mac-dinh
     rel2240_dd_giu: "bash -c 'c=$(git show 8344fa92:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 8344fa92 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    # Mốc 2.25.0 — cửa sổ v2.24.0 (9d1ae527) → HEAD.
+    rel2250_cua_so: bash scripts/rel-cua-so.sh 9d1ae527 lenh-dai-chay-rieng luot-sua-giu-du-dem-dung
+    rel2250_dd_giu: "bash -c 'c=$(git show 9d1ae527:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 9d1ae527 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu
