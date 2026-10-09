@@ -5,7 +5,7 @@ slug: release-2-26-0
 owner: phanlemanh@gmail.com
 risk_tier: T2               # vật chạm: 2 manifest + dòng khớp-phiên-bản của GUIDE + CHANGELOG + workspace hồ sơ + bản đồ + 2 khoá executor — KHÔNG dính t3_paths, KHÔNG đổi một dòng mã cổng
 surfaces: [cli]
-status: verified
+status: machine-cleared
 approved_by:
 approved_at:
 veto_state: mo
