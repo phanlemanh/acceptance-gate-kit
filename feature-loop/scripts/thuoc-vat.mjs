@@ -33,6 +33,7 @@ import { phanLoai, DO_GLOBS } from './lib/phan-loai.mjs';
 import { chupThuoc, soThuoc } from './chup-ho-so-da-thong.mjs';
 import { globToRe } from './carry-plan.mjs';
 import { soCay, dongCayDoi } from './lib/cay-doi.mjs';
+import { timTranscript, docTranscript, quyTrachNhiem, hoanLai, dongGhiBoi } from './lib/ghi-boi.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SELF = fileURLToPath(import.meta.url);
@@ -215,10 +216,10 @@ const isMain = (() => {
 })();
 
 if (isMain) {
-  const USAGE = 'usage: thuoc-vat.mjs --root <repo> --slug <slug> [--ag-root <dir>] [--args <s4-args.json>] [--json] [--write] [--giua-hai-luot] [--target <sha>]';
+  const USAGE = 'usage: thuoc-vat.mjs --root <repo> --slug <slug> [--ag-root <dir>] [--args <s4-args.json>] [--json] [--write] [--giua-hai-luot] [--target <sha>] [--transcript <thư mục wf_…>]…';
   const die = (msg, code = 2) => { console.error(`thuoc-vat: ${msg}`); process.exit(code); };
   const BOOL = new Set(['json', 'write', 'giua-hai-luot']);
-  const VAL = new Set(['root', 'slug', 'ag-root', 'target', 'args']);
+  const VAL = new Set(['root', 'slug', 'ag-root', 'target', 'args', 'transcript']);
   const flags = {};
   {
     const argv = process.argv.slice(2);
@@ -229,7 +230,9 @@ if (isMain) {
       if (BOOL.has(name)) { flags[name] = true; continue; }
       if (!VAL.has(name)) die(`cờ không nhận diện được: ${tok}\n${USAGE}`);
       if (argv[i + 1] === undefined || argv[i + 1].startsWith('--')) die(`cờ ${tok} thiếu giá trị\n${USAGE}`);
-      flags[name] = argv[i + 1]; i += 1;
+      if (name === 'transcript') (flags.transcript = flags.transcript || []).push(argv[i + 1]);
+      else flags[name] = argv[i + 1];
+      i += 1;
     }
   }
   if (!flags.root || !flags.slug) die(`thiếu --root hoặc --slug\n${USAGE}`);
@@ -358,6 +361,22 @@ if (isMain) {
         catch (e) { die(String(e.message)); }
         fs.appendFileSync(runLogPath, dc + '\n');
         console.error('thuoc-vat: cay doi trong luot cham — luot nay khong dung duoc; hoan lai roi cham lai cung round');
+        // Ai đã ghi (hồ sơ tac-tu-cham-chi-cham-khong): ĐÚNG MỘT dòng ghi-boi ngay sau mỗi dòng cay-doi.
+        {
+          const dirs = flags.transcript && flags.transcript.length
+            ? flags.transcript.map(x => path.resolve(x)).filter(x => fs.existsSync(x))
+            : timTranscript({ roots: [...new Set([root, path.resolve(flags.root)])], slug, invokedAt: argsTep.invokedAt });
+          const khongDocDuoc = dirs.length ? null : 'khong tim thay transcript cua luot';
+          const quy = khongDocDuoc ? { tac_tu: [], tep_khong_ro: so.tep.map(x => x.tep).sort() } : quyTrachNhiem({ root, tep: so.tep, tacTu: docTranscript(dirs) });
+          const hoan = hoanLai({ root, sha: cay.sha, ban: cay.ban || {}, tep: so.tep, quy, khongDocDuoc });
+          let dg;
+          try { dg = dongGhiBoi({ ts, round: Number.isInteger(argsTep.round) ? argsTep.round : round, luotTs: argsTep.invokedAt, sha: cay.sha, quy, hoan, khongDocDuoc }); }
+          catch (e) { die(String(e.message)); }
+          fs.appendFileSync(runLogPath, dg + '\n');
+          for (const t of quy.tac_tu) console.error(`  tac tu cham ${t.id} (${t.vai || 'khong nhan'}) ghi: ${t.tep.join(', ')} — ${t.cong_cu.join(', ')}`);
+          if (hoan.hoan_lai) console.error('thuoc-vat: da hoan lai — sinh args lai cung round');
+          else console.error(`thuoc-vat: khong tu hoan lai — ${hoan.ly_do}`);
+        }
         for (const x of so.tep) console.error(`  ${x.doi}: ${x.tep}`);
         if (so.commit.length) console.error(`  commit: ${so.commit.join(', ')}`);
         if (!maThoat) maThoat = 6;
