@@ -213,8 +213,8 @@ console.log('DR bên đọc: khối eval khai run_id rỗng → ghi chú có tê
 
 console.log('DR đột biến: bên viết không bỏ nháy → chuỗi `""` lọt thành run_id');
 {
-  const KIM = 'const ridHopLe = v => String(v == null ? \'\' : v).trim().replace(/^["\']+|["\']+$/g, \'\').trim()';
-  const mut = SRC.replace(KIM, 'const ridHopLe = v => String(v == null ? \'\' : v).trim()');
+  const KIM = "const docRid = (v) => String(v == null ? '' : v).replace(/\\s+#.*$/, '').trim().replace(/^[\"']+|[\"']+$/g, '').trim()";
+  const mut = SRC.replace(KIM, "const docRid = (v) => String(v == null ? '' : v).trim()");
   const { result } = await runWorkflow(WF, args(), responder({ machine: { exitCode: 0, outputTail: 'ok\n__EXIT=0', runId: '""', cannotRun: false } }), mut);
   const got = (result.runLog.map(l => JSON.parse(l)).find(o => o.evalId === 'E1') || {}).run_id;
   check('DR5 đột biến (không bỏ nháy) → run_id `""` lọt (đỏ)', soLan(SRC, KIM) === 1 && got === '""', String(got));

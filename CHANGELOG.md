@@ -28,6 +28,58 @@ Báo cáo PASS mang `run_id: ""` mà kiểm lại vẫn qua.
   ký, nên đọc sổ quyết định cũ theo tiêu đề, không theo số. Kho nào ghim `routing-baseline` thì sinh lại dòng
   của hồ sơ đó. Eval mang sang với `run_id` rỗng sẽ chạy lại thay vì được mang.
 
+### Cắt lượt: bản phạm vi thành hàng lộ trình, răng phủ «mỗi mã ở đúng một chỗ» (hồ sơ `lo-trinh-cat-luot`, T2)
+
+Gốc: crm `_acceptance/khung-okr-truoc-r1` — lộ trình OKR 32 → 62 hàng trong ba ngày, hai lượt cắt tay
+một buổi sáng 04/10, bảng phủ chép tay đã cũ, bản phạm vi không có trong git.
+
+- Skill mới `cat-luot`: bản phạm vi (hoặc Core của quét hình thái) → hàng + chân trời theo sáu luật, hai
+  dáng `chuoi` · `lan-va`; ghi hàng → chạy răng → xanh mới mở PR.
+- `scripts/cat-luot.mjs` (chỉ đọc): răng phủ theo đợt (`dot`), chân trời có lý do, khuôn và ngày/mốc của
+  hàng cùng đợt; `--nhip` đo nhịp theo hạng từ hồ sơ đã ký. Khuôn mới `pham-vi-template.md`; khuôn lộ
+  trình thêm `dot`, `phu`, `chan_troi`; `kiemKhuon` cờ khi `phu`/`chan_troi` sai kiểu.
+- Trang lộ trình: hàng có hồ sơ mang dòng «bước kế: …» suy từ ô bản đồ (phần sửa lát 1 sau phiên nghiệm
+  thu 06/10). Kho không khai lộ trình, và kho không hàng nào có hồ sơ: không đổi byte nào.
+- Ai bị ảnh hưởng: kho đã khai `lo_trinh.tep` — trang đổi ở hàng có hồ sơ; vẽ lại một lần khi nâng kit.
+- Sửa kèm (owner gọi tên ở Cổng Bằng chứng 09/10, ngoài phạm vi đã duyệt): lượt chấm S4 chuẩn hoá mã
+  lượt chạy tác tử khai theo đúng luật bên đọc bằng chứng trước khi ghi nhật ký. Tác tử từng trả nguyên
+  hai dấu nháy `""`; nhật ký chép nguyên, bên đọc bỏ nháy, hai lệnh cùng trả thế thì chữ ký bị lưới chặn
+  oan. Nay mã chỉ có dấu nháy → máy tự đúc mã. Mọi kho: chỉ đổi lượt chấm mới; hồ sơ cũ không đổi.
+
+### Trang lộ trình mang sẵn dữ liệu máy đọc cho bản chiếu ngoài kho (hồ sơ `xuat-du-lieu-lo-trinh`, T2)
+
+Gốc: crm `_acceptance/cap-nhat-tuan-okr` — 23/48 tin chủ kho ở phiên điều phối OKR 23–26/09 là hỏi tiến
+độ; owner chốt 08/10 người không dùng git được XEM lộ trình (crm: hàng `LT1`, trang «Lộ trình» trong CRM).
+
+- `LO-TRINH.html` có thêm một khối `<script type="application/json" id="lo-trinh-du-lieu">` theo khuôn
+  `lo-trinh-du-lieu` phiên bản 1: mỗi lộ trình — hàng kế + lệnh mở, chỗ cần sửa, tiến độ, từng hàng
+  (trạng thái, nhóm tiến độ, hồ sơ nhận, cờ đã dịch, ý định của hàng), mốc, đã bác; cấp trang — hồ sơ
+  ngoài kế hoạch. Bộ đọc mẫu khoan dung `docDuLieu` trong `scripts/lo-trinh.mjs`.
+- Ai bị ảnh hưởng: kho đã khai `lo_trinh.tep` — trang đổi byte một lần (khối mới); phần người xem
+  không đổi. Kho không khai: không đổi gì.
+- Làm gì khi nâng: vẽ lại trang một lần (`node scripts/product-map.mjs --root .`) trong PR nâng kit,
+  nếu không `--check` đỏ «LO-TRINH.html lệch». Không sửa cấu hình. Bản chiếu đọc tài liệu
+  `skills/acceptance/references/lo-trinh-du-lieu.md`.
+
+## 2.25.0 — 09/10/2026
+
+Cửa sổ 2.24.0 → 2.25.0 nằm trong **ba ngày** (07–09/10), có **hai vòng** được ký cùng ngày 07/10:
+`luot-sua-giu-du-dem-dung` (T2, PR #278) và `lenh-dai-chay-rieng` (T2, PR #279). Ngoài hồ sơ: lộ trình
+của kit `docs/plans/lo-trinh-kit.json` (#281, #282, chỉ tài liệu) và ô Cổng Đáng `xuat-du-lieu-lo-trinh`
+(#283, chỉ hồ sơ — vật của nó, PR #285, CỐ Ý để sang mốc sau). Kho chờ nhận là `crm`, neo ở hai hồ sơ crm:
+`tro-ly-okr-bo-final-output` (bốn lượt chấm đốt bởi hạ tầng kit) và `don-okr-nhap-sai` (lượt sửa làm rụng
+ba mục ngoài hợp đồng); `crm/docs/plan/dot-sau-14-10/README.md` ghi «gộp và cài cùng phiên bản trước khi
+mở đợt». Mốc đi **làn V**, không dựng răng mới. Hai gói cùng lên `2.25.0`; `diagram-design` giữ `2.7.1`.
+Tag `v2.25.0` gắn tại commit đóng hồ sơ mốc sau khi gộp.
+
+**Vì sao 2.25.0, không 2.24.1:** một khoá eval mới (`long_running`) và thứ tự chạy mới cho eval trong
+`feature_loop.model_evals` — hành vi mới ở lượt chấm.
+
+**Lớp chép CI KHÔNG đổi** — không tệp nào trong INIT-CI-COPY-LIST đổi từ 2.24.0 (danh sách vẫn 17 tệp);
+diff engine của cửa sổ chỉ ở `feature-loop/` (workflow lượt chấm, `s4-args`, `carry-plan`, `thuoc-vat`,
+`lan-khoa`, SKILL), hai tài liệu tham chiếu của `skills/acceptance/` và một dòng chú thích khuôn của
+`acceptance-init`.
+
 ### Lượt chấm S4 không còn bị lệnh dài và eval nặng đốt (hồ sơ `lenh-dai-chay-rieng`, T2)
 
 Gốc: crm `_acceptance/tro-ly-okr-bo-final-output`, 07/10 — bốn lượt chấm mất vì hạ tầng kit: hai lượt
@@ -76,6 +128,72 @@ trên dữ liệu crm.
   args đời cũ (không trường khung, không `tepDoi`) chạy y như trước.
 - **Giới hạn đã khai:** tệp mà cả vòng lẫn nền cùng sửa được đếm bằng cộng từng commit của vòng thay vì
   số ròng (git 2.37 chưa có `merge-tree --write-tree`) — một dòng thêm rồi xoá trong vòng đếm hai lần.
+
+**Kho tiêu thụ làm gì khi nhận:**
+
+- **Lớp chép CI: không chép gì** — 17 tệp giữ nguyên như 2.24.0.
+- **Máy dev:** cài lại plugin ở MỌI phạm vi trên mỗi máy có phiên của kho, kiểm từng bản ghi cây phụ.
+- **crm, theo thứ tự:**
+  1. **Khi nào cài:** SAU hạn cứng 14/10 của đợt đang chạy, TRƯỚC khi mở hàng đầu tiên của đợt
+     `sau-14-10` (`crm/docs/plan/dot-sau-14-10/README.md`: «gộp và cài cùng phiên bản trước khi mở đợt»).
+     Không đổi engine dưới chân một vòng đang chạy tới hạn.
+  2. Khai `long_running: 45` cho `tro-ly-okr-bo-final-output/E6` và `E7` (và mọi eval gọi model chạy dài
+     khác). E6/E7 đã có trong `feature_loop.model_evals` nên tự chạy riêng sau suite — không khai thêm.
+  3. **Đo trước → sau trên crm** khi nhận (tiền lệ `docs/findings/2026-09-23-nang-sau-kho-len-2-18-1.md`):
+     trên cùng một cây, chạy lưới trước-merge và thẻ của các hồ sơ đang mở dưới 2.24.0 rồi 2.25.0 —
+     phán quyết từng hồ sơ phải bằng nhau. Mốc này không đổi lưới trước-merge nên khác nhau ở đâu là
+     tín hiệu cần đọc, không phải hành vi mới được hứa.
+
+**Giới hạn đã khai** (owner định tuyến ở Cổng Bằng chứng 07/10 — đủ ở hai hợp đồng, hai design doc và
+`docs/research/known-limits-ledger.tsv`):
+
+- `luot-sua-giu-du-dem-dung` (1 mục + 1 hạt giống): `s4-args` tự kiểm «mô tả khung đủ dài» bằng luật
+  riêng (≥ 20 ký tự) thay vì luật của bộ kiểm bằng chứng — dòng mẫu chưa điền được mang sang rồi bị chặn
+  rõ ở bước kiểm, không kết quả sai nào lọt · tệp mà cả vòng lẫn nền cùng sửa đếm bằng cộng commit thay
+  vì số ròng. Ba mục mở hợp đồng mới ghi hạt giống `docs/plans/2026-10-07-hat-giong-carry-finding-sau-luot-sua.md`.
+- `lenh-dai-chay-rieng` (2 mục ở Cổng Bằng chứng + phần thu phạm vi sau lượt 4): lượt chấm bị cắt ngang
+  khi lệnh dài còn chạy thì lệnh của lượt cũ chạy chồng lượt mới (kết quả không lẫn — nhãn lượt) · ca đo
+  nhận tiến trình mẫu theo dòng lệnh, có thể giết nhầm mẫu của bản tệp ca chạy song song · ca đo đọc mọi
+  lỗi `ps` thành «đã chết». Thêm từ design doc: suite chưa khai được `long_running` (vẫn chia mảnh) ·
+  ui-check và baseline không chạy riêng · bộ đọc `paths` của carry-plan chỉ nhận dạng một dòng `[...]`
+  (dạng khối → chạy lại toàn bộ, phía an toàn) · chưa có ca tự động dưới zsh.
+- **Một ca đo của cửa sổ ghim vào mục «Chưa phát hành» của tệp này** (AC-10 của `luot-sua-giu-du-dem-dung`)
+  — sẽ đỏ ngay ở lần cắt số này. Mốc sửa ca đo, không sửa hồ sơ đã ký: nay nó đọc phần CHANGELOG mới hơn
+  số ở mốc gốc của chính ca (đọc từ manifest tại `7b1afe1e`). Hình dạng 7 của lớp «thước ghim vào thứ sẽ
+  đổi».
+
+**Năm dòng số của luật (c)** — hai vòng (giờ VN; nguồn: giờ commit `contract.md`/`evidence-report.md`,
+`usage-report.md` của hồ sơ):
+
+| Dòng | `luot-sua-giu-du-dem-dung` (T2) | `lenh-dai-chay-rieng` (T2) |
+|---|---|---|
+| Làm-xong→quyết-được | `implemented` 10:23 → ký 14:08 ≈ **3 giờ 45 phút**, gồm hai lượt chấm (≈ 128 phút máy, lượt 1 vô hiệu) và một lần nâng phạm vi; chờ chữ ký sau lượt xanh 4 phút; **2 lượt chấm** | `implemented` 09:23 → ký 16:16 ≈ **6 giờ 53 phút**, gồm bảy lượt chấm (≈ 201 phút máy), vượt trần ba lượt có owner duyệt, một lần thu phạm vi; chờ chữ ký sau lượt xanh 34 phút; **7 lượt chấm** |
+| Lượt gọi người / vòng (trần T2 3) | Trong thiết kế **1** — ký Cổng Bằng chứng (Cổng Phạm vi làn V, cửa veto mở). Ngoài thiết kế **1** — owner «nâng» phạm vi sau lượt 1 (AC-11, AC-12). 1 chạm mỗi lượt | Trong thiết kế **1** — ký Cổng Bằng chứng. Ngoài thiết kế **2** — cho chấm lượt 4 vượt trần · chọn thu phạm vi ở điểm dừng-vá sau lượt 4. 1 chạm mỗi lượt |
+| Vòng bị hạ-tầng-kit đốt lượt chấm | **1** — lượt 1 vô hiệu: khung Workflow chuyển nguyên văn yêu cầu gốc của phiên («sửa + thêm test») cho mọi tác tử chấm, hai tác tử tự sửa mã và commit; thước-vật bắt «cây đổi», máy hoàn lại | **3** — lượt 1 REJECT chỉ vì mảnh suite `mjs:1/3` đỏ không tái hiện · lượt 2 BLOCKED (tác tử suite hooks chết; sổ known-limits thiếu hàng của chính hồ sơ) · lượt 6 BLOCKED (tác tử mảnh `mjs:1/3` chết không nộp kết quả). Lượt 3–5 REJECT vì vật và thước thật |
+| Token máy / vòng (out-token S4) · chứng-minh-vật / tìm-lỗi / tổng hợp | **134 337** · 60/17/23 % (97 542 · 36 795 theo lượt — lượt vô hiệu chiếm 73 %) | **264 299** · 60/13/27 % (51 718 · 43 033 · 37 155 · 35 417 · 41 638 · 24 870 · 30 468) |
+| Phút máy / lượt chấm | 100 và 28 phút (6 018 s · 1 679 s), tổng ≈ 128 phút | 31 · 27 · 36 · 27 · 27 · 27 · 26 phút, tổng ≈ 201 phút (12 076 s) |
+
+Phiên chính không đo token. Ngoài lượt chấm, `lenh-dai-chay-rieng` tốn thêm một lượt ghim lại sau chữ ký
+(ca LN2 đỏ dưới bash 5 trên CI, cộng gộp `main` mang #278).
+
+**Điều kiện tin cậy:** (i) không đổi thành phần đường verdict — diff của workflow lượt chấm nằm ở làn máy
+(chạy nền, nhóm chạy-riêng, máy đọc dấu chưa-xong/quá-hạn) và ở bước tổng hợp (máy chèn mục carry);
+không chạm finder, refute trong hợp đồng hay luật REJECT, không chạm `lib/`. (ii) Lượt chấm sai do
+phép-đo-tự-dối giữa hai mốc: **0** — lượt 1 REJECT oan của `lenh-dai-chay-rieng` là mảnh suite chập chờn
+(hạ tầng, đếm ở dòng 3), không phải phép đo tự dối; ngưỡng (a) đếm **0/2**. Dòng 4–5 cắt được.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở crm | hồ sơ có eval dài không còn mất lượt vì lệnh bị đọc thành «bị giết»; lượt sửa không còn phải vá tay mục rụng |
+| 2 | ↓ ở crm | mục ngoài hợp đồng không biến mất khỏi thẻ nên người không phải hỏi lại «mục kia đâu» |
+| 3 | ↓ | đúng lớp `lenh-dai-chay-rieng` chữa — crm mất bốn lượt vì nó |
+| 4 | ↓ / vòng | ít lượt bị đốt hơn; mỗi lượt không đổi |
+| 5 | ↑ nhẹ / lượt, ↓ / vòng | eval chạy-riêng tuần tự sau suite kéo dài đường găng của lượt; ít lượt bị đốt hơn |
+
+**Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .`.
+**N không tăng so với mốc 2.24.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
 
 ## 2.24.0 — 06/10/2026
 

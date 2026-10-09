@@ -330,6 +330,7 @@ kit in cho người; dạng trần chỉ được xuất hiện ở cột một 
 | acceptance-status | /acceptance-gate:acceptance-status | command |
 | acceptance-report | /acceptance-gate:acceptance-report | command |
 | uat-session | /acceptance-gate:uat-session | skill |
+| cat-luot | /acceptance-gate:cat-luot | skill |
 | feature-loop | /feature-loop:feature-loop | skill |
 | goal | /goal | harness |
 <!-- COMMAND-NAMES>>> -->

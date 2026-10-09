@@ -124,6 +124,25 @@ theo lời». Mở một hàng là dựng ô cơ hội rồi dừng ở Cổng �
 _Avoid_: roadmap (trong chữ cho người); gộp với bản đồ sản phẩm; để kit ghi trạng thái vào tệp ý
 định; coi một hàng là một ô (hàng chỉ thành ô khi người mở vòng).
 
+**Bản phạm vi**:
+Danh sách mã của MỘT đợt phạm vi (đội sản phẩm gửi, một khảo sát, hoặc Core của quét hình thái) ghi
+thành một tệp markdown trong git của kho theo khuôn `skills/acceptance/references/pham-vi-template.md`:
+ba khoá `dot` · `dang` (`chuoi` hoặc `lan-va`) · `nguon`, mỗi dòng một mã. Là đầu vào của **cắt lượt**
+và là thứ răng phủ so với. Không có trong git thì không phải bản phạm vi.
+_Avoid_: backlog; tệp phạm vi nằm ngoài git (thư mục chạy cục bộ); nhầm với Cổng Phạm vi (cổng duyệt
+hợp đồng của một vòng).
+
+**Cắt lượt**:
+Biến một bản phạm vi thành các hàng của lộ trình (theo sáu luật, hai dáng `chuoi` · `lan-va`) cùng các
+mục **chân trời**, rồi chạy răng phủ `scripts/cat-luot.mjs` — mỗi mã của bản phạm vi ở đúng một hàng
+hoặc chân trời cùng `dot`. Skill `cat-luot`; người gộp PR cắt là người chốt. Hồ sơ `lo-trinh-cat-luot`.
+_Avoid_: xếp điểm ưu tiên tự động (RICE/WSJF); bảng phủ chép tay; để kit ghi trạng thái vào tệp lộ trình.
+
+**Chân trời**:
+Mục cấp tệp `chan_troi` của lộ trình: mã chưa cắt được thành câu giao, kèm `ly_do` và điều kiện mở lại
+(`mo_lai_khi`). Không phải hàng, không có trạng thái, không phải ô.
+_Avoid_: «sau này» không lý do; bỏ lặng mã không cắt được; nhầm với `da_bac` (đã bác là quyết không làm).
+
 **Verdict**:
 Kết luận CẤP REPORT: `PASS` / `REJECT` / `BLOCKED` (± `PENDING-JUDGMENT`).
 Eval riêng lẻ KHÔNG có verdict — nó có `expected`/actual; đừng dùng từ này cho

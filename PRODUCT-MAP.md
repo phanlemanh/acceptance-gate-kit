@@ -2,17 +2,18 @@
 
 > Bản đồ vẽ lại từ hồ sơ của xưởng mỗi lần một người ký một cổng — đừng sửa tay.
 > (đọc từ thư mục `_acceptance/` và `.out-of-scope/`)
+> Lộ trình: [LO-TRINH.html](LO-TRINH.html)
 
 ```mermaid
 flowchart TD
   A["Đang cân nhắc cơ hội<br/>10 việc"] --> GD{"Cổng Đáng"}
-  GD --> B["Sắp mở vòng<br/>4 việc"]
+  GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>98 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>11 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>99 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>13 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>6 việc"]
 ```
 
@@ -36,7 +37,6 @@ flowchart TD
 
 ## Sắp mở vòng
 
-- Lộ trình vào kit, lát 2 — skill cắt lượt biến một bản phạm vi (mã, mốc ngoài, đợt) thành hàng theo khuôn của lát 1 cùng bảng phủ, theo sáu luật rút từ ba lộ trình owner đã viết; răng duy nhất «mỗi mã nằm ở đúng một hàng hoặc chân trời»; kit KHÔNG ghi file ý định của kho (`lo-trinh-cat-luot`)
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
@@ -55,10 +55,12 @@ flowchart TD
 - Hạ tầng thôi đốt lượt chấm và lượt gọi người — suite scripts chạy dưới trần công cụ, lượt BLOCKED vì hạ tầng thử lại cùng round, khuôn /goal thôi coi BLOCKED là xong, thẻ Cổng 1 của hồ sơ đã khép thôi hỏi (`ha-tang-khong-dot-luot`)
 - Hồ sơ nghỉ — một dòng sổ có người và lý do làm hồ sơ đã ký rời khỏi luật cũ hoá, luật làn ghim lại và luật làn eval mà không sửa một byte chữ ký; cổng, kiểm lại bằng chứng, bộ quét và thẻ cùng hỏi một hàm; văn xuôi và dòng thiếu vế không tính là nghỉ; kiểu thư mục sử liệu cũ đọc được bằng cờ vàng (`ho-so-nghi`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
+- Lộ trình vào kit, lát 2 — skill cắt lượt biến một bản phạm vi (tệp trong git, theo khuôn kit) thành hàng + chân trời của lộ trình, kèm răng phủ tất định «mỗi mã ở đúng một chỗ», luật ngày theo thứ tự và mốc, nhịp đo từ hồ sơ; trang lộ trình in «bước kế» suy từ hồ sơ; kit không ghi trạng thái vào tệp ý định (`lo-trinh-cat-luot`)
 - Bộ lọc hoá cũ theo paths đóng mặc định — chỉ bớt tệp khi MỌI mục paths thuộc dạng đã chứng trên cây git đang kiểm; thư mục trần có thật thành thư-mục/**; mục không trỏ tới tệp nào giữ luật cũ; làn ghim lại đọc paths bằng một nguồn (`loc-paths-dong-mac-dinh`)
 - Lời mời cổng thành vật máy sinh — thẻ in câu gộp khuyến nghị bấm được, khối VIỆC-CỦA-ANH chỉ chứa điều-chỉ-người-biết, vá các đường fail-quiet của thẻ (`loi-moi-cong-may-sinh`)
 - Ra có tên ở Vòng LÀM và TRAO — trạng thái «máy đã thông» cho làn V; Cổng Đáng ký qua /approve một lượt một PR; Cổng Giá trị có lối «không đo được» + archived/timebox có bộ đọc (`ra-co-ten-lam-va-trao`)
 - Vũ trang /goal ở mọi lượt người đứng ngay trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in = mỗi câu xin duyệt thiết kế của brainstorm · Cổng 1 · Gate 1.5 (`vu-trang-goal-luc-goi-ten`)
+- Trang lộ trình mang sẵn một khối dữ liệu máy đọc vẽ cùng lượt — bản chiếu ngoài kho (trang Lộ trình trong CRM, bản chiếu ReUI) hiện đúng trạng thái từng hàng chỉ bằng cách đọc khối, không tự tính trạng thái; không tệp mới, không đổi cấu hình kho (`xuat-du-lieu-lo-trinh`)
 
 ## Đã giao
 
@@ -137,6 +139,7 @@ flowchart TD
 - Phát hành kit 2.22.0 — đóng số cho cửa sổ 2.21.0 → 2.22.0 (một vòng đã ký «trang-lo-trinh-doc-mot-phut»: trang lộ trình đọc trong một phút), để crm cài vào; làn V, không dựng răng (`release-2-22-0`)
 - Phát hành kit 2.23.0 — đóng số cho cửa sổ 2.22.0 → 2.23.0 (hai vòng đã ký «nhan-lan-v-theo-huong» và «gia-lan-ghim-lai»: thẻ làn V đọc theo hướng, làn ghim lại rẻ hơn), để crm cài vào; làn V, không dựng răng (`release-2-23-0`)
 - Phát hành kit 2.24.0 — đóng số cho cửa sổ 2.23.0 → 2.24.0 (hai vòng đã ký «loc-paths-dong-mac-dinh» và «eval-thay-boi-co-chung»: bộ lọc paths đóng mặc định, eval thay bởi hồ sơ đã ký), để crm cài vào; làn V, không dựng răng (`release-2-24-0`)
+- Phát hành kit 2.25.0 — đóng số cho cửa sổ 2.24.0 → 2.25.0 (hai vòng đã ký «luot-sua-giu-du-dem-dung» và «lenh-dai-chay-rieng»: lượt sửa giữ đủ mục ngoài hợp đồng, lệnh dài và eval nặng chạy riêng ở lượt chấm), để crm cài trước đợt sau-14-10; làn V, không dựng răng (`release-2-25-0`)
 - Phát hành kit 2.3.0 — đóng số cho bảy hồ sơ đã ký 18–22/08 (hồ sơ chưa arm cổng · hết giờ ≠ trượt · tool-kill một nguồn · làn V không phải chờ ký · repo khai plugin · vào có ô ra có tên · đường đo) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-3-0`)
 - Phát hành kit 2.4.0 — đóng số cho bảy hồ sơ đã ký 22–26/08 (lệnh bấm được · ba tài liệu đầu tay · /start bảng điều khiển · đặc tả UX · ra có tên ở LÀM và TRAO · làn máy qua bộ phân loại · design-pass nấc không đồng bộ) để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-4-0`)
 - Phát hành kit 2.5.0 — đóng số cho năm hồ sơ đã ký 27–30/08 (thước nhãn-đè-khối · sổ chạy suite có nguồn gốc · không vẽ thẻ ma · chấm đúng cây đúng chỗ đứng · nhánh chính không tên main) + bộ ca đo tầng SKILL, để repo tiêu thụ nhận engine mới theo mốc có chủ đích (`release-2-5-0`)

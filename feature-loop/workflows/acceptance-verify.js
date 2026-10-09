@@ -614,10 +614,14 @@ if (evalProblems.length) {
 // nháy) thì bản trước coi là có giá trị → run-log ghi `"\"\""`, báo cáo ghi `run_id: ""` mà bên đọc bỏ nháy ra
 // rỗng rồi lặng lẽ bỏ qua (crm danh-sach-keo-chung r2: E3/E7/E12). Rỗng sau khi bỏ → đúc mã như khi vắng;
 // eval MANG SANG với run_id như thế thì KHÔNG mang (chạy lại) — run-log cũ của kho tiêu thụ đang chứa nó.
-const ridHopLe = v => String(v == null ? '' : v).trim().replace(/^["']+|["']+$/g, '').trim()
+// Mã verifier khai đi qua ĐÚNG luật bên đọc (`extractRunIds` của lib/evidence-core.cjs: bỏ đuôi
+// ` # …`, bỏ mọi nháy đầu/cuối) TRƯỚC khi vào run-log. Verifier từng trả nguyên hai dấu nháy `""`
+// thay cho chuỗi rỗng: bộ ghi chép nguyên vào log, bộ đọc bỏ nháy, hai bên lệch nhau — L2 PROVENANCE
+// chặn ngay lúc ghi chữ ký (hồ sơ lo-trinh-cat-luot, 09/10). Còn rỗng sau chuẩn hoá → máy đúc mã.
+const docRid = (v) => String(v == null ? '' : v).replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim()
 const evalById = new Map(args.evals.map(e => [e.id, e]))
 const carriedEvals = (Array.isArray(args.carriedEvals) ? args.carriedEvals : []).filter(c =>
-  c && typeof c.id === 'string' && typeof c.runId === 'string' && ridHopLe(c.runId)
+  c && typeof c.id === 'string' && typeof c.runId === 'string' && docRid(c.runId)
   && evalById.has(c.id) && evalById.get(c.id).executor !== 'judgment')
 const carriedEvalIds = new Set(carriedEvals.map(c => c.id))
 const runBaseline = args.runBaseline !== false // P2 — default true (tương thích ngược)
@@ -1231,7 +1235,7 @@ const tenDuyNhat = (cmd) => {
  *  không cứu được. Đếm TRƯỚC rồi mới gắn hậu tố cho MỌI thành viên của nhóm
  *  trùng (không phải "ai tới sau thì gắn"): mã khi đó không phụ thuộc thứ tự
  *  khai `suiteCommands`, đúng bất biến AC-2. */
-const ridTho = (m) => ridHopLe(m.runId) || `minted-${args.slug}-SUITE-${tenDuyNhat(m.cmd)}-r${args.round}`
+const ridTho = (m) => docRid(m.runId) || `minted-${args.slug}-SUITE-${tenDuyNhat(m.cmd)}-r${args.round}`
 const demRidSuite = Object.create(null)
 for (const m of machine) {
   if ((m.evals || []).length) continue
@@ -1255,7 +1259,7 @@ for (const m of machine) {
     continue
   }
   for (const evalId of (m.evals || [])) {
-    const rid = ridHopLe(m.runId) || `minted-${args.slug}-${evalId}-r${args.round}`
+    const rid = docRid(m.runId) || `minted-${args.slug}-${evalId}-r${args.round}`
     evalRunIds[evalId] = rid
     runLogLines.push(JSON.stringify({
       ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId, run_id: rid,

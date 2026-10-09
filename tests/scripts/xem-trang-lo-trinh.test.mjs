@@ -22,7 +22,7 @@ const ok = (id, m = '') => { pass += 1; console.log(`  PASS: ${id}${m ? ` — ${
 const bad = (id, m) => { fail += 1; console.log(`  FAIL: ${id} — ${m}`); };
 const loi = e => (e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : String(e));
 const deq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const CA = ['LTT-san', 'LTT-san-do', 'LTT-san-im', 'LTT-moc', 'LTT-moc-khong-script', 'LTT-hanh-vi', 'LTT-hanh-vi-do'];
+const CA = ['LTT-san', 'LTT-san-do', 'LTT-san-im', 'LTT-moc', 'LTT-moc-khong-script', 'LTT-hanh-vi', 'LTT-hanh-vi-do', 'LTT-buoc-ke', 'LTT-buoc-ke-do'];
 const only = (process.env.LT_CASES || '').split(',').map(s => s.trim()).filter(Boolean);
 const want = id => !only.length || only.includes(id);
 
@@ -102,6 +102,32 @@ async function hanhVi(P, kit) {
     return { a: tr ? parseFloat(getComputedStyle(tr).outlineWidth) * (getComputedStyle(tr).outlineStyle === 'none' ? 0 : 1) : -1, b: khac ? parseFloat(getComputedStyle(khac).outlineWidth) * (getComputedStyle(khac).outlineStyle === 'none' ? 0 : 1) : -1 }; })()`);
   if (!(v.a > 0 && v.b === 0)) sai.push(`viền: hàng tại neo ${d.neo} viền ${v.a}, hàng khác ${v.b}`);
   return sai;
+}
+
+// ── Hàm đo LTT-buoc-ke (hồ sơ lo-trinh-cat-luot, AC-13): dòng «bước kế» trên trang thật ─────────
+// Kho thử: hàng ở ô cho-duyet và ô cho-nghiem-thu (bộ dựng hồ sơ của kho thử), câu giao dài để thử
+// tràn ô ở 375.
+function khoBuocKe() {
+  const dai = '«Tôi mở trang Lộ trình trên điện thoại giữa cuộc họp phòng ban và thấy việc của nhóm mình đang ở bước nào mà không phải hỏi ai»';
+  return KT.khoMoi(path.join(TMP, 'bk'), { tep: ['docs/plan/bk.json'], hoSo: { 'h-duyet': ['cho-duyet', 'T2'], 'h-giao': ['cho-nghiem-thu', 'T2'] }, files: { 'docs/plan/bk.json': { schema: 1, ten: 'Thử bước kế',
+    hang: [{ ma: 'G1', cau_giao: dai, slug: 'h-giao', hang: 'T2' }, { ma: 'G2', cau_giao: dai, slug: 'h-duyet', hang: 'T2' }, { ma: 'G3', cau_giao: '«việc chưa mở»' }] } } });
+}
+const DO_BUOC_KE = `(() => { const bk = [...document.querySelectorAll('td div')].filter(e => e.textContent.startsWith('bước kế:'));
+  const ref = [...document.querySelectorAll('.mu.nho')].find(e => !e.textContent.startsWith('bước kế:'));
+  return { n: bk.length, chu: bk.map(e => e.textContent), co: bk.map(e => getComputedStyle(e).fontSize), coRef: ref ? getComputedStyle(ref).fontSize : null,
+    hien: bk.every(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; }),
+    tranO: bk.filter(e => { const td = e.closest('td'); return !td || td.scrollWidth > td.clientWidth + 1; }).map(e => e.textContent) }; })()`;
+async function buocKe(P, kit) {
+  const sai = []; const f = await ve(kit, khoBuocKe(), 'bk'); let o = 0;
+  for (const [w, h] of [[375, 812], [1440, 900]]) for (const sac of SAC) {
+    await P.mo(f, { w, h, sac }); const x = await P.do(); const b = await P.danhGia(DO_BUOC_KE); o += 1; const oTen = `${w} ${sac}`;
+    if (b.n < 2 || !b.hien) sai.push(`dòng bước kế: ${oTen} chỉ ${b.n} dòng hiện ${JSON.stringify(b.chu)}`);
+    if (!b.coRef || b.co.some(c => c !== b.coRef)) sai.push(`cỡ chữ dòng bước kế: ${oTen} ${JSON.stringify(b.co)} ≠ chữ phụ ${b.coRef}`);
+    if (b.tranO.length) sai.push(`tràn ô: ${oTen} ${JSON.stringify(b.tranO)}`);
+    if (x.tran) sai.push(`tràn: ${oTen}`);
+    if (x.kemTP.length) sai.push(`tương phản: ${oTen} ${JSON.stringify(x.kemTP[0])}`);
+  }
+  return { o, sai };
 }
 
 let P = null;
@@ -201,6 +227,24 @@ if (P) {
         }
         if (hong.length) bad('LTT-hanh-vi-do', hong.join(' ; ')); else ok('LTT-hanh-vi-do', 'gỡ sticky → dính · gỡ user-select → chọn · gỡ viền :target → viền; mỗi bản đỏ đúng một vế');
       } catch (e) { bad('LTT-hanh-vi-do', loi(e)); }
+    }
+    // ── LTT-buoc-ke ──────────────────────────────────────────────────────────
+    let bkLanh = null;
+    if (want('LTT-buoc-ke') || want('LTT-buoc-ke-do')) {
+      try {
+        bkLanh = await buocKe(P, KIT);
+        if (bkLanh.o !== 4) bad('LTT-buoc-ke', `đo ${bkLanh.o} ô, cần 4`);
+        else if (bkLanh.sai.length) bad('LTT-buoc-ke', bkLanh.sai.slice(0, 4).join(' ; '));
+        else ok('LTT-buoc-ke', '4/4 ô (375 · 1440 × sáng · tối): hai dòng bước kế hiện, cùng cỡ chữ phụ, không tràn ô, tương phản đạt, trang không tràn ngang');
+      } catch (e) { bad('LTT-buoc-ke', loi(e)); }
+    }
+    if (want('LTT-buoc-ke-do')) {
+      try {
+        if (!bkLanh || bkLanh.sai.length) throw new Error('bản lành chưa xanh — không tin được chiều đỏ');
+        const r = await buocKe(P, banSao([['scripts/lo-trinh.mjs', '<div class="mu nho">bước kế:', '<div class="mu">bước kế:']]));
+        const g = r.sai.find(m => m.startsWith('cỡ chữ dòng bước kế'));
+        if (g) ok('LTT-buoc-ke-do', `bản sao bỏ lớp chữ phụ khỏi dòng bước kế: «${g.slice(0, 110)}»`); else bad('LTT-buoc-ke-do', `không bắt: ${JSON.stringify(r.sai).slice(0, 200)}`);
+      } catch (e) { bad('LTT-buoc-ke-do', loi(e)); }
     }
   } finally { await P.dong(); }
 }
