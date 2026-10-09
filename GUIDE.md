@@ -637,6 +637,14 @@ Từ vòng `lo-trinh-tren-du-lieu-that` (chạy thử trên lộ trình OKR th�
 - **Sửa tệp ý định bằng PR** làm trang lệch cho tới khi vẽ lại: CI của kho đỏ với đúng lệnh
   `node scripts/product-map.mjs --root .` — chạy lệnh đó trong cùng PR.
 
+Từ vòng `xuat-du-lieu-lo-trinh` (hàng X1): `LO-TRINH.html` mang thêm MỘT khối dữ liệu máy đọc
+(`<script type="application/json" id="lo-trinh-du-lieu">`), vẽ cùng lượt với trang, từ cùng kết quả
+phân tích. Bản chiếu ngoài kho — trang «Lộ trình» trong một công cụ của đội, trang chia sẻ — đọc khối
+này thay vì tự tính trạng thái: mỗi hàng đã mang chữ trạng thái, nhóm tiến độ, hồ sơ nhận, cờ đã dịch;
+việc duy nhất bản chiếu tự làm là so ngày mốc với hôm nay. Khuôn, cách rút khối và luật so ngày:
+`skills/acceptance/references/lo-trinh-du-lieu.md`. Không tệp mới, không khoá cấu hình mới; người xem
+trang không thấy gì khác.
+
 **Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
 đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ
 đã hứa chưa?"; Cổng Giá trị hỏi "thứ đó có ăn thua không?". Nghi thức chép

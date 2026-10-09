@@ -142,4 +142,5 @@ loc-paths-dong-mac-dinh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-
 release-2-24-0	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
 lenh-dai-chay-rieng	hoi=Ngoài-1|Ngoài-2|ký hay trả	bao=cắt/hoãn|Treo
 luot-sua-giu-du-dem-dung	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
+xuat-du-lieu-lo-trinh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|ký hay trả	bao=cắt/hoãn|Treo
 release-2-25-0	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
