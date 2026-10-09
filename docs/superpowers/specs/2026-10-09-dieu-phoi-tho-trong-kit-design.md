@@ -100,11 +100,14 @@ Docs còn khuyên mỗi tài khoản một `CLAUDE_CONFIG_DIR` thay vì đổi �
 |---|---|---|---|---|---|
 | DP0 | 4 | (phép đo của ô dù) | — | Ba phép đo tài khoản trên máy thật, đi kèm lần đổi thật kế tiếp. Quy trình: [`discovery/do-tai-khoan/README.md`](../../../_acceptance/dieu-phoi-tho-trong-kit/discovery/do-tai-khoan/README.md) | — |
 | DP1 | 1 | `dieu-phoi-dong-goi-loi` | T2 | Gói `dieu-phoi`: chuyển lõi, gắn hook qua gói, đọc được thư mục đợt crm, chiều im ở kho không có đợt. Phần II | — |
-| DP2 | 2 | `dieu-phoi-mo-dot-mot-lenh` | T2 | `/dieu-phoi:mo-dot <tên>`: dựng sáu thứ từ gói đợt của kho, khai vai giám sát và các dãy thợ | DP1 |
+| DP2 | 2 | `dieu-phoi-mo-dot-mot-lenh` | T2 | `/dieu-phoi:mo-dot <tên>` và `/dieu-phoi:dong-dot`: dựng sáu thứ từ gói đợt của kho, khai vai giám sát và các dãy thợ; đóng đợt theo thẻ | DP1 |
 | DP3 | 3 | `dieu-phoi-tiep-tuc-mot-lenh` | T2 | `/dieu-phoi:tiep-tuc`: chẩn đoán, chạy lại bộ phát lịch nếu chết, giăng lại Monitor và nhịp, mở chip cho dãy không có phiên sống, báo việc chờ người. Lệnh con ghi qua CLI (§2.3) | DP1 |
 | DP4 | 4 | `dieu-phoi-doi-tai-khoan` | T2 | Ngưỡng hạn mức trong cấu hình đợt; `can_phan` khi gần ngưỡng; `/dieu-phoi:ban-giao` (ngừng cấp khoá, thợ commit WIP và đẩy nhánh, ghi `ban-giao.json`, in câu tiếp tục); DP3 đọc `ban-giao.json` | DP0, DP3 |
 | DP5 | 1 | (việc ở kho OneFlow) | — | Đưa bản clone về `main`, cài gói, cấu hình đợt, chạy đợt thử. Đây là phép đo SỐNG | mốc mang DP1–DP4 |
 | — | 1 | (việc ở kho crm) | — | Gỡ `scripts/dieu-phoi/` và 4 khối hook trong `.claude/settings.json`, cài gói. Phiên giám sát crm điều phối ở quãng lặng | mốc mang DP1 |
+
+Hành trình chung của DP2–DP4 (vòng đời đợt, bốn lệnh, tệp trao tay, đếm chạm) nằm ở một bản duy nhất:
+[workflow 2026-10-10](2026-10-10-dieu-phoi-workflow-design.md). Chủ kho chọn thiết kế trọn một lần ngày 10/10.
 
 Mỗi hàng DP1–DP4 là một vòng `/feature-loop` riêng, có hợp đồng và lượt chấm riêng, không có ô cơ
 hội riêng. Chữ ký Cổng Đáng của ô dù phủ cả bốn hàng (tiền lệ crm, luật 16 của đợt `sau-14-10`).

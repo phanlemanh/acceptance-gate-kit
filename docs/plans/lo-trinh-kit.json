@@ -37,22 +37,48 @@
       ]
     },
     {
-      "ten": "Mốc kế (số đặt lúc cắt) — tác tử chấm không sửa mã, bộ đọc khoan dung, gom tín hiệu thành nhóm (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
+      "ten": "Mốc kế (số đặt lúc cắt) — gói dieu-phoi (DP1), tác tử chấm không sửa mã, bộ đọc khoan dung (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
       "ngay": "2026-10-18",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
+        "DP1",
         "A1",
-        "R1",
-        "L3"
+        "R1"
       ]
     },
     {
-      "ten": "Mốc sau nữa (số đặt lúc cắt) — ca chập chờn, eval model thật, bớt câu hỏi ở bước thiết kế (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
+      "ten": "crm: chuyển sang gói dieu-phoi — gỡ scripts/dieu-phoi/ và bốn khối hook, ở quãng lặng sau mốc mang DP1",
+      "ngay": "2026-10-20",
+      "loai": "ngoai",
+      "ai": "crm",
+      "hang": []
+    },
+    {
+      "ten": "Mốc sau nữa (số đặt lúc cắt) — mở đợt, tiếp tục, đổi tài khoản bằng một lệnh (DP2–DP4) (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
       "ngay": "2026-10-25",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
+        "DP2",
+        "DP3",
+        "DP4"
+      ]
+    },
+    {
+      "ten": "OneFlow: đợt thử Điều phối – Thợ trên gói kit (DP5) — đọc ngưỡng của ô dieu-phoi-tho-trong-kit",
+      "ngay": "2026-10-31",
+      "loai": "ngoai",
+      "ai": "OneFlow",
+      "hang": []
+    },
+    {
+      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — gom tín hiệu (L3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
+      "ngay": "2026-11-01",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "L3",
         "G2",
         "G3",
         "A2"
@@ -232,6 +258,47 @@
       "cau_giao": "«Bước lên thiết kế không hỏi người những câu mà người luôn trả lời theo khuyến nghị»",
       "vi_sao": "Gốc: crm/_acceptance/ke-hoach-la-mot-ban-ghi, sua-luu-tru-dieu-phoi — 28/28 câu trả lời «theo khuyến nghị» qua 3 vòng (hạt giống 2026-09-22-may-hoi-ngoai-thiet-ke-o-s1, đã chạm ngưỡng). Thước đo số 1 của kit: số lần gọi người mỗi kết quả ship.",
       "bat_khi": "Số lượt gọi người ngoài thiết kế ở bước thiết kế của crm về 0 trong ba vòng liền, không vòng nào bị trả vì thiết kế sai"
+    },
+    {
+      "ma": "DP1",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "slug": "dieu-phoi-dong-goi-loi",
+      "cau_giao": "«Kho nào muốn chạy đợt Điều phối – Thợ chỉ cần cài gói dieu-phoi của kit — không chép mã, không gắn hook bằng tay»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — lõi đợt (bộ phát lịch, CLI, 4 hook; 14 tệp mã, 84 ca) đang sống trong crm; OneFlow là kho neo thứ hai, muốn dùng thì phải chép mã. Ô dù dieu-phoi-tho-trong-kit, Cổng Đáng build 09/10; thiết kế: docs/superpowers/specs/2026-10-09-dieu-phoi-tho-trong-kit-design.md."
+    },
+    {
+      "ma": "DP2",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP1"
+      ],
+      "slug": "dieu-phoi-mo-dot-mot-lenh",
+      "cau_giao": "«Mở và đóng một đợt bằng một lệnh — thay sáu bước tay»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — mở đợt ở crm hôm nay là sáu bước tay theo scripts/dieu-phoi/README.md. Thiết kế chung: docs/superpowers/specs/2026-10-10-dieu-phoi-workflow-design.md §4.1, §4.4."
+    },
+    {
+      "ma": "DP3",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP1"
+      ],
+      "slug": "dieu-phoi-tiep-tuc-mot-lenh",
+      "cau_giao": "«Một lệnh nối lại đợt sau khi app khởi động lại, hết ngữ cảnh hay Monitor hết hạn — không giăng tay việc nền nào»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — 09/10 phiên giám sát khởi động lại làm dừng 37 việc nền; 08/10 Monitor hết hạn, hai việc lỡ 5 giờ. Thiết kế chung §4.2, §5."
+    },
+    {
+      "ma": "DP4",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP3"
+      ],
+      "slug": "dieu-phoi-doi-tai-khoan",
+      "cau_giao": "«Báo trước khi chạm hạn mức, tự bàn giao nhẹ, tài khoản kia tiếp tục bằng một lệnh — không mất commit, chữ ký hay quyết định nào»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — chủ kho đổi tài khoản giữa đợt vì hết hạn mức (09/10); lần đổi 05–06/10 bàn giao tay bằng tệp nhớ. Thiết kế chung §4.3, §4.5; chờ phép đo DP0 của ô dù."
     },
     {
       "ma": "S1",
