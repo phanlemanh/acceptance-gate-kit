@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 3f16829a9c57c48284d3c215b513f91777f9abaa
+verified_commit: 3a6c4aa16e8f24167baf83a788b6bf553c57131a
 human_signoff: Phan Le Manh 2026-10-08 — ký lượt chấm 1; Ngoài-1, 2, 4, 6, 7 ghi Known limits; Ngoài-3, 5 mở hợp đồng mới (hạt giống); Ngoài-8 chấp nhận; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -178,3 +178,7 @@ sha: b14ddcd7cebfba63076ae43161fb277856b36e28 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 2 — 2026-10-09, do gộp origin/main sau #284
 run_id: repin-20261009T101901Z-67454
 sha: 3f16829a9c57c48284d3c215b513f91777f9abaa · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
+
+### Re-pin lần 3 — 2026-10-09, do gộp origin/main sau mốc 2.26.0
+run_id: repin-20261009T133445Z-23018
+sha: 3a6c4aa16e8f24167baf83a788b6bf553c57131a · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
