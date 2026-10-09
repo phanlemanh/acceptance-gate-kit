@@ -165,7 +165,7 @@ test('AC-12', 'mục tươi cùng tệp có tiêu đề chứa tiêu đề carry
   if (n0 !== 1) throw new Error(`đối chứng dương hỏng: tác tử đã in «${c.title} (r1)» mà xuất hiện ${n0} lần`);
   const moi = await kiemAC12();
   if (moi.length) throw new Error(`cây đang kiểm: ${moi.join(' · ')}`);
-  const sao = tiem("(x.title === c.title || x.title.startsWith(c.title + ' (r'))", 'x.title.includes(c.title)');
+  const sao = tiem("(x.title === c.title || (x.title.startsWith(c.title + ' (') && NHAN_LUOT_RE.test(x.title.slice(c.title.length + 1))))", 'x.title.includes(c.title)');
   const loi = await kiemAC12(sao);
   if (!coThongDiep(loi, 'mục carry bị nuốt bởi mục tươi cùng tệp')) throw new Error(`đột biến khoá «chứa» không đỏ đúng câu: ${loi.join(' · ') || '(xanh)'}`);
   return 'mục carry và mục tươi cùng tệp mỗi mục một lần; đã in đúng nhãn → một lần; khoá «chứa» đỏ đúng câu';
