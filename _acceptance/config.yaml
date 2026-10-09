@@ -507,6 +507,14 @@ executors:
     lcgvc_round: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan round
     lcgvc_the: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan the
     lcgvc_luoi: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan luoi
+    # Hồ sơ tac-tu-cham-chi-cham-khong (09/10, T2): tác tử chấm không cầm bút + quy trách nhiệm
+    # cây đổi — mỗi chân một nhóm AT1–AT6 trên cây thật + bản sao tiêm đột biến (design doc §7).
+    tccc_dinh_nghia: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan dinh-nghia
+    tccc_bang_vai: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan bang-vai
+    tccc_luot_sach: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan luot-sach
+    tccc_duong_roi: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan duong-roi
+    tccc_quy_trach: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan quy-trach
+    tccc_hoan_lai: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan hoan-lai
     # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
     nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
     nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs
