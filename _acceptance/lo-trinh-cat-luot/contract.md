@@ -82,3 +82,12 @@ yêu cầu truy về đúng một hạng mục]`; `[NGÀNH: Shape Up — bàn c�
 - Va chạm đã biết với vòng X1 (`xuat-du-lieu-lo-trinh`, PR #285, chưa gộp): cả hai đổi bộ vẽ trang lộ
   trình. Vòng nào gộp SAU phải cập nhật ca so-byte «bộ vẽ trước vòng» của mình (X1 LT-112; vòng này
   LT-141) và vẽ lại trang mẫu — ghi trong PR của vòng gộp sau.
+- **Known limits (Cổng Bằng chứng lượt 2, ký 09/10):** Trong hợp đồng t1 (AC-4): LT-133 chưa dựng ô
+  hàng KHÔNG dot như E4 hứa, chỉ dựng hàng đợt khác — hành vi thật đã thử tay, hàng không dot chỉ nhận
+  cảnh báo · Trong hợp đồng t3 (AC-1): LT-130 ca ma-rong chưa ghim số dòng như E1 hứa — hành vi thật in
+  đúng số dòng · Ngoài-1: LT-137 bỏ qua kết quả của lượt --nhip, nên «nhịp không ghi gì» xanh cả khi
+  lượt nhịp không chạy · Ngoài-2: khuôn bản phạm vi nói bộ đọc chỉ đọc khối PHAM-VI-MA, nhưng docPhamVi
+  đọc cả tệp · Ngoài-3: SKILL đưa ô Never vào da_bac, nhưng răng phủ không tính da_bac · Ngoài-4:
+  moc.hang sai kiểu chỉ cảnh báo và bỏ luật ngày mốc cho hàng trong đợt · Ngoài-5: nhanCuaCo đọc sai
+  nhãn chứa «:» hoặc « thiếu », nên hàng hỏng trong đợt chỉ nhận cảnh báo. Hai lỗ trong hợp đồng lặp
+  lớp lỗi của lượt 1 (hình dạng 5 và 3) — owner ký với giới hạn thay vì mở lượt 3 (luật dừng-vá).
