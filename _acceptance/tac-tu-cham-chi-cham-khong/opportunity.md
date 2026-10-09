@@ -3,10 +3,10 @@ schema_version: 1
 slug: tac-tu-cham-chi-cham-khong
 feature: «Tác tử chấm chỉ chấm — không nhận câu nhắn gần nhất của người làm nhiệm vụ, không sửa mã»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-09T13:54:21Z   # owner gõ «Đồng ý theo lời khuyên» một chạm trong phiên 09/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -84,13 +84,13 @@ Không có lối nào «dặn thêm trong đề bài». Lối ấy đã có sẵ
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] sau khi mốc mang vòng này được kit và crm cài, có lượt chấm nào bị vô hiệu vì tác tử chấm ghi vào cây không, tính trên đủ nhiều lượt để «0» có nghĩa?
-- Kết quả nào là SỐNG: [đề xuất] Ba mươi ngày không lượt chấm nào bị vô hiệu vì tác tử chấm ghi vào cây, đọc từ dòng `ghi-boi-tac-tu-cham`, tính trên kit + mọi kho đã nhận mốc, với **N ≥ 400 lượt chấm** trong cửa sổ. Căn cứ: với tỉ lệ cũ ~1/135, xác suất 0 lần trong 400 lượt chỉ còn ~5%, nên 0 lần ở mức ấy mới phân biệt được với «chưa có lượt».
-- Kết quả nào là CHẾT: [đề xuất] ≥1 lượt vô hiệu do tác tử chấm ghi trong cửa sổ.
+- Câu hỏi phép đo trả lời: sau khi mốc mang vòng này được kit và crm cài, có lượt chấm nào bị vô hiệu vì tác tử chấm ghi vào cây không, tính trên đủ nhiều lượt để «0» có nghĩa?
+- Kết quả nào là SỐNG: Ba mươi ngày không lượt chấm nào bị vô hiệu vì tác tử chấm ghi vào cây, đọc từ dòng `ghi-boi-tac-tu-cham`, tính trên kit + mọi kho đã nhận mốc, với **N ≥ 400 lượt chấm** trong cửa sổ. Căn cứ: với tỉ lệ cũ ~1/135, xác suất 0 lần trong 400 lượt chỉ còn ~5%, nên 0 lần ở mức ấy mới phân biệt được với «chưa có lượt».
+- Kết quả nào là CHẾT: ≥1 lượt vô hiệu do tác tử chấm ghi trong cửa sổ.
   - Ghi qua Edit/Write: lối A thủng → sửa vật.
   - Ghi qua Bash: phần dư đã khai → mở lối B hoặc C ở Cổng Đáng kế.
   - Nếu N < 400 khi hết 30 ngày: KHÔNG đọc thành sống. Kéo dài cửa sổ tới khi đủ N, hoặc tới timebox, rồi đọc với N thực và ghi rõ N.
-- Timebox: [đề xuất] 2026-12-15. Mốc kế không có số cố định; crm nhận sau 14/10 cùng nhịp 2.26. Cửa sổ 30 ngày bắt đầu từ ngày crm có commit nhận mốc mang vòng này.
+- Timebox: 2026-12-15. Mốc kế không có số cố định; crm nhận sau 14/10 cùng nhịp 2.26. Cửa sổ 30 ngày bắt đầu từ ngày crm có commit nhận mốc mang vòng này.
 
 ## Kết quả prototype
 
@@ -105,9 +105,14 @@ Không dựng prototype. Ca tái hiện ở mục «Đo trước khi tuyên» l�
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
-- **disposition = …** Căn cứ: …
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **decision = build** Theo khuyến nghị: lối **A + D**, hạng **T2**.
+  - A: tác tử chấm không còn công cụ sửa tệp; hai loại tác tử của gói feature-loop, đổi ở một chỗ `agentT`.
+  - D: lượt hỏng do tác tử chấm ghi được tự hoàn lại, chấm lại, và đếm riêng.
+  - B (hook, T3) và C (bản sao, khoá bật-thêm) KHÔNG làm vòng này; chúng là lối mở lại khi ngưỡng chết vì ghi qua Bash.
+  - Vòng gộp vào mốc kế (không số cố định); crm nhận sau 14/10 cùng nhịp 2.26.
+- **disposition = …** Không dựng prototype.
+- **Ngưỡng UAT chốt cùng lúc ký:** ba bullet đầu ở section Ngưỡng giữ nguyên chữ, đã gỡ tiền tố; timebox 2026-12-15.
+- **Luật chiều rộng (b):** vòng rơi vào cửa sổ 2.26 → mốc kế; kho chờ nhận là crm. Owner gọi tên hàng A1 trong phiên 09/10.
 
 ## Thước đo thành công → ứng viên criterion
 
