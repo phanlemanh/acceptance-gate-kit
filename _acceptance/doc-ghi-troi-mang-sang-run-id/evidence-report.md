@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 70db1a9cdb7eaeb4dcfb3b0d795070b3dfc3f6dd
+verified_commit: 6197c7845c5ac0b99103e31c175ec61aa3987ee1
 human_signoff: Phan Le Manh 2026-10-09 — ký lượt chấm 3; Ngoài-1, 2, 4, 5, 6, 7 ghi Known limits; Ngoài-3 mở hợp đồng mới (hạt giống); đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -158,3 +158,7 @@ none — every multi-run eval is uniform
 Round 1: AC-3 REJECT — nhãn lượt chỉ khớp đúng nhóm nhãn của OOC_TITLE_RE; returned to implementation (commit 722b3c5f).
 Round 2: bảy eval của hợp đồng xanh; lệnh suite `mjs:3/3` đỏ một ca (GL03 so byte run-log bỏ qua trường đo thời gian), không gắn eval nào; returned to implementation (commit 70db1a9c).
 Round 3: bảy eval của hợp đồng xanh và chín lệnh suite xanh, kể cả `mjs:3/3` (26 ca ở phân mảnh 1 và 2, 25 ca ở phân mảnh 3, tất cả đạt). Verdict PASS; bảy phát hiện ngoài hợp đồng chuyển sang `review-findings.md` cho người quyết ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-09, do gộp origin/main sau #289 (xung đột docRid/ridHopLe)
+run_id: repin-20261009T080502Z-25112
+sha: 6197c7845c5ac0b99103e31c175ec61aa3987ee1 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
