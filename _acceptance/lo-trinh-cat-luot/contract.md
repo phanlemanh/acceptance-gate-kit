@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs (mới) + scripts/lo-trinh.mjs + skills/cat-luot (mới) + references + CONTEXT/GUIDE/CHANGELOG + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-08-lo-trinh-cat-luot-design.md
-status: verified
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -91,3 +91,9 @@ yêu cầu truy về đúng một hạng mục]`; `[NGÀNH: Shape Up — bàn c�
   moc.hang sai kiểu chỉ cảnh báo và bỏ luật ngày mốc cho hàng trong đợt · Ngoài-5: nhanCuaCo đọc sai
   nhãn chứa «:» hoặc « thiếu », nên hàng hỏng trong đợt chỉ nhận cảnh báo. Hai lỗ trong hợp đồng lặp
   lớp lỗi của lượt 1 (hình dạng 5 và 3) — owner ký với giới hạn thay vì mở lượt 3 (luật dừng-vá).
+- **Sửa kèm ngoài phạm vi (owner gọi tên 09/10, «sửa trong vòng»):** chữ ký trên bằng chứng lượt 2 bị
+  lưới chặn vì hai mã lượt chạy máy viết là `""__<băm>` — tác tử chấm trả nguyên hai dấu nháy, bộ ghi
+  của lượt chấm chép nguyên, bộ đọc bằng chứng bỏ nháy. Vòng này sửa bộ ghi
+  (`feature-loop/workflows/acceptance-verify.js`, `docRid`: chuẩn hoá theo đúng luật bên đọc, mã chỉ có
+  nháy thì máy đúc mã) kèm ca khứ hồi W-RID có chiều đỏ (`tests/workflows/acceptance-verify.test.mjs`),
+  rồi chấm lượt 3. Không AC nào của hợp đồng phủ phần sửa này — nó đi PR cùng vòng, ghi trong mô tả PR.

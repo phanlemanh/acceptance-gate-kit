@@ -25,6 +25,10 @@ một buổi sáng 04/10, bảng phủ chép tay đã cũ, bản phạm vi khôn
 - Trang lộ trình: hàng có hồ sơ mang dòng «bước kế: …» suy từ ô bản đồ (phần sửa lát 1 sau phiên nghiệm
   thu 06/10). Kho không khai lộ trình, và kho không hàng nào có hồ sơ: không đổi byte nào.
 - Ai bị ảnh hưởng: kho đã khai `lo_trinh.tep` — trang đổi ở hàng có hồ sơ; vẽ lại một lần khi nâng kit.
+- Sửa kèm (owner gọi tên ở Cổng Bằng chứng 09/10, ngoài phạm vi đã duyệt): lượt chấm S4 chuẩn hoá mã
+  lượt chạy tác tử khai theo đúng luật bên đọc bằng chứng trước khi ghi nhật ký. Tác tử từng trả nguyên
+  hai dấu nháy `""`; nhật ký chép nguyên, bên đọc bỏ nháy, hai lệnh cùng trả thế thì chữ ký bị lưới chặn
+  oan. Nay mã chỉ có dấu nháy → máy tự đúc mã. Mọi kho: chỉ đổi lượt chấm mới; hồ sơ cũ không đổi.
 
 ### Lượt chấm S4 không còn bị lệnh dài và eval nặng đốt (hồ sơ `lenh-dai-chay-rieng`, T2)
 

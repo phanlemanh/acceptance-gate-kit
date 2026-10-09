@@ -1215,7 +1215,12 @@ const tenDuyNhat = (cmd) => {
  *  không cứu được. Đếm TRƯỚC rồi mới gắn hậu tố cho MỌI thành viên của nhóm
  *  trùng (không phải "ai tới sau thì gắn"): mã khi đó không phụ thuộc thứ tự
  *  khai `suiteCommands`, đúng bất biến AC-2. */
-const ridTho = (m) => (m.runId && String(m.runId).trim()) || `minted-${args.slug}-SUITE-${tenDuyNhat(m.cmd)}-r${args.round}`
+/** Mã verifier khai đi qua ĐÚNG luật bên đọc (`extractRunIds` của lib/evidence-core.cjs: bỏ đuôi
+ *  ` # …`, bỏ mọi nháy đầu/cuối) TRƯỚC khi vào run-log. Verifier từng trả nguyên hai dấu nháy `""`
+ *  thay cho chuỗi rỗng: bộ ghi chép nguyên vào log, bộ đọc bỏ nháy, hai bên lệch nhau — L2 PROVENANCE
+ *  chặn ngay lúc ghi chữ ký (hồ sơ lo-trinh-cat-luot, 09/10). Còn rỗng sau chuẩn hoá → máy đúc mã. */
+const docRid = (v) => String(v == null ? '' : v).replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim()
+const ridTho = (m) => docRid(m.runId) || `minted-${args.slug}-SUITE-${tenDuyNhat(m.cmd)}-r${args.round}`
 const demRidSuite = Object.create(null)
 for (const m of machine) {
   if ((m.evals || []).length) continue
@@ -1239,7 +1244,7 @@ for (const m of machine) {
     continue
   }
   for (const evalId of (m.evals || [])) {
-    const rid = (m.runId && String(m.runId).trim()) || `minted-${args.slug}-${evalId}-r${args.round}`
+    const rid = docRid(m.runId) || `minted-${args.slug}-${evalId}-r${args.round}`
     evalRunIds[evalId] = rid
     runLogLines.push(JSON.stringify({
       ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, evalId, run_id: rid,
