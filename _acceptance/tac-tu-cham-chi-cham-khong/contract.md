@@ -5,9 +5,9 @@ slug: tac-tu-cham-chi-cham-khong
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/{agents,workflows,scripts,skills} — không chạm t3_paths (hooks/** · lib/** · pre-merge · recheck)
 surfaces: [cli, docs]
-status: verified
+status: approved
 approved_by: "Manh Phan"
-approved_at: 2026-10-09T14:53:59Z
+approved_at: 2026-10-09T16:17:01Z
 design_doc: docs/superpowers/specs/2026-10-09-tac-tu-cham-chi-cham-khong-design.md
 ---
 
@@ -54,12 +54,13 @@ Source input: ô cơ hội `opportunity.md` (đã ký) · design doc ở frontma
   Chiều đỏ: bản sao `agentT` bỏ `agentType` → «AT2 thieu agentType»; bản sao bảng đảo judge → `cham-lenh` → «AT2 judge».
 - AC-3: Given cùng args và cùng câu trả lời giả, When chạy bộ chấm hiện tại và bản của tag `v2.26.0` (code lấy bằng `git show` trong lần chạy), Then ba thứ BẰNG NHAU: mảng đề bài theo thứ tự lời gọi, phán quyết, và các dòng run-log, tức lượt sạch không đổi từng byte. Đổi duy nhất được phép là trường `agentType` của `opts`. Bản sao chèn một ký tự vào đuôi đề bài máy cho đỏ «AT3 de bai».
 - AC-4: Given câu trả lời giả ném `agent type '<loại>' not found` cho mọi lời gọi có `agentType`, When bộ chấm chạy, Then:
-  - mỗi lời gọi ấy được gọi lại ĐÚNG một lần, cùng đề bài, không `agentType`;
+  - mỗi lời gọi bị báo «not found» được gọi lại ĐÚNG một lần, cùng đề bài, không `agentType`;
+  - sau lần «not found» đầu tiên, mọi lời gọi khởi động SAU đó của lượt đi thẳng không `agentType` (không còn bị báo thất bại — bảng theo dõi chỉ hiện đợt đang bay lúc ấy; Cổng Bằng chứng 09/10 bổ sung);
   - phán quyết bằng lượt sạch;
-  - run-log có đúng một dòng `loai-tac-tu-vang` theo khuôn marker LOAI-VANG-LINE, liệt đúng các vai đã rơi;
+  - run-log có đúng một dòng `loai-tac-tu-vang` mà tập khoá BẰNG tập khoá của khuôn marker LOAI-VANG-LINE (rút từ khối marker, Cổng Bằng chứng 09/10 bổ sung), liệt đúng các vai đã rơi;
   - kết quả có `loaiTacTuVang`.
 
-  Chiều im: câu trả lời giả ném một lỗi khác thì KHÔNG gọi lại và không ghi dòng (hành vi cũ). Bản sao gọi lại với mọi lỗi cho đỏ «AT4 im». Bản sao không ghi dòng cho đỏ «AT4 dong».
+  Chiều im: câu trả lời giả ném một lỗi khác thì KHÔNG gọi lại và không ghi dòng (hành vi cũ). Bản sao gọi lại với mọi lỗi cho đỏ «AT4 im». Bản sao không ghi dòng cho đỏ «AT4 dong». Bản sao bỏ cờ «cả lượt» cho đỏ «AT4 ca luot».
 - AC-5: Given kho git do code sinh, args do `s4-args.mjs` THẬT sinh, và transcript fixture (bản trích nguyên văn tool_use của transcript thật 07/10 cộng dòng code sinh), When cây đổi trong lượt rồi chạy `thuoc-vat.mjs --write`, Then MỖI dòng `cay-doi` có ĐÚNG MỘT dòng `ghi-boi-tac-tu-cham` theo khuôn marker GHI-BOI-LINE ngay sau, mã thoát 6, và với ma trận viết trước:
   1. Edit tệp vật → `tac_tu` có đúng tác tử ấy, `cong_cu` chứa `Edit`.
   2. Write + `git commit` (bản trích thật) → `cong_cu` chứa `Write` và `Bash:git commit`.
@@ -71,17 +72,21 @@ Source input: ô cơ hội `opportunity.md` (đã ký) · design doc ở frontma
   8. Lệnh `cd <thư mục>` rồi `sed -i` tên trần → quy cho tác tử.
   9. `git -C . commit` → `cong_cu` chứa `Bash:git commit`.
   10. Thư mục dự án dưới `HOME` giả mang mã hoá KHÁC `--root` (cwd khác) → vẫn tự tìm và quy đúng.
+  11. Tác tử `cp <tệp> /tmp/x` (tệp là NGUỒN) → không quy, tệp vào `tep_khong_ro` (Cổng Bằng chứng 09/10, Ngoài-1/5).
+  12. Tác tử `git diff --merge-base main -- <tệp>` và `git log -- <tệp>` → không quy (Ngoài-1/5).
+  13. Tệp đổi qua commit, tác tử chỉ chạy `git cat-file commit HEAD` → không quy, tệp vào `tep_khong_ro` (Ngoài-1).
 
-  Chiều đỏ: bản sao bỏ mẫu ghi `GHI-RE` → «AT5 hang 7»; bỏ nhánh `cd` → «AT5 hang 8».
-- AC-6: Given cùng fixture AC-5, When dòng `ghi-boi-tac-tu-cham` có `tac_tu` phủ MỌI tệp đổi, Then:
-  - commit chưa đẩy, tệp sạch lúc chụp → `hoan_lai: true`; cây sau bằng `sha` đã chấm; stderr có `da hoan lai`; `s4-args.mjs` lượt kế thoát 0 với `round` BẰNG round của lượt vô hiệu (không đếm trần — đối chứng dương ghim).
+  Chiều đỏ: bản sao bỏ mẫu ghi `GHI-RE` → «AT5 hang 7»; bỏ nhánh `cd` → «AT5 hang 8»; tính lệnh con git theo chuỗi con thay vì theo vị trí → «AT5 hang 12».
+- AC-6: Given cùng fixture AC-5, When dòng `ghi-boi-tac-tu-cham` có `tac_tu` phủ MỌI tệp đổi, Then máy chỉ tự hoàn lại bằng ĐÚNG MỘT thao tác `git reset --keep <sha>` — không bao giờ ghi đè tệp chưa commit (Cổng Bằng chứng 09/10, Ngoài-1/4):
+  - mọi thay đổi là commit chưa đẩy, cây làm việc sạch ở các tệp ấy → `hoan_lai: true`; cây sau bằng `sha` đã chấm; stderr có `da hoan lai`; `s4-args.mjs` lượt kế thoát 0 với `round` BẰNG round của lượt vô hiệu (không đếm trần — đối chứng dương ghim).
   - Mỗi hàng sau cho `hoan_lai: false` kèm `ly_do` ghim, và cây giữ nguyên như sau lượt:
     - commit đã có trên nhánh xa;
     - tệp bẩn sẵn trước lượt bị tác tử ghi đè;
     - lẫn thay đổi của phiên (`tep_khong_ro` không rỗng);
-    - HEAD không còn `sha` làm tổ tiên.
+    - HEAD không còn `sha` làm tổ tiên;
+    - có tệp đổi CHƯA commit (dù là của tác tử) → để phiên xử lý (Ngoài-1/4).
 
-  Chiều đỏ: bản sao bỏ kiểm nhánh xa → «AT6 da day»; bỏ kiểm `cayChup.ban` → «AT6 ban san»; tăng round khi hoàn lại → «AT6 cung round».
+  Chiều đỏ: bản sao bỏ kiểm nhánh xa → «AT6 da day»; bỏ kiểm `cayChup.ban` → «AT6 ban san»; tăng round khi hoàn lại → «AT6 cung round»; cho phép hoàn lại tệp chưa commit → «AT6 chua commit».
 - AC-7 (judgment): Given `feature-loop/skills/feature-loop/SKILL.md` mục S4 và design doc §3–§4, When người đọc lạ đọc, Then:
   - (a) lệnh `thuoc-vat.mjs --write` trong SKILL truyền `--transcript` bằng `transcriptDir` của kết quả Workflow;
   - (b) SKILL nói: stderr `da hoan lai` nghĩa là máy đã hoàn lại, sinh args lại cùng round và không hỏi; `hoan_lai: false` đi nhánh hai ca sẵn có;
@@ -131,6 +136,11 @@ Quét Zwicky (preset test-matrix, trục dựng lại), đầy đủ ở `morpho
   - Ca `sed -i` thật (21/09) nằm ở máy khác; hàng 3 dùng dòng code sinh.
   - Vai ui mất Write: ≥1 eval ui-check PASS → `cannotRun` vì lưu tệp.
   - Thân tác tử tùy biến: ≥1 kho đổi phán quyết mà vật không đổi.
+- **Known limits (owner ký 09/10 tại Cổng Bằng chứng, lượt chấm 1):**
+  - Ngoài-2: `--transcript` rỗng hoặc trỏ thư mục của lượt khác được ghi như đã đọc — số K (không đọc được) có thể thấp hơn thực tế.
+  - Ngoài-3: AT3 so từng byte với `v2.26.0`; vòng sau đổi lời dặn bộ chấm sẽ làm nó đỏ và phải nâng mốc so.
+  - Ngoài-6: kiểm cặp `cay-doi`/`ghi-boi` chỉ bằng vị trí và tên khoá, không so giá trị `round` · `luot_ts` · `sha` giữa hai dòng.
+  - Ngoài-7: chiều đỏ AT5/AT6 ghim tên hàng, mà tên hàng cũng in khi hàng ném lỗi hạ tầng.
 - **Phép kiểm có tên — chạy ở phiên đầu tiên mở sau khi cài mốc, TRƯỚC khi đếm cửa sổ:**
   - một workflow ba tác tử;
   - tác tử `feature-loop:cham-ui` và tác tử `feature-loop:cham-lenh` mỗi tác tử được bảo liệt kê công cụ rồi Write tệp X; mong: X không sinh, danh sách không có Edit/Write/NotebookEdit;
