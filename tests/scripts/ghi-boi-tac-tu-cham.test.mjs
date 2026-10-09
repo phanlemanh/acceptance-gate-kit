@@ -1,6 +1,6 @@
 // ghi-boi-tac-tu-cham.test.mjs — hồ sơ tac-tu-cham-chi-cham-khong (T2, 09/10), lối D.
 // Cây đổi trong lượt chấm → `thuoc-vat --write` quy trách nhiệm cho đúng tác tử chấm (AT5) và tự
-// hoàn lại khi đủ bốn điều kiện an toàn, để lượt kế chấm lại CÙNG round (AT6). Tên nhóm AT<n> = AC-<n>.
+// KHÔNG BAO GIỜ đổi cây — hoàn lại là việc của phiên (AT6; owner thu phạm vi 10/10). Tên nhóm AT<n> = AC-<n>.
 //
 // Fixture: kho git do CODE sinh (thuoc-vat-fixture.mjs); tệp args do s4-args THẬT sinh; dòng sổ do
 // thuoc-vat --write THẬT ghi; dòng round-tally do bộ chấm THẬT dựng (harness vm). Transcript:
@@ -126,7 +126,7 @@ const HANG_AT5 = [
   { n: 4, ten: 'phien tu sua', tiem: (d, wf) => { A(d, 'src/a.js'); tacTu(wf, 'p1', 'machine:npm test', [['Bash', { command: 'npm test' }]], { root: d }); },
     mong: g => !g.tac_tu.length && JSON.stringify(g.tep_khong_ro) === '["src/a.js"]' && !('khong_doc_duoc' in g) },
   { n: 5, ten: 'khong transcript', khongTranscript: true, tiem: d => A(d, 'src/a.js'),
-    mong: g => !g.tac_tu.length && typeof g.khong_doc_duoc === 'string' && g.khong_doc_duoc.length > 0 && g.hoan_lai === false },
+    mong: g => !g.tac_tu.length && typeof g.khong_doc_duoc === 'string' && g.khong_doc_duoc.length > 0 },
   { n: 6, ten: 'tu tim qua HOME gia', tuTim: 'cung', tiem: (d, wf) => { A(d, 'src/a.js'); tacTu(wf, 'e6', 'machine:npm test', [['Edit', { file_path: path.join(d, 'src/a.js'), old_string: 'a', new_string: 'b' }]], { root: d }); },
     mong: g => g.tac_tu.length === 1 && g.tac_tu[0].id === 'agent-e6' && !g.tep_khong_ro.length },
   { n: 7, ten: 'tac tu chi cat', tiem: (d, wf) => { A(d, 'src/a.js'); tacTu(wf, 'c1', 'machine:npm test', [['Bash', { command: 'cat src/a.js 2>/dev/null' }]], { root: d }); },
@@ -168,60 +168,44 @@ if (want('AT5')) {
   if (K && !saiNhom) ok('AT5', `— ${HANG_AT5.length}/${HANG_AT5.length} hàng: đúng một dòng ghi-boi sau mỗi dòng cay-doi, quy đúng tác tử`);
 }
 
-// ── AT6 — tự hoàn lại ──────────────────────────────────────────────────────
-const editA = (d, wf, id = 'h1') => { A(d, 'src/a.js'); tacTu(wf, id, 'machine:npm test', [['Edit', { file_path: path.join(d, 'src/a.js'), old_string: 'a', new_string: 'b' }], ['Bash', { command: 'git add src/a.js && git commit -m sua' }]], { root: d }); };
+// ── AT6 — bước sau-lượt không bao giờ đổi cây ──────────────────────────────
+// Mọi hàng: HEAD, chỉ mục và cây làm việc NGOÀI sổ của hồ sơ trước = sau (`git status` đủ cả tệp chưa
+// theo dõi), mọi tệp chưa theo dõi có sẵn vẫn nguyên byte, stderr không có «da hoan lai», và lượt kế
+// vẫn bị s4-args chặn «cay doi chua hoan lai» cho tới khi PHIÊN hoàn lại (đường cũ, không đổi).
+const editA = (d, wf, id = 'h1') => { A(d, 'src/a.js'); tacTu(wf, id, 'machine:npm test', [['Edit', { file_path: path.join(d, 'src/a.js'), old_string: 'a', new_string: 'b' }], ['Bash', { command: 'git add -A && git commit -m sua' }]], { root: d }); };
 const HANG_AT6 = [
-  { ten: 'AT6 da day', mo: 'commit da day len nhanh xa', tiem: (d, wf) => {
-      editA(d, wf); commit(d, ['src/a.js']);
-      const xa = mkdtempSync(path.join(TMP, 'xa-')); git(xa, 'init', '-q', '--bare'); git(d, 'remote', 'add', 'origin', xa); git(d, 'push', '-q', 'origin', 'HEAD:refs/heads/vong');
-      git(d, 'fetch', '-q', 'origin');
-    } },
-  { ten: 'AT6 ban san', mo: 'tep ban san truoc luot bi ghi de: src/a.js', truoc: d => A(d, 'src/a.js', '// phien dang sua\n'), tiem: (d, wf) => editA(d, wf) },
-  { ten: 'AT6 lan phien', mo: 'co tep khong ro chu: src/b.js', tiem: (d, wf) => { editA(d, wf); commit(d, ['src/a.js']); A(d, 'src/b.js'); } },
-  { ten: 'AT6 chua commit', mo: 'co tep doi chua commit: src/a.js', tiem: (d, wf) => editA(d, wf) },
-  { ten: 'AT6 mat to tien', mo: 'HEAD khong con sha da cham lam to tien', tiem: (d, wf) => { git(d, 'reset', '-q', '--hard', 'HEAD~1'); tacTu(wf, 'r1', 'machine:npm test', [['Bash', { command: 'git reset --hard HEAD~1' }]], { root: d }); } },
+  // Ca trước kia máy TỰ hoàn lại: mọi thay đổi là commit chưa đẩy của tác tử.
+  { n: 1, ten: 'commit chua day cua tac tu', tiem: (d, wf) => { editA(d, wf); commit(d, ['src/a.js']); } },
+  // Ca lượt 2 bắt: tệp chưa theo dõi có sẵn bị `git add -A` của tác tử cuốn vào commit.
+  { n: 2, ten: 'commit gom tep chua theo doi co san', truoc: d => W(d, 'ghi-chu-chua-luu.md', 'viec cua phien\n'), tiem: (d, wf) => { editA(d, wf); git(d, 'add', '-A'); git(d, 'commit', '-qm', 'sua'); }, conNguyen: ['ghi-chu-chua-luu.md'] },
+  { n: 3, ten: 'sua chua commit', tiem: (d, wf) => editA(d, wf) },
+  { n: 4, ten: 'tep ban san bi ghi de', truoc: d => A(d, 'src/a.js', '// phien dang sua\n'), tiem: (d, wf) => editA(d, wf) },
 ];
 if (want('AT6')) {
-  let K; try { K = khoaKhuon(); } catch (e) { bad('AT6', loi(e)); }
   let saiNhom = 0;
-  // Ca an toàn: commit chưa đẩy + sửa đĩa, tệp sạch lúc chụp, cộng một tệp mới tác tử tạo.
-  if (K) {
-    try {
-      const { d, a } = await hoSo();
-      const wf = wfDir(mkdtempSync(path.join(TMP, 'tr-')));
-      editA(d, wf); commit(d, ['src/a.js']);
-      A(d, 'src/b.js'); commit(d, ['src/b.js']);
-      tacTu(wf, 'h2', 'machine:npm run build', [['Bash', { command: "sed -i '' 's/b/c/' src/b.js && git -C . commit -am sua-b" }]], { root: d });
-      W(d, 'tmp/out.txt', 'o\n');
-      const r = sauLuot(d, { transcript: [wf] });
-      const { sai, g } = kiemChung(d, r, K);
-      if (g.hoan_lai !== true) sai.push(`hoan_lai ${g.hoan_lai}: ${g.ly_do}`);
-      if (git(d, 'rev-parse', 'HEAD') !== a.invokedSha) sai.push('HEAD != sha da cham sau hoan lai');
-      if (git(d, 'status', '--porcelain', '--', 'src')) sai.push(`src con ban: ${git(d, 'status', '--porcelain', '--', 'src')}`);
-      if (!String(r.stderr).includes('da hoan lai')) sai.push('thieu thong diep «da hoan lai»');
-      await new Promise(res => setTimeout(res, 1100));
-      const r2 = sinhArgs(d);
-      if (r2.status !== 0) sai.push(`AT6 cung round: s4-args luot ke thoat ${r2.status}: ${String(r2.stderr).split('\n').slice(-2).join(' | ')}`);
-      else if (docArgs(d).round !== a.round) sai.push(`AT6 cung round: round ${docArgs(d).round}, mong ${a.round}`);
-      if (sai.length) { saiNhom += 1; for (const s of sai) bad(s.startsWith('AT6 cung round') ? 'AT6 cung round' : 'AT6 an toan', s); }
-      else ok('AT6 an toan', '— hoàn lại về đúng sha, lượt kế thoát 0 cùng round');
-    } catch (e) { saiNhom += 1; bad('AT6 an toan', loi(e)); }
-  }
-  for (const h of K ? HANG_AT6 : []) {
+  for (const h of HANG_AT6) {
+    const ten = `AT6 hang ${h.n}`;
     try {
       const { d } = await hoSo(h.truoc || (() => {}));
+      const banDau = Object.fromEntries((h.conNguyen || []).map(f => [f, readFileSync(path.join(d, f), 'utf8')]));
       const wf = wfDir(mkdtempSync(path.join(TMP, 'tr-')));
       h.tiem(d, wf);
-      const ngoaiHoSo = () => git(d, 'status', '--porcelain', '--', '.', `:(exclude)_acceptance/${SLUG}`);
-      const headTruoc = git(d, 'rev-parse', 'HEAD'); const stTruoc = ngoaiHoSo();
+      const ngoaiHoSo = () => git(d, 'status', '--porcelain', '--untracked-files=all', '--', '.', `:(exclude)_acceptance/${SLUG}`);
+      const headTruoc = git(d, 'rev-parse', 'HEAD'); const stTruoc = ngoaiHoSo(); const idxTruoc = git(d, 'diff', '--cached', '--name-only');
       const r = sauLuot(d, { transcript: [wf] });
-      const { sai, g } = kiemChung(d, r, K);
-      if (g.hoan_lai !== false || !String(g.ly_do || '').startsWith(h.mo)) sai.push(`hoan_lai ${g.hoan_lai}, ly_do «${g.ly_do}», mong «${h.mo}…»`);
-      if (git(d, 'rev-parse', 'HEAD') !== headTruoc || ngoaiHoSo() !== stTruoc) sai.push('cay bi dong vao du khong an toan');
-      if (sai.length) { saiNhom += 1; bad(h.ten, sai.join(' ; ')); } else ok(h.ten, `— không hoàn lại: ${h.mo}`);
-    } catch (e) { saiNhom += 1; bad(h.ten, loi(e)); }
+      const sai = [];
+      if (r.status !== 6) sai.push(`thoat ${r.status}, mong 6`);
+      if (dongSo(d, 'ghi-boi-tac-tu-cham').length !== 1) sai.push('thieu dong ghi-boi');
+      if (git(d, 'rev-parse', 'HEAD') !== headTruoc || ngoaiHoSo() !== stTruoc || git(d, 'diff', '--cached', '--name-only') !== idxTruoc) sai.push('khong doi cay: HEAD/chi muc/cay lam viec doi sau thuoc-vat');
+      for (const [f, v] of Object.entries(banDau)) { let c = null; try { c = readFileSync(path.join(d, f), 'utf8'); } catch { /* mất */ } if (c !== v) sai.push(`khong doi cay: tep chua luu ${f} bi mat/doi`); }
+      if (String(r.stderr).includes('da hoan lai')) sai.push('stderr van bao «da hoan lai»');
+      const r2 = sinhArgs(d);
+      if (r2.status !== 2 || !String(r2.stderr).includes('cay doi chua hoan lai')) sai.push(`luot ke khong bi chan cho phien hoan lai: thoat ${r2.status}`);
+      if (sai.length) { saiNhom += 1; bad(ten.replace(/hang \d+/, 'khong doi cay') + ` (hang ${h.n})`, `${h.ten}: ${sai.join(' ; ')}`); }
+      else ok(ten, `— ${h.ten}: cây nguyên, lượt kế chờ phiên hoàn lại`);
+    } catch (e) { saiNhom += 1; bad(ten, loi(e)); }
   }
-  if (K && !saiNhom) ok('AT6', '— ca an toàn (chỉ commit) tự lành cùng round; năm ca không an toàn để nguyên cây');
+  if (!saiNhom) ok('AT6', `— ${HANG_AT6.length}/${HANG_AT6.length} hàng: bước sau-lượt không đổi cây, tệp chưa lưu còn nguyên`);
 }
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (ghi-boi-tac-tu-cham)`);

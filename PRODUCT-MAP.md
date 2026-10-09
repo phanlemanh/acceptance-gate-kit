@@ -45,7 +45,7 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm, tự hoàn lại khi an toàn, ghi dòng đếm (`tac-tu-cham-chi-cham-khong`)
+- tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm và ghi dòng đếm, không tự đổi cây (`tac-tu-cham-chi-cham-khong`)
 
 ## Đã giao — chờ phiên nghiệm thu
 

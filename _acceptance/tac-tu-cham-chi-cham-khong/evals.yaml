@@ -85,15 +85,13 @@ evals:
   - id: E6
     criterion: AC-6
     executor: script
-    cmd: config:executors.script.tccc_hoan_lai
+    cmd: config:executors.script.tccc_khong_doi_cay
     expected: >
-      Cây thật: nhóm AT6 xanh — ca an toàn (mọi thay đổi là commit chưa đẩy): hoan_lai true
-      bằng đúng một reset --keep, cây sau = sha, stderr «da hoan lai», s4-args lượt kế thoát
-      0 với round BẰNG round lượt vô hiệu; năm hàng không an toàn (commit đã đẩy · tệp bẩn
-      sẵn bị ghi đè · lẫn phiên · có tệp đổi chưa commit · HEAD mất tổ tiên sha) mỗi hàng
-      hoan_lai false kèm ly_do ghim, cây giữ nguyên. Chiều đỏ: bo-kiem-nhanh-xa → «FAIL:
-      AT6 da day»; bo-kiem-ban → «FAIL: AT6 ban san»; tang-round → «FAIL: AT6 cung round»;
-      hoan-lai-chua-commit → «FAIL: AT6 chua commit».
+      Cây thật: nhóm AT6 xanh — bốn hàng (commit chưa đẩy của tác tử · commit gom tệp
+      chưa theo dõi có sẵn · sửa chưa commit · tệp bẩn sẵn bị ghi đè): sau thuoc-vat
+      --write HEAD, chỉ mục và cây làm việc ngoài sổ hồ sơ trước = sau, tệp chưa lưu còn
+      nguyên byte, không có «da hoan lai», lượt kế vẫn bị s4-args chặn «cay doi chua hoan
+      lai» chờ phiên. Chiều đỏ: tu-reset-sau-luot → «FAIL: AT6 khong doi cay».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/scripts/thuoc-vat.mjs", "feature-loop/scripts/lib/ghi-boi.mjs", "feature-loop/scripts/s4-args.mjs", "tests/scripts/ghi-boi-tac-tu-cham.test.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
 
@@ -106,9 +104,9 @@ evals:
     question: >
       Đọc mục S4 của SKILL.md (bước «Mọi verdict» và đoạn mã 6) và design doc §3–§4.
       (a) Lệnh thuoc-vat.mjs --write trong SKILL có truyền --transcript bằng transcriptDir
-      của kết quả Workflow không? (b) SKILL có nói rằng stderr «da hoan lai» nghĩa là máy
-      đã hoàn lại, sinh args lại cùng round và không hỏi, còn hoan_lai false thì đi nhánh
-      hai ca sẵn có không? (c) SKILL có nói nghĩa của loaiTacTuVang (lượt chạy không có
+      của kết quả Workflow không? (b) SKILL có nói rằng sau dòng cay-doi có đúng một dòng
+      ghi-boi-tac-tu-cham nói tác tử chấm nào ghi tệp nào, và máy KHÔNG tự hoàn lại — phiên
+      hoàn lại theo hai ca sẵn có không? (c) SKILL có nói nghĩa của loaiTacTuVang (lượt chạy không có
       loại tác tử hẹp vì phiên mở trước khi cài gói; báo một dòng, không chặn) không?
       (d) Có câu nào trong phần mới thêm lời dặn tác tử chấm «không sửa mã» làm nghiệm
       không? PASS khi (a)(b)(c) có và (d) không.

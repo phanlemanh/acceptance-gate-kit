@@ -1,13 +1,13 @@
 ---
 schema_version: 1
-feature: tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm, tự hoàn lại khi an toàn, ghi dòng đếm
+feature: tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm và ghi dòng đếm, không tự đổi cây
 slug: tac-tu-cham-chi-cham-khong
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/{agents,workflows,scripts,skills} — không chạm t3_paths (hooks/** · lib/** · pre-merge · recheck)
 surfaces: [cli, docs]
 status: implemented
 approved_by: "Manh Phan"
-approved_at: 2026-10-09T16:17:01Z
+approved_at: 2026-10-09T22:01:13Z
 design_doc: docs/superpowers/specs/2026-10-09-tac-tu-cham-chi-cham-khong-design.md
 ---
 
@@ -26,7 +26,7 @@ Ba tác tử đã đo thì hai ghi qua Edit/Write, một chỉ qua `sed -i`. Lư
 
 Ô đã ký `build` (lối A + D) ngày 09/10:
 - **(A)** vai chấm không cầm công cụ sửa tệp;
-- **(D)** phần dư được quy trách nhiệm, tự hoàn lại khi an toàn, và đếm.
+- **(D)** phần dư được quy trách nhiệm và đếm; hoàn lại vẫn là việc của phiên (tự hoàn lại đã bỏ sau dừng-vá 10/10).
 
 Người hưởng:
 - **Owner:** bớt lượt gọi «nhắn lại», bớt lượt chấm cháy.
@@ -77,19 +77,10 @@ Source input: ô cơ hội `opportunity.md` (đã ký) · design doc ở frontma
   13. Tệp đổi qua commit, tác tử chỉ chạy `git cat-file commit HEAD` → không quy, tệp vào `tep_khong_ro` (Ngoài-1).
 
   Chiều đỏ: bản sao bỏ mẫu ghi `GHI-RE` → «AT5 hang 7»; bỏ nhánh `cd` → «AT5 hang 8»; tính lệnh con git theo chuỗi con thay vì theo vị trí → «AT5 hang 12».
-- AC-6: Given cùng fixture AC-5, When dòng `ghi-boi-tac-tu-cham` có `tac_tu` phủ MỌI tệp đổi, Then máy chỉ tự hoàn lại bằng ĐÚNG MỘT thao tác `git reset --keep <sha>` — không bao giờ ghi đè tệp chưa commit (Cổng Bằng chứng 09/10, Ngoài-1/4):
-  - mọi thay đổi là commit chưa đẩy, cây làm việc sạch ở các tệp ấy → `hoan_lai: true`; cây sau bằng `sha` đã chấm; stderr có `da hoan lai`; `s4-args.mjs` lượt kế thoát 0 với `round` BẰNG round của lượt vô hiệu (không đếm trần — đối chứng dương ghim).
-  - Mỗi hàng sau cho `hoan_lai: false` kèm `ly_do` ghim, và cây giữ nguyên như sau lượt:
-    - commit đã có trên nhánh xa;
-    - tệp bẩn sẵn trước lượt bị tác tử ghi đè;
-    - lẫn thay đổi của phiên (`tep_khong_ro` không rỗng);
-    - HEAD không còn `sha` làm tổ tiên;
-    - có tệp đổi CHƯA commit (dù là của tác tử) → để phiên xử lý (Ngoài-1/4).
-
-  Chiều đỏ: bản sao bỏ kiểm nhánh xa → «AT6 da day»; bỏ kiểm `cayChup.ban` → «AT6 ban san»; tăng round khi hoàn lại → «AT6 cung round»; cho phép hoàn lại tệp chưa commit → «AT6 chua commit».
+- AC-6: Given cùng fixture AC-5, When `thuoc-vat.mjs --write` ghi dòng `ghi-boi-tac-tu-cham`, Then bước sau-lượt KHÔNG BAO GIỜ đổi cây (owner thu phạm vi 10/10 sau dừng-vá — bỏ tự hoàn lại): với ma trận viết trước bốn hàng — (1) commit chưa đẩy của tác tử · (2) commit «gom hết» cuốn tệp chưa theo dõi có sẵn · (3) sửa chưa commit · (4) tệp bẩn sẵn bị ghi đè — HEAD, chỉ mục và cây làm việc ngoài sổ hồ sơ trước = sau, tệp chưa lưu có sẵn còn nguyên byte, stderr không có «da hoan lai», và `s4-args.mjs` lượt kế vẫn thoát 2 «cay doi chua hoan lai» cho tới khi PHIÊN hoàn lại theo hai ca sẵn có. Chiều đỏ: bản sao chèn `git reset --keep` sau dòng sổ → «AT6 khong doi cay».
 - AC-7 (judgment): Given `feature-loop/skills/feature-loop/SKILL.md` mục S4 và design doc §3–§4, When người đọc lạ đọc, Then:
   - (a) lệnh `thuoc-vat.mjs --write` trong SKILL truyền `--transcript` bằng `transcriptDir` của kết quả Workflow;
-  - (b) SKILL nói: stderr `da hoan lai` nghĩa là máy đã hoàn lại, sinh args lại cùng round và không hỏi; `hoan_lai: false` đi nhánh hai ca sẵn có;
+  - (b) SKILL nói: sau dòng `cay-doi` có đúng một dòng `ghi-boi-tac-tu-cham` nói tác tử chấm nào ghi tệp nào; máy KHÔNG tự hoàn lại — phiên hoàn lại theo hai ca sẵn có;
   - (c) SKILL nói nghĩa của `loaiTacTuVang`: lượt chạy không có loại tác tử hẹp vì phiên mở trước khi cài gói; báo một dòng, không chặn;
   - (d) không câu nào trong phần sửa thêm lời dặn tác tử chấm «không sửa mã» làm nghiệm.
 
@@ -101,7 +92,7 @@ Quét Zwicky (preset test-matrix, trục dựng lại), đầy đủ ở `morpho
 - **Dạng giới hạn công cụ** [thước CE: `wf_1590a99c-ca6` + phiên chạy nền không đăng nhập được 09/10]: danh sách cho phép (đã chứng tác dụng) → `cham-doc`, `cham-lenh`; danh sách cấm (chưa chứng) → `cham-ui`, kèm phép kiểm có tên ở Notes.
 - **Trục B — loại tác tử nạp được hay không** [thước CE: `wf_f9fd2939-efd`]: nạp → AC-2, AC-3; không nạp → AC-4.
 - **Trục C — tác tử làm gì với cây** [thước CE: transcript 3 tác tử đo 09/10]: không ghi → AC-3; Edit/Write → AC-1, AC-5 hàng 1–2; ghi qua Bash → AC-5 hàng 3, 8, 9; chỉ đọc → AC-5 hàng 7.
-- **Trục D — ai đổi cây** [thước CE: 3 dòng `cay-doi` 30 ngày]: tác tử → AC-5, AC-6; phiên → AC-5 hàng 4, AC-6 hàng lẫn; không rõ → AC-5 hàng 5, 10.
+- **Trục D — ai đổi cây** [thước CE: 3 dòng `cay-doi` 30 ngày]: tác tử → AC-5; phiên → AC-5 hàng 4; không rõ → AC-5 hàng 5, 10; mọi ca → AC-6 (bước sau-lượt không đổi cây).
 - `[GIẢ ĐỊNH]` Vai ui làm được việc lưu bằng chứng (ảnh, `network.txt`, `.html` dự phòng) qua Bash hay lệnh `capture.ui` khi không có Write. Đọc bằng mã đề bài, chưa chạy ở kho có eval ui. Đo ở chiến dịch phát hành (design doc §6).
 - `[GIẢ ĐỊNH]` Thân định nghĩa tác tử tùy biến thay khung tác tử workflow mặc định mà không đổi chất lượng chấm. Đo ở chiến dịch phát hành.
 
@@ -136,6 +127,7 @@ Quét Zwicky (preset test-matrix, trục dựng lại), đầy đủ ở `morpho
   - Ca `sed -i` thật (21/09) nằm ở máy khác; hàng 3 dùng dòng code sinh.
   - Vai ui mất Write: ≥1 eval ui-check PASS → `cannotRun` vì lưu tệp.
   - Thân tác tử tùy biến: ≥1 kho đổi phán quyết mà vật không đổi.
+- **Thu phạm vi 10/10 (dừng-vá, owner chọn lối 1, sổ `d-20261009T215847Z-19`):** bỏ tự hoàn lại. Lượt 1 và lượt 2 cùng lớp «tự hoàn lại phá việc không thuộc tác tử». Ca tác tử chấm commit bậy không tự lành — phiên hoàn lại theo hai ca của SKILL như trước vòng. Ngưỡng mở lại: ≥1 lượt trong cửa sổ 30 ngày mà phiên phải gọi owner chỉ để hoàn lại cây sau dòng `ghi-boi` có `tac_tu` không rỗng.
 - **Known limits (owner ký 09/10 tại Cổng Bằng chứng, lượt chấm 1):**
   - Ngoài-2: `--transcript` rỗng hoặc trỏ thư mục của lượt khác được ghi như đã đọc — số K (không đọc được) có thể thấp hơn thực tế.
   - Ngoài-3: AT3 so từng byte với `v2.26.0`; vòng sau đổi lời dặn bộ chấm sẽ làm nó đỏ và phải nâng mốc so.
@@ -149,7 +141,7 @@ Quét Zwicky (preset test-matrix, trục dựng lại), đầy đủ ở `morpho
   Phép này thay cho vế «dòng `loai-tac-tu-vang` vắng», vế ấy chỉ chứng loại nạp được. Dạng danh sách cấm của `cham-ui` chưa thử được trong vòng: phiên Claude Code chạy nền không đăng nhập được (09/10). Đỏ → sửa vật trước khi đếm.
 - **Bảng dự báo năm dòng (luật (c)):**
   - làm-xong→quyết-được: ↓ ở ca có sự cố;
-  - lượt gọi người/vòng: ↓ ở ca có sự cố (bỏ «nhắn lại», bỏ hoàn lại tay);
+  - lượt gọi người/vòng: ↓ ở ca có sự cố (bỏ «nhắn lại»);
   - vòng bị hạ tầng đốt: ↓;
   - token/vòng: ↓ ở ca có sự cố (lượt cháy ngắn lại vì tác tử không sửa được qua Edit/Write); = ở lượt sạch;
   - phút/lượt: =.

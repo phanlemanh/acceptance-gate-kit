@@ -514,7 +514,7 @@ executors:
     tccc_luot_sach: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan luot-sach
     tccc_duong_roi: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan duong-roi
     tccc_quy_trach: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan quy-trach
-    tccc_hoan_lai: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan hoan-lai
+    tccc_khong_doi_cay: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan khong-doi-cay
     # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
     nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
     nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs

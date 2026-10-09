@@ -2,19 +2,19 @@
 //
 // Lượt chấm có cây đổi (lib/cay-doi.mjs, mã 6) thì bước sau-lượt `thuoc-vat --write` đọc transcript
 // các tác tử của lượt, quy từng tệp đổi cho tác tử đã ghi nó, ghi ĐÚNG MỘT dòng sổ ngay sau dòng
-// `cay-doi`, và tự hoàn lại cây khi đủ bốn điều kiện an toàn (design doc §3.3). Bên đọc dòng sổ:
+// `cay-doi`. Máy KHÔNG đổi cây: hoàn lại là việc của phiên theo hai ca của SKILL (owner thu phạm vi
+// 10/10 sau dừng-vá — hai lượt chấm liền tự hoàn lại phá việc không thuộc tác tử). Bên đọc dòng sổ:
 // phiên nghiệm thu đếm ngưỡng (contract «Đường đo»). Lượt sạch không đi qua đây.
 //
-// Bốn việc, một tệp: timTranscript (tìm) · docTranscript (đọc) · quyTrachNhiem (quy) · hoanLai.
+// Ba việc, một tệp: timTranscript (tìm) · docTranscript (đọc) · quyTrachNhiem (quy) + dòng sổ.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
 
 // <<<GHI-BOI-LINE
-// {"kind":"ghi-boi-tac-tu-cham","ts":"<ISO>","round":<n>,"luot_ts":"<invokedAt>","sha":"<sha đã chấm>","tac_tu":[{"id":"agent-<…>","vai":"<nhãn>","cong_cu":["Edit"],"tep":["<đường>"]}],"tep_khong_ro":["<đường>"],"hoan_lai":false,"ly_do":"<vì sao không hoàn lại>"}
+// {"kind":"ghi-boi-tac-tu-cham","ts":"<ISO>","round":<n>,"luot_ts":"<invokedAt>","sha":"<sha đã chấm>","tac_tu":[{"id":"agent-<…>","vai":"<nhãn>","cong_cu":["Edit"],"tep":["<đường>"]}],"tep_khong_ro":["<đường>"]}
 // GHI-BOI-LINE>>>
-// Khoá `khong_doc_duoc` chỉ có mặt khi không đọc được transcript; `ly_do` chỉ có mặt khi hoan_lai=false.
+// Khoá `khong_doc_duoc` chỉ có mặt khi không đọc được transcript.
 
 // Động từ ghi của một đoạn lệnh shell (đoạn = phần giữa ; && || | và xuống dòng), xét theo VỊ TRÍ:
 // động từ là từ ĐẦU đoạn (Cổng Bằng chứng 09/10, Ngoài-1/5 — khớp chuỗi con bắt nhầm `--merge-base`,
@@ -164,39 +164,12 @@ export function quyTrachNhiem({ root, tep, tacTu }) {
   return { tac_tu, tep_khong_ro: tepDoi.filter(f => !daQuy.has(f)).sort() };
 }
 
-// ── Hoàn lại ────────────────────────────────────────────────────────────────
-const git = (root, args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-const laToTien = (root, a, b) => { try { git(root, ['merge-base', '--is-ancestor', a, b]); return true; } catch { return false; } };
-
-// Điều kiện (design doc §3.3), mất cả hoặc không gì; chỉ commit được hoàn lại. → { hoan_lai, ly_do? }
-export function hoanLai({ root, sha, ban = {}, tep, quy, khongDocDuoc }) {
-  if (khongDocDuoc) return { hoan_lai: false, ly_do: 'khong doc duoc transcript' };
-  if (!laToTien(root, sha, 'HEAD')) return { hoan_lai: false, ly_do: 'HEAD khong con sha da cham lam to tien' };
-  if (!quy.tac_tu.length) return { hoan_lai: false, ly_do: 'khong co tac tu cham nao bi quy' };
-  if (quy.tep_khong_ro.length) return { hoan_lai: false, ly_do: `co tep khong ro chu: ${quy.tep_khong_ro.join(', ')}` };
-  const commits = git(root, ['rev-list', `${sha}..HEAD`]).split('\n').filter(Boolean);
-  for (const c of commits) {
-    if (git(root, ['branch', '-r', '--contains', c]).trim()) return { hoan_lai: false, ly_do: `commit da day len nhanh xa: ${c.slice(0, 8)}` };
-  }
-  const banSan = tep.map(x => x.tep).filter(f => Object.prototype.hasOwnProperty.call(ban, f));
-  if (banSan.length) return { hoan_lai: false, ly_do: `tep ban san truoc luot bi ghi de: ${banSan.join(', ')}` };
-  // Chỉ hoàn lại COMMIT, bằng đúng MỘT thao tác (Cổng Bằng chứng 09/10, Ngoài-1/4): ghi đè tệp chưa
-  // commit là việc không đảo được — luôn để phiên. `reset --keep` tự từ chối khi đụng thay đổi chưa
-  // commit, commit bị bỏ vẫn còn trong reflog; một thao tác nên không có trạng thái nửa vời.
-  const chuaCommit = tep.filter(x => x.doi !== 'commit').map(x => x.tep);
-  if (chuaCommit.length) return { hoan_lai: false, ly_do: `co tep doi chua commit: ${chuaCommit.join(', ')}` };
-  try { git(root, ['reset', '-q', '--keep', sha]); }
-  catch (e) { return { hoan_lai: false, ly_do: `git tu choi hoan lai: ${String(e.stderr || e.message).split('\n')[0]}` }; }
-  return { hoan_lai: true };
-}
-
 // Dựng MỘT dòng sổ đúng khuôn GHI-BOI-LINE.
-export function dongGhiBoi({ ts, round, luotTs, sha, quy, hoan, khongDocDuoc }) {
+export function dongGhiBoi({ ts, round, luotTs, sha, quy, khongDocDuoc }) {
   if (!Number.isInteger(round)) throw new Error('dongGhiBoi: round phai la so nguyen');
   return JSON.stringify({
     kind: 'ghi-boi-tac-tu-cham', ts, round, luot_ts: luotTs || '', sha,
     tac_tu: quy.tac_tu, tep_khong_ro: quy.tep_khong_ro,
     ...(khongDocDuoc ? { khong_doc_duoc: khongDocDuoc } : {}),
-    hoan_lai: !!hoan.hoan_lai, ...(hoan.hoan_lai ? {} : { ly_do: hoan.ly_do || '' }),
   });
 }

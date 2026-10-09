@@ -33,7 +33,7 @@ import { phanLoai, DO_GLOBS } from './lib/phan-loai.mjs';
 import { chupThuoc, soThuoc } from './chup-ho-so-da-thong.mjs';
 import { globToRe } from './carry-plan.mjs';
 import { soCay, dongCayDoi } from './lib/cay-doi.mjs';
-import { timTranscript, docTranscript, quyTrachNhiem, hoanLai, dongGhiBoi } from './lib/ghi-boi.mjs';
+import { timTranscript, docTranscript, quyTrachNhiem, dongGhiBoi } from './lib/ghi-boi.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SELF = fileURLToPath(import.meta.url);
@@ -368,14 +368,11 @@ if (isMain) {
             : timTranscript({ roots: [...new Set([root, path.resolve(flags.root)])], slug, invokedAt: argsTep.invokedAt });
           const khongDocDuoc = dirs.length ? null : 'khong tim thay transcript cua luot';
           const quy = khongDocDuoc ? { tac_tu: [], tep_khong_ro: so.tep.map(x => x.tep).sort() } : quyTrachNhiem({ root, tep: so.tep, tacTu: docTranscript(dirs) });
-          const hoan = hoanLai({ root, sha: cay.sha, ban: cay.ban || {}, tep: so.tep, quy, khongDocDuoc });
           let dg;
-          try { dg = dongGhiBoi({ ts, round: Number.isInteger(argsTep.round) ? argsTep.round : round, luotTs: argsTep.invokedAt, sha: cay.sha, quy, hoan, khongDocDuoc }); }
+          try { dg = dongGhiBoi({ ts, round: Number.isInteger(argsTep.round) ? argsTep.round : round, luotTs: argsTep.invokedAt, sha: cay.sha, quy, khongDocDuoc }); }
           catch (e) { die(String(e.message)); }
           fs.appendFileSync(runLogPath, dg + '\n');
           for (const t of quy.tac_tu) console.error(`  tac tu cham ${t.id} (${t.vai || 'khong nhan'}) ghi: ${t.tep.join(', ')} — ${t.cong_cu.join(', ')}`);
-          if (hoan.hoan_lai) console.error('thuoc-vat: da hoan lai — sinh args lai cung round');
-          else console.error(`thuoc-vat: khong tu hoan lai — ${hoan.ly_do}`);
         }
         for (const x of so.tep) console.error(`  ${x.doi}: ${x.tep}`);
         if (so.commit.length) console.error(`  commit: ${so.commit.join(', ')}`);

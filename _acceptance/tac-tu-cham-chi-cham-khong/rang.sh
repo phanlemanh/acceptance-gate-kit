@@ -56,12 +56,9 @@ MOI_LOI_F="$REL_AV";   MOI_LOI_B='if (!opts.agentType || !LOAI_VANG_RE.test(msg)
 KHONG_DONG_F="$REL_AV"; KHONG_DONG_B='const ghiLoaiVang = lines => {'; KHONG_DONG_A='const ghiLoaiVang = lines => { return;'
 GHI_RE_F="$REL_GB";    GHI_RE_B='export const GHI_RE = /^('; GHI_RE_A='export const GHI_RE = /()|^('
 NHANH_CD_F="$REL_GB";  NHANH_CD_B="if (tk[0] === 'cd' && tk[1]) { cwd = thuc(path.resolve(cwd, tk[1])); continue; }"; NHANH_CD_A="if (tk[0] === 'cd' && tk[1]) { continue; }"
-NHANH_XA_F="$REL_GB";  NHANH_XA_B="if (git(root, ['branch', '-r', '--contains', c]).trim()) return"; NHANH_XA_A='if (false) return'
+TU_RESET_F="feature-loop/scripts/thuoc-vat.mjs"; TU_RESET_B="fs.appendFileSync(runLogPath, dg + '\\n');"; TU_RESET_A="fs.appendFileSync(runLogPath, dg + '\\n'); execFileSync('git', ['-C', root, 'reset', '-q', '--keep', cay.sha]);"
 CA_LUOT_F="$REL_AV";   CA_LUOT_B='if (loaiVangCaLuot && opts.agentType) {'; CA_LUOT_A='if (false) {'
 CHUOI_CON_F="$REL_GB"; CHUOI_CON_B='    const sub = gitCon(tk);'; CHUOI_CON_A="    const sub = /^git\\b/.test(d) ? ((d.match(/\\b(checkout|restore|apply|am|stash|reset|rebase|merge|cherry-pick|rm|mv|commit)\\b/) || [])[1] || 'x') : null;"
-CHUA_COMMIT_F="$REL_GB"; CHUA_COMMIT_B='if (chuaCommit.length) return'; CHUA_COMMIT_A='if (false) return'
-BAN_SAN_F="$REL_GB";   BAN_SAN_B='if (banSan.length) return'; BAN_SAN_A='if (false) return'
-TANG_ROUND_F="$REL_S4"; TANG_ROUND_B=$'        round = base;\n        console.error(`s4-args: cay doi trong luot cham'; TANG_ROUND_A=$'        round = base + 1;\n        console.error(`s4-args: cay doi trong luot cham'
 
 run_group() { OUT="$(AT_GOC="$KIT" node "$1/$2" --only "$3" 2>&1)"; RC=$?; }
 xanh_that() {   # $1=tệp test $2=nhóm
@@ -101,12 +98,9 @@ case "$CHAN" in
     do_mutant "$REL_SC_TEST" AT5 bo-ghi-re GHI_RE "FAIL: AT5 hang 7"
     do_mutant "$REL_SC_TEST" AT5 bo-nhanh-cd NHANH_CD "FAIL: AT5 hang 8"
     do_mutant "$REL_SC_TEST" AT5 git-theo-chuoi-con CHUOI_CON "FAIL: AT5 hang 12" ;;
-  hoan-lai)     # AC-6
+  khong-doi-cay) # AC-6
     xanh_that "$REL_SC_TEST" AT6
-    do_mutant "$REL_SC_TEST" AT6 bo-kiem-nhanh-xa NHANH_XA "FAIL: AT6 da day"
-    do_mutant "$REL_SC_TEST" AT6 bo-kiem-ban BAN_SAN "FAIL: AT6 ban san"
-    do_mutant "$REL_SC_TEST" AT6 tang-round TANG_ROUND "FAIL: AT6 cung round"
-    do_mutant "$REL_SC_TEST" AT6 hoan-lai-chua-commit CHUA_COMMIT "FAIL: AT6 chua commit" ;;
-  *) echo "rang.sh: chân lạ «$CHAN» (dinh-nghia|bang-vai|luot-sach|duong-roi|quy-trach|hoan-lai)"; exit 3 ;;
+    do_mutant "$REL_SC_TEST" AT6 tu-reset-sau-luot TU_RESET "FAIL: AT6 khong doi cay" ;;
+  *) echo "rang.sh: chân lạ «$CHAN» (dinh-nghia|bang-vai|luot-sach|duong-roi|quy-trach|khong-doi-cay)"; exit 3 ;;
 esac
 done_chan
