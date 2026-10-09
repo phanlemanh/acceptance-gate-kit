@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5a4ce32d22aaafa5d4c4962549dfed457f45f4fa
+verified_commit: 91a336469f00fb483228e97d3261d083814279cd
 human_signoff: Manh Phan 2026-10-09 — ký mốc 2.25.0; Ngoài-1 ghi Known limits; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -193,3 +193,7 @@ none — every multi-run eval is uniform
 Round 1: mười lăm eval đều xanh (E1 E2 E3 E3f E3g E3h E3b E3c E3i E3j E3d E3e E4 E5 E6) — không vòng sửa.
 Round 2: chạy lại trên cây 6ceecaa3 (sau commit thêm chiều đỏ cho vế CHANGELOG của AC-10) — mười lăm eval vẫn xanh; một mục ngoài hợp đồng ghi ở review-findings.md để người quyết ở Gate 2.
 Round 3: chạy lại trên cây 5a4ce32d (sau khi dòng P200 được gộp một dòng để sống qua bước cắt ba dòng) — mười lăm eval vẫn xanh; một mục ngoài hợp đồng mới về việc bước bọc lệnh cắt dòng gộp ở 240 byte, ghi ở review-findings.md để người quyết ở Gate 2.
+
+### Re-pin lần 1 — 2026-10-09, do chiến dịch ghim lại mốc 2.25.0 — config bật ổ cắm lộ trình + P126 đổi sau lượt chấm 3
+run_id: repin-20261009T022108Z-69979
+sha: 91a336469f00fb483228e97d3261d083814279cd · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng

@@ -634,6 +634,8 @@ risk_tiers:
     # `product-map.mjs --check` trong CI canh `bản đồ == hồ sơ` độc lập, y như
     # P30 canh `mirror == nguồn`; case P126 là RED bắt buộc chứng minh điều đó.
     - "PRODUCT-MAP.md"
+    # Trang lộ trình — view MÁY SINH cạnh bản đồ (cùng bộ dựng product-map), không phải hành vi.
+    - "LO-TRINH.html"
     # Bản ghi mốc ĐỊNH TUYẾN (ADR 0019, 15/09 — cùng điều kiện ADR 0007). Nó là
     # view MÁY SINH: `tests/scripts/routing-baseline.mjs --slug <s> --write` dựng
     # dòng bằng chính `gate-card.js --extract`, và ca LM20 canh drift độc lập —
@@ -692,3 +694,7 @@ feature_loop:
     - executors.test.workflows
     # Bản đồ sản phẩm phải khớp hồ sơ xưởng — pattern P30 cho một view máy sinh.
     - executors.script.product_map
+# Ổ cắm lộ trình của chính kit (hồ sơ trang-lo-trinh-doc-mot-phut; bật ở chiến dịch ghim lại 2.25.0 —
+# hẹn với owner 08/10). Khối chan_troi trong tệp là trường tự do, trang không hiện.
+lo_trinh:
+  tep: docs/plans/lo-trinh-kit.json

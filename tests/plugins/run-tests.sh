@@ -4665,6 +4665,16 @@ try:
     if (root / ".out-of-scope").is_dir():
         shutil.copytree(root / ".out-of-scope", tmp / ".out-of-scope")
     shutil.copy2(root / "PRODUCT-MAP.md", tmp / "PRODUCT-MAP.md")
+    # Kho khai ổ cắm lộ trình (lo_trinh.tep) thì --check còn đọc tệp ý định + LO-TRINH.html: bản sao
+    # thiếu chúng là đỏ vì HẠ TẦNG, không vì bản đồ (chiến dịch ghim lại 2.25.0 bắt). Tên tệp rút bằng
+    # chính bộ đọc khoá của kit, không chép tay.
+    tep_lt = subprocess.run(["node", "-e", "const v=require(process.argv[1]).cacTepTuConfig(require('fs').readFileSync(process.argv[2],'utf8'));console.log(v?v.tep.join('\\n'):'')",
+                             str(root / "scripts/lo-trinh-khoa.cjs"), str(root / "_acceptance/config.yaml")],
+                            capture_output=True, text=True, check=True).stdout.split()
+    for rel in tep_lt + (["LO-TRINH.html"] if tep_lt else []):
+        if (root / rel).is_file():
+            (tmp / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(root / rel, tmp / rel)
     def check_tmp():
         return subprocess.run(["node", str(root / "scripts/product-map.mjs"), "--root", str(tmp), "--check"],
                               cwd=root, capture_output=True, text=True)
