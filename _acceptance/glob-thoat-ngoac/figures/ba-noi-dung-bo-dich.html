@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ba nơi dùng bộ dịch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #eb6c36;
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Lora', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1200px; width: 100%; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 900px; display: block; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Cổng 1 · glob-thoat-ngoac · d-20261009T094932Z-1</p>
+    <h1>Một thành ngữ glob, hai bộ dịch, ba nơi dùng</h1>
+
+    <svg viewBox="0 0 1160 600" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+        <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+      </defs>
+
+      <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+      <!-- ===== Column headings ===== -->
+      <g font-family="'Geist Mono', monospace" font-size="9" font-weight="500" letter-spacing="0.18em" fill="#4f5d75">
+        <text x="40" y="24">MỤC PATHS CỦA EVAL</text>
+        <text x="320" y="24">HAI BỘ DỊCH GLOB</text>
+        <text x="680" y="24">BA NƠI DÙNG</text>
+      </g>
+
+      <!-- ===== Zone: the fix lives in both translators (accent #1) ===== -->
+      <rect x="320" y="120" width="280" height="336" rx="8" fill="rgba(235,108,54,0.03)" stroke="rgba(235,108,54,0.60)" stroke-width="1" stroke-dasharray="4,4"/>
+      <rect x="332" y="124" width="124" height="16" rx="2" fill="#f5f5f5"/>
+      <text x="394" y="136" fill="#ba4513" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">SỬA Ở ĐÂY · AC-1</text>
+      <text x="340" y="440" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Hai bản chép — AC-1 ghim cùng kết quả ở mọi ô</text>
+
+      <!-- ===== Connectors (drawn before boxes) ===== -->
+      <!-- entry -> lib translator -->
+      <path d="M280,240 H292 Q300,240 300,232 V224 Q300,216 308,216 H338" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- entry -> carry-plan translator -->
+      <path d="M280,280 H304 Q312,280 312,288 V352 Q312,360 320,360 H338" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- lib translator -> repin lane -->
+      <path d="M580,196 H616 Q624,196 624,188 V112 Q624,104 632,104 H678" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- lib translator -> stale net -->
+      <path d="M580,236 H632 Q640,236 640,244 V256 Q640,264 648,264 H678" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+      <!-- carry-plan translator -> S4 carry plan -->
+      <line x1="580" y1="392" x2="678" y2="392" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+      <!-- Callout leader: rejected option «chỉ tiền xử lý ở bộ phân loại» -->
+      <path d="M636,500 Q660,496 676,476" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="1" stroke-dasharray="4,3"/>
+      <circle cx="680" cy="472" r="2" fill="#2d3142"/>
+
+      <!-- ===== Node A: the paths entry ===== -->
+      <rect x="40" y="200" width="240" height="120" rx="6" fill="#f5f5f5"/>
+      <rect x="40" y="200" width="240" height="120" rx="6" fill="rgba(79,93,117,0.10)" stroke="#636b80" stroke-width="1"/>
+      <rect x="48" y="208" width="64" height="16" rx="2" fill="transparent" stroke="rgba(99,107,128,0.50)" stroke-width="0.8"/>
+      <text x="80" y="220" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ĐẦU VÀO</text>
+      <text x="56" y="248" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Mục paths thoát ngoặc</text>
+      <text x="56" y="268" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">apps/app/app/(app)/</text>
+      <text x="56" y="284" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', monospace">[[]slug]/contacts/**</text>
+      <text x="56" y="304" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">nghĩa: thư mục <tspan font-family="'Geist Mono', monospace">[slug]</tspan> của Next.js</text>
+      <text x="40" y="340" fill="#636b80" font-size="9" font-family="'Geist', sans-serif">crm · dien-thoai-ca-nhan · ô E1 E16 E17 E20</text>
+
+      <!-- ===== Margin box: bare [slug] unchanged ===== -->
+      <rect x="40" y="384" width="240" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="40" y="384" width="240" height="128" rx="6" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.30)" stroke-width="1" stroke-dasharray="4,3"/>
+      <rect x="48" y="392" width="72" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+      <text x="84" y="404" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">Ô BÊN LỀ</text>
+      <text x="56" y="432" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', monospace">[slug] trần · 102 tệp crm</text>
+      <text x="56" y="452" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Không đổi nghĩa</text>
+      <text x="56" y="470" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">Lớp ký tự đầy đủ sẽ đọc <tspan font-family="'Geist Mono', monospace">[slug]</tspan> thành</text>
+      <text x="56" y="484" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">«một ký tự s/l/u/g» → hỏng 102 tệp.</text>
+      <text x="56" y="500" fill="#2d3142" font-size="9" font-weight="600" font-family="'Geist', sans-serif">Loại — chỉ nhận <tspan font-family="'Geist Mono', monospace">[[]</tspan> và <tspan font-family="'Geist Mono', monospace">[]]</tspan>.</text>
+
+      <!-- ===== T1: lib translator ===== -->
+      <rect x="340" y="160" width="240" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="340" y="160" width="240" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="348" y="168" width="36" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="366" y="180" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LIB</text>
+      <text x="356" y="208" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Bộ dịch của lib</text>
+      <text x="356" y="226" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">pathGlobToRe · lib/evidence-core.cjs</text>
+      <text x="356" y="248" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">hôm nay <tspan font-family="'Geist Mono', monospace">[ ]</tspan> là chữ thường; thêm hai thành ngữ:</text>
+      <text x="356" y="264" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', monospace">[[] → [  ·  []] → ]</text>
+
+      <!-- ===== T2: carry-plan translator ===== -->
+      <rect x="340" y="304" width="240" height="112" rx="6" fill="#f5f5f5"/>
+      <rect x="340" y="304" width="240" height="112" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <rect x="348" y="312" width="36" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="366" y="324" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">S4</text>
+      <text x="356" y="352" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Bộ dịch của carry-plan</text>
+      <text x="356" y="370" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">globToRe · carry-plan.mjs</text>
+      <text x="356" y="392" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif">hôm nay <tspan font-family="'Geist Mono', monospace">[ ]</tspan> là chữ thường; thêm hai thành ngữ:</text>
+      <text x="356" y="408" fill="#2d3142" font-size="10" font-weight="600" font-family="'Geist Mono', monospace">[[] → [  ·  []] → ]</text>
+
+      <!-- ===== U1: repin lane ===== -->
+      <rect x="680" y="40" width="440" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="680" y="40" width="440" height="128" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="696" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Làn ghim lại</text>
+      <rect x="1016" y="52" width="88" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="1060" y="64" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">AC-2 · AC-3</text>
+      <text x="696" y="86" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">chamTuPin ← phanLoaiMucPaths · repin-lane.mjs</text>
+      <line x1="696" y1="98" x2="1104" y2="98" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <rect x="696" y="108" width="64" height="16" rx="2" fill="transparent" stroke="rgba(99,107,128,0.60)" stroke-width="0.8"/>
+      <text x="728" y="120" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÔM NAY</text>
+      <text x="772" y="120" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif"><tspan font-weight="600">Báo thừa</tspan> — gắn oan <tspan font-family="'Geist Mono', monospace" font-size="10">evals_not_machine_touched</tspan></text>
+      <rect x="696" y="136" width="64" height="16" rx="2" fill="#2d3142"/>
+      <text x="728" y="148" fill="#f5f5f5" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SAU SỬA</text>
+      <text x="772" y="148" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Khớp tệp <tspan font-family="'Geist Mono', monospace" font-size="10">[slug]</tspan> thật — vắng khi diff không chạm <tspan font-family="'Geist Mono', monospace" font-size="10">apps/</tspan></text>
+
+      <!-- ===== U2: stale net ===== -->
+      <rect x="680" y="200" width="440" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="680" y="200" width="440" height="128" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+      <text x="696" y="228" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Lưới hoá cũ</text>
+      <rect x="1040" y="212" width="64" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="1072" y="224" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">AC-5</text>
+      <text x="696" y="246" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">staleByPaths ← phanLoaiMucPaths · evidence-core.cjs</text>
+      <line x1="696" y1="258" x2="1104" y2="258" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <rect x="696" y="268" width="64" height="16" rx="2" fill="transparent" stroke="rgba(99,107,128,0.60)" stroke-width="0.8"/>
+      <text x="728" y="280" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÔM NAY</text>
+      <text x="772" y="280" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif"><tspan font-weight="600">Thận trọng</tspan> — từ chối mục, rơi về luật cũ (giữ mọi tệp)</text>
+      <rect x="696" y="296" width="64" height="16" rx="2" fill="#2d3142"/>
+      <text x="728" y="308" fill="#f5f5f5" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SAU SỬA</text>
+      <text x="772" y="308" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Khớp tệp <tspan font-family="'Geist Mono', monospace" font-size="10">[slug]</tspan> thật — hoá cũ đúng tệp bị chạm</text>
+
+      <!-- ===== U3: S4 carry plan — focal (accent #2) ===== -->
+      <rect x="680" y="360" width="440" height="128" rx="6" fill="#f5f5f5"/>
+      <rect x="680" y="360" width="440" height="128" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="696" y="388" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif">Kế hoạch mang sang S4</text>
+      <rect x="1040" y="372" width="64" height="16" rx="2" fill="transparent" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
+      <text x="1072" y="384" fill="#2d3142" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">AC-4</text>
+      <text x="696" y="406" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace">carry-plan.mjs · globToRe · đường phán quyết</text>
+      <line x1="696" y1="418" x2="1104" y2="418" stroke="rgba(235,108,54,0.25)" stroke-width="0.8"/>
+      <rect x="696" y="428" width="64" height="16" rx="2" fill="transparent" stroke="#eb6c36" stroke-width="0.8"/>
+      <text x="728" y="440" fill="#ba4513" font-size="9" font-weight="600" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÔM NAY</text>
+      <text x="772" y="440" fill="#ba4513" font-size="11" font-family="'Geist', sans-serif"><tspan font-weight="600">Xanh giả</tspan> — eval được mang sang dù tệp của nó đã đổi</text>
+      <rect x="696" y="456" width="64" height="16" rx="2" fill="#2d3142"/>
+      <text x="728" y="468" fill="#f5f5f5" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SAU SỬA</text>
+      <text x="772" y="468" fill="#2d3142" font-size="11" font-family="'Geist', sans-serif">Khớp tệp <tspan font-family="'Geist Mono', monospace" font-size="10">[slug]</tspan> thật — vào rerun «diff-fix chạm»</text>
+
+      <!-- ===== Callout: rejected option 3 ===== -->
+      <g font-family="'Instrument Serif', 'Lora', serif" font-style="italic" font-size="14" fill="#2d3142">
+        <text x="340" y="488">Loại: chỉ tiền xử lý ở bộ phân loại —</text>
+        <text x="340" y="506">chữa làn ghim lại, nhưng carry-plan đọc</text>
+        <text x="340" y="524">paths bằng bộ đọc riêng nên vẫn xanh giả.</text>
+      </g>
+
+      <!-- ===== Legend strip ===== -->
+      <line x1="40" y1="548" x2="1120" y2="548" stroke="rgba(45,49,66,0.12)" stroke-width="0.8"/>
+      <text x="40" y="576" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" letter-spacing="0.14em">CHÚ GIẢI</text>
+
+      <rect x="128" y="564" width="24" height="16" rx="2" fill="rgba(235,108,54,0.03)" stroke="rgba(235,108,54,0.60)" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="160" y="576" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">vùng sửa — hai bộ dịch</text>
+
+      <rect x="320" y="564" width="24" height="16" rx="2" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1.4"/>
+      <text x="352" y="576" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">chiều nguy hiểm — xanh giả</text>
+
+      <rect x="528" y="564" width="64" height="16" rx="2" fill="transparent" stroke="rgba(99,107,128,0.60)" stroke-width="0.8"/>
+      <text x="560" y="576" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">HÔM NAY</text>
+      <text x="600" y="576" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">hệ quả trước sửa</text>
+
+      <rect x="720" y="564" width="64" height="16" rx="2" fill="#2d3142"/>
+      <text x="752" y="576" fill="#f5f5f5" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SAU SỬA</text>
+      <text x="792" y="576" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">hệ quả sau sửa</text>
+
+      <rect x="912" y="564" width="24" height="16" rx="2" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.30)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="944" y="576" fill="#4f5d75" font-size="10" font-family="'Geist', sans-serif">ô bên lề — không đổi</text>
+    </svg>
+  </div>
+</body>
+</html>

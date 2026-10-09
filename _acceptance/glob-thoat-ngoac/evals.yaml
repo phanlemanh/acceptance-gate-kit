@@ -1,0 +1,79 @@
+# Eval cho hồ sơ glob-thoat-ngoac.
+#
+# Một tệp ca: tests/scripts/glob-thoat-ngoac.test.mjs — nạp CHÍNH lib/evidence-core.cjs (pathGlobToRe,
+# phanLoaiMucPaths), CHÍNH feature-loop/scripts/carry-plan.mjs (globToRe, kế hoạch mang sang) và chạy CHÍNH
+# feature-loop/scripts/repin-lane.mjs trên kho mẫu dựng trong lần chạy. Bảng glob × tệp viết trước trong tệp
+# ca; mỗi AC có đối chứng dương và chiều đỏ, thông điệp ghim. Đường dẫn suy từ vị trí tệp ca.
+schema_version: 1
+feature_slug: glob-thoat-ngoac
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.gtn_bo_dich
+    expected: >-
+      GT1 bảng 5 glob × 5 tệp viết trước qua pathGlobToRe, mỗi ô một assert (25), khớp kỳ vọng — thành ngữ
+      [[]/[]] khớp tệp có ngoặc thật, «[slug]» trần vẫn khớp như hôm nay. GT1b cùng bảng qua globToRe.
+      GT1c hai hàm cho cùng kết quả ở cả 25 ô.
+    paths: ["lib/evidence-core.cjs", "feature-loop/scripts/carry-plan.mjs", "tests/scripts/glob-thoat-ngoac.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.gtn_phan_loai
+    expected: >-
+      GT2 mục thoát ngoặc có «**» → nhan:true, glob khớp tệp thật. GT2b mục thoát ngoặc không «*» → nhan:true.
+      GT2c chiều im: «[slug]» trần → nhan:true như bảng viết trước; mục thường trỏ thư mục không có →
+      paths-khong-tro-toi-tep. GT2d mục thành ngữ không «*» trỏ tệp không có → nhan:false, mã
+      paths-khong-tro-toi-tep (GT2b là đối chứng dương trên cùng cây).
+    paths: ["lib/evidence-core.cjs", "tests/scripts/glob-thoat-ngoac.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.gtn_lan_ghim_lai
+    expected: >-
+      GT3 kho mẫu mang nguyên văn khối paths tám mục của ô E1 crm dien-thoai-ca-nhan (sha f58f27802, chuỗi
+      viết trước trong tệp ca), diff không chạm apps/ hay packages/ → làn xanh, dòng repin VẮNG
+      evals_not_machine_touched. GT3b diff chạm «apps/app/app/(app)/[slug]/contacts/x.tsx» →
+      evals_not_machine_touched chứa E1, không chứa ô đường thường.
+    paths: ["lib/evidence-core.cjs", "feature-loop/scripts/repin-lane.mjs", "tests/scripts/glob-thoat-ngoac.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.gtn_mang_sang
+    expected: >-
+      GT4 evals.yaml dạng văn bản dựng trong lần chạy, paths một dòng thành ngữ; bộ đọc thật của carry-plan
+      trả mục BẰNG chuỗi gốc; deltaFiles chạm tệp có ngoặc thật → eval vào rerun, lý do bắt đầu «diff-fix chạm».
+      GT4b đối chứng: deltaFiles không chạm → eval được mang sang.
+    paths: ["feature-loop/scripts/carry-plan.mjs", "tests/scripts/glob-thoat-ngoac.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.gtn_hoa_cu
+    expected: >-
+      GT6 kho mẫu, hồ sơ đã ký có eval máy khai paths thành ngữ; diff chạm
+      «apps/app/app/(app)/[slug]/contacts/x.tsx» → pre-merge-check báo «evidence is stale» cho hồ sơ đó, gọi tên
+      tệp. GT6b chiều im: diff chỉ chạm tệp ngoài mọi paths → không VIOLATION stale cho hồ sơ đó (đối chứng
+      dương: GT6 trên cùng kho).
+    paths: ["lib/evidence-core.cjs", "scripts/pre-merge-check.sh", "tests/scripts/glob-thoat-ngoac.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.gtn_dot_bien
+    expected: >-
+      GT5a gỡ thành ngữ ở pathGlobToRe (bản sao) → GT3 chiều im gắn oan (đỏ). GT5b gỡ ở globToRe → GT4 mang
+      sang eval đã chạm (đỏ). GT5c gỡ nhánh «thành ngữ là glob» ở phanLoaiMucPaths → GT2b bị từ chối (đỏ).
+      GT5d nhánh thành ngữ bỏ kiểm tồn tại → GT2d được nhận (đỏ). GT5e bộ đọc paths của carry-plan cắt ở «]»
+      đầu tiên → GT4 khứ hồi đỏ. Mỗi kim khớp đúng một lần trong nguồn thật.
+    paths: ["lib/evidence-core.cjs", "feature-loop/scripts/carry-plan.mjs", "tests/scripts/glob-thoat-ngoac.test.mjs"]
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: '"Results: all workflow tests passed" — ba bộ còn lại (scripts, hooks, plugins) chạy là suite của lượt chấm.'
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
