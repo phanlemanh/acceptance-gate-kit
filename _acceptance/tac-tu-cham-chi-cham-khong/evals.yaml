@@ -44,9 +44,10 @@ evals:
     executor: script
     cmd: config:executors.script.tccc_luot_sach
     expected: >
-      Cây thật: nhóm AT3 xanh — cùng args + câu trả lời giả, bộ chấm hiện tại và bản
-      v2.26.0 (git show trong lần chạy) cho mảng đề bài, phán quyết, dòng run-log BẰNG
-      NHAU; khác biệt opts duy nhất là agentType. Chiều đỏ: chen-ky-tu-de-bai →
+      Cây thật: nhóm AT3 xanh — cùng args + câu trả lời giả, bộ chấm đang kiểm và CHÍNH NÓ
+      với bảng vai → loại bị gỡ (bản sao code sinh trong lần chạy; đối chứng: bản gỡ không còn
+      agentType, cây đang kiểm có agentType ở mọi lời gọi) cho mảng đề bài, phán quyết PASS,
+      dòng run-log BẰNG NHAU; opts chỉ khác trường agentType. Chiều đỏ: de-bai-theo-loai →
       «FAIL: AT3 de bai».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/tac-tu-cham-hep.test.mjs", "tests/workflows/harness.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]

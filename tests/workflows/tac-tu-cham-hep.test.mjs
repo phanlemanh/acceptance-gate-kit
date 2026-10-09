@@ -126,22 +126,30 @@ if (want('AT2')) {
   } catch (e) { bad('AT2', loi(e)); }
 }
 
-// ── AT3 — lượt sạch không đổi so với v2.26.0 ───────────────────────────────
+// ── AT3 — lượt sạch không đổi: chỉ thêm agentType ─────────────────────────
+// Đối chứng là CHÍNH bộ chấm đang kiểm với bảng vai → loại bị gỡ (bản sao do code sinh trong lần
+// chạy), không phải một tag cố định: so với v2.26.0 đã đỏ oan ngay khi #280 sửa đề bài baseline
+// (Known limit Ngoài-3 lượt 1 thành sự thật lúc gộp main 10/10). Lời hứa không đổi: thêm loại tác
+// tử không làm đổi đề bài, phán quyết, sổ chạy, và opts chỉ khác đúng trường agentType.
+const VAI_OPT_CO_LOAI = 'const vaiOpt = role => ({ ...modelOpt(role), agentType: AGENT_TYPES[role] })';
 if (want('AT3')) {
   try {
-    const base = execFileSync('git', ['-C', GOC, 'show', `${BASE_REF}:feature-loop/workflows/acceptance-verify.js`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
     const cay = readFileSync(WF, 'utf8');
-    if (base === cay) throw new Error('base trung cay — vi phan rong');
-    const a = await runWorkflow(WF, ARGS(), traLoi, base);
+    const soCho = cay.split(VAI_OPT_CO_LOAI).length - 1;
+    if (soCho !== 1) throw new Error(`khong dung duoc ban go loai: mau vaiOpt khop ${soCho} cho (can dung 1)`);
+    const khongLoai = cay.replace(VAI_OPT_CO_LOAI, 'const vaiOpt = role => ({ ...modelOpt(role) })');
+    const a = await runWorkflow(WF, ARGS(), traLoi, khongLoai);
     const b = await runWorkflow(WF, ARGS(), traLoi);
     const boLoai = o => { const { agentType, ...r } = o; return r; };
     const sai = [];
-    if (JSON.stringify(a.calls.map(c => [c.label, c.prompt])) !== JSON.stringify(b.calls.map(c => [c.label, c.prompt]))) sai.push(['AT3 de bai', 'mang de bai (nhan + prompt) khac ' + BASE_REF]);
-    if (a.result.verdict !== b.result.verdict || a.result.verdict !== 'PASS') sai.push(['AT3 phan quyet', `${BASE_REF}=${a.result.verdict} cay=${b.result.verdict}`]);
-    if (JSON.stringify(a.result.runLog) !== JSON.stringify(b.result.runLog)) sai.push(['AT3 run-log', 'dong run-log khac ' + BASE_REF]);
+    if (a.calls.some(c => 'agentType' in c.opts)) sai.push(['AT3 doi chung', 'ban go loai van mang agentType — doi chung khong khac cay']);
+    if (!b.calls.every(c => c.opts.agentType)) sai.push(['AT3 doi chung', 'cay dang kiem co loi goi thieu agentType — so sanh vo nghia']);
+    if (JSON.stringify(a.calls.map(c => [c.label, c.prompt])) !== JSON.stringify(b.calls.map(c => [c.label, c.prompt]))) sai.push(['AT3 de bai', 'mang de bai (nhan + prompt) khac ban khong loai']);
+    if (a.result.verdict !== b.result.verdict || a.result.verdict !== 'PASS') sai.push(['AT3 phan quyet', `khong loai=${a.result.verdict} co loai=${b.result.verdict}`]);
+    if (JSON.stringify(a.result.runLog) !== JSON.stringify(b.result.runLog)) sai.push(['AT3 run-log', 'dong run-log khac ban khong loai']);
     if (JSON.stringify(a.calls.map(c => c.opts)) !== JSON.stringify(b.calls.map(c => boLoai(c.opts)))) sai.push(['AT3 opts', 'opts khac ngoai truong agentType']);
     if (sai.length) for (const [t, m] of sai) bad(t, m);
-    else ok('AT3', `— ${b.calls.length} lời gọi: đề bài, phán quyết PASS, run-log trùng ${BASE_REF}; opts chỉ thêm agentType`);
+    else ok('AT3', `— ${b.calls.length} lời gọi: đề bài, phán quyết PASS, run-log trùng bản không loại; opts chỉ thêm agentType`);
   } catch (e) { bad('AT3', loi(e)); }
 }
 

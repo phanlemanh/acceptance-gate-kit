@@ -52,7 +52,7 @@ Source input: ô cơ hội `opportunity.md` (đã ký) · design doc ở frontma
   - số lời gọi thiếu `agentType` bằng 0.
 
   Chiều đỏ: bản sao `agentT` bỏ `agentType` → «AT2 thieu agentType»; bản sao bảng đảo judge → `cham-lenh` → «AT2 judge».
-- AC-3: Given cùng args và cùng câu trả lời giả, When chạy bộ chấm hiện tại và bản của tag `v2.26.0` (code lấy bằng `git show` trong lần chạy), Then ba thứ BẰNG NHAU: mảng đề bài theo thứ tự lời gọi, phán quyết, và các dòng run-log, tức lượt sạch không đổi từng byte. Đổi duy nhất được phép là trường `agentType` của `opts`. Bản sao chèn một ký tự vào đuôi đề bài máy cho đỏ «AT3 de bai».
+- AC-3: Given cùng args và cùng câu trả lời giả, When chạy bộ chấm đang kiểm và CHÍNH NÓ với bảng vai → loại bị gỡ (bản sao do code sinh trong lần chạy — đổi 10/10 khi gộp main: so với tag `v2.26.0` đỏ oan ngay khi #280 sửa đề bài baseline, đúng Known limit Ngoài-3 lượt 1), Then ba thứ BẰNG NHAU: mảng đề bài theo thứ tự lời gọi, phán quyết, và các dòng run-log, tức thêm loại tác tử không đổi lượt sạch từng byte. Đổi duy nhất được phép là trường `agentType` của `opts`. Bản sao cho đề bài phụ thuộc việc có loại cho đỏ «AT3 de bai».
 - AC-4: Given câu trả lời giả ném `agent type '<loại>' not found` cho mọi lời gọi có `agentType`, When bộ chấm chạy, Then:
   - mỗi lời gọi bị báo «not found» được gọi lại ĐÚNG một lần, cùng đề bài, không `agentType`;
   - sau lần «not found» đầu tiên, mọi lời gọi khởi động SAU đó của lượt đi thẳng không `agentType` (không còn bị báo thất bại — bảng theo dõi chỉ hiện đợt đang bay lúc ấy; Cổng Bằng chứng 09/10 bổ sung);
@@ -137,7 +137,7 @@ Quét Zwicky (preset test-matrix, trục dựng lại), đầy đủ ở `morpho
   - Ngoài-6 (lượt 3): `git -C <thư mục khác>` với tên tệp trùng bị quy nhầm cho tệp kho chính.
 - **Known limits (owner ký 09/10 tại Cổng Bằng chứng, lượt chấm 1):**
   - Ngoài-2: `--transcript` rỗng hoặc trỏ thư mục của lượt khác được ghi như đã đọc — số K (không đọc được) có thể thấp hơn thực tế.
-  - Ngoài-3: AT3 so từng byte với `v2.26.0`; vòng sau đổi lời dặn bộ chấm sẽ làm nó đỏ và phải nâng mốc so.
+  - Ngoài-3: AT3 so từng byte với `v2.26.0`; vòng sau đổi lời dặn bộ chấm sẽ làm nó đỏ và phải nâng mốc so. **ĐÃ GỠ 10/10** khi gộp main (#280 làm nó đỏ): AT3 nay so với chính bộ chấm gỡ loại, không ghim mốc.
   - Ngoài-6: kiểm cặp `cay-doi`/`ghi-boi` chỉ bằng vị trí và tên khoá, không so giá trị `round` · `luot_ts` · `sha` giữa hai dòng.
   - Ngoài-7: chiều đỏ AT5/AT6 ghim tên hàng, mà tên hàng cũng in khi hàng ném lỗi hạ tầng.
 - **Phép kiểm có tên — chạy ở phiên đầu tiên mở sau khi cài mốc, TRƯỚC khi đếm cửa sổ:**

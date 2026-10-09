@@ -51,7 +51,7 @@ EDIT_LENH_F="feature-loop/agents/cham-lenh.md"; EDIT_LENH_B='tools: Bash, Read, 
 GO_EDIT_UI_F="feature-loop/agents/cham-ui.md";  GO_EDIT_UI_B='disallowedTools: Edit, Write, NotebookEdit'; GO_EDIT_UI_A='disallowedTools: Write, NotebookEdit'
 BO_LOAI_F="$REL_AV";   BO_LOAI_B='const vaiOpt = role => ({ ...modelOpt(role), agentType: AGENT_TYPES[role] })'; BO_LOAI_A='const vaiOpt = role => ({ ...modelOpt(role) })'
 DAO_JUDGE_F="$REL_AV"; DAO_JUDGE_B="judge: 'feature-loop:cham-doc', triage:"; DAO_JUDGE_A="judge: 'feature-loop:cham-lenh', triage:"
-DE_BAI_F="$REL_AV";    DE_BAI_B='const DUOI_LENH_MAY = `KHONG sua code.'; DE_BAI_A='const DUOI_LENH_MAY = `KHONG sua code.x'
+DE_BAI_F="$REL_AV";    DE_BAI_B='const p = `[wf-label: ${opts.label}]\n${prompt}`'; DE_BAI_A='const p = `[wf-label: ${opts.label}]${opts.agentType ? "*" : ""}\n${prompt}`'
 MOI_LOI_F="$REL_AV";   MOI_LOI_B='if (!opts.agentType || !LOAI_VANG_RE.test(msg)) throw e'; MOI_LOI_A='if (!opts.agentType) throw e'
 KHONG_DONG_F="$REL_AV"; KHONG_DONG_B='const ghiLoaiVang = lines => {'; KHONG_DONG_A='const ghiLoaiVang = lines => { return;'
 GHI_RE_F="$REL_GB";    GHI_RE_B='export const GHI_RE = /^('; GHI_RE_A='export const GHI_RE = /()|^('
@@ -87,7 +87,7 @@ case "$CHAN" in
     do_mutant "$REL_WF_TEST" AT2 dao-judge DAO_JUDGE "FAIL: AT2 judge" ;;
   luot-sach)    # AC-3
     xanh_that "$REL_WF_TEST" AT3
-    do_mutant "$REL_WF_TEST" AT3 chen-ky-tu-de-bai DE_BAI "FAIL: AT3 de bai" ;;
+    do_mutant "$REL_WF_TEST" AT3 de-bai-theo-loai DE_BAI "FAIL: AT3 de bai" ;;
   duong-roi)    # AC-4
     xanh_that "$REL_WF_TEST" AT4
     do_mutant "$REL_WF_TEST" AT4 goi-lai-moi-loi MOI_LOI "FAIL: AT4 im"

@@ -105,8 +105,12 @@ ran normally (older reports omit it).
 Baseline (A/B): each machine eval may carry a `baseline:` field — its status on
 the diffBase (pre-feature) tree. `red` = it failed on the old code (good: the
 eval discriminates), `green` = it passed on the old code too (non-discriminating
-— the `## Analyst` section flags these), `n-a` = baseline could not run. Use the
-WORDS red/green/n-a, never an exit number, so the consistency scan does not
+— the `## Analyst` section flags these), `n-a` = baseline did not measure it. Every
+`n-a` carries its reason in `## Analyst` under «Baseline khong do»: skipped because
+the file the command points to does not exist on the diffBase yet (a new eval —
+running it on old code proves nothing), hit the per-command or total time cap, or
+the whole baseline lane was BLOCKED by infrastructure (that line opens the section).
+Use the WORDS red/green/n-a, never an exit number, so the consistency scan does not
 misread a baseline as a failed eval.
 
 Variance (run-N): an eval may carry `runs: N` (N > 1) when it is stochastic

@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>100 việc"]
+  GB --> DG["Đã giao<br/>101 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>14 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>6 việc"]
 ```
@@ -66,6 +66,7 @@ flowchart TD
 ## Đã giao
 
 - Đưa bài học đo lường của tuần 08–14/08 vào engine — bốn lớp lỗi mới có ca đại diện, nguyên tắc lật-allow-list, và một bánh cóc hai chiều buộc bảng lớp lỗi trace về sổ nguồn (`bai-hoc-do-luong-vao-engine`)
+- Làn đối chứng S4 (baseline:diffBase) chạy MỘT lệnh do kit sinh — có trần mỗi lệnh và trần tổng, bỏ qua eval trỏ tệp chưa có ở merge-base (ghi lý do vào báo cáo), tự dọn worktree tạm khi bị dừng/hỏng; lane không về trọn là BLOCKED hạ tầng có tên, lượt chấm vẫn ra báo cáo (`baseline-tran-bo-qua-don`)
 - Thẻ quyết định in đúng thứ hồ sơ viết — đường dẫn có dấu sao không còn bị cụt khi lột định dạng, và mọi hình dạng dấu sao khác đều có kỳ vọng đã khai trước thay vì tuỳ hệ quả (`card-text-fidelity`)
 - Kit thôi đo phút người ở mọi cổng — gỡ cả lớp HỎI lẫn lớp KHẲNG ĐỊNH về phút, giữ đường đọc-cũ cho hồ sơ đã ký và giữ nguyên mọi răng bằng chứng (`cat-hinh-thuc`) — đã giao — đã nghỉ, giữ sử liệu
 - Cắt khối 👉 VIỆC CỦA ANH khỏi TIN mời cổng — thay khuôn N-mục-3-vế bằng một câu «mời cổng như đồng nghiệp hỏi»; thẻ HTML giữ nguyên; chỉ TRỪ (`cat-khoi-viec-cua-anh-tren-tin`) — đã giao — đã nghỉ, giữ sử liệu

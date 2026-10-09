@@ -487,6 +487,8 @@ const PROV_SCHEMA = {
 const BASELINE_SCHEMA = {
   type: 'object',
   properties: {
+    dauRa: { type: 'string', description: 'TOAN BO stdout cua lenh baseline kit sinh, NGUYEN VAN (cac dong __BL ...) — JS doc ma thoat tu day' },
+    killedByTool: KILLED_BY_TOOL_FIELD,
     results: {
       type: 'array',
       items: {
@@ -502,7 +504,7 @@ const BASELINE_SCHEMA = {
       },
     },
   },
-  required: ['results'],
+  required: ['dauRa', 'results'],
 }
 
 // ===== MODEL ROUTING (logic thuần — unit-tested tại tests/workflows, case W10) =====
@@ -860,6 +862,134 @@ const BOC_NEN = (lenh, ten) => `D="${NEN_DIR}"; mkdir -p "$D"; [ -f "${args.repo
 const CHO_NEN = (ten, phut) => `mkdir -p "${NEN_DIR}"; L="${NEN_DIR}/${ten}.log"; TRAN_LAN=${TRAN_LAN_GIAY}; HAN_PHUT=${phut}; ${DUNG_CAY}; [ -f "$L.bat-dau" ] || { date +%s > "$L.bat-dau.c" && mv -f "$L.bat-dau.c" "$L.bat-dau"; }; B=$(cat "$L.bat-dau" 2>/dev/null); case "$B" in ''|*[!0-9]*) B=$(date +%s);; esac; HAN=$((B + HAN_PHUT * 60)); T=$(( $(date +%s) + TRAN_LAN )); KQ=chua-xong; while :; do if [ -f "$L.qua-han" ]; then KQ=qua-han; break; fi; if [ -f "$L.xong" ]; then KQ=xong; break; fi; N=$(date +%s); if [ "$N" -ge "$HAN" ]; then KQ=qua-han; : > "$L.qua-han"; P=$(cat "$L.pid" 2>/dev/null); [ -n "$P" ] && dung "$P"; break; fi; if [ "$N" -ge "$T" ]; then break; fi; sleep 2; done; if [ "$KQ" = xong ]; then tail -n 40 "$L" | cut -c1-240 | tail -c 6000; else tail -n 5 "$L" 2>/dev/null | sed 's/^${EXIT_MARK}/[__EXIT che]/' | cut -c1-240; if [ "$KQ" = qua-han ]; then printf '\\n${DAU_QUA_HAN}\\n'; else printf '\\n${DAU_CHUA_XONG}\\n'; fi; fi`
 // LENH-DAI>>>
 
+// Lane ĐỐI CHỨNG (baseline:diffBase) chạy MỘT lệnh do kit sinh (hồ sơ baseline-tran-bo-qua-don).
+// Sự cố crm 07/10 (wf_f425c910-a3b): prompt cũ để tác tử TỰ CHẾ cách chạy — nó dựng vòng `while read …
+// bash -c "…$c"`, và lệnh ấy chờ một hộp xin quyền 5 giờ dù phiên ở bypassPermissions (nhật ký app:
+// yêu cầu 22:45:15, owner bấm 03:45:17 giờ máy). Lượt 08:32 cùng ngày: tác tử baseline khác, vòng `eval
+// "$c"`, cũng bị hỏi. Lệnh máy (BOC_LENH, lệnh viết thẳng) chưa lần nào bị hỏi. Nên lệnh dưới đây:
+//   · viết THẲNG từng lệnh eval vào khối của nó — KHÔNG eval / bash -c "$biến" / while-read / <(…);
+//   · TRẦN mỗi lệnh (canh nền giết CẢ CÂY bằng DUNG_CAY) + TRẦN TỔNG dưới trần 600 s của công cụ, nên
+//     một lần gọi Bash không bao giờ treo quá trần tổng; lệnh hết lượt ghi «het-tran-tong», không chạy;
+//   · BỎ QUA lệnh trỏ tới tệp CÓ ở cây đang kiểm mà KHÔNG có ở merge-base — đo code cũ bằng một tệp kiểm
+//     chưa tồn tại không phân biệt gì (crm: 8 lệnh «had no matches»);
+//   · DỌN worktree tạm bằng trap (EXIT/TERM/HUP/INT), và QUÉT worktree `agk-baseline*` mồ côi của lượt
+//     trước bị giết cứng (KILL không chạy trap) — trừ lượt có pid trong lý do khoá còn sống.
+// Kết quả là DÒNG DẤU trên stdout (`__BL <i> <kq> …`, `__BL_XONG`), JS đọc — không tin results[] tác
+// tử khai. Đầu ra của chính lệnh eval đi vào nhật ký, không lên stdout, nên lệnh không giả được dấu.
+// KHÔNG `rm`/`rmdir` nào: kiểm tra an toàn có sẵn của Claude Code hỏi người cho mọi lệnh xoá có đích là
+// biến nó không phân giải được, và cho mọi script `-c`/eval có `rm` nó không đọc được — kể cả ở
+// bypassPermissions. Đo 08/10 trong phiên sửa, chạy CHÍNH lệnh này qua công cụ Bash: bản có `rmdir
+// "$T0"` (T0 từ dirname) bị chặn. Nên: worktree nằm thẳng trong thư mục mktemp, khoá bằng `git worktree
+// lock` khoá NGUYÊN TỬ ngay lúc `worktree add --lock --reason "agk-baseline pid <$$>"` (dấu sống cho bước
+// quét; khoá tách bước sau `add` để hở một khe mà bước quét của lượt song song coi worktree là mồ côi), gỡ bằng `worktree remove --force
+// --force` (git xoá cả thư mục); cờ chạm trần là ghi đè tệp, không xoá.
+// Chạy được ở bash lẫn zsh (công cụ chạy lệnh trong zsh): vòng `for` chỉ trên chữ viết thẳng hoặc
+// `$(…)`, không glob — zsh dừng cả lệnh khi glob không khớp.
+// GIỚI HẠN ĐÃ KHAI: hộp xin quyền đến TRƯỚC khi lệnh chạy, nên không trần nào trong lệnh chặn được nó;
+// harness không có trần cho agent(). Ngưỡng mở lại: ≥1 lượt baseline chờ hộp xin quyền với lệnh kit sinh.
+// <<<BASELINE-LENH
+const BL_TRAN_LENH_GIAY = 180
+const BL_TRAN_TONG_GIAY = 480
+const BL_DIR = `${args.repoRoot}/.acceptance-runs/${args.slug}/s4-baseline/${NHAN_LUOT}`
+const DAU_BL = '__BL'
+const sq = s => `'${String(s).replace(/'/g, `'\\''`)}'`
+// Tệp mà lệnh trỏ tới — suy theo `cd` của TỪNG phạm vi: chuỗi trong nháy chứa toán tử là một lệnh con
+// (`bun run test -- "cd apps/api && bun test x.spec.ts"`) với `cd` riêng, không rò ra lệnh ngoài.
+// Ứng viên chỉ là ĐOÁN; lệnh sinh ra mới hỏi git: bỏ qua chỉ khi tệp CÓ ở cây đang kiểm và VẮNG ở
+// merge-base — chữ không phải tệp (cờ, tên test) tự rơi vì không tồn tại.
+const BL_TACH = /&&|\|\||[;|&]/
+function tachTu(s) {
+  const out = []
+  let cur = '', q = null, coNhay = false
+  const day = () => { if (cur || coNhay) out.push({ t: cur, nhay: coNhay }); cur = ''; coNhay = false }
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i]
+    if (q) { if (ch === q) q = null; else cur += ch; continue }
+    if (ch === '"' || ch === "'") { q = ch; coNhay = true; continue }
+    if (/\s/.test(ch)) { day(); continue }
+    if (ch === ';' || ch === '|' || ch === '&') { day(); out.push({ t: ch, toanTu: true }); continue }
+    if (ch === '>' || ch === '<') { if (/^\d+$/.test(cur)) cur = ''; day(); out.push({ t: ch, chuyenHuong: true }); continue }
+    cur += ch
+  }
+  day()
+  return out
+}
+function noiDuong(cwd, p) {
+  const ra = []
+  for (const phan of (cwd ? cwd.split('/') : []).concat(p.split('/'))) {
+    if (!phan || phan === '.') continue
+    if (phan === '..') { if (!ra.length) return null; ra.pop(); continue }
+    ra.push(phan)
+  }
+  return ra.length ? ra.join('/') : null
+}
+function tepCuaLenh(cmd, cwd0 = '') {
+  const ra = []
+  let cwd = cwd0, dauDoan = true, sauChuyenHuong = false
+  for (const tk of tachTu(String(cmd))) {
+    if (tk.toanTu) { dauDoan = true; sauChuyenHuong = false; continue }
+    // Đích chuyển hướng (`> out/r.json`) là tệp lệnh GHI, không phải tệp lệnh đo.
+    if (tk.chuyenHuong) { sauChuyenHuong = true; continue }
+    if (sauChuyenHuong) { sauChuyenHuong = false; continue }
+    const t = tk.t
+    if (tk.nhay && BL_TACH.test(t)) { if (cwd !== null) ra.push(...tepCuaLenh(t, cwd)); dauDoan = false; continue }
+    if (dauDoan && t === 'cd') { dauDoan = 'cd'; continue }
+    if (dauDoan === 'cd') {
+      cwd = (cwd === null || t.startsWith('/') || /[$~*?{]/.test(t)) ? null : noiDuong(cwd, t) || ''
+      dauDoan = false; continue
+    }
+    dauDoan = false
+    if (cwd === null) continue
+    const v = t.startsWith('-') ? (t.includes('=') ? t.slice(t.indexOf('=') + 1) : '') : t
+    if (!v || v.startsWith('/') || /[$~*?{}<>]/.test(v)) continue
+    if (!v.includes('/') && !/\.[A-Za-z0-9]{1,6}$/.test(v)) continue
+    const p = noiDuong(cwd, v)
+    // Thứ do môi trường/lượt chạy cấp, không phải tệp kiểm của eval: phụ thuộc cài đặt và tệp env.
+    if (!p || /(^|\/)node_modules(\/|$)/.test(p) || /(^|\/)\.env[^/]*$/.test(p)) continue
+    if (!ra.includes(p)) ra.push(p)
+  }
+  return ra
+}
+// Một khối cho một lệnh: kiểm tệp mới → kiểm trần tổng → chạy nền có canh trần → dòng dấu.
+const BL_KHOI = (i, cmd) => {
+  const teps = tepCuaLenh(cmd)
+  const kiemTep = teps.length
+    ? `for p in ${teps.map(sq).join(' ')}; do if [ -z "$KQ" ] && [ -e "$R/$p" ] && ! git -C "$R" check-ignore -q -- "$p" 2>/dev/null && ! git -C "$R" cat-file -e "$B:$p" 2>/dev/null; then KQ="bo-qua $p"; fi; done; `
+    : ''
+  return `KQ=; ${kiemTep}CON=$((HAN - $(date +%s))); if [ -n "$KQ" ]; then echo "${DAU_BL} ${i} $KQ"; elif [ "$CON" -le 0 ]; then echo "${DAU_BL} ${i} het-tran-tong"; else L="$D/${i}.log"; : > "$L.qua-tran"; HL=$TRAN_LENH; [ "$CON" -lt "$HL" ] && HL=$CON; ( ${CD_GUARD('"$WT"')} && ${cmd}\n) > "$L" 2>&1 < /dev/null & P=$!; ( sleep "$HL"; echo 1 > "$L.qua-tran"; dung "$P" ) > /dev/null 2>&1 < /dev/null & G=$!; wait "$P"; rc=$?; P=; kill "$G" $(pgrep -P "$G") 2>/dev/null; wait "$G" 2>/dev/null; if [ -s "$L.qua-tran" ]; then echo "${DAU_BL} ${i} qua-tran $HL"; else echo "${DAU_BL} ${i} xong $rc"; fi; fi`
+}
+const LENH_BASELINE = (cmds) => [
+  `R=${sq(args.repoRoot)}; B=${sq(args.diffBase)}; D=${sq(BL_DIR)}; TRAN_LENH=${BL_TRAN_LENH_GIAY}; TRAN_TONG=${BL_TRAN_TONG_GIAY}; ${DUNG_CAY}`,
+  `HAN=$(( $(date +%s) + TRAN_TONG )); mkdir -p "$D"; [ -f "$R/.acceptance-runs/.gitignore" ] || printf '*\\n' > "$R/.acceptance-runs/.gitignore"; echo "${DAU_BL}_BAT_DAU ${cmds.length}"`,
+  `for e in $(git -C "$R" worktree list --porcelain | awk '/^worktree /{if (w != "") print w "|" p; w = ""; p = ""; x = substr($0, 10); if (x ~ /\\/agk-baseline[^\\/]*$/) w = x} /^locked agk-baseline pid /{p = $4} END{if (w != "") print w "|" p}'); do w=\${e%|*}; P0=\${e##*|}; if [ -n "$P0" ] && kill -0 "$P0" 2>/dev/null; then :; else git -C "$R" worktree remove --force --force "$w" > /dev/null 2>&1; echo "${DAU_BL}_DON $w"; fi; done; git -C "$R" worktree prune > /dev/null 2>&1`,
+  `P=; G=; WT=$(mktemp -d "\${TMPDIR:-/tmp}/agk-baseline.XXXXXX")`,
+  `don() { if [ -n "$P" ]; then dung "$P"; fi; if [ -n "$G" ]; then kill "$G" 2>/dev/null; fi; if [ -n "$WT" ]; then git -C "$R" worktree remove --force --force "$WT" > /dev/null 2>&1; git -C "$R" worktree prune > /dev/null 2>&1; WT=; fi; }; trap don EXIT; trap 'don; exit 129' HUP; trap 'don; exit 130' INT; trap 'don; exit 143' TERM`,
+  `if git -C "$R" worktree add --detach --lock --reason "agk-baseline pid $$" "$WT" "$B" > "$D/worktree.log" 2>&1; then for m in $(cd "$R" && find . -maxdepth 3 -path ./.git -prune -o -type d -name node_modules -prune -print 2>/dev/null); do m=\${m#./}; [ -e "$WT/$m" ] || { [ -d "$(dirname "$WT/$m")" ] && ln -s "$R/$m" "$WT/$m"; }; done; for e in .env .env.local; do [ -e "$R/$e" ] && [ ! -e "$WT/$e" ] && ln -s "$R/$e" "$WT/$e"; done`,
+  ...cmds.map((c, k) => BL_KHOI(k + 1, c)),
+  `else echo "${DAU_BL}_HA_TANG worktree-add"; fi; don; echo "${DAU_BL}_XONG"`,
+].join('\n')
+// Bộ đọc dấu — MỘT nguồn với bên viết (DAU_BL). Trả { du, haTang, theoCmd: Map(cmd → kết quả) }.
+// `du` = có `__BL_XONG` và không `__BL_HA_TANG`; lệnh vắng dòng dấu → cannotRun có tên.
+function docBaseline(dauRa, cmds) {
+  const s = String(dauRa || '')
+  const haTang = (s.match(new RegExp(`^${DAU_BL}_HA_TANG (.+)$`, 'm')) || [])[1] || ''
+  const du = new RegExp(`^${DAU_BL}_XONG$`, 'm').test(s) && !haTang
+  const theoCmd = new Map()
+  const re = new RegExp(`^${DAU_BL} (\\d+) (xong|qua-tran|het-tran-tong|bo-qua)(?: (.*))?$`, 'gm')
+  let m
+  while ((m = re.exec(s))) {
+    const cmd = cmds[Number(m[1]) - 1]
+    if (cmd === undefined || theoCmd.has(cmd)) continue
+    const kq = m[2], du3 = (m[3] || '').trim()
+    if (kq === 'xong' && /^-?\d+$/.test(du3)) theoCmd.set(cmd, { cmd, baselineExit: Number(du3), cannotRun: false })
+    else if (kq === 'qua-tran') theoCmd.set(cmd, { cmd, cannotRun: true, tran: true, reason: `baseline vuot tran ${du3} giay/lenh — da dung ca cay tien trinh; BLOCKED ha tang, khong phai ket qua cua code cu` })
+    else if (kq === 'het-tran-tong') theoCmd.set(cmd, { cmd, cannotRun: true, tran: true, reason: `het tran tong ${BL_TRAN_TONG_GIAY} giay cua lane baseline truoc khi toi lenh nay — khong chay` })
+    else if (kq === 'bo-qua') theoCmd.set(cmd, { cmd, cannotRun: true, boQua: true, reason: `bo qua baseline: tep ${du3} co o cay dang kiem nhung chua co o merge-base ${args.diffBase} — eval moi, chay tren code cu khong phan biet gi` })
+  }
+  return { du, haTang, theoCmd }
+}
+// BASELINE-LENH>>>
+
 // Glob toi gian theo ngu nghia chuan: `**/` khop KHONG hoac NHIEU thu muc (nen
 // `src/**/*.ts` phai khop ca `src/a.ts`), `**` khop moi thu, `*` khop trong mot doan.
 // Tach `**` TRUOC khi doi `*`, neu khong `**` bi doi thanh hai lan `[^/]*` va het
@@ -1022,13 +1152,12 @@ if (!distinctCmds.length && !freshJudgmentEvals.length && !uiEvals.length) {
 const baselineP = Promise.resolve().then(() => baselineCmds.length === 0
     ? { results: [] }
     : agentT(
-        `Ban tinh BASELINE doi chung tren commit goc "${args.diffBase}" cho cac lenh may, de biet lenh nao xanh-ca-hai-phia (pass ca truoc lan sau = khong test gi moi cua feature).
-Lam trong repo ${args.repoRoot} NHUNG TUYET DOI KHONG git checkout/switch/stash o cwd chinh — verifier HEAD dang chay song song o do. Dung worktree CO LAP:
-1) WT="$(mktemp -d)/agk-baseline" ; git -C ${args.repoRoot} worktree add "$WT" ${args.diffBase}
-2) De lenh chay duoc: ln -s ${args.repoRoot}/node_modules "$WT/node_modules" ; cp ${args.repoRoot}/.env.local "$WT/" 2>/dev/null (neu co). Service/DB local (vd Supabase) dung chung voi HEAD.
-3) Chay TUNG lenh sau o dang \`${CD_GUARD('"$WT"')} && <lenh>\` — cho dung la WORKTREE, dat trong chinh lenh, giu nguyen ve || exit 97 (TUYET DOI khong cd ve ${args.repoRoot}: chay nham cay lam viec la baseline mat phan biet): ${baselineCmds.join(' , ')}
-4) Don dep BAT BUOC: git -C ${args.repoRoot} worktree remove --force "$WT".
-Tra results[] = {cmd, baselineExit, cannotRun, reason}. PHAN BIET 2 loai "khong chay tot tren baseline": (a) lenh/script CUA FEATURE chua ton tai o commit goc (npm "missing script", file-not-found cho chinh script eval) = eval MOI, dung ra phai FAIL tren code cu → ghi baselineExit = exit that (khac 0) va cannotRun=FALSE (day la tin hieu "phan biet", KHONG phai cannotRun); (b) moi truong/ha tang that bai khong lien quan feature (service/DB local chua chay, thieu env ma lenh can, worktree add fail) = cannotRun=TRUE. Baseline la tin hieu PHU, TUYET DOI KHONG bia exit.\n${TOOL_KILL_RULE}`,
+        `Ban tinh BASELINE doi chung tren commit goc "${args.diffBase}" cho ${baselineCmds.length} lenh may, de biet lenh nao xanh-ca-hai-phia (pass ca truoc lan sau = khong test gi moi cua feature).
+Kit DA SINH SAN toan bo viec: worktree CO LAP tren commit goc (KHONG dung cwd chinh — verifier HEAD dang chay song song o do), noi node_modules/.env, chay tung lenh co TRAN ${BL_TRAN_LENH_GIAY} giay/lenh va TRAN TONG ${BL_TRAN_TONG_GIAY} giay, bo qua lenh tro toi tep chua co o commit goc, don worktree ke ca khi bi dung. Viec cua ban DUY NHAT: MOT lan goi Bash (timeout 600000) voi lenh giua hai dong dau duoi day, chep NGUYEN VAN tung byte (KHONG tach, KHONG viet lai thanh vong lap, KHONG chay tung lenh rieng, KHONG chay lai). Hai dong dau KHONG thuoc lenh.
+<<<AGK-BASELINE
+${LENH_BASELINE(baselineCmds)}
+AGK-BASELINE>>>
+Tra ve: dauRa = TOAN BO stdout cua lan goi do NGUYEN VAN (cac dong bat dau bang ${DAU_BL}); results = [] (JS tu doc ma thoat tu dauRa — ban KHONG khai exit). Lenh loi/khong ra gi → van tra dauRa nguyen van (ke ca rong). KHONG goi them lenh nao khac, KHONG doc nhat ky, KHONG sua gi.\n${TOOL_KILL_RULE}`,
         { label: 'baseline:diffBase', phase: 'Machine', schema: BASELINE_SCHEMA, ...vaiOpt('baseline') }
       )
 ).catch(() => null)   // BẮT BUỘC: parallel nuốt throw, promise trần thì KHÔNG — một lần reject giết cả lượt
@@ -1582,11 +1711,40 @@ for (const c of carriedFindings) runLogLines.push(findingLine(
 // T7: điểm MUỘN NHẤT cần baseline — sau Triage và Refute. Vẫn ĐỢI (W44c canh vế này):
 // bỏ lượt đợi thì nonDiscriminating rỗng và một eval xanh-cả-hai-phía được ký PASS.
 const baselineRaw = await baselineP
+// BASELINE-LENH: kết quả là DÒNG DẤU trong `dauRa` do JS đọc, không phải results[] tác tử khai.
+// Lane không về trọn (tác tử chết/bị dừng, công cụ cắt, thiếu `__BL_XONG`, worktree không dựng được)
+// là BLOCKED HẠ TẦNG CÓ TÊN cho làn đối chứng: mọi lệnh n-a kèm lý do, lượt chấm vẫn đi tiếp tới báo
+// cáo — làn PHỤ không được giữ cả lượt (crm 07/10: 5 giờ, 0 báo cáo).
+let baselineHaTang = ''
+let baselineKetQua = []
+if (baselineCmds.length > 0) {
+  if (!baselineRaw || typeof baselineRaw !== 'object') baselineHaTang = 'tac tu baseline chet hoac bi dung — khong co ket qua'
+  else if (typeof baselineRaw.dauRa === 'string') {
+    const doc = docBaseline(baselineRaw.dauRa, baselineCmds)
+    if (baselineRaw.killedByTool === true) baselineHaTang = 'lenh baseline bi cong cu dung giua chung'
+    else if (doc.haTang) baselineHaTang = `khong dung duoc worktree tren ${args.diffBase} (${doc.haTang})`
+    else if (!doc.du) baselineHaTang = `dau ra thieu dong ${DAU_BL}_XONG — lenh baseline khong chay het (bi dung, cho hop xin quyen, dau ra bi cat, hoac lenh eval vo cu phap shell)`
+    baselineKetQua = baselineCmds.map(c => doc.theoCmd.get(c) || { cmd: c, cannotRun: true, reason: 'khong co dong ket qua cho lenh nay trong dau ra baseline' })
+  } else {
+    // Đường đọc-cũ: tác tử/harness đời cũ không trả `dauRa` — đọc results[] như 2.24.0, có cờ vàng.
+    log('CO VANG: baseline khong tra dauRa (duong doc-cu) — doc results[] tac tu khai')
+    const khai = new Map((Array.isArray(baselineRaw.results) ? baselineRaw.results : []).filter(b => b && typeof b.cmd === 'string').map(b => [b.cmd, b]))
+    // Lệnh tác tử không khai = không đo: có tên, và phép đo không trọn (không ghi dòng kind:"baseline").
+    baselineKetQua = baselineCmds.map(c => khai.get(c) || { cmd: c, cannotRun: true, thieu: true, reason: 'tac tu baseline khong khai ket qua cho lenh nay (duong doc-cu)' })
+  }
+  if (baselineHaTang) {
+    baselineKetQua = baselineCmds.map(c => ({ cmd: c, cannotRun: true, reason: `BLOCKED ha tang baseline: ${baselineHaTang}` }))
+    log(`baseline: BLOCKED ha tang — ${baselineHaTang}; moi lenh baseline n-a, luot van di tiep (lane phu), round sau do lai`)
+  }
+}
+// Phép đo TRỌN mới được ghi thành dòng run-log `kind:"baseline"` (P2 carry theo evalsHash): ghi một
+// phép đo hỏng hay chạm trần là để các round sau mang theo nó mà không đo lại.
+const baselineTron = !baselineHaTang && !baselineKetQua.some(b => b && (b.tran || b.thieu))
 // ---- A/B baseline: map kết quả đối chứng theo cmd; status = green | red | n-a ----
 // Lane baseline nay CUNG mang cd guard, nen phai qua CUNG bo phan loai: cd hong
 // trong worktree ma doc thanh baselineExit != 0 se bao «eval CO phan biet» cho
 // mot cay khong ton tai — bang chung tu doi (S4-r2).
-const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
+const baselineByCmd = new Map(baselineKetQua
   .map(normKill)
   .map(b => normInfra({ ...b, exitCode: b.baselineExit }))
   .map(b => [b.cmd, b]))
@@ -1601,6 +1759,10 @@ const baselineByCmd = new Map(((baselineRaw && baselineRaw.results) || [])
 //       luot soi toan nhanh 2026-09-09/10) bi dan nhan sai thanh
 //       nonDiscriminating. currentExit thieu (khong truyen) -> chi con duong
 //       (1), khong tu suy dien hetHan.
+// Lệnh baseline KHÔNG đo được + lý do — lên báo cáo (section Analyst), không im lặng thành «n-a».
+const baselineKhongDo = runBaseline
+  ? [...baselineByCmd.values()].filter(b => b.cannotRun).map(b => ({ cmd: b.cmd, ly_do: b.reason || 'khong chay duoc tren baseline' }))
+  : []
 const baselineStatus = (cmd, currentExit) => {
   const b = baselineByCmd.get(cmd)
   if (!b || b.cannotRun) return 'n-a'
@@ -1698,7 +1860,7 @@ for (const p of carriedPanels) {
     inputs_hash: p.inputsHash, carried_from_round: typeof p.fromRound === 'number' ? p.fromRound : null,
   }))
 }
-if (typeof args.evalsHash === 'string' && args.evalsHash) {
+if (typeof args.evalsHash === 'string' && args.evalsHash && (!runBaseline || baselineTron)) {
   runLogLines.push(JSON.stringify({
     ts: invokedAt, ...(invokedSha ? { sha: invokedSha } : {}), round: args.round, kind: 'baseline', evals_hash: args.evalsHash,
     non_discriminating: nonDiscriminating,
@@ -1868,7 +2030,7 @@ const report = await agentT(
   `Soan NOI DUNG evidence report cho feature "${args.slug}" round ${args.round} — TRA VE trong field "report", KHONG ghi file nao ca (main loop se append run-log roi MOI ghi evidence-report.md — hook doi chieu run_id trong report voi log nen thu tu do la bat buoc). Noi dung thay tron round cu; lich su round nam trong section Iterations.\nDoc template tai ${args.templatePath} va tuan thu TUYET DOI shape — hook acceptance-evidence-gate.js se chan neu sai (L1 SHAPE: PASS can run_id ≥4 ky tu + exit_code 0 + verifier + verified_at ISO8601; L1 CONSISTENCY: report PASS chi duoc chua token exit khac 0 BEN TRONG khoi cua eval DA KHAI dung ma do (gioi han da khai) — moi cho khac van cam; chuoi "verdict: FAIL" van bi cam o moi cho; L2: verifier la config: ref hoac script path; L3: moi UNCERTAIN can human_override).\n\nVerdict DA TINH SAN (khong tu thay doi): ${verdict}\nPROVENANCE — ghi NGUYEN VAN cac dong frontmatter nay (DA do bang buoc capture, TUYET DOI KHONG tu doi/suy dien/bo): "enforcement_mode: ${prov.enforcement_mode}" va "bypass_used: ${prov.bypass_used}"${verifiedCommit ? ` va "verified_commit: ${verifiedCommit}"` : ''}. CI pre-merge dung cac field nay de chan gate yeu va phat hien code doi SAU verify (stale evidence).${verifiedCommit ? ' Hook L1 chan verified_commit khong phai hex SHA — chep dung nguyen van, khong rut gon.' : ' Repo khong phai git: BO HAN field verified_commit (khong bia, khong ghi rong).'}\n${triageFailed ? `TRIAGE HONG — buoc phan loai pham vi KHONG chay duoc round nay, nen may KHONG biet finding nao trong hop dong va KHONG tu sua gi. Ghi CA HAI dau vet sau, khong duoc bo mot cai nao:\n(1) frontmatter THEM DUNG dong "triage_failed: true" (dat ngay duoi dong verdict);\n(2) than bai, NGAY DUOI dong tieu de "# Evidence Report: ...", mot dong canh bao BAT DAU bang "⚠ phân loại phạm vi KHÔNG chạy được" roi noi ro: khong loi nao duoc may tu sua, danh sach day du nam trong review-findings.md, nguoi xem lai toan bo truoc khi ky.\nTUYET DOI KHONG them section "##" moi cho viec nay va KHONG viet lai verdict.\n` : ''}failed_evals: ${JSON.stringify(failedEvalIds)}\nblocked (neu BLOCKED, ghi reason vao frontmatter): ${JSON.stringify(blocked)}\nLenh fail khong gan eval (ghi ro trong report neu co): ${JSON.stringify(failedCommands)}\nReview incomplete (finder chet — ghi canh bao trong review-findings.md): ${JSON.stringify(reviewIncomplete)}\n${evalsNotRun.length ? `O KHAI KHONG-CHAY (evals.yaml tu khai status: not-run — may KHONG chay, khong co ket qua nao): chep NGUYEN VAN dong sau vao report, ngay duoi bang ket qua:\nkhông chạy theo hồ sơ: ${evalsNotRun.join(', ')}\nKHÔNG viết hàng bảng và KHÔNG viết khối \`- eval:\` nào cho các id này — báo cáo chỉ nói ra chúng bằng dòng ấy.\n` : ''}\nKet qua may (moi block cmd cover cac eval cua no; block cua eval ui-check ghi them field "screenshot:" = screenshotPath tu ket qua VA field "observed:" = observed tu ket qua (template schema v2 — hook CHAN report PASS co screenshot: ma thieu observed: thuc chat >=20 ky tu; neu ket qua ui THIEU observed → TU MO tung frame evidence da luu bang Read va viet observed truoc khi ghi report, KHONG bia)): ${JSON.stringify(machineForReportB)}\n${knownLimitLines.length ? `\nKNOWN LIMITS — chep NGUYEN VAN ${knownLimitLines.length} dong sau vao muc "## Known limits", moi dong mot bullet, KHONG dien dat lai, KHONG gop dong:\n${knownLimitLines.join('\n')}\nVoi cac eval nay: khoi eval PHAI ghi "exit_code: <ma that>" DUNG TEN TRUONG do — TUYET DOI khong bo truong va khong dat ten truong khac.\n` : ''}${gioiHanHet.length ? `\nGIOI HAN DA KHAI KHONG CON — chep NGUYEN VAN vao muc "## Known limits":\n${gioiHanHet.join('\n')}\n` : ''}NETWORK TRUTH (advisory — schema v2 GIU NGUYEN, hook KHONG kiem field nay): moi block eval ui-check ghi them field "network_observed:" = chep NGUYEN VAN field networkObserved tu ket qua ui o tren; ket qua ui KHONG co field nay → ghi "n-a (driver)". TUYET DOI KHONG tu suy ra "clean". Vocab chu duy nhat: clean | no-app-traffic | third-party-only | app-fail | n-a (driver) | n-a (tool-error) | unscoped | unscoped-partial — CAM ghi so status/exit tho hay chu 'verdict: FAIL' vao report (bay L1 CONSISTENCY; so tho nam trong evidence/E{id}-network.txt).
 run_id cua TUNG eval: chep NGUYEN VAN tu map nay — JS da tinh san va DA GHI vao ${args.repoRoot}/_acceptance/${args.slug}/run-log.jsonl truoc khi ban viet report; hook + CI recheck doi chieu TUNG run_id trong report voi log do (id la/khong khop = BLOCK). TUYET DOI KHONG tu mint/doi/rut gon run_id: ${JSON.stringify(evalRunIds)}\nrun_id cua TUNG LENH SUITE — cung luat, key la cmd. MOI lenh mot khoi theo DUNG khuon SUITE-BLOCK-TEMPLATE trong ban mau o tren — ban mau noi ro ca hinh dang lan cho dat, dung tu che khuon khac. Khoi do BAT BUOC co dong run_id: bo doi chieu quet MOI dong run_id trong bao cao va doi tung ma co mat trong run-log, nen khoi vang run_id la lenh suite khong co dau vet, con ma tu dat la cong do L2 PROVENANCE ngay sau chu ky: ${JSON.stringify(suiteRunIds)}${carriedForReport.length ? `
 EVAL CARRY-FORWARD (P1 — delta staleness khong cham paths cua cac eval nay, round nay KHONG chay lai): moi item van la MOT block eval PASS trong bang + Evidence, ghi run_id va verified_at NGUYEN VAN tu payload (id da nam trong run-log tu round goc), exit_code: 0, verifier = field ref, THEM dong "carried_from_round: <N>" va ghi chu 1 dong "carry-forward tu round <N> — delta khong cham paths cua eval". Item ui-check co field screenshot/observed/network_observed trong payload = KHUNG CUA LUOT GOC (cung run_id, anh con tren dia): ghi NGUYEN VAN ba field do vao block carried ("observed: |" roi tung dong noi dung thut le) — may se chen neu ban bo sot; item KHONG co cac field do thi KHONG ghi screenshot:/observed: (may khong bia khung): ${JSON.stringify(carriedForReport)}` : ''}
-A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.
+A/B BASELINE: moi block eval may ghi them field "baseline: <green|red|n-a>" lay tu field "baseline" trong ket qua may o tren (green=pass tren code cu diffBase, red=fail tren code cu nghia la eval CO phan biet, n-a=khong chay duoc tren baseline). Field baseline DUNG TU green/red/n-a, TUYET DOI KHONG ghi exit-code so o day hay trong section Analyst — hook L1 CONSISTENCY se chan oan report PASS neu thay token exit khac 0.${baselineHaTang ? `\nBASELINE BLOCKED HA TANG: ${baselineHaTang}. Mo dau section Analyst bang dong "baseline: BLOCKED ha tang — ${baselineHaTang}"; moi field baseline ghi n-a; danh sach eval khong-phan-biet ben duoi KHONG do duoc o round nay.` : ''}${baselineKhongDo.length ? `\nBASELINE KHONG DO (lenh baseline khong chay hoac khong ra ket qua — field baseline cua chung la n-a): trong section Analyst them muc "Baseline khong do", MOI lenh mot dong "- <cmd>: <ly_do>" chep NGUYEN VAN: ${JSON.stringify(baselineKhongDo)}` : ''}
 Them section "## Analyst" ngay sau bang ket qua: liet ke eval KHONG-PHAN-BIET (pass tren CA HEAD lan baseline, chung minh harness chu khong phai feature; nen viet lai de assert hanh vi moi hoac xac nhan la regression-guard co chu y): ${JSON.stringify(nonDiscriminating)}. ${runBaseline ? 'Rong thi ghi "none — moi eval feature deu red tren baseline (co phan biet)".' : `BASELINE ROUND NAY KHONG DO LAI (P2 — evals.yaml khong doi tu lan baseline cuoi${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? `, round ${carriedAnalyst.fromRound}` : ''}): mo dau section Analyst bang dong "carried tu round ${carriedAnalyst && typeof carriedAnalyst.fromRound === 'number' ? carriedAnalyst.fromRound : 'truoc'} — baseline khong do lai round nay"; field "baseline:" cua tung block eval ghi "n-a" (round nay khong do).`} Lenh suite xanh-ca-hai-phia la regression-guard binh thuong, KHONG liet ke.
 VARIANCE-N: eval co field "runs" > 1 = eval NGAU NHIEN (da chay nhieu lan, gop lai). Voi eval do ghi them "runs: <N>" va "pass_rate: <passes>/<runs>" (dang phan so vd "4/5" — DUNG so exit). Eval khong co runs hoac runs=1 (deterministic) KHONG ghi pass_rate. Eval co field "variance": true (pass_rate khac 0 va khac full) → tin hieu PHUONG SAI: feature ngau nhien chua on dinh; verdict tong DA la PENDING-JUDGMENT; ghi eval do vao section moi "## Variance" kem pass_rate de NGUOI quyet nguong o Gate 2 (giong judgment item). Eval deterministic ma variance=true = test flaky/racy → cung vao "## Variance", ghi ro "flaky".\nDinh nghia eval (ghi "verifier:" = field "ref" — config: ref GOC, hook L2 chi chap nhan config: ref hoac script path, KHONG ghi lenh resolved): ${JSON.stringify(args.evals.map(e => ({ id: e.id, criterion: e.criterion, executor: e.executor, ref: e.ref, expected: e.expected, evidence_required: e.evidence_required })))}\nJudge panels (DE XUAT — ghi de xuat panel + rationale tung judge, de human_override TRONG cho moi item; T3 thi MOI judgment item deu cho human). QUAN TRONG format: trong section judge, ghi vote dang "- <lens>: FAIL — <rationale>" / "- <lens>: PASS — ...", TUYET DOI KHONG dung chuoi "verdict: FAIL" (hook L1 CONSISTENCY scan token nay trong report PASS) — moi dissent phai hien thi day du, khong duoc om/viet lai. Panel co "carried": true (P3) = inputs khong doi tu round "fromRound" (hash khop) nen KHONG cham lai: ghi ro "panel giu nguyen tu round <fromRound> — inputs khong doi, khong cham lai; rationale xem round do", votes carried chi co lens+verdict (ghi "- <lens>: <verdict> (r<fromRound>)"). Panel co "ungrounded": true = eval KHONG khai input nao nen KHONG hoi dong nao duoc cham (votes rong la DUNG, khong phai thieu du lieu): ghi ro "khong khai input — may khong co can cu, nguoi quyet o Cong 2" va de human_override TRONG; TUYET DOI khong ghi no nhu mot muc da dat: ${JSON.stringify(panels)}\n\nSau do soan NOI DUNG file thu hai review-findings.md — TRA VE trong field "findings", KHONG ghi file (informational, NGOAI hook — TUYET DOI khong them section/field nao cua no vao evidence-report.md).\nFile nay chia theo ket qua SCOPE-TRIAGE, moi finding ghi title, file:line, severity, detail, source:\n- "## Trong hợp đồng" — findings da map duoc vao AC; moi dong ghi them "AC: <acRef>". Findings: ${JSON.stringify(triaged.filter(f => f.inContract && !f.unverified))}\n- "## Ngoài hợp đồng — người quyết ở Gate 2" — findings THAT nhung khong AC nao phu. Mo dau ngan bang DUNG mot cau: "Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa." Roi MOI MUC viet DUNG khuon duoi day, KHONG doi thu tu dong, KHONG bo dau gach dau dong hay hai dau sao (bo doc lai file nay bang may — sai khuon la khoi bien mat khoi the, khong bao loi):\n${OOC_ITEM_TEMPLATE}\n{plain} chep NGUYEN VAN truong plain (day la chu DUY NHAT the Cong 2 in ra cho nguoi quyet doc); {proposal} chep NGUYEN VAN tu truong proposal cua finding — gia tri hop le: ${OOC_GLOSS}. TUYET DOI khong doi sang gia tri khac. Findings: ${JSON.stringify(triaged.filter(f => !f.inContract && !f.unclassified))}\nCARRIED (T5 — muc ngoai hop dong tu round TRUOC, round nay KHONG cham lai): ${carriedFindings.length ? `${carriedFindings.length} muc — MAY tu chen vao muc "## Ngoài hợp đồng" sau khi ban tra ve, mang nhan "(r<N>)"; KHONG in lai cac muc nay (titles: ${JSON.stringify(carriedFindings.map(c => c.title))})` : "khong co"}\n${triaged.some(f => f.unclassified) ? '- "## Chưa phân loại (triage-failed)" — buoc phan loai pham vi hong nen KHONG finding nao duoc coi la trong hop dong; mo dau bang dong "phân loại phạm vi không chạy được — không lỗi nào bị máy tự sửa, người xem lại toàn bộ". Findings: ' + JSON.stringify(triaged.filter(f => f.unclassified)) + '\n' : ''}- Finding co unverified=true liet ke RIENG duoi heading VIET DUNG NGUYEN VAN "## Chưa adversarial-verify (refuter chết)" (bat buoc muc ##: heading khac cap hoac dong tran se lam cac muc nay bi may doc nham thanh finding ngoai-hop-dong tren the): ${JSON.stringify(confirmedFindings.filter(f => f.unverified))}\n${coverageCluster ? `Cuoi file ghi DUNG mot dong co: "⚠ Cụm ngoài vùng phủ: ${coverageCluster.count}/${coverageCluster.total} lỗi rơi vào file không bộ đo nào phủ (${coverageCluster.files.join(', ')}) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi."\n` : 'Cuoi file ghi DUNG mot dong: "Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm)." TUYET DOI khong bia co canh bao.\n'}Tra ve {report, findings} — hai CHUOI NOI DUNG day du, khong phai duong dan.`,
   { label: 'synthesize:report', phase: 'Synthesize', schema: REPORT_SCHEMA, ...vaiOpt('synthesize') }
@@ -1917,6 +2079,8 @@ return {
   coverageCluster,
   reviewIncomplete,
   nonDiscriminating,
+  // BASELINE-LENH: lý do làn đối chứng không đo (hạ tầng / trần / bỏ qua tệp mới) — máy-đọc-được cho vòng chính.
+  baselineKhongDo: { haTang: baselineHaTang || null, lenh: baselineKhongDo },
   variance: varianceCmds.map(m => ({ cmd: m.cmd, evals: m.evals, runs: m.runs, passRate: m.passes + '/' + m.runs })),
   // run-log: JS tính dòng, MAIN LOOP ghi — thứ tự bắt buộc: (1) append runLog vào
   // run-log.jsonl, (2) ghi report/findings từ hai chuỗi dưới. Hook L2 đối chiếu
