@@ -1,19 +1,19 @@
 ---
 schema_version: 2
 feature_slug: lo-trinh-cat-luot
-verdict: PASS
+verdict: REJECT
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6b4961e302e85868a7f1665b83859fb0e59c7578
+verified_commit: 50fc6833fa0f20ebd938e658cb2ff4c6eef7f862
 human_signoff:
 ---
 
 # Evidence Report: lo-trinh-cat-luot
 
-Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy xanh trên cây 6b4961e3 (sau bản sửa S4-r1). E13 mang tiếp từ round 1 vì delta không chạm paths của nó.
+Round 3: không eval nào khai trong hợp đồng đỏ (E1–E12 mang tiếp từ round 2, E13 mang tiếp từ round 1, vì delta không chạm paths của chúng). Verdict REJECT vì hai lệnh suite hồi quy không gắn eval đỏ trên cây 50fc6833: `bash tests/scripts/run-tests.sh --manh mjs:2/3` (25 ca xanh, 1 ca đỏ) và `bash tests/scripts/run-tests.sh --manh mjs:3/3` (22 ca xanh, 3 ca đỏ). `failed_evals` để trống vì không eval nào đỏ. Đuôi đầu ra của hai lệnh không chứa dòng gọi tên tệp test đỏ, nên chưa gọi được tên ca đỏ ở đây; cần chạy lại hai shard để lấy tên.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -39,8 +39,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E2
   run_id: minted-lo-trinh-cat-luot-E2-r2
@@ -48,8 +49,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E3
   run_id: minted-lo-trinh-cat-luot-E3-r2
@@ -57,8 +59,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E4
   run_id: minted-lo-trinh-cat-luot-E4-r2
@@ -66,8 +69,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E5
   run_id: minted-lo-trinh-cat-luot-E5-r2
@@ -75,8 +79,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E6
   run_id: minted-lo-trinh-cat-luot-E6-r2
@@ -84,8 +89,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E7
   run_id: minted-lo-trinh-cat-luot-E7-r2
@@ -93,8 +99,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E8
   run_id: minted-lo-trinh-cat-luot-E8-r2
@@ -102,8 +109,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E9
   run_id: minted-lo-trinh-cat-luot-E9-r2
@@ -111,8 +119,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E11
   run_id: minted-lo-trinh-cat-luot-E11-r2
@@ -120,8 +129,9 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E12
   run_id: minted-lo-trinh-cat-luot-E12-r2
@@ -129,31 +139,32 @@ Round 2: mọi eval khai trong hợp đồng xanh, mọi lệnh suite hồi quy 
   baseline: n-a
   verifier: config:executors.test.lo_trinh
   verified_at: 2026-10-08T18:05:42Z
+  carried_from_round: 2
   output: |
-    Results: 168 passed, 0 failed (lo-trinh)
+    carry-forward tu round 2 — delta khong cham paths cua eval
 
 - eval: E13
   run_id: ""
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.lo_trinh_trang
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
   carried_from_round: 1
   output: |
     carry-forward tu round 1 — delta khong cham paths cua eval
 
 ### Judgment
 
-Panel đề xuất cho E10: PASS. Panel gồm ba lens; dưới đây là vote và rationale từng judge. human_override để trống cho người điền ở Cổng 2.
+Panel đề xuất cho E10: PASS. Panel giữ nguyên từ round 2 — inputs không đổi, không chấm lại; rationale xem round 2. human_override để trống cho người điền ở Cổng 2.
 
-- domain-correctness: PASS — SKILL nêu dáng `lan-va` là «gói mã theo màn hoặc vùng sản phẩm (một câu giao nói một màn chạy đúng); các hàng chạy song song nên KHÔNG đặt `dung_tren` giả giữa chúng», kèm luật 6 đưa mã không cắt được vào chân trời có lý do và điều kiện mở lại. Bảng phủ là đầu ra của răng, không sửa tay. Kit không ghi `trang_thai`, `pr`, `buoc_ke` vào tệp lộ trình; phiên chỉ ghi hàng và chân trời, tức Ý ĐỊNH.
-- operational-feasibility: PASS — SKILL chỉ dẫn đủ cho dáng `lan-va` và luật 6 (khuôn `chan_troi` có `ly_do`, `mo_lai_khi`); bản mẫu có đủ ca để áp (mã nhóm theo màn KH1–KH5, mã đăng nhập #31–#33 trong đó #33 chạm auth, mã chưa chốt ý đồ R1m-7). Bảng phủ do `cat-luot.mjs` sinh, người chỉ dán vào mô tả PR. Kit không ghi trạng thái vào tệp lộ trình.
-- spec-alignment: PASS — SKILL cho dáng `lan-va` đủ chỉ dẫn, luật 6 nêu lý do và điều kiện mở lại, bản mẫu khai đúng `dang: lan-va` và có ca để áp (#33, R1m-7). Bảng phủ là đầu ra của răng. Kit không ghi trạng thái vào tệp lộ trình, phiên chỉ ghi Ý ĐỊNH.
+- domain-correctness: PASS (r2)
+- operational-feasibility: PASS (r2)
+- spec-alignment: PASS (r2)
 
 - eval: E10
-  judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
+  judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment) — carried from round 2
   verdict: PASS
-  rationale: Cả ba lens cùng PASS, mỗi lens trích câu cho từng vế của AC-10 (dáng lan-va, bảng phủ là đầu ra của răng, kit không ghi trạng thái).
+  rationale: Panel giữ nguyên từ round 2, inputs không đổi nên không chấm lại; ba lens cùng PASS ở round đó (rationale từng lens xem round 2).
   required_evidence:
     - (judge không nêu bằng-chứng-thiếu)
   human_override:  # chi nguoi ghi
@@ -161,54 +172,56 @@ Panel đề xuất cho E10: PASS. Panel gồm ba lens; dưới đây là vote v�
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: ""__ebbd92
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r3
   exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r3
   exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
-  exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r3
+  exit_code: 1
+  verified_at: 2026-10-09T02:15:22Z
+  note: lệnh suite không gắn eval, đỏ — kết quả cuối "25 passed, 1 failed"; đuôi đầu ra không gọi tên ca đỏ
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
-  exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r3
+  exit_code: 1
+  verified_at: 2026-10-09T02:15:22Z
+  note: lệnh suite không gắn eval, đỏ — kết quả cuối "22 passed, 3 failed"; đuôi đầu ra không gọi tên ca đỏ
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: ""__4d9641
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_hooks_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r3
   exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r3
   exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r3
   exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_workflows_run_tests_sh-r2
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_workflows_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-lo-trinh-cat-luot-SUITE-node_scripts_product_map_mjs_root_check-r2
+  run_id: minted-lo-trinh-cat-luot-SUITE-node_scripts_product_map_mjs_root_check-r3
   exit_code: 0
-  verified_at: 2026-10-08T18:05:42Z
+  verified_at: 2026-10-09T02:15:22Z
 
 ## Known limits
 
@@ -222,7 +235,7 @@ Eval không-phân-biệt (xanh cả trên HEAD lẫn baseline, theo số đo bas
 - `node tests/scripts/lo-trinh.test.mjs`: E1, E2, E3, E4, E5, E6, E7, E8, E9, E11, E12
 - `node tests/scripts/xem-trang-lo-trinh.test.mjs`: E13
 
-Với các eval trên, phép đo đang là bộ kiểm tra mới viết cho mã mới (cat-luot.mjs, skill cắt lượt, dòng bước kế) nên không có hành vi tương ứng trên cây cũ để đỏ. Chúng chứng minh bộ kiểm chạy được, và mỗi ca đều có bản «-do» (bản sao bị phá, hàm đo phải đỏ) giữ chiều đỏ trong chính bộ kiểm. Người đọc xác nhận đây là regression-guard có chủ ý hay yêu cầu viết lại ở Cổng 2.
+Với các eval trên, phép đo là bộ kiểm tra mới viết cho mã mới nên không có hành vi tương ứng trên cây cũ để đỏ; mỗi ca có bản «-do» (bản sao bị phá, hàm đo phải đỏ) giữ chiều đỏ trong chính bộ kiểm. Người đọc xác nhận đây là regression-guard có chủ ý hay yêu cầu viết lại ở Cổng 2.
 
 ## Variance
 
@@ -230,5 +243,6 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: không eval nào đỏ, nhưng lệnh suite `bash tests/scripts/run-tests.sh --manh mjs:3/3` (không gắn eval) có một ca đỏ nên verdict REJECT; `failed_evals` để trống vì không eval nào đỏ. Đồng thời S4 ghi ba lỗi trong hợp đồng (LT-133, LT-137, LT-130) và bốn lỗi ngoài hợp đồng. Quay lại implementation.
-Round 2: sau bản sửa S4-r1 (commit 3b692dfd, giải trình ở 6b4961e3), E1–E9, E11, E12 và toàn bộ lệnh suite xanh; E13 mang tiếp từ round 1 (delta không chạm paths). Verdict PASS. Còn hai điểm yếu của phép đo ghi ở review-findings.md (LT-133 chưa dựng ô hàng không dot, LT-130 ca mã rỗng chưa ghim số dòng) cho người đọc ở Cổng 2.
+Round 1: không eval nào đỏ, nhưng lệnh suite `bash tests/scripts/run-tests.sh --manh mjs:3/3` (không gắn eval) có một ca đỏ nên verdict REJECT; `failed_evals` để trống vì không eval nào đỏ. S4 ghi ba lỗi trong hợp đồng và bốn lỗi ngoài hợp đồng. Quay lại implementation.
+Round 2: sau bản sửa S4-r1, E1–E9, E11, E12 và toàn bộ lệnh suite xanh; E13 mang tiếp từ round 1. Verdict PASS.
+Round 3: sau commit 50fc6833 (mã lượt chạy tác tử khai đi qua đúng luật bên đọc), không eval nào đỏ nhưng hai lệnh suite không gắn eval đỏ trở lại: mjs:2/3 (1 ca đỏ) và mjs:3/3 (3 ca đỏ); suite workflows xanh. Đã tới vòng thứ 3 nên leo thang người, verdict REJECT; hai lệnh cần được chạy lại để gọi tên ca đỏ trước khi quyết sửa hay rút phạm vi.

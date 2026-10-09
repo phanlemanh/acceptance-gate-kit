@@ -1,26 +1,26 @@
-# Review findings: lo-trinh-cat-luot (round 2)
+# Review findings: lo-trinh-cat-luot (round 3)
 
 ## Trong hợp đồng
 
-- **Hình dạng 5 (tuyên quét lớp, chỉ đo điểm): LT-133 ở ngoài đợt chỉ dựng hàng «đợt khác», không có ô nào dựng hàng KHÔNG dot như E4 hứa**
-  file: `tests/scripts/lo-trinh.test.mjs:1779`
-  severity: medium
-  AC: AC-4
-  source: measurement
-  detail: E4 ghi rõ «cùng bốn hỏng ở hàng KHÔNG dot → thoát 0 và mỗi cờ hiện sau «cảnh báo:»». AC-4 nêu hai lớp con của ngoài đợt: không `dot` hoặc đợt khác. Dòng 1779 chỉ dựng nhánh ngoài đợt bằng `H('R5', { dot: 'cu' }), H('R6', { dot: 'cu', dung_tren: ['R5'] })`, và `sua(lt, dich, trong ? 'd1' : 'cu')` cũng chỉ truyền 'cu'. Vì thế ma trận chỉ có hai trục {trong đợt, đợt khác} × 4 hỏng = 8 ô. Lớp «hàng không dot», tức đúng lớp mà E4 gọi tên, không có ô nào. Bản sửa S4-r1 (decisions d-11: «LT-133 nay đo đủ tám ô») chỉ lấp ô dung-tren-khong-co ngoài đợt. Phần «chưa ô nào dựng hàng không có dot» mà review lượt 1 đã nêu vẫn còn nguyên. Hệ quả: một bản vật xử lý `dot` vắng khác với `dot` khác (ví dụ `trongDot = r => !r.dot || chuoi(r.dot) === pv.dot`) sẽ đẩy cờ của hàng không dot thành «lỗi:» và thoát 1, nhưng LT-133 vẫn xanh. Dòng PASS tự giới hạn lời tuyên ở «hàng đợt khác», nên lời tuyên hẹp hơn E4.
-
-- **Hình dạng 3 (assert chuỗi có mặt thay vì quan hệ): LT-130 ca ma-rong vẫn chỉ ghim «dòng sai khuôn», không ghim số dòng như E1/AC-1 hứa**
-  file: `tests/scripts/lo-trinh.test.mjs:1714`
-  severity: low
-  AC: AC-1
-  source: measurement
-  detail: Bản sửa S4-r1 ghim số dòng cho ca `thieu-gach`: `dòng sai khuôn ${khoi.split('\n').length}: ...`. Ca `ma-rong` ở dòng 1714 vẫn là `[khoi + '- `` — mô tả\n', 'dòng sai khuôn']` và được kiểm bằng `x.loi.some(l => l.includes(ghim))`. AC-1 hứa với mã rỗng cũng «lỗi nêu số dòng», E1 hứa «đúng lỗi ghim (nêu mã / số dòng / giá trị)». Vật in `dòng sai khuôn ${i + 1}: ...` (cat-luot.mjs:39), cùng một nhánh `!m || !m[1].trim()` cho cả hai ca. Một bản vật tách nhánh mã rỗng ra và in số dòng sai, chẳng hạn `${i}` hoặc thiếu số, vẫn cho ca này xanh. Phép đo ở ca này vẫn chỉ kiểm chuỗi có mặt, chưa kiểm quan hệ giữa số dòng in ra và vị trí của dòng đã chèn.
+Không có lỗi trong hợp đồng ở round này.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **Hình dạng 4 (assertion âm-tính-một-mình): LT-137 bỏ qua kết quả của lượt --nhip, nên «nhịp không ghi gì» xanh cả khi lượt nhịp không chạy**
+- **Carried eval run_id bypasses docRid: E13's `""` keeps being re-written and the evidence reader silently drops it**
+  Người dùng thấy gì: Khi một phép kiểm được mang nguyên kết quả từ lượt chấm trước sang lượt sau, mã lượt chạy hỏng của nó vẫn được chép lại như cũ. Kết quả là phép kiểm đó (E13) lặng lẽ không bị đối chiếu nguồn gốc lúc ký, không báo đỏ cũng không báo khớp, và người ký không thấy dấu hiệu nào.
+  file: `feature-loop/workflows/acceptance-verify.js`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 5 — vòng ghi→đọc W-RID tuyên «mọi run_id đọc lại đúng nó» nhưng chỉ thử một nhánh của luật bên đọc (nhánh cắt đuôi ` # …` không có đầu vào nào)**
+  Người dùng thấy gì: Phép thử bảo vệ cho việc sửa mã lượt chạy chỉ thử một phần các kiểu mã sai có thể gặp. Nếu ai đó lỡ gỡ đoạn xử lý mã có ghi chú đi kèm, phép thử vẫn báo xanh, và lỗi cũ (ký bị chặn oan khi mã lượt chạy có chú thích) có thể quay lại mà không ai hay.
+  file: `tests/workflows/acceptance-verify.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 4 (assertion âm-tính-một-mình): LT-137 bỏ qua kết quả của lượt --nhip, nên «nhịp không ghi gì» xanh cả khi lượt nhịp không chạy (r2)**
   Người dùng thấy gì: Lệnh đo nhịp làm việc có thể hỏng ngay từ đầu mà phép kiểm «không đụng tới tệp nào» vẫn báo xanh. Rủi ro thấp vì phần chạy đúng của lệnh nhịp đã được kiểm ở chỗ khác. Đề xuất ghi là hạn chế đã biết và đi tiếp.
   file: `tests/scripts/lo-trinh.test.mjs`
   severity: medium
@@ -38,16 +38,16 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-- **Malformed milestone `hang` downgrades to a warning and skips the milestone-date rule for rows in the batch, so the check still exits 0 (r1 · tệp đã đổi)**
+- **Malformed milestone `hang` downgrades to a warning and skips the milestone-date rule for rows in the batch, so the check still exits 0 (r1)**
   Người dùng thấy gì: Nếu danh sách hàng của một mốc bị ghi sai kiểu, máy chỉ cảnh báo và bỏ qua phép kiểm ngày với mốc đó. Một hàng trong đợt đang cắt có thể trễ hơn ngày mốc mà vẫn được cho qua.
   file: `scripts/cat-luot.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **nhanCuaCo misreads labels that contain ':' or ' thiếu ', so a broken row in the batch only gets a warning (r1 · tệp đã đổi)**
+- **nhanCuaCo misreads labels that contain ':' or ' thiếu ', so a broken row in the batch only gets a warning (r1)**
   Người dùng thấy gì: Với mã hàng có dấu hai chấm, một hàng trong đợt đang cắt bị thiếu trường bắt buộc chỉ nhận cảnh báo thay vì lỗi. Việc cắt lượt vẫn qua dù hàng đó chưa hợp lệ.
   file: `scripts/cat-luot.mjs`
   severity: low
   Đề xuất: known-limits
 
-Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
+⚠ Cụm ngoài vùng phủ: 2/2 lỗi rơi vào file không bộ đo nào phủ (feature-loop/workflows/acceptance-verify.js, tests/workflows/acceptance-verify.test.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
