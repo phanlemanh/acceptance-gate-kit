@@ -5,7 +5,7 @@ Gốc: [ô `dieu-phoi-tho-trong-kit`](../../../_acceptance/dieu-phoi-tho-trong-k
 [2026-10-05](2026-10-05-orchestrator-workers-hai-tang-design.md) §4.7–§4.12 · spec ô dù
 [2026-10-09](2026-10-09-dieu-phoi-tho-trong-kit-design.md) · bản ghi nhu cầu 09/10 §3, §4.2.
 
-Tài liệu này là **bản chung** cho ba hàng DP2 (mở và đóng đợt), DP3 (tiếp tục) và DP4 (đổi tài khoản).
+Tài liệu này là **bản chung** cho bốn hàng DP2 (mở và đóng đợt), DP3 (tiếp tục), DP4 (đổi tài khoản) và DP6 (lớp mod).
 Ba hàng làm theo đúng bản này, không mở thiết kế lại. Phương pháp 05/10 giữ nguyên. Tài liệu chỉ đưa
 hành trình 05/10 vào hình dạng lệnh của kit, rồi thêm hai giai đoạn mới: **tiếp tục** và **đổi tài
 khoản**. Ô đánh dấu **[chờ DP0]** sẽ được điền sau lần đổi tài khoản thật kế tiếp.
@@ -30,7 +30,7 @@ khoản**. Ô đánh dấu **[chờ DP0]** sẽ được điền sau lần đổ
 | Chủ kho | Người: mở đợt, quyết theo lô, ký cổng trong phiên thợ, đổi tài khoản, đóng đợt | — | — |
 | Phiên giám sát | Một phiên Claude Code; chạy các lệnh `/dieu-phoi:…`, xử lý `can_phan` | Một worktree của kho; mã phiên ghi trong `vai.json` | Không. Phiên mới nhận vai qua «tiếp tục» |
 | Phiên thợ | Mỗi dãy một phiên cấp cao nhất, chạy `/feature-loop` trên các hàng của dãy | Worktree riêng của dãy | Không. Phiên mới nối dãy qua chip «tiếp tục» |
-| Bộ phát lịch | Tiến trình Node tách rời: khoá, hàng kế, sức khoẻ, sự kiện | Máy | Có. Tiến trình không gắn tài khoản (đo 08/10: sống qua lần cập nhật app) |
+| Bộ phát lịch | Tiến trình Node tách rời: khoá, hàng kế của dãy, sức khoẻ, sự kiện | Máy | Có. Tiến trình không gắn tài khoản (đo 08/10: sống qua lần cập nhật app) |
 | Hook của gói | Chặn S4, chạm nhịp, ghi chờ người, ghi **nhịp sống** của phiên (§5.1); DP4 thêm hook hạn mức | Mỗi phiên của kho đã cài gói | Dự kiến có, vì gói cài theo kho chứ không theo tài khoản; **[chờ DP0]** câu 5 |
 | Lịch 30′ | Lịch hẹn của app; mỗi lần chạy là một phiên mới, ngắn | `~/.claude/scheduled-tasks/` | **[chờ DP0]** |
 
@@ -83,7 +83,7 @@ Phần CLI không cần app. Phần phiên dùng công cụ của app.
 
 ### 4.1 `/dieu-phoi:mo-dot <tên>` — hàng DP2
 
-**Đầu vào:** gói đợt trong git của kho, mặc định `docs/plan/dot-<tên>/` (khuôn crm). Gói gồm:
+**Đầu vào:** gói đợt trong git của kho. Gói không ghi cứng đường nào (DP1 AC-7 cấm chuỗi riêng của crm): đường đọc từ khoá `dieu_phoi.goi_dot` trong `_acceptance/config.yaml` của kho (crm khai `docs/plan/dot-{ten}/`), hoặc từ đối số `--goi`; thiếu cả hai thì lệnh dừng và nói đúng điều đó. Gói gồm:
 - `dieu-phoi.config.json`;
 - `hang-viec.json`, với mỗi dãy: id, worktree, nhánh, hàng;
 - `LUAT-rieng.md`.
@@ -94,7 +94,7 @@ Phần CLI không cần app. Phần phiên dùng công cụ của app.
 | Bước | Ai | Việc |
 |---|---|---|
 | 1 | CLI `mo <tên> --goi <dir>` | Dựng thư mục đợt, chép gói đợt, ghép `LUAT.md` từ khuôn gói + `LUAT-rieng.md`, ghi `vai.json` (giám sát = phiên này), symlink, `pha nhap` |
-| 2 | phiên | Trình **thẻ khởi tạo** (05/10): bảng dãy và hàng, ba quyết định có khuyến nghị (ưu tiên khi tranh chấp, làn veto, quyền tự merge), và **ngưỡng hạn mức** của đợt (§4.3) |
+| 2 | phiên | Trình **thẻ khởi tạo** (05/10): bảng dãy và hàng, ba quyết định có khuyến nghị (ưu tiên khi tranh chấp, làn V, quyền tự merge), **ngưỡng hạn mức** của đợt (§4.3), và khi đợt lấy hàng từ lộ trình thì danh sách hàng còn chờ Cổng Đáng (§14) |
 | 3 | chủ kho | Duyệt thẻ |
 | 4 | CLI `pha dang-chay` rồi `chay` | Bộ phát lịch chạy |
 | 5 | phiên | Giăng Monitor, tạo lịch 30′ (§5), dựng nhóm «Đợt <tên>» ở thanh bên, ghim phiên giám sát, mở chip cho từng dãy kèm lời ghi danh |
@@ -194,6 +194,14 @@ lượt) và báo một dòng, không hỏi. Lý do: đổi tài khoản tốn N
 (≤ 30′). Khi đó máy hạ `ban_giao_pct` xuống bằng ngưỡng khai trừ đi tốc độ đốt đo được nhân 30′, để còn
 đủ hạn mức cho các thợ commit WIP.
 
+### 4.6 Đổi kế hoạch trong đợt — hàng DP2
+
+Câu thường của anh («Đẩy K3 lên trước K2», «Thêm việc X cho P2», «Cho P4 nghỉ», «Tạm dừng đợt», «Chạy tiếp»)
+đi qua đúng một bước có tên: phiên giám sát gọi CLI `hang` (`hang day-len <mã> --truoc <mã>`, `hang them
+<mã|việc> --day <P>`, `hang nghi <P>`) hoặc `pha` (`tam-dung`, `dang-chay`), rồi ghi một dòng Nhật ký. CLI là
+bên viết duy nhất của `hang-viec.json` và `dieu-khien.json`. Đây là lớp phủ của đợt; muốn đổi kế hoạch lâu
+dài thì xem §14 chỗ nối 5.
+
 ## 5. Đánh thức phiên giám sát
 
 Ngày 08/10, Monitor hết hạn trong lúc chờ anh trả lời, và hai việc bị lỡ 5 giờ. Lịch 30′ của 05/10 không
@@ -268,7 +276,10 @@ ghi). Chế độ auto cho riêng phiên giám sát thì cột này về 0; đó
 2. Nhận tin bàn giao, P2 commit WIP (`wip(ban-giao): …`), đẩy nhánh, chạy `ban-giao-xong P2`.
 3. Anh đổi tài khoản. Phiên P2 cũ không còn trong thanh bên của tài khoản mới **[chờ DP0]**.
 4. `tiep-tuc` mở chip «P2 · tiếp tục K3». Lời ghi danh gồm: thư mục đợt, «đọc `LUAT.md`», mục P2 trong
-   `ban-giao.json`, và lệnh `/feature-loop:feature-loop <slug của K3>`.
+   `ban-giao.json`, và lệnh `/feature-loop:feature-loop <slug của K3>`. `hang-viec.json` chỉ giữ mã hàng, nên CLI tra slug qua hồ sơ
+   mà bộ phân tích lộ trình gắn cho hàng. Gọi bằng slug an toàn hơn gọi bằng mã: hàng phát sinh không có mã,
+   mã trùng hai lộ trình thì S0 thoát 3, và hàng chưa có hồ sơ thì gọi bằng mã sẽ mở một ô mới. Hàng chưa
+   có hồ sơ nào thì lời ghi danh dùng `<tệp>:<mã>`, và S0 của feature-loop mở ô cho nó.
 5. Phiên mới nối theo `status` của hồ sơ (cơ chế sẵn có của feature-loop). Commit WIP ở lại trong lịch
    sử nhánh; gộp commit lúc mở PR là tuỳ.
 6. Nếu lúc bàn giao P2 đang ở S4: P2 giữ khoá, được xếp «đang xong», và không có chip mới cho P2 chừng nào
@@ -278,7 +289,7 @@ ghi). Chế độ auto cho riêng phiên giám sát thì cột này về 0; đó
 
 | Hàng | Làm các mục | Tệp dựng |
 |---|---|---|
-| DP2 | §4.1, §4.4, §3 (trạng thái nháp, đang chạy, tạm dừng, đang đóng), khung `chan-doan`, lệnh `/dieu-phoi:xem`, các câu thường của §13, liên kết lộ trình §14 | `vai.json`, `dieu-khien.json` |
+| DP2 | §4.1, §4.4, §3 (trạng thái nháp, đang chạy, tạm dừng, đang đóng), khung `chan-doan`, lệnh `/dieu-phoi:xem`, đổi kế hoạch §4.6, liên kết lộ trình §14, thuật ngữ §15 | `vai.json`, `dieu-khien.json` |
 | DP3 | §4.2, §5, §5.1, lệnh con ghi qua CLI (spec ô dù §2.3), `chan-doan` đủ mục | `song/` |
 | DP4 | §4.3, §4.5 (gồm mod đọc mức dùng ở §12.2), trạng thái ★, đồng hồ bàn giao trong bộ phát lịch, hook hạn mức | `ban-giao.json`, `ban-giao/lich-su/`, `han-muc.json` |
 | DP6 | §12: khung trạng thái đợt, chặn S4 bằng mod, tự bắt việc chờ người | — |
@@ -361,10 +372,10 @@ Anh không bao giờ gõ lệnh `node …` của CLI, không sửa tệp JSON n�
 
 | Giai đoạn | Anh gõ câu thường | Hoặc gõ lệnh | Ở phiên nào | Máy đáp |
 |---|---|---|---|---|
-| Lần đầu cho một kho | — | `claude plugin install dieu-phoi@acceptance-gate-kit --scope project` (ở terminal), cùng một gói đợt `docs/plan/dot-<tên>/` trong git của kho | — | Kho đã bật; hook im tới khi có đợt |
-| Khởi tạo | «Mở đợt sau-14-10: K2–K4 và làn Deal, mốc 07/12» | `/dieu-phoi:mo-dot sau-14-10` | Một phiên mới trong kho; phiên này thành giám sát | Thẻ khởi tạo (dãy, hàng, ưu tiên khi tranh chấp, quyền tự merge, chính sách hạn mức). Anh trả «duyệt» rồi bấm N chip |
+| Lần đầu cho một kho | — | `claude plugin install dieu-phoi@acceptance-gate-kit --scope project` (ở terminal), một gói đợt trong git của kho, và khoá `dieu_phoi.goi_dot` trong `_acceptance/config.yaml` | — | Kho đã bật; hook im tới khi có đợt |
+| Khởi tạo | «Mở đợt sau-14-10: K2–K4 và dãy Deal, mốc 07/12» | `/dieu-phoi:mo-dot sau-14-10` | Một phiên mới trong kho; phiên này thành giám sát | Thẻ khởi tạo (dãy, hàng, ưu tiên khi tranh chấp, làn V, quyền tự merge, chính sách hạn mức, hàng chờ Cổng Đáng nếu có). Anh trả «duyệt» cho thẻ; nếu có hàng chờ Cổng Đáng thì gõ thêm chữ quyết cho chúng trên cùng dòng (§14 chỗ nối 2); rồi bấm N chip |
 | Đang chạy — xem | «Đợt đang thế nào?» | `/dieu-phoi:xem` | Phiên giám sát, hoặc bất kỳ phiên nào trong kho | Một khối trạng thái. Có lớp mod (DP6) thì khung hiện sẵn, và `/dieu-phoi:xem` trả lời ngay không tốn lượt model |
-| Đổi kế hoạch | «Đẩy K3 lên trước K2» · «Thêm việc X cho P2» · «Cho P4 nghỉ» · «Tạm dừng đợt» / «Chạy tiếp» | — | Phiên giám sát | Một dòng xác nhận; bộ phát lịch áp từ nhịp kế |
+| Đổi kế hoạch | «Đẩy K3 lên trước K2» · «Thêm việc X cho P2» · «Cho P4 nghỉ» · «Tạm dừng đợt» / «Chạy tiếp» | — | Phiên giám sát | Một dòng xác nhận; bộ phát lịch áp từ nhịp kế (bước có tên ở §4.6) |
 | Quyết theo lô | Trả lời câu hỏi của thợ ngay trong phiên thợ | Lệnh cổng mà thẻ in sẵn, ví dụ `/acceptance-gate:approve <slug> duyệt` | Phiên thợ có chấm «cần anh» (thông báo dẫn thẳng tới) | Thợ chạy tiếp; tệp chờ người tự xoá |
 | Resume sau app sập, phiên giám sát chết | «Tiếp tục đợt» | `/dieu-phoi:tiep-tuc` | Một phiên mới trong kho, hoặc phiên giám sát cũ nếu còn | Một khối: đã dựng lại gì, dãy nào cần bấm chip, việc chờ anh |
 | Resume sau hết ngữ cảnh | Không gõ gì: phiên tự nén ngữ cảnh rồi chạy tiếp, và mỗi lần thức đã chạy `tiep-tuc --nhe` | — | — | — |
@@ -391,29 +402,57 @@ ngắn hạn).** Mỗi thứ chỉ có một nguồn:
 |---|---|---|
 | Hàng: mã, câu giao, slug, phụ thuộc, mốc | tệp lộ trình | Đợt đọc theo mã, không chép |
 | Phần thi công: dãy, ưu tiên trong đợt, ranh giới tệp, kiểu S4 | `hang-viec.json` của đợt, theo mã hàng | Lộ trình không biết |
-| Trạng thái hàng (chưa mở · đang làm · đã giao) | hồ sơ `_acceptance/`, suy bằng MỘT hàm của kit (bộ phân tích lộ trình) | Bộ phát lịch gọi chính hàm đó, không tự suy (thay 05/10 §4.6) |
+| Trạng thái KẾ HOẠCH của hàng: nhóm `da-giao` · `dang-lam` · `chua-bat-dau` · `khac` (khoá `nhom_trang_thai` của bộ phân tích lộ trình) | hồ sơ trên **nhánh chính**, suy bằng bộ phân tích lộ trình | Trang lộ trình và thẻ start dùng; bảng đợt hiện kèm để so |
+| Trạng thái THI CÔNG của hàng: đang ở bước nào, chờ gì | vật kit trong **worktree của dãy** (status hồ sơ, sổ chạy, thẻ, PR — 05/10 §4.6, giữ nguyên) | Bộ phát lịch suy; hồ sơ chưa gộp nên bộ phân tích lộ trình không thấy |
 | Ai đang giữ khoá, dãy nào đang chạy | thư mục đợt (máy) | Không vào git, không vào `LO-TRINH.html` |
 
+Bộ phân tích lộ trình đọc `_acceptance/` của cây chính, nên một hàng đang ở S3 trong worktree của dãy vẫn
+hiện «chưa bắt đầu» trên trang lộ trình cho tới khi hồ sơ gộp. Hai lớp trạng thái trên là cố ý, không gộp.
+
 **Năm chỗ nối:**
-1. **Mở đợt từ lộ trình.** Gói đợt khai nguồn hàng: một mốc (`--moc 2026-10-25` lấy mọi hàng của mốc đó),
-   hoặc một danh sách mã, viết `<tệp>:<mã>` khi kho có nhiều lộ trình (cùng mẫu với lệnh mở hàng ở S0
-   của feature-loop). `hang-viec.json` chỉ còn phần thi công theo mã. Kho chưa có lộ trình (như OneFlow
-   hôm nay) vẫn khai hàng tay như crm: đây là lựa chọn bật thêm, không đổi mặc định của kho nào.
-2. **Cổng Đáng của cả lát ở thẻ khởi tạo.** Thẻ khởi tạo liệt kê các hàng của đợt chưa có ô cơ hội đã ký.
-   Một chữ «duyệt» ở thẻ là «build» cho đúng các hàng đó (tiền lệ luật 16 của đợt crm). Máy mở ô cơ hội
-   cho từng hàng bằng bộ ghi sẵn có (`lo-trinh.mjs --mo-o`), ô mang `lo_trinh_ma`. Dòng `Gốc:` của ô lấy
-   từ `vi_sao` của hàng, nên mọi ô đều có neo ngoài.
-3. **Một hàm trạng thái.** Bộ phát lịch và `LO-TRINH.html` suy trạng thái hàng bằng cùng một hàm, nên bảng
-   của đợt và trang lộ trình không bao giờ nói khác nhau về cùng một hàng.
-4. **Hàng phát sinh giữa đợt quay về lộ trình.** Hàng mới trong đợt (loại yêu cầu `hang-moi`, sửa nóng) chạy
-   ngay trong đợt. Thẻ đóng đợt liệt kê chúng kèm khuyến nghị «ghi vào lộ trình» hoặc «không». Một chạm ở
-   thẻ đóng; máy mở một PR sửa tệp lộ trình. Kit vẫn không tự ghi tệp ý định ngoài PR có người gộp.
-5. **Đổi thứ tự có hai cấp.** «Đẩy K3 lên trước K2» trong đợt chỉ đổi ưu tiên trong `hang-viec.json` (lớp
-   phủ của đợt, ghi Nhật ký). Muốn đổi kế hoạch lâu dài (dời hàng sang mốc khác) thì đó là PR vào tệp lộ
-   trình. Thẻ đóng đợt hỏi một lần: «đưa các lớp phủ ưu tiên vào lộ trình không?».
+1. **Mở đợt từ lộ trình (bật thêm).** Gói đợt khai `nguon_hang`: một danh sách mã viết `<tệp>:<mã>`, hoặc
+   một mốc kèm tên tệp lộ trình (`<tệp>@2026-10-25`, vì mốc thuộc riêng từng tệp). DP2 đọc hàng của mốc từ
+   dữ liệu bộ phân tích lộ trình xuất sẵn (khối `lo-trinh-du-lieu`), không thêm cờ mới cho `lo-trinh.mjs`.
+   Gói `dieu-phoi` nạp bộ phân tích bằng `resolve-plugin.mjs --plugin acceptance-gate`, như S0 của
+   feature-loop; nạp không được thì đọc hàng tay và báo một dòng. `hang-viec.json` chỉ còn phần thi công
+   theo mã. Kho chưa có lộ trình (OneFlow hôm nay) khai hàng tay như crm. `nguon_hang` không đọc khoá
+   `dot` của hàng lộ trình (đó là «đợt phạm vi», nghĩa khác — §15).
+2. **Cổng Đáng của các hàng mới, trong cùng lượt với thẻ khởi tạo.** Thẻ khởi tạo liệt kê đích danh các
+   hàng chưa có ô đã quyết. Máy mở ô `stage: discovery` cho từng hàng bằng bộ ghi sẵn có (`lo-trinh.mjs
+   --hang <tệp>:<mã> --mo-o`), ô mang `lo_trinh_ma`. Chữ quyết cho các ô ấy là chữ của anh, gõ đích danh
+   trên cùng dòng trả lời (ví dụ `build K2 K3 K4`), không gộp vào chữ «duyệt» của thẻ. Máy ghi hộ
+   `decided_by` vào từng ô theo đúng chữ anh gõ, theo tiền lệ X1 (08/10) và luật 16 của đợt crm. Không có
+   lệnh mới nào được gọi thay người (ADR 0002 chỉ khoá bảy thao tác có lệnh). Nếu sau này muốn có răng
+   khoá cho thao tác này, đó là một CỘNG riêng kèm ADR, chưa làm.
+   Ở kho kit, khi `vi_sao` của hàng mở đầu bằng `Gốc:`, phiên chép dòng đó vào ô; hình dạng neo là luật
+   riêng của kho kit (CLAUDE.md), không đi vào gói hay vào `lo-trinh.mjs`.
+3. **Cùng chữ trạng thái.** Bảng đợt in nhóm kế hoạch bằng đúng giá trị `nhom_trang_thai` của bộ phân tích,
+   cạnh trạng thái thi công. Không bên nào tự đặt tên nhóm thứ hai.
+4. **Hàng phát sinh giữa đợt quay về lộ trình qua cắt lượt.** Hàng mới trong đợt chạy ngay trong đợt. Thẻ
+   đóng đợt liệt kê chúng; anh chọn hàng nào giữ. Phiên giám sát viết chúng thành một bản phạm vi dáng
+   `lan-va` (khoá `dot` = tên đợt) và chạy skill cắt lượt, để chúng vào lộ trình qua đúng lối mà kit đã có
+   răng phủ, trong một PR có người gộp. CLI `dieu-phoi` không bao giờ ghi tệp lộ trình.
+5. **Đổi thứ tự có hai cấp.** «Đẩy K3 lên trước K2» trong đợt chỉ đổi lớp phủ ưu tiên (§4.6). Muốn đổi kế
+   hoạch lâu dài (dời hàng sang mốc khác) thì đó là PR vào tệp lộ trình. Thẻ đóng đợt hỏi một lần có đưa
+   các lớp phủ vào không.
 
-**Chia việc:** chỗ nối 1, 2, 3 vào DP2 (khoá bật thêm `nguon_hang` trong gói đợt; thiếu khoá thì đọc hàng
-tay như cũ). Chỗ nối 4, 5 vào thẻ đóng đợt của DP2. Không mở hàng mới.
+**Chia việc:** chỗ nối 1, 2, 3 và §4.6 vào DP2 (khoá bật thêm `nguon_hang`; thiếu khoá thì đọc hàng tay
+như cũ). Chỗ nối 4, 5 vào thẻ đóng đợt của DP2. Không mở hàng mới.
 
-**Cũng là phép thử của chính kit:** các hàng DP1–DP6 đã nằm trên lộ trình kit. Khi gói xong, chính vòng
-này chạy được thành một đợt của kit, với nguồn hàng là mốc 25/10.
+**Giới hạn đã khai:** trang lộ trình không biết hàng nào đang có dãy giữ, nên «hàng kế» của lộ trình có thể
+trỏ đúng hàng một dãy đang làm và mời một phiên khác mở trùng. Ngưỡng mở lại: ≥1 lần một phiên mở trùng
+hàng mà một dãy đang giữ.
+
+**Cũng là phép thử của chính kit:** các hàng DP trên lộ trình kit chạy được thành một đợt của kit khi gói
+xong, với nguồn hàng là mốc 25/10 (DP2, DP3, DP4). DP6 nằm ở mốc 01/11.
+
+## 15. Thuật ngữ mới — vào `CONTEXT.md` ở DP2
+
+| Chữ | Nghĩa | Phân biệt với |
+|---|---|---|
+| Đợt (điều phối) | Một lát thi công có phiên giám sát, các dãy thợ và bộ phát lịch, từ `mo-dot` tới `dong-dot` | «Đợt phạm vi» (khoá `dot` của bản phạm vi và của hàng lộ trình). Trong chữ cho người, chỗ nào có thể nhầm thì viết «đợt chạy» |
+| Dãy | Một phiên thợ cùng chuỗi hàng nó làm tuần tự (P1, P2…) | «Làn» (Lane) — kit dành cho làn surface, làn V |
+| Phiên giám sát · phiên thợ | Hai vai phiên Claude Code của một đợt (§2) | — |
+| Bộ phát lịch | Tiến trình Node tất định giữ khoá, hàng kế của dãy, sức khoẻ, sự kiện | — |
+| Hàng kế của dãy | Hàng tiếp theo bộ phát lịch chọn cho một dãy (`tiep/<phiên>.json`) | «Hàng kế» của lộ trình: một hàng cho cả một lộ trình |
+| Bàn giao tài khoản | §4.3: dừng ở ranh giới, commit WIP, ghi `ban-giao.json` trước khi đổi tài khoản | «Vật tạo ra bàn giao» (CLAUDE.md): sáu thứ vật tự phát ra. Lệnh vẫn tên `/dieu-phoi:ban-giao` vì đó là chữ chủ kho dùng |
