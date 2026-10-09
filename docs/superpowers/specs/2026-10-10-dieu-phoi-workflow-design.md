@@ -168,11 +168,15 @@ Giữ nguyên giai đoạn 5 của 05/10:
 
 ### 4.5 Đọc mức dùng — hàng DP4
 
-Hai nguồn, cùng ghi vào `han-muc.json` qua CLI `han-muc`:
+Ba nguồn, theo thứ tự ưu tiên, cùng ghi vào `han-muc.json` qua CLI `han-muc`:
+- **Mod của gói** (§12, khi app ≥ 2.1.286): sự kiện `session.measure` bắn mỗi khi một cửa sổ hạn mức nhích
+  một điểm; mod đọc `$.session.usage().rateLimits` (`five_hour`, `seven_day`, `percentUsed`) rồi gọi CLI
+  `han-muc`. Không tốn lượt model, không phải sửa cài đặt người dùng, có số cả khi giám sát đang ngủ.
+  Tài liệu kiểu của bản 2.1.293 ghi các trường này; còn phải thấy chúng có số trên app desktop **[chờ DP0]**.
 - **Phiên giám sát**, mỗi lần thức: gọi `get_usage` (đã chạy thật 09/10), rồi gọi CLI `han-muc` với các số
   đọc được.
-- **Lệnh dòng trạng thái** ghi trường `rate_limits` mỗi lượt, nếu trường này sống trên app desktop
-  **[chờ DP0]**. Thêm lệnh này là sửa cài đặt người dùng, nên cần anh đồng ý riêng.
+- **Lệnh dòng trạng thái** ghi trường `rate_limits` mỗi lượt. Chỉ dùng nếu mod không chạy được, vì thêm
+  lệnh này là sửa cài đặt người dùng và cần anh đồng ý riêng.
 
 Phiên ngắn của lịch 30′ cũng gọi `get_usage` rồi `han-muc`, để mức dùng có số mới cả khi giám sát đang
 ngủ. Mỗi lần đọc ghi kèm mã phiên đã đọc và lúc đọc. Bộ phát lịch bỏ số cũ hơn 35′, và bỏ số đọc trước
@@ -276,9 +280,10 @@ ghi). Chế độ auto cho riêng phiên giám sát thì cột này về 0; đó
 |---|---|---|
 | DP2 | §4.1, §4.4, §3 (trạng thái nháp, đang chạy, tạm dừng, đang đóng), khung `chan-doan` | `vai.json`, `dieu-khien.json` |
 | DP3 | §4.2, §5, §5.1, lệnh con ghi qua CLI (spec ô dù §2.3), `chan-doan` đủ mục | `song/` |
-| DP4 | §4.3, §4.5, trạng thái ★, đồng hồ bàn giao trong bộ phát lịch, hook hạn mức | `ban-giao.json`, `ban-giao/lich-su/`, `han-muc.json` |
+| DP4 | §4.3, §4.5 (gồm mod đọc mức dùng ở §12.2), trạng thái ★, đồng hồ bàn giao trong bộ phát lịch, hook hạn mức | `ban-giao.json`, `ban-giao/lich-su/`, `han-muc.json` |
+| DP6 | §12: khung trạng thái đợt, chặn S4 bằng mod, tự bắt việc chờ người | — |
 
-Thứ tự: DP2 và DP3 đi song song sau DP1. DP4 đi sau DP3 và sau DP0.
+Thứ tự: DP2 và DP3 đi song song sau DP1. DP4 đi sau DP3 và sau DP0. DP6 đi sau DP3 (cần nhịp sống và lệnh con ghi qua CLI); nó không nằm trong ngưỡng SỐNG của ô nên không chặn timebox 31/10.
 
 ## 10. Giới hạn đã khai, kèm ngưỡng đang đếm
 
@@ -301,3 +306,44 @@ Thứ tự: DP2 và DP3 đi song song sau DP1. DP4 đi sau DP3 và sau DP0.
 | 3 | Hook `StopFailure` có bắn với `error: "rate_limit"` khi một lượt chết vì hạn mức không? | §4.3 lưới cuối |
 | 4 | Phiên đang rảnh nhận tin liên phiên thì có bắt đầu lượt mới không? (Đo trong DP3, không cần đổi tài khoản) | §5 |
 | 5 | Sau khi đổi tài khoản, gói `dieu-phoi` và hook của nó còn nạp trong phiên mới của kho không? Nếu không, lệnh `tiep-tuc` cũng không có | §2, §4.2 |
+| 6 | `$.session.usage().rateLimits` của mod có số trên app desktop không, và có khớp `get_usage` không? | §4.5, §12.2 |
+
+## 12. Lớp mod (Mods của Claude Code)
+
+Chủ kho đồng ý đưa vào ngày 10/10, theo bản ghi nhu cầu §5 mục 6 (giám sát crm chuyển lời). Mod là
+plugin có hàm chạy trong tiến trình Claude Code: nghe sự kiện, giữ hoặc sửa một lần gọi công cụ, vẽ khung,
+thêm lệnh. Cần app desktop ≥ 2.1.286 hoặc CLI ≥ 2.1.287 (máy đang 2.1.293). Mod nằm ngay trong gói
+`dieu-phoi`: `hooks/hooks.json` khai được cả `hooks` (hook thường) lẫn `modules` (mod).
+
+### 12.1 Luật an toàn — máy giữ, không dặn bằng lời
+
+Mod không có sandbox, chạy bằng quyền người dùng, và về kỹ thuật **tự duyệt được** một lần gọi công cụ, kể
+cả lần đã bị luật `ask` hay hook chặn. Mod của kit chỉ được quan sát, giữ lại kèm lời từ chối, hoặc vẽ;
+**không bao giờ trả lời «cho phép»** cho `tool.call` hay `PermissionRequest`. Răng:
+- Mỗi lần phát hành chạy `claude plugin validate` trên gói. Bộ kiểm liệt kê mọi sự kiện và lời gọi của mod.
+- Một ca quét mã nguồn mod: mọi nhánh trả kết quả cho `tool.call` và `PermissionRequest` chỉ là `deny` hoặc
+  `next(e)` nguyên vẹn. Chiều đỏ: bản sao thêm một nhánh `allow` → đỏ, nêu tệp và dòng.
+
+### 12.2 Bốn chỗ dùng
+
+| Chỗ | Mod làm gì | Thay cho | Hàng |
+|---|---|---|---|
+| Đọc mức dùng | Nghe `session.measure`, đọc `rateLimits`, gọi CLI `han-muc` | Giám sát gọi `get_usage` mỗi lần thức; lệnh dòng trạng thái | DP4 |
+| Khung trạng thái đợt | Khung cạnh hội thoại ở phiên giám sát (và dải trên ô nhập ở phiên thợ): ai giữ khoá S4 và hạn tới đâu, hàng chờ khoá, hàng gộp, việc chờ người kèm dòng lệnh, giảm tải. Đọc `trang-thai.json`; không ghi gì | Mở `bang.html`, hỏi giám sát | DP6 |
+| Chặn S4 | Nghe `tool.call` của Workflow và Bash; phân loại bằng cấu trúc của lời gọi (đường script của Workflow, tách đối số của Bash), không so chuỗi con. Không có lượt → ghi đơn `xin/` qua CLI rồi trả `deny` kèm lời dặn chờ. Không bao giờ hỏi người: hỏi người là thêm một chạm | `hook-chan-s4.mjs` so chuỗi con, đã chặn nhầm một lệnh chỉ đọc của giám sát (10/10) | DP6 |
+| Tự bắt việc chờ người | Ở phiên thợ: nghe `PermissionRequest` (gồm tác tử của Workflow nếu sự kiện bắn cho chúng) và `turn.complete` kết thúc bằng một câu hỏi → ghi `cho-nguoi/` hoặc đơn `can-nguoi` qua CLI, và báo giám sát bằng `session.send` | Giám sát so `started` với `result` trong `journal.jsonl` (đêm 09–10/10: S4 của K3b đứng 2 giờ 30 vì hộp duyệt quyền; luật 52) | DP6 |
+
+Hook thường của DP1 ở lại, kể cả khi mod chạy, và không bao giờ nhường. Bộ phân loại «lệnh này có phải
+S4 không» là MỘT hàm của lõi, hook và mod cùng gọi; sửa lỗi chặn nhầm là sửa hàm đó, nên hook cũng hết
+chặn nhầm. Hai bên cùng chặn một lời gọi thì vô hại, vì cùng một quyết định. Còn nếu hook nhường theo một
+dấu do mod ghi, một mod hỏng sau khi ghi dấu sẽ thành cửa mở.
+
+### 12.3 Chưa kiểm — đo trong DP6 trước khi tin
+
+1. Mod có nhận `PermissionRequest` và `tool.call` của tác tử con bên trong một Workflow không? Tài liệu kiểu
+   ghi `agent.spawn` bắn cho tác tử Workflow, nhưng chưa ghi hộp duyệt của chúng.
+2. Khung của mod có hiện cho phiên mở từ chip không, và ở bề rộng nào? Khung mở không do người bấm chỉ ngồi
+   vào khi đủ 144 cột ở terminal.
+3. Tin `session.send` có tới khi phiên nhận đang giữa lượt không? Tin liên phiên của đợt crm hay bị giữ tới
+   hết lượt.
+4. Mod ở phiên giám sát có tự đánh thức được phiên đó (thay cho Monitor) không? Nếu được, §5 bỏ được Monitor.

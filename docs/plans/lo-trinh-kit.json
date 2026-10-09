@@ -73,11 +73,12 @@
       "hang": []
     },
     {
-      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — gom tín hiệu (L3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
+      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
       "ngay": "2026-11-01",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
+        "DP6",
         "L3",
         "G2",
         "G3",
@@ -299,6 +300,17 @@
       "slug": "dieu-phoi-doi-tai-khoan",
       "cau_giao": "«Báo trước khi chạm hạn mức, tự bàn giao nhẹ, tài khoản kia tiếp tục bằng một lệnh — không mất commit, chữ ký hay quyết định nào»",
       "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — chủ kho đổi tài khoản giữa đợt vì hết hạn mức (09/10); lần đổi 05–06/10 bàn giao tay bằng tệp nhớ. Thiết kế chung §4.3, §4.5; chờ phép đo DP0 của ô dù."
+    },
+    {
+      "ma": "DP6",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP3"
+      ],
+      "slug": "dieu-phoi-lop-mod",
+      "cau_giao": "«Trạng thái đợt hiện ngay trong app; S4 bị chặn đúng lệnh, không chặn nhầm lệnh chỉ đọc; thợ chờ người thì giám sát biết ngay, không phải dò nhật ký»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — 10/10 hook chặn S4 so chuỗi con, chặn nhầm một lệnh chỉ đọc; đêm 09–10/10 S4 của K3b đứng 2 giờ 30 vì hộp duyệt quyền mà không ai biết. Chủ kho đồng ý đưa Mods vào vòng 10/10 (bản ghi nhu cầu §5 mục 6). Thiết kế: workflow §12."
     },
     {
       "ma": "S1",
