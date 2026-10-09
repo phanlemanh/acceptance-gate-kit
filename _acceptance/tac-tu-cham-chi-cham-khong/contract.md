@@ -5,7 +5,7 @@ slug: tac-tu-cham-chi-cham-khong
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/{agents,workflows,scripts,skills} — không chạm t3_paths (hooks/** · lib/** · pre-merge · recheck)
 surfaces: [cli, docs]
-status: verified
+status: machine-cleared
 approved_by: "Manh Phan"
 approved_at: 2026-10-09T22:01:13Z
 design_doc: docs/superpowers/specs/2026-10-09-tac-tu-cham-chi-cham-khong-design.md
@@ -128,6 +128,13 @@ Quét Zwicky (preset test-matrix, trục dựng lại), đầy đủ ở `morpho
   - Vai ui mất Write: ≥1 eval ui-check PASS → `cannotRun` vì lưu tệp.
   - Thân tác tử tùy biến: ≥1 kho đổi phán quyết mà vật không đổi.
 - **Thu phạm vi 10/10 (dừng-vá, owner chọn lối 1, sổ `d-20261009T215847Z-19`):** bỏ tự hoàn lại. Lượt 1 và lượt 2 cùng lớp «tự hoàn lại phá việc không thuộc tác tử». Ca tác tử chấm commit bậy không tự lành — phiên hoàn lại theo hai ca của SKILL như trước vòng. Ngưỡng mở lại: ≥1 lượt trong cửa sổ 30 ngày mà phiên phải gọi owner chỉ để hoàn lại cây sau dòng `ghi-boi` có `tac_tu` không rỗng.
+- **Known limits (máy-thông 10/10, lượt chấm 3 — máy ghi theo đề xuất của bộ phân loại; cửa phản đối mở, sổ `docs/research/known-limits-ledger.tsv`):**
+  - Ngoài-1 (lượt 3): AT3 khoá vào tag `v2.26.0` trong suite thường trực — trùng Ngoài-3 lượt 1.
+  - Ngoài-2 (lượt 3): câu thẻ và hình còn nói máy tự hoàn lại — ĐÃ SỬA câu thẻ; hình đánh dấu lỗi thời ở `figures/index.md`.
+  - Ngoài-3, Ngoài-7 (lượt 3): AT6/AT5 gắn nhãn ghim cho mọi kiểu hỏng — trùng Ngoài-7 lượt 1.
+  - Ngoài-4 (lượt 3): `--transcript` trỏ đường không tồn tại bị bỏ im, dòng sổ báo «không tìm thấy transcript».
+  - Ngoài-5 (lượt 3): `git commit` của tác tử ở kho khác (`cd`/`-C`) vẫn bị quy mọi commit của lượt — chỉ lệch số đếm và gợi ý cho phiên.
+  - Ngoài-6 (lượt 3): `git -C <thư mục khác>` với tên tệp trùng bị quy nhầm cho tệp kho chính.
 - **Known limits (owner ký 09/10 tại Cổng Bằng chứng, lượt chấm 1):**
   - Ngoài-2: `--transcript` rỗng hoặc trỏ thư mục của lượt khác được ghi như đã đọc — số K (không đọc được) có thể thấp hơn thực tế.
   - Ngoài-3: AT3 so từng byte với `v2.26.0`; vòng sau đổi lời dặn bộ chấm sẽ làm nó đỏ và phải nâng mốc so.
