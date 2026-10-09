@@ -96,8 +96,8 @@ không có `*` (crm có `…/[[]slug]/contacts/create-contact-sheet.tsx`).
 - Kiểm ngoài (không phải AC — vật ở crm): sau khi crm cài mốc mang bản sửa, ghim lại `dien-thoai-ca-nhan` trên
   diff `974cb5c9..c6a618f` — dòng pin phải VẮNG `evals_not_machine_touched`. Chỉ đọc kết quả, không sửa crm.
 - Known limits (owner định tuyến ở Cổng Bằng chứng 09/10, lượt chấm 2): (1) Ngoài-3 — mục thành ngữ trỏ vào một
-  THƯ MỤC mà không có `/**` (`apps/a/[[]slug]/c`) bị từ chối «dang-khai-la», trong khi `apps/a/[slug]/c` trần được
-  nhận; viết `/**` thì nhận. Không hồi quy (bản cũ cũng từ chối). (2) Mục trong hợp đồng AC-4 (medium, thước):
+  THƯ MỤC mà không có đuôi hai sao (`apps/a/[[]slug]/c`) bị từ chối «dang-khai-la», trong khi `apps/a/[slug]/c` trần được
+  nhận; viết `apps/a/[[]slug]/c/**` thì nhận. Không hồi quy (bản cũ cũng từ chối). (2) Mục trong hợp đồng AC-4 (medium, thước):
   GT4 kiểm hệ quả hạ nguồn chứ không so trực tiếp mục đọc ra BẰNG chuỗi gốc; bộ đọc giải `[[]slug]` thành `[slug]`
   sẽ khớp y hệt nên không ảnh hưởng người dùng — máy khuyên ghi giới hạn ở lời mời ký, thẻ không có ô cho mục này.
   Hai hàng ở `docs/research/known-limits-ledger.tsv` (glob-thoat-ngoac#ngoai-3, glob-thoat-ngoac#trong-ac-4).
