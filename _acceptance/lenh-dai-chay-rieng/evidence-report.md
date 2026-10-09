@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 429f625cd9c23f2f6c288a374ad29c257219e9ad
+verified_commit: c4d67d7c60552d497cab16005ee39f4b4ea54ab3
 human_signoff: Manh Phan 2026-10-07 — ký lượt chấm 7; Ngoài-1, Ngoài-2 ghi Known limits; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -195,3 +195,7 @@ Round 7: mọi eval máy và mọi lệnh suite xanh; hai mục judgment giữ p
 ### Re-pin lần 1 — 2026-10-07, do cây đổi sau chữ ký: sửa mẫu ca LN2 cho bash 5 (CI) + gộp main #278
 run_id: repin-20261007T101502Z-18478
 sha: 429f625cd9c23f2f6c288a374ad29c257219e9ad · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E4 (E4 không khai paths), E8 (E8 không khai paths) · AC không có chốt máy: AC-4, AC-8
+
+### Re-pin lần 2 — 2026-10-09, do chiến dịch ghim lại mốc 2.25.0 (hoá cũ so với v2.24.0) + bật ổ cắm lộ trình của kit
+run_id: repin-20261009T014447Z-43603
+sha: c4d67d7c60552d497cab16005ee39f4b4ea54ab3 · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E4 (E4 không khai paths), E8 (E8 không khai paths) · AC không có chốt máy: AC-4, AC-8
