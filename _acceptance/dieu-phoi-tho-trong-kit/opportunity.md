@@ -3,10 +3,10 @@ schema_version: 1
 slug: dieu-phoi-tho-trong-kit
 feature: «Một kho bất kỳ bật được mô hình Điều phối – Thợ của kit; mở đợt bằng một lệnh, nối lại bằng một lệnh sau khi phiên khởi động lại, và sang tài khoản khác khi hết hạn mức mà không mất việc»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:                     # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:                   # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build               # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-09T14:30:35Z   # chủ kho gõ «build» một chạm trong phiên 09/10, máy ghi hộ
 prototype:
   base_commit:                # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:                # keep | archive
@@ -54,9 +54,9 @@ Người gặp, theo thứ tự trả giá:
 ## Ngưỡng chết / ngưỡng UAT
 
 - Câu hỏi phép đo trả lời: một kho thứ hai có chạy được một đợt Điều phối – Thợ trên lõi của kit mà không sửa lõi không, và chủ kho có mở đợt, nối lại đợt, đổi tài khoản giữa đợt, mỗi việc bằng một lệnh và không mất việc không?
-- Kết quả nào là SỐNG: [đề xuất] Trong timebox, đạt đủ bốn điều. (1) crm chạy đợt kế (hoặc phần còn lại của đợt `sau-14-10`) trên lõi của kit, đã gỡ bản `scripts/dieu-phoi/` riêng; và OneFlow chạy một đợt có ≥ 2 hàng gộp; trong cả hai đợt, kit không phát hành bản vá lõi nào vì hai kho này, và không kho nào giữ bản sao lõi. (2) Mở đợt ở một trong hai kho bằng một lệnh; phần tay chỉ còn bấm chip phiên thợ. (3) Ít nhất một lần «tiếp tục» thật sau khi phiên giám sát khởi động lại: 0 việc nền phải giăng tay; khoá, đơn và việc chờ người còn nguyên. (4) Ít nhất một vòng thật: báo trước khi chạm hạn mức → bàn giao nhẹ → «tiếp tục» dưới tài khoản kia; 0 commit, chữ ký hay quyết định bị mất; người không gõ thêm câu nào ngoài lệnh tiếp tục và các lần bấm chip.
-- Kết quả nào là CHẾT: [đề xuất] Một trong ba. (a) Hết timebox mà OneFlow phải sửa lõi mới chạy được: lõi còn mang hình dạng crm, nên đóng gói dừng và mô hình ở lại crm. (b) Một vòng hết-hạn-mức thật làm mất một commit, chữ ký hay quyết định: trục 4 thu về bàn giao tay theo khuôn. (c) Sau khi crm chuyển sang lõi của kit, số hàng gộp mỗi ngày hoặc lượt gọi chủ kho mỗi hàng xấu hơn đợt `sau-14-10`.
-- Timebox: [đề xuất] 2026-10-31. Đủ cho vòng kit, một quãng lặng ở crm để chuyển và nâng, và một đợt thử ở OneFlow. Ngưỡng đọc khi đợt thử OneFlow đóng.
+- Kết quả nào là SỐNG: Trong timebox, đạt đủ bốn điều. (1) crm chạy đợt kế (hoặc phần còn lại của đợt `sau-14-10`) trên lõi của kit, đã gỡ bản `scripts/dieu-phoi/` riêng; và OneFlow chạy một đợt có ≥ 2 hàng gộp; trong cả hai đợt, kit không phát hành bản vá lõi nào vì hai kho này, và không kho nào giữ bản sao lõi. (2) Mở đợt ở một trong hai kho bằng một lệnh; phần tay chỉ còn bấm chip phiên thợ. (3) Ít nhất một lần «tiếp tục» thật sau khi phiên giám sát khởi động lại: 0 việc nền phải giăng tay; khoá, đơn và việc chờ người còn nguyên. (4) Ít nhất một vòng thật: báo trước khi chạm hạn mức → bàn giao nhẹ → «tiếp tục» dưới tài khoản kia; 0 commit, chữ ký hay quyết định bị mất; người không gõ thêm câu nào ngoài lệnh tiếp tục và các lần bấm chip.
+- Kết quả nào là CHẾT: Một trong ba. (a) Hết timebox mà OneFlow phải sửa lõi mới chạy được: lõi còn mang hình dạng crm, nên đóng gói dừng và mô hình ở lại crm. (b) Một vòng hết-hạn-mức thật làm mất một commit, chữ ký hay quyết định: trục 4 thu về bàn giao tay theo khuôn. (c) Sau khi crm chuyển sang lõi của kit, số hàng gộp mỗi ngày hoặc lượt gọi chủ kho mỗi hàng xấu hơn đợt `sau-14-10`.
+- Timebox: 2026-10-31. Đủ cho vòng kit, một quãng lặng ở crm để chuyển và nâng, và một đợt thử ở OneFlow. Ngưỡng đọc khi đợt thử OneFlow đóng.
 
 ## Kết quả prototype
 
@@ -75,9 +75,9 @@ Nó là vật liệu kế thừa (bảng dưới), không phải prototype của
 
 ## Cổng 0
 
-- **decision = …** Chờ chủ kho.
+- **decision = build** (Manh Phan, 09/10 14:30Z — «build» một chạm). Ngưỡng giữ nguyên bốn dòng đề xuất, timebox 2026-10-31.
 - **disposition = …** Không có prototype.
-- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng ở mục Ngưỡng. Chủ kho gỡ tiền tố `[đề xuất]` để chốt.
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng ở mục Ngưỡng, giữ nguyên chữ, đã gỡ tiền tố.
 - **CỘNG (ADR 0018):** trace về nguyên tố 3 (người ở biên, thôi làm nhịp tim và thôi giăng tay) và hai
   thước đo của kit: lượt gọi người, và chi phí máy trên mỗi kết quả ship. Người hưởng: chủ kho khi chạy
   đợt ở crm và OneFlow; phiên giám sát.
