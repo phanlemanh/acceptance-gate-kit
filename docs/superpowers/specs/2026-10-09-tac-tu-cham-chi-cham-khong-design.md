@@ -186,3 +186,9 @@ R > 0 thì phiên nghiệm thu đọc tên tệp và transcript của từng dò
 - Tác tử S3 (`execute-parallel.js`): là tác tử làm, phải ghi được.
 - Thẻ Cổng Bằng chứng và lưới trước-merge đọc hai dòng sổ mới: lưới `cay-doi` sẵn có đã khoá lượt. Hai dòng mới chỉ để đếm và báo, không đổi phán quyết. Bên đọc hiện tại lọc theo `kind`, nên dòng lạ bị bỏ qua.
 - Bộ đọc ngưỡng tự động: phiên nghiệm thu dùng lệnh ở §5.
+
+## 9. Sửa sau Cổng Bằng chứng lượt 1 (owner trả lại 09/10 — Ngoài-1/4/5)
+
+- **Nhận diện lệnh ghi theo VỊ TRÍ** (§3.2 luật 2–3 thay thế): động từ là từ đầu đoạn lệnh; với `git`, lệnh con là từ đầu tiên không phải tuỳ chọn sau `git` và các cặp `-C <dir>`/`-c k=v` (`gitCon`). Lệnh con ghi: checkout · restore · apply · am · stash · reset · rebase · merge · cherry-pick · rm · mv · switch · pull. Commit ⇔ lệnh con đúng bằng `commit`. `cp` chỉ tính ĐÍCH (đối số cuối) là ghi; nguồn là đọc. Lý do: khớp chuỗi con quy `git diff --merge-base`, `git cat-file commit`, nguồn của `cp` thành ghi — và `tep_khong_ro` rỗng là chốt duy nhất bảo vệ sửa của phiên.
+- **Chỉ tự hoàn lại COMMIT, bằng đúng một `git reset --keep <sha>`** (§3.3 thay thế bước `git checkout`): có tệp đổi chưa commit (dù quy cho tác tử) → `hoan_lai: false`, `ly_do: co tep doi chua commit: …`, để phiên. Ghi đè tệp chưa commit không đảo được; `reset --keep` tự từ chối khi đụng thay đổi chưa commit và commit bị bỏ còn trong reflog; một thao tác nên không có trạng thái nửa vời (Ngoài-4).
+- **Cả lượt** (§2.1 bổ sung, gộp cùng lời mời): sau lần «not found» đầu tiên, lời gọi khởi động sau đó đi thẳng không loại — bảng theo dõi chỉ hiện đợt đang bay lúc ấy là thất bại (lượt 1 hiện ~20 tác tử «failed», owner đọc thành «nhiều agent tắt»).

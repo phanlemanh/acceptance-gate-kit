@@ -137,6 +137,12 @@ const HANG_AT5 = [
     mong: g => g.tac_tu.length === 1 && g.tac_tu[0].cong_cu.includes('Bash:git commit') && !g.tep_khong_ro.length },
   { n: 10, ten: 'tu tim khi thu muc du an ma hoa khac --root', tuTim: 'khac', tiem: (d, wf) => { A(d, 'src/a.js'); tacTu(wf, 'e10', 'machine:npm test', [['Edit', { file_path: path.join(d, 'src/a.js'), old_string: 'a', new_string: 'b' }]], { root: d }); },
     mong: g => g.tac_tu.length === 1 && g.tac_tu[0].id === 'agent-e10' },
+  { n: 11, ten: 'cp tep la NGUON', tiem: (d, wf) => { A(d, 'src/a.js'); tacTu(wf, 'cp1', 'review:bugs', [['Bash', { command: 'cp src/a.js /tmp/ban-sao-a.js' }]], { root: d }); },
+    mong: g => !g.tac_tu.length && JSON.stringify(g.tep_khong_ro) === '["src/a.js"]' },
+  { n: 12, ten: 'git diff --merge-base va git log chi doc', tiem: (d, wf) => { A(d, 'src/a.js'); tacTu(wf, 'gd1', 'refute:a.js', [['Bash', { command: 'git diff --merge-base main -- src/a.js' }], ['Bash', { command: 'git log --oneline -- src/a.js' }]], { root: d }); },
+    mong: g => !g.tac_tu.length && JSON.stringify(g.tep_khong_ro) === '["src/a.js"]' },
+  { n: 13, ten: 'git cat-file commit khong phai commit', tiem: (d, wf) => { A(d, 'src/a.js'); commit(d, ['src/a.js']); tacTu(wf, 'cf1', 'capture:provenance', [['Bash', { command: 'git cat-file commit HEAD' }]], { root: d }); },
+    mong: g => !g.tac_tu.length && JSON.stringify(g.tep_khong_ro) === '["src/a.js"]' },
 ];
 if (want('AT5')) {
   let K; try { K = khoaKhuon(); } catch (e) { bad('AT5', loi(e)); }
@@ -171,7 +177,8 @@ const HANG_AT6 = [
       git(d, 'fetch', '-q', 'origin');
     } },
   { ten: 'AT6 ban san', mo: 'tep ban san truoc luot bi ghi de: src/a.js', truoc: d => A(d, 'src/a.js', '// phien dang sua\n'), tiem: (d, wf) => editA(d, wf) },
-  { ten: 'AT6 lan phien', mo: 'co tep khong ro chu: src/b.js', tiem: (d, wf) => { editA(d, wf); A(d, 'src/b.js'); } },
+  { ten: 'AT6 lan phien', mo: 'co tep khong ro chu: src/b.js', tiem: (d, wf) => { editA(d, wf); commit(d, ['src/a.js']); A(d, 'src/b.js'); } },
+  { ten: 'AT6 chua commit', mo: 'co tep doi chua commit: src/a.js', tiem: (d, wf) => editA(d, wf) },
   { ten: 'AT6 mat to tien', mo: 'HEAD khong con sha da cham lam to tien', tiem: (d, wf) => { git(d, 'reset', '-q', '--hard', 'HEAD~1'); tacTu(wf, 'r1', 'machine:npm test', [['Bash', { command: 'git reset --hard HEAD~1' }]], { root: d }); } },
 ];
 if (want('AT6')) {
@@ -182,8 +189,9 @@ if (want('AT6')) {
     try {
       const { d, a } = await hoSo();
       const wf = wfDir(mkdtempSync(path.join(TMP, 'tr-')));
-      editA(d, wf); commit(d, ['src/a.js']); A(d, 'src/b.js');
-      tacTu(wf, 'h2', 'machine:npm run build', [['Bash', { command: "sed -i '' 's/b/c/' src/b.js" }]], { root: d });
+      editA(d, wf); commit(d, ['src/a.js']);
+      A(d, 'src/b.js'); commit(d, ['src/b.js']);
+      tacTu(wf, 'h2', 'machine:npm run build', [['Bash', { command: "sed -i '' 's/b/c/' src/b.js && git -C . commit -am sua-b" }]], { root: d });
       W(d, 'tmp/out.txt', 'o\n');
       const r = sauLuot(d, { transcript: [wf] });
       const { sai, g } = kiemChung(d, r, K);
@@ -213,7 +221,7 @@ if (want('AT6')) {
       if (sai.length) { saiNhom += 1; bad(h.ten, sai.join(' ; ')); } else ok(h.ten, `— không hoàn lại: ${h.mo}`);
     } catch (e) { saiNhom += 1; bad(h.ten, loi(e)); }
   }
-  if (K && !saiNhom) ok('AT6', '— ca an toàn tự lành cùng round; bốn ca không an toàn để nguyên cây');
+  if (K && !saiNhom) ok('AT6', '— ca an toàn (chỉ commit) tự lành cùng round; năm ca không an toàn để nguyên cây');
 }
 
 console.log(`\nResults: ${pass} passed, ${fail} failed (ghi-boi-tac-tu-cham)`);

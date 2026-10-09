@@ -54,9 +54,12 @@ DAO_JUDGE_F="$REL_AV"; DAO_JUDGE_B="judge: 'feature-loop:cham-doc', triage:"; DA
 DE_BAI_F="$REL_AV";    DE_BAI_B='const DUOI_LENH_MAY = `KHONG sua code.'; DE_BAI_A='const DUOI_LENH_MAY = `KHONG sua code.x'
 MOI_LOI_F="$REL_AV";   MOI_LOI_B='if (!opts.agentType || !LOAI_VANG_RE.test(msg)) throw e'; MOI_LOI_A='if (!opts.agentType) throw e'
 KHONG_DONG_F="$REL_AV"; KHONG_DONG_B='const ghiLoaiVang = lines => {'; KHONG_DONG_A='const ghiLoaiVang = lines => { return;'
-GHI_RE_F="$REL_GB";    GHI_RE_B='export const GHI_RE = /(?:^|\s)('; GHI_RE_A='export const GHI_RE = /()|(?:^|\s)('
+GHI_RE_F="$REL_GB";    GHI_RE_B='export const GHI_RE = /^('; GHI_RE_A='export const GHI_RE = /()|^('
 NHANH_CD_F="$REL_GB";  NHANH_CD_B="if (tk[0] === 'cd' && tk[1]) { cwd = thuc(path.resolve(cwd, tk[1])); continue; }"; NHANH_CD_A="if (tk[0] === 'cd' && tk[1]) { continue; }"
 NHANH_XA_F="$REL_GB";  NHANH_XA_B="if (git(root, ['branch', '-r', '--contains', c]).trim()) return"; NHANH_XA_A='if (false) return'
+CA_LUOT_F="$REL_AV";   CA_LUOT_B='if (loaiVangCaLuot && opts.agentType) {'; CA_LUOT_A='if (false) {'
+CHUOI_CON_F="$REL_GB"; CHUOI_CON_B='    const sub = gitCon(tk);'; CHUOI_CON_A="    const sub = /^git\\b/.test(d) ? ((d.match(/\\b(checkout|restore|apply|am|stash|reset|rebase|merge|cherry-pick|rm|mv|commit)\\b/) || [])[1] || 'x') : null;"
+CHUA_COMMIT_F="$REL_GB"; CHUA_COMMIT_B='if (chuaCommit.length) return'; CHUA_COMMIT_A='if (false) return'
 BAN_SAN_F="$REL_GB";   BAN_SAN_B='if (banSan.length) return'; BAN_SAN_A='if (false) return'
 TANG_ROUND_F="$REL_S4"; TANG_ROUND_B=$'        round = base;\n        console.error(`s4-args: cay doi trong luot cham'; TANG_ROUND_A=$'        round = base + 1;\n        console.error(`s4-args: cay doi trong luot cham'
 
@@ -91,16 +94,19 @@ case "$CHAN" in
   duong-roi)    # AC-4
     xanh_that "$REL_WF_TEST" AT4
     do_mutant "$REL_WF_TEST" AT4 goi-lai-moi-loi MOI_LOI "FAIL: AT4 im"
-    do_mutant "$REL_WF_TEST" AT4 khong-ghi-dong KHONG_DONG "FAIL: AT4 dong" ;;
+    do_mutant "$REL_WF_TEST" AT4 khong-ghi-dong KHONG_DONG "FAIL: AT4 dong"
+    do_mutant "$REL_WF_TEST" AT4 bo-co-ca-luot CA_LUOT "FAIL: AT4 ca luot" ;;
   quy-trach)    # AC-5
     xanh_that "$REL_SC_TEST" AT5
     do_mutant "$REL_SC_TEST" AT5 bo-ghi-re GHI_RE "FAIL: AT5 hang 7"
-    do_mutant "$REL_SC_TEST" AT5 bo-nhanh-cd NHANH_CD "FAIL: AT5 hang 8" ;;
+    do_mutant "$REL_SC_TEST" AT5 bo-nhanh-cd NHANH_CD "FAIL: AT5 hang 8"
+    do_mutant "$REL_SC_TEST" AT5 git-theo-chuoi-con CHUOI_CON "FAIL: AT5 hang 12" ;;
   hoan-lai)     # AC-6
     xanh_that "$REL_SC_TEST" AT6
     do_mutant "$REL_SC_TEST" AT6 bo-kiem-nhanh-xa NHANH_XA "FAIL: AT6 da day"
     do_mutant "$REL_SC_TEST" AT6 bo-kiem-ban BAN_SAN "FAIL: AT6 ban san"
-    do_mutant "$REL_SC_TEST" AT6 tang-round TANG_ROUND "FAIL: AT6 cung round" ;;
+    do_mutant "$REL_SC_TEST" AT6 tang-round TANG_ROUND "FAIL: AT6 cung round"
+    do_mutant "$REL_SC_TEST" AT6 hoan-lai-chua-commit CHUA_COMMIT "FAIL: AT6 chua commit" ;;
   *) echo "rang.sh: chân lạ «$CHAN» (dinh-nghia|bang-vai|luot-sach|duong-roi|quy-trach|hoan-lai)"; exit 3 ;;
 esac
 done_chan

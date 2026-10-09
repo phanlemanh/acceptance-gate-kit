@@ -16,10 +16,23 @@ import { execFileSync } from 'node:child_process';
 // GHI-BOI-LINE>>>
 // Khoá `khong_doc_duoc` chỉ có mặt khi không đọc được transcript; `ly_do` chỉ có mặt khi hoan_lai=false.
 
-// Động từ ghi của một đoạn lệnh shell (đoạn = phần giữa ; && || | và xuống dòng). Chuyển hướng `>`
-// xét riêng theo ĐÍCH (không theo sự có mặt của `>`: `2>/dev/null` không ghi tệp nào của kho).
-export const GHI_RE = /(?:^|\s)(sed\s+(?:-[a-zA-Z]*i\b|--in-place)|perl\s+-[a-zA-Z]*i|tee\b|mv\b|cp\b|rm\b|git\b[^\n]*?\b(?:checkout|restore|apply|am|stash|reset|rebase|merge|cherry-pick)\b)/;
-const COMMIT_RE = /\bgit\b[^\n]*?\bcommit\b/;
+// Động từ ghi của một đoạn lệnh shell (đoạn = phần giữa ; && || | và xuống dòng), xét theo VỊ TRÍ:
+// động từ là từ ĐẦU đoạn (Cổng Bằng chứng 09/10, Ngoài-1/5 — khớp chuỗi con bắt nhầm `--merge-base`,
+// `cat-file commit`). Chuyển hướng `>` xét riêng theo ĐÍCH (`2>/dev/null` không ghi tệp nào của kho).
+export const GHI_RE = /^(sed\s+(?:-[a-zA-Z]*i\b|--in-place)|perl\s+-[a-zA-Z]*i|tee\b|mv\b|cp\b|rm\b)/;
+// Lệnh con git ghi cây làm việc / chỉ mục; lệnh con lấy theo vị trí (gitCon), không theo chuỗi con.
+const GIT_GHI = new Set(['checkout', 'restore', 'apply', 'am', 'stash', 'reset', 'rebase', 'merge', 'cherry-pick', 'rm', 'mv', 'switch', 'pull'])
+// `git [-C <dir>] [-c k=v] [--git-dir=…] [--work-tree=…] [--no-pager] <lệnh con> …` → lệnh con.
+export function gitCon(tk) {
+  if (tk[0] !== 'git') return null
+  for (let i = 1; i < tk.length; i += 1) {
+    const t = tk[i]
+    if (t === '-C' || t === '-c' || t === '--git-dir' || t === '--work-tree' || t === '--namespace') { i += 1; continue }
+    if (t.startsWith('-')) continue
+    return t
+  }
+  return null
+}
 
 // Đường «thật» kể cả khi tệp đã bị xoá: realpath tổ tiên gần nhất còn tồn tại + phần đuôi.
 // macOS: /var → /private/var; transcript có thể mang dạng nào cũng được.
@@ -102,10 +115,16 @@ export function lenhGhi(cmd, { root, tepDoi }) {
   for (const d of doan(cmd)) {
     const tk = token(d);
     if (tk[0] === 'cd' && tk[1]) { cwd = thuc(path.resolve(cwd, tk[1])); continue; }
-    const nhac = new Set();
-    for (const t of tk) { const f = dich.get(thuc(path.resolve(cwd, t))); if (f) nhac.add(f); }
-    const v = d.match(GHI_RE);
-    if (v) for (const f of nhac) out.push({ tep: f, dongTu: v[1].split(/\s+/)[0] === 'git' ? `git ${v[1].match(/\b(checkout|restore|apply|am|stash|reset|rebase|merge|cherry-pick)\b/)[1]}` : v[1].replace(/\s+/g, ' ') });
+    const tepCua = ts => { const n = new Set(); for (const t of ts) { const f = dich.get(thuc(path.resolve(cwd, t))); if (f) n.add(f); } return n; };
+    const sub = gitCon(tk);
+    if (sub !== null) {
+      if (GIT_GHI.has(sub)) for (const f of tepCua(tk)) out.push({ tep: f, dongTu: `git ${sub}` });
+    } else {
+      const v = d.match(GHI_RE);
+      // cp: chỉ ĐÍCH (đối số cuối) là ghi — nguồn là đọc (Ngoài-1/5).
+      const dong = v && v[1].startsWith('cp') ? tepCua(tk.filter(t => !t.startsWith('-')).slice(-1)) : tepCua(tk);
+      if (v) for (const f of dong) out.push({ tep: f, dongTu: v[1].replace(/\s+/g, ' ') });
+    }
     for (const m of d.matchAll(/(?:^|[^0-9&])>>?\s*([^\s;&|]+)/g)) {
       const f = dich.get(thuc(path.resolve(cwd, m[1].replace(/^['"]|['"]$/g, ''))));
       if (f) out.push({ tep: f, dongTu: '>' });
@@ -131,7 +150,7 @@ export function quyTrachNhiem({ root, tep, tacTu }) {
         if (tepDoi.includes(rel)) { congCu.add(u.ten); cuaNo.add(rel); }
       } else if (u.ten === 'Bash' && typeof u.input.command === 'string') {
         for (const g of lenhGhi(u.input.command, { root: R, tepDoi })) { congCu.add(`Bash:${g.dongTu}`); cuaNo.add(g.tep); }
-        if (coCommit.size && doan(u.input.command).some(d => COMMIT_RE.test(d))) {
+        if (coCommit.size && doan(u.input.command).some(d => gitCon(token(d)) === 'commit')) {
           congCu.add('Bash:git commit');
           for (const f of coCommit) cuaNo.add(f);
         }
@@ -149,7 +168,7 @@ export function quyTrachNhiem({ root, tep, tacTu }) {
 const git = (root, args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const laToTien = (root, a, b) => { try { git(root, ['merge-base', '--is-ancestor', a, b]); return true; } catch { return false; } };
 
-// Bốn điều kiện (design doc §3.3), mất cả hoặc không gì. → { hoan_lai, ly_do? }
+// Điều kiện (design doc §3.3), mất cả hoặc không gì; chỉ commit được hoàn lại. → { hoan_lai, ly_do? }
 export function hoanLai({ root, sha, ban = {}, tep, quy, khongDocDuoc }) {
   if (khongDocDuoc) return { hoan_lai: false, ly_do: 'khong doc duoc transcript' };
   if (!laToTien(root, sha, 'HEAD')) return { hoan_lai: false, ly_do: 'HEAD khong con sha da cham lam to tien' };
@@ -161,11 +180,13 @@ export function hoanLai({ root, sha, ban = {}, tep, quy, khongDocDuoc }) {
   }
   const banSan = tep.map(x => x.tep).filter(f => Object.prototype.hasOwnProperty.call(ban, f));
   if (banSan.length) return { hoan_lai: false, ly_do: `tep ban san truoc luot bi ghi de: ${banSan.join(', ')}` };
-  try {
-    if (commits.length) git(root, ['reset', '-q', '--keep', sha]);
-    const conLai = tep.filter(x => x.doi !== 'commit').map(x => x.tep);
-    if (conLai.length) git(root, ['checkout', sha, '--', ...conLai]);
-  } catch (e) { return { hoan_lai: false, ly_do: `git tu choi hoan lai: ${String(e.stderr || e.message).split('\n')[0]}` }; }
+  // Chỉ hoàn lại COMMIT, bằng đúng MỘT thao tác (Cổng Bằng chứng 09/10, Ngoài-1/4): ghi đè tệp chưa
+  // commit là việc không đảo được — luôn để phiên. `reset --keep` tự từ chối khi đụng thay đổi chưa
+  // commit, commit bị bỏ vẫn còn trong reflog; một thao tác nên không có trạng thái nửa vời.
+  const chuaCommit = tep.filter(x => x.doi !== 'commit').map(x => x.tep);
+  if (chuaCommit.length) return { hoan_lai: false, ly_do: `co tep doi chua commit: ${chuaCommit.join(', ')}` };
+  try { git(root, ['reset', '-q', '--keep', sha]); }
+  catch (e) { return { hoan_lai: false, ly_do: `git tu choi hoan lai: ${String(e.stderr || e.message).split('\n')[0]}` }; }
   return { hoan_lai: true };
 }
 

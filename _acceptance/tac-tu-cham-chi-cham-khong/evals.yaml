@@ -56,12 +56,13 @@ evals:
     executor: script
     cmd: config:executors.script.tccc_duong_roi
     expected: >
-      Cây thật: nhóm AT4 xanh — câu trả lời giả ném «agent type '<loại>' not found»
-      cho mọi lời gọi có agentType → mỗi lời gọi gọi lại đúng 1 lần cùng đề bài không
-      agentType, phán quyết bằng lượt sạch, đúng một dòng loai-tac-tu-vang (khuôn
-      LOAI-VANG-LINE) liệt đúng vai, kết quả có loaiTacTuVang; lỗi khác → không gọi
-      lại, không dòng. Chiều đỏ: goi-lai-moi-loi → «FAIL: AT4 im»; khong-ghi-dong →
-      «FAIL: AT4 dong».
+      Cây thật: nhóm AT4 xanh — câu trả lời giả ném «agent type '<loại>' not found» cho mọi
+      lời gọi có agentType → lời gọi bị báo gọi lại đúng 1 lần cùng đề bài không agentType;
+      sau lần báo đầu tiên mọi lời gọi khởi động sau đó đi thẳng không loại (tổng hợp báo cáo
+      đúng 1 lời gọi không loại); phán quyết bằng lượt sạch; đúng một dòng loai-tac-tu-vang
+      mà tập khoá BẰNG khoá rút từ khối marker LOAI-VANG-LINE, liệt đúng vai; kết quả có
+      loaiTacTuVang; lỗi khác → không gọi lại, không dòng. Chiều đỏ: goi-lai-moi-loi →
+      «FAIL: AT4 im»; khong-ghi-dong → «FAIL: AT4 dong»; bo-co-ca-luot → «FAIL: AT4 ca luot».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/tac-tu-cham-hep.test.mjs", "tests/workflows/harness.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
 
@@ -70,13 +71,14 @@ evals:
     executor: script
     cmd: config:executors.script.tccc_quy_trach
     expected: >
-      Cây thật: nhóm AT5 xanh — mười hàng (Edit · Write+git commit trích thật · sed -i ·
-      phiên tự sửa · không transcript · tự tìm qua HOME giả · chỉ cat · cd rồi sed -i
-      tên trần · git -C . commit · tự tìm khi thư mục dự án mã hoá khác --root) mỗi
-      dòng cay-doi có đúng MỘT dòng ghi-boi-tac-tu-cham theo khuôn GHI-BOI-LINE ngay sau,
-      mã thoát 6, đúng tac_tu/cong_cu/tep_khong_ro/khong_doc_duoc (hàng 4, 7: tac_tu
-      rỗng, tệp ở tep_khong_ro). Chiều đỏ: bo-ghi-re → «FAIL: AT5 hang 7»;
-      bo-nhanh-cd → «FAIL: AT5 hang 8».
+      Cây thật: nhóm AT5 xanh — mười ba hàng (Edit · Write+git commit trích thật · sed -i ·
+      phiên tự sửa · không transcript · tự tìm qua HOME giả · chỉ cat · cd rồi sed -i tên
+      trần · git -C . commit · tự tìm khi thư mục dự án mã hoá khác --root · cp tệp là
+      nguồn · git diff --merge-base + git log chỉ đọc · git cat-file commit) mỗi dòng
+      cay-doi có đúng MỘT dòng ghi-boi-tac-tu-cham theo khuôn GHI-BOI-LINE ngay sau, mã
+      thoát 6 (hàng 2: 5 — thước lệch cùng lượt), đúng tac_tu/cong_cu/tep_khong_ro/
+      khong_doc_duoc. Chiều đỏ: bo-ghi-re → «FAIL: AT5 hang 7»; bo-nhanh-cd → «FAIL: AT5
+      hang 8»; git-theo-chuoi-con → «FAIL: AT5 hang 12».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/scripts/thuoc-vat.mjs", "feature-loop/scripts/lib/ghi-boi.mjs", "feature-loop/scripts/lib/cay-doi.mjs", "feature-loop/scripts/s4-args.mjs", "tests/scripts/ghi-boi-tac-tu-cham.test.mjs", "tests/fixtures/ghi-boi/**", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
 
@@ -85,12 +87,13 @@ evals:
     executor: script
     cmd: config:executors.script.tccc_hoan_lai
     expected: >
-      Cây thật: nhóm AT6 xanh — ca an toàn: hoan_lai true, cây sau = sha, stderr «da hoan
-      lai», s4-args lượt kế thoát 0 với round BẰNG round lượt vô hiệu (đối chứng dương
-      ghim); bốn hàng không an toàn (commit đã đẩy · tệp bẩn sẵn bị ghi đè · lẫn phiên ·
-      HEAD mất tổ tiên sha) mỗi hàng hoan_lai false kèm ly_do ghim, cây giữ nguyên.
-      Chiều đỏ: bo-kiem-nhanh-xa → «FAIL: AT6 da day»; bo-kiem-ban → «FAIL: AT6 ban
-      san»; tang-round → «FAIL: AT6 cung round».
+      Cây thật: nhóm AT6 xanh — ca an toàn (mọi thay đổi là commit chưa đẩy): hoan_lai true
+      bằng đúng một reset --keep, cây sau = sha, stderr «da hoan lai», s4-args lượt kế thoát
+      0 với round BẰNG round lượt vô hiệu; năm hàng không an toàn (commit đã đẩy · tệp bẩn
+      sẵn bị ghi đè · lẫn phiên · có tệp đổi chưa commit · HEAD mất tổ tiên sha) mỗi hàng
+      hoan_lai false kèm ly_do ghim, cây giữ nguyên. Chiều đỏ: bo-kiem-nhanh-xa → «FAIL:
+      AT6 da day»; bo-kiem-ban → «FAIL: AT6 ban san»; tang-round → «FAIL: AT6 cung round»;
+      hoan-lai-chua-commit → «FAIL: AT6 chua commit».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
     paths: ["feature-loop/scripts/thuoc-vat.mjs", "feature-loop/scripts/lib/ghi-boi.mjs", "feature-loop/scripts/s4-args.mjs", "tests/scripts/ghi-boi-tac-tu-cham.test.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
 

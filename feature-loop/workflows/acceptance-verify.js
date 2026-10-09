@@ -557,15 +557,24 @@ const TIEN_TO_VAI = [['machine', 'machine:'], ['baseline', 'baseline:'], ['finde
 const vaiCuaLoai = opts => (TIEN_TO_VAI.find(([, t]) => opts.label === t || opts.label.startsWith(t)) || [opts.label])[0]
 // [wf-label:] dòng đầu prompt — harness KHÔNG ghi opts.label xuống transcript agent-*.jsonl;
 // scripts/wf-usage.mjs (đo model/token per vai trò, 0-token) map transcript → role bằng tag này.
+// Cả lượt (Cổng Bằng chứng 09/10): sau lần «not found» đầu tiên, lời gọi khởi động SAU đó đi thẳng
+// không loại — bảng theo dõi chỉ hiện đợt đang bay lúc ấy là thất bại, không phải mọi lời gọi.
+let loaiVangCaLuot = false
 const agentT = (prompt, opts) => {
   const p = `[wf-label: ${opts.label}]\n${prompt}`
+  const khongLoai = () => { const { agentType, ...con } = opts; return con }
+  if (loaiVangCaLuot && opts.agentType) {
+    const vai = vaiCuaLoai(opts)
+    if (!loaiVang.has(vai)) loaiVang.set(vai, [...loaiVang.values()][0])
+    return agent(p, khongLoai())
+  }
   return agent(p, opts).catch(e => {
     const msg = String((e && e.message) || e)
     if (!opts.agentType || !LOAI_VANG_RE.test(msg)) throw e
+    loaiVangCaLuot = true
     const vai = vaiCuaLoai(opts)
     if (!loaiVang.has(vai)) loaiVang.set(vai, msg.split('\n')[0])
-    const { agentType, ...con } = opts
-    return agent(p, con)
+    return agent(p, khongLoai())
   })
 }
 // <<<LOAI-VANG-LINE

@@ -156,8 +156,22 @@ if (want('AT4')) {
     const sai = [];
     const theoNhan = new Map();
     for (const c of roi.calls) { if (!theoNhan.has(c.label)) theoNhan.set(c.label, []); theoNhan.get(c.label).push(c); }
-    const leCap = [...theoNhan].filter(([, cs]) => !(cs.length % 2 === 0 && cs.every((c, i) => i % 2 === 0 ? !!c.opts.agentType : !c.opts.agentType && c.prompt === cs[i - 1].prompt)));
+    // Mỗi lời gọi: hoặc (có loại → bị báo → gọi lại đúng một lần cùng đề bài, không loại), hoặc
+    // (khởi động sau lần báo đầu tiên → đi thẳng không loại, đúng một lần).
+    const leCap = [...theoNhan].filter(([, cs]) => {
+      const out = []; let i = 0;
+      while (i < cs.length) {
+        if (cs[i].opts.agentType) { if (!cs[i + 1] || cs[i + 1].opts.agentType || cs[i + 1].prompt !== cs[i].prompt) return true; i += 2; }
+        else i += 1;
+      }
+      return false;
+    });
     if (leCap.length) sai.push(['AT4 goi lai', `nhan khong goi lai dung mot lan cung de bai: ${leCap.map(([l]) => l).join(', ')}`]);
+    // Cả lượt: lời gọi khởi động SAU lần báo đầu tiên không còn mang loại — tổng hợp báo cáo (gọi cuối lượt) đi thẳng.
+    const synth = roi.calls.filter(c => c.label === 'synthesize:report');
+    if (synth.length !== 1 || synth[0].opts.agentType) sai.push(['AT4 ca luot', `tong hop: ${synth.length} loi goi, loai ${synth.map(c => c.opts.agentType || '-').join(',')}`]);
+    const coLoai = roi.calls.filter(c => c.opts.agentType).length;
+    if (!(coLoai > 0 && coLoai < theoNhan.size)) sai.push(['AT4 ca luot', `${coLoai} loi goi co loai tren ${theoNhan.size} nhan — mong it hon so nhan`]);
     if (roi.result.verdict !== sach.result.verdict) sai.push(['AT4 phan quyet', `${roi.result.verdict} != luot sach ${sach.result.verdict}`]);
     const dong = roi.result.runLog.map(l => JSON.parse(l)).filter(o => o.kind === 'loai-tac-tu-vang');
     const vaiGoi = [...new Set(roi.calls.map(c => vaiCua(c.label)))].sort();
@@ -165,6 +179,11 @@ if (want('AT4')) {
     else {
       if (JSON.stringify([...dong[0].vai].sort()) !== JSON.stringify(vaiGoi)) sai.push(['AT4 dong', `vai ${JSON.stringify(dong[0].vai)} != ${JSON.stringify(vaiGoi)}`]);
       if (!/not found/.test(dong[0].ly_do || '') || dong[0].ts !== ARGS().invokedAt || dong[0].round !== 1) sai.push(['AT4 dong', `khuon dong sai ${JSON.stringify(dong[0])}`]);
+      // Khoá RÚT từ khối marker LOAI-VANG-LINE của bên viết — không gõ tay.
+      const m = readFileSync(WF, 'utf8').match(/<<<LOAI-VANG-LINE\n\/\/ (\{[^\n]+\})\n\/\/ LOAI-VANG-LINE>>>/);
+      const khuon = m ? Object.keys(JSON.parse(m[1].replace(/<n>/g, '0'))).sort() : null;
+      if (!khuon) sai.push(['AT4 dong', 'khong rut duoc khoi LOAI-VANG-LINE']);
+      else if (JSON.stringify(Object.keys(dong[0]).sort()) !== JSON.stringify(khuon)) sai.push(['AT4 dong', `khoa ${JSON.stringify(Object.keys(dong[0]).sort())} != khuon ${JSON.stringify(khuon)}`]);
     }
     if (!Array.isArray(roi.result.loaiTacTuVang) || !roi.result.loaiTacTuVang.length) sai.push(['AT4 dong', 'ket qua thieu loaiTacTuVang']);
     if (JSON.stringify(roi.result.runLog.filter(l => !l.includes('"loai-tac-tu-vang"'))) !== JSON.stringify(sach.result.runLog)) sai.push(['AT4 phan quyet', 'run-log ngoai dong loai-vang khac luot sach']);
@@ -178,7 +197,7 @@ if (want('AT4')) {
     if (may.length !== 2 || new Set(may.map(c => c.label)).size !== 2) sai.push(['AT4 im', `loi khac bi goi lai: ${may.map(c => c.label).join(', ')}`]);
     if (im.result.runLog.some(l => l.includes('loai-tac-tu-vang'))) sai.push(['AT4 im', 'loi khac van ghi dong loai-tac-tu-vang']);
     if (sai.length) for (const [t, m] of sai) bad(t, m);
-    else ok('AT4', `— ${theoNhan.size} nhãn đều gọi lại đúng một lần không loại, phán quyết bằng lượt sạch, một dòng liệt ${vaiGoi.length} vai; lỗi khác không gọi lại`);
+    else ok('AT4', `— ${coLoai}/${theoNhan.size} nhãn thử loại rồi gọi lại một lần, phần còn lại đi thẳng không loại; phán quyết bằng lượt sạch, một dòng liệt ${vaiGoi.length} vai; lỗi khác không gọi lại`);
   } catch (e) { bad('AT4', loi(e)); }
 }
 
