@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 62aa5574b4047d4c66c1780913554f9c2602f0ff
+verified_commit: 9dc8652fe7a7bf5837e21f73b43364581cabb9d7
 human_signoff:
 ---
 
@@ -159,3 +159,7 @@ none — every multi-run eval is uniform
 Round 1: bị từ chối ở Cổng Bằng chứng — sửa Ngoài-1/4/5 trong vòng (nhận lệnh ghi theo vị trí, chỉ tự hoàn lại commit, bỏ loại cả lượt sau not-found).
 Round 2: S4 lượt 2 bị từ chối — bước tự hoàn lại vẫn phá việc không thuộc tác tử (cùng lớp lượt 1) → dừng-vá; thu hẹp phạm vi, bỏ tự hoàn lại sau dừng-vá vì bước sau-lượt không bao giờ đổi cây.
 Round 3: mọi eval máy E1–E6 và lưới suite đều xanh, E7 do hội đồng chấm đạt → PASS.
+
+### Re-pin lần 1 — 2026-10-09, do gộp origin/main #280 trước khi gộp PR #294
+run_id: repin-20261009T232608Z-74891
+sha: 9dc8652fe7a7bf5837e21f73b43364581cabb9d7 · suites: 10 lệnh exit 0 · evals: 6/6 eval máy đạt kỳ vọng · ngoài làn máy: E7 (E7 không khai paths) · AC không có chốt máy: AC-7
