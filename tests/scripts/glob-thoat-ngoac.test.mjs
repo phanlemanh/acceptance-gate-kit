@@ -70,7 +70,7 @@ function dungKho(kit, { slug, evalsYaml, tep, staleScope }) {
     'feature_loop:', '  suite_keys:', '    - executors.test.s0', 'executors:', '  test:', '    s0: "true"', '  script:', '    rang_ok: "true"',
     '  ui:', '    x: "echo ui"', ...rt, ''].join('\n'));
   for (const t of tep) W(R, t, 'v1\n');
-  W(R, `_acceptance/${slug}/contract.md`, `---\nschema_version: 1\nfeature: ${slug}\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [ui]\nstatus: signed-off\napproved_by: Nguoi Ky\n---\n`);
+  W(R, `_acceptance/${slug}/contract.md`, `---\nschema_version: 1\nfeature: ${slug}\nslug: ${slug}\nrisk_tier: T2\nsurfaces: [ui]\nstatus: implemented\napproved_by: Nguoi Ky\n---\n`);
   W(R, `_acceptance/${slug}/evals.yaml`, evalsYaml);
   git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'impl');
   const H1 = git('rev-parse', 'HEAD');
