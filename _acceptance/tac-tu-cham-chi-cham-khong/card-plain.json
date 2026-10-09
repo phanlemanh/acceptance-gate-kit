@@ -1,0 +1,37 @@
+{
+  "feature_plain": "Tác tử chấm của kit không còn cầm công cụ sửa tệp. Nếu một tác tử chấm vẫn ghi được vào cây bằng lệnh shell, máy nhận ra là ai, tự trả cây về như cũ khi an toàn, rồi chấm lại cùng lượt mà không phải gọi anh.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ có ba loại tác tử chấm: loại chỉ đọc, loại đọc và chạy lệnh, và loại cho vai chấm giao diện. Không loại nào có công cụ sửa tệp (kiểm bằng định nghĩa thật của ba loại, kèm bản phá thử phải đỏ)."},
+    {"id": "AC-2", "p": "Sẽ gắn đúng loại cho cả chín vai chấm, và không lời gọi nào thiếu loại."},
+    {"id": "AC-3", "p": "Sẽ giữ nguyên lượt chấm sạch: đề bài, phán quyết và sổ chạy trùng từng byte với bản 2.26.0."},
+    {"id": "AC-4", "p": "Sẽ không chặn lượt chấm khi phiên mở trước lúc cài gói mới. Máy gọi lại không kèm loại, ghi một dòng sổ để lượt ấy không bị tính là «được bảo vệ», và các lỗi khác giữ như cũ."},
+    {"id": "AC-5", "p": "Sẽ ghi đúng một dòng sổ «ai đã ghi vào cây» sau mỗi lần cây đổi trong lượt chấm. Dòng này nói rõ là tác tử chấm, là phiên, hay không đọc được (mười ca, gồm một bản trích thật của ca 07/10)."},
+    {"id": "AC-6", "p": "Sẽ tự trả cây về đúng bản đã chấm khi chắc chắn chỉ tác tử chấm đã ghi và chưa có gì bị đẩy lên. Sau đó lượt kế chạy lại cùng số lượt. Ca thiếu một trong bốn điều kiện thì để nguyên cho phiên xử lý."},
+    {"id": "AC-7", "p": "Sẽ sửa hướng dẫn vòng lặp cho phiên: truyền nhật ký tác tử vào bước sau lượt, đọc thông báo «đã hoàn lại», và hiểu dòng «loại tác tử vắng». Không thêm lời dặn tác tử chấm nào."}
+  ],
+  "wont_do": [
+    {"id": "OOS-1", "p": "Không làm hai lối mạnh hơn: chặn bằng móc kiểm theo từng tác tử, và chấm trên bản sao. Hai lối này chỉ mở khi sổ đếm được một lần ghi qua lệnh shell."},
+    {"id": "OOS-2", "p": "Không tắt việc harness chuyển câu nhắn của anh tới tác tử chấm. Việc đó không nằm trong mã kit; đường đúng là báo Anthropic."},
+    {"id": "OOS-3", "p": "Không chữa trường hợp tác tử đọc câu của anh thành lệnh dừng rồi bỏ chấm. Việc này vẫn ở sổ hạt giống."},
+    {"id": "OOS-4", "p": "Không đụng tác tử làm việc ở bước thực thi; chúng phải ghi được."},
+    {"id": "OOS-5", "p": "Không đổi thẻ cổng và lưới trước khi gộp. Lưới «cây đổi» sẵn có đã khoá lượt hỏng; hai dòng sổ mới chỉ để đếm."},
+    {"id": "OOS-6", "p": "Không dựng bộ đọc ngưỡng tự động. Phiên nghiệm thu đọc sáu con số ở mục Đường đo."},
+    {"id": "OOS-7", "p": "Không tăng số phiên bản gói; kit lên số theo mốc phát hành."}
+  ],
+  "coverage_plain": [
+    {"i": 0, "p": "Chín vai chấm chia theo nhu cầu công cụ (chỉ đọc · chạy lệnh · giao diện), và vai nào cũng có loại (AC-1 ba loại, AC-2 gắn đủ chín vai)."},
+    {"i": 1, "p": "Hai vai nhóm đọc và chạy lệnh dùng dạng «chỉ cho phép», dạng đã thử có tác dụng. Vai giao diện dùng dạng «cấm», chưa thử được nên có một phép kiểm có tên ở phiên đầu tiên sau khi cài."},
+    {"i": 2, "p": "Phiên có nạp được loại tác tử hay không đều chạy được: nạp được thì lượt sạch giữ nguyên (AC-3), không nạp thì đi đường rơi có ghi sổ (AC-4)."},
+    {"i": 3, "p": "Mọi cách tác tử có thể đụng cây đều có ca kiểm: không ghi, ghi bằng công cụ sửa tệp, ghi bằng lệnh shell (cả dạng cd rồi tên trần, cả git -C), và chỉ đọc (AC-5)."},
+    {"i": 4, "p": "Ai đổi cây cũng được gọi đúng tên: tác tử chấm, chính phiên, hay không rõ vì thiếu nhật ký (AC-5, AC-6)."},
+    {"i": 5, "p": "GIẢ ĐỊNH chờ anh gạch: vai chấm giao diện vẫn lưu được ảnh và nhật ký mạng mà không có công cụ ghi tệp. Mới đọc mã, chưa chạy ở kho có eval giao diện; đo ở đợt phát hành."},
+    {"i": 6, "p": "GIẢ ĐỊNH chờ anh gạch: thay khung tác tử mặc định bằng loại của kit không làm đổi chất lượng chấm. Đo ở đợt phát hành."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Hai ca kiểm từng đòi hai kết quả khác nhau cho cùng một tình huống. Đã sửa: luật mới là mỗi lần cây đổi ghi đúng một dòng sổ, và ca «phiên tự sửa» nay ghi dòng có ô tác tử rỗng."},
+    {"i": 1, "p": "Cách đọc ngưỡng cũ có thể đọc «0 lần» thành sống trong khi máy chỉ đơn giản là không đọc được nhật ký. Đã sửa: ngưỡng nay đọc sáu con số, chỉ tuyên sống khi số «không đọc được» bằng 0. Máy tìm nhật ký trên mọi thư mục dự án, không phụ thuộc thư mục đang đứng."},
+    {"i": 2, "p": "Dạng «cấm công cụ» chưa ai thử xem có tác dụng thật không. Thử bằng phiên chạy nền thì không đăng nhập được, nên đã đổi cách làm: năm vai chạy lệnh sang dạng «chỉ cho phép» đã chứng có tác dụng. Riêng vai giao diện giữ dạng cấm, kèm phép kiểm có tên trước khi bắt đầu đếm ngưỡng."},
+    {"i": 3, "p": "Luật nhận ra «ghi qua lệnh shell» từng bỏ sót các dạng cd rồi tên trần và git -C. Đã thêm hai ca. Bản trích thật của ca sed ngày 21/09 nằm ở máy khác, nên khai giới hạn kèm ngưỡng đếm."},
+    {"i": 4, "p": "Phép kiểm tự lành chỉ có vế phủ định. Đã ghim thêm: lượt kế phải chạy được và giữ cùng số lượt."}
+  ]
+}
