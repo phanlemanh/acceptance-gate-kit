@@ -149,7 +149,10 @@ function runLane(lane, repo, args, env = {}) {
   const r = spawnSync(process.execPath, [lane, '--root', repo.R, '--reason', 'gllc', ...args], { encoding: 'utf8', env: { ...process.env, GLLC_MARKER: marker, ...env } });
   return { status: r.status, stdout: r.stdout || '', stderr: r.stderr || '', suiteRan: fs.existsSync(marker) };
 }
-const norm = (s) => s.replace(/repin-\d{8}T\d{6}Z-\d{5}/g, 'RUN').replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/g, 'TS').replace(/\d{4}-\d{2}-\d{2}/g, 'DATE');
+// Trường đo thời gian (wall_s, tong_ket.phut) đổi theo tải máy: đối chứng 0.1 s, ô đo 0.0 s là cùng một vật —
+// không chuẩn hoá thì GL03 đỏ «ghi khac doi chung» khi suite chạy song song (S4-r2 doc-ghi-troi, 09/10).
+const norm = (s) => s.replace(/repin-\d{8}T\d{6}Z-\d{5}/g, 'RUN').replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/g, 'TS').replace(/\d{4}-\d{2}-\d{2}/g, 'DATE')
+  .replace(/"(wall_s|phut|da_chay_phut)":\d+(?:\.\d+)?/g, '"$1":N');
 const cut = (s, n = 240) => s.replace(/\s+/g, ' ').slice(0, n);
 
 // ── bản sao bị tiêm ─────────────────────────────────────────────────────

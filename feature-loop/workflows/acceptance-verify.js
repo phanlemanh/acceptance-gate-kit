@@ -345,6 +345,17 @@ const HEAD_NGOAI_RE = /^##\s+Ngoài hợp đồng/
 const HEAD_RE = /^##\s+/
 const CUM_RE = /Cụm ngoài vùng phủ/
 const nhanCarry = c => ` (r${typeof c.fromRound === 'number' ? c.fromRound : '?'}${c.tepDoi === true ? ' · tệp đã đổi' : ''})`
+// Dòng tiêu đề mục: máy chèn nhãn TRONG sao, tác tử có thể viết NGOÀI sao (`- **t** (r1)`) — cả hai là CÙNG
+// một mục, nếu không thì bước chèn dưới đây in bản thứ hai. Khối giống từng ký tự với lib/out-of-contract.cjs
+// (bộ đọc thẻ) — ca DG2.
+// <<<OOC-TITLE-RE
+const OOC_TITLE_RE = /^-\s+\*\*(.+?)\*\*(?:\s+(\([rR](?:\d+|\?)(?:\s*[·,—–-][^()]*)?\)))?\s*$/
+// OOC-TITLE-RE>>>
+const tieuDeMuc = m => m[1] + (m[2] ? ' ' + m[2] : '')
+// Phần ngoặc sau tiêu đề chỉ là NHÃN LƯỢT khi khớp ĐÚNG nhóm nhãn của OOC_TITLE_RE — «(race condition)»,
+// «(Redux …)», «(r1 lỗi)» là chữ của mục tươi, không phải nhãn (S4-r1 finding t2, AC-3: mục tươi cùng tệp tên
+// dài hơn không được nuốt mục mang sang).
+const NHAN_LUOT_RE = /^\([rR](?:\d+|\?)(?:\s*[·,—–-][^()]*)?\)$/
 function dungMucCarry(c) {
   const khuon = OOC_ITEM_TEMPLATE.split('\n').slice(1, -1).join('\n')
   const v = { title: String(c.title || '') + nhanCarry(c), plain: c.plain || '', file: c.file || '', severity: c.severity || '', proposal: c.proposal || '' }
@@ -369,8 +380,8 @@ function chenMucCarry(text, carried) {
   const daCo = []
   let cur = null
   for (let i = dau + 1; i < het; i += 1) {
-    const t = /^-\s+\*\*(.+?)\*\*\s*$/.exec(dong[i])
-    if (t) { cur = { title: t[1], file: '' }; daCo.push(cur); continue }
+    const t = OOC_TITLE_RE.exec(dong[i])
+    if (t) { cur = { title: tieuDeMuc(t), file: '' }; daCo.push(cur); continue }
     const f = cur && /^\s+file\s*:\s*(.+?)\s*$/.exec(dong[i])
     if (f) cur.file = f[1].replace(/^`|`$/g, '').replace(/:\d+(-\d+)?$/, '')
   }
@@ -378,7 +389,7 @@ function chenMucCarry(text, carried) {
   // «tiêu đề chứa title» để một mục TƯƠI cùng tệp tên dài hơn nuốt mục carry (AC-12, lượt chấm 1).
   const thieu = ds.filter(c => {
     const tepC = String(c.file).replace(/:\d+(-\d+)?$/, '')
-    return !daCo.some(x => x.file === tepC && (x.title === c.title || x.title.startsWith(c.title + ' (r')))
+    return !daCo.some(x => x.file === tepC && (x.title === c.title || (x.title.startsWith(c.title + ' (') && NHAN_LUOT_RE.test(x.title.slice(c.title.length + 1)))))
   })
   if (!thieu.length) return dong.join('\n')
   // Chèn sau dòng có chữ cuối cùng của khối (không tính dòng cụm).
@@ -599,9 +610,18 @@ if (evalProblems.length) {
 
 // ---- Đợt 5 carry-forward (P1/P2/P3) — sanitize thuần; args thiếu → hành vi cũ y nguyên ----
 // P1: chỉ nhận carried cho eval máy/ui CÓ TRONG args.evals (định nghĩa eval giữ 1 nguồn duy nhất).
+// runId tác tử khai: bỏ khoảng trắng VÀ dấu nháy bao quanh trước khi tin. Tác tử trả chuỗi `""` (hai ký tự
+// nháy) thì bản trước coi là có giá trị → run-log ghi `"\"\""`, báo cáo ghi `run_id: ""` mà bên đọc bỏ nháy ra
+// rỗng rồi lặng lẽ bỏ qua (crm danh-sach-keo-chung r2: E3/E7/E12). Rỗng sau khi bỏ → đúc mã như khi vắng;
+// eval MANG SANG với run_id như thế thì KHÔNG mang (chạy lại) — run-log cũ của kho tiêu thụ đang chứa nó.
+// Mã verifier khai đi qua ĐÚNG luật bên đọc (`extractRunIds` của lib/evidence-core.cjs: bỏ đuôi
+// ` # …`, bỏ mọi nháy đầu/cuối) TRƯỚC khi vào run-log. Verifier từng trả nguyên hai dấu nháy `""`
+// thay cho chuỗi rỗng: bộ ghi chép nguyên vào log, bộ đọc bỏ nháy, hai bên lệch nhau — L2 PROVENANCE
+// chặn ngay lúc ghi chữ ký (hồ sơ lo-trinh-cat-luot, 09/10). Còn rỗng sau chuẩn hoá → máy đúc mã.
+const docRid = (v) => String(v == null ? '' : v).replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim()
 const evalById = new Map(args.evals.map(e => [e.id, e]))
 const carriedEvals = (Array.isArray(args.carriedEvals) ? args.carriedEvals : []).filter(c =>
-  c && typeof c.id === 'string' && typeof c.runId === 'string' && c.runId
+  c && typeof c.id === 'string' && typeof c.runId === 'string' && docRid(c.runId)
   && evalById.has(c.id) && evalById.get(c.id).executor !== 'judgment')
 const carriedEvalIds = new Set(carriedEvals.map(c => c.id))
 const runBaseline = args.runBaseline !== false // P2 — default true (tương thích ngược)
@@ -1215,11 +1235,6 @@ const tenDuyNhat = (cmd) => {
  *  không cứu được. Đếm TRƯỚC rồi mới gắn hậu tố cho MỌI thành viên của nhóm
  *  trùng (không phải "ai tới sau thì gắn"): mã khi đó không phụ thuộc thứ tự
  *  khai `suiteCommands`, đúng bất biến AC-2. */
-/** Mã verifier khai đi qua ĐÚNG luật bên đọc (`extractRunIds` của lib/evidence-core.cjs: bỏ đuôi
- *  ` # …`, bỏ mọi nháy đầu/cuối) TRƯỚC khi vào run-log. Verifier từng trả nguyên hai dấu nháy `""`
- *  thay cho chuỗi rỗng: bộ ghi chép nguyên vào log, bộ đọc bỏ nháy, hai bên lệch nhau — L2 PROVENANCE
- *  chặn ngay lúc ghi chữ ký (hồ sơ lo-trinh-cat-luot, 09/10). Còn rỗng sau chuẩn hoá → máy đúc mã. */
-const docRid = (v) => String(v == null ? '' : v).replace(/\s+#.*$/, '').trim().replace(/^["']+|["']+$/g, '').trim()
 const ridTho = (m) => docRid(m.runId) || `minted-${args.slug}-SUITE-${tenDuyNhat(m.cmd)}-r${args.round}`
 const demRidSuite = Object.create(null)
 for (const m of machine) {

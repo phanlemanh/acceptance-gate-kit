@@ -12,6 +12,22 @@
 
 ## Chưa phát hành
 
+### Thẻ Cổng 2 không còn giấu mục mang sang; run_id rỗng không còn lọt (hồ sơ `doc-ghi-troi-mang-sang-run-id`, T3)
+
+Gốc: crm đêm 07–08/10 (kit 2.24.0). Thẻ Cổng 2 giấu mục ngoài hợp đồng mang sang ba lần (2/7, 1/15, 10/10).
+Báo cáo PASS mang `run_id: ""` mà kiểm lại vẫn qua.
+
+- **Bộ đọc thẻ nhận mục mang sang tác tử tự viết** dạng `- **<tiêu đề>** (rN)` (nhãn ngoài dấu sao), chuẩn
+  hoá về đúng dạng máy chèn. Bước chèn mục mang sang dùng cùng biểu thức, nên không còn in bản thứ hai. Đo lại
+  trên chính kho kit: hai hồ sơ đã ký 03/10 có 1 và 4 mục mà thẻ lúc ký không in ra.
+- **`run_id` rỗng:** tác tử trả `""` thì máy đúc mã như khi vắng. Báo cáo cũ mang `run_id` rỗng được gọi tên
+  bằng một dòng `NOTE` khi kiểm lại, nhưng không bị chặn: báo cáo đã ký có hình dạng này đang tồn tại ở kho
+  tiêu thụ.
+- Ai bị ảnh hưởng: mọi kho chạy S4 hoặc dựng thẻ Cổng 2. Không cần làm gì khi cập nhật. Thẻ của hồ sơ cũ có
+  thể hiện thêm mục ngoài hợp đồng trước đây bị giấu. Khi đó số `Ngoài-N` (đánh theo vị trí) dịch so với lúc
+  ký, nên đọc sổ quyết định cũ theo tiêu đề, không theo số. Kho nào ghim `routing-baseline` thì sinh lại dòng
+  của hồ sơ đó. Eval mang sang với `run_id` rỗng sẽ chạy lại thay vì được mang.
+
 ### Cắt lượt: bản phạm vi thành hàng lộ trình, răng phủ «mỗi mã ở đúng một chỗ» (hồ sơ `lo-trinh-cat-luot`, T2)
 
 Gốc: crm `_acceptance/khung-okr-truoc-r1` — lộ trình OKR 32 → 62 hàng trong ba ngày, hai lượt cắt tay
