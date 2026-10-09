@@ -1,0 +1,111 @@
+# Eval cho hồ sơ baseline-tran-bo-qua-don.
+#
+# Một tệp ca: tests/workflows/baseline-tran-bo-qua-don.test.mjs — nạp CHÍNH acceptance-verify.js qua
+# harness; lệnh baseline RÚT TỪ PROMPT của lane (không viết tay) rồi chạy bằng shell thật (bash, và zsh
+# nếu máy có) trên kho git tạm do ca tự dựng. Mỗi khoá executor ghim các ca của MỘT AC; mỗi AC có đối
+# chứng dương và chiều đỏ, thông điệp ghim. Đột biến chạy trên bản sao trong bộ nhớ, kim khớp đúng một
+# lần. Đường dẫn suy từ vị trí tệp ca.
+schema_version: 1
+feature_slug: baseline-tran-bo-qua-don
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.btbd_hinh_dang_lenh
+    expected: >-
+      BH1 prompt baseline mang đúng một khối giữa <<<AGK-BASELINE và AGK-BASELINE>>>. BH2 ba lệnh eval
+      (chép từ sự cố crm, có cd lồng, lệnh con trong nháy, nháy đơn) có mặt nguyên văn đúng một lần.
+      BH3 khung (lệnh eval thay bằng token, quét cả dòng) không có eval / bash|sh|zsh -c / xargs /
+      while-read / <(. BH5b khung không có rm, rmdir. BH4 prompt
+      dặn MOT lan goi Bash, 600000, dauRa. BH5 có TRAN_LENH=<n>; TRAN_TONG=<n>;. BH6 năm tệp ứng viên đúng
+      thư mục của phạm vi, không có apps/api/apps/app. BH7 TRAN_TONG + 15 < 600 (timeout trong prompt), TRAN_LENH ≤
+      TRAN_TONG. BH8 lệnh btbd_tran_that rút từ config: tệp ca là ứng viên bỏ qua, lệnh có mặt nguyên văn.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.btbd_tran_that
+    expected: >-
+      Mỗi shell có trên máy (bash; zsh nếu có): BT1 lệnh ngủ ~30 s → "__BL 1 qua-tran 2", lệnh thoát 3 →
+      "__BL 2 xong 3", có "__BL_XONG"; BT2 < 20 s; BT3 tiến trình ngủ đã chết; BT4 không còn worktree
+      agk-baseline. BT5 TRAN_TONG 3 → lệnh 3 "het-tran-tong"; BT6 < 20 s. BT7 đối chứng: lệnh nhanh →
+      "xong 3", không nhãn trần. BT8 lệnh in dấu giả rồi thoát 3 → stdout chỉ "__BL 1 xong 3", __BL_XONG
+      đúng một lần ở cuối. BZ0 trên macOS vắng zsh → đỏ, "zsh co tren may ma khong chay".
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.btbd_blocked_ha_tang
+    expected: >-
+      BB0/BB0b/BB0c đối chứng: đầu ra đủ dấu → dòng run-log kind:baseline ghi, mã đọc từ dấu, dấu thắng
+      results[] tác tử khai ngược. Bốn ca hỏng (thiếu dòng kết, tác tử chết, công cụ cắt, worktree không
+      dựng được): BB1 verdict PASS + có báo cáo; BB2 mọi lệnh n-a; BB3 "BASELINE BLOCKED HA TANG" trong
+      prompt tổng hợp và "baseline: BLOCKED ha tang" trong log; BB4 không dòng kind:baseline. BB5 lệnh chạm
+      trần → n-a + "vuot tran 180 giay"; BB6 không dòng kind:baseline. BB7 đường đọc-cũ khai đủ → đọc
+      results[] + cờ vàng; BB8 đường đọc-cũ results rỗng → lệnh vắng có lý do, không dòng kind:baseline.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.btbd_bo_qua_tep_moi
+    expected: >-
+      Mỗi shell: BQ1 "__BL 1 bo-qua t/moi.sh"; BQ2 moi.sh không chạy (tệp dấu vắng); BQ3 đối chứng
+      "__BL 2 xong 3"; BQ4 tệp vắng cả hai phía → "__BL 3 xong 127" (không bỏ qua). BQ5 prompt tổng hợp
+      mang cmd + lý do "… t/moi.sh … chua co o merge-base"; BQ6 lệnh bỏ qua n-a, lệnh chạy red; BQ7 dòng
+      kind:baseline vẫn ghi. BQ8 chiều im mỗi shell: tệp bị gitignore, đích chuyển hướng, node_modules,
+      .env → không "bo-qua", lệnh chạy thật.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.btbd_don_worktree
+    expected: >-
+      Mỗi shell: BD0 đối chứng dương — worktree tạm có và lệnh đang chạy trước khi dừng; sau TERM cả nhóm:
+      BD1 worktree gỡ khỏi git, BD2 thư mục tạm biến mất, BD3 lệnh ngủ chết. KILL: BD4 đối chứng dương —
+      mồ côi còn; BD5 lượt sau in "__BL_DON" và gỡ nó; BD6 chiều im — worktree khoá "agk-baseline pid <pid
+      sống>" không bị gỡ; BD7 lượt sau chạy đủ.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.btbd_dot_bien
+    expected: >-
+      Năm bản sao trong bộ nhớ, mỗi bản gỡ đúng một mảnh (kim khớp đúng một lần, không thì ca ném lỗi):
+      BM1 gỡ lính canh → không "qua-tran", lượt ≥ 7,5 s; BM2 gỡ phép hỏi merge-base → không "bo-qua"; BM3 gỡ
+      mọi trap → worktree ở lại sau TERM; BM4 bước quét coi mọi pid sống → mồ côi không được dọn; BM5 bộ đọc
+      bỏ điều kiện __BL_XONG → đầu ra cụt ghi thành dòng kind:baseline. BM6 gỡ phép hỏi gitignore →
+      "bo-qua gen/cau-hinh.json". BM7 bỏ điều kiện «không chạm trần» → dòng kind:baseline ghi cho phép đo
+      chạm trần. BM8 lính canh chỉ giết pid con → tiến trình cháu sống sót.
+    paths:
+      - "feature-loop/workflows/acceptance-verify.js"
+      - "tests/workflows/baseline-tran-bo-qua-don.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: >-
+      "Results: all workflow tests passed" — gồm lane-pin 11/11 (LP4 với kim dời sang chỗ ghép lệnh mới),
+      round-signal (RS5), lenh-dai-chay-rieng (LN2), acceptance-verify, và BB7 (đường đọc-cũ có cờ vàng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
