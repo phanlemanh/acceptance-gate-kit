@@ -1,0 +1,4 @@
+{
+  "feature_plain": "Lượt chấm S4 không còn bị làn đối chứng giữ hàng giờ: lệnh đối chứng do kit sinh, có trần thời gian, bỏ qua bài kiểm chưa có trên bản cũ và tự dọn chỗ làm tạm; làn đó không về trọn thì báo rõ lý do mà lượt vẫn ra báo cáo.",
+  "analyst_plain": "Lượt này làn đối chứng không đo được lệnh nào: kiểm tra an toàn của Claude Code từ chối cả lệnh vì các bài kiểm của chính kho kit có dạng «bash -c '…'». Lượt vẫn ra báo cáo đúng thiết kế, nhưng chưa có bằng chứng bài kiểm nào phân biệt được bản cũ với bản mới."
+}
