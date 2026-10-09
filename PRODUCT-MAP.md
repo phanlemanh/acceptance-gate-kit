@@ -10,7 +10,7 @@ flowchart TD
   GD --> B["Sắp mở vòng<br/>3 việc"]
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
-  B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
+  B --> CD["Chờ duyệt phạm vi<br/>1 việc"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>99 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>13 việc"] --> GG{"Cổng Giá trị"}
@@ -40,6 +40,10 @@ flowchart TD
 - Lớp vendored tự xưng — tệp khai phiên bản kit kèm băm từng tệp, danh sách chép rút từ một nguồn và gồm bộ đọc bản đồ, một lệnh kiểm chạy trong CI kho, một trang nghi thức nhận bản mới (`lop-vendored-tu-xung`)
 - Ba phép đo của vòng thuoc-co-cua tuyên đo từng ô mà ô không độc lập hoặc giá trị mẫu trùng — làm lại để chiều đỏ của từng ô là của chính ô ấy (`phep-do-o-doc-lap-thuoc-co-cua`)
 - Một vòng = một KẾT QUẢ người thấy được — S1 cắt vòng theo kết quả, AC ở tầng kết quả, cơ chế canh bằng bản phá (`vong-la-mot-ket-qua`)
+
+## Chờ duyệt phạm vi
+
+- Phát hành kit 2.26.0 — đóng số cho cửa sổ 2.25.0 → 2.26.0 (ba vòng đã ký «xuat-du-lieu-lo-trinh», «lo-trinh-cat-luot», «doc-ghi-troi-mang-sang-run-id»: trang lộ trình mang khối dữ liệu máy đọc, skill cắt lượt, thẻ Cổng 2 không giấu mục mang sang và run_id rỗng không lọt), để crm nhận thẳng 2.26 một lần trước đợt sau-14-10 và hàng LT1 dùng được khối dữ liệu; làn V, không dựng răng (`release-2-26-0`)
 
 ## Đang làm
 
