@@ -10,6 +10,23 @@
 > `_acceptance/release-<x-y-0>/contract.md` và `evidence-report.md`. Mục đầu
 > tiên dưới đây là phần CHƯA phát hành.
 
+## Chưa phát hành
+
+### Trang lộ trình mang sẵn dữ liệu máy đọc cho bản chiếu ngoài kho (hồ sơ `xuat-du-lieu-lo-trinh`, T2)
+
+Gốc: crm `_acceptance/cap-nhat-tuan-okr` — 23/48 tin chủ kho ở phiên điều phối OKR 23–26/09 là hỏi tiến
+độ; owner chốt 08/10 người không dùng git được XEM lộ trình (crm: hàng `LT1`, trang «Lộ trình» trong CRM).
+
+- `LO-TRINH.html` có thêm một khối `<script type="application/json" id="lo-trinh-du-lieu">` theo khuôn
+  `lo-trinh-du-lieu` phiên bản 1: mỗi lộ trình — hàng kế + lệnh mở, chỗ cần sửa, tiến độ, từng hàng
+  (trạng thái, nhóm tiến độ, hồ sơ nhận, cờ đã dịch, ý định của hàng), mốc, đã bác; cấp trang — hồ sơ
+  ngoài kế hoạch. Bộ đọc mẫu khoan dung `docDuLieu` trong `scripts/lo-trinh.mjs`.
+- Ai bị ảnh hưởng: kho đã khai `lo_trinh.tep` — trang đổi byte một lần (khối mới); phần người xem
+  không đổi. Kho không khai: không đổi gì.
+- Làm gì khi nâng: vẽ lại trang một lần (`node scripts/product-map.mjs --root .`) trong PR nâng kit,
+  nếu không `--check` đỏ «LO-TRINH.html lệch». Không sửa cấu hình. Bản chiếu đọc tài liệu
+  `skills/acceptance/references/lo-trinh-du-lieu.md`.
+
 ## 2.25.0 — 09/10/2026
 
 Cửa sổ 2.24.0 → 2.25.0 nằm trong **ba ngày** (07–09/10), có **hai vòng** được ký cùng ngày 07/10:
@@ -28,21 +45,6 @@ Tag `v2.25.0` gắn tại commit đóng hồ sơ mốc sau khi gộp.
 diff engine của cửa sổ chỉ ở `feature-loop/` (workflow lượt chấm, `s4-args`, `carry-plan`, `thuoc-vat`,
 `lan-khoa`, SKILL), hai tài liệu tham chiếu của `skills/acceptance/` và một dòng chú thích khuôn của
 `acceptance-init`.
-
-### Trang lộ trình mang sẵn dữ liệu máy đọc cho bản chiếu ngoài kho (hồ sơ `xuat-du-lieu-lo-trinh`, T2)
-
-Gốc: crm `_acceptance/cap-nhat-tuan-okr` — 23/48 tin chủ kho ở phiên điều phối OKR 23–26/09 là hỏi tiến
-độ; owner chốt 08/10 người không dùng git được XEM lộ trình (crm: hàng `LT1`, trang «Lộ trình» trong CRM).
-
-- `LO-TRINH.html` có thêm một khối `<script type="application/json" id="lo-trinh-du-lieu">` theo khuôn
-  `lo-trinh-du-lieu` phiên bản 1: mỗi lộ trình — hàng kế + lệnh mở, chỗ cần sửa, tiến độ, từng hàng
-  (trạng thái, nhóm tiến độ, hồ sơ nhận, cờ đã dịch, ý định của hàng), mốc, đã bác; cấp trang — hồ sơ
-  ngoài kế hoạch. Bộ đọc mẫu khoan dung `docDuLieu` trong `scripts/lo-trinh.mjs`.
-- Ai bị ảnh hưởng: kho đã khai `lo_trinh.tep` — trang đổi byte một lần (khối mới); phần người xem
-  không đổi. Kho không khai: không đổi gì.
-- Làm gì khi nâng: vẽ lại trang một lần (`node scripts/product-map.mjs --root .`) trong PR nâng kit,
-  nếu không `--check` đỏ «LO-TRINH.html lệch». Không sửa cấu hình. Bản chiếu đọc tài liệu
-  `skills/acceptance/references/lo-trinh-du-lieu.md`.
 
 ### Lượt chấm S4 không còn bị lệnh dài và eval nặng đốt (hồ sơ `lenh-dai-chay-rieng`, T2)
 
