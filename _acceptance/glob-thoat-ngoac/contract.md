@@ -5,7 +5,7 @@ slug: glob-thoat-ngoac
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/evidence-core.cjs — trong risk_tiers.t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-09-glob-thoat-ngoac-design.md
 approved_by: Phan Le Manh
 approved_at: 2026-10-09
@@ -95,4 +95,13 @@ không có `*` (crm có `…/[[]slug]/contacts/create-contact-sheet.tsx`).
   tự khác (`[ab]`, `[!x]`) hoặc ngoặc nhọn.
 - Kiểm ngoài (không phải AC — vật ở crm): sau khi crm cài mốc mang bản sửa, ghim lại `dien-thoai-ca-nhan` trên
   diff `974cb5c9..c6a618f` — dòng pin phải VẮNG `evals_not_machine_touched`. Chỉ đọc kết quả, không sửa crm.
+- Known limits (owner định tuyến ở Cổng Bằng chứng 09/10, lượt chấm 2): (1) Ngoài-3 — mục thành ngữ trỏ vào một
+  THƯ MỤC mà không có `/**` (`apps/a/[[]slug]/c`) bị từ chối «dang-khai-la», trong khi `apps/a/[slug]/c` trần được
+  nhận; viết `/**` thì nhận. Không hồi quy (bản cũ cũng từ chối). (2) Mục trong hợp đồng AC-4 (medium, thước):
+  GT4 kiểm hệ quả hạ nguồn chứ không so trực tiếp mục đọc ra BẰNG chuỗi gốc; bộ đọc giải `[[]slug]` thành `[slug]`
+  sẽ khớp y hệt nên không ảnh hưởng người dùng — máy khuyên ghi giới hạn ở lời mời ký, thẻ không có ô cho mục này.
+  Hai hàng ở `docs/research/known-limits-ledger.tsv` (glob-thoat-ngoac#ngoai-3, glob-thoat-ngoac#trong-ac-4).
+- Mở hợp đồng mới (Ngoài-1, Ngoài-2 — cùng một lỗi): bản dịch glob thứ ba ở phía đọc của S4
+  (`feature-loop/workflows/acceptance-verify.js` `globToRe`) chưa hiểu thành ngữ — ghi hạt giống
+  `docs/plans/2026-10-09-hat-giong-ban-dich-glob-thu-ba.md`, kèm lỗ thẻ Cổng 2 giấu mục trong hợp đồng mức medium.
 - Hạng T3: `lib/evidence-core.cjs` nằm trong `risk_tiers.t3_paths` (thêm Gate 1.5 duyệt kế hoạch).
