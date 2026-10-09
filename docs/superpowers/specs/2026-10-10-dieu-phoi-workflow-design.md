@@ -278,7 +278,7 @@ ghi). Chế độ auto cho riêng phiên giám sát thì cột này về 0; đó
 
 | Hàng | Làm các mục | Tệp dựng |
 |---|---|---|
-| DP2 | §4.1, §4.4, §3 (trạng thái nháp, đang chạy, tạm dừng, đang đóng), khung `chan-doan` | `vai.json`, `dieu-khien.json` |
+| DP2 | §4.1, §4.4, §3 (trạng thái nháp, đang chạy, tạm dừng, đang đóng), khung `chan-doan`, lệnh `/dieu-phoi:xem`, các câu thường của §13 | `vai.json`, `dieu-khien.json` |
 | DP3 | §4.2, §5, §5.1, lệnh con ghi qua CLI (spec ô dù §2.3), `chan-doan` đủ mục | `song/` |
 | DP4 | §4.3, §4.5 (gồm mod đọc mức dùng ở §12.2), trạng thái ★, đồng hồ bàn giao trong bộ phát lịch, hook hạn mức | `ban-giao.json`, `ban-giao/lich-su/`, `han-muc.json` |
 | DP6 | §12: khung trạng thái đợt, chặn S4 bằng mod, tự bắt việc chờ người | — |
@@ -347,3 +347,31 @@ dấu do mod ghi, một mod hỏng sau khi ghi dấu sẽ thành cửa mở.
 3. Tin `session.send` có tới khi phiên nhận đang giữa lượt không? Tin liên phiên của đợt crm hay bị giữ tới
    hết lượt.
 4. Mod ở phiên giám sát có tự đánh thức được phiên đó (thay cho Monitor) không? Nếu được, §5 bỏ được Monitor.
+
+## 13. Anh tương tác thế nào — theo giai đoạn
+
+Ba cách anh tác động lên đợt, và chỉ ba cách:
+- **Nói câu thường** với phiên giám sát. Đây là cách chính (05/10 §4.11, nguyên tắc 5). Phiên giám sát tự
+  dịch câu thành lệnh.
+- **Gõ lệnh `/…`.** Lệnh là tên tắt của đúng việc mà câu thường làm. Lệnh hữu ích khi anh mở một phiên mới
+  chưa biết gì, vì câu thường ở đó chưa có ai hiểu là việc của đợt.
+- **Bấm trong app:** chip thợ, đăng nhập tài khoản, mở phiên có chấm «cần anh».
+
+Anh không bao giờ gõ lệnh `node …` của CLI, không sửa tệp JSON nào, không giăng Monitor.
+
+| Giai đoạn | Anh gõ câu thường | Hoặc gõ lệnh | Ở phiên nào | Máy đáp |
+|---|---|---|---|---|
+| Lần đầu cho một kho | — | `claude plugin install dieu-phoi@acceptance-gate-kit --scope project` (ở terminal), cùng một gói đợt `docs/plan/dot-<tên>/` trong git của kho | — | Kho đã bật; hook im tới khi có đợt |
+| Khởi tạo | «Mở đợt sau-14-10: K2–K4 và làn Deal, mốc 07/12» | `/dieu-phoi:mo-dot sau-14-10` | Một phiên mới trong kho; phiên này thành giám sát | Thẻ khởi tạo (dãy, hàng, ưu tiên khi tranh chấp, quyền tự merge, chính sách hạn mức). Anh trả «duyệt» rồi bấm N chip |
+| Đang chạy — xem | «Đợt đang thế nào?» | `/dieu-phoi:xem` | Phiên giám sát, hoặc bất kỳ phiên nào trong kho | Một khối trạng thái. Có lớp mod (DP6) thì khung hiện sẵn, và `/dieu-phoi:xem` trả lời ngay không tốn lượt model |
+| Đổi kế hoạch | «Đẩy K3 lên trước K2» · «Thêm việc X cho P2» · «Cho P4 nghỉ» · «Tạm dừng đợt» / «Chạy tiếp» | — | Phiên giám sát | Một dòng xác nhận; bộ phát lịch áp từ nhịp kế |
+| Quyết theo lô | Trả lời câu hỏi của thợ ngay trong phiên thợ | Lệnh cổng mà thẻ in sẵn, ví dụ `/acceptance-gate:approve <slug> duyệt` | Phiên thợ có chấm «cần anh» (thông báo dẫn thẳng tới) | Thợ chạy tiếp; tệp chờ người tự xoá |
+| Resume sau app sập, phiên giám sát chết | «Tiếp tục đợt» | `/dieu-phoi:tiep-tuc` | Một phiên mới trong kho, hoặc phiên giám sát cũ nếu còn | Một khối: đã dựng lại gì, dãy nào cần bấm chip, việc chờ anh |
+| Resume sau hết ngữ cảnh | Không gõ gì: phiên tự nén ngữ cảnh rồi chạy tiếp, và mỗi lần thức đã chạy `tiep-tuc --nhe` | — | — | — |
+| Sắp hết hạn mức | Không gõ gì | — | — | Một dòng báo trước. Cửa sổ sắp đặt lại thì máy tự chờ; nếu không, máy tự bàn giao |
+| Bàn giao chủ động | «Bàn giao, tôi đổi tài khoản» | `/dieu-phoi:ban-giao` | Phiên giám sát | «Đã bàn giao lúc HH:MM. Đổi tài khoản, rồi gõ `/dieu-phoi:tiep-tuc`» |
+| Đổi tài khoản | Đăng xuất, đăng nhập tài khoản kia (trong app), rồi «tiếp tục đợt» | `/dieu-phoi:tiep-tuc` | Một phiên mới trong kho | Như Resume; bấm chip cho các dãy |
+| Đóng đợt | «Đóng đợt» | `/dieu-phoi:dong-dot` | Phiên giám sát | Thẻ đóng đợt; anh trả «duyệt» |
+
+Lệnh `/dieu-phoi:xem` là lệnh thứ năm. Nó chỉ đọc, nên nằm ở DP2; khi có lớp mod (DP6), nó thành lệnh của
+mod và trả lời không qua model.
