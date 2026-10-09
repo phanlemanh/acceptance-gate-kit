@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: fa6f7eff2108f00fdf5f7e034a70674feec2edb9
+verified_commit: c61b854e5215608072b6953f8d52106021dbb6b3
 human_signoff: Manh Phan 2026-10-08
 ---
 
@@ -223,3 +223,7 @@ sha: 0aeef0c8259177b55b8b92f10b2b3921f81b81d7 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 2 — 2026-10-09, do gộp main sau #288 (ổ cắm lộ trình kit + P126) vào nhánh #285
 run_id: repin-20261009T034654Z-35291
 sha: fa6f7eff2108f00fdf5f7e034a70674feec2edb9 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E11 · AC không có chốt máy: AC-11
+
+### Re-pin lần 3 — 2026-10-09, do chiến dịch ghim lại mốc 2.26.0
+run_id: repin-20261009T104247Z-18914
+sha: c61b854e5215608072b6953f8d52106021dbb6b3 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E11 · AC không có chốt máy: AC-11
