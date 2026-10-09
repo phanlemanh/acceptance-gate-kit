@@ -12,6 +12,19 @@
 
 ## Chưa phát hành
 
+### Mục `paths` thoát ngoặc (`[[]slug]`) được hiểu đúng (hồ sơ `glob-thoat-ngoac`, T3)
+
+Gốc: crm `dien-thoai-ca-nhan`, 09/10. Ghim lại gắn `evals_not_machine_touched` cho bốn ô ui-check có `paths`
+`apps/app/app/(app)/[[]slug]/contacts/**` dù diff không chạm `apps/`.
+
+- **Hai bộ dịch glob** (`pathGlobToRe` của lib, `globToRe` của `carry-plan`) nhận hai thành ngữ thoát của
+  fast-glob/bash: `[[]` là dấu `[` thật, `[]]` là dấu `]` thật. Mục mang thành ngữ đi nhánh glob của bộ phân
+  loại kể cả khi không có `*`, và vẫn phải trỏ tới tệp có thật.
+- Hệ quả, ba nơi cùng hưởng: làn ghim lại thôi gắn oan; lưới hoá cũ (`stale_scope: paths`) lọc đúng thay vì
+  rơi về luật cũ; kế hoạch mang sang của S4 **thôi mang sang eval mà tệp của nó vừa đổi** (trước đây xanh giả).
+- Ai bị ảnh hưởng: kho viết `paths` dạng thoát ngoặc. `[slug]` trần giữ nghĩa đen như cũ — không đổi gì cho kho
+  viết dạng đó. Không cần làm gì khi cập nhật; hồ sơ từng bị gắn oan thì lượt ghim kế tự hết.
+
 ### Thẻ Cổng 2 không còn giấu mục mang sang; run_id rỗng không còn lọt (hồ sơ `doc-ghi-troi-mang-sang-run-id`, T3)
 
 Gốc: crm đêm 07–08/10 (kit 2.24.0). Thẻ Cổng 2 giấu mục ngoài hợp đồng mang sang ba lần (2/7, 1/15, 10/10).
