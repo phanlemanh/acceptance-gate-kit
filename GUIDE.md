@@ -2,7 +2,7 @@
 
 > Đọc nhanh 5 phút → [QUICKSTART.md](QUICKSTART.md). Tài liệu này là **bản đầy đủ**:
 > kiến trúc, cài đặt, vận hành hằng ngày, tra cứu enforcement, xử lý sự cố và tinh chỉnh.
-> Khớp phiên bản: acceptance-gate 2.24.0 · feature-loop 2.24.0 · diagram-design 2.7.1.
+> Khớp phiên bản: acceptance-gate 2.25.0 · feature-loop 2.25.0 · diagram-design 2.7.1.
 
 ## Mục lục
 
@@ -643,6 +643,14 @@ chân trời của lộ trình, mỗi hàng mang `dot` và `phu`. Răng `scripts
 --lo-trinh <tệp>` chỉ đọc: mỗi mã ở đúng một chỗ cùng đợt, chân trời có lý do, hàng cùng đợt qua khuôn
 và luật ngày/mốc; hàng cắt tay đời trước chỉ thành cảnh báo. `--nhip` in nhịp theo hạng đo từ hồ sơ đã
 ký. Trang lộ trình in thêm dòng «bước kế» cho hàng có hồ sơ, suy từ ô bản đồ — không gõ tay `buoc_ke`.
+
+Từ vòng `xuat-du-lieu-lo-trinh` (hàng X1): `LO-TRINH.html` mang thêm MỘT khối dữ liệu máy đọc
+(`<script type="application/json" id="lo-trinh-du-lieu">`), vẽ cùng lượt với trang, từ cùng kết quả
+phân tích. Bản chiếu ngoài kho — trang «Lộ trình» trong một công cụ của đội, trang chia sẻ — đọc khối
+này thay vì tự tính trạng thái: mỗi hàng đã mang chữ trạng thái, nhóm tiến độ, hồ sơ nhận, cờ đã dịch;
+việc duy nhất bản chiếu tự làm là so ngày mốc với hôm nay. Khuôn, cách rút khối và luật so ngày:
+`skills/acceptance/references/lo-trinh-du-lieu.md`. Không tệp mới, không khoá cấu hình mới; người xem
+trang không thấy gì khác.
 
 **Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
 đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ

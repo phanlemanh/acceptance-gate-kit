@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: aac0ec2753325d8f29e21a05227adec114a8096d
+verified_commit: c4d67d7c60552d497cab16005ee39f4b4ea54ab3
 human_signoff: Manh Phan 2026-10-07
 ---
 
@@ -208,3 +208,7 @@ none — every multi-run eval is uniform
 
 Round 1: E6, E7, E8 failed — thuoc-vat gọi `git diff --numstat <san>..HEAD ^<nen>`, git không nhận rev âm thêm vào sau khoảng A..B nên in usage và dừng ở ca gộp nhánh nền (AC-6, AC-7, AC-8). Lệnh suite `--manh mjs:3/3` cũng trượt một ca. Returned to implementation.
 Round 2: không eval nào trượt — E1–E12 đạt (E11, E12 là hai tiêu chí nâng phạm vi), mười một lệnh suite xanh. Các lỗi review ngoài hợp đồng chuyển người quyết ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-09, do chiến dịch ghim lại mốc 2.25.0 (hoá cũ so với v2.24.0) + bật ổ cắm lộ trình của kit
+run_id: repin-20261009T014447Z-43603
+sha: c4d67d7c60552d497cab16005ee39f4b4ea54ab3 · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng
