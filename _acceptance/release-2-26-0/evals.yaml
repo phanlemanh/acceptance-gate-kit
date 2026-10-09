@@ -1,0 +1,113 @@
+# evals — release-2-26-0
+# Không có bộ răng riêng (nếp từ 2.2.0 → 2.25.0, luật «mốc phát hành KHÔNG dựng răng»): thứ cần
+# canh ở mọi lần cắt số là ca vĩnh viễn P200 (vùng 3 của suite plugins) — mọi số đọc TỪ manifest,
+# 5 đột biến + đối chứng dương, MỘT lối thoát. AC-4 và AC-5 đo bằng lệnh git, không dựng script
+# mới. Mọi eval trỏ KHOÁ MẢNH (hồ sơ ha-tang-khong-dot-luot, Known limit Ngoài-1). E1/E2/E6 chấm
+# MÃ THOÁT của vùng 3 — không hứa dòng P200 trong bằng chứng: workflow lượt chấm cắt đầu ra lệnh
+# xanh (240 ký tự mỗi dòng, ba dòng cuối), ba mốc 2.22 → 2.25 thử đưa dòng vào và đều hụt (Out of scope).
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.plugins_vung_3
+    expected: >
+      Exit 0 — vùng 3 của suite plugins xanh, nên ca P200 (cùng vùng) xanh: hai plugin cùng số 2.26.0,
+      ba số hợp semver (2.26.0 · 2.26.0 · 2.7.1), đọc từ manifest. Chiều đỏ sống trong chính P200 (5 đột
+      biến + đối chứng dương trên bản sao nguyên vẹn); P200 đỏ thì vùng 3 thoát khác 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.plugins_vung_3
+    expected: >
+      Exit 0 — vế GUIDE của P200 xanh: câu «Khớp phiên bản» dựng từ ba số đọc trong manifest rồi so;
+      đột biến GUIDE giữ số cũ → P200 đỏ (trong P200), vùng 3 thoát khác 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    expected: "mảnh bash của suite scripts XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3f
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_mjs_1
+    expected: "mảnh mjs:1/3 XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3g
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_mjs_2
+    expected: "mảnh mjs:2/3 XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3h
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_mjs_3
+    expected: "mảnh mjs:3/3 XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3b
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.hooks
+    expected: "suite hooks XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3c
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins_vung_1
+    expected: "vùng 1 của suite plugins XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3i
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins_vung_2
+    expected: "vùng 2 của suite plugins XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3j
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.plugins_vung_3
+    expected: "vùng 3 của suite plugins XANH (cùng lệnh với E1/E2/E6)"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3d
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.workflows
+    expected: "suite workflows XANH"
+    evidence_required: [run_id, exit_code, verifier, verified_at]
+  - id: E3e
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.product_map
+    expected: "exit 0 — PRODUCT-MAP.md khớp hồ sơ xưởng (bản đồ vẽ lại cùng commit mở hồ sơ)"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.rel2260_cua_so
+    expected: >
+      Exit 0 — tập hồ sơ ĐƯỢC KÝ trong cửa sổ, suy từ kho bằng QUAN HỆ (hồ sơ có contract.md đổi trong
+      `c01e5bf2..HEAD`, nay `status: signed-off`, mà ở mốc trước CHƯA ký; bỏ hồ sơ mốc `release-*`),
+      BẰNG tập ba slug kể trong Context: `doc-ghi-troi-mang-sang-run-id`, `lo-trinh-cat-luot`, `xuat-du-lieu-lo-trinh`. Chiều đỏ trong chính lệnh: slug
+      thừa và slug thiếu đều in tên — đo khi mở hồ sơ: chạy với tập «x» thì «ĐỎ: … mốc KHÔNG kể: …», thoát 1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.rel2260_dd_giu
+    expected: >
+      Exit 0 và dòng «moc:   "version": "2.7.1", | HEAD:   "version": "2.7.1",» — `diagram-design/` KHÔNG
+      có dòng đổi từ `c01e5bf2` tới HEAD VÀ số bằng số ở mốc. Chiều đỏ: cùng lệnh với mốc `1b98fdb1`
+      (v2.20.0, trước commit nâng 2.7.1) thoát 1 — đo khi mở hồ sơ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.plugins_vung_3
+    expected: >
+      Exit 0 — vế mô tả của P200 xanh: mô tả acceptance-gate có mục v2.26.0 và mục v2.26.0 của
+      feature-loop tự khai cặp acceptance-gate >= 2.26.0; hai đột biến của P200 (mô tả thiếu mục · câu khai
+      cặp nằm ngoài mục) phải đỏ trong chính ca.
+    evidence_required: [run_id, exit_code, verifier, verified_at]

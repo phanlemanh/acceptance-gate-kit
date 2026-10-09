@@ -4,6 +4,16 @@
   "ghi_chu": "BẢN NHÁP máy dựng 08/10 cho owner duyệt; ý định là của owner, sửa bằng PR. Nhịp đo được (22/09–06/10): 9 mốc phát hành trong 15 ngày, mỗi mốc 1–2 vòng — ngày dưới đây rơi ra từ thứ tự + nhịp đó, không phải hứa. Hàng chỉ vào khi có neo ngoài (một hồ sơ hay commit ở kho tiêu thụ); ý chưa có neo nằm ở chan_troi.",
   "moc": [
     {
+      "ten": "Phát hành 2.26.0 — xuất dữ liệu lộ trình (X1), cắt lượt (L2); đã phát hành 09/10",
+      "ngay": "2026-10-09",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "X1",
+        "L2"
+      ]
+    },
+    {
       "ten": "crm: làn R1 vá xong trên production",
       "ngay": "2026-10-12",
       "loai": "ngoai",
@@ -18,45 +28,34 @@
       "hang": []
     },
     {
-      "ten": "Phát hành 2.25.0 và crm cài — crm ghi «gộp và cài trước khi mở đợt sau-14-10»",
+      "ten": "crm cài kit (≥ 2.25.0 — nhận thẳng 2.26.0) — crm ghi «gộp và cài trước khi mở đợt sau-14-10»",
       "ngay": "2026-10-15",
-      "loai": "phat-hanh",
-      "ai": "Owner",
+      "loai": "ngoai",
+      "ai": "crm",
       "hang": [
         "P1"
       ]
     },
     {
-      "ten": "Phát hành 2.26.0 — tác tử chấm không sửa mã, bộ đọc khoan dung, kiểm chéo sau gộp (cho dãy P4 của crm) (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
+      "ten": "Mốc kế (số đặt lúc cắt) — tác tử chấm không sửa mã, bộ đọc khoan dung, gom tín hiệu thành nhóm (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
       "ngay": "2026-10-18",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
         "A1",
         "R1",
-        "G1"
+        "L3"
       ]
     },
     {
-      "ten": "Phát hành 2.27.0 — ca chập chờn, eval model thật, cắt lượt, xuất dữ liệu lộ trình (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
-      "ngay": "2026-10-23",
+      "ten": "Mốc sau nữa (số đặt lúc cắt) — ca chập chờn, eval model thật, bớt câu hỏi ở bước thiết kế (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
+      "ngay": "2026-10-25",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
         "G2",
         "G3",
-        "L2",
-        "X1"
-      ]
-    },
-    {
-      "ten": "Phát hành 2.28.0 — bớt câu hỏi ở bước thiết kế, gom tín hiệu thành nhóm (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
-      "ngay": "2026-10-27",
-      "loai": "phat-hanh",
-      "ai": "Owner",
-      "hang": [
-        "A2",
-        "L3"
+        "A2"
       ]
     }
   ],
@@ -136,9 +135,9 @@
         "N7",
         "N8"
       ],
-      "cau_giao": "«crm cài 2.25.0 trước khi mở đợt sau-14-10»",
+      "cau_giao": "«crm cài bản kit có lượt chấm không bị lệnh dài đốt (≥ 2.25.0) trước khi mở đợt sau-14-10»",
       "vi_sao": "Gốc: crm/docs/plan/dot-sau-14-10/README.md — hàng «bản vá ba lỗ của bộ kit»: «gộp và cài cùng phiên bản trước khi mở đợt».",
-      "bat_khi": "crm có commit nhận 2.25.0 trước khi hàng đầu tiên của đợt sau-14-10 mở vòng"
+      "bat_khi": "crm có commit nhận 2.25.0 hoặc mới hơn (crm nhận thẳng 2.26.0) trước khi hàng đầu tiên của đợt sau-14-10 mở vòng"
     },
     {
       "ma": "A1",
@@ -161,18 +160,6 @@
       "cau_giao": "«Kho viết evals.yaml kiểu danh sách sát lề vẫn được kit đọc đủ đầu vào và vùng tệp»",
       "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-va-bien — commit 352ef33ac (07/10) phải viết lại 309 dòng evals.yaml sang khuôn thụt 4 «để bộ đọc của kit thấy inputs và paths». YAML hợp lệ mà kit đọc thiếu IM LẶNG → bộ lọc vùng tệp (N5) có thể bỏ sót hồ sơ. Sửa theo thứ tự luật 26/09: bộ đọc khoan dung + cờ vàng, không đổi mặc định.",
       "bat_khi": "Hồ sơ viết danh sách sát lề và thụt 2 cho cùng kết quả đọc; khuôn không đọc được thì có cờ vàng, không im"
-    },
-    {
-      "ma": "G1",
-      "nhom": "gia-ghim-lai",
-      "hang": "T2",
-      "dung_tren": [
-        "N5"
-      ],
-      "cau_giao": "«Kiểm ‘có làm hỏng hồ sơ đã ký khác không’ chạy một lần sau mỗi lần gộp, không trong từng lượt ghim lại»",
-      "vi_sao": "Gốc: crm/_acceptance/kiem-cheo-sau-gop (owner ký build 07/10) — E11 ăn ~14 giờ máy cho một PR, 0 hồi quy bắt được; hồ sơ ghi «phần sửa ở bộ kit đi chip riêng». Phần kit cụ thể chốt ở Cổng Phạm vi của hàng F9 bên crm. Hạt giống kit: docs/plans/2026-10-06-hat-giong-gia-lan-ghim-lai-vong-b.md (Đ1).",
-      "cho": "crm chốt phạm vi F9 (chạy ở CI hay đêm; khi đỏ thì làm gì)",
-      "bat_khi": "Lượt ghim lại một hồ sơ chạm vùng Zalo của crm dưới 30 phút, kiểm chéo vẫn chạy sau gộp"
     },
     {
       "ma": "G2",
@@ -219,7 +206,8 @@
       "cau_giao": "«Trang nào cũng vẽ được lộ trình của kho từ một tệp dữ liệu kit xuất sẵn — không trang nào phải tự tính trạng thái»",
       "vi_sao": "Gốc: crm/_acceptance/cap-nhat-tuan-okr — 23/48 tin của chủ sản phẩm ở phiên điều phối OKR 23–26/09 là hỏi tiến độ. Owner chốt 08/10: đội sản phẩm và trưởng phòng ban không dùng git được XEM lộ trình (crm: ngay trong CRM — nấc đã hẹn 02/10), mỗi kho một trang, nguồn vẫn là git. Hôm nay trạng thái chỉ có trong trang tĩnh LO-TRINH.html; bản chiếu nào muốn hiện phải tự tính lại → nguồn sự thật thứ hai.",
       "bat_khi": "Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ",
-      "ghi_chu": "CỘNG — owner phê ở Cổng Đáng khi mở. Trang lộ trình trong CRM là hàng trên lộ trình của crm, không phải việc kit. Làm trước L3 vì cửa góp cần chỗ trả trạng thái về người gửi."
+      "ghi_chu": "CỘNG — owner phê ở Cổng Đáng khi mở. Trang lộ trình trong CRM là hàng trên lộ trình của crm, không phải việc kit. Làm trước L3 vì cửa góp cần chỗ trả trạng thái về người gửi.",
+      "slug": "xuat-du-lieu-lo-trinh"
     },
     {
       "ma": "L3",
@@ -308,5 +296,11 @@
       "mo_lai_khi": "mỗi hạt giống tự khai ngưỡng (50/56 có)"
     }
   ],
-  "da_bac": []
+  "da_bac": [
+    {
+      "ma": "G1",
+      "cau_giao": "«Kiểm ‘có làm hỏng hồ sơ đã ký khác không’ chạy một lần sau mỗi lần gộp, không trong từng lượt ghim lại»",
+      "ly_do": "crm tự làm ở tầng kho — crm-onehub#330: lượt kiểm chéo mỗi đêm dùng bộ đọc paths + làn ghim lại của kit; kit không cần đổi gì. Mở lại khi: kho thứ hai gặp đúng ca này."
+    }
+  ]
 }

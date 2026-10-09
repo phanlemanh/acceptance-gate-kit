@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6197c7845c5ac0b99103e31c175ec61aa3987ee1
+verified_commit: c61b854e5215608072b6953f8d52106021dbb6b3
 human_signoff: Phan Le Manh 2026-10-09 — ký lượt chấm 3; Ngoài-1, 2, 4, 5, 6, 7 ghi Known limits; Ngoài-3 mở hợp đồng mới (hạt giống); đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -162,3 +162,7 @@ Round 3: bảy eval của hợp đồng xanh và chín lệnh suite xanh, kể c
 ### Re-pin lần 1 — 2026-10-09, do gộp origin/main sau #289 (xung đột docRid/ridHopLe)
 run_id: repin-20261009T080502Z-25112
 sha: 6197c7845c5ac0b99103e31c175ec61aa3987ee1 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-09, do chiến dịch ghim lại mốc 2.26.0
+run_id: repin-20261009T104247Z-18914
+sha: c61b854e5215608072b6953f8d52106021dbb6b3 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
