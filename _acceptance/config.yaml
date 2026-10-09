@@ -547,6 +547,8 @@ executors:
     # Mốc 2.25.0 — cửa sổ v2.24.0 (9d1ae527) → HEAD.
     rel2250_cua_so: bash scripts/rel-cua-so.sh 9d1ae527 lenh-dai-chay-rieng luot-sua-giu-du-dem-dung
     rel2250_dd_giu: "bash -c 'c=$(git show 9d1ae527:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet 9d1ae527 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
+    rel2260_cua_so: bash scripts/rel-cua-so.sh c01e5bf2 doc-ghi-troi-mang-sang-run-id lo-trinh-cat-luot xuat-du-lieu-lo-trinh
+    rel2260_dd_giu: "bash -c 'c=$(git show c01e5bf2:diagram-design/.claude-plugin/plugin.json | grep -m1 \"version\"); m=$(grep -m1 \"version\" diagram-design/.claude-plugin/plugin.json); echo \"moc: $c | HEAD: $m\"; git diff --quiet c01e5bf2 HEAD -- diagram-design && [ \"$c\" = \"$m\" ]'"
     lgtp_doc_cu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan doc-cu
     lgtp_nhay_dac_hieu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan nhay-dac-hieu
     lgtp_chi_thu: bash _acceptance/lan-ghim-lai-theo-paths/rang.sh --chan chi-thu

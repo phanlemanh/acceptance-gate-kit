@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f5578ba1e75b36179d9bf666e219bdde18141042
+verified_commit: c61b854e5215608072b6953f8d52106021dbb6b3
 human_signoff: Manh Phan 2026-10-03
 ---
 
@@ -353,3 +353,7 @@ sha: fa6f7eff2108f00fdf5f7e034a70674feec2edb9 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 12 — 2026-10-09, do gộp nhánh chính sau X1 (#285) và chữ ký Cổng Bằng chứng của lo-trinh-cat-luot
 run_id: repin-20261009T050419Z-40694
 sha: f5578ba1e75b36179d9bf666e219bdde18141042 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · diff chạm vật đo ngoài làn máy: E14 — chưa chứng lại, đi vòng S4 delta · AC không có chốt máy: AC-14
+
+### Re-pin lần 13 — 2026-10-09, do chiến dịch ghim lại mốc 2.26.0
+run_id: repin-20261009T104247Z-18914
+sha: c61b854e5215608072b6953f8d52106021dbb6b3 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E14 · AC không có chốt máy: AC-14
