@@ -1,55 +1,53 @@
+# Review findings: tac-tu-cham-chi-cham-khong (round 3)
+
 ## Trong hợp đồng
 
-- **Auto-revert deletes the user's pre-existing uncommitted work when a grader's commit swept it in**
-  file: `feature-loop/scripts/lib/ghi-boi.mjs:188`
-  severity: high
-  AC: AC-6
-  source: bugs
-  detail: `hoanLai` runs `git reset --keep <sha>`, which drops EVERY commit in sha..HEAD. Files those commits added are removed from disk, and files they changed go back to their sha version. The only guard for work that existed before the round is `banSan` (line 181). It checks `cay.ban`, and `chupCay` fills that only with TRACKED, DIRTY files inside the in-scope area. Three cases get no check:
-  (a) files that were untracked before the round (`cay.chuaTheoDoi` is never consulted);
-  (b) dirty or untracked files outside the in-scope area, which are not in `tep` at all;
-  (c) commits whose contents go beyond the files assigned to a grader.
-  Reproduced with the real module: repo at sha, then an untracked `notes-chua-commit.md` the user had not committed, then a grader runs `git add -A && git commit -m wip` that also touches tracked `a.txt`. `quyTrachNhiem` assigns `a.txt` to the grader through its `git commit`, so `tep_khong_ro` is empty. `hoanLai` returns `{hoan_lai:true}` and `notes-chua-commit.md` is gone from the working tree; it survives only in the dropped commit in the reflog. The same happens to an uncommitted edit to a tracked record or doc file outside the in-scope area that a `git commit -am` picks up. This breaks the stated invariant (comment at L183-185): never overwrite uncommitted changes, always leave them to the session. The log line says nothing about the lost files. Fix: refuse the revert when sha..HEAD touches any path outside the assigned `tep`, or any path in `cay.chuaTheoDoi`. Equivalently, compare `git diff --name-only sha HEAD` (unfiltered) against the set of assigned files plus the pre-round snapshot.
-  rationale: AC-6 nêu 'không bao giờ ghi đè tệp chưa commit' và hàng 'tệp bẩn sẵn trước lượt'; tệp chưa theo dõi hay ngoài vùng bị cuốn vào commit của tác tử vẫn bị xoá khỏi cây làm việc, phản ví dụ trực tiếp.
+(không có)
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **AT3 pins every lane's prompts, run-log and opts to v2.26.0 in the standing suite, against the repo's own lesson**
-  Người dùng thấy gì: Lần sau khi ai đó đổi lời dặn của bộ chấm cho đúng, bài kiểm tra này sẽ báo đỏ oan và phải nâng mốc so sánh bằng tay; lượt chấm thật không bị ảnh hưởng.
+- **AT3 compares every lane's prompts, the run-log and all opts against fixed tag v2.26.0, so any later legitimate engine change turns the suite red**
+  Người dùng thấy gì: Phép kiểm «lượt sạch không đổi» khoá cứng vào bản phát hành 2.26.0. Lần tới có ai sửa lời dặn của bộ chấm một cách chính đáng, bộ kiểm sẽ báo đỏ dù không có lỗi thật, và người sửa phải nâng mốc so. Điều này đã được khai là giới hạn đã biết.
   file: `tests/workflows/tac-tu-cham-hep.test.mjs`
+  severity: high
+  Đề xuất: known-limits
+
+- **Owner-facing card text and figure still say the machine reverts the tree itself, which the descope removed**
+  Người dùng thấy gì: Thẻ và hình minh hoạ trình cho người ký vẫn nói máy tự trả cây về như cũ, trong khi sau lần thu hẹp phạm vi máy không còn làm vậy mà phiên phải tự hoàn lại. Người ký có thể hiểu sai máy làm gì thay họ, nên cần sửa chữ trước khi tin thẻ.
+  file: `_acceptance/tac-tu-cham-chi-cham-khong/card-plain.json`
+  severity: high
+  Đề xuất: known-limits
+
+- **AT6 (and AT5) put the pinned FAIL label on every failure, so the mutant check in rang.sh cannot tell a crash from the targeted defect**
+  Người dùng thấy gì: Phép thử «bước sau-lượt không đổi cây» có thể báo đỏ đúng chữ dù nguyên nhân chỉ là bước đó bị hỏng chứ không phải cây bị đổi. Người đọc kết quả đỏ khó biết máy bắt đúng lỗi hay chỉ bị sự cố khác. Đã khai là giới hạn đã biết.
+  file: `tests/scripts/ghi-boi-tac-tu-cham.test.mjs`
   severity: medium
   Đề xuất: known-limits
-- **The automatic undo resets every commit since the graded sha, but the safety checks and the run-log only cover tracked-zone files**
-  Người dùng thấy gì: Nếu trong lúc chấm, phiên chính có lưu thêm một lần vào hồ sơ của vòng, bước tự hoàn lại có thể lặng lẽ bỏ mất lần lưu đó khỏi nhánh mà không báo ở đâu; chỉ lôi lại được bằng cách đào lịch sử git.
+
+- **A `--transcript` path that does not exist is dropped silently and the line blames a missing transcript**
+  Người dùng thấy gì: Nếu phiên truyền sai đường dẫn ghi chép của lượt chấm, hệ thống chỉ báo là không tìm thấy ghi chép chứ không nói đường dẫn nào sai. Người dùng vẫn thấy lượt này là chưa đọc được nên không bị kết luận sai, chỉ khó biết nguyên nhân.
+  file: `feature-loop/scripts/thuoc-vat.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Any `git commit` by a grading agent, in any repo, is blamed for every commit made during the round**
+  Người dùng thấy gì: Nếu tác tử chấm dựng một kho tạm ở nơi khác và commit ở đó, hệ thống vẫn quy cho nó mọi commit của lượt, kể cả commit do chính phiên làm. Phiên có thể bị dẫn đến hoàn lại việc của chính mình và số lượt bị tính là tác tử ghi bị thổi phồng.
   file: `feature-loop/scripts/lib/ghi-boi.mjs`
   severity: medium
-  Đề xuất: new-contract
-- **--transcript accepts an empty or wrong directory and logs 'no grader wrote this' instead of 'could not read transcript'**
-  Người dùng thấy gì: Nếu phiên truyền nhầm thư mục ghi lại cuộc chấm, hệ thống ghi như thể không tác tử nào sửa gì thay vì báo chưa đọc được; con số lượt không đọc được vì thế có thể thấp hơn thực tế.
-  file: `feature-loop/scripts/thuoc-vat.mjs`
-  severity: medium
   Đề xuất: known-limits
-- **SKILL and the ghi-boi.mjs header still describe four undo conditions; the code now also requires everything to be committed**
-  Người dùng thấy gì: Hướng dẫn cho phiên Claude Code còn nói bốn điều kiện để tự hoàn lại trong khi thực tế có thêm điều kiện thứ năm, nên người đọc có thể hiểu sai vì sao máy đôi khi không tự hoàn lại.
-  file: `feature-loop/skills/feature-loop/SKILL.md`
+
+- **`git -C <other dir>` pathspecs are resolved against the main repo and blamed as writes**
+  Người dùng thấy gì: Khi tác tử chấm làm việc ở một bản sao khác của kho rồi sửa tệp trùng tên, hệ thống có thể quy nhầm tệp của kho chính cho nó. Hậu quả là dòng ghi nhận chỉ sai hướng cho phiên khi hoàn lại, chứ máy không tự đổi cây.
+  file: `feature-loop/scripts/lib/ghi-boi.mjs`
   severity: low
   Đề xuất: known-limits
-- **Hình dạng 2 — fixture viết tay đúng khuôn bên đọc: đề bài tác tử ở hàng tự-tìm (AT5 hàng 6, 10) được gõ tay để khớp đúng bộ lọc của timTranscript**
-  Người dùng thấy gì: Chức năng tự tìm bản ghi cuộc chấm khi không chỉ định chưa từng được thử với đề bài thật; nếu đề bài thật không còn mang tên vòng ở đầu thì máy có thể không tìm thấy gì mà bài kiểm tra vẫn xanh.
+
+- **Hinh dang 4 (assertion am-tinh khong ghim dung thong diep): moi loi AT6 deu mang nhan «khong doi cay», nen dong ghim cua chieu do khong phan biet duoc loi**
+  Người dùng thấy gì: Mọi kiểu hỏng của phép thử «không đổi cây» đều mang cùng một nhãn, nên một phép thử đỏ chưa chắc chứng minh cây bị đổi. Đây là cùng giới hạn đã khai ở finding trước về độ chính xác của phép thử đỏ.
   file: `tests/scripts/ghi-boi-tac-tu-cham.test.mjs`
   severity: medium
-  Đề xuất: known-limits
-- **Hình dạng 3 — chỉ kiểm chuỗi có mặt trong khi lời hứa là QUAN HỆ: chưa ca nào ghép agentType của bảng vai với định nghĩa tác tử thật**
-  Người dùng thấy gì: Nếu ai đó đổi tên gói hoặc tên loại tác tử ở một chỗ mà quên chỗ kia, các bài kiểm tra vẫn xanh nhưng lúc chạy thật các tác tử chấm lặng lẽ quay về loại mặc định có quyền sửa tệp.
-  file: `tests/workflows/tac-tu-cham-hep.test.mjs`
-  severity: medium
-  Đề xuất: known-limits
-- **Hình dạng 3 — lời hứa ghép cặp theo round + luot_ts nhưng kiemChung chỉ kiểm vị trí kề nhau và tập khoá**
-  Người dùng thấy gì: Hai dòng ghi của cùng một lượt chấm chỉ được kiểm là nằm cạnh nhau, không kiểm cùng số lượt và thời điểm; nếu ghi lệch, bộ đếm ở phiên nghiệm thu có thể không ghép được cặp nào mà bài kiểm tra vẫn xanh.
-  file: `tests/scripts/ghi-boi-tac-tu-cham.test.mjs`
-  severity: low
   Đề xuất: known-limits
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
