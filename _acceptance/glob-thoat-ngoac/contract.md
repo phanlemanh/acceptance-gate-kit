@@ -5,7 +5,7 @@ slug: glob-thoat-ngoac
 owner: manh.phan@onemount.com
 risk_tier: T3               # chạm lib/evidence-core.cjs — trong risk_tiers.t3_paths
 surfaces: [cli]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-10-09-glob-thoat-ngoac-design.md
 approved_by: Phan Le Manh
 approved_at: 2026-10-09
