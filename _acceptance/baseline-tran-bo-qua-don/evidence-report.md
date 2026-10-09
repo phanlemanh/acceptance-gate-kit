@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 20fd50edaecff2346ffa370671390abbca11ca19
+verified_commit: b14ddcd7cebfba63076ae43161fb277856b36e28
 human_signoff: Phan Le Manh 2026-10-08 — ký lượt chấm 1; Ngoài-1, 2, 4, 6, 7 ghi Known limits; Ngoài-3, 5 mở hợp đồng mới (hạt giống); Ngoài-8 chấp nhận; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -170,3 +170,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: E1, E2, E3, E4, E5, E6, E7 đều qua ở lần chạy đầu; không eval nào thất bại. Baseline BLOCKED hạ tầng (xem Analyst).
+
+### Re-pin lần 1 — 2026-10-09, do gộp origin/main sau #289; GL03 chuẩn hoá trường thời gian
+run_id: repin-20261009T091122Z-85688
+sha: b14ddcd7cebfba63076ae43161fb277856b36e28 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
