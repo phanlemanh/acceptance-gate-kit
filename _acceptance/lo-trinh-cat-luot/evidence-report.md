@@ -1,19 +1,19 @@
 ---
 schema_version: 2
 feature_slug: lo-trinh-cat-luot
-verdict: REJECT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 50fc6833fa0f20ebd938e658cb2ff4c6eef7f862
+verified_commit: 6c01e078643aca01be3428767622aa07a1ec80eb
 human_signoff:
 ---
 
 # Evidence Report: lo-trinh-cat-luot
 
-Round 3: không eval nào khai trong hợp đồng đỏ (E1–E12 mang tiếp từ round 2, E13 mang tiếp từ round 1, vì delta không chạm paths của chúng). Verdict REJECT vì hai lệnh suite hồi quy không gắn eval đỏ trên cây 50fc6833: `bash tests/scripts/run-tests.sh --manh mjs:2/3` (25 ca xanh, 1 ca đỏ) và `bash tests/scripts/run-tests.sh --manh mjs:3/3` (22 ca xanh, 3 ca đỏ). `failed_evals` để trống vì không eval nào đỏ. Đuôi đầu ra của hai lệnh không chứa dòng gọi tên tệp test đỏ, nên chưa gọi được tên ca đỏ ở đây; cần chạy lại hai shard để lấy tên.
+Round 4: mọi eval khai trong hợp đồng xanh (E1–E9, E11, E12 mang tiếp từ round 2; E13 mang tiếp từ round 1; E10 là panel giữ nguyên từ round 2) và cả mười lệnh suite hồi quy xanh trên cây 6c01e078. Hai shard mjs:2/3 và mjs:3/3 đỏ ở round 3 nay xanh trên cùng vật (giải trình ở commit 6c01e078). S4 ghi một lỗi trong hợp đồng (AC-6, ca «thiếu ngày» chỉ phủ một bên) và bảy lỗi ngoài hợp đồng mới; chi tiết ở review-findings.md.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -148,7 +148,7 @@ Round 3: không eval nào khai trong hợp đồng đỏ (E1–E12 mang tiếp t
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.lo_trinh_trang
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
   carried_from_round: 1
   output: |
     carry-forward tu round 1 — delta khong cham paths cua eval
@@ -172,56 +172,54 @@ Panel đề xuất cho E10: PASS. Panel giữ nguyên từ round 2 — inputs kh
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r3
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r4
   exit_code: 0
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r3
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r4
   exit_code: 0
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r3
-  exit_code: 1
-  verified_at: 2026-10-09T02:15:22Z
-  note: lệnh suite không gắn eval, đỏ — kết quả cuối "25 passed, 1 failed"; đuôi đầu ra không gọi tên ca đỏ
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r4
+  exit_code: 0
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r3
-  exit_code: 1
-  verified_at: 2026-10-09T02:15:22Z
-  note: lệnh suite không gắn eval, đỏ — kết quả cuối "22 passed, 3 failed"; đuôi đầu ra không gọi tên ca đỏ
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r4
+  exit_code: 0
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_hooks_run_tests_sh-r3
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_hooks_run_tests_sh-r4
   exit_code: 0
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r3
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r4
   exit_code: 0
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r3
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r4
   exit_code: 0
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r3
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r4
   exit_code: 0
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_workflows_run_tests_sh-r3
+  run_id: minted-lo-trinh-cat-luot-SUITE-bash_tests_workflows_run_tests_sh-r4
   exit_code: 0
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-lo-trinh-cat-luot-SUITE-node_scripts_product_map_mjs_root_check-r3
+  run_id: minted-lo-trinh-cat-luot-SUITE-node_scripts_product_map_mjs_root_check-r4
   exit_code: 0
-  verified_at: 2026-10-09T02:15:22Z
+  verified_at: 2026-10-09T03:19:40Z
 
 ## Known limits
 
@@ -246,3 +244,4 @@ none — every multi-run eval is uniform
 Round 1: không eval nào đỏ, nhưng lệnh suite `bash tests/scripts/run-tests.sh --manh mjs:3/3` (không gắn eval) có một ca đỏ nên verdict REJECT; `failed_evals` để trống vì không eval nào đỏ. S4 ghi ba lỗi trong hợp đồng và bốn lỗi ngoài hợp đồng. Quay lại implementation.
 Round 2: sau bản sửa S4-r1, E1–E9, E11, E12 và toàn bộ lệnh suite xanh; E13 mang tiếp từ round 1. Verdict PASS.
 Round 3: sau commit 50fc6833 (mã lượt chạy tác tử khai đi qua đúng luật bên đọc), không eval nào đỏ nhưng hai lệnh suite không gắn eval đỏ trở lại: mjs:2/3 (1 ca đỏ) và mjs:3/3 (3 ca đỏ); suite workflows xanh. Đã tới vòng thứ 3 nên leo thang người, verdict REJECT; hai lệnh cần được chạy lại để gọi tên ca đỏ trước khi quyết sửa hay rút phạm vi.
+Round 4: sau commit 6c01e078 (giải trình: đỏ ở round 3 do báo cáo lượt 2 của chính hồ sơ), không eval nào đỏ và cả mười lệnh suite hồi quy xanh, kể cả hai shard mjs:2/3 và mjs:3/3 đã đỏ ở round 3; E1–E12 mang tiếp từ round 2, E13 từ round 1. Verdict PASS; S4 ghi một lỗi trong hợp đồng (AC-6) và bảy lỗi ngoài hợp đồng mới để người quyết ở Cổng 2.
