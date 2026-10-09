@@ -5,7 +5,7 @@ slug: tac-tu-cham-chi-cham-khong
 owner: phanlemanh@gmail.com
 risk_tier: T2      # feature-loop/{agents,workflows,scripts,skills} — không chạm t3_paths (hooks/** · lib/** · pre-merge · recheck)
 surfaces: [cli, docs]
-status: approved
+status: implemented
 approved_by: "Manh Phan"
 approved_at: 2026-10-09T14:53:59Z
 design_doc: docs/superpowers/specs/2026-10-09-tac-tu-cham-chi-cham-khong-design.md
