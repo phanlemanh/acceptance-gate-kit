@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6c01e078643aca01be3428767622aa07a1ec80eb
+verified_commit: f5578ba1e75b36179d9bf666e219bdde18141042
 human_signoff: Manh Phan 2026-10-09
 ---
 
@@ -245,3 +245,7 @@ Round 1: không eval nào đỏ, nhưng lệnh suite `bash tests/scripts/run-tes
 Round 2: sau bản sửa S4-r1, E1–E9, E11, E12 và toàn bộ lệnh suite xanh; E13 mang tiếp từ round 1. Verdict PASS.
 Round 3: sau commit 50fc6833 (mã lượt chạy tác tử khai đi qua đúng luật bên đọc), không eval nào đỏ nhưng hai lệnh suite không gắn eval đỏ trở lại: mjs:2/3 (1 ca đỏ) và mjs:3/3 (3 ca đỏ); suite workflows xanh. Đã tới vòng thứ 3 nên leo thang người, verdict REJECT; hai lệnh cần được chạy lại để gọi tên ca đỏ trước khi quyết sửa hay rút phạm vi.
 Round 4: sau commit 6c01e078 (giải trình: đỏ ở round 3 do báo cáo lượt 2 của chính hồ sơ), không eval nào đỏ và cả mười lệnh suite hồi quy xanh, kể cả hai shard mjs:2/3 và mjs:3/3 đã đỏ ở round 3; E1–E12 mang tiếp từ round 2, E13 từ round 1. Verdict PASS; S4 ghi một lỗi trong hợp đồng (AC-6) và bảy lỗi ngoài hợp đồng mới để người quyết ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-09, do gộp nhánh chính sau X1 (#285) và chữ ký Cổng Bằng chứng của lo-trinh-cat-luot
+run_id: repin-20261009T050419Z-40694
+sha: f5578ba1e75b36179d9bf666e219bdde18141042 · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E10 · AC không có chốt máy: AC-10
