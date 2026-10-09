@@ -1,0 +1,80 @@
+{
+  "nhan": "truoc",
+  "luc": "2026-10-09T14:35:24.896Z",
+  "kho_phien_app": [
+    {
+      "so_phien": 184,
+      "ghi_cuoi": "2026-10-09T14:33:20.966Z"
+    },
+    {
+      "so_phien": 333,
+      "ghi_cuoi": "2026-10-06T16:21:10.808Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-10-06T15:33:59.215Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-09-27T22:52:49.556Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-09-20T14:26:19.609Z"
+    },
+    {
+      "so_phien": 73,
+      "ghi_cuoi": "2026-09-20T14:25:55.150Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-09-11T02:07:13.768Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-09-07T09:12:04.029Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-08-14T13:46:39.037Z"
+    },
+    {
+      "so_phien": 82,
+      "ghi_cuoi": "2026-08-14T13:45:11.282Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-08-10T04:27:51.175Z"
+    }
+  ],
+  "ban_ghi_hoi_thoai_jsonl": {
+    "khac": 118,
+    "kit": 99,
+    "crm": 245
+  },
+  "lich_hen_tren_dia": 1,
+  "bo_phat_lich_crm": "song",
+  "worktree_crm": 14,
+  "qua_cong_cu_phien": {
+    "luc": "2026-10-09T14:33Z",
+    "list_sessions": {
+      "khong_luu_tru": 140,
+      "dang_chay_trong_nhom_dot": "11 phiên trong nhóm «Đợt sau-14-10»",
+      "remote_control_bat": 13,
+      "ghim": 2
+    },
+    "list_groups": {
+      "so_nhom": 1,
+      "phien_trong_nhom": 12
+    },
+    "list_scheduled_tasks": {
+      "so_lich": 1,
+      "lich": "nhịp 30′ của đợt sau-14-10, bật, lần chạy cuối 14:09:33Z"
+    },
+    "get_usage": {
+      "cua_so_5_gio": "40 %, đặt lại 14:39:59Z",
+      "tuan_moi_model": "76 %, đặt lại 2026-10-14T23:59:59Z",
+      "goi": "Max"
+    }
+  }
+}
