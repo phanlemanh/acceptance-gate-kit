@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: bcd221b777c067c997733aae8c1229225a15997b
+verified_commit: 0aeef0c8259177b55b8b92f10b2b3921f81b81d7
 human_signoff: Manh Phan 2026-10-08
 ---
 
@@ -215,3 +215,7 @@ none — every multi-run eval is uniform
 
 Round 1: không eval máy nào đỏ; verdict REJECT vì bước tìm-lỗi xác nhận ba lỗi TRONG hợp đồng — AC-11 (tài liệu bảo chép thẳng `docDuLieu` nhưng hàm phụ thuộc bảy ký hiệu khác trong module), AC-9 (ca LT-118 dung-khuon chỉ đếm số lộ trình, không so kết quả bộ đọc với khối), AC-12 (ma trận sáu ca của LT-120 lệch một ngày ở UTC+7, ca ngày trước mốc không bao giờ chạy). Trả về bước hiện thực.
 Round 2: lượt sửa S4-r1 (commit bcd221b7) làm bộ đọc mẫu tự đủ, đọc khoan dung so toàn phần, và ca so ngày đủ ba ngày mỗi múi giờ; mười một eval máy xanh (181 ca lộ trình, các suite hồi quy xanh), bước tìm-lỗi không còn mục TRONG hợp đồng, hội đồng E11 đề xuất PASS. Còn 4 mục mới ngoài hợp đồng (cộng 7 mục mang từ round 1) chờ người quyết ở Gate 2.
+
+### Re-pin lần 1 — 2026-10-09, do gộp main sau mốc 2.25.0 (#286) vào nhánh #285
+run_id: repin-20261009T031359Z-34847
+sha: 0aeef0c8259177b55b8b92f10b2b3921f81b81d7 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E11 · AC không có chốt máy: AC-11
