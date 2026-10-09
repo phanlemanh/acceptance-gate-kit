@@ -216,6 +216,7 @@ flowchart TD
 - Bốn kho cắt token cho Claude Code — BÁC 15/09/2026 (`.out-of-scope/bon-kho-cat-token-rtk-headroom-ponytail-caveman.md`)
 - Bảy đề xuất từ «The AI-Native SDLC playbook» — BÁC 07/09 (`.out-of-scope/doi-chieu-playbook-ai-native.md`)
 - Cưỡng chế gap-probe ở write-time (hook PreToolUse) — ĐÃ TỪ CHỐI (`.out-of-scope/gap-probe-write-time-hook.md`)
+- Khối dữ liệu lộ trình chở thêm trường riêng của kho — BÁC 09/10/2026 (`.out-of-scope/khoi-lo-trinh-them-truong-rieng-cua-kho.md`)
 - Siết răng T1-escape: chỉ `_acceptance/<slug>/` THẬT mới bảo lãnh cho PR — ĐÃ TỪ CHỐI (`.out-of-scope/t1-escape-slug-only-thu-hep-mien-tru.md`)
 - Miễn trừ `.github/**` và `.claude-plugin/plugin.json` khỏi `t1_skip_globs` — ĐÃ TỪ CHỐI (`.out-of-scope/t1-skip-globs-github-and-manifests.md`)
 - Đo-thước-của-thước sâu hơn MỘT tầng — PARK 30/08 («cắt đuôi, giữ lõi») (`.out-of-scope/thuoc-cua-thuoc-mot-tang.md`)

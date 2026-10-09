@@ -643,7 +643,10 @@ phân tích. Bản chiếu ngoài kho — trang «Lộ trình» trong một côn
 này thay vì tự tính trạng thái: mỗi hàng đã mang chữ trạng thái, nhóm tiến độ, hồ sơ nhận, cờ đã dịch;
 việc duy nhất bản chiếu tự làm là so ngày mốc với hôm nay. Khuôn, cách rút khối và luật so ngày:
 `skills/acceptance/references/lo-trinh-du-lieu.md`. Không tệp mới, không khoá cấu hình mới; người xem
-trang không thấy gì khác.
+trang không thấy gì khác. Trường tự do của kho (tên ngắn, hạn, người lo…) khối không chở — bản chiếu
+đọc thẳng tệp kế hoạch cùng commit. Vì trang và bản chiếu chép nguyên văn `cau_giao` · `bat_khi` ·
+`vi_sao` cho cả người ngoài đội đọc, viết ba trường đó bằng tiếng sản phẩm; ghi chú quy trình («đề
+xuất, chốt ở Cổng Đáng») để ở một trường tự do.
 
 **Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
 đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ

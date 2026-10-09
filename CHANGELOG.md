@@ -23,6 +23,10 @@ Gốc: crm `_acceptance/cap-nhat-tuan-okr` — 23/48 tin chủ kho ở phiên đ
   ngoài kế hoạch. Bộ đọc mẫu khoan dung `docDuLieu` trong `scripts/lo-trinh.mjs`.
 - Ai bị ảnh hưởng: kho đã khai `lo_trinh.tep` — trang đổi byte một lần (khối mới); phần người xem
   không đổi. Kho không khai: không đổi gì.
+- Tài liệu cho kho tiêu thụ thêm ba mục sau khi bản chiếu đầu tiên (crm, trang «Lộ trình» cho trưởng
+  phòng ban, 09/10) đo trên dữ liệu thật: trường kho tự ghi đọc thẳng tệp kế hoạch cùng commit (nối
+  87/87 việc, 22/22 mốc) · «cập nhật lúc» lấy từ commit của trang · chữ cho người ngoài đội. Khuôn
+  phiên bản 1 không đổi — sáu đề xuất thêm khoá và lý do bác: `.out-of-scope/khoi-lo-trinh-them-truong-rieng-cua-kho.md`.
 - Làm gì khi nâng: vẽ lại trang một lần (`node scripts/product-map.mjs --root .`) trong PR nâng kit,
   nếu không `--check` đỏ «LO-TRINH.html lệch». Không sửa cấu hình. Bản chiếu đọc tài liệu
   `skills/acceptance/references/lo-trinh-du-lieu.md`.
