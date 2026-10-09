@@ -41,3 +41,39 @@ wall: 1595s
 - **claude-haiku-5-5**: 12 agent · 24 calls · out 11,913 · in 48 · cache_read 1,537,736 · cache_create 986,857
 - **claude-opus-5-5**: 3 agent · 49 calls · out 2,534 · in 98 · cache_read 5,602,974 · cache_create 318,011
 
+### S4 round 2 — wf_3eaafb16-838 (17 agent, 15,491 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 3 | 4,451 | 6 | 236,454 | 37 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,262 | 4 | 136,618 | 236 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,123 | 4 | 136,618 | 223 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 1,697 | 4 | 34,982 | 341 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 1,484 | 4 | 136,604 | 57 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 1,344 | 4 | 136,604 | 13 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 527 | 4 | 136,660 | 77 |
+| machine:bash scripts/rel-cua-so.sh c01e5bf2 doc- | claude-haiku-5-5 | 2 | 258 | 4 | 136,670 | 7 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 195 | 4 | 136,613 | 113 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 186 | 4 | 136,605 | 6 |
+| review:bugs | claude-opus-5-5 | 9 | 169 | 18 | 941,917 | 39 |
+| review:measurement | claude-opus-5-5 | 13 | 164 | 26 | 1,437,620 | 77 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 151 | 4 | 100,408 | 9 |
+| machine:bash -c 'c=$(git show c01e5bf2:diagram-d | claude-haiku-5-5 | 2 | 143 | 4 | 136,739 | 6 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 124 | 4 | 136,660 | 273 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 123 | 4 | 136,660 | 67 |
+| review:conventions | claude-opus-5-5 | 6 | 90 | 12 | 551,285 | 25 |
+
+
+wall: 1468s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 12 | 10,466 | 1,538,033 | 1419 | 09:41:18 | 10:04:57 |
+| review | 3 | 423 | 2,930,822 | 78 | 09:41:18 | 09:42:36 |
+| capture | 1 | 151 | 100,408 | 9 | 10:04:59 | 10:05:08 |
+| synthesize | 1 | 4,451 | 236,454 | 37 | 10:05:09 | 10:05:46 |
+
+- **claude-sonnet-5-5**: 2 agent · 5 calls · out 4,602 · in 10 · cache_read 336,862 · cache_create 238,965
+- **claude-haiku-5-5**: 12 agent · 24 calls · out 10,466 · in 48 · cache_read 1,538,033 · cache_create 986,724
+- **claude-opus-5-5**: 3 agent · 28 calls · out 423 · in 56 · cache_read 2,930,822 · cache_create 302,156
+
