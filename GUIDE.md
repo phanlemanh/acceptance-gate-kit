@@ -637,6 +637,13 @@ Từ vòng `lo-trinh-tren-du-lieu-that` (chạy thử trên lộ trình OKR th�
 - **Sửa tệp ý định bằng PR** làm trang lệch cho tới khi vẽ lại: CI của kho đỏ với đúng lệnh
   `node scripts/product-map.mjs --root .` — chạy lệnh đó trong cùng PR.
 
+Từ vòng `lo-trinh-cat-luot` (lát 2): **cắt lượt** — skill `/acceptance-gate:cat-luot` biến một bản phạm
+vi (tệp markdown trong git, khuôn `skills/acceptance/references/pham-vi-template.md`) thành hàng và
+chân trời của lộ trình, mỗi hàng mang `dot` và `phu`. Răng `scripts/cat-luot.mjs --pham-vi <tệp>
+--lo-trinh <tệp>` chỉ đọc: mỗi mã ở đúng một chỗ cùng đợt, chân trời có lý do, hàng cùng đợt qua khuôn
+và luật ngày/mốc; hàng cắt tay đời trước chỉ thành cảnh báo. `--nhip` in nhịp theo hạng đo từ hồ sơ đã
+ký. Trang lộ trình in thêm dòng «bước kế» cho hàng có hồ sơ, suy từ ô bản đồ — không gõ tay `buoc_ke`.
+
 Từ vòng `xuat-du-lieu-lo-trinh` (hàng X1): `LO-TRINH.html` mang thêm MỘT khối dữ liệu máy đọc
 (`<script type="application/json" id="lo-trinh-du-lieu">`), vẽ cùng lượt với trang, từ cùng kết quả
 phân tích. Bản chiếu ngoài kho — trang «Lộ trình» trong một công cụ của đội, trang chia sẻ — đọc khối

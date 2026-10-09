@@ -1934,6 +1934,49 @@ console.log('W36 bo dem va cham khong duoc dung object tran (khoa prototype)');
   check('W36 lop thu hai van giu hai ma khac nhau', new Set(rIds).size === 2, JSON.stringify(rIds));
 }
 
+console.log('W-RID ma verifier khai phai doc lai DUNG no qua bo doc bang chung (khu hoi ghi -> doc)');
+{
+  // Bo ghi (run-log) va bo doc (extractRunIds cua lib/evidence-core.cjs) phai cung mot luat:
+  // verifier tra nguyen hai dau nhay `""` thay chuoi rong -> log chep nguyen, bo doc bo nhay,
+  // L2 PROVENANCE chan luc ghi chu ky (ho so lo-trinh-cat-luot 09/10). Do quan he, khong do tu vung:
+  // MOI run_id trong log, viet thanh dong `run_id: <id>` cua bao cao, phai doc ra DUNG <id>.
+  const { createRequire } = await import('node:module');
+  const { extractRunIds } = createRequire(import.meta.url)(path.join(HERE, '..', '..', 'lib', 'evidence-core.cjs'));
+  const A = 'bash tests/a.sh', B = 'bash tests/b.sh';
+  const tra = {
+    'machine:bash tests/a.sh': { exitCode: 0, outputTail: 'x\n__EXIT=0', runId: '""', cannotRun: false },
+    'machine:bash tests/b.sh': { exitCode: 0, outputTail: 'x\n__EXIT=0', runId: '""', cannotRun: false },
+    'machine:pnpm test': { exitCode: 0, outputTail: 'x\n__EXIT=0', runId: "'rid-e'", cannotRun: false },
+  };
+  const khuHoi = (runLog) => runLog.map(l => JSON.parse(l)).filter(l => typeof l.run_id === 'string')
+    .filter(l => { const doc = extractRunIds(`  run_id: ${l.run_id}`); return !(doc.length === 1 && doc[0] === l.run_id); })
+    .map(l => `${l.evalId}=${l.run_id}`);
+  const { result } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder(tra));
+  check('W-RID moi run_id trong log doc lai dung no', khuHoi(result.runLog).length === 0, JSON.stringify(khuHoi(result.runLog)));
+  const suite = result.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-'));
+  check('W-RID ma chi co dau nhay -> may duc ma, hai lenh hai ma',
+    suite.length === 2 && suite.every(l => String(l.run_id).startsWith('minted-demo-SUITE-')) && new Set(suite.map(l => l.run_id)).size === 2,
+    JSON.stringify(suite.map(l => l.run_id)));
+  const e1 = result.runLog.map(l => JSON.parse(l)).find(l => l.evalId === 'E1');
+  check('W-RID ma that boc nhay -> giu ma that, bo nhay', !!e1 && e1.run_id === 'rid-e', e1 ? e1.run_id : 'khong co dong E1');
+  // doi chung duong: ma sach giu nguyen van
+  const { result: r2 } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder({
+    'machine:bash tests/a.sh': { exitCode: 0, outputTail: 'x\n__EXIT=0', runId: 'rid-a', cannotRun: false },
+    'machine:bash tests/b.sh': { exitCode: 0, outputTail: 'x\n__EXIT=0', runId: 'rid-b', cannotRun: false },
+  }));
+  const s2 = r2.runLog.map(l => JSON.parse(l)).filter(l => String(l.evalId).startsWith('SUITE-')).map(l => l.run_id).sort();
+  check('W-RID doi chung: ma sach giu nguyen van', JSON.stringify(s2) === JSON.stringify(['rid-a', 'rid-b']), JSON.stringify(s2));
+  // chieu do TRONG bo kiem: ban sao bo ghi khong chuan hoa -> phep khu hoi phai do, gọi ten dung ma lech
+  const goc = readFileSync(WF, 'utf8');
+  const tiem = "const docRid = (v) => String(v == null ? '' : v).replace(/\\s+#.*$/, '').trim().replace(/^[\"']+|[\"']+$/g, '').trim()";
+  check('W-RID chieu do: nhat tiem khop dung mot cho', goc.split(tiem).length === 2, String(goc.split(tiem).length - 1));
+  const hong = goc.replace(tiem, "const docRid = (v) => String(v == null ? '' : v).trim()");
+  const { result: rh } = await runWorkflow(WF, baseArgs({ suiteCommands: [A, B] }), responder(tra), hong);
+  const lech = khuHoi(rh.runLog);
+  check('W-RID chieu do: bo ghi khong chuan hoa -> khu hoi do, neu ma lech',
+    lech.length >= 2 && lech.some(x => x.includes('=""__')) && lech.some(x => x === "E1='rid-e'"), JSON.stringify(lech));
+}
+
 // W37 — K1: agent capture:provenance chet (harness tra null) => BLOCKED co ten,
 // KHONG TypeError. Lop loi da do 24 lan tren may (dut ca vong o buoc cuoi).
 console.log('W37 provenance chet -> BLOCKED co ten, khong nem');

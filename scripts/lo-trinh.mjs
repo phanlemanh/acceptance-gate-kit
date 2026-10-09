@@ -113,6 +113,8 @@ export function kiemKhuon(data) {
     for (const f of BAT_BUOC) if (!chuoi(r[f])) co.push(`hàng ${nhan} thiếu ${f}`);
     // Trường kit đọc lấy NGHĨA mà sai kiểu thì nói ra — coi như rỗng là để hàng còn chờ hiện thành hàng kế.
     if (r.dung_tren !== undefined && !Array.isArray(r.dung_tren)) co.push(`hàng ${nhan}: dung_tren phải là một mảng`);
+    // `phu` (mã của bản phạm vi hàng gánh — skill cắt lượt ghi, răng cat-luot.mjs đọc).
+    if (r.phu !== undefined && !Array.isArray(r.phu)) co.push(`hàng ${nhan}: phu phải là một mảng`);
     if (ma) { if (daThay.has(ma) && !trung.includes(ma)) trung.push(ma); daThay.add(ma); }
     hang.push({ ...r, _nhan: nhan, _ma: ma });
   });
@@ -120,6 +122,9 @@ export function kiemKhuon(data) {
   const moc = (Array.isArray(data.moc) ? data.moc : []).filter(m => m && typeof m === 'object');
   for (const m of moc) if (m.hang !== undefined && !Array.isArray(m.hang)) co.push(`mốc ${chuoi(m.ten) || chuoi(m.ngay) || '?'}: hang phải là một mảng`);
   const daBac = (Array.isArray(data.da_bac) ? data.da_bac : []).filter(m => m && typeof m === 'object');
+  // Chân trời (luật 6 của cắt lượt): mã chưa cắt được thành câu giao, kèm lý do. Kit chỉ kiểm dạng.
+  if (data.chan_troi !== undefined && !Array.isArray(data.chan_troi)) co.push('khối chan_troi phải là một mảng');
+  else (data.chan_troi || []).forEach((c, i) => { if (c == null || typeof c !== 'object' || Array.isArray(c)) co.push(`chan_troi #${i + 1} không phải object`); });
   // Từ vựng tự khai của KHO: chữ riêng của kho → tên trạng thái của kit. Kho khai, kit chỉ đọc.
   const tuVung = {};
   if (data.tu_vung !== undefined) {
@@ -305,6 +310,9 @@ const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').re
 export const CO_DICH = [
   { ten: 'thieu-truong', re: /^hàng (.+?) thiếu (cau_giao|ma)$/, ra: m => ({ ma: m[1], chu: m[2] === 'ma' ? 'chưa có mã' : 'chưa có câu mô tả việc giao' }) },
   { ten: 'dung-tren-mang', re: /^hàng (.+?): dung_tren phải là một mảng$/, ra: m => ({ ma: m[1], chu: 'ô «cần xong trước» phải là danh sách' }) },
+  { ten: 'phu-mang', re: /^hàng (.+?): phu phải là một mảng$/, ra: m => ({ ma: m[1], chu: 'ô «mã đã phủ» phải là danh sách' }) },
+  { ten: 'khoi-chan-troi', re: /^khối chan_troi phải là một mảng$/, ra: () => ({ ma: null, chu: 'danh sách chân trời phải là một mảng' }) },
+  { ten: 'chan-troi-object', re: /^chan_troi #(\d+) không phải object$/, ra: m => ({ ma: null, chu: `mục chân trời thứ ${m[1]} không đúng dạng` }) },
   { ten: 'khong-object', re: /^hàng #(\d+) không phải object$/, ra: m => ({ ma: null, chu: `việc thứ ${m[1]} không đúng dạng` }) },
   { ten: 'khoi-hang', re: /^khối hang phải là một mảng$/, ra: () => ({ ma: null, chu: 'danh sách việc phải là một mảng' }) },
   { ten: 'ma-trung', re: /^mã trùng: (.+)$/, ra: m => ({ ma: null, chu: `hai việc cùng mã ${m[1]} — đổi mã một trong hai` }) },
@@ -385,6 +393,18 @@ function neoCua(i, kq) {
   return { idHang, ids, theoNhan };
 }
 const CHUA_CAU = '(chưa có câu mô tả việc giao)';
+// Bước kế của hàng CÓ hồ sơ, suy từ ô bản đồ (hồ sơ lo-trinh-cat-luot, phần sửa lát 1): bảng viết sẵn,
+// máy không soạn câu. Ô vắng khỏi bảng (đã giao, đã nghiệm thu, xếp lại, đã bác, ngoài phạm vi) không
+// có bước kế. `buocKeCua` do veHtml đặt mỗi lượt vẽ từ `sections` của bản đồ — lớp phân tích không đổi.
+export const BUOC_KE = {
+  'can-nhac': 'quyết có làm hay không',
+  'sap-mo': 'mở vòng',
+  'cho-duyet': 'duyệt phạm vi',
+  'dang-dung': 'làm và chấm',
+  'cho-nghiem-thu': 'lái thử và phiên nghiệm thu',
+  'hong': 'sửa hồ sơ',
+};
+let buocKeCua = () => null;
 // Hàng mà lớp phân tích chọn làm hàng kế: cùng nhãn, trạng thái thuộc nhóm chưa làm (cùng luật lớp
 // phân tích dùng để chọn), cùng câu giao — mã trùng thì không lấy nhầm hàng đầu đã giao hay đang làm.
 function hangKeCua(kq, chuaLam) {
@@ -448,7 +468,7 @@ function oHang(i, d, kq, theoNhan) {
     cau_giao: `${esc(chuoi(d.cau_giao))}${d.slug ? `<div class="mu nho"><code>${esc(d.slug)}</code></div>` : ''}`,
     hang: esc(chuoi(d.hang)),
     dung_tren: (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi).map(x => (theoNhan.has(x) ? `<a href="#${theoNhan.get(x)}">${esc(x)}</a>` : esc(x))).join(', '),
-    chu: `${tt}${d.tinTheoLoi ? '<span class="mu nho"> theo ghi chép, chưa có hồ sơ</span>' : ''}${d.khaiNgoai ? `<span class="co-o">${esc(cauKhaiNgoai(d))}</span>` : ''}${d.coHang.map(c => `<span class="co-o">${esc(dichCo(c).chu)}</span>`).join('')}`,
+    chu: `${tt}${d.tinTheoLoi ? '<span class="mu nho"> theo ghi chép, chưa có hồ sơ</span>' : ''}${d.khaiNgoai ? `<span class="co-o">${esc(cauKhaiNgoai(d))}</span>` : ''}${d.coHang.map(c => `<span class="co-o">${esc(dichCo(c).chu)}</span>`).join('')}${buocKeCua(d) ? `<div class="mu nho">bước kế: ${esc(buocKeCua(d))}</div>` : ''}`,
     bat_khi: esc(chuoi(d.bat_khi)),
     vi_sao: esc(chuoi(d.vi_sao)),
   };
@@ -590,6 +610,8 @@ export function docDuLieu(html) {
 export function veHtml(cacTep, sections = null) {
   const TEN = Object.fromEntries(sections || []); const ten = ds => new Set(ds.map(k => TEN[k]).filter(Boolean));
   const nhom = { dangLam: ten(DANG_LAM_O), chuaLam: ten(CHUA_LAM_O) };
+  const khoaO = new Map((sections || []).map(([k, t]) => [t, k]));
+  buocKeCua = d => (d.coHoSo ? BUOC_KE[khoaO.get(d.chu)] || null : null);
   const nhieu = cacTep.length > 1;
   const tieuDe = nhieu ? 'Lộ trình' : esc((cacTep[0].kq && cacTep[0].kq.ten) || 'Lộ trình');
   const ngoai = (cacTep.find(t => t.kq) || {}).kq?.ngoaiLoTrinh || [];

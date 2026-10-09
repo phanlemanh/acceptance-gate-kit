@@ -19,6 +19,8 @@ export const HO_SO = {
   'cho-duyet': (s, t) => ({ 'contract.md': HD(s, 'draft', t) }),
   'dang-dung': (s, t) => ({ 'contract.md': HD(s, 'approved', t) }),
   'da-ship': (s, t) => ({ 'contract.md': HD(s, 'signed-off', t), 'evidence-report.md': EV(s) }),
+  // Ô «Đã giao — chờ phiên nghiệm thu» (hồ sơ lo-trinh-cat-luot, ca LTT-buoc-ke): đã ký + ô cơ hội build.
+  'cho-nghiem-thu': (s, t) => ({ 'contract.md': HD(s, 'signed-off', t), 'evidence-report.md': EV(s), 'opportunity.md': OPP('decided', 'build') }),
 };
 
 // Kế hoạch sạch: không chỗ lệch nào, có hàng đã giao/đang làm/chưa mở, một mốc đã qua, một mốc tới.
