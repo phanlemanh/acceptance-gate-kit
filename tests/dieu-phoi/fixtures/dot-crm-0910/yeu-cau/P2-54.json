@@ -1,0 +1,23 @@
+{
+  "phien": "P2",
+  "loai": "can-nguoi",
+  "hang": "t571",
+  "noi_dung": {
+    "cong": "t702",
+    "cau_hoi": "t1019",
+    "nga": {
+      "build": "t1020",
+      "park": "t1021"
+    },
+    "may_khuyen": "t978",
+    "nguong": {
+      "cau_hoi": "t1022",
+      "song": "t1023",
+      "chet": "t1024",
+      "timebox": "t943"
+    },
+    "ban_nhap": "p1025",
+    "cach_tra_loi": "t1026"
+  },
+  "luc": "2026-10-09T14:10:01Z"
+}

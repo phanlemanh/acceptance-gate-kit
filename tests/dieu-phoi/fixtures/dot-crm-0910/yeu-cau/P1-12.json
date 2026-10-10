@@ -1,0 +1,11 @@
+{
+  "phien": "P1",
+  "loai": "viec-phu",
+  "hang": "t14",
+  "noi_dung": {
+    "kho": "p709",
+    "viec": "p710/*",
+    "vi_sao": "p711"
+  },
+  "luc": "2026-10-08T01:19:01Z"
+}

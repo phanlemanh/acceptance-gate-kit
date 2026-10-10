@@ -1,0 +1,15 @@
+{
+  "phien": "P3",
+  "loai": "khac",
+  "hang": "t167",
+  "noi_dung": {
+    "viec": "t1213",
+    "pr": "p1214",
+    "head": "t1215",
+    "da_gop_nhanh_chinh": "t1216",
+    "pre_merge_check": "t1217",
+    "known_limits": "p1218",
+    "viec_sau": "p1219"
+  },
+  "luc": "2026-10-09T16:32:20Z"
+}

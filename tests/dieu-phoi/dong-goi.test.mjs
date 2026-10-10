@@ -717,6 +717,122 @@ test('DP1-06-do import-ngoai', () => {
   assert.match(r.err, LOI_NAP);
 });
 
+// ---------- DP1-04: đọc-cũ — bản chụp thật thư mục đợt do bản crm dựng (AC-4, E4) ----------
+const AN_DANH = path.join(DAY, 'an-danh.mjs');
+const FIXTURE = path.join(DAY, 'fixtures', 'dot-crm-0910');
+
+// Tập đường khoá (mọi cấp, mảng tính []) của một giá trị JSON.
+const duongKhoa = (v, tien = '', ra = new Set()) => {
+  if (Array.isArray(v)) v.forEach((x) => duongKhoa(x, `${tien}[]`, ra));
+  else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) {
+    ra.add(`${tien}.${k}`);
+    duongKhoa(x, `${tien}.${k}`, ra);
+  }
+  return ra;
+};
+
+test('DP1-04 an-danh', async () => {
+  const { anDanh, tepCanChep, doiTenKhoa } = await import(AN_DANH);
+  // Bản chụp gốc GIẢ LẬP dựng từ khuôn của gói, cài chuỗi riêng kho vào mọi loại giá trị.
+  const goc = tam('dp1-chupgia-');
+  const G = '/Users/ai-do/dev/crm';
+  const mau = (f) => docJ(path.join(GOI, 'scripts', 'mau', f));
+  ghiJ(path.join(goc, 'dieu-phoi.config.json'), { ...mau('dieu-phoi.config.json'), nhanh_chinh: 'onehub', goc_kho: G, bao_ve: ['packages/db/prisma/**', 'apps/web/:3000/x.ts'] });
+  ghiJ(path.join(goc, 'hang-viec.json'), { ...mau('hang-viec.json'), dot: 'thu', day: [{ id: 'P1', worktree: `${G}/.claude/worktrees/onehub-k2`, link: 'claude://claude.ai/x/1' }], hang: [{ ma: 'K2', slug: 'crm-deal-onehub', day: 'P1', ranh_gioi: ['docs/plan/dot-x/**'] }] });
+  ghiJ(path.join(goc, 'khoa', 's4', 'chu.json'), { phien: 'P1', slug: 'crm-deal-onehub', loai: 's4', worktree: `${G}/.claude/worktrees/onehub-k2`, cap_luc: '2026-10-10T00:00:00Z', han_thue_den: '2026-10-10T01:00:00Z' });
+  fs.writeFileSync(path.join(goc, 'khoa', 's4', 'nhip'), '2026-10-10T00:05:00Z');
+  ghiJ(path.join(goc, 'xin', 'P1-s4.json'), { phien: 'P1', slug: 'crm-deal-onehub', loai: 's4', luc: '2026-10-10T00:01:00Z', worktree: `${G}/.claude/worktrees/onehub-k2`, uoc_phut: 30, ghi_chu: 'bun run db 5432 trên nhánh onehub' });
+  ghiJ(path.join(goc, 'yeu-cau', 'P1-1.json'), { phien: 'P1', loai: 'viec-phu', hang: 'crm-deal-onehub', noi_dung: { onehub_da_gop: 'bunx prisma migrate', trang_thai: 'Đã gộp origin/onehub, chạy bun install' }, luc: '2026-10-10T00:02:00Z' });
+  const dich = tam('dp1-chupan-');
+  anDanh(goc, dich);
+  const nhanh = 'onehub';
+  for (const rel of tepCanChep(goc).filter((r) => r.endsWith('.json'))) {
+    const truoc = [...duongKhoa(docJ(path.join(goc, rel)))].map((k) => k.split('.').map((d) => doiTenKhoa(d, nhanh)).join('.')).sort();
+    const sau = [...duongKhoa(docJ(path.join(dich, rel)))].sort();
+    assert.deepEqual(sau, truoc, `tập khoá lệch ở ${rel}`);
+  }
+  const { khop } = quetRieng(dich, ['.']);
+  assert.deepEqual(khop.map((k) => `${k.tep}:${k.dong} «${k.chuoi}»`), []);
+  // Đối chứng dương của phép quét: bản gốc giả lập PHẢI có khớp.
+  assert.ok(quetRieng(goc, ['.']).khop.length > 0, 'bản gốc giả lập không cài được chuỗi riêng kho');
+});
+
+// Chép fixture vào một kho thử: thay @KHO@ bằng gốc kho, dựng các worktree được nhắc, dựng symlink,
+// đặt mtime tệp nhịp bằng chính mốc trong tệp. Trả thư mục đợt + giờ chụp.
+function dungDotCu() {
+  const kho = khoThu('dp1-doccu-');
+  const dot = path.join(kho, '.acceptance-runs', 'dieu-phoi-sau-14-10');
+  chep(FIXTURE, dot);
+  const tatCa = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? tatCa(path.join(d, e.name)) : [path.join(d, e.name)]));
+  const worktree = new Set();
+  for (const p of tatCa(dot)) {
+    const t = fs.readFileSync(p, 'utf8');
+    if (!t.includes('@KHO@')) continue;
+    const moi = t.split('@KHO@').join(kho);
+    for (const m of moi.matchAll(new RegExp(`"(${kho.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^"]*)"`, 'g'))) worktree.add(m[1]);
+    fs.writeFileSync(p, moi);
+  }
+  for (const w of worktree) fs.mkdirSync(w, { recursive: true });
+  for (const tn of fs.existsSync(path.join(dot, 'khoa')) ? fs.readdirSync(path.join(dot, 'khoa')) : []) {
+    const pn = path.join(dot, 'khoa', tn, 'nhip');
+    if (fs.existsSync(pn)) {
+      const luc = new Date(fs.readFileSync(pn, 'utf8').trim());
+      if (!Number.isNaN(luc.getTime())) fs.utimesSync(pn, luc, luc);
+    }
+  }
+  fs.symlinkSync(dot, path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+  const chup = Date.parse(docJ(path.join(dot, 'trang-thai.json')).nhip_cuoi);
+  return { kho, dot: fs.realpathSync(dot), chup };
+}
+
+const khoaCua = (dot) =>
+  ['s4', 'duong-nen', 'merge']
+    .map((tn) => ({ tn, chu: fs.existsSync(path.join(dot, 'khoa', tn, 'chu.json')) ? docJ(path.join(dot, 'khoa', tn, 'chu.json')) : null }))
+    .filter((k) => k.chu);
+
+async function motNhipDotCu(dot, chup) {
+  const { taoVong } = await import(path.join(GOI, 'scripts', 'phat-lich.mjs'));
+  const sau = chup + 60_000;
+  await taoVong(dot, ioGia(sau), () => sau)();
+}
+
+test('DP1-04 doc-cu', async () => {
+  const { kho, dot, chup } = dungDotCu();
+  const khoa = khoaCua(dot);
+  const conHan = khoa.filter((k) => Date.parse(k.chu.han_thue_den) > chup);
+  const soDon = fs.readdirSync(path.join(dot, 'xin')).filter((f) => f.endsWith('.json')).length;
+  const tt = docJ(path.join(dot, 'trang-thai.json'));
+  console.log(`  bản chụp: đợt ${tt.dot} · giờ chụp ${new Date(chup).toISOString()} · khoá còn hạn ${conHan.length} · đơn chờ ${soDon}`);
+  assert.ok(conHan.length >= 1, 'bản chụp phải có ít nhất một khoá còn hạn');
+  assert.ok(soDon >= 1, 'bản chụp phải có ít nhất một đơn trong xin/');
+
+  const r = chayCli(GOI, kho, 'xem');
+  assert.equal(r.ma, 0, r.err);
+  assert.ok(r.out.includes(`đợt ${tt.dot}`), `xem phải in tên đợt: ${r.out}`);
+  for (const k of khoa) assert.ok(r.out.includes(`${k.tn}:${k.chu.phien}`), `xem phải in ${k.tn}:${k.chu.phien}: ${r.out}`);
+  assert.ok(r.out.includes(`chờ lượt ${soDon}`), `xem phải in chờ lượt ${soDon}: ${r.out}`);
+
+  await motNhipDotCu(dot, chup);
+  assert.equal(docJ(path.join(dot, 'trang-thai.json')).nhip_cuoi, new Date(chup + 60_000).toISOString(), 'nhịp phải chạy trọn tới bước ghi trang-thai.json');
+  const sk = suKien(dot);
+  assert.deepEqual(sk.filter((e) => e.loai === 'loi-nhip').map((e) => e.ly_do), [], 'nhịp không được phát loi-nhip');
+  assert.deepEqual(sk.filter((e) => e.loai === 'don-hong').map((e) => e.tep), [], 'không đơn nào bị chuyển vào hong/');
+  for (const k of conHan) assert.equal(fs.existsSync(path.join(dot, 'khoa', k.tn, 'chu.json')), true, `khoá còn hạn ${k.tn} phải còn giữ`);
+});
+
+test('DP1-04-do thieu-han-thue', async () => {
+  const { dot, chup } = dungDotCu();
+  const p = path.join(dot, 'dieu-phoi.config.json');
+  const cfg = docJ(p);
+  delete cfg.han_thue_phut.merge;
+  ghiJ(p, cfg);
+  await motNhipDotCu(dot, chup);
+  const loi = suKien(dot).filter((e) => e.loai === 'loi-nhip');
+  assert.equal(loi.length, 1, 'phải có đúng một loi-nhip');
+  assert.equal(loi[0].can_phan, true);
+  assert.match(loi[0].ly_do, /han_thue_phut/);
+});
+
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
 const CHUOI_BAN_CU = 'scripts/dieu-phoi/';
 export function kiemKhuon(gocGoi) {

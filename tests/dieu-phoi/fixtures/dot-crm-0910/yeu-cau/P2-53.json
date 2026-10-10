@@ -1,0 +1,19 @@
+{
+  "phien": "P2",
+  "loai": "hang-moi",
+  "hang": "t120",
+  "noi_dung": {
+    "slug_de_xuat": "t571",
+    "nguon": "p1015",
+    "viec": "t1016",
+    "cong_dang": "t1017",
+    "ranh_gioi_goi_y": [
+      "p541",
+      "p572",
+      "p573",
+      "p574"
+    ],
+    "ghi_chu": "p1018"
+  },
+  "luc": "2026-10-09T13:57:26Z"
+}

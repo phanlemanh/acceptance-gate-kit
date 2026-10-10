@@ -1,0 +1,27 @@
+{
+  "phien": "P7",
+  "loai": "hang-moi",
+  "hang": "t537",
+  "noi_dung": {
+    "slug_de_xuat": "t604",
+    "nguon": "t1486",
+    "viec": "p1487",
+    "cong_dang": {
+      "decision": "t978",
+      "decided_by": "t979",
+      "decided_at": "2026-10-09T14:26:39Z",
+      "loi": "t1488"
+    },
+    "sau": [
+      "t418",
+      "t605"
+    ],
+    "ranh_gioi_goi_y": [
+      "p606",
+      "p607",
+      "p547",
+      "p608/**"
+    ]
+  },
+  "luc": "2026-10-09T18:26:44Z"
+}
