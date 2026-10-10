@@ -485,5 +485,11 @@ hàng mở vòng, phiên sửa mục gốc cho khớp. Biên bản: `_acceptance
 Bác, kèm lý do: thêm `dieu-phoi/hooks/**` vào `t3_paths` (sổ DP1); đổi tên lệnh thành `tiep-tuc-dot`,
 `ban-giao-dot` (tiền tố `dieu-phoi:` đã phân biệt với lệnh nối vòng của feature-loop).
 
-**Lịch:** đợt thử OneFlow không chờ DP2–DP4. Ngưỡng SỐNG (1) chỉ cần DP1, nên đợt thử bắt đầu ngay sau mốc
-18/10 bằng sáu bước tay, và DP2–DP4 vào giữa đợt. Mốc 25/10 có DP2, DP3, DP4, DP7.
+**Lịch (chủ kho chọn 10/10: đóng gói trước, rồi thử trên CẢ HAI kho để tinh chỉnh):**
+1. Đóng gói: DP1 (mốc 18/10), rồi DP2, DP3, DP4, DP7 (mốc 25/10).
+2. Đợt thử thứ nhất ở crm (khoảng 26/10): chuyển sang gói bản mốc 25/10 ở quãng lặng. Đo trên tải thật, 7
+   dãy, có kiểm chéo ban đêm. Số nền của đợt `sau-14-10` chụp TRƯỚC lần chuyển này.
+3. Đợt thử thứ hai ở OneFlow (khoảng 27/10): đo «chạy được mà không sửa lõi».
+4. Mốc tinh chỉnh (khoảng 05/11): hàng sinh từ những gì hai đợt thử vấp, mỗi hàng có neo là hồ sơ hoặc sự
+   kiện của đợt thử. DP6 (lớp mod) vẫn ở mốc 01/11.
+Hai đợt thử chạy trên cùng Mac mini thì khoá s4 cấp máy (T6, DP2) phải có trước 26/10, nên nó thuộc mốc 25/10.

@@ -48,21 +48,7 @@
       ]
     },
     {
-      "ten": "OneFlow: bắt đầu đợt thử bằng sáu bước tay ngay sau mốc mang DP1 — DP2–DP4 vào giữa đợt",
-      "ngay": "2026-10-19",
-      "loai": "ngoai",
-      "ai": "OneFlow",
-      "hang": []
-    },
-    {
-      "ten": "crm: chuyển sang gói dieu-phoi — gỡ scripts/dieu-phoi/ và bốn khối hook, ở quãng lặng sau mốc mang DP1",
-      "ngay": "2026-10-20",
-      "loai": "ngoai",
-      "ai": "crm",
-      "hang": []
-    },
-    {
-      "ten": "Mốc sau nữa (số đặt lúc cắt) — mở đợt, tiếp tục, đổi tài khoản bằng một lệnh (DP2–DP4), feature-loop trong đợt (DP7) (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
+      "ten": "Mốc sau nữa (số đặt lúc cắt) — ĐÓNG GÓI XONG: mở đợt, tiếp tục, đổi tài khoản bằng một lệnh (DP2–DP4), feature-loop trong đợt (DP7) (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
       "ngay": "2026-10-25",
       "loai": "phat-hanh",
       "ai": "Owner",
@@ -74,8 +60,15 @@
       ]
     },
     {
-      "ten": "OneFlow: đợt thử Điều phối – Thợ trên gói kit (DP5) — đọc ngưỡng của ô dieu-phoi-tho-trong-kit",
-      "ngay": "2026-10-31",
+      "ten": "crm: đợt thử thứ nhất — chuyển sang gói dieu-phoi bản mốc 25/10 (gỡ scripts/dieu-phoi/, bốn khối hook, theo danh mục xem --kiem-chuyen), chạy ở quãng lặng",
+      "ngay": "2026-10-26",
+      "loai": "ngoai",
+      "ai": "crm",
+      "hang": []
+    },
+    {
+      "ten": "OneFlow: đợt thử thứ hai trên gói bản mốc 25/10 — đo «chạy được mà không sửa lõi»",
+      "ngay": "2026-10-27",
       "loai": "ngoai",
       "ai": "OneFlow",
       "hang": []
@@ -92,6 +85,13 @@
         "G3",
         "A2"
       ]
+    },
+    {
+      "ten": "Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo",
+      "ngay": "2026-11-05",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": []
     }
   ],
   "hang": [
