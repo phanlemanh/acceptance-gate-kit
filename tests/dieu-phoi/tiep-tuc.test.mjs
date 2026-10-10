@@ -815,6 +815,55 @@ test('DP3-01-do dao-buoc', async () => {
   assert.ok(loi.some((l) => l.startsWith('tiep-tuc.md: trình tự')), `phải nêu trình tự: ${loi.join(' | ')}`);
 });
 
+// ---------- DP3-12: tài liệu, từ điển, bảng tên lệnh (AC-12, E12) ----------
+const DONG_LENH = '| tiep-tuc | /dieu-phoi:tiep-tuc | command |';
+export function kiemTaiLieu(goc) {
+  const loi = [];
+  const dong = fs.readFileSync(path.join(goc, 'CONTEXT.md'), 'utf8').split('\n');
+  const i = dong.findIndex((l) => l.startsWith('**Nhịp sống của phiên**:'));
+  if (i < 0) loi.push('CONTEXT.md thiếu mục «Nhịp sống của phiên»');
+  else {
+    let co = false;
+    for (let j = i + 1; j < dong.length && !/^\*\*[^*]+\*\*:\s*$/.test(dong[j]) && !/^#{1,6} /.test(dong[j]); j++) if (dong[j].startsWith('_Avoid_')) co = true;
+    if (!co) loi.push('CONTEXT.md mục «Nhịp sống của phiên» thiếu _Avoid_');
+  }
+  const guide = fs.readFileSync(path.join(goc, 'GUIDE.md'), 'utf8');
+  const s66 = /^### 6\.6 [^\n]*\n([\s\S]*?)(?=\n## )/m.exec(guide)?.[1] ?? '';
+  if (!s66.includes('/dieu-phoi:tiep-tuc')) loi.push('GUIDE §6.6 thiếu /dieu-phoi:tiep-tuc');
+  if (!fs.readFileSync(path.join(goc, 'QUICKSTART.md'), 'utf8').includes('/dieu-phoi:tiep-tuc')) loi.push('QUICKSTART thiếu /dieu-phoi:tiep-tuc');
+  const hfl = fs.readFileSync(path.join(goc, 'skills', 'acceptance', 'references', 'human-facing-language.md'), 'utf8');
+  if (!hfl.split('\n').includes(DONG_LENH)) loi.push('COMMAND-NAMES thiếu dòng tiep-tuc');
+  return loi;
+}
+
+test('DP3-12 tai-lieu', () => {
+  assert.deepEqual(kiemTaiLieu(KIT), []);
+});
+
+function caySaoLb() {
+  const sao = tam('dp3-lb-');
+  for (const rel of ['lib', 'skills', 'commands', 'feature-loop/skills', 'tests/fixtures', 'tests/plugins/lenh-bam-duoc.test.mjs',
+    'scripts/gate-card.js', 'scripts/evidence-page.js', 'QUICKSTART.md', 'README.md', 'GUIDE.md'])
+    fs.cpSync(path.join(KIT, rel), path.join(sao, rel), { recursive: true });
+  return sao;
+}
+const chayLb2 = (goc) => spawnSync(process.execPath, [path.join(goc, 'tests', 'plugins', 'lenh-bam-duoc.test.mjs')], { encoding: 'utf8', env: { ...ENV, LB_CASES: 'LB2' } });
+
+test('DP3-12-do-lb', () => {
+  const sao = caySaoLb();
+  const lanh = chayLb2(sao);
+  assert.equal(lanh.status, 0, `đối chứng dương: ${lanh.stdout}${lanh.stderr}`);
+  assert.match(lanh.stdout, /PASS: \[LB2\]/);
+  const hfl = path.join(sao, 'skills', 'acceptance', 'references', 'human-facing-language.md');
+  const goc = fs.readFileSync(hfl, 'utf8');
+  const tiem = goc.replace(`${DONG_LENH}\n`, '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(hfl, tiem);
+  const r = chayLb2(sao);
+  assert.notEqual(r.status, 0);
+  assert.match(r.stdout, /FAIL: \[LB2\].*\/dieu-phoi:tiep-tuc/);
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });

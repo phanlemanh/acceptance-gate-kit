@@ -166,7 +166,8 @@ trả lời mua bằng giá một vòng dựng, không phải thất bại của
 
 **Chạy nhiều hàng song song (gói dieu-phoi, bật theo kho):** khai ổ cắm `dieu_phoi.goi_dot` một lần,
 rồi `/dieu-phoi:mo-dot <tên>` mở đợt (duyệt thẻ khởi tạo là đi) · `/dieu-phoi:xem` xem đợt ở bất kỳ
-phiên nào · `/dieu-phoi:dong-dot` đóng đợt. Chi tiết: GUIDE §6.6.
+phiên nào · `/dieu-phoi:dong-dot` đóng đợt · `/dieu-phoi:tiep-tuc` nối lại sau khi app khởi động lại hay
+hết ngữ cảnh. Chi tiết: GUIDE §6.6.
 
 ---
 
