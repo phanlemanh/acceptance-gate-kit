@@ -12,6 +12,11 @@ import { danhGiaSucKhoe, docApLuc, docLoad, docRssLonNhat, docSwap } from './suc
 import { xetYeuCau } from './yeu-cau.mjs';
 
 export const CAC_TAI_NGUYEN = ['s4', 'duong-nen', 'merge'];
+// Thư mục mã của CHÍNH bộ phát lịch đang chạy (bình thường là `<thư mục đợt>/loi/`, do `chay` chép).
+// Mã đã nạp vẫn chạy khi thư mục bị xoá, nhưng không ai khởi động lại được nó và hook của cùng bản
+// cũng mất — nên nhịp ngừng thu hồi/cấp khoá thay vì cấp lại khoá cho người khác.
+const DAY_LOI = path.dirname(fileURLToPath(import.meta.url));
+export const loiCon = () => fs.existsSync(path.join(DAY_LOI, 'phat-lich.mjs'));
 const KHOA_TRONG_MS = NHIP.khoaTrongMs;
 const MOT_NGAY_MS = NHIP.motNgayMs;
 
@@ -330,6 +335,10 @@ export function taoVong(thuMuc, io, dongHo = () => Date.now()) {
     ghiSuKien(thuMuc, { loai, ly_do, can_phan: true });
   };
   return async () => {
+    if (!loiCon()) {
+      bao('loi-vang', `lõi vắng: ${DAY_LOI} — chạy lại \`chay\` để chép lõi mới`);
+      return;
+    }
     if (dongHo() - lanFetch > NHIP.fetchMs) {
       lanFetch = dongHo();
       try {

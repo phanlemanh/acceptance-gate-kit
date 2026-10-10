@@ -49,14 +49,35 @@ function pidSong(thuMuc) {
   }
 }
 
+// Bản lõi theo đợt: `chay` chép mọi *.mjs và khuôn của gói vào `<thư mục đợt>/loi/` (kèm phiên bản)
+// rồi chạy bộ phát lịch TỪ BẢN CHÉP — nâng hay gỡ gói giữa đợt không rút mất mã đang chạy, và lần
+// `chay` kế (sau khi bộ phát lịch chết) lại chép từ bản gói đang cài.
+export const TEP_PHIEN_BAN = 'PHIEN-BAN.json';
+
+export function chepLoi(thuMuc) {
+  const dich = path.join(thuMuc, 'loi');
+  if (fs.existsSync(dich) && fs.realpathSync(dich) === fs.realpathSync(DAY)) return dich;
+  const tamThoi = `${dich}.${process.pid}.tmp`;
+  fs.rmSync(tamThoi, { recursive: true, force: true });
+  fs.mkdirSync(tamThoi, { recursive: true });
+  for (const f of fs.readdirSync(DAY).filter((x) => x.endsWith('.mjs'))) fs.copyFileSync(path.join(DAY, f), path.join(tamThoi, f));
+  fs.cpSync(path.join(DAY, 'mau'), path.join(tamThoi, 'mau'), { recursive: true });
+  const goi = docJson(path.join(DAY, '..', '.claude-plugin', 'plugin.json'), {});
+  ghiJsonNguyenTu(path.join(tamThoi, TEP_PHIEN_BAN), { phien_ban: goi.version ?? null, tu: DAY, luc: new Date().toISOString() });
+  fs.rmSync(dich, { recursive: true, force: true });
+  fs.renameSync(tamThoi, dich);
+  return dich;
+}
+
 export function chayPhatLich(cwd) {
   const thuMuc = thuMucHienTai(cwd);
   const pid = pidSong(thuMuc);
   if (pid) return `bộ phát lịch đang chạy (pid ${pid})`;
+  const loi = chepLoi(thuMuc);
   const log = fs.openSync(path.join(thuMuc, 'phat-lich.log'), 'a');
-  const con = spawn(process.execPath, [path.join(DAY, 'phat-lich.mjs'), thuMuc], { detached: true, stdio: ['ignore', log, log] });
+  const con = spawn(process.execPath, [path.join(loi, 'phat-lich.mjs'), thuMuc], { detached: true, stdio: ['ignore', log, log] });
   con.unref();
-  ghiSuKien(thuMuc, { loai: 'chay', pid: con.pid });
+  ghiSuKien(thuMuc, { loai: 'chay', pid: con.pid, loi });
   return `đã chạy bộ phát lịch (pid ${con.pid})`;
 }
 

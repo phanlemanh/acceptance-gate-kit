@@ -494,6 +494,113 @@ test('DP1-05 im-mot-ban', () => {
   assert.equal(khac.out.includes('scripts/dieu-phoi'), false, `settings có hook khác: ${khac.out}`);
 });
 
+// ---------- DP1-11: lõi chép vào thư mục đợt, «lõi vắng» thì ngưng cấp (AC-11, E11) ----------
+// io giả của một nhịp: chuỗi sức khoẻ lành (khuôn của loi/phat-lich.test.mjs), gh/git rỗng.
+const ioGia = (nowMs, goi = []) => ({
+  nowMs: () => nowMs,
+  chay: (cmd, args = []) => {
+    goi.push([cmd, ...args].join(' '));
+    if (cmd === 'sysctl' && args[0] === 'vm.swapusage') return 'total = 24576.00M  used = 0.00M  free = 1.00M';
+    if (cmd === 'sysctl' && args.includes('kern.memorystatus_vm_pressure_level')) return '1';
+    if (cmd === 'sysctl') return '{ 1.00 1.00 1.00 }';
+    if (cmd === 'ps') return '102400 node\n';
+    if (cmd === 'gh') return '[]';
+    return '';
+  },
+});
+const suKien = (dot) => {
+  const p = path.join(dot, 'su-kien.jsonl');
+  return fs.existsSync(p) ? fs.readFileSync(p, 'utf8').split('\n').filter(Boolean).map((d) => JSON.parse(d)) : [];
+};
+const song = (pid) => {
+  try { process.kill(pid, 0); return true; } catch { return false; }
+};
+const ngu = (ms) => new Promise((r) => setTimeout(r, ms));
+const choChet = async (pid) => {
+  for (let i = 0; i < 30 && song(pid); i++) await ngu(100);
+};
+const ghiDon = (dot, phien, loai, worktree) =>
+  ghiJ(path.join(dot, 'xin', `${phien}-${loai}.json`), { phien, slug: `h-${phien}`, loai, luc: new Date().toISOString(), worktree });
+
+// Chạy đợt từ một bản gói (chép ra tạm), xoá bản gói đó, rồi đo: bộ phát lịch thật còn sống, không
+// cấp lại khoá s4 đang giữ; module bộ phát lịch ĐANG CHẠY (đường rút từ tiến trình) vẫn cấp đơn mới
+// và không kêu «lõi vắng». Trả mảng lỗi + trạng thái để ca sau dùng tiếp.
+async function chayTiepSauXoaGoi(gocGoi) {
+  const sao = path.join(tam('dp1-goi-'), 'dieu-phoi');
+  chep(gocGoi, sao);
+  const kho = khoThu('dp1-dot11-');
+  const kho2 = tam('dp1-wt2-');
+  const r = chayCli(sao, kho, 'mo', 'thu');
+  assert.equal(r.ma, 0, r.err);
+  const dot = fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+  ghiJ(path.join(dot, 'dieu-phoi.config.json'), { ...docJ(path.join(dot, 'dieu-phoi.config.json')), tick_giay: 1 });
+  ghiJ(path.join(dot, 'hang-viec.json'), { dot: 'thu', day: [{ id: 'P1', worktree: kho }, { id: 'P2', worktree: kho2 }], hang: [], ngoai_hang_merge: [] });
+  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', slug: 'h-P1', loai: 's4', worktree: kho, cap_luc: new Date().toISOString(), han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
+  fs.writeFileSync(path.join(dot, 'khoa', 's4', 'nhip'), new Date().toISOString());
+
+  const c = chayCli(sao, kho, 'chay');
+  assert.equal(c.ma, 0, c.err);
+  const pid = Number(/pid (\d+)/.exec(c.out)?.[1]);
+  assert.ok(pid > 0, `chay không in pid: ${c.out}`);
+  const dangChay = execFileSync('ps', ['-o', 'args=', '-p', String(pid)], { encoding: 'utf8' }).trim().split(/\s+/).find((t) => t.endsWith('phat-lich.mjs'));
+  const mod = await import(dangChay);
+  fs.rmSync(path.dirname(sao), { recursive: true, force: true });
+  await ngu(2500);
+  const loi = [];
+  if (!song(pid)) loi.push('bộ phát lịch chết sau khi xoá gói');
+  try { process.kill(pid, 'SIGTERM'); } catch {}
+  await choChet(pid);
+  if (suKien(dot).some((e) => e.loai === 'cap' && e.tai_nguyen === 's4')) loi.push('khoá s4 đang giữ bị cấp lại');
+
+  ghiDon(dot, 'P2', 'duong-nen', kho2);
+  const vong = mod.taoVong(dot, ioGia(Date.now()));
+  await vong();
+  await vong();
+  const sk = suKien(dot);
+  if (sk.some((e) => e.loai === 'loi-vang')) loi.push(`lõi vắng: ${sk.find((e) => e.loai === 'loi-vang').ly_do}`);
+  if (!sk.some((e) => e.loai === 'cap' && e.tai_nguyen === 'duong-nen')) loi.push('đơn mới (duong-nen) không được cấp');
+  if (sk.some((e) => e.loai === 'cap' && e.tai_nguyen === 's4')) loi.push('khoá s4 đang giữ bị cấp lại');
+  return { loi, dot, kho, dangChay, vong };
+}
+
+let trangThai11 = null;
+
+test('DP1-11 ban-theo-dot', async () => {
+  trangThai11 = await chayTiepSauXoaGoi(GOI);
+  const { loi, dot, dangChay } = trangThai11;
+  const pb = docJ(path.join(dot, 'loi', 'PHIEN-BAN.json'));
+  console.log(`  bộ phát lịch chạy từ: ${dangChay} · phiên bản lõi theo đợt: ${pb.phien_ban}`);
+  assert.equal(dangChay, path.join(dot, 'loi', 'phat-lich.mjs'));
+  assert.equal(pb.phien_ban, docJ(path.join(GOI, '.claude-plugin', 'plugin.json')).version);
+  assert.deepEqual(loi, []);
+});
+
+test('DP1-11 loi-vang', async () => {
+  assert.ok(trangThai11, 'cần trạng thái của DP1-11 ban-theo-dot');
+  const { dot, kho, vong } = trangThai11;
+  fs.rmSync(path.join(dot, 'loi'), { recursive: true, force: true });
+  ghiDon(dot, 'P1', 'merge', kho);
+  await vong();
+  const sk = suKien(dot);
+  const vang = sk.filter((e) => e.loai === 'loi-vang');
+  assert.equal(vang.length, 1, 'phải có đúng một sự kiện loi-vang');
+  assert.equal(vang[0].can_phan, true);
+  assert.match(vang[0].ly_do, /lõi vắng/);
+  assert.equal(sk.some((e) => e.loai === 'cap' && e.tai_nguyen === 'merge'), false, 'không được cấp khoá khi lõi vắng');
+});
+
+test('DP1-11-do bo-chep', async () => {
+  const sao = path.join(tam('dp1-bochep-'), 'dieu-phoi');
+  chep(GOI, sao);
+  const p = path.join(sao, 'scripts', 'dieu-phoi.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace('  const loi = chepLoi(thuMuc);\n', '  const loi = DAY;\n');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { loi } = await chayTiepSauXoaGoi(sao);
+  assert.ok(loi.some((l) => l.includes('lõi vắng')), `phải nêu «lõi vắng»: ${loi.join(' | ')}`);
+});
+
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
 const CHUOI_BAN_CU = 'scripts/dieu-phoi/';
 export function kiemKhuon(gocGoi) {
