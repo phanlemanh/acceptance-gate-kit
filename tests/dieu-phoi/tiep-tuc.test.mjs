@@ -459,6 +459,91 @@ test('DP3-05-do ghi-khi-thoi', async () => {
   assert.ok(loi.includes('thư mục đợt đổi khi thôi vai'), `phải nêu thư mục đổi: ${loi.join(' | ')}`);
 });
 
+// ---------- DP3-09: đánh thức giám sát (AC-9, E9) ----------
+export const ioGia = (nowMs) => ({
+  nowMs: () => nowMs,
+  chay: (cmd, args = []) => {
+    if (cmd === 'sysctl' && args[0] === 'vm.swapusage') return 'total = 24576.00M  used = 0.00M  free = 1.00M';
+    if (cmd === 'sysctl' && args.includes('kern.memorystatus_vm_pressure_level')) return '1';
+    if (cmd === 'sysctl') return '{ 1.00 1.00 1.00 }';
+    if (cmd === 'ps') return '102400 node\n';
+    if (cmd === 'gh') return '[]';
+    if (cmd === 'git' && args[0] === 'show') throw new Error('khong co');
+    return '';
+  },
+});
+// Bộ phát lịch thật ghi một sự kiện can_phan: thư mục khoá rỗng quá 60″ bị thu hồi.
+async function canPhanThat(dot, gocGoi = GOI) {
+  const d = path.join(dot, 'khoa', 'merge');
+  fs.mkdirSync(d, { recursive: true });
+  const cu = new Date(Date.now() - 5 * PHUT);
+  fs.utimesSync(d, cu, cu);
+  const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
+  await taoVong(dot, ioGia(Date.now()), () => Date.now())();
+}
+// Mỗi hàng: [nhãn, cần, thức (phút trước), nhịp giám sát (phút trước | null), việc chờ: none|yeu-cau|su-kien]
+export const MA_TRAN_THUC = [
+  ['a', 'khong', 5, 3, 'yeu-cau'],
+  ['b', 'nhan-giam-sat', 50, 3, 'yeu-cau'],
+  ['c', 'khong', 50, 50, 'none'],
+  ['d', 'bao-chu-kho', 50, 50, 'yeu-cau'],
+  ['e', 'khong', null, null, 'khong-dot'],
+  ['f', 'khong', 80, 80, 'none'],
+  ['g', 'nhan-giam-sat', 50, 3, 'su-kien'],
+];
+async function chayMaTranThuc(gocGoi = GOI) {
+  const ra = [];
+  for (const [hang, can, thucPhut, nhipPhut, viec] of MA_TRAN_THUC) {
+    const T0 = Date.now();
+    let kho;
+    let dot = null;
+    if (viec === 'khong-dot') {
+      kho = tam('dp3-trong-');
+      git(kho, 'init', '-q', '-b', 'main');
+      git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+    } else {
+      ({ kho, dot } = khoLienKet({ gocGoi, chayPha: false }));
+      assert.equal(chayCli(kho, ['tiep-tuc', '--phien', 's-gs', '--nhe'], { gocGoi, env: { DIEU_PHOI_NOW_MS: String(T0 - thucPhut * PHUT) } }).ma, 0);
+      if (nhipPhut != null) hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: T0 - nhipPhut * PHUT, gocGoi });
+      if (viec === 'yeu-cau') ghiJ(path.join(dot, 'yeu-cau', 'P1-1.json'), { phien: 'P1', loai: 'khac', hang: 'hang-a', noi_dung: {}, luc: new Date(T0).toISOString() });
+      if (viec === 'su-kien') await canPhanThat(dot, gocGoi);
+    }
+    const truoc = dot ? bamCay(dot) : null;
+    const r = chayCli(kho, ['danh-thuc', '--json'], { gocGoi, env: { DIEU_PHOI_NOW_MS: String(T0 + 1000) } });
+    assert.equal(r.ma, 0, r.err);
+    ra.push({ hang, can, kq: JSON.parse(r.out), doiCay: dot ? bamCay(dot) !== truoc : false });
+  }
+  return ra;
+}
+const loiThuc = (kq) => kq.flatMap((r) => [
+  ...(r.kq.hanh_dong !== r.can ? [`(${r.hang}): ${r.kq.hanh_dong}, cần ${r.can}`] : []),
+  ...(r.doiCay ? [`(${r.hang}): danh-thuc ghi vào thư mục đợt`] : []),
+]);
+
+test('DP3-09 ma-tran', async () => {
+  const kq = await chayMaTranThuc();
+  console.log(`  số hàng ma trận: ${kq.length} · ${kq.map((r) => `${r.hang}=${r.kq.hanh_dong}`).join(' ')}`);
+  assert.equal(kq.length, MA_TRAN_THUC.length);
+  assert.deepEqual(loiThuc(kq), []);
+  for (const h of ['b', 'g']) {
+    const r = kq.find((x) => x.hang === h).kq;
+    assert.equal(r.phien, 's-gs');
+    assert.match(r.cau, /\/dieu-phoi:tiep-tuc --nhe/);
+  }
+  assert.match(kq.find((x) => x.hang === 'd').kq.cau, /\/dieu-phoi:tiep-tuc/);
+});
+
+test('DP3-09-do bo-viec-cho', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const p = path.join(sao, 'scripts', 'danh-thuc.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace("  if (ds.length === 0) return kq(DANH_THUC.khong, 'không có việc chờ');\n", '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  assert.deepEqual(loiThuc(await chayMaTranThuc(sao)), ['(c): bao-chu-kho, cần khong', '(f): bao-chu-kho, cần khong']);
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });

@@ -15,6 +15,7 @@ import { moHinh, veXem } from './mo-hinh.mjs';
 import { docNhomKeHoach } from './nguon-hang.mjs';
 import { ghiVai } from './vai.mjs';
 import { tiepTuc } from './tiep-tuc.mjs';
+import { danhThuc } from './danh-thuc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const lienKet = (goc) => path.join(goc, '.acceptance-runs', TEN_LIEN_KET);
@@ -295,6 +296,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       'tiep-tuc': () => {
         const kq = tiepTuc(cwd, { phien: typeof co.phien === 'string' ? co.phien : null, nhe: co.nhe === true, chay: chayPhatLich });
         return co.json ? JSON.stringify(kq) : kq.thoi_vai ? `phiên này đã thôi giám sát đợt ${path.basename(kq.dot).replace(/^dieu-phoi-/, '')}` : JSON.stringify(kq, null, 2);
+      },
+      'danh-thuc': () => {
+        const kq = danhThuc(cwd);
+        return co.json ? JSON.stringify(kq) : `${kq.hanh_dong}${kq.cau ? ` — ${kq.cau}` : ''} (${kq.ly_do})`;
       },
       dung: () => dungPhatLich(cwd),
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
