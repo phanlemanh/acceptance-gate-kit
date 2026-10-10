@@ -180,18 +180,24 @@ const mucCua = (ds, muc) => ds.find((m) => m.muc === muc);
 // Dựng đợt có bốn nguồn: một sự kiện can_phan TRƯỚC lần thức của giám sát (đã xử), rồi một yêu cầu
 // chưa trả lời, một tệp chờ người do hook thật ghi, một sự kiện can_phan mới. Trả danh sách viết sẵn.
 async function dotViecCho(gocGoi = GOI) {
-  // pha nhap: `tiep-tuc` không chạy bộ phát lịch, nên không sự kiện nào ngoài bốn nguồn của ca.
-  const { kho, dot, w2 } = khoLienKet({ gocGoi, chayPha: false });
-  const { ghiSuKien } = await nap(gocGoi, 'dot.mjs');
-  ghiSuKien(dot, { loai: 'thu-hoi', tai_nguyen: 's4', ly_do: 'cu', can_phan: true });
+  // Lúc thức đặt bằng lệnh `vai` (không chạy bộ phát lịch nền); sự kiện cũ và sự kiện mới đều do bộ
+  // phát lịch THẬT ghi (thu hồi thư mục khoá rỗng · khoá không nhịp sống). Người gọi phải `dong` đợt.
+  const { kho, dot, w1, w2 } = khoLienKet({ gocGoi });
+  const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
+  hookNhip({ session_id: 's-gs' }, { cwd: kho, gocGoi });
+  await canPhanThat(dot, gocGoi);
   await ngu(5);
-  assert.equal(chayCli(kho, ['tiep-tuc', '--phien', 's-gs', '--nhe'], { gocGoi }).ma, 0);
+  assert.equal(chayCli(kho, ['vai', '--giam-sat', 's-gs'], { gocGoi }).ma, 0);
   await ngu(5);
-  ghiJ(path.join(dot, 'yeu-cau', 'P1-1.json'), { phien: 'P1', loai: 'khac', hang: 'hang-a', noi_dung: {}, luc: new Date().toISOString() });
+  assert.equal(chayCli(w1, ['yeu-cau', 'khac', '--hang', 'hang-a'], { gocGoi }).out.trim(), 'P1-1');
   await ngu(5);
   hookChoNguoi(w2, { gocGoi });
+  assert.equal(chayCli(w1, ['xin', 's4'], { gocGoi }).ma, 0);
   await ngu(5);
-  ghiSuKien(dot, { loai: 'khoa-khong-nhip', tai_nguyen: 's4', phien: 'P1', can_phan: true });
+  const T = Date.now();
+  await taoVong(dot, ioGia(T), () => T)();
+  await taoVong(dot, ioGia(T + 11 * PHUT), () => T + 11 * PHUT)();
+  assert.equal(suKienCua(dot).filter((e) => e.loai === 'khoa-khong-nhip').length, 1, 'fixture: bộ phát lịch thật ghi khoa-khong-nhip');
   return { kho, dot, canCo: ['yeu-cau:P1-1', 'cho-nguoi:P2', 'su-kien:khoa-khong-nhip'] };
 }
 export function kiemViecCho(ds, canCo) {
@@ -210,6 +216,7 @@ test('DP3-14 viec-cho', async () => {
   console.log(`  viec-cho: ${(mucCua(ds, 'viec-cho')?.chi_tiet?.ds ?? []).map((v) => v.loai).join(' · ')}`);
   assert.deepEqual(kiemViecCho(ds, canCo), []);
   assert.equal(mucCua(ds, 'viec-cho').trang_thai, 'thieu');
+  chayCli(kho, ['dong']);
 });
 
 test('DP3-14 giam-sat', async () => {
@@ -232,6 +239,7 @@ test('DP3-14-do bo-moc-thuc', async () => {
   chep(GOI, sao);
   const lanh = await dotViecCho(sao);
   assert.deepEqual(kiemViecCho(chanDoanJson(lanh.kho, ['--phien', 's-gs'], { gocGoi: sao }), lanh.canCo), [], 'đối chứng dương: bản sao lành');
+  chayCli(lanh.kho, ['dong'], { gocGoi: sao });
   const p = path.join(sao, 'scripts', 'viec-cho.mjs');
   const goc = fs.readFileSync(p, 'utf8');
   const tiem = goc.replace('if (thucMs != null && Date.parse(e.luc) <= thucMs) continue;\n', '');
@@ -239,6 +247,7 @@ test('DP3-14-do bo-moc-thuc', async () => {
   fs.writeFileSync(p, tiem);
   const { kho, canCo } = await dotViecCho(sao);
   const loi = kiemViecCho(chanDoanJson(kho, ['--phien', 's-gs'], { gocGoi: sao }), canCo);
+  chayCli(kho, ['dong'], { gocGoi: sao });
   assert.ok(loi.includes('sự kiện trước thuc_luc có mặt thừa'), `phải nêu sự kiện cũ thừa: ${loi.join(' | ')}`);
 });
 
@@ -575,10 +584,14 @@ test('DP3-06 round-trip', async () => {
 });
 
 test('DP3-06 doc-cu', async () => {
-  const { dot, w2 } = khoLienKet();
+  const { kho, dot, w2 } = khoLienKet();
   ghiJ(path.join(dot, 'xin', 'P2-s4.json'), { phien: 'P2', slug: 'hang-b', loai: 's4', luc: new Date().toISOString(), worktree: w2, uoc_phut: 20 });
-  await motNhipThat(dot);
-  assert.equal(docJ(path.join(dot, 'khoa', 's4', 'chu.json')).phien, 'P2', 'đơn ghi tay theo khuôn cũ vẫn được cấp');
+  try {
+    await motNhipThat(dot);
+    assert.equal(docJ(path.join(dot, 'khoa', 's4', 'chu.json')).phien, 'P2', 'đơn ghi tay theo khuôn cũ vẫn được cấp');
+  } finally {
+    chayCli(kho, ['dong']);
+  }
 });
 
 // [mô tả, cwd ('w1'|'kho'), đối số, thông điệp ghim]
@@ -687,6 +700,55 @@ test('DP3-08-do kieu', async () => {
   assert.doesNotThrow(() => kiemCauHinh({ ...mau, kiem_moi_truong: [{ ten: 'a', lenh: 'true' }] }), 'đối chứng: danh sách hợp lệ');
   assert.throws(() => kiemCauHinh({ ...mau, kiem_moi_truong: 'true' }), /kiem_moi_truong/);
   assert.throws(() => kiemCauHinh({ ...mau, kiem_moi_truong: [{ ten: 'a' }] }), /kiem_moi_truong/);
+});
+
+// ---------- DP3-10: khoá không nhịp sống (AC-10, E10) ----------
+// Bốn kịch bản trên bộ phát lịch thật (đồng hồ giả qua io): cấp s4 cho P1 ở T, rồi nhịp ở T+11′ và T+12′.
+async function kichBanKhoa(kieu, gocGoi = GOI) {
+  const { kho, dot, w1 } = khoLienKet({ gocGoi });
+  const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
+  const nhip = (ms) => taoVong(dot, ioGia(ms), () => ms)();
+  // Đơn ghi bằng giờ thật, nên đồng hồ giả của nhịp phải đi SAU nó.
+  assert.equal(chayCli(w1, ['xin', 's4'], { gocGoi }).ma, 0);
+  await ngu(5);
+  const T = Date.now();
+  if (kieu !== 'khong-song') hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: T, gocGoi });
+  try {
+    await nhip(T);
+    assert.equal(docJ(path.join(dot, 'khoa', 's4', 'chu.json')).phien, 'P1', 'fixture: P1 giữ s4');
+    if (kieu === 'co-nhip') hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: T + 5 * PHUT, gocGoi });
+    if (kieu === 'phien-khac') hookNhip({ session_id: 's-khac' }, { cwd: w1, nowMs: T + 5 * PHUT, gocGoi });
+    await nhip(T + 11 * PHUT);
+    const sau11 = suKienCua(dot).filter((e) => e.loai === 'khoa-khong-nhip').length;
+    await nhip(T + 12 * PHUT);
+    const sau12 = suKienCua(dot).filter((e) => e.loai === 'khoa-khong-nhip').length;
+    return { sau11, sau12, canPhan: suKienCua(dot).find((e) => e.loai === 'khoa-khong-nhip')?.can_phan };
+  } finally {
+    chayCli(kho, ['dong'], { gocGoi }); // nhả khoá s4 cấp máy cho kịch bản kế
+  }
+}
+
+test('DP3-10 khoa-khong-nhip', async () => {
+  const khong = await kichBanKhoa('khong-nhip');
+  assert.deepEqual([khong.sau11, khong.sau12, khong.canPhan], [1, 1, true]);
+  assert.deepEqual([(await kichBanKhoa('co-nhip')).sau12], [0]);
+  assert.deepEqual([(await kichBanKhoa('khong-song')).sau12], [0]);
+  const khac = await kichBanKhoa('phien-khac');
+  console.log(`  giới hạn: nhịp theo worktree — phiên khác cùng worktree → ${khac.sau12} sự kiện`);
+  assert.equal(khac.sau12, 0);
+});
+
+test('DP3-10-do bo-dieu-kien', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  assert.equal((await kichBanKhoa('co-nhip', sao)).sau12, 0, 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'phat-lich.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace('    if (nhip && Date.parse(nhip.luc) >= Date.parse(chu.cap_luc)) continue;\n', '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const co = await kichBanKhoa('co-nhip', sao);
+  assert.equal(co.sau12, 1, 'có nhịp mà vẫn báo');
 });
 
 test('DP3-02 tep-hong', async () => {
