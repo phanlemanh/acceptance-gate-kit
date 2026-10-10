@@ -45,7 +45,7 @@ function kiemKhoaLa(du, cho, tep, tienTo) {
   if (la.length > 0) throw new Error(`${tep}: khoá lạ ${la.map((k) => `${tienTo}${k}`).join(', ')}`);
 }
 
-const KHOA_CAU_HINH = ['nhanh_chinh', 'tick_giay', 'han_thue_phut', 'nhip_cu_phut', 'suc_khoe', 's4_tran_gom_phut', 'bao_ve', 'goc_kho'];
+const KHOA_CAU_HINH = ['nhanh_chinh', 'tick_giay', 'han_thue_phut', 'nhip_cu_phut', 'suc_khoe', 's4_tran_gom_phut', 'bao_ve', 'goc_kho', 'nguon_hang'];
 const KHOA_SUC_KHOE = ['swap_gb', 'ap_luc_muc', 'rss_gb'];
 
 export function kiemCauHinh(du, { canGocKho = false } = {}) {
@@ -70,11 +70,12 @@ export function kiemCauHinh(du, { canGocKho = false } = {}) {
     if (!Number.isFinite(du.suc_khoe[k])) sai(`suc_khoe.${k} phải là số`);
   }
   if (!laDanhSachChuoi(du.bao_ve)) sai('bao_ve phải là danh sách chuỗi');
+  if (du.nguon_hang !== undefined && !laDanhSachChuoi(du.nguon_hang)) sai('nguon_hang phải là danh sách chuỗi');
   return du;
 }
 
 const KHOA_HANG_VIEC = ['dot', 'day', 'hang', 'ngoai_hang_merge'];
-const KHOA_DAY = ['id', 'worktree', 'link'];
+const KHOA_DAY = ['id', 'worktree', 'link', 'nghi'];
 const KHOA_HANG = ['ma', 'slug', 'day', 'sau', 'moc', 'uu_tien', 'ranh_gioi', 'chung_chi_them', 's4'];
 
 export function kiemHangViec(du) {
@@ -92,6 +93,7 @@ export function kiemHangViec(du) {
     if (!laChuoi(d.id)) sai(`day[${i}].id phải là chuỗi không rỗng`);
     if (!laChuoi(d.worktree)) sai(`day[${i}].worktree phải là chuỗi không rỗng`);
     if (d.link !== undefined && typeof d.link !== 'string') sai(`day[${i}].link phải là chuỗi`);
+    if (d.nghi !== undefined && typeof d.nghi !== 'boolean') sai(`day[${i}].nghi phải là true/false`);
     if (ids.has(d.id)) sai(`day[${i}].id ${d.id} bị trùng`);
     ids.add(d.id);
   });
