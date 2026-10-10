@@ -13,7 +13,9 @@ import { createRequire } from 'node:module';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const KIT = path.join(HERE, '..', '..');
 export const BASE = '3200ba3a';
-export const BASE_DIRS = ['feature-loop/scripts', 'lib', 'scripts'];
+// feature-loop/workflows + skills/acceptance/references: s4-args của base đọc bảng trường bắt buộc của
+// workflow và đòi các tệp luật ở --ag-root — thiếu thì base đỏ vì hạ tầng (ruling Task 2).
+export const BASE_DIRS = ['feature-loop/scripts', 'feature-loop/workflows', 'lib', 'scripts', 'skills/acceptance/references'];
 // Các tệp mà một chiều đỏ gọi trên bản base — vắng là đỏ vì HẠ TẦNG, phải nói ra trước.
 const BASE_CAN = ['lib/evidence-core.cjs', 'lib/eval-yaml.cjs', 'feature-loop/scripts/s4-args.mjs',
   'feature-loop/scripts/carry-plan.mjs', 'scripts/acceptance-gold.mjs', 'scripts/gate-card.js'];

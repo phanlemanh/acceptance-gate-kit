@@ -6,6 +6,7 @@
 // hằng BASE_DIRS (evals-sat-le-lib.mjs). Đường dẫn suy từ vị trí tệp này.
 import { createRequire } from 'node:module';
 import path from 'node:path';
+import { realpathSync } from 'node:fs';
 import * as L from './evals-sat-le-lib.mjs';
 
 const require = createRequire(import.meta.url);
@@ -52,6 +53,87 @@ ca('VP2', 'chiều đỏ: bản sao bộ đọc bỏ mục cuối của mọi da
   const x = L.viPhan({ khos: [L.KIT], cu: L.docBase(BASE_DIR), moi: L.docLib(dot) }).lech.filter(l => !l.satLe);
   if (!x.length) return 'đột biến không làm lệch';
   console.log(`    · vi phân lệch: ${x[0].hoSo} (${doi} trường đổi)`); return true;
+});
+
+// ── AC-1: ba cách viết → cùng tệp args, ma trận cách × tiêu chí × trường ───────────
+const REQ = L.evalRequired();
+const truongCua = tc => {
+  const can = (REQ[tc.executor] || { arr: [] }).arr;
+  const thieu = can.filter(k => !(tc.ds && k in tc.ds));
+  if (thieu.length) throw new Error(`mô hình hụt trường: ${tc.executor}.${thieu[0]}`);
+  return [...new Set([...can, ...Object.keys(tc.ds || {})])];
+};
+const giaTriArgs = (d, e, k) => (k === 'inputs' && Array.isArray(e[k]) ? e[k].map(x => path.relative(realpathSync(d), x)) : e[k]);
+const CHAY = {};
+for (const cach of L.CACH) { const d = L.dungKho(L.vietMoHinh(cach)); CHAY[cach] = { d, ...L.chayS4(d) }; }
+ca('BC1', 'ba cách viết cho cùng inputs/paths/evidence_required/mảng bắt buộc (ma trận viết trước)', () => {
+  let can = 0, so = 0; const sai = [];
+  for (const cach of L.CACH) for (const tc of L.MO_HINH) for (const k of truongCua(tc)) can++;
+  for (const cach of L.CACH) {
+    const r = CHAY[cach];
+    if (r.rc !== 0) return `${cach}: s4-args rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+    if (/danh sách không đọc được/.test(r.stderr)) return `${cach}: cờ sai trên cách hợp lệ`;
+    for (const tc of L.MO_HINH) {
+      const e = r.args.evals.find(x => x.id === tc.id);
+      for (const k of truongCua(tc)) { so++; if (J(giaTriArgs(r.d, e || {}, k)) !== J(tc.ds[k])) sai.push(`${cach} ${tc.id}.${k}=${J(e && e[k])}`); }
+    }
+  }
+  if (so !== can) return `ma trận hụt: ${so}/${can}`;
+  return !sai.length || `thiếu: ${sai.slice(0, 3).join(' · ')} (${sai.length} phần tử)`;
+});
+ca('BC2', 'base: thụt 4 đúng (đối chứng dương), sát lề mất danh sách im lặng; cây mới xanh trên sát lề', () => {
+  // Mô hình không ui-check: base dừng to khi rơi trường BẮT BUỘC (steps), nên phần im lặng chỉ đo được
+  // trên trường không bắt buộc — đúng lớp lỗi crm dieu-phoi-va-bien gặp.
+  const MH = L.MO_HINH.filter(tc => tc.executor !== 'ui-check');
+  const s4 = path.join(BASE_DIR, 'feature-loop', 'scripts', 's4-args.mjs');
+  const mat = [];
+  for (const cach of ['thut4', 'satle']) {
+    const d = L.dungKho(L.vietMoHinh(cach, MH));
+    const r = L.chayS4(d, { s4, agRoot: BASE_DIR });
+    if (r.rc !== 0) return `base ${cach}: rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+    for (const tc of MH) for (const k of Object.keys(tc.ds)) {
+      const e = r.args.evals.find(x => x.id === tc.id) || {};
+      const dung = J(giaTriArgs(d, e, k)) === J(tc.ds[k]);
+      if (cach === 'thut4' && !dung) return `đối chứng dương hỏng: base thụt 4 ${tc.id}.${k}=${J(e[k])}`;
+      if (cach === 'satle' && !dung) mat.push(`${tc.id}.${k}`);
+    }
+  }
+  for (const k of ['paths', 'inputs', 'evidence_required']) if (!mat.some(m => m.endsWith('.' + k))) return `base không mất ${k} trên sát lề`;
+  for (const m of mat) console.log(`    · base mất danh sách: ${m}`);
+  return CHAY.satle.rc === 0 || 'cây mới đỏ trên sát lề';
+});
+
+// ── AC-4: danh sách không đọc được → một dòng gọi tên + khoá args ───────────────
+const KHONG_DOC = 'schema_version: 1\nfeature_slug: demo\nevals:\n'
+  + '  - id: X1\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.cli\n    paths: *id001\n'
+  + '  - id: X2\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.cli\n    inputs: |\n      chu khong phai danh sach\n'
+  + '  - id: X3\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.cli\n    paths: {a: b}\n'
+  + '  - id: X4\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.cli\n    evidence_required:\n';
+const MUC_KD = ['X1.paths', 'X2.inputs', 'X3.paths', 'X4.evidence_required'];
+const KHO_KD = L.dungKho(KHONG_DOC);
+const dongCo = s => s.split('\n').filter(l => l.startsWith('s4-args: danh sách không đọc được:'));
+ca('CB1', 'bốn cách không đọc được → đúng một dòng gọi tên 4/4 + args.canhBaoDanhSach 4 mục', () => {
+  const r = L.chayS4(KHO_KD);
+  if (r.rc !== 0) return `rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+  const dong = dongCo(r.stderr);
+  if (dong.length !== 1) return `${dong.length} dòng cờ`;
+  const thieu = MUC_KD.filter(m => !dong[0].includes(m));
+  if (thieu.length) return `dòng thiếu ${thieu.join(', ')}`;
+  return (Array.isArray(r.args.canhBaoDanhSach) && r.args.canhBaoDanhSach.length === 4) || `canhBaoDanhSach=${J(r.args.canhBaoDanhSach)}`;
+});
+ca('CB2', 'chiều im: hồ sơ sạch (kể cả `[]` tường minh) → 0 dòng, khoá vắng hẳn', () => {
+  const t = L.vietMoHinh('thut4') + '  - id: S2\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.cli\n    paths: []\n';
+  const r = L.chayS4(L.dungKho(t));
+  if (r.rc !== 0) return `rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+  if (dongCo(r.stderr).length) return 'có dòng cờ trên hồ sơ sạch';
+  return !('canhBaoDanhSach' in r.args) || 'khoá canhBaoDanhSach có mặt';
+});
+ca('CB3', 'chiều đỏ: bản sao lib gỡ nhánh cờ → dòng cờ biến mất', () => {
+  const dot = L.dungBanSaoLib('canhBao.push(', 'void (', 3);
+  const r = L.chayS4(KHO_KD, { agRoot: dot });
+  if (r.rc !== 0) return `rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+  if (dongCo(r.stderr).length) return 'đột biến không tắt được cờ';
+  console.log(`    · cờ im: ${MUC_KD[0]}`); return true;
 });
 
 console.log(`Results: ${pass} passed, ${fail} failed (evals-sat-le)`);
