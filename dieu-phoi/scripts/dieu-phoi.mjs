@@ -31,7 +31,7 @@ export function moDotKq(cwd, ten, { goi = null, phien = null } = {}) {
     throw new Error(`đợt ${dangChay} đang chạy — đóng nó trước`);
   }
   const dirGoi = timGoi(goc, ten, goi);
-  const tuGoi = dirGoi ? docGoi(dirGoi) : null;
+  const tuGoi = dirGoi ? docGoi(dirGoi, { gocKho: goc }) : null;
   if (tuGoi && fs.existsSync(thuMuc)) throw new Error(`đợt ${ten} còn thư mục cũ: ${thuMuc} — đổi tên đợt hoặc dọn thư mục đó`);
   for (const d of ['khoa', 'xin', 'yeu-cau', 'tra-loi', 'cho-nguoi', 'tiep']) fs.mkdirSync(path.join(thuMuc, d), { recursive: true });
   if (tuGoi) {
@@ -53,7 +53,7 @@ export function moDotKq(cwd, ten, { goi = null, phien = null } = {}) {
   }
   fs.symlinkSync(thuMuc, lk);
   ghiSuKien(thuMuc, { loai: 'mo-dot', ten, goi: dirGoi });
-  return { thuMuc: fs.realpathSync(thuMuc), daMo: false };
+  return { thuMuc: fs.realpathSync(thuMuc), daMo: false, canhBao: tuGoi?.canhBao ?? [] };
 }
 
 export const moDot = (cwd, ten, tuyChon = {}) => moDotKq(cwd, ten, tuyChon).thuMuc;
@@ -244,6 +244,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
     const viec = {
       mo: () => {
         const kq = moDotKq(cwd, doiSo, { goi: typeof co.goi === 'string' ? co.goi : null, phien: typeof co.phien === 'string' ? co.phien : null });
+        for (const c of kq.canhBao ?? []) process.stderr.write(`${c}\n`);
         return kq.daMo ? `đợt ${doiSo} đã mở` : kq.thuMuc;
       },
       pha: () => {

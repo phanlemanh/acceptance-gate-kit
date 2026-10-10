@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { kiemCauHinh, kiemHangViec } from './hinh-dang.mjs';
+import { docHangLoTrinh } from './nguon-hang.mjs';
 
 export const TEP_GOI = ['dieu-phoi.config.json', 'hang-viec.json', 'LUAT-rieng.md'];
 
@@ -33,8 +34,27 @@ export function timGoi(gocKho, ten, coGoi = null) {
   return khoa ? path.resolve(gocKho, khoa.split('{ten}').join(ten)) : null;
 }
 
+// Gói khai `nguon_hang` (§14 chỗ nối 1): hàng của đợt là các hàng thi công của gói mang mã có trong nguồn,
+// slug điền từ lộ trình; hàng nguồn không có phần thi công trong gói thì bỏ kèm cảnh báo. Đọc lộ trình
+// lỗi → giữ hàng khai tay (có slug) và nói ra đúng một dòng.
+function apNguonHang(hangViec, nguon, gocKho) {
+  const canhBao = [];
+  const { hang: tuLoTrinh, loi } = docHangLoTrinh(gocKho, nguon);
+  if (loi) {
+    return { hangViec: { ...hangViec, hang: (hangViec.hang ?? []).filter((h) => h?.slug) }, canhBao: [`mo: ${loi} — dùng hàng khai tay của gói`] };
+  }
+  const slugCua = new Map(tuLoTrinh.map((h) => [h.ma, h.slug]));
+  const hang = [];
+  for (const h of hangViec.hang ?? []) {
+    if (h?.ma && slugCua.has(h.ma)) hang.push({ ...h, slug: slugCua.get(h.ma) });
+    else if (h?.slug) hang.push(h);
+  }
+  for (const { ma } of tuLoTrinh) if (!hang.some((h) => h.ma === ma)) canhBao.push(`mo: hàng ${ma} của lộ trình chưa có phần thi công (dãy) trong gói — bỏ qua`);
+  return { hangViec: { ...hangViec, hang }, canhBao };
+}
+
 // Đọc và kiểm khuôn TRỌN gói trước khi ai tạo thư mục nào.
-export function docGoi(dir) {
+export function docGoi(dir, { gocKho = null } = {}) {
   for (const f of TEP_GOI) {
     if (!fs.existsSync(path.join(dir, f))) throw new Error(`goi-dot: thiếu ${f} trong ${dir}`);
   }
@@ -46,9 +66,12 @@ export function docGoi(dir) {
     }
   };
   const cfg = kiemCauHinh(doc('dieu-phoi.config.json'));
-  const hangViec = kiemHangViec(doc('hang-viec.json'));
+  let hangViec = doc('hang-viec.json');
+  let canhBao = [];
+  if (cfg.nguon_hang && gocKho) ({ hangViec, canhBao } = apNguonHang(hangViec, cfg.nguon_hang, gocKho));
+  hangViec = kiemHangViec(hangViec);
   const luatRieng = fs.readFileSync(path.join(dir, 'LUAT-rieng.md'), 'utf8');
-  return { cfg, hangViec, luatRieng };
+  return { cfg, hangViec, luatRieng, canhBao };
 }
 
 export const ghepLuat = (khuon, rieng) => `${khuon.replace(/\s*$/, '\n')}\n${rieng}`;

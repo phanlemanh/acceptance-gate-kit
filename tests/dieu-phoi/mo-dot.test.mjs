@@ -335,6 +335,113 @@ test('DP2-07-do ma-la', () => {
   assert.equal(bamBon(dot), truoc);
 });
 
+// ---------- DP2-08: nguồn hàng từ lộ trình (AC-8, E8) ----------
+const TEP_LT = 'docs/lo-trinh.json';
+function khoCoLoTrinh() {
+  const kho = khoThu('dp2-lt-');
+  ghiJ(path.join(kho, TEP_LT), {
+    schema: 1,
+    ten: 'Lộ trình thử',
+    moc: [{ ten: 'Mốc một', ngay: '2026-10-25', hang: ['A', 'B'] }],
+    hang: [
+      { ma: 'A', slug: 'hang-a-tu-lo-trinh', cau_giao: '«Việc A»' },
+      { ma: 'B', cau_giao: '«Đóng gói Điều phối – Thợ vào kit để chạy được ở kho thứ hai»' },
+      { ma: 'C', slug: 'hang-c', cau_giao: '«Việc C»' },
+    ],
+  });
+  fs.mkdirSync(path.join(kho, '_acceptance'), { recursive: true });
+  fs.writeFileSync(
+    path.join(kho, '_acceptance', 'config.yaml'),
+    `schema_version: 1\nrisk_tiers:\n  t1_skip_globs:\n    - "PRODUCT-MAP.md"\n    - "LO-TRINH.html"\nlo_trinh:\n  tep: ${TEP_LT}\ndieu_phoi:\n  goi_dot: goi/dot-{ten}\n`,
+  );
+  return kho;
+}
+// Gói chỉ khai phần thi công theo mã (không slug) + một hàng khai tay K có slug.
+const goiTheoMa = (kho, nguon) =>
+  goiThu(kho, {
+    hang: [
+      { ma: 'A', day: 'P1', uu_tien: 1 },
+      { ma: 'B', day: 'P2', uu_tien: 1 },
+      { slug: 'viec-khai-tay', day: 'P1', uu_tien: 5 },
+    ],
+    cfgThem: { nguon_hang: nguon },
+  });
+const LT_KIT = path.join(KIT, 'scripts', 'lo-trinh.mjs');
+
+export async function kiemRoundTrip(gocGoi, kho) {
+  const kit = await import(LT_KIT);
+  const goi = await nap(gocGoi, 'nguon-hang.mjs');
+  const data = docJ(path.join(kho, TEP_LT));
+  const theoKit = kit.kiemKhuon(data).hang.map((r) => `${r._ma}:${r.slug || kit.suySlug(r.cau_giao)}`).sort();
+  const theoGoi = goi.docHangLoTrinh(kho, data.hang.map((r) => `${TEP_LT}:${r.ma}`)).hang.map((h) => `${h.ma}:${h.slug}`).sort();
+  const loi = [];
+  for (const x of theoKit) if (!theoGoi.includes(x)) loi.push(`lệch slug: kit có ${x}, gói có [${theoGoi.join(', ')}]`);
+  return { loi, theoKit, theoGoi };
+}
+
+test('DP2-08 round-trip', async () => {
+  const kho = khoCoLoTrinh();
+  const { loi, theoKit } = await kiemRoundTrip(GOI, kho);
+  console.log(`  (ma:slug) theo kit: ${theoKit.join(' · ')}`);
+  assert.deepEqual(loi, []);
+  // Nhóm kế hoạch: trang do product-map.mjs THẬT của cây dựng; bản chép docDuLieu của gói == bản gốc.
+  const r = spawnSync(process.execPath, [path.join(KIT, 'scripts', 'product-map.mjs'), '--root', kho], { encoding: 'utf8', env: ENV });
+  assert.equal(r.status, 0, r.stderr);
+  const html = fs.readFileSync(path.join(kho, 'LO-TRINH.html'), 'utf8');
+  const kit = await import(LT_KIT);
+  const goi = await nap(GOI, 'nguon-hang.mjs');
+  const nhomKit = new Map(kit.docDuLieu(html).duLieu.lo_trinh.flatMap((t) => t.hang.map((h) => [h.ma, h.nhom_trang_thai])));
+  const nhomGoi = goi.docNhomKeHoach(kho);
+  assert.ok(nhomKit.size >= 3, 'trang phải mang đủ ba hàng');
+  assert.deepEqual([...nhomGoi.entries()].sort(), [...nhomKit.entries()].sort());
+});
+
+test('DP2-08 mo-tu-lo-trinh', () => {
+  const kho = khoCoLoTrinh();
+  goiTheoMa(kho, [`${TEP_LT}:A`, `${TEP_LT}:B`]);
+  const r = chayCli(kho, ['mo', 'thu']);
+  assert.equal(r.ma, 0, r.err);
+  assert.equal(r.err, '', 'không được có cảnh báo khi đọc được lộ trình');
+  const hang = docJ(path.join(thuMucDot(kho), 'hang-viec.json')).hang;
+  const theoMa = hang.filter((h) => h.ma);
+  assert.deepEqual(theoMa.map((h) => [h.ma, h.slug]), [['A', 'hang-a-tu-lo-trinh'], ['B', 'dong-goi-dieu-phoi-tho-vao']]);
+  assert.ok(hang.every((h) => !('cau_giao' in h)), 'không được chép câu giao');
+});
+
+test('DP2-08 theo-moc', () => {
+  const kho = khoCoLoTrinh();
+  goiTheoMa(kho, [`${TEP_LT}@2026-10-25`]);
+  const r = chayCli(kho, ['mo', 'thu']);
+  assert.equal(r.ma, 0, r.err);
+  assert.deepEqual(docJ(path.join(thuMucDot(kho), 'hang-viec.json')).hang.filter((h) => h.ma).map((h) => h.ma), ['A', 'B']);
+});
+
+test('DP2-08-do vang-tep', () => {
+  const kho = khoCoLoTrinh();
+  goiTheoMa(kho, [`${TEP_LT}:A`]);
+  fs.rmSync(path.join(kho, TEP_LT));
+  const r = chayCli(kho, ['mo', 'thu']);
+  assert.equal(r.ma, 0, r.err);
+  const dongLoi = r.err.split('\n').filter(Boolean);
+  assert.equal(dongLoi.length, 1, `đúng một dòng: ${r.err}`);
+  assert.match(dongLoi[0], /docs\/lo-trinh\.json/);
+  assert.deepEqual(docJ(path.join(thuMucDot(kho), 'hang-viec.json')).hang.map((h) => h.slug), ['viec-khai-tay']);
+});
+
+test('DP2-08-do lech-slug', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const kho = khoCoLoTrinh();
+  assert.deepEqual((await kiemRoundTrip(sao, kho)).loi, [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'nguon-hang.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace(/\.normalize\('NFD'\)\.replace\(\/\[[^\]]+\]\/g, ''\)/, '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { loi } = await kiemRoundTrip(sao, kho);
+  assert.ok(loi.some((l) => l.includes('B:')), `phải nêu mã B: ${loi.join(' | ')}`);
+});
+
 // ---------- DP2-04: bảng chuyển pha (AC-4, E4) ----------
 const PHA4 = ['nhap', 'dang-chay', 'tam-dung', 'dang-dong'];
 const DUOC = new Set(['nhap>dang-chay', 'dang-chay>tam-dung', 'tam-dung>dang-chay', 'dang-chay>dang-dong', 'tam-dung>dang-dong']);
