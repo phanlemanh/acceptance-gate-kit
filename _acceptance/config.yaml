@@ -64,6 +64,11 @@ executors:
     dieu_phoi: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP1-|^ *not ok|^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # P200 + P33 của suite plugins (AC-9, E9): khoá `plugins` lọc bỏ dòng PASS nên không ghim được.
     dieu_phoi_plugins: bash tests/dieu-phoi/chay-p200-p33.sh
+    # Hồ sơ dieu-phoi-mo-dot-mot-lenh: như khoá `dieu_phoi` nhưng ghim cả «ok … DP1-» lẫn «ok … DP2-»,
+    # kèm dòng chẩn đoán «#   …» mà các ca in ra (tập đã so, số đếm) để lượt chấm đọc được.
+    dieu_phoi_dp2: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[12]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hai ca bảng tên lệnh (AC-14, E14b): tài liệu nhắc /dieu-phoi:… phải nằm trong COMMAND-NAMES.
+    dieu_phoi_lb: "bash -c 'LB_CASES=LB1,LB2 node tests/plugins/lenh-bam-duoc.test.mjs'"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc

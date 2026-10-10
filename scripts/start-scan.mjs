@@ -8,7 +8,7 @@
 // (`map.present` / `map.fresh`). Hai nguồn này trước đây chưa dựng nên bộ quét
 // emit `skipped[]` có tên thay vì bịa dữ liệu; F-B dựng xong cả hai nên khoá đó
 // đã GỠ HẲN — một khoá khai mà không thứ gì sinh ra được là hợp đồng chết.
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync, realpathSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -659,6 +659,26 @@ const map = {
 map.state = map.enabled == null ? null
   : mapState({ exists: map.present, tracked: mapTracked(root, cfgRead.t) });
 map.label = map.state == null ? null : MAP_LABELS[map.state];
+// Đợt Điều phối – Thợ đang chạy (hồ sơ dieu-phoi-mo-dot-mot-lenh AC-11): symlink
+// `.acceptance-runs/dieu-phoi-hien-tai` ở gốc CHECKOUT CHÍNH (worktree nào cũng thấy cùng một đợt;
+// không phải kho git thì gốc là `root`). Tên symlink và hai tệp là hợp đồng với gói dieu-phoi —
+// gói ghi, bộ quét chỉ đọc; ca DP2-11 dựng đợt bằng CLI thật của gói rồi quét. Đọc hỏng → null.
+const dotDangChay = (() => {
+  let goc = root;
+  try {
+    goc = path.dirname(execFileSync('git', ['-C', root, 'rev-parse', '--path-format=absolute', '--git-common-dir'],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }).trim());
+  } catch {}
+  try {
+    const thuMuc = realpathSync(path.join(goc, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+    const hv = JSON.parse(readFileSync(path.join(thuMuc, 'hang-viec.json'), 'utf8'));
+    const pDk = path.join(thuMuc, 'dieu-khien.json');
+    const pha = existsSync(pDk) ? JSON.parse(readFileSync(pDk, 'utf8')).pha : 'dang-chay';
+    if (typeof pha !== 'string' || !Array.isArray(hv.hang)) return null;
+    const ten = typeof hv.dot === 'string' && hv.dot ? hv.dot : path.basename(thuMuc);
+    return { ten, pha, slugGiu: hv.hang.map(h => h && h.slug).filter(s => typeof s === 'string') };
+  } catch { return null; }
+})();
 // Lộ trình dựng SAU bản đồ: dòng thẻ cảnh báo «khai lộ trình mà bản đồ chưa bật» đọc `map.enabled`
 // (hồ sơ lo-trinh-tren-du-lieu-that, khảo sát mục 5), và lệnh vẽ trỏ đúng bộ vẽ cạnh tệp này.
 if (tepLoTrinh != null) {
@@ -666,7 +686,8 @@ if (tepLoTrinh != null) {
   const LT = await import('./lo-trinh.mjs');
   loTrinh = LT.loTrinhThe({ root, classify, sections: SECTIONS,
     today: process.env.ACCEPTANCE_TODAY || new Date().toISOString().slice(0, 10),
-    banDoBat: map.enabled, lenhVe: `node ${path.join(__dirname, 'product-map.mjs')} --root .` });
+    banDoBat: map.enabled, lenhVe: `node ${path.join(__dirname, 'product-map.mjs')} --root .`,
+    slugGiu: dotDangChay ? dotDangChay.slugGiu : null });
 }
 if (map.present) {
   // fresh = null khi KHÔNG kiểm được (không phải "khớp"): thẻ nói "chưa kiểm
@@ -722,4 +743,6 @@ const metaOpen = (() => {
   kq.flag = kq.n >= 2;
   return kq;
 })();
-out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken, loTrinh });
+// Khoá `dotDangChay` CHỈ có mặt khi có đợt: kho không chạy đợt nhận đầu ra byte-bằng bản trước.
+out({ schema_version: 1, config: true, git, groups: { gates, inProgress, considering, done }, vetoOpen, vetoOpenUnsigned, map, discovery, metaOpen, broken, loTrinh,
+  ...(dotDangChay ? { dotDangChay: { ten: dotDangChay.ten, pha: dotDangChay.pha } } : {}) });

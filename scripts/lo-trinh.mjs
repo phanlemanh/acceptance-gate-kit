@@ -667,16 +667,23 @@ export function veTrang(opts) {
 }
 // Thẻ start: dữ liệu từng lộ trình (`ds`) và CÁC DÒNG THẺ dựng sẵn (`dong`) — thân /start in nguyên,
 // không tự soạn (kit render, không soạn; phép đo đo đầu ra thay vì đo chữ chỉ dẫn).
-export function loTrinhThe({ root, classify, sections, today, banDoBat = null, lenhVe = null }) {
+// `slugGiu`: slug các hàng một đợt Điều phối – Thợ đang giữ — hàng kế thuộc đó vẫn hiện chữ, nhưng
+// `thamSo` null nên thẻ không mời mở nó lần thứ hai.
+export function loTrinhThe({ root, classify, sections, today, banDoBat = null, lenhVe = null, slugGiu = null }) {
   const k = phanTichKho({ root, classify, sections });
   if (k == null) return null;
   const nhieu = k.cacTep.length > 1;
+  const giu = new Set(slugGiu || []);
+  const slugKe = kq => {
+    const d = kq.hangKe ? kq.dong.find(x => x._nhan === kq.hangKe.ma) : null;
+    return d ? (chuoi(d.slug) || suySlug(d.cau_giao)) : null;
+  };
   const ds = k.cacTep.map(p => {
     if (p.loi) return { tep: p.tep, ten: null, loi: p.loi, hangKe: null, hangTre: [], mocKhongHang: { k: 0, n: 0 }, tinTheoLoi: { n: 0, tong: 0 }, tuKhaiNgoai: 0, co: [] };
     const kq = p.kq;
     return {
       tep: p.tep, ten: kq.ten || null, loi: null,
-      hangKe: kq.hangKe ? { ma: kq.hangKe.ma, cauGiao: kq.hangKe.cauGiao, thamSo: thamSoKe(kq, p.tep, nhieu) } : null,
+      hangKe: kq.hangKe ? { ma: kq.hangKe.ma, cauGiao: kq.hangKe.cauGiao, thamSo: giu.has(slugKe(kq)) ? null : thamSoKe(kq, p.tep, nhieu) } : null,
       hangTre: hangTre(kq, today), mocKhongHang: mocKhongHang(kq), tinTheoLoi: kq.tinTheoLoi, tuKhaiNgoai: kq.tuKhaiNgoai, co: kq.co,
     };
   });

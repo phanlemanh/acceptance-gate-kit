@@ -41,7 +41,7 @@ const ALLOW_HARNESS = ['goal'];
 // pluginNameOf: prefix → name đọc từ plugin.json (mặc định: các thư mục plugin của kit)
 const defaultPluginNameOf = () => {
   const map = {};
-  for (const d of ['.', 'feature-loop', 'diagram-design']) {
+  for (const d of ['.', 'feature-loop', 'diagram-design', 'dieu-phoi']) {
     const pj = path.join(ROOT, d, '.claude-plugin', 'plugin.json');
     if (existsSync(pj)) map[JSON.parse(readFileSync(pj, 'utf8')).name] = path.join(ROOT, d);
   }

@@ -42,6 +42,7 @@ worktree/nhánh đọc từ git của `<path>`.
    vetoOpenUnsigned
    broken[].slug broken[].file broken[].reason broken[].stateKey broken[].label broken[].viecKe broken[].flags
    loTrinh.tep loTrinh.ten loTrinh.loi loTrinh.hangKe.ma loTrinh.hangKe.cauGiao loTrinh.hangTre[].ma loTrinh.hangTre[].moc loTrinh.hangTre[].ngay loTrinh.tinTheoLoi.n loTrinh.tinTheoLoi.tong loTrinh.tuKhaiNgoai loTrinh.co loTrinh.trang loTrinh.trangCo loTrinh.ds[].tep loTrinh.ds[].ten loTrinh.ds[].loi loTrinh.ds[].hangKe.ma loTrinh.ds[].hangKe.cauGiao loTrinh.ds[].hangKe.thamSo loTrinh.ds[].hangTre[].ma loTrinh.ds[].hangTre[].moc loTrinh.ds[].hangTre[].ngay loTrinh.ds[].mocKhongHang.k loTrinh.ds[].mocKhongHang.n loTrinh.ds[].tinTheoLoi.n loTrinh.ds[].tinTheoLoi.tong loTrinh.ds[].tuKhaiNgoai loTrinh.ds[].co loTrinh.dong
+   dotDangChay.ten dotDangChay.pha
    START-SCAN-KEYS>>> -->
 
 2. **Nạp luật TRƯỚC khi viết:** đọc
@@ -135,6 +136,9 @@ worktree/nhánh đọc từ git của `<path>`.
      việc đã rõ → `/feature-loop:feature-loop <mô tả>`; (c) việc vặt khớp miễn trừ T1 →
      xác nhận nó là T1 rồi KẾT THÚC `/acceptance-gate:start` — người ra lệnh sửa ở lượt kế,
      ngoài nghi thức này (lệnh `/acceptance-gate:start` không sửa gì, kể cả việc vặt).
+   - **Đợt đang chạy** (`dotDangChay` — gói dieu-phoi, hồ sơ dieu-phoi-mo-dot-mot-lenh): khoá vắng →
+     KHÔNG in gì. Có khoá → in đúng một dòng `đợt <dotDangChay.ten> đang chạy → /dieu-phoi:xem`.
+     Hàng kế mà một dãy của đợt đang giữ có `hangKe.thamSo` null, nên không thành lựa chọn mở.
    <!-- <<<START-LO-TRINH -->
    - **Lộ trình** (`loTrinh` — ổ cắm `lo_trinh.tep` trong `_acceptance/config.yaml`, một tệp hoặc
      một danh sách; hồ sơ viec-ke-theo-plan và lo-trinh-tren-du-lieu-that): `loTrinh` là `null` →

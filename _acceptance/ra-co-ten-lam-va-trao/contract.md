@@ -174,6 +174,7 @@ tests/scripts/lo-trinh-kho-thu.mjs fixture-code-sinh-mang-status-dựng-kho-th�
 tests/scripts/eval-thay-boi.test.mjs fixture-code-sinh-mang-status-hồ-sơ-thay-để-luật-thay-bởi-đọc-ca-không-rẽ-nhánh-theo-status
 dieu-phoi/scripts/phat-lich.mjs lõi-dieu-phoi-chuyển-nguyên-từ-crm-đọc-status-hồ-sơ-KHO-TIÊU-THỤ-để-suy-hàng-kế-không-phải-bộ-đọc-bảng-trạng-thái-kit-lỗ-machine-cleared-khai-ở-sổ-dieu-phoi-dong-goi-loi
 tests/dieu-phoi/loi/phat-lich.test.mjs fixture-ca-lõi-dieu-phoi-mang-status-không-rẽ-nhánh-theo-status-của-hồ-sơ-này
+tests/dieu-phoi/mo-dot.test.mjs io-giả-của-bộ-phát-lịch-dieu-phoi-trả-status-hồ-sơ-trên-nhánh-chính-không-rẽ-nhánh-theo-status-của-hồ-sơ-này
 BO-DOC-KHAI-GACH>>> -->
 
 
