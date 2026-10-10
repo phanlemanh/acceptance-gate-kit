@@ -248,3 +248,115 @@ test('DP2-04-do bo-bang', async () => {
   const { loi } = await kiemBangChuyen(p);
   assert.ok(loi.some((l) => l.startsWith('dang-dong → nhap')), `phải nêu «dang-dong → nhap»: ${loi.join(' | ')}`);
 });
+
+// ---------- DP2-05: bộ phát lịch theo pha (AC-5, E5) ----------
+// io giả của một nhịp: chuỗi sức khoẻ lành, gh/git trả rỗng (tuỳ chọn: contract signed-off cho một slug).
+const ioGia = (nowMs, { goi = [], kyTren = [] } = {}) => ({
+  nowMs: () => nowMs,
+  chay: (cmd, args = []) => {
+    goi.push([cmd, ...args].join(' '));
+    if (cmd === 'sysctl' && args[0] === 'vm.swapusage') return 'total = 24576.00M  used = 0.00M  free = 1.00M';
+    if (cmd === 'sysctl' && args.includes('kern.memorystatus_vm_pressure_level')) return '1';
+    if (cmd === 'sysctl') return '{ 1.00 1.00 1.00 }';
+    if (cmd === 'ps') return '102400 node\n';
+    if (cmd === 'gh') return '[]';
+    if (cmd === 'git' && args[0] === 'show') {
+      const m = /_acceptance\/([^/]+)\/contract\.md$/.exec(args[1] ?? '');
+      if (m && kyTren.includes(m[1])) return 'status: signed-off\n';
+      throw new Error('khong co');
+    }
+    return '';
+  },
+});
+const suKien = (dot) => {
+  const p = path.join(dot, 'su-kien.jsonl');
+  return fs.existsSync(p) ? fs.readFileSync(p, 'utf8').split('\n').filter(Boolean).map((d) => JSON.parse(d)) : [];
+};
+const ghiDon = (dot, phien, loai, worktree) =>
+  ghiJ(path.join(dot, 'xin', `${phien}-${loai}.json`), { phien, slug: `h-${phien}`, loai, luc: new Date().toISOString(), worktree });
+const nap = (gocGoi, tep) => import(`${path.join(gocGoi, 'scripts', tep)}?v=${Math.random()}`);
+
+// Một đợt mở từ gói, đặt pha, có đơn merge (P1) và s4 (P2); một nhịp; trả tài nguyên được cấp.
+async function capTheoPha(gocGoi, pha) {
+  const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
+  const { datPha } = await nap(gocGoi, 'pha.mjs');
+  const kho = khoThu('dp2-pha-kho-');
+  const { w1, w2 } = goiThu(kho);
+  khaiGoi(kho);
+  assert.equal(chayCli(kho, ['mo', 'thu'], { gocGoi }).ma, 0);
+  const dot = thuMucDot(kho);
+  if (pha !== 'nhap') datPha(dot, 'dang-chay', { boi: 't' });
+  if (pha === 'tam-dung' || pha === 'dang-dong') datPha(dot, pha, { boi: 't' });
+  ghiDon(dot, 'P1', 'merge', w1);
+  ghiDon(dot, 'P2', 's4', w2);
+  const gio = Date.now();
+  await taoVong(dot, ioGia(gio), () => gio)();
+  const cap = suKien(dot).filter((e) => e.loai === 'cap').map((e) => e.tai_nguyen).sort();
+  return { cap, tt: docJ(path.join(dot, 'trang-thai.json')), dot, kho };
+}
+
+const BANG_CAP = { 'dang-chay': ['merge', 's4'], nhap: [], 'tam-dung': [], 'dang-dong': ['merge'] };
+
+async function kiemCapTheoPha(gocGoi) {
+  const loi = [];
+  for (const [pha, can] of Object.entries(BANG_CAP)) {
+    process.env.DIEU_PHOI_MAY_DIR = tam('dp2-may05-');
+    const { cap, tt } = await capTheoPha(gocGoi, pha);
+    if (cap.join(',') !== can.join(',')) loi.push(`${pha}: cấp [${cap}] cần [${can}]`);
+    if (tt.pha !== pha) loi.push(`${pha}: trang-thai.pha = ${tt.pha}`);
+  }
+  return loi;
+}
+
+test('DP2-05 cap-theo-pha', async () => {
+  assert.deepEqual(await kiemCapTheoPha(GOI), []);
+});
+
+// Dựng fixture đợt cũ crm (dot-crm-0910 của DP1) vào một kho thử — chép lại cách dựng của dong-goi.test.
+export function dungDotCu() {
+  const kho = khoThu('dp2-cu-');
+  const dot = path.join(kho, '.acceptance-runs', 'dieu-phoi-sau-14-10');
+  chep(path.join(DAY, 'fixtures', 'dot-crm-0910'), dot);
+  const tatCa = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? tatCa(path.join(d, e.name)) : [path.join(d, e.name)]));
+  const ke = kho.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  for (const p of tatCa(dot)) {
+    const t = fs.readFileSync(p, 'utf8');
+    if (!t.includes('@KHO@')) continue;
+    const moi = t.split('@KHO@').join(kho);
+    for (const m of moi.matchAll(new RegExp(`"(${ke}[^"]*)"`, 'g'))) fs.mkdirSync(m[1], { recursive: true });
+    fs.writeFileSync(p, moi);
+  }
+  for (const tn of fs.readdirSync(path.join(dot, 'khoa'))) {
+    const pn = path.join(dot, 'khoa', tn, 'nhip');
+    if (fs.existsSync(pn)) {
+      const l = new Date(fs.readFileSync(pn, 'utf8').trim());
+      if (!Number.isNaN(l.getTime())) fs.utimesSync(pn, l, l);
+    }
+  }
+  fs.symlinkSync(dot, path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+  return { kho, dot: fs.realpathSync(dot), chup: Date.parse(docJ(path.join(dot, 'trang-thai.json')).nhip_cuoi) };
+}
+
+test('DP2-05 dot-cu', async () => {
+  const { taoVong } = await nap(GOI, 'phat-lich.mjs');
+  const { dot, chup } = dungDotCu();
+  assert.equal(fs.existsSync(path.join(dot, 'dieu-khien.json')), false, 'fixture phải là đợt cũ (không dieu-khien.json)');
+  const sau = chup + 60_000;
+  await taoVong(dot, ioGia(sau), () => sau)();
+  assert.equal(docJ(path.join(dot, 'trang-thai.json')).pha, 'dang-chay');
+  assert.deepEqual(suKien(dot).filter((e) => e.loai === 'loi-nhip').map((e) => e.ly_do), []);
+  assert.deepEqual(suKien(dot).filter((e) => e.loai === 'hang-gop'), [], 'đợt nâng cấp không được đếm vống hàng đã gộp');
+});
+
+test('DP2-05-do bo-pha', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  assert.deepEqual(await kiemCapTheoPha(sao), [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'phat-lich.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace('    if (!choPhepTheoPha(pha, taiNguyen)) continue;\n', '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const loi = await kiemCapTheoPha(sao);
+  assert.ok(loi.some((l) => l.startsWith('nhap:')), `phải nêu «nhap»: ${loi.join(' | ')}`);
+});
