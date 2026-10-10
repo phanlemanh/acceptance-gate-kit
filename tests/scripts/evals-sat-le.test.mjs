@@ -6,8 +6,8 @@
 // hằng BASE_DIRS (evals-sat-le-lib.mjs). Đường dẫn suy từ vị trí tệp này.
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { realpathSync, writeFileSync, readFileSync, mkdirSync, cpSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { realpathSync, writeFileSync, readFileSync, mkdirSync, cpSync, statSync, readdirSync } from 'node:fs';
+import { spawnSync, execFileSync } from 'node:child_process';
 import * as L from './evals-sat-le-lib.mjs';
 
 const require = createRequire(import.meta.url);
@@ -285,6 +285,64 @@ ca('GD2', 'chiều đỏ: glossOf của base trên sát lề rơi về rationale
   const a = g(khoGold('satle'), 'demo', 'J1', 'RATIONALE');
   if (a !== 'RATIONALE') return `base không tái hiện: ${a}`;
   console.log('    · gold mất câu hỏi sát lề (base)'); return true;
+});
+
+// ── AC-11: lưới phân loại MỌI bên đọc evals.yaml (đóng lớp «đọc thiếu im lặng») ────────
+// Bảng VIẾT TRƯỚC: mỗi tệp mã nhắc `evals.yaml` một kết luận. `danh-sach` = đọc trường danh sách
+// và PHẢI đi qua MỘT bộ đọc ở lib · `truong-don` = chỉ đọc trường đơn (parseEvals/expectedExits/…)
+// · `khong-doc` = chỉ nhắc tên tệp, không đọc nội dung. Tệp mới chưa phân loại là ĐỎ.
+const BEN_DOC = {
+  'feature-loop/scripts/carry-plan.mjs': 'danh-sach',
+  'feature-loop/scripts/repin-lane.mjs': 'danh-sach',
+  'feature-loop/scripts/s4-args.mjs': 'danh-sach',
+  'lib/evidence-core.cjs': 'danh-sach',
+  'scripts/gate-card.js': 'danh-sach',
+  'lib/eval-yaml.cjs': 'truong-don',
+  'lib/lop-nhin-thay.cjs': 'truong-don',
+  'lib/nhan-canh-gay.cjs': 'truong-don',
+  'scripts/acceptance-gold.mjs': 'truong-don',
+  'scripts/eval-coverage-lint.js': 'truong-don',
+  'scripts/pre-merge-check.sh': 'truong-don',
+  'scripts/recheck-evidence.cjs': 'truong-don',
+  'feature-loop/scripts/chup-ho-so-da-thong.mjs': 'khong-doc',
+  'feature-loop/scripts/lib/phan-loai.mjs': 'khong-doc',
+  'feature-loop/workflows/acceptance-verify.js': 'khong-doc',
+  'lib/workspace-record.cjs': 'khong-doc',
+  'scripts/loi-ra-tran-luot.cjs': 'khong-doc',
+};
+function benDocCua(root) {
+  const out = [];
+  const di = rel => {
+    const abs = path.join(root, rel);
+    let st; try { st = statSync(abs); } catch (_) { return; }
+    if (st.isDirectory()) { for (const n of readdirSync(abs)) if (n !== 'node_modules') di(path.join(rel, n)); return; }
+    if (/\.(c?js|mjs|sh)$/.test(rel) && readFileSync(abs, 'utf8').includes('evals.yaml')) out.push(rel.split(path.sep).join('/'));
+  };
+  for (const g of ['lib', 'scripts', 'feature-loop', 'hooks']) di(g);
+  return out.sort();
+}
+function luoiBenDoc(root) {
+  const loi = [];
+  for (const f of benDocCua(root)) {
+    if (!BEN_DOC[f]) { loi.push(`bên đọc chưa phân loại: ${f}`); continue; }
+    if (BEN_DOC[f] === 'danh-sach' && !/evalListsOf|evalPathsOf|danhSachKhongDoc/.test(readFileSync(path.join(root, f), 'utf8'))) loi.push(`bên đọc danh sách không qua lib: ${f}`);
+  }
+  return loi;
+}
+ca('LB1', 'mọi tệp mã nhắc evals.yaml đều có trong bảng; tệp «danh sách» đi qua lib; cây không báo dòng nào', () => {
+  const ds = benDocCua(L.KIT);
+  if (!ds.length) return 'không rút được tệp nào (lưới rỗng)';
+  const loi = luoiBenDoc(L.KIT);
+  return !loi.length || loi.join(' · ');
+});
+ca('LB2', 'chiều đỏ: bản sao cây thêm một tệp đọc evals.yaml bằng biểu thức riêng → đỏ gọi tên', () => {
+  const d = L.tam('luoi');
+  execFileSync('bash', ['-c', 'git -C "$1" archive HEAD lib scripts feature-loop hooks | tar -x -C "$2"', '_', L.KIT, d]);
+  if (luoiBenDoc(d).length) return `đối chứng dương hỏng: bản sao sạch đã đỏ — ${luoiBenDoc(d)[0]}`;
+  writeFileSync(path.join(d, 'scripts', 'doc-rieng.mjs'), "import fs from 'node:fs';\nconst t = fs.readFileSync('evals.yaml', 'utf8');\nexport const paths = t.match(/^    paths: (.*)$/m);\n");
+  const loi = luoiBenDoc(d);
+  if (!loi.includes('bên đọc chưa phân loại: scripts/doc-rieng.mjs')) return `lưới không bắt: ${J(loi)}`;
+  console.log('    · bên đọc chưa phân loại: scripts/doc-rieng.mjs'); return true;
 });
 
 console.log(`Results: ${pass} passed, ${fail} failed (evals-sat-le)`);
