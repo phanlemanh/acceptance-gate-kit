@@ -59,6 +59,9 @@ executors:
     # limit Ngoài-1 lặp ba lần). Gộp thành MỘT dòng vì workflow lượt chấm chỉ giữ ba dòng cuối
     # (gồm dòng __EXIT) của lệnh xanh khi viết báo cáo (lượt chấm 2 của release-2-25-0 bắt).
     rel2250_vung_3_p200: "bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E \"FAIL|^Results:|P200 (VE|OK)|[[]chieu do]\" | tail -n 60 | paste -sd\"|\" -'"
+    # Gói dieu-phoi (hồ sơ dieu-phoi-dong-goi-loi): lõi 84 ca + ca DP1-*. Gộp dòng ghim «ok … DP1-…»,
+    # mọi «not ok» và tổng kết TAP thành MỘT dòng — lượt chấm chỉ giữ vài dòng cuối của lệnh xanh.
+    dieu_phoi: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP1-|^ *not ok|^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
@@ -614,6 +617,8 @@ executors:
     lsgd_ac10: LSGD_CASES=AC-10 node tests/scripts/luot-sua-giu-du.test.mjs
     lsgd_ac11: LSGD_CASES=AC-11 node tests/scripts/luot-sua-giu-du.test.mjs
     lsgd_ac12: LSGD_CASES=AC-12 node tests/workflows/luot-sua-giu-du.test.mjs
+    dieu_phoi_ci: node tests/dieu-phoi/chay-buoc-ci.mjs
+    dieu_phoi_validate: node tests/dieu-phoi/kiem-validate.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

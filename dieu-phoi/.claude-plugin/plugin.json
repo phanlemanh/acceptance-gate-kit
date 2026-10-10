@@ -1,0 +1,8 @@
+{
+  "name": "dieu-phoi",
+  "version": "2.26.0",
+  "description": "Điều phối – Thợ: bộ phát lịch giữ khoá S4 / đường nền / merge, CLI đợt và bốn hook (chặn S4, nhịp, chờ người). Cài theo kho (--scope project); hook im ở kho không có đợt. Không tự bật qua acceptance-init. Đi cùng feature-loop cùng số phiên bản.",
+  "author": {
+    "name": "Manh Phan"
+  }
+}
