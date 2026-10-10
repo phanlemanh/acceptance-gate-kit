@@ -62,6 +62,8 @@ executors:
     # Gói dieu-phoi (hồ sơ dieu-phoi-dong-goi-loi): lõi 84 ca + ca DP1-*. Gộp dòng ghim «ok … DP1-…»,
     # mọi «not ok» và tổng kết TAP thành MỘT dòng — lượt chấm chỉ giữ vài dòng cuối của lệnh xanh.
     dieu_phoi: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP1-|^ *not ok|^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # P200 + P33 của suite plugins (AC-9, E9): khoá `plugins` lọc bỏ dòng PASS nên không ghim được.
+    dieu_phoi_plugins: bash tests/dieu-phoi/chay-p200-p33.sh
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc

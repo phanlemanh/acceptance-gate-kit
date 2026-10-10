@@ -5,8 +5,9 @@ feature_slug: dieu-phoi-dong-goi-loi
 #   executors.test.dieu_phoi       = node --test --test-reporter=tap "tests/dieu-phoi/**/*.test.mjs"
 #   executors.script.dieu_phoi_ci  = node tests/dieu-phoi/chay-buoc-ci.mjs
 #   executors.script.dieu_phoi_validate = node tests/dieu-phoi/kiem-validate.mjs
-#   executors.test.dieu_phoi_plugins = chạy riêng khối P200 và P33 của tests/plugins/run-tests.sh, giữ dòng PASS/FAIL
-#     (khoá `plugins` hiện có lọc bỏ dòng PASS nên không ghim được)
+#   executors.test.dieu_phoi_plugins = bash tests/dieu-phoi/chay-p200-p33.sh — chạy riêng khối P200 và P33 của
+#     tests/plugins/run-tests.sh, giữ dòng PASS/FAIL (khoá `plugins` hiện có lọc bỏ dòng PASS nên không ghim được)
+# executors.test.dieu_phoi và chay-p200-p33.sh gộp dòng ghim thành MỘT dòng: lượt chấm chỉ giữ vài dòng cuối.
 # Kho thử do code sinh trong lượt (git init trong thư mục tạm). Đường dẫn suy từ vị trí tệp test. Mỗi
 # ca đỏ chạy CHÍNH hàm hay lệnh đo trên bản sao bị tiêm, SAU khi bản lành xanh trên cùng fixture, và
 # ghim thông điệp. Mỗi eval ghim đúng dòng TAP «ok … - DP1-…». Suite xanh mà thiếu dòng ghim là ĐỎ.
@@ -166,7 +167,7 @@ evals:
     criterion: AC-9
     executor: test
     cmd: config:executors.test.dieu_phoi_plugins
-    paths: [dieu-phoi/.claude-plugin/plugin.json, GUIDE.md, tests/plugins/run-tests.sh]
+    paths: [dieu-phoi/.claude-plugin/plugin.json, GUIDE.md, tests/plugins/run-tests.sh, tests/dieu-phoi/chay-p200-p33.sh]
     expected: >
       exit 0; stdout có "PASS: P200" và "PASS: P33" với P200 đọc bốn manifest (dòng in có "dieu-phoi") và
       câu «Khớp phiên bản» có "dieu-phoi"; P33 liệt kê dieu-phoi/ trong vùng quét. Và ca chiều đỏ trong

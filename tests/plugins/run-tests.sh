@@ -310,22 +310,44 @@ run "P33 no source file globs the plugin cache (resolve-plugin.mjs is the only p
   python3 - "$ROOT" <<'PY'
 import sys, re
 from pathlib import Path
+import shutil, tempfile
 root = Path(sys.argv[1])
-areas = ["skills", "feature-loop", "commands", "hooks", "lib", "scripts"]
-files = [p for a in areas for p in (root / a).rglob("*")
-         if p.is_file() and p.suffix in {".md", ".js", ".cjs", ".mjs", ".sh", ".json"}]
-files += [root / f for f in ("README.md", "GUIDE.md", "QUICKSTART.md")]
+# dieu-phoi: gói thứ tư (hồ sơ dieu-phoi-dong-goi-loi AC-9) — cùng luật «chỉ resolve-plugin.mjs».
+AREAS = ["skills", "feature-loop", "commands", "hooks", "lib", "scripts", "dieu-phoi"]
 ALLOW = {"feature-loop/scripts/resolve-plugin.mjs"}  # documents the pattern it replaces
-offenders = []
-for p in files:
-    if not p.exists():
-        continue
-    rel = str(p.relative_to(root))
-    if rel in ALLOW:
-        continue
-    text = p.read_text(encoding="utf-8", errors="replace")
-    if re.search(r"plugins/cache", text):
-        offenders.append(rel)
+
+def quet(goc):
+    files = [p for a in AREAS for p in (goc / a).rglob("*")
+             if p.is_file() and p.suffix in {".md", ".js", ".cjs", ".mjs", ".sh", ".json"}]
+    files += [goc / f for f in ("README.md", "GUIDE.md", "QUICKSTART.md")]
+    offenders = []
+    for p in files:
+        if not p.exists():
+            continue
+        rel = str(p.relative_to(goc))
+        if rel in ALLOW:
+            continue
+        if re.search(r"plugins/cache", p.read_text(encoding="utf-8", errors="replace")):
+            offenders.append(rel)
+    return [p for p in files if p.exists()], offenders
+
+# Đối chứng dương + chiều đỏ trên bản sao CHỈ gồm dieu-phoi/: lành → 0 offender; thêm một bản
+# resolve-plugin.mjs vào gói → offender nêu đúng tệp đó.
+tmp = Path(tempfile.mkdtemp(prefix="p33-"))
+try:
+    shutil.copytree(root / "dieu-phoi", tmp / "dieu-phoi")
+    f0, o0 = quet(tmp)
+    assert [p for p in f0 if "dieu-phoi" in p.parts], "P33 VUNG: ban sao khong quet tep nao duoi dieu-phoi/"
+    assert not o0, f"doi chung duong hong: ban sao lanh da co offender {o0}"
+    shutil.copy(root / "feature-loop/scripts/resolve-plugin.mjs", tmp / "dieu-phoi/scripts/resolve-plugin.mjs")
+    _, o1 = quet(tmp)
+    assert o1 == ["dieu-phoi/scripts/resolve-plugin.mjs"], f"chieu do khong chay: {o1}"
+    print("     P33 [chieu do] ban sao co dieu-phoi/scripts/resolve-plugin.mjs -> DO")
+finally:
+    shutil.rmtree(tmp, ignore_errors=True)
+
+files, offenders = quet(root)
+print("     P33 VUNG: " + ", ".join(AREAS) + f" ({len(files)} tep)")
 assert files, "sanity: globbed zero source files — the scan itself is broken"
 assert not offenders, (
     "cache-glob resurfaced in: " + ", ".join(offenders) +
@@ -10873,6 +10895,8 @@ const rd = (root, rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8
 const AG = '.claude-plugin/plugin.json';
 const FL = 'feature-loop/.claude-plugin/plugin.json';
 const DD = 'diagram-design/.claude-plugin/plugin.json';
+// Gói thứ tư (hồ sơ dieu-phoi-dong-goi-loi AC-9): đi cùng số với feature-loop.
+const DP = 'dieu-phoi/.claude-plugin/plugin.json';
 // Mục của MỘT số trong mô tả = từ «v<số>» tới hết chuỗi (mô tả xếp theo thời gian).
 const muc = (mota, v) => { const i = mota.indexOf('v' + v); return i < 0 ? null : mota.slice(i); };
 
@@ -10880,16 +10904,17 @@ const muc = (mota, v) => { const i = mota.indexOf('v' + v); return i < 0 ? null 
 function kiem(root) {
   const out = [];
   const load = (rel, ten) => { try { return { v: rd(root, rel) }; } catch (e) { return { err: `${ten}: ${String(e.message).split('\n')[0]}` }; } };
-  const A = load(AG, 'manifest acceptance-gate'), F = load(FL, 'manifest feature-loop'), D = load(DD, 'manifest diagram-design');
-  for (const X of [A, F, D]) if (X.err) out.push(red(`khong doc duoc ${X.err}`));
-  if (A.err || F.err || D.err) return out;   // nguồn hỏng: đã có vế đỏ có tên, không đoán tiếp
+  const A = load(AG, 'manifest acceptance-gate'), F = load(FL, 'manifest feature-loop'), D = load(DD, 'manifest diagram-design'), P = load(DP, 'manifest dieu-phoi');
+  for (const X of [A, F, D, P]) if (X.err) out.push(red(`khong doc duoc ${X.err}`));
+  if (A.err || F.err || D.err || P.err) return out;   // nguồn hỏng: đã có vế đỏ có tên, không đoán tiếp
 
   const V = A.v.version;
-  for (const [n, v] of [['acceptance-gate', V], ['feature-loop', F.v.version], ['diagram-design', D.v.version]])
+  for (const [n, v] of [['acceptance-gate', V], ['feature-loop', F.v.version], ['diagram-design', D.v.version], ['dieu-phoi', P.v.version]])
     out.push(/^\d+\.\d+\.\d+$/.test(v) ? ok(`${n} hop semver: ${v}`) : red(`${n} khong hop semver: ${v}`));
   out.push(F.v.version === V ? ok(`hai plugin cung so: ${V}`) : red(`hai plugin lech so: acceptance-gate ${V} vs feature-loop ${F.v.version}`));
+  out.push(P.v.version === V ? ok(`dieu-phoi cung so: ${V}`) : red(`dieu-phoi lech so: acceptance-gate ${V} vs dieu-phoi ${P.v.version}`));
 
-  const want = `Khớp phiên bản: acceptance-gate ${V} · feature-loop ${F.v.version} · diagram-design ${D.v.version}.`;
+  const want = `Khớp phiên bản: acceptance-gate ${V} · feature-loop ${F.v.version} · diagram-design ${D.v.version} · dieu-phoi ${P.v.version}.`;
   let g = null; try { g = fs.readFileSync(path.join(root, 'GUIDE.md'), 'utf8'); } catch { g = null; }
   out.push(g === null ? red('khong doc duoc GUIDE.md')
     : g.includes(want) ? ok('GUIDE khop so DOC TU manifest') : red(`GUIDE khong chua cau dan xuat: ${want}`));
@@ -10909,7 +10934,7 @@ const tmps = [];
 process.on('exit', () => { for (const d of tmps) { try { fs.rmSync(d, { recursive: true, force: true }); } catch {} } });
 function banSao() {
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'p200-')); tmps.push(d);
-  for (const rel of [AG, FL, DD]) { fs.mkdirSync(path.join(d, path.dirname(rel)), { recursive: true }); fs.copyFileSync(path.join(ROOT, rel), path.join(d, rel)); }
+  for (const rel of [AG, FL, DD, DP]) { fs.mkdirSync(path.join(d, path.dirname(rel)), { recursive: true }); fs.copyFileSync(path.join(ROOT, rel), path.join(d, rel)); }
   fs.copyFileSync(path.join(ROOT, 'GUIDE.md'), path.join(d, 'GUIDE.md'));
   return d;
 }
@@ -10930,7 +10955,7 @@ if (sach.length) loi.push(`ban sao NGUYEN VEN da do (${sach.map(x => x.m).join('
 let nMut = 0;
 function dot(ten, sua, mong) {
   const d = banSao();
-  const doc = () => [AG, FL, DD, 'GUIDE.md'].map(f => fs.readFileSync(path.join(d, f), 'utf8')).join(' ');
+  const doc = () => [AG, FL, DD, DP, 'GUIDE.md'].map(f => fs.readFileSync(path.join(d, f), 'utf8')).join(' ');
   const truoc = doc(); sua(d);
   if (truoc === doc()) { loi.push(`DOT BIEN KHONG AP DUOC [${ten}] — neo doi, phep do khong con chieu do`); return; }
   const r = kiem(d).filter(x => !x.ok);
@@ -10953,17 +10978,18 @@ dot('cau khai cap doi sang muc lich su', d => suaJSON(path.join(d, FL), j => {
   j.description = j.description.slice(0, i) + cau + ' ' + j.description.slice(i);   // câu nằm NGOÀI mục
 }), 'khong khai cap');
 dot('manifest ag hong', d => fs.writeFileSync(path.join(d, AG), '{ hong'), 'khong doc duoc manifest acceptance-gate');
+dot('dieu-phoi lech so', d => suaJSON(path.join(d, DP), j => { j.version = '0.0.1'; }), 'dieu-phoi lech so');
 
 // ── MỘT lối thoát duy nhất ────────────────────────────────────────────────
 // S4-r3 (18/08) bắt bản trước: một khối chèn thêm đã cắt mất nhánh đọc `loi`,
 // nên P200 chỉ còn canh cỗ máy đột biến của CHÍNH NÓ và nuốt trọn vế đỏ của
 // cây thật. Đừng thêm `process.exit` thứ hai ở bất kỳ đâu trong file này.
-const MUT_KY_VONG = 5;
+const MUT_KY_VONG = 6;
 if (nMut !== MUT_KY_VONG) loi.push(`so dot bien chay that ${nMut} != ${MUT_KY_VONG} khai truoc`);
 if (loi.length) { for (const l of loi) console.error(`  P200 LOI: ${l}`); process.exit(1); }
 console.log(`P200 OK (so doc tu manifest — khong ghim mot moc; ${nMut}/${MUT_KY_VONG} dot bien chay that, moi cai ghim dung cau; doi chung duong ban-sao-nguyen-ven)`);
 P200JS
-run "P200 mot lan cat so nhat quan: hai plugin cung so · GUIDE dan xuat · muc mo ta cua chinh so do (5 dot bien, mot loi thoat)" \
+run "P200 mot lan cat so nhat quan: hai plugin cung so · dieu-phoi cung so · GUIDE dan xuat · muc mo ta cua chinh so do (6 dot bien, mot loi thoat)" \
   node "$P200TMP/p200.mjs" "$ROOT"
 rm -rf "$P200TMP"
 
