@@ -74,7 +74,7 @@
       "hang": []
     },
     {
-      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
+      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), trang hồ sơ một việc (X2), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
       "ngay": "2026-11-01",
       "loai": "phat-hanh",
       "ai": "Owner",
@@ -83,7 +83,8 @@
         "L3",
         "G2",
         "G3",
-        "A2"
+        "A2",
+        "X2"
       ]
     },
     {
@@ -243,6 +244,18 @@
       "bat_khi": "Một bản chiếu ngoài kho (trang trong CRM hoặc trang chia sẻ) hiện đúng trạng thái từng hàng chỉ bằng cách đọc tệp kit xuất, so khớp 100 % với LO-TRINH.html cùng lượt vẽ",
       "ghi_chu": "CỘNG — owner phê ở Cổng Đáng khi mở. Trang lộ trình trong CRM là hàng trên lộ trình của crm, không phải việc kit. Làm trước L3 vì cửa góp cần chỗ trả trạng thái về người gửi.",
       "slug": "xuat-du-lieu-lo-trinh"
+    },
+    {
+      "ma": "X2",
+      "nhom": "cua-xem",
+      "hang": "T2",
+      "dung_tren": [
+        "X1"
+      ],
+      "cau_giao": "«Mỗi việc đã giao có một trang hồ sơ đọc trong một phút: vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không»",
+      "vi_sao": "Gốc: crm/_acceptance/trang-lo-trinh-trong-crm — mục «Out of scope» của LT1 ghi «hiện hồ sơ nghiệm thu của việc» là KHÔNG làm; chủ kho 10/10 muốn xem chi tiết một việc như màn chi tiết Thoả thuận. Một hồ sơ LT1: ~80 tệp, 42 quyết định (máy 26 · người 16), 3 lượt chấm, ~140k token — chỉ máy đọc được. Kit VẼ từ vật (0 token), mở rộng trang bằng chứng đang có; xuất dải tóm tắt vào khối dữ liệu lộ trình bản 2 (đọc được bản 1). Khuôn dải: tầng mọi người (đã giao gì · vì sao · trạng thái+ngày · đã lên production chưa · đo gì/khi nào · kết quả · chưa làm gì · ai quyết) + tầng chủ kho (tiêu chí/phép đo · lượt chấm · token · quyết định máy/người · PR+mã). KHÔNG có ô «số lần gọi người» tới khi có máy đếm.",
+      "bat_khi": "Ở phiên nghiệm thu kế, chủ kho đọc xong hồ sơ mỗi việc trong ≤ 1 phút từ trang này, không phải hỏi máy",
+      "ghi_chu": "CỘNG — chủ kho đồng ý 10/10; vẫn qua Cổng Đáng khi mở. Bản chiếu crm là hàng LT1b của crm."
     },
     {
       "ma": "L3",
