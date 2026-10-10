@@ -1,0 +1,175 @@
+schema_version: 1
+feature_slug: trang-ho-so-mot-viec
+# Ca đo sống ở tests/scripts/lo-trinh.test.mjs (LT-150..LT-161, cùng tệp với ca của các vòng lộ trình
+# trước; executor `executors.test.lo_trinh` chạy đúng tệp đó — không thêm khoá executor). Kho thử do
+# code sinh trong lượt (git init trong thư mục tạm); giá trị mong đợi của từng ô viết sẵn trong ca lúc
+# dựng kho thử, KHÔNG rút từ đầu ra bộ vẽ. Trang hồ sơ gọi bằng spawnSync(node scripts/evidence-page.js)
+# như người gọi thật; đường dẫn mọi script suy từ vị trí tệp test. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản
+# sao vật bị tiêm SAU khi bản lành xanh trên cùng kho thử, và ghim thông điệp rút từ đầu ra hàm đo. Bộ
+# vẽ «bản trước vòng» lấy bằng `git archive 65a01f4c scripts lib` (trọn thư mục); sha không resolve
+# được thì ca FAIL, không bỏ qua. Mỗi eval ghim đúng dòng "PASS: LT-…" — suite xanh mà thiếu dòng ghim
+# là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/evidence-page.js, scripts/ho-so-tom-tat.cjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-150" — ô cơ hội của kho thử do `lo-trinh.mjs --mo-o` ghi (bộ viết
+      thật) rồi thêm đoạn lý do; trang hồ sơ của hồ sơ «đủ»: rút dải bằng bộ đọc HTML trong ca
+      (`[data-o]` theo thứ tự); thứ tự khoá == [da_giao, vi_sao, trang_thai, ngay, production, do_gi,
+      ket_qua, chua_lam, ai_quyet]; mỗi giá trị == bảng viết sẵn lúc dựng kho thử; mỗi ô có
+      `data-nguon` == tên tệp nguồn viết sẵn; chữ trạng thái == chữ ô trạng thái của hàng cùng hồ sơ
+      trên LO-TRINH.html vẽ cùng kho thử; trang không chứa «gọi người» (đếm 0). Và "PASS: LT-150 vi-sao-that" — tomTatHoSo trên
+      _acceptance/trang-ho-so-mot-viec của cây (suy từ vị trí test): vi_sao không bắt đầu bằng «Gốc:»,
+      «Mở từ hàng», «>» và không bằng câu giao. Và "PASS: LT-150-do" —
+      bản sao mô-đun đổi nguồn `vi_sao` sang dòng thứ hai của mục: CHÍNH hàm so trả lỗi nêu ô «vi_sao».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/evidence-page.js, scripts/ho-so-tom-tat.cjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-151" — bốn `<details>` có tiêu đề «Vì sao làm», «Đã hứa», «Thiết
+      kế», «Giới hạn và ngoài hợp đồng»; «Đã hứa» có đúng 3 dòng, mã AC-1..AC-3 kèm câu của hợp đồng kho
+      thử; «Giới hạn và ngoài hợp đồng» có 3 mục nguyên văn (2 Out of scope + 1 Known limit); «Thiết kế»
+      trỏ đúng đường design_doc. Và "PASS: LT-151-do" — bản sao hợp đồng thêm AC-4 mà trang vẽ bằng bản
+      sao mô-đun chỉ đọc AC đầu ba dòng → hàm so trả lỗi nêu «AC-4».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/evidence-page.js, scripts/ho-so-tom-tat.cjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-152 kho-thu" — dòng thời gian 6 dòng đọc được (dòng hỏng không hiện),
+      `at` tăng dần, nhãn theo bảng viết sẵn (3 Máy · 3 Người: decided_by, seal, thuc-te); dải tầng chủ
+      kho in Máy 3 · Người 3 và «1 dòng sổ không đọc được»; và "PASS: LT-152 lt1" — sổ 42 dòng do code
+      sinh theo hình dạng LT1 (16 dòng revisit stage gate2 có decided_by, 26 dòng máy S1..S4) ra 26/16.
+      Lọc: script nội tuyến của trang chạy trong vm (DOM tối giản trong ca) với nút «Người» → còn đúng
+      các dòng nhãn Người (16 ở lt1). Và "PASS: LT-152-do" — bản sao luật coi `seal` là máy → hàm so trả
+      lỗi nêu id dòng seal.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/evidence-page.js, scripts/ho-so-tom-tat.cjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-153" — mục «Bằng chứng» của trang mới chứa nguyên đoạn từ `<h2>Các
+      eval</h2>` tới hết «Vòng verify» của trang do evidence-page.js ở `git archive 65a01f4c scripts lib`
+      vẽ trên cùng hồ sơ (so byte đoạn đó, tiêu đề đã bỏ «» được loại khỏi đoạn so); «Tài nguyên» có 3
+      dòng (S3, S4 round 1, S4 round 2) với số tác tử + out-token == bảng viết sẵn, lượt chấm == 2, tổng
+      token == tổng ba dòng; và "PASS: LT-153 lt1" — usage-report ba khối với số LT1 (61.782 · 47.602 ·
+      30.969) → 3 lượt, 140.353. Và "PASS: LT-153-do" — bản sao mô-đun chỉ cộng khối S4 → tổng lệch, lỗi
+      nêu «token».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/evidence-page.js, scripts/ho-so-tom-tat.cjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-154 du" — kho thử có commit gộp tiêu đề «Merge pull request #7 from
+      x/vong» chứa verified_commit: «Giao» có sha đã chấm, ngày ký, người ký, «PR #7»; «Giá trị» có mỗi
+      ngưỡng của ô cơ hội cạnh số đo uat-session viết sẵn; ô production == «đã chạy ở production — bản
+      dựng <sha7>, quan sát <ngày>, <người>» của dòng thuc-te. Và "PASS: LT-154 vang" — bản không gộp,
+      không uat-session, không thuc-te: ba chỗ in đúng «chưa gộp», «chưa đo», «chưa ghi quan sát
+      production». "PASS: LT-154 khong-git" — (a) gốc hồ sơ không có .git, (b) verified_commit là sha
+      không có trong kho: mỗi ca exit 0, «Giao» in «chưa gộp», stderr rỗng. Đối chứng dương trước đỏ:
+      bản «du» xanh trên cùng kho rồi mới gỡ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/evidence-page.js, scripts/ho-so-tom-tat.cjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-155 ma-tran" — 5 ca gỡ một tệp (opportunity.md · decisions.jsonl ·
+      usage-report.md · design_doc · evals.yaml) + 1 ca sổ đời trước `impact`: mỗi ca
+      exit 0, TẬP tên tệp nêu trong các chỗ «chưa có — <tệp>» của trang == {đúng tệp đã gỡ} (in ma trận, số ca đo == 6; ca sổ `impact` thì tập đó rỗng và dòng sổ hiện câu `impact`); "PASS:
+      LT-155 tat-dinh" — vẽ hai lần (TZ=UTC rồi TZ=Asia/Ho_Chi_Minh) giống byte, đếm `src="http`/
+      `href="http` == 0; "PASS: LT-155 that" — mọi `_acceptance/*/evidence-report.md` của cây (suy từ vị
+      trí test): mỗi hồ sơ exit 0, không stderr «TypeError|ReferenceError», in «N hồ sơ» với N > 100;
+      "PASS: LT-155 khong-bao-cao" — hồ sơ không evidence-report → exit 2, stderr chứa «no
+      evidence-report.md».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/ho-so-tom-tat.cjs, scripts/evidence-page.js, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-156" — khối phien_ban == 2; hàng có hồ sơ: tập khoá tom_tat ==
+      {moi_nguoi, chu_kho}, moi_nguoi đủ 9 khoá, chu_kho đủ 7 khoá (bảng viết sẵn), không khoá nào khớp
+      /goi_nguoi/; mỗi giá trị moi_nguoi == ô cùng tên đọc từ trang hồ sơ của cùng hồ sơ, chu_kho ==
+      số trên dải tầng chủ kho của trang (so quan hệ, in số cặp so > 0); moi_nguoi.trang_thai ==
+      hang.trang_thai; hàng chưa hồ sơ tom_tat === null; mọi khoá bản 1 có mặt. Và "PASS: LT-156-do" —
+      bản sao mô-đun đổi luật đếm token → hàm so trả lỗi nêu mã hàng và «token».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-157 moi-doc-cu" — trang vẽ bằng bộ vẽ ở `git archive 65a01f4c scripts
+      lib`, đọc bằng docDuLieu của cây: duLieu khác null, mọi hàng tom_tat === null, canhBao đúng 1 phần
+      tử chứa «khuôn bản 1»; "PASS: LT-157 cu-doc-moi" — bản chép rời docDuLieu (rút từ lo-trinh.mjs
+      của commit gốc, chạy ngoài mô-đun) đọc trang của cây: mỗi khoá bản 1 bằng giá trị docDuLieu của
+      cây đọc ra, canhBao đúng 1 phần tử chứa «mới hơn bộ đọc», không ném; "PASS: LT-157 chep-roi" — bản
+      chép rời docDuLieu của cây == bản trong mô-đun trên trang mới và trang cũ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-158" — bảng khoá rút từ khối marker LO-TRINH-DU-LIEU-KHOA của tài
+      liệu: tập khoá từng cấp (thêm tom_tat, moi_nguoi, chu_kho) == KHUON_DU_LIEU; tài liệu chứa «phiên
+      bản 2» và «khuôn bản 1». Và "PASS: LT-158-do tai-lieu" (bản sao tài liệu bỏ dòng moi_nguoi.ket_qua
+      → lỗi nêu «ket_qua») · "PASS: LT-158-do ma" (bản sao khuôn thêm khoá thu_x → lỗi nêu «thu_x»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/lo-trinh.mjs, scripts/ho-so-tom-tat.cjs, scripts/evidence-page.js, tests/scripts/fixtures/lo-trinh/cau-giao-crm.json, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-159 ham" — ma trận 7 ca viết sẵn + 12 câu crm (fixture chép từ crm
+      10063a25e): mỗi ca == kết quả viết sẵn; câu crm mất đúng ký tự đầu và cuối, số dấu « và » bên trong
+      giữ nguyên (in số ca == 19); "PASS: LT-159 cho-in" — trên kho thử có hàng bọc «» và hàng `«A» và
+      «B»`: ô câu giao + «làm tiếp» của LO-TRINH.html, hang.cau_giao + hang_ke.cau_giao của khối,
+      tiêu đề + da_giao của trang hồ sơ, `feature` của ô cơ hội do --mo-o ghi — mỗi chỗ in câu đã bỏ
+      ngoặc; `«A» và «B»` giữ nguyên ở mọi chỗ; vi_sao/bat_khi giữ chữ gốc. Và "PASS: LT-159-do" — bản
+      sao hàm dùng `^«(.*)»$` → ca `«A» và «B»` đỏ, lỗi nêu ca.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [skills/acceptance/references/lo-trinh-template.json, scripts/lo-trinh.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-160" — mọi `cau_giao` của lo-trinh-template.json (suy đường từ vị trí
+      test) không bắt đầu bằng «, số câu đọc được > 0; kho thử có tệp kế hoạch bọc «»: sha256 tệp kế
+      hoạch trước == sau khi vẽ LO-TRINH.html và chạy --mo-o một hàng. Và "PASS: LT-160-do" — bản sao
+      khuôn bọc lại một câu → lỗi nêu mã hàng của câu đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: ui-check
+    layer: ui-observed
+    paths: [scripts/evidence-page.js, scripts/ho-so-tom-tat.cjs]
+    steps:
+      - "Dựng bản sao: thư mục tạm T; `git -C <kho crm trên máy> archive 10063a25e _acceptance | tar -x -C T` (không có .git); đối chứng: T/_acceptance/trang-lo-trinh-trong-crm/decisions.jsonl có 42 dòng"
+      - "Máy: `node -e` gọi require('<cây>/scripts/ho-so-tom-tat.cjs').tomTatHoSo cho T/_acceptance/trang-lo-trinh-trong-crm, in chu_kho → ghi vào observed; so quyet_dinh_may == 26, quyet_dinh_nguoi == 16, luot_cham == 3, token == 140353"
+      - "Máy: với MỌI thư mục T/_acceptance/*/ có evidence-report.md, chạy `node <cây>/scripts/evidence-page.js --root T --slug <tên>`; đếm hồ sơ, đếm ca exit ≠ 0 hoặc stderr chứa TypeError/ReferenceError → ghi vào observed (số ca lỗi phải == 0, số hồ sơ > 0)"
+      - "Mở file://T/_acceptance/trang-lo-trinh-trong-crm/evidence-page.html ở khổ 1280×800 → screenshot evidence/E12-1-dai.png (màn đầu, không cuộn)"
+      - "Theo bảng «sáu câu → chỗ» của design doc, chỉ ra trên ảnh màn đầu ô/dòng trả lời từng câu: vì sao · hứa gì · quyết gì · tốn gì · giao gì · có ăn thua không — ghi câu trả lời đọc được vào observed"
+      - "Tab tới mục «Đã hứa», Enter để mở; tab tới «Quyết định», Enter, bấm nút lọc «Người» → screenshot evidence/E12-2-nguoi.png; đếm dòng còn hiện"
+      - "Đổi khổ 390×844, tải lại → screenshot evidence/E12-3-hep.png; kiểm document.documentElement.scrollWidth <= 390"
+    expected: "Máy: 26/16/3/140353 và 0 ca lỗi trên mọi hồ sơ crm có báo cáo. Nhìn: chín ô + dòng tầng chủ kho hiện trọn trên màn đầu 1280×800; sáu câu trả lời được đúng chỗ của bảng; mục mở bằng bàn phím; lọc «Người» còn 16 dòng; khổ 390 dải một cột, scrollWidth <= 390"
+    evidence_required: [run_id, exit_code, verifier, verified_at, screenshot]
