@@ -462,7 +462,7 @@ executors:
     esl_mot_nguon: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in MN1 MN2 MN2b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     esl_luoi_ben_doc: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in LB1 LB2; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     # Vi phân trên kho tiêu thụ của máy owner ($HOME/dev/<kho>) — CI không có các kho ấy, khoá này không vào suite_keys.
-    esl_vi_phan_bay_kho: "node tests/scripts/evals-sat-le-vi-phan.mjs --bay-kho --ghi _acceptance/evals-sat-le-doc-du/evidence/vi-phan-bay-kho.txt"
+    esl_vi_phan_bay_kho: "node tests/scripts/evals-sat-le-vi-phan.mjs --bay-kho --ghi .acceptance-runs/evals-sat-le-doc-du/vi-phan-bay-kho.txt"
     # Vật của hồ sơ baseline-tran-bo-qua-don — mỗi khoá ghim các ca của MỘT AC (đối chứng dương + chiều đỏ).
     btbd_hinh_dang_lenh: "bash -c 'out=$(node tests/workflows/baseline-tran-bo-qua-don.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in BH1 BH2 BH3 BH4 BH5 BH5b BH6 BH7 BH8; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     btbd_tran_that: "bash -c 'out=$(node tests/workflows/baseline-tran-bo-qua-don.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in BZ0 BT1 BT2 BT3 BT4 BT5 BT6 BT7 BT8; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
