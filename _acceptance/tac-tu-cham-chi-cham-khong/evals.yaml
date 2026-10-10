@@ -1,0 +1,114 @@
+schema_version: 1
+feature_slug: tac-tu-cham-chi-cham-khong
+# E1–E6: mỗi chân chạy MỘT nhóm của lưới thường trực
+# tests/workflows/tac-tu-cham-hep.test.mjs (AT1–AT4) hoặc tests/scripts/ghi-boi-tac-tu-cham.test.mjs
+# (AT5–AT6) trên cây thật (đối chứng dương) rồi trên bản sao trọn cây đã tiêm một
+# đột biến thay thế nguyên văn (chiều đỏ: exit ≠ 0 VÀ dòng FAIL có tên ca). Chân chứng
+# mũi tiêm trúng (khớp đúng 1 chỗ, bản sao khác bản thật, mutant chạy được) trước khi
+# chấm. Bảng đột biến: design doc §7. Fixture: kho git code sinh, args do s4-args THẬT
+# sinh, dòng sổ do thuoc-vat --write THẬT ghi, bộ chấm chạy dưới tests/workflows/harness.mjs
+# (tải CHÍNH tệp workflow), bản v2.26.0 lấy bằng git show trong lần chạy.
+# E7 judgment hỏi NỘI DUNG hai tệp có trong inputs.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.tccc_dinh_nghia
+    expected: >
+      Cây thật: nhóm AT1 xanh — frontmatter thật của ba tệp feature-loop/agents/:
+      cham-doc tools đúng bằng {Read, Grep, Glob}; cham-lenh tools đúng bằng {Bash,
+      Read, Grep, Glob}; cham-ui không có dòng tools và disallowedTools chứa đủ {Edit,
+      Write, NotebookEdit}; name khớp tên tệp (ma trận viết trước, số assert = số phần
+      tử). Chiều đỏ: them-write-cham-doc → «FAIL: AT1 cham-doc Write»;
+      them-edit-cham-lenh → «FAIL: AT1 cham-lenh Edit»; go-edit-cham-ui →
+      «FAIL: AT1 cham-ui Edit».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/agents/**", "tests/workflows/tac-tu-cham-hep.test.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.tccc_bang_vai
+    expected: >
+      Cây thật: nhóm AT2 xanh — bộ chấm dưới harness, args phủ 9 vai; ma trận 9 vai
+      → loại (judge/triage/synthesize → feature-loop:cham-doc; machine/baseline/finder/
+      refute/provenance → feature-loop:cham-lenh; ui → feature-loop:cham-ui), số lời
+      gọi thiếu agentType = 0.
+      Chiều đỏ: agentT-bo-loai → «FAIL: AT2 thieu agentType»; dao-judge →
+      «FAIL: AT2 judge».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/tac-tu-cham-hep.test.mjs", "tests/workflows/harness.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.tccc_luot_sach
+    expected: >
+      Cây thật: nhóm AT3 xanh — cùng args + câu trả lời giả, bộ chấm đang kiểm và CHÍNH NÓ
+      với bảng vai → loại bị gỡ (bản sao code sinh trong lần chạy; đối chứng: bản gỡ không còn
+      agentType, cây đang kiểm có agentType ở mọi lời gọi) cho mảng đề bài, phán quyết PASS,
+      dòng run-log BẰNG NHAU; opts chỉ khác trường agentType. Chiều đỏ: de-bai-theo-loai →
+      «FAIL: AT3 de bai».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/tac-tu-cham-hep.test.mjs", "tests/workflows/harness.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
+
+  - id: E4
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.tccc_duong_roi
+    expected: >
+      Cây thật: nhóm AT4 xanh — câu trả lời giả ném «agent type '<loại>' not found» cho mọi
+      lời gọi có agentType → lời gọi bị báo gọi lại đúng 1 lần cùng đề bài không agentType;
+      sau lần báo đầu tiên mọi lời gọi khởi động sau đó đi thẳng không loại (tổng hợp báo cáo
+      đúng 1 lời gọi không loại); phán quyết bằng lượt sạch; đúng một dòng loai-tac-tu-vang
+      mà tập khoá BẰNG khoá rút từ khối marker LOAI-VANG-LINE, liệt đúng vai; kết quả có
+      loaiTacTuVang; lỗi khác → không gọi lại, không dòng. Chiều đỏ: goi-lai-moi-loi →
+      «FAIL: AT4 im»; khong-ghi-dong → «FAIL: AT4 dong»; bo-co-ca-luot → «FAIL: AT4 ca luot».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/workflows/acceptance-verify.js", "tests/workflows/tac-tu-cham-hep.test.mjs", "tests/workflows/harness.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
+
+  - id: E5
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.tccc_quy_trach
+    expected: >
+      Cây thật: nhóm AT5 xanh — mười ba hàng (Edit · Write+git commit trích thật · sed -i ·
+      phiên tự sửa · không transcript · tự tìm qua HOME giả · chỉ cat · cd rồi sed -i tên
+      trần · git -C . commit · tự tìm khi thư mục dự án mã hoá khác --root · cp tệp là
+      nguồn · git diff --merge-base + git log chỉ đọc · git cat-file commit) mỗi dòng
+      cay-doi có đúng MỘT dòng ghi-boi-tac-tu-cham theo khuôn GHI-BOI-LINE ngay sau, mã
+      thoát 6 (hàng 2: 5 — thước lệch cùng lượt), đúng tac_tu/cong_cu/tep_khong_ro/
+      khong_doc_duoc. Chiều đỏ: bo-ghi-re → «FAIL: AT5 hang 7»; bo-nhanh-cd → «FAIL: AT5
+      hang 8»; git-theo-chuoi-con → «FAIL: AT5 hang 12».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/thuoc-vat.mjs", "feature-loop/scripts/lib/ghi-boi.mjs", "feature-loop/scripts/lib/cay-doi.mjs", "feature-loop/scripts/s4-args.mjs", "tests/scripts/ghi-boi-tac-tu-cham.test.mjs", "tests/fixtures/ghi-boi/**", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
+
+  - id: E6
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.tccc_khong_doi_cay
+    expected: >
+      Cây thật: nhóm AT6 xanh — bốn hàng (commit chưa đẩy của tác tử · commit gom tệp
+      chưa theo dõi có sẵn · sửa chưa commit · tệp bẩn sẵn bị ghi đè): sau thuoc-vat
+      --write HEAD, chỉ mục và cây làm việc ngoài sổ hồ sơ trước = sau, tệp chưa lưu còn
+      nguyên byte, không có «da hoan lai», lượt kế vẫn bị s4-args chặn «cay doi chua hoan
+      lai» chờ phiên. Chiều đỏ: tu-reset-sau-luot → «FAIL: AT6 khong doi cay».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+    paths: ["feature-loop/scripts/thuoc-vat.mjs", "feature-loop/scripts/lib/ghi-boi.mjs", "feature-loop/scripts/s4-args.mjs", "tests/scripts/ghi-boi-tac-tu-cham.test.mjs", "_acceptance/tac-tu-cham-chi-cham-khong/rang.sh"]
+
+  - id: E7
+    criterion: AC-7
+    executor: judgment
+    inputs:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - docs/superpowers/specs/2026-10-09-tac-tu-cham-chi-cham-khong-design.md
+    question: >
+      Đọc mục S4 của SKILL.md (bước «Mọi verdict» và đoạn mã 6) và design doc §3–§4.
+      (a) Lệnh thuoc-vat.mjs --write trong SKILL có truyền --transcript bằng transcriptDir
+      của kết quả Workflow không? (b) SKILL có nói rằng sau dòng cay-doi có đúng một dòng
+      ghi-boi-tac-tu-cham nói tác tử chấm nào ghi tệp nào, và máy KHÔNG tự hoàn lại — phiên
+      hoàn lại theo hai ca sẵn có không? (c) SKILL có nói nghĩa của loaiTacTuVang (lượt chạy không có
+      loại tác tử hẹp vì phiên mở trước khi cài gói; báo một dòng, không chặn) không?
+      (d) Có câu nào trong phần mới thêm lời dặn tác tử chấm «không sửa mã» làm nghiệm
+      không? PASS khi (a)(b)(c) có và (d) không.
+    evidence_required: [verdict, rationale, verifier, verified_at]
