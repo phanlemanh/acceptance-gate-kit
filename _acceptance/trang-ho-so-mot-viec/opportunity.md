@@ -3,10 +3,10 @@ schema_version: 1
 slug: trang-ho-so-mot-viec
 feature: "«Mỗi việc đã giao có một trang hồ sơ đọc trong một phút: vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không»"
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-10T23:31:24Z   # owner gõ «Làm» một chạm trong phiên 11/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -51,10 +51,10 @@ chục tệp rồi soạn lại — tốn token, và câu trả lời là lời 
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] chủ kho mở trang hồ sơ của một việc đã giao và trả lời được sáu câu — vì sao làm · hứa gì · quyết gì · tốn gì · giao gì · có ăn thua không — trong ≤ 1 phút, không hỏi máy?
-- Kết quả nào là SỐNG: [đề xuất] ở phiên nghiệm thu kế, trên ≥ 2 hồ sơ thật đã ký (một kit, một crm — LT1), chủ kho đọc xong mỗi trang trong ≤ 1 phút và không phải hỏi máy câu nào trong sáu câu.
-- Kết quả nào là CHẾT: [đề xuất] chủ kho phải hỏi máy ≥ 1 trong sáu câu trên cả hai hồ sơ, hoặc đọc quá 2 phút mỗi trang — trang không thay được việc hỏi máy.
-- Timebox: [đề xuất] 2026-11-01 (mốc kế sau đợt thử, cùng S3 · DP6 · L3 — hàng đã gắn mốc này); không cắt mốc trong vòng này.
+- Câu hỏi phép đo trả lời: chủ kho mở trang hồ sơ của một việc đã giao và trả lời được sáu câu — vì sao làm · hứa gì · quyết gì · tốn gì · giao gì · có ăn thua không — trong ≤ 1 phút, không hỏi máy?
+- Kết quả nào là SỐNG: ở phiên nghiệm thu kế, trên ≥ 2 hồ sơ thật đã ký (một kit, một crm — LT1), chủ kho đọc xong mỗi trang trong ≤ 1 phút và không phải hỏi máy câu nào trong sáu câu.
+- Kết quả nào là CHẾT: chủ kho phải hỏi máy ≥ 1 trong sáu câu trên cả hai hồ sơ, hoặc đọc quá 2 phút mỗi trang — trang không thay được việc hỏi máy.
+- Timebox: 2026-11-01 (mốc kế sau đợt thử, cùng S3 · DP6 · L3 — hàng đã gắn mốc này); không cắt mốc trong vòng này.
 
 ## Kết quả prototype
 
@@ -71,11 +71,11 @@ chính hồ sơ LT1 làm dữ liệu.
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: —
+- **decision = build** (hạng T2) — owner gõ «Làm» 11/10 trên khuyến nghị bên dưới. Căn cứ: bảng «Đo 11/10 trên hồ sơ thật» (sáu câu chủ kho hỏi đều chưa có trên trang bằng chứng), giả định 1 đã thử; CỘNG đã được chủ kho đồng ý 10/10 — chữ ký này là chữ ký đích danh của luật CỘNG.
 - **disposition = …** Căn cứ: — (không prototype)
-- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ ký.
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ «Làm».
 
-**Máy khuyến nghị:** `build`, hạng **T2**, **một vòng**. Hạng: vật chỉ chạm `scripts/evidence-page.js`,
+**Máy khuyến nghị lúc mời ký (owner chọn đúng lối này):** `build`, hạng **T2**, **một vòng**. Hạng: vật chỉ chạm `scripts/evidence-page.js`,
 `scripts/lo-trinh.mjs`, tài liệu và khuôn mẫu hàng — không chạm `lib/**`, `hooks/**` hay cổng chặn
 gộp (bộ vẽ chỉ ĐỌC hai bộ đọc dùng chung ở `lib`). Cỡ: dự kiến 12 tiêu chí (bảng dưới) — sát trần
 chính sách 10/10; S1 vượt 13 thì máy tự tách «khối dữ liệu bản 2 + dấu «»» thành vòng hai, không
