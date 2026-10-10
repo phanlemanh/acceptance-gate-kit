@@ -377,3 +377,79 @@ test('DP7-04-do bo-machine-cleared', async () => {
   const loi = await kiemTrangThai(sao);
   assert.ok(loi.some((l) => l.startsWith('machine-cleared: A vẫn đang làm')), `phải nêu «A vẫn đang làm»: ${loi.join(' | ')}`);
 });
+
+// ---------- DP7-07: chờ người một danh sách (AC-7, E7) ----------
+// Yêu cầu can-nguoi do bên viết máy của gói ghi khi gói có (`ghiYeuCau`); gói chưa có thì dựng đúng các tên
+// trường mà dòng «Yêu cầu» của LUAT.md vừa sinh khai — rút rỗng là đỏ.
+async function ghiCanNguoi(gocGoi, dot, cwdDay, phien) {
+  const tepGhi = path.join(gocGoi, 'scripts', 'ghi.mjs');
+  if (fs.existsSync(tepGhi)) {
+    const { ghiYeuCau } = await import(`${tepGhi}?v=${Math.random()}`);
+    return ghiYeuCau(cwdDay, { loai: 'can-nguoi', hang: 'hang-b', noiDung: { cau_hoi: 'chọn a hay b?' } });
+  }
+  const luat = fs.readFileSync(path.join(dot, 'LUAT.md'), 'utf8');
+  const truong = /yeu-cau\/<phiên>-<số>\.json` = `\{([^}]*)\}`/.exec(luat)?.[1]?.split(',').map((s) => s.trim()).filter(Boolean) ?? [];
+  if (truong.length === 0) assert.fail('LUAT.md không có khuôn yêu cầu');
+  const giaTri = { phien, loai: 'can-nguoi', hang: 'hang-b', noi_dung: { cau_hoi: 'chọn a hay b?' }, luc: new Date().toISOString() };
+  const du = Object.fromEntries(truong.map((k) => [k, giaTri[k]]));
+  const p = path.join(dot, 'yeu-cau', `${phien}-1.json`);
+  ghiJ(p, du);
+  return p;
+}
+
+async function kiemChoNguoi(gocGoi) {
+  const loi = [];
+  const hang = [{ ma: 'A', slug: 'hang-a', day: 'P1' }, { ma: 'B', slug: 'hang-b', day: 'P2' }];
+  const { kho, dot, w } = dungDot({ hang, gocGoi });
+  const { xuLyChoNguoi } = await nap(gocGoi, 'hook-cho-nguoi.mjs');
+  assert.equal(xuLyChoNguoi({ hook_event_name: 'Notification', notification_type: 'idle_prompt', message: 'chờ anh', cwd: w.P1, session_id: 's1' }), 'ghi');
+  await ghiCanNguoi(gocGoi, dot, w.P2, 'P2');
+  await nhip(dot, { gocGoi });
+  const tt = docJ(path.join(dot, 'trang-thai.json'));
+  const ds = tt.cho_nguoi ?? [];
+  const p2 = ds.find((c) => c.phien === 'P2');
+  if (!p2) loi.push('can-nguoi không lên bảng');
+  else if (p2.loai !== 'can-nguoi') loi.push(`mục P2 loai ${p2.loai}`);
+  if (ds.length !== 2) loi.push(`cho_nguoi có ${ds.length} mục, cần 2`);
+  const xem = chayCli(kho, ['xem'], { gocGoi }).out;
+  const dongCho = xem.split('\n').filter((d) => d.trim().startsWith('chờ người '));
+  if (dongCho.length !== 2) loi.push(`xem in ${dongCho.length} dòng «chờ người», cần 2`);
+  const dem = () => JSON.parse(chayCli(kho, ['dem', '--json'], { gocGoi }).out).goi_chu_kho.tong;
+  if (dem() !== 2) loi.push(`dem đếm ${dem()} lần gọi chủ kho, cần 2`);
+  return { loi, kho, dot, dem };
+}
+
+test('DP7-07 luat-co-loai', () => {
+  const { dot } = dungDot();
+  const luat = fs.readFileSync(path.join(dot, 'LUAT.md'), 'utf8');
+  for (const loai of ['can-nguoi', 'hang-moi']) assert.ok(luat.includes(`\`${loai}\``), `LUAT.md phải liệt «${loai}» trong các loại yêu cầu`);
+});
+
+test('DP7-07 mot-danh-sach', async () => {
+  const { loi } = await kiemChoNguoi(GOI);
+  assert.deepEqual(loi, []);
+});
+
+test('DP7-07 nhip-hai', async () => {
+  const { loi, dot, dem } = await kiemChoNguoi(GOI);
+  assert.deepEqual(loi, []);
+  await nhip(dot);
+  assert.equal(dem(), 2, 'nhịp thứ hai không được đếm thêm');
+});
+
+test('DP7-07 tra-loi', async () => {
+  const { loi, dot } = await kiemChoNguoi(GOI);
+  assert.deepEqual(loi, []);
+  const ten = fs.readdirSync(path.join(dot, 'yeu-cau')).find((f) => f.startsWith('P2-') && f.endsWith('.json'));
+  ghiJ(path.join(dot, 'tra-loi', ten), { ket_qua: 'duyet', boi: 'giam-sat', ly_do: 'chọn a', luc: new Date().toISOString() });
+  await nhip(dot);
+  const ds = docJ(path.join(dot, 'trang-thai.json')).cho_nguoi;
+  assert.deepEqual(ds.map((c) => c.phien), ['P1']);
+});
+
+test('DP7-07-do chi-tep', async () => {
+  const sao = chepGoi();
+  tiem(path.join(sao, 'scripts', 'phat-lich.mjs'), '    ...choNguoiYeuCau(thuMuc, lienKetCua),\n', '');
+  const { loi } = await kiemChoNguoi(sao);
+  assert.ok(loi.includes('can-nguoi không lên bảng'), `phải nêu «can-nguoi không lên bảng»: ${loi.join(' | ')}`);
+});
