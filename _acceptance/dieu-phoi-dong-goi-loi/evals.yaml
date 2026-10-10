@@ -5,6 +5,8 @@ feature_slug: dieu-phoi-dong-goi-loi
 #   executors.test.dieu_phoi       = node --test --test-reporter=tap "tests/dieu-phoi/**/*.test.mjs"
 #   executors.script.dieu_phoi_ci  = node tests/dieu-phoi/chay-buoc-ci.mjs
 #   executors.script.dieu_phoi_validate = node tests/dieu-phoi/kiem-validate.mjs
+#   executors.test.dieu_phoi_plugins = chạy riêng khối P200 và P33 của tests/plugins/run-tests.sh, giữ dòng PASS/FAIL
+#     (khoá `plugins` hiện có lọc bỏ dòng PASS nên không ghim được)
 # Kho thử do code sinh trong lượt (git init trong thư mục tạm). Đường dẫn suy từ vị trí tệp test. Mỗi
 # ca đỏ chạy CHÍNH hàm hay lệnh đo trên bản sao bị tiêm, SAU khi bản lành xanh trên cùng fixture, và
 # ghim thông điệp. Mỗi eval ghim đúng dòng TAP «ok … - DP1-…». Suite xanh mà thiếu dòng ghim là ĐỎ.
@@ -140,11 +142,72 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.test.dieu_phoi
-    paths: [dieu-phoi/**, tests/dieu-phoi/dong-goi.test.mjs]
+    paths: [dieu-phoi/**, tests/dieu-phoi/fixtures/**, tests/dieu-phoi/dong-goi.test.mjs]
     expected: >
-      exit 0; stdout có "ok" cho "DP1-07 khong-rieng-kho": quét mọi tệp văn bản dưới dieu-phoi/ (đếm số
+      exit 0; stdout có "ok" cho "DP1-07 khong-rieng-kho": quét mọi tệp văn bản dưới dieu-phoi/ VÀ tests/dieu-phoi/fixtures/ (đếm số
       tệp đã quét, in ra, > 0) với danh sách cấm viết sẵn trong ca (onehub, crm, prisma, bunx, bun run,
       bun install, :3000, :3001, 5432, docs/plan/dot-), không phân biệt hoa thường → 0 dòng khớp. "ok"
       cho "DP1-07-do": bản sao gói, chèn "nhanh onehub" vào dòng 2 của scripts/lich.mjs → chính hàm quét
       trả đúng một khớp, nêu "scripts/lich.mjs:2".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi
+    paths: [.claude-plugin/marketplace.json, scripts/plugin-declare.mjs, GUIDE.md, commands/acceptance-init.md, tests/dieu-phoi/dong-goi.test.mjs]
+    expected: >
+      exit 0; stdout có "ok" cho "DP1-08 khong-tu-bat": kho thử trống do ca dựng, chạy plugin-declare.mjs
+      của cây (đường suy từ vị trí ca) → settings của kho thử có mọi gói marketplace trừ dieu-phoi (tập in
+      ra, so bằng nhau với tập rút từ marketplace trừ các mục mang dấu bật-theo-lựa-chọn); hai khối khai
+      gói không chứa "dieu-phoi". "ok" cho "DP1-08-do bo-dau": bản sao marketplace bỏ dấu của dieu-phoi →
+      kho thử có "dieu-phoi@acceptance-gate-kit", chính hàm kiểm trả lỗi nêu "dieu-phoi".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_plugins
+    paths: [dieu-phoi/.claude-plugin/plugin.json, GUIDE.md, tests/plugins/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: P200" và "PASS: P33" với P200 đọc bốn manifest (dòng in có "dieu-phoi") và
+      câu «Khớp phiên bản» có "dieu-phoi"; P33 liệt kê dieu-phoi/ trong vùng quét. Và ca chiều đỏ trong
+      cùng suite: bản sao lệch phiên bản dieu-phoi → hàm kiem() của P200 trả lỗi nêu "dieu-phoi"; bản sao
+      có dieu-phoi/scripts/resolve-plugin.mjs → hàm quét của P33 trả lỗi nêu tệp đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.dieu_phoi
+    paths: [dieu-phoi/scripts/hook-chan-s4.mjs, dieu-phoi/scripts/phan-loai-s4.mjs, tests/dieu-phoi/dong-goi.test.mjs]
+    expected: >
+      exit 0; stdout có "ok" cho "DP1-10 phan-loai": ma trận viết sẵn trong ca, số ô == số dòng bảng (in
+      ra): ba lệnh KHÔNG được chặn — ca biên should-NOT-fire, chữ S4 chỉ nằm trong tên tệp test hay đối số grep (node --test …repin-lane-lop-cu.test.mjs · node --test …s4-args-tran-thuoc.test.mjs ·
+      grep -n s4-args …SKILL.md) → thoát 0, stderr ""; bốn lệnh chặn (node feature-loop/scripts/repin-lane.mjs
+      --root . --write · node /x/scripts/s4-args.mjs --slug a · node /x/duong-nen.mjs --root . · Workflow
+      scriptPath …/acceptance-verify.js) → thoát 2, stderr bắt đầu "chan-s4: khoá". "ok" cho "DP1-10-do
+      chuoi-con": bản sao thay hàm phân loại bằng so chuỗi con của bản crm → ô «node --test
+      …repin-lane-lop-cu.test.mjs» thoát 2, ca đỏ nêu lệnh đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.dieu_phoi
+    paths: [dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/dong-goi.test.mjs]
+    expected: >
+      exit 0; stdout có "ok" cho "DP1-11 ban-theo-dot": kho thử, gói chép ra thư mục tạm, `mo` + `chay` từ
+      bản chép; thư mục đợt có lõi/ kèm tệp phiên bản; xoá thư mục gói tạm; đợi hai nhịp (io thật, tick 1s
+      đặt trong cấu hình thử) → bộ phát lịch vẫn sống, su-kien.jsonl không có "cap" mới cho khoá đang giữ.
+      "ok" cho "DP1-11 loi-vang": xoá cả lõi/ của thư mục đợt → nhịp kế ghi "can_phan":true nêu "lõi vắng"
+      và không cấp khoá. "ok" cho "DP1-11-do bo-chep": bản sao bỏ bước chép → sau khi xoá gói, khoá bị cấp
+      lại (ca đỏ nêu "cap"). Ca dừng mọi tiến trình con khi xong.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.dieu_phoi
+    paths: [dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/dong-goi.test.mjs]
+    expected: >
+      exit 0; stdout có "ok" cho "DP1-12 khong-fetch-khi-giu-s4": motNhip với io giả (đồng hồ vượt mốc fetch)
+      khi khoa/s4/chu.json có → io.chay không nhận lời gọi "git fetch" nào, su-kien.jsonl có một dòng bỏ
+      fetch; khoá trống → đúng một lời gọi "git fetch -q origin" (đối chứng dương).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+

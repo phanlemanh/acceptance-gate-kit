@@ -456,3 +456,34 @@ xong, với nguồn hàng là mốc 25/10 (DP2, DP3, DP4). DP6 nằm ở mốc 0
 | Bộ phát lịch | Tiến trình Node tất định giữ khoá, hàng kế của dãy, sức khoẻ, sự kiện | — |
 | Hàng kế của dãy | Hàng tiếp theo bộ phát lịch chọn cho một dãy (`tiep/<phiên>.json`) | «Hàng kế» của lộ trình: một hàng cho cả một lộ trình |
 | Bàn giao tài khoản | §4.3: dừng ở ranh giới, commit WIP, ghi `ban-giao.json` trước khi đổi tài khoản | «Vật tạo ra bàn giao» (CLAUDE.md): sáu thứ vật tự phát ra. Lệnh vẫn tên `/dieu-phoi:ban-giao` vì đó là chữ chủ kho dùng |
+
+## 16. Soát tổng thể 10/10 — quyết định và phân việc
+
+Ba phiên soát context sạch, chỉ đọc, ba góc: nền engine không bị phá · trải nghiệm người dùng kit · chỗ
+còn thiếu. 32 phát hiện, gộp còn 16 vấn đề. Mục này THẮNG chữ ở các mục trên nếu hai bên mâu thuẫn; khi
+hàng mở vòng, phiên sửa mục gốc cho khớp. Biên bản: `_acceptance/dieu-phoi-tho-trong-kit/discovery/soat-tong-the-2026-10-10.md`.
+
+| # | Vấn đề | Quyết định | Hàng |
+|---|---|---|---|
+| T1 | `plugin-declare.mjs` bật mọi gói marketplace → `dieu-phoi` tự bật ở mọi kho | Dấu «bật theo lựa chọn», loại khỏi khai gói | DP1 AC-8 |
+| T2 | P200 và câu «Khớp phiên bản» chỉ biết ba gói; P33 không quét `dieu-phoi/` | Đưa gói thứ tư vào cả hai | DP1 AC-9 |
+| T3 | Hook S4 so chuỗi con, chặn nhầm tệp test `repin-lane-*` của chính kit | Bộ phân loại theo cấu trúc, một hàm cho cả hook và mod | DP1 AC-10 |
+| T4 | Nâng gói giữa đợt xoá thư mục cache mà bộ phát lịch đang chạy | `chay` chép lõi vào thư mục đợt; mất lõi thì không cấp lại khoá | DP1 AC-11 |
+| T5 | `git fetch` của bộ phát lịch dời `origin/main` giữa lượt chấm | Bỏ fetch khi khoá s4 đang giữ | DP1 AC-12 |
+| T6 | Hai kho trên một máy (crm, OneFlow, cả lượt chấm của kit) mỗi kho một khoá s4 → hai S4 chồng | Khoá s4 CẤP MÁY cạnh khoá kho (`~/.claude/dieu-phoi/may/`); mọi bộ phát lịch xét cả hai. Phụ thuộc câu hỏi Q3 | DP2 |
+| T7 | feature-loop không biết mình trong đợt: bị chặn S4 thành «hỏi» hoặc `/goal` quay vòng; S5 không đọc hàng kế của dãy; quyền tự merge mâu thuẫn «bấm merge là của người» | Khối «Trong đợt» có marker trong feature-loop, chỉ bật khi có symlink đợt và phiên thuộc một dãy (đọc khoan dung, kho không đợt không đổi byte) | DP7 (hàng mới) |
+| T8 | Hỏi «đang ở đâu» có hai câu trả lời: `/acceptance-gate:start` đọc cây chính, mời mở hàng mà dãy đang giữ | Start đọc thư mục đợt qua symlink (chỉ đọc, im khi không có đợt), in một dòng «đợt X đang chạy → /dieu-phoi:xem», bỏ lối mở hàng đang có dãy giữ. Ba bề mặt đợt (`xem`, bảng đợt `bang.html`, khung mod) vẽ từ một hàm | DP2 |
+| T9 | Bàn giao: lưới cuối commit WIP khi lượt S4 đang mở → rửa sạch lỗi «tác tử chấm ghi vào cây» | Hook chỉ commit khi không còn lượt mở và khoá s4 không trỏ worktree đó; có lượt mở thì ghi dấu «lượt dở» | DP4 |
+| T10 | Bàn giao: «đẩy nhánh» đụng pre-push của kho (crm chạy build); kênh chính là tin liên phiên, trái 05/10 §9 | Cùng máy thì chỉ đòi commit WIP, không đòi đẩy; kênh chính là tệp: `hook-nhip` trả ngữ cảnh «bàn giao» khi pha là đang bàn giao, tin chỉ để nhắc | DP4 |
+| T11 | Mod lên (DP4) trước răng an toàn (DP6) | Ca quét «không bao giờ cho phép» và `claude plugin validate` đi cùng hàng đầu tiên mang mod | DP4 |
+| T12 | Kiểm môi trường của «tiếp tục» hẹp hơn nhu cầu (`.env`, Docker, bun, bản ba gói kit) | Khoá `kiem_moi_truong` do kho khai trong cấu hình đợt, cộng kiểm bản các gói kit | DP3 |
+| T13 | Gỡ bản crm không có danh mục (kiểm chéo ban đêm import lõi, pre-push, 5 hồ sơ đã ký trỏ `scripts/dieu-phoi`) | DP1 phát danh mục máy quét được (`xem --kiem-chuyen`) và API công khai cho kiểm chéo; crm mở hồ sơ chuyển riêng có `Gốc:` trỏ ô dù; lõi crm đóng băng từ khi DP1 gộp | DP1 (Notes), crm |
+| T14 | Ngưỡng SỐNG/CHẾT không có số nền, bộ đếm, người đọc | Chụp số nền đợt `sau-14-10` TRƯỚC 20/10 (hàng gộp mỗi ngày từ `git log onehub`; lượt gọi chủ kho mỗi hàng từ bản ghi hội thoại bằng script đếm của finding 04/10); DP2 có lệnh đếm đợt; người đọc ngưỡng ghi vào ô | máy (trước 20/10), DP2 |
+| T15 | §7 đếm chạm thiếu: hỏi đáp brainstorm ở mỗi thợ, hộp xin quyền, Cổng Đáng của hàng phát sinh trong phiên thợ, lời mời Cổng Giá trị trôi | Đếm theo vòng và theo đợt; trong đợt brainstorm trả lời từ ô và câu giao (nối hàng A2 của lộ trình); Cổng Đáng hàng phát sinh gom về giám sát; thẻ đóng liệt kê hàng chờ Cổng Giá trị; thẻ khởi tạo chỉ hỏi điều chỉ người biết (quyền tự merge, khẩu vị hạn mức), ưu tiên và làn V máy đi tiếp có cửa veto | DP2, DP7 |
+| T16 | Thuật ngữ và nhập môn: «khoá» hai nghĩa, «bảng đồng hồ» trùng định vị kit, GUIDE/QUICKSTART chưa có đợt, lệnh nào bị khoá model-invocation chưa khai | §15 thêm «ổ cắm» cho khoá cấu hình, «bảng đợt» cho `bang.html`; GUIDE §6.x + 5 dòng QUICKSTART; khai: `xem`, `tiep-tuc` mở; `mo-dot`, `dong-dot` mở nhưng chữ quyết chỉ nhận từ người gõ | DP2 |
+
+Bác, kèm lý do: thêm `dieu-phoi/hooks/**` vào `t3_paths` (sổ DP1); đổi tên lệnh thành `tiep-tuc-dot`,
+`ban-giao-dot` (tiền tố `dieu-phoi:` đã phân biệt với lệnh nối vòng của feature-loop).
+
+**Lịch:** đợt thử OneFlow không chờ DP2–DP4. Ngưỡng SỐNG (1) chỉ cần DP1, nên đợt thử bắt đầu ngay sau mốc
+18/10 bằng sáu bước tay, và DP2–DP4 vào giữa đợt. Mốc 25/10 có DP2, DP3, DP4, DP7.

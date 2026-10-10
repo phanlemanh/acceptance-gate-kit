@@ -10,7 +10,7 @@ design_doc: docs/superpowers/specs/2026-10-09-dieu-phoi-tho-trong-kit-design.md
 approved_by:
 approved_at:
 veto_state: mo
-veto_opened_at: 2026-10-09T14:55:32Z
+veto_opened_at: 2026-10-10T00:12:16Z
 ---
 
 # Acceptance Contract: dieu-phoi-dong-goi-loi
@@ -41,7 +41,12 @@ Thuật ngữ:
 - AC-4: Given bản chụp thật thư mục đợt crm đang chạy (khuôn 07/10, chụp 09/10), ẩn danh bằng một script trong cây (tập khoá JSON trước và sau ẩn danh bằng nhau, chỉ giá trị đổi), có ít nhất một khoá còn hạn ở giờ chụp và ít nhất một đơn trong `xin/`, When chép vào một kho thử rồi chạy `xem` của gói và một nhịp bộ phát lịch của gói, Then `xem` in đúng tên đợt, khoá đang giữ và số đơn chờ của bản chụp; nhịp không phát sự kiện `loi-nhip`; khoá còn hạn vẫn giữ. Chiều đỏ trên cùng bản chụp: xoá `han_thue_phut.merge` khỏi cấu hình → nhịp phát `loi-nhip` nêu `han_thue_phut`.
 - AC-5: Given một đợt đang chạy mà `phat-lich.pid` trỏ một tiến trình còn sống do bản khác dựng, When chạy `chay` của gói, Then lệnh in `bộ phát lịch đang chạy (pid <N>)` và không sinh tiến trình nào. Given `.claude/settings.json` của kho còn khối hook gọi `scripts/dieu-phoi/`, When chạy `xem`, Then đầu ra có thêm một dòng cảnh báo nêu tên tệp settings và việc phải gỡ; settings không có khối đó thì không có dòng cảnh báo.
 - AC-6: Given một bản chép CHỈ gồm thư mục `dieu-phoi/`, đặt ngoài cây kit và không có `node_modules` ở thư mục tổ tiên (như bộ nhớ đệm gói), When chạy từ bản chép mọi lệnh hook rút từ `hooks.json` cùng `mo`, `chay`, `xem`, `dong` và một nhịp bộ phát lịch trên một kho thử, Then mã thoát của mỗi lệnh bằng mã thoát của cùng lệnh chạy từ cây nguồn, stderr không có `Cannot find module` hay `ERR_MODULE_NOT_FOUND`; hook chặn S4 gặp lệnh S4 chạy nền chưa bọc (phiên đang giữ khoá) thì dòng lệnh bọc trỏ tới `giu-nhip.mjs` nằm trong đúng bản đang chạy, và tệp đó tồn tại. Chiều đỏ: bản sao chèn một import `../../feature-loop/…` vào `dieu-phoi.mjs` → bản trong cây kit vẫn chạy, bản chép đỏ và nêu tên tệp. Và khuôn `dieu-phoi/scripts/mau/LUAT.md` cùng `dieu-phoi/README.md` không chứa chuỗi `scripts/dieu-phoi/`.
-- AC-7: Given cây `dieu-phoi/`, When quét danh sách chuỗi riêng của crm (`onehub`, `crm`, `prisma`, `bunx`, `bun run`, `bun install`, `:3000`, `:3001`, `5432`, `docs/plan/dot-`), Then không dòng nào khớp. Chiều đỏ: tiêm `onehub` vào bản sao một tệp của gói → ca đỏ nêu tệp và số dòng.
+- AC-7: Given cây `dieu-phoi/` và cây `tests/dieu-phoi/fixtures/`, When quét danh sách chuỗi riêng của crm (`onehub`, `crm`, `prisma`, `bunx`, `bun run`, `bun install`, `:3000`, `:3001`, `5432`, `docs/plan/dot-`), Then không dòng nào khớp. Chiều đỏ: tiêm `onehub` vào bản sao một tệp của gói → ca đỏ nêu tệp và số dòng.
+- AC-8: Given marketplace của kit có mục `dieu-phoi` và một kho thử trống, When chạy bước khai gói của `acceptance-init` (`scripts/plugin-declare.mjs`) và đọc hai khối khai gói (INIT-PLUGIN-DECLARE, GUIDE-PLUGIN-DECLARE), Then `dieu-phoi@acceptance-gate-kit` KHÔNG nằm trong `enabledPlugins` của kho thử và không nằm trong hai khối; ca PD6 so tập (marketplace trừ các gói bật-theo-lựa-chọn) ∪ superpowers. Chiều đỏ: bản sao bỏ dấu «bật theo lựa chọn» của `dieu-phoi` → kho thử bị bật gói, ca đỏ nêu tên gói.
+- AC-9: Given bốn manifest của kit, When chạy phép kiểm đồng bộ phiên bản (P200) và vùng quét chép-bộ-giải (P33), Then P200 đọc cả `dieu-phoi/.claude-plugin/plugin.json` và câu «Khớp phiên bản» của GUIDE có `dieu-phoi`; P33 quét cả cây `dieu-phoi/`. Chiều đỏ: bản sao lệch phiên bản `dieu-phoi` → P200 đỏ nêu `dieu-phoi`; bản sao chép một bản `resolve-plugin.mjs` vào `dieu-phoi/` → P33 đỏ.
+- AC-10: Given hook chặn S4 trong một đợt đang chạy, khoá s4 không thuộc phiên gọi, When nhận các lệnh Bash `node --test tests/scripts/repin-lane-lop-cu.test.mjs`, `node --test tests/scripts/s4-args-tran-thuoc.test.mjs`, `grep -n s4-args feature-loop/skills/feature-loop/SKILL.md`, Then thoát 0 không stderr (chiều im); còn `node feature-loop/scripts/repin-lane.mjs --root . --write`, `node <bất kỳ>/scripts/s4-args.mjs …`, `node <…>/duong-nen.mjs …` và Workflow tới `acceptance-verify.js` thì thoát 2 như AC-5 của hồ sơ crm. Phân loại bằng cấu trúc lời gọi (đối số script của `node`, `scriptPath` của Workflow), không so chuỗi con; một hàm của lõi, xuất ra để lớp mod (DP6) dùng lại.
+- AC-11: Given một đợt đang chạy với bộ phát lịch đã khởi bằng `chay`, When thư mục gói bị xoá hoặc thay (như lúc nâng gói giữa đợt), Then bộ phát lịch và lệnh bọc giữ nhịp vẫn chạy vì `chay` đã chép lõi vào thư mục đợt kèm phiên bản; nếu bản chép cũng mất thì bộ phát lịch KHÔNG cấp lại khoá nào và phát `can_phan` nêu «lõi vắng». Chiều đỏ: bản sao bỏ bước chép → xoá gói làm khoá bị cấp lại, ca đỏ.
+- AC-12: Given khoá s4 của kho đang được giữ, When tới nhịp `git fetch` của bộ phát lịch, Then bộ phát lịch bỏ lượt fetch (ghi một dòng sự kiện), để `origin/<nhánh chính>` không dời giữa một lượt chấm; khoá trống thì fetch như cũ.
 
 ## Coverage
 
@@ -72,7 +77,7 @@ Phân loại (lát cắt theo trục B):
 - Lệnh con ghi vào thư mục đợt qua CLI (sự cố ghi bị chặn ngày 09/10) — hàng DP3.
 - Đọc mức dùng, báo trước hạn mức — hàng DP4.
 - Gỡ bản `scripts/dieu-phoi/` và bốn khối hook ở crm — việc của crm, phiên giám sát crm làm ở quãng lặng.
-- Sửa hành vi của lõi. Vòng này chỉ chuyển chỗ; bài học của đợt `sau-14-10` (tự gắn `mo_merge`, giữ hàng gộp khi hoá cũ…) chỉ vào khi đợt thử OneFlow vấp đúng nó.
+- Sửa hành vi của lõi, TRỪ bốn chỗ soát tổng thể 10/10 chỉ ra là gãy ngay khi chuyển (AC-8, AC-10, AC-11, AC-12). Ngoài bốn chỗ đó vòng chỉ chuyển chỗ; bài học của đợt `sau-14-10` (tự gắn `mo_merge`, giữ hàng gộp khi hoá cũ…) chỉ vào khi đợt thử OneFlow vấp đúng nó.
 - Hệ điều hành ngoài macOS.
 
 ## Notes
@@ -80,4 +85,6 @@ Phân loại (lát cắt theo trục B):
 - Nguồn ghim: crm `origin/onehub` `a9e8bc75a`. Trước khi gộp, so lại `git -C <crm> diff a9e8bc75a origin/onehub -- scripts/dieu-phoi/`. Có khác thì đưa phần khác vào, hoặc ghi nó vào ghi chú chuyển cho crm.
 - Fixture của AC-4 là bản chụp thật, không viết tay đúng khuôn bên đọc. Đây là ca đọc-cũ, nên vật đo phải là vật bản cũ sinh ra.
 - Phiên bản gói theo dòng phiên bản kit, như `feature-loop`.
+- Ghi chú chuyển cho crm là một vật máy quét được: lệnh `xem --kiem-chuyen` liệt kê mọi chỗ trong kho còn trỏ `scripts/dieu-phoi/` (settings, hook git, LaunchAgent kiểm chéo, `package.json`, eval của hồ sơ đã ký, `LUAT.md` của đợt đang chạy). Lõi xuất API công khai (`dot.mjs`, `hook-nhip.mjs`) cho lượt kiểm chéo ban đêm của crm nạp qua bộ giải.
+- Từ lúc DP1 gộp, lõi ở crm đóng băng: bản vá mới vào gói kit, không vào `scripts/dieu-phoi/` của crm.
 - Giới hạn đã khai: vế `claude plugin validate` của AC-1 cần CLI Claude Code trên máy chấm. CI của kit không có CLI này, nên vế ấy chỉ chạy ở lượt chấm trên máy (eval E1b ghi kèm phiên bản CLI). Vế khuôn còn lại của AC-1 chạy cả ở CI.

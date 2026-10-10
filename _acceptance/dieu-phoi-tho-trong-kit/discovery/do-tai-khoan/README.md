@@ -37,6 +37,11 @@ dùng 76 % hạn mức tuần.
 | g | Mức dùng của tài khoản mới đọc được ngay không? | `get_usage` |
 | h | Trường `rate_limits` có trong JSON dòng trạng thái của phiên Code tab không, và có khớp `get_usage` không? | một lệnh statusline ghi stdin ra tệp. Đây là sửa cài đặt người dùng, nên chỉ làm khi chủ kho đồng ý |
 | i | Lượt chết vì hạn mức có bắn hook `StopFailure` với `error: "rate_limit"` không? | một hook ghi đầu vào ra tệp, chỉ ở một worktree thử. Cũng là sửa cài đặt, nên phải có đồng ý |
+| j | Phiên đang rảnh nhận tin liên phiên thì có bắt đầu lượt mới không? (đo được không cần đổi tài khoản) | gửi thử một tin |
+| k | Sau khi đổi, gói `dieu-phoi` và hook của nó còn nạp trong phiên mới của kho không? CHỈ đo được ở lần đổi ĐẦU TIÊN sau khi crm đã cài gói (dự kiến sau 20/10) | `chan-doan` mục «hook đã bắn trong phiên này» |
+| l | `$.session.usage().rateLimits` của mod có số trên app desktop và khớp `get_usage` không? | mod thử, sau khi chủ kho đồng ý bật mod |
+
+Câu h, i, l cần chủ kho đồng ý sửa cài đặt (lệnh dòng trạng thái, hook thử, mod thử); máy xin đồng ý trong lời mời của lần đo, một dòng cho cả ba.
 
 Kết quả ghi vào `ket-qua.md` cạnh tệp này. Mỗi dòng ghi «còn», «mất» hay «khác», kèm số đo.
 Đây là đầu vào của hàng DP4.

@@ -104,6 +104,7 @@ Docs còn khuyên mỗi tài khoản một `CLAUDE_CONFIG_DIR` thay vì đổi �
 | DP3 | 3 | `dieu-phoi-tiep-tuc-mot-lenh` | T2 | `/dieu-phoi:tiep-tuc`: chẩn đoán, chạy lại bộ phát lịch nếu chết, giăng lại Monitor và nhịp, mở chip cho dãy không có phiên sống, báo việc chờ người. Lệnh con ghi qua CLI (§2.3) | DP1 |
 | DP4 | 4 | `dieu-phoi-doi-tai-khoan` | T2 | Ngưỡng hạn mức trong cấu hình đợt; `can_phan` khi gần ngưỡng; `/dieu-phoi:ban-giao` (ngừng cấp khoá, thợ commit WIP và đẩy nhánh, ghi `ban-giao.json`, in câu tiếp tục); DP3 đọc `ban-giao.json` | DP0, DP3 |
 | DP6 | 2–4 | `dieu-phoi-lop-mod` | T2 | Lớp mod (workflow §12): khung trạng thái đợt, chặn S4 bằng bộ phân loại theo cấu trúc, tự bắt việc chờ người. Chủ kho đồng ý đưa vào 10/10 | DP3 |
+| DP7 | 2–3 | `dieu-phoi-feature-loop-trong-dot` | T2 | Khối «Trong đợt» của feature-loop: chờ lượt S4 không thành câu hỏi, S5 mở hàng kế của dãy, quyền merge theo thẻ khởi tạo; kho không đợt không đổi byte (workflow §16 T7) | DP1 |
 | DP5 | 1 | (việc ở kho OneFlow) | — | Đưa bản clone về `main`, cài gói, cấu hình đợt, chạy đợt thử. Đây là phép đo SỐNG | mốc mang DP1–DP4 |
 | — | 1 | (việc ở kho crm) | — | Gỡ `scripts/dieu-phoi/` và 4 khối hook trong `.claude/settings.json`, cài gói. Phiên giám sát crm điều phối ở quãng lặng | mốc mang DP1 |
 
