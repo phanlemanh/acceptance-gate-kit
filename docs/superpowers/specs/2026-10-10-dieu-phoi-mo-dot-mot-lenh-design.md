@@ -27,8 +27,9 @@ dieu-phoi/
   scripts/pha.mjs         MỘT bên viết dieu-khien.json; bảng chuyển trạng thái
   scripts/vai.mjs         bên viết vai.json (DP2 ghi lúc mở; DP3 thêm «nhận vai»)
   scripts/goi-dot.mjs     tìm và đọc gói đợt của kho; ghép LUAT.md
-  scripts/nguon-hang.mjs  đọc hàng từ khối dữ liệu `lo-trinh-du-lieu` của LO-TRINH.html (bản chép
-                          của bộ đọc docDuLieu — không nạp kit)
+  scripts/nguon-hang.mjs  đọc (ma, slug, mốc) từ TỆP lộ trình của kho (slug vắng → luật suySlug của
+                          kit, chép); đọc nhom_trang_thai từ khối `lo-trinh-du-lieu` của LO-TRINH.html
+                          (bản chép của docDuLieu). Không nạp kit — khối dữ liệu không mang slug
   scripts/chan-doan.mjs   khung chẩn đoán {muc, trang_thai, viec}
   scripts/hang.mjs        đổi kế hoạch: day-len · them · nghi
   scripts/the.mjs         dữ liệu thẻ khởi tạo và thẻ đóng đợt (JSON — phiên dịch thành chữ người)

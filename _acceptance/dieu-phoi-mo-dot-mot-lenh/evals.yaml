@@ -123,13 +123,16 @@ evals:
     cmd: config:executors.test.dieu_phoi_dp2
     paths: [dieu-phoi/scripts/nguon-hang.mjs, dieu-phoi/scripts/goi-dot.mjs, scripts/lo-trinh.mjs, scripts/product-map.mjs, tests/dieu-phoi/mo-dot.test.mjs]
     expected: >
-      exit 0; "ok" cho "DP2-08 round-trip": kho thử có tệp lộ trình code sinh + _acceptance/config.yaml khai
-      lo_trinh.tep; chạy product-map.mjs THẬT của cây kit để dựng LO-TRINH.html; bộ đọc của gói đọc khối →
-      tập (ma, slug, nhom_trang_thai) == tập đọc bằng docDuLieu của lo-trinh.mjs trên cùng tệp. "ok" cho
+      exit 0; "ok" cho "DP2-08 round-trip": kho thử có tệp lộ trình code sinh (một hàng có slug, một hàng
+      không slug có dấu tiếng Việt trong câu giao) + _acceptance/config.yaml khai lo_trinh.tep → tập (ma,
+      slug) của bộ đọc gói == tập (r._ma, r.slug ?? suySlug(r.cau_giao)) tính bằng kiemKhuon + suySlug của
+      lo-trinh.mjs THẬT của cây kit; chạy product-map.mjs THẬT để dựng LO-TRINH.html → nhom_trang_thai theo
+      ma của bộ đọc gói == của docDuLieu trong lo-trinh.mjs trên cùng trang. "ok" cho
       "DP2-08 mo-tu-lo-trinh": gói khai nguon_hang ["<tệp>:A", "<tệp>:B"] → hang-viec.json có đúng hai hàng
       mang ma + slug của lộ trình, không khoá cau_giao. "ok" cho "DP2-08 theo-moc": nguon_hang
-      ["<tệp>@<ngày>"] → đúng các hàng của mốc. "ok" cho "DP2-08-do vang-khoi": xoá LO-TRINH.html → `mo`
-      thoát 0, đúng một dòng stderr nêu "LO-TRINH.html", hang-viec.json giữ hàng khai tay của gói.
+      ["<tệp>@<ngày>"] → đúng các hàng của mốc. "ok" cho "DP2-08-do vang-tep": xoá tệp lộ trình → `mo` thoát
+      0, đúng một dòng stderr nêu tên tệp, hang-viec.json giữ hàng khai tay của gói. "ok" cho "DP2-08-do
+      lech-slug": bản sao bộ đọc gói bỏ bước bỏ dấu → hàng không slug lệch với suySlug của kit, ca đỏ nêu mã.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
