@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>101 việc"]
+  GB --> DG["Đã giao<br/>102 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>14 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>6 việc"]
 ```
@@ -86,6 +86,7 @@ flowchart TD
 - Làn ghim lại phải NÓI RA ô nó không đo — eval ngoài làn máy (ui-check/judgment), vật đo của chúng đã đổi, và AC không có chốt máy — ở dòng pin, section Re-pin, thẻ hai cổng và lint W8; không đổi hành vi chặn nào (`ghim-lai-noi-ra-o-khong-do`)
 - Giá làn ghim lại, Vòng A — chạy lại lệnh đỏ một lần, trần mỗi lượt và dọn sạch tiến trình khi dừng hay bị ngắt, tổng kết cuối lượt, suite ở môi trường giống CI (kho tự bật) (`gia-lan-ghim-lai`)
 - Bộ khớp glob của cổng hiểu `**/` là không-hoặc-nhiều thư mục — `**/*.md` bắt cả markdown ở gốc kho (`glob-hai-sao-khop-goc-kho`)
+- Mục paths viết theo thành ngữ thoát ngoặc của glob («[[]slug]» = thư mục «[slug]») được hiểu đúng ở cả làn ghim lại, bộ lọc hoá cũ và kế hoạch mang sang của S4 — không còn gắn oan «ô ngoài làn máy có vật đổi», không còn mang sang eval mà tệp của nó đã đổi (`glob-thoat-ngoac`)
 - sổ vàng in cho người được máy đo thật đầu-ra (render round-trip, ma trận đồng thuận toàn phần) + từ điển biệt ngữ lời ký để lớp giám khảo ngôn-ngữ có đường PASS sạch (`gold-output-measure`)
 - Gom đúc kết 08/09 thành một vòng T3 trước mốc 2.10.0 — nợ C1 (7 Known limits của lop-bang-chung-nhin-thay), K1 null-guard workflow, K2 danh tính hết trạm thu phí, K3 W6/W8 thu phạm vi, K5 S5 mặc định PR, K8 làn conventions chỉ chấm file đổi (`gom-duc-ket-2-10-0`)
 - Danh sách chép CI ở GUIDE §5.3 buộc vào writer — phép đo rút tập lib mà pre-merge-check.sh và recheck-evidence.cjs THẬT SỰ nạp rồi so với CẢ HAI bản khai, thay vì hai danh sách viết tay phải nhớ đồng bộ (`guide-chep-ci-buoc-vao-writer`)
