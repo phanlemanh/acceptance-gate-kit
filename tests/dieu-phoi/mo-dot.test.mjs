@@ -1051,6 +1051,73 @@ test('DP2-11 khong-dot', () => {
   assert.deepEqual(moi, cu);
 });
 
+// ---------- DP2-14: từ điển, GUIDE, QUICKSTART, bảng tên lệnh (AC-14, E14) ----------
+const BAY_MUC = ['Đợt (điều phối)', 'Dãy', 'Phiên giám sát · phiên thợ', 'Bộ phát lịch', 'Hàng kế của dãy', 'Bảng đợt', 'Ổ cắm'];
+const BA_TOKEN = ['/dieu-phoi:mo-dot', '/dieu-phoi:xem', '/dieu-phoi:dong-dot'];
+export function kiemTuDien(goc) {
+  const loi = [];
+  const dong = fs.readFileSync(path.join(goc, 'CONTEXT.md'), 'utf8').split('\n');
+  const laDauMuc = (l) => /^\*\*[^*]+\*\*:\s*$/.test(l) || /^#{1,6} /.test(l);
+  for (const ten of BAY_MUC) {
+    const i = dong.findIndex((l) => l.startsWith(`**${ten}`) && /\*\*:\s*$/.test(l));
+    if (i < 0) {
+      loi.push(`CONTEXT.md thiếu mục «${ten}»`);
+      continue;
+    }
+    let co = false;
+    for (let j = i + 1; j < dong.length && !laDauMuc(dong[j]); j++) if (dong[j].startsWith('_Avoid_')) co = true;
+    if (!co) loi.push(`CONTEXT.md mục «${ten}» thiếu dòng _Avoid_`);
+  }
+  if (!/^### 6\.6 .*Điều phối/m.test(fs.readFileSync(path.join(goc, 'GUIDE.md'), 'utf8'))) loi.push('GUIDE.md thiếu «### 6.6 … Điều phối»');
+  const qs = fs.readFileSync(path.join(goc, 'QUICKSTART.md'), 'utf8');
+  for (const t of BA_TOKEN) if (!qs.includes(t)) loi.push(`QUICKSTART.md thiếu ${t}`);
+  return loi;
+}
+
+test('DP2-14 tu-dien', () => {
+  assert.deepEqual(kiemTuDien(KIT), []);
+  console.log(`  ${BAY_MUC.length} mục CONTEXT.md có _Avoid_ · GUIDE §6.6 · QUICKSTART ${BA_TOKEN.length} lệnh`);
+});
+
+test('DP2-14-do thieu-muc', () => {
+  const sao = tam('dp2-tu-dien-');
+  for (const f of ['CONTEXT.md', 'GUIDE.md', 'QUICKSTART.md']) fs.copyFileSync(path.join(KIT, f), path.join(sao, f));
+  assert.deepEqual(kiemTuDien(sao), [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'CONTEXT.md');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace(/\*\*Dãy\*\*:\n[\s\S]*?(?=\n\*\*)/, '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const loi = kiemTuDien(sao);
+  assert.ok(loi.some((l) => l.includes('«Dãy»')), `phải nêu «Dãy»: ${loi.join(' | ')}`);
+});
+
+// Bản sao tối thiểu đủ để chạy LB2 của chính cây (ROOT của tệp ca suy từ vị trí tệp).
+function caySaoLb() {
+  const sao = tam('dp2-lb-');
+  for (const rel of ['lib', 'skills', 'commands', 'feature-loop/skills', 'tests/fixtures', 'tests/plugins/lenh-bam-duoc.test.mjs',
+    'scripts/gate-card.js', 'scripts/evidence-page.js', 'QUICKSTART.md', 'README.md', 'GUIDE.md'])
+    fs.cpSync(path.join(KIT, rel), path.join(sao, rel), { recursive: true });
+  return sao;
+}
+const chayLb2 = (goc) => spawnSync(process.execPath, [path.join(goc, 'tests', 'plugins', 'lenh-bam-duoc.test.mjs')],
+  { encoding: 'utf8', env: { ...ENV, LB_CASES: 'LB2' } });
+
+test('DP2-14-do-lb', () => {
+  const sao = caySaoLb();
+  const lanh = chayLb2(sao);
+  assert.equal(lanh.status, 0, `đối chứng dương: ${lanh.stdout}${lanh.stderr}`);
+  assert.match(lanh.stdout, /PASS: \[LB2\]/);
+  const hfl = path.join(sao, 'skills', 'acceptance', 'references', 'human-facing-language.md');
+  const goc = fs.readFileSync(hfl, 'utf8');
+  const tiem = goc.replace(/^\| [a-z-]+ \| \/dieu-phoi:[a-z-]+ \| command \|\n/gm, '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(hfl, tiem);
+  const do_ = chayLb2(sao);
+  assert.notEqual(do_.status, 0);
+  assert.match(do_.stdout, /FAIL: \[LB2\].*\/dieu-phoi:/);
+});
+
 test('DP2-11 start-md', () => {
   const md = fs.readFileSync(path.join(KIT, 'commands', 'start.md'), 'utf8');
   const khoi = /<!-- <<<START-SCAN-KEYS\n([\s\S]*?)START-SCAN-KEYS>>> -->/.exec(md)?.[1] ?? '';

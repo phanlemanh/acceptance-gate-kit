@@ -63,9 +63,11 @@ giữ *câu hỏi + thang*, repo giữ *giá trị*; khoá VẮNG → nấc th�
 fallback kit-own, KHÔNG chặn, không cờ đỏ. Chữa cho bệnh "luật gắn vào kho đồ
 của MỘT repo" (họ hàng với thước-gắn-vào-checkout-tác-giả). Hiện thân:
 `feature_loop.ui_standards_skill` · `design_pass.host_embed` ·
-`discovery.brainstorm_skill`.
-_Avoid_: plugin point, "khoá config" trơ (không nói lên luật vắng-thì-fallback),
-extension point.
+`discovery.brainstorm_skill` · `lo_trinh.tep` · `dieu_phoi.goi_dot` (thư mục
+gói đợt của kho; vắng thì `/dieu-phoi:mo-dot` dừng và nói đúng việc khai).
+_Avoid_: plugin point, "khoá config" trơ (không nói lên luật vắng-thì-fallback;
+trong gói dieu-phoi «khoá» còn là khoá tài nguyên của bộ phát lịch), extension
+point.
 
 **Cảnh ngữ-cảnh**:
 Bằng chứng đi kèm bản mẫu `standalone`: khung host thật dạng tĩnh bọc vật +
@@ -433,6 +435,43 @@ _Avoid_: "baseline" trần (chữ ấy đã chỉ dòng `kind: baseline` của r
 Dòng biên bản hội đồng trong sổ chạy của máy — ghi mỗi giám khảo bỏ phiếu gì và
 đòi thêm bằng chứng nào. Nguồn của báo cáo "các giám khảo đồng thuận tới đâu".
 _Avoid_: dán tên field trần vào câu trình người mà không chú giải.
+
+### Điều phối – Thợ (gói dieu-phoi)
+
+**Đợt (điều phối)**:
+Một lát thi công có một phiên giám sát, các dãy thợ và một bộ phát lịch, từ
+`/dieu-phoi:mo-dot` tới `/dieu-phoi:dong-dot`. Sống ở thư mục đợt dưới
+`.acceptance-runs/`, symlink `dieu-phoi-hien-tai` trỏ đợt đang chạy; pha
+`nhap → dang-chay ⇄ tam-dung → dang-dong`.
+_Avoid_: «đợt» trơ ở chỗ có thể nhầm với «đợt phạm vi» (khoá `dot` của bản phạm
+vi và của hàng lộ trình) — chữ cho người viết «đợt chạy»; sprint, batch.
+
+**Dãy**:
+Một phiên thợ cùng chuỗi hàng nó làm tuần tự trong đợt (`P1`, `P2`…), khai ở
+`day` của `hang-viec.json`.
+_Avoid_: làn, lane (kit dành «làn» cho làn surface và làn V); track, luồng.
+
+**Phiên giám sát · phiên thợ**:
+Hai vai phiên Claude Code của một đợt. Phiên giám sát mở và đóng đợt, trình thẻ,
+gom Cổng Đáng của hàng phát sinh; phiên thợ chạy feature-loop cho các hàng của
+một dãy.
+_Avoid_: orchestrator · worker, phiên chính · phiên phụ.
+
+**Bộ phát lịch**:
+Tiến trình Node tất định của đợt (`phat-lich.mjs`): giữ khoá tài nguyên (s4,
+đường nền, merge — s4 có thêm khoá cấp máy), chọn hàng kế của dãy, đo sức khoẻ,
+ghi `su-kien.jsonl`. Cấp khoá theo pha của đợt.
+_Avoid_: scheduler, daemon, «bộ điều phối».
+
+**Hàng kế của dãy**:
+Hàng tiếp theo bộ phát lịch chọn cho một dãy, ghi ở `tiep/<phiên>.json`.
+_Avoid_: «hàng kế» trơ — chữ ấy là hàng kế của LỘ TRÌNH (một hàng cho cả một
+lộ trình, thẻ `/acceptance-gate:start` in); next task.
+
+**Bảng đợt**:
+Trang `bang.html` trong thư mục đợt — cùng một hàm mô hình (`mo-hinh.mjs`) với
+đầu ra của `/dieu-phoi:xem`, nên hai bề mặt không thể nói khác nhau.
+_Avoid_: bảng đồng hồ, dashboard (định vị kit đã dùng «bảng đồng hồ» cho cả kit).
 
 ## Rejected framings
 
