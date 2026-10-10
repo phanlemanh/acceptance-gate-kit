@@ -5,6 +5,7 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -144,6 +145,156 @@ test('DP1-01-do dao-lenh', () => {
   ghiJ(p, hj);
   const loi = kiemCaiDat(KIT, sao).loi;
   assert.ok(loi.some((l) => l.includes('PostToolUse')), `phải nêu PostToolUse: ${loi.join(' | ')}`);
+});
+
+// ---------- DP1-02: chiều im ở kho không đợt + đối chứng dương từng hook (AC-2, E2) ----------
+
+const CLI = (gocGoi) => path.join(gocGoi, 'scripts', 'dieu-phoi.mjs');
+function chayCli(gocGoi, cwd, ...doiSo) {
+  const r = spawnSync(process.execPath, [CLI(gocGoi), ...doiSo], { cwd, env: ENV, encoding: 'utf8' });
+  return { ma: r.status, out: r.stdout, err: r.stderr };
+}
+
+// Băm cây tệp (trừ .git/): đường tương đối + nội dung, symlink tính bằng đích.
+function bamCay(goc) {
+  const h = crypto.createHash('sha256');
+  const di = (d) => {
+    for (const ten of fs.readdirSync(d).sort()) {
+      if (d === goc && ten === '.git') continue;
+      const p = path.join(d, ten);
+      const st = fs.lstatSync(p);
+      const rel = path.relative(goc, p);
+      if (st.isSymbolicLink()) h.update(`L ${rel} ${fs.readlinkSync(p)}\n`);
+      else if (st.isDirectory()) { h.update(`D ${rel}\n`); di(p); }
+      else h.update(`F ${rel} `).update(fs.readFileSync(p)).update('\n');
+    }
+  };
+  di(goc);
+  return h.digest('hex');
+}
+
+// Tệp Workflow S4 thật nằm NGOÀI kho thử (để không đổi cây đang băm).
+const TEP_S4 = (() => {
+  const d = tam('dp1-s4-');
+  const p = path.join(d, 'acceptance-verify.js');
+  fs.writeFileSync(p, "export const meta = { name: 'acceptance-verify', description: 'x' };\n");
+  return p;
+})();
+
+const BAY_DAU_VAO = [
+  ['PreToolUse', 'Workflow S4', (cwd) => ({ hook_event_name: 'PreToolUse', session_id: 's', cwd, tool_name: 'Workflow', tool_input: { scriptPath: TEP_S4 } })],
+  ['PreToolUse', 'Bash repin-lane', (cwd) => ({ hook_event_name: 'PreToolUse', session_id: 's', cwd, tool_name: 'Bash', tool_input: { command: 'node feature-loop/scripts/repin-lane.mjs --root . --write' } })],
+  ['PreToolUse', 'Bash ls', DAU_VAO_MAU.PreToolUse],
+  ['PostToolUse', 'Bash ls', DAU_VAO_MAU.PostToolUse],
+  ['Notification', 'idle_prompt', DAU_VAO_MAU.Notification],
+  ['Notification', 'permission_prompt', (cwd) => ({ ...DAU_VAO_MAU.Notification(cwd), notification_type: 'permission_prompt' })],
+  ['UserPromptSubmit', 'lời nhắn', DAU_VAO_MAU.UserPromptSubmit],
+];
+const SO_O = 21;
+
+function baKhoIm(gocGoi) {
+  const trong = khoThu('dp1-trong-');
+  const coAcc = khoThu('dp1-acc-');
+  fs.mkdirSync(path.join(coAcc, '_acceptance'));
+  fs.writeFileSync(path.join(coAcc, '_acceptance', 'config.yaml'), 'schema_version: 1\n');
+  const daDong = khoThu('dp1-dong-');
+  for (const lenh of [['mo', 'thu'], ['dong']]) {
+    const r = chayCli(gocGoi, daDong, ...lenh);
+    assert.equal(r.ma, 0, `dựng kho đợt đã đóng: ${lenh.join(' ')} — ${r.err}`);
+  }
+  assert.equal(fs.existsSync(path.join(daDong, '.acceptance-runs', 'dieu-phoi-hien-tai')), false, 'symlink phải đã gỡ');
+  assert.equal(fs.existsSync(path.join(daDong, '.acceptance-runs', 'dieu-phoi-thu')), true, 'thư mục đợt phải còn');
+  return [['trong', trong], ['co-acceptance', coAcc], ['dot-da-dong', daDong]];
+}
+
+export function chieuIm(gocGoi, baKho) {
+  const lenhCua = Object.fromEntries(rutHook(gocGoi).map((h) => [h.su, h.lenh]));
+  const loi = [];
+  let soO = 0;
+  for (const [tenKho, kho] of baKho) {
+    for (const [su, ten, dauVao] of BAY_DAU_VAO) {
+      const truoc = bamCay(kho);
+      const r = chayLenhHook(lenhCua[su], gocGoi, dauVao(kho), kho);
+      const sau = bamCay(kho);
+      soO++;
+      const o = `${tenKho}/${su}/${ten}`;
+      if (r.ma !== 0) loi.push(`${o}: mã ${r.ma}`);
+      if (r.out !== '') loi.push(`${o}: stdout=«${r.out.trim()}»`);
+      if (r.err !== '') loi.push(`${o}: stderr=«${r.err.trim()}»`);
+      if (truoc !== sau) loi.push(`${o}: cây tệp đổi`);
+    }
+  }
+  return { loi, soO };
+}
+
+test('DP1-02 chieu-im', () => {
+  const { loi, soO } = chieuIm(GOI, baKhoIm(GOI));
+  console.log(`  số ô đo: ${soO} (SO_O = ${SO_O})`);
+  assert.equal(soO, SO_O);
+  assert.deepEqual(loi, []);
+});
+
+test('DP1-02 ngoai-git', () => {
+  const d = tam('dp1-ngoai-git-');
+  const loi = [];
+  for (const h of rutHook(GOI)) {
+    const r = chayLenhHook(h.lenh, GOI, DAU_VAO_MAU[h.su](d), d);
+    if (r.ma !== 0 || r.out !== '' || r.err !== '') loi.push(`${h.su}: mã ${r.ma} out «${r.out}» err «${r.err}»`);
+  }
+  assert.deepEqual(loi, []);
+});
+
+// Kho có đợt mở bằng gói, dãy P1 có worktree = chính kho thử.
+function khoCoDot(gocGoi) {
+  const kho = khoThu('dp1-dot-');
+  const r = chayCli(gocGoi, kho, 'mo', 'thu');
+  assert.equal(r.ma, 0, r.err);
+  const dot = fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+  ghiJ(path.join(dot, 'hang-viec.json'), { dot: 'thu', day: [{ id: 'P1', worktree: kho }], hang: [], ngoai_hang_merge: [] });
+  return { kho, dot };
+}
+
+test('DP1-02-duong tung-hook', async (t) => {
+  const { kho, dot } = khoCoDot(GOI);
+  const lenhCua = Object.fromEntries(rutHook(GOI).map((h) => [h.su, h.lenh]));
+  await t.test('DP1-02-duong chan-s4', () => {
+    const r = chayLenhHook(lenhCua.PreToolUse, GOI, BAY_DAU_VAO[0][2](kho), kho);
+    assert.equal(r.ma, 2, r.err);
+    assert.match(r.err, /^chan-s4: khoá s4/);
+  });
+  await t.test('DP1-02-duong nhip', () => {
+    ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', slug: 'a', loai: 's4', worktree: kho, cap_luc: new Date().toISOString(), han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
+    const pNhip = path.join(dot, 'khoa', 's4', 'nhip');
+    fs.writeFileSync(pNhip, 'cu');
+    const r = chayLenhHook(lenhCua.PostToolUse, GOI, DAU_VAO_MAU.PostToolUse(kho), kho);
+    assert.equal(r.ma, 0, r.err);
+    assert.notEqual(fs.readFileSync(pNhip, 'utf8'), 'cu', 'tệp nhip phải đổi');
+    fs.rmSync(path.join(dot, 'khoa', 's4'), { recursive: true, force: true });
+  });
+  await t.test('DP1-02-duong cho-nguoi', () => {
+    const r = chayLenhHook(lenhCua.Notification, GOI, DAU_VAO_MAU.Notification(kho), kho);
+    assert.equal(r.ma, 0, r.err);
+    assert.equal(fs.existsSync(path.join(dot, 'cho-nguoi', 'P1.json')), true);
+  });
+  await t.test('DP1-02-duong xoa-cho-nguoi', () => {
+    const r = chayLenhHook(lenhCua.UserPromptSubmit, GOI, DAU_VAO_MAU.UserPromptSubmit(kho), kho);
+    assert.equal(r.ma, 0, r.err);
+    assert.equal(fs.existsSync(path.join(dot, 'cho-nguoi', 'P1.json')), false);
+  });
+});
+
+test('DP1-02-do in-stdout', () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const baKho = baKhoIm(sao);
+  assert.deepEqual(chieuIm(sao, baKho).loi, [], 'đối chứng dương: bản sao lành phải im');
+  const p = path.join(sao, 'scripts', 'hook-cho-nguoi.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace("if (!thuMuc) return 'ngoai-dot';", "if (!thuMuc) { process.stdout.write('chan-doan\\n'); return 'ngoai-dot'; }");
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const loi = chieuIm(sao, baKho).loi;
+  assert.ok(loi.some((l) => l.includes('UserPromptSubmit') && l.includes('chan-doan')), `phải nêu UserPromptSubmit + chan-doan: ${loi.join(' | ')}`);
 });
 
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
