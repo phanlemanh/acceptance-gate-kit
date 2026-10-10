@@ -482,8 +482,8 @@ const DUONG = [
   // Đường 4–6 dời vào lib (hồ sơ evals-sat-le-doc-du): lượt chấm đọc trường danh sách qua MỘT bộ đọc
   // `evalListsOf` — neo nay ở thân bộ đọc, cộng một neo «s4-args gọi lib» không đột biến được.
   ['4 s4-args list field (lib evalListsOf)', CORE,
-   "const pv = parseFlowValue(v);\n    cur.f[k] = pv.kind === 'seq' ? pv.items : [pv.value];",
-   "const pv = v.startsWith('[') ? { kind: 'seq', items: v.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) } : { kind: 's', value: v };\n    cur.f[k] = pv.kind === 'seq' ? pv.items : [pv.value];", 'BG4'],
+   "    const pv = parseFlowValue(v);\n",
+   "    const pv = v.startsWith('[') ? { kind: 'seq', items: v.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) } : { kind: 's', value: v };\n", 'BG4'],
   ['5 s4-args list khoi (lib evalListsOf)', CORE,
    "seq.items.push(parseFlowValue(it[2]).value)",
    "seq.items.push(it[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
