@@ -7,7 +7,9 @@ import { gocKhoChinh, timThuMucDot } from './dot.mjs';
 import { timGoi } from './goi-dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
 import { docPha } from './pha.mjs';
+import { TEP_SONG_DIR } from './song.mjs';
 import { docVai } from './vai.mjs';
+import { viecCho } from './viec-cho.mjs';
 
 export const MUC = ['co-dot', 'pha', 'phat-lich', 'goi-dot', 'hang-viec', 'vai'];
 
@@ -27,7 +29,7 @@ const VIEC_KHAI_GOI = 'khai `dieu_phoi.goi_dot` trong `_acceptance/config.yaml` 
 
 // `mo`: tên đợt SẮP mở (lệnh người hỏi trước khi chạy `mo`). Kho chưa có đợt thì mục `goi-dot` được tính
 // từ khoá/cờ — chỉ đọc — để lệnh dừng TRƯỚC khi `mo` dựng một đợt tay. Gọi trơn thì như cũ (AC-6).
-export function chanDoan(cwd, { mo = null, goi = null } = {}) {
+export function chanDoan(cwd, { mo = null, goi = null, phien = null, chiTiet = false } = {}) {
   const thuMuc = timThuMucDot(cwd);
   const muc = (m, trangThai, viec = '') => ({ muc: m, trang_thai: trangThai, viec });
   if (!thuMuc) {
@@ -67,5 +69,17 @@ export function chanDoan(cwd, { mo = null, goi = null } = {}) {
   const vai = docVai(thuMuc);
   if (dk.cu || !dk.nguon_goi) ra.push(muc('vai', 'khong-ap', 'đợt không mở từ gói'));
   else ra.push(vai?.giam_sat ? muc('vai', 'du', vai.giam_sat.phien ?? '(chưa ghi mã phiên)') : muc('vai', 'thieu', 'vai.json vắng — mở lại đợt từ gói'));
+  // DP3: mục giám sát, hook của phiên, việc chờ. Mục giữ đúng ba khoá của DP2; dữ liệu có cấu trúc chỉ ra
+  // ở `chi_tiet` khi người gọi xin (`--chi-tiet`).
+  const them = (m, trangThai, viec, chiTietMuc) => ra.push(chiTiet && chiTietMuc ? { ...muc(m, trangThai, viec), chi_tiet: chiTietMuc } : muc(m, trangThai, viec));
+  const giamSat = vai?.giam_sat?.phien ?? null;
+  if (!phien) them('giam-sat', 'khong-ap', 'gọi với --phien để biết phiên này có phải giám sát');
+  else if (giamSat === phien) them('giam-sat', 'du', phien);
+  else them('giam-sat', 'thieu', `giám sát hiện tại là ${giamSat ?? '(chưa ai)'} — chạy /dieu-phoi:tiep-tuc để nhận vai`);
+  if (!phien) them('hook-phien', 'khong-ap', 'gọi với --phien để kiểm hook của phiên này');
+  else if (fs.existsSync(path.join(thuMuc, TEP_SONG_DIR, `${phien}.json`))) them('hook-phien', 'du', 'hook của gói đã bắn trong phiên này');
+  else them('hook-phien', 'thieu', 'hook của gói chưa bắn trong phiên này — kiểm gói dieu-phoi đã cài cho kho và phiên đã nạp lại');
+  const ds = viecCho(thuMuc, { thucLuc: vai?.giam_sat?.thuc_luc ?? null });
+  them('viec-cho', ds.length ? 'thieu' : 'du', ds.length ? `${ds.length} việc chờ — cũ nhất: ${ds[0].mo_ta}` : 'không có việc chờ', { ds });
   return ra;
 }

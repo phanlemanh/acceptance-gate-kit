@@ -14,6 +14,7 @@ import { datPha, docPha, khoiTaoPha, TEP_DIEU_KHIEN } from './pha.mjs';
 import { moHinh, veXem } from './mo-hinh.mjs';
 import { docNhomKeHoach } from './nguon-hang.mjs';
 import { ghiVai } from './vai.mjs';
+import { tiepTuc } from './tiep-tuc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const lienKet = (goc) => path.join(goc, '.acceptance-runs', TEN_LIEN_KET);
@@ -276,7 +277,12 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         return kq().doi ? `hang ${doiSo}: đã đổi` : `hang ${doiSo}: không đổi gì`;
       },
       'chan-doan': () => {
-        const ds = chanDoan(cwd, { mo: typeof co.mo === 'string' ? co.mo : null, goi: typeof co.goi === 'string' ? co.goi : null });
+        const ds = chanDoan(cwd, {
+          mo: typeof co.mo === 'string' ? co.mo : null,
+          goi: typeof co.goi === 'string' ? co.goi : null,
+          phien: typeof co.phien === 'string' ? co.phien : null,
+          chiTiet: co['chi-tiet'] === true,
+        });
         return co.json ? JSON.stringify(ds) : ds.map((m) => `${m.trang_thai === 'du' ? '✓' : m.trang_thai === 'thieu' ? '✗' : '·'} ${m.muc}${m.viec ? ` — ${m.viec}` : ''}`).join('\n');
       },
       the: () => {
@@ -286,6 +292,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       },
       dem: () => JSON.stringify(demDot(thuMucHienTai(cwd)), null, co.json ? 0 : 2),
       chay: () => chayPhatLich(cwd),
+      'tiep-tuc': () => {
+        const kq = tiepTuc(cwd, { phien: typeof co.phien === 'string' ? co.phien : null, nhe: co.nhe === true, chay: chayPhatLich });
+        return co.json ? JSON.stringify(kq) : kq.thoi_vai ? `phiên này đã thôi giám sát đợt ${path.basename(kq.dot).replace(/^dieu-phoi-/, '')}` : JSON.stringify(kq, null, 2);
+      },
       dung: () => dungPhatLich(cwd),
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),

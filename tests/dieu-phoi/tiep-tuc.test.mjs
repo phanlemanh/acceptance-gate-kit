@@ -161,6 +161,85 @@ test('DP3-02 thieu-session', () => {
   assert.equal(fs.existsSync(path.join(dot, 'song')) ? fs.readdirSync(path.join(dot, 'song')).length : 0, 0);
 });
 
+// ---------- DP3-14: việc chờ + mục giám sát (AC-14, E14) ----------
+export function hookChoNguoi(cwd, { gocGoi = GOI } = {}) {
+  const lenh = lenhHook(gocGoi, 'Notification');
+  const r = spawnSync('sh', ['-c', lenh], { cwd, env: ENV, input: JSON.stringify({ cwd, hook_event_name: 'Notification', notification_type: 'idle_prompt', message: 'chờ' }), encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+}
+const ngu = (ms) => new Promise((x) => setTimeout(x, ms));
+const chanDoanJson = (kho, doiSo, tuyChon) => {
+  const r = chayCli(kho, ['chan-doan', '--json', '--chi-tiet', ...doiSo], tuyChon);
+  assert.equal(r.ma, 0, r.err);
+  return JSON.parse(r.out);
+};
+const mucCua = (ds, muc) => ds.find((m) => m.muc === muc);
+
+// Dựng đợt có bốn nguồn: một sự kiện can_phan TRƯỚC lần thức của giám sát (đã xử), rồi một yêu cầu
+// chưa trả lời, một tệp chờ người do hook thật ghi, một sự kiện can_phan mới. Trả danh sách viết sẵn.
+async function dotViecCho(gocGoi = GOI) {
+  // pha nhap: `tiep-tuc` không chạy bộ phát lịch, nên không sự kiện nào ngoài bốn nguồn của ca.
+  const { kho, dot, w2 } = khoLienKet({ gocGoi, chayPha: false });
+  const { ghiSuKien } = await nap(gocGoi, 'dot.mjs');
+  ghiSuKien(dot, { loai: 'thu-hoi', tai_nguyen: 's4', ly_do: 'cu', can_phan: true });
+  await ngu(5);
+  assert.equal(chayCli(kho, ['tiep-tuc', '--phien', 's-gs', '--nhe'], { gocGoi }).ma, 0);
+  await ngu(5);
+  ghiJ(path.join(dot, 'yeu-cau', 'P1-1.json'), { phien: 'P1', loai: 'khac', hang: 'hang-a', noi_dung: {}, luc: new Date().toISOString() });
+  await ngu(5);
+  hookChoNguoi(w2, { gocGoi });
+  await ngu(5);
+  ghiSuKien(dot, { loai: 'khoa-khong-nhip', tai_nguyen: 's4', phien: 'P1', can_phan: true });
+  return { kho, dot, canCo: ['yeu-cau:P1-1', 'cho-nguoi:P2', 'su-kien:khoa-khong-nhip'] };
+}
+export function kiemViecCho(ds, canCo) {
+  const muc = mucCua(ds, 'viec-cho');
+  if (!muc) return ['thiếu mục viec-cho'];
+  const co = (muc.chi_tiet?.ds ?? []).map((v) => `${v.loai}:${v.id.split('@')[0]}`);
+  const loi = [];
+  if (JSON.stringify(co) !== JSON.stringify(canCo)) loi.push(`viec-cho = [${co.join(', ')}], cần [${canCo.join(', ')}]`);
+  if (co.some((v) => v.startsWith('su-kien:thu-hoi'))) loi.push('sự kiện trước thuc_luc có mặt thừa');
+  return loi;
+}
+
+test('DP3-14 viec-cho', async () => {
+  const { kho, canCo } = await dotViecCho();
+  const ds = chanDoanJson(kho, ['--phien', 's-gs']);
+  console.log(`  viec-cho: ${(mucCua(ds, 'viec-cho')?.chi_tiet?.ds ?? []).map((v) => v.loai).join(' · ')}`);
+  assert.deepEqual(kiemViecCho(ds, canCo), []);
+  assert.equal(mucCua(ds, 'viec-cho').trang_thai, 'thieu');
+});
+
+test('DP3-14 giam-sat', async () => {
+  const { kho, dot } = khoLienKet();
+  hookNhip({ session_id: 's-gs' }, { cwd: kho });
+  const dung = chanDoanJson(kho, ['--phien', 's-gs']);
+  assert.equal(mucCua(dung, 'giam-sat').trang_thai, 'du');
+  assert.equal(mucCua(dung, 'hook-phien').trang_thai, 'du');
+  const khac = chanDoanJson(kho, ['--phien', 's-khac']);
+  assert.equal(mucCua(khac, 'giam-sat').trang_thai, 'thieu');
+  assert.match(mucCua(khac, 'giam-sat').viec, /\/dieu-phoi:tiep-tuc/);
+  fs.rmSync(path.join(dot, 'song', 's-gs.json'));
+  assert.equal(mucCua(chanDoanJson(kho, ['--phien', 's-gs']), 'hook-phien').trang_thai, 'thieu');
+  const tron = JSON.parse(chayCli(kho, ['chan-doan', '--json']).out);
+  for (const m of tron) assert.deepEqual(Object.keys(m).sort(), ['muc', 'trang_thai', 'viec'], `${m.muc}: khuôn DP2 giữ khi không --chi-tiet`);
+});
+
+test('DP3-14-do bo-moc-thuc', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const lanh = await dotViecCho(sao);
+  assert.deepEqual(kiemViecCho(chanDoanJson(lanh.kho, ['--phien', 's-gs'], { gocGoi: sao }), lanh.canCo), [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'viec-cho.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace('if (thucMs != null && Date.parse(e.luc) <= thucMs) continue;\n', '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { kho, canCo } = await dotViecCho(sao);
+  const loi = kiemViecCho(chanDoanJson(kho, ['--phien', 's-gs'], { gocGoi: sao }), canCo);
+  assert.ok(loi.includes('sự kiện trước thuc_luc có mặt thừa'), `phải nêu sự kiện cũ thừa: ${loi.join(' | ')}`);
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });
