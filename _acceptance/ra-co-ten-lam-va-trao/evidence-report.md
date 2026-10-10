@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 22d1da8289d47283f4d55c46f957d890d1d0252f
+verified_commit: 3da5f36baa5872e9fdd971401477e55659ae4cde
 human_signoff: Manh 2026-08-25
 ---
 
@@ -386,3 +386,7 @@ sha: 59463f70513a3db18d9877f0ec555004c64e3763 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 33 — 2026-10-10, do gộp origin/main (#292, #294) vào nhánh PR #295
 run_id: repin-20261010T040346Z-23400
 sha: 22d1da8289d47283f4d55c46f957d890d1d0252f · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
+
+### Re-pin lần 34 — 2026-10-10, do khai gạch tệp ca DP2 dieu-phoi-mo-dot-mot-lenh cho RT13
+run_id: repin-20261010T082224Z-76584
+sha: 3da5f36baa5872e9fdd971401477e55659ae4cde · suites: 10 lệnh exit 0 · evals: 15/15 eval máy đạt kỳ vọng
