@@ -13,7 +13,8 @@ import { demDot } from './dem.mjs';
 import { datPha, docPha, khoiTaoPha, TEP_DIEU_KHIEN } from './pha.mjs';
 import { moHinh, veXem } from './mo-hinh.mjs';
 import { docNhomKeHoach } from './nguon-hang.mjs';
-import { ghiVai } from './vai.mjs';
+import { ghiVai, nhanVaiGiamSat } from './vai.mjs';
+import { ghiDon, ghiNhatKyCli, ghiTraLoi, ghiYeuCau, kiemGiamSat, nhaKhoa } from './ghi.mjs';
 import { tiepTuc } from './tiep-tuc.mjs';
 import { danhThuc } from './danh-thuc.mjs';
 
@@ -259,6 +260,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       },
       pha: () => {
         const thuMuc = thuMucHienTai(cwd);
+        kiemGiamSat(thuMuc, co.phien, 'pha');
         const lyDo = typeof co['ly-do'] === 'string' ? co['ly-do'] : '';
         const kq = datPha(thuMuc, doiSo, { boi: typeof co.boi === 'string' ? co.boi : 'cli', lyDo });
         if (!kq.doi) return `pha: đã ở ${kq.pha}`;
@@ -297,6 +299,28 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         const kq = tiepTuc(cwd, { phien: typeof co.phien === 'string' ? co.phien : null, nhe: co.nhe === true, chay: chayPhatLich });
         return co.json ? JSON.stringify(kq) : kq.thoi_vai ? `phiên này đã thôi giám sát đợt ${path.basename(kq.dot).replace(/^dieu-phoi-/, '')}` : JSON.stringify(kq, null, 2);
       },
+      xin: () => ghiDon(cwd, { loai: doiSo, uocPhut: typeof co['uoc-phut'] === 'string' ? co['uoc-phut'] : null, moMerge: co['mo-merge'] === true, slug: typeof co.slug === 'string' ? co.slug : null }),
+      nha: () => nhaKhoa(cwd, doiSo),
+      'yeu-cau': () => {
+        const noiDung = typeof co['noi-dung'] === 'string' ? JSON.parse(co['noi-dung']) : {};
+        if (typeof co.tep === 'string') noiDung.tep = co.tep.split(',').filter(Boolean);
+        return ghiYeuCau(cwd, { loai: doiSo, hang: typeof co.hang === 'string' ? co.hang : null, noiDung });
+      },
+      'tra-loi': () => {
+        const traLoi = { ...(typeof co.them === 'string' ? JSON.parse(co.them) : {}) };
+        if (typeof co['ket-qua'] === 'string') traLoi.ket_qua = co['ket-qua'];
+        if (typeof co['ly-do'] === 'string') traLoi.ly_do = co['ly-do'];
+        if (typeof co.boi === 'string') traLoi.boi = co.boi;
+        return ghiTraLoi(cwd, doiSo, traLoi, { phien: co.phien });
+      },
+      'nhat-ky': () => ghiNhatKyCli(cwd, doiSo, { phien: co.phien }),
+      vai: () => {
+        const thuMuc = thuMucHienTai(cwd);
+        kiemGiamSat(thuMuc, co.phien, 'vai');
+        if (typeof co['giam-sat'] !== 'string') throw new Error('dùng: vai --giam-sat <mã phiên> [--phien <mã phiên gọi>]');
+        const kq = nhanVaiGiamSat(thuMuc, { phien: co['giam-sat'], worktree: cwd });
+        return kq.doi ? `vai: giám sát → ${co['giam-sat']}` : `vai: ${co['giam-sat']} đã là giám sát`;
+      },
       'danh-thuc': () => {
         const kq = danhThuc(cwd);
         return co.json ? JSON.stringify(kq) : `${kq.hanh_dong}${kq.cau ? ` — ${kq.cau}` : ''} (${kq.ly_do})`;
@@ -305,7 +329,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|chay|dung|dong|xem [--kiem-chuyen]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|chay|dung|dong|xem [--kiem-chuyen]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|xin <loại> [--uoc-phut <n>]|nha <tài nguyên>|yeu-cau <loại> [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);

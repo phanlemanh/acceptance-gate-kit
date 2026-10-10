@@ -72,6 +72,8 @@ export function khoLienKet({ gocGoi = GOI, hang = null, chayPha = true } = {}) {
   const w2 = path.join(cha, 'p2');
   git(kho, 'worktree', 'add', '-q', '-b', 'p1', w1);
   git(kho, 'worktree', 'add', '-q', '-b', 'p2', w2);
+  const w3 = path.join(cha, 'ngoai');
+  git(kho, 'worktree', 'add', '-q', '-b', 'ngoai', w3);
   const dir = path.join(kho, 'goi', 'dot-thu');
   ghiJ(path.join(dir, 'dieu-phoi.config.json'), docJ(path.join(GOI, 'scripts', 'mau', 'dieu-phoi.config.json')));
   ghiJ(path.join(dir, 'hang-viec.json'), {
@@ -90,7 +92,7 @@ export function khoLienKet({ gocGoi = GOI, hang = null, chayPha = true } = {}) {
   assert.equal(mo.ma, 0, mo.err);
   if (chayPha) assert.equal(chayCli(kho, ['pha', 'dang-chay', '--boi', 't', '--ly-do', 'thu'], { gocGoi }).ma, 0);
   const dot = fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
-  return { kho, dot, w1: fs.realpathSync(w1), w2: fs.realpathSync(w2) };
+  return { kho, dot, w1: fs.realpathSync(w1), w2: fs.realpathSync(w2), w3: fs.realpathSync(w3) };
 }
 
 // Chạy CHÍNH lệnh hook PostToolUse của gói, rút từ hooks.json (thay ${CLAUDE_PLUGIN_ROOT}).
@@ -542,6 +544,105 @@ test('DP3-09-do bo-viec-cho', async () => {
   assert.notEqual(tiem, goc, 'bước tiêm không áp được');
   fs.writeFileSync(p, tiem);
   assert.deepEqual(loiThuc(await chayMaTranThuc(sao)), ['(c): bao-chu-kho, cần khong', '(f): bao-chu-kho, cần khong']);
+});
+
+// ---------- DP3-06, DP3-07: lệnh con ghi (AC-6, AC-7) ----------
+const suKienCua = (dot) => (fs.existsSync(path.join(dot, 'su-kien.jsonl')) ? fs.readFileSync(path.join(dot, 'su-kien.jsonl'), 'utf8').split('\n').filter(Boolean).map((d) => JSON.parse(d)) : []);
+async function motNhipThat(dot) {
+  const { taoVong } = await nap(GOI, 'phat-lich.mjs');
+  const bay = Date.now();
+  await taoVong(dot, ioGia(bay), () => bay)();
+}
+
+test('DP3-06 round-trip', async () => {
+  const { dot, w1 } = khoLienKet();
+  const { kiemDon } = await nap(GOI, 'hinh-dang.mjs');
+  const x = chayCli(w1, ['xin', 's4', '--uoc-phut', '20']);
+  assert.equal(x.ma, 0, x.err);
+  const don = docJ(path.join(dot, 'xin', 'P1-s4.json'));
+  kiemDon(don);
+  assert.deepEqual([don.phien, don.loai, don.uoc_phut, don.slug], ['P1', 's4', 20, 'hang-a']);
+  await motNhipThat(dot);
+  assert.equal(docJ(path.join(dot, 'khoa', 's4', 'chu.json')).phien, 'P1', 'nhịp thật cấp s4 cho P1');
+  const n = chayCli(w1, ['nha', 's4']);
+  assert.equal(n.ma, 0, n.err);
+  assert.equal(fs.existsSync(path.join(dot, 'khoa', 's4')), false, 'nha gỡ khoá');
+  const y = chayCli(w1, ['yeu-cau', 'cham-tep', '--tep', 'a.txt']);
+  assert.equal(y.ma, 0, y.err);
+  assert.equal(y.out.trim(), 'P1-1');
+  await motNhipThat(dot);
+  assert.ok(suKienCua(dot).some((e) => e.loai === 'yeu-cau' && e.id === 'P1-1'), 'nhịp kế xử yêu cầu P1-1');
+});
+
+test('DP3-06 doc-cu', async () => {
+  const { dot, w2 } = khoLienKet();
+  ghiJ(path.join(dot, 'xin', 'P2-s4.json'), { phien: 'P2', slug: 'hang-b', loai: 's4', luc: new Date().toISOString(), worktree: w2, uoc_phut: 20 });
+  await motNhipThat(dot);
+  assert.equal(docJ(path.join(dot, 'khoa', 's4', 'chu.json')).phien, 'P2', 'đơn ghi tay theo khuôn cũ vẫn được cấp');
+});
+
+// [mô tả, cwd ('w1'|'kho'), đối số, thông điệp ghim]
+export const SAI_KHUON = [
+  ['loại đơn lạ', 'w1', ['xin', 'la'], /loai la không thuộc/],
+  ['cham-tep không --tep', 'w1', ['yeu-cau', 'cham-tep'], /noi_dung\.tep phải là danh sách/],
+  ['xin từ gốc kho', 'kho', ['xin', 's4'], /^dieu-phoi: xin: cwd không thuộc dãy nào/m],
+  ['nha từ gốc kho', 'kho', ['nha', 's4'], /^dieu-phoi: nha: cwd không thuộc dãy nào/m],
+  ['yeu-cau từ gốc kho', 'kho', ['yeu-cau', 'khac'], /^dieu-phoi: yeu-cau: cwd không thuộc dãy nào/m],
+  ['tra-loi khoá lạ', 'kho', ['tra-loi', 'P1-1', '--ket-qua', 'duyet', '--phien', 's-gs', '--them', '{"la":1}'], /khoá lạ la/],
+];
+test('DP3-06-do sai-khuon', () => {
+  const { kho, dot, w1 } = khoLienKet();
+  const loi = [];
+  for (const [ten, noi, doiSo, thongDiep] of SAI_KHUON) {
+    const truoc = bamCay(dot);
+    const r = chayCli(noi === 'w1' ? w1 : kho, doiSo);
+    if (r.ma !== 1) loi.push(`${ten}: mã ${r.ma}`);
+    if (!thongDiep.test(r.err)) loi.push(`${ten}: thông điệp «${r.err.trim()}»`);
+    if (bamCay(dot) !== truoc) loi.push(`${ten}: thư mục đợt đổi`);
+  }
+  console.log(`  số lời gọi sai: ${SAI_KHUON.length}`);
+  assert.deepEqual(loi, []);
+});
+
+// [lệnh, đối số, tệp đích tương đối thư mục đợt]
+export const LENH_GIAM_SAT = [
+  ['tra-loi', ['tra-loi', 'P1-1', '--ket-qua', 'duyet'], 'tra-loi/P1-1.json'],
+  ['pha', ['pha', 'tam-dung', '--ly-do', 'thu'], 'dieu-khien.json'],
+  ['vai', ['vai', '--giam-sat', 's-x'], 'vai.json'],
+  ['nhat-ky', ['nhat-ky', 'một dòng'], 'LUAT.md'],
+];
+test('DP3-07 chi-giam-sat', () => {
+  const loi = [];
+  let soAssert = 0;
+  for (const [ten, doiSo, dich] of LENH_GIAM_SAT) {
+    for (const [phien, noi, can] of [['s-c', 'kho', 'tu-choi'], ['s-gs', 'kho', 'ghi'], ['s-gs', 'w3', 'ghi']]) {
+      soAssert++;
+      const d = khoLienKet();
+      const p = path.join(d.dot, dich);
+      const truoc = bamCay(d.dot);
+      const tepTruoc = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null;
+      const r = chayCli(noi === 'kho' ? d.kho : d.w3, [...doiSo, '--phien', phien]);
+      const nhan = `${ten} --phien ${phien} từ ${noi}`;
+      if (can === 'tu-choi') {
+        if (r.ma !== 1) loi.push(`${nhan}: mã ${r.ma}`);
+        if (!r.err.includes('s-c') || !r.err.includes('s-gs')) loi.push(`${nhan}: thông điệp «${r.err.trim()}»`);
+        if (bamCay(d.dot) !== truoc) loi.push(`${nhan}: thư mục đợt đổi`);
+      } else {
+        if (r.ma !== 0) loi.push(`${nhan}: mã ${r.ma} ${r.err.trim()}`);
+        const sau = fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null;
+        if (sau === tepTruoc) loi.push(`${nhan}: ${dich} không đổi`);
+      }
+    }
+  }
+  console.log(`  số ô lệnh × cách gọi: ${soAssert}`);
+  assert.equal(soAssert, 12);
+  assert.deepEqual(loi, []);
+  const d = khoLienKet();
+  assert.equal(chayCli(d.kho, ['pha', 'tam-dung', '--ly-do', 'thu']).ma, 0, 'vắng --phien chạy như DP2');
+  const t = chayCli(d.w3, ['tiep-tuc', '--nhe', '--phien', 's-gs', '--json']);
+  assert.equal(t.ma, 0, t.err);
+  assert.equal(JSON.parse(t.out).thoi_vai, false);
+  chayCli(d.kho, ['dung']);
 });
 
 test('DP3-02 tep-hong', async () => {
