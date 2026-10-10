@@ -352,6 +352,113 @@ test('DP3-03 dong-ho-lui', async () => {
   assert.equal(cd.find((m) => m.muc === 'day:P1').chi_tiet.hanh_dong, 'khong', 'nhịp có giờ tương lai coi như vừa xong');
 });
 
+// ---------- DP3-04, DP3-05: nhận vai, tiep-tuc, dạng nhẹ (AC-4, AC-5) ----------
+const pidPhatLich = (dot) => Number(fs.existsSync(path.join(dot, 'phat-lich.pid')) ? fs.readFileSync(path.join(dot, 'phat-lich.pid'), 'utf8') : 0);
+const conChay = (pid) => {
+  if (!pid) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+async function choPid(dot) {
+  for (let i = 0; i < 60; i++) {
+    if (conChay(pidPhatLich(dot))) return pidPhatLich(dot);
+    await ngu(50);
+  }
+  return 0;
+}
+const docVai = (dot) => docJ(path.join(dot, 'vai.json'));
+
+test('DP3-04 nhan-vai', async () => {
+  const { kho, dot } = khoLienKet();
+  try {
+    assert.equal(docVai(dot).giam_sat.phien, 's-gs');
+    assert.equal(conChay(pidPhatLich(dot)), false, 'fixture: bộ phát lịch đã chết');
+    const r1 = chayCli(kho, ['tiep-tuc', '--phien', 's-b', '--json'], { env: { DIEU_PHOI_NOW_MS: String(GIO) } });
+    assert.equal(r1.ma, 0, r1.err);
+    const v1 = docVai(dot);
+    assert.equal(v1.giam_sat.phien, 's-b');
+    assert.equal(v1.giam_sat.thuc_luc, new Date(GIO).toISOString());
+    assert.equal(v1.lich_su.length, 1);
+    assert.equal(v1.lich_su[0].phien, 's-gs');
+    assert.ok(v1.lich_su[0].thoi_luc);
+    const pid1 = await choPid(dot);
+    assert.ok(pid1, 'bộ phát lịch chạy lại');
+    const r2 = chayCli(kho, ['tiep-tuc', '--phien', 's-b', '--json'], { env: { DIEU_PHOI_NOW_MS: String(GIO + 60_000) } });
+    assert.equal(r2.ma, 0, r2.err);
+    const v2 = docVai(dot);
+    console.log(`  lần hai: lich_su ${v2.lich_su.length} · pid ${pidPhatLich(dot) === pid1 ? 'giữ' : 'đổi'}`);
+    assert.equal(v2.lich_su.length, 1, 'lần hai không thêm lịch sử');
+    assert.equal(pidPhatLich(dot), pid1, 'lần hai không thêm tiến trình');
+    assert.ok(Date.parse(v2.giam_sat.thuc_luc) > Date.parse(v1.giam_sat.thuc_luc));
+  } finally {
+    chayCli(kho, ['dung']);
+  }
+});
+
+test('DP3-04-do khong-dot', () => {
+  const kho = tam('dp3-trong-');
+  git(kho, 'init', '-q', '-b', 'main');
+  git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const r = chayCli(kho, ['tiep-tuc', '--phien', 's-b']);
+  assert.equal(r.ma, 1);
+  assert.match(r.err, /không có đợt/);
+  const { kho: coDot } = khoLienKet({ chayPha: false });
+  assert.equal(chayCli(coDot, ['tiep-tuc', '--phien', 's-b']).ma, 0, 'đối chứng: kho có đợt thì chạy');
+});
+
+// Kịch bản AC-5 trên một gói: pha dang-chay, bộ phát lịch chết. Thôi vai mà ghi gì (kể cả chạy lại bộ
+// phát lịch) thì băm thư mục đợt đổi.
+async function kiemNhe(gocGoi = GOI) {
+  const { kho, dot } = khoLienKet({ gocGoi });
+  const loi = [];
+  try {
+    const env = { DIEU_PHOI_NOW_MS: String(GIO) };
+    assert.equal(chayCli(kho, ['tiep-tuc', '--phien', 's-gs', '--nhe', '--json'], { gocGoi, env }).ma, 0);
+    await choPid(dot);
+    chayCli(kho, ['dung'], { gocGoi });
+    await ngu(200);
+    const v0 = docVai(dot);
+    const env2 = { DIEU_PHOI_NOW_MS: String(GIO + 120_000) };
+    const r1 = chayCli(kho, ['tiep-tuc', '--phien', 's-gs', '--nhe', '--json'], { gocGoi, env: env2 });
+    const v1 = docVai(dot);
+    if (r1.ma !== 0) loi.push(`nhe đúng phiên: mã ${r1.ma}`);
+    if (v1.giam_sat.thuc_luc !== new Date(GIO + 120_000).toISOString()) loi.push('nhe đúng phiên không ghi thuc_luc');
+    if (v1.giam_sat.phien !== 's-gs' || v1.lich_su.length !== v0.lich_su.length) loi.push('nhe đúng phiên đổi vai');
+    await choPid(dot);
+    chayCli(kho, ['dung'], { gocGoi });
+    await ngu(200);
+    const truoc = bamCay(dot);
+    const r2 = chayCli(kho, ['tiep-tuc', '--phien', 's-c', '--nhe', '--json'], { gocGoi, env: env2 });
+    await ngu(300);
+    if (r2.ma !== 0) loi.push(`thôi vai: mã ${r2.ma}`);
+    else if (JSON.parse(r2.out).thoi_vai !== true) loi.push('thôi vai: thiếu thoi_vai');
+    if (bamCay(dot) !== truoc) loi.push('thư mục đợt đổi khi thôi vai');
+  } finally {
+    chayCli(kho, ['dung'], { gocGoi });
+  }
+  return loi;
+}
+
+test('DP3-05 nhe', async () => {
+  assert.deepEqual(await kiemNhe(), []);
+});
+
+test('DP3-05-do ghi-khi-thoi', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const p = path.join(sao, 'scripts', 'tiep-tuc.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace('    if (laGiamSat(thuMuc, phien) === false) return { dot: thuMuc, thoi_vai: true };\n', '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const loi = await kiemNhe(sao);
+  assert.ok(loi.includes('thư mục đợt đổi khi thôi vai'), `phải nêu thư mục đổi: ${loi.join(' | ')}`);
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });
