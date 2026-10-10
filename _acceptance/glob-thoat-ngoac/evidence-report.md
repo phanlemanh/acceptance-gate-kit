@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8e980dd834a864c3d834a93430cbcf68df33c069
+verified_commit: 717c95011de8058f8b6c4dc8e0b2483f791d436f
 human_signoff: Phan Le Manh 2026-10-09 — ký lượt chấm 2; Ngoài-1, Ngoài-2 mở hợp đồng mới (hạt giống); Ngoài-3 ghi Known limits; mục trong hợp đồng AC-4 (medium) ghi Known limits theo khuyến nghị ở lời mời; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -156,3 +156,7 @@ Round 2: E1–E7 và toàn bộ lệnh suite xanh trên cây 5fd732bc — PASS.
 ### Re-pin lần 1 — 2026-10-10, do gộp origin/main sau #280; P161 câu chữ
 run_id: repin-20261010T004111Z-28238
 sha: 8e980dd834a864c3d834a93430cbcf68df33c069 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-10, do gộp origin/main sau #294
+run_id: repin-20261010T011101Z-18677
+sha: 717c95011de8058f8b6c4dc8e0b2483f791d436f · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
