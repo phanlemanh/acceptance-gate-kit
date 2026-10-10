@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -128,9 +128,75 @@ function xem(cwd) {
   return canhBao ? `${dong}\n${canhBao}` : dong;
 }
 
+// Danh mục chuyển: mọi chỗ trong kho còn trỏ bản lõi chép tay (`scripts/dieu-phoi/`) — tệp git theo
+// dõi (settings, package.json, eval của hồ sơ…), settings cục bộ, hook git, LaunchAgent của người
+// dùng nhắc tới kho này, và các tệp chữ ở gốc thư mục đợt đang chạy (LUAT.md). Bỏ qua chính thư mục
+// bản cũ. Trả `<tệp>:<dòng>`; không cần đợt.
+export function kiemChuyen(cwd) {
+  const goc = gocKhoChinh(cwd);
+  const ra = [];
+  const quet = (abs, nhan) => {
+    let t;
+    try {
+      t = fs.readFileSync(abs, 'utf8');
+    } catch {
+      return;
+    }
+    if (t.includes('\0')) return;
+    t.split('\n').forEach((d, i) => {
+      if (d.includes(DUONG_BAN_CU)) ra.push(`${nhan}:${i + 1}`);
+    });
+  };
+  const git = (...a) => execFileSync('git', a, { cwd: goc, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  const theoDoi = new Set(git('ls-files', '-z').split('\0').filter(Boolean));
+  for (const f of ['.claude/settings.json', '.claude/settings.local.json']) theoDoi.add(f);
+  for (const f of [...theoDoi].sort()) if (!f.startsWith(DUONG_BAN_CU)) quet(path.join(goc, f), f);
+  // Hook git: cả `.git/hooks` của kho lẫn `core.hooksPath` đang có hiệu lực (có máy đặt nó toàn hệ
+  // thống, khi đó `--git-path hooks` không còn trỏ `.git/hooks`).
+  const chung = path.resolve(goc, git('rev-parse', '--git-common-dir').trim());
+  const dsHooks = [[path.join(chung, 'hooks'), '.git/hooks']];
+  const hieuLuc = path.resolve(goc, git('rev-parse', '--git-path', 'hooks').trim());
+  if (hieuLuc !== dsHooks[0][0]) dsHooks.push([hieuLuc, hieuLuc.startsWith(`${goc}${path.sep}`) ? path.relative(goc, hieuLuc) : hieuLuc]);
+  for (const [d, nhan] of dsHooks) {
+    if (!fs.existsSync(d)) continue;
+    for (const f of fs.readdirSync(d).sort()) if (!f.endsWith('.sample') && fs.statSync(path.join(d, f)).isFile()) quet(path.join(d, f), `${nhan}/${f}`);
+  }
+  const la = path.join(process.env.HOME ?? '', 'Library', 'LaunchAgents');
+  if (fs.existsSync(la)) {
+    for (const f of fs.readdirSync(la).filter((x) => x.endsWith('.plist')).sort()) {
+      const p = path.join(la, f);
+      let t = '';
+      try {
+        t = fs.readFileSync(p, 'utf8');
+      } catch {
+        continue;
+      }
+      if (t.includes(goc)) quet(p, `~/Library/LaunchAgents/${f}`);
+    }
+  }
+  const dot = path.join(goc, '.acceptance-runs', TEN_LIEN_KET);
+  if (fs.existsSync(dot)) {
+    for (const f of fs.readdirSync(dot).sort()) {
+      const p = path.join(dot, f);
+      if (fs.statSync(p).isFile() && /\.(md|json|txt)$/.test(f)) quet(p, `<thư mục đợt>/${f}`);
+    }
+  }
+  return ra;
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1])) {
   const [lenh, doiSo] = process.argv.slice(2);
   const cwd = process.cwd();
+  if (lenh === 'xem' && doiSo === '--kiem-chuyen') {
+    try {
+      const ds = kiemChuyen(cwd);
+      process.stdout.write(ds.length ? `${ds.map((d) => `kiem-chuyen: ${d}`).join('\n')}\n` : 'kiem-chuyen: sach\n');
+      process.exit(ds.length ? 1 : 0);
+    } catch (e) {
+      process.stderr.write(`dieu-phoi: ${e.message}\n`);
+      process.exit(2);
+    }
+  }
   try {
     const viec = {
       mo: () => moDot(cwd, doiSo),
@@ -139,7 +205,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên>|chay|dung|dong|xem>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên>|chay|dung|dong|xem [--kiem-chuyen]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);

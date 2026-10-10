@@ -704,7 +704,7 @@ test('DP1-06-do import-ngoai', () => {
   chep(GOI, trongKit);
   const p = path.join(trongKit, 'scripts', 'dieu-phoi.mjs');
   const goc = fs.readFileSync(p, 'utf8');
-  fs.writeFileSync(p, goc.replace("import { spawn } from 'node:child_process';\n", "import { spawn } from 'node:child_process';\nimport '../../feature-loop/scripts/resolve-plugin.mjs';\n"));
+  fs.writeFileSync(p, goc.replace(/^(import .* from 'node:child_process';\n)/m, "$1import '../../feature-loop/scripts/resolve-plugin.mjs';\n"));
   assert.notEqual(fs.readFileSync(p, 'utf8'), goc, 'bước tiêm không áp được');
   const kho = khoCoDot(GOI).kho;
   const trong = chayCli(trongKit, kho, 'xem');
@@ -831,6 +831,51 @@ test('DP1-04-do thieu-han-thue', async () => {
   assert.equal(loi.length, 1, 'phải có đúng một loi-nhip');
   assert.equal(loi[0].can_phan, true);
   assert.match(loi[0].ly_do, /han_thue_phut/);
+});
+
+// ---------- DP1-13: danh mục chuyển cho kho đang chép tay lõi (Notes T13) ----------
+test('DP1-13 kiem-chuyen', () => {
+  const sach = khoThu('dp1-chuyen-sach-');
+  const nha = tam('dp1-home-');
+  const env = { ...ENV, HOME: nha };
+  const xemChuyen = (kho) => {
+    const r = spawnSync(process.execPath, [CLI(GOI), 'xem', '--kiem-chuyen'], { cwd: kho, env, encoding: 'utf8' });
+    return { ma: r.status, out: r.stdout.trim().split('\n'), err: r.stderr };
+  };
+  // Đối chứng dương: kho sạch.
+  assert.deepEqual(xemChuyen(sach), { ma: 0, out: ['kiem-chuyen: sach'], err: '' });
+
+  const kho = khoThu('dp1-chuyen-');
+  const viet = (rel, t) => {
+    fs.mkdirSync(path.dirname(path.join(kho, rel)), { recursive: true });
+    fs.writeFileSync(path.join(kho, rel), t);
+  };
+  viet('.claude/settings.json', JSON.stringify(KHOI_HOOK_CU, null, 2));
+  viet('package.json', '{\n  "scripts": {\n    "test:dieu-phoi": "node --test \\"scripts/dieu-phoi/test/*.test.mjs\\""\n  }\n}\n');
+  viet('_acceptance/x/evals.yaml', 'evals:\n  - id: E1\n    cmd: node scripts/dieu-phoi/dieu-phoi.mjs xem\n');
+  viet('scripts/dieu-phoi/README.md', 'node scripts/dieu-phoi/dieu-phoi.mjs mo\n');
+  execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', 'add', '-A'], { cwd: kho, env: ENV });
+  execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-q', '-m', 'ban cu'], { cwd: kho, env: ENV });
+  viet('.git/hooks/pre-push', '#!/bin/sh\nnode scripts/dieu-phoi/kiem-cheo.mjs\n');
+  fs.mkdirSync(path.join(nha, 'Library', 'LaunchAgents'), { recursive: true });
+  fs.writeFileSync(path.join(nha, 'Library', 'LaunchAgents', 'a.plist'), `<string>${kho}</string>\n<string>scripts/dieu-phoi/kiem-cheo.mjs</string>\n`);
+  fs.writeFileSync(path.join(nha, 'Library', 'LaunchAgents', 'b.plist'), '<string>/kho/khac</string>\n<string>scripts/dieu-phoi/kiem-cheo.mjs</string>\n');
+  assert.equal(chayCli(GOI, kho, 'mo', 'thu').ma, 0);
+  const luat = path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai', 'LUAT.md');
+  fs.appendFileSync(luat, 'node scripts/dieu-phoi/giu-nhip.mjs -- x\n');
+  const dongLuat = fs.readFileSync(luat, 'utf8').split('\n').length - 1;
+
+  const dongCua = (rel, chuoi) => fs.readFileSync(path.join(kho, rel), 'utf8').split('\n').findIndex((d) => d.includes(chuoi)) + 1;
+  const r = xemChuyen(kho);
+  assert.equal(r.ma, 1, r.err);
+  assert.deepEqual(r.out, [
+    `kiem-chuyen: .claude/settings.json:${dongCua('.claude/settings.json', 'scripts/dieu-phoi/')}`,
+    'kiem-chuyen: _acceptance/x/evals.yaml:3',
+    'kiem-chuyen: package.json:3',
+    'kiem-chuyen: .git/hooks/pre-push:2',
+    'kiem-chuyen: ~/Library/LaunchAgents/a.plist:2',
+    `kiem-chuyen: <thư mục đợt>/LUAT.md:${dongLuat}`,
+  ]);
 });
 
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
