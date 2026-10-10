@@ -601,6 +601,29 @@ test('DP1-11-do bo-chep', async () => {
   assert.ok(loi.some((l) => l.includes('lõi vắng')), `phải nêu «lõi vắng»: ${loi.join(' | ')}`);
 });
 
+// ---------- DP1-12: không fetch khi đang giữ khoá s4 (AC-12, E12) ----------
+test('DP1-12 khong-fetch-khi-giu-s4', async () => {
+  const { taoVong } = await import(path.join(GOI, 'scripts', 'phat-lich.mjs'));
+  const { NHIP } = await import(path.join(GOI, 'scripts', 'cau-hinh.mjs'));
+  const { kho, dot } = khoCoDot(GOI);
+  let gio = Date.now();
+  const goi = [];
+  const vong = taoVong(dot, ioGia(gio, goi), () => gio);
+  const fetch = () => goi.filter((g) => g.startsWith('git fetch'));
+  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', slug: 'a', loai: 's4', worktree: kho, cap_luc: new Date().toISOString(), han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
+  await vong();
+  gio += NHIP.fetchMs + 1;
+  await vong();
+  assert.deepEqual(fetch(), [], 'khoá s4 đang giữ: không được fetch');
+  const boFetch = suKien(dot).filter((e) => e.loai === 'bo-fetch');
+  assert.equal(boFetch.length, 1, 'một dòng bỏ fetch cho cả quãng giữ khoá');
+  // Đối chứng dương: khoá trống → đúng một lời gọi fetch.
+  fs.rmSync(path.join(dot, 'khoa', 's4'), { recursive: true, force: true });
+  gio += 1;
+  await vong();
+  assert.deepEqual(fetch(), ['git fetch -q origin']);
+});
+
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
 const CHUOI_BAN_CU = 'scripts/dieu-phoi/';
 export function kiemKhuon(gocGoi) {

@@ -327,6 +327,7 @@ const IO_THAT = {
 export function taoVong(thuMuc, io, dongHo = () => Date.now()) {
   const BAO_LAI_MS = NHIP.baoLaiMs;
   let lanFetch = -Infinity;
+  let daBoFetch = false;
   const daBao = new Map();
   const bao = (loai, ly_do) => {
     const cu = daBao.get(loai);
@@ -340,11 +341,20 @@ export function taoVong(thuMuc, io, dongHo = () => Date.now()) {
       return;
     }
     if (dongHo() - lanFetch > NHIP.fetchMs) {
-      lanFetch = dongHo();
-      try {
-        io.chay('git', ['fetch', '-q', 'origin']);
-      } catch (e) {
-        bao('fetch-loi', e.message);
+      // Khoá s4 đang giữ: một lượt chấm đang so với origin/<nhánh chính> — fetch lúc này dời mốc giữa
+      // lượt. Bỏ lượt fetch (không đặt lại lanFetch, nên khoá trống là fetch ngay nhịp kế).
+      // Ghi sự kiện một lần cho mỗi quãng giữ khoá, không mỗi nhịp.
+      if (fs.existsSync(path.join(thuMuc, 'khoa', 's4', 'chu.json'))) {
+        if (!daBoFetch) ghiSuKien(thuMuc, { loai: 'bo-fetch', ly_do: 'khoá s4 đang giữ' });
+        daBoFetch = true;
+      } else {
+        daBoFetch = false;
+        lanFetch = dongHo();
+        try {
+          io.chay('git', ['fetch', '-q', 'origin']);
+        } catch (e) {
+          bao('fetch-loi', e.message);
+        }
       }
     }
     try {
