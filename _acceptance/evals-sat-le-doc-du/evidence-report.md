@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: evals-sat-le-doc-du
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: cc5960d9fec4b7a3422dfe1b7d7311d4409f6ac2
-human_signoff:
+human_signoff: Manh Phan 2026-10-11 — ký lượt chấm 2; J1 Đạt; Ngoài-1 đến Ngoài-6 ghi Known limits; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
 # Evidence Report: evals-sat-le-doc-du
@@ -139,7 +139,7 @@ Vòng 2. Mười eval máy chạy lại (E1–E3, E5–E11) đạt hết trên b
     - domain-correctness: PASS — Mục «evals.yaml shape» nói rõ kit đọc cả thụt 4 lẫn sát lề, cả dạng khối lẫn `[a, b]`. Nó cũng nói bí danh `paths: *name` không được đọc, bị lên cờ vàng ở cả thẻ phạm vi lẫn thẻ bằng chứng, và phải viết lại thành danh sách thường. Kết thúc mục: «A repo already writing the 4-space shape has nothing to do.» CHANGELOG nêu crm và tác động «lượt sửa nay giữ ô xanh cho paths dạng nhiều dòng», ghi kho thụt 4 «không gì» và bí danh sẽ thấy cờ nên cần viết lại. Hai tài liệu khớp nhau, không mâu thuẫn.
     - operational-feasibility: PASS — Cả bốn điều đều nêu rõ trong hai tệp. (1) eval-executors nói đọc kiểu sát lề lẫn thụt 4, dạng khối lẫn một dòng `[a, b]`. (2) Bí danh `*ten` "NOT read, never guessed", được nêu tên ở dòng `s4-args` và cờ vàng trên thẻ Phạm vi lẫn Bằng chứng, kèm lời dặn viết lại thành danh sách; CHANGELOG nhắc lại. (3) Cả hai tệp ghi kho viết thụt 4 không phải làm gì, CHANGELOG kèm số đo 621 hồ sơ, 0 lệch. (4) CHANGELOG nêu crm: lượt sửa giữ ô xanh cho `paths` dạng nhiều dòng (393 chỗ khai), và hồ sơ có bí danh sẽ thấy cờ.
     - spec-alignment: PASS — Mục «evals.yaml shape» của eval-executors.md nói đủ ba điều đầu. (1) Kit đọc cả dạng sát lề lẫn thụt 4, cả khối lẫn một dòng `[a, b]`. (2) Bí danh `*name` không được đọc; mỗi trường bị bỏ được nêu thành dòng `s4-args` ở lượt chấm và thành cờ vàng trên cả hai thẻ, kèm lệnh «Rewrite those fields as plain lists». (3) Câu «A repo already writing the 4-space shape has nothing to do». CHANGELOG «Chưa phát hành» nêu điều (4): crm có lượt sửa giữ ô xanh cho `paths` dạng nhiều dòng (393 chỗ khai), hồ sơ có bí danh sẽ thấy cờ và phải viết lại trường ấy, và kho thụt 4 không bị ảnh hưởng (0 lệch trên 621 hồ sơ ở bảy kho).
-  human_override:        # T3: người điền "<tên> <ngày>" sau khi tự đọc mục «evals.yaml shape» và «Chưa phát hành»
+  human_override: Manh Phan 2026-10-11 — Đạt
   verified_at: 2026-10-10T13:56:07Z
 
 - eval: E11

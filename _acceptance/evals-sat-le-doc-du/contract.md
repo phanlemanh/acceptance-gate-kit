@@ -5,7 +5,7 @@ slug: evals-sat-le-doc-du
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs (lib/** trong t3_paths)
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-10T12:33:02Z
 design_doc: docs/superpowers/specs/2026-10-10-evals-sat-le-doc-du-design.md
@@ -70,3 +70,10 @@ Quét bằng morphological-scan (khuôn test-matrix) — bảng đủ ở design
 ## Notes
 
 - Ghi chú cho mốc mang vòng này: crm không phải làm gì; lượt sửa của crm sẽ bắt đầu giữ ô xanh cho `paths` dạng khối (393 khai ở crm), nên số lệnh chạy lại mỗi lượt sửa giảm.
+- Ghi chú cho mốc mang vòng này: tệp ca `tests/scripts/bo-giai-nhay.test.mjs` của hồ sơ đã ký `release-2-11-0` đổi neo (đường 4–6, 8 dời vào `evalListsOf`; BG8_MUTANTS 7 → 6) — hồ sơ đó cần ghim lại ở chiến dịch phát hành.
+- Known limits (owner định tuyến ở Cổng Bằng chứng 11/10, lượt chấm 2 — sáu hàng `evals-sat-le-doc-du#ngoai-1…6` ở `docs/research/known-limits-ledger.tsv`):
+  - Ngoài-1, Ngoài-2: ca chiều đỏ BC1b không gọi chính phép so cỡ ma trận của BC1 mà tự đếm và tự in «ma trận hụt» — gỡ chốt của BC1 thì cả hai vẫn xanh.
+  - Ngoài-3: ma trận BC1 ghim TỔNG số phần tử (18), không ghim tập tên trường — thay một trường mà giữ tổng thì BC1 vẫn xanh.
+  - Ngoài-4: danh sách ngoặc vuông trải nhiều dòng (`paths:` rồi `[` ở dòng sau) đọc như trước nhưng cờ báo sai lý do «khai mà rỗng» — gặp thật ở radar `bon-vai-va-quyen` E24–E26.
+  - Ngoài-5: khoá `canhBaoDanhSach` trong tệp tham số lượt chấm chưa có bên đọc trong workflow; cờ đến người qua hai thẻ cổng, chưa vào báo cáo bằng chứng.
+  - Ngoài-6: dòng trông như `- id:` nằm trong khối chữ nhiều dòng bị đọc thành tiêu chí mới, các danh sách của tiêu chí thật rơi im lặng — chưa kho nào trong bảy kho viết như vậy.
