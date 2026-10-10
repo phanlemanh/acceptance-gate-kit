@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 5fd732bc33bb4138cd05a6539d635634f1dc6b86
+verified_commit: 8e980dd834a864c3d834a93430cbcf68df33c069
 human_signoff: Phan Le Manh 2026-10-09 — ký lượt chấm 2; Ngoài-1, Ngoài-2 mở hợp đồng mới (hạt giống); Ngoài-3 ghi Known limits; mục trong hợp đồng AC-4 (medium) ghi Known limits theo khuyến nghị ở lời mời; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -152,3 +152,7 @@ none — every multi-run eval is uniform
 
 Round 1: REJECT — fixture tranh chuỗi trạng-thái-đã-ký (RT13), theo commit 5fd732bc. Returned to implementation.
 Round 2: E1–E7 và toàn bộ lệnh suite xanh trên cây 5fd732bc — PASS.
+
+### Re-pin lần 1 — 2026-10-10, do gộp origin/main sau #280; P161 câu chữ
+run_id: repin-20261010T004111Z-28238
+sha: 8e980dd834a864c3d834a93430cbcf68df33c069 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng
