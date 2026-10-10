@@ -442,6 +442,96 @@ test('DP2-08-do lech-slug', async () => {
   assert.ok(loi.some((l) => l.includes('B:')), `phải nêu mã B: ${loi.join(' | ')}`);
 });
 
+// ---------- DP2-09: thẻ khởi tạo và thẻ đóng đợt (AC-9, E9) ----------
+// Ma trận viết sẵn: năm hàng mang mã, mỗi hàng một trạng thái hồ sơ; kỳ vọng ở cột cuối.
+const MA_TRAN_THE = [
+  ['a', 'hang-a', (d) => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: build\n---\n'), 'da-quyet'],
+  ['b', 'hang-b', (d) => fs.writeFileSync(path.join(d, 'contract.md'), '---\nstatus: draft\n---\n'), 'da-quyet'],
+  ['c', 'hang-c', null, 'cho'],
+  ['d', 'hang-d', (d) => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: discovery                # discovery | decided\ndecision:                     # build | park\n---\n'), 'cho'],
+  ['e', 'hang-e', (d) => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: park\n---\n'), 'canh-bao'],
+];
+
+function khoTheThu() {
+  const kho = khoThu('dp2-the-');
+  goiThu(kho, { hang: MA_TRAN_THE.map(([ma, slug], i) => ({ ma: ma.toUpperCase(), slug, day: i % 2 ? 'P2' : 'P1' })) });
+  khaiGoi(kho);
+  for (const [, slug, dung] of MA_TRAN_THE) {
+    if (!dung) continue;
+    const d = path.join(kho, '_acceptance', slug);
+    fs.mkdirSync(d, { recursive: true });
+    dung(d);
+  }
+  assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
+  return kho;
+}
+
+export async function kiemTheKhoiTao(gocGoi, kho) {
+  const { theKhoiTao } = await nap(gocGoi, 'the.mjs');
+  const the = theKhoiTao(kho);
+  const loi = [];
+  let soAssert = 0;
+  for (const [, slug, , can] of MA_TRAN_THE) {
+    soAssert++;
+    const laCho = the.cho_cong_dang.includes(slug);
+    const laCanhBao = the.canh_bao.some((c) => c.slug === slug);
+    const thuc = laCho ? 'cho' : laCanhBao ? 'canh-bao' : 'da-quyet';
+    if (thuc !== can) loi.push(`${slug}: ${thuc}, cần ${can}`);
+  }
+  const hoiCan = ['quyen-tu-merge', ...MA_TRAN_THE.filter((r) => r[3] === 'cho').map((r) => `build:${r[1]}`)];
+  if (JSON.stringify(the.hoi) !== JSON.stringify(hoiCan)) loi.push(`hoi = ${JSON.stringify(the.hoi)}`);
+  if (!the.may_di_tiep.includes('uu-tien') || !the.may_di_tiep.includes('lan-v')) loi.push('may_di_tiep thiếu uu-tien/lan-v');
+  return { loi, soAssert, the };
+}
+
+test('DP2-09 khoi-tao', async () => {
+  const kho = khoTheThu();
+  const { loi, soAssert, the } = await kiemTheKhoiTao(GOI, kho);
+  console.log(`  số hàng ma trận: ${soAssert} · chờ Cổng Đáng: ${the.cho_cong_dang.join(', ')}`);
+  assert.equal(soAssert, MA_TRAN_THE.length);
+  assert.deepEqual(loi, []);
+  assert.deepEqual(the.day.map((d) => d.id), ['P1', 'P2']);
+});
+
+test('DP2-09 dong', async () => {
+  const { theDong } = await nap(GOI, 'the.mjs');
+  const { kho } = dotDangChay();
+  assert.equal(chayCli(kho, ['hang', 'them', 'viec phat sinh', '--day', 'P1']).ma, 0);
+  assert.equal(chayCli(kho, ['hang', 'day-len', 'C', '--truoc', 'A']).ma, 0);
+  const the = theDong(kho);
+  assert.deepEqual(the.hang_phat_sinh, ['viec-phat-sinh']);
+  assert.deepEqual(the.lop_phu.map((l) => [l.hang, l.truoc]), [['hang-c', 'hang-a']]);
+});
+
+test('DP2-09-do', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const kho = khoTheThu();
+  assert.deepEqual((await kiemTheKhoiTao(sao, kho)).loi, [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'the.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace("  if (fs.existsSync(path.join(dir, 'contract.md'))) return { tt: 'da-quyet' };\n", '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { loi } = await kiemTheKhoiTao(sao, kho);
+  assert.ok(loi.some((l) => l.startsWith('hang-b:')), `phải nêu hang-b: ${loi.join(' | ')}`);
+});
+
+test('DP2-09-do thu-muc', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const kho = khoTheThu();
+  assert.deepEqual((await kiemTheKhoiTao(sao, kho)).loi, [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'the.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const neo = "  const dir = path.join(gocKho, '_acceptance', slug);\n";
+  const tiem = goc.replace(neo, `${neo}  if (fs.existsSync(dir)) return { tt: 'da-quyet' };\n`);
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { loi } = await kiemTheKhoiTao(sao, kho);
+  assert.ok(loi.some((l) => l.startsWith('hang-d:')), `phải nêu hang-d: ${loi.join(' | ')}`);
+});
+
 // ---------- DP2-04: bảng chuyển pha (AC-4, E4) ----------
 const PHA4 = ['nhap', 'dang-chay', 'tam-dung', 'dang-dong'];
 const DUOC = new Set(['nhap>dang-chay', 'dang-chay>tam-dung', 'tam-dung>dang-chay', 'dang-chay>dang-dong', 'tam-dung>dang-dong']);
