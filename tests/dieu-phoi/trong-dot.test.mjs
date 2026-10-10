@@ -144,7 +144,7 @@ const chepGoi = () => {
   fs.cpSync(GOI, sao, { recursive: true });
   return sao;
 };
-const tiem = (p, cu, moi) => {
+const tiem = (p, cu, moi) => { // cu: chuỗi hoặc RegExp
   const goc = fs.readFileSync(p, 'utf8');
   const sau = goc.replace(cu, moi);
   assert.notEqual(sau, goc, `bước tiêm không áp được vào ${path.basename(p)}`);
@@ -493,3 +493,94 @@ test('DP7-06 ngoai-day', async () => {
   assert.equal(moi.ma, 2);
   assert.equal(moi.loi, cu.loi);
 });
+
+// ---------- DP7-01: trong-dot.mjs nhận biết đợt, kho không đợt im (AC-1, E1) ----------
+const TRONG_DOT = path.join(FL, 'scripts', 'trong-dot.mjs');
+function chayTrongDot(script, cwd, slug = null) {
+  const r = spawnSync(process.execPath, [script, '--root', cwd, ...(slug ? ['--slug', slug] : [])], { cwd, env: ENV, encoding: 'utf8' });
+  return { ma: r.status, out: r.stdout, err: r.stderr };
+}
+// Ba hình dạng worktree của dãy P1, mỗi hình dạng một đợt riêng, lõi chép bằng chepLoi THẬT.
+const HINH_DANG = {
+  trong: (kho) => ({ P1: themWorktree(kho, 'P1', 'trong') }),
+  canh: (kho) => ({ P1: themWorktree(kho, 'P1', 'canh') }),
+  chinh: (kho) => ({ P1: fs.realpathSync(kho) }),
+};
+async function dotCoLoi(wt) {
+  const ctx = dungDot({ wt });
+  oCoHoi(ctx.kho, 'hang-a', { decision: 'build' });
+  const { chepLoi } = await nap(GOI, 'dieu-phoi.mjs');
+  chepLoi(ctx.dot);
+  await nhip(ctx.dot);
+  return ctx;
+}
+async function kiemNhanBiet(script) {
+  const loi = [];
+  for (const [ten, wt] of Object.entries(HINH_DANG)) {
+    const { dot, w } = await dotCoLoi(wt);
+    const r = chayTrongDot(script, w.P1);
+    if (r.ma !== 0) { loi.push(`${ten}: thoát ${r.ma} ${r.err}`); continue; }
+    if (r.out === '') { loi.push(`${ten}: không thấy đợt`); continue; }
+    const dong = r.out.split('\n').filter(Boolean);
+    const loiCua = spawnSync(process.execPath, [path.join(dot, 'loi', 'dieu-phoi.mjs'), 'tho', '--json'], { cwd: w.P1, env: ENV, encoding: 'utf8' }).stdout;
+    let kq = null;
+    try { kq = JSON.parse(dong[0]); } catch { kq = null; }
+    if (dong.length !== 1 || !kq || kq.trong_dot !== true || kq.day !== 'P1') loi.push(`${ten}: đầu ra lạ «${r.out}»`);
+    else if (r.out !== loiCua) loi.push(`${ten}: khác đầu ra tho của bản lõi`);
+  }
+  return loi;
+}
+
+test('DP7-01 khong-dot', () => {
+  const kho = khoThu();
+  const truoc = anhCay(kho);
+  const r = chayTrongDot(TRONG_DOT, kho);
+  assert.deepEqual([r.ma, r.out, r.err], [0, '', '']);
+  assert.deepEqual(khacCay(truoc, anhCay(kho)), []);
+});
+
+test('DP7-01 khong-phai-tho', async () => {
+  const { kho, dot } = await dotCoLoi(null);
+  const truoc = anhCay(dot);
+  const r = chayTrongDot(TRONG_DOT, kho);
+  assert.deepEqual([r.ma, r.out, r.err], [0, '', '']);
+  assert.deepEqual(khacCay(truoc, anhCay(dot)), []);
+});
+
+test('DP7-01 tho', async () => {
+  console.log(`  số hình dạng: ${Object.keys(HINH_DANG).length} (${Object.keys(HINH_DANG).join(', ')})`);
+  assert.equal(Object.keys(HINH_DANG).length, 3);
+  assert.deepEqual(await kiemNhanBiet(TRONG_DOT), []);
+});
+
+test('DP7-01 loi-cu', async () => {
+  const { dot, w } = await dotCoLoi(null);
+  tiem(path.join(dot, 'loi', 'dieu-phoi.mjs'), /\n {6}tho: \(\) => [^\n]*/, '');
+  const cu = chayTrongDot(TRONG_DOT, w.P1);
+  assert.equal(cu.ma, 0);
+  assert.match(cu.out, /^trong-dot: lõi của đợt thu chưa có lệnh tho[^\n]*\n$/);
+  fs.rmSync(path.join(dot, 'loi'), { recursive: true });
+  const vang = chayTrongDot(TRONG_DOT, w.P1);
+  assert.equal(vang.ma, 0);
+  assert.match(vang.out, /^trong-dot: đợt thu chưa có bản lõi[^\n]*\n$/);
+});
+
+test('DP7-01 ten-lien-ket', async () => {
+  const fl = await import(`${TRONG_DOT}?v=${Math.random()}`);
+  const { TEN_LIEN_KET } = await nap(GOI, 'dot.mjs');
+  assert.equal(fl.TEN_LIEN_KET, TEN_LIEN_KET);
+});
+
+for (const [ten, cu, moi] of [
+  ['sai-ten', "'dieu-phoi-hien-tai'", "'dieu-phoi-khac'"],
+  ['show-toplevel', "['rev-parse', '--path-format=absolute', '--git-common-dir']", "['rev-parse', '--show-toplevel', '--path-format=absolute']"],
+]) {
+  test(`DP7-01-do ${ten}`, async () => {
+    const sao = path.join(tam('dp7-fl-'), 'trong-dot.mjs');
+    fs.copyFileSync(TRONG_DOT, sao);
+    tiem(sao, cu, moi);
+    if (ten === 'show-toplevel') tiem(sao, 'path.dirname(chung)', 'path.join(chung, "x")');
+    const loi = await kiemNhanBiet(sao);
+    assert.ok(loi.some((l) => l === 'canh: không thấy đợt'), `phải nêu «canh: không thấy đợt»: ${loi.join(' | ')}`);
+  });
+}
