@@ -197,8 +197,9 @@ evals:
       bản chép; thư mục đợt có lõi/ kèm tệp phiên bản; xoá thư mục gói tạm; đợi hai nhịp (io thật, tick 1s
       đặt trong cấu hình thử) → bộ phát lịch vẫn sống, su-kien.jsonl không có "cap" mới cho khoá đang giữ.
       "ok" cho "DP1-11 loi-vang": xoá cả lõi/ của thư mục đợt → nhịp kế ghi "can_phan":true nêu "lõi vắng"
-      và không cấp khoá. "ok" cho "DP1-11-do bo-chep": bản sao bỏ bước chép → sau khi xoá gói, khoá bị cấp
-      lại (ca đỏ nêu "cap"). Ca dừng mọi tiến trình con khi xong.
+      và không cấp khoá. "ok" cho "DP1-11-do bo-chep": bản sao bỏ bước chép (spawn phat-lich.mjs của chính gói) → sau khi
+      xoá gói, phép kiểm của DP1-11 ban-theo-dot trên bản sao trả lỗi nêu "lõi vắng" (đơn mới không
+      được cấp). Ca dừng mọi tiến trình con khi xong.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12
     criterion: AC-12
