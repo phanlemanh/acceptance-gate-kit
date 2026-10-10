@@ -149,3 +149,4 @@ xuat-du-lieu-lo-trinh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|
 release-2-25-0	hoi=Ngoài-1|ký hay trả	bao=cắt/hoãn|Treo
 dieu-phoi-dong-goi-loi	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|ký hay trả	bao=cắt/hoãn|Treo
 glob-thoat-ngoac	hoi=Ngoài-1|Ngoài-2|Ngoài-3|ký hay trả	bao=cắt/hoãn|Treo
+dieu-phoi-mo-dot-mot-lenh	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|Ngoài-14|Ngoài-15|Ngoài-16|Ngoài-17|Ngoài-18|Ngoài-19|Ngoài-20|Ngoài-21|Ngoài-22|Ngoài-23|Ngoài-24|Ngoài-25|ký hay trả	bao=cắt/hoãn|Treo

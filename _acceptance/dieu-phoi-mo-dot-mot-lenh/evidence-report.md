@@ -7,7 +7,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 2f0e427fee40d5617b2f0fd878455e9e9c76da9c
-human_signoff:
+human_signoff: manh 2026-10-10
 ---
 
 # Evidence Report: dieu-phoi-mo-dot-mot-lenh

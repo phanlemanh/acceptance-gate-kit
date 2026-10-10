@@ -5,7 +5,7 @@ slug: dieu-phoi-mo-dot-mot-lenh
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-10-dieu-phoi-mo-dot-mot-lenh-design.md
 approved_by:
 approved_at:
@@ -86,3 +86,16 @@ Phân loại:
 
 - Năm chỗ chọn ở design doc §3 là lựa chọn máy trong khung đã duyệt; mỗi chỗ có một dòng sổ quyết định.
 - Ca LB1/LB2 và bảng tên lệnh nằm ở acceptance-gate: đổi chúng là để tài liệu được nhắc `/dieu-phoi:…`, không đổi hành vi lệnh nào khác.
+- **Known limits (Cổng Bằng chứng, ký 10/10, owner định tuyến «ghi Known limits»):** README của gói còn tả
+  luồng mở đợt cũ (Ngoài-1) · nâng gói giữa đợt rồi `hang nghi` làm bộ phát lịch bản cũ ngừng cấp (Ngoài-2)
+  · `hang-gop` đếm dôi hàng đã ký trước khi mở đợt (Ngoài-5) · hàng gói ngoài nguồn bị bỏ lặng (Ngoài-6) ·
+  vài hình frontmatter lạ đọc ra «chờ» (Ngoài-7) · `day-len` tự trỏ chính nó không có điểm dừng (Ngoài-13)
+  · mở lại đợt dựng tay cùng tên kẹt ở `dang-dong` (Ngoài-20, cùng lỗ hạt giống Ngoài-3) · `dem` bỏ sót
+  `can-nguoi` của thợ nên số gọi chủ kho là mức tối thiểu (Ngoài-21) · dãy nghỉ làm hàng đang làm biến mất
+  khỏi bảng (Ngoài-22) · thước lỏng ở DP2-12, DP2-13-do, DP2-08, DP2-09, thieu-doi-so, DP2-01-do thu-tu
+  (Ngoài-8 – 11, 14, 15, 23 – 25). Sổ: `docs/research/known-limits-ledger.tsv`.
+- **Mở hợp đồng mới (Cổng Bằng chứng, ký 10/10):** Ngoài-3, Ngoài-4, Ngoài-16, Ngoài-17, Ngoài-18 (thẻ báo
+  «không vào đợt» mà bộ phát lịch vẫn giao), Ngoài-19 — ghi hạt giống
+  `docs/plans/2026-10-10-hat-giong-mo-dot-dieu-phoi-sau-dp2.md`, không tạo ô.
+- **Chấp nhận, không sửa (Cổng Bằng chứng, ký 10/10):** Ngoài-12 — DP2-02 mo-tu-goi chỉ kiểm đầu/cuối
+  `LUAT.md`.
