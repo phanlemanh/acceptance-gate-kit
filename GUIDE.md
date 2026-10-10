@@ -1145,6 +1145,53 @@ Mục này là khuyến nghị vận hành, **không có răng máy** — không
 chặn theo nó; finding của lượt soi là chất liệu cho người quyết tại cổng,
 không thay được evidence của eval.
 
+### 6.6 Chạy đợt Điều phối – Thợ (gói dieu-phoi)
+
+Khi kho có nhiều hàng làm song song, gói thứ tư `dieu-phoi` chạy chúng thành một
+**đợt**: một **phiên giám sát**, vài **dãy** (mỗi dãy một phiên thợ làm tuần tự
+các hàng của nó bằng `/feature-loop:feature-loop`), và một **bộ phát lịch** giữ
+khoá tài nguyên (S4, đường nền, merge) để hai dãy không chấm chồng nhau. Từ vựng
+ở `CONTEXT.md`, mục «Điều phối – Thợ».
+
+**Cài theo kho, không theo máy.** Bật gói ở phạm vi dự án của đúng kho cần chạy
+đợt (cách cài gói: mục 5), cùng số phiên bản với feature-loop. `/acceptance-gate:acceptance-init`
+không tự bật nó; ở kho không có đợt, bốn hook của gói im.
+
+**Gói đợt — khai một lần mỗi kho.** Ổ cắm `dieu_phoi.goi_dot` trong
+`_acceptance/config.yaml` trỏ thư mục gói đợt, `{ten}` thay bằng tên đợt (ví dụ
+`goi/dot-{ten}`). Thư mục ấy có `dieu-phoi.config.json`, `hang-viec.json` (các dãy
+và hàng) và `LUAT-rieng.md` (luật riêng của kho cho thợ). Hàng có thể lấy thẳng từ
+lộ trình bằng khoá `nguon_hang` (`<tệp>:<mã>` hoặc `<tệp>@<ngày mốc>`); gói chỉ khai
+phần thi công (dãy, ưu tiên). Vắng khoá → `/dieu-phoi:mo-dot` dừng và nói đúng việc
+khai, không dựng đợt tay.
+
+**Ba lệnh:**
+
+| Lệnh | Làm gì | Ai gõ |
+|---|---|---|
+| `/dieu-phoi:mo-dot <tên>` | Dựng đợt từ gói, trình **thẻ khởi tạo** (dãy, hàng; hỏi quyền tự merge và `build` cho hàng còn chờ Cổng Đáng), rồi khi người duyệt thì chạy bộ phát lịch và mở chip cho từng dãy. Chạy lại được: chẩn đoán trước, làm đúng phần thiếu | người, ở phiên sẽ làm giám sát |
+| `/dieu-phoi:xem` | Pha, khoá đang giữ, hàng chờ lượt, chờ người, tiến độ từng dãy kèm nhóm kế hoạch. Chỉ đọc; cùng hàm mô hình với **bảng đợt** `bang.html` | bất kỳ phiên nào |
+| `/dieu-phoi:dong-dot` | Trình **thẻ đóng đợt** (hàng phát sinh, lớp phủ ưu tiên), khi người duyệt thì hoàn tất merge dở, dừng bộ phát lịch, dọn | người, ở phiên giám sát |
+
+Cả ba lệnh **không** khoá model-invocation (khác bảy thao tác cổng người), nhưng
+`mo-dot` và `dong-dot` mang khối «chữ quyết của người»: chữ duyệt thẻ, chữ `build`,
+quyền tự merge chỉ nhận từ người gõ — máy chép nguyên văn vào hồ sơ, không tự
+sinh, không điền sẵn vào dòng mời.
+
+**Vòng đời đợt.** Pha `nhap` (vừa mở, chờ duyệt thẻ) → `dang-chay` ⇄ `tam-dung` →
+`dang-dong` (chỉ còn cấp khoá merge). Đổi pha bằng CLI của gói kèm người và lý do;
+mỗi lần đổi ghi một dòng Nhật ký ở `LUAT.md` của đợt. Đổi kế hoạch giữa đợt
+(đẩy một hàng lên, thêm hàng, cho một dãy nghỉ) đi qua lệnh `hang` của CLI và
+là lớp phủ CỦA ĐỢT — đổi lâu dài thì sửa tệp lộ trình bằng PR.
+
+**Hai kho, một máy.** Khoá S4 có thêm một tầng cấp máy (`~/.claude/dieu-phoi/may/`):
+hai kho chạy đợt trên cùng máy không bao giờ chấm S4 chồng nhau; khoá của đợt đã
+đóng hay đã chết được thu hồi.
+
+**Vào phiên khi đợt đang chạy.** `/acceptance-gate:start` in một dòng «đợt <tên>
+đang chạy → /dieu-phoi:xem», và hàng kế của lộ trình mà một dãy đang giữ không còn
+là lựa chọn mở — tránh hai phiên mở cùng một hàng.
+
 ## 7. Tra cứu enforcement — hook và CI chặn gì
 
 ```mermaid

@@ -164,6 +164,10 @@ trả lời mua bằng giá một vòng dựng, không phải thất bại của
 **Duyệt Cổng 1 nhanh:** `/acceptance-gate:approve <slug>` · **Ký Cổng 2:** `/acceptance-gate:signoff <slug>` ·
 **Đo sức khoẻ cổng:** `/acceptance-gate:acceptance-report` (verdict mix, số vòng verify, vệ sinh gate)
 
+**Chạy nhiều hàng song song (gói dieu-phoi, bật theo kho):** khai ổ cắm `dieu_phoi.goi_dot` một lần,
+rồi `/dieu-phoi:mo-dot <tên>` mở đợt (duyệt thẻ khởi tạo là đi) · `/dieu-phoi:xem` xem đợt ở bất kỳ
+phiên nào · `/dieu-phoi:dong-dot` đóng đợt. Chi tiết: GUIDE §6.6.
+
 ---
 
 ## Verdict nghĩa là gì

@@ -332,6 +332,9 @@ kit in cho người; dạng trần chỉ được xuất hiện ở cột một 
 | uat-session | /acceptance-gate:uat-session | skill |
 | cat-luot | /acceptance-gate:cat-luot | skill |
 | feature-loop | /feature-loop:feature-loop | skill |
+| mo-dot | /dieu-phoi:mo-dot | command |
+| dong-dot | /dieu-phoi:dong-dot | command |
+| xem | /dieu-phoi:xem | command |
 | goal | /goal | harness |
 <!-- COMMAND-NAMES>>> -->
 
