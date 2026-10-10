@@ -646,6 +646,79 @@ test('DP2-10-do bo-khoa-may', async () => {
   assert.ok(loi.includes('hai kho cùng giữ s4'), `phải nêu «hai kho cùng giữ s4»: ${loi.join(' | ')}`);
 });
 
+// ---------- DP2-12: một hàm mô hình cho xem và bảng đợt (AC-12, E12) ----------
+function dotCoTrangThai() {
+  const kho = khoCoLoTrinh();
+  goiTheoMa(kho, [`${TEP_LT}:A`, `${TEP_LT}:B`]);
+  assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
+  const r = spawnSync(process.execPath, [path.join(KIT, 'scripts', 'product-map.mjs'), '--root', kho], { encoding: 'utf8', env: ENV });
+  assert.equal(r.status, 0, r.stderr);
+  const dot = thuMucDot(kho);
+  const tt = {
+    dot: 'thu',
+    pha: 'tam-dung',
+    trang_thai: 'dang-chay',
+    nhip_cuoi: '2026-10-10T08:00:00.000Z',
+    suc_khoe: { lyDo: [], canNguoi: null },
+    khoa: [{ tai_nguyen: 's4', phien: 'P2', han_thue_den: '2026-10-10T09:30:00.000Z' }],
+    hang_cho: [{ phien: 'P1', loai: 'merge', luc: '2026-10-10T08:01:00.000Z' }],
+    cho_nguoi: [{ phien: 'P1', loai: 'idle_prompt', tin: 'Ký giúp lượt này?', luc: '2026-10-10T08:02:00.000Z' }],
+    day: [
+      { id: 'P1', hang: 'hang-a-tu-lo-trinh', tien_do: 'dang', cho: null },
+      { id: 'P2', hang: 'dong-goi-dieu-phoi-tho-vao', tien_do: 'chua', cho: null },
+    ],
+  };
+  ghiJ(path.join(dot, 'trang-thai.json'), tt);
+  return { kho, dot, tt };
+}
+
+export async function kiemHaiBeMat(gocGoi, kho, dot, tt) {
+  const { moHinh } = await nap(gocGoi, 'mo-hinh.mjs');
+  const { veBang } = await nap(gocGoi, 'bang.mjs');
+  const { docNhomKeHoach } = await nap(gocGoi, 'nguon-hang.mjs');
+  const tuyChon = { nhom: docNhomKeHoach(kho), hangViec: docJ(path.join(dot, 'hang-viec.json')) };
+  const m = moHinh(tt, tuyChon);
+  const giaTri = [
+    m.pha,
+    ...m.khoa.flatMap((k) => [k.tai_nguyen, k.phien]),
+    ...m.hang_cho.map((h) => h.phien),
+    ...m.cho_nguoi.map((c) => c.tin),
+    ...m.day.flatMap((d) => [d.hang, d.nhom_ke_hoach]),
+  ];
+  const loi = [];
+  if (!m.day.some((d) => d.nhom_ke_hoach)) loi.push('fixture hỏng: không hàng nào có nhóm kế hoạch');
+  const r = chayCli(kho, ['xem'], { gocGoi });
+  if (r.ma !== 0) loi.push(`xem thoát ${r.ma}: ${r.err}`);
+  const html = veBang(tt, tuyChon);
+  for (const v of giaTri) {
+    if (v == null) continue;
+    if (!r.out.includes(v)) loi.push(`xem thiếu «${v}»`);
+    if (!html.includes(v)) loi.push(`bảng đợt thiếu «${v}»`);
+  }
+  return { loi, giaTri };
+}
+
+test('DP2-12 mot-ham', async () => {
+  const { kho, dot, tt } = dotCoTrangThai();
+  const { loi, giaTri } = await kiemHaiBeMat(GOI, kho, dot, tt);
+  console.log(`  giá trị so: ${giaTri.filter((v) => v != null).join(' · ')}`);
+  assert.deepEqual(loi, []);
+});
+
+test('DP2-12-do lech', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const { kho, dot, tt } = dotCoTrangThai();
+  assert.deepEqual((await kiemHaiBeMat(sao, kho, dot, tt)).loi, [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'dieu-phoi.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace(/  else dong = veXem\(moHinh\([^\n]*\n/, "  else dong = `đợt ${tt.dot} · ${tt.trang_thai} · khoá ${tt.khoa.map((k) => `${k.tai_nguyen}:${k.phien}`).join(' ')} · chờ lượt ${tt.hang_cho.length}`;\n");
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { loi } = await kiemHaiBeMat(sao, kho, dot, tt);
+  assert.ok(loi.some((l) => l.startsWith('xem thiếu «tam-dung»')), `phải nêu giá trị lệch: ${loi.join(' | ')}`);
+});
+
 // ---------- DP2-04: bảng chuyển pha (AC-4, E4) ----------
 const PHA4 = ['nhap', 'dang-chay', 'tam-dung', 'dang-dong'];
 const DUOC = new Set(['nhap>dang-chay', 'dang-chay>tam-dung', 'tam-dung>dang-chay', 'dang-chay>dang-dong', 'tam-dung>dang-dong']);

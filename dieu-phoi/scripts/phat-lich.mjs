@@ -9,6 +9,7 @@ import { GIAY_MS, NHIP, PHUT_MS } from './cau-hinh.mjs';
 import { docJson, ghiJsonNguyenTu, ghiSuKien } from './dot.mjs';
 import { docPha } from './pha.mjs';
 import { giuMay, nhaMay, thuHoiMayChet } from './may.mjs';
+import { docNhomKeHoach } from './nguon-hang.mjs';
 import { capLuot, chonHangKe, hanGiaHan, xetHanThue } from './lich.mjs';
 import { danhGiaSucKhoe, docApLuc, docLoad, docRssLonNhat, docSwap } from './suc-khoe.mjs';
 import { xetYeuCau } from './yeu-cau.mjs';
@@ -354,7 +355,7 @@ export async function motNhip(thuMuc, io) {
     ...dem,
   };
   ghiJsonNguyenTu(pTrangThai, tt);
-  fs.writeFileSync(path.join(thuMuc, 'bang.html'), veBang(tt));
+  fs.writeFileSync(path.join(thuMuc, 'bang.html'), veBang(tt, { nhom: cfg.goc_kho ? docNhomKeHoach(cfg.goc_kho) : new Map(), hangViec }));
 }
 
 export function giuPid(thuMuc) {

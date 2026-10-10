@@ -9,7 +9,9 @@ import { docGoi, ghepLuat, timGoi } from './goi-dot.mjs';
 import { choNghi, dayLen, ghiNhatKy, themHang } from './hang.mjs';
 import { theDong, theKhoiTao } from './the.mjs';
 import { nhaMay } from './may.mjs';
-import { datPha, khoiTaoPha, TEP_DIEU_KHIEN } from './pha.mjs';
+import { datPha, docPha, khoiTaoPha, TEP_DIEU_KHIEN } from './pha.mjs';
+import { moHinh, veXem } from './mo-hinh.mjs';
+import { docNhomKeHoach } from './nguon-hang.mjs';
 import { ghiVai } from './vai.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
@@ -148,15 +150,15 @@ export function canhBaoHaiBan(gocKho) {
   return `cảnh báo: ${rel} còn hook gọi ${DUONG_BAN_CU} (${suKien.join(', ')}) — gỡ các khối đó, gói dieu-phoi đã gắn hook`;
 }
 
+// `xem` vẽ từ CÙNG mô hình với bảng đợt (mo-hinh.mjs), kèm nhóm kế hoạch của hàng mang mã lộ trình.
 function xem(cwd) {
-  const canhBao = canhBaoHaiBan(gocKhoChinh(cwd));
-  const tt = docJson(path.join(thuMucHienTai(cwd), 'trang-thai.json'), null);
+  const goc = gocKhoChinh(cwd);
+  const canhBao = canhBaoHaiBan(goc);
+  const thuMuc = thuMucHienTai(cwd);
+  const tt = docJson(path.join(thuMuc, 'trang-thai.json'), null);
   let dong;
-  if (!tt) dong = 'chưa có nhịp nào';
-  else {
-    const khoa = tt.khoa.map((k) => `${k.tai_nguyen}:${k.phien}`).join(' ') || 'trống';
-    dong = `đợt ${tt.dot} · ${tt.trang_thai} · nhịp ${tt.nhip_cuoi} · khoá ${khoa} · chờ lượt ${tt.hang_cho.length} · chờ người ${tt.cho_nguoi.length}`;
-  }
+  if (!tt) dong = `chưa có nhịp nào · pha ${docPha(thuMuc).pha}`;
+  else dong = veXem(moHinh(tt, { nhom: docNhomKeHoach(goc), hangViec: docJson(path.join(thuMuc, 'hang-viec.json'), null) }));
   return canhBao ? `${dong}\n${canhBao}` : dong;
 }
 
