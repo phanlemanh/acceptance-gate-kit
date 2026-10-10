@@ -992,3 +992,69 @@ test('DP2-05-do bo-pha', async () => {
   const loi = await kiemCapTheoPha(sao);
   assert.ok(loi.some((l) => l.startsWith('nhap:')), `phải nêu «nhap»: ${loi.join(' | ')}`);
 });
+
+// ---------- DP2-11: /start biết đợt (AC-11, E11) ----------
+const QUET = (gocKit) => path.join(gocKit, 'scripts', 'start-scan.mjs');
+const quetStart = (gocKit, kho) => {
+  const r = spawnSync(process.execPath, [QUET(gocKit), '--root', kho], { encoding: 'utf8', env: { ...ENV, ACCEPTANCE_TODAY: '2026-10-10' } });
+  assert.equal(r.status, 0, r.stderr);
+  return JSON.parse(r.stdout);
+};
+// Bản start-scan của nhánh chính tại merge-base: chép TRỌN thư mục (scripts, lib, skills) bằng git archive.
+let kitGoc = null;
+function kitTaiMergeBase() {
+  if (kitGoc) return kitGoc;
+  const git = (...a) => execFileSync('git', a, { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  let mb = null;
+  for (const nhanh of ['origin/main', 'main']) {
+    try {
+      mb = git('merge-base', 'HEAD', nhanh);
+      break;
+    } catch {}
+  }
+  assert.ok(mb, 'không tìm được merge-base với nhánh chính');
+  const dir = tam('dp2-kit-goc-');
+  const tar = execFileSync('git', ['archive', mb, 'scripts', 'lib', 'skills'], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 });
+  execFileSync('tar', ['-x', '-C', dir], { input: tar });
+  kitGoc = { dir, mb };
+  return kitGoc;
+}
+
+test('DP2-11 start-biet-dot', () => {
+  const kho = khoCoLoTrinh();
+  goiTheoMa(kho, [`${TEP_LT}:A`, `${TEP_LT}:B`]);
+  assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
+  const j = quetStart(KIT, kho);
+  console.log(`  dotDangChay: ${JSON.stringify(j.dotDangChay)} · hàng kế: ${JSON.stringify(j.loTrinh.ds[0].hangKe)}`);
+  // Đợt mở từ gói đứng ở `nhap` tới khi người duyệt thẻ khởi tạo.
+  assert.deepEqual(j.dotDangChay, { ten: 'thu', pha: 'nhap' });
+  assert.equal(chayCli(kho, ['pha', 'dang-chay', '--boi', 't', '--ly-do', 'duyệt']).ma, 0);
+  assert.equal(quetStart(KIT, kho).dotDangChay.pha, 'dang-chay');
+  assert.equal(j.loTrinh.ds[0].hangKe.ma, 'A');
+  assert.equal(j.loTrinh.ds[0].hangKe.thamSo, null, 'hàng dãy đang giữ không còn là lựa chọn mở');
+  assert.ok(j.loTrinh.dong.some((d) => d.startsWith('Hàng kế: A')), 'dòng chữ hàng kế phải còn');
+});
+
+test('DP2-11 khong-dot', () => {
+  const kho = khoCoLoTrinh();
+  goiTheoMa(kho, [`${TEP_LT}:A`, `${TEP_LT}:B`]);
+  assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
+  fs.rmSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+  // Dòng lệnh vẽ mang đường dẫn tuyệt đối của chính cây kit chạy quét — thay gốc bằng một nhãn rồi mới so.
+  const chuan = (j, goc) => JSON.parse(JSON.stringify(j).split(path.join(goc, 'scripts')).join('<KIT>/scripts'));
+  const moi = chuan(quetStart(KIT, kho), KIT);
+  const { dir, mb } = kitTaiMergeBase();
+  const cu = chuan(quetStart(dir, kho), dir);
+  console.log(`  so với start-scan tại ${mb.slice(0, 8)}: ${Object.keys(moi).length} khoá`);
+  assert.equal('dotDangChay' in moi, false, 'không đợt thì khoá vắng');
+  assert.equal(moi.loTrinh.ds[0].hangKe.thamSo, 'A', 'không đợt thì hàng kế mở được như cũ');
+  assert.deepEqual(moi, cu);
+});
+
+test('DP2-11 start-md', () => {
+  const md = fs.readFileSync(path.join(KIT, 'commands', 'start.md'), 'utf8');
+  const khoi = /<!-- <<<START-SCAN-KEYS\n([\s\S]*?)START-SCAN-KEYS>>> -->/.exec(md)?.[1] ?? '';
+  const khoa = khoi.split(/\s+/).filter((k) => k.startsWith('dotDangChay'));
+  assert.deepEqual(khoa, ['dotDangChay.ten', 'dotDangChay.pha']);
+  assert.ok(md.includes('/dieu-phoi:xem'), 'thân start.md phải có dòng /dieu-phoi:xem');
+});

@@ -2752,6 +2752,11 @@ W('_acceptance/w-go/contract.md', '---\nslug: w-go\nrisk_tier: T2\nstatus: appro
 W('_acceptance/w-done/contract.md', '---\nslug: w-done\nrisk_tier: T2\nstatus: signed-off\nveto_state: mo\n---\n');
 W('_acceptance/w-bad/contract.md', 'khong fence\n');
 W('_acceptance/w-consider/opportunity.md', '---\nslug: w-consider\nfeature: w\nstage: discovery\ndecision:\n---\n');   // o «dang can nhac» (vao-co-o-ra-co-ten)
+// Đợt Điều phối – Thợ đang chạy (hồ sơ dieu-phoi-mo-dot-mot-lenh): khoá `dotDangChay` chỉ có mặt khi
+// có đợt, nên fixture phải dựng một đợt thì khoá con mới có giá trị thật mà soi (thư mục tạm không là
+// kho git → bộ quét lấy gốc là chính thư mục).
+W('.acceptance-runs/dot-p99/hang-viec.json', JSON.stringify({ dot: 'p99', day: [], hang: [] }));
+fs.symlinkSync(path.join(tmp, '.acceptance-runs', 'dot-p99'), path.join(tmp, '.acceptance-runs', 'dieu-phoi-hien-tai'));
 const ENV99 = { ...process.env, ACCEPTANCE_TODAY: '2026-10-02' };
 const outJson = JSON.parse(execFileSync('node',
   [path.join(root, 'scripts/start-scan.mjs'), '--root', tmp], { encoding: 'utf8', env: ENV99 }));
