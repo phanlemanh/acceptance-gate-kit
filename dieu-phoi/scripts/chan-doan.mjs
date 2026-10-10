@@ -9,6 +9,7 @@ import { docHangViec } from './hinh-dang.mjs';
 import { docPha } from './pha.mjs';
 import { TEP_SONG_DIR } from './song.mjs';
 import { docVai } from './vai.mjs';
+import { kiemMoiTruong } from './moi-truong.mjs';
 import { keHoachDay } from './tiep-tuc.mjs';
 import { viecCho } from './viec-cho.mjs';
 
@@ -30,7 +31,7 @@ const VIEC_KHAI_GOI = 'khai `dieu_phoi.goi_dot` trong `_acceptance/config.yaml` 
 
 // `mo`: tên đợt SẮP mở (lệnh người hỏi trước khi chạy `mo`). Kho chưa có đợt thì mục `goi-dot` được tính
 // từ khoá/cờ — chỉ đọc — để lệnh dừng TRƯỚC khi `mo` dựng một đợt tay. Gọi trơn thì như cũ (AC-6).
-export function chanDoan(cwd, { mo = null, goi = null, phien = null, chiTiet = false, nowMs = null } = {}) {
+export function chanDoan(cwd, { mo = null, goi = null, phien = null, chiTiet = false, nowMs = null, tranMs = undefined } = {}) {
   const thuMuc = timThuMucDot(cwd);
   const muc = (m, trangThai, viec = '') => ({ muc: m, trang_thai: trangThai, viec });
   if (!thuMuc) {
@@ -90,6 +91,7 @@ export function chanDoan(cwd, { mo = null, goi = null, phien = null, chiTiet = f
     const { day, viec, ...chi } = k;
     them(`day:${day}`, k.hanh_dong === 'khong' ? 'du' : 'thieu', k.ghi_danh ? `${viec} — ${k.ghi_danh}` : viec, chi);
   }
+  for (const m of kiemMoiTruong(thuMuc, { gocKho: gocKhoChinh(cwd), tranMs })) ra.push(m);
   const ds = viecCho(thuMuc, { thucLuc: vai?.giam_sat?.thuc_luc ?? null });
   them('viec-cho', ds.length ? 'thieu' : 'du', ds.length ? `${ds.length} việc chờ — cũ nhất: ${ds[0].mo_ta}` : 'không có việc chờ', { ds });
   return ra;

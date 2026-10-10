@@ -138,7 +138,8 @@ evals:
       exit 0; "ok" cho "DP3-08 kiem-moi-truong": cấu hình khai ba lệnh {xanh: thoát 0 · do: in "thieu env"
       ra stderr rồi thoát 1 · treo: sleep quá trần (trần ca hạ xuống 1 giây qua tham số)} → các mục
       moi-truong:xanh "du", moi-truong:do "thieu" với viec chứa "thieu env", moi-truong:treo "thieu" với viec
-      chứa "quá"; số mục moi-truong: == 3. Cấu hình không khai → 0 mục moi-truong:. "ok" cho "DP3-08 ban-goi":
+      chứa "quá", và lệnh thứ tư không có trên máy (vang) "thieu" với dòng stderr; danh sách mục moi-truong:
+      == bốn mục theo đúng thứ tự khai (so bằng nhau). Cấu hình không khai → 0 mục moi-truong:. "ok" cho "DP3-08 ban-goi":
       loi/PHIEN-BAN.json ghi bản khác bản gói → mục ban-goi "thieu"; bằng nhau → "du". "ok" cho "DP3-08-do
       kieu": kiem_moi_truong là chuỗi → kiemCauHinh ném lỗi chứa "kiem_moi_truong" (đối chứng: danh sách hợp lệ
       không ném).

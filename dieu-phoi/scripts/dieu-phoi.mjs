@@ -285,6 +285,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
           goi: typeof co.goi === 'string' ? co.goi : null,
           phien: typeof co.phien === 'string' ? co.phien : null,
           chiTiet: co['chi-tiet'] === true,
+          tranMs: typeof co['tran-giay'] === 'string' ? Number(co['tran-giay']) * 1000 : undefined,
         });
         return co.json ? JSON.stringify(ds) : ds.map((m) => `${m.trang_thai === 'du' ? '✓' : m.trang_thai === 'thieu' ? '✗' : '·'} ${m.muc}${m.viec ? ` — ${m.viec}` : ''}`).join('\n');
       },

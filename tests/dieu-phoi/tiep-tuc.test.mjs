@@ -645,6 +645,50 @@ test('DP3-07 chi-giam-sat', () => {
   chayCli(d.kho, ['dung']);
 });
 
+// ---------- DP3-08: kiểm môi trường (AC-8, E8) ----------
+const khaiMoiTruong = (dot, ds) => {
+  const p = path.join(dot, 'dieu-phoi.config.json');
+  ghiJ(p, { ...docJ(p), kiem_moi_truong: ds });
+};
+const mucMoiTruong = (ds) => ds.filter((m) => m.muc.startsWith('moi-truong:'));
+
+test('DP3-08 kiem-moi-truong', () => {
+  const { kho, dot } = khoLienKet({ chayPha: false });
+  assert.equal(mucMoiTruong(JSON.parse(chayCli(kho, ['chan-doan', '--json']).out)).length, 0, 'không khai → không mục nào');
+  khaiMoiTruong(dot, [
+    { ten: 'xanh', lenh: 'true' },
+    { ten: 'do', lenh: 'echo "thieu env" >&2; exit 1' },
+    { ten: 'treo', lenh: 'sleep 5' },
+    { ten: 'vang', lenh: 'lenh-khong-co-tren-may-nay-dp3' },
+  ]);
+  const ds = mucMoiTruong(JSON.parse(chayCli(kho, ['chan-doan', '--json', '--tran-giay', '1']).out));
+  console.log(`  mục môi trường: ${ds.map((m) => `${m.muc}=${m.trang_thai}`).join(' ')}`);
+  assert.deepEqual(ds.map((m) => [m.muc, m.trang_thai]), [['moi-truong:xanh', 'du'], ['moi-truong:do', 'thieu'], ['moi-truong:treo', 'thieu'], ['moi-truong:vang', 'thieu']]);
+  assert.match(ds[1].viec, /thieu env/);
+  assert.match(ds[2].viec, /quá 1″/);
+  assert.match(ds[3].viec, /not found|không tìm thấy|command/i);
+});
+
+test('DP3-08 ban-goi', async () => {
+  const { kho, dot } = khoLienKet({ chayPha: false });
+  const { chepLoi } = await nap(GOI, 'dieu-phoi.mjs');
+  chepLoi(dot);
+  const ban = () => JSON.parse(chayCli(kho, ['chan-doan', '--json']).out).find((m) => m.muc === 'ban-goi');
+  assert.equal(ban().trang_thai, 'du', 'lõi vừa chép bằng bản gói');
+  const p = path.join(dot, 'loi', 'PHIEN-BAN.json');
+  ghiJ(p, { ...docJ(p), phien_ban: '0.0.1' });
+  assert.equal(ban().trang_thai, 'thieu');
+  assert.match(ban().viec, /0\.0\.1/);
+});
+
+test('DP3-08-do kieu', async () => {
+  const { kiemCauHinh } = await nap(GOI, 'hinh-dang.mjs');
+  const mau = docJ(path.join(GOI, 'scripts', 'mau', 'dieu-phoi.config.json'));
+  assert.doesNotThrow(() => kiemCauHinh({ ...mau, kiem_moi_truong: [{ ten: 'a', lenh: 'true' }] }), 'đối chứng: danh sách hợp lệ');
+  assert.throws(() => kiemCauHinh({ ...mau, kiem_moi_truong: 'true' }), /kiem_moi_truong/);
+  assert.throws(() => kiemCauHinh({ ...mau, kiem_moi_truong: [{ ten: 'a' }] }), /kiem_moi_truong/);
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });

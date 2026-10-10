@@ -45,7 +45,7 @@ function kiemKhoaLa(du, cho, tep, tienTo) {
   if (la.length > 0) throw new Error(`${tep}: khoá lạ ${la.map((k) => `${tienTo}${k}`).join(', ')}`);
 }
 
-const KHOA_CAU_HINH = ['nhanh_chinh', 'tick_giay', 'han_thue_phut', 'nhip_cu_phut', 'suc_khoe', 's4_tran_gom_phut', 'bao_ve', 'goc_kho', 'nguon_hang'];
+const KHOA_CAU_HINH = ['nhanh_chinh', 'tick_giay', 'han_thue_phut', 'nhip_cu_phut', 'suc_khoe', 's4_tran_gom_phut', 'bao_ve', 'goc_kho', 'nguon_hang', 'kiem_moi_truong'];
 const KHOA_SUC_KHOE = ['swap_gb', 'ap_luc_muc', 'rss_gb'];
 
 export function kiemCauHinh(du, { canGocKho = false } = {}) {
@@ -71,6 +71,9 @@ export function kiemCauHinh(du, { canGocKho = false } = {}) {
   }
   if (!laDanhSachChuoi(du.bao_ve)) sai('bao_ve phải là danh sách chuỗi');
   if (du.nguon_hang !== undefined && !laDanhSachChuoi(du.nguon_hang)) sai('nguon_hang phải là danh sách chuỗi');
+  if (du.kiem_moi_truong !== undefined && !(Array.isArray(du.kiem_moi_truong) && du.kiem_moi_truong.every((m) => laObject(m) && laChuoi(m.ten) && laChuoi(m.lenh) && Object.keys(m).every((k) => k === 'ten' || k === 'lenh')))) {
+    sai('kiem_moi_truong phải là danh sách {ten, lenh} chuỗi không rỗng');
+  }
   return du;
 }
 
