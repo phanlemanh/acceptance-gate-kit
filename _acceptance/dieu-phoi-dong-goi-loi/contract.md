@@ -5,7 +5,7 @@ slug: dieu-phoi-dong-goi-loi
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, ci]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-09-dieu-phoi-tho-trong-kit-design.md
 approved_by:
 approved_at:
@@ -88,3 +88,14 @@ Phân loại (lát cắt theo trục B):
 - Ghi chú chuyển cho crm là một vật máy quét được: lệnh `xem --kiem-chuyen` liệt kê mọi chỗ trong kho còn trỏ `scripts/dieu-phoi/` (settings, hook git, LaunchAgent kiểm chéo, `package.json`, eval của hồ sơ đã ký, `LUAT.md` của đợt đang chạy). Lõi xuất API công khai (`dot.mjs`, `hook-nhip.mjs`) cho lượt kiểm chéo ban đêm của crm nạp qua bộ giải.
 - Từ lúc DP1 gộp, lõi ở crm đóng băng: bản vá mới vào gói kit, không vào `scripts/dieu-phoi/` của crm.
 - Giới hạn đã khai: vế `claude plugin validate` của AC-1 cần CLI Claude Code trên máy chấm. CI của kit không có CLI này, nên vế ấy chỉ chạy ở lượt chấm trên máy (eval E1b ghi kèm phiên bản CLI). Vế khuôn còn lại của AC-1 chạy cả ở CI.
+- **Known limits (Cổng Bằng chứng, ký 10/10, owner định tuyến «ghi Known limits»):** test lõi chép từ crm
+  còn mang tên nhánh và đường riêng của crm, vùng quét AC-7 không phủ chúng (Ngoài-1) · vế «khoá s4 đang
+  giữ không bị cấp lại» của DP1-11 không thể đỏ vì không có đơn s4 nào xếp hàng (Ngoài-2, Ngoài-8) · kiểm
+  pid sống tin mọi tiến trình mang pid đó, pid bị dùng lại thì `chay` từ chối và `dung`/`dong` gửi tín
+  hiệu nhầm (Ngoài-6) · E3 so tổng số ca đạt nên mất một nhóm ca lõi vẫn xanh (Ngoài-7) · DP1-04 an-danh
+  lấy danh sách tệp và luật đổi tên khoá từ chính module bị đo (Ngoài-9). Sổ:
+  `docs/research/known-limits-ledger.tsv`.
+- **Mở hợp đồng mới (Cổng Bằng chứng, ký 10/10):** Ngoài-3 (duyệt chạm tệp khi không dò được nhánh mở),
+  Ngoài-4 (nhánh của chính phiên bị coi là xung đột), Ngoài-5 (tệp lạ trong `khoa/` làm tắt nhịp) và lỗ
+  `machine-cleared` của bộ đọc tiến độ (sổ d-…-19) — ghi hạt giống
+  `docs/plans/2026-10-10-hat-giong-loi-dieu-phoi-chuyen-nguyen-tu-crm.md`, không tạo ô.

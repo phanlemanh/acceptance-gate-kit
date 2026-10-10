@@ -1,44 +1,4 @@
 {
-  "feature_plain": "Kho nào muốn chạy đợt Điều phối – Thợ chỉ cần cài gói «dieu-phoi» của kit — không phải chép mã từ crm, không phải gắn hook bằng tay.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ có gói «dieu-phoi» trong kho gói của kit; cài vào một kho là đủ bốn móc nối đúng chỗ, và bộ kiểm gói thật của Claude Code xác nhận gói hợp lệ."},
-    {"id": "AC-2", "p": "Sẽ im hoàn toàn ở kho đã cài gói mà chưa mở đợt: không chặn, không in gì, không tạo tệp nào — kể cả không chen một chữ nào vào lời nhắn của người."},
-    {"id": "AC-3", "p": "Sẽ mang theo trọn 84 ca kiểm của lõi crm, và CI của kit chạy chúng ở mỗi PR."},
-    {"id": "AC-4", "p": "Sẽ chạy tiếp được một đợt mà bản crm đã mở, không phải sửa tay thư mục đợt — đo trên bản chụp thật của đợt crm đang chạy."},
-    {"id": "AC-5", "p": "Sẽ không sinh bộ phát lịch thứ hai khi crm đang chuyển dần sang gói, và nhắc phiên giám sát gỡ móc nối cũ còn sót."},
-    {"id": "AC-6", "p": "Sẽ chạy đúng khi gói nằm ở chỗ cài thật (ngoài cây kit), và lệnh bọc giữ nhịp mà hook in ra luôn trỏ đúng bản đang chạy."}
-  ],
-  "wont_do": [
-    {"id": "AC-7", "p": "Sẽ KHÔNG mang theo thứ gì riêng của crm — tên nhánh, cổng máy, lệnh cài gói của crm đều bị chặn bằng phép quét."},
-    {"id": "OOS-1", "p": "Chưa có lệnh mở đợt, tiếp tục, bàn giao — đó là ba hàng kế (DP2, DP3, DP4)."},
-    {"id": "OOS-2", "p": "Chưa sửa sự cố «phiên giám sát mới bị chặn ghi vào thư mục đợt» — để ở hàng tiếp tục (DP3)."},
-    {"id": "OOS-3", "p": "Chưa đọc mức dùng tài khoản hay báo trước hạn mức — hàng đổi tài khoản (DP4)."},
-    {"id": "OOS-4", "p": "Không đụng vào crm: gỡ bản cũ ở crm là việc của phiên giám sát crm, làm lúc rảnh."},
-    {"id": "OOS-5", "p": "Không đổi hành vi của lõi — chỉ chuyển chỗ; bài học của đợt crm chỉ vào khi đợt thử OneFlow vấp đúng nó."},
-    {"id": "OOS-6", "p": "Không hỗ trợ hệ điều hành ngoài macOS."}
-  ],
-  "scope_plain": "Hàng này chỉ chuyển lõi vào kit; mọi lệnh mới và mọi sửa hành vi để cho các hàng sau.",
-  "coverage_plain": [
-    {"i": 0, "p": "Hiểu sản phẩm lấy từ bản thiết kế của ô dù và hồ sơ crm đã ký."},
-    {"i": 1, "p": "Đối chiếu ngành: cách hệ gói của Claude Code nạp móc nối và bật theo từng kho."},
-    {"i": 2, "p": "Trục một — mọi chỗ lõi chạm vào một phiên: bốn loại móc nối, các lệnh của đợt, và nhịp của bộ phát lịch."},
-    {"i": 3, "p": "Trục hai — trạng thái của kho: chưa cài, cài mà chưa có đợt, đợt do gói mở, đợt do bản crm mở, còn móc nối cũ, đợt đã đóng."},
-    {"i": 4, "p": "Trục ba — đầu vào: đúng khuôn, sai khuôn, phiên đứng ở thư mục con hay qua đường tắt, phiên không thuộc dãy nào."},
-    {"i": 5, "p": "Trục bốn — gói nằm ở đâu: trong cây kit, hay ở chỗ cài thật."},
-    {"i": 6, "p": "Phần làm ngay: mỗi trạng thái kho quan trọng có đúng một tiêu chí đo nó (AC-2 đến AC-6), cộng tiêu chí «cài là đủ» (AC-1) và «không gì riêng crm» (AC-7)."},
-    {"i": 7, "p": "Để sau:"},
-    {"i": 8, "p": "Chi phí thời gian mỗi lần móc nối chạy — crm đã chạy ba ngày, chưa ai thấy chậm."},
-    {"i": 9, "p": "Kiểm phiên bản gói khớp mốc phát hành — để chiến dịch phát hành lo."},
-    {"i": 10, "p": "Không làm:"},
-    {"i": 11, "p": "Kho chưa cài gói — nền tảng không nạp gói chưa cài, nên không có gì để đo."},
-    {"i": 12, "p": "Hệ điều hành ngoài macOS — ngoài phạm vi của ô dù."},
-    {"i": 13, "p": "Áp mọi ca: phiên đứng ở thư mục con và tệp sai khuôn đã có ca kiểm sẵn trong 84 ca của crm (AC-3 mang sang)."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Thiếu: chưa ghim móc nối nào gọi tệp nào, nên đảo hai móc nối thì mọi phép đo vẫn xanh mà thợ bị thu hồi khoá oan. Đã sửa: ghim từng cặp, thêm ca cố tình đảo, và mỗi móc nối có một ca chứng nó thật sự làm việc."},
-    {"i": 1, "p": "Thiếu: tệp móc nối chỉ được đọc bằng bộ đọc do chính phép đo viết, nên viết sai khuôn thì Claude Code bỏ qua cả gói mà phép đo không biết. Đã sửa: cho bộ kiểm gói thật của Claude Code soi, kèm ca cố tình bỏ lớp ngoài cùng; ghi rõ vế này chỉ chạy trên máy, không chạy ở CI."},
-    {"i": 2, "p": "Thiếu: «im» chưa đo chữ in ra, mà chữ in ra lúc người gõ lời nhắn bị chèn vào ngữ cảnh mô hình. Đã sửa: mỗi ô đòi không in gì, kèm ca cố tình in một dòng."},
-    {"i": 3, "p": "Thiếu: «gói nằm ở chỗ cài thật» chỉ đo một lệnh, các lệnh khác có thể lén dùng đồ của kit đứng cạnh. Đã sửa: chép riêng thư mục gói ra ngoài, chạy mọi lệnh, so với bản trong cây, kèm ca cố tình nạp đồ ngoài gói."},
-    {"i": 4, "p": "Thiếu: kế hoạch dữ liệu đợt cũ nói hai cách khác nhau, và phép so có thể xanh trên tập rỗng. Đã sửa: dùng bản chụp thật, ẩn danh bằng script giữ nguyên khuôn, đòi ít nhất một khoá và một đơn; sổ quyết định ghi lựa chọn này."}
-  ]
+  "feature_plain": "Một kho muốn chạy nhiều phiên làm tính năng song song chỉ cần cài gói «dieu-phoi» của kit là có bộ giữ lượt chấm và bốn cái chặn tự động; kho chưa mở đợt nào thì gói hoàn toàn im, và đợt crm đang chạy được bản gói chạy tiếp mà không sửa tay.",
+  "scope_plain": "Vòng này chỉ chuyển bộ máy sang kit và sửa đúng bốn chỗ gãy ngay khi chuyển; các lệnh mở đợt, tiếp tục và đổi tài khoản là các hàng sau."
 }
