@@ -443,6 +443,57 @@ test('DP1-08-do bo-dau', () => {
   assert.ok(kq.loi.some((l) => l.includes('dieu-phoi')), `lỗi phải nêu dieu-phoi: ${kq.loi.join(' | ')}`);
 });
 
+// ---------- DP1-05: hai bản cùng gắn trong lúc chuyển (AC-5, E5) ----------
+// Tiến trình phat-lich.mjs đang chạy cho ĐÚNG thư mục đợt này (lọc theo đường, không đếm của ca khác).
+const phatLichCua = (dot) =>
+  execFileSync('ps', ['-axo', 'pid=,args='], { encoding: 'utf8' })
+    .split('\n')
+    .filter((d) => d.includes('phat-lich.mjs') && d.includes(dot))
+    .map((d) => d.trim());
+
+test('DP1-05 pid-song', () => {
+  const { kho, dot } = khoCoDot(GOI);
+  const ngu = spawnSync('bash', ['-c', 'sleep 60 >/dev/null 2>&1 & echo $!'], { encoding: 'utf8' });
+  const pid = Number(ngu.stdout.trim());
+  assert.ok(pid > 0, 'không sinh được tiến trình sleep');
+  try {
+    fs.writeFileSync(path.join(dot, 'phat-lich.pid'), String(pid));
+    const truoc = phatLichCua(dot);
+    const r = chayCli(GOI, kho, 'chay');
+    assert.equal(r.ma, 0, r.err);
+    assert.equal(r.out.trim(), `bộ phát lịch đang chạy (pid ${pid})`);
+    assert.deepEqual(phatLichCua(dot), truoc, 'không được sinh bộ phát lịch thứ hai');
+  } finally {
+    try { process.kill(pid, 'SIGKILL'); } catch {}
+  }
+});
+
+const KHOI_HOOK_CU = {
+  hooks: {
+    PreToolUse: [{ matcher: 'Workflow|Bash', hooks: [{ type: 'command', command: 'f="$CLAUDE_PROJECT_DIR/scripts/dieu-phoi/hook-chan-s4.mjs"; [ -f "$f" ] || exit 0; exec node "$f"' }] }],
+  },
+};
+
+test('DP1-05 canh-bao-hai-ban', () => {
+  const { kho } = khoCoDot(GOI);
+  ghiJ(path.join(kho, '.claude', 'settings.json'), KHOI_HOOK_CU);
+  const r = chayCli(GOI, kho, 'xem');
+  assert.equal(r.ma, 0, r.err);
+  const dong = r.out.split('\n').filter((d) => d.includes('.claude/settings.json') && d.includes('scripts/dieu-phoi'));
+  assert.equal(dong.length, 1, `phải có đúng một dòng cảnh báo: ${r.out}`);
+});
+
+test('DP1-05 im-mot-ban', () => {
+  const { kho } = khoCoDot(GOI);
+  const vang = chayCli(GOI, kho, 'xem');
+  assert.equal(vang.ma, 0, vang.err);
+  assert.equal(vang.out.includes('scripts/dieu-phoi'), false, `settings vắng: ${vang.out}`);
+  ghiJ(path.join(kho, '.claude', 'settings.json'), { hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'node scripts/khac.mjs' }] }] } });
+  const khac = chayCli(GOI, kho, 'xem');
+  assert.equal(khac.ma, 0, khac.err);
+  assert.equal(khac.out.includes('scripts/dieu-phoi'), false, `settings có hook khác: ${khac.out}`);
+});
+
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
 const CHUOI_BAN_CU = 'scripts/dieu-phoi/';
 export function kiemKhuon(gocGoi) {

@@ -75,11 +75,36 @@ export function dongDot(cwd) {
   ghiSuKien(thuMuc, { loai: 'dong-dot' });
 }
 
+// Bản lõi chép tay trong kho (đường dưới) còn gắn hook qua settings của kho trong lúc chuyển sang gói:
+// hai bản cùng đọc một thư mục đợt nên ra cùng quyết định, nhưng mỗi lời gọi công cụ chạy hook hai
+// lần. `xem` nói ra điều đó để phiên giám sát biết còn việc gỡ.
+const DUONG_BAN_CU = 'scripts/dieu-phoi/';
+
+export function canhBaoHaiBan(gocKho) {
+  const rel = path.join('.claude', 'settings.json');
+  let cfg;
+  try {
+    cfg = JSON.parse(fs.readFileSync(path.join(gocKho, rel), 'utf8'));
+  } catch {
+    return null;
+  }
+  const suKien = Object.entries(cfg?.hooks ?? {})
+    .filter(([, khoi]) => Array.isArray(khoi) && khoi.some((k) => (k?.hooks ?? []).some((h) => String(h?.command ?? '').includes(DUONG_BAN_CU))))
+    .map(([su]) => su);
+  if (suKien.length === 0) return null;
+  return `cảnh báo: ${rel} còn hook gọi ${DUONG_BAN_CU} (${suKien.join(', ')}) — gỡ các khối đó, gói dieu-phoi đã gắn hook`;
+}
+
 function xem(cwd) {
+  const canhBao = canhBaoHaiBan(gocKhoChinh(cwd));
   const tt = docJson(path.join(thuMucHienTai(cwd), 'trang-thai.json'), null);
-  if (!tt) return 'chưa có nhịp nào';
-  const khoa = tt.khoa.map((k) => `${k.tai_nguyen}:${k.phien}`).join(' ') || 'trống';
-  return `đợt ${tt.dot} · ${tt.trang_thai} · nhịp ${tt.nhip_cuoi} · khoá ${khoa} · chờ lượt ${tt.hang_cho.length} · chờ người ${tt.cho_nguoi.length}`;
+  let dong;
+  if (!tt) dong = 'chưa có nhịp nào';
+  else {
+    const khoa = tt.khoa.map((k) => `${k.tai_nguyen}:${k.phien}`).join(' ') || 'trống';
+    dong = `đợt ${tt.dot} · ${tt.trang_thai} · nhịp ${tt.nhip_cuoi} · khoá ${khoa} · chờ lượt ${tt.hang_cho.length} · chờ người ${tt.cho_nguoi.length}`;
+  }
+  return canhBao ? `${dong}\n${canhBao}` : dong;
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1])) {
