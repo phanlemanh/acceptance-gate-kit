@@ -130,11 +130,17 @@ ca('CB2', 'chiều im: hồ sơ sạch (kể cả `[]` tường minh) → 0 dòn
   return !('canhBaoDanhSach' in r.args) || 'khoá canhBaoDanhSach có mặt';
 });
 ca('CB3', 'chiều đỏ: bản sao lib gỡ nhánh cờ → dòng cờ biến mất', () => {
-  const dot = L.dungBanSaoLib('canhBao.push(', 'void (', 3);
+  const dot = L.dungBanSaoLib('canhBao.push(', 'void (', 4);
   const r = L.chayS4(KHO_KD, { agRoot: dot });
   if (r.rc !== 0) return `rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
   if (dongCo(r.stderr).length) return 'đột biến không tắt được cờ';
   console.log(`    · cờ im: ${MUC_KD[0]}`); return true;
+});
+
+ca('CB4', 'giá trị mở bằng «[» mà không tách được → cờ không-phải-danh-sách, không thành glob rác', () => {
+  const t = 'evals:\n  - id: Y1\n    executor: script\n    paths: [a/**, "b\n';
+  const p = CORE.evalPathsOf(t, 'Y1'); const c = CORE.evalListsOf(t, ['paths']).canhBao;
+  return (p === null && c.some(x => x.id === 'Y1' && x.ly_do === 'khong-phai-danh-sach')) || J({ p, c });
 });
 
 // ── AC-6: lượt sửa giữ ô xanh cho paths dạng khối (CLI carry-plan, mỗi lượt một tiến trình) ──
