@@ -18,8 +18,9 @@ evals:
       inputs/paths/evidence_required; mô hình thiếu trường bắt buộc nào → ĐỎ «mô hình hụt trường:
       <executor>.<trường>». Ma trận viết trước 3 cách (thut4 · satle · muc-ngang-khoa) × 3 tiêu chí ×
       các trường của tiêu chí; mỗi phần tử trong args của s4-args cây đang kiểm BẰNG giá trị mô hình; số
-      so = số phần tử ma trận, khác thì ĐỎ «ma trận hụt». Chiều im: ba cách hợp lệ KHÔNG sinh dòng
-      «danh sách không đọc được» nào.
+      so = số phần tử ma trận GÕ TAY (BC1_PHAN_TU = 18), khác thì ĐỎ «ma trận hụt». Chiều im: ba cách hợp
+      lệ KHÔNG sinh dòng «danh sách không đọc được» nào. BC1b chiều đỏ: mô hình bớt một trường → phép
+      đếm lệch con số khai trước, in «ma trận hụt».
     paths:
       - "lib/evidence-core.cjs"
       - "feature-loop/scripts/s4-args.mjs"
@@ -156,7 +157,8 @@ evals:
     expected: >-
       MN1: bản sao lib với evalListsOf trả rỗng → args của s4-args mất paths VÀ carry-plan cho «thiếu
       paths» — kết luận của cả hai lật. MN2: bản sao lib không có evalListsOf → s4-args và carry-plan
-      thoát 2, stderr gọi tên evalListsOf, không sinh tệp args.
+      thoát 2, stderr gọi tên evalListsOf, không sinh tệp args (đo trên kho MỚI). MN2b chiều đỏ: bản sao
+      s4-args ghi tệp args trước khi dừng → phép kiểm của MN2 in «sinh tệp dù thoát 2».
     paths:
       - "lib/evidence-core.cjs"
       - "feature-loop/scripts/s4-args.mjs"
@@ -191,7 +193,8 @@ evals:
       LB1: danh sách tệp mã (lib, scripts, feature-loop, hooks) nhắc evals.yaml rút bằng máy; mọi tệp có
       trong bảng phân loại viết trước của tệp ca; tệp kết luận «qua evalListsOf» thật sự gọi evalListsOf
       hoặc evalPathsOf; cây đang kiểm (mọi tệp đã phân loại) KHÔNG bị báo dòng nào. LB2 chiều đỏ trên bản sao cây: thêm một tệp đọc evals.yaml bằng biểu thức riêng →
-      ĐỎ «bên đọc chưa phân loại: <tệp>».
+      ĐỎ «bên đọc chưa phân loại: <tệp>»; gỡ LỜI GỌI evalListsOf ở carry-plan (tên còn trong chú thích
+      và bảng hàm) → ĐỎ «bên đọc danh sách không qua lib: feature-loop/scripts/carry-plan.mjs».
     paths:
       - "lib/**"
       - "scripts/**"

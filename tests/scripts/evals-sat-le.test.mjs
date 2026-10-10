@@ -67,9 +67,15 @@ const truongCua = tc => {
 const giaTriArgs = (d, e, k) => (k === 'inputs' && Array.isArray(e[k]) ? e[k].map(x => path.relative(realpathSync(d), x)) : e[k]);
 const CHAY = {};
 for (const cach of L.CACH) { const d = L.dungKho(L.vietMoHinh(cach)); CHAY[cach] = { d, ...L.chayS4(d) }; }
+// GÕ TAY, không suy từ mô hình (lượt chấm 1, Hình dạng 5): 3 cách × (S1: paths, evidence_required ·
+// J1: inputs, paths · U1: steps, paths) = 18. Đếm suy từ chính vòng lặp thì phép so là hằng đúng —
+// bỏ một tiêu chí hay một trường khỏi mô hình làm ma trận co lại LẶNG. Đổi mô hình thì đổi số này.
+const BC1_PHAN_TU = 18;
+const demMaTran = (cachs, moHinh) => { let n = 0; for (const c of cachs) for (const tc of moHinh) n += truongCua(tc).length; return n; };
 ca('BC1', 'ba cách viết cho cùng inputs/paths/evidence_required/mảng bắt buộc (ma trận viết trước)', () => {
-  let can = 0, so = 0; const sai = [];
-  for (const cach of L.CACH) for (const tc of L.MO_HINH) for (const k of truongCua(tc)) can++;
+  let so = 0; const sai = [];
+  const can = demMaTran(L.CACH, L.MO_HINH);
+  if (can !== BC1_PHAN_TU) return `ma trận hụt: mô hình cho ${can} phần tử, khai trước ${BC1_PHAN_TU}`;
   for (const cach of L.CACH) {
     const r = CHAY[cach];
     if (r.rc !== 0) return `${cach}: s4-args rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
@@ -79,8 +85,14 @@ ca('BC1', 'ba cách viết cho cùng inputs/paths/evidence_required/mảng bắt
       for (const k of truongCua(tc)) { so++; if (J(giaTriArgs(r.d, e || {}, k)) !== J(tc.ds[k])) sai.push(`${cach} ${tc.id}.${k}=${J(e && e[k])}`); }
     }
   }
-  if (so !== can) return `ma trận hụt: ${so}/${can}`;
+  if (so !== BC1_PHAN_TU) return `ma trận hụt: so ${so}/${BC1_PHAN_TU}`;
   return !sai.length || `thiếu: ${sai.slice(0, 3).join(' · ')} (${sai.length} phần tử)`;
+});
+ca('BC1b', 'chiều đỏ: mô hình bớt một trường → phép đếm lệch con số khai trước («ma trận hụt»)', () => {
+  const bot = L.MO_HINH.map(tc => tc.id === 'S1' ? { ...tc, ds: { paths: tc.ds.paths } } : tc);
+  const n = demMaTran(L.CACH, bot);
+  if (n === BC1_PHAN_TU) return 'bớt trường mà phép đếm không đổi — thước trơ';
+  console.log(`    · ma trận hụt: ${n}/${BC1_PHAN_TU}`); return true;
 });
 ca('BC2', 'base: thụt 4 đúng (đối chứng dương), sát lề mất danh sách im lặng; cây mới xanh trên sát lề', () => {
   // Mô hình không ui-check: base dừng to khi rơi trường BẮT BUỘC (steps), nên phần im lặng chỉ đo được
@@ -208,12 +220,28 @@ ca('MN1', 'evalListsOf rỗng trong bản sao lib → lượt chấm mất paths
   const c = chayCarry('thut4', 'docs/x.md', { agRoot: dot });
   return lyDo(c.j, 'A') === 'thiếu paths — luôn chạy lại' || `lượt sửa không lật: A ${lyDo(c.j, 'A')}`;
 });
+// Vế «không sinh tệp» đo trên kho MỚI (lượt chấm 1, Hình dạng 4): kho của BC1 đã có args.json nên
+// một kiểm «không có tệp» trên đó là hằng đúng. Phép kiểm là một hàm — MN2b chạy nó trên bản sao s4-args
+// ghi tệp TRƯỚC khi thoát 2 và đòi nó ĐỎ.
+const loiMN2 = r => (r.rc !== 2 ? `rc ${r.rc}` : !/evalListsOf/.test(r.stderr) ? 'stderr không gọi tên evalListsOf' : r.coTep ? 'sinh tệp dù thoát 2' : null);
 ca('MN2', 'lib không có evalListsOf → lượt chấm và lượt sửa thoát 2 gọi tên evalListsOf, không sinh tệp', () => {
   const dot = L.dungBanSaoLib('  evalListsOf,\n', '');
-  const r = L.chayS4(CHAY.thut4.d, { agRoot: dot });
-  if (r.rc !== 2 || !/evalListsOf/.test(r.stderr) || r.coTep && r.args) return `s4-args rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+  const r = L.chayS4(L.dungKho(L.vietMoHinh('thut4')), { agRoot: dot });
+  const e = loiMN2(r); if (e) return `s4-args: ${e} — ${r.stderr.trim().split('\n').pop()}`;
   const c = chayCarry('thut4', 'docs/x.md', { agRoot: dot });
   return (c.rc === 2 && /evalListsOf/.test(c.stderr)) || `carry-plan rc ${c.rc} — ${c.stderr.trim().split('\n').pop()}`;
+});
+ca('MN2b', 'chiều đỏ: bản sao s4-args ghi tệp args TRƯỚC khi dừng → phép kiểm MN2 bắt «sinh tệp dù thoát 2»', () => {
+  const dot = L.dungBanSaoLib('  evalListsOf,\n', '');
+  const d = L.tam('s4dot');
+  cpSync(path.join(L.KIT, 'feature-loop'), path.join(d, 'feature-loop'), { recursive: true });
+  const f = path.join(d, 'feature-loop', 'scripts', 's4-args.mjs');
+  const src = readFileSync(f, 'utf8'); const KIM = "if (!flags.slug || !flags.root) usage('thiếu --slug hoặc --root');\n";
+  if (src.split(KIM).length !== 2) return 'kim không khớp đúng một lần';
+  writeFileSync(f, src.replace(KIM, KIM + "fs.writeFileSync(flags.out, '{}');\n"));
+  const e = loiMN2(L.chayS4(L.dungKho(L.vietMoHinh('thut4')), { agRoot: dot, s4: f }));
+  if (e !== 'sinh tệp dù thoát 2') return `phép kiểm không bắt: ${e}`;
+  console.log('    · sinh tệp dù thoát 2'); return true;
 });
 
 // ── AC-8: cờ trên thẻ Cổng Phạm vi và Cổng Bằng chứng (hằng rút từ nguồn) ─────────
@@ -327,11 +355,19 @@ function benDocCua(root) {
   for (const g of ['lib', 'scripts', 'feature-loop', 'hooks']) di(g);
   return out.sort();
 }
+// «Thật sự gọi» (lượt chấm 1, Hình dạng 3): bỏ dòng chú thích và chuỗi một dòng, rồi tìm một LỜI GỌI
+// `evalListsOf(` / `evalPathsOf(` / `danhSachKhongDoc(` không phải định nghĩa. `danhSachKhongDoc` là vỏ của
+// evalListsOf trong lib (thẻ hai cổng gọi nó). Tên đứng trong chú thích, thông điệp hay bảng tên hàm KHÔNG tính.
+function goiLib(src) {
+  const ma = src.split('\n').filter(l => !/^\s*(\/\/|\*|#)/.test(l)).join('\n')
+    .replace(/'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"/g, "''");
+  return /(?<!function )\b(evalListsOf|evalPathsOf|danhSachKhongDoc)\s*\(/.test(ma);
+}
 function luoiBenDoc(root) {
   const loi = [];
   for (const f of benDocCua(root)) {
     if (!BEN_DOC[f]) { loi.push(`bên đọc chưa phân loại: ${f}`); continue; }
-    if (BEN_DOC[f] === 'danh-sach' && !/evalListsOf|evalPathsOf|danhSachKhongDoc/.test(readFileSync(path.join(root, f), 'utf8'))) loi.push(`bên đọc danh sách không qua lib: ${f}`);
+    if (BEN_DOC[f] === 'danh-sach' && !goiLib(readFileSync(path.join(root, f), 'utf8'))) loi.push(`bên đọc danh sách không qua lib: ${f}`);
   }
   return loi;
 }
@@ -348,7 +384,15 @@ ca('LB2', 'chiều đỏ: bản sao cây thêm một tệp đọc evals.yaml b�
   writeFileSync(path.join(d, 'scripts', 'doc-rieng.mjs'), "import fs from 'node:fs';\nconst t = fs.readFileSync('evals.yaml', 'utf8');\nexport const paths = t.match(/^    paths: (.*)$/m);\n");
   const loi = luoiBenDoc(d);
   if (!loi.includes('bên đọc chưa phân loại: scripts/doc-rieng.mjs')) return `lưới không bắt: ${J(loi)}`;
-  console.log('    · bên đọc chưa phân loại: scripts/doc-rieng.mjs'); return true;
+  console.log('    · bên đọc chưa phân loại: scripts/doc-rieng.mjs');
+  // Gỡ LỜI GỌI ở carry-plan nhưng giữ tên trong bảng hàm bắt buộc và chú thích → lưới vẫn phải đỏ.
+  const cp = path.join(d, 'feature-loop', 'scripts', 'carry-plan.mjs');
+  const s = readFileSync(cp, 'utf8'); const KIM = "const { byId } = R.evalListsOf(text, ['paths']);";
+  if (s.split(KIM).length !== 2) return 'kim gỡ lời gọi carry-plan không khớp đúng một lần';
+  writeFileSync(cp, s.replace(KIM, 'const byId = new Map();'));
+  if (!/evalListsOf/.test(readFileSync(cp, 'utf8'))) return 'đột biến xoá cả tên — không thử được chuỗi-có-mặt';
+  if (!luoiBenDoc(d).includes('bên đọc danh sách không qua lib: feature-loop/scripts/carry-plan.mjs')) return 'lưới không bắt carry-plan gỡ lời gọi (còn tên trong chú thích)';
+  console.log('    · bên đọc danh sách không qua lib: feature-loop/scripts/carry-plan.mjs'); return true;
 });
 
 console.log(`Results: ${pass} passed, ${fail} failed (evals-sat-le)`);

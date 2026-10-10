@@ -446,7 +446,7 @@ executors:
     ldcr_thu_tu_chay_rieng: "bash -c 'out=$(node tests/workflows/lenh-dai-chay-rieng.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CR1 CR2 CR3 CR4 CR5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     ldcr_vi_phan_khong_khai: "bash -c 'out=$(node tests/workflows/lenh-dai-chay-rieng.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in VP1 VP2; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     # Vật của hồ sơ evals-sat-le-doc-du — mỗi khoá ghim các ca của MỘT AC (đối chứng dương + chiều đỏ).
-    esl_ba_cach_viet: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in BC1; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    esl_ba_cach_viet: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in BC1 BC1b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     esl_base_do: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in BC2; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     esl_vi_phan_kit: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in VP1 VP2; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     esl_co_vang: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CB1 CB2 CB3; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
@@ -454,7 +454,7 @@ executors:
     esl_carry: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in CP1 CP2 CP3; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     esl_gold: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GD1 GD2; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     esl_the: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in TH1 TH2 TH3 TH4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
-    esl_mot_nguon: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in MN1 MN2; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    esl_mot_nguon: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in MN1 MN2 MN2b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     esl_luoi_ben_doc: "bash -c 'out=$(node tests/scripts/evals-sat-le.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in LB1 LB2; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     # Vi phân trên kho tiêu thụ của máy owner ($HOME/dev/<kho>) — CI không có các kho ấy, khoá này không vào suite_keys.
     esl_vi_phan_bay_kho: "node tests/scripts/evals-sat-le-vi-phan.mjs --bay-kho --ghi _acceptance/evals-sat-le-doc-du/evidence/vi-phan-bay-kho.txt"
