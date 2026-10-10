@@ -320,3 +320,60 @@ test('DP7-05 mo-dot-md', () => {
   assert.ok(dong.includes('pha dang-chay') && dong.includes('--tu-merge'), `bước 5 phải gọi pha dang-chay kèm --tu-merge: «${dong}»`);
   assert.ok(iKhoi >= 0 && iDong > iKhoi, 'bước 5 phải đứng sau khối CHU-QUYET-CUA-NGUOI');
 });
+
+// ---------- DP7-04: hàng đã thông bước sang hàng kế (AC-4, E4) ----------
+// Tập trạng thái hợp đồng rút từ lib của CÂY ĐANG KIỂM, không chép tay.
+const WR = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const ENUM_STATUS = WR.NAV_RULES['contract.md'].status.enum;
+const DA_THONG_KIT = [...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE];
+const HAI_HANG = [
+  { ma: 'A', slug: 'hang-a', day: 'P1', uu_tien: 1 },
+  { ma: 'B', slug: 'hang-b', day: 'P1', uu_tien: 2 },
+];
+
+async function kiemTrangThai(gocGoi) {
+  const loi = [];
+  for (const st of ENUM_STATUS) {
+    const { kho, dot, w } = dungDot({ hang: HAI_HANG, gocGoi });
+    oCoHoi(kho, 'hang-b', { decision: 'build' });
+    hopDong(w.P1, 'hang-a', st);
+    await nhip(dot, { gocGoi });
+    const tiep = docJ(path.join(dot, 'tiep', 'P1.json'));
+    const thong = DA_THONG_KIT.includes(st);
+    if (thong) {
+      if (tiep.hang !== 'hang-b') loi.push(`${st}: A vẫn đang làm (tiep ${tiep.hang})`);
+      else {
+        const kq = tho(w.P1, { gocGoi, slug: 'hang-a' });
+        if (kq.viec_ke !== 'mo-hang' || kq.hang_ke.slug !== 'hang-b') loi.push(`${st}: tho ra ${kq.viec_ke} ${kq.hang_ke.slug}`);
+      }
+    } else if (tiep.hang !== 'hang-a') loi.push(`${st}: A rời hàng đang làm sớm (tiep ${tiep.hang})`);
+  }
+  return loi;
+}
+
+test('DP7-04 ma-tran-trang-thai', async () => {
+  console.log(`  số ô: ${ENUM_STATUS.length} (${ENUM_STATUS.join(', ')})`);
+  assert.deepEqual(await kiemTrangThai(GOI), []);
+});
+
+test('DP7-04 nhanh-chinh', async () => {
+  const hang = [{ ma: 'A', slug: 'hang-a', day: 'P2' }, { ma: 'B', slug: 'hang-b', day: 'P1', sau: ['A'] }];
+  const { kho, dot, w } = dungDot({ hang });
+  oCoHoi(kho, 'hang-b', { decision: 'build' });
+  await nhip(dot, { tren: { 'hang-a': 'machine-cleared' } });
+  assert.equal(docJ(path.join(dot, 'tiep', 'P1.json')).hang, 'hang-b');
+  assert.equal(tho(w.P1).viec_ke, 'mo-hang');
+});
+
+test('DP7-04 tap-kit', async () => {
+  const { DA_THONG } = await nap(GOI, 'phat-lich.mjs');
+  assert.deepEqual([...DA_THONG].sort(), [...DA_THONG_KIT].sort());
+  assert.ok(DA_THONG.every((s) => ENUM_STATUS.includes(s)), `${DA_THONG} phải ⊆ enum status`);
+});
+
+test('DP7-04-do bo-machine-cleared', async () => {
+  const sao = chepGoi();
+  tiem(path.join(sao, 'scripts', 'phat-lich.mjs'), "'signed-off', 'machine-cleared', ", "'signed-off', ");
+  const loi = await kiemTrangThai(sao);
+  assert.ok(loi.some((l) => l.startsWith('machine-cleared: A vẫn đang làm')), `phải nêu «A vẫn đang làm»: ${loi.join(' | ')}`);
+});

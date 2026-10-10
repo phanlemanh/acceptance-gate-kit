@@ -241,6 +241,11 @@ function apGiaHan(thuMuc, nowMs, daBaoCu) {
   return [...daBao];
 }
 
+// Trạng thái hợp đồng «đã thông» (DP7 AC-4; hạt giống lõi chuyển nguyên, mục 4): hàng đi làn V kết ở `machine-cleared`,
+// hàng reality đóng ở `da-cham-boi-thuc-te`. Bằng DA_THONG_CONG_2 ∪ DA_DONG_THUC_TE của lib/workspace-record.cjs
+// của kit — gói cài riêng nên không nạp lib được; ca DP7-04 tap-kit so hai tập.
+export const DA_THONG = ['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'];
+
 function tienDoCua(hangViec, cfg, io) {
   const td = new Map();
   for (const h of hangViec.hang) {
@@ -250,14 +255,14 @@ function tienDoCua(hangViec, cfg, io) {
     } catch {
       trenNhanhChinh = null;
     }
-    if (trenNhanhChinh === 'signed-off') {
+    if (DA_THONG.includes(trenNhanhChinh)) {
       td.set(h.slug, 'gop');
       continue;
     }
     const day = hangViec.day.find((d) => d.id === h.day);
     const p = day ? path.join(day.worktree, '_acceptance', h.slug, 'contract.md') : null;
     const st = p && fs.existsSync(p) ? trangThaiHopDong(fs.readFileSync(p, 'utf8')) : null;
-    td.set(h.slug, st === null ? 'chua' : st === 'signed-off' ? 'ky' : 'dang');
+    td.set(h.slug, st === null ? 'chua' : DA_THONG.includes(st) ? 'ky' : 'dang');
   }
   return td;
 }
