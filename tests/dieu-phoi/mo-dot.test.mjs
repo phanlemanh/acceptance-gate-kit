@@ -252,6 +252,89 @@ test('DP2-06-do hang-viec-hong', () => {
   assert.match(m.viec, /hang phải là danh sách/);
 });
 
+// ---------- DP2-07: đổi kế hoạch trong đợt (AC-7, E7) ----------
+// Đợt đang chạy: dãy P1 có A (ưu tiên 1) và C (ưu tiên 2), dãy P2 có B.
+function dotDangChay() {
+  const kho = khoThu('dp2-kh-');
+  goiThu(kho, {
+    hang: [
+      { ma: 'A', slug: 'hang-a', day: 'P1', uu_tien: 1 },
+      { ma: 'C', slug: 'hang-c', day: 'P1', uu_tien: 2 },
+      { ma: 'B', slug: 'hang-b', day: 'P2', uu_tien: 1 },
+    ],
+  });
+  khaiGoi(kho);
+  assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
+  assert.equal(chayCli(kho, ['pha', 'dang-chay']).ma, 0);
+  return { kho, dot: thuMucDot(kho) };
+}
+const soNhatKy = (dot) => {
+  const dong = fs.readFileSync(path.join(dot, 'LUAT.md'), 'utf8').split('\n');
+  const i = dong.findIndex((d) => d.trim() === '## Nhật ký');
+  return dong.slice(i + 1).filter((d) => d.startsWith('- ')).length;
+};
+const BON_TEP = ['hang-viec.json', 'dieu-khien.json', 'LUAT.md', 'su-kien.jsonl'];
+const bamBon = (dot) => BON_TEP.map((f) => bam(path.join(dot, f))).join('|');
+
+// Năm lệnh viết sẵn: [đối số CLI, kiểm trường đổi].
+const NAM_LENH = [
+  [['hang', 'day-len', 'C', '--truoc', 'A'], (dot) => docJ(path.join(dot, 'hang-viec.json')).hang.find((h) => h.ma === 'C').uu_tien === 0],
+  [['hang', 'them', 'viec phu moi', '--day', 'P2'], (dot) => docJ(path.join(dot, 'hang-viec.json')).hang.some((h) => h.slug === 'viec-phu-moi' && h.day === 'P2')],
+  [['hang', 'nghi', 'P2'], (dot) => docJ(path.join(dot, 'hang-viec.json')).day.find((d) => d.id === 'P2').nghi === true],
+  [['pha', 'tam-dung', '--ly-do', 'nghi trua'], (dot) => docJ(path.join(dot, 'dieu-khien.json')).pha === 'tam-dung'],
+  [['pha', 'dang-chay'], (dot) => docJ(path.join(dot, 'dieu-khien.json')).pha === 'dang-chay'],
+];
+
+test('DP2-07 doi-ke-hoach', () => {
+  const { kho, dot } = dotDangChay();
+  for (const [doiSo, dung] of NAM_LENH) {
+    const nk = soNhatKy(dot);
+    const sk = suKien(dot).length;
+    const r = chayCli(kho, doiSo);
+    assert.equal(r.ma, 0, `${doiSo.join(' ')}: ${r.err}`);
+    assert.ok(dung(dot), `${doiSo.join(' ')}: trường không đổi đúng`);
+    assert.equal(soNhatKy(dot), nk + 1, `${doiSo.join(' ')}: Nhật ký phải thêm đúng 1 dòng`);
+    assert.equal(suKien(dot).length, sk + 1, `${doiSo.join(' ')}: phải thêm đúng 1 sự kiện`);
+  }
+});
+
+test('DP2-07 ap-nhip-ke', async () => {
+  const { taoVong } = await nap(GOI, 'phat-lich.mjs');
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp2-may07-');
+  const { kho, dot } = dotDangChay();
+  const gio = Date.now();
+  await taoVong(dot, ioGia(gio), () => gio)();
+  assert.equal(docJ(path.join(dot, 'tiep', 'P1.json')).hang, 'hang-a', 'đối chứng: trước khi đổi, A là hàng kế của P1');
+  assert.equal(chayCli(kho, ['hang', 'day-len', 'C', '--truoc', 'A']).ma, 0);
+  assert.equal(chayCli(kho, ['hang', 'nghi', 'P2']).ma, 0);
+  await taoVong(dot, ioGia(gio + 1000), () => gio + 1000)();
+  assert.equal(docJ(path.join(dot, 'tiep', 'P1.json')).hang, 'hang-c');
+  const p2 = docJ(path.join(dot, 'tiep', 'P2.json'));
+  assert.equal(p2.hang, null);
+  assert.equal(p2.cho, 'nghi');
+});
+
+test('DP2-07 chay-lai', () => {
+  const { kho, dot } = dotDangChay();
+  for (const [doiSo] of NAM_LENH) {
+    assert.equal(chayCli(kho, doiSo).ma, 0, doiSo.join(' '));
+    const sau1 = bamBon(dot);
+    const r = chayCli(kho, doiSo);
+    assert.equal(r.ma, 0, `${doiSo.join(' ')} lần hai: ${r.err}`);
+    assert.equal(bamBon(dot), sau1, `${doiSo.join(' ')}: lần hai không được đổi tệp nào`);
+  }
+});
+
+test('DP2-07-do ma-la', () => {
+  const { kho, dot } = dotDangChay();
+  assert.equal(chayCli(kho, ['hang', 'day-len', 'C', '--truoc', 'A']).ma, 0, 'đối chứng: mã có thật thì chạy');
+  const truoc = bamBon(dot);
+  const r = chayCli(kho, ['hang', 'day-len', 'KHONG-CO', '--truoc', 'A']);
+  assert.equal(r.ma, 1);
+  assert.match(r.err, /KHONG-CO/);
+  assert.equal(bamBon(dot), truoc);
+});
+
 // ---------- DP2-04: bảng chuyển pha (AC-4, E4) ----------
 const PHA4 = ['nhap', 'dang-chay', 'tam-dung', 'dang-dong'];
 const DUOC = new Set(['nhap>dang-chay', 'dang-chay>tam-dung', 'tam-dung>dang-chay', 'dang-chay>dang-dong', 'tam-dung>dang-dong']);

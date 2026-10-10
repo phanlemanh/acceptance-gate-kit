@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, TEN_LIEN_KET } from './dot.mjs';
 import { chanDoan } from './chan-doan.mjs';
 import { docGoi, ghepLuat, timGoi } from './goi-dot.mjs';
+import { choNghi, dayLen, ghiNhatKy, themHang } from './hang.mjs';
 import { datPha, khoiTaoPha, TEP_DIEU_KHIEN } from './pha.mjs';
 import { ghiVai } from './vai.mjs';
 
@@ -246,8 +247,24 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         return kq.daMo ? `đợt ${doiSo} đã mở` : kq.thuMuc;
       },
       pha: () => {
-        const kq = datPha(thuMucHienTai(cwd), doiSo, { boi: typeof co.boi === 'string' ? co.boi : 'cli', lyDo: typeof co['ly-do'] === 'string' ? co['ly-do'] : '' });
-        return kq.doi ? `pha: ${kq.tu} → ${kq.pha}` : `pha: đã ở ${kq.pha}`;
+        const thuMuc = thuMucHienTai(cwd);
+        const lyDo = typeof co['ly-do'] === 'string' ? co['ly-do'] : '';
+        const kq = datPha(thuMuc, doiSo, { boi: typeof co.boi === 'string' ? co.boi : 'cli', lyDo });
+        if (!kq.doi) return `pha: đã ở ${kq.pha}`;
+        ghiNhatKy(thuMuc, `pha ${kq.tu} → ${kq.pha}${lyDo ? ` — ${lyDo}` : ''}`);
+        ghiSuKien(thuMuc, { loai: 'pha', tu: kq.tu, sang: kq.pha, ly_do: lyDo });
+        return `pha: ${kq.tu} → ${kq.pha}`;
+      },
+      hang: () => {
+        const thuMuc = thuMucHienTai(cwd);
+        const [, , doiTuong] = vi;
+        const kq = {
+          'day-len': () => dayLen(thuMuc, doiTuong, co.truoc),
+          them: () => themHang(thuMuc, doiTuong, co.day),
+          nghi: () => choNghi(thuMuc, doiTuong),
+        }[doiSo];
+        if (!kq) throw new Error('dùng: hang <day-len <mã> --truoc <mã>|them <mã|việc> --day <P>|nghi <P>>');
+        return kq().doi ? `hang ${doiSo}: đã đổi` : `hang ${doiSo}: không đổi gì`;
       },
       'chan-doan': () => {
         const ds = chanDoan(cwd);
@@ -258,7 +275,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chan-doan [--json]|chay|dung|dong|xem [--kiem-chuyen]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chan-doan [--json]|hang <day-len|them|nghi> …|chay|dung|dong|xem [--kiem-chuyen]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);

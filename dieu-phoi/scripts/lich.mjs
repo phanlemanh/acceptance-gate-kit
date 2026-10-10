@@ -47,6 +47,8 @@ export function hanGiaHan({ hanCu, nowMs, phut }) {
 }
 
 export function chonHangKe(hangViec, phien, tienDo) {
+  // Dãy được cho nghỉ (§4.6 «Cho P4 nghỉ») không nhận hàng kế nào.
+  if (hangViec.day?.find((d) => d.id === phien)?.nghi === true) return { hang: null, cho: 'nghi' };
   const cua = hangViec.hang.filter((h) => h.day === phien);
   const dangLam = cua.find((h) => tienDo.get(h.slug) === 'dang');
   if (dangLam) return { hang: dangLam.slug, moi: false };
