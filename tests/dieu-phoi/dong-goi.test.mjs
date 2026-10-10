@@ -401,6 +401,48 @@ test('DP1-07-do', () => {
   assert.deepEqual(khop, ['scripts/lich.mjs:2']);
 });
 
+// ---------- DP1-08: gói không tự bật qua acceptance-init (AC-8, E8) ----------
+const KHAI_GOI = path.join(KIT, 'scripts', 'plugin-declare.mjs');
+const khoiKhai = (tep, marker) => fs.readFileSync(tep, 'utf8').match(new RegExp(`<!-- <<<${marker} -->([\\s\\S]*?)<!-- ${marker}>>> -->`))?.[1] ?? null;
+
+// Chạy bước khai gói trên một kho thử; so tập bật với (marketplace − mục mang dấu) ∪ superpowers.
+export function kiemKhongTuBat(marketplace) {
+  const kho = tam('dp1-khai-');
+  const r = spawnSync(process.execPath, [KHAI_GOI, '--root', kho, '--write', '--marketplace', marketplace], { encoding: 'utf8', env: ENV });
+  const loi = [];
+  if (r.status !== 0) return { loi: [`plugin-declare thoát ${r.status}: ${r.stderr}`], bat: [], can: [] };
+  const bat = Object.keys(docJ(path.join(kho, '.claude', 'settings.json')).enabledPlugins ?? {}).sort();
+  const mk = docJ(marketplace);
+  const can = [...mk.plugins.filter((p) => !(p.tags ?? []).includes('bat-theo-lua-chon')).map((p) => `${p.name}@${mk.name}`), 'superpowers@claude-plugins-official'].sort();
+  if (bat.join('|') !== can.join('|')) loi.push(`enabledPlugins lệch: bật [${bat.join(', ')}] cần [${can.join(', ')}]`);
+  if (bat.some((n) => n.startsWith('dieu-phoi@'))) loi.push('kho thử bị bật dieu-phoi@acceptance-gate-kit');
+  return { loi, bat, can };
+}
+
+test('DP1-08 khong-tu-bat', () => {
+  const kq = kiemKhongTuBat(path.join(KIT, '.claude-plugin', 'marketplace.json'));
+  console.log(`  bật: ${kq.bat.join(', ')}`);
+  console.log(`  cần: ${kq.can.join(', ')}`);
+  assert.deepEqual(kq.loi, []);
+  for (const [tep, mk] of [[path.join(KIT, 'commands', 'acceptance-init.md'), 'INIT-PLUGIN-DECLARE'], [path.join(KIT, 'GUIDE.md'), 'GUIDE-PLUGIN-DECLARE']]) {
+    const khoi = khoiKhai(tep, mk);
+    assert.ok(khoi, `không tìm thấy khối ${mk}`);
+    assert.equal(khoi.includes('dieu-phoi'), false, `${mk} không được nhắc dieu-phoi`);
+  }
+});
+
+test('DP1-08-do bo-dau', () => {
+  const p = path.join(tam(), 'marketplace.json');
+  const mk = docJ(path.join(KIT, '.claude-plugin', 'marketplace.json'));
+  ghiJ(p, mk);
+  assert.deepEqual(kiemKhongTuBat(p).loi, [], 'đối chứng dương: bản sao nguyên vẹn');
+  for (const muc of mk.plugins) if (muc.name === 'dieu-phoi') delete muc.tags;
+  ghiJ(p, mk);
+  const kq = kiemKhongTuBat(p);
+  assert.ok(kq.bat.includes('dieu-phoi@acceptance-gate-kit'), `kho thử phải bị bật dieu-phoi: ${kq.bat.join(', ')}`);
+  assert.ok(kq.loi.some((l) => l.includes('dieu-phoi')), `lỗi phải nêu dieu-phoi: ${kq.loi.join(' | ')}`);
+});
+
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
 const CHUOI_BAN_CU = 'scripts/dieu-phoi/';
 export function kiemKhuon(gocGoi) {

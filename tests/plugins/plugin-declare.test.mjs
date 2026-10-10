@@ -34,7 +34,9 @@ const settingsOf = root => path.join(root, '.claude', 'settings.json');
 // Tập kỳ vọng đọc từ CHÍNH marketplace.json (bên viết), không ghim con số.
 const expectedNames = (marketPath = MARKET) => {
   const m = JSON.parse(readFileSync(marketPath, 'utf8'));
-  return [...m.plugins.map(p => `${p.name}@${m.name}`), 'superpowers@claude-plugins-official'];
+  // Gói mang dấu bật-theo-lựa-chọn (tags) không thuộc bộ khai — cùng luật với plugin-declare.mjs.
+  const luaChon = p => Array.isArray(p.tags) && p.tags.includes('bat-theo-lua-chon');
+  return [...m.plugins.filter(p => !luaChon(p)).map(p => `${p.name}@${m.name}`), 'superpowers@claude-plugins-official'];
 };
 const sameSet = (a, b) => a.length === b.length && [...a].sort().join('|') === [...b].sort().join('|');
 // MỘT hàm rút-khối + MỘT regex rút-tên dùng chung cho init lẫn GUIDE (round-trip).
@@ -99,7 +101,7 @@ if (want('PD1b')) {
   const root = tmp(); const r = run(['--root', root, '--write', '--marketplace', mk]);
   const j = r.status === 0 ? JSON.parse(readFileSync(settingsOf(root), 'utf8')) : {};
   const keys = Object.keys(j.enabledPlugins || {});
-  const ok = r.status === 0 && keys.filter(k => k.endsWith('@kit-khac')).length === m.plugins.length && !!j.extraKnownMarketplaces?.['kit-khac'] && !j.extraKnownMarketplaces?.['acceptance-gate-kit'];
+  const ok = r.status === 0 && keys.filter(k => k.endsWith('@kit-khac')).length === expectedNames(mk).length - 1 && !!j.extraKnownMarketplaces?.['kit-khac'] && !j.extraKnownMarketplaces?.['acceptance-gate-kit'];
   if (!ok) fail('PD1b', `exit ${r.status} keys=${keys.join(',')} ekm=${Object.keys(j.extraKnownMarketplaces || {}).join(',')}`);
   else pass('PD1b', 'đổi name marketplace → hậu tố và khoá extraKnownMarketplaces cùng theo (một nguồn)');
 }

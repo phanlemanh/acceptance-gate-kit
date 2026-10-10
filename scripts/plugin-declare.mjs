@@ -17,6 +17,10 @@ export const MARKETPLACE_NAME = 'acceptance-gate-kit';
 export const MARKETPLACE_SOURCE = { source: 'github', repo: 'phanlemanh/acceptance-gate-kit' };
 // superpowers: phụ thuộc của feature-loop, nằm ở marketplace mặc định — không khai thêm marketplace.
 export const EXTRA_PLUGINS = ['superpowers@claude-plugins-official'];
+// Mục marketplace mang dấu này là gói BẬT THEO LỰA CHỌN (vd dieu-phoi): kho tự cài khi cần, init
+// không khai. Dấu sống trong `tags` của mục — trường hợp lệ của marketplace, một nguồn với tên gói.
+export const DAU_LUA_CHON = 'bat-theo-lua-chon';
+export const laLuaChon = p => Array.isArray(p?.tags) && p.tags.includes(DAU_LUA_CHON);
 
 function parseArgs(argv) {
   const a = { root: process.cwd(), write: false, list: false, marketplace: DEFAULT_MARKETPLACE };
@@ -35,6 +39,7 @@ function parseArgs(argv) {
 const isPlain = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // Đọc marketplace.json: MỘT nguồn cho cả hậu tố plugin lẫn khoá extraKnownMarketplaces (tên `mk`).
+// `names` = các mục KHÔNG mang dấu bật-theo-lựa-chọn; `optIn` = các mục mang dấu (không khai).
 export function readMarketplace(marketplacePath = DEFAULT_MARKETPLACE) {
   let txt;
   try { txt = fs.readFileSync(marketplacePath, 'utf8'); }
@@ -42,10 +47,12 @@ export function readMarketplace(marketplacePath = DEFAULT_MARKETPLACE) {
   let j;
   try { j = JSON.parse(txt); }
   catch { console.error(`[plugin-declare] marketplace.json không phải JSON — đã thử: ${marketplacePath}`); return null; }
-  const names = (Array.isArray(j.plugins) ? j.plugins : []).map(p => p && p.name).filter(Boolean);
+  const plugins = (Array.isArray(j.plugins) ? j.plugins : []).filter(p => p && p.name);
+  const names = plugins.filter(p => !laLuaChon(p)).map(p => p.name);
+  const optIn = plugins.filter(laLuaChon).map(p => p.name);
   if (!names.length) { console.error(`[plugin-declare] marketplace.json không có plugin nào — đã thử: ${marketplacePath}`); return null; }
   if (!j.name) { console.error(`[plugin-declare] marketplace.json thiếu khoá name — đã thử: ${marketplacePath}`); return null; }
-  return { names, mk: j.name };
+  return { names, optIn, mk: j.name };
 }
 
 export function pluginList(marketplacePath = DEFAULT_MARKETPLACE) {
