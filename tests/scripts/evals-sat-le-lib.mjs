@@ -182,7 +182,8 @@ export function viPhan({ khos, cu, moi }) {
         const x = a.get(id)[k], y = b.get(id)[k];
         if (x === y) continue;
         const rac = x && JSON.parse(x).every(v => /^[&*]/.test(String(v)));
-        lech.push({ kho: path.basename(kho), hoSo: s, id, key: k, cu: x, moi: y, satLe, chieu: (!x || rac) && y ? 'doc-them' : 'khac' });
+        // doc-them: base vắng/rác → mới có giá trị · bo-rac: base rác (`&ten`/`*ten` như glob) → mới không có (kèm cờ, AC-5).
+        lech.push({ kho: path.basename(kho), hoSo: s, id, key: k, cu: x, moi: y, satLe, chieu: (!x || rac) && y ? 'doc-them' : (rac && !y ? 'bo-rac' : 'khac'), text });
       }
     }
     hoSo += n; tieuChi += m; theoKho.push({ kho, hoSo: n, tieuChi: m });

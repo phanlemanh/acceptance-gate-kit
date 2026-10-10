@@ -485,7 +485,7 @@ const DUONG = [
    "const pv = parseFlowValue(v);\n    cur.f[k] = pv.kind === 'seq' ? pv.items : [pv.value];",
    "const pv = v.startsWith('[') ? { kind: 'seq', items: v.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) } : { kind: 's', value: v };\n    cur.f[k] = pv.kind === 'seq' ? pv.items : [pv.value];", 'BG4'],
   ['5 s4-args list khoi (lib evalListsOf)', CORE,
-   "seq.items.push(parseFlowValue(it[2].replace(/\\s+#.*$/, '')).value)",
+   "seq.items.push(parseFlowValue(it[2]).value)",
    "seq.items.push(it[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
   ['6 s4-args id (lib evalListsOf)', CORE, 'const id = parseFlowValue(idM[2]).value;', null, null],
   ['6b s4-args goi lib', ARGS, 'evalListsOf(evalsText, LIST_KEYS)', null, null],

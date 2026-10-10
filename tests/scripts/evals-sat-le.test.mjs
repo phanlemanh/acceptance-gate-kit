@@ -143,6 +143,12 @@ ca('CB4', 'giá trị mở bằng «[» mà không tách được → cờ khôn
   return (p === null && c.some(x => x.id === 'Y1' && x.ly_do === 'khong-phai-danh-sach')) || J({ p, c });
 });
 
+ca('CT1', '«#» nằm TRONG nháy không phải chú thích — mục khối và giá trị một dòng giữ nguyên (crm cua-vao-dang-nhap E14)', () => {
+  const t = 'evals:\n  - id: Z1\n    executor: ui-check\n    steps:\n      - "buoc sau #150 tu dung"   # chu thich that\n    paths: ["a #b/**", c/**]   # chu thich\n';
+  const f = CORE.evalListsOf(t, ['steps', 'paths']).byId.get('Z1') || {};
+  return (J(f.steps) === '["buoc sau #150 tu dung"]' && J(f.paths) === '["a #b/**","c/**"]') || J(f);
+});
+
 // ── AC-6: lượt sửa giữ ô xanh cho paths dạng khối (CLI carry-plan, mỗi lượt một tiến trình) ──
 const CP_EVALS = {
   thut4: 'schema_version: 1\nevals:\n'
