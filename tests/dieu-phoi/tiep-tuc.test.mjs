@@ -240,6 +240,118 @@ test('DP3-14-do bo-moc-thuc', async () => {
   assert.ok(loi.includes('sự kiện trước thuc_luc có mặt thừa'), `phải nêu sự kiện cũ thừa: ${loi.join(' | ')}`);
 });
 
+// ---------- DP3-03: kế hoạch từng dãy (AC-3, E3) ----------
+const PHUT = 60_000;
+let goiMergeBase = null;
+function goiTaiMergeBase() {
+  if (goiMergeBase) return goiMergeBase;
+  let mb = null;
+  for (const nhanh of ['origin/main', 'main']) {
+    try {
+      mb = execFileSync('git', ['merge-base', 'HEAD', nhanh], { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      break;
+    } catch {}
+  }
+  assert.ok(mb, 'không tìm được merge-base');
+  const dir = tam('dp3-goc-');
+  execFileSync('tar', ['-x', '-C', dir], { input: execFileSync('git', ['archive', mb, 'dieu-phoi'], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 }) });
+  goiMergeBase = path.join(dir, 'dieu-phoi');
+  return goiMergeBase;
+}
+// Mỗi hàng: một đợt mới, dãy P1 ở đúng trạng thái; giám sát ghi một nhịp để thư mục song/ có (trừ (g)).
+export const MA_TRAN_DAY = [
+  ['a', 'khong', ({ dot, w1, kho }) => {
+    hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: GIO });
+    hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO - 3 * PHUT });
+    assert.ok(dot);
+  }],
+  ['b', 'nhan-giang-lai', ({ dot, w1, kho }) => {
+    hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: GIO });
+    hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO - 3 * PHUT });
+    ghiJ(path.join(dot, 'xin', 'P1-s4.json'), { phien: 'P1', slug: 'hang-a', loai: 's4', luc: new Date(GIO).toISOString(), worktree: w1, uoc_phut: 20 });
+  }],
+  ['c', 'mo-chip', ({ w1, kho }) => {
+    hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: GIO });
+    hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO - 25 * PHUT });
+  }],
+  ['d', 'khong', ({ dot, w1, kho }) => {
+    hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: GIO });
+    ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', worktree: w1, cap_luc: new Date(GIO - 30 * PHUT).toISOString() });
+  }],
+  ['e', 'worktree-mat', ({ w1, kho }) => {
+    hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: GIO });
+    fs.rmSync(w1, { recursive: true, force: true });
+  }],
+  ['f', 'cho-nguoi', ({ w1, kho }) => {
+    hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: GIO });
+    hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO - 30 * PHUT });
+    hookChoNguoi(w1);
+  }],
+  ['g', 'chua-biet', () => {}, { banCu: true }],
+];
+
+async function hanhDongMaTran(gocGoi = GOI) {
+  const ra = [];
+  for (const [hang, can, dung, tuy = {}] of MA_TRAN_DAY) {
+    const dot = khoLienKet({ gocGoi: tuy.banCu ? goiTaiMergeBase() : GOI, chayPha: false });
+    dung(dot);
+    const env = { DIEU_PHOI_NOW_MS: String(GIO) };
+    const cd = JSON.parse(chayCli(dot.kho, ['chan-doan', '--json', '--chi-tiet'], { gocGoi, env }).out);
+    const tt = chayCli(dot.kho, ['tiep-tuc', '--phien', 's-gs', '--nhe', '--json'], { gocGoi, env });
+    assert.equal(tt.ma, 0, tt.err);
+    const keHoach = JSON.parse(tt.out).ke_hoach ?? [];
+    const muc = cd.find((m) => m.muc === 'day:P1');
+    ra.push({ hang, can, cd: muc?.chi_tiet?.hanh_dong ?? null, tt: keHoach.find((k) => k.day === 'P1')?.hanh_dong ?? null, muc, kh: keHoach.find((k) => k.day === 'P1') });
+  }
+  return ra;
+}
+export const loiMaTran = (kq) => kq.flatMap((r) => [
+  ...(r.cd !== r.can ? [`(${r.hang}): ${r.cd}, cần ${r.can}`] : []),
+  ...(r.tt !== r.cd ? [`(${r.hang}): tiep-tuc ${r.tt} ≠ chan-doan ${r.cd}`] : []),
+]);
+
+test('DP3-03 ma-tran', async () => {
+  const kq = await hanhDongMaTran();
+  console.log(`  số hàng ma trận: ${kq.length} · ${kq.map((r) => `${r.hang}=${r.cd}`).join(' ')}`);
+  assert.equal(kq.length, MA_TRAN_DAY.length);
+  assert.deepEqual(loiMaTran(kq), []);
+  const c = kq.find((r) => r.hang === 'c');
+  assert.match(c.kh.ghi_danh, /LUAT\.md/);
+  assert.match(c.kh.ghi_danh, /\/feature-loop:feature-loop hang-a/);
+  assert.match(c.kh.ghi_danh, /\.acceptance-runs\/dieu-phoi-thu/);
+  assert.match(kq.find((r) => r.hang === 'g').muc.viec, /kiểm thanh bên/);
+  assert.equal(kq.find((r) => r.hang === 'a').muc.trang_thai, 'du');
+  assert.equal(c.muc.trang_thai, 'thieu');
+});
+
+async function maTranTrenBanSao(thay) {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const p = path.join(sao, 'scripts', 'tiep-tuc.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace(thay, '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  return loiMaTran(await hanhDongMaTran(sao));
+}
+
+test('DP3-03-do bo-khoa', async () => {
+  const loi = await maTranTrenBanSao('  if (giuKhoa) return { ...nen, hanh_dong: conCho ? HANH_DONG.nhanGiangLai : HANH_DONG.khong };\n');
+  assert.deepEqual(loi, ['(d): mo-chip, cần khong']);
+});
+
+test('DP3-03-do bo-chua-biet', async () => {
+  const loi = await maTranTrenBanSao('  if (!coSong) return { ...nen, hanh_dong: HANH_DONG.chuaBiet };\n');
+  assert.deepEqual(loi, ['(g): mo-chip, cần chua-biet']);
+});
+
+test('DP3-03 dong-ho-lui', async () => {
+  const dot = khoLienKet({ chayPha: false });
+  hookNhip({ session_id: 's-p1' }, { cwd: dot.w1, nowMs: GIO + 5 * PHUT });
+  const cd = JSON.parse(chayCli(dot.kho, ['chan-doan', '--json', '--chi-tiet'], { env: { DIEU_PHOI_NOW_MS: String(GIO) } }).out);
+  assert.equal(cd.find((m) => m.muc === 'day:P1').chi_tiet.hanh_dong, 'khong', 'nhịp có giờ tương lai coi như vừa xong');
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });
