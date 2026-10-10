@@ -260,5 +260,32 @@ ca('TH4', 'chiều đỏ: bản sao gate-card gỡ dòng đẩy cờ → thẻ i
   console.log('    · thẻ im khi danh sách không đọc được'); return true;
 });
 
+// ── AC-7: nhãn bảng chấm mẫu (glossOf của CHÍNH acceptance-gold, rút từ nguồn) ────────
+function glossCua(srcGold) {
+  const lay = (dau, cuoi) => { const a = srcGold.indexOf(dau); if (a < 0) throw new Error(`thiếu «${dau}» trong acceptance-gold`); return srcGold.slice(a, srcGold.indexOf(cuoi, a) + cuoi.length); };
+  const ell = lay('const ellipsize = (s, max) =>', ';\n');
+  const g = lay('function glossOf(root, slug, evalId, rationale) {', '\n}\n');
+  return new Function('fs', 'path', `${ell}\n${g}\nreturn glossOf;`)(require('node:fs'), path);
+}
+const CAU_HOI = 'Cau hoi co nhay du dai de khop';
+const MH_GOLD = [{ id: 'J1', criterion: 'AC-1', executor: 'judgment', question: `"${CAU_HOI}"`, ds: { inputs: ['README.md'] } },
+  { id: 'J2', criterion: 'AC-1', executor: 'judgment', ds: { inputs: ['README.md'] } }];
+function khoGold(cach) { const d = L.tam('gold'); mkdirSync(path.join(d, '_acceptance', 'demo'), { recursive: true }); writeFileSync(path.join(d, '_acceptance', 'demo', 'evals.yaml'), L.vietMoHinh(cach, MH_GOLD)); return d; }
+const GOLD_MOI = glossCua(readFileSync(path.join(L.KIT, 'scripts', 'acceptance-gold.mjs'), 'utf8'));
+ca('GD1', 'sát lề: nhãn là câu hỏi; thụt 4 cùng nhãn; tiêu chí không câu hỏi → không bịa, về rationale', () => {
+  const a = GOLD_MOI(khoGold('satle'), 'demo', 'J1', 'RATIONALE'), b = GOLD_MOI(khoGold('thut4'), 'demo', 'J1', 'RATIONALE');
+  if (a !== CAU_HOI) return `sát lề: ${a}`;
+  if (b !== a) return `thụt 4 khác: ${b}`;
+  const c = GOLD_MOI(khoGold('satle'), 'demo', 'J2', 'RATIONALE');
+  return c === 'RATIONALE' || `J2 bịa nhãn: ${c}`;
+});
+ca('GD2', 'chiều đỏ: glossOf của base trên sát lề rơi về rationale', () => {
+  const g = glossCua(readFileSync(path.join(BASE_DIR, 'scripts', 'acceptance-gold.mjs'), 'utf8'));
+  if (g(khoGold('thut4'), 'demo', 'J1', 'RATIONALE') !== CAU_HOI) return 'đối chứng dương hỏng: base thụt 4';
+  const a = g(khoGold('satle'), 'demo', 'J1', 'RATIONALE');
+  if (a !== 'RATIONALE') return `base không tái hiện: ${a}`;
+  console.log('    · gold mất câu hỏi sát lề (base)'); return true;
+});
+
 console.log(`Results: ${pass} passed, ${fail} failed (evals-sat-le)`);
 process.exit(fail ? 1 : 0);
