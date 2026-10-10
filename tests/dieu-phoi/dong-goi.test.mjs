@@ -355,6 +355,52 @@ test('DP1-10-do chuoi-con', () => {
   assert.ok(loi.some((l) => l.startsWith('node --test …repin-lane-lop-cu.test.mjs: mã 2')), `phải nêu lệnh test bị chặn nhầm: ${loi.join(' | ')}`);
 });
 
+// ---------- DP1-07: không gì riêng của một kho tiêu thụ (AC-7, E7) ----------
+const DS_CAM = ['onehub', 'crm', 'prisma', 'bunx', 'bun run', 'bun install', ':3000', ':3001', '5432', 'docs/plan/dot-'];
+
+// Quét mọi tệp văn bản dưới các thư mục (bỏ tệp nhị phân: có byte 0). Trả khớp kèm số tệp đã quét.
+export function quetRieng(goc, thuMucs) {
+  const khop = [];
+  let soTep = 0;
+  const di = (d) => {
+    if (!fs.existsSync(d)) return;
+    for (const ten of fs.readdirSync(d)) {
+      const p = path.join(d, ten);
+      const st = fs.lstatSync(p);
+      if (st.isDirectory()) { di(p); continue; }
+      if (!st.isFile()) continue;
+      const buf = fs.readFileSync(p);
+      if (buf.includes(0)) continue;
+      soTep++;
+      buf.toString('utf8').split('\n').forEach((dong, i) => {
+        const thuong = dong.toLowerCase();
+        for (const c of DS_CAM) if (thuong.includes(c)) khop.push({ tep: path.relative(goc, p), dong: i + 1, chuoi: c });
+      });
+    }
+  };
+  for (const t of thuMucs) di(path.join(goc, t));
+  return { khop, soTep };
+}
+
+test('DP1-07 khong-rieng-kho', () => {
+  const { khop, soTep } = quetRieng(KIT, ['dieu-phoi', 'tests/dieu-phoi/fixtures']);
+  console.log(`  số tệp đã quét: ${soTep}`);
+  assert.ok(soTep > 0, 'quét 0 tệp — phép quét hỏng');
+  assert.deepEqual(khop.map((k) => `${k.tep}:${k.dong} «${k.chuoi}»`), []);
+});
+
+test('DP1-07-do', () => {
+  const goc = tam();
+  chep(GOI, path.join(goc, 'dieu-phoi'));
+  assert.deepEqual(quetRieng(goc, ['dieu-phoi']).khop, [], 'đối chứng dương');
+  const p = path.join(goc, 'dieu-phoi', 'scripts', 'lich.mjs');
+  const dong = fs.readFileSync(p, 'utf8').split('\n');
+  dong.splice(1, 0, '// nhanh onehub');
+  fs.writeFileSync(p, dong.join('\n'));
+  const khop = quetRieng(goc, ['dieu-phoi']).khop.map((k) => `${path.relative('dieu-phoi', k.tep)}:${k.dong}`);
+  assert.deepEqual(khop, ['scripts/lich.mjs:2']);
+});
+
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
 const CHUOI_BAN_CU = 'scripts/dieu-phoi/';
 export function kiemKhuon(gocGoi) {
