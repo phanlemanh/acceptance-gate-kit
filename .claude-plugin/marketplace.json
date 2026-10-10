@@ -20,6 +20,12 @@
       "name": "diagram-design",
       "source": "./diagram-design",
       "description": "Editorial diagram skill (43 types, HTML+inline SVG) + /export-diagram + /import-drawio, vendored with pin from the private skill repo (upstream cathrynlavery/diagram-design, MIT). Skin state lives in the consuming repo, so one install serves every repo and teammate. Installable on its own; pairs with the kit's DIAGRAM-RULE."
+    },
+    {
+      "name": "dieu-phoi",
+      "source": "./dieu-phoi",
+      "description": "Orchestrator–workers for parallel feature-loop sessions: a scheduler that holds the S4 / baseline / merge locks, a batch CLI and four hooks (block S4 without a lock, heartbeat, waiting-for-human). Opt-in per repo (--scope project); hooks stay silent when the repo has no running batch.",
+      "tags": ["bat-theo-lua-chon"]
     }
   ]
 }

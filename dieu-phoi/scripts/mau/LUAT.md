@@ -7,8 +7,9 @@ Phiên giám sát là phiên duy nhất được sửa tệp này. Các phiên t
   `loai` ∈ `s4`, `ghim-lai`, `duong-nen`, `merge`. Rồi chờ bằng lệnh nền
   `until jq -e '.phien=="<phiên>"' <thư mục đợt>/khoa/<tài nguyên>/chu.json >/dev/null 2>&1; do sleep 15; done`.
 - Nhả lượt: `rm -rf <thư mục đợt>/khoa/<tài nguyên>`.
-- Việc nền dài khi đang giữ khoá: chạy qua lệnh bọc, ví dụ
-  `node scripts/dieu-phoi/giu-nhip.mjs -- node <đường>/repin-lane.mjs --root . --slug <slug> --write`.
+- Việc nền dài khi đang giữ khoá: chạy qua lệnh bọc. Chép đúng dòng lệnh bọc mà hook in sẵn khi
+  chặn — nó mang đường tuyệt đối tới `giu-nhip.mjs` của bản gói đang cài, ví dụ
+  `node <gói dieu-phoi>/scripts/giu-nhip.mjs -- node <đường>/repin-lane.mjs --root . --slug <slug> --write`.
   Lệnh bọc chạm tín hiệu sống của khoá mỗi phút tới khi lệnh con thoát, rồi trả đúng mã thoát của
   nó. Không bọc thì trong lúc anh chờ không có lời gọi công cụ nào, tín hiệu sống cũ dần, và khoá bị
   thu hồi giữa chừng. Hook chặn lệnh nặng chạy nền chưa bọc và in sẵn dòng lệnh đã bọc để chép.
