@@ -77,7 +77,7 @@ function parseArgs(argv) {
 }
 
 // glob → RegExp: cùng ngữ nghĩa với matcher paths của kit (** xuyên thư mục,
-// * trong một cấp, ? một ký tự) — anchor trọn chuỗi.
+// * trong một cấp, ? một ký tự, `[[]`/`[]]` là ngoặc thật) — anchor trọn chuỗi.
 // XUẤT ra vì `s4-args.mjs` dùng CHÍNH hàm này cho bộ lọc vùng vật (T2): hai bản
 // khớp glob là hai khuôn sẽ trôi, và phép đo VV4 rút từ đây để đo round-trip.
 export function globToRe(g) {
@@ -88,6 +88,7 @@ export function globToRe(g) {
       if (g[i + 1] === '*') { re += '.*'; i++; if (g[i + 1] === '/') i++; }
       else re += '[^/]*';
     } else if (c === '?') re += '[^/]';
+    else if (c === '[' && (g.startsWith('[[]', i) || g.startsWith('[]]', i))) { re += '\\' + g[i + 1]; i += 2; }
     else if ('.+^$()[]{}|\\'.includes(c)) re += '\\' + c;
     else re += c;
   }

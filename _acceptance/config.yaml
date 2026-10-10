@@ -459,6 +459,12 @@ executors:
     dgt_run_id_ben_viet: "bash -c 'out=$(node tests/workflows/doc-ghi-troi.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DR1 DR6 DR6b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     dgt_run_id_ben_doc: "bash -c 'out=$(node tests/workflows/doc-ghi-troi.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DR2a DR2 DR4; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     dgt_dot_bien: "bash -c 'out=$(node tests/workflows/doc-ghi-troi.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DG6 DG7 DG8 DR5; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    gtn_bo_dich: "bash -c 'out=$(node tests/scripts/glob-thoat-ngoac.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT1 GT1b GT1c; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    gtn_phan_loai: "bash -c 'out=$(node tests/scripts/glob-thoat-ngoac.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT2 GT2b GT2c GT2d; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    gtn_lan_ghim_lai: "bash -c 'out=$(node tests/scripts/glob-thoat-ngoac.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT3 GT3b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    gtn_mang_sang: "bash -c 'out=$(node tests/scripts/glob-thoat-ngoac.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT4 GT4b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    gtn_hoa_cu: "bash -c 'out=$(node tests/scripts/glob-thoat-ngoac.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT6 GT6b; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
+    gtn_dot_bien: "bash -c 'out=$(node tests/scripts/glob-thoat-ngoac.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in GT5a GT5b GT5c GT5d GT5e; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     tcc_so_target: "bash -c 'out=$(node tests/scripts/gate-card-dec-key.test.mjs 2>&1); rc=$?; printf \"%s\\n\" \"$out\" | tail -n 25; [ $rc -eq 0 ] && for c in DK14 DK15; do printf \"%s\\n\" \"$out\" | grep -qF \"PASS: $c \" || exit 1; done'"
     hsn_rang: node tests/scripts/ho-so-nghi.test.mjs
     # Hồ sơ nhan-trang-thai-va-reality (21/09): sáu tệp ca, tên ca mang mã AC.
@@ -519,6 +525,14 @@ executors:
     lcgvc_round: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan round
     lcgvc_the: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan the
     lcgvc_luoi: bash _acceptance/luot-cham-ghi-vao-cay/rang.sh --chan luoi
+    # Hồ sơ tac-tu-cham-chi-cham-khong (09/10, T2): tác tử chấm không cầm bút + quy trách nhiệm
+    # cây đổi — mỗi chân một nhóm AT1–AT6 trên cây thật + bản sao tiêm đột biến (design doc §7).
+    tccc_dinh_nghia: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan dinh-nghia
+    tccc_bang_vai: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan bang-vai
+    tccc_luot_sach: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan luot-sach
+    tccc_duong_roi: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan duong-roi
+    tccc_quy_trach: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan quy-trach
+    tccc_khong_doi_cay: bash _acceptance/tac-tu-cham-chi-cham-khong/rang.sh --chan khong-doi-cay
     # Hồ sơ nghi-van-mang-co-qua-han (01/10): lối nghỉ của start-scan mang cờ qua-timebox.
     nvmcqh_rt13: "bash -c 'RT_CASES=RT13 node tests/plugins/ra-co-ten.test.mjs'"
     nvmcqh_ho_so_nghi: node tests/scripts/ho-so-nghi.test.mjs

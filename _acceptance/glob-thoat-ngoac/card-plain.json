@@ -1,0 +1,75 @@
+{
+  "feature_plain": "Bài kiểm khai tệp bằng cách viết thoát ngoặc («[[]slug]» cho thư mục «[slug]») nay được hiểu đúng ở làn ghim lại, lưới chặn gộp và lượt chấm: thôi gắn oan «tệp đã đổi mà chưa đo lại», thôi mang sang kết quả cũ cho bài kiểm mà tệp của nó vừa đổi.",
+  "will_do": [
+    {
+      "id": "AC-1",
+      "p": "Sẽ cho hai bộ dịch đường dẫn của kit cùng hiểu «[[]» là dấu «[» thật và «[]]» là dấu «]» thật, còn cách viết «[slug]» trần vẫn hiểu như hôm nay."
+    },
+    {
+      "id": "AC-2",
+      "p": "Sẽ nhận một mục viết thoát ngoặc khi nó trỏ tới tệp có thật — kể cả mục chỉ một tệp, không có dấu sao — và vẫn từ chối mục gõ sai không trỏ tới tệp nào."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ để làn ghim lại thôi gắn oan: chép nguyên khối khai của ô E1 ở crm làm mẫu, sửa chỗ khác thì không gắn, sửa đúng tệp trong thư mục «[slug]» thì gắn."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ để lượt chấm chạy lại bài kiểm khi tệp trong thư mục «[slug]» của nó vừa đổi, thay vì mang sang kết quả cũ — đo qua chính bộ đọc tệp khai của lượt chấm."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ để lưới chặn gộp coi hồ sơ là cũ khi tệp trong thư mục «[slug]» đổi, và không coi là cũ khi chỉ tệp ngoài phạm vi đổi."
+    }
+  ],
+  "wont_do": [
+    {
+      "id": "OOS-1",
+      "p": "Sẽ KHÔNG hiểu các cách viết glob khác như «[abc]» hay «{a,b}» — làm thế sẽ đổi nghĩa «[slug]» trần mà 102 tệp ở crm đang dựa vào."
+    },
+    {
+      "id": "OOS-2",
+      "p": "Sẽ KHÔNG thêm cảnh báo ở bước thiết kế — đọc đúng rồi thì không cần cảnh báo."
+    },
+    {
+      "id": "OOS-3",
+      "p": "Sẽ KHÔNG sửa gì ở crm."
+    },
+    {
+      "id": "OOS-4",
+      "p": "Sẽ KHÔNG dạy lượt chấm đọc tệp khai dạng nhiều dòng — hôm nay dạng đó đã được chạy lại mọi lượt, tức là an toàn."
+    }
+  ],
+  "coverage_plain": [
+    {
+      "i": 1,
+      "p": "Dạng mục (AC-1, AC-2, AC-3): thoát ngoặc có và không có dấu sao, mục gõ sai, «]» thoát, «[slug]» trần, hai chỗ thoát trong một mục, và nguyên khối tám mục thật của crm."
+    },
+    {
+      "i": 2,
+      "p": "Nơi dùng (AC-1 đến AC-5): hai bộ dịch, bộ phân loại, làn ghim lại, bộ đọc + kế hoạch mang sang của lượt chấm, và lưới chặn gộp."
+    },
+    {
+      "i": 3,
+      "p": "Thay đổi (AC-3, AC-4, AC-5): không chạm, chạm đúng tệp trong thư mục có ngoặc thật, chạm tệp ngoài mọi phạm vi khai."
+    }
+  ],
+  "gap_probe_plain": [
+    {
+      "i": 0,
+      "p": "Bài kiểm mang sang có thể né bộ đọc thật của lượt chấm, mà dấu «]» bên trong «[[]» đúng là chỗ bộ đọc một dòng dễ cắt sai — đã sửa: đo qua tệp khai dạng văn bản và bộ đọc thật, thêm một đột biến «cắt ở ] đầu tiên»."
+    },
+    {
+      "i": 1,
+      "p": "Lưới chặn gộp là nơi thứ ba đổi hành vi mà chưa có bài kiểm nào — đã thêm AC-5 hai chiều."
+    },
+    {
+      "i": 2,
+      "p": "Thiếu ca mục thoát ngoặc gõ sai trỏ vào tệp không có — đã thêm ca và một đột biến «bỏ kiểm tồn tại»."
+    },
+    {
+      "i": 3,
+      "p": "Mẫu kho viết tay có thể khác dạng thật ở crm — đã chép nguyên văn khối khai của ô E1 crm kèm mã phiên bản nguồn, và ghi một phép kiểm ngoài sau khi crm cài mốc."
+    }
+  ]
+}
