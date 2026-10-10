@@ -1,35 +1,3 @@
 {
-  "feature_plain": "Kho viết tệp tiêu chí theo kiểu nào (sát lề hay thụt) thì lượt chấm, lượt sửa và thẻ cũng đọc đủ đầu vào, vùng tệp và danh sách bằng chứng — chỗ nào không đọc được thì thẻ báo tên, không im.",
-  "will_do": [
-    {"id": "AC-1", "p": "Sẽ cho lượt chấm cùng một bộ tham số dù tệp tiêu chí viết sát lề, thụt, hay mục ngang khoá — so từng trường của từng tiêu chí."},
-    {"id": "AC-2", "p": "Sẽ chứng bằng bản cũ: bản trước vòng này đánh rơi trường ở tệp sát lề, bản mới thì không (tệp thụt 4 đúng ở cả hai)."},
-    {"id": "AC-3", "p": "Sẽ chứng kho đang chạy không đổi gì: so bản cũ với bản mới trên mọi hồ sơ thật của kit, crm và năm kho khác — chỉ hồ sơ sát lề được đọc thêm."},
-    {"id": "AC-8", "p": "Sẽ hiện cờ vàng gọi tên tiêu chí và trường trên thẻ Cổng Phạm vi lẫn thẻ Cổng Bằng chứng khi tệp tiêu chí có danh sách máy không đọc được."},
-    {"id": "AC-9", "p": "Sẽ chỉ còn MỘT bộ đọc danh sách dùng chung cho lượt chấm và lượt sửa; bản cài cũ thiếu bộ đọc ấy thì dừng có tên thay vì đoán."}
-  ],
-  "wont_do": [
-    {"id": "AC-4", "p": "Chặn việc danh sách không đọc được (bí danh, khối chữ, ánh xạ, khoá rỗng) trôi qua im lặng — lượt chấm in một dòng gọi tên từng chỗ; hồ sơ sạch không in gì."},
-    {"id": "AC-5", "p": "Chặn tên neo YAML bị đọc thành vùng tệp: danh sách có neo được đọc đúng các mục; chỗ dùng bí danh thì báo, không đoán."},
-    {"id": "AC-6", "p": "Sẽ KHÔNG còn bắt chạy lại ô đã xanh chỉ vì vùng tệp của nó viết dạng nhiều dòng."},
-    {"id": "AC-7", "p": "Sẽ KHÔNG còn mất câu hỏi của tiêu chí phán xét trên bảng chấm mẫu khi tệp viết sát lề."},
-    {"id": "AC-11", "p": "Chặn một bên đọc tệp tiêu chí mới tự viết lọt vào kit mà chưa được phân loại — lưới đỏ gọi tên tệp."},
-    {"id": "OOS-1", "p": "Không tự giải bí danh YAML thành danh sách — chỉ báo cờ; mở lại khi bí danh lặp ở ≥3 hồ sơ hoặc ≥2 kho."},
-    {"id": "OOS-2", "p": "Không gộp trọn hạt giống bộ đọc vùng tệp 20/09 (các dạng khối chữ nhiều dòng) — lớp đó chưa từng lệch trên kho thật."},
-    {"id": "OOS-3", "p": "Không đụng kiểu viết mỗi tiêu chí một dòng của artifact-platform — lượt chấm đã dừng và báo rõ, không im."},
-    {"id": "OOS-4", "p": "Không đổi khuôn sinh tệp tiêu chí và không bắt kho nào viết lại tệp."},
-    {"id": "OOS-5", "p": "Không sửa gì ở kho crm."}
-  ],
-  "scope_plain": "Năm thứ cố ý để ngoài vòng này:",
-  "coverage_plain": [
-    {"i": 0, "p": "Chuẩn đối chiếu bên ngoài: YAML 1.2 cho phép mục danh sách cùng cột với khoá cha, và bộ xuất YAML phổ biến nhất viết đúng kiểu đó kèm neo — đây là thước «đủ» cho trục cách viết."},
-    {"i": 1, "p": "Để sau: giải bí danh thành danh sách thật; khoá lồng và khối chữ có chữ «paths:» bên trong (hạt giống 20/09)."},
-    {"i": 2, "p": "Không bao giờ: bắt kho viết lại tệp; đưa thư viện YAML vào kit."}
-  ],
-  "gap_probe_plain": [
-    {"i": 0, "p": "Phép phá thử của AC-3 lúc đầu trùng với cách đọc cũ nên không bao giờ đỏ — đã đổi sang «bỏ mục cuối của mọi danh sách» và thêm phép kiểm «phá thử có đổi được gì không»."},
-    {"i": 1, "p": "Phép so trên bảy kho có thể xanh khi máy thiếu kho — đã sửa: thiếu kho là dừng «không đọc được ở đây», in mã phiên bản và số hồ sơ từng kho, tổng phải ≥ 620."},
-    {"i": 2, "p": "Ma trận AC-1 chỉ đếm theo tiêu chí, có thể bỏ sót trường bắt buộc — đã sửa: đếm theo cách viết × tiêu chí × trường, tập trường rút từ bảng trường bắt buộc của lượt chấm."},
-    {"i": 3, "p": "Ngưỡng chết «còn đường đọc rơi im lặng» chưa có thước trên mọi bên đọc — đã thêm AC-11, lưới phân loại mọi tệp đọc tệp tiêu chí."},
-    {"i": 4, "p": "Bản cũ dùng để so thiếu thư mục mà hai phép phá thử cần — đã thống nhất một danh sách thư mục và kiểm «bản cũ thiếu tệp»."}
-  ]
+  "feature_plain": "Kho viết tệp tiêu chí kiểu nào (sát lề hay thụt) thì lượt chấm, lượt sửa và thẻ cũng đọc đủ đầu vào, vùng tệp và danh sách bằng chứng — chỗ nào không đọc được thì thẻ và lượt chấm báo tên, không im."
 }
