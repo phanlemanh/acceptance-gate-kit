@@ -624,6 +624,99 @@ test('DP1-12 khong-fetch-khi-giu-s4', async () => {
   assert.deepEqual(fetch(), ['git fetch -q origin']);
 });
 
+// ---------- DP1-06: gói chạy ở chỗ khác cây kit (AC-6, E6) ----------
+// Bản chép CHỈ gồm dieu-phoi/, đặt trong thư mục tạm của hệ điều hành — như bộ nhớ đệm gói.
+function banChep(gocGoi) {
+  const d = tam('dp1-banchep-');
+  const sao = path.join(d, 'dieu-phoi');
+  chep(gocGoi, sao);
+  const toTien = [];
+  for (let p = path.dirname(sao); ; p = path.dirname(p)) {
+    toTien.push(p);
+    if (path.dirname(p) === p) break;
+  }
+  const vuong = toTien.filter((p) => fs.existsSync(path.join(p, 'node_modules')) || fs.existsSync(path.join(p, 'feature-loop')));
+  return { sao, vuong };
+}
+
+const LOI_NAP = /Cannot find module|ERR_MODULE_NOT_FOUND/;
+
+// Mọi lệnh của một bản trên một kho thử mới: mo → 4 hook trong đợt → chay → xem → một nhịp → dong.
+async function bangMaThoat(gocGoi) {
+  const kho = khoThu('dp1-ban-');
+  const bang = [];
+  const loiNap = [];
+  const ghi = (ten, r) => {
+    bang.push([ten, r.ma]);
+    if (LOI_NAP.test(r.err ?? '')) loiNap.push(`${ten}: ${r.err.trim()}`);
+  };
+  ghi('mo', chayCli(gocGoi, kho, 'mo', 'thu'));
+  const dot = fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+  ghiJ(path.join(dot, 'hang-viec.json'), { dot: 'thu', day: [{ id: 'P1', worktree: kho }], hang: [], ngoai_hang_merge: [] });
+  for (const h of rutHook(gocGoi)) ghi(`hook ${h.su}`, chayLenhHook(h.lenh, gocGoi, DAU_VAO_MAU[h.su](kho), kho));
+  ghi('chay', chayCli(gocGoi, kho, 'chay'));
+  ghi('xem', chayCli(gocGoi, kho, 'xem'));
+  let maNhip = 0;
+  try {
+    const { taoVong } = await import(path.join(gocGoi, 'scripts', 'phat-lich.mjs'));
+    await taoVong(dot, ioGia(Date.now()))();
+    if (suKien(dot).some((e) => e.loai === 'loi-nhip')) maNhip = 1;
+  } catch (e) {
+    maNhip = 1;
+    if (LOI_NAP.test(String(e))) loiNap.push(`nhip: ${e}`);
+  }
+  bang.push(['nhip', maNhip]);
+  ghi('dong', chayCli(gocGoi, kho, 'dong'));
+  return { bang, loiNap };
+}
+
+test('DP1-06 ban-chep', async () => {
+  const { sao, vuong } = banChep(GOI);
+  console.log(`  bản chép: ${sao} · tổ tiên có node_modules/feature-loop: ${vuong.length ? vuong.join(', ') : 'không'}`);
+  assert.deepEqual(vuong, []);
+  const nguon = await bangMaThoat(GOI);
+  const chepRa = await bangMaThoat(sao);
+  console.log(`  bảng mã thoát (nguồn | bản chép): ${nguon.bang.map(([t, m], i) => `${t}=${m}|${chepRa.bang[i]?.[1]}`).join(' · ')}`);
+  assert.deepEqual(chepRa.bang, nguon.bang);
+  assert.deepEqual(chepRa.loiNap, []);
+});
+
+test('DP1-06 boc-dung-ban', () => {
+  const { sao } = banChep(GOI);
+  for (const goc of [GOI, sao]) {
+    const { kho, dot } = khoCoDot(goc);
+    ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', slug: 'a', loai: 's4', worktree: kho, cap_luc: new Date().toISOString(), han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
+    const lenh = rutHook(goc).find((h) => h.su === 'PreToolUse').lenh;
+    const r = chayLenhHook(lenh, goc, { hook_event_name: 'PreToolUse', session_id: 's', cwd: kho, tool_name: 'Bash', tool_input: { command: 'node x/repin-lane.mjs --root .', run_in_background: true } }, kho);
+    assert.equal(r.ma, 2, r.err);
+    const boc = /node (\S*giu-nhip\.mjs) -- /.exec(r.err)?.[1];
+    assert.ok(boc, `không thấy dòng lệnh bọc: ${r.err}`);
+    assert.ok(boc.startsWith(fs.realpathSync(goc)), `lệnh bọc phải trỏ bản đang chạy ${goc}: ${boc}`);
+    assert.equal(fs.existsSync(boc), true, boc);
+  }
+});
+
+test('DP1-06-do import-ngoai', () => {
+  const kitGia = tam('dp1-kitgia-');
+  fs.mkdirSync(path.join(kitGia, 'feature-loop', 'scripts'), { recursive: true });
+  fs.writeFileSync(path.join(kitGia, 'feature-loop', 'scripts', 'resolve-plugin.mjs'), 'export {};\n');
+  const trongKit = path.join(kitGia, 'dieu-phoi');
+  chep(GOI, trongKit);
+  const p = path.join(trongKit, 'scripts', 'dieu-phoi.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  fs.writeFileSync(p, goc.replace("import { spawn } from 'node:child_process';\n", "import { spawn } from 'node:child_process';\nimport '../../feature-loop/scripts/resolve-plugin.mjs';\n"));
+  assert.notEqual(fs.readFileSync(p, 'utf8'), goc, 'bước tiêm không áp được');
+  const kho = khoCoDot(GOI).kho;
+  const trong = chayCli(trongKit, kho, 'xem');
+  assert.equal(trong.ma, 0, `đối chứng: bản trong cây kit phải chạy — ${trong.err}`);
+  const ngoai = path.join(tam('dp1-ngoai-'), 'dieu-phoi');
+  chep(trongKit, ngoai);
+  const r = chayCli(ngoai, kho, 'xem');
+  assert.notEqual(r.ma, 0, 'bản chép có import ngoài gói phải đỏ');
+  assert.match(r.err, /dieu-phoi\.mjs/);
+  assert.match(r.err, LOI_NAP);
+});
+
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
 const CHUOI_BAN_CU = 'scripts/dieu-phoi/';
 export function kiemKhuon(gocGoi) {
