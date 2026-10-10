@@ -90,6 +90,51 @@ const khaiGoi = (kho, mau = 'goi/dot-{ten}') => {
 };
 const thuMucDot = (kho) => fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
 
+// ---------- DP2-01: ba lệnh người (AC-1, E1) ----------
+const BA_LENH = ['dong-dot.md', 'mo-dot.md', 'xem.md'];
+
+export function kiemLenh(gocGoi) {
+  const dir = path.join(gocGoi, 'commands');
+  const loi = [];
+  const co = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith('.md')).sort() : [];
+  if (co.join(',') !== BA_LENH.join(',')) loi.push(`tập lệnh [${co}] cần [${BA_LENH}]`);
+  const scriptGoi = new Set(fs.readdirSync(path.join(gocGoi, 'scripts')).filter((f) => f.endsWith('.mjs')));
+  for (const f of co) {
+    const t = fs.readFileSync(path.join(dir, f), 'utf8');
+    const fm = /^---\n([\s\S]*?)\n---/.exec(t)?.[1] ?? '';
+    if (/^disable-model-invocation:/m.test(fm)) loi.push(`${f}: không được khoá model-invocation`);
+    if (t.includes('plugins/cache')) loi.push(`${f}: không được trỏ bộ nhớ đệm gói`);
+    // Script CỦA GÓI gọi qua ${CLAUDE_PLUGIN_ROOT}; script gói anh em gọi qua biến đã giải ($AG…).
+    for (const m of t.matchAll(/node\s+"?([^"\s]*)\/scripts\/([\w.-]+\.mjs)/g)) {
+      const [, goc, ten] = m;
+      if (goc === '${CLAUDE_PLUGIN_ROOT}') {
+        if (!scriptGoi.has(ten)) loi.push(`${f}: gọi ${ten} không có trong gói`);
+      } else if (scriptGoi.has(ten)) loi.push(`${f}: script của gói ${ten} phải gọi qua \${CLAUDE_PLUGIN_ROOT}, đang qua «${goc}»`);
+      else if (!/^\$\w+$/.test(goc)) loi.push(`${f}: script gói anh em ${ten} phải gọi qua biến đã giải, đang qua «${goc}»`);
+    }
+    if (f !== 'xem.md') {
+      const khoi = /<!-- <<<CHU-QUYET-CUA-NGUOI -->\n([\s\S]*?)<!-- CHU-QUYET-CUA-NGUOI>>> -->/.exec(t)?.[1]?.trim();
+      if (!khoi) loi.push(`${f}: thiếu khối CHU-QUYET-CUA-NGUOI`);
+    }
+  }
+  return loi;
+}
+
+test('DP2-01 ba-lenh', () => {
+  console.log(`  lệnh: ${fs.readdirSync(path.join(GOI, 'commands')).sort().join(', ')}`);
+  assert.deepEqual(kiemLenh(GOI), []);
+});
+
+test('DP2-01-do khoa-xem', () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  assert.deepEqual(kiemLenh(sao), [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'commands', 'xem.md');
+  fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace(/^---\n/, '---\ndisable-model-invocation: true\n'));
+  const loi = kiemLenh(sao);
+  assert.ok(loi.some((l) => l.startsWith('xem.md:')), `phải nêu xem.md: ${loi.join(' | ')}`);
+});
+
 // ---------- DP2-02: mở đợt từ gói (AC-2, E2) ----------
 test('DP2-02 mo-tu-goi', () => {
   const kho = khoThu();

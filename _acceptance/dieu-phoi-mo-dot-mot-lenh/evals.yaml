@@ -16,8 +16,10 @@ evals:
     expected: >
       exit 0; stdout có "ok" cho "DP2-01 ba-lenh": tập tên tệp dưới dieu-phoi/commands/ == {mo-dot.md,
       dong-dot.md, xem.md} (đẳng thức tập, in ra); không tệp nào có dòng frontmatter
-      `disable-model-invocation`; mọi chuỗi `node …/scripts/<x>.mjs` trong thân bắt đầu bằng
-      `${CLAUDE_PLUGIN_ROOT}/scripts/` và <x>.mjs tồn tại trong gói; thân mo-dot.md và dong-dot.md mỗi tệp
+      `disable-model-invocation`; không tệp nào chứa `plugins/cache`; mọi chuỗi `node …/scripts/<x>.mjs`
+      gọi script CỦA GÓI (x.mjs có trong dieu-phoi/scripts/) bắt đầu bằng `${CLAUDE_PLUGIN_ROOT}/scripts/`,
+      chuỗi qua `${CLAUDE_PLUGIN_ROOT}` trỏ tệp có thật trong gói, và script gói anh em (vd lo-trinh.mjs
+      của acceptance-gate) chỉ được gọi qua một biến đã giải (`$AG`), không đường cố định; thân mo-dot.md và dong-dot.md mỗi tệp
       có dòng nằm giữa marker CHU-QUYET-CUA-NGUOI. Và "ok" cho "DP2-01-do khoa-xem": bản sao thêm
       `disable-model-invocation: true` vào xem.md → chính hàm kiểm trả lỗi nêu "xem.md".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
