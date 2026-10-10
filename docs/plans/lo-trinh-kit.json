@@ -74,7 +74,7 @@
       "hang": []
     },
     {
-      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
+      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), trang hồ sơ một việc (X2), một vòng một kết quả cỡ 8–12 tiêu chí (S3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
       "ngay": "2026-11-01",
       "loai": "phat-hanh",
       "ai": "Owner",
@@ -83,7 +83,9 @@
         "L3",
         "G2",
         "G3",
-        "A2"
+        "A2",
+        "X2",
+        "S3"
       ]
     },
     {
@@ -245,6 +247,31 @@
       "slug": "xuat-du-lieu-lo-trinh"
     },
     {
+      "ma": "X2",
+      "nhom": "cua-xem",
+      "hang": "T2",
+      "dung_tren": [
+        "X1"
+      ],
+      "cau_giao": "«Mỗi việc đã giao có một trang hồ sơ đọc trong một phút: vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không»",
+      "vi_sao": "Gốc: crm/_acceptance/trang-lo-trinh-trong-crm — mục «Out of scope» của LT1 ghi «hiện hồ sơ nghiệm thu của việc» là KHÔNG làm; chủ kho 10/10 muốn xem chi tiết một việc như màn chi tiết Thoả thuận. Một hồ sơ LT1: ~80 tệp, 42 quyết định (máy 26 · người 16), 3 lượt chấm, ~140k token — chỉ máy đọc được. Kit VẼ từ vật (0 token), mở rộng trang bằng chứng đang có; xuất dải tóm tắt vào khối dữ liệu lộ trình bản 2 (đọc được bản 1). Khuôn dải: tầng mọi người (đã giao gì · vì sao · trạng thái+ngày · đã lên production chưa · đo gì/khi nào · kết quả · chưa làm gì · ai quyết) + tầng chủ kho (tiêu chí/phép đo · lượt chấm · token · quyết định máy/người · PR+mã). KHÔNG có ô «số lần gọi người» tới khi có máy đếm. Kèm (máy quyết 10/10): tiêu đề hiện câu giao bỏ ĐÚNG MỘT cặp «» ngoài cùng bao trọn câu ở bộ vẽ + trường tiêu đề của khối dữ liệu — không bỏ «» bên trong câu, không đụng tệp kế hoạch của kho (crm 93/93 hàng, kit 41 hàng đang bọc «»); khuôn mẫu hàng mới thôi thêm «», bộ đọc nhận cả hai dạng.",
+      "bat_khi": "Ở phiên nghiệm thu kế, chủ kho đọc xong hồ sơ mỗi việc trong ≤ 1 phút từ trang này, không phải hỏi máy",
+      "ghi_chu": "CỘNG — chủ kho đồng ý 10/10; vẫn qua Cổng Đáng khi mở. Bản chiếu crm là hàng LT1b của crm."
+    },
+    {
+      "ma": "S3",
+      "nhom": "lo-trinh",
+      "hang": "T3",
+      "slug": "vong-la-mot-ket-qua",
+      "cau_giao": "«Mỗi vòng Feature Loop giao đúng một kết quả, cỡ 8–12 tiêu chí — việc người dùng thấy thì câu giao có vai, việc nền thì nêu hành vi hệ thống đo được; lượt cắt tự tách hay gộp theo cỡ đã đo»",
+      "ghi_chu": "CHÍNH SÁCH chủ kho chốt 10/10 (sửa cùng ngày): mục tiêu 8–10 tiêu chí, cho phép 11–12 khi kết quả không tách được mà giữ nghĩa, từ 13 bắt buộc tách; một vòng một kết quả. Câu giao hai dáng: việc người dùng thấy → có VAI («Trưởng phòng ban mở … và thấy …»); việc nền (không người dùng cuối, vd A1, X1) → HÀNH VI HỆ THỐNG đo được, không ép «Là kỹ sư…». Lộ trình không thêm trường cho agent — phần của agent ở hợp đồng · phép đo · kế hoạch; vùng tệp ở hàng việc của bộ điều phối. Đưa vào skill cắt lượt (L2): hai dáng câu giao · khoảng cỡ đọc lại từ hồ sơ đã giao ở mỗi mốc (không ghi cứng) · phép kiểm tách/gộp theo số tiêu chí dự kiến. Ô đã ký build 04/09 — mở lại, không tạo ô mới.",
+      "dung_tren": [
+        "L2"
+      ],
+      "vi_sao": "Gốc: media-library/_acceptance/ban-dieu-khien-curator (13 hồ sơ cắt theo gốc kỹ thuật 04/09, không hồ sơ nào tự giao được một cửa). Số đo 10/10 trên 219 hồ sơ đã giao của crm: 6–10 tiêu chí → 1,78 lượt chấm, 16 % chạm trần; 8–12 → 2,20 lượt, 24 %; 11–15 → 2,81 lượt, 51 %; 16+ → 8/8 chạm trần. Lần gọi người mỗi tiêu chí: 8–12 ≈ 0,32 so với 6–10 ≈ 0,40 (−20 %), đổi lại token mỗi tiêu chí +13 %. Lượt cắt crm 04/10: 10/19 câu giao gói ≥ 3 kết quả.",
+      "bat_khi": "Ba mươi ngày sau khi giao, ≥ 80 % vòng mới nằm trong 8–12 tiêu chí và tỉ lệ chạm trần 3 lượt chấm không vượt 24 %"
+    },
+    {
       "ma": "L3",
       "nhom": "lo-trinh",
       "hang": "T2",
@@ -346,14 +373,6 @@
       "slug": "phep-do-o-doc-lap-thuoc-co-cua",
       "cau_giao": "«Ba phép đo của thước-có-cửa đỏ đúng ô của chính nó»",
       "ghi_chu": "Ký build 17/09, chưa mở vòng. Neo nội bộ (meta) — luật chiều rộng (b) chỉ cho một vòng meta giữa hai mốc kho nhận; đề xuất xét lại."
-    },
-    {
-      "ma": "S3",
-      "nhom": "cho-xet-lai",
-      "hang": "T3",
-      "slug": "vong-la-mot-ket-qua",
-      "cau_giao": "«Mỗi vòng giao đúng một kết quả người dùng thấy được»",
-      "ghi_chu": "Ký build 04/09, chưa mở vòng sau năm tuần. Neo media-library (kho đã lâu không nhận mốc) — đề xuất xét lại."
     }
   ],
   "chan_troi": [
