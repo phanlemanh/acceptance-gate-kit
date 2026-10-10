@@ -125,7 +125,8 @@ evals:
     cmd: config:executors.script.esl_gold
     expected: >-
       GD1: hồ sơ sát lề, judgment có question một dòng có nháy → nhãn acceptance-gold là câu hỏi; đối chứng
-      dương thụt 4 cho cùng nhãn. GD2 chiều đỏ: glossOf của base trên tệp sát lề rơi về rationale → ca in
+      dương thụt 4 cho cùng nhãn; tiêu chí sát lề không có question/expected → nhãn KHÔNG bịa, rơi về
+      rationale. GD2 chiều đỏ: glossOf của base trên tệp sát lề rơi về rationale → ca in
       «gold mất câu hỏi sát lề».
     paths:
       - "scripts/acceptance-gold.mjs"
