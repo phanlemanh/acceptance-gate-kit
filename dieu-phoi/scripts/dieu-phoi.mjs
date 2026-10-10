@@ -259,7 +259,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       pha: () => {
         const thuMuc = thuMucHienTai(cwd);
         const lyDo = typeof co['ly-do'] === 'string' ? co['ly-do'] : '';
-        const kq = datPha(thuMuc, doiSo, { boi: typeof co.boi === 'string' ? co.boi : 'cli', lyDo });
+        const CHU_MERGE = { co: true, khong: false };
+        if (co['tu-merge'] !== undefined && !(co['tu-merge'] in CHU_MERGE)) throw new Error(`pha: --tu-merge «${co['tu-merge']}» không hợp lệ (co|khong)`);
+        const tuMerge = co['tu-merge'] === undefined ? undefined : CHU_MERGE[co['tu-merge']];
+        const kq = datPha(thuMuc, doiSo, { boi: typeof co.boi === 'string' ? co.boi : 'cli', lyDo, tuMerge });
         if (!kq.doi) return `pha: đã ở ${kq.pha}`;
         ghiNhatKy(thuMuc, `pha ${kq.tu} → ${kq.pha}${lyDo ? ` — ${lyDo}` : ''}`);
         ghiSuKien(thuMuc, { loai: 'pha', tu: kq.tu, sang: kq.pha, ly_do: lyDo });
@@ -293,7 +296,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|chay|dung|dong|xem [--kiem-chuyen]|tho [--slug <s>] [--json]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>] [--tu-merge co|khong]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|chay|dung|dong|xem [--kiem-chuyen]|tho [--slug <s>] [--json]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);

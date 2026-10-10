@@ -271,3 +271,52 @@ test('DP7-03-do chi-chan-park', async () => {
   assert.ok(!loi.includes('park mở được'), 'bản tiêm vẫn chặn park');
 });
 
+
+// ---------- DP7-05: quyền tự merge theo thẻ khởi tạo (AC-5, E5) ----------
+const dieuKhien = (dot) => docJ(path.join(dot, 'dieu-khien.json'));
+
+for (const [chu, giaTri] of [['co', true], ['khong', false]]) {
+  test(`DP7-05 ${chu}`, () => {
+    const { kho, dot, w } = dungDot({ tuMerge: chu });
+    assert.equal(dieuKhien(dot).tu_merge, giaTri);
+    assert.equal(chayCli(kho, ['pha', 'tam-dung', '--boi', 't']).ma, 0);
+    assert.equal(chayCli(kho, ['pha', 'dang-chay', '--boi', 't']).ma, 0);
+    assert.equal(dieuKhien(dot).tu_merge, giaTri, 'tu_merge phải sống qua tam-dung → dang-chay không cờ');
+    assert.equal(tho(w.P1).tu_merge, giaTri);
+  });
+}
+
+test('DP7-05 vang', () => {
+  const { dot, w } = dungDot();
+  assert.equal('tu_merge' in dieuKhien(dot), false);
+  assert.equal(tho(w.P1).tu_merge, null);
+});
+
+test('DP7-05-do gia-tri-sai', () => {
+  const { kho, dot } = dungDot({ pha: 'nhap' });
+  const p = path.join(dot, 'dieu-khien.json');
+  const truoc = fs.readFileSync(p);
+  const r = chayCli(kho, ['pha', 'dang-chay', '--boi', 't', '--tu-merge', 'maybe']);
+  assert.equal(r.ma, 1);
+  assert.match(r.err, /maybe/);
+  assert.deepEqual(fs.readFileSync(p), truoc);
+});
+
+test('DP7-05-do sai-pha', () => {
+  const { kho, dot } = dungDot();
+  const p = path.join(dot, 'dieu-khien.json');
+  const truoc = fs.readFileSync(p);
+  const r = chayCli(kho, ['pha', 'tam-dung', '--boi', 't', '--tu-merge', 'co']);
+  assert.equal(r.ma, 1);
+  assert.match(r.err, /--tu-merge chỉ đặt khi chuyển sang dang-chay/);
+  assert.deepEqual(fs.readFileSync(p), truoc);
+});
+
+test('DP7-05 mo-dot-md', () => {
+  const t = fs.readFileSync(path.join(GOI, 'commands', 'mo-dot.md'), 'utf8');
+  const iKhoi = t.indexOf('<!-- CHU-QUYET-CUA-NGUOI>>> -->');
+  const dong = t.split('\n').find((d) => /^5\. \*\*Chạy\.\*\*/.test(d)) ?? '';
+  const iDong = t.indexOf(dong);
+  assert.ok(dong.includes('pha dang-chay') && dong.includes('--tu-merge'), `bước 5 phải gọi pha dang-chay kèm --tu-merge: «${dong}»`);
+  assert.ok(iKhoi >= 0 && iDong > iKhoi, 'bước 5 phải đứng sau khối CHU-QUYET-CUA-NGUOI');
+});
