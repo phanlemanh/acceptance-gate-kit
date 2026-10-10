@@ -1001,18 +1001,18 @@ const quetStart = (gocKit, kho) => {
   return JSON.parse(r.stdout);
 };
 // Bản start-scan của nhánh chính tại merge-base: chép TRỌN thư mục (scripts, lib, skills) bằng git archive.
+function mergeBaseChinh() {
+  for (const nhanh of ['origin/main', 'main']) {
+    try {
+      return execFileSync('git', ['merge-base', 'HEAD', nhanh], { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    } catch {}
+  }
+  assert.fail('không tìm được merge-base với nhánh chính');
+}
 let kitGoc = null;
 function kitTaiMergeBase() {
   if (kitGoc) return kitGoc;
-  const git = (...a) => execFileSync('git', a, { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-  let mb = null;
-  for (const nhanh of ['origin/main', 'main']) {
-    try {
-      mb = git('merge-base', 'HEAD', nhanh);
-      break;
-    } catch {}
-  }
-  assert.ok(mb, 'không tìm được merge-base với nhánh chính');
+  const mb = mergeBaseChinh();
   const dir = tam('dp2-kit-goc-');
   const tar = execFileSync('git', ['archive', mb, 'scripts', 'lib', 'skills'], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 });
   execFileSync('tar', ['-x', '-C', dir], { input: tar });
@@ -1049,6 +1049,15 @@ test('DP2-11 khong-dot', () => {
   assert.equal('dotDangChay' in moi, false, 'không đợt thì khoá vắng');
   assert.equal(moi.loTrinh.ds[0].hangKe.thamSo, 'A', 'không đợt thì hàng kế mở được như cũ');
   assert.deepEqual(moi, cu);
+});
+
+// ---------- DP2-15: ca của DP1 nguyên vẹn (AC-15, E15) ----------
+test('DP2-15 dp1-nguyen', () => {
+  const mb = mergeBaseChinh();
+  const DUONG = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/loi'];
+  const r = spawnSync('git', ['diff', '--quiet', mb, '--', ...DUONG], { cwd: KIT, env: ENV });
+  console.log(`  so với merge-base ${mb.slice(0, 8)}: ${DUONG.join(' · ')} ${r.status === 0 ? 'không đổi' : 'ĐÃ ĐỔI'}`);
+  assert.equal(r.status, 0, 'ca DP1 hoặc lõi bị sửa so với nhánh chính');
 });
 
 // ---------- DP2-14: từ điển, GUIDE, QUICKSTART, bảng tên lệnh (AC-14, E14) ----------
