@@ -5,7 +5,9 @@ slug: evals-sat-le-doc-du
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm lib/evidence-core.cjs (lib/** trong t3_paths)
 surfaces: [cli]
-status: draft
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-10T12:33:02Z
 design_doc: docs/superpowers/specs/2026-10-10-evals-sat-le-doc-du-design.md
 ---
 
