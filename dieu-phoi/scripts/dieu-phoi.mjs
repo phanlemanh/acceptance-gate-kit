@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, gocKhoChinh, TEN_LIEN_KET } from './dot.mjs';
+import { chanDoan } from './chan-doan.mjs';
 import { docGoi, ghepLuat, timGoi } from './goi-dot.mjs';
 import { datPha, khoiTaoPha, TEP_DIEU_KHIEN } from './pha.mjs';
 import { ghiVai } from './vai.mjs';
@@ -248,12 +249,16 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         const kq = datPha(thuMucHienTai(cwd), doiSo, { boi: typeof co.boi === 'string' ? co.boi : 'cli', lyDo: typeof co['ly-do'] === 'string' ? co['ly-do'] : '' });
         return kq.doi ? `pha: ${kq.tu} → ${kq.pha}` : `pha: đã ở ${kq.pha}`;
       },
+      'chan-doan': () => {
+        const ds = chanDoan(cwd);
+        return co.json ? JSON.stringify(ds) : ds.map((m) => `${m.trang_thai === 'du' ? '✓' : m.trang_thai === 'thieu' ? '✗' : '·'} ${m.muc}${m.viec ? ` — ${m.viec}` : ''}`).join('\n');
+      },
       chay: () => chayPhatLich(cwd),
       dung: () => dungPhatLich(cwd),
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chay|dung|dong|xem [--kiem-chuyen]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chan-doan [--json]|chay|dung|dong|xem [--kiem-chuyen]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);

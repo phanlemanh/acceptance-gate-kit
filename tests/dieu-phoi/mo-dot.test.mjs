@@ -194,6 +194,64 @@ test('DP2-03 dung-tay', () => {
   assert.equal(dk.nguon_goi, null);
 });
 
+// Vế chẩn đoán của AC-3: cùng hàm, hai kho — dựng tay → goi-dot thiếu; có gói → goi-dot đủ.
+const mucCua = (kho, muc) => JSON.parse(chayCli(kho, ['chan-doan', '--json']).out).find((m) => m.muc === muc);
+
+test('DP2-03 chan-doan-goi-dot', () => {
+  const tay = khoThu();
+  assert.equal(chayCli(tay, ['mo', 'thu']).ma, 0);
+  const t = mucCua(tay, 'goi-dot');
+  assert.equal(t.trang_thai, 'thieu');
+  assert.match(t.viec, /dieu_phoi\.goi_dot/);
+  const coGoi = khoThu();
+  goiThu(coGoi);
+  khaiGoi(coGoi);
+  assert.equal(chayCli(coGoi, ['mo', 'thu']).ma, 0);
+  assert.equal(mucCua(coGoi, 'goi-dot').trang_thai, 'du');
+});
+
+// ---------- DP2-06: khung chẩn đoán (AC-6, E6) ----------
+const MUC_TOI_THIEU = ['co-dot', 'pha', 'phat-lich', 'goi-dot', 'hang-viec', 'vai'];
+
+test('DP2-06 khung', () => {
+  const kho = khoThu();
+  goiThu(kho);
+  khaiGoi(kho);
+  assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
+  const r = chayCli(kho, ['chan-doan', '--json']);
+  assert.equal(r.ma, 0, r.err);
+  const ds = JSON.parse(r.out);
+  assert.ok(Array.isArray(ds));
+  for (const m of ds) {
+    assert.deepEqual(Object.keys(m).sort(), ['muc', 'trang_thai', 'viec']);
+    assert.ok(['du', 'thieu', 'khong-ap'].includes(m.trang_thai), `${m.muc}: ${m.trang_thai}`);
+  }
+  for (const m of MUC_TOI_THIEU) assert.ok(ds.some((x) => x.muc === m), `thiếu mục ${m}`);
+});
+
+test('DP2-06 khong-dot', () => {
+  const kho = khoThu();
+  const truoc = bamCay(kho);
+  const r = chayCli(kho, ['chan-doan', '--json']);
+  assert.equal(r.ma, 0, r.err);
+  const ds = JSON.parse(r.out);
+  assert.deepEqual(ds.filter((m) => m.trang_thai === 'thieu').map((m) => m.muc), ['co-dot']);
+  assert.equal(bamCay(kho), truoc, 'chẩn đoán không được ghi tệp nào');
+});
+
+test('DP2-06-do hang-viec-hong', () => {
+  const kho = khoThu();
+  goiThu(kho);
+  khaiGoi(kho);
+  assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
+  assert.equal(mucCua(kho, 'hang-viec').trang_thai, 'du', 'đối chứng dương');
+  const p = path.join(thuMucDot(kho), 'hang-viec.json');
+  ghiJ(p, { ...docJ(p), hang: 'sai' });
+  const m = mucCua(kho, 'hang-viec');
+  assert.equal(m.trang_thai, 'thieu');
+  assert.match(m.viec, /hang phải là danh sách/);
+});
+
 // ---------- DP2-04: bảng chuyển pha (AC-4, E4) ----------
 const PHA4 = ['nhap', 'dang-chay', 'tam-dung', 'dang-dong'];
 const DUOC = new Set(['nhap>dang-chay', 'dang-chay>tam-dung', 'tam-dung>dang-chay', 'dang-chay>dang-dong', 'tam-dung>dang-dong']);
