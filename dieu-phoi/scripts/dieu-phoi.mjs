@@ -276,7 +276,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         return kq().doi ? `hang ${doiSo}: đã đổi` : `hang ${doiSo}: không đổi gì`;
       },
       'chan-doan': () => {
-        const ds = chanDoan(cwd);
+        const ds = chanDoan(cwd, { mo: typeof co.mo === 'string' ? co.mo : null, goi: typeof co.goi === 'string' ? co.goi : null });
         return co.json ? JSON.stringify(ds) : ds.map((m) => `${m.trang_thai === 'du' ? '✓' : m.trang_thai === 'thieu' ? '✗' : '·'} ${m.muc}${m.viec ? ` — ${m.viec}` : ''}`).join('\n');
       },
       the: () => {

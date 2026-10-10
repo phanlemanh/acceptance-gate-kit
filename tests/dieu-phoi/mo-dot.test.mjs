@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -116,6 +117,15 @@ export function kiemLenh(gocGoi) {
       const khoi = /<!-- <<<CHU-QUYET-CUA-NGUOI -->\n([\s\S]*?)<!-- CHU-QUYET-CUA-NGUOI>>> -->/.exec(t)?.[1]?.trim();
       if (!khoi) loi.push(`${f}: thiếu khối CHU-QUYET-CUA-NGUOI`);
     }
+    // AC-1 (S4-r1, E1c): chẩn đoán biết đợt sắp mở → DỪNG khi goi-dot thiếu → rồi mới `mo`.
+    if (f === 'mo-dot.md') {
+      const iChan = t.indexOf('chan-doan --json --mo');
+      const iMo = t.indexOf('dieu-phoi.mjs" mo $ARGUMENTS');
+      const iDung = t.search(/`goi-dot` là `thieu` → DỪNG/);
+      if (iChan < 0 || iMo < 0 || iDung < 0 || !(iChan < iDung && iDung < iMo)) {
+        loi.push(`${f}: trình tự phải là chẩn đoán --mo → DỪNG khi goi-dot thiếu → mo (vị trí ${iChan} · ${iDung} · ${iMo})`);
+      }
+    }
   }
   return loi;
 }
@@ -133,6 +143,20 @@ test('DP2-01-do khoa-xem', () => {
   fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace(/^---\n/, '---\ndisable-model-invocation: true\n'));
   const loi = kiemLenh(sao);
   assert.ok(loi.some((l) => l.startsWith('xem.md:')), `phải nêu xem.md: ${loi.join(' | ')}`);
+});
+
+test('DP2-01-do thu-tu', () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  assert.deepEqual(kiemLenh(sao), [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'commands', 'mo-dot.md');
+  const goc = fs.readFileSync(p, 'utf8');
+  // Bản cũ của lượt chấm 1: chẩn đoán trơn, `mo` chạy trước rồi mới DỪNG.
+  const tiem = goc.replace('chan-doan --json --mo $ARGUMENTS', 'chan-doan --json').replace(/Chưa có đợt\n?\s*và mục `goi-dot` là `thieu` → DỪNG/, 'Chưa có đợt và mục goi-dot thiếu thì bỏ qua');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const loi = kiemLenh(sao);
+  assert.ok(loi.some((l) => l.startsWith('mo-dot.md: trình tự')), `phải nêu trình tự của mo-dot.md: ${loi.join(' | ')}`);
 });
 
 // ---------- DP2-02: mở đợt từ gói (AC-2, E2) ----------
@@ -253,6 +277,31 @@ test('DP2-03 chan-doan-goi-dot', () => {
   khaiGoi(coGoi);
   assert.equal(chayCli(coGoi, ['mo', 'thu']).ma, 0);
   assert.equal(mucCua(coGoi, 'goi-dot').trang_thai, 'du');
+});
+
+// S4-r1 (E1c): chẩn đoán cho đợt SẮP mở báo goi-dot TRƯỚC `mo`, và không dựng gì.
+test('DP2-03 chan-doan-truoc-mo', () => {
+  const cua = (kho, doiSo) => {
+    const r = chayCli(kho, ['chan-doan', '--json', ...doiSo]);
+    assert.equal(r.ma, 0, r.err);
+    return JSON.parse(r.out).find((m) => m.muc === 'goi-dot');
+  };
+  const tay = khoThu();
+  const t = cua(tay, ['--mo', 'thu']);
+  assert.equal(t.trang_thai, 'thieu');
+  assert.match(t.viec, /dieu_phoi\.goi_dot/);
+  assert.equal(fs.existsSync(path.join(tay, '.acceptance-runs')), false, 'chẩn đoán không được dựng gì');
+  assert.equal(cua(tay, []).trang_thai, 'khong-ap', 'gọi trơn giữ như AC-6');
+  const vang = khoThu();
+  khaiGoi(vang);
+  const v = cua(vang, ['--mo', 'thu']);
+  assert.equal(v.trang_thai, 'thieu');
+  assert.match(v.viec, /goi\/dot-thu/);
+  const coGoi = khoThu();
+  goiThu(coGoi, { thuMuc: 'goi/dot-thu' });
+  khaiGoi(coGoi);
+  assert.equal(cua(coGoi, ['--mo', 'thu']).trang_thai, 'du');
+  assert.equal(cua(tay, ['--mo', 'thu', '--goi', path.join(coGoi, 'goi/dot-thu')]).trang_thai, 'du');
 });
 
 // ---------- DP2-06: khung chẩn đoán (AC-6, E6) ----------
@@ -495,6 +544,9 @@ const MA_TRAN_THE = [
   ['c', 'hang-c', null, 'cho'],
   ['d', 'hang-d', (d) => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: discovery                # discovery | decided\ndecision:                     # build | park\n---\n'), 'cho'],
   ['e', 'hang-e', (d) => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: park\n---\n'), 'canh-bao'],
+  // S4-r1 (t1/t5): `decision:` trơn, không chú thích — hình của ô thật trong kho — vẫn là chờ.
+  ['f', 'hang-f', (d) => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: discovery\ndecision:\ndecided_by:\n---\n'), 'cho'],
+  ['g', 'hang-g', (d) => fs.writeFileSync(path.join(d, 'opportunity.md'), '---\nstage: decided\ndecision: "build"\n---\n'), 'da-quyet'],
 ];
 
 function khoTheThu() {
@@ -560,6 +612,39 @@ test('DP2-09-do', async () => {
   fs.writeFileSync(p, tiem);
   const { loi } = await kiemTheKhoiTao(sao, kho);
   assert.ok(loi.some((l) => l.startsWith('hang-b:')), `phải nêu hang-b: ${loi.join(' | ')}`);
+});
+
+// Bộ đọc trường của gói phải cùng nghĩa với `frontmatterField` của kit trên mọi hình dạng ô.
+const HINH_FM = [
+  'decision: build',
+  'decision:\ndecided_by:',
+  'decision:                     # build | park',
+  'decision: "build"',
+  "decision: 'park'",
+  'decision: build # chú thích',
+  'decision:\t\nstage: decided',
+  'stage: decided',
+];
+test('DP2-09 cung-nghia-kit', async () => {
+  const { truongFm } = await nap(GOI, 'the.mjs');
+  const { frontmatterField } = createRequire(import.meta.url)(path.join(KIT, 'lib', 'evidence-core.cjs'));
+  const lech = HINH_FM.filter((fm) => truongFm(fm, 'decision') !== frontmatterField(`---\n${fm}\n---\n`, 'decision'));
+  console.log(`  ${HINH_FM.length} hình frontmatter, lệch: ${lech.length}`);
+  assert.deepEqual(lech, []);
+});
+
+test('DP2-09-do dong-trong', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const kho = khoTheThu();
+  assert.deepEqual((await kiemTheKhoiTao(sao, kho)).loi, [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'the.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace("(truongFm(fm, 'decision') ?? '').toLowerCase()", "/^decision:\\s*([^#\\s]*)/m.exec(fm)?.[1] ?? ''");
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { loi } = await kiemTheKhoiTao(sao, kho);
+  assert.ok(loi.some((l) => l.startsWith('hang-f:')), `phải nêu hang-f: ${loi.join(' | ')}`);
 });
 
 test('DP2-09-do thu-muc', async () => {

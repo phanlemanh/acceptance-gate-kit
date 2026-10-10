@@ -15,12 +15,15 @@ máy không bao giờ tự sinh chữ ấy, không điền sẵn chữ quyết v
 
 Các bước, đúng thứ tự:
 
-1. **Chẩn đoán.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json`. Có đợt
-   khác đang chạy → nói một dòng và DỪNG. Đợt cùng tên đã mở → đi tiếp từ mục đầu tiên còn `thieu`.
+1. **Chẩn đoán.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --mo $ARGUMENTS`
+   (`--mo <tên>` cho chẩn đoán biết đợt sắp mở; `--goi` trong đối số đi kèm nguyên). Có đợt khác đang
+   chạy → nói một dòng và DỪNG. Đợt cùng tên đã mở → đi tiếp từ mục đầu tiên còn `thieu`. Chưa có đợt
+   và mục `goi-dot` là `thieu` → DỪNG NGAY, TRƯỚC khi gọi `mo`, và nói đúng việc khai trong `viec`: thêm
+   khoá `dieu_phoi.goi_dot` vào `_acceptance/config.yaml` của kho (hoặc gọi lại với `--goi`); không mở
+   đợt dựng tay thay.
 2. **Mở.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" mo $ARGUMENTS --phien <mã phiên này>`.
-   Chẩn đoán lại. Mục `goi-dot` là `thieu` → DỪNG và nói đúng việc khai: thêm khoá
-   `dieu_phoi.goi_dot` vào `_acceptance/config.yaml` của kho (hoặc gọi lại với `--goi`); không mở đợt
-   dựng tay thay. Mỗi dòng cảnh báo `mo:` in ra (ví dụ không đọc được tệp lộ trình) → nói lại nguyên văn.
+   Mỗi dòng cảnh báo `mo:` in ra (ví dụ không đọc được tệp lộ trình) → nói lại nguyên văn. Chẩn đoán lại
+   (không cần `--mo` nữa).
 3. **Thẻ khởi tạo.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" the khoi-tao --json`. Trình
    bằng tiếng sản phẩm: bảng dãy và hàng; mục máy đi tiếp có cửa phản đối (ưu tiên khi tranh chấp, làn V);
    mục cảnh báo (hàng có ô đã quyết khác `build` — không vào đợt). Câu hỏi cho người CHỈ gồm `hoi`:

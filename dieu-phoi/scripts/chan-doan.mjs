@@ -3,7 +3,8 @@
 // DP2 dựng khung với sáu mục; DP3 thêm các mục của «tiếp tục».
 import fs from 'node:fs';
 import path from 'node:path';
-import { timThuMucDot } from './dot.mjs';
+import { gocKhoChinh, timThuMucDot } from './dot.mjs';
+import { timGoi } from './goi-dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
 import { docPha } from './pha.mjs';
 import { docVai } from './vai.mjs';
@@ -22,10 +23,28 @@ const pidSong = (thuMuc) => {
   }
 };
 
-export function chanDoan(cwd) {
+const VIEC_KHAI_GOI = 'khai `dieu_phoi.goi_dot` trong `_acceptance/config.yaml` của kho hoặc gọi `mo <tên> --goi <thư mục gói>`';
+
+// `mo`: tên đợt SẮP mở (lệnh người hỏi trước khi chạy `mo`). Kho chưa có đợt thì mục `goi-dot` được tính
+// từ khoá/cờ — chỉ đọc — để lệnh dừng TRƯỚC khi `mo` dựng một đợt tay. Gọi trơn thì như cũ (AC-6).
+export function chanDoan(cwd, { mo = null, goi = null } = {}) {
   const thuMuc = timThuMucDot(cwd);
   const muc = (m, trangThai, viec = '') => ({ muc: m, trang_thai: trangThai, viec });
-  if (!thuMuc) return [muc('co-dot', 'thieu', 'chưa có đợt nào đang chạy — mở bằng /dieu-phoi:mo-dot <tên>'), ...MUC.slice(1).map((m) => muc(m, 'khong-ap'))];
+  if (!thuMuc) {
+    const ra = [muc('co-dot', 'thieu', 'chưa có đợt nào đang chạy — mở bằng /dieu-phoi:mo-dot <tên>'), ...MUC.slice(1).map((m) => muc(m, 'khong-ap'))];
+    if (mo) {
+      let dir = null;
+      try {
+        dir = timGoi(gocKhoChinh(cwd), mo, goi);
+      } catch {}
+      ra[MUC.indexOf('goi-dot')] = !dir
+        ? muc('goi-dot', 'thieu', `kho chưa khai gói đợt — ${VIEC_KHAI_GOI}`)
+        : fs.existsSync(dir)
+          ? muc('goi-dot', 'du', dir)
+          : muc('goi-dot', 'thieu', `không có thư mục gói ${dir} — ${VIEC_KHAI_GOI}`);
+    }
+    return ra;
+  }
   const ra = [muc('co-dot', 'du')];
   const dk = docPha(thuMuc);
   if (dk.pha === 'nhap') ra.push(muc('pha', 'thieu', 'trình thẻ khởi tạo; người duyệt xong thì `pha dang-chay` rồi `chay`'));
@@ -37,7 +56,7 @@ export function chanDoan(cwd) {
   ra.push(
     dk.nguon_goi
       ? muc('goi-dot', 'du', dk.nguon_goi)
-      : muc('goi-dot', 'thieu', 'đợt dựng tay — khai `dieu_phoi.goi_dot` trong `_acceptance/config.yaml` của kho hoặc gọi `mo <tên> --goi <thư mục gói>`'),
+      : muc('goi-dot', 'thieu', `đợt dựng tay — ${VIEC_KHAI_GOI}`),
   );
   try {
     docHangViec(thuMuc);

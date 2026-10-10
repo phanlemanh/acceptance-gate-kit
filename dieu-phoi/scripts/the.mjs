@@ -5,6 +5,17 @@ import path from 'node:path';
 import { gocKhoChinh, timThuMucDot } from './dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
 
+// Một trường frontmatter, đọc theo ĐÚNG nghĩa `frontmatterField` của kit (lib/evidence-core.cjs): trong
+// một dòng (`[ \t]*`, không `\s*` — khoá để trống không được nuốt dòng kế), bỏ chú thích `#`, bóc nháy
+// khi đủ cặp. Gói cài riêng nên không nạp được lib của kit; ca DP2-09 so hai bộ đọc trên một ma trận.
+export function truongFm(fm, khoa) {
+  const dong = new RegExp(`^${khoa}[ \\t]*[:=][ \\t]*(.*)$`, 'mi').exec(fm);
+  if (!dong) return null;
+  const v = dong[1].replace(/^#.*$/, '').replace(/\s+#.*$/, '').trim();
+  const cap = v.match(/^"([\s\S]*)"$/) || v.match(/^'([\s\S]*)'$/);
+  return (cap ? cap[1] : v).trim();
+}
+
 // Trạng thái quyết của một hồ sơ: 'da-quyet' · 'cho' (chưa có chữ quyết của người) · 'khong-build'.
 // Thư mục có mặt KHÔNG phải quyết định: ô `stage: discovery` chưa có `decision` vẫn là chờ.
 export function trangThaiQuyet(gocKho, slug) {
@@ -16,8 +27,8 @@ export function trangThaiQuyet(gocKho, slug) {
   } catch {
     return { tt: 'cho' };
   }
-  const fm = /^---\n([\s\S]*?)\n---/.exec(opp)?.[1] ?? '';
-  const decision = /^decision:\s*([^#\s]*)/m.exec(fm)?.[1] ?? '';
+  const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(opp)?.[1] ?? '';
+  const decision = (truongFm(fm, 'decision') ?? '').toLowerCase();
   if (decision === 'build') return { tt: 'da-quyet' };
   if (decision === '') return { tt: 'cho' };
   return { tt: 'khong-build', decision };

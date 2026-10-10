@@ -21,7 +21,9 @@ evals:
       chuỗi qua `${CLAUDE_PLUGIN_ROOT}` trỏ tệp có thật trong gói, và script gói anh em (vd lo-trinh.mjs
       của acceptance-gate) chỉ được gọi qua một biến đã giải (`$AG`), không đường cố định; thân mo-dot.md và dong-dot.md mỗi tệp
       có dòng nằm giữa marker CHU-QUYET-CUA-NGUOI. Và "ok" cho "DP2-01-do khoa-xem": bản sao thêm
-      `disable-model-invocation: true` vào xem.md → chính hàm kiểm trả lỗi nêu "xem.md".
+      `disable-model-invocation: true` vào xem.md → chính hàm kiểm trả lỗi nêu "xem.md". Trình tự mo-dot.md
+      (S4-r1): "chan-doan --json --mo" đứng trước dòng DỪNG khi goi-dot thiếu, dòng đó đứng trước lời gọi
+      `mo $ARGUMENTS`; "ok" cho "DP2-01-do thu-tu": bản sao bỏ --mo và dòng DỪNG → hàm kiểm nêu "mo-dot.md: trình tự".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E1b
     criterion: AC-1
@@ -66,7 +68,10 @@ evals:
     expected: >
       exit 0; "ok" cho "DP2-03 dung-tay": kho thử không khai goi_dot → `mo thu` thoát 0, dieu-khien.json
       pha "dang-chay" và nguon_goi null; `chan-doan --json` có mục goi-dot trang_thai "thieu" và viec chứa
-      "dieu_phoi.goi_dot". Cùng ca, kho có gói → mục goi-dot "du" (đối chứng hai chiều trên cùng hàm).
+      "dieu_phoi.goi_dot". Cùng ca, kho có gói → mục goi-dot "du" (đối chứng hai chiều trên cùng hàm). "ok" cho
+      "DP2-03 chan-doan-truoc-mo" (S4-r1): kho chưa có đợt, `chan-doan --json --mo thu` → goi-dot "thieu" có
+      "dieu_phoi.goi_dot" khi không khai, "thieu" nêu thư mục khi khai mà vắng thư mục, "du" khi có gói hoặc --goi;
+      không tạo .acceptance-runs; gọi trơn vẫn "khong-ap" (AC-6).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -142,15 +147,18 @@ evals:
     cmd: config:executors.test.dieu_phoi_dp2
     paths: [dieu-phoi/scripts/the.mjs, tests/dieu-phoi/mo-dot.test.mjs]
     expected: >
-      exit 0; "ok" cho "DP2-09 khoi-tao": ma trận viết sẵn 5 hàng mang ma (số assert = 5): (a) ô decision
+      exit 0; "ok" cho "DP2-09 khoi-tao": ma trận viết sẵn 7 hàng mang ma (số assert = 7): (a) ô decision
       build → đã quyết; (b) có contract.md → đã quyết; (c) chưa có thư mục → chờ; (d) ô stage discovery
-      chưa decision → chờ; (e) ô decision park → không vào đợt, nằm ở canh_bao[]. JSON có day[], hang[];
+      chưa decision → chờ; (e) ô decision park → không vào đợt, nằm ở canh_bao[]; (f, S4-r1) ô `decision:` trơn không chú thích
+      → chờ; (g, S4-r1) ô `decision: "build"` có nháy → đã quyết. JSON có day[], hang[];
       hoi[] == ["quyen-tu-merge"] cộng đúng một mục build cho mỗi hàng chờ; may_di_tiep[] chứa "uu-tien" và
-      "lan-v"; cho_cong_dang[] == [slug (c), slug (d)]; canh_bao[] nêu slug (e). "ok" cho "DP2-09 dong": đợt có một
+      "lan-v"; cho_cong_dang[] == [slug (c), slug (d), slug (f)]; canh_bao[] nêu slug (e). "ok" cho "DP2-09 dong": đợt có một
       hàng không ma và một lần day-len → hang_phat_sinh == [hàng không ma], lop_phu == [lần day-len].
       "ok" cho "DP2-09-do": bản sao coi contract.md là chưa quyết → cho_cong_dang thêm slug (b), ca đỏ nêu
       slug (b). "ok" cho "DP2-09-do thu-muc": bản sao coi thư mục có mặt là đã quyết → slug (d) rơi khỏi
-      cho_cong_dang, ca đỏ nêu slug (d).
+      cho_cong_dang, ca đỏ nêu slug (d). "ok" cho "DP2-09 cung-nghia-kit": truongFm của gói == frontmatterField
+      của kit trên 8 hình frontmatter (lệch 0). "ok" cho "DP2-09-do dong-trong": bản sao đưa regex đọc
+      decision cũ (vượt dòng) về → ca đỏ nêu slug (f).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E10
     criterion: AC-10
