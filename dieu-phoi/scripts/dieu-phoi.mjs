@@ -8,6 +8,7 @@ import { chanDoan } from './chan-doan.mjs';
 import { docGoi, ghepLuat, timGoi } from './goi-dot.mjs';
 import { choNghi, dayLen, ghiNhatKy, themHang } from './hang.mjs';
 import { theDong, theKhoiTao } from './the.mjs';
+import { nhaMay } from './may.mjs';
 import { datPha, khoiTaoPha, TEP_DIEU_KHIEN } from './pha.mjs';
 import { ghiVai } from './vai.mjs';
 
@@ -120,6 +121,9 @@ export function dungPhatLich(cwd) {
 export function dongDot(cwd) {
   const thuMuc = thuMucHienTai(cwd);
   dungPhatLich(cwd);
+  // Khoá s4 cấp máy của đợt này (nếu đang giữ) nhả cùng lúc đóng — bộ phát lịch đã dừng thì không còn
+  // nhịp nào nhả nó, và kho khác trên máy sẽ chờ mãi.
+  if (nhaMay(thuMuc)) ghiSuKien(thuMuc, { loai: 'nha-may', ly_do: 'đóng đợt' });
   fs.rmSync(lienKet(gocKhoChinh(cwd)));
   ghiSuKien(thuMuc, { loai: 'dong-dot' });
 }

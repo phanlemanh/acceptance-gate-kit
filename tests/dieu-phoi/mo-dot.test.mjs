@@ -532,6 +532,120 @@ test('DP2-09-do thu-muc', async () => {
   assert.ok(loi.some((l) => l.startsWith('hang-d:')), `phải nêu hang-d: ${loi.join(' | ')}`);
 });
 
+// ---------- DP2-10: khoá S4 cấp máy (AC-10, E10) ----------
+// Một kho có đợt mở từ gói, đang chạy, dãy P1 có đơn s4.
+function khoDonS4(tienTo, gocGoi = GOI) {
+  const kho = khoThu(tienTo);
+  const { w1 } = goiThu(kho);
+  khaiGoi(kho);
+  assert.equal(chayCli(kho, ['mo', 'thu'], { gocGoi }).ma, 0);
+  assert.equal(chayCli(kho, ['pha', 'dang-chay'], { gocGoi }).ma, 0);
+  const dot = thuMucDot(kho);
+  ghiDon(dot, 'P1', 's4', w1);
+  return { kho, dot };
+}
+const capS4 = (dot) => suKien(dot).filter((e) => e.loai === 'cap' && e.tai_nguyen === 's4').length;
+const chuMay = (may) => (fs.existsSync(path.join(may, 's4', 'chu.json')) ? docJ(path.join(may, 's4', 'chu.json')) : null);
+
+async function nhip(gocGoi, dot) {
+  const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
+  const gio = Date.now();
+  await taoVong(dot, ioGia(gio), () => gio)();
+}
+
+export async function kiemHaiKho(gocGoi) {
+  const may = tam('dp2-may10-');
+  process.env.DIEU_PHOI_MAY_DIR = may;
+  const A = khoDonS4('dp2-ka-', gocGoi);
+  const B = khoDonS4('dp2-kb-', gocGoi);
+  const loi = [];
+  await nhip(gocGoi, A.dot);
+  if (capS4(A.dot) !== 1) loi.push('A phải được cấp s4');
+  if (chuMay(may)?.kho !== A.kho) loi.push(`khoá máy phải ghi kho A, đang ghi ${chuMay(may)?.kho}`);
+  await nhip(gocGoi, B.dot);
+  if (capS4(A.dot) === 1 && capS4(B.dot) === 1) loi.push('hai kho cùng giữ s4');
+  else if (capS4(B.dot) !== 0) loi.push('B không được cấp s4 khi A đang giữ khoá máy');
+  if (docJ(path.join(B.dot, 'trang-thai.json')).cho_may !== A.kho) loi.push('trang-thai của B phải ghi cho_may = kho A');
+  fs.rmSync(path.join(A.dot, 'khoa', 's4'), { recursive: true, force: true });
+  await nhip(gocGoi, A.dot);
+  if (chuMay(may) !== null) loi.push('A nhả khoá kho thì nhịp kế của A phải nhả khoá máy');
+  await nhip(gocGoi, B.dot);
+  if (capS4(B.dot) !== 1) loi.push('A nhả rồi thì B phải được cấp s4');
+  return { loi, may, A, B };
+}
+
+test('DP2-10 hai-kho', async () => {
+  assert.deepEqual((await kiemHaiKho(GOI)).loi, []);
+});
+
+test('DP2-10 thu-hoi', async () => {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp2-may10b-');
+  const A = khoDonS4('dp2-ka-');
+  const B = khoDonS4('dp2-kb-');
+  await nhip(GOI, A.dot);
+  fs.rmSync(path.join(A.kho, '.acceptance-runs'), { recursive: true, force: true });
+  await nhip(GOI, B.dot);
+  const thuHoi = suKien(B.dot).filter((e) => e.loai === 'thu-hoi-may');
+  assert.equal(thuHoi.length, 1);
+  assert.equal(thuHoi[0].kho, A.kho);
+  assert.equal(capS4(B.dot), 1);
+});
+
+test('DP2-10 dong-khi-giu', async () => {
+  const may = tam('dp2-may10c-');
+  process.env.DIEU_PHOI_MAY_DIR = may;
+  const A = khoDonS4('dp2-ka-');
+  const B = khoDonS4('dp2-kb-');
+  await nhip(GOI, A.dot);
+  await nhip(GOI, B.dot);
+  assert.equal(capS4(B.dot), 0, 'đối chứng: A còn mở và còn giữ thì B không được cấp');
+  const r = chayCli(A.kho, ['dong'], { env: { DIEU_PHOI_MAY_DIR: may } });
+  assert.equal(r.ma, 0, r.err);
+  assert.equal(chuMay(may), null, '`dong` của A phải nhả khoá máy');
+  await nhip(GOI, B.dot);
+  assert.equal(capS4(B.dot), 1);
+  // Biến thể: thư mục đợt còn, symlink của kho A bị gỡ bằng tay (bộ phát lịch A đã dừng).
+  const may2 = tam('dp2-may10d-');
+  process.env.DIEU_PHOI_MAY_DIR = may2;
+  const A2 = khoDonS4('dp2-ka2-');
+  const B2 = khoDonS4('dp2-kb2-');
+  await nhip(GOI, A2.dot);
+  fs.rmSync(path.join(A2.kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
+  await nhip(GOI, B2.dot);
+  const th = suKien(B2.dot).filter((e) => e.loai === 'thu-hoi-may');
+  assert.equal(th.length, 1);
+  assert.equal(th[0].kho, A2.kho);
+  assert.match(th[0].ly_do, /đã đóng/);
+  assert.equal(capS4(B2.dot), 1);
+});
+
+test('DP2-10 dung-tay-khong-cham', async () => {
+  const may = tam('dp2-may10e-');
+  process.env.DIEU_PHOI_MAY_DIR = may;
+  const kho = khoThu('dp2-tay-');
+  assert.equal(chayCli(kho, ['mo', 'thu']).ma, 0);
+  const dot = thuMucDot(kho);
+  const w = tam('dp2-wt-');
+  ghiJ(path.join(dot, 'hang-viec.json'), { dot: 'thu', day: [{ id: 'P1', worktree: w }], hang: [], ngoai_hang_merge: [] });
+  ghiDon(dot, 'P1', 's4', w);
+  await nhip(GOI, dot);
+  assert.equal(capS4(dot), 1, 'đợt dựng tay vẫn cấp s4 như bản cũ');
+  assert.equal(fs.existsSync(path.join(may, 's4')), false, 'đợt dựng tay không chạm khoá máy');
+});
+
+test('DP2-10-do bo-khoa-may', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  assert.deepEqual((await kiemHaiKho(sao)).loi, [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'phat-lich.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace("    if (taiNguyen === 's4' && may.ap) {", "    if (false) {");
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { loi } = await kiemHaiKho(sao);
+  assert.ok(loi.includes('hai kho cùng giữ s4'), `phải nêu «hai kho cùng giữ s4»: ${loi.join(' | ')}`);
+});
+
 // ---------- DP2-04: bảng chuyển pha (AC-4, E4) ----------
 const PHA4 = ['nhap', 'dang-chay', 'tam-dung', 'dang-dong'];
 const DUOC = new Set(['nhap>dang-chay', 'dang-chay>tam-dung', 'tam-dung>dang-chay', 'dang-chay>dang-dong', 'tam-dung>dang-dong']);
