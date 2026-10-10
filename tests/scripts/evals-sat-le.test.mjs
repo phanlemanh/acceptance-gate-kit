@@ -6,7 +6,8 @@
 // hằng BASE_DIRS (evals-sat-le-lib.mjs). Đường dẫn suy từ vị trí tệp này.
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { realpathSync } from 'node:fs';
+import { realpathSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import * as L from './evals-sat-le-lib.mjs';
 
 const require = createRequire(import.meta.url);
@@ -134,6 +135,73 @@ ca('CB3', 'chiều đỏ: bản sao lib gỡ nhánh cờ → dòng cờ biến m
   if (r.rc !== 0) return `rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
   if (dongCo(r.stderr).length) return 'đột biến không tắt được cờ';
   console.log(`    · cờ im: ${MUC_KD[0]}`); return true;
+});
+
+// ── AC-6: lượt sửa giữ ô xanh cho paths dạng khối (CLI carry-plan, mỗi lượt một tiến trình) ──
+const CP_EVALS = {
+  thut4: 'schema_version: 1\nevals:\n'
+    + '  - id: A\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.cli\n    paths: [src/a/**]\n'
+    + '  - id: B\n    criterion: AC-1\n    executor: script\n    cmd: config:executors.script.cli\n    paths:\n      - src/a/**\n',
+  satle: 'schema_version: 1\nevals:\n'
+    + '- id: C\n  criterion: AC-1\n  executor: script\n  cmd: config:executors.script.cli\n  paths:\n  - src/a/**\n',
+};
+const runLog1 = ids => ids.map(id => JSON.stringify({ ts: '2026-10-10T00:00:00Z', evalId: id, round: 1, sha: 'abc1234', exit_code: 0, run_id: 'r1-x', cmd: 'echo x' })).join('\n') + '\n';
+function chayCarry(cach, delta, { cp = path.join(L.KIT, 'feature-loop', 'scripts', 'carry-plan.mjs'), agRoot = L.KIT } = {}) {
+  const d = L.tam('cp');
+  const ids = cach === 'thut4' ? ['A', 'B'] : ['C'];
+  writeFileSync(path.join(d, 'evals.yaml'), CP_EVALS[cach]);
+  writeFileSync(path.join(d, 'run-log.jsonl'), runLog1(ids));
+  writeFileSync(path.join(d, 'contract.md'), '---\nslug: demo\n---\n## Criteria\n- AC-1: Given a, When b, Then c.\n');
+  const r = spawnSync(process.execPath, [cp, '--run-log', path.join(d, 'run-log.jsonl'), '--evals', path.join(d, 'evals.yaml'),
+    '--contract', path.join(d, 'contract.md'), '--round', '2', '--ag-root', agRoot, '--delta-files', delta], { encoding: 'utf8' });
+  let j = null; try { j = JSON.parse(r.stdout); } catch (_) {}
+  return { rc: r.status, stderr: String(r.stderr || ''), j };
+}
+const lyDo = (j, id) => (j && j.reason ? j.reason[id] : undefined);
+ca('CP1', 'diff-fix ngoài vùng → A (một dòng), B (khối thụt 4), C (khối sát lề) đều được giữ', () => {
+  for (const cach of ['thut4', 'satle']) {
+    const r = chayCarry(cach, 'docs/x.md');
+    if (r.rc !== 0 || !r.j) return `${cach}: rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+    for (const id of cach === 'thut4' ? ['A', 'B'] : ['C'])
+      if (lyDo(r.j, id) !== 'paths không chạm diff-fix, round trước xanh') return `${id}: ${lyDo(r.j, id)}`;
+  }
+  return true;
+});
+ca('CP2', 'diff-fix chạm vùng → cả ba chạy lại «diff-fix chạm src/a/b.js»', () => {
+  for (const cach of ['thut4', 'satle']) {
+    const r = chayCarry(cach, 'src/a/b.js');
+    if (r.rc !== 0 || !r.j) return `${cach}: rc ${r.rc}`;
+    for (const id of cach === 'thut4' ? ['A', 'B'] : ['C'])
+      if (lyDo(r.j, id) !== 'diff-fix chạm src/a/b.js') return `${id}: ${lyDo(r.j, id)}`;
+  }
+  return true;
+});
+ca('CP3', 'chiều đỏ: carry-plan của base bỏ paths dạng khối', () => {
+  const cp = path.join(BASE_DIR, 'feature-loop', 'scripts', 'carry-plan.mjs');
+  const a = chayCarry('thut4', 'docs/x.md', { cp, agRoot: BASE_DIR });
+  if (a.rc !== 0 || !a.j) return `base rc ${a.rc} — ${a.stderr.trim().split('\n').pop()}`;
+  if (lyDo(a.j, 'A') !== 'paths không chạm diff-fix, round trước xanh') return `đối chứng dương hỏng: base A ${lyDo(a.j, 'A')}`;
+  const c = chayCarry('satle', 'docs/x.md', { cp, agRoot: BASE_DIR });
+  for (const [id, r] of [['B', a], ['C', c]]) if (lyDo(r.j, id) !== 'thiếu paths — luôn chạy lại') return `base ${id}: ${lyDo(r.j, id)}`;
+  console.log('    · base bỏ paths khối'); return true;
+});
+
+// ── AC-9: một nguồn đọc — thay hàm trong bản sao lib thì CẢ HAI bên lật; lib thiếu hàm thì dừng có tên ──
+ca('MN1', 'evalListsOf rỗng trong bản sao lib → lượt chấm mất paths VÀ lượt sửa «thiếu paths»', () => {
+  const dot = L.dungBanSaoLib('function evalListsOf(evalsText, keys) {', 'function evalListsOf(evalsText, keys) { return { byId: new Map(), canhBao: [] };');
+  const r = L.chayS4(L.dungKho(L.vietMoHinh('thut4', L.MO_HINH.filter(tc => tc.executor !== 'ui-check'))), { agRoot: dot });
+  if (r.rc !== 0) return `s4-args rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+  const s1 = r.args.evals.find(e => e.id === 'S1');
+  if (s1 && Array.isArray(s1.paths) && s1.paths.length) return 'lượt chấm không lật (vẫn có paths)';
+  const c = chayCarry('thut4', 'docs/x.md', { agRoot: dot });
+  return lyDo(c.j, 'A') === 'thiếu paths — luôn chạy lại' || `lượt sửa không lật: A ${lyDo(c.j, 'A')}`;
+});
+ca('MN2', 'lib không có evalListsOf → lượt chấm và lượt sửa thoát 2 gọi tên evalListsOf, không sinh tệp', () => {
+  const dot = L.dungBanSaoLib('  evalListsOf,\n', '');
+  const r = L.chayS4(CHAY.thut4.d, { agRoot: dot });
+  if (r.rc !== 2 || !/evalListsOf/.test(r.stderr) || r.coTep && r.args) return `s4-args rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
+  const c = chayCarry('thut4', 'docs/x.md', { agRoot: dot });
+  return (c.rc === 2 && /evalListsOf/.test(c.stderr)) || `carry-plan rc ${c.rc} — ${c.stderr.trim().split('\n').pop()}`;
 });
 
 console.log(`Results: ${pass} passed, ${fail} failed (evals-sat-le)`);
