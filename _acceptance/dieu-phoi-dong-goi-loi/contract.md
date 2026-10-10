@@ -5,7 +5,7 @@ slug: dieu-phoi-dong-goi-loi
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, ci]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-10-09-dieu-phoi-tho-trong-kit-design.md
 approved_by:
 approved_at:
