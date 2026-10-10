@@ -5,6 +5,9 @@ Gốc: [ô `dieu-phoi-tho-trong-kit`](../../../_acceptance/dieu-phoi-tho-trong-k
 [2026-10-05](2026-10-05-orchestrator-workers-hai-tang-design.md) §4.7–§4.12 · spec ô dù
 [2026-10-09](2026-10-09-dieu-phoi-tho-trong-kit-design.md) · bản ghi nhu cầu 09/10 §3, §4.2.
 
+**Trạng thái: chủ kho DUYỆT 10/10** (một dòng trả lời bàn giao chuyển máy §3; ghi ở Cổng 0 của ô). Timebox
+của ô dời sang 07/11 cùng lượt.
+
 Tài liệu này là **bản chung** cho bốn hàng DP2 (mở và đóng đợt), DP3 (tiếp tục), DP4 (đổi tài khoản) và DP6 (lớp mod).
 Ba hàng làm theo đúng bản này, không mở thiết kế lại. Phương pháp 05/10 giữ nguyên. Tài liệu chỉ đưa
 hành trình 05/10 vào hình dạng lệnh của kit, rồi thêm hai giai đoạn mới: **tiếp tục** và **đổi tài
@@ -294,7 +297,7 @@ ghi). Chế độ auto cho riêng phiên giám sát thì cột này về 0; đó
 | DP4 | §4.3, §4.5 (gồm mod đọc mức dùng ở §12.2), trạng thái ★, đồng hồ bàn giao trong bộ phát lịch, hook hạn mức | `ban-giao.json`, `ban-giao/lich-su/`, `han-muc.json` |
 | DP6 | §12: khung trạng thái đợt, chặn S4 bằng mod, tự bắt việc chờ người | — |
 
-Thứ tự: DP2 và DP3 đi song song sau DP1. DP4 đi sau DP3 và sau DP0. DP6 đi sau DP3 (cần nhịp sống và lệnh con ghi qua CLI); nó không nằm trong ngưỡng SỐNG của ô nên không chặn timebox 31/10.
+Thứ tự: DP2 và DP3 đi song song sau DP1. DP4 đi sau DP3 và sau DP0. DP6 đi sau DP3 (cần nhịp sống và lệnh con ghi qua CLI); nó không nằm trong ngưỡng SỐNG của ô nên không chặn timebox 07/11 (dời từ 31/10, chủ kho 10/10).
 
 ## 10. Giới hạn đã khai, kèm ngưỡng đang đếm
 
