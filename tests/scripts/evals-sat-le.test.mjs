@@ -6,7 +6,7 @@
 // hằng BASE_DIRS (evals-sat-le-lib.mjs). Đường dẫn suy từ vị trí tệp này.
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { realpathSync, writeFileSync } from 'node:fs';
+import { realpathSync, writeFileSync, readFileSync, mkdirSync, cpSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import * as L from './evals-sat-le-lib.mjs';
 
@@ -208,6 +208,56 @@ ca('MN2', 'lib không có evalListsOf → lượt chấm và lượt sửa thoá
   if (r.rc !== 2 || !/evalListsOf/.test(r.stderr) || r.coTep && r.args) return `s4-args rc ${r.rc} — ${r.stderr.trim().split('\n').pop()}`;
   const c = chayCarry('thut4', 'docs/x.md', { agRoot: dot });
   return (c.rc === 2 && /evalListsOf/.test(c.stderr)) || `carry-plan rc ${c.rc} — ${c.stderr.trim().split('\n').pop()}`;
+});
+
+// ── AC-8: cờ trên thẻ Cổng Phạm vi và Cổng Bằng chứng (hằng rút từ nguồn) ─────────
+const GC_SRC = readFileSync(path.join(L.KIT, 'scripts', 'gate-card.js'), 'utf8');
+const CO_THE = (GC_SRC.match(/const DANH_SACH_KHONG_DOC_FLAG = '([^']+)';/) || [])[1];
+const HD = (status) => `---\nschema_version: 1\nfeature: F\nslug: demo\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${status}\n${status === 'draft' ? '' : 'approved_by: A\napproved_at: 2026-10-10\n'}---\n\n## Criteria\n\n- AC-1: Given a, When b, Then c.\n\n## Out of scope\n\n- bỏ X.\n- bỏ Y.\n`;
+const BC = '---\nschema_version: 2\nfeature_slug: demo\nverdict: PASS\nfailed_evals: []\nverified_commit: 0000000\n---\n\n# E\n\n| Eval | Criterion | Executor | Verdict |\n|---|---|---|---|\n| X1 | AC-1 | script | PASS |\n\n## Evidence\n\n- eval: X1\n  run_id: r1abc\n  exit_code: 0\n  verifier: config:executors.script.cli\n  verified_at: 2026-10-10T00:00:00Z\n';
+function hoSoThe(evalsText, cong) {
+  const d = L.tam('the');
+  mkdirSync(path.join(d, '_acceptance', 'demo'), { recursive: true });
+  writeFileSync(path.join(d, '_acceptance', 'config.yaml'), 'schema_version: 1\nexecutors:\n  script:\n    cli: "echo x"\n');
+  writeFileSync(path.join(d, '_acceptance', 'demo', 'contract.md'), HD(cong === 1 ? 'draft' : 'verified'));
+  writeFileSync(path.join(d, '_acceptance', 'demo', 'evals.yaml'), evalsText);
+  if (cong === 2) writeFileSync(path.join(d, '_acceptance', 'demo', 'evidence-report.md'), BC);
+  return d;
+}
+const the = (d, gc = path.join(L.KIT, 'scripts', 'gate-card.js')) => {
+  const r = spawnSync(process.execPath, [gc, '--root', d, '--slug', 'demo'], { encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`gate-card rc ${r.status}: ${String(r.stderr).trim().split('\n').pop()}`);
+  return r.stdout;
+};
+const SACH = L.vietMoHinh('thut4');
+ca('TH1', 'hồ sơ có danh sách không đọc được → hai thẻ cổng in cờ kèm tên từng <id>.<trường>', () => {
+  if (!CO_THE) return 'gate-card.js không khai hằng DANH_SACH_KHONG_DOC_FLAG';
+  for (const cong of [1, 2]) {
+    const h = the(hoSoThe(KHONG_DOC, cong));
+    if (!h.includes(CO_THE)) return `Cổng ${cong}: thẻ không có cờ`;
+    const thieu = MUC_KD.filter(m => !h.includes(m));
+    if (thieu.length) return `Cổng ${cong}: cờ thiếu ${thieu.join(', ')}`;
+  }
+  return true;
+});
+ca('TH2', 'chiều im: hồ sơ sạch → hai thẻ không có cờ', () => {
+  if (!CO_THE) return 'gate-card.js không khai hằng DANH_SACH_KHONG_DOC_FLAG';
+  for (const cong of [1, 2]) if (the(hoSoThe(SACH, cong)).includes(CO_THE)) return `Cổng ${cong}: cờ trên hồ sơ sạch`;
+  return true;
+});
+ca('TH3', 'commands/acceptance-card.md có dòng thuật cho cờ', () =>
+  (CO_THE && readFileSync(path.join(L.KIT, 'commands', 'acceptance-card.md'), 'utf8').includes(CO_THE)) || 'thiếu dòng thuật');
+ca('TH4', 'chiều đỏ: bản sao gate-card gỡ dòng đẩy cờ → thẻ im', () => {
+  const KIM = "flags.push(['fwarn', esc(DANH_SACH_KHONG_DOC_FLAG";
+  const n = GC_SRC.split(KIM).length - 1;
+  if (n !== 2) return `kim khớp ${n} lần (cần 2)`;
+  const d = L.tam('gc');
+  cpSync(path.join(L.KIT, 'scripts'), path.join(d, 'scripts'), { recursive: true });
+  cpSync(path.join(L.KIT, 'lib'), path.join(d, 'lib'), { recursive: true });
+  cpSync(path.join(L.KIT, 'skills'), path.join(d, 'skills'), { recursive: true });
+  writeFileSync(path.join(d, 'scripts', 'gate-card.js'), GC_SRC.split(KIM).join("void (['fwarn', esc(DANH_SACH_KHONG_DOC_FLAG"));
+  for (const cong of [1, 2]) if (the(hoSoThe(KHONG_DOC, cong), path.join(d, 'scripts', 'gate-card.js')).includes(CO_THE)) return `Cổng ${cong}: đột biến không tắt cờ`;
+  console.log('    · thẻ im khi danh sách không đọc được'); return true;
 });
 
 console.log(`Results: ${pass} passed, ${fail} failed (evals-sat-le)`);
