@@ -453,3 +453,43 @@ test('DP7-07-do chi-tep', async () => {
   const { loi } = await kiemChoNguoi(sao);
   assert.ok(loi.includes('can-nguoi không lên bảng'), `phải nêu «can-nguoi không lên bảng»: ${loi.join(' | ')}`);
 });
+
+// ---------- DP7-06: lời chặn S4 trong dãy là «chờ lượt» (AC-6, E6) ----------
+// Bản base = merge-base của HEAD với origin/main (vắng → main) của CÂY ĐANG KIỂM, lấy TRỌN thư mục scripts
+// bằng git archive (không chép danh sách tệp tay).
+function goiBase() {
+  let base;
+  try {
+    base = git(KIT, 'merge-base', 'HEAD', 'origin/main').trim();
+  } catch {
+    base = git(KIT, 'merge-base', 'HEAD', 'main').trim();
+  }
+  const dich = tam('dp7-base-');
+  const tar = execFileSync('git', ['archive', base, 'dieu-phoi/scripts'], { cwd: KIT, env: ENV });
+  execFileSync('tar', ['-x', '-C', dich], { input: tar });
+  return { base, goi: path.join(dich, 'dieu-phoi') };
+}
+const s4Workflow = (cwd) => JSON.stringify({ hook_event_name: 'PreToolUse', session_id: 's', cwd, tool_name: 'Workflow', tool_input: { scriptPath: '/x/acceptance-verify.js' } });
+
+async function haiLoiChan() {
+  const { dot, w, kho } = dungDot();
+  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', worktree: w.P1, loai: 's4', han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
+  const { goi, base } = goiBase();
+  const moi = await nap(GOI, 'hook-chan-s4.mjs');
+  const cu = await nap(goi, 'hook-chan-s4.mjs');
+  return { dot, base, trong: [moi.chayHook(s4Workflow(w.P2)), cu.chayHook(s4Workflow(w.P2))], ngoai: [moi.chayHook(s4Workflow(kho)), cu.chayHook(s4Workflow(kho))] };
+}
+
+test('DP7-06 trong-day', async () => {
+  const { dot, base, trong: [moi, cu] } = await haiLoiChan();
+  console.log(`  base ${base.slice(0, 12)} · lời chặn: ${moi.loi}`);
+  assert.equal(moi.ma, 2);
+  assert.ok(moi.loi.startsWith(cu.loi), `phải giữ nguyên tiền tố cũ «${cu.loi}»`);
+  for (const chu of ['P2', 'chờ lượt', 'không hỏi người', 'không chấm lại', path.join(dot, 'LUAT.md')]) assert.ok(moi.loi.includes(chu), `lời chặn thiếu «${chu}»`);
+});
+
+test('DP7-06 ngoai-day', async () => {
+  const { ngoai: [moi, cu] } = await haiLoiChan();
+  assert.equal(moi.ma, 2);
+  assert.equal(moi.loi, cu.loi);
+});
