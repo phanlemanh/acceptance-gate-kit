@@ -719,6 +719,68 @@ test('DP2-12-do lech', async () => {
   assert.ok(loi.some((l) => l.startsWith('xem thiếu «tam-dung»')), `phải nêu giá trị lệch: ${loi.join(' | ')}`);
 });
 
+// ---------- DP2-13: lệnh đếm đợt — round-trip từ bên viết thật (AC-13, E13) ----------
+// Hook chờ người THẬT ghi tệp; bộ phát lịch THẬT phát sự kiện; `dem` đọc. Không dựng su-kien.jsonl tay.
+export async function kiemDem(gocGoi) {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp2-may13-');
+  const kho = khoThu('dp2-dem-');
+  goiThu(kho, { hang: [{ ma: 'A', slug: 'hang-a', day: 'P1', uu_tien: 1 }] });
+  khaiGoi(kho);
+  assert.equal(chayCli(kho, ['mo', 'thu'], { gocGoi }).ma, 0);
+  assert.equal(chayCli(kho, ['pha', 'dang-chay'], { gocGoi }).ma, 0);
+  const dot = thuMucDot(kho);
+  const p = path.join(dot, 'hang-viec.json');
+  ghiJ(p, { ...docJ(p), day: [{ id: 'P1', worktree: kho }] });
+  fs.mkdirSync(path.join(kho, '_acceptance', 'hang-a'), { recursive: true });
+  fs.writeFileSync(path.join(kho, '_acceptance', 'hang-a', 'contract.md'), '---\nstatus: implemented\n---\n');
+  const { taoVong } = await nap(gocGoi, 'phat-lich.mjs');
+  let gio = Date.now();
+  const vong = (kyTren = []) => taoVong(dot, ioGia(gio, { kyTren }), () => gio)();
+  await vong();
+  const hook = JSON.parse(fs.readFileSync(path.join(gocGoi, 'hooks', 'hooks.json'), 'utf8')).hooks.Notification[0].hooks[0].command;
+  const rh = spawnSync('bash', ['-c', hook.split('${CLAUDE_PLUGIN_ROOT}').join(gocGoi)], {
+    cwd: kho,
+    input: JSON.stringify({ hook_event_name: 'Notification', session_id: 's', cwd: kho, notification_type: 'idle_prompt', message: 'cho' }),
+    env: { ...ENV, CLAUDE_PLUGIN_ROOT: gocGoi },
+    encoding: 'utf8',
+  });
+  assert.equal(rh.status, 0, rh.stderr);
+  assert.equal(fs.existsSync(path.join(dot, 'cho-nguoi', 'P1.json')), true, 'hook thật phải ghi tệp chờ người');
+  gio += 1000;
+  await vong();
+  gio += 1000;
+  await vong(['hang-a']);
+  const truocLap = suKien(dot).length;
+  gio += 1000;
+  await vong(['hang-a']);
+  const loi = [];
+  if (suKien(dot).length !== truocLap) loi.push('nhịp lặp lại phải không thêm sự kiện nào');
+  const r = chayCli(kho, ['dem', '--json'], { gocGoi });
+  if (r.ma !== 0) loi.push(`dem thoát ${r.ma}: ${r.err}`);
+  const d = JSON.parse(r.out || '{}');
+  const ngay = new Date(gio).toISOString().slice(0, 10);
+  const can = { gop_theo_ngay: { [ngay]: 1 }, goi_chu_kho: { tong: 1, theo_hang: { 'hang-a': 1 } } };
+  if (JSON.stringify(d) !== JSON.stringify(can)) loi.push(`dem = ${JSON.stringify(d)}, cần ${JSON.stringify(can)} (loại sự kiện gộp: hang-gop)`);
+  return loi;
+}
+
+test('DP2-13 round-trip', async () => {
+  assert.deepEqual(await kiemDem(GOI), []);
+});
+
+test('DP2-13-do doi-ten', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  assert.deepEqual(await kiemDem(sao), [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'scripts', 'phat-lich.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace("loai: 'hang-gop'", "loai: 'da-gop'");
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const loi = await kiemDem(sao);
+  assert.ok(loi.some((l) => l.includes('hang-gop')), `phải nêu «hang-gop»: ${loi.join(' | ')}`);
+});
+
 // ---------- DP2-04: bảng chuyển pha (AC-4, E4) ----------
 const PHA4 = ['nhap', 'dang-chay', 'tam-dung', 'dang-dong'];
 const DUOC = new Set(['nhap>dang-chay', 'dang-chay>tam-dung', 'tam-dung>dang-chay', 'dang-chay>dang-dong', 'tam-dung>dang-dong']);
