@@ -55,3 +55,55 @@ wall: 1686s
 - **claude-sonnet-5-5**: 10 agent · 31 calls · out 36,418 · in 62 · cache_read 2,472,298 · cache_create 1,042,764
 - **claude-haiku-5-5**: 21 agent · 42 calls · out 34,926 · in 84 · cache_read 2,746,832 · cache_create 1,706,095
 
+### S4 round 2 — wf_cb804420-a4c (30 agent, 80,132 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 5 | 14,196 | 10 | 541,148 | 95 |
+| baseline:diffBase | claude-sonnet-5-5 | 2 | 8,162 | 4 | 110,176 | 41 |
+| review:measurement | claude-opus-5-5 | 7 | 6,861 | 14 | 761,572 | 73 |
+| review:bugs | claude-opus-5-5 | 6 | 6,306 | 12 | 625,097 | 70 |
+| review:conventions | claude-opus-5-5 | 5 | 5,019 | 10 | 457,927 | 56 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 3,182 | 4 | 137,341 | 138 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,739 | 4 | 137,341 | 219 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,539 | 4 | 34,982 | 426 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 2,430 | 4 | 137,435 | 18 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 2,417 | 4 | 137,443 | 20 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 2,136 | 4 | 137,327 | 83 |
+| triage | claude-sonnet-5-5 | 2 | 2,097 | 4 | 104,472 | 20 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 1,938 | 4 | 137,327 | 11 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 1,870 | 4 | 137,336 | 121 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 1,818 | 4 | 137,440 | 16 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 1,772 | 4 | 137,439 | 17 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 1,767 | 4 | 137,439 | 17 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 1,739 | 4 | 137,446 | 18 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 1,430 | 4 | 137,444 | 19 |
+| judge:J1:domain-correctness | claude-sonnet-5-5 | 3 | 1,296 | 6 | 211,308 | 19 |
+| judge:J1:spec-alignment | claude-sonnet-5-5 | 3 | 1,236 | 6 | 246,222 | 13 |
+| judge:J1:operational-feasibility | claude-sonnet-5-5 | 3 | 1,218 | 6 | 246,315 | 13 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 980 | 4 | 137,447 | 15 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 962 | 4 | 137,439 | 13 |
+| machine:bash -c 'out=$(node tests/scripts/evals- | claude-haiku-5-5 | 2 | 930 | 4 | 137,443 | 18 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 718 | 4 | 137,383 | 72 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 675 | 4 | 137,383 | 59 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 667 | 4 | 137,383 | 273 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 664 | 4 | 137,328 | 4 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 368 | 4 | 101,134 | 6 |
+
+
+wall: 1527s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 8,162 | 110,176 | 41 | 13:56:11 | 13:56:52 |
+| machine | 20 | 33,373 | 2,645,546 | 1407 | 13:56:11 | 14:19:37 |
+| judge | 3 | 3,750 | 703,845 | 19 | 13:56:25 | 13:56:44 |
+| review | 3 | 18,186 | 1,844,596 | 75 | 13:56:29 | 13:57:44 |
+| triage | 1 | 2,097 | 104,472 | 20 | 14:19:37 | 14:19:57 |
+| capture | 1 | 368 | 101,134 | 6 | 14:19:57 | 14:20:03 |
+| synthesize | 1 | 14,196 | 541,148 | 95 | 14:20:03 | 14:21:38 |
+
+- **claude-sonnet-5-5**: 7 agent · 20 calls · out 28,573 · in 40 · cache_read 1,560,775 · cache_create 770,788
+- **claude-opus-5-5**: 3 agent · 18 calls · out 18,186 · in 36 · cache_read 1,844,596 · cache_create 316,461
+- **claude-haiku-5-5**: 20 agent · 40 calls · out 33,373 · in 80 · cache_read 2,645,546 · cache_create 1,596,498
+
