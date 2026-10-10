@@ -5,12 +5,13 @@ import { fileURLToPath } from 'node:url';
 import { DOC_DAU_BYTE } from './cau-hinh.mjs';
 import { docJson, timThuMucDot, trongWorktree } from './dot.mjs';
 import { docCauHinh } from './hinh-dang.mjs';
+import { BANG_BASH, phanLoaiLenh } from './phan-loai-s4.mjs';
 
 export const TEP_GIU_NHIP = path.join(path.dirname(fileURLToPath(import.meta.url)), 'giu-nhip.mjs');
 
 export const LENH_MAC_DINH = {
   workflow: { meta: 'acceptance-verify', tep: /^acceptance-verify(?:-[^/]*)?\.js$/ },
-  bash: { 'repin-lane': 's4', 's4-args': 's4', 'duong-nen.mjs': 'duong-nen' },
+  bash: BANG_BASH,
 };
 const MAU_THO = /acceptance-verify|repin-lane|s4-args|duong-nen\.mjs/;
 const MAU_LENH_BOC = /^\s*\S*node\s+\S*giu-nhip\.mjs\s+--\s/;
@@ -59,8 +60,7 @@ export function phanLoai(dauVao, lenh = LENH_MAC_DINH) {
     return laS4Workflow(dauVao.tool_input, lenh, dauVao.cwd) ? 's4' : null;
   }
   if (dauVao.tool_name === 'Bash') {
-    const lenhBash = String(dauVao.tool_input?.command ?? '');
-    for (const [mau, taiNguyen] of Object.entries(lenh.bash)) if (lenhBash.includes(mau)) return taiNguyen;
+    return phanLoaiLenh(String(dauVao.tool_input?.command ?? ''), lenh.bash);
   }
   return null;
 }
@@ -93,7 +93,9 @@ export function chayHook(raw, tuyChon = {}) {
   } catch {
     return MAU_THO.test(raw) ? { ma: 2, loi: 'chan-s4: lỗi nội bộ: đầu vào không đọc được — chặn để an toàn; báo phiên giám sát' } : { ma: 0 };
   }
-  if (phanLoai(dauVao) === null && !MAU_THO.test(raw)) return { ma: 0 };
+  // JSON đọc được thì chỉ bộ phân loại cấu trúc quyết: không phải lệnh giữ tài nguyên → im. Mẫu thô
+  // chỉ còn dùng cho đầu vào không đọc được (chặn để an toàn ở trên).
+  if (phanLoai(dauVao) === null) return { ma: 0 };
   try {
     return quyet(dauVao, tuyChon);
   } catch (e) {

@@ -297,6 +297,64 @@ test('DP1-02-do in-stdout', () => {
   assert.ok(loi.some((l) => l.includes('UserPromptSubmit') && l.includes('chan-doan')), `phải nêu UserPromptSubmit + chan-doan: ${loi.join(' | ')}`);
 });
 
+// ---------- DP1-10: phân loại S4 theo cấu trúc lời gọi (AC-10, E10) ----------
+const MA_TRAN_S4 = [
+  // [nhãn, đầu vào công cụ, mã mong đợi]
+  ['node --test …repin-lane-lop-cu.test.mjs', { tool_name: 'Bash', tool_input: { command: 'node --test tests/scripts/repin-lane-lop-cu.test.mjs' } }, 0],
+  ['node --test …s4-args-tran-thuoc.test.mjs', { tool_name: 'Bash', tool_input: { command: 'node --test tests/scripts/s4-args-tran-thuoc.test.mjs' } }, 0],
+  ['grep -n s4-args …SKILL.md', { tool_name: 'Bash', tool_input: { command: 'grep -n s4-args feature-loop/skills/feature-loop/SKILL.md' } }, 0],
+  ['node feature-loop/scripts/repin-lane.mjs --root . --write', { tool_name: 'Bash', tool_input: { command: 'node feature-loop/scripts/repin-lane.mjs --root . --write' } }, 2],
+  ['node /x/scripts/s4-args.mjs --slug a', { tool_name: 'Bash', tool_input: { command: 'node /x/scripts/s4-args.mjs --slug a' } }, 2],
+  ['node /x/duong-nen.mjs --root .', { tool_name: 'Bash', tool_input: { command: 'node /x/duong-nen.mjs --root .' } }, 2],
+  ['Workflow …/acceptance-verify.js', { tool_name: 'Workflow', tool_input: { scriptPath: TEP_S4 } }, 2],
+];
+
+export function maTranPhanLoai(gocGoi) {
+  const { kho, dot } = khoCoDot(gocGoi);
+  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P9', slug: 'z', loai: 's4', worktree: tam('dp1-khac-'), cap_luc: new Date().toISOString(), han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
+  const lenh = rutHook(gocGoi).find((h) => h.su === 'PreToolUse').lenh;
+  const loi = [];
+  for (const [nhan, vao, ma] of MA_TRAN_S4) {
+    const r = chayLenhHook(lenh, gocGoi, { hook_event_name: 'PreToolUse', session_id: 's', cwd: kho, ...vao }, kho);
+    if (r.ma !== ma) loi.push(`${nhan}: mã ${r.ma}, cần ${ma} — ${r.err.trim()}`);
+    else if (ma === 0 && r.err !== '') loi.push(`${nhan}: stderr «${r.err.trim()}»`);
+    else if (ma === 2 && !/^chan-s4: khoá/.test(r.err)) loi.push(`${nhan}: stderr không bắt đầu «chan-s4: khoá» — ${r.err.trim()}`);
+  }
+  return { loi, soO: MA_TRAN_S4.length };
+}
+
+test('DP1-10 phan-loai', async () => {
+  const { loi, soO } = maTranPhanLoai(GOI);
+  console.log(`  số ô: ${soO} (số dòng bảng: ${MA_TRAN_S4.length})`);
+  assert.equal(soO, 7);
+  assert.deepEqual(loi, []);
+  // Review Focus 1: bảy dạng lệnh ghép vẫn ra «s4».
+  const { phanLoaiLenh } = await import(path.join(GOI, 'scripts', 'phan-loai-s4.mjs'));
+  const bayDang = [
+    'TZ=UTC node ./repin-lane.mjs a',
+    'cd sub && node ../repin-lane.mjs c',
+    'node ./repin-lane.mjs p | cat',
+    "bash -c 'node ./repin-lane.mjs x'",
+    'node /g/giu-nhip.mjs -- node ./repin-lane.mjs',
+    "node ./repin-lane.mjs 'hai tu'",
+    'node ./repin-lane.mjs --slug=a',
+  ];
+  for (const l of bayDang) assert.equal(phanLoaiLenh(l), 's4', l);
+});
+
+test('DP1-10-do chuoi-con', () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  assert.deepEqual(maTranPhanLoai(sao).loi, [], 'đối chứng dương: bản sao lành phải xanh');
+  fs.writeFileSync(
+    path.join(sao, 'scripts', 'phan-loai-s4.mjs'),
+    "export const BANG_BASH = { 'repin-lane': 's4', 's4-args': 's4', 'duong-nen.mjs': 'duong-nen' };\n" +
+      'export function phanLoaiLenh(lenh, bang = BANG_BASH) {\n  for (const [mau, tn] of Object.entries(bang)) if (String(lenh).includes(mau)) return tn;\n  return null;\n}\n',
+  );
+  const loi = maTranPhanLoai(sao).loi;
+  assert.ok(loi.some((l) => l.startsWith('node --test …repin-lane-lop-cu.test.mjs: mã 2')), `phải nêu lệnh test bị chặn nhầm: ${loi.join(' | ')}`);
+});
+
 // ---------- DP1-06 khuôn: LUAT.md và README không trỏ bản chép tay (AC-6, E6) ----------
 const CHUOI_BAN_CU = 'scripts/dieu-phoi/';
 export function kiemKhuon(gocGoi) {
