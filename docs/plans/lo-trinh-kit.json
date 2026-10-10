@@ -254,7 +254,7 @@
         "X1"
       ],
       "cau_giao": "«Mỗi việc đã giao có một trang hồ sơ đọc trong một phút: vì sao làm, hứa gì, quyết gì, tốn gì, giao gì, có ăn thua không»",
-      "vi_sao": "Gốc: crm/_acceptance/trang-lo-trinh-trong-crm — mục «Out of scope» của LT1 ghi «hiện hồ sơ nghiệm thu của việc» là KHÔNG làm; chủ kho 10/10 muốn xem chi tiết một việc như màn chi tiết Thoả thuận. Một hồ sơ LT1: ~80 tệp, 42 quyết định (máy 26 · người 16), 3 lượt chấm, ~140k token — chỉ máy đọc được. Kit VẼ từ vật (0 token), mở rộng trang bằng chứng đang có; xuất dải tóm tắt vào khối dữ liệu lộ trình bản 2 (đọc được bản 1). Khuôn dải: tầng mọi người (đã giao gì · vì sao · trạng thái+ngày · đã lên production chưa · đo gì/khi nào · kết quả · chưa làm gì · ai quyết) + tầng chủ kho (tiêu chí/phép đo · lượt chấm · token · quyết định máy/người · PR+mã). KHÔNG có ô «số lần gọi người» tới khi có máy đếm.",
+      "vi_sao": "Gốc: crm/_acceptance/trang-lo-trinh-trong-crm — mục «Out of scope» của LT1 ghi «hiện hồ sơ nghiệm thu của việc» là KHÔNG làm; chủ kho 10/10 muốn xem chi tiết một việc như màn chi tiết Thoả thuận. Một hồ sơ LT1: ~80 tệp, 42 quyết định (máy 26 · người 16), 3 lượt chấm, ~140k token — chỉ máy đọc được. Kit VẼ từ vật (0 token), mở rộng trang bằng chứng đang có; xuất dải tóm tắt vào khối dữ liệu lộ trình bản 2 (đọc được bản 1). Khuôn dải: tầng mọi người (đã giao gì · vì sao · trạng thái+ngày · đã lên production chưa · đo gì/khi nào · kết quả · chưa làm gì · ai quyết) + tầng chủ kho (tiêu chí/phép đo · lượt chấm · token · quyết định máy/người · PR+mã). KHÔNG có ô «số lần gọi người» tới khi có máy đếm. Kèm (máy quyết 10/10): tiêu đề hiện câu giao bỏ ĐÚNG MỘT cặp «» ngoài cùng bao trọn câu ở bộ vẽ + trường tiêu đề của khối dữ liệu — không bỏ «» bên trong câu, không đụng tệp kế hoạch của kho (crm 93/93 hàng, kit 41 hàng đang bọc «»); khuôn mẫu hàng mới thôi thêm «», bộ đọc nhận cả hai dạng.",
       "bat_khi": "Ở phiên nghiệm thu kế, chủ kho đọc xong hồ sơ mỗi việc trong ≤ 1 phút từ trang này, không phải hỏi máy",
       "ghi_chu": "CỘNG — chủ kho đồng ý 10/10; vẫn qua Cổng Đáng khi mở. Bản chiếu crm là hàng LT1b của crm."
     },
@@ -263,8 +263,8 @@
       "nhom": "lo-trinh",
       "hang": "T3",
       "slug": "vong-la-mot-ket-qua",
-      "cau_giao": "«Mỗi vòng Feature Loop giao đúng một kết quả người dùng thấy được, cỡ 8–12 tiêu chí — câu giao có vai, lượt cắt tự tách hay gộp theo cỡ đã đo»",
-      "ghi_chu": "CHÍNH SÁCH chủ kho chốt 10/10: mục tiêu 8–10 tiêu chí, cho phép 11–12 khi kết quả không tách được mà giữ nghĩa, từ 13 bắt buộc tách; một vòng một kết quả; câu giao có vai. Đưa vào skill cắt lượt (L2): vai trong câu giao · khoảng cỡ đọc lại từ hồ sơ đã giao ở mỗi mốc (không ghi cứng) · phép kiểm tách/gộp theo số tiêu chí dự kiến. Ô đã ký build 04/09 — mở lại, không tạo ô mới.",
+      "cau_giao": "«Mỗi vòng Feature Loop giao đúng một kết quả, cỡ 8–12 tiêu chí — việc người dùng thấy thì câu giao có vai, việc nền thì nêu hành vi hệ thống đo được; lượt cắt tự tách hay gộp theo cỡ đã đo»",
+      "ghi_chu": "CHÍNH SÁCH chủ kho chốt 10/10 (sửa cùng ngày): mục tiêu 8–10 tiêu chí, cho phép 11–12 khi kết quả không tách được mà giữ nghĩa, từ 13 bắt buộc tách; một vòng một kết quả. Câu giao hai dáng: việc người dùng thấy → có VAI («Trưởng phòng ban mở … và thấy …»); việc nền (không người dùng cuối, vd A1, X1) → HÀNH VI HỆ THỐNG đo được, không ép «Là kỹ sư…». Lộ trình không thêm trường cho agent — phần của agent ở hợp đồng · phép đo · kế hoạch; vùng tệp ở hàng việc của bộ điều phối. Đưa vào skill cắt lượt (L2): hai dáng câu giao · khoảng cỡ đọc lại từ hồ sơ đã giao ở mỗi mốc (không ghi cứng) · phép kiểm tách/gộp theo số tiêu chí dự kiến. Ô đã ký build 04/09 — mở lại, không tạo ô mới.",
       "dung_tren": [
         "L2"
       ],
