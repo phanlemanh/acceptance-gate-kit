@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9ff45eb51a29141e4e8f5a056f0e5f7446dad8b9
+verified_commit: 22d1da8289d47283f4d55c46f957d890d1d0252f
 human_signoff: manh 2026-10-10
 ---
 
@@ -281,3 +281,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: mọi eval và lệnh suite xanh, không eval nào hỏng. Các lỗi ngoài hợp đồng do bước review nêu được liệt kê trong review-findings.md để người quyết ở Gate 2.
+
+### Re-pin lần 1 — 2026-10-10, do gộp origin/main (#292, #294) vào nhánh PR #295
+run_id: repin-20261010T040346Z-23400
+sha: 22d1da8289d47283f4d55c46f957d890d1d0252f · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
