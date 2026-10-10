@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: cc5960d9fec4b7a3422dfe1b7d7311d4409f6ac2
+verified_commit: 86c5440b108a212f7bb777726fd09ed5af61c020
 human_signoff: Manh Phan 2026-10-11 — ký lượt chấm 2; J1 Đạt; Ngoài-1 đến Ngoài-6 ghi Known limits; đồng ý phần cắt/hoãn; phê hết Treo
 ---
 
@@ -235,3 +235,7 @@ none — every multi-run eval is uniform (không eval nào chạy nhiều lần;
 
 Round 1: E1–E11 và mười lệnh suite đạt, nhưng ba phát hiện trong hợp đồng được trả về cài đặt (ma trận BC1 hằng-đúng ở AC-1, vế «không sinh tệp» của MN2 ở AC-9, lưới LB1 chỉ kiểm tên có mặt ở AC-11); commit cc5960d9 thêm chiều đỏ BC1b, MN2b và LB2 gỡ lời gọi.
 Round 2: E1–E3, E5–E11 chạy lại trên bộ kiểm 27 ca (trước 25) đều đạt, E4 carry-forward từ round 1, mười lệnh suite đạt; J1 chờ người chốt (hợp đồng T3). Không eval nào hỏng.
+
+### Re-pin lần 1 — 2026-10-10, do gộp main sau DP2 (#298) để gỡ xung đột PR #299
+run_id: repin-20261010T230710Z-16765
+sha: 86c5440b108a212f7bb777726fd09ed5af61c020 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: J1 · AC không có chốt máy: AC-10
