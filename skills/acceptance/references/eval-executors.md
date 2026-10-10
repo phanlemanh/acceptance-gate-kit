@@ -59,6 +59,24 @@ evals:
 Note: `config:` references resolve against `_acceptance/config.yaml`, whose
 parser requires 2-space indentation.
 
+List fields (`inputs`, `paths`, `evidence_required`, `steps`) may be written in
+any valid layout — the kit reads them through ONE reader (`evalListsOf` in
+`lib/evidence-core.cjs`) for the S4 args step, the fix-round carry plan and the
+re-pin lane:
+
+- indentation: the 4-space shape above, or flush-left (`- id:` at column 0,
+  keys at column 2, list items `- x` at column 2 directly under their key —
+  what a YAML dumper writes by default);
+- block list or one-line `[a, b]`; a `#` inside quotes is text, not a comment;
+- an anchor `paths: &name` followed by its items is read as those items.
+
+NOT read, and never guessed: an alias (`paths: *name`), a block scalar
+(`inputs: |`), a one-line mapping (`paths: {a: b}`), an unclosed `[`, or a key
+with no items under it. Each one is named — `<id>.<field> (<reason>)` — in a
+`s4-args: danh sách không đọc được: …` line at S4 and as a yellow flag on both
+the scope card and the evidence card. Rewrite those fields as plain lists. A
+repo already writing the 4-space shape has nothing to do.
+
 `inputs` (judgment) and `paths` (any eval) share ONE root: the repo root, or an
 absolute path. Never write them relative to `_acceptance/{slug}/` — a dossier
 file is `_acceptance/{slug}/contract.md`, a source file is `apps/app/lib/x.ts`.
