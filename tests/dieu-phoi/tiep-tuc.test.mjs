@@ -864,6 +864,22 @@ test('DP3-12-do-lb', () => {
   assert.match(r.stdout, /FAIL: \[LB2\].*\/dieu-phoi:tiep-tuc/);
 });
 
+// ---------- DP3-13: ca DP1 và lõi nguyên vẹn (AC-13, E13) ----------
+test('DP3-13 dp1-nguyen', () => {
+  let mb = null;
+  for (const nhanh of ['origin/main', 'main']) {
+    try {
+      mb = execFileSync('git', ['merge-base', 'HEAD', nhanh], { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      break;
+    } catch {}
+  }
+  assert.ok(mb, 'không tìm được merge-base');
+  const DUONG = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/loi'];
+  const r = spawnSync('git', ['diff', '--quiet', mb, '--', ...DUONG], { cwd: KIT, env: ENV });
+  console.log(`  so với merge-base ${mb.slice(0, 8)}: ${DUONG.join(' · ')} ${r.status === 0 ? 'không đổi' : 'ĐÃ ĐỔI'}`);
+  assert.equal(r.status, 0, 'ca DP1 hoặc lõi bị sửa so với nhánh chính');
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });
