@@ -1,0 +1,200 @@
+# Eval cho hồ sơ evals-sat-le-doc-du.
+#
+# Tệp ca: tests/scripts/evals-sat-le.test.mjs — kho git fixture do mã sinh từ MỘT mô hình tiêu chí,
+# viết ra các cách của trục A; chạy CHÍNH s4-args.mjs / carry-plan.mjs / gate-card.js / acceptance-gold.mjs
+# của cây đang kiểm, và bản base lấy bằng `git archive 3200ba3a feature-loop/scripts lib scripts` (trọn
+# thư mục). Mỗi khoá executor ghim các ca của MỘT AC; mỗi AC có đối chứng dương và chiều đỏ trên CÙNG
+# fixture, thông điệp ghim. Phép vi phân trên kho thật: tests/scripts/evals-sat-le-vi-phan.mjs.
+# Đường dẫn suy từ vị trí tệp ca.
+schema_version: 1
+feature_slug: evals-sat-le-doc-du
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.esl_ba_cach_viet
+    expected: >-
+      BC1: tập trường rút từ EVAL_REQUIRED của acceptance-verify.js (mảng bắt buộc theo executor) cộng
+      inputs/paths/evidence_required; mô hình thiếu trường bắt buộc nào → ĐỎ «mô hình hụt trường:
+      <executor>.<trường>». Ma trận viết trước 3 cách (thut4 · satle · muc-ngang-khoa) × 3 tiêu chí ×
+      các trường của tiêu chí; mỗi phần tử trong args của s4-args cây đang kiểm BẰNG giá trị mô hình; số
+      so = số phần tử ma trận, khác thì ĐỎ «ma trận hụt». Chiều im: ba cách hợp lệ KHÔNG sinh dòng
+      «danh sách không đọc được» nào.
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/s4-args.mjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E2
+    criterion: AC-2
+    executor: script
+    cmd: config:executors.script.esl_base_do
+    expected: >-
+      BC2: base = git archive 3200ba3a của hằng BASE_DIRS (feature-loop/scripts, lib, scripts) dùng chung
+      mọi ca; script chiều đỏ gọi mà vắng ở base → ĐỎ «base thiếu tệp: <đường>»; base trùng cây đang kiểm
+      → ĐỎ «base trùng cây». Đối chứng
+      dương: base trên thut4 ra đúng giá trị mô hình. Chiều đỏ: base trên satle in «base mất danh sách:
+      <id>.<trường>» cho ít nhất paths, inputs, evidence_required; cây mới XANH trên satle.
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/s4-args.mjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E3
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.esl_vi_phan_kit
+    expected: >-
+      VP1: vi phân base ↔ mới trên mọi _acceptance/*/evals.yaml của cây đang kiểm — bốn trường của args
+      và evalPathsOf mọi id — 0 lệch ở hồ sơ không sát lề; in số hồ sơ và số tiêu chí đã so (> 0, không
+      thì ĐỎ «vi phân rỗng»). VP2 chiều đỏ trên CÙNG bộ hồ sơ: bản sao bộ đọc mới bỏ mục cuối của mọi
+      danh sách khối → ĐỎ «vi phân lệch» kèm tên hồ sơ lệch đầu tiên; trước đó đếm số tiêu chí đột biến
+      làm đổi kết quả — bằng 0 → ĐỎ «đột biến tương đương».
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/s4-args.mjs"
+      - "tests/scripts/evals-sat-le-vi-phan.mjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E4
+    criterion: AC-3
+    executor: script
+    cmd: config:executors.script.esl_vi_phan_bay_kho
+    expected: >-
+      Vi phân base ↔ mới trên crm, oneflow, artifact-platform, radar, media-library, map ($HOME/dev/<kho>)
+      và kit (cây đang kiểm); thiếu bất kỳ kho nào → exit 2 «không đọc được ở đây: <kho>». Đầu ra ghi vào
+      _acceptance/evals-sat-le-doc-du/evidence/vi-phan-bay-kho.txt: từng kho kèm sha HEAD, số hồ sơ, số
+      tiêu chí; tổng hồ sơ ≥ 620; exit 0 khi 0 lệch ngoài hồ sơ sát lề, mọi lệch ở hồ sơ sát lề theo
+      chiều ĐỌC THÊM và crm thuoc-mot-cho-khai-quet-man có mặt trong danh sách ấy; lệch khác → exit 1
+      gọi tên hồ sơ/id/trường.
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/s4-args.mjs"
+      - "tests/scripts/evals-sat-le-vi-phan.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E5
+    criterion: AC-4
+    executor: script
+    cmd: config:executors.script.esl_co_vang
+    expected: >-
+      CB1: bốn tiêu chí (bí danh *id001 · khối chữ | · ánh xạ {a: b} · khoá rỗng) → stderr đúng MỘT dòng
+      «s4-args: danh sách không đọc được:» gọi tên 4/4 <id>.<trường> kèm lý do; args.canhBaoDanhSach đủ 4
+      mục. CB2 chiều im: hồ sơ sạch → 0 dòng, khoá vắng hẳn. CB3 chiều đỏ: bản sao lib gỡ nhánh cờ →
+      ĐỎ «cờ im: <id>.<trường>».
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/s4-args.mjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E6
+    criterion: AC-5
+    executor: script
+    cmd: config:executors.script.esl_neo
+    expected: >-
+      NEO1: tiêu chí `paths: &id001` + mục khối → evalPathsOf và args của s4-args đều trả đúng các mục.
+      NEO2: tiêu chí `paths: *id001` → evalPathsOf null, cờ bi-danh; không phần tử nào bắt đầu bằng & hoặc *.
+      NEO3 chiều đỏ: evalPathsOf của base trả ["&id001"] → ca in «neo thành glob».
+    paths:
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E7
+    criterion: AC-6
+    executor: script
+    cmd: config:executors.script.esl_carry
+    expected: >-
+      CP1: run-log lượt trước xanh, ba tiêu chí cùng paths viết [a, b] / khối thụt 4 / khối sát lề, diff-fix
+      ngoài vùng → cả ba carried, lý do «paths không chạm diff-fix, round trước xanh». CP2: diff-fix chạm
+      tệp trong vùng → cả ba rerun «diff-fix chạm <tệp>». CP3 chiều đỏ: carry-plan của base cho hai tiêu
+      chí dạng khối «thiếu paths — luôn chạy lại» → ca in «base bỏ paths khối».
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/carry-plan.mjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E8
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.esl_gold
+    expected: >-
+      GD1: hồ sơ sát lề, judgment có question một dòng có nháy → nhãn acceptance-gold là câu hỏi; đối chứng
+      dương thụt 4 cho cùng nhãn. GD2 chiều đỏ: glossOf của base trên tệp sát lề rơi về rationale → ca in
+      «gold mất câu hỏi sát lề».
+    paths:
+      - "scripts/acceptance-gold.mjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E9
+    criterion: AC-8
+    executor: script
+    cmd: config:executors.script.esl_the
+    expected: >-
+      TH1: hồ sơ có cờ → thẻ Cổng Phạm vi và thẻ Cổng Bằng chứng đều chứa hằng DANH_SACH_KHONG_DOC_FLAG
+      (rút từ nguồn gate-card.js) kèm tên từng <id>.<trường>. TH2 chiều im: hồ sơ sạch → hai thẻ không
+      chứa hằng. TH3: commands/acceptance-card.md có dòng thuật chứa hằng. TH4 chiều đỏ: bản sao gate-card.js
+      gỡ dòng đẩy cờ → ĐỎ «thẻ im khi danh sách không đọc được».
+    paths:
+      - "scripts/gate-card.js"
+      - "commands/acceptance-card.md"
+      - "lib/evidence-core.cjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: E10
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.esl_mot_nguon
+    expected: >-
+      MN1: bản sao lib với evalListsOf trả rỗng → args của s4-args mất paths VÀ carry-plan cho «thiếu
+      paths» — kết luận của cả hai lật. MN2: bản sao lib không có evalListsOf → s4-args và carry-plan
+      thoát 2, stderr gọi tên evalListsOf, không sinh tệp args.
+    paths:
+      - "lib/evidence-core.cjs"
+      - "feature-loop/scripts/s4-args.mjs"
+      - "feature-loop/scripts/carry-plan.mjs"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+
+  - id: J1
+    criterion: AC-10
+    executor: judgment
+    question: >-
+      Đọc mục «evals.yaml shape» của eval-executors.md và mục «Chưa phát hành» của CHANGELOG.md. Một người
+      viết eval ở kho tiêu thụ đọc xong có biết đủ bốn điều không: (1) kit đọc trường danh sách viết sát lề
+      lẫn thụt, dạng khối lẫn một dòng; (2) bí danh YAML (*ten) trên trường danh sách KHÔNG được giải —
+      lượt chấm và thẻ lên cờ vàng, phải viết lại thành danh sách; (3) kho đang viết thụt 4 không phải làm
+      gì; (4) CHANGELOG nêu kho nào bị ảnh hưởng (crm: lượt sửa nay giữ ô xanh cho paths dạng khối)?
+    inputs:
+      - "skills/acceptance/references/eval-executors.md"
+      - "CHANGELOG.md"
+    expected: >-
+      PASS khi đủ bốn điều; FAIL nêu điều thiếu hoặc câu mâu thuẫn (vd nói bí danh được giải).
+    paths:
+      - "skills/acceptance/references/eval-executors.md"
+      - "CHANGELOG.md"
+    evidence_required: [run_id, verdict, verifier, verified_at]
+
+  - id: E11
+    criterion: AC-11
+    executor: script
+    cmd: config:executors.script.esl_luoi_ben_doc
+    expected: >-
+      LB1: danh sách tệp mã (lib, scripts, feature-loop, hooks) nhắc evals.yaml rút bằng máy; mọi tệp có
+      trong bảng phân loại viết trước của tệp ca; tệp kết luận «qua evalListsOf» thật sự gọi evalListsOf
+      hoặc evalPathsOf; cây đang kiểm (mọi tệp đã phân loại) KHÔNG bị báo dòng nào. LB2 chiều đỏ trên bản sao cây: thêm một tệp đọc evals.yaml bằng biểu thức riêng →
+      ĐỎ «bên đọc chưa phân loại: <tệp>».
+    paths:
+      - "lib/**"
+      - "scripts/**"
+      - "feature-loop/**"
+      - "hooks/**"
+      - "tests/scripts/evals-sat-le.test.mjs"
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
