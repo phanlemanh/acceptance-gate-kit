@@ -20,8 +20,9 @@ evals:
       xem.md, tiep-tuc.md} (đẳng thức tập, in ra); không tệp nào khoá model-invocation; script của gói đi qua
       ${CLAUDE_PLUGIN_ROOT}. "ok" cho "DP3-01 trinh-tu": trong tiep-tuc.md, vị trí của lời gọi CLI
       `tiep-tuc` đứng TRƯỚC mọi câu giăng Monitor và mọi câu mở chip, câu «thoi_vai» đứng trước Monitor, có
-      dạng `--nhe`, và bốn hành động mo-chip · nhan-giang-lai · khong · worktree-mat mỗi hành động có một
-      dòng xử lý (đẳng thức tập bốn hành động với tập hành động CLI xuất — rút từ hằng của tiep-tuc.mjs). "ok"
+      dạng `--nhe`, và MỖI hành động trong hằng HANH_DONG của tiep-tuc.mjs (rút lúc chạy, không chép tay —
+      sáu hành động khong · nhan-giang-lai · mo-chip · worktree-mat · cho-nguoi · chua-biet) có một dòng xử
+      lý trong thân lệnh. "ok"
       cho "DP3-01-do dao-buoc": bản sao chuyển đoạn lời gọi CLI xuống sau câu mở chip (kiểm bước tiêm áp) →
       hàm kiểm nêu "tiep-tuc.md: trình tự" với hai vị trí in ra.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -775,6 +775,46 @@ test('DP3-11-do khuon-cu', () => {
   assert.ok(loi.includes('còn «rm -rf»'), `khuôn của nhánh chính phải bị nêu «rm -rf»: ${loi.join(' | ')}`);
 });
 
+// ---------- DP3-01: trình tự lệnh người tiep-tuc (AC-1, E1) ----------
+export async function kiemTiepTucMd(gocGoi = GOI) {
+  const t = fs.readFileSync(path.join(gocGoi, 'commands', 'tiep-tuc.md'), 'utf8');
+  const { HANH_DONG } = await nap(gocGoi, 'tiep-tuc.mjs');
+  const body = t.slice(Math.max(0, t.indexOf('\nCác bước')));
+  const loi = [];
+  const vi = {
+    cli: body.indexOf('dieu-phoi.mjs" tiep-tuc --phien'),
+    thoiVai: body.indexOf('thoi_vai: true'),
+    monitor: body.indexOf('Giăng Monitor'),
+    chip: body.indexOf('mở chip'),
+  };
+  if (Object.values(vi).some((x) => x < 0) || !(vi.cli < vi.thoiVai && vi.thoiVai < vi.monitor && vi.cli < vi.chip)) {
+    loi.push(`tiep-tuc.md: trình tự phải là CLI → thôi vai → Monitor, CLI trước chip (vị trí ${vi.cli} · ${vi.thoiVai} · ${vi.monitor} · ${vi.chip})`);
+  }
+  if (!body.includes('`--nhe`')) loi.push('tiep-tuc.md: thiếu dạng --nhe');
+  for (const hd of Object.values(HANH_DONG)) if (!body.includes(`\`${hd}\`:`)) loi.push(`tiep-tuc.md: thiếu dòng xử lý hành động ${hd}`);
+  if (/^disable-model-invocation:/m.test(t)) loi.push('tiep-tuc.md: không được khoá model-invocation');
+  return loi;
+}
+
+test('DP3-01 trinh-tu', async () => {
+  const { HANH_DONG } = await nap(GOI, 'tiep-tuc.mjs');
+  console.log(`  hành động phải có dòng xử lý: ${Object.values(HANH_DONG).join(' · ')}`);
+  assert.deepEqual(await kiemTiepTucMd(), []);
+});
+
+test('DP3-01-do dao-buoc', async () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  assert.deepEqual(await kiemTiepTucMd(sao), [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'commands', 'tiep-tuc.md');
+  const goc = fs.readFileSync(p, 'utf8');
+  const lenh = '`node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" tiep-tuc --phien <mã phiên này> --json $ARGUMENTS`';
+  assert.ok(goc.includes(lenh), 'bước tiêm không áp được');
+  fs.writeFileSync(p, `${goc.replace(lenh, 'lệnh ở cuối tệp')}\nLệnh: ${lenh}\n`);
+  const loi = await kiemTiepTucMd(sao);
+  assert.ok(loi.some((l) => l.startsWith('tiep-tuc.md: trình tự')), `phải nêu trình tự: ${loi.join(' | ')}`);
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });
