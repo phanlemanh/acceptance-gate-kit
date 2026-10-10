@@ -1,0 +1,45 @@
+{
+  "phien": "DT",
+  "loai": "hang-moi",
+  "hang": "t441",
+  "noi_dung": {
+    "nguon": "p685",
+    "de_xuat_slug": "t441",
+    "moc_de_xuat": "t424",
+    "hang_may_suy": "T2",
+    "cau_giao": "t686",
+    "da_co": "p687",
+    "lo": [
+      "p688",
+      "p689",
+      "p690",
+      "t691",
+      "t692",
+      "p693",
+      "p694",
+      "p695"
+    ],
+    "ngoai_hang_T3": "p696",
+    "khong_phai_lo": "p697",
+    "trang_thai": "p698",
+    "ranh_gioi_de_xuat": [
+      "p91",
+      "p104",
+      "p89",
+      "p447/**",
+      "p448",
+      "p131",
+      "p97",
+      "p444/**",
+      "p457",
+      "p169",
+      "p458",
+      "p438",
+      "p445",
+      "p162",
+      "p453",
+      "p442/**"
+    ]
+  },
+  "luc": "2026-10-08T23:52:58Z"
+}

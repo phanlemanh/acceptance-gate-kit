@@ -1,0 +1,14 @@
+{
+  "phien": "P2",
+  "loai": "cham-tep",
+  "hang": "t78",
+  "noi_dung": {
+    "tep": [
+      "p624",
+      "p625"
+    ],
+    "vi_sao": "p891",
+    "de_xuat": "p892"
+  },
+  "luc": "2026-10-08T00:31:12Z"
+}

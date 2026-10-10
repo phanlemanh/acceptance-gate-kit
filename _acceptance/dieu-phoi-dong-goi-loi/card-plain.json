@@ -1,0 +1,4 @@
+{
+  "feature_plain": "Một kho muốn chạy nhiều phiên làm tính năng song song chỉ cần cài gói «dieu-phoi» của kit là có bộ giữ lượt chấm và bốn cái chặn tự động; kho chưa mở đợt nào thì gói hoàn toàn im, và đợt crm đang chạy được bản gói chạy tiếp mà không sửa tay.",
+  "scope_plain": "Vòng này chỉ chuyển bộ máy sang kit và sửa đúng bốn chỗ gãy ngay khi chuyển; các lệnh mở đợt, tiếp tục và đổi tài khoản là các hàng sau."
+}

@@ -37,26 +37,61 @@
       ]
     },
     {
-      "ten": "Mốc kế (số đặt lúc cắt) — tác tử chấm không sửa mã, bộ đọc khoan dung, gom tín hiệu thành nhóm (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
+      "ten": "Mốc kế (số đặt lúc cắt) — gói dieu-phoi (DP1), tác tử chấm không sửa mã, bộ đọc khoan dung (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
       "ngay": "2026-10-18",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
+        "DP1",
         "A1",
-        "R1",
-        "L3"
+        "R1"
       ]
     },
     {
-      "ten": "Mốc sau nữa (số đặt lúc cắt) — ca chập chờn, eval model thật, bớt câu hỏi ở bước thiết kế (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
+      "ten": "Mốc sau nữa (số đặt lúc cắt) — ĐÓNG GÓI XONG: mở đợt, tiếp tục, đổi tài khoản bằng một lệnh (DP2–DP4), feature-loop trong đợt (DP7) (dự kiến từ nhịp đo được, không phải hạn — sai số vài ngày)",
       "ngay": "2026-10-25",
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
+        "DP2",
+        "DP3",
+        "DP4",
+        "DP7"
+      ]
+    },
+    {
+      "ten": "crm: đợt thử thứ nhất — chuyển sang gói dieu-phoi bản mốc 25/10 (gỡ scripts/dieu-phoi/, bốn khối hook, theo danh mục xem --kiem-chuyen), chạy ở quãng lặng",
+      "ngay": "2026-10-26",
+      "loai": "ngoai",
+      "ai": "crm",
+      "hang": []
+    },
+    {
+      "ten": "OneFlow: đợt thử thứ hai trên gói bản mốc 25/10 — đo «chạy được mà không sửa lõi»",
+      "ngay": "2026-10-27",
+      "loai": "ngoai",
+      "ai": "OneFlow",
+      "hang": []
+    },
+    {
+      "ten": "Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ",
+      "ngay": "2026-11-01",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": [
+        "DP6",
+        "L3",
         "G2",
         "G3",
         "A2"
       ]
+    },
+    {
+      "ten": "Tinh chỉnh sau hai đợt thử (số đặt lúc cắt) — sửa những gì crm và OneFlow vấp; hàng sinh từ đợt thử, mở khi có neo",
+      "ngay": "2026-11-05",
+      "loai": "phat-hanh",
+      "ai": "Owner",
+      "hang": []
     }
   ],
   "hang": [
@@ -232,6 +267,69 @@
       "cau_giao": "«Bước lên thiết kế không hỏi người những câu mà người luôn trả lời theo khuyến nghị»",
       "vi_sao": "Gốc: crm/_acceptance/ke-hoach-la-mot-ban-ghi, sua-luu-tru-dieu-phoi — 28/28 câu trả lời «theo khuyến nghị» qua 3 vòng (hạt giống 2026-09-22-may-hoi-ngoai-thiet-ke-o-s1, đã chạm ngưỡng). Thước đo số 1 của kit: số lần gọi người mỗi kết quả ship.",
       "bat_khi": "Số lượt gọi người ngoài thiết kế ở bước thiết kế của crm về 0 trong ba vòng liền, không vòng nào bị trả vì thiết kế sai"
+    },
+    {
+      "ma": "DP1",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "slug": "dieu-phoi-dong-goi-loi",
+      "cau_giao": "«Kho nào muốn chạy đợt Điều phối – Thợ chỉ cần cài gói dieu-phoi của kit — không chép mã, không gắn hook bằng tay»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — lõi đợt (bộ phát lịch, CLI, 4 hook; 14 tệp mã, 84 ca) đang sống trong crm; OneFlow là kho neo thứ hai, muốn dùng thì phải chép mã. Ô dù dieu-phoi-tho-trong-kit, Cổng Đáng build 09/10; thiết kế: docs/superpowers/specs/2026-10-09-dieu-phoi-tho-trong-kit-design.md."
+    },
+    {
+      "ma": "DP2",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP1"
+      ],
+      "slug": "dieu-phoi-mo-dot-mot-lenh",
+      "cau_giao": "«Mở và đóng một đợt bằng một lệnh — thay sáu bước tay»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — mở đợt ở crm hôm nay là sáu bước tay theo scripts/dieu-phoi/README.md. Thiết kế chung: docs/superpowers/specs/2026-10-10-dieu-phoi-workflow-design.md §4.1, §4.4."
+    },
+    {
+      "ma": "DP3",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP1"
+      ],
+      "slug": "dieu-phoi-tiep-tuc-mot-lenh",
+      "cau_giao": "«Một lệnh nối lại đợt sau khi app khởi động lại, hết ngữ cảnh hay Monitor hết hạn — không giăng tay việc nền nào»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — 09/10 phiên giám sát khởi động lại làm dừng 37 việc nền; 08/10 Monitor hết hạn, hai việc lỡ 5 giờ. Thiết kế chung §4.2, §5."
+    },
+    {
+      "ma": "DP4",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP3"
+      ],
+      "slug": "dieu-phoi-doi-tai-khoan",
+      "cau_giao": "«Báo trước khi chạm hạn mức, tự bàn giao nhẹ, tài khoản kia tiếp tục bằng một lệnh — không mất commit, chữ ký hay quyết định nào»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — chủ kho đổi tài khoản giữa đợt vì hết hạn mức (09/10); lần đổi 05–06/10 bàn giao tay bằng tệp nhớ. Thiết kế chung §4.3, §4.5; chờ phép đo DP0 của ô dù."
+    },
+    {
+      "ma": "DP6",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP3"
+      ],
+      "slug": "dieu-phoi-lop-mod",
+      "cau_giao": "«Trạng thái đợt hiện ngay trong app; S4 bị chặn đúng lệnh, không chặn nhầm lệnh chỉ đọc; thợ chờ người thì giám sát biết ngay, không phải dò nhật ký»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — 10/10 hook chặn S4 so chuỗi con, chặn nhầm một lệnh chỉ đọc; đêm 09–10/10 S4 của K3b đứng 2 giờ 30 vì hộp duyệt quyền mà không ai biết. Chủ kho đồng ý đưa Mods vào vòng 10/10 (bản ghi nhu cầu §5 mục 6). Thiết kế: workflow §12."
+    },
+    {
+      "ma": "DP7",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP1"
+      ],
+      "slug": "dieu-phoi-feature-loop-trong-dot",
+      "cau_giao": "«Phiên thợ biết mình đang trong đợt: chờ lượt S4 không thành câu hỏi hay vòng thử lại, xong hàng thì tự mở hàng kế của dãy, quyền merge theo thẻ khởi tạo — kho không có đợt không đổi byte nào»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — đợt sau-14-10: thợ hỏi chủ kho bằng chữ mà bảng chờ người không thấy (luật 52, P2 đứng ~2 giờ, P3 ~1,5 giờ). Soát tổng thể 10/10 (workflow §16 T7)."
     },
     {
       "ma": "S1",

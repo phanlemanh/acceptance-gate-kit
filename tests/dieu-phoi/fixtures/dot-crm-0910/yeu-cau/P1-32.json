@@ -1,0 +1,19 @@
+{
+  "phien": "P1",
+  "loai": "khac",
+  "hang": "t307",
+  "noi_dung": {
+    "viec": "p792",
+    "pr": 322,
+    "url": "p793",
+    "sha": "t794",
+    "base": "t795",
+    "ghim_lai": "t796",
+    "mo_hop_dong_moi": [
+      "t797",
+      "t798"
+    ],
+    "buoc_ke": "t799"
+  },
+  "luc": "2026-10-08T17:41:02Z"
+}

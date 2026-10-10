@@ -1,0 +1,30 @@
+{
+  "phien": "soan-trong-khung",
+  "loai": "them-hang",
+  "hang": "t537",
+  "noi_dung": {
+    "slug": "t537",
+    "worktree": "@KHO@/.claude/worktrees/wt-7",
+    "nhanh": "p1531",
+    "nen": "t1532",
+    "viec": "p1533",
+    "ranh_gioi": [
+      "p1534/*",
+      "p1535",
+      "p1536",
+      "p1537",
+      "p543",
+      "p17",
+      "p1538",
+      "p1539/*",
+      "p1540",
+      "p1541/**",
+      "p551/**",
+      "p1542",
+      "p1543/*"
+    ],
+    "giap_ranh": "p1544/*",
+    "hoi": "p1545"
+  },
+  "luc": "2026-10-09T08:01:40Z"
+}

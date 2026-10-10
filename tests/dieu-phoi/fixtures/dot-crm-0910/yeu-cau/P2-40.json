@@ -1,0 +1,30 @@
+{
+  "phien": "P2",
+  "loai": "hang-moi",
+  "hang": "t120",
+  "noi_dung": {
+    "slug_de_xuat": "t436",
+    "nguon": "t976",
+    "viec": "p977",
+    "cong_dang": {
+      "decision": "t978",
+      "decided_by": "t979",
+      "decided_at": "2026-10-08T23:37:00Z",
+      "loi": "t980"
+    },
+    "sau": [
+      "V2",
+      "E4"
+    ],
+    "ranh_gioi_goi_y": [
+      "p438",
+      "p439",
+      "p169",
+      "p89",
+      "p88",
+      "p111"
+    ],
+    "ghi_chu": "t981"
+  },
+  "luc": "2026-10-08T23:37:00Z"
+}

@@ -1,0 +1,17 @@
+{
+  "phien": "P3",
+  "loai": "hang-moi",
+  "hang": "t144",
+  "noi_dung": {
+    "de_xuat_slug": "t324",
+    "ten": "t1108",
+    "nguon": "t1109",
+    "mo_ta": "p1110",
+    "ranh_gioi_goi_y": [
+      "p145",
+      "p150"
+    ],
+    "them": "p1111"
+  },
+  "luc": "2026-10-08T06:19:43Z"
+}

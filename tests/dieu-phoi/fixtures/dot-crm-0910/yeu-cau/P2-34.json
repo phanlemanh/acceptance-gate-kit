@@ -1,0 +1,14 @@
+{
+  "phien": "P2",
+  "loai": "khac",
+  "hang": "t303",
+  "noi_dung": {
+    "nguong": {
+      "cau_hoi": "t964",
+      "song": "t965",
+      "chet": "t966",
+      "timebox": "t943"
+    }
+  },
+  "luc": "2026-10-08T20:30:09Z"
+}

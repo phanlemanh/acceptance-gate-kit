@@ -1,0 +1,20 @@
+{
+  "phien": "P1",
+  "loai": "khac",
+  "hang": "t14",
+  "noi_dung": {
+    "pr": 312,
+    "head_sha": "t721",
+    "base": "t722",
+    "nhanh_chinh_da_gop": "t723",
+    "ghim_lai": [
+      "p724",
+      "p725"
+    ],
+    "pre_merge": "t726",
+    "ban_do": "t727",
+    "khoa": "t728",
+    "ke": "t729"
+  },
+  "luc": "2026-10-08T07:46:41Z"
+}

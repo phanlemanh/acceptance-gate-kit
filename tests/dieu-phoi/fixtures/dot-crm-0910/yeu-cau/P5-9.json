@@ -1,0 +1,30 @@
+{
+  "phien": "P5",
+  "loai": "khac",
+  "hang": "O3",
+  "noi_dung": {
+    "ho_so": [
+      {
+        "slug": "t256",
+        "pr": 300,
+        "nguong": {
+          "cau_hoi": "t1430",
+          "song": "p1431",
+          "chet": "p1432",
+          "timebox": "p1433"
+        }
+      },
+      {
+        "slug": "t276",
+        "pr": 302,
+        "nguong": {
+          "cau_hoi": "t1434",
+          "song": "t1435",
+          "chet": "t1436",
+          "timebox": "p1437"
+        }
+      }
+    ]
+  },
+  "luc": "2026-10-08T02:44:58Z"
+}

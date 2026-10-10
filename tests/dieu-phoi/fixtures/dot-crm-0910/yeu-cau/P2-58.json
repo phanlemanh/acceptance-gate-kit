@@ -1,0 +1,25 @@
+{
+  "phien": "P2",
+  "loai": "hang-moi",
+  "hang": "t120",
+  "noi_dung": {
+    "slug_de_xuat": "t591",
+    "nguon": "t1035",
+    "viec": "p1036",
+    "cong_dang": {
+      "decision": "t978",
+      "decided_by": "t979",
+      "decided_at": "2026-10-09T16:34:54Z",
+      "loi": "t1033"
+    },
+    "sau": [
+      "V2"
+    ],
+    "ranh_gioi_goi_y": [
+      "p593/*",
+      "p109",
+      "p1037"
+    ]
+  },
+  "luc": "2026-10-09T16:35:10Z"
+}

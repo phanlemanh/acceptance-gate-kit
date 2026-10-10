@@ -1,0 +1,16 @@
+{
+  "phien": "P1",
+  "loai": "can-nguoi",
+  "hang": "t576",
+  "noi_dung": {
+    "cau_hoi": "t861",
+    "nga": [
+      "p862",
+      "p863",
+      "t864"
+    ],
+    "may_khuyen": "p865",
+    "ho_so": "p866"
+  },
+  "luc": "2026-10-09T21:57:46Z"
+}
