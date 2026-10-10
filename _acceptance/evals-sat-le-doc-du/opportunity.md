@@ -3,10 +3,10 @@ schema_version: 1
 slug: evals-sat-le-doc-du
 feature: «Kho viết evals.yaml kiểu danh sách sát lề vẫn được kit đọc đủ đầu vào và vùng tệp»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-10T10:47:38Z   # owner gõ «Làm» một chạm trong phiên 10/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -54,10 +54,10 @@ cảnh báo**. Hệ quả đọc được trên thẻ:
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] cùng một bộ tiêu chí viết sát lề, thụt 2 và thụt 4 có cho lượt chấm cùng đầu vào, cùng vùng tệp, cùng danh sách bằng chứng không; và khuôn không đọc được có lên cờ vàng có tên không?
-- Kết quả nào là SỐNG: [đề xuất] ba cách viết ra tệp tham số giống nhau từng trường; phép vi phân trên 620 hồ sơ thật (kit + crm + năm kho) 0 lệch ở hồ sơ thụt 4; hồ sơ có neo hoặc khoá danh sách không đọc được in cờ vàng gọi tên tiêu chí + trường, không im; bản sao bộ đọc cũ ĐỎ trên kho thử sát lề do mã sinh, bản mới XANH.
-- Kết quả nào là CHẾT: [đề xuất] một hồ sơ thụt 4 đang chạy đổi kết quả đọc, hoặc còn một đường đọc sát lề rơi im lặng sau khi sửa.
-- Timebox: [đề xuất] 2026-10-18 (mốc kế, cùng DP1 + A1 — dự kiến từ nhịp đo được, sai số vài ngày); không cắt mốc trong vòng này.
+- Câu hỏi phép đo trả lời: cùng một bộ tiêu chí viết sát lề, thụt 2 và thụt 4 có cho lượt chấm cùng đầu vào, cùng vùng tệp, cùng danh sách bằng chứng không; và khuôn không đọc được có lên cờ vàng có tên không?
+- Kết quả nào là SỐNG: ba cách viết ra tệp tham số giống nhau từng trường; phép vi phân trên 620 hồ sơ thật (kit + crm + năm kho) 0 lệch ở hồ sơ thụt 4; hồ sơ có neo hoặc khoá danh sách không đọc được in cờ vàng gọi tên tiêu chí + trường, không im; bản sao bộ đọc cũ ĐỎ trên kho thử sát lề do mã sinh, bản mới XANH.
+- Kết quả nào là CHẾT: một hồ sơ thụt 4 đang chạy đổi kết quả đọc, hoặc còn một đường đọc sát lề rơi im lặng sau khi sửa.
+- Timebox: 2026-10-18 (mốc kế, cùng DP1 + A1 — dự kiến từ nhịp đo được, sai số vài ngày); không cắt mốc trong vòng này.
 
 ## Kết quả prototype
 
@@ -73,11 +73,11 @@ phép vi phân do mã sinh trong phiên mở ô (sẽ vào bộ kiểm của vò
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
+- **decision = build** (hạng T3) — owner gõ «Làm» 10/10 trên khuyến nghị bên dưới. Căn cứ: lỗi đo lại trên `main` (bảng «Đo lại 10/10»), lần dẫm thứ hai trong bốn ngày ở crm, phép vi phân 0 lệch ở hồ sơ thụt 4.
 - **disposition = …** Căn cứ: — (không prototype)
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ «Làm».
 
-**Máy khuyến nghị (người ký thay `…` — máy không điền chữ quyết):** `build`, hạng **T3** thay vì T2 của
+**Máy khuyến nghị lúc mời ký (owner chọn đúng lối này):** `build`, hạng **T3** thay vì T2 của
 hàng. Lý do hạng: nghiệm đúng tầng là MỘT bộ đọc danh sách ở `lib/` cho bộ sinh tham số lượt chấm,
 bộ lập kế hoạch giữ-ô-xanh và bộ đọc vùng tệp hiện có — `lib/**` nằm trong `t3_paths` của kit, nên
 vòng có thêm lượt duyệt kế hoạch (trần T3 = 4 lượt gọi, vẫn là lượt trong thiết kế). Lối T2 rẻ hơn
