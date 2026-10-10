@@ -23,7 +23,12 @@ export function ghiNhatKy(thuMuc, cau) {
   }
 }
 
-const timHang = (hv, khoa) => hv.hang.find((h) => h.ma === khoa || h.slug === khoa);
+// Khoá vắng (`undefined`) từng khớp mọi hàng không mang `ma` — S4-r1 lượt 2. Đối số phải là chuỗi có chữ.
+const coChu = (x) => typeof x === 'string' && x.trim() !== '';
+const can = (x, ten) => {
+  if (!coChu(x)) throw new Error(`hang: thiếu ${ten}`);
+};
+const timHang = (hv, khoa) => (coChu(khoa) ? hv.hang.find((h) => h.ma === khoa || h.slug === khoa) : undefined);
 const luu = (thuMuc, hv, cau, suKien) => {
   ghiJsonNguyenTu(path.join(thuMuc, 'hang-viec.json'), hv);
   ghiNhatKy(thuMuc, cau);
@@ -31,6 +36,8 @@ const luu = (thuMuc, hv, cau, suKien) => {
 };
 
 export function dayLen(thuMuc, khoa, truocKhoa) {
+  can(khoa, 'mã hàng cần đẩy');
+  can(truocKhoa, '--truoc <mã>');
   const hv = docHangViec(thuMuc);
   const h = timHang(hv, khoa);
   if (!h) throw new Error(`hang: không có hàng ${khoa}`);
@@ -44,6 +51,8 @@ export function dayLen(thuMuc, khoa, truocKhoa) {
 }
 
 export function themHang(thuMuc, khoa, day) {
+  can(khoa, 'mã hoặc việc cần thêm');
+  can(day, '--day <dãy>');
   const hv = docHangViec(thuMuc);
   if (!hv.day.some((d) => d.id === day)) throw new Error(`hang: không có dãy ${day}`);
   const slug = timHang(hv, khoa)?.slug ?? suySlug(khoa);
@@ -55,6 +64,7 @@ export function themHang(thuMuc, khoa, day) {
 }
 
 export function choNghi(thuMuc, day) {
+  can(day, 'dãy cần cho nghỉ');
   const hv = docHangViec(thuMuc);
   const d = hv.day.find((x) => x.id === day);
   if (!d) throw new Error(`hang: không có dãy ${day}`);

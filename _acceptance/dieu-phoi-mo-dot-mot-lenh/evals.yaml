@@ -122,7 +122,10 @@ evals:
       "ok" cho "DP2-07 chay-lai": mỗi lệnh trong năm lệnh chạy lần hai → thoát 0, băm hang-viec.json,
       dieu-khien.json, LUAT.md, su-kien.jsonl sau lần hai == sau lần một.
       "ok" cho "DP2-07-do ma-la": `hang day-len KHONG-CO --truoc A` → thoát 1 nêu "KHONG-CO", băm hai tệp
-      trước == sau.
+      trước == sau. "ok" cho "DP2-07-do thieu-doi-so" (S4-r2): trên đợt có một hàng không mã, năm lời gọi
+      thiếu đối số (day-len thiếu mã · thiếu --truoc · --truoc rỗng · them thiếu việc · nghi thiếu dãy) mỗi lời
+      thoát 1 với thông điệp «thiếu …» nêu đúng đối số và băm bốn tệp đợt không đổi. "ok" cho
+      "DP2-07-do thieu-doi-so-ban-cu": bản sao gỡ chặn → ca đỏ nêu «hang day-len --truoc A».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8

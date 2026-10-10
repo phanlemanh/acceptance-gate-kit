@@ -429,6 +429,50 @@ test('DP2-07-do ma-la', () => {
   assert.equal(bamBon(dot), truoc);
 });
 
+// S4-r2 (t1): đối số vắng từng khớp nhầm hàng không mang `ma` rồi ghi đè tệp, thoát 0.
+const THIEU_DOI_SO = [
+  [['hang', 'day-len', '--truoc', 'A'], /thiếu mã hàng cần đẩy/],
+  [['hang', 'day-len', 'A'], /thiếu --truoc/],
+  [['hang', 'day-len', 'A', '--truoc'], /thiếu --truoc/],
+  [['hang', 'them', '--day', 'P1'], /thiếu mã hoặc việc cần thêm/],
+  [['hang', 'nghi'], /thiếu dãy cần cho nghỉ/],
+];
+export function kiemThieuDoiSo(kho, dot, gocGoi = GOI) {
+  const loi = [];
+  for (const [doiSo, thongDiep] of THIEU_DOI_SO) {
+    const truoc = bamBon(dot);
+    const r = chayCli(kho, doiSo, { gocGoi });
+    const ten = doiSo.join(' ');
+    if (r.ma !== 1) loi.push(`${ten}: mã ${r.ma}, cần 1`);
+    else if (!thongDiep.test(r.err)) loi.push(`${ten}: thông điệp «${r.err.trim()}»`);
+    if (bamBon(dot) !== truoc) loi.push(`${ten}: tệp đợt đã đổi`);
+  }
+  return loi;
+}
+
+test('DP2-07-do thieu-doi-so', () => {
+  const { kho, dot } = dotDangChay();
+  assert.equal(chayCli(kho, ['hang', 'them', 'viec tay', '--day', 'P1']).ma, 0, 'đối chứng: có hàng không mã');
+  assert.ok(docJ(path.join(dot, 'hang-viec.json')).hang.some((h) => !h.ma), 'fixture phải có hàng không mã');
+  const loi = kiemThieuDoiSo(kho, dot);
+  console.log(`  ${THIEU_DOI_SO.length} lời gọi thiếu đối số, lỗi: ${loi.length}`);
+  assert.deepEqual(loi, []);
+});
+
+test('DP2-07-do thieu-doi-so-ban-cu', () => {
+  const sao = path.join(tam(), 'dieu-phoi');
+  chep(GOI, sao);
+  const p = path.join(sao, 'scripts', 'hang.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace(/^  can\(.*\n/gm, '').replace('(coChu(khoa) ? hv.hang.find((h) => h.ma === khoa || h.slug === khoa) : undefined)', 'hv.hang.find((h) => h.ma === khoa || h.slug === khoa)');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const { kho, dot } = dotDangChay();
+  assert.equal(chayCli(kho, ['hang', 'them', 'viec tay', '--day', 'P1'], { gocGoi: sao }).ma, 0);
+  const loi = kiemThieuDoiSo(kho, dot, sao);
+  assert.ok(loi.some((l) => l.startsWith('hang day-len --truoc A:')), `bản cũ phải đỏ ở day-len thiếu mã: ${loi.join(' | ')}`);
+});
+
 // ---------- DP2-08: nguồn hàng từ lộ trình (AC-8, E8) ----------
 const TEP_LT = 'docs/lo-trinh.json';
 function khoCoLoTrinh() {
