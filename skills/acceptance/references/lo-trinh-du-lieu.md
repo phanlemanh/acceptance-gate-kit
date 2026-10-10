@@ -109,6 +109,39 @@ Bộ đọc của bản chiếu không bao giờ được làm trang của nó v
 Kit chỉ THÊM khoá trong cùng phiên bản; đổi nghĩa hay bỏ khoá là phiên bản mới, và trang cũ vẫn
 đọc được bằng bộ đọc mới.
 
+## Thứ kho tự ghi mà khối không chở
+
+Khối chở hai loại: thứ máy **tính** (trạng thái, nhóm tiến độ, hồ sơ nhận, cờ, hàng kế, tiến độ, «còn
+việc» của mốc) và các trường của **khuôn kế hoạch** kit (`cau_giao`, `hang`, `nhom`, `dung_tren`,
+`bat_khi`, `vi_sao` của việc; tên, ngày, việc gắn của mốc). Mọi trường khác trong tệp kế hoạch là
+trường riêng của kho — tên ngắn, hạn, người lo, tên hiển thị của nhóm, phòng ban — kit không đọc nghĩa
+của chúng nên không chở. Bản chiếu đọc chúng thẳng từ tệp kế hoạch, không phải chờ kit:
+
+1. Đọc tệp ở đường `lo_trinh.tep`, **cùng commit** với `LO-TRINH.html` đang đọc. Trên nhánh chính hai
+   tệp luôn khớp nhau: sửa tệp kế hoạch mà không vẽ lại trang thì CI của kho đỏ.
+2. Nối việc: `hang.ma` dạng `#<n>` là phần tử thứ n của mảng `hang` trong tệp (đếm từ 1); mọi mã khác
+   là phần tử có `ma` bằng đúng chuỗi đó (bỏ khoảng trắng hai đầu). Mã trùng thì trang đã báo «mã
+   trùng» ở chỗ cần sửa — bản chiếu để trống trường riêng của các việc mang mã đó.
+3. Nối mốc: cặp `moc.ten` + `moc.ngay`, cùng cách bỏ khoảng trắng.
+
+Trường riêng hiện như chữ kho ghi. Nó không đổi trạng thái, nhóm tiến độ hay danh sách việc trễ của
+một việc — ba thứ đó chỉ đọc từ khối và luật so ngày ở mục cuối. Muốn một ngày được tính vào «trễ»,
+gắn việc vào một mốc trong tệp kế hoạch.
+
+## Thời điểm dữ liệu
+
+Khối không mang giờ vẽ: một dấu giờ đổi ở mỗi lần vẽ thì trang không bao giờ khớp lần vẽ kế, và CI
+của kho đỏ. Bản chiếu muốn nói «cập nhật lúc …» dùng ngày của commit gần nhất đổi `LO-TRINH.html` trên
+nhánh chính — trang chỉ đổi khi dữ liệu đổi, nên đó đúng là lúc dữ liệu đổi lần cuối.
+
+## Chữ cho người ngoài đội
+
+`hang.trang_thai` là chữ của đội làm sản phẩm («Sắp mở vòng», «Đã giao — chờ phiên nghiệm thu»).
+Trang cho người ngoài đội lấy `hang.nhom_trang_thai` làm chữ chính — bốn giá trị cố định, bản chiếu
+tự đặt lời cho từng giá trị — và để `trang_thai` làm dòng chi tiết; riêng nhóm `khac` hiện thẳng
+`trang_thai` («Xếp lại sau», «Đã bác») vì một chữ chung không nói được gì. `cau_giao`, `bat_khi`,
+`vi_sao` là chữ kho viết, khối chép nguyên văn: muốn người ngoài đội đọc được thì sửa ở tệp kế hoạch.
+
 ## Luật duy nhất bản chiếu tự làm — so ngày
 
 «Hôm nay» là **ngày lịch của người xem** (theo giờ máy của họ), viết `YYYY-MM-DD`. Một mốc là «đã qua»
@@ -139,4 +172,5 @@ function viecTre(loTrinh, homNay) {
 
 Mọi thứ khác — trạng thái, nhóm, hàng kế, cờ, tiến độ — đọc thẳng từ khối. Bản chiếu nào thấy mình
 đang viết luật suy trạng thái từ hồ sơ là đang dựng một nguồn sự thật thứ hai: dừng, và báo cho người
-giữ kit thứ mình thiếu.
+giữ kit thứ mình thiếu. Thiếu một trường kho tự ghi thì không phải báo — đọc thẳng tệp kế hoạch như
+mục «Thứ kho tự ghi mà khối không chở».
