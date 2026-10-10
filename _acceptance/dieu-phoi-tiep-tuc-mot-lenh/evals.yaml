@@ -179,8 +179,9 @@ evals:
     paths: [dieu-phoi/scripts/mau/LUAT.md, dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
     expected: >
       exit 0; "ok" cho "DP3-11 luat": `mo thu` từ gói → LUAT.md của đợt, mục «Cách xin tài nguyên» chứa
-      "<thư mục đợt thật>/loi/dieu-phoi.mjs xin", "… nha", "… yeu-cau"; không dòng nào chứa "ghi `xin/",
-      "ghi `yeu-cau/" hay "rm -rf"; không còn chỗ giữ "{thu_muc_dot}". "ok" cho "DP3-11-do khuon-cu": khuôn
+      "<thư mục đợt>/loi/dieu-phoi.mjs xin", "… nha", "… yeu-cau"; không dòng nào chứa "ghi `xin/",
+      "ghi `yeu-cau/" hay "rm -rf"; LUAT.md của đợt vẫn mở bằng khuôn nguyên văn (ca DP2-02 giữ). "ok" cho
+      "DP3-11-do khuon-cu": khuôn
       LUAT.md của DP2 (rút bằng git show merge-base) qua cùng hàm kiểm → nêu "rm -rf".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E12

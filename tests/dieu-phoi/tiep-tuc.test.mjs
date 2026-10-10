@@ -751,6 +751,30 @@ test('DP3-10-do bo-dieu-kien', async () => {
   assert.equal(co.sau12, 1, 'có nhịp mà vẫn báo');
 });
 
+// ---------- DP3-11: LUAT.md dạy lệnh con (AC-11, E11) ----------
+export function kiemLuat(text) {
+  const muc = /## Cách xin tài nguyên\n([\s\S]*?)\n## /.exec(text)?.[1] ?? '';
+  const loi = [];
+  if (!muc) loi.push('thiếu mục «Cách xin tài nguyên»');
+  for (const lenh of ['xin', 'nha', 'yeu-cau']) if (!muc.includes(`<thư mục đợt>/loi/dieu-phoi.mjs ${lenh}`)) loi.push(`thiếu lệnh con ${lenh} qua lõi đợt`);
+  for (const cam of ['ghi `xin/', 'ghi `yeu-cau/', 'rm -rf']) if (text.includes(cam)) loi.push(`còn «${cam}»`);
+  return loi;
+}
+
+test('DP3-11 luat', () => {
+  const { dot } = khoLienKet({ chayPha: false });
+  const luat = fs.readFileSync(path.join(dot, 'LUAT.md'), 'utf8');
+  assert.deepEqual(kiemLuat(luat), []);
+  const khuon = fs.readFileSync(path.join(GOI, 'scripts', 'mau', 'LUAT.md'), 'utf8');
+  assert.ok(luat.startsWith(khuon.replace(/\s*$/, '')), 'LUAT.md của đợt vẫn mở bằng khuôn nguyên văn (ca DP2-02)');
+});
+
+test('DP3-11-do khuon-cu', () => {
+  const cu = execFileSync('git', ['show', `${execFileSync('git', ['merge-base', 'HEAD', 'origin/main'], { cwd: KIT, env: ENV, encoding: 'utf8' }).trim()}:dieu-phoi/scripts/mau/LUAT.md`], { cwd: KIT, env: ENV, encoding: 'utf8' });
+  const loi = kiemLuat(cu);
+  assert.ok(loi.includes('còn «rm -rf»'), `khuôn của nhánh chính phải bị nêu «rm -rf»: ${loi.join(' | ')}`);
+});
+
 test('DP3-02 tep-hong', async () => {
   const { dot, w1 } = khoLienKet();
   hookNhip({ session_id: 's-p1' }, { cwd: w1, nowMs: GIO });

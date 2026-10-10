@@ -84,8 +84,9 @@ DP2, ghim lại hồ sơ DP2).
    `chay` để chép lõi mới» — không tự chép, vì đổi lõi giữa đợt là quyết định).
 8. **`LUAT.md` dạy thợ gọi lệnh con qua lõi của đợt** (`node <thư mục đợt>/loi/dieu-phoi.mjs xin s4`),
    không qua đường cache của gói: `chay` đã chép lõi vào `loi/` để nâng gói giữa đợt không rút mất mã đang
-   chạy, nên đường này đứng yên suốt đợt, còn đường cache đổi theo mỗi lần nâng. `mo` thay chỗ giữ
-   `{thu_muc_dot}` của khuôn bằng đường thật lúc ghép.
+   chạy, nên đường này đứng yên suốt đợt, còn đường cache đổi theo mỗi lần nâng. Khuôn viết chữ
+   `<thư mục đợt>` như các dòng sẵn có của nó (thợ lấy đường thật từ lời ghi danh của chip); `mo` KHÔNG
+   thay chỗ giữ nào — ca DP2-02 của hồ sơ đã ký đòi `LUAT.md` của đợt mở bằng khuôn nguyên văn.
 9. **Chỉ đánh thức hay gọi người khi CÓ việc chờ.** Spec §5 viết: phiên giám sát «không có nhịp sống …
    quá 10′» thì đẩy thông báo cho chủ kho. Nhưng nhịp sống chỉ đo hoạt động: giám sát RẢNH (không việc)
    cũng không gọi công cụ, nên chữ đó gọi người mỗi 30′ khi không có gì hỏng — lượt gọi người ngoài thiết
