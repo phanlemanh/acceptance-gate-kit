@@ -86,7 +86,8 @@
         "A2",
         "X2",
         "S3",
-        "S3b"
+        "S3b",
+        "BB1"
       ]
     },
     {
@@ -282,7 +283,20 @@
       "cau_giao": "«Lượt cắt chỉ sinh hàng phát triển máy giao và chứng minh được — việc vận hành của người thành mốc ngoài, không hàng nào đứng chờ nó; thiếu dữ liệu thật thì có hàng dữ liệu giả do máy sinh đứng trước»",
       "vi_sao": "Gốc: crm/_acceptance/khung-okr-truoc-r1 (lượt cắt OKR) và lộ trình Kho tài liệu của crm — đo 11/10: OKR 11/16 mốc là việc vận hành của người (nhân sự gửi danh sách, BLĐ gửi OKR, đào tạo, công bố OKR); Kho tài liệu có hàng «cb: Việc của chủ kho chạy song song» (gom 50 câu hỏi thật) và hàng phát triển treo vì vận hành (l5 «chờ chạy thật xong», l2 «anh thử tải tệp Word thật»). Tiền lệ đúng: crm hàng M «một công ty giả chạy OKR đủ một quý» mở khoá 9b/8a. Kèm hai mục ngoài hợp đồng của S3 (Ngoài-1/2, chữ trong hướng dẫn skill cắt lượt) — sửa trước khi crm nhận mốc.",
       "bat_khi": "Ở lượt cắt kế của crm: 0 hàng là việc vận hành của người, 0 hàng phát triển đứng chờ mốc vận hành, mọi hàng cần dữ liệu thật có hàng dữ liệu giả đứng trước hoặc tiêu chí bỏ qua có tên",
-      "ghi_chu": "Chủ kho chốt 11/10 «đưa vào». Ba luật dữ liệu giả: máy sinh từ khuôn dữ liệu thật (không viết tay) · mỗi tiêu chí khai đo trên dữ liệu giả hay cần dữ liệu thật (cần thật → ô bỏ qua có tên, hiện trên thẻ như giới hạn đo) · thực tế vẫn là đồng hồ cuối (Cổng Giá trị). «Đứng trên dữ liệu thật của hàng trước» (luật 2) = kết quả thật vòng trước đã giao, không phải dữ liệu vận hành. Kit mang LUẬT + khuôn; kế hoạch vận hành và dữ liệu giả cụ thể là của kho. Chạy trên MacBook Pro sau X2; cỡ 8–12 tiêu chí."
+      "ghi_chu": "Chủ kho chốt 11/10 «đưa vào». Ba luật dữ liệu giả: máy sinh từ khuôn dữ liệu thật (không viết tay) · mỗi tiêu chí khai đo trên dữ liệu giả hay cần dữ liệu thật (cần thật → ô bỏ qua có tên, hiện trên thẻ như giới hạn đo) · thực tế vẫn là đồng hồ cuối (Cổng Giá trị). «Đứng trên dữ liệu thật của hàng trước» (luật 2) = kết quả thật vòng trước đã giao, không phải dữ liệu vận hành. Kit mang LUẬT + khuôn; kế hoạch vận hành và dữ liệu giả cụ thể là của kho. Chạy trên MacBook Pro sau X2; cỡ 8–12 tiêu chí. Bổ sung 11/10 (tư duy SaaS, chủ kho «làm cả hai»): việc vận hành LẶP LẠI (mỗi tổ chức mới hoặc mỗi kỳ) → ứng viên HÀNG tính năng tự phục vụ (vd «Nhân sự gửi danh sách» → nhập danh sách); việc vận hành MỘT LẦN → mốc ngoài."
+    },
+    {
+      "ma": "BB1",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "slug": "bat-bien-san-pham",
+      "dung_tren": [
+        "S3b"
+      ],
+      "cau_giao": "«Mỗi kho khai các luật sản phẩm của mình trong một tệp; luật được nạp lúc viết đặc tả, và vòng nào phạm luật thì thẻ cổng nêu tên luật đó»",
+      "vi_sao": "Gốc: lộ trình OKR + Kho tài liệu của crm — chủ kho 11/10 đặt tư duy SaaS cho OneHub (linh hoạt, phổ quát nếu có thể): không ghi cứng thứ riêng của một tổ chức, khác nhau giữa tổ chức là cấu hình, luôn có tổ chức mẫu (crm hàng M), việc lặp lại thành tự phục vụ. Mở lại ô `bat-bien-san-pham` (chủ kho gật 02/09, xếp lại 18/09) — chủ kho gọi tên 11/10. Kit mang ổ cắm `PRODUCT-INVARIANTS.md` ở gốc kho + bước nạp ở bước thiết kế + cờ trên thẻ; NỘI DUNG luật là của kho (crm viết bất biến SaaS đầu tiên). Máy KHÔNG sửa tệp bất biến.",
+      "bat_khi": "Ba mươi ngày sau khi crm khai tệp: mọi vòng mới của crm có dòng nạp bất biến ở bước thiết kế, và ≥ 1 lần thẻ cổng nêu tên một bất biến bị chạm trước khi gộp (N vòng ghi kèm)",
+      "ghi_chu": "CỘNG — qua Cổng Đáng khi mở (ô đang park, mở lại bằng chữ chủ kho). Phép thử phanh: phổ quát quá sớm — giữ ranh giới cấu hình/mã từ đầu, làm phần phổ quát khi có tổ chức/kho thứ hai thật. Chạy trên MacBook Pro sau S3b; cỡ 8–12 tiêu chí."
     },
     {
       "ma": "L3",
