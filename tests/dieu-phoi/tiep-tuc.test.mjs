@@ -769,10 +769,30 @@ test('DP3-11 luat', () => {
   assert.ok(luat.startsWith(khuon.replace(/\s*$/, '')), 'LUAT.md của đợt vẫn mở bằng khuôn nguyên văn (ca DP2-02)');
 });
 
+// Khuôn «cũ» neo vào LỊCH SỬ, không vào merge-base sống (sửa 11/10 ở vòng DP7, sổ DP3): commit gần nhất
+// đụng chữ «rm -rf» trong khuôn là commit GỠ nó (DP3 AC-11) — bản cha của commit đó là khuôn cũ. merge-base
+// của HEAD với origin/main dời theo nhánh: sau khi DP3 gộp, nó là bản MỚI ở mọi nhánh kể cả main.
+const LUAT_MAU = 'dieu-phoi/scripts/mau/LUAT.md';
+const gitKit = (...a) => execFileSync('git', a, { cwd: KIT, env: ENV, encoding: 'utf8' });
+const khuonNeoLichSu = () => {
+  const bo = gitKit('log', '-1', '--format=%H', '-S', 'rm -rf', '--', LUAT_MAU).trim();
+  assert.ok(bo, 'không tìm được commit gỡ «rm -rf» khỏi khuôn LUAT.md');
+  return gitKit('show', `${bo}^:${LUAT_MAU}`);
+};
+const khuonMergeBaseSong = () => gitKit('show', `${gitKit('merge-base', 'HEAD', 'origin/main').trim()}:${LUAT_MAU}`);
+const kiemKhuonCu = (layKhuon) => {
+  const loi = kiemLuat(layKhuon());
+  return loi.includes('còn «rm -rf»') ? [] : [`khuôn của nhánh chính phải bị nêu «rm -rf»: ${loi.join(' | ')}`];
+};
+
 test('DP3-11-do khuon-cu', () => {
-  const cu = execFileSync('git', ['show', `${execFileSync('git', ['merge-base', 'HEAD', 'origin/main'], { cwd: KIT, env: ENV, encoding: 'utf8' }).trim()}:dieu-phoi/scripts/mau/LUAT.md`], { cwd: KIT, env: ENV, encoding: 'utf8' });
-  const loi = kiemLuat(cu);
-  assert.ok(loi.includes('còn «rm -rf»'), `khuôn của nhánh chính phải bị nêu «rm -rf»: ${loi.join(' | ')}`);
+  assert.deepEqual(kiemKhuonCu(khuonNeoLichSu), []);
+});
+
+// Chiều đỏ của chính phép đo trên: cách lấy cũ (merge-base sống) trên cây sau khi DP3 gộp ra bản mới.
+test('DP3-11-do khuon-cu merge-base-song', () => {
+  const loi = kiemKhuonCu(khuonMergeBaseSong);
+  assert.ok(loi.some((l) => l.startsWith('khuôn của nhánh chính phải bị nêu «rm -rf»')), `cách lấy merge-base sống phải đỏ: ${loi.join(' | ')}`);
 });
 
 // ---------- DP3-01: trình tự lệnh người tiep-tuc (AC-1, E1) ----------

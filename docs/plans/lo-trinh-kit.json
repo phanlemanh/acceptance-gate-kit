@@ -56,7 +56,8 @@
         "DP2",
         "DP3",
         "DP4",
-        "DP7"
+        "DP7",
+        "DP6"
       ]
     },
     {
@@ -79,7 +80,7 @@
       "loai": "phat-hanh",
       "ai": "Owner",
       "hang": [
-        "DP6",
+        "DP6b",
         "L3",
         "G2",
         "G3",
@@ -371,8 +372,19 @@
         "DP3"
       ],
       "slug": "dieu-phoi-lop-mod",
-      "cau_giao": "«Trạng thái đợt hiện ngay trong app; S4 bị chặn đúng lệnh, không chặn nhầm lệnh chỉ đọc; thợ chờ người thì giám sát biết ngay, không phải dò nhật ký»",
-      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — 10/10 hook chặn S4 so chuỗi con, chặn nhầm một lệnh chỉ đọc; đêm 09–10/10 S4 của K3b đứng 2 giờ 30 vì hộp duyệt quyền mà không ai biết. Chủ kho đồng ý đưa Mods vào vòng 10/10 (bản ghi nhu cầu §5 mục 6). Thiết kế: workflow §12."
+      "cau_giao": "«S4 bị chặn đúng lệnh — không lọt lệnh bọc timeout/env, không chặn nhầm lệnh chỉ đọc; thợ chờ người thì giám sát thức ngay»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — 10/10 hook chặn S4 so chuỗi con, chặn nhầm một lệnh chỉ đọc; đêm 09–10/10 S4 của K3b đứng 2 giờ 30 vì hộp duyệt quyền mà không ai biết. M5 báo 11/10: DP6 nay là SỬA LÕI gói dieu-phoi (bộ phân loại S4 lọt lệnh bọc timeout/env và chặn nhầm lệnh chỉ đọc; giám sát không thức khi thợ chờ người), nhắm mốc 25/10; phần mod (trạng thái đợt hiện trong app) tách sang DP6b."
+    },
+    {
+      "ma": "DP6b",
+      "nhom": "dieu-phoi",
+      "hang": "T2",
+      "dung_tren": [
+        "DP6"
+      ],
+      "cau_giao": "«Trạng thái đợt Điều phối – Thợ hiện ngay trong app, không phải mở trang hay dò nhật ký»",
+      "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-hai-tang — chủ kho đồng ý đưa Mods vào vòng 10/10 (bản ghi nhu cầu §5 mục 6). M5 tách phần mod khỏi DP6 ngày 11/10; hạt giống docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md (M5 đẩy).",
+      "ghi_chu": "Máy M5 giữ hàng này; mốc ~01/11."
     },
     {
       "ma": "DP7",
