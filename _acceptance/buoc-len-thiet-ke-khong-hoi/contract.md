@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # theo hàng A2 + lời giao (Gate 1.5); đường tệp: SKILL feature-loop (S1 + mục sổ) + scripts/can-cu-s1.cjs (mới) + scripts/gate-card.js + test + tài liệu — không chạm lib/**, hooks/**, cổng chặn gộp (máy suy T2, không tự đổi)
 surfaces: [cli, docs, ui]
 design_doc: docs/superpowers/specs/2026-10-11-buoc-len-thiet-ke-khong-hoi-design.md
-status: approved
+status: implemented
 approved_by: Manh Phan
 approved_at: 2026-10-11T10:17:27Z
 ---
