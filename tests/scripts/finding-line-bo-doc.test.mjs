@@ -200,7 +200,11 @@ function so(khong, co, ten, dauSong) {
   // 11 từ 21/09 (hồ sơ nhan-trang-thai-va-reality): thêm lib/nhan-canh-gay.cjs — bộ phân nhãn
   // cạnh gãy đọc dòng round-tally · vang-mat · thuoc-lech theo `kind`, và dòng eval (không kind);
   // dòng `kind: finding` không vào nhánh nào của nó. Hai chiều đo ở ntr-the-canh-gay / ntr-luoi.
-  const BO_DOC_KHAI = 11;
+  // 13 từ 11/10 (hồ sơ eval-goi-model-that-khong-chay): thêm feature-loop/scripts/lib/dung-lai-model.mjs
+  // (bộ chọn nguồn dùng lại — chỉ xét dòng `kind: repin`/`repin-do`) và feature-loop/scripts/dem-dung-lai-model.mjs
+  // (script đếm đường đo — cùng hai kind). Dòng `kind: finding` không vào nhánh nào của chúng; chiều im đo ở
+  // ca LIB-chon-nguon (một dòng finding cùng băm không đổi nguồn được chọn).
+  const BO_DOC_KHAI = 13;
   const goc = path.join(ROOT);
   const quet = (d) => execFileSync('bash', ['-c',
     `grep -rl "run-log.jsonl" "${d}/scripts" "${d}/lib" "${d}/hooks" "${d}/feature-loop/scripts" 2>/dev/null | wc -l`],

@@ -44,8 +44,7 @@
       "hang": [
         "DP1",
         "A1",
-        "R1",
-        "A2s"
+        "R1"
       ]
     },
     {
@@ -58,7 +57,8 @@
         "DP3",
         "DP4",
         "DP7",
-        "DP6"
+        "DP6",
+        "A3"
       ]
     },
     {
@@ -85,10 +85,12 @@
         "L3",
         "G3",
         "A2",
+        "A2s",
         "X2",
         "S3",
         "S3b",
-        "BB1"
+        "BB1",
+        "C1"
       ]
     },
     {
@@ -323,7 +325,25 @@
       "cau_giao": "Bước thiết kế gọi được công cụ phân loại căn cứ ở mọi kho dùng kit, và thẻ Cổng Phạm vi giữ «vì sao chọn · sai thì tốn» cho mọi lựa chọn máy đã quyết",
       "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/buoc-len-thiet-ke-khong-hoi — Ngoài-1/Ngoài-3: lời dặn bước thiết kế gọi công cụ phân loại bằng đường tương đối, ở crm thoát 1 «Cannot find module» = cùng mã với sổ đỏ → mọi vòng dừng ở Cổng Phạm vi; Ngoài-2: thẻ Cổng Phạm vi bỏ «vì sao · sai thì tốn» của dòng thiết kế mang căn cứ (trái ADR 0021). Chủ kho ký «mở hợp đồng mới» 11/10.",
       "bat_khi": "Vòng crm đầu tiên sau khi nhận mốc: bước kiểm sổ trước Cổng Phạm vi chạy được (0 lần «Cannot find module»), và thẻ Cổng Phạm vi in đủ vì sao + sai thì tốn cho mọi dòng máy đã quyết",
-      "ghi_chu": "CHẶN cắt mốc kế: phải gộp trước khi cắt (A2 đã ở main sẽ đi cùng mốc đó). Vòng sửa của A2, chạy trên MacBook Pro; Cổng Đáng ký 11/10."
+      "ghi_chu": "CHẶN mốc mang A2: A2 chỉ vào main sau khi cắt 2.27.0 và phải đi cùng mốc với hàng này — mốc nào chứa A2 thì không cắt khi A2s chưa gộp. Vòng sửa của A2, chạy trên MacBook Pro; Cổng Đáng ký 11/10."
+    },
+    {
+      "ma": "A3",
+      "nhom": "bot-goi-nguoi",
+      "hang": "T2",
+      "dung_tren": [],
+      "cau_giao": "«Hồ sơ T2 xanh đi tiếp không mời ký khi máy đã ghi sổ mọi mục ngoài hợp đồng chính nó đề xuất ghi hạn chế hay bỏ qua — người chỉ thấy mục cần mở việc mới»",
+      "vi_sao": "Gốc: crm/_acceptance/okr-mau-xoa-cau-hinh — T2, PASS, 5 mục Ngoài-n đều đề xuất known-limits mà vẫn phải ký Cổng 2. Đợt crm sau-14-10: làn V (xanh-sạch) bắn 0/71 hồ sơ, 59 chỉ vì Ngoài-n chưa định tuyến; người định tuyến trùng đề xuất máy 357/376 (94,9 %). Hợp nhất đề 2 + 3 của hạt giống PR #301; số đo: docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §3. Chủ kho đồng ý mở 11/10; lựa chọn bật theo kho.",
+      "bat_khi": "Chạy lại lan-v-mo-phong.mjs trên đợt crm kế: hồ sơ T2 PASS không có đề xuất mở việc mới đi tiếp không mời ký, và số mục Ngoài-n người phải phân xử ≤ 1/10 số mục của đợt"
+    },
+    {
+      "ma": "C1",
+      "nhom": "gia-ci",
+      "hang": "T2",
+      "dung_tren": [],
+      "cau_giao": "«CI của kho bỏ job nặng cho PR không chạm mã sản phẩm bằng một lệnh của kit — không chép hàm nội bộ, không danh sách thứ hai»",
+      "vi_sao": "Gốc: crm/_acceptance/giam-phut-acceptance — 09/10 GitHub dừng mọi job vì vượt mức chi. 30 ngày tới 11/10: 30 % phút Actions của crm là test sản phẩm trên PR không đổi mã (17 % PR chỉ T1, 12,5 % PR chỉ hồ sơ); crm PR #369 tự lọc T1 bằng cách rút hai hàm glob_variants/match_globs khỏi pre-merge-check.sh bằng sed — kit đổi tên hàm là crm mất khoản tiết kiệm mà không báo. Đề 8 của hạt giống PR #301; số đo: docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §1.1, §5. Lệnh đọc đúng t1_skip_globs của kho; án .out-of-scope/t1-skip-globs-github-and-manifests.md giữ.",
+      "bat_khi": "crm thay khối sed bằng lệnh của kit và PR chỉ đổi hồ sơ không còn chạy job test sản phẩm; kho không gọi lệnh thì CI không đổi byte"
     },
     {
       "ma": "S3c",
@@ -472,6 +492,36 @@
       "cau_giao": "«Hợp đồng của mỗi vòng khai nguồn dữ liệu cho từng tiêu chí — dữ liệu giả hay cần dữ liệu thật»",
       "ly_do": "Phần bước thiết kế Feature Loop của luật «chỉ việc phát triển, thiếu dữ liệu dùng dữ liệu giả có nhãn» (chủ kho chốt 11/10). Chạm SKILL feature-loop — máy M5 đang sửa ở DP7.",
       "mo_lai_khi": "DP7 vào main"
+    },
+    {
+      "ma": "H7",
+      "cau_giao": "«Mỗi lượt chấm ghi lớp lý do REJECT/BLOCKED (mã · thước · hạ tầng · chập chờn) và thẻ đóng đợt in tổng token · phút của đợt»",
+      "ly_do": "Đề 1 của hạt giống PR #301, thu nhỏ: token đã có ở usage-report.md (166 hồ sơ crm) và scripts/ho-so-tom-tat.cjs đã đọc; hở thật là lớp lý do (crm 75 lượt BLOCKED không ghi lý do) và bản tổng theo đợt. docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §5.",
+      "mo_lai_khi": "Đợt thử 26/10 cần tách vòng thừa theo lớp mà không đọc được từ run-log, hoặc vòng A3/C1 cần số này cho dòng bat_khi"
+    },
+    {
+      "ma": "H8",
+      "cau_giao": "«Cổng Đáng ký một lần cho cả gói đợt; hàng kế thừa chữ ký»",
+      "ly_do": "Đề 4 của hạt giống PR #301. Chỉ crm có đợt; lo-trinh.mjs, product-map.mjs và bước S5 đọc opportunity.md theo slug — hàng kế thừa không tệp sẽ bị coi là ship thẳng, bỏ phiên nghiệm thu. Nối DP2. docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §5.",
+      "mo_lai_khi": "Đợt thử crm 26/10 hoặc OneFlow ~27/10 đo được Cổng Đáng chiếm lượt gọi người đáng kể sau khi A3 đã gộp"
+    },
+    {
+      "ma": "H9",
+      "cau_giao": "«feature-loop mở PR nháp, chỉ chuyển sẵn sàng lúc trình Cổng Bằng chứng» — lựa chọn bật theo kho",
+      "ly_do": "Đề 5 của hạt giống PR #301. crm: ≤ 19 % phút Actions là lượt trên commit giữa chừng. Đổi mặc định làm MẤT ở 4 kho (radar, artifact-platform, media-library, floorplanstudio): hôm nay nhánh chưa PR thì không CI. docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §5.",
+      "mo_lai_khi": "C1 đã gộp và crm #369 (bỏ job nặng cho PR nháp) đã gộp"
+    },
+    {
+      "ma": "H10",
+      "cau_giao": "«PR của mọi máy và phiên vào một hàng gộp; base dời thì chỉ chạy lại một lượt»",
+      "ly_do": "Đề 6 của hạt giống PR #301. Chỉ crm; va luật riêng 5 của crm (cấm --auto, chỉ phiên giám sát gộp), onehub chưa ruleset. Nối DP4/DP7. docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §5.",
+      "mo_lai_khi": "Đợt thử 26/10 còn chuỗi gộp lại kiểu crm #358 (gộp lại ≥3 lần một PR trong một ngày)"
+    },
+    {
+      "ma": "H11",
+      "cau_giao": "CI của kit chạy các bộ test song song (bộ scripts 12,5′ và plugins 6′ đang nối tiếp)",
+      "ly_do": "Kit công khai nên không tốn tiền; chờ CI mỗi lần đẩy ở kit trung vị 14,6′. Chỉ có lợi cho phiên sửa kit — meta, không neo ngoài. docs/findings/2026-10-11-khao-sat-chi-phi-actions-va-thoi-gian-phien.md §1.1, §6.",
+      "mo_lai_khi": "Owner gọi tên, hoặc chờ CI kit thành khối lớn trong thời gian phiên của một vòng sản phẩm"
     }
   ],
   "da_bac": [

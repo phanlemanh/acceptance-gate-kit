@@ -464,7 +464,8 @@ ghi `su-kien.jsonl`. Cấp khoá theo pha của đợt.
 _Avoid_: scheduler, daemon, «bộ điều phối».
 
 **Hàng kế của dãy**:
-Hàng tiếp theo bộ phát lịch chọn cho một dãy, ghi ở `tiep/<phiên>.json`.
+Hàng tiếp theo bộ phát lịch chọn cho một dãy, ghi ở `tiep/<phiên>.json`. Ở đợt mở từ gói, chỉ hàng đã quyết build
+mới được chọn; không còn hàng như vậy thì `tiep/` ghi lý do chờ (`nghi`, `phu-thuoc`, `cong-dang`) hay `xong`.
 _Avoid_: «hàng kế» trơ — chữ ấy là hàng kế của LỘ TRÌNH (một hàng cho cả một
 lộ trình, thẻ `/acceptance-gate:start` in); next task.
 
