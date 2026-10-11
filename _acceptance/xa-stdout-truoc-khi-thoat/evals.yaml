@@ -1,0 +1,92 @@
+schema_version: 1
+feature_slug: xa-stdout-truoc-khi-thoat
+# Ca đo sống ở tests/scripts/xuat-du-qua-pipe.test.mjs (XD-1..XD-7), chạy bằng khoá mới
+# `executors.test.xuat_du_qua_pipe`. Hồ sơ thử và kho thử do CODE SINH trong lượt (thư mục tạm); thước
+# của «đủ byte» là bản ghi ra TỆP (stdout là tệp: ghi đồng bộ). Ca mở đầu bằng phép DÒ NỀN: lệnh một
+# dòng ghi 200000 byte rồi `process.exit(0)` qua spawnSync, in `nền: CẮT (dò nhận <n> / 200000 byte)`
+# hoặc `nền: KHÔNG CẮT (...)`. Tiền đề cỡ của mọi fixture lớn: bản tệp > 65536 VÀ ≥ 2 × n (n của phép
+# dò). Mọi chiều đỏ chỉ được khẳng định khi `nền: CẮT` và tiền đề cỡ thoả; ngược lại ca in
+# `KHÔNG ĐO ĐƯỢC ở nền này` — trạng thái không-đọc-được-ở-đây, KHÔNG phải PASS. Mutant chạy trên bản sao
+# dựng cùng cách với một bản sao CHƯA tiêm (phải xanh trước): gate-card lấy TRỌN `scripts` + `lib`,
+# repin-lane lấy TRỌN `feature-loop`, chạy với `--ag-root` tuyệt đối trỏ cây đang kiểm; mọi đường suy từ
+# vị trí tệp ca. Mỗi eval ghim dòng "PASS: XD-…" của mình; tệp ca thoát ≠ 0 khi có ca đỏ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.xuat_du_qua_pipe
+    paths: [scripts/gate-card.js, tests/scripts/xuat-du-qua-pipe.test.mjs]
+    expected: >
+      exit 0; cùng lượt có dòng "nền: CẮT (dò nhận <n> / 200000 byte)" (M5: n = 65536) và "PASS: XD-1" —
+      tiền đề: thẻ Cổng 1 của hồ sơ thử ghi ra tệp > 65536 và ≥ 2 × n byte (thiếu thì ca đỏ nêu "tiền đề
+      cỡ" kèm hai số); qua pipe: Buffer bằng bản tệp, mã 0. PASS không kèm "nền: CẮT" thì không phân biệt
+      được vật sửa với vật cũ — không tính. Chiều đỏ ở E4 (chỗ «thẻ Cổng 1»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.xuat_du_qua_pipe
+    paths: [scripts/gate-card.js, tests/scripts/xuat-du-qua-pipe.test.mjs]
+    expected: >
+      exit 0; cùng lượt có "nền: CẮT" và "PASS: XD-2" — `--extract` Cổng 1 và Cổng 2, mỗi bản tệp thoả
+      tiền đề cỡ; qua pipe: Buffer bằng bản tệp, JSON.parse thành công, khoá `gate` = 1 / 2, mã 0. Chiều
+      đỏ ở E4 (chỗ «trích Cổng 1», «trích Cổng 2»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.xuat_du_qua_pipe
+    paths: [scripts/gate-card.js, tests/scripts/xuat-du-qua-pipe.test.mjs]
+    expected: >
+      exit 0; cùng lượt có "nền: CẮT" và "PASS: XD-3" — thẻ Cổng 2 BLOCKED (chứa «CHƯA ký được») và thẻ
+      Cổng 2 ký-được, mỗi bản tệp thoả tiền đề cỡ; qua pipe Buffer bằng bản tệp, mã 0. Chiều đỏ ở E4 (chỗ
+      «thẻ Cổng 2 chưa-ký-được»); thẻ ký-được kết tự nhiên nên là đối chứng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.xuat_du_qua_pipe
+    paths: [scripts/gate-card.js, tests/scripts/xuat-du-qua-pipe.test.mjs]
+    expected: >
+      exit 0; "nền: CẮT" và "PASS: XD-4" — bản sao CHƯA tiêm cho bốn đường ra bằng bản tệp, mã 0; ma
+      trận 4 × 4 VIẾT TRƯỚC (chỗ hoàn nguyên × đường ra), dòng in "16 ô"; ô chéo đỏ khi đồng thời mã 0,
+      0 < n < m, n byte là tiền tố bản tệp — thông điệp nêu tên chỗ và "nhận <n> / <m> byte"; ô ngoài chéo
+      bằng bản tệp. Chuỗi tìm vắng → "mutant không áp được" (ca đỏ). Dòng "XD-4 KHÔNG ĐO ĐƯỢC ở nền này"
+      thay cho PASS nghĩa là eval KHÔNG đạt ở lượt này.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.xuat_du_qua_pipe
+    paths: [scripts/gate-card.js, tests/scripts/xuat-du-qua-pipe.test.mjs]
+    expected: >
+      exit 0; "PASS: XD-5" — năm đường ra của hồ sơ nhỏ (bản tệp mỗi đường < 65536 byte) + ba hồ sơ thật
+      đầu tiên theo thứ tự chữ thoả tiền đề (cả hai cổng: mã 0, stdout ≥ 1024 byte, có `class="gc"`) — tên
+      và cỡ in ra; bản sao đã sửa qua pipe == bản sao hoàn nguyên khuôn cũ qua pipe == bản sao đã sửa ra
+      tệp, từng byte, mã bằng nhau; đối chứng bố cục: bản sao đã sửa == gate-card cây thật trên cùng hồ
+      sơ. Số cặp đã so in ra. Chiều đỏ của phép so: bản sao thêm một byte vào thẻ Cổng 1 → ca nêu "lệch
+      byte".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.xuat_du_qua_pipe
+    paths: [scripts/gate-card.js, tests/scripts/xuat-du-qua-pipe.test.mjs]
+    expected: >
+      exit 0; "PASS: XD-6" — người đọc nhận mẩu đầu rồi đóng: gate-card cây thật và bản sao chưa tiêm mã
+      0, stderr tiến trình con không có "EPIPE". Chiều đỏ (khi phép dò `exitCode` + đóng sớm sập EPIPE):
+      bản sao khuôn `process.exitCode` ở chỗ thẻ Cổng 1 → stderr TIẾN TRÌNH CON có "EPIPE" và mã ≠ 0.
+      Nền không sập: dòng "XD-6 KHÔNG ĐO ĐƯỢC ở nền này" cho chiều đỏ — eval KHÔNG đạt ở lượt này.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.xuat_du_qua_pipe
+    paths: [feature-loop/scripts/repin-lane.mjs, tests/scripts/xuat-du-qua-pipe.test.mjs]
+    expected: >
+      exit 0; "nền: CẮT" và "PASS: XD-7" — kho thử git do mã sinh, suite đỏ, `--reason` dài, bản tệp thoả
+      tiền đề cỡ; cây thật và bản sao chưa tiêm (cùng `--ag-root` tuyệt đối) qua pipe: JSON.parse được,
+      mọi slug có mặt, section chứa trọn lý do, mã 1, stderr có "LÀN ĐỎ". Chiều đỏ: bản sao đưa dòng
+      thoát nhánh đỏ về `process.exit(1)` ngay → đỏ khi mã 1, 0 < n < m, n byte là tiền tố bản tệp, thông
+      điệp "nhận <n> / <m> byte". Chuỗi tìm vắng → "mutant không áp được" (ca đỏ).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
