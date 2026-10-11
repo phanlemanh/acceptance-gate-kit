@@ -132,22 +132,19 @@ export async function motNhipThat(dot, gocGoi = GOI) {
   await taoVong(dot, ioGia(bay), () => bay)();
 }
 
-let goiMergeBase = null;
-export function goiTaiMergeBase() {
-  if (goiMergeBase) return goiMergeBase;
-  let mb = null;
-  for (const nhanh of ['origin/main', 'main']) {
-    try {
-      mb = execFileSync('git', ['merge-base', 'HEAD', nhanh], { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-      break;
-    } catch {}
-  }
-  assert.ok(mb, 'không tìm được merge-base');
+// «Bản cũ» của mọi ca so sánh = gói ở một commit CỐ ĐỊNH của nhánh chính trước DP6 (merge PR #307, 11/10) — không
+// phải merge-base sống: sau khi DP6 gộp, merge-base của nhánh chính với chính nó là HEAD và bản cũ thành bản mới
+// (sổ quyết định dòng 24). Lấy trọn thư mục `dieu-phoi/` bằng git archive.
+export const MOC_BAN_CU = '08ba287d30ad96a89e3103436822f298c2684296';
+const goiTheoRef = new Map();
+export function goiTaiRef(ref) {
+  if (goiTheoRef.has(ref)) return goiTheoRef.get(ref);
   const dir = tam('dp6-goc-');
-  execFileSync('tar', ['-x', '-C', dir], { input: execFileSync('git', ['archive', mb, 'dieu-phoi'], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 }) });
-  goiMergeBase = path.join(dir, 'dieu-phoi');
-  return goiMergeBase;
+  execFileSync('tar', ['-x', '-C', dir], { input: execFileSync('git', ['archive', ref, 'dieu-phoi'], { cwd: KIT, env: ENV, maxBuffer: 1 << 28 }) });
+  goiTheoRef.set(ref, path.join(dir, 'dieu-phoi'));
+  return goiTheoRef.get(ref);
 }
+export const goiTaiMocCu = () => goiTaiRef(MOC_BAN_CU);
 export function saoGoi(goc = GOI) {
   const d = path.join(tam('dp6-sao-'), 'dieu-phoi');
   fs.cpSync(goc, d, { recursive: true });
@@ -379,14 +376,30 @@ const canDoDuLieu = (o) => o.ky_vong !== null && o.lenh.includes('<<');
 const DOT_BIEN_DU_LIEU = ['    const c = lenh[i];\n', "    const c = lenh[i];\n    if (c === '<' && lenh[i + 1] === '<') break;\n"];
 test('DP6-02-do than-la-du-lieu', () => doDotBien('phan-loai-s4.mjs', ...DOT_BIEN_DU_LIEU, canDoDuLieu));
 
+// ---------- DP6-03 moc-co-dinh: «bản cũ» là commit CỐ ĐỊNH của nhánh chính, không phải merge-base sống ----------
+// Sau khi DP6 gộp, merge-base của nhánh chính với chính nó là HEAD: bản cũ lấy theo merge-base sống thành bản mới
+// và lech-o-goc đỏ trên CI của nhánh chính (Cổng Bằng chứng, Ngoài-4). Đối chứng dựng đúng tình huống đó.
+test('DP6-03 moc-co-dinh', async () => {
+  const laTo = spawnSync('git', ['merge-base', '--is-ancestor', MOC_BAN_CU, 'HEAD'], { cwd: KIT, env: ENV });
+  assert.equal(laTo.status, 0, `mốc bản cũ ${MOC_BAN_CU} phải là tổ tiên của HEAD (clone nông thiếu lịch sử?)`);
+  const ds = docTepCa();
+  const lech = (pl) => ds.filter((x) => !khop(pl(x.lenh), kyVongMoi(x))).length;
+  const { phanLoaiLenh: moc } = await nap(goiTaiMocCu(), 'phan-loai-s4.mjs');
+  const sauGop = execFileSync('git', ['merge-base', 'HEAD', 'HEAD'], { cwd: KIT, env: ENV, encoding: 'utf8' }).trim();
+  const { phanLoaiLenh: song } = await nap(goiTaiRef(sauGop), 'phan-loai-s4.mjs');
+  console.log(`  mốc cố định lệch ${lech(moc)}/${ds.length} · merge-base sống sau khi gộp lệch ${lech(song)}/${ds.length}`);
+  assert.equal(lech(song), 0, 'đối chứng: merge-base sống sau khi gộp so bản mới với chính nó');
+  assert.equal(lech(moc), 7, 'mốc cố định vẫn là bản cũ');
+});
+
 // ---------- DP6-03: bản cũ sai bảy lời gọi thật, bản mới đúng cả chín (hai heredoc: cả hai bản cùng chặn) ----------
 test('DP6-03 lech-o-goc', async () => {
   const ds = docTepCa();
-  const { phanLoaiLenh: goc } = await nap(goiTaiMergeBase(), 'phan-loai-s4.mjs');
+  const { phanLoaiLenh: goc } = await nap(goiTaiMocCu(), 'phan-loai-s4.mjs');
   const { phanLoaiLenh: moi } = await nap(GOI, 'phan-loai-s4.mjs');
   const saiOGoc = ds.filter((x) => !khop(goc(x.lenh), kyVongMoi(x))).length;
   const dungBanMoi = ds.filter((x) => khop(moi(x.lenh), kyVongMoi(x))).length;
-  console.log(`  merge-base sai ${saiOGoc}/${ds.length} · bản mới đúng ${dungBanMoi}/${ds.length}`);
+  console.log(`  mốc bản cũ sai ${saiOGoc}/${ds.length} · bản mới đúng ${dungBanMoi}/${ds.length}`);
   assert.equal(saiOGoc, 7);
   assert.equal(dungBanMoi, 9);
 });
@@ -540,7 +553,7 @@ test('DP6-06 round-trip', async () => {
 });
 
 test('DP6-06 nang-cap', async () => {
-  const goc = goiTaiMergeBase();
+  const goc = goiTaiMocCu();
   const { dot, w2 } = khoLienKet({ gocGoi: goc });
   chayHookChoNguoi(w2, 'permission_prompt', { gocGoi: goc });
   await motNhipThat(dot, goc);
@@ -663,7 +676,7 @@ test('DP6-07 phan-loai-nem', () => {
 });
 
 // ---------- DP6-02 khong-lot: heredoc và các dạng `<<` không lọt (soát toàn nhánh, hai lượt chấm) ----------
-// Mỗi ô là một lời gọi S4/đường nền THẬT mà bộ phân loại ở merge-base chặn được; bản mới phải chặn y như thế. Ô
+// Mỗi ô là một lời gọi S4/đường nền THẬT mà bộ phân loại ở mốc bản cũ chặn được; bản mới phải chặn y như thế. Ô
 // `bash-co-tep` từng là đối chứng «thân là dữ liệu» — luật ấy đã thu (sổ quyết định dòng 20), nên nó cũng bị chặn.
 export const MA_TRAN_KHONG_LOT = [
   ['here-string', 'read a <<<"$x"\nnode x/repin-lane.mjs --write', 's4'],
@@ -690,8 +703,8 @@ test('DP6-02 khong-lot', async () => {
   assert.equal(ds.length, 15);
   const { phanLoaiLenh } = await nap(GOI, 'phan-loai-s4.mjs');
   assert.deepEqual(chayMaTran(phanLoaiLenh, ds), []);
-  // Ô của ma trận là lời gọi bộ phân loại ở merge-base cũng chặn (bản mới không được kém hơn).
-  const { phanLoaiLenh: goc } = await nap(goiTaiMergeBase(), 'phan-loai-s4.mjs');
+  // Ô của ma trận là lời gọi bộ phân loại ở mốc bản cũ cũng chặn (bản mới không được kém hơn).
+  const { phanLoaiLenh: goc } = await nap(goiTaiMocCu(), 'phan-loai-s4.mjs');
   assert.deepEqual(ds.filter((o) => goc(o.lenh) !== o.ky_vong).map((o) => o.ten), []);
 });
 

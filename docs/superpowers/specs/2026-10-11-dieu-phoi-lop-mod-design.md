@@ -147,8 +147,11 @@ Tệp: `dieu-phoi/scripts/phan-loai-s4.mjs` (một hàm cho hook chặn S4).
   Tập ô mà mỗi đột biến chiều đỏ phải làm đỏ được RÚT bằng code từ ma trận (lọc ô theo token của vỏ bọc hay cờ bị
   đột biến), không gõ số tay; ca kiểm trước khi ghim rằng 0 < số ô rút được < tổng số ô.
   Từ lần thu 11/10: mọi ô heredoc và hai lời gọi heredoc thật kỳ vọng BỊ CHẶN; đột biến giả lập lại luật «thân là
-  dữ liệu» (ngừng đọc từ `<<` đầu tiên) phải đỏ đúng các ô kỳ vọng bị chặn mà có `<<`; bộ phân loại merge-base sai
+  dữ liệu» (ngừng đọc từ `<<` đầu tiên) phải đỏ đúng các ô kỳ vọng bị chặn mà có `<<`; bộ phân loại ở mốc bản cũ sai
   bảy trong chín lời gọi thật (hai lời gọi heredoc: cả hai bản cùng chặn).
+  «Mốc bản cũ» của mọi ca so sánh là một commit CỐ ĐỊNH của nhánh chính trước DP6 (`08ba287d`, merge PR #307),
+  không phải merge-base sống: sau khi gộp, merge-base của nhánh chính với chính nó là HEAD và ca so sánh sẽ đỏ trên
+  CI của nhánh chính (Cổng Bằng chứng 11/10, chủ kho chọn sửa trước khi ký).
 
 **Lời chặn** (sửa 11/10 sau khi gộp DP7: DP7 AC-6, đã ký, giữ nguyên câu cũ làm tiền tố và thêm câu «chờ lượt» khi cwd
 thuộc dãy, ngoài dãy y như cũ — DP6 nhường, chỉ NỐI THÊM lệnh xin lượt sau câu của DP7, không bỏ câu cũ; đoạn dưới

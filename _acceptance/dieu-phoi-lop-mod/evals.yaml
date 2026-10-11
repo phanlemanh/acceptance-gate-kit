@@ -45,7 +45,7 @@ evals:
       của node); "ok" cho "DP6-02-do than-la-du-lieu" (giả lập lại luật «thân heredoc là dữ liệu» — ngừng đọc từ
       dấu << đầu tiên: đỏ đúng các ô kỳ vọng bị chặn mà có <<). "ok" cho "DP6-02 khong-lot": ma trận viết sẵn 15 ô
       (here-string, heredoc cho trình thông dịch kể cả bash kèm cờ mang giá trị, số học, chú thích, dấu đóng có
-      gạch, bash <tệp> <<…), số in ra = 15, mỗi ô trả đúng tài nguyên và bộ phân loại merge-base cho cùng kết quả;
+      gạch, bash <tệp> <<…), số in ra = 15, mỗi ô trả đúng tài nguyên và bộ phân loại ở mốc bản cũ cho cùng kết quả;
       "ok" cho "DP6-02-do khong-lot-than-la-du-lieu" (cùng đột biến, đỏ đúng các ô có << của ma trận này).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
@@ -61,10 +61,12 @@ evals:
       bằng code từ danh sách), thư mục vắng → cả chín. "ok" cho "DP6-03 nguon": máy có đủ tệp nguồn → chạy
       rut-lenh-that.mjs ra thư mục tạm hai lần, hai đầu ra giống hệt (so băm) và BẰNG tệp ca đã commit; thiếu thư mục
       hoặc thiếu một tệp nguồn → dòng chẩn đoán "bỏ qua: không có bản ghi hội thoại (<n>/9 tệp nguồn vắng)" và ca vẫn
-      "ok" (in rõ nhánh đã đi). "ok" cho "DP6-03 lech-o-goc": nhãn so là nhãn tệp ca, trừ hai lời gọi heredoc
-      chặn nhầm mang nhãn «bị chặn» (giới hạn đã khai); phanLoaiLenh của merge-base (git archive trọn dieu-phoi/
-      vào thư mục tạm) cho kết quả KHÁC nhãn ở 7 dòng (đếm == 7), bản sau thay đổi cho BẰNG nhãn ở cả 9 dòng
-      (đếm == 9).
+      "ok" (in rõ nhánh đã đi). "ok" cho "DP6-03 moc-co-dinh": mốc bản cũ (commit cố định 08ba287d của nhánh chính) là tổ
+      tiên của HEAD (git merge-base --is-ancestor thoát 0); phanLoaiLenh ở mốc lệch nhãn 7/9, còn phanLoaiLenh lấy theo
+      merge-base sống trong tình huống sau khi gộp (merge-base HEAD HEAD) lệch 0/9 (đối chứng: cách ấy đỏ trên nhánh
+      chính). "ok" cho "DP6-03 lech-o-goc": nhãn so là nhãn tệp ca, trừ hai lời gọi heredoc chặn nhầm mang nhãn «bị
+      chặn» (giới hạn đã khai); phanLoaiLenh ở mốc bản cũ (git archive trọn dieu-phoi/ vào thư mục tạm) cho kết quả
+      KHÁC nhãn ở 7 dòng (đếm == 7), bản sau thay đổi cho BẰNG nhãn ở cả 9 dòng (đếm == 9).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4
@@ -107,9 +109,9 @@ evals:
       đó có can_phan === true, phien "P1", loai_cho "permission_prompt", tin dài ≤ 200; bộ lọc Monitor rút từ
       mo-dot.md và tiep-tuc.md (regex trên dòng `tail … | grep --line-buffered '…'`, số bộ lọc rút được == 2,
       rỗng → đỏ) chạy bằng `grep` thật trên dòng đó → khớp cả hai. viecCho trên cùng thư mục đợt → đúng 1 mục
-      loai "cho-nguoi" id "P1". "ok" cho "DP6-06 nang-cap": đợt dựng bằng `mo` và chạy một nhịp bằng bản
-      merge-base (git archive trọn dieu-phoi/ vào thư mục tạm), cho-nguoi/P2.json do hook của merge-base ghi và nhịp
-      merge-base đã báo (n0 dòng cho-nguoi); một nhịp bản mới → thoát 0, nhip_cuoi lớn hơn trước, số dòng cho-nguoi
+      loai "cho-nguoi" id "P1". "ok" cho "DP6-06 nang-cap": đợt dựng bằng `mo` và chạy một nhịp bằng bản ở
+      mốc bản cũ (git archive trọn dieu-phoi/ vào thư mục tạm), cho-nguoi/P2.json do hook bản cũ ghi và nhịp bản cũ
+      đã báo (n0 dòng cho-nguoi); một nhịp bản mới → thoát 0, nhip_cuoi lớn hơn trước, số dòng cho-nguoi
       vẫn n0; rồi xoá tệp, hook thật bản mới ghi lại + một nhịp → n0 + 1 dòng, dòng mới mang can_phan, phien "P2"
       (đối chứng dương trên cùng đợt). "ok" cho "DP6-06-do
       bo-can-phan": bản sao phat-lich.mjs bỏ can_phan khỏi sự kiện (kiểm bước tiêm áp) → hàm kiểm nêu "bộ lọc

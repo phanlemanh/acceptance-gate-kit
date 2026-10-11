@@ -1,45 +1,144 @@
 {
-  "feature_plain": "Phiên thợ không còn bị chặn oan khi chỉ đọc hay ghi tệp, không còn lọt khoá S4 khi lệnh được bọc; một thợ đứng chờ người là giám sát thức dậy ngay thay vì để nằm hàng giờ. Phần hiện trạng thái đợt trong app tách sang việc sau.",
+  "feature_plain": "Phiên thợ không còn bị chặn oan khi chỉ kiểm cú pháp hay xem trợ giúp của script; lệnh chạy kiểm định bọc trong lệnh khác vẫn bị chặn đúng; lệnh ghi tệp nhiều dòng có nhắc tên script vẫn bị chặn (giới hạn đã khai); và khi thợ chờ người duyệt, phiên giám sát được đánh thức ngay. Phần hiện trạng thái đợt trong app tách sang việc sau.",
   "will_do": [
-    {"id": "AC-1", "p": "Sẽ nhận ra mọi lần chạy S4 hay đường nền kể cả khi lệnh được bọc bằng timeout, env, nice, time, nohup, command, exec hay caffeinate kèm cờ — đo trên 132 ca viết sẵn, gồm ba lệnh thật từng lọt."},
-    {"id": "AC-3", "p": "Sẽ giữ chín lệnh thật đo được hôm 11/10 làm ca kiểm, rút thẳng từ nhật ký hội thoại bằng script (không gõ tay, đã ẩn danh), và chứng rằng bản cũ sai bảy ca (hai ca heredoc cả hai bản cùng chặn), bản mới đúng cả chín."},
-    {"id": "AC-4", "p": "Sẽ cho thợ bị chặn thấy thêm đúng một lệnh xin lượt chạy được ngay, sau lời dặn cũ và câu «chờ lượt» của DP7."},
-    {"id": "AC-5", "p": "Sẽ luôn ghi nhận hộp xin quyền đang chờ người ở phiên thợ, kể cả khi thợ đó đang chờ khoá hay chờ trả lời."},
-    {"id": "AC-6", "p": "Sẽ làm giám sát thức dậy ngay khi một thợ đứng chờ người — thử thật từ hộp xin quyền tới đúng bộ lọc giám sát đang nghe, cả trên đợt nâng từ bản cũ."},
-    {"id": "AC-7", "p": "Sẽ giữ nguyên mọi ca kiểm của các hàng trước và giữ im lặng ở kho không có đợt."}
+    {
+      "id": "AC-1",
+      "p": "Sẽ nhận ra mọi lần chạy S4 hay đường nền kể cả khi lệnh được bọc bằng timeout, env, nice, time, nohup, command, exec hay caffeinate kèm cờ — đo trên 132 ca viết sẵn, gồm ba lệnh thật từng lọt."
+    },
+    {
+      "id": "AC-3",
+      "p": "Sẽ giữ chín lệnh thật đo được hôm 11/10 làm ca kiểm, rút thẳng từ nhật ký hội thoại bằng script (không gõ tay, đã ẩn danh), và chứng rằng bản cũ sai bảy ca (hai ca heredoc cả hai bản cùng chặn), bản mới đúng cả chín."
+    },
+    {
+      "id": "AC-4",
+      "p": "Sẽ cho thợ bị chặn thấy thêm đúng một lệnh xin lượt chạy được ngay, sau lời dặn cũ và câu «chờ lượt» của DP7."
+    },
+    {
+      "id": "AC-5",
+      "p": "Sẽ luôn ghi nhận hộp xin quyền đang chờ người ở phiên thợ, kể cả khi thợ đó đang chờ khoá hay chờ trả lời."
+    },
+    {
+      "id": "AC-6",
+      "p": "Sẽ làm giám sát thức dậy ngay khi một thợ đứng chờ người — thử thật từ hộp xin quyền tới đúng bộ lọc giám sát đang nghe, cả trên đợt nâng từ bản cũ."
+    },
+    {
+      "id": "AC-7",
+      "p": "Sẽ giữ nguyên mọi ca kiểm của các hàng trước và giữ im lặng ở kho không có đợt."
+    }
   ],
   "wont_do": [
-    {"id": "AC-2", "p": "Sẽ KHÔNG chặn lệnh chỉ đọc (kiểm cú pháp, --help) — đo trên 37 ca, gồm bốn lệnh thật từng bị chặn oan; lệnh có văn bản kèm theo (heredoc) nhắc tên script vẫn bị chặn kể cả khi văn bản chỉ là dữ liệu — giới hạn đã khai, hai lệnh thật trên 46.801."},
-    {"id": "AC-8", "p": "Sẽ KHÔNG để tài liệu hứa quá: README ghi hook làm gì và giới hạn nào còn mở, thiết kế chung sửa cho khớp, việc tách ra có hạt giống trỏ về hồ sơ này."},
-    {"id": "OOS-1", "p": "Không làm phần hiện trạng thái đợt trong app (dải trên ô nhập, khung chi tiết, lệnh xem không qua model) và lần đo sống — đã chuyển sang hạt giống, chờ khung mod của DP4."},
-    {"id": "OOS-2", "p": "Không làm mod đọc mức dùng, khung mod, răng «không bao giờ cho phép» — việc của DP4."},
-    {"id": "OOS-3", "p": "Không xử ca thợ đứng im với đơn xin khoá mà không còn lệnh chờ — không phải chờ người; ghi hạt giống nếu đợt thử vấp."},
-    {"id": "OOS-4", "p": "Không đổi luật cho thông báo «đang rảnh» khi thợ chờ khoá hay chờ trả lời — thợ rảnh lúc đó là đúng."},
-    {"id": "OOS-5", "p": "Không đổi đường đánh thức theo lịch 30 phút của DP3."}
+    {
+      "id": "AC-2",
+      "p": "Sẽ KHÔNG chặn lệnh chỉ đọc (kiểm cú pháp, --help) — đo trên 37 ca, gồm bốn lệnh thật từng bị chặn oan; lệnh có văn bản kèm theo (heredoc) nhắc tên script vẫn bị chặn kể cả khi văn bản chỉ là dữ liệu — giới hạn đã khai, hai lệnh thật trên 46.801."
+    },
+    {
+      "id": "AC-8",
+      "p": "Sẽ KHÔNG để tài liệu hứa quá: README ghi hook làm gì và giới hạn nào còn mở, thiết kế chung sửa cho khớp, việc tách ra có hạt giống trỏ về hồ sơ này."
+    },
+    {
+      "id": "OOS-1",
+      "p": "Không làm phần hiện trạng thái đợt trong app (dải trên ô nhập, khung chi tiết, lệnh xem không qua model) và lần đo sống — đã chuyển sang hạt giống, chờ khung mod của DP4."
+    },
+    {
+      "id": "OOS-2",
+      "p": "Không làm mod đọc mức dùng, khung mod, răng «không bao giờ cho phép» — việc của DP4."
+    },
+    {
+      "id": "OOS-3",
+      "p": "Không xử ca thợ đứng im với đơn xin khoá mà không còn lệnh chờ — không phải chờ người; ghi hạt giống nếu đợt thử vấp."
+    },
+    {
+      "id": "OOS-4",
+      "p": "Không đổi luật cho thông báo «đang rảnh» khi thợ chờ khoá hay chờ trả lời — thợ rảnh lúc đó là đúng."
+    },
+    {
+      "id": "OOS-5",
+      "p": "Không đổi đường đánh thức theo lịch 30 phút của DP3."
+    }
   ],
   "scope_plain": "Năm thứ cố ý để ngoài hàng này, mỗi thứ có chủ hoặc có lý do:",
   "coverage_plain": [
-    {"i": 0, "p": "Nguồn sản phẩm: thiết kế chung đã duyệt, mã hiện tại của bộ phân loại, hook chờ người và bộ phát lịch, cộng số đo trên nhật ký hội thoại thật hôm 11/10."},
-    {"i": 1, "p": "Nguồn ngoài: trang hướng dẫn chính thức của các lệnh bọc (GNU coreutils, BSD trên máy này) và chuẩn POSIX về văn bản heredoc."},
-    {"i": 2, "p": "Trục điểm chạm: năm chỗ — bộ phân loại, lời chặn, hook chờ người, bộ phát lịch, tài liệu."},
-    {"i": 3, "p": "Trục hình lệnh: chạy trần, qua lệnh bọc có hoặc không cờ, qua bash -c, thân heredoc, chỉ đọc, hay chỉ nhắc tên script — đủ khi khớp số đo thật, trang hướng dẫn và POSIX."},
-    {"i": 4, "p": "Trục trạng thái đợt: không đợt, không khoá, khoá của dãy khác hay của chính dãy, đang chờ khoá, đang chờ trả lời, đợt nâng từ bản cũ."},
-    {"i": 5, "p": "Phần làm ngay ứng với 8 tiêu chí AC-1 tới AC-8, mỗi trục có ít nhất một tiêu chí."},
-    {"i": 6, "p": "Để sau:"},
-    {"i": 7, "p": "Hiện trạng thái đợt trong app, đo sống, răng của mod — hạt giống, chờ DP4."},
-    {"i": 8, "p": "Hộp quyền của tác tử Workflow có tới hook chờ người không — đo cùng hạt giống ấy."},
-    {"i": 9, "p": "Không bao giờ làm:"},
-    {"i": 10, "p": "Mod tự chặn S4 hay tự ghi đơn xin khoá — cùng một quyết định với hook nên không thêm gì, mà biến mỗi lần phân loại sai thành một khoá cấp oan."},
-    {"i": 11, "p": "Phiên thợ nhắn thẳng giám sát — giám sát đã thức nhờ AC-6."},
-    {"i": 12, "p": "Bắt «hết lượt chờ người» ở mỗi lượt — chỉ nhanh hơn thông báo «đang rảnh» tối đa 60 giây mà tốn một hook mỗi lượt."},
-    {"i": 13, "p": "Phân tích shell đầy đủ (biến, eval, alias) — khai là giới hạn, có ngưỡng mở lại."},
-    {"i": 14, "p": "Áp mọi tiêu chí: ca viết sẵn trước, số ca kiểm bằng số ô; nối thật từ bên viết sang bên đọc; kho không có đợt thì im."}
+    {
+      "i": 0,
+      "p": "Nguồn sản phẩm: thiết kế chung đã duyệt, mã hiện tại của bộ phân loại, hook chờ người và bộ phát lịch, cộng số đo trên nhật ký hội thoại thật hôm 11/10."
+    },
+    {
+      "i": 1,
+      "p": "Nguồn ngoài: trang hướng dẫn chính thức của các lệnh bọc (GNU coreutils, BSD trên máy này) và chuẩn POSIX về văn bản heredoc."
+    },
+    {
+      "i": 2,
+      "p": "Trục điểm chạm: năm chỗ — bộ phân loại, lời chặn, hook chờ người, bộ phát lịch, tài liệu."
+    },
+    {
+      "i": 3,
+      "p": "Trục hình lệnh: chạy trần, qua lệnh bọc có hoặc không cờ, qua bash -c, thân heredoc, chỉ đọc, hay chỉ nhắc tên script — đủ khi khớp số đo thật, trang hướng dẫn và POSIX."
+    },
+    {
+      "i": 4,
+      "p": "Trục trạng thái đợt: không đợt, không khoá, khoá của dãy khác hay của chính dãy, đang chờ khoá, đang chờ trả lời, đợt nâng từ bản cũ."
+    },
+    {
+      "i": 5,
+      "p": "Phần làm ngay ứng với 8 tiêu chí AC-1 tới AC-8, mỗi trục có ít nhất một tiêu chí."
+    },
+    {
+      "i": 6,
+      "p": "Để sau:"
+    },
+    {
+      "i": 7,
+      "p": "Hiện trạng thái đợt trong app, đo sống, răng của mod — hạt giống, chờ DP4."
+    },
+    {
+      "i": 8,
+      "p": "Hộp quyền của tác tử Workflow có tới hook chờ người không — đo cùng hạt giống ấy."
+    },
+    {
+      "i": 9,
+      "p": "Không bao giờ làm:"
+    },
+    {
+      "i": 10,
+      "p": "Mod tự chặn S4 hay tự ghi đơn xin khoá — cùng một quyết định với hook nên không thêm gì, mà biến mỗi lần phân loại sai thành một khoá cấp oan."
+    },
+    {
+      "i": 11,
+      "p": "Phiên thợ nhắn thẳng giám sát — giám sát đã thức nhờ AC-6."
+    },
+    {
+      "i": 12,
+      "p": "Bắt «hết lượt chờ người» ở mỗi lượt — chỉ nhanh hơn thông báo «đang rảnh» tối đa 60 giây mà tốn một hook mỗi lượt."
+    },
+    {
+      "i": 13,
+      "p": "Phân tích shell đầy đủ (biến, eval, alias) — khai là giới hạn, có ngưỡng mở lại."
+    },
+    {
+      "i": 14,
+      "p": "Áp mọi tiêu chí: ca viết sẵn trước, số ca kiểm bằng số ô; nối thật từ bên viết sang bên đọc; kho không có đợt thì im."
+    }
   ],
   "gap_probe_plain": [
-    {"i": 0, "p": "Số ca mà chiều đỏ phải làm đỏ từng gõ tay và sai so với chính bảng ca — đã sửa: máy tự đếm từ bảng ca, không gõ số."},
-    {"i": 1, "p": "Bảng ca của lệnh bọc chỉ phủ 11 trên 29 dạng cờ mà thiết kế tự liệt kê, nên một cờ khai sai vẫn lọt — đã sửa: thiết kế khoá danh sách 41 dạng, bảng ca phủ đủ, thêm một chiều đỏ cho cờ có giá trị."},
-    {"i": 2, "p": "Lời gọi từ mod sang lệnh trạng thái chỉ được đo bằng bản giả — đã sửa trong thiết kế, rồi chuyển cùng phần mod sang hạt giống."},
-    {"i": 3, "p": "Nhật ký lần đo sống nằm chỗ sẽ bị dọn và kết luận có thể dựa vào một dòng không đúng kịch bản — đã sửa trong thiết kế, rồi chuyển cùng lần đo sang hạt giống."},
-    {"i": 4, "p": "Ca đợt nâng từ bản cũ chỉ kiểm «không có gì xảy ra», nên bộ phát lịch chết im vẫn xanh — đã sửa: dựng đợt bằng bản cũ thật, kiểm nhịp vẫn chạy, rồi kiểm một chờ-người mới vẫn đánh thức giám sát."}
+    {
+      "i": 0,
+      "p": "Số ca mà chiều đỏ phải làm đỏ từng gõ tay và sai so với chính bảng ca — đã sửa: máy tự đếm từ bảng ca, không gõ số."
+    },
+    {
+      "i": 1,
+      "p": "Bảng ca của lệnh bọc chỉ phủ 11 trên 29 dạng cờ mà thiết kế tự liệt kê, nên một cờ khai sai vẫn lọt — đã sửa: thiết kế khoá danh sách 41 dạng, bảng ca phủ đủ, thêm một chiều đỏ cho cờ có giá trị."
+    },
+    {
+      "i": 2,
+      "p": "Lời gọi từ mod sang lệnh trạng thái chỉ được đo bằng bản giả — đã sửa trong thiết kế, rồi chuyển cùng phần mod sang hạt giống."
+    },
+    {
+      "i": 3,
+      "p": "Nhật ký lần đo sống nằm chỗ sẽ bị dọn và kết luận có thể dựa vào một dòng không đúng kịch bản — đã sửa trong thiết kế, rồi chuyển cùng lần đo sang hạt giống."
+    },
+    {
+      "i": 4,
+      "p": "Ca đợt nâng từ bản cũ chỉ kiểm «không có gì xảy ra», nên bộ phát lịch chết im vẫn xanh — đã sửa: dựng đợt bằng bản cũ thật, kiểm nhịp vẫn chạy, rồi kiểm một chờ-người mới vẫn đánh thức giám sát."
+    }
   ]
 }
