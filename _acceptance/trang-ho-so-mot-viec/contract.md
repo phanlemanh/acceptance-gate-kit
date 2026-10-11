@@ -93,3 +93,7 @@ request GitHub]` cho bố cục dải + mục gập, `[NGÀNH: trang issue Linea
 - Bản chép `docDuLieu` của gói Điều phối (`dieu-phoi/scripts/nguon-hang.mjs`) vẫn là bản 1 — ngoài ranh
   giới tệp của vòng; nó đọc trang bản 2 «phần biết» + một cờ vàng, DP2-08 so nhóm trạng thái và vẫn xanh.
   Chép lại bản 2 là việc của gói khi nó cần `tom_tat`.
+- **Dải tóm tắt và phép so của CI** (dòng `fix` S3, chưa duyệt — hiện ở Cổng Bằng chứng): `product-map
+  --check` bỏ qua riêng `tom_tat` khi so trang lộ trình; dải đúng tới lần vẽ lại gần nhất. Ca LT-161 (dưới
+  E7) đo hai chiều. Kèm theo: `scripts/ho-so-tom-tat.cjs` vào danh sách chép CI (`INIT-CI-COPY-LIST`, 18 tệp)
+  vì `lo-trinh.mjs` nạp nó; ca P99 bỏ danh sách chép tay, lấy trọn `scripts/` + `lib/`.

@@ -570,6 +570,20 @@ export function duLieuTrang(cacTep, sections = null) {
 // kể hoa thường), U+2028/2029 thoát để khối vẫn là JS hợp lệ với bộ đọc cũ.
 const khoiDuLieu = o => `<script type="application/json" id="${ID_DU_LIEU}">${JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029')}</script>`;
 
+// Phép so của `product-map.mjs --check` (hàng X2): trang trong cây «khớp» bản vẽ lại khi giống từng byte,
+// HOẶC khi chỉ khác ở `tom_tat` của khối dữ liệu. Dải tóm tắt đọc nội dung hồ sơ (dòng sổ, báo cáo token,
+// mã đã chấm) — đòi nó khớp từng byte là bắt mọi commit chạm hồ sơ (một dòng sổ, một lượt ghim lại) vẽ lại
+// trang ở MỌI kho. Dải đúng tới lần vẽ gần nhất (mỗi cổng đóng); phần người nhìn thấy và mọi khoá khác
+// vẫn so từng byte.
+const RE_KHOI = /<script type="application\/json" id="lo-trinh-du-lieu">([\s\S]*?)<\/script>/;
+const boTomTat = html => {
+  const m = String(html ?? '').match(RE_KHOI); if (!m) return html;
+  let o; try { o = JSON.parse(m[1]); } catch (_) { return html; }
+  for (const t of Array.isArray(o.lo_trinh) ? o.lo_trinh : []) for (const h of Array.isArray(t && t.hang) ? t.hang : []) if (h && typeof h === 'object' && 'tom_tat' in h) h.tom_tat = null;
+  return String(html).replace(RE_KHOI, () => khoiDuLieu(o));
+};
+export const trangKhop = (coSan, veLai) => coSan === veLai || (coSan != null && veLai != null && boTomTat(coSan) === boTomTat(veLai));
+
 // Bộ đọc mẫu, KHOAN DUNG (đường đọc-cũ): không bao giờ ném. Trang đời trước không có khối, JSON hỏng,
 // khuôn lạ → `duLieu: null` + câu cảnh báo; phiên bản mới hơn → vẫn đọc phần biết + một cảnh báo;
 // khoá thiếu → giá trị rỗng theo kiểu; khoá lạ giữ nguyên. Hàm TỰ ĐỦ — không gọi ký hiệu nào khác của

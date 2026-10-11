@@ -11,7 +11,7 @@
 // được kiểm đúng một lần thay, SAU khi bản lành xanh trên cùng fixture; thông điệp ghim.
 // Mọi đường dẫn suy từ vị trí tệp này. Không ca nào ghi vào cây kit.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, rmSync, statSync, readdirSync, realpathSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, appendFileSync, readFileSync, existsSync, cpSync, rmSync, statSync, readdirSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -2540,7 +2540,7 @@ async function lt151(kit, acThem = false) {
   return sai;
 }
 if (want('LT-151') && await chayCa('LT-151', k => lt151(k))) ok('LT-151', 'bốn mục gập đúng tiêu đề; «Đã hứa» đủ mọi AC kèm câu; giới hạn + ngoài hợp đồng nguyên văn; thiết kế trỏ design_doc');
-if (want('LT-151-do')) await chayDo('LT-151-do', k => lt151(k, true), [['scripts/ho-so-tom-tat.cjs', 'acs: acs.map(a => ({ id: a.id, cau: a.gwt })),', 'acs: acs.slice(0, 3).map(a => ({ id: a.id, cau: a.gwt })),']], 'AC-4', 'bản sao mô-đun chỉ đọc ba AC đầu');
+if (want('LT-151-do')) await chayDo('LT-151-do', k => lt151(k, true), [['scripts/ho-so-tom-tat.cjs', '    acs,\n', '    acs: acs.slice(0, 3),\n']], 'AC-4', 'bản sao mô-đun chỉ đọc ba AC đầu');
 
 // ── LT-152: dòng thời gian quyết định ────────────────────────────────────
 // Bàn lọc: chạy script nội tuyến CỦA TRANG trên một DOM tối giản dựng từ chính HTML (nút data-loc, li
@@ -2788,6 +2788,28 @@ async function lt160(kit) {
 }
 if (want('LT-160') && await chayCa('LT-160', lt160)) ok('LT-160', 'khuôn mẫu hàng không câu nào bọc «»; tệp kế hoạch giữ nguyên băm sau vẽ + mở ô');
 if (want('LT-160-do')) await chayDo('LT-160-do', lt160, [['skills/acceptance/references/lo-trinh-template.json', '"cau_giao": "Tôi mở trang X', '"cau_giao": "«Tôi mở trang X']], 'còn bọc', 'bản sao khuôn bọc lại một câu');
+
+// ── LT-161: `--check` không đỏ vì dải tóm tắt, vẫn đỏ vì mọi thứ khác ───────
+// Dải đọc nội dung hồ sơ; một dòng sổ mới sau lượt vẽ không được làm CI của mọi kho đỏ. Ba ca trên CÙNG
+// kho đã vẽ: (a) thêm dòng sổ → --check 0 «khớp» · (b) sửa chữ nhìn thấy → 1 «lệch» · (c) sửa trạng thái
+// một hàng TRONG khối → 1 «lệch».
+async function lt161(kit) {
+  const sai = []; const pm = path.join(kit, 'scripts', 'product-map.mjs');
+  const dung = () => { const { r } = kho150(); const w = node([pm, '--root', r]); if (w.status !== 0) throw new Error(`vẽ exit ${w.status}: ${w.stderr.slice(0, 120)}`); return r; };
+  const ck = r => node([pm, '--root', r, '--check']);
+  const ra = dung(); appendFileSync(path.join(ra, '_acceptance', SL, 'decisions.jsonl'), JSON.stringify({ id: 'd-moi', type: 'fix', stage: 'S4-r1', at: '2026-10-10T00:00:00Z', decision: 'thêm', why: 'v', cost_if_wrong: 'c' }) + '\n');
+  const a = ck(ra); if (a.status !== 0 || !a.stdout.includes('LO-TRINH.html khớp')) sai.push(`thêm một dòng sổ mà --check exit ${a.status}: ${(a.stderr || a.stdout).slice(0, 120)}`);
+  const rb = dung(); const pb = path.join(rb, 'LO-TRINH.html'); writeFileSync(pb, readFileSync(pb, 'utf8').replace('Việc X có trang hồ sơ', 'Việc X khác'));
+  const b = ck(rb); if (b.status !== 1 || !b.stderr.includes('LO-TRINH.html lệch')) sai.push(`sửa chữ nhìn thấy mà --check exit ${b.status}`);
+  const rc = dung(); const pc = path.join(rc, 'LO-TRINH.html'); const h = readFileSync(pc, 'utf8');
+  const hc = h.replace(/("ma":"X","cau_giao":"[^"]*","hang":"[^"]*","nhom":"[^"]*","dung_tren":\[[^\]]*\],"trang_thai":")[^"]*"/, '$1Đang làm"');
+  if (hc === h) sai.push('đối chứng: không sửa được trạng thái hàng X trong khối');
+  writeFileSync(pc, hc); const c = ck(rc); if (c.status !== 1 || !c.stderr.includes('LO-TRINH.html lệch')) sai.push(`sửa trạng thái trong khối mà --check exit ${c.status}`);
+  return sai;
+}
+if (want('LT-161') && await chayCa('LT-161', lt161)) ok('LT-161', 'thêm dòng sổ sau lượt vẽ: --check khớp; sửa chữ nhìn thấy hoặc trạng thái trong khối: --check lệch');
+if (want('LT-161-do chat')) await chayDo('LT-161-do chat', lt161, [['scripts/lo-trinh.mjs', 'export const trangKhop = (coSan, veLai) => coSan === veLai || (', 'export const trangKhop = (coSan, veLai) => coSan === veLai || false && (']], 'thêm một dòng sổ', 'bản sao so từng byte cả dải');
+if (want('LT-161-do long')) await chayDo('LT-161-do long', lt161, [['scripts/lo-trinh.mjs', "if (h && typeof h === 'object' && 'tom_tat' in h) h.tom_tat = null;", "if (h && typeof h === 'object') { h.tom_tat = null; h.trang_thai = ''; }"]], 'sửa trạng thái trong khối', 'bản sao bỏ qua cả trạng thái hàng');
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (lo-trinh)`);

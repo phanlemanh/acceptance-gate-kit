@@ -27,6 +27,8 @@ Gốc: crm `trang-lo-trinh-trong-crm` — mục ngoài hợp đồng «hiện h�
 - Ai bị ảnh hưởng: kho khai lộ trình — `LO-TRINH.html` vẽ lại đổi chữ câu giao và khối; bản chiếu đọc khối
   nên chép lại `docDuLieu` khi muốn đọc `tom_tat`. Hồ sơ đã ký mang ca so «giống bộ máy trước» của trang lộ
   trình phải ghim lại ở chiến dịch phát hành.
+- Kho chép bộ máy cho CI (danh sách `INIT-CI-COPY-LIST`, nay 18 tệp) và khai `lo_trinh.tep` phải chép thêm
+  `scripts/ho-so-tom-tat.cjs` — thiếu thì bước bản đồ đỏ to `MODULE_NOT_FOUND`, không im lặng.
 
 ### Mục `paths` thoát ngoặc (`[[]slug]`) được hiểu đúng (hồ sơ `glob-thoat-ngoac`, T3)
 
