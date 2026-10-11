@@ -410,5 +410,48 @@ if (want('LS-10')) {
   }
 }
 
+// ── LS-11: lệnh đếm cho Cổng Giá trị ────────────────────────────────────────────────────────────────────
+if (want('LS-11')) {
+  const NGAY = '2026-10-20';
+  const k = (() => {
+    const r = tam('lsp-dem-'); git(r, 'init', '-q'); git(r, 'config', 'user.email', 't@t'); git(r, 'config', 'user.name', 't'); git(r, 'config', 'commit.gpgsign', 'false');
+    ghiTep(r, 'CLAUDE.md', '# x\n'); git(r, 'add', '-A'); git(r, 'commit', '-qm', 'goc');
+    ghiTep(r, 'PRODUCT-INVARIANTS.md', tepLuat(KHUON, [SP1, SP2])); git(r, 'add', '-A');
+    execFileSync('git', ['commit', '-qm', 'khai luat'], { cwd: r, env: { ...process.env, GIT_COMMITTER_DATE: `${NGAY}T03:00:00Z`, GIT_AUTHOR_DATE: `${NGAY}T03:00:00Z` } });
+    return r;
+  })();
+  const at = d => `${d}T05:00:00Z`;
+  const so = (slug, dongs) => ghiTep(k, `_acceptance/${slug}/decisions.jsonl`, dongs.map(x => JSON.stringify(x)).join('\n') + '\n');
+  const nap = d => S1('nap', { nguon: 'mot-loi', kho_dao: false, loi_chet: 'x' }, { at: at(d), luat_nap: { ban: 'b', so: 2 } });
+  so('a-truoc', [S1('x', undefined, { at: at('2026-10-10') }), S1('p', CN('SP-2'), { at: at('2026-10-10') })]);
+  so('b-co-nap', [nap('2026-10-21')]);
+  so('c-thieu-nap', [S1('x', undefined, { at: at('2026-10-21') })]);
+  so('d-pham', [nap('2026-10-22'), S1('p1', CN('SP-2'), { at: at('2026-10-22') }), S1('p2', CN('SP-1', true), { at: at('2026-10-22') }), S1('p3', CN('SP-2'), { at: at('2026-10-22'), supersedes: 'p2' })]);
+  so('e-cham', [nap('2026-10-23')]);
+  ghiTep(k, '_acceptance/e-cham/luat-cham.json', JSON.stringify({ ban: 'b', base: 'x', den: 'y', sua_tep_luat: { may: [], nguoi: [] }, cham: [{ ma: 'SP-1', tep: 'a', dong: 1 }, { ma: 'SP-1', tep: 'b', dong: 2 }] }));
+  ghiTep(k, '_acceptance/e-cham/review-findings.md', oocTep([oocMuc('Hằng giờ', 'Nhắc SP-1 lần nữa.'), oocMuc('Khác', 'Không nhắc luật.')]));
+  so('f-sua', [nap('2026-10-24')]);
+  ghiTep(k, '_acceptance/f-sua/luat-cham.json', JSON.stringify({ ban: 'b', base: 'x', den: 'y', sua_tep_luat: { may: ['m1'], nguoi: ['n1'] }, cham: [] }));
+  const COT = ['slug', 'dong_nap', 'pham_thiet_ke', 'cham_diff', 'nhan_ngoai', 'may_sua', 'nguoi_sua'];
+  const BANG = [
+    ['b-co-nap', 1, 0, 0, 0, 0, 0], ['c-thieu-nap', 0, 0, 0, 0, 0, 0], ['d-pham', 1, 2, 0, 0, 0, 0],
+    ['e-cham', 1, 0, 2, 1, 0, 0], ['f-sua', 1, 0, 0, 0, 1, 1],
+  ];
+  const chay = (bin, them) => { const p = spawnSync(process.execPath, [bin, '--root', k, '--dem', ...them], { encoding: 'utf8' }); if (p.status !== 0) die(`--dem thoát ${p.status}: ${p.stderr}`); return p.stdout; };
+  const hang = o => o.hang.map(h => COT.map(c => h[c]));
+  check('LS-11 dem', () => {
+    const j = JSON.parse(chay(LSP, ['--tu', NGAY, '--json']));
+    eq(j.ngay_khai, NGAY, 'ngày khai'); eq(hang(j), BANG, 'bảng sau ngày khai');
+    const chu = chay(LSP, ['--tu', NGAY]).split('\n').filter(l => /^[a-z]-/.test(l));
+    eq(chu.length, 5, 'dạng chữ năm hàng');
+    eq(JSON.parse(chay(LSP, ['--json'])).hang.length, 6, 'không --tu: sáu hàng');
+  });
+  check('LS-11-do', () => {
+    const d = banSaoTiem('luat-san-pham.cjs', '!biThay.has(e.id)', 'true');
+    const j = JSON.parse(chay(path.join(d, 'luat-san-pham.cjs'), ['--tu', NGAY, '--json']));
+    const lech = hang(j).find(h => h[0] === 'd-pham'); if (!lech || lech[2] === 2) die('đếm cả dòng bị thay mà cột phạm ở thiết kế vẫn 2 — phép đo không phân biệt');
+  });
+}
+
 console.log(`luat-san-pham.ca: ${passed} đạt, ${failed} trượt`);
 process.exit(failed ? 1 : 0);

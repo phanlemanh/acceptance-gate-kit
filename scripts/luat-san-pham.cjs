@@ -211,7 +211,43 @@ function theCong2({ root, slug, contractTxt, evidenceTxt, esc }) {
   return { chan: !!chanLuat(L), khoa: { co_tep: true, cham: (c && c.cham) || [], sua_tep_luat: c ? c.sua_tep_luat : null, chua_soi: chuaSoi }, html, co, slots, ymItems, nhanNgoai };
 }
 
-module.exports = { TEP_LUAT, MA_RE, MUC_CHU, LY_DO_LUAT, CO_LUAT, CO_LUAT_G2, banLuat, docLuat, docTepLuat, xetPhamLuat, maTheoTrich, theCong1, quet, docCham, ctxLuat, chanLuat, theCong2 };
+// ── Đường đo cho Cổng Giá trị: mỗi hồ sơ có sổ một hàng ─────────────────────────────────────────────────
+// ngay_khai = ngày (UTC) commit đầu thêm tệp luật; tu = giữ hồ sơ có dòng sổ đầu mang `at` ≥ ngày đó.
+function dem(root, { tu } = {}) {
+  let ngay_khai = null;
+  try { const ds = gitOut(root, ['log', '--diff-filter=A', '--format=%cI', '--', TEP_LUAT]).split('\n').filter(Boolean); if (ds.length) ngay_khai = new Date(ds[ds.length - 1]).toISOString().slice(0, 10); } catch (_) { ngay_khai = null; }
+  const tep = docTepLuat(root); const coMa = new Set(tep.luat.map(l => l.ma));
+  let ds = [];
+  try { ds = fs.readdirSync(path.join(root, '_acceptance')).filter(n => !n.startsWith('.')).sort(); } catch (_) { return { ngay_khai, hang: [] }; }
+  const hang = [];
+  for (const slug of ds) {
+    let txt; try { txt = fs.readFileSync(path.join(root, '_acceptance', slug, 'decisions.jsonl'), 'utf8'); } catch (_) { continue; }
+    const entries = []; for (const l of txt.split('\n')) { if (!l.trim()) continue; try { const e = JSON.parse(l); if (e && typeof e === 'object') entries.push(e); } catch (_) { /* dòng hỏng bỏ qua */ } }
+    const dau = entries.find(e => typeof e.at === 'string');
+    if (tu && (!dau || dau.at.slice(0, 10) < tu)) continue;
+    const biThay = new Set(entries.filter(e => typeof e.supersedes === 'string').map(e => e.supersedes));
+    const s1 = entries.filter(e => e.stage === 'S1');
+    const c = docCham(root, slug) || { cham: [], sua_tep_luat: { may: [], nguoi: [] } };
+    let nhan_ngoai = 0;
+    try {
+      const f = fs.readFileSync(path.join(root, '_acceptance', slug, 'review-findings.md'), 'utf8');
+      for (const x of require('../lib/out-of-contract.cjs').parse(f).findings)
+        if ((`${x.title || ''} ${x.plain || ''} ${x.detail || ''}`.match(/\bSP-\d+\b/g) || []).some(m => coMa.has(m))) nhan_ngoai++;
+    } catch (_) { /* không có tệp phát hiện */ }
+    hang.push({
+      slug,
+      dong_nap: s1.some(e => e.luat_nap && typeof e.luat_nap.ban === 'string') ? 1 : 0,
+      pham_thiet_ke: s1.filter(e => e.can_cu && typeof e.can_cu.pham_luat === 'string' && !biThay.has(e.id)).length,
+      cham_diff: (c.cham || []).length,
+      nhan_ngoai,
+      may_sua: ((c.sua_tep_luat || {}).may || []).length,
+      nguoi_sua: ((c.sua_tep_luat || {}).nguoi || []).length,
+    });
+  }
+  return { ngay_khai, hang };
+}
+
+module.exports = { TEP_LUAT, MA_RE, MUC_CHU, LY_DO_LUAT, CO_LUAT, CO_LUAT_G2, banLuat, docLuat, docTepLuat, xetPhamLuat, maTheoTrich, theCong1, quet, docCham, ctxLuat, chanLuat, theCong2, dem };
 
 if (require.main === module) {
   const a = process.argv.slice(2); const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
@@ -224,6 +260,17 @@ if (require.main === module) {
     const txt = JSON.stringify(o, null, 1) + '\n';
     if (a.includes('--write')) { fs.writeFileSync(path.join(root, '_acceptance', slug, 'luat-cham.json'), txt); process.stdout.write(`luat-cham.json: ${o.cham.length} chỗ chạm · máy sửa tệp luật ${o.sua_tep_luat.may.length} · chủ kho sửa ${o.sua_tep_luat.nguoi.length}\n`); }
     else process.stdout.write(txt);
+    process.exit(0);
+  }
+  if (a.includes('--dem')) {
+    const tu = opt('--tu');
+    if (tu && !/^\d{4}-\d{2}-\d{2}$/.test(tu)) { process.stderr.write('luat-san-pham: --tu cần YYYY-MM-DD\n'); process.exit(2); }
+    const o = dem(root, { tu });
+    if (a.includes('--json')) process.stdout.write(JSON.stringify(o, null, 2) + '\n');
+    else {
+      process.stdout.write(`ngày khai tệp luật: ${o.ngay_khai || '(chưa khai)'}${tu ? ` · từ ${tu}` : ''} · ${o.hang.length} hồ sơ\n`);
+      for (const h of o.hang) process.stdout.write(`${h.slug} · dòng nạp ${h.dong_nap} · phạm ở thiết kế ${h.pham_thiet_ke} · chạm trên diff ${h.cham_diff} · nhãn ngoài hợp đồng ${h.nhan_ngoai} · máy sửa tệp luật ${h.may_sua} · chủ kho sửa ${h.nguoi_sua}\n`);
+    }
     process.exit(0);
   }
   process.stderr.write('luat-san-pham: dùng --quet (hoặc --dem)\n'); process.exit(2);
