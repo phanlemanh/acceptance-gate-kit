@@ -3,10 +3,10 @@ schema_version: 1
 slug: bat-bien-san-pham
 feature: "«Mỗi kho khai các luật sản phẩm của mình trong một tệp; luật được nạp lúc viết đặc tả, và vòng nào phạm luật thì thẻ cổng nêu tên luật đó»"
 owner: phanlemanh@gmail.com
-stage: discovery            # discovery | decided | archived
-decision:   # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by:
-decided_at:    # ISO UTC
+stage: decided              # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-11T13:11:19Z   # owner gõ «Làm» một chạm trong phiên 11/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -72,10 +72,10 @@ và không có chỗ gọi tên nó trên thẻ. Kho KHÔNG khai tệp thì khô
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] khi một kho đã khai luật sản phẩm, vòng nào chạm luật có bị thẻ cổng gọi đúng tên luật trước khi gộp, mà không thêm lượt gọi người?
-- Kết quả nào là SỐNG: [đề xuất] ba mươi ngày sau khi crm commit tệp luật: mọi vòng mới của crm có dòng nạp luật ở bước thiết kế (ghi phiên bản tệp), và ≥ 1 lần thẻ cổng nêu đúng tên một luật bị chạm trước khi gộp (ghi kèm N vòng); 0 lần máy sửa tệp luật; 0 lượt gọi người thêm mỗi vòng
-- Kết quả nào là CHẾT: [đề xuất] một vòng crm sau ngày khai có mục ngoài hợp đồng cùng lớp với một luật đã khai (ví dụ thêm một hằng múi giờ) mà thẻ không gọi tên luật đó; hoặc máy sửa tệp luật; hoặc thêm một lượt gọi người mỗi vòng
-- Timebox: [đề xuất] đọc ở Cổng Giá trị ba mươi ngày sau ngày crm commit tệp luật; crm chưa khai tệp trong 21 ngày sau khi mốc mang vòng này phát hành → ô xếp lại (không kho nào nhận)
+- Câu hỏi phép đo trả lời: khi một kho đã khai luật sản phẩm, vòng nào chạm luật có bị thẻ cổng gọi đúng tên luật trước khi gộp, mà không thêm lượt gọi người?
+- Kết quả nào là SỐNG: ba mươi ngày sau khi crm commit tệp luật: mọi vòng mới của crm có dòng nạp luật ở bước thiết kế (ghi phiên bản tệp), và ≥ 1 lần thẻ cổng nêu đúng tên một luật bị chạm trước khi gộp (ghi kèm N vòng); 0 lần máy sửa tệp luật; 0 lượt gọi người thêm mỗi vòng
+- Kết quả nào là CHẾT: một vòng crm sau ngày khai có mục ngoài hợp đồng cùng lớp với một luật đã khai (ví dụ thêm một hằng múi giờ) mà thẻ không gọi tên luật đó; hoặc máy sửa tệp luật; hoặc thêm một lượt gọi người mỗi vòng
+- Timebox: đọc ở Cổng Giá trị ba mươi ngày sau ngày crm commit tệp luật; crm chưa khai tệp trong 21 ngày sau khi mốc mang vòng này phát hành → ô xếp lại (không kho nào nhận)
 
 ## Kết quả prototype
 
@@ -94,11 +94,11 @@ bàn đo là bản sao do mã sinh theo hình dạng hồ sơ crm, dựng trong 
 
 ## Cổng 0
 
-- **decision = …** Chờ chữ chủ kho ở Cổng Đáng (gọi tên 11/10; luật CỘNG đòi chữ ký đích danh).
+- **decision = build** (hạng T2) — owner gõ «Làm» 11/10 trên khuyến nghị bên dưới. Căn cứ: bảng «Đo 11/10 trên crm» (giả định 1 đã thử). Chữ «Làm» là chữ ký đích danh của luật CỘNG.
 - **disposition = …** Căn cứ: — (không prototype)
-- **Ngưỡng UAT chốt cùng lúc ký:** chép từ bullet `[đề xuất]` ở trên sau khi người gỡ tiền tố.
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ «Làm».
 
-**Máy khuyến nghị:** `build`, hạng **T2**, **một vòng**, dự kiến **10 tiêu chí**. Hạng: vật chạm khuôn
+**Máy khuyến nghị lúc mời ký (owner chọn đúng lối này):** `build`, hạng **T2**, **một vòng**, dự kiến **10 tiêu chí**. Hạng: vật chạm khuôn
 mẫu trong `skills/acceptance/references/`, bước thiết kế của `feature-loop/skills/feature-loop/SKILL.md`,
 `scripts/gate-card.js`, bộ xếp lớp căn cứ của A2 và tài liệu — không chạm `lib/**`, `hooks/**` hay cổng
 chặn gộp. Thứ tự: thiết kế đi ngay, làm vật chỉ sau khi A2 lên `main`. Cỡ vượt 13 ở bước thiết kế → máy tự
