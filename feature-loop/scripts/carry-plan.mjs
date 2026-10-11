@@ -41,8 +41,8 @@ function readers(agRoot) {
     try { core = req(c); break; } catch (e) { vet.push(`${c} (${String(e.message).split('\n')[0]})`); }
   }
   if (!core) die3(`không nạp được lib/evidence-core.cjs — đã thử: ${vet.join(' · ')}; truyền --ag-root <gốc plugin acceptance-gate>`);
-  for (const n of ['parseFlowValue', 'machineEvalIdsSkipped'])
-    if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} (cần >= 2.12.0) — truyền --ag-root trỏ bản >= 2.12.0`);
+  for (const n of ['parseFlowValue', 'machineEvalIdsSkipped', 'evalListsOf'])
+    if (typeof core[n] !== 'function') die3(`acceptance-gate quá cũ: lib/evidence-core.cjs không có ${n} — truyền --ag-root trỏ bản acceptance-gate có hàm ấy`);
   SHARED = core;
   return SHARED;
 }
@@ -96,22 +96,22 @@ export function globToRe(g) {
 }
 
 // Parser evals.yaml tối giản cho đúng các field carry cần (id/criterion/
-// executor/cmd/paths) — cùng hình dạng subset mà eval-coverage-lint hiểu.
+// executor/cmd) — cùng hình dạng subset mà eval-coverage-lint hiểu. `paths` đi qua
+// MỘT bộ đọc ở lib (evalListsOf, hồ sơ evals-sat-le-doc-du): bản trước chỉ nhận
+// `[...]` một dòng nên mọi `paths` dạng khối thành «thiếu paths — luôn chạy lại».
 function parseEvals(text, R) {
   const evals = []; let cur = null;
   for (const raw of text.split('\n')) {
     const m = raw.match(/^\s*-\s+id:\s*(\S+)/);
-    if (m) { cur = { id: m[1] }; evals.push(cur); continue; }
+    if (m) { cur = { id: R.parseFlowValue(m[1]).value }; evals.push(cur); continue; }
     if (!cur) continue;
     let f;
     if ((f = raw.match(/^\s+criterion:\s*(\S+)/))) cur.criterion = f[1];
     else if ((f = raw.match(/^\s+executor:\s*(\S+)/))) cur.executor = f[1];
     else if ((f = raw.match(/^\s+cmd:\s*(\S.*)$/))) cur.cmd = R.parseFlowValue(f[1]).value;
-    else if ((f = raw.match(/^\s+paths:\s*(\[.*)$/))) {
-      const pv = R.parseFlowValue(f[1]);
-      if (pv.kind === 'seq') cur.paths = pv.items;
-    }
   }
+  const { byId } = R.evalListsOf(text, ['paths']);
+  for (const e of evals) { const f = byId.get(e.id); if (f && Array.isArray(f.paths) && f.paths.length) e.paths = f.paths; }
   return evals;
 }
 

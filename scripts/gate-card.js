@@ -92,6 +92,10 @@ const NEN_DO_FLAG = 'Nền hạ tầng có chân ĐỎ — đỏ ở đây khôn
 const NEN_VANG_FLAG = 'Chưa có số liệu nền hạ tầng — hồ sơ sinh trước bản này, hoặc đường nền chưa chạy xong.';
 // Cờ dòng đếm vật · thước · nhát trên thẻ Cổng Bằng chứng (thuoc-co-cua AC-13).
 const THUOC_VAT_HONG_FLAG = 'Không đọc được dòng đếm vật/thước trong run-log — thẻ không in số.';
+// Cờ danh sách không đọc được (hồ sơ evals-sat-le-doc-du AC-8) — chữ thuật ở commands/acceptance-card.md.
+// Bên đọc là MỘT bộ đọc ở lib (danhSachKhongDoc): cờ hiện ở Cổng Phạm vi, TRƯỚC khi một lượt chấm bị đốt.
+const DANH_SACH_KHONG_DOC_FLAG = 'Tệp tiêu chí có danh sách máy không đọc được — lượt chấm sẽ thiếu đúng các trường này; viết lại thành danh sách rồi dựng thẻ lại:';
+const danhSachKhongDocCua = d => { try { return typeof evidenceCore.danhSachKhongDoc === 'function' ? evidenceCore.danhSachKhongDoc(read(path.join(d, 'evals.yaml'))) : []; } catch (_) { return []; } };
 // Cờ câu dịch wont_do mang id không trùng tiêu chí phủ định nào và không trùng mục phạm vi
 // OOS-n nào (cham-khong-tu-dot-luot AC-6) — câu dịch lạc bị bỏ qua, người phải biết.
 const DICH_LAC = 'dòng dịch không khớp mục nào: ';
@@ -887,6 +891,7 @@ if (gate === '1') {
   if (gpDropped) flags.push(['fwarn', `${gpDropped} dòng finding không đọc được (sai số cột — cell chứa "|" hoặc thiếu cột) — sửa bảng gap-probe.md nếu cần soi đủ.`]);
   if (nen.present && nen.nen === 'do') flags.push(['fwarn', esc(NEN_DO_FLAG)]);
   else if (!nen.present) flags.push(['fwarn', esc(NEN_VANG_FLAG)]);
+  { const ds = danhSachKhongDocCua(dir); if (ds.length) flags.push(['fwarn', esc(DANH_SACH_KHONG_DOC_FLAG + ' ' + ds.join(', '))]); }
   if (roiBac) flags.push(['fred', esc(MSG_ROI_BAC)]);
   if (dupIds.length) flags.push(['fwarn', `Trùng mã tiêu chí: ${esc([...new Set(dupIds)].join(', '))} — mapping eval mơ hồ, đổi mã trước khi duyệt.`]);
   for (const j of judgmentACs) flags.push(['finfo', `${j.id} cần MẮT bạn chấm sau khi code (việc người, máy không chấm được).`]);
@@ -1296,6 +1301,7 @@ if (decsApproved.length) P.push(`<div class="lab">Đã duyệt từ Gate 1</div>
 if (ledger.broken) P.push(`<div class="flag fwarn">⚠ ${ledger.broken} dòng ledger hỏng, đã bỏ qua.</div>`);
 const flags = [];
 if (thuocVat && thuocVat.hong) flags.push(['fwarn', esc(THUOC_VAT_HONG_FLAG)]);
+{ const ds = danhSachKhongDocCua(dir); if (ds.length) flags.push(['fwarn', esc(DANH_SACH_KHONG_DOC_FLAG + ' ' + ds.join(', '))]); }
 if (uiObserved2.applicable) {
   if (uiObserved2.present) flags.push(['finfo', `${UI_OBS_G2_OK} ${uiPassed.length} eval ui-check đạt (${esc(uiPassed.join(', '))}) — xem frame ở trang bằng chứng.`]);
   else if (uiObserved2.descoped) flags.push(['fwarn', `${UI_OBS_G2_NONE} — đã bỏ theo ${esc(uiObserved2.descoped)}; người ký đọc tên ca máy, không nhìn frame.`]);

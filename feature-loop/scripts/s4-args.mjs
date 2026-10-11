@@ -79,7 +79,7 @@ agRoot = (() => { try { return fs.realpathSync(agRoot); } catch { return die(`--
 for (const r of AG_REQUIRES) if (!fs.existsSync(path.join(agRoot, r))) die(`acceptance-gate root thiếu ${r} (root: ${agRoot})`);
 
 const require_ = createRequire(import.meta.url);
-const { resolveConfigKey, resolveConfigList, frontmatterField, parseFlowValue, machineEvalIdsSkipped } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
+const { resolveConfigKey, resolveConfigList, frontmatterField, parseFlowValue, machineEvalIdsSkipped, evalListsOf, moTaCanhBao } = require_(path.join(agRoot, 'lib', 'evidence-core.cjs'));
 if (typeof resolveConfigList !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có resolveConfigList (cần ≥ 2.9.0) — cập nhật plugin');
 if (typeof machineEvalIdsSkipped !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có machineEvalIdsSkipped (cần ≥ 2.12.0) — cập nhật plugin');
 // MỘT bộ bóc nháy dùng chung cho mọi đường giá-trị-bị-thi-hành (hồ sơ
@@ -90,6 +90,9 @@ if (typeof machineEvalIdsSkipped !== 'function') die('acceptance-gate quá cũ: 
 // tên, KHÔNG rơi về biểu thức tự viết — rơi về đó chính là khuôn sai mà
 // STOP-PATCHING đã bắt.
 if (typeof parseFlowValue !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có parseFlowValue (cần ≥ 2.11.0) — cập nhật plugin');
+// MỘT bộ đọc trường danh sách (hồ sơ evals-sat-le-doc-du): thiếu = plugin cũ — fail-CLOSED có tên, KHÔNG
+// rơi về bộ đọc tự viết (bộ ấy chỉ nhận khoá cột 4 và đánh rơi im lặng tệp sát lề).
+if (typeof evalListsOf !== 'function' || typeof moTaCanhBao !== 'function') die('acceptance-gate quá cũ: lib/evidence-core.cjs không có evalListsOf (cần bản có hồ sơ evals-sat-le-doc-du) — cập nhật plugin');
 const { parseEvals, expectedExits } = require_(path.join(agRoot, 'lib', 'eval-yaml.cjs'));
 // Bên đọc DUY NHẤT của nhãn cạnh gãy (chet · mu · vat) — s4-args GỌI nó, không chép luật.
 const nhanCanhGay = require_(path.join(agRoot, 'lib', 'nhan-canh-gay.cjs'));
@@ -155,31 +158,15 @@ if (expErrs.length) {
   process.exit(2);
 }
 for (const e of evals) e.expectedExit = expById.get(e.id) || 0;
-{ // list fields: bắt buộc theo bảng bên đọc + field vận hành — inline [..] hoặc block "- item"
+let canhBaoDanhSach = [];
+{ // list fields — MỘT bộ đọc ở lib (evalListsOf, hồ sơ evals-sat-le-doc-du): sát lề, thụt, khối, một dòng, neo.
+  // Danh sách không đọc được (bí danh, khối chữ, ánh xạ, khoá trống) lên MỘT dòng gọi tên — không im.
   const LIST_KEYS = uniq([...REQ_ARR, 'inputs', 'paths', 'evidence_required']);
-  let cur = null; let pendingList = null;
-  // MỌI giá trị đi qua CỔNG CHUNG, không bộ đọc nào tự nhận-biết-vỏ nữa.
-  for (const raw of evalsText.split('\n')) {
-    const line = raw.replace(/\t/g, '  ');
-    const idM = line.match(/^\s{0,4}-\s+id:\s*(\S+)/);
-    if (idM) { cur = evals.find(e => e.id === parseFlowValue(idM[1]).value) || null; pendingList = null; continue; }
-    if (!cur) continue;
-    const fieldM = line.match(/^\s{4}([\w-]+):\s*(.*)$/);
-    if (fieldM) {
-      pendingList = null;
-      const [, k, vRaw] = fieldM;
-      if (!LIST_KEYS.includes(k)) continue;
-      const pv = parseFlowValue(vRaw);
-      if (pv.kind === 'seq') cur[k] = pv.items;
-      else if (pv.value === '') { cur[k] = []; pendingList = k; }
-      continue;
-    }
-    if (pendingList) {
-      const itemM = line.match(/^\s{6,}-\s+(.*)$/);
-      if (itemM) { cur[pendingList].push(parseFlowValue(itemM[1]).value); continue; }
-      if (line.trim()) pendingList = null;
-    }
-  }
+  const { byId, canhBao } = evalListsOf(evalsText, LIST_KEYS);
+  for (const e of evals) { const f = byId.get(e.id); if (f) for (const k of LIST_KEYS) if (Array.isArray(f[k])) e[k] = f[k].slice(); }
+  const con = new Set(evals.map(e => e.id));
+  canhBaoDanhSach = canhBao.filter(c => con.has(c.id)).map(moTaCanhBao);
+  if (canhBaoDanhSach.length) console.error(`s4-args: danh sách không đọc được: ${canhBaoDanhSach.join(', ')}`);
 }
 // `inputs` của judgment tính từ GỐC KHO — cùng gốc với `paths` và mọi đường dẫn
 // khác trong evals.yaml. Bản cũ giải theo thư mục hồ sơ `_acceptance/<slug>/`
@@ -677,6 +664,7 @@ const args = {
   riskTier,
   evals,
   ...(evalsNotRun.length ? { evalsNotRun } : {}),
+  ...(canhBaoDanhSach.length ? { canhBaoDanhSach } : {}),
   ...(evalsChayRieng.length ? { evalsChayRieng } : {}),
   suiteCommands,
   diffBase,
