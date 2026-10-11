@@ -1,6 +1,6 @@
 schema_version: 1
 feature_slug: trang-ho-so-mot-viec
-# Ca đo sống ở tests/scripts/lo-trinh.test.mjs (LT-150..LT-161, cùng tệp với ca của các vòng lộ trình
+# Ca đo sống ở tests/scripts/lo-trinh.test.mjs (LT-151..LT-162 — ca đầu mang mã LT-162 vì LT-150 thuộc vong-la-mot-ket-qua, cùng tệp với ca của các vòng lộ trình
 # trước; executor `executors.test.lo_trinh` chạy đúng tệp đó — không thêm khoá executor). Kho thử do
 # code sinh trong lượt (git init trong thư mục tạm); giá trị mong đợi của từng ô viết sẵn trong ca lúc
 # dựng kho thử, KHÔNG rút từ đầu ra bộ vẽ. Trang hồ sơ gọi bằng spawnSync(node scripts/evidence-page.js)
@@ -16,14 +16,14 @@ evals:
     cmd: config:executors.test.lo_trinh
     paths: [scripts/evidence-page.js, scripts/ho-so-tom-tat.cjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: LT-150" — ô cơ hội của kho thử do `lo-trinh.mjs --mo-o` ghi (bộ viết
+      exit 0; stdout có "PASS: LT-162" — ô cơ hội của kho thử do `lo-trinh.mjs --mo-o` ghi (bộ viết
       thật) rồi thêm đoạn lý do; trang hồ sơ của hồ sơ «đủ»: rút dải bằng bộ đọc HTML trong ca
       (`[data-o]` theo thứ tự); thứ tự khoá == [da_giao, vi_sao, trang_thai, ngay, production, do_gi,
       ket_qua, chua_lam, ai_quyet]; mỗi giá trị == bảng viết sẵn lúc dựng kho thử; mỗi ô có
       `data-nguon` == tên tệp nguồn viết sẵn; chữ trạng thái == chữ ô trạng thái của hàng cùng hồ sơ
-      trên LO-TRINH.html vẽ cùng kho thử; trang không chứa «gọi người» (đếm 0). Và "PASS: LT-150 vi-sao-that" — tomTatHoSo trên
+      trên LO-TRINH.html vẽ cùng kho thử; trang không chứa «gọi người» (đếm 0). Và "PASS: LT-162 vi-sao-that" — tomTatHoSo trên
       _acceptance/trang-ho-so-mot-viec của cây (suy từ vị trí test): vi_sao không bắt đầu bằng «Gốc:»,
-      «Mở từ hàng», «>» và không bằng câu giao. Và "PASS: LT-150-do" —
+      «Mở từ hàng», «>» và không bằng câu giao. Và "PASS: LT-162-do" —
       bản sao mô-đun đổi nguồn `vi_sao` sang dòng thứ hai của mục: CHÍNH hàm so trả lỗi nêu ô «vi_sao».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E2

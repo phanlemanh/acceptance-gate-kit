@@ -132,3 +132,12 @@ Chưa dựng. Phép thử 1 chạy trên lớp phân tích sẵn có — không 
 - Kit ghi tệp ý định, giữ kho tín hiệu, hay nhận tín hiệu ngược về — tín hiệu là hàng L3.
 - Bản chiếu ReUI — vẫn là hạt giống riêng, bật theo từng kho; X1 chỉ cấp dữ liệu cho nó.
 - API hay máy chủ phục vụ dữ liệu — nguồn vẫn là git; bản chiếu đọc tệp từ nhánh chính.
+
+## Kết quả đo sau ship (phiên nghiệm thu 11/10 — đọc sớm)
+
+Trên crm `onehub` `e7afcb8b7` (kit 2.26.0, crm nhận 10/10), trang «Lộ trình» trong CRM (LT1) dựng từ
+chính `LO-TRINH.html`: 117/117 hàng × 3 lộ trình khớp trang kit cùng lượt vẽ, cả bảng lẫn khung chi
+tiết; chiều đỏ 3/3. Mã trang: 0 luật suy trạng thái, luật so ngày trùng tài liệu kit 219/219 ca. Kho
+không khai lộ trình: 0 tệp đổi (LT-113 trên v2.26.0, radar, oneflow). Giả định 4 (trang CRM đọc tệp
+này) ĐỨNG từ ngày 1/21. Cổng Giá trị: **release** (Manh Phan 11/10). Đọc chính thức 30/10: chạy lại
+`uat/chay.sh`, chỉ trình lại nếu đổi màu.

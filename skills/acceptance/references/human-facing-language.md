@@ -335,6 +335,7 @@ kit in cho người; dạng trần chỉ được xuất hiện ở cột một 
 | mo-dot | /dieu-phoi:mo-dot | command |
 | dong-dot | /dieu-phoi:dong-dot | command |
 | xem | /dieu-phoi:xem | command |
+| tiep-tuc | /dieu-phoi:tiep-tuc | command |
 | goal | /goal | harness |
 <!-- COMMAND-NAMES>>> -->
 

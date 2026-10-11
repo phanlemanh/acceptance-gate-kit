@@ -11,6 +11,34 @@ Nhạc trưởng điều phối — KHÔNG tự code thay các skill con, chỉ 
 
 > 2 workflow script đi kèm nằm trong plugin. Đường dẫn: lấy "Base directory for this skill" khi skill này được nạp → `WORKFLOWS_DIR = <base-dir>/../../workflows/` (layout cache: `.../<plugin>/<version>/skills/feature-loop/` → `../../` = thư mục version chứa `workflows/`). TRƯỚC KHI invoke lần đầu: `ls "$WORKFLOWS_DIR"` phải thấy `acceptance-verify.js` + `execute-parallel.js` — không thấy → `node <base-dir>/../../scripts/resolve-plugin.mjs --plugin feature-loop --require workflows/acceptance-verify.js` rồi dùng `<kết quả>/workflows/`. KHÔNG glob cache bằng `ls`: `ls` sắp theo chữ nên "bản mới nhất" chọn 1.9.2 thay vì 1.20.1. LUÔN invoke Workflow bằng `scriptPath` (abs path), KHÔNG bằng `name` — registry theo tên có thể cache bản script cũ. Script tự parse args nếu harness truyền JSON string.
 
+<!-- <<<TRONG-DOT -->
+**Trong đợt (Điều phối – Thợ, gói `dieu-phoi`).** Ở S0 — cả khi resume — chạy
+`node "$WORKFLOWS_DIR/../scripts/trong-dot.mjs" --root .` (chỉ đọc). Không in gì → phiên không trong đợt: bỏ
+qua TRỌN khối này, vòng y như các mục dưới. In một dòng `trong-dot: …` → nói lại đúng dòng đó, bỏ qua khối. In
+JSON `{"trong_dot":true,…}` → phiên là thợ của dãy `day`; năm luật dưới thắng luật cùng chỗ ở các mục sau, chỉ
+trong vòng này. Mọi lần ghi vào thư mục đợt (xin lượt, nhả lượt, gửi yêu cầu) làm đúng mục «Cách xin tài
+nguyên» của tệp `luat` trong JSON — khối này không chép cách ghi; đọc `luat` trước S1.
+- **S0, hàng chưa có ô** (khối S0-MO-O in `moi: true`): không trình thẻ Cổng Đáng ở phiên thợ — gửi yêu cầu
+  `hang-moi` (slug + câu giao) cho giám sát rồi chờ trả lời bằng lệnh nền. Cổng Đáng của hàng phát sinh gom về
+  giám sát.
+- **S1:** không mở hỏi đáp brainstorm — trả lời từ ô của hàng (hoặc ô dù nó trỏ), câu giao của hàng lộ trình và
+  `luat`; mỗi câu xin duyệt thiết kế thành một dòng sổ `approach` (Cổng Phạm vi vẫn theo luật làn V); không in
+  khối GOAL-TEMPLATE. Câu chỉ người biết → gửi yêu cầu `can-nguoi` (câu hỏi + khuyến nghị) TRƯỚC khi hỏi bằng
+  chữ, để bảng đợt thấy và đếm.
+- **S4, ghim lại, đường nền:** xin lượt (`s4`, `ghim-lai`, `duong-nen`) rồi chờ bằng lệnh nền tới khi khoá ghi
+  tên dãy; chạy; nhả khi verdict đã ghi. Lời chặn `chan-s4` là CHỜ LƯỢT: không phải BLOCKED, không hỏi người,
+  không tung lượt mới, không đếm round.
+- **S5:** `tu_merge: true` → sau khi PR mở, xin lượt `merge`, gộp theo lệ của kho, nhả. `false` hoặc `null` →
+  chỉ mở PR; bấm merge là của người. Rồi chạy lại lệnh nhận biết kèm `--slug <slug vừa xong>` và làm đúng
+  `viec_ke`:
+  - `mo-hang` → gọi `/feature-loop:feature-loop <hang_ke.slug>` ngay trong phiên này.
+  - `cho-nhip` → chờ một nhịp (lệnh nền khoảng 30 giây) rồi đọc lại; ba lần vẫn vậy → báo giám sát một dòng.
+  - `bao-giam-sat` → gửi yêu cầu `khac` cho giám sát nêu `ly_do`, dừng.
+  - `cho` → một dòng «dãy <day> chờ: <ly_do>», dừng.
+  - `xong` → một dòng «dãy <day> hết hàng», dừng.
+- Khối không đổi bảng cổng: khó-đảo vẫn là câu hỏi cho người; chữ quyết vẫn chỉ của người.
+<!-- TRONG-DOT>>> -->
+
 ## State machine & resume
 
 Nguồn sự thật duy nhất: frontmatter `status` trong `_acceptance/<slug>/contract.md`.

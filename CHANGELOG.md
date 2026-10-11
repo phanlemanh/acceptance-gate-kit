@@ -34,6 +34,43 @@ Gốc: crm `trang-lo-trinh-trong-crm` — mục ngoài hợp đồng «hiện h�
 - Kho chép bộ máy cho CI (danh sách `INIT-CI-COPY-LIST`, nay 18 tệp) và khai `lo_trinh.tep` phải chép thêm
   `scripts/ho-so-tom-tat.cjs` — thiếu thì bước bản đồ đỏ to `MODULE_NOT_FOUND`, không im lặng.
 
+### Cắt lượt nói ra vòng nào phải tách, gộp được, hay sai dáng câu giao (hồ sơ `vong-la-mot-ket-qua`, T2)
+
+Gốc: hàng S3 lộ trình kit, chính sách chủ kho chốt 10/10 — một vòng một kết quả, mục tiêu 8–10 tiêu chí,
+cho phép 11–12, từ 13 phải tách; câu giao hai dáng. Số đo nền trên crm: khoảng 8–12 chạm trần 3 lượt
+chấm 27 %, nhóm từ 13 tiêu chí 62 %.
+
+- **Khoảng cỡ là chính sách một khối** (`CAT-LUOT-CO` trong skill cắt lượt) — răng đọc thẳng khối ấy,
+  không số nào nằm trong mã; đổi chính sách là sửa năm dòng.
+- **Tám cờ có tên** khi cắt lượt: `can-tach` · `tieu-chi-sai-kieu` · `vai-khong-mo-cau` ·
+  `nen-thieu-bat-khi` (chặn, ở hàng trong đợt) và `tren-muc-tieu` · `duoi-muc-tieu` (kèm hàng gộp được
+  cùng nhóm) · `chua-uoc-tieu-chi` · `chua-khai-dang-giao` (vàng). Hai trường mới của lượt cắt: `vai`
+  (tên vai, hoặc `nen` cho việc nền) và `tieu_chi` (cỡ dự kiến) — agent và trang lộ trình không đọc.
+- **Đồng hồ cỡ** `cat-luot.mjs --co [--tu <ngày>] [--lo-trinh <tệp>]`: bảng cỡ → lượt chấm → chạm trần từ
+  hồ sơ đã giao, tỉ lệ cỡ tính trên mọi vòng đã chốt, so cỡ khai lúc cắt với hợp đồng thật. Chỉ đọc.
+- **Kho tiêu thụ không phải làm gì:** lộ trình cắt trước bản này (crm hai tệp) vẫn ra đúng mã thoát và
+  dòng cũ, chỉ thêm một dòng vàng gom mỗi cờ cho hàng ngoài đợt; trang lộ trình không đổi một byte. Lượt
+  cắt kế ghi `vai` + `tieu_chi` theo skill.
+- Giới hạn: luật cỡ chưa vào bước thiết kế của Feature Loop (vẫn ghi 5–15) — vòng mở ngoài lộ trình chưa
+  có răng cỡ.
+
+### Tệp tiêu chí viết sát lề được đọc đủ (hồ sơ `evals-sat-le-doc-du`, T3)
+
+Gốc: crm `dieu-phoi-va-bien`, 07/10 — phiên phải viết lại 309 dòng `evals.yaml` từ kiểu sát lề sang
+thụt 4 «để bộ đọc của kit thấy inputs và paths». Kiểu sát lề (`- id:` ở cột 0, mục danh sách cùng cột
+với khoá) là YAML hợp lệ và là kiểu bộ xuất YAML viết mặc định.
+
+- **Một bộ đọc danh sách** (`evalListsOf` ở `lib/evidence-core.cjs`) cho lượt chấm, lượt sửa và làn
+  ghim lại. Trước đây lượt chấm đánh rơi IM LẶNG đầu vào của hội đồng, vùng tệp và danh sách bằng
+  chứng của tệp sát lề; lượt sửa bỏ mọi `paths` viết dạng nhiều dòng; bộ đọc vùng tệp đọc tên neo
+  YAML (`&id001`) thành một vùng tệp.
+- **Cờ vàng có tên** khi trường danh sách viết kiểu kit không đọc (bí danh `*ten`, khối chữ, ánh xạ,
+  `[` không đóng, khoá trống): một dòng ở lượt chấm và một cờ trên thẻ Cổng Phạm vi lẫn Cổng Bằng chứng.
+- **Ai bị ảnh hưởng:** kho viết thụt 4 — không gì (so trên 621 hồ sơ ở bảy kho: 0 lệch). crm — lượt
+  sửa nay giữ ô xanh cho `paths` dạng nhiều dòng (393 chỗ khai), nên mỗi lượt sửa chạy lại ít lệnh
+  hơn; hồ sơ do bộ xuất YAML sinh có bí danh sẽ thấy cờ và cần viết lại trường ấy.
+- **Làm gì khi nâng:** không gì.
+
 ### Mục `paths` thoát ngoặc (`[[]slug]`) được hiểu đúng (hồ sơ `glob-thoat-ngoac`, T3)
 
 Gốc: crm `dien-thoai-ca-nhan`, 09/10. Ghim lại gắn `evals_not_machine_touched` cho bốn ô ui-check có `paths`
