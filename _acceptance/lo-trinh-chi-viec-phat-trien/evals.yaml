@@ -33,10 +33,11 @@ evals:
       trời», và 0 dòng «đứng trên mã không có» của hàng R; 3 đối chứng im {moc-khong-ngoai → vẫn «đứng
       trên mã không có», 0 dòng `[cho-van-hanh]` · moc-hang → thoát 0 · chan-troi-mo-lai → thoát 0}.
       Và "PASS: LT-164 kho-tai-lieu" — từ bản chụp crm-kho-tai-lieu.json, code dựng đợt `ktl`: `ct`, `cb`
-      thành mốc ngoài (ma giữ nguyên, ai «Mọi phòng ban» / «Chủ kho»); cách cũ (l5, d9, d6 giữ
-      `dung_tren: ["ct"]`) → thoát 1, tập hàng mang `[cho-van-hanh]` == {l5, d9, d6}; cách theo luật
-      (l5 thành chân trời `mo_lai_khi` nêu «ct», d9/d6 bỏ «ct») → thoát 0, bảng phủ đặt mã của ct, cb ở
-      «mốc ngoài». Và "PASS: LT-164-do" — bản sao chỉ so `ma` của mốc: hàm đo trả lỗi nêu ca «theo-ten»;
+      thành mốc ngoài (ma giữ nguyên, ai «Mọi phòng ban» / «Chủ kho»); cách cũ (giữ nguyên
+      `dung_tren` của bản chụp) → thoát 1, tập hàng mang `[cho-van-hanh]` == tập hàng đứng trên ct hoặc
+      cb tính độc lập từ bản chụp (in ra — 29/09: {l4, l5, d9, d6}); cách theo luật (l5 thành chân
+      trời `mo_lai_khi` nêu «ct», hàng khác bỏ ct/cb) → thoát 0, bảng phủ đặt mã của ct, cb ở «mốc
+      ngoài». Và "PASS: LT-164-do" — bản sao chỉ so `ma` của mốc: hàm đo trả lỗi nêu ca «theo-ten»;
       "PASS: LT-164-do-kep" — bản sao vẫn in «đứng trên mã không có» cho cùng mục: hàm đo trả lỗi nêu
       «mã không có».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
