@@ -3,10 +3,10 @@ schema_version: 1
 slug: buoc-len-thiet-ke-khong-hoi
 feature: Bước lên thiết kế không hỏi người những câu mà người luôn trả lời theo khuyến nghị
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-11T09:08:44Z   # owner gõ «Cổng Đáng buoc-len-thiet-ke-khong-hoi: làm; ngưỡng: chốt như đề xuất» trong phiên 11/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -54,10 +54,10 @@ cửa veto; loại ba vẫn là câu hỏi — nhưng gom vào Cổng Phạm vi,
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Số lượt gọi người ngoài thiết kế ở bước thiết kế của crm về 0 trong ba vòng liền, không vòng nào bị trả vì thiết kế sai» chưa?
-- Kết quả nào là SỐNG: [đề xuất] ba vòng crm liền sau khi crm nhận mốc mang A2: 0 lần máy dừng hỏi giữa mở vòng và Cổng Phạm vi, và 0 vòng mà Cổng Phạm vi phải ký lại vì một lựa chọn máy tự quyết ở bước thiết kế bị người lật
-- Kết quả nào là CHẾT: [đề xuất] hết timebox chưa đạt, hoặc ≥ 1 vòng crm có câu chỉ-người-biết bị máy tự quyết rồi người lật ở Cổng Phạm vi
-- Timebox: [đề xuất] 2026-11-01 (mốc kế sau đợt thử, cùng DP6 · L3 · X2 · S3 · G2 · G3 — hàng đã gắn mốc này); không cắt mốc trong vòng này
+- Câu hỏi phép đo trả lời: đã đạt «Số lượt gọi người ngoài thiết kế ở bước thiết kế của crm về 0 trong ba vòng liền, không vòng nào bị trả vì thiết kế sai» chưa?
+- Kết quả nào là SỐNG: ba vòng crm liền sau khi crm nhận mốc mang A2: 0 lần máy dừng hỏi giữa mở vòng và Cổng Phạm vi, và 0 vòng mà Cổng Phạm vi phải ký lại vì một lựa chọn máy tự quyết ở bước thiết kế bị người lật
+- Kết quả nào là CHẾT: hết timebox chưa đạt, hoặc ≥ 1 vòng crm có câu chỉ-người-biết bị máy tự quyết rồi người lật ở Cổng Phạm vi
+- Timebox: 2026-11-01 (mốc kế sau đợt thử, cùng DP6 · L3 · X2 · S3 · G2 · G3 — hàng đã gắn mốc này); không cắt mốc trong vòng này
 
 ## Kết quả prototype
 
@@ -74,11 +74,11 @@ chính 69 dòng sổ crm và 18 câu transcript ở `do-11-10/`.
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
+- **decision = build** (hạng T3) — owner gõ «làm; ngưỡng: chốt như đề xuất» 11/10 trên khuyến nghị bên dưới. Căn cứ: bảng «Đo 11/10» (28/51 lựa chọn ở S1 có căn cứ máy đã có; tuần 41 vẫn 14/65 vòng crm), giả định 1 đã thử.
 - **disposition = …** Căn cứ: — (không prototype)
-- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ ký.
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ «làm».
 
-**Máy khuyến nghị:** `build`, hạng **T3** (theo hàng lộ trình và lời giao; đường tệp dự kiến không
+**Máy khuyến nghị lúc mời ký (owner chọn đúng lối này):** `build`, hạng **T3** (theo hàng lộ trình và lời giao; đường tệp dự kiến không
 chạm `t3_paths` nên máy suy T2 — máy không tự đổi), **một vòng**, có Gate 1.5, trần 4 lượt gọi người.
 Cỡ dự kiến 11 tiêu chí (bảng dưới). Phần TRỪ (bỏ câu xin duyệt giữa S1) đi như thường; phần CỘNG
 (trường nguồn căn cứ trên dòng sổ + răng chiều đỏ) trình đích danh ở Cổng Phạm vi theo luật CỘNG.
