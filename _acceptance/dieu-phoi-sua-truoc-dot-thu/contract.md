@@ -5,7 +5,7 @@ slug: dieu-phoi-sua-truoc-dot-thu
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-11-dieu-phoi-sua-truoc-dot-thu-design.md
 approved_by:
 approved_at:
@@ -87,3 +87,9 @@ thái của từng lỗi nằm ở ma trận trong AC:
 - Vế E1 (tiêu chí AC-6) đảo vế «`the khoi-tao --json` có `khau-vi-han-muc` trong `hoi`» của DP4-AC-4. Chủ kho đã định tuyến lỗ
   này «mở hợp đồng mới» ở Cổng Bằng chứng của DP4 (Ngoài-1). Hồ sơ DP4 đã ký nên không sửa; dòng sổ của hồ sơ
   này ghi việc đảo.
+- **Known limits (Cổng Bằng chứng, ký 11/10, owner định tuyến «ghi Known limits»):** hàng phụ thuộc vào hàng đã
+  quyết park/kill treo im ở `phu-thuoc` (Ngoài-2) · lối rơi khi `tiep/` vắng mời hàng ưu tiên đầu không xét quyết
+  (Ngoài-4) · SDT-07 gán thay đổi phần dựng dùng chung cho một ca (Ngoài-5) · SDT-07 so commit HEAD nhưng đọc sổ từ
+  cây làm việc (Ngoài-6). Sổ: `docs/research/known-limits-ledger.tsv`.
+- **Mở hợp đồng mới (Cổng Bằng chứng, ký 11/10):** Ngoài-1, Ngoài-3 — ghi hạt giống
+  `docs/plans/2026-10-11-hat-giong-dieu-phoi-sau-sua-truoc-dot-thu.md`, không tạo ô.
