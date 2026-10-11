@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 80b4c10b8f9b836fb4415cc61844e3bb143fa1ef
-human_signoff:
+human_signoff: manh 2026-10-12
 ---
 
 # Evidence Report: ngoai-n-tu-dinh-tuyen

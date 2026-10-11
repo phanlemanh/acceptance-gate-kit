@@ -5,7 +5,7 @@ slug: ngoai-n-tu-dinh-tuyen
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-11-ngoai-n-tu-dinh-tuyen-design.md
 approved_by: manh
 approved_at: 2026-10-12
@@ -195,5 +195,17 @@ Phân loại:
   - Thẻ nạp bên ghi hỏng thì lặng lẽ coi như không có dòng máy — mục máy đã định tuyến hiện lại thành câu hỏi, không cờ.
 - Phạm vi nâng sau Cổng Bằng chứng lượt 1 (AC-11…AC-14, sổ quyết định cùng ngày): sáu mục ngoài hợp đồng sửa ngay thay
   vì tách việc; Cổng Phạm vi duyệt lại là lượt gọi người ngoài thiết kế.
+- **Known limits (Cổng Bằng chứng lượt 2, ký 12/10, owner định tuyến «ghi Known limits» — mục ngoài hợp đồng S4-r2):**
+  - Ngoài-2: nhóm nhãn lượt `NHAN_LUOT_RE` (và `NHAN_RE`) của bên ghi là bản chép tay khuôn `OOC-TITLE-RE` / bộ đọc
+    nhãn của lib, ngoài marker và ngoài ca DG2 — định dạng nhãn đổi thì mục mang sang bị báo lệch oan.
+  - Ngoài-3: GUIDE/SKILL gọi gạch máy ghi vào `## Notes` là «known-limits», trong khi `CONTEXT.md` định nghĩa
+    known-limits là thứ người ký ĐÃ đọc và chấp nhận — gạch máy ghi chưa có người chấp nhận.
+  - Ngoài-6: NT12 gõ tay chuỗi nhãn lượt thay vì rút từ bên viết của bước mang-sang.
+  - Ngoài-7: NT7 html chỉ kiểm lệnh đảo có mặt trên trang, không ghép nó với đúng mục (cùng lớp Known limit lượt 1).
+  - Ngoài-8: NT5 sau-a kết luận lưới cho qua từ việc VẮNG dòng `VIOLATION [<slug>]`, không ghim đầu ra dương.
+  - Ngoài-9: NT12 mot-ham grep mã nguồn `gate-card.js` thay vì đo đầu ra.
+- **Mở hợp đồng mới (Cổng Bằng chứng lượt 2, ký 12/10):** Ngoài-1 (câu gộp thẻ làn V chứa `Ngoài-<n>:` đá với
+  câu signoff mới), Ngoài-4 (dòng máy cũ vẫn đứng khi đề xuất đổi sang new-contract), Ngoài-5 (`--soat-lech` báo
+  0 khi `--root` sai) — ghi hạt giống `docs/plans/2026-10-12-hat-giong-dinh-tuyen-may-sau-luot-2.md`, không tạo ô.
 - Reality đọc ở đợt thử crm 26/10 khi crm bật khoá: số hồ sơ đi làn V, số mục máy định tuyến bị người đảo.
   Ngưỡng xem lại thiết kế: tỉ lệ đảo > 10 % mục máy định tuyến trong một đợt (đo hôm nay 11/237 ≈ 4,6 %).
