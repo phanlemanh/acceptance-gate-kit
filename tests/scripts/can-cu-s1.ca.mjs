@@ -356,6 +356,17 @@ check('CC-05 khong-goc', () => {
   eq((h.match(/chưa kiểm câu trích có từ trước vòng/g) || []).length, 1, 'đúng một cờ vàng chưa kiểm gốc');
   if (/Sổ bước thiết kế — /.test(h)) die('không gốc mà có cờ đỏ mới');
 });
+const VANG_MO_DUN = 'Không nạp được bộ đọc căn cứ bước thiết kế (scripts/can-cu-s1.cjs)';
+check('CC-05 vang-mo-dun', () => {
+  const kho = mkHoSoThe();
+  if (theCua(kho, ['--glossary-base', kho.base]).stdout.includes(VANG_MO_DUN)) die('đối chứng: thẻ lành mà có cờ vắng bộ đọc');
+  const d = mkdtempSync(path.join(tmpdir(), 'cancu-don-')); mkdirSync(path.join(d, 'scripts'));
+  cpSync(GC, path.join(d, 'scripts', 'gate-card.js')); cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
+  const h = spawnSync('node', [path.join(d, 'scripts', 'gate-card.js'), '--root', kho.r, '--slug', 'h', '--glossary-base', kho.base], { encoding: 'utf8' });
+  if (h.status !== 0) die('thẻ đứng một mình không dựng được: ' + h.stderr.slice(0, 200));
+  eq((h.stdout.match(/Không nạp được bộ đọc căn cứ bước thiết kế/g) || []).length, 1, 'thẻ thiếu bộ đọc có đúng một cờ vàng');
+  if (h.stdout.includes('Câu chỉ anh trả lời được')) die('thiếu bộ đọc mà vẫn có khối câu hỏi');
+});
 check('CC-05-do', () => {
   const d = mkdtempSync(path.join(tmpdir(), 'cancu-gc-'));
   cpSync(path.join(ROOT, 'scripts'), path.join(d, 'scripts'), { recursive: true }); cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
@@ -388,11 +399,11 @@ check('CC-06 the-cu', () => {
     if (chon.length === 3) break;
     let hd = '', raw = '';
     try { hd = readFileSync(path.join(ROOT, '_acceptance', slug, 'contract.md'), 'utf8'); raw = readFileSync(path.join(ROOT, '_acceptance', slug, 'decisions.jsonl'), 'utf8'); } catch (_) { continue; }
-    if (!/^status:\s*signed-off\b/m.test(hd)) continue;
+    if (!/^status:\s*\S/m.test(hd) || /^status:\s*draft\b/m.test(hd)) continue;
     const en = mod.docSo(raw).entries; if (!en.some(e => e.stage === 'S1')) continue;
     chon.push([slug, en.filter(e => e.type !== 'seal').length]);
   }
-  if (chon.length !== 3) die('không đủ ba hồ sơ signed-off có dòng S1');
+  if (chon.length !== 3) die('không đủ ba hồ sơ đã qua Cổng Phạm vi có dòng S1');
   for (const [slug, n] of chon) {
     const h = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--gate', '1'], { encoding: 'utf8' }).stdout;
     if (h.includes('dòng sổ đời trước')) die(slug + ': thẻ đã ký mang cờ đời trước');

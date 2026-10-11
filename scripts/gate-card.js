@@ -41,8 +41,6 @@ const { section, contentLines } = require('../lib/md-section.cjs');
 // ">" nên NEG_RE luôn false → covGaps bắn cảnh báo giả cho MỌI AC có số.
 const evalYamlLib = require('../lib/eval-yaml.cjs');
 const { parseEvals } = evalYamlLib;
-// Căn cứ của lựa chọn ở bước thiết kế (hồ sơ buoc-len-thiet-ke-khong-hoi, ADR 0022) — MỘT bộ đọc khoá `can_cu`.
-const canCu = require('./can-cu-s1.cjs');
 
 const a = process.argv.slice(2);
 const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
@@ -538,8 +536,11 @@ if (gate === '1') {
   const wontDo = acs.filter(x => !x.judgment && HEAD_NEG_RE.test(thenOf(x.gwt)));
   const judgmentACs = acs.filter(x => x.judgment);
   // ── Căn cứ bước thiết kế: câu chỉ-người-biết tách khỏi lựa chọn máy đã quyết; dòng đỏ chặn điền sẵn.
+  // Nạp trong nhánh Cổng 1 (chỉ cổng này dùng). Vắng tệp (bản sao thẻ đứng một mình, cài thiếu) → thẻ vẫn dựng,
+  // mọi dòng sổ về khối chung, và MỘT cờ vàng nêu tên tệp — lộ ra, không im (ADR 0022).
+  let canCu = null; try { canCu = require('./can-cu-s1.cjs'); } catch (_) { canCu = null; }
   const ccDraft = /^draft$/i.test(status);
-  const cc = canCu.phanLoaiSo(ledger.entries, { root, slug, base: glossaryBase || null });
+  const cc = canCu ? canCu.phanLoaiSo(ledger.entries, { root, slug, base: glossaryBase || null }) : { cau_hoi: [], da_quyet: [], do: [], doi_truoc: 0, bi_thay: 0, goc: 'chua-kiem', dong: [] };
   const ccCauHoi = cc.cau_hoi;
   const ccMayQuyet = cc.da_quyet;
   const ccRieng = new Set([...ccCauHoi, ...ccMayQuyet].map(d => d.e).concat(cc.dong.filter(d => d.lop === 'bi-thay').map(d => d.e)));
@@ -908,6 +909,7 @@ if (gate === '1') {
   if (dupIds.length) flags.push(['fwarn', `Trùng mã tiêu chí: ${esc([...new Set(dupIds)].join(', '))} — mapping eval mơ hồ, đổi mã trước khi duyệt.`]);
   for (const j of judgmentACs) flags.push(['finfo', `${j.id} cần MẮT bạn chấm sau khi code (việc người, máy không chấm được).`]);
   if (tier === 'T3') flags.push(['finfo', 'Đụng phần nhạy cảm → tier T3, duyệt kỹ phần "sẽ KHÔNG làm".']);
+  if (!canCu) flags.push(['fwarn', 'Không nạp được bộ đọc căn cứ bước thiết kế (scripts/can-cu-s1.cjs) — thẻ in mọi dòng sổ ở khối chung, chưa kiểm căn cứ.']);
   for (const d of cc.do) flags.push(['fred', esc(canCu.CO.dong(d.id, d.thong_diep))]);
   if (cc.goc === 'loi') flags.push(['fwarn', esc(canCu.CO.gocLoi(glossaryBase))]);
   else if (ccDraft && !glossaryBase && ccMayQuyet.some(d => d.e.can_cu.nguon === 'muc-tieu')) flags.push(['fwarn', esc(canCu.CO.chuaKiemGoc)]);

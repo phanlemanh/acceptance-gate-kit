@@ -93,7 +93,9 @@ evals:
       hay sửa: ___». Bản rút: routing.hoi == [duyệt hay sửa, Hỏi-1, Hỏi-2]; can_cu == {cau_hoi 2, da_quyet
       2, do 0, doi_truoc 1}; one_shot kết thúc bằng « duyệt». Và "PASS: CC-05 do" — thêm một dòng đỏ: cờ đỏ
       chứa mã dòng + thông điệp, one_shot kết thúc bằng « ___». Và "PASS: CC-05 khong-goc" — cùng hồ sơ dựng
-      không `--glossary-base`: đúng 1 cờ vàng chứa «chưa kiểm câu trích có từ trước vòng», không cờ đỏ mới. Và
+      không `--glossary-base`: đúng 1 cờ vàng chứa «chưa kiểm câu trích có từ trước vòng», không cờ đỏ mới. Và "PASS: CC-05 vang-mo-dun" — thẻ chép đứng
+      một mình (không bộ đọc căn cứ) vẫn dựng, mang đúng 1 cờ vàng «Không nạp được bộ đọc căn cứ bước thiết
+      kế», không khối câu hỏi; thẻ lành không có cờ đó. Và
       "PASS: CC-05-do" — bản sao thẻ đưa câu
       hỏi vào khối máy-đã-quyết → hàm so nêu mã dòng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -105,8 +107,8 @@ evals:
     expected: >
       exit 0; stdout có "PASS: CC-06 kho-that" — bộ phân loại trên mọi `_acceptance/*/decisions.jsonl` của
       cây (suy từ vị trí ca): 0 dòng đỏ trên hồ sơ có sẵn ngoài hồ sơ của vòng này, in số hồ sơ, số dòng
-      đã đọc (> 0) và số dòng stage gate1 mang supersedes; "PASS: CC-06 the-cu" — thẻ Cổng 1 (ép `--gate 1`) của ba hồ sơ `signed-off` đầu tiên
-      theo tên có dòng `stage: S1` trong sổ (chọn bằng mã, in tên) không chứa cờ «dòng sổ đời trước», không
+      đã đọc (> 0) và số dòng stage gate1 mang supersedes; "PASS: CC-06 the-cu" — thẻ Cổng 1 (ép `--gate 1`) của ba hồ sơ đầu tiên theo tên
+      đã qua Cổng Phạm vi (trạng thái khác draft) có dòng `stage: S1` trong sổ (chọn bằng mã, in tên) không chứa cờ «dòng sổ đời trước», không
       chứa khối «Câu chỉ anh trả lời được» và khối «Quyết định &amp; trade-off» còn đủ số dòng sổ không phải
       seal; "PASS: CC-06 vang" — hồ sơ nháp
       kho thử chỉ có dòng S1 đời trước: đúng 1 cờ vàng chứa «dòng sổ đời trước»; "PASS: CC-06 bo-doc" —
