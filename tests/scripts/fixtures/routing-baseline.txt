@@ -156,3 +156,4 @@ evals-sat-le-doc-du	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|k�
 vong-la-mot-ket-qua	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
 trang-ho-so-mot-viec	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|ký hay trả	bao=cắt/hoãn|Treo
 xa-stdout-truoc-khi-thoat	hoi=Ngoài-1|Ngoài-2|Ngoài-3|ký hay trả	bao=cắt/hoãn|Treo
+eval-goi-model-that-khong-chay	hoi=Ngoài-1|Ngoài-2|Ngoài-3|Ngoài-4|Ngoài-5|Ngoài-6|Ngoài-7|Ngoài-8|Ngoài-9|Ngoài-10|Ngoài-11|Ngoài-12|Ngoài-13|Ngoài-14|Ngoài-15|Ngoài-16|Ngoài-17|Ngoài-18|Ngoài-19|Ngoài-20|Ngoài-21|Ngoài-22|Ngoài-23|ký hay trả	bao=cắt/hoãn|Treo

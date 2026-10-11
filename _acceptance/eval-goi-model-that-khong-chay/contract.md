@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/** + tests/** + GUIDE/SKILL/CHANGELOG — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs (AC-12 giữ)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-eval-goi-model-that-khong-chay-design.md
-status: verified
+status: signed-off
 approved_by: manh
 approved_at: 2026-10-11T12:07:13Z
 veto_state: mo
@@ -90,6 +90,14 @@ cho lớp dấu vân tay và cờ ép; `[NGÀNH: crm eval-model-that-dung-luc E1
 ## Notes
 
 - Lượt 3 (owner trả lại ở Cổng Bằng chứng lượt 2, 11/10): AC-13…AC-15 thêm, thước AC-3/4/5/10/12 siết, chân `rang/chan.mjs` chạy đối chứng dương trên bản sao SAU-G3 nguyên vẹn trước mỗi phép phá.
+- **Known limits (Cổng Bằng chứng lượt 3, owner ký 11/10 — sổ `gate2`):**
+  - Ngoài-5: chú thích của `NGAY_MS` nói lưới RT18 quét `feature-loop/` — không đúng phạm vi quét.
+  - Ngoài-9: hằng đếm lớp bên đọc run-log (13) tuyên chiều im cho hai bộ đọc mới, chỉ bộ chọn nguồn có ca.
+  - Ngoài-18: ma trận lớp băm rút từ khối `CARRY-INPUT-LAYERS` mà hàm băm không đọc khối ấy (độ đủ lớp gắn bằng năm phép phá, không bằng khối).
+  - Ngoài-20: E9 khai «mọi khoá LAN-KHOA bật», thực tế hai điểm-case rời.
+  - Ngoài-22: ca `AC4-ma-tran` là bảng tra song song, không lái ca.
+- Mở hợp đồng mới (Ngoài-1, Ngoài-2): hạt giống `docs/plans/2026-10-11-hat-giong-dem-dung-lai-dong-dung-som.md` — script đếm gắn nhãn «không thấy nguồn» cho lượt lệch rồi dừng sớm.
+- Còn một phát hiện TRONG hợp đồng của lượt chấm 3 (review-findings, AC-15): phép phá chiều đỏ `chi-tru-ho-so-minh` là «không trừ tệp nào» thay vì «chỉ trừ tệp của chính hồ sơ» như hợp đồng mô tả; ca vẫn phân biệt được lỗi (tác tử chấm đo cả hai dạng phá). Thẻ Cổng Bằng chứng không in mục này vì verdict PASS; owner ký không định đoạt riêng mục này.
 
 - Giới hạn khai, mỗi cái một ngưỡng (đếm bằng `dem-dung-lai-model.mjs`):
   - `paths` thiếu đầu vào, hoặc eval không tất định → kết quả dùng lại không còn đúng. Ngưỡng mở vòng siết: `carry_lech` ≥ 1 ở bất kỳ kho nào.

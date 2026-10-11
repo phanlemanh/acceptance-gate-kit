@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 270dc093cf121bafe15ac7d18a6e89a333f64d12
-human_signoff:
+human_signoff: manh 2026-10-11
 ---
 
 # Evidence Report: eval-goi-model-that-khong-chay
