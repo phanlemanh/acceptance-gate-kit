@@ -158,8 +158,12 @@ const hoSo = (slug, files) => {
   for (const [f, t] of Object.entries(files)) fs.writeFileSync(path.join(root, '_acceptance', slug, f), t);
   return { root, slug };
 };
-const SO_DONG = 360;
-const LY_DO_DAI = `lệnh executor không chạy được trên máy chấm — ${CHU.repeat(2600)}`;
+// Cỡ fixture CO GIÃN theo số dò: cỡ gốc vượt 131 072 byte (2 × 65 536 trên M5); nền cắt sâu hơn thì nhân
+// lên, để tiền đề «≥ 2 × n» không đỏ oan vì fixture cố định. Sổ vẫn dưới trần đọc 1 MB của gate-card ở
+// mọi n < 200 000 (nền cắt); vượt trần thì tiền đề đỏ nêu cỡ — giới hạn của fixture, không im.
+const HE_SO = Math.max(1, CO_MIN / 131072) * 1.1;
+const SO_DONG = Math.ceil(360 * HE_SO);
+const LY_DO_DAI = `lệnh executor không chạy được trên máy chấm — ${CHU.repeat(Math.ceil(2600 * HE_SO))}`;
 const G1 = hoSo('lon-cong-1', { 'contract.md': CONTRACT('lon-cong-1', 'draft'), 'evals.yaml': EVALS, 'decisions.jsonl': so(SO_DONG, false) });
 const G2 = hoSo('lon-cong-2', { 'contract.md': CONTRACT('lon-cong-2', 'verified'), 'evals.yaml': EVALS, 'decisions.jsonl': so(SO_DONG, true), 'evidence-report.md': REPORT('lon-cong-2', 'PASS') });
 const G2B = hoSo('lon-chan', { 'contract.md': CONTRACT('lon-chan', 'verified'), 'evals.yaml': EVALS, 'evidence-report.md': REPORT('lon-chan', 'BLOCKED', LY_DO_DAI) });
@@ -422,7 +426,8 @@ function khoLan(slugs) {
 // một ký hiệu và bỏ đuôi 32 byte (ký tự/số bị cắt dở).
 const chuanSo = (s) => s.replace(/\d+(\.\d+)?/g, '#');
 await ca('XD-7', 'repin-lane làn ghim lại đỏ > 64 KB qua pipe — JSON đọc được, đủ slug, mã 1', () => {
-  const slugs = ['lan-a', 'lan-b'];
+  // Lý do giữ ~80 KB (dưới trần 128 KB một đối số của Linux); nền cắt sâu hơn thì thêm slug.
+  const slugs = Array.from({ length: Math.ceil(2 * HE_SO) }, (_, i) => `lan-${String.fromCharCode(97 + i)}`);
   const kho = khoLan(slugs);
   const lyDo = `ca xa stdout — ${CHU.repeat(1100)}`;
   const args = (lane) => [lane, '--root', kho, '--ag-root', ROOT, ...slugs.flatMap((s) => ['--slug', s]), '--reason', lyDo, '--run-id', 'xdqp-lan-1'];

@@ -102,6 +102,10 @@ Luật chọn: **sửa** khi đầu ra đã vượt mốc hoặc vượt ở c�
 | `feature-loop/scripts/duong-nen.mjs` · `resolve-plugin.mjs` · `round-tally-read.mjs` | một dòng / một đường dẫn / bộ đếm lượt | < 2 KB | liệt kê |
 | `dieu-phoi/scripts/dieu-phoi.mjs` 249 | danh sách chuyển phiên | vài dòng | liệt kê |
 
+Đối chứng ngoài danh sách: `scripts/start-scan.mjs` in JSON trạng thái mọi hồ sơ (51 965 B trên corpus kit,
+gần mốc) mà gate-card đọc qua pipe — nó KHÔNG trúng mẫu vì đường chính kết tự nhiên ở cuối tệp, nên đủ
+byte ở mọi cỡ. Chỉ nhánh không-có-config (một dòng) gọi `process.exit` sau khi ghi.
+
 Ngoài bốn thư mục (không quét theo lời giao): `hooks/`, `skills/*/`, `vendor/`, `tests/`.
 
 ## 4. Ca đo — `tests/scripts/xuat-du-qua-pipe.test.mjs`
