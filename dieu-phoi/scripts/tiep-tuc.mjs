@@ -6,10 +6,11 @@ import path from 'node:path';
 import { docJson, timThuMucDot } from './dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
 import { docPha } from './pha.mjs';
+import { hangKeTuTiep } from './lich.mjs';
 import { conSong, coThuMucSong, nhipMoiNhatCua } from './song.mjs';
 import { ghiThucLuc, laGiamSat, nhanVaiGiamSat } from './vai.mjs';
 
-// Sáu hành động của một dãy — MỘT nguồn cho chẩn đoán, tiep-tuc và thân lệnh người.
+// Bảy hành động của một dãy — MỘT nguồn cho chẩn đoán, tiep-tuc và thân lệnh người.
 export const HANH_DONG = {
   khong: 'khong',
   nhanGiangLai: 'nhan-giang-lai',
@@ -17,15 +18,31 @@ export const HANH_DONG = {
   worktreeMat: 'worktree-mat',
   choNguoi: 'cho-nguoi',
   chuaBiet: 'chua-biet',
+  khongHang: 'khong-hang',
 };
 
 export const VIEC_HANH_DONG = {
   khong: 'dãy có phiên sống hoặc đang giữ khoá — không làm gì',
   'nhan-giang-lai': 'dãy có phiên sống nhưng còn đơn, khoá hay yêu cầu chờ — nhắn dãy «tiếp tục: giăng lại lệnh chờ»',
-  'mo-chip': 'dãy không còn phiên sống — mở chip với lời ghi danh',
+  'mo-chip': 'dãy không còn phiên sống — mở chip với lời ghi danh, rồi chờ người bấm chip (chẩn đoán không mời mở lại)',
   'worktree-mat': 'worktree của dãy không còn — người quyết dựng lại hay cho dãy nghỉ',
   'cho-nguoi': 'phiên của dãy đang đứng chờ người — không mở chip, đưa vào việc chờ anh',
   'chua-biet': 'đợt chưa có nhịp sống (hook bản cũ, hoặc phiên chưa nạp lại gói) — kiểm thanh bên trước khi mở chip',
+  'khong-hang': 'dãy không có hàng để giao lúc này (nghỉ · hết hàng · chờ phụ thuộc hay Cổng Đáng) — không mở chip',
+};
+
+// Trạng thái chẩn đoán của mục `day:<id>` theo hành động — MỘT nguồn cho `chan-doan` (hồ sơ
+// dieu-phoi-sua-truoc-dot-thu, D4). `thieu` = phiên còn việc phải làm. `mo-chip` là `du`: việc của phiên (mở chip)
+// làm MỘT lần ở bước 6 của mo-dot hay bước 4 của tiep-tuc, sau đó chỉ còn người bấm — xếp `thieu` thì vòng kiểm
+// cuối mở chip lần hai. `nhan-giang-lai` giữ `thieu`: dạng `--nhe` nhắn lại dãy ở bước 5 qua đúng mục này.
+export const TRANG_THAI_HANH_DONG = {
+  khong: 'du',
+  'mo-chip': 'du',
+  'khong-hang': 'du',
+  'nhan-giang-lai': 'thieu',
+  'worktree-mat': 'thieu',
+  'cho-nguoi': 'thieu',
+  'chua-biet': 'thieu',
 };
 
 const coTep = (thuMuc, ten, tienTo) => {
@@ -40,14 +57,8 @@ const laThuMuc = (p) => {
   }
 };
 
-function slugKe(thuMuc, hangViec, day) {
-  const tiep = docJson(path.join(thuMuc, 'tiep', `${day}.json`), null);
-  if (tiep?.hang) return tiep.hang;
-  const cua = (hangViec.hang ?? []).filter((h) => h.day === day).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99));
-  return cua[0]?.slug ?? null;
-}
-
-// Hành động của MỘT dãy. Thứ tự xét: worktree mất → giữ khoá → chờ người → nhịp sống → đợt chưa có nhịp → chip.
+// Hành động của MỘT dãy. Thứ tự xét: worktree mất → giữ khoá → chờ người → nhịp sống → không có hàng → đợt chưa
+// có nhịp → chip. Hàng kế đọc bằng `hangKeTuTiep` (lich.mjs): dãy nghỉ, hết hàng hay đang chờ không được mời chip.
 function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs }) {
   const nhip = nhipMoiNhatCua(thuMuc, d.worktree);
   const nen = { day: d.id, worktree: d.worktree, song: conSong(nhip, nowMs) ? nhip.phien : null };
@@ -58,8 +69,10 @@ function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs }) {
   if (giuKhoa) return { ...nen, hanh_dong: conCho ? HANH_DONG.nhanGiangLai : HANH_DONG.khong };
   if (fs.existsSync(path.join(thuMuc, 'cho-nguoi', `${d.id}.json`))) return { ...nen, hanh_dong: HANH_DONG.choNguoi };
   if (nen.song) return { ...nen, hanh_dong: conCho ? HANH_DONG.nhanGiangLai : HANH_DONG.khong };
+  const ke = hangKeTuTiep(docJson(path.join(thuMuc, 'tiep', `${d.id}.json`), null), hangViec, d.id);
+  if (!ke.hang) return { ...nen, hanh_dong: HANH_DONG.khongHang, ly_do: ke.ly_do };
   if (!coSong) return { ...nen, hanh_dong: HANH_DONG.chuaBiet };
-  const slug = slugKe(thuMuc, hangViec, d.id);
+  const slug = ke.hang;
   return {
     ...nen,
     hanh_dong: HANH_DONG.moChip,

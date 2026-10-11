@@ -17,7 +17,8 @@ Các bước, đúng thứ tự:
 
 1. **Chẩn đoán.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --mo $ARGUMENTS`
    (`--mo <tên>` cho chẩn đoán biết đợt sắp mở; `--goi` trong đối số đi kèm nguyên). Có đợt khác đang
-   chạy → nói một dòng và DỪNG. Đợt cùng tên đã mở → đi tiếp từ mục đầu tiên còn `thieu`. Chưa có đợt
+   chạy → nói một dòng và DỪNG. Đợt cùng tên đã mở → đi tiếp từ mục đầu tiên còn `thieu`; không còn mục nào
+   `thieu` mà phiên này chưa làm bước 6 → làm từ bước 6. Chưa có đợt
    và mục `goi-dot` là `thieu` → DỪNG NGAY, TRƯỚC khi gọi `mo`, và nói đúng việc khai trong `viec`: thêm
    khoá `dieu_phoi.goi_dot` vào `_acceptance/config.yaml` của kho (hoặc gọi lại với `--goi`); không mở
    đợt dựng tay thay.
@@ -40,8 +41,12 @@ Các bước, đúng thứ tự:
    bỏ cờ `--tu-merge`: phiên thợ đọc là không tự merge (bấm merge là của người).
 6. **Việc của app.** Giăng Monitor (timeout 30′):
    `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`. Tạo lịch 30′ đọc
-   `trang-thai.json` của đợt và in một dòng. Dựng nhóm «Đợt <tên>» ở thanh bên, ghim phiên này. Mở chip
-   cho từng dãy kèm lời ghi danh: thư mục đợt, mã dãy, ranh giới, «đọc LUAT.md trước S1», và lệnh
-   `/feature-loop:feature-loop <slug hàng kế của dãy>`.
-7. **Chẩn đoán lại.** Không còn mục `thieu` → báo người đúng một dòng: «đợt <tên> chạy · k dãy cần bấm
-   chip». Còn mục thiếu → làm tiếp mục đó, không báo xong.
+   `trang-thai.json` của đợt và in một dòng. Dựng nhóm «Đợt <tên>» ở thanh bên, ghim phiên này. Chạy
+   `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet` rồi mở chip cho đúng các
+   dãy có mục `day:<id>` mang `chi_tiet.hanh_dong` là `mo-chip`, kèm nguyên văn `chi_tiet.ghi_danh` (thư mục
+   đợt, mã dãy, «đọc LUAT.md trước S1», lệnh `/feature-loop:feature-loop <slug hàng kế của dãy>`). Dãy
+   `khong-hang` (nghỉ, hết hàng, chờ phụ thuộc hay Cổng Đáng) không mở chip.
+7. **Chẩn đoán lại.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet`. Dãy
+   mang hành động `mo-chip` là chờ người bấm chip vừa mở ở bước 6 — mục ấy `du`, không mở lại. Không còn mục
+   `thieu` → báo người đúng một dòng: «đợt <tên> chạy · k dãy cần bấm chip», k = số mục `day:*` mang
+   `mo-chip`. Còn mục thiếu → làm tiếp mục đó, không báo xong.

@@ -82,7 +82,11 @@ evals:
       (kiểm bước tiêm áp) → hàm kiểm nêu "park được giao". "ok" cho "SDT-04-do the-doc-park": bản sao the.mjs
       có trangThaiQuyet đọc park thành đã quyết → hàm kiểm nêu cả "park được giao" lẫn "thẻ thôi cảnh báo
       park". "ok" cho "DP7-03 ma-tran" (14 hàng, gác bao-giam-sat của thợ đo trên ca quyết đổi sau nhịp) và
-      "DP2-07 ap-nhip-ke".
+      "DP2-07 ap-nhip-ke". "ok" cho "SDT-04 dot-cu": fixture dot-crm-0910 dựng vào kho thử (khuôn DP2-05
+      dot-cu), dòng in số dãy · số hàng (mọi hàng mang mã) · số lệch; một nhịp thật → tiep/<dãy>.json của MỌI
+      dãy so bằng nhau với chonHangKe không bảng quyết trên tiến độ toàn «chua»; số lệch = 0. "ok" cho
+      "SDT-04-do loc-moi-dot": bản sao phat-lich.mjs truyền bảng quyết cho mọi đợt (kiểm bước tiêm áp) → mọi
+      dòng lỗi bắt đầu "đợt cũ bị lọc:" và có ít nhất một dòng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5

@@ -204,18 +204,22 @@ test('DP7-02-do ghi', async () => {
 });
 
 // ---------- DP7-03: việc kế của thợ — ma trận đầu vào (AC-3, E3) ----------
-// Mỗi hàng: tên · hàng của đợt · dựng trước nhịp · --slug · viec_ke mong · mẩu ly_do mong (null = không xét).
+// Mỗi hàng: tên · hàng của đợt · dựng trước nhịp · dựng sau nhịp · --slug · viec_ke mong · mẩu ly_do mong (null =
+// không xét). Năm hàng gác quyết (vang · discovery · park · kill · iterate) dựng ô build TRƯỚC nhịp rồi đổi ô SAU
+// nhịp: từ hồ sơ dieu-phoi-sua-truoc-dot-thu (B1) bộ phát lịch của đợt mở từ gói không giao hàng chưa quyết build,
+// nên gác `bao-giam-sat` của thợ là lưới cho ca quyết đổi sau khi nhịp đã ghi tiep/ — ca đo đúng ca ấy.
 const A = { ma: 'A', slug: 'hang-a', day: 'P1', uu_tien: 1 };
+const oBuild = ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'build' });
 const MA_TRAN_KE = [
   { ten: 'chi-hop-dong', dung: ({ kho }) => hopDong(kho, 'hang-a', 'draft'), mong: 'mo-hang' },
   { ten: 'o-build', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'build' }), mong: 'mo-hang' },
   { ten: 'o-build-chi-o-worktree', dung: ({ w }) => oCoHoi(w.P1, 'hang-a', { decision: 'build' }), mong: 'mo-hang' },
   { ten: 'khong-ma', hang: [{ slug: 'viec-x', day: 'P1' }], dung: () => {}, mong: 'mo-hang' },
-  { ten: 'vang', dung: () => {}, mong: 'bao-giam-sat', lyDo: 'hang-a' },
-  { ten: 'discovery', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { stage: 'discovery' }), mong: 'bao-giam-sat', lyDo: 'hang-a' },
-  { ten: 'park', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'park' }), mong: 'bao-giam-sat', lyDo: 'park' },
-  { ten: 'kill', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'kill' }), mong: 'bao-giam-sat', lyDo: 'kill' },
-  { ten: 'iterate', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'iterate' }), mong: 'bao-giam-sat', lyDo: 'iterate' },
+  { ten: 'vang', dung: oBuild, sauNhip: ({ kho }) => fs.rmSync(path.join(kho, '_acceptance', 'hang-a'), { recursive: true }), mong: 'bao-giam-sat', lyDo: 'hang-a' },
+  { ten: 'discovery', dung: oBuild, sauNhip: ({ kho }) => oCoHoi(kho, 'hang-a', { stage: 'discovery' }), mong: 'bao-giam-sat', lyDo: 'hang-a' },
+  { ten: 'park', dung: oBuild, sauNhip: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'park' }), mong: 'bao-giam-sat', lyDo: 'park' },
+  { ten: 'kill', dung: oBuild, sauNhip: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'kill' }), mong: 'bao-giam-sat', lyDo: 'kill' },
+  { ten: 'iterate', dung: oBuild, sauNhip: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'iterate' }), mong: 'bao-giam-sat', lyDo: 'iterate' },
   { ten: 'slug-trung-tiep', dung: ({ kho }) => oCoHoi(kho, 'hang-a', { decision: 'build' }), slug: 'hang-a', mong: 'cho-nhip', lyDo: 'hang-a' },
   { ten: 'nghi', dung: ({ kho }) => assert.equal(chayCli(kho, ['hang', 'nghi', 'P1']).ma, 0), mong: 'cho', lyDo: 'nghi' },
   {
@@ -237,6 +241,7 @@ async function kiemMaTranKe(gocGoi) {
     const ctx = dungDot({ hang: h.hang ?? [A], gocGoi });
     h.dung(ctx);
     await nhip(ctx.dot, { gocGoi });
+    if (h.sauNhip) h.sauNhip(ctx);
     const kq = tho(ctx.w.P1, { gocGoi, slug: h.slug ?? null });
     chay++;
     thay.add(kq.viec_ke);

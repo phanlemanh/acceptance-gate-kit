@@ -332,7 +332,9 @@ test('DP3-03 ma-tran', async () => {
   assert.match(c.kh.ghi_danh, /\.acceptance-runs\/dieu-phoi-thu/);
   assert.match(kq.find((r) => r.hang === 'g').muc.viec, /kiểm thanh bên/);
   assert.equal(kq.find((r) => r.hang === 'a').muc.trang_thai, 'du');
-  assert.equal(c.muc.trang_thai, 'thieu');
+  // Dãy mo-chip là «chờ người bấm chip» (du), không phải việc phiên còn thiếu — hồ sơ dieu-phoi-sua-truoc-dot-thu
+  // (D4): xếp thieu thì vòng kiểm cuối của mo-dot mở chip lần hai.
+  assert.equal(c.muc.trang_thai, 'du');
 });
 
 async function maTranTrenBanSao(thay) {

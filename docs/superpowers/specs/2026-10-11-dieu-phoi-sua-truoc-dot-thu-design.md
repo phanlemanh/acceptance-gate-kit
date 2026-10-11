@@ -75,6 +75,13 @@ Không lọc ở `mo`: ô của hàng chờ được mở ở bước 3 và nh�
 đổi trong đợt. Gác `bao-giam-sat` của thợ DP7 giữ nguyên, nay làm lưới cho ca quyết đổi sau khi nhịp đã ghi
 `tiep/`.
 
+**Sửa ở S3 — chỉ đợt mở từ gói.** Đo fixture đợt crm `dot-crm-0910`: 69/69 hàng mang mã, không ô nào, đợt dựng
+tay không qua thẻ khởi tạo. Ở loại đợt ấy, Cổng Đáng của hàng diễn ra ở S0 của thợ (yêu cầu `hang-moi` gửi giám
+sát). Lọc mọi đợt sẽ làm đợt crm đứng hết và phá lời hứa đường đọc-cũ của DP1. Theo luật «cân trên mọi kho», bảng
+quyết chỉ truyền cho đợt có `nguon_goi` — nơi thẻ khởi tạo đã hỏi `build` cho từng hàng. Thẻ khởi tạo cũng đổi
+sang gọi `quyetCua` (dời từ `tho.mjs` về `the.mjs`): trước đây thẻ chỉ đọc kho chính, còn thợ đọc worktree dãy
+trước, nên ô `build` chỉ nằm trong worktree làm thẻ và bộ phát lịch nói ngược nhau.
+
 **Chỗ 4 — E2: một khuôn lịch 30′ cho hai lệnh.** Việc mỗi lần lịch chạy đặt trong khối marker `LICH-30`, chép ở
 cả `tiep-tuc.md` lẫn `mo-dot.md`. Lý do phải chép: lệnh người là prompt riêng, phiên chạy `mo-dot` không đọc
 `tiep-tuc.md`. Một ca rút hai khối và so byte-bằng.

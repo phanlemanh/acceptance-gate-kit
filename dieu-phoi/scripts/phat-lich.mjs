@@ -11,6 +11,7 @@ import { docPha } from './pha.mjs';
 import { giuMay, nhaMay, thuHoiMayChet } from './may.mjs';
 import { docNhomKeHoach } from './nguon-hang.mjs';
 import { capLuot, chonHangKe, hanGiaHan, xetHanThue } from './lich.mjs';
+import { bangQuyet } from './the.mjs';
 import { coThuMucSong, NGUONG_SONG_MS, nhipMoiNhatCua } from './song.mjs';
 import { danhGiaSucKhoe, docApLuc, docLoad, docRssLonNhat, docSwap } from './suc-khoe.mjs';
 import { xetYeuCau } from './yeu-cau.mjs';
@@ -341,10 +342,14 @@ function baoKhoaKhongNhip(thuMuc, cu, nowMs) {
   return conGiu;
 }
 
-function capNhatHangKe(thuMuc, hangViec, tienDo) {
+// `gocKho` (B1): quyết của từng hàng đọc lại mỗi nhịp — ô của hàng chờ nhận chữ build SAU `mo` (bước 4 của mo-dot).
+// Chỉ đợt mở từ gói truyền `gocKho`: ở đó thẻ khởi tạo đã hỏi build cho từng hàng. Đợt dựng tay và đợt cũ (khuôn
+// 07/10: mọi hàng mang mã, không ô nào) giữ lối cũ — Cổng Đáng của chúng ở S0 của thợ (khối TRONG-DOT).
+function capNhatHangKe(thuMuc, hangViec, tienDo, gocKho = null) {
   const ketQua = [];
+  const quyet = gocKho ? bangQuyet(gocKho, hangViec) : null;
   for (const day of hangViec.day) {
-    const ke = chonHangKe(hangViec, day.id, tienDo);
+    const ke = chonHangKe(hangViec, day.id, tienDo, quyet);
     const p = path.join(thuMuc, 'tiep', `${day.id}.json`);
     const cu = docJson(p, null);
     if (JSON.stringify(cu?.ke ?? null) !== JSON.stringify(ke)) {
@@ -384,7 +389,7 @@ export async function motNhip(thuMuc, io) {
   if (may.ap && !dangGiu.s4) nhaMay(thuMuc);
   const hangCho = capPhat(thuMuc, cfg, hangViec, dangGiu, sucKhoe.giamTai, nowMs, pha, may);
   const tienDo = tienDoCua(hangViec, cfg, io);
-  const day = capNhatHangKe(thuMuc, hangViec, tienDo);
+  const day = capNhatHangKe(thuMuc, hangViec, tienDo, dk.nguon_goi ? cfg.goc_kho : null);
   const lienKetCua = new Map(hangViec.day.map((d) => [d.id, d.link]));
   const choNguoi = [
     ...docThuMucJson(thuMuc, 'cho-nguoi').map(({ phien, loai, tin, luc }) => ({ phien, loai, tin, luc, link: lienKetCua.get(phien) })),

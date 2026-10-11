@@ -396,6 +396,12 @@ test('DP2-07 ap-nhip-ke', async () => {
   const { taoVong } = await nap(GOI, 'phat-lich.mjs');
   process.env.DIEU_PHOI_MAY_DIR = tam('dp2-may07-');
   const { kho, dot } = dotDangChay();
+  // Đợt mở từ gói chỉ giao hàng đã quyết build (hồ sơ dieu-phoi-sua-truoc-dot-thu, B1): ba hàng có ô build như
+  // sau bước 4 của mo-dot.
+  for (const s of ['hang-a', 'hang-b', 'hang-c']) {
+    fs.mkdirSync(path.join(kho, '_acceptance', s), { recursive: true });
+    fs.writeFileSync(path.join(kho, '_acceptance', s, 'opportunity.md'), '---\nstage: decided\ndecision: build\n---\n');
+  }
   const gio = Date.now();
   await taoVong(dot, ioGia(gio), () => gio)();
   assert.equal(docJ(path.join(dot, 'tiep', 'P1.json')).hang, 'hang-a', 'đối chứng: trước khi đổi, A là hàng kế của P1');
