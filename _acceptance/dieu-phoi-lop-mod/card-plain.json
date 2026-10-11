@@ -1,0 +1,50 @@
+{
+  "feature_plain": "Anh và phiên giám sát thấy trạng thái đợt ngay trong app, phiên thợ không bị chặn oan hay lọt khoá S4, và một thợ đứng chờ người là giám sát thức dậy ngay thay vì để nằm hàng giờ.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ nhận ra mọi lần chạy S4 hay đường nền kể cả khi lệnh được bọc bằng timeout, env, nice, time, nohup, command, exec hay caffeinate kèm cờ — đo trên 128 ca viết sẵn, gồm ba lệnh thật từng lọt hôm 11/10."},
+    {"id": "AC-2", "p": "Sẽ không chặn lệnh chỉ đọc như kiểm cú pháp hay --help — đo trên 16 ca, gồm ba lệnh thật từng bị chặn oan, và chứng trên chính ba script rằng --help không làm gì."},
+    {"id": "AC-3", "p": "Sẽ cho thợ bị chặn thấy đúng một lệnh xin lượt chạy được ngay, thay cho lời dặn tự viết tay một tệp."},
+    {"id": "AC-4", "p": "Sẽ luôn ghi nhận hộp xin quyền đang chờ người ở phiên thợ, kể cả khi thợ đó đang chờ khoá hay chờ trả lời."},
+    {"id": "AC-5", "p": "Sẽ làm giám sát thức dậy ngay khi một thợ đứng chờ người — thử thật từ hộp xin quyền tới bộ lọc mà giám sát đang nghe, cả trên đợt nâng từ bản cũ."},
+    {"id": "AC-6", "p": "Sẽ đo sống bốn câu chưa kiểm của thiết kế bằng một mod chỉ quan sát trong riêng phiên này (nếu anh đồng ý), ghi kết quả có nguồn, rồi gỡ mod ngay."},
+    {"id": "AC-7", "p": "Sẽ có một lệnh trả trạng thái đợt dạng máy đọc, cùng nguồn số với lệnh xem và bảng đợt — ba nơi không bao giờ lệch nhau."},
+    {"id": "AC-8", "p": "Sẽ hiện một dải trạng thái đợt ngay trên ô nhập ở phiên giám sát và phiên thợ (ai giữ S4, tới mấy giờ, bao nhiêu việc chờ, việc cần anh), giống nhau trên terminal và app desktop."},
+    {"id": "AC-10", "p": "Sẽ có răng máy chứng rằng mod không nghe bất kỳ chỗ nào cho phép hay chặn công cụ, và hook chặn S4 vẫn đứng nguyên."},
+    {"id": "AC-11", "p": "Sẽ giữ nguyên mọi ca kiểm của các hàng trước (DP1–DP4) và giữ im lặng ở kho không có đợt."},
+    {"id": "AC-12", "p": "Sẽ ghi vào README của gói mod làm gì, không làm gì, cần bản app nào, giới hạn nào — và sửa thiết kế chung cho khớp."}
+  ],
+  "wont_do": [
+    {"id": "AC-9", "p": "Sẽ KHÔNG tốn lượt model khi anh gõ /dieu-phoi:xem ở phiên có mod: mod trả bảng đợt ngay và mở khung chi tiết; phiên không có mod vẫn chạy lệnh cũ."},
+    {"id": "OOS-1", "p": "Không làm mod đọc mức dùng tài khoản — việc của hàng đổi tài khoản (DP4)."},
+    {"id": "OOS-2", "p": "Không dựng khung mod và răng «không bao giờ cho phép» — DP4 dựng, hàng này nối vào và chạy lại răng đó."},
+    {"id": "OOS-3", "p": "Không thay Monitor bằng mod tự đánh thức giám sát — chỉ đo xem làm được không."},
+    {"id": "OOS-4", "p": "Không xử ca thợ đứng im với đơn xin khoá mà không còn lệnh chờ — không phải chờ người; ghi hạt giống nếu đợt thử vấp."},
+    {"id": "OOS-5", "p": "Không đổi luật cho thông báo «đang rảnh» khi thợ chờ khoá hay chờ trả lời — thợ rảnh lúc đó là đúng."}
+  ],
+  "scope_plain": "Năm thứ cố ý để ngoài hàng này, mỗi thứ có chủ hoặc có lý do:",
+  "coverage_plain": [
+    {"i": 0, "p": "Nguồn sản phẩm: thiết kế chung đã duyệt, mã hiện tại của bộ phân loại, hook chờ người và bộ phát lịch, cộng số đo trên 46.801 lệnh thật hôm 11/10."},
+    {"i": 1, "p": "Nguồn ngoài: trang hướng dẫn chính thức của các lệnh bọc (GNU coreutils, BSD trên máy này) và tài liệu kiểu của Claude Code 2.1.295 cho chỗ mod được vẽ."},
+    {"i": 2, "p": "Trục điểm chạm: mười chỗ — bộ phân loại, lời chặn, hook chờ người, bộ phát lịch, lệnh trạng thái máy đọc, dải, khung chi tiết, lệnh xem, răng kiểm mod, tài liệu."},
+    {"i": 3, "p": "Trục hình lệnh: chạy trần, qua lệnh bọc có hoặc không cờ, qua bash -c, chỉ đọc, hay chỉ nhắc tên script — đủ khi khớp số đo thật và trang hướng dẫn."},
+    {"i": 4, "p": "Trục trạng thái đợt: không đợt, không khoá, khoá của người khác, đang chờ khoá, đang chờ trả lời, giảm tải, đợt nâng từ bản cũ."},
+    {"i": 5, "p": "Trục bản app: CLI cũ không có mod, terminal có mod, app desktop do anh mở, app desktop mở từ chip."},
+    {"i": 6, "p": "Phần làm ngay ứng với 12 tiêu chí AC-1 tới AC-12, mỗi trục có ít nhất một tiêu chí."},
+    {"i": 7, "p": "Để sau:"},
+    {"i": 8, "p": "Phiên mở từ chip có thấy dải không — không đo được trong phiên này, đo ở đợt thử crm khoảng 26/10."},
+    {"i": 9, "p": "Thay Monitor bằng mod tự đánh thức — đo ở AC-6, dựng sau nếu đo được."},
+    {"i": 10, "p": "Không bao giờ làm:"},
+    {"i": 11, "p": "Mod tự chặn S4 hay tự ghi đơn xin khoá — cùng một quyết định với hook nên không thêm gì, mà biến mỗi lần phân loại sai thành một khoá cấp oan."},
+    {"i": 12, "p": "Phiên thợ nhắn thẳng giám sát — giám sát đã thức nhờ AC-5, và mod không có cách chắc chắn biết địa chỉ phiên giám sát."},
+    {"i": 13, "p": "Bắt «hết lượt chờ người» ở mỗi lượt — chỉ nhanh hơn thông báo «đang rảnh» tối đa 60 giây mà tốn một hook mỗi lượt."},
+    {"i": 14, "p": "Dải trên CLI cũ không có mod — điều kiện bản app, không phải lỗi; phiên đó vẫn có lệnh xem và bảng đợt."},
+    {"i": 15, "p": "Áp mọi tiêu chí: ca viết sẵn trước, số ca kiểm bằng số ô; nối thật từ bên viết sang bên đọc; kho không có đợt thì im."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Số ca mà chiều đỏ phải làm đỏ từng gõ tay và sai so với chính bảng ca — đã sửa: máy tự đếm từ bảng ca, không gõ số."},
+    {"i": 1, "p": "Bảng ca của lệnh bọc chỉ phủ 11 trên 29 dạng cờ mà thiết kế tự liệt kê, nên một cờ khai sai vẫn lọt — đã sửa: thiết kế khoá danh sách 41 dạng, bảng ca phủ đủ, thêm một chiều đỏ cho cờ có giá trị."},
+    {"i": 2, "p": "Lời gọi từ mod sang lệnh trạng thái chỉ được đo bằng bản giả, nên app desktop thiếu đường tới node thì dải chết im mà mọi ca vẫn xanh — đã sửa: kiểm đúng lệnh và thư mục mod gọi, lỗi hiện thành một dòng trên dải, có đường dự phòng khi đo thấy node không chạy được."},
+    {"i": 3, "p": "Nhật ký lần đo sống nằm chỗ sẽ bị dọn và kết luận có thể dựa vào một dòng không đúng kịch bản — đã sửa: nhật ký vào thư mục bằng chứng, mỗi kịch bản có mốc mở/đóng, câu về hộp quyền chỉ được kết luận khi hộp đã thật sự hiện."},
+    {"i": 4, "p": "Ca đợt nâng từ bản cũ chỉ kiểm «không có gì xảy ra», nên bộ phát lịch chết im vẫn xanh — đã sửa: dựng đợt bằng bản cũ thật, kiểm nhịp vẫn chạy, rồi kiểm một chờ-người mới vẫn đánh thức giám sát."}
+  ]
+}
