@@ -1,0 +1,139 @@
+schema_version: 1
+feature_slug: can-cu-s1-chay-moi-kho
+# Ca đo sống ở tests/scripts/can-cu-s1.ca.mjs (ca KK-<n> = AC-n), gọi từ phần bash của
+# tests/scripts/run-tests.sh — executor `executors.test.scripts_bash` sẵn có, trùng lệnh suite nên lệnh
+# chỉ chạy một lần; không thêm khoá executor. Kho thử do code sinh trong lượt (thư mục tạm + git init,
+# KHÔNG có scripts/ của kit); bộ nhớ đệm plugin giả là thư mục nhà tạm (HOME) trỏ cây đang kiểm — đúng
+# hình kho khách đã cài gói. Lệnh chạy là lệnh RÚT NGUYÊN VĂN từ SKILL lúc chạy, không viết lại trong
+# ca. Giá trị mong đợi viết sẵn lúc dựng kho thử, không rút từ đầu ra bộ xếp hay thẻ. Đường dẫn mọi
+# script suy từ vị trí tệp ca. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao vật bị tiêm SAU khi bản lành xanh
+# trên cùng kho thử, và ghim thông điệp. Mỗi eval ghim đúng dòng "PASS: KK-…" — suite xanh mà thiếu dòng
+# ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [feature-loop/skills/feature-loop/SKILL.md, feature-loop/scripts/resolve-plugin.mjs, scripts/can-cu-s1.cjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: KK-1 bash" và "PASS: KK-1 zsh" — đúng hai lệnh gọi `can-cu-s1.cjs` rút từ
+      SKILL (danh sách lệnh rút được có độ dài 2, khác 2 là FAIL), mỗi lệnh chạy trong kho thử không có
+      scripts/ của kit, HOME tạm chứa .claude/plugins/cache/acceptance-gate-kit/acceptance-gate/<bản>/ trỏ
+      cây đang kiểm: thoát 0, lệnh kiểm sổ in đúng dòng `h · câu hỏi 1 · máy đã quyết 2 · đỏ 0 · …` và lệnh
+      đếm in dòng bắt đầu `h · câu hỏi 1 · máy đã quyết 2 · đỏ 0` (số viết sẵn); zsh vắng → FAIL, không bỏ
+      qua. Và "PASS: KK-1-do" — bản sao SKILL thay lời gọi qua bộ giải gói bằng `node scripts/can-cu-s1.cjs`
+      → CHÍNH hàm kiểm (chạy SAU khi bản lành xanh trên cùng kho thử) trả lỗi bắt đầu «không chạy được ngoài
+      kho kit».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [feature-loop/skills/feature-loop/SKILL.md, feature-loop/scripts/resolve-plugin.mjs, scripts/can-cu-s1.cjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: KK-2 so-do" — lệnh kiểm sổ rút từ SKILL trên kho thử có thêm một dòng đỏ:
+      thoát 1 VÀ stdout có dòng tổng kết chứa «đỏ 1»; và "PASS: KK-2 chua-cai" — HOME tạm chỉ có một bản
+      acceptance-gate không mang scripts/can-cu-s1.cjs: thoát khác 0, stdout KHÔNG có dòng tổng kết
+      (`h · câu hỏi`), stderr chứa «acceptance-gate» và «claude plugin install». Đối chứng dương trong cùng
+      ca: bản lành của kho thử (không dòng đỏ, gói đủ) in dòng tổng kết và thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: judgment
+    inputs:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - GUIDE.md
+      - docs/superpowers/specs/2026-10-11-can-cu-s1-chay-moi-kho-design.md
+    question: >
+      Đọc mục «Sổ quyết định» (đoạn «Lật ở Cổng Phạm vi») và S1 mục 5 của SKILL.md, và mục sổ quyết định
+      của GUIDE.md, đối chiếu design doc §3.1–§3.3. (1) Hai lời gọi bộ xếp căn cứ có đi qua bộ giải gói
+      (`resolve-plugin.mjs --plugin acceptance-gate --require scripts/can-cu-s1.cjs`) rồi gọi script trong
+      gói đã giải, và có nói kho tự host kit thêm `--root .` vào lệnh giải gói không? Còn lời gọi `node
+      scripts/…` tương đối nào không? (2) Vế dừng của S1 mục 5 có đọc «câu hỏi N > 0 hoặc đỏ K > 0» trên
+      dòng tổng kết của bộ xếp, KHÔNG dựa vào mã thoát không? (3) Lệnh không in dòng tổng kết có được gọi
+      tên là bộ xếp không chạy được, trình nguyên văn như một dừng-lỗi có tên, và nói rõ KHÔNG gọi là sổ đỏ
+      không? (4) Câu «KHÔNG phải một cổng — nó đi cùng câu trả lời» của S1 mục 5 còn nguyên không? (5) GUIDE
+      có mô tả hai khối căn cứ của thẻ Cổng Phạm vi in đủ quyết gì · vì sao · sai thì tốn gì không? PASS khi
+      cả năm câu đúng; nêu câu sai nếu có.
+    expected: "PASS — năm vế đúng; FAIL nêu vế thiếu"
+    evidence_required: [run_id, verifier, verified_at, panel_votes]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: KK-4 quet-lop" — hàm quét trên SKILL feature-loop của cây trả []; và
+      "PASS: KK-4-do" — ma trận bốn hình viết sẵn trong ca (`node scripts/can-cu-s1.cjs` · `node
+      ./scripts/can-cu-s1.cjs` · `node feature-loop/scripts/resolve-plugin.mjs` · `bash
+      scripts/pre-merge-check.sh`), mỗi hình tiêm vào MỘT bản sao SKILL riêng ở một dòng biết trước → hàm quét
+      trả đúng một mục `SKILL.md:<dòng tiêm>`; số hình đỏ đúng = 4 (in ra), khác 4 là FAIL. Đối chứng dương
+      trong cùng ca: bản sao chưa tiêm trả [].
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: KK-5 the-hoi" — thẻ dựng từ hồ sơ nháp do code sinh: với mỗi câu Hỏi-1, Hỏi-2,
+      thẻ `<p>` mang data-cau-hoi của câu chứa `why` và «sai thì tốn: <cost_if_wrong>» của CHÍNH dòng ấy (hai
+      câu có chữ khác nhau, và chữ của câu này KHÔNG nằm trong dòng câu kia), vẫn chứa «máy khuyên» + «lối
+      khác», «khó-đảo» chỉ ở Hỏi-2; "PASS: KK-5-do" — bản sao thẻ trả dòng câu hỏi về cách in của A2 (không
+      ba vế) → CHÍNH hàm kiểm trả lỗi nêu «Hỏi-1» và «vì sao».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: KK-6 the-may-quyet" — bốn dòng data-may-quyet phủ ma trận nguồn × loại
+      (mục-tiêu/approach · một-lối/approach · mục-tiêu/descope · một-lối/descope): `<p>` của mỗi dòng chứa
+      `why` và «sai thì tốn: <cost_if_wrong>» của CHÍNH nó, chữ giá đứng TRƯỚC «căn cứ: «» hoặc «lối khác
+      chết vì:»; hai dòng descope bắt đầu «KHÔNG làm:»; "PASS: KK-6 so-that" — thẻ ép `--gate 1` trên hồ sơ
+      can-cu-s1-chay-moi-kho ở cây thật: số `<p>` của hai khối căn cứ == số dòng S1 mang can_cu chưa bị thay
+      và không đỏ (đếm từ decisions.jsonl lúc chạy bằng bộ xếp, KHÔNG từ thẻ), và `<p>` của mỗi mã dòng chứa
+      why + giá của chính dòng ấy; "PASS: KK-6-do" — bản sao thẻ trả dòng máy-đã-quyết về cách in của A2 →
+      CHÍNH hàm kiểm nêu mã dòng thiếu vế.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: KK-7 thieu-gia" — dòng máy-đã-quyết thiếu cost_if_wrong: thẻ thoát 0, `<p>` của
+      dòng chứa «⚠ chưa khai giá nếu sai»; dòng đủ giá KHÔNG chứa nhãn ấy; và "PASS: KK-7 ban-rut" — bản rút
+      `--extract`: mọi mục của can_cu.cau_hoi và can_cu.da_quyet có `why`, `cost_if_wrong` bằng đúng giá trị
+      viết sẵn của dòng sổ (dòng thiếu giá → null); "PASS: KK-7-do" — bản sao thẻ bỏ hai khoá ở bản rút →
+      CHÍNH hàm kiểm nêu «why».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: KK-8 ho-so-cu" — gốc vòng lấy từ lịch sử (commit gộp nhánh
+      vong/can-cu-s1-chay-moi-kho: gốc = merge-base hai cha, đỉnh = cha thứ hai) hoặc, khi chưa gộp,
+      merge-base với nhánh chính (gốc) và cây làm việc (đỉnh); bản thẻ gốc dựng bằng `git archive <gốc>
+      scripts lib skills` vào thư mục tạm; với mọi hồ sơ trong _acceptance/ có contract.md và decisions.jsonl
+      mà sổ không chứa `"can_cu"`, thẻ Cổng Phạm vi ép bằng `--gate 1` — stdout HTML và stdout `--extract`
+      của bản gốc == của bản đỉnh (số hồ sơ so in ra; < 20 là FAIL). Đối chứng dương cho bộ thư mục lưu trữ:
+      bản `git archive HEAD scripts lib skills` so với cây làm việc trên năm hồ sơ đầu → 0 lệch (bộ thư mục
+      thiếu tệp thẻ nạp thì lệch, ca FAIL). "PASS: KK-8-do" — bản sao thẻ đỉnh tiêm đổi chữ «sai thì tốn:»
+      của khối chung → CHÍNH hàm so trả danh sách hồ sơ lệch không rỗng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: ui-check
+    layer: ui-observed
+    paths: [scripts/gate-card.js]
+    steps:
+      - "Máy: `node tests/scripts/can-cu-s1.ca.mjs --dung-the-ba-ve <thư mục tạm T>` dựng hồ sơ nháp của AC-5/AC-6 và ghi T/card.html (thẻ Cổng 1 bọc `<!doctype html><meta charset=utf-8>`); ghi đường T vào observed"
+      - "Mở file://T/card.html ở khổ 1280×800 → screenshot evidence/E9-1-rong.png"
+      - "Đọc trên ảnh: với Hỏi-1, Hỏi-2 và mỗi dòng máy đã quyết, đọc theo thứ tự quyết gì · vì sao · sai thì tốn · căn cứ/khuyến nghị → ghi vào observed"
+      - "Đổi khổ 390×844, tải lại → screenshot evidence/E9-2-hep.png; kiểm document.documentElement.scrollWidth <= 390 → ghi số vào observed"
+    expected: "Nhìn: mỗi dòng của hai khối căn cứ đọc được quyết gì, vì sao, sai thì tốn gì TRƯỚC căn cứ hoặc khuyến nghị; nhãn khó-đảo ở đúng một câu; khổ 390 scrollWidth <= 390"
+    evidence_required: [run_id, exit_code, verifier, verified_at, screenshot]
