@@ -20,8 +20,11 @@ const khoi = (t, m) => { const r = t.match(new RegExp(`<!-- <<<${m} -->\\n([\\s\
 // Đoạn «Bất biến dừng» + bảng trạng thái của SKILL, gỡ lời gọi khối mới.
 const bangCong = t => {
   const bb = (t.split('\n').find(l => l.startsWith('**Bất biến dừng')) || '').replace(LOI_GOI, '');
+  // Chỉ các DÒNG BẢNG của mục «State machine & resume» — mục ấy còn chứa khuôn REPIN-TEMPLATE mà vòng khác
+  // sửa hợp lệ (đo 12/10: #316 thêm ba khoá dùng lại), không phải bảng cổng.
   const s = t.indexOf('## State machine & resume'), e = t.indexOf('\n## ', s + 1);
-  return bb + '\n' + (s < 0 ? '' : t.slice(s, e)).replace(LOI_GOI, '');
+  const bang = (s < 0 ? '' : t.slice(s, e)).split('\n').filter(l => l.startsWith('|')).join('\n');
+  return bb + '\n' + bang.replace(LOI_GOI, '');
 };
 
 function so(hienTai) {
@@ -33,7 +36,7 @@ function so(hienTai) {
     else dong.push(`khoi ${m} bang`);
   }
   const gS = goc(SKILL);
-  if (bangCong(gS) === bangCong(hienTai[SKILL]) && bangCong(gS).length > 200) dong.push('bat-bien-dung + bang trang thai: chi them loi goi DINH-TUYEN-MAY');
+  if (bangCong(gS) === bangCong(hienTai[SKILL]) && bangCong(gS).split('\n').length > 8) dong.push('bat-bien-dung + bang trang thai: chi them loi goi DINH-TUYEN-MAY');
   else loi.push('bat-bien-dung/bang trang thai lech');
   return { loi, dong };
 }
@@ -50,3 +53,9 @@ const doT = { ...hienTai, [SKILL]: hienTai[SKILL].replace(g, g.replace('HOÀN TH
 const r = so(doT);
 if (!r.loi.includes('GOAL-TEMPLATE lech')) { console.log('chieu do: KHONG bat duoc — phep so hang dung'); process.exit(1); }
 console.log('chieu do: ok (ban sao doi GOAL-TEMPLATE -> "GOAL-TEMPLATE lech")');
+// Chiều đỏ thứ hai — đổi một ô của bảng trạng thái trên bản sao trong bộ nhớ.
+const hang = '| `implemented` | S4 VERIFY |';
+if (!hienTai[SKILL].includes(hang)) { console.log('chieu do bang: KHONG tim thay hang mau — phep so khong kiem duoc'); process.exit(1); }
+const r2 = so({ ...hienTai, [SKILL]: hienTai[SKILL].replace(hang, '| `implemented` | S4 VERIFY rồi Gate 2 |') });
+if (!r2.loi.includes('bat-bien-dung/bang trang thai lech')) { console.log('chieu do bang: KHONG bat duoc'); process.exit(1); }
+console.log('chieu do bang: ok (ban sao doi mot o bang -> "bat-bien-dung/bang trang thai lech")');
