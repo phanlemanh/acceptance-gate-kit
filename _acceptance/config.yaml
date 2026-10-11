@@ -677,6 +677,11 @@ executors:
     lsgd_ac10: LSGD_CASES=AC-10 node tests/scripts/luot-sua-giu-du.test.mjs
     lsgd_ac11: LSGD_CASES=AC-11 node tests/scripts/luot-sua-giu-du.test.mjs
     lsgd_ac12: LSGD_CASES=AC-12 node tests/workflows/luot-sua-giu-du.test.mjs
+    # Hồ sơ ten-ca-qua-tien-to-turbo — tên ca chập chờn qua tiền tố turbo (tên ca = tên AC).
+    tctt_ac1: GG_CASES=AC-1 node tests/scripts/ten-ca-qua-tien-to.test.mjs
+    tctt_ac2: GG_CASES=AC-2 node tests/scripts/ten-ca-qua-tien-to.test.mjs
+    tctt_ac3: GG_CASES=AC-3 node tests/scripts/ten-ca-qua-tien-to.test.mjs
+    tctt_ac4: GG_CASES=AC-4 node tests/scripts/ten-ca-qua-tien-to.test.mjs
     dieu_phoi_ci: node tests/dieu-phoi/chay-buoc-ci.mjs
     dieu_phoi_validate: node tests/dieu-phoi/kiem-validate.mjs
     # Hồ sơ dieu-phoi-doi-tai-khoan (AC-12, AC-13): plugin test + round-trip mod → CLI + validate đối chiếu bảng MOD-SU-KIEN.
