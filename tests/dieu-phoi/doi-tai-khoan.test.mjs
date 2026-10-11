@@ -1087,3 +1087,50 @@ test('DP4-14-do bo-nhe', () => {
   const loi = kiemTiepTucMdDp4(sao);
   assert.ok(loi.some((l) => l.includes('--nhe')), loi.join(' | '));
 });
+
+// ---------- DP4-15: nhánh DP0 theo kết quả đo (AC-15, E15) ----------
+const KHOI_MD = (t, mk) => new RegExp(`<!-- <<<${mk} -->\\n([\\s\\S]*?)<!-- ${mk}>>> -->`).exec(t)?.[1] ?? null;
+const bangMd = (khoi) => (khoi ?? '').split('\n').filter((d) => /^\|\s*\d/.test(d)).map((d) => d.split('|').slice(1, -1).map((x) => x.trim()));
+const GIA_TRI = ['còn', 'mất', 'khác', 'chưa-đo'];
+export function kiemNhanhDp0(hopDong, ketQua) {
+  const loi = [];
+  const anh = new Map(bangMd(KHOI_MD(hopDong, 'NHANH-DP0')).map(([c, ...v]) => [c, Object.fromEntries(GIA_TRI.map((g, i) => [g, v[i]]))]));
+  const chon = new Map(bangMd(KHOI_MD(hopDong, 'NHANH-DP0-CHON')).map(([c, g, n]) => [c, { g, n }]));
+  const kq = new Map(bangMd(KHOI_MD(ketQua, 'KET-QUA-DP0')).map(([c, , g]) => [c, g]));
+  const notes = hopDong.slice(hopDong.indexOf('## Notes'));
+  for (const c of ['1', '2', '3', '5', '6']) {
+    const g = kq.get(c);
+    if (!GIA_TRI.includes(g)) {
+      loi.push(`câu ${c}: ket-qua.md mang «${g}», cần một trong ${GIA_TRI.join(' · ')}`);
+      continue;
+    }
+    if (chon.get(c)?.g !== g) loi.push(`câu ${c}: hợp đồng chọn giá trị «${chon.get(c)?.g}», ket-qua.md «${g}»`);
+    if (chon.get(c)?.n !== anh.get(c)?.[g]) loi.push(`câu ${c}: nhánh «${chon.get(c)?.n}» khác ánh xạ «${anh.get(c)?.[g]}»`);
+    const coNguong = new RegExp(`câu ${c}[^\\n]*ngưỡng|câu 2 và 6 rơi về nhánh an toàn`).test(notes);
+    if (g === 'chưa-đo' && !coNguong) loi.push(`câu ${c}: chưa-đo mà Notes không có giới hạn kèm ngưỡng`);
+  }
+  return loi;
+}
+const HD_P = path.join(KIT, '_acceptance', 'dieu-phoi-doi-tai-khoan', 'contract.md');
+const KQ_P = path.join(KIT, '_acceptance', 'dieu-phoi-tho-trong-kit', 'discovery', 'do-tai-khoan', 'ket-qua.md');
+test('DP4-15 nhanh-dp0', () => {
+  const hd = fs.readFileSync(HD_P, 'utf8');
+  const kq = fs.readFileSync(KQ_P, 'utf8');
+  const dong = bangMd(KHOI_MD(kq, 'KET-QUA-DP0')).map(([c, , g]) => `câu ${c} · ${g}`);
+  console.log(dong.map((d) => `  ${d}`).join('\n'));
+  assert.equal(dong.length, 5);
+  assert.deepEqual(kiemNhanhDp0(hd, kq), []);
+});
+test('DP4-15-do doi-cau-6', () => {
+  const hd = fs.readFileSync(HD_P, 'utf8');
+  const kq = fs.readFileSync(KQ_P, 'utf8');
+  assert.deepEqual(kiemNhanhDp0(hd, kq), [], 'đối chứng dương');
+  const dong6 = kq.split('\n').find((d) => /^\|\s*6\s*\|/.test(d));
+  const giaTri = dong6.split('|')[3].trim();
+  const moi = giaTri === 'còn' ? 'mất' : 'còn';
+  const tiem = kq.replace(dong6, dong6.replace(`| ${giaTri} |`, `| ${moi} |`));
+  assert.notEqual(tiem, kq, 'bước tiêm không áp được');
+  const loi = kiemNhanhDp0(hd, tiem);
+  console.log(`  bản tiêm (câu 6 → ${moi}): ${loi.join(' | ')}`);
+  assert.ok(loi.some((l) => l.startsWith('câu 6')), loi.join(' | '));
+});
