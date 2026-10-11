@@ -828,3 +828,45 @@ test('DP4-08-do bo-loai', async () => {
   console.log(`  bản tiêm: P1 ${h.P1.tt.hanh_dong}`);
   assert.equal(h.P1.tt.hanh_dong, 'khong', 'P1');
 });
+
+// ---------- DP4-09: hook nhịp nhắc thợ bàn giao (AC-9, E9) ----------
+test('DP4-09 nhac', () => {
+  const k = khoLienKet();
+  assert.equal(chayCli(k.kho, ['ban-giao', '--ly-do', 'thu'], { env: envGio(T) }).ma, 0);
+  const loi = chayCli(k.kho, ['chay']); // để có <thư mục đợt>/loi/
+  chayCli(k.kho, ['dung']);
+  assert.equal(loi.ma, 0, loi.err);
+  const duongLoi = path.join(k.dot, 'loi', 'dieu-phoi.mjs');
+  const nhip = (cwd, phien, gio) => chayHook('PostToolUse', { session_id: phien, tool_name: 'Bash' }, { cwd, nowMs: gio });
+  const laNhac = (r) => {
+    try {
+      const j = JSON.parse(r.stdout);
+      return j.hookSpecificOutput?.hookEventName === 'PostToolUse' && j.hookSpecificOutput.additionalContext.includes('ban-giao-xong') && j.hookSpecificOutput.additionalContext.includes(duongLoi);
+    } catch {
+      return false;
+    }
+  };
+  const hang = [];
+  let r = nhip(k.w1, 's-p1', T + PHUT);
+  hang.push(['a', r.status === 0 && laNhac(r)]);
+  r = nhip(k.w1, 's-p1', T + 3 * PHUT);
+  hang.push(['b', r.status === 0 && r.stdout === '']);
+  r = nhip(k.w1, 's-p1', T + 7 * PHUT);
+  hang.push(['c', r.status === 0 && laNhac(r)]);
+  assert.equal(chayCli(k.w1, ['ban-giao-xong'], { env: envGio(T + 8 * PHUT) }).ma, 0);
+  r = nhip(k.w1, 's-p1', T + 20 * PHUT);
+  hang.push(['d', r.status === 0 && r.stdout === '']);
+  const k2 = khoLienKet();
+  r = nhip(k2.w1, 's-x', T);
+  hang.push(['e', r.status === 0 && r.stdout === '']);
+  const trong = tam('dp4-trong-');
+  git(trong, 'init', '-q', '-b', 'main');
+  git(trong, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const bam = bamCay(trong);
+  r = nhip(trong, 's-y', T);
+  hang.push(['f', r.status === 0 && r.stdout === '' && bamCay(trong) === bam]);
+  console.log(hang.map(([n, ok]) => `  (${n}) · ${ok ? 'đúng' : 'SAI'}`).join('\n'));
+  assert.equal(hang.length, 6);
+  assert.deepEqual(hang.filter(([, ok]) => !ok).map(([n]) => n), []);
+  for (const [dot, phien] of [[k.dot, 's-p1'], [k2.dot, 's-x']]) assert.ok(fs.existsSync(path.join(dot, 'song', `${phien}.json`)), `nhịp sống ${phien} vẫn ghi`);
+});
