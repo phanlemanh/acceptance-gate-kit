@@ -432,3 +432,35 @@ test('DP6-04 duong-dau-cach', () => {
   assert.equal(r.status, 0, `${lenh} → ${r.stderr}`);
   assert.ok(fs.existsSync(path.join(dot, 'xin', 'P1-s4.json')));
 });
+
+// ---------- DP6-05: hộp xin quyền luôn thành việc chờ người (AC-5, E5) ----------
+const MA_TRAN_CHO = [
+  ['permission_prompt', 'khong', true],
+  ['permission_prompt', 'don', true],
+  ['permission_prompt', 'yeu-cau', true],
+  ['idle_prompt', 'khong', true],
+  ['idle_prompt', 'don', false],
+  ['idle_prompt', 'yeu-cau', false],
+];
+async function chayMaTranCho(gocGoi = GOI) {
+  const sai = [];
+  for (const [loai, trangThai, canGhi] of MA_TRAN_CHO) {
+    const { dot, w1 } = khoLienKet({ gocGoi });
+    if (trangThai === 'don') ghiJ(path.join(dot, 'xin', 'P1-s4.json'), { phien: 'P1', slug: 'hang-a', loai: 's4', luc: new Date().toISOString(), worktree: w1 });
+    if (trangThai === 'yeu-cau') ghiJ(path.join(dot, 'yeu-cau', 'P1-1.json'), { phien: 'P1', loai: 'cham-tep', hang: null, noi_dung: { tep: ['a'] }, luc: new Date().toISOString() });
+    chayHookChoNguoi(w1, loai, { gocGoi });
+    if (fs.existsSync(path.join(dot, 'cho-nguoi', 'P1.json')) !== canGhi) sai.push(`(${loai}, ${trangThai})`);
+  }
+  return sai;
+}
+test('DP6-05 ma-tran', async () => {
+  console.log(`  ma trận chờ người: ${MA_TRAN_CHO.length} hàng`);
+  assert.equal(MA_TRAN_CHO.length, 6);
+  assert.deepEqual(await chayMaTranCho(), []);
+});
+test('DP6-05-do tra-som', async () => {
+  assert.deepEqual(await chayMaTranCho(), [], 'bản lành phải xanh trước');
+  const sao = saoGoi();
+  tiem(sao, 'hook-cho-nguoi.mjs', "if (dauVao.notification_type !== 'permission_prompt') {", 'if (true) {');
+  assert.deepEqual(await chayMaTranCho(sao), ['(permission_prompt, don)', '(permission_prompt, yeu-cau)']);
+});
