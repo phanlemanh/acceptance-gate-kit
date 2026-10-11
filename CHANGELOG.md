@@ -224,8 +224,11 @@ lượt 1: tác tử chấm sửa mã, commit ba lần, lượt vô hiệu, ~4,6
   sau của lượt đi thẳng — lượt chấm vẫn chạy như 2.26.
 - Tác tử vẫn ghi được vào cây qua shell (`sed -i`): bước sau-lượt quy cây đổi cho tác tử đã ghi và ghi dòng đếm.
   Máy không tự đổi cây — hoàn lại là việc của phiên.
+- **Chưa chạy sống lần nào trước mốc này:** 32 lượt chấm của 14 hồ sơ trong cửa sổ ghi `loai-tac-tu-vang` — bản
+  cài `feature-loop` 2.26.0 không có `agents/`, nên mọi lượt đi đường rơi. 2.27.0 là số đầu tiên mang ba loại tác tử.
 - **Ai bị ảnh hưởng:** mọi kho chạy S4. **Khi update:** cài lại `feature-loop` ở mọi phạm vi để bản cài có
-  `agents/`; bản cài cũ vẫn chấm được (đường rơi ở trên).
+  `agents/`; bản cài cũ vẫn chấm được (đường rơi ở trên). Lượt chấm đầu tiên sau khi cài không còn dòng
+  `loai-tac-tu-vang` trong `run-log.jsonl` — còn thì báo chủ kit.
 
 ### Tên ca chập chờn đọc được qua tiền tố turbo (hồ sơ `ten-ca-qua-tien-to-turbo`, hàng G2, T2)
 
@@ -301,7 +304,71 @@ Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 
 `dieu-phoi-feature-loop-trong-dot` 6 · `evals-sat-le-doc-du` 6 · `baseline-tran-bo-qua-don` 5 ·
 `dieu-phoi-sua-truoc-dot-thu` 4 · `ten-ca-qua-tien-to-turbo` 3 · `glob-thoat-ngoac` 2 · ba hồ sơ còn lại 0.
 
-<!-- NAM-DONG-SO-2-27-0 -->
+**Năm dòng số của luật (c)** — mười bảy vòng (giờ VN; nguồn: giờ commit `contract.md`, `usage-report.md`,
+`decisions.jsonl`, `run-log.jsonl` của hồ sơ; ba khối token theo khuôn 2.25: chứng-minh-vật = machine+ui+judge+baseline
+· tìm-lỗi = review+refute · tổng hợp = triage+capture+synthesize; Cổng Đáng không tính, theo khuôn 2.26):
+
+| Hồ sơ | 1 · làm-xong→quyết-được · lượt chấm | 2 · gọi người trong / ngoài (trần) | 3 · lượt bị hạ tầng đốt | 4 · out-token S4 · vật / tìm-lỗi / tổng hợp % | 5 · phút máy / lượt |
+|---|---|---|---|---|---|
+| `dieu-phoi-dong-goi-loi` (DP1) | 1 g 33 · 1 | 1 / 0 (3) | 0 | 34 731 · 41,0 / 19,8 / 39,2 | 36 |
+| `dieu-phoi-mo-dot-mot-lenh` (DP2) | 4 g 53 · 4 (lượt 4 vượt trần) | 1 / 1 (3) | **1** — lượt 3 REJECT chỉ vì node segfault (mã 139) ở suite workflows | không ghi trong hồ sơ (không có `usage-report.md`) | không ghi |
+| `dieu-phoi-tiep-tuc-mot-lenh` (DP3) | 1 g 41 · 1 | 1 / 0 (3) | 0 | không ghi trong hồ sơ (không có `usage-report.md`) | không ghi |
+| `dieu-phoi-doi-tai-khoan` (DP4) | 1 g 04 · 1 | 1 / 3 (3) — **VƯỢT trần** | 0 lượt chấm; hạ tầng đốt 2 lượt gọi người (dòng ký 812 ký tự bị app gói, lệnh không chạy) | 151 852 · 46,5 / 14,7 / 38,7 | 43 |
+| `dieu-phoi-lop-mod` (lõi DP6) | 8 g 16 · 7 (lượt 4–7 vượt trần) | 1 / 3 (3) — **VƯỢT trần**; số chạm không ghi | 0 (+1 ca biên: lượt 6 đỏ chỉ vì P179 — sổ giới hạn của chính hồ sơ thiếu dòng) | 460 264 · 47,6 / 15,2 / 37,2 | 42 · 40 · 42 · 42 · 44 · 39 · 39 = 287 |
+| `dieu-phoi-feature-loop-trong-dot` (DP7) | 1 g 36 · 1 | 1 / 0 (3) | 0 | 46 430 · 53,5 / 15,0 / 31,5 | 34 |
+| `dieu-phoi-sua-truoc-dot-thu` | 48 phút · 1 | 1 / 0 (3) | 0 | 33 597 · 38,8 / 25,8 / 35,4 | 40 |
+| `tac-tu-cham-chi-cham-khong` (A1, máy thông) | 7 g 11 · 3 | 1 / 2 (3) | 0 | 114 302 · 44,3 / 23,2 / 32,6 | 28 · 27 · 25 = 80 |
+| `evals-sat-le-doc-du` (R1, T3) | 8 g 50 · 2 (chờ ký 7 g 53 qua đêm) | 2 / 0 (4); Gate 1.5 không ghi trong hồ sơ | 0 | 203 018 · 45,9 / 36,8 / 17,3 | 28 · 25 = 54 |
+| `glob-thoat-ngoac` (T3) | 1 g 38 · 2 | 3 / 0 (4) | 0 (+1 ca biên: lượt 1 đỏ chỉ vì RT13 bắt chuỗi trạng thái đã ký trong tệp ca của chính hồ sơ) | 58 310 · 59,9 / 18,1 / 22,0 | 32 · 31 = 63 |
+| `eval-goi-model-that-khong-chay` (G3) | 3 g 09 · 3 | 1 / 2 (3) | 0 | 211 991 · 50,7 / 13,5 / 35,8 | 44 · 42 · 41 = 127 |
+| `ten-ca-qua-tien-to-turbo` (G2) | 1 g 35 · 1 | 1 / 0 (3) | 0 | 33 000 · 50,0 / 10,8 / 39,2 | 40 |
+| `xa-stdout-truoc-khi-thoat` | 1 g 29 · 1 | 1 / 0 (3) | 0 | 34 104 · 44,6 / 23,4 / 32,0 | 43 |
+| `baseline-tran-bo-qua-don` | 3 g 04 · 1 | 2 / 0 (3) | 0 | 38 858 · 45,8 / 23,1 / 31,1 | 30 |
+| `trang-ho-so-mot-viec` (X2) | 3 g 09 · 3 | 1 / 1 (3) | 0 | 78 083 · 52,6 / 15,1 / 32,4 | 27 · 25 · 27 = 79 |
+| `vong-la-mot-ket-qua` (S3) | 2 g 22 · 2 | 2 / 0 (3) | 0 | 133 602 · 74,6 / 8,7 / 16,7 | 27 · 25 = 52 |
+| `lo-trinh-chi-viec-phat-trien` (S3b) | 2 g 28 · 2 | 1 / 0 (3) | 0 | 218 795 · 78,3 / 7,0 / 14,7 | 31 · 28 = 59 |
+
+Cộng mười bảy vòng: **36 lượt chấm** (8 vòng một lượt; trung vị làm-xong→quyết-được 2 g 22) · **1 850 937 out-token**
+trên 31/36 lượt có `usage-report.md` (chứng-minh-vật 53,5 % · tìm-lỗi 17,0 % · tổng hợp 29,6 %) · **≈ 1 068 phút máy**
+(64 067 s) trên cùng 31 lượt · **34 lượt gọi người** (22 trong thiết kế, 12 ngoài), **2 vòng vượt trần** · hạ tầng
+đốt **1 lượt chấm** (+2 ca biên) và **2 lượt gọi người**. Phiên chính không đo token. Số chạm: lời ký là một câu gộp
+ở mọi vòng có ghi; Cổng Phạm vi ký thật và các lần gọi ngoài thiết kế của DP2, DP4, DP6, G3 không ghi số chạm.
+
+**Đọc số:**
+
+- **Một vòng ăn một phần tư cửa sổ.** `dieu-phoi-lop-mod` dùng 24,9 % out-token và 26,9 % phút máy của cả mười bảy vòng
+  qua bảy lượt chấm: lớp «lệnh S4 lọt bộ đọc cú pháp» đổi da ba lần trong vòng (vỏ bọc mang cờ → thân heredoc cho
+  trình thông dịch → heredoc kèm chuyển hướng), dừng-vá thu phạm vi. Nghiệm đúng tầng đã ghi hạt giống («S4 tự xưng»),
+  không vá thêm bộ phân loại.
+- **Hai vòng vượt trần, hai gốc khác nhau:** DP6 do lớp trên; DP4 do hạ tầng — dòng ký dán dài hơn ~800 ký tự bị app
+  gói thành khối, lệnh không chạy, hai lượt gọi người cho một chữ «ký» (hạt giống `docs/plans/2026-10-11-hat-giong-dong-ky-vuot-nguong-dan.md`).
+- **A1 chưa chạy sống lần nào:** 32 lượt chấm của 14 hồ sơ có dòng `loai-tac-tu-vang` («agent type
+  'feature-loop:cham-lenh' not found») — bản cài `feature-loop` 2.26.0 trong bộ đệm gói không có `agents/`, nên mọi
+  lượt đi đường rơi về tác tử mặc định. Không lượt nào bị đốt vì thế. 2.27.0 là số đầu tiên mang `agents/`. **Chỗ cắt
+  cho cửa sổ kế** (không mở ô): lượt chấm đầu tiên ở một kho đã cài 2.27.0 mà vẫn có dòng `loai-tac-tu-vang` là
+  *sai hợp đồng* của A1 (máy sửa vật), không còn là giới hạn.
+- **Dòng 4–5 hở ở hai vòng gói:** DP2 và DP3 không có `usage-report.md` (kể cả trong lịch sử git); `wall_s` trong
+  run-log của hai hồ sơ là của làn ghim lại, không phải lượt chấm. Số của hai vòng ấy không đọc được — không ước.
+
+**Điều kiện tin cậy:** (i) đường verdict (finder → refute trong hợp đồng → REJECT) không đổi thành phần. A1 đổi
+LOẠI tác tử của chín vai — bộ công cụ, không đổi đề bài một byte — kèm răng hai chiều trong harness (AT1/AT2 đỏ khi
+bảng vai sai; AT3: lượt sạch so với bản gỡ bảng vai cho đề bài, phán quyết, run-log bằng nhau); trong thực tế cả 36
+lượt của cửa sổ chạy đường rơi, nên thành phần thật của lượt không đổi. Đầu vào lượt chấm đổi ở ba chỗ có hồ sơ
+riêng: một bộ đọc danh sách `evals.yaml` (R1, T3 — 621 hồ sơ ở bảy kho, 0 lệch với kiểu thụt 4), kế hoạch mang sang
+thôi mang eval có tệp vừa đổi (`glob-thoat-ngoac`, T3), làn đối chứng chạy một lệnh kit sinh có trần
+(`baseline-tran-bo-qua-don`). (ii) Lượt chấm sai do phép-đo-tự-dối giữa hai mốc: **0** — lượt oan duy nhất là hạ tầng
+(segfault, dòng 3); hai ca biên là lưới corpus đỏ đúng trên tệp hay sổ của chính hồ sơ, không phải phán quyết sai.
+Ngưỡng (a) đếm **0/2**. Dòng 4–5 cắt được, với 2/17 vòng không có số.
+
+**Dự báo năm dòng cho thay đổi của mốc này:**
+
+| Dòng | Chiều | Vì sao |
+|---|---|---|
+| 1 | ↓ ở crm | tiếp tục một lệnh và đổi tài khoản không mất việc bỏ những giờ đứng khi phiên đứt (09/10: 37 việc nền dừng; 08/10: hai việc lỡ 5 giờ) |
+| 2 | ↓ ở crm | thợ chờ lượt S4 không thành câu hỏi, tự mở hàng kế (DP7); mở và tiếp tục đợt một lệnh thay sáu bước tay (DP2, DP3). Rủi ro ngược: hộp quyền của tác tử Workflow chưa đo — luật 52 giữ |
+| 3 | ↓ | tác tử chấm không ghi cây (A1, hiệu lực từ bản cài 2.27.0); làn đối chứng có trần, không giữ khoá s4 nhiều giờ; thẻ > 64 KB không bị cắt; `evals.yaml` sát lề đọc đủ |
+| 4 | = / lượt | thành phần lượt không đổi. Làn ghim lại không gọi lại eval model khi đầu vào không đổi (G3) — đó là chi phí model của kho, không phải token S4 |
+| 5 | = / lượt | trần 480 s của làn đối chứng chỉ rút đường găng khi làn ấy treo |
 
 **Dòng hiệu chuẩn (ADR 0020):** `ĐẠT đã ký → prod đỏ: 0 / 1`, đọc bằng `scripts/hieu-chuan-moc.mjs --root .`.
 **N không tăng so với mốc 2.26.0 (vẫn 1) — dòng vô hiệu ở mốc này**, cấm đọc thành «0 sự cố».
