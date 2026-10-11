@@ -34,6 +34,23 @@ export function trangThaiQuyet(gocKho, slug) {
   return { tt: 'khong-build', decision };
 }
 
+// Quyết của MỘT hàng trong đợt — một nguồn cho thẻ khởi tạo, thợ (`tho.mjs`) và bộ phát lịch (`bangQuyet`).
+// Hàng không mang `ma` là hàng phát sinh mà giám sát đã thêm (`hang them`) — đó chính là lượt gom Cổng Đáng về
+// giám sát (T15), nên đã quyết. Hàng mang `ma`: tìm hồ sơ/ô ở worktree của dãy trước, rồi ở kho chính. (DP7 viết
+// hàm này trong tho.mjs; hồ sơ dieu-phoi-sua-truoc-dot-thu dời về đây để thẻ đọc cùng hàm với bộ phát lịch.)
+export function quyetCua(gocKho, day, hang) {
+  if (!hang.ma) return { tt: 'da-quyet' };
+  const trongDay = day?.worktree ? trangThaiQuyet(day.worktree, hang.slug) : { tt: 'cho' };
+  if (trongDay.tt === 'da-quyet') return trongDay;
+  const chinh = trangThaiQuyet(gocKho, hang.slug);
+  return chinh.tt === 'cho' && trongDay.tt !== 'cho' ? trongDay : chinh;
+}
+
+// Bảng quyết của mọi hàng trong đợt — bộ phát lịch dựng mỗi nhịp để chỉ giao hàng đã quyết (B1).
+export function bangQuyet(gocKho, hangViec) {
+  return new Map(hangViec.hang.map((h) => [h.slug, quyetCua(gocKho, hangViec.day.find((d) => d.id === h.day), h).tt]));
+}
+
 const canDot = (cwd) => {
   const thuMuc = timThuMucDot(cwd);
   if (!thuMuc) throw new Error('không có đợt nào đang chạy');
@@ -48,7 +65,7 @@ export function theKhoiTao(cwd) {
   const canhBao = [];
   for (const h of hv.hang) {
     if (!h.ma) continue;
-    const q = trangThaiQuyet(gocKho, h.slug);
+    const q = quyetCua(gocKho, hv.day.find((d) => d.id === h.day), h);
     if (q.tt === 'cho') choCongDang.push(h.slug);
     else if (q.tt === 'khong-build') canhBao.push({ slug: h.slug, ma: h.ma, decision: q.decision, ly_do: `ô đã quyết «${q.decision}», không vào đợt` });
   }
@@ -63,8 +80,10 @@ export function theKhoiTao(cwd) {
     day: hv.day.map((d) => ({ id: d.id, worktree: d.worktree, hang: hv.hang.filter((h) => h.day === d.id).map((h) => h.slug) })),
     hang: hv.hang.map((h) => ({ ma: h.ma ?? null, slug: h.slug, day: h.day, uu_tien: h.uu_tien ?? null })),
     // T15: chỉ hỏi điều chỉ người biết — quyền tự merge, và chữ «build» cho từng hàng chờ Cổng Đáng.
-    // DP4: khẩu vị hạn mức là căn cứ chỉ người có — hỏi khi cấu hình đợt khai ngưỡng (đợt không khai: không xét hạn mức).
-    hoi: ['quyen-tu-merge', ...(hanMuc ? ['khau-vi-han-muc'] : []), ...choCongDang.map((s) => `build:${s}`)],
+    // Hồ sơ dieu-phoi-sua-truoc-dot-thu (E1, DP4 Ngoài-1): mỗi phần tử của `hoi` có một lối ghi câu trả lời
+    // (`pha --tu-merge`, `decision` của ô). Khẩu vị hạn mức không có lối ghi nên không hỏi — ngưỡng `han_muc` in ra
+    // như thông tin, sửa ở `dieu-phoi.config.json` của gói đợt.
+    hoi: ['quyen-tu-merge', ...choCongDang.map((s) => `build:${s}`)],
     han_muc: hanMuc,
     may_di_tiep: ['uu-tien', 'lan-v'],
     cho_cong_dang: choCongDang,

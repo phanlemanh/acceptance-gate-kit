@@ -348,7 +348,9 @@ test('DP4-04 the-khoi-tao', () => {
   assert.equal(r.ma, 0, r.err);
   const the = JSON.parse(r.out);
   console.log(`  hoi: ${JSON.stringify(the.hoi)} · han_muc: ${JSON.stringify(the.han_muc)}`);
-  assert.ok(the.hoi.includes('khau-vi-han-muc'));
+  // Hồ sơ dieu-phoi-sua-truoc-dot-thu (E1, Ngoài-1 của hồ sơ này): khẩu vị hạn mức không có lối ghi nên không hỏi —
+  // thẻ giữ trường han_muc làm thông tin.
+  assert.ok(!the.hoi.includes('khau-vi-han-muc'), `hoi không được có khau-vi-han-muc: ${JSON.stringify(the.hoi)}`);
   assert.deepEqual(the.han_muc, hm);
 });
 
@@ -777,6 +779,11 @@ test('DP4-07-do goi-thang', async () => {
 async function dotPhienCu(gocGoi = GOI) {
   process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
   const k = khoLienKet({ gocGoi });
+  // Đợt mở từ gói chỉ giao hàng đã quyết build (hồ sơ dieu-phoi-sua-truoc-dot-thu, B1): hai hàng có ô build.
+  for (const s of ['hang-a', 'hang-b']) {
+    fs.mkdirSync(path.join(k.kho, '_acceptance', s), { recursive: true });
+    fs.writeFileSync(path.join(k.kho, '_acceptance', s, 'opportunity.md'), '---\nstage: decided\ndecision: build\n---\n');
+  }
   chayHook('PostToolUse', { session_id: 's-cu' }, { cwd: k.w1, nowMs: T + 30_000, gocGoi });
   assert.equal(chayCli(k.kho, ['ban-giao', '--ly-do', 'thu'], { gocGoi, env: envGio(T) }).ma, 0);
   assert.equal(chayCli(k.w1, ['ban-giao-xong'], { gocGoi, env: envGio(T + PHUT) }).ma, 0);
