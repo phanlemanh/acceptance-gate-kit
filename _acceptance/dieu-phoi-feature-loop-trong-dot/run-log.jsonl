@@ -33,3 +33,4 @@
 {"ts":"2026-10-11T00:52:50Z","sha":"e7d9bf959415215e4b2b2e8d3adbdf6eff061b93","round":1,"kind":"round-tally","verdict":"PASS","expected":12,"returned":12,"blocked":0}
 {"ts":"2026-10-11T00:52:50Z","sha":"e7d9bf959415215e4b2b2e8d3adbdf6eff061b93","round":1,"kind":"chot-truong-nguoi","human_signoff":0,"human_override":1,"bypass_ack":0,"verified_at":22}
 {"kind":"loai-tac-tu-vang","ts":"2026-10-11T00:52:50Z","round":1,"vai":["baseline","machine","judge","finder","triage","provenance","synthesize"],"ly_do":"agent({agentType}): agent type 'feature-loop:cham-lenh' not found. Available agents: claude, claude-code-guide, Explore, general-purpose, Plan, statusline-setup"}
+{"kind":"thuoc-vat","ts":"2026-10-11T01:28:04Z","round":1,"san":"e7d9bf959415215e4b2b2e8d3adbdf6eff061b93","vat":[0,0],"thuoc":[0,0],"ho_so":[393,1],"nhat":0,"lan":0,"tep_thuoc":[]}
