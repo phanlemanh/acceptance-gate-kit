@@ -1,11 +1,11 @@
 // Mức dùng hạn mức (spec workflow §4.5, design DP4 chỗ chọn 2–5) — MỘT bên viết của `han-muc.json`. Ba nguồn
 // (mod của gói, công cụ `get_usage` của phiên, dòng trạng thái) đổ vào CÙNG một khuôn lần đọc; bộ phát lịch đọc lần
 // đọc hiệu lực mới nhất. Kho không có đợt: không ghi gì (mod gọi CLI này ở mọi phiên của kho).
-import fs from 'node:fs';
 import path from 'node:path';
 import { PHUT_MS } from './cau-hinh.mjs';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, timThuMucDot } from './dot.mjs';
 import { datPha } from './pha.mjs';
+import { dauHieuLuc } from './dau.mjs';
 import { bayGio } from './song.mjs';
 import { docVai } from './vai.mjs';
 
@@ -170,12 +170,14 @@ export function xetHanMucNhip(thuMuc, { cfg, cu = {}, nowMs = null, pha }) {
       daBao.add(`gan:${k}`);
     }
   }
-  const dDau = path.join(thuMuc, 'ban-giao', 'dau');
-  const dau = fs.existsSync(dDau) ? fs.readdirSync(dDau).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).sort() : [];
+  // Dấu thợ chết vì hạn mức còn hiệu lực (dau.mjs): đang chờ đặt lại thì không kích hoạt; mỗi dấu một sự kiện.
+  const dau = dauHieuLuc(thuMuc, { tuoi, baoTruoc: hanMuc.bao_truoc_pct });
   let vaoBanGiao = false;
-  if (!vao && dau.length) {
-    vao = `thợ ${dau.join(', ')} chết vì hạn mức`;
-    if (pha === 'dang-chay' || pha === 'tam-dung') ghiSuKien(thuMuc, { loai: 'cham-han-muc', ly_do: vao, viec: '/dieu-phoi:ban-giao', can_phan: true });
+  if (!vao && dau.length && !choDatLai) {
+    vao = `thợ ${[...new Set(dau.map((x) => x.day))].sort().join(', ')} chết vì hạn mức`;
+    const khoa = dau.map((x) => `dau:${x.day}@${x.luc}`);
+    if ((pha === 'dang-chay' || pha === 'tam-dung') && khoa.some((x) => !daBao.has(x))) ghiSuKien(thuMuc, { loai: 'cham-han-muc', ly_do: vao, viec: '/dieu-phoi:ban-giao', can_phan: true });
+    for (const x of khoa) daBao.add(x);
   }
   if (vao && !choDatLai && (pha === 'dang-chay' || pha === 'tam-dung')) {
     datPha(thuMuc, 'dang-ban-giao', { boi: 'phat-lich', lyDo: vao, nowMs: now });

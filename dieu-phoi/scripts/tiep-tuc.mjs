@@ -8,6 +8,7 @@ import { docHangViec } from './hinh-dang.mjs';
 import { docPha } from './pha.mjs';
 import { banGiaoGanNhat, roiBanGiao } from './ban-giao.mjs';
 import { mucDay } from './muc-day.mjs';
+import { docDau } from './dau.mjs';
 import { conSong, coThuMucSong, nhipMoiNhatCua } from './song.mjs';
 import { ghiThucLuc, laGiamSat, nhanVaiGiamSat } from './vai.mjs';
 
@@ -46,8 +47,14 @@ const laThuMuc = (p) => {
 // DP4 (design chỗ chọn 12): `bgGan` = bàn giao gần nhất; nhịp của các phiên đã bàn giao dãy không tính là phiên sống.
 function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs, bgGan = null }) {
   const mucBg = bgGan?.day?.find((m) => m.id === d.id) ?? null;
-  const phienCu = new Set(mucBg?.ban_giao === 'xong' ? mucBg.phien_cu ?? [] : []);
-  const nhip = nhipMoiNhatCua(thuMuc, d.worktree, { boQua: phienCu });
+  // Phiên đã bàn giao dãy: phiên báo xong, và phiên chết vì hạn mức (dấu đã lưu hay đang mở). Chỉ bỏ nhịp ghi tới lúc
+  // tiếp tục — nhịp ghi sau đó là phiên sống lại thật (review I1).
+  const phienCu = new Set([
+    ...(mucBg?.ban_giao === 'xong' ? mucBg.phien_cu ?? [] : []),
+    ...[...(bgGan?.dau ?? []), ...docDau(thuMuc)].filter((x) => x?.day === d.id && x.phien).map((x) => x.phien),
+  ]);
+  const moc = bgGan?.tiep_tuc_luc ? Date.parse(bgGan.tiep_tuc_luc) : null;
+  const nhip = nhipMoiNhatCua(thuMuc, d.worktree, { boQua: phienCu, denLuc: moc });
   const nen = { day: d.id, worktree: d.worktree, song: conSong(nhip, nowMs) ? nhip.phien : null };
   const giuKhoa = khoaGiu.has(d.id);
   const conCho = coTep(thuMuc, 'xin', `${d.id}-`).length > 0

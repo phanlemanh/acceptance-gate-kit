@@ -10,6 +10,7 @@ import { MAC_DINH_HAN_MUC, lanDocHieuLuc } from './han-muc.mjs';
 import { mucDay } from './muc-day.mjs';
 import { datPha, docPha } from './pha.mjs';
 import { bayGio, docNhipSong } from './song.mjs';
+import { docDau, lichSuMoiNhat } from './dau.mjs';
 
 export const TEP_BAN_GIAO = 'ban-giao.json';
 export const DIR_BAN_GIAO = 'ban-giao';
@@ -196,7 +197,13 @@ export function roiBanGiao(thuMuc, { phien, nowMs = null }) {
     })
     : [];
   if (bg) {
-    ghiJsonNguyenTu(path.join(thuMuc, DIR_BAN_GIAO, 'lich-su', `${bg.ma}.json`), { ...bg, trang_thai: 'da-tiep-tuc', tiep_tuc_luc: new Date(now).toISOString(), tiep_tuc_boi: phien, dau });
+    // Phiên đã biết lúc tiếp tục (review C1c): dấu và lưới cuối của các phiên này về sau bị bỏ qua.
+    const daBiet = [...new Set([
+      ...docNhipSong(thuMuc).filter((n) => Date.parse(n.luc) <= now).map((n) => n.phien),
+      ...dau.map((x) => x?.phien).filter(Boolean),
+      ...bg.day.flatMap((m) => m.phien_cu ?? []),
+    ])].filter((x) => x !== phien).sort();
+    ghiJsonNguyenTu(path.join(thuMuc, DIR_BAN_GIAO, 'lich-su', `${bg.ma}.json`), { ...bg, trang_thai: 'da-tiep-tuc', tiep_tuc_luc: new Date(now).toISOString(), tiep_tuc_boi: phien, dau, phien_da_biet: daBiet });
     fs.rmSync(p, { force: true });
   }
   fs.rmSync(dDau, { recursive: true, force: true });

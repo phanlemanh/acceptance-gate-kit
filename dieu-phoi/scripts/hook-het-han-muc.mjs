@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, phienCuaCwd, timThuMucDot } from './dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
 import { bayGio } from './song.mjs';
+import { phienDaBiet } from './dau.mjs';
 
 export function xuLyHetHanMuc(dauVao, { timDot = timThuMucDot, nowMs = null } = {}) {
   if (dauVao?.error !== 'rate_limit') return 'bo-qua';
@@ -18,6 +19,8 @@ export function xuLyHetHanMuc(dauVao, { timDot = timThuMucDot, nowMs = null } = 
   const hv = docHangViec(thuMuc);
   const id = phienCuaCwd(hv, dauVao.cwd);
   if (!id) return 'khong-phai-tho';
+  // Phiên của tài khoản cũ đã bàn giao ở lần tiếp tục gần nhất: không commit việc của thợ mới, không ghi dấu (review C1c).
+  if (dauVao.session_id && phienDaBiet(thuMuc).has(dauVao.session_id)) return 'phien-da-ban-giao';
   const wt = hv.day.find((d) => d.id === id).worktree;
   const luc = new Date(bayGio(nowMs)).toISOString();
   const dau = { day: id, phien: dauVao.session_id ?? null, luc, loi: 'rate_limit', wip: null, luot_do: false };

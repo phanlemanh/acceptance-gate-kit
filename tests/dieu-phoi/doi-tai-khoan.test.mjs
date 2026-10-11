@@ -706,7 +706,7 @@ const MA_TRAN_TT = [
     const ls = tepLichSu(k.dot);
     if (ls.length !== 1) return false;
     const h = docJ(path.join(k.dot, 'ban-giao', 'lich-su', ls[0]));
-    const { trang_thai: _t, tiep_tuc_luc: _l, tiep_tuc_boi: boi, dau, ...con } = h;
+    const { trang_thai: _t, tiep_tuc_luc: _l, tiep_tuc_boi: boi, dau, phien_da_biet: _pdb, ...con } = h;
     const { trang_thai: _t2, ...cu } = bgCu;
     return JSON.stringify(con) === JSON.stringify(cu) && h.trang_thai === 'da-tiep-tuc' && boi === 'B' && dau.some((x) => x.day === 'P1')
       && !fs.existsSync(path.join(k.dot, 'ban-giao.json')) && !(fs.existsSync(path.join(k.dot, 'ban-giao', 'dau')) && fs.readdirSync(path.join(k.dot, 'ban-giao', 'dau')).length)
@@ -820,7 +820,7 @@ test('DP4-08-do bo-loai', async () => {
   fs.cpSync(GOI, sao, { recursive: true });
   const p = path.join(sao, 'scripts', 'tiep-tuc.mjs');
   const goc = fs.readFileSync(p, 'utf8');
-  const tiem = goc.replace('nhipMoiNhatCua(thuMuc, d.worktree, { boQua: phienCu })', 'nhipMoiNhatCua(thuMuc, d.worktree)');
+  const tiem = goc.replace('nhipMoiNhatCua(thuMuc, d.worktree, { boQua: phienCu, denLuc: moc })', 'nhipMoiNhatCua(thuMuc, d.worktree)');
   assert.notEqual(tiem, goc, 'bước tiêm không áp được');
   fs.writeFileSync(p, tiem);
   const k = await dotPhienCu(sao);
@@ -1133,4 +1133,77 @@ test('DP4-15-do doi-cau-6', () => {
   const loi = kiemNhanhDp0(hd, tiem);
   console.log(`  bản tiêm (câu 6 → ${moi}): ${loi.join(' | ')}`);
   assert.ok(loi.some((l) => l.startsWith('câu 6')), loi.join(' | '));
+});
+
+// ---------- Vòng sửa sau review (C1, I1): vòng đời dấu «thợ chết vì hạn mức» và phiên đã bàn giao ----------
+const ghiDau = (dot, day, phien, luc) => ghiJ(path.join(dot, 'ban-giao', 'dau', `${day}.json`), { day, phien, luc: ISO(luc), loi: 'rate_limit', wip: null, luot_do: false });
+const chamCua = (dot) => suKienCua(dot).filter((e) => e.loai === 'cham-han-muc');
+
+test('DP4-03 dau-cho-dat-lai', async () => {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
+  const k = khoLienKet();
+  datNhanLuc(k.dot, ISO(T - 60 * PHUT));
+  docVao(k.kho, { nam: [99, 30] });
+  ghiDau(k.dot, 'P1', 's-p1', T - PHUT);
+  for (let i = 0; i < 4; i++) await motNhip(k.dot, T + i * 5000);
+  console.log(`  4 nhịp khi đang chờ đặt lại: ${chamCua(k.dot).length} cham-han-muc · pha ${dk(k.dot).pha}`);
+  assert.equal(chamCua(k.dot).length, 0, 'đang chờ đặt lại thì dấu không phát cham-han-muc');
+  assert.equal(dk(k.dot).pha, 'dang-chay');
+});
+
+test('DP4-03 dau-sau-dat-lai', async () => {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
+  const k = khoLienKet();
+  datNhanLuc(k.dot, ISO(T - 120 * PHUT));
+  ghiDau(k.dot, 'P1', 's-p1', T - 60 * PHUT);
+  docVao(k.kho, { nam: [4, 300] });
+  await motNhip(k.dot, T);
+  console.log(`  dấu cũ + lần đọc mới 4 %: pha ${dk(k.dot).pha} · ${chamCua(k.dot).length} cham-han-muc`);
+  assert.equal(dk(k.dot).pha, 'dang-chay', 'lần đọc mới hơn dấu dưới ngưỡng báo trước → dấu hết hiệu lực');
+  assert.equal(chamCua(k.dot).length, 0);
+  ghiDau(k.dot, 'P2', 's-p2', T + PHUT);
+  await motNhip(k.dot, T + 2 * PHUT);
+  assert.equal(dk(k.dot).pha, 'dang-ban-giao', 'đối chứng: dấu mới hơn lần đọc vẫn kéo vào bàn giao');
+});
+
+test('DP4-07 dau-phien-cu', async () => {
+  const k = await hangTiepTuc({ pha: 'cho-tiep-tuc' });
+  chayHook('PostToolUse', { session_id: 's-p1' }, { cwd: k.w1, nowMs: T + 3 * PHUT });
+  assert.equal(tiepTucB(k).ma, 0);
+  assert.equal(dk(k.dot).pha, 'dang-chay');
+  const ls = docJ(path.join(k.dot, 'ban-giao', 'lich-su', tepLichSu(k.dot)[0]));
+  assert.ok((ls.phien_da_biet ?? []).includes('s-p1'), `lịch sử phải ghi phien_da_biet: ${JSON.stringify(ls.phien_da_biet)}`);
+  ghiDau(k.dot, 'P1', 's-p1', T + 20 * PHUT);
+  await motNhip(k.dot, T + 21 * PHUT);
+  assert.equal(dk(k.dot).pha, 'dang-chay', 'dấu của phiên tài khoản cũ sau khi tiếp tục không kéo đợt vào bàn giao');
+  fs.rmSync(path.join(k.dot, 'ban-giao', 'dau'), { recursive: true, force: true });
+  fs.writeFileSync(path.join(k.w1, 'cua-tho-moi.txt'), 'việc của thợ mới');
+  const dinh = git(k.w1, 'rev-parse', 'HEAD');
+  const r = chayHook('StopFailure', { session_id: 's-p1', error: 'rate_limit' }, { cwd: k.w1, nowMs: T + 22 * PHUT });
+  assert.equal(r.status, 0);
+  assert.equal(git(k.w1, 'rev-parse', 'HEAD'), dinh, 'phiên tài khoản cũ chết sau khi tiếp tục không commit việc của thợ mới');
+});
+
+test('DP4-08 tho-chet', async () => {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
+  const k = khoLienKet();
+  chayHook('PostToolUse', { session_id: 's-p2' }, { cwd: k.w2, nowMs: T + 30_000 });
+  assert.equal(chayCli(k.kho, ['ban-giao', '--ly-do', 'thu'], { env: envGio(T) }).ma, 0);
+  assert.equal(chayCli(k.w1, ['ban-giao-xong'], { env: envGio(T + PHUT) }).ma, 0);
+  ghiDau(k.dot, 'P2', 's-p2', T + 2 * PHUT);
+  const p2 = (await nap(GOI, 'tiep-tuc.mjs')).keHoachDay(k.dot, { nowMs: T + 4 * PHUT }).find((x) => x.day === 'P2');
+  console.log(`  P2 (thợ chết vì hạn mức, nhịp 3′): ${p2.hanh_dong}`);
+  assert.equal(p2.hanh_dong, 'mo-chip', 'dãy có dấu thợ chết: phiên chết không tính là phiên sống');
+});
+
+test('DP4-08 het-han', async () => {
+  const k = await dotPhienCu();
+  docB(k.kho, 30, T + 6 * PHUT);
+  const r = chayCli(k.kho, ['tiep-tuc', '--phien', 'B', '--json'], { env: envGio(T + 7 * PHUT) });
+  chayCli(k.kho, ['dung']);
+  assert.equal(r.ma, 0, r.err);
+  chayHook('PostToolUse', { session_id: 's-cu' }, { cwd: k.w1, nowMs: T + 9 * PHUT });
+  const p1 = (await nap(GOI, 'tiep-tuc.mjs')).keHoachDay(k.dot, { nowMs: T + 10 * PHUT }).find((x) => x.day === 'P1');
+  console.log(`  P1 sau khi tiếp tục, phiên cũ s-cu có nhịp MỚI: ${p1.hanh_dong}`);
+  assert.equal(p1.hanh_dong, 'khong', 'nhịp ghi SAU lúc tiếp tục nghĩa là phiên sống lại thật');
 });
