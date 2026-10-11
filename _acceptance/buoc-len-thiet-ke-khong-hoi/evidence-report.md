@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: buoc-len-thiet-ke-khong-hoi
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: c79d35b218934a905302a1d60bcef4358c5a686a
-human_signoff:
+human_signoff: Manh Phan 2026-10-11
 ---
 
 # Evidence Report: buoc-len-thiet-ke-khong-hoi
@@ -111,7 +111,7 @@ Round 2. Mọi eval máy xanh, mọi lệnh suite hồi quy xanh, E9 mang từ r
   run_id: minted-buoc-len-thiet-ke-khong-hoi-E9-r1
   exit_code: 0
   baseline: n-a
-  verifier: config:executors.ui-check
+  verifier: tests/scripts/can-cu-s1.ca.mjs
   verified_at: 2026-10-11T12:55:28Z
   carried_from_round: 1
   # carry-forward tu round 1 — delta khong cham paths cua eval
@@ -179,7 +179,7 @@ Hợp đồng T3: hội đồng chỉ đề xuất PASS cho cả hai eval, ngư�
     - domain-correctness: PASS — Tất cả các câu hỏi đều đúng trong SKILL.md và acceptance-card.md. S1 mục 1 cấm dừng xin duyệt thiết kế và cấm hỏi «làm ngay chứ?». Mục này xếp ba nguồn căn cứ kèm việc máy làm, nói «không trỏ được căn cứ thì là chỉ người có», và để khó-đảo luôn là câu hỏi. Danh sách dừng của Gate 1 có vế mới. Điểm vũ trang /goal dời về lời mời Cổng Đáng. Ý (4) soi đủ bốn kiểu dòng sổ máy đã quyết và xử lý P0 bằng dòng S1 mới mang supersedes. Khuôn DEC-LAT-GATE1 và lời dặn ghi trước khi soạn lại đều có. Bước 3 của acceptance-card.md truyền gốc nhánh khi sổ có dòng mang can_cu. Khối TRONG-DOT còn nguyên lời dặn và không mâu thuẫn với luật mới.
     - operational-feasibility: PASS — Mọi câu đều đúng trên SKILL.md và commands/acceptance-card.md. S1 mục 1 cấm dừng xin duyệt thiết kế và cấm hỏi «làm ngay chứ?». Ba nguồn căn cứ kèm việc máy làm, quy tắc «không trỏ được thì là chỉ người có» và khó-đảo luôn là câu hỏi đều có mặt. Danh sách dừng Gate 1 có vế mới, `/goal` đầu tiên dời về lời mời Cổng Đáng, ý (4) soi mọi dòng S1 và xử lý bằng dòng supersedes, `DEC-LAT-GATE1` có đủ trường và dặn ghi trước khi soạn lại, bước 3 của acceptance-card truyền gốc nhánh khi sổ có `can_cu`, khối TRONG-DOT còn đủ năm luật. Hai điểm nhỏ không làm sai câu nào: chỉ dẫn in `/goal` nằm ở S1 mục 1 chứ không ở khối S0-MO-O-THOAT; và «nguyên một byte» của TRONG-DOT chỉ xác nhận được qua nội dung hiện tại, không qua đối chiếu lịch sử, vì lượt chấm này không đọc diff.
     - spec-alignment: PASS — Mọi câu hỏi đều khớp khi đối chiếu SKILL.md với design §3.1, §3.5, §3.6, §3.8 và ô cơ hội. S1 mục 1 bỏ hẳn hỏi-đáp và «làm ngay chứ?», xếp ba nguồn căn cứ kèm việc máy làm, và cho «không trỏ được căn cứ thì là chỉ người có» cùng khó-đảo luôn là câu hỏi. Câu chỉ-người-biết được soạn nháp theo khuyến nghị rồi lên thẻ Cổng Phạm vi. Danh sách dừng Gate 1 có thêm vế sổ còn câu hỏi hoặc dòng đỏ. Điểm vũ trang /goal đầu tiên dời về lời mời Cổng Đáng. Ý (4) của gap-probe soi mọi dòng S1 máy đã quyết, P0 xử lý bằng dòng S1 mới mang supersedes. Có khối DEC-LAT-GATE1 (stage gate1, supersedes, decided_by) với lời dặn ghi trước khi soạn lại. Bước 3 của acceptance-card.md truyền gốc nhánh khi sổ có dòng mang can_cu. Khối TRONG-DOT còn nguyên lời dặn riêng. Vì đã chặn đọc diff, tôi không so từng byte của TRONG-DOT với bản gốc.
-  human_override:  # chi nguoi ghi
+  human_override: Manh Phan 2026-10-11 — Đạt
 
 - eval: E8
   judged_by: judge-subagent panel (fresh context)
@@ -188,7 +188,7 @@ Hợp đồng T3: hội đồng chỉ đề xuất PASS cho cả hai eval, ngư�
     - domain-correctness: PASS — GUIDE.md (mục Sổ quyết định) nêu ba giá trị nguon (muc-tieu, mot-loi, chi-nguoi) với trường đi kèm (tep+trich, loi_chet, khuyen+loi_khac), cờ kho_dao luôn là câu hỏi, dòng không khoá được đọc như đời trước kèm cờ vàng ở hợp đồng nháp, và ba khối trên thẻ Cổng Phạm vi cùng cờ đỏ. CONTEXT.md định nghĩa «Nguồn căn cứ» kèm _Avoid_ (lý do, căn cứ pháp lý). ADR 0022 nêu vì sao khoá này không trái ADR 0021 (con trỏ cho máy kiểm, ba câu người đọc giữ nguyên), chủ kho phê đích danh phần CỘNG ở Cổng Phạm vi theo ADR 0018, và đường đảo (ngừng ghi khoá, bộ đọc coi dòng không khoá là đời trước, không đỏ).
     - operational-feasibility: PASS — GUIDE.md (dòng 325–345) nêu đủ ba nguồn `muc-tieu`/`mot-loi`/`chi-nguoi` với trường đi kèm, cờ `kho_dao: true` luôn là câu hỏi, dòng không khoá là đời trước, và thẻ Cổng Phạm vi hiện ba khối cho từng lớp. CONTEXT.md (dòng 341–347) định nghĩa «Nguồn căn cứ» kèm `_Avoid_`. ADR 0022 giải thích vì sao không trái ADR 0021 (khoá cho máy kiểm, không phải câu thứ tư cho người đọc), ghi chủ kho phê phần CỘNG ở Cổng Phạm vi theo ADR 0018, và nêu đường đảo (ngừng ghi khoá, bộ đọc coi dòng không khoá là đời trước, không đỏ). Chỉ có hai chỗ nhỏ không đủ để đổi verdict. GUIDE nói thẻ của hợp đồng nháp có thêm một cờ vàng cho dòng cũ, còn ADR nói «thẻ in như trước». Cú pháp một dòng chính xác nằm ở khuôn `DEC-CAN-CU-SLOT` trong SKILL, ngoài danh sách input, và GUIDE chủ ý trỏ tới đó thay vì chép lại.
     - spec-alignment: PASS — GUIDE.md mục «Sổ quyết định» ghi đủ khoá `can_cu` cho ba nguồn (`muc-tieu` với `tep`+`trich`, `mot-loi` với `loi_chet`, `chi-nguoi` với `khuyen`+`loi_khac`), cờ `kho_dao` luôn là câu hỏi, dòng không khoá là đời trước (đọc như cũ, hợp đồng nháp có thêm cờ vàng), và ba khối trên thẻ Cổng Phạm vi. CONTEXT.md có định nghĩa «Nguồn căn cứ» kèm `_Avoid_` (lý do, căn cứ pháp lý). ADR 0022 nói rõ vì sao không trái 0021 (con trỏ cho máy kiểm, không phải câu thứ tư cho người đọc), chủ kho phê CỘNG đích danh ở Cổng Phạm vi (ADR 0018), và đường đảo (ngừng ghi khoá, bộ đọc coi dòng không khoá là đời trước, không đỏ).
-  human_override:  # chi nguoi ghi
+  human_override: Manh Phan 2026-10-11 — Đạt
 
 ## Known limits
 

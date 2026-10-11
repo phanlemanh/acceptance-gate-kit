@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T3               # theo hàng A2 + lời giao (Gate 1.5); đường tệp: SKILL feature-loop (S1 + mục sổ) + scripts/can-cu-s1.cjs (mới) + scripts/gate-card.js + test + tài liệu — không chạm lib/**, hooks/**, cổng chặn gộp (máy suy T2, không tự đổi)
 surfaces: [cli, docs, ui]
 design_doc: docs/superpowers/specs/2026-10-11-buoc-len-thiet-ke-khong-hoi-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-11T10:17:27Z
 ---
@@ -85,3 +85,15 @@ Architecture Decision Records — Nygard]` cho «quyết định + căn cứ + h
   đã quyết; ngưỡng: ≥ 1 dòng máy đã quyết chạm khó-đảo bị lật ở Cổng Phạm vi.
 - Lệnh dựng thẻ truyền gốc nhánh khi sổ bước thiết kế có dòng mang `can_cu` (`commands/acceptance-card.md`
   bước 3); không truyền thì thẻ nháp có cờ vàng, không im.
+- Known limits (Cổng Bằng chứng 11/10, Ngoài-4): công cụ đo `do-11-10/s1_hoi.py` không áp mốc đóng
+  «nghỉ» khi khoảng nghỉ vắt qua ranh tháng, nên số đếm 22/09–11/10 có thể lẫn tin nhắn tháng 10 vào lượt
+  thiết kế cũ. Công cụ nằm trong hồ sơ, không giao cho kho khách.
+- Known limits (Ngoài-5): ca CC-05 khong-goc chỉ kiểm «không có cờ đỏ» trên một bộ thử không có ứng viên
+  đỏ. Chưa có phép thử chứng rằng thiếu gốc nhánh thì máy bỏ qua việc soi câu trích sinh trong vòng.
+- Known limits (Ngoài-6): ca CC-06 the-cu soi khối câu hỏi trên hồ sơ không thể có câu hỏi. Chưa có phép
+  thử cho hồ sơ đã ký mà vẫn còn câu chỉ-người-biết.
+- Known limits (Ngoài-7): ca CC-04-do khai «mọi mã luật đỏ» nhưng không so danh sách ca với `LY_DO`. Thêm
+  luật đỏ mới thì bộ kiểm không tự đòi ca; hôm nay mọi luật đang có đều có ca.
+- Known limits (Ngoài-8): ca CC-07 chỉ kiểm hai trong tám con số của bản in chữ của bộ đếm.
+- Ngoài-1, Ngoài-2, Ngoài-3 (chủ kho chọn «mở hợp đồng mới»): ghi hạt giống
+  `docs/plans/2026-10-11-hat-giong-can-cu-s1-o-kho-khach.md` — một hợp đồng, nên gộp trước mốc kế.
