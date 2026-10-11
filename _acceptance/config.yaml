@@ -77,6 +77,8 @@ executors:
     dieu_phoi_dp7: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[127]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ dieu-phoi-tiep-tuc-mot-lenh: như khoá `dieu_phoi_dp2` nhưng ghim cả «ok … DP3-».
     dieu_phoi_dp3: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[123]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ dieu-phoi-doi-tai-khoan: như khoá `dieu_phoi_dp3` nhưng ghim cả «ok … DP4-».
+    dieu_phoi_dp4: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[1234]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
@@ -659,8 +661,16 @@ executors:
     lsgd_ac10: LSGD_CASES=AC-10 node tests/scripts/luot-sua-giu-du.test.mjs
     lsgd_ac11: LSGD_CASES=AC-11 node tests/scripts/luot-sua-giu-du.test.mjs
     lsgd_ac12: LSGD_CASES=AC-12 node tests/workflows/luot-sua-giu-du.test.mjs
+    # Hồ sơ ten-ca-qua-tien-to-turbo — tên ca chập chờn qua tiền tố turbo (tên ca = tên AC).
+    tctt_ac1: GG_CASES=AC-1 node tests/scripts/ten-ca-qua-tien-to.test.mjs
+    tctt_ac2: GG_CASES=AC-2 node tests/scripts/ten-ca-qua-tien-to.test.mjs
+    tctt_ac3: GG_CASES=AC-3 node tests/scripts/ten-ca-qua-tien-to.test.mjs
+    tctt_ac4: GG_CASES=AC-4 node tests/scripts/ten-ca-qua-tien-to.test.mjs
     dieu_phoi_ci: node tests/dieu-phoi/chay-buoc-ci.mjs
     dieu_phoi_validate: node tests/dieu-phoi/kiem-validate.mjs
+    # Hồ sơ dieu-phoi-doi-tai-khoan (AC-12, AC-13): plugin test + round-trip mod → CLI + validate đối chiếu bảng MOD-SU-KIEN.
+    # Cần Claude Code có lệnh `test` trên máy (CI không có) — chạy ở lượt chấm, như dieu_phoi_validate.
+    dieu_phoi_mod: node tests/dieu-phoi/kiem-mod.mjs
     # Chiều im của dieu-phoi-feature-loop-trong-dot (AC-9): so với merge-base HEAD origin/main.
     dieu_phoi_dp7_im: node tests/dieu-phoi/dp7-chieu-im.mjs
 risk_tiers:

@@ -338,6 +338,14 @@ rủi ro tại Gate 1; W5 nhắc khi thiếu.
 Xuất hiện trong output pre-merge dưới dạng `theo ledger <id>` và trong
 `gate-card.js` dưới khoá `ledger.broken`.
 
+**Nguồn căn cứ**:
+Chỗ một lựa chọn ở bước thiết kế dựa vào: mục tiêu + quy tắc đã khai (trỏ được tệp +
+câu trích có từ trước vòng) · chỉ một lối ra sống (các lối khác chết vì ràng buộc nêu
+được) · chỉ người có (gu, nghĩa sản phẩm, đánh đổi giá trị, khẩu vị rủi ro). Hai nguồn
+đầu máy quyết và ghi sổ; nguồn thứ ba và mọi lựa chọn khó-đảo là câu hỏi trên thẻ Cổng
+Phạm vi. Ghi bằng khoá `can_cu` của dòng sổ S1 (ADR 0022).
+_Avoid_: lý do (quá rộng — mọi dòng sổ có `why`), căn cứ pháp lý
+
 **Sổ luật-đã-chạy (rules ledger)**:
 Kế toán trong `pre-merge-check.sh`: mỗi khối luật ghi `ran <tên>` hoặc
 `declared-off <tên>` qua `ledger_mark`, so với EXPECTED ở điểm nghẽn trước khi
@@ -475,6 +483,14 @@ lại sau 30″). Một dãy «có phiên sống» khi có nhịp mới hơn 10�
 `/dieu-phoi:tiep-tuc` xét thêm khoá, tệp chờ người, và đợt chưa có nhịp nào thì không mở chip.
 _Avoid_: heartbeat, «phiên còn sống» khi chỉ có nhịp (nói «có nhịp sống»), dùng danh sách phiên của app
 để biết phiên sống (danh sách tách theo tài khoản).
+
+**Bàn giao tài khoản**:
+Dừng đợt ở ranh giới trước khi đổi tài khoản Claude: bộ phát lịch ngừng cấp lượt (pha `dang-ban-giao`), mỗi
+thợ commit WIP và báo xong (`ban-giao-xong`), máy dựng `ban-giao.json` từ git và thư mục đợt rồi chuyển sang
+`cho-tiep-tuc`; tài khoản kia nối lại bằng `/dieu-phoi:tiep-tuc`. Kích hoạt bằng lệnh `/dieu-phoi:ban-giao`
+hoặc tự động khi mức dùng chạm ngưỡng `han_muc` của đợt.
+_Avoid_: «vật tạo ra bàn giao» (sáu thứ vật tự phát ra — nghĩa khác, CLAUDE.md), «handover» khi nói về một vòng
+feature-loop, «tạm dừng» (pha khác — chữ của người).
 
 **Bảng đợt**:
 Trang `bang.html` trong thư mục đợt — cùng một hàm mô hình (`mo-hinh.mjs`) với

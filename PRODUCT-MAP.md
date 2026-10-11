@@ -12,8 +12,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>107 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>16 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>109 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>17 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
 
@@ -49,6 +49,7 @@ flowchart TD
 
 ## Đã giao — chờ phiên nghiệm thu
 
+- Bước lên thiết kế không dừng hỏi người — lựa chọn có căn cứ máy tự quyết và ghi sổ kèm căn cứ, câu chỉ người biết hoặc khó-đảo lên thẻ Cổng Phạm vi thành câu hỏi, và máy tự quyết một câu chỉ-người-biết thì đỏ (`buoc-len-thiet-ke-khong-hoi`)
 - Lượt chấm không tự đốt lượt — mã thoát máy đọc từ dấu, lượt chặn vì hạ tầng mang nhãn hạ tầng và thử lại cùng round, verified_commit từ máy; thẻ Cổng Phạm vi hiện đủ «sẽ không làm» và mọi bảng phản biện; bảng chi phí S4 tách theo khối; ảnh ui-check neo trong hồ sơ (`cham-khong-tu-dot-luot`)
 - Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết) (`dac-ta-ux-vat-hoa-cau-truc`)
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)
@@ -79,6 +80,7 @@ flowchart TD
 - Cổng Đáng có cửa — thẻ cổng thứ ba + ký một lượt bằng lệnh duyệt sẵn có (`cong-dang-co-cua`) — đã giao — đã nghỉ, giữ sử liệu
 - Cổng người đọc đủ nguồn — thẻ đọc được tiêu chí khai bằng tiêu đề, ba bên gọi cùng một bộ bóc, mục Coverage viết bằng bảng thôi bị báo thiếu oan (`cong-nguoi-doc-du-nguon`)
 - Chữ ký người ở Cổng Bằng chứng đóng cửa veto — lưới trước-merge và máy quét /start thôi nói «owner chưa veto» về hồ sơ người đã ký (`cua-veto-sau-chu-ky`) — đã giao — đã nghỉ, giữ sử liệu
+- Đổi tài khoản giữa đợt Điều phối – Thợ không mất việc — đọc mức dùng (CLI han-muc, mod đọc mức dùng), báo trước và tự bàn giao theo ngưỡng, hai pha ★, lệnh /dieu-phoi:ban-giao, ban-giao.json dựng từ git, tiếp tục dưới tài khoản kia bằng một lệnh, lưới cuối StopFailure, răng an toàn của lớp mod (`dieu-phoi-doi-tai-khoan`)
 - Gói `dieu-phoi` của kit — lõi Điều phối – Thợ (bộ phát lịch, CLI đợt, 4 hook) chuyển từ crm vào kit, bật bằng cách cài gói theo kho, im ở kho không có đợt, chạy tiếp được đợt do bản crm mở (`dieu-phoi-dong-goi-loi`)
 - Phiên thợ biết mình đang trong đợt — feature-loop nhận biết đợt bằng một lệnh chỉ đọc, chờ lượt S4 không thành câu hỏi, xong hàng thì tự mở hàng kế của dãy, quyền merge theo thẻ khởi tạo; kho không có đợt không đổi byte nào (`dieu-phoi-feature-loop-trong-dot`)
 - Mở và đóng một đợt Điều phối – Thợ bằng một lệnh (`/dieu-phoi:mo-dot`, `/dieu-phoi:dong-dot`, `/dieu-phoi:xem`) — vòng đời đợt, đổi kế hoạch trong đợt, nguồn hàng từ lộ trình, khoá S4 cấp máy, start biết đợt, lệnh đếm đợt (`dieu-phoi-mo-dot-mot-lenh`)
@@ -166,6 +168,7 @@ flowchart TD
 - Vòng lặp biết tự nhận ra khi cách sửa sai khuôn — vòng thứ hai còn sinh lỗi cùng loại thì dừng và hỏi người, thay vì chạy tiếp vòng ba rồi hỏng cùng kiểu (`stop-patching-law`)
 - Lệnh suite phải sinh dòng sổ chạy — không thì mọi vòng đỏ đối chiếu sau khi ký (`suite-run-log-provenance`)
 - Tách phạm vi răng T1-escape khỏi phạm vi diff (cờ opt-out + thứ tự bump version) (`t1-escape-event-scope`)
+- Tên ca chập chờn đọc được qua tiền tố của bộ chạy monorepo — dòng pin chap_chon gọi đúng tên ca khi suite chạy qua turbo (`ten-ca-qua-tien-to-turbo`)
 - thước biết trước là không phán được — chặn eval judgment hỏi diff/lệnh ở bước sinh args S4, chọn người chấm theo từng vế (`thuoc-biet-truoc-khong-phan-duoc`)
 - Thước có cửa — đổi thước trong vòng có tên, có đếm, có trần như «Ngoài hợp đồng» đã có; thêm trục đỉnh-có-sẵn ở S0 (vật trước vòng · tiền đề tách khỏi tiêu chí) để giá trị mới trên vật có sẵn không thành vòng sửa thước mặc áo hợp đồng vật (`thuoc-co-cua`) — đã giao — đã nghỉ, giữ sử liệu
 - Hai thước tự khai một đằng đo một nẻo — răng lane có chiều đỏ sống trên cây hôm nay, và P86 so quan hệ ngân sách thay vì hỏi chữ số có mặt (`thuoc-khai-mot-dang-do-mot-neo`) — đã giao — đã nghỉ, giữ sử liệu

@@ -1528,7 +1528,7 @@ PY
 # Ho so vu-trang-goal-luc-goi-ten (03/09). DO CHI DAN, khong do dau ra (khai thang —
 # lop findings 02/09): moi ve mot grep neo chu tren SKILL/GUIDE; dot bien xoa mot
 # ve trong ban sao (bo nho) -> phai do DICH DANH ve do. Dau ra that do o ba dong so.
-run "P85b GOAL-ARM: S1 moi cau xin duyet kem GOAL-TEMPLATE · S1#5 khong phai cong · S1#7 dong bo · Gate 1 giu · GATE 1.5 kem /goal · bat bien dung goi ten bao-roi-ngung · GUIDE ba thoi diem (do chi dan)" \
+run "P85b GOAL-ARM: S1 khong hoi giua chung, Cong Dang vu trang /goal · S1#5 khong phai cong · S1#7 dong bo · Gate 1 giu · GATE 1.5 kem /goal · bat bien dung goi ten bao-roi-ngung · GUIDE ba thoi diem (do chi dan)" \
   python3 - "$ROOT" <<'PY'
 import sys
 from pathlib import Path
@@ -1538,9 +1538,9 @@ guide = (root / "GUIDE.md").read_text(encoding="utf-8")
 card = (root / "commands/acceptance-card.md").read_text(encoding="utf-8")
 # (ten ve, van ban, chuoi neo) — chuoi neo la CAU, khong phai tu khoa roi.
 VE = [
-  ("S1#1 moi cau xin duyet kem khoi", "skill", "Mỗi câu XIN DUYỆT thiết kế** của brainstorm"),
+  ("S1#1 khong hoi giua buoc thiet ke", "skill", "KHÔNG dừng xin duyệt thiết kế, KHÔNG hỏi «làm ngay chứ?»"),
   ("S1#1 tro dich danh GOAL-TEMPLATE", "skill", "in kèm khối `GOAL-TEMPLATE`"),
-  ("S1#1 ca brainstorm khong hoi -> chua phu", "skill", "Brainstorm không hỏi gì thì không có lượt để vũ trang"),
+  ("S1#1 vong mo tu cau mo ta khong can vu trang", "skill", "vòng mở từ một câu mô tả chạy S0 tới Cổng Phạm vi trong cùng lượt nên không cần vũ trang"),
   ("S1#5 dong goal KHONG phai mot cong", "skill", "KHÔNG phải một cổng — nó đi cùng câu trả lời"),
   ("S1#7 gap-probe DONG BO", "skill", "dispatch ĐỒNG BỘ (chờ trong lượt, KHÔNG nền)"),
   ("Gate 1 giu lenh in", "skill", "IN NGUYÊN VĂN khối GOAL-TEMPLATE"),
@@ -1549,7 +1549,7 @@ VE = [
   ("bat bien dung: bao-roi-ngung la dung ngoai thiet ke", "skill", "«báo cáo rồi ngừng nói» là một lần dừng ngoài thiết kế"),
   ("GUIDE: ba thoi diem", "guide", "**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:**"),
   ("GUIDE: lan V T2 khong cham UI", "guide", "**Làn V T2 không chạm UI:**"),
-  ("GUIDE: brainstorm khong hoi -> chua phu", "guide", "**Brainstorm không hỏi gì**"),
+  ("GUIDE: vong mo tu cau mo ta", "guide", "**Vòng mở từ một câu mô tả**"),
   ("GUIDE: ba ban P85", "guide", "ba bản được test P85 giữ khớp"),
   ("acceptance-card.md ben DOC: khoa goal_line + IN NGUYEN VAN", "card", "- `goal_line` (Cổng 1, từ 2.8)"),
   ("acceptance-card.md ben DOC: cau dan sau khi tra loi", "card", "sau khi trả lời (duyệt hay sửa), dán dòng này để"),
@@ -1572,10 +1572,10 @@ def sec(text, start, end):
 S1 = sec(skill, "## S1 — DESIGN", "## GATE 1"); GATE1 = sec(skill, "## GATE 1", "## S2"); S2 = sec(skill, "## S2", "## S3")
 BB = skill[:skill.index("## State machine")]
 GOALSEC = sec(guide, "## Chạy không-người-trông đoạn máy với /goal", "\n## ")
-VI_TRI = {"S1#1 moi cau xin duyet kem khoi": S1, "S1#1 tro dich danh GOAL-TEMPLATE": S1, "S1#1 ca brainstorm khong hoi -> chua phu": S1,
+VI_TRI = {"S1#1 khong hoi giua buoc thiet ke": S1, "S1#1 tro dich danh GOAL-TEMPLATE": S1, "S1#1 vong mo tu cau mo ta khong can vu trang": S1,
           "S1#5 dong goal KHONG phai mot cong": S1, "S1#7 gap-probe DONG BO": S1, "Gate 1 giu lenh in": GATE1, "GATE 1.5 kem /goal": S2,
           "bat bien dung: tien trinh nen bao xong -> di tiep cung luot": BB, "bat bien dung: bao-roi-ngung la dung ngoai thiet ke": BB,
-          "GUIDE: ba thoi diem": GOALSEC, "GUIDE: lan V T2 khong cham UI": GOALSEC, "GUIDE: brainstorm khong hoi -> chua phu": GOALSEC, "GUIDE: ba ban P85": GOALSEC}
+          "GUIDE: ba thoi diem": GOALSEC, "GUIDE: lan V T2 khong cham UI": GOALSEC, "GUIDE: vong mo tu cau mo ta": GOALSEC, "GUIDE: ba ban P85": GOALSEC}
 for name, which, needle in VE:
     if name in VI_TRI:
         assert needle in VI_TRI[name], f"ve [{name}] khong nam trong muc dung cho — chi thay o noi khac"
