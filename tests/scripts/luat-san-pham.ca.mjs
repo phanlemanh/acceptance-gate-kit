@@ -453,5 +453,93 @@ if (want('LS-11')) {
   });
 }
 
+// ── LS-02: kho không khai luật → thẻ (HTML + bản rút) và khong-can-nguoi giống từng byte bản ở gốc vòng ──
+// Gốc vòng đọc từ Notes của hợp đồng; hồ sơ của vòng đã ký → ca không so (vòng sau đổi thẻ hợp lệ). Kho crm
+// theo LS_CRM_ROOT (vắng → «crm=vang» có tên). Kho có tệp luật → bỏ kho đó (vi phân chỉ định nghĩa cho kho không tệp).
+const HD_VONG = path.join(ROOT, '_acceptance', 'bat-bien-san-pham', 'contract.md');
+function dungGoc(gocSha) {
+  const d = tam('lsp-goc-');
+  execFileSync('bash', ['-c', 'git -C "$1" archive "$2" scripts lib skills | tar -x -C "$3"', 'x', ROOT, gocSha, d]);   // trọn thư mục, không danh sách tay
+  return d;
+}
+function soKho(kho, gcGoc, kcnGoc, gcMoi, kcnMoi) {
+  const ds = readdirSync(path.join(kho, '_acceptance')).filter(n => existsSync(path.join(kho, '_acceptance', n, 'contract.md'))).sort();
+  const lech = [];
+  const chay = (bin, a) => { const p = spawnSync(process.execPath, [bin, ...a], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); return `${p.status}\n${p.stdout}`; };
+  for (const slug of ds) {
+    const a = ['--root', kho, '--slug', slug];
+    if (chay(gcGoc, a) !== chay(gcMoi, a)) { lech.push(`${slug} (thẻ)`); continue; }
+    const rg = chay(gcGoc, [...a, '--extract']), rm = chay(gcMoi, [...a, '--extract']);
+    if (rg !== rm) {
+      const tach = t => { const i = t.indexOf('\n'); return [t.slice(0, i), t.slice(i + 1)]; };
+      const [sg, jg] = tach(rg), [sm, jm] = tach(rm);
+      let ok = sg === sm;
+      try { const og = JSON.parse(jg), om = JSON.parse(jm); ok = ok && JSON.stringify(om.luat) === JSON.stringify({ co_tep: false }) && !('luat' in og); delete om.luat; ok = ok && JSON.stringify(og) === JSON.stringify(om); } catch (_) { ok = false; }
+      if (!ok) { lech.push(`${slug} (bản rút)`); continue; }
+    }
+    const st = (readFileSync(path.join(kho, '_acceptance', slug, 'contract.md'), 'utf8').match(/^status:\s*(\S+)/m) || [])[1];
+    if (st === 'verified' && chay(kcnGoc, ['--check', ...a]) !== chay(kcnMoi, ['--check', ...a])) lech.push(`${slug} (khong-can-nguoi)`);
+  }
+  return { n: ds.length, lech };
+}
+if (want('LS-02')) {
+  const hd = readFileSync(HD_VONG, 'utf8');
+  const st = (hd.match(/^status:\s*(\S+)/m) || [])[1];
+  if (['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'].includes(st)) console.log('  PASS: LS-02 da-ky (hồ sơ của vòng đã ký — không so)');
+  else {
+    const goc = (hd.match(/Commit gốc của vòng: `([0-9a-f]{7,40})`/) || [])[1];
+    check('LS-02 vi-phan', () => {
+      if (!goc) die('dòng «Commit gốc của vòng» ở Notes của hợp đồng vắng hoặc chưa ghi sha');
+      const d = dungGoc(goc);
+      const ra = [];
+      for (const [ten, kho] of [['kit', ROOT], ['crm', process.env.LS_CRM_ROOT || null]]) {
+        if (!kho) { ra.push(`${ten}=vang`); continue; }
+        if (existsSync(path.join(kho, 'PRODUCT-INVARIANTS.md'))) { ra.push(`${ten}=co-tep-luat(bo)`); continue; }
+        const r = soKho(kho, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), GC, KCN);
+        if (r.lech.length) die(`${ten}: ${r.lech.length}/${r.n} hồ sơ lệch — đầu tiên: ${r.lech[0]}`);
+        ra.push(`${ten}=${r.n}`);
+      }
+      console.log(`  PASS: LS-02 vi-phan ${ra.join(' ')}`); passed--;   // dòng PASS mang số — check() in thêm dòng tên ca
+    });
+    check('LS-02-do', () => {
+      if (!goc) die('không có gốc vòng');
+      const d = dungGoc(goc);
+      const nha = tam('lsp-nha-'); for (const t of ['scripts', 'lib', 'skills']) cpSync(path.join(ROOT, t), path.join(nha, t), { recursive: true });
+      const gcT = path.join(nha, 'scripts', 'gate-card.js'); const t = readFileSync(gcT, 'utf8');
+      const cu = "if (luatG2) { for (const [c, t] of luatG2.co)"; if (t.split(cu).length !== 2) die('mũi tiêm thẻ không áp');
+      writeFileSync(gcT, t.replace(cu, "P.push('<div class=\"lab\">Luật sản phẩm bị chạm</div>'); if (luatG2) { for (const [c, t] of luatG2.co)"));
+      const mau = readdirSync(path.join(ROOT, '_acceptance')).filter(n => existsSync(path.join(ROOT, '_acceptance', n, 'evidence-report.md'))).sort().slice(0, 3);
+      const k = tam('lsp-kho-'); mkdirSync(path.join(k, '_acceptance'));
+      for (const n of mau) cpSync(path.join(ROOT, '_acceptance', n), path.join(k, '_acceptance', n), { recursive: true });
+      cpSync(path.join(ROOT, '_acceptance', 'config.yaml'), path.join(k, '_acceptance', 'config.yaml'));
+      const r = soKho(k, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), gcT, path.join(nha, 'scripts', 'khong-can-nguoi.mjs'));
+      if (!r.lech.length) die('thẻ in khối luật vô điều kiện mà phép so không lệch hồ sơ nào');
+      const gocOK = soKho(k, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), GC, KCN);
+      if (gocOK.lech.length) die('đối chứng: bản lành trên cùng kho mẫu lại lệch — ' + gocOK.lech[0]);
+    });
+  }
+}
+
+// ── LS-09: lượt chấm gọi bộ soi luật ngay sau thuoc-vat (đoạn «Mọi verdict» của S4 trong SKILL) ────────
+function kiemNoiDay(skillText) {
+  const l = skillText.split('\n').find(x => x.includes('**Mọi verdict:**'));
+  if (!l) return 'không thấy đoạn «Mọi verdict» trong SKILL';
+  const i = l.search(/thuoc-vat\.mjs[^`]*--write/); if (i < 0) return 'đoạn «Mọi verdict» không có lệnh thuoc-vat --write';
+  const j = l.indexOf('luat-san-pham.cjs', i); if (j < 0) return 'thiếu lệnh luat-san-pham sau thuoc-vat';
+  const lenh = l.slice(j, l.indexOf('`', j));
+  if (!/--quet/.test(lenh) || !/--write/.test(lenh)) return 'lệnh luat-san-pham thiếu --quet hoặc --write: ' + lenh;
+  const m5 = l.indexOf('**Mã 5', i); if (m5 >= 0 && m5 < j) return 'lệnh luat-san-pham đứng sau câu mã thoát 5 — không ngay sau thuoc-vat';
+  return '';
+}
+if (want('LS-09')) {
+  const SK = readFileSync(SKILL, 'utf8');
+  check('LS-09 noi-day-s4', () => { const e = kiemNoiDay(SK); if (e) die(e); });
+  check('LS-09-do', () => {
+    const tiem = SK.replace(/ Kho có `PRODUCT-INVARIANTS\.md` → chạy tiếp `[^`]*luat-san-pham\.cjs[^`]*`[^.]*\./, '');
+    if (tiem === SK) die('mũi tiêm (xoá câu soi luật) không áp');
+    const e = kiemNoiDay(tiem); if (!e.includes('luat-san-pham')) die('xoá câu soi luật mà hàm kiểm không nêu luat-san-pham: ' + e);
+  });
+}
+
 console.log(`luat-san-pham.ca: ${passed} đạt, ${failed} trượt`);
 process.exit(failed ? 1 : 0);
