@@ -15,7 +15,7 @@ nguon: dựng lại từ lộ trình OKR và Kho tài liệu của crm ngày 11/
 - `K5` — Trang quy định có người phó duyệt, thang leo khi quá hạn và nhắc hạn xác minh lại
 - `K6` — Ban lãnh đạo gửi OKR quý cấp công ty trước khi phòng ban đặt OKR của mình, mỗi quý
 - `K7` — Sáng hôm sau ngày cập nhật, trưởng phòng mở bảng họp tuần và thấy tóm tắt tuần của phòng; câu nào cũng bấm ra cập nhật gốc
-- `K8` — Đào tạo từng bộ phận cách cập nhật tuần trong công cụ
+- `K8` — Quản trị chương trình đào tạo từng bộ phận cách cập nhật tuần trong công cụ
 - `K9` — Phòng ban bấm «Công bố» trên bộ OKR quý của mình trong công cụ và cả công ty xem được bản đã công bố
 - `K10` — Danh sách góp ý gom được trong hai tuần dùng thật được sửa trong một lượt
 - `K11` — Trưởng phòng ban công bố OKR quý 4 của phòng cho cả công ty

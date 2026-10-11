@@ -3229,14 +3229,15 @@ const TEN_V1 = 'Phòng ban dùng thật hai tuần';
 async function lt164(kit) {
   const sai = [];
   const goc = () => ({ hang: [HC('R1'), HC('R2')], moc: [MN('V1', { ten: TEN_V1 })], chan_troi: [] });
-  const DO = [['theo-ma', d => { d.hang[1].dung_tren = ['V1']; }],
-    ['theo-ten', d => { d.hang[1].dung_tren = [TEN_V1.normalize('NFD')]; }],
-    ['moc-cu-khong-dot', d => { d.moc.push({ ten: 'crm cài kit', ngay: '2026-10-15', loai: 'ngoai', ai: 'crm' }); d.hang[1].dung_tren = ['crm cài kit']; }]];
-  for (const [ten, bien] of DO) {
+  // [tên ca, biến đổi, nhãn mốc dòng cờ phải nêu — đúng đích dung_tren của hàng, không phải mốc ngoài nào khác]
+  const DO = [['theo-ma', d => { d.hang[1].dung_tren = ['V1']; }, 'V1'],
+    ['theo-ten', d => { d.hang[1].dung_tren = [TEN_V1.normalize('NFD')]; }, 'V1'],
+    ['moc-cu-khong-dot', d => { d.moc.push({ ten: 'crm cài kit', ngay: '2026-10-15', loai: 'ngoai', ai: 'crm' }); d.hang[1].dung_tren = ['crm cài kit']; }, 'crm cài kit']];
+  for (const [ten, bien, nhan] of DO) {
     const d = goc(); bien(d); const x = rang(kit, khoS3b(d));
     const c = dongCo(x, 'cho-van-hanh'); const kc = x.stdout.split('\n').filter(l => l.includes('hàng R2: đứng trên mã không có'));
-    if (x.status !== 1 || c.length !== 1 || !c[0].startsWith('lỗi: hàng R2 [cho-van-hanh]') || !c[0].includes('sinh dữ liệu giả') || !c[0].includes('chân trời') || kc.length)
-      sai.push(`${ten}: exit ${x.status}, cờ ${JSON.stringify(c)}, dòng mã không có ${kc.length}`);
+    if (x.status !== 1 || c.length !== 1 || !c[0].startsWith(`lỗi: hàng R2 [cho-van-hanh]: đứng chờ mốc vận hành «${nhan}» —`) || !c[0].includes('sinh dữ liệu giả') || !c[0].includes('chân trời') || kc.length)
+      sai.push(`${ten}: exit ${x.status}, cờ ${JSON.stringify(c)} (cần mốc «${nhan}»), dòng-mã-không-có=${kc.length}`);
   }
   const IM = [['moc-khong-ngoai', d => { d.moc.push({ ma: 'M9', ten: 'Phát hành 2.27', ngay: '2026-11-01', loai: 'phat-hanh' }); d.hang[1].dung_tren = ['M9']; },
       x => x.status === 1 && x.stdout.includes('hàng R2: đứng trên mã không có: M9')],
@@ -3253,7 +3254,8 @@ async function lt164(kit) {
 }
 if (want('LT-164') && await chayCa('LT-164', lt164)) ok('LT-164', 'ba ca đứng trên mốc ngoài (ma · ten NFD · mốc cũ không đợt) → một dòng [cho-van-hanh] hai lối, không dòng «mã không có»; ba đối chứng im; mã hàng thắng mã mốc');
 if (want('LT-164-do')) await chayDo('LT-164-do', lt164, [['scripts/cat-luot.mjs', '(chuoi(m.ma) === x || nfc(m.ten) === nfc(x))', '(chuoi(m.ma) === x)']], 'theo-ten', 'bản sao chỉ so ma của mốc');
-if (want('LT-164-do-kep')) await chayDo('LT-164-do-kep', lt164, [['scripts/cat-luot.mjs', 'if (!theoMa.has(x) && !laMocNgoai(x))', 'if (!theoMa.has(x))']], 'mã không có', 'bản sao vẫn in «đứng trên mã không có» cho mục trỏ mốc');
+if (want('LT-164-do-kep')) await chayDo('LT-164-do-kep', lt164, [['scripts/cat-luot.mjs', 'if (!theoMa.has(x) && !laMocNgoai(x))', 'if (!theoMa.has(x))']], 'dòng-mã-không-có=1', 'bản sao vẫn in «đứng trên mã không có» cho mục trỏ mốc');
+if (want('LT-164-do-nhan')) await chayDo('LT-164-do-nhan', lt164, [['scripts/cat-luot.mjs', '.map(x => mocNgoaiCua(moc, x)).filter(Boolean).map(nhanMoc)', '.map(x => mocNgoaiCua(moc, x)).filter(Boolean).map(() => nhanMoc(moc.find(laNgoai)))']], 'cần mốc «crm cài kit»', 'bản sao luôn nêu mốc ngoài đầu tiên');
 
 // LT-164 kho-tai-lieu: bản chụp lộ trình Kho tài liệu thật của crm (29/09), dựng thành đợt `ktl` bằng code.
 async function lt164ktl(kit) {
@@ -3340,16 +3342,18 @@ async function lt167(kit) {
     ngoai('G1', { du_lieu: 'gia' }), ngoai('G2', { du_lieu: 'gia', dung_tren: ['R1'] }), ngoai('S1', { du_lieu: 'that' }), ngoai('S2', { du_lieu: 7 })];
   const nen = [HC('R1'), HC('SG', { du_lieu: 'sinh-gia' })];
   const x = rang(kit, khoS3b({ hang: [...nen, ...NHOM], moc: [MN('V1')] }));
-  for (const co of ['cho-van-hanh', 'thieu-hang-sinh-gia', 'du-lieu-sai-gia-tri']) {
+  // [cờ, dòng gom viết sẵn — k và mã liệt rút từ NHOM đã dựng] (cờ 10 hàng kiểm riêng dưới).
+  for (const [co, mong] of [['thieu-hang-sinh-gia', 'cảnh báo: [thieu-hang-sinh-gia] 2 hàng ngoài đợt d1 — G1, G2'], ['du-lieu-sai-gia-tri', 'cảnh báo: [du-lieu-sai-gia-tri] 2 hàng ngoài đợt d1 — S1, S2'], ['cho-van-hanh', null]]) {
     const g = x.stdout.split('\n').filter(l => l.startsWith(`cảnh báo: [${co}]`));
-    if (g.length !== 1) sai.push(`[${co}]: ${g.length} dòng gom`);
+    if (g.length !== 1 || (mong && g[0] !== mong)) sai.push(`[${co}]: ${JSON.stringify(g)}${mong ? ` — cần «${mong}»` : ''}`);
   }
   const g10 = x.stdout.split('\n').find(l => l.startsWith('cảnh báo: [cho-van-hanh] 10 hàng ngoài đợt')) || '';
   if (!g10.endsWith(', …') || (g10.match(/C\d+/g) || []).length !== 8) sai.push(`dòng 10 hàng: «${g10}»`);
   if (x.status !== 0 || /^cảnh báo: hàng (C|G|S)\d+ \[/m.test(x.stdout)) sai.push(`ngoài đợt: exit ${x.status} hoặc in theo từng hàng — ${vangLoi(x).slice(0, 3).join(' | ')} — cần một dòng mỗi cờ`);
   const vao = NHOM.map(r => ({ ...r, dot: 'd1' }));
   const y = rang(kit, khoS3b({ hang: [...nen, ...vao], moc: [MN('V1')] }));
-  if (y.status !== 1) sai.push(`vào đợt: exit ${y.status}`);
+  const loiVao = new Set(dongLoiS(y).map(l => (l.match(/^lỗi: hàng (\S+) \[(cho-van-hanh|thieu-hang-sinh-gia|du-lieu-sai-gia-tri)\]/) || [])[1]).filter(Boolean));
+  if (y.status !== 1 || !NHOM.every(r => loiVao.has(r.ma))) sai.push(`vào đợt: exit ${y.status}, hàng mang cờ lỗi ${[...loiVao].length}/${NHOM.length}`);
   // Đối chứng im: hàng ngoài đợt KHÔNG mang trường mới.
   const im = Array.from({ length: 10 }, (_, i) => ngoai(`K${i + 1}`, {}));
   const z = rang(kit, khoS3b({ hang: [...nen, ...im], moc: [MN('V1')] }));
@@ -3358,6 +3362,7 @@ async function lt167(kit) {
   return sai;
 }
 if (want('LT-167') && await chayCa('LT-167', lt167)) ok('LT-167', 'ba cờ ở 14 hàng ngoài đợt → thoát 0, một dòng gom mỗi cờ, 10 hàng liệt 8 mã rồi «…»; vào đợt → thoát 1; hàng ngoài đợt không trường mới im');
+if (want('LT-167-do-gom')) await chayDo('LT-167-do-gom', lt167, [['scripts/cat-luot.mjs', 'for (const [co] of coS3b(r)) if (!CO_CHI_TRONG_DOT.has(co)) { if (!gom.has(co)) gom.set(co, []); gom.get(co).push(nhan); }', 'for (const [co] of coS3b(r)) if (!CO_CHI_TRONG_DOT.has(co)) { if (!gom.has(co)) gom.set(co, []); if (nhan !== \'G2\') gom.get(co).push(nhan); }']], 'G1, G2', 'bản sao gom sót một hàng');
 if (want('LT-167-do')) await chayDo('LT-167-do', lt167, [['scripts/cat-luot.mjs', 'for (const [co] of coS3b(r)) if (!CO_CHI_TRONG_DOT.has(co)) { if (!gom.has(co)) gom.set(co, []); gom.get(co).push(nhan); }', 'for (const [co, cau] of coS3b(r)) canhBao.push(`hàng ${nhan} [${co}]: ${cau}`);']], 'một dòng', 'bản sao in theo từng hàng');
 if (want('LT-167-do-vang')) await chayDo('LT-167-do-vang', lt167, [['scripts/cat-luot.mjs', 'for (const [co] of coS3b(r)) if', 'for (const [co] of coS3b({ ...r, du_lieu: r.du_lieu === undefined ? \'vang\' : r.du_lieu })) if']], 'đối chứng im', 'bản sao coi du_lieu vắng là sai chỉ ở nhánh ngoài đợt');
 
@@ -3420,7 +3425,10 @@ async function lt169(kit) {
   const thieu = TRUONG_VH.filter(t => !vh.includes(t)); if (thieu.length) sai.push(`khối vận hành thiếu trường: ${thieu.join(' ')}`);
   const sau = (khoiMdL2(sk, 'CAT-LUOT-SAU-LUAT') || '').split('\n').filter(Boolean);
   if (sau.length !== 6) sai.push(`sáu luật: ${sau.length} dòng`);
-  if (!(sau[1] || '').includes('dung_tren') || !(sau[1] || '').includes('hàng')) sai.push(`luật 2 không nói dung_tren chỉ trỏ hàng: «${sau[1]}»`);
+  const CUM_L2 = '`dung_tren` chỉ trỏ hàng';
+  if (!(sau[1] || '').includes(CUM_L2)) sai.push(`luật 2 không nói ${CUM_L2}: «${sau[1]}»`);
+  const sauGoc = (khoiMdL2(git(KIT, 'show', `${GOC_S3B}:skills/cat-luot/SKILL.md`), 'CAT-LUOT-SAU-LUAT') || '').split('\n').filter(Boolean);
+  if (!sauGoc[1] || sauGoc[1].includes(CUM_L2)) sai.push(`đối chứng: luật 2 tại ${GOC_S3B} phải KHÔNG có «${CUM_L2}» — «${sauGoc[1]}»`);
   const bang = khoiMdL2(sk.replace(/<!-- <<<CAT-LUOT-BANG-CO -->\n/, '<!-- <<<CAT-LUOT-BANG-CO -->\n```\n').replace(/\n<!-- CAT-LUOT-BANG-CO>>> -->/, '\n```\n<!-- CAT-LUOT-BANG-CO>>> -->'), 'CAT-LUOT-BANG-CO');
   const ten = new Set([...(bang || '').matchAll(/^\| `([a-z-]+)` \|/gm)].map(m => m[1])); const co = new Set(C.CO_TEN);
   const tThieu = [...co].filter(t => !ten.has(t)); const tThua = [...ten].filter(t => !co.has(t));
@@ -3431,7 +3439,7 @@ async function lt169(kit) {
   const chay = r => spawnSync('bash', ['-c', lenh.trim().replace('<bản phạm vi>', 'docs/plan/pham-vi.md').replace('<tệp lộ trình>', 'docs/plan/lo-trinh.json')], { cwd: r, encoding: 'utf8', env });
   const sach = { hang: [HC('R1')], moc: [MN('V1')] };
   const a = chay(khoS3b(sach)); const b = chay(khoS3b({ ...sach, hang: [HC('R1', { dung_tren: ['V1'] })] }));
-  if (a.status !== 0 || b.status !== 1) sai.push(`CAT-LUOT-RANG: mốc ngoài sạch exit ${a.status} (cần 0), hàng đứng trên mốc exit ${b.status} (cần 1) «${(a.stderr + b.stderr).trim().slice(0, 120)}»`);
+  if (a.status !== 0 || b.status !== 1 || !b.stdout.includes('lỗi: hàng R1 [cho-van-hanh]')) sai.push(`CAT-LUOT-RANG: mốc ngoài sạch exit ${a.status} (cần 0), hàng đứng trên mốc exit ${b.status} (cần 1 với [cho-van-hanh]) «${(a.stderr + b.stderr).trim().slice(0, 120)}»`);
   // Hai khuôn.
   const tpl = JSON.parse(readFileSync(path.join(kit, 'skills', 'acceptance', 'references', 'lo-trinh-template.json'), 'utf8'));
   const mn = (tpl.moc || []).filter(m => m.dot === 'mau-1' && m.loai === 'ngoai');
@@ -3449,6 +3457,7 @@ async function lt169(kit) {
 }
 if (want('LT-169') && await chayCa('LT-169', lt169)) ok('LT-169', 'khối tách vận hành năm luật đứng trước sáu luật, nêu mười một trường; luật 2 nói dung_tren chỉ trỏ hàng; bảng cờ == danh sách cờ; lệnh răng nguyên văn 0/1 trên mốc ngoài; khuôn có mốc ngoài lặp lại, hàng sinh-gia, hàng gia; hai khuôn phủ nhau 0 lỗi 0 cảnh báo');
 if (want('LT-169-do')) await chayDo('LT-169-do', lt169, [['skills/cat-luot/SKILL.md', '`tu_phuc_vu` trỏ', 'tu-phuc-vu trỏ']], 'tu_phuc_vu', 'bản sao SKILL bỏ trường tu_phuc_vu khỏi khối vận hành');
+if (want('LT-169-do-luat2')) await chayDo('LT-169-do-luat2', lt169, [['skills/cat-luot/SKILL.md', '2. Hàng sau đứng trên dữ liệu thật của hàng trước — KẾT QUẢ thật của vòng trước đã giao, không phải dữ liệu vận hành; `dung_tren` chỉ trỏ hàng, và chỉ khi nó thật sự cần hàng trước đã giao.', '2. Hàng sau đứng trên dữ liệu thật của hàng trước (`dung_tren`) — chỉ khi nó thật sự cần hàng trước đã giao.']], 'luật 2 không nói', 'bản sao SKILL trả luật 2 về chữ cũ');
 if (want('LT-169-do-khuon')) await chayDo('LT-169-do-khuon', lt169, [['skills/acceptance/references/lo-trinh-template.json', '"du_lieu": "sinh-gia",', '"du_lieu": "gia",']], 'sinh-gia', 'bản sao khuôn bỏ hàng sinh-gia');
 
 // ── LT-170: Ngoài-1 — khối CAT-LUOT-CANH-BAO xếp từng dòng cảnh báo ─────────
@@ -3494,7 +3503,7 @@ async function lt171(kit) {
   const lt2 = JSON.parse(JSON.stringify(lt)); const r1 = lt2.hang.find(h => h.ma === 'R1'); if (!r1) return [...sai, 'đáp án không có hàng R1'];
   r1.dung_tren = ['V2'];
   const y = rang(kit, khoCL({ pv, lt: lt2 })); const c1 = dongCo(y, 'cho-van-hanh'); const c2 = dongCo(y, 'thieu-hang-sinh-gia');
-  if (y.status !== 1 || c1.length !== 1 || c2.length !== 1 || !c1[0].includes('hàng R1 [') || !c2[0].includes('hàng R1 [')) sai.push(`R1 đứng trên mốc V2: exit ${y.status}, ${JSON.stringify([...c1, ...c2])}`);
+  if (y.status !== 1 || c1.length !== 1 || c2.length !== 1 || !c1[0].startsWith('lỗi: hàng R1 [cho-van-hanh]: đứng chờ mốc vận hành «V2» —') || !c2[0].startsWith('lỗi: hàng R1 [thieu-hang-sinh-gia]')) sai.push(`R1 đứng trên mốc V2: exit ${y.status}, ${JSON.stringify([...c1, ...c2])}`);
   return sai;
 }
 if (want('LT-171') && await chayCa('LT-171', lt171)) ok('LT-171', 'bản phạm vi mẫu crm + đáp án của hồ sơ: thoát 0, 0 lỗi 0 cảnh báo, bảng phủ K1…K11 có mốc ngoài; R1 đứng trên mốc V2 → [cho-van-hanh] + [thieu-hang-sinh-gia] cho R1');

@@ -29,8 +29,8 @@ evals:
     paths: [scripts/cat-luot.mjs, tests/scripts/lo-trinh.test.mjs, tests/scripts/fixtures/lo-trinh/crm-kho-tai-lieu.json]
     expected: >
       exit 0; stdout có "PASS: LT-164" — ma trận 3 ca đỏ {theo-ma · theo-ten · moc-cu-khong-dot} → mỗi ca
-      thoát 1, đúng MỘT dòng `lỗi: hàng R [cho-van-hanh]:` nêu mốc, chứa «sinh dữ liệu giả» và «chân
-      trời», và 0 dòng «đứng trên mã không có» của hàng R; 3 đối chứng im {moc-khong-ngoai → vẫn «đứng
+      thoát 1, đúng MỘT dòng mở bằng `lỗi: hàng R2 [cho-van-hanh]: đứng chờ mốc vận hành «<nhãn>» —` với
+      nhãn == đích `dung_tren` của hàng (V1 · V1 · «crm cài kit»), chứa «sinh dữ liệu giả» và «chân trời», và 0 dòng «đứng trên mã không có» của hàng R; 3 đối chứng im {moc-khong-ngoai → vẫn «đứng
       trên mã không có», 0 dòng `[cho-van-hanh]` · moc-hang → thoát 0 · chan-troi-mo-lai → thoát 0}.
       Và "PASS: LT-164 kho-tai-lieu" — từ bản chụp crm-kho-tai-lieu.json, code dựng đợt `ktl`: `ct`, `cb`
       thành mốc ngoài (ma giữ nguyên, ai «Mọi phòng ban» / «Chủ kho»); cách cũ (giữ nguyên
@@ -39,7 +39,8 @@ evals:
       trời `mo_lai_khi` nêu «ct», hàng khác bỏ ct/cb) → thoát 0, bảng phủ đặt mã của ct, cb ở «mốc
       ngoài». Và "PASS: LT-164-do" — bản sao chỉ so `ma` của mốc: hàm đo trả lỗi nêu ca «theo-ten»;
       "PASS: LT-164-do-kep" — bản sao vẫn in «đứng trên mã không có» cho cùng mục: hàm đo trả lỗi nêu
-      «mã không có».
+      «dòng-mã-không-có=1»; "PASS: LT-164-do-nhan" — bản sao luôn nêu mốc ngoài đầu tiên: hàm đo trả lỗi
+      nêu «cần mốc «crm cài kit»».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -77,12 +78,15 @@ evals:
     expected: >
       exit 0; stdout có "PASS: LT-167" — 10 hàng ngoài đợt (đợt khác + không dot) mang cho-van-hanh ·
       thieu-hang-sinh-gia · du-lieu-sai-gia-tri, đợt đang xét sạch → thoát 0; mỗi cờ đúng MỘT dòng mở
-      bằng «cảnh báo: [<cờ>]» nêu số hàng; cờ có 10 hàng liệt 8 mã rồi «…»; không dòng nào mở bằng
-      «cảnh báo: hàng <mã ngoài đợt> [». Đối chứng: cùng các hàng chuyển vào đợt → thoát 1. Đối chứng
+      bằng «cảnh báo: [<cờ>]»; hai cờ hai hàng in đúng chữ viết sẵn «… 2 hàng ngoài đợt d1 — G1, G2» và
+      «… — S1, S2»; cờ có 10 hàng liệt 8 mã rồi «…»; không dòng nào mở bằng
+      «cảnh báo: hàng <mã ngoài đợt> [». Đối chứng: cùng các hàng chuyển vào đợt → thoát 1 và mọi hàng trong 14 hàng mang một dòng `lỗi:` của
+      ba cờ. Đối chứng
       im: 10 hàng ngoài đợt không mang trường mới (`du_lieu` vắng, `dung_tren` chỉ trỏ hàng) → 0 dòng
       mang ba cờ ấy. Và "PASS: LT-167-do" — bản sao in theo từng hàng: CHÍNH hàm đo trả lỗi nêu «một
       dòng»; "PASS: LT-167-do-vang" — bản sao coi `du_lieu` vắng là sai giá trị CHỈ ở nhánh ngoài đợt:
-      hàm đo trả lỗi nêu ca đối chứng im.
+      hàm đo trả lỗi nêu ca đối chứng im; "PASS: LT-167-do-gom" — bản sao gom sót một hàng: hàm đo trả lỗi
+      nêu «G1, G2».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
@@ -112,15 +116,16 @@ evals:
       exit 0; stdout có "PASS: LT-169" — CAT-LUOT-VAN-HANH đúng năm dòng đánh số, đứng trước
       CAT-LUOT-SAU-LUAT, nêu đủ mười một trường răng đọc (loai: ngoai · ai · dot · phu · dung_tren · du_lieu ·
       sinh-gia · gia · lap · tu_phuc_vu · mo_lai_khi) (in trường thiếu khi lệch); CAT-LUOT-SAU-LUAT đúng
-      sáu dòng, dòng 2 chứa «dung_tren» và «hàng»; tập tên cờ trong bảng cờ == CO_TEN (đẳng thức tập, in
+      sáu dòng, dòng 2 chứa cụm «`dung_tren` chỉ trỏ hàng» và luật 2 tại 9b11cc66 KHÔNG chứa (đối chứng); tập tên cờ trong bảng cờ == CO_TEN (đẳng thức tập, in
       hiệu hai phía); khối CAT-LUOT-RANG chạy nguyên văn (CLAUDE_PLUGIN_ROOT = gói) → thoát 0 trên kho mốc
-      ngoài sạch, thoát 1 khi thêm một hàng đứng trên mốc; khuôn lộ trình có mốc ngoài đợt mẫu mang
+      ngoài sạch, thoát 1 với `lỗi: hàng R1 [cho-van-hanh]` khi thêm một hàng đứng trên mốc; khuôn lộ trình có mốc ngoài đợt mẫu mang
       phu + ai + lap + tu_phuc_vu, hàng sinh-gia, hàng gia đứng trên nó; tập mã của khối PHAM-VI-MA ==
       tập mã khuôn lộ trình gánh (hàng ∪ chân trời ∪ mốc ngoài của đợt mẫu); răng trên khuôn + bản phạm
       vi mẫu: 0 lỗi, 0 cảnh báo, ≥ 1 dòng «mốc ngoài». Đối chứng dương: "PASS: LT-150" và "PASS: LT-130"
       (ca của hồ sơ đã ký, sửa theo luật ba chỗ) vẫn xanh. Và "PASS: LT-169-do" — bản sao SKILL bỏ
       `tu_phuc_vu` khỏi khối vận hành: CHÍNH hàm đo trả lỗi nêu «tu_phuc_vu»; "PASS: LT-169-do-khuon" —
-      bản sao khuôn bỏ hàng sinh-gia: hàm đo trả lỗi nêu «sinh-gia».
+      bản sao khuôn bỏ hàng sinh-gia: hàm đo trả lỗi nêu «sinh-gia»; "PASS: LT-169-do-luat2" — bản sao
+      SKILL trả luật 2 về chữ cũ: hàm đo trả lỗi nêu «luật 2 không nói».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -171,6 +176,6 @@ evals:
       exit 0; stdout có "PASS: LT-171" — đối chứng dương: răng trên kho thử chép NGUYÊN hai tệp mau/ của hồ sơ (bản
       phạm vi + đáp án): thoát 0, 0 dòng «lỗi:», 0 dòng «cảnh báo:», bảng phủ đúng 11 mã K1…K11, ≥ 1
       dòng «→ mốc ngoài»; bản sao đáp án đổi `dung_tren` của R1 từ ["SG1"] sang ["V2"] → thoát 1, đúng
-      một dòng `[cho-van-hanh]` và một dòng `[thieu-hang-sinh-gia]`, cả hai cho hàng R1. Và
+      một dòng `[cho-van-hanh]` nêu mốc «V2» và một dòng `[thieu-hang-sinh-gia]`, cả hai cho hàng R1. Và
       "PASS: LT-171-do" — bản sao răng bỏ chỗ mốc ngoài khỏi bảng phủ: CHÍNH hàm đo trả lỗi nêu «K2».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
