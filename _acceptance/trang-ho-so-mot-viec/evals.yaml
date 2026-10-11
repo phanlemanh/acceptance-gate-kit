@@ -126,7 +126,11 @@ evals:
       tử chứa «khuôn bản 1»; "PASS: LT-157 cu-doc-moi" — bản chép rời docDuLieu (rút từ lo-trinh.mjs
       của commit gốc, chạy ngoài mô-đun) đọc trang của cây: mỗi khoá bản 1 bằng giá trị docDuLieu của
       cây đọc ra, canhBao đúng 1 phần tử chứa «mới hơn bộ đọc», không ném; "PASS: LT-157 chep-roi" — bản
-      chép rời docDuLieu của cây == bản trong mô-đun trên trang mới và trang cũ.
+      chép rời docDuLieu của cây == bản trong mô-đun trên trang mới và trang cũ. Và "PASS: LT-157 khoa-vang" — khối thiếu
+      trường (bản 1 và bản 2): mọi khoá bản 1 bộ đọc mới == bộ đọc bản 1 rút từ commit gốc; nhóm dải vắng →
+      object đủ khoá toàn null; "PASS: LT-157-do theo-ten" (bản sao xét ô dải theo tên → lỗi nêu
+      «tien_do.da_giao») · "PASS: LT-157-do nhom-vang" (bản sao để nhóm vắng thành chuỗi → lỗi nêu
+      «tom_tat.moi_nguoi»).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9

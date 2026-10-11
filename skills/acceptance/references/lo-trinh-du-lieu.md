@@ -131,7 +131,7 @@ Bộ đọc của bản chiếu không bao giờ được làm trang của nó v
 | `khuon` khác `lo-trinh-du-lieu` | không có dữ liệu; báo tên khuôn |
 | `phien_ban` lớn hơn bản mình biết | vẫn đọc phần biết; báo một cờ vàng «khuôn mới hơn bộ đọc» |
 | `phien_ban` 1 (trang vẽ bằng khuôn bản 1) | đọc đủ; mọi `hang.tom_tat` là `null`; báo một cờ vàng «khuôn bản 1» |
-| thiếu khoá | coi như rỗng theo kiểu (mảng rỗng, `false`, `0`, `null`, chuỗi rỗng) |
+| thiếu khoá | coi như rỗng theo kiểu (mảng rỗng, `false`, `0`, `null`, chuỗi rỗng); riêng ô của dải (`moi_nguoi.*`, `chu_kho.*`) là `null`, và nhóm dải vắng là object đủ khoá toàn `null` |
 | khoá lạ | giữ nguyên, bỏ qua |
 
 Kit chỉ THÊM khoá trong cùng phiên bản; đổi nghĩa hay bỏ khoá là phiên bản mới, và trang cũ vẫn

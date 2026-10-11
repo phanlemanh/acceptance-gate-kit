@@ -2736,6 +2736,33 @@ async function lt157(kit, ca) {
   }
   return sai;
 }
+// LT-157 khoa-vang (Cổng Bằng chứng lượt 2, Ngoài-2 + Ngoài-3, nâng vào AC-8): khối thiếu trường đọc ra
+// RỖNG THEO KIỂU đúng như bộ đọc bản 1 thật (rút từ commit gốc) ở mọi khoá bản 1; dải vắng một nhóm
+// thì nhóm đó là object toàn null. So quan hệ với bộ đọc cũ, không viết tay giá trị.
+async function lt157vang(kit) {
+  const sai = []; const M = await napLT(kit);
+  const docCu = chepRoi(readFileSync(path.join(banGocX2(), 'scripts', 'lo-trinh.mjs'), 'utf8'));
+  const KC = (await napLT(banGocX2())).LT.KHUON_DU_LIEU;
+  const khoi = o => `<script type="application/json" id="lo-trinh-du-lieu">${JSON.stringify(o)}</script>`;
+  for (const pb of [1, 2]) {
+    const o = { khuon: 'lo-trinh-du-lieu', phien_ban: pb, lo_trinh: [{ tien_do: { tong: 1 }, hang_ke: {}, hang: [{ cau_giao: 'x', ...(pb === 2 ? { tom_tat: { chu_kho: {} } } : {}) }], can_sua: [{}], moc: [{}], da_bac: [{}] }] };
+    const a = docCu(khoi(o)).duLieu; const b = M.LT.docDuLieu(khoi(o)).duLieu;
+    const L = i => [a.lo_trinh[0], b.lo_trinh[0]][i];
+    for (const [cap, lay] of [['tien_do', t => t.tien_do], ['hang_ke', t => t.hang_ke], ['hang', t => t.hang[0]], ['can_sua', t => t.can_sua[0]], ['moc', t => t.moc[0]], ['da_bac', t => t.da_bac[0]]])
+      for (const k of KC[cap]) if (!deq(lay(L(0))[k], lay(L(1))[k])) sai.push(`bản ${pb}: ${cap}.${k} cũ ${JSON.stringify(lay(L(0))[k])} ≠ mới ${JSON.stringify(lay(L(1))[k])}`);
+    if (pb === 2) {
+      const t = L(1).hang[0].tom_tat;
+      for (const [cap, khoa] of [['moi_nguoi', M.LT.KHUON_DU_LIEU.moi_nguoi], ['chu_kho', M.LT.KHUON_DU_LIEU.chu_kho]]) {
+        const x = t && t[cap];
+        if (!x || typeof x !== 'object' || !khoa.every(k => k in x && x[k] === null)) sai.push(`tom_tat.${cap} vắng đọc ra ${JSON.stringify(x)} — cần object toàn null`);
+      }
+    }
+  }
+  return sai;
+}
+if (want('LT-157 khoa-vang') && await chayCa('LT-157 khoa-vang', lt157vang)) ok('LT-157 khoa-vang', 'khối thiếu trường: mọi khoá bản 1 == bộ đọc bản 1 thật (rỗng theo kiểu); nhóm dải vắng → object toàn null');
+if (want('LT-157-do theo-ten')) await chayDo('LT-157-do theo-ten', lt157vang, [['scripts/lo-trinh.mjs', "const rong = (k, cap) => (cap === 'moi_nguoi' || cap === 'chu_kho' ? null :", "const rong = (k, cap) => ([...KHUON.moi_nguoi, ...KHUON.chu_kho].includes(k) ? null :"]], 'tien_do.da_giao', 'bản sao xét ô dải theo tên trường');
+if (want('LT-157-do nhom-vang')) await chayDo('LT-157-do nhom-vang', lt157vang, [['scripts/lo-trinh.mjs', "  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat', 'moi_nguoi', 'chu_kho'];", "  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat'];"], ['scripts/lo-trinh.mjs', "h.tom_tat[cap] == null || typeof h.tom_tat[cap] !== 'object' ? {}", "h.tom_tat[cap] == null ? {}"]], 'tom_tat.moi_nguoi', 'bản sao để nhóm dải vắng thành chuỗi rỗng');
 if (want('LT-157 moi-doc-cu') && await chayCa('LT-157 moi-doc-cu', k => lt157(k, 'moi-doc-cu'))) ok('LT-157 moi-doc-cu', `bộ đọc mới đọc trang bộ vẽ ${GOC_X2}: tom_tat null mọi hàng, một cảnh báo «khuôn bản 1»`);
 if (want('LT-157 cu-doc-moi') && await chayCa('LT-157 cu-doc-moi', k => lt157(k, 'cu-doc-moi'))) ok('LT-157 cu-doc-moi', 'bản chép rời bộ đọc bản 1 đọc trang bản 2: mọi khoá bản 1 bằng bộ đọc mới, một cảnh báo «mới hơn bộ đọc»');
 if (want('LT-157 chep-roi') && await chayCa('LT-157 chep-roi', k => lt157(k, 'chep-roi'))) ok('LT-157 chep-roi', 'bản chép rời docDuLieu == bản trong mô-đun trên trang mới và cũ');

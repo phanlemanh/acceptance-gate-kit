@@ -606,15 +606,15 @@ export function docDuLieu(html) {
   };
   const MANG = ['nguon', 'lo_trinh', 'ngoai_lo_trinh', 'can_sua', 'hang', 'moc', 'da_bac', 'dung_tren', 'co'];
   const BOOL = ['theo_loi', 'con_viec']; const SO = ['phien_ban', 'tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'];
-  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat'];
-  // Ô của dải (moi_nguoi · chu_kho) vắng → null: «chưa có», không phải chuỗi rỗng hay số 0.
-  const O_DAI = [...KHUON.moi_nguoi, ...KHUON.chu_kho];
-  const rong = k => (O_DAI.includes(k) ? null : MANG.includes(k) ? [] : BOOL.includes(k) ? false : SO.includes(k) ? 0 : NUL.includes(k) ? null
+  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat', 'moi_nguoi', 'chu_kho'];
+  // Ô của dải vắng → null («chưa có»), xét theo CẤP chứ không theo tên: tên ô trùng tên trường ở cấp khác
+  // (da_giao của tien_do, ma, trang_thai, vi_sao của hang) vẫn rỗng theo kiểu như bản 1.
+  const rong = (k, cap) => (cap === 'moi_nguoi' || cap === 'chu_kho' ? null : MANG.includes(k) ? [] : BOOL.includes(k) ? false : SO.includes(k) ? 0 : NUL.includes(k) ? null
     : k === 'tien_do' ? { tong: 0, da_giao: 0, dang_lam: 0, chua_bat_dau: 0, khac: 0 } : '');
   const va = (o, cap) => {
     if (o == null || typeof o !== 'object' || Array.isArray(o)) return o;
     const ra = { ...o };
-    for (const k of KHUON[cap]) if (!(k in ra)) ra[k] = rong(k);
+    for (const k of KHUON[cap]) if (!(k in ra)) ra[k] = rong(k, cap);
     return ra;
   };
   const m = String(html ?? '').match(new RegExp(`<script type="application/json" id="${ID}">([\\s\\S]*?)</script>`));
@@ -634,7 +634,7 @@ export function docDuLieu(html) {
     for (const cap of ['can_sua', 'hang', 'moc', 'da_bac']) x[cap] = (Array.isArray(x[cap]) ? x[cap] : []).map(v => va(v, cap));
     for (const h of x.hang) if (h && typeof h === 'object' && h.tom_tat != null && typeof h.tom_tat === 'object') {
       h.tom_tat = va(h.tom_tat, 'tom_tat');
-      for (const cap of ['moi_nguoi', 'chu_kho']) h.tom_tat[cap] = va(h.tom_tat[cap] == null ? {} : h.tom_tat[cap], cap);
+      for (const cap of ['moi_nguoi', 'chu_kho']) h.tom_tat[cap] = va(h.tom_tat[cap] == null || typeof h.tom_tat[cap] !== 'object' ? {} : h.tom_tat[cap], cap);
     }
     return x;
   });

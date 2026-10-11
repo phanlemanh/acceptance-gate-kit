@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/evidence-page.js + scripts/lo-trinh.mjs + scripts/ho-so-tom-tat.cjs (mới) + tài liệu + khuôn mẫu hàng + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli, ui]
 design_doc: docs/superpowers/specs/2026-10-11-trang-ho-so-mot-viec-design.md
-status: verified
-approved_by:
-approved_at:
+status: implemented
+approved_by: Manh Phan
+approved_at: 2026-10-11T03:47:39Z
 veto_state: mo
 veto_opened_at: 2026-10-10T23:56:04Z
 ---
@@ -38,7 +38,7 @@ ca lúc dựng kho thử, không rút từ đầu ra của bộ vẽ.
 - AC-5: Given hồ sơ «đủ» trong kho thử có commit gộp «Merge pull request #7» chứa mã đã chấm, When vẽ trang, Then mục «Giao» in mã đã chấm, ngày ký, người ký và «PR #7»; mục «Giá trị» đặt từng ngưỡng của ô cơ hội cạnh số đo của phiên nghiệm thu; ô `production` in sha 7 ký tự + ngày + người của dòng `thuc-te`. Và trên bản hồ sơ không có commit gộp, không `uat-session.md`, không dòng `thuc-te` thì ba chỗ đó in lần lượt «chưa gộp», «chưa đo», «chưa ghi quan sát production»; gốc hồ sơ không phải kho git, hoặc mã đã chấm không có trong kho, thì «Giao» in «chưa gộp», thoát 0, stderr rỗng.
 - AC-6: Given ma trận hồ sơ thiếu đúng một tệp nguồn mỗi ca (ô cơ hội · sổ quyết định · `usage-report.md` · `design_doc` · `evals.yaml`; phiên nghiệm thu vắng là trạng thái thường, thuộc AC-5) cùng một hồ sơ có sổ đời trước ghi `impact`, When vẽ trang từng ca và vẽ hai lần ca «đủ» (lần hai `TZ` khác), Then mọi ca thoát 0 và mọi chỗ cần tệp thiếu in «chưa có — <tên tệp>» và tập tên tệp được nêu == đúng tệp đã gỡ, hai lần vẽ giống từng byte, trang không có `src`/`href` nào tới `http`; và chạy bộ vẽ trên MỌI hồ sơ có báo cáo bằng chứng trong kho kit (thư mục `_acceptance/` của cây) thì 0 ca ném lỗi, số hồ sơ đã chạy được in ra và > 100. Hồ sơ không có `evidence-report.md` vẫn thoát 2 như trước.
 - AC-7: Given kho thử khai một lộ trình có hàng có hồ sơ «đủ» và hàng chưa có hồ sơ, When vẽ trang lộ trình, Then khối có `phien_ban == 2`, hàng có hồ sơ mang `tom_tat` với đúng hai nhóm khoá của khuôn (`moi_nguoi` chín khoá, `chu_kho` bảy khoá, không khoá nào chứa «goi_nguoi»), mỗi giá trị BẰNG giá trị cùng ô trên trang hồ sơ của cùng hồ sơ (so quan hệ, không so chuỗi có mặt), `tom_tat.moi_nguoi.trang_thai` BẰNG `trang_thai` của hàng; hàng chưa có hồ sơ `tom_tat: null`; mọi khoá bản 1 giữ nguyên. Chiều đỏ: bản sao mô-đun đổi luật đếm token → ca đỏ nêu mã hàng và khoá `token`.
-- AC-8: Given trang lộ trình vẽ bằng bộ vẽ ở commit gốc của vòng (`git archive` trọn `scripts lib`) và trang vẽ bằng bộ vẽ của cây trên cùng kho thử, When bộ đọc `docDuLieu` của cây đọc trang cũ và bản chép rời `docDuLieu` lấy từ commit gốc đọc trang mới, Then: bộ đọc mới trả dữ liệu đủ khoá bản 2, `tom_tat: null` ở mọi hàng, đúng một cảnh báo chứa «khuôn bản 1»; bộ đọc cũ trả mọi khoá bản 1 bằng giá trị bộ đọc mới đọc ra trên cùng trang mới, đúng một cảnh báo «mới hơn bộ đọc», không ném. Và bản chép rời `docDuLieu` của cây (ngoài mô-đun) cho kết quả bằng bản trong mô-đun.
+- AC-8: Given trang lộ trình vẽ bằng bộ vẽ ở commit gốc của vòng (`git archive` trọn `scripts lib`) và trang vẽ bằng bộ vẽ của cây trên cùng kho thử, When bộ đọc `docDuLieu` của cây đọc trang cũ và bản chép rời `docDuLieu` lấy từ commit gốc đọc trang mới, Then: bộ đọc mới trả dữ liệu đủ khoá bản 2, `tom_tat: null` ở mọi hàng, đúng một cảnh báo chứa «khuôn bản 1»; bộ đọc cũ trả mọi khoá bản 1 bằng giá trị bộ đọc mới đọc ra trên cùng trang mới, đúng một cảnh báo «mới hơn bộ đọc», không ném. Và bản chép rời `docDuLieu` của cây (ngoài mô-đun) cho kết quả bằng bản trong mô-đun. Và (Cổng Bằng chứng lượt 2, owner nâng phạm vi) trên một khối thiếu trường ở cả bản 1 lẫn bản 2, mọi khoá bản 1 bộ đọc mới trả BẰNG bộ đọc bản 1 (rỗng theo kiểu — số 0, chuỗi rỗng, mảng rỗng), còn nhóm `moi_nguoi`/`chu_kho` vắng đọc ra object có đủ khoá, mỗi khoá `null`.
 - AC-9: Given tài liệu `skills/acceptance/references/lo-trinh-du-lieu.md`, When rút bảng khoá trong khối marker, Then tập khoá theo từng cấp (gồm `tom_tat`, `moi_nguoi`, `chu_kho`) BẰNG khuôn khoá trong mã và tài liệu nói phiên bản 2 + cách đọc trang bản 1; chiều đỏ: bản sao tài liệu bỏ khoá `ket_qua` · bản sao mã thêm một khoá → ca đỏ nêu khoá lệch.
 - AC-10: Given ma trận câu giao `«A»` · `«A» và «B»` · `««A» b»` · `A` · `«»` · chuỗi rỗng · `«A` và 12 câu giao thật của crm có «» bên trong (chép vào fixture từ crm `10063a25e`), When qua `boNgoacNgoai` và khi vẽ (trang lộ trình: ô câu giao + «làm tiếp»; khối: `hang.cau_giao`, `hang_ke.cau_giao`; trang hồ sơ: tiêu đề + `da_giao`; `--mo-o`: `feature` của ô cơ hội), Then mỗi ca ra đúng kết quả viết sẵn (`A` · giữ nguyên · `«A» b` · `A` · `` · `` · giữ nguyên; 12 câu crm mất đúng hai ký tự ngoài cùng, mọi «» bên trong còn), mỗi chỗ vẽ in câu đã bỏ ngoặc, và `vi_sao`/`bat_khi` trong khối giữ nguyên chữ gốc. Chiều đỏ: bản sao hàm dùng «bỏ ký tự đầu-cuối khi bắt đầu bằng « và kết thúc bằng »» → ca `«A» và «B»` đỏ, nêu ca.
 - AC-11: Given khuôn mẫu `skills/acceptance/references/lo-trinh-template.json` và kho thử có tệp kế hoạch bọc «», When đọc khuôn và vẽ trang lộ trình rồi mở ô từ một hàng, Then không câu giao nào của khuôn bắt đầu bằng «, và băm của tệp kế hoạch trước/sau vẽ + mở ô bằng nhau (kit không ghi vào tệp ý định).
@@ -97,3 +97,13 @@ request GitHub]` cho bố cục dải + mục gập, `[NGÀNH: trang issue Linea
   --check` bỏ qua riêng `tom_tat` khi so trang lộ trình; dải đúng tới lần vẽ lại gần nhất. Ca LT-161 (dưới
   E7) đo hai chiều. Kèm theo: `scripts/ho-so-tom-tat.cjs` vào danh sách chép CI (`INIT-CI-COPY-LIST`, 18 tệp)
   vì `lo-trinh.mjs` nạp nó; ca P99 bỏ danh sách chép tay, lấy trọn `scripts/` + `lib/`.
+- **Known limits (Cổng Bằng chứng lượt 2, owner quyết — sổ `gate2`):**
+  · Ngoài-1 — vẽ lại trang mẫu kéo hai hồ sơ đã ký (`trang-lo-trinh-doc-mot-phut`, `viec-ke-theo-plan`)
+    vào diff; gỡ bằng làn ghim lại hai hồ sơ sau khi DP7 vào main, trước lượt gộp X2.
+  · Ngoài-4 — ô «Sẽ đo gì» in dấu ba chấm của khuôn khi ô cơ hội chưa điền ngưỡng (chưa dùng
+    `PLACEHOLDER_RE`); ô khai «Không đo được» hiện «chưa khai ngưỡng».
+  · Ngoài-5 — phép đo «vi_sao/bat_khi giữ chữ gốc» (LT-159) chạy trên câu mà phép bỏ ngoặc vốn không đổi;
+    chuẩn hoá `duLieuX2` bỏ ngoặc mọi chuỗi nên không ca cũ nào bắt được việc bỏ ngoặc ở trường khác.
+  · Ngoài-6 — «Đã hứa» (LT-151) so chứa thay vì bằng: câu tiêu chí rỗng hay cụt vẫn qua.
+- Ngoài-2 + Ngoài-3 (bộ đọc trả null cho trường vắng trùng tên; nhóm dải vắng đọc thành chuỗi) owner nâng
+  phạm vi sửa ngay — gộp vào AC-8, vẫn 12 tiêu chí; ca LT-157 khoa-vang + hai chiều đỏ.
