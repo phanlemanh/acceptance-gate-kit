@@ -8,6 +8,7 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +18,8 @@ const KIT = path.resolve(DAY_TEP, '..', '..');
 const GOI = path.join(KIT, 'dieu-phoi');
 const SLUG = 'dieu-phoi-sua-truoc-dot-thu';
 const NHANH = `vong/${SLUG}`;
+// Trạng thái hợp đồng «đã thông Cổng Bằng chứng» rút từ lib của CÂY ĐANG KIỂM, không chép chữ (khuôn DP7).
+const DA_KY = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs')).DA_THONG_CONG_2[0];
 
 // Khoá máy của ca nằm trong thư mục tạm — đặt TRƯỚC mọi lần nạp mô-đun của gói.
 const MAY_TAM = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sdt-may-')));
@@ -231,7 +234,7 @@ test('SDT-01-do nhan-giang-lai-du', async () => {
 const A1 = { ma: 'A', slug: 'hang-a', day: 'P1', uu_tien: 1 };
 const nghiP1 = ({ kho }, gocGoi) => assert.equal(chayCli(kho, ['hang', 'nghi', 'P1'], { gocGoi }).ma, 0);
 export const MA_TRAN_D1 = [
-  { ten: '(a)', hang: [A1], dung: ({ w }) => hopDong(w.P1, 'hang-a', 'signed-off'), nhip: true, can: 'khong-hang', lyDo: 'xong', daKy: ['hang-a'] },
+  { ten: '(a)', hang: [A1], dung: ({ w }) => hopDong(w.P1, 'hang-a', DA_KY), nhip: true, can: 'khong-hang', lyDo: 'xong', daKy: ['hang-a'] },
   { ten: '(b)', hang: [A1], dung: (c, g) => { oCoHoi(c.kho, 'hang-a', { decision: 'build' }); nghiP1(c, g); }, nhip: true, can: 'khong-hang', lyDo: 'nghi' },
   {
     ten: '(c)',
@@ -244,7 +247,7 @@ export const MA_TRAN_D1 = [
   {
     ten: '(d)',
     hang: [A1, { ma: 'B', slug: 'hang-b', day: 'P1', uu_tien: 2 }],
-    dung: ({ kho, w }) => { hopDong(w.P1, 'hang-a', 'signed-off'); oCoHoi(kho, 'hang-b', { decision: 'build' }); },
+    dung: ({ kho, w }) => { hopDong(w.P1, 'hang-a', DA_KY); oCoHoi(kho, 'hang-b', { decision: 'build' }); },
     nhip: true,
     can: 'mo-chip',
     ghiDanh: 'hang-b',
