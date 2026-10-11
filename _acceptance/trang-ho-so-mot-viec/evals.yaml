@@ -100,14 +100,18 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.test.lo_trinh
-    paths: [scripts/lo-trinh.mjs, scripts/ho-so-tom-tat.cjs, scripts/evidence-page.js, tests/scripts/lo-trinh.test.mjs]
+    paths: [scripts/lo-trinh.mjs, scripts/ho-so-tom-tat.cjs, scripts/evidence-page.js, scripts/product-map.mjs, tests/scripts/lo-trinh.test.mjs]
     expected: >
       exit 0; stdout có "PASS: LT-156" — khối phien_ban == 2; hàng có hồ sơ: tập khoá tom_tat ==
       {moi_nguoi, chu_kho}, moi_nguoi đủ 9 khoá, chu_kho đủ 7 khoá (bảng viết sẵn), không khoá nào khớp
       /goi_nguoi/; mỗi giá trị moi_nguoi == ô cùng tên đọc từ trang hồ sơ của cùng hồ sơ, chu_kho ==
       số trên dải tầng chủ kho của trang (so quan hệ, in số cặp so > 0); moi_nguoi.trang_thai ==
       hang.trang_thai; hàng chưa hồ sơ tom_tat === null; mọi khoá bản 1 có mặt. Và "PASS: LT-156-do" —
-      bản sao mô-đun đổi luật đếm token → hàm so trả lỗi nêu mã hàng và «token».
+      bản sao mô-đun đổi luật đếm token → hàm so trả lỗi nêu mã hàng và «token». Và "PASS: LT-161" —
+      product-map --check trên kho đã vẽ: thêm một dòng sổ → exit 0 «khớp»; sửa chữ nhìn thấy hoặc trạng
+      thái một hàng trong khối → exit 1 «lệch»; "PASS: LT-161-do chat" (bản sao so từng byte cả dải → lỗi
+      nêu «thêm một dòng sổ») · "PASS: LT-161-do long" (bản sao bỏ qua cả trạng thái → lỗi nêu «sửa trạng
+      thái trong khối»).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
