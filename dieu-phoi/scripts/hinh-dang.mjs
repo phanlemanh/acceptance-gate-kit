@@ -79,7 +79,7 @@ export function kiemCauHinh(du, { canGocKho = false } = {}) {
 
 const KHOA_HANG_VIEC = ['dot', 'day', 'hang', 'ngoai_hang_merge'];
 const KHOA_DAY = ['id', 'worktree', 'link', 'nghi'];
-const KHOA_HANG = ['ma', 'slug', 'day', 'sau', 'moc', 'uu_tien', 'ranh_gioi', 'chung_chi_them', 's4'];
+const KHOA_HANG = ['ma', 'tep', 'slug', 'day', 'sau', 'moc', 'uu_tien', 'ranh_gioi', 'chung_chi_them', 's4'];
 
 export function kiemHangViec(du) {
   const sai = (s) => {
@@ -106,7 +106,7 @@ export function kiemHangViec(du) {
     kiemKhoaLa(h, KHOA_HANG, TEP_HANG_VIEC, `hang[${i}].`);
     if (!laChuoi(h.slug)) sai(`hang[${i}].slug phải là chuỗi không rỗng`);
     if (!ids.has(h.day)) sai(`hang[${i}].day ${h.day} không có trong day`);
-    for (const k of ['ma', 'moc', 's4']) if (h[k] !== undefined && typeof h[k] !== 'string') sai(`hang[${i}].${k} phải là chuỗi`);
+    for (const k of ['ma', 'tep', 'moc', 's4']) if (h[k] !== undefined && typeof h[k] !== 'string') sai(`hang[${i}].${k} phải là chuỗi`);
     for (const k of ['sau', 'ranh_gioi', 'chung_chi_them']) if (h[k] !== undefined && !laDanhSachChuoi(h[k])) sai(`hang[${i}].${k} phải là danh sách chuỗi`);
     if (h.uu_tien !== undefined && !Number.isFinite(h.uu_tien)) sai(`hang[${i}].uu_tien phải là số`);
   });

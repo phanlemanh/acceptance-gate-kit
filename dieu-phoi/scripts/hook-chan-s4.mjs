@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOC_DAU_BYTE } from './cau-hinh.mjs';
-import { docJson, timThuMucDot, trongWorktree } from './dot.mjs';
-import { docCauHinh } from './hinh-dang.mjs';
+import { docJson, phienCuaCwd, timThuMucDot, trongWorktree } from './dot.mjs';
+import { docCauHinh, docHangViec } from './hinh-dang.mjs';
 import { BANG_BASH, phanLoaiLenh } from './phan-loai-s4.mjs';
 
 export const TEP_GIU_NHIP = path.join(path.dirname(fileURLToPath(import.meta.url)), 'giu-nhip.mjs');
@@ -80,9 +80,21 @@ export function quyet(dauVao, { timDot = timThuMucDot } = {}) {
   const chu = docJson(path.join(thuMuc, 'khoa', taiNguyen, 'chu.json'));
   if (chu && trongWorktree(chu.worktree, dauVao.cwd)) return xetLenhNen(dauVao, taiNguyen);
   const tinhTrang = chu ? `đang thuộc ${chu.phien}` : 'đang trống nhưng chưa cấp cho phiên này';
+  // Phiên thợ của một dãy (DP7 AC-6): nói rõ đây là chờ lượt, để phiên không đọc lời chặn thành lỗi —
+  // không hỏi người, không tung lượt mới. Tiền tố cũ giữ nguyên (ca DP1 ghim nó).
+  // Đọc khoan dung: đợt không có hoặc hỏng hang-viec.json thì lời chặn y như cũ.
+  let day = null;
+  try {
+    day = phienCuaCwd(docHangViec(thuMuc), dauVao.cwd);
+  } catch {
+    day = null;
+  }
+  const choLuot = day
+    ? ` Trong đợt đây là chờ lượt của dãy ${day}, không phải lỗi: không hỏi người, không chấm lại — xin lượt theo mục «Cách xin tài nguyên» của ${path.join(thuMuc, 'LUAT.md')}.`
+    : '';
   return {
     ma: 2,
-    loi: `chan-s4: khoá ${taiNguyen} ${tinhTrang}. Ghi đơn xin/<phiên>-${taiNguyen}.json trong ${thuMuc} rồi chờ khoa/${taiNguyen}/chu.json ghi tên phiên này.`,
+    loi: `chan-s4: khoá ${taiNguyen} ${tinhTrang}. Ghi đơn xin/<phiên>-${taiNguyen}.json trong ${thuMuc} rồi chờ khoa/${taiNguyen}/chu.json ghi tên phiên này.${choLuot}`,
   };
 }
 

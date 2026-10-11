@@ -33,15 +33,24 @@ export function khoiTaoPha(thuMuc, { pha, nguonGoi = null, boi = 'mo', lyDo = 'm
 }
 
 // Cùng pha → không làm gì (chạy lại được). Ngoài bảng → ném, tệp không đổi.
-export function datPha(thuMuc, sang, { boi = 'cli', lyDo = '' } = {}) {
+// `tuMerge` (DP7 AC-5): quyền tự merge người trả ở thẻ khởi tạo — chỉ đặt được khi chuyển sang `dang-chay`,
+// rồi sống qua mọi lần đổi pha sau. Vắng trường = null ở bên đọc (`tho`) = không tự merge.
+export function datPha(thuMuc, sang, { boi = 'cli', lyDo = '', tuMerge } = {}) {
   if (!PHA.includes(sang)) throw new Error(`pha: «${sang}» không phải một pha (${PHA.join(', ')})`);
+  if (tuMerge !== undefined && typeof tuMerge !== 'boolean') throw new Error(`pha: tu_merge phải là true/false, nhận «${tuMerge}»`);
+  if (tuMerge !== undefined && sang !== 'dang-chay') throw new Error('pha: --tu-merge chỉ đặt khi chuyển sang dang-chay');
   const cu = docPha(thuMuc);
-  if (cu.pha === sang) return { doi: false, pha: sang };
+  const giuMerge = tuMerge !== undefined ? { tu_merge: tuMerge } : typeof cu.tu_merge === 'boolean' ? { tu_merge: cu.tu_merge } : {};
+  if (cu.pha === sang) {
+    if (tuMerge !== undefined && cu.tu_merge !== tuMerge && !cu.cu) ghiJsonNguyenTu(path.join(thuMuc, TEP_DIEU_KHIEN), { ...cu, ...giuMerge });
+    return { doi: false, pha: sang };
+  }
   if (!(CHUYEN[cu.pha] ?? []).includes(sang)) throw new Error(`pha: ${cu.pha} → ${sang} không có trong bảng chuyển`);
   const luc = new Date().toISOString();
   ghiJsonNguyenTu(path.join(thuMuc, TEP_DIEU_KHIEN), {
     pha: sang,
     nguon_goi: cu.nguon_goi ?? null,
+    ...giuMerge,
     dat_boi: boi,
     dat_luc: luc,
     ly_do: lyDo,
