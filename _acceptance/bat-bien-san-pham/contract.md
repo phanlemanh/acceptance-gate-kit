@@ -6,9 +6,9 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # theo hàng BB1; đường tệp: scripts/luat-san-pham.cjs (mới) + scripts/can-cu-s1.cjs (A2) + scripts/gate-card.js + scripts/khong-can-nguoi.mjs + SKILL feature-loop (S1, S4 «Mọi verdict», mục sổ) + commands/signoff.md + khuôn trong skills/acceptance/references/ + test + tài liệu — không chạm lib/**, hooks/**, cổng chặn gộp
 surfaces: [cli, docs, ui]
 design_doc: docs/superpowers/specs/2026-10-11-bat-bien-san-pham-design.md
-status: draft
-approved_by:
-approved_at:
+status: approved
+approved_by: Manh Phan
+approved_at: 2026-10-11T13:38:58Z
 ---
 
 # Acceptance Contract: bat-bien-san-pham
