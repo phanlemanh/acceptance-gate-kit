@@ -721,3 +721,67 @@ test('DP7-11-do', async () => {
   const loi = await kiemReadme(sao);
   assert.ok(loi.includes('mục thiếu cho-nhip'), `phải nêu «cho-nhip»: ${loi.join(' | ')}`);
 });
+
+// ---------- DP7-12: nguồn hàng hai lộ trình trùng mã — khoá (tệp, mã) (AC-12, E12) ----------
+function khoHaiLoTrinh() {
+  const kho = khoThu('dp7-lt-');
+  ghiJ(path.join(kho, 'a.json'), { schema: 1, ten: 'A', moc: [{ ten: 'M', ngay: '2026-10-25', hang: ['X'] }], hang: [{ ma: 'X', slug: 'x-tu-a', cau_giao: '«X ở a»' }] });
+  ghiJ(path.join(kho, 'b.json'), { schema: 1, ten: 'B', moc: [], hang: [{ ma: 'X', slug: 'x-tu-b', cau_giao: '«X ở b»' }] });
+  ghiT(path.join(kho, '_acceptance', 'config.yaml'), 'schema_version: 1\ndieu_phoi:\n  goi_dot: goi/dot-{ten}\n');
+  return kho;
+}
+function goiNguon(kho, hang, nguon) {
+  const dir = path.join(kho, 'goi', 'dot-thu');
+  ghiJ(path.join(dir, 'dieu-phoi.config.json'), { ...docJ(path.join(GOI, 'scripts', 'mau', 'dieu-phoi.config.json')), nguon_hang: nguon });
+  ghiJ(path.join(dir, 'hang-viec.json'), { dot: '', day: [{ id: 'P1', worktree: themWorktree(kho, 'P1') }], hang, ngoai_hang_merge: [] });
+  ghiT(path.join(dir, 'LUAT-rieng.md'), '# Luật riêng\n');
+}
+const hangCuaDot = (kho) => docJ(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai', 'hang-viec.json')).hang;
+
+async function kiemHaiTep(gocGoi) {
+  const { docHangLoTrinh } = await nap(gocGoi, 'nguon-hang.mjs');
+  const { hang, loi } = docHangLoTrinh(khoHaiLoTrinh(), ['a.json:X', 'b.json:X']);
+  const ra = [];
+  if (loi) ra.push(`loi: ${loi}`);
+  for (const tep of ['a.json', 'b.json']) if (!hang.some((h) => h.tep === tep && h.ma === 'X')) ra.push(`mất ${tep}:X`);
+  return { ra, hang };
+}
+
+test('DP7-12 hai-tep', async () => {
+  const { ra, hang } = await kiemHaiTep(GOI);
+  assert.deepEqual(ra, []);
+  assert.deepEqual(hang, [{ ma: 'X', slug: 'x-tu-a', tep: 'a.json' }, { ma: 'X', slug: 'x-tu-b', tep: 'b.json' }]);
+});
+
+test('DP7-12 mo-hai-tep', () => {
+  const kho = khoHaiLoTrinh();
+  goiNguon(kho, [{ ma: 'X', tep: 'a.json', day: 'P1' }, { ma: 'X', tep: 'b.json', day: 'P1' }], ['a.json:X', 'b.json:X']);
+  const r = chayCli(kho, ['mo', 'thu']);
+  assert.equal(r.ma, 0, r.err);
+  assert.equal(r.err, '');
+  assert.deepEqual(hangCuaDot(kho).map((h) => [h.tep, h.ma, h.slug]), [['a.json', 'X', 'x-tu-a'], ['b.json', 'X', 'x-tu-b']]);
+});
+
+test('DP7-12 khai-lap', async () => {
+  const { docHangLoTrinh } = await nap(GOI, 'nguon-hang.mjs');
+  const { hang } = docHangLoTrinh(khoHaiLoTrinh(), ['a.json:X', 'a.json@2026-10-25']);
+  assert.deepEqual(hang, [{ ma: 'X', slug: 'x-tu-a', tep: 'a.json' }]);
+});
+
+test('DP7-12 khong-tep-mo-ho', () => {
+  const kho = khoHaiLoTrinh();
+  goiNguon(kho, [{ ma: 'X', day: 'P1' }, { slug: 'viec-tay', day: 'P1' }], ['a.json:X', 'b.json:X']);
+  const r = chayCli(kho, ['mo', 'thu']);
+  assert.equal(r.ma, 0, r.err);
+  const dong = r.err.split('\n').filter((d) => /\bX\b/.test(d));
+  assert.equal(dong.length, 1, `cần đúng một dòng nêu X: ${r.err}`);
+  assert.ok(dong[0].includes('a.json') && dong[0].includes('b.json'), dong[0]);
+  assert.deepEqual(hangCuaDot(kho).filter((h) => h.ma === 'X'), [], 'không được gán slug đoán cho hàng X');
+});
+
+test('DP7-12-do khoa-ma', async () => {
+  const sao = chepGoi();
+  tiem(path.join(sao, 'scripts', 'nguon-hang.mjs'), 'const khoa = `${n.tep}\\u0000${m}`;', 'const khoa = m;');
+  const { ra } = await kiemHaiTep(sao);
+  assert.ok(ra.includes('mất b.json:X'), `phải nêu «mất b.json:X»: ${ra.join(' | ')}`);
+});
