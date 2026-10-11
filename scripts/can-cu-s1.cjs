@@ -112,7 +112,8 @@ function phanLoaiDong(e, nc) {
   }
   return nc.goc === 'da-kiem' ? ra('da-quyet') : ra('da-quyet', null, { ghi_chu: GHI_CHU['chua-kiem-goc'] });
 }
-// ctx = { root, slug, base?, docTep?(rel) → string|null }. Dòng bị một dòng SAU nó thay (supersedes) ra bi-thay.
+// ctx = { root, slug, base?, docTep?(rel) → string|null }. Dòng MANG can_cu bị một dòng SAU nó thay (supersedes)
+// ra bi-thay; dòng đời trước giữ doi-truoc dù bị thay — thẻ của hồ sơ cũ in nó như trước vòng này.
 function phanLoaiSo(entries, ctx) {
   const nc = taoNguCanh(ctx); const viTri = new Map();
   entries.forEach((e, i) => { if (e && typeof e.id === 'string' && !viTri.has(e.id)) viTri.set(e.id, i); });
@@ -122,7 +123,7 @@ function phanLoaiSo(entries, ctx) {
   entries.forEach((e, i) => {
     const r = phanLoaiDong(e, nc); if (!r) return;
     const id = typeof e.id === 'string' ? e.id : `dong-${i + 1}`;
-    const d = Object.assign({ id, i, e, lop_goc: r.lop }, r, { lop: biThay.has(id) ? 'bi-thay' : r.lop });
+    const d = Object.assign({ id, i, e, lop_goc: r.lop }, r, { lop: biThay.has(id) && r.lop !== 'doi-truoc' ? 'bi-thay' : r.lop });
     out.dong.push(d);
     if (d.lop === 'bi-thay') out.bi_thay++;
     else if (d.lop === 'doi-truoc') out.doi_truoc++;

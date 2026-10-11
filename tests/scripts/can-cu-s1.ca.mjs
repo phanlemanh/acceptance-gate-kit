@@ -146,6 +146,8 @@ check(`CC-04 ma-tran (${MA_TRAN.length} ca)`, () => {
   const t = mod.phanLoaiSo(so.entries, { root: kho.r, slug: 'h', base: kho.base });
   eq(t.dong.map(d => [d.id, d.lop]), [['x', 'bi-thay'], ['do1', 'do'], ['y', 'da-quyet']], 'bị thay (dòng thay đứng sau một dòng đỏ)');
   eq([t.bi_thay, t.do.length, t.da_quyet.length], [1, 1, 1], 'đếm lớp');
+  const cu = mod.phanLoaiSo([S1('z', undefined), Object.assign(ML('w'), { stage: 'S4-r1', supersedes: 'z' })], { root: kho.r, slug: 'h' });
+  eq(cu.dong.map(d => [d.id, d.lop]), [['z', 'doi-truoc']], 'dòng đời trước bị thay vẫn là đời trước (thẻ hồ sơ cũ không đổi)');
   const h = mod.phanLoaiSo([CN('a'), Object.assign({}, CAU_KD, { id: 'b' })], { root: kho.r, slug: 'h' });
   eq(h.cau_hoi.map(d => [d.id, d.nhan]), [['a', 'Hỏi-1'], ['b', 'Hỏi-2']], 'nhãn Hỏi-n theo thứ tự sổ');
 });
@@ -317,6 +319,120 @@ check('CC-07-do khuon', () => {
   const t = readFileSync(SKILL, 'utf8'); const tiem = t.replace(/(<!-- <<<DEC-LAT-GATE1 -->\n[^\n]*)"stage":"gate1"/, '$1"stage":"S1"');
   if (tiem === t) die('mũi tiêm khuôn lật không áp');
   if (demSauLat(tiem).lat_may_quyet !== 0) die('đổi stage trong khuôn lật mà vẫn đếm 1 — phép đo không phân biệt');
+});
+
+// ── CC-05: thẻ Cổng Phạm vi ────────────────────────────────────────────────────────────────────────────
+const khoiLab = (html, lab) => { const i = html.indexOf(`<div class="lab">${lab}</div>`); if (i < 0) return null; const j = html.indexOf('<div class="lab">', i + 10); return html.slice(i, j < 0 ? undefined : j); };
+const cac = (s, re) => [...String(s || '').matchAll(re)].map(m => m[1]);
+check('CC-05 the', () => {
+  const kho = mkHoSoThe(); const b = ['--glossary-base', kho.base];
+  const h = theCua(kho, b); if (h.status !== 0) die('thẻ thoát ' + h.status + ': ' + h.stderr);
+  const hoi = khoiLab(h.stdout, 'Câu chỉ anh trả lời được'); if (!hoi) die('thiếu khối câu hỏi');
+  eq(cac(hoi, /data-cau-hoi="([^"]+)"/g), ['Hỏi-1', 'Hỏi-2'], 'thứ tự câu hỏi');
+  for (const s of ['Khuyên giữ.', 'Đổi — tốn một tiêu chí.', 'Giữ bản ghi cũ.', 'Xoá bản ghi cũ — không lấy lại được.']) if (!hoi.includes(s)) die('khối câu hỏi thiếu «' + s + '»');
+  eq((hoi.match(/khó-đảo/g) || []).length, 1, 'nhãn khó-đảo đúng một câu');
+  const q2 = hoi.slice(hoi.indexOf('data-cau-hoi="Hỏi-2"')); if (!/^[^\n]*?khó-đảo/.test(q2.split('</p>')[0])) die('nhãn khó-đảo không ở Hỏi-2');
+  const mq = khoiLab(h.stdout, 'Máy đã quyết ở bước thiết kế — anh lật được'); if (!mq) die('thiếu khối máy đã quyết');
+  eq(cac(mq, /data-may-quyet="([^"]+)"/g), ['m1', 'm2'], 'dòng máy đã quyết');
+  if (!mq.includes(`«${Q_GOC}» (CLAUDE.md)`) || !mq.includes('lối khác chết vì: Lối kia chết vì ranh giới tệp.')) die('khối máy đã quyết thiếu căn cứ hoặc lối chết');
+  eq((khoiLab(h.stdout, 'Quyết định &amp; trade-off').match(/<p class="li">/g) || []).length, 2, 'trade-off còn đời trước + S2');
+  const vc = khoiLab(h.stdout, '👉 VIỆC CỦA ANH'); eq((vc.match(/<b>Hỏi-\d+<\/b>/g) || []).length, 2, 'VIỆC CỦA ANH một mục mỗi câu');
+  if (!vc.includes('«duyệt hay sửa: ___»')) die('câu trả lời mẫu đổi');
+  const j = JSON.parse(theCua(kho, [...b, '--extract']).stdout);
+  eq(j.routing.hoi, ['duyệt hay sửa', 'Hỏi-1', 'Hỏi-2'], 'routing.hoi');
+  eq([j.can_cu.cau_hoi.length, j.can_cu.da_quyet.length, j.can_cu.do.length, j.can_cu.doi_truoc], [2, 2, 0, 1], 'đếm can_cu');
+  if (!j.one_shot.endsWith(' duyệt')) die('one_shot không điền sẵn duyệt: ' + j.one_shot);
+});
+check('CC-05 do', () => {
+  const kho = mkHoSoThe({ themDo: true }); const b = ['--glossary-base', kho.base];
+  const co = 'Sổ bước thiết kế — r1: câu trích không có ở gốc nhánh — căn cứ sinh trong vòng';
+  if (!theCua(kho, b).stdout.includes(`<div class="flag fred">${co}</div>`)) die('thiếu cờ đỏ của dòng r1');
+  const j = JSON.parse(theCua(kho, [...b, '--extract']).stdout);
+  if (!j.one_shot.endsWith(' ___')) die('có dòng đỏ mà one_shot vẫn điền sẵn: ' + j.one_shot);
+  eq(j.can_cu.do.map(x => [x.id, x.ma]), [['r1', 'sinh-trong-vong']], 'can_cu.do');
+});
+check('CC-05 khong-goc', () => {
+  const h = theCua(mkHoSoThe()).stdout;
+  eq((h.match(/chưa kiểm câu trích có từ trước vòng/g) || []).length, 1, 'đúng một cờ vàng chưa kiểm gốc');
+  if (/Sổ bước thiết kế — /.test(h)) die('không gốc mà có cờ đỏ mới');
+});
+check('CC-05-do', () => {
+  const d = mkdtempSync(path.join(tmpdir(), 'cancu-gc-'));
+  cpSync(path.join(ROOT, 'scripts'), path.join(d, 'scripts'), { recursive: true }); cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
+  const f = path.join(d, 'scripts', 'gate-card.js'); const t = readFileSync(f, 'utf8');
+  const tu = 'const ccMayQuyet = cc.da_quyet;'; if (!t.includes(tu)) die('mũi tiêm thẻ không áp');
+  writeFileSync(f, t.replace(tu, 'const ccMayQuyet = cc.da_quyet.concat(cc.cau_hoi);'));
+  const kho = mkHoSoThe(); const h = spawnSync('node', [f, '--root', kho.r, '--slug', 'h', '--glossary-base', kho.base], { encoding: 'utf8' }).stdout;
+  const lac = cac(khoiLab(h, 'Máy đã quyết ở bước thiết kế — anh lật được'), /data-may-quyet="([^"]+)"/g).filter(x => x.startsWith('q'));
+  if (!lac.length) die('đưa câu hỏi vào khối máy-đã-quyết mà hàm so không thấy');
+  console.log('    CC-05-do nêu: ' + lac.join(', '));
+});
+
+// ── CC-06: chiều im — đọc vật ở đỉnh tầm vòng ─────────────────────────────────────────────────────────
+const dsHoSo = sha => git(ROOT, 'ls-tree', '--name-only', `${sha}:_acceptance`).split('\n').filter(Boolean);
+check('CC-06 kho-that', () => {
+  const t = tamVong(); const mod = require(MOD); let soHoSo = 0, soDong = 0, soLat = 0; const do_ = [];
+  for (const slug of dsHoSo(t.goc)) {
+    if (slug === SLUG_VONG) continue;
+    const raw = tepO(t.dinh, `_acceptance/${slug}/decisions.jsonl`); if (raw === null) continue;
+    const { entries } = mod.docSo(raw); soHoSo++; soDong += entries.length;
+    soLat += entries.filter(e => e && e.stage === 'gate1' && typeof e.supersedes === 'string').length;
+    if (mod.phanLoaiSo(entries, { root: ROOT, slug, docTep: rel => tepO(t.dinh, rel) }).do.length) do_.push(slug);
+  }
+  console.log(`    CC-06: ${soHoSo} hồ sơ · ${soDong} dòng · ${soLat} dòng gate1 mang supersedes`);
+  if (!soHoSo) die('không đọc được hồ sơ nào'); eq(do_, [], 'hồ sơ có sẵn có dòng đỏ');
+});
+check('CC-06 the-cu', () => {
+  const t = tamVong(); const mod = require(MOD); const chon = [];
+  for (const slug of dsHoSo(t.goc)) {
+    if (chon.length === 3) break;
+    let hd = '', raw = '';
+    try { hd = readFileSync(path.join(ROOT, '_acceptance', slug, 'contract.md'), 'utf8'); raw = readFileSync(path.join(ROOT, '_acceptance', slug, 'decisions.jsonl'), 'utf8'); } catch (_) { continue; }
+    if (!/^status:\s*signed-off\b/m.test(hd)) continue;
+    const en = mod.docSo(raw).entries; if (!en.some(e => e.stage === 'S1')) continue;
+    chon.push([slug, en.filter(e => e.type !== 'seal').length]);
+  }
+  if (chon.length !== 3) die('không đủ ba hồ sơ signed-off có dòng S1');
+  for (const [slug, n] of chon) {
+    const h = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--gate', '1'], { encoding: 'utf8' }).stdout;
+    if (h.includes('dòng sổ đời trước')) die(slug + ': thẻ đã ký mang cờ đời trước');
+    if (h.includes('Câu chỉ anh trả lời được')) die(slug + ': thẻ đã ký có khối câu hỏi');
+    eq((khoiLab(h, 'Quyết định &amp; trade-off').match(/<p class="li">/g) || []).length, n, slug + ': trade-off đủ dòng');
+  }
+  console.log('    CC-06 the-cu: ' + chon.map(x => x[0]).join(', '));
+});
+check('CC-06 vang', () => {
+  const kho = mkKho(); ghiTep(kho.r, '_acceptance/h/contract.md', HD_DRAFT); ghiTep(kho.r, '_acceptance/h/evals.yaml', EVALS);
+  ghiSoKho(kho.r, 'h', [S1('c1', undefined), S1('c2', undefined)]);
+  eq((theCua(kho, ['--glossary-base', kho.base]).stdout.match(/dòng sổ đời trước/g) || []).length, 1, 'đúng một cờ vàng đời trước');
+});
+check('CC-06 bo-doc', () => {
+  const HS = require(path.join(ROOT, 'scripts', 'ho-so-tom-tat.cjs'));
+  const chay = coCanCu => {
+    const kho = mkHoSoThe(); const so = path.join(kho.r, '_acceptance/h/decisions.jsonl');
+    if (!coCanCu) writeFileSync(so, readFileSync(so, 'utf8').split('\n').filter(Boolean).map(l => { const e = JSON.parse(l); delete e.can_cu; return JSON.stringify(e); }).join('\n') + '\n');
+    const tom = HS.tomTatHoSo(path.join(kho.r, '_acceptance', 'h'));
+    const cs = spawnSync('node', [path.join(ROOT, 'feature-loop', 'scripts', 'claim-scan.mjs'), '--root', kho.r, '--slug', 'khac'], { encoding: 'utf8' }).stdout;
+    const lh = spawnSync('node', [path.join(ROOT, 'scripts', 'loop-health.mjs'), '--root', kho.r, '--json'], { encoding: 'utf8' }).stdout;
+    return JSON.stringify([tom && tom.chu_kho, cs.replace(/\/[^\s"]*cancu-[^\s"/]*/g, '<T>'), lh.replace(/\/[^\s"]*cancu-[^\s"/]*/g, '<T>')]);
+  };
+  eq(chay(true), chay(false), 'bộ đọc khác ra cùng kết quả có/không can_cu');
+});
+check('CC-06-do', () => {
+  const mod = banSaoMod("if (c === undefined) return ra('doi-truoc');", "if (c === undefined) return ra('do', 'nguon-la');");
+  const t = tamVong();
+  const dau = dsHoSo(t.goc).find(s => { if (s === SLUG_VONG) return false; const raw = tepO(t.dinh, `_acceptance/${s}/decisions.jsonl`); return raw && mod.docSo(raw).entries.some(e => e.stage === 'S1'); });
+  const kq = mod.phanLoaiSo(mod.docSo(tepO(t.dinh, `_acceptance/${dau}/decisions.jsonl`)).entries, { root: ROOT, slug: dau, docTep: rel => tepO(t.dinh, rel) });
+  if (!kq.do.length) die('coi dòng đời trước là đỏ mà hồ sơ đầu tiên không đỏ');
+  console.log('    CC-06-do nêu: ' + dau);
+});
+
+// ── CC-10: sổ của chính vòng, đọc ở đỉnh tầm, gốc 08ba287d ─────────────────────────────────────────────
+check('CC-10', () => {
+  const t = tamVong(); const mod = require(MOD);
+  const kq = mod.phanLoaiSo(mod.docSo(tepO(t.dinh, `_acceptance/${SLUG_VONG}/decisions.jsonl`)).entries, { root: ROOT, slug: SLUG_VONG, base: '08ba287d', docTep: rel => tepO(t.dinh, rel) });
+  console.log(`    CC-10: đỏ ${kq.do.length} · câu hỏi ${kq.cau_hoi.length} · máy đã quyết ${kq.da_quyet.length} · bị thay ${kq.bi_thay}`);
+  eq([kq.do.length, kq.cau_hoi.length, kq.da_quyet.length, kq.bi_thay], [0, 3, 10, 3], 'sổ của vòng');
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (can-cu-s1)`);
