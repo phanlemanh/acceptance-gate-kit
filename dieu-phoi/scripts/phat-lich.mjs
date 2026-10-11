@@ -9,6 +9,7 @@ import { GIAY_MS, NHIP, PHUT_MS } from './cau-hinh.mjs';
 import { docJson, ghiJsonNguyenTu, ghiSuKien } from './dot.mjs';
 import { docPha } from './pha.mjs';
 import { giuMay, nhaMay, thuHoiMayChet } from './may.mjs';
+import { xetHanMucNhip } from './han-muc.mjs';
 import { docNhomKeHoach } from './nguon-hang.mjs';
 import { capLuot, chonHangKe, hanGiaHan, xetHanThue } from './lich.mjs';
 import { coThuMucSong, NGUONG_SONG_MS, nhipMoiNhatCua } from './song.mjs';
@@ -92,10 +93,11 @@ export const choPhepTheoPha = (pha, taiNguyen) => pha === 'dang-chay' || (pha ==
 
 // `may` = {ap, cho}: đợt mở từ gói (ap) xét thêm khoá s4 cấp máy trước khi cấp s4; không giữ được thì
 // đơn ở lại hàng chờ và `cho` ghi kho đang giữ.
-function capPhat(thuMuc, cfg, hangViec, dangGiu, giamTai, nowMs, pha = 'dang-chay', may = { ap: false, cho: null }) {
+// `choDatLai` (DP4): một cửa sổ hạn mức chạm ngưỡng mà sắp đặt lại → không cấp lượt mới nào tới khi đặt lại.
+function capPhat(thuMuc, cfg, hangViec, dangGiu, giamTai, nowMs, pha = 'dang-chay', may = { ap: false, cho: null }, choDatLai = null) {
   const donXin = docThuMucJson(thuMuc, 'xin', kiemDon);
   for (const { taiNguyen, don } of capLuot({ donXin, dangGiu, giamTai, hangViec })) {
-    if (!choPhepTheoPha(pha, taiNguyen)) continue;
+    if (!choPhepTheoPha(pha, taiNguyen) || choDatLai) continue;
     if (taiNguyen === 's4' && may.ap) {
       const thuHoi = thuHoiMayChet(nowMs);
       if (thuHoi) ghiSuKien(thuMuc, { loai: 'thu-hoi-may', kho: thuHoi.kho, dot: thuHoi.dot, ly_do: thuHoi.ly_do, can_phan: true });
@@ -350,10 +352,12 @@ export async function motNhip(thuMuc, io) {
   const daBao = apGiaHan(thuMuc, nowMs, xuLyYeuCau(thuMuc, cfg, hangViec, io, cu, nowMs));
   const dangGiu = xuLyKhoa(thuMuc, cfg, nowMs);
   const dk = docPha(thuMuc);
-  const pha = dk.pha;
+  // DP4: xét hạn mức TRƯỚC khi cấp — chạm ngưỡng có thể đưa đợt vào bàn giao hay chờ đặt lại ngay nhịp này.
+  const hm = xetHanMucNhip(thuMuc, { cfg, cu, nowMs, pha: dk.pha });
+  const pha = hm.vao_ban_giao ? docPha(thuMuc).pha : dk.pha;
   const may = { ap: Boolean(dk.nguon_goi), cho: null };
   if (may.ap && !dangGiu.s4) nhaMay(thuMuc);
-  const hangCho = capPhat(thuMuc, cfg, hangViec, dangGiu, sucKhoe.giamTai, nowMs, pha, may);
+  const hangCho = capPhat(thuMuc, cfg, hangViec, dangGiu, sucKhoe.giamTai, nowMs, pha, may, hm.cho_dat_lai);
   const tienDo = tienDoCua(hangViec, cfg, io);
   const day = capNhatHangKe(thuMuc, hangViec, tienDo);
   const lienKetCua = new Map(hangViec.day.map((d) => [d.id, d.link]));
@@ -380,6 +384,8 @@ export async function motNhip(thuMuc, io) {
     cho_may: may.cho,
     ...dem,
     khoa_khong_nhip_da_bao: khoaKhongNhip,
+    ...(hm.trang_thai ? { han_muc: hm.trang_thai, han_muc_da_bao: hm.da_bao } : {}),
+    ...(hm.cho_dat_lai ? { cho_dat_lai: hm.cho_dat_lai } : {}),
   };
   ghiJsonNguyenTu(pTrangThai, tt);
   fs.writeFileSync(path.join(thuMuc, 'bang.html'), veBang(tt, { nhom: cfg.goc_kho ? docNhomKeHoach(cfg.goc_kho) : new Map(), hangViec }));

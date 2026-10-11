@@ -1,9 +1,11 @@
 // Mức dùng hạn mức (spec workflow §4.5, design DP4 chỗ chọn 2–5) — MỘT bên viết của `han-muc.json`. Ba nguồn
 // (mod của gói, công cụ `get_usage` của phiên, dòng trạng thái) đổ vào CÙNG một khuôn lần đọc; bộ phát lịch đọc lần
 // đọc hiệu lực mới nhất. Kho không có đợt: không ghi gì (mod gọi CLI này ở mọi phiên của kho).
+import fs from 'node:fs';
 import path from 'node:path';
 import { PHUT_MS } from './cau-hinh.mjs';
-import { docJson, ghiJsonNguyenTu, timThuMucDot } from './dot.mjs';
+import { docJson, ghiJsonNguyenTu, ghiSuKien, timThuMucDot } from './dot.mjs';
+import { datPha } from './pha.mjs';
 import { bayGio } from './song.mjs';
 import { docVai } from './vai.mjs';
 
@@ -105,4 +107,84 @@ export function lanDocHieuLuc(thuMuc, { nowMs = null, vai = docVai(thuMuc) } = {
     .filter((l) => nhan == null || Date.parse(l.luc) >= nhan || l.phien === gs?.phien)
     .sort((a, b) => Date.parse(a.luc) - Date.parse(b.luc));
   return { lan: tuoi.at(-1) ?? null, tuoi };
+}
+
+// ---------- Đánh giá ngưỡng (design chỗ chọn 4–6) ----------
+const lam1 = (x) => Math.round(x * 10) / 10;
+
+// Tốc độ đốt (điểm/phút) của một cửa sổ, đo từ các lần đọc còn tươi cùng giờ đặt lại; null khi chưa đủ hai lần đọc.
+export function tocDoDot(tuoi, cuaSo) {
+  const ds = tuoi.filter((l) => l.cua_so?.[cuaSo]);
+  const moi = ds.at(-1);
+  if (!moi) return null;
+  const cung = ds.filter((l) => l.cua_so[cuaSo].dat_lai === moi.cua_so[cuaSo].dat_lai);
+  if (cung.length < 2) return null;
+  const phut = (Date.parse(moi.luc) - Date.parse(cung[0].luc)) / PHUT_MS;
+  return phut > 0 ? (moi.cua_so[cuaSo].pct - cung[0].cua_so[cuaSo].pct) / phut : null;
+}
+
+// Mức của từng cửa sổ trong lần đọc hiệu lực. Không có lần đọc nguồn mod còn tươi → số chỉ đến theo nhịp thức của
+// phiên, nên ngưỡng bàn giao hạ đúng tốc độ đốt × 30′ (sàn là ngưỡng báo trước) — đường lùi §4.5.
+export function danhGiaHanMuc({ hanMuc, tuoi, lan, nowMs = null }) {
+  const now = bayGio(nowMs);
+  const coMod = tuoi.some((l) => l.nguon === 'mod');
+  const ra = [];
+  for (const ten of CUA_SO) {
+    const w = lan?.cua_so?.[ten];
+    if (!w) continue;
+    if (w.dat_lai && Date.parse(w.dat_lai) <= now) continue; // cửa sổ đã đặt lại — số này hết nghĩa
+    const toc = coMod ? null : tocDoDot(tuoi, ten);
+    const nguong = toc != null && toc > 0 ? lam1(Math.max(hanMuc.bao_truoc_pct, hanMuc.ban_giao_pct - toc * 30)) : hanMuc.ban_giao_pct;
+    ra.push({ ten, pct: w.pct, dat_lai: w.dat_lai, toc_do: toc, nguong_ban_giao: nguong, muc: w.pct >= nguong ? 'cham' : w.pct >= hanMuc.bao_truoc_pct ? 'gan' : 'duoi' });
+  }
+  return { co_mod: coMod, cua_so: ra };
+}
+
+// Một nhịp của bộ phát lịch: MỘT sự kiện cho mức cao nhất mới đạt mỗi cửa sổ mỗi giờ đặt lại; chạm ngưỡng mà sắp đặt
+// lại → chờ đặt lại (không cấp lượt, không đổi pha); chạm mà đặt lại còn xa, hoặc có dấu thợ chết vì hạn mức → vào
+// bàn giao. Đợt không khai `han_muc` → không làm gì (đường đọc-cũ).
+export function xetHanMucNhip(thuMuc, { cfg, cu = {}, nowMs = null, pha }) {
+  const hanMuc = cfg?.han_muc;
+  if (!hanMuc) return { trang_thai: null, da_bao: cu.han_muc_da_bao ?? [], cho_dat_lai: null, vao_ban_giao: false };
+  const now = bayGio(nowMs);
+  const daBao = new Set(cu.han_muc_da_bao ?? []);
+  const { lan, tuoi } = lanDocHieuLuc(thuMuc, { nowMs: now });
+  const dg = danhGiaHanMuc({ hanMuc, tuoi, lan, nowMs: now });
+  let choDatLai = null;
+  let vao = null;
+  for (const w of dg.cua_so) {
+    const k = `${w.ten}@${w.dat_lai}`;
+    if (w.muc === 'cham') {
+      const sapDatLai = w.dat_lai && Date.parse(w.dat_lai) - now <= hanMuc.cho_dat_lai_phut * PHUT_MS;
+      if (sapDatLai) {
+        choDatLai ??= { cua_so: w.ten, den: w.dat_lai };
+        if (!daBao.has(`cho:${k}`)) ghiSuKien(thuMuc, { loai: 'cho-dat-lai', cua_so: w.ten, pct: w.pct, den: w.dat_lai, ly_do: `${w.ten} ${w.pct}% chạm ngưỡng ${w.nguong_ban_giao}%, đặt lại lúc ${w.dat_lai} — tự chờ, không đổi tài khoản`, can_phan: true });
+        daBao.add(`cho:${k}`).add(`gan:${k}`);
+      } else {
+        vao ??= `chạm ngưỡng ${w.ten} ${w.pct}% (ngưỡng ${w.nguong_ban_giao}%)`;
+        if (!daBao.has(`cham:${k}`)) ghiSuKien(thuMuc, { loai: 'cham-han-muc', cua_so: w.ten, pct: w.pct, nguong: w.nguong_ban_giao, viec: '/dieu-phoi:ban-giao', can_phan: true });
+        daBao.add(`cham:${k}`).add(`gan:${k}`);
+      }
+    } else if (w.muc === 'gan' && !daBao.has(`gan:${k}`)) {
+      ghiSuKien(thuMuc, { loai: 'gan-han-muc', cua_so: w.ten, pct: w.pct, nguong: hanMuc.bao_truoc_pct, can_phan: true });
+      daBao.add(`gan:${k}`);
+    }
+  }
+  const dDau = path.join(thuMuc, 'ban-giao', 'dau');
+  const dau = fs.existsSync(dDau) ? fs.readdirSync(dDau).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).sort() : [];
+  let vaoBanGiao = false;
+  if (!vao && dau.length) {
+    vao = `thợ ${dau.join(', ')} chết vì hạn mức`;
+    if (pha === 'dang-chay' || pha === 'tam-dung') ghiSuKien(thuMuc, { loai: 'cham-han-muc', ly_do: vao, viec: '/dieu-phoi:ban-giao', can_phan: true });
+  }
+  if (vao && !choDatLai && (pha === 'dang-chay' || pha === 'tam-dung')) {
+    datPha(thuMuc, 'dang-ban-giao', { boi: 'phat-lich', lyDo: vao, nowMs: now });
+    vaoBanGiao = true;
+  }
+  return {
+    trang_thai: { lan_doc: lan ? { nguon: lan.nguon, phien: lan.phien, luc: lan.luc } : null, co_mod: dg.co_mod, cua_so: dg.cua_so },
+    da_bao: [...daBao],
+    cho_dat_lai: choDatLai,
+    vao_ban_giao: vaoBanGiao,
+  };
 }

@@ -397,3 +397,92 @@ test('DP4-02 chan-doan-han-muc', () => {
   const ds = chanDoanJson(kho, [], luc(GIO));
   assert.equal(mucCua(ds, 'han-muc'), null, `đợt không khai han_muc: ${ds.map((m) => m.muc).join(', ')}`);
 });
+
+// ---------- DP4-03: xét hạn mức trong nhịp bộ phát lịch (AC-3, E3) ----------
+const T = GIO;
+const ISO = (ms) => new Date(ms).toISOString();
+// Một lần đọc của ma trận: nguồn, phiên, tuổi (phút), và % + giờ đặt lại (phút từ T) mỗi cửa sổ.
+const docVao = (kho, { nguon = 'mod', phien = 's-gs', tuoi = 2, nam, tuan }) => {
+  const cs = [];
+  if (nam) cs.push(['five_hour', nam[0], T + nam[1] * PHUT]);
+  if (tuan) cs.push(['seven_day', tuan[0], T + tuan[1] * PHUT]);
+  const du = nguon === 'mod'
+    ? cs.map(([kind, p, r]) => ({ kind, percentUsed: p, resetsAt: ISO(r) }))
+    : { windows: cs.map(([k, p, r]) => ({ label: k === 'five_hour' ? '5-hour limit' : 'Weekly · all models', percentUsed: p, resetsAt: ISO(r) })) };
+  const r = hanMuc(kho, nguon, du, { phien, nowMs: T - tuoi * PHUT });
+  assert.equal(r.ma, 0, r.err);
+};
+const SU_HM = new Set(['gan-han-muc', 'cham-han-muc', 'cho-dat-lai']);
+// Hàng: [nhãn, dựng(kho, dot), số nhịp, kỳ vọng {su, pha, nguong?, khoa?, cho?}]. Số 80, 84 tính tay.
+const MA_TRAN_HM = [
+  ['a', (k) => docVao(k, { nam: [50, 180] }), 1, { su: [], pha: 'dang-chay' }],
+  ['b', (k) => docVao(k, { nam: [82, 180] }), 1, { su: ['gan-han-muc'], pha: 'dang-chay' }],
+  ['c', (k) => docVao(k, { nam: [82, 180] }), 2, { su: ['gan-han-muc'], pha: 'dang-chay' }],
+  ['d', (k, w1) => { docVao(k, { nam: [91, 30] }); chayCli(w1, ['xin', 's4']); }, 1, { su: ['cho-dat-lai'], pha: 'dang-chay', khoa: false, cho: true }],
+  ['e', (k) => docVao(k, { nam: [91, 180] }), 1, { su: ['cham-han-muc'], pha: 'dang-ban-giao', boi: 'phat-lich' }],
+  ['f', (k) => docVao(k, { nam: [91, 180], tuoi: 40 }), 1, { su: [], pha: 'dang-chay' }],
+  ['g', (k, w1, dot) => { docVao(k, { nam: [91, 180], phien: 's-khac' }); datNhanLuc(dot, ISO(T - 1 * PHUT)); }, 1, { su: [], pha: 'dang-chay' }],
+  ['h', (k, w1, dot) => { docVao(k, { nam: [91, 180], phien: 's-gs' }); datNhanLuc(dot, ISO(T - 1 * PHUT)); }, 1, { su: ['cham-han-muc'], pha: 'dang-ban-giao' }],
+  ['i', (k) => { for (const [tuoi, p] of [[30, 37], [15, 59.5], [0, 82]]) docVao(k, { nguon: 'get-usage', tuoi, nam: [p, 180] }); }, 1, { su: ['cham-han-muc'], pha: 'dang-ban-giao', nguong: 80 }],
+  ['j', (k) => docVao(k, { nam: [40, 180], tuan: [91, 3000] }), 1, { su: ['cham-han-muc'], pha: 'dang-ban-giao', cuaSo: 'seven_day' }],
+  ['k', (k, w1, dot) => ghiJ(path.join(dot, 'ban-giao', 'dau', 'P1.json'), { day: 'P1', phien: 's-p1', luc: ISO(T - PHUT), loi: 'rate_limit', wip: null, luot_do: false }), 1, { su: ['cham-han-muc'], pha: 'dang-ban-giao', lyDo: 'P1' }],
+  ['l', (k) => docVao(k, { nam: [99, 180] }), 1, { su: [], pha: 'dang-chay', khongHanMuc: true }],
+  ['m', (k) => { for (const [tuoi, p] of [[30, 79], [15, 82], [0, 85]]) docVao(k, { nguon: 'get-usage', tuoi, nam: [p, 180] }); }, 1, { su: ['cham-han-muc'], pha: 'dang-ban-giao', nguong: 84 }],
+  ['n', (k) => { for (const [tuoi, p] of [[30, 77], [15, 80], [0, 83]]) docVao(k, { nguon: 'get-usage', tuoi, nam: [p, 180] }); }, 1, { su: ['gan-han-muc'], pha: 'dang-chay', nguong: 84 }],
+  ['o', (k, w1) => { docVao(k, { nam: [91, 30] }); chayCli(w1, ['xin', 's4']); }, 'dat-lai', { su: ['cho-dat-lai'], pha: 'dang-chay', khoa: true, cho: false }],
+];
+
+async function chayHangHm([nhan, dung, soNhip, mong], gocGoi = GOI) {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
+  const { kho, dot, w1 } = khoLienKet({ gocGoi, cauHinh: mong.khongHanMuc ? { han_muc: undefined } : {} });
+  datNhanLuc(dot, ISO(T - 60 * PHUT));
+  dung(kho, w1, dot);
+  await motNhip(dot, T, gocGoi);
+  if (soNhip === 2) await motNhip(dot, T + PHUT, gocGoi);
+  if (soNhip === 'dat-lai') {
+    docVao(kho, { nam: [10, 330], tuoi: -31 });
+    await motNhip(dot, T + 31 * PHUT, gocGoi);
+  }
+  const su = suKienCua(dot).filter((e) => SU_HM.has(e.loai));
+  const dk = docJ(path.join(dot, 'dieu-khien.json'));
+  const tt = docJ(path.join(dot, 'trang-thai.json'));
+  const loi = [];
+  const thuc = su.map((e) => e.loai);
+  if (JSON.stringify(thuc) !== JSON.stringify(mong.su)) loi.push(`(${nhan}) sự kiện [${thuc}], cần [${mong.su}]`);
+  if (dk.pha !== mong.pha) loi.push(`(${nhan}) pha ${dk.pha}, cần ${mong.pha}`);
+  if (mong.boi && dk.dat_boi !== mong.boi) loi.push(`(${nhan}) dat_boi ${dk.dat_boi}, cần ${mong.boi}`);
+  if (mong.nguong != null) {
+    const ng = tt.han_muc?.cua_so?.find((w) => w.ten === 'five_hour')?.nguong_ban_giao;
+    if (ng !== mong.nguong) loi.push(`(${nhan}) ngưỡng hiệu lực ${ng}, cần ${mong.nguong}`);
+  }
+  if (mong.cuaSo && !su.some((e) => e.cua_so === mong.cuaSo)) loi.push(`(${nhan}) sự kiện không mang cửa sổ ${mong.cuaSo}`);
+  if (mong.lyDo && !String(dk.ly_do).includes(mong.lyDo)) loi.push(`(${nhan}) lý do «${dk.ly_do}» không nêu ${mong.lyDo}`);
+  if (mong.khoa != null && fs.existsSync(path.join(dot, 'khoa', 's4', 'chu.json')) !== mong.khoa) loi.push(`(${nhan}) khoá s4 ${mong.khoa ? 'không được cấp' : 'bị cấp'}`);
+  if (mong.cho != null && Boolean(tt.cho_dat_lai) !== mong.cho) loi.push(`(${nhan}) cho_dat_lai ${tt.cho_dat_lai ? 'có' : 'vắng'}`);
+  return { nhan, thuc, pha: dk.pha, loi };
+}
+
+test('DP4-03 ma-tran', async () => {
+  const kq = [];
+  for (const hang of MA_TRAN_HM) kq.push(await chayHangHm(hang));
+  console.log(kq.map((r) => `  (${r.nhan}) · [${r.thuc}] · ${r.pha}${r.loi.length ? ` · ${r.loi.join('; ')}` : ''}`).join('\n'));
+  assert.equal(kq.length, 15);
+  assert.deepEqual(kq.flatMap((r) => r.loi), []);
+});
+
+test('DP4-03-do bo-ve-giam-sat', async () => {
+  const sao = tam('dp4-goi-');
+  fs.cpSync(GOI, sao, { recursive: true });
+  const p = path.join(sao, 'scripts', 'han-muc.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace(' || l.phien === gs?.phien', '');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const lech = [];
+  for (const hang of MA_TRAN_HM) {
+    const r = await chayHangHm(hang, sao);
+    if (r.loi.length) lech.push(r.nhan);
+  }
+  console.log(`  hàng lệch trên bản tiêm: ${lech.join(', ')}`);
+  assert.deepEqual(lech, ['h']);
+});
