@@ -5,10 +5,10 @@ slug: ngoai-n-tu-dinh-tuyen
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: verified
+status: draft
 design_doc: docs/superpowers/specs/2026-10-11-ngoai-n-tu-dinh-tuyen-design.md
-approved_by: manh
-approved_at: 2026-10-11
+approved_by:
+approved_at:
 ---
 
 # Acceptance Contract: ngoai-n-tu-dinh-tuyen
@@ -118,6 +118,34 @@ Thuật ngữ:
   định tắt, điều kiện hồ sơ, cách đảo, và giới hạn dòng máy lệch mục kèm ngưỡng; tên khoá trong GUIDE bằng hằng
   khoá xuất ra từ bên ghi (ca so hai chuỗi). Chiều đỏ: bản sao GUIDE đổi một chữ của tên khoá → ca đỏ nêu tên khoá.
 
+- AC-11: Given một kho thử có ba hồ sơ — (a) `machine-cleared` với một dòng máy mà `tieu_de` khác tiêu đề mục hiện
+  tại, (b) đã ký Cổng 2 với dòng máy khớp tiêu đề, (c) không có dòng máy — và khoá kho VẮNG, When chạy
+  `dinh-tuyen-may.cjs --soat-lech --root <kho>` (không `--slug`), Then lệnh không đọc khoá kho và không xét điều kiện
+  hồ sơ, thoát 2, stdout đúng một dòng `dinh-tuyen-may: 1 hồ sơ có dòng máy lệch mục` theo sau là một dòng nêu
+  slug (a) + `Ngoài-<n>` + hai tiêu đề, và không ghi byte nào (băm `_acceptance/` trước == sau); gỡ hồ sơ (a) → thoát 0,
+  `dinh-tuyen-may: 0 hồ sơ có dòng máy lệch mục`. GUIDE và đầu tệp bên ghi đếm ngưỡng bằng ĐÚNG lệnh này (ca so chuỗi
+  lệnh trong khối GUIDE). Chiều đỏ: bản sao bên ghi cho `--soat-lech` đi qua bước xét điều kiện hồ sơ → (a) không được
+  đếm, ca nêu «hồ sơ machine-cleared không được đếm».
+- AC-12: Given một hồ sơ có dòng máy ghi tiêu đề `X` cho `Ngoài-1`, When review-findings ở lượt sau mang mục cùng vị
+  trí với tiêu đề `X (r1)` hoặc `X (r1 · tệp đã đổi)` (nhãn lượt do bước mang-sang của S4 chèn, cả hai dạng nhãn trong
+  hai dấu sao và ngoài hai dấu sao), Then bên ghi chạy lại thoát 0 `dinh-tuyen-may: 0 mục`, thẻ xếp `Ngoài-1` vào
+  `routing.bao` không cờ lệch, và `--soat-lech` không đếm hồ sơ ấy; tiêu đề khác thật (`Y (r1)`) vẫn là lệch ở cả
+  ba mặt. So tiêu đề sau khi gỡ nhãn lượt bằng MỘT hàm chung của bên ghi mà thẻ gọi lại. Chiều đỏ: bản sao bỏ bước
+  gỡ nhãn → hàng `X (r1)` đỏ nêu «nhãn lượt bị coi là mục đã đổi».
+- AC-13 (judgment): Given khối `DINH-TUYEN-MAY` của SKILL feature-loop, When đọc, Then khối nói rõ việc máy làm khi
+  dòng lệnh thoát mã KHÁC 0 và 2 (bộ giải gói thoát 1 vì bản acceptance-gate đang cài chưa có bên ghi; bên ghi
+  thoát 3): báo đúng một dòng nêu mã và nguyên văn dòng lỗi, coi như khoá tắt (không định tuyến mục nào), rồi đi
+  tiếp `khong-can-nguoi.mjs --write` như trước vòng — không dừng chờ người. Kèm phép máy: bộ giải gói thật, gọi với
+  `--require scripts/dinh-tuyen-may-khong-co.cjs`, thoát khác 0 và khác 2 (ca in mã), để nhánh khối mô tả là nhánh
+  có thật.
+- AC-14: Given tệp ca đo của vòng, When chạy, Then MỌI ca chiều đỏ (`NT<k>-do …`) (i) chạy bản lành trên CÙNG fixture
+  trước và in kết quả lành; (ii) chỉ PASS khi đầu ra THẬT của lệnh đo chạy trên bản đột biến (stdout, stderr, hay lý
+  do do chính bên đọc in) chứa chuỗi ghim viết sẵn trong ca, và in nguyên văn đoạn đầu ra đã khớp sau chữ «ghim»;
+  không ca đỏ nào kết luận chỉ từ mã thoát hay in câu «ca bắt được» viết cứng. Riêng ba ca bị nêu: NT3-do chuoi-con
+  ghim «dòng máy trỏ mục đã đổi» + «Ngoài-1» + «loi so 11» từ stderr bản đột biến; NT5-do thieu-nhan ghim lý do của
+  `khong-can-nguoi.mjs` «chưa người định tuyến: Ngoài-1, Ngoài-2»; NT9-do ten-sai ghim tên tệp sai trong stderr của bộ
+  giải. Ca đếm: số ca `-do` in dòng «ghim» == số ca `-do` đã chạy (in hai số).
+
 ## Coverage
 
 Quét bằng skill `morphological-scan`, preset test-matrix — bảng đủ ở design doc §8.
@@ -159,5 +187,13 @@ Phân loại:
 - Phép (b) của AC-9 so với sha gốc cố định `d9d1f3a6`: một vòng sau sửa có chủ đích các khối ấy làm nó đỏ ĐÚNG
   (hồ sơ này thôi chứng chúng) — lúc đó eval đổi `status: not-run` kèm `superseded_by` theo GUIDE §7.1, không
   sửa sha. Không so với merge-base: gốc ấy trôi, sau gộp thành so tệp với chính nó (bài học DP7 Ngoài-1).
+- **Known limits (Cổng Bằng chứng lượt 1, 12/10, chủ kho định tuyến «ghi Known limits» — mục ngoài hợp đồng S4-r1):**
+  - Phép thử trang thẻ chỉ kiểm lệnh đảo có mặt đâu đó trên trang, không kiểm nó nằm cạnh đúng mục của nó (NT7 html).
+  - Thẻ chép cứng dấu máy `dinh-tuyen-ngoai-n` thay vì rút hằng `DAU_MAY` từ bên ghi — đổi một bên mà quên bên kia thì
+    nhãn «máy định tuyến» và lệnh đảo ở khối CHƯA duyệt lặng lẽ biến mất.
+  - Dán nguyên câu gộp thẻ điền sẵn cho mục máy đã định tuyến có thể thêm một gạch Known limits trùng vào Notes.
+  - Thẻ nạp bên ghi hỏng thì lặng lẽ coi như không có dòng máy — mục máy đã định tuyến hiện lại thành câu hỏi, không cờ.
+- Phạm vi nâng sau Cổng Bằng chứng lượt 1 (AC-11…AC-14, sổ quyết định cùng ngày): sáu mục ngoài hợp đồng sửa ngay thay
+  vì tách việc; Cổng Phạm vi duyệt lại là lượt gọi người ngoài thiết kế.
 - Reality đọc ở đợt thử crm 26/10 khi crm bật khoá: số hồ sơ đi làn V, số mục máy định tuyến bị người đảo.
   Ngưỡng xem lại thiết kế: tỉ lệ đảo > 10 % mục máy định tuyến trong một đợt (đo hôm nay 11/237 ≈ 4,6 %).

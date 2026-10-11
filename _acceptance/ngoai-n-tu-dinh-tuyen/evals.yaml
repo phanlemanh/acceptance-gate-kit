@@ -183,3 +183,66 @@ evals:
       chuỗi), "true | false", "mặc định tắt", chữ "đảo" và "Ngoài-<n>: mở hợp đồng mới; Ký", và một câu ngưỡng chứa
       "tieu_de". Chiều đỏ "PASS: NT10-do doi-chu" (bản sao GUIDE đổi một chữ của tên khoá → ca nêu tên khoá).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  # ── Phạm vi nâng sau Cổng Bằng chứng lượt 1 (AC-11…AC-14) ──
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.ngoai_n_tu_dinh_tuyen
+    paths: [scripts/dinh-tuyen-may.cjs, GUIDE.md, tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs]
+    expected: >
+      exit 0; "PASS: NT11 soat-lech": kho thử ba hồ sơ (machine-cleared lệch · đã ký khớp · không dòng máy), khoá kho
+      VẮNG → `--soat-lech --root <kho>` thoát 2, stdout dòng đầu == "dinh-tuyen-may: 1 hồ sơ có dòng máy lệch mục",
+      dòng kế chứa slug hồ sơ lệch, "Ngoài-1" và hai tiêu đề; băm cây _acceptance/ trước == sau. "PASS: NT11
+      soat-sach": gỡ hồ sơ lệch → thoát 0, stdout == "dinh-tuyen-may: 0 hồ sơ có dòng máy lệch mục". "PASS: NT11
+      guide-lenh": khối GUIDE NGOAI-N-TU-DINH-TUYEN chứa chuỗi "dinh-tuyen-may.cjs --soat-lech". Chiều đỏ "PASS:
+      NT11-do qua-dieu-kien" (bản sao cho --soat-lech đi qua bước xét điều kiện hồ sơ → in "0 hồ sơ"; ca ghim chuỗi
+      ấy từ stdout bản đột biến và nêu "hồ sơ machine-cleared không được đếm").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.ngoai_n_tu_dinh_tuyen
+    paths: [scripts/dinh-tuyen-may.cjs, scripts/gate-card.js, tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs]
+    expected: >
+      exit 0; "PASS: NT12 ma-tran" với bốn hàng in ra (trong-sao "X (r1)" · ngoai-sao "X** (r1)" · tep-doi "X (r1 · tệp
+      đã đổi)" · khac-that "Y (r1)"): ba hàng đầu — bên ghi chạy lại thoát 0 stdout "dinh-tuyen-may: 0 mục", thẻ có
+      Ngoài-1 trong routing.bao và HTML không có "dòng máy trỏ mục đã đổi", --soat-lech in "0 hồ sơ"; hàng khac-that —
+      bên ghi thoát 2, thẻ có cờ, --soat-lech in "1 hồ sơ". Nhãn lượt rút từ khuôn OOC-TITLE-RE của lib (mục dựng bằng
+      khuôn OOC-ITEM-TEMPLATE rồi chèn nhãn). "PASS: NT12 mot-ham": gate-card.js gọi hàm so tiêu đề xuất từ
+      dinh-tuyen-may.cjs (không tự định nghĩa). Chiều đỏ "PASS: NT12-do bo-go-nhan" (bản sao bỏ bước gỡ nhãn → hàng
+      trong-sao: bên ghi thoát 2, ca ghim "dòng máy trỏ mục đã đổi" từ stderr bản đột biến, nêu "nhãn lượt bị coi là
+      mục đã đổi").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13a
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.ngoai_n_tu_dinh_tuyen
+    paths: [feature-loop/scripts/resolve-plugin.mjs, feature-loop/skills/feature-loop/SKILL.md, tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs]
+    expected: >
+      exit 0; "PASS: NT13 resolver-thieu": feature-loop/scripts/resolve-plugin.mjs gọi với --plugin acceptance-gate
+      --require scripts/dinh-tuyen-may-khong-co.cjs thoát mã khác 0 và khác 2 (ca in mã); "PASS: NT13 khoi-co-nhanh":
+      khối DINH-TUYEN-MAY chứa cụm "khác 0 và 2". Đối chứng dương: cùng bộ giải với --require scripts/dinh-tuyen-may.cjs
+      và --root của cây → thoát 0 (ca in cả hai mã).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13b
+    criterion: AC-13
+    executor: judgment
+    inputs: [feature-loop/skills/feature-loop/SKILL.md]
+    question: >
+      Đọc khối giữa hai marker DINH-TUYEN-MAY trong SKILL.md. Khối có nói rõ việc máy làm khi dòng lệnh thoát mã KHÁC
+      0 và 2 (bộ giải gói thoát 1 vì bản acceptance-gate đang cài chưa có bên ghi; bên ghi thoát 3) không: báo đúng một
+      dòng nêu mã và nguyên văn dòng lỗi, coi như khoá tắt (không định tuyến mục nào), rồi đi tiếp
+      khong-can-nguoi.mjs --write như trước — và nói rõ KHÔNG dừng chờ người ở nhánh đó? Trả PASS chỉ khi đủ cả bốn ý.
+    evidence_required: [run_id, verdict, rationale]
+  - id: E14
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.ngoai_n_tu_dinh_tuyen
+    paths: [tests/scripts/ngoai-n-tu-dinh-tuyen.test.mjs]
+    expected: >
+      exit 0; mỗi ca "PASS: NT<k>-do …" có ngay trước nó một dòng "· NT<k>-do <tên>: lành «…» · ghim «…»" trong đó đoạn
+      sau "ghim" là đầu ra thật của lệnh đo trên bản đột biến (không phải câu cố định); riêng NT3-do chuoi-con ghim
+      chứa "dòng máy trỏ mục đã đổi", "Ngoài-1" và "loi so 11"; NT5-do thieu-nhan ghim chứa "chưa người định tuyến:
+      Ngoài-1, Ngoài-2"; NT9-do ten-sai ghim chứa "dinh-tuyen-mai.cjs". "PASS: NT14 dem-ghim": số ca -do in dòng ghim ==
+      số ca -do đã chạy (ca in hai số, cả hai ≥ 13). Không có dòng nào chứa "ca bắt được".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
