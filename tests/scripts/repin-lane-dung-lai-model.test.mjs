@@ -5,12 +5,13 @@
 //   GG_CASES=AC1-im node tests/scripts/repin-lane-dung-lai-model.test.mjs
 import path from 'node:path';
 import fs from 'node:fs';
-import { boKiem, ok, ROOT } from './gia-lan-fixture.mjs';
+import { boKiem, ok, ROOT, mkKho } from './gia-lan-fixture.mjs';
 
 const LIB = process.env.GG_LIB_DUNG_LAI || path.join(ROOT, 'feature-loop', 'scripts', 'lib', 'dung-lai-model.mjs');
 const L = await import(LIB);
 
-const ALL = ['LIB-van-tay-het-gio', 'LIB-van-tay-thoat', 'LIB-van-tay-rong', 'LIB-goi-ten', 'LIB-bien-shell', 'LIB-chon-nguon', 'LIB-bam-tung-lop', 'LIB-khoi-marker'];
+const ALL = ['LIB-van-tay-het-gio', 'LIB-van-tay-thoat', 'LIB-van-tay-rong', 'LIB-goi-ten', 'LIB-bien-shell', 'LIB-chon-nguon', 'LIB-bam-tung-lop', 'LIB-khoi-marker',
+  'AC1-im'];
 const { ca, ket } = boKiem(ALL);
 
 // Khối marker của bên viết — rút từ tệp thư viện, rút rỗng là ĐỎ.
@@ -130,6 +131,46 @@ await ca('LIB-bam-tung-lop', 'đổi mỗi lớp (rút từ khối) → băm kh�
     ok(doi[ten], `lớp «${ten}» không có ca`);
     ok(L.bamDauVao({ ...goc, ...doi[ten] }) !== h0, `ghim: lớp ${ten} không vào băm`);
   }
+});
+
+// ── Kho thử của các ca làn: E1 model (lệnh gọi tên tools/e1.sh nằm NGOÀI paths), E2 thường, lệnh dấu vân tay
+// đếm số lần chạy và in model-id — mọi tệp đếm/điều khiển nằm NGOÀI kho ($GG_DAU), không vào băm.
+export const E1_SH = 'echo ran >> "$GG_DAU/E1.txt"\nexit $(cat "$GG_DAU/E1-exit" 2>/dev/null || echo 0)\n';
+export const VT_SH = 'echo x >> "$GG_DAU/van-tay.txt"\ncat "$GG_DAU/model-id" 2>/dev/null || echo m1\n';
+export const CFG = '  model_evals: [feat/E1]\n  model_carry_cmd: "sh van-tay.sh"\n';
+export function mkG3({ config = CFG, e1 = {}, them = [], files = {}, lane, agRoot } = {}) {
+  return mkKho({
+    config, lane, agRoot,
+    evals: [{ id: 'E1', cmd: 'rang_e1', sh: e1.sh || 'sh tools/e1.sh', paths: e1.paths === undefined ? ['src/a.txt'] : e1.paths }, { id: 'E2', cmd: 'rang_e2' }, ...them],
+    files: { 'tools/e1.sh': E1_SH, 'tools/khac.txt': 'k\n', 'src/a.txt': 'a\n', 'van-tay.sh': VT_SH, ...files },
+  });
+}
+// Một lượt ghim lại có ghi rồi commit (như luồng thật: pin được commit trước lượt kế).
+export function lanCommit(k, args = [], o) {
+  const r = k.lane(['--write', ...args], o);
+  if (r.status === 0) { k.git('add', '-A'); k.git('commit', '-qm', 'repin'); }
+  return r;
+}
+export const pins = (k) => k.docLog().filter(l => l.kind === 'repin');
+
+await ca('AC1-im', 'đầu vào không đổi → lượt 2 không gọi model, nói ra ở bốn chỗ', async () => {
+  const k = mkG3();
+  const r1 = lanCommit(k);
+  ok(r1.status === 0, `lượt 1 mã ${r1.status}\n${r1.stderr}`);
+  const p1 = pins(k).pop();
+  ok(p1.evals_hash && /^[0-9a-f]{64}$/.test(p1.evals_hash.E1), `lượt 1 không ghi băm: ${JSON.stringify(p1)}`);
+  const r2 = lanCommit(k);
+  ok(r2.status === 0, `lượt 2 mã ${r2.status}\n${r2.stderr}`);
+  ok(k.dem('E1.txt') === 1, `ghim: gọi model khi đầu vào không đổi — E1 chạy ${k.dem('E1.txt')} lần`);
+  ok(k.dem('E2.txt') === 2, `E2 chạy ${k.dem('E2.txt')} lần, mong 2`);
+  const p2 = pins(k).pop();
+  ok(p2.evals_carry && p2.evals_carry.E1 === p1.run_id, `ghim: dùng lại im — evals_carry ${JSON.stringify(p2.evals_carry)}`);
+  ok(p2.evals_exit.E1 === p1.evals_exit.E1 && p2.evals_hash.E1 === p1.evals_hash.E1, `mã/băm lệch: ${JSON.stringify(p2)}`);
+  ok(p2.tong_ket.model_goi === 0 && p2.tong_ket.model_carry === 1, `tổng kết ${JSON.stringify(p2.tong_ket)}`);
+  ok(k.docReport().includes(`dùng lại theo băm đầu vào (không gọi model): E1←${p1.run_id}`), 'ghim: dùng lại im — section thiếu hậu tố');
+  ok(/feat E1: dùng lại theo băm [0-9a-f]{8} từ /.test(r2.stderr), `ghim: dùng lại im — stderr thiếu dòng dùng lại`);
+  ok(/eval model thật: gọi 0, carry 1/.test(r2.stderr), 'ghim: dùng lại im — tổng kết không đếm carry');
+  ok(k.dem('van-tay.txt') === 2, `lệnh dấu vân tay chạy ${k.dem('van-tay.txt')} lần trong hai lượt, mong 2`);
 });
 
 ket();
