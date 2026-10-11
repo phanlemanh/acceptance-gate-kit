@@ -5,7 +5,7 @@ slug: dieu-phoi-feature-loop-trong-dot
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-11-dieu-phoi-feature-loop-trong-dot-design.md
 approved_by:
 approved_at:
@@ -83,3 +83,12 @@ Phân loại:
   được ở đây: AC-8 đo chữ của khối, không đo phiên chạy nó. Nhãn: *không đọc được ở đây* — reality đọc ở đợt
   thử crm (~26/10) và OneFlow (~27/10), ngưỡng: ≥1 lần một thợ trong đợt thử hỏi người ngoài yêu cầu
   `can-nguoi`, hoặc dừng ở chặn S4.
+- **Known limits (Cổng Bằng chứng, ký 11/10, owner định tuyến «ghi Known limits»):** phép kiểm chiều im
+  DP7-09 so với merge-base đang trôi — vòng sau sửa feature-loop có thể đỏ oan, sau gộp thì xanh rỗng
+  (Ngoài-1) · `pha dang-chay --tu-merge` khi đã ở dang-chay bỏ im lặng ở đợt cũ và không ghi nhật ký ở đợt
+  mới (Ngoài-4, Ngoài-6 trùng) · thước lỏng: DP7-09 script-khac/hook thiếu đối chứng đỏ riêng (Ngoài-7),
+  DP7-06 ngoai-day và DP7-10 không chứng minh base (Ngoài-8), nhánh «trên nhánh chính → gop» của AC-4 chỉ thử
+  machine-cleared (Ngoài-9). Sổ: `docs/research/known-limits-ledger.tsv`.
+- **Mở hợp đồng mới (Cổng Bằng chứng, ký 11/10):** Ngoài-2 (bên đọc theo `ma` một mình khi hai hàng trùng
+  mã khác `tep`), Ngoài-3 (trong-dot.mjs gộp mọi lỗi của `tho` thành «lõi cũ»; Ngoài-5 trùng) — ghi hạt giống
+  `docs/plans/2026-10-11-hat-giong-tho-trong-dot-sau-dp7.md`, không tạo ô.
