@@ -25,6 +25,47 @@ phẩm trên PR không đổi mã (17 % PR chỉ T1, 12,5 % PR chỉ hồ sơ).
 - Nhận mốc ở crm: thay khối `sed` của `.github/scripts/phan-loai.mjs` bằng `--hang-pr`; giữ job `check` (oxlint quét
   `_acceptance/**/rang/`), chỉ gắn job `test` vào bit.
 
+### Lộ trình chỉ chứa việc phát triển — việc vận hành thành mốc ngoài, dữ liệu giả có nhãn (hồ sơ `lo-trinh-chi-viec-phat-trien`, hàng S3b, T2)
+
+Gốc: crm `khung-okr-truoc-r1` — lộ trình OKR 11/16 mốc là việc vận hành của người; lộ trình Kho tài liệu
+có hàng phát triển đứng chờ hàng vận hành `ct`.
+
+- Skill cắt lượt có bước 2b (khối `CAT-LUOT-VAN-HANH`): xếp từng mã thành phát triển · vận hành một lần ·
+  vận hành lặp lại trước sáu luật. Việc vận hành thành **mốc ngoài** (`moc` có `loai: "ngoai"`, `ai`, `dot`,
+  `phu`) — chỗ thứ ba của bảng phủ (`<mã> → mốc ngoài <nhãn>`). Luật 2 nói rõ: «dữ liệu thật của hàng
+  trước» là kết quả vòng trước đã giao; `dung_tren` chỉ trỏ hàng.
+- Răng `cat-luot.mjs` thêm bốn cờ: `cho-van-hanh` (hàng đứng trên một mốc ngoài) · `du-lieu-sai-gia-tri`
+  · `thieu-hang-sinh-gia` (hàng `du_lieu: "gia"` không đứng trực tiếp trên hàng `du_lieu: "sinh-gia"`) —
+  đỏ trong đợt, gom vàng ngoài đợt; `van-hanh-lap-chua-tu-phuc-vu` (mốc ngoài `lap: true` chưa có
+  `tu_phuc_vu`) — vàng. Mốc của đợt mang mã mà không phải mốc ngoài, hay thiếu `ai`, là lỗi.
+- Hai mục treo của S3: SKILL phân hai loại dòng `cảnh báo:` (khối `CAT-LUOT-CANH-BAO` — của đợt thì xử
+  lý hoặc ghi lý do; ngoài đợt thì chép vào PR) và nói khoảng cỡ là chính sách của kit theo bản phát
+  hành (kho tiêu thụ không sửa khối, dán số đo của đồng hồ cỡ vào PR và báo chủ kit).
+- Khuôn lộ trình và khuôn bản phạm vi có mẫu mốc ngoài lặp lại, hàng sinh dữ liệu giả, hàng dùng nó.
+
+**Ai bị ảnh hưởng:** kho có lộ trình (crm). Lộ trình cũ đọc như cũ — đo trên kit + ba bản chụp crm/oneflow:
+cùng mã thoát, 0 dòng mới. Trang lộ trình và khối dữ liệu không đổi.
+**Khi update:** lượt cắt kế của crm (OKR, Kho tài liệu) đặt việc vận hành vào mốc ngoài; hàng cần dữ liệu
+thật thì có hàng sinh dữ liệu giả đứng trước. Đó cũng là lần đọc ngưỡng của vòng (Cổng Giá trị).
+
+### Làn ghim lại dùng lại eval model thật khi đầu vào không đổi (hồ sơ `eval-goi-model-that-khong-chay`, hàng G3, T2)
+
+Gốc: crm `eval-model-that-dung-luc` — «bộ nhớ đệm theo băm cho mọi eval model thật (bộ kit)»; đo 11/10:
+14/44 lần chạy lại eval model trong làn ghim lại có đầu vào không đổi, 15 làn gọi model tốn 15,67 USD/4 ngày.
+
+- Khoá mới `feature_loop.model_carry_cmd` (lệnh in dấu vân tay môi trường model: id model nhà cung cấp trả,
+  băm khoá gói). **Khoá vắng = như 2.26**: không băm, không khoá mới trong dòng pin (trường `tong_ket.model_carry` có từ 2.23 và vẫn bằng 0), không dòng stderr mới.
+- Khoá bật: mỗi eval trong `model_evals` được băm năm lớp đầu vào (lệnh đã giải · tệp khớp `paths` · cây
+  hồ sơ · tệp lệnh gọi tên · dấu vân tay). Cùng băm với lượt eval thật sự chạy gần nhất (≤ 7 ngày) → KHÔNG
+  gọi model; dòng `repin` mang `evals_hash`, `evals_carry`; section và stderr nói ra nguồn; tổng kết đếm
+  `carry`. Cùng băm mà mã khác → `carry_lech`, eval thôi dùng lại tới khi băm đổi. Cờ `--chay-lai-model` ép
+  chạy thật.
+- Script đếm mới `feature-loop/scripts/dem-dung-lai-model.mjs` (đường đo + bốn giới hạn kèm ngưỡng, GUIDE §7.1).
+- Bên đọc pin (`lib/`, `pre-merge-check.sh`, `recheck-evidence.cjs`) KHÔNG đổi — kho tiêu thụ không chép lại
+  lớp CI cho mục này.
+- **Nhận mốc ở crm:** cập nhật plugin feature-loop, thêm `model_carry_cmd` (lệnh dò id model Gateway + băm
+  `bun.lock`); lượt ghim lại đầu tiên sau khi bật chạy trọn.
+
 ### Trang hồ sơ một việc + khối dữ liệu lộ trình bản 2 (hồ sơ `trang-ho-so-mot-viec`, hàng X2, T2)
 
 Gốc: crm `trang-lo-trinh-trong-crm` — mục ngoài hợp đồng «hiện hồ sơ nghiệm thu của việc».
