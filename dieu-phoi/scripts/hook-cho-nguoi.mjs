@@ -24,9 +24,13 @@ export function xuLyChoNguoi(dauVao, { timDot = timThuMucDot } = {}) {
     return 'xoa';
   }
   if (dauVao.hook_event_name !== 'Notification' || !LOAI_CHO.has(dauVao.notification_type)) return 'bo-qua';
-  if (coTepBatDau(thuMuc, 'xin', `${phien}-`).length > 0) return 'cho-luot';
-  const chuaTraLoi = coTepBatDau(thuMuc, 'yeu-cau', `${phien}-`).some((f) => !fs.existsSync(path.join(thuMuc, 'tra-loi', f)));
-  if (chuaTraLoi) return 'cho-tra-loi';
+  // Hộp xin quyền luôn cần người, kể cả khi dãy đang chờ lượt hay chờ trả lời (lệnh nền chờ khoá cũng bật được
+  // hộp). Thông báo rảnh thì im khi dãy đang chờ — rảnh lúc đó là đúng (design DP6 §4 C2).
+  if (dauVao.notification_type !== 'permission_prompt') {
+    if (coTepBatDau(thuMuc, 'xin', `${phien}-`).length > 0) return 'cho-luot';
+    const chuaTraLoi = coTepBatDau(thuMuc, 'yeu-cau', `${phien}-`).some((f) => !fs.existsSync(path.join(thuMuc, 'tra-loi', f)));
+    if (chuaTraLoi) return 'cho-tra-loi';
+  }
   ghiJsonNguyenTu(tep, {
     phien,
     loai: dauVao.notification_type,
