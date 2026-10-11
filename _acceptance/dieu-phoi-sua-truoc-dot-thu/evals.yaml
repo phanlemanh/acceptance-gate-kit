@@ -6,7 +6,7 @@ feature_slug: dieu-phoi-sua-truoc-dot-thu
 #     dòng chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng (khuôn của dieu_phoi_dp3)
 #   executors.script.dieu_phoi_validate, executors.test.dieu_phoi_lb — có từ DP1, DP2
 # Kho thử do code sinh trong lượt (git init + git worktree add thật trong thư mục tạm). Đợt dựng bằng `mo` thật
-# từ gói đợt khai qua cấu hình; nhịp bộ phát lịch là `taoVong(...)()` thật; nhịp sống do hook thật ghi. Đường
+# từ gói đợt khai qua cấu hình; nhịp bộ phát lịch là `motNhip` thật (lõi nhịp `taoVong` gọi); nhịp sống do hook thật ghi. Đường
 # dẫn suy từ vị trí tệp test. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao bị tiêm, SAU khi bản lành xanh trên cùng
 # fixture, kiểm từng lần thay đã áp, và ghim dấu hiệu của ĐÚNG lỗi được tiêm. Ma trận viết sẵn: số assert = số
 # hàng, in ra. Lời hứa là đẳng thức thì so bằng nhau. Mỗi eval ghim đúng dòng TAP «ok … - <tên ca>»; suite xanh
@@ -72,9 +72,9 @@ evals:
     paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/tho.mjs, dieu-phoi/scripts/the.mjs, tests/dieu-phoi/sua-truoc-dot-thu.test.mjs, tests/dieu-phoi/trong-dot.test.mjs, tests/dieu-phoi/mo-dot.test.mjs]
     expected: >
       exit 0; "ok" cho "SDT-04 ma-tran-quyet": ma trận viết sẵn 13 hàng như AC-4 (ba hàng park · kill · iterate
-      tách riêng; hai hàng ô do bộ ghi thật `node scripts/lo-trinh.mjs --mo-o` của kit sinh trên tệp lộ trình
-      của kho thử, một hàng giữ nguyên, một hàng đổi dòng decision thành build giữ chú thích), số assert = 13
-      (in ra), mỗi hàng chạy `taoVong(...)()` thật rồi so tiep/P1.json bằng nhau với kỳ vọng ({hang} hoặc
+      tách riêng; hai hàng ô do `dungCoHoi` — hàm ghi ô của `lo-trinh.mjs --mo-o` — sinh từ khuôn thật của kit,
+      một hàng giữ nguyên, một hàng đổi dòng decision thành build giữ chú thích), số assert = 13
+      (in ra), mỗi hàng chạy `motNhip` thật rồi so tiep/P1.json bằng nhau với kỳ vọng ({hang} hoặc
       {hang:null, xong:true} hoặc {hang:null, cho:"cong-dang"}). "ok" cho "SDT-04 the-va-tiep": trên mỗi đợt
       của ma trận, giao của (canh_bao ∪ cho_cong_dang của `the khoi-tao --json`) với {tiep.hang} RỖNG, và ở các
       hàng A vắng · discovery · park · kill · iterate tập (canh_bao ∪ cho_cong_dang) có ≥ 1 phần tử (số in
