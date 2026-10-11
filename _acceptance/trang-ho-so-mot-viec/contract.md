@@ -107,3 +107,7 @@ request GitHub]` cho bố cục dải + mục gập, `[NGÀNH: trang issue Linea
   · Ngoài-6 — «Đã hứa» (LT-151) so chứa thay vì bằng: câu tiêu chí rỗng hay cụt vẫn qua.
 - Ngoài-2 + Ngoài-3 (bộ đọc trả null cho trường vắng trùng tên; nhóm dải vắng đọc thành chuỗi) owner nâng
   phạm vi sửa ngay — gộp vào AC-8, vẫn 12 tiêu chí; ca LT-157 khoa-vang + hai chiều đỏ.
+- **Known limits thêm ở chữ ký (Cổng Bằng chứng lượt 3, owner ký 11/10):** ca LT-157 khoa-vang so khoá
+  vắng ở sáu cấp viết tay (tien_do · hang_ke · hang · can_sua · moc · da_bac), chưa ở `goc` và
+  `lo_trinh` — lớp lỗi «tên ô dải trùng tên trường» không xảy ra ở hai cấp đó. Ngoài-3, Ngoài-4 của thẻ
+  lượt 3 là hai lỗi bộ đọc đã sửa ở lượt 3, ghi để đóng mục.

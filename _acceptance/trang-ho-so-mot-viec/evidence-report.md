@@ -135,10 +135,17 @@ Lượt chấm 3, trên commit sửa bộ đọc docDuLieu (trường vắng r�
   run_id: minted-trang-ho-so-mot-viec-E12-r2
   exit_code: 0
   baseline: n-a
-  verifier: config:executors.ui-check
+  verifier: scripts/evidence-page.js
   verified_at: 2026-10-11T01:57:00Z
   carried_from_round: 2
-  # carry-forward tu round 2 — delta khong cham paths cua eval
+  screenshot: evidence/E12-1-dai.png   # khung đầu; hai khung kế là evidence/E12-2-nguoi.png và evidence/E12-3-hep.png
+  observed: |
+    E12-1-dai.png (1280x800, màn đầu, chưa cuộn): tiêu đề là câu giao của việc; lưới 3x3 chín ô (Đã giao gì, Vì sao, Trạng thái «Đã giao — chờ phiên nghiệm thu», Ngày 2026-10-10, Đã lên production chưa «chưa ghi quan sát production», Sẽ đo gì khi nào, Kết quả «chưa đo», Chưa làm gì «9 mục ngoài hợp đồng · 0 giới hạn đã biết», Ai quyết) hiện trọn; ô Vì sao và Sẽ đo gì bị cắt bằng dấu chấm lửng do hiển thị, không mất nội dung. Ngay dưới lưới là dòng chủ kho «Tiêu chí 14 · Phép đo 17 · Lượt chấm 3 · Token 140.353 · Quyết định máy 26 · người 16 · Mã 8d5180f»; các mục gập (Vì sao làm, Đã hứa, Thiết kế, Quyết định, Bằng chứng, Tài nguyên) bắt đầu bên dưới. Sáu câu hỏi đều có chỗ trả lời đúng bảng thiết kế.
+    E12-2-nguoi.png (1280x800, cuộn tới «Quyết định»): mục mở («▼ Quyết định»), các nút «Tất cả 42», «Máy 26», «Người 16» với «Người 16» đang bật; danh sách còn 16 dòng, đều là «Người (Manh Phan) · revisit · gate2» ngày 2026-10-10 (Ngoài-1..14, «cắt/hoãn: đồng ý cắt», «Treo: phê hết»).
+    E12-3-hep.png (390x844): dải thành một cột, chín ô xếp dọc, không bị cắt ở mép phải; scrollWidth 390 không vượt 390.
+    Khớp expected: máy đo 26/16/3/140353 và 0 ca lỗi trên 217 hồ sơ crm; chín ô cộng dòng chủ kho hiện trọn ở 1280x800; mục mở bằng bàn phím; lọc «Người» còn 16 dòng; khổ 390 một cột không tràn ngang. Lệch đã khai: trình điều khiển Playwright chặn giao thức file nên thư mục được phục vụ qua http.server trên 127.0.0.1:8765 (đã dừng sau khi chụp), nội dung giống hệt; cấu hình không có capture.ui nên ảnh lấy từ công cụ chụp của Playwright MCP.
+  network_observed: unscoped   # số thô nằm ở evidence/E12-network.txt
+  # carry-forward tu round 2 — delta khong cham paths cua eval; khoi chep nguyen van tu bao cao luot 2 (cung run_id)
 
 ### Lệnh suite (hồi quy)
 
