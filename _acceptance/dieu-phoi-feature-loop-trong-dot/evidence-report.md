@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8c92fb3a0138a19616903e63038393a4eff7fe5c
+verified_commit: bf399159b43d88456bb64a098a6bf921286fe106
 human_signoff: manh 2026-10-11
 ---
 
@@ -250,3 +250,7 @@ Round 1: mọi eval máy xanh (E1–E12), E8b PASS theo panel đề xuất; khô
 ### Re-pin lần 1 — 2026-10-11, do gộp origin/main 922976ca (DP3) vào nhánh DP7 + sửa ca DP3-11 neo lịch sử
 run_id: repin-20261011T032417Z-27364
 sha: 8c92fb3a0138a19616903e63038393a4eff7fe5c · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E8b (E8b không khai paths)
+
+### Re-pin lần 2 — 2026-10-11, do DP7-10 + DP2-15 neo lịch sử thay merge-base sống (lệnh Điều phối, CI #307)
+run_id: repin-20261011T073635Z-91493
+sha: bf399159b43d88456bb64a098a6bf921286fe106 · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E8b (E8b không khai paths)
