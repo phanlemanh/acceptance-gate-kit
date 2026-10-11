@@ -143,9 +143,12 @@ lấy từ `phanTichKho` của `scripts/lo-trinh.mjs` — cùng hàm vẽ trang 
 
 Kho khai cửa → khối `lo-trinh-du-lieu` mang thêm khoá gốc `tin_hieu` = mảng bản ghi đường đi (mọi ô
 rút từ tệp tín hiệu và hồ sơ — không có giờ chạy, nên vẽ hai lần ra cùng byte). Kho không khai → khối
-không có khoá, giống từng byte. Không đổi `phien_ban` (khoá thêm là tuỳ chọn; bộ đọc bản 2 giữ khoá lạ
-nguyên vẹn — luật «khoá lạ giữ nguyên» của `docDuLieu`); bộ đọc mẫu điền `[]` khi vắng và tài liệu
-`lo-trinh-du-lieu.md` thêm một dòng bảng khoá. crm (LT2) đọc khoá này để hiện cho người gửi.
+không có khoá, giống từng byte. Không đổi `phien_ban` và KHÔNG thêm vào bảng khoá chuẩn
+`KHUON_DU_LIEU` (ca LT-110 của X1 so khoá thô của trang với bảng viết sẵn — thêm vào bảng chuẩn là làm đỏ
+ca đã ký và đổi byte mọi kho): khoá là TUỲ CHỌN, bộ đọc bản 2 giữ khoá lạ nguyên vẹn (luật «khoá lạ giữ
+nguyên» của `docDuLieu`), trang không có khoá thì bộ đọc ra như cũ. Tài liệu `lo-trinh-du-lieu.md` thêm
+một khối riêng `LO-TRINH-DU-LIEU-TUY-CHON` kê các trường bản ghi (`TRUONG_DUONG` của `tin-hieu.mjs`).
+crm (LT2) đọc khoá này để hiện cho người gửi.
 
 ### 3.8 Skill `gom-tin-hieu`
 

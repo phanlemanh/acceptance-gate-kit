@@ -16,8 +16,8 @@ evals:
       exit 0; stdout có "PASS: TH-1" — khối TIN-HIEU-MAU rút từ khuôn ghi thành tệp `<id>.json` trong kho
       thử: kiemYeuCau (import từ dieu-phoi/scripts/hinh-dang.mjs trong CA, không chép) không ném, bộ đọc ra
       đúng 1 tín hiệu, id == tên tệp, tieu_de == tiêu đề của khối; trên 374 tệp fixture thật: bảng đếm theo
-      loai của bộ đọc == bảng đếm độc lập trong ca (JSON.parse từng tệp), số tín hiệu == số tệp có loai
-      thuộc khối TIN-HIEU-LOAI (rút từ khuôn trong ca), đúng MỘT dòng chứa «ngoài khuôn tín hiệu» và mỗi
+      loai ngoài khuôn của bộ đọc == bảng đếm độc lập trong ca (JSON.parse từng tệp), số tín hiệu + số lỗi
+      sai khuôn == số tệp có loai thuộc khối TIN-HIEU-LOAI (rút từ khuôn trong ca; 2 tệp thật thiếu luc), đúng MỘT dòng chứa «ngoài khuôn tín hiệu» và mỗi
       loại còn lại xuất hiện kèm đúng số của nó; bốn tệp hỏng sinh trong ca {json-hong · thieu-phien ·
       luc-sai · tieu-de-rong} → mỗi tệp đúng một lỗi nêu tên tệp, số ca hỏng đo == 4 (in ra). Và
       "PASS: TH-1-do" — bản sao bộ đọc bỏ lặng tệp sai khuôn: CHÍNH hàm đo trả lỗi nêu «json-hong».
@@ -33,9 +33,10 @@ evals:
       kho thử KHÔNG khai: ba lệnh --rang/--chua-gom/--duong mỗi lệnh thoát 2 và stderr chứa «kho chưa khai
       cửa tín hiệu»; khối lo-trinh-du-lieu THÔ (JSON.parse, không qua docDuLieu) của trang kho không khai có
       tập khoá gốc == KHUON_DU_LIEU.goc trừ «tin_hieu»; PRODUCT-MAP.md + LO-TRINH.html vẽ bằng cây đang kiểm == từng byte bản vẽ bằng bản sao
-      `git archive HEAD scripts lib skills dieu-phoi` có scripts/tin-hieu.mjs thay bằng tệp `throw new
-      Error('nap-cua')` (đối chứng: cùng bản sao trên kho CÓ khai thì vẽ thoát khác 0 và stderr chứa
-      «nap-cua» — bản thay thật sự được nạp ở đường khai). Và "PASS: TH-2-do" — tiêm ĐỐI XỨNG: bản sao
+      chép cây đang kiểm (scripts lib skills dieu-phoi) có scripts/tin-hieu.mjs thay bằng tệp `throw new
+      Error('nap-cua')` VÀ không có scripts/tin-hieu-khoa.cjs (đối chứng: bản thay còn bộ đọc khoá trên kho
+      CÓ khai → thoát khác 0, stderr chứa «nap-cua»; bản không bộ đọc khoá trên kho CÓ khai → thoát khác
+      0, stderr gọi tên «tin-hieu-khoa.cjs»). Và "PASS: TH-2-do" — tiêm ĐỐI XỨNG: bản sao
       lo-trinh.mjs mặc định tin_hieu: [] dùng cho CẢ HAI phía phép so: CHÍNH hàm đo (vế khối thô) trả lỗi
       nêu «tin_hieu».
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
@@ -111,13 +112,13 @@ evals:
     paths: [scripts/lo-trinh.mjs, scripts/tin-hieu.mjs, skills/acceptance/references/lo-trinh-du-lieu.md, tests/scripts/tin-hieu.test.mjs]
     expected: >
       exit 0; stdout có "PASS: TH-8" — kho thử khai cửa: khối lo-trinh-du-lieu có tin_hieu deepEqual mảng
-      --duong của cùng kho; vẽ hai lần → LO-TRINH.html giống byte; bản chép rời docDuLieu (rút nguyên văn
-      hàm từ scripts/lo-trinh.mjs trong ca, chạy tách mô-đun) đọc trang có khoá → giữ nguyên mảng, đọc
-      trang kho không khai → tin_hieu deepEqual [], và danh sách cảnh báo của (a) trang đó == của (b) cùng
-      trang với khối được mã chèn `"tin_hieu": []` (cùng bản chép rời, cây đang kiểm — không so với bản
-      cũ nào); bảng khoá đọc từ lo-trinh-du-lieu.md có tin_hieu và == KHUON_DU_LIEU. Và "PASS: TH-8-do" —
-      bản sao bộ vẽ bỏ khoá tin_hieu: CHÍNH hàm đo trả lỗi nêu «tin_hieu»; và "PASS: TH-8-do2" — bản chép
-      rời cảnh báo khi vắng tin_hieu: CHÍNH hàm so cảnh báo trả lỗi nêu «tin_hieu».
+      --duong của cùng kho; vẽ hai lần → LO-TRINH.html giống byte; KHUON_DU_LIEU không có «tin_hieu» ở
+      cấp nào (khoá tuỳ chọn); bản chép rời docDuLieu (rút nguyên văn hàm từ scripts/lo-trinh.mjs trong ca,
+      chạy tách mô-đun) đọc trang có khoá → tin_hieu deepEqual mảng của khối, và danh sách cảnh báo == của
+      cùng trang với khoá tin_hieu bị mã gỡ khỏi khối (cây đang kiểm — không so với bản cũ nào); khối
+      LO-TRINH-DU-LIEU-TUY-CHON của lo-trinh-du-lieu.md == TRUONG_DUONG xuất từ scripts/tin-hieu.mjs. Và
+      "PASS: TH-8-do" — bản sao bộ vẽ bỏ khoá tin_hieu: CHÍNH hàm đo trả lỗi nêu «tin_hieu»; và
+      "PASS: TH-8-do2" — bản sao tài liệu thiếu một trường: CHÍNH hàm so trả lỗi nêu trường đó.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E9
     criterion: AC-9
