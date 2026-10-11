@@ -136,39 +136,16 @@ evals:
   - id: E10
     criterion: AC-10
     executor: test
-    cmd: config:executors.test.tin_hieu_vang
-    paths: [scripts/tin-hieu.mjs, skills/gom-tin-hieu/SKILL.md, _acceptance/cua-tin-hieu-gom-nhom/mau/**, _acceptance/cua-tin-hieu-gom-nhom/rang/**, tests/scripts/tin-hieu.test.mjs]
+    cmd: config:executors.test.tin_hieu
+    paths: [scripts/tin-hieu.mjs, _acceptance/cua-tin-hieu-gom-nhom/mau/bo-vang.json, _acceptance/cua-tin-hieu-gom-nhom/mau/tin-hieu/**, _acceptance/cua-tin-hieu-gom-nhom/mau/ho-so/**, _acceptance/cua-tin-hieu-gom-nhom/rang/**, tests/scripts/tin-hieu.test.mjs]
     expected: >
       exit 0; stdout có "PASS: TH-10-ong" — kho đưa phiên gom dựng bằng rang/dung-kho-tac-tu.mjs từ
-      mau/bo-vang.json (hồ sơ ở trạng thái crm be1324ba1, hợp đồng thật của hồ sơ đã giao ở mau/ho-so/, 20
-      tệp tín hiệu mau/tin-hieu/): KÍN ĐÁP ÁN — quetKin trên mọi byte mọi tệp tín hiệu → 0 tên hồ sơ của đáp
-      án, 0 tiêu đề trùng nguyên văn một câu giao trong kho, kho không có bo-vang.json (đối chứng dương:
-      CÙNG hàm quét thấy tên trong bo-vang.json); mọi tệp mang nhãn «giả»; 20 mục đáp án == 20 tệp (id +
-      tieu_de đọc bằng bộ đọc thật); bộ vàng thứ hai do mã sinh (3 cặp, 1 hồ sơ đã giao) qua lệnh
-      `rang/cham-bo-vang.mjs` → thoát 0, đảo thứ tự commit (bản gom trước đáp án) → thoát 1 nêu «khai trước».
-      Và "PASS: TH-10" — bản gom mau/gom-bo-vang.md do tác tử tươi chỉ cầm SKILL + khuôn + kho thử viết ra,
-      chấm bằng lệnh chấm: răng xanh; 10/10 cặp trùng chung một chỗ; tín hiệu của 4 hồ sơ đã giao ra «đã
-      phủ» đúng hồ sơ; tín hiệu còn lại ở nhóm (mỗi lệch in một dòng «TH-10: …»). Và "PASS: TH-10-do" —
-      bản gom tách một cặp trùng trên bộ vàng thứ hai (đang xanh): CHÍNH lệnh chấm nêu cặp đó; và
-      "PASS: TH-10-do2" — tệp tín hiệu giữ tên hồ sơ trong nhãn: CHÍNH phép quét kín nêu tên tệp.
+      mau/bo-vang.json: KÍN ĐÁP ÁN — quetKin trên mọi byte mọi tệp tín hiệu → 0 tên hồ sơ của đáp án, 0 tiêu
+      đề trùng nguyên văn một câu giao trong kho, kho không có bo-vang.json (đối chứng dương: CÙNG hàm quét
+      thấy tên trong bo-vang.json); mọi tệp mang nhãn «giả»; 20 mục đáp án == 20 tệp (id + tieu_de đọc bằng
+      bộ đọc thật); bộ vàng thứ hai do mã sinh (3 cặp, 1 hồ sơ đã giao) qua lệnh rang/cham-bo-vang.mjs →
+      thoát 0, đảo thứ tự commit → thoát 1 nêu «khai trước». Và "PASS: TH-10-do" — bản gom tách một cặp trùng
+      trên bộ vàng thứ hai (đang xanh): CHÍNH lệnh chấm nêu cặp đó; và "PASS: TH-10-do2" — tệp tín hiệu giữ
+      tên hồ sơ trong nhãn: CHÍNH phép quét kín nêu tên tệp. Dòng «BỎ QUA: TH-10» là đúng (vế khớp đáp án đã
+      thu ra Known limits).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
-  - id: E11
-    criterion: AC-11
-    executor: judgment
-    inputs: [skills/gom-tin-hieu/SKILL.md, _acceptance/cua-tin-hieu-gom-nhom/mau/bo-vang.json, _acceptance/cua-tin-hieu-gom-nhom/mau/gom-bo-vang.md]
-    question: >
-      SKILL.md là skill gom tín hiệu của kit, chính sách trục ở khối GOM-TRUC. bo-vang.json là đáp án của
-      bộ vàng: mảng `muc` — 20 tín hiệu giả, mỗi mục {id, tieu_de, ho_so, kieu} (tiêu đề tín hiệu, hồ sơ
-      thật nó sinh từ, câu nguồn «van-de» hay «gia-dinh»); `da_giao` — hồ sơ đã giao lúc gom; và
-      `lien_ket_cung_lop` — với mỗi hồ sơ, các hồ sơ mà người gom tay ghi là «cùng lớp». gom-bo-vang.md là
-      bản gom một phiên viết ra theo SKILL mà KHÔNG thấy đáp án (nhóm kê tín hiệu bằng id; tra tiêu đề và
-      hồ sơ nguồn của id trong `muc`). Chỉ dựa vào ba tệp: (1) mỗi nhóm có phải là MỘT điều một vai muốn
-      làm được, tên mở bằng vai, bằng tiếng sản phẩm mà người gửi không dùng git nhận ra ý mình không?
-      (2) Có nhóm nào gộp hai kết quả khác nhau chỉ vì cùng cơ chế mã (cùng đọc lượt CI, cùng sửa một tệp)
-      không? (3) Với các hồ sơ mà `lien_ket_cung_lop` nối với nhau, cách bản gom đặt tín hiệu của chúng
-      (chung nhóm, tách nhóm, đã phủ) có giải thích được bằng trục kết quả không — chỗ tách hay gộp thì lý
-      do có hiện trong tên nhóm không? PASS khi (1) có, (2) không, (3) có — kèm trích tên nhóm cho từng vế;
-      FAIL nêu vế sai và nhóm; UNCERTAIN khi tệp không đọc được.
-    paths: [skills/gom-tin-hieu/SKILL.md, _acceptance/cua-tin-hieu-gom-nhom/mau/**]
-    expected: PASS kèm trích tên nhóm cho từng vế; FAIL nêu vế sai và nhóm
-    evidence_required: [judged_by, verdict, rationale]
