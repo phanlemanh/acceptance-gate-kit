@@ -60,9 +60,9 @@ khối «Phân loại diff-chịu-cổng» — nên hạng chế độ in ra là
   `ly_do=cau-hinh-loi` kèm một dòng `::warning`, thoát 0, ở hai ca: `config.yaml` có ký tự TAB · `_acceptance/` có
   mà `config.yaml` vắng. Đối chứng dương: cùng PR trên config lành → `hang=T1` · `cham_vat=false`.
 - AC-6: Given `GITHUB_OUTPUT` trỏ một tệp đã có dòng `co_san=1` và `GITHUB_STEP_SUMMARY` trỏ một tệp rỗng, config
-  khai `recheck: warn` (cổng thường in dòng WARNING), When `--hang-pr` trên một PR chỉ T1, Then `GITHUB_OUTPUT` =
+  khai `recheck: warn` (cổng thường in một dòng nhắc recheck), When `--hang-pr` trên một PR chỉ T1, Then `GITHUB_OUTPUT` =
   `co_san=1` + đúng ba dòng như stdout · `GITHUB_STEP_SUMMARY` có đúng một dòng nêu hạng · stdout có đúng ba dòng
-  (không dòng WARNING/NOTE nào của cổng lọt ra). And khi hai biến vắng, lần chạy không ghi tệp nào ngoài thư mục tạm
+  (không dòng nhắc hay ghi chú nào của cổng lọt ra). And khi hai biến vắng, lần chạy không ghi tệp nào ngoài thư mục tạm
   của nó. And mọi giá trị in ra thuộc tập khoá/giá trị của khối marker `HANG-PR-KHOA` (đọc từ chính tệp cổng).
   Chiều đỏ: bản sao bỏ dòng nuốt stdout của chế độ → ca đỏ (thông điệp ghim «dòng của cổng lọt ra»).
 - AC-7: Given mọi lần chạy có cờ của AC-1…AC-6, Then mã thoát là 0. And lỗi cú pháp vẫn thoát 2 với thông điệp
@@ -72,8 +72,7 @@ khối «Phân loại diff-chịu-cổng» — nên hạng chế độ in ra là
   mẫu không `--base`, và trên chính cây kit (`--base` = commit cố định `d9d1f3a6`, và không `--base`), Then stdout +
   mã thoát hai bản giống từng byte. And số marker mở = số marker đóng ≥ 1. Chiều đỏ: bản sao chèn một `echo` vào vùng
   marker ngoài nhánh cờ → ca đỏ (thông điệp ghim «vùng HANG-PR chạy khi không có cờ»). And vế lịch sử: với MỌI
-  commit không-gộp của vòng này chạm tệp cổng (`git log --no-merges --grep=ci-cua-kho-bo-job-nang --
-  scripts/pre-merge-check.sh`, ≥ 1 commit), bản cắt marker của commit bằng từng byte bản cắt marker của commit cha.
+  commit không-gộp của vòng này chạm tệp cổng (tìm theo slug trong thông điệp commit, ≥ 1 commit), bản cắt marker của commit bằng từng byte bản cắt marker của commit cha.
   Chiều đỏ: kho mẫu có hai commit (cha = tệp cổng ở `d9d1f3a6`, con = tệp cổng hiện tại mang slug trong thông điệp)
   xanh; con sửa một chữ ngoài vùng marker → đỏ (thông điệp ghim «dòng ngoài HANG-PR đổi»).
 - AC-9: Given `scripts/pre-merge-check.sh` sau vòng này, When chạy NGUYÊN VĂN công thức `sed` của crm PR #369
