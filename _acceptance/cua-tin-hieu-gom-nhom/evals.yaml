@@ -59,9 +59,9 @@ evals:
     paths: [scripts/tin-hieu.mjs, tests/scripts/tin-hieu.test.mjs]
     expected: >
       exit 0; stdout có "PASS: TH-4" — đối chứng dương: kho thử 6 tín hiệu, bản gom đặt mỗi tín hiệu đúng
-      một chỗ → --rang thoát 0, bảng phủ đủ 6 dòng đúng tín hiệu → chỗ. Ma trận viết sẵn 7 ca đỏ {khong-cho
-      · hai-nhom · nhom-va-le · hai-tep · tin-hieu-la · le-thieu-ly-do · nhom-rong} × kỳ vọng (thoát 1, đúng
-      MỘT dòng lỗi, cụm ghim nêu tín hiệu và — ca trùng — cả hai chỗ), số ca đo == 7 (in ra); ca im
+      một chỗ → --rang thoát 0, bảng phủ đủ 6 dòng đúng tín hiệu → chỗ. Ma trận viết sẵn 8 ca đỏ {khong-cho
+      · hai-nhom · nhom-va-le · hai-tep · lap-trong-nhom · tin-hieu-la · le-thieu-ly-do · nhom-rong} × kỳ vọng
+      (thoát 1, đúng MỘT dòng lỗi, cụm ghim nêu tín hiệu và — ca trùng — cả hai chỗ), số ca đo == 8 (in ra); ca im
       {sau-den}: tín hiệu luc > den lớn nhất → thoát 0; băm mọi tệp của cây + `git status --porcelain`
       trước == sau trên các lượt xanh, đỏ, --chua-gom, --duong. Và "PASS: TH-4-do" — bản sao răng chỉ xét
       tệp bản gom đầu tiên: CHÍNH hàm đo trả lỗi nêu ca «hai-tep».
