@@ -600,3 +600,6 @@ dieu-phoi-doi-tai-khoan#ngoai-22	dieu-phoi-doi-tai-khoan	medium	do-thuoc	song			
 dieu-phoi-doi-tai-khoan#ngoai-23	dieu-phoi-doi-tai-khoan	medium	do-thuoc	song			thước: DP4-07 dau-phien-cu âm-tính-một-mình trên hook nuốt mọi lỗi [lượt chấm 1; owner quyết ở Cổng Bằng chứng 11/10]
 dieu-phoi-doi-tai-khoan#ngoai-24	dieu-phoi-doi-tai-khoan	low	do-thuoc	song			thước: DP4-01 bang-chuyen xếp mọi ô thoát khác 0 là «từ chối», không ghim mã 1 hay thông điệp [lượt chấm 1; owner quyết ở Cổng Bằng chứng 11/10]
 dieu-phoi-doi-tai-khoan#ngoai-26	dieu-phoi-doi-tai-khoan	low	do-thuoc	song			quet-ma-lt1.mjs (xuat-du-lieu-lo-trinh): danh sách cho-phép không tách loại, mảnh rỗng miễn trọn ngay.ts (mã của #302) [lượt chấm 1; owner quyết ở Cổng Bằng chứng 11/10]
+ten-ca-qua-tien-to-turbo#ngoai-1	ten-ca-qua-tien-to-turbo	medium	fail-open	song			paths của E1–E3 thiếu gia-lan-fixture.mjs — lượt sửa chỉ chạm tệp ấy mang màu xanh cũ sang
+ten-ca-qua-tien-to-turbo#ngoai-2	ten-ca-qua-tien-to-turbo	medium	khong-the-do	song			Phép đếm mười ô của AC-2 tự suy từ chính danh sách mẫu; mẫu không buộc vào KHUON_TEN_CA — bỏ một mẫu vẫn xanh
+ten-ca-qua-tien-to-turbo#ngoai-3	ten-ca-qua-tien-to-turbo	medium	khong-the-do	trung		ten-ca-qua-tien-to-turbo#ngoai-2	Cùng gốc ngoai-2 nhìn từ phía ma trận tuyên viết trước
