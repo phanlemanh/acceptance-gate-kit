@@ -5,7 +5,7 @@ slug: ten-ca-qua-tien-to-turbo
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/scripts/lib, không chạm t3_paths
 surfaces: [cli]
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
