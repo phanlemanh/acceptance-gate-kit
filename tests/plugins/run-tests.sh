@@ -2799,15 +2799,11 @@ if (!e2.some(x => /khong rut duoc khoi START-SCAN-KEYS/.test(x)))
 // dot bien phia DAU RA (vao-co-o-ra-co-ten AC-5): ban sao bo quet bo khoa ageDays khoi
 // considering.push → marker that phai DO neu dung ten khoa (chung minh resolveKey soi toi mang moi)
 const mut3 = fs.mkdtempSync(path.join(os.tmpdir(), 'p99m-'));
-for (const rel of ['lib/evidence-core.cjs', 'lib/workspace-record.cjs', 'lib/md-section.cjs', 'scripts/khong-can-nguoi.mjs',
-                   // bang chu chung — start-scan nhap TINH; thieu no thi ban sao chet vi HA TANG
-                   // chu khong vi vat, va ca do bien thanh xanh-khong-chay (ho so start-bang-dieu-khien)
-                   'scripts/trang-thai-ho-so.cjs',
-                   // luat nguong chung (ho so ra-co-ten) — cung ly do
-                   'lib/nguong-o-co-hoi.cjs',
-                   'scripts/product-map.mjs', 'skills/acceptance/references/opportunity-template.md',
-                   // ổ cắm lộ trình (hồ sơ viec-ke-theo-plan) — fixture khai ổ cắm nên bản sao cần cả hai
-                   'scripts/lo-trinh.mjs', 'scripts/lo-trinh-khoa.cjs']) {
+// TRON thu muc scripts + lib (luat «ban sao lay tron thu muc, khong chep danh sach tay», nhu P104/P105):
+// danh sach tay cu chet vi HA TANG khi lo-trinh.mjs nap them scripts/ho-so-tom-tat.cjs (hang X2).
+fs.cpSync(path.join(root, 'scripts'), path.join(mut3, 'scripts'), { recursive: true });
+fs.cpSync(path.join(root, 'lib'), path.join(mut3, 'lib'), { recursive: true });
+for (const rel of ['skills/acceptance/references/opportunity-template.md']) {
   fs.mkdirSync(path.dirname(path.join(mut3, rel)), { recursive: true });
   fs.copyFileSync(path.join(root, rel), path.join(mut3, rel));
 }

@@ -18,7 +18,7 @@
   "hang": [
     {
       "ma": "1",
-      "cau_giao": "«Trưởng nhóm mở trang X và thấy Y của tuần này»",
+      "cau_giao": "Trưởng nhóm mở trang X và thấy Y của tuần này",
       "vai": "Trưởng nhóm",
       "tieu_chi": 9,
       "vi_sao": "Người dùng Z đang phải hỏi tay mỗi tuần; muốn thấy họ tự xem được",
@@ -34,7 +34,7 @@
     },
     {
       "ma": "2",
-      "cau_giao": "«Yêu cầu duyệt tới người duyệt trong một phút sau khi gửi»",
+      "cau_giao": "Yêu cầu duyệt tới người duyệt trong một phút sau khi gửi",
       "vai": "nen",
       "tieu_chi": 8,
       "vi_sao": "Đứng trên dữ liệu thật của hàng 1",
@@ -51,7 +51,7 @@
     },
     {
       "ma": "3",
-      "cau_giao": "«Quản trị tắt được tính năng theo đơn vị»",
+      "cau_giao": "Quản trị tắt được tính năng theo đơn vị",
       "vai": "Quản trị",
       "tieu_chi": 8,
       "dung_tren": [
@@ -63,7 +63,7 @@
     {
       "ma": "H1",
       "dot": "mau-1",
-      "cau_giao": "«Kế toán xuất báo cáo quý ra bảng tính»",
+      "cau_giao": "Kế toán xuất báo cáo quý ra bảng tính",
       "ly_do": "Chưa ai ngoài kế toán xin; chờ mùa báo cáo quý đầu tiên chạy trên sản phẩm",
       "phu": [
         "B1",
