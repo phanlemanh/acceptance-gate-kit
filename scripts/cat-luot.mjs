@@ -7,8 +7,13 @@
 // theo dõi trong kho. Răng chỉ xét mục mang cùng `dot` với bản phạm vi; cờ khuôn và lệch ngày của hàng
 // ngoài đợt thành dòng «cảnh báo:», không đổi mã thoát.
 //
+// Hồ sơ _acceptance/vong-la-mot-ket-qua/ (hàng S3, design docs/superpowers/specs/2026-10-11-vong-la-mot-ket-qua-design.md)
+// thêm: khoảng cỡ đọc từ khối CAT-LUOT-CO của SKILL cạnh script (không số nào của khoảng nằm trong mã),
+// tám cờ có tên cho cỡ dự kiến và dáng câu giao (`kiemCo`), và đồng hồ cỡ chỉ đọc (`--co`).
+//
 //   node scripts/cat-luot.mjs --root . --pham-vi <tệp> --lo-trinh <tệp>   0 xanh · 1 đỏ · 2 không chạy được
 //   node scripts/cat-luot.mjs --root . --nhip                              JSON nhịp theo hạng
+//   node scripts/cat-luot.mjs --root . --co [--tu YYYY-MM-DD] [--lo-trinh <tệp>]   JSON đồng hồ cỡ
 import { readFileSync, readdirSync, existsSync, realpathSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -20,6 +25,10 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
+// Hai bộ đọc dùng chung — không chép khuôn: tiêu chí đếm bằng bộ đọc của thẻ Cổng Phạm vi, «đã giao»
+// là tập trạng thái lưới trước-merge dùng.
+const { parseACBlock } = require(path.join(__dirname, '..', 'lib', 'ac-line.cjs'));
+const { DA_THONG_CONG_2, DA_DONG_THUC_TE } = require(path.join(__dirname, '..', 'lib', 'workspace-record.cjs'));
 
 export const DANG = ['chuoi', 'lan-va'];
 const chuoi = v => (v == null ? '' : String(v).trim());
@@ -102,6 +111,142 @@ export function kiemPhu(pv, data) {
   return { loi, canhBao, bang };
 }
 
+// ── Khoảng cỡ (một nguồn: khối CAT-LUOT-CO của SKILL cắt lượt) ─────────────────
+// Chính sách của chủ kho (10/10): mục tiêu · cho phép tới · tách từ · trần lượt chấm · ngưỡng ít dữ liệu.
+// Bên viết là người sửa khối; bên đọc là hàm dưới — mã không mang số nào của khoảng.
+export const KHOA_CO = ['muc_tieu', 'cho_phep_den', 'tach_tu', 'tran_luot_cham', 'it_du_lieu_duoi'];
+export const TEP_SKILL = path.join(__dirname, '..', 'skills', 'cat-luot', 'SKILL.md');
+const KHOI_CO_RE = /<!-- <<<CAT-LUOT-CO -->\r?\n```[a-z]*\r?\n([\s\S]*?)```\r?\n<!-- CAT-LUOT-CO>>> -->/;
+export function docKhoang(txt) {
+  const m = String(txt ?? '').match(KHOI_CO_RE);
+  if (!m) return { khoang: null, loi: ['SKILL cắt lượt thiếu khối CAT-LUOT-CO (khoảng cỡ)'] };
+  const tho = {};
+  for (const dong of m[1].split(/\r?\n/)) { const k = dong.replace(/\s+#.*$/, '').match(/^\s*([a-z_]+):\s*(\S+)\s*$/); if (k && !(k[1] in tho)) tho[k[1]] = k[2]; }
+  const loi = KHOA_CO.filter(k => !(k in tho)).map(k => `khối CAT-LUOT-CO thiếu khoá ${k}`);
+  if (loi.length) return { khoang: null, loi };
+  const so = v => (/^\d+$/.test(v) ? Number(v) : NaN);
+  const mt = tho.muc_tieu.match(/^(\d+)-(\d+)$/);
+  const khoang = { muc_tieu: mt ? [Number(mt[1]), Number(mt[2])] : null };
+  for (const k of KHOA_CO.slice(1)) khoang[k] = so(tho[k]);
+  if (!khoang.muc_tieu || !(khoang.muc_tieu[0] >= 1)) loi.push(`khoá muc_tieu «${tho.muc_tieu}» phải là <đầu>-<cuối>, hai số nguyên dương`);
+  else if (khoang.muc_tieu[0] > khoang.muc_tieu[1]) loi.push(`khoá muc_tieu «${tho.muc_tieu}» ngược: đầu lớn hơn cuối`);
+  for (const k of KHOA_CO.slice(1)) if (!(khoang[k] >= 1)) loi.push(`khoá ${k} «${tho[k]}» phải là số nguyên dương`);
+  if (!loi.length) {
+    const [, cuoi] = khoang.muc_tieu; const c = khoang.cho_phep_den; const t = khoang.tach_tu;
+    if (c < cuoi) loi.push(`khoá cho_phep_den ${c} nhỏ hơn cuối muc_tieu ${cuoi}`);
+    else if (t !== c + 1) loi.push(`khoá tach_tu ${t} phải bằng cho_phep_den + 1 = ${c + 1} (khoảng ${t > c + 1 ? 'hở' : 'chồng'})`);
+  }
+  return loi.length ? { khoang: null, loi } : { khoang, loi };
+}
+export function napKhoang(tep = TEP_SKILL) {
+  let txt; try { txt = readFileSync(tep, 'utf8'); } catch { throw Object.assign(new Error(`không đọc được SKILL cắt lượt (khối CAT-LUOT-CO): ${tep}`), { ma: 2 }); }
+  const { khoang, loi } = docKhoang(txt);
+  if (!khoang) throw Object.assign(new Error(loi.join('; ')), { ma: 2 });
+  return khoang;
+}
+
+// ── Cờ cỡ và dáng câu giao (hai trường của LƯỢT CẮT: `vai`, `tieu_chi`) ─────────
+// Agent không đọc hai trường này; trang lộ trình cũng không. Thiếu khai chỉ vàng (đường đọc-cũ: lộ
+// trình cắt trước luật 10/10 vẫn đọc được); khai sai thì đỏ ở hàng trong đợt.
+export const CO_TEN = ['can-tach', 'tren-muc-tieu', 'duoi-muc-tieu', 'tieu-chi-sai-kieu', 'chua-uoc-tieu-chi', 'vai-khong-mo-cau', 'nen-thieu-bat-khi', 'chua-khai-dang-giao'];
+const CO_LOI = new Set(['can-tach', 'tieu-chi-sai-kieu', 'vai-khong-mo-cau', 'nen-thieu-bat-khi']);
+// Gợi ý cỡ chỉ có nghĩa cho đợt đang cắt — hàng ngoài đợt không mang hai cờ này.
+const CO_CHI_TRONG_DOT = new Set(['tren-muc-tieu', 'duoi-muc-tieu']);
+const VAI_NEN = 'nen';
+const chuanCau = s => String(s ?? '').normalize('NFC').replace(/^[\s«“"']+/u, '').toLocaleLowerCase('vi');
+const laTieuChi = v => Number.isInteger(v) && v > 0;
+function coCuaHang(r, k) {
+  const ra = []; const [dau, cuoi] = k.muc_tieu; const v = r.tieu_chi;
+  if (v === undefined || v === null) ra.push(['chua-uoc-tieu-chi', 'chưa ghi tieu_chi (số tiêu chí dự kiến của vòng)']);
+  else if (!laTieuChi(v)) ra.push(['tieu-chi-sai-kieu', `tieu_chi ${JSON.stringify(v)} phải là số nguyên dương`]);
+  else if (v >= k.tach_tu) ra.push(['can-tach', `dự kiến ${v} tiêu chí — từ ${k.tach_tu} phải tách thành nhiều vòng, mỗi vòng một kết quả`]);
+  else if (v > cuoi) ra.push(['tren-muc-tieu', `dự kiến ${v} tiêu chí, trên mục tiêu ${dau}–${cuoi} — chỉ giữ khi kết quả không tách được mà giữ nghĩa (tối đa ${k.cho_phep_den})`]);
+  else if (v < dau) ra.push(['duoi-muc-tieu', `dự kiến ${v} tiêu chí, dưới mục tiêu ${dau}–${cuoi}`]);
+  const vai = chuoi(r.vai);
+  if (!vai) ra.push(['chua-khai-dang-giao', `chưa khai vai (tên vai cho việc người dùng thấy, hoặc «${VAI_NEN}» cho việc nền)`]);
+  else if (vai === VAI_NEN) { if (!chuoi(r.bat_khi)) ra.push(['nen-thieu-bat-khi', 'việc nền (vai: nen) thiếu bat_khi — hành vi hệ thống đo được']); }
+  else if (!chuanCau(r.cau_giao).startsWith(chuanCau(vai))) ra.push(['vai-khong-mo-cau', `câu giao không mở bằng vai «${vai}»`]);
+  return ra;
+}
+export function kiemCo(pv, data, k) {
+  const loi = []; const canhBao = [];
+  const hang = (Array.isArray(data.hang) ? data.hang : []).map((r, i) => ({ r, nhan: (r && typeof r === 'object' && !Array.isArray(r) && chuoi(r.ma)) || `#${i + 1}` }))
+    .filter(({ r }) => r && typeof r === 'object' && !Array.isArray(r));
+  const trongDot = hang.filter(({ r }) => chuoi(r.dot) === pv.dot); const ngoai = hang.filter(({ r }) => chuoi(r.dot) !== pv.dot);
+  // Gộp: hàng cùng đợt, cùng nhom (khác rỗng), cùng dưới mục tiêu, tổng không quá cho phép.
+  const duoi = trongDot.filter(({ r }) => laTieuChi(r.tieu_chi) && r.tieu_chi < k.muc_tieu[0]);
+  for (const { r, nhan } of trongDot) {
+    for (const [co, cau] of coCuaHang(r, k)) {
+      let them = '';
+      if (co === 'duoi-muc-tieu' && chuoi(r.nhom)) {
+        const ban = duoi.filter(x => x.r !== r && chuoi(x.r.nhom) === chuoi(r.nhom) && r.tieu_chi + x.r.tieu_chi <= k.cho_phep_den);
+        if (ban.length) them = ` — gộp được với ${ban.map(x => `${x.nhan} (tổng ${r.tieu_chi + x.r.tieu_chi})`).join('; ')}`;
+      }
+      (CO_LOI.has(co) ? loi : canhBao).push(`hàng ${nhan} [${co}]: ${cau}${them}`);
+    }
+  }
+  // Hàng ngoài đợt: mỗi cờ đúng MỘT dòng vàng — lộ trình cắt tay đời trước có hàng trăm hàng.
+  const gom = new Map();
+  for (const { r, nhan } of ngoai) for (const [co] of coCuaHang(r, k)) if (!CO_CHI_TRONG_DOT.has(co)) { if (!gom.has(co)) gom.set(co, []); gom.get(co).push(nhan); }
+  for (const co of CO_TEN) { const ds = gom.get(co); if (ds) canhBao.push(`[${co}] ${ds.length} hàng ngoài đợt ${pv.dot} — ${ds.slice(0, 8).join(', ')}${ds.length > 8 ? ', …' : ''}`); }
+  return { loi, canhBao };
+}
+
+// ── Đồng hồ cỡ (chỉ đọc) ──────────────────────────────────────────────────────
+// Hai mẫu số, cố ý khác nhau: phân bố cỡ trên mọi hồ sơ ĐÃ CHỐT phạm vi (cỡ biết lúc chốt, không cần
+// chờ giao — dùng mẫu «đã giao» là đếm kiểu sống sót: vòng to nổ trần chậm giao nhất); lượt chấm trên
+// hồ sơ ĐÃ GIAO có ≥ 1 tiêu đề lượt chấm (khuôn bên ghi: wf-usage.mjs --title "S4 round N").
+const DA_GIAO = new Set([...DA_THONG_CONG_2, ...DA_DONG_THUC_TE]);
+const LUOT_CHAM_RE = /^###\s+S4\s+round\b/gm;
+const lamTron2 = x => Math.round(x * 100) / 100;
+const phanTram = (a, b) => Math.round((100 * a) / b);
+function thongKeLuot(ds, k) {
+  const n = ds.length; if (!n) return { n: 0 };
+  return { n, luot_tb: lamTron2(ds.reduce((s, x) => s + x.luot, 0) / n), cham_tran_pt: phanTram(ds.filter(x => x.luot >= k.tran_luot_cham).length, n) };
+}
+export function dongHoCo(root, { khoang: k, tu = null, loTrinh = null }) {
+  const acc = path.join(root, '_acceptance');
+  const bo = { chua_chot: 0, khong_doc_tieu_chi: 0, chua_giao: 0, khong_luot_cham: 0 }; if (tu) bo.khong_ngay_chot = 0;
+  const chot = [];
+  const ds = existsSync(acc) ? readdirSync(acc, { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name).sort() : [];
+  for (const slug of ds) {
+    const c = doc(path.join(acc, slug, 'contract.md')); if (c == null) continue;
+    const st = chuoi(frontmatterField(c, 'status'));
+    if (!st || st === 'draft') { bo.chua_chot += 1; continue; }
+    const tc = new Set(parseACBlock(c).map(a => a.id)).size;
+    if (!tc) { bo.khong_doc_tieu_chi += 1; continue; }
+    if (tu) {
+      const d = ngayDau(frontmatterField(c, 'approved_at')) || ngayDau(frontmatterField(c, 'veto_opened_at'));
+      if (!d) { bo.khong_ngay_chot += 1; continue; }
+      if (d < tu) continue;
+    }
+    let luot = null;
+    if (!DA_GIAO.has(st)) bo.chua_giao += 1;
+    else { const u = doc(path.join(acc, slug, 'usage-report.md')); const n = u ? (u.match(LUOT_CHAM_RE) || []).length : 0; if (n) luot = n; else bo.khong_luot_cham += 1; }
+    chot.push({ slug, tc, luot });
+  }
+  const [dau, cuoi] = k.muc_tieu;
+  const trong = (x, a, b) => x.tc >= a && (b == null || x.tc <= b);
+  const nhom = [['duoi-muc-tieu', 1, dau - 1], ['muc-tieu', dau, cuoi], ['cho-phep', cuoi + 1, k.cho_phep_den], ['phai-tach', k.tach_tu, null]].map(([ten, a, b]) => {
+    const g = chot.filter(x => trong(x, a, b)); const giao = g.filter(x => x.luot != null);
+    return { ten, tu: a, den: b, n_chot: g.length, ...thongKeLuot(giao, k), it_du_lieu: giao.length < k.it_du_lieu_duoi };
+  });
+  let trongKhoang;
+  if (!chot.length) trongKhoang = { n_chot: 0, chua_do_duoc: true };
+  else {
+    const g = chot.filter(x => trong(x, dau, k.cho_phep_den));
+    trongKhoang = { n_chot: chot.length, n_trong: g.length, pt_tong: phanTram(g.length, chot.length), ...thongKeLuot(g.filter(x => x.luot != null), k), it_du_lieu: chot.length < k.it_du_lieu_duoi };
+  }
+  const ra = { khoang: k, tu, nhom, trong_khoang: trongKhoang, bo_qua: bo };
+  if (loTrinh) {
+    const theoSlug = new Map(chot.map(x => [x.slug, x]));
+    const hang = (Array.isArray(loTrinh.hang) ? loTrinh.hang : []).filter(r => r && typeof r === 'object' && laTieuChi(r.tieu_chi) && theoSlug.has(chuoi(r.slug)))
+      .map(r => ({ ma: chuoi(r.ma), slug: chuoi(r.slug), du_kien: r.tieu_chi, that: theoSlug.get(chuoi(r.slug)).tc }));
+    ra.du_kien = { n: hang.length, vuot_cho_phep: hang.filter(h => h.that > k.cho_phep_den).length, hang };
+  }
+  return ra;
+}
+
 // ── Nhịp ──────────────────────────────────────────────────────────────────────
 // Số ngày từ lúc chốt phạm vi (approved_at, làn V thì veto_opened_at) tới ngày ký Cổng Bằng chứng
 // (chuỗi YYYY-MM-DD đầu tiên trong human_signoff — khuôn bên ghi của lệnh ký «<tên> <ngày>»).
@@ -136,17 +281,26 @@ const isMain = (() => {
 if (isMain) {
   const a = process.argv.slice(2);
   const thoat = (c, m) => { process.stderr.write(`cat-luot: ${m}\n`); process.exit(c); };
-  let root = '.'; let tepPv = null; let tepLt = null; let coNhip = false;
+  let root = '.'; let tepPv = null; let tepLt = null; let coNhip = false; let coCo = false; let tu = null;
   for (let i = 0; i < a.length; i++) {
     if (a[i] === '--nhip') { coNhip = true; continue; }
-    if (['--root', '--pham-vi', '--lo-trinh'].includes(a[i])) {
+    if (a[i] === '--co') { coCo = true; continue; }
+    if (['--root', '--pham-vi', '--lo-trinh', '--tu'].includes(a[i])) {
       const v = a[i + 1]; if (v == null || v === '' || v.startsWith('--')) thoat(2, `${a[i]} cần một giá trị ngay sau nó`);
-      if (a[i] === '--root') root = v; else if (a[i] === '--pham-vi') tepPv = v; else tepLt = v; i++;
-    } else thoat(2, `tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--pham-vi <tệp> --lo-trinh <tệp> | --nhip)`);
+      if (a[i] === '--root') root = v; else if (a[i] === '--pham-vi') tepPv = v; else if (a[i] === '--tu') tu = v; else tepLt = v; i++;
+    } else thoat(2, `tham số lạ ${a[i]} — chỉ nhận --root <thư-mục> (--pham-vi <tệp> --lo-trinh <tệp> | --nhip | --co [--tu <ngày>] [--lo-trinh <tệp>])`);
   }
   root = path.resolve(root);
+  let khoang; try { khoang = napKhoang(); } catch (e) { thoat(2, e.message); }
   if (coNhip) { process.stdout.write(JSON.stringify(nhip(root), null, 2) + '\n'); process.exit(0); }
-  if (!tepPv || !tepLt) thoat(2, 'cần --pham-vi <tệp> và --lo-trinh <tệp> (hoặc --nhip)');
+  if (coCo) {
+    if (tu != null && !(NGAY_RE.test(tu) && !Number.isNaN(Date.parse(`${tu}T00:00:00Z`)))) thoat(2, `--tu «${tu}» phải là ngày YYYY-MM-DD`);
+    let loTrinh = null;
+    if (tepLt) { try { loTrinh = JSON.parse(readFileSync(path.resolve(root, tepLt), 'utf8').replace(/^\uFEFF/, '')); } catch (e) { thoat(2, `không đọc được tệp lộ trình ${tepLt}: ${e.message}`); } }
+    process.stdout.write(JSON.stringify(dongHoCo(root, { khoang, tu, loTrinh }), null, 2) + '\n'); process.exit(0);
+  }
+  if (tu != null) thoat(2, '--tu chỉ đi với --co');
+  if (!tepPv || !tepLt) thoat(2, 'cần --pham-vi <tệp> và --lo-trinh <tệp> (hoặc --nhip, --co)');
   const trongGit = tep => {
     const p = path.resolve(root, tep); const rel = path.relative(root, p);
     if (!rel || rel.startsWith('..') || path.isAbsolute(rel) || !existsSync(p)) return false;
@@ -160,9 +314,10 @@ if (isMain) {
   try { data = JSON.parse(readFileSync(path.resolve(root, tepLt), 'utf8').replace(/^\uFEFF/, '')); } catch (e) { thoat(2, `tệp lộ trình không phải JSON hợp lệ: ${e.message}`); }
   if (data == null || typeof data !== 'object' || Array.isArray(data)) thoat(2, 'gốc tệp lộ trình phải là một object');
   const kq = kiemPhu(pv, data);
-  const loi = [...pv.loi, ...kq.loi];
+  const co = kiemCo(pv, data, khoang);
+  const loi = [...pv.loi, ...kq.loi, ...co.loi];
   const ra = [`bảng phủ đợt ${pv.dot} (${pv.dang}): ${pv.ma.length} mã`, ...kq.bang.map(b => `  ${b.ma} → ${b.cho || '—'}`),
-    ...kq.canhBao.map(c => `cảnh báo: ${c}`), ...loi.map(l => `lỗi: ${l}`)];
+    ...[...kq.canhBao, ...co.canhBao].map(c => `cảnh báo: ${c}`), ...loi.map(l => `lỗi: ${l}`)];
   process.stdout.write(ra.join('\n') + '\n');
   process.exit(loi.length ? 1 : 0);
 }
