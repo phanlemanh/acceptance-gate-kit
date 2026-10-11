@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: e7d9bf959415215e4b2b2e8d3adbdf6eff061b93
+verified_commit: 8c92fb3a0138a19616903e63038393a4eff7fe5c
 human_signoff: manh 2026-10-11
 ---
 
@@ -246,3 +246,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: mọi eval máy xanh (E1–E12), E8b PASS theo panel đề xuất; không eval nào cần quay lại implementation. Verdict PASS.
+
+### Re-pin lần 1 — 2026-10-11, do gộp origin/main 922976ca (DP3) vào nhánh DP7 + sửa ca DP3-11 neo lịch sử
+run_id: repin-20261011T032417Z-27364
+sha: 8c92fb3a0138a19616903e63038393a4eff7fe5c · suites: 10 lệnh exit 0 · evals: 12/12 eval máy đạt kỳ vọng · ngoài làn máy: E8b (E8b không khai paths)
