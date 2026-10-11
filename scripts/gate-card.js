@@ -1037,9 +1037,11 @@ const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
 // đề lệch → cờ, mục về người. Sổ không có dòng máy → mọi nhánh dưới im, thẻ như trước (đọc-cũ).
 // Bộ đọc dùng CHUNG với bên ghi (scripts/dinh-tuyen-may.cjs) — nạp hỏng thì coi như không dòng máy.
 const DTM_DAU = 'dinh-tuyen-ngoai-n';
-const dtmMap = (() => { try { return require('./dinh-tuyen-may.cjs').docDinhTuyen(read(path.join(dir, 'decisions.jsonl'))); } catch (_) { return new Map(); } })();
+let dtmLib = null; try { dtmLib = require('./dinh-tuyen-may.cjs'); } catch (_) {}
+const dtmMap = dtmLib ? dtmLib.docDinhTuyen(read(path.join(dir, 'decisions.jsonl'))) : new Map();
 const dtmCua = fi => { const d = dtmMap.get(fi + 1); return d && d.may ? d : null; };
-const dtmMay = fi => { const d = dtmCua(fi); return d && d.tieu_de === ooc.findings[fi].title ? d : null; };
+// So «cùng mục» bằng CHÍNH hàm của bên ghi (gỡ nhãn lượt «(rN…)» trước khi so).
+const dtmMay = fi => { const d = dtmCua(fi); return d && dtmLib.cungMuc(d.tieu_de, ooc.findings[fi].title) ? d : null; };
 const dtmLech = ooc.findings.map((f, fi) => (dtmCua(fi) && !dtmMay(fi) ? 'Ngoài-' + (fi + 1) : null)).filter(Boolean);
 const dinhTuyenMay = ooc.findings.map((f, fi) => { const d = dtmMay(fi); return d ? { nhan: 'Ngoài-' + (fi + 1), id: d.id, de_xuat: d.de_xuat, dao: d.dao } : null; }).filter(Boolean);
 

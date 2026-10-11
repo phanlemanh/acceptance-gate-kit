@@ -6,6 +6,7 @@
 // không đổi dòng nào.
 //
 //   node dinh-tuyen-may.cjs --write|--check --root <repo> --slug <slug>
+//   node dinh-tuyen-may.cjs --soat-lech --root <repo>     (đếm ngưỡng của giới hạn dưới đây, chỉ đọc)
 //   Thoát 0: đã ghi / không có gì để ghi / tắt / hồ sơ không đủ điều kiện (in một dòng lý do).
 //   Thoát 2: khoá kho sai giá trị · dòng máy cũ trỏ mục đã đổi · lưới ghi từ chối hợp đồng.
 //   Thoát 3: dùng sai lệnh, không đọc được hợp đồng.
@@ -14,8 +15,9 @@
 // là người. Dấu máy là khoá `may`. Đọc-cũ: sổ không có dòng nào mang khoá đó → mọi bộ đọc như cũ.
 //
 // GIỚI HẠN ĐÃ KHAI (design §5): dòng máy cũ trỏ nhầm mục sau một lượt chấm mới — bên ghi này và
-// thẻ bắt (so `tieu_de`), lưới trước-merge (lib) KHÔNG bắt. Ngưỡng mở vòng sửa lib: ≥1 hồ sơ đi
-// làn V với dòng máy mà `tieu_de` khác tiêu đề mục hiện tại.
+// thẻ bắt (so `tieu_de`, sau khi gỡ nhãn lượt), lưới trước-merge (lib) KHÔNG bắt. Ngưỡng mở vòng sửa
+// lib: ≥1 hồ sơ có dòng máy lệch mục — đếm bằng `--soat-lech --root <repo>` (thoát 2 khi có), lệnh
+// KHÔNG đọc khoá kho và KHÔNG xét điều kiện hồ sơ, nên đếm được cả hồ sơ đã máy thông hay đã ký.
 const fs = require('fs');
 const path = require('path');
 
@@ -99,6 +101,14 @@ function docDinhTuyen(ledgerText) {
   return map;
 }
 
+// Nhãn lượt mà bước mang-sang của S4 chèn vào tiêu đề mục («X (r1)», «X (r1 · tệp đã đổi)») — cùng
+// hình dạng nhóm nhãn của OOC_TITLE_RE trong lib/out-of-contract.cjs (bộ đọc chuẩn hoá hai cách viết
+// về «<tiêu đề> (rN…)»). Gỡ nhãn trước khi so: cùng mục ở lượt sau không phải mục đã đổi.
+const NHAN_LUOT_RE = /\s+\([rR](?:\d+|\?)(?:\s*[·,—–-][^()]*)?\)\s*$/;
+const tieuDeGoc = s => String(s == null ? '' : s).replace(NHAN_LUOT_RE, '').trim();
+// MỘT hàm so «cùng mục» — bên ghi, soát lệch và thẻ (scripts/gate-card.js) cùng gọi.
+const cungMuc = (a, b) => a != null && b != null && tieuDeGoc(a) === tieuDeGoc(b);
+
 // Kế hoạch thuần (không I/O) — bên CLI và test cùng gọi.
 function keHoach({ contract, evidence, findings, ledger, config }) {
   if (!docKhoa(config).bat) return { tat: true };
@@ -109,7 +119,7 @@ function keHoach({ contract, evidence, findings, ledger, config }) {
   const lech = [], ghi = [];
   p.findings.forEach((f, i) => {
     const n = i + 1, d = dt.get(n);
-    if (d) { if (d.may && d.tieu_de !== f.title) lech.push({ n, cu: d.tieu_de, moi: f.title }); return; }
+    if (d) { if (d.may && !cungMuc(d.tieu_de, f.title)) lech.push({ n, cu: d.tieu_de, moi: f.title }); return; }
     if (TOKEN_MAY.includes(f.proposal)) ghi.push({ n, token: f.proposal, f });
   });
   return { lech, ghi };
@@ -144,8 +154,39 @@ function themNotes(contract, gach) {
   return [...truoc, ...chen, ...(sau.length ? ['', ...sau] : [''])].join('\n');
 }
 
+// Soát lệch toàn kho — ngưỡng của giới hạn đã khai. Mỗi hồ sơ: dòng máy MỚI NHẤT của một nhãn mà
+// không còn cùng mục ở vị trí ấy (hoặc vị trí ấy hết mục) là một lệch. Chỉ đọc.
+function soatLech(root) {
+  const goc = path.join(root, '_acceptance');
+  const doc = f => { try { return fs.readFileSync(f, 'utf8'); } catch { return null; } };
+  let ten = []; try { ten = fs.readdirSync(goc, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => d.name).sort(); } catch { return []; }
+  const out = [];
+  for (const slug of ten) {
+    // (soát lệch KHÔNG xét điều kiện hồ sơ)
+    const ledger = doc(path.join(goc, slug, 'decisions.jsonl'));
+    if (!ledger || !ledger.includes(DAU_MAY)) continue;
+    const p = ooc.parse(doc(path.join(goc, slug, 'review-findings.md')) || '');
+    const lech = [];
+    for (const [n, d] of docDinhTuyen(ledger)) {
+      if (!d.may) continue;
+      const f = p.findings[n - 1];
+      if (!f || !cungMuc(d.tieu_de, f.title)) lech.push({ n, cu: d.tieu_de, moi: f ? f.title : '(không còn mục ở vị trí này)' });
+    }
+    if (lech.length) out.push({ slug, lech });
+  }
+  return out;
+}
+
 function chay(argv) {
   const get = k => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : null; };
+  if (argv.includes('--soat-lech')) {
+    const root = get('--root');
+    if (!root) { console.error('dinh-tuyen-may: dùng --soat-lech --root <repo>'); return 3; }
+    const s = soatLech(root);
+    console.log(`dinh-tuyen-may: ${s.length} hồ sơ có dòng máy lệch mục`);
+    for (const h of s) console.log(`- ${h.slug}: ` + h.lech.map(x => `Ngoài-${x.n} dòng máy «${x.cu}» ≠ «${x.moi}»`).join(' · '));
+    return s.length ? 2 : 0;
+  }
   const mode = argv.includes('--write') ? 'write' : argv.includes('--check') ? 'check' : null;
   const root = get('--root'), slug = get('--slug');
   if (!mode || !root || !slug) { console.error('dinh-tuyen-may: dùng --write|--check --root <repo> --slug <slug>'); return 3; }
@@ -187,6 +228,6 @@ function chay(argv) {
   return 0;
 }
 
-module.exports = { KHOA, DAU_MAY, KHUON_DONG, VE, docKhoa, veTruot, soNhan, docDinhTuyen, keHoach, themNotes, lenhDao };
+module.exports = { KHOA, DAU_MAY, KHUON_DONG, VE, docKhoa, veTruot, soNhan, docDinhTuyen, keHoach, themNotes, lenhDao, tieuDeGoc, cungMuc, soatLech };
 
 if (require.main === module) process.exit(chay(process.argv.slice(2)));
