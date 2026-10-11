@@ -143,8 +143,23 @@ function doThongDich(cacDoan) {
     const ten = path.basename(tu[i]);
     const doiSo = tu.slice(i + 1);
     if (SHELL.has(ten)) {
-      if (doiSo.some((a) => /^-[a-z]*c$/.test(a))) continue;
-      if (doiSo.includes('-s') || !doiSo.some((a) => !a.startsWith('-'))) return 'shell';
+      // Cờ mang giá trị của shell (`-o pipefail`, cụm `-euo pipefail`, `-O opt`, `--rcfile f`) ăn từ kế — giá trị ấy
+      // không phải tệp script.
+      let doc = 'shell';
+      for (let k = 0; k < doiSo.length; k++) {
+        const a = doiSo[k];
+        if (/^-[a-zA-Z]*c$/.test(a)) {
+          doc = null;
+          break;
+        }
+        if (a === '-s') break;
+        if (/^[-+][a-zA-Z]*[oO]$/.test(a) || a === '--rcfile' || a === '--init-file') k++;
+        else if (!a.startsWith('-') && !a.startsWith('+')) {
+          doc = null;
+          break;
+        }
+      }
+      if (doc) return doc;
     }
     if (ten === 'node' || ten === 'nodejs') {
       let j = 0;

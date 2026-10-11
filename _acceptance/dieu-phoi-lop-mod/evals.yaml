@@ -42,10 +42,10 @@ evals:
       khác 0, stderr chứa "cờ không nhận diện được", băm cây kho thử trước == sau. Ba đột biến, mỗi cái trên bản sao
       sau khi bản lành xanh, tập ô đỏ so BẰNG tập rút bằng code từ ma trận (số in ra, kiểm 0 < số < 37): "ok" cho
       "DP6-02-do bo-check" (ô --check/-c của node); "ok" cho "DP6-02-do bo-heredoc" (ô heredoc kỳ vọng null + lời
-      gọi thật heredoc); "ok" cho "DP6-02-do bo-thay-lenh" (ô thân không nháy). "ok" cho "DP6-02 khong-lot": ma trận viết sẵn 12 ô
-      (here-string, heredoc cho trình thông dịch, số học, chú thích, dấu đóng có gạch, đối chứng bash <tệp>), số in ra
-      = 12, mỗi ô đúng kỳ vọng, và mọi ô dương cũng bị bộ phân loại merge-base chặn; "ok" cho "DP6-02-do
-      bo-here-string" (đỏ đúng ô here-string-chu), "DP6-02-do bo-trinh-thong-dich" (đúng năm ô trình thông dịch),
+      gọi thật heredoc); "ok" cho "DP6-02-do bo-thay-lenh" (ô thân không nháy). "ok" cho "DP6-02 khong-lot": ma trận viết sẵn 15 ô
+      (here-string, heredoc cho trình thông dịch kể cả bash kèm cờ mang giá trị, số học, chú thích, dấu đóng có gạch,
+      đối chứng bash <tệp>), số in ra = 15, mỗi ô đúng kỳ vọng, và mọi ô dương cũng bị bộ phân loại merge-base chặn; "ok" cho "DP6-02-do
+      bo-here-string" (đỏ đúng ô here-string-chu), "DP6-02-do bo-trinh-thong-dich" (đúng tám ô trình thông dịch),
       "DP6-02-do bo-so-hoc" (đúng hai ô số học).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
@@ -57,9 +57,11 @@ evals:
       exit 0; "ok" cho "DP6-03 tep-ca": tệp ca có đúng 9 dòng; mỗi dòng có khoá tep, tool_use_id, nhan, lenh; tập
       tool_use_id có 9 phần tử khác nhau; số dòng nhan khác null == 3 và nhan null == 6; không dòng nào chứa tên
       người dùng của máy chạy ca (os.userInfo().username) hay chuỗi "/private/tmp/claude-". "ok" cho "DP6-03
-      nguon": máy có thư mục bản ghi → chạy rut-lenh-that.mjs ra thư mục tạm hai lần, hai đầu ra giống hệt (so băm)
-      và BẰNG tệp ca đã commit; không có thư mục bản ghi → dòng chẩn đoán "bỏ qua: không có bản ghi hội thoại" và
-      ca vẫn "ok" (in rõ nhánh đã đi). "ok" cho "DP6-03 lech-o-goc": phanLoaiLenh của merge-base (git archive trọn
+      nguon-thieu-tep": thư mục bản ghi giả chỉ có một tệp nguồn → hàm đếm tệp vắng trả đúng số lời gọi vắng (rút
+      bằng code từ danh sách), thư mục vắng → cả chín. "ok" cho "DP6-03 nguon": máy có đủ tệp nguồn → chạy
+      rut-lenh-that.mjs ra thư mục tạm hai lần, hai đầu ra giống hệt (so băm) và BẰNG tệp ca đã commit; thiếu thư mục
+      hoặc thiếu một tệp nguồn → dòng chẩn đoán "bỏ qua: không có bản ghi hội thoại (<n>/9 tệp nguồn vắng)" và ca vẫn
+      "ok" (in rõ nhánh đã đi). "ok" cho "DP6-03 lech-o-goc": phanLoaiLenh của merge-base (git archive trọn
       dieu-phoi/ vào thư mục tạm) cho kết quả KHÁC nhãn ở cả 9 dòng (đếm == 9), bản sau thay đổi cho BẰNG nhãn ở cả
       9 dòng (đếm == 9).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

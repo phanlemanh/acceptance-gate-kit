@@ -74,7 +74,6 @@ Thợ ghi vào thư mục đợt bằng lệnh con (`xin`, `nha`, `yeu-cau`) —
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
 
-<<<<<<< HEAD
 ## Chặn S4 và việc chờ người
 
 - **Hook chặn S4 nhận ra lệnh đúng theo cấu trúc lời gọi**, không so chuỗi con. Lệnh chạy `repin-lane.mjs`,
@@ -107,7 +106,7 @@ Giới hạn đã khai, kèm ngưỡng mở lại:
   giám sát báo chủ kho một việc chờ đã xong.
 - Ca kiểm «nguồn» của chín lời gọi thật (`tests/dieu-phoi/rut-lenh-that.mjs`) chỉ chạy trên máy có bản ghi
   hội thoại; nơi khác (CI) in «bỏ qua» — các ca phân loại vẫn chạy trên tệp ca đã commit.
-=======
+
 ## Phiên thợ trong đợt
 
 Phiên thợ không cần ai dặn nó đang trong đợt: S0 của `/feature-loop` chạy `trong-dot.mjs` của gói
@@ -127,7 +126,6 @@ Quyền tự merge do người trả ở thẻ khởi tạo, giám sát ghi bằ
 thợ đọc là không tự merge. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
 `hang-moi`) theo mục «Cách xin tài nguyên» của `LUAT.md` của đợt. Yêu cầu `can-nguoi` chưa trả lời hiện ở danh
 sách chờ người của bảng đợt và được lệnh đếm tính một lần.
->>>>>>> origin/main
 
 ## Chuyển từ bản lõi chép tay trong kho
 

@@ -178,10 +178,29 @@ test('DP6-03 tep-ca', () => {
   }
 });
 
+// Kiểm nguồn: rút lại chín lời gọi từ bản ghi và so với tệp ca. Thiếu thư mục bản ghi HAY thiếu một tệp nguồn
+// (máy khác, bản ghi bị dọn) → 'bo-qua' kèm số tệp vắng, không ném.
+export function tepNguonVang(projects, user = os.userInfo().username) {
+  if (!fs.existsSync(projects)) return DANH_SACH.length;
+  return DANH_SACH.filter((m) => !fs.existsSync(path.join(projects, m.tep.replace('<u>', user)))).length;
+}
+test('DP6-03 nguon-thieu-tep', () => {
+  const gia = tam('dp6-projects-');
+  const m = DANH_SACH[0];
+  const p = path.join(gia, m.tep.replace('<u>', os.userInfo().username));
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, '');
+  assert.equal(tepNguonVang(path.join(gia, 'khong-co')), DANH_SACH.length, 'thiếu thư mục: mọi tệp vắng');
+  const canVang = DANH_SACH.filter((x) => x.tep !== m.tep).length;
+  assert.ok(canVang > 0 && canVang < DANH_SACH.length);
+  assert.equal(tepNguonVang(gia), canVang, 'có thư mục mà thiếu tệp nguồn: đếm đúng số lời gọi vắng');
+});
+
 test('DP6-03 nguon', async () => {
   const projects = path.join(os.homedir(), '.claude', 'projects');
-  if (!fs.existsSync(projects)) {
-    console.log('  bỏ qua: không có bản ghi hội thoại');
+  const vang = tepNguonVang(projects);
+  if (vang > 0) {
+    console.log(`  bỏ qua: không có bản ghi hội thoại (${vang}/${DANH_SACH.length} tệp nguồn vắng)`);
     return;
   }
   const a = await rut(projects);
@@ -599,13 +618,16 @@ export const MA_TRAN_KHONG_LOT = [
   ['chu-thich', '# dùng <<EOF ở dưới\nnode x/repin-lane.mjs', 's4'],
   ['dau-dong-gach', 'cat <<EOF-X\nhello\nEOF-X\nnode x/repin-lane.mjs', 's4'],
   ['bash-co-tep', "bash chay.sh <<'EOF'\nnode x/repin-lane.mjs\nEOF", null],
+  ['bash-o-pipefail', "bash -o pipefail <<'EOF'\nnode x/repin-lane.mjs\nEOF", 's4'],
+  ['bash-euo', 'bash -euo pipefail <<EOF\nnode x/s4-args.mjs\nEOF', 's4'],
+  ['bash-rcfile', "bash --rcfile r.sh <<'EOF'\nnode x/duong-nen.mjs\nEOF", 'duong-nen'],
 ];
 const maTranKhongLot = () => MA_TRAN_KHONG_LOT.map(([ten, lenh, ky_vong]) => ({ ten, lenh, ky_vong }));
 
 test('DP6-02 khong-lot', async () => {
   const ds = maTranKhongLot();
   console.log(`  ma trận chống lọt: ${ds.length} ô`);
-  assert.equal(ds.length, 12);
+  assert.equal(ds.length, 15);
   const { phanLoaiLenh } = await nap(GOI, 'phan-loai-s4.mjs');
   assert.deepEqual(chayMaTran(phanLoaiLenh, ds), []);
   // Ô dương của ma trận là lời gọi bộ phân loại ở merge-base cũng chặn (luật mới không được kém hơn).
@@ -625,6 +647,6 @@ async function doDotBienKhongLot(cu, moi, can) {
 test('DP6-02-do bo-here-string', () =>
   doDotBienKhongLot("if (c === '<' && lenh[i + 1] === '<' && lenh[i + 2] === '<') {", "if (false) {", ['here-string-chu']));
 test('DP6-02-do bo-trinh-thong-dich', () =>
-  doDotBienKhongLot('const dt = doThongDich(doan.slice(dauDong));', 'const dt = null;', ['bash-nhay', 'bash-khong-nhay', 'sh-s', 'ong-bash', 'node-stdin']));
+  doDotBienKhongLot('const dt = doThongDich(doan.slice(dauDong));', 'const dt = null;', ['bash-nhay', 'bash-khong-nhay', 'sh-s', 'ong-bash', 'node-stdin', 'bash-o-pipefail', 'bash-euo', 'bash-rcfile']));
 test('DP6-02-do bo-so-hoc', () =>
   doDotBienKhongLot("if (c === '(' && lenh[i + 1] === '(') {", "if (false) {", ['so-hoc-gan', 'so-hoc-lenh']));
