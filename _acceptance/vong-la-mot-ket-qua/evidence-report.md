@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: d1b64c2386199e0809ec9b62ba8709c1f4946c4a
+verified_commit: 50585b1eafdece7e41cd933b3c702cd676dfe5ea
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -195,3 +195,7 @@ none — every multi-run eval is uniform
 
 Round 1: E1–E10 đạt kèm 2 lỗi đo trong hợp đồng (phép kiểm của LT-142 và LT-143 ghim chưa đủ chặt) — đã sửa ở commit 787bf91c, chấm lại.
 Round 2: E1–E10 đạt trên cây d1b64c23; không eval nào hỏng, không cần quay lại triển khai.
+
+### Re-pin lần 1 — 2026-10-11, do gộp main sau DP7 (#306) và X1 (#302)
+run_id: repin-20261011T051753Z-17450
+sha: 50585b1eafdece7e41cd933b3c702cd676dfe5ea · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E10 (E10 không khai paths) · AC không có chốt máy: AC-10
