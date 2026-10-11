@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f6e498588ad94faf2eb81ac7c81dd57cac3067da
+verified_commit: 209cb839c667b96b1fc622db58fb8ee6bdb42070
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -218,3 +218,7 @@ none — every multi-run eval is uniform
 Round 1: không eval nào hỏng; mọi eval máy và 10 lệnh suite xanh, E12 khớp từng vế của expected.
 Round 2: chấm lại trên cây mới (commit chuẩn hoá «» của X2 và sửa «Giá trị» in ngưỡng ô cơ hội cạnh số đo, LT-154 so quan hệ); không eval nào hỏng, lệnh chức năng 242 ca đạt, 10 lệnh suite xanh, E12 khớp expected.
 Round 3: chấm lại sau commit sửa bộ đọc docDuLieu (trường vắng rỗng theo kiểu như bản 1, nhóm dải vắng là object toàn null; thêm ca khoa-vang cho E8); không eval nào hỏng, lệnh chức năng 245 ca đạt, 10 lệnh suite xanh, E12 mang từ lượt 2 vì delta không chạm paths của nó.
+
+### Re-pin lần 1 — 2026-10-11, do gộp main sau S3 + DP7; trang mẫu đã ký vẽ lại vì câu giao bỏ «» (X2)
+run_id: repin-20261011T064021Z-16316
+sha: 209cb839c667b96b1fc622db58fb8ee6bdb42070 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E12 · AC không có chốt máy: AC-12
