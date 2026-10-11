@@ -272,6 +272,94 @@ ca('AC-7', () => {
   return `${khoa.ly_do.length}/${khoa.ly_do.length} giá trị ly_do mỗi giá trị một kịch bản, mã 0 · hai lỗi cú pháp giữ mã 2 với thông điệp hôm nay`;
 });
 
+// ── Thang nghi ngờ (AC-3, AC-4, AC-5) ───────────────────────────────────────
+const KHO_DANH_SACH = {
+  'them-t1': () => khoMau({ goc: GOC, pr: { '_acceptance/config.yaml': CAU_HINH.replace('    - "docs/**"\n', '    - "docs/**"\n    - "src/**"\n'), 'src/a.ts': 'doi\n' } }),
+  'bo-t3': () => khoMau({ goc: GOC, pr: { '_acceptance/config.yaml': CAU_HINH.replace('    - "core/**"\n', ''), 'core/x.ts': 'doi\n' } }),
+  'goc-chua-kit': () => khoMau({ goc: { 'docs/a.md': 'a\n', 'src/a.ts': 'a\n' }, pr: { '_acceptance/config.yaml': CAU_HINH, 'docs/a.md': 'doi\n' } }),
+};
+const khoDs = new Map();
+const khoDanhSach = (k) => { if (!khoDs.has(k)) khoDs.set(k, KHO_DANH_SACH[k]()); return khoDs.get(k); };
+const NGHI = { hang: 'khong-ro', cham_vat: 'true' };
+
+ca('AC-3', () => {
+  for (const k of Object.keys(KHO_DANH_SACH)) doiKetQua(coCo(GATE, khoDanhSach(k)), { ...NGHI, ly_do: 'doi-danh-sach-hang' }, `ca ${k}`);
+  return 'ba ca đổi danh sách hạng (thêm t1 · bỏ t3 · gốc chưa có config) → khong-ro/true/doi-danh-sach-hang, 0 cảnh báo';
+});
+
+ca('AC-3-im', () => {
+  const dir = khoMau({ goc: GOC, pr: { '_acceptance/config.yaml': `${CAU_HINH}feature_loop:\n  suite_keys: [executors.test.a]\n`, 'docs/a.md': 'doi\n' } });
+  doiKetQua(coCo(GATE, dir), { hang: 'ho-so', cham_vat: 'false', ly_do: 'phan-loai' }, 'PR đổi khoá config khác');
+  return 'PR đổi khoá config khác danh sách hạng + docs/a.md → ho-so/false/phan-loai';
+});
+
+ca('AC-3-do', () => {
+  const g = banSao((t) => kim(t, '    if [ "$HP_T1_GOC" != "$T1_GLOBS" ] || [ "$HP_T3_GOC" != "$T3_PATHS" ]; then\n', '    if false; then\n'));
+  for (const k of ['them-t1', 'goc-chua-kit']) {
+    const dir = khoDanhSach(k);
+    doiKetQua(coCo(GATE, dir), { ...NGHI, ly_do: 'doi-danh-sach-hang' }, `đối chứng dương ${k}`);
+    const kq = docKetQua(coCo(g, dir).stdout);
+    if (!(kq.hang === 'ho-so' && kq.cham_vat === 'false')) {
+      throw new Error(`PR tự nới danh sách — bản bỏ bước so danh sách ở ca ${k} ra hang=${kq.hang} cham_vat=${kq.cham_vat} (mong ho-so/false)`);
+    }
+  }
+  return 'bỏ bước so danh sách: hai ca PR tự nới danh sách ra ho-so/false (bit nguy hiểm) — bản nguyên vẹn khong-ro/true';
+});
+
+ca('AC-4', () => {
+  const dir = khoHang('chi-t1');
+  doiKetQua(coCo(GATE, dir), { hang: 'T1', cham_vat: 'false', ly_do: 'phan-loai' }, 'đối chứng dương');
+  doiKetQua(coCo(GATE, dir, []), { ...NGHI, ly_do: 'khong-co-pham-vi-diff', canhBao: 0 }, 'không --base');
+  const r2 = coCo(GATE, dir, ['--base', 'khong-co-ref']);
+  const k2 = doiKetQua(r2, { ...NGHI, ly_do: 'khong-phan-loai-duoc', canhBao: 1 }, 'ref không có');
+  if (!k2.canhBao[0].includes('không resolve được')) throw new Error(`ref không có: cảnh báo không mang thông điệp cổng — ${cut(k2.canhBao[0])}`);
+  const roi = khoMau({ goc: GOC, pr: { 'docs/a.md': 'doi\n' } });
+  git(roi, 'checkout', '-q', '--orphan', 'roi'); commitAll(roi, 'roi'); git(roi, 'checkout', '-q', 'pr');
+  doiKetQua(coCo(GATE, roi, ['--base', 'roi']), { ...NGHI, ly_do: 'khong-co-pham-vi-diff', canhBao: 1 }, 'lịch sử rời');
+  doiKetQua(coCo(GATE, dir, ['--base', 'HEAD']), { ...NGHI, ly_do: 'diff-rong', canhBao: 1 }, 'diff rỗng');
+  const tran = khoMau({ goc: { 'docs/a.md': 'a\n' }, pr: { 'docs/a.md': 'doi\n' } });
+  const k5 = doiKetQua(coCo(GATE, tran), { ...NGHI, ly_do: 'khong-phan-loai-duoc', canhBao: 1 }, 'kho không _acceptance/');
+  if (!k5.canhBao[0].includes('nothing to check')) throw new Error(`kho không _acceptance/: cảnh báo không mang thông điệp cổng — ${cut(k5.canhBao[0])}`);
+  // Review Focus: % trong thông điệp được thoát · TMPDIR hỏng · GITHUB_OUTPUT chưa có · gốc lồng.
+  const k6 = doiKetQua(coCo(GATE, dir, ['--base', 'khong%co']), { ...NGHI, ly_do: 'khong-phan-loai-duoc', canhBao: 1 }, 'ref có %');
+  if (!k6.canhBao[0].includes('khong%25co') || k6.canhBao[0].includes('khong%co')) throw new Error(`ref có %: cảnh báo không thoát % — ${cut(k6.canhBao[0])}`);
+  doiKetQua(coCo(GATE, dir, ['--base', 'main'], { TMPDIR: path.join(TMP, 'khong-co-thu-muc', 'x') }), { ...NGHI, ly_do: 'khong-phan-loai-duoc', canhBao: 1 }, 'TMPDIR hỏng');
+  const out = path.join(thuMuc('gh-moi'), 'chua-co');
+  doiKetQua(coCo(GATE, dir, ['--base', 'main'], { GITHUB_OUTPUT: out }), { hang: 'T1', cham_vat: 'false', ly_do: 'phan-loai' }, 'GITHUB_OUTPUT chưa có');
+  if (fs.readFileSync(out, 'utf8') !== 'hang=T1\ncham_vat=false\nly_do=phan-loai\n') throw new Error('GITHUB_OUTPUT chưa có: tệp tạo ra sai nội dung');
+  // Tệp chỉ `docs/**` khớp được (đuôi .html: không dính `*.md`, `**/*.txt`) — đường diff tính từ gốc git là `pkg/docs/…`.
+  const long = khoMau({ goc: { 'pkg/_acceptance/config.yaml': CAU_HINH, 'pkg/docs/a.html': 'a\n' }, pr: { 'pkg/docs/a.html': 'doi\n' } });
+  doiKetQua(coCo(GATE, path.join(long, 'pkg')), { hang: 'T2', cham_vat: 'true', ly_do: 'phan-loai' }, 'gốc lồng');
+  if (!loaiPR(chay(GATE, path.join(long, 'pkg'), ['.', '--base', 'main']).stdout).has('nonT1')) throw new Error('gốc lồng: cổng không cờ KHÔNG in non-T1 — chế độ lệch cổng');
+  return 'năm ca nghi ngờ (không base · ref không có · lịch sử rời · diff rỗng · kho chưa có kit) đều chạy đủ, mã 0, cảnh báo đúng chỗ · Review Focus: thoát %, TMPDIR hỏng, GITHUB_OUTPUT chưa có, gốc lồng theo cổng';
+});
+
+ca('AC-4-do', () => {
+  const dir = khoHang('chi-t1');
+  doiKetQua(coCo(GATE, dir), { hang: 'T1', cham_vat: 'false', ly_do: 'phan-loai' }, 'đối chứng dương');
+  const moc = 'DIFF_GATED_FIRST="$(printf \'%s%s\' "$DIFF_T3_HITS" "$DIFF_NONT1_HITS" | head -1)"\n';
+  for (const [ten, chen, dau] of [['exit 1', 'exit 1\n', null], ['biến chưa khai', ': "$HP_BIEN_CHUA_KHAI"\n', 'HP_BIEN_CHUA_KHAI']]) {
+    const g = banSao((t) => kim(t, moc, chen + moc));
+    const r = coCo(g, dir);
+    const kq = docKetQua(r.stdout);
+    if (!(r.status === 0 && kq.hang === 'khong-ro' && kq.cham_vat === 'true' && kq.ly_do === 'khong-phan-loai-duoc' && kq.canhBao.length === 1 && kq.le.length === 0)) {
+      throw new Error(`lối dừng thoát khác 0 (${ten}) — chế độ không in «chạy đủ»: mã ${r.status}, ${cut(JSON.stringify(kq))}`);
+    }
+    if (dau && !kq.canhBao[0].includes(dau)) throw new Error(`lối dừng (${ten}): cảnh báo không chép thông điệp cổng — ${cut(kq.canhBao[0])}`);
+  }
+  return 'chèn exit 1 / biến chưa khai ngay trước khối phân loại: bẫy vẫn in khong-ro/true/khong-phan-loai-duoc, mã 0, một cảnh báo';
+});
+
+ca('AC-5', () => {
+  doiKetQua(coCo(GATE, khoHang('chi-t1')), { hang: 'T1', cham_vat: 'false', ly_do: 'phan-loai' }, 'đối chứng dương');
+  const tab = khoMau({ goc: { ...GOC, '_acceptance/config.yaml': CAU_HINH.replace('  t3_paths:\n', '\tt3_paths:\n') }, pr: { 'docs/a.md': 'doi\n' } });
+  const k1 = doiKetQua(coCo(GATE, tab), { ...NGHI, ly_do: 'cau-hinh-loi', canhBao: 1 }, 'config có TAB');
+  if (!k1.canhBao[0].includes('VIOLATION [config]')) throw new Error(`config có TAB: cảnh báo không chép dòng VIOLATION [config] — ${cut(k1.canhBao[0])}`);
+  const vang = khoMau({ goc: { '_acceptance/s1/contract.md': '---\nstatus: draft\n---\n', 'docs/a.md': 'a\n' }, pr: { 'docs/a.md': 'doi\n' } });
+  doiKetQua(coCo(GATE, vang), { ...NGHI, ly_do: 'cau-hinh-loi', canhBao: 1 }, 'config vắng');
+  return 'config có TAB và config vắng → cau-hinh-loi + một cảnh báo, mã 0; đối chứng config lành → T1/false';
+});
+
 // ── Chạy ────────────────────────────────────────────────────────────────────
 const yeuCau = (process.env.HP_CASES || '').split(',').map((s) => s.trim()).filter(Boolean);
 for (const id of yeuCau) {
