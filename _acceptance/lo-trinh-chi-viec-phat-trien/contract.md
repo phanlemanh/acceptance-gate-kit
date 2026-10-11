@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs + skills/cat-luot/SKILL.md + hai khuôn lộ trình + CONTEXT.md + ca đo — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-lo-trinh-chi-viec-phat-trien-design.md
-status: verified
+status: signed-off
 veto_state: mo
 veto_opened_at: 2026-10-11T09:20:54Z
 ---
@@ -89,3 +89,12 @@ lỗi — PR cắt không mở được khi răng đỏ — nên «0 dòng cờ 
   đợt mẫu 0 lỗi 0 cảnh báo» của AC-9 `vong-la-mot-ket-qua` — ca LT-150 nay gom mã đợt mẫu từ cả mốc
   ngoài (bảng phủ có chỗ thứ ba). Ca LT-130 (`lo-trinh-cat-luot`) in số mã đếm được thay chữ «năm mã»
   (khuôn bản phạm vi nay tám mã); kỳ vọng của nó vốn rút từ khối, không đổi.
+- **Known limits (Cổng Bằng chứng sau lượt chấm 2, ký 11/10 — Manh Phan):** Ngoài-1: hướng dẫn cắt lượt lấy
+  ví dụ từ chính bản mẫu crm dùng để chấm — giám khảo PASS chưa chứng hướng dẫn dạy được kho khác; phép thử
+  thật là lượt cắt kế của crm (Cổng Giá trị) · Ngoài-2: `ai` vắng thì phiên cắt điền tạm «chủ kho», máy
+  không nhắc nếu người gộp PR quên sửa · Ngoài-3, Ngoài-6, Ngoài-10, Ngoài-11: vài chiều đỏ ghim chữ luôn
+  có trong thông điệp lỗi hoặc chỉ mã thoát — cho biết ca nào hỏng, chưa chắc hỏng đúng lý do · Ngoài-4:
+  `mo_lai_khi` của chân trời chỉ được SKILL dặn, răng không kiểm · Ngoài-5, Ngoài-9: mục `dung_tren` để
+  trống có thể bị báo là chờ một mốc ngoài không có `ma` — vẫn đỏ, chỉ trỏ sai mốc · Ngoài-7: chữ
+  `expected` của E6 tả công thức kỳ vọng khác hàm `kyVongThem` (hôm nay cùng ra 0) · Ngoài-8: `hang` của mốc
+  ngoài trong đợt sai kiểu hay trỏ hàng không có chỉ thành cảnh báo mờ, luật ngày bỏ qua mốc ấy.
