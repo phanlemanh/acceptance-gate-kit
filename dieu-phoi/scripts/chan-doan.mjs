@@ -5,7 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { gocKhoChinh, timThuMucDot } from './dot.mjs';
 import { timGoi } from './goi-dot.mjs';
-import { docHangViec } from './hinh-dang.mjs';
+import { docCauHinh, docHangViec } from './hinh-dang.mjs';
+import { lanDocHieuLuc } from './han-muc.mjs';
 import { docPha } from './pha.mjs';
 import { TEP_SONG_DIR } from './song.mjs';
 import { docVai } from './vai.mjs';
@@ -93,6 +94,19 @@ export function chanDoan(cwd, { mo = null, goi = null, phien = null, chiTiet = f
   }
   for (const m of kiemMoiTruong(thuMuc, { gocKho: gocKhoChinh(cwd), tranMs })) ra.push(m);
   const ds = viecCho(thuMuc, { thucLuc: vai?.giam_sat?.thuc_luc ?? null });
+  // DP4: đợt khai ngưỡng hạn mức mà không còn lần đọc hiệu lực thì bộ phát lịch mù hạn mức — nói ra, kèm việc.
+  let cfg = null;
+  try {
+    cfg = docCauHinh(thuMuc);
+  } catch {
+    cfg = null;
+  }
+  if (cfg?.han_muc) {
+    const { lan } = lanDocHieuLuc(thuMuc, { nowMs });
+    them('han-muc', lan ? 'du' : 'thieu', lan
+      ? `${lan.nguon} lúc ${lan.luc}: ${Object.entries(lan.cua_so).map(([k, v]) => `${k} ${v.pct}%`).join(' · ')}`
+      : 'không có lần đọc hạn mức còn hiệu lực — gọi `get_usage` rồi `han-muc --nguon get-usage --phien <mã phiên> --doc <kết quả>`');
+  }
   them('viec-cho', ds.length ? 'thieu' : 'du', ds.length ? `${ds.length} việc chờ — cũ nhất: ${ds[0].mo_ta}` : 'không có việc chờ', { ds });
   return ra;
 }

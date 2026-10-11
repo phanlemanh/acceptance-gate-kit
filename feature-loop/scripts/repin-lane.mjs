@@ -49,6 +49,10 @@ const BOOL = new Set(['write', 'allow-dirty', 'skip-unchanged']);
 
 function usage(msg) { console.error(`repin-lane: ${msg}\nusage: repin-lane.mjs --root <repo> --slug <s> [--slug <s2> ...] [--reason "<lý do>"] [--run-id <id>] [--ag-root <path>] [--write] [--allow-dirty] [--skip-unchanged] [--tran-phut <phút>]`); process.exit(3); }
 function die(msg) { console.error(`repin-lane: ${msg}`); process.exit(2); }
+// Thoát SAU khi stdout đã xả (hồ sơ xa-stdout-truoc-khi-thoat): JSON làn đỏ in mọi slug, vượt bộ đệm
+// pipe (65 536 byte trên macOS) từ vài chục slug; process.exit ngay thì phần sau mất im lặng. Lần ghi
+// rỗng chỉ gọi callback sau mọi lần ghi trước; lời hứa không bao giờ xong nên mã phía dưới không chạy.
+const xaRoiThoat = (ma) => new Promise(() => { process.stdout.write('', () => process.exit(ma)); });
 const log = (s) => process.stderr.write(`[lane] ${s}\n`);
 
 const flags = { slug: [] };
@@ -719,7 +723,7 @@ if (red) {
   const dauDo = flags.write ? `không ghi pin; dấu lượt đỏ ở run-log của ${soDau} hồ sơ` : 'không ghi gì';
   console.error(`repin-lane: LÀN ĐỎ — ${dauDo} (suite ${JSON.stringify(suitesExit)}; eval đỏ: ${perSlug.flatMap(s => s.evals.filter(lech).map(e => `${s.slug}/${e.id}=${e.exit}${e.expected !== 0 ? ` (khai ${e.expected})` : ''}`)).join(', ') || 'không'}). Khắc phục nguyên nhân rồi chạy làn MỚI (run_id mới); không ký mù.${veCham}`);
   process.stderr.write(tk.dong + '\n');
-  process.exit(1);
+  await xaRoiThoat(1);
 }
 if (flags.write) {
   for (const s of perSlug) {
