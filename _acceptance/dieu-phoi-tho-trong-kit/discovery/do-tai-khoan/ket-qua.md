@@ -4,7 +4,7 @@ Quy trình: [README.md](README.md). Quyết định chủ kho 11/10 (sổ `dieu-
 đo bằng MỘT lần đổi tài khoản CHỦ ĐỘNG trên máy M5 sau khi DP3 và DP7 gộp; đồng ý ba thử nghiệm h, i, l, mỗi
 cái một chỗ, gỡ sau khi đo. Bộ đo: [thu/](thu/).
 
-Trạng thái: **đo một phần** — câu 6 đã đo (11/10); câu 1, 2, 3, 5 chờ. Bảng dưới là đầu vào của hàng DP4: ca `DP4-15` đối chiếu cột
+Trạng thái: **đo một phần** — câu 6 đã đo (11/10); câu 2 suy gián tiếp (11/10); câu 1, 3, 5 chờ. Bảng dưới là đầu vào của hàng DP4: ca `DP4-15` đối chiếu cột
 «Giá trị» với mục «Nhánh DP0» của hợp đồng `_acceptance/dieu-phoi-doi-tai-khoan/contract.md`. Giá trị là một
 trong `còn` · `mất` · `khác` · `chưa-đo`.
 
@@ -12,11 +12,18 @@ trong `còn` · `mất` · `khác` · `chưa-đo`.
 | Câu | Câu hỏi (spec workflow §11) | Giá trị | Số đo / lý do |
 |---|---|---|---|
 | 1 | Sau khi đổi, phiên cũ, nhóm thanh bên, lịch 30′ còn hiện và còn chạy? | chưa-đo | chờ lần đổi chủ động |
-| 2 | `rate_limits` của dòng trạng thái có trên app desktop và khớp `get_usage`? | chưa-đo | chờ cài thử nghiệm h |
+| 2 | `rate_limits` của dòng trạng thái có trên app desktop và khớp `get_usage`? | mất | suy GIÁN TIẾP: lệnh dòng trạng thái (thử nghiệm h) cài vào `.claude/settings.local.json` của worktree cranky-kare lúc 11/10 03:03Z; phiên DP4 chạy trong chính worktree đó nhiều lượt sau, 0 lần gọi (không có `statusline.jsonl`; mod cùng phiên vẫn ghi `mod.jsonl` tới 04:35Z). Chưa loại trừ: app chỉ đọc `statusLine` lúc mở phiên — phiên mới vào worktree này không mở được (xem dưới) |
 | 3 | `StopFailure` bắn với `error: "rate_limit"` khi một lượt chết vì hạn mức? | chưa-đo | lần đổi chủ động không cạn hạn mức |
 | 5 | Sau khi đổi, gói `dieu-phoi` và hook còn nạp trong phiên mới của kho? | chưa-đo | máy M5 chưa cài gói `dieu-phoi` cho kho nào |
 | 6 | `$.session.usage().rateLimits` của mod có số trên app desktop và khớp `get_usage`? | còn | 11/10 03:53Z, mod thử (chỉ chạy ở phiên đo) ghi lúc nạp: five_hour 6 % đặt lại 08:10:00Z · seven_day 15 % đặt lại 13/10 00:00Z; `get_usage` cùng lúc: 6 % đặt lại 08:09:59.547Z · 15 % đặt lại 12/10 23:59:59.547Z — khớp, giờ đặt lại của mod làm tròn tới phút |
 <!-- KET-QUA-DP0>>> -->
+
+## Phát hiện phụ — app không mở phiên mới vào worktree có sẵn
+
+11/10, chủ kho thử mở phiên mới chọn nhánh `claude/cranky-kare-4e5cd2` bằng nút chọn nhánh của app desktop: app
+báo «Couldn't check out the branch» — nó checkout nhánh vào kho chính, mà nhánh đã bị worktree giữ. Kho chính
+không bị đụng. Hệ quả cho bàn giao: tài khoản mới không mở được phiên vào đúng worktree của dãy bằng nút nhánh;
+đường đi là mở phiên trong thư mục worktree (lời ghi danh của chip `tiep-tuc` mang đường worktree của dãy).
 
 ## Câu 4 — không thuộc lần đổi
 

@@ -1001,3 +1001,31 @@ test('DP4-15-do doi-cau-6', () => {
 - [ ] **Step 2:** Bốn suite_keys của kho chạy tự do (luật M5: suite tự chạy, chỉ báo): `bash tests/scripts/run-tests.sh --manh bash`,
   ba mảnh mjs, `bash tests/hooks/run-tests.sh`, ba vùng plugins, `bash tests/workflows/run-tests.sh` — đỏ nào thuộc vật thì sửa.
 - [ ] **Step 3:** contract `status: implemented`; commit; báo Điều phối «S3 xong · xin lượt S4».
+
+---
+
+## Bàn giao S3 → S4 (11/10)
+
+S3 xong ở phiên mở thẳng trong worktree `cranky-kare-4e5cd2` (không EnterWorktree). Hồ sơ `status: implemented`.
+Đã gộp origin/main hai lần bằng merge (DP3 `922976ca`, DP7 `9db9c9ce` → `53cdf17c`).
+
+Đã xanh trên cây này: `tests/dieu-phoi/**` 305/305 · 10 suite_keys (`scripts` bash + ba mảnh mjs, `hooks`, ba vùng
+`plugins`, `workflows`, `product-map --check`) — `plugins` và `hooks` chạy lại sau lần sửa hồ sơ cuối · `kiem-mod`
+· `kiem-validate` · `eval-coverage-lint` không lỗ · VC8 (hai hạt giống mới có ô qua Notes).
+
+Review toàn nhánh (Opus) trả «with fixes»: đã sửa C1, I1–I5, I7, M1, M2 (mỗi cái một ca đỏ trước); I6 ruling không
+sửa (câu 6 đo «còn»); M3, M4 hoãn (sổ). Ruling của sổ thi công đã gặt vào `decisions.jsonl` (11 dòng `source:
+superpowers`).
+
+Việc còn lại:
+1. S4 lượt 1 khi Điều phối cấp lượt (DP6 chấm trước): `node feature-loop/scripts/s4-args.mjs --slug
+   dieu-phoi-doi-tai-khoan --root . --ag-root "$(pwd)" --out _acceptance/dieu-phoi-doi-tai-khoan/s4-args.json`,
+   bọc args vào bản sao `acceptance-verify.js`, chạy Workflow bằng `scriptPath`. AC-12, AC-13 cần Claude Code bản
+   app (`claude plugin test`) trên máy.
+2. Ghim lại MỘT làn (xin lượt): DP1 `dieu-phoi-dong-goi-loi`, DP2 `dieu-phoi-mo-dot-mot-lenh`, DP3
+   `dieu-phoi-tiep-tuc-mot-lenh`, DP7 `dieu-phoi-feature-loop-trong-dot` — ca đã ký của cả bốn đổi trong vòng này
+   (sổ revisit từng hồ sơ). Thêm hồ sơ nào lưới trước-merge báo hoá cũ.
+3. DP0 câu 1, 3, 5 chờ lần đổi tài khoản chủ động do Điều phối gọi: `chup.mjs truoc-doi` trước, `sau.json` sau,
+   cập nhật `ket-qua.md` + bảng NHANH-DP0-CHON (ca DP4-15 đối chiếu), rồi gỡ bộ đo bằng `thu/go.mjs --worktree <wt>`.
+4. Main có thể bị khoá cho máy khác (issue phanlemanh/acceptance-gate-kit#308) — gộp main lần nữa trước PR nếu
+   main đổi.

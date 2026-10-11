@@ -5,7 +5,7 @@ slug: dieu-phoi-doi-tai-khoan
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-10-11-dieu-phoi-doi-tai-khoan-design.md
 approved_by:
 approved_at:
@@ -92,7 +92,7 @@ Nhánh đã chọn (điền khi có `ket-qua.md`; trước đó mọi câu ở `
 | Câu | Giá trị | Nhánh |
 |---|---|---|
 | 1 | chưa-đo | P0 |
-| 2 | chưa-đo | S2 |
+| 2 | mất | S2 |
 | 3 | chưa-đo | L0 |
 | 5 | chưa-đo | K0 |
 | 6 | còn | M1 |
@@ -160,7 +160,13 @@ Phân loại:
   DP0 câu 1 cho «phiên cũ còn chạy».
 - Giới hạn theo nhánh DP0 (câu nào còn `chưa-đo` thì khai ở đây, mỗi câu một dòng kèm ngưỡng):
   - câu 1 — ngưỡng: đợt thử crm (~26/10) hoặc lần đổi chủ động trên M5 cho thấy phiên cũ, nhóm thanh bên, lịch 30′ còn hay mất.
-  - câu 2 — ngưỡng: một phiên mới trong worktree thử cho thấy dòng trạng thái của app desktop có chạy hay không; tới khi đo rơi về nhánh an toàn S2.
+  - câu 2 đo «mất» SUY GIÁN TIẾP (11/10: lệnh dòng trạng thái cài trong worktree, 0 lần gọi qua nhiều lượt) → S2. Chưa loại trừ app chỉ đọc `statusLine` lúc mở phiên — ngưỡng mở lại: một phiên mở MỚI trong thư mục worktree có lệnh dòng trạng thái cài sẵn ghi được ≥1 dòng có `rate_limits`.
   - câu 3 — ngưỡng: ≥1 thợ chết vì hạn mức trong đợt thử mà không có dấu `ban-giao/dau/`.
   - câu 5 — ngưỡng: lần đổi đầu sau khi crm cài gói `dieu-phoi`.
   - câu 6 đã đo «còn» (11/10, mod khớp `get_usage`) → nhánh M1: mod là nguồn số 1.
+- Ngoài hợp đồng, ghi hạt giống (Điều phối M5 quyết 11/10, không tạo ô): ca «nguyên vẹn / chiều im» của hồ sơ đã
+  ký neo vào merge-base sống — năm ca trong ba hồ sơ mà vòng này phải sửa —
+  `docs/plans/2026-10-11-hat-giong-ca-nguyen-ven-neo-merge-base.md`.
+- Ngoài hợp đồng, ghi hạt giống (chủ kho nói 11/10, Điều phối M5 chuyển; không tạo ô): nối lại vai điều phối CẤP
+  MÁY (nhiều kho, quyền merge, lượt S4 xuyên kho, khoá merge) bằng một lệnh —
+  `docs/plans/2026-10-11-hat-giong-dieu-phoi-cap-may-mot-lenh.md`.
