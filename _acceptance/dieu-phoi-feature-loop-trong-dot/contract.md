@@ -5,7 +5,7 @@ slug: dieu-phoi-feature-loop-trong-dot
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: implemented
+status: verified
 design_doc: docs/superpowers/specs/2026-10-11-dieu-phoi-feature-loop-trong-dot-design.md
 approved_by:
 approved_at:
