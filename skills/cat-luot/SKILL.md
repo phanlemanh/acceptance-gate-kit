@@ -1,13 +1,15 @@
 ---
 name: cat-luot
-description: Cắt một bản phạm vi (danh sách mã của đội sản phẩm, một khảo sát, hoặc Core của quét hình thái) thành các hàng của lộ trình kho theo sáu luật, kèm chân trời có lý do và bảng phủ máy sinh — mọi mã ở đúng một chỗ. Dùng khi kho khai lo_trinh.tep và một đợt phạm vi mới tới: «cắt lượt», «đưa bản phạm vi vào lộ trình», «thêm đợt mới vào kế hoạch», «cắt Core thành hàng». KHÔNG dùng để mở vòng một hàng (đó là feature-loop), KHÔNG để ghi trạng thái vào tệp lộ trình, KHÔNG xếp điểm ưu tiên tự động.
+description: Cắt một bản phạm vi (danh sách mã của đội sản phẩm, một khảo sát, hoặc Core của quét hình thái) thành các hàng của lộ trình kho theo sáu luật, kèm chân trời có lý do, việc vận hành của người thành mốc ngoài, và bảng phủ máy sinh — mọi mã ở đúng một chỗ. Dùng khi kho khai lo_trinh.tep và một đợt phạm vi mới tới: «cắt lượt», «đưa bản phạm vi vào lộ trình», «thêm đợt mới vào kế hoạch», «cắt Core thành hàng». KHÔNG dùng để mở vòng một hàng (đó là feature-loop), KHÔNG để ghi trạng thái vào tệp lộ trình, KHÔNG xếp điểm ưu tiên tự động.
 ---
 
 # Cắt lượt
 
 Biến một **bản phạm vi** thành các **hàng** của lộ trình kho (khoá `lo_trinh.tep` trong
-`_acceptance/config.yaml`), cùng các mục **chân trời** cho mã chưa cắt được, rồi để **răng phủ** —
-một lệnh tất định, chỉ đọc — chứng rằng mọi mã nằm ở đúng một chỗ. Người gộp PR là người chốt.
+`_acceptance/config.yaml`), cùng các mục **chân trời** cho mã chưa cắt được và các **mốc ngoài** cho
+việc vận hành của người, rồi để **răng phủ** — một lệnh tất định, chỉ đọc — chứng rằng mọi mã nằm ở
+đúng một chỗ trong ba. Người gộp PR là người chốt. Lộ trình chỉ chứa việc PHÁT TRIỂN mà máy giao và
+chứng minh được (bước 2b).
 
 Kit (mã) không bao giờ ghi trạng thái vào tệp lộ trình: trạng thái từng hàng do máy suy từ hồ sơ và chỉ
 hiện trên trang lộ trình. Hàng và chân trời là Ý ĐỊNH — phiên ghi chúng vào tệp như mọi thay đổi người
@@ -53,21 +55,40 @@ AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/cat-luot.mjs" --root . --
 
 Bốn nhóm theo khối khoảng cỡ ở bước 3 (dưới mục tiêu · mục tiêu · cho phép · phải tách): `n_chot` là số
 vòng đã chốt phạm vi, `n` · `luot_tb` · `cham_tran_pt` đo trên vòng đã giao có lượt chấm, `it_du_lieu:
-true` khi `n` quá nhỏ để tin. Đặt bảng cạnh khối khoảng: số của kho nói khác chính sách (nhóm «cho phép»
-chạm trần nhiều hơn nhóm «phải tách», hay nhóm mục tiêu không rẻ hơn) thì NÊU trong mô tả PR cắt lượt
-cho chủ kho xét — KHÔNG tự sửa khối; khoảng là chính sách của chủ kho, đồng hồ chỉ là đồng hồ. Thêm
+true` khi `n` quá nhỏ để tin. Đặt số đo cạnh khối khoảng: số của kho nói khác chính sách (nhóm «cho
+phép» chạm trần nhiều hơn nhóm «phải tách», hay nhóm mục tiêu không rẻ hơn) thì dán số đo của đồng hồ
+cỡ vào mô tả PR cắt lượt và báo chủ kit — KHÔNG sửa khối. Khoảng là chính sách của KIT, đi theo bản
+phát hành: ở kho tiêu thụ, SKILL này nằm trong bộ đệm plugin — sửa ở đó là mất ở lần cài sau và không
+ai thấy. Đồng hồ chỉ là đồng hồ. Thêm
 `--tu <YYYY-MM-DD>` để chỉ đếm vòng chốt từ một ngày, `--lo-trinh <tệp>` để so cỡ khai lúc cắt
 (`tieu_chi`) với số tiêu chí thật của hợp đồng hàng đã mở (`du_kien`).
 
 Đọc tệp lộ trình hiện có: mã đã dùng (mã mới không trùng), hàng đã giao (hàng mới đứng trên dữ liệu
-thật của chúng), khối `moc` (mốc ngoài là ràng buộc).
+thật của chúng), khối `moc` (mốc là ràng buộc ngày).
+
+## Bước 2b — tách việc vận hành khỏi việc phát triển (trước sáu luật)
+
+Lộ trình chỉ chứa việc PHÁT TRIỂN mà máy giao và chứng minh được. Việc VẬN HÀNH là việc người làm ngoài
+sản phẩm — kết quả của nó là một hành động của người, không phải một hành vi của sản phẩm mà máy chứng
+được. Xếp từng mã theo năm luật dưới TRƯỚC khi cắt; chỉ mã phát triển đi tiếp vào sáu luật của bước 3.
+Mã «không làm» giữ luật cũ: chân trời có `ly_do`, hoặc `da_bac`.
+
+<!-- <<<CAT-LUOT-VAN-HANH -->
+```
+1. Mỗi mã xếp một trong ba: phát triển (máy giao và chứng được) · vận hành một lần · vận hành lặp lại (mỗi tổ chức mới, hay mỗi kỳ).
+2. Vận hành thành MỐC NGOÀI, không thành hàng: mục `moc` có `loai: ngoai`, `ai` (người làm), `dot` (đợt đang cắt), `phu` (mã nó gánh), `ma` để hàng và chân trời nhắc tới, `ngay` nếu có hạn. Mốc ngoài được chờ hàng (`hang` của mốc = hàng phải giao trước mốc); chiều ngược lại thì không.
+3. Không hàng nào đứng chờ mốc: `dung_tren` chỉ trỏ hàng. Hàng cần thứ một việc vận hành tạo ra: cần DỮ LIỆU thì theo luật 4; PHẠM VI chỉ biết sau việc vận hành (vd sửa danh sách góp ý sẽ gom) thì vào chân trời, `mo_lai_khi` nêu mốc.
+4. Thiếu dữ liệu thật thì dùng dữ liệu giả có nhãn: (i) máy sinh từ khuôn dữ liệu thật, không viết tay — hàng sinh mang `du_lieu` = `sinh-gia` (phiên cắt TẠO hàng này khi bản phạm vi không có mã cho nó, `phu` rỗng); (ii) hàng đo trên nó mang `du_lieu` = `gia` và đứng TRỰC TIẾP trên hàng sinh; tiêu chí nào chỉ đo được trên dữ liệu thật thành ô bỏ qua có tên ở vòng của hàng ấy; (iii) thực tế vẫn là đồng hồ cuối — Cổng Giá trị đọc trên dữ liệu thật.
+5. Vận hành LẶP LẠI thành mốc ngoài `lap` = `true` kèm đề xuất tự phục vụ: một hàng tính năng tự phục vụ, hoặc — khi mới có một tổ chức hay một kho — một chân trời mở lại khi có cái thứ hai thật (phanh «không phổ quát quá sớm»: giữ ranh giới cấu hình và mã từ đầu, làm phần phổ quát khi có cái thứ hai); `tu_phuc_vu` trỏ mã hàng hoặc chân trời ấy.
+```
+<!-- CAT-LUOT-VAN-HANH>>> -->
 
 ## Bước 3 — cắt theo sáu luật
 
 <!-- <<<CAT-LUOT-SAU-LUAT -->
 ```
 1. Mỗi hàng MỘT kết quả, câu giao (`cau_giao`) đúng một trong hai dáng: việc người dùng thấy → mở bằng vai (`vai`); việc nền → hành vi hệ thống đo được (`vai: nen` + `bat_khi`), không ép «Là kỹ sư…».
-2. Hàng sau đứng trên dữ liệu thật của hàng trước (`dung_tren`) — chỉ khi nó thật sự cần hàng trước đã giao.
+2. Hàng sau đứng trên dữ liệu thật của hàng trước — KẾT QUẢ thật của vòng trước đã giao, không phải dữ liệu vận hành; `dung_tren` chỉ trỏ hàng, và chỉ khi nó thật sự cần hàng trước đã giao.
 3. Không chạm hai lớp khó đảo trong một hàng (dữ liệu người dùng, quyền, đăng nhập, tiền): tách thành hai hàng.
 4. Cỡ hàng theo khoảng tiêu chí của khối CAT-LUOT-CO (`tieu_chi`): từ `tach_tu` thì tách, dưới mục tiêu thì xét gộp với hàng cùng nhóm.
 5. Ngày rơi ra từ thứ tự và nhịp; hàng gắn mốc không được muộn hơn ngày mốc.
@@ -75,8 +96,9 @@ thật của chúng), khối `moc` (mốc ngoài là ràng buộc).
 ```
 <!-- CAT-LUOT-SAU-LUAT>>> -->
 
-**Khoảng cỡ** — chính sách của chủ kho, MỘT nguồn: răng đọc thẳng khối dưới đây, không số nào nằm trong
-mã. Đổi chính sách là sửa khối này, cùng PR với bảng đồng hồ làm căn cứ.
+**Khoảng cỡ** — chính sách của chủ kit, MỘT nguồn: răng đọc thẳng khối dưới đây, không số nào nằm trong
+mã. Khối chỉ đổi ở kho kit, cùng PR với số đo của đồng hồ cỡ làm căn cứ, và tới kho tiêu thụ qua bản phát
+hành (bước 2).
 
 <!-- <<<CAT-LUOT-CO -->
 ```
@@ -111,9 +133,11 @@ Hai dáng cắt, theo `dang` của bản phạm vi:
   một câu», luật 3 vẫn tách lớp khó đảo (một vá chạm đăng nhập thì thành hàng riêng, hạng T3).
 
 Mỗi hàng ghi theo khuôn `skills/acceptance/references/lo-trinh-template.json`: `ma`, `cau_giao`,
-`vi_sao`, `hang`, `dung_tren`, `bat_khi`, cộng bốn trường của lượt cắt: `dot` (đúng `dot` của bản phạm
-vi), `phu` (danh sách mã bản phạm vi mà hàng gánh), `vai` (dáng câu giao) và `tieu_chi` (cỡ dự kiến).
-Bốn trường này chỉ lượt cắt ghi và răng đọc — agent mở vòng làm từ hợp đồng, phép đo và kế hoạch của
+`vi_sao`, `hang`, `dung_tren`, `bat_khi`, cộng năm trường của lượt cắt: `dot` (đúng `dot` của bản phạm
+vi), `phu` (danh sách mã bản phạm vi mà hàng gánh), `vai` (dáng câu giao), `tieu_chi` (cỡ dự kiến) và
+`du_lieu` (bước 2b luật 4, chỉ khi hàng sinh hay dùng dữ liệu giả). Việc vận hành vào khối `moc` theo bước
+2b: `{ "ma", "ten", "ngay", "loai": "ngoai", "ai", "dot", "phu", "lap", "tu_phuc_vu", "hang" }`.
+Các trường này chỉ lượt cắt ghi và răng đọc — agent mở vòng làm từ hợp đồng, phép đo và kế hoạch của
 vòng, không đọc trường nào cho riêng nó từ lộ trình; đừng thêm trường cho agent. Mã chưa cắt được vào khối `chan_troi` cấp tệp:
 `{ "ma", "dot", "cau_giao", "ly_do", "phu", "mo_lai_khi" }`. Không ghi `trang_thai`, `pr`, `buoc_ke` —
 máy suy và vẽ chúng.
@@ -122,7 +146,7 @@ máy suy và vẽ chúng.
 
 Thứ tự này có răng: ghi hàng → chạy răng → xanh mới mở PR.
 
-1. **Ghi hàng** và chân trời vào tệp lộ trình, trên CÙNG nhánh với bản phạm vi, rồi commit.
+1. **Ghi hàng**, chân trời và mốc ngoài vào tệp lộ trình, trên CÙNG nhánh với bản phạm vi, rồi commit.
 2. **Chạy răng:**
 
 <!-- <<<CAT-LUOT-RANG -->
@@ -131,11 +155,15 @@ AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/cat-luot.mjs" --root . --
 ```
 <!-- CAT-LUOT-RANG>>> -->
 
-   Thoát 0 → in bảng phủ (mỗi mã → hàng hoặc chân trời). Thoát 1 → mỗi dòng `lỗi:` nêu mã — sửa hàng
-   rồi chạy lại; KHÔNG sửa bảng phủ bằng tay, bảng phủ là đầu ra của răng.
+   Thoát 0 → in bảng phủ (mỗi mã → hàng, chân trời hoặc mốc ngoài). Thoát 1 → mỗi dòng `lỗi:` nêu mã
+   hoặc mốc — sửa rồi chạy lại; KHÔNG sửa bảng phủ bằng tay, bảng phủ là đầu ra của răng. Thoát 2 → tệp
+   chưa vào git, bản phạm vi không đọc ra mã nào, hoặc khối khoảng cỡ của SKILL hỏng (thông điệp nêu khoá).
+   Mốc của đợt mang mã mà không phải mốc ngoài, mốc ngoài thiếu `ai`, `lap` không phải true/false, hay
+   mã ở `tu_phuc_vu` không có đều là `lỗi:`.
 
-   Răng còn gắn cờ có tên cho cỡ và dáng câu giao, dạng `hàng <mã> [<cờ>]: …`. Hàng ngoài đợt đang cắt
-   không đổi mã thoát: mỗi cờ gom thành MỘT dòng `cảnh báo: [<cờ>] <k> hàng ngoài đợt …`.
+   Răng còn gắn cờ có tên — cỡ, dáng câu giao, vận hành, dữ liệu giả — dạng `hàng <mã> [<cờ>]: …` hay
+   `mốc <nhãn> [<cờ>]: …`. Hàng ngoài đợt đang cắt không đổi mã thoát: mỗi cờ gom thành MỘT dòng
+   `cảnh báo: [<cờ>] <k> hàng ngoài đợt …`.
 
 <!-- <<<CAT-LUOT-BANG-CO -->
 | cờ | khi | mức (hàng trong đợt) |
@@ -148,9 +176,25 @@ AG="${AG:-${CLAUDE_PLUGIN_ROOT}}" && node "$AG/scripts/cat-luot.mjs" --root . --
 | `vai-khong-mo-cau` | câu giao không mở bằng `vai` đã khai | lỗi |
 | `nen-thieu-bat-khi` | `vai: nen` mà `bat_khi` rỗng | lỗi |
 | `chua-khai-dang-giao` | thiếu `vai` | cảnh báo |
-<!-- CAT-LUOT-BANG-CO>>> --> Thoát 2 → tệp chưa vào git
-   hoặc bản phạm vi không đọc ra mã nào. Dòng `cảnh báo:` nói về hàng ngoài đợt này (cắt tay đời trước):
-   ghi vào mô tả PR, không sửa hàng không thuộc lượt cắt.
+| `cho-van-hanh` | `dung_tren` trỏ `ma` hay `ten` của một mốc ngoài | lỗi |
+| `du-lieu-sai-gia-tri` | `du_lieu` khác `sinh-gia` và `gia` | lỗi |
+| `thieu-hang-sinh-gia` | `du_lieu: gia` mà không đứng trực tiếp trên hàng `sinh-gia` | lỗi |
+| `van-hanh-lap-chua-tu-phuc-vu` | mốc ngoài của đợt có `lap: true` mà chưa có `tu_phuc_vu` | cảnh báo |
+<!-- CAT-LUOT-BANG-CO>>> -->
+
+   Dòng `cảnh báo:` có hai loại; dòng `cua-dot` của khối dưới nhận ra loại thứ nhất:
+
+<!-- <<<CAT-LUOT-CANH-BAO -->
+```
+cua-dot: ^cảnh báo: (hàng|mốc) .+? \[[a-z-]+\]:
+ngoai-dot: mọi dòng cảnh báo: còn lại
+```
+<!-- CAT-LUOT-CANH-BAO>>> -->
+
+   - **Của đợt đang cắt** (tên hàng hay mốc rồi `[<cờ>]`) — gợi ý gộp, trên mục tiêu, chưa ước cỡ, chưa
+     khai dáng, vận hành lặp lại: XỬ LÝ (gộp, khai, thêm tự phục vụ) hoặc giữ và ghi vì sao vào mô tả PR.
+   - **Ngoài đợt** (mọi dòng `cảnh báo:` khác — dòng gom `[<cờ>] <k> hàng ngoài đợt …`, hàng cắt tay đời
+     trước): chép vào mô tả PR, không sửa mục không thuộc lượt cắt.
 3. **Xanh mới mở PR** — một PR cho cả đợt: bản phạm vi + hàng + chân trời. Dán bảng phủ của răng vào mô
    tả PR. Người gộp PR là người chốt lượt cắt (một chạm).
 
