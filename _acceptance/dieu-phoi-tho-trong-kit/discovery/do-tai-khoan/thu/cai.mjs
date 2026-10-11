@@ -6,7 +6,8 @@
 // Sao lưu tệp gốc trước khi sửa, ghi `da-cai.json` để `go.mjs` gỡ đúng những gì đã cài. Đã có `statusLine`
 // hay `StopFailure` thì DỪNG, không ghi đè cài đặt của người. Chỉ chạy khi Điều phối chọn giờ đo: chép mod
 // vào thư mục mod bật câu hỏi nạp lại nóng cho chủ kho.
-// Dùng: node cai.mjs --worktree <gốc worktree thử> [--mod-dir <~/.claude/dev-mods/<mã phiên>>] [--chi h,i,l]
+// Dùng: node cai.mjs --worktree <gốc worktree thử> [--mod-dir <~/.claude/dev-mods/<mã phiên>> --phien <mã phiên đo>] [--chi h,i,l]
+// Mod thử CHỈ chạy ở phiên có mã `--phien` (tự kiểm `$.session.id()`); phiên khác không làm gì, không ghi gì.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -50,12 +51,14 @@ if (chi.has('h') || chi.has('i')) {
 if (chi.has('l')) {
   const modDir = co('mod-dir');
   if (!modDir) dung('thử nghiệm l cần --mod-dir <~/.claude/dev-mods/<mã phiên đo>>');
+  const phien = co('phien');
+  if (!phien || !/^[\w-]+$/.test(phien)) dung('thử nghiệm l cần --phien <mã phiên đo> (mod im ở mọi phiên khác)');
   const dich = path.join(modDir, 'do-han-muc-thu');
   if (fs.existsSync(dich)) dung(`${dich} đã có — không ghi đè`);
   fs.cpSync(path.join(DAY, 'mod-thu'), dich, { recursive: true });
   const reg = path.join(dich, 'hooks', 'register.ts');
-  fs.writeFileSync(reg, fs.readFileSync(reg, 'utf8').replaceAll('__GHI__', GHI).replaceAll('__TEP__', path.join(ra, 'mod.jsonl')));
-  daCai.muc.push({ loai: 'mod', thu_muc: dich });
+  fs.writeFileSync(reg, fs.readFileSync(reg, 'utf8').replaceAll('__PHIEN__', phien).replaceAll('__GHI__', GHI).replaceAll('__TEP__', path.join(ra, 'mod.jsonl')));
+  daCai.muc.push({ loai: 'mod', thu_muc: dich, phien });
 }
 
 fs.writeFileSync(pDaCai, `${JSON.stringify(daCai, null, 2)}\n`);
