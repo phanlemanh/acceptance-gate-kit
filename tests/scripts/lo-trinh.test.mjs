@@ -2823,7 +2823,7 @@ async function lt160(kit) {
   return sai;
 }
 if (want('LT-160') && await chayCa('LT-160', lt160)) ok('LT-160', 'khuôn mẫu hàng không câu nào bọc «»; tệp kế hoạch giữ nguyên băm sau vẽ + mở ô');
-if (want('LT-160-do')) await chayDo('LT-160-do', lt160, [['skills/acceptance/references/lo-trinh-template.json', '"cau_giao": "Tôi mở trang X', '"cau_giao": "«Tôi mở trang X']], 'còn bọc', 'bản sao khuôn bọc lại một câu');
+if (want('LT-160-do')) await chayDo('LT-160-do', lt160, [['skills/acceptance/references/lo-trinh-template.json', '"cau_giao": "Trưởng nhóm mở trang X', '"cau_giao": "«Trưởng nhóm mở trang X']], 'còn bọc', 'bản sao khuôn bọc lại một câu');
 
 // ── LT-161: `--check` không đỏ vì dải tóm tắt, vẫn đỏ vì mọi thứ khác ───────
 // Dải đọc nội dung hồ sơ; một dòng sổ mới sau lượt vẽ không được làm CI của mọi kho đỏ. Ba ca trên CÙNG
