@@ -657,6 +657,9 @@ executors:
     lsgd_ac12: LSGD_CASES=AC-12 node tests/workflows/luot-sua-giu-du.test.mjs
     dieu_phoi_ci: node tests/dieu-phoi/chay-buoc-ci.mjs
     dieu_phoi_validate: node tests/dieu-phoi/kiem-validate.mjs
+    # Hồ sơ dieu-phoi-doi-tai-khoan (AC-12, AC-13): plugin test + round-trip mod → CLI + validate đối chiếu bảng MOD-SU-KIEN.
+    # Cần Claude Code có lệnh `test` trên máy (CI không có) — chạy ở lượt chấm, như dieu_phoi_validate.
+    dieu_phoi_mod: node tests/dieu-phoi/kiem-mod.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.

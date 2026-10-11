@@ -985,3 +985,32 @@ test('DP4-11 cung-round', async () => {
   console.log(`  khoá mang «round» trong ban-giao.json: ${khoaRound.join(', ')}`);
   assert.deepEqual(khoaRound, ['day.[].cham_lai_cung_round']);
 });
+
+// ---------- DP4-13 (phần không cần Claude Code): khung mod + quét «không bao giờ cho phép» (AC-13, E13b) ----------
+const KHOI_MOD = (nguon) => /\/\/ <<<MOD-SU-KIEN\n([\s\S]*?)\/\/ MOD-SU-KIEN>>>/.exec(nguon)?.[1] ?? null;
+test('DP4-13 bang-mod', async () => {
+  const nguon = fs.readFileSync(path.join(GOI, 'scripts', 'mod-luat.mjs'), 'utf8');
+  const khoi = KHOI_MOD(nguon);
+  assert.ok(khoi, 'mod-luat.mjs phải có khối marker MOD-SU-KIEN');
+  const bang = [...khoi.matchAll(/'(\.\/mod\/[\w-]+\.ts)'\s*:/g)].map((m) => m[1]).sort();
+  const tep = fs.readdirSync(path.join(GOI, 'hooks', 'mod')).filter((f) => f.endsWith('.ts') && f !== 'register.ts' && !f.endsWith('.test.ts')).map((f) => `./mod/${f}`).sort();
+  console.log(`  bảng (rút từ marker): ${bang.join(', ')} · tệp phần: ${tep.join(', ')}`);
+  assert.deepEqual(bang, tep);
+  assert.deepEqual(docJ(path.join(GOI, 'hooks', 'hooks.json')).modules, ['./mod/register.ts']);
+  const { kiemKhungMod } = await nap(GOI, 'mod-luat.mjs');
+  assert.deepEqual(kiemKhungMod(GOI), []);
+});
+
+test('DP4-13-do quet-chu', async () => {
+  const sao = tam('dp4-goi-');
+  fs.cpSync(GOI, sao, { recursive: true });
+  const { kiemKhungMod } = await nap(GOI, 'mod-luat.mjs');
+  assert.deepEqual(kiemKhungMod(sao), [], 'đối chứng dương: bản sao lành');
+  const p = path.join(sao, 'hooks', 'mod', 'doc-muc-dung.ts');
+  const goc = fs.readFileSync(p, 'utf8');
+  fs.writeFileSync(p, `${goc}export const tra = () => ({ behavior: 'allow' })\n`);
+  const dong = fs.readFileSync(p, 'utf8').split('\n').findIndex((d) => d.includes("behavior: 'allow'")) + 1;
+  const loi = kiemKhungMod(sao);
+  console.log(`  bản tiêm: ${loi.join(' | ')}`);
+  assert.ok(loi.some((l) => l.includes(`doc-muc-dung.ts:${dong}`)), `phải nêu doc-muc-dung.ts:${dong}`);
+});
