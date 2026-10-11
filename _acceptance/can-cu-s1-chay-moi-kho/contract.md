@@ -35,6 +35,7 @@ Lỗi 2: thẻ Cổng Phạm vi in dòng sổ mang `can_cu` mà bỏ «vì sao»
 - AC-8: Given mọi hồ sơ trong `_acceptance/` của kho kit mà sổ không có dòng nào mang `can_cu`, When dựng thẻ Cổng Phạm vi ép bằng `--gate 1` (HTML và bản rút) bằng `scripts/gate-card.js` ở gốc vòng (bản dựng bằng `git archive` trọn thư mục) và ở đỉnh vòng, Then hai bản giống từng byte cho mọi hồ sơ ấy; và bản sao thẻ ở đỉnh bị tiêm đổi chữ khối chung → phép so nêu tên ít nhất một hồ sơ.
 - AC-9: Given hồ sơ nháp của AC-5/AC-6 do code sinh trong lượt, When mở thẻ Cổng Phạm vi ở khổ 1280×800 rồi 390×844, Then (nhìn) mỗi dòng của hai khối căn cứ đọc được quyết gì · vì sao · sai thì tốn gì trước căn cứ hoặc khuyến nghị; nhãn khó-đảo ở đúng một câu; khổ 390 `scrollWidth` ≤ 390.
 
+- AC-10: Given kho thử do code sinh có hai hồ sơ đã qua Cổng Phạm vi — `a-moi` (sổ mang `can_cu`, đứng ĐẦU chữ cái) và `b-cu` (chỉ dòng S1 đời trước) — When chạy cách chọn hồ sơ của ca CC-06 (`the-cu` và `CC-06-do`) và dựng thẻ ép `--gate 1`, Then hai ca chỉ chọn `b-cu` (hồ sơ có dòng S1 đời trước, không dòng mang căn cứ); thẻ `b-cu` không cờ «đời trước», không khối câu hỏi, khối chung đủ dòng; thẻ `a-moi` có 1 câu hỏi · 1 dòng máy đã quyết và khối chung chỉ còn dòng S2; và (đỏ) cách chọn cũ không lọc căn cứ → ca nêu «a-moi: trade-off đủ dòng», bản sao thẻ in cờ đời trước cho hồ sơ đã qua Cổng Phạm vi → ca nêu «b-cu» + «cờ đời trước».
 ## Coverage
 
 Bỏ quét bằng `morphological-scan` — sổ `d-20261011T145052Z-6` (hai lỗi có tên, phạm vi ngoài đã chốt).
@@ -46,7 +47,7 @@ Trục ghi tay, mỗi giá trị có ca:
 - Trục D — trạng thái sổ: sạch · có câu hỏi · có dòng đỏ → AC-1, AC-2
 - Trục E — khối thẻ: câu hỏi · máy đã quyết (nguồn mục-tiêu/một-lối × loại approach/descope) · khối chung (dòng không căn cứ) → AC-5, AC-6, AC-8
 - Trục F — dòng thiếu vế: thiếu giá → AC-7
-- Cross-cutting: hồ sơ cũ không đổi màu → AC-8 · lớp lời gọi tương đối trên trọn SKILL feature-loop → AC-4 (tệp lời dặn khác: quét tay, sổ `d-20261011T150339Z-9`)
+- Cross-cutting: ca của A2 không ghim vào hồ sơ sống → AC-10 · hồ sơ cũ không đổi màu → AC-8 · lớp lời gọi tương đối trên trọn SKILL feature-loop → AC-4 (tệp lời dặn khác: quét tay, sổ `d-20261011T150339Z-9`)
 
 ## Đường đo
 
@@ -73,4 +74,4 @@ Trục ghi tay, mỗi giá trị có ca:
 - Giới hạn đã khai (design §4): cách phiên ĐỌC dòng tổng kết là văn — răng máy chứng hai hình dạng đầu ra
   phân biệt được (AC-2), không cưỡng chế phiên đọc đúng. Ngưỡng mở ô: ≥ 1 vòng ở kho khách dừng Cổng Phạm vi
   vì đọc lỗi bộ xếp thành sổ đỏ.
-- Cỡ vòng: 9 tiêu chí — trong khung 8–12.
+- Cỡ vòng: 10 tiêu chí — trong khung 8–12 (AC-10 nâng phạm vi trong S3, sổ `d-…-11`).

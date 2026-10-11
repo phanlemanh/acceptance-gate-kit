@@ -191,3 +191,12 @@ căn cứ; «Kiểm tay» đổi sang `node <gốc gói acceptance-gate>/scripts
 - [ ] Sửa, rồi chạy `bash ~/.claude/projects/-Users-manhphan-dev-crm/khoa-may/chay-nang.sh "A2sua bo-kiem" bash tests/scripts/run-tests.sh --manh bash` → xanh.
 - [ ] Commit `docs(guide): thẻ Cổng Phạm vi in ba vế cho lựa chọn bước thiết kế`.
 - [ ] `status: implemented` → S4.
+
+### Task 5 (nâng phạm vi trong S3, sổ `d-20261011T174822Z-11`): ca CC-06 của A2 chọn hồ sơ theo tính chất (AC-10) — phục vụ E10
+
+**Files:** Modify `tests/scripts/can-cu-s1.ca.mjs` (`chonTheCu`/`kiemTheCu` tách khỏi `CC-06 the-cu`, lọc dòng mang
+`can_cu`; `CC-06-do` chọn hồ sơ có dòng S1 đời trước; ca `KK-10` + `KK-10-do` trên kho thử `a-moi`/`b-cu`). `independent: false`.
+
+- [x] Ca KK-10 dựng kho thử có hồ sơ mang `can_cu` đứng đầu chữ cái; cách chọn cũ đỏ đúng hình BB1 gặp; thẻ tiêm cờ đời trước đỏ.
+- [x] Quét lớp trong tệp ca: mọi chỗ đọc hồ sơ sống (`the-cu` · `CC-06-do` · KK-6 so-that · KK-8) chọn theo slug hoặc tính chất;
+  `CC-06 kho-that` đọc ở đỉnh tầm A2 theo lịch sử — đóng băng sau khi A2 gộp qua PR.

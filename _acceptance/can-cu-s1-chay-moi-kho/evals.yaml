@@ -137,3 +137,16 @@ evals:
       - "Đổi khổ 390×844, tải lại → screenshot evidence/E9-2-hep.png; kiểm document.documentElement.scrollWidth <= 390 → ghi số vào observed"
     expected: "Nhìn: mỗi dòng của hai khối căn cứ đọc được quyết gì, vì sao, sai thì tốn gì TRƯỚC căn cứ hoặc khuyến nghị; nhãn khó-đảo ở đúng một câu; khổ 390 scrollWidth <= 390"
     evidence_required: [run_id, exit_code, verifier, verified_at, screenshot]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, scripts/can-cu-s1.cjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: KK-10 chon-theo-tinh-chat" — kho thử do code sinh (a-moi mang can_cu đứng đầu,
+      b-cu đời trước, cả hai status approved): chonTheCu trả đúng [b-cu]; kiemTheCu trên thẻ lành trả [] (đối
+      chứng dương); thẻ --gate 1 của a-moi đếm [1 câu hỏi, 1 máy đã quyết, 1 dòng khối chung] và không cờ đời
+      trước; cách chọn của CC-06-do trả b-cu. "PASS: KK-10-do" — cách chọn cũ (không lọc can_cu) → kiemTheCu
+      nêu dòng bắt đầu «a-moi: trade-off đủ dòng»; bản sao thẻ bỏ điều kiện nháp của cờ đời trước → nêu dòng
+      «b-cu:» chứa «cờ đời trước». Và "PASS: CC-06 the-cu", "PASS: CC-06-do" vẫn xanh trên cây.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

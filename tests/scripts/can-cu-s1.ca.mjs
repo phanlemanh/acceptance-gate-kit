@@ -421,23 +421,37 @@ check('CC-06 kho-that', () => {
   console.log(`    CC-06: ${soHoSo} hồ sơ · ${soDong} dòng · ${soLat} dòng gate1 mang supersedes`);
   if (!soHoSo) die('không đọc được hồ sơ nào'); eq(do_, [], 'hồ sơ có sẵn có dòng đỏ');
 });
-check('CC-06 the-cu', () => {
-  const t = tamVong(); const mod = require(MOD); const chon = [];
-  for (const slug of dsHoSo(t.goc)) {
-    if (chon.length === 3) break;
+// Chọn theo TÍNH CHẤT, không giả định (sửa ở hồ sơ can-cu-s1-chay-moi-kho, AC-10): hồ sơ đã qua Cổng Phạm vi
+// có dòng S1 và KHÔNG dòng nào mang can_cu. Hồ sơ ghi sổ theo khuôn căn cứ (vòng sau A2) có hai khối căn cứ trên
+// thẻ — không phải đối tượng của ca này; trước khi sửa, một hồ sơ như thế đứng đầu chữ cái làm ca đỏ oan (BB1, 11/10).
+function chonTheCu(goc, slugs, { n = 3, locCanCu = true } = {}) {
+  const mod = require(MOD); const chon = [];
+  for (const slug of slugs) {
+    if (chon.length === n) break;
     let hd = '', raw = '';
-    try { hd = readFileSync(path.join(ROOT, '_acceptance', slug, 'contract.md'), 'utf8'); raw = readFileSync(path.join(ROOT, '_acceptance', slug, 'decisions.jsonl'), 'utf8'); } catch (_) { continue; }
+    try { hd = readFileSync(path.join(goc, '_acceptance', slug, 'contract.md'), 'utf8'); raw = readFileSync(path.join(goc, '_acceptance', slug, 'decisions.jsonl'), 'utf8'); } catch (_) { continue; }
     if (!/^status:\s*\S/m.test(hd) || /^status:\s*draft\b/m.test(hd)) continue;
     const en = mod.docSo(raw).entries; if (!en.some(e => e.stage === 'S1')) continue;
+    if (locCanCu && en.some(e => e && e.can_cu !== undefined)) continue;
     chon.push([slug, en.filter(e => e.type !== 'seal').length]);
   }
-  if (chon.length !== 3) die('không đủ ba hồ sơ đã qua Cổng Phạm vi có dòng S1');
+  return chon;
+}
+function kiemTheCu(goc, chon, gc = GC) {
+  const loi = [];
   for (const [slug, n] of chon) {
-    const h = spawnSync('node', [GC, '--root', ROOT, '--slug', slug, '--gate', '1'], { encoding: 'utf8' }).stdout;
-    if (h.includes('dòng sổ đời trước')) die(slug + ': thẻ đã ký mang cờ đời trước');
-    if (h.includes('Câu chỉ anh trả lời được')) die(slug + ': thẻ đã ký có khối câu hỏi');
-    eq((khoiLab(h, 'Quyết định &amp; trade-off').match(/<p class="li">/g) || []).length, n, slug + ': trade-off đủ dòng');
+    const h = spawnSync('node', [gc, '--root', goc, '--slug', slug, '--gate', '1'], { encoding: 'utf8' }).stdout;
+    if (h.includes('dòng sổ đời trước')) loi.push(slug + ': thẻ đã qua Cổng Phạm vi mang cờ đời trước');
+    if (h.includes('Câu chỉ anh trả lời được')) loi.push(slug + ': thẻ đã qua Cổng Phạm vi có khối câu hỏi');
+    const m = (khoiLab(h, 'Quyết định &amp; trade-off') || '').match(/<p class="li">/g) || [];
+    if (m.length !== n) loi.push(`${slug}: trade-off đủ dòng — got ${m.length}, want ${n}`);
   }
+  return loi;
+}
+check('CC-06 the-cu', () => {
+  const t = tamVong(); const chon = chonTheCu(ROOT, dsHoSo(t.goc));
+  if (chon.length !== 3) die('không đủ ba hồ sơ đã qua Cổng Phạm vi có dòng S1 đời trước');
+  eq(kiemTheCu(ROOT, chon), [], 'thẻ hồ sơ đời trước đã qua Cổng Phạm vi');
   console.log('    CC-06 the-cu: ' + chon.map(x => x[0]).join(', '));
 });
 check('CC-06 vang', () => {
@@ -479,7 +493,7 @@ check('CC-06 bo-doc', () => {
 check('CC-06-do', () => {
   const mod = banSaoMod("if (c === undefined) return ra('doi-truoc');", "if (c === undefined) return ra('do', 'nguon-la');");
   const t = tamVong();
-  const dau = dsHoSo(t.goc).find(s => { if (s === SLUG_VONG) return false; const raw = tepO(t.dinh, `_acceptance/${s}/decisions.jsonl`); return raw && mod.docSo(raw).entries.some(e => e.stage === 'S1'); });
+  const dau = dsHoSo(t.goc).find(s => { if (s === SLUG_VONG) return false; const raw = tepO(t.dinh, `_acceptance/${s}/decisions.jsonl`); return raw && mod.docSo(raw).entries.some(e => e.stage === 'S1' && e.can_cu === undefined); });
   const kq = mod.phanLoaiSo(mod.docSo(tepO(t.dinh, `_acceptance/${dau}/decisions.jsonl`)).entries, { root: ROOT, slug: dau, docTep: rel => tepO(t.dinh, rel) });
   if (!kq.do.length) die('coi dòng đời trước là đỏ mà hồ sơ đầu tiên không đỏ');
   console.log('    CC-06-do nêu: ' + dau);
@@ -713,6 +727,38 @@ check('KK-8-do', () => {
   if (KK8.loi) die(KK8.loi);
   if (!KK8.lechTiem.length) die('thẻ đỉnh đổi chữ «sai thì tốn:» của khối chung mà phép so không nêu hồ sơ nào');
   console.log('    KK-8-do nêu: ' + KK8.lechTiem.join(', '));
+});
+
+// ── KK-10: ca CC-06 chọn hồ sơ theo tính chất — kho thử do code sinh, hồ sơ mang can_cu đứng ĐẦU chữ cái ──
+function mkKhoTheCu() {
+  const r = mkdtempSync(path.join(tmpdir(), 'kk-thecu-')); git(r, 'init', '-q');
+  ghiTep(r, 'CLAUDE.md', `# Luật\n\n${Q_GOC}\n`);
+  ghiTep(r, '_acceptance/config.yaml', 'risk_tiers:\n  t3_paths: []\nexecutors:\n  test:\n    x: "true"\n');
+  for (const x of ['a-moi', 'b-cu']) { ghiTep(r, `_acceptance/${x}/contract.md`, HD_DRAFT.replace('slug: h', `slug: ${x}`).replace('status: draft', 'status: approved')); ghiTep(r, `_acceptance/${x}/evals.yaml`, EVALS); }
+  const s2 = Object.assign(S1('s2', undefined), { stage: 'S2' });
+  ghiSoKho(r, 'a-moi', [CN('q1'), S1('m1', MT('CLAUDE.md', Q_GOC)), s2]);
+  ghiSoKho(r, 'b-cu', [S1('c1', undefined), S1('c2', undefined), s2]);
+  return r;
+}
+const DOI_TRUOC_HO_SO_DA_QUA = ['a-moi', 'b-cu'];
+check('KK-10 chon-theo-tinh-chat', () => {
+  const r = mkKhoTheCu(); const chon = chonTheCu(r, DOI_TRUOC_HO_SO_DA_QUA);
+  eq(chon.map(x => x[0]), ['b-cu'], 'chỉ chọn hồ sơ đời trước (bỏ hồ sơ mang can_cu đứng đầu)');
+  eq(kiemTheCu(r, chon), [], 'đối chứng dương: thẻ hồ sơ đời trước sạch trên thẻ lành');
+  const h = spawnSync('node', [GC, '--root', r, '--slug', 'a-moi', '--gate', '1'], { encoding: 'utf8' }).stdout;
+  eq([cac(h, /data-cau-hoi="([^"]+)"/g).length, cac(h, /data-may-quyet="([^"]+)"/g).length, ((khoiLab(h, 'Quyết định &amp; trade-off') || '').match(/<p class="li">/g) || []).length], [1, 1, 1], 'a-moi: 1 câu hỏi · 1 máy đã quyết · khối chung còn đúng dòng S2');
+  if (h.includes('dòng sổ đời trước')) die('a-moi đã qua Cổng Phạm vi mà mang cờ đời trước');
+  const mod = require(MOD);
+  const dau = DOI_TRUOC_HO_SO_DA_QUA.find(x => mod.docSo(readFileSync(path.join(r, '_acceptance', x, 'decisions.jsonl'), 'utf8')).entries.some(e => e.stage === 'S1' && e.can_cu === undefined));
+  eq(dau, 'b-cu', 'CC-06-do chọn hồ sơ có dòng S1 đời trước');
+});
+check('KK-10-do', () => {
+  const r = mkKhoTheCu();
+  const loiCu = kiemTheCu(r, chonTheCu(r, DOI_TRUOC_HO_SO_DA_QUA, { n: 1, locCanCu: false }));
+  if (!loiCu.some(x => x.startsWith('a-moi: trade-off đủ dòng'))) die('cách chọn cũ (không lọc can_cu) mà ca không đỏ đúng hình BB1: ' + JSON.stringify(loiCu));
+  const f = banSaoThe('if (ccDraft && cc.doi_truoc) flags.push', 'if (cc.doi_truoc) flags.push');
+  const loiThe = kiemTheCu(r, [['b-cu', 3]], f);
+  if (!loiThe.some(x => x.startsWith('b-cu:') && x.includes('cờ đời trước'))) die('thẻ in cờ đời trước cho hồ sơ đã qua Cổng Phạm vi mà ca không nêu: ' + JSON.stringify(loiThe));
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (can-cu-s1)`);
