@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/** + tests/** + GUIDE/SKILL/CHANGELOG — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs (AC-12 giữ)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-eval-goi-model-that-khong-chay-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo

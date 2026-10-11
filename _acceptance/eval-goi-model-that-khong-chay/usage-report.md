@@ -51,3 +51,54 @@ wall: 2630s
 - **claude-opus-5-5**: 3 agent · 83 calls · out 15,426 · in 166 · cache_read 15,065,329 · cache_create 675,682
 - **claude-haiku-5-5**: 21 agent · 42 calls · out 24,907 · in 84 · cache_read 2,248,044 · cache_create 1,327,959
 
+### S4 round 2 — wf_4df9a100-330 (30 agent, 88,991 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| judge:E11:domain-correctness | claude-sonnet-5-5 | 6 | 28,052 | 12 | 537,885 | 240 |
+| synthesize:report | claude-sonnet-5-5 | 11 | 16,981 | 22 | 1,371,955 | 162 |
+| triage | claude-sonnet-5-5 | 2 | 7,480 | 4 | 87,641 | 52 |
+| judge:E11:spec-alignment | claude-sonnet-5-5 | 7 | 4,189 | 14 | 659,751 | 114 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,830 | 4 | 69,964 | 609 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 2,510 | 4 | 117,112 | 35 |
+| review:measurement | claude-opus-5-5 | 20 | 2,476 | 40 | 2,448,857 | 211 |
+| review:conventions | claude-opus-5-5 | 28 | 2,384 | 56 | 3,441,431 | 238 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,198 | 4 | 69,964 | 408 |
+| review:bugs | claude-opus-5-5 | 18 | 1,884 | 36 | 2,036,378 | 120 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 1,852 | 4 | 69,964 | 434 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 1,804 | 4 | 117,088 | 88 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 1,731 | 4 | 117,088 | 13 |
+| judge:E11:operational-feasibility | claude-sonnet-5-5 | 6 | 1,727 | 12 | 528,495 | 145 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 1,648 | 4 | 117,112 | 32 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 1,356 | 4 | 117,144 | 130 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 1,282 | 4 | 117,097 | 186 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 975 | 4 | 117,112 | 14 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 939 | 4 | 117,112 | 20 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 924 | 4 | 117,112 | 18 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 837 | 4 | 117,112 | 11 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 580 | 4 | 117,112 | 19 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 554 | 4 | 117,112 | 12 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 427 | 4 | 117,144 | 78 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 409 | 4 | 117,089 | 6 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 373 | 4 | 117,112 | 10 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 323 | 4 | 117,112 | 13 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 137 | 4 | 80,891 | 8 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 123 | 4 | 117,144 | 309 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 6 | 4 | 117,112 | 18 |
+
+
+wall: 2508s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| machine | 21 | 23,681 | 2,317,918 | 2280 | 11:14:03 | 11:52:03 |
+| judge | 3 | 33,968 | 1,726,131 | 243 | 11:14:03 | 11:18:06 |
+| review | 3 | 6,744 | 7,926,666 | 251 | 11:14:03 | 11:18:14 |
+| triage | 1 | 7,480 | 87,641 | 52 | 11:52:05 | 11:52:57 |
+| capture | 1 | 137 | 80,891 | 8 | 11:52:59 | 11:53:07 |
+| synthesize | 1 | 16,981 | 1,371,955 | 162 | 11:53:09 | 11:55:51 |
+
+- **claude-sonnet-5-5**: 6 agent · 34 calls · out 58,566 · in 68 · cache_read 3,266,618 · cache_create 703,042
+- **claude-haiku-5-5**: 21 agent · 42 calls · out 23,681 · in 84 · cache_read 2,317,918 · cache_create 1,257,232
+- **claude-opus-5-5**: 3 agent · 66 calls · out 6,744 · in 132 · cache_read 7,926,666 · cache_create 384,193
+
