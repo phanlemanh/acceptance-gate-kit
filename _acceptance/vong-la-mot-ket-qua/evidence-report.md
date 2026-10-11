@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 678fd69bebca7341c85f4ea3ee043eed8cb4b1a9
+verified_commit: d1b64c2386199e0809ec9b62ba8709c1f4946c4a
 human_signoff:
 ---
 
@@ -29,148 +29,151 @@ human_signoff:
 ## Evidence
 
 - eval: E1
-  run_id: minted-vong-la-mot-ket-qua-E1-r1
+  run_id: minted-vong-la-mot-ket-qua-E1-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E2
-  run_id: minted-vong-la-mot-ket-qua-E2-r1
+  run_id: minted-vong-la-mot-ket-qua-E2-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E3
-  run_id: minted-vong-la-mot-ket-qua-E3-r1
+  run_id: minted-vong-la-mot-ket-qua-E3-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E4
-  run_id: minted-vong-la-mot-ket-qua-E4-r1
+  run_id: minted-vong-la-mot-ket-qua-E4-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E5
-  run_id: minted-vong-la-mot-ket-qua-E5-r1
+  run_id: minted-vong-la-mot-ket-qua-E5-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E6
-  run_id: minted-vong-la-mot-ket-qua-E6-r1
+  run_id: minted-vong-la-mot-ket-qua-E6-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E7
-  run_id: minted-vong-la-mot-ket-qua-E7-r1
+  run_id: minted-vong-la-mot-ket-qua-E7-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E8
-  run_id: minted-vong-la-mot-ket-qua-E8-r1
+  run_id: minted-vong-la-mot-ket-qua-E8-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E9
-  run_id: minted-vong-la-mot-ket-qua-E9-r1
+  run_id: minted-vong-la-mot-ket-qua-E9-r2
   exit_code: 0
-  baseline: green
+  baseline: n-a
   verifier: config:executors.test.lo_trinh
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
   output: |
-    Results: 230 passed, 0 failed (lo-trinh)
+    Results: 232 passed, 0 failed (lo-trinh)
 
 - eval: E10
   judged_by: judge-subagent (fresh context)
   verdict: PASS
   proposals: PASS
-  rationale: Ba thấu kính (domain-correctness, operational-feasibility, spec-alignment) cùng đề xuất PASS; không có phiếu bất đồng.
+  rationale: Đề xuất PASS theo đa số hai trên ba thấu kính (operational-feasibility và spec-alignment cùng PASS). Thấu kính domain-correctness bất đồng và được ghi đầy đủ bên dưới, không lược bỏ; người đọc tại Cổng 2 cân nhắc ý kiến thiểu số này.
   judges:
-    - domain-correctness: PASS — Theo SKILL (bước 1 đọc mã, bước 3 sáu luật + khối CAT-LUOT-CO + hai dáng câu giao, "gộp theo kết quả" khi mã cắt theo gốc kỹ thuật), 13 mã cắt được thành 9 hàng, không cần chân trời: R1 nền H1+H2 (job được worker máy khác nhận và chạy xong, 9 tiêu chí), R2 nền H3+D1 (health thật, runbook, sổ sạch, 10), R3 "Quản trị" H4 (tách riêng vì chạm quyền, luật 3, 8), R4 nền H5+H10 (nạp trọn 12 video, 9), R5 "Biên tập viên" H6+H7 (9), R6 "Người duyệt" H8 (8), R7 "Người duyệt" H9 (10), R8 nền H11 (di cư dữ liệu, tách riêng, 9), R9 "Biên tập viên" H12 (8). Cả năm vế đạt: số hàng nhỏ hơn 13, tiêu chí nằm trong 8–12 (H8+H9 gộp sẽ vượt 13 nên luật 4 buộc tách), câu giao đúng một trong hai dáng (hàng nền có vai nen và bat_khi đo được), mọi mã ở đúng một hàng, và không có trường cho agent. Hai chỗ SKILL chỉ dẫn gián tiếp: số tiêu chí là ước lượng, và D1 đi theo H3 nhờ luật 4 "xét gộp". Cả hai đều nằm trong lề SKILL cho phép, không phải đoán ngoài SKILL.
-    - operational-feasibility: PASS — Tôi cắt 13 mã (D1, H1–H12) theo Bước 1–3 của SKILL thành 7 hàng: H1+H2+H3 (nen, 11, ghi_chu vì không tách giữ nghĩa); H4 (Quản trị, 8, tách riêng theo luật 3 vì chạm quyền); H6+H7 (Biên tập viên, 8); H5+H10 (nen, 8); H8+H9 (Người duyệt, 10); H11 (nen, 8, tách riêng theo luật 3 vì chạm dữ liệu người dùng); H12+D1 (nen, 8). Chân trời để trống. Cả năm vế đều có khối SKILL dẫn tới: (1) câu «gộp vào hàng của kết quả chúng phục vụ» ở Bước 3 và luật 1, 7 hàng ít hơn 13 hàng cũ; (2) khối CAT-LUOT-CO (8–10, 11–12 kèm ghi_chu, từ 13 tách) cùng bảng cờ; (3) hai dáng câu giao, vai mở câu cho việc người dùng thấy, `nen` kèm `bat_khi` cho việc nền; (4) luật 6, chân trời và bước chạy răng phủ; (5) đoạn «đừng thêm trường cho agent» cùng danh sách trường của khuôn. Điểm cần phán đoán là mã nền nào phục vụ kết quả nào (chẳng hạn H5 đứng với H7 hay H10) và con số tiêu chí ước. SKILL chỉ ra nguyên tắc cho cả hai chỗ, và mọi lựa chọn hợp lệ đều thoả vế 1–5 nên không phải khoảng trống của SKILL.
-    - spec-alignment: PASS — Theo SKILL (luật 1, luật 3, luật 4, đoạn «gộp theo gốc kỹ thuật» ở bước 3 và bước 4) tôi cắt 13 mã thành 7 hàng, không có chân trời. Mỗi dòng viết «ma · vai · mã phủ · tieu_chi»: 1 · nen · H1+H2 · 9 (job do worker máy khác nhận và xong); 2 · nen · H3+D1 · 9 (sổ và sàn vận hành đúng thực trạng; D1 gộp vì cùng nhóm vận hành và dưới mục tiêu); 3 · Quản trị · H4 · 8 (chìa là lớp quyền khó đảo nên tách riêng theo luật 3); 4 · Người vận hành · H5+H10 · 10 (nạp 12 video thật, dung_tren 1); 5 · Người duyệt · H8+H9 · 12 (khối cho phép 11–12, ghi_chu vì sao không tách); 6 · Người vận hành · H11+H12 · 10 (thực thể sạch rồi di cư sang OneHub); 7 · Biên tập viên · H6+H7 · 10 (dung_tren 4). Hàng 1 và 2 dùng dáng nền với bat_khi đo được, không ép «Là kỹ sư…»; năm vế đều đạt: ít hơn 13 hàng, mọi tieu_chi nằm trong 8–12, hai dáng câu giao đúng, 13 mã mỗi mã đúng một hàng, và chỉ dùng trường của khuôn (ma, cau_giao, vai, tieu_chi, phu, vi_sao, hang, dung_tren, bat_khi, nhom, dot) mà không có trường nào cho agent. Hai chỗ SKILL giao cho phán đoán là nhận ra mã nào phục vụ kết quả nào (như H5 vào hàng nạp H10) và việc ước tieu_chi; SKILL chỉ cách làm chứ không cho số.
+    - domain-correctness: FAIL — Tôi cắt 9 hàng (ước tieu_chi, dot media-library-ban-giao-0409, không ngày vì không có --nhip): R1 nen {H1,H2} 8 · R2 nen {H3} 8 · R3 "Chủ kho" {H5,H10} 10 · R4 "Quản trị" {H4} 8 T3 · R5 "Người dựng" {H6,H7} 10 · R6 nen {H8} 6 · R7 "Người duyệt" {H9} 9 · R8 nen {H11} 8 T3 · R9 {H12} 7, mỗi hàng kèm vai/bat_khi, không có trường cho agent. Các vế (1) luật 1 + đoạn «gộp theo gốc kỹ thuật vào kết quả chúng phục vụ», (3) hai dáng câu giao + bảng cờ vai-khong-mo-cau/nen-thieu-bat-khi, (4) luật 6 + răng phủ (tôi chỉ đếm tay, không chạy răng), (5) câu «đừng thêm trường cho agent» đều dẫn được; vế (2) thì không: D1 (dọn sổ, ~3 tiêu chí) không phục vụ kết quả nào, SKILL không nói nó vào hàng riêng cảnh báo duoi-muc-tieu, gộp với hàng cùng nhom (nhom do tôi tự gán) hay vào chân trời, nên vị trí của D1 và cỡ R6/R9 (<8) là tôi tự đoán. Thêm nữa, ba dòng mô tả không cho biết «tier» ở H11 hay «tự thu hồi» ở H8 là quyền hay dữ liệu nên luật 3 không áp chắc được.
+    - operational-feasibility: PASS — Cắt theo SKILL bước 3 (luật 1, 3, 6, câu gộp «mã cắt theo gốc kỹ thuật… gộp vào hàng của kết quả chúng phục vụ», khối CAT-LUOT-CO 8-10/12/13) thành 9 hàng và 1 chân trời, mỗi hàng ghi ma · cau_giao · vai · tieu_chi · phu. Hàng 1 vai nen, tieu_chi 8, phu H1+H2: «Job nạp chạy trọn qua worker ở môi trường mới, không cần máy dev», bat_khi «mười job liên tiếp xong, một worker chết giữa chừng thì job được claim lại». Hàng 2 vai «Người trực», tieu_chi 8, phu H3, dung_tren hàng 1: mở health thấy khoẻ/hỏng và theo ba runbook. Hàng 3 vai Quản trị, tieu_chi 9, phu H4, T3 (lớp quyền một mình). Hàng 4 vai nen, tieu_chi 8, phu H5, bat_khi «lô ghi hỏng giữa chừng thì không món nào lọt». Hàng 5 vai «Biên tập viên», tieu_chi 9, phu H6+H7: tìm cảnh → EDL → render. Hàng 6 vai «Người duyệt», tieu_chi 8, phu H8: không thấy cảnh trùng gần, cảnh tự thu hồi có lý do. Hàng 7 vai «Người duyệt», tieu_chi 9, phu H9, dung_tren hàng 6. Hàng 8 vai nen, tieu_chi 8, phu H10, dung_tren hàng 1 và 4: nạp 12 video theo ramp 1→3→12, bat_khi mỗi nấc 100% video có bản ghi. Hàng 9 vai nen, tieu_chi 8, phu H12 (dữ liệu khó đảo, một mình): hai thực thể trùng bị chỉ mục chặn, alias resolve đúng. Hàng 10 vai «Chủ kho», tieu_chi 8, phu H11 (dữ liệu khó đảo, một mình, T3): tier và nhãn đúng trên OneHub. Còn D1 vào chan_troi (luật 6): ly_do «dọn sổ không đổi hành vi sản phẩm nên không có câu giao đo được», mo_lai_khi «có vòng chạm đúng các mục sổ ấy» (như vậy là 10 hàng, tính cả hàng 10 này, và 1 chân trời, tổng 11 nơi phủ 13 mã). Năm vế đều có SKILL dẫn: (1) luật 1 + câu gộp; (2) khối CAT-LUOT-CO + luật 4, mọi hàng 8-9 nằm trong 8-10, không hàng nào cần ghi_chu; (3) hai dáng câu giao + bảng cờ vai-khong-mo-cau / nen-thieu-bat-khi; (4) luật 6 + răng phủ; (5) đoạn «đừng thêm trường cho agent». Hai chỗ chỉ dựa phán đoán, không do SKILL quyết, và không vế nào trong năm vế phụ thuộc vào chúng: số tiêu chí ước từ mô tả một dòng, và dung_tren (SKILL chỉ nói «chỉ khi thật sự cần hàng trước đã giao»).
+    - spec-alignment: PASS — Đi theo SKILL, 13 mã (D1 + H1–H12) cắt thành 8 hàng cộng 1 chân trời, ít hơn 13. Các hàng: [1] nen, H1+H2, tieu_chi 8; [2] "Người trực", H3, 8; [3] "Quản trị viên", H4, 8; [4] "Biên tập viên", H5+H10, 10; [5] "Biên tập viên", H6+H7, 9; [6] "Người duyệt", H8+H9, ~12 (cần tách, xem ghi chú dưới); [7] "Chủ kho", H11, 9; [8] "Chủ kho", H12, 8; D1 vào chân trời. Mỗi vế đều truy được về bước hoặc khối của SKILL, không phải đoán. Hai chỗ SKILL để lại cho phán đoán là ước số tiêu chí và nơi đặt D1, nhưng cả hai đều có quy tắc dẫn. Vế 1: luật 1 và đoạn «nhiều mã cắt theo gốc kỹ thuật… gộp vào hàng của kết quả chúng phục vụ» (Bước 3) gộp H1/H2/H3/H5 vào kết quả chúng phục vụ. Ba mã khó đảo (H4 quyền, H11 và H12 dữ liệu) ở hàng riêng theo luật 3, nên không hàng nào gom theo gốc kỹ thuật. Vế 2: khối CAT-LUOT-CO cho mục tiêu 8–10, cho phép đến 12, tách từ 13, và SKILL hướng dẫn ước mỗi tiêu chí là một điều người duyệt kiểm được. Hàng 6 gộp H8 và H9 vượt 12 nên phải tách. Một mã không được rải qua hai hàng, nên tách thành H8 một hàng và H9 một hàng, mỗi hàng 8–10. Đó là lựa chọn của người cắt, không phải điều SKILL bắt buộc. Vế 3: hai dáng câu giao có ví dụ tường minh; hàng 1 là vai nen kèm bat_khi đo được, các hàng còn lại mở câu bằng vai. Vế 4: luật 6 và răng phủ ở Bước 4 buộc mỗi mã vào đúng một chỗ; D1 quá nhỏ (khoảng 4–5 tiêu chí) và không cùng nhóm để gộp nên vào chân trời kèm lý do và điều kiện mở lại. Vế 5: Bước 3 nói rõ «đừng thêm trường cho agent» và không ghi trang_thai, pr, buoc_ke. Tôi chỉ dùng ma, cau_giao, vi_sao, hang, dung_tren, bat_khi, dot, phu, vai, tieu_chi, không dùng slug hay nhom. Điểm yếu nhỏ (không làm FAIL): khuôn JSON không có trường ghi_chu dù SKILL nhắc tới cho cỡ 11–12; D1 chọn chân trời thay vì hàng dưới cỡ là phán đoán dựa trên luật 4 và luật 6, không bắt buộc.
+  required_evidence:
+    - (ý kiến thiểu số của domain-correctness) Một điều khoản trong skills/cat-luot/SKILL.md (Bước 3, luật 4 hoặc luật 6) nói rõ mã dọn dẹp nhỏ không phục vụ kết quả nào đi đâu: gộp vào hàng nền cùng nhom nào, hay vào chân trời với mo_lai_khi nào. Có điều khoản đó thì vị trí D1 và cỡ các hàng nhỏ suy được, không phải đoán.
+    - (ý kiến thiểu số của domain-correctness) Đầu ra thật của `node scripts/cat-luot.mjs --root . --co` trên kho media-library, để có số tiêu chí thật theo nhóm làm mốc cho ước lượng tieu_chi của R6/R9. Không có thì cỡ chỉ là phỏng đoán từ mô tả một dòng.
   human_override:  # chi nguoi ghi
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_hooks_run_tests_sh-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_hooks_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_workflows_run_tests_sh-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-bash_tests_workflows_run_tests_sh-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-vong-la-mot-ket-qua-SUITE-node_scripts_product_map_mjs_root_check-r1
+  run_id: minted-vong-la-mot-ket-qua-SUITE-node_scripts_product_map_mjs_root_check-r2
   exit_code: 0
-  verified_at: 2026-10-11T01:25:58Z
+  verified_at: 2026-10-11T02:23:44Z
 
 ## Known limits
 
@@ -178,7 +181,11 @@ human_signoff:
 
 ## Analyst
 
-E1, E2, E3, E4, E5, E6, E7, E8, E9 — không phân biệt: cùng một lệnh (node tests/scripts/lo-trinh.test.mjs) xanh trên cả HEAD lẫn baseline (diffBase), nên chúng chứng minh bộ đo chạy được chứ chưa chứng minh riêng tính năng mới. Cần viết lại để assert hành vi mới, hoặc xác nhận đây là regression-guard có chủ ý.
+carried tu round 1 — baseline khong do lai round nay (evals.yaml khong doi tu lan baseline cuoi).
+
+Baseline khong do: E1, E2, E3, E4, E5, E6, E7, E8, E9 — round nay không đo lại baseline, field baseline ghi n-a.
+
+Không phân biệt (carried từ round 1): E1, E2, E3, E4, E5, E6, E7, E8, E9 — cùng một lệnh (node tests/scripts/lo-trinh.test.mjs) xanh trên cả HEAD lẫn baseline (diffBase), nên chúng chứng minh bộ đo chạy được chứ chưa chứng minh riêng tính năng mới. Cần viết lại để assert hành vi mới hoặc xác nhận là regression-guard có chủ ý.
 
 ## Variance
 
@@ -186,4 +193,5 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: E1–E10 đạt; không eval nào hỏng, không cần quay lại triển khai.
+Round 1: E1–E10 đạt kèm 2 lỗi đo trong hợp đồng (phép kiểm của LT-142 và LT-143 ghim chưa đủ chặt) — đã sửa ở commit 787bf91c, chấm lại.
+Round 2: E1–E10 đạt trên cây d1b64c23; không eval nào hỏng, không cần quay lại triển khai.

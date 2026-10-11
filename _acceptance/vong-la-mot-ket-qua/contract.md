@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs + skills/cat-luot/SKILL.md + khuôn lo-trinh-template.json + test — không chạm lib/**, hook, lưới trước-merge. Hàng S3 ghi T3: máy không tự sửa hàng, nêu ở Cổng Phạm vi.
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-vong-la-mot-ket-qua-design.md
-status: implemented
+status: verified
 approved_by: Manh Phan
 approved_at: 2026-10-11T00:41:20Z
 ---
