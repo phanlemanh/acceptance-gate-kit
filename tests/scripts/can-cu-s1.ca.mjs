@@ -4,7 +4,7 @@
 // trong ca, KHÔNG rút từ đầu ra mô-đun. Đường dẫn suy từ vị trí tệp này.
 // Chế độ dựng thẻ cho eval nhìn E9: `node tests/scripts/can-cu-s1.ca.mjs --dung-the <thư mục>`.
 import { spawnSync, execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -463,6 +463,79 @@ check('CC-10', () => {
   const kq = mod.phanLoaiSo(mod.docSo(tepO(t.dinh, `_acceptance/${SLUG_VONG}/decisions.jsonl`)).entries, { root: ROOT, slug: SLUG_VONG, base: '08ba287d', docTep: rel => tepO(t.dinh, rel) });
   console.log(`    CC-10: đỏ ${kq.do.length} · câu hỏi ${kq.cau_hoi.length} · máy đã quyết ${kq.da_quyet.length} · bị thay ${kq.bi_thay}`);
   eq([kq.do.length, kq.cau_hoi.length, kq.da_quyet.length, kq.bi_thay], [0, 3, 10, 3], 'sổ của vòng');
+});
+
+// ── KK: vòng can-cu-s1-chay-moi-kho (KK-n = AC-n) — lệnh gọi bộ xếp chạy ở kho khách ─────────────────────
+// Kho thử do code sinh, KHÔNG có scripts/ của kit; HOME tạm mang bộ nhớ đệm plugin giả
+// (acceptance-gate-kit/acceptance-gate/9.9.9) — thư mục bản là thư mục THẬT vì bộ giải gói bỏ qua symlink ở
+// cấp đó, chỉ scripts/ bên trong trỏ cây đang kiểm. Lệnh là lệnh RÚT từ SKILL lúc chạy.
+const FL_WF = path.join(ROOT, 'feature-loop', 'workflows');
+const lenhBoXep = t => [...t.matchAll(/`([^`]*\bnode\b[^`]*can-cu-s1\.cjs[^`]*)`/g)].map(m => m[1]);
+function nhaGia({ coBoXep = true } = {}) {
+  const h = mkdtempSync(path.join(tmpdir(), 'kk-nha-'));
+  const ban = path.join(h, '.claude', 'plugins', 'cache', 'acceptance-gate-kit', 'acceptance-gate', '9.9.9');
+  mkdirSync(ban, { recursive: true });
+  if (coBoXep) symlinkSync(path.join(ROOT, 'scripts'), path.join(ban, 'scripts'));
+  else mkdirSync(path.join(ban, 'scripts'));
+  return h;
+}
+function khoKhach({ themDo = false } = {}) {
+  const r = mkdtempSync(path.join(tmpdir(), 'kk-kho-')); git(r, 'init', '-q');
+  ghiTep(r, 'CLAUDE.md', `# Luật\n\n${Q_GOC}\n`);
+  ghiTep(r, '_acceptance/h/contract.md', '---\nslug: h\nstatus: draft\n---\n');
+  const dongs = [CN('q1'), S1('m1', MT('CLAUDE.md', Q_GOC)), ML('m2')];
+  if (themDo) dongs.push(S1('r1', { nguon: 'la', kho_dao: false }));
+  ghiSoKho(r, 'h', dongs); return r;
+}
+const TONG_SACH = 'h · câu hỏi 1 · máy đã quyết 2 · đỏ 0 · đời trước 0 · bị thay 0';
+const chayLenh = (l, kho, nha, vo = 'bash') => spawnSync(vo, ['-c', l.split('$WORKFLOWS_DIR').join(FL_WF).split('<slug>').join('h')], { cwd: kho, env: { ...process.env, HOME: nha }, encoding: 'utf8' });
+function kiemLenhKhoKhach(skillText, vo) {
+  const ds = lenhBoXep(skillText); if (ds.length !== 2) return [`lệnh gọi bộ xếp rút được ${ds.length}, cần 2`];
+  const kho = khoKhach(), nha = nhaGia(); if (existsSync(path.join(kho, 'scripts'))) return ['kho thử có scripts/ — không phải kho khách'];
+  const loi = [];
+  for (const l of ds) {
+    const p = chayLenh(l, kho, nha, vo);
+    if (p.status !== 0 || !p.stdout.split('\n').some(x => x.startsWith(TONG_SACH))) loi.push(`không chạy được ngoài kho kit (${vo}, thoát ${p.status}): «${l.slice(0, 80)}» → ${(p.stdout + p.stderr).trim().slice(0, 240)}`);
+  }
+  return loi;
+}
+for (const vo of ['bash', 'zsh']) check(`KK-1 ${vo}`, () => {
+  if (spawnSync(vo, ['-c', 'true']).status !== 0) die(vo + ' vắng trên máy chạy');
+  eq(kiemLenhKhoKhach(readFileSync(SKILL, 'utf8'), vo), [], 'lệnh rút từ SKILL chạy ở kho khách');
+});
+check('KK-1-do', () => {
+  const t = readFileSync(SKILL, 'utf8'); eq(kiemLenhKhoKhach(t, 'bash'), [], 'đối chứng dương: bản lành xanh trên cùng kho thử');
+  const tiem = t.replace('AG=$(node "$WORKFLOWS_DIR/../scripts/resolve-plugin.mjs" --plugin acceptance-gate --require scripts/can-cu-s1.cjs) && node "$AG/scripts/can-cu-s1.cjs"', 'node scripts/can-cu-s1.cjs');
+  if (tiem === t) die('mũi tiêm không áp');
+  const loi = kiemLenhKhoKhach(tiem, 'bash');
+  if (!loi.some(x => x.startsWith('không chạy được ngoài kho kit'))) die('lệnh tương đối mà hàm kiểm không nêu: ' + JSON.stringify(loi));
+});
+const lenhKiemSo = () => { const l = lenhBoXep(readFileSync(SKILL, 'utf8')).find(x => x.includes('--slug')); if (!l) die('không rút được lệnh kiểm sổ (--slug) từ SKILL'); return l; };
+check('KK-2 so-do', () => {
+  const l = lenhKiemSo();
+  const sach = chayLenh(l, khoKhach(), nhaGia());
+  if (sach.status !== 0 || !sach.stdout.includes(TONG_SACH)) die('đối chứng dương: sổ sạch phải thoát 0 kèm dòng tổng kết — ' + (sach.stdout + sach.stderr).slice(0, 240));
+  const p = chayLenh(l, khoKhach({ themDo: true }), nhaGia());
+  if (p.status !== 1 || !/^h · câu hỏi 1 · máy đã quyết 2 · đỏ 1 · /m.test(p.stdout)) die(`sổ đỏ phải thoát 1 KÈM dòng tổng kết «đỏ 1»: thoát ${p.status} — ${(p.stdout + p.stderr).slice(0, 240)}`);
+});
+check('KK-2 chua-cai', () => {
+  const l = lenhKiemSo();
+  const p = chayLenh(l, khoKhach(), nhaGia({ coBoXep: false }));
+  if (p.status === 0 || /^h · câu hỏi/m.test(p.stdout)) die('gói cũ mà vẫn thoát 0 hoặc có dòng tổng kết: ' + p.stdout.slice(0, 240));
+  if (!p.stderr.includes('acceptance-gate') || !p.stderr.includes('claude plugin install')) die('thông điệp không nêu gói + lệnh cài: ' + p.stderr.slice(0, 240));
+});
+// Quét lớp trên trọn SKILL feature-loop: lời gọi node|bash|sh tới một công cụ CÓ trong kit bằng đường chỉ đúng ở kho kit.
+const quetTuongDoi = (text, ten) => text.split('\n').flatMap((l, i) => [...l.matchAll(/\b(?:node|bash|sh)\s+["']?(?:\.\/)?((?:[\w-]+\/)?scripts\/[\w.-]+)/g)]
+  .filter(m => existsSync(path.join(ROOT, m[1])) || existsSync(path.join(ROOT, 'feature-loop', m[1]))).map(() => `${ten}:${i + 1}`));
+check('KK-4 quet-lop', () => { eq(quetTuongDoi(readFileSync(SKILL, 'utf8'), 'SKILL.md'), [], 'SKILL feature-loop gọi công cụ kit bằng đường tương đối'); });
+const HINH_KK4 = ['node scripts/can-cu-s1.cjs --root .', 'node ./scripts/can-cu-s1.cjs --root .', 'node feature-loop/scripts/resolve-plugin.mjs --plugin x', 'bash scripts/pre-merge-check.sh .'];
+check('KK-4-do', () => {
+  const dong = readFileSync(SKILL, 'utf8').split('\n'); const K = 40;
+  eq(quetTuongDoi(dong.join('\n'), 'SKILL.md'), [], 'đối chứng dương: bản sao chưa tiêm');
+  let n = 0;
+  for (const h of HINH_KK4) { const s = [...dong]; s.splice(K, 0, `Chạy \`${h}\`.`); eq(quetTuongDoi(s.join('\n'), 'SKILL.md'), [`SKILL.md:${K + 1}`], `hình «${h}»`); n++; }
+  console.log(`    KK-4-do: ${n}/${HINH_KK4.length} hình đỏ đúng dòng`);
+  if (n !== 4) die('số hình đỏ ' + n);
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (can-cu-s1)`);
