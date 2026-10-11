@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 6fb38aeab25c602bf06a819017f3f7c8a804fb5c
+verified_commit: 10aa2f0beb8c35d9e691c79e813c399a1749bfb4
 human_signoff: manh 2026-10-11 — ký lượt chấm 1; Ngoài-1 đến Ngoài-3 ghi Known limits; cắt/hoãn đồng ý cắt
 ---
 
@@ -138,3 +138,7 @@ Round 1: E1, E2, E3, E4 và 10 lệnh suite hồi quy đều xanh ở lượt ch
 ### Re-pin lần 1 — 2026-10-11, do hoá cũ do gộp main #311 (gate-card.js, repin-lane.mjs) sau chữ ký
 run_id: repin-20261011T114243Z-99112
 sha: 6fb38aeab25c602bf06a819017f3f7c8a804fb5c · suites: 10 lệnh exit 0 · evals: 4/4 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-11, do hoá cũ do gộp main #312 (DP4) trước khi gộp PR
+run_id: repin-20261011T123733Z-96623
+sha: 10aa2f0beb8c35d9e691c79e813c399a1749bfb4 · suites: 10 lệnh exit 0 · evals: 4/4 eval máy đạt kỳ vọng
