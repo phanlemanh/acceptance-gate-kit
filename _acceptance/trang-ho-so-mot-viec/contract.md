@@ -83,3 +83,13 @@ request GitHub]` cho bố cục dải + mục gập, `[NGÀNH: trang issue Linea
 - Commit gốc của vòng: `65a01f4c` (Cổng Đáng ký; vật chưa đổi).
 - Ca LT-112 của X1 (phần hiển thị giống bộ vẽ cũ) phải chuẩn hoá phép bỏ ngoặc — hồ sơ X1 vào lượt
   ghim lại ở mốc phát hành kế.
+- **Thay thế một phần thước của hồ sơ đã ký** (dòng `fix` S3 của sổ): ca so «giống bộ máy trước vòng»
+  của `lo-trinh-tren-du-lieu-that` (LT-73, LT-77), `trang-lo-trinh-doc-mot-phut` (LT-100),
+  `xuat-du-lieu-lo-trinh` (LT-110, LT-112, LT-116, LT-118), `lo-trinh-cat-luot` (LT-141),
+  `dieu-phoi-mo-dot-mot-lenh` (DP2-11) đi qua đúng phép bỏ ngoặc câu giao + gỡ `tom_tat` ở bên cũ; chữ
+  mong đợi của LT-12/74/79/90 đổi theo câu đã bỏ ngoặc; hai trang mẫu đã ký vẽ + chụp lại; mũi tiêm
+  «trang bằng chứng» của CN13 (`cong-nguoi-doc-du-nguon`) dời tới bộ đọc tiêu chí trong
+  `scripts/ho-so-tom-tat.cjs`. Hợp đồng cũ đã ký không sửa; các hồ sơ đó ghim lại ở chiến dịch phát hành.
+- Bản chép `docDuLieu` của gói Điều phối (`dieu-phoi/scripts/nguon-hang.mjs`) vẫn là bản 1 — ngoài ranh
+  giới tệp của vòng; nó đọc trang bản 2 «phần biết» + một cờ vàng, DP2-08 so nhóm trạng thái và vẫn xanh.
+  Chép lại bản 2 là việc của gói khi nó cần `tom_tat`.

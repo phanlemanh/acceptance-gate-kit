@@ -652,6 +652,15 @@ việc duy nhất bản chiếu tự làm là so ngày mốc với hôm nay. Khu
 `skills/acceptance/references/lo-trinh-du-lieu.md`. Không tệp mới, không khoá cấu hình mới; người xem
 trang không thấy gì khác.
 
+Từ vòng `trang-ho-so-mot-viec` (hàng X2): `node scripts/evidence-page.js --root . --slug <slug>` vẽ
+**trang hồ sơ một việc** — dải một phút (đã giao gì · vì sao · trạng thái + ngày · đã lên production chưa
+· đo gì, khi nào · kết quả · chưa làm gì · ai quyết, cùng một dòng số cho chủ kho) rồi các mục gập: vì sao
+làm · đã hứa · thiết kế · quyết định (lọc máy/người) · bằng chứng · tài nguyên từng lượt chấm · giới hạn và
+ngoài hợp đồng · giao · giá trị. Mọi ô vẽ từ vật của hồ sơ qua `scripts/ho-so-tom-tat.cjs`, không gọi
+model; tệp vắng thì ô in «chưa có — <tệp>». Khối dữ liệu lộ trình lên **phiên bản 2**: mỗi hàng có hồ sơ
+mang cùng dải ở `tom_tat` (trang bản 1 vẫn đọc được). Câu giao in ra đã bỏ đúng một cặp «» bao trọn câu —
+tệp kế hoạch của kho giữ nguyên.
+
 **Phiên nghiệm thu (Cổng Giá trị)** — cổng người sau khi ship, cho những việc
 đi từ một cơ hội đã quyết `build`/`iterate`. Cổng Bằng chứng hỏi "làm đúng thứ
 đã hứa chưa?"; Cổng Giá trị hỏi "thứ đó có ăn thua không?". Nghi thức chép

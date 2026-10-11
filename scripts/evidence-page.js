@@ -15,11 +15,18 @@
  * source of truth. Image src are RELATIVE (the page sits next to evidence/), so
  * the real PNGs render in a browser without base64 bloat.
  *
+ * Từ hồ sơ trang-ho-so-mot-viec (hàng X2) trang là TRANG HỒ SƠ một việc: dải một phút (chín ô +
+ * một dòng tầng chủ kho) rồi các mục gập — vì sao làm · đã hứa · thiết kế · quyết định · bằng chứng
+ * (phần trang bằng chứng cũ, giữ nguyên) · tài nguyên · giới hạn và ngoài hợp đồng · giao · giá trị.
+ * Mọi ô rút từ vật qua scripts/ho-so-tom-tat.cjs — cùng hàm khối dữ liệu lộ trình bản 2 gọi.
+ *
  * Usage: evidence-page.js --root <repo> --slug <slug>
  *   writes _acceptance/<slug>/evidence-page.html and prints its absolute path.
  */
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
+const HS = require(path.join(__dirname, 'ho-so-tom-tat.cjs'));
 
 const a = process.argv.slice(2);
 const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
@@ -42,12 +49,13 @@ const clean = s => String(s == null ? '' : s).replace(/["']/g, '').replace(/\s*#
 function frontmatter(t) { const m = t.match(/^---\r?\n([\s\S]*?)\r?\n---/); const o = {}; if (m) for (const l of m[1].split('\n')) { const mm = l.match(/^(\w+)\s*:\s*(.*)$/); if (mm) o[mm[1]] = mm[2].trim(); } return o; }
 // Ranh giới section: dùng chung bảng marker của lib/md-section.cjs (một nguồn).
 const { section } = require(path.join(__dirname, '..', 'lib', 'md-section.cjs'));
-// Dòng criterion: dùng chung parseAC của lib/ac-line.cjs — cùng lý do, một nguồn.
-const { parseACBlock } = require(path.join(__dirname, '..', 'lib', 'ac-line.cjs'));
+// Dòng criterion: MỘT bộ đọc — tieuChiCua của scripts/ho-so-tom-tat.cjs (parseACBlock của
+// lib/ac-line.cjs bên trong). Bảng eval và mục «Đã hứa» của trang hồ sơ đọc cùng hàm, nên không thể
+// thấy hai tập tiêu chí khác nhau trên cùng một trang.
 const cleanLines = arr => arr.filter(l => l.trim() && !/^\s*#/.test(l));
 
 const rfm = frontmatter(report), cfm = frontmatter(contract);
-const feature = cfm.feature || rfm.feature_slug || slug;
+const feature = HS.boNgoacNgoai(cfm.feature || rfm.feature_slug || slug);
 const tier = clean(cfm.risk_tier);
 const verdict = clean(rfm.verdict).toUpperCase();
 const verifiedBy = (rfm.verified_by || '').trim();
@@ -65,7 +73,7 @@ const reason = (rfm.reason || '').replace(/^["']|["']$/g, '').trim();
 // (judgment) nên `.replace()` tay ở đây không cần nữa (và nó giữ được code span,
 // thứ replace thô làm hỏng).
 const critText = {};
-for (const p of parseACBlock(contract)) { if (!critText[p.id]) critText[p.id] = p.gwt; }
+for (const p of HS.tieuChiCua(contract)) { if (!critText[p.id]) critText[p.id] = p.cau; }
 
 // per-eval summary table rows
 const rows = [];
@@ -135,10 +143,39 @@ const reviewFindings = [];
 const VCOLOR = { PASS: 'pass', 'PENDING-JUDGMENT': 'pend', REJECT: 'rej', BLOCKED: 'rej', UNCERTAIN: 'pend', FAIL: 'rej' };
 const vc = v => VCOLOR[(v || '').toUpperCase()] || 'neutral';
 
-// ---- HTML ----
+// ---- Hồ sơ (dải + mục) ----
+// Chữ trạng thái = chữ ô của bản đồ sản phẩm (cùng hàm classify mà trang lộ trình dùng cho hàng), nên
+// trang hồ sơ và hàng trên LO-TRINH.html không nói hai chuyện. Không nạp được bản đồ → trạng thái thô.
+async function trangThaiCua() {
+  // Bản đồ phân ô cần khuôn ô cơ hội và CHẾT TO khi vắng (process.exit, try không bắt được) — kho
+  // chỉ chép scripts/ + lib/ thì trang vẫn phải ra: thiếu khuôn → trạng thái thô của hợp đồng.
+  if (!fs.existsSync(path.join(__dirname, '..', 'skills', 'acceptance', 'references', 'opportunity-template.md'))) return null;
+  try {
+    const PM = await import(require('url').pathToFileURL(path.join(__dirname, 'product-map.mjs')).href);
+    const TEN = Object.fromEntries(PM.SECTIONS);
+    return TEN[PM.classify(dir, slug).key] || null;
+  } catch (_) { return null; }
+}
+// Số PR: commit gộp đầu tiên «Merge pull request #N» trên đường từ mã đã chấm tới HEAD. Mọi lỗi git
+// (không phải kho git, mã không có trong kho, clone nông) → null = «chưa gộp», stderr im.
+function prCua(ma) {
+  if (!ma) return null;
+  const r = spawnSync('git', ['-C', root, 'log', '--merges', '--ancestry-path', '--reverse', '--format=%s', `${ma}..HEAD`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  if (r.status !== 0 || !r.stdout) return null;
+  for (const l of r.stdout.split('\n')) { const m = l.match(/^Merge pull request #(\d+)\b/); if (m) return m[1]; }
+  return null;
+}
+const NHAN_O = { da_giao: 'Đã giao gì', vi_sao: 'Vì sao', trang_thai: 'Trạng thái', ngay: 'Ngày', production: 'Đã lên production chưa', do_gi: 'Sẽ đo gì, khi nào', ket_qua: 'Kết quả', chua_lam: 'Chưa làm gì', ai_quyet: 'Ai quyết' };
+const so = n => (n == null ? null : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'));
+const chuaCo = tep => `<span class="vang">chưa có — ${esc(tep)}</span>`;
+
+(async () => {
+const TT = await trangThaiCua();
+const H = HS.tomTatHoSo(dir, { trangThai: TT });
+const M = H.dai.moi_nguoi, C = H.dai.chu_kho, CT = H.chiTiet;
 const P = [];
 P.push(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bằng chứng · ${esc(slug)}</title>
+<title>Hồ sơ · ${esc(slug)}</title>
 <style>
 :root{--bg:#faf9f6;--card:#fff;--bd:#e6e4de;--ink:#1f1f1d;--mut:#6c6a64;--hint:#9a988f}
 *{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);margin:0;line-height:1.5;font-size:15px}
@@ -167,11 +204,34 @@ pre.out{background:#1f1f1d;color:#e8e6df;border-radius:8px;padding:11px 13px;ove
 .foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--bd);font-size:12px;color:var(--hint)}
 ul.ck{list-style:none;padding:0;margin:0}ul.ck li{padding:5px 0;font-size:14px}ul.ck input{margin-right:8px}
 .tl{border-left:2px solid var(--bd);padding-left:14px;margin:0}.tl li{font-size:13px;margin:0 0 6px;list-style:none}
+.dai{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 8px}
+.o{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 11px;min-width:0}
+.o .hoi{font-size:11px;color:var(--mut);text-transform:none;letter-spacing:.02em}
+.o .tra{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.vang{color:var(--hint);font-style:italic}
+.chu-kho{font-size:12px;color:var(--mut);display:flex;flex-wrap:wrap;gap:4px 14px;margin:0 0 10px}.chu-kho b{color:var(--ink)}
+details.muc{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin:0 0 10px;padding:0 14px}
+details.muc>summary{cursor:pointer;font-weight:600;font-size:14px;padding:11px 0}
+details.muc[open]>summary{border-bottom:1px solid var(--bd);margin-bottom:10px}
+details.muc .noi{padding:0 0 12px;font-size:13px}
+.loc{display:flex;gap:6px;margin:0 0 8px}.loc .btn[aria-pressed="true"]{background:#1f1f1d;color:#fff}
+.tl li[hidden]{display:none}
+@media (max-width:720px){.dai{grid-template-columns:1fr}}
 </style></head><body><div class="wrap">`);
 
 // header
-P.push(`<h1>${esc(feature)}</h1><div class="sub">Trang bằng chứng · <span class="mono">${esc(slug)}</span>${tier ? ' · tier ' + esc(tier) : ''}</div>
-<div class="card" style="margin-top:12px"><span class="badge ${vc(verdict)}">${esc(verdict || '—')}</span>
+P.push(`<h1>${esc(feature)}</h1><div class="sub">Trang hồ sơ · <span class="mono">${esc(slug)}</span>${tier ? ' · tier ' + esc(tier) : ''}</div>`);
+// dải một phút — chín ô theo đúng thứ tự khuôn, mỗi ô mang tên tệp nguồn
+P.push(`<section class="dai" aria-label="Hồ sơ trong một phút">${HS.O_MOI_NGUOI.map(k => `<div class="o" data-o="${k}" data-nguon="${esc(H.nguon[k] || '')}"><div class="hoi">${esc(NHAN_O[k])}</div><div class="tra">${M[k] == null ? chuaCo(H.nguon[k] || '') : esc(M[k])}</div></div>`).join('')}</section>`);
+const ck = (k, nhan, v) => `<span data-k="${k}">${nhan} <b>${C[k] == null ? chuaCo(H.nguon[k] || '') : esc(v)}</b></span>`;
+P.push(`<div class="chu-kho" data-chu-kho>${[ck('tieu_chi', 'Tiêu chí', C.tieu_chi), ck('phep_do', 'Phép đo', C.phep_do), ck('luot_cham', 'Lượt chấm', C.luot_cham), ck('token', 'Token', so(C.token)), ck('quyet_dinh_may', 'Quyết định máy', C.quyet_dinh_may), ck('quyet_dinh_nguoi', 'người', C.quyet_dinh_nguoi), ck('ma', 'Mã', C.ma && C.ma.slice(0, 7))].join('')}${CT.soHong ? `<span class="vang" data-so-hong>${CT.soHong} dòng sổ không đọc được</span>` : ''}</div>`);
+const muc = (id, ten, than) => `<details class="muc" id="${id}"><summary>${esc(ten)}</summary><div class="noi">${than}</div></details>`;
+P.push(muc('vi-sao', 'Vì sao làm', M.vi_sao == null ? chuaCo(H.nguon.vi_sao || 'opportunity.md') : `<p>${esc(M.vi_sao)}</p>`));
+P.push(muc('da-hua', 'Đã hứa', CT.acs.length ? `<ol class="hua">${CT.acs.map(a => `<li data-ac="${esc(a.id)}"><b>${esc(a.id)}</b> — ${esc(a.cau)}</li>`).join('')}</ol>` : chuaCo('contract.md')));
+P.push(muc('thiet-ke', 'Thiết kế', CT.designDoc ? (H.thieu.includes(CT.designDoc) ? chuaCo(CT.designDoc) : `<p class="mono" data-design-doc>${esc(CT.designDoc)}</p>`) : '<p class="vang">hợp đồng không khai design_doc</p>'));
+P.push(muc('quyet-dinh', 'Quyết định', H.thieu.includes('decisions.jsonl') ? chuaCo('decisions.jsonl') : `<div class="loc" role="group" aria-label="Lọc quyết định"><button class="btn" data-loc="tat-ca" aria-pressed="true">Tất cả ${CT.quyetDinh.length}</button><button class="btn" data-loc="may" aria-pressed="false">Máy ${C.quyet_dinh_may}</button><button class="btn" data-loc="nguoi" aria-pressed="false">Người ${C.quyet_dinh_nguoi}</button></div><ol class="tl" data-dong-thoi-gian>${CT.quyetDinh.map(d => `<li data-loai="${d.nguoi ? 'nguoi' : 'may'}" data-id="${esc(d.id)}"><b>${esc((d.at || '').slice(0, 10) || '—')}</b> · ${d.nguoi ? 'Người' : 'Máy'}${d.ai ? ` (${esc(d.ai)})` : ''} · ${esc([d.loai, d.giai_doan].filter(Boolean).join(' · '))} — ${esc(d.cau || '')}${d.vi_sao ? `<div class="note">${esc(d.vi_sao)}</div>` : ''}</li>`).join('')}</ol>`));
+P.push(`<details class="muc" id="bang-chung"><summary>Bằng chứng</summary><div class="noi">`);
+P.push(`<div class="card" style="margin-top:12px"><span class="badge ${vc(verdict)}">${esc(verdict || '—')}</span>
 <div class="meta"><span>Verified by: <b>${esc(verifiedBy || '—')}</b></span><span>Human signoff: <b>${signoff ? esc(signoff) : 'CHƯA ký'}</b></span>${enforcement ? `<span>enforcement: <b>${esc(enforcement)}</b></span>` : ''}${bypass === 'true' ? '<span class="badge rej">bypass_used</span>' : ''}${reason ? `<span>reason: <b>${esc(reason)}</b></span>` : ''}</div></div>`);
 
 // eval table
@@ -227,8 +287,15 @@ if (iterations.length) P.push(`<h2>Vòng verify</h2><ul class="tl">${iterations.
 // gate-2 checklist
 if (checklist.length) P.push(`<h2>Checklist Cổng 2 (bạn)</h2><div class="card"><ul class="ck">${checklist.map((c, i) => `<li><input type="checkbox" id="ck${i}"${c.done ? ' checked' : ''}><label for="ck${i}">${esc(c.text)}</label></li>`).join('')}</ul><div class="note">Tick để theo dõi — chỉ lưu trong trình duyệt; quyết định THẬT vào human_signoff / human_override của report.</div></div>`);
 
+P.push(`</div></details>`);
+P.push(muc('tai-nguyen', 'Tài nguyên', H.thieu.includes('usage-report.md') ? chuaCo('usage-report.md') : `<table data-tai-nguyen><thead><tr><th>Khối</th><th>Tác tử</th><th>Token đầu ra</th></tr></thead><tbody>${CT.usage.map(u => `<tr><td>${esc(u.ten)}</td><td>${u.tac_tu}</td><td>${esc(so(u.token))}</td></tr>`).join('')}</tbody></table><p class="note">${C.luot_cham} lượt chấm · tổng ${esc(so(C.token))} token${CT.usageKhongDoc ? ` · ${CT.usageKhongDoc} khối không đọc được` : ''}</p>`));
+P.push(muc('gioi-han', 'Giới hạn và ngoài hợp đồng', `<ul data-gioi-han>${[...CT.oos.map(x => `<li data-loai="ngoai">${esc(x)}</li>`), ...CT.known.map(x => `<li data-loai="gioi-han">${esc(x)}</li>`)].join('') || '<li class="vang">không có</li>'}</ul>`));
+const pr = prCua(C.ma);
+P.push(muc('giao', 'Giao', `<div class="kv" data-giao><span>Mã đã chấm <b class="mono">${C.ma ? esc(C.ma) : chuaCo('evidence-report.md')}</b></span><span>Ngày ký <b>${esc(CT.giao.ngayKy || '—')}</b></span><span>${esc(M.ai_quyet || '')}</span><span data-pr>${pr ? `PR #${esc(pr)}` : 'chưa gộp'}</span></div><p class="note">${esc(M.production || '')}</p>`));
+P.push(muc('gia-tri', 'Giá trị', CT.uatBang ? `<table data-gia-tri>${CT.uatBang.map((l, i) => `<tr>${l.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => (i ? `<td>${esc(c.trim())}</td>` : `<th>${esc(c.trim())}</th>`)).join('')}</tr>`).join('')}</table>` : (CT.nguong.length ? `<ul data-gia-tri>${CT.nguong.map(b => `<li>${esc(b.label)}: ${esc(b.value)} — <b>chưa đo</b></li>`).join('')}</ul>` : chuaCo('opportunity.md'))));
 P.push(`<div class="foot">Trang trình bày · KHÔNG quyết — <span class="mono">evidence-report.md</span> + hook là nguồn-sự-thật. Sinh từ run đã verify; ảnh/output gắn run_id.</div>
 <script>
+document.querySelectorAll('[data-loc]').forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-loc');document.querySelectorAll('[data-loc]').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});document.querySelectorAll('[data-dong-thoi-gian] li').forEach(function(li){li.hidden=!(v==='tat-ca'||li.getAttribute('data-loai')===v);});});});
 document.querySelectorAll('.slide').forEach(function(s){var fr=s.querySelectorAll('.frame');if(fr.length<2)return;var i=0;fr[0].classList.add('on');var adv=function(){fr[i].classList.remove('on');i=(i+1)%fr.length;fr[i].classList.add('on');};s._t=setInterval(adv,1600);var bar=s.nextElementSibling,b=bar?bar.querySelector('[data-toggle]'):null;if(b)b.addEventListener('click',function(){if(s._t){clearInterval(s._t);s._t=null;b.textContent='▶ Chạy';}else{s._t=setInterval(adv,1600);b.textContent='⏸ Tạm dừng';}});});
 </script>
 </div></body></html>`);
@@ -236,3 +303,4 @@ document.querySelectorAll('.slide').forEach(function(s){var fr=s.querySelectorAl
 const outPath = path.join(dir, 'evidence-page.html');
 fs.writeFileSync(outPath, P.join('\n'));
 process.stdout.write(path.resolve(outPath) + '\n');
+})().catch(e => { process.stderr.write('evidence-page: ' + (e && e.stack || e) + '\n'); process.exit(1); });

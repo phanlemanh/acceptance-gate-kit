@@ -23,6 +23,9 @@ const __dirname = path.dirname(__filename);
 const { frontmatterField } = require(path.join(__dirname, '..', 'lib', 'evidence-core.cjs'));
 
 const { KHOA: KHOA_, khoaTuConfig: khoaTuConfig_, cacTepTuConfig } = require(path.join(__dirname, 'lo-trinh-khoa.cjs'));
+// Mô-đun đọc hồ sơ dùng chung với trang hồ sơ (hồ sơ trang-ho-so-mot-viec, hàng X2): dải tóm tắt của
+// khối dữ liệu bản 2 và phép bỏ một cặp «» quanh câu giao đều rút từ ĐÂY — trang hồ sơ gọi cùng hàm.
+const HS = require(path.join(__dirname, 'ho-so-tom-tat.cjs'));
 export const KHOA = KHOA_;
 export const TEP_TRANG = 'LO-TRINH.html';
 export const CHUA_MO = 'Chưa mở';
@@ -116,7 +119,9 @@ export function kiemKhuon(data) {
     // `phu` (mã của bản phạm vi hàng gánh — skill cắt lượt ghi, răng cat-luot.mjs đọc).
     if (r.phu !== undefined && !Array.isArray(r.phu)) co.push(`hàng ${nhan}: phu phải là một mảng`);
     if (ma) { if (daThay.has(ma) && !trung.includes(ma)) trung.push(ma); daThay.add(ma); }
-    hang.push({ ...r, _nhan: nhan, _ma: ma });
+    // Câu giao là TIÊU ĐỀ: bỏ đúng một cặp «» bao trọn câu (hàng X2) — mọi chỗ in nó (trang, khối, thẻ
+    // start, ô cơ hội của --mo-o) đi qua đây. Tệp kế hoạch của kho không bị ghi; vi_sao/bat_khi giữ nguyên.
+    hang.push({ ...r, ...(typeof r.cau_giao === 'string' ? { cau_giao: HS.boNgoacNgoai(r.cau_giao), _cauGiaoGoc: r.cau_giao } : {}), _nhan: nhan, _ma: ma });
   });
   for (const m of trung) co.push(`mã trùng: ${m}`);
   const moc = (Array.isArray(data.moc) ? data.moc : []).filter(m => m && typeof m === 'object');
@@ -211,7 +216,10 @@ export function suyTrangThai({ root, khuon, classify, sections, nhan = [] }) {
       const t = c == null ? '' : chuoi(frontmatterField(c, 'risk_tier'));
       if (t && t !== chuoi(r.hang)) coHang.push(`hàng ${r._nhan}: hạng tệp ${chuoi(r.hang)}, hồ sơ ${t}`);
     }
-    return { ...r, slug: slug || undefined, hoSo, nhieuNhan: hoSo ? [] : nguoiNhanCua(r), chu, tinTheoLoi, coHoSo, tuKhai: tuKhai || null, khaiNgoai: !!(tuKhai && !khaiChuan), coHang };
+    // Dải tóm tắt của hồ sơ (khối bản 2) — trạng thái truyền vào là CHỮ của hàng, nên dải và hàng không
+    // nói hai chuyện. Hàng chưa có hồ sơ: null.
+    const tomTat = coHoSo && hoSo ? HS.tomTatHoSo(path.join(acc, hoSo), { trangThai: chu }).dai : null;
+    return { ...r, slug: slug || undefined, hoSo, nhieuNhan: hoSo ? [] : nguoiNhanCua(r), chu, tinTheoLoi, coHoSo, tuKhai: tuKhai || null, khaiNgoai: !!(tuKhai && !khaiChuan), coHang, tomTat };
   });
   const theoMa = new Map();
   for (const d of dong) if (d._ma && !theoMa.has(d._ma)) theoMa.set(d._ma, d);
@@ -514,16 +522,20 @@ function mucLoTrinh(i, t) {
 // vì tự tính trạng thái. Khuôn sống ở ĐÂY; tài liệu cho kho tiêu thụ
 // (skills/acceptance/references/lo-trinh-du-lieu.md) chép bảng khoá, ca LT-119 so hai bên.
 export const ID_DU_LIEU = 'lo-trinh-du-lieu';
-export const PHIEN_BAN_DU_LIEU = 1;
+// Bản 2 (hàng X2): thêm khoá `tom_tat` ở cấp hàng. Bộ đọc bản 1 gặp bản 2 «đọc phần biết» + một cảnh báo.
+export const PHIEN_BAN_DU_LIEU = 2;
 export const KHUON_DU_LIEU = {
   goc: ['khuon', 'phien_ban', 'nguon', 'lo_trinh', 'ngoai_lo_trinh'],
   lo_trinh: ['tep', 'ten', 'loi', 'hang_ke', 'can_sua', 'tien_do', 'hang', 'moc', 'da_bac'],
   hang_ke: ['ma', 'cau_giao', 'lenh'],
   can_sua: ['ma', 'chu'],
   tien_do: ['tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'],
-  hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao'],
+  hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao', 'tom_tat'],
   moc: ['ten', 'ngay', 'hang', 'con_viec'],
   da_bac: ['ma', 'ly_do'],
+  tom_tat: ['moi_nguoi', 'chu_kho'],
+  moi_nguoi: [...HS.O_MOI_NGUOI],
+  chu_kho: [...HS.O_CHU_KHO],
 };
 const nhomVe = sections => { const TEN = Object.fromEntries(sections || []); const ten = ds => new Set(ds.map(k => TEN[k]).filter(Boolean)); return { dangLam: ten(DANG_LAM_O), chuaLam: ten(CHUA_LAM_O) }; };
 const tienDoRong = () => ({ tong: 0, da_giao: 0, dang_lam: 0, chua_bat_dau: 0, khac: 0 });
@@ -546,7 +558,7 @@ export function duLieuTrang(cacTep, sections = null) {
         dung_tren: (Array.isArray(d.dung_tren) ? d.dung_tren : []).map(chuoi),
         trang_thai: d.chu, nhom_trang_thai: nhomTienDo(d.chu, kq, nhom), ho_so: d.hoSo || null, theo_loi: !!d.tinTheoLoi,
         co: [...(d.khaiNgoai ? [cauKhaiNgoai(d)] : []), ...d.coHang.map(c => dichCo(c).chu)],
-        bat_khi: chuoi(d.bat_khi), vi_sao: chuoi(d.vi_sao),
+        bat_khi: chuoi(d.bat_khi), vi_sao: chuoi(d.vi_sao), tom_tat: d.tomTat || null,
       })),
       moc: mocTheoNgay(kq).map(m => ({ ten: chuoi(m.ten), ngay: chuoi(m.ngay), hang: ganMoc(m), con_viec: conViecMoc(m, kq) })),
       da_bac: kq.daBac.map(b => ({ ma: chuoi(b.ma), ly_do: chuoi(b.ly_do) })),
@@ -564,21 +576,26 @@ const khoiDuLieu = o => `<script type="application/json" id="${ID_DU_LIEU}">${JS
 // mô-đun — để kho tiêu thụ chép nguyên văn hàm này (tài liệu lo-trinh-du-lieu.md bảo vậy); bảng khoá
 // bên trong phải bằng KHUON_DU_LIEU, ca LT-118 chạy bản chép rời của hàm và so hai bảng.
 export function docDuLieu(html) {
-  const ID = 'lo-trinh-du-lieu'; const PHIEN_BAN = 1;
+  const ID = 'lo-trinh-du-lieu'; const PHIEN_BAN = 2;
   const KHUON = {
     goc: ['khuon', 'phien_ban', 'nguon', 'lo_trinh', 'ngoai_lo_trinh'],
     lo_trinh: ['tep', 'ten', 'loi', 'hang_ke', 'can_sua', 'tien_do', 'hang', 'moc', 'da_bac'],
     hang_ke: ['ma', 'cau_giao', 'lenh'],
     can_sua: ['ma', 'chu'],
     tien_do: ['tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'],
-    hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao'],
+    hang: ['ma', 'cau_giao', 'hang', 'nhom', 'dung_tren', 'trang_thai', 'nhom_trang_thai', 'ho_so', 'theo_loi', 'co', 'bat_khi', 'vi_sao', 'tom_tat'],
     moc: ['ten', 'ngay', 'hang', 'con_viec'],
     da_bac: ['ma', 'ly_do'],
+    tom_tat: ['moi_nguoi', 'chu_kho'],
+    moi_nguoi: ['da_giao', 'vi_sao', 'trang_thai', 'ngay', 'production', 'do_gi', 'ket_qua', 'chua_lam', 'ai_quyet'],
+    chu_kho: ['tieu_chi', 'phep_do', 'luot_cham', 'token', 'quyet_dinh_may', 'quyet_dinh_nguoi', 'ma'],
   };
   const MANG = ['nguon', 'lo_trinh', 'ngoai_lo_trinh', 'can_sua', 'hang', 'moc', 'da_bac', 'dung_tren', 'co'];
   const BOOL = ['theo_loi', 'con_viec']; const SO = ['phien_ban', 'tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'];
-  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so'];
-  const rong = k => (MANG.includes(k) ? [] : BOOL.includes(k) ? false : SO.includes(k) ? 0 : NUL.includes(k) ? null
+  const NUL = ['ten', 'loi', 'hang_ke', 'lenh', 'ho_so', 'tom_tat'];
+  // Ô của dải (moi_nguoi · chu_kho) vắng → null: «chưa có», không phải chuỗi rỗng hay số 0.
+  const O_DAI = [...KHUON.moi_nguoi, ...KHUON.chu_kho];
+  const rong = k => (O_DAI.includes(k) ? null : MANG.includes(k) ? [] : BOOL.includes(k) ? false : SO.includes(k) ? 0 : NUL.includes(k) ? null
     : k === 'tien_do' ? { tong: 0, da_giao: 0, dang_lam: 0, chua_bat_dau: 0, khac: 0 } : '');
   const va = (o, cap) => {
     if (o == null || typeof o !== 'object' || Array.isArray(o)) return o;
@@ -593,6 +610,7 @@ export function docDuLieu(html) {
   if (o == null || typeof o !== 'object' || Array.isArray(o) || o.khuon !== ID) return { duLieu: null, canhBao: [`khối mang khuôn «${o && o.khuon}», không phải ${ID}`] };
   const canhBao = [];
   if (Number(o.phien_ban) > PHIEN_BAN) canhBao.push(`khuôn phiên bản ${o.phien_ban} mới hơn bộ đọc (${PHIEN_BAN}) — đọc phần biết`);
+  if (Number(o.phien_ban) === 1) canhBao.push('trang vẽ bằng khuôn bản 1 — chưa có tóm tắt hồ sơ (tom_tat null); vẽ lại bằng bộ kit mới');
   const g = va(o, 'goc');
   g.lo_trinh = (Array.isArray(g.lo_trinh) ? g.lo_trinh : []).map(t => {
     const x = va(t, 'lo_trinh');
@@ -600,6 +618,10 @@ export function docDuLieu(html) {
     if (x.hang_ke != null) x.hang_ke = va(x.hang_ke, 'hang_ke');
     x.tien_do = va(x.tien_do, 'tien_do');
     for (const cap of ['can_sua', 'hang', 'moc', 'da_bac']) x[cap] = (Array.isArray(x[cap]) ? x[cap] : []).map(v => va(v, cap));
+    for (const h of x.hang) if (h && typeof h === 'object' && h.tom_tat != null && typeof h.tom_tat === 'object') {
+      h.tom_tat = va(h.tom_tat, 'tom_tat');
+      for (const cap of ['moi_nguoi', 'chu_kho']) h.tom_tat[cap] = va(h.tom_tat[cap] == null ? {} : h.tom_tat[cap], cap);
+    }
     return x;
   });
   return { duLieu: g, canhBao };
@@ -796,8 +818,9 @@ if (isMain) {
   if (thay.length > 1) thoat(3, `mã ${ma} có ở nhiều lộ trình: ${thay.map(t => t.tep).join(', ')} — gọi ${thay.map(t => `${t.tep}:${ma}`).join(' hoặc ')}`);
   if (!thay.length) thoat(1, loiTep.length ? loiTep[0] : `không có hàng ${ma} trong ${(tepChon != null ? [tepChon] : khai.tep).join(', ')}`);
   const { tep, r, k } = thay[0];
-  const { _nhan, _ma, ...hang } = r;
-  if (!moO) { process.stdout.write(JSON.stringify(hang) + '\n'); process.exit(0); }
+  const { _nhan, _ma, _cauGiaoGoc, ...hang } = r;
+  // Lối đọc một hàng in DỮ LIỆU của tệp kế hoạch nguyên văn (câu giao như kho viết); chỉ chỗ in tiêu đề bỏ «».
+  if (!moO) { process.stdout.write(JSON.stringify(_cauGiaoGoc !== undefined ? { ...hang, cau_giao: _cauGiaoGoc } : hang) + '\n'); process.exit(0); }
   // «Hàng đã có hồ sơ chưa» đọc từ CÙNG hàm của bộ vẽ — hai bên không thể nói khác nhau.
   const PM = await import(pathToFileURL(path.join(__dirname, 'product-map.mjs')).href);
   const kho = phanTichKho({ root, classify: PM.classify, sections: PM.SECTIONS });
