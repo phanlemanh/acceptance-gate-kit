@@ -1173,11 +1173,7 @@ test('DP2-11 khong-dot', () => {
   const chuan = (j, goc) => JSON.parse(JSON.stringify(j).split(path.join(goc, 'scripts')).join('<KIT>/scripts'));
   const moi = chuan(quetStart(KIT, kho), KIT);
   const { dir, mb } = kitTaiMergeBase();
-  // Hàng X2 (hồ sơ trang-ho-so-mot-viec) bỏ đúng một cặp «» quanh câu giao ở mọi chỗ in tiêu đề — bên cũ
-  // đi qua CHÍNH phép bỏ ngoặc của cây trước khi so; mọi khác biệt còn lại vẫn đỏ.
-  const HS = createRequire(import.meta.url)(path.join(KIT, 'scripts', 'ho-so-tom-tat.cjs'));
-  const boNgoac = j => { let t = JSON.stringify(j); for (const h of docJ(path.join(kho, TEP_LT)).hang) { const c = h.cau_giao; const b = HS.boNgoacNgoai(c); if (b !== c) t = t.split(JSON.stringify(c).slice(1, -1)).join(JSON.stringify(b).slice(1, -1)); } return JSON.parse(t); };
-  const cu = boNgoac(chuan(quetStart(dir, kho), dir));
+  const cu = chuan(quetStart(dir, kho), dir);
   console.log(`  so với start-scan tại ${mb.slice(0, 8)}: ${Object.keys(moi).length} khoá`);
   assert.equal('dotDangChay' in moi, false, 'không đợt thì khoá vắng');
   assert.equal(moi.loTrinh.ds[0].hangKe.thamSo, 'A', 'không đợt thì hàng kế mở được như cũ');
