@@ -591,10 +591,13 @@ if (khoa.model_carry_cmd) {
         const hong = pl.findIndex(x => !x.nhan);
         if (hong >= 0) return `${LY_DO_CHAY.pathsKhongChung}: ${gl[hong]}`;
         if (coBienShell(e.cmd)) return LY_DO_CHAY.bienShell;
-        const res = pl.map(x => core.pathGlobToRe(x.glob));
-        muc.paths = [...tep].filter(f => res.some(re => re.test(f)));
+        // Tên `khopPaths` riêng (không `res.some(re => …)`): mũi tiêm của ca GN07 (hồ sơ ghim-lai-noi-ra)
+        // tìm đúng chuỗi ấy và đòi nó khớp MỘT lần trong làn.
+        const reP = pl.map(x => core.pathGlobToRe(x.glob));
+        const khopPaths = (f) => reP.some(r => r.test(f));
+        muc.paths = [...tep].filter(khopPaths);
         muc.goiTen = tepGoiTen(e.cmd, tep);
-        const banVao = ban.filter(f => res.some(re => re.test(f)) || muc.goiTen.includes(f));
+        const banVao = ban.filter(f => khopPaths(f) || muc.goiTen.includes(f));
         const banDau = [...banHoSo, ...banVao][0];
         if (banDau) return `${LY_DO_CHAY.chuaCommit}: ${banDau}`;
         return null;
