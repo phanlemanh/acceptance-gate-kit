@@ -1,76 +1,88 @@
 # Review findings: dieu-phoi-lop-mod
 
-Round 3, verified_commit eef19323f3a4357aa7d49b8263f46fcd42490792.
+Round 4, verified_commit 73effb7244c8da5253b70f1037c526b1e617dadd.
 
 ## Trong hợp đồng
 
-- **E8 (và AC-8) vẫn đòi README nói hook «bỏ qua thân heredoc» — trái với lần thu phạm vi AC-2**
-  file: `_acceptance/dieu-phoi-lop-mod/evals.yaml:137`
-  severity: high
-  AC: AC-8
-  source: conventions
-  detail: Commit 6a3f1e92 (dòng 20–21 của sổ quyết định) thu luật «thân heredoc là dữ liệu». Lượt đó đã sửa E2/E3 trong evals.yaml, nhưng bỏ sót câu hỏi judgment của E8. Vế (1) vẫn hỏi: «README có đủ: hook chặn S4 nhận vỏ bọc mang cờ và bỏ qua thân heredoc, --check, --help». README sau thay đổi (dieu-phoi/README.md dòng 79–84) nói điều ngược lại: «Thân heredoc được quét như mọi dòng lệnh, nên heredoc nhắc tên một trong ba script vẫn bị chặn». contract.md AC-8 (dòng 58, ngoài vùng vật nhưng cùng nguồn) cũng còn đúng câu cũ. Hệ quả: ở lượt 3, cũng là lượt trần theo decision 21, hội đồng judge đọc đúng chữ sẽ thấy vế (1) không thoả và đề xuất FAIL E8 (REJECT ở lượt trần). Nếu judge dễ dãi thì E8 cho PASS trên một tiêu chí README không còn đáp ứng. Đây là phép đo trôi khỏi vật ngay trong lượt thu phạm vi: sửa E2/E3 mà không quét các eval khác cùng nhắc heredoc. Theo luật «sửa theo LỚP» trong CLAUDE.md thì phải soát cả file.
-  rationale: AC-8 đòi README nêu hook «bỏ qua thân heredoc», còn README sau lần thu phạm vi AC-2 nói ngược (heredoc vẫn bị chặn), nên AC-8 đọc đúng chữ không thoả.
-
-- **VO_BOC là object thường: từ lệnh trùng khoá prototype (constructor, toString, valueOf…) làm bộ phân loại ném lỗi, hook chặn S4 crash thoát 1 và mở lối cho S4**
-  file: `dieu-phoi/scripts/phan-loai-s4.mjs:110`
-  severity: high
-  AC: AC-7
-  source: bugs
-  detail: Lượt này đổi VO_BOC từ một Set (`VO_BOC.has(t)`) sang một object thường, rồi tra bằng `const vb = VO_BOC[t]`. Khi từ đầu của một đoạn là khoá của Object.prototype (`constructor`, `toString`, `valueOf`, `hasOwnProperty`, `__proto__`…), `vb` là hàm hay object có thật. Có hai cách nó vỡ. (a) Gặp một cờ phía sau thì `vb.giaTri.includes` ném TypeError. (b) Không có cờ thì `i += vb.viTri` cho ra NaN, rồi `path.basename(tu[NaN])` ném «The "path" argument must be of type string». Ca thật hay gặp: thân heredoc ghi một tệp JS/TS có class. tachDoan quét thân như dòng lệnh, nên dòng `  constructor(x) {` cắt ở `(` thành đoạn ['constructor']. Đã chạy để kiểm: `cat > a.mjs <<'EOF'\nclass A {\n  constructor(x) {...}\n}\nEOF\nnode x/repin-lane.mjs --write` thì bản mới NÉM, merge-base trả 's4'. `toString -x` và `valueOf` cũng ném. Trong hook-chan-s4.mjs, chayHook gọi `phanLoai(dauVao)` ở dòng 123, NGOÀI try/catch «chặn để an toàn», nên tiến trình crash với stack trace và thoát 1. Đã chạy hook thật ở một kho KHÔNG có đợt: exit=1 kèm stack trace. Với PreToolUse, thoát 1 chỉ là lỗi không chặn. Hệ quả: (1) trong đợt, lệnh S4 đi cùng lời gọi Bash ấy KHÔNG bị chặn nữa, trong khi merge-base có chặn (fail-open); (2) ở mọi kho cài gói, kể cả kho không có đợt, mỗi lần viết class JS qua heredoc đều in lỗi hook, trái AC-7 («kho không đợt: thoát 0, stderr rỗng»). Cách sửa: tra bằng `Object.hasOwn(VO_BOC, t)`, hoặc dùng Map hay `Object.create(null)`; đồng thời đưa lời gọi phanLoai ở dòng 123 vào try.
-  rationale: AC-7 đòi ở kho không có đợt hook chặn S4 im hoàn toàn (thoát 0, stderr rỗng); finding chỉ ra một lệnh ghi lớp JS qua heredoc làm hook sập và in lỗi ngay ở kho không đợt, đồng thời mở lối cho lệnh S4 đi kèm.
-
-- **E8 (và AC-8, card-plain) vẫn đòi README nói hook «bỏ qua thân heredoc» sau khi lượt này thu luật đó**
-  file: `_acceptance/dieu-phoi-lop-mod/evals.yaml:137`
-  severity: medium
-  AC: AC-8
-  source: bugs
-  detail: Commit 6a3f1e92 thu luật «thân heredoc là dữ liệu»: heredoc nhắc tên script S4 nay bị chặn. Commit đó cập nhật E2 và E3 trong evals.yaml, nhưng câu hỏi judge của E8 vẫn ghi «(1) README có đủ: hook chặn S4 nhận vỏ bọc mang cờ và bỏ qua thân heredoc, --check, --help», và AC-8 trong contract.md:58 cũng vậy. README mới viết đúng điều ngược lại («Thân heredoc được quét như mọi dòng lệnh, nên heredoc nhắc tên một trong ba script vẫn bị chặn»). Vì thế judge E8 chỉ có hai ngả, ngả nào cũng hỏng: FAIL vế (1) vì một yêu cầu trái với hành vi đã ship, hoặc PASS một tiêu chí mà chữ của nó không thoả. card-plain.json cũng trôi theo cùng nhát thu: AC-2 hứa «Sẽ KHÔNG chặn … lệnh ghi tệp mà thân văn bản nhắc tên script», AC-3 hứa «chứng rằng bản cũ sai đúng chín ca» (nay là 7). Người đọc thẻ ở cổng sẽ thấy lời hứa trái với vật. Cách sửa: sửa vế (1) của E8 và AC-8 thành «heredoc nhắc tên script vẫn bị chặn — giới hạn đã khai», và render lại card-plain.
-  rationale: Cùng gốc với finding đầu tiên của mục này: AC-8 và câu hỏi chấm E8 còn đòi README nói «bỏ qua thân heredoc» trong khi README và AC-2 đã thu luật đó.
-
-- **Hình dạng 1: E8 vẫn hỏi README có nói «bỏ qua thân heredoc» hay không, tức là đo văn mô tả theo một lời hứa đã thu, trái với hành vi thật mà DP6-02 ghim**
-  file: `_acceptance/dieu-phoi-lop-mod/evals.yaml:137`
-  severity: medium
-  AC: AC-8
-  source: measurement
-  detail: Vế (1) câu hỏi của judge E8 vẫn đòi «README có đủ: hook chặn S4 nhận vỏ bọc mang cờ và bỏ qua thân heredoc, --check, --help». Hàng 20 của sổ quyết định (revisit S4-r2) đã thu luật «thân là dữ liệu». Lượt đó sửa E2/E3 nhưng bỏ sót E8, và AC-8 của contract cũng vẫn giữ chữ «bỏ qua thân heredoc». Hành vi thật thì ngược lại: phan-loai-s4.mjs quét thân heredoc như mọi dòng lệnh, DP6-02 chi-doc-heredoc/hook-im khẳng định mọi ô heredoc bị chặn, và README dòng 83 viết đúng điều đó («Thân heredoc được quét như mọi dòng lệnh… vẫn bị chặn»). Vì vậy E8 cho một trong hai kết cục sai. Judge đọc đúng chữ thì chấm FAIL một README đúng. Nếu ai đó sửa README thành hứa bỏ qua heredoc thì judge chấm PASS một tài liệu nói sai hành vi. Phép đo bám vào lời mô tả cũ chứ không bám vào đầu ra của bộ phân loại.
-  rationale: Cùng gốc với hai finding AC-8 ở trên: câu chấm E8 và chữ AC-8 bám vào lời hứa «bỏ qua thân heredoc» đã bị AC-2 thu lại, nên AC-8 không thể thoả cùng lúc với hành vi thật.
+Không có finding nào trong hợp đồng ở round này.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **DP6-03 lech-o-goc vẫn lấy bản «cũ» từ merge-base sống (HEAD vs origin/main), nên đỏ trên main ngay khi gộp (còn từ r1, tệp đã sửa lượt này)**
-  Người dùng thấy gì: Phép thử so bản chặn lệnh mới với «bản cũ» lấy từ lịch sử đang chạy. Ngay khi gộp vào nhánh chính, bản cũ trở thành chính bản mới nên phép thử báo đỏ trên nhánh chính và mọi nhánh sau dù không có lỗi thật, làm kẹt các lượt kiểm tự động cho đến khi ghim lại một mốc cũ cố định.
+- **card-plain.json: feature_plain vẫn hứa «không còn bị chặn oan khi … ghi tệp», trái với lần thu phạm vi AC-2. Lượt sửa r3 chỉ vá dòng AC-2/AC-3 mà không rà cả tệp**
+  Người dùng thấy gì: Câu mở đầu của thẻ duyệt vẫn hứa phiên thợ không còn bị chặn oan khi ghi tệp, trong khi lệnh ghi nhiều dòng một lượt có nhắc tên script vẫn bị chặn như đã khai ở mục tiêu chí. Người duyệt có thể tin vào một lời hứa rộng hơn những gì sản phẩm thật sự làm được.
+  file: `_acceptance/dieu-phoi-lop-mod/card-plain.json`
+  severity: medium
+  Đề xuất: known-limits
+
+- **DP6-07 khoa-prototype (và vế tương ứng của E7) kết luận «trong đợt vẫn bị chặn» chỉ từ mã thoát 2, trong khi chính commit này thêm một đường thoát 2 thứ hai (bộ phân loại ném → «lỗi nội bộ»)**
+  Người dùng thấy gì: Bài kiểm tra có thể báo xanh dù bộ chặn đang chặn vì lỗi nội bộ chứ không phải vì phiên khác đang giữ lượt. Nếu lỗi cũ quay lại, phần kiểm tra này không tự phát hiện được, dù phần kiểm tra trực tiếp ở nửa đầu vẫn bắt.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **DP6-07 phan-loai-nem là chỗ saoGoi() duy nhất trong tệp không có bước «bản lành phải xanh trước», trái với khuôn tệp tự khai ở đầu tệp và luật đối chứng dương**
+  Người dùng thấy gì: Một bài kiểm tra chưa chạy thử trường hợp bình thường trước khi giả lập lỗi, lệch với cách các bài khác trong cùng tệp làm. Rủi ro thực tế thấp vì thông báo lỗi đã chứng minh việc giả lập có tác dụng.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **DP6-03 lech-o-goc lấy «bản cũ» từ merge-base SỐNG nên đỏ trên main ngay khi gộp (còn từ r1, tệp đã đổi lượt này)**
+  Người dùng thấy gì: Sau khi gộp vào nhánh chính, một bài kiểm tra so sánh với «bản cũ» sẽ tự đỏ vì lúc đó bản cũ chính là bản mới, làm kiểm tra tự động của nhánh chính báo lỗi dù mã không hỏng. Một bài so sánh liên quan còn tự so với chính nó nên không đo được gì.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: high
   Đề xuất: new-contract
 
-- **Hình dạng 6 (mang sang r1, còn ở các dòng đổi lượt này): mốc «bản cũ» rút từ merge-base SỐNG nên lech-o-goc đỏ ngay khi gộp, còn so sánh ngang merge-base mới thêm ở khong-lot thành tự so với chính nó**
-  Người dùng thấy gì: Mốc «bản cũ» của các phép so sánh đang lấy từ lịch sử đang chạy; sau khi gộp, bản cũ trùng bản mới nên một phép thử đỏ oan trên nhánh chính, còn phép so ở nhóm lệnh không bỏ lọt trở thành tự so với chính nó, luôn xanh và không còn đo được gì.
-  file: `tests/dieu-phoi/lop-mod.test.mjs`
-  severity: high
-  Đề xuất: new-contract
+- **`env -S'<lệnh>'` (giá trị dính liền cờ -S) lọt bộ phân loại: S4 chạy mà hook trả null**
+  Người dùng thấy gì: Một cách viết lệnh hiếm (đặt chuỗi lệnh dính liền ngay sau cờ của env) có thể qua mặt bộ chặn, khiến việc kiểm duyệt chạy dù đang có phiên khác giữ lượt. Phiên thợ ít khi viết dạng này nên rủi ro thấp.
+  file: `dieu-phoi/scripts/phan-loai-s4.mjs`
+  severity: low
+  Đề xuất: known-limits
 
-- **Đột biến khong-lot-than-la-du-lieu: tập ô kỳ vọng đỏ = toàn bộ ma trận (15/15), thiếu kiểm số &lt; tổng**
+- **Hình dạng 4 (assertion chỉ có mã thoát, không ghim thông điệp): DP6-07 khoa-prototype chỉ kiểm hook thoát 2 trong đợt, mà hook có hai đường cùng thoát 2**
+  Người dùng thấy gì: Phần kiểm tra bộ chặn trong đợt có thể báo xanh cả khi bản vá bị gỡ, vì bộ chặn vẫn chặn được nhưng với lý do lỗi nội bộ. Việc phát hiện lỗi cũ quay lại chỉ trông vào phần kiểm tra trực tiếp ở nửa đầu.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 5 (tuyên quét LỚP nhưng danh sách gõ tay thiếu phần tử): TU_PROTOTYPE chỉ có 6 trong 12 khoá của Object.prototype**
+  Người dùng thấy gì: Bài kiểm tra chỉ thử sáu trong mười hai tên đặc biệt của hệ thống. Nếu cách sửa sau này chỉ chặn đúng sáu tên đó, bài vẫn xanh trong khi sáu tên còn lại có thể làm bộ chặn gặp lỗi mà không ai biết.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Đột biến khong-lot-than-la-du-lieu: tập ô kỳ vọng đỏ = toàn bộ ma trận (15/15), thiếu kiểm số < tổng (r3 · tệp đã đổi)**
   Người dùng thấy gì: Phép thử chứng minh luật «phần văn bản đi kèm lệnh chỉ là dữ liệu» chỉ kiểm rằng mọi trường hợp đều đỏ khi phá luật, không còn trường hợp nào đứng yên để đối chứng; nếu bộ chặn lệnh hỏng hoàn toàn thì phép thử này vẫn xanh. Rủi ro thấp vì một phép thử khác trong cùng bộ đã kiểm chiều đứng yên của đúng luật này.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: low
   Đề xuất: wont-fix
 
-- **Hình dạng 4: đột biến khong-lot-than-la-du-lieu làm đỏ 15/15 ô, không còn ô nào đối chứng chiều im, nên phép so tập suy biến thành «đỏ hết»**
+- **DP6-03 lech-o-goc vẫn lấy bản «cũ» từ merge-base sống (HEAD vs origin/main), nên đỏ trên main ngay khi gộp (còn từ r1, tệp đã sửa lượt này) (r3 · tệp đã đổi)**
+  Người dùng thấy gì: Phép thử so bản chặn lệnh mới với «bản cũ» lấy từ lịch sử đang chạy. Ngay khi gộp vào nhánh chính, bản cũ trở thành chính bản mới nên phép thử báo đỏ trên nhánh chính và mọi nhánh sau dù không có lỗi thật, làm kẹt các lượt kiểm tự động cho đến khi ghim lại một mốc cũ cố định.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: high
+  Đề xuất: new-contract
+
+- **Hình dạng 6 (mang sang r1, còn ở các dòng đổi lượt này): mốc «bản cũ» rút từ merge-base SỐNG nên lech-o-goc đỏ ngay khi gộp, còn so sánh ngang merge-base mới thêm ở khong-lot thành tự so với chính nó (r3 · tệp đã đổi)**
+  Người dùng thấy gì: Mốc «bản cũ» của các phép so sánh đang lấy từ lịch sử đang chạy; sau khi gộp, bản cũ trùng bản mới nên một phép thử đỏ oan trên nhánh chính, còn phép so ở nhóm lệnh không bỏ lọt trở thành tự so với chính nó, luôn xanh và không còn đo được gì.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: high
+  Đề xuất: new-contract
+
+- **Hình dạng 4: đột biến khong-lot-than-la-du-lieu làm đỏ 15/15 ô, không còn ô nào đối chứng chiều im, nên phép so tập suy biến thành «đỏ hết» (r3 · tệp đã đổi)**
   Người dùng thấy gì: Phép thử luật «phần văn bản đi kèm lệnh chỉ là dữ liệu» không còn trường hợp đối chứng nào đứng yên, nên nếu bộ chặn lệnh hỏng toàn phần thì phép thử vẫn cho kết quả giống hệt. Hậu quả thật gần như không có vì chiều đứng yên của luật này đã được kiểm ở một phép thử khác.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: low
   Đề xuất: wont-fix
 
-- **Hình dạng 3: lech-o-goc gõ cứng con số 7, trong khi AC-3 hứa ĐÚNG bảy lời gọi nào sai (ba bỏ lọt, bốn --check/--help) — lời hứa là quan hệ tập, assert chỉ là số đếm**
+- **Hình dạng 3: lech-o-goc gõ cứng con số 7, trong khi AC-3 hứa ĐÚNG bảy lời gọi nào sai (ba bỏ lọt, bốn --check/--help) — lời hứa là quan hệ tập, assert chỉ là số đếm (r3 · tệp đã đổi)**
   Người dùng thấy gì: Phép thử chỉ đếm đủ bảy chỗ bản cũ nhận diện sai, không kiểm đó có đúng là bảy chỗ đã hứa (ba lệnh bị bỏ lọt, bốn lệnh chỉ đọc bị chặn nhầm). Nếu bản cũ sai ở chỗ khác mà vẫn đủ bảy thì phép thử vẫn xanh; hậu quả thấp vì bản cũ là một mốc đã cố định.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: low
   Đề xuất: wont-fix
 
-- **Hình dạng 4: phần mới của hook-im kết luận «hook chặn heredoc» chỉ từ mã thoát 2, không ghim thông điệp, trong khi hook có một đường thoát 2 khác là lỗi nội bộ (chặn để an toàn)**
+- **Hình dạng 4: phần mới của hook-im kết luận «hook chặn heredoc» chỉ từ mã thoát 2, không ghim thông điệp, trong khi hook có một đường thoát 2 khác là lỗi nội bộ (chặn để an toàn) (r3 · tệp đã đổi)**
   Người dùng thấy gì: Phép thử khẳng định lệnh bị chặn chỉ dựa vào việc nó bị từ chối, không kiểm lý do từ chối. Nếu bộ chặn từ chối vì lỗi nội bộ thay vì vì khoá đang do dãy khác giữ thì phép thử vẫn xanh, nên có thể che mất một lỗi thật.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: low
@@ -178,4 +190,4 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 3/10 lỗi rơi vào file không bộ đo nào phủ (_acceptance/dieu-phoi-lop-mod/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).
