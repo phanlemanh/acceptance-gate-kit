@@ -61,15 +61,17 @@ evals:
     criterion: AC-4
     executor: test
     cmd: config:executors.test.dieu_phoi_dp7
-    paths: [dieu-phoi/scripts/phat-lich.mjs, lib/workspace-record.cjs, tests/dieu-phoi/trong-dot.test.mjs]
+    paths: [dieu-phoi/scripts/phat-lich.mjs, lib/workspace-record.cjs, scripts/product-map.mjs, scripts/lo-trinh.mjs, tests/dieu-phoi/trong-dot.test.mjs]
     expected: >
       exit 0; "ok" cho "DP7-04 ma-tran-trang-thai": với MỖI giá trị enum status của lib/workspace-record.cjs (số ô
       == độ dài enum, in ra), hợp đồng hàng A trong worktree P1 ở trạng thái đó + một nhịp motNhip thật → ba trạng
       thái đã thông cho tiep/P1.json trỏ B và `tho --json --slug A` ra viec_ke mo-hang, hang_ke.slug B (B có ô
       decision build), các trạng thái còn lại cho tiep trỏ A; và "ok" cho "DP7-04 nhanh-chinh"
       (A machine-cleared trên origin/main của kho thử → tiến độ gop, B có sau:[A] mở được). "ok" cho "DP7-04
-      tap-kit": tập đã thông của gói == DA_THONG_CONG_2 ∪ {da-cham-boi-thuc-te}, và ⊆ enum status (cả hai đọc
-      bằng require lib/workspace-record.cjs của cây đang kiểm). Chiều đỏ "ok" cho "DP7-04-do bo-machine-cleared":
+      tap-kit": với MỖI giá trị enum status, một hồ sơ thật dưới _acceptance/ của cây đang kiểm mang trạng thái
+      đó mà classify không ra "hong" (vắng thì hồ sơ tối thiểu do ca dựng; ca in nguồn từng ô) → (classify(dir).key
+      ∈ DA_GIAO_O của scripts/lo-trinh.mjs) === (trạng thái ∈ DA_THONG của gói); số ô so == độ dài enum; DA_THONG
+      nằm giữa marker DA-THONG trong phat-lich.mjs. Chiều đỏ "ok" cho "DP7-04-do bo-machine-cleared":
       bản sao phat-lich.mjs bỏ machine-cleared khỏi tập → ô machine-cleared nêu "A vẫn đang làm".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
@@ -161,6 +163,21 @@ evals:
       exit 0; dòng gộp có "# fail 0", đủ các dòng "ok … DP1-" (DP1-01 … DP1-13) và "ok … DP2-" của hai hồ sơ đã
       ký, cùng tên; tests/dieu-phoi/dong-goi.test.mjs, tests/dieu-phoi/mo-dot.test.mjs và tests/dieu-phoi/loi/
       không đổi so với merge-base (git diff --quiet, in kết quả trong ca "DP7-10 dp12-nguyen").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/scripts/nguon-hang.mjs, dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/hinh-dang.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; hai tệp lộ trình a.json, b.json do ca dựng cùng có hàng mã X (slug x-tu-a, x-tu-b). "ok" cho "DP7-12
+      hai-tep": docHangLoTrinh(kho, ["a.json:X", "b.json:X"]).hang == [{ma X, slug x-tu-a, tep a.json}, {ma X,
+      slug x-tu-b, tep b.json}] (so sâu); "ok" cho "DP7-12 mo-hai-tep": `mo` thật với gói khai nguon_hang hai mục và
+      hai hàng thi công mang tep → hang-viec.json có đúng hai hàng X, mỗi hàng mang tep và slug của đúng tệp; "ok"
+      cho "DP7-12 khai-lap": nguồn ["a.json:X", "a.json@<ngày mốc chứa X>"] → một hàng; "ok" cho "DP7-12
+      khong-tep-mo-ho": hàng thi công không mang tep, mã X có ở hai tệp nguồn → stderr của `mo` có đúng một dòng
+      nêu "X", "a.json", "b.json", và hang-viec.json không có hàng X nào mang slug đoán. Chiều đỏ "ok" cho "DP7-12-do
+      khoa-ma": bản sao nguon-hang.mjs khoá daThay theo mã một mình → ca "hai-tep" nêu "mất b.json:X".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-11
