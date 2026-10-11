@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: deb53ad7881e9a009064e85443581e584454d40c
+verified_commit: 55053be635da5d491b196153998a7eaa0d967d31
 human_signoff: manh 2026-10-11
 ---
 
@@ -285,3 +285,7 @@ sha: b9296acba53a60bc799443975e70812ad866b8b3 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 2 — 2026-10-11, do gộp main 2a5916d9 (DP6)
 run_id: repin-20261011T143856Z-98149
 sha: deb53ad7881e9a009064e85443581e584454d40c · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11 (E11 không khai paths) · AC không có chốt máy: AC-11
+
+### Re-pin lần 3 — 2026-10-11, do gộp main bc14a81b (#317)
+run_id: repin-20261011T163135Z-18068
+sha: 55053be635da5d491b196153998a7eaa0d967d31 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11 (E11 không khai paths) · AC không có chốt máy: AC-11
