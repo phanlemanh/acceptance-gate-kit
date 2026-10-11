@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8ae5480a1cc045d67020abcfff9ed0b4953d4a13
+verified_commit: 9fbc148c46fbc5a7a873c5e8fe9c7acc8c1a0775
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -212,3 +212,7 @@ none — every multi-run eval is uniform
 Round 1: E10 failed — bản gom chấm lệch đáp án bộ vàng; hai bộ kiểm chung (RT13, NEN7) cũng đỏ. Returned to implementation (commit dd2c1bd5: sửa RT13, NEN7, câu hỏi E11, khai trước trên lịch sử kit; lượt gom lại sang luot-2).
 Round 2: E10 failed — bản gom của lượt gom bộ vàng 3 (luật không đổi) lệch đáp án ở 7 chỗ: hai cặp trùng bị tách, ba tín hiệu của hồ sơ đã giao nằm ở nhóm thay vì «đã phủ», hai tín hiệu của hồ sơ chưa giao bị ghi «đã phủ»; E11 hội đồng đề xuất không đạt. E1–E9 và toàn bộ lệnh suite đạt.
 Round 3: thu phạm vi theo owner «1» (commit 8ae5480a) — AC-10 thu hẹp thành lời hứa về ống dẫn và lệnh chấm (kho kín đáp án, 20 mục == 20 tệp, lệnh chấm chạy được trên bộ vàng thứ hai và nêu «khai trước»), vế khớp đáp án của bản gom và AC-11 ra Known limits của hợp đồng nên E11 không còn trong vòng. E10 đạt cùng E1–E9 (mang từ vòng 2) và toàn bộ lệnh suite; hai phát hiện của lượt tìm lỗi nằm ngoài hợp đồng, xem review-findings.md.
+
+### Re-pin lần 1 — 2026-10-11, do gộp origin/main sau S3b (d5931848)
+run_id: repin-20261011T211702Z-35113
+sha: 9fbc148c46fbc5a7a873c5e8fe9c7acc8c1a0775 · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng
