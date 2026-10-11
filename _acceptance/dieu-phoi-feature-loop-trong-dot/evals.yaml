@@ -1,0 +1,192 @@
+schema_version: 1
+feature_slug: dieu-phoi-feature-loop-trong-dot
+# Ca đo của hàng sống ở tests/dieu-phoi/trong-dot.test.mjs (tên ca bắt đầu «DP7-»). Khoá executor thêm ở S3:
+#   executors.test.dieu_phoi_dp7 = node --test trên tests/dieu-phoi/**, gộp dòng «ok … DP1-|DP2-|DP7-», «not ok»
+#     và tổng kết TAP thành MỘT dòng (lượt chấm chỉ giữ vài dòng cuối của lệnh xanh)
+#   executors.script.dieu_phoi_dp7_im = chiều im của AC-9 so với merge-base của HEAD và origin/main
+# Kho thử và đợt do code sinh trong lượt: `mo` + `pha` + `chepLoi` + một nhịp `motNhip` THẬT của gói (bên viết
+# thật), rồi đọc bằng `tho`/`trong-dot.mjs` thật (bên đọc thật). Đường dẫn suy từ vị trí tệp test. Mỗi ca đỏ
+# chạy CHÍNH hàm/lệnh đo trên bản sao bị tiêm, SAU khi bản lành xanh trên cùng fixture, và ghim thông điệp.
+# Mỗi eval ghim đúng dòng TAP «ok … - DP7-…». Suite xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [feature-loop/scripts/trong-dot.mjs, dieu-phoi/scripts/tho.mjs, dieu-phoi/scripts/dot.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; mọi kho thử nằm trong thư mục tạm NGOÀI cây kit, script gọi bằng đường tuyệt đối tới gói
+      feature-loop của cây đang kiểm. "ok" cho "DP7-01 khong-dot" (không symlink: thoát 0, stdout == "" và
+      stderr == "", băm cây kho trước == sau), "ok" cho "DP7-01 khong-phai-tho" (đợt có, cwd ngoài mọi dãy:
+      stdout == "", stderr == "", băm thư mục đợt trước == sau), "ok" cho "DP7-01 tho" chạy trên BA worktree do
+      `git worktree add` sinh (trong .claude/worktrees/ của kho chính · cạnh kho chính · chính kho chính làm
+      dãy; in số hình dạng == 3): mỗi hình dạng stdout đúng một dòng, JSON.parse được, trong_dot true, day
+      "P1", và chuỗi bằng stdout của `<thư mục đợt>/loi/dieu-phoi.mjs tho --json` chạy cùng cwd. "ok" cho
+      "DP7-01 loi-cu" (bản sao loi/ đã gỡ lệnh tho → một dòng bắt đầu "trong-dot:" có tên đợt; xoá loi/ → cũng
+      vậy), "ok" cho "DP7-01 ten-lien-ket" (hằng tên symlink trong trong-dot.mjs == TEN_LIEN_KET của dot.mjs).
+      Chiều đỏ "ok" cho "DP7-01-do sai-ten" (bản sao đổi tên symlink → fixture "DP7-01 tho" ra stdout rỗng, ca
+      nêu "không thấy đợt") và "ok" cho "DP7-01-do show-toplevel" (bản sao giải gốc bằng `--show-toplevel` →
+      hình dạng cạnh kho chính ra stdout rỗng, ca nêu "không thấy đợt").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/scripts/tho.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP7-02 khoa-du": tập khoá của JSON == {trong_dot, dot, thu_muc, day, luat, pha, tu_merge,
+      hang_ke, viec_ke} (đẳng thức tập, in ra), hang_ke có slug/moi/quyet, luat là đường tuyệt đối tồn tại và
+      kết thúc LUAT.md, hang_ke.slug == hang của tiep/P1.json do motNhip thật ghi; băm thư mục đợt trước == sau
+      lệnh. "ok" cho "DP7-02 ngoai-day" == {"trong_dot":false,"ly_do":"khong-phai-tho"} và "DP7-02 khong-dot" ==
+      {"trong_dot":false,"ly_do":"khong-dot"}, cả hai thoát 0. Chiều đỏ "ok" cho "DP7-02-do ghi": bản sao tho.mjs
+      ghi một tệp vào thư mục đợt → ca so băm nêu tên tệp mới.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/scripts/tho.mjs, dieu-phoi/scripts/the.mjs, dieu-phoi/scripts/lich.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP7-03 ma-tran": ma trận ĐẦU VÀO viết sẵn, mỗi hàng một tên, ca in số hàng chạy == độ dài
+      ma trận == 14, mỗi hàng ghim viec_ke và một mẩu ly_do: chi-hop-dong → mo-hang · o-build → mo-hang ·
+      o-build-chi-o-worktree → mo-hang · khong-ma → mo-hang · vang → bao-giam-sat · discovery → bao-giam-sat ·
+      park, kill, iterate (ba hàng) → bao-giam-sat với ly_do chứa slug và quyết · slug-trung-tiep → cho-nhip ·
+      nghi → cho · cho-phu-thuoc → cho · tam-dung → cho · het-hang → xong. Mỗi hàng dựng tiep/ bằng motNhip
+      thật (không ghi tay tiep/) và pha bằng datPha thật. "ok" cho "DP7-03 tap-viec-ke": tập viec_ke thu được ==
+      tập VIEC_KE xuất từ tho.mjs. Chiều đỏ "ok" cho "DP7-03-do bo-quyet" (bản sao tho.mjs bỏ bước đọc
+      trangThaiQuyet → hàng park ra mo-hang, ca nêu "park mở được") và "ok" cho "DP7-03-do chi-chan-park" (bản
+      sao chỉ chặn decision park → hàng kill ra mo-hang, ca nêu "kill mở được").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/scripts/phat-lich.mjs, lib/workspace-record.cjs, scripts/product-map.mjs, scripts/lo-trinh.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP7-04 ma-tran-trang-thai": với MỖI giá trị enum status của lib/workspace-record.cjs (số ô
+      == độ dài enum, in ra), hợp đồng hàng A trong worktree P1 ở trạng thái đó + một nhịp motNhip thật → ba trạng
+      thái đã thông cho tiep/P1.json trỏ B và `tho --json --slug A` ra viec_ke mo-hang, hang_ke.slug B (B có ô
+      decision build), các trạng thái còn lại cho tiep trỏ A; và "ok" cho "DP7-04 nhanh-chinh"
+      (A machine-cleared trên origin/main của kho thử → tiến độ gop, B có sau:[A] mở được). "ok" cho "DP7-04
+      tap-kit": với MỖI giá trị enum status, một hồ sơ thật dưới _acceptance/ của cây đang kiểm mang trạng thái
+      đó mà classify không ra "hong" (vắng thì hồ sơ tối thiểu do ca dựng; ca in nguồn từng ô) → (classify(dir).key
+      ∈ DA_GIAO_O của scripts/lo-trinh.mjs) === (trạng thái ∈ DA_THONG của gói); số ô so == độ dài enum; DA_THONG
+      nằm giữa marker DA-THONG trong phat-lich.mjs; "ok" cho "DP7-04-do tap-kit" (tập thiếu machine-cleared →
+      ca nêu "machine-cleared: trang lộ trình đã giao"). Chiều đỏ "ok" cho "DP7-04-do bo-machine-cleared":
+      bản sao phat-lich.mjs bỏ machine-cleared khỏi tập → ô machine-cleared nêu "A vẫn đang làm".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/scripts/pha.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/tho.mjs, dieu-phoi/commands/mo-dot.md, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP7-05 co", "DP7-05 khong" (dieu-khien.json tu_merge true/false; sau pha tam-dung rồi pha
+      dang-chay không cờ vẫn giữ; tho trả cùng giá trị), "DP7-05 vang" (mở không cờ → tho trả null), "DP7-05-do
+      gia-tri-sai" (--tu-merge maybe → thoát 1, stderr nêu "maybe", băm dieu-khien.json trước == sau), "DP7-05-do
+      sai-pha" (pha tam-dung --tu-merge co → thoát 1, tệp byte-bằng), "DP7-05 mo-dot-md" (dòng bước 5 của
+      mo-dot.md chứa "pha dang-chay" và "--tu-merge", và đứng SAU marker CHU-QUYET-CUA-NGUOI).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP7-06 trong-day": chayHook thật với cwd trong worktree P2, khoá s4 thuộc P1 → ma 2, lời
+      chặn bắt đầu bằng đúng chuỗi lời chặn của bản origin/main lúc cắt nhánh (tiền tố, so chuỗi — bản base lấy
+      bằng git show của cây đang kiểm), rồi chứa "P2", "chờ lượt", "không hỏi người", "không chấm lại" và đường
+      LUAT.md tuyệt đối của đợt. "ok" cho "DP7-06 ngoai-day": cwd ngoài mọi dãy → lời chặn == bản base (so bằng).
+      Và các ca DP1 của hook-chan-s4.test.mjs, bien.test.mjs xanh nguyên tên trong cùng lượt.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/mo-hinh.mjs, dieu-phoi/scripts/dem.mjs, dieu-phoi/scripts/hook-cho-nguoi.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP7-07 luat-co-loai": LUAT.md do `mo` thật sinh liệt cả "can-nguoi" và "hang-moi" trong
+      các loại yêu cầu. "ok" cho "DP7-07 mot-danh-sach": đợt do `mo` thật dựng; cho-nguoi/P1.json do xuLyChoNguoi
+      (hook thật) ghi; yêu cầu can-nguoi của P2 do bên viết máy của gói ghi khi gói có (`ghiYeuCau` của
+      ghi.mjs), gói chưa có thì dựng đúng các tên trường rút từ dòng «Yêu cầu» của LUAT.md vừa sinh (rút rỗng
+      → ca đỏ nêu "LUAT.md không có khuôn yêu cầu"); một nhịp motNhip thật → trang-thai.json.cho_nguoi
+      có đúng 2 mục, mục P2 loai "can-nguoi"; đầu ra xem có 2 dòng "chờ người"; demDot goi_chu_kho.tong == 2.
+      "ok" cho "DP7-07 nhip-hai" (nhịp thứ hai: tong vẫn 2) và "DP7-07 tra-loi" (ghi tra-loi cho yêu cầu → nhịp
+      kế cho_nguoi còn 1 mục). Chiều đỏ "ok" cho "DP7-07-do chi-tep": bản sao phat-lich.mjs bỏ nhánh yêu cầu →
+      ca nêu "can-nguoi không lên bảng".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [feature-loop/skills/feature-loop/SKILL.md, dieu-phoi/scripts/tho.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP7-08 khoi-co-mat": SKILL có đúng một cặp marker TRONG-DOT; "ok" cho "DP7-08 viec-ke":
+      với mỗi phần tử của VIEC_KE (import từ tho.mjs), khối chứa đúng một lần chuỗi "`<giá trị>` →"; "ok" cho
+      "DP7-08 lenh-chay-duoc": rút dòng lệnh nhận biết từ khối (dòng chứa "trong-dot.mjs"), thay "$WORKFLOWS_DIR"
+      bằng thư mục workflows/ của gói feature-loop trong cây đang kiểm, chạy bằng bash với cwd là kho thử NGOÀI
+      cây kit → kho không đợt: thoát 0, stdout rỗng; kho có đợt + cwd trong dãy P1: một dòng JSON day "P1".
+      Chiều đỏ "ok" cho "DP7-08-do thieu-gia-tri" (bản sao khối bỏ dòng "`cho-nhip` →" → hàm kiểm nêu
+      "cho-nhip") và "ok" cho "DP7-08-do duong-tuong-doi" (bản sao khối viết "node feature-loop/scripts/
+      trong-dot.mjs" → chạy ở kho thử thoát khác 0, ca nêu "không chạy được ngoài kho kit").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8b
+    criterion: AC-8
+    executor: judgment
+    inputs: [feature-loop/skills/feature-loop/SKILL.md, _acceptance/dieu-phoi-feature-loop-trong-dot/contract.md, docs/superpowers/specs/2026-10-11-dieu-phoi-feature-loop-trong-dot-design.md, docs/superpowers/specs/2026-10-10-dieu-phoi-workflow-design.md]
+    question: >
+      Đọc khối giữa hai marker TRONG-DOT trong SKILL.md và sáu vế (i)–(vi) của AC-8 trong contract.md. Khối có
+      đủ sáu vế không? Đối chiếu với phần còn lại của SKILL.md: khối có chỗ nào đổi một cổng trong bảng cổng
+      (Gate 1, Gate 1.5, Gate 2, Cổng Đáng ngoài đợt), cho máy tự sinh chữ quyết của người, hoặc cho máy làm một
+      việc khó-đảo (gộp vào nhánh chính) khi tu_merge không phải true không? Và khối có mâu thuẫn spec workflow
+      §16 hàng T7, T15 không? Trả PASS khi đủ sáu vế, không chỗ nào đổi cổng hay mở việc khó-đảo ngoài tu_merge
+      true, và không mâu thuẫn §16; nêu đúng câu trong khối nếu FAIL.
+    evidence_required: [run_id, verdict, rationale]
+  - id: E9
+    criterion: AC-9
+    executor: script
+    cmd: config:executors.script.dieu_phoi_dp7_im
+    paths: [feature-loop/**, dieu-phoi/hooks/**, tests/dieu-phoi/dp7-chieu-im.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DP7-09 khoi-khac" (mọi khối marker của SKILL feature-loop ngoài TRONG-DOT
+      byte-bằng bản ở merge-base HEAD origin/main; in số khối so == số cặp marker ở base), "PASS: DP7-09
+      script-khac" (git diff --name-only merge-base -- feature-loop/scripts feature-loop/workflows chỉ gồm
+      feature-loop/scripts/trong-dot.mjs), "PASS: DP7-09 hook" (dieu-phoi/hooks/hooks.json byte-bằng base).
+      Chiều đỏ "PASS: DP7-09-do khoi": bản sao SKILL sửa một chữ trong GOAL-TEMPLATE → hàm so nêu
+      "GOAL-TEMPLATE".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/**, tests/dieu-phoi/**]
+    expected: >
+      exit 0; dòng gộp có "# fail 0", đủ các dòng "ok … DP1-" (DP1-01 … DP1-13) và "ok … DP2-" của hai hồ sơ đã
+      ký, cùng tên; tests/dieu-phoi/dong-goi.test.mjs, tests/dieu-phoi/mo-dot.test.mjs và tests/dieu-phoi/loi/
+      không đổi so với merge-base (git diff --quiet, in kết quả trong ca "DP7-10 dp12-nguyen").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/scripts/nguon-hang.mjs, dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/hinh-dang.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; hai tệp lộ trình a.json, b.json do ca dựng cùng có hàng mã X (slug x-tu-a, x-tu-b). "ok" cho "DP7-12
+      hai-tep": docHangLoTrinh(kho, ["a.json:X", "b.json:X"]).hang == [{ma X, slug x-tu-a, tep a.json}, {ma X,
+      slug x-tu-b, tep b.json}] (so sâu); "ok" cho "DP7-12 mo-hai-tep": `mo` thật với gói khai nguon_hang hai mục và
+      hai hàng thi công mang tep → hang-viec.json có đúng hai hàng X, mỗi hàng mang tep và slug của đúng tệp; "ok"
+      cho "DP7-12 khai-lap": nguồn ["a.json:X", "a.json@<ngày mốc chứa X>"] → một hàng; "ok" cho "DP7-12
+      khong-tep-mo-ho": hàng thi công không mang tep, mã X có ở hai tệp nguồn → stderr của `mo` có đúng một dòng
+      nêu "X", "a.json", "b.json", và hang-viec.json không có hàng X nào mang slug đoán. Chiều đỏ "ok" cho "DP7-12-do
+      khoa-ma": bản sao nguon-hang.mjs khoá daThay theo mã một mình → ca "hai-tep" nêu "mất b.json:X".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp7
+    paths: [dieu-phoi/README.md, dieu-phoi/scripts/tho.mjs, tests/dieu-phoi/trong-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP7-11 readme": README có tiêu đề mục "Phiên thợ trong đợt"; trong mục có "tho", "--tu-merge",
+      đủ mọi phần tử VIEC_KE (import từ tho.mjs) và "LUAT.md"; mục không chứa "xin/" hay "yeu-cau/" (không lặp
+      cách ghi). Chiều đỏ "ok" cho "DP7-11-do": bản sao README bỏ "cho-nhip" → hàm kiểm nêu "cho-nhip".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

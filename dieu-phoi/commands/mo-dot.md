@@ -35,8 +35,9 @@ Các bước, đúng thứ tự:
 4. **Chờ người duyệt.** Một câu hỏi đóng kèm một dòng trả lời mẫu, ô chữ quyết để trống. Người gõ
    `build <slug…>` thì ghi `decision: build`, `decided_by` = tên người gõ, `decided_at` vào từng ô, đúng
    chữ người gõ.
-5. **Chạy.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" pha dang-chay --boi <tên người duyệt> --ly-do "<chữ duyệt nguyên văn>"`,
-   rồi `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chay`.
+5. **Chạy.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" pha dang-chay --boi <tên người duyệt> --tu-merge <co|khong theo chữ người gõ> --ly-do "<chữ duyệt nguyên văn>"`,
+   rồi `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chay`. Người không nói gì về quyền tự merge thì
+   bỏ cờ `--tu-merge`: phiên thợ đọc là không tự merge (bấm merge là của người).
 6. **Việc của app.** Giăng Monitor (timeout 30′):
    `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`. Tạo lịch 30′ đọc
    `trang-thai.json` của đợt và in một dòng. Dựng nhóm «Đợt <tên>» ở thanh bên, ghim phiên này. Mở chip
