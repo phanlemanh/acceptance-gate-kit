@@ -1106,7 +1106,7 @@ export function kiemNhanhDp0(hopDong, ketQua) {
     }
     if (chon.get(c)?.g !== g) loi.push(`câu ${c}: hợp đồng chọn giá trị «${chon.get(c)?.g}», ket-qua.md «${g}»`);
     if (chon.get(c)?.n !== anh.get(c)?.[g]) loi.push(`câu ${c}: nhánh «${chon.get(c)?.n}» khác ánh xạ «${anh.get(c)?.[g]}»`);
-    const coNguong = new RegExp(`câu ${c}[^\\n]*ngưỡng|câu 2 và 6 rơi về nhánh an toàn`).test(notes);
+    const coNguong = new RegExp(`câu ${c}[^\\n]*ngưỡng`).test(notes);
     if (g === 'chưa-đo' && !coNguong) loi.push(`câu ${c}: chưa-đo mà Notes không có giới hạn kèm ngưỡng`);
   }
   return loi;

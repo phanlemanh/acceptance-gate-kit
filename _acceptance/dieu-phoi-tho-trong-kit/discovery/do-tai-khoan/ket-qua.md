@@ -4,7 +4,7 @@ Quy trình: [README.md](README.md). Quyết định chủ kho 11/10 (sổ `dieu-
 đo bằng MỘT lần đổi tài khoản CHỦ ĐỘNG trên máy M5 sau khi DP3 và DP7 gộp; đồng ý ba thử nghiệm h, i, l, mỗi
 cái một chỗ, gỡ sau khi đo. Bộ đo: [thu/](thu/).
 
-Trạng thái: **chưa đo** — chờ Điều phối chọn giờ. Bảng dưới là đầu vào của hàng DP4: ca `DP4-15` đối chiếu cột
+Trạng thái: **đo một phần** — câu 6 đã đo (11/10); câu 1, 2, 3, 5 chờ. Bảng dưới là đầu vào của hàng DP4: ca `DP4-15` đối chiếu cột
 «Giá trị» với mục «Nhánh DP0» của hợp đồng `_acceptance/dieu-phoi-doi-tai-khoan/contract.md`. Giá trị là một
 trong `còn` · `mất` · `khác` · `chưa-đo`.
 
@@ -15,7 +15,7 @@ trong `còn` · `mất` · `khác` · `chưa-đo`.
 | 2 | `rate_limits` của dòng trạng thái có trên app desktop và khớp `get_usage`? | chưa-đo | chờ cài thử nghiệm h |
 | 3 | `StopFailure` bắn với `error: "rate_limit"` khi một lượt chết vì hạn mức? | chưa-đo | lần đổi chủ động không cạn hạn mức |
 | 5 | Sau khi đổi, gói `dieu-phoi` và hook còn nạp trong phiên mới của kho? | chưa-đo | máy M5 chưa cài gói `dieu-phoi` cho kho nào |
-| 6 | `$.session.usage().rateLimits` của mod có số trên app desktop và khớp `get_usage`? | chưa-đo | chờ cài thử nghiệm l |
+| 6 | `$.session.usage().rateLimits` của mod có số trên app desktop và khớp `get_usage`? | còn | 11/10 03:53Z, mod thử (chỉ chạy ở phiên đo) ghi lúc nạp: five_hour 6 % đặt lại 08:10:00Z · seven_day 15 % đặt lại 13/10 00:00Z; `get_usage` cùng lúc: 6 % đặt lại 08:09:59.547Z · 15 % đặt lại 12/10 23:59:59.547Z — khớp, giờ đặt lại của mod làm tròn tới phút |
 <!-- KET-QUA-DP0>>> -->
 
 ## Câu 4 — không thuộc lần đổi

@@ -95,7 +95,7 @@ Nhánh đã chọn (điền khi có `ket-qua.md`; trước đó mọi câu ở `
 | 2 | chưa-đo | S2 |
 | 3 | chưa-đo | L0 |
 | 5 | chưa-đo | K0 |
-| 6 | chưa-đo | M2 |
+| 6 | còn | M1 |
 <!-- NHANH-DP0-CHON>>> -->
 
 ## Coverage
@@ -158,6 +158,9 @@ Phân loại:
 - Giới hạn đã khai: hai eval mod (AC-12, AC-13 phần validate) cần Claude Code trên máy; CI của kit không có.
 - Giới hạn đã khai: phiên của tài khoản cũ còn chạy sau khi đổi mà vẫn đọc số thì lọt bộ lọc lần đọc. Ngưỡng:
   DP0 câu 1 cho «phiên cũ còn chạy».
-- Giới hạn theo nhánh DP0 (trước khi có `ket-qua.md`, cả năm câu ở `chưa-đo`): câu 1 — ngưỡng đợt thử crm
-  (~26/10); câu 3 — ≥1 thợ chết vì hạn mức trong đợt thử mà không có dấu `ban-giao/dau/`; câu 5 — lần đổi đầu
-  sau khi crm cài gói; câu 2 và 6 rơi về nhánh an toàn (S2, M2) cho tới khi đo.
+- Giới hạn theo nhánh DP0 (câu nào còn `chưa-đo` thì khai ở đây, mỗi câu một dòng kèm ngưỡng):
+  - câu 1 — ngưỡng: đợt thử crm (~26/10) hoặc lần đổi chủ động trên M5 cho thấy phiên cũ, nhóm thanh bên, lịch 30′ còn hay mất.
+  - câu 2 — ngưỡng: một phiên mới trong worktree thử cho thấy dòng trạng thái của app desktop có chạy hay không; tới khi đo rơi về nhánh an toàn S2.
+  - câu 3 — ngưỡng: ≥1 thợ chết vì hạn mức trong đợt thử mà không có dấu `ban-giao/dau/`.
+  - câu 5 — ngưỡng: lần đổi đầu sau khi crm cài gói `dieu-phoi`.
+  - câu 6 đã đo «còn» (11/10, mod khớp `get_usage`) → nhánh M1: mod là nguồn số 1.
