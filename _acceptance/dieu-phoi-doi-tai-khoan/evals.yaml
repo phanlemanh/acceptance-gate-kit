@@ -1,0 +1,275 @@
+schema_version: 1
+feature_slug: dieu-phoi-doi-tai-khoan
+# Ca đo của hàng sống ở tests/dieu-phoi/doi-tai-khoan.test.mjs (tên ca bắt đầu «DP4-»). Khoá executor thêm ở S3:
+#   executors.test.dieu_phoi_dp4  = node --test trên tests/dieu-phoi/**, gộp dòng «ok … DP1-|DP2-|DP3-|DP4-»,
+#     «not ok», dòng chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng (cùng khuôn khoá dieu_phoi_dp3)
+#   executors.script.dieu_phoi_mod = node tests/dieu-phoi/kiem-mod.mjs — `claude plugin test` trên bản sao gói
+#     kèm tệp ca của mod, và `claude plugin validate --strict --json` đối chiếu bảng MOD-SU-KIEN; tìm bản
+#     Claude Code có lệnh `test` (PATH, rồi bản của app), không có → FAIL nêu đúng điều đó
+#   executors.script.dieu_phoi_validate, executors.test.dieu_phoi_lb — có từ DP1, DP2
+# Kho thử do code sinh trong lượt (git init trong thư mục tạm, worktree thật cho dãy). Đường dẫn suy từ vị trí
+# tệp test. Đồng hồ giả truyền vào hàm, hoặc DIEU_PHOI_NOW_MS cho tiến trình con. Hook chạy bằng CHÍNH lệnh rút
+# từ dieu-phoi/hooks/hooks.json (thay ${CLAUDE_PLUGIN_ROOT}). Mỗi ca đỏ chạy CHÍNH hàm/lệnh đo trên bản sao bị
+# tiêm, SAU khi bản lành xanh trên cùng fixture, kiểm riêng bước tiêm đã áp, và ghim dấu hiệu của ĐÚNG lỗi được
+# tiêm. Ma trận viết sẵn: số assert = số hàng, in ra. Lời hứa là đẳng thức thì so bằng nhau, không so bao hàm.
+# Mỗi eval ghim đúng dòng TAP «ok … - DP4-…». Suite xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/pha.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-01 bang-chuyen": ma trận 6 × 6 cặp pha viết sẵn trong tệp test (36 dòng in ra dạng
+      «cặp · mong đợi · thực tế», mong đợi chép từ AC-1, KHÔNG rút từ bảng CHUYEN của mã): 11 cạnh của AC-1 thoát 0
+      và thêm đúng một dòng lich_su; 6 ô đường chéo thoát 0, độ dài lich_su không đổi; 19 ô còn lại gọi CLI `pha`
+      thật thoát 1 và băm dieu-khien.json trước == sau; vào dang-ban-giao ghi khối ban_giao có ma khớp
+      ^bg-\d{8}T\d{6}Z$ và pha_truoc. "ok" cho "DP4-01 khong-cap": đợt ở mỗi pha ★, một đơn s4 lành trong xin/, một nhịp bộ phát lịch
+      thật (motNhip) → không có khoa/s4, đơn vẫn nằm nguyên (băm trước == sau); đối chứng dương: cùng fixture ở
+      dang-chay → khoá được cấp. "ok" cho "DP4-01-do cap-o-ban-giao": bản sao choPhepTheoPha trả true ở
+      dang-ban-giao (kiểm bước tiêm áp) → ca nêu "dang-ban-giao" và khoá s4 bị cấp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/han-muc.mjs, dieu-phoi/scripts/mau/han-muc.json, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/chan-doan.mjs, tests/dieu-phoi/fixtures/rate-limits-mod.json, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-02 chuan-hoa": ma trận viết sẵn 6 đầu vào (3 lành: mod, get-usage với ba nhãn gồm một
+      cửa sổ tuần theo model, statusline giây; 3 hỏng: mảng rỗng, JSON hỏng, nguồn lạ) — 6 assert in ra; mỗi đầu
+      vào lành cho cua_so so sâu bằng giá trị viết sẵn (cửa sổ theo model vắng); mỗi đầu vào hỏng thoát 1, stderr
+      nêu nguồn, băm han-muc.json trước == sau. "ok" cho "DP4-02 hai-muoi": 25 lần gọi → tệp giữ đúng 20 lần đọc
+      mới nhất (so luc đầu và cuối). "ok" cho "DP4-02 khuon": tập khoá (sâu) của lần đọc CLI ghi == tập khoá của
+      dieu-phoi/scripts/mau/han-muc.json. "ok" cho "DP4-02 round-trip": bộ đọc lần đọc hiệu lực mà nhịp bộ phát
+      lịch dùng trả đúng lần đọc CLI vừa ghi. "ok" cho "DP4-02-do khong-dot": kho thử không đợt, cùng lệnh →
+      thoát 0, stdout "khong-co-dot", băm cây trước == sau; đối chứng: kho có đợt thì tệp được tạo. Đầu vào
+      nguồn mod của ma trận đọc từ tệp fixture chung tests/dieu-phoi/fixtures/rate-limits-mod.json (cùng tệp ca
+      mod của E12 dùng). "ok" cho "DP4-02 chan-doan-han-muc": đợt khai han_muc, 4 hàng in ra — không lần đọc ·
+      một lần đọc 40′ · chỉ lần đọc của phiên khác trước nhan_luc → mục han-muc trang_thai "thieu", viec chứa
+      "get_usage" và "han-muc --nguon get-usage"; có lần đọc hiệu lực → "du"; đợt không khai han_muc → không có
+      mục han-muc (so danh sách tên mục).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/han-muc.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/pha.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-03 ma-tran": 15 hàng (a)–(o) như AC-3, mỗi hàng một kho thử dựng bằng mã, nhịp
+      motNhip thật với đồng hồ giả; số assert = 15 (in ra); sự kiện hạn mức và pha mỗi hàng so bằng nhau với dòng
+      viết sẵn — (a) [] · (b) [gan-han-muc] · (c) [] ở nhịp thứ hai · (d) [cho-dat-lai], không khoa/, pha
+      dang-chay · (e) [cham-han-muc], pha dang-ban-giao, dat_boi phat-lich · (f) [] · (g) [] · (h) như (e) ·
+      (i) trang-thai.json in ngưỡng hiệu lực 80 và như (e) · (j) như (e), sự kiện mang cua_so seven_day ·
+      (k) pha dang-ban-giao, ly_do chứa "P1" · (l) [] · (m) ngưỡng hiệu lực 84 và như (e) · (n) ngưỡng 84,
+      [gan-han-muc], pha dang-chay · (o) nhịp 1 như (d); nhịp 2 trang-thai.json không có khoá cho_dat_lai và
+      khoa/s4/chu.json có mặt. Các số 80 và 84 viết sẵn trong tệp test (tính tay), không gọi lại hàm tính ngưỡng. "ok" cho "DP4-03-do bo-ve-giam-sat": bản sao bỏ vế «do chính
+      giám sát đọc» (kiểm bước tiêm áp) → hàng (h) đổi sang [] và ca nêu "(h)", không nêu hàng nào khác.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/hinh-dang.mjs, dieu-phoi/scripts/mau/dieu-phoi.config.json, dieu-phoi/scripts/the.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-04 cau-hinh": khuôn mau/dieu-phoi.config.json và fixture
+      tests/dieu-phoi/fixtures/dot-crm-0910/dieu-phoi.config.json qua kiemCauHinh; khuôn mang han_muc
+      {bao_truoc_pct:80, ban_giao_pct:90, cho_ban_giao_phut:20, cho_dat_lai_phut:45} (so sâu); bốn cấu hình sai viết
+      sẵn (4 assert, in ra) mỗi cái ném lỗi chứa đúng tên khoá (han_muc.cho_dat_lai_phut · han_muc.ban_giao_pct ·
+      han_muc.bao_truoc_pct · han_muc.<khoá lạ>); biên: {89, 90} qua không lỗi, {90, 90} bị từ chối nêu han_muc.bao_truoc_pct. "ok" cho "DP4-04 the-khoi-tao": đợt mở từ gói thử khai han_muc
+      {70, 85, 15, 30} → `the khoi-tao --json` có "khau-vi-han-muc" trong hoi và han_muc bằng đúng bốn số đó.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/pha.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/mau/ban-giao.json, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-05 ban-giao": CLI thật trong kho thử hai dãy P1, P2 (worktree thật) — lần đầu pha
+      dang-ban-giao, ma và pha_truoc dang-chay; lần hai ma bằng nhau và độ dài lich_su của dieu-khien.json không
+      đổi; ba pha nhap · dang-dong · cho-tiep-tuc mỗi cái thoát 1, stderr nêu tên pha. "ok" cho
+      "DP4-05 ban-giao-xong": ma trận (a)–(f) 6 assert in ra — (a) thoát 1 nêu đúng tên tệp bẩn · (b) nêu
+      "xin/P1-s4.json" · (c) nêu "đang xong" · (d) nêu "ban-giao-xong" · (e) thoát 0, ban-giao/xong/P1.json có tập
+      khoá == khuôn và phien_cu chứa mã phiên của tệp nhịp thật trên worktree P1 · (f) `git log -1 --format=%s`
+      == "wip(ban-giao): dở S3", `git status --porcelain` rỗng, rồi như (e); suốt ca, git của kho thử ghi nhận 0
+      lần push (remote giả là thư mục bare, so ref trước == sau).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/muc-day.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/mau/ban-giao.json, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-06 dong-ho": ma trận (a)–(f) 6 assert in ra, mỗi hàng một nhịp motNhip thật với đồng
+      hồ giả — (a) không ban-giao.json, pha dang-ban-giao · (b) ban-giao.json có P2 ban_giao "dang-xong",
+      cham_lai_cung_round == (status hồ sơ P2 là implemented), pha dang-ban-giao · (c) P2 "do", pha cho-tiep-tuc ·
+      (d) pha cho-tiep-tuc · (e) pha cho-tiep-tuc và đúng một sự kiện ban-giao-dung can_phan dich owner, câu chứa
+      "/dieu-phoi:tiep-tuc" · (f) cấu hình không có khoá han_muc, 21′ sau vao_luc → như (c); đối chứng cùng
+      fixture ở 19′ → như (a). "ok" cho "DP4-06 tu-git": nhanh, dinh, da_day, co_wip của từng mục dãy == giá trị đọc
+      bằng git thật trên worktree (rev-parse --abbrev-ref HEAD, rev-parse HEAD, so @{u}, tiêu đề HEAD). "ok" cho
+      "DP4-06 khuon": tập khoá ban-giao.json == tập khoá mau/ban-giao.json. "ok" cho "DP4-06 cung-ham": CLI
+      `ban-giao` gọi ở dang-ban-giao cho ban-giao.json bằng (trừ luc) với nhịp cùng đồng hồ; ghi_danh của tiep-tuc
+      cho P2 mang các trường chung bằng mục P2 (so sâu trên khoá chung).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/han-muc.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-07 tiep-tuc": ma trận (a)–(h) 8 assert in ra, CLI `tiep-tuc --phien B --json` thật —
+      (a) can_doc_han_muc true, pha không đổi · (b) kết quả có khuyen_cho với dat_lai bằng giờ đặt lại của
+      five_hour viết sẵn, pha không đổi · (c) ban-giao/lich-su/<ma>.json có nội dung bằng ban-giao.json cũ cộng
+      trang_thai da-tiep-tuc, tiep_tuc_boi "B", dau chứa mục P1; ban-giao.json vắng; ban-giao/dau/ rỗng; pha
+      dang-chay; phat_lich báo chạy · (d) pha tam-dung · (e) có tệp lịch sử, pha dang-chay, hai dòng lich_su mới
+      của dieu-khien.json lần lượt cho-tiep-tuc rồi dang-chay · (f) mục P2 trong tệp lịch sử có ban_giao "do", pha
+      tam-dung · (g) mục P2 "dang-xong", khoa/s4/chu.json băm trước == sau, pha dang-chay · (h) số tệp trong
+      lich-su/ không đổi, băm dieu-khien.json không đổi; mọi hàng: vai.json lich_su có "A" với thoi_luc. "ok" cho
+      "DP4-07-do goi-thang": bản sao tiep-tuc gọi thẳng pha <pha_truoc> từ dang-ban-giao (kiểm bước tiêm áp) →
+      hàng (f) đỏ, ca nêu "(f)".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-08 phien-cu": nhịp do hook thật ghi (lệnh rút từ hooks.json, DIEU_PHOI_NOW_MS lùi 3′);
+      tiep-tuc --json và chan-doan --json cho P1 cùng hành động "mo-chip" với da_ban_giao true và ghi_danh chứa
+      nhánh P1 của mục bàn giao; P2 "khong"; thêm nhịp s-moi trên worktree P1 → P1 "khong"; kho cùng fixture
+      không có bàn giao nào → hành động bằng hành động DP3 (so với keHoachDay của bản merge-base, git archive vào
+      thư mục tạm). "ok" cho "DP4-08-do bo-loai": bản sao bỏ bước loại phien_cu (kiểm bước tiêm áp) → P1 "khong",
+      ca nêu "P1".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/hook-nhip.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-09 nhac": CHÍNH lệnh PostToolUse rút từ hooks.json, ma trận (a)–(f) 6 assert in ra —
+      (a), (c) stdout parse được JSON, hookSpecificOutput.hookEventName == "PostToolUse", additionalContext chứa
+      "ban-giao-xong" và "<thư mục đợt>/loi/dieu-phoi.mjs" với đường thật · (b), (d), (e) stdout rỗng · (f) stdout
+      rỗng, băm cây trước == sau; mọi hàng có đợt: song/<session_id>.json có mặt; mọi lần thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/hook-het-han-muc.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-10 luoi-cuoi": hooks.json có khối StopFailure với timeout ≥ 60; CHÍNH lệnh rút từ đó,
+      ma trận (a)–(g) 7 assert in ra — (a) `git rev-list --count` tăng đúng 1, tiêu đề bắt đầu
+      "wip(ban-giao): lưới cuối", porcelain rỗng, ban-giao/dau/P1.json wip == HEAD, một sự kiện tho-het-han-muc
+      can_phan · (b) HEAD không đổi, porcelain không rỗng, luot_do true · (c) HEAD không đổi, wip null · (d)(e)(f)
+      HEAD không đổi, không có ban-giao/dau/, không sự kiện mới · (g) kho thử cài hook pre-commit `exit 1` có in
+      "chan-boi-kho" → HEAD không đổi, tệp bẩn còn, loi_commit chứa "chan-boi-kho"; mọi lần thoát 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/scripts/ban-giao.mjs, feature-loop/scripts/s4-args.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-11 cung-round": s4-args.mjs THẬT của cây (đường suy từ vị trí tệp test) chạy hai lần
+      trên hồ sơ thử do mã sinh (implemented, evidence-report có một mục Iterations REJECT) với `--no-carry`, giữa
+      hai lần chỉ có s4-args.json được ghi (không run-log, không báo cáo) → hai tệp args có round == 2 bằng nhau;
+      ban-giao.json do buocBanGiao dựng không có khoá nào khớp /round/i ngoài cham_lai_cung_round (liệt kê khoá).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: script
+    cmd: config:executors.script.dieu_phoi_mod
+    paths: [dieu-phoi/hooks/doc-muc-dung.ts, dieu-phoi/hooks/hooks.json, dieu-phoi/scripts/han-muc.mjs, tests/dieu-phoi/mod/**, tests/dieu-phoi/fixtures/rate-limits-mod.json, tests/dieu-phoi/kiem-mod.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DP4-12 modules" (hooks.json modules chứa "./doc-muc-dung.ts"), "PASS: DP4-12
+      plugin-test" (claude <bản> plugin test trên bản sao gói: 3 pass 0 fail, dòng bản in ra; rateLimits của ca
+      đọc từ tests/dieu-phoi/fixtures/rate-limits-mod.json), "PASS: DP4-12 round-trip" (argv ca (a) ghi ra tệp,
+      chạy thật bằng CLI han-muc trong kho thử có đợt → han-muc.json thêm đúng một lần đọc nguon "mod", cua_so so
+      sâu bằng giá trị mong đợi viết sẵn), "PASS: DP4-12-do bo-dieu-kien" (bản sao bỏ điều kiện changed → ca
+      "khong goi khi chi context doi" fail, kiểm bước tiêm áp) và "PASS: DP4-12-do boc-mang" (bản sao mod gửi
+      {rateLimits: …} → round-trip đỏ nêu "mod"). Máy không có bản có lệnh test → "FAIL: DP4-12 plugin-test ·
+      không có Claude Code có lệnh test", exit 1.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-13
+    executor: script
+    cmd: config:executors.script.dieu_phoi_mod
+    paths: [dieu-phoi/hooks/**, dieu-phoi/scripts/mod-luat.mjs, tests/dieu-phoi/kiem-mod.mjs]
+    expected: >
+      exit 0; stdout có "PASS: DP4-13 validate" (--strict sạch lỗi), "PASS: DP4-13 su-kien" (sự kiện mỗi mod rút
+      từ dòng notes "hooks:" của validate ⊆ dòng bảng MOD-SU-KIEN; bảng doc-muc-dung.ts không giao sự kiện cổng),
+      "PASS: DP4-13-do allow" (bản sao thêm `return { decision: 'allow' }` → đỏ nêu tệp:dòng), "PASS: DP4-13-do
+      ngoai-bang" (bản sao thêm on('tool.call', …) → đỏ nêu "doc-muc-dung.ts" và "tool.call"), "PASS: DP4-13-do
+      mod-la" (bản sao thêm "./la.ts" vào modules → đỏ nêu "./la.ts"); mỗi ca đỏ chạy sau khi gói lành xanh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13b
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/hooks/**, dieu-phoi/scripts/mod-luat.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-13 bang-mod": tập mod trong modules == tập khoá bảng MOD-SU-KIEN (rút bằng khối marker,
+      không import tay) và quét chữ không thấy `allow` trong nguồn mod; "ok" cho "DP4-13-do quet-chu": bản sao thêm
+      dòng `behavior: 'allow'` → hàm quét nêu tệp và số dòng của đúng dòng đó. Phần này không cần Claude Code nên
+      chạy được ở CI.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [dieu-phoi/commands/**, CONTEXT.md, GUIDE.md, QUICKSTART.md, tests/dieu-phoi/**]
+    expected: >
+      exit 0; "ok" cho "DP2-01 ba-lenh" với tập lệnh == {ban-giao.md, dong-dot.md, mo-dot.md, tiep-tuc.md, xem.md};
+      "ok" cho "DP4-14 ban-giao-md": vị trí lời gọi CLI `ban-giao` < câu nhắn thợ < câu báo chủ kho; câu báo chứa
+      "/dieu-phoi:tiep-tuc" và "loi/dieu-phoi.mjs tiep-tuc"; không khoá model-invocation. "ok" cho
+      "DP4-14 tiep-tuc-md": "han-muc --nguon get-usage" đứng trước lời gọi CLI `tiep-tuc --phien`, đoạn dạng
+      `--nhe` nêu bước đọc mức dùng, có dòng xử lý `can_doc_han_muc` và `khuyen_cho`, và trong việc của lịch 30′
+      "han-muc" đứng trước "danh-thuc"; "ok" cho "DP4-14-do bo-nhe": bản sao bỏ bước đọc mức dùng khỏi đoạn
+      `--nhe` (kiểm bước tiêm áp) → nêu "--nhe"; "ok" cho "DP3-01 trinh-tu" (nguyên tên). "ok" cho "DP4-14 tai-lieu": CONTEXT.md có
+      mục «Bàn giao tài khoản» với dòng _Avoid_; GUIDE và QUICKSTART nhắc "/dieu-phoi:ban-giao". "ok" cho
+      "DP4-14-do dao-buoc": bản sao chuyển câu báo chủ kho lên trước CLI (kiểm bước tiêm áp) → nêu "ban-giao.md: trình
+      tự". Mọi ca "DP1-", "DP2-", "DP3-" của suite đều "ok" (không dòng "not ok").
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14b
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.dieu_phoi_lb
+    paths: [skills/acceptance/references/human-facing-language.md, dieu-phoi/commands/**, GUIDE.md, QUICKSTART.md]
+    expected: >
+      exit 0; stdout có "PASS: [LB1]" và "PASS: [LB2]" — mọi /dieu-phoi:… mà tài liệu nhắc (gồm /dieu-phoi:ban-giao)
+      nằm trong COMMAND-NAMES.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14c
+    criterion: AC-14
+    executor: script
+    cmd: config:executors.script.dieu_phoi_validate
+    paths: [dieu-phoi/commands/**, dieu-phoi/.claude-plugin/plugin.json, dieu-phoi/hooks/hooks.json]
+    expected: >
+      exit 0; stdout có "PASS: DP1-01b validate" (bộ kiểm gói --strict sạch lỗi trên gói năm lệnh, có modules và
+      khối StopFailure) và "PASS: DP1-01b-do bo-lop-hooks".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14d
+    criterion: AC-14
+    executor: judgment
+    inputs: [dieu-phoi/commands/ban-giao.md, dieu-phoi/commands/tiep-tuc.md, _acceptance/dieu-phoi-doi-tai-khoan/contract.md, docs/superpowers/specs/2026-10-11-dieu-phoi-doi-tai-khoan-design.md, docs/superpowers/specs/2026-10-10-dieu-phoi-workflow-design.md]
+    question: >
+      Đọc §4.3 (ba đường kích hoạt, bước 1–6, luật với lượt chấm đang chạy), §4.2 bước 1 và 6 của spec workflow, và
+      các chỗ chọn 7, 8, 10, 12 của design doc. Thân ban-giao.md có đi đúng trình tự đó không: CLI đặt pha và dựng bàn
+      giao, phiên chỉ nhắn thợ (tin là phụ, lời nhắc chính đi qua hook), không tự commit hay đẩy thay thợ, không tự
+      chuyển pha nào ngoài lời gọi CLI, câu báo chủ kho đúng một câu kèm đường lùi CLI? Thân tiep-tuc.md có đọc mức
+      dùng trước lời gọi CLI, và với `can_doc_han_muc`, `khuyen_cho` làm đúng việc (đọc rồi gọi lại; báo chờ, không
+      chuyển pha), và dặn nhắn phiên cũ thay vì mở chip khi không đổi tài khoản? Trả PASS khi đúng cả hai và không có
+      câu nào để phiên tự suy dãy nào xong hay tự đổi pha.
+    evidence_required: [run_id, verdict, rationale]
+  - id: E15
+    criterion: AC-15
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp4
+    paths: [_acceptance/dieu-phoi-tho-trong-kit/discovery/do-tai-khoan/ket-qua.md, _acceptance/dieu-phoi-doi-tai-khoan/contract.md, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP4-15 nhanh-dp0": rút bảng ánh xạ (khối NHANH-DP0) và bảng chọn (khối NHANH-DP0-CHON) từ
+      contract.md, đọc ket-qua.md — mỗi câu 1, 2, 3, 5, 6 có đúng một dòng với giá trị ∈ {còn, mất, khác, chưa-đo};
+      giá trị trong bảng chọn == giá trị ket-qua.md; nhánh trong bảng chọn == ánh xạ(câu, giá trị) (5 assert, in ra);
+      mỗi câu chưa-đo có dòng «câu <n>» kèm chữ "ngưỡng" trong Notes; đối chứng dương: ket-qua.md nguyên vẹn và hợp đồng nguyên vẹn xanh TRƯỚC khi tiêm. "ok" cho "DP4-15-do doi-cau-6": bản sao
+      ket-qua.md đổi giá trị câu 6 sang giá trị khác ánh xạ khác nhánh (kiểm bước tiêm áp) → ca nêu "câu 6" và hai nhánh.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
