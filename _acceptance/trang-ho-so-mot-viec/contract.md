@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/evidence-page.js + scripts/lo-trinh.mjs + scripts/ho-so-tom-tat.cjs (mới) + tài liệu + khuôn mẫu hàng + test — không chạm lib/**, hook, lưới trước-merge
 surfaces: [cli, ui]
 design_doc: docs/superpowers/specs/2026-10-11-trang-ho-so-mot-viec-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo

@@ -1,6 +1,4 @@
-E12 network/console dump (playwright, local static server 127.0.0.1:8791 started by verifier, stopped after)
-GET http://127.0.0.1:8791/_acceptance/trang-lo-trinh-trong-crm/evidence-page.html -> 200 (document)
-GET http://127.0.0.1:8791/favicon.ico -> 404 (static asset, note-only)
-No fetch/XHR requests, no third-party requests.
-Console: 1 error = "Failed to load resource: 404 favicon.ico" (static asset, note-only). No page JS errors.
-config.yaml has no dev_server.url/api_base -> unscoped.
+E12 network (Playwright, http://127.0.0.1:8765 static server started by verifier; file: protocol blocked in driver -> served same files over HTTP)
+Requests: 1. [GET] /_acceptance/trang-lo-trinh-trong-crm/evidence-page.html => 200 OK (no fetch/XHR: page is static HTML)
+Console errors: 1 -> GET /favicon.ico 404 (static asset, note-only)
+config.yaml has no dev_server.url/api_base -> unscoped
