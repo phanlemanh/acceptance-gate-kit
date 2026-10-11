@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/tin-hieu.mjs (mới) + scripts/lo-trinh.mjs (khối dữ liệu) + skills/gom-tin-hieu (mới) + references + CONTEXT/GUIDE + test — không chạm lib/**, hooks/**, dieu-phoi/**, scripts/cat-luot.mjs, lưới trước-gộp
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-cua-tin-hieu-gom-nhom-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -90,3 +90,17 @@ hộp chưa xử lý, gộp trùng, trạng thái trả về người gửi.
   `mau/gom-bo-vang-luot-2.md`, `mau/gom-bo-vang.md` (lượt 3). Chạy lại phép so đáp án:
   `config:executors.test.tin_hieu_vang`. Đo thật ở Cổng Giá trị: lượt gom đầu tiên trên tín hiệu thật của crm —
   ngưỡng chủ kho sửa dưới 1/5 số nhóm, cặp trùng đã biết qua lệnh chấm trên bộ vàng crm khai trước.
+- **Known limits thêm ở chữ ký (Cổng Bằng chứng lượt 3, owner ký 11/10):** Ngoài-1 — phép quét kín đáp án
+  chỉ có ca đỏ cho vế «tên hồ sơ»; vế «tiêu đề trùng câu giao» và «kho có tệp đáp án» chưa từng được
+  chứng là đỏ được · Ngoài-2 — lệnh chấm bộ vàng chỉ có ca đỏ cho «cặp trùng tách» và «khai trước», chưa
+  có cho nhánh «hồ sơ đã giao phải ra đã phủ» · Ngoài-4 — phép «khai trước trên lịch sử kit» của TH-10 chưa
+  có ca đỏ · Ngoài-8 — hai ca chiều đỏ (TH-6 đổi khối GOM-TRUC, TH-9 lệnh GOM-RANG đỏ) chỉ so mã thoát,
+  không ghim thông điệp · Ngoài-10 — răng nhận bản gom đã `git add` nhưng chưa commit, hay commit rồi còn
+  sửa dở (mốc đếm «chủ kho sửa bao nhiêu nhóm» có thể lệch) · Ngoài-11 — tín hiệu sai khuôn biến mất khỏi
+  đường đi / trang lộ trình không lời báo (răng vẫn đỏ gọi tên) · Ngoài-12 — vế «lẻ không thành mã» của
+  TH-3 không thể đỏ độc lập; TH-3-do bắt nhờ vế khác · Ngoài-13 — mẫu cấm của TH-9 chỉ bắt vài cách diễn
+  đạt, không có đối chứng dương.
+- **Mở hợp đồng mới ở chữ ký → hạt giống (không mở ô):** Ngoài-3 + Ngoài-5 →
+  `docs/plans/2026-10-11-hat-giong-kiem-lech-ban-tep-ngoai-scripts-lib.md` · Ngoài-9 →
+  `docs/plans/2026-10-11-hat-giong-bo-vang-chep-nguyen-van-ho-so-crm.md` · Ngoài-6 + Ngoài-7 (đã sửa ở
+  lượt 1, `dd2c1bd5`) → `docs/plans/2026-10-11-hat-giong-hai-muc-luot-1-da-sua.md`.
