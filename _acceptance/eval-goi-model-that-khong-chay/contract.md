@@ -6,12 +6,21 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/** + tests/** + GUIDE/SKILL/CHANGELOG — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs (AC-12 giữ)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-eval-goi-model-that-khong-chay-design.md
-status: draft
+status: approved
+approved_by:
+approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-11T09:18:19Z
 ---
 
 # Acceptance Contract: eval-goi-model-that-khong-chay
 
 ## Context
+
+Hàng là CỘNG (ADR 0018) — owner phê ở Cổng Đáng; trace về nguyên tố 2 (bằng chứng không tự dối:
+kết quả dùng lại phải nói ra nguồn và tự kiểm khi chạy lại cùng băm), người hưởng là chủ kho crm (trả
+AI Gateway) và phiên thợ crm (làn ghim lại ngắn hơn). Cổng Phạm vi đi làn V (T2, phản biện đã định
+đoạt hết, không mục chỉ-người-biết): cửa veto mở.
 
 Cổng Đáng 11/10 ký build hàng G3 (owner «Làm»; chính sách chốt ở `opportunity.md`: chỉ eval trong
 `feature_loop.model_evals`, chỉ làn ghim lại, khoá bật theo lựa chọn, hạn 7 ngày, bên đọc pin không
