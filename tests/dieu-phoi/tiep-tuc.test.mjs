@@ -75,7 +75,9 @@ export function khoLienKet({ gocGoi = GOI, hang = null, chayPha = true } = {}) {
   const w3 = path.join(cha, 'ngoai');
   git(kho, 'worktree', 'add', '-q', '-b', 'ngoai', w3);
   const dir = path.join(kho, 'goi', 'dot-thu');
-  ghiJ(path.join(dir, 'dieu-phoi.config.json'), docJ(path.join(GOI, 'scripts', 'mau', 'dieu-phoi.config.json')));
+  // Khuôn cấu hình lấy từ CÙNG bản gói dựng đợt (hàng (g) của DP3-03 dựng bằng bản merge-base) — hồ sơ DP4 thêm
+  // khoá han_muc vào khuôn, bản gói cũ không biết khoá đó.
+  ghiJ(path.join(dir, 'dieu-phoi.config.json'), docJ(path.join(gocGoi, 'scripts', 'mau', 'dieu-phoi.config.json')));
   ghiJ(path.join(dir, 'hang-viec.json'), {
     dot: '',
     day: [{ id: 'P1', worktree: fs.realpathSync(w1) }, { id: 'P2', worktree: fs.realpathSync(w2) }],

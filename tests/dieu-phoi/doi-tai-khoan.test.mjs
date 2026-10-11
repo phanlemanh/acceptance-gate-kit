@@ -305,3 +305,95 @@ test('DP4-02-do khong-dot', () => {
   assert.equal(hanMuc(k2, 'mod', FX.rateLimits).ma, 0);
   assert.ok(fs.existsSync(path.join(dot, 'han-muc.json')), 'đối chứng dương: kho có đợt thì tệp được tạo');
 });
+
+// ---------- DP4-04: khoá cấu hình han_muc và thẻ khởi tạo (AC-4, E4) ----------
+const HM_MAU = { bao_truoc_pct: 80, ban_giao_pct: 90, cho_ban_giao_phut: 20, cho_dat_lai_phut: 45 };
+test('DP4-04 cau-hinh', async () => {
+  const { kiemCauHinh } = await nap(GOI, 'hinh-dang.mjs');
+  const khuon = docJ(path.join(GOI, 'scripts', 'mau', 'dieu-phoi.config.json'));
+  assert.doesNotThrow(() => kiemCauHinh(khuon));
+  assert.deepEqual(khuon.han_muc, HM_MAU);
+  assert.doesNotThrow(() => kiemCauHinh(docJ(path.join(DAY, 'fixtures', 'dot-crm-0910', 'dieu-phoi.config.json'))));
+  const { cho_dat_lai_phut: _bo, ...thieu } = HM_MAU;
+  const SAI = [
+    [{ ...khuon, han_muc: thieu }, 'han_muc.cho_dat_lai_phut'],
+    [{ ...khuon, han_muc: { ...HM_MAU, ban_giao_pct: 120 } }, 'han_muc.ban_giao_pct'],
+    [{ ...khuon, han_muc: { ...HM_MAU, bao_truoc_pct: 90, ban_giao_pct: 90 } }, 'han_muc.bao_truoc_pct'],
+    [{ ...khuon, han_muc: { ...HM_MAU, x: 1 } }, 'han_muc.x'],
+  ];
+  const dong = SAI.map(([cfg, khoa]) => {
+    let thong = '';
+    try {
+      kiemCauHinh(cfg);
+    } catch (e) {
+      thong = e.message;
+    }
+    assert.ok(thong.includes(khoa), `${khoa}: «${thong}»`);
+    return `${khoa} · ${thong}`;
+  });
+  console.log(dong.map((d) => `  ${d}`).join('\n'));
+  assert.equal(dong.length, 4);
+  assert.doesNotThrow(() => kiemCauHinh({ ...khuon, han_muc: { ...HM_MAU, bao_truoc_pct: 89, ban_giao_pct: 90 } }), 'biên {89, 90} qua');
+});
+
+test('DP4-04 the-khoi-tao', () => {
+  const hm = { bao_truoc_pct: 70, ban_giao_pct: 85, cho_ban_giao_phut: 15, cho_dat_lai_phut: 30 };
+  const { kho } = khoLienKet({ cauHinh: { han_muc: hm } });
+  const r = chayCli(kho, ['the', 'khoi-tao', '--json']);
+  assert.equal(r.ma, 0, r.err);
+  const the = JSON.parse(r.out);
+  console.log(`  hoi: ${JSON.stringify(the.hoi)} · han_muc: ${JSON.stringify(the.han_muc)}`);
+  assert.ok(the.hoi.includes('khau-vi-han-muc'));
+  assert.deepEqual(the.han_muc, hm);
+});
+
+// ---------- DP4-02 (phần chẩn đoán): mục han-muc (AC-2, E2) ----------
+const mucCua = (ds, ten) => ds.find((m) => m.muc === ten) ?? null;
+const chanDoanJson = (cwd, them = [], env = {}) => {
+  const r = chayCli(cwd, ['chan-doan', '--json', ...them], { env });
+  assert.equal(r.ma, 0, r.err);
+  return JSON.parse(r.out);
+};
+function datNhanLuc(dot, luc) {
+  const p = path.join(dot, 'vai.json');
+  const v = docJ(p);
+  ghiJ(p, { ...v, giam_sat: { ...v.giam_sat, nhan_luc: luc } });
+}
+test('DP4-02 chan-doan-han-muc', () => {
+  const luc = (ms) => ({ DIEU_PHOI_NOW_MS: String(ms) });
+  const hang = [];
+  {
+    const { kho } = khoLienKet();
+    const m = mucCua(chanDoanJson(kho, [], luc(GIO)), 'han-muc');
+    hang.push(['không lần đọc', m?.trang_thai, m?.viec]);
+  }
+  {
+    const { kho } = khoLienKet();
+    assert.equal(hanMuc(kho, 'mod', FX.rateLimits, { nowMs: GIO }).ma, 0);
+    const m = mucCua(chanDoanJson(kho, [], luc(GIO + 40 * PHUT)), 'han-muc');
+    hang.push(['lần đọc 40′', m?.trang_thai, m?.viec]);
+  }
+  {
+    const { kho, dot } = khoLienKet();
+    assert.equal(hanMuc(kho, 'mod', FX.rateLimits, { phien: 's-khac', nowMs: GIO }).ma, 0);
+    datNhanLuc(dot, new Date(GIO + 5 * PHUT).toISOString());
+    const m = mucCua(chanDoanJson(kho, [], luc(GIO + 10 * PHUT)), 'han-muc');
+    hang.push(['phiên khác trước nhận vai', m?.trang_thai, m?.viec]);
+  }
+  {
+    const { kho, dot } = khoLienKet();
+    datNhanLuc(dot, new Date(GIO - 5 * PHUT).toISOString());
+    assert.equal(hanMuc(kho, 'mod', FX.rateLimits, { phien: 's-khac', nowMs: GIO }).ma, 0);
+    const m = mucCua(chanDoanJson(kho, [], luc(GIO + 10 * PHUT)), 'han-muc');
+    hang.push(['có lần đọc hiệu lực', m?.trang_thai, m?.viec]);
+  }
+  console.log(hang.map((h) => `  ${h[0]} · ${h[1]} · ${h[2]}`).join('\n'));
+  for (const [ten, tt, viec] of hang.slice(0, 3)) {
+    assert.equal(tt, 'thieu', ten);
+    assert.ok(viec.includes('get_usage') && viec.includes('han-muc --nguon get-usage'), `${ten}: ${viec}`);
+  }
+  assert.equal(hang[3][1], 'du', 'đối chứng dương');
+  const { kho } = khoLienKet({ cauHinh: { han_muc: undefined } });
+  const ds = chanDoanJson(kho, [], luc(GIO));
+  assert.equal(mucCua(ds, 'han-muc'), null, `đợt không khai han_muc: ${ds.map((m) => m.muc).join(', ')}`);
+});
