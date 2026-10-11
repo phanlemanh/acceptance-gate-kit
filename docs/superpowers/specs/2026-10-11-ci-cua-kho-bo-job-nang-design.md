@@ -55,8 +55,9 @@ Thứ tự (dừng ở điều kiện đầu tiên đúng):
 1. Cổng dừng trước khi tới khối phân loại (không có `_acceptance/`, base không giải được, git không dùng được,
    bộ lọc `--slug` sai…) → bẫy `EXIT` của chế độ in `khong-ro` · `true` · `khong-phan-loai-duoc` + cảnh báo
    chép dòng cuối của thông điệp cổng; thoát 0.
-2. HEAD không có `_acceptance/config.yaml`, hoặc khối kiểm cấu hình đã đếm vi phạm (TAB, thụt lẻ, mode sai) →
-   `cau-hinh-loi` + cảnh báo.
+2. HEAD không có `_acceptance/config.yaml`, hoặc cổng đã in một dòng `VIOLATION [config]` (TAB, thụt lẻ, mode sai) →
+   `cau-hinh-loi` + cảnh báo chép dòng đó. Không dùng bộ đếm vi phạm chung: nó gồm cả lỗi gap-probe không thuộc
+   cấu hình.
 3. Không dựng được phạm vi diff (`DIFF_READY=0`) → `khong-co-pham-vi-diff`; cảnh báo chỉ khi `--base` đã khai.
 4. Diff rỗng → `diff-rong` + cảnh báo.
 5. Hai danh sách `t1_skip_globs`, `t3_paths` ở merge-base KHÁC ở HEAD (kể cả merge-base không có config) →
