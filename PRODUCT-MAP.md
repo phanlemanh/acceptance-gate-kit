@@ -11,9 +11,9 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>104 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>15 việc"] --> GG{"Cổng Giá trị"}
+  GB --> CN["Chờ phiên nghiệm thu<br/>16 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>6 việc"]
 ```
 
@@ -45,7 +45,6 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
-- Vòng là một kết quả — răng cắt lượt nói ra hàng nào phải tách, gộp được, hay lệch dáng câu giao (cờ có tên, khoảng cỡ một nguồn trong SKILL), và đồng hồ chỉ đọc in lại bảng cỡ → lượt chấm → chạm trần từ hồ sơ đã giao để mỗi mốc đọc lại khoảng trên số thật (`vong-la-mot-ket-qua`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
@@ -62,6 +61,7 @@ flowchart TD
 - Lời mời cổng thành vật máy sinh — thẻ in câu gộp khuyến nghị bấm được, khối VIỆC-CỦA-ANH chỉ chứa điều-chỉ-người-biết, vá các đường fail-quiet của thẻ (`loi-moi-cong-may-sinh`)
 - Ra có tên ở Vòng LÀM và TRAO — trạng thái «máy đã thông» cho làn V; Cổng Đáng ký qua /approve một lượt một PR; Cổng Giá trị có lối «không đo được» + archived/timebox có bộ đọc (`ra-co-ten-lam-va-trao`)
 - tác tử chấm không cầm bút — ba loại tác tử của gói feature-loop bỏ công cụ sửa tệp khỏi mọi vai chấm, và bước sau-lượt quy trách nhiệm cây đổi cho tác tử chấm và ghi dòng đếm, không tự đổi cây (`tac-tu-cham-chi-cham-khong`)
+- Vòng là một kết quả — răng cắt lượt nói ra hàng nào phải tách, gộp được, hay lệch dáng câu giao (cờ có tên, khoảng cỡ một nguồn trong SKILL), và đồng hồ chỉ đọc in lại bảng cỡ → lượt chấm → chạm trần từ hồ sơ đã giao để mỗi mốc đọc lại khoảng trên số thật (`vong-la-mot-ket-qua`)
 - Vũ trang /goal ở mọi lượt người đứng ngay trước đoạn máy — dòng /goal thành vật thẻ Cổng Phạm vi in ra (một nguồn, ba bản chép), điểm in = mỗi câu xin duyệt thiết kế của brainstorm · Cổng 1 · Gate 1.5 (`vu-trang-goal-luc-goi-ten`)
 - Trang lộ trình mang sẵn một khối dữ liệu máy đọc vẽ cùng lượt — bản chiếu ngoài kho (trang Lộ trình trong CRM, bản chiếu ReUI) hiện đúng trạng thái từng hàng chỉ bằng cách đọc khối, không tự tính trạng thái; không tệp mới, không đổi cấu hình kho (`xuat-du-lieu-lo-trinh`)
 

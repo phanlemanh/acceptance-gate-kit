@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs + skills/cat-luot/SKILL.md + khuôn lo-trinh-template.json + test — không chạm lib/**, hook, lưới trước-merge. Hàng S3 ghi T3: máy không tự sửa hàng, nêu ở Cổng Phạm vi.
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-vong-la-mot-ket-qua-design.md
-status: verified
+status: signed-off
 approved_by: Manh Phan
 approved_at: 2026-10-11T00:41:20Z
 ---
@@ -80,3 +80,13 @@ dòng sổ `d-…-5`, cửa veto ở Cổng Phạm vi.
   không thêm khoá executor (sửa `_acceptance/config.yaml` làm cũ hồ sơ khác).
 - Bản phạm vi mẫu cho AC-10: `_acceptance/vong-la-mot-ket-qua/mau/pham-vi-curator.md`.
 - Hai trường `vai`, `tieu_chi` là của LƯỢT CẮT (cùng loại `dot`, `phu`) — không bộ đọc nào ngoài răng đọc.
+- **Known limits (Cổng Bằng chứng sau lượt chấm 2, ký 11/10 — Manh Phan):** Ngoài-1: SKILL vẫn nói
+  mọi dòng `cảnh báo:` là hàng ngoài đợt, nên phiên cắt có thể bỏ qua gợi ý gộp cho chính đợt ·
+  Ngoài-2: SKILL bảo chủ kho tự sửa khối khoảng, nhưng kho tiêu thụ không có chỗ sửa — khoảng sống ở
+  bản phát hành kit · Ngoài-3: lời giải thích «Thoát 2» bị bảng cờ tách khỏi chỗ đọc và thiếu nguyên
+  nhân khối khoảng hỏng · Ngoài-4: `vai: nền` có dấu bị đọc như tên vai, báo sai chỗ lỗi · Ngoài-5:
+  đồng hồ bỏ lặng hồ sơ không đọc được vì quyền · Ngoài-6: `--tu` nhận ngày không tồn tại (31/02) ·
+  Ngoài-7: vai là tiền tố của từ đầu câu vẫn qua. Ngoài-1 và Ngoài-2 đáng một vòng sửa chữ SKILL
+  trước khi crm nhận mốc mang vòng này.
+- **Đổi giữa vòng đã phê ở Cổng Bằng chứng («Treo: phê hết»):** vế cuối AC-7 đổi từ «= 0» sang «bằng
+  số hồ sơ khai mã ngoài khuôn» (dòng sổ fix S3); sửa hai lỗ đo sau lượt chấm 1 (dòng sổ fix S4-r1).
