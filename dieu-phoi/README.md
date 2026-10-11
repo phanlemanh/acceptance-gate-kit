@@ -34,14 +34,17 @@ GOI=$(node <gói feature-loop>/scripts/resolve-plugin.mjs --plugin dieu-phoi)
    `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`
 5. Tạo task lịch 30′ với `notifyOnCompletion`. Prompt: «đọc trang-thai.json của đợt <tên>, in một
    dòng». Task này là lưới an toàn khi app khởi động lại.
-6. Tạo nhóm «Đợt <tên>» ở thanh bên, ghim phiên giám sát, mở chip cho từng phiên thợ. Lời dặn của
-   chip gồm thư mục đợt, mã phiên, ranh giới, và câu «đọc LUAT.md trước S1».
+6. Tạo nhóm «Đợt <tên>» ở thanh bên, ghim phiên giám sát, mở chip cho đúng các dãy mà
+   `chan-doan --json --chi-tiet` trả hành động `mo-chip`, với nguyên văn `ghi_danh` (thư mục đợt, mã phiên,
+   câu «đọc LUAT.md trước S1», lệnh `/feature-loop:feature-loop <slug>`). Dãy `khong-hang` (nghỉ, hết hàng,
+   chờ phụ thuộc hay Cổng Đáng) không có chip; dãy `mo-chip` đã mở chip là chờ người bấm, không mở lại.
 
 ## Tiếp tục đợt (sau khi app khởi động lại, hết ngữ cảnh, Monitor hết hạn)
 
 Gõ `/dieu-phoi:tiep-tuc` ở bất kỳ phiên nào trong kho. CLI `tiep-tuc --phien <mã>` nhận vai giám sát, chạy
 lại bộ phát lịch nếu chết, và trả kế hoạch cho từng dãy; lệnh người chỉ làm đúng kế hoạch đó (Monitor, lịch
-30′, nhóm thanh bên, chip cho dãy không còn nhịp sống). Mỗi lần thức, phiên giám sát chạy dạng `--nhe`.
+30′, nhóm thanh bên, chip cho dãy không còn nhịp sống mà còn hàng để giao). Mỗi lần thức, phiên giám sát chạy
+dạng `--nhe`.
 Thợ ghi vào thư mục đợt bằng lệnh con (`xin`, `nha`, `yeu-cau`) — xem mục «Cách xin tài nguyên» của
 `LUAT.md` trong thư mục đợt.
 
@@ -84,6 +87,45 @@ nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
 
+## Chặn S4 và việc chờ người
+
+- **Hook chặn S4 nhận ra lệnh đúng theo cấu trúc lời gọi**, không so chuỗi con. Lệnh chạy `repin-lane.mjs`,
+  `s4-args.mjs` hay `duong-nen.mjs` vẫn bị nhận ra khi đứng sau một lệnh bọc kèm cờ: `timeout`, `env` (kể cả
+  `-u`, `-C`, `-P`, `-S`), `nice -n`, `time -p`, `nohup`, `command`, `exec -a`, `caffeinate -t/-w`. Không bị
+  chặn: `node --check`/`node -c` (kiểm cú pháp) và lời gọi có `--help` (cả ba script dừng ở cờ lạ trước khi
+  làm việc). Thân heredoc được quét như mọi dòng lệnh, nên heredoc nhắc tên một trong ba script vẫn bị chặn —
+  xem giới hạn dưới.
+- **Lời chặn nêu sẵn lệnh xin lượt** khi cwd thuộc một dãy: sau câu cũ và câu «chờ lượt» (DP7), thêm
+  «Lệnh xin lượt (chạy nguyên văn từ worktree của dãy): node <thư mục đợt>/loi/dieu-phoi.mjs xin s4» (đợt chưa
+  `chay` thì lõi của gói). Ngoài mọi dãy, hoặc đợt có `hang-viec.json` không đọc được (khi ấy `xin` cũng không
+  chạy), lời chặn y như cũ.
+- **Hộp xin quyền ở phiên thợ luôn thành việc chờ người** (`cho-nguoi/<dãy>.json`), kể cả khi dãy đang chờ
+  lượt hay chờ trả lời. Thông báo «đang rảnh» thì vẫn im khi dãy đang chờ.
+- **Giám sát thức ngay khi thợ chờ người**: sự kiện `cho-nguoi` mang `can_phan`, `loai_cho` và `tin` (≤ 200 ký
+  tự), nên Monitor của giám sát (lọc `"can_phan":true`) thức trong một nhịp của bộ phát lịch.
+
+Giới hạn đã khai, kèm ngưỡng mở lại:
+
+- **Heredoc nhắc tên script S4 bị chặn kể cả khi thân chỉ là dữ liệu** (`cat > tep <<'EOF'` có nhắc
+  `repin-lane.mjs`, `python3 - <<'PY'` ghi sổ có tên script). Đo 11/10: 2 trên 46.801 lời gọi Bash. Viết tệp bằng
+  công cụ Write thay `cat <<EOF`. Luật «thân là dữ liệu» đã dựng rồi thu lại ở hồ sơ `dieu-phoi-lop-mod`: hai lượt
+  chấm liền tìm ra lệnh S4 lọt qua bộ đọc đối số của trình thông dịch (cờ `-o pipefail`, chuyển hướng `2>&1` trên
+  dòng mở). Ngưỡng mở lại (khuôn danh sách đóng bên tiêu thụ, ở hạt giống
+  `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`): một lần đo lại bản ghi thấy > 10 lời gọi heredoc chặn
+  nhầm.
+- **chưa đo: hộp quyền của tác tử Workflow có tới hook chờ người không.** Ngưỡng: đợt thử có ≥ 1 lượt S4 đứng
+  vì hộp quyền mà không có tệp chờ người. Phép đo đã soạn ở hạt giống
+  `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`.
+- Bộ phân loại là bộ đọc cú pháp shell rút gọn: biến mở rộng thành tên script, `eval`, alias, lệnh bọc viết đủ
+  đường (`/usr/bin/env -u X …`), cờ gộp (`env -iu X`) và `gtimeout` không được hiểu. Ngưỡng: ≥ 1 lời gọi S4
+  thật lọt qua hook trong đợt thử.
+- Tệp chờ người do hộp xin quyền ghi chỉ gỡ khi người gửi một lời nhắc ở phiên thợ (`UserPromptSubmit`); duyệt
+  hộp mà không gõ gì thì tệp ở lại tới lời nhắc kế, nên «việc chờ» có thể còn một mục đã xong. Gỡ theo lời gọi
+  công cụ kế tiếp cần biết hộp thuộc tác tử nào — chưa đo (hạt giống, câu 1 §12.3). Ngưỡng: đợt thử có ≥ 1 lần
+  giám sát báo chủ kho một việc chờ đã xong.
+- Ca kiểm «nguồn» của chín lời gọi thật (`tests/dieu-phoi/rut-lenh-that.mjs`) chỉ chạy trên máy có bản ghi
+  hội thoại; nơi khác (CI) in «bỏ qua» — các ca phân loại vẫn chạy trên tệp ca đã commit.
+
 ## Phiên thợ trong đợt
 
 Phiên thợ không cần ai dặn nó đang trong đợt: S0 của `/feature-loop` chạy `trong-dot.mjs` của gói
@@ -96,8 +138,14 @@ xong một hàng:
   thợ tự mở nó trong cùng phiên.
 - `cho-nhip` — bộ phát lịch chưa thấy hàng vừa xong; thợ chờ một nhịp rồi đọc lại.
 - `bao-giam-sat` — hàng kế chưa có quyết build (hoặc đã quyết park, kill, iterate): thợ không mở, báo giám sát.
-- `cho` — dãy nghỉ, chờ phụ thuộc, hoặc đợt không ở pha đang chạy.
+  Ở đợt mở từ gói bộ phát lịch đã không giao những hàng ấy, nên đây là lưới cho ca quyết đổi sau nhịp.
+- `cho` — dãy nghỉ, chờ phụ thuộc, chờ Cổng Đáng (`cong-dang`), hoặc đợt không ở pha đang chạy.
 - `xong` — dãy hết hàng.
+
+Ở đợt mở từ gói, bộ phát lịch chỉ giao hàng đã quyết build — quyết đọc bằng cùng hàm với thẻ khởi tạo và
+thợ (`quyetCua` của `the.mjs`): hàng chưa có chữ build bị bỏ qua (dãy hết hàng giao được thì `cho: cong-dang`),
+ô đã quyết park, kill, iterate không vào đợt. Đợt dựng tay (không gói) giữ lối cũ: Cổng Đáng của hàng nằm ở S0
+của thợ.
 
 Quyền tự merge do người trả ở thẻ khởi tạo, giám sát ghi bằng `pha dang-chay --tu-merge co|khong`; vắng thì
 thợ đọc là không tự merge. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,

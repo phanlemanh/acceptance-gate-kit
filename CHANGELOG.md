@@ -35,6 +35,24 @@ cùng mã thoát, 0 dòng mới. Trang lộ trình và khối dữ liệu không
 **Khi update:** lượt cắt kế của crm (OKR, Kho tài liệu) đặt việc vận hành vào mốc ngoài; hàng cần dữ liệu
 thật thì có hàng sinh dữ liệu giả đứng trước. Đó cũng là lần đọc ngưỡng của vòng (Cổng Giá trị).
 
+### Làn ghim lại dùng lại eval model thật khi đầu vào không đổi (hồ sơ `eval-goi-model-that-khong-chay`, hàng G3, T2)
+
+Gốc: crm `eval-model-that-dung-luc` — «bộ nhớ đệm theo băm cho mọi eval model thật (bộ kit)»; đo 11/10:
+14/44 lần chạy lại eval model trong làn ghim lại có đầu vào không đổi, 15 làn gọi model tốn 15,67 USD/4 ngày.
+
+- Khoá mới `feature_loop.model_carry_cmd` (lệnh in dấu vân tay môi trường model: id model nhà cung cấp trả,
+  băm khoá gói). **Khoá vắng = như 2.26**: không băm, không khoá mới trong dòng pin (trường `tong_ket.model_carry` có từ 2.23 và vẫn bằng 0), không dòng stderr mới.
+- Khoá bật: mỗi eval trong `model_evals` được băm năm lớp đầu vào (lệnh đã giải · tệp khớp `paths` · cây
+  hồ sơ · tệp lệnh gọi tên · dấu vân tay). Cùng băm với lượt eval thật sự chạy gần nhất (≤ 7 ngày) → KHÔNG
+  gọi model; dòng `repin` mang `evals_hash`, `evals_carry`; section và stderr nói ra nguồn; tổng kết đếm
+  `carry`. Cùng băm mà mã khác → `carry_lech`, eval thôi dùng lại tới khi băm đổi. Cờ `--chay-lai-model` ép
+  chạy thật.
+- Script đếm mới `feature-loop/scripts/dem-dung-lai-model.mjs` (đường đo + bốn giới hạn kèm ngưỡng, GUIDE §7.1).
+- Bên đọc pin (`lib/`, `pre-merge-check.sh`, `recheck-evidence.cjs`) KHÔNG đổi — kho tiêu thụ không chép lại
+  lớp CI cho mục này.
+- **Nhận mốc ở crm:** cập nhật plugin feature-loop, thêm `model_carry_cmd` (lệnh dò id model Gateway + băm
+  `bun.lock`); lượt ghim lại đầu tiên sau khi bật chạy trọn.
+
 ### Trang hồ sơ một việc + khối dữ liệu lộ trình bản 2 (hồ sơ `trang-ho-so-mot-viec`, hàng X2, T2)
 
 Gốc: crm `trang-lo-trinh-trong-crm` — mục ngoài hợp đồng «hiện hồ sơ nghiệm thu của việc».
