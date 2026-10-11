@@ -74,29 +74,11 @@ function xetLenhNen(dauVao, taiNguyen) {
   return { ma: 2, loi: `chan-s4: lệnh nền giữ khoá ${taiNguyen} phải chạy qua giu-nhip: ${lenhBoc(lenh)}` };
 }
 
-// Dãy của cwd: id, `null` khi cwd ngoài mọi dãy, `undefined` khi `hang-viec.json` không đọc được.
-function dayCuaCwd(thuMuc, cwd) {
-  let hangViec;
-  try {
-    hangViec = docHangViec(thuMuc);
-  } catch {
-    return undefined;
-  }
-  return phienCuaCwd(hangViec, cwd) ?? null;
-}
-
-// Lời chặn nêu đúng lệnh CLI xin lượt (lệnh con `xin` của DP3 — một bên viết của `xin/`), không dặn viết tay
-// tệp đơn. Lõi đã chép vào đợt (`chay`) thì trỏ lõi ấy; chưa có thì trỏ lõi của gói đang chạy hook. Cwd ngoài
-// mọi dãy thì nói rằng chỉ phiên thợ của một dãy xin được lượt (design DP6 §4 C1). `hang-viec.json` không đọc
-// được thì chính `xin` cũng không chạy được (nó cần tệp ấy để biết dãy), nên giữ lời dặn cũ — đường đọc-cũ.
-function loiChan(thuMuc, taiNguyen, tinhTrang, cwd) {
-  const dau = `chan-s4: khoá ${taiNguyen} ${tinhTrang}.`;
-  const day = dayCuaCwd(thuMuc, cwd);
-  if (day === undefined) return `${dau} Ghi đơn xin/<phiên>-${taiNguyen}.json trong ${thuMuc} rồi chờ khoa/${taiNguyen}/chu.json ghi tên phiên này.`;
-  if (!day) return `${dau} Phiên này không thuộc dãy nào của đợt — chỉ phiên thợ của một dãy xin được lượt (chạy từ worktree của dãy).`;
+// Lõi để chạy lệnh `xin` (lệnh con của DP3 — một bên viết của `xin/`): lõi đã chép vào đợt (`chay`) nếu có,
+// không thì lõi của gói đang chạy hook (design DP6 §4 C1).
+function cliXin(thuMuc) {
   const loiDot = path.join(thuMuc, 'loi', 'dieu-phoi.mjs');
-  const cli = fs.existsSync(loiDot) ? loiDot : path.join(DAY_GOI, 'dieu-phoi.mjs');
-  return `${dau} Xin lượt: node ${nhayDoiSo(cli)} xin ${taiNguyen} — rồi chờ khoa/${taiNguyen}/chu.json ghi tên dãy ${day}.`;
+  return fs.existsSync(loiDot) ? loiDot : path.join(DAY_GOI, 'dieu-phoi.mjs');
 }
 
 export function quyet(dauVao, { timDot = timThuMucDot } = {}) {
@@ -108,7 +90,25 @@ export function quyet(dauVao, { timDot = timThuMucDot } = {}) {
   const chu = docJson(path.join(thuMuc, 'khoa', taiNguyen, 'chu.json'));
   if (chu && trongWorktree(chu.worktree, dauVao.cwd)) return xetLenhNen(dauVao, taiNguyen);
   const tinhTrang = chu ? `đang thuộc ${chu.phien}` : 'đang trống nhưng chưa cấp cho phiên này';
-  return { ma: 2, loi: loiChan(thuMuc, taiNguyen, tinhTrang, dauVao.cwd) };
+  // Phiên thợ của một dãy (DP7 AC-6): nói rõ đây là chờ lượt, để phiên không đọc lời chặn thành lỗi —
+  // không hỏi người, không tung lượt mới. Tiền tố cũ giữ nguyên (ca DP1 ghim nó).
+  // Đọc khoan dung: đợt không có hoặc hỏng hang-viec.json thì lời chặn y như cũ.
+  let day = null;
+  try {
+    day = phienCuaCwd(docHangViec(thuMuc), dauVao.cwd);
+  } catch {
+    day = null;
+  }
+  const choLuot = day
+    ? ` Trong đợt đây là chờ lượt của dãy ${day}, không phải lỗi: không hỏi người, không chấm lại — xin lượt theo mục «Cách xin tài nguyên» của ${path.join(thuMuc, 'LUAT.md')}.`
+    : '';
+  // DP6 AC-4: trong dãy, nêu thêm đúng lệnh CLI xin lượt, chạy được nguyên văn từ worktree của dãy (đường đối số
+  // bọc nháy cả khi chỉ có dấu cách). Câu cũ và câu «chờ lượt» của DP7 giữ nguyên làm tiền tố; ngoài dãy y như cũ.
+  const lenhXin = day ? ` Lệnh xin lượt (chạy nguyên văn từ worktree của dãy): node ${nhayDoiSo(cliXin(thuMuc))} xin ${taiNguyen}` : '';
+  return {
+    ma: 2,
+    loi: `chan-s4: khoá ${taiNguyen} ${tinhTrang}. Ghi đơn xin/<phiên>-${taiNguyen}.json trong ${thuMuc} rồi chờ khoa/${taiNguyen}/chu.json ghi tên phiên này.${choLuot}${lenhXin}`,
+  };
 }
 
 export function chayHook(raw, tuyChon = {}) {

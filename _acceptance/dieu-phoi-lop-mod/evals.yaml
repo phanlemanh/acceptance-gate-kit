@@ -70,11 +70,15 @@ evals:
     paths: [dieu-phoi/scripts/hook-chan-s4.mjs, dieu-phoi/scripts/ghi.mjs, tests/dieu-phoi/lop-mod.test.mjs]
     expected: >
       exit 0; "ok" cho "DP6-04 loi-chan": kho thử dựng dưới một thư mục tên có dấu cách và `$` (vd «kho $x»),
-      đợt dựng bằng `mo`, khoá s4 do P2 giữ; hook thật từ worktree P1 → stderr có một dòng lệnh `xin s4` trỏ
-      `<realpath thư mục đợt>/loi/dieu-phoi.mjs` và không chứa "Ghi đơn xin/"; từ gốc kho → stderr chứa "chỉ
-      phiên thợ của một dãy" và không chứa " xin s4". "ok" cho "DP6-04 round-trip": dòng lệnh RÚT từ stderr của
-      ca P1 (không chép tay), chạy bằng `bash -c` từ worktree P1 → thoát 0, tập tệp trong xin/ == {P1-s4.json};
-      `kiemDon` của hinh-dang.mjs nhận tệp đó (không ném).
+      đợt dựng bằng `mo` rồi `chay`/`dung`, khoá s4 do P2 giữ; hook thật từ worktree P1 → stderr bắt đầu bằng câu
+      cũ «… Ghi đơn xin/<phiên>-s4.json …» rồi câu «Trong đợt đây là chờ lượt của dãy P1» (DP7 AC-6), và có
+      «Lệnh xin lượt (…): node <realpath thư mục đợt>/loi/dieu-phoi.mjs xin s4»; từ gốc kho → bắt đầu bằng câu cũ
+      và không chứa «Lệnh xin lượt». "ok" cho "DP6-04 round-trip": lệnh RÚT từ stderr của ca P1 (không chép tay),
+      chạy bằng `bash -c` từ worktree P1 → thoát 0, tập tệp trong xin/ == {P1-s4.json}; `kiemDon` của
+      hinh-dang.mjs nhận tệp đó. "ok" cho "DP6-04 khong-loi" (đợt chưa chay → lệnh trỏ lõi gói, chạy được), "DP6-04
+      hang-viec-hong" (hang-viec.json vắng → lời cũ, không «Lệnh xin lượt», và `xin` thật sự từ chối), "DP6-04
+      duong-dau-cach" (đường chỉ có dấu cách → lệnh in ra vẫn chạy được). "ok" cho "DP7-06 trong-day" và "DP7-06
+      ngoai-day" (hai ca của DP7 trên cùng lời chặn).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5
     criterion: AC-5

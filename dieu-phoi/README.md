@@ -74,6 +74,7 @@ Thợ ghi vào thư mục đợt bằng lệnh con (`xin`, `nha`, `yeu-cau`) —
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
 
+<<<<<<< HEAD
 ## Chặn S4 và việc chờ người
 
 - **Hook chặn S4 nhận ra lệnh đúng theo cấu trúc lời gọi**, không so chuỗi con. Lệnh chạy `repin-lane.mjs`,
@@ -83,10 +84,10 @@ Thợ ghi vào thư mục đợt bằng lệnh con (`xin`, `nha`, `yeu-cau`) —
   chạy chúng; và trừ khi thân đưa cho trình thông dịch đọc stdin như `bash <<EOF`, `… | bash`, `node <<EOF` — khi
   ấy thân là lệnh và vẫn bị chặn), `node --check`/`node -c` (kiểm cú pháp), và lời gọi có `--help` (cả ba script dừng ở cờ lạ
   trước khi làm việc).
-- **Lời chặn nêu sẵn lệnh xin lượt**: `node <thư mục đợt>/loi/dieu-phoi.mjs xin s4` (đợt chưa `chay` thì lõi
-  của gói), chạy được nguyên văn từ worktree của dãy. Phiên ngoài mọi dãy được bảo rằng chỉ phiên thợ của
-  một dãy xin được lượt. Đợt có `hang-viec.json` không đọc được thì giữ lời dặn cũ, vì `xin` cũng không chạy
-  được ở đó.
+- **Lời chặn nêu sẵn lệnh xin lượt** khi cwd thuộc một dãy: sau câu cũ và câu «chờ lượt» (DP7), thêm
+  «Lệnh xin lượt (chạy nguyên văn từ worktree của dãy): node <thư mục đợt>/loi/dieu-phoi.mjs xin s4» (đợt chưa
+  `chay` thì lõi của gói). Ngoài mọi dãy, hoặc đợt có `hang-viec.json` không đọc được (khi ấy `xin` cũng không
+  chạy), lời chặn y như cũ.
 - **Hộp xin quyền ở phiên thợ luôn thành việc chờ người** (`cho-nguoi/<dãy>.json`), kể cả khi dãy đang chờ
   lượt hay chờ trả lời. Thông báo «đang rảnh» thì vẫn im khi dãy đang chờ.
 - **Giám sát thức ngay khi thợ chờ người**: sự kiện `cho-nguoi` mang `can_phan`, `loai_cho` và `tin` (≤ 200 ký
@@ -106,6 +107,27 @@ Giới hạn đã khai, kèm ngưỡng mở lại:
   giám sát báo chủ kho một việc chờ đã xong.
 - Ca kiểm «nguồn» của chín lời gọi thật (`tests/dieu-phoi/rut-lenh-that.mjs`) chỉ chạy trên máy có bản ghi
   hội thoại; nơi khác (CI) in «bỏ qua» — các ca phân loại vẫn chạy trên tệp ca đã commit.
+=======
+## Phiên thợ trong đợt
+
+Phiên thợ không cần ai dặn nó đang trong đợt: S0 của `/feature-loop` chạy `trong-dot.mjs` của gói
+feature-loop (chỉ đọc). Kho không có đợt → lệnh không in gì và vòng chạy y như cũ. Có đợt → nó gọi lệnh
+`tho --json` của bản lõi trong thư mục đợt và nhận một JSON: dãy của phiên (theo worktree trong
+`hang-viec.json`), pha, quyền tự merge, hàng kế (đọc từ `tiep/<dãy>.json`) và `viec_ke` — việc kế của thợ khi
+xong một hàng:
+
+- `mo-hang` — hàng kế đã có quyết build (hồ sơ, ô `decision: build`, hoặc hàng phát sinh giám sát đã thêm):
+  thợ tự mở nó trong cùng phiên.
+- `cho-nhip` — bộ phát lịch chưa thấy hàng vừa xong; thợ chờ một nhịp rồi đọc lại.
+- `bao-giam-sat` — hàng kế chưa có quyết build (hoặc đã quyết park, kill, iterate): thợ không mở, báo giám sát.
+- `cho` — dãy nghỉ, chờ phụ thuộc, hoặc đợt không ở pha đang chạy.
+- `xong` — dãy hết hàng.
+
+Quyền tự merge do người trả ở thẻ khởi tạo, giám sát ghi bằng `pha dang-chay --tu-merge co|khong`; vắng thì
+thợ đọc là không tự merge. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
+`hang-moi`) theo mục «Cách xin tài nguyên» của `LUAT.md` của đợt. Yêu cầu `can-nguoi` chưa trả lời hiện ở danh
+sách chờ người của bảng đợt và được lệnh đếm tính một lần.
+>>>>>>> origin/main
 
 ## Chuyển từ bản lõi chép tay trong kho
 

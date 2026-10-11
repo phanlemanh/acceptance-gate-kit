@@ -140,7 +140,9 @@ Tệp: `dieu-phoi/scripts/phan-loai-s4.mjs` (một hàm cho hook chặn S4).
   Tập ô mà mỗi đột biến chiều đỏ phải làm đỏ được RÚT bằng code từ ma trận (lọc ô theo token của vỏ bọc hay cờ bị
   đột biến), không gõ số tay; ca kiểm trước khi ghim rằng 0 < số ô rút được < tổng số ô.
 
-**Lời chặn.** `hook-chan-s4.mjs` hôm nay dặn «Ghi đơn xin/<phiên>-s4.json … rồi chờ», tức mời viết tay một tệp
+**Lời chặn** (sửa 11/10 sau khi gộp DP7: DP7 AC-6, đã ký, giữ nguyên câu cũ làm tiền tố và thêm câu «chờ lượt» khi cwd
+thuộc dãy, ngoài dãy y như cũ — DP6 nhường, chỉ NỐI THÊM lệnh xin lượt sau câu của DP7, không bỏ câu cũ; đoạn dưới
+là bản S1, giữ để đối chiếu). `hook-chan-s4.mjs` hôm nay dặn «Ghi đơn xin/<phiên>-s4.json … rồi chờ», tức mời viết tay một tệp
 mà DP3 đã giao cho CLI (`xin`). Lời mới nêu đúng lệnh `node <thư mục đợt>/loi/dieu-phoi.mjs xin <tài nguyên>`
 (lõi đã chép vào đợt, spec §16 T4), đường được bọc an toàn cho shell bằng hàm `nhayDon` sẵn có (nháy đơn khi có
 ký tự đặc biệt; với một đối số đường, dấu cách cũng tính là đặc biệt), và, khi cwd không thuộc dãy nào, nói rằng chỉ

@@ -361,7 +361,7 @@ test('DP6-03 lech-o-goc', async () => {
 
 // ---------- DP6-04: lời chặn nêu lệnh xin lượt (AC-4, E4) ----------
 const LENH_S4 = { tool_name: 'Bash', tool_input: { command: 'node x/repin-lane.mjs --write' } };
-const XIN = /Xin lượt: (.+?) — rồi chờ/;
+const XIN = /Lệnh xin lượt \(chạy nguyên văn từ worktree của dãy\): (node .+ xin s4)$/m;
 function dotCoLoi() {
   const cha = path.join(tam('dp6-'), 'kho $x');
   fs.mkdirSync(cha);
@@ -377,16 +377,15 @@ test('DP6-04 loi-chan', () => {
   const { kho, dot, w1 } = dotCoLoi();
   const p1 = chayHookChanS4(LENH_S4, { cwd: w1 });
   assert.equal(p1.ma, 2);
-  assert.match(p1.err, /^chan-s4: khoá s4 /);
-  assert.ok(!p1.err.includes('Ghi đơn xin/'), 'không còn lời dặn viết tay xin/');
+  // Tiền tố cũ và câu «chờ lượt» của DP7 (AC-6) giữ nguyên; DP6 nối thêm đúng lệnh xin lượt.
+  assert.match(p1.err, /^chan-s4: khoá s4 đang thuộc P2\. Ghi đơn xin\/<phiên>-s4\.json .* Trong đợt đây là chờ lượt của dãy P1/);
   const m = XIN.exec(p1.err);
   assert.ok(m, `phải nêu lệnh xin lượt: ${p1.err}`);
   assert.ok(m[1].includes(path.join(dot, 'loi', 'dieu-phoi.mjs')), `lệnh phải trỏ lõi của đợt: ${m[1]}`);
-  assert.ok(/ xin s4$/.test(m[1]), m[1]);
   const goc = chayHookChanS4(LENH_S4, { cwd: kho });
   assert.equal(goc.ma, 2);
-  assert.match(goc.err, /chỉ phiên thợ của một dãy/);
-  assert.ok(!goc.err.includes(' xin s4'), 'ngoài dãy không nêu lệnh xin');
+  assert.match(goc.err, /^chan-s4: khoá s4 đang thuộc P2\. Ghi đơn xin\/<phiên>-s4\.json/);
+  assert.ok(!goc.err.includes('Lệnh xin lượt'), 'ngoài dãy không nêu lệnh xin');
 });
 
 test('DP6-04 round-trip', async () => {
@@ -416,8 +415,9 @@ test('DP6-04 hang-viec-hong', () => {
   fs.rmSync(path.join(dot, 'hang-viec.json'));
   const r = chayHookChanS4(LENH_S4, { cwd: w1 });
   assert.equal(r.ma, 2);
-  // `xin` cần hang-viec.json để biết dãy, nên lời chặn giữ lời dặn cũ — và `xin` thật sự từ chối ở đây.
+  // `xin` cần hang-viec.json để biết dãy, nên lời chặn giữ lời dặn cũ, không nêu lệnh xin — và `xin` thật sự từ chối ở đây.
   assert.match(r.err, /^chan-s4: khoá s4 đang thuộc P2\. Ghi đơn xin\/<phiên>-s4\.json/);
+  assert.ok(!r.err.includes('Lệnh xin lượt'), r.err);
   assert.notEqual(chayCli(w1, ['xin', 's4']).ma, 0, 'đối chứng: lệnh xin không chạy được khi hang-viec.json vắng');
 });
 

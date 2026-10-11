@@ -3,7 +3,7 @@
   "will_do": [
     {"id": "AC-1", "p": "Sẽ nhận ra mọi lần chạy S4 hay đường nền kể cả khi lệnh được bọc bằng timeout, env, nice, time, nohup, command, exec hay caffeinate kèm cờ — đo trên 132 ca viết sẵn, gồm ba lệnh thật từng lọt."},
     {"id": "AC-3", "p": "Sẽ giữ chín lệnh thật đo được hôm 11/10 làm ca kiểm, rút thẳng từ nhật ký hội thoại bằng script (không gõ tay, đã ẩn danh), và chứng rằng bản cũ sai đúng chín ca đó."},
-    {"id": "AC-4", "p": "Sẽ cho thợ bị chặn thấy đúng một lệnh xin lượt chạy được ngay, thay cho lời dặn tự viết tay một tệp."},
+    {"id": "AC-4", "p": "Sẽ cho thợ bị chặn thấy thêm đúng một lệnh xin lượt chạy được ngay, sau lời dặn cũ và câu «chờ lượt» của DP7."},
     {"id": "AC-5", "p": "Sẽ luôn ghi nhận hộp xin quyền đang chờ người ở phiên thợ, kể cả khi thợ đó đang chờ khoá hay chờ trả lời."},
     {"id": "AC-6", "p": "Sẽ làm giám sát thức dậy ngay khi một thợ đứng chờ người — thử thật từ hộp xin quyền tới đúng bộ lọc giám sát đang nghe, cả trên đợt nâng từ bản cũ."},
     {"id": "AC-7", "p": "Sẽ giữ nguyên mọi ca kiểm của các hàng trước và giữ im lặng ở kho không có đợt."}
