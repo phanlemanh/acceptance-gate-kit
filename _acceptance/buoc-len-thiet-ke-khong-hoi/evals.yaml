@@ -1,0 +1,167 @@
+schema_version: 1
+feature_slug: buoc-len-thiet-ke-khong-hoi
+# Ca đo sống ở tests/scripts/can-cu-s1.ca.mjs (CC-02..CC-10), gọi từ phần bash của
+# tests/scripts/run-tests.sh — executor `executors.test.scripts_bash` sẵn có, cùng lệnh suite nên lệnh
+# trùng chỉ chạy một lần; không thêm khoá executor. Kho thử do code sinh trong lượt (thư mục tạm, git
+# init, một commit gốc làm «gốc nhánh»); giá trị mong đợi viết sẵn trong ca lúc dựng kho thử, KHÔNG rút
+# từ đầu ra bộ phân loại hay thẻ. Mô-đun và thẻ gọi bằng require/spawnSync như người gọi thật; đường dẫn
+# mọi script suy từ vị trí tệp ca. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao vật bị tiêm SAU khi bản lành
+# xanh trên cùng kho thử, và ghim thông điệp. Mỗi eval ghim đúng dòng "PASS: CC-…" — suite xanh mà thiếu
+# dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: judgment
+    inputs:
+      - feature-loop/skills/feature-loop/SKILL.md
+      - docs/superpowers/specs/2026-10-11-buoc-len-thiet-ke-khong-hoi-design.md
+      - _acceptance/buoc-len-thiet-ke-khong-hoi/opportunity.md
+      - commands/acceptance-card.md
+    question: >
+      Đọc mục «S1 — DESIGN» và đoạn «Bất biến dừng» ở đầu SKILL.md, đối chiếu với design doc §3.1, §3.5,
+      §3.6 và ý định ở ô cơ hội. Lời dặn bước thiết kế NGOÀI đợt có còn chỗ nào bảo máy dừng xin duyệt
+      thiết kế hay hỏi «làm ngay chứ?» giữa bước thiết kế không? Có xếp mỗi lựa chọn theo đúng ba nguồn
+      căn cứ (mục tiêu + quy tắc đã khai · chỉ một lối ra · chỉ người có) kèm việc máy làm với từng nguồn,
+      nói «không trỏ được căn cứ thì là chỉ người có», và khó-đảo luôn là câu hỏi không? Câu chỉ-người-biết
+      có được soạn nháp theo khuyến nghị và đưa lên thẻ Cổng Phạm vi thay vì hỏi giữa chừng không? Danh
+      sách dừng của Gate 1 có thêm vế «sổ bước thiết kế còn câu chỉ-người-biết hoặc dòng đỏ» không? Điểm
+      vũ trang /goal đầu tiên có dời về lời mời Cổng Đáng không? Ý (4) của phản biện context sạch có soi
+      MỌI dòng sổ S1 máy đã quyết — chạm khó-đảo mà ghi không, câu trích có QUYẾT lựa chọn không, lối khác
+      của dòng một-lối có thật chết không, lựa chọn chỉ-người-biết bị ghi là máy quyết hay không ghi — với P0
+      xử lý bằng dòng S1 mới mang supersedes không? Mục «Sổ quyết định» có khuôn dòng lật ở Cổng Phạm vi
+      (stage gate1, supersedes, decided_by) và lời dặn ghi nó trước khi soạn lại không? Bước 3 của
+      commands/acceptance-card.md có bảo truyền gốc nhánh khi sổ bước thiết kế có dòng mang can_cu không?
+      Khối TRONG-DOT có còn nguyên lời dặn của nó (không bị viết đè) không? PASS khi mọi câu đều đúng; nêu
+      câu sai nếu có.
+    expected: "PASS — mọi vế đúng; FAIL nêu vế thiếu hoặc lời dặn còn bảo dừng hỏi"
+    evidence_required: [run_id, verifier, verified_at, panel_votes]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [feature-loop/skills/feature-loop/SKILL.md, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: CC-02 khoi-giu-byte" — mọi khối marker của SKILL ở commit `08ba287d`
+      (rút bằng `git show 08ba287d:<tệp>`; sha không resolve được thì ca FAIL) bằng từng byte khối cùng tên
+      ở cây; tập tên khối của cây trừ tập ở gốc == {DEC-CAN-CU-SLOT, DEC-LAT-GATE1}; `git diff --name-only 08ba287d` trên
+      feature-loop/scripts, feature-loop/workflows, dieu-phoi, scripts/cat-luot.mjs, skills/cat-luot, lib,
+      hooks, scripts/pre-merge-check.sh rỗng. Và "PASS: CC-02-do" — bản sao SKILL đổi một ký tự trong
+      TRONG-DOT → CHÍNH hàm so trả lỗi nêu «TRONG-DOT».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [feature-loop/skills/feature-loop/SKILL.md, scripts/can-cu-s1.cjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: CC-03 bash" và "PASS: CC-03 zsh" — ba khuôn rút từ khối DEC-CAN-CU-SLOT
+      (đúng 3 dòng, mỗi dòng bắt đầu `,"can_cu":`), điền giá trị viết sẵn (gồm câu có nháy đơn, `%`, `$`),
+      ghi bằng khối lệnh DEC-ID-RECIPE rút từ SKILL chạy dưới bash và dưới zsh (zsh vắng → ca FAIL, không
+      bỏ qua); bộ phân loại đọc lại: lớp == [da-quyet, da-quyet, cau-hoi], mọi trường == giá trị đã điền,
+      mã dòng duy nhất. Và "PASS: CC-03-do" — bản sao SKILL đổi `"can_cu"` thành `"cancu"` trong khuôn →
+      ca nêu khuôn 1 ra lớp doi-truoc.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/can-cu-s1.cjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: CC-04 ma-tran" — ma trận viết sẵn (số ca in ra, ≥ 22) mỗi ca so bằng nhau
+      {lớp, mã lý do, thông điệp}: muc-tieu hợp lệ có gốc → da-quyet; không gốc → da-quyet + ghi chú «chưa
+      kiểm câu trích có từ trước vòng»; thiếu tep/trich → thieu-con-tro; tệp vắng → tep-vang; trích < 20 ký
+      tự → trich-ngan; trích không có → trich-vang; trỏ contract.md, design doc, decisions.jsonl của chính
+      hồ sơ → tu-bien-minh (3 ca); ô cơ hội chưa ký → o-chua-ky; ô đã ký mới trong nhánh → da-quyet; trích
+      chỉ có trong nhánh → sinh-trong-vong; gốc không đọc được → da-quyet + cờ vàng; mot-loi có/thiếu
+      loi_chet → da-quyet/thieu-loi-chet; chi-nguoi có/thiếu khuyen hoặc loi_khac → cau-hoi/thieu-khuyen;
+      kho_dao trên muc-tieu và mot-loi → kho-dao; kho_dao trên chi-nguoi → cau-hoi; nguồn lạ → nguon-la;
+      không can_cu → doi-truoc; dòng bị một dòng sau thay → bi-thay (cả khi dòng thay đứng sau một dòng
+      đỏ); dòng S2 → bỏ qua. Và "PASS: CC-04-do <mã>" cho MỖI mã luật đỏ — bản sao
+      mô-đun gỡ đúng luật đó → ca của mã đó lệch kỳ vọng, nêu mã; bản lành xanh trên cùng ma trận trước.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/gate-card.js, scripts/can-cu-s1.cjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: CC-05 the" — thẻ Cổng 1 của hồ sơ nháp kho thử (gate-card.js gọi bằng
+      spawnSync, `--glossary-base` = commit gốc kho thử): khối «Câu chỉ anh trả lời được» có đúng Hỏi-1,
+      Hỏi-2 theo thứ tự sổ, mỗi câu chứa khuyến nghị + lối khác viết sẵn, «khó-đảo» chỉ ở câu đúng; khối
+      «Máy đã quyết ở bước thiết kế» có câu trích + tệp và lối chết; khối «Quyết định &amp; trade-off» chứa
+      đúng dòng đời trước + dòng S2 (đếm 2); «VIỆC CỦA ANH» có một mục mỗi câu; câu trả lời mẫu == «duyệt
+      hay sửa: ___». Bản rút: routing.hoi == [duyệt hay sửa, Hỏi-1, Hỏi-2]; can_cu == {cau_hoi 2, da_quyet
+      2, do 0, doi_truoc 1}; one_shot kết thúc bằng « duyệt». Và "PASS: CC-05 do" — thêm một dòng đỏ: cờ đỏ
+      chứa mã dòng + thông điệp, one_shot kết thúc bằng « ___». Và "PASS: CC-05 khong-goc" — cùng hồ sơ dựng
+      không `--glossary-base`: đúng 1 cờ vàng chứa «chưa kiểm câu trích có từ trước vòng», không cờ đỏ mới. Và
+      "PASS: CC-05-do" — bản sao thẻ đưa câu
+      hỏi vào khối máy-đã-quyết → hàm so nêu mã dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/can-cu-s1.cjs, scripts/gate-card.js, scripts/ho-so-tom-tat.cjs, feature-loop/scripts/claim-scan.mjs, scripts/loop-health.mjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: CC-06 kho-that" — bộ phân loại trên mọi `_acceptance/*/decisions.jsonl` của
+      cây (suy từ vị trí ca): 0 dòng đỏ trên hồ sơ có sẵn ngoài hồ sơ của vòng này, in số hồ sơ, số dòng
+      đã đọc (> 0) và số dòng stage gate1 mang supersedes; "PASS: CC-06 the-cu" — thẻ Cổng 1 (ép `--gate 1`) của ba hồ sơ `signed-off` đầu tiên
+      theo tên có dòng `stage: S1` trong sổ (chọn bằng mã, in tên) không chứa cờ «dòng sổ đời trước», không
+      chứa khối «Câu chỉ anh trả lời được» và khối «Quyết định &amp; trade-off» còn đủ số dòng sổ không phải
+      seal; "PASS: CC-06 vang" — hồ sơ nháp
+      kho thử chỉ có dòng S1 đời trước: đúng 1 cờ vàng chứa «dòng sổ đời trước»; "PASS: CC-06 bo-doc" —
+      tomTatHoSo, claim-scan và loop-health trên cùng sổ có/không khoá can_cu ra kết quả bằng nhau. Và
+      "PASS: CC-06-do" — bản sao mô-đun coi dòng không can_cu là đỏ → ca kho-that nêu hồ sơ đầu tiên đỏ.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/can-cu-s1.cjs, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: CC-07" — `--dem --json` trên kho thử ba hồ sơ ra từng hồ sơ {cau_hoi,
+      da_quyet, do, doi_truoc, lat_may_quyet, lat_cau_hoi} BẰNG bảng viết sẵn (lat_may_quyet 1 ở hồ sơ A,
+      lat_cau_hoi 1 ở hồ sơ B, cả hai 0 ở hồ sơ C dù C có supersedes một dòng S2 — dòng ngoài S1 KHÔNG được đếm); dạng chữ in đúng một dòng
+      mỗi hồ sơ chứa slug và cùng số. Và "PASS: CC-07 khuon-lat" — khuôn rút từ khối DEC-LAT-GATE1 của SKILL,
+      ghi bằng DEC-ID-RECIPE rút từ SKILL vào hồ sơ D (có một dòng S1 máy đã quyết) → `--dem` ra
+      lat_may_quyet 1 ở D. Và "PASS: CC-07-do" — bản sao đếm mọi supersedes → hàm so nêu «C»; "PASS:
+      CC-07-do khuon" — bản sao SKILL đổi `"stage":"gate1"` trong khuôn → ca nêu khuôn ra 0.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: judgment
+    inputs:
+      - GUIDE.md
+      - CONTEXT.md
+      - docs/adr/0022-can-cu-lua-chon-buoc-thiet-ke-la-khoa-may-doc.md
+      - docs/adr/0021-ba-ve-mot-cau-mot-so-quyet-dinh.md
+    question: >
+      Một người ở kho tiêu thụ chỉ đọc mục sổ quyết định của GUIDE.md, mục «Nguồn căn cứ» của CONTEXT.md và
+      ADR 0022 (đối chiếu ADR 0021). Họ có biết ghi khoá can_cu cho ba nguồn (mục tiêu + quy tắc · một lối ra
+      · chỉ người có) và cờ khó-đảo, dòng sổ cũ không có khoá được đọc ra sao, thẻ Cổng Phạm vi hiện gì cho
+      từng lớp không? CONTEXT.md có định nghĩa «Nguồn căn cứ» kèm từ tránh không? ADR 0022 có nói vì sao khoá
+      máy đọc này không trái ADR 0021 (không phải câu thứ tư để người đọc), ai phê phần CỘNG, và đường đảo
+      (ngừng ghi khoá, bộ đọc bỏ qua) không? PASS khi đủ; nêu chỗ thiếu.
+    expected: "PASS — người kho tiêu thụ làm theo được; FAIL nêu chỗ thiếu"
+    evidence_required: [run_id, verifier, verified_at, panel_votes]
+  - id: E9
+    criterion: AC-9
+    executor: ui-check
+    layer: ui-observed
+    paths: [scripts/gate-card.js, scripts/can-cu-s1.cjs]
+    steps:
+      - "Máy: `node tests/scripts/can-cu-s1.ca.mjs --dung-the <thư mục tạm T>` dựng kho thử của AC-5 và ghi T/card.html (thẻ Cổng 1 bọc `<!doctype html><meta charset=utf-8>`); ghi đường T vào observed"
+      - "Mở file://T/card.html ở khổ 1280×800 → screenshot evidence/E9-1-rong.png"
+      - "Đọc trên ảnh: thứ tự khối từ trên xuống; với Hỏi-1, Hỏi-2 đọc khuyến nghị và lối khác; với mỗi dòng máy đã quyết đọc câu trích và tệp → ghi vào observed"
+      - "Đổi khổ 390×844, tải lại → screenshot evidence/E9-2-hep.png; kiểm document.documentElement.scrollWidth <= 390 → ghi số vào observed"
+    expected: "Nhìn: khối «Câu chỉ anh trả lời được» đứng trên khối «Máy đã quyết ở bước thiết kế»; hai câu hỏi đọc được khuyến nghị + lối khác, nhãn khó-đảo ở đúng một câu; hai dòng máy đã quyết đọc được căn cứ; một màn đọc trả lời được «máy đã quyết gì, còn hỏi gì»; khổ 390 scrollWidth <= 390"
+    evidence_required: [run_id, exit_code, verifier, verified_at, screenshot]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.scripts_bash
+    paths: [scripts/can-cu-s1.cjs, _acceptance/buoc-len-thiet-ke-khong-hoi/decisions.jsonl, tests/scripts/can-cu-s1.ca.mjs, tests/scripts/run-tests.sh]
+    expected: >
+      exit 0; stdout có "PASS: CC-10" — bộ phân loại trên `_acceptance/buoc-len-thiet-ke-khong-hoi/decisions.jsonl`
+      của cây với gốc `08ba287d`: do == 0, cau_hoi == 3, da_quyet == 10, bi_thay == 3 (in bốn số).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
