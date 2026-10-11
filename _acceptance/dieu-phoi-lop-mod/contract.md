@@ -5,10 +5,12 @@ slug: dieu-phoi-lop-mod
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: draft
+status: approved
 design_doc: docs/superpowers/specs/2026-10-11-dieu-phoi-lop-mod-design.md
 approved_by:
 approved_at:
+veto_state: mo
+veto_opened_at: 2026-10-11T03:26:07Z
 ---
 
 # Acceptance Contract: dieu-phoi-lop-mod
