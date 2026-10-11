@@ -92,7 +92,8 @@ const khaiGoi = (kho, mau = 'goi/dot-{ten}') => {
 const thuMucDot = (kho) => fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
 
 // ---------- DP2-01: ba lệnh người (AC-1, E1) ----------
-const BA_LENH = ['dong-dot.md', 'mo-dot.md', 'tiep-tuc.md', 'xem.md'];
+// DP4 (hồ sơ dieu-phoi-doi-tai-khoan AC-14): lệnh thứ năm ban-giao.md.
+const BA_LENH = ['ban-giao.md', 'dong-dot.md', 'mo-dot.md', 'tiep-tuc.md', 'xem.md'];
 
 export function kiemLenh(gocGoi) {
   const dir = path.join(gocGoi, 'commands');

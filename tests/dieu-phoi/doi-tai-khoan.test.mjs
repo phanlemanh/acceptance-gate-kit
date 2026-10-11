@@ -1014,3 +1014,76 @@ test('DP4-13-do quet-chu', async () => {
   console.log(`  bản tiêm: ${loi.join(' | ')}`);
   assert.ok(loi.some((l) => l.includes(`doc-muc-dung.ts:${dong}`)), `phải nêu doc-muc-dung.ts:${dong}`);
 });
+
+// ---------- DP4-14: lệnh người và tài liệu (AC-14, E14) ----------
+const thanSau = (t, moc) => t.slice(Math.max(0, t.indexOf(moc)));
+export function kiemBanGiaoMd(gocGoi = GOI) {
+  const p = path.join(gocGoi, 'commands', 'ban-giao.md');
+  if (!fs.existsSync(p)) return ['ban-giao.md: không có'];
+  const t = fs.readFileSync(p, 'utf8');
+  const body = thanSau(t, '\nCác bước');
+  const loi = [];
+  const vi = { cli: body.indexOf('dieu-phoi.mjs" ban-giao'), nhan: body.indexOf('Nhắn từng phiên thợ'), bao: body.indexOf('Báo chủ kho') };
+  if (Object.values(vi).some((x) => x < 0) || !(vi.cli < vi.nhan && vi.nhan < vi.bao)) loi.push(`ban-giao.md: trình tự phải là CLI ban-giao → nhắn thợ → báo chủ kho (vị trí ${vi.cli} · ${vi.nhan} · ${vi.bao})`);
+  const cauBao = body.slice(vi.bao);
+  if (!cauBao.includes('/dieu-phoi:tiep-tuc') || !cauBao.includes('loi/dieu-phoi.mjs tiep-tuc')) loi.push('ban-giao.md: câu báo thiếu /dieu-phoi:tiep-tuc hoặc đường lùi loi/dieu-phoi.mjs tiep-tuc');
+  if (/^disable-model-invocation:/m.test(t)) loi.push('ban-giao.md: không được khoá model-invocation');
+  return loi;
+}
+export function kiemTiepTucMdDp4(gocGoi = GOI) {
+  const t = fs.readFileSync(path.join(gocGoi, 'commands', 'tiep-tuc.md'), 'utf8');
+  const body = thanSau(t, '\nCác bước');
+  const loi = [];
+  const iHm = body.indexOf('han-muc --nguon get-usage');
+  const iCli = body.indexOf('dieu-phoi.mjs" tiep-tuc --phien');
+  if (iHm < 0 || iCli < 0 || !(iHm < iCli)) loi.push(`tiep-tuc.md: đọc mức dùng phải đứng trước CLI tiep-tuc (vị trí ${iHm} · ${iCli})`);
+  const nhe = /\*\*Dạng `--nhe`\*\*[\s\S]*$/.exec(body)?.[0] ?? '';
+  if (!nhe.includes('han-muc')) loi.push('tiep-tuc.md: dạng --nhe thiếu bước đọc mức dùng');
+  const lich = body.slice(body.indexOf('Lịch 30′'));
+  const iLh = lich.indexOf('han-muc');
+  const iDt = lich.indexOf('danh-thuc');
+  if (iLh < 0 || iDt < 0 || !(iLh < iDt)) loi.push(`tiep-tuc.md: việc của lịch 30′ phải gọi han-muc trước danh-thuc (vị trí ${iLh} · ${iDt})`);
+  for (const k of ['can_doc_han_muc', 'khuyen_cho']) if (!body.includes(`\`${k}\`:`)) loi.push(`tiep-tuc.md: thiếu dòng xử lý ${k}`);
+  return loi;
+}
+test('DP4-14 ban-giao-md', () => assert.deepEqual(kiemBanGiaoMd(), []));
+test('DP4-14 tiep-tuc-md', () => assert.deepEqual(kiemTiepTucMdDp4(), []));
+test('DP4-14 tai-lieu', () => {
+  const ctx = fs.readFileSync(path.join(KIT, 'CONTEXT.md'), 'utf8');
+  const muc = /\*\*Bàn giao tài khoản\*\*:\n[\s\S]*?(?=\n\*\*|$)/.exec(ctx)?.[0] ?? '';
+  assert.ok(muc && /_Avoid_/.test(muc), 'CONTEXT.md phải có mục «Bàn giao tài khoản» kèm _Avoid_');
+  for (const tep of ['GUIDE.md', 'QUICKSTART.md']) assert.ok(fs.readFileSync(path.join(KIT, tep), 'utf8').includes('/dieu-phoi:ban-giao'), `${tep} phải nêu /dieu-phoi:ban-giao`);
+});
+const saoLenh = (sua) => {
+  const sao = path.join(tam('dp4-goi-'), 'dieu-phoi');
+  fs.cpSync(GOI, sao, { recursive: true });
+  sua(sao);
+  return sao;
+};
+test('DP4-14-do dao-buoc', () => {
+  assert.deepEqual(kiemBanGiaoMd(saoLenh(() => {})), [], 'đối chứng dương');
+  const sao = saoLenh((s) => {
+    const p = path.join(s, 'commands', 'ban-giao.md');
+    const goc = fs.readFileSync(p, 'utf8');
+    const iCli = goc.indexOf('1. **CLI bàn giao.**');
+    const iBao = goc.indexOf('4. **Báo chủ kho**');
+    assert.ok(iCli > 0 && iBao > iCli, 'bước tiêm không áp được');
+    const dongBao = goc.slice(iBao);
+    fs.writeFileSync(p, `${goc.slice(0, iCli)}${dongBao}\n${goc.slice(iCli, iBao)}`);
+  });
+  const loi = kiemBanGiaoMd(sao);
+  assert.ok(loi.some((l) => l.startsWith('ban-giao.md: trình tự')), loi.join(' | '));
+});
+test('DP4-14-do bo-nhe', () => {
+  assert.deepEqual(kiemTiepTucMdDp4(saoLenh(() => {})), [], 'đối chứng dương');
+  const sao = saoLenh((s) => {
+    const p = path.join(s, 'commands', 'tiep-tuc.md');
+    const goc = fs.readFileSync(p, 'utf8');
+    const iNhe = goc.indexOf('**Dạng `--nhe`**');
+    const tiem = goc.slice(0, iNhe) + goc.slice(iNhe).replace(/bước 0 \([^)]*\), /, '');
+    assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+    fs.writeFileSync(p, tiem);
+  });
+  const loi = kiemTiepTucMdDp4(sao);
+  assert.ok(loi.some((l) => l.includes('--nhe')), loi.join(' | '));
+});

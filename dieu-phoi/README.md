@@ -45,6 +45,16 @@ lại bộ phát lịch nếu chết, và trả kế hoạch cho từng dãy; l�
 Thợ ghi vào thư mục đợt bằng lệnh con (`xin`, `nha`, `yeu-cau`) — xem mục «Cách xin tài nguyên» của
 `LUAT.md` trong thư mục đợt.
 
+## Đổi tài khoản (hết hạn mức)
+
+Khai ngưỡng ở khoá `han_muc` của `dieu-phoi.config.json` (khuôn: `{bao_truoc_pct: 80, ban_giao_pct: 90,
+cho_ban_giao_phut: 20, cho_dat_lai_phut: 45}`; không khai thì bộ phát lịch không xét hạn mức). Mức dùng vào
+`han-muc.json` qua lệnh con `han-muc` — từ mod của gói (`hooks/mod/`), từ `get_usage` mỗi lần giám sát thức và
+mỗi lần lịch 30′ chạy. Chạm ngưỡng bàn giao (hoặc gõ `/dieu-phoi:ban-giao`): bộ phát lịch ngừng cấp lượt, thợ
+nhận lời nhắc trong phiên, commit WIP và chạy `node <thư mục đợt>/loi/dieu-phoi.mjs ban-giao-xong` (kèm `--wip
+"<mô tả>"` để lệnh commit hộ); máy dựng `ban-giao.json` từ git. Đổi tài khoản, mở một phiên trong kho, gõ
+`/dieu-phoi:tiep-tuc`. Lưới cuối: hook `StopFailure` commit WIP khi một thợ chết vì hạn mức.
+
 ## Trong đợt
 
 - Mỗi nhịp, bộ phát lịch kiểm hình dạng `dieu-phoi.config.json` và `hang-viec.json` (kiểu từng
