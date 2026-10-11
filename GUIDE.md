@@ -1165,15 +1165,16 @@ lộ trình bằng khoá `nguon_hang` (`<tệp>:<mã>` hoặc `<tệp>@<ngày m�
 phần thi công (dãy, ưu tiên). Vắng khoá → `/dieu-phoi:mo-dot` dừng và nói đúng việc
 khai, không dựng đợt tay.
 
-**Ba lệnh:**
+**Bốn lệnh:**
 
 | Lệnh | Làm gì | Ai gõ |
 |---|---|---|
 | `/dieu-phoi:mo-dot <tên>` | Dựng đợt từ gói, trình **thẻ khởi tạo** (dãy, hàng; hỏi quyền tự merge và `build` cho hàng còn chờ Cổng Đáng), rồi khi người duyệt thì chạy bộ phát lịch và mở chip cho từng dãy. Chạy lại được: chẩn đoán trước, làm đúng phần thiếu | người, ở phiên sẽ làm giám sát |
 | `/dieu-phoi:xem` | Pha, khoá đang giữ, hàng chờ lượt, chờ người, tiến độ từng dãy kèm nhóm kế hoạch. Chỉ đọc; cùng hàm mô hình với **bảng đợt** `bang.html` | bất kỳ phiên nào |
 | `/dieu-phoi:dong-dot` | Trình **thẻ đóng đợt** (hàng phát sinh, lớp phủ ưu tiên), khi người duyệt thì hoàn tất merge dở, dừng bộ phát lịch, dọn | người, ở phiên giám sát |
+| `/dieu-phoi:tiep-tuc` | Nối lại đợt sau khi app khởi động lại, hết ngữ cảnh, Monitor hết hạn hay đổi tài khoản: nhận vai giám sát, chạy lại bộ phát lịch nếu chết, giăng lại Monitor và lịch 30′, chỉ mở chip cho dãy không còn **nhịp sống**. Dạng `--nhe` cho mỗi lần thức | người, ở bất kỳ phiên nào trong kho |
 
-Cả ba lệnh **không** khoá model-invocation (khác bảy thao tác cổng người), nhưng
+Cả bốn lệnh **không** khoá model-invocation (khác bảy thao tác cổng người), nhưng
 `mo-dot` và `dong-dot` mang khối «chữ quyết của người»: chữ duyệt thẻ, chữ `build`,
 quyền tự merge chỉ nhận từ người gõ — máy chép nguyên văn vào hồ sơ, không tự
 sinh, không điền sẵn vào dòng mời.
@@ -1191,6 +1192,14 @@ hai kho chạy đợt trên cùng máy không bao giờ chấm S4 chồng nhau; 
 **Vào phiên khi đợt đang chạy.** `/acceptance-gate:start` in một dòng «đợt <tên>
 đang chạy → /dieu-phoi:xem», và hàng kế của lộ trình mà một dãy đang giữ không còn
 là lựa chọn mở — tránh hai phiên mở cùng một hàng.
+
+**Sau sự cố: một lệnh `/dieu-phoi:tiep-tuc`.** CLI tính kế hoạch cho từng dãy — không làm gì (còn nhịp sống
+hoặc giữ khoá), nhắn dãy giăng lại lệnh chờ, mở chip, hay báo người (worktree mất, dãy đứng chờ người, đợt
+chưa có nhịp sống) — phiên chỉ làm đúng hành động ấy. Lịch 30′ của đợt chạy `danh-thuc`: chỉ khi CÓ việc chờ
+(yêu cầu chưa trả lời, dãy chờ người, sự kiện cần phán sau lần thức cuối) thì mới nhắn giám sát, và báo chủ
+kho khi giám sát không còn nhịp sống. Thợ và giám sát ghi vào thư mục đợt bằng lệnh con của CLI (`xin`, `nha`,
+`yeu-cau`, `tra-loi`, `nhat-ky`) — không dùng công cụ ghi tệp, vì thư mục đợt nằm ngoài worktree của phiên.
+Kho khai thêm phép kiểm môi trường riêng (`.env`, Docker…) bằng khoá `kiem_moi_truong` của cấu hình đợt.
 
 ## 7. Tra cứu enforcement — hook và CI chặn gì
 

@@ -92,7 +92,7 @@ const khaiGoi = (kho, mau = 'goi/dot-{ten}') => {
 const thuMucDot = (kho) => fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
 
 // ---------- DP2-01: ba lệnh người (AC-1, E1) ----------
-const BA_LENH = ['dong-dot.md', 'mo-dot.md', 'xem.md'];
+const BA_LENH = ['dong-dot.md', 'mo-dot.md', 'tiep-tuc.md', 'xem.md'];
 
 export function kiemLenh(gocGoi) {
   const dir = path.join(gocGoi, 'commands');
@@ -113,7 +113,7 @@ export function kiemLenh(gocGoi) {
       } else if (scriptGoi.has(ten)) loi.push(`${f}: script của gói ${ten} phải gọi qua \${CLAUDE_PLUGIN_ROOT}, đang qua «${goc}»`);
       else if (!/^\$\w+$/.test(goc)) loi.push(`${f}: script gói anh em ${ten} phải gọi qua biến đã giải, đang qua «${goc}»`);
     }
-    if (f !== 'xem.md') {
+    if (f === 'mo-dot.md' || f === 'dong-dot.md') {
       const khoi = /<!-- <<<CHU-QUYET-CUA-NGUOI -->\n([\s\S]*?)<!-- CHU-QUYET-CUA-NGUOI>>> -->/.exec(t)?.[1]?.trim();
       if (!khoi) loi.push(`${f}: thiếu khối CHU-QUYET-CUA-NGUOI`);
     }
