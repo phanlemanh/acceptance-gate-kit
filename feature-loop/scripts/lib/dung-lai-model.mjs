@@ -119,8 +119,10 @@ export function chonNguon({ dong, id, bam, nowMs, laDat }) {
     && o.carry_lech.includes(id) && coBam(o, id) && o.evals_hash[id] === bam)) return { lyDo: LY_DO_NGUON.lech };
   const daChay = (dong || []).filter(o => chayThat(o, id));
   const ts = (o) => Date.parse(o.ts);
+  // `ts` của làn chỉ đến giây — hai lượt cùng giây thì dòng đứng SAU trong sổ (ghi sau) thắng.
+  const viTri = new Map((dong || []).map((o, i) => [o, i]));
   const hopLe = daChay.filter(o => o.evals_hash[id] === bam && laDat(o.evals_exit[id]) && Number.isFinite(ts(o)) && ts(o) <= nowMs)
-    .sort((a, b) => ts(b) - ts(a));
+    .sort((a, b) => (ts(b) - ts(a)) || (viTri.get(b) - viTri.get(a)));
   if (!hopLe.length) return { lyDo: daChay.some(o => o.evals_hash[id] !== bam) ? LY_DO_NGUON.bamDoi : LY_DO_NGUON.chuaCo };
   if (nowMs - ts(hopLe[0]) > HAN_NGAY * 86400000) return { lyDo: LY_DO_NGUON.quaHan };
   return { nguon: hopLe[0] };

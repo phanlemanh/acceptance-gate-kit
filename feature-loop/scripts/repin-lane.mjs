@@ -583,7 +583,6 @@ if (khoa.model_carry_cmd) {
       dungLai.set(`${s.slug}/${e.id}`, muc);
       muc.lyDoDk = (() => {
         if (!vt.ok) return vt.lyDo;
-        if (flags['chay-lai-model']) return LY_DO_CHAY.ep;
         if (flags['allow-dirty']) return LY_DO_CHAY.allowDirty;
         const gl = thieuHam ? null : core.evalPathsOf(s.evalsText, e.id);
         if (thieuHam) return `${LY_DO_CHAY.pathsKhongChung} (bộ máy thiếu ${thieuHam})`;
@@ -602,6 +601,8 @@ if (khoa.model_carry_cmd) {
       })();
       if (muc.lyDoDk) continue;
       muc.bam = bamDauVao({ id: e.id, lenh: e.cmd, paths: muc.paths, hoSo, goiTen: muc.goiTen, vanTay: vt.dau, blob });
+      // Ép chạy lại: đầu vào vẫn biết đủ nên vẫn băm — lượt ép chạy thành nguồn mới cho các lượt sau.
+      if (flags['chay-lai-model']) { muc.lyDoDk = LY_DO_CHAY.ep; continue; }
       const laDat = (x) => x === e.expected || (e.expected !== 0 && x === 0);
       const q = chonNguon({ dong, id: e.id, bam: muc.bam, nowMs: tKhoiDong, laDat });
       if (q.nguon) muc.nguon = q.nguon; else muc.lyDoNguon = q.lyDo;

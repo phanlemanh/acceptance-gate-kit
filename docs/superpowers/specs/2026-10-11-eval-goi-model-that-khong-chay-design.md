@@ -80,7 +80,7 @@ Hai khối marker ở bên viết giữ chữ lý do: `CARRY-LY-DO-CHAY` — mư
 |---|---|
 | khoá vắng | hành vi 2.26 |
 | lệnh dấu vân tay hỏng (thoát ≠ 0 · hết giờ 60 s · in rỗng — ba lý do riêng) | không biết model nào đang chạy; trần giờ giữ làn không treo khi lệnh dò mạng treo (làn ghim lại không có trần công cụ) |
-| ép bằng `--chay-lai-model` | người muốn đo mới |
+| ép bằng `--chay-lai-model` | người muốn đo mới — lượt ép vẫn ghi băm nên thành nguồn mới cho lượt sau |
 | eval không thuộc `model_evals` | phạm vi lát này — eval thường vẫn chạy mọi lượt |
 | eval không khai `paths`, hoặc có mục `paths` không chứng được trỏ tới tệp | không biết đầu vào |
 | tệp trong băm đang sửa chưa commit, có tệp chưa theo dõi trong cây hồ sơ, hoặc làn chạy `--allow-dirty` | băm tính trên `HEAD` sẽ không khớp thứ lệnh thật đọc |
@@ -99,7 +99,7 @@ vọng hiện tại, (d) `ts` không muộn hơn lúc lượt này bắt đầu 
 `repin` chỉ được ghi khi làn xanh, nên nguồn luôn là một lượt đạt. Dòng đời trước không có
 `evals_hash` → không là nguồn: lượt ghim lại đầu tiên sau khi bật khoá chạy trọn.
 
-Dùng lại → không chạy lệnh, `evals_exit[E]` = mã của nguồn, `evals_carry[E]` = `run_id` nguồn,
+Hai lượt cùng giây (`ts` của làn đến giây) thì dòng đứng sau trong sổ thắng. Dùng lại → không chạy lệnh, `evals_exit[E]` = mã của nguồn, `evals_carry[E]` = `run_id` nguồn,
 không cộng `model_goi`, cộng `tong_ket.model_carry`. Section `### Re-pin` thêm hậu tố
 ` · dùng lại theo băm đầu vào (không gọi model): E1←<run_id>`; dòng `[lane] TỔNG KẾT` in
 `eval model thật: gọi N, carry M`.
