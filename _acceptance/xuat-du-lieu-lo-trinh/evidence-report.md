@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c61b854e5215608072b6953f8d52106021dbb6b3
+verified_commit: 16957c69e152cdc8f20740cbcecf24478fd770f1
 human_signoff: Manh Phan 2026-10-08
 ---
 
@@ -227,3 +227,7 @@ sha: fa6f7eff2108f00fdf5f7e034a70674feec2edb9 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 3 — 2026-10-09, do chiến dịch ghim lại mốc 2.26.0
 run_id: repin-20261009T104247Z-18914
 sha: c61b854e5215608072b6953f8d52106021dbb6b3 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E11 · AC không có chốt máy: AC-11
+
+### Re-pin lần 4 — 2026-10-11, do phiên nghiệm thu X1 (#302) chạm hồ sơ đã ký; bằng chứng cũ so main sau DP2 và #299 — vấp giữa hai mốc, ghim lại riêng làn này (GUIDE §7.1)
+run_id: repin-20261011T024624Z-56365
+sha: 16957c69e152cdc8f20740cbcecf24478fd770f1 · suites: 10 lệnh exit 0 · evals: 11/11 eval máy đạt kỳ vọng · ngoài làn máy: E11 · AC không có chốt máy: AC-11
