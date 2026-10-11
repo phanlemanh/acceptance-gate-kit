@@ -16,6 +16,8 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
 const a = process.argv.slice(2);
 const lay = k => { const i = a.indexOf(k); return i >= 0 ? a[i + 1] : null; };
@@ -69,7 +71,9 @@ function yDau(dong) {
   }
   return null;
 }
-const daGiao = new Set(['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te']);
+// «Đã giao» rút từ lib của kit (cùng tập lưới trước-gộp dùng), đường suy từ vị trí tệp này.
+const WR = createRequire(import.meta.url)(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'lib', 'workspace-record.cjs'));
+const daGiao = new Set([...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE]);
 const hoSo = {}; const lienKet = {}; const nguonTin = [];
 for (const s of slugs) {
   const o = show(full, `_acceptance/${s}/opportunity.md`);

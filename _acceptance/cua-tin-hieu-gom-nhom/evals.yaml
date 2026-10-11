@@ -157,15 +157,18 @@ evals:
     executor: judgment
     inputs: [skills/gom-tin-hieu/SKILL.md, _acceptance/cua-tin-hieu-gom-nhom/mau/bo-vang.json, _acceptance/cua-tin-hieu-gom-nhom/mau/gom-bo-vang.md]
     question: >
-      SKILL.md là skill gom tín hiệu của kit, chính sách trục ở khối GOM-TRUC; bo-vang.json là đáp án của bộ
-      vàng: 20 mục {id, tieu_de, ho_so, cum} — mỗi tín hiệu giả kèm tiêu đề và hồ sơ thật nó sinh từ — cùng
-      bốn cụm «cùng lớp» do người gom tay; gom-bo-vang.md là bản gom một phiên viết ra theo SKILL mà KHÔNG
-      thấy đáp án (nhóm kê tín hiệu bằng id; tiêu đề của id tra trong bo-vang.json). Chỉ dựa vào ba tệp: (1) mỗi nhóm có phải là MỘT điều một vai
-      muốn làm được, tên mở bằng vai, bằng tiếng sản phẩm mà người gửi không dùng git nhận ra ý mình không?
+      SKILL.md là skill gom tín hiệu của kit, chính sách trục ở khối GOM-TRUC. bo-vang.json là đáp án của
+      bộ vàng: mảng `muc` — 20 tín hiệu giả, mỗi mục {id, tieu_de, ho_so, kieu} (tiêu đề tín hiệu, hồ sơ
+      thật nó sinh từ, câu nguồn «van-de» hay «gia-dinh»); `da_giao` — hồ sơ đã giao lúc gom; và
+      `lien_ket_cung_lop` — với mỗi hồ sơ, các hồ sơ mà người gom tay ghi là «cùng lớp». gom-bo-vang.md là
+      bản gom một phiên viết ra theo SKILL mà KHÔNG thấy đáp án (nhóm kê tín hiệu bằng id; tra tiêu đề và
+      hồ sơ nguồn của id trong `muc`). Chỉ dựa vào ba tệp: (1) mỗi nhóm có phải là MỘT điều một vai muốn
+      làm được, tên mở bằng vai, bằng tiếng sản phẩm mà người gửi không dùng git nhận ra ý mình không?
       (2) Có nhóm nào gộp hai kết quả khác nhau chỉ vì cùng cơ chế mã (cùng đọc lượt CI, cùng sửa một tệp)
-      không? (3) Cách bản gom đặt tín hiệu của bốn cụm viết tay có giải thích được bằng trục kết quả không —
-      cụm nào bị tách hay gộp thì lý do có nằm trong tên nhóm không? PASS khi (1) có, (2) không, (3) có —
-      kèm trích tên nhóm cho từng vế; FAIL nêu vế sai và nhóm; UNCERTAIN khi tệp không đọc được.
+      không? (3) Với các hồ sơ mà `lien_ket_cung_lop` nối với nhau, cách bản gom đặt tín hiệu của chúng
+      (chung nhóm, tách nhóm, đã phủ) có giải thích được bằng trục kết quả không — chỗ tách hay gộp thì lý
+      do có hiện trong tên nhóm không? PASS khi (1) có, (2) không, (3) có — kèm trích tên nhóm cho từng vế;
+      FAIL nêu vế sai và nhóm; UNCERTAIN khi tệp không đọc được.
     paths: [skills/gom-tin-hieu/SKILL.md, _acceptance/cua-tin-hieu-gom-nhom/mau/**]
     expected: PASS kèm trích tên nhóm cho từng vế; FAIL nêu vế sai và nhóm
     evidence_required: [judged_by, verdict, rationale]

@@ -90,6 +90,10 @@ const HD = (slug, status) => `---\nschema_version: 1\nfeature: «việc ${slug}�
 const EV = slug => `---\nschema_version: 1\nfeature_slug: ${slug}\nverdict: PASS\nhuman_signoff: M 2026-09-02\n---\n\n## Evidence\n`;
 const OPP = `---\nschema_version: 1\nslug: x\nfeature: viec x\nowner: x@y.z\nstage: discovery\ndecision:\n---\n\n## Vấn đề & ai gặp\n\nNgười dùng X.\n`;
 const KHAI = 'tin_hieu:\n  nguon: tin-hieu\n  gom: docs/gom\n';
+// Trạng thái hồ sơ rút từ lib (RT13: tệp ca không viết cứng chữ trạng thái) — «đã giao» = tập của lưới trước-gộp.
+const WR = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const DA_GIAO_TT = [...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE];
+const GIAO = WR.DA_THONG_CONG_2[0];
 let khoN = 0;
 // kho({ cfg, tin: [{id,o,nguon}], gom: {tệp: chữ}, hoSo: {slug: status|'opp'}, lt, chuaAddGom })
 function kho({ cfg = KHAI, tins = [], gom = {}, hoSo = {}, lt = null, chuaAddGom = false, them = {} } = {}) {
@@ -102,7 +106,7 @@ function kho({ cfg = KHAI, tins = [], gom = {}, hoSo = {}, lt = null, chuaAddGom
   for (const [slug, st] of Object.entries(hoSo)) {
     const d = path.join(r, '_acceptance', slug); mkdirSync(d, { recursive: true });
     if (st === 'opp') writeFileSync(path.join(d, 'opportunity.md'), OPP);
-    else { writeFileSync(path.join(d, 'contract.md'), HD(slug, st)); if (['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'].includes(st)) writeFileSync(path.join(d, 'evidence-report.md'), EV(slug)); }
+    else { writeFileSync(path.join(d, 'contract.md'), HD(slug, st)); if (DA_GIAO_TT.includes(st)) writeFileSync(path.join(d, 'evidence-report.md'), EV(slug)); }
   }
   if (lt) { mkdirSync(path.join(r, 'docs'), { recursive: true }); writeFileSync(path.join(r, 'docs', 'lo-trinh.json'), JSON.stringify(lt, null, 2)); }
   for (const [f, txt] of Object.entries(them)) { mkdirSync(path.dirname(path.join(r, f)), { recursive: true }); writeFileSync(path.join(r, f), txt); }
@@ -244,7 +248,7 @@ function coSoTh4(kit, them = {}) {
 async function th4(kit) {
   const sai = [];
   const { tins, ids, base } = coSoTh4(kit);
-  const rXanh = kho({ tins, gom: { 'gom-1.md': vietGom(kit, base) }, hoSo: { 'giao-x': 'signed-off' } });
+  const rXanh = kho({ tins, gom: { 'gom-1.md': vietGom(kit, base) }, hoSo: { 'giao-x': GIAO } });
   const x = th(kit, rXanh, '--rang');
   const bang = x.stdout.split('\n').filter(l => /^- \S+ → /.test(l));
   if (x.status !== 0 || bang.length !== 6) sai.push(`xanh: exit ${x.status}, ${bang.length} dòng bảng phủ: ${x.stdout.slice(0, 200)}`);
@@ -263,19 +267,19 @@ async function th4(kit) {
   let soCa = 0;
   for (const [ten, [gom, ghim]] of Object.entries(CA)) {
     soCa += 1;
-    const r = kho({ tins, gom, hoSo: { 'giao-x': 'signed-off' } }); const y = th(kit, r, '--rang'); const L = dongLoi(y.stdout);
+    const r = kho({ tins, gom, hoSo: { 'giao-x': GIAO } }); const y = th(kit, r, '--rang'); const L = dongLoi(y.stdout);
     if (y.status !== 1 || L.length !== 1 || !ghim.every(gg => L[0].includes(gg))) sai.push(`${ten}: exit ${y.status}, ${L.length} dòng lỗi ${JSON.stringify(L).slice(0, 200)}`);
   }
   if (soCa !== 8) sai.push(`ma trận: đo ${soCa} ca`);
   console.log(`    TH-4: số ca đỏ đo == ${soCa}`);
   // Ca im: tín hiệu gửi sau mốc den.
   const t7 = tin(kit, 7, { luc: LUC_SAU });
-  const rSau = kho({ tins: [...tins, t7], gom: { 'gom-1.md': vietGom(kit, base) }, hoSo: { 'giao-x': 'signed-off' } });
+  const rSau = kho({ tins: [...tins, t7], gom: { 'gom-1.md': vietGom(kit, base) }, hoSo: { 'giao-x': GIAO } });
   const z = th(kit, rSau, '--rang');
   if (z.status !== 0 || !z.stdout.includes(`- ${t7.id} → chưa gom`)) sai.push(`sau-den: exit ${z.status} ${z.stdout.slice(-160)}`);
   // Chỉ đọc: băm cây + git status trước == sau.
   const anh = r => { const h = createHash('sha256'); const di = d => { for (const e of readdirSync(d, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) { if (e.name === '.git') continue; const p = path.join(d, e.name); if (e.isDirectory()) di(p); else h.update(p).update(readFileSync(p)); } }; di(r); return `${h.digest('hex')}|${git(r, 'status', '--porcelain')}`; };
-  const rDo = kho({ tins, gom: CA['khong-cho'][0], hoSo: { 'giao-x': 'signed-off' } });
+  const rDo = kho({ tins, gom: CA['khong-cho'][0], hoSo: { 'giao-x': GIAO } });
   for (const [r, l] of [[rXanh, '--rang'], [rDo, '--rang'], [rXanh, '--chua-gom'], [rXanh, '--duong']]) { const t0 = anh(r); th(kit, r, l); if (anh(r) !== t0) sai.push(`chỉ đọc: ${l} đổi cây`); }
   return sai;
 }
@@ -339,7 +343,7 @@ async function th7(kit) {
   const t = (i, luc = LUC_TRUOC) => tin(kit, i, { luc }); const s = [null, t(1, LUC_SAU), t(2), t(3), t(4), t(5), t(6), t(7), t(8)];
   const gom = vietGom(kit, { dot: 'gom-1', nhom: [['G1', 'Nhóm một', [s[4].id]], ['G2', 'Nhóm hai', [s[5].id]], ['G3', 'Nhóm ba', [s[6].id]], ['G4', 'Nhóm bốn', [s[7].id]], ['G5', 'Nhóm năm', [s[8].id]]], le: [[s[2].id, 'hỏi cách dùng']], phu: [[s[3].id, 'giao-x']] });
   const lt = { schema: 1, ten: 'Lộ trình thử', hang: [{ ma: 'H3', cau_giao: '«việc ba»', dot: 'gom-1', phu: ['G3'] }, { ma: 'H4', cau_giao: '«việc bốn»', dot: 'gom-1', phu: ['G4'], slug: 'viec-h4' }, { ma: 'H5', cau_giao: '«việc năm»', dot: 'gom-0', phu: ['G5'] }], chan_troi: [{ ma: 'CT1', dot: 'gom-1', phu: ['G2'], ly_do: 'chờ kho nhận mốc' }] };
-  const r = kho({ tins: s.slice(1), gom: { 'gom-1.md': gom }, hoSo: { 'giao-x': 'signed-off', 'viec-h4': 'approved' }, lt });
+  const r = kho({ tins: s.slice(1), gom: { 'gom-1.md': gom }, hoSo: { 'giao-x': GIAO, 'viec-h4': 'approved' }, lt });
   if (pm(kit, r).status !== 0) return ['vẽ trang kho thử hỏng'];
   const k = LT.docDuLieu(readFileSync(path.join(r, 'LO-TRINH.html'), 'utf8')).duLieu;
   const ttHang = ma => k.lo_trinh[0].hang.find(h => h.ma === ma)?.trang_thai;
@@ -463,7 +467,7 @@ async function th10ong(kit) {
   const t2 = [1, 2, 3, 4, 5, 6].map(i => tin(kit, i, { luc: LUC_TRUOC }));
   const bv2 = { muc: t2.map((x, i) => ({ id: x.id, ho_so: i < 2 ? 'giao-x' : `hs-${Math.floor(i / 2)}` })), cap_trung: [[t2[0].id, t2[1].id], [t2[2].id, t2[3].id], [t2[4].id, t2[5].id]], da_giao: ['giao-x'] };
   const gom2 = vietGom(kit, { nhom: [['G1', 'Kỹ sư một', [t2[2].id, t2[3].id]], ['G2', 'Kỹ sư hai', [t2[4].id, t2[5].id]]], phu: [[t2[0].id, 'giao-x'], [t2[1].id, 'giao-x']] });
-  const k2 = (truoc) => { const r = kho({ tins: t2, hoSo: { 'giao-x': 'signed-off', 'hs-1': 'draft' } }); const da = () => { mkdirSync(path.join(r, 'vang'), { recursive: true }); writeFileSync(path.join(r, 'vang', 'bv.json'), JSON.stringify(bv2)); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'dap an'); }; const gg = () => { mkdirSync(path.join(r, 'docs', 'gom'), { recursive: true }); writeFileSync(path.join(r, 'docs', 'gom', 'g.md'), gom2); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'gom'); }; if (truoc) { da(); gg(); } else { gg(); da(); } return r; };
+  const k2 = (truoc) => { const r = kho({ tins: t2, hoSo: { 'giao-x': GIAO, 'hs-1': 'draft' } }); const da = () => { mkdirSync(path.join(r, 'vang'), { recursive: true }); writeFileSync(path.join(r, 'vang', 'bv.json'), JSON.stringify(bv2)); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'dap an'); }; const gg = () => { mkdirSync(path.join(r, 'docs', 'gom'), { recursive: true }); writeFileSync(path.join(r, 'docs', 'gom', 'g.md'), gom2); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'gom'); }; if (truoc) { da(); gg(); } else { gg(); da(); } return r; };
   const x1 = await C.cham({ root: k2(true), boVangTep: 'vang/bv.json', kit }); if (x1.thoat !== 0) sai.push(`bộ vàng hai: ${x1.dong.join(' ; ')}`);
   const x2 = await C.cham({ root: k2(false), boVangTep: 'vang/bv.json', kit }); if (x2.thoat !== 1 || !x2.dong.some(l => l.includes('khai trước'))) sai.push(`khai trước: đảo thứ tự commit mà chấm thoát ${x2.thoat}`);
   return { sai, bv2, gom2, k2, C };
@@ -497,6 +501,17 @@ if (only.includes('TH-10')) {
     const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
     const r = await khoCham(KIT, { gomTxt: readFileSync(path.join(MAU, 'gom-bo-vang.md'), 'utf8'), boVang: bv });
     const x = await C.cham({ root: r, boVangTep: 'vang/bo-vang.json', kit: KIT });
+    // Khai trước TRÊN LỊCH SỬ THẬT của kho kit (kho chấm ở trên dựng lại thứ tự commit nên không chứng được):
+    // commit đầu của đáp án là tổ tiên nghiêm ngặt của commit cuối đổi bản gom, và đáp án không đổi sau đó.
+    const rel = f => path.relative(KIT, path.join(MAU, f));
+    const lg = (...a) => { try { return git(KIT, 'log', ...a); } catch { return ''; } };
+    const dauBv = lg('--diff-filter=A', '--format=%H', '--reverse', '--', rel('bo-vang.json')).split('\n').filter(Boolean)[0];
+    const doiBv = lg('--format=%H', '--', rel('bo-vang.json')).split('\n').filter(Boolean);
+    const cuoiGom = lg('-1', '--format=%H', '--', rel('gom-bo-vang.md')).trim();
+    let truoc = false; try { truoc = !!dauBv && !!cuoiGom && dauBv !== cuoiGom && (git(KIT, 'merge-base', '--is-ancestor', dauBv, cuoiGom), true); } catch { truoc = false; }
+    if (!truoc) x.dong.push(`khai trước (lịch sử kit): đáp án ${String(dauBv).slice(0, 8)} không đứng trước bản gom ${String(cuoiGom).slice(0, 8)}`);
+    if (doiBv.length > 1) x.dong.push(`khai trước (lịch sử kit): đáp án bị đổi sau commit đầu (${doiBv.length} commit)`);
+    if (!truoc || doiBv.length > 1) x.thoat = 1;
     for (const l of x.dong) console.log(`    TH-10: ${l.replace(r + '/', '')}`);
     if (x.thoat === 0) ok('TH-10', 'bản gom của phiên trên bộ vàng: răng xanh, mọi cặp trùng chung chỗ, hồ sơ đã giao ra đã phủ, còn lại ở nhóm');
     else bad('TH-10', `bản gom của phiên lệch đáp án ở ${x.dong.length} chỗ (xem các dòng TH-10 ở trên)`);
