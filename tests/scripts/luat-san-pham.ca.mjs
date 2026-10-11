@@ -78,5 +78,67 @@ if (want('LS-01')) {
   });
 }
 
+// ── Kho thử có tệp luật (dùng từ LS-03 trở đi) ─────────────────────────────────────────────────────────
+function mkKhoLuat({ luat = [SP1, SP2], coTep = true } = {}) {
+  const r = tam('lsp-');
+  git(r, 'init', '-q'); git(r, 'config', 'user.email', 't@t'); git(r, 'config', 'user.name', 't'); git(r, 'config', 'commit.gpgsign', 'false');
+  ghiTep(r, 'CLAUDE.md', '# Luật kho thử\n');
+  if (coTep) ghiTep(r, 'PRODUCT-INVARIANTS.md', tepLuat(KHUON, luat));
+  ghiTep(r, '_acceptance/config.yaml', 'risk_tiers:\n  t3_paths: []\nexecutors:\n  test:\n    x: "true"\n');
+  git(r, 'add', '-A'); git(r, 'commit', '-qm', 'goc');
+  return { r, base: git(r, 'rev-parse', 'HEAD') };
+}
+const S1 = (id, can_cu, extra = {}) => Object.assign({ id, type: 'approach', stage: 'S1', at: '2026-10-12T00:00:00Z', decision: 'Lựa chọn ' + id, why: 'vì', cost_if_wrong: 'tốn' }, can_cu === undefined ? {} : { can_cu }, extra);
+const CN = (pham, kho_dao = false) => Object.assign({ nguon: 'chi-nguoi', kho_dao, khuyen: 'Khuyên giữ luật.', loi_khac: 'Phạm luật — tốn một lượt sửa sau.' }, pham ? { pham_luat: pham } : {});
+// Ma trận LS-05: [tên ca, can_cu, lớp, mã đỏ, thông điệp]
+const MT05 = [
+  ['c1-thuong', CN('SP-2'), 'cau-hoi', null, null],
+  ['c2-khodao-dung', CN('SP-1', true), 'cau-hoi', null, null],
+  ['c3-khodao-thieu-nhan', CN('SP-1', false), 'do', 'luat-kho-dao', 'luật khó đảo phải mang nhãn khó-đảo'],
+  ['c4-muc-tieu', { nguon: 'muc-tieu', kho_dao: false, tep: 'PRODUCT-INVARIANTS.md', trich: SP2.cau, pham_luat: 'SP-2' }, 'do', 'pham-luat-may-quyet', 'phạm luật sản phẩm là câu hỏi cho người'],
+  ['c5-mot-loi', { nguon: 'mot-loi', kho_dao: false, loi_chet: 'Lối kia chết vì ranh giới tệp.', pham_luat: 'SP-2' }, 'do', 'pham-luat-may-quyet', 'phạm luật sản phẩm là câu hỏi cho người'],
+];
+const xepLop = (mod, r, slug, dongs) => mod.phanLoaiSo(dongs, { root: r, slug }).dong.map(d => [d.id, d.lop, d.ma || null, d.thong_diep || null]);
+const chayMaTran = (mod, r, ds) => xepLop(mod, r, 'h', ds.map(([n, c]) => S1(n, c)));
+const mongMaTran = ds => ds.map(([n, , lop, ma, td]) => [n, lop, ma, td]);
+// Bản sao mô-đun để tiêm: chép can-cu-s1.cjs + luat-san-pham.cjs vào thư mục tạm, sửa đúng một chỗ.
+function banSaoTiem(tep, cu, moi) {
+  const d = tam('lsp-tiem-'); mkdirSync(path.join(d, 'scripts'));
+  for (const f of ['can-cu-s1.cjs', 'luat-san-pham.cjs']) cpSync(path.join(ROOT, 'scripts', f), path.join(d, 'scripts', f));
+  cpSync(path.join(ROOT, 'lib'), path.join(d, 'lib'), { recursive: true });
+  const p = path.join(d, 'scripts', tep); const t = readFileSync(p, 'utf8');
+  if (t.split(cu).length !== 2) die(`tiêm ${tep}: chuỗi cần thay phải xuất hiện đúng một lần`);
+  writeFileSync(p, t.replace(cu, moi));
+  return path.join(d, 'scripts');
+}
+
+if (want('LS-05')) {
+  const kho = mkKhoLuat();
+  check('LS-05 ma-tran 5/5 (bo xep lop)', () => eq(chayMaTran(napMoi(CC), kho.r, MT05), mongMaTran(MT05), 'năm ca phạm luật'));
+  for (const [ma, cu] of [['pham-luat-may-quyet', "if (c.nguon !== 'chi-nguoi') return { lop: 'do', ma: 'pham-luat-may-quyet', them };"],
+                          ['luat-kho-dao', "if (l.muc === 'kho-dao' && c.kho_dao !== true) return { lop: 'do', ma: 'luat-kho-dao', them };"]]) {
+    check(`LS-05-do ${ma}`, () => {
+      const d = banSaoTiem('luat-san-pham.cjs', cu, '');
+      const got = chayMaTran(napMoi(path.join(d, 'can-cu-s1.cjs')), kho.r, MT05);
+      const caDo = MT05.filter(x => x[3] === ma).map(x => x[0]);
+      for (const n of caDo) { const g = got.find(x => x[0] === n); if (g[1] === 'do' && g[2] === ma) die(`gỡ luật ${ma} mà ca ${n} vẫn đỏ ${ma}`); }
+    });
+  }
+}
+if (want('LS-06')) {
+  const coTep = mkKhoLuat(), khongTep = mkKhoLuat({ coTep: false });
+  const dong = [S1('v1', CN('SP-9')), S1('v2', CN('SP-2'))];
+  const TD = 'mã luật không có trong tệp luật sản phẩm';
+  check('LS-06 luat-vang 2/2', () => {
+    eq(xepLop(napMoi(CC), coTep.r, 'h', dong), [['v1', 'do', 'luat-vang', TD], ['v2', 'cau-hoi', null, null]], 'kho có tệp');
+    eq(xepLop(napMoi(CC), khongTep.r, 'h', dong.slice(0, 1)), [['v1', 'do', 'luat-vang', TD]], 'kho không tệp');
+  });
+  check('LS-06-do', () => {
+    const d = banSaoTiem('luat-san-pham.cjs', "if (!l) return { lop: 'do', ma: 'luat-vang', them };", "if (!l) return null;");
+    const g = xepLop(napMoi(path.join(d, 'can-cu-s1.cjs')), coTep.r, 'h', dong.slice(0, 1))[0];
+    if (g[2] === 'luat-vang') die('bỏ phép tra mã mà SP-9 vẫn đỏ luat-vang');
+  });
+}
+
 console.log(`luat-san-pham.ca: ${passed} đạt, ${failed} trượt`);
 process.exit(failed ? 1 : 0);

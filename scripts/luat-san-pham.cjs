@@ -67,4 +67,30 @@ function docTepLuat(root, ref) {
   return Object.assign({ co_tep: true, text, ban: banLuat(text) }, docLuat(text));
 }
 
-module.exports = { TEP_LUAT, MA_RE, MUC_CHU, banLuat, docLuat, docTepLuat };
+// ── Bước thiết kế: dòng sổ S1 mang `can_cu.pham_luat` (phạm một luật đã khai) ──────────────────────────
+// Ba luật đỏ, thông điệp ghim một nguồn ở đây; can-cu-s1.cjs gộp chúng vào bảng LY_DO của nó và gọi
+// xetPhamLuat ngay sau kiểm nguồn lạ. Trả null khi dòng không phạm luật hoặc phạm hợp lệ (chỉ-người,
+// đúng nhãn khó-đảo) — lúc đó bộ xếp lớp A2 xếp tiếp như mọi câu chỉ-người.
+const LY_DO_LUAT = {
+  'pham-luat-may-quyet': 'phạm luật sản phẩm là câu hỏi cho người',
+  'luat-vang': 'mã luật không có trong tệp luật sản phẩm',
+  'luat-kho-dao': 'luật khó đảo phải mang nhãn khó-đảo',
+};
+function xetPhamLuat(c, layTep) {
+  if (!c || typeof c !== 'object' || typeof c.pham_luat !== 'string') return null;
+  const l = (layTep().luat || []).find(x => x.ma === c.pham_luat);
+  const them = { luat_ma: c.pham_luat };
+  if (!l) return { lop: 'do', ma: 'luat-vang', them };
+  if (c.nguon !== 'chi-nguoi') return { lop: 'do', ma: 'pham-luat-may-quyet', them };
+  if (l.muc === 'kho-dao' && c.kho_dao !== true) return { lop: 'do', ma: 'luat-kho-dao', them };
+  return null;
+}
+// Mã luật mà một câu trích thuộc về (câu trích nằm trong câu luật, so sau khi gom khoảng trắng). Không có → null.
+const gomKt = s => String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+function maTheoTrich(luat, trich) {
+  const t = gomKt(trich); if (!t) return null;
+  const l = (luat || []).find(x => gomKt(x.cau).includes(t) || t.includes(gomKt(x.cau)));
+  return l ? l.ma : null;
+}
+
+module.exports = { TEP_LUAT, MA_RE, MUC_CHU, LY_DO_LUAT, banLuat, docLuat, docTepLuat, xetPhamLuat, maTheoTrich };
