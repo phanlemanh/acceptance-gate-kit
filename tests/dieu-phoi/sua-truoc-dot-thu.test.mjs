@@ -279,6 +279,9 @@ async function kiemMaTranD1(gocGoi) {
     hookNhip({ session_id: 's-gs' }, { cwd: ctx.kho, nowMs: GIO, gocGoi });
     const cd = JSON.parse(chanDoan(ctx.kho, ['--chi-tiet'], gocGoi)).find((m) => m.muc === 'day:P1');
     const tt = chayCli(ctx.kho, ['tiep-tuc', '--phien', 's-gs', '--nhe', '--json'], { gocGoi, env: ENV_GIO });
+    // tiep-tuc chạy lại bộ phát lịch (tiến trình tách rời) khi đợt đang chạy — dừng nó, kẻo nó còn ghi vào kho thử
+    // lúc bước dọn xoá thư mục tạm (ENOTEMPTY, đo 11/10).
+    chayCli(ctx.kho, ['dung'], { gocGoi });
     assert.equal(tt.ma, 0, tt.err);
     const kh = JSON.parse(tt.out).ke_hoach.find((k) => k.day === 'P1');
     const hd = cd?.chi_tiet?.hanh_dong ?? null;
