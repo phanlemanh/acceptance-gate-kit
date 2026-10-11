@@ -32,10 +32,23 @@ export const KHUON_TEN_CA = [
   { ten: 'node-test', re: /^\s*not ok\s+\d+\s+-\s+(.+?)\s*$/ },
 ];
 
+// Tiền tố dòng của bộ chạy monorepo (hồ sơ ten-ca-qua-tien-to-turbo): turbo không có TTY — đúng hoàn
+// cảnh của làn, lệnh chạy qua ống — in `<gói>:<tác vụ>: ` trước mọi dòng con (đo turbo 2.10.8 chạy
+// bun test, 11/10; `--log-prefix auto` mặc định). Năm khuôn trên neo đầu dòng nên gặp tiền tố là rơi về
+// câu dự phòng. Bóc MỘT lớp, CHỈ khi dòng thô không khớp khuôn nào: dòng hôm nay rút được tên gì thì vẫn
+// rút đúng tên đó. Một cụm không khoảng trắng chứ không riêng turbo — bộ đọc khoan dung (luật 26/09).
+export const TIEN_TO_BO_CHAY = /^\S*?:\s+/;
+
+function khopKhuon(l) {
+  for (const k of KHUON_TEN_CA) { const m = l.match(k.re); if (m) return m[1].trim(); }
+  return null;
+}
+
 export function rutTenCa(text) {
   const ra = [];
   for (const l of String(text || '').split('\n')) {
-    for (const k of KHUON_TEN_CA) { const m = l.match(k.re); if (m) { ra.push(m[1].trim()); break; } }
+    const ten = khopKhuon(l) ?? khopKhuon(l.replace(TIEN_TO_BO_CHAY, ''));
+    if (ten !== null) ra.push(ten);
     if (ra.length >= 10) break;
   }
   return ra.length ? ra : ['không rút được tên ca'];
