@@ -1,0 +1,42 @@
+{
+  "nhan": "sau",
+  "luc": "2026-10-11T06:54:21.666Z",
+  "kho_phien_app": [
+    {
+      "so_phien": 13,
+      "ghi_cuoi": "2026-10-11T06:54:03.003Z"
+    },
+    {
+      "so_phien": 14,
+      "ghi_cuoi": "2026-10-11T06:52:27.996Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-10-09T13:30:58.065Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-10-08T02:03:15.371Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-09-24T08:14:04.742Z"
+    },
+    {
+      "so_phien": 131,
+      "ghi_cuoi": "2026-09-24T08:11:23.745Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-08-12T09:14:39.954Z"
+    }
+  ],
+  "ban_ghi_hoi_thoai_jsonl": {
+    "khac": 96,
+    "kit": 69,
+    "crm": 41
+  },
+  "lich_hen_tren_dia": 0,
+  "bo_phat_lich_crm": "khong-co-dot",
+  "worktree_crm": null
+}

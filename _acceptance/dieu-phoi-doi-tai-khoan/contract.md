@@ -91,7 +91,7 @@ Nhánh đã chọn (điền khi có `ket-qua.md`; trước đó mọi câu ở `
 <!-- <<<NHANH-DP0-CHON -->
 | Câu | Giá trị | Nhánh |
 |---|---|---|
-| 1 | chưa-đo | P0 |
+| 1 | mất | P2 |
 | 2 | mất | S2 |
 | 3 | chưa-đo | L0 |
 | 5 | chưa-đo | K0 |
@@ -159,7 +159,7 @@ Phân loại:
 - Giới hạn đã khai: phiên của tài khoản cũ còn chạy sau khi đổi mà vẫn đọc số thì lọt bộ lọc lần đọc. Ngưỡng:
   DP0 câu 1 cho «phiên cũ còn chạy».
 - Giới hạn theo nhánh DP0 (câu nào còn `chưa-đo` thì khai ở đây, mỗi câu một dòng kèm ngưỡng):
-  - câu 1 — ngưỡng: đợt thử crm (~26/10) hoặc lần đổi chủ động trên M5 cho thấy phiên cũ, nhóm thanh bên, lịch 30′ còn hay mất.
+  - câu 1 đo «mất» (lần đổi chủ động 11/10: phiên, nhóm, tin liên phiên của tài khoản cũ không thấy dưới tài khoản mới; hiện lại khi đổi về) → P2: dựng lại nhóm, lịch là bước thường của `tiep-tuc`. Lịch 30′ chưa quan sát được (M5 không có lịch) — ngưỡng: đợt thử crm (~26/10) có lịch trước lần đổi.
   - câu 2 đo «mất» SUY GIÁN TIẾP (11/10: lệnh dòng trạng thái cài trong worktree, 0 lần gọi qua nhiều lượt) → S2. Chưa loại trừ app chỉ đọc `statusLine` lúc mở phiên — ngưỡng mở lại: một phiên mở MỚI trong thư mục worktree có lệnh dòng trạng thái cài sẵn ghi được ≥1 dòng có `rate_limits`.
   - câu 3 — ngưỡng: ≥1 thợ chết vì hạn mức trong đợt thử mà không có dấu `ban-giao/dau/`.
   - câu 5 — ngưỡng: lần đổi đầu sau khi crm cài gói `dieu-phoi`.
@@ -191,3 +191,6 @@ Phân loại:
   `docs/plans/2026-10-11-hat-giong-tho-trong-dot-sau-dp7.md`, không ghi mới.
 - Ngoài hợp đồng, ghi hạt giống (Điều phối M5 quyết 11/10, không tạo ô): S4 lượt 1 so với mốc `main` cục bộ tụt 64
   commit — 8/26 finding lạc vùng — `docs/plans/2026-10-11-hat-giong-s4-args-nhanh-chinh-cuc-bo.md`.
+- Ngoài hợp đồng, ghi hạt giống (Điều phối M5 quyết 11/10, không tạo ô): dòng lệnh ký của thẻ Cổng 2 liệt từng
+  mục nên dài 812 ký tự, vượt ngưỡng dán ≈ 800 của app — hai lần ký không chạy —
+  `docs/plans/2026-10-11-hat-giong-dong-ky-vuot-nguong-dan.md`.
