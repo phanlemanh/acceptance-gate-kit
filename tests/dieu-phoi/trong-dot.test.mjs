@@ -642,3 +642,41 @@ for (const [ten, cu, moi, mong] of [
     assert.ok(loi.some((l) => l.startsWith(mong)), `phải nêu «${mong}»: ${loi.join(' | ')}`);
   });
 }
+
+// ---------- DP7-10, DP7-11: ca DP1/DP2 nguyên vẹn; README (AC-10, AC-11) ----------
+test('DP7-10 dp12-nguyen', () => {
+  let base;
+  try {
+    base = git(KIT, 'merge-base', 'HEAD', 'origin/main').trim();
+  } catch {
+    base = git(KIT, 'merge-base', 'HEAD', 'main').trim();
+  }
+  const tep = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/mo-dot.test.mjs', 'tests/dieu-phoi/loi'];
+  const r = spawnSync('git', ['diff', '--quiet', base, '--', ...tep], { cwd: KIT, env: ENV });
+  console.log(`  base ${base.slice(0, 12)} · git diff --quiet ${tep.join(' ')} → ${r.status}`);
+  assert.equal(r.status, 0, 'ca DP1/DP2 đã bị sửa so với merge-base');
+});
+
+async function kiemReadme(tep) {
+  const t = fs.readFileSync(tep, 'utf8');
+  const m = /\n## Phiên thợ trong đợt\n([\s\S]*?)(?=\n## |$)/.exec(t);
+  if (!m) return ['README thiếu mục «Phiên thợ trong đợt»'];
+  const muc = m[1];
+  const { VIEC_KE } = await nap(GOI, 'tho.mjs');
+  const loi = [];
+  for (const chu of ['tho', '--tu-merge', 'LUAT.md', ...VIEC_KE.map((v) => `\`${v}\``)]) if (!muc.includes(chu)) loi.push(`mục thiếu ${chu.replaceAll('`', '')}`);
+  for (const cam of ['xin/', 'yeu-cau/']) if (muc.includes(cam)) loi.push(`mục lặp cách ghi: ${cam}`);
+  return loi;
+}
+
+test('DP7-11 readme', async () => {
+  assert.deepEqual(await kiemReadme(path.join(GOI, 'README.md')), []);
+});
+
+test('DP7-11-do', async () => {
+  const sao = path.join(tam('dp7-readme-'), 'README.md');
+  fs.copyFileSync(path.join(GOI, 'README.md'), sao);
+  tiem(sao, /\n- `cho-nhip` —[^\n]*/, '');
+  const loi = await kiemReadme(sao);
+  assert.ok(loi.includes('mục thiếu cho-nhip'), `phải nêu «cho-nhip»: ${loi.join(' | ')}`);
+});

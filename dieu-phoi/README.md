@@ -66,6 +66,26 @@ GOI=$(node <gói feature-loop>/scripts/resolve-plugin.mjs --plugin dieu-phoi)
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
 
+## Phiên thợ trong đợt
+
+Phiên thợ không cần ai dặn nó đang trong đợt: S0 của `/feature-loop` chạy `trong-dot.mjs` của gói
+feature-loop (chỉ đọc). Kho không có đợt → lệnh không in gì và vòng chạy y như cũ. Có đợt → nó gọi lệnh
+`tho --json` của bản lõi trong thư mục đợt và nhận một JSON: dãy của phiên (theo worktree trong
+`hang-viec.json`), pha, quyền tự merge, hàng kế (đọc từ `tiep/<dãy>.json`) và `viec_ke` — việc kế của thợ khi
+xong một hàng:
+
+- `mo-hang` — hàng kế đã có quyết build (hồ sơ, ô `decision: build`, hoặc hàng phát sinh giám sát đã thêm):
+  thợ tự mở nó trong cùng phiên.
+- `cho-nhip` — bộ phát lịch chưa thấy hàng vừa xong; thợ chờ một nhịp rồi đọc lại.
+- `bao-giam-sat` — hàng kế chưa có quyết build (hoặc đã quyết park, kill, iterate): thợ không mở, báo giám sát.
+- `cho` — dãy nghỉ, chờ phụ thuộc, hoặc đợt không ở pha đang chạy.
+- `xong` — dãy hết hàng.
+
+Quyền tự merge do người trả ở thẻ khởi tạo, giám sát ghi bằng `pha dang-chay --tu-merge co|khong`; vắng thì
+thợ đọc là không tự merge. Mọi lần thợ ghi vào thư mục đợt (xin lượt, nhả lượt, yêu cầu `can-nguoi`,
+`hang-moi`) theo mục «Cách xin tài nguyên» của `LUAT.md` của đợt. Yêu cầu `can-nguoi` chưa trả lời hiện ở danh
+sách chờ người của bảng đợt và được lệnh đếm tính một lần.
+
 ## Chuyển từ bản lõi chép tay trong kho
 
 Kho từng chép lõi vào cây của mình và gắn hook trong `.claude/settings.json` thì trong lúc chuyển hai
