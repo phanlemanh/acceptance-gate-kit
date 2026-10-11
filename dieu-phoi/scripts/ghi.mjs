@@ -1,0 +1,91 @@
+// Lệnh con ghi vào thư mục đợt (spec ô dù §2.3, design DP3 §3 chỗ chọn 4, 6). Phiên gọi lệnh bằng Bash,
+// không bằng công cụ ghi tệp — thư mục đợt nằm ngoài worktree của phiên (sự cố 09/10). Mỗi lệnh kiểm khuôn
+// bằng CHÍNH hàm kiểm của bên đọc (bộ phát lịch) rồi mới ghi nguyên tử; tên tệp theo khuôn bên đọc.
+// Lệnh của thợ (`xin`, `nha`, `yeu-cau`) đòi cwd thuộc một dãy; lệnh của giám sát chạy từ mọi cwd trong kho.
+import fs from 'node:fs';
+import path from 'node:path';
+import { docJson, ghiJsonNguyenTu, phienCuaCwd, timThuMucDot } from './dot.mjs';
+import { ghiNhatKy } from './hang.mjs';
+import { docHangViec, kiemDon, kiemTraLoi, kiemYeuCau } from './hinh-dang.mjs';
+import { docVai, laGiamSat } from './vai.mjs';
+
+function canDot(cwd, lenh) {
+  const thuMuc = timThuMucDot(cwd);
+  if (!thuMuc) throw new Error(`${lenh}: không có đợt nào đang chạy`);
+  return thuMuc;
+}
+
+function dayCua(cwd, lenh) {
+  const thuMuc = canDot(cwd, lenh);
+  const hangViec = docHangViec(thuMuc);
+  const id = phienCuaCwd(hangViec, cwd);
+  if (!id) throw new Error(`${lenh}: cwd không thuộc dãy nào của đợt — chạy từ worktree của dãy`);
+  return { thuMuc, hangViec, day: hangViec.day.find((d) => d.id === id) };
+}
+
+// Lệnh chỉ giám sát được ghi: `--phien` có mà khác giám sát trong vai.json → từ chối, không ghi gì.
+export function kiemGiamSat(thuMuc, phien, lenh) {
+  if (typeof phien !== 'string' || phien === '') return;
+  if (laGiamSat(thuMuc, phien) === false) {
+    throw new Error(`${lenh}: phiên ${phien} không phải giám sát hiện tại (${docVai(thuMuc).giam_sat.phien})`);
+  }
+}
+
+function slugKeCua(thuMuc, hangViec, id) {
+  const tiep = docJson(path.join(thuMuc, 'tiep', `${id}.json`), null);
+  if (tiep?.hang) return tiep.hang;
+  return (hangViec.hang ?? []).filter((h) => h.day === id).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99))[0]?.slug ?? null;
+}
+
+export function ghiDon(cwd, { loai, uocPhut = null, moMerge = false, slug = null }) {
+  const { thuMuc, hangViec, day } = dayCua(cwd, 'xin');
+  const don = { phien: day.id, slug: slug ?? slugKeCua(thuMuc, hangViec, day.id), loai, luc: new Date().toISOString(), worktree: day.worktree };
+  if (uocPhut != null) don.uoc_phut = Number(uocPhut);
+  if (moMerge) don.mo_merge = true;
+  kiemDon(don);
+  const p = path.join(thuMuc, 'xin', `${day.id}-${loai}.json`);
+  ghiJsonNguyenTu(p, don);
+  return p;
+}
+
+export function nhaKhoa(cwd, taiNguyen) {
+  const { thuMuc, day } = dayCua(cwd, 'nha');
+  const d = path.join(thuMuc, 'khoa', String(taiNguyen));
+  if (!fs.existsSync(d)) return `nha: khoá ${taiNguyen} không có — không làm gì`;
+  const chu = docJson(path.join(d, 'chu.json'), null);
+  if (chu?.phien !== day.id) throw new Error(`nha: khoá ${taiNguyen} không do ${day.id} giữ (${chu?.phien ?? '?'})`);
+  fs.rmSync(d, { recursive: true, force: true });
+  return `nha: đã nhả ${taiNguyen}`;
+}
+
+export function ghiYeuCau(cwd, { loai, hang = null, noiDung = {} }) {
+  const { thuMuc, day } = dayCua(cwd, 'yeu-cau');
+  const so = (ten) => {
+    const m = new RegExp(`^${day.id}-(\\d+)\\.json$`).exec(ten);
+    return m ? Number(m[1]) : 0;
+  };
+  const daCo = ['yeu-cau', 'tra-loi', path.join('tra-loi', 'hong')].flatMap((t) => (fs.existsSync(path.join(thuMuc, t)) ? fs.readdirSync(path.join(thuMuc, t)) : []));
+  const id = `${day.id}-${Math.max(0, ...daCo.map(so)) + 1}`;
+  const yc = { phien: day.id, loai, hang, noi_dung: noiDung, luc: new Date().toISOString() };
+  kiemYeuCau(yc);
+  ghiJsonNguyenTu(path.join(thuMuc, 'yeu-cau', `${id}.json`), yc);
+  return id;
+}
+
+export function ghiTraLoi(cwd, id, traLoi, { phien = null } = {}) {
+  const thuMuc = canDot(cwd, 'tra-loi');
+  kiemGiamSat(thuMuc, phien, 'tra-loi');
+  if (!/^[\w-]+$/.test(id ?? '')) throw new Error('tra-loi: id yêu cầu không hợp lệ');
+  const du = { boi: 'giam-sat', luc: new Date().toISOString(), ...traLoi };
+  kiemTraLoi(du);
+  ghiJsonNguyenTu(path.join(thuMuc, 'tra-loi', `${id}.json`), du);
+  return id;
+}
+
+export function ghiNhatKyCli(cwd, cau, { phien = null } = {}) {
+  const thuMuc = canDot(cwd, 'nhat-ky');
+  kiemGiamSat(thuMuc, phien, 'nhat-ky');
+  if (typeof cau !== 'string' || cau.trim() === '') throw new Error('nhat-ky: thiếu câu');
+  ghiNhatKy(thuMuc, cau);
+  return 'nhat-ky: đã ghi';
+}

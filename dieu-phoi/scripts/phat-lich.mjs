@@ -11,6 +11,7 @@ import { docPha } from './pha.mjs';
 import { giuMay, nhaMay, thuHoiMayChet } from './may.mjs';
 import { docNhomKeHoach } from './nguon-hang.mjs';
 import { capLuot, chonHangKe, hanGiaHan, xetHanThue } from './lich.mjs';
+import { coThuMucSong, NGUONG_SONG_MS, nhipMoiNhatCua } from './song.mjs';
 import { danhGiaSucKhoe, docApLuc, docLoad, docRssLonNhat, docSwap } from './suc-khoe.mjs';
 import { xetYeuCau } from './yeu-cau.mjs';
 
@@ -287,6 +288,30 @@ function suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day) {
   return { gop_da_bao: gopMoi, cho_nguoi_da_bao: choMoi };
 }
 
+// Khoá cấp quá 10′ mà worktree giữ khoá không có nhịp sống nào kể từ lúc cấp (spec workflow §5.1): lệnh
+// nền chờ khoá của thợ đã chết theo app. Một sự kiện mỗi lần cấp; đợt chưa có thư mục `song/` (hook bản
+// cũ) thì im. Nhịp nối theo worktree, không theo phiên giữ (design DP3 §3 chỗ chọn 1 — giới hạn đã khai).
+function baoKhoaKhongNhip(thuMuc, cu, nowMs) {
+  const daBao = new Set(cu.khoa_khong_nhip_da_bao ?? []);
+  const conGiu = [];
+  if (!coThuMucSong(thuMuc)) return conGiu;
+  for (const tn of CAC_TAI_NGUYEN) {
+    const chu = docJson(path.join(thuMuc, 'khoa', tn, 'chu.json'));
+    if (!chu?.cap_luc || !chu.worktree) continue;
+    const khoa = `${tn}@${chu.cap_luc}`;
+    if (daBao.has(khoa)) {
+      conGiu.push(khoa);
+      continue;
+    }
+    if (nowMs - Date.parse(chu.cap_luc) < NGUONG_SONG_MS) continue;
+    const nhip = nhipMoiNhatCua(thuMuc, chu.worktree);
+    if (nhip && Date.parse(nhip.luc) >= Date.parse(chu.cap_luc)) continue;
+    ghiSuKien(thuMuc, { loai: 'khoa-khong-nhip', tai_nguyen: tn, phien: chu.phien, ly_do: `khoá cấp lúc ${chu.cap_luc}, không có nhịp sống của ${chu.worktree} từ đó`, can_phan: true });
+    conGiu.push(khoa);
+  }
+  return conGiu;
+}
+
 function capNhatHangKe(thuMuc, hangViec, tienDo) {
   const ketQua = [];
   for (const day of hangViec.day) {
@@ -339,6 +364,7 @@ export async function motNhip(thuMuc, io) {
   });
 
   const dem = suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day);
+  const khoaKhongNhip = baoKhoaKhongNhip(thuMuc, cu, nowMs);
   const tt = {
     dot: hangViec.dot,
     pha,
@@ -353,6 +379,7 @@ export async function motNhip(thuMuc, io) {
     da_bao: daBao,
     cho_may: may.cho,
     ...dem,
+    khoa_khong_nhip_da_bao: khoaKhongNhip,
   };
   ghiJsonNguyenTu(pTrangThai, tt);
   fs.writeFileSync(path.join(thuMuc, 'bang.html'), veBang(tt, { nhom: cfg.goc_kho ? docNhomKeHoach(cfg.goc_kho) : new Map(), hangViec }));

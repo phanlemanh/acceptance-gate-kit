@@ -468,6 +468,14 @@ Hàng tiếp theo bộ phát lịch chọn cho một dãy, ghi ở `tiep/<phiên
 _Avoid_: «hàng kế» trơ — chữ ấy là hàng kế của LỘ TRÌNH (một hàng cho cả một
 lộ trình, thẻ `/acceptance-gate:start` in); next task.
 
+**Nhịp sống của phiên**:
+Tệp `song/<mã phiên>.json` trong thư mục đợt, do hook `PostToolUse` của gói ghi ở mỗi lời gọi công cụ (ghi
+lại sau 30″). Một dãy «có phiên sống» khi có nhịp mới hơn 10′ mang worktree của dãy. Nhịp chỉ đo HOẠT
+ĐỘNG, không đo phiên còn sống: phiên rảnh hay đứng chờ người cũng không có nhịp — vì thế
+`/dieu-phoi:tiep-tuc` xét thêm khoá, tệp chờ người, và đợt chưa có nhịp nào thì không mở chip.
+_Avoid_: heartbeat, «phiên còn sống» khi chỉ có nhịp (nói «có nhịp sống»), dùng danh sách phiên của app
+để biết phiên sống (danh sách tách theo tài khoản).
+
 **Bảng đợt**:
 Trang `bang.html` trong thư mục đợt — cùng một hàm mô hình (`mo-hinh.mjs`) với
 đầu ra của `/dieu-phoi:xem`, nên hai bề mặt không thể nói khác nhau.
