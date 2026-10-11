@@ -585,14 +585,25 @@ test('DP6-06-do bo-can-phan', async () => {
 });
 
 // ---------- DP6-07: không vỡ hàng trước, lõi không đổi, kho không đợt im (AC-7, E7) ----------
-const mergeBase = () => {
-  for (const nhanh of ['origin/main', 'main']) {
+// Lời hứa «nhánh DP6 không đổi X» neo vào LỊCH SỬ (khuôn DP3-11 @8c92fb3a, DP7-10): commit gộp nhánh DP6 có trong
+// lịch sử của HEAD → so phần nhánh DP6 tự đổi [điểm rẽ hai cha, cha-2]; chưa gộp → [merge-base(HEAD, nhánh chính),
+// HEAD]. merge-base sống sau khi gộp làm mọi vòng SAU chạm hợp lệ X vấp (sổ quyết định dòng 26).
+export const NHANH_DP6 = 'claude/wizardly-gates-c0ac67';
+const GOP_DP6 = /\tMerge (pull request #\d+ from \S+\/|branch ')claude\/wizardly-gates-c0ac67'?$/;
+export function khoangNhanhDp6(cwd = KIT, nhanhChinh = 'origin/main') {
+  const g = (...a) => execFileSync('git', a, { cwd, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  const dong = g('log', '--merges', '--format=%H%x09%s', 'HEAD').split('\n').find((l) => GOP_DP6.test(l));
+  if (dong) {
+    const m = dong.split('\t')[0];
+    return [g('merge-base', `${m}^1`, `${m}^2`), `${m}^2`];
+  }
+  for (const n of [nhanhChinh, 'main']) {
     try {
-      return execFileSync('git', ['merge-base', 'HEAD', nhanh], { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      return [g('merge-base', 'HEAD', n), 'HEAD'];
     } catch {}
   }
-  assert.fail('không tìm được merge-base');
-};
+  assert.fail('không tìm được điểm rẽ của nhánh DP6');
+}
 const TEN_CA = /\btest\(\s*['"`](DP[1-9]-[^'"`]+)['"`]/g;
 function tenCaKhai(doc) {
   const ra = new Set();
@@ -601,18 +612,55 @@ function tenCaKhai(doc) {
 }
 
 test('DP6-07 ten-ca-cu', () => {
-  const mb = mergeBase();
+  const [tu, toi] = khoangNhanhDp6();
   const ds = (ref) => execFileSync('git', ['ls-tree', '-r', '--name-only', ref, 'tests/dieu-phoi'], { cwd: KIT, env: ENV, encoding: 'utf8' }).split('\n').filter((p) => p.endsWith('.test.mjs'));
-  const cu = tenCaKhai({ danhSach: () => ds(mb), noiDung: (p) => execFileSync('git', ['show', `${mb}:${p}`], { cwd: KIT, env: ENV, encoding: 'utf8', maxBuffer: 1 << 26 }) });
-  const moi = tenCaKhai({ danhSach: () => ds('HEAD').concat(['tests/dieu-phoi/lop-mod.test.mjs']), noiDung: (p) => fs.readFileSync(path.join(KIT, p), 'utf8') });
-  console.log(`  tên ca DP ở merge-base: ${cu.size} · ở cây hiện tại: ${moi.size}`);
-  assert.ok(cu.size > 0, 'rút 0 tên ca ở merge-base — phép rút hỏng');
+  const show = (ref) => (p) => execFileSync('git', ['show', `${ref}:${p}`], { cwd: KIT, env: ENV, encoding: 'utf8', maxBuffer: 1 << 26 });
+  const cu = tenCaKhai({ danhSach: () => ds(tu), noiDung: show(tu) });
+  const moi = toi === 'HEAD'
+    ? tenCaKhai({ danhSach: () => ds('HEAD').concat(['tests/dieu-phoi/lop-mod.test.mjs']), noiDung: (p) => fs.readFileSync(path.join(KIT, p), 'utf8') })
+    : tenCaKhai({ danhSach: () => ds(toi), noiDung: show(toi) });
+  console.log(`  tên ca DP ở điểm rẽ nhánh DP6: ${cu.size} · ở ${toi === 'HEAD' ? 'cây hiện tại' : 'đầu nhánh DP6'}: ${moi.size}`);
+  assert.ok(cu.size > 0, 'rút 0 tên ca ở điểm rẽ — phép rút hỏng');
   assert.deepEqual([...cu].filter((t) => !moi.has(t)), []);
 });
 
 test('DP6-07 loi-nguyen', () => {
-  const r = spawnSync('git', ['diff', '--quiet', mergeBase(), '--', 'tests/dieu-phoi/loi/', 'tests/dieu-phoi/dong-goi.test.mjs'], { cwd: KIT, env: ENV });
-  assert.equal(r.status, 0, 'tests/dieu-phoi/loi/ và dong-goi.test.mjs phải không đổi so với merge-base');
+  const [tu, toi] = khoangNhanhDp6();
+  const r = spawnSync('git', ['diff', '--quiet', tu, ...(toi === 'HEAD' ? [] : [toi]), '--', 'tests/dieu-phoi/loi/', 'tests/dieu-phoi/dong-goi.test.mjs'], { cwd: KIT, env: ENV });
+  assert.equal(r.status, 0, 'tests/dieu-phoi/loi/ và dong-goi.test.mjs phải không đổi so với điểm rẽ của nhánh DP6');
+});
+
+// Chiều đỏ của neo lịch sử, trên kho git dựng bằng code: nhánh DP6 gộp vào main, rồi một vòng SAU chạm hợp lệ
+// loi/. Neo lịch sử phải XANH (chỉ so phần nhánh DP6 tự đổi); merge-base sống phải ĐỎ (kéo cả thay đổi của vòng
+// sau). Trước khi gộp (đứng trên nhánh DP6) neo rơi về [merge-base, HEAD] (sổ quyết định dòng 26).
+function khoGopDp6() {
+  const kho = tam('dp6-gop-');
+  const ghi = (p, s) => { fs.mkdirSync(path.dirname(path.join(kho, p)), { recursive: true }); fs.writeFileSync(path.join(kho, p), s); };
+  git(kho, 'init', '-q', '-b', 'main');
+  ghi('tests/dieu-phoi/loi/a.txt', 'x\n');
+  git(kho, 'add', '-A');
+  git(kho, 'commit', '-q', '-m', 'goc');
+  git(kho, 'checkout', '-q', '-b', NHANH_DP6);
+  ghi('khac.txt', 'dp6\n');
+  git(kho, 'add', '-A');
+  git(kho, 'commit', '-q', '-m', 'dp6');
+  git(kho, 'checkout', '-q', 'main');
+  git(kho, 'merge', '-q', '--no-ff', '-m', `Merge pull request #1 from u/${NHANH_DP6}`, NHANH_DP6);
+  git(kho, 'checkout', '-q', '-b', 'vong-sau');
+  ghi('tests/dieu-phoi/loi/a.txt', 'y\n');
+  git(kho, 'add', '-A');
+  git(kho, 'commit', '-q', '-m', 'vong sau cham loi');
+  return kho;
+}
+const doiLoi = (kho, [tu, toi]) => spawnSync('git', ['diff', '--quiet', tu, toi, '--', 'tests/dieu-phoi/loi/'], { cwd: kho, env: ENV }).status;
+test('DP6-07-do merge-base-song', () => {
+  const kho = khoGopDp6();
+  assert.equal(doiLoi(kho, khoangNhanhDp6(kho, 'main')), 0, 'đối chứng dương: neo lịch sử xanh sau khi gộp');
+  const song = [execFileSync('git', ['merge-base', 'HEAD', 'main'], { cwd: kho, env: ENV, encoding: 'utf8' }).trim(), 'HEAD'];
+  assert.equal(doiLoi(kho, song), 1, 'merge-base sống kéo cả thay đổi của vòng sau: phải đỏ');
+  git(kho, 'checkout', '-q', NHANH_DP6);
+  const truocGop = khoangNhanhDp6(kho, 'nhanh-khong-co');
+  assert.equal(truocGop[1], 'HEAD', 'trước khi gộp: so tới HEAD');
 });
 
 test('DP6-07 khong-dot', () => {

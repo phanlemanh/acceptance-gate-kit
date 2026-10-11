@@ -124,9 +124,14 @@ evals:
     paths: [dieu-phoi/**, tests/dieu-phoi/**]
     expected: >
       exit 0; dòng gộp TAP có "# fail 0"; "ok" cho "DP6-07 ten-ca-cu": tập tên ca DP1-…, DP2-…, DP3-…, DP4-…, DP7-…
-      có trên merge-base (rút bằng `git show <merge-base>:<tệp>` cho mọi tệp test dưới tests/dieu-phoi/, in số) ⊆
-      tập tên có dòng "ok" của lượt này; "ok" cho "DP6-07 loi-nguyen": `git diff --quiet <merge-base> --
-      tests/dieu-phoi/loi/ tests/dieu-phoi/dong-goi.test.mjs` thoát 0; "ok" cho "DP6-07 khong-dot": kho thử không đợt, hook chặn S4 và hook chờ
+      có ở điểm rẽ của nhánh DP6 (rút bằng `git show <điểm rẽ>:<tệp>` cho mọi tệp test dưới tests/dieu-phoi/, in số)
+      ⊆ tập tên ở cây hiện tại (trước khi gộp) hay đầu nhánh DP6 (sau khi gộp); "ok" cho "DP6-07 loi-nguyen": `git
+      diff --quiet <điểm rẽ> [<đầu nhánh>] -- tests/dieu-phoi/loi/ tests/dieu-phoi/dong-goi.test.mjs` thoát 0; điểm rẽ
+      neo lịch sử — có commit gộp nhánh claude/wizardly-gates-c0ac67 trong lịch sử của HEAD thì [merge-base m^1 m^2,
+      m^2], chưa có thì [merge-base HEAD origin/main, HEAD]; "ok" cho "DP6-07-do merge-base-song": kho git dựng bằng
+      code (nhánh DP6 gộp vào main bằng commit «Merge pull request #1 from …», rồi vòng sau sửa tests/dieu-phoi/loi/) →
+      neo lịch sử cho git diff loi/ thoát 0, merge-base sống thoát 1; đứng trên nhánh DP6 trước khi gộp → đầu khoảng
+      là HEAD; "ok" cho "DP6-07 khong-dot": kho thử không đợt, hook chặn S4 và hook chờ
       người thật với đầu vào S4 / permission_prompt → thoát 0, stderr rỗng, băm cây trước == sau (đối chứng: kho có
       đợt và khoá của dãy khác → hook chặn S4 thoát 2). "ok" cho "DP6-07 khoa-prototype": sáu từ trùng khoá
       Object.prototype × bốn hình (đứng đầu, sau vỏ bọc kèm cờ, làm tên script, sau timeout) → null, heredoc ghi class
