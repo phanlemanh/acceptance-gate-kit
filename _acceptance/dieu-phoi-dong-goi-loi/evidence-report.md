@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 22d1da8289d47283f4d55c46f957d890d1d0252f
+verified_commit: 3ad1c14a5214d9fe7497c2d3f884eb9939bbec58
 human_signoff: manh 2026-10-10
 ---
 
@@ -285,3 +285,7 @@ Round 1: mọi eval và lệnh suite xanh, không eval nào hỏng. Các lỗi n
 ### Re-pin lần 1 — 2026-10-10, do gộp origin/main (#292, #294) vào nhánh PR #295
 run_id: repin-20261010T040346Z-23400
 sha: 22d1da8289d47283f4d55c46f957d890d1d0252f · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
+
+### Re-pin lần 2 — 2026-10-11, do ghim lại sau DP4 và gộp main d0dc3dc4 (vá gate-card #311)
+run_id: repin-20261011T112517Z-27231
+sha: 3ad1c14a5214d9fe7497c2d3f884eb9939bbec58 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng
