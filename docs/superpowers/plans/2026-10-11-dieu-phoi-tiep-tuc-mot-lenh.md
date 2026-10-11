@@ -174,3 +174,25 @@
 - [ ] Ca DP3-13 dp1-nguyen (như DP2-15, in «không đổi»/«ĐÃ ĐỔI»).
 - [ ] Suite `tests/dieu-phoi/**` 0 fail; `hooks`, `workflows`; `scripts` và `plugins` trọn (nền, không chồng nhau); `product-map --check`; RT13 (tệp ca mới chứa `signed-off` → khai gạch ở hồ sơ `ra-co-ten-lam-va-trao` như DP2).
 - [ ] Đặt `status: implemented`, commit; ghim lại hồ sơ DP2 (`dieu-phoi-mo-dot-mot-lenh`, vì ca DP2-01 đổi) và `ra-co-ten-lam-va-trao` nếu chạm — MỘT làn cho cả hai; vào S4.
+
+---
+
+## Bàn giao S3 → S4 (11/10)
+
+S3 xong ở phiên «dieu-phoi-tho» (đỉnh mã `646d8c87`, hồ sơ `status: implemented`). Dừng ở ranh S3→S4 theo chỉ
+dẫn của phiên «Điều phối M5 đóng gói»: phiên này vào worktree bằng EnterWorktree nên Bash cô lập từ chối khối
+baseline và khung làn máy (lỗi BLOCKED ở bốn lượt chấm DP2), và ngữ cảnh đã cao. S4 chạy ở một phiên MỞ THẲNG
+trong worktree `dieu-phoi-tho`.
+
+Đã xanh trên cây này: `tests/dieu-phoi/**` 206/206 (executor `dieu_phoi_dp3`) · `tests/scripts` 914/914 ·
+`tests/plugins` trọn · `hooks` 71/71 · `workflows` · `product-map --check` · LB1, LB2, LB9 · P86, P101 ·
+`kiem-validate` (bộ kiểm gói Claude Code, có bốn lệnh).
+
+Việc còn lại:
+1. S4 lượt 1: `node feature-loop/scripts/s4-args.mjs --slug dieu-phoi-tiep-tuc-mot-lenh --root . --ag-root "$(pwd)" --out _acceptance/dieu-phoi-tiep-tuc-mot-lenh/s4-args.json`,
+   bọc args vào bản sao `acceptance-verify.js`, chạy Workflow bằng `scriptPath`.
+2. Hồ sơ `dieu-phoi-mo-dot-mot-lenh` (DP2, đã ký) sẽ hoá cũ: ca DP2-01 nâng tập lệnh lên bốn (sổ DP2 d-…-42).
+   Ghim lại DP2 bằng MỘT làn (`repin-lane.mjs --ag-root . --slug dieu-phoi-mo-dot-mot-lenh … --write`, ~40′,
+   chạy nền) trước khi mở PR; thêm `ra-co-ten-lam-va-trao` vào cùng làn nếu lưới trước-merge báo nó hoá cũ.
+3. Đã biết, không chặn: `feature-loop:cham-lenh` báo `loai-tac-tu-vang` (bản cài 2.26.0 thiếu `agents/`);
+   chân engine của đường nền đỏ vì bản cài lệch cây (sổ d-…-10).
