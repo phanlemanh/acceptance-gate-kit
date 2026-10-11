@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Kho bật một công tắc thì những mục ngoài hợp đồng mà máy tự đề xuất «ghi hạn chế đã biết» hoặc «chấp nhận, không sửa» được máy ghi sổ hộ — hồ sơ sạch đi tiếp không mời ký Cổng Bằng chứng; người vẫn đảo được từng mục bằng một dòng lệnh ký.",
+  "will_do": [
+    {"id":"AC-1","p":"Sẽ chỉ chạy ở kho đã bật công tắc (AC-1 — công tắc kho): kho chưa bật không đổi một byte; công tắc ghi sai giá trị thì máy dừng và gọi tên nó."},
+    {"id":"AC-2","p":"Sẽ ghi mỗi mục «ghi hạn chế» hay «chấp nhận, không sửa» thành một dòng sổ có dấu máy, kèm lệnh đảo; mục «ghi hạn chế» thêm một gạch vào ghi chú hợp đồng (AC-2 — dòng sổ máy)."},
+    {"id":"AC-3","p":"Sẽ để nguyên cho người mọi mục máy đề xuất «mở việc mới», mục đề xuất đọc không ra, và mục người đã quyết; chạy lại lần hai không ghi gì thêm (AC-3 — không đè người)."},
+    {"id":"AC-4","p":"Sẽ không đụng hồ sơ hạng cao, hồ sơ có câu hỏi «chưa chắc», hồ sơ chưa đạt, hay hồ sơ mà bước phân loại phạm vi hỏng — nêu đúng lý do (AC-4 — điều kiện hồ sơ)."},
+    {"id":"AC-5","p":"Sẽ làm lưới trước-khi-gộp thật sự thả hồ sơ đã sạch, và vẫn chặn hồ sơ còn mục «mở việc mới» (AC-5 — làn V chạy được)."},
+    {"id":"AC-6","p":"Sẽ dừng và báo khi dòng sổ máy cũ trỏ vào một mục đã đổi chỗ sau lượt chấm mới; thẻ cờ vàng mục đó (AC-6 — dòng máy lệch)."},
+    {"id":"AC-7","p":"Sẽ in các mục máy đã định tuyến trên thẻ Cổng Bằng chứng như dòng báo kèm lệnh đảo; người quyết sau thì người thắng (AC-7 — thẻ)."},
+    {"id":"AC-8","p":"Sẽ giữ thẻ của mọi hồ sơ cũ (không có dòng máy) y như hôm nay (AC-8 — đọc-cũ)."},
+    {"id":"AC-9","p":"Sẽ cho vòng lặp tự gọi bước ghi sổ trước bước xét làn V, và cho lệnh ký nhận lệnh đảo trên cả hồ sơ máy-đi-trước — không đổi bảng cổng (AC-9 — nối vào vòng)."},
+    {"id":"AC-10","p":"Sẽ ghi vào hướng dẫn cách bật công tắc, cách đảo, và giới hạn còn lại (AC-10 — tài liệu)."}
+  ],
+  "wont_do": [
+    {"id":"OOS-1","p":"KHÔNG sửa lõi cưỡng chế (bộ đọc làn V, lưới trước-khi-gộp, hook) và đường chấm verdict — cần sửa chúng thì vòng thành hạng cao."},
+    {"id":"OOS-2","p":"KHÔNG định tuyến mục trong hồ sơ hạng cao, hồ sơ có «chưa chắc», hay chưa đạt — vẫn của người như hôm nay."},
+    {"id":"OOS-3","p":"KHÔNG bật công tắc ở crm hay kho nào trong vòng này — việc của đợt phát hành mốc 25/10."},
+    {"id":"OOS-4","p":"KHÔNG dựng lệnh đảo-mà-không-ký, ký theo lô, hay đổ mục ngoài hợp đồng vào phần hạn chế của báo cáo."}
+  ],
+  "coverage_plain": [
+    {"i":0,"p":"Chân sản phẩm: đọc từ chính bộ đọc mục ngoài hợp đồng, bộ xét làn V, bộ dựng thẻ và lệnh ký của kit."},
+    {"i":1,"p":"Chân ngành: Renovate (tự gộp tắt mặc định, bật theo kho) và Dependabot (máy đi trước, người đảo bằng một thao tác)."},
+    {"i":2,"p":"Trục công tắc kho — vắng, tắt, bật, sai giá trị — phủ ở AC-1."},
+    {"i":3,"p":"Trục điều kiện hồ sơ — đủ và chín cách trượt một vế — phủ ở AC-4, có đối chiếu với bộ xét làn V."},
+    {"i":4,"p":"Trục đề xuất của mục — ghi hạn chế, không sửa, mở việc mới, đọc không ra, có chú thích đuôi — phủ ở AC-2, AC-3."},
+    {"i":5,"p":"Trục sổ của mục — chưa có dòng, có dòng người, dòng máy khớp, dòng máy lệch, người quyết sau máy — phủ ở AC-3, AC-6, AC-7."},
+    {"i":6,"p":"Làm ngay: mỗi trục và mỗi mặt đọc (bên ghi, lưới, thẻ, vòng lặp, tài liệu) có ít nhất một tiêu chí."},
+    {"i":7,"p":"Để sau: lệnh đảo-mà-không-ký, lõi tự kiểm dòng máy lệch, trang lộ trình đếm riêng — mở khi chạm ngưỡng đã khai."},
+    {"i":8,"p":"Không bao giờ: máy tự quyết «mở việc mới», máy ghi vào phần hạn chế của báo cáo."}
+  ],
+  "gap_probe_plain": [
+    {"i":0,"p":"Bảng sáu ca «không ghi» không chứng được máy có chạy thật — đã thêm một mục đối chứng phải được ghi ở mỗi ca, và một ca đỏ khi máy chết sớm."},
+    {"i":1,"p":"Mục 1 và mục 11 có thể bị lẫn nhau khi so nhãn — đã chốt so theo số và thêm hồ sơ 11 mục làm ca kiểm."},
+    {"i":2,"p":"Điều kiện hồ sơ bị chép lại ở chỗ thứ hai, dễ trôi — đã neo vào khuôn sáu điều kiện chung và đối chiếu với bộ xét làn V trên cùng hồ sơ."},
+    {"i":3,"p":"Lệnh đảo chỉ được kiểm bằng chữ, chưa kiểm lệnh ký có thật nhận nó — đã thêm câu hỏi cho hội đồng và ca tách lệnh đảo theo ngữ pháp ký."},
+    {"i":4,"p":"Phép «không đổi» so với một gốc trôi theo thời gian — đã neo vào một mốc cố định của vòng và bỏ phép trùng với ca bản ghi định tuyến."}
+  ]
+}
