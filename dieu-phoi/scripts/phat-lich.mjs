@@ -317,7 +317,17 @@ function suKienDem(thuMuc, cu, tienDo, hangViec, choNguoi, day) {
   for (const c of choNguoi) {
     const khoa = `${c.phien}|${c.luc}`;
     choMoi.push(khoa);
-    if (!choCu.has(khoa) && !choIm) ghiSuKien(thuMuc, { loai: 'cho-nguoi', phien: c.phien, hang: hangCua.get(c.phien) ?? null });
+    if (!choCu.has(khoa) && !choIm) {
+      ghiSuKien(thuMuc, {
+        loai: 'cho-nguoi',
+        phien: c.phien,
+        hang: hangCua.get(c.phien) ?? null,
+        // Thợ chờ người là việc của giám sát: Monitor lọc can_phan (design DP6 §4 C2).
+        can_phan: true,
+        loai_cho: c.loai ?? null,
+        tin: String(c.tin ?? '').slice(0, 200),
+      });
+    }
   }
   return { gop_da_bao: gopMoi, cho_nguoi_da_bao: choMoi };
 }
