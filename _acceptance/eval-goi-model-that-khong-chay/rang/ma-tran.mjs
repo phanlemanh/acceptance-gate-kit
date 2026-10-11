@@ -28,7 +28,7 @@ export const MA_TRAN = {
   },
   3: {
     nhom: [{ tep: T, ca: ['LIB-chon-nguon', 'AC3-sat-han', 'AC3-qua-han', 'AC3-tuong-lai'] }],
-    pha: [{ ten: 'bo-so-tuoi', tep: LIB, doi: [['if (nowMs - ts(hopLe[0]) > HAN_NGAY * 86400000) return { lyDo: LY_DO_NGUON.quaHan };', '']], tepCa: T, ca: 'AC3-qua-han', ghim: 'dùng lại nguồn quá hạn' }],
+    pha: [{ ten: 'bo-so-tuoi', tep: LIB, doi: [['if (nowMs - ts(hopLe[0]) > HAN_NGAY * NGAY_MS) return { lyDo: LY_DO_NGUON.quaHan };', '']], tepCa: T, ca: 'AC3-qua-han', ghim: 'dùng lại nguồn quá hạn' }],
   },
   4: {
     nhom: [{ tep: T, ca: ['LIB-van-tay-het-gio', 'LIB-van-tay-thoat', 'LIB-van-tay-rong', 'LIB-bien-shell', 'AC4-ma-tran', 'AC4-van-tay-thoat', 'AC4-van-tay-rong', 'AC4-ep', 'AC4-allow-dirty', 'AC4-khong-paths', 'AC4-paths-khong-chung', 'AC4-bien-shell', 'AC4-chua-commit-sua', 'AC4-chua-commit-moi', 'AC4-lenh-da-chay', 'AC4-hai-eval-model', 'AC4-eval-thuong'] }],

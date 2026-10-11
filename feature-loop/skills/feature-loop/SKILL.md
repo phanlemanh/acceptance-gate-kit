@@ -71,7 +71,7 @@ sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt k�
 Ba khoá của hồ sơ gia-lan-ghim-lai (2.23). `chap_chon` (khoá `feature_loop.repin_retry: 1`) và
 `suites_env: "ci"` (khoá `feature_loop.repin_ci_blank_env`) theo CÙNG luật hiện diện — kho không bật
 khoá thì vắng hẳn. `tong_ket` LUÔN có mặt (bật mặc định, chỉ thêm): kết cục, phút, số lệnh, eval
-model thật đã gọi (khoá `feature_loop.model_evals`), `model_carry` cố định 0 (ô giữ chỗ cho Vòng B),
+model thật đã gọi (khoá `feature_loop.model_evals`), `model_carry` = số eval model dùng lại theo băm đầu vào (0 khi `feature_loop.model_carry_cmd` vắng),
 số lệnh chập chờn, và chi phí đo khi kho khai `feature_loop.repin_cost_cmd`. Làn còn hai kết cục dừng
 sớm, không ghi pin, mỗi slug một dòng `repin-do` khi `--write`: **mã thoát 4** = vượt trần
 (`--tran-phut` / `feature_loop.repin_budget_min`, `ly_do: "vuot-tran"` + `tran_phut`, `da_chay_phut`,

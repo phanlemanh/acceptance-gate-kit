@@ -88,7 +88,7 @@ await ca('LIB-bien-shell', 'biến hoặc thay thế lệnh của shell nhận r
 const dongRepin = (o) => Object.assign({ kind: 'repin', sha: 'a'.repeat(40) }, o);
 await ca('LIB-chon-nguon', 'chọn nguồn — 10 hàng viết trước (rác, không ts, mới nhất, hoà giờ, dàn phẳng, tương lai, hạn, đổi băm, chưa có, lệch)', async () => {
   const now = Date.parse('2026-10-11T00:00:00Z');
-  const ngay = 86400000;
+  const ngay = L.NGAY_MS;
   const iso = (ms) => new Date(ms).toISOString();
   const laDat = (x) => x === 0;
   const H = 'h'.repeat(64), K = 'k'.repeat(64);
@@ -101,6 +101,8 @@ await ca('LIB-chon-nguon', 'chọn nguồn — 10 hàng viết trước (rác, k
   ok(r.lyDo === L.LY_DO_NGUON.chuaCo, `không ts: ${JSON.stringify(r)}`);
   r = q([chay('r1', now - 3 * ngay), chay('r2', now - ngay)]);
   ok(r.nguon.run_id === 'r2', `mới nhất: ${r.nguon && r.nguon.run_id}`);
+  r = q([chay('r1', now - ngay), { kind: 'finding', run_id: 'f1', ts: iso(now), evals_exit: { E1: 9 }, evals_hash: { E1: H } }]);
+  ok(r.nguon && r.nguon.run_id === 'r1', `dòng kind: finding đổi kết quả chọn nguồn: ${JSON.stringify(r)}`);
   r = q([chay('r1', now - ngay), chay('r2', now - ngay)]);
   ok(r.nguon.run_id === 'r2', `hoà giờ (hai lượt cùng giây) → dòng sau trong sổ thắng: ${r.nguon && r.nguon.run_id}`);
   r = q([chay('r1', now - 3 * ngay), dongRepin({ run_id: 'r2', ts: iso(now - ngay), evals_exit: { E1: 0 }, evals_hash: { E1: H }, evals_carry: { E1: 'r1' } })]);
@@ -199,7 +201,7 @@ function datTs(k, tsIso, { tatCa = false } = {}) {
   for (const i of tatCa ? vt : [vt[vt.length - 1]]) { const o = JSON.parse(dong[i]); o.ts = tsIso; dong[i] = JSON.stringify(o); }
   fs.writeFileSync(f, dong.join('\n') + '\n'); commit(k, 'lui ts');
 }
-const NGAY = 86400000;
+const NGAY = L.NGAY_MS;
 const iso = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z');
 const khongDungLai = (r, lyDo) => new RegExp(`feat E1: không dùng lại — ${lyDo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`).test(r.stderr);
 

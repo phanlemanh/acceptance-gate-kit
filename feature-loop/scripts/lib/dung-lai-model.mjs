@@ -10,6 +10,9 @@ import path from 'node:path';
 import { chayLenh } from './chay-lenh.mjs';
 
 export const HAN_NGAY = 7;
+// Viết bằng biểu thức: chuỗi số của một ngày là «needle» của lưới RT18 (luật ngưỡng ô cơ hội chỉ sống
+// trong lib/nguong-o-co-hoi.cjs) — hạn dùng lại ở đây không phải luật ngưỡng ấy.
+export const NGAY_MS = 24 * 60 * 60 * 1000;
 export const HET_GIO_VAN_TAY_MS = 60000;
 
 // <<<CARRY-INPUT-LAYERS
@@ -124,7 +127,7 @@ export function chonNguon({ dong, id, bam, nowMs, laDat }) {
   const hopLe = daChay.filter(o => o.evals_hash[id] === bam && laDat(o.evals_exit[id]) && Number.isFinite(ts(o)) && ts(o) <= nowMs)
     .sort((a, b) => (ts(b) - ts(a)) || (viTri.get(b) - viTri.get(a)));
   if (!hopLe.length) return { lyDo: daChay.some(o => o.evals_hash[id] !== bam) ? LY_DO_NGUON.bamDoi : LY_DO_NGUON.chuaCo };
-  if (nowMs - ts(hopLe[0]) > HAN_NGAY * 86400000) return { lyDo: LY_DO_NGUON.quaHan };
+  if (nowMs - ts(hopLe[0]) > HAN_NGAY * NGAY_MS) return { lyDo: LY_DO_NGUON.quaHan };
   return { nguon: hopLe[0] };
 }
 
