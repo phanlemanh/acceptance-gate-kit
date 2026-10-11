@@ -93,4 +93,30 @@ function maTheoTrich(luat, trich) {
   return l ? l.ma : null;
 }
 
-module.exports = { TEP_LUAT, MA_RE, MUC_CHU, LY_DO_LUAT, banLuat, docLuat, docTepLuat, xetPhamLuat, maTheoTrich };
+// ── Thẻ Cổng Phạm vi: chữ và cờ rút từ tệp luật + sổ — thẻ chỉ chèn móc (gate-card.js nhánh Cổng 1) ────
+const CO_LUAT = {
+  thieuNap: 'Kho đã khai luật sản phẩm mà sổ bước thiết kế chưa có dòng nạp — lựa chọn của vòng chưa được soi theo luật.',
+  doi: (cu, moi) => `Luật sản phẩm đã đổi sau khi bước thiết kế nạp (nạp bản ${String(cu).slice(0, 7)}, nay ${String(moi).slice(0, 7)}) — soi lại lựa chọn theo bản mới.`,
+  saiKhuon: s => `Tệp luật sản phẩm có khối sai khuôn: ${s.ma || 'dòng ' + s.dong} — ${s.ly_do}; luật đó chưa được nạp.`,
+};
+// entries = dòng sổ đã đọc; draft = hồ sơ đang ở Cổng Phạm vi (chỉ lúc đó mới có cờ — hồ sơ đã qua cổng đọc như cũ).
+function theCong1({ root, entries, draft }) {
+  const tep = docTepLuat(root);
+  if (!tep.co_tep) return { khoa: { co_tep: false }, co: [], tienTo: () => '', hauTo: () => '' };
+  const dongNap = (entries || []).find(e => e && e.stage === 'S1' && e.luat_nap && typeof e.luat_nap.ban === 'string');
+  const nap = dongNap ? { ban: dongNap.luat_nap.ban, khop: dongNap.luat_nap.ban === tep.ban } : null;
+  const co = [];
+  if (draft) {
+    if (!nap) co.push(['fwarn', CO_LUAT.thieuNap]);
+    else if (!nap.khop) co.push(['fwarn', CO_LUAT.doi(nap.ban, tep.ban)]);
+    for (const sk of tep.sai_khuon) co.push(['fwarn', CO_LUAT.saiKhuon(sk)]);
+  }
+  const theoMa = ma => tep.luat.find(x => x.ma === ma);
+  // Tiền tố câu hỏi «Phạm luật SP-n — <câu> (chủ luật: <tên>)» cho dòng chỉ-người mang pham_luat.
+  const tienTo = c => { const l = c && typeof c.pham_luat === 'string' ? theoMa(c.pham_luat) : null; return l ? `Phạm luật ${l.ma} — ${l.cau} (chủ luật: ${l.chu})` : ''; };
+  // Hậu tố «theo luật SP-n» cho dòng máy đã quyết trích một câu luật.
+  const hauTo = c => { if (!c || c.nguon !== 'muc-tieu' || String(c.tep || '').replace(/^\.\//, '') !== TEP_LUAT) return ''; const ma = maTheoTrich(tep.luat, c.trich); return ma ? `theo luật ${ma}` : ''; };
+  return { khoa: { co_tep: true, so_luat: tep.luat.length, sai_khuon: tep.sai_khuon.map(({ ma, dong, ly_do }) => ({ ma, dong, ly_do })), nap }, co, tienTo, hauTo };
+}
+
+module.exports = { TEP_LUAT, MA_RE, MUC_CHU, LY_DO_LUAT, CO_LUAT, banLuat, docLuat, docTepLuat, xetPhamLuat, maTheoTrich, theCong1 };

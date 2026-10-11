@@ -89,7 +89,7 @@ function mkKhoLuat({ luat = [SP1, SP2], coTep = true } = {}) {
   return { r, base: git(r, 'rev-parse', 'HEAD') };
 }
 const S1 = (id, can_cu, extra = {}) => Object.assign({ id, type: 'approach', stage: 'S1', at: '2026-10-12T00:00:00Z', decision: 'Lựa chọn ' + id, why: 'vì', cost_if_wrong: 'tốn' }, can_cu === undefined ? {} : { can_cu }, extra);
-const CN = (pham, kho_dao = false) => Object.assign({ nguon: 'chi-nguoi', kho_dao, khuyen: 'Khuyên giữ luật.', loi_khac: 'Phạm luật — tốn một lượt sửa sau.' }, pham ? { pham_luat: pham } : {});
+const CN = (pham, kho_dao = false) => Object.assign({ nguon: 'chi-nguoi', kho_dao, khuyen: 'Khuyên giữ nguyên.', loi_khac: 'Đổi hướng — tốn một lượt sửa sau.' }, pham ? { pham_luat: pham } : {});
 // Ma trận LS-05: [tên ca, can_cu, lớp, mã đỏ, thông điệp]
 const MT05 = [
   ['c1-thuong', CN('SP-2'), 'cau-hoi', null, null],
@@ -137,6 +137,116 @@ if (want('LS-06')) {
     const d = banSaoTiem('luat-san-pham.cjs', "if (!l) return { lop: 'do', ma: 'luat-vang', them };", "if (!l) return null;");
     const g = xepLop(napMoi(path.join(d, 'can-cu-s1.cjs')), coTep.r, 'h', dong.slice(0, 1))[0];
     if (g[2] === 'luat-vang') die('bỏ phép tra mã mà SP-9 vẫn đỏ luat-vang');
+  });
+}
+
+// ── Hồ sơ nháp + thẻ (LS-03, LS-04, LS-05 phần thẻ, LS-10) ─────────────────────────────────────────────
+const HD = st => `---\nschema_version: 1\nfeature: Kho thử h\nslug: h\nrisk_tier: T2\nsurfaces: [cli]\nstatus: ${st}\ndesign_doc: docs/superpowers/specs/2026-10-12-h-design.md\n---\n\n# h\n\n## Criteria\n\n- AC-1: Given x, When y, Then z.\n\n## Coverage\n\n- Trục A: a [thước CE: b] → AC-1\n\n## Out of scope\n\n- một\n- hai\n`;
+const EVALS = 'schema_version: 1\nevals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.x\n    expected: "exit 0"\n';
+function mkHoSo(kho, dongs, { status = 'draft', slug = 'h', commit = true } = {}) {
+  ghiTep(kho.r, `_acceptance/${slug}/contract.md`, HD(status));
+  ghiTep(kho.r, `_acceptance/${slug}/evals.yaml`, EVALS);
+  ghiTep(kho.r, `_acceptance/${slug}/decisions.jsonl`, dongs.map(x => JSON.stringify(x)).join('\n') + '\n');
+  if (commit) { git(kho.r, 'add', '-A'); git(kho.r, 'commit', '-qm', 'ho-so ' + slug); }
+  return kho;
+}
+const the = (kho, them = [], slug = 'h') => { const p = spawnSync(process.execPath, [GC, '--root', kho.r, '--slug', slug, ...them], { encoding: 'utf8' }); if (p.status !== 0) die(`thẻ thoát ${p.status}: ${p.stderr}`); return p.stdout; };
+const rut = (kho, them = [], slug = 'h') => JSON.parse(the(kho, ['--extract', ...them], slug));
+const khoiLab = (html, lab) => { const i = html.indexOf(`<div class="lab">${lab}</div>`); if (i < 0) return null; const j = html.indexOf('<div class="lab">', i + 10); return html.slice(i, j < 0 ? undefined : j); };
+const CO_THIEU_NAP = 'Kho đã khai luật sản phẩm mà sổ bước thiết kế chưa có dòng nạp — lựa chọn của vòng chưa được soi theo luật.';
+const CO_DOI = 'Luật sản phẩm đã đổi sau khi bước thiết kế nạp';
+const recipeOf = t => { const m = t.match(/<!-- <<<DEC-ID-RECIPE -->\n```\n([\s\S]+?)\n```\n<!-- DEC-ID-RECIPE>>> -->/); if (!m) die('thiếu khối DEC-ID-RECIPE'); return m[1]; };
+const khuonNap = t => { const m = t.match(/<!-- <<<DEC-LUAT-NAP -->\n([^\n]+)\n<!-- DEC-LUAT-NAP>>> -->/); if (!m) die('thiếu khối DEC-LUAT-NAP (một dòng)'); return m[1]; };
+// Ghi dòng nạp vào sổ hồ sơ h bằng CHÍNH khối lệnh DEC-ID-RECIPE (thay dòng giữa bằng khuôn), dưới shell sh.
+function ghiNap(skillText, kho, sh, ban, n) {
+  const recipe = recipeOf(skillText);
+  const giua = recipe.split('\n').find(l => l.includes('"type":"<type>"')); if (!giua) die('khối DEC-ID-RECIPE không có dòng giữa');
+  const lenh = recipe.split(giua).join(khuonNap(skillText)).split('<slug>').join('h').split('<ISO>').join('2026-10-12T00:00:00Z').split('<ban>').join(ban).split('<N>').join(String(n));
+  mkdirSync(path.join(kho.r, '_acceptance', 'h'), { recursive: true });
+  const p = spawnSync(sh, ['-c', lenh], { cwd: kho.r, encoding: 'utf8' }); if (p.status !== 0) die(`khối lệnh không chạy dưới ${sh}: ${p.stderr}`);
+}
+const banTep = kho => napMoi(LSP).banLuat(readFileSync(path.join(kho.r, 'PRODUCT-INVARIANTS.md'), 'utf8'));
+const coLuat = h => (h.match(/<div class="flag [^"]+">[^<]*(?:luật sản phẩm|Luật sản phẩm)[^<]*<\/div>/g) || []);
+
+if (want('LS-03')) {
+  const SK = readFileSync(SKILL, 'utf8');
+  for (const sh of ['bash', 'zsh']) {
+    check(`LS-03 ${sh}`, () => {
+      if (spawnSync(sh, ['-c', 'true']).status !== 0) die(sh + ' vắng trên máy — ca KHÔNG bỏ qua');
+      const kn = khuonNap(SK); if (!/"can_cu":/.test(kn) || !/"luat_nap":/.test(kn)) die('khuôn DEC-LUAT-NAP thiếu can_cu hoặc luat_nap');
+      // Ca khớp: dòng nạp đúng bản.
+      const khop = mkKhoLuat(); mkHoSo(khop, [], { commit: false }); writeFileSync(path.join(khop.r, '_acceptance/h/decisions.jsonl'), '');
+      ghiNap(SK, khop, sh, banTep(khop), 2); git(khop.r, 'add', '-A'); git(khop.r, 'commit', '-qm', 'nap');
+      const so = napMoi(CC).docSo(readFileSync(path.join(khop.r, '_acceptance/h/decisions.jsonl'), 'utf8'));
+      eq(so.broken, 0, 'dòng nạp là JSON');
+      eq(so.entries[0].luat_nap, { ban: banTep(khop), so: 2 }, 'luat_nap đọc lại');
+      eq(napMoi(CC).phanLoaiSo(so.entries, { root: khop.r, slug: 'h' }).dong.map(d => d.lop), ['da-quyet'], 'dòng nạp là lựa chọn máy đã quyết');
+      eq(coLuat(the(khop, ['--glossary-base', khop.base])), [], 'ca khớp: không cờ luật');
+      eq(rut(khop, ['--glossary-base', khop.base]).luat, { co_tep: true, so_luat: 2, sai_khuon: [], nap: { ban: banTep(khop), khop: true } }, 'khoá luat ca khớp');
+      // Ca đổi: sửa tệp luật sau khi nạp.
+      const banCu = banTep(khop);
+      ghiTep(khop.r, 'PRODUCT-INVARIANTS.md', tepLuat(KHUON, [SP1, SP2, SP3])); git(khop.r, 'commit', '-qam', 'doi-luat');
+      const coDoi = coLuat(the(khop, ['--glossary-base', khop.base]));
+      eq(coDoi.length, 1, 'ca đổi: đúng một cờ luật');
+      if (!coDoi[0].includes(CO_DOI) || !coDoi[0].includes(banCu.slice(0, 7)) || !coDoi[0].includes(banTep(khop).slice(0, 7))) die('cờ đổi thiếu chữ hoặc bảy ký tự hai bản: ' + coDoi[0]);
+    });
+  }
+  check('LS-03 thieu', () => {
+    const k = mkKhoLuat(); mkHoSo(k, [S1('a', CN(null))]);
+    const co = coLuat(the(k, ['--glossary-base', k.base]));
+    eq(co.length, 1, 'ca thiếu: đúng một cờ'); if (!co[0].includes(CO_THIEU_NAP)) die('cờ thiếu sai chữ: ' + co[0]);
+  });
+  check('LS-03-do', () => {
+    const tiem = SK.replace(/(<!-- <<<DEC-LUAT-NAP -->\n[^\n]*)"luat_nap":/, '$1"luatnap":'); if (tiem === SK) die('mũi tiêm khuôn nạp không áp');
+    const k = mkKhoLuat(); mkHoSo(k, [], { commit: false }); writeFileSync(path.join(k.r, '_acceptance/h/decisions.jsonl'), '');
+    ghiNap(tiem, k, 'bash', banTep(k), 2); git(k.r, 'add', '-A'); git(k.r, 'commit', '-qm', 'nap');
+    const co = coLuat(the(k, ['--glossary-base', k.base]));
+    if (!co.some(c => c.includes(CO_THIEU_NAP))) die('DEC-LUAT-NAP đổi tên khoá mà ca khớp không ra cờ thiếu');
+  });
+}
+
+if (want('LS-04')) {
+  check('LS-04 theo-luat', () => {
+    const k = mkKhoLuat({ luat: [SP1, SP2] });
+    mkHoSo(k, [S1('t1', { nguon: 'muc-tieu', kho_dao: false, tep: 'PRODUCT-INVARIANTS.md', trich: SP2.cau }),
+               S1('t2', { nguon: 'muc-tieu', kho_dao: false, tep: 'PRODUCT-INVARIANTS.md', trich: 'Văn tự do của kho, bộ đọc bỏ qua.' })]);
+    const h = khoiLab(the(k, ['--glossary-base', k.base]), 'Máy đã quyết ở bước thiết kế — anh lật được'); if (!h) die('thiếu khối máy đã quyết');
+    const dong = id => (h.match(new RegExp(`<p class="li" data-may-quyet="${id}">[\\s\\S]*?</p>`)) || [''])[0];
+    if (!dong('t1').includes('theo luật SP-2')) die('dòng trích câu SP-2 thiếu «theo luật SP-2»');
+    if (dong('t2').includes('theo luật')) die('dòng trích câu ngoài khối luật lại mang mã luật');
+    // Câu luật chỉ thêm trong nhánh → đỏ sinh-trong-vong như A2.
+    const k2 = mkKhoLuat({ luat: [SP1] });
+    ghiTep(k2.r, 'PRODUCT-INVARIANTS.md', tepLuat(KHUON, [SP1, SP2]));
+    mkHoSo(k2, [S1('t1', { nguon: 'muc-tieu', kho_dao: false, tep: 'PRODUCT-INVARIANTS.md', trich: SP2.cau })]);
+    const d = napMoi(CC).phanLoaiSo(napMoi(CC).docSo(readFileSync(path.join(k2.r, '_acceptance/h/decisions.jsonl'), 'utf8')).entries, { root: k2.r, slug: 'h', base: k2.base }).dong[0];
+    eq([d.lop, d.ma], ['do', 'sinh-trong-vong'], 'câu luật sinh trong vòng');
+  });
+  check('LS-04-do', () => {
+    // Bản sao maTheoTrich gắn mã luật đầu tiên cho mọi câu trích → dòng ngoài khối mang «theo luật».
+    const d = banSaoTiem('luat-san-pham.cjs', 'return l ? l.ma : null;', 'return (luat && luat[0]) ? luat[0].ma : null;');
+    const gcCopy = path.join(d, 'gate-card.js'); cpSync(GC, gcCopy);
+    for (const f of readdirSync(path.join(ROOT, 'scripts'))) if (!existsSync(path.join(d, f))) cpSync(path.join(ROOT, 'scripts', f), path.join(d, f), { recursive: true });
+    const k = mkKhoLuat({ luat: [SP1, SP2] });
+    mkHoSo(k, [S1('t2', { nguon: 'muc-tieu', kho_dao: false, tep: 'PRODUCT-INVARIANTS.md', trich: 'Văn tự do của kho, bộ đọc bỏ qua.' })]);
+    const p = spawnSync(process.execPath, [gcCopy, '--root', k.r, '--slug', 'h', '--glossary-base', k.base], { encoding: 'utf8' });
+    if (!/data-may-quyet="t2">[^<]*(<[^/][^>]*>[^<]*<\/[^>]+>)*[^<]*theo luật/.test(p.stdout) && !(khoiLab(p.stdout, 'Máy đã quyết ở bước thiết kế — anh lật được') || '').includes('theo luật')) die('bản sao gắn mã bừa mà dòng ngoài khối không mang «theo luật» — phép đo không phân biệt');
+  });
+}
+
+if (want('LS-05')) {
+  check('LS-05 the', () => {
+    const k = mkKhoLuat();
+    mkHoSo(k, [S1('c1', CN('SP-2')), S1('c2', CN('SP-1', true)), S1('c6', CN(null))]);
+    const h = the(k, ['--glossary-base', k.base]);
+    const hoi = khoiLab(h, 'Câu chỉ anh trả lời được'); if (!hoi) die('thiếu khối câu hỏi');
+    const cau = n => (hoi.match(new RegExp(`<p class="li" data-cau-hoi="${n}">([\\s\\S]*?)</p>`)) || [, ''])[1];
+    if (!cau('Hỏi-1').includes(`Phạm luật SP-2 — ${SP2.cau} (chủ luật: ${SP2.chu})`)) die('Hỏi-1 thiếu tiền tố phạm luật: ' + cau('Hỏi-1'));
+    if (!cau('Hỏi-2').includes(`Phạm luật SP-1 — ${SP1.cau} (chủ luật: ${SP1.chu})`) || !cau('Hỏi-2').includes('khó-đảo')) die('Hỏi-2 thiếu tiền tố hoặc nhãn khó-đảo: ' + cau('Hỏi-2'));
+    if (cau('Hỏi-1').includes('khó-đảo')) die('Hỏi-1 (luật thường) mang nhãn khó-đảo');
+    if (cau('Hỏi-3').includes('Phạm luật') || /SP-\d/.test(cau('Hỏi-3'))) die('câu chỉ-người không phạm luật lại mang chữ phạm luật: ' + cau('Hỏi-3'));
+    const k2 = mkKhoLuat(); mkHoSo(k2, [S1('c3', CN('SP-1', false))]);
+    const r = rut(k2, ['--glossary-base', k2.base]);
+    if (!/___$/.test(r.one_shot)) die('có dòng đỏ mà dòng lệnh duyệt vẫn điền sẵn: ' + r.one_shot);
   });
 }
 

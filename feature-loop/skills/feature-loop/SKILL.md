@@ -142,6 +142,11 @@ JSON
 
 **Điểm ghi (friction ≈ 0, cuối stage):** cuối S1 (approach/descope chưng cất từ brainstorm — design-doc giữ văn xuôi) · cuối S2 (lựa chọn load-bearing của plan) · giữa S3 khi buộc đổi hướng so với plan · mỗi S4 REJECT→fix: `stage:"S4-r<N>"`, ghi cách-sửa-đã-chọn + vì sao · Gate 2 nếu human để lại revisit/override. **Seal:** khi Gate 1 duyệt, append `{"id":"d-...","type":"seal","gate":1,"at":"<ISO>"}` CÙNG LÚC set `approved_by` — mọi dòng SAU seal là provisional bất kể `stage` tự khai, card Gate 2 trình riêng khối "CHƯA duyệt" cho human phê. **Lật quyết định:** entry mới `supersedes:"<id>"` + human phê ở gate kế — không sửa/xóa dòng cũ.
 
+**Dòng nạp luật sản phẩm (hồ sơ bat-bien-san-pham, ADR 0023):** kho có `PRODUCT-INVARIANTS.md` ở gốc → bước thiết kế ghi đúng MỘT dòng theo khuôn dưới, thay cho dòng giữa của `DEC-ID-RECIPE`: `<ban>` = `git hash-object PRODUCT-INVARIANTS.md` (phiên bản luật đã nạp), `<N>` = số luật đọc được (số, không nháy). Kho không có tệp → không ghi gì. Thẻ Cổng Phạm vi so `ban` với tệp hiện tại; thiếu dòng hoặc lệch bản là cờ vàng.
+<!-- <<<DEC-LUAT-NAP -->
+"type":"approach","stage":"S1","at":"<ISO>","decision":"Nạp <N> luật sản phẩm từ PRODUCT-INVARIANTS.md","why":"Kho đã khai tệp luật sản phẩm — bước thiết kế đọc nó trước khi chọn.","cost_if_wrong":"Không nạp thì lựa chọn phạm luật đi qua Cổng Phạm vi không ai gọi tên.","can_cu":{"nguon":"mot-loi","kho_dao":false,"loi_chet":"Kho đã khai tệp luật — bỏ qua tệp là phạm luật nạp của kit."},"luat_nap":{"ban":"<ban>","so":<N>}
+<!-- DEC-LUAT-NAP>>> -->
+
 ## Làn design (2 công tắc — bảng tra duy nhất, KHÔNG lưu field tier)
 
 Mọi điểm 🎨 dưới đây tra bảng này — mỗi điểm là MỘT câu hỏi nhị phân, không nhánh phụ:
