@@ -216,7 +216,7 @@ export function dongHoCo(root, { khoang: k, tu = null, loTrinh = null }) {
     const tc = new Set(parseACBlock(c).map(a => a.id)).size;
     if (!tc) { bo.khong_doc_tieu_chi += 1; continue; }
     if (tu) {
-      const d = ngayDau(frontmatterField(c, 'approved_at')) || ngayDau(frontmatterField(c, 'veto_opened_at'));
+      const d = ngayChot(c);
       if (!d) { bo.khong_ngay_chot += 1; continue; }
       if (d < tu) continue;
     }
@@ -252,6 +252,8 @@ export function dongHoCo(root, { khoang: k, tu = null, loTrinh = null }) {
 // (chuỗi YYYY-MM-DD đầu tiên trong human_signoff — khuôn bên ghi của lệnh ký «<tên> <ngày>»).
 const ngayDau = s => { const m = String(s ?? '').match(/\d{4}-\d{2}-\d{2}/); return m ? m[0] : null; };
 const doc = p => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
+// Ngày chốt phạm vi — MỘT bộ đọc cho nhịp và đồng hồ cỡ.
+const ngayChot = c => ngayDau(frontmatterField(c, 'approved_at')) || ngayDau(frontmatterField(c, 'veto_opened_at'));
 export function nhip(root) {
   const acc = path.join(root, '_acceptance');
   const ngay = { T1: [], T2: [], T3: [] }; let tong = 0; let boQua = 0;
@@ -263,7 +265,7 @@ export function nhip(root) {
     if (!ky) continue;
     tong += 1;
     const hang = chuoi(frontmatterField(c, 'risk_tier'));
-    const dau = ngayDau(frontmatterField(c, 'approved_at')) || ngayDau(frontmatterField(c, 'veto_opened_at'));
+    const dau = ngayChot(c);
     const cuoi = ngayDau(ky);
     if (!dau || !cuoi || !(hang in ngay)) { boQua += 1; continue; }
     ngay[hang].push(Math.round((Date.parse(`${cuoi}T00:00:00Z`) - Date.parse(`${dau}T00:00:00Z`)) / 864e5));

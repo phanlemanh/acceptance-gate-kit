@@ -101,7 +101,8 @@ evals:
       n_chot (hồ sơ approved cỡ 15 nằm trong mẫu số), cham_tran_pt trên n đã giao; bo_qua từng lý do
       đúng; nhóm n=0 không mang luot_tb; kho không hồ sơ đã chốt → chua_do_duoc true, không khoá *_pt;
       băm cây (số tệp băm > 0, in ra) + git status không đổi; trên cây kit đang kiểm n_chot tổng ≥ 50 và
-      bo_qua.khong_doc_tieu_chi == 0. Và "PASS: LT-148-do" — bản sao đếm tiêu chí bằng mẫu `- AC-`:
+      bo_qua.khong_doc_tieu_chi == số hồ sơ không khai mã nào theo khuôn `AC-<số>` (đếm độc lập bằng regex
+      khuôn, in tên — hôm nay 1: cong-dang-co-cua khai AC-A…C). Và "PASS: LT-148-do" — bản sao đếm tiêu chí bằng mẫu `- AC-`:
       CHÍNH hàm đo trả lỗi nêu hồ sơ tiêu đề; "PASS: LT-148-do-ghi" — bản sao ghi một tệp vào kho trước khi
       in JSON: hàm đo trả lỗi nêu đường tệp ấy; "PASS: LT-148-do-song-sot" — bản sao tính pt_tong trên
       hồ sơ đã giao: hàm đo trả lỗi nêu «pt_tong».

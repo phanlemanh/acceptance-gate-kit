@@ -52,6 +52,8 @@
     {
       "ma": "3",
       "cau_giao": "«Quản trị tắt được tính năng theo đơn vị»",
+      "vai": "Quản trị",
+      "tieu_chi": 8,
       "dung_tren": [
         "2"
       ]
