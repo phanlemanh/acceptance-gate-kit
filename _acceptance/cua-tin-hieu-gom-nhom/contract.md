@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/tin-hieu.mjs (mới) + scripts/lo-trinh.mjs (khối dữ liệu) + skills/gom-tin-hieu (mới) + references + CONTEXT/GUIDE + test — không chạm lib/**, hooks/**, dieu-phoi/**, scripts/cat-luot.mjs, lưới trước-gộp
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-cua-tin-hieu-gom-nhom-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
