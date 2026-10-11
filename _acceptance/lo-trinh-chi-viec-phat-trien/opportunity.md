@@ -3,10 +3,10 @@ schema_version: 1
 slug: lo-trinh-chi-viec-phat-trien
 feature: Lượt cắt chỉ sinh hàng phát triển máy giao và chứng minh được — việc vận hành của người thành mốc ngoài, không hàng nào đứng chờ nó; thiếu dữ liệu thật thì có hàng dữ liệu giả do máy sinh đứng trước
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-11T08:59:58Z   # owner gõ «Làm» một chạm trong phiên 11/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -55,10 +55,10 @@ vận hành thành mốc ngoài, không hàng nào đứng chờ nó; thiếu d�
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Ở lượt cắt kế của crm: 0 hàng là việc vận hành của người, 0 hàng phát triển đứng chờ mốc vận hành, mọi hàng cần dữ liệu thật có hàng dữ liệu giả đứng trước hoặc tiêu chí bỏ qua có tên» chưa?
-- Kết quả nào là SỐNG: [đề xuất] Ở lượt cắt kế của crm: 0 hàng là việc vận hành của người, 0 hàng phát triển đứng chờ mốc vận hành, mọi hàng cần dữ liệu thật có hàng dữ liệu giả đứng trước hoặc tiêu chí bỏ qua có tên
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Ở lượt cắt kế của crm: 0 hàng là việc vận hành của người, 0 hàng phát triển đứng chờ mốc vận hành, mọi hàng cần dữ liệu thật có hàng dữ liệu giả đứng trước hoặc tiêu chí bỏ qua có tên» khi hết timebox
-- Timebox: [đề xuất] lượt cắt đầu tiên của crm sau khi crm cài mốc mang S3b (mốc 2026-11-01); tới 2026-11-30 crm chưa cắt lượt nào → ghi «chưa đo», không tính SỐNG
+- Câu hỏi phép đo trả lời: đã đạt «Ở lượt cắt kế của crm: 0 hàng là việc vận hành của người, 0 hàng phát triển đứng chờ mốc vận hành, mọi hàng cần dữ liệu thật có hàng dữ liệu giả đứng trước hoặc tiêu chí bỏ qua có tên» chưa?
+- Kết quả nào là SỐNG: Ở lượt cắt kế của crm: 0 hàng là việc vận hành của người, 0 hàng phát triển đứng chờ mốc vận hành, mọi hàng cần dữ liệu thật có hàng dữ liệu giả đứng trước hoặc tiêu chí bỏ qua có tên
+- Kết quả nào là CHẾT: chưa đạt «Ở lượt cắt kế của crm: 0 hàng là việc vận hành của người, 0 hàng phát triển đứng chờ mốc vận hành, mọi hàng cần dữ liệu thật có hàng dữ liệu giả đứng trước hoặc tiêu chí bỏ qua có tên» khi hết timebox
+- Timebox: lượt cắt đầu tiên của crm sau khi crm cài mốc mang S3b (mốc 2026-11-01); tới 2026-11-30 crm chưa cắt lượt nào → ghi «chưa đo», không tính SỐNG
 
 ## Kết quả prototype
 
@@ -75,11 +75,11 @@ dựng từ hai lộ trình crm thật làm dữ liệu đo ở lượt chấm.
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
+- **decision = build** (hạng T2) — owner gõ «Làm» 11/10 trên khuyến nghị bên dưới. Căn cứ: bảng «Đo 11/10 trên lộ trình thật» (11/16 mốc OKR là vận hành; ba hàng Kho tài liệu đứng chờ hàng vận hành `ct`), giả định 2 đã thử tay; CỘNG đã được chủ kho đồng ý 11/10 «đưa vào» — chữ ký này là chữ ký đích danh của luật CỘNG. Ý định của vòng (trọng số + chính sách rủi ro) chốt cùng chữ này.
 - **disposition = …** Căn cứ: — (không prototype)
-- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT».
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ «Làm».
 
-**Máy khuyến nghị:** `build`, hạng **T2**, **một vòng**, dự kiến **9–10 tiêu chí**. Hạng: vật chỉ chạm
+**Máy khuyến nghị lúc mời ký (owner chọn đúng lối này):** `build`, hạng **T2**, **một vòng**, dự kiến **9–10 tiêu chí**. Hạng: vật chỉ chạm
 `scripts/cat-luot.mjs`, `skills/cat-luot/SKILL.md`, khuôn `lo-trinh-template.json` và ca đo — không
 chạm `lib/**`, `hooks/**` hay cổng chặn gộp; không chạm trang lộ trình, khối dữ liệu lộ trình hay
 Feature Loop. CỘNG (trường lượt cắt + cờ mới): chủ kho đồng ý 11/10 «đưa vào» — chữ ký ở đây là chữ ký
