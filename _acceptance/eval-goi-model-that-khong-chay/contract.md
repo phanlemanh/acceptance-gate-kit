@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # feature-loop/scripts/** + tests/** + GUIDE/SKILL/CHANGELOG — không chạm lib/**, hooks/**, pre-merge-check.sh, recheck-evidence.cjs (AC-12 giữ)
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-eval-goi-model-that-khong-chay-design.md
-status: approved
+status: implemented
 approved_by:
 approved_at:
 veto_state: mo
@@ -92,5 +92,6 @@ cho lớp dấu vân tay và cờ ép; `[NGÀNH: crm eval-model-that-dung-luc E1
   - Model trôi mà giữ nguyên id không bắt được trong 7 ngày — owner chấp nhận ở crm E15 (10/10) và ở Cổng Đáng vòng này.
   - Bên đọc không chứng lại chuỗi dùng lại. Ngưỡng mở vòng răng bên đọc (T3): ≥ 1 dòng «nguồn không có».
 - Lượt ghim lại đầu tiên sau khi bật khoá chạy trọn (dòng đời trước không có băm).
+- Đo lại sau khi dựng (S3, 11/10) bằng CHÍNH `bamDauVao` + `tepGoiTen` + luật điều kiện của vòng trên lịch sử crm `origin/onehub` `27d47de04` (dấu vân tay xấp xỉ = blob `bun.lock`): **14/44** lần chạy lại eval model có băm không đổi, 0 lần rơi vào lý do luôn chạy; 9 lần trong 7 ngày 04–10/10.
 - AC-12 chỉ thấy commit mang dấu của vòng — một commit của vòng quên dấu thì vô hình với nó. Lưới: nghi thức commit của vòng (mọi tiêu đề mang `(eval-goi-model-that-khong-chay)`), và lưới hạng ở trước-gộp vẫn đọc trọn diff PR.
 - Phát hành theo mốc 01/11; engine không đổi dưới chân crm trước 14/10. Một vòng khác đang sửa nhánh làn đỏ của `repin-lane.mjs` (`vong/gate-card-xa-stdout-qua-pipe`) — gộp `main` sau khi nó vào.
