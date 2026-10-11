@@ -20,7 +20,7 @@ trạm thu phí (CLAUDE.md, North Star).
   tiếp không chờ).
 - Nguyên tố: **3 — khoảnh khắc quyết thật** (bỏ trạm thu phí; đảo-rẻ là mặt sau: máy giữ đường đảo thì máy
   được đi trước).
-- Dự báo đo bằng **vị từ thật** (`xanhSach` của `scripts/khong-can-nguoi.mjs`) trên 71 hồ sơ signed-off của
+- Dự báo đo bằng **vị từ thật** (`xanhSach` của `scripts/khong-can-nguoi.mjs`) trên 71 hồ sơ đã ký Cổng 2 của
   đợt (crm `origin/onehub` 27d47de0, dòng gate2 Ngoài-n của người gỡ khỏi sổ để dựng lại trạng thái trước
   Cổng 2, dòng máy chèn theo đúng điều kiện của thiết kế này):
 

@@ -15,5 +15,5 @@
 
 ## Đề bài `duong-dao`
 - Loại: flowchart dọc, hai nhánh hợp lại.
-- Nút: «dòng máy: Ngoài-3 ghi Known limits» → «thẻ / dòng báo in lệnh đảo» → «người gõ `/acceptance-gate:signoff <slug> Ngoài-3: mở hợp đồng mới; Ký`» → rẽ «hồ sơ machine-cleared» / «hồ sơ máy-đi-trước (veto mở)» → cả hai «đường ký thường bước 3–7» → «dòng người MỚI sau dòng máy — người thắng» → «thẻ: Ngoài-3 người định tuyến; status signed-off».
+- Nút: «dòng máy: Ngoài-3 ghi Known limits» → «thẻ / dòng báo in lệnh đảo» → «người gõ `/acceptance-gate:signoff <slug> Ngoài-3: mở hợp đồng mới; Ký`» → rẽ «hồ sơ machine-cleared» / «hồ sơ máy-đi-trước (veto mở)» → cả hai «đường ký thường bước 3–7» → «dòng người MỚI sau dòng máy — người thắng» → «thẻ: Ngoài-3 người định tuyến; hồ sơ đã ký Cổng 2».
 - AC: AC-7, AC-9.
