@@ -346,7 +346,7 @@ if (want('LS-08')) {
     if (rut(vLech).one_shot.includes(LAN_V)) die('lệch bản mà vẫn đi làn V');
     // Review Focus 4: hồ sơ đã ký không có luat-cham → không cờ.
     const vKy = mkVong(r => { ghiTep(r, 'apps/cu.ts', 'export const a = 5;\n'); commit(r, 'vat'); }, { ghiCham: false });
-    writeFileSync(path.join(vKy.r, '_acceptance/h/contract.md'), HD_XM.replace('status: verified', 'status: signed-off'));
+    writeFileSync(path.join(vKy.r, '_acceptance/h/contract.md'), HD_XM.replace('status: verified', 'status: machine-cleared'));
     if (the(vKy).includes(CO_CHUA_SOI)) die('hồ sơ đã ký mà vẫn cờ chưa soi');
   });
   check('LS-08 nhan-ngoai', () => {
@@ -487,7 +487,8 @@ async function soKho(kho, gcGoc, kcnGoc, gcMoi, kcnMoi) {
 if (want('LS-02')) {
   const hd = readFileSync(HD_VONG, 'utf8');
   const st = (hd.match(/^status:\s*(\S+)/m) || [])[1];
-  if (['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'].includes(st)) console.log('  PASS: LS-02 da-ky (hồ sơ của vòng đã ký — không so)');
+  const W = require(path.join(ROOT, 'lib', 'workspace-record.cjs'));
+  if ([...W.DA_THONG_CONG_2, ...(W.DA_DONG_THUC_TE || [])].includes(st)) console.log('  PASS: LS-02 da-ky (hồ sơ của vòng đã ký — không so)');
   else {
     const goc = (hd.match(/Commit gốc của vòng: `([0-9a-f]{7,40})`/) || [])[1];
     // Đo trước (async), chấm sau (check đồng bộ).

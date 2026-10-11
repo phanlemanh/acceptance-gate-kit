@@ -159,12 +159,14 @@ const docCham = (root, slug) => { try { return JSON.parse(fs.readFileSync(path.j
 
 // ── Vị từ còn-cần-người + thẻ Cổng Bằng chứng: chỉ ĐỌC luat-cham.json ───────────────────────────────────
 // Trạng thái đã qua Cổng Bằng chứng: không soi lại, không cờ (hồ sơ đời trước vòng này không có luat-cham.json).
-const DA_QUA = new Set(['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te']);
+// Hỏi bộ đọc hồ sơ dùng chung, đừng chép danh sách (lib/workspace-record.cjs: «chép là hai bản trôi»).
+let _daQua = null;
+const daQua = st => { if (!_daQua) { const W = require('../lib/workspace-record.cjs'); _daQua = new Set([...W.DA_THONG_CONG_2, ...(W.DA_DONG_THUC_TE || [])]); } return _daQua.has(st); };
 const fmVal = (t, k) => { const m = String(t || '').match(/^---\r?\n([\s\S]*?)\r?\n---/); if (!m) return ''; const mm = m[1].match(new RegExp(`^${k}\\s*:\\s*(.*)$`, 'm')); return mm ? mm[1].replace(/\s+#.*$/, '').trim() : ''; };
 // ctx.luat cho khongCanNguoi — null khi kho không khai luật (vị từ đi đường cũ, giữ đẳng thức LV5).
 function ctxLuat(root, slug, contractTxt, evidenceTxt) {
   if (!docTepLuat(root).co_tep) return null;
-  return { co_tep: true, cham: docCham(root, slug), verified_commit: fmVal(evidenceTxt, 'verified_commit') || null, da_qua: DA_QUA.has(fmVal(contractTxt, 'status').toLowerCase()) };
+  return { co_tep: true, cham: docCham(root, slug), verified_commit: fmVal(evidenceTxt, 'verified_commit') || null, da_qua: daQua(fmVal(contractTxt, 'status').toLowerCase()) };
 }
 // Lý do còn cần người vì luật sản phẩm; '' khi không chặn. Một nguồn cho khong-can-nguoi và thẻ.
 function chanLuat(L) {
