@@ -1,0 +1,26 @@
+tiêm docs/plan/lo-trinh-okr.json#7n: Chưa mở / chua-bat-dau → Đã giao / da-giao (phần người xem thấy giữ nguyên)
+N = 117 hàng × 3 lộ trình (OKR 94 · Kho tài liệu 13 · Việc và Dự án 10)
+trang crm khớp trang kit: 116/117 hàng (khung chi tiết 116/117) · khối (docDuLieu) khớp trang kit: 116/117 · luật ngày 219/219
+LỆCH hàng OKR#7n: khối «Đã giao» · trang kit «Chưa mở»
+LỆCH hàng OKR#7n: trang crm hiện «Đã giao» · trang kit «Chưa mở» ; nhóm trang crm da-giao · màu trang kit «chua»
+LỆCH lộ trình OKR: nhóm trên trang crm {"tong":94,"da_giao":79,"dang_lam":0,"chua_bat_dau":15,"khac":0} · tiến độ trang kit {"tong":94,"da_giao":78,"dang_lam":0,"chua_bat_dau":16,"khac":0}
+LỆCH đếm vòng đời «chua-xong»: trang crm 27 · trang kit 28
+LỆCH đếm vòng đời «da-giao»: trang crm 87 · trang kit 86
+CHIỀU ĐỎ ĐẠT: phép so đỏ đúng hàng OKR#7n (2 dòng hàng, 3 dòng tổng)
+tiêm docs/plan/lo-trinh-kho-tai-lieu.json#l2: Đã giao — chờ phiên nghiệm thu / da-giao → Đã giao — chờ phiên nghiệm thu / dang-lam (phần người xem thấy giữ nguyên)
+N = 117 hàng × 3 lộ trình (OKR 94 · Kho tài liệu 13 · Việc và Dự án 10)
+trang crm khớp trang kit: 116/117 hàng (khung chi tiết 116/117) · khối (docDuLieu) khớp trang kit: 117/117 · luật ngày 219/219
+LỆCH hàng Kho tài liệu#l2: nhóm trang crm dang-lam · màu trang kit «giao»
+LỆCH lộ trình Kho tài liệu: nhóm trên trang crm {"tong":13,"da_giao":6,"dang_lam":2,"chua_bat_dau":5,"khac":0} · tiến độ trang kit {"tong":13,"da_giao":7,"dang_lam":1,"chua_bat_dau":5,"khac":0}
+LỆCH đếm vòng đời «chua-xong»: trang crm 29 · trang kit 28
+LỆCH đếm vòng đời «da-giao»: trang crm 85 · trang kit 86
+CHIỀU ĐỎ ĐẠT: phép so đỏ đúng hàng Kho tài liệu#l2 (1 dòng hàng, 3 dòng tổng)
+tiêm docs/plan/lo-trinh-viec-du-an.json#V6: Xếp lại sau / khac → Đang làm / dang-lam (phần người xem thấy giữ nguyên)
+N = 117 hàng × 3 lộ trình (OKR 94 · Kho tài liệu 13 · Việc và Dự án 10)
+trang crm khớp trang kit: 116/117 hàng (khung chi tiết 116/117) · khối (docDuLieu) khớp trang kit: 116/117 · luật ngày 219/219
+LỆCH hàng Việc và Dự án#V6: khối «Đang làm» · trang kit «Xếp lại sau»
+LỆCH hàng Việc và Dự án#V6: trang crm hiện «Đang làm» · trang kit «Xếp lại sau»
+LỆCH lộ trình Việc và Dự án: nhóm trên trang crm {"tong":10,"da_giao":1,"dang_lam":1,"chua_bat_dau":6,"khac":2} · tiến độ trang kit {"tong":10,"da_giao":1,"dang_lam":0,"chua_bat_dau":6,"khac":3}
+LỆCH đếm vòng đời «chua-xong»: trang crm 29 · trang kit 28
+LỆCH đếm vòng đời «khac»: trang crm 2 · trang kit 3
+CHIỀU ĐỎ ĐẠT: phép so đỏ đúng hàng Việc và Dự án#V6 (2 dòng hàng, 3 dòng tổng)

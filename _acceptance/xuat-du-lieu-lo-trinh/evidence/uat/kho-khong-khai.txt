@@ -1,0 +1,10 @@
+  PASS: LT-113 — kho không khai: không trang, chỉ PRODUCT-MAP.md đổi, bản đồ == bản 7e965b54
+  PASS: LT-113-do — bản sao luôn ghi LO-TRINH.html: hàm đo trả «LO-TRINH.html sinh khi kho không khai lộ trình»
+
+Results: 2 passed, 0 failed (lo-trinh)
+radar@0d355f3 vẽ bằng 2.25.0: 0 tệp đổi
+radar@0d355f3 vẽ bằng 2.26.0: 0 tệp đổi
+radar@0d355f3: cây sau 2.25.0 == cây sau 2.26.0, không LO-TRINH.html
+oneflow@93b0129 vẽ bằng 2.25.0: 0 tệp đổi
+oneflow@93b0129 vẽ bằng 2.26.0: 0 tệp đổi
+oneflow@93b0129: cây sau 2.25.0 == cây sau 2.26.0, không LO-TRINH.html
