@@ -324,6 +324,20 @@
       "bat_khi": "Số lượt gọi người ngoài thiết kế ở bước thiết kế của crm về 0 trong ba vòng liền, không vòng nào bị trả vì thiết kế sai"
     },
     {
+      "ma": "S3c",
+      "nhom": "lo-trinh",
+      "hang": "T2",
+      "dung_tren": [
+        "S3"
+      ],
+      "vai": "nen",
+      "tieu_chi": 8,
+      "cau_giao": "«Vòng mở thẳng bằng Feature Loop, không qua lượt cắt, cũng bị đo cỡ: hợp đồng từ 13 tiêu chí không vào được Cổng Phạm vi khi chưa tách hoặc chưa ghi lý do giữ có tên, hợp đồng 11–12 tiêu chí lên thẻ thành cờ vàng — khoảng đọc từ cùng khối với lượt cắt»",
+      "vi_sao": "Gốc: _acceptance/vong-la-mot-ket-qua/ — mục Out of scope OOS-1 và dòng sổ d-20261011T002900Z-3 (descope, mở lại khi DP7 gộp; DP7 #306 đã vào main 11/10). S3 chỉ đặt răng cỡ ở lượt cắt lộ trình; bốn chỗ trong kit vẫn dạy «5–15 tiêu chí» — bước S1 của Feature Loop (hai chỗ: «Core >15 → hợp nhất, giữ cap 5-15» và khuôn sinh hợp đồng), bước 3 Phase 1 của skill acceptance, khuôn contract-template.md — trái chính sách 10/10. Đồng hồ cỡ 11/10: kit 18/129 hồ sơ đã chốt ở nhóm phải tách (từ 13 tiêu chí, 64 % chạm trần), crm 76/216 (62 % chạm trần).",
+      "bat_khi": "Ba mươi ngày sau khi giao: 0 hợp đồng mới từ 13 tiêu chí qua Cổng Phạm vi mà không có dòng sổ tách hoặc giữ có tên, ở kit và crm — đọc bằng cat-luot.mjs --co --tu <ngày giao>, nhóm phai-tach, kèm N",
+      "ghi_chu": "Răng đọc CHÍNH khối CAT-LUOT-CO của skill cắt lượt (một nguồn, không chép số), đếm tiêu chí bằng bộ đọc chung của thẻ Cổng Phạm vi; sửa luôn bốn chỗ «5–15». Chạm feature-loop/skills — vùng của chuỗi Điều phối – Thợ, phối hợp lượt gộp qua phiên điều phối. Mở vòng qua Cổng Đáng với neo trên; chưa xếp vào mốc nào — chủ kho xếp."
+    },
+    {
       "ma": "DP1",
       "nhom": "dieu-phoi",
       "hang": "T2",
