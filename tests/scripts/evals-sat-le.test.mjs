@@ -338,6 +338,8 @@ const BEN_DOC = {
   'scripts/eval-coverage-lint.js': 'truong-don',
   'scripts/pre-merge-check.sh': 'truong-don',
   'scripts/recheck-evidence.cjs': 'truong-don',
+  // Hàng X2 (hồ sơ trang-ho-so-mot-viec): mô-đun đọc hồ sơ chỉ đếm mã phép đo qua parseEvals của lib.
+  'scripts/ho-so-tom-tat.cjs': 'truong-don',
   'feature-loop/scripts/chup-ho-so-da-thong.mjs': 'khong-doc',
   'feature-loop/scripts/lib/phan-loai.mjs': 'khong-doc',
   'feature-loop/workflows/acceptance-verify.js': 'khong-doc',

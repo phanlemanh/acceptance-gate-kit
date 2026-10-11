@@ -28,10 +28,15 @@ bản chiếu đọc thẳng, không suy lại từ hồ sơ, không dịch lạ
 3. Kiểm `khuon == "lo-trinh-du-lieu"` và `phien_ban`. Bản viết bằng JavaScript chép NGUYÊN hàm
    `docDuLieu(html)` của `scripts/lo-trinh.mjs` trong gói kit — từ dòng `export function docDuLieu`
    tới dấu `}` đóng hàm. Hàm tự đủ: không gọi gì khác của tệp đó, trả `{ duLieu, canhBao }` và làm
-   đúng năm ca ở mục «Đọc khoan dung». Ca đo của kit chạy chính bản chép rời ấy (ngoài mô-đun) và
+   đúng sáu ca ở mục «Đọc khoan dung». Ca đo của kit chạy chính bản chép rời ấy (ngoài mô-đun) và
    so kết quả với bản trong mô-đun, nên hàm thôi tự đủ là bộ kiểm đỏ.
 
-## Khuôn — phiên bản 1
+## Khuôn — phiên bản 2
+
+Phiên bản 2 (hàng X2 của lộ trình kit) thêm đúng một khoá ở cấp việc: `hang.tom_tat` — dải tóm tắt
+hồ sơ của việc, vẽ từ vật của hồ sơ bằng cùng hàm vẽ trang hồ sơ (`scripts/evidence-page.js`). Mọi khoá
+của phiên bản 1 giữ nguyên nghĩa; riêng `cau_giao` từ phiên bản 2 đã bỏ đúng một cặp «» bao trọn câu
+(«» bên trong câu còn nguyên).
 
 Mỗi dòng trong khối dưới là `cấp.khoá — nghĩa`. Cấp `goc` là object ngoài cùng; `lo_trinh` là mỗi
 phần tử của `goc.lo_trinh`; `hang`, `moc`, `da_bac`, `can_sua` là mỗi phần tử của mảng cùng tên trong
@@ -40,7 +45,7 @@ một lộ trình; `hang_ke`, `tien_do` là object trong một lộ trình.
 <!-- <<<LO-TRINH-DU-LIEU-KHOA -->
 ```
 goc.khuon — luôn "lo-trinh-du-lieu"
-goc.phien_ban — số phiên bản khuôn (1)
+goc.phien_ban — số phiên bản khuôn (2)
 goc.nguon — các tệp kế hoạch, theo thứ tự kho khai
 goc.lo_trinh — mỗi tệp kế hoạch một phần tử, cùng thứ tự
 goc.ngoai_lo_trinh — tên các hồ sơ không thuộc kế hoạch nào (sửa lỗi, việc giao thẳng)
@@ -75,6 +80,25 @@ hang.theo_loi — true khi trạng thái lấy từ lời ghi trong kế hoạch
 hang.co — các cờ lệch của việc, đúng câu trang in
 hang.bat_khi — điều kiện bật kho ghi, hoặc rỗng
 hang.vi_sao — lý do kho ghi, hoặc rỗng
+hang.tom_tat — dải tóm tắt hồ sơ của việc, hoặc null khi việc chưa có hồ sơ
+tom_tat.moi_nguoi — tầng mọi người đọc: chín ô theo thứ tự trang hồ sơ in
+tom_tat.chu_kho — tầng chủ kho: bảy con số và mã
+moi_nguoi.da_giao — đã giao gì: câu giao của hợp đồng, đã bỏ một cặp «»
+moi_nguoi.vi_sao — vì sao làm: đoạn lý do đầu tiên của ô cơ hội
+moi_nguoi.trang_thai — chữ trạng thái, đúng bằng hang.trang_thai
+moi_nguoi.ngay — ngày của mốc gần nhất trong hồ sơ YYYY-MM-DD, hoặc null
+moi_nguoi.production — đã lên production chưa: câu của dòng quan sát người ghi, hoặc «chưa ghi quan sát production»
+moi_nguoi.do_gi — sẽ đo gì, khi nào: câu hỏi phép đo và hạn của ô cơ hội
+moi_nguoi.ket_qua — kết quả phiên nghiệm thu, hoặc «chưa đo»
+moi_nguoi.chua_lam — số mục ngoài hợp đồng và số giới hạn đã biết
+moi_nguoi.ai_quyet — người quyết ở từng cổng
+chu_kho.tieu_chi — số tiêu chí của hợp đồng
+chu_kho.phep_do — số phép đo
+chu_kho.luot_cham — số lượt chấm
+chu_kho.token — tổng token đầu ra của mọi khối trong báo cáo token
+chu_kho.quyet_dinh_may — số quyết định máy ghi
+chu_kho.quyet_dinh_nguoi — số quyết định người ghi (có tên người, chữ ký cổng, dòng quan sát production)
+chu_kho.ma — mã commit đã chấm, hoặc null
 moc.ten — tên mốc
 moc.ngay — ngày mốc YYYY-MM-DD
 moc.hang — mã các việc gắn mốc
@@ -92,6 +116,9 @@ Những gì bản chiếu thường cần:
 - **Việc kế tiếp:** `lo_trinh.hang_ke`; `lenh` là dòng người dán vào Claude Code để mở việc.
 - **Chỗ kế hoạch đang lệch hồ sơ:** `lo_trinh.can_sua` và `hang.co`.
 - **Ai đang làm:** `hang.ho_so` trỏ hồ sơ `_acceptance/<ho_so>/` trong kho.
+- **Một việc trong một phút:** `hang.tom_tat` — mỗi ô `null` nghĩa là hồ sơ chưa có tệp mang ô đó; hiện
+  «chưa có», đừng tự tính. Khối KHÔNG có số PR (chỉ có sau khi gộp — trang sẽ lệch phép so của CI ngay
+  sau mỗi lần gộp) và KHÔNG có «số lần gọi người» (chưa có máy đếm); `chu_kho.ma` đủ để lần ra PR.
 
 ## Đọc khoan dung
 
@@ -103,7 +130,8 @@ Bộ đọc của bản chiếu không bao giờ được làm trang của nó v
 | khối không phải JSON | không có dữ liệu; báo lỗi JSON |
 | `khuon` khác `lo-trinh-du-lieu` | không có dữ liệu; báo tên khuôn |
 | `phien_ban` lớn hơn bản mình biết | vẫn đọc phần biết; báo một cờ vàng «khuôn mới hơn bộ đọc» |
-| thiếu khoá | coi như rỗng theo kiểu (mảng rỗng, `false`, `0`, `null`, chuỗi rỗng) |
+| `phien_ban` 1 (trang vẽ bằng khuôn bản 1) | đọc đủ; mọi `hang.tom_tat` là `null`; báo một cờ vàng «khuôn bản 1» |
+| thiếu khoá | coi như rỗng theo kiểu (mảng rỗng, `false`, `0`, `null`, chuỗi rỗng); riêng ô của dải (`moi_nguoi.*`, `chu_kho.*`) là `null`, và nhóm dải vắng là object đủ khoá toàn `null` |
 | khoá lạ | giữ nguyên, bỏ qua |
 
 Kit chỉ THÊM khoá trong cùng phiên bản; đổi nghĩa hay bỏ khoá là phiên bản mới, và trang cũ vẫn

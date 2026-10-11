@@ -401,9 +401,9 @@ if (isMain) {
   // lệnh này thoát khác 0: trang tự nói lý do; chỉ trang vắng hoặc lệch mới làm `--check` đỏ.
   const tepLoTrinh = khoaLoTrinh(readPlain(path.join(root, '_acceptance', 'config.yaml')) || '');
   const pagePath = path.join(root, 'LO-TRINH.html');
-  let trang = null;
+  let trang = null; let LT_ = null;
   if (tepLoTrinh != null) {
-    const LT = await import('./lo-trinh.mjs');
+    const LT = await import('./lo-trinh.mjs'); LT_ = LT;
     trang = LT.veTrang({ root, classify, sections: SECTIONS });
   }
   if (!check) {
@@ -436,7 +436,10 @@ if (isMain) {
         console.error('Kho khai lo_trinh.tep nhưng không glob nào trong risk_tiers.t1_skip_globs phủ LO-TRINH.html — thêm `- "LO-TRINH.html"` vào risk_tiers.t1_skip_globs của _acceptance/config.yaml (thiếu miễn trừ thì commit đóng cổng làm bằng chứng cũ đi).');
         code = Math.max(code, 1);
       }
-      if (existsSync(pagePath) && readPlain(pagePath) === trang) console.log('LO-TRINH.html khớp tệp ý định và hồ sơ.');
+      // Phép so do mô-đun lộ trình giữ (`trangKhop`, hàng X2: dải tóm tắt hồ sơ không làm trang «lệch»);
+      // mô-đun đời trước không có hàm → so từng byte như cũ.
+      const khop = (LT_ && typeof LT_.trangKhop === 'function') ? LT_.trangKhop : ((a, b) => a === b);
+      if (existsSync(pagePath) && khop(readPlain(pagePath), trang)) console.log('LO-TRINH.html khớp tệp ý định và hồ sơ.');
       else {
         console.error(`LO-TRINH.html ${existsSync(pagePath) ? 'lệch với' : 'chưa có, trong khi kho khai'} tệp ý định và hồ sơ — chạy: node ${hint} --root .`);
         code = Math.max(code, 1);

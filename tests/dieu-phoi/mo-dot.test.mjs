@@ -1175,7 +1175,11 @@ test('DP2-11 khong-dot', () => {
   const chuan = (j, goc) => JSON.parse(JSON.stringify(j).split(path.join(goc, 'scripts')).join('<KIT>/scripts'));
   const moi = chuan(quetStart(KIT, kho), KIT);
   const { dir, mb } = kitTaiMergeBase();
-  const cu = chuan(quetStart(dir, kho), dir);
+  // Hàng X2 (hồ sơ trang-ho-so-mot-viec) bỏ đúng một cặp «» quanh câu giao ở mọi chỗ in tiêu đề — bên cũ
+  // đi qua CHÍNH phép bỏ ngoặc của cây trước khi so; mọi khác biệt còn lại vẫn đỏ.
+  const HS = createRequire(import.meta.url)(path.join(KIT, 'scripts', 'ho-so-tom-tat.cjs'));
+  const boNgoac = j => { let t = JSON.stringify(j); for (const h of docJ(path.join(kho, TEP_LT)).hang) { const c = h.cau_giao; const b = HS.boNgoacNgoai(c); if (b !== c) t = t.split(JSON.stringify(c).slice(1, -1)).join(JSON.stringify(b).slice(1, -1)); } return JSON.parse(t); };
+  const cu = boNgoac(chuan(quetStart(dir, kho), dir));
   console.log(`  so với start-scan tại ${mb.slice(0, 8)}: ${Object.keys(moi).length} khoá`);
   assert.equal('dotDangChay' in moi, false, 'không đợt thì khoá vắng');
   assert.equal(moi.loTrinh.ds[0].hangKe.thamSo, 'A', 'không đợt thì hàng kế mở được như cũ');
@@ -1183,48 +1187,34 @@ test('DP2-11 khong-dot', () => {
 });
 
 // ---------- DP2-15: ca của DP1 nguyên vẹn (AC-15, E15) ----------
-// DP2-15 neo vào TẬP THAY ĐỔI của chính PR hồ sơ này (#298): hai cha của commit gộp PR, thay vì merge-base — mốc
-// đó dời mỗi lần gộp nên ca chặn mọi vòng sau chạm hợp lệ vào ca DP1 (hồ sơ DP4 dieu-phoi-doi-tai-khoan, dòng sổ revisit).
-// Commit gộp tìm bằng lệnh theo tiêu đề, không gõ sha.
-export function kiemDp1NguyenTrongPr(goc, soPr, duong = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/loi']) {
-  let sha = '';
-  try {
-    sha = execFileSync('git', ['log', '--merges', '--format=%H', `--grep=^Merge pull request #${soPr} `, 'HEAD'], { cwd: goc, env: ENV, encoding: 'utf8' }).trim().split('\n')[0];
-  } catch {
-    sha = '';
-  }
-  if (!sha) return [`không tìm được commit gộp của PR #${soPr}`];
-  const r = spawnSync('git', ['diff', '--quiet', `${sha}^1`, `${sha}^2`, '--', ...duong], { cwd: goc, env: ENV });
-  return r.status === 0 ? [] : [`PR #${soPr} (${sha.slice(0, 8)}) sửa ca DP1 hoặc lõi: ${duong.join(' · ')}`];
+// Lời hứa của VÒNG DP2 («không đụng ca DP1») neo vào LỊCH SỬ, không vào merge-base sống (sửa 11/10 ở nhánh X2
+// theo lệnh Điều phối MacBook Pro, cùng mẫu DP3-11 @8c92fb3a / DP7-10; M5 có quyền đảo): sau khi DP2 gộp,
+// merge-base sống biến lời hứa của một vòng thành lệnh cấm mọi vòng sau chạm hợp lệ hai đường dẫn này.
+const DP1_TEP = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/loi'];
+const gitK15 = (...a) => execFileSync('git', a, { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+const DP1_MSG = 'ca DP1 hoặc lõi bị sửa so với nhánh chính';
+const kiemDp1 = ([tu, toi]) => (spawnSync('git', ['diff', '--quiet', tu, toi, '--', ...DP1_TEP], { cwd: KIT, env: ENV }).status === 0 ? [] : [`${DP1_MSG} (${tu.slice(0, 12)}..${toi.slice(0, 12)})`]);
+// [điểm rẽ, cha-2] của commit gộp nhánh vong/dieu-phoi-mo-dot-mot-lenh vào main — phần nhánh DP2 tự đổi.
+function dp1NeoLichSu() {
+  const dong = gitK15('log', '--merges', '--format=%H%x09%s', 'HEAD').split('\n')
+    .find((l) => /\tMerge pull request #\d+ from \S+\/vong\/dieu-phoi-mo-dot-mot-lenh$/.test(l));
+  assert.ok(dong, 'không tìm được commit gộp vong/dieu-phoi-mo-dot-mot-lenh vào main trong lịch sử của HEAD');
+  const m = dong.split('\t')[0];
+  return [gitK15('merge-base', `${m}^1`, `${m}^2`), `${m}^2`];
 }
-// Kho thử: nhánh chính có tệp ca DP1; PR #298 gộp vào (sửa hoặc không sửa tệp đó), sau đó một PR khác sửa tệp đó.
-function khoPrThu(prSua) {
-  const kho = tam('dp1-pr-');
-  const g = (...a) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { cwd: kho, env: ENV, stdio: 'ignore' });
-  const ghi = (rel, nd) => { fs.mkdirSync(path.dirname(path.join(kho, rel)), { recursive: true }); fs.writeFileSync(path.join(kho, rel), nd); };
-  g('init', '-q', '-b', 'main');
-  ghi('tests/dieu-phoi/dong-goi.test.mjs', 'goc\n');
-  g('add', '-A'); g('commit', '-q', '-m', 'goc');
-  g('checkout', '-q', '-b', 'pr');
-  ghi(prSua ? 'tests/dieu-phoi/dong-goi.test.mjs' : 'khac.txt', 'pr\n');
-  g('add', '-A'); g('commit', '-q', '-m', 'pr');
-  g('checkout', '-q', 'main');
-  g('merge', '-q', '--no-ff', '-m', `Merge pull request #298 from x/pr`, 'pr');
-  ghi('tests/dieu-phoi/dong-goi.test.mjs', 'vong sau\n');
-  g('add', '-A'); g('commit', '-q', '-m', 'vong sau sua ca DP1');
-  return kho;
-}
-
 test('DP2-15 dp1-nguyen', () => {
-  const loi = kiemDp1NguyenTrongPr(KIT, 298);
-  console.log(`  PR #298: ${loi.length ? loi.join(' | ') : 'không sửa ca DP1 hay lõi'}`);
-  assert.deepEqual(loi, []);
+  const [tu, toi] = dp1NeoLichSu();
+  console.log(`  vòng DP2: ${tu.slice(0, 8)}..${toi.slice(0, 8)}: ${DP1_TEP.join(' · ')}`);
+  assert.deepEqual(kiemDp1([tu, toi]), []);
 });
-
-test('DP2-15-do pr-co-doi-dp1', () => {
-  assert.deepEqual(kiemDp1NguyenTrongPr(khoPrThu(false), 298), [], 'đối chứng dương: PR không sửa tệp DP1, vòng sau sửa → vẫn xanh');
-  const loi = kiemDp1NguyenTrongPr(khoPrThu(true), 298);
-  assert.ok(loi.some((l) => l.startsWith('PR #298 (') && l.includes('sửa ca DP1 hoặc lõi')), loi.join(' | '));
+// Chiều đỏ trên cùng cây: so từ TRƯỚC commit tạo ca DP1 (cha của commit thêm dong-goi.test.mjs) tới HEAD phải
+// đỏ đúng thông điệp; đối chứng dương là neo lịch sử xanh.
+test('DP2-15-do truoc-dp1', () => {
+  assert.deepEqual(kiemDp1(dp1NeoLichSu()), [], 'đối chứng dương: neo lịch sử phải xanh trên cùng cây');
+  const tao = gitK15('log', '--diff-filter=A', '--format=%H', '--', 'tests/dieu-phoi/dong-goi.test.mjs').split('\n').pop();
+  assert.ok(tao, 'không tìm được commit tạo dong-goi.test.mjs');
+  const loi = kiemDp1([`${tao}^`, 'HEAD']);
+  assert.ok(loi.some((l) => l.startsWith(DP1_MSG)), `so với mốc trước ca DP1 phải đỏ: ${loi.join(' | ')}`);
 });
 
 // ---------- DP2-14: từ điển, GUIDE, QUICKSTART, bảng tên lệnh (AC-14, E14) ----------

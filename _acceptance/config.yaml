@@ -54,6 +54,10 @@ executors:
     lo_trinh: "node tests/scripts/lo-trinh.test.mjs"
     # Đo trang lộ trình trên Chrome thật (CDP) — thiếu Chrome thì ĐỎ nêu tên, không bỏ qua.
     lo_trinh_trang: "node tests/scripts/xem-trang-lo-trinh.test.mjs"
+    # Hồ sơ xa-stdout-truoc-khi-thoat: ca đo XD-1..XD-7 (stdout qua pipe không bị cắt ở 64 KB). Khoá riêng,
+    # không trỏ mảnh mjs:3/3 — mảnh chia theo chỉ số glob, tệp mới sau này xô ca sang mảnh khác thì eval
+    # xanh mà không chạy ca nào. KHÔNG vào feature_loop.suite_keys.
+    xuat_du_qua_pipe: "node tests/scripts/xuat-du-qua-pipe.test.mjs"
     # Mốc 2.25.0: vùng 3 GIỮ các dòng P200 (vế + chiều đỏ) trong bằng chứng — ba mốc 2.22 → 2.24
     # chấm số phiên bản trên dòng mà bộ lọc FAIL|Results của plugins_vung_3 cắt mất (Known
     # limit Ngoài-1 lặp ba lần). Gộp thành MỘT dòng vì workflow lượt chấm chỉ giữ ba dòng cuối

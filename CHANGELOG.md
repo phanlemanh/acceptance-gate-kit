@@ -12,6 +12,28 @@
 
 ## Chưa phát hành
 
+### Trang hồ sơ một việc + khối dữ liệu lộ trình bản 2 (hồ sơ `trang-ho-so-mot-viec`, hàng X2, T2)
+
+Gốc: crm `trang-lo-trinh-trong-crm` — mục ngoài hợp đồng «hiện hồ sơ nghiệm thu của việc».
+
+- `evidence-page.js` vẽ trang hồ sơ: dải một phút chín ô + dòng số cho chủ kho, rồi mục gập (vì sao · đã hứa
+  · thiết kế · quyết định lọc máy/người · bằng chứng · tài nguyên · giới hạn · giao · giá trị). Phần trang
+  bằng chứng cũ giữ nguyên thành mục «Bằng chứng». Không gọi model; hồ sơ thiếu tệp ra ô «chưa có — <tệp>».
+- Khối `lo-trinh-du-lieu` lên phiên bản 2: khoá `hang.tom_tat` (cùng dải, cùng hàm với trang). Bộ đọc
+  `docDuLieu` đọc cả trang bản 1 (một cờ vàng «khuôn bản 1»); bộ đọc bản 1 kho đang chép vẫn đọc bản 2
+  («đọc phần biết»). Khối không mang số PR (chỉ có sau khi gộp) và không mang «số lần gọi người».
+- Câu giao in ra (trang lộ trình, khối, thẻ khởi động, ô cơ hội mở từ hàng, trang hồ sơ) bỏ đúng một cặp
+  «» bao trọn câu; «» bên trong câu giữ nguyên; tệp kế hoạch không bị ghi. Khuôn mẫu hàng thôi bọc «».
+- Ai bị ảnh hưởng: kho khai lộ trình — `LO-TRINH.html` vẽ lại đổi chữ câu giao và khối; bản chiếu đọc khối
+  nên chép lại `docDuLieu` khi muốn đọc `tom_tat`. Hồ sơ đã ký mang ca so «giống bộ máy trước» của trang lộ
+  trình phải ghim lại ở chiến dịch phát hành.
+- **Nhận mốc ở crm: chép lại `docDuLieu`** từ `scripts/lo-trinh.mjs` (crm đang giữ bản chép nguyên văn
+  bản 1 — LT1 AC-9). Hàm đổi trong mốc này: biết `phien_ban` 2 (khoá `tom_tat`), báo cờ vàng «khuôn bản 1»
+  khi đọc trang cũ. Bản cũ vẫn đọc trang mới «phần biết» + một cảnh báo, nên không vỡ nếu chưa chép kịp.
+  Gói Điều phối (`dieu-phoi/scripts/nguon-hang.mjs`) cũng giữ bản chép bản 1 — chép lại khi cần `tom_tat`.
+- Kho chép bộ máy cho CI (danh sách `INIT-CI-COPY-LIST`, nay 18 tệp) và khai `lo_trinh.tep` phải chép thêm
+  `scripts/ho-so-tom-tat.cjs` — thiếu thì bước bản đồ đỏ to `MODULE_NOT_FOUND`, không im lặng.
+
 ### Cắt lượt nói ra vòng nào phải tách, gộp được, hay sai dáng câu giao (hồ sơ `vong-la-mot-ket-qua`, T2)
 
 Gốc: hàng S3 lộ trình kit, chính sách chủ kho chốt 10/10 — một vòng một kết quả, mục tiêu 8–10 tiêu chí,

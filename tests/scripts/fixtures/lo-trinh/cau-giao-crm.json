@@ -1,0 +1,17 @@
+{
+  "_nguon": "crm 10063a25e: docs/plan/lo-trinh-okr.json, lo-trinh-kho-tai-lieu.json, lo-trinh-viec-du-an.json — mọi câu giao bọc trọn «» mà còn «» bên trong (hồ sơ trang-ho-so-mot-viec, E10)",
+  "cau": [
+    "«Kara sập giữa lượt thì không mất lượt soạn; «Thử lại» nói rõ vì sao không chạy»",
+    "«Mục tiêu kín có nhãn «Giới hạn» ở mọi danh sách; gỡ người thì được báo trước OKR đang phụ trách; điều kiện chặn hiện ra trước khi bấm»",
+    "«Tách «Đang theo dõi» khỏi tab «Của tôi» của OKR»",
+    "«Loại mục tiêu thứ ba «Học tập» cho OKR»",
+    "«Kết nối Slack thiếu quyền đọc email vẫn không để lọt dữ liệu đối tác tới người mang vai «chỉ OKR»»",
+    "«Tôi bấm «Nhờ Trợ lý OKR góp ý» và nhận vài đề xuất, câu cũ cạnh câu mới; tôi nhận, sửa hay bác từng dòng»",
+    "«Dòng thời gian giữ các hoạt động đã tải khi «Xem cũ hơn» hay làm mới ngầm bị lỗi»",
+    "«Zalo hỏi OKR không chết lượt — hỏi về KR thì nhận câu trả lời có nghĩa, không nhận «Tôi chưa trả lời được câu này»»",
+    "««Đã lưu trữ» ở Cài đặt › Giai đoạn báo lỗi tải và cho thử lại»",
+    "«Một cách cất, một bộ chữ — lưu trữ ở ba bảng CRM luôn có Hoàn tác, bản ghi đã cất mở ra có dải báo và chỉ đọc, Kanban thoả thuận có «Đã lưu trữ»»",
+    "«Luật thứ bảy «vòng đời» của scripts/luat-kho bắt bản ghi có hai cách cất, danh sách mặc định lẫn bản đã cất, và nút xoá trên bản ghi đã có lịch sử — chạy ở CI»",
+    "«Nguồn không kẹt mãi ở «đang đọc» khi máy soạn lỗi; «Soạn lại» chạy được; hộp chèn liên kết báo lỗi thay vì «không trang nào khớp»»"
+  ]
+}
