@@ -102,3 +102,61 @@ wall: 2508s
 - **claude-haiku-5-5**: 21 agent · 42 calls · out 23,681 · in 84 · cache_read 2,317,918 · cache_create 1,257,232
 - **claude-opus-5-5**: 3 agent · 66 calls · out 6,744 · in 132 · cache_read 7,926,666 · cache_create 384,193
 
+### S4 round 3 — wf_17c5c3a1-eb7 (35 agent, 41,010 out-tok)
+
+| label | model | calls | out | in | cache_read | s |
+|---|---|--:|--:|--:|--:|--:|
+| synthesize:report | claude-sonnet-5-5 | 7 | 13,342 | 14 | 740,520 | 105 |
+| triage | claude-sonnet-5-5 | 3 | 3,595 | 6 | 185,913 | 25 |
+| review:measurement | claude-opus-5-5 | 12 | 2,823 | 24 | 1,284,988 | 149 |
+| judge:E11:spec-alignment | claude-sonnet-5-5 | 3 | 2,442 | 6 | 210,330 | 23 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 2,275 | 4 | 34,982 | 441 |
+| review:bugs | claude-opus-5-5 | 10 | 1,559 | 20 | 1,075,774 | 101 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 1,304 | 4 | 117,159 | 37 |
+| judge:E11:operational-feasibility | claude-sonnet-5-5 | 5 | 1,154 | 10 | 422,852 | 34 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 1,139 | 4 | 117,159 | 34 |
+| review:conventions | claude-opus-5-5 | 13 | 1,138 | 26 | 1,268,938 | 82 |
+| refute:ma-tran.mjs | claude-sonnet-5-5 | 5 | 838 | 10 | 365,641 | 29 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 3 | 763 | 6 | 204,909 | 18 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 737 | 4 | 117,159 | 21 |
+| baseline:diffBase | claude-sonnet-5-5 | 2 | 701 | 4 | 91,433 | 49 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 2 | 681 | 4 | 34,982 | 379 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 619 | 4 | 117,159 | 23 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 583 | 4 | 117,159 | 16 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 573 | 4 | 117,159 | 9 |
+| machine:bash tests/scripts/run-tests.sh --manh m | claude-haiku-5-5 | 3 | 497 | 6 | 157,869 | 664 |
+| judge:E11:domain-correctness | claude-sonnet-5-5 | 6 | 470 | 12 | 499,508 | 37 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 449 | 4 | 117,159 | 20 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 445 | 4 | 117,159 | 47 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 360 | 4 | 117,159 | 11 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 354 | 4 | 117,159 | 13 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 338 | 4 | 117,159 | 16 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 324 | 4 | 117,159 | 15 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 258 | 4 | 117,191 | 130 |
+| machine:bash tests/hooks/run-tests.sh | claude-haiku-5-5 | 2 | 236 | 4 | 117,135 | 8 |
+| machine:bash tests/scripts/run-tests.sh --manh b | claude-haiku-5-5 | 2 | 194 | 4 | 117,144 | 174 |
+| machine:bash tests/workflows/run-tests.sh | claude-haiku-5-5 | 2 | 193 | 4 | 117,135 | 83 |
+| machine:node scripts/product-map.mjs --root . -- | claude-haiku-5-5 | 2 | 165 | 4 | 117,136 | 5 |
+| capture:provenance | claude-sonnet-5-5 | 2 | 149 | 4 | 80,938 | 6 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 144 | 4 | 117,191 | 80 |
+| machine:bash -c 'set -o pipefail; bash tests/plu | claude-haiku-5-5 | 2 | 144 | 4 | 34,982 | 322 |
+| machine:node _acceptance/eval-goi-model-that-kho | claude-haiku-5-5 | 2 | 24 | 4 | 117,159 | 18 |
+
+
+wall: 2481s
+
+| vai tro | agents | out | cache_read | wall s | bat dau | ket thuc |
+|---|--:|--:|--:|--:|---|---|
+| baseline | 1 | 701 | 91,433 | 49 | 12:21:37 | 12:22:26 |
+| machine | 24 | 12,799 | 2,693,723 | 2306 | 12:21:37 | 13:00:03 |
+| judge | 3 | 4,066 | 1,132,690 | 37 | 12:21:50 | 12:22:27 |
+| review | 3 | 5,520 | 3,629,700 | 150 | 12:21:55 | 12:24:25 |
+| triage | 1 | 3,595 | 185,913 | 25 | 13:00:05 | 13:00:30 |
+| refute | 1 | 838 | 365,641 | 29 | 13:00:33 | 13:01:02 |
+| capture | 1 | 149 | 80,938 | 6 | 13:01:06 | 13:01:12 |
+| synthesize | 1 | 13,342 | 740,520 | 105 | 13:01:14 | 13:02:58 |
+
+- **claude-sonnet-5-5**: 8 agent · 33 calls · out 22,691 · in 66 · cache_read 2,597,135 · cache_create 785,809
+- **claude-opus-5-5**: 3 agent · 35 calls · out 5,520 · in 70 · cache_read 3,629,700 · cache_create 333,873
+- **claude-haiku-5-5**: 24 agent · 50 calls · out 12,799 · in 100 · cache_read 2,693,723 · cache_create 1,565,868
+

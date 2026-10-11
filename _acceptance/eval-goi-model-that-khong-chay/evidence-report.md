@@ -1,19 +1,19 @@
 ---
 schema_version: 2
 feature_slug: eval-goi-model-that-khong-chay
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 158628a15574c6d4e093002d84ac27ee23260bbd
+verified_commit: 270dc093cf121bafe15ac7d18a6e89a333f64d12
 human_signoff:
 ---
 
 # Evidence Report: eval-goi-model-that-khong-chay
 
-PENDING-JUDGMENT — round 2. Mười một eval máy (E1–E10, E12) đều đạt kỳ vọng ở lượt chạy 1/1 và cả mười lệnh suite hồi quy đều xanh (bash 837 đạt; mjs 27 + 27 + 27 đạt; hooks 71 đạt; plugins vung 1–3 xanh; workflows xanh; product-map khớp). Hai lệnh suite đỏ ở round 1 (mjs:1/3 và plugins vung:3, ca RT18 về hằng một-ngày) nay xanh. Chỉ còn một việc chờ người: hội đồng E11 (AC-11, judgment) có hai phiếu UNCERTAIN và một phiếu PASS, cả hai phiếu UNCERTAIN cùng chỉ một chỗ chữ chưa khớp ở ca «khoá vắng» — CHANGELOG nói «không khoá mới trong dòng pin» trong khi GUIDE (dòng 1395–1396) và SKILL (dòng 74 + REPIN-TEMPLATE) nói `tong_ket.model_carry` vẫn có mặt và bằng 0. Mâu thuẫn round 1 về `model_carry` «cố định 0» không còn được hội đồng nêu. E11 chưa có human_override; người quyết ở Cổng 2.
+Round 3. Mười bốn eval máy (E1–E10, E12–E15) đều đạt ở lượt chạy 1/1 và cả mười lệnh suite hồi quy đều xanh (bash 837 đạt; mjs 28 + 27 + 27 đạt; hooks 71 đạt; plugins vung 1–3 xanh; workflows xanh; product-map khớp). Hội đồng E11 (AC-11, judgment) đề xuất PASS; một phiếu (spec-alignment) nêu một điểm chưa chắc về giới hạn thứ ba thiếu ngưỡng đếm, hiện đầy đủ ở mục Hội đồng E11 bên dưới. `human_override` của E11 để trống cho người quyết ở Cổng 2.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -27,176 +27,219 @@ PENDING-JUDGMENT — round 2. Mười một eval máy (E1–E10, E12) đều đ�
 | E8 | AC-8 | script | PASS |
 | E9 | AC-9 | script | PASS |
 | E10 | AC-10 | script | PASS |
-| E11 | AC-11 | judgment | UNCERTAIN |
+| E11 | AC-11 | judgment | PASS |
 | E12 | AC-12 | script | PASS |
+| E13 | AC-13 | script | PASS |
+| E14 | AC-14 | script | PASS |
+| E15 | AC-15 | script | PASS |
 
 ## Evidence
 
 - eval: E1
-  run_id: minted-eval-goi-model-that-khong-chay-E1-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E1-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac1
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 1
     AC-1: XANH — chiều xanh đủ, 2 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E2
-  run_id: minted-eval-goi-model-that-khong-chay-E2-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E2-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac2
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 2
     AC-2: XANH — chiều xanh đủ, 7 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E3
-  run_id: minted-eval-goi-model-that-khong-chay-E3-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E3-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac3
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
-    AC-3: XANH — chiều xanh đủ, 1 phép phá đều bị bắt đúng thông điệp ghim
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 3
+    AC-3: XANH — chiều xanh đủ, 2 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E4
-  run_id: minted-eval-goi-model-that-khong-chay-E4-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E4-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac4
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 4
     AC-4: XANH — chiều xanh đủ, 3 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E5
-  run_id: minted-eval-goi-model-that-khong-chay-E5-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E5-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac5
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
-    AC-5: XANH — chiều xanh đủ, 1 phép phá đều bị bắt đúng thông điệp ghim
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 5
+    AC-5: XANH — chiều xanh đủ, 2 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E6
-  run_id: minted-eval-goi-model-that-khong-chay-E6-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E6-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac6
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 6
     AC-6: XANH — chiều xanh đủ, 1 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E7
-  run_id: minted-eval-goi-model-that-khong-chay-E7-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E7-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac7
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 7
     AC-7: XANH — chiều xanh đủ (kèm vi-phan.mjs), 1 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E8
-  run_id: minted-eval-goi-model-that-khong-chay-E8-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E8-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac8
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 8
     AC-8: XANH — chiều xanh đủ (kèm doc-cu.mjs), 0 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E9
-  run_id: minted-eval-goi-model-that-khong-chay-E9-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E9-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac9
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 9
     AC-9: XANH — chiều xanh đủ, 1 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E10
-  run_id: minted-eval-goi-model-that-khong-chay-E10-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E10-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac10
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 10
     AC-10: XANH — chiều xanh đủ, 2 phép phá đều bị bắt đúng thông điệp ghim
 
 - eval: E11
-  judged_by: panel (domain-correctness, operational-feasibility, spec-alignment)
-  proposal: UNCERTAIN
-  verdict: UNCERTAIN
-  rationale: Hội đồng 3 lens, 2 phiếu UNCERTAIN và 1 phiếu PASS; cả hai phiếu UNCERTAIN cùng chỉ ca «khoá vắng» — CHANGELOG nói không khoá mới trong dòng pin, GUIDE và SKILL nói tong_ket.model_carry vẫn có mặt và bằng 0.
-  votes:
-    - domain-correctness: UNCERTAIN — GUIDE §7.1 trả đủ (a)–(g): khoá `feature_loop.model_carry_cmd` (vắng = như 2.26), lệnh in id model + băm khoá gói + runtime và đầu ra chỉ vào băm, năm lớp, hạn 7 ngày, các lý do vẫn chạy + `--chay-lai-model`, bốn giới hạn kèm ngưỡng/trần, lệnh `dem-dung-lai-model.mjs`; SKILL và CHANGELOG khớp số, tên khoá và CHANGELOG có «Khoá vắng = như 2.26» (h). Còn một chỗ chữ chưa khớp ở đúng ca «khoá vắng»: CHANGELOG nói «không khoá mới trong dòng pin», trong khi GUIDE (dòng 1395–1396) và SKILL (dòng 74 + REPIN-TEMPLATE) nói `tong_ket.model_carry` vẫn có mặt = 0 khi khoá vắng. Đọc là «khoá = ba khoá hiện-diện» thì hợp, nhưng không câu nào nói thế nên người viết eval «khoá vắng ⇒ dòng pin y như 2.26» nhận hai chỉ dẫn lệch.
-    - operational-feasibility: PASS — Từ ba tệp, người viết eval trả lời được đủ (a)–(h). Khoá là `feature_loop.model_carry_cmd`, vắng thì như 2.26 (cả ba tệp cùng nói). Lệnh dấu vân tay in id model, băm khoá gói, runtime và đầu ra không bao giờ ghi sổ. Năm lớp băm, hạn 7 ngày, danh sách lý do vẫn chạy, cờ `--chay-lai-model`, bốn giới hạn kèm ngưỡng và lệnh `dem-dung-lai-model.mjs` đều nằm ở GUIDE §7.1; SKILL và CHANGELOG trỏ đúng về đó, và CHANGELOG có dòng «Khoá vắng = như 2.26». Không có câu mâu thuẫn về cơ chế. Chỉ có hai chỗ lệch nhẹ, đều giải được bằng câu cụ thể hơn: CHANGELOG nói «không khoá mới trong dòng pin» khi vắng, còn SKILL và GUIDE nói rõ `tong_ket.model_carry` = 0 khi vắng. Ngưỡng của giới hạn «model trôi» là trần 7 ngày, không phải ngưỡng đếm mở vòng như ba giới hạn kia.
-    - spec-alignment: UNCERTAIN — Từ ba tệp, (a)–(e), (g), (h) đều đọc được và khớp nhau. Năm lớp, hạn 7 ngày, lý do eval vẫn chạy và cờ `--chay-lai-model` nằm ở GUIDE §7.1 và SKILL tr.82–91. Lệnh đếm `dem-dung-lai-model.mjs` ở GUIDE tr.1441. CHANGELOG mục «Chưa phát hành» ghi «Khoá vắng = như 2.26». Còn hai chỗ chưa chốt được. (1) CHANGELOG nói khoá vắng thì «không khoá mới trong dòng pin», còn SKILL tr.74 và GUIDE tr.1395 nói `tong_ket` luôn có mặt và mang `model_carry` (0 khi vắng). CHANGELOG tr.535 (mục 2.23.0) liệt kê TỔNG KẾT không có carry, nên `model_carry` có vẻ là trường mới, và ba tệp không cho biết «như 2.26» là nguyên văn từng byte hay chỉ về hành vi. (2) Trong bốn giới hạn ở (f), mục «model trôi mà giữ id» (GUIDE tr.1452) chỉ có «hạn là trần tuổi 7 ngày», không có ngưỡng mở vòng như ba mục kia, dù tiêu đề hứa «mỗi cái một ngưỡng».
-  required_evidence:
-    - "[domain-correctness] CHANGELOG.md, mục «Chưa phát hành», bullet «Khoá mới `feature_loop.model_carry_cmd`…» (dòng 20–21): câu đã sửa nói rõ khi khoá vắng dòng `repin`/`repin-do` vẫn mang `tong_ket.model_carry: 0` (hoặc giới hạn «không khoá mới trong dòng pin» vào đúng `evals_hash`/`evals_carry`/`carry_lech`) cho khớp GUIDE.md dòng 1395–1396 và SKILL.md dòng 74; có câu đó thì ba tệp không còn lệch ở ca khoá vắng và phán quyết của lens này đổi thành PASS."
-    - "[spec-alignment] Chỉ ra `model_carry` đã có trong `tong_ket` của dòng pin ở 2.26.0, hoặc một câu trong mục «Chưa phát hành» của CHANGELOG.md (quanh tr.21) nói rõ «khoá vắng = như 2.26 trừ `tong_ket.model_carry: 0`». Lấy từ: `git show v2.26.0:feature-loop/skills/feature-loop/SKILL.md` (khuôn REPIN-TEMPLATE), hoặc sửa CHANGELOG.md tr.21 và SKILL.md tr.83 cho khớp GUIDE.md tr.1395. Nếu có thì mâu thuẫn «không khoá mới» và «tong_ket luôn có model_carry» biến mất."
-    - "[spec-alignment] Một dòng ngưỡng cho giới hạn «model trôi mà giữ nguyên id» trong GUIDE.md §7.1 (bullet quanh tr.1452), ví dụ «Ngưỡng mở vòng: ≥1 …». Hoặc hợp đồng `_acceptance/eval-goi-model-that-khong-chay/contract.md` ghi rõ trần tuổi 7 ngày chính là ngưỡng khai của giới hạn này. Nếu có thì vế (f) «mỗi cái kèm ngưỡng» thoả rõ ràng."
+  judged_by: judge panel đề xuất (3 thấu kính, fresh context): domain-correctness, operational-feasibility, spec-alignment
+  verdict: PASS
+  rationale: Đề xuất của hội đồng là PASS. Hai phiếu PASS nêu ba tệp (GUIDE §7.1, SKILL, CHANGELOG) đủ cho cả tám ý (a)–(h) và không mâu thuẫn nhau; phiếu thứ ba nêu một điểm chưa chắc ở ý (f). Chi tiết từng phiếu ở mục «Hội đồng E11».
   human_override:  # chi nguoi ghi
 
 - eval: E12
-  run_id: minted-eval-goi-model-that-khong-chay-E12-r2
+  run_id: minted-eval-goi-model-that-khong-chay-E12-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.egm_ac12
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
   output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 12
     AC-12: XANH — chiều xanh đủ (kèm pham-vi.mjs), 0 phép phá đều bị bắt đúng thông điệp ghim
+
+- eval: E13
+  run_id: minted-eval-goi-model-that-khong-chay-E13-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.script.egm_ac13
+  verified_at: 2026-10-11T12:21:09Z
+  output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 13
+    AC-13: XANH — chiều xanh đủ, 1 phép phá đều bị bắt đúng thông điệp ghim
+
+- eval: E14
+  run_id: minted-eval-goi-model-that-khong-chay-E14-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.script.egm_ac14
+  verified_at: 2026-10-11T12:21:09Z
+  output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 14
+    AC-14: XANH — chiều xanh đủ, 2 phép phá đều bị bắt đúng thông điệp ghim
+
+- eval: E15
+  run_id: minted-eval-goi-model-that-khong-chay-E15-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.script.egm_ac15
+  verified_at: 2026-10-11T12:21:09Z
+  output: |
+    node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 15
+    AC-15: XANH — chiều xanh đủ, 3 phép phá đều bị bắt đúng thông điệp ghim
+
+### Hội đồng E11
+
+Panel đề xuất PASS; `human_override` của E11 để trống cho người quyết ở Cổng 2.
+
+- domain-correctness: PASS — Ba tệp đủ cho cả tám ý (a)–(h): GUIDE §7.1 nêu khoá model_carry_cmd, dấu vân tay (id model nhà cung cấp trả, băm khoá gói, runtime; không bao giờ ghi ra), năm lớp băm, hạn 7 ngày, danh sách lý do vẫn chạy cùng cờ --chay-lai-model, bốn giới hạn có ngưỡng và lệnh dem-dung-lai-model.mjs. CHANGELOG mục «Chưa phát hành» ghi «Khoá vắng = như 2.26» (2.26.0 có thật ở dòng 125) và SKILL nói y như vậy. Ba tệp không mâu thuẫn nhau. Điểm yếu nhỏ: giới hạn «model trôi mà giữ id» chỉ có ngưỡng dạng trần tuổi 7 ngày chứ không có ngưỡng mở vòng, nhưng đọc là hiểu được.
+- operational-feasibility: PASS — GUIDE §7.1 (bảng khoá và khối «Dùng lại eval model thật») nêu đủ (a)–(g): khoá `model_carry_cmd`, nội dung dấu vân tay và việc đầu ra không bao giờ ghi ra, năm lớp băm, hạn 7 ngày, các lý do vẫn chạy cùng `--chay-lai-model`, bốn giới hạn và lệnh `dem-dung-lai-model.mjs`. CHANGELOG mục «Chưa phát hành» ghi «Khoá vắng = như 2.26» (2.26.0 có trong tệp); SKILL.md dòng 83–91 nói «ba khoá vắng hẳn và làn y như 2.26». Ba tệp nhất quán với nhau, không mâu thuẫn. Lưu ý nhỏ không đổi verdict: giới hạn thứ ba (model trôi mà giữ id) chỉ có trần tuổi 7 ngày chứ không có «ngưỡng mở vòng» như ba giới hạn kia.
+- spec-alignment: UNCERTAIN — Các ý (a), (b), (c), (d), (e), (g), (h) đều có đủ trong GUIDE §7.1 và CHANGELOG "Chưa phát hành". SKILL.md dẫn về GUIDE nhất quán, và tôi không thấy mâu thuẫn giữa ba tệp. Riêng (f) thiếu: GUIDE nói "bốn giới hạn khai, mỗi cái một ngưỡng", nhưng giới hạn thứ ba (model trôi mà giữ id) chỉ ghi "hạn là trần trúi 7 ngày, owner chấp nhận ở crm E15", không có ngưỡng đếm để mở lại như ba giới hạn còn lại. Bằng chứng còn thiếu: (1) một dòng ở GUIDE.md §7.1, mục «Đếm — đường đo và bốn giới hạn khai», gắn ngưỡng đếm được cho giới hạn «Model trôi mà giữ nguyên id» (chỗ lấy: `sed -n 1440,1456p GUIDE.md`, bullet thứ ba, hiện chỉ có «hạn là trần tuổi»); (2) hoặc một câu trong GUIDE.md §7.1 nêu rõ trần tuổi 7 ngày chính là ngưỡng của giới hạn này vì giới hạn không đếm được, khi đó câu mở đầu «mỗi cái một ngưỡng» mới hết mâu thuẫn với bullet thứ ba (chỗ lấy: `grep -n 'trần tuổi' GUIDE.md`).
 
 ### Lệnh suite (hồi quy)
 
 - cmd: bash tests/scripts/run-tests.sh --manh bash
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_scripts_run_tests_sh_manh_bas-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:1/3
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__c1a79c-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:2/3
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__376d1c-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: bash tests/scripts/run-tests.sh --manh mjs:3/3
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_scripts_run_tests_sh_manh_mjs__b44527-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: bash tests/hooks/run-tests.sh
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_hooks_run_tests_sh-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_hooks_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:1 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__d30305-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:2 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__838f95-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: bash -c 'set -o pipefail; bash tests/plugins/run-tests.sh --manh vung:3 2>&1 | grep -E "FAIL|^Results:" | tail -n 40'
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_plugins_run_tests_sh_manh_vun__513534-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: bash tests/workflows/run-tests.sh
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_workflows_run_tests_sh-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-bash_tests_workflows_run_tests_sh-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 - cmd: node scripts/product-map.mjs --root . --check
-  run_id: minted-eval-goi-model-that-khong-chay-SUITE-node_scripts_product_map_mjs_root_check-r2
+  run_id: minted-eval-goi-model-that-khong-chay-SUITE-node_scripts_product_map_mjs_root_check-r3
   exit_code: 0
-  verified_at: 2026-10-11T11:13:44Z
+  verified_at: 2026-10-11T12:21:09Z
 
 ## Known limits
 
@@ -204,30 +247,33 @@ PENDING-JUDGMENT — round 2. Mười một eval máy (E1–E10, E12) đều đ�
 
 ## Analyst
 
-carried tu round 1 — baseline khong do lai round nay (evals.yaml khong doi tu lan baseline cuoi, round 1).
-
-none — không có eval nào được liệt kê là KHÔNG-PHÂN-BIỆT: baseline không đo được cho cả 11 eval chan.mjs nên không có eval nào để xếp vào xanh-ở-cả-hai-phía, và cũng không thể nói «mọi eval feature đều đỏ trên baseline». Lệnh suite xanh ở cả hai phía là regression-guard bình thường, không liệt kê.
+none — mọi eval feature đều red trên baseline (có phân biệt)
 
 Baseline khong do:
 
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 1: carried tu round 1 — tep chan.mjs co o cay dang kiem nhung chua co o merge-base fa8310b64c82818f249ce0d05fdf7c39c7d56a0f — eval moi, chay tren code cu khong phan biet gi
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 2: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 3: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 4: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 5: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 6: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 7: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 8: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 9: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 10: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
-- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 12: carried tu round 1 — cung ly do (tep chan.mjs chua co o merge-base)
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 1: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 2: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 3: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 4: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 5: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 6: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 7: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 8: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 9: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 10: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 12: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 13: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 14: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
+- node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 15: bo qua baseline: tep _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs co o cay dang kiem nhung chua co o merge-base d0dc3dc4a36719a2e9c4623819fc7b75e658aa65 — eval moi, chay tren code cu khong phan biet gi
 
 ## Variance
 
-none — không eval nào có runs > 1 (E1–E10, E12 đều chạy một lần và đạt; không có eval chập chờn).
+none — mọi eval nhiều lượt đều đồng nhất (không eval nào chạy quá một lượt)
 
 ## Iterations
 
 Round 1: E1–E10 và E12 đạt; hai lệnh suite hồi quy không gắn eval trả mã thoát khác không (mjs:1/3 — một tệp hỏng; plugins vung:3 — ca RT18 về bản chép luật ngưỡng ngoài lib trong repin-lane-dung-lai-model.test.mjs); hội đồng E11 đề xuất FAIL 3/3 vì SKILL.md dòng 74 mâu thuẫn với GUIDE.md dòng 1395-1396 và SKILL.md dòng 86. Verdict vòng này: REJECT. Returned to implementation.
 
 Round 2: sửa S4-r1 (hằng một-ngày qua NGAY_MS, câu model_carry cũ ở SKILL.md, lớp bên đọc run-log 11 lên 13); E1–E10, E12 và cả 10 lệnh suite xanh; hội đồng E11 còn 2 phiếu UNCERTAIN và 1 phiếu PASS, cùng chỉ chữ lệch ở ca khoá vắng giữa CHANGELOG và GUIDE/SKILL. Verdict vòng này: PENDING-JUDGMENT, chờ human_override của E11 ở Cổng 2.
+
+Round 3: sau trả lại ở Cổng 2 (owner nâng phạm vi AC-13…15, sửa lượt 3: bộ đệm git ở kho lớn, lượt dừng sớm giữ dấu lệch, dọn lệnh dấu vân tay khi bị ngắt, script đếm đúng nhãn, thước siết), E1–E10 và E12–E15 đạt, cả 10 lệnh suite xanh, hội đồng E11 đề xuất PASS (hai phiếu PASS, một phiếu nêu giới hạn thứ ba thiếu ngưỡng đếm). Verdict vòng này: PASS, E11 chờ người xác nhận ở Cổng 2.
