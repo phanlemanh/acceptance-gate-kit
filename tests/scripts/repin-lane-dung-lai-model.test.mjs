@@ -190,12 +190,13 @@ const dau = (k, ten, nd) => fs.writeFileSync(path.join(k.dau, ten), nd);
 const boDau = (k, ten) => fs.rmSync(path.join(k.dau, ten), { force: true });
 const xanh = (r, ten) => ok(r.status === 0, `${ten}: mã ${r.status}\n${r.stderr.split('\n').slice(-12).join('\n')}`);
 // Sửa `ts` của dòng `repin` cuối (do làn ghi) rồi commit — dòng vẫn là vật writer sinh, chỉ lùi tuổi.
-function datTs(k, tsIso) {
+// tatCa: lùi MỌI dòng `repin` (khi dòng cuối chỉ là dòng dùng lại, nguồn thật nằm ở dòng trước).
+function datTs(k, tsIso, { tatCa = false } = {}) {
   const f = path.join(k.ws, 'run-log.jsonl');
   const dong = fs.readFileSync(f, 'utf8').split('\n').filter(Boolean);
-  let i = dong.length - 1; while (i >= 0 && JSON.parse(dong[i]).kind !== 'repin') i -= 1;
-  ok(i >= 0, 'không có dòng repin để lùi tuổi');
-  const o = JSON.parse(dong[i]); o.ts = tsIso; dong[i] = JSON.stringify(o);
+  const vt = dong.map((l, i) => (JSON.parse(l).kind === 'repin' ? i : -1)).filter(i => i >= 0);
+  ok(vt.length, 'không có dòng repin để lùi tuổi');
+  for (const i of tatCa ? vt : [vt[vt.length - 1]]) { const o = JSON.parse(dong[i]); o.ts = tsIso; dong[i] = JSON.stringify(o); }
   fs.writeFileSync(f, dong.join('\n') + '\n'); commit(k, 'lui ts');
 }
 const NGAY = 86400000;
@@ -421,8 +422,9 @@ await ca('AC9-khuon-dung-lai', 'dòng repin (băm, dùng lại) và repin-do (b�
   const p = pins(k).pop();
   ok(p.evals_hash && p.evals_carry && p.suites_env && p.tong_ket, `fixture không bật đủ khoá: ${Object.keys(p).join(',')}`);
   soKhuon(Object.keys(p), khoaKhuon('repin'), 'repin');
-  datTs(k, iso(Date.now() - 8 * NGAY)); dau(k, 'E1-exit', '1');
-  ok(k.lane(['--write'], { env: { K: 'x' } }).status === 1, 'lượt lệch không đỏ');
+  datTs(k, iso(Date.now() - 8 * NGAY), { tatCa: true }); dau(k, 'E1-exit', '1');
+  const rd = k.lane(['--write'], { env: { K: 'x' } });
+  ok(rd.status === 1, `lượt lệch không đỏ: mã ${rd.status}\n${rd.stderr.split('\n').filter(l => /feat E1|TỔNG/.test(l)).join('\n')}`);
   const d = k.docLog().filter(l => l.kind === 'repin-do').pop();
   ok(d.evals_hash && d.carry_lech, `repin-do thiếu khoá: ${Object.keys(d).join(',')}`);
   soKhuon(Object.keys(d), khoaKhuon('repin-do'), 'repin-do');

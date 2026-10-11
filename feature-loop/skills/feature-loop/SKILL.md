@@ -61,8 +61,8 @@ Resume: `/feature-loop:feature-loop <slug>` → đọc status, vào đúng hàng
 
 <!-- <<<REPIN-TEMPLATE -->
 ```
-{"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,0,0,0],"evals_exit":{"<E>":0},"wall_s":812.4,"so_lenh":5,"evals_not_run":["<E>"],"evals_not_machine":["<E>"],"evals_not_machine_touched":["<E>"],"chap_chon":[{"lenh":"<cmd>","nhan":"suite 1/4","lan_dau":1,"log":"<đường>","ca":["<tên ca>"]}],"suites_env":"ci","tong_ket":{"ket_cuc":"xanh","phut":13.5,"so_lenh":5,"model_goi":0,"model_carry":0,"chap_chon":1,"chi_phi":0.42}}
-{"ts":"<ISO>","kind":"repin-do","lan_id":"<id>","sha":"<40-hex>","ly_do":"vuot-tran","tran_phut":80,"da_chay_phut":80.1,"tin_hieu":"SIGTERM","chua_chay":["<nhãn>"],"suites_exit":[1],"evals_exit":{"<E>":0},"lenh_do":[{"cmd":"<cmd>","exit":1,"log":"<đường>","lan_thu_lai":1,"log_lan_dau":"<đường>","moi_truong":"ci"}],"cham":[],"wall_s":812.4,"so_lenh":5,"chap_chon":[],"tong_ket":{},"tai":{}}
+{"ts":"<ISO>","kind":"repin","run_id":"<id>","sha":"<40-hex>","suites_exit":[0,0,0,0],"evals_exit":{"<E>":0},"wall_s":812.4,"so_lenh":5,"evals_not_run":["<E>"],"evals_not_machine":["<E>"],"evals_not_machine_touched":["<E>"],"chap_chon":[{"lenh":"<cmd>","nhan":"suite 1/4","lan_dau":1,"log":"<đường>","ca":["<tên ca>"]}],"suites_env":"ci","evals_hash":{"<E>":"<64-hex>"},"evals_carry":{"<E>":"<run_id>"},"carry_lech":["<E>"],"tong_ket":{"ket_cuc":"xanh","phut":13.5,"so_lenh":5,"model_goi":0,"model_carry":0,"chap_chon":1,"chi_phi":0.42}}
+{"ts":"<ISO>","kind":"repin-do","lan_id":"<id>","sha":"<40-hex>","ly_do":"vuot-tran","tran_phut":80,"da_chay_phut":80.1,"tin_hieu":"SIGTERM","chua_chay":["<nhãn>"],"suites_exit":[1],"evals_exit":{"<E>":0},"lenh_do":[{"cmd":"<cmd>","exit":1,"log":"<đường>","lan_thu_lai":1,"log_lan_dau":"<đường>","moi_truong":"ci"}],"cham":[],"wall_s":812.4,"so_lenh":5,"chap_chon":[],"evals_hash":{"<E>":"<64-hex>"},"carry_lech":["<E>"],"tong_ket":{},"tai":{}}
 ### Re-pin lần <N> — <ngày>, do <lý do 1 dòng>
 run_id: <id>
 sha: <40-hex> · suites: <k> lệnh exit 0 · evals: <m>/<m> eval máy đạt kỳ vọng
@@ -78,6 +78,17 @@ sớm, không ghi pin, mỗi slug một dòng `repin-do` khi `--write`: **mã th
 `chua_chay`) và **128 + số hiệu tín hiệu** = bị ngắt mềm (`ly_do: "bi-ngat"` + `tin_hieu`, `chua_chay`);
 cả hai dừng lệnh bằng cách thu cả cây tiến trình theo `ppid` rồi SIGTERM → SIGKILL sau 10 giây. Dòng
 stderr cuối của mọi kết cục bắt đầu `[lane] TỔNG KẾT`.
+
+Ba khoá của hồ sơ eval-goi-model-that-khong-chay theo CÙNG luật hiện diện, bật bằng khoá
+`feature_loop.model_carry_cmd` (lệnh in dấu vân tay môi trường model — vắng thì ba khoá vắng hẳn và làn y
+như 2.26): `evals_hash` — băm năm lớp đầu vào của mỗi eval trong `model_evals` đã băm được; `evals_carry` —
+eval nào DÙNG LẠI kết quả của lượt nào (`run_id` nơi nó thật sự chạy, chuỗi dàn phẳng; mã trong
+`evals_exit` chép từ lượt đó; không cộng `model_goi`, cộng `tong_ket.model_carry`); `carry_lech` — eval chạy
+thật với băm từng có mà mã khác (cũng ghi ở `repin-do`; eval đó thôi dùng lại tới khi băm đổi). Section
+thêm hậu tố ` · dùng lại theo băm đầu vào (không gọi model): <E>←<run_id>` và ` · cùng băm mà kết quả khác
+(carry_lech): <E>`; stderr mỗi eval model một dòng `dùng lại theo băm …` hoặc `không dùng lại — <lý do>`.
+Cờ `--chay-lai-model` ép mọi eval model chạy thật ở lượt đó (vẫn ghi băm). Năm lớp, hạn 7 ngày, lý do
+luôn chạy, bốn giới hạn và lệnh đếm `dem-dung-lai-model.mjs`: GUIDE §7.1.
 
 Khoá `evals_not_run` chỉ CÓ MẶT khi hồ sơ có eval `test`/`script` tự khai
 `status: not-run` (2.12.0) — hồ sơ không khai ô nào thì khoá VẮNG HẲN khỏi dòng,
