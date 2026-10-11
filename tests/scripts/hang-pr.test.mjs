@@ -486,6 +486,67 @@ ca('AC-9-do', () => {
   return 'đổi tên match_globs: công thức của crm thoát 3 (crm mất bộ khớp)';
 });
 
+// ── Tài liệu cho kho (AC-10) ────────────────────────────────────────────────
+// Đoạn từ tiêu đề `### <tiền tố>` tới tiêu đề `##`/`###` kế tiếp.
+function doan(text, tieuDe) {
+  const dong = text.split('\n'); const a = dong.findIndex((l) => l.startsWith(tieuDe));
+  if (a < 0) return null;
+  let b = dong.length;
+  for (let i = a + 1; i < dong.length; i += 1) if (/^#{2,3} /.test(dong[i])) { b = i; break; }
+  return dong.slice(a, b).join('\n');
+}
+// CHANGELOG: «## Chưa phát hành» chứa nhiều `###` — đọc tới `## ` kế, không dừng ở `###`.
+const doanChangelog = (t) => { const a = t.indexOf('## Chưa phát hành'); if (a < 0) return ''; const b = t.indexOf('\n## ', a + 3); return t.slice(a, b < 0 ? undefined : b); };
+function kiemTaiLieu(guide, changelog, gate) {
+  const loi = [];
+  // Đo trong ĐÚNG tiểu mục của chế độ, nằm trong §5.3 — vài chuỗi (fetch-depth: 0, «đọc hồ sơ») đã có ở chỗ khác
+  // của §5.3, kiểm cả mục là xanh rỗng.
+  const muc = doan(guide, '### 5.3 ');
+  if (!muc) return ['GUIDE không có mục ### 5.3'];
+  const tm = muc.indexOf('#### Bỏ job nặng cho PR không chạm vật');
+  if (tm < 0) return ['GUIDE §5.3 không có tiểu mục «Bỏ job nặng cho PR không chạm vật»'];
+  const sau = muc.slice(tm + 4); const ke = sau.search(/\n#{1,4} /);
+  const s = muc.slice(tm, ke < 0 ? undefined : tm + 4 + ke);
+  if (!s.includes('--hang-pr')) loi.push('GUIDE §5.3 không nêu --hang-pr');
+  if (!s.includes('fetch-depth: 0')) loi.push('GUIDE §5.3 thiếu fetch-depth: 0');
+  const dongIf = s.split('\n').filter((l) => /^\s*if:/.test(l) && l.includes("cham_vat != 'false'"));
+  if (!dongIf.length) loi.push("GUIDE §5.3 không có dòng if: cấp job so cham_vat != 'false'");
+  else if (!dongIf.every((l) => l.includes('!cancelled() &&'))) loi.push('hang-pr hỏng thì test bị bỏ — dòng if: thiếu «!cancelled() &&»');
+  if (!(s.includes('paths-ignore') && s.includes('Expected'))) loi.push('GUIDE §5.3 thiếu câu paths-ignore làm check bắt buộc treo «Expected»');
+  if (!(s.includes('đọc hồ sơ') && s.includes('đừng gắn vào bit'))) loi.push('GUIDE §5.3 thiếu câu «job đọc hồ sơ đừng gắn vào bit»');
+  const khoa = Object.keys(docKhoa(gate));
+  for (const m of s.matchAll(/outputs\.([a-z_]+)/g)) if (!khoa.includes(m[1])) loi.push(`khoá GUIDE không có trong HANG-PR-KHOA: ${m[1]}`);
+  if (![...s.matchAll(/outputs\.([a-z_]+)/g)].length) loi.push('GUIDE §5.3 không đọc outputs.<khoá> nào');
+  const dau = gate.slice(0, gate.indexOf('\nset -u'));
+  if (!dau.includes('--hang-pr')) loi.push('đầu tệp cổng (Usage) không nêu --hang-pr');
+  const cl = doanChangelog(changelog);
+  if (!(cl.includes('--hang-pr') && cl.includes('không truyền cờ'))) loi.push('CHANGELOG «Chưa phát hành» thiếu mục --hang-pr / «không truyền cờ»');
+  return loi;
+}
+const docTaiLieu = () => ({
+  guide: fs.readFileSync(path.join(KIT, 'GUIDE.md'), 'utf8'),
+  changelog: fs.readFileSync(path.join(KIT, 'CHANGELOG.md'), 'utf8'),
+  gate: fs.readFileSync(GATE, 'utf8'),
+});
+
+ca('AC-10', () => {
+  const { guide, changelog, gate } = docTaiLieu();
+  const loi = kiemTaiLieu(guide, changelog, gate);
+  if (loi.length) throw new Error(loi.join(' · '));
+  return 'GUIDE §5.3: --hang-pr, fetch-depth 0, if: có !cancelled() && cham_vat != \'false\', paths-ignore/Expected, job đọc hồ sơ; khoá outputs thuộc HANG-PR-KHOA; Usage cổng nêu cờ; CHANGELOG có mục';
+});
+
+ca('AC-10-do', () => {
+  const { guide, changelog, gate } = docTaiLieu();
+  const cl = changelog;
+  if (kiemTaiLieu(guide, cl, gate).length) throw new Error('đối chứng dương: tài liệu thật đã có lỗi');
+  const l1 = kiemTaiLieu(guide.split('cham_vat').join('cham_ma'), cl, gate);
+  if (!l1.some((x) => x.startsWith('khoá GUIDE không có trong HANG-PR-KHOA'))) throw new Error(`đổi cham_vat→cham_ma mà không bắt: ${l1.join(' · ')}`);
+  const l2 = kiemTaiLieu(guide.split('!cancelled() && ').join(''), cl, gate);
+  if (!l2.some((x) => x.startsWith('hang-pr hỏng thì test bị bỏ'))) throw new Error(`gỡ !cancelled() mà không bắt: ${l2.join(' · ')}`);
+  return 'GUIDE đổi khoá → «khoá GUIDE không có trong HANG-PR-KHOA»; gỡ !cancelled() → «hang-pr hỏng thì test bị bỏ»; tài liệu thật sạch';
+});
+
 // ── Chạy ────────────────────────────────────────────────────────────────────
 const yeuCau = (process.env.HP_CASES || '').split(',').map((s) => s.trim()).filter(Boolean);
 for (const id of yeuCau) {

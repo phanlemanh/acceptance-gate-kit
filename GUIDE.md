@@ -970,6 +970,55 @@ commit đóng gói bản phát hành / đồng bộ bản sao trên nhánh chín
 job đỏ vĩnh viễn. VẪN giữ `--base`: luật gap-probe cần phạm vi diff. Xem
 [ADR 0005](docs/adr/0005-t1-escape-opt-out-flag.md).
 
+#### Bỏ job nặng cho PR không chạm vật (tuỳ chọn — `--hang-pr`)
+
+Kho trả tiền phút Actions (kho riêng tư) có thể cho job test sản phẩm bỏ qua PR chỉ đổi tệp T1 hay hồ sơ
+`_acceptance/`. Cổng có sẵn một chế độ in hạng PR — dùng CHÍNH bộ khớp và CHÍNH `risk_tiers.t1_skip_globs` /
+`t3_paths` của kho: không danh sách thứ hai, không chép hàm nào. Kho không truyền cờ thì cổng không đổi gì.
+
+```yaml
+hang-pr:
+  runs-on: ubuntu-latest
+  outputs:
+    cham_vat: ${{ steps.hang.outputs.cham_vat }}
+  steps:
+    - uses: actions/checkout@v4
+      with: { fetch-depth: 0 }                 # cần merge-base để tính diff của PR
+    # lấy kit ở sha ghim như bước 2 phía trên; kho đang chép kit thì gọi bản chép scripts/pre-merge-check.sh
+    - id: hang
+      run: bash "$CLAUDE_PLUGIN_ROOT/scripts/pre-merge-check.sh" . ${GITHUB_BASE_REF:+--base "origin/$GITHUB_BASE_REF"} --hang-pr
+test:
+  needs: hang-pr
+  if: ${{ !cancelled() && needs.hang-pr.outputs.cham_vat != 'false' }}
+  # … các bước test của kho
+```
+
+Đầu ra — ba dòng `khoá=giá-trị` ra stdout, nối vào `$GITHUB_OUTPUT` khi có, một dòng vào `$GITHUB_STEP_SUMMARY`:
+
+| Khoá | Giá trị |
+|---|---|
+| `hang` | `T1` (mọi tệp khớp `t1_skip_globs`) · `ho-so` (chỉ `_acceptance/`, có thể kèm tệp T1) · `T2` · `T3` · `khong-ro` |
+| `cham_vat` | `false` chỉ khi `hang` là `T1` hoặc `ho-so`; mọi ca khác `true` |
+| `ly_do` | `phan-loai` · `khong-co-pham-vi-diff` · `diff-rong` · `doi-danh-sach-hang` · `cau-hinh-loi` · `khong-phan-loai-duoc` |
+
+Ba điều đừng rút gọn:
+
+1. `!cancelled() &&` là bắt buộc. Biểu thức `if:` không gọi hàm trạng thái nào thì GitHub ngầm ghép `success()`:
+   job `hang-pr` đỏ (lấy kit hỏng, runner lỗi) làm job `test` bị BỎ QUA — và job bị bỏ qua báo «Success» kể cả khi
+   là check bắt buộc, nên PR chạm vật gộp được mà không test. So `!= 'false'` chứ không `== 'true'`, để đầu ra vắng
+   vẫn chạy test. Bốn hàng: `hang-pr` xanh + `false` → bỏ · xanh + `true` → chạy · xanh + đầu ra vắng → chạy ·
+   `hang-pr` đỏ → chạy.
+2. Lọc bằng `if:` ở cấp job, đừng bằng `paths-ignore` ở cấp workflow: workflow bị lọc không chạy thì check bắt buộc
+   của nó treo «Expected — Waiting for status» và PR không gộp được.
+3. Job nào đọc hồ sơ thì đừng gắn vào bit: bit chỉ nói «chạm vật», không nói «chạm thước của hồ sơ». Ví dụ crm:
+   `oxlint` ở job `check` quét cả `_acceptance/**/rang/*.mjs` — giữ `check` chạy, chỉ gắn `test`.
+
+Nghi ngờ thì chạy đủ: chế độ chỉ nói `cham_vat=false` khi chứng minh được. Không `--base` (sự kiện `push`), ref
+không giải được, lịch sử rời, diff rỗng, cấu hình hỏng, hay PR tự sửa `t1_skip_globs`/`t3_paths` → `cham_vat=true`;
+các ca do lỗi thêm một dòng `::warning` lên PR. Chế độ luôn thoát 0 khi đã in kết quả — chỉ lỗi cú pháp tham số
+thoát 2 — vì bước phân loại đỏ là test bị bỏ. Giới hạn đã biết: `git diff` bọc tên tệp có dấu, nên cổng (và chế độ)
+coi tệp ấy ngoài T1 — chạy đủ (hạt giống `docs/plans/2026-10-11-hat-giong-ba-ngu-nghia-glob-t1-skip.md`).
+
 ### Sổ luật-đã-chạy (acceptance-gate 1.22.0+)
 
 `pre-merge-check.sh` chỉ in `clean` khi CHỨNG MINH được rằng các luật đã chạy:
