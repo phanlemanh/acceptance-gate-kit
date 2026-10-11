@@ -119,8 +119,17 @@ export function chayHook(raw, tuyChon = {}) {
     return MAU_THO.test(raw) ? { ma: 2, loi: 'chan-s4: lỗi nội bộ: đầu vào không đọc được — chặn để an toàn; báo phiên giám sát' } : { ma: 0 };
   }
   // JSON đọc được thì chỉ bộ phân loại cấu trúc quyết: không phải lệnh giữ tài nguyên → im. Mẫu thô
-  // chỉ còn dùng cho đầu vào không đọc được (chặn để an toàn ở trên).
-  if (phanLoai(dauVao) === null) return { ma: 0 };
+  // chỉ còn dùng cho đầu vào không đọc được (chặn để an toàn ở trên). Bộ phân loại ném (lỗi chưa biết): ngoài
+  // đợt thì im — kho không đợt không bao giờ thấy hook; trong đợt thì chặn để an toàn.
+  let taiNguyen;
+  try {
+    taiNguyen = phanLoai(dauVao);
+  } catch (e) {
+    return (tuyChon.timDot ?? timThuMucDot)(dauVao.cwd)
+      ? { ma: 2, loi: `chan-s4: lỗi nội bộ: ${e.message} — chặn để an toàn; báo phiên giám sát` }
+      : { ma: 0 };
+  }
+  if (taiNguyen === null) return { ma: 0 };
   try {
     return quyet(dauVao, tuyChon);
   } catch (e) {

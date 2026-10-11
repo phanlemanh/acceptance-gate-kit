@@ -616,6 +616,52 @@ test('DP6-07 khong-dot', () => {
   assert.equal(chayHookChanS4(LENH_S4, { cwd: w1 }).ma, 2, 'đối chứng: kho có đợt và khoá của dãy khác thì chặn');
 });
 
+// Từ lệnh trùng khoá của Object.prototype (dòng `constructor(x) {` trong heredoc ghi một class JS) không được làm
+// bộ phân loại ném: bảng vỏ bọc và bảng script tra bằng khoá RIÊNG (soát S4 lượt 3, finding AC-7).
+const TU_PROTOTYPE = ['constructor', 'toString', 'valueOf', 'hasOwnProperty', '__proto__', 'isPrototypeOf'];
+const LENH_CLASS = "cat > a.mjs <<'EOF'\nclass A {\n  constructor(x) {\n    this.x = x;\n  }\n}\nEOF\nnode x/repin-lane.mjs --write";
+test('DP6-07 khoa-prototype', async () => {
+  const { phanLoaiLenh } = await nap(GOI, 'phan-loai-s4.mjs');
+  const ds = [];
+  for (const t of TU_PROTOTYPE) ds.push([t, null], [`${t} -x 900 node x/repin-lane.mjs`, null], [`node x/${t}.mjs --root .`, null], [`timeout 900 ${t}(1)`, null]);
+  ds.push([LENH_CLASS, 's4']);
+  const loi = [];
+  for (const [lenh, ky] of ds) {
+    let r;
+    try {
+      r = phanLoaiLenh(lenh);
+    } catch (e) {
+      r = `ném: ${e.message}`;
+    }
+    if (r !== ky) loi.push(`${JSON.stringify(lenh)} → ${r}`);
+  }
+  console.log(`  từ trùng khoá prototype: ${ds.length} ô`);
+  assert.deepEqual(loi, []);
+  const kho = tam('dp6-proto-');
+  git(kho, 'init', '-q', '-b', 'main');
+  git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const im = chayHookChanS4({ tool_name: 'Bash', tool_input: { command: LENH_CLASS } }, { cwd: kho });
+  assert.deepEqual([im.ma, im.err], [0, ''], 'kho không đợt: hook im');
+  const { dot, w1, w2 } = khoLienKet();
+  giuKhoa(dot, 'P2', w2);
+  assert.equal(chayHookChanS4({ tool_name: 'Bash', tool_input: { command: LENH_CLASS } }, { cwd: w1 }).ma, 2, 'trong đợt: lệnh S4 đi kèm class vẫn bị chặn');
+});
+
+// Bộ phân loại ném (lỗi chưa biết): ngoài đợt hook vẫn im; trong đợt chặn để an toàn, nêu lỗi nội bộ.
+test('DP6-07 phan-loai-nem', () => {
+  const sao = saoGoi();
+  tiem(sao, 'phan-loai-s4.mjs', 'export function phanLoaiLenh(lenh, bang = BANG_BASH, sau = 0) {\n', "export function phanLoaiLenh(lenh, bang = BANG_BASH, sau = 0) {\n  throw new Error('tiem-nem');\n");
+  const kho = tam('dp6-nem-');
+  git(kho, 'init', '-q', '-b', 'main');
+  git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const im = chayHookChanS4(LENH_S4, { cwd: kho, gocGoi: sao });
+  assert.deepEqual([im.ma, im.err], [0, ''], 'kho không đợt: hook im');
+  const { w1 } = khoLienKet({ gocGoi: sao });
+  const r = chayHookChanS4({ tool_name: 'Bash', tool_input: { command: 'ls' } }, { cwd: w1, gocGoi: sao });
+  assert.equal(r.ma, 2);
+  assert.match(r.err, /chan-s4: lỗi nội bộ: tiem-nem — chặn để an toàn/);
+});
+
 // ---------- DP6-02 khong-lot: heredoc và các dạng `<<` không lọt (soát toàn nhánh, hai lượt chấm) ----------
 // Mỗi ô là một lời gọi S4/đường nền THẬT mà bộ phân loại ở merge-base chặn được; bản mới phải chặn y như thế. Ô
 // `bash-co-tep` từng là đối chứng «thân là dữ liệu» — luật ấy đã thu (sổ quyết định dòng 20), nên nó cũng bị chặn.

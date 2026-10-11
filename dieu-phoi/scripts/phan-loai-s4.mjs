@@ -107,7 +107,8 @@ function boVoBoc(tu, i) {
       }
       continue;
     }
-    const vb = VO_BOC[t];
+    // Tra bằng khoá RIÊNG: từ lệnh trùng khoá của Object.prototype (`constructor`, `toString`…) không phải vỏ bọc.
+    const vb = Object.hasOwn(VO_BOC, t) ? VO_BOC[t] : null;
     if (!vb) return { i };
     i++;
     while (i < tu.length && tu[i].startsWith('-') && tu[i] !== '-') i += !tu[i].includes('=') && vb.giaTri.includes(tu[i]) ? 2 : 1;
@@ -115,7 +116,10 @@ function boVoBoc(tu, i) {
   }
 }
 
-const tra = (tep, bang) => bang[path.basename(tep).replace(/\.(mjs|cjs|js)$/, '')] ?? null;
+const tra = (tep, bang) => {
+  const k = path.basename(tep).replace(/\.(mjs|cjs|js)$/, '');
+  return Object.hasOwn(bang, k) ? bang[k] : null;
+};
 
 function phanLoaiTu(tu, bang, sau) {
   const b = boVoBoc(tu, 0);

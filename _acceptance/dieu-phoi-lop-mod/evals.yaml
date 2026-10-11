@@ -126,7 +126,12 @@ evals:
       tập tên có dòng "ok" của lượt này; "ok" cho "DP6-07 loi-nguyen": `git diff --quiet <merge-base> --
       tests/dieu-phoi/loi/ tests/dieu-phoi/dong-goi.test.mjs` thoát 0; "ok" cho "DP6-07 khong-dot": kho thử không đợt, hook chặn S4 và hook chờ
       người thật với đầu vào S4 / permission_prompt → thoát 0, stderr rỗng, băm cây trước == sau (đối chứng: kho có
-      đợt và khoá của dãy khác → hook chặn S4 thoát 2).
+      đợt và khoá của dãy khác → hook chặn S4 thoát 2). "ok" cho "DP6-07 khoa-prototype": sáu từ trùng khoá
+      Object.prototype × bốn hình (đứng đầu, sau vỏ bọc kèm cờ, làm tên script, sau timeout) → null, heredoc ghi class
+      JS rồi chạy repin-lane → s4, không ô nào ném (số ô in ra = 25); hook thật ở kho không đợt với lệnh class → thoát
+      0, stderr rỗng; ở đợt có khoá của P2 → thoát 2. "ok" cho "DP6-07 phan-loai-nem": bản sao tiêm phanLoaiLenh ném →
+      hook ở kho không đợt thoát 0, stderr rỗng; ở đợt thoát 2, stderr khớp "chan-s4: lỗi nội bộ: tiem-nem — chặn để an
+      toàn".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E8
     criterion: AC-8
@@ -134,8 +139,8 @@ evals:
     inputs: [dieu-phoi/README.md, docs/superpowers/specs/2026-10-10-dieu-phoi-workflow-design.md, docs/superpowers/specs/2026-10-11-dieu-phoi-lop-mod-design.md, docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md, _acceptance/dieu-phoi-lop-mod/contract.md]
     question: >
       Đọc mục về chặn S4 và chờ người trong README gói, §12 của spec workflow, §3 và §6 của design doc, hạt giống,
-      và AC-8 của contract. (1) README có đủ: hook chặn S4 nhận vỏ bọc mang cờ và bỏ qua thân heredoc, --check,
-      --help; lời chặn nêu lệnh xin lượt; hộp xin quyền luôn thành việc chờ người và đánh thức giám sát; giới hạn
+      và AC-8 của contract. (1) README có đủ: hook chặn S4 nhận vỏ bọc mang cờ và bỏ qua --check/-c, --help,
+      còn heredoc nhắc tên script vẫn bị chặn kể cả khi thân chỉ là dữ liệu (giới hạn đã khai kèm ngưỡng); lời chặn nêu lệnh xin lượt; hộp xin quyền luôn thành việc chờ người và đánh thức giám sát; giới hạn
       đã khai kèm ngưỡng, gồm «chưa đo: hộp quyền của tác tử Workflow»? (2) §12.2 của spec workflow có còn câu nào
       nói mod chặn S4 hay mod ghi cho-nguoi/ bằng session.send mà không trỏ tới design DP6 hoặc hạt giống không?
       (3) Có chỗ nào README hứa điều design §6 khai là giới hạn không? (4) Hạt giống có dòng «Gốc:» trỏ
