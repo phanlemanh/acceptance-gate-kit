@@ -5,7 +5,7 @@ slug: dieu-phoi-doi-tai-khoan
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-11-dieu-phoi-doi-tai-khoan-design.md
 approved_by:
 approved_at:
@@ -170,3 +170,24 @@ Phân loại:
 - Ngoài hợp đồng, ghi hạt giống (chủ kho nói 11/10, Điều phối M5 chuyển; không tạo ô): nối lại vai điều phối CẤP
   MÁY (nhiều kho, quyền merge, lượt S4 xuyên kho, khoá merge) bằng một lệnh —
   `docs/plans/2026-10-11-hat-giong-dieu-phoi-cap-may-mot-lenh.md`.
+- **Known limits (Cổng Bằng chứng, ký 11/10, owner định tuyến «ghi Known limits»):** hai nơi đọc dấu và lịch sử
+  bàn giao theo hai luật (Ngoài-5) · hai bản chép luật «hàng kế của dãy» (Ngoài-6) · `kiemMoiTruong` đọc cấu hình
+  thô, cấu hình sai khuôn làm chẩn đoán chết (Ngoài-7) · CONTEXT.md mục «Đợt» thiếu hai pha ★ (Ngoài-8) · lần đọc
+  mức dùng của phiên đã bàn giao còn kéo đợt vào bàn giao lại (Ngoài-10) · khoá khử lặp theo chuỗi giờ đặt lại làm
+  mod và `get_usage` phát trùng cảnh báo (Ngoài-13) · thợ đang chờ khoá không báo xong được, dãy chờ hết hạn chờ
+  (Ngoài-14) · `chan-doan` nuốt lỗi kế hoạch dãy (Ngoài-15) · `trong-dot.mjs` đọc mọi lỗi của `tho` thành «lõi
+  cũ» (Ngoài-16, trùng hạt giống DP7) · thước lỏng: răng «không bao giờ cho phép» chỉ tiêm dạng chuỗi (Ngoài-17),
+  `cham_lai_cung_round` chỉ thử status implemented (Ngoài-18), `co_wip` luôn false (Ngoài-19), argv/cwd của mod
+  không so (Ngoài-20), câu báo bàn giao đo lời dẫn thay vì trường `tin` (Ngoài-21), chiều đỏ DP4-15 không ghim
+  phép ánh xạ nhánh (Ngoài-22), DP4-07 dau-phien-cu âm-tính-một-mình (Ngoài-23), DP4-01 không ghim mã 1 (Ngoài-24),
+  danh sách cho-phép của `quet-ma-lt1.mjs` không tách loại (Ngoài-26). Ngoài-7, 16, 26 là mã của vòng khác lọt
+  vùng soi vì mốc so cũ. Sổ: `docs/research/known-limits-ledger.tsv`.
+- **Mở hợp đồng mới (Cổng Bằng chứng, ký 11/10) — ghi hạt giống, không tạo ô:** Ngoài-1 (thẻ khởi tạo hỏi khẩu vị
+  hạn mức mà không có đường ghi câu trả lời), Ngoài-2 (lịch 30′ của `mo-dot` không đọc hạn mức, không đánh thức),
+  Ngoài-3 (`tiep-tuc` khuyên chờ mà vẫn mở chip thợ), Ngoài-11 (lưới cuối bỏ qua phiên cũ đã được nhắn tiếp tục) —
+  `docs/plans/2026-10-11-hat-giong-ban-giao-tai-khoan-sau-dp4.md` · Ngoài-4, Ngoài-9, Ngoài-25 (`uat/chay.sh` của
+  phiên nghiệm thu xuất lộ trình xanh rỗng) — `docs/plans/2026-10-11-hat-giong-uat-xuat-lo-trinh-xanh-rong.md` ·
+  Ngoài-12 (`sau` tra theo mã đơn độc khi hai lộ trình trùng mã) trùng lỗ 1 của
+  `docs/plans/2026-10-11-hat-giong-tho-trong-dot-sau-dp7.md`, không ghi mới.
+- Ngoài hợp đồng, ghi hạt giống (Điều phối M5 quyết 11/10, không tạo ô): S4 lượt 1 so với mốc `main` cục bộ tụt 64
+  commit — 8/26 finding lạc vùng — `docs/plans/2026-10-11-hat-giong-s4-args-nhanh-chinh-cuc-bo.md`.
