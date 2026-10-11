@@ -188,14 +188,11 @@ evals:
     criterion: AC-10
     executor: ui-check
     layer: ui-observed
-    paths: [scripts/gate-card.js]
-    steps: >
-      Dựng hai thẻ từ hồ sơ của AC-5 (Cổng Phạm vi) và AC-8 (Cổng Bằng chứng) do code ca LS-10 sinh vào
-      `_acceptance/bat-bien-san-pham/evidence/` (card-g1-luat.html, card-g2-luat.html). Mở từng tệp ở khổ
-      1280×800 rồi 390×844, chụp mỗi khổ một ảnh (evidence/E11-<cổng>-<khổ>.png).
-    expected: >
-      Nhìn thấy: thẻ Cổng Phạm vi có câu «Phạm luật SP-…» trong khối câu hỏi, nhãn khó-đảo đúng câu; thẻ Cổng
-      Bằng chứng có khối «Luật sản phẩm bị chạm» nêu SP-1, câu luật, chủ luật và chỗ tệp:dòng, và ô «SP-1: ___»
-      trong dòng lệnh; người đọc nói được trong một màn đọc luật nào bị chạm, ở đâu, phải trả lời gì; khổ 390
-      không cuộn ngang.
-    evidence_required: [run_id, verifier, verified_at, screenshot, observed]
+    paths: [scripts/gate-card.js, scripts/luat-san-pham.cjs]
+    steps:
+      - "Máy: `LS_GHI_ANH=1 LS_CASES=LS-10 node tests/scripts/luat-san-pham.ca.mjs` dựng hồ sơ thử của AC-5 (Cổng Phạm vi) và AC-8 (Cổng Bằng chứng) và ghi `_acceptance/bat-bien-san-pham/evidence/card-g1-luat.html`, `card-g2-luat.html`; ghi hai đường vào observed"
+      - "Mở file://…/card-g1-luat.html ở khổ 1280×800 → screenshot evidence/E11-g1-rong.png; mở card-g2-luat.html cùng khổ → screenshot evidence/E11-g2-rong.png"
+      - "Đọc trên ảnh: câu «Phạm luật SP-…» trong khối câu hỏi và nhãn khó-đảo đúng câu; khối «Luật sản phẩm bị chạm» với mã, câu luật, chủ luật, chỗ tệp:dòng; ô «SP-1: sửa vật» trong dòng lệnh → ghi vào observed"
+      - "Đổi khổ 390×844, tải lại từng thẻ → screenshot evidence/E11-g1-hep.png, evidence/E11-g2-hep.png; kiểm document.documentElement.scrollWidth <= 390 → ghi số vào observed"
+    expected: "Nhìn: thẻ Cổng Phạm vi có câu «Phạm luật SP-…» trong khối câu hỏi, nhãn khó-đảo đúng câu; thẻ Cổng Bằng chứng có khối «Luật sản phẩm bị chạm» nêu SP-1, câu luật, chủ luật và chỗ tệp:dòng, ô «SP-1: sửa vật» trong dòng lệnh; một màn đọc trả lời được luật nào bị chạm, ở đâu, phải trả lời gì; khổ 390 scrollWidth <= 390 ở cả hai thẻ"
+    evidence_required: [run_id, exit_code, verifier, verified_at, screenshot]

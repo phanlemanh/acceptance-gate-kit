@@ -4,7 +4,7 @@
 // TỪ khối PRODUCT-INVARIANTS-TEMPLATE rút bằng marker; giá trị mong đợi viết sẵn trong ca, KHÔNG rút từ
 // đầu ra mô-đun, bộ soi hay thẻ. Đường dẫn suy từ vị trí tệp này.
 // Chạy một phần: LS_CASES=LS-01,LS-05 node tests/scripts/luat-san-pham.ca.mjs
-import { spawnSync, execFileSync } from 'node:child_process';
+import { spawn, spawnSync, execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -462,25 +462,27 @@ function dungGoc(gocSha) {
   execFileSync('bash', ['-c', 'git -C "$1" archive "$2" scripts lib skills | tar -x -C "$3"', 'x', ROOT, gocSha, d]);   // trọn thư mục, không danh sách tay
   return d;
 }
-function soKho(kho, gcGoc, kcnGoc, gcMoi, kcnMoi) {
+// Chạy song song (bể 8 tiến trình): mỗi lần dựng thẻ quét cả xưởng, tuần tự thì ca mất ~4 phút.
+const chayAsync = (bin, a) => new Promise(res => { const p = spawn(process.execPath, [bin, ...a]); let o = ''; p.stdout.on('data', d => { o += d; }); p.stderr.on('data', () => {}); p.on('close', c => res(`${c}\n${o}`)); });
+async function be(viec, n = 8) { const kq = new Array(viec.length); let i = 0; await Promise.all(Array.from({ length: n }, async () => { while (i < viec.length) { const k = i++; kq[k] = await viec[k](); } })); return kq; }
+async function soKho(kho, gcGoc, kcnGoc, gcMoi, kcnMoi) {
   const ds = readdirSync(path.join(kho, '_acceptance')).filter(n => existsSync(path.join(kho, '_acceptance', n, 'contract.md'))).sort();
-  const lech = [];
-  const chay = (bin, a) => { const p = spawnSync(process.execPath, [bin, ...a], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); return `${p.status}\n${p.stdout}`; };
-  for (const slug of ds) {
+  const lech = await be(ds.map(slug => async () => {
     const a = ['--root', kho, '--slug', slug];
-    if (chay(gcGoc, a) !== chay(gcMoi, a)) { lech.push(`${slug} (thẻ)`); continue; }
-    const rg = chay(gcGoc, [...a, '--extract']), rm = chay(gcMoi, [...a, '--extract']);
+    const [hg, hm, rg, rm] = await Promise.all([chayAsync(gcGoc, a), chayAsync(gcMoi, a), chayAsync(gcGoc, [...a, '--extract']), chayAsync(gcMoi, [...a, '--extract'])]);
+    if (hg !== hm) return `${slug} (thẻ)`;
     if (rg !== rm) {
       const tach = t => { const i = t.indexOf('\n'); return [t.slice(0, i), t.slice(i + 1)]; };
       const [sg, jg] = tach(rg), [sm, jm] = tach(rm);
       let ok = sg === sm;
       try { const og = JSON.parse(jg), om = JSON.parse(jm); ok = ok && JSON.stringify(om.luat) === JSON.stringify({ co_tep: false }) && !('luat' in og); delete om.luat; ok = ok && JSON.stringify(og) === JSON.stringify(om); } catch (_) { ok = false; }
-      if (!ok) { lech.push(`${slug} (bản rút)`); continue; }
+      if (!ok) return `${slug} (bản rút)`;
     }
     const st = (readFileSync(path.join(kho, '_acceptance', slug, 'contract.md'), 'utf8').match(/^status:\s*(\S+)/m) || [])[1];
-    if (st === 'verified' && chay(kcnGoc, ['--check', ...a]) !== chay(kcnMoi, ['--check', ...a])) lech.push(`${slug} (khong-can-nguoi)`);
-  }
-  return { n: ds.length, lech };
+    if (st === 'verified') { const [kg, km] = await Promise.all([chayAsync(kcnGoc, ['--check', ...a]), chayAsync(kcnMoi, ['--check', ...a])]); if (kg !== km) return `${slug} (khong-can-nguoi)`; }
+    return null;
+  }));
+  return { n: ds.length, lech: lech.filter(Boolean) };
 }
 if (want('LS-02')) {
   const hd = readFileSync(HD_VONG, 'utf8');
@@ -488,34 +490,41 @@ if (want('LS-02')) {
   if (['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'].includes(st)) console.log('  PASS: LS-02 da-ky (hồ sơ của vòng đã ký — không so)');
   else {
     const goc = (hd.match(/Commit gốc của vòng: `([0-9a-f]{7,40})`/) || [])[1];
-    check('LS-02 vi-phan', () => {
-      if (!goc) die('dòng «Commit gốc của vòng» ở Notes của hợp đồng vắng hoặc chưa ghi sha');
+    // Đo trước (async), chấm sau (check đồng bộ).
+    let kq = null, loi = null, kqDo = null, loiDo = null;
+    if (!goc) loi = 'dòng «Commit gốc của vòng» ở Notes của hợp đồng vắng hoặc chưa ghi sha';
+    else {
       const d = dungGoc(goc);
-      const ra = [];
-      for (const [ten, kho] of [['kit', ROOT], ['crm', process.env.LS_CRM_ROOT || null]]) {
-        if (!kho) { ra.push(`${ten}=vang`); continue; }
-        if (existsSync(path.join(kho, 'PRODUCT-INVARIANTS.md'))) { ra.push(`${ten}=co-tep-luat(bo)`); continue; }
-        const r = soKho(kho, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), GC, KCN);
-        if (r.lech.length) die(`${ten}: ${r.lech.length}/${r.n} hồ sơ lệch — đầu tiên: ${r.lech[0]}`);
-        ra.push(`${ten}=${r.n}`);
-      }
-      console.log(`  PASS: LS-02 vi-phan ${ra.join(' ')}`); passed--;   // dòng PASS mang số — check() in thêm dòng tên ca
+      try {
+        kq = [];
+        for (const [ten, kho] of [['kit', ROOT], ['crm', process.env.LS_CRM_ROOT || null]]) {
+          if (!kho) { kq.push([ten, 'vang']); continue; }
+          if (existsSync(path.join(kho, 'PRODUCT-INVARIANTS.md'))) { kq.push([ten, 'co-tep-luat(bo)']); continue; }
+          kq.push([ten, await soKho(kho, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), GC, KCN)]);
+        }
+      } catch (e) { loi = e.message; }
+      try {
+        const nha = tam('lsp-nha-'); for (const t of ['scripts', 'lib', 'skills']) cpSync(path.join(ROOT, t), path.join(nha, t), { recursive: true });
+        const gcT = path.join(nha, 'scripts', 'gate-card.js'); const t = readFileSync(gcT, 'utf8');
+        const cu = "if (luatG2) { for (const [c, t] of luatG2.co)"; if (t.split(cu).length !== 2) throw new Error('mũi tiêm thẻ không áp');
+        writeFileSync(gcT, t.replace(cu, "P.push('<div class=\"lab\">Luật sản phẩm bị chạm</div>'); if (luatG2) { for (const [c, t] of luatG2.co)"));
+        const mau = readdirSync(path.join(ROOT, '_acceptance')).filter(n => existsSync(path.join(ROOT, '_acceptance', n, 'evidence-report.md'))).sort().slice(0, 3);
+        const k = tam('lsp-kho-'); mkdirSync(path.join(k, '_acceptance'));
+        for (const n of mau) cpSync(path.join(ROOT, '_acceptance', n), path.join(k, '_acceptance', n), { recursive: true });
+        cpSync(path.join(ROOT, '_acceptance', 'config.yaml'), path.join(k, '_acceptance', 'config.yaml'));
+        kqDo = { tiem: await soKho(k, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), gcT, path.join(nha, 'scripts', 'khong-can-nguoi.mjs')),
+                 lanh: await soKho(k, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), GC, KCN) };
+      } catch (e) { loiDo = e.message; }
+    }
+    check('LS-02 vi-phan', () => {
+      if (loi) die(loi);
+      for (const [ten, r] of kq) if (typeof r === 'object' && r.lech.length) die(`${ten}: ${r.lech.length}/${r.n} hồ sơ lệch — đầu tiên: ${r.lech[0]}`);
+      console.log(`  PASS: LS-02 vi-phan ${kq.map(([ten, r]) => `${ten}=${typeof r === 'object' ? r.n : r}`).join(' ')}`);
     });
     check('LS-02-do', () => {
-      if (!goc) die('không có gốc vòng');
-      const d = dungGoc(goc);
-      const nha = tam('lsp-nha-'); for (const t of ['scripts', 'lib', 'skills']) cpSync(path.join(ROOT, t), path.join(nha, t), { recursive: true });
-      const gcT = path.join(nha, 'scripts', 'gate-card.js'); const t = readFileSync(gcT, 'utf8');
-      const cu = "if (luatG2) { for (const [c, t] of luatG2.co)"; if (t.split(cu).length !== 2) die('mũi tiêm thẻ không áp');
-      writeFileSync(gcT, t.replace(cu, "P.push('<div class=\"lab\">Luật sản phẩm bị chạm</div>'); if (luatG2) { for (const [c, t] of luatG2.co)"));
-      const mau = readdirSync(path.join(ROOT, '_acceptance')).filter(n => existsSync(path.join(ROOT, '_acceptance', n, 'evidence-report.md'))).sort().slice(0, 3);
-      const k = tam('lsp-kho-'); mkdirSync(path.join(k, '_acceptance'));
-      for (const n of mau) cpSync(path.join(ROOT, '_acceptance', n), path.join(k, '_acceptance', n), { recursive: true });
-      cpSync(path.join(ROOT, '_acceptance', 'config.yaml'), path.join(k, '_acceptance', 'config.yaml'));
-      const r = soKho(k, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), gcT, path.join(nha, 'scripts', 'khong-can-nguoi.mjs'));
-      if (!r.lech.length) die('thẻ in khối luật vô điều kiện mà phép so không lệch hồ sơ nào');
-      const gocOK = soKho(k, path.join(d, 'scripts', 'gate-card.js'), path.join(d, 'scripts', 'khong-can-nguoi.mjs'), GC, KCN);
-      if (gocOK.lech.length) die('đối chứng: bản lành trên cùng kho mẫu lại lệch — ' + gocOK.lech[0]);
+      if (loi || loiDo) die(loi || loiDo);
+      if (kqDo.lanh.lech.length) die('đối chứng: bản lành trên cùng kho mẫu lại lệch — ' + kqDo.lanh.lech[0]);
+      if (!kqDo.tiem.lech.length) die('thẻ in khối luật vô điều kiện mà phép so không lệch hồ sơ nào');
     });
   }
 }
