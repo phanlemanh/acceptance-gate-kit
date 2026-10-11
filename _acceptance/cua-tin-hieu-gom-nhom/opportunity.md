@@ -3,10 +3,10 @@ schema_version: 1
 slug: cua-tin-hieu-gom-nhom
 feature: Mọi người gửi tín hiệu vào một cửa của kho; máy gom thành nhóm đặt tên bằng tiếng sản phẩm — mỗi tín hiệu ở đúng một nhóm, lẻ kèm lý do, hoặc đã phủ bởi việc đã giao — và người gửi thấy tín hiệu của mình đi tới đâu
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: Manh Phan
+decided_at: 2026-10-11T08:50:52Z   # owner gõ «Làm» một chạm trong phiên 11/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -64,10 +64,10 @@ Thử trên bộ vàng thật ở bảng trên:
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] ở lượt gom thật đầu tiên của crm, chủ kho có nhận nhóm máy đề xuất mà chỉ sửa ít không?
-- Kết quả nào là SỐNG: [đề xuất] ở lượt gom kế của crm (tín hiệu thật từ đợt phòng ban 14/10), chủ kho sửa dưới 1/5 số nhóm máy đề xuất (đổi tên, tách, gộp hay chuyển tín hiệu đều tính là sửa một nhóm), và mọi cặp trùng lặp đã biết trong bộ vàng — khai TRƯỚC lượt gom — nằm chung một nhóm. «0 tín hiệu lọt» do răng phủ của máy giữ ở mọi lượt, không đo bằng người.
-- Kết quả nào là CHẾT: [đề xuất] chủ kho sửa từ 2/5 số nhóm trở lên, hoặc có cặp trùng đã biết bị tách, khi hết timebox — gom máy không thay được gom tay. Giữa hai ngưỡng → lặp.
-- Timebox: [đề xuất] 2026-11-01 (mốc kế sau đợt thử — cùng DP6, X2, S3, G2, G3, A2).
+- Câu hỏi phép đo trả lời: ở lượt gom thật đầu tiên của crm, chủ kho có nhận nhóm máy đề xuất mà chỉ sửa ít không?
+- Kết quả nào là SỐNG: ở lượt gom kế của crm (tín hiệu thật từ đợt phòng ban 14/10), chủ kho sửa dưới 1/5 số nhóm máy đề xuất (đổi tên, tách, gộp hay chuyển tín hiệu đều tính là sửa một nhóm), và mọi cặp trùng lặp đã biết trong bộ vàng — khai TRƯỚC lượt gom — nằm chung một nhóm. «0 tín hiệu lọt» do răng phủ của máy giữ ở mọi lượt, không đo bằng người.
+- Kết quả nào là CHẾT: chủ kho sửa từ 2/5 số nhóm trở lên, hoặc có cặp trùng đã biết bị tách, khi hết timebox — gom máy không thay được gom tay. Giữa hai ngưỡng → lặp.
+- Timebox: 2026-11-01 (mốc kế sau đợt thử — cùng DP6, X2, S3, G2, G3, A2).
 
 ## Kết quả prototype
 
@@ -85,12 +85,12 @@ vàng thật (giả định 3) trước Cổng Phạm vi.
 
 ## Cổng 0
 
-- **decision = …** (chờ chủ kho)
+- **decision = build** (hạng T2) — owner gõ «Làm» 11/10 trên khuyến nghị bên dưới. CỘNG: hàng ghi «cần owner phê ở Cổng Đáng» — chữ ký này là chữ ký đích danh của luật CỘNG.
 - **disposition = …** Căn cứ: — (không prototype)
-- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ quyết.
-- **Trục gom chốt cùng lúc ký:** một dòng của mục «Chính sách trục gom».
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ «Làm».
+- **Trục gom chốt cùng lúc ký: A — kết quả người dùng** (chính sách của chủ kho; máy áp cho mọi lượt gom sau, không hỏi lại; đổi trục = một Cổng Đáng mới).
 
-**Máy khuyến nghị lúc mời ký:** `build`, hạng **T2**, **một vòng**, **trục A — kết quả người dùng**.
+**Máy khuyến nghị lúc mời ký (owner chọn đúng lối này):** `build`, hạng **T2**, **một vòng**, **trục A — kết quả người dùng**.
 Hạng: vật dự kiến ở `scripts/` (bộ đọc tín hiệu + răng phủ + đường đi), một skill gom, khuôn tín hiệu,
 tài liệu ổ cắm — không chạm `lib/**`, `hooks/**`, cổng chặn gộp, `dieu-phoi/` hay `scripts/cat-luot.mjs`.
 Cỡ: dự kiến 10–11 tiêu chí (bảng dưới) — trong khoảng cho phép của chính sách 10/10; S1 vượt 13 thì máy
