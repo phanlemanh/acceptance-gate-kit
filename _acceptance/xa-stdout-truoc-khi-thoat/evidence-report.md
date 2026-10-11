@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 85593b69b7ab26ce1f14b6ba62b6120961abc939
-human_signoff:
+human_signoff: manh 2026-10-11
 ---
 
 # Evidence Report: xa-stdout-truoc-khi-thoat

@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/gate-card.js + feature-loop/scripts/repin-lane.mjs + một tệp ca + một khoá executor — không chạm hook, lưới trước-merge, t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-xa-stdout-truoc-khi-thoat-design.md
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -70,3 +70,8 @@ lớp `[SUY-TỪ-REPO: docs/superpowers/specs/2026-10-11-xa-stdout-truoc-khi-tho
   hoặc một lần cắt 64 KB nữa ở bất kỳ script nào trong danh sách.
 - Sửa `gate-card.js` làm hồ sơ đã ký hoá cũ; ghim lại bằng MỘT làn cho mọi hồ sơ lưới trước-merge báo, sau
   khi Điều phối cấp lượt.
+- **Known limits (Cổng Bằng chứng sau lượt chấm 1, ký 11/10 — manh):** Ngoài-1: khoá
+  `xuat_du_qua_pipe` chạy trần — ca in `KHÔNG ĐO ĐƯỢC ở nền này` vẫn thoát 0, nên làn ghim lại trên
+  nền không cắt ghi xanh cho chiều đỏ chưa từng chạy · Ngoài-2: dòng PASS của XD-6 và dòng dò in chữ
+  «exitCode … mã 1», tác tử chấm có thể đọc nhầm thành mã thoát và báo đỏ giả · Ngoài-3: chiều đỏ của
+  XD-5 chỉ ghim tiền tố chung «lệch byte», không chứng riêng phép so «bản sửa == bản hoàn nguyên».
