@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { gocKhoChinh, timThuMucDot } from './dot.mjs';
-import { docHangViec } from './hinh-dang.mjs';
+import { docCauHinh, docHangViec } from './hinh-dang.mjs';
 
 // Một trường frontmatter, đọc theo ĐÚNG nghĩa `frontmatterField` của kit (lib/evidence-core.cjs): trong
 // một dòng (`[ \t]*`, không `\s*` — khoá để trống không được nuốt dòng kế), bỏ chú thích `#`, bóc nháy
@@ -69,12 +69,22 @@ export function theKhoiTao(cwd) {
     if (q.tt === 'cho') choCongDang.push(h.slug);
     else if (q.tt === 'khong-build') canhBao.push({ slug: h.slug, ma: h.ma, decision: q.decision, ly_do: `ô đã quyết «${q.decision}», không vào đợt` });
   }
+  let hanMuc = null;
+  try {
+    hanMuc = docCauHinh(thuMuc).han_muc ?? null;
+  } catch {
+    hanMuc = null;
+  }
   return {
     dot: hv.dot,
     day: hv.day.map((d) => ({ id: d.id, worktree: d.worktree, hang: hv.hang.filter((h) => h.day === d.id).map((h) => h.slug) })),
     hang: hv.hang.map((h) => ({ ma: h.ma ?? null, slug: h.slug, day: h.day, uu_tien: h.uu_tien ?? null })),
     // T15: chỉ hỏi điều chỉ người biết — quyền tự merge, và chữ «build» cho từng hàng chờ Cổng Đáng.
+    // Hồ sơ dieu-phoi-sua-truoc-dot-thu (E1, DP4 Ngoài-1): mỗi phần tử của `hoi` có một lối ghi câu trả lời
+    // (`pha --tu-merge`, `decision` của ô). Khẩu vị hạn mức không có lối ghi nên không hỏi — ngưỡng `han_muc` in ra
+    // như thông tin, sửa ở `dieu-phoi.config.json` của gói đợt.
     hoi: ['quyen-tu-merge', ...choCongDang.map((s) => `build:${s}`)],
+    han_muc: hanMuc,
     may_di_tiep: ['uu-tien', 'lan-v'],
     cho_cong_dang: choCongDang,
     canh_bao: canhBao,

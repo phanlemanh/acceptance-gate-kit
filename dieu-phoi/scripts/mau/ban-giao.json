@@ -1,0 +1,29 @@
+{
+  "ma": "bg-20261011T080000Z",
+  "trang_thai": "mo",
+  "dot": "<tên đợt>",
+  "luc": "2026-10-11T08:05:00.000Z",
+  "vao_luc": "2026-10-11T08:00:00.000Z",
+  "ly_do": "chạm ngưỡng five_hour 91% (ngưỡng 90%)",
+  "boi": "phat-lich",
+  "sha_nhanh_chinh": "<sha>",
+  "day": [
+    {
+      "id": "P1",
+      "hang": "<mã hàng>",
+      "slug": "<slug hồ sơ>",
+      "trang_thai_ho_so": "approved",
+      "nhanh": "<nhánh>",
+      "dinh": "<sha>",
+      "da_day": false,
+      "co_wip": true,
+      "cay_ban": false,
+      "ban_giao": "xong",
+      "cham_lai_cung_round": false,
+      "viec_cho_nguoi": null,
+      "phien_cu": ["<mã phiên>"]
+    }
+  ],
+  "khoa": [{ "tai_nguyen": "s4", "phien": "P2" }],
+  "don": ["P3-s4.json"]
+}

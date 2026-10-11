@@ -12,7 +12,7 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>106 việc"]
+  GB --> DG["Đã giao<br/>108 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>16 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
 ```
@@ -79,6 +79,7 @@ flowchart TD
 - Cổng Đáng có cửa — thẻ cổng thứ ba + ký một lượt bằng lệnh duyệt sẵn có (`cong-dang-co-cua`) — đã giao — đã nghỉ, giữ sử liệu
 - Cổng người đọc đủ nguồn — thẻ đọc được tiêu chí khai bằng tiêu đề, ba bên gọi cùng một bộ bóc, mục Coverage viết bằng bảng thôi bị báo thiếu oan (`cong-nguoi-doc-du-nguon`)
 - Chữ ký người ở Cổng Bằng chứng đóng cửa veto — lưới trước-merge và máy quét /start thôi nói «owner chưa veto» về hồ sơ người đã ký (`cua-veto-sau-chu-ky`) — đã giao — đã nghỉ, giữ sử liệu
+- Đổi tài khoản giữa đợt Điều phối – Thợ không mất việc — đọc mức dùng (CLI han-muc, mod đọc mức dùng), báo trước và tự bàn giao theo ngưỡng, hai pha ★, lệnh /dieu-phoi:ban-giao, ban-giao.json dựng từ git, tiếp tục dưới tài khoản kia bằng một lệnh, lưới cuối StopFailure, răng an toàn của lớp mod (`dieu-phoi-doi-tai-khoan`)
 - Gói `dieu-phoi` của kit — lõi Điều phối – Thợ (bộ phát lịch, CLI đợt, 4 hook) chuyển từ crm vào kit, bật bằng cách cài gói theo kho, im ở kho không có đợt, chạy tiếp được đợt do bản crm mở (`dieu-phoi-dong-goi-loi`)
 - Phiên thợ biết mình đang trong đợt — feature-loop nhận biết đợt bằng một lệnh chỉ đọc, chờ lượt S4 không thành câu hỏi, xong hàng thì tự mở hàng kế của dãy, quyền merge theo thẻ khởi tạo; kho không có đợt không đổi byte nào (`dieu-phoi-feature-loop-trong-dot`)
 - Mở và đóng một đợt Điều phối – Thợ bằng một lệnh (`/dieu-phoi:mo-dot`, `/dieu-phoi:dong-dot`, `/dieu-phoi:xem`) — vòng đời đợt, đổi kế hoạch trong đợt, nguồn hàng từ lộ trình, khoá S4 cấp máy, start biết đợt, lệnh đếm đợt (`dieu-phoi-mo-dot-mot-lenh`)
@@ -174,6 +175,7 @@ flowchart TD
 - Vào có ô, ra có tên — ý khai thác xong có ô máy đọc (stub opportunity.md), bộ quét /start tách «đang cân nhắc» khỏi «chờ Cổng Đáng» theo ngưỡng đã điền, thẻ nói số ý và tuổi; 7 hạt giống kit nhận ô, trạng thái sống một chỗ (`vao-co-o-ra-co-ten`)
 - Đợt 2 «người về biên» — trạng thái veto-có-dấu-vết cho Cổng Phạm vi T2 và Cổng Bằng chứng xanh-sạch thôi mời ký; sửa đồng bộ ba tầng luật-văn-bản + hook chặn-lúc-ghi + lưới trước-merge (`veto-co-dau-vet`) — đã giao — đã nghỉ, giữ sử liệu
 - Gom luật đọc hồ sơ xưởng về một chỗ — mọi bên đọc phải cho cùng một kết luận (`workspace-reader-unification`) · liên quan: product-map-uat-session
+- Xả stdout trước khi thoát — thẻ cổng và JSON trích của gate-card, và JSON làn đỏ của repin-lane, không còn bị cắt im lặng ở 65 536 byte khi stdout là pipe (`xa-stdout-truoc-khi-thoat`)
 
 ## Đã nghiệm thu giá trị
 

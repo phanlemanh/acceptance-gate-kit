@@ -155,8 +155,9 @@ const HAI_DAY = [
   { ma: 'B', slug: 'hang-b', day: 'P2', uu_tien: 1 },
 ];
 
-// Đúng trạng thái sau bước 6 của mo-dot: đợt chạy, bộ phát lịch sống, nhịp đã ghi tiep/, giám sát có nhịp sống,
-// hai dãy chưa ai bấm chip (không nhịp sống).
+// Đúng trạng thái sau bước 6 của mo-dot: đợt chạy, bộ phát lịch sống, nhịp đã ghi tiep/, giám sát có nhịp sống và
+// đã ghi một lần đọc mức dùng (khuôn đợt khai `han_muc` từ DP4 — lịch 30′ gọi `get_usage` rồi `han-muc`), hai dãy
+// chưa ai bấm chip (không nhịp sống).
 async function kiemChoBam(gocGoi) {
   const { kho, dot } = dungDot({ hang: HAI_DAY, gocGoi });
   for (const h of HAI_DAY) oCoHoi(kho, h.slug, { decision: 'build' });
@@ -164,6 +165,12 @@ async function kiemChoBam(gocGoi) {
   const { giuPid } = await nap(gocGoi, 'phat-lich.mjs');
   assert.equal(giuPid(dot), true, 'giuPid của bộ phát lịch ghi pid tiến trình ca');
   hookNhip({ session_id: 's-gs' }, { cwd: kho, nowMs: GIO, gocGoi });
+  const doc = { windows: [
+    { label: '5-hour limit', percentUsed: 20, resetsAt: new Date(GIO + 3 * 3600_000).toISOString() },
+    { label: 'Weekly · all models', percentUsed: 10, resetsAt: new Date(GIO + 72 * 3600_000).toISOString() },
+  ] };
+  const hm = chayCli(kho, ['han-muc', '--nguon', 'get-usage', '--phien', 's-gs', '--doc', JSON.stringify(doc)], { gocGoi, env: ENV_GIO });
+  assert.equal(hm.ma, 0, `han-muc: ${hm.err}`);
   const tron1 = chanDoan(kho, [], gocGoi);
   const tron2 = chanDoan(kho, [], gocGoi);
   const ct = JSON.parse(chanDoan(kho, ['--chi-tiet'], gocGoi));
@@ -672,4 +679,68 @@ test('SDT-08-do bo-cong-dang', () => {
   const sao = README().replaceAll('cong-dang', '');
   assert.notEqual(sao, README(), 'bước bỏ cong-dang không áp được');
   assert.deepEqual(kiemTaiLieu(sao, CONTEXT()), ['README thiếu cong-dang']);
+});
+
+// ---------- SDT-05: một khuôn lịch 30′ cho hai lệnh (AC-5, E5 — lỗi E2, DP4 Ngoài-2) ----------
+const khoiLich = (md) => /<!-- <<<LICH-30 -->\n([\s\S]*?)<!-- LICH-30>>> -->/.exec(md ?? '')?.[1] ?? null;
+const gon = (s) => (s ?? '').replace(/\s+/g, ' ');
+const CAU_LICH_CU = 'đọc `trang-thai.json` của đợt và in một dòng';
+export function kiemLich(moDot, tiepTuc, moDotCu) {
+  const loi = [];
+  const a = khoiLich(moDot);
+  const b = khoiLich(tiepTuc);
+  if (a == null) loi.push('mo-dot.md: thiếu khối LICH-30');
+  if (b == null) loi.push('tiep-tuc.md: thiếu khối LICH-30');
+  if (a != null && b != null && a !== b) loi.push('mo-dot.md: khối LICH-30 lệch tiep-tuc.md');
+  for (const [ten, khoi] of [['mo-dot.md', a], ['tiep-tuc.md', b]]) {
+    for (const can of ['get_usage', 'han-muc --nguon get-usage', 'danh-thuc --json']) if (khoi != null && !khoi.includes(can)) loi.push(`${ten}: khối LICH-30 thiếu ${can}`);
+  }
+  if (!gon(moDotCu).includes(CAU_LICH_CU)) loi.push('đối chứng: câu lịch cũ không có ở mo-dot.md của mốc so — phép vắng-mặt không chứng gì');
+  if (gon(moDot).includes(CAU_LICH_CU)) loi.push('mo-dot.md: còn câu dựng lịch cũ (chỉ đọc trang-thai.json)');
+  return loi;
+}
+const moDotTaiMoc = () => noiDungTai(KIT, mocSo(KIT).tu, 'dieu-phoi/commands/mo-dot.md');
+
+test('SDT-05 lich-30', () => {
+  const loi = kiemLich(docLenh('mo-dot.md'), docLenh('tiep-tuc.md'), moDotTaiMoc());
+  console.log(`  khối LICH-30: mo-dot ${khoiLich(docLenh('mo-dot.md'))?.length ?? 0} ký tự · tiep-tuc ${khoiLich(docLenh('tiep-tuc.md'))?.length ?? 0} ký tự · lỗi: [${loi.join(', ')}]`);
+  assert.deepEqual(loi, []);
+});
+
+test('SDT-05-do thieu-han-muc', () => {
+  const moDot = docLenh('mo-dot.md');
+  assert.deepEqual(kiemLich(moDot, docLenh('tiep-tuc.md'), moDotTaiMoc()), [], 'đối chứng dương');
+  const khoi = khoiLich(moDot);
+  const sao = moDot.replace(khoi, khoi.split('\n').filter((d) => !d.includes('han-muc')).join('\n'));
+  assert.notEqual(sao, moDot, 'bước bỏ câu han-muc không áp được');
+  const loi = kiemLich(sao, docLenh('tiep-tuc.md'), moDotTaiMoc());
+  assert.ok(loi.includes('mo-dot.md: khối LICH-30 lệch tiep-tuc.md'), `phải nêu khối lệch: ${loi.join(' | ')}`);
+});
+
+// ---------- SDT-06: thẻ khởi tạo thôi hỏi khẩu vị hạn mức (AC-6, E6 — lỗi E1, DP4 Ngoài-1) ----------
+const HM = { bao_truoc_pct: 70, ban_giao_pct: 85, cho_ban_giao_phut: 15, cho_dat_lai_phut: 30 };
+async function kiemKhongHoi(gocGoi) {
+  const { kho, dot } = dungDot({ hang: HAI_DAY, gocGoi, pha: 'nhap' });
+  const p = path.join(dot, 'dieu-phoi.config.json');
+  ghiJ(p, { ...docJ(p), han_muc: HM });
+  const r = chayCli(kho, ['the', 'khoi-tao', '--json'], { gocGoi });
+  assert.equal(r.ma, 0, r.err);
+  const the = JSON.parse(r.out);
+  const loi = [];
+  for (const h of the.hoi) if (!/^(quyen-tu-merge|build:.+)$/.test(h)) loi.push(`hoi ${h} không có lối ghi`);
+  if (JSON.stringify(the.han_muc) !== JSON.stringify(HM)) loi.push(`han_muc ${JSON.stringify(the.han_muc)}, cần ${JSON.stringify(HM)}`);
+  const b3 = doanBuoc(docLenh('mo-dot.md'), 3);
+  if (!b3.includes('han_muc') || !b3.includes('dieu-phoi.config.json')) loi.push('mo-dot.md bước 3: thiếu dòng thông tin ngưỡng han_muc và chỗ sửa dieu-phoi.config.json');
+  return { loi, hoi: the.hoi };
+}
+
+test('SDT-06 khong-hoi-khau-vi', async () => {
+  const { loi, hoi } = await kiemKhongHoi(GOI);
+  console.log(`  hoi: ${JSON.stringify(hoi)}`);
+  assert.deepEqual(loi, []);
+});
+
+test('SDT-06-do them-lai', async () => {
+  const loi = await doHaiBan(async (g) => (await kiemKhongHoi(g)).loi, 'the.mjs', "hoi: ['quyen-tu-merge', ", "hoi: ['quyen-tu-merge', 'khau-vi-han-muc', ");
+  assert.ok(loi.includes('hoi khau-vi-han-muc không có lối ghi'), `phải nêu khau-vi-han-muc: ${loi.join(' | ')}`);
 });

@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: bf399159b43d88456bb64a098a6bf921286fe106
+verified_commit: 3ad1c14a5214d9fe7497c2d3f884eb9939bbec58
 human_signoff: manh 2026-10-10
 ---
 
@@ -310,3 +310,7 @@ sha: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 3 — 2026-10-11, do DP7-10 + DP2-15 neo lịch sử thay merge-base sống (lệnh Điều phối, CI #307)
 run_id: repin-20261011T073635Z-91493
 sha: bf399159b43d88456bb64a098a6bf921286fe106 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)
+
+### Re-pin lần 4 — 2026-10-11, do ghim lại sau DP4 và gộp main d0dc3dc4 (vá gate-card #311)
+run_id: repin-20261011T112517Z-27231
+sha: 3ad1c14a5214d9fe7497c2d3f884eb9939bbec58 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)

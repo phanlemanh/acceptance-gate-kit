@@ -90,12 +90,13 @@ function chayCli(cwd, doiSo, { gocGoi = GOI } = {}) {
 const nap = (gocGoi, tep) => import(`${path.join(gocGoi, 'scripts', tep)}?v=${Math.random()}`);
 
 // Một đợt mở từ gói bằng CLI thật. `hang` mặc định: một hàng A trên P1. `wt`: worktree từng dãy đã có
-// (mặc định tạo P1, P2 cạnh kho). `pha`: dang-chay (mặc định) · nhap.
-function dungDot({ hang = null, wt = null, pha = 'dang-chay', gocGoi = GOI, tuMerge = null } = {}) {
+// (mặc định tạo P1, P2 cạnh kho). `pha`: dang-chay (mặc định) · nhap. `khuon`: gói lấy khuôn cấu hình đợt — ca so hai
+// bản gói trên CÙNG một đợt dùng khuôn của bản cũ, bản mới đọc được cấu hình cũ (hồ sơ dieu-phoi-doi-tai-khoan, sổ revisit).
+function dungDot({ hang = null, wt = null, pha = 'dang-chay', gocGoi = GOI, tuMerge = null, khuon = GOI } = {}) {
   const kho = khoThu();
   const w = wt ? wt(kho) : { P1: themWorktree(kho, 'P1'), P2: themWorktree(kho, 'P2') };
   const dirGoi = path.join(kho, 'goi', 'dot-thu');
-  ghiJ(path.join(dirGoi, 'dieu-phoi.config.json'), docJ(path.join(GOI, 'scripts', 'mau', 'dieu-phoi.config.json')));
+  ghiJ(path.join(dirGoi, 'dieu-phoi.config.json'), docJ(path.join(khuon, 'scripts', 'mau', 'dieu-phoi.config.json')));
   ghiJ(path.join(dirGoi, 'hang-viec.json'), {
     dot: '',
     day: Object.entries(w).map(([id, worktree]) => ({ id, worktree })),
@@ -519,9 +520,9 @@ function goiBase() {
 const s4Workflow = (cwd) => JSON.stringify({ hook_event_name: 'PreToolUse', session_id: 's', cwd, tool_name: 'Workflow', tool_input: { scriptPath: '/x/acceptance-verify.js' } });
 
 async function haiLoiChan() {
-  const { dot, w, kho } = dungDot();
-  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', worktree: w.P1, loai: 's4', han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
   const { goi, base } = goiBase();
+  const { dot, w, kho } = dungDot({ khuon: goi });
+  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', worktree: w.P1, loai: 's4', han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
   const moi = await nap(GOI, 'hook-chan-s4.mjs');
   const cu = await nap(goi, 'hook-chan-s4.mjs');
   return { dot, base, trong: [moi.chayHook(s4Workflow(w.P2)), cu.chayHook(s4Workflow(w.P2))], ngoai: [moi.chayHook(s4Workflow(kho)), cu.chayHook(s4Workflow(kho))] };
