@@ -75,6 +75,8 @@ const DAU_VAO_MAU = {
   PostToolUse: (cwd) => ({ hook_event_name: 'PostToolUse', session_id: 's', cwd, tool_name: 'Bash', tool_input: { command: 'ls' }, tool_response: {} }),
   Notification: (cwd) => ({ hook_event_name: 'Notification', session_id: 's', cwd, notification_type: 'idle_prompt', message: 'cho' }),
   UserPromptSubmit: (cwd) => ({ hook_event_name: 'UserPromptSubmit', session_id: 's', cwd, prompt: 'xin chao' }),
+  // DP4 (hồ sơ dieu-phoi-doi-tai-khoan AC-10): lưới cuối khi thợ chết vì hạn mức.
+  StopFailure: (cwd) => ({ hook_event_name: 'StopFailure', session_id: 's', cwd, error: 'rate_limit' }),
 };
 
 // ---------- DP1-01: cài là đủ (AC-1, E1) ----------
@@ -83,6 +85,7 @@ const BANG_HOOK = [
   ['PostToolUse', '*', 'hook-nhip.mjs'],
   ['Notification', 'idle_prompt|permission_prompt', 'hook-cho-nguoi.mjs'],
   ['UserPromptSubmit', '—', 'hook-cho-nguoi.mjs'],
+  ['StopFailure', '—', 'hook-het-han-muc.mjs'],
 ];
 
 export function kiemCaiDat(gocKit, gocGoi) {
@@ -121,7 +124,7 @@ test('DP1-01 cai-la-du', () => {
     daChay++;
   }
   console.log(`  số lệnh đã chạy: ${daChay}`);
-  assert.equal(daChay, 4);
+  assert.equal(daChay, BANG_HOOK.length);
 });
 
 test('DP1-01-do doi-ten-tep', () => {

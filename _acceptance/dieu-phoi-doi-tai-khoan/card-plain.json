@@ -1,0 +1,52 @@
+{
+  "feature_plain": "Khi tài khoản sắp hết hạn mức giữa một đợt nhiều thợ, máy báo trước, tự chờ nếu sắp được đặt lại, hoặc tự bàn giao cho gọn; anh đổi tài khoản rồi gõ một lệnh là đợt chạy tiếp — không mất commit, chữ ký hay quyết định nào.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ có hai trạng thái mới của đợt — «đang bàn giao» và «chờ tiếp tục» — trong đó máy không cấp lượt chấm, lượt ghim lại hay lượt gộp mới nào (AC-1, bảng chuyển trạng thái)."},
+    {"id": "AC-2", "p": "Sẽ ghi mức dùng hạn mức từ ba nguồn (mod của app, công cụ đọc hạn mức, dòng trạng thái) vào cùng một sổ, và chẩn đoán đợt báo «thiếu số hạn mức» khi không còn số tươi (AC-2, sổ mức dùng)."},
+    {"id": "AC-4", "p": "Sẽ cho mỗi đợt khai bốn ngưỡng hạn mức, và thẻ khởi tạo đợt hỏi anh khẩu vị hạn mức kèm đúng bốn số đó; đợt crm đang chạy không khai thì không đổi gì (AC-4, ngưỡng của đợt)."},
+    {"id": "AC-5", "p": "Sẽ cho thợ báo «đã bàn giao xong» chỉ khi cây đã commit hết và không còn đơn chờ; thợ đang chấm thì được xếp «đang xong»; không bắt đẩy nhánh (AC-5, thợ báo xong)."},
+    {"id": "AC-7", "p": "Sẽ cho anh tiếp tục bằng một lệnh dưới tài khoản kia: máy đọc mức dùng của tài khoản mới trước, rồi đóng hồ sơ bàn giao vào lịch sử và đưa đợt về đúng trạng thái trước khi bàn giao (AC-7, tiếp tục sau bàn giao)."},
+    {"id": "AC-8", "p": "Sẽ mở chip cho dãy đã bàn giao kể cả khi phiên cũ của dãy vừa hoạt động dưới 10 phút — vá lỗ làm dãy đứng im nếu anh đổi tài khoản quá nhanh (AC-8, nối lại dãy)."},
+    {"id": "AC-9", "p": "Sẽ nhắc thợ bàn giao ngay trong phiên của thợ khi đợt đang bàn giao — không phụ thuộc tin nhắn giữa các phiên, tối đa một lần mỗi 5 phút (AC-9, lời nhắc bàn giao)."},
+    {"id": "AC-10", "p": "Sẽ cứu việc dở của một thợ chết vì hết hạn mức bằng một commit WIP thường, trừ khi thợ đó đang chấm; hook của kho từ chối thì giữ nguyên cây và ghi lại lý do (AC-10, lưới cuối)."},
+    {"id": "AC-11", "p": "Sẽ chứng lại bằng máy thật rằng một lượt chấm chết giữa chừng thì lượt kế vẫn cùng số lượt — bàn giao không làm lệch đếm (AC-11, đếm lượt chấm)."},
+    {"id": "AC-12", "p": "Sẽ có mod của gói đọc mức dùng mỗi khi hạn mức nhích một điểm, không tốn lượt model, và chuyển số cho máy ghi sổ (AC-12, mod đọc mức dùng)."},
+    {"id": "AC-13", "p": "Sẽ có răng an toàn cho lớp mod: mỗi mod chỉ được nghe đúng các sự kiện đã khai, và không mod nào được trả lời «cho phép» thay người (AC-13, răng an toàn mod)."},
+    {"id": "AC-14", "p": "Sẽ có lệnh thứ năm /dieu-phoi:ban-giao, lệnh tiếp tục đọc mức dùng ở mỗi lần thức, và tài liệu nhập môn nêu đủ hai lệnh (AC-14, lệnh và tài liệu)."},
+    {"id": "AC-15", "p": "Sẽ buộc lời tài liệu theo đúng kết quả phép đo đổi tài khoản thật: câu nào chưa đo thì khai giới hạn kèm ngưỡng, không đoán (AC-15, nhánh theo phép đo)."}
+  ],
+  "wont_do": [
+    {"id": "AC-3", "p": "Chặn đợt chạy mù tới cạn hạn mức: máy báo trước ở ngưỡng thấp, tự chờ nếu cửa sổ sắp đặt lại, tự bàn giao nếu còn xa — và hạ ngưỡng sớm hơn khi chỉ còn số đọc thưa (AC-3, ngưỡng hạn mức)."},
+    {"id": "AC-6", "p": "Chặn bàn giao treo vô hạn: máy giữ đồng hồ chờ, quá hạn thì tự dựng hồ sơ bàn giao từ git (dãy chưa xong ghi «dở») và chuyển sang chờ tiếp tục (AC-6, đồng hồ bàn giao)."},
+    {"id": "OOS-1", "p": "Không làm ba chỗ dùng mod còn lại (khung trạng thái đợt, chặn chấm bằng mod, tự bắt việc chờ người) — để hàng DP6 dựng trên khung mod của hàng này."},
+    {"id": "OOS-2", "p": "Không tự làm việc của app: đăng nhập, đổi tài khoản, nhắn thợ, mở chip vẫn do anh và phiên giám sát làm; máy chỉ đo phần lệnh và hook."},
+    {"id": "OOS-3", "p": "Không làm nhiều máy hay chuyển máy — vẫn hoãn như ô dù."},
+    {"id": "OOS-4", "p": "Không vá sáu lỗ đã ghi hạt giống sau hàng tiếp tục (DP3)."},
+    {"id": "OOS-5", "p": "Không thay số ngưỡng mặc định bằng số đo được: số mặc định là đề xuất của máy, anh duyệt ở thẻ khởi tạo từng đợt."}
+  ],
+  "scope_plain": "Năm thứ cố ý để ngoài hàng này:",
+  "coverage_plain": [
+    {"i": 0, "p": "Chân sản phẩm: thiết kế chung đã duyệt 10/10, thiết kế hàng tiếp tục, gói hiện có, và hai lần đo trên máy ngày 11/10 (đọc hạn mức; kiểm thử mod trên bản sao gói)."},
+    {"i": 1, "p": "Chân ngành: rút máy khỏi cụm của Kubernetes (ngừng nhận việc mới, chờ việc đang chạy), hạn chờ khi tắt máy của AWS, và header đặt lại hạn mức của API GitHub."},
+    {"i": 2, "p": "Trục điểm chạm: chín chỗ máy chạm — ghi mức dùng, nhịp của bộ phát lịch, lệnh bàn giao, lời nhắc, lưới cuối, tiếp tục, mod, răng mod, lệnh và tài liệu."},
+    {"i": 3, "p": "Trục nguồn mức dùng: sáu tình huống — mod, công cụ đọc hạn mức, dòng trạng thái, không có số, số cũ, số của tài khoản cũ."},
+    {"i": 4, "p": "Trục một dãy lúc bàn giao: bảy tình huống — cây sạch, cây bẩn, còn đơn, đang chấm, khoá cũ, nghỉ hay mất worktree, chết vì hạn mức."},
+    {"i": 5, "p": "Trục trạng thái đợt theo cửa sổ hạn mức: tám nấc từ dưới ngưỡng tới sau khi tiếp tục."},
+    {"i": 6, "p": "Mười lăm tiêu chí phủ các tổ hợp lõi: mỗi điểm chạm có một tiêu chí, ghép với nguồn mức dùng và tình huống dãy ở các bảng tình huống viết sẵn."},
+    {"i": 7, "p": "Để sau:"},
+    {"i": 8, "p": "Ba chỗ dùng mod còn lại — hàng DP6."},
+    {"i": 9, "p": "Bộ phát lịch tự nhắn thợ — cần kênh tin mà máy nền gọi được; hôm nay chỉ phiên có."},
+    {"i": 10, "p": "Không bao giờ:"},
+    {"i": 11, "p": "Đọc mã tài khoản: app không lộ nó; máy nhận ra số cũ qua phiên đọc và giờ nhận vai."},
+    {"i": 12, "p": "Commit cứu việc mà bỏ qua hook của kho: làm vậy là che lỗi thật của kho."},
+    {"i": 13, "p": "Xét cửa sổ tuần theo từng model: thiết kế chỉ xét cửa sổ 5 giờ và cửa sổ tuần chung."},
+    {"i": 14, "p": "Xuyên suốt: mọi lệnh chạy lại không sinh thêm gì, kho không có đợt thì im hoàn toàn, đợt cũ đọc được không cần sửa."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Thiếu nhịp đọc hạn mức đều đặn khi mod không có số: sau 35 phút máy mù, thợ có thể cháy tới 100 %. Đã sửa: mỗi lần giám sát thức và lịch 30 phút đều đọc hạn mức, và chẩn đoán đợt báo «thiếu số hạn mức»."},
+    {"i": 1, "p": "Tiếp tục từ một đợt đang bàn giao mà còn dãy chưa xong thì không có lối ra đúng, nhất là khi trước đó đợt đang tạm dừng. Đã sửa: tiếp tục dựng bàn giao ngay (dãy chưa xong ghi «dở»), đi qua «chờ tiếp tục» về đúng trạng thái trước; bàn giao tay cũng có đồng hồ 20 phút."},
+    {"i": 2, "p": "Dấu «thợ chết vì hạn mức» của tài khoản cũ có thể kéo đợt vào bàn giao lần nữa sau khi tiếp tục; ba tình huống của ngưỡng chưa đo. Đã sửa: tiếp tục cất dấu vào lịch sử; thêm ba tình huống (ngưỡng hạ thật tới 84, báo trước ở 83, hết chờ đặt lại thì cấp lượt lại)."},
+    {"i": 3, "p": "Tiêu chí bảng chuyển đếm sai số cạnh cũ (năm, không phải bốn) và chưa nói chạy lại cùng trạng thái thì sao. Đã sửa: chép đủ 11 cạnh, chạy lại cùng trạng thái là không đổi gì, mọi ô còn lại bị từ chối."},
+    {"i": 4, "p": "Chưa nối mod với máy ghi sổ: hai bên có thể hiểu số theo hai khuôn khác nhau mà mọi phép đo vẫn xanh. Đã sửa: lệnh mod gọi được chạy thật bằng máy ghi sổ, hai bên dùng chung một mẫu số liệu."}
+  ]
+}

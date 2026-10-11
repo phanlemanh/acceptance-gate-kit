@@ -92,7 +92,8 @@ const khaiGoi = (kho, mau = 'goi/dot-{ten}') => {
 const thuMucDot = (kho) => fs.realpathSync(path.join(kho, '.acceptance-runs', 'dieu-phoi-hien-tai'));
 
 // ---------- DP2-01: ba lệnh người (AC-1, E1) ----------
-const BA_LENH = ['dong-dot.md', 'mo-dot.md', 'tiep-tuc.md', 'xem.md'];
+// DP4 (hồ sơ dieu-phoi-doi-tai-khoan AC-14): lệnh thứ năm ban-giao.md.
+const BA_LENH = ['ban-giao.md', 'dong-dot.md', 'mo-dot.md', 'tiep-tuc.md', 'xem.md'];
 
 export function kiemLenh(gocGoi) {
   const dir = path.join(gocGoi, 'commands');
@@ -619,7 +620,8 @@ export async function kiemTheKhoiTao(gocGoi, kho) {
     const thuc = laCho ? 'cho' : laCanhBao ? 'canh-bao' : 'da-quyet';
     if (thuc !== can) loi.push(`${slug}: ${thuc}, cần ${can}`);
   }
-  const hoiCan = ['quyen-tu-merge', ...MA_TRAN_THE.filter((r) => r[3] === 'cho').map((r) => `build:${r[1]}`)];
+  // DP4 (hồ sơ dieu-phoi-doi-tai-khoan AC-4): khuôn đợt khai han_muc nên thẻ hỏi thêm khẩu vị hạn mức.
+  const hoiCan = ['quyen-tu-merge', 'khau-vi-han-muc', ...MA_TRAN_THE.filter((r) => r[3] === 'cho').map((r) => `build:${r[1]}`)];
   if (JSON.stringify(the.hoi) !== JSON.stringify(hoiCan)) loi.push(`hoi = ${JSON.stringify(the.hoi)}`);
   if (!the.may_di_tiep.includes('uu-tien') || !the.may_di_tiep.includes('lan-v')) loi.push('may_di_tiep thiếu uu-tien/lan-v');
   return { loi, soAssert, the };
