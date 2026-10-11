@@ -1,6 +1,4 @@
-# Review findings: dieu-phoi-lop-mod
-
-Round 5, verified_commit 2ec584e75b9b2ddc226a2548a8d45a45e38fde5f.
+# Review findings: dieu-phoi-lop-mod (round 6)
 
 ## Trong hợp đồng
 
@@ -10,25 +8,55 @@ Không có finding nào trong hợp đồng ở round này.
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **DP6-07 loi-nguyen và ten-ca-cu vẫn neo vào merge-base sống, trái mẫu «neo vào lịch sử» mà DP2-15, DP3-11 và DP7-10 đã dùng; lần này còn được giữ lại có chủ ý với lý do ngược**
+- **DP6-07-do merge-base-song không có chiều nhạy cho chính neo lịch sử: mutant trả khoảng rỗng vẫn xanh**
+  Người dùng thấy gì: Phép kiểm tra «thư mục lỗi nguyên bản không bị sửa trong vòng này» chưa từng được chứng minh là biết báo đỏ khi chính vòng này sửa nó. Nếu phần so sánh phía sau bị hỏng thành so sánh rỗng, nó vẫn báo xanh và người dùng sẽ tin nhầm là an toàn.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Assert «trước khi gộp» chỉ ghim đầu khoảng, không ghim điểm rẽ**
+  Người dùng thấy gì: Khi vòng chưa được gộp, phép kiểm chỉ xác nhận đầu mút cuối của đoạn lịch sử cần so, không xác nhận điểm bắt đầu. Nếu điểm bắt đầu sai về cùng chỗ với điểm cuối thì đoạn so thành rỗng và phép kiểm vẫn xanh.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **Hình dạng 4: neo lịch sử của DP6-07 chỉ có chiều xanh. Khoảng rỗng vẫn qua mọi ca**
+  Người dùng thấy gì: Đường kiểm tra sẽ chạy cho mọi vòng sau khi vòng này gộp mới chỉ được thử ở chiều xanh. Nếu nó hỏng thành không so gì, người dùng không có cách nào phân biệt «đã kiểm đúng» với «không kiểm gì».
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 3: ca 'trước khi gộp' chỉ ghim chuỗi 'HEAD', không đo quan hệ của khoảng; fixture lại ở trạng thái đã gộp nên khoảng rỗng**
+  Người dùng thấy gì: Phép kiểm cho trường hợp «vòng chưa được gộp» đang chạy trên một kho giả lập đã ở trạng thái gộp, nên đoạn lịch sử được so là rỗng. Trường hợp thật mà vòng đang chạy hôm nay sẽ đi qua nhánh này chưa có phép thử nào cho thấy nó báo đỏ được.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 2: tiêu đề commit gộp trong fixture gõ tay đúng khuôn regex GOP_DP6, không rút từ commit gộp thật**
+  Người dùng thấy gì: Hệ thống nhận ra «vòng đã được gộp» dựa vào dạng tiêu đề commit gộp của GitHub, nhưng phép thử dùng tiêu đề tự gõ theo đúng dạng đó. Nếu vòng được gộp bằng cách khác như gộp nén hay đẩy thẳng, hệ thống có thể không nhận ra và phép kiểm im lặng không so gì.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: low
+  Đề xuất: known-limits
+
+- **DP6-07 loi-nguyen và ten-ca-cu vẫn neo vào merge-base sống, trái mẫu «neo vào lịch sử» mà DP2-15, DP3-11 và DP7-10 đã dùng; lần này còn được giữ lại có chủ ý với lý do ngược (r5 · tệp đã đổi)**
   Người dùng thấy gì: Hai phép kiểm bảo vệ phần lõi điều phối sẽ báo đỏ oan ở lần sửa hợp lệ kế tiếp của một vòng sau, bắt người làm vòng đó phải tự gỡ hay sửa phép kiểm trước khi gộp được. Còn ngay sau khi vòng này gộp lên nhánh chính thì chúng so với chính nó nên im lặng, tức không bảo vệ được gì.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **DP6-07 loi-nguyen so với merge-base SỐNG: sau khi DP6 gộp, mọi PR sau đổi hợp lệ tests/dieu-phoi/loi/ hay dong-goi.test.mjs đều đỏ**
+- **DP6-07 loi-nguyen so với merge-base SỐNG: sau khi DP6 gộp, mọi PR sau đổi hợp lệ tests/dieu-phoi/loi/ hay dong-goi.test.mjs đều đỏ (r5 · tệp đã đổi)**
   Người dùng thấy gì: Sau khi vòng này gộp, bất kỳ vòng điều phối nào sau đó sửa đúng đắn phần lõi sẽ bị chặn bởi một phép kiểm tự động báo đỏ dù không làm hỏng gì. Người làm vòng sau phải mất công tìm ra đó là báo động oan rồi mới gộp được.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): đối chứng của DP6-03 moc-co-dinh là `git merge-base HEAD HEAD`, một hằng đúng-theo-định-nghĩa, không phải đầu ra của bộ giải merge-base sống**
+- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): đối chứng của DP6-03 moc-co-dinh là `git merge-base HEAD HEAD`, một hằng đúng-theo-định-nghĩa, không phải đầu ra của bộ giải merge-base sống (r5 · tệp đã đổi)**
   Người dùng thấy gì: Phép kiểm xác nhận mốc so sánh đã được cố định chỉ chứng minh được điều đó sau khi gộp lên nhánh chính; trước lúc gộp nó luôn xanh kể cả khi ai đó quay lại cách cũ. Nếu có người làm hỏng chỗ này ở vòng sau thì lỗi chỉ lộ ra sau khi đã gộp, không bị chặn từ sớm.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **card-plain.json: feature_plain vẫn hứa «không còn bị chặn oan khi … ghi tệp», trái với lần thu phạm vi AC-2. Lượt sửa r3 chỉ vá dòng AC-2/AC-3 mà không rà cả tệp (r4 · tệp đã đổi)**
+- **card-plain.json: feature_plain vẫn hứa «không còn bị chặn oan khi … ghi tệp», trái với lần thu phạm vi AC-2. Lượt sửa r3 chỉ vá dòng AC-2/AC-3 mà không rà cả tệp (r4)**
   Người dùng thấy gì: Câu mở đầu của thẻ duyệt vẫn hứa phiên thợ không còn bị chặn oan khi ghi tệp, trong khi lệnh ghi nhiều dòng một lượt có nhắc tên script vẫn bị chặn như đã khai ở mục tiêu chí. Người duyệt có thể tin vào một lời hứa rộng hơn những gì sản phẩm thật sự làm được.
   file: `_acceptance/dieu-phoi-lop-mod/card-plain.json`
   severity: medium
