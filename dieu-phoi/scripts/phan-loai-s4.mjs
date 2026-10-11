@@ -7,7 +7,22 @@ import path from 'node:path';
 // Khoá = tên script bỏ đuôi .mjs/.js/.cjs.
 export const BANG_BASH = { 'repin-lane': 's4', 's4-args': 's4', 'duong-nen': 'duong-nen' };
 
-const VO_BOC = new Set(['exec', 'time', 'nohup', 'command', 'nice']);
+// Vỏ bọc: lệnh đứng trước và chạy lệnh thật. `giaTri` = cờ ăn từ kế; `viTri` = số đối số vị trí bắt buộc
+// trước lệnh thật (thời lượng của timeout). Nguồn: GNU coreutils timeout(1), nice(1); BSD caffeinate(8);
+// builtin time, command, exec của bash (design DP6 §4 C1). Cờ dạng `--x=y` tự mang giá trị.
+export const VO_BOC = {
+  timeout: { giaTri: ['-s', '-k', '--signal', '--kill-after'], viTri: 1 },
+  nice: { giaTri: ['-n', '--adjustment'], viTri: 0 },
+  time: { giaTri: [], viTri: 0 },
+  nohup: { giaTri: [], viTri: 0 },
+  command: { giaTri: [], viTri: 0 },
+  exec: { giaTri: ['-a'], viTri: 0 },
+  caffeinate: { giaTri: ['-t', '-w'], viTri: 0 },
+};
+// env (GNU + BSD env(1)): cờ ăn từ kế; -S/--split-string tách chuỗi thành lệnh.
+const ENV_GIA_TRI = new Set(['-u', '--unset', '-C', '--chdir', '-P']);
+const ENV_TACH = new Set(['-S', '--split-string']);
+const GAN = /^[A-Za-z_][A-Za-z0-9_]*=/;
 const SHELL = new Set(['bash', 'sh', 'zsh']);
 // Cờ của node nhận một giá trị ở từ kế tiếp.
 const CO_NODE_CO_GIA_TRI = new Set(['-r', '--require', '--import', '--loader', '--experimental-loader', '-C', '--conditions', '--env-file', '--input-type', '--title', '--test-reporter', '--test-reporter-destination', '--test-name-pattern']);
@@ -66,21 +81,45 @@ export function tachDoan(lenh) {
   return doan;
 }
 
+const nhayDon = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;
+
+// Bỏ tiền tố KEY=val và mọi vỏ bọc (kèm cờ, giá trị, đối số vị trí). Trả `{ i }` = vị trí lệnh thật, hoặc
+// `{ tach, i }` khi gặp `env -S <chuỗi>` (phần sau i nối vào chuỗi rồi phân loại lại).
+function boVoBoc(tu, i) {
+  for (;;) {
+    if (i >= tu.length) return { i };
+    const t = tu[i];
+    if (GAN.test(t)) {
+      i++;
+      continue;
+    }
+    if (t === 'env') {
+      i++;
+      while (i < tu.length) {
+        const c = tu[i];
+        if (ENV_TACH.has(c)) return { tach: tu[i + 1] ?? '', i: i + 2 };
+        if (c.startsWith('--split-string=')) return { tach: c.slice('--split-string='.length), i: i + 1 };
+        if (ENV_GIA_TRI.has(c)) i += 2;
+        else if (c.startsWith('-') || GAN.test(c)) i++;
+        else break;
+      }
+      continue;
+    }
+    const vb = VO_BOC[t];
+    if (!vb) return { i };
+    i++;
+    while (i < tu.length && tu[i].startsWith('-') && tu[i] !== '-') i += !tu[i].includes('=') && vb.giaTri.includes(tu[i]) ? 2 : 1;
+    i += vb.viTri;
+  }
+}
+
 const tra = (tep, bang) => bang[path.basename(tep).replace(/\.(mjs|cjs|js)$/, '')] ?? null;
 
 function phanLoaiTu(tu, bang, sau) {
-  let i = 0;
-  // Bỏ tiền tố KEY=val, vỏ bọc (exec, time, nohup…) và `env [cờ] [KEY=val]`.
-  for (;;) {
-    if (i >= tu.length) return null;
-    const t = tu[i];
-    if (/^[A-Za-z_][A-Za-z0-9_]*=/.test(t)) i++;
-    else if (VO_BOC.has(t)) i++;
-    else if (t === 'env') {
-      i++;
-      while (i < tu.length && (tu[i].startsWith('-') || /^[A-Za-z_][A-Za-z0-9_]*=/.test(tu[i]))) i++;
-    } else break;
-  }
+  const b = boVoBoc(tu, 0);
+  if (b.tach !== undefined) return phanLoaiLenh([b.tach, ...tu.slice(b.i).map(nhayDon)].join(' '), bang, sau + 1);
+  const i = b.i;
+  if (i >= tu.length) return null;
   const dau = tu[i];
   const ten = path.basename(dau);
   if (SHELL.has(ten)) {

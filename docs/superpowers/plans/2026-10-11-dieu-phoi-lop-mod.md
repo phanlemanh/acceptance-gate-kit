@@ -227,7 +227,7 @@ test('DP6-01 vo-boc', async () => {
   assert.equal(DANG_VO_BOC.length, 41);
   const ds = maTranVoBoc();
   console.log(`  ma trận vỏ bọc: ${ds.length} ô`);
-  assert.equal(ds.length, 128);
+  assert.equal(ds.length, 132);
   const { phanLoaiLenh } = await nap(GOI, 'phan-loai-s4.mjs');
   assert.deepEqual(chayMaTran(phanLoaiLenh, ds), []);
 });

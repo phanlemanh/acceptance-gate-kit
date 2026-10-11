@@ -24,14 +24,24 @@ export const DANH_SACH = [
   { tep: '-Users-<u>-dev-crm-onehub--claude-worktrees-agitated-kilby-4b9585/b8585b6c-402c-464d-a724-0c3b96ce514d.jsonl', tool_use_id: 'toolu_01TLNuUR2y6YqYxRGEPyG2Mo', nhan: null, hinh: 'chan-nham:help' },
 ];
 
-// Ẩn danh: đường scratchpad của phiên → /tmp/scratch, tên người dùng → u, địa chỉ thư → u@x. Không đổi hình
-// dạng lời gọi (vỏ bọc, lệnh, script giữ nguyên) nên nhãn phân loại không đổi.
+// Tên riêng của kho tiêu thụ → tên trung tính (răng DP1-07 cấm chúng trong tests/dieu-phoi/fixtures). Thứ tự
+// quan trọng: cụm dài trước cụm con.
+export const RIENG_KHO = [
+  ['crm-onehub', 'kho-a'], ['onehub', 'kho-a'], ['oneflow', 'kho-b'], ['crm', 'kho'], ['prisma', 'orm'],
+  ['bunx', 'npx'], ['bun run', 'npm run'], ['bun install', 'npm install'],
+  [':3000', ':8000'], [':3001', ':8001'], ['5432', '5433'], ['docs/plan/dot-', 'docs/ke-hoach/dot-'],
+];
+// Ẩn danh: đường scratchpad của phiên → /tmp/scratch, tên người dùng → u, địa chỉ thư → u@x, tên riêng của kho
+// tiêu thụ → tên trung tính. Không đổi hình dạng lời gọi (vỏ bọc, lệnh, tên script giữ nguyên) nên nhãn phân
+// loại không đổi.
 export function anDanh(s, user = os.userInfo().username) {
-  return s
+  let ra = s
     .replace(/\/private\/tmp\/claude-\d+\/[^\s'"`;|&)]*/g, '/tmp/scratch')
     .split(user)
     .join('u')
     .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, 'u@x');
+  for (const [cu, moi] of RIENG_KHO) ra = ra.split(new RegExp(cu.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')).join(moi);
+  return ra;
 }
 
 async function timLenh(p, id) {
@@ -55,7 +65,7 @@ export async function rut(projects, user = os.userInfo().username) {
     const p = path.join(projects, m.tep.replace('<u>', user));
     const lenh = fs.existsSync(p) ? await timLenh(p, m.tool_use_id) : null;
     if (lenh == null) throw new Error(`rut-lenh-that: không thấy ${m.tool_use_id} trong ${m.tep}`);
-    ra.push({ tep: m.tep, tool_use_id: m.tool_use_id, nhan: m.nhan, hinh: m.hinh, lenh: anDanh(lenh, user) });
+    ra.push({ tep: anDanh(m.tep, user), tool_use_id: m.tool_use_id, nhan: m.nhan, hinh: m.hinh, lenh: anDanh(lenh, user) });
   }
   return `${ra.map((x) => JSON.stringify(x)).join('\n')}\n`;
 }

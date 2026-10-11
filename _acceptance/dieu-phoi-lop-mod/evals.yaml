@@ -16,13 +16,13 @@ evals:
     paths: [dieu-phoi/scripts/phan-loai-s4.mjs, dieu-phoi/scripts/hook-chan-s4.mjs, tests/dieu-phoi/lop-mod.test.mjs, tests/dieu-phoi/fixtures/lenh-that-2026-10-11.jsonl]
     expected: >
       exit 0; "ok" cho "DP6-01 vo-boc": ma trận viết sẵn = bảng 41 dạng của design §4 C1 (8 vỏ bọc) × 3 script
-      + 2 chuỗi vỏ bọc lồng + 3 lời gọi thật bỏ lọt (đọc từ tệp ca lenh-that-2026-10-11.jsonl, lọc nhãn khác
-      null) = 128 ô; số assert in ra = 128; mỗi ô phanLoaiLenh trả đúng tài nguyên (repin-lane, s4-args → "s4";
+      + 2 chuỗi vỏ bọc lồng × 3 script + 3 lời gọi thật bỏ lọt (đọc từ tệp ca lenh-that-2026-10-11.jsonl, lọc
+      nhãn khác null) = 132 ô; số assert in ra = 132; mỗi ô phanLoaiLenh trả đúng tài nguyên (repin-lane, s4-args → "s4";
       duong-nen → "duong-nen"), kể cả `env -S '<lệnh>'` và `--split-string='<lệnh>'`. "ok" cho "DP6-01
       hook-chan": hook thật (lệnh rút từ hooks.json) trên đợt dựng bằng `mo`, cwd worktree P1: khoá s4 của P2 →
       thoát 2 cho mọi ô s4; khoá s4 của P1 → thoát 0 cho cùng ô (đối chứng). "ok" cho "DP6-01-do bo-timeout":
       bản sao phan-loai-s4.mjs gỡ `timeout` khỏi bảng vỏ bọc (kiểm bước tiêm áp) → tập ô đỏ BẰNG tập ô chứa token
-      `timeout` rút bằng code từ chính ma trận (số in ra, kiểm 0 < số < 128 trước khi so). "ok" cho "DP6-01-do
+      `timeout` rút bằng code từ chính ma trận (số in ra, kiểm 0 < số < 132 trước khi so). "ok" cho "DP6-01-do
       caffeinate-t-tran": bản sao khai `caffeinate -t` là cờ trần → tập ô đỏ BẰNG tập ô chứa `caffeinate -t`
       rút bằng code.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

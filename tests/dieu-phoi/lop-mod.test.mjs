@@ -190,3 +190,81 @@ test('DP6-03 nguon', async () => {
   assert.equal(a, fs.readFileSync(TEP_CA, 'utf8'), 'tệp ca đã commit phải bằng đầu ra script');
   console.log(`  nguồn: ${DANH_SACH.length} lời gọi rút lại khớp tệp ca`);
 });
+
+// ---------- DP6-01: vỏ bọc mang cờ (AC-1, E1) ----------
+const SCRIPT = [
+  ['repin-lane.mjs', 's4'],
+  ['s4-args.mjs', 's4'],
+  ['duong-nen.mjs', 'duong-nen'],
+];
+// 41 dạng của design §4 C1 — `<L>` là chỗ lệnh thật `node x/<script> --root .`
+export const DANG_VO_BOC = [
+  'timeout 900 <L>', 'timeout -s KILL 900 <L>', 'timeout --signal=KILL 900 <L>', 'timeout -k 10 900 <L>',
+  'timeout --kill-after=10 900 <L>', 'timeout -f 900 <L>', 'timeout --foreground 900 <L>', 'timeout -p 900 <L>',
+  'timeout --preserve-status 900 <L>', 'timeout -v 900 <L>',
+  'env A=1 <L>', 'env -i A=1 <L>', 'env -0 A=1 <L>', 'env -u UV_PYTHON <L>', 'env --unset=UV_PYTHON <L>',
+  'env -C /tmp <L>', 'env --chdir=/tmp <L>', 'env -P /opt/x <L>', 'env -v <L>', "env -S '<L>'", "env --split-string='<L>'",
+  'nice <L>', 'nice -n 10 <L>', 'nice --adjustment=10 <L>',
+  'time <L>', 'time -p <L>',
+  'nohup <L>',
+  'command <L>', 'command -p <L>',
+  'exec <L>', 'exec -a ten <L>', 'exec -c <L>', 'exec -l <L>',
+  'caffeinate <L>', 'caffeinate -d <L>', 'caffeinate -i <L>', 'caffeinate -m <L>', 'caffeinate -s <L>',
+  'caffeinate -u <L>', 'caffeinate -t 3600 <L>', 'caffeinate -w 4242 <L>',
+];
+const LONG = ['nohup nice -n 5 timeout 900 <L>', 'env -u X caffeinate -i <L>'];
+export function maTranVoBoc() {
+  const o = [];
+  for (const d of [...DANG_VO_BOC, ...LONG]) for (const [s, tn] of SCRIPT) o.push({ ten: `${d} × ${s}`, lenh: d.replace('<L>', `node x/${s} --root .`), ky_vong: tn });
+  for (const x of docTepCa().filter((x) => x.nhan !== null)) o.push({ ten: `that:${x.tool_use_id}`, lenh: x.lenh, ky_vong: x.nhan });
+  return o;
+}
+// Tên các ô mà bộ phân loại trả khác kỳ vọng.
+const chayMaTran = (phanLoaiLenh, ds) => ds.filter((o) => phanLoaiLenh(o.lenh) !== o.ky_vong).map((o) => o.ten);
+
+test('DP6-01 vo-boc', async () => {
+  assert.equal(DANG_VO_BOC.length, 41);
+  const ds = maTranVoBoc();
+  console.log(`  ma trận vỏ bọc: ${ds.length} ô`);
+  assert.equal(ds.length, 132);
+  const { phanLoaiLenh } = await nap(GOI, 'phan-loai-s4.mjs');
+  assert.deepEqual(chayMaTran(phanLoaiLenh, ds), []);
+});
+
+test('DP6-01 hook-chan', () => {
+  const { dot, w1, w2 } = khoLienKet();
+  const s4 = maTranVoBoc().filter((o) => o.ky_vong === 's4');
+  giuKhoa(dot, 'P2', w2);
+  const loiKhac = s4.filter((o) => chayHookChanS4({ tool_name: 'Bash', tool_input: { command: o.lenh } }, { cwd: w1 }).ma !== 2).map((o) => o.ten);
+  giuKhoa(dot, 'P1', w1);
+  const loiMinh = s4.filter((o) => chayHookChanS4({ tool_name: 'Bash', tool_input: { command: o.lenh } }, { cwd: w1 }).ma !== 0).map((o) => o.ten);
+  console.log(`  hook thật: ${s4.length} ô s4 — khoá của P2 chặn, khoá của P1 cho qua`);
+  assert.deepEqual(loiKhac, [], 'khoá của dãy khác: phải thoát 2');
+  assert.deepEqual(loiMinh, [], 'khoá của chính dãy: phải thoát 0 (đối chứng)');
+});
+
+test('DP6-01-do bo-timeout', async () => {
+  const ds = maTranVoBoc();
+  const { phanLoaiLenh: lanh } = await nap(GOI, 'phan-loai-s4.mjs');
+  assert.deepEqual(chayMaTran(lanh, ds), [], 'bản lành phải xanh trước');
+  const sao = saoGoi();
+  tiem(sao, 'phan-loai-s4.mjs', '  timeout: {', '  _timeout_go: {');
+  const { phanLoaiLenh } = await nap(sao, 'phan-loai-s4.mjs');
+  const can = ds.filter((o) => /(^|[\s;&|])timeout\s/.test(o.lenh)).map((o) => o.ten);
+  console.log(`  ô chứa timeout: ${can.length}/${ds.length}`);
+  assert.ok(can.length > 0 && can.length < ds.length);
+  assert.deepEqual(chayMaTran(phanLoaiLenh, ds), can);
+});
+
+test('DP6-01-do caffeinate-t-tran', async () => {
+  const ds = maTranVoBoc();
+  const { phanLoaiLenh: lanh } = await nap(GOI, 'phan-loai-s4.mjs');
+  assert.deepEqual(chayMaTran(lanh, ds), [], 'bản lành phải xanh trước');
+  const sao = saoGoi();
+  tiem(sao, 'phan-loai-s4.mjs', "caffeinate: { giaTri: ['-t', '-w']", "caffeinate: { giaTri: ['-w']");
+  const { phanLoaiLenh } = await nap(sao, 'phan-loai-s4.mjs');
+  const can = ds.filter((o) => o.lenh.includes('caffeinate -t')).map((o) => o.ten);
+  console.log(`  ô chứa caffeinate -t: ${can.length}`);
+  assert.ok(can.length > 0 && can.length < ds.length);
+  assert.deepEqual(chayMaTran(phanLoaiLenh, ds), can);
+});
