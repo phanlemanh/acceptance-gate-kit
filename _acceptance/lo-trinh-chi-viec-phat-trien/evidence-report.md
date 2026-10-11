@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 62863ab320d3ca7fbe499c6cbf433afbd76dbe87
+verified_commit: 42fc34edf2cc80d7afc54cdeed5620f654a13ad0
 human_signoff: Manh Phan 2026-10-11
 ---
 
@@ -193,3 +193,7 @@ none — every multi-run eval is uniform
 
 Round 1: E1–E8 và E10 xanh, E9 hội đồng đề xuất không đạt (3/3), verdict PENDING-JUDGMENT. Không eval máy nào đỏ. Rà soát tìm lỗi để lại 4 mục trong hợp đồng (chiều đỏ còn mỏng ở AC-2, AC-5, AC-7) và 7 mục ngoài hợp đồng, xem review-findings.md.
 Round 2: SKILL cắt lượt được làm rõ bốn chỗ nước đôi, bốn ca đo ghim chặt hơn; E1–E8 và E10 xanh (300 ca), mọi lệnh suite xanh, E9 hội đồng đề xuất PASS (3/3), verdict PASS. Rà soát để lại 0 mục trong hợp đồng và 4 mục ngoài hợp đồng mới (cùng 7 mục mang từ round 1), xem review-findings.md.
+
+### Re-pin lần 1 — 2026-10-11, do gộp origin/main 63bb25f5 sau chữ ký
+run_id: repin-20261011T180143Z-90373
+sha: 42fc34edf2cc80d7afc54cdeed5620f654a13ad0 · suites: 10 lệnh exit 0 · evals: 9/9 eval máy đạt kỳ vọng · ngoài làn máy: E9 (E9 không khai paths) · AC không có chốt máy: AC-9
