@@ -342,7 +342,7 @@ bằng eval `ui-check`/`design-gate`. Lý do + đường lấy lại:
 harness: sau mỗi turn một checker nhỏ đọc transcript, điều kiện chưa thỏa thì tự nổ
 turn mới. Dùng đúng cách với feature-loop:
 
-**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:** (1) mỗi câu **xin duyệt thiết kế** của brainstorm — dán cùng câu trả lời; (2) khi **duyệt Cổng Phạm vi** — thẻ Cổng 1 in sẵn dòng goal ngay dưới dòng lệnh duyệt; (3) khi **duyệt Gate 1.5** (T3). Vì sao nhiều lần: khuôn goal coi «dừng ở một cổng có tên» là hoàn thành, nên goal kết ở mỗi cổng và đoạn máy sau cổng cần vũ trang lại. **Làn V T2 không chạm UI:** không có cổng ở giữa, lần dán ở brainstorm là lần duy nhất. **Brainstorm không hỏi gì** (đề bài đã đủ, máy đi thẳng tới artifact) → không có lượt để vũ trang trước Cổng 1 — ca chưa phủ, đo ở ba dòng số mốc kế.
+**Khi nào — ba thời điểm, đều là lượt bạn đã có sẵn:** (1) lời mời **Cổng Đáng** của ô — dán cùng câu trả lời (bước thiết kế không còn câu xin duyệt); (2) khi **duyệt Cổng Phạm vi** — thẻ Cổng 1 in sẵn dòng goal ngay dưới dòng lệnh duyệt; (3) khi **duyệt Gate 1.5** (T3). Vì sao nhiều lần: khuôn goal coi «dừng ở một cổng có tên» là hoàn thành, nên goal kết ở mỗi cổng và đoạn máy sau cổng cần vũ trang lại. **Làn V T2 không chạm UI:** không có cổng ở giữa, lần dán ở Cổng Đáng là lần duy nhất. **Vòng mở từ một câu mô tả** (không qua Cổng Đáng) → S0 chạy tới Cổng Phạm vi trong cùng lượt, không cần vũ trang.
 
 **Combo rời-máy trọn bộ (phiên đang chạy model đắt cho phần thiết kế):** duyệt Gate 1 →
 `/model opus` + `/effort high` (alias `opus` tự trỏ bản opus mới nhất — KHÔNG ghim model ID

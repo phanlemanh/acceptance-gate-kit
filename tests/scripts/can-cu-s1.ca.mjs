@@ -209,5 +209,115 @@ check('CC-07-do', () => {
   if (!lech.includes('C')) die('đếm mọi supersedes mà hồ sơ C không lệch: ' + lech.join(','));
 });
 
+// ── Tầm của vòng, neo LỊCH SỬ (dòng sổ S2 d-…-18): commit gộp nhánh vòng vào main → [điểm rẽ, cha-2];
+// chưa gộp → [merge-base với nhánh chính, HEAD]. Vật của vòng đọc ở đỉnh tầm, không ở cây sống — để vòng
+// sau sửa hợp lệ khuôn/luật không làm các ca này đỏ oan (cùng cách DP7-10).
+function tamVong() {
+  const re = new RegExp(`\\tMerge pull request #\\d+ from \\S+/${NHANH.replace(/[/.]/g, m => '\\' + m)}$`);
+  const dong = git(ROOT, 'log', '--merges', '--format=%H%x09%s', 'HEAD').split('\n').find(l => re.test(l));
+  if (dong) { const m = dong.split('\t')[0]; return { goc: git(ROOT, 'merge-base', `${m}^1`, `${m}^2`), dinh: git(ROOT, 'rev-parse', `${m}^2`), nguon: 'lich-su' }; }
+  const chinh = ['origin/main', 'main'].find(r => spawnSync('git', ['-C', ROOT, 'rev-parse', '--verify', '--quiet', r]).status === 0);
+  if (!chinh) die('không tìm được nhánh chính (origin/main | main) để tính tầm vòng');
+  const goc = git(ROOT, 'merge-base', 'HEAD', chinh); const dinh = git(ROOT, 'rev-parse', 'HEAD');
+  if (goc === dinh) die('tầm vòng rỗng: không tìm được commit gộp ' + NHANH + ' và HEAD trùng nhánh chính');
+  return { goc, dinh, nguon: 'nhanh' };
+}
+const tepO = (sha, rel) => { const r = spawnSync('git', ['-C', ROOT, 'show', `${sha}:${rel}`], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }); return r.status === 0 ? r.stdout : null; };
+const cacKhoi = t => { const m = new Map(); for (const x of t.matchAll(/<!-- <<<([A-Z0-9-]+) -->([\s\S]*?)<!-- \1>>> -->/g)) m.set(x[1], x[2]); return m; };
+function soKhoi(goc, moi) {
+  const b = cacKhoi(goc), n = cacKhoi(moi);
+  return { lech: [...b.keys()].filter(k => n.get(k) !== b.get(k)), them: [...n.keys()].filter(k => !b.has(k)).sort() };
+}
+const VUNG_CAM = ['feature-loop/scripts', 'feature-loop/workflows', 'dieu-phoi', 'scripts/cat-luot.mjs', 'skills/cat-luot', 'lib', 'hooks', 'scripts/pre-merge-check.sh', 'commands/approve.md', '_acceptance/config.yaml'];
+
+// ── CC-02: khuôn có sẵn giữ từng byte, vùng cấm không đổi ─────────────────────────────────────────────
+check('CC-02 khoi-giu-byte', () => {
+  const t = tamVong(); const goc = tepO(t.goc, SKILL_REL), dinh = tepO(t.dinh, SKILL_REL);
+  if (goc === null || dinh === null) die('không đọc được SKILL ở tầm vòng ' + JSON.stringify(t));
+  const k = soKhoi(goc, dinh);
+  eq(k.lech, [], `khối có ở gốc ${t.goc.slice(0, 8)} phải giữ từng byte (${t.nguon})`);
+  eq(k.them, ['DEC-CAN-CU-SLOT', 'DEC-LAT-GATE1'], 'khối mới đúng hai');
+  eq(git(ROOT, 'diff', '--name-only', t.goc, t.dinh, '--', ...VUNG_CAM), '', 'vùng cấm chạm không đổi');
+  console.log(`    CC-02: tầm ${t.goc.slice(0, 8)}..${t.dinh.slice(0, 8)} (${t.nguon}) · ${cacKhoi(goc).size} khối gốc`);
+});
+check('CC-02-do', () => {
+  const goc = readFileSync(SKILL, 'utf8');
+  const tiem = goc.replace(/(<!-- <<<TRONG-DOT -->[\s\S]*?)Trong đợt/, '$1Trong dot');
+  if (tiem === goc) die('mũi tiêm TRONG-DOT không áp');
+  const k = soKhoi(goc, tiem);
+  if (!k.lech.includes('TRONG-DOT')) die('đổi một ký tự trong TRONG-DOT mà hàm so không nêu khối: ' + JSON.stringify(k));
+});
+
+// ── CC-03: khuôn rút từ SKILL, ghi bằng CHÍNH khối lệnh DEC-ID-RECIPE (bash + zsh), bộ xếp lớp đọc lại ──
+const recipeOf = t => { const m = t.match(/<!-- <<<DEC-ID-RECIPE -->\n```\n([\s\S]+?)\n```\n<!-- DEC-ID-RECIPE>>> -->/); if (!m) die('thiếu khối DEC-ID-RECIPE'); return m[1]; };
+const khuonCanCu = t => {
+  const m = t.match(/<!-- <<<DEC-CAN-CU-SLOT -->\n([\s\S]+?)\n<!-- DEC-CAN-CU-SLOT>>> -->/); if (!m) die('thiếu khối DEC-CAN-CU-SLOT');
+  const l = m[1].split('\n'); if (l.length !== 3 || !l.every(x => /^,"can[_a-z]*":/.test(x))) die('khối DEC-CAN-CU-SLOT phải đúng 3 dòng khoá căn cứ');
+  return l;
+};
+const LO = '"cost_if_wrong":"<sai thì tốn gì, 1 câu>"';
+const jsonStr = s => JSON.stringify(String(s)).slice(1, -1);
+const Q_DB = "Luật kho: giá '100%' và biến $HOME «không» được nội suy trong câu.";
+const DIEN = {
+  '<đường dẫn tương đối gốc kho>': 'CLAUDE.md', '<câu trích nguyên văn, một dòng>': jsonStr(Q_DB),
+  '<lối khác chết vì sao, 1 câu>': jsonStr("Lối kia chạm 'tệp' ngoài ranh giới — 0% đường."),
+  '<lối máy khuyên, 1 câu>': jsonStr('Giữ $A như cũ.'), '<lối khác — giá nếu chọn nó, 1 câu>': jsonStr("Đổi sang 'B' — tốn 2 tiêu chí."),
+};
+const dienKhuon = l => Object.entries(DIEN).reduce((s, [k, v]) => s.split(k).join(v), l);
+function ghiBangCongThuc(skillText, sh) {
+  const r = mkdtempSync(path.join(tmpdir(), 'cancu-rt-'));
+  git(r, 'init', '-q'); git(r, 'config', 'user.email', 't@t'); git(r, 'config', 'user.name', 't'); git(r, 'config', 'commit.gpgsign', 'false');
+  ghiTep(r, 'CLAUDE.md', `# Luật\n\n${Q_DB}\n`); git(r, 'add', '-A'); git(r, 'commit', '-qm', 'goc');
+  const base = git(r, 'rev-parse', 'HEAD'); mkdirSync(path.join(r, '_acceptance', 'x'), { recursive: true });
+  const recipe = recipeOf(skillText); if (recipe.split(LO).length !== 2) die('khối DEC-ID-RECIPE không còn đúng một ô cost_if_wrong');
+  for (const k of khuonCanCu(skillText)) {
+    const lenh = recipe.split(LO).join(LO + dienKhuon(k)).split('<slug>').join('x').split('<type>').join('approach').split('<stage>').join('S1')
+      .split('<ISO>').join('2026-10-11T00:00:00Z').split('<1 câu>').join('Chọn A').split('<vì sao, 1 câu>').join('vì').split('<sai thì tốn gì, 1 câu>').join('tốn');
+    const p = spawnSync(sh, ['-c', lenh], { cwd: r, encoding: 'utf8' }); if (p.status !== 0) die(`khối lệnh không chạy dưới ${sh}: ${p.stderr}`);
+  }
+  const mod = require(MOD);
+  return { mod, r, base, so: mod.docSo(readFileSync(path.join(r, '_acceptance', 'x', 'decisions.jsonl'), 'utf8')) };
+}
+for (const sh of ['bash', 'zsh']) {
+  check(`CC-03 ${sh}`, () => {
+    if (spawnSync(sh, ['-c', 'true']).status !== 0) die(sh + ' vắng trên máy — ca KHÔNG bỏ qua');
+    const { mod, r, base, so } = ghiBangCongThuc(readFileSync(SKILL, 'utf8'), sh);
+    eq(so.broken, 0, 'mọi dòng là JSON');
+    const kq = mod.phanLoaiSo(so.entries, { root: r, slug: 'x', base });
+    eq(kq.dong.map(d => d.lop), ['da-quyet', 'da-quyet', 'cau-hoi'], 'lớp ba khuôn');
+    eq(new Set(so.entries.map(e => e.id)).size, 3, 'mã dòng duy nhất');
+    const [a, b, c] = so.entries.map(e => e.can_cu);
+    eq([a.tep, a.trich, b.loi_chet, c.khuyen, c.loi_khac], ['CLAUDE.md', Q_DB, "Lối kia chạm 'tệp' ngoài ranh giới — 0% đường.", 'Giữ $A như cũ.', "Đổi sang 'B' — tốn 2 tiêu chí."], 'trường đọc lại = giá trị đã điền');
+  });
+}
+check('CC-03-do', () => {
+  const t = readFileSync(SKILL, 'utf8');
+  const tiem = t.replace(/(<!-- <<<DEC-CAN-CU-SLOT -->\n),"can_cu":/, '$1,"cancu":');
+  if (tiem === t) die('mũi tiêm khuôn không áp');
+  const { mod, r, base, so } = ghiBangCongThuc(tiem, 'bash');
+  const kq = mod.phanLoaiSo(so.entries, { root: r, slug: 'x', base });
+  if (kq.dong[0].lop !== 'doi-truoc') die('đổi tên khoá trong khuôn 1 mà dòng không ra doi-truoc: ' + kq.dong[0].lop);
+});
+
+// ── CC-07 khuôn lật: rút DEC-LAT-GATE1, ghi bằng DEC-ID-RECIPE vào hồ sơ D có một dòng S1 máy đã quyết ──
+const khuonLat = t => { const m = t.match(/<!-- <<<DEC-LAT-GATE1 -->\n([^\n]+)\n<!-- DEC-LAT-GATE1>>> -->/); if (!m) die('thiếu khối DEC-LAT-GATE1 (một dòng)'); return m[1]; };
+function demSauLat(skillText) {
+  const r = mkdtempSync(path.join(tmpdir(), 'cancu-lat-'));
+  ghiSoKho(r, 'D', [ML('d1')]);
+  const recipe = recipeOf(skillText);
+  const giua = recipe.split('\n').find(l => l.includes('"type":"<type>"')); if (!giua) die('khối DEC-ID-RECIPE không có dòng giữa');
+  const lenh = recipe.split(giua).join(khuonLat(skillText)).split('<slug>').join('D').split('<mã dòng S1 bị đổi>').join('d1').split('<tên người>').join('Chủ Kho')
+    .split('<ISO>').join('2026-10-11T01:00:00Z').split('<type>').join('approach').split('<lựa chọn mới theo lời người, 1 câu>').join('Người chọn lối B')
+    .split('<câu người gõ ở Cổng Phạm vi>').join('sửa: Hỏi-1 = B').split('<sai thì tốn gì, 1 câu>').join('tốn');
+  const p = spawnSync('bash', ['-c', lenh], { cwd: r, encoding: 'utf8' }); if (p.status !== 0) die('khối lệnh lật không chạy: ' + p.stderr);
+  return require(MOD).dem(r).find(x => x.slug === 'D');
+}
+check('CC-07 khuon-lat', () => { eq(demSauLat(readFileSync(SKILL, 'utf8')).lat_may_quyet, 1, 'dòng lật ghi bằng khuôn SKILL được đếm'); });
+check('CC-07-do khuon', () => {
+  const t = readFileSync(SKILL, 'utf8'); const tiem = t.replace(/(<!-- <<<DEC-LAT-GATE1 -->\n[^\n]*)"stage":"gate1"/, '$1"stage":"S1"');
+  if (tiem === t) die('mũi tiêm khuôn lật không áp');
+  if (demSauLat(tiem).lat_may_quyet !== 0) die('đổi stage trong khuôn lật mà vẫn đếm 1 — phép đo không phân biệt');
+});
+
 console.log(`\nResults: ${passed} passed, ${failed} failed (can-cu-s1)`);
 process.exit(failed ? 1 : 0);
