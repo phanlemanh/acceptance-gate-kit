@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 270dc093cf121bafe15ac7d18a6e89a333f64d12
+verified_commit: b9296acba53a60bc799443975e70812ad866b8b3
 human_signoff: manh 2026-10-11
 ---
 
@@ -277,3 +277,7 @@ Round 1: E1–E10 và E12 đạt; hai lệnh suite hồi quy không gắn eval t
 Round 2: sửa S4-r1 (hằng một-ngày qua NGAY_MS, câu model_carry cũ ở SKILL.md, lớp bên đọc run-log 11 lên 13); E1–E10, E12 và cả 10 lệnh suite xanh; hội đồng E11 còn 2 phiếu UNCERTAIN và 1 phiếu PASS, cùng chỉ chữ lệch ở ca khoá vắng giữa CHANGELOG và GUIDE/SKILL. Verdict vòng này: PENDING-JUDGMENT, chờ human_override của E11 ở Cổng 2.
 
 Round 3: sau trả lại ở Cổng 2 (owner nâng phạm vi AC-13…15, sửa lượt 3: bộ đệm git ở kho lớn, lượt dừng sớm giữ dấu lệch, dọn lệnh dấu vân tay khi bị ngắt, script đếm đúng nhãn, thước siết), E1–E10 và E12–E15 đạt, cả 10 lệnh suite xanh, hội đồng E11 đề xuất PASS (hai phiếu PASS, một phiếu nêu giới hạn thứ ba thiếu ngưỡng đếm). Verdict vòng này: PASS, E11 chờ người xác nhận ở Cổng 2.
+
+### Re-pin lần 1 — 2026-10-11, do gộp main 56015d2b (DP4 + G2)
+run_id: repin-20261011T133754Z-18085
+sha: b9296acba53a60bc799443975e70812ad866b8b3 · suites: 10 lệnh exit 0 · evals: 14/14 eval máy đạt kỳ vọng · ngoài làn máy: E11 (E11 không khai paths) · AC không có chốt máy: AC-11
