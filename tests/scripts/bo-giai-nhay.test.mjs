@@ -479,19 +479,22 @@ const DUONG = [
   ['3 resolveConfigList khoi', CORE,
    'out.push(parseFlowValue(m[1]).value)',
    "out.push(m[1].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
-  ['4 s4-args list field', ARGS,
-   'const pv = parseFlowValue(vRaw);',
-   "const _v = vRaw.replace(/\\s+#.*$/, '').trim();\n      const pv = _v.startsWith('[') ? { kind: 'seq', items: _v.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) } : { kind: 's', value: _v };", 'BG4'],
-  ['5 s4-args list khoi', ARGS,
-   'cur[pendingList].push(parseFlowValue(itemM[1]).value)',
-   "cur[pendingList].push(itemM[1].trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
-  ['6 s4-args id', ARGS, 'parseFlowValue(idM[1]).value', null, null],
+  // Đường 4–6 dời vào lib (hồ sơ evals-sat-le-doc-du): lượt chấm đọc trường danh sách qua MỘT bộ đọc
+  // `evalListsOf` — neo nay ở thân bộ đọc, cộng một neo «s4-args gọi lib» không đột biến được.
+  ['4 s4-args list field (lib evalListsOf)', CORE,
+   "    const pv = parseFlowValue(v);\n",
+   "    const pv = v.startsWith('[') ? { kind: 'seq', items: v.replace(/^\\[|\\]$/g, '').split(',').map(x => x.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) } : { kind: 's', value: v };\n", 'BG4'],
+  ['5 s4-args list khoi (lib evalListsOf)', CORE,
+   "seq.items.push(parseFlowValue(it[2]).value)",
+   "seq.items.push(it[2].replace(/\\s+#.*$/, '').trim().replace(/^[\"']|[\"']$/g, ''))", 'BG4'],
+  ['6 s4-args id (lib evalListsOf)', CORE, 'const id = parseFlowValue(idM[2]).value;', null, null],
+  ['6b s4-args goi lib', ARGS, 'evalListsOf(evalsText, LIST_KEYS)', null, null],
   ['7 s4-args models', ARGS,
    'out[m[1]] = parseFlowValue(m[2]).value',
    "out[m[1]] = m[2].replace(/^[\"']|[\"']$/g, '')", 'BG4'],
-  ['8 carry-plan paths', CP,
-   'const pv = R.parseFlowValue(f[1]);',
-   "const pv = { kind: 'seq', items: f[1].replace(/^\\[|\\]$/g, '').split(',').map(s => s.trim().replace(/^[\"']|[\"']$/g, '')).filter(Boolean) };", 'BG9'],
+  // Đường 8 (evals-sat-le-doc-du): carry-plan đọc `paths` qua CÙNG bộ đọc với s4-args (evalListsOf) —
+  // lớp «hai bên đọc paths khác nhau» nay không còn chỗ để tiêm; một nguồn do ca MN1 của hồ sơ ấy chứng.
+  ['8 carry-plan paths (lib evalListsOf)', CP, "R.evalListsOf(text, ['paths'])", null, null],
   ['9 carry-plan cmd', CP, 'cur.cmd = R.parseFlowValue(f[1]).value', null, null],
 ];
 const MUT_ALL = DUONG.filter(d => d[3] !== null).map(d => [d[0], d[1], d[2], d[3], d[4]]);
@@ -499,7 +502,8 @@ const MUT_ALL = DUONG.filter(d => d[3] !== null).map(d => [d[0], d[1], d[2], d[3
 // GÕ TAY, không suy từ bảng. Lượt chấm 4 bắt: `MUT_ALL.length` suy TỪ chính
 // mảng thì phép so dưới là hằng-đúng — xoá một dòng `DUONG` làm ma trận co lại
 // LẶNG. Đổi bảng đường thì phải đổi số này cùng lượt, có chủ ý.
-const BG8_MUTANTS = 7;
+// 7 → 6 (evals-sat-le-doc-du): đường 8 hết chỗ tiêm khi carry-plan đọc paths qua evalListsOf.
+const BG8_MUTANTS = 6;
 function bg8() {
   if (process.env.BG_NO_RED === '1') { xanh('BG8', 'bo qua trong ban sao (BG_NO_RED=1) — chong de quy'); return; }
   const MUT = MUT_ALL;
