@@ -97,7 +97,8 @@ export const choPhepTheoPha = (pha, taiNguyen) => pha === 'dang-chay' || (pha ==
 function capPhat(thuMuc, cfg, hangViec, dangGiu, giamTai, nowMs, pha = 'dang-chay', may = { ap: false, cho: null }, choDatLai = null) {
   const donXin = docThuMucJson(thuMuc, 'xin', kiemDon);
   for (const { taiNguyen, don } of capLuot({ donXin, dangGiu, giamTai, hangViec })) {
-    if (!choPhepTheoPha(pha, taiNguyen) || choDatLai) continue;
+    if (!choPhepTheoPha(pha, taiNguyen)) continue;
+    if (choDatLai) continue;
     if (taiNguyen === 's4' && may.ap) {
       const thuHoi = thuHoiMayChet(nowMs);
       if (thuHoi) ghiSuKien(thuMuc, { loai: 'thu-hoi-may', kho: thuHoi.kho, dot: thuHoi.dot, ly_do: thuHoi.ly_do, can_phan: true });
