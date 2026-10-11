@@ -125,8 +125,8 @@ Later: dùng ở OneFlow (bật theo lựa chọn, sau đợt thử) · bit riê
 - Không bit PR nháp (đề 5): nháp là sự kiện GitHub, không phải hạng; crm #369 đã tự lo.
 - Không đổi tên, không dời, không sửa thân `glob_variants`/`match_globs`/`config_list` (crm #369 dựa; vòng A, G3 gần
   vùng).
-- Không sửa ba ngữ nghĩa glob lệch nhau của kit (bash cổng · `globToRe` của S4 · bản đo) — phát hiện ghi ở design
-  doc §4, báo Điều phối.
+- Không sửa ba ngữ nghĩa glob lệch nhau của kit (bash cổng · `globToRe` của S4 · bản đo) — ghi hạt giống
+  `docs/plans/2026-10-11-hat-giong-ba-ngu-nghia-glob-t1-skip.md`.
 - Không tách CI của kit thành job song song (finding §6 — meta).
 
 ## Notes
