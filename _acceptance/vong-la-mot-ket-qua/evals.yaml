@@ -1,0 +1,157 @@
+schema_version: 1
+feature_slug: vong-la-mot-ket-qua
+# Ca đo sống ở tests/scripts/lo-trinh.test.mjs (LT-142..LT-150), executor `executors.test.lo_trinh` sẵn
+# có. Kho thử do code sinh trong lượt (git init thư mục tạm). Bản phạm vi thử sinh bằng hàm ghi `vietPV`
+# (rút khuôn dòng từ khối PHAM-VI-MA của khuôn); khoảng cỡ trong mọi bảng kỳ vọng RÚT từ khối
+# CAT-LUOT-CO của SKILL trong ca, không chép số. usage-report.md của kho thử sinh bằng CHÍNH
+# feature-loop/scripts/wf-usage.mjs (bên ghi thật) với tiêu đề lấy từ dòng `--title` của Feature Loop
+# SKILL. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao gói bị tiêm, SAU khi bản lành xanh trên cùng kho, và
+# ghim thông điệp rút từ đầu ra của hàm đo. Răng «gốc» = `git archive 68951cef scripts lib skills`.
+# Mỗi eval ghim đúng dòng "PASS: LT-…".
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, skills/cat-luot/SKILL.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-142" — đối chứng dương: gói lành, hàng 11 tiêu chí ra `tren-muc-tieu`,
+      thoát 0. Bản sao gói sửa khối (`tach_tu: 11`, `cho_phep_den: 10`) → cùng hàng ra `can-tach`, thoát 1.
+      Ma trận khối hỏng viết sẵn: vắng khối · thiếu từng khoá (5 ca, mỗi khoá một) · `muc_tieu: 0-10` ·
+      `tran_luot_cham: 0` · `it_du_lieu_duoi: abc` · `muc_tieu: 10-8` · `cho_phep_den: 9` · `tach_tu: 14`
+      (hở) · `tach_tu: 12` (chồng) — mỗi ca thoát 2, stderr nêu đúng tên khoá hỏng, stdout không có «bảng
+      phủ»; số ca == 13 (in ra). Và "PASS: LT-142-do" — bản sao script nướng khoảng thành hằng (bỏ
+      đọc khối): CHÍNH hàm đo trả lỗi nêu «khối sửa không đổi cờ».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, skills/cat-luot/SKILL.md, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-143" — bảng kỳ vọng dựng TRƯỚC trong ca từ khối khoảng: 16 hàng
+      tieu_chi 1…16 + 1 hàng thiếu + 4 hàng sai kiểu ("9", 9.5, 0, -3) = 21 phần tử, số ca đo == 21 (in
+      ra); mỗi hàng: đúng cờ (hoặc không cờ cỡ) ở đúng mức (`lỗi:`/`cảnh báo:`), dòng nêu mã hàng,
+      «[<cờ>]» và con số; mã thoát 1 trên đợt có lỗi; đối chứng dương: đợt chỉ hàng 8–10 thoát 0, không
+      dòng cờ cỡ. Và "PASS: LT-143-do" — bản sao so `>` thay `>=` ở ngưỡng tách: CHÍNH hàm đo trả lỗi nêu
+      hàng 13.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-144" — ca dương: hai hàng cùng đợt cùng nhom (4 + 5 tiêu chí) → mỗi
+      dòng `duoi-muc-tieu` chứa «gộp được với <mã kia> (tổng 9)»; ba ca đối chứng {khac-nhom · vuot-tong
+      (6 + 7) · khac-dot} → dòng `duoi-muc-tieu` của hàng cùng đợt KHÔNG chứa «gộp được với». Và
+      "PASS: LT-144-do" — bản sao bỏ điều kiện cùng nhom: CHÍNH hàm đo trả lỗi nêu ca «khac-nhom».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-145" — ma trận viết sẵn 9 ca × kỳ vọng (mo-cau → không cờ · dau-va-hoa
+      → không cờ · nfd-nfc → không cờ · giua-cau → lỗi vai-khong-mo-cau · vang-trong-cau → lỗi vai-khong-mo-cau · nen-co-nguong
+      → không cờ · nen-thieu-nguong → lỗi nen-thieu-bat-khi · nen-nguong-trang → lỗi nen-thieu-bat-khi ·
+      thieu-vai → cảnh báo chua-khai-dang-giao), số ca == 9 (in ra), mỗi ca kiểm cả mức và mã thoát. Và
+      "PASS: LT-145-do" — bản sao so «có trong câu» thay «mở câu»: CHÍNH hàm đo trả lỗi nêu ca «giua-cau».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-146" — 10 hàng ngoài đợt (đợt khác + không dot) mang các cờ can-tach ·
+      tieu-chi-sai-kieu · chua-uoc-tieu-chi · vai-khong-mo-cau · nen-thieu-bat-khi · chua-khai-dang-giao,
+      đợt đang xét sạch → thoát 0; mỗi cờ có đúng MỘT dòng mở bằng «cảnh báo: [<cờ>]» nêu số hàng; ca 10
+      hàng cùng cờ liệt 8 mã rồi «…»; không dòng nào mở bằng «cảnh báo: hàng <mã ngoài đợt> [». Đối
+      chứng: cùng các hàng chuyển vào đợt → thoát 1. Và "PASS: LT-146-do" — bản sao in theo từng hàng:
+      CHÍNH hàm đo trả lỗi nêu «một dòng».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, scripts/lo-trinh.mjs, scripts/product-map.mjs, skills/acceptance/references/lo-trinh-template.json, tests/scripts/lo-trinh.test.mjs, tests/scripts/fixtures/lo-trinh/crm-okr.json]
+    expected: >
+      exit 0; stdout có "PASS: LT-147" — ba kho {khuôn gốc 68951cef + bản phạm vi đợt mẫu sinh từ `phu`
+      của khuôn · lộ trình kit thật + đợt mới sạch · bản chụp crm-okr + đợt mới sạch}: răng gốc và răng
+      mới cùng mã thoát, tập dòng không mở bằng «cảnh báo:» bằng nhau từng chữ, mọi dòng thêm mở bằng
+      «cảnh báo:» và chứa một tên trong danh sách cờ xuất khẩu; đối chứng dương: ít nhất một kho có dòng
+      thêm (cờ vàng thật sự in). Trang LO-TRINH.html vẽ từ kho có hàng mang vai/tieu_chi == byte trang vẽ
+      khi xoá hai trường. Và "PASS: LT-147-do" — bản sao coi thiếu vai trong đợt là lỗi: CHÍNH hàm đo trả
+      lỗi nêu «chua-khai-dang-giao»; "PASS: LT-147-do-trang" — bản sao bộ vẽ in `vai`: hàm đo trả lỗi nêu
+      «byte».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, lib/ac-line.cjs, lib/workspace-record.cjs, feature-loop/scripts/wf-usage.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-148" — kho thử có hồ sơ dựng trong ca (tiêu chí gạch đầu dòng và tiêu
+      đề `### AC-n`; usage-report sinh bằng wf-usage.mjs thật, tiêu đề rút từ dòng `--title` của Feature
+      Loop SKILL; trạng thái draft · approved chưa giao cỡ 15 · signed-off · machine-cleared ·
+      da-cham-boi-thuc-te · đã giao không usage · không tiêu chí): `--co` ra n_chot/n/luot_tb/cham_tran_pt/
+      it_du_lieu từng nhóm == giá trị tính tay trong ca từ dữ liệu đã dựng; trong_khoang.pt_tong tính trên
+      n_chot (hồ sơ approved cỡ 15 nằm trong mẫu số), cham_tran_pt trên n đã giao; bo_qua từng lý do
+      đúng; nhóm n=0 không mang luot_tb; kho không hồ sơ đã chốt → chua_do_duoc true, không khoá *_pt;
+      băm cây (số tệp băm > 0, in ra) + git status không đổi; trên cây kit đang kiểm n_chot tổng ≥ 50 và
+      bo_qua.khong_doc_tieu_chi == số hồ sơ không khai mã nào theo khuôn `AC-<số>` (đếm độc lập bằng regex
+      khuôn, in tên — hôm nay 1: cong-dang-co-cua khai AC-A…C). Và "PASS: LT-148-do" — bản sao đếm tiêu chí bằng mẫu `- AC-`:
+      CHÍNH hàm đo trả lỗi nêu hồ sơ tiêu đề; "PASS: LT-148-do-ghi" — bản sao ghi một tệp vào kho trước khi
+      in JSON: hàm đo trả lỗi nêu đường tệp ấy; "PASS: LT-148-do-song-sot" — bản sao tính pt_tong trên
+      hồ sơ đã giao: hàm đo trả lỗi nêu «pt_tong».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [scripts/cat-luot.mjs, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-149" — kho thử hồ sơ chốt trước mốc · đúng ngày mốc · sau mốc · chỉ có
+      veto_opened_at sau mốc · không ngày chốt: `--co --tu <mốc>` đếm đúng ba hồ sơ (đúng ngày · sau ·
+      veto), bo_qua.khong_ngay_chot == 1, trong_khoang.pt_tong (kèm n_chot) và cham_tran_pt (kèm n) ==
+      tính tay; lộ trình thử ba hàng {khai 9 · hợp đồng thật 16} · {khai 9 · thật 9} · {slug không có hồ
+      sơ}: du_kien.hang đúng hai mục với du_kien/that, vuot_cho_phep == 1; mốc sau mọi hồ sơ →
+      chua_do_duoc true; `--tu 11/10/2026` → thoát 2 nêu «11/10/2026». Và "PASS: LT-149-do" — bản sao bỏ
+      nhánh veto_opened_at: CHÍNH hàm đo trả lỗi nêu «veto»; "PASS: LT-149-do-du-kien" — bản sao lấy
+      `that` bằng `du_kien`: hàm đo trả lỗi nêu «vuot_cho_phep».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.lo_trinh
+    paths: [skills/cat-luot/SKILL.md, scripts/cat-luot.mjs, skills/acceptance/references/lo-trinh-template.json, tests/scripts/lo-trinh.test.mjs]
+    expected: >
+      exit 0; stdout có "PASS: LT-150" — khối CAT-LUOT-CO-LENH chạy nguyên văn (CLAUDE_PLUGIN_ROOT = gói)
+      in JSON có `nhom`; khối CAT-LUOT-RANG ca xanh 0 · ca đỏ 1; CAT-LUOT-SAU-LUAT đúng sáu dòng đánh số,
+      dòng 1 chứa «vai» và «nền», dòng 4 chứa «CAT-LUOT-CO»; tập tên cờ trong bảng cờ của SKILL == tập
+      CO_TEN xuất khẩu (đẳng thức tập, in hiệu hai phía khi lệch); khuôn lo-trinh-template.json có hàng
+      `vai` tên vai và hàng `vai: "nen"`, mọi hàng đợt mẫu có tieu_chi, răng trên đợt mẫu 0 lỗi 0 cảnh
+      báo; đối chứng dương: ca LT-138 cũ vẫn xanh. Và "PASS: LT-150-do" — bản sao SKILL bỏ một tên cờ
+      khỏi bảng: CHÍNH hàm đo trả lỗi nêu tên cờ ấy; "PASS: LT-150-do-khuon" — bản sao khuôn KHÔNG còn
+      hàng `vai: "nen"`: hàm đo trả lỗi nêu «nen».
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: judgment
+    inputs:
+      - skills/cat-luot/SKILL.md
+      - skills/acceptance/references/lo-trinh-template.json
+      - _acceptance/vong-la-mot-ket-qua/mau/pham-vi-curator.md
+    question: >
+      Chỉ dùng ba tệp trong inputs, hãy tự làm theo SKILL cắt lượt và cắt bản phạm vi mẫu (13 mã D1 +
+      H1–H12 của kế hoạch bàn giao media-library, vốn từng bị cắt thành 13 hồ sơ theo gốc kỹ thuật) thành
+      hàng lộ trình theo khuôn: ghi ra các hàng bạn cắt (ma · cau_giao · vai · tieu_chi · phu) và chân
+      trời nếu có. Rồi chấm CHÍNH các hàng ấy: (1) mỗi hàng một kết quả, ít hàng hơn 13, không hàng nào
+      gom theo gốc kỹ thuật; (2) mỗi hàng có tieu_chi trong khoảng của khối CAT-LUOT-CO, hoặc đã tách/gộp
+      theo khối; (3) câu giao đúng một trong hai dáng — có vai mở câu cho việc người dùng thấy, vai `nen`
+      kèm bat_khi đo được cho việc nền, không ép «Là kỹ sư…»; (4) mọi mã ở đúng một hàng hoặc chân trời;
+      (5) không hàng nào mang trường cho agent. Với mỗi vế, nêu bước/khối nào của SKILL dẫn tới lựa chọn;
+      vế nào SKILL không dẫn được (bạn phải tự đoán) thì vế ấy FAIL. Trả PASS chỉ khi cả năm vế đạt.
+    evidence_required: [run_id, verdict, proposals]
