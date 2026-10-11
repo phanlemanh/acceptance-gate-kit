@@ -1,0 +1,10 @@
+{
+  "rateLimits": [
+    { "kind": "five_hour", "percentUsed": 23.5, "resetsAt": "2026-10-11T03:09:59.919Z" },
+    { "kind": "seven_day", "percentUsed": 12, "resetsAt": "2026-10-12T23:59:59.919Z" }
+  ],
+  "mong_doi": {
+    "five_hour": { "pct": 23.5, "dat_lai": "2026-10-11T03:09:59.919Z" },
+    "seven_day": { "pct": 12, "dat_lai": "2026-10-12T23:59:59.919Z" }
+  }
+}

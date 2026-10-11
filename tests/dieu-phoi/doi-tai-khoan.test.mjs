@@ -224,3 +224,84 @@ test('DP4-01-do cap-o-ban-giao', async () => {
   console.log(`  bản tiêm: ${loi.join(' · ')}`);
   assert.ok(loi.includes('dang-ban-giao: nhịp cấp khoá s4'), loi.join(' | '));
 });
+
+// ---------- DP4-02: CLI han-muc (AC-2, E2) ----------
+const FX = docJ(path.join(DAY, 'fixtures', 'rate-limits-mod.json'));
+const MA_TRAN_DOC = [
+  ['mod', FX.rateLimits, FX.mong_doi],
+  ['get-usage', { windows: [
+    { label: '5-hour limit', percentUsed: 23, resetsAt: '2026-10-11T03:09:59.919Z' },
+    { label: 'Weekly · all models', percentUsed: 12, resetsAt: '2026-10-12T23:59:59.919Z' },
+    { label: 'Weekly · Fable', percentUsed: 0, resetsAt: '2026-10-13T00:00:00.000Z' },
+  ] }, { five_hour: { pct: 23, dat_lai: '2026-10-11T03:09:59.919Z' }, seven_day: { pct: 12, dat_lai: '2026-10-12T23:59:59.919Z' } }],
+  ['statusline', { rate_limits: { five_hour: { used_percentage: 41, resets_at: 1760151600 } } }, { five_hour: { pct: 41, dat_lai: new Date(1760151600 * 1000).toISOString() } }],
+  ['mod', [], null],
+  ['mod', '{hỏng', null],
+  ['la', FX.rateLimits, null],
+];
+const docHanMuc = (dot) => docJ(path.join(dot, 'han-muc.json'));
+const hanMuc = (cwd, nguon, du, { phien = 's-gs', nowMs = null } = {}) => chayCli(cwd, ['han-muc', '--nguon', nguon, '--phien', phien, '--doc', typeof du === 'string' ? du : JSON.stringify(du)], { env: nowMs != null ? { DIEU_PHOI_NOW_MS: String(nowMs) } : {} });
+
+test('DP4-02 chuan-hoa', () => {
+  const { kho, dot } = khoLienKet();
+  const p = path.join(dot, 'han-muc.json');
+  const dong = MA_TRAN_DOC.map(([nguon, du, mong], i) => {
+    const truoc = fs.existsSync(p) ? bamTep(p) : null;
+    const r = hanMuc(kho, nguon, du);
+    if (mong === null) {
+      assert.equal(r.ma, 1, `hàng ${i}: ${r.out}`);
+      assert.match(r.err, nguon === 'la' ? /nguồn «la»/ : new RegExp(`nguồn ${nguon}`), `hàng ${i}: ${r.err}`);
+      assert.equal(fs.existsSync(p) ? bamTep(p) : null, truoc, `hàng ${i}: tệp đổi`);
+      return `${i} ${nguon} · từ chối · ${r.err.trim()}`;
+    }
+    assert.equal(r.ma, 0, r.err);
+    assert.deepEqual(docHanMuc(dot).doc.at(-1).cua_so, mong, `hàng ${i}`);
+    return `${i} ${nguon} · ${JSON.stringify(mong)}`;
+  });
+  console.log(dong.map((d) => `  ${d}`).join('\n'));
+  assert.equal(dong.length, 6);
+});
+
+test('DP4-02 hai-muoi', () => {
+  const { kho, dot } = khoLienKet();
+  for (let i = 0; i < 25; i++) assert.equal(hanMuc(kho, 'mod', FX.rateLimits, { nowMs: GIO + i * PHUT }).ma, 0);
+  const ds = docHanMuc(dot).doc;
+  console.log(`  ${ds.length} lần đọc · đầu ${ds[0].luc} · cuối ${ds.at(-1).luc}`);
+  assert.equal(ds.length, 20);
+  assert.equal(ds[0].luc, new Date(GIO + 5 * PHUT).toISOString());
+  assert.equal(ds.at(-1).luc, new Date(GIO + 24 * PHUT).toISOString());
+});
+
+const khoaSau = (o, tien = '') => (o && typeof o === 'object' && !Array.isArray(o)
+  ? Object.keys(o).flatMap((k) => [`${tien}${k}`, ...khoaSau(o[k], `${tien}${k}.`)])
+  : Array.isArray(o) && o.length ? khoaSau(o[0], `${tien}[].`) : []).sort();
+
+test('DP4-02 khuon', () => {
+  const { kho, dot } = khoLienKet();
+  assert.equal(hanMuc(kho, 'mod', FX.rateLimits).ma, 0);
+  const khuon = docJ(path.join(GOI, 'scripts', 'mau', 'han-muc.json'));
+  assert.deepEqual(khoaSau(docHanMuc(dot)), khoaSau(khuon));
+});
+
+test('DP4-02 round-trip', async () => {
+  const { kho, dot } = khoLienKet();
+  assert.equal(hanMuc(kho, 'get-usage', MA_TRAN_DOC[1][1], { nowMs: GIO }).ma, 0);
+  const { lanDocHieuLuc } = await nap(GOI, 'han-muc.mjs');
+  const { lan } = lanDocHieuLuc(dot, { nowMs: GIO + 2 * PHUT });
+  assert.deepEqual(lan, docHanMuc(dot).doc.at(-1));
+  assert.equal(lan.nguon, 'get-usage');
+});
+
+test('DP4-02-do khong-dot', () => {
+  const kho = tam('dp4-trong-');
+  git(kho, 'init', '-q', '-b', 'main');
+  git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const truoc = bamCay(kho);
+  const r = hanMuc(kho, 'mod', FX.rateLimits);
+  assert.equal(r.ma, 0, r.err);
+  assert.equal(r.out.trim(), 'khong-co-dot');
+  assert.equal(bamCay(kho), truoc, 'kho không đợt: cây phải không đổi');
+  const { kho: k2, dot } = khoLienKet();
+  assert.equal(hanMuc(k2, 'mod', FX.rateLimits).ma, 0);
+  assert.ok(fs.existsSync(path.join(dot, 'han-muc.json')), 'đối chứng dương: kho có đợt thì tệp được tạo');
+});

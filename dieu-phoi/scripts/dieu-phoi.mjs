@@ -17,6 +17,7 @@ import { ghiVai, nhanVaiGiamSat } from './vai.mjs';
 import { ghiDon, ghiNhatKyCli, ghiTraLoi, ghiYeuCau, kiemGiamSat, nhaKhoa } from './ghi.mjs';
 import { tiepTuc } from './tiep-tuc.mjs';
 import { danhThuc } from './danh-thuc.mjs';
+import { ghiLanDoc } from './han-muc.mjs';
 
 const DAY = path.dirname(fileURLToPath(import.meta.url));
 const lienKet = (goc) => path.join(goc, '.acceptance-runs', TEN_LIEN_KET);
@@ -322,6 +323,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
         const kq = nhanVaiGiamSat(thuMuc, { phien: co['giam-sat'], worktree: cwd });
         return kq.doi ? `vai: giám sát → ${co['giam-sat']}` : `vai: ${co['giam-sat']} đã là giám sát`;
       },
+      'han-muc': () => {
+        const kq = ghiLanDoc(cwd, { nguon: co.nguon, phien: typeof co.phien === 'string' ? co.phien : null, doc: typeof co.doc === 'string' ? co.doc : '' });
+        return kq.ghi ? `han-muc: ${kq.lan.nguon} ${Object.entries(kq.lan.cua_so).map(([k, v]) => `${k} ${v.pct}%`).join(' · ')}` : kq.ly_do;
+      },
       'danh-thuc': () => {
         const kq = danhThuc(cwd);
         return co.json ? JSON.stringify(kq) : `${kq.hanh_dong}${kq.cau ? ` — ${kq.cau}` : ''} (${kq.ly_do})`;
@@ -330,7 +335,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
       dong: () => dongDot(cwd) ?? 'đã đóng đợt: bộ phát lịch dừng, hook im',
       xem: () => xem(cwd),
     }[lenh];
-    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|chay|dung|dong|xem [--kiem-chuyen]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|xin <loại> [--uoc-phut <n>]|nha <tài nguyên>|yeu-cau <loại> [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]>');
+    if (!viec) throw new Error('dùng: dieu-phoi.mjs <mo <tên> [--goi <dir>] [--phien <id>]|pha <trạng thái> [--ly-do <s>]|chan-doan [--json]|hang <day-len|them|nghi> …|the <khoi-tao|dong> [--json]|dem [--json]|chay|dung|dong|xem [--kiem-chuyen]|tiep-tuc --phien <id> [--nhe] [--json]|danh-thuc [--json]|han-muc --nguon <mod|get-usage|statusline> --phien <id> --doc '<json>'|xin <loại> [--uoc-phut <n>]|nha <tài nguyên>|yeu-cau <loại> [--tep a,b]|tra-loi <id> --ket-qua <kq> [--phien <id>]|nhat-ky <câu> [--phien <id>]|vai --giam-sat <id> [--phien <id>]>');
     process.stdout.write(`${viec()}\n`);
   } catch (e) {
     process.stderr.write(`dieu-phoi: ${e.message}\n`);
