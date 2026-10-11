@@ -673,6 +673,19 @@ executors:
     dieu_phoi_mod: node tests/dieu-phoi/kiem-mod.mjs
     # Chiều im của dieu-phoi-feature-loop-trong-dot (AC-9): so với merge-base HEAD origin/main.
     dieu_phoi_dp7_im: node tests/dieu-phoi/dp7-chieu-im.mjs
+    # Hồ sơ ci-cua-kho-bo-job-nang — chế độ --hang-pr của pre-merge-check.sh (tên ca = tên AC).
+    hp_ac1: HP_CASES=AC-1 node tests/scripts/hang-pr.test.mjs
+    hp_ac2: HP_CASES=AC-2,AC-2-do node tests/scripts/hang-pr.test.mjs
+    hp_ac3: HP_CASES=AC-3,AC-3-im,AC-3-do node tests/scripts/hang-pr.test.mjs
+    hp_ac4: HP_CASES=AC-4,AC-4-do node tests/scripts/hang-pr.test.mjs
+    hp_ac5: HP_CASES=AC-5 node tests/scripts/hang-pr.test.mjs
+    hp_ac6: HP_CASES=AC-6,AC-6-do node tests/scripts/hang-pr.test.mjs
+    hp_ac7: HP_CASES=AC-7 node tests/scripts/hang-pr.test.mjs
+    hp_ac8: HP_CASES=AC-8,AC-8-do,AC-8-lich-su,AC-8-lich-su-do node tests/scripts/hang-pr.test.mjs
+    # Chạy cổng hai lần trên chính cây kit (có và không --base) — chậm, không vào suite (ca chỉ chạy khi gọi tên).
+    hp_ac8_kho_that: HP_CASES=AC-8-kho-that node tests/scripts/hang-pr.test.mjs
+    hp_ac9: HP_CASES=AC-9,AC-9-do node tests/scripts/hang-pr.test.mjs
+    hp_ac10: HP_CASES=AC-10,AC-10-do node tests/scripts/hang-pr.test.mjs
 risk_tiers:
   t1_skip_globs:
     # Chỉ docs THẬT. Không dùng "*.md" — xem ghi chú 2 ở đầu file.
