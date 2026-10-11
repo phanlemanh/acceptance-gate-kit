@@ -3,8 +3,8 @@
 // giữa các mảnh mjs. Kho thử do code sinh trong lượt (thư mục tạm + git init); giá trị mong đợi viết sẵn
 // trong ca, KHÔNG rút từ đầu ra mô-đun. Đường dẫn suy từ vị trí tệp này.
 // Chế độ dựng thẻ cho eval nhìn E9: `node tests/scripts/can-cu-s1.ca.mjs --dung-the <thư mục>`.
-import { spawnSync, execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, existsSync, symlinkSync } from 'node:fs';
+import { spawnSync, execFileSync, spawn } from 'node:child_process';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, existsSync, symlinkSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -652,6 +652,67 @@ check('KK-7-do', () => {
   const f = banSaoThe("const baVeRut = e => ({ why: typeof e.why === 'string' ? e.why : null, ", 'const baVeRut = e => ({ ');
   const loi = kiemBanRut(JSON.parse(theBaVe(f, ['--extract']).stdout));
   if (!loi.some(x => x.includes('why'))) die('bản rút mất why mà hàm kiểm không nêu: ' + JSON.stringify(loi));
+});
+
+// ── KK-8: hồ sơ cũ (sổ không có dòng mang can_cu) — thẻ Cổng Phạm vi ép --gate 1 ở gốc vòng == ở đỉnh vòng ──
+// Gốc/đỉnh neo LỊCH SỬ khi nhánh vòng đã gộp (merge-base hai cha / cha thứ hai), chưa gộp thì merge-base với nhánh
+// chính / cây làm việc. Bản thẻ dựng bằng git archive trọn ba thư mục thẻ nạp; đối chứng dương chứng bộ thư mục đủ.
+const NHANH_KK = 'vong/can-cu-s1-chay-moi-kho';
+function tamVongKK() {
+  const re = new RegExp(`\\tMerge pull request #\\d+ from \\S+/${NHANH_KK.replace(/[/.]/g, m => '\\' + m)}$`);
+  const dong = git(ROOT, 'log', '--merges', '--format=%H%x09%s', 'HEAD').split('\n').find(l => re.test(l));
+  if (dong) { const m = dong.split('\t')[0]; return { goc: git(ROOT, 'merge-base', `${m}^1`, `${m}^2`), dinh: git(ROOT, 'rev-parse', `${m}^2`), nguon: 'lich-su' }; }
+  const chinh = ['origin/main', 'main'].find(r => spawnSync('git', ['-C', ROOT, 'rev-parse', '--verify', '--quiet', r]).status === 0);
+  if (!chinh) throw new Error('không tìm được nhánh chính (origin/main | main) để tính gốc vòng');
+  return { goc: git(ROOT, 'merge-base', 'HEAD', chinh), dinh: null, nguon: 'nhanh' };
+}
+const THU_MUC_THE = ['scripts', 'lib', 'skills'];
+const banLuu = sha => { const d = mkdtempSync(path.join(tmpdir(), 'kk-luu-')); execFileSync('bash', ['-c', 'git -C "$1" archive "$2" scripts lib skills | tar -x -C "$3"', '_', ROOT, sha, d]); return d; };
+const banSaoTu = (goc, tu, sang) => {
+  const d = mkdtempSync(path.join(tmpdir(), 'kk-tiem-')); for (const x of THU_MUC_THE) cpSync(path.join(goc, x), path.join(d, x), { recursive: true });
+  const f = path.join(d, 'scripts', 'gate-card.js'); const t = readFileSync(f, 'utf8'); if (!t.includes(tu)) throw new Error('mũi tiêm thẻ không áp: ' + tu);
+  writeFileSync(f, t.split(tu).join(sang)); return d;
+};
+const hoSoCu = () => readdirSync(path.join(ROOT, '_acceptance')).filter(x => {
+  try { readFileSync(path.join(ROOT, '_acceptance', x, 'contract.md')); return !readFileSync(path.join(ROOT, '_acceptance', x, 'decisions.jsonl'), 'utf8').includes('"can_cu"'); } catch (_) { return false; }
+}).sort();
+const chayThe = (goc, slug, them) => new Promise(res => {
+  const p = spawn('node', [path.join(goc, 'scripts', 'gate-card.js'), '--root', ROOT, '--slug', slug, '--gate', '1', ...them]);
+  let o = ''; p.stdout.on('data', c => { o += c; }); p.on('close', code => res(`${code}\n${o}`));
+});
+async function soThe(gocA, gocB, slugs, { dungKhiLech = false } = {}) {
+  const lech = []; let i = 0;
+  const tho = async () => {
+    while (i < slugs.length && !(dungKhiLech && lech.length)) {
+      const x = slugs[i++];
+      for (const them of [[], ['--extract']]) {
+        const [a, b] = await Promise.all([chayThe(gocA, x, them), chayThe(gocB, x, them)]);
+        if (a !== b) { lech.push(x + (them.length ? ' (bản rút)' : '')); break; }
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: 4 }, tho)); return lech.sort();
+}
+let KK8;
+try {
+  const t0 = Date.now(); const tv = tamVongKK(); const ds = hoSoCu();
+  const gocA = banLuu(tv.goc); const gocB = tv.dinh ? banLuu(tv.dinh) : ROOT;
+  const doiChung = await soThe(banLuu('HEAD'), ROOT, ds.slice(0, 5));
+  const lech = await soThe(gocA, gocB, ds);
+  const lechTiem = await soThe(gocA, banSaoTu(gocB, 'sai thì tốn: ', 'sai thi ton: '), ds, { dungKhiLech: true });
+  KK8 = { tv, n: ds.length, doiChung, lech, lechTiem, giay: ((Date.now() - t0) / 1000).toFixed(1) };
+} catch (e) { KK8 = { loi: e.message }; }
+check('KK-8 ho-so-cu', () => {
+  if (KK8.loi) die(KK8.loi);
+  eq(KK8.doiChung, [], 'đối chứng dương: bản lưu trữ HEAD (scripts lib skills) == cây làm việc');
+  if (KK8.n < 20) die(`chỉ ${KK8.n} hồ sơ cũ để so — cần ≥ 20`);
+  eq(KK8.lech, [], 'thẻ hồ sơ cũ ở gốc vòng == ở đỉnh vòng');
+  console.log(`    KK-8: ${KK8.n} hồ sơ · gốc ${KK8.tv.goc.slice(0, 8)} → đỉnh ${KK8.tv.dinh ? KK8.tv.dinh.slice(0, 8) : 'cây làm việc'} (${KK8.tv.nguon}) · ${KK8.giay} s`);
+});
+check('KK-8-do', () => {
+  if (KK8.loi) die(KK8.loi);
+  if (!KK8.lechTiem.length) die('thẻ đỉnh đổi chữ «sai thì tốn:» của khối chung mà phép so không nêu hồ sơ nào');
+  console.log('    KK-8-do nêu: ' + KK8.lechTiem.join(', '));
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (can-cu-s1)`);
