@@ -292,7 +292,11 @@ P.push(muc('tai-nguyen', 'Tài nguyên', H.thieu.includes('usage-report.md') ? c
 P.push(muc('gioi-han', 'Giới hạn và ngoài hợp đồng', `<ul data-gioi-han>${[...CT.oos.map(x => `<li data-loai="ngoai">${esc(x)}</li>`), ...CT.known.map(x => `<li data-loai="gioi-han">${esc(x)}</li>`)].join('') || '<li class="vang">không có</li>'}</ul>`));
 const pr = prCua(C.ma);
 P.push(muc('giao', 'Giao', `<div class="kv" data-giao><span>Mã đã chấm <b class="mono">${C.ma ? esc(C.ma) : chuaCo('evidence-report.md')}</b></span><span>Ngày ký <b>${esc(CT.giao.ngayKy || '—')}</b></span><span>${esc(M.ai_quyet || '')}</span><span data-pr>${pr ? `PR #${esc(pr)}` : 'chưa gộp'}</span></div><p class="note">${esc(M.production || '')}</p>`));
-P.push(muc('gia-tri', 'Giá trị', CT.uatBang ? `<table data-gia-tri>${CT.uatBang.map((l, i) => `<tr>${l.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => (i ? `<td>${esc(c.trim())}</td>` : `<th>${esc(c.trim())}</th>`)).join('')}</tr>`).join('')}</table>` : (CT.nguong.length ? `<ul data-gia-tri>${CT.nguong.map(b => `<li>${esc(b.label)}: ${esc(b.value)} — <b>chưa đo</b></li>`).join('')}</ul>` : chuaCo('opportunity.md'))));
+// Giá trị: ngưỡng ĐÃ KHAI ở ô cơ hội luôn hiện (vế hứa), cạnh bảng số đo của phiên nghiệm thu (vế đo) — bảng
+// đó mang sẵn cột «Ngưỡng đã khai» chép nguyên văn; chưa có phiên thì mỗi ngưỡng ghi «chưa đo».
+const nguongLi = CT.nguong.map(b => `<li data-nguong>${esc(b.label)}: ${esc(b.value)}${CT.uatBang ? '' : ' — <b>chưa đo</b>'}</li>`).join('');
+const bangUat = CT.uatBang ? `<table data-gia-tri>${CT.uatBang.map((l, i) => `<tr>${l.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => (i ? `<td>${esc(c.trim())}</td>` : `<th>${esc(c.trim())}</th>`)).join('')}</tr>`).join('')}</table>` : '';
+P.push(muc('gia-tri', 'Giá trị', (CT.nguong.length ? `<ul data-gia-tri-nguong>${nguongLi}</ul>` : chuaCo('opportunity.md')) + bangUat));
 P.push(`<div class="foot">Trang trình bày · KHÔNG quyết — <span class="mono">evidence-report.md</span> + hook là nguồn-sự-thật. Sinh từ run đã verify; ảnh/output gắn run_id.</div>
 <script>
 document.querySelectorAll('[data-loc]').forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-loc');document.querySelectorAll('[data-loc]').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});document.querySelectorAll('[data-dong-thoi-gian] li').forEach(function(li){li.hidden=!(v==='tat-ca'||li.getAttribute('data-loai')===v);});});});

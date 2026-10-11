@@ -1,0 +1,6 @@
+E12 network/console dump (playwright, local static server 127.0.0.1:8791 started by verifier, stopped after)
+GET http://127.0.0.1:8791/_acceptance/trang-lo-trinh-trong-crm/evidence-page.html -> 200 (document)
+GET http://127.0.0.1:8791/favicon.ico -> 404 (static asset, note-only)
+No fetch/XHR requests, no third-party requests.
+Console: 1 error = "Failed to load resource: 404 favicon.ico" (static asset, note-only). No page JS errors.
+config.yaml has no dev_server.url/api_base -> unscoped.

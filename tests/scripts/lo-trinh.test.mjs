@@ -2615,7 +2615,14 @@ async function lt154(kit, ca) {
     const { r, sha } = kho150(); const { html, x } = trangHoSo(kit, r); if (!html) return [`exit ${x.status}`];
     const g = mucCua150(html, 'giao'); const gt = mucCua150(html, 'gia-tri');
     if (!g || !g.than.includes(sha) || !g.than.includes('2026-10-06') || !/<span data-pr>PR #7<\/span>/.test(g.than)) sai.push(`«Giao» ${g && boEsc(g.than).slice(0, 160)}`);
-    for (const row of ['Nhanh', '50 giây', 'Không hỏi', 'Điện thoại', 'CHẾT']) if (!gt || !gt.than.includes(row)) sai.push(`«Giá trị» thiếu «${row}»`);
+    // Quan hệ, không chuỗi có mặt: (1) mỗi ngưỡng của ô cơ hội (NGUONG_150) hiện ĐÚNG «nhãn: giá trị»;
+    // (2) mỗi hàng bảng số đo == đúng hàng của phiên nghiệm thu (thước · ngưỡng đã khai · số đo · kết luận).
+    const nguong = gt ? [...gt.than.matchAll(/<li data-nguong>([^<]*)<\/li>/g)].map(m => boEsc(m[1])) : [];
+    const nguongMong = NGUONG_150.split('\n').filter(l => l.startsWith('- ')).map(l => l.slice(2));
+    if (!deq(nguong, nguongMong)) sai.push(`«Giá trị» ngưỡng ${JSON.stringify(nguong)} ≠ ô cơ hội ${JSON.stringify(nguongMong)}`);
+    const hang = gt ? [...gt.than.matchAll(/<tr>((?:<td>[^<]*<\/td>)+)<\/tr>/g)].map(m => [...m[1].matchAll(/<td>([^<]*)<\/td>/g)].map(x => boEsc(x[1]))) : [];
+    const hangMong = UAT_150.split('\n').filter(l => /^\| (Nhanh|Không hỏi|Điện thoại) \|/.test(l)).map(l => l.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim()));
+    if (!deq(hang, hangMong)) sai.push(`«Giá trị» hàng số đo ${JSON.stringify(hang)} ≠ phiên nghiệm thu ${JSON.stringify(hangMong)}`);
     const p = daiCua(html).find(o => o.k === 'production'); if (!p || p.tra !== `đã chạy ở production — bản dựng ${sha.slice(0, 7)}, quan sát 2026-10-08, M`) sai.push(`production «${p && p.tra}»`);
   } else if (ca === 'vang') {
     const { r } = kho150({ gop: false, uat: false, thucTe: false }); const { html, x } = trangHoSo(kit, r); if (!html) return [`exit ${x.status}`];
@@ -2636,6 +2643,7 @@ async function lt154(kit, ca) {
 }
 if (want('LT-154 du') && await chayCa('LT-154 du', k => lt154(k, 'du'))) ok('LT-154 du', '«Giao» mã + ngày ký + PR #7; «Giá trị» ngưỡng cạnh số đo; production từ dòng thuc-te');
 if (want('LT-154 vang') && await chayCa('LT-154 vang', k => lt154(k, 'vang'))) ok('LT-154 vang', 'không gộp · không phiên nghiệm thu · không quan sát → «chưa gộp» · «chưa đo» · «chưa ghi quan sát production»');
+if (want('LT-154-do')) await chayDo('LT-154-do', k => lt154(k, 'du'), [['scripts/evidence-page.js', "P.push(muc('gia-tri', 'Giá trị', (CT.nguong.length ?", "P.push(muc('gia-tri', 'Giá trị', (CT.nguong.length && !CT.uatBang ?"]], '«Giá trị» ngưỡng', 'bản sao bỏ ngưỡng ô cơ hội khi đã có phiên nghiệm thu');
 if (want('LT-154 khong-git') && await chayCa('LT-154 khong-git', k => lt154(k, 'khong-git'))) ok('LT-154 khong-git', 'gốc không có .git và mã lạ → «chưa gộp», thoát 0, stderr rỗng');
 
 // ── LT-155: đường đọc-cũ, tất định, hồ sơ thật ───────────────────────────

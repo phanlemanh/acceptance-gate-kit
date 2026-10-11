@@ -79,7 +79,9 @@ evals:
       không uat-session, không thuc-te: ba chỗ in đúng «chưa gộp», «chưa đo», «chưa ghi quan sát
       production». "PASS: LT-154 khong-git" — (a) gốc hồ sơ không có .git, (b) verified_commit là sha
       không có trong kho: mỗi ca exit 0, «Giao» in «chưa gộp», stderr rỗng. Đối chứng dương trước đỏ:
-      bản «du» xanh trên cùng kho rồi mới gỡ.
+      bản «du» xanh trên cùng kho rồi mới gỡ. «Giá trị» so QUAN HỆ (lượt chấm 1): danh sách ngưỡng ==
+      bốn dòng «nhãn: giá trị» của ô cơ hội, và mỗi hàng bảng số đo == đúng hàng của phiên nghiệm thu; "PASS:
+      LT-154-do" — bản sao bộ vẽ bỏ ngưỡng ô cơ hội khi đã có phiên → lỗi nêu «Giá trị» ngưỡng.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E6
     criterion: AC-6
