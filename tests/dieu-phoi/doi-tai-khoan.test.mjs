@@ -1264,3 +1264,49 @@ test('DP4-06 khoa-khong-nhip', async () => {
   await motNhip(k.dot, T + 5 * PHUT);
   assert.equal(dk(k.dot).pha, 'cho-tiep-tuc', 'khoá cấp 35′ trước, chưa có nhịp nào → coi như chết');
 });
+
+// ---------- Vòng sửa sau review (I4, I5): lưới cuối và --wip không phá trạng thái cây ----------
+function xungDotMerge(w) {
+  fs.writeFileSync(path.join(w, 'f.txt'), 'goc\n');
+  git(w, 'add', '-A'); git(w, 'commit', '-q', '-m', 'f goc');
+  git(w, 'checkout', '-q', '-b', 'nhanh-x');
+  fs.writeFileSync(path.join(w, 'f.txt'), 'x\n');
+  git(w, 'commit', '-q', '-am', 'x');
+  git(w, 'checkout', '-q', '-');
+  fs.writeFileSync(path.join(w, 'f.txt'), 'y\n');
+  git(w, 'commit', '-q', '-am', 'y');
+  spawnSync('git', ['merge', 'nhanh-x'], { cwd: w, env: ENV, encoding: 'utf8' });
+  assert.ok(fs.existsSync(path.join(execFileSync('git', ['rev-parse', '--absolute-git-dir'], { cwd: w, env: ENV, encoding: 'utf8' }).trim(), 'MERGE_HEAD')), 'fixture: phải đang merge dở');
+}
+test('DP4-10 dang-merge', () => {
+  const k = khoLienKet();
+  xungDotMerge(k.w1);
+  const dinh = git(k.w1, 'rev-parse', 'HEAD');
+  const r = chayHook('StopFailure', { session_id: 's-p1', error: 'rate_limit' }, { cwd: k.w1, nowMs: T });
+  const d = docJ(path.join(k.dot, 'ban-giao', 'dau', 'P1.json'));
+  console.log(`  lưới cuối khi đang merge dở: HEAD ${git(k.w1, 'rev-parse', 'HEAD') === dinh ? 'giữ' : 'ĐỔI'} · ${d.bo_commit}`);
+  assert.equal(r.status, 0);
+  assert.equal(git(k.w1, 'rev-parse', 'HEAD'), dinh);
+  assert.match(String(d.bo_commit), /MERGE_HEAD/);
+  const k2 = khoLienKet();
+  assert.equal(chayCli(k2.kho, ['ban-giao']).ma, 0);
+  xungDotMerge(k2.w1);
+  const x = chayCli(k2.w1, ['ban-giao-xong', '--wip', 'dở']);
+  assert.equal(x.ma, 1);
+  assert.match(x.err, /MERGE_HEAD/);
+});
+test('DP4-10 giu-stage', () => {
+  const k = khoLienKet();
+  const dHook = tam('dp4-hook-');
+  // Hook kho từ chối, và ghi lại lúc chạy dấu đã có hay chưa (dấu phải ghi TRƯỚC commit — review I4).
+  fs.writeFileSync(path.join(dHook, 'pre-commit'), `#!/bin/sh\n[ -f "${path.join(k.dot, 'ban-giao', 'dau', 'P1.json')}" ] && echo co > "${path.join(dHook, 'dau-luc-commit')}"\necho chan-boi-kho >&2\nexit 1\n`, { mode: 0o755 });
+  execFileSync('git', ['config', 'core.hooksPath', dHook], { cwd: k.w1, env: ENV });
+  fs.writeFileSync(path.join(k.w1, 'chu-y.txt'), 'thợ stage có chủ ý');
+  git(k.w1, 'add', 'chu-y.txt');
+  fs.writeFileSync(path.join(k.w1, 'chua-stage.txt'), 'chưa stage');
+  chayHook('StopFailure', { session_id: 's-p1', error: 'rate_limit' }, { cwd: k.w1, nowMs: T });
+  const staged = git(k.w1, 'diff', '--cached', '--name-only');
+  console.log(`  sau commit lỗi: stage = [${staged}] · dấu lúc commit: ${fs.existsSync(path.join(dHook, 'dau-luc-commit'))}`);
+  assert.equal(staged, 'chu-y.txt', 'commit lỗi phải trả index về đúng phần thợ đã stage');
+  assert.ok(fs.existsSync(path.join(dHook, 'dau-luc-commit')), 'dấu phải có trước khi commit chạy');
+});

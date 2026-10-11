@@ -11,6 +11,7 @@ import { mucDay } from './muc-day.mjs';
 import { datPha, docPha } from './pha.mjs';
 import { bayGio, docNhipSong } from './song.mjs';
 import { docDau, lichSuMoiNhat } from './dau.mjs';
+import { commitWip } from './wip.mjs';
 
 export const TEP_BAN_GIAO = 'ban-giao.json';
 export const DIR_BAN_GIAO = 'ban-giao';
@@ -58,8 +59,8 @@ export function batDauBanGiao(cwd, { lyDo = '', boi = 'cli', nowMs = null } = {}
   return { pha: 'dang-ban-giao', ma, can_nhan: hv.day.filter((d) => d.nghi !== true).map((d) => d.id) };
 }
 
-// Lệnh con `ban-giao-xong` (§4.3 bước 3, T10): chỉ đòi cây sạch và hết đơn — KHÔNG đòi đẩy. `--wip` commit hộ bằng
-// `git commit` thường (không bỏ hook của kho).
+// Lệnh con `ban-giao-xong` (§4.3 bước 3, T10): chỉ đòi cây sạch và hết đơn — KHÔNG đòi đẩy. `--wip` commit hộ qua
+// `commitWip` (commit thường, không bỏ hook của kho, không commit giữa merge/rebase dở).
 export function banGiaoXong(cwd, { wip = null, nowMs = null } = {}) {
   const thuMuc = canDot(cwd, 'ban-giao-xong');
   const dk = docPha(thuMuc);
@@ -70,15 +71,8 @@ export function banGiaoXong(cwd, { wip = null, nowMs = null } = {}) {
   const d = hv.day.find((x) => x.id === id);
   if (khoaS4Cua(thuMuc)?.phien === id) throw new Error(`ban-giao-xong: ${id} đang giữ khoá s4 — đang xong; chạy lại sau khi lượt chấm hết và nhả khoá`);
   if (typeof wip === 'string' && wip.trim()) {
-    const st = spawnSync('git', ['status', '--porcelain'], { cwd: d.worktree, encoding: 'utf8' }).stdout ?? '';
-    if (st.trim()) {
-      spawnSync('git', ['add', '-A'], { cwd: d.worktree });
-      const c = spawnSync('git', ['commit', '-q', '-m', `wip(ban-giao): ${wip.trim()}`], { cwd: d.worktree, encoding: 'utf8' });
-      if (c.status !== 0) {
-        spawnSync('git', ['reset', '-q'], { cwd: d.worktree });
-        throw new Error(`ban-giao-xong: commit WIP lỗi — ${`${c.stderr ?? ''}${c.stdout ?? ''}`.split('\n').map((x) => x.trim()).find(Boolean) ?? `mã ${c.status}`}`);
-      }
-    }
+    const r = commitWip(d.worktree, `wip(ban-giao): ${wip.trim()}`);
+    if (r.ket === 'bo' || r.ket === 'loi') throw new Error(`ban-giao-xong: commit WIP ${r.ket === 'bo' ? 'không chạy' : 'lỗi'} — ${r.ly_do}`);
   }
   const loi = [];
   const ban = (spawnSync('git', ['status', '--porcelain'], { cwd: d.worktree, encoding: 'utf8' }).stdout ?? '').split('\n').filter(Boolean);

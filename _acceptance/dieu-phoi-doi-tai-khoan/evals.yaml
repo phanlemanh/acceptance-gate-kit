@@ -53,7 +53,7 @@ evals:
     criterion: AC-3
     executor: test
     cmd: config:executors.test.dieu_phoi_dp4
-    paths: [dieu-phoi/scripts/han-muc.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/pha.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    paths: [dieu-phoi/scripts/han-muc.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/pha.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs, dieu-phoi/scripts/dau.mjs]
     expected: >
       exit 0; "ok" cho "DP4-03 ma-tran": 15 hàng (a)–(o) như AC-3, mỗi hàng một kho thử dựng bằng mã, nhịp
       motNhip thật với đồng hồ giả; số assert = 15 (in ra); sự kiện hạn mức và pha mỗi hàng so bằng nhau với dòng
@@ -82,7 +82,7 @@ evals:
     criterion: AC-5
     executor: test
     cmd: config:executors.test.dieu_phoi_dp4
-    paths: [dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/pha.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/mau/ban-giao.json, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    paths: [dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/pha.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/mau/ban-giao.json, tests/dieu-phoi/doi-tai-khoan.test.mjs, dieu-phoi/scripts/wip.mjs]
     expected: >
       exit 0; "ok" cho "DP4-05 ban-giao": CLI thật trong kho thử hai dãy P1, P2 (worktree thật) — lần đầu pha
       dang-ban-giao, ma và pha_truoc dang-chay; lần hai ma bằng nhau và độ dài lich_su của dieu-khien.json không
@@ -114,7 +114,7 @@ evals:
     criterion: AC-7
     executor: test
     cmd: config:executors.test.dieu_phoi_dp4
-    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/han-muc.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/han-muc.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs, dieu-phoi/scripts/dau.mjs]
     expected: >
       exit 0; "ok" cho "DP4-07 tiep-tuc": ma trận (a)–(h) 8 assert in ra, CLI `tiep-tuc --phien B --json` thật —
       (a) can_doc_han_muc true, pha không đổi · (b) kết quả có khuyen_cho với dat_lai bằng giờ đặt lại của
@@ -131,7 +131,7 @@ evals:
     criterion: AC-8
     executor: test
     cmd: config:executors.test.dieu_phoi_dp4
-    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/ban-giao.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs, dieu-phoi/scripts/dau.mjs]
     expected: >
       exit 0; "ok" cho "DP4-08 phien-cu": nhịp do hook thật ghi (lệnh rút từ hooks.json, DIEU_PHOI_NOW_MS lùi 3′);
       tiep-tuc --json và chan-doan --json cho P1 cùng hành động "mo-chip" với da_ban_giao true và ghi_danh chứa
@@ -155,7 +155,7 @@ evals:
     criterion: AC-10
     executor: test
     cmd: config:executors.test.dieu_phoi_dp4
-    paths: [dieu-phoi/scripts/hook-het-han-muc.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/doi-tai-khoan.test.mjs]
+    paths: [dieu-phoi/scripts/hook-het-han-muc.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/doi-tai-khoan.test.mjs, dieu-phoi/scripts/wip.mjs, dieu-phoi/scripts/dau.mjs]
     expected: >
       exit 0; "ok" cho "DP4-10 luoi-cuoi": hooks.json có khối StopFailure với timeout ≥ 60; CHÍNH lệnh rút từ đó,
       ma trận (a)–(g) 7 assert in ra — (a) `git rev-list --count` tăng đúng 1, tiêu đề bắt đầu
