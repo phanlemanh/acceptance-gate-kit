@@ -196,10 +196,15 @@ export async function kiemKhongCap(gocGoi, pha) {
   const { dot, w1 } = khoLienKet({ gocGoi });
   const r = chayCli(w1, ['xin', 's4'], { gocGoi });
   assert.equal(r.ma, 0, r.err);
-  datTruc(dot, pha);
+  // Giờ vào pha và nhịp chung MỘT đồng hồ: vao_luc cố định + nhịp theo giờ thật thì sau 20′ bước bàn giao rời pha ★
+  // trước khi cấp — ca xanh rỗng và chiều đỏ câm (đo 11/10, sau 08:10Z).
+  const now = Date.now();
+  datTruc(dot, pha, { vaoLuc: new Date(now - PHUT).toISOString() });
   const bamXin = bamCay(path.join(dot, 'xin'));
-  await motNhip(dot, Date.now(), gocGoi);
+  await motNhip(dot, now, gocGoi);
   const loi = [];
+  const sau = docJ(path.join(dot, 'dieu-khien.json')).pha;
+  if (sau !== pha) loi.push(`${pha}: nhịp rời pha (${sau})`);
   if (fs.existsSync(path.join(dot, 'khoa', 's4', 'chu.json'))) loi.push(`${pha}: nhịp cấp khoá s4`);
   if (bamCay(path.join(dot, 'xin')) !== bamXin) loi.push(`${pha}: đơn trong xin/ bị đụng`);
   return loi;
