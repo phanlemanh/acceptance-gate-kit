@@ -120,7 +120,8 @@ export function tocDoDot(tuoi, cuaSo) {
   const cung = ds.filter((l) => l.cua_so[cuaSo].dat_lai === moi.cua_so[cuaSo].dat_lai);
   if (cung.length < 2) return null;
   const phut = (Date.parse(moi.luc) - Date.parse(cung[0].luc)) / PHUT_MS;
-  return phut > 0 ? (moi.cua_so[cuaSo].pct - cung[0].cua_so[cuaSo].pct) / phut : null;
+  // Khoảng đo dưới 10′ thì nhiễu làm tròn (0,5 điểm/20″ thành 1,5/phút) sập ngưỡng — không đo (review I7).
+  return phut >= 10 ? (moi.cua_so[cuaSo].pct - cung[0].cua_so[cuaSo].pct) / phut : null;
 }
 
 // Mức của từng cửa sổ trong lần đọc hiệu lực. Không có lần đọc nguồn mod còn tươi → số chỉ đến theo nhịp thức của

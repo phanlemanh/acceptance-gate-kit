@@ -1207,3 +1207,60 @@ test('DP4-08 het-han', async () => {
   console.log(`  P1 sau khi tiếp tục, phiên cũ s-cu có nhịp MỚI: ${p1.hanh_dong}`);
   assert.equal(p1.hanh_dong, 'khong', 'nhịp ghi SAU lúc tiếp tục nghĩa là phiên sống lại thật');
 });
+
+// ---------- Vòng sửa sau review (I2, I3, I7, M1, M2) ----------
+test('DP4-05 loi-cu', () => {
+  const k = khoLienKet();
+  assert.equal(chayCli(k.kho, ['chay']).ma, 0);
+  chayCli(k.kho, ['dung']);
+  fs.rmSync(path.join(k.dot, 'loi', 'ban-giao.mjs'));
+  const r = chayCli(k.kho, ['ban-giao']);
+  console.log(`  lõi đợt chưa có bàn giao: thoát ${r.ma} · ${r.err.trim()}`);
+  assert.equal(r.ma, 1);
+  assert.match(r.err, /lõi của đợt chưa có bàn giao.*`dung`.*`chay`/);
+  assert.equal(dk(k.dot).pha, 'dang-chay', 'không vào pha khi lõi cũ');
+  const k2 = khoLienKet();
+  assert.equal(chayCli(k2.kho, ['chay']).ma, 0);
+  chayCli(k2.kho, ['dung']);
+  assert.equal(chayCli(k2.kho, ['ban-giao']).ma, 0, 'đối chứng: lõi mới thì vào bàn giao');
+});
+
+test('DP4-06 duong-lui', async () => {
+  const k = dotBanGiao({ p2: 'xong' });
+  await motNhip(k.dot, T + 5 * PHUT);
+  const tin = suKienCua(k.dot).find((e) => e.loai === 'ban-giao-dung')?.tin ?? '';
+  assert.ok(tin.includes('han-muc --nguon get-usage') && tin.indexOf('han-muc --nguon get-usage') < tin.lastIndexOf('tiep-tuc --phien'), `đường lùi phải đọc mức dùng trước tiep-tuc: ${tin}`);
+  const r = chayCli(k.kho, ['tiep-tuc', '--phien', 'B', '--json'], { env: envGio(T + 7 * PHUT) });
+  chayCli(k.kho, ['dung']);
+  const kq = JSON.parse(r.out);
+  assert.equal(kq.can_doc_han_muc, true);
+  assert.match(String(kq.viec ?? ''), /han-muc --nguon get-usage --phien B/);
+});
+
+test('DP4-03 toc-do-nhieu', async () => {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
+  const k = khoLienKet();
+  datNhanLuc(k.dot, ISO(T - 60 * PHUT));
+  docVao(k.kho, { nguon: 'get-usage', tuoi: 20 / 60, nam: [82, 180] });
+  docVao(k.kho, { nguon: 'get-usage', tuoi: 0, nam: [82.5, 180] });
+  await motNhip(k.dot, T);
+  const ng = docJ(path.join(k.dot, 'trang-thai.json')).han_muc.cua_so.find((w) => w.ten === 'five_hour').nguong_ban_giao;
+  console.log(`  hai lần đọc cách 20″: ngưỡng hiệu lực ${ng} · pha ${dk(k.dot).pha}`);
+  assert.equal(ng, 90, 'khoảng đo < 10′ thì không hạ ngưỡng');
+  assert.equal(dk(k.dot).pha, 'dang-chay');
+});
+
+test('DP4-07 cuong-buc-im', async () => {
+  const k = await hangTiepTuc({ pha: 'dang-ban-giao', phaTruoc: 'tam-dung', p2: 'chua' });
+  const truoc = suKienCua(k.dot).filter((e) => e.loai === 'ban-giao-dung' && e.can_phan).length;
+  assert.equal(tiepTucB(k).ma, 0);
+  const sau = suKienCua(k.dot).filter((e) => e.loai === 'ban-giao-dung' && e.can_phan).length;
+  assert.equal(sau, truoc, 'tiếp tục cưỡng bức không phát «Đổi tài khoản…» thành việc chờ');
+});
+
+test('DP4-06 khoa-khong-nhip', async () => {
+  const k = dotBanGiao({ p2: 'xong' });
+  ghiJ(path.join(k.dot, 'khoa', 's4', 'chu.json'), { phien: 'P2', slug: 'hang-b', loai: 's4', worktree: k.w2, cap_luc: ISO(T - 30 * PHUT), han_thue_den: ISO(T + 90 * PHUT) });
+  await motNhip(k.dot, T + 5 * PHUT);
+  assert.equal(dk(k.dot).pha, 'cho-tiep-tuc', 'khoá cấp 35′ trước, chưa có nhịp nào → coi như chết');
+});

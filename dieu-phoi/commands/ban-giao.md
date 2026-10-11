@@ -21,6 +21,6 @@ Các bước, đúng thứ tự:
 3. **Chờ.** Giăng Monitor như thường. Bộ phát lịch tự dựng hồ sơ bàn giao (`ban-giao.json`, từ git và thư mục đợt)
    khi mọi dãy đã báo xong hoặc khi hết hạn chờ, rồi chuyển đợt sang «chờ tiếp tục» và phát sự kiện `ban-giao-dung`.
 4. **Báo chủ kho** đúng một câu: nguyên văn trường `tin` của sự kiện `ban-giao-dung` — câu đó mang
-   `/dieu-phoi:tiep-tuc` và đường lùi `node <thư mục đợt>/loi/dieu-phoi.mjs tiep-tuc --phien <mã phiên này> --json`
-   cho trường hợp lệnh chưa nạp trong phiên mới sau khi đổi tài khoản. Chủ kho không ngồi trước máy thì đẩy kèm một
+   `/dieu-phoi:tiep-tuc` và đường lùi cho trường hợp lệnh chưa nạp trong phiên mới sau khi đổi tài khoản: đọc
+   mức dùng (`get_usage` rồi `han-muc --nguon get-usage`) rồi `node <thư mục đợt>/loi/dieu-phoi.mjs tiep-tuc --phien <mã phiên này> --json`. Chủ kho không ngồi trước máy thì đẩy kèm một
    thông báo. Không hỏi gì thêm.

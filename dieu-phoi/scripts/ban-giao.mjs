@@ -31,10 +31,12 @@ const khoaS4Cua = (thuMuc) => docJson(path.join(thuMuc, 'khoa', 's4', 'chu.json'
 // Khoá s4 còn sống: có chủ và tệp nhịp mới hơn `nhip_cu_phut`; khoá chưa có nhịp coi như còn sống.
 function khoaS4Song(thuMuc, cfg, now) {
   if (!khoaS4Cua(thuMuc)) return false;
+  const han = (cfg.nhip_cu_phut ?? 10) * PHUT_MS;
   try {
-    return now - fs.statSync(path.join(thuMuc, 'khoa', 's4', 'nhip')).mtimeMs < (cfg.nhip_cu_phut ?? 10) * PHUT_MS;
+    return now - fs.statSync(path.join(thuMuc, 'khoa', 's4', 'nhip')).mtimeMs < han;
   } catch {
-    return true;
+    // Khoá chưa có nhịp nào: chỉ còn sống trong hạn nhịp kể từ lúc cấp (review M2).
+    return now - Date.parse(khoaS4Cua(thuMuc)?.cap_luc ?? 0) < han;
   }
 }
 
@@ -44,6 +46,11 @@ export function batDauBanGiao(cwd, { lyDo = '', boi = 'cli', nowMs = null } = {}
   const pha = docPha(thuMuc).pha;
   if (pha === 'dang-ban-giao') return { ...buocBanGiao(thuMuc, { nowMs }), ma: docPha(thuMuc).ban_giao?.ma ?? null };
   if (pha !== 'dang-chay' && pha !== 'tam-dung') throw new Error(`ban-giao: đợt đang ở pha ${pha} — chỉ bàn giao từ dang-chay hoặc tam-dung`);
+  // Bộ phát lịch chạy từ lõi chép vào thư mục đợt; lõi đời trước DP4 không có bước bàn giao — đồng hồ sẽ không chạy
+  // (review I2). Đổi lõi giữa đợt là quyết định (DP3 chỗ chọn 7) nên chỉ nói lệnh, không tự chép.
+  if (fs.existsSync(path.join(thuMuc, 'loi')) && !fs.existsSync(path.join(thuMuc, 'loi', 'ban-giao.mjs'))) {
+    throw new Error('ban-giao: lõi của đợt chưa có bàn giao — bộ phát lịch đang chạy bản cũ; chạy `dung` rồi `chay` để chép lõi mới, rồi gọi lại');
+  }
   datPha(thuMuc, 'dang-ban-giao', { boi, lyDo, nowMs });
   const ma = docPha(thuMuc).ban_giao.ma;
   ghiSuKien(thuMuc, { loai: 'ban-giao', ma, ly_do: lyDo });
@@ -135,12 +142,14 @@ export function buocBanGiao(thuMuc, { nowMs = null, cuongBuc = false } = {}) {
   if (cuongBuc || !khoaS4Song(thuMuc, cfg, now)) {
     datPha(thuMuc, 'cho-tiep-tuc', { boi: cuongBuc ? 'tiep-tuc' : 'phat-lich', lyDo: 'bàn giao đã dựng', nowMs: now });
     const gio = new Date(now).toISOString().slice(11, 16);
+    const cli = `node "${path.join(thuMuc, 'loi', 'dieu-phoi.mjs')}"`;
     ghiSuKien(thuMuc, {
       loai: 'ban-giao-dung',
       ma: bg.ma,
       dich: 'owner',
-      can_phan: true,
-      tin: `Đã bàn giao đợt ${hv.dot} lúc ${gio}Z. Đổi tài khoản, rồi mở một phiên trong kho và gõ /dieu-phoi:tiep-tuc (lệnh chưa có sau khi đổi → node ${path.join(thuMuc, 'loi', 'dieu-phoi.mjs')} tiep-tuc --phien <mã phiên này> --json).`,
+      // Đường cưỡng bức là tiep-tuc: người đã có mặt, câu «đổi tài khoản» không phải việc chờ nữa (review M1).
+      can_phan: !cuongBuc,
+      tin: `Đã bàn giao đợt ${hv.dot} lúc ${gio}Z. Đổi tài khoản, rồi mở một phiên trong kho và gõ /dieu-phoi:tiep-tuc (lệnh chưa có sau khi đổi → gọi get_usage, rồi ${cli} han-muc --nguon get-usage --phien <mã phiên này> --doc '<kết quả>', rồi ${cli} tiep-tuc --phien <mã phiên này> --json).`,
     });
     return { pha: 'cho-tiep-tuc', dung: true, ban_giao: bg };
   }
@@ -179,7 +188,7 @@ export function roiBanGiao(thuMuc, { phien, nowMs = null }) {
   if (dk.pha !== 'dang-ban-giao' && dk.pha !== 'cho-tiep-tuc') return { pha: dk.pha };
   const hanMuc = cfgCua(thuMuc).han_muc ?? MAC_DINH_HAN_MUC;
   const cuaPhien = lanDocHieuLuc(thuMuc, { nowMs: now }).tuoi.filter((l) => l.phien === phien).at(-1);
-  if (!cuaPhien) return { pha: dk.pha, can_doc_han_muc: true };
+  if (!cuaPhien) return { pha: dk.pha, can_doc_han_muc: true, viec: `gọi get_usage, rồi node "${path.join(thuMuc, 'loi', 'dieu-phoi.mjs')}" han-muc --nguon get-usage --phien ${phien} --doc '<kết quả>', rồi chạy lại tiep-tuc` };
   const vuot = Object.entries(cuaPhien.cua_so).find(([, w]) => w.pct >= hanMuc.bao_truoc_pct && !(w.dat_lai && Date.parse(w.dat_lai) <= now));
   if (vuot) return { pha: dk.pha, khuyen_cho: { cua_so: vuot[0], pct: vuot[1].pct, dat_lai: vuot[1].dat_lai } };
   if (dk.pha === 'dang-ban-giao') buocBanGiao(thuMuc, { nowMs: now, cuongBuc: true });
