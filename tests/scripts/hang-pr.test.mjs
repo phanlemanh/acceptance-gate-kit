@@ -360,6 +360,132 @@ ca('AC-5', () => {
   return 'config có TAB và config vắng → cau-hinh-loi + một cảnh báo, mã 0; đối chứng config lành → T1/false';
 });
 
+// ── Không đổi byte · bộ khớp crm (AC-8, AC-9) ───────────────────────────────
+const MO_MARKER = /^\s*# >>> HANG-PR\s*$/;
+const DONG_MARKER = /^\s*# <<< HANG-PR\s*$/;
+// Bỏ mọi dòng từ `# >>> HANG-PR` tới `# <<< HANG-PR` (kể cả hai dòng marker). Marker lệch → ném.
+function catMarker(text) {
+  const ra = []; let trong = false;
+  for (const l of text.split('\n')) {
+    if (MO_MARKER.test(l)) { if (trong) throw new Error('marker HANG-PR mở lồng'); trong = true; continue; }
+    if (DONG_MARKER.test(l)) { if (!trong) throw new Error('marker HANG-PR đóng khi chưa mở'); trong = false; continue; }
+    if (!trong) ra.push(l);
+  }
+  if (trong) throw new Error('marker HANG-PR mở mà không đóng');
+  return ra.join('\n');
+}
+function demMarker(text) {
+  let mo = 0; let dong = 0; let dungThuTu = true; let trong = false;
+  for (const l of text.split('\n')) {
+    if (MO_MARKER.test(l)) { mo += 1; if (trong) dungThuTu = false; trong = true; }
+    if (DONG_MARKER.test(l)) { dong += 1; if (!trong) dungThuTu = false; trong = false; }
+  }
+  return { mo, dong, dungThuTu: dungThuTu && !trong };
+}
+// Chạy cổng KHÔNG cờ hai lần trong CÙNG một bản sao (đường dẫn tệp cổng như nhau): bản `day`, rồi bản `cat`.
+// Trả null khi stdout + stderr + mã giống từng byte; chuỗi mô tả chỗ khác nếu không.
+function soHaiBan(day, catText, cwd, args) {
+  const g = banSao(() => day);
+  const a = chay(g, cwd, args);
+  fs.writeFileSync(g, catText);
+  const b = chay(g, cwd, args);
+  if (a.status === b.status && a.stdout === b.stdout && a.stderr === b.stderr) return null;
+  return `mã ${a.status}/${b.status} · stdout ${a.stdout.length}/${b.stdout.length} byte · đầu khác: ${cut(JSON.stringify(a.stdout.slice(0, 200)), 160)}`;
+}
+
+ca('AC-8', () => {
+  const day = fs.readFileSync(GATE, 'utf8');
+  const dm = demMarker(day);
+  if (!(dm.mo === dm.dong && dm.mo >= 1 && dm.dungThuTu)) throw new Error(`marker HANG-PR lệch: mở ${dm.mo}, đóng ${dm.dong}, đúng thứ tự ${dm.dungThuTu}`);
+  const cat = catMarker(day);
+  if (cat.includes('hang-pr') || cat.includes('HANG_PR')) throw new Error('bản cắt marker còn chữ hang-pr — có dòng của chế độ nằm ngoài vùng marker');
+  let n = 0;
+  for (const [ten] of MA_TRAN) {
+    const khac = soHaiBan(day, cat, khoHang(ten), ['.', '--base', 'main']);
+    if (khac) throw new Error(`hàng ${ten}: bản đầy đủ khác bản cắt marker khi không cờ — ${khac}`);
+    n += 1;
+  }
+  const khac = soHaiBan(day, cat, khoHang('chi-t1'), ['.']);
+  if (khac) throw new Error(`không --base: bản đầy đủ khác bản cắt marker — ${khac}`);
+  return `${dm.mo} vùng HANG-PR cân marker · ${n} kho có --base + 1 kho không --base: bản đầy đủ = bản cắt marker từng byte khi không cờ`;
+});
+
+ca('AC-8-do', () => {
+  const day = fs.readFileSync(GATE, 'utf8');
+  const dot = kim(day, '# >>> HANG-PR\n# Chế độ --hang-pr: thang nghi ngờ', '# >>> HANG-PR\necho hp-lot\n# Chế độ --hang-pr: thang nghi ngờ');
+  const khac = soHaiBan(dot, catMarker(dot), khoHang('chi-t1'), ['.', '--base', 'main']);
+  if (!khac) throw new Error('vùng HANG-PR chạy khi không có cờ — phép so KHÔNG thấy echo chèn ngoài nhánh cờ');
+  if (soHaiBan(day, catMarker(day), khoHang('chi-t1'), ['.', '--base', 'main'])) throw new Error('đối chứng dương: bản nguyên vẹn khác bản cắt');
+  return `chèn echo vào vùng marker ngoài nhánh cờ: phép so bắt được (${cut(khac, 80)}); bản nguyên vẹn bằng bản cắt`;
+});
+
+const TEP_CONG = 'scripts/pre-merge-check.sh';
+const showTep = (repo, rev, tep) => { try { return git(repo, 'show', `${rev}:${tep}`); } catch { return null; } };
+// Mọi commit không-gộp mang `grep` trong thông điệp chạm tệp cổng: bản cắt marker của commit = của commit cha.
+function lichSuVong(repo, grep, tep = TEP_CONG) {
+  const shas = git(repo, 'log', '--no-merges', '--format=%H', `--grep=${grep}`, '--', tep).split('\n').filter(Boolean);
+  return shas.map((sha) => {
+    const con = showTep(repo, sha, tep); const cha = showTep(repo, `${sha}^`, tep);
+    return { sha, ok: con !== null && cha !== null && catMarker(con) === catMarker(cha) };
+  });
+}
+
+ca('AC-8-lich-su', () => {
+  const ds = lichSuVong(KIT, SLUG);
+  if (ds.length < 1) throw new Error(`không tìm thấy commit nào mang «${SLUG}» chạm ${TEP_CONG}`);
+  const hong = ds.filter((x) => !x.ok);
+  if (hong.length) throw new Error(`dòng ngoài HANG-PR đổi ở commit ${hong.map((x) => x.sha.slice(0, 8)).join(', ')}`);
+  return `${ds.length} commit của vòng chạm tệp cổng — mỗi commit chỉ chèn trong vùng marker`;
+});
+
+ca('AC-8-lich-su-do', () => {
+  // Con = tệp cổng ở commit ĐẦU của vòng (lịch sử bất biến, lấy bằng lệnh); cha = tệp cổng ở NEO.
+  const dau = git(KIT, 'log', '--no-merges', '--reverse', '--format=%H', `--grep=${SLUG}`, '--', TEP_CONG).split('\n').filter(Boolean)[0];
+  if (!dau) throw new Error('không có commit đầu của vòng');
+  const cha = showTep(KIT, NEO, TEP_CONG); const con = showTep(KIT, dau, TEP_CONG);
+  const dung = (noiDung) => {
+    const d = thuMuc('lichsu'); gitInit(d);
+    ghi(d, TEP_CONG, `${cha}\n`); commitAll(d, 'cha');
+    ghi(d, TEP_CONG, `${noiDung}\n`); commitAll(d, `x ${SLUG}`);
+    return lichSuVong(d, SLUG);
+  };
+  const tot = dung(con);
+  if (!(tot.length === 1 && tot[0].ok)) throw new Error(`đối chứng dương: commit đầu của vòng trên nền NEO bị xử đổi ngoài marker (${JSON.stringify(tot)})`);
+  const xau = dung(kim(con, '"pre-merge-check: no _acceptance/ — nothing to check"', '"pre-merge-check: no _acceptance/ — nothing to chek"'));
+  if (!(xau.length === 1 && !xau[0].ok)) throw new Error('dòng ngoài HANG-PR đổi — phép đo lịch sử KHÔNG bắt được một chữ sửa ngoài marker');
+  return 'kho mẫu hai commit: commit đầu của vòng xanh; sửa một chữ ngoài marker → đỏ';
+});
+
+ca('AC-8-kho-that', () => {
+  const day = fs.readFileSync(GATE, 'utf8'); const cat = catMarker(day);
+  for (const args of [['.', '--base', NEO], ['.']]) {
+    const khac = soHaiBan(day, cat, KIT, args);
+    if (khac) throw new Error(`cây kit (${args.join(' ')}): bản đầy đủ khác bản cắt marker — ${khac}`);
+  }
+  return 'trên chính cây kit (--base NEO và không --base): bản đầy đủ = bản cắt marker từng byte khi không cờ';
+}, { chiGoiTen: true });
+
+// Chép NGUYÊN VĂN từ crm `.github/scripts/phan-loai.mjs` (PR #369, đầu nhánh dbeeea7b8b6922bb3b54f7ebb82c9e9532cd75a3).
+const RUT_HAM = `eval "$(sed -n '/^glob_variants() {/,/^}/p;/^match_globs() {/,/^}/p' "$1")"; type match_globs >/dev/null 2>&1 || exit 3; while IFS= read -r f; do [ -n "$f" ] || continue; if match_globs "$f" "$2"; then printf '%s\\n' "$f"; fi; done`;
+const CRM_GLOBS = ['docs/**', '*.md', '**/*.txt'];
+const CRM_TEP = ['docs/a.md', 'notes/x/y.md', 'README.txt', 'src/a.ts'];
+const CRM_KHOP = ['docs/a.md', 'notes/x/y.md', 'README.txt'];
+const congThucCrm = (gate) => spawnSync('bash', ['-c', RUT_HAM, 'phan-loai', gate, CRM_GLOBS.join('\n')], { input: `${CRM_TEP.join('\n')}\n`, encoding: 'utf8' });
+
+ca('AC-9', () => {
+  const r = congThucCrm(GATE);
+  const ra = (r.stdout || '').split('\n').filter(Boolean);
+  if (r.status !== 0 || ra.join('|') !== CRM_KHOP.join('|')) throw new Error(`crm mất bộ khớp: mã ${r.status}, khớp ${JSON.stringify(ra)} (mong ${JSON.stringify(CRM_KHOP)})`);
+  return `công thức sed của crm rút được match_globs; ${CRM_GLOBS.length} glob × ${CRM_TEP.length} tệp khớp đúng bảng`;
+});
+
+ca('AC-9-do', () => {
+  const g = banSao((t) => kim(t, '\nmatch_globs() {', '\nkhop_globs() {'));
+  const r = congThucCrm(g);
+  if (r.status !== 3) throw new Error(`crm mất bộ khớp — đổi tên match_globs mà công thức không thoát 3 (mã ${r.status})`);
+  return 'đổi tên match_globs: công thức của crm thoát 3 (crm mất bộ khớp)';
+});
+
 // ── Chạy ────────────────────────────────────────────────────────────────────
 const yeuCau = (process.env.HP_CASES || '').split(',').map((s) => s.trim()).filter(Boolean);
 for (const id of yeuCau) {
