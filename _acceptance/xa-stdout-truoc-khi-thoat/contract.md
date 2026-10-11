@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/gate-card.js + feature-loop/scripts/repin-lane.mjs + một tệp ca + một khoá executor — không chạm hook, lưới trước-merge, t3_paths
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-xa-stdout-truoc-khi-thoat-design.md
-status: implemented
+status: verified
 approved_by:
 approved_at:
 veto_state: mo
