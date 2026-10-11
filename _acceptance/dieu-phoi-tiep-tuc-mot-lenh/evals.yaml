@@ -1,0 +1,231 @@
+schema_version: 1
+feature_slug: dieu-phoi-tiep-tuc-mot-lenh
+# Ca đo của hàng sống ở tests/dieu-phoi/tiep-tuc.test.mjs (tên ca bắt đầu «DP3-»). Khoá executor thêm ở S3:
+#   executors.test.dieu_phoi_dp3 = node --test trên tests/dieu-phoi/**, gộp dòng «ok … DP1-|DP2-|DP3-»,
+#     «not ok», dòng chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng
+#   executors.test.dieu_phoi_lb   = LB_CASES=LB1,LB2 node tests/plugins/lenh-bam-duoc.test.mjs (có từ DP2)
+# Kho thử do code sinh trong lượt (git init trong thư mục tạm). Đường dẫn suy từ vị trí tệp test. Đồng hồ
+# giả truyền vào hàm. Mỗi ca đỏ chạy CHÍNH hàm/lệnh đo trên bản sao bị tiêm, SAU khi bản lành xanh trên cùng
+# fixture, kiểm riêng từng lần thay đã áp, và ghim dấu hiệu của ĐÚNG lỗi được tiêm (không ghim chữ mà mọi
+# thông báo lỗi đều mang). Ma trận viết sẵn: số assert = số hàng ma trận, in ra. Lời hứa là đẳng thức thì
+# so bằng nhau, không so bao hàm. Mỗi eval ghim đúng dòng TAP «ok … - DP3-…». Suite xanh mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/commands/**, tests/dieu-phoi/mo-dot.test.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP2-01 ba-lenh" với tập tên tệp dưới dieu-phoi/commands/ == {mo-dot.md, dong-dot.md,
+      xem.md, tiep-tuc.md} (đẳng thức tập, in ra); không tệp nào khoá model-invocation; script của gói đi qua
+      ${CLAUDE_PLUGIN_ROOT}. "ok" cho "DP3-01 trinh-tu": trong tiep-tuc.md, vị trí của lời gọi CLI
+      `tiep-tuc` đứng TRƯỚC mọi câu giăng Monitor và mọi câu mở chip, câu «thoi_vai» đứng trước Monitor, có
+      dạng `--nhe`, và MỖI hành động trong hằng HANH_DONG của tiep-tuc.mjs (rút lúc chạy, không chép tay —
+      sáu hành động khong · nhan-giang-lai · mo-chip · worktree-mat · cho-nguoi · chua-biet) có một dòng xử
+      lý trong thân lệnh. "ok"
+      cho "DP3-01-do dao-buoc": bản sao chuyển đoạn lời gọi CLI xuống sau câu mở chip (kiểm bước tiêm áp) →
+      hàm kiểm nêu "tiep-tuc.md: trình tự" với hai vị trí in ra.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E1b
+    criterion: AC-1
+    executor: script
+    cmd: config:executors.script.dieu_phoi_validate
+    paths: [dieu-phoi/commands/**, dieu-phoi/.claude-plugin/plugin.json, dieu-phoi/hooks/hooks.json]
+    expected: >
+      exit 0; stdout có "PASS: DP1-01b validate" (bộ kiểm gói Claude Code --strict sạch lỗi trên gói có
+      bốn lệnh) và "PASS: DP1-01b-do bo-lop-hooks".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E1c
+    criterion: AC-1
+    executor: judgment
+    inputs: [dieu-phoi/commands/tiep-tuc.md, _acceptance/dieu-phoi-tiep-tuc-mot-lenh/contract.md, docs/superpowers/specs/2026-10-11-dieu-phoi-tiep-tuc-mot-lenh-design.md, docs/superpowers/specs/2026-10-10-dieu-phoi-workflow-design.md]
+    question: >
+      Đọc trình tự AC-1 của contract.md và §4.2 bước 2–7, §5 của spec workflow, trừ phần đã dời sang DP4 ở Out
+      of scope của contract (đọc mức dùng, ban-giao.json, chuyển pha từ hai trạng thái ★). Thân tiep-tuc.md có
+      đi đúng trình tự đó không: CLI tính kế hoạch trước, phiên chỉ làm việc của app theo đúng hành động CLI
+      trả cho từng dãy, không tự suy dãy nào cần chip; phiên đã thôi vai thì dừng Monitor và không ghi gì; dạng
+      --nhe chỉ làm phần thức. Có chỗ nào thân lệnh để phiên tự đổi pha của đợt hay tự mở chip cho dãy CLI báo
+      `khong` không? Trả PASS khi đúng trình tự và không có chỗ nào như vậy.
+    evidence_required: [run_id, verdict, rationale]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/hook-nhip.mjs, dieu-phoi/scripts/song.mjs, dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/hooks/hooks.json, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-02 ghi-nhip": chạy CHÍNH lệnh hook PostToolUse rút từ dieu-phoi/hooks/hooks.json
+      (thay ${CLAUDE_PLUGIN_ROOT}) với stdin {session_id:"s-p1", cwd:<worktree P1>} rồi {session_id:"s-gs",
+      cwd:<gốc kho>} → song/s-p1.json có {phien:"s-p1", day:"P1", worktree:<realpath worktree P1>} và song/s-gs.json
+      có day null (so sâu trên ba khoá, luc là ISO). "ok" cho "DP3-02 30-giay": gọi lại trong 30″ → mtime tệp
+      không đổi; đồng hồ giả +31″ → tệp ghi lại. "ok" cho "DP3-02 round-trip": chan-doan thật trên cùng đợt
+      báo dãy P1 có phiên sống (mục day:P1, trường song == "s-p1"). "ok" cho "DP3-02-do khong-dot": kho thử
+      không đợt, cùng lệnh hook → băm cây trước == sau (đối chứng: kho có đợt thì tệp được tạo).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-03 ma-tran": ma trận viết sẵn 7 hàng (a)–(g) như AC-3, mỗi hàng khai tuổi nhịp,
+      đồng hồ giả, nhịp do hook thật ghi (lệnh rút từ hooks.json, đồng hồ giả lùi mtime); số assert = 7 (in
+      ra); hành động trong `chan-doan --json` (mục day:<id>) và trong `tiep-tuc --json` (ke_hoach) lần lượt
+      khong · nhan-giang-lai · mo-chip · khong · worktree-mat · cho-nguoi · chua-biet, hai đầu ra bằng nhau
+      từng dãy. Hàng (g) dựng bằng `mo` của bản merge-base (git archive dieu-phoi vào thư mục tạm), không tự
+      dựng tay. Lời ghi danh của (c) chứa thư mục đợt, "LUAT.md" và "/feature-loop:feature-loop <slug hàng
+      của dãy>"; việc của (g) chứa "kiểm thanh bên". "ok" cho "DP3-03-do bo-khoa": bản sao bỏ điều kiện giữ
+      khoá (kiểm bước tiêm áp) → hàm kiểm nêu đúng "(d): mo-chip, cần khong" và không nêu hàng nào khác. "ok"
+      cho "DP3-03-do bo-chua-biet": bản sao bỏ nhánh đợt-chưa-có-nhịp → nêu đúng "(g): mo-chip, cần chua-biet"
+      và không nêu hàng nào khác.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/vai.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-04 nhan-vai": đợt có giám sát "A", bộ phát lịch đã chết (pid không sống) → `tiep-tuc
+      --phien B` lần một: vai.json giam_sat.phien == "B" với thuc_luc, lich_su == [mục "A" có thoi_luc] (đẳng
+      thức độ dài 1), phat-lich.pid trỏ một tiến trình sống; lần hai: lich_su vẫn độ dài 1, pid không đổi,
+      thuc_luc lớn hơn lần một. "ok" cho "DP3-04-do khong-dot": kho không đợt → thoát 1, stderr chứa "không có
+      đợt" (đối chứng: kho có đợt thoát 0). Ca dừng bộ phát lịch nó dựng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-05 nhe": giám sát "B"; `tiep-tuc --nhe --phien B` → thuc_luc của B đổi, giam_sat.phien
+      vẫn "B", lich_su không đổi; `tiep-tuc --nhe --phien C` → JSON có thoi_vai: true, thoát 0, băm mọi tệp
+      thư mục đợt trước == sau. "ok" cho "DP3-05-do ghi-khi-thoi": bản sao bỏ nhánh thôi vai (kiểm bước tiêm
+      áp) → ca nêu "thư mục đợt đổi khi thôi vai".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/hinh-dang.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; kho thử có worktree LIÊN KẾT thật (git worktree add) cho P1. "ok" cho "DP3-06 round-trip": cwd
+      worktree P1 → lệnh con `xin s4 --uoc-phut 20` tạo đúng
+      xin/P1-s4.json qua được kiemDon; một nhịp bộ phát lịch thật (taoVong, io giả) → khoa/s4/chu.json phien
+      "P1"; `nha s4` → khoa/s4 vắng; `yeu-cau cham-tep --tep a.txt` → yeu-cau/P1-1.json, nhịp kế ghi sự kiện
+      yêu cầu cho đúng id. "ok" cho "DP3-06-do sai-khuon": ma trận 6 lời gọi sai (loại đơn lạ · cham-tep
+      không --tep · xin từ gốc kho · nha từ gốc kho · yeu-cau từ gốc kho · tra-loi có khoá lạ), số assert = 6:
+      mỗi lời thoát 1, stderr nêu lý do riêng của nó (ghim từng câu; ba lời gọi ngoài dãy mỗi câu nêu đúng tên
+      lệnh của nó), băm thư mục đợt không đổi. "ok" cho "DP3-06 doc-cu": đơn ghi tay theo khuôn
+      cũ vẫn được nhịp cấp.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/ghi.mjs, dieu-phoi/scripts/dieu-phoi.mjs, dieu-phoi/scripts/vai.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-07 chi-giam-sat": vai.json giám sát "B"; ma trận 4 lệnh (tra-loi · pha tam-dung ·
+      vai --giam-sat · nhat-ky) × 3 cách gọi ({--phien C từ gốc kho} · {--phien B từ gốc kho} · {--phien B từ
+      một worktree liên kết không thuộc dãy nào}), số assert = 12 (in ra): --phien C thoát 1, stderr chứa cả
+      "C" và "B", băm thư mục đợt trước == sau; --phien B thoát 0 và tệp đích đổi ở cả hai cwd (mỗi ô trên
+      đợt mới dựng lại). `pha tam-dung` vắng --phien thoát 0 như DP2. Lệnh `tiep-tuc --nhe --phien B` gọi từ
+      worktree liên kết ngoài dãy tìm ra đúng đợt (thoát 0, không thoi_vai).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/moi-truong.mjs, dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/hinh-dang.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-08 kiem-moi-truong": cấu hình khai ba lệnh {xanh: thoát 0 · do: in "thieu env"
+      ra stderr rồi thoát 1 · treo: sleep quá trần (trần ca hạ xuống 1 giây qua tham số)} → các mục
+      moi-truong:xanh "du", moi-truong:do "thieu" với viec chứa "thieu env", moi-truong:treo "thieu" với viec
+      chứa "quá", và lệnh thứ tư không có trên máy (vang) "thieu" với dòng stderr; danh sách mục moi-truong:
+      == bốn mục theo đúng thứ tự khai (so bằng nhau). Cấu hình không khai → 0 mục moi-truong:. "ok" cho "DP3-08 ban-goi":
+      loi/PHIEN-BAN.json ghi bản khác bản gói → mục ban-goi "thieu"; bằng nhau → "du". "ok" cho "DP3-08-do
+      kieu": kiem_moi_truong là chuỗi → kiemCauHinh ném lỗi chứa "kiem_moi_truong" (đối chứng: danh sách hợp lệ
+      không ném).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E9
+    criterion: AC-9
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/danh-thuc.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-09 ma-tran": ma trận viết sẵn 7 hàng (a)–(g) như AC-9, mỗi hàng khai tuổi
+      thuc_luc, tuổi nhịp sống của giám sát (nhịp do hook thật ghi, mtime lùi theo đồng hồ giả) và việc chờ;
+      số assert = 7 (in ra); hành động lần lượt khong · nhan-giam-sat · khong
+      · bao-chu-kho · khong · khong · nhan-giam-sat; hàng (b), (g) có phien == mã giám sát và cau chứa
+      "/dieu-phoi:tiep-tuc --nhe"; hàng (d) cau chứa "/dieu-phoi:tiep-tuc"; sự kiện can_phan của (g) do bộ
+      phát lịch thật ghi; băm thư mục đợt trước == sau ở mọi hàng. "ok" cho "DP3-09-do bo-viec-cho": bản sao
+      bỏ điều kiện «còn việc chờ» (kiểm bước tiêm áp) → hàm kiểm nêu đúng "(c): bao-chu-kho, cần khong" và
+      "(f): bao-chu-kho, cần khong", không nêu hàng nào khác (giám sát rảnh bị gọi người là đúng lỗi được tiêm).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E10
+    criterion: AC-10
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/song.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-10 khoa-khong-nhip": bộ phát lịch thật (taoVong, io giả, đồng hồ giả) cấp s4 cho P1
+      ở t; nhịp ở t+11′ không có song/ mới của worktree P1 → đúng 1 sự kiện khoa-khong-nhip can_phan; nhịp
+      t+12′ → vẫn 1; đợt thứ hai cùng kịch bản nhưng hook thật ghi nhịp của P1 ở t+5′ → 0 sự kiện; đợt không
+      có thư mục song/ → 0 sự kiện; hàng giới hạn khai: hook thật ghi nhịp của một phiên KHÁC ("s-khac") trên
+      worktree P1 ở t+5′ → 0 sự kiện (in ra «giới hạn: nhịp theo worktree»). "ok" cho "DP3-10-do bo-dieu-kien": bản sao bỏ kiểm nhịp sống (kiểm bước tiêm áp) →
+      đợt có nhịp cũng ra 1 sự kiện, ca nêu "có nhịp mà vẫn báo".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E11
+    criterion: AC-11
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/mau/LUAT.md, dieu-phoi/scripts/goi-dot.mjs, dieu-phoi/scripts/dieu-phoi.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-11 luat": `mo thu` từ gói → LUAT.md của đợt, mục «Cách xin tài nguyên» chứa
+      "<thư mục đợt>/loi/dieu-phoi.mjs xin", "… nha", "… yeu-cau"; không dòng nào chứa "ghi `xin/",
+      "ghi `yeu-cau/" hay "rm -rf"; LUAT.md của đợt vẫn mở bằng khuôn nguyên văn (ca DP2-02 giữ). "ok" cho
+      "DP3-11-do khuon-cu": khuôn
+      LUAT.md của DP2 (rút bằng git show merge-base) qua cùng hàm kiểm → nêu "rm -rf".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [CONTEXT.md, GUIDE.md, QUICKSTART.md, skills/acceptance/references/human-facing-language.md, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-12 tai-lieu": CONTEXT.md có mục «Nhịp sống của phiên» (dòng **…** rồi dòng _Avoid_
+      trước mục kế); khối §6.6 của GUIDE và QUICKSTART chứa "/dieu-phoi:tiep-tuc"; bảng COMMAND-NAMES có
+      dòng "| tiep-tuc | /dieu-phoi:tiep-tuc | command |". "ok" cho "DP3-12-do-lb": bản sao (cây tạm) bỏ dòng
+      tiep-tuc khỏi bảng, chạy LB2 trên bản sao → thoát khác 0, stdout có "FAIL: [LB2]" và "/dieu-phoi:tiep-tuc";
+      bản sao nguyên vẹn → "PASS: [LB2]" (đối chứng).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E12b
+    criterion: AC-12
+    executor: test
+    cmd: config:executors.test.dieu_phoi_lb
+    paths: [skills/acceptance/references/human-facing-language.md, tests/plugins/lenh-bam-duoc.test.mjs, GUIDE.md, QUICKSTART.md, README.md]
+    expected: >
+      exit 0; stdout có "PASS: [LB1]" và "PASS: [LB2]" trên cây có tài liệu nhắc /dieu-phoi:tiep-tuc.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E14
+    criterion: AC-14
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/danh-thuc.mjs, dieu-phoi/scripts/viec-cho.mjs, dieu-phoi/scripts/phat-lich.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "DP3-14 viec-cho": đợt có bốn nguồn như AC-14, sự kiện khoa-khong-nhip do bộ phát lịch
+      thật ghi (taoVong, đồng hồ giả), giám sát có thuc_luc nằm giữa sự kiện cũ và sự kiện mới → mục viec-cho
+      của `chan-doan --json --phien B` == danh sách ba việc viết sẵn theo thứ tự cũ nhất trước (so bằng nhau,
+      không so bao hàm; sự kiện trước thuc_luc vắng); `danh-thuc` trả cùng số việc (một hàm). "ok" cho
+      "DP3-14 giam-sat": --phien B → mục giam-sat "du"; --phien C → "thieu" với viec chứa "/dieu-phoi:tiep-tuc";
+      có song/B.json → hook-phien "du", xoá tệp đó → "thieu". "ok" cho "DP3-14-do bo-moc-thuc": bản sao bỏ lọc
+      theo thuc_luc (kiểm bước tiêm áp) → ca nêu đúng sự kiện cũ có mặt thừa.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E13
+    criterion: AC-13
+    executor: test
+    cmd: config:executors.test.dieu_phoi_dp3
+    paths: [dieu-phoi/**, tests/dieu-phoi/**]
+    expected: >
+      exit 0; dòng gộp có "# fail 0", đủ các dòng "ok … DP1-" và "ok … DP2-" của hai hồ sơ trước (cùng tên ca);
+      "ok" cho "DP3-13 dp1-nguyen": tests/dieu-phoi/dong-goi.test.mjs và tests/dieu-phoi/loi/ không đổi so với
+      merge-base (in kết quả, không in chữ «exit»).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

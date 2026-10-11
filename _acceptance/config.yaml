@@ -69,6 +69,8 @@ executors:
     dieu_phoi_dp2: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[12]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hai ca bảng tên lệnh (AC-14, E14b): tài liệu nhắc /dieu-phoi:… phải nằm trong COMMAND-NAMES.
     dieu_phoi_lb: "bash -c 'LB_CASES=LB1,LB2 node tests/plugins/lenh-bam-duoc.test.mjs'"
+    # Hồ sơ dieu-phoi-tiep-tuc-mot-lenh: như khoá `dieu_phoi_dp2` nhưng ghim cả «ok … DP3-».
+    dieu_phoi_dp3: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[123]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
