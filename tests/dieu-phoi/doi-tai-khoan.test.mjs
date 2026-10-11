@@ -938,3 +938,50 @@ test('DP4-10 luoi-cuoi', () => {
   assert.equal(hang.length, 7);
   assert.deepEqual(hang.filter(([, ok]) => !ok).map(([n]) => n), []);
 });
+
+// ---------- DP4-11: lượt chấm chết giữa chừng ra cùng round (AC-11, E11) ----------
+const S4_ARGS = path.join(KIT, 'feature-loop', 'scripts', 's4-args.mjs');
+function hoSoChamThu() {
+  const kho = tam('dp4-s4-');
+  git(kho, 'init', '-q', '-b', 'main');
+  git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+  const d = path.join(kho, '_acceptance', 'thu');
+  fs.mkdirSync(d, { recursive: true });
+  fs.writeFileSync(path.join(kho, '_acceptance', 'config.yaml'), 'schema_version: 1\nexecutors:\n  test:\n    x: "true"\nfeature_loop:\n  suite_keys:\n    - executors.test.x\n');
+  fs.writeFileSync(path.join(d, 'contract.md'), '---\nschema_version: 1\nfeature: thu\nslug: thu\nrisk_tier: T2\nsurfaces: [cli]\nstatus: implemented\n---\n\n# Acceptance Contract: thu\n\n## Criteria\n\n- AC-1: Given x, When y, Then z.\n');
+  fs.writeFileSync(path.join(d, 'evals.yaml'), 'schema_version: 1\nfeature_slug: thu\nevals:\n  - id: E1\n    criterion: AC-1\n    executor: test\n    cmd: config:executors.test.x\n    expected: exit 0\n    evidence_required: [run_id, exit_code]\n');
+  fs.writeFileSync(path.join(d, 'evidence-report.md'), '---\nverdict: REJECT\n---\n\n# Evidence\n\n## Iterations\n\n- Round 1 — REJECT (E1)\n');
+  git(kho, 'add', '-A');
+  git(kho, 'commit', '-q', '-m', 'ho so');
+  return kho;
+}
+const sinhArgs = (kho, ra) => spawnSync(process.execPath, [S4_ARGS, '--slug', 'thu', '--root', kho, '--no-carry', '--diff-base', 'HEAD', '--ag-root', KIT, '--out', ra], { cwd: kho, env: ENV, encoding: 'utf8' });
+
+test('DP4-11 cung-round', async () => {
+  const kho = hoSoChamThu();
+  const a1 = path.join(tam('dp4-a-'), 'a1.json');
+  const r1 = sinhArgs(kho, a1);
+  assert.equal(r1.status, 0, r1.stderr);
+  // Lượt round 2 «chết giữa chừng»: args đã sinh vào hồ sơ, không dòng run-log, không đổi báo cáo.
+  fs.copyFileSync(a1, path.join(kho, '_acceptance', 'thu', 's4-args.json'));
+  const a2 = path.join(tam('dp4-a-'), 'a2.json');
+  const r2 = sinhArgs(kho, a2);
+  assert.equal(r2.status, 0, r2.stderr);
+  const [n1, n2] = [docJ(a1).round, docJ(a2).round];
+  console.log(`  round lần 1: ${n1} · lần 2 (sau lượt chết): ${n2}`);
+  assert.equal(n1, 2);
+  assert.equal(n2, 2);
+  // Đối chứng: lượt round 2 CÓ ghi sổ chạy (một dòng round-tally) thì lần sinh kế phải ra round 3 — bộ đếm thật sự đọc sổ.
+  fs.appendFileSync(path.join(kho, '_acceptance', 'thu', 'run-log.jsonl'), `${JSON.stringify({ kind: 'round-tally', round: 2, ts: ISO(T) })}\n`);
+  const a3 = path.join(tam('dp4-a-'), 'a3.json');
+  const r3 = sinhArgs(kho, a3);
+  assert.equal(r3.status, 0, r3.stderr);
+  console.log(`  đối chứng — có dòng sổ round 2: round ${docJ(a3).round}`);
+  assert.equal(docJ(a3).round, 3, 'đối chứng: lượt có ghi sổ thì round tăng');
+  // Bàn giao không phải nguồn đếm lượt: ban-giao.json không có khoá round nào ngoài gợi ý cham_lai_cung_round.
+  const k = dotBanGiao({ p2: 'xong' });
+  await motNhip(k.dot, T + 5 * PHUT);
+  const khoaRound = khoaSau(docJ(tepBg(k.dot))).filter((x) => /round/i.test(x));
+  console.log(`  khoá mang «round» trong ban-giao.json: ${khoaRound.join(', ')}`);
+  assert.deepEqual(khoaRound, ['day.[].cham_lai_cung_round']);
+});
