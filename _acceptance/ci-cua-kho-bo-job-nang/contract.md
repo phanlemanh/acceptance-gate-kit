@@ -5,7 +5,7 @@ slug: ci-cua-kho-bo-job-nang
 owner: phanlemanh@gmail.com
 risk_tier: T3               # chạm scripts/pre-merge-check.sh — trong risk_tiers.t3_paths (hàng lộ trình C1 ghi T2)
 surfaces: [ci, cli]
-status: approved
+status: implemented
 design_doc: docs/superpowers/specs/2026-10-11-ci-cua-kho-bo-job-nang-design.md
 approved_by: manh
 approved_at: 2026-10-11
