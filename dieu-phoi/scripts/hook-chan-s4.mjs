@@ -3,11 +3,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOC_DAU_BYTE } from './cau-hinh.mjs';
-import { docJson, timThuMucDot, trongWorktree } from './dot.mjs';
-import { docCauHinh } from './hinh-dang.mjs';
+import { docJson, phienCuaCwd, timThuMucDot, trongWorktree } from './dot.mjs';
+import { docCauHinh, docHangViec } from './hinh-dang.mjs';
 import { BANG_BASH, phanLoaiLenh } from './phan-loai-s4.mjs';
 
-export const TEP_GIU_NHIP = path.join(path.dirname(fileURLToPath(import.meta.url)), 'giu-nhip.mjs');
+const DAY_GOI = path.dirname(fileURLToPath(import.meta.url));
+export const TEP_GIU_NHIP = path.join(DAY_GOI, 'giu-nhip.mjs');
 
 export const LENH_MAC_DINH = {
   workflow: { meta: 'acceptance-verify', tep: /^acceptance-verify(?:-[^/]*)?\.js$/ },
@@ -18,6 +19,8 @@ const MAU_LENH_BOC = /^\s*\S*node\s+\S*giu-nhip\.mjs\s+--\s/;
 const KY_TU_AN_TOAN = /^[\w./:@%+,-]+(?: [\w./:@%+,-]+)*$/;
 
 const nhayDon = (s) => (KY_TU_AN_TOAN.test(s) ? s : `'${s.replace(/'/g, `'\\''`)}'`);
+// Một ĐỐI SỐ (không phải cả lệnh): dấu cách cũng phải bọc.
+const nhayDoiSo = (s) => (/^[\w./:@%+,-]+$/.test(s) ? s : `'${s.replace(/'/g, `'\\''`)}'`);
 
 export function lenhBoc(lenhGoc) {
   const lenh = lenhGoc.trim();
@@ -71,6 +74,26 @@ function xetLenhNen(dauVao, taiNguyen) {
   return { ma: 2, loi: `chan-s4: lệnh nền giữ khoá ${taiNguyen} phải chạy qua giu-nhip: ${lenhBoc(lenh)}` };
 }
 
+function dayCuaCwd(thuMuc, cwd) {
+  try {
+    return phienCuaCwd(docHangViec(thuMuc), cwd);
+  } catch {
+    return null;
+  }
+}
+
+// Lời chặn nêu đúng lệnh CLI xin lượt (lệnh con `xin` của DP3 — một bên viết của `xin/`), không dặn viết tay
+// tệp đơn. Lõi đã chép vào đợt (`chay`) thì trỏ lõi ấy; chưa có thì trỏ lõi của gói đang chạy hook. Cwd ngoài
+// mọi dãy (hoặc `hang-viec.json` hỏng) thì nói rằng chỉ phiên thợ của một dãy xin được lượt (design DP6 §4 C1).
+function loiChan(thuMuc, taiNguyen, tinhTrang, cwd) {
+  const dau = `chan-s4: khoá ${taiNguyen} ${tinhTrang}.`;
+  const day = dayCuaCwd(thuMuc, cwd);
+  if (!day) return `${dau} Phiên này không thuộc dãy nào của đợt — chỉ phiên thợ của một dãy xin được lượt (chạy từ worktree của dãy).`;
+  const loiDot = path.join(thuMuc, 'loi', 'dieu-phoi.mjs');
+  const cli = fs.existsSync(loiDot) ? loiDot : path.join(DAY_GOI, 'dieu-phoi.mjs');
+  return `${dau} Xin lượt: node ${nhayDoiSo(cli)} xin ${taiNguyen} — rồi chờ khoa/${taiNguyen}/chu.json ghi tên dãy ${day}.`;
+}
+
 export function quyet(dauVao, { timDot = timThuMucDot } = {}) {
   const thuMuc = timDot(dauVao.cwd);
   if (!thuMuc) return { ma: 0 };
@@ -80,10 +103,7 @@ export function quyet(dauVao, { timDot = timThuMucDot } = {}) {
   const chu = docJson(path.join(thuMuc, 'khoa', taiNguyen, 'chu.json'));
   if (chu && trongWorktree(chu.worktree, dauVao.cwd)) return xetLenhNen(dauVao, taiNguyen);
   const tinhTrang = chu ? `đang thuộc ${chu.phien}` : 'đang trống nhưng chưa cấp cho phiên này';
-  return {
-    ma: 2,
-    loi: `chan-s4: khoá ${taiNguyen} ${tinhTrang}. Ghi đơn xin/<phiên>-${taiNguyen}.json trong ${thuMuc} rồi chờ khoa/${taiNguyen}/chu.json ghi tên phiên này.`,
-  };
+  return { ma: 2, loi: loiChan(thuMuc, taiNguyen, tinhTrang, dauVao.cwd) };
 }
 
 export function chayHook(raw, tuyChon = {}) {

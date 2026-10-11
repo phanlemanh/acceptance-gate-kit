@@ -358,3 +358,77 @@ test('DP6-03 lech-o-goc', async () => {
   assert.equal(saiOGoc, 9);
   assert.equal(dungBanMoi, 9);
 });
+
+// ---------- DP6-04: lời chặn nêu lệnh xin lượt (AC-4, E4) ----------
+const LENH_S4 = { tool_name: 'Bash', tool_input: { command: 'node x/repin-lane.mjs --write' } };
+const XIN = /Xin lượt: (.+?) — rồi chờ/;
+function dotCoLoi() {
+  const cha = path.join(tam('dp6-'), 'kho $x');
+  fs.mkdirSync(cha);
+  const k = khoLienKet({ duongCha: cha });
+  assert.equal(chayCli(k.kho, ['chay']).ma, 0);
+  assert.equal(chayCli(k.kho, ['dung']).ma, 0);
+  assert.ok(fs.existsSync(path.join(k.dot, 'loi', 'dieu-phoi.mjs')), 'chay phải chép lõi vào đợt');
+  giuKhoa(k.dot, 'P2', k.w2);
+  return k;
+}
+
+test('DP6-04 loi-chan', () => {
+  const { kho, dot, w1 } = dotCoLoi();
+  const p1 = chayHookChanS4(LENH_S4, { cwd: w1 });
+  assert.equal(p1.ma, 2);
+  assert.match(p1.err, /^chan-s4: khoá s4 /);
+  assert.ok(!p1.err.includes('Ghi đơn xin/'), 'không còn lời dặn viết tay xin/');
+  const m = XIN.exec(p1.err);
+  assert.ok(m, `phải nêu lệnh xin lượt: ${p1.err}`);
+  assert.ok(m[1].includes(path.join(dot, 'loi', 'dieu-phoi.mjs')), `lệnh phải trỏ lõi của đợt: ${m[1]}`);
+  assert.ok(/ xin s4$/.test(m[1]), m[1]);
+  const goc = chayHookChanS4(LENH_S4, { cwd: kho });
+  assert.equal(goc.ma, 2);
+  assert.match(goc.err, /chỉ phiên thợ của một dãy/);
+  assert.ok(!goc.err.includes(' xin s4'), 'ngoài dãy không nêu lệnh xin');
+});
+
+test('DP6-04 round-trip', async () => {
+  const { dot, w1 } = dotCoLoi();
+  const lenh = XIN.exec(chayHookChanS4(LENH_S4, { cwd: w1 }).err)[1];
+  const r = spawnSync('bash', ['-c', lenh], { cwd: w1, env: ENV, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.deepEqual(fs.readdirSync(path.join(dot, 'xin')), ['P1-s4.json']);
+  const { kiemDon } = await nap(GOI, 'hinh-dang.mjs');
+  kiemDon(docJ(path.join(dot, 'xin', 'P1-s4.json')));
+});
+
+test('DP6-04 khong-loi', () => {
+  const { dot, w1, w2 } = khoLienKet();
+  assert.ok(!fs.existsSync(path.join(dot, 'loi')), 'đợt chưa chay: chưa có lõi');
+  giuKhoa(dot, 'P2', w2);
+  const lenh = XIN.exec(chayHookChanS4(LENH_S4, { cwd: w1 }).err)?.[1];
+  assert.ok(lenh?.includes(path.join(GOI, 'scripts', 'dieu-phoi.mjs')), `lệnh phải trỏ lõi gói: ${lenh}`);
+  const r = spawnSync('bash', ['-c', lenh], { cwd: w1, env: ENV, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.ok(fs.existsSync(path.join(dot, 'xin', 'P1-s4.json')));
+});
+
+test('DP6-04 hang-viec-hong', () => {
+  const { dot, w1, w2 } = khoLienKet();
+  giuKhoa(dot, 'P2', w2);
+  fs.rmSync(path.join(dot, 'hang-viec.json'));
+  const r = chayHookChanS4(LENH_S4, { cwd: w1 });
+  assert.equal(r.ma, 2);
+  assert.match(r.err, /chỉ phiên thợ của một dãy/);
+});
+
+test('DP6-04 duong-dau-cach', () => {
+  // Đường chỉ có dấu cách (không ký tự đặc biệt) vẫn phải được bọc nháy để lệnh in ra chạy được.
+  const cha = path.join(tam('dp6-'), 'kho x');
+  fs.mkdirSync(cha);
+  const { kho, dot, w1, w2 } = khoLienKet({ duongCha: cha });
+  assert.equal(chayCli(kho, ['chay']).ma, 0);
+  assert.equal(chayCli(kho, ['dung']).ma, 0);
+  giuKhoa(dot, 'P2', w2);
+  const lenh = XIN.exec(chayHookChanS4(LENH_S4, { cwd: w1 }).err)?.[1];
+  const r = spawnSync('bash', ['-c', lenh], { cwd: w1, env: ENV, encoding: 'utf8' });
+  assert.equal(r.status, 0, `${lenh} → ${r.stderr}`);
+  assert.ok(fs.existsSync(path.join(dot, 'xin', 'P1-s4.json')));
+});
