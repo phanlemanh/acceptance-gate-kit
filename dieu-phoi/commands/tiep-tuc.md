@@ -28,12 +28,15 @@ Các bước, đúng thứ tự:
    - `ban_giao` với `trang_thai: da-tiep-tuc`: đợt đã rời bàn giao về pha trước; nói một dòng kèm mã bàn giao.
 3. **Việc của app — chỉ tạo cái còn thiếu.** Giăng Monitor (timeout 30′):
    `tail -n0 -F <thư mục đợt>/su-kien.jsonl | grep --line-buffered '"can_phan":true'`. Lịch 30′ của đợt
-   chưa có thì tạo: mỗi lần chạy gọi `get_usage` rồi
+   chưa có thì tạo theo khuôn dưới (cùng khuôn với bước 6 của `/dieu-phoi:mo-dot`).
+<!-- <<<LICH-30 -->
+   Mỗi lần lịch 30′ chạy: gọi `get_usage` rồi
    `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" han-muc --nguon get-usage --phien <mã phiên ngắn> --doc '<kết quả>'`,
    rồi `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" danh-thuc --json`
    rồi làm đúng `hanh_dong` — `nhan-giam-sat`: gửi tin liên phiên tới phiên `phien` với nguyên văn `cau` ·
-   `bao-chu-kho`: đẩy thông báo cho chủ kho với nguyên văn `cau` · `khong`: không làm gì. Nhóm «Đợt <tên>»
-   ở thanh bên chưa có (sau đổi tài khoản thanh bên tách) thì dựng lại và ghim phiên này.
+   `bao-chu-kho`: đẩy thông báo cho chủ kho với nguyên văn `cau` · `khong`: không làm gì.
+<!-- LICH-30>>> -->
+   Nhóm «Đợt <tên>» ở thanh bên chưa có (sau đổi tài khoản thanh bên tách) thì dựng lại và ghim phiên này.
 4. **Mỗi dãy theo `ke_hoach`** — một hành động, một việc:
    - `mo-chip`: mở chip cho dãy với nguyên văn `ghi_danh` CLI dựng (thư mục đợt, «đọc LUAT.md», lệnh
      `/feature-loop:feature-loop <slug>`). Dãy có `da_ban_giao: true` mà KHÔNG đổi tài khoản, và phiên cũ của dãy
@@ -43,9 +46,11 @@ Các bước, đúng thứ tự:
    - `worktree-mat`: báo người — dựng lại worktree hay cho dãy nghỉ (`hang nghi`) là quyết định của người.
    - `cho-nguoi`: không mở chip; đưa vào «việc chờ anh» ở bước 5.
    - `chua-biet`: không mở chip; nói người kiểm thanh bên xem dãy còn phiên không (đợt chưa có nhịp sống).
+   - `khong-hang`: không mở chip; nói một dòng «dãy <id>: <ly_do>» (nghỉ, hết hàng, chờ phụ thuộc hay Cổng Đáng).
 5. **Chẩn đoán lại.** `node "${CLAUDE_PLUGIN_ROOT}/scripts/dieu-phoi.mjs" chan-doan --json --chi-tiet --phien <mã phiên này>`.
-   Báo người đúng một khối: «đợt <tên> chạy lại · k dãy cần bấm chip · việc chờ anh: …» (mục `viec-cho`,
-   cũ nhất trước). Còn mục `thieu` mà phiên làm được → làm tiếp mục đó, không báo xong.
+   Báo người đúng một khối: «đợt <tên> chạy lại · k dãy cần bấm chip · việc chờ anh: …» — k = số mục `day:*`
+   mang hành động `mo-chip` (chip vừa mở ở bước 4: mục `du`, không mở lại); việc chờ là mục `viec-cho`, cũ nhất
+   trước. Còn mục `thieu` mà phiên làm được → làm tiếp mục đó, không báo xong.
 
 **Dạng `--nhe`** (mỗi lần phiên giám sát thức): bước 0 (đọc mức dùng: `get_usage` rồi `han-muc`), bước 1 với `--nhe`, bước 2, phần Monitor của bước 3, và
 bước 5 — không dựng lại lịch, nhóm hay chip. Nhờ vậy Monitor hết hạn được giăng lại ngay ở lần thức kế.

@@ -1,0 +1,160 @@
+schema_version: 1
+feature_slug: dieu-phoi-sua-truoc-dot-thu
+# Ca đo của vòng sống ở tests/dieu-phoi/sua-truoc-dot-thu.test.mjs (tên ca bắt đầu «SDT-»), cộng các ca đã ký
+# mà vòng phải đổi thân (DP3-03, DP7-03, DP2-07 — danh sách đủ ở sổ). Khoá executor thêm ở S3:
+#   executors.test.dieu_phoi_sdt = node --test trên tests/dieu-phoi/**, gộp dòng «ok … DP<n>-|SDT-», «not ok»,
+#     dòng chẩn đoán «#   …» và tổng kết TAP thành MỘT dòng (khuôn của dieu_phoi_dp3)
+#   executors.script.dieu_phoi_validate, executors.test.dieu_phoi_lb — có từ DP1, DP2
+# Kho thử do code sinh trong lượt (git init + git worktree add thật trong thư mục tạm). Đợt dựng bằng `mo` thật
+# từ gói đợt khai qua cấu hình; nhịp bộ phát lịch là `motNhip` thật (lõi nhịp `taoVong` gọi); nhịp sống do hook thật ghi. Đường
+# dẫn suy từ vị trí tệp test. Mỗi ca đỏ chạy CHÍNH hàm đo trên bản sao bị tiêm, SAU khi bản lành xanh trên cùng
+# fixture, kiểm từng lần thay đã áp, và ghim dấu hiệu của ĐÚNG lỗi được tiêm. Ma trận viết sẵn: số assert = số
+# hàng, in ra. Lời hứa là đẳng thức thì so bằng nhau. Mỗi eval ghim đúng dòng TAP «ok … - <tên ca>»; suite xanh
+# mà thiếu dòng ghim là ĐỎ.
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/tiep-tuc.mjs, tests/dieu-phoi/sua-truoc-dot-thu.test.mjs, tests/dieu-phoi/tiep-tuc.test.mjs]
+    expected: >
+      exit 0; "ok" cho "SDT-01 cho-bam-chip": đợt mở từ gói bằng `mo` thật, `pha dang-chay`, pid bộ phát lịch
+      sống, một nhịp thật đã ghi tiep/P1.json và tiep/P2.json (mỗi dãy một hàng có ô decision: build), giám sát
+      có nhịp do hook thật ghi; `chan-doan --json` chạy hai lần → danh sách mục `thieu` RỖNG (so bằng []), hai
+      đầu ra bằng nhau; `--chi-tiet` → day:P1, day:P2 có trang_thai "du", chi_tiet.hanh_dong "mo-chip", viec chứa
+      "chờ người bấm chip", ghi_danh chứa "/feature-loop:feature-loop <slug của hàng>"; số mục mo-chip == 2.
+      "ok" cho "SDT-01 bang-trang-thai": tập khoá của bảng hành động → trạng thái trong tiep-tuc.mjs BẰNG tập
+      giá trị HANH_DONG (rút lúc chạy, in ra), và bảng so sâu bằng bảng viết trước bảy khoá {khong: du, mo-chip:
+      du, khong-hang: du, nhan-giang-lai: thieu, worktree-mat: thieu, cho-nguoi: thieu, chua-biet: thieu}. "ok"
+      cho "SDT-01-do mo-chip-thieu": bản sao bảng xếp mo-chip là thieu (kiểm bước tiêm áp) → hàm kiểm nêu
+      "day:P1 thieu — bước 7 mở chip lần hai". "ok" cho "SDT-01-do nhan-giang-lai-du": bản sao xếp
+      nhan-giang-lai là du → hàm kiểm nêu "nhan-giang-lai". "ok" cho "DP3-03 ma-tran" với dòng (c) nay mang
+      trang_thai "du".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/commands/mo-dot.md, dieu-phoi/commands/tiep-tuc.md, tests/dieu-phoi/sua-truoc-dot-thu.test.mjs]
+    expected: >
+      exit 0; "ok" cho "SDT-02 lenh-nguoi": trong mo-dot.md, đoạn bước 6 nêu "--chi-tiet", "mo-chip" và
+      "ghi_danh"; đoạn bước 7 nêu "mo-chip", "chờ người bấm" và "không mở lại"; đoạn bước 1 nêu "chưa làm bước
+      6"; trong tiep-tuc.md, đoạn bước 5 nêu "mo-chip" (mỗi điều kiện một assert, in ra). Đối chứng trên bản
+      trước vòng: cùng hàm kiểm chạy trên mo-dot.md và tiep-tuc.md rút bằng git show ở mốc so — mọi điều kiện
+      mang thay đổi ĐỎ ở đó (danh sách in ra), điều kiện xanh sẵn ở bản cũ in "giữ nguyên". "ok" cho "DP2-01
+      ba-lenh" (trình tự chẩn đoán --mo → DỪNG khi goi-dot thiếu → mo giữ nguyên). "ok" cho "SDT-02-do
+      buoc-7-cu": bản sao mo-dot.md thay đoạn bước 7 bằng nguyên văn bản trước vòng (rút từ git show ở mốc so)
+      → hàm kiểm nêu "mo-dot.md bước 7".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/tiep-tuc.mjs, dieu-phoi/scripts/chan-doan.mjs, dieu-phoi/scripts/muc-day.mjs, dieu-phoi/commands/tiep-tuc.md, tests/dieu-phoi/sua-truoc-dot-thu.test.mjs]
+    expected: >
+      exit 0; "ok" cho "SDT-03 ma-tran-het-hang": ma trận viết sẵn 7 hàng (a)–(g) như AC-3, số assert = 7 (in
+      ra); hàng (g) trước hết so tiep/P1.json bằng {hang: null, cho: "cong-dang"} (đối chứng đầu vào do nhịp thật
+      ghi); hành động trong `chan-doan --json --chi-tiet` (mục day:P1) và trong `tiep-tuc --nhe --json`
+      (ke_hoach) lần lượt khong-hang · khong-hang · khong-hang · mo-chip · mo-chip · khong-hang · khong-hang,
+      hai đầu ra bằng nhau từng hàng; ly_do của (a), (b), (c), (f), (g) lần lượt xong · nghi · phu-thuoc · nghi ·
+      cong-dang; ghi danh của (d) chứa "/feature-loop:feature-loop" + slug hàng kế, của (e) chứa slug hàng A;
+      không ghi danh nào chứa slug một hàng có contract đã ký trong worktree; mục day:P1 mang khong-hang có
+      trang_thai "du". "ok" cho "DP3-01 trinh-tu" (mỗi giá trị HANH_DONG, nay gồm khong-hang, có một dòng xử lý
+      trong tiep-tuc.md). "ok" cho "SDT-03-do roi-uu-tien": bản sao bỏ nhánh tiep-hết-hàng (kiểm bước tiêm áp) →
+      hàm kiểm nêu "(a) mời làm lại". "ok" cho "SDT-03-do bo-nghi": bản sao bỏ xét nghi → nêu "(f)" và không nêu
+      hàng nào khác. "ok" cho "SDT-03-do chi-phu-thuoc": bản sao chỉ chép lý do khi cho là phu-thuoc → nêu "(g)"
+      và không nêu (a)–(f).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/lich.mjs, dieu-phoi/scripts/phat-lich.mjs, dieu-phoi/scripts/tho.mjs, dieu-phoi/scripts/the.mjs, tests/dieu-phoi/sua-truoc-dot-thu.test.mjs, tests/dieu-phoi/trong-dot.test.mjs, tests/dieu-phoi/mo-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "SDT-04 ma-tran-quyet": ma trận viết sẵn 13 hàng như AC-4 (ba hàng park · kill · iterate
+      tách riêng; hai hàng ô do `dungCoHoi` — hàm ghi ô của `lo-trinh.mjs --mo-o` — sinh từ khuôn thật của kit,
+      một hàng giữ nguyên, một hàng đổi dòng decision thành build giữ chú thích), số assert = 13
+      (in ra), mỗi hàng chạy `motNhip` thật rồi so tiep/P1.json bằng nhau với kỳ vọng ({hang} hoặc
+      {hang:null, xong:true} hoặc {hang:null, cho:"cong-dang"}). "ok" cho "SDT-04 the-va-tiep": trên mỗi đợt
+      của ma trận, giao của (canh_bao ∪ cho_cong_dang của `the khoi-tao --json`) với {tiep.hang} RỖNG, và ở các
+      hàng A vắng · discovery · park · kill · iterate tập (canh_bao ∪ cho_cong_dang) có ≥ 1 phần tử (số in
+      ra). "ok" cho "SDT-04-do khong-bang-quyet": bản sao phat-lich.mjs gọi chonHangKe không kèm bảng quyết
+      (kiểm bước tiêm áp) → hàm kiểm nêu "park được giao". "ok" cho "SDT-04-do the-doc-park": bản sao the.mjs
+      có trangThaiQuyet đọc park thành đã quyết → hàm kiểm nêu cả "park được giao" lẫn "thẻ thôi cảnh báo
+      park". "ok" cho "DP7-03 ma-tran" (14 hàng, gác bao-giam-sat của thợ đo trên ca quyết đổi sau nhịp) và
+      "DP2-07 ap-nhip-ke". "ok" cho "SDT-04 dot-cu": fixture dot-crm-0910 dựng vào kho thử (khuôn DP2-05
+      dot-cu), dòng in số dãy · số hàng (mọi hàng mang mã) · số lệch; một nhịp thật → tiep/<dãy>.json của MỌI
+      dãy so bằng nhau với chonHangKe không bảng quyết trên tiến độ toàn «chua»; số lệch = 0. "ok" cho
+      "SDT-04-do loc-moi-dot": bản sao phat-lich.mjs truyền bảng quyết cho mọi đợt (kiểm bước tiêm áp) → mọi
+      dòng lỗi bắt đầu "đợt cũ bị lọc:" và có ít nhất một dòng.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/commands/mo-dot.md, dieu-phoi/commands/tiep-tuc.md, tests/dieu-phoi/sua-truoc-dot-thu.test.mjs]
+    expected: >
+      exit 0; "ok" cho "SDT-05 lich-30": khối giữa marker LICH-30 rút được ở cả mo-dot.md và tiep-tuc.md, hai
+      khối byte-bằng nhau, khối chứa "get_usage", "han-muc --nguon get-usage" và "danh-thuc --json"; chuỗi
+      "đọc `trang-thai.json` của đợt và in một dòng" CÓ MẶT trong mo-dot.md của mốc so (main đã gộp DP4, rút
+      bằng git show — đối chứng) và VẮNG trong mo-dot.md ở HEAD. "ok" cho "SDT-05-do thieu-han-muc": bản
+      sao mo-dot.md bỏ câu han-muc trong khối (kiểm bước tiêm áp) → hàm kiểm nêu "mo-dot.md: khối LICH-30 lệch
+      tiep-tuc.md".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/scripts/the.mjs, dieu-phoi/commands/mo-dot.md, tests/dieu-phoi/sua-truoc-dot-thu.test.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs, tests/dieu-phoi/mo-dot.test.mjs]
+    expected: >
+      exit 0; "ok" cho "SDT-06 khong-hoi-khau-vi": đợt mở từ gói khai han_muc {70, 85, 15, 30} → mọi phần tử của
+      hoi khớp ^(quyen-tu-merge|build:.+)$ (in hoi), han_muc so sâu bằng bốn số đó; dòng bước 3 của mo-dot.md nêu
+      "han_muc" và "dieu-phoi.config.json". "ok" cho "SDT-06-do them-lai": bản sao the.mjs thêm lại
+      "khau-vi-han-muc" vào hoi (kiểm bước tiêm áp) → hàm kiểm nêu "hoi khau-vi-han-muc không có lối ghi". "ok"
+      cho "DP4-04 the-khoi-tao".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [tests/dieu-phoi/**, dieu-phoi/**, _acceptance/dieu-phoi-sua-truoc-dot-thu/decisions.jsonl]
+    expected: >
+      exit 0; tổng kết TAP "# fail 0"; không dòng "not ok". "ok" cho "SDT-07 doi-than-co-ten": mốc so lấy lúc
+      chạy — commit gộp có tiêu đề khớp "Merge pull request #<n> from <chủ>/vong/dieu-phoi-sua-truoc-dot-thu"
+      trong lịch sử HEAD → [merge-base(cha-1, cha-2), cha-2]; không có → [merge-base HEAD origin/main, HEAD];
+      mốc in ra; danh sách tên ca đổi thân hay bị bỏ trong sáu tệp ca đã ký in ra và KHÔNG rỗng, mỗi tên có mặt
+      nguyên văn trong một dòng type "fix" của decisions.jsonl hồ sơ này. "ok" cho "SDT-07 chon-moc": kho git
+      tạm do code sinh — nhánh vong/dieu-phoi-sua-truoc-dot-thu đổi thân ca X, main đổi thân ca Y, `git merge
+      main` vào nhánh → danh sách bằng đúng [X]; rồi `git merge --no-ff` nhánh vào main với tiêu đề "Merge pull
+      request #1 from t/vong/dieu-phoi-sua-truoc-dot-thu" → danh sách vẫn bằng đúng [X] (mốc từng bước in ra).
+      "ok" cho "SDT-07-do so-thieu-ten": bản sao sổ bỏ dòng mang tên đầu danh sách → hàm kiểm nêu đúng tên ấy
+      kèm "chưa có dòng sổ". "ok" cho "SDT-07-do moc-moi-commit-gop": bộ chọn trên bản sao nhận mọi commit gộp
+      mang tên nhánh → ca kho tạm nêu "Y" lọt vào danh sách.
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7b
+    criterion: AC-7
+    executor: script
+    cmd: config:executors.script.dieu_phoi_validate
+    paths: [dieu-phoi/commands/**, dieu-phoi/.claude-plugin/plugin.json, dieu-phoi/hooks/hooks.json]
+    expected: >
+      exit 0; stdout có "PASS: DP1-01b validate" và "PASS: DP1-01b-do bo-lop-hooks".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E7c
+    criterion: AC-7
+    executor: test
+    cmd: config:executors.test.dieu_phoi_lb
+    paths: [dieu-phoi/README.md, CONTEXT.md, GUIDE.md, QUICKSTART.md]
+    expected: >
+      exit 0; LB1 và LB2 PASS (mọi lệnh /dieu-phoi:… nhắc trong tài liệu có trong bảng tên lệnh).
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]
+  - id: E8
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.dieu_phoi_sdt
+    paths: [dieu-phoi/README.md, CONTEXT.md, tests/dieu-phoi/sua-truoc-dot-thu.test.mjs]
+    expected: >
+      exit 0; "ok" cho "SDT-08 tai-lieu": README gói chứa "cong-dang", "khong-hang", "đã quyết build" và dòng
+      bao-giam-sat nêu quyết đổi sau nhịp; khối «Hàng kế của dãy» của CONTEXT.md chứa "đã quyết build" (mỗi điều
+      kiện một assert, in ra). "ok" cho "SDT-08-do bo-cong-dang": bản sao README bỏ "cong-dang" → hàm kiểm nêu
+      "README thiếu cong-dang".
+    evidence_required: [run_id, exit_code, verifier, verified_at, output]

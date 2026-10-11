@@ -397,6 +397,12 @@ test('DP2-07 ap-nhip-ke', async () => {
   const { taoVong } = await nap(GOI, 'phat-lich.mjs');
   process.env.DIEU_PHOI_MAY_DIR = tam('dp2-may07-');
   const { kho, dot } = dotDangChay();
+  // Đợt mở từ gói chỉ giao hàng đã quyết build (hồ sơ dieu-phoi-sua-truoc-dot-thu, B1): ba hàng có ô build như
+  // sau bước 4 của mo-dot.
+  for (const s of ['hang-a', 'hang-b', 'hang-c']) {
+    fs.mkdirSync(path.join(kho, '_acceptance', s), { recursive: true });
+    fs.writeFileSync(path.join(kho, '_acceptance', s, 'opportunity.md'), '---\nstage: decided\ndecision: build\n---\n');
+  }
   const gio = Date.now();
   await taoVong(dot, ioGia(gio), () => gio)();
   assert.equal(docJ(path.join(dot, 'tiep', 'P1.json')).hang, 'hang-a', 'đối chứng: trước khi đổi, A là hàng kế của P1');
@@ -620,8 +626,9 @@ export async function kiemTheKhoiTao(gocGoi, kho) {
     const thuc = laCho ? 'cho' : laCanhBao ? 'canh-bao' : 'da-quyet';
     if (thuc !== can) loi.push(`${slug}: ${thuc}, cần ${can}`);
   }
-  // DP4 (hồ sơ dieu-phoi-doi-tai-khoan AC-4): khuôn đợt khai han_muc nên thẻ hỏi thêm khẩu vị hạn mức.
-  const hoiCan = ['quyen-tu-merge', 'khau-vi-han-muc', ...MA_TRAN_THE.filter((r) => r[3] === 'cho').map((r) => `build:${r[1]}`)];
+  // Khuôn đợt khai han_muc nhưng thẻ KHÔNG hỏi khẩu vị hạn mức (hồ sơ dieu-phoi-sua-truoc-dot-thu, E1 — câu hỏi ấy
+  // không có lối ghi; DP4 Ngoài-1): hoi chỉ gồm quyền tự merge và chữ build cho hàng chờ.
+  const hoiCan = ['quyen-tu-merge', ...MA_TRAN_THE.filter((r) => r[3] === 'cho').map((r) => `build:${r[1]}`)];
   if (JSON.stringify(the.hoi) !== JSON.stringify(hoiCan)) loi.push(`hoi = ${JSON.stringify(the.hoi)}`);
   if (!the.may_di_tiep.includes('uu-tien') || !the.may_di_tiep.includes('lan-v')) loi.push('may_di_tiep thiếu uu-tien/lan-v');
   return { loi, soAssert, the };
