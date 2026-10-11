@@ -18,7 +18,7 @@ const ALL = ['LIB-van-tay-het-gio', 'LIB-van-tay-thoat', 'LIB-van-tay-rong', 'LI
   'AC4-chua-commit-sua', 'AC4-chua-commit-moi', 'AC4-lenh-da-chay', 'AC4-hai-eval-model', 'AC4-eval-thuong',
   'AC5-dan-phang', 'AC5-moi-nhat', 'AC5-dong-cu',
   'AC6-lech',
-  'AC7-song', 'AC8-song', 'AC9-khuon-dung-lai'];
+  'AC7-song', 'AC8-song', 'AC9-khuon-dung-lai', 'AC10-dem'];
 const { ca, ket } = boKiem(ALL);
 
 // Khối marker của bên viết — rút từ tệp thư viện, rút rỗng là ĐỎ.
@@ -428,6 +428,42 @@ await ca('AC9-khuon-dung-lai', 'dòng repin (băm, dùng lại) và repin-do (b�
   const d = k.docLog().filter(l => l.kind === 'repin-do').pop();
   ok(d.evals_hash && d.carry_lech, `repin-do thiếu khoá: ${Object.keys(d).join(',')}`);
   soKhuon(Object.keys(d), khoaKhuon('repin-do'), 'repin-do');
+});
+
+// ── AC-10: script đếm của đường đo ───────────────────────────────────────────
+const DEM = process.env.GG_DEM || path.join(ROOT, 'feature-loop', 'scripts', 'dem-dung-lai-model.mjs');
+await ca('AC10-dem', 'đếm trên run-log do làn thật ghi: tổng, nhãn hai lượt lệch, nguồn không có', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const k = mkG3();
+  xanh(lanCommit(k), 'lượt 1 (chạy)'); xanh(lanCommit(k), 'lượt 2 (dùng lại)');
+  // (a) lệch khi không tệp git nào đổi ngoài sổ làn ghi
+  datTs(k, iso(Date.now() - 8 * NGAY), { tatCa: true }); dau(k, 'E1-exit', '1');
+  ok(k.lane(['--write']).status === 1, 'lượt 3 (lệch a) không đỏ'); commit(k, 'dau do a'); boDau(k, 'E1-exit');
+  xanh(lanCommit(k), 'lượt 4 (chạy lại, xanh)');
+  // (b) lệch sau khi đổi một tệp ngoài mọi lớp của băm
+  ghi(k, 'lib/x.txt', 'x2\n'); commit(k, 'doi lib/x.txt'); dau(k, 'E1-exit', '1');
+  ok(k.lane(['--write']).status === 1, 'lượt 5 (lệch b) không đỏ'); commit(k, 'dau do b');
+  const lech = k.docLog().filter(l => Array.isArray(l.carry_lech));
+  ok(lech.length === 2, `fixture: ${lech.length} lượt lệch, mong 2`);
+  // dòng repin trỏ nguồn không có (sửa từ dòng làn ghi)
+  const f = path.join(k.ws, 'run-log.jsonl');
+  const p2 = pins(k)[1];
+  fs.appendFileSync(f, JSON.stringify({ ts: p2.ts, kind: 'repin', run_id: 'repin-gia', sha: p2.sha, evals_exit: { E1: 0 }, evals_carry: { E1: 'repin-khong-co' } }) + '\n');
+  const r = spawnSync(process.execPath, [DEM, '--root', k.root], { encoding: 'utf8' });
+  ok(r.status === 0, `script thoát ${r.status}: ${r.stderr}`);
+  const o = r.stdout;
+  const tong = (o.match(/^TỔNG — model_goi (\d+) · model_carry (\d+) · carry_lech (\d+)$/m) || []).slice(1).map(Number);
+  ok(tong.length === 3, `không thấy dòng tổng:\n${o}`);
+  ok(tong[2] === 2, `ghim: carry_lech đếm thiếu — ${tong[2]}, mong 2`);
+  ok(tong[0] === 4 && tong[1] === 1, `model_goi ${tong[0]} (mong 4) · model_carry ${tong[1]} (mong 1)`);
+  ok(/^feat\/E1: dùng lại 2 · carry_lech 2$/m.test(o), `thiếu dòng của E1 (dùng lại 2 = lượt 2 + dòng trỏ nguồn không có):\n${o}`);
+  const nhan = o.split('\n').filter(l => l.startsWith('carry_lech feat/E1 @ '));
+  ok(nhan.length === 2, `số dòng nhãn lệch ${nhan.length}`);
+  ok(/: lệch không tất định$/.test(nhan[0]), `lượt (a): ${nhan[0]}`);
+  ok(/: nghi thiếu đầu vào: lib\/x\.txt$/.test(nhan[1]), `ghim: không tách nguyên nhân lệch — lượt (b): ${nhan[1]}`);
+  ok(/^nguồn không có: feat\/E1 → repin-khong-co$/m.test(o), `thiếu dòng nguồn không có:\n${o}`);
+  const sai = spawnSync(process.execPath, [DEM, '--root', path.join(k.root, 'khong-co')], { encoding: 'utf8' });
+  ok(sai.status === 2, `--root sai phải thoát 2, nhận ${sai.status}`);
 });
 
 ket();
