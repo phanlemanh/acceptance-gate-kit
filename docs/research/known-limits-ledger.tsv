@@ -660,3 +660,4 @@ dieu-phoi-doi-tai-khoan#ngoai-26	dieu-phoi-doi-tai-khoan	low	do-thuoc	song			que
 ten-ca-qua-tien-to-turbo#ngoai-1	ten-ca-qua-tien-to-turbo	medium	fail-open	song			paths của E1–E3 thiếu gia-lan-fixture.mjs — lượt sửa chỉ chạm tệp ấy mang màu xanh cũ sang
 ten-ca-qua-tien-to-turbo#ngoai-2	ten-ca-qua-tien-to-turbo	medium	khong-the-do	song			Phép đếm mười ô của AC-2 tự suy từ chính danh sách mẫu; mẫu không buộc vào KHUON_TEN_CA — bỏ một mẫu vẫn xanh
 ten-ca-qua-tien-to-turbo#ngoai-3	ten-ca-qua-tien-to-turbo	medium	khong-the-do	trung		ten-ca-qua-tien-to-turbo#ngoai-2	Cùng gốc ngoai-2 nhìn từ phía ma trận tuyên viết trước
+eval-goi-model-that-khong-chay#trong-1	eval-goi-model-that-khong-chay	low	mut-khong-qua-chan-that	song			Phép phá chiều đỏ AC-15 «không trừ tệp nào» thay vì «chỉ trừ sổ của chính hồ sơ»; E15 đỏ cả khi fixture bỏ phần hồ sơ KHÁC (AC-15) [lượt chấm 3; owner quyết ở Cổng Bằng chứng 11/10]

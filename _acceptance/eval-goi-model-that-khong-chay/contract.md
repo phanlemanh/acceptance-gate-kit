@@ -96,8 +96,8 @@ cho lớp dấu vân tay và cờ ép; `[NGÀNH: crm eval-model-that-dung-luc E1
   - Ngoài-18: ma trận lớp băm rút từ khối `CARRY-INPUT-LAYERS` mà hàm băm không đọc khối ấy (độ đủ lớp gắn bằng năm phép phá, không bằng khối).
   - Ngoài-20: E9 khai «mọi khoá LAN-KHOA bật», thực tế hai điểm-case rời.
   - Ngoài-22: ca `AC4-ma-tran` là bảng tra song song, không lái ca.
+  - AC-15 (phát hiện TRONG hợp đồng của lượt chấm 3; owner quyết «ghi Known limits» 11/10, sau chữ ký): phép phá chiều đỏ `chi-tru-ho-so-minh` là «không trừ tệp nào» thay vì «chỉ trừ tệp làn ghi của chính hồ sơ» như hợp đồng mô tả, nên E15 vẫn đỏ khi fixture bỏ hẳn phần «hồ sơ KHÁC»; ca bền vẫn phân biệt được lỗi (tác tử chấm đo cả hai dạng phá).
 - Mở hợp đồng mới (Ngoài-1, Ngoài-2): hạt giống `docs/plans/2026-10-11-hat-giong-dem-dung-lai-dong-dung-som.md` — script đếm gắn nhãn «không thấy nguồn» cho lượt lệch rồi dừng sớm.
-- Còn một phát hiện TRONG hợp đồng của lượt chấm 3 (review-findings, AC-15): phép phá chiều đỏ `chi-tru-ho-so-minh` là «không trừ tệp nào» thay vì «chỉ trừ tệp của chính hồ sơ» như hợp đồng mô tả; ca vẫn phân biệt được lỗi (tác tử chấm đo cả hai dạng phá). Thẻ Cổng Bằng chứng không in mục này vì verdict PASS; owner ký không định đoạt riêng mục này.
 
 - Giới hạn khai, mỗi cái một ngưỡng (đếm bằng `dem-dung-lai-model.mjs`):
   - `paths` thiếu đầu vào, hoặc eval không tất định → kết quả dùng lại không còn đúng. Ngưỡng mở vòng siết: `carry_lech` ≥ 1 ở bất kỳ kho nào.
