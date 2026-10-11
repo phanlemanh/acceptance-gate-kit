@@ -322,6 +322,28 @@ descope một AC vẫn phải sửa contract + re-approve. Card 2 gate tự rend
 "Quyết định & trade-off" (descope lên đầu); chưa ghi gì → in "(chưa ghi quyết định
 nào)" để bạn đòi khi cần.
 
+**Căn cứ của lựa chọn ở bước thiết kế (khoá `can_cu`, ADR 0022):** bước thiết kế không
+dừng hỏi người. Mỗi lựa chọn brainstorm lẽ ra hỏi thành một dòng `stage:"S1"` mang thêm
+khoá máy đọc `can_cu` — chép đúng một dòng của khuôn `DEC-CAN-CU-SLOT` (SKILL
+feature-loop, mục «Sổ quyết định»; không viết khuôn thứ hai ở đây):
+- **mục tiêu + quy tắc đã khai** (`"nguon":"muc-tieu"`, `tep` + `trich`): câu trích
+  nguyên văn ở một tệp có từ trước vòng, không phải vật của chính vòng (ô cơ hội đã ký
+  thì được) → máy quyết;
+- **chỉ một lối ra sống** (`"nguon":"mot-loi"`, `loi_chet`) → máy quyết;
+- **chỉ người có** (`"nguon":"chi-nguoi"`, `khuyen` + `loi_khac`) → câu hỏi «Hỏi-n» trên
+  thẻ Cổng Phạm vi, máy soạn nháp theo khuyến nghị.
+
+`kho_dao: true` (ship ra người dùng thật · xoá dữ liệu · cam kết ra ngoài kho) luôn là câu
+hỏi. Dòng không có khoá là dòng đời trước — đọc như cũ; thẻ của hợp đồng nháp có thêm
+một cờ vàng. Thẻ Cổng Phạm vi hiện ba khối: «Câu chỉ anh trả lời được» (anh trả lời
+«duyệt» = nhận khuyến nghị, hoặc «sửa: Hỏi-n = lối»), «Máy đã quyết ở bước thiết kế —
+anh lật được» (kèm câu trích + tệp, hoặc lối khác chết vì sao), rồi «Quyết định &
+trade-off» cho phần còn lại. Dòng căn cứ hỏng (trích không có, tự trỏ vào vật của vòng,
+câu trích sinh trong nhánh, khó-đảo bị máy quyết, nguồn lạ…) → cờ đỏ có tên và dòng lệnh
+duyệt không điền sẵn. Anh lật một lựa chọn ở Cổng Phạm vi → máy ghi một dòng `gate1`
+theo khuôn `DEC-LAT-GATE1`. Kiểm tay: `node scripts/can-cu-s1.cjs --root . --slug <s>
+[--base <ref>]`; đường đo cả kho: `node scripts/can-cu-s1.cjs --root . --dem`.
+
 **Làn design — một công tắc** — CT1 (chạm UI): static checks (token/contrast/tap,
 thiếu capture là BLOCKED) + screenshot như thường. Không có field tier nào —
 trạng thái nhận từ artifact; D0/D1 chỉ là cách gọi. Điều kiện bật là khoá
