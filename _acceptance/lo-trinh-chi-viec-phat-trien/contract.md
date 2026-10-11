@@ -6,7 +6,7 @@ owner: phanlemanh@gmail.com
 risk_tier: T2               # scripts/cat-luot.mjs + skills/cat-luot/SKILL.md + hai khuôn lộ trình + CONTEXT.md + ca đo — không chạm lib/**, hooks/**, lưới trước-merge
 surfaces: [cli]
 design_doc: docs/superpowers/specs/2026-10-11-lo-trinh-chi-viec-phat-trien-design.md
-status: implemented
+status: verified
 veto_state: mo
 veto_opened_at: 2026-10-11T09:20:54Z
 ---
