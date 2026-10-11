@@ -10,6 +10,7 @@ import { docJson, ghiJsonNguyenTu, ghiSuKien } from './dot.mjs';
 import { docPha } from './pha.mjs';
 import { giuMay, nhaMay, thuHoiMayChet } from './may.mjs';
 import { xetHanMucNhip } from './han-muc.mjs';
+import { buocBanGiao } from './ban-giao.mjs';
 import { docNhomKeHoach } from './nguon-hang.mjs';
 import { capLuot, chonHangKe, hanGiaHan, xetHanThue } from './lich.mjs';
 import { coThuMucSong, NGUONG_SONG_MS, nhipMoiNhatCua } from './song.mjs';
@@ -355,7 +356,9 @@ export async function motNhip(thuMuc, io) {
   const dk = docPha(thuMuc);
   // DP4: xét hạn mức TRƯỚC khi cấp — chạm ngưỡng có thể đưa đợt vào bàn giao hay chờ đặt lại ngay nhịp này.
   const hm = xetHanMucNhip(thuMuc, { cfg, cu, nowMs, pha: dk.pha });
-  const pha = hm.vao_ban_giao ? docPha(thuMuc).pha : dk.pha;
+  let pha = hm.vao_ban_giao ? docPha(thuMuc).pha : dk.pha;
+  // DP4: đang bàn giao → dựng ban-giao.json khi đủ điều kiện, đồng hồ chờ ở đây vì bộ phát lịch không tốn hạn mức.
+  if (pha === 'dang-ban-giao') pha = buocBanGiao(thuMuc, { nowMs }).pha;
   const may = { ap: Boolean(dk.nguon_goi), cho: null };
   if (may.ap && !dangGiu.s4) nhaMay(thuMuc);
   const hangCho = capPhat(thuMuc, cfg, hangViec, dangGiu, sucKhoe.giamTai, nowMs, pha, may, hm.cho_dat_lai);

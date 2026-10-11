@@ -486,3 +486,173 @@ test('DP4-03-do bo-ve-giam-sat', async () => {
   console.log(`  hàng lệch trên bản tiêm: ${lech.join(', ')}`);
   assert.deepEqual(lech, ['h']);
 });
+
+// ---------- DP4-05: lệnh con ban-giao, ban-giao-xong (AC-5, E5) ----------
+const envGio = (ms) => ({ DIEU_PHOI_NOW_MS: String(ms) });
+const dk = (dot) => docJ(path.join(dot, 'dieu-khien.json'));
+// Remote giả là một kho bare; nhánh p1, p2 đẩy lúc dựng để «đã đẩy» đo được.
+function khoCoRemote(tuyChon = {}) {
+  const k = khoLienKet(tuyChon);
+  const bare = path.join(tam('dp4-remote-'), 'r.git');
+  execFileSync('git', ['init', '-q', '--bare', bare], { env: ENV });
+  execFileSync('git', ['remote', 'add', 'origin', bare], { cwd: k.kho, env: ENV });
+  for (const [w, nh] of [[k.w1, 'p1'], [k.w2, 'p2']]) execFileSync('git', ['push', '-q', '-u', 'origin', nh], { cwd: w, env: ENV, stdio: 'ignore' });
+  const refs = () => execFileSync('git', ['for-each-ref', '--format=%(refname) %(objectname)'], { cwd: bare, env: ENV, encoding: 'utf8' });
+  return { ...k, bare, refs };
+}
+
+test('DP4-05 ban-giao', () => {
+  const { kho, dot } = khoLienKet();
+  const r1 = chayCli(kho, ['ban-giao', '--ly-do', 'đổi tài khoản', '--json']);
+  assert.equal(r1.ma, 0, r1.err);
+  const d1 = dk(dot);
+  assert.equal(d1.pha, 'dang-ban-giao');
+  assert.equal(d1.ban_giao.pha_truoc, 'dang-chay');
+  const r2 = chayCli(kho, ['ban-giao', '--json']);
+  assert.equal(r2.ma, 0, r2.err);
+  const d2 = dk(dot);
+  assert.equal(d2.ban_giao.ma, d1.ban_giao.ma, 'chạy lại giữ mã');
+  assert.equal(d2.lich_su.length, d1.lich_su.length, 'chạy lại không thêm dòng lịch sử pha');
+  const cam = ['nhap', 'dang-dong', 'cho-tiep-tuc'].map((pha) => {
+    datTruc(dot, pha);
+    const r = chayCli(kho, ['ban-giao']);
+    assert.equal(r.ma, 1, `${pha}: ${r.out}`);
+    assert.match(r.err, new RegExp(pha));
+    return `${pha} · ${r.err.trim()}`;
+  });
+  console.log(cam.map((c) => `  ${c}`).join('\n'));
+});
+
+const KHOA_XONG = ['co_wip', 'da_day', 'day', 'dinh', 'luc', 'ma', 'nhanh', 'phien_cu'];
+test('DP4-05 ban-giao-xong', () => {
+  const k = khoCoRemote();
+  const { kho, dot, w1, w2 } = k;
+  const refTruoc = k.refs();
+  chayHook('PostToolUse', { session_id: 's-cu' }, { cwd: w1 });
+  assert.equal(chayCli(kho, ['ban-giao']).ma, 0);
+  const hang = [];
+  fs.writeFileSync(path.join(w1, 'ban.txt'), 'x');
+  let r = chayCli(w1, ['ban-giao-xong']);
+  hang.push(['a', r.ma === 1 && r.err.includes('ban.txt'), r.err.trim()]);
+  fs.rmSync(path.join(w1, 'ban.txt'));
+  assert.equal(chayCli(w1, ['xin', 's4']).ma, 0);
+  r = chayCli(w1, ['ban-giao-xong']);
+  hang.push(['b', r.ma === 1 && r.err.includes('xin/P1-s4.json'), r.err.trim()]);
+  fs.rmSync(path.join(dot, 'xin', 'P1-s4.json'));
+  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', slug: 'hang-a', loai: 's4', worktree: w1, cap_luc: ISO(Date.now()), han_thue_den: ISO(Date.now() + 90 * PHUT) });
+  r = chayCli(w1, ['ban-giao-xong']);
+  hang.push(['c', r.ma === 1 && r.err.includes('đang xong'), r.err.trim()]);
+  fs.rmSync(path.join(dot, 'khoa', 's4'), { recursive: true });
+  r = chayCli(kho, ['ban-giao-xong']);
+  hang.push(['d', r.ma === 1 && r.err.includes('ban-giao-xong'), r.err.trim()]);
+  r = chayCli(w1, ['ban-giao-xong']);
+  const x1 = fs.existsSync(path.join(dot, 'ban-giao', 'xong', 'P1.json')) ? docJ(path.join(dot, 'ban-giao', 'xong', 'P1.json')) : {};
+  hang.push(['e', r.ma === 0 && JSON.stringify(Object.keys(x1).sort()) === JSON.stringify(KHOA_XONG) && x1.phien_cu.includes('s-cu') && x1.da_day === true, `${r.err.trim()} ${JSON.stringify(x1)}`]);
+  fs.writeFileSync(path.join(w2, 'do.txt'), 'dở');
+  r = chayCli(w2, ['ban-giao-xong', '--wip', 'dở S3']);
+  const tieuDe = git(w2, 'log', '-1', '--format=%s');
+  const sach = git(w2, 'status', '--porcelain') === '';
+  hang.push(['f', r.ma === 0 && tieuDe === 'wip(ban-giao): dở S3' && sach && fs.existsSync(path.join(dot, 'ban-giao', 'xong', 'P2.json')), `${r.err.trim()} · ${tieuDe} · sạch=${sach}`]);
+  console.log(hang.map(([n, ok, ct]) => `  (${n}) · ${ok ? 'đúng' : 'SAI'} · ${ct}`).join('\n'));
+  assert.equal(hang.length, 6);
+  assert.deepEqual(hang.filter(([, ok]) => !ok).map(([n]) => n), []);
+  assert.equal(k.refs(), refTruoc, 'không lời gọi nào đẩy nhánh');
+});
+
+// ---------- DP4-06: dựng ban-giao.json + đồng hồ bàn giao (AC-6, E6) ----------
+function hoSoThu(w, slug, status) {
+  const d = path.join(w, '_acceptance', slug);
+  fs.mkdirSync(d, { recursive: true });
+  fs.writeFileSync(path.join(d, 'contract.md'), `---\nstatus: ${status}\n---\n`);
+  git(w, 'add', '-A');
+  git(w, 'commit', '-q', '-m', `ho so ${slug}`);
+}
+function giuS4(dot, day, w, nhipMs) {
+  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: day, slug: 'hang-b', loai: 's4', worktree: w, cap_luc: ISO(T - 30 * PHUT), han_thue_den: ISO(T + 90 * PHUT) });
+  const p = path.join(dot, 'khoa', 's4', 'nhip');
+  fs.writeFileSync(p, ISO(nhipMs));
+  fs.utimesSync(p, new Date(nhipMs), new Date(nhipMs));
+}
+// Đợt vào bàn giao lúc T (CLI thật, đồng hồ giả), P1 báo xong; `p2` = 'chua' | 'xong' | 's4-song' | 's4-cu'.
+function dotBanGiao({ p2 = 'chua', cauHinh = {} } = {}) {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
+  const k = khoCoRemote({ cauHinh });
+  hoSoThu(k.w2, 'hang-b', 'implemented');
+  assert.equal(chayCli(k.kho, ['ban-giao', '--ly-do', 'thu'], { env: envGio(T) }).ma, 0);
+  const r1 = chayCli(k.w1, ['ban-giao-xong'], { env: envGio(T + PHUT) });
+  assert.equal(r1.ma, 0, r1.err);
+  if (p2 === 'xong') assert.equal(chayCli(k.w2, ['ban-giao-xong'], { env: envGio(T + PHUT) }).ma, 0);
+  if (p2 === 's4-song') giuS4(k.dot, 'P2', k.w2, T + 4 * PHUT);
+  if (p2 === 's4-cu') giuS4(k.dot, 'P2', k.w2, T - 20 * PHUT);
+  return k;
+}
+const tepBg = (dot) => path.join(dot, 'ban-giao.json');
+const mucBg = (dot, id) => docJ(tepBg(dot)).day.find((m) => m.id === id);
+
+test('DP4-06 dong-ho', async () => {
+  const hang = [];
+  let k = dotBanGiao();
+  await motNhip(k.dot, T + 5 * PHUT);
+  hang.push(['a', !fs.existsSync(tepBg(k.dot)) && dk(k.dot).pha === 'dang-ban-giao']);
+  k = dotBanGiao({ p2: 's4-song' });
+  await motNhip(k.dot, T + 5 * PHUT);
+  hang.push(['b', fs.existsSync(tepBg(k.dot)) && mucBg(k.dot, 'P2').ban_giao === 'dang-xong' && mucBg(k.dot, 'P2').cham_lai_cung_round === true && dk(k.dot).pha === 'dang-ban-giao']);
+  k = dotBanGiao();
+  await motNhip(k.dot, T + 21 * PHUT);
+  hang.push(['c', fs.existsSync(tepBg(k.dot)) && mucBg(k.dot, 'P2').ban_giao === 'do' && dk(k.dot).pha === 'cho-tiep-tuc']);
+  k = dotBanGiao({ p2: 's4-cu' });
+  await motNhip(k.dot, T + 5 * PHUT);
+  hang.push(['d', dk(k.dot).pha === 'cho-tiep-tuc']);
+  k = dotBanGiao({ p2: 'xong' });
+  await motNhip(k.dot, T + 5 * PHUT);
+  const dung = suKienCua(k.dot).filter((e) => e.loai === 'ban-giao-dung');
+  hang.push(['e', dk(k.dot).pha === 'cho-tiep-tuc' && dung.length === 1 && dung[0].can_phan === true && dung[0].dich === 'owner' && dung[0].tin.includes('/dieu-phoi:tiep-tuc')]);
+  k = dotBanGiao({ cauHinh: { han_muc: undefined } });
+  await motNhip(k.dot, T + 19 * PHUT);
+  const doiChung = !fs.existsSync(tepBg(k.dot)) && dk(k.dot).pha === 'dang-ban-giao';
+  await motNhip(k.dot, T + 21 * PHUT);
+  hang.push(['f', doiChung && mucBg(k.dot, 'P2').ban_giao === 'do' && dk(k.dot).pha === 'cho-tiep-tuc']);
+  console.log(hang.map(([n, ok]) => `  (${n}) · ${ok ? 'đúng' : 'SAI'}`).join('\n'));
+  assert.equal(hang.length, 6);
+  assert.deepEqual(hang.filter(([, ok]) => !ok).map(([n]) => n), []);
+});
+
+test('DP4-06 tu-git', async () => {
+  const k = dotBanGiao({ p2: 'xong' });
+  await motNhip(k.dot, T + 5 * PHUT);
+  for (const [id, w] of [['P1', k.w1], ['P2', k.w2]]) {
+    const m = mucBg(k.dot, id);
+    const thuc = {
+      nhanh: git(w, 'rev-parse', '--abbrev-ref', 'HEAD'),
+      dinh: git(w, 'rev-parse', 'HEAD'),
+      da_day: (() => { try { return git(w, 'rev-parse', '@{u}') === git(w, 'rev-parse', 'HEAD'); } catch { return false; } })(),
+      co_wip: git(w, 'log', '-1', '--format=%s').startsWith('wip(ban-giao)'),
+    };
+    console.log(`  ${id}: ${JSON.stringify(thuc)}`);
+    assert.deepEqual({ nhanh: m.nhanh, dinh: m.dinh, da_day: m.da_day, co_wip: m.co_wip }, thuc, id);
+  }
+});
+
+test('DP4-06 khuon', async () => {
+  // Hàng có khoá s4 sống để mảng `khoa` không rỗng — so được cả khoá con của nó.
+  const k = dotBanGiao({ p2: 's4-song' });
+  await motNhip(k.dot, T + 5 * PHUT);
+  assert.deepEqual(khoaSau(docJ(tepBg(k.dot))), khoaSau(docJ(path.join(GOI, 'scripts', 'mau', 'ban-giao.json'))));
+  assert.deepEqual(khoaSau(docJ(path.join(k.dot, 'ban-giao', 'xong', 'P1.json'))), khoaSau(docJ(path.join(GOI, 'scripts', 'mau', 'ban-giao-xong.json'))));
+});
+
+test('DP4-06 cung-ham', async () => {
+  const k = dotBanGiao();
+  const vao = dk(k.dot).ban_giao;
+  const r = chayCli(k.kho, ['ban-giao'], { env: envGio(T + 21 * PHUT) });
+  assert.equal(r.ma, 0, r.err);
+  const quaCli = docJ(tepBg(k.dot));
+  datTruc(k.dot, 'dang-ban-giao', { vaoLuc: vao.vao_luc });
+  const p = path.join(k.dot, 'dieu-khien.json');
+  ghiJ(p, { ...docJ(p), ban_giao: vao });
+  fs.rmSync(tepBg(k.dot));
+  await motNhip(k.dot, T + 21 * PHUT);
+  const quaNhip = docJ(tepBg(k.dot));
+  const bo = ({ luc: _l, ...con }) => con;
+  assert.deepEqual(bo(quaNhip), bo(quaCli));
+});
