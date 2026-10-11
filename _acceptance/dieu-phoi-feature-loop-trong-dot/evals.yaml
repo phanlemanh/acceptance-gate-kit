@@ -71,7 +71,8 @@ evals:
       tap-kit": với MỖI giá trị enum status, một hồ sơ thật dưới _acceptance/ của cây đang kiểm mang trạng thái
       đó mà classify không ra "hong" (vắng thì hồ sơ tối thiểu do ca dựng; ca in nguồn từng ô) → (classify(dir).key
       ∈ DA_GIAO_O của scripts/lo-trinh.mjs) === (trạng thái ∈ DA_THONG của gói); số ô so == độ dài enum; DA_THONG
-      nằm giữa marker DA-THONG trong phat-lich.mjs. Chiều đỏ "ok" cho "DP7-04-do bo-machine-cleared":
+      nằm giữa marker DA-THONG trong phat-lich.mjs; "ok" cho "DP7-04-do tap-kit" (tập thiếu machine-cleared →
+      ca nêu "machine-cleared: trang lộ trình đã giao"). Chiều đỏ "ok" cho "DP7-04-do bo-machine-cleared":
       bản sao phat-lich.mjs bỏ machine-cleared khỏi tập → ô machine-cleared nêu "A vẫn đang làm".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E5

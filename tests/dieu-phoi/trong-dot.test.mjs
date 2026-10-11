@@ -366,10 +366,51 @@ test('DP7-04 nhanh-chinh', async () => {
   assert.equal(tho(w.P1).viec_ke, 'mo-hang');
 });
 
+// «Xong» cùng nghĩa với trang lộ trình: classify của product-map + DA_GIAO_O của lo-trinh, trên hồ sơ THẬT của
+// cây đang kiểm (một hồ sơ không hỏng mỗi trạng thái); trạng thái chưa có hồ sơ thật → hồ sơ tối thiểu.
+async function kiemTapKit(daThong) {
+  const { classify } = await import(path.join(KIT, 'scripts', 'product-map.mjs'));
+  const { DA_GIAO_O } = await import(path.join(KIT, 'scripts', 'lo-trinh.mjs'));
+  const goc = path.join(KIT, '_acceptance');
+  const theoTrangThai = new Map();
+  for (const slug of fs.readdirSync(goc).sort()) {
+    const p = path.join(goc, slug, 'contract.md');
+    if (!fs.existsSync(p)) continue;
+    const st = /^status:[ \t]*(\S+)/m.exec(fs.readFileSync(p, 'utf8'))?.[1];
+    if (!st || theoTrangThai.has(st)) continue;
+    const k = classify(path.join(goc, slug), slug);
+    if (k.key !== 'hong') theoTrangThai.set(st, { nguon: slug, key: k.key });
+  }
+  const loi = [];
+  const nguon = [];
+  for (const st of ENUM_STATUS) {
+    let o = theoTrangThai.get(st);
+    if (!o) {
+      const dir = path.join(tam('dp7-hs-'), 'x');
+      ghiT(path.join(dir, 'contract.md'), `---\nslug: x\nfeature: x\nrisk_tier: T2\nstatus: ${st}\n---\n`);
+      o = { nguon: 'tối thiểu', key: classify(dir, 'x').key };
+    }
+    nguon.push(`${st}←${o.nguon}:${o.key}`);
+    if (o.key === 'hong') loi.push(`${st}: hồ sơ hỏng, không so được`);
+    else if (DA_GIAO_O.includes(o.key) !== daThong.includes(st)) loi.push(`${st}: trang lộ trình ${DA_GIAO_O.includes(o.key) ? 'đã giao' : 'chưa giao'}, gói ${daThong.includes(st) ? 'đã thông' : 'chưa thông'}`);
+  }
+  return { loi, nguon };
+}
+
 test('DP7-04 tap-kit', async () => {
   const { DA_THONG } = await nap(GOI, 'phat-lich.mjs');
-  assert.deepEqual([...DA_THONG].sort(), [...DA_THONG_KIT].sort());
-  assert.ok(DA_THONG.every((s) => ENUM_STATUS.includes(s)), `${DA_THONG} phải ⊆ enum status`);
+  const t = fs.readFileSync(path.join(GOI, 'scripts', 'phat-lich.mjs'), 'utf8');
+  assert.match(t, /\/\/ <<<DA-THONG\nexport const DA_THONG = \[[^\n]*\];\n\/\/ DA-THONG>>>/, 'DA_THONG phải nằm giữa marker DA-THONG');
+  const { loi, nguon } = await kiemTapKit(DA_THONG);
+  console.log(`  số ô so: ${nguon.length} / enum ${ENUM_STATUS.length} · ${nguon.join(' · ')}`);
+  assert.equal(nguon.length, ENUM_STATUS.length);
+  assert.deepEqual(loi, []);
+});
+
+test('DP7-04-do tap-kit', async () => {
+  // Bản chép bị tiêm: tập đã thông thiếu machine-cleared.
+  const { loi } = await kiemTapKit(DA_THONG_KIT.filter((s) => s !== 'machine-cleared'));
+  assert.ok(loi.some((l) => l.startsWith('machine-cleared: trang lộ trình đã giao')), `phải nêu machine-cleared lệch: ${loi.join(' | ')}`);
 });
 
 test('DP7-04-do bo-machine-cleared', async () => {

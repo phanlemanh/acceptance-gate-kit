@@ -242,9 +242,11 @@ function apGiaHan(thuMuc, nowMs, daBaoCu) {
 }
 
 // Trạng thái hợp đồng «đã thông» (DP7 AC-4; hạt giống lõi chuyển nguyên, mục 4): hàng đi làn V kết ở `machine-cleared`,
-// hàng reality đóng ở `da-cham-boi-thuc-te`. Bằng DA_THONG_CONG_2 ∪ DA_DONG_THUC_TE của lib/workspace-record.cjs
-// của kit — gói cài riêng nên không nạp lib được; ca DP7-04 tap-kit so hai tập.
+// hàng reality đóng ở `da-cham-boi-thuc-te`. «Xong» cùng nghĩa với trang lộ trình — gói cài riêng nên không nạp
+// được `classify` của kit; đây là bản chép có marker, ca DP7-04 tap-kit so nó với `classify` trên hồ sơ thật.
+// <<<DA-THONG
 export const DA_THONG = ['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'];
+// DA-THONG>>>
 
 // Chờ người có MỘT danh sách (DP7 AC-7): ngoài tệp `cho-nguoi/` do hook ghi, mỗi yêu cầu `can-nguoi` của thợ
 // chưa có `tra-loi/` cũng là một lần chờ chủ kho — bảng đợt, `xem` và lệnh đếm cùng đọc danh sách này. Đọc
