@@ -18,6 +18,11 @@ const KIT = path.resolve(DAY_TEP, '..', '..');
 const GOI = path.join(KIT, 'dieu-phoi');
 const FL = path.join(KIT, 'feature-loop');
 
+// Tập trạng thái hợp đồng (DP7-03 het-hang, DP7-04) rút từ lib của CÂY ĐANG KIỂM, không chép tay.
+const WR = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
+const ENUM_STATUS = WR.NAV_RULES['contract.md'].status.enum;
+const DA_THONG_KIT = [...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE];
+
 // Khoá máy của ca nằm trong thư mục tạm — đặt TRƯỚC mọi lần nạp mô-đun của gói.
 const MAY_TAM = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'dp7-may-')));
 process.env.DIEU_PHOI_MAY_DIR = MAY_TAM;
@@ -221,7 +226,7 @@ const MA_TRAN_KE = [
     lyDo: 'phu-thuoc',
   },
   { ten: 'tam-dung', dung: ({ kho }) => assert.equal(chayCli(kho, ['pha', 'tam-dung', '--boi', 't']).ma, 0), mong: 'cho', lyDo: 'tam-dung' },
-  { ten: 'het-hang', dung: ({ w }) => hopDong(w.P1, 'hang-a', 'signed-off'), mong: 'xong' },
+  { ten: 'het-hang', dung: ({ w }) => hopDong(w.P1, 'hang-a', WR.DA_THONG_CONG_2[0]), mong: 'xong' },
 ];
 
 async function kiemMaTranKe(gocGoi) {
@@ -322,10 +327,6 @@ test('DP7-05 mo-dot-md', () => {
 });
 
 // ---------- DP7-04: hàng đã thông bước sang hàng kế (AC-4, E4) ----------
-// Tập trạng thái hợp đồng rút từ lib của CÂY ĐANG KIỂM, không chép tay.
-const WR = createRequire(import.meta.url)(path.join(KIT, 'lib', 'workspace-record.cjs'));
-const ENUM_STATUS = WR.NAV_RULES['contract.md'].status.enum;
-const DA_THONG_KIT = [...WR.DA_THONG_CONG_2, ...WR.DA_DONG_THUC_TE];
 const HAI_HANG = [
   { ma: 'A', slug: 'hang-a', day: 'P1', uu_tien: 1 },
   { ma: 'B', slug: 'hang-b', day: 'P1', uu_tien: 2 },
@@ -373,7 +374,7 @@ test('DP7-04 tap-kit', async () => {
 
 test('DP7-04-do bo-machine-cleared', async () => {
   const sao = chepGoi();
-  tiem(path.join(sao, 'scripts', 'phat-lich.mjs'), "'signed-off', 'machine-cleared', ", "'signed-off', ");
+  tiem(path.join(sao, 'scripts', 'phat-lich.mjs'), "'machine-cleared', 'da-cham-boi-thuc-te'", "'da-cham-boi-thuc-te'");
   const loi = await kiemTrangThai(sao);
   assert.ok(loi.some((l) => l.startsWith('machine-cleared: A vẫn đang làm')), `phải nêu «A vẫn đang làm»: ${loi.join(' | ')}`);
 });
@@ -582,5 +583,62 @@ for (const [ten, cu, moi] of [
     if (ten === 'show-toplevel') tiem(sao, 'path.dirname(chung)', 'path.join(chung, "x")');
     const loi = await kiemNhanBiet(sao);
     assert.ok(loi.some((l) => l === 'canh: không thấy đợt'), `phải nêu «canh: không thấy đợt»: ${loi.join(' | ')}`);
+  });
+}
+
+// ---------- DP7-08: khối TRONG-DOT của SKILL feature-loop (AC-8, E8) ----------
+const SKILL = path.join(FL, 'skills', 'feature-loop', 'SKILL.md');
+const khoiTrongDot = (t) => {
+  const m = [...t.matchAll(/<!-- <<<TRONG-DOT -->\n([\s\S]*?)<!-- TRONG-DOT>>> -->/g)];
+  return m.length === 1 ? m[0][1] : null;
+};
+// Dòng lệnh nhận biết RÚT từ khối: đoạn trong backtick đầu tiên có «trong-dot.mjs».
+const lenhTrongKhoi = (khoi) => /`([^`]*trong-dot\.mjs[^`]*)`/.exec(khoi)?.[1] ?? null;
+
+async function kiemKhoi(tepSkill) {
+  const loi = [];
+  const khoi = khoiTrongDot(fs.readFileSync(tepSkill, 'utf8'));
+  if (khoi === null) return ['SKILL phải có đúng một cặp marker TRONG-DOT'];
+  const { VIEC_KE } = await nap(GOI, 'tho.mjs');
+  for (const v of VIEC_KE) {
+    const n = khoi.split(`\`${v}\` →`).length - 1;
+    if (n !== 1) loi.push(`${v}: ${n} dòng hướng dẫn, cần 1`);
+  }
+  const lenh = lenhTrongKhoi(khoi);
+  if (!lenh) return [...loi, 'khối không có dòng lệnh trong-dot.mjs'];
+  const chay = (cwd) => spawnSync('bash', ['-c', lenh.replaceAll('$WORKFLOWS_DIR', path.join(FL, 'workflows'))], { cwd, env: ENV, encoding: 'utf8' });
+  const khong = chay(khoThu());
+  if (khong.status !== 0 || khong.stdout !== '') loi.push(`không chạy được ngoài kho kit (kho không đợt: thoát ${khong.status}, «${khong.stdout}${khong.stderr}»)`);
+  const { w } = await dotCoLoi(null);
+  const co = chay(w.P1);
+  let kq = null;
+  try { kq = JSON.parse(co.stdout); } catch { kq = null; }
+  if (co.status !== 0 || kq?.day !== 'P1') loi.push(`không chạy được ngoài kho kit (đợt + dãy P1: thoát ${co.status}, «${co.stdout}${co.stderr}»)`);
+  return loi;
+}
+
+test('DP7-08 khoi-co-mat', () => {
+  assert.notEqual(khoiTrongDot(fs.readFileSync(SKILL, 'utf8')), null, 'SKILL phải có đúng một cặp marker TRONG-DOT');
+});
+
+const laLoiLenh = (l) => l.startsWith('không chạy được') || l.startsWith('khối không có dòng lệnh');
+test('DP7-08 viec-ke', async () => {
+  assert.deepEqual((await kiemKhoi(SKILL)).filter((l) => !laLoiLenh(l)), []);
+});
+
+test('DP7-08 lenh-chay-duoc', async () => {
+  assert.deepEqual((await kiemKhoi(SKILL)).filter(laLoiLenh), []);
+});
+
+for (const [ten, cu, moi, mong] of [
+  ['thieu-gia-tri', /\n *- `cho-nhip` →[^\n]*/, '', 'cho-nhip'],
+  ['duong-tuong-doi', 'node "$WORKFLOWS_DIR/../scripts/trong-dot.mjs"', 'node feature-loop/scripts/trong-dot.mjs', 'không chạy được ngoài kho kit'],
+]) {
+  test(`DP7-08-do ${ten}`, async () => {
+    const sao = path.join(tam('dp7-skill-'), 'SKILL.md');
+    fs.copyFileSync(SKILL, sao);
+    tiem(sao, cu, moi);
+    const loi = await kiemKhoi(sao);
+    assert.ok(loi.some((l) => l.startsWith(mong)), `phải nêu «${mong}»: ${loi.join(' | ')}`);
   });
 }
