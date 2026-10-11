@@ -416,7 +416,9 @@ test('DP6-04 hang-viec-hong', () => {
   fs.rmSync(path.join(dot, 'hang-viec.json'));
   const r = chayHookChanS4(LENH_S4, { cwd: w1 });
   assert.equal(r.ma, 2);
-  assert.match(r.err, /chỉ phiên thợ của một dãy/);
+  // `xin` cần hang-viec.json để biết dãy, nên lời chặn giữ lời dặn cũ — và `xin` thật sự từ chối ở đây.
+  assert.match(r.err, /^chan-s4: khoá s4 đang thuộc P2\. Ghi đơn xin\/<phiên>-s4\.json/);
+  assert.notEqual(chayCli(w1, ['xin', 's4']).ma, 0, 'đối chứng: lệnh xin không chạy được khi hang-viec.json vắng');
 });
 
 test('DP6-04 duong-dau-cach', () => {
@@ -463,4 +465,76 @@ test('DP6-05-do tra-som', async () => {
   const sao = saoGoi();
   tiem(sao, 'hook-cho-nguoi.mjs', "if (dauVao.notification_type !== 'permission_prompt') {", 'if (true) {');
   assert.deepEqual(await chayMaTranCho(sao), ['(permission_prompt, don)', '(permission_prompt, yeu-cau)']);
+});
+
+// ---------- DP6-06: sự kiện cho-nguoi mang can_phan — Monitor thức (AC-6, E6) ----------
+// Bộ lọc Monitor rút nguyên văn từ thân lệnh người — không chép tay.
+export function boLocMonitor(gocGoi = GOI) {
+  const ra = [];
+  for (const tep of ['mo-dot.md', 'tiep-tuc.md']) {
+    const t = fs.readFileSync(path.join(gocGoi, 'commands', tep), 'utf8');
+    for (const m of t.matchAll(/tail -n0 -F [^|`]*\| grep --line-buffered '([^']+)'/g)) ra.push({ tep, mau: m[1] });
+  }
+  return ra;
+}
+const khopGrep = (mau, dong) => spawnSync('grep', ['--line-buffered', mau], { input: `${dong}\n`, encoding: 'utf8' }).status === 0;
+const dongChoNguoi = (dot) =>
+  (fs.existsSync(path.join(dot, 'su-kien.jsonl')) ? fs.readFileSync(path.join(dot, 'su-kien.jsonl'), 'utf8').split('\n') : []).filter((d) => d.includes('"loai":"cho-nguoi"'));
+
+// Hook thật → nhịp thật → dòng su-kien; trả danh sách lỗi (rỗng = đạt).
+async function roundTripChoNguoi(gocGoi = GOI) {
+  const loi = [];
+  const { dot, w1 } = khoLienKet({ gocGoi });
+  chayHookChoNguoi(w1, 'permission_prompt', { gocGoi, tin: 'x'.repeat(300) });
+  await motNhipThat(dot, gocGoi);
+  await motNhipThat(dot, gocGoi);
+  const dong = dongChoNguoi(dot);
+  if (dong.length !== 1) return [`số dòng cho-nguoi ${dong.length}, cần 1`];
+  const e = JSON.parse(dong[0]);
+  if (e.phien !== 'P1') loi.push(`phien ${e.phien}`);
+  if (e.loai_cho !== 'permission_prompt') loi.push(`loai_cho ${e.loai_cho}`);
+  if (typeof e.tin !== 'string' || e.tin.length > 200) loi.push(`tin dài ${e.tin?.length}`);
+  const bl = boLocMonitor(gocGoi);
+  if (bl.length !== 2) loi.push(`rút được ${bl.length} bộ lọc Monitor, cần 2`);
+  for (const { tep, mau } of bl) if (!khopGrep(mau, dong[0])) loi.push(`bộ lọc Monitor không khớp: ${tep}`);
+  const { viecCho } = await nap(gocGoi, 'viec-cho.mjs');
+  const cho = viecCho(dot).filter((v) => v.loai === 'cho-nguoi');
+  if (cho.length !== 1 || cho[0].id !== 'P1') loi.push(`viecCho: ${JSON.stringify(cho)}`);
+  return loi;
+}
+
+test('DP6-06 round-trip', async () => {
+  assert.deepEqual(await roundTripChoNguoi(), []);
+});
+
+test('DP6-06 nang-cap', async () => {
+  const goc = goiTaiMergeBase();
+  const { dot, w2 } = khoLienKet({ gocGoi: goc });
+  chayHookChoNguoi(w2, 'permission_prompt', { gocGoi: goc });
+  await motNhipThat(dot, goc);
+  const n0 = dongChoNguoi(dot).length;
+  const t0 = docJ(path.join(dot, 'trang-thai.json')).nhip_cuoi;
+  await new Promise((x) => setTimeout(x, 5));
+  await motNhipThat(dot);
+  const t1 = docJ(path.join(dot, 'trang-thai.json')).nhip_cuoi;
+  console.log(`  bản cũ báo ${n0} dòng · nhịp ${t0} → ${t1}`);
+  assert.ok(Date.parse(t1) > Date.parse(t0), 'nhịp bản mới phải tiến');
+  assert.equal(dongChoNguoi(dot).length, n0, 'tệp bản cũ đã báo không được báo lại');
+  fs.rmSync(path.join(dot, 'cho-nguoi', 'P2.json'));
+  await motNhipThat(dot);
+  chayHookChoNguoi(w2, 'permission_prompt');
+  await motNhipThat(dot);
+  const dong = dongChoNguoi(dot);
+  assert.equal(dong.length, n0 + 1, 'tệp chờ người mới phải sinh đúng một dòng');
+  const e = JSON.parse(dong.at(-1));
+  assert.deepEqual([e.can_phan, e.phien], [true, 'P2']);
+});
+
+test('DP6-06-do bo-can-phan', async () => {
+  assert.deepEqual(await roundTripChoNguoi(), [], 'bản lành phải xanh trước');
+  const sao = saoGoi();
+  tiem(sao, 'phat-lich.mjs', 'can_phan: true,\n        loai_cho', 'loai_cho');
+  const loi = await roundTripChoNguoi(sao);
+  assert.ok(loi.includes('bộ lọc Monitor không khớp: mo-dot.md'), loi.join(' | '));
+  assert.ok(loi.includes('bộ lọc Monitor không khớp: tiep-tuc.md'), loi.join(' | '));
 });

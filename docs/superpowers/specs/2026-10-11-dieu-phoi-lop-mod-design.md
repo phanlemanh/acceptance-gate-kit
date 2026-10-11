@@ -138,7 +138,10 @@ Tệp: `dieu-phoi/scripts/phan-loai-s4.mjs` (một hàm cho hook chặn S4).
 **Lời chặn.** `hook-chan-s4.mjs` hôm nay dặn «Ghi đơn xin/<phiên>-s4.json … rồi chờ», tức mời viết tay một tệp
 mà DP3 đã giao cho CLI (`xin`). Lời mới nêu đúng lệnh `node <thư mục đợt>/loi/dieu-phoi.mjs xin <tài nguyên>`
 (lõi đã chép vào đợt, spec §16 T4), đường được bọc an toàn cho shell bằng hàm `nhayDon` sẵn có (nháy đơn khi có
-ký tự đặc biệt), và, khi cwd không thuộc dãy nào, nói rằng chỉ phiên thợ của một dãy xin được lượt.
+ký tự đặc biệt; với một đối số đường, dấu cách cũng tính là đặc biệt), và, khi cwd không thuộc dãy nào, nói rằng chỉ
+phiên thợ của một dãy xin được lượt. Khi `hang-viec.json` của đợt không đọc được, chính `xin` cũng không chạy được
+(nó cần tệp ấy để biết dãy), nên lời chặn giữ lời dặn cũ — đường đọc-cũ; nhờ vậy 84 ca lõi chuyển từ crm (vốn dựng
+đợt không có `hang-viec.json`) và hai răng «lõi không đổi» của DP2, DP3 giữ nguyên.
 
 ### C2. Thợ chờ người → giám sát thức (H3)
 

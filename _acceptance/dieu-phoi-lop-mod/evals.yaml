@@ -112,11 +112,8 @@ evals:
     expected: >
       exit 0; dòng gộp TAP có "# fail 0"; "ok" cho "DP6-07 ten-ca-cu": tập tên ca DP1-…, DP2-…, DP3-…, DP4-…, DP7-…
       có trên merge-base (rút bằng `git show <merge-base>:<tệp>` cho mọi tệp test dưới tests/dieu-phoi/, in số) ⊆
-      tập tên có dòng "ok" của lượt này; "ok" cho "DP6-07 loi-nguyen": `git diff <merge-base> --
-      tests/dieu-phoi/loi/` chỉ chạm tệp loi/hook-chan-s4.test.mjs, và tập dòng bị xoá BẰNG tập dòng của tệp ấy ở
-      merge-base chứa "Ghi đơn xin/" (rút bằng code từ git show merge-base, số in ra, kiểm > 0), số dòng thêm bằng
-      số dòng xoá, mỗi dòng thêm ghim một trong hai câu mới của lời chặn (" xin s4" hoặc "chỉ phiên thợ của một
-      dãy"); "ok" cho "DP6-07 khong-dot": kho thử không đợt, hook chặn S4 và hook chờ
+      tập tên có dòng "ok" của lượt này; "ok" cho "DP6-07 loi-nguyen": `git diff --quiet <merge-base> --
+      tests/dieu-phoi/loi/ tests/dieu-phoi/dong-goi.test.mjs` thoát 0; "ok" cho "DP6-07 khong-dot": kho thử không đợt, hook chặn S4 và hook chờ
       người thật với đầu vào S4 / permission_prompt → thoát 0, stderr rỗng, băm cây trước == sau (đối chứng: kho có
       đợt và khoá của dãy khác → hook chặn S4 thoát 2).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

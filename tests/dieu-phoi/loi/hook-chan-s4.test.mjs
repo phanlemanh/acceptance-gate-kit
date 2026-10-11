@@ -29,7 +29,7 @@ test('chưa có lượt → exit 2, thông điệp gọi tên khoá và cách xi
   const { wt, timDot } = dung();
   const kq = chayHook(wf(wt), { timDot });
   assert.equal(kq.ma, 2);
-  assert.match(kq.loi, /^chan-s4: khoá s4 đang trống nhưng chưa cấp cho phiên này\. Phiên này không thuộc dãy nào của đợt — chỉ phiên thợ của một dãy xin được lượt/);
+  assert.match(kq.loi, /^chan-s4: khoá s4 đang trống nhưng chưa cấp cho phiên này\. Ghi đơn xin\/<phiên>-s4\.json/);
 });
 
 test('khoá thuộc phiên khác → exit 2 nêu tên phiên giữ', () => {
@@ -111,7 +111,7 @@ test('S4 workflow mọi đường vào: năm dạng → chặn khi chưa có lư
   for (const [ten, vao] of dang) {
     const kq = chayHook(goiWf(wt, vao), { timDot });
     assert.equal(kq.ma, 2, ten);
-    assert.match(kq.loi, /^chan-s4: khoá s4 đang trống nhưng chưa cấp cho phiên này\. Phiên này không thuộc dãy nào của đợt — chỉ phiên thợ của một dãy xin được lượt/, ten);
+    assert.match(kq.loi, /^chan-s4: khoá s4 đang trống nhưng chưa cấp cho phiên này\. Ghi đơn xin\/<phiên>-s4\.json/, ten);
     soChan++;
   }
   assert.equal(soChan, dang.length);
