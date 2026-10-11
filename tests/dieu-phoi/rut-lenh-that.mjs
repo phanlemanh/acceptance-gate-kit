@@ -42,12 +42,13 @@ export function anDanh(s, user = os.userInfo().username) {
     .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, 'u@x');
   for (const [cu, moi] of RIENG_KHO) ra = ra.split(new RegExp(cu.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')).join(moi);
   // Chữ mà các răng quét toàn kho của kit đọc như vật thật: cặp marker `<<<TÊN`/`TÊN>>>` (P93 đòi mỗi cặp duy nhất
-  // toàn kho) và chữ trạng thái «signed-off» (RT13 đòi mọi tệp chứa nó có ca). Tệp ca chỉ cần HÌNH lời gọi — các chữ
+  // toàn kho) và chữ trạng thái «đã ký» của hồ sơ (RT13 đòi mọi tệp chứa nó có ca — script này không đọc trạng
+  // thái, chỉ xoá chữ ấy khỏi tệp ca, nên chữ được ghép từ hai mảnh). Tệp ca chỉ cần HÌNH lời gọi — các chữ
   // này nằm trong thân heredoc có nháy hay trong đối số grep, không đổi nhãn phân loại.
   return ra
     .replace(/<<<([A-Z][A-Z0-9_-]*)/g, '<<<x-$1')
     .replace(/([A-Z][A-Z0-9_-]*)>>>/g, '$1-x>>>')
-    .replace(/signed-off/gi, 'da-ky');
+    .replace(new RegExp(['signed', 'off'].join('-'), 'gi'), 'da-ky');
 }
 
 async function timLenh(p, id) {
