@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 7215f806ae2f653095ddf34c7a010774ec95c874
+verified_commit: a258d6b2a5af0888090772f349cb7e510d8df62f
 human_signoff: manh 2026-10-11
 ---
 
@@ -184,3 +184,7 @@ Round 7: PASS — chay lai 10 lenh suite o HEAD a34b55a0; E1-E8 carry-forward tu
 ### Re-pin lần 1 — 2026-10-11, do gộp main có vá gate-card #311 và DP4 #312 (181cdad1)
 run_id: repin-20261011T124817Z-61441
 sha: 7215f806ae2f653095ddf34c7a010774ec95c874 · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng · ngoài làn máy: E8 (E8 không khai paths) · AC không có chốt máy: AC-8
+
+### Re-pin lần 2 — 2026-10-11, do gộp main có #313 (56015d2b)
+run_id: repin-20261011T133747Z-29663
+sha: a258d6b2a5af0888090772f349cb7e510d8df62f · suites: 10 lệnh exit 0 · evals: 7/7 eval máy đạt kỳ vọng · ngoài làn máy: E8 (E8 không khai paths) · AC không có chốt máy: AC-8
