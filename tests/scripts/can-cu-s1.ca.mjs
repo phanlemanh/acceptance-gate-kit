@@ -417,17 +417,36 @@ check('CC-06 vang', () => {
   ghiSoKho(kho.r, 'h', [S1('c1', undefined), S1('c2', undefined)]);
   eq((theCua(kho, ['--glossary-base', kho.base]).stdout.match(/dòng sổ đời trước/g) || []).length, 1, 'đúng một cờ vàng đời trước');
 });
-check('CC-06 bo-doc', () => {
+// Ba bộ đọc sổ có sẵn, đọc ĐÚNG trường lấy từ sổ: tóm tắt hồ sơ (dai.chu_kho.quyet_dinh_may/nguoi), quét bài
+// học (dòng fix/descope mang mã d-<UTC>-<n>), sức khoẻ vòng (đếm thô dòng fix S4). Đối chứng dương: bớt một dòng
+// sổ thì đầu ra của từng bộ đọc ĐỔI — hai vế so bằng nhau không phải hằng số.
+const SO_BO_DOC = [
+  S1('d-20261011T000000Z-1', MT('CLAUDE.md', Q_GOC), { type: 'descope' }),
+  S1('d-20261011T000000Z-2', { nguon: 'mot-loi', kho_dao: false, loi_chet: 'Lối kia chết vì ranh giới tệp.' }),
+  S1('d-20261011T000000Z-3', { nguon: 'chi-nguoi', kho_dao: false, khuyen: 'Khuyên giữ.', loi_khac: 'Đổi — tốn một tiêu chí.' }),
+  Object.assign(S1('d-20261011T000000Z-4', undefined), { type: 'fix', stage: 'S4-r1' }),
+  { id: 'd-20261011T000000Z-5', type: 'approach', stage: 'gate1', at: '2026-10-11T01:00:00Z', decision: 'Người chọn lại', why: 'người chọn', cost_if_wrong: 'tốn', supersedes: 'd-20261011T000000Z-2', decided_by: 'Chủ Kho' },
+];
+function docBaBoDoc(dongs) {
+  const kho = mkKho();
+  ghiTep(kho.r, '_acceptance/h/contract.md', HD_DRAFT.replace('status: draft', 'status: implemented'));
+  ghiTep(kho.r, '_acceptance/h/evals.yaml', EVALS);
+  ghiSoKho(kho.r, 'h', dongs); ghiSoKho(kho.r, 'khac', [S1('d-20261011T000000Z-9', undefined)]);
   const HS = require(path.join(ROOT, 'scripts', 'ho-so-tom-tat.cjs'));
-  const chay = coCanCu => {
-    const kho = mkHoSoThe(); const so = path.join(kho.r, '_acceptance/h/decisions.jsonl');
-    if (!coCanCu) writeFileSync(so, readFileSync(so, 'utf8').split('\n').filter(Boolean).map(l => { const e = JSON.parse(l); delete e.can_cu; return JSON.stringify(e); }).join('\n') + '\n');
-    const tom = HS.tomTatHoSo(path.join(kho.r, '_acceptance', 'h'));
-    const cs = spawnSync('node', [path.join(ROOT, 'feature-loop', 'scripts', 'claim-scan.mjs'), '--root', kho.r, '--slug', 'khac'], { encoding: 'utf8' }).stdout;
-    const lh = spawnSync('node', [path.join(ROOT, 'scripts', 'loop-health.mjs'), '--root', kho.r, '--json'], { encoding: 'utf8' }).stdout;
-    return JSON.stringify([tom && tom.chu_kho, cs.replace(/\/[^\s"]*cancu-[^\s"/]*/g, '<T>'), lh.replace(/\/[^\s"]*cancu-[^\s"/]*/g, '<T>')]);
-  };
-  eq(chay(true), chay(false), 'bộ đọc khác ra cùng kết quả có/không can_cu');
+  const ck = HS.tomTatHoSo(path.join(kho.r, '_acceptance', 'h')).dai.chu_kho;
+  const cs = spawnSync('node', [path.join(ROOT, 'feature-loop', 'scripts', 'claim-scan.mjs'), '--root', kho.r, '--slug', 'khac'], { encoding: 'utf8' });
+  const lh = spawnSync('node', [path.join(ROOT, 'scripts', 'loop-health.mjs'), '--root', kho.r, '--json'], { encoding: 'utf8' });
+  let hang = null; try { hang = (JSON.parse(lh.stdout).rows || []).find(x => x.slug === 'h') || null; } catch (_) { die('loop-health không in JSON: ' + (lh.stderr || lh.stdout).slice(0, 200)); }
+  return { tom: [ck.quyet_dinh_may, ck.quyet_dinh_nguoi], claim: cs.stdout.split('\n').filter(l => /d-20261011T000000Z-\d/.test(l)).map(l => l.replace(/\/[^\s"]*cancu-[^\s"/]*/g, '<T>')), fix_s4: hang ? hang.fix_s4 : null };
+}
+const boCanCu = dongs => dongs.map(e => { const x = Object.assign({}, e); delete x.can_cu; return x; });
+check('CC-06 bo-doc', () => {
+  const co = docBaBoDoc(SO_BO_DOC), khong = docBaBoDoc(boCanCu(SO_BO_DOC));
+  eq(co, khong, 'bộ đọc khác ra cùng kết quả có/không can_cu');
+  eq([co.tom[0] >= 4, co.tom[1], co.claim.length >= 2, co.fix_s4], [true, 1, true, 1], 'ba bộ đọc thật sự đọc sổ (máy ≥ 4 · người 1 · ≥ 2 bài học · 1 dòng fix S4)');
+  const bot = docBaBoDoc(SO_BO_DOC.filter(e => e.id !== 'd-20261011T000000Z-1' && e.id !== 'd-20261011T000000Z-4'));
+  if (bot.tom[0] === co.tom[0] || bot.claim.length === co.claim.length || bot.fix_s4 === co.fix_s4) die('đối chứng dương: bớt dòng sổ mà đầu ra bộ đọc không đổi ' + JSON.stringify({ co, bot }));
+  console.log(`    CC-06 bo-doc: máy ${co.tom[0]} · người ${co.tom[1]} · bài học ${co.claim.length} · fix S4 ${co.fix_s4}`);
 });
 check('CC-06-do', () => {
   const mod = banSaoMod("if (c === undefined) return ra('doi-truoc');", "if (c === undefined) return ra('do', 'nguon-la');");
