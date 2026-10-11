@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { docJson } from './dot.mjs';
+import { hangKeTuTiep } from './lich.mjs';
 
 const git = (cwd, ...a) => {
   const r = spawnSync('git', a, { cwd, encoding: 'utf8' });
@@ -18,11 +19,10 @@ export function trangThaiHoSo(worktree, slug) {
   }
 }
 
-// Hàng kế của dãy: `tiep/<dãy>.json` của bộ phát lịch, không có thì hàng ưu tiên đầu của dãy.
+// Hàng kế của dãy — đọc `tiep/<dãy>.json` bằng `hangKeTuTiep` (lich.mjs, MỘT bên đọc cạnh bên viết; hồ sơ
+// dieu-phoi-sua-truoc-dot-thu, D1): dãy nghỉ, hết hàng hay đang chờ → null, không rơi về hàng ưu tiên đầu.
 export function slugCuaDay(thuMuc, hangViec, id) {
-  const tiep = docJson(path.join(thuMuc, 'tiep', `${id}.json`), null);
-  if (tiep?.hang) return tiep.hang;
-  return (hangViec.hang ?? []).filter((h) => h.day === id).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99))[0]?.slug ?? null;
+  return hangKeTuTiep(docJson(path.join(thuMuc, 'tiep', `${id}.json`), null), hangViec, id).hang;
 }
 
 // `khoaS4` = dãy đang giữ khoá s4 (null nếu không ai); `maBanGiao` = mã bàn giao hiện tại (bản ghi xong của mã khác bỏ qua).

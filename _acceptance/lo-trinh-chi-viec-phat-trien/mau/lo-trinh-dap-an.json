@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "ten": "Đáp án cắt bản phạm vi mẫu crm-mau-1110 (ca đo AC-9 — phân loại theo số đo thật của crm 11/10)",
+  "moc": [
+    {
+      "ma": "V1",
+      "ten": "Nhân sự gửi danh sách người, phòng ban, bộ phận và trưởng",
+      "ngay": "2026-10-07",
+      "loai": "ngoai",
+      "ai": "Nhân sự",
+      "dot": "crm-mau-1110",
+      "phu": ["K2"],
+      "lap": true,
+      "tu_phuc_vu": "H1"
+    },
+    {
+      "ma": "V3",
+      "ten": "Ban lãnh đạo gửi OKR quý cấp công ty",
+      "ngay": "2026-10-09",
+      "loai": "ngoai",
+      "ai": "Ban lãnh đạo",
+      "dot": "crm-mau-1110",
+      "phu": ["K6"],
+      "lap": true,
+      "tu_phuc_vu": "R6"
+    },
+    {
+      "ma": "V4",
+      "ten": "Đào tạo từng bộ phận cách cập nhật tuần",
+      "ngay": "2026-10-09",
+      "loai": "ngoai",
+      "ai": "Quản trị chương trình",
+      "dot": "crm-mau-1110",
+      "phu": ["K8"]
+    },
+    {
+      "ma": "V2",
+      "ten": "Mọi phòng ban nạp tệp quy định đang dùng và dùng thật hai tuần, góp ý gom một chỗ",
+      "ngay": "2026-10-14",
+      "loai": "ngoai",
+      "ai": "Mọi phòng ban",
+      "dot": "crm-mau-1110",
+      "phu": ["K4"],
+      "hang": ["R3"]
+    },
+    {
+      "ma": "V5",
+      "ten": "Trưởng phòng ban công bố OKR quý 4 của phòng",
+      "ngay": "2026-10-21",
+      "loai": "ngoai",
+      "ai": "Trưởng phòng ban",
+      "dot": "crm-mau-1110",
+      "phu": ["K11"],
+      "hang": ["R9"]
+    }
+  ],
+  "hang": [
+    {
+      "ma": "SG1",
+      "cau_giao": "Máy dev và bản xem trước có một tổ chức mẫu chạy OKR đủ một quý, sinh từ khuôn dữ liệu thật và mang nhãn mẫu",
+      "vai": "nen",
+      "bat_khi": "Dựng lại hai lần ra cùng dữ liệu; mọi bản ghi mang nhãn mẫu",
+      "du_lieu": "sinh-gia",
+      "tieu_chi": 8,
+      "dot": "crm-mau-1110",
+      "phu": []
+    },
+    {
+      "ma": "SG2",
+      "cau_giao": "Bộ 50 câu hỏi mẫu có nhãn, sinh từ khuôn câu hỏi thật của phòng ban, kèm trang và phiên bản phải trích",
+      "vai": "nen",
+      "bat_khi": "Sinh lại ra cùng bộ; mỗi câu mang nhãn mẫu và trỏ một trang có thật trong kho mẫu",
+      "du_lieu": "sinh-gia",
+      "tieu_chi": 8,
+      "dot": "crm-mau-1110",
+      "phu": []
+    },
+    {
+      "ma": "R1",
+      "cau_giao": "Trưởng phòng ban mở trang OKR và thấy KR nào của đơn vị đang trễ, tính trên cập nhật tuần",
+      "vai": "Trưởng phòng ban",
+      "du_lieu": "gia",
+      "dung_tren": ["SG1"],
+      "tieu_chi": 9,
+      "dot": "crm-mau-1110",
+      "phu": ["K1"]
+    },
+    {
+      "ma": "R7",
+      "cau_giao": "Trưởng phòng mở bảng họp tuần sáng hôm sau ngày cập nhật và thấy tóm tắt tuần của phòng, câu nào cũng bấm ra cập nhật gốc",
+      "vai": "Trưởng phòng",
+      "du_lieu": "gia",
+      "dung_tren": ["SG1"],
+      "tieu_chi": 9,
+      "dot": "crm-mau-1110",
+      "phu": ["K7"]
+    },
+    {
+      "ma": "R3",
+      "cau_giao": "Người dùng hỏi bằng lời thường về quy định và được trả lời có trích trang và phiên bản",
+      "vai": "Người dùng",
+      "du_lieu": "gia",
+      "dung_tren": ["SG2"],
+      "tieu_chi": 10,
+      "dot": "crm-mau-1110",
+      "phu": ["K3"]
+    },
+    {
+      "ma": "R5",
+      "cau_giao": "Chủ trang quy định giao được người phó duyệt, có thang leo khi quá hạn và được nhắc hạn xác minh lại",
+      "vai": "Chủ trang",
+      "tieu_chi": 10,
+      "dot": "crm-mau-1110",
+      "phu": ["K5"]
+    },
+    {
+      "ma": "R6",
+      "cau_giao": "Ban lãnh đạo đặt OKR quý cấp công ty ngay trong công cụ để phòng ban căn OKR của mình vào",
+      "vai": "Ban lãnh đạo",
+      "tieu_chi": 9,
+      "dot": "crm-mau-1110",
+      "phu": []
+    },
+    {
+      "ma": "R9",
+      "cau_giao": "Phòng ban bấm Công bố trên bộ OKR quý của mình và cả công ty xem được bản đã công bố",
+      "vai": "Phòng ban",
+      "tieu_chi": 8,
+      "dot": "crm-mau-1110",
+      "phu": ["K9"]
+    }
+  ],
+  "chan_troi": [
+    {
+      "ma": "H1",
+      "dot": "crm-mau-1110",
+      "cau_giao": "Quản trị tự nhập danh sách người và phòng ban từ tệp",
+      "ly_do": "Mới một tổ chức dùng công cụ — giữ ranh giới cấu hình và mã, làm phần phổ quát khi có tổ chức thứ hai",
+      "phu": [],
+      "mo_lai_khi": "Có tổ chức thứ hai thật dùng công cụ"
+    },
+    {
+      "ma": "H2",
+      "dot": "crm-mau-1110",
+      "cau_giao": "Sửa danh sách góp ý gom được trong hai tuần dùng thật",
+      "ly_do": "Phạm vi chỉ biết sau đợt dùng thật",
+      "phu": ["K10"],
+      "mo_lai_khi": "Mốc V2 (mọi phòng ban dùng thật hai tuần) xong"
+    }
+  ]
+}

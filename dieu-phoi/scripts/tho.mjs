@@ -1,25 +1,16 @@
 // Ngữ cảnh phiên thợ trong đợt (DP7, spec workflow §16 T7) — CHỈ ĐỌC, không ghi byte nào. Bên đọc của
 // `tiep/<dãy>.json` (bên viết: bộ phát lịch), `dieu-khien.json` (bên viết: `pha`) và ô/hồ sơ của hàng kế
-// (`trangThaiQuyet` — một nguồn với thẻ khởi tạo). Dãy của phiên = `phienCuaCwd`, cùng hàm hai hook dùng.
+// (`quyetCua` của the.mjs — một nguồn với thẻ khởi tạo và bộ phát lịch). Dãy của phiên = `phienCuaCwd`, cùng
+// hàm hai hook dùng.
 // feature-loop gọi lệnh này qua `trong-dot.mjs` từ BẢN LÕI của đợt, nên mọi import phải là tệp cùng thư mục.
 import path from 'node:path';
 import { docJson, gocKhoChinh, phienCuaCwd, timThuMucDot } from './dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
 import { docPha } from './pha.mjs';
-import { trangThaiQuyet } from './the.mjs';
+import { quyetCua } from './the.mjs';
 
 // Việc kế của thợ — khối TRONG-DOT của SKILL feature-loop có đúng một dòng cho mỗi giá trị (ca DP7-08).
 export const VIEC_KE = ['mo-hang', 'cho-nhip', 'bao-giam-sat', 'cho', 'xong'];
-
-// Hàng không mang `ma` là hàng phát sinh mà giám sát đã thêm (`hang them`) — đó chính là lượt gom Cổng Đáng
-// về giám sát (T15), nên đã quyết. Hàng mang `ma`: tìm hồ sơ/ô ở worktree của dãy trước, rồi ở kho chính.
-function quyetCua(gocKho, day, hang) {
-  if (!hang.ma) return { tt: 'da-quyet' };
-  const trongDay = trangThaiQuyet(day.worktree, hang.slug);
-  if (trongDay.tt === 'da-quyet') return trongDay;
-  const chinh = trangThaiQuyet(gocKho, hang.slug);
-  return chinh.tt === 'cho' && trongDay.tt !== 'cho' ? trongDay : chinh;
-}
 
 export function ngucanhTho(cwd, { slug = null } = {}) {
   const thuMuc = timThuMucDot(cwd);
