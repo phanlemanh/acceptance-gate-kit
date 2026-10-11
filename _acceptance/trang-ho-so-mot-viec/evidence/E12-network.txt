@@ -1,0 +1,4 @@
+E12 network (Playwright, http://127.0.0.1:8765 static server started by verifier; file: protocol blocked in driver -> served same files over HTTP)
+Requests: 1. [GET] /_acceptance/trang-lo-trinh-trong-crm/evidence-page.html => 200 OK (no fetch/XHR: page is static HTML)
+Console errors: 1 -> GET /favicon.ico 404 (static asset, note-only)
+config.yaml has no dev_server.url/api_base -> unscoped

@@ -438,9 +438,11 @@ def('CN13', () => {
     ['thẻ', 'scripts/gate-card.js',
       "for (const ac of parseACBlock(contract)) { if (seen[ac.id])",
       "for (const ac of section(contract, 'Criteria').map(parseAC).filter(Boolean)) { if (seen[ac.id])"],
-    ['trang bằng chứng', 'scripts/evidence-page.js',
-      "const { parseACBlock } = require(path.join(__dirname, '..', 'lib', 'ac-line.cjs'));",
-      "const { parseAC } = require(path.join(__dirname, '..', 'lib', 'ac-line.cjs'));\nconst parseACBlock = (t) => section(t, 'Criteria').map(parseAC).filter(Boolean);"],
+    // Bên gọi «trang bằng chứng» đọc tiêu chí qua scripts/ho-so-tom-tat.cjs từ hàng X2 (hồ sơ
+    // trang-ho-so-mot-viec) — mũi tiêm theo đúng chỗ đọc ấy.
+    ['trang bằng chứng', 'scripts/ho-so-tom-tat.cjs',
+      "const { parseACBlock } = require(path.join(LIB, 'ac-line.cjs'));",
+      "const { parseAC } = require(path.join(LIB, 'ac-line.cjs'));\nconst parseACBlock = (t) => section(t, 'Criteria').map(parseAC).filter(Boolean);"],
     ['lint', 'scripts/eval-coverage-lint.js',
       "  if (acLine && typeof acLine.parseACBlock === 'function') {",
       "  if (false && acLine && typeof acLine.parseACBlock === 'function') {"],

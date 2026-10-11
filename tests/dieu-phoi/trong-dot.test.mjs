@@ -685,17 +685,43 @@ for (const [ten, cu, moi, mong] of [
 }
 
 // ---------- DP7-10, DP7-11: ca DP1/DP2 nguyên vẹn; README (AC-10, AC-11) ----------
+// Lời hứa của VÒNG DP7 («không đụng ca DP1/DP2») neo vào LỊCH SỬ, không vào merge-base sống (sửa 11/10 ở
+// nhánh X2 theo lệnh Điều phối MacBook Pro, cùng mẫu DP3-11 @8c92fb3a; M5 có quyền đảo): merge-base(HEAD,
+// origin/main) dời theo nhánh, nên sau khi DP7 gộp, mọi vòng SAU chạm hợp lệ ba đường dẫn này đều vấp. Phép
+// đo đúng: tìm commit gộp DP7 vào main rồi so phần nhánh DP7 tự đổi — từ điểm rẽ của hai cha tới cha-2.
+const DP12_TEP = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/mo-dot.test.mjs', 'tests/dieu-phoi/loi'];
+const gitK = (...a) => execFileSync('git', a, { cwd: KIT, env: ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+const DP12_MSG = 'ca DP1/DP2 đã bị sửa so với merge-base';
+const dp12Doi = (tu, toi) => spawnSync('git', ['diff', '--quiet', tu, toi, '--', ...DP12_TEP], { cwd: KIT, env: ENV }).status;
+// Cách neo lịch sử: [điểm rẽ, cha-2] của commit gộp nhánh vong/dieu-phoi-feature-loop-trong-dot vào main.
+const dp12NeoLichSu = () => {
+  const dong = gitK('log', '--merges', '--format=%H%x09%s', 'HEAD').split('\n')
+    .find((l) => /\tMerge pull request #\d+ from \S+\/vong\/dieu-phoi-feature-loop-trong-dot$/.test(l));
+  assert.ok(dong, 'không tìm được commit gộp vong/dieu-phoi-feature-loop-trong-dot vào main trong lịch sử của HEAD');
+  const m = dong.split('\t')[0];
+  return [gitK('merge-base', `${m}^1`, `${m}^2`), `${m}^2`];
+};
+// Cách lấy merge-base SỐNG (khuôn cũ của ca này), dựng lại trên mốc LỊCH SỬ để chiều đỏ không mất khi nhánh
+// gộp: mốc = cha của commit gần nhất chạm hợp lệ mo-dot.test.mjs (X2 bỏ «» ở DP2-11) — so tới HEAD.
+const dp12MergeBaseSong = () => {
+  const c = gitK('log', '-1', '--format=%H', '-S', 'boNgoacNgoai', '--', 'tests/dieu-phoi/mo-dot.test.mjs');
+  assert.ok(c, 'không tìm được commit X2 chạm mo-dot.test.mjs');
+  return [`${c}^`, 'HEAD'];
+};
+const kiemDp12 = (lay) => { const [tu, toi] = lay(); return dp12Doi(tu, toi) === 0 ? [] : [`${DP12_MSG} (${tu.slice(0, 12)}..${toi.slice(0, 12)})`]; };
+
 test('DP7-10 dp12-nguyen', () => {
-  let base;
-  try {
-    base = git(KIT, 'merge-base', 'HEAD', 'origin/main').trim();
-  } catch {
-    base = git(KIT, 'merge-base', 'HEAD', 'main').trim();
-  }
-  const tep = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/mo-dot.test.mjs', 'tests/dieu-phoi/loi'];
-  const r = spawnSync('git', ['diff', '--quiet', base, '--', ...tep], { cwd: KIT, env: ENV });
-  console.log(`  base ${base.slice(0, 12)} · git diff --quiet ${tep.join(' ')} → ${r.status}`);
-  assert.equal(r.status, 0, 'ca DP1/DP2 đã bị sửa so với merge-base');
+  const [tu, toi] = dp12NeoLichSu();
+  console.log(`  vòng DP7: ${tu.slice(0, 12)}..${toi.slice(0, 12)} · git diff --quiet ${DP12_TEP.join(' ')}`);
+  assert.deepEqual(kiemDp12(dp12NeoLichSu), []);
+});
+
+// Chiều đỏ của chính phép đo: cách so với một mốc trước một vòng KHÁC chạm hợp lệ ba đường dẫn phải ĐỎ đúng
+// thông điệp — đối chứng dương là ca DP7-10 ngay trên (neo lịch sử, XANH trên cùng cây).
+test('DP7-10-do merge-base-song', () => {
+  assert.deepEqual(kiemDp12(dp12NeoLichSu), [], 'đối chứng dương: neo lịch sử phải xanh trên cùng cây');
+  const loi = kiemDp12(dp12MergeBaseSong);
+  assert.ok(loi.some((l) => l.startsWith(DP12_MSG)), `cách lấy merge-base sống phải đỏ: ${loi.join(' | ')}`);
 });
 
 async function kiemReadme(tep) {

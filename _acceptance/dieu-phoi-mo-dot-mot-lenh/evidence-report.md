@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53
+verified_commit: bf399159b43d88456bb64a098a6bf921286fe106
 human_signoff: manh 2026-10-10
 ---
 
@@ -306,3 +306,7 @@ sha: c1ca27b69f484ae61d0b9c0f77c56e6851ff0cf2 · suites: 10 lệnh exit 0 · eva
 ### Re-pin lần 2 — 2026-10-11, do gộp origin/main 68951cef (vòng evals-sat-le-doc-du) vào nhánh trước PR
 run_id: repin-20261011T021808Z-62196
 sha: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)
+
+### Re-pin lần 3 — 2026-10-11, do DP7-10 + DP2-15 neo lịch sử thay merge-base sống (lệnh Điều phối, CI #307)
+run_id: repin-20261011T073635Z-91493
+sha: bf399159b43d88456bb64a098a6bf921286fe106 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)
