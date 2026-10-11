@@ -27,8 +27,9 @@ export const MA_TRAN = {
     ],
   },
   3: {
-    nhom: [{ tep: T, ca: ['LIB-chon-nguon', 'AC3-sat-han', 'AC3-qua-han', 'AC3-tuong-lai'] }],
-    pha: [{ ten: 'bo-so-tuoi', tep: LIB, doi: [['if (nowMs - ts(hopLe[0]) > HAN_NGAY * NGAY_MS) return { lyDo: LY_DO_NGUON.quaHan };', '']], tepCa: T, ca: 'AC3-qua-han', ghim: 'dùng lại nguồn quá hạn' }],
+    nhom: [{ tep: T, ca: ['LIB-khoi-marker', 'LIB-chon-nguon', 'AC3-sat-han', 'AC3-qua-han', 'AC3-tuong-lai'] }],
+    pha: [{ ten: 'sai-don-vi-ngay', tep: LIB, doi: [['export const NGAY_MS = 24 * 60 * 60 * 1000;', 'export const NGAY_MS = 24 * 60 * 1000;']], tepCa: T, ca: 'LIB-khoi-marker', ghim: 'đơn vị ngày sai' },
+      { ten: 'bo-so-tuoi', tep: LIB, doi: [['if (nowMs - ts(hopLe[0]) > HAN_NGAY * NGAY_MS) return { lyDo: LY_DO_NGUON.quaHan };', '']], tepCa: T, ca: 'AC3-qua-han', ghim: 'dùng lại nguồn quá hạn' }],
   },
   4: {
     nhom: [{ tep: T, ca: ['LIB-van-tay-het-gio', 'LIB-van-tay-thoat', 'LIB-van-tay-rong', 'LIB-bien-shell', 'AC4-ma-tran', 'AC4-van-tay-thoat', 'AC4-van-tay-rong', 'AC4-ep', 'AC4-allow-dirty', 'AC4-khong-paths', 'AC4-paths-khong-chung', 'AC4-bien-shell', 'AC4-chua-commit-sua', 'AC4-chua-commit-moi', 'AC4-lenh-da-chay', 'AC4-hai-eval-model', 'AC4-eval-thuong'] }],
@@ -40,7 +41,11 @@ export const MA_TRAN = {
   },
   5: {
     nhom: [{ tep: T, ca: ['AC5-dan-phang', 'AC5-moi-nhat', 'AC5-dong-cu'] }],
-    pha: [{ ten: 'chuoi-khong-dan-phang', tep: LIB, doi: [['&& !(o.evals_carry && Object.prototype.hasOwnProperty.call(o.evals_carry, id))\n', '\n']], tepCa: T, ca: 'AC5-dan-phang', ghim: 'chuỗi dùng lại không dàn phẳng' }],
+    nhom: [{ tep: T, ca: ['LIB-chon-nguon', 'AC5-dan-phang', 'AC5-moi-nhat', 'AC5-dong-cu'] }],
+    pha: [
+      { ten: 'chuoi-khong-dan-phang', tep: LIB, doi: [['&& !(o.evals_carry && Object.prototype.hasOwnProperty.call(o.evals_carry, id))\n', '\n']], tepCa: T, ca: 'AC5-dan-phang', ghim: 'chuỗi dùng lại không dàn phẳng' },
+      { ten: 'bo-loc-kind', tep: LIB, doi: [["export const chayThat = (o, id) => o && o.kind === 'repin' && coBam(o, id)", 'export const chayThat = (o, id) => o && coBam(o, id)']], tepCa: T, ca: 'LIB-chon-nguon', ghim: 'dòng kind: finding thành nguồn' },
+    ],
   },
   6: {
     nhom: [{ tep: T, ca: ['AC6-lech'] }],
@@ -64,4 +69,23 @@ export const MA_TRAN = {
     ],
   },
   12: { nhom: [], rieng: 'pham-vi.mjs', pha: [] },
+  13: {
+    nhom: [{ tep: T, ca: ['AC13-kho-lon'] }],
+    pha: [{ ten: 'bo-tran-bo-dem-git', tep: LANE, doi: [["stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1 << 30 }); }", "stdio: ['ignore', 'pipe', 'pipe'] }); }"]], tepCa: T, ca: 'AC13-kho-lon', ghim: 'làn chết ở kho lớn' }],
+  },
+  14: {
+    nhom: [{ tep: T, ca: ['AC14-dung-som', 'AC14-van-tay-bi-ngat'] }],
+    pha: [
+      { ten: 'dung-som-bo-ba-khoa', tep: LANE, doi: [['bamSom ? { evals_hash: bamSom } : {}, lechSom ? { carry_lech: lechSom } : {}, ', '']], tepCa: T, ca: 'AC14-dung-som', ghim: 'lượt dừng sớm mất dấu lệch' },
+      { ten: 'khong-don-van-tay', tep: LIB, doi: [['  if (khiBatDau) khiBatDau(h);\n', '']], tepCa: T, ca: 'AC14-van-tay-bi-ngat', ghim: 'lệnh dấu vân tay sống mồ côi' },
+    ],
+  },
+  15: {
+    nhom: [{ tep: T, ca: ['AC15-nhan-ho-so-khac', 'AC15-sha-la', 'AC15-mot-nguon'] }],
+    pha: [
+      { ten: 'chi-tru-ho-so-minh', tep: DEM, doi: [["const laTepLanGhi = (f) => { const m = f.match(/^_acceptance\\/[^/]+\\/([^/]+)$/); return !!m && TEP_LAN_GHI.includes(m[1]); };", "const laTepLanGhi = (f) => false;"]], tepCa: T, ca: 'AC15-nhan-ho-so-khac', ghim: 'nhãn lệch tính tệp làn ghi' },
+      { ten: 'bo-kiem-sha', tep: DEM, doi: [["  if (!SHA_RE.test(String(tu_)) || !SHA_RE.test(String(den))) return 'sha-la';\n", '']], tepCa: T, ca: 'AC15-sha-la', ghim: 'sha lạ tới git' },
+      { ten: 'nguon-khong-dan-phang', tep: LIB, doi: [['&& !(o.evals_carry && Object.prototype.hasOwnProperty.call(o.evals_carry, id))\n', '\n']], tepCa: T, ca: 'AC15-mot-nguon', ghim: 'nhãn lệch không theo luật nguồn của thư viện' },
+    ],
+  },
 };

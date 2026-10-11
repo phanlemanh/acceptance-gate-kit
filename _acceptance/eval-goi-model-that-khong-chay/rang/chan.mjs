@@ -52,9 +52,21 @@ if (M.rieng) {
 // ── (2) chiều đỏ ────────────────────────────────────────────────────────────
 let sau = null;
 if (M.pha.length) { try { sau = sauG3(); } catch (e) { loi.push(e.message); } }
+// Đối chứng dương trên CHÍNH bản sao SAU-G3 nguyên vẹn (lượt 3, Ngoài-19): ca của mỗi phép phá phải PASS ở bản
+// không phá — không thì «đỏ khi phá» không phân biệt được với bản sao/môi trường hỏng sẵn.
+const xanhGoc = new Map();
+function doiChungDuong(pha) {
+  const k = `${pha.tepCa}#${pha.ca}`;
+  if (!xanhGoc.has(k)) {
+    const g = banSao(sau, THU_MUC_CAY);
+    const r = chayNode(path.join(g, pha.tepCa), { GG_CASES: pha.ca });
+    xanhGoc.set(k, r.stdout.includes(`PASS: [${pha.ca}]`));
+  }
+  return xanhGoc.get(k);
+}
 for (const pha of sau ? M.pha : []) {
   let goc;
-  try { goc = banSao(sau, THU_MUC_CAY); apPha(goc, pha); } catch (e) { loi.push(`${pha.ten}: ${e.message}`); continue; }
+  try { if (!doiChungDuong(pha)) { loi.push(`${pha.ten}: đối chứng dương đỏ — ca ${pha.ca} không PASS trên bản sao SAU-G3 nguyên vẹn`); continue; } goc = banSao(sau, THU_MUC_CAY); apPha(goc, pha); } catch (e) { loi.push(`${pha.ten}: ${e.message}`); continue; }
   const r = chayNode(path.join(goc, pha.tepCa), { GG_CASES: pha.ca });
   const chay = r.stdout.includes(`… [${pha.ca}]`);
   const khoiFail = (r.stdout.match(new RegExp(`^FAIL: \\[${pha.ca}\\][\\s\\S]*?(?=^(PASS|FAIL|Results))`, 'm')) || [''])[0];

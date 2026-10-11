@@ -52,8 +52,10 @@ const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 
 // Lệnh dấu vân tay môi trường model: chạy MỘT lần mỗi lượt, đầu ra chỉ vào băm (không bao giờ trả về
 // nguyên văn). Chạy bằng chayLenh của làn — hết giờ thì dừng cả cây tiến trình, không để lệnh dò treo làn.
-export async function chayVanTay(cmd, { cwd, env, timeoutMs = HET_GIO_VAN_TAY_MS } = {}) {
+// khiBatDau(h): làn cắm bộ bắt tín hiệu của nó vào handle (h.dung() dừng cả cây).
+export async function chayVanTay(cmd, { cwd, env, timeoutMs = HET_GIO_VAN_TAY_MS, khiBatDau } = {}) {
   const h = chayLenh(cmd, { cwd, env });
+  if (khiBatDau) khiBatDau(h);
   let hetGio = false;
   const hen = setTimeout(() => { hetGio = true; h.dung(); }, timeoutMs);
   const r = await h.done;
@@ -112,7 +114,8 @@ export function docRunLog(text) {
 }
 
 const coBam = (o, id) => o && o.evals_hash && typeof o.evals_hash[id] === 'string';
-const chayThat = (o, id) => o && o.kind === 'repin' && coBam(o, id) && !(o.evals_carry && Object.prototype.hasOwnProperty.call(o.evals_carry, id))
+// Vị từ «eval thật sự chạy ở dòng này» — MỘT nguồn cho bộ chọn nguồn của làn và script đếm (AC-15).
+export const chayThat = (o, id) => o && o.kind === 'repin' && coBam(o, id) && !(o.evals_carry && Object.prototype.hasOwnProperty.call(o.evals_carry, id))
   && o.evals_exit && typeof o.evals_exit[id] === 'number';
 
 // Nguồn = dòng `repin` MỚI NHẤT nơi eval THẬT SỰ chạy (chuỗi dàn phẳng), cùng băm, mã đạt kỳ vọng, `ts`

@@ -21,7 +21,8 @@ export function phamVi({ repo, base, slug }) {
   const tep = [...new Set(git('log', '--no-merges', '--name-only', '--format=', '--fixed-strings', `--grep=(${slug})`, `${base}..HEAD`)
     .split('\n').filter(Boolean))].filter(f => !f.startsWith(`_acceptance/${slug}/`)).sort();
   if (!tep.length) return { tep, loi: ['rút rỗng: không commit nào của vòng mang dấu'] };
-  const cfg = fs.readFileSync(path.join(repo, '_acceptance', 'config.yaml'), 'utf8');
+  // Luật vùng T3 đọc Ở MỐC trước vòng (lượt 3, Ngoài-9): kho siết t3_paths về sau không làm hồ sơ đã ký tự đỏ.
+  const cfg = git('show', `${base}:_acceptance/config.yaml`);
   const t3 = (core.resolveConfigList(cfg, 'risk_tiers.t3_paths') || []).map(String);
   if (!t3.length) return { tep, loi: ['rút rỗng: risk_tiers.t3_paths không có mục nào'] };
   const res = t3.map(g => core.pathGlobToRe(g));
@@ -63,6 +64,13 @@ if (that.loi.length) loi.push(...that.loi.map(x => `kho thật: ${x}`));
   const k = khoThu(); k.cm('_acceptance/da-ky/run-log.jsonl', 'repin(da-ky): ghim lại');
   const v = phamVi({ repo: k.r, base: k.base, slug: SLUG });
   if (v.loi.length) loi.push(`chiều im đỏ oan: ${v.loi.join(' · ')}`);
+}
+{ // chiều im thứ hai: commit KHÔNG mang dấu về sau siết t3_paths thêm src/** — vòng đã chạm src/x.txt
+  const k = khoThu();
+  fs.writeFileSync(path.join(k.r, '_acceptance', 'config.yaml'), 'risk_tiers:\n  t3_paths:\n    - "lib/**"\n    - "src/**"\n');
+  execFileSync('git', ['-C', k.r, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-qam', 'siet t3'], { stdio: 'ignore' });
+  const v = phamVi({ repo: k.r, base: k.base, slug: SLUG });
+  if (v.loi.length) loi.push(`luật siết về sau làm hồ sơ tự đỏ: ${v.loi.join(' · ')}`);
 }
 for (const [rel, ghim] of [['lib/evidence-core.cjs', 'chạm vùng T3'], ['_acceptance/da-ky/contract.md', 'chạm hồ sơ đã ký']]) {
   const k = khoThu(); k.cm(rel, `fix(${SLUG}): tiêm`);

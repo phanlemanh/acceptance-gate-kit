@@ -19,7 +19,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { docRunLog, TEP_LAN_GHI } from './lib/dung-lai-model.mjs';
+import { docRunLog, TEP_LAN_GHI, chayThat } from './lib/dung-lai-model.mjs';
 
 const die = (m) => { console.error(`dem-dung-lai-model: ${m}`); process.exit(2); };
 const a = process.argv.slice(2);
@@ -33,12 +33,15 @@ const goc = path.join(root, '_acceptance');
 const slugs = fs.existsSync(goc) ? fs.readdirSync(goc).filter(s => fs.existsSync(path.join(goc, s, 'run-log.jsonl'))).sort() : [];
 
 const trongKy = (o) => !tu || String(o.ts || '') >= tu;
-const daChay = (o, id) => o.kind === 'repin' && o.evals_hash && typeof o.evals_hash[id] === 'string'
-  && !(o.evals_carry && Object.prototype.hasOwnProperty.call(o.evals_carry, id)) && o.evals_exit && typeof o.evals_exit[id] === 'number';
-function tepDoi(slug, tu_, den) {
-  const r = spawnSync('git', ['-C', root, 'diff', '--name-only', '--relative', tu_, den], { encoding: 'utf8' });
+// Tệp làn tự ghi ở MỌI hồ sơ (một làn ghim nhiều slug ghi sổ của từng slug) không phải đầu vào (AC-15).
+const laTepLanGhi = (f) => { const m = f.match(/^_acceptance\/[^/]+\/([^/]+)$/); return !!m && TEP_LAN_GHI.includes(m[1]); };
+const SHA_RE = /^[0-9a-f]{7,40}$/;
+function tepDoi(tu_, den) {
+  // sha đọc từ sổ (tệp ai cũng sửa tay được) — chỉ hex mới tới git, và `--` chặn đọc thành tuỳ chọn.
+  if (!SHA_RE.test(String(tu_)) || !SHA_RE.test(String(den))) return 'sha-la';
+  const r = spawnSync('git', ['-C', root, 'diff', '--name-only', '--relative', tu_, den, '--'], { encoding: 'utf8' });
   if (r.status !== 0) return null;
-  return r.stdout.split('\n').filter(Boolean).filter(f => !TEP_LAN_GHI.some(t => f === `_acceptance/${slug}/${t}`));
+  return r.stdout.split('\n').filter(Boolean).filter(f => !laTepLanGhi(f));
 }
 
 const daDem = new Set(); // mỗi lượt (run_id/lan_id) một lần — tong_ket giống nhau ở mọi hồ sơ của lượt
@@ -65,11 +68,11 @@ for (const slug of slugs) {
       soLech += 1;
       mucEval(`${slug}/${id}`).lech += 1;
       const bam = o.evals_hash && o.evals_hash[id];
-      const truoc = dong.slice(0, i).reverse().find(x => daChay(x, id) && x.evals_hash[id] === bam && o.evals_exit && x.evals_exit[id] !== o.evals_exit[id]);
+      const truoc = dong.slice(0, i).reverse().find(x => chayThat(x, id) && x.evals_hash[id] === bam && o.evals_exit && x.evals_exit[id] !== o.evals_exit[id]);
       let nhan = 'không thấy nguồn';
       if (truoc) {
-        const doi = tepDoi(slug, truoc.sha, o.sha);
-        nhan = doi === null ? 'không so được (git)' : (doi.length ? `nghi thiếu đầu vào: ${doi.join(', ')}` : 'lệch không tất định');
+        const doi = tepDoi(truoc.sha, o.sha);
+        nhan = doi === 'sha-la' ? 'không so được (sha lạ)' : doi === null ? 'không so được (git)' : (doi.length ? `nghi thiếu đầu vào: ${doi.join(', ')}` : 'lệch không tất định');
       }
       dongLech.push(`carry_lech ${slug}/${id} @ ${luot}: ${nhan}`);
     }

@@ -5,7 +5,10 @@
 //   GG_CASES=AC1-im node tests/scripts/repin-lane-dung-lai-model.test.mjs
 import path from 'node:path';
 import fs from 'node:fs';
-import { boKiem, ok, ROOT, mkKho } from './gia-lan-fixture.mjs';
+import { boKiem, ok, ROOT, mkKho, lenhChau, choPid, choChet } from './gia-lan-fixture.mjs';
+
+// Đơn vị ngày từ ĐỒNG HỒ độc lập — không rút từ thư viện được đo (thước không lấy kỳ vọng từ vật).
+const MOT_NGAY = Date.parse('2026-10-02T00:00:00Z') - Date.parse('2026-10-01T00:00:00Z');
 
 const LIB = process.env.GG_LIB_DUNG_LAI || path.join(ROOT, 'feature-loop', 'scripts', 'lib', 'dung-lai-model.mjs');
 const L = await import(LIB);
@@ -18,7 +21,8 @@ const ALL = ['LIB-van-tay-het-gio', 'LIB-van-tay-thoat', 'LIB-van-tay-rong', 'LI
   'AC4-chua-commit-sua', 'AC4-chua-commit-moi', 'AC4-lenh-da-chay', 'AC4-hai-eval-model', 'AC4-eval-thuong',
   'AC5-dan-phang', 'AC5-moi-nhat', 'AC5-dong-cu',
   'AC6-lech',
-  'AC7-song', 'AC8-song', 'AC9-khuon-dung-lai', 'AC10-dem'];
+  'AC7-song', 'AC8-song', 'AC9-khuon-dung-lai', 'AC10-dem',
+  'AC13-kho-lon', 'AC14-dung-som', 'AC14-van-tay-bi-ngat', 'AC15-nhan-ho-so-khac', 'AC15-sha-la', 'AC15-mot-nguon'];
 const { ca, ket } = boKiem(ALL);
 
 // Khối marker của bên viết — rút từ tệp thư viện, rút rỗng là ĐỎ.
@@ -38,6 +42,7 @@ await ca('LIB-khoi-marker', 'ba khối marker rút được và khớp hằng xu
   const nguon = rutKhoi('CARRY-LY-DO-NGUON');
   ok(JSON.stringify(nguon) === JSON.stringify(Object.values(L.LY_DO_NGUON)), 'khối lý do nguồn lệch hằng');
   ok(L.HAN_NGAY === 7, `hạn ${L.HAN_NGAY}, hứa 7`);
+  ok(L.NGAY_MS === MOT_NGAY, `ghim: đơn vị ngày sai — NGAY_MS ${L.NGAY_MS}, đồng hồ nói ${MOT_NGAY}`);
   ok(L.HET_GIO_VAN_TAY_MS === 60000, `trần vân tay ${L.HET_GIO_VAN_TAY_MS}, hứa 60000`);
 });
 
@@ -88,7 +93,7 @@ await ca('LIB-bien-shell', 'biến hoặc thay thế lệnh của shell nhận r
 const dongRepin = (o) => Object.assign({ kind: 'repin', sha: 'a'.repeat(40) }, o);
 await ca('LIB-chon-nguon', 'chọn nguồn — 10 hàng viết trước (rác, không ts, mới nhất, hoà giờ, dàn phẳng, tương lai, hạn, đổi băm, chưa có, lệch)', async () => {
   const now = Date.parse('2026-10-11T00:00:00Z');
-  const ngay = L.NGAY_MS;
+  const ngay = MOT_NGAY;
   const iso = (ms) => new Date(ms).toISOString();
   const laDat = (x) => x === 0;
   const H = 'h'.repeat(64), K = 'k'.repeat(64);
@@ -101,8 +106,9 @@ await ca('LIB-chon-nguon', 'chọn nguồn — 10 hàng viết trước (rác, k
   ok(r.lyDo === L.LY_DO_NGUON.chuaCo, `không ts: ${JSON.stringify(r)}`);
   r = q([chay('r1', now - 3 * ngay), chay('r2', now - ngay)]);
   ok(r.nguon.run_id === 'r2', `mới nhất: ${r.nguon && r.nguon.run_id}`);
-  r = q([chay('r1', now - ngay), { kind: 'finding', run_id: 'f1', ts: iso(now), evals_exit: { E1: 9 }, evals_hash: { E1: H } }]);
-  ok(r.nguon && r.nguon.run_id === 'r1', `dòng kind: finding đổi kết quả chọn nguồn: ${JSON.stringify(r)}`);
+  // Dòng finding cùng băm, MÃ 0, ts mới hơn — chỉ bộ lọc kind loại được nó (mã đạt không tự loại).
+  r = q([chay('r1', now - ngay), { kind: 'finding', run_id: 'f1', ts: iso(now - 60000), evals_exit: { E1: 0 }, evals_hash: { E1: H } }]);
+  ok(r.nguon && r.nguon.run_id === 'r1', `ghim: dòng kind: finding thành nguồn — ${JSON.stringify(r)}`);
   r = q([chay('r1', now - ngay), chay('r2', now - ngay)]);
   ok(r.nguon.run_id === 'r2', `hoà giờ (hai lượt cùng giây) → dòng sau trong sổ thắng: ${r.nguon && r.nguon.run_id}`);
   r = q([chay('r1', now - 3 * ngay), dongRepin({ run_id: 'r2', ts: iso(now - ngay), evals_exit: { E1: 0 }, evals_hash: { E1: H }, evals_carry: { E1: 'r1' } })]);
@@ -201,7 +207,7 @@ function datTs(k, tsIso, { tatCa = false } = {}) {
   for (const i of tatCa ? vt : [vt[vt.length - 1]]) { const o = JSON.parse(dong[i]); o.ts = tsIso; dong[i] = JSON.stringify(o); }
   fs.writeFileSync(f, dong.join('\n') + '\n'); commit(k, 'lui ts');
 }
-const NGAY = L.NGAY_MS;
+const NGAY = MOT_NGAY;
 const iso = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z');
 const khongDungLai = (r, lyDo) => new RegExp(`feat E1: không dùng lại — ${lyDo.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`).test(r.stderr);
 
@@ -320,7 +326,9 @@ await ca('AC4-eval-thuong', 'E2 (không thuộc model_evals) chạy mọi lượ
   xanh(lanCommit(k), 'lượt 1'); xanh(lanCommit(k), 'lượt 2');
   ok(k.dem('E2.txt') === 2, `E2 chạy ${k.dem('E2.txt')} lần`);
   ok(pins(k).every(p => !p.evals_hash || !('E2' in p.evals_hash)), 'E2 có trong evals_hash');
-  ok(!/feat E2: (dùng lại|không dùng lại)/.test(k.lane([]).stderr), 'E2 có dòng dùng lại');
+  const r3 = k.lane([]);
+  ok(r3.status === 0 && /feat E1: (dùng lại|không dùng lại)/.test(r3.stderr), `đối chứng dương: lượt 3 mã ${r3.status}, không thấy dòng quyết của E1`);
+  ok(!/feat E2: (dùng lại|không dùng lại)/.test(r3.stderr), 'E2 có dòng dùng lại');
 });
 
 // ── AC-5: chọn nguồn ─────────────────────────────────────────────────────────
@@ -465,7 +473,85 @@ await ca('AC10-dem', 'đếm trên run-log do làn thật ghi: tổng, nhãn hai
   ok(/: nghi thiếu đầu vào: lib\/x\.txt$/.test(nhan[1]), `ghim: không tách nguyên nhân lệch — lượt (b): ${nhan[1]}`);
   ok(/^nguồn không có: feat\/E1 → repin-khong-co$/m.test(o), `thiếu dòng nguồn không có:\n${o}`);
   const sai = spawnSync(process.execPath, [DEM, '--root', path.join(k.root, 'khong-co')], { encoding: 'utf8' });
-  ok(sai.status === 2, `--root sai phải thoát 2, nhận ${sai.status}`);
+  ok(sai.status === 2 && /--root không tồn tại/.test(sai.stderr), `--root sai phải thoát 2 với «--root không tồn tại», nhận ${sai.status}: ${sai.stderr}`);
+});
+
+// ── AC-13: kho lớn — đầu ra git ls-tree vượt 1 MiB ───────────────────────────
+await ca('AC13-kho-lon', 'kho > 4 500 tệp đường dài (ls-tree > 1 MiB): hai lượt thoát 0, lượt 2 dùng lại', async () => {
+  const dai = 'x'.repeat(200);
+  const files = {}; for (let i = 0; i < 4600; i += 1) files[`big/${dai}_${i}.txt`] = '';
+  const k = mkG3({ files });
+  const { execFileSync } = await import('node:child_process');
+  const co = execFileSync('git', ['-C', k.root, 'ls-tree', '-r', '-z', '--full-tree', 'HEAD'], { maxBuffer: 1 << 28 }).length;
+  ok(co > 1024 * 1024, `fixture chưa đủ lớn: ls-tree ${co} byte`);
+  const r1 = lanCommit(k);
+  ok(r1.status === 0, `ghim: làn chết ở kho lớn — lượt 1 mã ${r1.status}: ${r1.stderr.split('\n').slice(-3).join(' | ')}`);
+  ok(/^[0-9a-f]{64}$/.test((pins(k).pop().evals_hash || {}).E1 || ''), 'lượt 1 không ghi băm');
+  xanh(lanCommit(k), 'lượt 2');
+  ok(pins(k).pop().evals_carry, 'lượt 2 không dùng lại');
+});
+
+// ── AC-14: lượt dừng sớm giữ dấu lệch; lệnh vân tay bị ngắt được dọn ─────────
+await ca('AC14-dung-som', 'lượt ép chạy lệch rồi vượt trần → repin-do mang carry_lech; lượt kế không dùng lại', async () => {
+  const k = mkG3({ them: [{ id: 'E3', cmd: 'rang_e3', sh: 'sh tools/e3.sh' }], files: { 'tools/e3.sh': '[ -f "$GG_DAU/e3-ngu" ] && sleep 60\nexit 0\n' } });
+  xanh(lanCommit(k), 'lượt 1');
+  dau(k, 'E1-exit', '1'); dau(k, 'e3-ngu', '1');
+  const r2 = k.lane(['--write', '--chay-lai-model', '--tran-phut', '0.15']);
+  ok(r2.status === 4, `lượt 2 phải vượt trần (4), nhận ${r2.status}`);
+  const d = k.docLog().filter(l => l.kind === 'repin-do').pop();
+  ok(d && JSON.stringify(d.carry_lech) === '["E1"]' && /^[0-9a-f]{64}$/.test((d.evals_hash || {}).E1 || ''), `ghim: lượt dừng sớm mất dấu lệch — ${JSON.stringify(d && { carry_lech: d.carry_lech, evals_hash: d.evals_hash })}`);
+  commit(k, 'dau dung som'); boDau(k, 'E1-exit'); boDau(k, 'e3-ngu');
+  const r3 = lanCommit(k); xanh(r3, 'lượt 3');
+  ok(!pins(k).pop().evals_carry && khongDungLai(r3, L.LY_DO_NGUON.lech), `ghim: lượt dừng sớm mất dấu lệch — lượt 3 dùng lại E1`);
+});
+await ca('AC14-van-tay-bi-ngat', 'SIGTERM lúc lệnh dấu vân tay chạy → cháu của nó chết, làn thoát 143', async () => {
+  const k = mkG3({ config: '  model_evals: [feat/E1]\n  model_carry_cmd: "sh vt-cham.sh"\n', files: { 'vt-cham.sh': lenhChau('vt-chau.pid') + '\necho m1\n' } });
+  const { proc, xong } = k.laneNen([]);
+  const pid = await choPid(k, 'vt-chau.pid');
+  proc.kill('SIGTERM');
+  const r = await xong;
+  const chet = await choChet(pid);
+  if (!chet) { try { process.kill(pid, 'SIGKILL'); } catch { /* */ } }
+  ok(chet, `ghim: lệnh dấu vân tay sống mồ côi — pid ${pid} còn sống sau khi làn bị ngắt`);
+  ok(r.status === 143, `làn bị ngắt phải thoát 143, nhận ${r.status} (tín hiệu ${r.signal})`);
+});
+
+// ── AC-15: script đếm gắn đúng nhãn ──────────────────────────────────────────
+async function lechSau(k, truocLech) {
+  xanh(lanCommit(k), 'lượt 1');
+  truocLech(k);
+  datTs(k, iso(Date.now() - 8 * NGAY), { tatCa: true }); dau(k, 'E1-exit', '1');
+  ok(k.lane(['--write']).status === 1, 'lượt lệch không đỏ'); commit(k, 'dau do'); boDau(k, 'E1-exit');
+}
+const demChay = async (k) => { const { spawnSync } = await import('node:child_process'); return spawnSync(process.execPath, [DEM, '--root', k.root], { encoding: 'utf8' }); };
+await ca('AC15-nhan-ho-so-khac', 'chỉ sổ làn ghi của hồ sơ KHÁC đổi giữa nguồn và lượt lệch → «lệch không tất định»', async () => {
+  const k = mkG3();
+  await lechSau(k, (kk) => { ghi(kk, '_acceptance/khac/run-log.jsonl', '{"kind":"repin"}\n'); ghi(kk, '_acceptance/khac/evidence-report.md', 'x\n'); commit(kk, 'ho so khac'); });
+  const r = await demChay(k);
+  const nhan = r.stdout.split('\n').find(l => l.startsWith('carry_lech feat/E1 @ ')) || '';
+  ok(/: lệch không tất định$/.test(nhan), `ghim: nhãn lệch tính tệp làn ghi — ${nhan}`);
+});
+await ca('AC15-sha-la', 'dòng lệch có sha «--output=<tệp>» → «không so được (sha lạ)», không tệp nào bị tạo', async () => {
+  const k = mkG3();
+  xanh(lanCommit(k), 'lượt 1');
+  const p1 = pins(k).pop();
+  const dich = path.join(k.dau, 'git-ghi.txt');
+  fs.appendFileSync(path.join(k.ws, 'run-log.jsonl'), JSON.stringify({ ts: p1.ts, kind: 'repin-do', lan_id: 'repin-gia-do', sha: `--output=${dich}`, evals_exit: { E1: 1 }, evals_hash: { E1: p1.evals_hash.E1 }, carry_lech: ['E1'] }) + '\n');
+  const r = await demChay(k);
+  ok(!fs.existsSync(dich), `ghim: sha lạ tới git — git đã ghi ${dich}`);
+  ok(/carry_lech feat\/E1 @ repin-gia-do: không so được \(sha lạ\)/.test(r.stdout), `ghim: sha lạ tới git — ${r.stdout}`);
+});
+await ca('AC15-mot-nguon', 'nhãn lệch đọc nguồn theo luật của thư viện: nguồn là lượt CHẠY THẬT, không phải lượt dùng lại', async () => {
+  const k = mkG3();
+  xanh(lanCommit(k), 'lượt 1 (chạy)');
+  ghi(k, 'lib/x.txt', 'x2\n'); commit(k, 'doi lib/x.txt');
+  xanh(lanCommit(k), 'lượt 2 (dùng lại)');
+  ok(pins(k).pop().evals_carry, 'fixture: lượt 2 không dùng lại');
+  datTs(k, iso(Date.now() - 8 * NGAY), { tatCa: true }); dau(k, 'E1-exit', '1');
+  ok(k.lane(['--write']).status === 1, 'lượt lệch không đỏ'); commit(k, 'dau do');
+  const r = await demChay(k);
+  const nhan = r.stdout.split('\n').find(l => l.startsWith('carry_lech feat/E1 @ ')) || '';
+  ok(/nghi thiếu đầu vào: lib\/x\.txt/.test(nhan), `ghim: nhãn lệch không theo luật nguồn của thư viện — ${nhan}`);
 });
 
 ket();

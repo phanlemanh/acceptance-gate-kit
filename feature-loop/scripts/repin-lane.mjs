@@ -198,7 +198,9 @@ const envCi = khoa.repin_ci_blank_env.length
 const nhanCi = envCi ? `môi trường giống CI (biến rỗng: ${khoa.repin_ci_blank_env.join(', ')})` : '';
 
 // ── git: sha = HEAD, cây phải sạch ngoài _acceptance/ (pin phải là cây đã đo) ──
-const gitRaw = (...a) => { try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); } catch (e) { return die(`git ${a[0]} thất bại tại ${root}: ${String(e.stderr || e.message).trim().split('\n')[0]}`); } };
+// maxBuffer rộng (hồ sơ eval-goi-model-that-khong-chay, AC-13): `git ls-tree -r` của crm là 1,33 MB — trần
+// mặc định 1 MiB của execFileSync làm làn chết ENOBUFS ngay khi bật model_carry_cmd.
+const gitRaw = (...a) => { try { return execFileSync('git', ['-C', root, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1 << 30 }); } catch (e) { return die(`git ${a[0]} thất bại tại ${root}: ${String(e.stderr || e.message).trim().split('\n')[0]}`); } };
 // Cây git của bản đang kiểm (hồ sơ loc-paths-dong-mac-dinh) — dựng MỘT lần, lười, cho cả `--skip-unchanged`
 // lẫn chamTuPin; tương đối --root, cùng gốc với `paths`. Khai ở đây vì `--skip-unchanged` chạy ở tầng trên
 // cùng TRƯỚC phần khai hàm phía dưới (biến `let` khai sau chỗ dùng là lỗi «trước khi khởi tạo»).
@@ -554,7 +556,14 @@ function acKhongChotMay(evalRecords) {
 // đầu vào bẩn thì không dùng lại. Thứ tự lý do theo khối CARRY-LY-DO-CHAY của thư viện.
 const dungLai = new Map(); // `${slug}/${id}` → { dong, lyDoDk?, bam?, nguon?, lyDoNguon?, paths?, goiTen? }
 if (khoa.model_carry_cmd) {
-  const vt = await chayVanTay(khoa.model_carry_cmd, { cwd: root, env: process.env });
+  // Bộ bắt tín hiệu của làn đăng ký SAU bước này (ketThucSom cần các biến khai phía dưới), nên lệnh dấu vân tay
+  // mang bộ bắt riêng: bị ngắt thì dọn cả cây của nó rồi thoát 128 + số hiệu (AC-14) — không để nó sống mồ côi.
+  const batVanTay = [];
+  const vt = await chayVanTay(khoa.model_carry_cmd, {
+    cwd: root, env: process.env,
+    khiBatDau: (h) => { for (const [sig, so] of [['SIGTERM', 15], ['SIGINT', 2], ['SIGHUP', 1]]) { const f = () => { h.dung().then(() => process.exit(128 + so)); }; process.once(sig, f); batVanTay.push([sig, f]); } },
+  });
+  for (const [sig, f] of batVanTay) process.removeListener(sig, f);
   const tienTo = gitRaw('rev-parse', '--show-prefix').trim();
   const quyVe = (f) => (!tienTo ? f : (f.startsWith(tienTo) ? f.slice(tienTo.length) : null));
   const blob = new Map(); // tệp git-theo-dõi tại HEAD (tương đối --root) → blob
@@ -651,8 +660,11 @@ async function ketThucSom(kieu, extra, ma) {
     const iso2 = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
     const tai = docTai();
     for (const s of perSlug) {
+      // Lượt dừng sớm vẫn mang băm + carry_lech đã thấy (AC-14): mất dấu lệch ở đây thì lượt sau dùng lại kết
+      // quả xanh cũ cho một eval vừa lệch — xanh giả. Không mang evals_carry: lượt đỏ không bao giờ là nguồn.
+      const { evals_hash: bamSom, carry_lech: lechSom } = dungLaiCua(s);
       const dau = JSON.stringify(Object.assign({ ts: iso2, kind: 'repin-do', lan_id: runId, sha, ly_do: kieu }, extra,
-        { chua_chay: chuaChay }, chapChon.length ? { chap_chon: chapChon } : {}, { tong_ket: tk.obj, tai }));
+        { chua_chay: chuaChay }, chapChon.length ? { chap_chon: chapChon } : {}, bamSom ? { evals_hash: bamSom } : {}, lechSom ? { carry_lech: lechSom } : {}, { tong_ket: tk.obj, tai }));
       try { fs.appendFileSync(path.join(s.ws, 'run-log.jsonl'), dau + '\n'); } catch (e) { console.error(`repin-lane: ${s.slug}: không ghi được dấu ${kieu} — ${String((e && e.code) || e).split('\n')[0]}`); }
     }
   }

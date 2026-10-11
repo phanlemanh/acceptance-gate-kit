@@ -18,7 +18,7 @@ Gốc: crm `eval-model-that-dung-luc` — «bộ nhớ đệm theo băm cho mọ
 14/44 lần chạy lại eval model trong làn ghim lại có đầu vào không đổi, 15 làn gọi model tốn 15,67 USD/4 ngày.
 
 - Khoá mới `feature_loop.model_carry_cmd` (lệnh in dấu vân tay môi trường model: id model nhà cung cấp trả,
-  băm khoá gói). **Khoá vắng = như 2.26**: không băm, không khoá mới trong dòng pin, không dòng stderr mới.
+  băm khoá gói). **Khoá vắng = như 2.26**: không băm, không khoá mới trong dòng pin (trường `tong_ket.model_carry` có từ 2.23 và vẫn bằng 0), không dòng stderr mới.
 - Khoá bật: mỗi eval trong `model_evals` được băm năm lớp đầu vào (lệnh đã giải · tệp khớp `paths` · cây
   hồ sơ · tệp lệnh gọi tên · dấu vân tay). Cùng băm với lượt eval thật sự chạy gần nhất (≤ 7 ngày) → KHÔNG
   gọi model; dòng `repin` mang `evals_hash`, `evals_carry`; section và stderr nói ra nguồn; tổng kết đếm
