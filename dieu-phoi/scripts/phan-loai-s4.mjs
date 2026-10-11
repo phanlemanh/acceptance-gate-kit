@@ -28,12 +28,15 @@ const SHELL = new Set(['bash', 'sh', 'zsh']);
 const CO_NODE_CO_GIA_TRI = new Set(['-r', '--require', '--import', '--loader', '--experimental-loader', '-C', '--conditions', '--env-file', '--input-type', '--title', '--test-reporter', '--test-reporter-destination', '--test-name-pattern']);
 const CO_NODE_MA_TRONG = new Set(['-e', '--eval', '-p', '--print']);
 
-// Tách chuỗi lệnh thành các đoạn (mảng từ), cắt ở && || ; | & xuống dòng và ngoặc — ngoài nháy.
+// Tách chuỗi lệnh thành các đoạn (mảng từ), cắt ở && || ; | & xuống dòng và ngoặc — ngoài nháy. Thân heredoc
+// là dữ liệu, không phải lệnh (POSIX «Here-Document»): thân có nháy bỏ trọn; thân không nháy vẫn bị shell thay
+// `$(…)` và backtick, nên chỉ các đoạn đó được tách thành lệnh (design DP6 §4 C1).
 export function tachDoan(lenh) {
   const doan = [];
   let tu = [];
   let cur = null;
   let nhay = null;
+  let choHeredoc = [];
   const day = () => {
     if (cur !== null) tu.push(cur);
     cur = null;
@@ -70,6 +73,23 @@ export function tachDoan(lenh) {
       day();
       continue;
     }
+    // `<<DELIM`, `<<-DELIM`, `<<'DELIM'`, `<<"DELIM"` mở heredoc; `<<<` (here-string) thì không. Dấu mở phải là
+    // tên (chữ hoặc _ đầu) hoặc có nháy, để `$((1<<2))` không bị hiểu là heredoc rồi nuốt các dòng sau.
+    if (c === '<' && lenh[i + 1] === '<' && lenh[i + 2] !== '<') {
+      const m = /^<<(-?)[ \t]*(?:'([^']*)'|"([^"]*)"|([A-Za-z_][A-Za-z0-9_]*))/.exec(lenh.slice(i));
+      if (m) {
+        choHeredoc.push({ delim: m[2] ?? m[3] ?? m[4], nhay: m[4] === undefined, boTab: m[1] === '-' });
+        day();
+        i += m[0].length - 1;
+        continue;
+      }
+    }
+    if (c === '\n' && choHeredoc.length) {
+      cat();
+      i = docThanHeredoc(lenh, i + 1, choHeredoc, doan) - 1;
+      choHeredoc = [];
+      continue;
+    }
     if ('&|;\n()'.includes(c)) {
       cat();
       continue;
@@ -79,6 +99,47 @@ export function tachDoan(lenh) {
   }
   cat();
   return doan;
+}
+
+// Đọc thân của các heredoc đang chờ, từ vị trí `tu`; trả vị trí ngay sau dòng đóng cuối (thiếu dòng đóng thì thân
+// kéo tới hết chuỗi, như shell). Thân không nháy: các đoạn `$(…)`/backtick thành lệnh, phần còn lại bỏ.
+function docThanHeredoc(lenh, tu, cho, doan) {
+  let i = tu;
+  for (const h of cho) {
+    const than = [];
+    while (i < lenh.length) {
+      const het = lenh.indexOf('\n', i);
+      const dong = lenh.slice(i, het === -1 ? lenh.length : het);
+      i = het === -1 ? lenh.length : het + 1;
+      if ((h.boTab ? dong.replace(/^\t+/, '') : dong) === h.delim) break;
+      than.push(dong);
+    }
+    if (!h.nhay) for (const con of thayLenhTrong(than.join('\n'))) doan.push(...tachDoan(con));
+  }
+  return i;
+}
+
+// Nội dung các lần thay lệnh `$(…)` (không tính `$((…))` số học) và backtick trong một đoạn văn.
+function thayLenhTrong(s) {
+  const ra = [];
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '$' && s[i + 1] === '(' && s[i + 2] !== '(') {
+      let sau = 1;
+      let j = i + 2;
+      for (; j < s.length && sau > 0; j++) {
+        if (s[j] === '(') sau++;
+        else if (s[j] === ')') sau--;
+      }
+      ra.push(s.slice(i + 2, sau === 0 ? j - 1 : j));
+      i = j - 1;
+    } else if (s[i] === '`') {
+      const j = s.indexOf('`', i + 1);
+      if (j === -1) break;
+      ra.push(s.slice(i + 1, j));
+      i = j;
+    }
+  }
+  return ra;
 }
 
 const nhayDon = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;
@@ -133,6 +194,8 @@ function phanLoaiTu(tu, bang, sau) {
     let j = i + 1;
     for (; j < tu.length; j++) {
       const t = tu[j];
+      // `node --check|-c` chỉ kiểm cú pháp, không chạy script.
+      if (t === '--check' || t === '-c') return null;
       if (t === '--test' || t.startsWith('--test=')) return null;
       if (CO_NODE_MA_TRONG.has(t)) return null;
       if (CO_NODE_CO_GIA_TRI.has(t)) {
@@ -148,9 +211,12 @@ function phanLoaiTu(tu, bang, sau) {
       const ngan = tu.indexOf('--', j + 1);
       return ngan === -1 ? null : phanLoaiTu(tu.slice(ngan + 1), bang, sau + 1);
     }
+    // `--help` là cờ lạ với cả ba script giữ tài nguyên: chúng đọc hết đối số rồi dừng trước khi làm việc
+    // (ca DP6-02 tien-de-help chứng lại trên script thật).
+    if (tu.slice(j + 1).includes('--help')) return null;
     return tra(script, bang);
   }
-  if (dau.includes('/') || /\.(mjs|cjs|js)$/.test(dau)) return tra(dau, bang);
+  if (dau.includes('/') || /\.(mjs|cjs|js)$/.test(dau)) return tu.slice(i + 1).includes('--help') ? null : tra(dau, bang);
   return null;
 }
 

@@ -19,7 +19,7 @@ export const DANH_SACH = [
   { tep: '-Users-<u>-dev-acceptance-gate-kit/453582f0-0a41-4aae-88c9-0ee68e6fe063.jsonl', tool_use_id: 'toolu_01Bha6MeGgBoLdk8VeMC8Tcj', nhan: null, hinh: 'chan-nham:check' },
   { tep: '-Users-<u>-dev-acceptance-gate-kit/4ee4870f-67ea-490e-a54b-79b88660d13c.jsonl', tool_use_id: 'toolu_017FZkfNBLhwjrZmuQUVwDRr', nhan: null, hinh: 'chan-nham:heredoc' },
   { tep: '-Users-<u>-dev-acceptance-gate-kit/ae39de67-acaa-4cd4-8e29-36405c8c2544.jsonl', tool_use_id: 'toolu_01H5bCZJ6C6JKEV8JQbeDfCD', nhan: null, hinh: 'chan-nham:heredoc' },
-  { tep: '-Users-<u>-dev-acceptance-gate-kit--claude-worktrees-zen-shaw-03c3ac/51f8aff8-8ca7-487a-bb1d-99e8194f59ad.jsonl', tool_use_id: 'toolu_015Z9CSu8WPviJnAg9yU6P47', nhan: null, hinh: 'chan-nham:heredoc+check' },
+  { tep: '-Users-<u>-dev-acceptance-gate-kit--claude-worktrees-zen-shaw-03c3ac/51f8aff8-8ca7-487a-bb1d-99e8194f59ad.jsonl', tool_use_id: 'toolu_015Z9CSu8WPviJnAg9yU6P47', nhan: null, hinh: 'chan-nham:check' },
   { tep: '-Users-<u>-dev-crm-onehub/8b05aa51-86a9-4ab2-a710-b301f6bcc53b.jsonl', tool_use_id: 'toolu_017EVCCzAVeUqjHNA7kveJpS', nhan: null, hinh: 'chan-nham:help' },
   { tep: '-Users-<u>-dev-crm-onehub--claude-worktrees-agitated-kilby-4b9585/b8585b6c-402c-464d-a724-0c3b96ce514d.jsonl', tool_use_id: 'toolu_01TLNuUR2y6YqYxRGEPyG2Mo', nhan: null, hinh: 'chan-nham:help' },
 ];

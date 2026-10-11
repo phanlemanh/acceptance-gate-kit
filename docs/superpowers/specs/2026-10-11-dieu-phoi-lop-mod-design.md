@@ -47,10 +47,10 @@ bản ghi tác tử con), **367 lời gọi Bash duy nhất** (theo `tool_use_id
   - Cùng lớp, suy từ mã (không có trong bản ghi): `nice -n 10 node …`, `time -p node …` — `nice`, `time` có trong
     bảng vỏ bọc nhưng cờ của chúng thì không.
 - **Chặn nhầm — lời gọi không chạy script nào mà bị coi là S4 (6 lời gọi, 3 hình):**
-  - Thân heredoc đọc như lệnh (3): `cat > tests/scripts/repin-lane.test.mjs <<'EOF' …`, một khối
-    `python3 - … <<'PY' …`, và một khối `python3 - <<'EOF' …` kèm `node --check …/repin-lane.mjs` — dòng trong
-    thân nhắc `node …/repin-lane.mjs` nên bị coi là lần chạy.
-  - `node --check feature-loop/scripts/repin-lane.mjs` đứng riêng (1) — kiểm cú pháp, không chạy script.
+  - Thân heredoc đọc như lệnh (2): `cat > tests/scripts/repin-lane.test.mjs <<'EOF' …` và một khối
+    `python3 - … <<'PY' …` — dòng trong thân nhắc `node …/repin-lane.mjs` nên bị coi là lần chạy.
+  - `node --check feature-loop/scripts/repin-lane.mjs` (2) — kiểm cú pháp, không chạy script; một trong hai lời gọi
+    có kèm một heredoc Python vô hại (thân không kích gì), nên chỉ luật `--check` gỡ được nó.
   - `node …/s4-args.mjs --help` (2, crm 09/09 và 13/09).
 - Mô phỏng ba luật mới của §4 C1 trên mọi lời gọi dương: đúng sáu lời gọi trên (cộng một lệnh `--help` của chính
   phiên đo hôm nay) đổi sang null; KHÔNG lời gọi nào có lần chạy thật đổi sang null. Ba lời gọi khác có

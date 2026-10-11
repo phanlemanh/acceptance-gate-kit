@@ -268,3 +268,93 @@ test('DP6-01-do caffeinate-t-tran', async () => {
   assert.ok(can.length > 0 && can.length < ds.length);
   assert.deepEqual(chayMaTran(phanLoaiLenh, ds), can);
 });
+
+// ---------- DP6-02: thân heredoc, cờ chỉ đọc (AC-2, E2) ----------
+const HEREDOC = [
+  ['nhay-don', (s) => `cat > a.txt <<'EOF'\nnode x/${s} --root .\nEOF`, false],
+  ['nhay-kep', (s) => `python3 - <<"PY"\nnode x/${s} --root .\nPY`, false],
+  ['tab', (s) => `cat <<-EOF\n\tnode x/${s} --root .\n\tEOF`, false],
+  ['thieu-dong', (s) => `cat <<'EOF'\nnode x/${s} --root .`, false],
+  ['khong-nhay-thay-lenh', (s) => `cat <<EOF\n$(node x/${s} --root .)\nEOF`, true],
+];
+const AM_CU = ['grep -n s4-args feature-loop/scripts/*.mjs', 'cat feature-loop/scripts/repin-lane.mjs', 'node --test tests/scripts/repin-lane-lop-cu.test.mjs', 'git grep repin-lane'];
+export function maTranChiDoc() {
+  const o = [];
+  for (const [s, tn] of SCRIPT) {
+    o.push({ ten: `--check × ${s}`, lenh: `node --check x/${s}`, ky_vong: null });
+    o.push({ ten: `-c × ${s}`, lenh: `node -c x/${s}`, ky_vong: null });
+    o.push({ ten: `--help × ${s}`, lenh: `node x/${s} --help`, ky_vong: null });
+    for (const [h, f, chay] of HEREDOC) o.push({ ten: `heredoc:${h} × ${s}`, lenh: f(s), ky_vong: chay ? tn : null });
+    o.push({ ten: `check-roi-chay × ${s}`, lenh: `node --check x/${s} && node x/${s} --write`, ky_vong: tn });
+  }
+  for (const x of docTepCa().filter((x) => x.nhan === null)) o.push({ ten: `that:${x.hinh}:${x.tool_use_id}`, lenh: x.lenh, ky_vong: null });
+  for (const l of AM_CU) o.push({ ten: `am:${l}`, lenh: l, ky_vong: null });
+  return o;
+}
+
+test('DP6-02 chi-doc-heredoc', async () => {
+  const ds = maTranChiDoc();
+  console.log(`  ma trận chỉ đọc + heredoc: ${ds.length} ô`);
+  assert.equal(ds.length, 37);
+  const { phanLoaiLenh } = await nap(GOI, 'phan-loai-s4.mjs');
+  assert.deepEqual(chayMaTran(phanLoaiLenh, ds), []);
+  // `<<` trong số học không phải heredoc: không được nuốt các dòng sau.
+  assert.equal(phanLoaiLenh('echo $((1<<2))\nnode x/repin-lane.mjs --write'), 's4');
+});
+
+test('DP6-02 hook-im', () => {
+  const { dot, w1, w2 } = khoLienKet();
+  giuKhoa(dot, 'P2', w2);
+  const im = maTranChiDoc().filter((o) => o.ky_vong === null);
+  const loi = im.filter((o) => {
+    const r = chayHookChanS4({ tool_name: 'Bash', tool_input: { command: o.lenh } }, { cwd: w1 });
+    return r.ma !== 0 || r.err !== '';
+  }).map((o) => o.ten);
+  console.log(`  hook thật im với ${im.length} ô chỉ đọc`);
+  assert.deepEqual(loi, []);
+  for (const [s] of SCRIPT) assert.equal(chayHookChanS4({ tool_name: 'Bash', tool_input: { command: `node x/${s} --root .` } }, { cwd: w1 }).ma, 2, `đối chứng: ${s} trần phải bị chặn`);
+});
+
+test('DP6-02 tien-de-help', () => {
+  for (const [s] of SCRIPT) {
+    const kho = tam('dp6-help-');
+    git(kho, 'init', '-q', '-b', 'main');
+    git(kho, 'commit', '-q', '--allow-empty', '-m', 'goc');
+    const truoc = bamCay(kho);
+    const r = spawnSync(process.execPath, [path.join(KIT, 'feature-loop', 'scripts', s), '--root', kho, '--help'], { cwd: kho, env: ENV, encoding: 'utf8' });
+    assert.notEqual(r.status, 0, s);
+    assert.match(r.stderr, /cờ không nhận diện được/, s);
+    assert.equal(bamCay(kho), truoc, `${s} đổi cây kho thử`);
+  }
+});
+
+async function doDotBien(tep, cu, moi, loc) {
+  const ds = maTranChiDoc();
+  const { phanLoaiLenh: lanh } = await nap(GOI, 'phan-loai-s4.mjs');
+  assert.deepEqual(chayMaTran(lanh, ds), [], 'bản lành phải xanh trước');
+  const sao = saoGoi();
+  tiem(sao, tep, cu, moi);
+  const { phanLoaiLenh } = await nap(sao, 'phan-loai-s4.mjs');
+  const can = ds.filter(loc).map((o) => o.ten);
+  console.log(`  ô kỳ vọng đỏ: ${can.length}/${ds.length}`);
+  assert.ok(can.length > 0 && can.length < ds.length);
+  assert.deepEqual(chayMaTran(phanLoaiLenh, ds), can);
+}
+test('DP6-02-do bo-check', () =>
+  doDotBien('phan-loai-s4.mjs', "if (t === '--check' || t === '-c') return null;", '', (o) => /^(--check|-c) × /.test(o.ten) || /^that:chan-nham:check:/.test(o.ten)));
+test('DP6-02-do bo-heredoc', () =>
+  doDotBien('phan-loai-s4.mjs', 'if (m) {\n        choHeredoc.push(', 'if (false) {\n        choHeredoc.push(', (o) => (o.ten.startsWith('heredoc:') && o.ky_vong === null) || /^that:chan-nham:heredoc:/.test(o.ten)));
+test('DP6-02-do bo-thay-lenh', () =>
+  doDotBien('phan-loai-s4.mjs', 'if (!h.nhay) for (const con of thayLenhTrong(', 'if (false) for (const con of thayLenhTrong(', (o) => o.ten.startsWith('heredoc:khong-nhay-thay-lenh')));
+
+// ---------- DP6-03: bản cũ sai đúng chín lời gọi thật, bản mới đúng cả chín ----------
+test('DP6-03 lech-o-goc', async () => {
+  const ds = docTepCa();
+  const { phanLoaiLenh: goc } = await nap(goiTaiMergeBase(), 'phan-loai-s4.mjs');
+  const { phanLoaiLenh: moi } = await nap(GOI, 'phan-loai-s4.mjs');
+  const saiOGoc = ds.filter((x) => goc(x.lenh) !== x.nhan).length;
+  const dungBanMoi = ds.filter((x) => moi(x.lenh) === x.nhan).length;
+  console.log(`  merge-base sai ${saiOGoc}/${ds.length} · bản mới đúng ${dungBanMoi}/${ds.length}`);
+  assert.equal(saiOGoc, 9);
+  assert.equal(dungBanMoi, 9);
+});
