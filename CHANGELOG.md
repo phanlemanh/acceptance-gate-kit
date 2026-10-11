@@ -226,9 +226,24 @@ lượt 1: tác tử chấm sửa mã, commit ba lần, lượt vô hiệu, ~4,6
   Máy không tự đổi cây — hoàn lại là việc của phiên.
 - **Chưa chạy sống lần nào trước mốc này:** 32 lượt chấm của 14 hồ sơ trong cửa sổ ghi `loai-tac-tu-vang` — bản
   cài `feature-loop` 2.26.0 không có `agents/`, nên mọi lượt đi đường rơi. 2.27.0 là số đầu tiên mang ba loại tác tử.
-- **Ai bị ảnh hưởng:** mọi kho chạy S4. **Khi update:** cài lại `feature-loop` ở mọi phạm vi để bản cài có
-  `agents/`; bản cài cũ vẫn chấm được (đường rơi ở trên). Lượt chấm đầu tiên sau khi cài không còn dòng
-  `loai-tac-tu-vang` trong `run-log.jsonl` — còn thì báo chủ kit.
+- **Ai bị ảnh hưởng:** mọi kho chạy S4. Bản cài cũ vẫn chấm được (đường rơi ở trên), chỉ là vai chấm còn cầm bút.
+- **Khi update — đường đã dẫm, không chỉ «cài lại»:** `claude plugin update` hay báo «already at latest» mà bộ đệm
+  vẫn giữ bản cũ (bộ đệm khoá theo số, và `update` mặc định chỉ chạm phạm vi `user`). Làm đủ bốn bước:
+  1. `claude plugin marketplace update acceptance-gate-kit`.
+  2. Ở MỖI bản ghi — phạm vi `user`, và với `project` thì `cd` vào gốc kho rồi từng cây phụ có phiên:
+     `claude plugin uninstall feature-loop@acceptance-gate-kit --scope <phạm vi>` rồi
+     `claude plugin install feature-loop@acceptance-gate-kit --scope <phạm vi>`.
+  3. Kiểm bộ đệm bằng một lệnh đọc được — mỗi dòng in ra phải là `… 2.27.0 cham-doc.md,cham-lenh.md,cham-ui.md`;
+     dòng nào còn `THIẾU agents/` là bản ghi đó chưa xong:
+
+     ```bash
+     claude plugin list --json | node -e 'const fs=require("fs");const d=JSON.parse(fs.readFileSync(0,"utf8"));for(const p of (Array.isArray(d)?d:d.plugins)){if(p.id!=="feature-loop@acceptance-gate-kit")continue;const a=p.installPath+"/agents";console.log(p.scope,p.projectPath||"-",p.version,fs.existsSync(a)?fs.readdirSync(a).join(","):"THIẾU agents/")}'
+     ```
+
+  4. **Dấu hiệu A1 sống:** mở phiên MỚI (phiên đang chạy giữ bản đã nạp lúc khởi động); lượt chấm đầu tiên sau đó
+     không ghi thêm dòng `"kind":"loai-tac-tu-vang"` vào `run-log.jsonl` của hồ sơ — đếm bằng
+     `grep -c '"kind":"loai-tac-tu-vang"' _acceptance/<slug>/run-log.jsonl` trước và sau lượt. Số còn tăng sau khi
+     bước 3 đã sạch là *sai hợp đồng* của A1 — báo chủ kit.
 
 ### Tên ca chập chờn đọc được qua tiền tố turbo (hồ sơ `ten-ca-qua-tien-to-turbo`, hàng G2, T2)
 
@@ -250,7 +265,11 @@ Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 
 - Ai bị ảnh hưởng: mọi kho có thẻ hay JSON làn đỏ dài hơn 64 KB đọc qua ống dẫn. Không cần làm gì.
 
 <!-- CHO-A3: mục của vòng ngoai-n-tu-dinh-tuyen (hàng A3, Thợ A) — điền khi gộp main; thêm dòng bảng năm dòng số,
-     Context/AC-4 của _acceptance/release-2-27-0 và khoá rel2270_cua_so. -->
+     Context/AC-4 của _acceptance/release-2-27-0 và khoá rel2270_cua_so. Ghi chú nhận cho crm (Điều phối M5 12/10) khai
+     ba giới hạn của vòng A, mỗi cái kèm cách né — đối chiếu lời với Known limits của hồ sơ vòng A khi nó vào main:
+     Ngoài-1 hồ sơ làn V: dán nguyên dòng thẻ thì thành ký thường; muốn kéo lại phải gõ dòng ngắn «kéo lại: <lý do>».
+     Ngoài-4 dòng máy cũ vẫn giữ khi lượt sau đổi đề xuất sang mở-hợp-đồng-mới.
+     Ngoài-5 --soat-lech báo 0 khi --root sai — luôn chạy từ gốc kho. -->
 <!-- CHO-C1: mục của vòng ci-cua-kho-bo-job-nang (hàng C1, T3, Thợ B) — điền khi gộp main; vòng sửa
      scripts/pre-merge-check.sh (lớp chép CI) nên sửa cả dòng «Lớp chép CI» ở đầu mục và «Kho tiêu thụ làm gì». -->
 
@@ -259,8 +278,9 @@ Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 
 - **Lớp chép CI: chép lại ba tệp và THÊM một** — `lib/evidence-core.cjs`, `scripts/product-map.mjs`,
   `scripts/lo-trinh.mjs`, cộng `scripts/ho-so-tom-tat.cjs` mới (theo INIT-CI-COPY-LIST của `acceptance-init`, nay 18
   tệp). Kho khai `lo_trinh.tep` mà thiếu tệp mới thì bước bản đồ đỏ to `MODULE_NOT_FOUND`, không im lặng.
-- **Máy dev:** cài lại `acceptance-gate` và `feature-loop` ở MỌI phạm vi trên mỗi máy có phiên của kho, kiểm từng
-  bản ghi cây phụ bằng `claude plugin list --json` — `feature-loop` 2.27.0 mang `agents/` (A1).
+- **Máy dev:** cài lại `acceptance-gate` và `feature-loop` ở MỌI phạm vi trên mỗi máy có phiên của kho theo bốn bước
+  ở mục «Tác tử chấm không cầm bút» (cập nhật marketplace → gỡ → cài → kiểm `agents/`) — `update` một mình hay
+  để bộ đệm cũ. `feature-loop` 2.27.0 là bản đầu tiên mang `agents/`.
 - **Kho khai `lo_trinh.tep`:** vẽ lại `LO-TRINH.html` một lần trong PR nâng kit (`node scripts/product-map.mjs
   --root .`) — khối dữ liệu lên bản 2, câu giao in ra bỏ một cặp «» bao trọn câu.
 - **Kho có bản chiếu đọc khối lộ trình:** chép lại `docDuLieu` từ `scripts/lo-trinh.mjs` khi cần `tom_tat`; bản
@@ -273,7 +293,8 @@ Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 
 
 1. **Khi nào cài:** ở quãng lặng trước đợt thử thứ nhất (~26/10) — không lượt S4 nào đang chạy. Không đổi engine
    dưới chân một vòng đang chạy.
-2. Chép bốn tệp lớp CI ở trên; cài lại plugin gốc và mọi cây phụ; vẽ lại `LO-TRINH.html`; chép lại `docDuLieu`
+2. Chép bốn tệp lớp CI ở trên; cài lại plugin gốc và mọi cây phụ theo bốn bước của A1 (gỡ rồi cài, kiểm
+   `agents/`); vẽ lại `LO-TRINH.html`; chép lại `docDuLieu`
    (LT1 giữ bản chép bản 1); khai `model_carry_cmd` (lệnh dò id model Gateway + băm `bun.lock`) — lượt ghim lại đầu
    tiên sau khi bật chạy trọn.
 3. **Chuyển sang gói `dieu-phoi`:**
