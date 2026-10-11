@@ -37,12 +37,13 @@ dieu-phoi/
   commands/ban-giao.md      lệnh người thứ năm: CLI ban-giao → nhắn thợ → chờ → báo câu đổi tài khoản
   commands/tiep-tuc.md      thêm bước đọc mức dùng (trước CLI) và xử lý hai trạng thái ★
   hooks/hooks.json          thêm StopFailure (hook-het-han-muc) và khoá `modules`
-  hooks/doc-muc-dung.ts     MOD đọc mức dùng: session.measure → CLI han-muc
+  hooks/mod/register.ts     module mod DUY NHẤT của gói (Claude Code nhận một module mỗi gói): chỉ gọi từng phần
+  hooks/mod/doc-muc-dung.ts phần mod đọc mức dùng: session.measure → CLI han-muc (DP6 thêm phần của nó cạnh đây)
   scripts/han-muc.mjs       MỘT bên viết `han-muc.json` (ba bộ chuẩn hoá theo nguồn) + bộ đọc hiệu lực + ngưỡng
   scripts/ban-giao.mjs      lệnh con ban-giao / ban-giao-xong, bước bàn giao (dùng chung với bộ phát lịch)
   scripts/muc-day.mjs       MỘT hàm dựng mục dãy (git + thư mục đợt) cho ban-giao.json và lời ghi danh của tiep-tuc
   scripts/hook-het-han-muc.mjs  lưới cuối StopFailure (T9)
-  scripts/mod-luat.mjs      khung mod: bảng sự kiện được phép của từng mod (marker MOD-SU-KIEN) — DP6 nối vào
+  scripts/mod-luat.mjs      khung mod: bảng sự kiện được phép theo PHẦN mod (marker MOD-SU-KIEN) + quét chữ — DP6 nối vào
   scripts/mau/han-muc.json, scripts/mau/ban-giao.json   khuôn hai tệp trao tay mới
   scripts/pha.mjs           thêm hai pha ★ vào bảng; ghi `ban_giao` (mã, pha trước) khi vào pha
   scripts/phat-lich.mjs     nhịp xét hạn mức, chờ đặt lại, đồng hồ bàn giao
@@ -226,9 +227,12 @@ ca CLI rút từ MỘT tệp fixture chung, và argv mod gọi được chạy t
 
 ## 9. Giới hạn đã khai
 
-- Quét «mod không bao giờ trả cho phép» là quét CHỮ: một nhánh dựng chữ `allow` lúc chạy (ghép chuỗi) lọt.
-  Bù: bảng sự kiện được phép theo mod — mod đọc mức dùng không được nghe sự kiện cổng nào, nên nó không có
-  chỗ để trả lời cho phép. Ngưỡng mở lại: DP6 thêm mod nghe sự kiện cổng.
+- Quét «mod không bao giờ trả cho phép» là quét CHỮ (chữ `allow` dạng chuỗi hay khoá; khoá hay viết tắt `result`
+  — bốn đường cho chạy không qua hỏi quyền: `tool.check` allow, `classic.PreToolUse` allow, `classic.PermissionRequest`
+  behavior allow, `tool.call` trả `{result}`): nhánh dựng chữ lúc chạy (ghép chuỗi) lọt. Bù: bảng sự kiện được phép
+  theo PHẦN mod — phần đọc mức dùng không nghe sự kiện cổng nào. Đo 11/10: Claude Code nhận ĐÚNG MỘT module mỗi gói
+  và `validate` gom sự kiện của mọi phần (qua `import`) về module đó, nên sự kiện theo phần rút bằng quét chữ
+  `on('<sự kiện>'` và đối chiếu HỢP của chúng với tập validate thấy. Ngưỡng mở lại: DP6 thêm phần nghe sự kiện cổng.
 - `claude plugin test` chỉ có ở bản Claude Code có lệnh `test` (máy M5: bản 2.1.295 của app; CLI trên PATH
   2.1.281 không có). CI không có Claude Code: hai eval mod chạy ở lượt chấm trên máy, như eval validate của DP1.
 - Bàn giao không chứng được việc của app (nhắn thợ, đẩy thông báo, đăng nhập): suite đo CLI và hook; lệnh người

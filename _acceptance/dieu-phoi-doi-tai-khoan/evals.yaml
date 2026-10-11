@@ -179,9 +179,9 @@ evals:
     criterion: AC-12
     executor: script
     cmd: config:executors.script.dieu_phoi_mod
-    paths: [dieu-phoi/hooks/doc-muc-dung.ts, dieu-phoi/hooks/hooks.json, dieu-phoi/scripts/han-muc.mjs, tests/dieu-phoi/mod/**, tests/dieu-phoi/fixtures/rate-limits-mod.json, tests/dieu-phoi/kiem-mod.mjs]
+    paths: [dieu-phoi/hooks/mod/**, dieu-phoi/hooks/hooks.json, dieu-phoi/scripts/han-muc.mjs, tests/dieu-phoi/mod/**, tests/dieu-phoi/fixtures/rate-limits-mod.json, tests/dieu-phoi/kiem-mod.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP4-12 modules" (hooks.json modules chứa "./doc-muc-dung.ts"), "PASS: DP4-12
+      exit 0; stdout có "PASS: DP4-12 modules" (hooks.json modules == ["./mod/register.ts"] và register.ts gọi dangKyDocMucDung), "PASS: DP4-12
       plugin-test" (claude <bản> plugin test trên bản sao gói: 3 pass 0 fail, dòng bản in ra; rateLimits của ca
       đọc từ tests/dieu-phoi/fixtures/rate-limits-mod.json), "PASS: DP4-12 round-trip" (argv ca (a) ghi ra tệp,
       chạy thật bằng CLI han-muc trong kho thử có đợt → han-muc.json thêm đúng một lần đọc nguon "mod", cua_so so
@@ -196,11 +196,12 @@ evals:
     cmd: config:executors.script.dieu_phoi_mod
     paths: [dieu-phoi/hooks/**, dieu-phoi/scripts/mod-luat.mjs, tests/dieu-phoi/kiem-mod.mjs]
     expected: >
-      exit 0; stdout có "PASS: DP4-13 validate" (--strict sạch lỗi), "PASS: DP4-13 su-kien" (sự kiện mỗi mod rút
-      từ dòng notes "hooks:" của validate ⊆ dòng bảng MOD-SU-KIEN; bảng doc-muc-dung.ts không giao sự kiện cổng),
+      exit 0; stdout có "PASS: DP4-13 validate" (--strict sạch lỗi), "PASS: DP4-13 su-kien" (hợp sự kiện quét chữ
+      của các phần == tập ở dòng notes "./mod/register.ts hooks:" của validate, bỏ phần {…}; mỗi phần ⊆ dòng bảng
+      MOD-SU-KIEN của nó; dòng ./mod/doc-muc-dung.ts không giao sự kiện cổng),
       "PASS: DP4-13-do allow" (bản sao thêm `return { decision: 'allow' }` → đỏ nêu tệp:dòng), "PASS: DP4-13-do
-      ngoai-bang" (bản sao thêm on('tool.call', …) → đỏ nêu "doc-muc-dung.ts" và "tool.call"), "PASS: DP4-13-do
-      mod-la" (bản sao thêm "./la.ts" vào modules → đỏ nêu "./la.ts"); mỗi ca đỏ chạy sau khi gói lành xanh.
+      ngoai-bang" (bản sao thêm on('tool.call', …) vào phần đọc mức dùng → đỏ nêu "doc-muc-dung.ts" và "tool.call"),
+      "PASS: DP4-13-do phan-la" (bản sao thêm tệp hooks/mod/la.ts → đỏ nêu "la.ts"); mỗi ca đỏ chạy sau khi gói lành xanh.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E13b
     criterion: AC-13
@@ -208,8 +209,9 @@ evals:
     cmd: config:executors.test.dieu_phoi_dp4
     paths: [dieu-phoi/hooks/**, dieu-phoi/scripts/mod-luat.mjs, tests/dieu-phoi/doi-tai-khoan.test.mjs]
     expected: >
-      exit 0; "ok" cho "DP4-13 bang-mod": tập mod trong modules == tập khoá bảng MOD-SU-KIEN (rút bằng khối marker,
-      không import tay) và quét chữ không thấy `allow` trong nguồn mod; "ok" cho "DP4-13-do quet-chu": bản sao thêm
+      exit 0; "ok" cho "DP4-13 bang-mod": modules == ["./mod/register.ts"], tập tệp dưới hooks/mod/ trừ register.ts == tập
+      khoá bảng MOD-SU-KIEN (rút bằng khối marker, không import tay), register.ts không gọi on(, và quét chữ không thấy
+      `allow` hay khoá `result` trong mọi tệp dưới hooks/mod/; "ok" cho "DP4-13-do quet-chu": bản sao thêm
       dòng `behavior: 'allow'` → hàm quét nêu tệp và số dòng của đúng dòng đó. Phần này không cần Claude Code nên
       chạy được ở CI.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]

@@ -58,7 +58,7 @@ gọi các hàm thuần qua `motNhip`; lệnh người chỉ làm việc của a
 | `dieu-phoi/scripts/hook-nhip.mjs` | lời nhắc bàn giao | 7 |
 | `dieu-phoi/scripts/hook-het-han-muc.mjs` (mới) | lưới cuối StopFailure | 8 |
 | `dieu-phoi/hooks/hooks.json` | khối StopFailure, khoá `modules` | 8, 10 |
-| `dieu-phoi/hooks/doc-muc-dung.ts` (mới) | mod đọc mức dùng | 10 |
+| `dieu-phoi/hooks/mod/register.ts`, `dieu-phoi/hooks/mod/doc-muc-dung.ts` (mới) | module mod duy nhất + phần đọc mức dùng | 10 |
 | `dieu-phoi/scripts/mod-luat.mjs` (mới) | khung mod MOD-SU-KIEN + quét chữ | 10 |
 | `dieu-phoi/scripts/dieu-phoi.mjs` | nối `han-muc`, `ban-giao`, `ban-giao-xong` | 2, 5 |
 | `dieu-phoi/commands/ban-giao.md` (mới), `commands/tiep-tuc.md` | lệnh người | 11 |
@@ -830,18 +830,20 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(proces
 
 ### Task 10: Mod đọc mức dùng + khung mod + răng T11 (AC-12, AC-13 · E12, E13, E13b)
 
-**Files:** Create `dieu-phoi/hooks/doc-muc-dung.ts`, `dieu-phoi/scripts/mod-luat.mjs`, `tests/dieu-phoi/mod/doc-muc-dung.test.ts`,
+**Files:** Create `dieu-phoi/hooks/mod/register.ts`, `dieu-phoi/hooks/mod/doc-muc-dung.ts`, `dieu-phoi/scripts/mod-luat.mjs`, `tests/dieu-phoi/mod/doc-muc-dung.test.ts`,
 `tests/dieu-phoi/kiem-mod.mjs`; Modify `dieu-phoi/hooks/hooks.json` (`modules`), `_acceptance/config.yaml`
 (`executors.script.dieu_phoi_mod: node tests/dieu-phoi/kiem-mod.mjs`). **independent:** false.
 
-- [ ] **Step 1: Mod:**
+- [ ] **Step 1: Mod** — Claude Code nhận ĐÚNG MỘT module mỗi gói (đo 11/10), nên `hooks.json` → `"modules": ["./mod/register.ts"]`;
+  `register.ts` chỉ gọi các phần: `import { dangKyDocMucDung } from './doc-muc-dung'` · `export const register: Register = (on) => { dangKyDocMucDung(on) }`
+  (DP6 thêm dòng gọi phần của nó). Phần `hooks/mod/doc-muc-dung.ts`:
 
 ```ts
-import type { Register } from 'claude-code'
+import type { On } from 'claude-code'
 
-// Mod đọc mức dùng (spec workflow §12.2, design DP4): mỗi khi một cửa sổ hạn mức nhích một điểm, chuyển rateLimits cho
-// CLI han-muc của gói. Chỉ quan sát: không nghe sự kiện cổng nào, luôn trả next(e) nguyên (luật §12.1, bảng MOD-SU-KIEN).
-export const register: Register = (on) => {
+// Phần mod đọc mức dùng (spec workflow §12.2, design DP4): mỗi khi một cửa sổ hạn mức nhích một điểm, chuyển rateLimits
+// cho CLI han-muc của gói. Chỉ quan sát: không nghe sự kiện cổng nào, luôn trả next(e) nguyên (§12.1, bảng MOD-SU-KIEN).
+export const dangKyDocMucDung = (on: On) => {
   on('session.measure', async ($, e, next) => {
     try {
       if (e.changed.includes('rateLimits') && e.rateLimits.length > 0) {
@@ -855,7 +857,7 @@ export const register: Register = (on) => {
   })
 }
 ```
-  `hooks.json` thêm `"modules": ["./doc-muc-dung.ts"]` (cùng cấp `hooks`).
+  `hooks.json` thêm `"modules": ["./mod/register.ts"]` (cùng cấp `hooks`).
 - [ ] **Step 2: Khung `mod-luat.mjs`:**
 
 ```js
@@ -865,8 +867,9 @@ export const register: Register = (on) => {
 export const SU_KIEN_CONG = ['tool.call', 'tool.check', 'classic.PreToolUse', 'classic.PermissionRequest'];
 // <<<MOD-SU-KIEN
 export const SU_KIEN_MOD = {
-  './doc-muc-dung.ts': ['session.measure'],
+  './mod/doc-muc-dung.ts': ['session.measure'],
 };
+export const MODULE_MOD = './mod/register.ts';
 // MOD-SU-KIEN>>>
 
 // Quét chữ «cho phép»: bỏ chú thích, tìm `allow` ở dạng chuỗi hay khoá đối tượng. Trả [{tep, dong, chu}].
@@ -875,7 +878,7 @@ export function quetChoPhep(tep, nguon) {
   const boCt = nguon.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
   boCt.split('\n').forEach((d, i) => {
     const dong = d.replace(/\/\/.*$/, '');
-    if (/(['"`])allow\1|\ballow\s*:/.test(dong)) ra.push({ tep, dong: i + 1, chu: d.trim() });
+    if (/(['"`])allow\1|\ballow\s*:|\{\s*result\s*[,}]|[{,]\s*result\s*:/.test(dong)) ra.push({ tep, dong: i + 1, chu: d.trim() });
   });
   return ra;
 }
@@ -887,8 +890,8 @@ export function quetChoPhep(tep, nguon) {
   (bun nạp JSON); ca (a) in argv bằng `console.log('ARGV', JSON.stringify(goi[0].argv))`.
 - [ ] **Step 4: `kiem-mod.mjs`** (một script, in `PASS:`/`FAIL:` từng dòng, thoát 1 khi có FAIL):
   - tìm Claude Code có lệnh `test`: thử `claude`, rồi mọi `~/Library/Application Support/Claude/claude-code/<bản>/*/claude.app/Contents/MacOS/claude` (sắp theo semver giảm dần, KHÔNG theo chữ), chọn cái đầu tiên mà `plugin --help` có dòng `test`; không có → `FAIL: DP4-12 plugin-test · không có Claude Code có lệnh test`.
-  - `DP4-12 modules`; `DP4-12 plugin-test` (chép gói vào thư mục tạm, chép tệp ca vào `hooks/`, chép fixture; `plugin test` → đòi `3 pass` và ` 0 fail`); `DP4-12 round-trip` (rút argv từ dòng `ARGV`, thay `$.plugin.root` bằng GỐC GÓI THẬT và chạy `node` với argv đó trong một kho thử có đợt dựng bằng CLI thật → `han-muc.json` một lần đọc `nguon: mod`, `cua_so` deepEqual `mong_doi` của fixture); `DP4-12-do bo-dieu-kien` (bản sao bỏ `e.changed.includes('rateLimits') && ` → `plugin test` báo ca «khong goi khi chi context doi» fail); `DP4-12-do boc-mang` (bản sao gửi `JSON.stringify({ rateLimits: e.rateLimits })` → round-trip thoát 1 và in «mod»).
-  - `DP4-13 validate` (`claude plugin validate --strict --json` gói: `success` và 0 lỗi); `DP4-13 su-kien` (rút dòng notes `<mod> hooks: a, b{…}` → tên sự kiện bỏ phần `{…}`; ⊆ `SU_KIEN_MOD[mod]`; dòng của `./doc-muc-dung.ts` không giao `SU_KIEN_CONG`); ba ca đỏ `allow`, `ngoai-bang`, `mod-la` trên bản sao, mỗi ca SAU khi gói lành xanh.
+  - `DP4-12 modules` (== `['./mod/register.ts']`, register gọi `dangKyDocMucDung`); `DP4-12 plugin-test` (chép gói vào thư mục tạm, chép tệp ca vào `hooks/mod/`, chép fixture; `plugin test` → đòi `3 pass` và ` 0 fail`); `DP4-12 round-trip` (rút argv từ dòng `ARGV`, thay `$.plugin.root` bằng GỐC GÓI THẬT và chạy `node` với argv đó trong một kho thử có đợt dựng bằng CLI thật → `han-muc.json` một lần đọc `nguon: mod`, `cua_so` deepEqual `mong_doi` của fixture); `DP4-12-do bo-dieu-kien` (bản sao bỏ `e.changed.includes('rateLimits') && ` → `plugin test` báo ca «khong goi khi chi context doi» fail); `DP4-12-do boc-mang` (bản sao gửi `JSON.stringify({ rateLimits: e.rateLimits })` → round-trip thoát 1 và in «mod»).
+  - `DP4-13 validate` (`claude plugin validate --strict --json` gói: `success` và 0 lỗi); `DP4-13 su-kien` (rút dòng notes `./mod/register.ts hooks: a, b{…}` → tập tên sự kiện bỏ phần `{…}`; quét chữ `on('<sự kiện>'` từng tệp phần; HỢP quét chữ == tập validate; mỗi phần ⊆ `SU_KIEN_MOD[phần]`; dòng `./mod/doc-muc-dung.ts` không giao `SU_KIEN_CONG`; `register.ts` không có `on(`); ba ca đỏ `allow`, `ngoai-bang`, `phan-la` trên bản sao, mỗi ca SAU khi gói lành xanh.
 - [ ] **Step 5: Ca node DP4-13 bang-mod + DP4-13-do quet-chu** trong `doi-tai-khoan.test.mjs` (rút khối MOD-SU-KIEN bằng marker từ
   nguồn `mod-luat.mjs`, so với `hooks.json` `modules`; `quetChoPhep` trên nguồn lành → []; bản sao thêm `behavior: 'allow'` → một mục đúng dòng).
 - [ ] **Step 6:** Verify `node tests/dieu-phoi/kiem-mod.mjs` → mọi PASS; `node --test --test-name-pattern 'DP4-13'`; `node
