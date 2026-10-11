@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 9447c940159b8c787b4fb2849c33bbf37a934661
+verified_commit: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53
 human_signoff: manh 2026-10-11
 ---
 
@@ -274,3 +274,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: toàn bộ eval máy xanh, hội đồng chấm E1c đồng thuận PASS, verdict PASS. Phát hiện của bước review nằm ở review-findings.md.
+
+### Re-pin lần 1 — 2026-10-11, do gộp origin/main 68951cef (vòng evals-sat-le-doc-du) vào nhánh trước PR
+run_id: repin-20261011T021808Z-62196
+sha: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53 · suites: 10 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)

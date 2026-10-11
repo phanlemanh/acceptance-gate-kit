@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c1ca27b69f484ae61d0b9c0f77c56e6851ff0cf2
+verified_commit: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53
 human_signoff: manh 2026-10-10
 ---
 
@@ -302,3 +302,7 @@ Round 4: PASS — mười lệnh suite xanh ở HEAD 2f0e427f, các eval gắn t
 ### Re-pin lần 1 — 2026-10-11, do DP3 đổi gói dieu-phoi sau verify của DP2 (mo-dot.test BA_LENH + revisit d-…-42)
 run_id: repin-20261011T014530Z-60661
 sha: c1ca27b69f484ae61d0b9c0f77c56e6851ff0cf2 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)
+
+### Re-pin lần 2 — 2026-10-11, do gộp origin/main 68951cef (vòng evals-sat-le-doc-du) vào nhánh trước PR
+run_id: repin-20261011T021808Z-62196
+sha: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)
