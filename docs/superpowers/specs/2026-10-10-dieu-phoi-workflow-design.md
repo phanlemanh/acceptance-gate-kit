@@ -343,9 +343,9 @@ cả lần đã bị luật `ask` hay hook chặn. Mod của kit chỉ được 
 | Chỗ | Mod làm gì | Thay cho | Hàng |
 |---|---|---|---|
 | Đọc mức dùng | Nghe `session.measure`, đọc `rateLimits`, gọi CLI `han-muc` | Giám sát gọi `get_usage` mỗi lần thức; lệnh dòng trạng thái | DP4 |
-| Khung trạng thái đợt | Khung cạnh hội thoại ở phiên giám sát (và dải trên ô nhập ở phiên thợ): ai giữ khoá S4 và hạn tới đâu, hàng chờ khoá, hàng gộp, việc chờ người kèm dòng lệnh, giảm tải. Đọc `trang-thai.json`; không ghi gì | Mở `bang.html`, hỏi giám sát | DP6 |
-| Chặn S4 | Nghe `tool.call` của Workflow và Bash; phân loại bằng cấu trúc của lời gọi (đường script của Workflow, tách đối số của Bash), không so chuỗi con. Không có lượt → ghi đơn `xin/` qua CLI rồi trả `deny` kèm lời dặn chờ. Không bao giờ hỏi người: hỏi người là thêm một chạm | `hook-chan-s4.mjs` so chuỗi con, đã chặn nhầm một lệnh chỉ đọc của giám sát (10/10) | DP6 |
-| Tự bắt việc chờ người | Ở phiên thợ: nghe `PermissionRequest` (gồm tác tử của Workflow nếu sự kiện bắn cho chúng) và `turn.complete` kết thúc bằng một câu hỏi → ghi `cho-nguoi/` hoặc đơn `can-nguoi` qua CLI, và báo giám sát bằng `session.send` | Giám sát so `started` với `result` trong `journal.jsonl` (đêm 09–10/10: S4 của K3b đứng 2 giờ 30 vì hộp duyệt quyền; luật 52) | DP6 |
+| Khung trạng thái đợt | Khung cạnh hội thoại ở phiên giám sát (và dải trên ô nhập ở phiên thợ): ai giữ khoá S4 và hạn tới đâu, hàng chờ khoá, hàng gộp, việc chờ người kèm dòng lệnh, giảm tải. Đọc `trang-thai.json`; không ghi gì. **DP6 (11/10): tách sang hạt giống `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`, chờ khung mod của DP4** | Mở `bang.html`, hỏi giám sát | DP6 → hạt giống |
+| Chặn S4 | Nghe `tool.call` của Workflow và Bash; phân loại bằng cấu trúc của lời gọi (đường script của Workflow, tách đối số của Bash), không so chuỗi con. Không có lượt → ghi đơn `xin/` qua CLI rồi trả `deny` kèm lời dặn chờ. Không bao giờ hỏi người: hỏi người là thêm một chạm. **DP6 (11/10): không mod nào chặn S4 — hook giữ vai, bộ phân loại sửa theo số đo trên lệnh thật, lời chặn nêu lệnh `xin`; xem `2026-10-11-dieu-phoi-lop-mod-design.md` §3** | `hook-chan-s4.mjs` so chuỗi con, đã chặn nhầm một lệnh chỉ đọc của giám sát (10/10) | DP6 |
+| Tự bắt việc chờ người | Ở phiên thợ: nghe `PermissionRequest` (gồm tác tử của Workflow nếu sự kiện bắn cho chúng) và `turn.complete` kết thúc bằng một câu hỏi → ghi `cho-nguoi/` hoặc đơn `can-nguoi` qua CLI, và báo giám sát bằng `session.send`. **DP6 (11/10): sửa ở lõi Node — hộp xin quyền luôn thành `cho-nguoi/`, sự kiện `cho-nguoi` mang `can_phan` nên Monitor thức; phần mod và phép đo hộp quyền của tác tử Workflow ở hạt giống `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`; xem `2026-10-11-dieu-phoi-lop-mod-design.md` §3** | Giám sát so `started` với `result` trong `journal.jsonl` (đêm 09–10/10: S4 của K3b đứng 2 giờ 30 vì hộp duyệt quyền; luật 52) | DP6 |
 
 Hook thường của DP1 ở lại, kể cả khi mod chạy, và không bao giờ nhường. Bộ phân loại «lệnh này có phải
 S4 không» là MỘT hàm của lõi, hook và mod cùng gọi; sửa lỗi chặn nhầm là sửa hàm đó, nên hook cũng hết
@@ -353,6 +353,10 @@ chặn nhầm. Hai bên cùng chặn một lời gọi thì vô hại, vì cùng
 dấu do mod ghi, một mod hỏng sau khi ghi dấu sẽ thành cửa mở.
 
 ### 12.3 Chưa kiểm — đo trong DP6 trước khi tin
+
+DP6 (11/10): phép đo bốn câu dưới chuyển cùng phần mod sang hạt giống
+`docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md` — ở đó có phần tài liệu kiểu 2.1.295 đã trả lời, kịch
+bản đo sống và mã mod thăm dò đã qua `validate --strict`.
 
 1. Mod có nhận `PermissionRequest` và `tool.call` của tác tử con bên trong một Workflow không? Tài liệu kiểu
    ghi `agent.spawn` bắn cho tác tử Workflow, nhưng chưa ghi hộp duyệt của chúng.

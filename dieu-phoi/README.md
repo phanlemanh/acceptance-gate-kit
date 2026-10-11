@@ -74,6 +74,33 @@ Thợ ghi vào thư mục đợt bằng lệnh con (`xin`, `nha`, `yeu-cau`) —
 - Mỗi lần thức: `node "$GOI/scripts/dieu-phoi.mjs" chay`. Lệnh tự bỏ qua nếu bộ phát lịch còn sống,
   tự chạy lại nếu nó đã chết.
 
+## Chặn S4 và việc chờ người
+
+- **Hook chặn S4 nhận ra lệnh đúng theo cấu trúc lời gọi**, không so chuỗi con. Lệnh chạy `repin-lane.mjs`,
+  `s4-args.mjs` hay `duong-nen.mjs` vẫn bị nhận ra khi đứng sau một lệnh bọc kèm cờ: `timeout`, `env` (kể cả
+  `-u`, `-C`, `-P`, `-S`), `nice -n`, `time -p`, `nohup`, `command`, `exec -a`, `caffeinate -t/-w`. Không bị
+  chặn: thân heredoc (dữ liệu, không phải lệnh — trừ `$(…)` và backtick trong thân không nháy, vì shell vẫn
+  chạy chúng), `node --check`/`node -c` (kiểm cú pháp), và lời gọi có `--help` (cả ba script dừng ở cờ lạ
+  trước khi làm việc).
+- **Lời chặn nêu sẵn lệnh xin lượt**: `node <thư mục đợt>/loi/dieu-phoi.mjs xin s4` (đợt chưa `chay` thì lõi
+  của gói), chạy được nguyên văn từ worktree của dãy. Phiên ngoài mọi dãy được bảo rằng chỉ phiên thợ của
+  một dãy xin được lượt. Đợt có `hang-viec.json` không đọc được thì giữ lời dặn cũ, vì `xin` cũng không chạy
+  được ở đó.
+- **Hộp xin quyền ở phiên thợ luôn thành việc chờ người** (`cho-nguoi/<dãy>.json`), kể cả khi dãy đang chờ
+  lượt hay chờ trả lời. Thông báo «đang rảnh» thì vẫn im khi dãy đang chờ.
+- **Giám sát thức ngay khi thợ chờ người**: sự kiện `cho-nguoi` mang `can_phan`, `loai_cho` và `tin` (≤ 200 ký
+  tự), nên Monitor của giám sát (lọc `"can_phan":true`) thức trong một nhịp của bộ phát lịch.
+
+Giới hạn đã khai, kèm ngưỡng mở lại:
+
+- **chưa đo: hộp quyền của tác tử Workflow có tới hook chờ người không.** Ngưỡng: đợt thử có ≥ 1 lượt S4 đứng
+  vì hộp quyền mà không có tệp chờ người. Phép đo đã soạn ở hạt giống
+  `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`.
+- Bộ phân loại là bộ đọc cú pháp shell rút gọn: biến mở rộng thành tên script, `eval`, alias không được hiểu.
+  Ngưỡng: ≥ 1 lời gọi S4 thật lọt qua hook trong đợt thử.
+- Ca kiểm «nguồn» của chín lời gọi thật (`tests/dieu-phoi/rut-lenh-that.mjs`) chỉ chạy trên máy có bản ghi
+  hội thoại; nơi khác (CI) in «bỏ qua» — các ca phân loại vẫn chạy trên tệp ca đã commit.
+
 ## Chuyển từ bản lõi chép tay trong kho
 
 Kho từng chép lõi vào cây của mình và gắn hook trong `.claude/settings.json` thì trong lúc chuyển hai
