@@ -44,7 +44,8 @@
       "hang": [
         "DP1",
         "A1",
-        "R1"
+        "R1",
+        "A2s"
       ]
     },
     {
@@ -310,6 +311,19 @@
       "cau_giao": "«Bước lên thiết kế không hỏi người những câu mà người luôn trả lời theo khuyến nghị»",
       "vi_sao": "Gốc: crm/_acceptance/ke-hoach-la-mot-ban-ghi, sua-luu-tru-dieu-phoi — 28/28 câu trả lời «theo khuyến nghị» qua 3 vòng (hạt giống 2026-09-22-may-hoi-ngoai-thiet-ke-o-s1, đã chạm ngưỡng). Thước đo số 1 của kit: số lần gọi người mỗi kết quả ship.",
       "bat_khi": "Số lượt gọi người ngoài thiết kế ở bước thiết kế của crm về 0 trong ba vòng liền, không vòng nào bị trả vì thiết kế sai"
+    },
+    {
+      "ma": "A2s",
+      "nhom": "bot-goi-nguoi",
+      "hang": "T2",
+      "slug": "can-cu-s1-chay-moi-kho",
+      "dung_tren": [
+        "A2"
+      ],
+      "cau_giao": "Bước thiết kế gọi được công cụ phân loại căn cứ ở mọi kho dùng kit, và thẻ Cổng Phạm vi giữ «vì sao chọn · sai thì tốn» cho mọi lựa chọn máy đã quyết",
+      "vi_sao": "Gốc: acceptance-gate-kit/_acceptance/buoc-len-thiet-ke-khong-hoi — Ngoài-1/Ngoài-3: lời dặn bước thiết kế gọi công cụ phân loại bằng đường tương đối, ở crm thoát 1 «Cannot find module» = cùng mã với sổ đỏ → mọi vòng dừng ở Cổng Phạm vi; Ngoài-2: thẻ Cổng Phạm vi bỏ «vì sao · sai thì tốn» của dòng thiết kế mang căn cứ (trái ADR 0021). Chủ kho ký «mở hợp đồng mới» 11/10.",
+      "bat_khi": "Vòng crm đầu tiên sau khi nhận mốc: bước kiểm sổ trước Cổng Phạm vi chạy được (0 lần «Cannot find module»), và thẻ Cổng Phạm vi in đủ vì sao + sai thì tốn cho mọi dòng máy đã quyết",
+      "ghi_chu": "CHẶN cắt mốc kế: phải gộp trước khi cắt (A2 đã ở main sẽ đi cùng mốc đó). Vòng sửa của A2, chạy trên MacBook Pro; Cổng Đáng ký 11/10."
     },
     {
       "ma": "S3c",
