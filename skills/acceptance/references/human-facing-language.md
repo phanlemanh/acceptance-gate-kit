@@ -336,6 +336,7 @@ kit in cho người; dạng trần chỉ được xuất hiện ở cột một 
 | dong-dot | /dieu-phoi:dong-dot | command |
 | xem | /dieu-phoi:xem | command |
 | tiep-tuc | /dieu-phoi:tiep-tuc | command |
+| ban-giao | /dieu-phoi:ban-giao | command |
 | goal | /goal | harness |
 <!-- COMMAND-NAMES>>> -->
 

@@ -1,0 +1,77 @@
+{
+  "nhan": "truoc-doi",
+  "luc": "2026-10-11T06:18:10.284Z",
+  "kho_phien_app": [
+    {
+      "so_phien": 14,
+      "ghi_cuoi": "2026-10-11T06:18:02.570Z"
+    },
+    {
+      "so_phien": 12,
+      "ghi_cuoi": "2026-10-09T13:51:15.059Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-10-09T13:30:58.065Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-10-08T02:03:15.371Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-09-24T08:14:04.742Z"
+    },
+    {
+      "so_phien": 131,
+      "ghi_cuoi": "2026-09-24T08:11:23.745Z"
+    },
+    {
+      "so_phien": 1,
+      "ghi_cuoi": "2026-08-12T09:14:39.954Z"
+    }
+  ],
+  "ban_ghi_hoi_thoai_jsonl": {
+    "khac": 96,
+    "kit": 68,
+    "crm": 41
+  },
+  "lich_hen_tren_dia": 0,
+  "bo_phat_lich_crm": "khong-co-dot",
+  "worktree_crm": null,
+  "qua_cong_cu_phien": {
+    "luc": "2026-10-11T06:18Z",
+    "doc_tu": "phiên Thợ DP4 (worktree cranky-kare-4e5cd2) — list_sessions loại trừ chính phiên gọi",
+    "list_sessions": {
+      "khong_luu_tru_ngoai_phien_goi": 4,
+      "dang_chay": 1,
+      "trong_nhom_dp": "2 phiên liệt kê trong nhóm «① Đóng gói Điều phối – Thợ (DP)» (Thợ DP6, Thợ DP7)",
+      "remote_control_bat": 3,
+      "ghim": 1,
+      "phien": [
+        "Thợ DP6 · lớp mod (đang chạy)",
+        "Điều phối M5 đóng gói (ghim)",
+        "Thợ DP7 · feature-loop trong đợt (PR #306 đã gộp)",
+        "Sửa build next/font đỏ trên artifact-platform (PR #395 mở)"
+      ]
+    },
+    "list_groups": {
+      "so_nhom": 3,
+      "nhom": {
+        "① Đóng gói Điều phối – Thợ (DP)": 4,
+        "② crm · okr:mau": 2,
+        "③ Xong · chờ dọn": 2
+      }
+    },
+    "list_scheduled_tasks": {
+      "so_lich": 0,
+      "lich": "không có lịch nào"
+    },
+    "get_usage": {
+      "cua_so_5_gio": "22 %, đặt lại 2026-10-11T08:10:00.436Z",
+      "tuan_moi_model": "20 %, đặt lại 2026-10-13T00:00:00.437Z",
+      "tuan_fable": "0 %",
+      "goi": "Max"
+    }
+  }
+}

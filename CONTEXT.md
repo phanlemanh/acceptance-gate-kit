@@ -494,6 +494,14 @@ lại sau 30″). Một dãy «có phiên sống» khi có nhịp mới hơn 10�
 _Avoid_: heartbeat, «phiên còn sống» khi chỉ có nhịp (nói «có nhịp sống»), dùng danh sách phiên của app
 để biết phiên sống (danh sách tách theo tài khoản).
 
+**Bàn giao tài khoản**:
+Dừng đợt ở ranh giới trước khi đổi tài khoản Claude: bộ phát lịch ngừng cấp lượt (pha `dang-ban-giao`), mỗi
+thợ commit WIP và báo xong (`ban-giao-xong`), máy dựng `ban-giao.json` từ git và thư mục đợt rồi chuyển sang
+`cho-tiep-tuc`; tài khoản kia nối lại bằng `/dieu-phoi:tiep-tuc`. Kích hoạt bằng lệnh `/dieu-phoi:ban-giao`
+hoặc tự động khi mức dùng chạm ngưỡng `han_muc` của đợt.
+_Avoid_: «vật tạo ra bàn giao» (sáu thứ vật tự phát ra — nghĩa khác, CLAUDE.md), «handover» khi nói về một vòng
+feature-loop, «tạm dừng» (pha khác — chữ của người).
+
 **Bảng đợt**:
 Trang `bang.html` trong thư mục đợt — cùng một hàm mô hình (`mo-hinh.mjs`) với
 đầu ra của `/dieu-phoi:xem`, nên hai bề mặt không thể nói khác nhau.

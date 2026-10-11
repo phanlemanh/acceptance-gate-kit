@@ -54,3 +54,22 @@ Kết quả ghi vào `ket-qua.md` cạnh tệp này. Mỗi dòng ghi «còn», �
 - Bản ghi hội thoại (`~/.claude/projects/`) và lịch hẹn (`~/.claude/scheduled-tasks/`) nằm ngoài phần
   tách theo tài khoản.
 - Bộ phát lịch là tiến trình Node tách rời; nó vẫn sống sau khi app cập nhật ngày 08/10.
+
+## Lần đo chủ động trên M5 (quyết định chủ kho 11/10)
+
+Chủ kho đổi ý so với mục «Vì sao đo vào lần đổi THẬT»: crm chạy ở máy khác, nên một lần đổi CHỦ ĐỘNG trên M5
+không chạm đợt crm. Đo sau khi DP3 và DP7 gộp (máy rảnh); Điều phối chọn giờ và gọi chủ kho đổi. Chủ kho đồng
+ý luôn ba thử nghiệm h, i, l — mỗi cái MỘT chỗ, gỡ sau khi đo. Kết quả ghi ở [ket-qua.md](ket-qua.md).
+
+| Bước | Ai | Việc |
+|---|---|---|
+| 1 · Cài | phiên đo (một phiên mở trong worktree thử) | `node thu/cai.mjs --worktree <worktree thử> --mod-dir ~/.claude/dev-mods/<mã phiên đo>`. Chép mod bật câu hỏi «nạp lại nóng» — chủ kho chọn «Enable for this session» |
+| 2 · Câu 2, 6 | phiên đo | Mở một phiên MỚI trong worktree thử (dòng trạng thái và hook đọc từ `.claude/settings.local.json` của nó), làm vài lượt, đọc `get_usage`, rồi `node thu/doc.mjs --worktree <worktree thử>` — so phần trăm và giờ đặt lại hai bên |
+| 3 · Trước khi đổi | phiên đo | `node chup.mjs truoc-doi > truoc-doi.json`, kèm số đọc qua `list_sessions`, `list_groups`, `list_scheduled_tasks`, `get_usage` |
+| 4 · Đổi | chủ kho | Đăng xuất, đăng nhập tài khoản kia trong app |
+| 5 · Sau | phiên mới dưới tài khoản mới, trong worktree thử | `node chup.mjs sau > sau.json`, bốn công cụ, bảng kiểm a–l ở trên, `doc.mjs` lần nữa (câu 2, 6 dưới tài khoản mới; câu 3 chỉ có số nếu một lượt thật sự cạn hạn mức) |
+| 6 · Gỡ | phiên mới | `node thu/go.mjs --worktree <worktree thử>` — khôi phục tệp cài đặt gốc, xoá mod thử; tệp số đo giữ ở `.acceptance-runs/do-tai-khoan/` |
+| 7 · Ghi | phiên mới | Điền `ket-qua.md` (mỗi câu một giá trị còn · mất · khác · chưa-đo kèm số), rồi khối «Nhánh DP0» đã chọn trong hợp đồng DP4; ca `DP4-15` đối chiếu hai bên |
+
+`cai.mjs` từ chối khi tệp cài đặt đã có `statusLine` hay hook `StopFailure` (không ghi đè cài đặt của người),
+và khi đã cài mà chưa gỡ. Thử khô 11/10 trên thư mục tạm: cài → ghi → đọc → gỡ, tệp gốc khôi phục khớp băm.
