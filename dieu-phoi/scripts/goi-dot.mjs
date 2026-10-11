@@ -43,13 +43,23 @@ function apNguonHang(hangViec, nguon, gocKho) {
   if (loi) {
     return { hangViec: { ...hangViec, hang: (hangViec.hang ?? []).filter((h) => h?.slug) }, canhBao: [`mo: ${loi} — dùng hàng khai tay của gói`] };
   }
-  const slugCua = new Map(tuLoTrinh.map((h) => [h.ma, h.slug]));
+  // Ghép hàng thi công với hàng lộ trình theo (tệp, mã) khi hàng thi công mang `tep`; không mang thì theo mã,
+  // chỉ khi mã có ở đúng một tệp nguồn — có ở nhiều tệp thì nói ra và bỏ, không đoán slug (DP7 AC-12).
+  const theoMa = new Map();
+  for (const r of tuLoTrinh) theoMa.set(r.ma, [...(theoMa.get(r.ma) ?? []), r]);
+  const moHo = new Set();
   const hang = [];
   for (const h of hangViec.hang ?? []) {
-    if (h?.ma && slugCua.has(h.ma)) hang.push({ ...h, slug: slugCua.get(h.ma) });
-    else if (h?.slug) hang.push(h);
+    const ung = h?.ma ? (theoMa.get(h.ma) ?? []).filter((r) => h.tep === undefined || r.tep === h.tep) : [];
+    if (ung.length === 1) hang.push({ ...h, slug: ung[0].slug, tep: ung[0].tep });
+    else if (ung.length > 1) {
+      moHo.add(h.ma);
+      canhBao.push(`mo: hàng ${h.ma} có ở ${ung.map((r) => r.tep).join(', ')} — khai \`tep\` cho hàng thi công; bỏ qua`);
+    } else if (h?.slug) hang.push(h);
   }
-  for (const { ma } of tuLoTrinh) if (!hang.some((h) => h.ma === ma)) canhBao.push(`mo: hàng ${ma} của lộ trình chưa có phần thi công (dãy) trong gói — bỏ qua`);
+  for (const { ma, tep } of tuLoTrinh) {
+    if (!moHo.has(ma) && !hang.some((h) => h.ma === ma && h.tep === tep)) canhBao.push(`mo: hàng ${tep}:${ma} của lộ trình chưa có phần thi công (dãy) trong gói — bỏ qua`);
+  }
   return { hangViec: { ...hangViec, hang }, canhBao };
 }
 

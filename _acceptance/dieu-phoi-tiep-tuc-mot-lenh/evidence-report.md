@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53
+verified_commit: 8c92fb3a0138a19616903e63038393a4eff7fe5c
 human_signoff: manh 2026-10-11
 ---
 
@@ -278,3 +278,7 @@ Round 1: toàn bộ eval máy xanh, hội đồng chấm E1c đồng thuận PAS
 ### Re-pin lần 1 — 2026-10-11, do gộp origin/main 68951cef (vòng evals-sat-le-doc-du) vào nhánh trước PR
 run_id: repin-20261011T021808Z-62196
 sha: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53 · suites: 10 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)
+
+### Re-pin lần 2 — 2026-10-11, do gộp origin/main 922976ca (DP3) vào nhánh DP7 + sửa ca DP3-11 neo lịch sử
+run_id: repin-20261011T032417Z-27364
+sha: 8c92fb3a0138a19616903e63038393a4eff7fe5c · suites: 10 lệnh exit 0 · evals: 16/16 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)

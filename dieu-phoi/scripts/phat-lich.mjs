@@ -246,6 +246,35 @@ function apGiaHan(thuMuc, nowMs, daBaoCu) {
   return [...daBao];
 }
 
+// Trạng thái hợp đồng «đã thông» (DP7 AC-4; hạt giống lõi chuyển nguyên, mục 4): hàng đi làn V kết ở `machine-cleared`,
+// hàng reality đóng ở `da-cham-boi-thuc-te`. «Xong» cùng nghĩa với trang lộ trình — gói cài riêng nên không nạp
+// được `classify` của kit; đây là bản chép có marker, ca DP7-04 tap-kit so nó với `classify` trên hồ sơ thật.
+// <<<DA-THONG
+export const DA_THONG = ['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te'];
+// DA-THONG>>>
+
+// Chờ người có MỘT danh sách (DP7 AC-7): ngoài tệp `cho-nguoi/` do hook ghi, mỗi yêu cầu `can-nguoi` của thợ
+// chưa có `tra-loi/` cũng là một lần chờ chủ kho — bảng đợt, `xem` và lệnh đếm cùng đọc danh sách này. Đọc
+// không qua docThuMucJson: tệp hỏng đã do xuLyYeuCau chuyển vào `hong/` trong cùng nhịp.
+function choNguoiYeuCau(thuMuc, lienKetCua) {
+  const d = path.join(thuMuc, 'yeu-cau');
+  if (!fs.existsSync(d)) return [];
+  const ra = [];
+  for (const f of fs.readdirSync(d).filter((x) => x.endsWith('.json')).sort()) {
+    if (fs.existsSync(path.join(thuMuc, 'tra-loi', f))) continue;
+    let y;
+    try {
+      y = docJson(path.join(d, f));
+    } catch {
+      continue;
+    }
+    if (y?.loai !== 'can-nguoi' || typeof y.phien !== 'string') continue;
+    const tin = typeof y.noi_dung?.cau_hoi === 'string' ? y.noi_dung.cau_hoi : JSON.stringify(y.noi_dung ?? {});
+    ra.push({ phien: y.phien, loai: 'can-nguoi', tin, luc: y.luc, link: lienKetCua.get(y.phien) });
+  }
+  return ra;
+}
+
 function tienDoCua(hangViec, cfg, io) {
   const td = new Map();
   for (const h of hangViec.hang) {
@@ -255,14 +284,14 @@ function tienDoCua(hangViec, cfg, io) {
     } catch {
       trenNhanhChinh = null;
     }
-    if (trenNhanhChinh === 'signed-off') {
+    if (DA_THONG.includes(trenNhanhChinh)) {
       td.set(h.slug, 'gop');
       continue;
     }
     const day = hangViec.day.find((d) => d.id === h.day);
     const p = day ? path.join(day.worktree, '_acceptance', h.slug, 'contract.md') : null;
     const st = p && fs.existsSync(p) ? trangThaiHopDong(fs.readFileSync(p, 'utf8')) : null;
-    td.set(h.slug, st === null ? 'chua' : st === 'signed-off' ? 'ky' : 'dang');
+    td.set(h.slug, st === null ? 'chua' : DA_THONG.includes(st) ? 'ky' : 'dang');
   }
   return td;
 }
@@ -365,7 +394,10 @@ export async function motNhip(thuMuc, io) {
   const tienDo = tienDoCua(hangViec, cfg, io);
   const day = capNhatHangKe(thuMuc, hangViec, tienDo);
   const lienKetCua = new Map(hangViec.day.map((d) => [d.id, d.link]));
-  const choNguoi = docThuMucJson(thuMuc, 'cho-nguoi').map(({ phien, loai, tin, luc }) => ({ phien, loai, tin, luc, link: lienKetCua.get(phien) }));
+  const choNguoi = [
+    ...docThuMucJson(thuMuc, 'cho-nguoi').map(({ phien, loai, tin, luc }) => ({ phien, loai, tin, luc, link: lienKetCua.get(phien) })),
+    ...choNguoiYeuCau(thuMuc, lienKetCua),
+  ];
   const khoa = CAC_TAI_NGUYEN.flatMap((tn) => {
     const chu = docJson(path.join(thuMuc, 'khoa', tn, 'chu.json'));
     return chu ? [{ tai_nguyen: tn, phien: chu.phien, han_thue_den: chu.han_thue_den }] : [];

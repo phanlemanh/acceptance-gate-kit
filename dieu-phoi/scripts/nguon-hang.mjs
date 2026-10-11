@@ -23,7 +23,7 @@ function tachNguon(muc) {
   return { loi: `mục nguồn «${muc}» không phải <tệp>:<mã> hay <tệp>@<ngày>` };
 }
 
-// Trả {hang:[{ma, slug}], loi}. `loi` khác null → bên gọi dùng hàng khai tay và nói ra một dòng.
+// Trả {hang:[{ma, slug, tep}], loi}. `loi` khác null → bên gọi dùng hàng khai tay và nói ra một dòng.
 export function docHangLoTrinh(gocKho, nguon) {
   const ra = [];
   const daThay = new Set();
@@ -50,9 +50,11 @@ export function docHangLoTrinh(gocKho, nguon) {
     for (const m of ma) {
       const r = hang.find((h) => h.ma === m);
       if (!r) return { hang: [], loi: `${n.tep} không có hàng ${m}` };
-      if (daThay.has(m)) continue;
-      daThay.add(m);
-      ra.push({ ma: m, slug: r.slug || suySlug(r.cau_giao) });
+      // Khoá (tệp, mã), không mã một mình: hai lộ trình được trùng mã (DP7 AC-12).
+      const khoa = `${n.tep}\u0000${m}`;
+      if (daThay.has(khoa)) continue;
+      daThay.add(khoa);
+      ra.push({ ma: m, slug: r.slug || suySlug(r.cau_giao), tep: n.tep });
     }
   }
   return { hang: ra, loi: null };
