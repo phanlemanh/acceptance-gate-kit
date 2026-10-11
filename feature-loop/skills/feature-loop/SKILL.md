@@ -372,8 +372,12 @@ Xong mới tới `khong-can-nguoi.mjs --write` (hàng `verified` của bảng tr
 - Thoát 0 → nói lại ĐÚNG dòng lệnh in, một dòng; hồ sơ đi tiếp làn V thì gộp nó vào dòng báo một dòng của làn V.
   Commit `decisions.jsonl` + `contract.md` CÙNG gói evidence máy-viết. Dòng «tắt», «không định tuyến: …», «0 mục» là
   bình thường: kho chưa bật `feature_loop.ngoai_n_tu_dinh_tuyen`, hoặc hồ sơ không đủ điều kiện — vòng đi như cũ.
-- Thoát 2 → vào Gate 2, KHÔNG chạy `khong-can-nguoi.mjs --write`; dòng lý do (khoá sai giá trị · dòng máy trỏ mục đã
-  đổi) đi vào gói Cổng 2.
+- Thoát 2 VÀ dòng lỗi bắt đầu `dinh-tuyen-may:` → vào Gate 2, KHÔNG chạy `khong-can-nguoi.mjs --write`; dòng lý do
+  (khoá sai giá trị · dòng máy trỏ mục đã đổi) đi vào gói Cổng 2.
+- Mã thoát khác 0 và 2 — bộ giải gói thoát 1 khi bản acceptance-gate đang cài chưa có `scripts/dinh-tuyen-may.cjs`,
+  bên ghi thoát 3 khi gọi sai hay không đọc được hợp đồng — hoặc thoát 2 mà dòng lỗi không bắt đầu `dinh-tuyen-may:`
+  (bộ giải gọi sai cú pháp): báo ĐÚNG MỘT dòng nêu mã và nguyên văn dòng lỗi, coi như khoá tắt (không mục nào được
+  định tuyến), rồi đi tiếp `khong-can-nguoi.mjs --write` như trước vòng. KHÔNG dừng chờ người — đây không phải cổng.
 - Khối KHÔNG đổi bảng cổng: máy chỉ ghi định tuyến cho mục mà CHÍNH nó đề xuất `known-limits`/`wont-fix`, ở hồ sơ T2 ·
   PASS · 0 UNCERTAIN; `new-contract`, T3, UNCERTAIN vẫn là của người; khó-đảo vẫn là câu hỏi cho người; chữ quyết vẫn
   của người — người đảo một mục bằng lệnh ở khoá `dao` của dòng sổ máy (lệnh ký cổng người).

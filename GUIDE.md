@@ -755,9 +755,13 @@ bật một khoá thì máy tự ghi dòng sổ cho những mục mà CHÍNH nó
   có lệnh đảo-mà-không-ký — mở khi ≥1 lần owner cần đảo một mục mà không muốn ký hồ sơ.
 - **Giới hạn đã khai:** một lượt chấm mới đổi thứ tự mục làm dòng máy cũ trỏ nhầm mục.
   Bên ghi (thoát 2) và thẻ (cờ «dòng máy trỏ mục đã đổi») bắt bằng so `tieu_de`; lưới
-  trước-merge thì KHÔNG (bộ đọc trong `lib/` không đổi). Ngưỡng mở vòng sửa lưới: ≥1 hồ sơ
-  đi làn V với dòng máy mà `tieu_de` khác tiêu đề mục hiện tại — đếm bằng
-  `dinh-tuyen-may.cjs --check` (thoát 2) trên các hồ sơ `machine-cleared`.
+  trước-merge thì KHÔNG (bộ đọc trong `lib/` không đổi). So tiêu đề gỡ nhãn lượt «(rN…)»
+  trước, nên mục mang sang lượt sau không bị coi là mục đã đổi. Ngưỡng mở vòng sửa lưới:
+  ≥1 hồ sơ có dòng máy mà `tieu_de` khác tiêu đề mục hiện tại — đếm trên cả kho bằng
+  `node <acceptance-gate>/scripts/dinh-tuyen-may.cjs --soat-lech --root .` (in số hồ sơ, thoát
+  2 khi có; không đọc khoá kho, không xét trạng thái hồ sơ, không ghi gì).
+- **Bản cài chưa có bên ghi** (kho chưa nâng kit): bộ giải gói thoát 1, vòng lặp báo một dòng,
+  coi như khoá tắt và đi tiếp — không dừng chờ người.
 <!-- NGOAI-N-TU-DINH-TUYEN>>> -->
 
 ## 5. Cài đặt

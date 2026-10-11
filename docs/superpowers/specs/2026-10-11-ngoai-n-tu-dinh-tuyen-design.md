@@ -138,7 +138,8 @@ giải `<acceptance-gate>` qua `resolve-plugin.mjs` như các bước khác.
 - **Dòng máy trỏ nhầm mục sau một lượt chấm mới** (đổi thứ tự/nội dung mục) — cùng giới hạn đã khai cho
   dòng người ở hồ sơ `ho-so-khep-thoi-hoi`. Bên ghi bắt (thoát 2, không ghi) và thẻ cờ vàng; lưới trước-merge
   (lib) KHÔNG bắt. Ngưỡng mở lại (sửa `daDinhTuyen`, vòng T3): ≥1 hồ sơ ở bất kỳ kho nào đi làn V với dòng máy
-  mà `tieu_de` ≠ tiêu đề mục hiện tại — đếm bằng `dinh-tuyen-may.cjs --check` trên các hồ sơ `machine-cleared`.
+  mà `tieu_de` ≠ tiêu đề mục hiện tại — đếm bằng `dinh-tuyen-may.cjs --soat-lech --root <repo>` (cả kho, không đọc
+  khoá, không xét trạng thái; bổ sung sau Cổng Bằng chứng lượt 1, AC-11). So tiêu đề gỡ nhãn lượt «(rN…)» trước (AC-12).
 - **Lệnh đảo đi qua chữ ký**: đảo một mục = người ký Cổng 2 với lựa chọn khác cho mục ấy (signoff đã nhận
   hồ sơ `machine-cleared`). Không có lệnh đảo-mà-không-ký. Ngưỡng mở: ≥1 lần owner muốn đảo một mục mà không
   muốn ký hồ sơ.
