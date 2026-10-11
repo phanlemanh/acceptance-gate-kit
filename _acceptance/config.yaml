@@ -627,6 +627,19 @@ executors:
     gg_ac6: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 6
     gg_ac7: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 7
     gg_ac8: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 8
+    # Hồ sơ eval-goi-model-that-khong-chay (11/10, hàng G3, T2): mỗi lệnh một AC — ca bền của AC trong
+    # tests/scripts/repin-lane-dung-lai-model.test.mjs (chiều xanh) rồi các bản sao bị phá (chiều đỏ có dấu dương).
+    egm_ac1: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 1
+    egm_ac2: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 2
+    egm_ac3: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 3
+    egm_ac4: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 4
+    egm_ac5: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 5
+    egm_ac6: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 6
+    egm_ac7: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 7
+    egm_ac8: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 8
+    egm_ac9: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 9
+    egm_ac10: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 10
+    egm_ac12: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 12
     # Hồ sơ eval-thay-boi-co-chung (06/10): mỗi khoá chạy MỘT nhóm ca của tệp ca vĩnh viễn
     # tests/scripts/eval-thay-boi.test.mjs (suite `scripts` cũng tự chạy nó qua glob). ETB_CASES
     # khớp 0 ca thì tệp thoát khác 0 (bài học P86).
