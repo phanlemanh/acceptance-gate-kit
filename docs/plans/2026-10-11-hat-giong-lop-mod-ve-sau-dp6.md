@@ -103,6 +103,12 @@ chỉ xảy ra nếu một lệnh trong danh sách chạy thân, mà không lệ
 
 Ngưỡng mở thành việc: một lần đo lại bản ghi theo design DP6 §2.1 thấy > 10 lời gọi heredoc chặn nhầm.
 
+Nghiệm đúng tầng cho cả lớp (Điều phối M5 gợi ý 11/10): **S4 tự xưng** — chính `repin-lane.mjs`, `s4-args.mjs`
+và `duong-nen.mjs` tự lấy và kiểm khoá tài nguyên lúc khởi, hook chặn chỉ còn là lưới phụ. Bộ phân loại đọc chữ
+shell là một tháp: lớp «lệnh S4 lọt qua bộ đọc cú pháp» đã đổi da ba lần trong một vòng (vỏ bọc mang cờ → thân
+heredoc cho trình thông dịch kèm cờ mang giá trị → heredoc kèm chuyển hướng). Ngưỡng mở: ≥ 1 lượt S4 thật lọt khoá
+sau khi DP6 gộp (đếm ở sổ chạy của đợt thử).
+
 ## Phụ lục — mã nguồn mod thăm dò (qua `claude plugin validate --strict` 2.1.295, 11/10)
 
 Ba tệp. Mã phiên và đường nhật ký là của phiên DP6 ngày 11/10 — hàng sau thay bằng phiên và hồ sơ của nó.
