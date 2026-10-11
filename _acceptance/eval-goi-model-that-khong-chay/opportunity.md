@@ -3,10 +3,10 @@ schema_version: 1
 slug: eval-goi-model-that-khong-chay
 feature: Eval gọi model thật không chạy lại khi đầu vào không đổi
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: manh
+decided_at: 2026-10-11T08:55:32Z   # owner gõ «Làm» một chạm trong phiên 11/10, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -57,10 +57,10 @@ vì làn con chính là `repin-lane.mjs`.
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] đã đạt «Lượt ghim lại không đổi đầu vào của eval model thì chi phí model của eval đó bằng 0» chưa — đo trên làn ghim lại thật của crm sau khi crm cài mốc mang vòng này và bật khoá?
-- Kết quả nào là SỐNG: [đề xuất] Lượt ghim lại không đổi đầu vào của eval model thì chi phí model của eval đó bằng 0 — ở crm, trong 14 ngày sau khi cài: mọi eval model đủ điều kiện mà đầu vào không đổi đều không chạy (`tong_ket.model_carry` ≥ 1 ở lượt đó, eval vắng khỏi `model_goi`), và `carry_lech` = 0.
-- Kết quả nào là CHẾT: [đề xuất] chưa đạt «Lượt ghim lại không đổi đầu vào của eval model thì chi phí model của eval đó bằng 0» khi hết timebox — hoặc có ≥ 1 lượt `carry_lech` (dùng lại kết quả mà đầu vào thật đã đổi).
-- Timebox: [đề xuất] 2026-11-01 (mốc Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), trang hồ sơ một việc (X2), một vòng một kết quả cỡ 8–12 tiêu chí (S3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ)
+- Câu hỏi phép đo trả lời: đã đạt «Lượt ghim lại không đổi đầu vào của eval model thì chi phí model của eval đó bằng 0» chưa — đo trên làn ghim lại thật của crm sau khi crm cài mốc mang vòng này và bật khoá?
+- Kết quả nào là SỐNG: Lượt ghim lại không đổi đầu vào của eval model thì chi phí model của eval đó bằng 0 — ở crm, trong 14 ngày sau khi cài: mọi eval model đủ điều kiện mà đầu vào không đổi đều không chạy (`tong_ket.model_carry` ≥ 1 ở lượt đó, eval vắng khỏi `model_goi`), và `carry_lech` = 0.
+- Kết quả nào là CHẾT: chưa đạt «Lượt ghim lại không đổi đầu vào của eval model thì chi phí model của eval đó bằng 0» khi hết timebox — hoặc có ≥ 1 lượt `carry_lech` (dùng lại kết quả mà đầu vào thật đã đổi).
+- Timebox: 2026-11-01 (mốc Mốc kế sau đợt thử (số đặt lúc cắt) — lớp mod của Điều phối – Thợ (DP6), gom tín hiệu (L3), trang hồ sơ một việc (X2), một vòng một kết quả cỡ 8–12 tiêu chí (S3), ca chập chờn (G2), eval model thật (G3), bớt câu hỏi ở bước thiết kế (A2); dời ngày 10/10 để kịp timebox Điều phối – Thợ)
 
 ## Kết quả prototype
 
@@ -76,11 +76,11 @@ Không dựng prototype — phép thử giả định 1 chạy thẳng trên l�
 
 ## Cổng 0
 
-- **decision = …** Căn cứ: …
+- **decision = build** (hạng T2) — owner gõ «Làm» 11/10 trên khuyến nghị bên dưới. Căn cứ: bảng «Đo 11/10 trên lịch sử thật» (17/44 lần chạy lại eval model có đầu vào không đổi; ngưỡng mở Đ2 (b) của hạt giống đạt), giả định 1 đã thử.
 - **disposition = …** Căn cứ: — (không prototype)
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** bốn dòng của mục «Ngưỡng chết / ngưỡng UAT» — tiền tố đề xuất gỡ cùng chữ «Làm».
 
-**Máy khuyến nghị lúc mời ký:** `build`, hạng **T2**, **một vòng**, phát hành theo mốc 01/11 (engine
+**Máy khuyến nghị lúc mời ký (owner chọn đúng lối này):** `build`, hạng **T2**, **một vòng**, phát hành theo mốc 01/11 (engine
 không đổi dưới chân crm trước 14/10). Máy tự chốt — ghi ở đây, đảo được bằng một câu ở bất kỳ cổng nào:
 
 | Điểm | Máy chốt | Căn cứ |
