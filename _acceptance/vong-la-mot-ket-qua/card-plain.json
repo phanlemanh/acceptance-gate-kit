@@ -1,0 +1,39 @@
+{
+  "feature_plain": "Khi một phiên cắt một đợt phạm vi thành hàng lộ trình, máy nói ra trước khi PR mở hàng nào quá một vòng phải tách, hàng nào nhỏ và gộp được, hàng nào câu giao sai dáng — và một lệnh chỉ đọc in lại bảng cỡ vòng → số lượt chấm → tỉ lệ chạm trần từ hồ sơ đã giao, để mỗi mốc đọc lại khoảng cỡ trên số thật.",
+  "will_do": [
+    {"id": "AC-1", "p": "Sẽ lấy khoảng cỡ (8–10 mục tiêu, tới 12 cho phép, từ 13 phải tách) từ đúng một khối người đọc được trong skill cắt lượt — sửa khối là đổi hành vi, khối hỏng thì máy dừng và gọi tên khoá hỏng."},
+    {"id": "AC-2", "p": "Sẽ gắn cho mỗi hàng của đợt đúng một cờ cỡ theo số tiêu chí dự kiến: dưới mục tiêu, trên mục tiêu, phải tách (chặn), thiếu ước lượng, hoặc ước lượng sai kiểu (chặn)."},
+    {"id": "AC-3", "p": "Sẽ chỉ ra hàng nhỏ gộp được với hàng nào cùng nhóm khi tổng vẫn trong khoảng cho phép."},
+    {"id": "AC-4", "p": "Sẽ kiểm hai dáng câu giao: việc người dùng thấy thì câu phải mở bằng đúng vai đã khai; việc nền thì phải có ngưỡng đo được — sai dáng là chặn, thiếu khai chỉ nhắc vàng."},
+    {"id": "AC-5", "p": "Sẽ gom mọi cờ của các hàng ngoài đợt đang cắt thành một dòng vàng mỗi loại cờ, không làm đỏ đợt mới."},
+    {"id": "AC-7", "p": "Sẽ in bảng cỡ → lượt chấm → chạm trần từ hồ sơ đã giao của kho, tỉ lệ trong khoảng tính trên mọi vòng đã chốt phạm vi (không chỉ vòng đã giao), kèm số hồ sơ và lý do bỏ qua — không ghi tệp nào."},
+    {"id": "AC-8", "p": "Sẽ đọc được ngưỡng của hàng S3 sau 30 ngày: lọc vòng chốt từ một ngày, nói rõ N, và so cỡ khai lúc cắt với số tiêu chí thật của hợp đồng hàng ấy mở ra."},
+    {"id": "AC-9", "p": "Sẽ cập nhật skill cắt lượt (lệnh chạy nguyên văn, sáu luật nêu hai dáng và khối khoảng, bảng cờ khớp đúng danh sách máy dùng) và khuôn lộ trình mẫu có một hàng mỗi dáng."},
+    {"id": "AC-10", "p": "Sẽ để một giám khảo tự cắt bản phạm vi thật của media-library (13 hồ sơ từng cắt theo gốc kỹ thuật) chỉ bằng skill, rồi chấm chính các hàng nó cắt: mỗi hàng một kết quả, cỡ trong khoảng, đúng dáng câu giao."}
+  ],
+  "wont_do": [
+    {"id": "AC-6", "p": "Sẽ KHÔNG đổi gì cho lộ trình đời trước: lộ trình crm và kit chưa khai vai hay cỡ vẫn ra đúng kết quả cũ, chỉ thêm dòng vàng; trang lộ trình không đổi một byte."},
+    {"id": "OOS-1", "p": "KHÔNG sửa luật cỡ ở bước thiết kế của Feature Loop (vẫn ghi 5–15) — máy M5 đang giữ phần đó; vòng mở ngoài lộ trình chưa có răng cỡ."},
+    {"id": "OOS-2", "p": "KHÔNG sửa bộ đếm sức khoẻ vòng (đếm lượt chấm theo số khác nhau) — đổi nó là đổi số các mốc đã cắt."},
+    {"id": "OOS-3", "p": "KHÔNG làm lint «tiêu chí đo cơ chế» và mục «Kết quả người thấy» trong khuôn hợp đồng — hạt giống 04/09, chính sách 10/10 đặt răng ở lượt cắt thay vào."},
+    {"id": "OOS-4", "p": "KHÔNG hiện vai/cỡ trên trang lộ trình, KHÔNG thêm khoá cấu hình khoảng theo kho, KHÔNG để máy tự suy khoảng."}
+  ],
+  "scope_plain": "Bốn việc gần kề cố ý để ngoài, mỗi việc có lý do:",
+  "coverage_plain": [
+    {"i": 0, "p": "Cỡ dự kiến: phủ đủ thiếu, sai kiểu, dưới mục tiêu (có và không hàng gộp được), mục tiêu, cho phép, phải tách — thước là khoảng chủ kho chốt 10/10 (AC-2 ma trận cỡ, AC-3 gộp)."},
+    {"i": 1, "p": "Dáng câu giao: thiếu vai, vai mở câu, vai lệch, nền có ngưỡng, nền thiếu ngưỡng (AC-4 ma trận hai dáng)."},
+    {"i": 2, "p": "Phạm vi hàng: trong đợt, ngoài đợt, lộ trình đời trước — thước là luật «cân trên mọi kho» 26/09 (AC-5 gom vàng, AC-6 đọc-cũ)."},
+    {"i": 3, "p": "Nguồn khoảng: khối lành, khối bị sửa, khối hỏng (AC-1 một nguồn)."},
+    {"i": 4, "p": "Đồng hồ: hồ sơ có lượt, không lượt, không đọc được tiêu chí, chưa giao, lọc ngày, không có dữ liệu, ít dữ liệu — thước là số đo 10/10 (AC-7 bảng, AC-8 đọc ngưỡng)."},
+    {"i": 5, "p": "Người dùng răng là phiên cắt: lệnh chạy nguyên văn, khuôn mẫu, và một lượt cắt thật trên ca 13 hồ sơ (AC-9 skill, AC-10 phán xét)."},
+    {"i": 6, "p": "Để sau: khoá cấu hình khoảng theo kho, hiện cỡ/vai trên trang, răng cỡ ở Feature Loop, lint tiêu chí đo cơ chế."},
+    {"i": 7, "p": "Không làm: máy tự suy khoảng từ dữ liệu (số kit cho thấy sai ở kho meta), trường cho agent trong lộ trình."}
+  ],
+  "gap_probe_plain": [
+    {"i": 0, "p": "Ngưỡng cũ của ô (04/09) còn treo mà không ai nói nó bị thay — đã sửa: sổ ghi rõ ngưỡng của hàng S3 thay ngưỡng ô, cửa veto ở cổng này."},
+    {"i": 1, "p": "Tỉ lệ «trong khoảng» chỉ tính vòng đã giao nên vòng to chưa giao rơi khỏi mẫu và số đẹp giả — đã sửa: tỉ lệ cỡ tính trên mọi vòng đã chốt, chạm trần mới tính trên vòng đã giao; có ca đo chứng."},
+    {"i": 2, "p": "Phiên cắt tự khai cỡ rồi tự chấm — đã sửa: đồng hồ so cỡ khai với số tiêu chí thật của hợp đồng; phép phán xét đổi thành giám khảo tự cắt rồi chấm hàng mình cắt."},
+    {"i": 3, "p": "Ma trận khối hỏng và ma trận vai thiếu vài ca (khoảng chồng, số 0, chữ dựng sẵn/tổ hợp) — đã thêm ca, số ca in ra bằng số phần tử."},
+    {"i": 4, "p": "Vế «không ghi tệp» chưa từng chứng được chiều đỏ — đã thêm bản đột biến cố tình ghi tệp, phép đo phải đỏ."}
+  ]
+}
