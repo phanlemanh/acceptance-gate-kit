@@ -1,4 +1,7 @@
 {
+  "modules": [
+    "./mod/register.ts"
+  ],
   "hooks": {
     "PreToolUse": [
       {
@@ -43,6 +46,17 @@
             "type": "command",
             "timeout": 10,
             "command": "f=\"${CLAUDE_PLUGIN_ROOT}/scripts/hook-cho-nguoi.mjs\"; [ -f \"$f\" ] || exit 0; exec node \"$f\""
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 60,
+            "command": "f=\"${CLAUDE_PLUGIN_ROOT}/scripts/hook-het-han-muc.mjs\"; [ -f \"$f\" ] || exit 0; exec node \"$f\""
           }
         ]
       }
