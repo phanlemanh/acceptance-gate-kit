@@ -65,7 +65,7 @@ export const MA_TRAN = {
     nhom: [{ tep: T, ca: ['AC10-dem'] }],
     pha: [
       { ten: 'chi-dem-repin', tep: DEM, doi: [["if ((o.kind !== 'repin' && o.kind !== 'repin-do') || !trongKy(o)) return;", "if (o.kind !== 'repin' || !trongKy(o)) return;"]], tepCa: T, ca: 'AC10-dem', ghim: 'carry_lech đếm thiếu' },
-      { ten: 'nhan-luon-khong-tat-dinh', tep: DEM, doi: [["nhan = doi === null ? 'không so được (git)' : (doi.length ? `nghi thiếu đầu vào: ${doi.join(', ')}` : 'lệch không tất định');", "nhan = 'lệch không tất định';"]], tepCa: T, ca: 'AC10-dem', ghim: 'không tách nguyên nhân lệch' },
+      { ten: 'nhan-luon-khong-tat-dinh', tep: DEM, doi: [["nhan = doi === 'sha-la' ? 'không so được (sha lạ)' : doi === null ? 'không so được (git)' : (doi.length ? `nghi thiếu đầu vào: ${doi.join(', ')}` : 'lệch không tất định');", "nhan = 'lệch không tất định';"]], tepCa: T, ca: 'AC10-dem', ghim: 'không tách nguyên nhân lệch' },
     ],
   },
   12: { nhom: [], rieng: 'pham-vi.mjs', pha: [] },
