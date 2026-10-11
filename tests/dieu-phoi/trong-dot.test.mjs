@@ -90,12 +90,13 @@ function chayCli(cwd, doiSo, { gocGoi = GOI } = {}) {
 const nap = (gocGoi, tep) => import(`${path.join(gocGoi, 'scripts', tep)}?v=${Math.random()}`);
 
 // Một đợt mở từ gói bằng CLI thật. `hang` mặc định: một hàng A trên P1. `wt`: worktree từng dãy đã có
-// (mặc định tạo P1, P2 cạnh kho). `pha`: dang-chay (mặc định) · nhap.
-function dungDot({ hang = null, wt = null, pha = 'dang-chay', gocGoi = GOI, tuMerge = null } = {}) {
+// (mặc định tạo P1, P2 cạnh kho). `pha`: dang-chay (mặc định) · nhap. `khuon`: gói lấy khuôn cấu hình đợt — ca so hai
+// bản gói trên CÙNG một đợt dùng khuôn của bản cũ, bản mới đọc được cấu hình cũ (hồ sơ dieu-phoi-doi-tai-khoan, sổ revisit).
+function dungDot({ hang = null, wt = null, pha = 'dang-chay', gocGoi = GOI, tuMerge = null, khuon = GOI } = {}) {
   const kho = khoThu();
   const w = wt ? wt(kho) : { P1: themWorktree(kho, 'P1'), P2: themWorktree(kho, 'P2') };
   const dirGoi = path.join(kho, 'goi', 'dot-thu');
-  ghiJ(path.join(dirGoi, 'dieu-phoi.config.json'), docJ(path.join(GOI, 'scripts', 'mau', 'dieu-phoi.config.json')));
+  ghiJ(path.join(dirGoi, 'dieu-phoi.config.json'), docJ(path.join(khuon, 'scripts', 'mau', 'dieu-phoi.config.json')));
   ghiJ(path.join(dirGoi, 'hang-viec.json'), {
     dot: '',
     day: Object.entries(w).map(([id, worktree]) => ({ id, worktree })),
@@ -514,9 +515,9 @@ function goiBase() {
 const s4Workflow = (cwd) => JSON.stringify({ hook_event_name: 'PreToolUse', session_id: 's', cwd, tool_name: 'Workflow', tool_input: { scriptPath: '/x/acceptance-verify.js' } });
 
 async function haiLoiChan() {
-  const { dot, w, kho } = dungDot();
-  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', worktree: w.P1, loai: 's4', han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
   const { goi, base } = goiBase();
+  const { dot, w, kho } = dungDot({ khuon: goi });
+  ghiJ(path.join(dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', worktree: w.P1, loai: 's4', han_thue_den: new Date(Date.now() + 3600e3).toISOString() });
   const moi = await nap(GOI, 'hook-chan-s4.mjs');
   const cu = await nap(goi, 'hook-chan-s4.mjs');
   return { dot, base, trong: [moi.chayHook(s4Workflow(w.P2)), cu.chayHook(s4Workflow(w.P2))], ngoai: [moi.chayHook(s4Workflow(kho)), cu.chayHook(s4Workflow(kho))] };
@@ -685,17 +686,49 @@ for (const [ten, cu, moi, mong] of [
 }
 
 // ---------- DP7-10, DP7-11: ca DP1/DP2 nguyên vẹn; README (AC-10, AC-11) ----------
-test('DP7-10 dp12-nguyen', () => {
-  let base;
+// DP7-10 neo vào TẬP THAY ĐỔI của chính PR hồ sơ này (#306): hai cha của commit gộp PR, thay vì merge-base — mốc đó dời
+// mỗi lần gộp nên ca chặn mọi vòng sau chạm hợp lệ vào ca DP1/DP2 (hồ sơ DP4 dieu-phoi-doi-tai-khoan, dòng sổ revisit;
+// cùng khuôn DP2-15, DP3-13). Commit gộp tìm bằng lệnh theo tiêu đề, không gõ sha.
+const DP12 = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/mo-dot.test.mjs', 'tests/dieu-phoi/loi'];
+function kiemDp12NguyenTrongPr(goc, soPr, duong = DP12) {
+  let sha = '';
   try {
-    base = git(KIT, 'merge-base', 'HEAD', 'origin/main').trim();
+    sha = execFileSync('git', ['log', '--merges', '--format=%H', `--grep=^Merge pull request #${soPr} `, 'HEAD'], { cwd: goc, env: ENV, encoding: 'utf8' }).trim().split('\n')[0];
   } catch {
-    base = git(KIT, 'merge-base', 'HEAD', 'main').trim();
+    sha = '';
   }
-  const tep = ['tests/dieu-phoi/dong-goi.test.mjs', 'tests/dieu-phoi/mo-dot.test.mjs', 'tests/dieu-phoi/loi'];
-  const r = spawnSync('git', ['diff', '--quiet', base, '--', ...tep], { cwd: KIT, env: ENV });
-  console.log(`  base ${base.slice(0, 12)} · git diff --quiet ${tep.join(' ')} → ${r.status}`);
-  assert.equal(r.status, 0, 'ca DP1/DP2 đã bị sửa so với merge-base');
+  if (!sha) return [`không tìm được commit gộp của PR #${soPr}`];
+  const r = spawnSync('git', ['diff', '--quiet', `${sha}^1`, `${sha}^2`, '--', ...duong], { cwd: goc, env: ENV });
+  return r.status === 0 ? [] : [`PR #${soPr} (${sha.slice(0, 8)}) sửa ca DP1/DP2: ${duong.join(' · ')}`];
+}
+// Kho thử: nhánh chính có tệp ca DP2; PR #306 gộp vào (sửa hoặc không sửa tệp đó), sau đó một vòng khác sửa tệp đó.
+function khoPrThu(prSua) {
+  const kho = tam('dp12-pr-');
+  const g = (...a) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { cwd: kho, env: ENV, stdio: 'ignore' });
+  const ghi = (rel, nd) => { fs.mkdirSync(path.dirname(path.join(kho, rel)), { recursive: true }); fs.writeFileSync(path.join(kho, rel), nd); };
+  g('init', '-q', '-b', 'main');
+  ghi('tests/dieu-phoi/mo-dot.test.mjs', 'goc\n');
+  g('add', '-A'); g('commit', '-q', '-m', 'goc');
+  g('checkout', '-q', '-b', 'pr');
+  ghi(prSua ? 'tests/dieu-phoi/mo-dot.test.mjs' : 'khac.txt', 'pr\n');
+  g('add', '-A'); g('commit', '-q', '-m', 'pr');
+  g('checkout', '-q', 'main');
+  g('merge', '-q', '--no-ff', '-m', 'Merge pull request #306 from x/pr', 'pr');
+  ghi('tests/dieu-phoi/mo-dot.test.mjs', 'vong sau\n');
+  g('add', '-A'); g('commit', '-q', '-m', 'vong sau sua ca DP2');
+  return kho;
+}
+
+test('DP7-10 dp12-nguyen', () => {
+  const loi = kiemDp12NguyenTrongPr(KIT, 306);
+  console.log(`  PR #306: ${loi.length ? loi.join(' | ') : `không sửa ${DP12.join(' · ')}`}`);
+  assert.deepEqual(loi, []);
+});
+
+test('DP7-10-do pr-co-doi-dp12', () => {
+  assert.deepEqual(kiemDp12NguyenTrongPr(khoPrThu(false), 306), [], 'đối chứng dương: PR không sửa tệp DP2, vòng sau sửa → vẫn xanh');
+  const loi = kiemDp12NguyenTrongPr(khoPrThu(true), 306);
+  assert.ok(loi.some((l) => l.startsWith('PR #306 (') && l.includes('sửa ca DP1/DP2')), loi.join(' | '));
 });
 
 async function kiemReadme(tep) {
