@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 8185e5000b25ad32aa09b1cd535bcd1dd368d7c8
+verified_commit: 113a4a9ae70804a9a60e2c085234f537b0fd39bc
 human_signoff: manh 2026-10-11
 ---
 
@@ -194,3 +194,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: mọi eval (E1–E8, E7b, E7c) và mọi lệnh suite xanh; verdict PASS.
+
+### Re-pin lần 1 — 2026-10-11, do sau vòng dieu-phoi-sua-truoc-dot-thu (D4·D1·B1·E2·E1) + gộp DP6, DP7-06 neo lịch sử
+run_id: repin-20261011T152051Z-95655
+sha: 113a4a9ae70804a9a60e2c085234f537b0fd39bc · suites: 10 lệnh exit 0 · evals: 10/10 eval máy đạt kỳ vọng

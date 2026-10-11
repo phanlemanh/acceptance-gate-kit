@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 3ad1c14a5214d9fe7497c2d3f884eb9939bbec58
+verified_commit: 113a4a9ae70804a9a60e2c085234f537b0fd39bc
 human_signoff: manh 2026-10-11
 ---
 
@@ -369,3 +369,7 @@ Round 1: toàn bộ eval máy xanh (E12, E13 không đo được trên baseline 
 ### Re-pin lần 1 — 2026-10-11, do ghim lại sau DP4 và gộp main d0dc3dc4 (vá gate-card #311)
 run_id: repin-20261011T112517Z-27231
 sha: 3ad1c14a5214d9fe7497c2d3f884eb9939bbec58 · suites: 10 lệnh exit 0 · evals: 18/18 eval máy đạt kỳ vọng · ngoài làn máy: E14d (E14d không khai paths)
+
+### Re-pin lần 2 — 2026-10-11, do sau vòng dieu-phoi-sua-truoc-dot-thu (D4·D1·B1·E2·E1) + gộp DP6, DP7-06 neo lịch sử
+run_id: repin-20261011T152051Z-95655
+sha: 113a4a9ae70804a9a60e2c085234f537b0fd39bc · suites: 10 lệnh exit 0 · evals: 18/18 eval máy đạt kỳ vọng · ngoài làn máy: E14d (E14d không khai paths)
