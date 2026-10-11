@@ -250,5 +250,165 @@ if (want('LS-05')) {
   });
 }
 
+// ── Hồ sơ đã chấm xanh-sạch + nhánh vòng (LS-07, LS-08, LS-10) ─────────────────────────────────────────
+// Khuôn mục ngoài hợp đồng rút từ bên VIẾT (acceptance-verify.js) — cùng cách tests/scripts/out-of-contract.test.mjs.
+const OOC_TPL = (() => { const wf = readFileSync(path.join(ROOT, 'feature-loop', 'workflows', 'acceptance-verify.js'), 'utf8');
+  const m = wf.match(/<<<OOC-ITEM-TEMPLATE\\n([\s\S]*?)\\nOOC-ITEM-TEMPLATE>>>/); if (!m) die('không rút được OOC-ITEM-TEMPLATE'); return m[1].replace(/\\n/g, '\n').replace(/\\`/g, '`'); })();
+const oocMuc = (title, plain) => OOC_TPL.replace('{title}', title).replace('{plain}', plain).replace('{file}', 'apps/a.ts').replace('{severity}', 'medium').replace('{proposal}', 'known-limits');
+const oocTep = items => `# Review\n\n## Ngoài hợp đồng\n\nCác lỗi dưới đây là thật, nhưng nằm ngoài phạm vi đã duyệt ở Cổng 1 — người quyết, máy không tự sửa.\n\n${items.join('\n')}\n\n## Known limits\n`;
+const HD_XM = `---\nschema_version: 1\nfeature: Kho thử h\nslug: h\nowner: t@t\nrisk_tier: T2\nsurfaces: [cli]\nstatus: verified\napproved_by: Chủ Kho\napproved_at: 2026-10-12\n---\n\n# h\n\n## Criteria\n\n- AC-1: Given x, When y, Then z.\n\n## Out of scope\n\n- một\n- hai\n`;
+const BC = vc => `---\nschema_version: 1\nfeature_slug: h\nverdict: PASS\nverified_commit: ${vc}\nenforcement_mode: strict\nbypass_used: false\nhuman_signoff:\n---\n\n# Evidence Report: h\n\n## Evidence\n- eval: E1\n  run_id: h-E1-001\n  exit_code: 0\n  verifier: verify.sh\n  verified_at: 2026-10-12\n\n## Known limits\n\n## Ngoài hợp đồng\n\n`;
+const MAY = '\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>';
+// buoc(r) sửa cây của nhánh vòng; trả { r, base, den } với hồ sơ h đã chấm ở den.
+function mkVong(buoc, { luat = [SP1, SP2], findings = null, ghiCham = true } = {}) {
+  const k = mkKhoLuat({ luat });
+  ghiTep(k.r, 'verify.sh', '#!/bin/sh\nexit 0\n'); ghiTep(k.r, 'apps/cu.ts', 'export const a = 1;\n'); git(k.r, 'add', '-A'); git(k.r, 'commit', '-qm', 'goc2');
+  const base = git(k.r, 'rev-parse', 'HEAD');
+  git(k.r, 'checkout', '-qb', 'vong');
+  buoc(k.r);
+  const den = git(k.r, 'rev-parse', 'HEAD');
+  ghiTep(k.r, '_acceptance/h/contract.md', HD_XM); ghiTep(k.r, '_acceptance/h/evals.yaml', EVALS);
+  ghiTep(k.r, '_acceptance/h/evidence-report.md', BC(den));
+  ghiTep(k.r, '_acceptance/h/decisions.jsonl', '');
+  if (findings) ghiTep(k.r, '_acceptance/h/review-findings.md', oocTep(findings));
+  git(k.r, 'add', '-A'); git(k.r, 'commit', '-qm', 'bang-chung');
+  if (ghiCham) { const p = spawnSync(process.execPath, [LSP, '--root', k.r, '--slug', 'h', '--quet', '--base', base, '--den', den, '--write'], { encoding: 'utf8' }); if (p.status !== 0) die(`bộ soi thoát ${p.status}: ${p.stderr}`); }
+  return { r: k.r, base, den };
+}
+const commit = (r, msg) => { git(r, 'add', '-A'); git(r, 'commit', '-qm', msg); return git(r, 'rev-parse', 'HEAD'); };
+const docCham = v => JSON.parse(readFileSync(path.join(v.r, '_acceptance/h/luat-cham.json'), 'utf8'));
+const kcn = v => spawnSync(process.execPath, [KCN, '--check', '--root', v.r, '--slug', 'h'], { encoding: 'utf8' });
+const CO_SUA = 'Vòng này sửa tệp luật sản phẩm — máy không sửa luật; tách thành commit riêng của chủ kho';
+const CO_CHUA_SOI = 'Chưa soi luật sản phẩm trên bản đã chấm';
+const LAN_V = 'đi tiếp hay kéo lại';
+
+if (want('LS-07')) {
+  let shaMay, shaNguoi;
+  const vMay = mkVong(r => { ghiTep(r, 'PRODUCT-INVARIANTS.md', tepLuat(KHUON, [SP1, SP2, SP3])); shaMay = commit(r, 'sua luat' + MAY); });
+  const vNguoi = mkVong(r => { ghiTep(r, 'PRODUCT-INVARIANTS.md', tepLuat(KHUON, [SP1, SP2, SP3])); shaNguoi = commit(r, 'chu kho sua luat'); });
+  const vSach = mkVong(r => { ghiTep(r, 'apps/cu.ts', 'export const a = 2;\n'); commit(r, 'vat'); });
+  check('LS-07 may', () => {
+    eq(docCham(vMay).sua_tep_luat, { may: [shaMay], nguoi: [] }, 'sha máy');
+    const h = the(vMay); if (!h.includes(CO_SUA)) die('thiếu cờ đỏ sửa tệp luật');
+    const r = rut(vMay); if (!r.one_shot || !r.one_shot.includes('Tệp luật: ___')) die('dòng lệnh thiếu ô Tệp luật: ' + r.one_shot);
+    if (r.one_shot.includes(LAN_V)) die('vẫn đi làn V');
+    const k = kcn(vMay); eq(k.status, 2, 'khong-can-nguoi thoát'); if (!(k.stderr + k.stdout).includes('luật sản phẩm')) die('khong-can-nguoi không nêu luật sản phẩm: ' + k.stderr);
+  });
+  check('LS-07 nguoi', () => {
+    eq(docCham(vNguoi).sua_tep_luat, { may: [], nguoi: [shaNguoi] }, 'sha người');
+    const h = the(vNguoi); if (h.includes(CO_SUA)) die('commit chủ kho mà vẫn cờ đỏ');
+    if (!h.includes('Chủ kho sửa tệp luật trong nhánh vòng (1 commit)')) die('thiếu dòng báo chủ kho sửa');
+  });
+  check('LS-07 sach', () => {
+    eq(docCham(vSach).sua_tep_luat, { may: [], nguoi: [] }, 'không ai sửa');
+    if (the(vSach).includes(CO_SUA)) die('không chạm tệp luật mà có cờ');
+    const k = kcn(vSach); eq(k.status, 0, 'khong-can-nguoi thoát (đối chứng dương): ' + k.stderr);
+  });
+  check('LS-07 xoa-tep', () => {   // Review Focus 5: xoá tệp luật bằng commit máy = máy sửa tệp luật
+    let sha; const v = mkVong(r => { rmSync(path.join(r, 'PRODUCT-INVARIANTS.md')); sha = commit(r, 'xoa luat' + MAY); });
+    eq(docCham(v).sua_tep_luat, { may: [sha], nguoi: [] }, 'xoá tệp là sửa tệp');
+  });
+  check('LS-07-do', () => {
+    const d = banSaoTiem('luat-san-pham.cjs', '(DONG_MAY.test(', '(true || DONG_MAY.test(');
+    const p = spawnSync(process.execPath, [path.join(d, 'luat-san-pham.cjs'), '--root', vNguoi.r, '--slug', 'h', '--quet', '--base', vNguoi.base, '--den', vNguoi.den], { encoding: 'utf8' });
+    const o = JSON.parse(p.stdout); if (!o.sua_tep_luat.may.length) die('bỏ tách máy/người mà commit chủ kho vẫn không thành máy — phép đo không phân biệt');
+  });
+}
+
+if (want('LS-08')) {
+  const DONG_A = 3;
+  const okr = r => {
+    ghiTep(r, 'apps/app/lib/a.ts', 'export const OKR = {\n  ten: "chu ky",\n  muiGio: "Asia/Ho_Chi_Minh",\n};\n');
+    ghiTep(r, 'tests/a.spec.ts', 'const tz = "Asia/Ho_Chi_Minh";\n');
+    ghiTep(r, '_acceptance/x/notes.md', 'Asia/Ho_Chi_Minh\n');
+    writeFileSync(path.join(r, 'apps', 'logo.png'), Buffer.from([0x89, 0x50, 0x4e, 0x47, 0, 0, 0, 0, 0x2b, 0x30, 0x37, 0x3a, 0x30, 0x30]));
+    git(r, 'mv', 'apps/cu.ts', 'apps/moi.ts'); writeFileSync(path.join(r, 'apps', 'moi.ts'), 'const lech = "+07:00";\nexport const a = 1;\n');
+    commit(r, 'vat okr');
+  };
+  const v = mkVong(okr);
+  check('LS-08 okr-soat', () => {
+    const c = docCham(v);
+    eq(c.cham.map(x => [x.ma, x.tep, x.dong]), [['SP-1', 'apps/app/lib/a.ts', DONG_A], ['SP-1', 'apps/moi.ts', 1]], 'chỗ chạm');
+    eq(c.den, v.den, 'den = verified_commit');
+    const h = the(v); const k = khoiLab(h, 'Luật sản phẩm bị chạm'); if (!k) die('thiếu khối «Luật sản phẩm bị chạm»');
+    for (const t of ['SP-1', SP1.cau, SP1.chu, 'khó-đảo', `apps/app/lib/a.ts:${DONG_A}`]) if (!k.includes(t)) die('khối luật thiếu: ' + t);
+    const r = rut(v); if (!r.one_shot.includes('SP-1: sửa vật')) die('dòng lệnh thiếu «SP-1: sửa vật»: ' + r.one_shot);
+    if (!r.routing.hoi.includes('SP-1')) die('routing.hoi thiếu SP-1'); if (r.one_shot.includes(LAN_V)) die('vẫn đi làn V');
+    const kk = kcn(v); eq(kk.status, 2, 'khong-can-nguoi thoát'); if (!(kk.stderr + kk.stdout).includes('luật sản phẩm')) die('không nêu luật sản phẩm');
+  });
+  check('LS-08 cu', () => {
+    const vVang = mkVong(r => { ghiTep(r, 'apps/cu.ts', 'export const a = 3;\n'); commit(r, 'vat'); }, { ghiCham: false });
+    const h1 = the(vVang); if ((h1.split(CO_CHUA_SOI).length - 1) !== 1) die('vắng luat-cham: phải đúng một cờ chưa soi');
+    if (rut(vVang).one_shot.includes(LAN_V)) die('vắng luat-cham mà vẫn đi làn V');
+    const vLech = mkVong(r => { ghiTep(r, 'apps/cu.ts', 'export const a = 4;\n'); commit(r, 'vat'); });
+    const c = docCham(vLech); c.den = vLech.base; writeFileSync(path.join(vLech.r, '_acceptance/h/luat-cham.json'), JSON.stringify(c));
+    const h2 = the(vLech); if ((h2.split(CO_CHUA_SOI).length - 1) !== 1) die('lệch bản: phải đúng một cờ chưa soi');
+    if (rut(vLech).one_shot.includes(LAN_V)) die('lệch bản mà vẫn đi làn V');
+    // Review Focus 4: hồ sơ đã ký không có luat-cham → không cờ.
+    const vKy = mkVong(r => { ghiTep(r, 'apps/cu.ts', 'export const a = 5;\n'); commit(r, 'vat'); }, { ghiCham: false });
+    writeFileSync(path.join(vKy.r, '_acceptance/h/contract.md'), HD_XM.replace('status: verified', 'status: signed-off'));
+    if (the(vKy).includes(CO_CHUA_SOI)) die('hồ sơ đã ký mà vẫn cờ chưa soi');
+  });
+  check('LS-08 nhan-ngoai', () => {
+    const vn = mkVong(r => { ghiTep(r, 'apps/cu.ts', 'export const a = 6;\n'); commit(r, 'vat'); },
+      { findings: [oocMuc('Hằng múi giờ khai lại', 'Phạm luật SP-1: múi giờ ghi cứng lần nữa.'), oocMuc('Mã luật không có', 'Nhắc SP-9 không có trong tệp.')] });
+    const h = the(vn);
+    const dong = t => { const i = h.indexOf(t); if (i < 0) die('thẻ không in mục: ' + t); return h.slice(i, h.indexOf('</p>', i)); };
+    if (!dong('múi giờ ghi cứng lần nữa').includes('luật SP-1 · khó đảo')) die('mục nhắc SP-1 thiếu nhãn luật');
+    if (/luật SP-\d/.test(dong('Nhắc SP-9'))) die('mục nhắc SP-9 (không có trong tệp) lại mang nhãn');
+  });
+  check('LS-08-do pham-vi', () => {
+    const d = banSaoTiem('luat-san-pham.cjs', '(!r.pham_vi.length || r.pham_vi.some(g => khopGlob(g, tep)))', 'true');
+    const p = spawnSync(process.execPath, [path.join(d, 'luat-san-pham.cjs'), '--root', v.r, '--slug', 'h', '--quet', '--base', v.base, '--den', v.den], { encoding: 'utf8' });
+    if (!JSON.parse(p.stdout).cham.some(x => x.tep === 'tests/a.spec.ts')) die('bỏ lọc phạm vi mà tests/a.spec.ts vẫn không chạm');
+  });
+  check('LS-08-do khong-luat', () => {
+    const vk = mkVong(okr, { luat: [SP2] });
+    if (khoiLab(the(vk), 'Luật sản phẩm bị chạm')) die('tệp không có SP-1 mà vẫn có khối luật bị chạm');
+    if (!khoiLab(the(v), 'Luật sản phẩm bị chạm')) die('đối chứng: bản lành phải có khối');
+  });
+}
+
+// ── LS-10: mọi câu luật trong khối việc-của-anh + dòng lệnh duy nhất; nhãn ô có trong GATE-ONESHOT-SLOTS ──
+const slotList = t => { const m = String(t).match(/<!-- <<<GATE-ONESHOT-SLOTS -->\n([\s\S]*?)\n<!-- GATE-ONESHOT-SLOTS>>> -->/); if (!m) die('thiếu khối GATE-ONESHOT-SLOTS'); return m[1].split('\n').filter(Boolean); };
+const slotRe = l => new RegExp('^' + l.replace(/^(g1|g2|extra)\s+/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/<số>/g, '\\d+').replace(/<mã eval>/g, 'E\\d+') + '$');
+const nhanLa = (slots, nhan) => nhan.filter(n => !slots.some(l => slotRe(l).test(n)));
+const nhanG2 = oneShot => oneShot.replace(/^\S+\s+\S+\s+/, '').split(';').map(x => x.split(':')[0].trim()).filter(Boolean);
+const LENH_RE = /\/acceptance-gate:(approve|signoff)\b/g;
+if (want('LS-10')) {
+  const ho = [];
+  { const k = mkKhoLuat(); mkHoSo(k, [S1('c1', CN('SP-2')), S1('c2', CN('SP-1', true))]); ho.push(['g1', k]); }
+  { ho.push(['g2', mkVong(r => { ghiTep(r, 'apps/app/lib/a.ts', 'const m = "Asia/Ho_Chi_Minh";\n'); commit(r, 'vat'); })]); }
+  { ho.push(['g2', mkVong(r => { ghiTep(r, 'PRODUCT-INVARIANTS.md', tepLuat(KHUON, [SP1, SP2, SP3])); commit(r, 'sua luat' + MAY); })]); }
+  const SL = slotList(readFileSync(HFL, 'utf8'));
+  check('LS-10 mot-dong', () => {
+    for (const [g, k] of ho) {
+      const h = the(k, g === 'g1' ? ['--glossary-base', k.base] : []);
+      eq((h.match(/<div class="lab">👉 VIỆC CỦA ANH<\/div>/g) || []).length, 1, `${g}: số khối VIỆC CỦA ANH`);
+      eq((h.match(LENH_RE) || []).length, 1, `${g}: số dòng lệnh`);
+      const viec = khoiLab(h, '👉 VIỆC CỦA ANH');
+      if (g === 'g1') { for (const n of ['Hỏi-1', 'Hỏi-2']) if (!viec.includes(n)) die('g1: câu luật không nằm trong khối việc-của-anh: ' + n); }
+      else {
+        const r = rut(k); const nh = nhanG2(r.one_shot);
+        for (const n of nh.filter(x => /^SP-\d+$|^Tệp luật$/.test(x))) if (!viec.includes(n)) die(`g2: ô ${n} không có trong khối việc-của-anh`);
+        if (!nh.some(x => /^SP-\d+$|^Tệp luật$/.test(x))) die('g2: hồ sơ thử không có ô luật nào — ca không đo gì');
+        eq(nhanLa(SL, nh), [], 'g2: nhãn ô không có trong GATE-ONESHOT-SLOTS');
+      }
+    }
+  });
+  check('LS-10-do', () => {
+    const SLhong = SL.filter(l => l !== 'g2 SP-<số>');
+    if (SLhong.length === SL.length) die('danh sách nhãn không có dòng g2 SP-<số> để gỡ');
+    const la = nhanLa(SLhong, nhanG2(rut(ho[1][1]).one_shot));
+    if (!la.includes('SP-1')) die('gỡ nhãn SP-<số> mà SP-1 vẫn được nhận — phép đo không phân biệt');
+  });
+  if (process.env.LS_GHI_ANH === '1') {
+    const out = path.join(ROOT, '_acceptance', 'bat-bien-san-pham', 'evidence'); mkdirSync(out, { recursive: true });
+    writeFileSync(path.join(out, 'card-g1-luat.html'), '<!doctype html><meta charset="utf-8"><body style="margin:0;padding:24px">' + the(ho[0][1], ['--glossary-base', ho[0][1].base]));
+    writeFileSync(path.join(out, 'card-g2-luat.html'), '<!doctype html><meta charset="utf-8"><body style="margin:0;padding:24px">' + the(ho[1][1]));
+    console.log('  (đã ghi hai thẻ cho E11 vào ' + out + ')');
+  }
+}
+
 console.log(`luat-san-pham.ca: ${passed} đạt, ${failed} trượt`);
 process.exit(failed ? 1 : 0);

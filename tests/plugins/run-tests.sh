@@ -9820,7 +9820,9 @@ const rows = m0[1].split("\n").map(l => l.trim()).filter(l => /^(g1|g2|extra) /.
 const fixed = rows.filter(r => r.gate !== "extra" && !r.label.includes("<"));
 const hasNgoai = rows.some(r => r.gate !== "extra" && r.label === "Ngoài-<số>");
 const hasEval = rows.some(r => r.gate !== "extra" && r.label === "<mã eval>");
-const seen = { fixed: new Set(), ngoai: 0, evalid: 0 };
+// Nhãn biến thiên thứ ba: SP-<số> — luật sản phẩm của kho bị chạm (hồ sơ bat-bien-san-pham).
+const hasSP = rows.some(r => r.gate !== "extra" && r.label === "SP-<số>");
+const seen = { fixed: new Set(), ngoai: 0, evalid: 0, sp: 0 };
 let g1n = 0, g2n = 0;
 for (const c of cards) {
   const html = fs.readFileSync(c, "utf8");
@@ -9842,6 +9844,7 @@ for (const c of cards) {
     if (fixed.some(r => r.label === lb)) seen.fixed.add(lb);
     else if (hasNgoai && /^Ngoài-\d+$/.test(lb)) seen.ngoai++;
     else if (hasEval && evalIds.includes(lb)) seen.evalid++;
+    else if (hasSP && /^SP-\d+$/.test(lb)) seen.sp++;
     else die("nhan khong khop SLOTS: " + lb + " (the " + c + ")");
     if (c.includes("g1")) g1n++; else g2n++;
   }
@@ -9849,6 +9852,7 @@ for (const c of cards) {
 for (const r of rows.filter(r => r.gate !== "extra")) {
   const ok = r.label === "Ngoài-<số>" ? seen.ngoai > 0
     : r.label === "<mã eval>" ? seen.evalid > 0
+    : r.label === "SP-<số>" ? seen.sp > 0
     : seen.fixed.has(r.label);
   if (!ok) die("nhan SLOTS khong fixture nao render: " + r.gate + " " + r.label);
 }
@@ -9857,6 +9861,11 @@ console.log("ONESHOT-RT-NGUOC: moi dong SLOTS co fixture render");
 P192JS
 P192WS1="$(mktemp -d)"; vca_scenario gate1-draft "$P192WS1" || { echo "     dung fixture g1 that bai"; P192OK=0; }
 P192WS2="$(mktemp -d)"; vca_scenario gate2-4loai "$P192WS2" || { echo "     dung fixture g2 that bai"; P192OK=0; }
+# Luật sản phẩm của kho (bat-bien-san-pham): thẻ g2 phải render hai nhãn SP-<số> + Tệp luật — tệp luật một luật
+# và luat-cham.json một chỗ chạm + một commit máy sửa tệp luật (thẻ chỉ ĐỌC hai tệp này).
+printf '## SP-1 · Luật mẫu của kho thử\n\n- Mức: thường\n- Chủ luật: Chủ A\n' > "$P192WS2/PRODUCT-INVARIANTS.md"
+P192VC="$(sed -n 's/^verified_commit:[[:space:]]*//p' "$P192WS2/_acceptance/fx/evidence-report.md" 2>/dev/null | head -1)"
+printf '{"ban":"x","base":"b","den":"%s","sua_tep_luat":{"may":["m"],"nguoi":[]},"cham":[{"ma":"SP-1","tep":"a.ts","dong":1,"chu":"x"}]}\n' "$P192VC" > "$P192WS2/_acceptance/fx/luat-cham.json"
 P192WS3="$(mktemp -d)"; vca_scenario gate2-may-di-tiep "$P192WS3" || { echo "     dung fixture g2v that bai"; P192OK=0; }
 node "$ROOT/scripts/gate-card.js" --root "$P192WS1" --slug fx --gate 1 > "$P192TMP/card-g1.html" 2>/dev/null \
   || { echo "     render the g1 that bai"; P192OK=0; }

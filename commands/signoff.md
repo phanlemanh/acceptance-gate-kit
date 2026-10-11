@@ -40,6 +40,13 @@ chỉ khai QUYẾT ĐỊNH; danh tính và ngày là điều máy biết:
 - «cắt/hoãn: đồng ý cắt» hoặc «cắt/hoãn: kéo vào <mục>» → xác nhận phạm vi.
 - «Treo: phê hết» hoặc «Treo: không phê Treo-<số>» → các quyết định ghi sau
   Gate 1.
+- «SP-<số>: sửa vật» hoặc «SP-<số>: chấp nhận có tên» → một luật sản phẩm của kho bị
+  chạm trên diff (khối «Luật sản phẩm bị chạm» của thẻ; hồ sơ bat-bien-san-pham, ADR 0023).
+  `sửa vật` (máy điền sẵn khuyến nghị) = trả hồ sơ về S3 sửa vật — lượt này KHÔNG ký, dù
+  câu gộp có `Ký`; `chấp nhận có tên` = ngoại lệ có chủ ý: một dòng sổ `gate2` nêu mã luật +
+  một gạch known-limits vào `## Notes` của hợp đồng.
+- «Tệp luật: <đã tách / lý do>» → vòng có commit máy sửa tệp luật của kho (cờ đỏ trên thẻ);
+  người xác nhận đã tách thay đổi luật thành commit riêng của chủ kho, ghi một dòng sổ `gate2`.
 - Chỗ trống «ký hay trả»: `Ký[: <tên> [<ngày>]]` →
   `human_signoff` + verdict upgrade (chỉ khi mọi override đã điền) +
   contract `status: signed-off`; hoặc
@@ -102,7 +109,7 @@ Suy xong ở BẤT KỲ nấc nào còn tên → GHI THẲNG rồi hiển thị 
   Lối đi-tiếp (`đi tiếp`, ô điền sẵn `đi tiếp hay kéo lại: đi tiếp`, chữ cũ
   `để yên`) → không ghi gì, in «cửa veto vẫn mở». Danh tính suy theo cùng bậc
   thang ở trên.
-«Ngoài-<số>», «cắt/hoãn», «Treo» không có trường frontmatter riêng: định
+«Ngoài-<số>», «cắt/hoãn», «Treo», «SP-<số>», «Tệp luật» không có trường frontmatter riêng: định
 đoạt của chúng ghi thành entry trong sổ quyết định `decisions.jsonl` (và
 «ghi Known limits» thêm một gạch known-limits vào `## Notes` của hợp đồng)
 — đúng như đường hỏi-từng-bước vẫn làm.

@@ -119,4 +119,112 @@ function theCong1({ root, entries, draft }) {
   return { khoa: { co_tep: true, so_luat: tep.luat.length, sai_khuon: tep.sai_khuon.map(({ ma, dong, ly_do }) => ({ ma, dong, ly_do })), nap }, co, tienTo, hauTo };
 }
 
-module.exports = { TEP_LUAT, MA_RE, MUC_CHU, LY_DO_LUAT, CO_LUAT, banLuat, docLuat, docTepLuat, xetPhamLuat, maTheoTrich, theCong1 };
+// ── Lượt chấm: soi dòng THÊM của diff theo `Dấu hiệu` của từng luật → _acceptance/<slug>/luat-cham.json ──
+// Thẻ Cổng Bằng chứng và vị từ còn-cần-người chỉ ĐỌC tệp này (thẻ không tự gọi git diff).
+const DONG_MAY = /^Co-Authored-By:\s*Claude\b/mi;   // dấu duy nhất có sẵn trong lịch sử để tách commit máy/người
+const gitOut = (root, a) => {
+  const r = spawnSync('git', ['-C', root, ...a], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
+  if (r.status !== 0) throw new Error(`git ${a.join(' ')}: ${String(r.stderr || '').trim()}`);
+  return r.stdout;
+};
+let _globRe = null;
+const khopGlob = (g, tep) => { if (!_globRe) _globRe = require('../lib/evidence-core.cjs').pathGlobToRe; return _globRe(g).test(tep); };
+// null = kho không khai luật (không có tệp ở cả base lẫn den).
+function quet({ root, base, den }) {
+  const dau = docTepLuat(root, den), cu = docTepLuat(root, base);
+  if (!dau.co_tep && !cu.co_tep) return null;
+  const sua = { may: [], nguoi: [] };
+  for (const sha of gitOut(root, ['log', '--format=%H', `${base}..${den}`, '--', TEP_LUAT]).split('\n').filter(Boolean))
+    (DONG_MAY.test(gitOut(root, ['log', '-1', '--format=%B', sha])) ? sua.may : sua.nguoi).push(sha);
+  const cham = [];
+  const luat = dau.luat.filter(l => l.dau_hieu);
+  if (luat.length) {
+    let tep = null, dong = 0;
+    for (const l of gitOut(root, ['diff', '--no-color', '--no-ext-diff', '--unified=0', '-M', `${base}...${den}`]).split('\n')) {
+      if (l.startsWith('diff --git ')) { tep = null; continue; }
+      if (l.startsWith('+++ ')) { tep = l === '+++ /dev/null' ? null : l.slice(6); continue; }
+      const h = l.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/); if (h) { dong = +h[1]; continue; }
+      if (!tep || !l.startsWith('+')) continue;
+      const chu = l.slice(1);
+      if (!tep.startsWith('_acceptance/') && tep !== TEP_LUAT)
+        for (const r of luat)
+          if ((!r.pham_vi.length || r.pham_vi.some(g => khopGlob(g, tep))) && r.dau_hieu.test(chu))
+            cham.push({ ma: r.ma, tep, dong, chu: chu.slice(0, 160) });
+      dong++;
+    }
+  }
+  return { ban: dau.ban, base: gitOut(root, ['rev-parse', base]).trim(), den: gitOut(root, ['rev-parse', den]).trim(), sua_tep_luat: sua, cham };
+}
+const docCham = (root, slug) => { try { return JSON.parse(fs.readFileSync(path.join(root, '_acceptance', slug, 'luat-cham.json'), 'utf8')); } catch (_) { return null; } };
+
+// ── Vị từ còn-cần-người + thẻ Cổng Bằng chứng: chỉ ĐỌC luat-cham.json ───────────────────────────────────
+// Trạng thái đã qua Cổng Bằng chứng: không soi lại, không cờ (hồ sơ đời trước vòng này không có luat-cham.json).
+const DA_QUA = new Set(['signed-off', 'machine-cleared', 'da-cham-boi-thuc-te']);
+const fmVal = (t, k) => { const m = String(t || '').match(/^---\r?\n([\s\S]*?)\r?\n---/); if (!m) return ''; const mm = m[1].match(new RegExp(`^${k}\\s*:\\s*(.*)$`, 'm')); return mm ? mm[1].replace(/\s+#.*$/, '').trim() : ''; };
+// ctx.luat cho khongCanNguoi — null khi kho không khai luật (vị từ đi đường cũ, giữ đẳng thức LV5).
+function ctxLuat(root, slug, contractTxt, evidenceTxt) {
+  if (!docTepLuat(root).co_tep) return null;
+  return { co_tep: true, cham: docCham(root, slug), verified_commit: fmVal(evidenceTxt, 'verified_commit') || null, da_qua: DA_QUA.has(fmVal(contractTxt, 'status').toLowerCase()) };
+}
+// Lý do còn cần người vì luật sản phẩm; '' khi không chặn. Một nguồn cho khong-can-nguoi và thẻ.
+function chanLuat(L) {
+  if (!L || !L.co_tep || L.da_qua) return '';
+  if (!L.cham || L.cham.den !== L.verified_commit) return 'còn cần người: luật sản phẩm (chưa soi luật trên bản đã chấm)';
+  if ((L.cham.cham || []).length) return `còn cần người: luật sản phẩm (${L.cham.cham.length} chỗ chạm)`;
+  if (((L.cham.sua_tep_luat || {}).may || []).length) return 'còn cần người: luật sản phẩm (máy sửa tệp luật)';
+  return '';
+}
+const CO_LUAT_G2 = {
+  sua: 'Vòng này sửa tệp luật sản phẩm — máy không sửa luật; tách thành commit riêng của chủ kho',
+  nguoiSua: n => `Chủ kho sửa tệp luật trong nhánh vòng (${n} commit)`,
+  chuaSoi: 'Chưa soi luật sản phẩm trên bản đã chấm',
+};
+// esc = hàm thoát HTML của thẻ. Trả null khi kho không khai luật.
+function theCong2({ root, slug, contractTxt, evidenceTxt, esc }) {
+  const L = ctxLuat(root, slug, contractTxt, evidenceTxt);
+  if (!L) return null;
+  const tep = docTepLuat(root); const theoMa = ma => tep.luat.find(x => x.ma === ma);
+  const c = L.cham, co = [], slots = [], ymItems = [];
+  const chuaSoi = !L.da_qua && (!c || c.den !== L.verified_commit);
+  if (chuaSoi) co.push(['fwarn', CO_LUAT_G2.chuaSoi]);
+  const may = c ? (c.sua_tep_luat || {}).may || [] : [], nguoi = c ? (c.sua_tep_luat || {}).nguoi || [] : [];
+  if (may.length) co.push(['fred', CO_LUAT_G2.sua]);
+  else if (nguoi.length) co.push(['finfo', CO_LUAT_G2.nguoiSua(nguoi.length)]);
+  const nhom = new Map(); for (const x of (c && c.cham) || []) { if (!nhom.has(x.ma)) nhom.set(x.ma, []); nhom.get(x.ma).push(x); }
+  let html = '';
+  if (nhom.size) {
+    html = `<div class="lab">Luật sản phẩm bị chạm</div><div class="grp gdo">` + [...nhom].map(([ma, ds]) => {
+      const l = theoMa(ma) || { cau: '(luật không còn trong tệp)', chu: '?', muc: 'thuong' };
+      const cho = ds.slice(0, 3).map(x => `${x.tep}:${x.dong}`).join(' · ') + (ds.length > 3 ? ` · và ${ds.length - 3} chỗ nữa` : '');
+      return `<p class="li" data-luat="${esc(ma)}"><b>${esc(ma)}</b> · ${esc(l.cau)} · chủ luật: ${esc(l.chu)} · ${l.muc === 'kho-dao' ? '<b>khó-đảo</b>' : 'thường'} — ${esc(cho)}</p>`;
+    }).join('') + `</div>`;
+    for (const ma of nhom.keys()) {
+      slots.push({ lbl: ma, val: 'sửa vật' });
+      ymItems.push(`<b>Quyết luật ${esc(ma)}</b> — làm gì: đọc mục ${esc(ma)} ở khối "Luật sản phẩm bị chạm"; máy khuyên «sửa vật»; trả lời dạng: «${esc(ma)}: sửa vật» hoặc «${esc(ma)}: chấp nhận có tên».`);
+    }
+  }
+  if (may.length) { slots.push({ lbl: 'Tệp luật', val: '___' }); ymItems.push(`<b>Tệp luật</b> — làm gì: tách thay đổi tệp luật thành commit riêng của chủ kho; trả lời dạng: «Tệp luật: <đã tách / lý do>».`); }
+  const nhanNgoai = f => {
+    const ma = [...new Set((`${f.title || ''} ${f.plain || ''} ${f.detail || ''}`.match(/\bSP-\d+\b/g) || []))].filter(m => theoMa(m));
+    return ma.map(m => `luật ${m} · ${MUC_CHU[theoMa(m).muc]}`).join(' · ');
+  };
+  return { chan: !!chanLuat(L), khoa: { co_tep: true, cham: (c && c.cham) || [], sua_tep_luat: c ? c.sua_tep_luat : null, chua_soi: chuaSoi }, html, co, slots, ymItems, nhanNgoai };
+}
+
+module.exports = { TEP_LUAT, MA_RE, MUC_CHU, LY_DO_LUAT, CO_LUAT, CO_LUAT_G2, banLuat, docLuat, docTepLuat, xetPhamLuat, maTheoTrich, theCong1, quet, docCham, ctxLuat, chanLuat, theCong2 };
+
+if (require.main === module) {
+  const a = process.argv.slice(2); const opt = n => { const i = a.indexOf(n); return i >= 0 ? a[i + 1] : null; };
+  const root = opt('--root') || '.'; const slug = opt('--slug');
+  if (a.includes('--quet')) {
+    const base = opt('--base'), den = opt('--den');
+    if (!slug || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(slug) || !base || !den) { process.stderr.write('luat-san-pham: --quet cần --slug <hồ sơ> --base <ref> --den <ref>\n'); process.exit(2); }
+    let o; try { o = quet({ root, base, den }); } catch (e) { process.stderr.write(`luat-san-pham: ${e.message}\n`); process.exit(2); }
+    if (o === null) { process.stdout.write('kho không khai luật\n'); process.exit(0); }
+    const txt = JSON.stringify(o, null, 1) + '\n';
+    if (a.includes('--write')) { fs.writeFileSync(path.join(root, '_acceptance', slug, 'luat-cham.json'), txt); process.stdout.write(`luat-cham.json: ${o.cham.length} chỗ chạm · máy sửa tệp luật ${o.sua_tep_luat.may.length} · chủ kho sửa ${o.sua_tep_luat.nguoi.length}\n`); }
+    else process.stdout.write(txt);
+    process.exit(0);
+  }
+  process.stderr.write('luat-san-pham: dùng --quet (hoặc --dem)\n'); process.exit(2);
+}

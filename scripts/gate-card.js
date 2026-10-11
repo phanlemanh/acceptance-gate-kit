@@ -1053,6 +1053,8 @@ const evComplete = machineRows.length > 0 && machineRows.every(r => { const e = 
 // KHÔNG qua key overlay, cùng luật với gap-probe: cái gì phải hiện trên thẻ thì
 // script render, để không thể quên hay điền sai.
 const ooc = outOfContract.parse(read(path.join(dir, 'review-findings.md')));
+// Luật sản phẩm của kho (bat-bien-san-pham): khối, ô, cờ rút ở luat-san-pham.cjs; kho không khai luật → null, thẻ y nguyên.
+let luatG2 = null; try { luatG2 = require('./luat-san-pham.cjs').theCong2({ root, slug, contractTxt: read(path.join(dir, 'contract.md')), evidenceTxt: read(path.join(dir, 'evidence-report.md')), esc }); } catch (_) { luatG2 = null; }
 
 // DỜI LÊN TRƯỚC --extract (hồ sơ loi-moi-cong-may-sinh, Task 6): câu gộp của
 // Cổng 2 cần biết hồ sơ có đi làn V không (ô cuối là dòng báo «đi tiếp hay kéo lại» hay
@@ -1096,7 +1098,7 @@ const MAY_THONG = (clean(cfm.status) || '').toLowerCase() === 'machine-cleared';
 // là đúng lớp lỗi hồ sơ này sinh ra để đóng. Nghỉ nghĩa là hồ sơ thôi chờ ai —
 // mời ký một hồ sơ đã cho nghỉ là mời người ký lại chính điều họ đã quyết dừng.
 const NGHI = (scanHit && scanHit.nghi) || null;
-const MAY_DI_TIEP = !scanBroken && scanState != null && (MAY_THONG || !!NGHI
+const MAY_DI_TIEP = !(luatG2 && luatG2.chan) && !scanBroken && scanState != null && (MAY_THONG || !!NGHI
   || ['may-di-tiep-veto-mo', 'may-di-tiep-xanh-sach',
       'da-giao-may-thong-veto-mo', 'da-giao-may-thong-xanh-sach'].includes(scanState));
 // Chữ cho trạng thái này: bộ quét trả khoá thì HỎI BẢNG; bộ quét mù (scanState null) thì
@@ -1113,6 +1115,7 @@ const chuMDT = () => (scanState == null ? CHU_MAY_THONG : trangThai.chu(scanStat
 // signoff dạy đúng những chữ đó, nên dòng này dán lại là chạy được (rà soát
 // Gate 1.5 rủi ro #1: in token máy thì owner dán vào vẫn tốn thêm một lượt).
 const oneParts = [], routingHoi = [], routingBao = [];
+if (luatG2) for (const x of luatG2.slots) { oneParts.push(`${x.lbl}: ${x.val}`); routingHoi.push(x.lbl); }   // luật sản phẩm: câu của người
 ooc.findings.forEach((f, fi) => {
   const lbl = 'Ngoài-' + (fi + 1);
   const g = f.proposal ? outOfContract.OOC_GLOSS_NGUOI[f.proposal] : '';
@@ -1179,7 +1182,7 @@ const yDinh = (() => {
   const dong = section(t, 'Vấn đề & ai gặp').filter(l => l.trim());
   return { feature: unquote(frontmatter(t).feature || ''), dong: dong.slice(0, Y_DINH_MAX), cat: dong.length > Y_DINH_MAX };
 })();
-if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
+if (EXTRACT) { return ghiRoiThoat(JSON.stringify({ gate: 2, feature, tier, verdict, approvable, one_shot: oneShotG2, routing: { hoi: routingHoi, bao: routingBao }, decisions: decisions.map(d => ({ id: d.id, gwt: d.q, rationale: d.why })), scope: oos, analyst: '', out_of_contract: { present: ooc.present, findings: ooc.findings, unclassified: ooc.unclassified, cluster: ooc.cluster, suspect_empty: ooc.suspect_empty }, decisions_approved: decsApproved.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, decision: e.decision, impact: e.impact })), decisions_provisional: decsProvisional.filter(e => !coBaVe(e)).map(e => ({ id: e.id, key: decKey(e), type: e.type, stage: e.stage, decision: e.decision, impact: e.impact })), decisions_broken: ledger.broken, ui_observed: uiObserved2, chot_may: { ac_khong: cm.ac_khong, ac_khong_mo: cm.ac_khong_mo, touched: cm.touched }, thuoc_vat: thuocVat, canh_gay: { trangThai: cg.trangThai, round: cg.round, muc: cg.muc, lech: cg.lech, daThuLai: cg.daThuLai, ...(cg.cay ? { cay: cg.cay } : {}) }, y_dinh: yDinh, luat: luatG2 ? luatG2.khoa : { co_tep: false }, ...(LR ? { loi_ra: LR } : {}) }, null, 2), 0); }
 
 const featurePlain = pl.feature_plain || feature;
 const plainDec = id => ((pl.decisions && pl.decisions.find(x => x.id === id)) || {}).q;
@@ -1275,6 +1278,7 @@ if (ooc.unclassified) {
     + `</div>`);
 }
 if (ooc.suspect_empty) P.push(`<div class="flag fwarn">⚠ ${esc(MSG_OOC_SUSPECT)}</div>`);
+if (luatG2) { for (const [c, t] of luatG2.co) P.push(`<div class="flag ${c}">${esc(t)}</div>`); if (luatG2.html) P.push(luatG2.html); }
 if (ooc.findings.length) {
   P.push(`<div class="lab">Ngoài hợp đồng — bạn quyết (${ooc.findings.length})</div>`);
   // T1 (khoi-tim-loi-tra-phi-theo-vat, 14/09): mục ngoài hợp đồng KHÔNG còn đi qua
@@ -1299,7 +1303,8 @@ if (ooc.findings.length) {
     // người quyết kinh doanh không đọc được (và judge sẽ chấm nhầm tài liệu).
     // Nhãn Ngoài-<n> là mã tra cứu (N3) — khối 👉 VIỆC CỦA ANH trỏ về nó.
     const q = f.plain ? f.plain : '(chưa có mô tả cho người đọc — xem review-findings.md)';
-    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}</p><p class="ai">${esc(rec)}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
+    const nhanL = luatG2 ? luatG2.nhanNgoai(f) : '';
+    P.push(`<div class="item"><p class="q">Ngoài-${fi + 1} · ${esc(q)}${nhanL ? ' · ' + esc(nhanL) : ''}</p><p class="ai">${esc(rec)}</p><div class="btns"><button class="b bn">ghi Known limits</button><button class="b bn">mở hợp đồng mới</button><button class="b no">nâng phạm vi sửa ngay</button></div></div>`);
   });
 }
 const yourCount = decisions.length + (oos.length ? 1 : 0);
@@ -1376,6 +1381,7 @@ if (DA_KHEP) {
   P.push(`<div class="lab">👉 VIỆC CỦA ANH</div><div class="grp gdo"><p class="li"><b>Hồ sơ đã khép (${DA_KHEP_VI}) — không còn câu hỏi nào cho người.</b> Mục ngoài hợp đồng ở trên giữ làm sử liệu; mở lại hồ sơ là một quyết định riêng.</p></div>`);
 } else {
   const ymItems = []; const ymSlots = [];
+  if (luatG2) for (const [i, x] of luatG2.slots.entries()) { ymItems.push(luatG2.ymItems[i]); ymSlots.push(`${x.lbl}: ${x.val === '___' ? '___' : x.val}`); }
   ooc.findings.forEach((f, fi) => {
     const lbl = 'Ngoài-' + (fi + 1);
     ymItems.push(`<b>Chọn hướng cho ${lbl}</b> — làm gì: đọc mục ${lbl} ở khối "Ngoài hợp đồng"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: «${lbl}: ghi Known limits» hoặc «${lbl}: mở hợp đồng mới» hoặc «${lbl}: nâng phạm vi sửa ngay».`);
