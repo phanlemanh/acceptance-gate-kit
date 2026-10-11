@@ -1,0 +1,10 @@
+{
+  "phien": "vang-a",
+  "loai": "tin-hieu",
+  "hang": null,
+  "noi_dung": {
+    "tieu_de": "apps/agent-okr/test/support/khoi-dong.ts giữ một khoá thư mục cho mỗi gốc eve (node_modules/.cache/crm-eve-khoa/<băm>/chu.json) để hai bài thử không dựng hai máy chủ eve dev trên cùng một gốc.",
+    "nhan": "giả — sinh từ crm 27d47de04"
+  },
+  "luc": "2026-10-09T10:00:00.000Z"
+}

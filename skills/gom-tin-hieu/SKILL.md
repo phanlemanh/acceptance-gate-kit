@@ -51,9 +51,17 @@ hiệu sai khuôn ở nguồn trước; tín hiệu sai khuôn không gom đư�
 
 1. **nhóm** — cùng một kết quả theo trục trên. Trùng lặp (cùng một điều, người khác nhau, chữ khác nhau)
    vào chung một nhóm. Nhóm mới đánh mã ngắn `G1`, `G2`…; mã chỉ cần duy nhất trong bản gom.
-2. **lẻ** — không thành một điều cần làm (câu hỏi cách dùng, lời cảm ơn, ý đã bác) — kèm lý do một câu.
-3. **đã phủ** — điều đó đã có việc ĐÃ GIAO làm xong (một hồ sơ trong `da_giao`) — ghi tên hồ sơ. Việc
-   đang làm dở KHÔNG phải đã phủ: tín hiệu vào nhóm, cắt lượt sẽ nối nó vào hàng đang làm.
+2. **lẻ** — không đòi sản phẩm thay đổi gì (câu hỏi cách dùng, lời cảm ơn, ý đã bác) — kèm lý do một câu.
+   Một sự cố vận hành LẶP LẠI được (hết hạn mức, máy đầy, một bước tay mỗi tuần) KHÔNG phải lẻ: kết quả
+   là «việc đó thôi chặn người» — vào nhóm. Chỉ sự cố một lần, đã gỡ xong và không đòi gì thêm mới là lẻ.
+3. **đã phủ** — tín hiệu nói ĐÚNG điều mà một việc ĐÃ GIAO (một hồ sơ trong `da_giao`) đã làm — ghi tên hồ
+   sơ. Trước khi ghi, đọc tiêu chí của hồ sơ đó (`_acceptance/<hồ sơ>/contract.md`): câu giao hay tiêu chí
+   phải nêu chính ca, chỗ hay điều tín hiệu nhắc. Tín hiệu báo một ca, một chỗ, một điều MỚI cùng loại với
+   việc đã giao (việc đã giao xong mà vấn đề vẫn xảy ra ở chỗ khác) là tín hiệu mới: vào nhóm. Việc đang
+   làm dở cũng KHÔNG phải đã phủ: tín hiệu vào nhóm, cắt lượt sẽ nối nó vào hàng đang làm.
+
+**Nghi thì vào nhóm, không vào đã phủ.** «Đã phủ» sai làm tín hiệu lọt khỏi lộ trình và báo người gửi
+«đã có việc làm xong» khi chưa xong; một nhóm thừa thì chủ kho gộp hay chuyển sang đã phủ trong một dòng.
 
 Không bỏ tín hiệu nào. Không chia một tín hiệu cho hai nhóm — tín hiệu nói hai điều thì đặt vào nhóm
 của điều chính và nêu điều kia trong tên nhóm hoặc một tín hiệu mới.

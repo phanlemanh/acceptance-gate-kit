@@ -136,21 +136,21 @@ evals:
   - id: E10
     criterion: AC-10
     executor: test
-    cmd: config:executors.test.tin_hieu
-    paths: [scripts/tin-hieu.mjs, _acceptance/cua-tin-hieu-gom-nhom/mau/**, _acceptance/cua-tin-hieu-gom-nhom/rang/**, tests/scripts/tin-hieu.test.mjs]
+    cmd: config:executors.test.tin_hieu_vang
+    paths: [scripts/tin-hieu.mjs, skills/gom-tin-hieu/SKILL.md, _acceptance/cua-tin-hieu-gom-nhom/mau/**, _acceptance/cua-tin-hieu-gom-nhom/rang/**, tests/scripts/tin-hieu.test.mjs]
     expected: >
-      exit 0; stdout có "PASS: TH-10" — kho thử dựng bằng mã từ mau/bo-vang.json (hồ sơ ở trạng thái của
-      crm be1324ba1, 20 tệp tín hiệu từ mau/tin-hieu/), mau/gom-bo-vang.md chép vào thư mục gom, bo-vang.json
-      commit trước bản gom; lệnh `node rang/cham-bo-vang.mjs --root <kho> --bo-vang <tệp> --gom <thư mục>`
-      thoát 0: --rang xanh; 10/10 cặp trùng ở chung một chỗ (in 10 dòng cặp → chỗ); 8 tín hiệu của 4 hồ sơ
-      đã giao ra «đã phủ» đúng hồ sơ; 12 tín hiệu còn lại ở nhóm. KÍN ĐÁP ÁN trên đúng kho thử đưa tác tử
-      (mau/kho-tac-tu/ hoặc bản dựng của nó): quét mọi byte mọi tệp tín hiệu → 0 slug nào của bo-vang.json,
-      0 tiêu đề trùng nguyên văn một câu giao của hồ sơ trong kho, bo-vang.json vắng (đối chứng dương: CÙNG
-      hàm quét thấy slug trong bo-vang.json); 20 mục bo-vang.json == 20 tệp mau/tin-hieu/*.json (id và
-      tieu_de đọc bằng bộ đọc thật). Bộ vàng thứ hai do mã sinh (3 cặp, 1 đã phủ) cùng lệnh chấm → thoát
-      0; đảo thứ tự commit (bản gom trước bo-vang.json) → thoát 1 nêu «khai trước». Và "PASS: TH-10-do" —
-      bản sao bản gom tách một cặp trùng: CHÍNH lệnh chấm trả lỗi nêu cặp đó; "PASS: TH-10-do2" — bản sao
-      bộ sinh giữ «sinh từ <slug>» trong nhãn: CHÍNH hàm quét kín đáp án trả lỗi nêu tên tệp.
+      exit 0; stdout có "PASS: TH-10-ong" — kho đưa phiên gom dựng bằng rang/dung-kho-tac-tu.mjs từ
+      mau/bo-vang.json (hồ sơ ở trạng thái crm be1324ba1, hợp đồng thật của hồ sơ đã giao ở mau/ho-so/, 20
+      tệp tín hiệu mau/tin-hieu/): KÍN ĐÁP ÁN — quetKin trên mọi byte mọi tệp tín hiệu → 0 tên hồ sơ của đáp
+      án, 0 tiêu đề trùng nguyên văn một câu giao trong kho, kho không có bo-vang.json (đối chứng dương:
+      CÙNG hàm quét thấy tên trong bo-vang.json); mọi tệp mang nhãn «giả»; 20 mục đáp án == 20 tệp (id +
+      tieu_de đọc bằng bộ đọc thật); bộ vàng thứ hai do mã sinh (3 cặp, 1 hồ sơ đã giao) qua lệnh
+      `rang/cham-bo-vang.mjs` → thoát 0, đảo thứ tự commit (bản gom trước đáp án) → thoát 1 nêu «khai trước».
+      Và "PASS: TH-10" — bản gom mau/gom-bo-vang.md do tác tử tươi chỉ cầm SKILL + khuôn + kho thử viết ra,
+      chấm bằng lệnh chấm: răng xanh; 10/10 cặp trùng chung một chỗ; tín hiệu của 4 hồ sơ đã giao ra «đã
+      phủ» đúng hồ sơ; tín hiệu còn lại ở nhóm (mỗi lệch in một dòng «TH-10: …»). Và "PASS: TH-10-do" —
+      bản gom tách một cặp trùng trên bộ vàng thứ hai (đang xanh): CHÍNH lệnh chấm nêu cặp đó; và
+      "PASS: TH-10-do2" — tệp tín hiệu giữ tên hồ sơ trong nhãn: CHÍNH phép quét kín nêu tên tệp.
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E11
     criterion: AC-11

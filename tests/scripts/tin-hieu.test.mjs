@@ -426,12 +426,82 @@ async function th9(kit) {
 if (want('TH-9') && await chayCa('TH-9', th9)) ok('TH-9', 'ba khối lệnh của SKILL chạy nguyên văn (xanh 0, đỏ 1); GOM-TRUC ket-qua; ba ngăn; thứ tự gom → commit → răng → cắt lượt; 0 câu cấm');
 if (want('TH-9-do')) await chayDo('TH-9-do', th9, [['skills/gom-tin-hieu/SKILL.md', 'node "$AG/scripts/tin-hieu.mjs" --root . --rang', 'node "$AG/scripts/tin-hieu.mjs" --root . --rangg']], 'GOM-RANG', 'bản sao SKILL gõ sai lệnh trong GOM-RANG');
 
-// ── TH-10: bộ vàng (AC-10) — thêm ở việc 8 ────────────────────────────────────
+// ── TH-10: bộ vàng (AC-10) ──────────────────────────────────────────────────
+// Vật đo ở hồ sơ: rang/sinh-bo-vang.mjs (bộ sinh) · rang/dung-kho-tac-tu.mjs (kho đưa phiên gom) ·
+// rang/cham-bo-vang.mjs (lệnh chấm, quetKin) · mau/ (đáp án, tín hiệu giả, hợp đồng thật, bản gom của phiên).
+// TH-10-ong (ống dẫn) chạy trong bộ kiểm chung. TH-10 (KẾT QUẢ lượt gom của skill so đáp án) chỉ chạy khi
+// gọi đích danh — executors.test.tin_hieu_vang — vì nó chấm một vật do mô hình viết một lần, không phải mã
+// của kit: đỏ ở đó là dữ liệu cho Cổng Bằng chứng, không được làm đỏ bộ kiểm chung của mọi PR.
 const HS = path.join(KIT, '_acceptance', 'cua-tin-hieu-gom-nhom');
-if (want('TH-10') && existsSync(path.join(HS, 'rang', 'th10.mjs'))) {
-  const { chayTh10 } = await import(pathToFileURL(path.join(HS, 'rang', 'th10.mjs')).href);
-  await chayTh10({ KIT, TMP, ok, bad, want, banSao, chayCa, chayDo, kho, tin, vietGom, th, git });
+const MAU = path.join(HS, 'mau');
+const goi = (r, ...a) => git(r, '-c', 'commit.gpgsign=false', ...a);
+async function khoCham(kit, { gomTxt, boVang, dapAnTruoc = true }) {
+  const { dungKho } = await import(pathToFileURL(path.join(HS, 'rang', 'dung-kho-tac-tu.mjs')).href);
+  const r = path.join(TMP, `cham-${++khoN}`); dungKho({ boVang: path.join(MAU, 'bo-vang.json'), tin: path.join(MAU, 'tin-hieu'), ra: r });
+  const dapAn = () => { mkdirSync(path.join(r, 'vang'), { recursive: true }); writeFileSync(path.join(r, 'vang', 'bo-vang.json'), JSON.stringify(boVang)); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'dap an'); };
+  const gom = () => { writeFileSync(path.join(r, 'docs', 'gom', 'gom-vang.md'), gomTxt); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'ban gom'); };
+  if (dapAnTruoc) { dapAn(); gom(); } else { gom(); dapAn(); }
+  return r;
 }
+async function th10ong(kit) {
+  const sai = [];
+  const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+  const { dungKho } = await import(pathToFileURL(path.join(HS, 'rang', 'dung-kho-tac-tu.mjs')).href);
+  const T = await nap(kit, 'scripts/tin-hieu.mjs');
+  const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
+  // Kín đáp án trên ĐÚNG kho đưa phiên gom.
+  const rT = dungKho({ boVang: path.join(MAU, 'bo-vang.json'), tin: path.join(MAU, 'tin-hieu'), ra: path.join(TMP, `tac-tu-${++khoN}`) });
+  const tepTin = readdirSync(path.join(rT, 'tin-hieu')).map(f => path.join(rT, 'tin-hieu', f));
+  const kin = C.quetKin({ root: rT, boVang: bv, tepTin }); if (kin.length) sai.push(`kín: ${kin.join(' ; ')}`);
+  if (!C.quetKin({ root: rT, boVang: bv, tepTin: [path.join(MAU, 'bo-vang.json')] }).length) sai.push('kín: đối chứng — phép quét không thấy tên hồ sơ ngay trong tệp đáp án');
+  if (!tepTin.every(f => JSON.parse(readFileSync(f, 'utf8')).noi_dung?.nhan?.startsWith('giả'))) sai.push('nhãn: có tệp tín hiệu không mang nhãn giả');
+  // 20 mục đáp án == 20 tệp tín hiệu, đọc bằng bộ đọc thật.
+  const doc = T.docTinHieu(MAU, ['tin-hieu']);
+  const a = bv.muc.map(m => `${m.id}|${m.tieu_de}`).sort(); const b2 = doc.tinHieu.map(x => `${x.id}|${x.tieu_de}`).sort();
+  if (doc.loi.length || a.length !== 20 || !deq(a, b2)) sai.push(`đáp án ↔ tệp: ${a.length} mục, ${b2.length} tín hiệu, lỗi ${doc.loi.length}`);
+  // Bộ vàng thứ hai do mã sinh: 3 cặp trùng + 1 hồ sơ đã giao — lệnh chấm không ghi cứng bộ vàng kit.
+  const t2 = [1, 2, 3, 4, 5, 6].map(i => tin(kit, i, { luc: LUC_TRUOC }));
+  const bv2 = { muc: t2.map((x, i) => ({ id: x.id, ho_so: i < 2 ? 'giao-x' : `hs-${Math.floor(i / 2)}` })), cap_trung: [[t2[0].id, t2[1].id], [t2[2].id, t2[3].id], [t2[4].id, t2[5].id]], da_giao: ['giao-x'] };
+  const gom2 = vietGom(kit, { nhom: [['G1', 'Kỹ sư một', [t2[2].id, t2[3].id]], ['G2', 'Kỹ sư hai', [t2[4].id, t2[5].id]]], phu: [[t2[0].id, 'giao-x'], [t2[1].id, 'giao-x']] });
+  const k2 = (truoc) => { const r = kho({ tins: t2, hoSo: { 'giao-x': 'signed-off', 'hs-1': 'draft' } }); const da = () => { mkdirSync(path.join(r, 'vang'), { recursive: true }); writeFileSync(path.join(r, 'vang', 'bv.json'), JSON.stringify(bv2)); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'dap an'); }; const gg = () => { mkdirSync(path.join(r, 'docs', 'gom'), { recursive: true }); writeFileSync(path.join(r, 'docs', 'gom', 'g.md'), gom2); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'gom'); }; if (truoc) { da(); gg(); } else { gg(); da(); } return r; };
+  const x1 = await C.cham({ root: k2(true), boVangTep: 'vang/bv.json', kit }); if (x1.thoat !== 0) sai.push(`bộ vàng hai: ${x1.dong.join(' ; ')}`);
+  const x2 = await C.cham({ root: k2(false), boVangTep: 'vang/bv.json', kit }); if (x2.thoat !== 1 || !x2.dong.some(l => l.includes('khai trước'))) sai.push(`khai trước: đảo thứ tự commit mà chấm thoát ${x2.thoat}`);
+  return { sai, bv2, gom2, k2, C };
+}
+if (want('TH-10-ong')) { try { const { sai } = await th10ong(KIT); if (sai.length) bad('TH-10-ong', sai.join(' ; ')); else ok('TH-10-ong', 'kho đưa phiên gom kín đáp án (đối chứng thấy tên trong đáp án); 20 mục == 20 tệp; lệnh chấm chạy trên bộ vàng thứ hai; đảo thứ tự commit → «khai trước»'); } catch (e) { bad('TH-10-ong', loi(e)); } }
+if (want('TH-10-do')) {
+  try {
+    const { sai, bv2, gom2, k2, C } = await th10ong(KIT); if (sai.length) { bad('TH-10-do', `bản lành chưa xanh: ${sai[0]}`); } else {
+      const r = k2(true); const tach = gom2.replace(`, \`${bv2.cap_trung[1][1]}\``, '') + vietGom(KIT, { nhom: [['G9', 'Tách ra', [bv2.cap_trung[1][1]]]] }).split('\n').filter(l => l.startsWith('- `') || l.startsWith('  - tín hiệu')).join('\n') + '\n';
+      writeFileSync(path.join(r, 'docs', 'gom', 'g.md'), tach); git(r, 'add', '-A'); goi(r, 'commit', '-qm', 'tach');
+      const x = await C.cham({ root: r, boVangTep: 'vang/bv.json', kit: KIT }); const g = x.dong.find(l => l.includes('cặp trùng tách') && l.includes(bv2.cap_trung[1][1]));
+      if (x.thoat === 1 && g) ok('TH-10-do', `bản gom tách một cặp trùng: lệnh chấm trả «${g.slice(0, 100)}»`); else bad('TH-10-do', `không bắt: ${JSON.stringify(x).slice(0, 200)}`);
+    }
+  } catch (e) { bad('TH-10-do', loi(e)); }
+}
+if (want('TH-10-do2')) {
+  try {
+    const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+    const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
+    const d = path.join(TMP, `ro-${++khoN}`); mkdirSync(d); const f0 = readdirSync(path.join(MAU, 'tin-hieu')).sort()[0];
+    const o = JSON.parse(readFileSync(path.join(MAU, 'tin-hieu', f0), 'utf8')); o.noi_dung.nhan = `giả — sinh từ ${Object.keys(bv.ho_so)[0]}`;
+    writeFileSync(path.join(d, f0), JSON.stringify(o));
+    const l = C.quetKin({ root: d, boVang: bv, tepTin: [path.join(d, f0)] });
+    if (l.some(x => x.includes(f0))) ok('TH-10-do2', `bộ sinh giữ tên hồ sơ trong nhãn: phép quét kín trả «${l[0].slice(0, 90)}»`); else bad('TH-10-do2', `không bắt: ${JSON.stringify(l)}`);
+  } catch (e) { bad('TH-10-do2', loi(e)); }
+}
+// KẾT QUẢ: chỉ khi gọi đích danh (executors.test.tin_hieu_vang).
+if (only.includes('TH-10')) {
+  try {
+    const C = await import(pathToFileURL(path.join(HS, 'rang', 'cham-bo-vang.mjs')).href);
+    const bv = JSON.parse(readFileSync(path.join(MAU, 'bo-vang.json'), 'utf8'));
+    const r = await khoCham(KIT, { gomTxt: readFileSync(path.join(MAU, 'gom-bo-vang.md'), 'utf8'), boVang: bv });
+    const x = await C.cham({ root: r, boVangTep: 'vang/bo-vang.json', kit: KIT });
+    for (const l of x.dong) console.log(`    TH-10: ${l.replace(r + '/', '')}`);
+    if (x.thoat === 0) ok('TH-10', 'bản gom của phiên trên bộ vàng: răng xanh, mọi cặp trùng chung chỗ, hồ sơ đã giao ra đã phủ, còn lại ở nhóm');
+    else bad('TH-10', `bản gom của phiên lệch đáp án ở ${x.dong.length} chỗ (xem các dòng TH-10 ở trên)`);
+  } catch (e) { bad('TH-10', loi(e)); }
+} else if (!only.length) console.log('  BỎ QUA: TH-10 — kết quả lượt gom của skill so bộ vàng chỉ chạy qua executors.test.tin_hieu_vang (chấm vật mô hình viết một lần, không làm đỏ bộ kiểm chung)');
 
 rmSync(TMP, { recursive: true, force: true });
 console.log(`\nResults: ${pass} passed, ${fail} failed (tin-hieu)`);
