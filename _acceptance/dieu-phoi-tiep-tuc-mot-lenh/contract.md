@@ -5,7 +5,7 @@ slug: dieu-phoi-tiep-tuc-mot-lenh
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, config, docs]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-11-dieu-phoi-tiep-tuc-mot-lenh-design.md
 approved_by:
 approved_at:
@@ -92,3 +92,9 @@ Phân loại:
   ghi thêm mã phiên») và chỗ 9 (§5 «không có nhịp sống quá 10′ → đẩy thông báo»).
 - Giới hạn đã khai: tin liên phiên đánh thức giám sát (§5) chưa đo được trong suite — CLI `danh-thuc` trả quyết định, lệnh người gửi tin. Ngưỡng: đợt thử crm (~26/10) có ≥1 lần `nhan-giam-sat` mà giám sát bắt đầu lượt mới; không có thì ghi hạt giống.
 - Giới hạn đã khai: kiểm «chỉ giám sát được ghi» chống nhầm, không chống giả — mã phiên là chuỗi tự khai.
+- **Known limits (Cổng Bằng chứng, ký 11/10, owner định tuyến «ghi Known limits»):** cấu hình đợt hỏng làm
+  chẩn đoán sập thay vì báo chỗ sai (Ngoài-1) · tệp nhịp hỏng làm lượt đánh thức thất bại im (Ngoài-3) ·
+  cách chọn hàng kế chép hai nơi (Ngoài-4) · chẩn đoán nuốt lỗi kế hoạch dãy (Ngoài-8) · thước lỏng ở
+  DP3-02 thieu-session và fixture ma trận dựng tay (Ngoài-9, Ngoài-10). Sổ: `docs/research/known-limits-ledger.tsv`.
+- **Mở hợp đồng mới (Cổng Bằng chứng, ký 11/10):** Ngoài-2, Ngoài-5, Ngoài-6, Ngoài-7 — ghi hạt giống
+  `docs/plans/2026-10-11-hat-giong-tiep-tuc-dieu-phoi-sau-dp3.md`, không tạo ô.
