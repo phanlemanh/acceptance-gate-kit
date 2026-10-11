@@ -1,6 +1,6 @@
 # Review findings: dieu-phoi-lop-mod
 
-Round 4, verified_commit 73effb7244c8da5253b70f1037c526b1e617dadd.
+Round 5, verified_commit 2ec584e75b9b2ddc226a2548a8d45a45e38fde5f.
 
 ## Trong hợp đồng
 
@@ -10,43 +10,61 @@ Không có finding nào trong hợp đồng ở round này.
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **card-plain.json: feature_plain vẫn hứa «không còn bị chặn oan khi … ghi tệp», trái với lần thu phạm vi AC-2. Lượt sửa r3 chỉ vá dòng AC-2/AC-3 mà không rà cả tệp**
+- **DP6-07 loi-nguyen và ten-ca-cu vẫn neo vào merge-base sống, trái mẫu «neo vào lịch sử» mà DP2-15, DP3-11 và DP7-10 đã dùng; lần này còn được giữ lại có chủ ý với lý do ngược**
+  Người dùng thấy gì: Hai phép kiểm bảo vệ phần lõi điều phối sẽ báo đỏ oan ở lần sửa hợp lệ kế tiếp của một vòng sau, bắt người làm vòng đó phải tự gỡ hay sửa phép kiểm trước khi gộp được. Còn ngay sau khi vòng này gộp lên nhánh chính thì chúng so với chính nó nên im lặng, tức không bảo vệ được gì.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: high
+  Đề xuất: known-limits
+
+- **DP6-07 loi-nguyen so với merge-base SỐNG: sau khi DP6 gộp, mọi PR sau đổi hợp lệ tests/dieu-phoi/loi/ hay dong-goi.test.mjs đều đỏ**
+  Người dùng thấy gì: Sau khi vòng này gộp, bất kỳ vòng điều phối nào sau đó sửa đúng đắn phần lõi sẽ bị chặn bởi một phép kiểm tự động báo đỏ dù không làm hỏng gì. Người làm vòng sau phải mất công tìm ra đó là báo động oan rồi mới gộp được.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: high
+  Đề xuất: known-limits
+
+- **Hình dạng 2 (fixture viết tay đúng khuôn bên đọc): đối chứng của DP6-03 moc-co-dinh là `git merge-base HEAD HEAD`, một hằng đúng-theo-định-nghĩa, không phải đầu ra của bộ giải merge-base sống**
+  Người dùng thấy gì: Phép kiểm xác nhận mốc so sánh đã được cố định chỉ chứng minh được điều đó sau khi gộp lên nhánh chính; trước lúc gộp nó luôn xanh kể cả khi ai đó quay lại cách cũ. Nếu có người làm hỏng chỗ này ở vòng sau thì lỗi chỉ lộ ra sau khi đã gộp, không bị chặn từ sớm.
+  file: `tests/dieu-phoi/lop-mod.test.mjs`
+  severity: medium
+  Đề xuất: known-limits
+
+- **card-plain.json: feature_plain vẫn hứa «không còn bị chặn oan khi … ghi tệp», trái với lần thu phạm vi AC-2. Lượt sửa r3 chỉ vá dòng AC-2/AC-3 mà không rà cả tệp (r4 · tệp đã đổi)**
   Người dùng thấy gì: Câu mở đầu của thẻ duyệt vẫn hứa phiên thợ không còn bị chặn oan khi ghi tệp, trong khi lệnh ghi nhiều dòng một lượt có nhắc tên script vẫn bị chặn như đã khai ở mục tiêu chí. Người duyệt có thể tin vào một lời hứa rộng hơn những gì sản phẩm thật sự làm được.
   file: `_acceptance/dieu-phoi-lop-mod/card-plain.json`
   severity: medium
   Đề xuất: known-limits
 
-- **DP6-07 khoa-prototype (và vế tương ứng của E7) kết luận «trong đợt vẫn bị chặn» chỉ từ mã thoát 2, trong khi chính commit này thêm một đường thoát 2 thứ hai (bộ phân loại ném → «lỗi nội bộ»)**
+- **DP6-07 khoa-prototype (và vế tương ứng của E7) kết luận «trong đợt vẫn bị chặn» chỉ từ mã thoát 2, trong khi chính commit này thêm một đường thoát 2 thứ hai (bộ phân loại ném → «lỗi nội bộ») (r4 · tệp đã đổi)**
   Người dùng thấy gì: Bài kiểm tra có thể báo xanh dù bộ chặn đang chặn vì lỗi nội bộ chứ không phải vì phiên khác đang giữ lượt. Nếu lỗi cũ quay lại, phần kiểm tra này không tự phát hiện được, dù phần kiểm tra trực tiếp ở nửa đầu vẫn bắt.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **DP6-07 phan-loai-nem là chỗ saoGoi() duy nhất trong tệp không có bước «bản lành phải xanh trước», trái với khuôn tệp tự khai ở đầu tệp và luật đối chứng dương**
+- **DP6-07 phan-loai-nem là chỗ saoGoi() duy nhất trong tệp không có bước «bản lành phải xanh trước», trái với khuôn tệp tự khai ở đầu tệp và luật đối chứng dương (r4 · tệp đã đổi)**
   Người dùng thấy gì: Một bài kiểm tra chưa chạy thử trường hợp bình thường trước khi giả lập lỗi, lệch với cách các bài khác trong cùng tệp làm. Rủi ro thực tế thấp vì thông báo lỗi đã chứng minh việc giả lập có tác dụng.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **DP6-03 lech-o-goc lấy «bản cũ» từ merge-base SỐNG nên đỏ trên main ngay khi gộp (còn từ r1, tệp đã đổi lượt này)**
+- **DP6-03 lech-o-goc lấy «bản cũ» từ merge-base SỐNG nên đỏ trên main ngay khi gộp (còn từ r1, tệp đã đổi lượt này) (r4 · tệp đã đổi)**
   Người dùng thấy gì: Sau khi gộp vào nhánh chính, một bài kiểm tra so sánh với «bản cũ» sẽ tự đỏ vì lúc đó bản cũ chính là bản mới, làm kiểm tra tự động của nhánh chính báo lỗi dù mã không hỏng. Một bài so sánh liên quan còn tự so với chính nó nên không đo được gì.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: high
   Đề xuất: new-contract
 
-- **`env -S'<lệnh>'` (giá trị dính liền cờ -S) lọt bộ phân loại: S4 chạy mà hook trả null**
+- **`env -S'<lệnh>'` (giá trị dính liền cờ -S) lọt bộ phân loại: S4 chạy mà hook trả null (r4)**
   Người dùng thấy gì: Một cách viết lệnh hiếm (đặt chuỗi lệnh dính liền ngay sau cờ của env) có thể qua mặt bộ chặn, khiến việc kiểm duyệt chạy dù đang có phiên khác giữ lượt. Phiên thợ ít khi viết dạng này nên rủi ro thấp.
   file: `dieu-phoi/scripts/phan-loai-s4.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4 (assertion chỉ có mã thoát, không ghim thông điệp): DP6-07 khoa-prototype chỉ kiểm hook thoát 2 trong đợt, mà hook có hai đường cùng thoát 2**
+- **Hình dạng 4 (assertion chỉ có mã thoát, không ghim thông điệp): DP6-07 khoa-prototype chỉ kiểm hook thoát 2 trong đợt, mà hook có hai đường cùng thoát 2 (r4 · tệp đã đổi)**
   Người dùng thấy gì: Phần kiểm tra bộ chặn trong đợt có thể báo xanh cả khi bản vá bị gỡ, vì bộ chặn vẫn chặn được nhưng với lý do lỗi nội bộ. Việc phát hiện lỗi cũ quay lại chỉ trông vào phần kiểm tra trực tiếp ở nửa đầu.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Hình dạng 5 (tuyên quét LỚP nhưng danh sách gõ tay thiếu phần tử): TU_PROTOTYPE chỉ có 6 trong 12 khoá của Object.prototype**
+- **Hình dạng 5 (tuyên quét LỚP nhưng danh sách gõ tay thiếu phần tử): TU_PROTOTYPE chỉ có 6 trong 12 khoá của Object.prototype (r4 · tệp đã đổi)**
   Người dùng thấy gì: Bài kiểm tra chỉ thử sáu trong mười hai tên đặc biệt của hệ thống. Nếu cách sửa sau này chỉ chặn đúng sáu tên đó, bài vẫn xanh trong khi sáu tên còn lại có thể làm bộ chặn gặp lỗi mà không ai biết.
   file: `tests/dieu-phoi/lop-mod.test.mjs`
   severity: low
@@ -88,7 +106,7 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-- **Bản vá «cờ mang giá trị của shell» chỉ sửa một trong hai bộ đọc argv bash cùng tệp; `bash -o pipefail -c '<S4>'` vẫn lọt (r2 · tệp đã đổi)**
+- **Bản vá «cờ mang giá trị của shell» chỉ sửa một trong hai bộ đọc argv bash cùng tệp; `bash -o pipefail -c '<S4>'` vẫn lọt (r2)**
   Người dùng thấy gì: Nếu lệnh chạy kiểm định S4 được gõ qua bash kèm tuỳ chọn như pipefail, chốt chặn không nhận ra nó, nên hai dãy việc vẫn có thể chạy S4 cùng lúc dù một dãy đang giữ lượt. Lỗi này có từ trước vòng này, không phải do vòng này gây ra.
   file: `dieu-phoi/scripts/phan-loai-s4.mjs`
   severity: medium
@@ -100,19 +118,19 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-- **Cùng lớp với lượt sửa R1 mà chưa vá: phanLoaiTu coi giá trị của -o/-O/--rcfile là tệp script, nên `bash -o pipefail -c '…'` lọt (r2 · tệp đã đổi)**
+- **Cùng lớp với lượt sửa R1 mà chưa vá: phanLoaiTu coi giá trị của -o/-O/--rcfile là tệp script, nên `bash -o pipefail -c '…'` lọt (r2)**
   Người dùng thấy gì: Một số cách gõ lệnh chạy kiểm định S4 qua bash kèm tuỳ chọn (ví dụ pipefail) vẫn đi qua chốt chặn, nên có thể có hai dãy chạy S4 trùng nhau mà không bị cản. Đây là chỗ hở có sẵn từ trước, vòng này chưa đóng nó.
   file: `dieu-phoi/scripts/phan-loai-s4.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Dấu đóng heredoc có nháy chứa dấu cách làm lệch trạng thái nháy và nuốt phần còn lại của lệnh (r2 · tệp đã đổi)**
+- **Dấu đóng heredoc có nháy chứa dấu cách làm lệch trạng thái nháy và nuốt phần còn lại của lệnh (r2)**
   Người dùng thấy gì: Với một kiểu viết khối lệnh rất hiếm (dấu kết thúc có chứa khoảng trắng), chốt chặn đọc sai và bỏ sót lệnh chạy S4 nằm phía sau, nên lệnh đó đi qua dù một dãy khác đang giữ lượt. Rất ít gặp trong thực tế.
   file: `dieu-phoi/scripts/phan-loai-s4.mjs`
   severity: low
   Đề xuất: known-limits
 
-- **doThongDich bỏ qua `env -S '<shell>'`, nên thân heredoc đưa cho shell qua env -S thành dữ liệu (r2 · tệp đã đổi)**
+- **doThongDich bỏ qua `env -S '<shell>'`, nên thân heredoc đưa cho shell qua env -S thành dữ liệu (r2)**
   Người dùng thấy gì: Khi nội dung lệnh được đưa cho một shell thông qua lớp bọc đặc biệt của env, chốt chặn coi nội dung đó là dữ liệu và không chặn, dù shell vẫn chạy nó. Trường hợp này rất hiếm, hậu quả là một lệnh S4 có thể chạy trong lúc dãy khác đang giữ lượt.
   file: `dieu-phoi/scripts/phan-loai-s4.mjs`
   severity: low
@@ -142,7 +160,7 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-- **`#` đứng ngay sau `)` / `))` bị coi là mở chú thích, nuốt phần còn lại của dòng: lọt lệnh S4 phía sau (r1 · tệp đã đổi)**
+- **`#` đứng ngay sau `)` / `))` bị coi là mở chú thích, nuốt phần còn lại của dòng: lọt lệnh S4 phía sau (r1)**
   Người dùng thấy gì: Một dạng lệnh hiếm, có dấu # dính liền sau dấu ngoặc đóng, bị hiểu nhầm là chú thích nên phần lệnh phía sau lọt qua khoá. Khi đó hai phiên có thể cùng chạy một việc lẽ ra phải chờ lượt.
   file: `dieu-phoi/scripts/phan-loai-s4.mjs`
   severity: low
