@@ -6,7 +6,7 @@ import path from 'node:path';
 import { PHUT_MS } from './cau-hinh.mjs';
 import { docJson, ghiJsonNguyenTu, ghiSuKien, phienCuaCwd, timThuMucDot } from './dot.mjs';
 import { docCauHinh, docHangViec } from './hinh-dang.mjs';
-import { MAC_DINH_HAN_MUC } from './han-muc.mjs';
+import { MAC_DINH_HAN_MUC, lanDocHieuLuc } from './han-muc.mjs';
 import { mucDay } from './muc-day.mjs';
 import { datPha, docPha } from './pha.mjs';
 import { bayGio, docNhipSong } from './song.mjs';
@@ -144,4 +144,64 @@ export function buocBanGiao(thuMuc, { nowMs = null, cuongBuc = false } = {}) {
     return { pha: 'cho-tiep-tuc', dung: true, ban_giao: bg };
   }
   return { pha: dk.pha, dung: true, ban_giao: bg };
+}
+
+// Bàn giao gần nhất: `ban-giao.json` đang mở, không có thì bản mới nhất trong `ban-giao/lich-su/` (theo tiep_tuc_luc).
+// Kế hoạch dãy đọc nó để biết phiên nào đã bàn giao (design chỗ chọn 12).
+export function banGiaoGanNhat(thuMuc) {
+  try {
+    const mo = docJson(path.join(thuMuc, TEP_BAN_GIAO), null);
+    if (mo?.ma && Array.isArray(mo.day)) return mo;
+  } catch {}
+  const d = path.join(thuMuc, DIR_BAN_GIAO, 'lich-su');
+  if (!fs.existsSync(d)) return null;
+  let moiNhat = null;
+  for (const f of fs.readdirSync(d).filter((x) => x.endsWith('.json'))) {
+    let du = null;
+    try {
+      du = docJson(path.join(d, f), null);
+    } catch {
+      du = null;
+    }
+    if (!du?.ma || !Array.isArray(du.day)) continue;
+    if (!moiNhat || String(du.tiep_tuc_luc ?? '') > String(moiNhat.tiep_tuc_luc ?? '')) moiNhat = du;
+  }
+  return moiNhat;
+}
+
+// Rời hai pha ★ (§4.2 bước 1 và 6, design chỗ chọn 1, 10): đòi một lần đọc hiệu lực CỦA PHIÊN GỌI; vượt ngưỡng báo
+// trước thì khuyên chờ, không chuyển; đang bàn giao thì hoàn tất bàn giao (cưỡng bức) trước; rồi chuyển bàn giao vào
+// lịch sử — kèm các dấu thợ chết vì hạn mức — và về đúng pha trước bàn giao qua cho-tiep-tuc.
+export function roiBanGiao(thuMuc, { phien, nowMs = null }) {
+  const now = bayGio(nowMs);
+  const dk = docPha(thuMuc);
+  if (dk.pha !== 'dang-ban-giao' && dk.pha !== 'cho-tiep-tuc') return { pha: dk.pha };
+  const hanMuc = cfgCua(thuMuc).han_muc ?? MAC_DINH_HAN_MUC;
+  const cuaPhien = lanDocHieuLuc(thuMuc, { nowMs: now }).tuoi.filter((l) => l.phien === phien).at(-1);
+  if (!cuaPhien) return { pha: dk.pha, can_doc_han_muc: true };
+  const vuot = Object.entries(cuaPhien.cua_so).find(([, w]) => w.pct >= hanMuc.bao_truoc_pct && !(w.dat_lai && Date.parse(w.dat_lai) <= now));
+  if (vuot) return { pha: dk.pha, khuyen_cho: { cua_so: vuot[0], pct: vuot[1].pct, dat_lai: vuot[1].dat_lai } };
+  if (dk.pha === 'dang-ban-giao') buocBanGiao(thuMuc, { nowMs: now, cuongBuc: true });
+  const phaTruoc = docPha(thuMuc).ban_giao?.pha_truoc ?? 'dang-chay';
+  const p = path.join(thuMuc, TEP_BAN_GIAO);
+  const bg = docJson(p, null);
+  const dDau = path.join(thuMuc, DIR_BAN_GIAO, 'dau');
+  const dau = fs.existsSync(dDau)
+    ? fs.readdirSync(dDau).filter((f) => f.endsWith('.json')).sort().flatMap((f) => {
+      try {
+        return [docJson(path.join(dDau, f), null)];
+      } catch {
+        return [];
+      }
+    })
+    : [];
+  if (bg) {
+    ghiJsonNguyenTu(path.join(thuMuc, DIR_BAN_GIAO, 'lich-su', `${bg.ma}.json`), { ...bg, trang_thai: 'da-tiep-tuc', tiep_tuc_luc: new Date(now).toISOString(), tiep_tuc_boi: phien, dau });
+    fs.rmSync(p, { force: true });
+  }
+  fs.rmSync(dDau, { recursive: true, force: true });
+  fs.rmSync(path.join(thuMuc, DIR_BAN_GIAO, 'xong'), { recursive: true, force: true });
+  datPha(thuMuc, phaTruoc, { boi: 'tiep-tuc', lyDo: `tiếp tục sau bàn giao ${bg?.ma ?? ''}`.trim(), nowMs: now });
+  ghiSuKien(thuMuc, { loai: 'tiep-tuc-ban-giao', ma: bg?.ma ?? null, phien });
+  return { pha: phaTruoc, ban_giao: { ma: bg?.ma ?? null, trang_thai: 'da-tiep-tuc' } };
 }

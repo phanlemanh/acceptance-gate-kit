@@ -6,6 +6,8 @@ import path from 'node:path';
 import { docJson, timThuMucDot } from './dot.mjs';
 import { docHangViec } from './hinh-dang.mjs';
 import { docPha } from './pha.mjs';
+import { banGiaoGanNhat, roiBanGiao } from './ban-giao.mjs';
+import { mucDay } from './muc-day.mjs';
 import { conSong, coThuMucSong, nhipMoiNhatCua } from './song.mjs';
 import { ghiThucLuc, laGiamSat, nhanVaiGiamSat } from './vai.mjs';
 
@@ -40,16 +42,12 @@ const laThuMuc = (p) => {
   }
 };
 
-function slugKe(thuMuc, hangViec, day) {
-  const tiep = docJson(path.join(thuMuc, 'tiep', `${day}.json`), null);
-  if (tiep?.hang) return tiep.hang;
-  const cua = (hangViec.hang ?? []).filter((h) => h.day === day).sort((a, b) => (a.uu_tien ?? 99) - (b.uu_tien ?? 99));
-  return cua[0]?.slug ?? null;
-}
-
 // Hành động của MỘT dãy. Thứ tự xét: worktree mất → giữ khoá → chờ người → nhịp sống → đợt chưa có nhịp → chip.
-function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs }) {
-  const nhip = nhipMoiNhatCua(thuMuc, d.worktree);
+// DP4 (design chỗ chọn 12): `bgGan` = bàn giao gần nhất; nhịp của các phiên đã bàn giao dãy không tính là phiên sống.
+function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs, bgGan = null }) {
+  const mucBg = bgGan?.day?.find((m) => m.id === d.id) ?? null;
+  const phienCu = new Set(mucBg?.ban_giao === 'xong' ? mucBg.phien_cu ?? [] : []);
+  const nhip = nhipMoiNhatCua(thuMuc, d.worktree, { boQua: phienCu });
   const nen = { day: d.id, worktree: d.worktree, song: conSong(nhip, nowMs) ? nhip.phien : null };
   const giuKhoa = khoaGiu.has(d.id);
   const conCho = coTep(thuMuc, 'xin', `${d.id}-`).length > 0
@@ -59,11 +57,16 @@ function xetDay(thuMuc, d, { hangViec, coSong, khoaGiu, nowMs }) {
   if (fs.existsSync(path.join(thuMuc, 'cho-nguoi', `${d.id}.json`))) return { ...nen, hanh_dong: HANH_DONG.choNguoi };
   if (nen.song) return { ...nen, hanh_dong: conCho ? HANH_DONG.nhanGiangLai : HANH_DONG.khong };
   if (!coSong) return { ...nen, hanh_dong: HANH_DONG.chuaBiet };
-  const slug = slugKe(thuMuc, hangViec, d.id);
+  // Lời ghi danh dựng từ MỘT hàm mục dãy (git + thư mục đợt, dùng chung với ban-giao.json), cộng lớp phủ bàn giao.
+  const m = mucDay(thuMuc, d, { hangViec, maBanGiao: bgGan?.ma ?? null });
+  const slug = m.slug;
+  const phu = mucBg ? ` · bàn giao ${bgGan.ma}: ${mucBg.ban_giao}${mucBg.co_wip ? ' (có commit WIP)' : ''}` : '';
   return {
     ...nen,
     hanh_dong: HANH_DONG.moChip,
-    ghi_danh: `thư mục đợt ${thuMuc} · dãy ${d.id} · worktree ${d.worktree} · đọc LUAT.md trước S1 · ${slug ? `/feature-loop:feature-loop ${slug}` : 'dãy chưa có hàng kế — hỏi giám sát'}`,
+    da_ban_giao: phienCu.size > 0,
+    muc: m,
+    ghi_danh: `thư mục đợt ${thuMuc} · dãy ${d.id} · worktree ${d.worktree} · nhánh ${m.nhanh ?? '?'} @ ${(m.dinh ?? '').slice(0, 7)}${slug ? ` · hồ sơ ${slug} (${m.trang_thai_ho_so ?? 'chưa có'})` : ''}${phu} · đọc LUAT.md trước S1 · ${slug ? `/feature-loop:feature-loop ${slug}` : 'dãy chưa có hàng kế — hỏi giám sát'}`,
   };
 }
 
@@ -78,7 +81,7 @@ export function keHoachDay(thuMuc, { nowMs = null } = {}) {
       if (chu?.phien) khoaGiu.add(chu.phien);
     }
   }
-  const nguCanh = { hangViec, coSong: coThuMucSong(thuMuc), khoaGiu, nowMs };
+  const nguCanh = { hangViec, coSong: coThuMucSong(thuMuc), khoaGiu, nowMs, bgGan: banGiaoGanNhat(thuMuc) };
   return hangViec.day.map((d) => {
     const ket = xetDay(thuMuc, d, nguCanh);
     return { ...ket, viec: VIEC_HANH_DONG[ket.hanh_dong] };
@@ -95,7 +98,10 @@ export function tiepTuc(cwd, { phien, nhe = false, nowMs = null, chay = null }) 
     ghiThucLuc(thuMuc, phien, { nowMs });
   }
   const vaiDoi = nhe ? false : nhanVaiGiamSat(thuMuc, { phien, worktree: cwd, nowMs }).doi;
+  // DP4 (§4.2 bước 1, 6): rời hai pha ★ khi có lần đọc mức dùng của chính phiên này và tài khoản chưa vượt ngưỡng báo trước.
+  const roi = nhe ? {} : roiBanGiao(thuMuc, { phien, nowMs });
   const pha = docPha(thuMuc).pha;
   const phatLich = pha === 'nhap' || !chay ? 'khong-chay' : chay(cwd);
-  return { dot: thuMuc, thoi_vai: false, vai_doi: vaiDoi, pha, phat_lich: phatLich, ke_hoach: keHoachDay(thuMuc, { nowMs }) };
+  const { pha: _p, ...thongTinRoi } = roi;
+  return { dot: thuMuc, thoi_vai: false, vai_doi: vaiDoi, pha, phat_lich: phatLich, ...thongTinRoi, ke_hoach: keHoachDay(thuMuc, { nowMs }) };
 }

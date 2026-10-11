@@ -655,4 +655,176 @@ test('DP4-06 cung-ham', async () => {
   const quaNhip = docJ(tepBg(k.dot));
   const bo = ({ luc: _l, ...con }) => con;
   assert.deepEqual(bo(quaNhip), bo(quaCli));
+  // Lời ghi danh của tiep-tuc cho P2 (không phiên sống → mo-chip) mang mục dãy của CÙNG hàm.
+  chayHook('PostToolUse', { session_id: 's-gs' }, { cwd: k.kho, nowMs: T + 20 * PHUT });
+  const keHoach = (await nap(GOI, 'tiep-tuc.mjs')).keHoachDay(k.dot, { nowMs: T + 21 * PHUT });
+  const p2 = keHoach.find((x) => x.day === 'P2');
+  assert.equal(p2.hanh_dong, 'mo-chip');
+  const CHUNG = ['hang', 'slug', 'trang_thai_ho_so', 'nhanh', 'dinh', 'da_day', 'co_wip'];
+  const lay = (o) => Object.fromEntries(CHUNG.map((x) => [x, o[x]]));
+  console.log(`  P2 ghi danh: ${JSON.stringify(lay(p2.muc))}`);
+  assert.deepEqual(lay(p2.muc), lay(quaNhip.day.find((m) => m.id === 'P2')));
+});
+
+// ---------- DP4-07: tiếp tục sau bàn giao (AC-7, E7) ----------
+const docB = (kho, p5, gio, gocGoi = GOI) => {
+  const du = { windows: [{ label: '5-hour limit', percentUsed: p5, resetsAt: ISO(T + 180 * PHUT) }, { label: 'Weekly · all models', percentUsed: 10, resetsAt: ISO(T + 3000 * PHUT) }] };
+  const r = chayCli(kho, ['han-muc', '--nguon', 'get-usage', '--phien', 'B', '--doc', JSON.stringify(du)], { gocGoi, env: envGio(gio) });
+  assert.equal(r.ma, 0, r.err);
+};
+// Dựng một hàng: `pha` ★ đích, `phaTruoc`, trạng thái P2 ('xong' | 'chua' | 's4-song'), mức B đọc (null = không đọc).
+async function hangTiepTuc({ pha, phaTruoc = 'dang-chay', p2 = 'xong', p5B = 30 }, gocGoi = GOI) {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
+  const k = khoLienKet({ gocGoi });
+  hoSoThu(k.w2, 'hang-b', 'implemented');
+  if (phaTruoc === 'tam-dung') assert.equal(chayCli(k.kho, ['pha', 'tam-dung', '--boi', 't'], { gocGoi }).ma, 0);
+  assert.equal(chayCli(k.kho, ['ban-giao', '--ly-do', 'thu'], { gocGoi, env: envGio(T) }).ma, 0);
+  assert.equal(chayCli(k.w1, ['ban-giao-xong'], { gocGoi, env: envGio(T + PHUT) }).ma, 0);
+  if (p2 === 'xong') assert.equal(chayCli(k.w2, ['ban-giao-xong'], { gocGoi, env: envGio(T + PHUT) }).ma, 0);
+  if (p2 === 's4-song') giuS4(k.dot, 'P2', k.w2, T + 4 * PHUT);
+  ghiJ(path.join(k.dot, 'ban-giao', 'dau', 'P1.json'), { day: 'P1', phien: 's-p1', luc: ISO(T + 2 * PHUT), loi: 'rate_limit', wip: null, luot_do: false });
+  if (pha === 'cho-tiep-tuc') {
+    await motNhip(k.dot, T + 5 * PHUT, gocGoi);
+    assert.equal(dk(k.dot).pha, 'cho-tiep-tuc', 'fixture: nhịp thật dựng bàn giao');
+  }
+  if (p5B != null) docB(k.kho, p5B, T + 6 * PHUT, gocGoi);
+  return k;
+}
+function tiepTucB(k, gocGoi = GOI) {
+  const r = chayCli(k.kho, ['tiep-tuc', '--phien', 'B', '--json'], { gocGoi, env: envGio(T + 7 * PHUT) });
+  chayCli(k.kho, ['dung'], { gocGoi });
+  return r;
+}
+const tepLichSu = (dot) => {
+  const d = path.join(dot, 'ban-giao', 'lich-su');
+  return fs.existsSync(d) ? fs.readdirSync(d).filter((f) => f.endsWith('.json')).sort() : [];
+};
+const MA_TRAN_TT = [
+  ['a', { pha: 'cho-tiep-tuc', p5B: null }, (k, kq) => kq.can_doc_han_muc === true && dk(k.dot).pha === 'cho-tiep-tuc'],
+  ['b', { pha: 'cho-tiep-tuc', p5B: 85 }, (k, kq) => kq.khuyen_cho?.cua_so === 'five_hour' && kq.khuyen_cho?.dat_lai === ISO(T + 180 * PHUT) && dk(k.dot).pha === 'cho-tiep-tuc'],
+  ['c', { pha: 'cho-tiep-tuc' }, (k, kq, bgCu) => {
+    const ls = tepLichSu(k.dot);
+    if (ls.length !== 1) return false;
+    const h = docJ(path.join(k.dot, 'ban-giao', 'lich-su', ls[0]));
+    const { trang_thai: _t, tiep_tuc_luc: _l, tiep_tuc_boi: boi, dau, ...con } = h;
+    const { trang_thai: _t2, ...cu } = bgCu;
+    return JSON.stringify(con) === JSON.stringify(cu) && h.trang_thai === 'da-tiep-tuc' && boi === 'B' && dau.some((x) => x.day === 'P1')
+      && !fs.existsSync(path.join(k.dot, 'ban-giao.json')) && !(fs.existsSync(path.join(k.dot, 'ban-giao', 'dau')) && fs.readdirSync(path.join(k.dot, 'ban-giao', 'dau')).length)
+      && dk(k.dot).pha === 'dang-chay' && /chạy bộ phát lịch|đang chạy/.test(String(kq.phat_lich));
+  }],
+  ['d', { pha: 'cho-tiep-tuc', phaTruoc: 'tam-dung' }, (k) => dk(k.dot).pha === 'tam-dung' && tepLichSu(k.dot).length === 1],
+  ['e', { pha: 'dang-ban-giao' }, (k) => {
+    const ls = dk(k.dot).lich_su.slice(-2).map((x) => x.pha);
+    return tepLichSu(k.dot).length === 1 && dk(k.dot).pha === 'dang-chay' && JSON.stringify(ls) === JSON.stringify(['cho-tiep-tuc', 'dang-chay']);
+  }],
+  ['f', { pha: 'dang-ban-giao', phaTruoc: 'tam-dung', p2: 'chua' }, (k) => {
+    const ls = tepLichSu(k.dot);
+    return ls.length === 1 && docJ(path.join(k.dot, 'ban-giao', 'lich-su', ls[0])).day.find((m) => m.id === 'P2').ban_giao === 'do' && dk(k.dot).pha === 'tam-dung';
+  }],
+  ['g', { pha: 'dang-ban-giao', p2: 's4-song' }, (k, kq, bgCu, bamKhoa) => {
+    const ls = tepLichSu(k.dot);
+    return ls.length === 1 && docJ(path.join(k.dot, 'ban-giao', 'lich-su', ls[0])).day.find((m) => m.id === 'P2').ban_giao === 'dang-xong'
+      && bamTep(path.join(k.dot, 'khoa', 's4', 'chu.json')) === bamKhoa && dk(k.dot).pha === 'dang-chay';
+  }],
+];
+async function chayHangTt([nhan, cfg, kiem], gocGoi = GOI) {
+  const k = await hangTiepTuc(cfg, gocGoi);
+  const bgCu = fs.existsSync(path.join(k.dot, 'ban-giao.json')) ? docJ(path.join(k.dot, 'ban-giao.json')) : null;
+  const pKhoa = path.join(k.dot, 'khoa', 's4', 'chu.json');
+  const bamKhoa = fs.existsSync(pKhoa) ? bamTep(pKhoa) : null;
+  const r = tiepTucB(k, gocGoi);
+  let kq = {};
+  try { kq = JSON.parse(r.out); } catch { kq = {}; }
+  const vai = docJ(path.join(k.dot, 'vai.json'));
+  const nhanVai = vai.lich_su.some((x) => x.phien === 's-gs' && x.thoi_luc) && vai.giam_sat.phien === 'B';
+  const ok = r.ma === 0 && nhanVai && kiem(k, kq, bgCu, bamKhoa);
+  return { nhan, ok, chi: `${r.ma} · pha ${dk(k.dot).pha} · ${r.err.trim().slice(0, 120)}`, k };
+}
+
+test('DP4-07 tiep-tuc', async () => {
+  const kq = [];
+  for (const hang of MA_TRAN_TT) kq.push(await chayHangTt(hang));
+  const lan2 = kq.find((x) => x.nhan === 'c').k;
+  const bamDk = bamTep(path.join(lan2.dot, 'dieu-khien.json'));
+  const soLs = tepLichSu(lan2.dot).length;
+  const r = tiepTucB(lan2);
+  kq.push({ nhan: 'h', ok: r.ma === 0 && tepLichSu(lan2.dot).length === soLs && bamTep(path.join(lan2.dot, 'dieu-khien.json')) === bamDk, chi: `${r.ma}` });
+  console.log(kq.map((x) => `  (${x.nhan}) · ${x.ok ? 'đúng' : 'SAI'} · ${x.chi}`).join('\n'));
+  assert.equal(kq.length, 8);
+  assert.deepEqual(kq.filter((x) => !x.ok).map((x) => x.nhan), []);
+});
+
+test('DP4-07-do goi-thang', async () => {
+  const sao = tam('dp4-goi-');
+  fs.cpSync(GOI, sao, { recursive: true });
+  const p = path.join(sao, 'scripts', 'ban-giao.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace("  if (dk.pha === 'dang-ban-giao') buocBanGiao(thuMuc, { nowMs: now, cuongBuc: true });", "  if (dk.pha === 'dang-ban-giao') datPha(thuMuc, dk.ban_giao.pha_truoc, { boi: 'tiep-tuc', nowMs: now });");
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const f = await chayHangTt(MA_TRAN_TT.find((h) => h[0] === 'f'), sao);
+  console.log(`  (f) trên bản tiêm: ${f.ok ? 'đúng' : 'SAI'} · ${f.chi}`);
+  assert.equal(f.ok, false);
+  assert.match(f.chi, /không có trong bảng chuyển/);
+});
+
+// ---------- DP4-08: phiên đã bàn giao không tính sống (AC-8, E8) ----------
+async function dotPhienCu(gocGoi = GOI) {
+  process.env.DIEU_PHOI_MAY_DIR = tam('dp4-may-');
+  const k = khoLienKet({ gocGoi });
+  chayHook('PostToolUse', { session_id: 's-cu' }, { cwd: k.w1, nowMs: T + 30_000, gocGoi });
+  assert.equal(chayCli(k.kho, ['ban-giao', '--ly-do', 'thu'], { gocGoi, env: envGio(T) }).ma, 0);
+  assert.equal(chayCli(k.w1, ['ban-giao-xong'], { gocGoi, env: envGio(T + PHUT) }).ma, 0);
+  giuS4(k.dot, 'P2', k.w2, T + 4 * PHUT);
+  await motNhip(k.dot, T + 5 * PHUT, gocGoi);
+  assert.ok(fs.existsSync(path.join(k.dot, 'ban-giao.json')), 'fixture: bàn giao mở đã dựng');
+  return k;
+}
+function hanhDong(k, gocGoi = GOI, gio = T + 6 * PHUT) {
+  const cd = JSON.parse(chayCli(k.kho, ['chan-doan', '--json', '--chi-tiet', '--phien', 's-gs'], { gocGoi, env: envGio(gio) }).out);
+  const tt = JSON.parse(chayCli(k.kho, ['tiep-tuc', '--phien', 's-gs', '--json'], { gocGoi, env: envGio(gio) }).out);
+  chayCli(k.kho, ['dung'], { gocGoi });
+  const tu = (id) => ({ cd: cd.find((m) => m.muc === `day:${id}`)?.chi_tiet ?? {}, tt: tt.ke_hoach.find((x) => x.day === id) ?? {} });
+  return { P1: tu('P1'), P2: tu('P2') };
+}
+
+test('DP4-08 phien-cu', async () => {
+  const k = await dotPhienCu();
+  const h = hanhDong(k);
+  console.log(`  P1: ${h.P1.cd.hanh_dong}/${h.P1.tt.hanh_dong} da_ban_giao=${h.P1.tt.da_ban_giao} · P2: ${h.P2.cd.hanh_dong}/${h.P2.tt.hanh_dong}`);
+  console.log(`  ghi_danh P1: ${h.P1.tt.ghi_danh}`);
+  assert.equal(h.P1.tt.hanh_dong, 'mo-chip');
+  assert.equal(h.P1.cd.hanh_dong, 'mo-chip');
+  assert.equal(h.P1.tt.da_ban_giao, true);
+  assert.match(h.P1.tt.ghi_danh, /bàn giao bg-\d{8}T\d{6}Z: xong/);
+  assert.equal(h.P2.tt.hanh_dong, 'khong');
+  assert.equal(h.P2.cd.hanh_dong, 'khong');
+  chayHook('PostToolUse', { session_id: 's-moi' }, { cwd: k.w1, nowMs: T + 5 * PHUT });
+  assert.equal(hanhDong(k).P1.tt.hanh_dong, 'khong', 'phiên mới trên worktree P1 là phiên sống');
+});
+
+test('DP4-08 khong-ban-giao', async () => {
+  const base = execFileSync('git', ['merge-base', 'HEAD', 'origin/main'], { cwd: KIT, env: ENV, encoding: 'utf8' }).trim();
+  const goiCu = tam('dp4-base-');
+  execFileSync('sh', ['-c', `git archive ${base} dieu-phoi | tar -x -C "${goiCu}"`], { cwd: KIT, env: ENV });
+  const k = khoLienKet();
+  chayHook('PostToolUse', { session_id: 's-p1' }, { cwd: k.w1, nowMs: T });
+  const moi = (await nap(GOI, 'tiep-tuc.mjs')).keHoachDay(k.dot, { nowMs: T + 3 * PHUT }).map((x) => [x.day, x.hanh_dong]);
+  const cu = (await nap(path.join(goiCu, 'dieu-phoi'), 'tiep-tuc.mjs')).keHoachDay(k.dot, { nowMs: T + 3 * PHUT }).map((x) => [x.day, x.hanh_dong]);
+  console.log(`  mới ${JSON.stringify(moi)} · merge-base ${JSON.stringify(cu)}`);
+  assert.deepEqual(moi, cu);
+});
+
+test('DP4-08-do bo-loai', async () => {
+  const sao = tam('dp4-goi-');
+  fs.cpSync(GOI, sao, { recursive: true });
+  const p = path.join(sao, 'scripts', 'tiep-tuc.mjs');
+  const goc = fs.readFileSync(p, 'utf8');
+  const tiem = goc.replace('nhipMoiNhatCua(thuMuc, d.worktree, { boQua: phienCu })', 'nhipMoiNhatCua(thuMuc, d.worktree)');
+  assert.notEqual(tiem, goc, 'bước tiêm không áp được');
+  fs.writeFileSync(p, tiem);
+  const k = await dotPhienCu(sao);
+  const h = hanhDong(k, sao);
+  console.log(`  bản tiêm: P1 ${h.P1.tt.hanh_dong}`);
+  assert.equal(h.P1.tt.hanh_dong, 'khong', 'P1');
 });

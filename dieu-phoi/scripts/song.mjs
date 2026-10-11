@@ -64,10 +64,11 @@ export function docNhipSong(thuMuc) {
     .filter(Boolean);
 }
 
-// Nhịp mới nhất mang worktree đã cho (null khi chưa có). Tuổi âm (đồng hồ lùi) coi như 0.
-export function nhipMoiNhatCua(thuMuc, worktree) {
+// Nhịp mới nhất mang worktree đã cho (null khi chưa có). Tuổi âm (đồng hồ lùi) coi như 0. `boQua` (DP4): mã các phiên
+// đã bàn giao — nhịp của chúng không tính là phiên sống của dãy.
+export function nhipMoiNhatCua(thuMuc, worktree, { boQua = new Set() } = {}) {
   let moi = null;
-  for (const n of docNhipSong(thuMuc)) if (n.worktree === worktree && (!moi || Date.parse(n.luc) > Date.parse(moi.luc))) moi = n;
+  for (const n of docNhipSong(thuMuc)) if (n.worktree === worktree && !boQua.has(n.phien) && (!moi || Date.parse(n.luc) > Date.parse(moi.luc))) moi = n;
   return moi;
 }
 
