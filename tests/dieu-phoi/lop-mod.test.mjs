@@ -583,3 +583,48 @@ test('DP6-07 khong-dot', () => {
   giuKhoa(dot, 'P2', w2);
   assert.equal(chayHookChanS4(LENH_S4, { cwd: w1 }).ma, 2, 'đối chứng: kho có đợt và khoá của dãy khác thì chặn');
 });
+
+// ---------- DP6-02 khong-lot: luật heredoc không mở lối lọt mới (soát toàn nhánh, lượt sửa) ----------
+// Mỗi ô là một lời gọi S4/đường nền THẬT mà bộ phân loại ở merge-base chặn được; luật heredoc không được làm nó lọt.
+export const MA_TRAN_KHONG_LOT = [
+  ['here-string', 'read a <<<"$x"\nnode x/repin-lane.mjs --write', 's4'],
+  ['here-string-chu', 'cat <<< hello\nnode x/repin-lane.mjs', 's4'],
+  ['bash-nhay', "bash <<'EOF'\nnode x/repin-lane.mjs --write\nEOF", 's4'],
+  ['bash-khong-nhay', 'bash <<EOF\nnode x/repin-lane.mjs\nEOF', 's4'],
+  ['sh-s', 'sh -s <<EOF\nnode x/s4-args.mjs\nEOF', 's4'],
+  ['ong-bash', "cat <<'EOF' | bash\nnode x/duong-nen.mjs\nEOF", 'duong-nen'],
+  ['node-stdin', "node --input-type=module <<'EOF'\nimport('./repin-lane.mjs')\nEOF", 's4'],
+  ['so-hoc-gan', 'x=$((1<<n))\nnode x/repin-lane.mjs', 's4'],
+  ['so-hoc-lenh', '(( m = 1 << shift ))\nnode x/repin-lane.mjs', 's4'],
+  ['chu-thich', '# dùng <<EOF ở dưới\nnode x/repin-lane.mjs', 's4'],
+  ['dau-dong-gach', 'cat <<EOF-X\nhello\nEOF-X\nnode x/repin-lane.mjs', 's4'],
+  ['bash-co-tep', "bash chay.sh <<'EOF'\nnode x/repin-lane.mjs\nEOF", null],
+];
+const maTranKhongLot = () => MA_TRAN_KHONG_LOT.map(([ten, lenh, ky_vong]) => ({ ten, lenh, ky_vong }));
+
+test('DP6-02 khong-lot', async () => {
+  const ds = maTranKhongLot();
+  console.log(`  ma trận chống lọt: ${ds.length} ô`);
+  assert.equal(ds.length, 12);
+  const { phanLoaiLenh } = await nap(GOI, 'phan-loai-s4.mjs');
+  assert.deepEqual(chayMaTran(phanLoaiLenh, ds), []);
+  // Ô dương của ma trận là lời gọi bộ phân loại ở merge-base cũng chặn (luật mới không được kém hơn).
+  const { phanLoaiLenh: goc } = await nap(goiTaiMergeBase(), 'phan-loai-s4.mjs');
+  assert.deepEqual(ds.filter((o) => o.ky_vong !== null && goc(o.lenh) !== o.ky_vong).map((o) => o.ten), []);
+});
+
+async function doDotBienKhongLot(cu, moi, can) {
+  const ds = maTranKhongLot();
+  const { phanLoaiLenh: lanh } = await nap(GOI, 'phan-loai-s4.mjs');
+  assert.deepEqual(chayMaTran(lanh, ds), [], 'bản lành phải xanh trước');
+  const sao = saoGoi();
+  tiem(sao, 'phan-loai-s4.mjs', cu, moi);
+  const { phanLoaiLenh } = await nap(sao, 'phan-loai-s4.mjs');
+  assert.deepEqual(chayMaTran(phanLoaiLenh, ds), can);
+}
+test('DP6-02-do bo-here-string', () =>
+  doDotBienKhongLot("if (c === '<' && lenh[i + 1] === '<' && lenh[i + 2] === '<') {", "if (false) {", ['here-string-chu']));
+test('DP6-02-do bo-trinh-thong-dich', () =>
+  doDotBienKhongLot('const dt = doThongDich(doan.slice(dauDong));', 'const dt = null;', ['bash-nhay', 'bash-khong-nhay', 'sh-s', 'ong-bash', 'node-stdin']));
+test('DP6-02-do bo-so-hoc', () =>
+  doDotBienKhongLot("if (c === '(' && lenh[i + 1] === '(') {", "if (false) {", ['so-hoc-gan', 'so-hoc-lenh']));

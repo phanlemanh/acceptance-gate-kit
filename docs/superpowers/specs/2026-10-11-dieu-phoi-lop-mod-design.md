@@ -118,6 +118,11 @@ Tệp: `dieu-phoi/scripts/phan-loai-s4.mjs` (một hàm cho hook chặn S4).
   sau dòng mở tới dòng bằng đúng `DELIM` (với `<<-` thì bỏ tab đầu dòng) không được tách thành đoạn lệnh. Thân
   không nháy (`<<DELIM`) vẫn bị shell thay `$(…)` và backtick, nên chỉ phần trong `$(…)` và backtick của thân ấy
   được phân loại; thân có nháy thì bỏ trọn. Thiếu dòng đóng → coi thân kéo tới hết chuỗi (shell cũng làm thế).
+  NGOẠI LỆ (soát toàn nhánh 11/10): cùng dòng mở có một trình thông dịch đọc stdin — `bash`/`sh`/`zsh` không `-c` và
+  không tệp script (hoặc có `-s`), kể cả qua ống `… | bash`; `node` không tệp script — thì thân CHÍNH LÀ lệnh: thân
+  shell phân loại như lệnh, thân JS nhắc tên một script giữ tài nguyên coi như chạy nó. `<<<` là here-string (không
+  thân). Không mở heredoc trong số học `((…))`/`$((…))` và trong chú thích `#`; dấu mở là trọn một từ shell đã gỡ
+  nháy (`EOF-X`). Ma trận chống lọt 12 ô giữ các luật này, mỗi ô dương cũng bị bộ phân loại merge-base chặn.
 - **Chỉ đọc.** `node --check|-c <script>` (kiểm cú pháp) và `<script> … --help` không giữ tài nguyên. Vế
   `--help` an toàn vì cả ba script (`repin-lane.mjs`, `s4-args.mjs`, `duong-nen.mjs`) đọc HẾT đối số trước khi
   làm việc và dừng ở cờ lạ («cờ không nhận diện được»); `--help` là cờ lạ ở cả ba. Ca đo chứng lại tiền đề này

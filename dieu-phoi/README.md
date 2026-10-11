@@ -80,7 +80,8 @@ Thợ ghi vào thư mục đợt bằng lệnh con (`xin`, `nha`, `yeu-cau`) —
   `s4-args.mjs` hay `duong-nen.mjs` vẫn bị nhận ra khi đứng sau một lệnh bọc kèm cờ: `timeout`, `env` (kể cả
   `-u`, `-C`, `-P`, `-S`), `nice -n`, `time -p`, `nohup`, `command`, `exec -a`, `caffeinate -t/-w`. Không bị
   chặn: thân heredoc (dữ liệu, không phải lệnh — trừ `$(…)` và backtick trong thân không nháy, vì shell vẫn
-  chạy chúng), `node --check`/`node -c` (kiểm cú pháp), và lời gọi có `--help` (cả ba script dừng ở cờ lạ
+  chạy chúng; và trừ khi thân đưa cho trình thông dịch đọc stdin như `bash <<EOF`, `… | bash`, `node <<EOF` — khi
+  ấy thân là lệnh và vẫn bị chặn), `node --check`/`node -c` (kiểm cú pháp), và lời gọi có `--help` (cả ba script dừng ở cờ lạ
   trước khi làm việc).
 - **Lời chặn nêu sẵn lệnh xin lượt**: `node <thư mục đợt>/loi/dieu-phoi.mjs xin s4` (đợt chưa `chay` thì lõi
   của gói), chạy được nguyên văn từ worktree của dãy. Phiên ngoài mọi dãy được bảo rằng chỉ phiên thợ của
@@ -96,8 +97,13 @@ Giới hạn đã khai, kèm ngưỡng mở lại:
 - **chưa đo: hộp quyền của tác tử Workflow có tới hook chờ người không.** Ngưỡng: đợt thử có ≥ 1 lượt S4 đứng
   vì hộp quyền mà không có tệp chờ người. Phép đo đã soạn ở hạt giống
   `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`.
-- Bộ phân loại là bộ đọc cú pháp shell rút gọn: biến mở rộng thành tên script, `eval`, alias không được hiểu.
-  Ngưỡng: ≥ 1 lời gọi S4 thật lọt qua hook trong đợt thử.
+- Bộ phân loại là bộ đọc cú pháp shell rút gọn: biến mở rộng thành tên script, `eval`, alias, lệnh bọc viết đủ
+  đường (`/usr/bin/env -u X …`), cờ gộp (`env -iu X`), `gtimeout`, và ngoặc trong chuỗi bên trong `$(…)` của thân
+  heredoc không được hiểu. Ngưỡng: ≥ 1 lời gọi S4 thật lọt qua hook trong đợt thử.
+- Tệp chờ người do hộp xin quyền ghi chỉ gỡ khi người gửi một lời nhắc ở phiên thợ (`UserPromptSubmit`); duyệt
+  hộp mà không gõ gì thì tệp ở lại tới lời nhắc kế, nên «việc chờ» có thể còn một mục đã xong. Gỡ theo lời gọi
+  công cụ kế tiếp cần biết hộp thuộc tác tử nào — chưa đo (hạt giống, câu 1 §12.3). Ngưỡng: đợt thử có ≥ 1 lần
+  giám sát báo chủ kho một việc chờ đã xong.
 - Ca kiểm «nguồn» của chín lời gọi thật (`tests/dieu-phoi/rut-lenh-that.mjs`) chỉ chạy trên máy có bản ghi
   hội thoại; nơi khác (CI) in «bỏ qua» — các ca phân loại vẫn chạy trên tệp ca đã commit.
 

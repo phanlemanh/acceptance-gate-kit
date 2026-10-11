@@ -42,7 +42,11 @@ evals:
       khác 0, stderr chứa "cờ không nhận diện được", băm cây kho thử trước == sau. Ba đột biến, mỗi cái trên bản sao
       sau khi bản lành xanh, tập ô đỏ so BẰNG tập rút bằng code từ ma trận (số in ra, kiểm 0 < số < 37): "ok" cho
       "DP6-02-do bo-check" (ô --check/-c của node); "ok" cho "DP6-02-do bo-heredoc" (ô heredoc kỳ vọng null + lời
-      gọi thật heredoc); "ok" cho "DP6-02-do bo-thay-lenh" (ô thân không nháy).
+      gọi thật heredoc); "ok" cho "DP6-02-do bo-thay-lenh" (ô thân không nháy). "ok" cho "DP6-02 khong-lot": ma trận viết sẵn 12 ô
+      (here-string, heredoc cho trình thông dịch, số học, chú thích, dấu đóng có gạch, đối chứng bash <tệp>), số in ra
+      = 12, mỗi ô đúng kỳ vọng, và mọi ô dương cũng bị bộ phân loại merge-base chặn; "ok" cho "DP6-02-do
+      bo-here-string" (đỏ đúng ô here-string-chu), "DP6-02-do bo-trinh-thong-dich" (đúng năm ô trình thông dịch),
+      "DP6-02-do bo-so-hoc" (đúng hai ô số học).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
