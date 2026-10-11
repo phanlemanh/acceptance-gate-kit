@@ -72,6 +72,34 @@ function mkHoSoThe({ themDo = false } = {}) {
 }
 const theCua = (kho, them = []) => spawnSync('node', [GC, '--root', kho.r, '--slug', 'h', ...them], { encoding: 'utf8' });
 
+// Hồ sơ nháp cho ca thẻ ba vế (KK-5..7, eval nhìn E9 của vòng can-cu-s1-chay-moi-kho): mỗi dòng mang vì sao + giá
+// RIÊNG; khối máy đã quyết phủ nguồn {mục-tiêu, một-lối} × loại {approach, descope}; m5 thiếu giá.
+const W = id => ({ why: `Vì sao riêng của ${id}.`, cost_if_wrong: `Giá riêng của ${id}.` });
+function mkHoSoBaVe() {
+  const kho = mkKho();
+  ghiTep(kho.r, '_acceptance/h/contract.md', HD_DRAFT);
+  ghiTep(kho.r, '_acceptance/h/evals.yaml', EVALS);
+  ghiTep(kho.r, '_acceptance/config.yaml', 'risk_tiers:\n  t3_paths: []\nexecutors:\n  test:\n    x: "true"\n');
+  const m5 = Object.assign(S1('m5', { nguon: 'mot-loi', kho_dao: false, loi_chet: 'Lối kia chết vì ranh giới tệp.' }), { why: W('m5').why }); delete m5.cost_if_wrong;
+  ghiSoKho(kho.r, 'h', [
+    Object.assign(CN('q1'), W('q1')),
+    Object.assign(S1('q2', { nguon: 'chi-nguoi', kho_dao: true, khuyen: 'Giữ bản ghi cũ.', loi_khac: 'Xoá bản ghi cũ — không lấy lại được.' }), W('q2')),
+    Object.assign(S1('m1', MT('CLAUDE.md', Q_GOC)), W('m1')),
+    Object.assign(ML('m2'), W('m2')),
+    Object.assign(S1('m3', MT('docs/luat.md', Q_LUAT)), { type: 'descope' }, W('m3')),
+    Object.assign(ML('m4'), { type: 'descope' }, W('m4')),
+    m5,
+  ]);
+  return kho;
+}
+if (process.argv[2] === '--dung-the-ba-ve') {
+  const out = process.argv[3];
+  if (!out) { console.error('can-cu-s1.ca: cần thư mục đích'); process.exit(2); }
+  const kho = mkHoSoBaVe(); mkdirSync(out, { recursive: true });
+  writeFileSync(path.join(out, 'card.html'), '<!doctype html><meta charset="utf-8"><body style="margin:0;padding:24px">' + theCua(kho, ['--glossary-base', kho.base]).stdout);
+  console.log(path.join(out, 'card.html'));
+  process.exit(0);
+}
 if (process.argv[2] === '--dung-the') {
   const out = process.argv[3];
   if (!out) { console.error('can-cu-s1.ca: cần thư mục đích'); process.exit(2); }
@@ -536,6 +564,94 @@ check('KK-4-do', () => {
   for (const h of HINH_KK4) { const s = [...dong]; s.splice(K, 0, `Chạy \`${h}\`.`); eq(quetTuongDoi(s.join('\n'), 'SKILL.md'), [`SKILL.md:${K + 1}`], `hình «${h}»`); n++; }
   console.log(`    KK-4-do: ${n}/${HINH_KK4.length} hình đỏ đúng dòng`);
   if (n !== 4) die('số hình đỏ ' + n);
+});
+
+// ── KK-5..7: thẻ Cổng Phạm vi in ba vế cho hai khối căn cứ ─────────────────────────────────────────────
+const dongP = (khoi, attr, id) => { const t = String(khoi || ''); const i = t.indexOf(`${attr}="${id}"`); return i < 0 ? null : t.slice(i, t.indexOf('</p>', i)); };
+function kiemHoi(html) {
+  const hoi = khoiLab(html, 'Câu chỉ anh trả lời được'); if (!hoi) return ['thiếu khối câu hỏi'];
+  const loi = [];
+  for (const [nhan, id, khac] of [['Hỏi-1', 'q1', 'q2'], ['Hỏi-2', 'q2', 'q1']]) {
+    const p = dongP(hoi, 'data-cau-hoi', nhan); if (!p) { loi.push(`${nhan}: thiếu dòng`); continue; }
+    if (!p.includes(W(id).why)) loi.push(`${nhan}: thiếu vì sao`);
+    if (!p.includes('sai thì tốn: ' + W(id).cost_if_wrong)) loi.push(`${nhan}: thiếu sai thì tốn`);
+    if (p.includes(W(khac).why) || p.includes(W(khac).cost_if_wrong)) loi.push(`${nhan}: lẫn vế của ${khac}`);
+    if (!p.includes('máy khuyên') || !p.includes('lối khác')) loi.push(`${nhan}: mất khuyến nghị hoặc lối khác`);
+    if (p.includes('khó-đảo') !== (id === 'q2')) loi.push(`${nhan}: nhãn khó-đảo sai câu`);
+  }
+  return loi;
+}
+function kiemMayQuyet(html) {
+  const mq = khoiLab(html, 'Máy đã quyết ở bước thiết kế — anh lật được'); if (!mq) return ['thiếu khối máy đã quyết'];
+  const loi = [];
+  for (const id of ['m1', 'm2', 'm3', 'm4']) {
+    const p = dongP(mq, 'data-may-quyet', id); if (!p) { loi.push(`${id}: thiếu dòng`); continue; }
+    if (!p.includes(W(id).why)) loi.push(`${id}: thiếu vì sao`);
+    const g = p.indexOf('sai thì tốn: ' + W(id).cost_if_wrong); if (g < 0) { loi.push(`${id}: thiếu sai thì tốn`); continue; }
+    const c = Math.max(p.indexOf('căn cứ: «'), p.indexOf('lối khác chết vì:'));
+    if (c < 0) loi.push(`${id}: mất căn cứ hoặc lối chết`); else if (c < g) loi.push(`${id}: giá đứng sau căn cứ`);
+    if (p.includes('KHÔNG làm:') !== (id === 'm3' || id === 'm4')) loi.push(`${id}: nhãn KHÔNG làm sai`);
+  }
+  return loi;
+}
+function kiemBanRut(j) {
+  const cc = j && j.can_cu; if (!cc) return ['bản rút thiếu can_cu'];
+  const muc = [...(cc.cau_hoi || []), ...(cc.da_quyet || [])]; const loi = [];
+  const mong = { q1: W('q1'), q2: W('q2'), m1: W('m1'), m2: W('m2'), m3: W('m3'), m4: W('m4'), m5: { why: W('m5').why, cost_if_wrong: null } };
+  for (const [id, w] of Object.entries(mong)) {
+    const m = muc.find(x => x.id === id); if (!m) { loi.push(`${id}: thiếu trong bản rút`); continue; }
+    if (m.why !== w.why) loi.push(`${id}: why = ${JSON.stringify(m.why)}`);
+    if (m.cost_if_wrong !== w.cost_if_wrong) loi.push(`${id}: cost_if_wrong = ${JSON.stringify(m.cost_if_wrong)}`);
+  }
+  return loi;
+}
+function banSaoThe(tu, sang) {
+  const d = mkdtempSync(path.join(tmpdir(), 'kk-gc-'));
+  for (const x of ['scripts', 'lib', 'skills']) cpSync(path.join(ROOT, x), path.join(d, x), { recursive: true });
+  const f = path.join(d, 'scripts', 'gate-card.js'); const t = readFileSync(f, 'utf8');
+  if (!t.includes(tu)) die('mũi tiêm thẻ không áp: ' + tu.slice(0, 80));
+  writeFileSync(f, t.split(tu).join(sang)); return f;
+}
+const theBaVe = (gc = GC, them = []) => { const kho = mkHoSoBaVe(); return spawnSync('node', [gc, '--root', kho.r, '--slug', 'h', '--glossary-base', kho.base, ...them], { encoding: 'utf8' }); };
+check('KK-5 the-hoi', () => { const h = theBaVe(); if (h.status !== 0) die('thẻ thoát ' + h.status + ': ' + h.stderr.slice(0, 200)); eq(kiemHoi(h.stdout), [], 'khối câu hỏi in ba vế của chính dòng'); });
+check('KK-5-do', () => {
+  const f = banSaoThe('<b>${esc(d.nhan)}</b> · ${decBaVe(d.e)}', '<b>${esc(d.nhan)}</b> · ${esc(stripMd(d.e.decision || \'\'))}');
+  const loi = kiemHoi(theBaVe(f).stdout);
+  if (!loi.some(x => x.startsWith('Hỏi-1') && x.includes('vì sao'))) die('dòng câu hỏi in như A2 mà hàm kiểm không nêu Hỏi-1 + vì sao: ' + JSON.stringify(loi));
+});
+check('KK-6 the-may-quyet', () => { const h = theBaVe(); if (h.status !== 0) die('thẻ thoát ' + h.status); eq(kiemMayQuyet(h.stdout), [], 'khối máy đã quyết in ba vế trước căn cứ'); });
+check('KK-6-do', () => {
+  const f = banSaoThe(": ''}${decBaVe(d.e)} — ${cu}", ": ''}${esc(stripMd(d.e.decision || ''))} — ${cu}");
+  const loi = kiemMayQuyet(theBaVe(f).stdout);
+  if (!['m1', 'm2', 'm3', 'm4'].every(id => loi.some(x => x.startsWith(id + ':')))) die('dòng máy quyết in như A2 mà hàm kiểm không nêu đủ mã dòng: ' + JSON.stringify(loi));
+});
+// Vòng tròn: sổ THẬT của hồ sơ này (ghi bằng khối lệnh DEC-ID-RECIPE của SKILL) — đếm bằng bộ xếp, không từ thẻ.
+const chuanChu = x => String(x || '').replace(/[`*]/g, '').replace(/\s+/g, ' ').trim();
+const chuP = p => chuanChu(p.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
+check('KK-6 so-that', () => {
+  const SLUG = 'can-cu-s1-chay-moi-kho'; const mod = require(MOD);
+  const kq = mod.phanLoaiSo(mod.docSo(readFileSync(path.join(ROOT, '_acceptance', SLUG, 'decisions.jsonl'), 'utf8')).entries, { root: ROOT, slug: SLUG });
+  const n = kq.cau_hoi.length + kq.da_quyet.length; if (!n) die('sổ thật không có dòng S1 mang căn cứ');
+  const h = spawnSync('node', [GC, '--root', ROOT, '--slug', SLUG, '--gate', '1'], { encoding: 'utf8' }); if (h.status !== 0) die('thẻ thoát ' + h.status);
+  eq(cac(h.stdout, /data-cau-hoi="([^"]+)"/g).length + cac(h.stdout, /data-may-quyet="([^"]+)"/g).length, n, 'số dòng hai khối = số dòng S1 mang căn cứ chưa bị thay, không đỏ');
+  for (const [d, attr, khoa] of [...kq.cau_hoi.map(d => [d, 'data-cau-hoi', d.nhan]), ...kq.da_quyet.map(d => [d, 'data-may-quyet', d.id])]) {
+    const p = dongP(h.stdout, attr, khoa); if (!p) die(khoa + ': thiếu dòng');
+    const t = chuP(p);
+    if (!t.includes(chuanChu(d.e.why)) || !t.includes('sai thì tốn: ' + chuanChu(d.e.cost_if_wrong))) die(khoa + ': dòng thiếu vì sao hoặc giá của chính nó');
+  }
+  console.log(`    KK-6 so-that: ${n} dòng (${kq.cau_hoi.length} câu hỏi · ${kq.da_quyet.length} máy đã quyết · ${kq.bi_thay} bị thay)`);
+});
+check('KK-7 thieu-gia', () => {
+  const h = theBaVe(); if (h.status !== 0) die('thẻ thoát ' + h.status);
+  const mq = khoiLab(h.stdout, 'Máy đã quyết ở bước thiết kế — anh lật được');
+  const p5 = dongP(mq, 'data-may-quyet', 'm5'); if (!p5 || !p5.includes('⚠ chưa khai giá nếu sai')) die('m5 thiếu giá mà không có nhãn: ' + p5);
+  for (const id of ['m1', 'm2', 'm3', 'm4']) if ((dongP(mq, 'data-may-quyet', id) || '').includes('chưa khai giá')) die(id + ': đủ giá mà mang nhãn');
+});
+check('KK-7 ban-rut', () => { const h = theBaVe(GC, ['--extract']); if (h.status !== 0) die('bản rút thoát ' + h.status); eq(kiemBanRut(JSON.parse(h.stdout)), [], 'bản rút mang hai vế'); });
+check('KK-7-do', () => {
+  const f = banSaoThe("const baVeRut = e => ({ why: typeof e.why === 'string' ? e.why : null, ", 'const baVeRut = e => ({ ');
+  const loi = kiemBanRut(JSON.parse(theBaVe(f, ['--extract']).stdout));
+  if (!loi.some(x => x.includes('why'))) die('bản rút mất why mà hàm kiểm không nêu: ' + JSON.stringify(loi));
 });
 
 console.log(`\nResults: ${passed} passed, ${failed} failed (can-cu-s1)`);
