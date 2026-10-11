@@ -1,31 +1,38 @@
-# Review findings: cua-tin-hieu-gom-nhom (round 2)
+# Review findings: cua-tin-hieu-gom-nhom (round 3)
 
 ## Trong hợp đồng
 
-- **The graded grouping (gom-bo-vang.md, pass 3) fails TH-10 / E10 with 7 mismatches against the gold set**
-  file: `_acceptance/cua-tin-hieu-gom-nhom/mau/gom-bo-vang.md:12`
-  severity: low
-  AC: AC-10
-  source: bugs
-  detail: Running `TH_CASES=TH-10,TH-10-ong,TH-10-do,TH-10-do2 node tests/scripts/tin-hieu.test.mjs` on HEAD 7e179d28 gives `FAIL: TH-10 — lệch đáp án ở 7 chỗ`. Two duplicate pairs are split: vang-a-9 is in G5 and vang-b-12 is in G6 (both giam-phut-acceptance); vang-b-14 is marked covered while vang-b-18 is in G7 (both luat-kho-vong-doi). Signals from delivered records sit in groups instead of being marked covered: vang-a-3 and vang-b-20 (ca-chap-chon-cach-ly) and vang-b-18. Signals from the undelivered record thuoc-7-ngay-loc-pr (vang-b-6, vang-a-15) are marked covered under ci-ma-tran-ba-o. The khai-trước history check passes: bo-vang.json at 6f2513f0 is an ancestor of the grouping commit 7e179d28 and was not changed afterwards. So E10 (`PASS: TH-10`) is red. Decisions d-16 and d-19 already expect this as a product outcome for the Evidence Gate, so it is not a code bug; it is listed so the result is not read as an infrastructure failure.
+Không có.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **The engine drift check still cannot see the three new orchestration files or the signal template that this round added to the CI copy list**
+- **Hình dạng 4 (âm-tính-một-mình): E10 hứa ba vế KÍN ĐÁP ÁN, nhưng đối chứng dương và ca đỏ chỉ phủ vế «tên hồ sơ». Vế «tiêu đề trùng câu giao» và vế «kho không có tệp đáp án» chưa từng được chứng là đỏ được**
+  Người dùng thấy gì: Kiểm tra «phiên gom không được thấy đáp án» hiện mới chứng minh được việc bắt lộ tên hồ sơ. Hai kiểu lộ còn lại (tiêu đề giống hệt câu giao việc, hoặc để lọt tệp đáp án trong kho) chưa có lần nào được thử cho báo đỏ, nên nếu chúng xảy ra thì có thể vẫn hiện màu xanh mà không ai biết. Hiện chưa thấy kho nào bị lộ như vậy, nhưng độ tin cậy của lời «kín đáp án» chỉ mới được chứng một phần.
+  file: `_acceptance/cua-tin-hieu-gom-nhom/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **Hình dạng 4 (âm-tính-một-mình): AC-10 hẹp hứa lệnh chấm kiểm «hồ sơ đã giao ra đã phủ» trên bộ vàng thứ hai, nhưng chỉ vế «cặp trùng tách» có ca đỏ**
+  Người dùng thấy gì: Lệnh chấm bản gom trên bộ mẫu thứ hai mới chứng minh được trường hợp đúng: việc đã giao được ghi «đã phủ». Nếu lệnh chấm sai ở chỗ này (ví dụ xếp nhầm một ý của việc chưa giao vào «đã phủ», hoặc bỏ qua việc đã giao), kiểm tra hiện tại vẫn báo xanh. Người dùng có thể nhận một bản chấm trông ổn nhưng chưa được thử bắt lỗi ở đúng chỗ này.
+  file: `_acceptance/cua-tin-hieu-gom-nhom/evals.yaml`
+  severity: medium
+  Đề xuất: known-limits
+
+- **The engine drift check still cannot see the three new orchestration files or the signal template that this round added to the CI copy list (r2)**
   Người dùng thấy gì: Kho nào dùng cửa tín hiệu mà giữ bản cũ của vài tệp phụ trợ vẫn được báo «engine xanh», dù phiên bản các tệp không khớp nhau. Người dùng có thể tin nhầm là bản cài đã đồng bộ trong khi có tệp cũ.
   file: `feature-loop/scripts/duong-nen.mjs`
   severity: high
   Đề xuất: new-contract
 
-- **The new 'answer key committed before the grouping, from real kit history' check in TH-10 has no case in the suite that shows it turning red**
+- **The new 'answer key committed before the grouping, from real kit history' check in TH-10 has no case in the suite that shows it turning red (r2)**
   Người dùng thấy gì: Phép kiểm «đáp án phải được ghi trước khi gom» chưa từng được thử cho thấy nó báo đỏ khi đáp án bị ghi cùng lúc hoặc sửa sau. Nếu nó hỏng im lặng, kết quả chấm bộ vàng có thể được tin hơn mức đáng có.
   file: `tests/scripts/tin-hieu.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-- **Engine-drift check in the baseline step silently skips the 4 vendored files this round added to the CI copy list**
+- **Engine-drift check in the baseline step silently skips the 4 vendored files this round added to the CI copy list (r2)**
   Người dùng thấy gì: Bốn tệp mới của cửa tín hiệu có thể nằm cũ trong kho dùng kit mà bước kiểm đường nền vẫn báo khớp. Người dùng không được cảnh báo khi bản cài lệch.
   file: `feature-loop/scripts/duong-nen.mjs`
   severity: medium
@@ -37,13 +44,13 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: high
   Đề xuất: new-contract
 
-- **tin-hieu.test.mjs hardcodes the literal "signed-off" — RT13 is red (r1 · tệp đã đổi)**
+- **tin-hieu.test.mjs hardcodes the literal "signed-off" — RT13 is red (r1)**
   Người dùng thấy gì: Bộ kiểm tra chung của kit đang đỏ vì tệp kiểm tra của tính năng mới viết cứng một tên trạng thái thay vì lấy từ nơi định nghĩa chuẩn. Tính năng vẫn chạy đúng nhưng không thể gộp khi bộ kiểm tra chung còn đỏ.
   file: `tests/scripts/tin-hieu.test.mjs`
   severity: high
   Đề xuất: new-contract
 
-- **Two red-direction checks assert on exit code alone, with no pinned message (r1 · tệp đã đổi)**
+- **Two red-direction checks assert on exit code alone, with no pinned message (r1)**
   Người dùng thấy gì: Hai bài kiểm «máy phải báo đỏ khi sai» chỉ xác nhận có báo đỏ, chưa xác nhận đỏ đúng lý do. Nếu bản thử hỏng vì lỗi khác thì bài kiểm vẫn xanh, nên màu xanh ở hai chỗ này tin được kém hơn vẻ ngoài.
   file: `tests/scripts/tin-hieu.test.mjs`
   severity: medium
@@ -67,16 +74,16 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   severity: low
   Đề xuất: known-limits
 
-- **Hình dạng 4 (âm-tính-một-mình): TH-3-do ghim «lẻ thành mã» nhưng bắt được nhờ một assert khác. Assert «lẻ không thành mã» thật ra không thể đỏ (r1 · tệp đã đổi)**
+- **Hình dạng 4 (âm-tính-một-mình): TH-3-do ghim «lẻ thành mã» nhưng bắt được nhờ một assert khác. Assert «lẻ không thành mã» thật ra không thể đỏ (r1)**
   Người dùng thấy gì: Bài kiểm «mục để riêng không được biến thành một nhóm» có thể vẫn xanh trong vài kiểu lỗi, nên màu xanh ở đó chưa chắc chứng minh được điều nó tuyên bố.
   file: `tests/scripts/tin-hieu.test.mjs`
   severity: high
   Đề xuất: known-limits
 
-- **Hình dạng 4 (âm-tính-một-mình): «0 câu khớp mẫu cấm» của TH-9 không có đối chứng dương, và regex không phủ đúng mẫu cấm mà eval khai (r1 · tệp đã đổi)**
+- **Hình dạng 4 (âm-tính-một-mình): «0 câu khớp mẫu cấm» của TH-9 không có đối chứng dương, và regex không phủ đúng mẫu cấm mà eval khai (r1)**
   Người dùng thấy gì: Phép quét «hướng dẫn không được bảo kit giữ kho tín hiệu» chỉ bắt vài cách diễn đạt, nên một câu viết khác đi vẫn lọt mà bài kiểm vẫn xanh. Hiện chưa thấy câu nào như vậy trong hướng dẫn, nhưng rào chắn này mỏng hơn vẻ ngoài.
   file: `tests/scripts/tin-hieu.test.mjs`
   severity: medium
   Đề xuất: known-limits
 
-⚠ Cụm ngoài vùng phủ: 2/4 lỗi rơi vào file không bộ đo nào phủ (feature-loop/scripts/duong-nen.mjs) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
+⚠ Cụm ngoài vùng phủ: 2/2 lỗi rơi vào file không bộ đo nào phủ (_acceptance/cua-tin-hieu-gom-nhom/evals.yaml) — dừng và quyết: mở rộng hợp đồng hay rút phạm vi.
