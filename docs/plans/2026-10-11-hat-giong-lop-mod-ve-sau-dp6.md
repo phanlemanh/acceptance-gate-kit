@@ -274,3 +274,16 @@ export const register: Register = on => {
   })
 }
 ```
+
+## Mục «mở hợp đồng mới» từ Cổng Bằng chứng DP6 (ký 11/10)
+
+Nguồn: `_acceptance/dieu-phoi-lop-mod/decisions.jsonl` dòng 30 (người ký chọn).
+
+- **Ngoài-17/22/23/33/37 — «bản cũ» theo merge-base sống.** Đã sửa trong vòng (sổ dòng 24–27): bản cũ neo vào
+  commit cố định của nhánh chính, lời hứa «nhánh không đổi X» neo vào commit gộp của chính nhánh. Ghi ở đây để
+  lớp có dấu: đây là ca thứ sáu của lớp «ca nguyên vẹn neo merge-base sống» trong gói `dieu-phoi` (hạt giống
+  `docs/plans/2026-10-11-hat-giong-ca-nguyen-ven-neo-merge-base.md` của DP4 — hàm «mốc PR #N» dùng chung + ca
+  quét cấm merge-base trần). Ngưỡng của hạt giống đó (≥ 1 ca mới sau DP4) coi như đã chạm.
+- **Ngoài-34 — `can_phan` gắn cho mọi sự kiện `cho-nguoi`.** Yêu cầu `can-nguoi` của DP7 vừa tạo việc chờ người
+  vừa mang `can_phan`, nên giám sát thức hai lần cho một yêu cầu. Ngưỡng: đợt thử có ≥ 1 lần giám sát báo trùng
+  một việc chờ người.

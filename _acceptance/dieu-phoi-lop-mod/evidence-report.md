@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: a34b55a0329dd67b9e3276cc0664416fd05bc6b3
-human_signoff:
+human_signoff: manh 2026-10-11
 ---
 
 # Evidence Report: dieu-phoi-lop-mod

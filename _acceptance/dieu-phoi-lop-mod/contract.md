@@ -5,7 +5,7 @@ slug: dieu-phoi-lop-mod
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli, docs]
-status: verified
+status: signed-off
 design_doc: docs/superpowers/specs/2026-10-11-dieu-phoi-lop-mod-design.md
 approved_by:
 approved_at:
@@ -102,5 +102,12 @@ Phân loại:
   khi thân chỉ là dữ liệu — 2 trên 46.801 lời gọi Bash đo 11/10; thợ viết tệp bằng công cụ Write thay `cat <<EOF`.
   Ngưỡng mở lại (khuôn danh sách đóng bên tiêu thụ, ghi ở hạt giống): một lần đo lại bản ghi theo design §2.1 thấy
   > 10 lời gọi heredoc chặn nhầm.
+- **Known limits (Cổng Bằng chứng sau lượt chấm 7, ký 11/10 — manh; sổ dòng 29):** Ngoài-1/2: `--help` nằm
+  trong chú thích `#` hay here-string `<<<` vẫn làm lệnh S4 thật lọt hook (miễn trừ `--help` đọc mọi từ sau
+  script) · Ngoài-3: `command -v <đường>/repin-lane.mjs` bị chặn nhầm · Ngoài-18: `env -S'<lệnh>'` dính liền cờ
+  lọt · Ngoài-27/29: `bash -o pipefail -c '…'` lọt (có từ trước DP6) · các mục còn lại là độ nhạy của phép đo
+  (assert chỉ mã thoát, đột biến không có chiều im, fixture gõ tay đúng khuôn bên đọc, neo lịch sử chưa có
+  chiều nhạy khi chính nhánh DP6 sửa `loi/`) hoặc mục mang sang đã hết hiệu lực trong vòng — mỗi mục một dòng ở
+  `docs/research/known-limits-ledger.tsv`.
 - Giới hạn đã khai: bộ phân loại là bộ đọc cú pháp shell rút gọn; ngưỡng: ≥ 1 lời gọi S4 thật lọt qua hook trong
   đợt thử.
