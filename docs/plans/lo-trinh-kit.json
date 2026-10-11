@@ -81,7 +81,6 @@
       "hang": [
         "DP6",
         "L3",
-        "G2",
         "G3",
         "A2",
         "X2",
@@ -197,17 +196,6 @@
       "cau_giao": "«Kho viết evals.yaml kiểu danh sách sát lề vẫn được kit đọc đủ đầu vào và vùng tệp»",
       "vi_sao": "Gốc: crm/_acceptance/dieu-phoi-va-bien — commit 352ef33ac (07/10) phải viết lại 309 dòng evals.yaml sang khuôn thụt 4 «để bộ đọc của kit thấy inputs và paths». YAML hợp lệ mà kit đọc thiếu IM LẶNG → bộ lọc vùng tệp (N5) có thể bỏ sót hồ sơ. Sửa theo thứ tự luật 26/09: bộ đọc khoan dung + cờ vàng, không đổi mặc định.",
       "bat_khi": "Hồ sơ viết danh sách sát lề và thụt 2 cho cùng kết quả đọc; khuôn không đọc được thì có cờ vàng, không im"
-    },
-    {
-      "ma": "G2",
-      "nhom": "gia-ghim-lai",
-      "hang": "T2",
-      "dung_tren": [
-        "N8"
-      ],
-      "cau_giao": "«Ca kiểm chập chờn chạy lại một lần trước khi làm đỏ cả lượt dài hay CI»",
-      "vi_sao": "Gốc: crm/_acceptance/ca-chap-chon-cach-ly (ký build 07/10): «phần chạy lại một lần trước khi kết luận đỏ trong làn ghim lại thuộc bộ kit». KIỂM TRƯỚC KHI MỞ: 2.23 đã có repin_retry (N4) và crm đã bật 06/10 — có thể chỉ còn phần suite/CI, hoặc đã đủ. Cùng lớp: hạt giống 2026-10-03-suite-chap-chon-ho-so-khac-khoa-the (crm muc-tieu-va-kr, ~3,5 giờ máy).",
-      "bat_khi": "Một tuần CI của crm không còn lượt đỏ do ca chập chờn đã biết"
     },
     {
       "ma": "G3",
@@ -418,6 +406,11 @@
       "ma": "G1",
       "cau_giao": "«Kiểm ‘có làm hỏng hồ sơ đã ký khác không’ chạy một lần sau mỗi lần gộp, không trong từng lượt ghim lại»",
       "ly_do": "crm tự làm ở tầng kho — crm-onehub#330: lượt kiểm chéo mỗi đêm dùng bộ đọc paths + làn ghim lại của kit; kit không cần đổi gì. Mở lại khi: kho thứ hai gặp đúng ca này."
+    },
+    {
+      "ma": "G2",
+      "cau_giao": "«Ca kiểm chập chờn chạy lại một lần trước khi làm đỏ cả lượt dài hay CI»",
+      "ly_do": "Đã phủ — kiểm trước khi mở 11/10. (1) Phần crm giao cho kit (ca-chap-chon-cach-ly/opportunity.md: chạy lại một lần trong làn ghim lại) là repin_retry của N4 (2.23, feature-loop/scripts/lib/chay-lai.mjs); crm bật từ 06/10, ~70 lượt ghim lại, cứu đúng 1 lượt thật (07/10), mọi lượt đỏ khác đỏ cả lần chạy lại và là đỏ thật. (2) Lớp CI kit chép sang không chạy suite — chạy lại ở CI là việc bộ chạy test của kho; crm đã làm kín ca ở tầng test (ca-chap-chon-cach-ly, ca-chap-chon-con-lai #340, e6ba8ebed), CI crm 0 lượt đỏ từ 10/10. (3) S4 cố ý không chạy lại: 04–10/10 chỉ 1 lượt mất vì ca chập chờn, trước khi crm vá. (4) GL03 của kit sửa đúng tầng ở 70db1a9c. Lỗi còn lại — tên ca qua tiền tố turbo rỗng — đi vòng ten-ca-qua-tien-to-turbo. Mở lại khi: một tuần CI crm vẫn đỏ vì ca chập chờn đã biết sau 17/10."
     }
   ]
 }
