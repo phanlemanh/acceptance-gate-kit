@@ -80,8 +80,12 @@ executors:
     dieu_phoi_dp7: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[127]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ dieu-phoi-tiep-tuc-mot-lenh: như khoá `dieu_phoi_dp2` nhưng ghim cả «ok … DP3-».
     dieu_phoi_dp3: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[123]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ dieu-phoi-lop-mod: như `dieu_phoi_dp3` nhưng ghim mọi «ok … DP<số>-» (DP1–DP7 cùng DP6).
+    dieu_phoi_dp6: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[1-9]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
     # Hồ sơ dieu-phoi-doi-tai-khoan: như khoá `dieu_phoi_dp3` nhưng ghim cả «ok … DP4-».
     dieu_phoi_dp4: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - DP[1234]-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
+    # Hồ sơ dieu-phoi-sua-truoc-dot-thu: như `dieu_phoi_dp3` nhưng ghim «ok … SDT-» cùng mọi «ok … DP<n>-».
+    dieu_phoi_sdt: "bash -c 'set -o pipefail; node --test --test-reporter=tap \"tests/dieu-phoi/**/*.test.mjs\" 2>&1 | grep -E \"^ *(not )?ok [0-9]+ - (DP[0-9]+|SDT)-|^ *not ok|^#   |^# (pass|fail|skipped|todo) \" | paste -sd\"|\" -'"
   script:
     coverage_lint: "node scripts/eval-coverage-lint.js ."
     # Vật của hồ sơ luu-kho — răng đo sự VẮNG MẶT, đối chứng dương neo vào mốc
@@ -636,6 +640,22 @@ executors:
     gg_ac6: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 6
     gg_ac7: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 7
     gg_ac8: node _acceptance/gia-lan-ghim-lai/rang/chan.mjs --ac 8
+    # Hồ sơ eval-goi-model-that-khong-chay (11/10, hàng G3, T2): mỗi lệnh một AC — ca bền của AC trong
+    # tests/scripts/repin-lane-dung-lai-model.test.mjs (chiều xanh) rồi các bản sao bị phá (chiều đỏ có dấu dương).
+    egm_ac1: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 1
+    egm_ac2: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 2
+    egm_ac3: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 3
+    egm_ac4: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 4
+    egm_ac5: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 5
+    egm_ac6: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 6
+    egm_ac7: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 7
+    egm_ac8: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 8
+    egm_ac9: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 9
+    egm_ac10: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 10
+    egm_ac12: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 12
+    egm_ac13: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 13
+    egm_ac14: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 14
+    egm_ac15: node _acceptance/eval-goi-model-that-khong-chay/rang/chan.mjs --ac 15
     # Hồ sơ eval-thay-boi-co-chung (06/10): mỗi khoá chạy MỘT nhóm ca của tệp ca vĩnh viễn
     # tests/scripts/eval-thay-boi.test.mjs (suite `scripts` cũng tự chạy nó qua glob). ETB_CASES
     # khớp 0 ca thì tệp thoát khác 0 (bài học P86).

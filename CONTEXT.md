@@ -136,9 +136,27 @@ hợp đồng của một vòng).
 
 **Cắt lượt**:
 Biến một bản phạm vi thành các hàng của lộ trình (theo sáu luật, hai dáng `chuoi` · `lan-va`) cùng các
-mục **chân trời**, rồi chạy răng phủ `scripts/cat-luot.mjs` — mỗi mã của bản phạm vi ở đúng một hàng
-hoặc chân trời cùng `dot`. Skill `cat-luot`; người gộp PR cắt là người chốt. Hồ sơ `lo-trinh-cat-luot`.
+mục **chân trời** và **mốc ngoài**, rồi chạy răng phủ `scripts/cat-luot.mjs` — mỗi mã của bản phạm vi ở
+đúng một hàng, chân trời hoặc mốc ngoài cùng `dot`. Trước sáu luật, việc vận hành được tách khỏi việc
+phát triển (bước 2b). Skill `cat-luot`; người gộp PR cắt là người chốt. Hồ sơ `lo-trinh-cat-luot`,
+`lo-trinh-chi-viec-phat-trien`.
 _Avoid_: xếp điểm ưu tiên tự động (RICE/WSJF); bảng phủ chép tay; để kit ghi trạng thái vào tệp lộ trình.
+
+**Mốc ngoài**:
+Mục `moc` có `loai: "ngoai"` của lộ trình: việc VẬN HÀNH của người (gửi danh sách, đào tạo, công bố, dùng
+thật, gom góp ý) hay sự kiện của kho khác — thứ máy không giao và không chứng được. Mang `ai` (người làm);
+khi cắt từ bản phạm vi thì mang `dot` + `phu` và là chỗ thứ ba của bảng phủ. Được chờ hàng (`hang` của mốc);
+không hàng nào được đứng chờ nó (cờ `cho-van-hanh`). Vận hành lặp lại khai `lap: true` + `tu_phuc_vu`.
+Hồ sơ `lo-trinh-chi-viec-phat-trien`.
+_Avoid_: ghi việc vận hành thành hàng; hàng phát triển `dung_tren` một việc của người; nhầm với mốc
+phát hành (`loai: phat-hanh`).
+
+**Dữ liệu giả có nhãn**:
+Dữ liệu máy SINH từ khuôn dữ liệu thật (không viết tay), mỗi bản ghi mang nhãn, để hàng phát triển dựng
+và đo khi dữ liệu thật còn chờ người. Trong lộ trình: hàng sinh khai `du_lieu: "sinh-gia"`, hàng đo trên
+nó khai `du_lieu: "gia"` và đứng trực tiếp trên hàng sinh. Tiêu chí chỉ đo được trên dữ liệu thật thành ô
+bỏ qua có tên; thực tế vẫn là đồng hồ cuối (Cổng Giá trị). Tiền lệ: crm hàng `M` (công ty giả một quý).
+_Avoid_: dữ liệu mẫu chép tay; dữ liệu thật của vòng trước (đó là `dung_tren`, luật 2 của cắt lượt).
 
 **Chân trời**:
 Mục cấp tệp `chan_troi` của lộ trình: mã chưa cắt được thành câu giao, kèm `ly_do` và điều kiện mở lại
@@ -487,7 +505,8 @@ ghi `su-kien.jsonl`. Cấp khoá theo pha của đợt.
 _Avoid_: scheduler, daemon, «bộ điều phối».
 
 **Hàng kế của dãy**:
-Hàng tiếp theo bộ phát lịch chọn cho một dãy, ghi ở `tiep/<phiên>.json`.
+Hàng tiếp theo bộ phát lịch chọn cho một dãy, ghi ở `tiep/<phiên>.json`. Ở đợt mở từ gói, chỉ hàng đã quyết build
+mới được chọn; không còn hàng như vậy thì `tiep/` ghi lý do chờ (`nghi`, `phu-thuoc`, `cong-dang`) hay `xong`.
 _Avoid_: «hàng kế» trơ — chữ ấy là hàng kế của LỘ TRÌNH (một hàng cho cả một
 lộ trình, thẻ `/acceptance-gate:start` in); next task.
 

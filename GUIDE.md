@@ -1420,8 +1420,9 @@ mang thêm `wall_s` + `so_lenh`. Kho tiêu thụ thêm `.acceptance-runs/` vào 
 cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -c '"kind":"repin-do"'
 ```
 
-**Năm khoá của làn — chạy lại, trần, môi trường giống CI, tổng kết (2.23, hồ sơ gia-lan-ghim-lai).**
-Mọi khoá dưới `feature_loop`, VẮNG = như 2.22. Danh sách nguồn là khối `LAN-KHOA` trong
+**Năm khoá của làn — chạy lại, trần, môi trường giống CI, tổng kết (2.23, hồ sơ gia-lan-ghim-lai) — và
+khoá thứ sáu `model_carry_cmd` (hồ sơ eval-goi-model-that-khong-chay, mục ngay dưới bảng).**
+Mọi khoá dưới `feature_loop`, VẮNG = như 2.22 (khoá thứ sáu vắng = như 2.26). Danh sách nguồn là khối `LAN-KHOA` trong
 `feature-loop/scripts/lib/lan-khoa.mjs`; giá trị sai → làn thoát 2 gọi tên khoá.
 
 | Khoá | Giá trị | Làm gì | Gợi ý cho crm |
@@ -1431,15 +1432,69 @@ Mọi khoá dưới `feature_loop`, VẮNG = như 2.22. Danh sách nguồn là k
 | `repin_budget_min` | số phút > 0 | Trần mỗi lượt (cờ `--tran-phut` thắng khoá). Chạm trần → dừng lệnh bằng cách thu cả cây tiến trình rồi SIGTERM → SIGKILL sau 10 s, **thoát 4**, không ghi pin, `repin-do` `ly_do: "vuot-tran"` + `chua_chay`. Đặt DƯỚI trần của công cụ chạy làn — ngắt cứng (SIGKILL) thì không gì kịp ghi dấu. | `80` (công cụ ngắt ở 90) |
 | `repin_cost_cmd` | lệnh in một số tăng theo chi tiêu | Làn chạy nó trước lệnh đầu và lúc tổng kết; «chi phí đo» = chênh — gồm mọi phiên chạy cùng lúc. Lỗi → «chi phí đo: lỗi (…)», kết cục làn không đổi. | lệnh in tổng đã dùng của AI Gateway — kiểm khi bật |
 | `repin_ci_blank_env` | danh sách tên biến | Suite chạy với các biến này đặt RỖNG tường minh (giống CI không có khoá; xoá biến thì bộ nạp `.env` điền lại — đo 06/10); eval giữ env đầy đủ; dòng pin mang `suites_env: "ci"`. **Giới hạn:** test tự bỏ qua khi thiếu khoá mất phủ ở làn — lưới là eval chạy có khoá; mã đọc khoá bằng `??` coi rỗng là «có khoá». | `[ZALO_BOT_TOKEN, …]` — crm liệt kê |
+| `model_carry_cmd` | lệnh in dấu vân tay môi trường model | Bật DÙNG LẠI kết quả eval trong `model_evals` khi băm năm lớp đầu vào không đổi (hạn 7 ngày). Lệnh chạy một lần mỗi lượt, trần 60 s; đầu ra chỉ vào băm, không bao giờ ghi ra. Lỗi, hết giờ hay in rỗng → lượt đó không dùng lại. Chi tiết ngay dưới bảng. | lệnh in id model Gateway trả (lời dò như E15 AC-11) + băm `bun.lock` |
 
 Bật mặc định, không khoá (chỉ thêm, không đổi kết cục làn nào): dòng stderr cuối `[lane] TỔNG KẾT`
-và khoá `tong_ket` (kết cục · phút · số lệnh · eval model thật đã gọi · `model_carry` = 0 giữ chỗ cho
-Vòng B · số chập chờn · chi phí đo) ở JSON stdout, dòng `repin` và `repin-do`; bắt SIGTERM/SIGINT/SIGHUP
+và khoá `tong_ket` (kết cục · phút · số lệnh · eval model thật đã gọi · `model_carry` = số eval model
+dùng lại ở lượt, 0 khi `model_carry_cmd` vắng · số chập chờn · chi phí đo) ở JSON stdout, dòng `repin` và `repin-do`; bắt SIGTERM/SIGINT/SIGHUP
 → dừng cả cây, `repin-do` `ly_do: "bi-ngat"`, thoát 128 + số hiệu. Đếm lượt dừng sớm giữa hai mốc:
 
 ```bash
 cat _acceptance/*/run-log.jsonl 2>/dev/null | grep -cE '"ly_do":"(vuot-tran|bi-ngat)"'
 ```
+
+**Dùng lại eval model thật theo băm đầu vào — `model_carry_cmd` (hồ sơ eval-goi-model-that-khong-chay).**
+Đo 11/10 ở crm: 14/44 lần chạy lại eval model trong làn ghim lại có đầu vào không đổi; 15 làn gọi model
+trong 4 ngày tốn 15,67 USD. Khoá bật thì với mỗi eval trong `model_evals`, làn băm NĂM LỚP đầu vào (khối
+`CARRY-INPUT-LAYERS` của `feature-loop/scripts/lib/dung-lai-model.mjs`):
+
+1. lệnh đã giải (đổi một khoá khác của `config.yaml` không đổi băm);
+2. tệp git-theo-dõi tại HEAD khớp `paths` của eval (cùng bộ đọc/phân loại `paths` với lưới hoá cũ);
+3. cây hồ sơ `_acceptance/<slug>/` trừ `run-log.jsonl` và `evidence-report.md` — gồm `evals.yaml`, nên
+   khối eval và mã thoát mong đợi đi qua lớp này;
+4. tệp lệnh gọi tên — từ của lệnh trỏ ĐÚNG một tệp, giải theo gốc kho và theo mỗi `cd <thư mục>` trong
+   lệnh; đối số `cd` và tên thư mục không kéo cả thư mục (lệnh chạy cả thư mục test thì tệp phải nằm
+   trong `paths`);
+5. dấu vân tay môi trường — đầu ra của `model_carry_cmd`. **Lệnh này phải in mọi thứ làm kết quả model
+   đổi mà không nằm trong tệp:** id model nhà cung cấp trả (lời dò nhỏ, như crm E15 AC-11), băm khoá gói
+   (`bun.lock`, `package-lock.json`), phiên bản runtime khi đáng kể. Đầu ra chỉ vào băm, KHÔNG bao giờ
+   ghi ra sổ hay nhật ký. Khai `echo co-dinh` là tự bỏ lớp này — làn không cảnh báo được.
+
+Nguồn = dòng `repin` mới nhất của CHÍNH hồ sơ nơi eval thật sự chạy (chuỗi dàn phẳng), cùng băm, mã đạt
+kỳ vọng, không quá **7 ngày** trước lượt này. Có nguồn → eval KHÔNG chạy: `evals_exit` mang mã của
+nguồn, `evals_carry: {E: run_id}`, section thêm ` · dùng lại theo băm đầu vào (không gọi model):
+E←<run_id>`, stderr `<slug> <E>: dùng lại theo băm …`, tổng kết `carry 1`. Lượt ghim lại đầu tiên sau
+khi bật chạy trọn (dòng đời trước không có `evals_hash`).
+
+Eval vẫn chạy thật — stderr `<slug> <E>: không dùng lại — <lý do>` (khối `CARRY-LY-DO-CHAY` và
+`CARRY-LY-DO-NGUON`): lệnh dấu vân tay thoát khác 0 · hết giờ · in rỗng · ép bằng `--chay-lai-model`
+(lượt ép vẫn ghi băm, thành nguồn mới) · làn chạy `--allow-dirty` · eval không khai `paths` · `paths` có
+mục không chứng được · lệnh có biến hoặc thay thế lệnh của shell (`$`, backtick) · cây hồ sơ hoặc tệp
+đầu vào chưa commit · lệnh đã chạy ở lượt này (trùng một suite) · băm đổi · chưa có nguồn cùng băm ·
+nguồn quá 7 ngày · cùng băm từng cho kết quả khác.
+
+**Tự kiểm `carry_lech`.** Eval chạy thật với băm từng có ở một lượt chạy thật mà mã KHÁC → dòng (`repin`
+hay `repin-do`) mang `carry_lech: [E]`, tổng kết in `carry_lech: E (slug)`, và eval đó thôi dùng lại
+tới khi băm đổi. Bên đọc pin KHÔNG đổi (`evals_exit` vẫn đủ; khoá mới bị bộ đọc cũ bỏ qua) — kho tiêu
+thụ không phải chép lại lớp CI.
+
+**Đếm — đường đo và bốn giới hạn khai, mỗi cái một ngưỡng:**
+
+```bash
+node <feature-loop>/scripts/dem-dung-lai-model.mjs --root . --tu 2026-11-01
+```
+
+In `model_goi`, `model_carry`, số lượt `carry_lech` (mỗi lượt gắn nhãn «lệch không tất định» khi không
+tệp git nào đổi giữa sha nguồn và sha lượt lệch, hoặc «nghi thiếu đầu vào: <tệp>») và mỗi dòng «nguồn
+không có» (`evals_carry` trỏ run_id không có trong run-log của hồ sơ).
+
+- `paths` thiếu đầu vào → dùng lại kết quả mà đầu vào thật đã đổi. Ngưỡng mở vòng siết: ≥ 1 lượt
+  «nghi thiếu đầu vào» ở bất kỳ kho nào.
+- Tệp chưa theo dõi ngoài cây hồ sơ và ngoài `paths` vô hình với băm (như `--skip-unchanged`, ADR 0019).
+  Cùng ngưỡng.
+- Model trôi mà giữ nguyên id không bắt được trong 7 ngày — hạn là trần tuổi (owner chấp nhận ở crm
+  E15, 10/10).
+- Bên đọc không chứng lại chuỗi dùng lại. Ngưỡng mở vòng răng bên đọc (T3): ≥ 1 dòng «nguồn không có».
 
 **Hoá cũ theo `paths` và suite song song — kho tự bật (2.21).** Hai khoá, mặc định TẮT:
 `risk_tiers.stale_scope: paths` — lưới trước-merge chỉ gọi hồ sơ là cũ khi diff chạm `paths` của eval
