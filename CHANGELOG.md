@@ -249,6 +249,11 @@ Gốc: làn ghim lại của DP4 đỏ ở ca P161 (UnicodeDecodeError ở byte 
   cả lớp «ghi lớn rồi thoát ngay» trong bốn thư mục mã.
 - Ai bị ảnh hưởng: mọi kho có thẻ hay JSON làn đỏ dài hơn 64 KB đọc qua ống dẫn. Không cần làm gì.
 
+<!-- CHO-A3: mục của vòng ngoai-n-tu-dinh-tuyen (hàng A3, Thợ A) — điền khi gộp main; thêm dòng bảng năm dòng số,
+     Context/AC-4 của _acceptance/release-2-27-0 và khoá rel2270_cua_so. -->
+<!-- CHO-C1: mục của vòng ci-cua-kho-bo-job-nang (hàng C1, T3, Thợ B) — điền khi gộp main; vòng sửa
+     scripts/pre-merge-check.sh (lớp chép CI) nên sửa cả dòng «Lớp chép CI» ở đầu mục và «Kho tiêu thụ làm gì». -->
+
 **Kho tiêu thụ làm gì khi nhận:**
 
 - **Lớp chép CI: chép lại ba tệp và THÊM một** — `lib/evidence-core.cjs`, `scripts/product-map.mjs`,
