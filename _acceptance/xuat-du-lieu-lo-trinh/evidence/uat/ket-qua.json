@@ -1,0 +1,29 @@
+{
+ "trang_sha256": "d6a49ac1bca1cceaa1e195218c778103fd9d21ce41d4c99a1fab5bb7c0da3ede",
+ "tep_crm_doc": "/private/tmp/claude-501/-Users-manhphan-dev-acceptance-gate-kit--claude-worktrees-determined-jones-4a99b2/15b593ca-ff19-4a7b-80a7-b2246228d119/scratchpad/crm-do/LO-TRINH.html",
+ "so_lo_trinh": 3,
+ "hang_theo_lo_trinh": {
+  "OKR": 94,
+  "Kho tài liệu": 13,
+  "Việc và Dự án": 10
+ },
+ "khoi_doc_bang_kit": {
+  "lo_trinh": 3,
+  "hang": 117,
+  "canh_bao": []
+ },
+ "hang_trang": 117,
+ "hang_khop": 117,
+ "hang_khoi_khop": 117,
+ "chi_tiet_khop": 117,
+ "ngay_khop": 219,
+ "ngay_tong": 219,
+ "dem_vong_doi_crm": {
+  "chua-xong": "28",
+  "da-giao": "86",
+  "khac": "3",
+  "tat-ca": "117"
+ },
+ "so_trang_bang_crm": 5,
+ "lech": []
+}

@@ -1,0 +1,6861 @@
+{
+ "tep_doc": "/private/tmp/claude-501/-Users-manhphan-dev-acceptance-gate-kit--claude-worktrees-determined-jones-4a99b2/15b593ca-ff19-4a7b-80a7-b2246228d119/scratchpad/crm-do/LO-TRINH.html",
+ "duong_route": "docTepLoTrinh() mặc định",
+ "sha256": "d6a49ac1bca1cceaa1e195218c778103fd9d21ce41d4c99a1fab5bb7c0da3ede",
+ "kieu": "co-du-lieu",
+ "canh_bao": [],
+ "so_trang_bang": 5,
+ "dem_vong_doi": {
+  "chua-xong": "28",
+  "da-giao": "86",
+  "khac": "3",
+  "tat-ca": "117"
+ },
+ "bang": [
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l1",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l2",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l3",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1a",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1c",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1d",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1e",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1f",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1g",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1h",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l4",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#4n",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#S",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#S2",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#ZT",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#ct",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l5",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#2",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#3",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#5",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#6",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#8a",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#H",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#9b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#D",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#7n",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#0",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#4",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#7",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#M",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#8c",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#8d",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#8b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#CK",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#10",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#O1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#O2",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#L1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#N0",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#9a",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#N1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#9c",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#C",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#L",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#T",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#MK",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#KN",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#KG",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K0",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K2",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K2b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K2c",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K2e",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K3",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K4",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K4b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K6b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K6c",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K6e",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K6a",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K5",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#4c",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#H1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#H4",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E1b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E1c",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E3",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E3b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E4",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E5",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E6",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E7",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E7b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#LT1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#LT2",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#NM1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#NM2",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#NM3",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#V2",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#DT1",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#LT1b",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F8",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F9",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F10",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F11",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F17",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F18",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F12",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F13",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F14",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F15",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F19",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F21",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F22",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#V2L",
+   "lo_ten": "OKR",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l0",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l3b",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#cb",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "dang-lam",
+     "chu": "Đang làm"
+    },
+    {
+     "nhom": "dang-lam",
+     "chu": "Đang làm"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#d9",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#d6",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l4a",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l4b",
+   "lo_ten": "Kho tài liệu",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V0",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    },
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V0a",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V1",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V2",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V3",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V4",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V5",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    },
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V6",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    },
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    }
+   ],
+   "phu": "Xếp lại sau"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V7",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    },
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    }
+   ],
+   "phu": "Xếp lại sau"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V8",
+   "lo_ten": "Việc và Dự án",
+   "cham": [
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    },
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    }
+   ],
+   "phu": "Xếp lại sau"
+  }
+ ],
+ "chi_tiet": [
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l1",
+   "mo_duoc": true,
+   "ma": "l1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l2",
+   "mo_duoc": true,
+   "ma": "l2",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l3",
+   "mo_duoc": true,
+   "ma": "l3",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1a",
+   "mo_duoc": true,
+   "ma": "R1a",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1b",
+   "mo_duoc": true,
+   "ma": "R1b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1c",
+   "mo_duoc": true,
+   "ma": "R1c",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1d",
+   "mo_duoc": true,
+   "ma": "R1d",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1e",
+   "mo_duoc": true,
+   "ma": "R1e",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1f",
+   "mo_duoc": true,
+   "ma": "R1f",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1g",
+   "mo_duoc": true,
+   "ma": "R1g",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#R1h",
+   "mo_duoc": true,
+   "ma": "R1h",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l4",
+   "mo_duoc": true,
+   "ma": "l4",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#1",
+   "mo_duoc": true,
+   "ma": "1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#4n",
+   "mo_duoc": true,
+   "ma": "4n",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#S",
+   "mo_duoc": true,
+   "ma": "S",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#S2",
+   "mo_duoc": true,
+   "ma": "S2",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#ZT",
+   "mo_duoc": true,
+   "ma": "ZT",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#ct",
+   "mo_duoc": true,
+   "ma": "ct",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l5",
+   "mo_duoc": true,
+   "ma": "l5",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#2",
+   "mo_duoc": true,
+   "ma": "2",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#3",
+   "mo_duoc": true,
+   "ma": "3",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#5",
+   "mo_duoc": true,
+   "ma": "5",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#6",
+   "mo_duoc": true,
+   "ma": "6",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#8a",
+   "mo_duoc": true,
+   "ma": "8a",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#H",
+   "mo_duoc": true,
+   "ma": "H",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#9b",
+   "mo_duoc": true,
+   "ma": "9b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#D",
+   "mo_duoc": true,
+   "ma": "D",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#7n",
+   "mo_duoc": true,
+   "ma": "7n",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#0",
+   "mo_duoc": true,
+   "ma": "0",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#4",
+   "mo_duoc": true,
+   "ma": "4",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#7",
+   "mo_duoc": true,
+   "ma": "7",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#M",
+   "mo_duoc": true,
+   "ma": "M",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#8c",
+   "mo_duoc": true,
+   "ma": "8c",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#8d",
+   "mo_duoc": true,
+   "ma": "8d",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#8b",
+   "mo_duoc": true,
+   "ma": "8b",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K",
+   "mo_duoc": true,
+   "ma": "K",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#CK",
+   "mo_duoc": true,
+   "ma": "CK",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#10",
+   "mo_duoc": true,
+   "ma": "10",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#O1",
+   "mo_duoc": true,
+   "ma": "O1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#O2",
+   "mo_duoc": true,
+   "ma": "O2",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#L1",
+   "mo_duoc": true,
+   "ma": "L1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#N0",
+   "mo_duoc": true,
+   "ma": "N0",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#9a",
+   "mo_duoc": true,
+   "ma": "9a",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#N1",
+   "mo_duoc": true,
+   "ma": "N1",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#9c",
+   "mo_duoc": true,
+   "ma": "9c",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#C",
+   "mo_duoc": true,
+   "ma": "C",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#L",
+   "mo_duoc": true,
+   "ma": "L",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#T",
+   "mo_duoc": true,
+   "ma": "T",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#MK",
+   "mo_duoc": true,
+   "ma": "MK",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#KN",
+   "mo_duoc": true,
+   "ma": "KN",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#KG",
+   "mo_duoc": true,
+   "ma": "KG",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K0",
+   "mo_duoc": true,
+   "ma": "K0",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K1",
+   "mo_duoc": true,
+   "ma": "K1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K2",
+   "mo_duoc": true,
+   "ma": "K2",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K2b",
+   "mo_duoc": true,
+   "ma": "K2b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K2c",
+   "mo_duoc": true,
+   "ma": "K2c",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K2e",
+   "mo_duoc": true,
+   "ma": "K2e",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K3",
+   "mo_duoc": true,
+   "ma": "K3",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": "kế hoạch ghi «chưa mở», thực tế «Đã giao — chờ phiên nghiệm thu»"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K4",
+   "mo_duoc": true,
+   "ma": "K4",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K4b",
+   "mo_duoc": true,
+   "ma": "K4b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K6b",
+   "mo_duoc": true,
+   "ma": "K6b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K6c",
+   "mo_duoc": true,
+   "ma": "K6c",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K6e",
+   "mo_duoc": true,
+   "ma": "K6e",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K6a",
+   "mo_duoc": true,
+   "ma": "K6a",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#K5",
+   "mo_duoc": true,
+   "ma": "K5",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#4c",
+   "mo_duoc": true,
+   "ma": "4c",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#H1",
+   "mo_duoc": true,
+   "ma": "H1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#H4",
+   "mo_duoc": true,
+   "ma": "H4",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E1",
+   "mo_duoc": true,
+   "ma": "E1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E1b",
+   "mo_duoc": true,
+   "ma": "E1b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E1c",
+   "mo_duoc": true,
+   "ma": "E1c",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E3",
+   "mo_duoc": true,
+   "ma": "E3",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E3b",
+   "mo_duoc": true,
+   "ma": "E3b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E4",
+   "mo_duoc": true,
+   "ma": "E4",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": "kế hoạch ghi «chưa mở», thực tế «Đã giao — chờ phiên nghiệm thu»"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E5",
+   "mo_duoc": true,
+   "ma": "E5",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E6",
+   "mo_duoc": true,
+   "ma": "E6",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": "kế hoạch ghi «chưa mở», thực tế «Đã giao — chờ phiên nghiệm thu»"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E7",
+   "mo_duoc": true,
+   "ma": "E7",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#E7b",
+   "mo_duoc": true,
+   "ma": "E7b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#LT1",
+   "mo_duoc": true,
+   "ma": "LT1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#LT2",
+   "mo_duoc": true,
+   "ma": "LT2",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#NM1",
+   "mo_duoc": true,
+   "ma": "NM1",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#NM2",
+   "mo_duoc": true,
+   "ma": "NM2",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#NM3",
+   "mo_duoc": true,
+   "ma": "NM3",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#V2",
+   "mo_duoc": true,
+   "ma": "V2",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#DT1",
+   "mo_duoc": true,
+   "ma": "DT1",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#LT1b",
+   "mo_duoc": true,
+   "ma": "LT1b",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F8",
+   "mo_duoc": true,
+   "ma": "F8",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F9",
+   "mo_duoc": true,
+   "ma": "F9",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F10",
+   "mo_duoc": true,
+   "ma": "F10",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": "kế hoạch ghi «chưa mở», thực tế «Đã giao — chờ phiên nghiệm thu»"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F11",
+   "mo_duoc": true,
+   "ma": "F11",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F17",
+   "mo_duoc": true,
+   "ma": "F17",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F18",
+   "mo_duoc": true,
+   "ma": "F18",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F12",
+   "mo_duoc": true,
+   "ma": "F12",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": "kế hoạch ghi «chưa mở», thực tế «Đã giao — chờ phiên nghiệm thu»"
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F13",
+   "mo_duoc": true,
+   "ma": "F13",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F14",
+   "mo_duoc": true,
+   "ma": "F14",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F15",
+   "mo_duoc": true,
+   "ma": "F15",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F19",
+   "mo_duoc": true,
+   "ma": "F19",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F21",
+   "mo_duoc": true,
+   "ma": "F21",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#F22",
+   "mo_duoc": true,
+   "ma": "F22",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-okr.json#V2L",
+   "mo_duoc": true,
+   "ma": "V2L",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l0",
+   "mo_duoc": true,
+   "ma": "l0",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l3b",
+   "mo_duoc": true,
+   "ma": "l3b",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#cb",
+   "mo_duoc": true,
+   "ma": "cb",
+   "cham": [
+    {
+     "nhom": "dang-lam",
+     "chu": "Đang làm"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#d9",
+   "mo_duoc": true,
+   "ma": "d9",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#d6",
+   "mo_duoc": true,
+   "ma": "d6",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l4a",
+   "mo_duoc": true,
+   "ma": "l4a",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-kho-tai-lieu.json#l4b",
+   "mo_duoc": true,
+   "ma": "l4b",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": "Đã giao — chờ phiên nghiệm thu",
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V0",
+   "mo_duoc": true,
+   "ma": "V0",
+   "cham": [
+    {
+     "nhom": "da-giao",
+     "chu": "Đã giao"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V0a",
+   "mo_duoc": true,
+   "ma": "V0a",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V1",
+   "mo_duoc": true,
+   "ma": "V1",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V2",
+   "mo_duoc": true,
+   "ma": "V2",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V3",
+   "mo_duoc": true,
+   "ma": "V3",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V4",
+   "mo_duoc": true,
+   "ma": "V4",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V5",
+   "mo_duoc": true,
+   "ma": "V5",
+   "cham": [
+    {
+     "nhom": "chua-bat-dau",
+     "chu": "Chưa bắt đầu"
+    }
+   ],
+   "phu": null,
+   "theo_loi": false,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V6",
+   "mo_duoc": true,
+   "ma": "V6",
+   "cham": [
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    }
+   ],
+   "phu": "Xếp lại sau",
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V7",
+   "mo_duoc": true,
+   "ma": "V7",
+   "cham": [
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    }
+   ],
+   "phu": "Xếp lại sau",
+   "theo_loi": true,
+   "lech": null
+  },
+  {
+   "khoa": "docs/plan/lo-trinh-viec-du-an.json#V8",
+   "mo_duoc": true,
+   "ma": "V8",
+   "cham": [
+    {
+     "nhom": "khac",
+     "chu": "Khác"
+    }
+   ],
+   "phu": "Xếp lại sau",
+   "theo_loi": true,
+   "lech": null
+  }
+ ],
+ "luat_ngay": [
+  {
+   "ngay": "2026-09-29",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-09-29",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-09-29",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-09-30",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-09-30",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-09-30",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-01",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-01",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-01",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-02",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-02",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-02",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-03",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-03",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-03",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-04",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-04",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-04",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-05",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-05",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-05",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-06",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-06",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-06",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-07",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-07",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-07",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-08",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-08",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-08",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-09",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-09",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-09",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-10",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-10",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-10",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-11",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-11",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-11",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-12",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-12",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-12",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-13",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-13",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-13",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-14",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-14",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-14",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-15",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-15",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-10-15",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-16",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-16",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-10-16",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-19",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-19",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-10-19",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-20",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-20",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-10-20",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-21",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-21",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-10-21",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-22",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-22",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-10-22",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-23",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-10-23",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-10-23",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-02",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-02",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-02",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-03",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-03",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-03",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-04",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-04",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật"
+    ],
+    "tre": [
+     "ct"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-04",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-05",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-05",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-05",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-06",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-06",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-06",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-11",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-11",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-11",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-12",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-12",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-12",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-13",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-13",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-13",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-14",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-14",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-14",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-15",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-15",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-15",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-18",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-18",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-18",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-19",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-19",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-19",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-20",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-20",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-20",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-21",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-21",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-21",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-22",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-22",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-22",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-29",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-29",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-29",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-30",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-11-30",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-11-30",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-01",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-01",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-01",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-02",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-02",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-02",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-03",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-03",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-03",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-05",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-05",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-05",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-06",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-06",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-06",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-07",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-07",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-07",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-08",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-08",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-08",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-09",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-09",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-09",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-12",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-12",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-12",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-13",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-13",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-13",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-14",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-14",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-14",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-15",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-15",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-15",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-16",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-16",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-16",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-17",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-17",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-17",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-18",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-18",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-18",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-19",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-19",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-19",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-20",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-20",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-20",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-21",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-21",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-21",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-22",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-22",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-22",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-23",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-23",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-23",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-26",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-26",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-26",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-27",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-27",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-27",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-28",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-28",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-28",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-29",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-29",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-29",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2026-12-30",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-30",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2026-12-30",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2027-02-04",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-04",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-04",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2027-02-05",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-05",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-05",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2027-02-06",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-06",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-06",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2027-02-07",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-07",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-07",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2027-02-08",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-08",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-08",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2027-02-09",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-09",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-09",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2027-02-10",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-10",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-10",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  },
+  {
+   "ngay": "2027-02-11",
+   "tep": "docs/plan/lo-trinh-okr.json",
+   "trang": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Hạn cứng: lượt 7 lên production"
+    ],
+    "tre": [
+     "7n"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-11",
+   "tep": "docs/plan/lo-trinh-kho-tai-lieu.json",
+   "trang": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   },
+   "kit": {
+    "moc": [
+     "Chạy thật",
+     "Sửa một đợt"
+    ],
+    "tre": [
+     "ct",
+     "l5"
+    ]
+   }
+  },
+  {
+   "ngay": "2027-02-11",
+   "tep": "docs/plan/lo-trinh-viec-du-an.json",
+   "trang": {
+    "moc": [],
+    "tre": []
+   },
+   "kit": {
+    "moc": [],
+    "tre": []
+   }
+  }
+ ]
+}
