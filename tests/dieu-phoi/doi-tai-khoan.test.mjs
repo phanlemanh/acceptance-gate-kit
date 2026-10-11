@@ -870,3 +870,71 @@ test('DP4-09 nhac', () => {
   assert.deepEqual(hang.filter(([, ok]) => !ok).map(([n]) => n), []);
   for (const [dot, phien] of [[k.dot, 's-p1'], [k2.dot, 's-x']]) assert.ok(fs.existsSync(path.join(dot, 'song', `${phien}.json`)), `nhịp sống ${phien} vẫn ghi`);
 });
+
+// ---------- DP4-10: lưới cuối StopFailure (AC-10, E10) ----------
+test('DP4-10 luoi-cuoi', () => {
+  const khoi = docJ(path.join(GOI, 'hooks', 'hooks.json')).hooks.StopFailure?.[0]?.hooks?.[0];
+  assert.ok(khoi && khoi.timeout >= 60, `hooks.json phải có khối StopFailure timeout ≥ 60: ${JSON.stringify(khoi)}`);
+  const het = (cwd, error = 'rate_limit') => chayHook('StopFailure', { session_id: 's-p1', error }, { cwd, nowMs: T });
+  const dem = (w) => Number(git(w, 'rev-list', '--count', 'HEAD'));
+  const porcelain = (w) => git(w, 'status', '--porcelain');
+  const tho = (dot) => suKienCua(dot).filter((e) => e.loai === 'tho-het-han-muc');
+  const pDau = (dot) => path.join(dot, 'ban-giao', 'dau', 'P1.json');
+  const hang = [];
+  {
+    const k = khoLienKet();
+    fs.writeFileSync(path.join(k.w1, 'do.txt'), 'dở');
+    const n = dem(k.w1);
+    const r = het(k.w1);
+    const d = fs.existsSync(pDau(k.dot)) ? docJ(pDau(k.dot)) : {};
+    hang.push(['a', r.status === 0 && dem(k.w1) === n + 1 && git(k.w1, 'log', '-1', '--format=%s').startsWith('wip(ban-giao): lưới cuối') && porcelain(k.w1) === '' && d.wip === git(k.w1, 'rev-parse', 'HEAD') && tho(k.dot).length === 1 && tho(k.dot)[0].can_phan === true]);
+  }
+  {
+    const k = khoLienKet();
+    fs.writeFileSync(path.join(k.w1, 'do.txt'), 'dở');
+    ghiJ(path.join(k.dot, 'khoa', 's4', 'chu.json'), { phien: 'P1', slug: 'hang-a', loai: 's4', worktree: k.w1, cap_luc: ISO(T), han_thue_den: ISO(T + 90 * PHUT) });
+    const dinh = git(k.w1, 'rev-parse', 'HEAD');
+    const r = het(k.w1);
+    hang.push(['b', r.status === 0 && git(k.w1, 'rev-parse', 'HEAD') === dinh && porcelain(k.w1) !== '' && docJ(pDau(k.dot)).luot_do === true]);
+  }
+  {
+    const k = khoLienKet();
+    const dinh = git(k.w1, 'rev-parse', 'HEAD');
+    const r = het(k.w1);
+    hang.push(['c', r.status === 0 && git(k.w1, 'rev-parse', 'HEAD') === dinh && docJ(pDau(k.dot)).wip === null]);
+  }
+  {
+    const k = khoLienKet();
+    fs.writeFileSync(path.join(k.w1, 'do.txt'), 'dở');
+    const dinh = git(k.w1, 'rev-parse', 'HEAD');
+    const rD = het(k.w1, 'overloaded');
+    const okD = rD.status === 0 && git(k.w1, 'rev-parse', 'HEAD') === dinh && !fs.existsSync(path.join(k.dot, 'ban-giao', 'dau')) && tho(k.dot).length === 0;
+    hang.push(['d', okD]);
+    const rE = het(k.kho);
+    hang.push(['e', rE.status === 0 && !fs.existsSync(path.join(k.dot, 'ban-giao', 'dau')) && tho(k.dot).length === 0]);
+  }
+  {
+    const trong = tam('dp4-trong-');
+    git(trong, 'init', '-q', '-b', 'main');
+    git(trong, 'commit', '-q', '--allow-empty', '-m', 'goc');
+    fs.writeFileSync(path.join(trong, 'do.txt'), 'dở');
+    const bam = bamCay(trong);
+    const dinh = git(trong, 'rev-parse', 'HEAD');
+    const r = het(trong);
+    hang.push(['f', r.status === 0 && bamCay(trong) === bam && git(trong, 'rev-parse', 'HEAD') === dinh]);
+  }
+  {
+    const k = khoLienKet();
+    const dHook = tam('dp4-hook-');
+    fs.writeFileSync(path.join(dHook, 'pre-commit'), '#!/bin/sh\necho chan-boi-kho >&2\nexit 1\n', { mode: 0o755 });
+    execFileSync('git', ['config', 'core.hooksPath', dHook], { cwd: k.w1, env: ENV });
+    fs.writeFileSync(path.join(k.w1, 'do.txt'), 'dở');
+    const dinh = git(k.w1, 'rev-parse', 'HEAD');
+    const r = het(k.w1);
+    const d = docJ(pDau(k.dot));
+    hang.push(['g', r.status === 0 && git(k.w1, 'rev-parse', 'HEAD') === dinh && fs.existsSync(path.join(k.w1, 'do.txt')) && porcelain(k.w1).includes('do.txt') && String(d.loi_commit).includes('chan-boi-kho')]);
+  }
+  console.log(hang.map(([n, ok]) => `  (${n}) · ${ok ? 'đúng' : 'SAI'}`).join('\n'));
+  assert.equal(hang.length, 7);
+  assert.deepEqual(hang.filter(([, ok]) => !ok).map(([n]) => n), []);
+});

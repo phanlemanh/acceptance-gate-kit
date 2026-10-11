@@ -46,6 +46,17 @@
           }
         ]
       }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 60,
+            "command": "f=\"${CLAUDE_PLUGIN_ROOT}/scripts/hook-het-han-muc.mjs\"; [ -f \"$f\" ] || exit 0; exec node \"$f\""
+          }
+        ]
+      }
     ]
   }
 }
