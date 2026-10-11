@@ -25,7 +25,7 @@
 ## Review Focus
 
 - Kho có `_acceptance/` nằm sâu (monorepo `pkg/_acceptance/`) — đường diff tính từ gốc git nên cổng coi `pkg/docs/a.md` là ngoài T1; chế độ «một nguồn» phải ra đúng như cổng (`T2`/`true` — chạy đủ), không tự «sửa» thành T1. Ca: Task 2 bước «gốc lồng».
-- Tên tệp có khoảng trắng trong diff — `DIFF_FILES` tách theo dòng; chế độ không được tách theo khoảng trắng. Ca: Task 1 thêm hàng `docs/có khoảng.md` → T1.
+- Tên tệp có khoảng trắng / dấu trong diff — `DIFF_FILES` tách theo dòng; nhưng `git diff --name-only` bọc tên non-ASCII trong nháy + mã bát phân nên CHÍNH cổng coi nó ngoài T1 (đo 12/10). Chế độ đi theo cổng (`T2`/`true` — chạy đủ). Ca: Task 1 hàng `docs/có khoảng.md` → T2 + cổng không cờ in non-T1.
 - Lời cảnh báo có `%` hay xuống dòng — GitHub đọc `%0A` là xuống dòng; thông điệp phải thoát `%`, `\r`, `\n`. Ca: Task 2 ref tên chứa `%` → đúng một dòng `::warning`.
 - Biến `GITHUB_OUTPUT` trỏ tệp chưa tồn tại — GitHub luôn tạo trước, nhưng chạy tay thì không; `>>` tự tạo, không lỗi. Ca: Task 1 AC-6 dùng tệp đã có; Task 2 thêm tệp chưa có → được tạo với đúng ba dòng.
 - `TMPDIR` không ghi được — `mktemp` hỏng thì bẫy chưa cài; chế độ phải tự in «chạy đủ» và thoát 0. Ca: Task 2 `TMPDIR=/khong-co` → `khong-ro`/`true`/`khong-phan-loai-duoc`, mã 0.
@@ -71,7 +71,7 @@ const MA_TRAN = [
   ['t3-vat-t1', ['core/x.ts', 'src/a.ts', 'docs/a.md'], 'T3', 'true'],
   ['ci-khai', ['.github/workflows/ci.yml'], 'T1', 'false'],
   ['ci-khong-khai', ['.github/workflows/acceptance.yml'], 'T2', 'true'],
-  ['ten-co-khoang', ['docs/có khoảng.md'], 'T1', 'false'],
+  ['ten-co-khoang', ['docs/có khoảng.md'], 'T2', 'true'],   // git bọc tên non-ASCII → cổng coi ngoài T1
 ];
 ```
 

@@ -29,6 +29,16 @@ finding trên vật (vùng vật, bộ lọc ngoài-vật). crm khai `**/*.md` (
 Không sửa ở vòng `ci-cua-kho-bo-job-nang`: chế độ `--hang-pr` dùng chính bộ khớp của cổng nên không mắc lỗi này;
 sửa `globToRe` đổi nghĩa `paths` của eval ở mọi kho (ngữ nghĩa «`*` không vượt `/`» là có chủ đích ở đó).
 
+## Cùng vùng: tên tệp có dấu không bao giờ khớp `t1_skip_globs` ở cổng
+
+Đo 12/10 (ca `AC-1` hàng `ten-co-khoang` của `tests/scripts/hang-pr.test.mjs`): `git diff --name-only` mặc định
+bọc tên non-ASCII trong nháy kép + mã bát phân (`"docs/c\303\263 kho\341\272\243ng.md"`, `core.quotePath`), và
+`pre-merge-check.sh` đưa nguyên chuỗi ấy vào `match_globs` → `docs/có khoảng.md` KHÔNG khớp `docs/**`. Hệ quả ở
+cổng: PR chỉ thêm tài liệu tên tiếng Việt có dấu bị luật T1-escape đòi hồ sơ, và luật hoá cũ coi nó là «mã đổi
+sau verify». Hướng: cổng đọc diff bằng `git -c core.quotePath=false diff --name-only` (hoặc `-z`) — đổi hành vi
+cổng ở mọi kho, nên cân ở Cổng Đáng. Ngưỡng mở ô: ≥1 PR thật ở một kho tiêu thụ bị chặn hoặc làm hoá cũ hồ sơ
+chỉ vì tên tệp có dấu.
+
 ## Hướng
 
 Một trong hai, cân ở Cổng Đáng khi mở ô: (a) lớp `ngoai` của `phan-loai.mjs` hỏi bộ khớp của cổng thay vì
