@@ -11,7 +11,7 @@ flowchart TD
   GD --> XL["Xếp lại sau<br/>24 việc"]
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
-  GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
+  GP --> DL["Đang làm<br/>3 việc"] --> GB{"Cổng Bằng chứng"}
   GB --> DG["Đã giao<br/>106 việc"]
   GB --> CN["Chờ phiên nghiệm thu<br/>16 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>7 việc"]
@@ -45,6 +45,7 @@ flowchart TD
 
 - Cờ qua-timebox cắt ngang cả nhóm «đã xong» — bộ quét gắn cờ cho hồ sơ park/bác, archived và đã có phán quyết giá trị (`co-qua-timebox-nhom-da-xong`)
 - Làn ghim lại gặp lớp acceptance-gate cũ phải dừng có tên (tệp · export · bản cần · lối đi tiếp --ag-root) thay vì TypeError thô đọc thành làn đỏ (`ghim-lai-tren-lop-cu`)
+- Lộ trình chỉ chứa việc phát triển — răng cắt lượt đặt việc vận hành của người vào mốc ngoài (chỗ thứ ba của bảng phủ), đỏ khi hàng đứng chờ mốc vận hành hay đo trên dữ liệu giả mà không có hàng sinh dữ liệu giả đứng trước, nhắc tự phục vụ cho vận hành lặp lại; SKILL tách vận hành trước sáu luật và sửa Ngoài-1/2 của S3 (`lo-trinh-chi-viec-phat-trien`)
 
 ## Đã giao — chờ phiên nghiệm thu
 
