@@ -34,19 +34,19 @@ evals:
     expected: >
       exit 0; "ok" cho "DP6-02 chi-doc-heredoc": ma trận viết sẵn = (node --check, node -c, --help) × 3 script +
       5 hình heredoc × 3 script + 6 lời gọi thật chặn nhầm (đọc từ tệp ca, lọc nhãn null) + 4 lời gọi âm đã có +
-      «node --check <script> && node <script> --write» × 3 script = 37 ô; số assert in ra = 37; ô «thân không nháy
-      chứa $(node <script> --root .)» và ô «kiểm cú pháp rồi chạy thật» trả đúng tài nguyên của script, mọi ô khác
-      trả null. "ok" cho "DP6-02 hook-im": hook thật trên đợt có khoá s4 của P2, cwd worktree P1
-      → thoát 0, stderr rỗng cho mọi ô null; đối chứng cùng đợt: `node <script>` trần → thoát 2. "ok" cho "DP6-02
-      tien-de-help": mỗi script thật trong ba (đường suy từ vị trí test) chạy với `--root <kho thử> --help` → thoát
-      khác 0, stderr chứa "cờ không nhận diện được", băm cây kho thử trước == sau. Ba đột biến, mỗi cái trên bản sao
-      sau khi bản lành xanh, tập ô đỏ so BẰNG tập rút bằng code từ ma trận (số in ra, kiểm 0 < số < 37): "ok" cho
-      "DP6-02-do bo-check" (ô --check/-c của node); "ok" cho "DP6-02-do bo-heredoc" (ô heredoc kỳ vọng null + lời
-      gọi thật heredoc); "ok" cho "DP6-02-do bo-thay-lenh" (ô thân không nháy). "ok" cho "DP6-02 khong-lot": ma trận viết sẵn 15 ô
-      (here-string, heredoc cho trình thông dịch kể cả bash kèm cờ mang giá trị, số học, chú thích, dấu đóng có gạch,
-      đối chứng bash <tệp>), số in ra = 15, mỗi ô đúng kỳ vọng, và mọi ô dương cũng bị bộ phân loại merge-base chặn; "ok" cho "DP6-02-do
-      bo-here-string" (đỏ đúng ô here-string-chu), "DP6-02-do bo-trinh-thong-dich" (đúng tám ô trình thông dịch),
-      "DP6-02-do bo-so-hoc" (đúng hai ô số học).
+      «node --check <script> && node <script> --write» × 3 script = 37 ô; số assert in ra = 37; ô chỉ đọc, bốn lời
+      gọi thật --check/--help và bốn lời gọi âm trả null; mọi ô heredoc, hai lời gọi thật heredoc (giới hạn đã khai:
+      vẫn bị chặn) và ô «kiểm cú pháp rồi chạy thật» trả tài nguyên. "ok" cho "DP6-02 hook-im": hook thật trên đợt
+      có khoá s4 của P2, cwd worktree P1 → thoát 0, stderr rỗng cho mọi ô null; thoát 2 cho mọi ô heredoc mang s4;
+      đối chứng cùng đợt: `node <script>` trần → thoát 2. "ok" cho "DP6-02 tien-de-help": mỗi script thật trong ba
+      (đường suy từ vị trí test) chạy với `--root <kho thử> --help` → thoát khác 0, stderr chứa "cờ không nhận diện
+      được", băm cây kho thử trước == sau. Hai đột biến, mỗi cái trên bản sao sau khi bản lành xanh, tập ô đỏ so
+      BẰNG tập rút bằng code từ ma trận (số in ra, kiểm 0 < số < 37): "ok" cho "DP6-02-do bo-check" (ô --check/-c
+      của node); "ok" cho "DP6-02-do than-la-du-lieu" (giả lập lại luật «thân heredoc là dữ liệu» — ngừng đọc từ
+      dấu << đầu tiên: đỏ đúng các ô kỳ vọng bị chặn mà có <<). "ok" cho "DP6-02 khong-lot": ma trận viết sẵn 15 ô
+      (here-string, heredoc cho trình thông dịch kể cả bash kèm cờ mang giá trị, số học, chú thích, dấu đóng có
+      gạch, bash <tệp> <<…), số in ra = 15, mỗi ô trả đúng tài nguyên và bộ phân loại merge-base cho cùng kết quả;
+      "ok" cho "DP6-02-do khong-lot-than-la-du-lieu" (cùng đột biến, đỏ đúng các ô có << của ma trận này).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E3
     criterion: AC-3
@@ -61,9 +61,10 @@ evals:
       bằng code từ danh sách), thư mục vắng → cả chín. "ok" cho "DP6-03 nguon": máy có đủ tệp nguồn → chạy
       rut-lenh-that.mjs ra thư mục tạm hai lần, hai đầu ra giống hệt (so băm) và BẰNG tệp ca đã commit; thiếu thư mục
       hoặc thiếu một tệp nguồn → dòng chẩn đoán "bỏ qua: không có bản ghi hội thoại (<n>/9 tệp nguồn vắng)" và ca vẫn
-      "ok" (in rõ nhánh đã đi). "ok" cho "DP6-03 lech-o-goc": phanLoaiLenh của merge-base (git archive trọn
-      dieu-phoi/ vào thư mục tạm) cho kết quả KHÁC nhãn ở cả 9 dòng (đếm == 9), bản sau thay đổi cho BẰNG nhãn ở cả
-      9 dòng (đếm == 9).
+      "ok" (in rõ nhánh đã đi). "ok" cho "DP6-03 lech-o-goc": nhãn so là nhãn tệp ca, trừ hai lời gọi heredoc
+      chặn nhầm mang nhãn «bị chặn» (giới hạn đã khai); phanLoaiLenh của merge-base (git archive trọn dieu-phoi/
+      vào thư mục tạm) cho kết quả KHÁC nhãn ở 7 dòng (đếm == 7), bản sau thay đổi cho BẰNG nhãn ở cả 9 dòng
+      (đếm == 9).
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E4
     criterion: AC-4

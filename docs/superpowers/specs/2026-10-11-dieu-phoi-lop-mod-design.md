@@ -114,7 +114,14 @@ Tệp: `dieu-phoi/scripts/phan-loai-s4.mjs` (một hàm cho hook chặn S4).
   `caffeinate -t`, `-w`. Thời lượng của `timeout` là một từ bắt buộc. `env -S`/`--split-string=` tách chuỗi rồi
   phân loại lại như `bash -c`. Giá trị trong ma trận cố ý không trùng tên lệnh (`3600`, `/opt/x`), để một cờ
   khai sai là cờ trần thì ô ấy đỏ.
-- **Thân heredoc là dữ liệu, không phải lệnh.** Gặp `<<DELIM`, `<<-DELIM`, `<<'DELIM'`, `<<"DELIM"`: các dòng từ
+- **ĐÃ THU 11/10 tại điểm dừng-vá (sổ quyết định hồ sơ, dòng 20) — thân heredoc được quét như mọi dòng lệnh, như
+  merge-base; heredoc nhắc tên script giữ tài nguyên bị chặn kể cả khi thân chỉ là dữ liệu (giới hạn đã khai, 2 trên
+  46.801 lời gọi đo).** Vì sao thu: luật dưới đây cần một mô hình đủ của argv trình thông dịch, và hai lượt chấm liền
+  tìm ra lệnh S4 lọt qua chính chỗ ấy (`bash -o pipefail <<EOF` ở lượt 1, `bash <<'EOF' 2>&1 | tail` ở lượt 2). Khuôn
+  thay thế an toàn theo hướng chặn — thân là dữ liệu CHỈ khi lệnh nhận thuộc một danh sách đóng không chạy thân
+  (`cat`/`tee` ghi tệp, `git commit -F -`) và không đổ vào ống — ở hạt giống
+  `docs/plans/2026-10-11-hat-giong-lop-mod-ve-sau-dp6.md`. Đoạn dưới giữ làm sử liệu, KHÔNG còn là hành vi:
+- ~~**Thân heredoc là dữ liệu, không phải lệnh.**~~ Gặp `<<DELIM`, `<<-DELIM`, `<<'DELIM'`, `<<"DELIM"`: các dòng từ
   sau dòng mở tới dòng bằng đúng `DELIM` (với `<<-` thì bỏ tab đầu dòng) không được tách thành đoạn lệnh. Thân
   không nháy (`<<DELIM`) vẫn bị shell thay `$(…)` và backtick, nên chỉ phần trong `$(…)` và backtick của thân ấy
   được phân loại; thân có nháy thì bỏ trọn. Thiếu dòng đóng → coi thân kéo tới hết chuỗi (shell cũng làm thế).
@@ -139,6 +146,9 @@ Tệp: `dieu-phoi/scripts/phan-loai-s4.mjs` (một hàm cho hook chặn S4).
   ca ấy in một dòng «bỏ qua: không có bản ghi hội thoại» — giới hạn đã khai, các ca phân loại vẫn chạy trên tệp ca.
   Tập ô mà mỗi đột biến chiều đỏ phải làm đỏ được RÚT bằng code từ ma trận (lọc ô theo token của vỏ bọc hay cờ bị
   đột biến), không gõ số tay; ca kiểm trước khi ghim rằng 0 < số ô rút được < tổng số ô.
+  Từ lần thu 11/10: mọi ô heredoc và hai lời gọi heredoc thật kỳ vọng BỊ CHẶN; đột biến giả lập lại luật «thân là
+  dữ liệu» (ngừng đọc từ `<<` đầu tiên) phải đỏ đúng các ô kỳ vọng bị chặn mà có `<<`; bộ phân loại merge-base sai
+  bảy trong chín lời gọi thật (hai lời gọi heredoc: cả hai bản cùng chặn).
 
 **Lời chặn** (sửa 11/10 sau khi gộp DP7: DP7 AC-6, đã ký, giữ nguyên câu cũ làm tiền tố và thêm câu «chờ lượt» khi cwd
 thuộc dãy, ngoài dãy y như cũ — DP6 nhường, chỉ NỐI THÊM lệnh xin lượt sau câu của DP7, không bỏ câu cũ; đoạn dưới

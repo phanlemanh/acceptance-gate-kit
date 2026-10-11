@@ -86,6 +86,23 @@ Workflow» và luật 52 của crm còn giá trị.
 DP4 gộp khung mod vào main (mục `modules`, tệp đăng ký, răng T11). Neo: hàng DP6 của lộ trình kit (mốc 01/11) —
 hàng đó mở lại vòng với slug riêng cho phần mod, đọc tệp này làm đầu vào brainstorm.
 
+## Luật «thân heredoc là dữ liệu» — đã thu, khuôn thay thế (11/10)
+
+Nguồn: `_acceptance/dieu-phoi-lop-mod/decisions.jsonl` dòng 20 (chủ kho chọn thu phạm vi tại điểm dừng-vá S4 lượt 2).
+
+DP6 dựng luật «thân heredoc là dữ liệu, trừ khi trình thông dịch đọc stdin» rồi thu lại: luật cần một mô hình đủ
+của argv `bash`/`sh`/`node`, và hai lượt chấm liền tìm ra lệnh S4 lọt qua chính bộ đọc ấy (`bash -o pipefail <<EOF`,
+rồi `bash <<'EOF' 2>&1 | tail`). Bộ phân loại hôm nay quét thân như mọi dòng lệnh; giá phải trả: 2 trên 46.801 lời
+gọi Bash đo 11/10 bị chặn nhầm (`cat > tep <<'EOF'` nhắc `repin-lane.mjs`; `python3 - <<'PY'` ghi sổ có tên script).
+
+Khuôn thay thế, an toàn theo hướng chặn (đảo mặc định): thân là dữ liệu CHỈ khi lệnh nhận heredoc thuộc một danh
+sách ĐÓNG không chạy thân — `cat`/`tee` có chuyển hướng ra tệp, `git commit -F -`, `gh … --body-file -` — VÀ đoạn
+ấy không đổ vào ống `|`. Mọi lệnh nhận khác (kể cả trình thông dịch, kể cả dạng chưa biết) → quét thân như nay. Lọt
+chỉ xảy ra nếu một lệnh trong danh sách chạy thân, mà không lệnh nào trong đó làm vậy. Không sửa được ca `python3 -`
+(trình thông dịch thật — đúng là phải quét).
+
+Ngưỡng mở thành việc: một lần đo lại bản ghi theo design DP6 §2.1 thấy > 10 lời gọi heredoc chặn nhầm.
+
 ## Phụ lục — mã nguồn mod thăm dò (qua `claude plugin validate --strict` 2.1.295, 11/10)
 
 Ba tệp. Mã phiên và đường nhật ký là của phiên DP6 ngày 11/10 — hàng sau thay bằng phiên và hồ sơ của nó.

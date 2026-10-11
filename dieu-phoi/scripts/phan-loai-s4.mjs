@@ -28,18 +28,14 @@ const SHELL = new Set(['bash', 'sh', 'zsh']);
 const CO_NODE_CO_GIA_TRI = new Set(['-r', '--require', '--import', '--loader', '--experimental-loader', '-C', '--conditions', '--env-file', '--input-type', '--title', '--test-reporter', '--test-reporter-destination', '--test-name-pattern']);
 const CO_NODE_MA_TRONG = new Set(['-e', '--eval', '-p', '--print']);
 
-// Tách chuỗi lệnh thành các đoạn (mảng từ), cắt ở && || ; | & xuống dòng và ngoặc — ngoài nháy. Chú thích
-// `#` bỏ tới hết dòng. Thân heredoc là dữ liệu (POSIX «Here-Document»): thân có nháy bỏ trọn; thân không nháy vẫn
-// bị shell thay `$(…)` và backtick, nên chỉ các đoạn đó thành lệnh — TRỪ khi cùng dòng có một trình thông dịch
-// đọc stdin (`bash`, `sh -s`, `… | bash`, `node` không tệp script): khi ấy thân CHÍNH LÀ lệnh (design DP6 §4 C1).
+// Tách chuỗi lệnh thành các đoạn (mảng từ), cắt ở && || ; | & xuống dòng và ngoặc — ngoài nháy.
+// Thân heredoc được quét như mọi dòng lệnh: heredoc nhắc tên script giữ tài nguyên bị chặn kể cả khi thân chỉ là
+// dữ liệu — giới hạn đã khai (design DP6 §4 C1; luật «thân là dữ liệu» thu tại điểm dừng-vá 11/10).
 export function tachDoan(lenh) {
   const doan = [];
   let tu = [];
   let cur = null;
   let nhay = null;
-  let choHeredoc = [];
-  let dauDong = 0;
-  let soHoc = 0;
   const day = () => {
     if (cur !== null) tu.push(cur);
     cur = null;
@@ -76,55 +72,8 @@ export function tachDoan(lenh) {
       day();
       continue;
     }
-    // Số học `((…))` / `$((…))`: `<<` trong đó là dịch bit, không mở heredoc.
-    if (c === '(' && lenh[i + 1] === '(') {
-      soHoc++;
-      cat();
-      i++;
-      continue;
-    }
-    if (c === ')' && lenh[i + 1] === ')' && soHoc > 0) {
-      soHoc--;
-      cat();
-      i++;
-      continue;
-    }
-    // `#` ở đầu một từ mở chú thích tới hết dòng (dòng xuống vẫn được xử lý).
-    if (c === '#' && cur === null && soHoc === 0) {
-      const het = lenh.indexOf('\n', i);
-      i = (het === -1 ? lenh.length : het) - 1;
-      continue;
-    }
-    // `<<<` là here-string: một từ dữ liệu trên cùng dòng, không có thân.
-    if (c === '<' && lenh[i + 1] === '<' && lenh[i + 2] === '<') {
-      if (cur === null) cur = '';
-      cur += '<<<';
-      i += 2;
-      continue;
-    }
-    // `<<DELIM`, `<<-DELIM`, `<<'DELIM'`, `<<"DELIM"` mở heredoc. Dấu mở là trọn một từ shell (gỡ nháy) và phải bắt
-    // đầu bằng chữ, `_` hoặc nháy — số học đã loại ở trên, nên `1<<2` lẻ cũng không mở heredoc.
-    if (c === '<' && lenh[i + 1] === '<' && soHoc === 0) {
-      let m = /^<<(-?)[ \t]*([^\s;&|<>()]+)/.exec(lenh.slice(i));
-      if (m && !/^['"\\]*[A-Za-z_]/.test(m[2])) m = null;
-      if (m) {
-        choHeredoc.push({ delim: m[2].replace(/['"\\]/g, ''), nhay: /['"\\]/.test(m[2]), boTab: m[1] === '-' });
-        day();
-        i += m[0].length - 1;
-        continue;
-      }
-    }
-    if (c === '\n' && choHeredoc.length) {
-      cat();
-      const dt = doThongDich(doan.slice(dauDong));
-      i = docThanHeredoc(lenh, i + 1, choHeredoc, doan, dt) - 1;
-      choHeredoc = [];
-      dauDong = doan.length;
-      continue;
-    }
     if ('&|;\n()'.includes(c)) {
       cat();
-      if (c === '\n') dauDong = doan.length;
       continue;
     }
     if (cur === null) cur = '';
@@ -132,95 +81,6 @@ export function tachDoan(lenh) {
   }
   cat();
   return doan;
-}
-
-// Trình thông dịch đọc stdin trong các đoạn của một dòng: `'shell'` (`bash`/`sh`/`zsh` không `-c` và không tệp
-// script, hoặc có `-s`), `'node'` (node không tệp script, hoặc `-`), hay `null`.
-function doThongDich(cacDoan) {
-  for (const tu of cacDoan) {
-    const i = boVoBoc(tu, 0).i;
-    if (i >= tu.length) continue;
-    const ten = path.basename(tu[i]);
-    const doiSo = tu.slice(i + 1);
-    if (SHELL.has(ten)) {
-      // Cờ mang giá trị của shell (`-o pipefail`, cụm `-euo pipefail`, `-O opt`, `--rcfile f`) ăn từ kế — giá trị ấy
-      // không phải tệp script.
-      let doc = 'shell';
-      for (let k = 0; k < doiSo.length; k++) {
-        const a = doiSo[k];
-        if (/^-[a-zA-Z]*c$/.test(a)) {
-          doc = null;
-          break;
-        }
-        if (a === '-s') break;
-        if (/^[-+][a-zA-Z]*[oO]$/.test(a) || a === '--rcfile' || a === '--init-file') k++;
-        else if (!a.startsWith('-') && !a.startsWith('+')) {
-          doc = null;
-          break;
-        }
-      }
-      if (doc) return doc;
-    }
-    if (ten === 'node' || ten === 'nodejs') {
-      let j = 0;
-      let maTrong = false;
-      for (; j < doiSo.length; j++) {
-        if (CO_NODE_MA_TRONG.has(doiSo[j])) maTrong = true;
-        if (CO_NODE_CO_GIA_TRI.has(doiSo[j])) j++;
-        else if (!doiSo[j].startsWith('-')) break;
-      }
-      if (!maTrong && (j >= doiSo.length || doiSo[j] === '-')) return 'node';
-    }
-  }
-  return null;
-}
-
-// Đọc thân của các heredoc đang chờ, từ vị trí `tu`; trả vị trí ngay sau dòng đóng cuối (thiếu dòng đóng thì thân
-// kéo tới hết chuỗi, như shell). `dt` = trình thông dịch đọc stdin trên dòng mở (doThongDich): `'shell'` thì thân
-// là lệnh; `'node'` thì thân là mã JS — nhắc tên một script giữ tài nguyên là coi như chạy nó; không có thì thân là
-// dữ liệu, chỉ `$(…)`/backtick của thân không nháy thành lệnh.
-function docThanHeredoc(lenh, tu, cho, doan, dt) {
-  let i = tu;
-  for (const h of cho) {
-    const than = [];
-    while (i < lenh.length) {
-      const het = lenh.indexOf('\n', i);
-      const dong = lenh.slice(i, het === -1 ? lenh.length : het);
-      i = het === -1 ? lenh.length : het + 1;
-      if ((h.boTab ? dong.replace(/^\t+/, '') : dong) === h.delim) break;
-      than.push(dong);
-    }
-    const noi = than.join('\n');
-    if (dt === 'shell') {
-      doan.push(...tachDoan(noi));
-    } else if (dt === 'node') {
-      for (const k of Object.keys(BANG_BASH)) if (noi.includes(k)) doan.push(['node', `${k}.mjs`]);
-    } else if (!h.nhay) for (const con of thayLenhTrong(noi)) doan.push(...tachDoan(con));
-  }
-  return i;
-}
-
-// Nội dung các lần thay lệnh `$(…)` (không tính `$((…))` số học) và backtick trong một đoạn văn.
-function thayLenhTrong(s) {
-  const ra = [];
-  for (let i = 0; i < s.length; i++) {
-    if (s[i] === '$' && s[i + 1] === '(' && s[i + 2] !== '(') {
-      let sau = 1;
-      let j = i + 2;
-      for (; j < s.length && sau > 0; j++) {
-        if (s[j] === '(') sau++;
-        else if (s[j] === ')') sau--;
-      }
-      ra.push(s.slice(i + 2, sau === 0 ? j - 1 : j));
-      i = j - 1;
-    } else if (s[i] === '`') {
-      const j = s.indexOf('`', i + 1);
-      if (j === -1) break;
-      ra.push(s.slice(i + 1, j));
-      i = j;
-    }
-  }
-  return ra;
 }
 
 const nhayDon = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;

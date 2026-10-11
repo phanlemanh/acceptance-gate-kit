@@ -238,8 +238,12 @@ export function maTranVoBoc() {
   for (const x of docTepCa().filter((x) => x.nhan !== null)) o.push({ ten: `that:${x.tool_use_id}`, lenh: x.lenh, ky_vong: x.nhan });
   return o;
 }
-// Tên các ô mà bộ phân loại trả khác kỳ vọng.
-const chayMaTran = (phanLoaiLenh, ds) => ds.filter((o) => phanLoaiLenh(o.lenh) !== o.ky_vong).map((o) => o.ten);
+// Tên các ô mà bộ phân loại trả khác kỳ vọng. Kỳ vọng `'*'` = bị chặn, tài nguyên nào cũng được (giới hạn đã khai).
+const khop = (r, k) => (k === '*' ? r !== null : r === k);
+// Nhãn của một lời gọi thật với bản mới: tệp ca giữ nhãn đo (`nhan`); hai lời gọi heredoc chặn nhầm là giới hạn đã
+// khai — bản mới VẪN chặn chúng (sổ quyết định dòng 20).
+const kyVongMoi = (x) => (x.hinh === 'chan-nham:heredoc' ? '*' : x.nhan);
+const chayMaTran = (phanLoaiLenh, ds) => ds.filter((o) => !khop(phanLoaiLenh(o.lenh), o.ky_vong)).map((o) => o.ten);
 
 test('DP6-01 vo-boc', async () => {
   assert.equal(DANG_VO_BOC.length, 41);
@@ -288,13 +292,16 @@ test('DP6-01-do caffeinate-t-tran', async () => {
   assert.deepEqual(chayMaTran(phanLoaiLenh, ds), can);
 });
 
-// ---------- DP6-02: thân heredoc, cờ chỉ đọc (AC-2, E2) ----------
+// ---------- DP6-02: cờ chỉ đọc, heredoc giữ chặn (AC-2, E2) ----------
+// Heredoc nhắc tên script giữ tài nguyên VẪN bị chặn, kể cả khi thân chỉ là dữ liệu: bộ tách lệnh quét thân như
+// mọi dòng lệnh, như merge-base. Giới hạn đã khai — luật «thân là dữ liệu» thu tại điểm dừng-vá 11/10 (sổ quyết
+// định dòng 20, design DP6 §4 C1).
 const HEREDOC = [
-  ['nhay-don', (s) => `cat > a.txt <<'EOF'\nnode x/${s} --root .\nEOF`, false],
-  ['nhay-kep', (s) => `python3 - <<"PY"\nnode x/${s} --root .\nPY`, false],
-  ['tab', (s) => `cat <<-EOF\n\tnode x/${s} --root .\n\tEOF`, false],
-  ['thieu-dong', (s) => `cat <<'EOF'\nnode x/${s} --root .`, false],
-  ['khong-nhay-thay-lenh', (s) => `cat <<EOF\n$(node x/${s} --root .)\nEOF`, true],
+  ['nhay-don', (s) => `cat > a.txt <<'EOF'\nnode x/${s} --root .\nEOF`],
+  ['nhay-kep', (s) => `python3 - <<"PY"\nnode x/${s} --root .\nPY`],
+  ['tab', (s) => `cat <<-EOF\n\tnode x/${s} --root .\n\tEOF`],
+  ['thieu-dong', (s) => `cat <<'EOF'\nnode x/${s} --root .`],
+  ['khong-nhay-thay-lenh', (s) => `cat <<EOF\n$(node x/${s} --root .)\nEOF`],
 ];
 const AM_CU = ['grep -n s4-args feature-loop/scripts/*.mjs', 'cat feature-loop/scripts/repin-lane.mjs', 'node --test tests/scripts/repin-lane-lop-cu.test.mjs', 'git grep repin-lane'];
 export function maTranChiDoc() {
@@ -303,10 +310,10 @@ export function maTranChiDoc() {
     o.push({ ten: `--check × ${s}`, lenh: `node --check x/${s}`, ky_vong: null });
     o.push({ ten: `-c × ${s}`, lenh: `node -c x/${s}`, ky_vong: null });
     o.push({ ten: `--help × ${s}`, lenh: `node x/${s} --help`, ky_vong: null });
-    for (const [h, f, chay] of HEREDOC) o.push({ ten: `heredoc:${h} × ${s}`, lenh: f(s), ky_vong: chay ? tn : null });
+    for (const [h, f] of HEREDOC) o.push({ ten: `heredoc:${h} × ${s}`, lenh: f(s), ky_vong: tn });
     o.push({ ten: `check-roi-chay × ${s}`, lenh: `node --check x/${s} && node x/${s} --write`, ky_vong: tn });
   }
-  for (const x of docTepCa().filter((x) => x.nhan === null)) o.push({ ten: `that:${x.hinh}:${x.tool_use_id}`, lenh: x.lenh, ky_vong: null });
+  for (const x of docTepCa().filter((x) => x.nhan === null)) o.push({ ten: `that:${x.hinh}:${x.tool_use_id}`, lenh: x.lenh, ky_vong: kyVongMoi(x) });
   for (const l of AM_CU) o.push({ ten: `am:${l}`, lenh: l, ky_vong: null });
   return o;
 }
@@ -331,6 +338,11 @@ test('DP6-02 hook-im', () => {
   }).map((o) => o.ten);
   console.log(`  hook thật im với ${im.length} ô chỉ đọc`);
   assert.deepEqual(loi, []);
+  // Giới hạn đã khai, ở mức hook: heredoc nhắc script S4 bị chặn khi khoá s4 do dãy khác giữ.
+  const heredoc = maTranChiDoc().filter((o) => o.ten.startsWith('heredoc:') && o.ky_vong === 's4');
+  const lot = heredoc.filter((o) => chayHookChanS4({ tool_name: 'Bash', tool_input: { command: o.lenh } }, { cwd: w1 }).ma !== 2).map((o) => o.ten);
+  console.log(`  hook thật chặn ${heredoc.length} ô heredoc s4`);
+  assert.deepEqual(lot, []);
   for (const [s] of SCRIPT) assert.equal(chayHookChanS4({ tool_name: 'Bash', tool_input: { command: `node x/${s} --root .` } }, { cwd: w1 }).ma, 2, `đối chứng: ${s} trần phải bị chặn`);
 });
 
@@ -361,20 +373,21 @@ async function doDotBien(tep, cu, moi, loc) {
 }
 test('DP6-02-do bo-check', () =>
   doDotBien('phan-loai-s4.mjs', "if (t === '--check' || t === '-c') return null;", '', (o) => /^(--check|-c) × /.test(o.ten) || /^that:chan-nham:check:/.test(o.ten)));
-test('DP6-02-do bo-heredoc', () =>
-  doDotBien('phan-loai-s4.mjs', 'if (m) {\n        choHeredoc.push(', 'if (false) {\n        choHeredoc.push(', (o) => (o.ten.startsWith('heredoc:') && o.ky_vong === null) || /^that:chan-nham:heredoc:/.test(o.ten)));
-test('DP6-02-do bo-thay-lenh', () =>
-  doDotBien('phan-loai-s4.mjs', 'if (!h.nhay) for (const con of thayLenhTrong(', 'if (false) for (const con of thayLenhTrong(', (o) => o.ten.startsWith('heredoc:khong-nhay-thay-lenh')));
+// Đột biến giả lập lại luật «thân heredoc là dữ liệu» đã thu: ngừng đọc từ dấu `<<` đầu tiên. Đỏ đúng các ô kỳ
+// vọng bị chặn mà có `<<` (lệnh S4 của chúng nằm sau dấu mở); ô không chặn hay không có `<<` đứng yên.
+const canDoDuLieu = (o) => o.ky_vong !== null && o.lenh.includes('<<');
+const DOT_BIEN_DU_LIEU = ['    const c = lenh[i];\n', "    const c = lenh[i];\n    if (c === '<' && lenh[i + 1] === '<') break;\n"];
+test('DP6-02-do than-la-du-lieu', () => doDotBien('phan-loai-s4.mjs', ...DOT_BIEN_DU_LIEU, canDoDuLieu));
 
-// ---------- DP6-03: bản cũ sai đúng chín lời gọi thật, bản mới đúng cả chín ----------
+// ---------- DP6-03: bản cũ sai bảy lời gọi thật, bản mới đúng cả chín (hai heredoc: cả hai bản cùng chặn) ----------
 test('DP6-03 lech-o-goc', async () => {
   const ds = docTepCa();
   const { phanLoaiLenh: goc } = await nap(goiTaiMergeBase(), 'phan-loai-s4.mjs');
   const { phanLoaiLenh: moi } = await nap(GOI, 'phan-loai-s4.mjs');
-  const saiOGoc = ds.filter((x) => goc(x.lenh) !== x.nhan).length;
-  const dungBanMoi = ds.filter((x) => moi(x.lenh) === x.nhan).length;
+  const saiOGoc = ds.filter((x) => !khop(goc(x.lenh), kyVongMoi(x))).length;
+  const dungBanMoi = ds.filter((x) => khop(moi(x.lenh), kyVongMoi(x))).length;
   console.log(`  merge-base sai ${saiOGoc}/${ds.length} · bản mới đúng ${dungBanMoi}/${ds.length}`);
-  assert.equal(saiOGoc, 9);
+  assert.equal(saiOGoc, 7);
   assert.equal(dungBanMoi, 9);
 });
 
@@ -603,8 +616,9 @@ test('DP6-07 khong-dot', () => {
   assert.equal(chayHookChanS4(LENH_S4, { cwd: w1 }).ma, 2, 'đối chứng: kho có đợt và khoá của dãy khác thì chặn');
 });
 
-// ---------- DP6-02 khong-lot: luật heredoc không mở lối lọt mới (soát toàn nhánh, lượt sửa) ----------
-// Mỗi ô là một lời gọi S4/đường nền THẬT mà bộ phân loại ở merge-base chặn được; luật heredoc không được làm nó lọt.
+// ---------- DP6-02 khong-lot: heredoc và các dạng `<<` không lọt (soát toàn nhánh, hai lượt chấm) ----------
+// Mỗi ô là một lời gọi S4/đường nền THẬT mà bộ phân loại ở merge-base chặn được; bản mới phải chặn y như thế. Ô
+// `bash-co-tep` từng là đối chứng «thân là dữ liệu» — luật ấy đã thu (sổ quyết định dòng 20), nên nó cũng bị chặn.
 export const MA_TRAN_KHONG_LOT = [
   ['here-string', 'read a <<<"$x"\nnode x/repin-lane.mjs --write', 's4'],
   ['here-string-chu', 'cat <<< hello\nnode x/repin-lane.mjs', 's4'],
@@ -617,7 +631,7 @@ export const MA_TRAN_KHONG_LOT = [
   ['so-hoc-lenh', '(( m = 1 << shift ))\nnode x/repin-lane.mjs', 's4'],
   ['chu-thich', '# dùng <<EOF ở dưới\nnode x/repin-lane.mjs', 's4'],
   ['dau-dong-gach', 'cat <<EOF-X\nhello\nEOF-X\nnode x/repin-lane.mjs', 's4'],
-  ['bash-co-tep', "bash chay.sh <<'EOF'\nnode x/repin-lane.mjs\nEOF", null],
+  ['bash-co-tep', "bash chay.sh <<'EOF'\nnode x/repin-lane.mjs\nEOF", 's4'],
   ['bash-o-pipefail', "bash -o pipefail <<'EOF'\nnode x/repin-lane.mjs\nEOF", 's4'],
   ['bash-euo', 'bash -euo pipefail <<EOF\nnode x/s4-args.mjs\nEOF', 's4'],
   ['bash-rcfile', "bash --rcfile r.sh <<'EOF'\nnode x/duong-nen.mjs\nEOF", 'duong-nen'],
@@ -630,23 +644,20 @@ test('DP6-02 khong-lot', async () => {
   assert.equal(ds.length, 15);
   const { phanLoaiLenh } = await nap(GOI, 'phan-loai-s4.mjs');
   assert.deepEqual(chayMaTran(phanLoaiLenh, ds), []);
-  // Ô dương của ma trận là lời gọi bộ phân loại ở merge-base cũng chặn (luật mới không được kém hơn).
+  // Ô của ma trận là lời gọi bộ phân loại ở merge-base cũng chặn (bản mới không được kém hơn).
   const { phanLoaiLenh: goc } = await nap(goiTaiMergeBase(), 'phan-loai-s4.mjs');
-  assert.deepEqual(ds.filter((o) => o.ky_vong !== null && goc(o.lenh) !== o.ky_vong).map((o) => o.ten), []);
+  assert.deepEqual(ds.filter((o) => goc(o.lenh) !== o.ky_vong).map((o) => o.ten), []);
 });
 
-async function doDotBienKhongLot(cu, moi, can) {
+test('DP6-02-do khong-lot-than-la-du-lieu', async () => {
   const ds = maTranKhongLot();
   const { phanLoaiLenh: lanh } = await nap(GOI, 'phan-loai-s4.mjs');
   assert.deepEqual(chayMaTran(lanh, ds), [], 'bản lành phải xanh trước');
   const sao = saoGoi();
-  tiem(sao, 'phan-loai-s4.mjs', cu, moi);
+  tiem(sao, 'phan-loai-s4.mjs', ...DOT_BIEN_DU_LIEU);
   const { phanLoaiLenh } = await nap(sao, 'phan-loai-s4.mjs');
+  const can = ds.filter(canDoDuLieu).map((o) => o.ten);
+  console.log(`  ô kỳ vọng đỏ: ${can.length}/${ds.length}`);
+  assert.ok(can.length > 0);
   assert.deepEqual(chayMaTran(phanLoaiLenh, ds), can);
-}
-test('DP6-02-do bo-here-string', () =>
-  doDotBienKhongLot("if (c === '<' && lenh[i + 1] === '<' && lenh[i + 2] === '<') {", "if (false) {", ['here-string-chu']));
-test('DP6-02-do bo-trinh-thong-dich', () =>
-  doDotBienKhongLot('const dt = doThongDich(doan.slice(dauDong));', 'const dt = null;', ['bash-nhay', 'bash-khong-nhay', 'sh-s', 'ong-bash', 'node-stdin', 'bash-o-pipefail', 'bash-euo', 'bash-rcfile']));
-test('DP6-02-do bo-so-hoc', () =>
-  doDotBienKhongLot("if (c === '(' && lenh[i + 1] === '(') {", "if (false) {", ['so-hoc-gan', 'so-hoc-lenh']));
+});
