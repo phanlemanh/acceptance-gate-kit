@@ -7,7 +7,7 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: a18817d801068f2d7c1d3423850d677891966898
+verified_commit: 3ad1c14a5214d9fe7497c2d3f884eb9939bbec58
 human_signoff: manh 2026-10-11
 ---
 
@@ -365,3 +365,7 @@ none — every multi-run eval is uniform
 ## Iterations
 
 Round 1: toàn bộ eval máy xanh (E12, E13 không đo được trên baseline vì eval mới), hội đồng chấm E14d đồng thuận PASS, verdict PASS. Phát hiện của bước review nằm ở review-findings.md.
+
+### Re-pin lần 1 — 2026-10-11, do ghim lại sau DP4 và gộp main d0dc3dc4 (vá gate-card #311)
+run_id: repin-20261011T112517Z-27231
+sha: 3ad1c14a5214d9fe7497c2d3f884eb9939bbec58 · suites: 10 lệnh exit 0 · evals: 18/18 eval máy đạt kỳ vọng · ngoài làn máy: E14d (E14d không khai paths)
