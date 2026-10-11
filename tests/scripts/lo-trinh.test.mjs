@@ -2416,11 +2416,12 @@ async function lt142(kit) {
   if (y.status !== 1 || !dongCua(y, 'R11').some(l => l.startsWith('lỗi: hàng R11 [can-tach]'))) sai.push(`khối sửa không đổi cờ: exit ${y.status} ${JSON.stringify(dongCua(y, 'R11'))}`);
   // Ma trận khối hỏng — viết sẵn: [tên ca, biến đổi khối, khoá phải được gọi tên].
   const thay = (cu, moi) => k => k.replace(cu, moi);
-  const CA = [['vang-khoi', null, 'CAT-LUOT-CO'],
-    ...C.KHOA_CO.map(kh => [`thieu-${kh}`, k => k.split('\n').filter(l => !l.startsWith(`${kh}:`)).join('\n'), kh]),
-    ['muc-tieu-0', thay('muc_tieu: 8-10', 'muc_tieu: 0-10'), 'muc_tieu'], ['tran-0', thay('tran_luot_cham: 3', 'tran_luot_cham: 0'), 'tran_luot_cham'],
-    ['it-chu', thay('it_du_lieu_duoi: 10', 'it_du_lieu_duoi: abc'), 'it_du_lieu_duoi'], ['muc-tieu-nguoc', thay('muc_tieu: 8-10', 'muc_tieu: 10-8'), 'muc_tieu'],
-    ['cho-phep-nho', thay('cho_phep_den: 12', 'cho_phep_den: 9'), 'cho_phep_den'], ['tach-ho', thay('tach_tu: 13', 'tach_tu: 14'), 'tach_tu'], ['tach-chong', thay('tach_tu: 13', 'tach_tu: 12'), 'tach_tu']];
+  // Cụm ghim RIÊNG của nhánh kiểm mà ca đại diện (S4-r1 t9: tên khoá trần trùng thông điệp nhánh khác).
+  const CA = [['vang-khoi', null, 'thiếu khối CAT-LUOT-CO'],
+    ...C.KHOA_CO.map(kh => [`thieu-${kh}`, k => k.split('\n').filter(l => !l.startsWith(`${kh}:`)).join('\n'), `thiếu khoá ${kh}`]),
+    ['muc-tieu-0', thay('muc_tieu: 8-10', 'muc_tieu: 0-10'), 'muc_tieu «0-10» phải là'], ['tran-0', thay('tran_luot_cham: 3', 'tran_luot_cham: 0'), 'tran_luot_cham «0» phải là số nguyên dương'],
+    ['it-chu', thay('it_du_lieu_duoi: 10', 'it_du_lieu_duoi: abc'), 'it_du_lieu_duoi «abc» phải là số nguyên dương'], ['muc-tieu-nguoc', thay('muc_tieu: 8-10', 'muc_tieu: 10-8'), 'muc_tieu «10-8» ngược'],
+    ['cho-phep-nho', thay('cho_phep_den: 12', 'cho_phep_den: 9'), 'cho_phep_den 9 nhỏ hơn cuối muc_tieu'], ['tach-ho', thay('tach_tu: 13', 'tach_tu: 14'), 'khoảng hở'], ['tach-chong', thay('tach_tu: 13', 'tach_tu: 12'), 'khoảng chồng']];
   const KHOI_RE = /(<!-- <<<CAT-LUOT-CO -->\n```[a-z]*\n)([\s\S]*?)(```\n<!-- CAT-LUOT-CO>>> -->)/;
   for (const [ten, bien, khoa] of CA) {
     const c = banSao([], kit); const p = SKILL_CL(c); const sk = readFileSync(p, 'utf8');
@@ -2429,13 +2430,14 @@ async function lt142(kit) {
     if (moi === sk) { sai.push(`${ten}: biến đổi không đổi khối`); continue; }
     writeFileSync(p, moi);
     const z = rang(c, r);
-    if (z.status !== 2 || !z.stderr.includes(khoa) || z.stdout.includes('bảng phủ')) sai.push(`${ten}: exit ${z.status}, stderr «${z.stderr.trim().slice(0, 120)}», cần nêu ${khoa}`);
+    if (z.status !== 2 || !z.stderr.includes(khoa) || z.stdout.includes('bảng phủ')) sai.push(`${ten}: exit ${z.status}, stderr «${z.stderr.trim().slice(0, 120)}», cần «${khoa}»`);
   }
   console.log(`    · LT-142 ma trận khối hỏng: ${CA.length} ca`);
   if (CA.length !== 13) sai.push(`ma trận ${CA.length} ca, hợp đồng hứa 13`);
   return sai;
 }
 if (want('LT-142') && await chayCa('LT-142', lt142)) ok('LT-142', 'khoảng đọc từ khối SKILL: gói lành hàng 11 → tren-muc-tieu; khối sửa → can-tach; 13 khối hỏng → thoát 2 nêu khoá');
+if (want('LT-142-do-nhanh')) await chayDo('LT-142-do-nhanh', lt142, [['scripts/cat-luot.mjs', 'if (c < cuoi) loi.push(`khoá cho_phep_den ${c} nhỏ hơn cuối muc_tieu ${cuoi}`);\n    else if', 'if']], 'cho-phep-nho', 'bản sao gỡ nhánh cho_phep_den nhỏ hơn mục tiêu');
 if (want('LT-142-do')) await chayDo('LT-142-do', lt142, [['scripts/cat-luot.mjs', 'let khoang; try { khoang = napKhoang(); } catch (e) { thoat(2, e.message); }', 'const khoang = { muc_tieu: [8, 10], cho_phep_den: 12, tach_tu: 13, tran_luot_cham: 3, it_du_lieu_duoi: 10 };']], 'khối sửa không đổi cờ', 'bản sao nướng khoảng thành hằng');
 
 // ── LT-143: ma trận cỡ dự kiến ───────────────────────────────────────────────
@@ -2456,7 +2458,11 @@ async function lt143(kit) {
   for (const [ma, v] of MT) {
     const ds = dongCua(x, ma).filter(l => COC.includes(coCuaDong(l))); const m = mong(v);
     if (!m) { if (ds.length) sai.push(`hàng ${ma} (${v}): không cờ cỡ mà có ${JSON.stringify(ds)}`); continue; }
-    if (ds.length !== 1 || !ds[0].startsWith(`${m[1]}: hàng ${ma} [${m[0]}]`) || (v !== undefined && !ds[0].includes(JSON.stringify(v).replace(/^"|"$/g, '')))) sai.push(`hàng ${ma} (${v}): cần ${m[1]} [${m[0]}], có ${JSON.stringify(ds)}`);
+    if (ds.length !== 1 || !ds[0].startsWith(`${m[1]}: hàng ${ma} [${m[0]}]: `)) { sai.push(`hàng ${ma} (${v}): cần ${m[1]} [${m[0]}], có ${JSON.stringify(ds)}`); continue; }
+    // Số nêu trong CÂU cờ (phần sau «]: », không tính mã hàng) phải bằng đúng tieu_chi của hàng (S4-r1 t8).
+    const cau = ds[0].slice(ds[0].indexOf(']: ') + 3);
+    const soCau = Number.isInteger(v) && v > 0 ? Number((cau.match(/dự kiến (\d+) tiêu chí/) || [])[1]) : null;
+    if (Number.isInteger(v) && v > 0 ? soCau !== v : (v !== undefined && !cau.includes(`tieu_chi ${JSON.stringify(v)}`))) sai.push(`hàng ${ma} (${v}): câu cờ nêu sai số «${cau.slice(0, 60)}»`);
   }
   console.log(`    · LT-143 ma trận: ${MT.length} phần tử (16 cỡ + thiếu + 4 sai kiểu)`);
   if (MT.length !== 21) sai.push(`ma trận ${MT.length}, hợp đồng hứa 21`);
@@ -2465,6 +2471,7 @@ async function lt143(kit) {
   return sai;
 }
 if (want('LT-143') && await chayCa('LT-143', lt143)) ok('LT-143', '21 phần tử cỡ (1…16, thiếu, bốn sai kiểu) mỗi hàng đúng cờ, đúng mức, nêu con số; đợt chỉ trong mục tiêu → 0');
+if (want('LT-143-do-so')) await chayDo('LT-143-do-so', lt143, [['scripts/cat-luot.mjs', '`dự kiến ${v} tiêu chí — từ ${k.tach_tu}', '`dự kiến ${k.tach_tu} tiêu chí — từ ${k.tach_tu}']], 'hàng C14', 'bản sao in ngưỡng tách thay số của hàng');
 if (want('LT-143-do')) await chayDo('LT-143-do', lt143, [['scripts/cat-luot.mjs', 'else if (v >= k.tach_tu)', 'else if (v > k.tach_tu)']], 'hàng C13', 'bản sao so > ở ngưỡng tách');
 
 // ── LT-144: gộp hàng nhỏ cùng nhóm ───────────────────────────────────────────
@@ -2523,7 +2530,7 @@ async function lt146(kit) {
   if (x.status !== 0) sai.push(`hàng ngoài đợt làm đổi mã thoát: ${x.status}`);
   for (const [co, k] of Object.entries(CO6)) {
     const ds = x.stdout.split('\n').filter(l => l.startsWith(`cảnh báo: [${co}]`));
-    if (ds.length !== 1 || !ds[0].includes(`${k} hàng ngoài đợt d1`)) sai.push(`[${co}]: cần đúng một dòng gom ${k} hàng, có ${JSON.stringify(ds)}`);
+    if (ds.length !== 1 || !ds[0].startsWith(`cảnh báo: [${co}] ${k} hàng ngoài đợt d1 — `)) sai.push(`[${co}]: cần đúng một dòng gom ${k} hàng, có ${JSON.stringify(ds)}`);
   }
   const ck = x.stdout.split('\n').find(l => l.startsWith('cảnh báo: [chua-khai-dang-giao]')) || '';
   if (!ck.endsWith(', …') || (ck.match(/\bN\d+\b/g) || []).length !== 8) sai.push(`dòng 10 hàng không liệt 8 mã rồi «…»: «${ck}»`);
