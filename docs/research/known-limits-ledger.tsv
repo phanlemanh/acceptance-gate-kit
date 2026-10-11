@@ -582,3 +582,6 @@ vong-la-mot-ket-qua#ngoai-4	vong-la-mot-ket-qua	low	khac	song			vai: nền có d
 vong-la-mot-ket-qua#ngoai-5	vong-la-mot-ket-qua	low	fail-open	song			Đồng hồ cỡ bỏ lặng hồ sơ không đọc được vì quyền — không lý do bỏ qua nào gọi tên [lượt chấm 1]
 vong-la-mot-ket-qua#ngoai-6	vong-la-mot-ket-qua	low	khac	song			--tu nhận ngày không tồn tại (2026-02-31) [lượt chấm 1]
 vong-la-mot-ket-qua#ngoai-7	vong-la-mot-ket-qua	low	chuoi-thay-quan-he	song			Vai là tiền tố của từ đầu câu giao vẫn qua (so startsWith trên chuỗi, không theo ranh giới từ) [lượt chấm 1]
+ten-ca-qua-tien-to-turbo#ngoai-1	ten-ca-qua-tien-to-turbo	medium	fail-open	song			paths của E1–E3 thiếu gia-lan-fixture.mjs — lượt sửa chỉ chạm tệp ấy mang màu xanh cũ sang
+ten-ca-qua-tien-to-turbo#ngoai-2	ten-ca-qua-tien-to-turbo	medium	khong-the-do	song			Phép đếm mười ô của AC-2 tự suy từ chính danh sách mẫu; mẫu không buộc vào KHUON_TEN_CA — bỏ một mẫu vẫn xanh
+ten-ca-qua-tien-to-turbo#ngoai-3	ten-ca-qua-tien-to-turbo	medium	khong-the-do	trung		ten-ca-qua-tien-to-turbo#ngoai-2	Cùng gốc ngoai-2 nhìn từ phía ma trận tuyên viết trước

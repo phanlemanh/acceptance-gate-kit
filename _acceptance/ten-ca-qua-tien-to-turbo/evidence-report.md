@@ -8,7 +8,7 @@ verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: 3f49576b116a93fdd1103c1fa63bd391fe809000
-human_signoff:
+human_signoff: manh 2026-10-11 — ký lượt chấm 1; Ngoài-1 đến Ngoài-3 ghi Known limits; cắt/hoãn đồng ý cắt
 ---
 
 # Evidence Report: ten-ca-qua-tien-to-turbo

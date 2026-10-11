@@ -5,7 +5,7 @@ slug: ten-ca-qua-tien-to-turbo
 owner: phanlemanh@gmail.com
 risk_tier: T2               # chạm feature-loop/scripts/lib, không chạm t3_paths
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by:
 approved_at:
 veto_state: mo
@@ -72,3 +72,7 @@ Trunk Flaky Tests (đọc JUnit XML, khuyên tắt chạy lại vì làm mờ vi
   - Dòng log trần dạng `nhan: (fail) x`, hôm nay không khớp, sẽ thành tên `x`. Trường `ca` là chỉ dẫn cho người sửa ca, không vào phán quyết của làn.
   - Ngưỡng mở lại phần ngoài phạm vi (đếm được sau khi dọn worktree — nhật ký trọn thì không): ≥1 dòng `repin` có `chap_chon` mang câu dự phòng, ở một kho đã cài mốc chứa vòng này. Đếm: grep chuỗi «không rút được tên ca» trên các tệp run-log của kho, chỉ dòng ghi sau ngày cài. Nổ thì mở điều tra dạng tiền tố ngay lúc đó, khi nhật ký còn.
 - Quan sát reality (Ý↔Vật, ADR 0020): lần chạy lại thật đầu tiên ở crm sau khi crm cài mốc chứa vòng này phải có `chap_chon[].ca` khác câu dự phòng. N = số dòng `chap_chon` của crm ghi sau ngày cài; N bằng 0 thì chưa đọc được, không đọc thành «đã chữa».
+- Hạn chế đã biết, chủ kho chọn ở Cổng 2 (sổ quyết định, các dòng «Ngoài-<số>: ghi Known limits», 11/10):
+  - Ngoài-1: `paths` của E1, E2, E3 thiếu `tests/scripts/gia-lan-fixture.mjs` (tệp ca nạp bộ chạy ca từ đó). Một lượt sửa chỉ chạm tệp ấy có thể mang màu xanh của lượt trước sang mà không chạy lại ba eval này. Sau chữ ký vòng không còn lượt chấm; làn ghim lại luôn chạy lại mọi eval.
+  - Ngoài-2: phép kiểm «số ô lệch» của AC-2 so số ô đã đếm với một số suy từ chính danh sách mẫu, nên không bao giờ đỏ; danh sách năm dòng mẫu chép tay, không buộc vào `KHUON_TEN_CA`. Bỏ một mẫu, hay thêm một khuôn mới, thì AC-2 vẫn xanh — lời «đếm, ghim» trong mô tả E2 không có chốt thật.
+  - Ngoài-3: cùng gốc với Ngoài-2 (ma trận tuyên viết trước nhưng phép đếm là hằng đúng; đo được: bỏ hàng node:test vẫn xanh).
