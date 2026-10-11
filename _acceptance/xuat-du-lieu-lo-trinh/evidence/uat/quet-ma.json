@@ -1,0 +1,590 @@
+{
+ "goc": "/private/tmp/claude-501/-Users-manhphan-dev-acceptance-gate-kit--claude-worktrees-determined-jones-4a99b2/15b593ca-ff19-4a7b-80a7-b2246228d119/scratchpad/crm-do",
+ "so_tep": 21,
+ "bo_doc_chep_nguyen_van_kit": true,
+ "tep": [
+  "apps/app/app/(app)/[slug]/lo-trinh/page.tsx",
+  "apps/app/components/lo-trinh/bang-cot.tsx",
+  "apps/app/components/lo-trinh/da-bac.tsx",
+  "apps/app/components/lo-trinh/dong-lien-quan.tsx",
+  "apps/app/components/lo-trinh/ho-so-viec.tsx",
+  "apps/app/components/lo-trinh/khung-cho.tsx",
+  "apps/app/components/lo-trinh/khung-trong.tsx",
+  "apps/app/components/lo-trinh/noi-dung.tsx",
+  "apps/app/components/lo-trinh/o-moc.tsx",
+  "apps/app/components/lo-trinh/o-trang-thai.tsx",
+  "apps/app/components/lo-trinh/tham-so.ts",
+  "apps/app/components/lo-trinh/trang-lo-trinh.tsx",
+  "apps/app/components/lo-trinh/viec.ts",
+  "apps/app/components/lo-trinh/xem-moc.tsx",
+  "apps/app/lib/lo-trinh/cau-hinh.ts",
+  "apps/app/lib/lo-trinh/doc-du-lieu.js",
+  "apps/app/lib/lo-trinh/doc-tep.ts",
+  "apps/app/lib/lo-trinh/doc-trang.ts",
+  "apps/app/lib/lo-trinh/ngay.ts",
+  "apps/app/lib/messages/lo-trinh.ts",
+  "packages/validation/src/lo-trinh-du-lieu.ts"
+ ],
+ "tu_kit": [
+  "Đang cân nhắc cơ hội",
+  "Sắp mở vòng",
+  "Chờ duyệt phạm vi",
+  "Đang làm",
+  "Đã giao — chờ phiên nghiệm thu",
+  "Đã giao",
+  "Đã nghiệm thu giá trị",
+  "Xếp lại sau",
+  "Đã bác từ khám phá",
+  "Ngoài phạm vi đã ký",
+  "Hồ sơ hỏng",
+  "Chưa mở",
+  "Không suy được",
+  "tin theo lời",
+  "theo ghi chép"
+ ],
+ "so_dong_cham": 60,
+ "cho_phep": [
+  {
+   "tep": "apps/app/components/lo-trinh/ho-so-viec.tsx",
+   "dong": 112,
+   "loai": [
+    "CHU"
+   ],
+   "chu": "{v.trang_thai}",
+   "ly_do": "in chữ phụ ở khung chi tiết"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/noi-dung.tsx",
+   "dong": 11,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNayCoDinh,",
+   "ly_do": "truyền «hôm nay» cố định (bộ kiểm) xuống trang"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/noi-dung.tsx",
+   "dong": 14,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNayCoDinh?: string;",
+   "ly_do": "truyền «hôm nay» cố định (bộ kiểm) xuống trang"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/noi-dung.tsx",
+   "dong": 47,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNayCoDinh={homNayCoDinh}",
+   "ly_do": "truyền «hôm nay» cố định (bộ kiểm) xuống trang"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/o-moc.tsx",
+   "dong": 28,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "{v.conNgay === 0 ? m.moc.homNay : m.moc.conNgay(String(v.conNgay))}",
+   "ly_do": "in «hôm nay» / «còn N ngày»"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/o-trang-thai.tsx",
+   "dong": 28,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "type CoTrangThai = { nhom_trang_thai: NhomTrangThai; trang_thai: string };",
+   "ly_do": "khai kiểu"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/o-trang-thai.tsx",
+   "dong": 44,
+   "loai": [
+    "CHU"
+   ],
+   "chu": "v.trang_thai !== nhanNhom(m, v.nhom_trang_thai) &&",
+   "ly_do": "quyết có in chữ phụ không"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/o-trang-thai.tsx",
+   "dong": 45,
+   "loai": [
+    "CHU"
+   ],
+   "chu": "!CHU_CUNG_NGHIA.has(v.trang_thai)",
+   "ly_do": "quyết có in chữ phụ không"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/o-trang-thai.tsx",
+   "dong": 61,
+   "loai": [
+    "CHU"
+   ],
+   "chu": "{v.trang_thai}",
+   "ly_do": "in chữ phụ"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/trang-lo-trinh.tsx",
+   "dong": 26,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "import { homNayNguoiXem } from \"@/lib/lo-trinh/ngay\";",
+   "ly_do": "«hôm nay» của người xem truyền vào phangViec"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/trang-lo-trinh.tsx",
+   "dong": 67,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "() => homNayNguoiXem(new Date()),",
+   "ly_do": "«hôm nay» của người xem truyền vào phangViec"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/trang-lo-trinh.tsx",
+   "dong": 215,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNayCoDinh,",
+   "ly_do": "«hôm nay» của người xem truyền vào phangViec"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/trang-lo-trinh.tsx",
+   "dong": 219,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNayCoDinh?: string;",
+   "ly_do": "«hôm nay» của người xem truyền vào phangViec"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/trang-lo-trinh.tsx",
+   "dong": 223,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "const homNay = useHomNay(homNayCoDinh);",
+   "ly_do": "«hôm nay» của người xem truyền vào phangViec"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/trang-lo-trinh.tsx",
+   "dong": 226,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "const viec = useMemo(() => phangViec(duLieu, homNay), [duLieu, homNay]);",
+   "ly_do": "«hôm nay» của người xem truyền vào phangViec"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/trang-lo-trinh.tsx",
+   "dong": 408,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNay={homNay}",
+   "ly_do": "«hôm nay» của người xem truyền vào phangViec"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/viec.ts",
+   "dong": 22,
+   "loai": [
+    "TU"
+   ],
+   "chu": "\"Chưa mở\",",
+   "ly_do": "CHU_CUNG_NGHIA — chữ đồng nghĩa với nhãn nhóm thì không in lại chữ phụ; chỉ quyết in hay không, nhóm vẫn đọc từ khối"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/viec.ts",
+   "dong": 23,
+   "loai": [
+    "TU"
+   ],
+   "chu": "\"Đã giao\",",
+   "ly_do": "như trên"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/viec.ts",
+   "dong": 24,
+   "loai": [
+    "TU"
+   ],
+   "chu": "\"Đang làm\",",
+   "ly_do": "như trên"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/viec.ts",
+   "dong": 42,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNay: string | null,",
+   "ly_do": "truyền «hôm nay» cho viecTre/soNgay"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/viec.ts",
+   "dong": 48,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "const tre = new Set(homNay === null ? [] : viecTre(lo, homNay));",
+   "ly_do": "truyền «hôm nay» cho viecTre/soNgay"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/viec.ts",
+   "dong": 58,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNay !== null && moc?.ngayHopLe",
+   "ly_do": "truyền «hôm nay» cho viecTre/soNgay"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/viec.ts",
+   "dong": 59,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "? soNgay(homNay, moc.ngayHopLe)",
+   "ly_do": "truyền «hôm nay» cho viecTre/soNgay"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/xem-moc.tsx",
+   "dong": 37,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNay,",
+   "ly_do": "xem theo mốc: đếm mốc đã qua (ngày mốc < hôm nay) để tô dải thời gian — phép so ngày của mốc"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/xem-moc.tsx",
+   "dong": 42,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNay: string | null;",
+   "ly_do": "xem theo mốc: đếm mốc đã qua (ngày mốc < hôm nay) để tô dải thời gian — phép so ngày của mốc"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/xem-moc.tsx",
+   "dong": 63,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNay === null",
+   "ly_do": "xem theo mốc: đếm mốc đã qua (ngày mốc < hôm nay) để tô dải thời gian — phép so ngày của mốc"
+  },
+  {
+   "tep": "apps/app/components/lo-trinh/xem-moc.tsx",
+   "dong": 66,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "([, x]) => x.moc.ngayHopLe !== null && x.moc.ngayHopLe < homNay,",
+   "ly_do": "xem theo mốc: đếm mốc đã qua (ngày mốc < hôm nay) để tô dải thời gian — phép so ngày của mốc"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/doc-du-lieu.js",
+   "dong": 0,
+   "loai": [
+    "CHEP"
+   ],
+   "chu": "(trọn tệp)",
+   "ly_do": "giống từng ký tự docDuLieu của kit — bộ đọc khoan dung của kit, không phải mã của trang"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/doc-tep.ts",
+   "dong": 1,
+   "loai": [
+    "DOC"
+   ],
+   "chu": "import { existsSync, readFileSync } from \"node:fs\";",
+   "ly_do": "nhập hàm đọc tệp"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/doc-tep.ts",
+   "dong": 23,
+   "loai": [
+    "DOC"
+   ],
+   "chu": "return existsSync(duong) ? readFileSync(duong, \"utf8\") : null;",
+   "ly_do": "đọc LO-TRINH.html (đường từ LO_TRINH.tep)"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 6,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "export function homNayNguoiXem(d: Date): string {",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 7,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "return `${d.getFullYear()}-${hai(d.getMonth() + 1)}-${hai(d.getDate())}`;",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 13,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "return Date.UTC(y ?? 0, (m ?? 1) - 1, d ?? 1);",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 18,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "export function mocQuaConViec(moc: MocLoTrinh, homNay: string): boolean {",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 20,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "moc.ngayHopLe !== null && moc.ngayHopLe < homNay && moc.con_viec === true",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 24,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "export function viecTre(loTrinh: LoTrinh, homNay: string): string[] {",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 28,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "if (m.ngayHopLe === null || !(m.ngayHopLe < homNay)) continue;",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 39,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "return moc.ngayHopLe === null ? 1 : 0;",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 49,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "const na = a?.ngayHopLe ?? \"\";",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/lo-trinh/ngay.ts",
+   "dong": 50,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "const nb = b?.ngayHopLe ?? \"\";",
+   "ly_do": "luật so ngày (mocQuaConViec · viecTre · soNgay · homNayNguoiXem) — tương đương khối LUAT-NGAY của tài liệu kit, đo bằng hành vi ở man.json"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 50,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNay: \"today\",",
+   "ly_do": "chữ «hôm nay» tiếng Anh"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 113,
+   "loai": [
+    "TU"
+   ],
+   "chu": "moTa: \"Việc đội sản phẩm đang làm cho OneHub Center, đang ở đâu và hẹn mốc nào. Trang chỉ để xem — muốn đổi kế hoạch, hãy báo đội sản phẩm.\",",
+   "ly_do": "câu mô tả trang"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 130,
+   "loai": [
+    "TU"
+   ],
+   "chu": "daGiao: \"Đã giao\",",
+   "ly_do": "nhãn tiếng Việt của nhóm da-giao"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 131,
+   "loai": [
+    "TU"
+   ],
+   "chu": "xepLaiSau: \"Xếp lại sau\",",
+   "ly_do": "nhãn thẻ vòng đời của nhóm khac (lọc theo nhom_trang_thai đọc từ khối)"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 136,
+   "loai": [
+    "TU"
+   ],
+   "chu": "dangLam: \"Đang làm\",",
+   "ly_do": "nhãn tiếng Việt của nhóm dang-lam"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 137,
+   "loai": [
+    "TU"
+   ],
+   "chu": "daGiao: \"Đã giao\",",
+   "ly_do": "nhãn tiếng Việt của nhóm da-giao"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 157,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "homNay: \"hôm nay\",",
+   "ly_do": "chữ «hôm nay»"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 164,
+   "loai": [
+    "TU"
+   ],
+   "chu": "moTa: \"Việc gắn một mốc đã qua mà kế hoạch chưa ghi là đã giao.\",",
+   "ly_do": "câu mô tả bộ lọc trễ mốc"
+  },
+  {
+   "tep": "apps/app/lib/messages/lo-trinh.ts",
+   "dong": 210,
+   "loai": [
+    "TU"
+   ],
+   "chu": "`${n} việc · ${giao}/${tong} đã giao trong phạm vi lọc`,",
+   "ly_do": "câu đếm ở đầu bảng"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 16,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "trang_thai: z.string(),",
+   "ly_do": "khuôn zod kiểm khối — khai kiểu, không gán"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 17,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "nhom_trang_thai: z.enum(NHOM_TRANG_THAI),",
+   "ly_do": "khuôn zod kiểm khối — khai kiểu, không gán"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 18,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "ho_so: z.string().nullable(),",
+   "ly_do": "khuôn zod kiểm khối — khai kiểu, không gán"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 19,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "theo_loi: z.boolean(),",
+   "ly_do": "khuôn zod kiểm khối — khai kiểu, không gán"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 20,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "co: z.array(z.string()),",
+   "ly_do": "khuôn zod kiểm khối — khai kiểu, không gán"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 31,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "con_viec: z.boolean(),",
+   "ly_do": "khuôn zod kiểm khối — khai kiểu, không gán"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 36,
+   "loai": [
+    "NGAY"
+   ],
+   "chu": "ngayHopLe: NGAY_ISO.test(moc.ngay) ? moc.ngay : null,",
+   "ly_do": "chuẩn hoá ngày mốc: giữ ngày ISO hoặc null — đọc ngày, không suy trạng thái"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 61,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "hang_ke: hangKe.nullable(),",
+   "ly_do": "khuôn zod — khoá hang_ke trỏ khuôn con"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 63,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "tien_do: tienDo,",
+   "ly_do": "khuôn zod — khoá tien_do trỏ khuôn con"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 86,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "hang_ke: Object.keys(hangKe.shape),",
+   "ly_do": "KHOA_LO_TRINH_DU_LIEU — danh sách tên khoá của khuôn"
+  },
+  {
+   "tep": "packages/validation/src/lo-trinh-du-lieu.ts",
+   "dong": 88,
+   "loai": [
+    "GHI"
+   ],
+   "chu": "tien_do: Object.keys(tienDo.shape),",
+   "ly_do": "KHOA_LO_TRINH_DU_LIEU — danh sách tên khoá của khuôn"
+  }
+ ],
+ "do": [],
+ "muc_cho_chet": []
+}
