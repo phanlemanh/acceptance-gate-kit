@@ -3,10 +3,10 @@ schema_version: 1
 slug: ci-cua-kho-bo-job-nang
 feature: «CI của kho bỏ job nặng cho PR không chạm mã sản phẩm bằng một lệnh của kit — không chép hàm nội bộ, không danh sách thứ hai»
 owner: phanlemanh@gmail.com
-stage: discovery              # discovery | decided | archived
-decision:         # build | iterate | park | kill — người ký Cổng 0 điền
-decided_by: 
-decided_at:     # ISO UTC
+stage: decided                # discovery | decided | archived
+decision: build   # build | iterate | park | kill — người ký Cổng 0 điền
+decided_by: manh
+decided_at: 2026-10-11T14:34:12Z   # chủ kho gõ «làm · ngưỡng như ô · nghi ngờ thì chạy đủ» trong phiên thợ C1, máy ghi hộ
 prototype:
   base_commit:     # điểm cắt nhánh proto khỏi nhánh chính — guard diffBase khi keep
   disposition:     # keep | archive
@@ -66,11 +66,11 @@ Neo vào khuôn kit định nghĩa (`risk_tiers.t1_skip_globs`, `risk_tiers.t3_p
 
 ## Ngưỡng chết / ngưỡng UAT
 
-- Câu hỏi phép đo trả lời: [đề xuất] sau khi crm thay khối `sed` bằng lệnh của kit, PR chỉ đổi hồ sơ còn tốn phút test sản phẩm không, và có PR chạm vật nào bị bỏ test không?
-- Kết quả nào là SỐNG: [đề xuất] trên 30 ngày crm sau khi nhận lệnh: 0 PR chỉ-hồ-sơ chạy job `test` · 0 PR chạm vật bị bỏ job `test` (đếm từ dòng `cham_vat` trong tóm tắt bước so với danh sách tệp của PR) · `phan-loai.mjs` của crm không còn gọi `sed` vào `pre-merge-check.sh` · kho không gọi lệnh thì đầu ra `pre-merge-check.sh` không đổi byte
-- Kết quả nào là CHẾT: [đề xuất] một PR chạm vật bị bỏ test vì lệnh phân loại sai (gỡ ngay, bất kể ngày) · hoặc tới 2026-11-01 crm vẫn chạy khối `sed`
-- Timebox: [đề xuất] 2026-11-01 (mốc của hàng C1); ngưỡng đọc 30 ngày sau khi crm nhận, bằng `savings.mjs` + `pull-daily.mjs` ở `docs/findings/assets/2026-10-11-khao-sat-actions-va-phien/`
-- Chính sách rủi ro: [đề xuất] nghi ngờ thì chạy đủ — lệnh chỉ được nói «không chạm vật» khi chứng minh được; mất tiền thì chịu, mất phép thử thì không
+- Câu hỏi phép đo trả lời: sau khi crm thay khối `sed` bằng lệnh của kit, PR chỉ đổi hồ sơ còn tốn phút test sản phẩm không, và có PR chạm vật nào bị bỏ test không?
+- Kết quả nào là SỐNG: trên 30 ngày crm sau khi nhận lệnh: 0 PR chỉ-hồ-sơ chạy job `test` · 0 PR chạm vật bị bỏ job `test` (đếm từ dòng `cham_vat` trong tóm tắt bước so với danh sách tệp của PR) · `phan-loai.mjs` của crm không còn gọi `sed` vào `pre-merge-check.sh` · kho không gọi lệnh thì đầu ra `pre-merge-check.sh` không đổi byte
+- Kết quả nào là CHẾT: một PR chạm vật bị bỏ test vì lệnh phân loại sai (gỡ ngay, bất kể ngày) · hoặc tới 2026-11-01 crm vẫn chạy khối `sed`
+- Timebox: 2026-11-01 (mốc của hàng C1); ngưỡng đọc 30 ngày sau khi crm nhận, bằng `savings.mjs` + `pull-daily.mjs` ở `docs/findings/assets/2026-10-11-khao-sat-actions-va-phien/`
+- Chính sách rủi ro: nghi ngờ thì chạy đủ — lệnh chỉ được nói «không chạm vật» khi chứng minh được; mất tiền thì chịu, mất phép thử thì không
 
 ## Kết quả prototype
 
@@ -85,9 +85,9 @@ Không dựng. Vật là một lệnh dòng lệnh; phép thử rẻ (đọc CI 
 
 ## Cổng 0
 
-- **decision = …** Khuyến nghị máy: build — T2, một lệnh bật theo lựa chọn; đây là CỘNG nên cần chủ kho phê đích danh ở Cổng Phạm vi.
+- **decision = build** Chủ kho quyết 11/10 trong phiên thợ C1 (khuyến nghị máy: build). T2, một lệnh bật theo lựa chọn; là CỘNG nên chủ kho phê đích danh ở Cổng Phạm vi.
 - **disposition = …** Không áp dụng (không dựng prototype).
-- **Ngưỡng UAT chốt cùng lúc ký:** …
+- **Ngưỡng UAT chốt cùng lúc ký:** «ngưỡng như ô» — bốn dòng SỐNG/CHẾT/timebox ở section Ngưỡng, kèm chính sách «nghi ngờ thì chạy đủ».
 
 ## Thước đo thành công → ứng viên criterion
 
