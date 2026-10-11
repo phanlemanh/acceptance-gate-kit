@@ -146,7 +146,8 @@ function glossOf(root, slug, evalId, rationale) {
   try {
     const y = fs.readFileSync(path.join(root, '_acceptance', slug, 'evals.yaml'), 'utf8');
     // neo id HẾT CHUỖI (\n) — `- id: J1` không được khớp block của J10
-    const b = y.split(/\n(?=  - id: )/).find(x => x.trim().startsWith(`- id: ${evalId}\n`) || x.trim() === `- id: ${evalId}`);
+    // tách theo MỌI thụt của `- id:` — tệp sát lề (`- id:` ở cột 0) cũng tìm được khối (evals-sat-le-doc-du AC-7)
+    const b = y.split(/\n(?=[ \t]*-\s+id:)/).find(x => x.trim().startsWith(`- id: ${evalId}\n`) || x.trim() === `- id: ${evalId}`);
     if (b) {
       // đủ 3 kiểu YAML của question (fix r4): inline "..." · folded > · literal |
       const q = b.match(/question:\s*"([^"]{10,})/)

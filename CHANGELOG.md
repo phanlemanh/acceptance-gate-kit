@@ -12,6 +12,23 @@
 
 ## Chưa phát hành
 
+### Tệp tiêu chí viết sát lề được đọc đủ (hồ sơ `evals-sat-le-doc-du`, T3)
+
+Gốc: crm `dieu-phoi-va-bien`, 07/10 — phiên phải viết lại 309 dòng `evals.yaml` từ kiểu sát lề sang
+thụt 4 «để bộ đọc của kit thấy inputs và paths». Kiểu sát lề (`- id:` ở cột 0, mục danh sách cùng cột
+với khoá) là YAML hợp lệ và là kiểu bộ xuất YAML viết mặc định.
+
+- **Một bộ đọc danh sách** (`evalListsOf` ở `lib/evidence-core.cjs`) cho lượt chấm, lượt sửa và làn
+  ghim lại. Trước đây lượt chấm đánh rơi IM LẶNG đầu vào của hội đồng, vùng tệp và danh sách bằng
+  chứng của tệp sát lề; lượt sửa bỏ mọi `paths` viết dạng nhiều dòng; bộ đọc vùng tệp đọc tên neo
+  YAML (`&id001`) thành một vùng tệp.
+- **Cờ vàng có tên** khi trường danh sách viết kiểu kit không đọc (bí danh `*ten`, khối chữ, ánh xạ,
+  `[` không đóng, khoá trống): một dòng ở lượt chấm và một cờ trên thẻ Cổng Phạm vi lẫn Cổng Bằng chứng.
+- **Ai bị ảnh hưởng:** kho viết thụt 4 — không gì (so trên 621 hồ sơ ở bảy kho: 0 lệch). crm — lượt
+  sửa nay giữ ô xanh cho `paths` dạng nhiều dòng (393 chỗ khai), nên mỗi lượt sửa chạy lại ít lệnh
+  hơn; hồ sơ do bộ xuất YAML sinh có bí danh sẽ thấy cờ và cần viết lại trường ấy.
+- **Làm gì khi nâng:** không gì.
+
 ### Mục `paths` thoát ngoặc (`[[]slug]`) được hiểu đúng (hồ sơ `glob-thoat-ngoac`, T3)
 
 Gốc: crm `dien-thoai-ca-nhan`, 09/10. Ghim lại gắn `evals_not_machine_touched` cho bốn ô ui-check có `paths`

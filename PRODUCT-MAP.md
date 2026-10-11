@@ -12,8 +12,8 @@ flowchart TD
   GD --> DB["Đã bác từ khám phá<br/>11 việc"]
   B --> CD["Chờ duyệt phạm vi<br/>chưa có"] --> GP{"Cổng Phạm vi"}
   GP --> DL["Đang làm<br/>2 việc"] --> GB{"Cổng Bằng chứng"}
-  GB --> DG["Đã giao<br/>105 việc"]
-  GB --> CN["Chờ phiên nghiệm thu<br/>14 việc"] --> GG{"Cổng Giá trị"}
+  GB --> DG["Đã giao<br/>106 việc"]
+  GB --> CN["Chờ phiên nghiệm thu<br/>15 việc"] --> GG{"Cổng Giá trị"}
   GG --> NT["Đã nghiệm thu giá trị<br/>6 việc"]
 ```
 
@@ -53,6 +53,7 @@ flowchart TD
 - Bản đặc tả UX — vật hoá tầng cấu trúc (khuôn có marker trong design-doc + lời S1 điền-trước + bước tra mẫu có vết) (`dac-ta-ux-vat-hoa-cau-truc`)
 - design-pass nấc không đồng bộ — thang 4 nấc phản ứng (mặc định async, sync có người gọi tên) + bước phân kỳ có điều kiện mở từ đặc tả UX + khoá reaction/options/divergence trong sổ phiên + thẻ Cổng Phạm vi hiện nấc (`design-pass-nac-khong-dong-bo`)
 - Eval máy đã ký nghỉ hưu vì một hồ sơ đã ký khác thay nó — con trỏ `superseded_by` cạnh lời khai không-chạy; luật hai vế nhận khi máy chứng được con trỏ ở cây đang kiểm; pin nói ra ô nào thay bởi đâu (`eval-thay-boi-co-chung`)
+- Kho viết evals.yaml kiểu danh sách sát lề vẫn được kit đọc đủ đầu vào, vùng tệp, danh sách bằng chứng và trường mảng bắt buộc — một bộ đọc danh sách ở lib cho lượt chấm, lượt sửa và bộ đọc vùng tệp; khuôn không đọc được (bí danh YAML, khối chữ, khoá rỗng) lên cờ vàng có tên; kho đang viết thụt 4 đọc ra y hệt (`evals-sat-le-doc-du`)
 - Hạ tầng thôi đốt lượt chấm và lượt gọi người — suite scripts chạy dưới trần công cụ, lượt BLOCKED vì hạ tầng thử lại cùng round, khuôn /goal thôi coi BLOCKED là xong, thẻ Cổng 1 của hồ sơ đã khép thôi hỏi (`ha-tang-khong-dot-luot`)
 - Hồ sơ nghỉ — một dòng sổ có người và lý do làm hồ sơ đã ký rời khỏi luật cũ hoá, luật làn ghim lại và luật làn eval mà không sửa một byte chữ ký; cổng, kiểm lại bằng chứng, bộ quét và thẻ cùng hỏi một hàm; văn xuôi và dòng thiếu vế không tính là nghỉ; kiểu thư mục sử liệu cũ đọc được bằng cờ vàng (`ho-so-nghi`)
 - làn máy sống qua bộ phân loại — lệnh kiểm cố định của kho thôi phải xin phép từng lần (A) + nghi thức biết đường thoái hoá tuần tự khi fan-out nghẽn (B) (`lan-may-song-qua-bo-phan-loai`)
@@ -80,6 +81,7 @@ flowchart TD
 - Gói `dieu-phoi` của kit — lõi Điều phối – Thợ (bộ phát lịch, CLI đợt, 4 hook) chuyển từ crm vào kit, bật bằng cách cài gói theo kho, im ở kho không có đợt, chạy tiếp được đợt do bản crm mở (`dieu-phoi-dong-goi-loi`)
 - Phiên thợ biết mình đang trong đợt — feature-loop nhận biết đợt bằng một lệnh chỉ đọc, chờ lượt S4 không thành câu hỏi, xong hàng thì tự mở hàng kế của dãy, quyền merge theo thẻ khởi tạo; kho không có đợt không đổi byte nào (`dieu-phoi-feature-loop-trong-dot`)
 - Mở và đóng một đợt Điều phối – Thợ bằng một lệnh (`/dieu-phoi:mo-dot`, `/dieu-phoi:dong-dot`, `/dieu-phoi:xem`) — vòng đời đợt, đổi kế hoạch trong đợt, nguồn hàng từ lộ trình, khoá S4 cấp máy, start biết đợt, lệnh đếm đợt (`dieu-phoi-mo-dot-mot-lenh`)
+- Nối lại một đợt Điều phối – Thợ bằng một lệnh (`/dieu-phoi:tiep-tuc`) — nhịp sống của phiên, kế hoạch từng dãy (chip chỉ cho dãy không còn phiên sống), nhận vai giám sát, đánh thức giám sát, lệnh con ghi qua CLI, kiểm môi trường do kho khai (`dieu-phoi-tiep-tuc-mot-lenh`)
 - Trạm phân loại phạm vi thôi hỏng vì định danh do LLM chép — định danh do máy đúc, và một lượt hỏi lại đúng phần còn thiếu trước khi kéo cả lượt về fail-toward-human. (`do-tin-tram-phan-loai`)
 - Bên viết và bên đọc không trôi nhau ở hai chỗ crm đo đêm 07–08/10 — mục ngoài hợp đồng mang sang với nhãn (rN) ngoài dấu sao vẫn hiện trên thẻ Cổng 2 (và không bị in hai lần), run_id rỗng không còn được ghi và được gọi tên khi đọc lại (`doc-ghi-troi-mang-sang-run-id`)
 - Ba lượt đổi hành vi ở cổng người — khối 👉 thôi làm luật mỗi-tin, quét độ phủ thôi phỏng vấn, khởi tạo một-lần-gạch; lời hứa hành vi chấm bằng hội đồng bắt buộc (hạng mục T1 đã thu phạm vi 14/08) (`doi-hanh-vi-cong-nguoi`) — đã giao — đã nghỉ, giữ sử liệu

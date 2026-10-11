@@ -1,0 +1,24 @@
+base 3200ba3a · bộ đọc mới: /Users/manhphan/dev/acceptance-gate-kit/.claude/worktrees/goofy-stonebraker-b83a5d
+goofy-stonebraker-b83a5d sha=e90fdfa32bdc856af4d6eae7eae2324f2c1c4046 nhanh=vong/evals-sat-le-doc-du ho_so=126 tieu_chi=1358
+crm sha=eaf0886d507715f538a60ab90cc542c013d8dfe5 nhanh=onehub ho_so=216 tieu_chi=2814
+oneflow sha=53e4ab674f9e9d9c94c4af0806567fcfa54c366a nhanh=main ho_so=41 tieu_chi=638
+artifact-platform sha=94fa0e7842603fa2aa69d3133d9d1f55f436b1a9 nhanh=main ho_so=176 tieu_chi=1634
+radar sha=0d355f36e41638fcefe9f379ef52ce1912a7cf4f nhanh=master ho_so=36 tieu_chi=481
+media-library sha=8de010821bff12b5c7358aacec29d38cbd01ce1a nhanh=main ho_so=18 tieu_chi=311
+map sha=5a6dea79be33cac7aa6f4e364df5594ee83d75fa nhanh=main ho_so=8 tieu_chi=140
+tong ho_so=621 tieu_chi=7376
+lech crm/thuoc-mot-cho-khai-quet-man E1.paths sat_le=true chieu=doc-them cu=null moi=["_acceptance/soan-okr-khong-lac/rang/mot-nguon.mjs","_acceptance/soan-okr-khong-lac/rang/chung.mjs","_acceptance/thuoc-mot-cho-khai-quet-man/rang/**"]
+lech crm/thuoc-mot-cho-khai-quet-man E1.evidence_required sat_le=true chieu=doc-them cu=null moi=["run_id","exit_code","verifier","verified_at","output"]
+lech crm/thuoc-mot-cho-khai-quet-man E1.paths@lib sat_le=true chieu=doc-them cu=["&id001"] moi=["_acceptance/soan-okr-khong-lac/rang/mot-nguon.mjs","_acceptance/soan-okr-khong-lac/rang/chung.mjs","_acceptance/thuoc-mot-cho-khai-quet-man/rang/**"]
+lech crm/thuoc-mot-cho-khai-quet-man E2.evidence_required sat_le=true chieu=doc-them cu=null moi=["run_id","exit_code","verifier","verified_at","output"]
+lech crm/thuoc-mot-cho-khai-quet-man E2.paths@lib sat_le=true chieu=bo-rac cu=["*id001"] moi=null
+lech crm/thuoc-mot-cho-khai-quet-man E3.evidence_required sat_le=true chieu=doc-them cu=null moi=["run_id","exit_code","verifier","verified_at","output"]
+lech crm/thuoc-mot-cho-khai-quet-man E3.paths@lib sat_le=true chieu=bo-rac cu=["*id001"] moi=null
+lech crm/thuoc-mot-cho-khai-quet-man E4.paths sat_le=true chieu=doc-them cu=null moi=["_acceptance/soan-okr-khong-lac/rang/**","_acceptance/thuoc-mot-cho-khai-quet-man/rang/**"]
+lech crm/thuoc-mot-cho-khai-quet-man E4.evidence_required sat_le=true chieu=doc-them cu=null moi=["run_id","exit_code","verifier","verified_at","output"]
+lech crm/thuoc-mot-cho-khai-quet-man E5.paths sat_le=true chieu=doc-them cu=null moi=["_acceptance/soan-okr-khong-lac/rang/mot-nguon.mjs","_acceptance/soan-okr-khong-lac/rang/chung.mjs","_acceptance/config.yaml","_acceptance/thuoc-mot-cho-khai-quet-man/rang/**"]
+lech crm/thuoc-mot-cho-khai-quet-man E5.evidence_required sat_le=true chieu=doc-them cu=null moi=["run_id","exit_code","verifier","verified_at","output"]
+lech crm/thuoc-mot-cho-khai-quet-man E6.paths sat_le=true chieu=doc-them cu=null moi=["_acceptance/thuoc-mot-cho-khai-quet-man/rang/**","_acceptance/config.yaml"]
+lech crm/thuoc-mot-cho-khai-quet-man E6.evidence_required sat_le=true chieu=doc-them cu=null moi=["run_id","exit_code","verifier","verified_at","output"]
+co crm/thuoc-mot-cho-khai-quet-man E2.paths@lib, crm/thuoc-mot-cho-khai-quet-man E3.paths@lib
+XANH: 621 hồ sơ / 7376 tiêu chí — 0 lệch ngoài sát lề; ở hồ sơ sát lề: 11 trường đọc thêm, 2 trường bỏ rác có cờ

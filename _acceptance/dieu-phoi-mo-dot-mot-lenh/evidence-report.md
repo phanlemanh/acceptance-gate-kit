@@ -6,7 +6,7 @@ failed_evals: []
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: 2f0e427fee40d5617b2f0fd878455e9e9c76da9c
+verified_commit: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53
 human_signoff: manh 2026-10-10
 ---
 
@@ -298,3 +298,11 @@ Round 1: các lỗi S4-r1 (trình tự mo-dot.md, chan-doan --mo, ô decision tr
 Round 2: REJECT — AC-7, đối số vắng của `hang day-len` khớp nhầm hàng không mã; sửa bằng lệnh chặn đối số vắng trước khi tìm hàng (commit 14fe3b5b).
 Round 3: REJECT chỉ do node segfault ở suite workflows (hạ tầng), 0 lỗi trong hợp đồng; owner chọn chấm lượt 4 (hệ thống chết, thử lại một lần).
 Round 4: PASS — mười lệnh suite xanh ở HEAD 2f0e427f, các eval gắn tiêu chí mang sang vì delta không chạm paths của chúng.
+
+### Re-pin lần 1 — 2026-10-11, do DP3 đổi gói dieu-phoi sau verify của DP2 (mo-dot.test BA_LENH + revisit d-…-42)
+run_id: repin-20261011T014530Z-60661
+sha: c1ca27b69f484ae61d0b9c0f77c56e6851ff0cf2 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)
+
+### Re-pin lần 2 — 2026-10-11, do gộp origin/main 68951cef (vòng evals-sat-le-doc-du) vào nhánh trước PR
+run_id: repin-20261011T021808Z-62196
+sha: c0ab87b11653c18b0df2d2c8e92e2ed49eab1b53 · suites: 10 lệnh exit 0 · evals: 17/17 eval máy đạt kỳ vọng · ngoài làn máy: E1c (E1c không khai paths)
