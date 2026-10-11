@@ -1,0 +1,21 @@
+## m1 — suy nhóm từ chữ trạng thái
+bộ đọc apps/app/lib/lo-trinh/doc-du-lieu.js là bản chép nguyên văn docDuLieu của kit
+quét 21 tệp mã trang Lộ trình · 61 dòng chạm dấu hiệu · 60 có lý do · 1 ĐỎ
+dòng có lý do theo loại: {"CHU":4,"NGAY":32,"GHI":11,"TU":10,"CHEP":1,"DOC":2}
+ĐỎ GHI+TU+CHU apps/app/components/lo-trinh/viec.ts:62 nhom_trang_thai: h.trang_thai.startsWith("Đã giao") ? "da-giao" : h.nhom_trang_thai,
+CHIỀU ĐỎ ĐẠT: dòng chứa «h.trang_thai.startsWith("Đã giao")» bị bắt
+## m2 — đọc tệp kế hoạch
+bộ đọc apps/app/lib/lo-trinh/doc-du-lieu.js là bản chép nguyên văn docDuLieu của kit
+quét 21 tệp mã trang Lộ trình · 61 dòng chạm dấu hiệu · 60 có lý do · 1 ĐỎ
+dòng có lý do theo loại: {"CHU":4,"NGAY":32,"GHI":11,"TU":10,"CHEP":1,"DOC":2}
+ĐỎ DOC apps/app/lib/lo-trinh/doc-tep.ts:26 export const keHoach = () => readFileSync(path.join(process.cwd(), "docs/plan/lo-trinh-okr.json"), "utf8");
+CHIỀU ĐỎ ĐẠT: dòng chứa «docs/plan/lo-trinh-okr.json» bị bắt
+## m3 — bộ đọc chép lệch kit
+bộ đọc apps/app/lib/lo-trinh/doc-du-lieu.js KHÁC docDuLieu của kit — quét như mã thường
+quét 21 tệp mã trang Lộ trình · 63 dòng chạm dấu hiệu · 59 có lý do · 4 ĐỎ
+dòng có lý do theo loại: {"CHU":4,"NGAY":32,"GHI":11,"TU":10,"DOC":2}
+ĐỎ GHI apps/app/lib/lo-trinh/doc-du-lieu.js:6 hang_ke: ['ma', 'cau_giao', 'lenh'],
+ĐỎ GHI apps/app/lib/lo-trinh/doc-du-lieu.js:8 tien_do: ['tong', 'da_giao', 'dang_lam', 'chua_bat_dau', 'khac'],
+ĐỎ GHI apps/app/lib/lo-trinh/doc-du-lieu.js:35 if (x.hang_ke != null) x.hang_ke = va(x.hang_ke, 'hang_ke');
+ĐỎ GHI apps/app/lib/lo-trinh/doc-du-lieu.js:36 x.tien_do = va(x.tien_do, "tien_do") ;
+CHIỀU ĐỎ ĐẠT: dòng chứa «x.tien_do = va» bị bắt
