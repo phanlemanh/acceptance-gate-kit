@@ -228,7 +228,7 @@ evals:
       `--nhe` (kiểm bước tiêm áp) → nêu "--nhe"; "ok" cho "DP3-01 trinh-tu" (nguyên tên). "ok" cho "DP4-14 tai-lieu": CONTEXT.md có
       mục «Bàn giao tài khoản» với dòng _Avoid_; GUIDE và QUICKSTART nhắc "/dieu-phoi:ban-giao". "ok" cho
       "DP4-14-do dao-buoc": bản sao chuyển câu báo chủ kho lên trước CLI (kiểm bước tiêm áp) → nêu "ban-giao.md: trình
-      tự". Mọi ca "DP1-", "DP2-", "DP3-" của suite đều "ok" (không dòng "not ok").
+      tự". Mọi ca "DP1-", "DP2-", "DP3-" của suite đều "ok" (không dòng "not ok"); "DP1-01 cai-la-du" in bảng hook có dòng "StopFailure|—|hook-het-han-muc.mjs".
     evidence_required: [run_id, exit_code, verifier, verified_at, output]
   - id: E14b
     criterion: AC-14
